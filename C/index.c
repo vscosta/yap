@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-06-01 20:25:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-06-03 08:26:32 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.135  2005/06/01 20:25:23  vsc
+* == and \= should not need a choice-point in ->
+*
 * Revision 1.134  2005/06/01 16:42:30  vsc
 * put switch_list_nl back
 *
@@ -764,6 +767,10 @@ has_cut(yamop *pc)
     case _getwork_first_time:
 #endif /* YAPOR */
 #ifdef TABLING
+    case _trie_do_nothing:
+    case _trie_trust_nothing:
+    case _trie_try_nothing:
+    case _trie_retry_nothing:
     case _trie_do_var:
     case _trie_trust_var:
     case _trie_try_var:
@@ -784,6 +791,10 @@ has_cut(yamop *pc)
     case _trie_trust_struct:
     case _trie_try_struct:
     case _trie_retry_struct:
+    case _trie_do_float:
+    case _trie_trust_float:
+    case _trie_try_float:
+    case _trie_retry_float:
 #endif /* TABLING */
       pc = NEXTOP(pc,e);
       break;
@@ -2132,6 +2143,10 @@ add_info(ClauseDef *clause, UInt regno)
 #endif /* YAPOR */
 #ifdef TABLING
     case _table_new_answer:
+    case _trie_do_nothing:
+    case _trie_trust_nothing:
+    case _trie_try_nothing:
+    case _trie_retry_nothing:
     case _trie_do_var:
     case _trie_trust_var:
     case _trie_try_var:
@@ -2152,6 +2167,10 @@ add_info(ClauseDef *clause, UInt regno)
     case _trie_trust_struct:
     case _trie_try_struct:
     case _trie_retry_struct:
+    case _trie_do_float:
+    case _trie_trust_float:
+    case _trie_try_float:
+    case _trie_retry_float:
 #endif /* TABLING */
       clause->Tag = (CELL)NULL;
       return;

@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-06-01 20:25:22 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-06-03 08:26:31 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.166  2005/06/01 20:25:22  vsc
+* == and \= should not need a choice-point in ->
+*
 * Revision 1.165  2005/06/01 14:02:45  vsc
 * get_rid of try_me?, retry_me? and trust_me? instructions: they are not
 * significantly used nowadays.
@@ -1410,16 +1413,20 @@ Yap_absmi(int inp)
 		  }
 		}
 		break;
+	      case _trie_retry_nothing:
+	      case _trie_trust_nothing:
 	      case _trie_retry_var:
-	      case _trie_retry_val:
-	      case _trie_retry_atom:
-	      case _trie_retry_list:
-	      case _trie_retry_struct:
 	      case _trie_trust_var:
+	      case _trie_retry_val:
 	      case _trie_trust_val:
+	      case _trie_retry_atom:
 	      case _trie_trust_atom:
+	      case _trie_retry_list:
 	      case _trie_trust_list:
+	      case _trie_retry_struct:
 	      case _trie_trust_struct:
+	      case _trie_retry_float:
+	      case _trie_trust_float:
 		low_level_trace(retry_table_consumer, NULL, NULL);
 		break;
 	      case _table_retry_me:

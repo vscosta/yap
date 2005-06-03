@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-06-01 14:02:47 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-06-03 08:26:32 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.160  2005/06/01 14:02:47  vsc
+* get_rid of try_me?, retry_me? and trust_me? instructions: they are not
+* significantly used nowadays.
+*
 * Revision 1.159  2005/05/31 19:42:27  vsc
 * insert some more slack for indices in LU
 * Use doubly linked list for LU indices so that updating is less cumbersome.
@@ -276,6 +280,8 @@ PredForChoicePt(yamop *p_code) {
     case _Nstop:
       return NULL;
 #ifdef TABLING
+    case _trie_retry_nothing:
+    case _trie_trust_nothing:
     case _trie_retry_var:
     case _trie_trust_var:
     case _trie_retry_val:
@@ -286,6 +292,8 @@ PredForChoicePt(yamop *p_code) {
     case _trie_trust_list:
     case _trie_retry_struct:
     case _trie_trust_struct:
+    case _trie_retry_float:
+    case _trie_trust_float:
       return NULL;
     case _table_completion:
     case _table_answer_resolution:

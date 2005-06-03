@@ -1874,6 +1874,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	}
 	nargs = 0;
 	break;
+      case _trie_retry_nothing:
+      case _trie_trust_nothing:
       case _trie_retry_var:
       case _trie_trust_var:
       case _trie_retry_val:
@@ -1884,6 +1886,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _trie_trust_list:
       case _trie_retry_struct:
       case _trie_trust_struct:
+      case _trie_retry_float:
+      case _trie_trust_float:
 	{
 	  CELL *aux_ptr;
 	  int heap_arity;
@@ -2610,6 +2614,8 @@ sweep_choicepoints(choiceptr gc_B)
 	}
       }
       break;
+      case _trie_retry_nothing:
+      case _trie_trust_nothing:
       case _trie_retry_var:
       case _trie_trust_var:
       case _trie_retry_val:
@@ -2620,6 +2626,8 @@ sweep_choicepoints(choiceptr gc_B)
       case _trie_trust_list:
       case _trie_retry_struct:
       case _trie_trust_struct:
+      case _trie_retry_float:
+      case _trie_trust_float:
 	{
 	  CELL *aux_ptr;
 	  int heap_arity;
