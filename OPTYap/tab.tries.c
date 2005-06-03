@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.C
-  version:     $Id: tab.tries.c,v 1.10 2005-06-03 08:19:18 ricroc Exp $   
+  version:     $Id: tab.tries.c,v 1.11 2005-06-03 09:02:08 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -18,7 +18,7 @@
 #include <stdio.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
-#endif
+#endif /* HAVE_STRING_H */
 #include "Yatom.h"
 #include "Heap.h"
 #include "yapio.h"
@@ -1203,7 +1203,6 @@ void update_answer_trie_branch(ans_node_ptr node) {
   return;
 }
 #endif /* YAPOR */
-#endif /* TABLING */
 
 
 static
@@ -1631,3 +1630,4 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
 
   return TRUE;
 }
+#endif /* TABLING */
