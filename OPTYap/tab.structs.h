@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.structs.h
-  version:     $Id: tab.structs.h,v 1.5 2005-05-31 08:24:24 ricroc Exp $   
+  version:     $Id: tab.structs.h,v 1.6 2005-06-04 08:05:27 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -17,12 +17,17 @@ typedef struct table_entry {
 #ifdef YAPOR
   lockvar lock;
 #endif /* YAPOR */
+  enum {
+    batched = 0,
+    local   = 1
+  } tabling_mode;
   struct subgoal_trie_node *subgoal_trie;
   struct subgoal_hash *hash_chain;
   struct table_entry *next;
 } *tab_ent_ptr;
 
 #define TabEnt_lock(X)          ((X)->lock)
+#define TabEnt_mode(X)          ((X)->tabling_mode)
 #define TabEnt_subgoal_trie(X)  ((X)->subgoal_trie)
 #define TabEnt_hash_chain(X)    ((X)->hash_chain)
 #define TabEnt_next(X)          ((X)->next)
@@ -118,9 +123,9 @@ typedef struct subgoal_frame {
   struct answer_trie_node *last_answer;
   struct answer_hash *hash_chain;
   enum {
-    start = 0,
+    start      = 0,
     evaluating = 1,
-    complete = 2,
+    complete   = 2,
     executable = 3
   } state_flag;
   int abolish_operations;

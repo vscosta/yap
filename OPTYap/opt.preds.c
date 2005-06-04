@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.preds.c
-  version:     $Id: opt.preds.c,v 1.17 2005-06-03 18:28:11 ricroc Exp $   
+  version:     $Id: opt.preds.c,v 1.18 2005-06-04 08:05:27 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -490,7 +490,7 @@ int p_do_table(void) {
 static
 int p_do_tabling_mode(void) {
   Term t, mod, s;
-  PredEntry *pe;
+  tab_ent_ptr tab_ent;
 
   mod = Deref(ARG2);
   if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
@@ -499,20 +499,20 @@ int p_do_tabling_mode(void) {
   t = Deref(ARG1);
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    pe = RepPredProp(PredPropByAtom(at, mod));
+    tab_ent = RepPredProp(PredPropByAtom(at, mod))->TableOfPred;
   } else if (IsApplTerm(t)) {
     Functor func = FunctorOfTerm(t);
-    pe = RepPredProp(PredPropByFunc(func, mod));
+    tab_ent = RepPredProp(PredPropByFunc(func, mod))->TableOfPred;
   } else {
     return (FALSE);
   }
   s = Deref(ARG3);
   if (IsVarTerm(s)) {
     Term sa;
-    if (pe->PredFlags & LocalSchedPredFlag) {
-      sa = MkAtomTerm(Yap_LookupAtom("local"));
-    } else { 
+    if (TabEnt_mode(tab_ent) == batched) {
       sa = MkAtomTerm(Yap_LookupAtom("batched"));
+    } else { 
+      sa = MkAtomTerm(Yap_LookupAtom("local"));
     }
     Bind((CELL *)s, sa);
     return(TRUE);
@@ -520,12 +520,12 @@ int p_do_tabling_mode(void) {
   if (IsAtomTerm(s)) {
     char *sa;
     sa = RepAtom(AtomOfTerm(s))->StrOfAE;
-    if (strcmp(sa, "local") == 0) {
-      pe->PredFlags |= LocalSchedPredFlag;
+    if (strcmp(sa,"batched") == 0) {
+      TabEnt_mode(tab_ent) = batched;
       return(TRUE);
     } 
-    if (strcmp(sa,"batched") == 0) {
-      pe->PredFlags &= ~LocalSchedPredFlag;
+    if (strcmp(sa, "local") == 0) {
+      TabEnt_mode(tab_ent) = local;
       return(TRUE);
     }
   }

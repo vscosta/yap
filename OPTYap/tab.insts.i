@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.insts.i
-  version:     $Id: tab.insts.i,v 1.14 2005-06-03 08:19:18 ricroc Exp $   
+  version:     $Id: tab.insts.i,v 1.15 2005-06-04 08:05:27 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -22,7 +22,7 @@
 #else
 #define TABLING_ERRORS_check_stack
 #endif /* TABLING_ERRORS */
-#define store_generator_node(ARITY, AP, SG_FR)                           \
+#define store_generator_node(TAB_ENT, SG_FR, ARITY, AP)                  \
         { register int subs_arity = *YENV;                               \
           register CELL *pt_args;                                        \
           register choiceptr gcp;                                        \
@@ -52,7 +52,7 @@
 	  /*if (SgFr_abolish(SG_FR) == 0) {*/                            \
 	  if (subs_arity == 0 ||                                         \
               (yap_flags[TABLING_MODE_FLAG] != TABLING_MODE_LOCAL &&     \
-              (!(PREG->u.ld.p->PredFlags & LocalSchedPredFlag) ||        \
+              (TabEnt_mode(TAB_ENT) == batched ||                        \
               yap_flags[TABLING_MODE_FLAG] == TABLING_MODE_BATCHED))) {  \
                                                                          \
                                                                          \
@@ -240,7 +240,7 @@
       /* subgoal new or abolished */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
-      store_generator_node(PREG->u.ld.s, COMPLETION, sg_fr);
+      store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, COMPLETION);
       PREG = PREG->u.ld.d;   /* PREG = NEXTOP(PREG,ld); */
       PREFETCH_OP(PREG);
       allocate_environment();
@@ -310,7 +310,7 @@
       /* subgoal new or abolished */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
-      store_generator_node(PREG->u.ld.s, PREG->u.ld.d, sg_fr);
+      store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, PREG->u.ld.d);
       PREG = NEXTOP(PREG, ld);
       PREFETCH_OP(PREG);
       allocate_environment();
@@ -380,7 +380,7 @@
       /* subgoal new or abolished */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
-      store_generator_node(PREG->u.ld.s, NEXTOP(PREG,ld), sg_fr);
+      store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, NEXTOP(PREG,ld));
       PREG = PREG->u.ld.d;
       PREFETCH_OP(PREG);
       allocate_environment();
