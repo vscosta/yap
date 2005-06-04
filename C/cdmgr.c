@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-06-03 08:26:32 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-06-04 07:27:33 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.161  2005/06/03 08:26:32  ricroc
+* float support for tabling
+*
 * Revision 1.160  2005/06/01 14:02:47  vsc
 * get_rid of try_me?, retry_me? and trust_me? instructions: they are not
 * significantly used nowadays.
@@ -294,6 +297,8 @@ PredForChoicePt(yamop *p_code) {
     case _trie_trust_struct:
     case _trie_retry_float:
     case _trie_trust_float:
+    case _trie_retry_long:
+    case _trie_trust_long:
       return NULL;
     case _table_completion:
     case _table_answer_resolution:

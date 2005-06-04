@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2005-06-03 08:18:25 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-06-04 07:26:43 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.6  2005/06/03 08:18:25  ricroc
+* float support for tabling
+*
 * Revision 1.5  2005/06/01 20:25:23  vsc
 * == and \= should not need a choice-point in ->
 *
@@ -242,6 +245,10 @@ restore_opcodes(yamop *pc)
     case _trie_trust_float:
     case _trie_try_float:
     case _trie_retry_float:
+    case _trie_do_long:
+    case _trie_trust_long:
+    case _trie_try_long:
+    case _trie_retry_long:
 #endif /* TABLING */
 #ifdef TABLING_INNER_CUTS
     case _clause_with_cut:

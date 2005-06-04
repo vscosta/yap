@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2005-06-03 08:18:25 $							 *
+* Last rev:     $Date: 2005-06-04 07:26:43 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.29  2005/06/03 08:18:25  ricroc
+* float support for tabling
+*
 * Revision 1.28  2005/06/01 20:25:23  vsc
 * == and \= should not need a choice-point in ->
 *
@@ -106,6 +109,10 @@
     OPCODE(trie_trust_float        ,e),
     OPCODE(trie_try_float          ,e),
     OPCODE(trie_retry_float        ,e),
+    OPCODE(trie_do_long            ,e),
+    OPCODE(trie_trust_long         ,e),
+    OPCODE(trie_try_long           ,e),
+    OPCODE(trie_retry_long         ,e),
 #endif /* TABLING */
     OPCODE(try_me                  ,ld),	
     OPCODE(retry_me                ,ld),	

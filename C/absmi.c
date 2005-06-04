@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-06-03 08:26:31 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-06-04 07:27:33 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.167  2005/06/03 08:26:31  ricroc
+* float support for tabling
+*
 * Revision 1.166  2005/06/01 20:25:22  vsc
 * == and \= should not need a choice-point in ->
 *
@@ -1427,6 +1430,8 @@ Yap_absmi(int inp)
 	      case _trie_trust_struct:
 	      case _trie_retry_float:
 	      case _trie_trust_float:
+	      case _trie_retry_long:
+	      case _trie_trust_long:
 		low_level_trace(retry_table_consumer, NULL, NULL);
 		break;
 	      case _table_retry_me:

@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.insts.i
-  version:     $Id: tab.tries.insts.i,v 1.8 2005-06-03 18:28:11 ricroc Exp $   
+  version:     $Id: tab.tries.insts.i,v 1.9 2005-06-04 07:28:24 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -467,11 +467,11 @@
 
 
 
-/* -------------------- **
-**      trie_float      **
-** -------------------- */
+/* ---------------------------------------- **
+**      trie_extension (float/longint)      **
+** ---------------------------------------- */
 
-#define no_cp_trie_float_instr()                                 \
+#define no_cp_trie_extension_instr()                             \
         if (heap_arity) {                                        \
           aux_ptr++;                                             \
           YENV = ++aux_ptr;                                      \
@@ -912,7 +912,7 @@
     heap_arity -= 2;
 #endif /* SIZEOF_DOUBLE x SIZEOF_LONG_INT */
     t = MkFloatTerm(dbl);
-    no_cp_trie_float_instr();
+    no_cp_trie_extension_instr();
   ENDPBOp();
 
 
@@ -928,4 +928,32 @@
 
   PBOp(trie_trust_float, e)
     Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_float)");
+  ENDPBOp();
+
+
+  PBOp(trie_do_long, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = YENV;
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int i;
+    Term t = MkLongIntTerm(*++aux_ptr);
+    heap_arity -= 2;
+    no_cp_trie_extension_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_try_long, e)
+    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_long)");
+  ENDPBOp();
+
+
+  PBOp(trie_retry_long, e)
+    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_long)");
+  ENDPBOp();
+
+
+  PBOp(trie_trust_long, e)
+    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_long)");
   ENDPBOp();

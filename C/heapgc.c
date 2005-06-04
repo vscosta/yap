@@ -1888,6 +1888,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _trie_trust_struct:
       case _trie_retry_float:
       case _trie_trust_float:
+      case _trie_retry_long:
+      case _trie_trust_long:
 	{
 	  CELL *aux_ptr;
 	  int heap_arity;
@@ -2628,6 +2630,8 @@ sweep_choicepoints(choiceptr gc_B)
       case _trie_trust_struct:
       case _trie_retry_float:
       case _trie_trust_float:
+      case _trie_retry_long:
+      case _trie_trust_long:
 	{
 	  CELL *aux_ptr;
 	  int heap_arity;

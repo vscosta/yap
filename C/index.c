@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-06-03 08:26:32 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-06-04 07:27:34 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.136  2005/06/03 08:26:32  ricroc
+* float support for tabling
+*
 * Revision 1.135  2005/06/01 20:25:23  vsc
 * == and \= should not need a choice-point in ->
 *
@@ -795,6 +798,10 @@ has_cut(yamop *pc)
     case _trie_trust_float:
     case _trie_try_float:
     case _trie_retry_float:
+    case _trie_do_long:
+    case _trie_trust_long:
+    case _trie_try_long:
+    case _trie_retry_long:
 #endif /* TABLING */
       pc = NEXTOP(pc,e);
       break;
@@ -2171,6 +2178,10 @@ add_info(ClauseDef *clause, UInt regno)
     case _trie_trust_float:
     case _trie_try_float:
     case _trie_retry_float:
+    case _trie_do_long:
+    case _trie_trust_long:
+    case _trie_try_long:
+    case _trie_retry_long:
 #endif /* TABLING */
       clause->Tag = (CELL)NULL;
       return;
