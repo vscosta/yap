@@ -511,7 +511,6 @@ typedef enum
   TabledPredFlag = 0x00000040L,	/* is tabled */
   SequentialPredFlag = 0x00000020L,	/* may not create parallel choice points! */
   ProfiledPredFlag = 0x00000010L,	/* pred is being profiled   */
-  LocalSchedPredFlag = 0x00000008L	/* use local scheduling as default for tabling */
 } pred_flag;
 
 /* profile data */
