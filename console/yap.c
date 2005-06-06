@@ -105,6 +105,14 @@ static FILE *bootfile;
 static int eof_found = FALSE;
 static int yap_lineno = 0;
 
+/* nf: Begin preprocessor code */
+#define MAXDEFS 100
+static char *def_var[MAXDEFS];
+static char *def_value[MAXDEFS];
+static int  def_c=0;
+/* End preprocessor code */
+
+
 #if USE_MYPUTC
 static void
 myputc (int ch)
@@ -232,6 +240,9 @@ print_usage(void)
   fprintf(stderr,"  -w   YapOr option: Number of workers (default: %d)\n",
 	  DEFAULT_NUMBERWORKERS);
   fprintf(stderr,"  -sl  YapOr option: Loop scheduler executions before look for hiden shared work (default: %d)\n", DEFAULT_SCHEDULERLOOP);
+												      
+  /*nf: Preprocessor */		
+  fprintf(stderr,"  -DVar=Name : persistent definition\n");
   fprintf(stderr,"  -d   YapOr option: Value of delayed release of load (default: %d)\n",
 	  DEFAULT_DELAYEDRELEASELOAD);
 #endif
@@ -241,7 +252,7 @@ print_usage(void)
 /*
  * proccess command line arguments: valid switches are: -b    boot -s
  * stack area size (K) -h    heap area size -a    aux stack size -e
- * emacs_mode -m    reserved memory for alloc IF DEBUG -p    if you
+ * emacs_mode -m  -DVar=Value  reserved memory for alloc IF DEBUG -p    if you
  * want to check out startup IF MAC -mpw  if we are using the mpw
  * shell
  */
@@ -405,6 +416,28 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      iap->YapPrologRCFile = *argv;
 	    }
 	    break;
+	    /* nf: Begin preprocessor code */
+	  case 'D':
+	    {
+	      char *var, *value;
+	      ++p;
+	      var = p;	      
+	      if (var == NULL || *var=='\0')
+		break;
+	      while(*p!='='  && *p!='\0') ++p;
+	      if ( *p=='\0' ) break;
+	      *p='\0';
+	      ++p;
+	      value=p;
+	      if ( *value == '\0' ) break;
+	      //
+	      ++def_c;
+	      def_var[def_c-1]=var;
+	      def_value[def_c-1]=value;
+	      //printf("var=value--->%s=%s\n",var,value); 
+	      break;
+	    }
+	    /* End preprocessor code */
 	  case '-':
 	    /* skip remaining arguments */
 	    argc = 1;
@@ -558,12 +591,29 @@ main (int argc, char **argv)
 {
   int BootMode;
   YAP_init_args init_args;
+  int i;
 
   BootMode = init_standard_system(argc, argv, &init_args);
   if (BootMode == YAP_BOOT_ERROR) {
     fprintf(stderr,"[ FATAL ERROR: could not find saved state ]\n");
     exit(1);
   }
+  /* Begin preprocessor code */
+  {
+    // load the module
+    YAP_Term mod_arg[1];
+    mod_arg[0] = YAP_MkAtomTerm(YAP_LookupAtom("ypp"));
+    YAP_RunGoal(YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("use_module"),1), 1, mod_arg)); 
+    // process the definitions
+    for(i=0;i<def_c;++i) {
+      YAP_Term t_args[2],t_goal;
+      t_args[0] = YAP_MkAtomTerm(YAP_LookupAtom(def_var[i]));
+      t_args[1] = YAP_MkAtomTerm(YAP_LookupAtom(def_value[i])); 
+      t_goal  = YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("ypp_define"),2), 2, t_args); 
+      YAP_RunGoal(t_goal);
+    }
+  }
+  /* End preprocessor code */
 
   exec_top_level(BootMode, &init_args);
 
