@@ -45,7 +45,8 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/tries.yap \
 	$(srcdir)/timeout.yap \
 	$(srcdir)/trees.yap \
-	$(srcdir)/ugraphs.yap
+	$(srcdir)/ugraphs.yap \\
+	$(srcdir)/ypp.yap 
 
 LOGTALK_PROGRAMS= \
 	$(srcdir)/logtalk/logtalk.pl \
