@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-06-04 07:27:33 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-06-08 00:35:27 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.162  2005/06/04 07:27:33  ricroc
+* long int support for tabling
+*
 * Revision 1.161  2005/06/03 08:26:32  ricroc
 * float support for tabling
 *
@@ -2658,6 +2661,10 @@ p_is_expandgoalormetapredicate(void)
     }
   } else if (IsApplTerm(t)) {
     Functor         fun = FunctorOfTerm(t);
+
+    if (IsExtensionFunctor(fun)) {
+      return FALSE;
+    }
     pe = RepPredProp(Yap_GetPredPropByFunc(fun, mod));
     if (EndOfPAEntr(pe)) {
       if (PRED_GOAL_EXPANSION_FUNC) {
