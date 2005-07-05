@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-06-04 07:27:34 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-07-05 18:32:32 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.137  2005/06/04 07:27:34  ricroc
+* long int support for tabling
+*
 * Revision 1.136  2005/06/03 08:26:32  ricroc
 * float support for tabling
 *
@@ -462,12 +465,12 @@ insort(ClauseDef base[], CELL *p, CELL *q, int my_p)
 
 /* copy to a new list of terms */
 static
-void msort(ClauseDef *base, Int *pt, Int size, int my_p)
+void msort(ClauseDef *base, CELL *pt, Int size, int my_p)
 {
 
   if (size > 2) {
     Int half_size = size / 2;
-    Int *pt_left, *pt_right, *end_pt, *end_pt_left;
+    CELL *pt_left, *pt_right, *end_pt, *end_pt_left;
     int left_p, right_p;
 
     if (size < 50) {
@@ -880,6 +883,9 @@ has_cut(yamop *pc)
     case _put_x_var:
     case _put_x_val:
       pc = NEXTOP(pc,xx);
+      break;
+    case _put_xx_val:
+      pc = NEXTOP(pc,xxxx);
       break;
       /* instructions type yx */
     case _get_y_var:
@@ -1527,6 +1533,25 @@ add_info(ClauseDef *clause, UInt regno)
 	return;
       }
       cl = NEXTOP(cl,xx);
+      break;
+    case _put_xx_val:
+      if (regcopy_in(myregs, nofregs, cl->u.xxxx.xl1)) {
+	nofregs = add_regcopy(myregs, nofregs, cl->u.xxxx.xr1);
+      } else if (regcopy_in(myregs, nofregs, cl->u.xxxx.xr1) &&
+		 (nofregs = delete_regcopy(myregs, nofregs, cl->u.xxxx.xr1)) == 0 &&
+		 !ycopy) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
+      if (regcopy_in(myregs, nofregs, cl->u.xxxx.xl2)) {
+	nofregs = add_regcopy(myregs, nofregs, cl->u.xxxx.xr2);
+      } else if (regcopy_in(myregs, nofregs, cl->u.xxxx.xr2) &&
+		 (nofregs = delete_regcopy(myregs, nofregs, cl->u.xxxx.xr2)) == 0 &&
+		 !ycopy) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,xxxx);
       break;
     case _glist_valx:
     case _gl_void_varx:
@@ -3024,8 +3049,9 @@ groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp)
       } while (min <= max &&
 	       (!IsVarTerm(min->Tag)));
       if (min <= max && min->Tag == (_var+1)*sizeof(CELL)) {
-	min++;
-	goto restart_loop;
+	  min++;
+	  if (min < max)
+	    goto restart_loop;
       }
       grp->LastClause = min-1;
     }
@@ -3578,7 +3604,7 @@ do_consts(GroupDef *grp, Term t, struct intermediates *cint, int compound_term, 
 	if (ap->PredFlags & LogUpdatePredFlag && max > min)
 	  ics->Label = suspend_indexing(min, max, ap, cint);
 	else
-	  ics->Label = do_compound_index(min, max, sreg, cint, compound_term, arity, argno+1, nxtlbl, first, last_arg, clleft, top, TRUE);
+	  ics->Label = do_compound_index(min, max, sreg, cint, compound_term, arity, argno, nxtlbl, first, last_arg, clleft, top, TRUE);
       } else if (ap->PredFlags & LogUpdatePredFlag) {
 	ics->Label = suspend_indexing(min, max, cint->CurrentPred, cint);
       } else {
@@ -3668,7 +3694,7 @@ do_funcs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
       } else {
 	sreg = NULL;
       }
-      ifs->Label = do_compound_index(min, max, sreg, cint, 0, ArityOfFunctor(f), argno+1, nxtlbl, first, last_arg, clleft, top, TRUE);
+      ifs->Label = do_compound_index(min, max, sreg, cint, 0, ArityOfFunctor(f), argno, nxtlbl, first, last_arg, clleft, top, TRUE);
     }
     grp->FirstClause = min = max+1;
   }
@@ -3699,7 +3725,7 @@ do_pair(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int first
   if (min != max && !IsPairTerm(t)) {
     return suspend_indexing(min, max, cint->CurrentPred, cint);
   }
-  return do_compound_index(min, max, (IsPairTerm(t) ? RepPair(t) : NULL), cint, 0, 2, argno+1, nxtlbl, first, last_arg, clleft, top, TRUE);
+  return do_compound_index(min, max, (IsPairTerm(t) ? RepPair(t) : NULL), cint, 0, 2, argno, nxtlbl, first, last_arg, clleft, top, TRUE);
 }
 
 static void
@@ -5520,7 +5546,7 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
       c->u.ParentIndex = ncl;
       c = c->SiblingIndex;
     }
-    Yap_FreeCodeSpace((CODEADDR)cl);
+    Yap_FreeCodeSpace((char *)cl);
   } else {
     StaticIndex
       *cl = ClauseCodeToStaticIndex(cod),
@@ -5535,7 +5561,7 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
       }
       c->SiblingIndex = ncl;
     }
-    Yap_FreeCodeSpace((CODEADDR)cl);
+    Yap_FreeCodeSpace((char *)cl);
   }
 }
 		 
