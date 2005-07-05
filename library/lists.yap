@@ -112,7 +112,7 @@ nextto(X,Y, [_|List]) :-
 %   1, that is nth(1, [H|_], H).
 
 nth0(V, In, Element) :- var(V), !,
-	generate_nth0(V, In, Element).
+	generate_nth(0, V, In, Element).
 nth0(0, [Head|_], Head) :- !.
 nth0(N, [_|Tail], Elem) :-
 	M is N-1,
@@ -124,14 +124,8 @@ find_nth0(N, [_|Tail], Elem) :-
 	find_nth0(M, Tail, Elem).
 
 
-generate_nth0(0, [Head|_], Head).
-generate_nth0(I, [_|List], El) :-
-	generate_nth0(I1, List, El),
-	I is I1+1.
-
-
 nth(V, In, Element) :- var(V), !,
-	generate_nth(V, In, Element).
+	generate_nth(1, V, In, Element).
 nth(1, [Head|_], Head) :- !.
 nth(N, [_|Tail], Elem) :-
 	nonvar(N), !,
@@ -144,10 +138,10 @@ find_nth(N, [_|Tail], Elem) :-
 	find_nth(M, Tail, Elem).
 
 
-generate_nth(1, [Head|_], Head).
-generate_nth(I, [_|List], El) :-
-	generate_nth(I1, List, El),
-	I is I1+1.
+generate_nth(I, I, [Head|_], Head).
+generate_nth(I, IN, [_|List], El) :-
+	I1 is I+1,
+	generate_nth(I1, IN, List, El).
 
 
 
@@ -160,7 +154,7 @@ generate_nth(I, [_|List], El) :-
 %   can be used to insert Elem after the Nth element of Rest.
 
 nth0(V, In, Element, Tail) :- var(V), !,
-	generate_nth0(V, In, Element, Tail).
+	generate_nth(0, V, In, Element, Tail).
 nth0(0, [Head|Tail], Head, Tail) :- !.
 nth0(N, [Head|Tail], Elem, [Head|Rest]) :-
 	M is N-1,
@@ -172,14 +166,9 @@ find_nth0(N, [Head|Tail], Elem, [Head|Rest]) :-
 	find_nth0(M, Tail, Elem, Rest).
 
 
-generate_nth0(0, [Head|Rest], Head, Rest).
-generate_nth0(I, [Head|List], El, [Head|Rest]) :-
-	generate_nth0(I1, List, El, Rest),
-	I is I1+1.
-
 
 nth(V, In, Element, Tail) :- var(V), !,
-	generate_nth(V, In, Element, Tail).
+	generate_nth(1, V, In, Element, Tail).
 nth(1, [Head|Tail], Head, Tail) :- !.
 nth(N, [Head|Tail], Elem, [Head|Rest]) :-
 	M is N-1,
@@ -191,11 +180,10 @@ find_nth(N, [Head|Tail], Elem, [Head|Rest]) :-
 	find_nth(M, Tail, Elem, Rest).
 
 
-generate_nth(1, [Head|Rest], Head, Rest).
-generate_nth(I, [Head|List], El, [Head|Rest]) :-
-	generate_nth(I1, List, El, Rest),
-	I is I1+1.
-
+generate_nth(I, I, [Head|Tail], Head, Tail).
+generate_nth(I, IN, [_|List], El, Tail) :-
+	I1 is I+1,
+	generate_nth(I1, IN, List, El, Tail).
 
 
 
