@@ -1470,7 +1470,11 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
       if (size < 0) {
 	PredEntry *pe = EnvPreg(gc_ENV[E_CP]);
 	op_numbers op = Yap_op_from_opcode(ENV_ToOp(gc_ENV[E_CP]));
+#if defined(ANALYST) || defined(DEBUG)
 	fprintf(Yap_stderr,"ENV %p-%p(%d) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, Yap_op_names[op]);
+#else
+	fprintf(Yap_stderr,"ENV %p-%p(%d) %d\n", gc_ENV, pvbmap, size-EnvSizeInCells, (int)op);
+#endif
 	if (pe->ArityOfPE)
 	  fprintf(Yap_stderr,"   %s/%d\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
 	else
