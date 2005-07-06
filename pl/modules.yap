@@ -127,10 +127,10 @@ use_module(Mod,F,I) :-
 
 	
 '$process_module_decls_options'(Var,Mod) :-
-	var(Var), 
+	var(Var), !,
 	'$do_error'(instantiation_error,Mod).
-'$process_module_decls_options'([],_).
-'$process_module_decls_options'([H|L],M) :-
+'$process_module_decls_options'([],_) :- !.
+'$process_module_decls_options'([H|L],M) :- !,
 	'$process_module_decls_option'(H,M),
 	'$process_module_decls_options'(L,M).
 '$process_module_decls_options'(T,M) :-
@@ -140,11 +140,11 @@ use_module(Mod,F,I) :-
 	var(Var), 
 	'$do_error'(instantiation_error,M).
 '$process_module_decls_option'(At,_) :- 
-	atom(At), 
+	atom(At), !,
 	'$use_module'(At).
-'$process_module_decls_option'(library(L),_) :- 
+'$process_module_decls_option'(library(L),_) :- !,
 	'$use_module'(library(L)).
-'$process_module_decls_option'(hidden(Bool),M) :- 
+'$process_module_decls_option'(hidden(Bool),M) :- !,
 	'$process_hidden_module'(Bool, M).
 '$process_module_decls_option'(Opt,M) :- 
 	'$do_error'(domain_error(module_decl_options,Opt),M).
