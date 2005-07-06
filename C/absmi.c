@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-06-04 07:27:33 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-07-06 15:10:01 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.168  2005/06/04 07:27:33  ricroc
+* long int support for tabling
+*
 * Revision 1.167  2005/06/03 08:26:31  ricroc
 * float support for tabling
 *
@@ -321,6 +324,18 @@ void prof_alrm(int signo, siginfo_t *si, ucontext_t *sc)
 
 #endif
 
+#if defined(ANALYST) || defined(DEBUG)
+
+char *Yap_op_names[_std_top + 1] =
+{
+#define OPCODE(OP,TYPE) #OP
+#include "YapOpcodes.h"
+#undef  OPCODE
+};
+
+#endif
+
+
 Int 
 Yap_absmi(int inp)
 {
@@ -460,8 +475,8 @@ Yap_absmi(int inp)
 
   {
     op_numbers opcode = _Ystop;
-#ifdef DEBUG_XX
     op_numbers old_op;
+#ifdef DEBUG_XX
     unsigned long ops_done;
 #endif
 
@@ -469,28 +484,25 @@ Yap_absmi(int inp)
 
   nextop_write:
 
-#ifdef DEBUG_XX
     old_op = opcode;
-#endif
     opcode = PREG->u.o.opcw;
     goto op_switch;
 
   nextop:
 
-#ifdef DEBUG_XX
     old_op = opcode;
-#endif
     opcode = PREG->opc;
 
   op_switch:
 
 #ifdef ANALYST
     Yap_opcount[opcode]++;
+    Yap_2opcount[old_op][opcode]++;
 #ifdef DEBUG_XX
     ops_done++;
     /*    if (B->cp_b > 0x103fff90)
       fprintf(stderr,"(%ld) doing %s, done %s, B is %p, HB is %p, H is %p\n",
-      ops_done,op_names[opcode],op_names[old_op],B,B->cp_h,H);*/
+      ops_done,Yap_op_names[opcode],Yap_op_names[old_op],B,B->cp_h,H);*/
 #endif
 #endif /* ANALYST */
 
@@ -6010,6 +6022,19 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
+      Op(put_xx_val, xxxx);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = XREG(PREG->u.xxxx.xl1);
+      d1 = XREG(PREG->u.xxxx.xl2);
+      XREG(PREG->u.xxxx.xr1) = d0;
+      XREG(PREG->u.xxxx.xr2) = d1;
+      ENDD(d1);
+      ENDD(d0);
+      PREG = NEXTOP(PREG, xxxx);
+      GONext();
+      ENDOp();
+
       Op(put_y_val, yx);
       BEGD(d0);
       d0 = YREG[PREG->u.yx.y];
@@ -10437,7 +10462,8 @@ Yap_absmi(int inp)
 	always_set_pc();
 	GONext();
       }
-      FAIL();
+      PREG = PREG->u.l.l;
+      GONext();
 
       BEGP(pt0);
       deref_body(d1, pt0, p_eq_nvar1_unk2, p_eq_nvar1_nvar2);
@@ -10468,7 +10494,6 @@ Yap_absmi(int inp)
       if (pt1 != pt0) {
 	PREG = PREG->u.l.l;
 	GONext();
-	FAIL();
       }
       PREG = NEXTOP(PREG, l);
       GONext();      

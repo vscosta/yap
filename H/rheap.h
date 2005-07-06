@@ -11,8 +11,12 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2005-06-01 13:53:46 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-07-06 15:10:15 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.50  2005/06/01 13:53:46  vsc
+* improve bb routines to use the DB efficiently
+* change interface between DB and BB.
+*
 * Revision 1.49  2005/05/30 03:26:37  vsc
 * add some atom gc fixes
 *
@@ -70,16 +74,6 @@ static char     SccsId[] = "@(#)rheap.c	1.3 3/15/90";
 
 #define Atomics		0
 #define Funcs		1
-
-#if DEBUG_RESTORE2
-static char *op_names[_std_top + 1] =
-{
-#define OPCODE(OP,TYPE) #OP
-#include "YapOpcodes.h"
-#undef  OPCODE
-};
-#endif /* DEBUG_RESTORE2 */
-
 
 /* Now, everything on its place so you must adjust the pointers */
 

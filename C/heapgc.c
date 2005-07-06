@@ -831,7 +831,7 @@ static void
 init_dbtable(tr_fr_ptr trail_ptr) {
   DeadClause *cl = DeadClauses;
 
-  db_vec0 = db_vec = (CODEADDR)TR;
+  db_vec0 = db_vec = (ADDR)TR;
   db_root = RBTreeCreate();
   while (trail_ptr > (tr_fr_ptr)Yap_TrailBase) {
     register CELL trail_cell;
@@ -889,17 +889,6 @@ init_dbtable(tr_fr_ptr trail_ptr) {
     db_vec0 = NULL;
   }
 }
-
-#ifndef ANALYST
-
-static char *op_names[_std_top + 1] =
-{
-#define OPCODE(OP,TYPE) #OP
-#include "YapOpcodes.h"
-#undef  OPCODE
-};
-
-#endif
 
 #ifdef DEBUG
 
@@ -1481,7 +1470,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
       if (size < 0) {
 	PredEntry *pe = EnvPreg(gc_ENV[E_CP]);
 	op_numbers op = Yap_op_from_opcode(ENV_ToOp(gc_ENV[E_CP]));
-	fprintf(Yap_stderr,"ENV %p-%p(%d) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, op_names[op]);
+	fprintf(Yap_stderr,"ENV %p-%p(%d) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, Yap_op_names[op]);
 	if (pe->ArityOfPE)
 	  fprintf(Yap_stderr,"   %s/%d\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
 	else
@@ -1730,11 +1719,11 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       PredEntry *pe = Yap_PredForChoicePt(gc_B);
 
       if (pe == NULL) {
-	fprintf(Yap_stderr,"%%       marked %ld (%s)\n", total_marked, op_names[opnum]);
+	fprintf(Yap_stderr,"%%       marked %ld (%s)\n", total_marked, Yap_op_names[opnum]);
       } else if (pe->ArityOfPE) {
-	fprintf(Yap_stderr,"%%       %s/%d marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
+	fprintf(Yap_stderr,"%%       %s/%d marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, Yap_op_names[opnum]);
       } else {
-	fprintf(Yap_stderr,"%%       %s marked %ld (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, op_names[opnum]);
+	fprintf(Yap_stderr,"%%       %s marked %ld (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, Yap_op_names[opnum]);
       }
     }
     {
@@ -1985,7 +1974,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
  * object 
  */
 
-static void 
+static inline void 
 into_relocation_chain(CELL_PTR current, CELL_PTR next)
 {
 #ifdef TAGS_FAST_OPS

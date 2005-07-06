@@ -769,7 +769,7 @@ p_create_static_array(void)
     /* Create a named array */
     AtomEntry *ae = RepAtom(AtomOfTerm(t));
     StaticArrayEntry *pp;
-    ArrayEntry *app = (ArrayEntry *) pp;
+    ArrayEntry *app;
 
     WRITE_LOCK(ae->ARWLock);
     pp = RepStaticArrayProp(ae->PropsOfAE);

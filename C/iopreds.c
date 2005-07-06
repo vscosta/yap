@@ -859,11 +859,7 @@ p_prompt (void)
 #include <readline/readline.h>
 #endif
 
-extern void add_history (const char *);
-
 static char *ttyptr = NULL;
-
-
 
 static char *myrl_line = (char *) NULL;
 

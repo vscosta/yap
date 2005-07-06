@@ -219,6 +219,7 @@ leash(X) :-
 
 -----------------------------------------------------------------------------*/
 
+
 debugging :-
 	( recorded('$debug',on,_) ->
 	    '$print_message'(help,debug(debug))
@@ -375,6 +376,7 @@ debugging :-
 	    fail
 	).
 
+
 '$enter_goal'(GoalNumber, G, Module) :-
     '$avoid_goal'(GoalNumber, G, Module), !.
 '$enter_goal'(GoalNumber, G, Module) :-
@@ -420,7 +422,6 @@ debugging :-
 	'$continue_debugging'(InControl,G,M),
 	'$execute_nonstop'(G, M).
 
-
 '$trace'(P,G,Module,L) :-
 	flush_output(user_output),
 	flush_output(user_error),
@@ -445,6 +446,7 @@ debugging :-
 		  '$action'(C,P,L,G,Module)
 		),
 		!.
+
 
 '$unleashed'(call) :- get_value('$leash',L), L /\ 2'1000 =:= 0.
 '$unleashed'(exit) :- get_value('$leash',L), L /\ 2'0100 =:= 0.

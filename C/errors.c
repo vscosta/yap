@@ -522,6 +522,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
+      i = strlen(tmpbuf);
       ti[0] = where;
       nt[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("consistency_error"),1), 1, ti);
       tp = tmpbuf+i;

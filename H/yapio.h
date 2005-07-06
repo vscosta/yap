@@ -320,10 +320,10 @@ extern int  Yap_Portray_delays;
 #endif
 #endif
 
-EXTERN inline UInt STD_PROTO(HashFunction, (char *));
+EXTERN inline UInt STD_PROTO(HashFunction, (unsigned char *));
 
 EXTERN inline UInt
-HashFunction(char *CHP)
+HashFunction(unsigned char *CHP)
 {
   /* djb2 */
   UInt hash = 5381;

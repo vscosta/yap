@@ -308,13 +308,12 @@ typedef enum {
   FIND_PRED_FROM_ENV
 } find_pred_type;
 
-Int	STD_PROTO(Yap_PredForCode,(yamop *, find_pred_type, Atom *, UInt *, Term *));
-#ifdef DEBUG
-void    STD_PROTO(Yap_bug_location,(yamop *));
-
-
+Int	        STD_PROTO(Yap_PredForCode,(yamop *, find_pred_type, Atom *, UInt *, Term *));
 LogUpdClause   *STD_PROTO(Yap_new_ludbe,(Term, PredEntry *, UInt));
 Term            STD_PROTO(Yap_LUInstance,(LogUpdClause *, UInt));
+
+#ifdef DEBUG
+void    STD_PROTO(Yap_bug_location,(yamop *));
 #endif
 
 

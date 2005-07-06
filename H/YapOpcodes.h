@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2005-06-04 07:26:43 $							 *
+* Last rev:     $Date: 2005-07-06 15:10:15 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.30  2005/06/04 07:26:43  ricroc
+* long int support for tabling
+*
 * Revision 1.29  2005/06/03 08:18:25  ricroc
 * float support for tabling
 *
@@ -129,11 +132,11 @@
     OPCODE(get_x_val               ,xx),		
     OPCODE(get_y_val               ,yx),		
     OPCODE(get_atom                ,xc),		
-    OPCODE(get_2atoms              ,cc),		
-    OPCODE(get_3atoms              ,ccc),		
-    OPCODE(get_4atoms              ,cccc),		
-    OPCODE(get_5atoms              ,ccccc),		
-    OPCODE(get_6atoms              ,cccccc),		
+    OPCODE(get_2atoms              ,cc),	  /* peephole */
+    OPCODE(get_3atoms              ,ccc),	  /* peephole */
+    OPCODE(get_4atoms              ,cccc),	  /* peephole */
+    OPCODE(get_5atoms              ,ccccc),	  /* peephole */
+    OPCODE(get_6atoms              ,cccccc),	  /* peephole */
     OPCODE(get_float               ,xc),		
     OPCODE(get_longint             ,xc),		
     OPCODE(get_bigint              ,xc),		
@@ -154,6 +157,7 @@
     OPCODE(put_x_val               ,xx),		
     OPCODE(put_y_val               ,yx),		
     OPCODE(put_unsafe              ,yx),		
+    OPCODE(put_xx_val              ,xxxx), /* peephole */
     OPCODE(put_atom                ,xc),		
     OPCODE(put_list                ,x),		
     OPCODE(put_struct              ,xf),		
@@ -231,14 +235,14 @@
     OPCODE(write_n_atoms           ,sc),	
     OPCODE(unify_n_voids           ,os),	
     OPCODE(write_n_voids           ,s),	
-    OPCODE(glist_valx              ,ss),		
-    OPCODE(glist_valy              ,xy),			
+    OPCODE(glist_valx              ,ss),       /* peephole */
+    OPCODE(glist_valy              ,xy),       /* peephole */
     OPCODE(fcall                   ,sla),		
     OPCODE(dexecute                ,l),			
-    OPCODE(gl_void_varx            ,xx),	
-    OPCODE(gl_void_vary            ,xy),	
-    OPCODE(gl_void_valx            ,xx),	
-    OPCODE(gl_void_valy            ,xy),	
+    OPCODE(gl_void_varx            ,xx),       /* peephole */
+    OPCODE(gl_void_vary            ,xy),       /* peephole */
+    OPCODE(gl_void_valx            ,xx),       /* peephole */
+    OPCODE(gl_void_valy            ,xy),       /* peephole */
     OPCODE(unify_x_loc             ,ox),	
     OPCODE(unify_y_loc             ,oy),	
     OPCODE(write_x_loc             ,ox),	

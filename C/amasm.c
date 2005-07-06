@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-06-01 21:23:44 $							 *
+* Last rev:     $Date: 2005-07-06 15:10:02 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.81  2005/06/01 21:23:44  vsc
+* inline compare
+*
 * Revision 1.80  2005/06/01 20:25:23  vsc
 * == and \= should not need a choice-point in ->
 *
@@ -152,7 +155,7 @@ STATIC_PROTO(yamop *a_e, (op_numbers, yamop *, int));
 STATIC_PROTO(yamop *a_ue, (op_numbers, op_numbers, yamop *, int));
 STATIC_PROTO(yamop *a_v, (op_numbers, yamop *, int, struct PSEUDO *));
 STATIC_PROTO(yamop *a_uv, (Ventry *,op_numbers, op_numbers, yamop *, int));
-STATIC_PROTO(yamop *a_vr, (op_numbers, yamop *, int, struct PSEUDO *));
+STATIC_PROTO(yamop *a_vr, (op_numbers, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_rv, (op_numbers, OPREG, yamop *, int, struct PSEUDO *));
 STATIC_PROTO(yamop *a_vv, (op_numbers, op_numbers, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_glist, (int *, yamop *, int, struct intermediates *));
@@ -533,8 +536,9 @@ a_vv(op_numbers opcode, op_numbers opcodew, yamop *code_p, int pass_no, struct i
 }
 
 inline static yamop *
-a_vr(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
+a_vr(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
 {
+  struct PSEUDO *cpc = cip->cpc;
   Ventry *ve = (Ventry *) cpc->rnd1;
   int is_y_var = (ve->KindOfVE == PermVar);
 
@@ -549,7 +553,27 @@ a_vr(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
     }
     GONEXT(yx);
   }
-  else {
+  else if (opcode == _put_x_val &&
+	   cpc->nextInst &&
+	   cpc->nextInst->op == put_val_op &&
+	   !(((Ventry *) cpc->nextInst->rnd1)->KindOfVE == PermVar)) {
+    /* peephole! two put_x_vars in a row */
+    if (pass_no) {
+      OPREG var_offset;
+      OPREG var_offset2;
+      Ventry *ve2 = (Ventry *) cpc->nextInst->rnd1;
+
+      var_offset = Var_Ref(ve, is_y_var);
+      code_p->opc = emit_op(_put_xx_val);
+      code_p->u.xxxx.xl1 = emit_xreg(var_offset);
+      code_p->u.xxxx.xr1 = emit_x(cpc->rnd2);
+      var_offset2 = Var_Ref(ve2, is_y_var);
+      code_p->u.xxxx.xl2 = emit_xreg(var_offset2);
+      code_p->u.xxxx.xr2 = emit_x(cpc->nextInst->rnd2);
+    }
+    cip->cpc = cpc->nextInst;
+    GONEXT(xxxx);
+  } else {
     if (pass_no) {
       OPREG var_offset;
 
@@ -877,6 +901,7 @@ a_rc(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
   return code_p;
 }
 
+
 inline static yamop *
 a_rb(op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int pass_no, struct intermediates *cip)
 {
@@ -944,7 +969,6 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
     op_numbers op;
     int is_test = FALSE;
 
-    code_p = check_alloc(clinfo, code_p, pass_no, cip);
     switch (Flags & 0x7f) {
     case _equal:
       op = _p_equal;
@@ -958,6 +982,7 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
       is_test = TRUE;
       break;
     case _functor:
+      code_p = check_alloc(clinfo, code_p, pass_no, cip);
       op = _p_functor;
       break;
     default:
@@ -967,14 +992,13 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
       longjmp(cip->CompilerBotch, 1);
     }
     if (is_test) {
-      UInt lab;
       if (clinfo->commit_lab) {
-	lab = clinfo->commit_lab;
+	UInt lab = clinfo->commit_lab;
 	clinfo->commit_lab = 0;
+	return a_l(lab, op, code_p, pass_no, cip);
       } else {
-	lab = (CELL)FAILCODE;
+	return a_il((CELL)FAILCODE, op, code_p, pass_no, cip);
       }
-      return a_il(lab, op, code_p, pass_no, cip);
     } else {
       return a_e(op, code_p, pass_no);
     }
@@ -1502,7 +1526,7 @@ a_cut(clause_info *clinfo, yamop *code_p, int pass_no, struct intermediates *cip
   code_p = check_alloc(clinfo, code_p, pass_no, cip);
   if (clinfo->dealloc_found) {
     return a_e(_cut_e, code_p, pass_no);
-  } else if (clinfo->alloc_found) {
+  } else if (clinfo->alloc_found == 1) {
     return a_e(_cut, code_p, pass_no);
   } else {
     return a_e(_cut_t, code_p, pass_no);
@@ -1796,18 +1820,14 @@ a_glist(int *do_not_optimise_uatomp, yamop *code_p, int pass_no, struct intermed
 static yamop *
 a_deallocate(clause_info *clinfo, yamop *code_p, int pass_no, struct intermediates *cip)
 {
-  if (clinfo->alloc_found == 2) {
-    /* this should never happen */
-    if (clinfo->CurrentPred->PredFlags & LogUpdatePredFlag)
-      code_p = a_cle(_alloc_for_logical_pred, code_p, pass_no, cip);
-    code_p = a_e(_allocate, code_p, pass_no);
+  if (clinfo->alloc_found == 1) {
+    if (NEXTOPC == execute_op) {
+      cip->cpc = cip->cpc->nextInst;
+      code_p = a_p(_dexecute, clinfo, code_p, pass_no, cip);
+    } else
+      code_p = a_e(_deallocate, code_p, pass_no);
+    clinfo->dealloc_found = TRUE;
   }
-  if (NEXTOPC == execute_op) {
-    cip->cpc = cip->cpc->nextInst;
-    code_p = a_p(_dexecute, clinfo, code_p, pass_no, cip);
-  } else
-    code_p = a_e(_deallocate, code_p, pass_no);
-  clinfo->dealloc_found = TRUE;
   return code_p;
 }
 
@@ -2394,7 +2414,8 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
   code_p = cip->code_addr;
   cl_u = (union clause_obj *)code_p;
   cip->cpc = cip->CodeStart;
-  clinfo.alloc_found = clinfo.dealloc_found = FALSE;
+  clinfo.alloc_found = 0;
+  clinfo.dealloc_found = FALSE;
   clinfo.commit_lab = 0L;
   clinfo.CurrentPred = cip->CurrentPred;
   cmp_info.c_type = TYPE_XX;
@@ -2568,17 +2589,17 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_n(_write_s_end, Unsigned(0));
       break;
 #endif
-    case get_var_op:
-      code_p = a_vr(_get_x_var, code_p, pass_no, cip->cpc);
+   case get_var_op:
+      code_p = a_vr(_get_x_var, code_p, pass_no, cip);
       break;
     case put_var_op:
-      code_p = a_vr(_put_x_var, code_p, pass_no, cip->cpc);
+      code_p = a_vr(_put_x_var, code_p, pass_no, cip);
       break;
     case get_val_op:
-      code_p = a_vr(_get_x_val, code_p, pass_no, cip->cpc);
+      code_p = a_vr(_get_x_val, code_p, pass_no, cip);
       break;
     case put_val_op:
-      code_p = a_vr(_put_x_val, code_p, pass_no, cip->cpc);
+      code_p = a_vr(_put_x_val, code_p, pass_no, cip);
       break;
     case get_num_op:
     case get_atom_op:
@@ -2615,7 +2636,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_rf(_put_struct, code_p, pass_no, cip->cpc);
       break;
     case put_unsafe_op:
-      code_p = a_vr((op_numbers)((int)_put_unsafe - 1), code_p, pass_no, cip->cpc);
+      code_p = a_vr((op_numbers)((int)_put_unsafe - 1), code_p, pass_no, cip);
       break;
     case unify_var_op:
       code_p = a_uvar(code_p, pass_no, cip);

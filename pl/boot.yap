@@ -16,6 +16,12 @@
 *************************************************************************/
 % process an input clause
 
+'$test'(I,D,H,[Y|L]) :-
+	arg(I,D,X), ( X=':' ; integer(X)),
+	arg(I,H,Y), var(Y), !,
+	I1 is I-1,
+	'$module_u_vars'(I1,D,H,L).
+
 
 % This one should come first so that disjunctions and long distance
 % cuts are compiled right with co-routining.
@@ -31,7 +37,7 @@ true :- true.
 	repeat,
 		'$set_input'(user),'$set_output'(user),
 		'$current_module'(Module),
-		( Module=user ->
+		( Module==user ->
 		    '$compile_mode'(_,0)
 		;
 		    format(user_error,'[~w]~n', [Module])

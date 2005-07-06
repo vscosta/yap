@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-06-08 00:35:27 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-07-06 15:10:03 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.163  2005/06/08 00:35:27  vsc
+* fix silly calls such as 0.15 ( bug reported by Jude Shavlik)
+*
 * Revision 1.162  2005/06/04 07:27:33  ricroc
 * long int support for tabling
 *
@@ -877,7 +880,7 @@ kill_static_child_indxs(StaticIndex *indx)
     kill_static_child_indxs(cl);
     cl = next;
   }
-  Yap_FreeCodeSpace((CODEADDR)indx);
+  Yap_FreeCodeSpace((char *)indx);
 }
 
 static void
@@ -919,7 +922,7 @@ kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
     }
   }
 #endif
-  Yap_FreeCodeSpace((CODEADDR)c);
+  Yap_FreeCodeSpace((char *)c);
 }
 
 static void

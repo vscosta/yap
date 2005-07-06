@@ -28,16 +28,14 @@ static char SccsId[] = "%W% %G%";
 #include <string.h>
 #endif
 
+YAP_ULONG_LONG Yap_opcount[_std_top + 1];
+
+YAP_ULONG_LONG Yap_2opcount[_std_top + 1][_std_top + 1];
+
+
 STATIC_PROTO(Int p_reset_op_counters, (void));
 STATIC_PROTO(Int p_show_op_counters, (void));
 STATIC_PROTO(Int p_show_ops_by_group, (void));
-
-static char *op_names[_std_top + 1] =
-{
-#define OPCODE(OP,TYPE) #OP
-#include "YapOpcodes.h"
-#undef  OPCODE
-};
 
 static Int 
 p_reset_op_counters()
@@ -46,7 +44,7 @@ p_reset_op_counters()
 
   for (i = 0; i <= _std_top; ++i)
     Yap_opcount[i] = 0;
-  return (TRUE);
+  return TRUE;
 }
 
 static void 
@@ -54,8 +52,8 @@ print_instruction(int inst)
 {
   int j;
 
-  fprintf(Yap_stderr, "%s", op_names[inst]);
-  for (j = strlen(op_names[inst]); j < 25; j++)
+  fprintf(Yap_stderr, "%s", Yap_op_names[inst]);
+  for (j = strlen(Yap_op_names[inst]); j < 25; j++)
     putc(' ', Yap_stderr);
   j = Yap_opcount[inst];
   if (j < 100000000) {
@@ -82,7 +80,7 @@ print_instruction(int inst)
       }
     }
   }
-  fprintf(Yap_stderr, "%d\n", Yap_opcount[inst]);
+  fprintf(Yap_stderr, "%llu\n", Yap_opcount[inst]);
 }
 
 static Int 
@@ -92,10 +90,11 @@ p_show_op_counters()
   char *program;
   Term t1 = Deref(ARG1);
 
-  if (IsVarTerm(t1) || !IsAtomTerm(t1))
-    return (FALSE);
-  else
+  if (IsVarTerm(t1) || !IsAtomTerm(t1)) {
+    return FALSE;
+  } else {
     program = RepAtom(AtomOfTerm(t1))->StrOfAE;
+  }
 
   fprintf(Yap_stderr, "\n Instructions Executed in %s \n", program);
   for (i = 0; i <= _std_top; ++i)
@@ -119,17 +118,7 @@ p_show_op_counters()
   print_instruction(_try_clause);
   print_instruction(_try_in);
   print_instruction(_retry);
-  print_instruction(_trust_in);
   print_instruction(_trust);
-  print_instruction(_retry_first);
-  print_instruction(_trust_first_in);
-  print_instruction(_trust_first);
-  print_instruction(_retry_tail);
-  print_instruction(_trust_tail_in);
-  print_instruction(_trust_tail);
-  print_instruction(_retry_head);
-  print_instruction(_trust_head_in);
-  print_instruction(_trust_head);
 
   fprintf(Yap_stderr, "\n Disjunction Instructions\n");
   print_instruction(_either);
@@ -149,13 +138,9 @@ p_show_op_counters()
   fprintf(Yap_stderr, "\n Indexing Instructions\n");
   fprintf(Yap_stderr, "\n  Switch on Type\n");
   print_instruction(_switch_on_type);
-  print_instruction(_switch_on_nonv);
-  print_instruction(_switch_last);
-  print_instruction(_switch_on_head);
   print_instruction(_switch_list_nl);
-  print_instruction(_switch_list_nl_prefetch);
-  print_instruction(_switch_nv_list);
-  print_instruction(_switch_l_list);
+  print_instruction(_switch_on_arg_type);
+  print_instruction(_switch_on_sub_arg_type);
   fprintf(Yap_stderr, "\n  Switch on Value\n");
   print_instruction(_if_cons);
   print_instruction(_go_on_cons);
@@ -243,6 +228,7 @@ p_show_op_counters()
   print_instruction(_put_x_var);
   print_instruction(_put_y_var);
   print_instruction(_put_x_val);
+  print_instruction(_put_xx_val);
   print_instruction(_put_y_val);
   print_instruction(_put_unsafe);
   print_instruction(_put_atom);
@@ -290,7 +276,7 @@ p_show_op_counters()
   print_instruction(_Ystop);
   print_instruction(_Nstop);
 
-  return (TRUE);
+  return TRUE;
 }
 
 typedef struct {
@@ -429,7 +415,8 @@ p_show_ops_by_group(void)
   c_put.nyvar =
     Yap_opcount[_put_y_var];
   c_put.nxval =
-    Yap_opcount[_put_x_val];
+    Yap_opcount[_put_x_val]+
+    2*Yap_opcount[_put_xx_val];
   c_put.nyval =
     Yap_opcount[_put_y_val];
   c_put.ncons =
@@ -543,7 +530,7 @@ p_show_ops_by_group(void)
     Yap_opcount[_p_arg_cv] +
     Yap_opcount[_p_arg_y_vv] +
     Yap_opcount[_p_arg_y_cv] +
-    Yap_opcount[_p_functor];
+    Yap_opcount[_p_functor] +
     Yap_opcount[_p_func2s_vv] +
     Yap_opcount[_p_func2s_cv] +
     Yap_opcount[_p_func2s_vc] +
@@ -559,8 +546,8 @@ p_show_ops_by_group(void)
     Yap_opcount[_cut] +
     Yap_opcount[_cut_t] +
     Yap_opcount[_cut_e] +
-    Yap_opcount[_comit_b_x] +
-    Yap_opcount[_comit_b_y];
+    Yap_opcount[_commit_b_x] +
+    Yap_opcount[_commit_b_y];
 
   c_control.nallocs =
     Yap_opcount[_allocate] +
@@ -585,11 +572,6 @@ p_show_ops_by_group(void)
 
   c_cp.ntries =
     Yap_opcount[_try_me] +
-    Yap_opcount[_try_me0] +
-    Yap_opcount[_try_me1] +
-    Yap_opcount[_try_me2] +
-    Yap_opcount[_try_me3] +
-    Yap_opcount[_try_me4] +
     Yap_opcount[_try_and_mark] +
     Yap_opcount[_try_c] +
     Yap_opcount[_try_clause] +
@@ -597,34 +579,14 @@ p_show_ops_by_group(void)
 
   c_cp.nretries =
     Yap_opcount[_retry_me] +
-    Yap_opcount[_retry_me0] +
-    Yap_opcount[_retry_me1] +
-    Yap_opcount[_retry_me2] +
-    Yap_opcount[_retry_me3] +
-    Yap_opcount[_retry_me4] +
     Yap_opcount[_retry_and_mark] +
     Yap_opcount[_retry_c] +
     Yap_opcount[_retry] +
-    Yap_opcount[_trust_in] +
-    Yap_opcount[_retry_first] +
-    Yap_opcount[_trust_first_in] +
-    Yap_opcount[_retry_tail] +
-    Yap_opcount[_trust_tail_in] +
-    Yap_opcount[_retry_head] +
-    Yap_opcount[_trust_head_in] +
     Yap_opcount[_or_else];
 
   c_cp.ntrusts =
     Yap_opcount[_trust_me] +
-    Yap_opcount[_trust_me0] +
-    Yap_opcount[_trust_me1] +
-    Yap_opcount[_trust_me2] +
-    Yap_opcount[_trust_me3] +
-    Yap_opcount[_trust_me4] +
     Yap_opcount[_trust] +
-    Yap_opcount[_trust_first] +
-    Yap_opcount[_trust_tail] +
-    Yap_opcount[_trust_head] +
     Yap_opcount[_or_last];
 
   choice_pts =
@@ -635,13 +597,9 @@ p_show_ops_by_group(void)
   indexes =
     Yap_opcount[_jump_if_var] +
     Yap_opcount[_switch_on_type] +
-    Yap_opcount[_switch_on_nonv] +
-    Yap_opcount[_switch_last] +
-    Yap_opcount[_switch_on_head] +
     Yap_opcount[_switch_list_nl] +
-    Yap_opcount[_switch_list_nl_prefetch] +
-    Yap_opcount[_switch_nv_list] +
-    Yap_opcount[_switch_l_list] +
+    Yap_opcount[_switch_on_arg_type] +
+    Yap_opcount[_switch_on_sub_arg_type] +
     Yap_opcount[_switch_on_cons] +
     Yap_opcount[_go_on_cons] +
     Yap_opcount[_if_cons] +
@@ -820,16 +778,65 @@ p_show_ops_by_group(void)
   fprintf(Yap_stderr, "   TOTAL            instructions: %8d (%3d%%)\n\n", total,
 	     (total * 100) / total);
 
-  return (TRUE);
+  return TRUE;
+}
+
+static Int
+p_show_sequences(void)
+{
+  int i, j;
+  YAP_ULONG_LONG min;
+  YAP_ULONG_LONG sum = 0;
+  Term t = Deref(ARG1);
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, "shows_sequences/1");
+    return FALSE;
+  }
+  if (!IsIntegerTerm(t)) {
+    Yap_Error(TYPE_ERROR_INTEGER, t, "shows_sequences/1");
+    return FALSE;
+  }
+  min = (YAP_ULONG_LONG)IntegerOfTerm(t);
+  if (min <= 0) {
+    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "shows_sequences/1");
+    return FALSE;
+  }
+  if (min <= 0) {
+    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "shows_sequences/1");
+    return FALSE;
+  }
+  for (i = 0; i <= _std_top; ++i) {
+    sum += Yap_opcount[i];
+  }
+  for (i = 0; i <= _std_top; ++i) {
+    for (j = 0; j <= _std_top; ++j) {
+      YAP_ULONG_LONG seqs = Yap_2opcount[i][j];
+      if (seqs && sum/seqs <= min) {
+	/*
+	Term t[3], t0;
+	Functor f = 
+	t[0] = Yap_MkFloatTerm(((double)seqs*100.0)/sum);
+	t[1] = Yap_LookupAtom(Yap_op_names[i]);
+	t[2] = Yap_LookupAtom(Yap_op_names[j]);
+	t0 = MkApplTerm(
+	Yap_MkPairTerm(Yap_op_names[i]
+	*/
+	fprintf(stderr,"%f -> %s,%s\n",((double)seqs*100.0)/sum,Yap_op_names[i],Yap_op_names[j]);
+	/* we found one */
+      }
+    }  
+  }
+  return TRUE;
 }
 
 void 
 Yap_InitAnalystPreds(void)
 {
-  Yap_InitCPred("reset_op_counters", 0, p_reset_op_counters, SafePredFlag |SyncPredFlag);
-  Yap_InitCPred("show_op_counters", 1, p_show_op_counters, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("show_ops_by_group", 1, p_show_ops_by_group, SafePredFlag |SyncPredFlag);
-
+  Yap_InitCPred("wam_profile_reset_op_counters", 0, p_reset_op_counters, SafePredFlag |SyncPredFlag);
+  Yap_InitCPred("wam_profile_show_op_counters", 1, p_show_op_counters, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("wam_profile_show_ops_by_group", 1, p_show_ops_by_group, SafePredFlag |SyncPredFlag);
+  Yap_InitCPred("wam_profile_show_sequences", 1, p_show_sequences, SafePredFlag |SyncPredFlag);
 }
 
 #endif /* ANALYST */

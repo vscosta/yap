@@ -1785,8 +1785,10 @@ p_shell (void)
       int child = fork ();
       if (child == 0)
 	{			/* let the children go */
-	  execl (shell, shell, "-c", Yap_FileNameBuf, NIL);
-	  exit (TRUE);
+	  if (!execl (shell, shell, "-c", Yap_FileNameBuf, NIL)) {
+	    exit(-1);
+	  }
+	  exit(TRUE);
 	}
       {				/* put the father on wait */
 	int result = child < 0 ||

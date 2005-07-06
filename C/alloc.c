@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.71 2005-05-31 19:42:27 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.72 2005-07-06 15:10:02 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -823,7 +823,7 @@ ExtendWorkSpace(Int s, int fixed_allocation)
   MALLOC_T a;
   prolog_exec_mode OldPrologMode = Yap_PrologMode;
   MALLOC_T base = WorkSpaceTop;
-#if !defined(_AIX) || !defined(__hpux) || !defined(__APPLE__)
+#if !defined(_AIX) && !defined(__hpux) && !defined(__APPLE__)
    int fd;  
 #endif
 

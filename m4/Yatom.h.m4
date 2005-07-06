@@ -571,5 +571,3 @@ typedef enum {
   CHARSIO_MODULE = 4,
   TERMS_MODULE = 5
 } default_modules;
-
-

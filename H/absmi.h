@@ -148,17 +148,6 @@ register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
  **********************************************************************/
 #include <stdio.h>
 #endif
-#ifdef ANALYST
-
-static char *op_names[_std_top + 1] =
-{
-#define OPCODE(OP,TYPE) #OP
-#include "YapOpcodes.h"
-#undef  OPCODE
-};
-
-#endif
-
 
 #if PUSH_REGS
 

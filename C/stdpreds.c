@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-05-26 18:01:11 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2005-07-06 15:10:14 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.89  2005/05/26 18:01:11  rslopes
+* *** empty log message ***
+*
 * Revision 1.88  2005/04/27 20:09:25  vsc
 * indexing code could get confused with suspension points
 * some further improvements on oveflow handling
@@ -343,17 +346,6 @@ search_pc_pred(yamop *pc_ptr,clauseentry *beg, clauseentry *end) {
 extern void Yap_InitAbsmi(void);
 extern int rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0);
 
-#ifdef ANALYST
-static char *op_names[_std_top + 1] =
-{
-#define OPCODE(OP,TYPE) #OP
-#include "YapOpcodes.h"
-#undef  OPCODE
-};
-#else
-extern char *op_names[];
-#endif
-
 static Int profend(void); 
 
 static int
@@ -409,13 +401,13 @@ showprofres(UInt type) {
       }
       if (oldpc>(void *) rational_tree_loop && oldpc<(void *) Yap_InitAbsmi) { InUnify++; continue; }
       y=(yamop *) ((long) pc_ptr-20);
-      if ((void *) y->opc==Yap_ABSMI_OPCODES[_call_cpred] || (void *) y->opc==Yap_ABSMI_OPCODES[_call_usercpred]) {
+      if (y->opc==Yap_opcode(_call_cpred) || y->opc==Yap_opcode(_call_usercpred)) {
              InCCall++;  /* I Was in a C Call */
 	     pc_ptr=y;
     	     /* 
 	      printf("Aqui está um call_cpred(%p) \n",y->u.sla.sla_u.p->cs.f_code);
               for(i=0;i<_std_top && pc_ptr->opc!=Yap_ABSMI_OPCODES[i];i++);
-      	         printf("Outro syscall diferente  %s\n", op_names[i]);
+      	         printf("Outro syscall diferente  %s\n", Yap_op_names[i]);
              */
              continue;
        } 
@@ -1521,7 +1513,7 @@ p_atom_length(void)
     }
     return((Int)strlen(RepAtom(AtomOfTerm(t1))->StrOfAE) == len);
   } else {
-    Term tj = MkIntTerm(strlen(RepAtom(AtomOfTerm(t1))->StrOfAE));
+    Term tj = MkIntegerTerm(strlen(RepAtom(AtomOfTerm(t1))->StrOfAE));
     return Yap_unify_constant(t2,tj);
   }
 }

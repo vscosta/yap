@@ -201,7 +201,7 @@ typedef struct CEXPENTRY {
          Term   TermOfCE;
 	 PInstr *CodeOfCE;
 	 Term   VarOfCE;
-	 struct CEXPENTRY *RightCE, *LeftCE;
+	 struct CEXPENTRY *NextCE;
        } CExpEntry;
 
 
@@ -242,14 +242,15 @@ typedef struct intermediates {
 #define	 PermVar	0x03000000L
 
 
-#define save_b_flag	   10000
-#define commit_b_flag	   10001
-#define save_appl_flag	   10002
-#define save_pair_flag	   10004
-#define f_flag		   10008
-#define bt1_flag	   10010
-#define bt2_flag	   10020
-#define patch_b_flag	   10040
+#define save_b_flag	   0x10000
+#define commit_b_flag	   0x10001
+#define save_appl_flag	   0x10002
+#define save_pair_flag	   0x10004
+#define f_flag		   0x10008
+#define bt1_flag	   0x10010
+#define bt2_flag	   0x10020
+#define patch_b_flag	   0x10040
+#define init_v_flag	   0x10080
 
 
 #define Zero	 0

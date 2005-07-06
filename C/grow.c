@@ -893,7 +893,7 @@ growatomtable(void)
       Atom natom;
       CELL hash;
 
-      hash = HashFunction(ap->StrOfAE) % nsize;
+      hash = HashFunction((unsigned char *)ap->StrOfAE) % nsize;
       natom = ap->NextOfAE;
       ap->NextOfAE = ntb[hash].Entry;
       ntb[hash].Entry = catom;

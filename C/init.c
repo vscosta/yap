@@ -192,10 +192,6 @@ void **Yap_ABSMI_OPCODES;
 int Yap_sockets_io=0;
 #endif
 
-#if ANALYST
-int Yap_opcount[_std_top + 1];
-#endif
-
 #if DEBUG
 #if COROUTINING
 int  Yap_Portray_delays = FALSE;
@@ -903,6 +899,7 @@ InitCodes(void)
   Yap_heap_regs->consultbase = Yap_heap_regs->consultsp =
     Yap_heap_regs->consultlow + Yap_heap_regs->consultcapacity;
   Yap_heap_regs->compiler_compile_mode = 0; /* fast will be for native code */
+  Yap_heap_regs->compiler_optimizer_on = TRUE;
   Yap_heap_regs->maxdepth = 0;
   Yap_heap_regs->maxlist  = 0;
 

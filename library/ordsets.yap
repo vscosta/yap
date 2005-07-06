@@ -156,39 +156,36 @@ ord_intersect(L1, L2, L) :-
 %   is true when Intersection is the ordered representation of Set1
 %   and Set2, provided that Set1 and Set2 are ordered sets.
 
-ord_intersection(_, [], []) :- !.
 ord_intersection([], _, []) :- !.
+ord_intersection([_|_], [], []) :- !.
 ord_intersection([Head1|Tail1], [Head2|Tail2], Intersection) :-
-	compare(Order, Head1, Head2),
-	ord_intersection(Order, Head1, Tail1, Head2, Tail2, Intersection).
-
-ord_intersection(=, Head,  Tail1, _,     Tail2, [Head|Intersection]) :-
-	ord_intersection(Tail1, Tail2, Intersection).
-ord_intersection(<, _,     Tail1, Head2, Tail2, Intersection) :-
-	ord_intersection(Tail1, [Head2|Tail2], Intersection).
-ord_intersection(>, Head1, Tail1, _,     Tail2, Intersection) :-
-	ord_intersection([Head1|Tail1], Tail2, Intersection).
-
-
-
+	( Head1 == Head2 ->
+	    Intersection = [Head1|Tail],
+	    ord_intersection(Tail1, Tail2, Tail)
+	;
+	    Head1 @< Head2 ->
+	    ord_intersection(Tail1, [Head2|Tail2], Intersection)
+	;
+	    ord_intersection([Head1|Tail1], Tail2, Intersection)
+	).
 
 %   ord_intersection(+Set1, +Set2, ?Intersection, ?Difference)
 %   is true when Intersection is the ordered representation of Set1
 %   and Set2, provided that Set1 and Set2 are ordered sets.
 
-ord_intersection(_, [], [], []) :- !.
 ord_intersection([], L, [], L) :- !.
+ord_intersection([_|_], [], [], []) :- !.
 ord_intersection([Head1|Tail1], [Head2|Tail2], Intersection, Difference) :-
-	compare(Order, Head1, Head2),
-	ord_intersection(Order, Head1, Tail1, Head2, Tail2, Intersection, Difference).
-
-ord_intersection(=, Head,  Tail1, _,     Tail2, [Head|Intersection], Difference) :-
-	ord_intersection(Tail1, Tail2, Intersection, Difference).
-ord_intersection(<, _,     Tail1, Head2, Tail2, Intersection, Difference) :-
-	ord_intersection(Tail1, [Head2|Tail2], Intersection, Difference).
-ord_intersection(>, Head1, Tail1, Head2,  Tail2, Intersection, [Head2|Difference]) :-
-	ord_intersection([Head1|Tail1], Tail2, Intersection, Difference).
-
+	( Head1 == Head2 ->
+	    Intersection = [Head1|Tail],
+	    ord_intersection(Tail1, Tail2, Tail, Difference)
+	;
+	    Head1 @< Head2 ->
+	    ord_intersection(Tail1, [Head2|Tail2], Intersection, Difference)
+	;
+	    Difference = [Head2|HDifference],
+	    ord_intersection([Head1|Tail1], Tail2, Intersection, HDifference)
+	).
 
 
 %   ord_seteq(+Set1, +Set2)

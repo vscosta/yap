@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2005-06-04 07:26:43 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-07-06 15:10:15 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.7  2005/06/04 07:26:43  ricroc
+* long int support for tabling
+*
 * Revision 1.6  2005/06/03 08:18:25  ricroc
 * float support for tabling
 *
@@ -86,7 +89,7 @@ restore_opcodes(yamop *pc)
     op_numbers op = Yap_op_from_opcode(pc->opc);
     pc->opc = Yap_opcode(op);
 #ifdef DEBUG_RESTORE2
-    fprintf(stderr, "%s ", op_names[op]);
+    fprintf(stderr, "%s ", Yap_op_names[op]);
 #endif
     switch (op) {
     case _Nstop:
@@ -367,6 +370,13 @@ restore_opcodes(yamop *pc)
       pc->u.xx.xr = XAdjust(pc->u.xx.xr);
       pc->u.xx.xl = XAdjust(pc->u.xx.xl);
       pc = NEXTOP(pc,xx);
+      break;
+    case _put_xx_val:
+      pc->u.xxxx.xr1 = XAdjust(pc->u.xxxx.xr1);
+      pc->u.xxxx.xl1 = XAdjust(pc->u.xxxx.xl1);
+      pc->u.xxxx.xr2 = XAdjust(pc->u.xxxx.xr2);
+      pc->u.xxxx.xl2 = XAdjust(pc->u.xxxx.xl2);
+      pc = NEXTOP(pc,xxxx);
       break;
       /* instructions type yx */
     case _get_y_var:

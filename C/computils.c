@@ -11,8 +11,13 @@
 * File:		computils.c						 *
 * comments:	some useful routines for YAP's compiler			 *
 *									 *
-* Last rev:     $Date: 2005-01-04 02:50:21 $							 *
+* Last rev:     $Date: 2005-07-06 15:10:04 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.26  2005/01/04 02:50:21  vsc
+* - allow MegaClauses with blobs
+* - change Diffs to be thread specific
+* - include Christian's updates
+*
 * Revision 1.25  2004/11/19 17:14:13  vsc
 * a few fixes for 64 bit compiling.
 *
@@ -101,7 +106,7 @@ Yap_is_a_test_pred (Term arg, Term mod)
       return FALSE;
     if (pe->PredFlags & AsmPredFlag) {
       int op = pe->PredFlags & 0x7f;
-      if (op >= _atom && op <= _primitive) {
+      if (op >= _atom && op <= _eq) {
 	return TRUE;
       }
       return FALSE;
@@ -368,7 +373,7 @@ ShowOp (char *f, struct PSEUDO *cpc)
 	      Yap_DebugPutc (Yap_c_error_stream,v->KindOfVE == PermVar ? 'Y' : 'X');
 	      Yap_plwrite (MkIntTerm ((v->NoOfVE) & MaskVarAdrs), Yap_DebugPutc, 0);
 	    }
-	    break;
+	    break;	
 	  case 'N':
 	    {
 	      Ventry *v;
@@ -379,7 +384,6 @@ ShowOp (char *f, struct PSEUDO *cpc)
 	      Yap_DebugPutc (Yap_c_error_stream,v->KindOfVE == PermVar ? 'Y' : 'X');
 	      Yap_plwrite (MkIntTerm ((v->NoOfVE) & MaskVarAdrs), Yap_DebugPutc, 0);
 	    }
-	    break;
 	  case 'm':
 	    Yap_plwrite (MkAtomTerm ((Atom) arg), Yap_DebugPutc, 0);
 	    Yap_DebugPutc (Yap_c_error_stream,'/');
@@ -527,7 +531,8 @@ static char *opformat[] =
   "nop",
   "get_var\t\t%v,%r",
   "put_var\t\t%v,%r",
-  "get_val\t\t%v,%r",
+  "get_val\t\t%v,%r"
+,
   "put_val\t\t%v,%r",
   "get_atom\t%a,%r",
   "put_atom\t%a,%r",

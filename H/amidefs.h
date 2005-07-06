@@ -11,8 +11,11 @@
 * File:		amidefs.h						 *
 * comments:	Abstract machine peculiarities				 *
 *									 *
-* Last rev:     $Date: 2005-05-30 06:07:35 $							 *
+* Last rev:     $Date: 2005-07-06 15:10:15 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.28  2005/05/30 06:07:35  vsc
+* changes to support more tagging schemes from tabulation.
+*
 * Revision 1.27  2005/04/10 04:01:13  vsc
 * bug fixes, I hope!
 *
@@ -85,8 +88,12 @@ typedef enum {
 #undef  OPCODE
 } op_numbers;
 
-
 #define _std_top	_p_execute_tail
+
+/* use similar trick for keeping instruction names */
+#if defined(ANALYST) || defined(DEBUG)
+extern char *Yap_op_names[_std_top + 1];
+#endif
 
 typedef enum {
 	_atom,
@@ -100,9 +107,9 @@ typedef enum {
 	_cut_by,
 	_db_ref,
 	_primitive,
-	_equal,
 	_dif,
 	_eq,
+	_equal,
 	_plus,
 	_minus,
 	_times,
@@ -498,6 +505,13 @@ typedef struct yami {
 	 CELL next;
        } xxx;
        struct {
+	 wamreg                xl1;
+	 wamreg                xl2;
+	 wamreg                xr1;
+	 wamreg                xr2;
+	 CELL next;
+       } xxxx;
+       struct {
 	 wamreg                x;
 	 Int                 c;
 	 wamreg                xi;
@@ -720,7 +734,9 @@ extern void **Yap_ABSMI_OPCODES;
 
 /* used to find out how many instructions of each kind are executed */
 #ifdef ANALYST
-extern int Yap_opcount[_std_top+1];
+extern YAP_ULONG_LONG Yap_opcount[_std_top + 1];
+
+extern YAP_ULONG_LONG Yap_2opcount[_std_top + 1][_std_top + 1];
 #endif /* ANALYST */
 
 #if DEPTH_LIMIT
