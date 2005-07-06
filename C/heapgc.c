@@ -1722,6 +1722,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
     if (very_verbose) {
       PredEntry *pe = Yap_PredForChoicePt(gc_B);
 
+#if defined(ANALYST) || defined(DEBUG)
       if (pe == NULL) {
 	fprintf(Yap_stderr,"%%       marked %ld (%s)\n", total_marked, Yap_op_names[opnum]);
       } else if (pe->ArityOfPE) {
@@ -1729,6 +1730,15 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       } else {
 	fprintf(Yap_stderr,"%%       %s marked %ld (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, Yap_op_names[opnum]);
       }
+#else
+      if (pe == NULL) {
+	fprintf(Yap_stderr,"%%       marked %ld (%u)\n", total_marked, (unsigned int)opnum);
+      } else if (pe->ArityOfPE) {
+	fprintf(Yap_stderr,"%%       %s/%d marked %ld (%u)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, (unsigned int)opnum);
+      } else {
+	fprintf(Yap_stderr,"%%       %s marked %ld (%u)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, (unsigned int)opnum);
+      }
+#endif
     }
     {
       /* find out how many cells are still alive in the trail */
