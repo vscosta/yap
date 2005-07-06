@@ -27,7 +27,7 @@ static char     SccsId[] = "%W% %G%";
 #define EARLY_RESET 1
 #if !defined(TABLING)
 #define EASY_SHUNTING 1
-#endif
+#endif /* !TABLING */
 #define HYBRID_SCHEME 1
 
 
@@ -1684,7 +1684,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
     *su_cl = NEXTOP(PredStaticClause->CodeOfPred,ld);
 #ifdef TABLING
   dep_fr_ptr depfr = LOCAL_top_dep_fr;
-#endif
+#endif /* TABLING */
 #ifdef EASY_SHUNTING
   HB = H;
 #endif
@@ -1714,7 +1714,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
     if (rtp == NULL) {
       opnum = _table_completion;
     } else
-#endif
+#endif /* TABLING */
       {
 	op = rtp->opc;
 	opnum = Yap_op_from_opcode(op);
@@ -1776,7 +1776,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       else
 #ifdef TABLING
 	if (opnum != _table_completion)
-#endif
+#endif /* TABLING */
 	  mark_environments((CELL_PTR) gc_B->cp_env,
 			    EnvSize((CELL_PTR) (gc_B->cp_cp)),
 			    EnvBMap((CELL_PTR) (gc_B->cp_cp)));
@@ -1828,57 +1828,69 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	nargs = 0;
 	break;
 #ifdef TABLING
-      case _table_answer_resolution:
-	{
-	  CELL *answ_fr;
-	  CELL vars;
-	  
-	  /* fetch the solution */
-	  init_substitution_pointer(gc_B, answ_fr, CONS_CP(gc_B)->cp_dep_fr);
-	  vars = *answ_fr++;
-	  while (vars--) {	
-	    mark_external_reference(answ_fr);
-	    answ_fr++;
-	  }
-	  nargs = 0;
-	}
-	break;
-      case _table_completion:
-	{
-	  int nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
-	  saved_reg = (CELL *)(GEN_CP(gc_B) + 1) + nargs;
-	  nargs = *saved_reg++;
-	  while (nargs--) {	
-	    mark_external_reference(saved_reg);
-	    saved_reg++;
-	  }
-	}
-	nargs = 0;
-	break;
       case _table_retry_me:
       case _table_trust_me:
       case _table_retry:
       case _table_trust:
 	{
-	  int nargs = rtp->u.ld.s;
-	  /* for each saved register */
-	  for (saved_reg = (CELL *)(GEN_CP(gc_B) + 1);
-	       /* assumes we can count registers in CP this
-		  way */
-	       saved_reg < (CELL *)(GEN_CP(gc_B) + 1) + nargs;
-	       saved_reg++) {
-	    mark_external_reference(saved_reg);
-	  }
-	  nargs = *saved_reg++;
+	  CELL *vars_ptr, vars;
+	  vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
+	  nargs = rtp->u.ld.s;
 	  while (nargs--) {	
-	    mark_external_reference(saved_reg);
-	    saved_reg++;
+	    mark_external_reference(vars_ptr);
+	    vars_ptr++;
+	  }
+	  vars = *vars_ptr++;
+	  while (vars--) {	
+	    mark_external_reference(vars_ptr);
+	    vars_ptr++;
 	  }
 	}
 	nargs = 0;
 	break;
-      case _trie_retry_nothing:
-      case _trie_trust_nothing:
+      case _table_completion:
+	{
+	  CELL *vars_ptr, vars;
+	  vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
+	  nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
+	  while (nargs--) {	
+	    mark_external_reference(vars_ptr);
+	    vars_ptr++;
+	  }
+	  vars = *vars_ptr++;
+	  while (vars--) {	
+	    mark_external_reference(vars_ptr);
+	    vars_ptr++;
+	  }
+	}
+	nargs = 0;
+	break;
+      case _table_answer_resolution:
+	{
+	  CELL *vars_ptr, vars;
+	  init_substitution_pointer(gc_B, vars_ptr, CONS_CP(gc_B)->cp_dep_fr);
+	  vars = *vars_ptr++;
+	  while (vars--) {	
+	    mark_external_reference(vars_ptr);
+	    vars_ptr++;
+	  }
+	}
+	nargs = 0;
+	break;
+      case _table_load_answer:
+	{
+	  CELL *vars_ptr, vars;
+	  vars_ptr = (CELL *) (LOAD_CP(gc_B) + 1);
+	  vars = *vars_ptr++;
+	  while (vars--) {	
+	    mark_external_reference(vars_ptr);
+	    vars_ptr++;
+	  }
+	}
+	nargs = 0;
+	break;
+      case _trie_retry_null:
+      case _trie_trust_null:
       case _trie_retry_var:
       case _trie_trust_var:
       case _trie_retry_val:
@@ -1889,44 +1901,45 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _trie_trust_list:
       case _trie_retry_struct:
       case _trie_trust_struct:
+      case _trie_retry_extension:
+      case _trie_trust_extension:
       case _trie_retry_float:
       case _trie_trust_float:
       case _trie_retry_long:
       case _trie_trust_long:
 	{
-	  CELL *aux_ptr;
-	  int heap_arity;
-	  int vars_arity;
-	  int subs_arity;
-
-	  /* fetch the solution */
-	  aux_ptr = (CELL *)(gc_B+1);
-	  heap_arity = *aux_ptr;
-	  vars_arity = *(aux_ptr + heap_arity + 1);
-	  subs_arity = *(aux_ptr + heap_arity + 2);
+	  CELL *vars_ptr;
+	  int heap_arity, vars_arity, subs_arity;
+	  vars_ptr = (CELL *)(gc_B + 1);
+	  heap_arity = *vars_ptr;
+	  vars_arity = *(vars_ptr + heap_arity + 1);
+	  subs_arity = *(vars_ptr + heap_arity + 2);
+	  vars_ptr += heap_arity + subs_arity + vars_arity + 2;
+	  if (vars_arity) {
+	    while (vars_arity--) {	
+	      mark_external_reference(vars_ptr);
+	      vars_ptr--;
+	    }
+	  }
+	  if (subs_arity) {
+	    while (subs_arity--) {	
+	      mark_external_reference(vars_ptr);
+	      vars_ptr--;
+	    }
+	  }
+	  vars_ptr -= 2;
 	  if (heap_arity) {
-	    int i;
-	    aux_ptr += heap_arity + subs_arity + vars_arity + 1;
-	    for (i = 0; i < heap_arity + subs_arity + vars_arity + 1; i++) {
-	      mark_external_reference(aux_ptr);
-	      aux_ptr--;
-	    }
-	  } else {
-	    int i;
-	    aux_ptr += 2 + subs_arity + vars_arity;
-	    for (i = 0; i < vars_arity; i++) {
-	      mark_external_reference(aux_ptr);
-	      aux_ptr--;
-	    }
-	    for (i = 1; i < subs_arity; i++) {
-	      aux_ptr--;
-	      mark_external_reference(aux_ptr);
+	    while (heap_arity--) {	
+	      if (*vars_ptr == 0)
+		break;  /* term extension mark: float/longint */
+	      mark_external_reference(vars_ptr);
+	      vars_ptr--;
 	    }
 	  }
 	}
 	nargs = 0;
 	break;
-#endif
+#endif /* TABLING */
       case _profiled_retry_and_mark:
       case _count_retry_and_mark:
       case _retry_and_mark:
@@ -2464,7 +2477,7 @@ sweep_choicepoints(choiceptr gc_B)
 {
 #ifdef TABLING
    dep_fr_ptr depfr = LOCAL_top_dep_fr;
-#endif
+#endif /* TABLING */
 
   while(gc_B != NULL) {
     yamop *rtp = gc_B->cp_ap;
@@ -2481,7 +2494,7 @@ sweep_choicepoints(choiceptr gc_B)
     if (rtp == NULL) {
       opnum = _table_completion;
     } else
-#endif
+#endif /* TABLING */
       {
 	op = rtp->opc;
 	opnum = Yap_op_from_opcode(op);
@@ -2535,160 +2548,174 @@ sweep_choicepoints(choiceptr gc_B)
       opnum = Yap_op_from_opcode(op);
       goto restart_cp;
 #ifdef TABLING
-    case _table_answer_resolution:
-      {
-	CELL *answ_fr;
-	CELL vars;
-
-	sweep_environments(gc_B->cp_env,
-			   EnvSize((CELL_PTR) (gc_B->cp_cp)),
-			   EnvBMap((CELL_PTR) (gc_B->cp_cp)));
-
-	/* fetch the solution */
-	init_substitution_pointer(gc_B, answ_fr, CONS_CP(gc_B)->cp_dep_fr);
-	vars = *answ_fr++;
-	while (vars--) {	
-	  CELL cp_cell = *answ_fr;
-	  if (MARKED_PTR(answ_fr)) {
-	    UNMARK(answ_fr);
-	    if (HEAP_PTR(cp_cell)) {
-	      into_relocation_chain(answ_fr, GET_NEXT(cp_cell));
-	    }
-	  }
-	  answ_fr++;
-	}
-      }
-      break;
-      case _table_completion:
-	{
-	  int nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);	  
-	  CELL *saved_reg;
-
-	  saved_reg = (CELL *)(GEN_CP(gc_B) + 1) + nargs;
-	  nargs = *saved_reg++;
-	  while (nargs--) {	
-	    CELL cp_cell = *saved_reg;
-	    if (MARKED_PTR(saved_reg)) {
-	      UNMARK(saved_reg);
-	      if (HEAP_PTR(cp_cell)) {
-		into_relocation_chain(saved_reg, GET_NEXT(cp_cell));
-	      }
-	    }
-	    saved_reg++;
-	  }
-	}
-	break;
     case _table_retry_me:
     case _table_trust_me:
     case _table_retry:
     case _table_trust:
       {
 	int nargs;
-	CELL *saved_reg;
-	
-	sweep_environments(gc_B->cp_env,
-			   EnvSize((CELL_PTR) (gc_B->cp_cp)),
-			   EnvBMap((CELL_PTR) (gc_B->cp_cp)));
-
+	CELL *vars_ptr, vars;
+	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+	vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
 	nargs = rtp->u.ld.s;
-	/* for each saved register */
-	for (saved_reg = (CELL *)(GEN_CP(gc_B) + 1);
-	     /* assumes we can count registers in CP this
-		way */
-	     saved_reg < (CELL *)(GEN_CP(gc_B) + 1) + nargs;
-	     saved_reg++) {
-	  CELL cp_cell = *saved_reg;
-	  if (MARKED_PTR(saved_reg)) {
-	    UNMARK(saved_reg);
+	while(nargs--) {
+	  CELL cp_cell = *vars_ptr;
+	  if (MARKED_PTR(vars_ptr)) {
+	    UNMARK(vars_ptr);
 	    if (HEAP_PTR(cp_cell)) {
-	      into_relocation_chain(saved_reg, GET_NEXT(cp_cell));
+	      into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
 	    }
 	  }
+	  vars_ptr++;
 	}
-	saved_reg = (CELL *)(GEN_CP(gc_B) + 1) + nargs;
-	nargs = *saved_reg++;
-	while (nargs--) {	
-	  CELL cp_cell = *saved_reg;
-	  if (MARKED_PTR(saved_reg)) {
-	    UNMARK(saved_reg);
+	vars = *vars_ptr++;
+	while (vars--) {	
+	  CELL cp_cell = *vars_ptr;
+	  if (MARKED_PTR(vars_ptr)) {
+	    UNMARK(vars_ptr);
 	    if (HEAP_PTR(cp_cell)) {
-	      into_relocation_chain(saved_reg, GET_NEXT(cp_cell));
+	      into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
 	    }
 	  }
-	  saved_reg++;
+	  vars_ptr++;
 	}
       }
       break;
-      case _trie_retry_nothing:
-      case _trie_trust_nothing:
-      case _trie_retry_var:
-      case _trie_trust_var:
-      case _trie_retry_val:
-      case _trie_trust_val:
-      case _trie_retry_atom:
-      case _trie_trust_atom:
-      case _trie_retry_list:
-      case _trie_trust_list:
-      case _trie_retry_struct:
-      case _trie_trust_struct:
-      case _trie_retry_float:
-      case _trie_trust_float:
-      case _trie_retry_long:
-      case _trie_trust_long:
-	{
-	  CELL *aux_ptr;
-	  int heap_arity;
-	  int vars_arity;
-	  int subs_arity;
-
-	  sweep_environments(gc_B->cp_env,
-			     EnvSize((CELL_PTR) (gc_B->cp_cp)),
-			     EnvBMap((CELL_PTR) (gc_B->cp_cp)));
-
-	  /* fetch the solution */
-	  aux_ptr = (CELL *)(gc_B+1);
-	  heap_arity = *aux_ptr;
-	  vars_arity = *(aux_ptr + heap_arity + 1);
-	  subs_arity = *(aux_ptr + heap_arity + 2);
-	  if (heap_arity) {
-	    int i;
-	    aux_ptr += heap_arity + subs_arity + vars_arity + 1;
-	    for (i = 0; i < heap_arity + subs_arity + vars_arity + 1; i++) {
-	      CELL cp_cell = *aux_ptr;
-	      if (MARKED_PTR(aux_ptr)) {
-		UNMARK(aux_ptr);
-		if (HEAP_PTR(cp_cell)) {
-		  into_relocation_chain(aux_ptr, GET_NEXT(cp_cell));
-		}
-	      }
-	      aux_ptr--;
-	    }
-	  } else {
-	    int i;
-	    aux_ptr += 2 + subs_arity + vars_arity;
-	    for (i = 0; i < vars_arity; i++) {
-	      CELL cp_cell = *aux_ptr;
-	      if (MARKED_PTR(aux_ptr)) {
-		UNMARK(aux_ptr);
-		if (HEAP_PTR(cp_cell)) {
-		  into_relocation_chain(aux_ptr, GET_NEXT(cp_cell));
-		}
-	      }
-	      aux_ptr--;
-	    }
-	    for (i = 1; i < subs_arity; i++) {
-	      CELL cp_cell = *--aux_ptr;
-	      if (MARKED_PTR(aux_ptr)) {
-		UNMARK(aux_ptr);
-		if (HEAP_PTR(cp_cell)) {
-		  into_relocation_chain(aux_ptr, GET_NEXT(cp_cell));
-		}
-	      }
+    case _table_completion:
+      {
+	int nargs;
+	CELL *vars_ptr, vars;
+	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+	vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
+	nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);	  
+	while(nargs--) {
+	  CELL cp_cell = *vars_ptr;
+	  if (MARKED_PTR(vars_ptr)) {
+	    UNMARK(vars_ptr);
+	    if (HEAP_PTR(cp_cell)) {
+	      into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
 	    }
 	  }
+	  vars_ptr++;
 	}
-	break;
-#endif
+	vars = *vars_ptr++;
+	while (vars--) {	
+	  CELL cp_cell = *vars_ptr;
+	  if (MARKED_PTR(vars_ptr)) {
+	    UNMARK(vars_ptr);
+	    if (HEAP_PTR(cp_cell)) {
+	      into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
+	    }
+	  }
+	  vars_ptr++;
+	}
+      }
+      break;
+    case _table_answer_resolution:
+      {
+	CELL *vars_ptr, vars;
+	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+	init_substitution_pointer(gc_B, vars_ptr, CONS_CP(gc_B)->cp_dep_fr);
+	vars = *vars_ptr++;
+	while (vars--) {	
+	  CELL cp_cell = *vars_ptr;
+	  if (MARKED_PTR(vars_ptr)) {
+	    UNMARK(vars_ptr);
+	    if (HEAP_PTR(cp_cell)) {
+	      into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
+	    }
+	  }
+	  vars_ptr++;
+	}
+      }
+      break;
+    case _table_load_answer:
+      {
+	CELL *vars_ptr, vars;
+	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+	vars_ptr = (CELL *) (LOAD_CP(gc_B) + 1);
+	vars = *vars_ptr++;
+	while (vars--) {	
+	  CELL cp_cell = *vars_ptr;
+	  if (MARKED_PTR(vars_ptr)) {
+	    UNMARK(vars_ptr);
+	    if (HEAP_PTR(cp_cell)) {
+	      into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
+	    }
+	  }
+	  vars_ptr++;
+	}
+      }
+      break;
+    case _trie_retry_null:
+    case _trie_trust_null:
+    case _trie_retry_var:
+    case _trie_trust_var:
+    case _trie_retry_val:
+    case _trie_trust_val:
+    case _trie_retry_atom:
+    case _trie_trust_atom:
+    case _trie_retry_list:
+    case _trie_trust_list:
+    case _trie_retry_struct:
+    case _trie_trust_struct:
+    case _trie_retry_extension:
+    case _trie_trust_extension:
+    case _trie_retry_float:
+    case _trie_trust_float:
+    case _trie_retry_long:
+    case _trie_trust_long:
+      {
+	CELL *vars_ptr;
+	int heap_arity, vars_arity, subs_arity;
+	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+	vars_ptr = (CELL *)(gc_B + 1);
+	heap_arity = *vars_ptr;
+	vars_arity = *(vars_ptr + heap_arity + 1);
+	subs_arity = *(vars_ptr + heap_arity + 2);
+	vars_ptr += heap_arity + subs_arity + vars_arity + 2;
+	if (vars_arity) {
+	  while (vars_arity--) {	
+	    CELL cp_cell = *vars_ptr;
+	    if (MARKED_PTR(vars_ptr)) {
+	      UNMARK(vars_ptr);
+	      if (HEAP_PTR(cp_cell)) {
+		into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
+	      }
+	    }
+	    vars_ptr--;
+	  }
+	}
+	if (subs_arity) {
+	  while (subs_arity--) {	
+	    CELL cp_cell = *vars_ptr;
+	    if (MARKED_PTR(vars_ptr)) {
+	      UNMARK(vars_ptr);
+	      if (HEAP_PTR(cp_cell)) {
+		into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
+	      }
+	    }
+	    vars_ptr--;
+	  }
+	}
+	vars_ptr -= 2;
+	if (heap_arity) {
+	  while (heap_arity--) {
+	    CELL cp_cell = *vars_ptr;
+	    if (*vars_ptr == 0)
+	      break;  /* term extension mark: float/longint */
+	    if (MARKED_PTR(vars_ptr)) {
+	      UNMARK(vars_ptr);
+	      if (HEAP_PTR(cp_cell)) {
+		into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
+	      }
+	    }
+	    vars_ptr--;
+	  }
+	}
+      }
+      break;
+#endif /* TABLING */
     case _retry2:
       sweep_b(gc_B, 2);
       break;
@@ -2796,7 +2823,7 @@ update_relocation_chain(CELL_PTR current, CELL_PTR dest)
 
 #ifdef TABLING
 static dep_fr_ptr gl_depfr;
-#endif
+#endif /* TABLING */
 
 static inline choiceptr
 update_B_H( choiceptr gc_B, CELL *current, CELL *dest, CELL *odest) {
@@ -2815,7 +2842,7 @@ update_B_H( choiceptr gc_B, CELL *current, CELL *dest, CELL *odest) {
       gc_B = DepFr_cons_cp(gl_depfr);
       gl_depfr = DepFr_next(gl_depfr);
     }
-#endif
+#endif /* TABLING */
   }
     return(gc_B);
 }
@@ -2844,7 +2871,7 @@ compact_heap(void)
 
 #ifdef TABLING
   gl_depfr = LOCAL_top_dep_fr;
-#endif
+#endif /* TABLING */
   dest = (CELL_PTR) H0 + total_marked - 1;
   for (current = H - 1; current >= H0; current--) {
     if (MARKED_PTR(current)) {
@@ -2994,7 +3021,7 @@ compact_heap(void)
     H_FZ = H0;
   else
     H_FZ = B_FZ->cp_h;
-#endif
+#endif /* TABLING */
 
 }
 
@@ -3004,7 +3031,7 @@ adjust_cp_hbs(void)
 {
 #ifdef TABLING
   dep_fr_ptr depfr = LOCAL_top_dep_fr;
-#endif
+#endif /* TABLING */
   choiceptr gc_B = B;
   CELL_PTR *top = iptop-1, *base = (CELL_PTR *)H;
 
@@ -3048,7 +3075,7 @@ adjust_cp_hbs(void)
       gc_B = DepFr_cons_cp(depfr);
       depfr = DepFr_next(depfr);
     } else
-#endif
+#endif /* TABLING */
       gc_B = gc_B->cp_b;
   }
 }
@@ -3192,7 +3219,7 @@ icompact_heap(void)
     H_FZ = H0;
   else
     H_FZ = B_FZ->cp_h;
-#endif
+#endif /* TABLING */
 
 }
 #endif /* HYBRID_SCHEME */

@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2005-07-06 15:10:15 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-07-06 19:34:11 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.51  2005/07/06 15:10:15  vsc
+* improvements to compiler: merged instructions and fixes for ->
+*
 * Revision 1.50  2005/06/01 13:53:46  vsc
 * improve bb routines to use the DB efficiently
 * change interface between DB and BB.
@@ -103,18 +106,21 @@ restore_codes(void)
 {
   Yap_heap_regs->heap_top = AddrAdjust(OldHeapTop);
 #ifdef YAPOR
-  Yap_heap_regs->getworkfirsttimecode.opc = Yap_opcode(_getwork_first_time);
-  Yap_heap_regs->getworkcode.opc = Yap_opcode(_getwork);
-  INIT_YAMOP_LTT(&(Yap_heap_regs->getworkcode), 0);
-  Yap_heap_regs->getworkcode_seq.opc = Yap_opcode(_getwork_seq);
-  INIT_YAMOP_LTT(&(Yap_heap_regs->getworkcode_seq), 0);
+  Yap_heap_regs->seq_def = TRUE;
+  Yap_heap_regs->getwork_code.opc = Yap_opcode(_getwork);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->getwork_code), 0);
+  Yap_heap_regs->getwork_seq_code.opc = Yap_opcode(_getwork_seq);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->getwork_seq_code), 0);
+  Yap_heap_regs->getwork_first_time_code.opc = Yap_opcode(_getwork_first_time);
 #endif /* YAPOR */
 #ifdef TABLING
-  Yap_heap_regs->tablecompletioncode.opc = Yap_opcode(_table_completion);
-  Yap_heap_regs->tableanswerresolutioncode.opc = Yap_opcode(_table_answer_resolution);
+  Yap_heap_regs->table_answer_resolution_code.opc = Yap_opcode(_table_answer_resolution);
+  Yap_heap_regs->table_completion_code.opc = Yap_opcode(_table_completion);
+  Yap_heap_regs->table_load_answer_code.opc = Yap_opcode(_table_load_answer);
 #ifdef YAPOR
-  INIT_YAMOP_LTT(&(Yap_heap_regs->tablecompletioncode), 0);
-  INIT_YAMOP_LTT(&(Yap_heap_regs->tableanswerresolutioncode), 0);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->table_completion_code), 0);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->table_answer_resolution_code), 0);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->table_load_answer_code), 0);
 #endif /* YAPOR */
 #endif /* TABLING */
   Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);

@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.insts.i
-  version:     $Id: tab.tries.insts.i,v 1.9 2005-06-04 07:28:24 ricroc Exp $   
+  version:     $Id: tab.tries.insts.i,v 1.10 2005-07-06 19:34:11 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -28,7 +28,7 @@
            |   subs ptr sa   |    |
            -------------------    |
            |       ...       |    -- subs_arity 
-          -------------------    |
+           -------------------    |
            |   subs ptr 1    |    |
            -------------------  --
            |    var ptr va   |    |
@@ -63,13 +63,12 @@
 
 
 
-/* -------------------------------------------------------------- **
-** the 'store_trie_choice_point', 'restore_trie_choice_point' and **
-**   'pop_trie_choice_point' macros do not include the 'set_cut'  **
-**     macro because there are no cuts in trie instructions.      **
-** -------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------- **
+** the 'store_trie_node', 'restore_trie_node' and 'pop_trie_node' macros do not **
+** include the 'set_cut' macro because there are no cuts in trie instructions.  **
+** ---------------------------------------------------------------------------- */
 
-#define store_trie_choice_point(AP)                   \
+#define store_trie_node(AP)                           \
         { register choiceptr cp;                      \
           YENV = (CELL *) (NORM_CP(YENV) - 1);        \
           cp = NORM_CP(YENV);                         \
@@ -84,9 +83,10 @@
           B = cp;                                     \
           YAPOR_SET_LOAD(B);                          \
           SET_BB(B);                                  \
+          TABLING_ERRORS_check_stack;                 \
 	}
 
-#define restore_trie_choice_point(AP)                 \
+#define restore_trie_node(AP)                         \
         H = HBREG = PROTECT_FROZEN_H(B);              \
         restore_yaam_reg_cpdepth(B);                  \
         CPREG = B->cp_cp;                             \
@@ -96,7 +96,7 @@
         YENV = (CELL *) PROTECT_FROZEN_B(B);          \
         SET_BB(NORM_CP(YENV)) 
 
-#define pop_trie_choice_point()                       \
+#define pop_trie_node()                               \
         YENV = (CELL *) PROTECT_FROZEN_B((B+1));      \
         H = PROTECT_FROZEN_H(B);                      \
         pop_yaam_reg_cpdepth(B);                      \
@@ -109,21 +109,21 @@
 
 
 
-/* ---------------------- **
-**      trie_nothing      **
-** ---------------------- */
+/* ------------------- **
+**      trie_null      **
+** ------------------- */
 
-#define no_cp_trie_nothing_instr()                                      \
-        *aux_ptr = TrNode_entry(node);                                  \
+#define no_cp_trie_null_instr()                                         \
+        *aux_ptr = 0;                                                   \
         *--aux_ptr = heap_arity + 1;                                    \
         YENV = aux_ptr;                                                 \
         next_trie_instruction(node)
 
-#define cp_trie_nothing_instr()                                         \
+#define cp_trie_null_instr()                                            \
         aux_ptr += heap_arity + subs_arity + vars_arity + 2;            \
         for (i = 0; i < heap_arity + subs_arity + vars_arity + 2; i++)  \
           *--YENV = *aux_ptr--;                                         \
-        *--YENV = TrNode_entry(node);                                   \
+        *--YENV = 0;                                                    \
         *--YENV = heap_arity + 1;                                       \
         next_trie_instruction(node)
 
@@ -467,11 +467,31 @@
 
 
 
-/* ---------------------------------------- **
-**      trie_extension (float/longint)      **
-** ---------------------------------------- */
+/* ------------------------ **
+**      trie_extension      **
+** ------------------------ */
 
-#define no_cp_trie_extension_instr()                             \
+#define no_cp_trie_extension_instr()                                    \
+        *aux_ptr = TrNode_entry(node);                                  \
+        *--aux_ptr = heap_arity + 1;                                    \
+        YENV = aux_ptr;                                                 \
+        next_trie_instruction(node)
+
+#define cp_trie_extension_instr()                                       \
+        aux_ptr += heap_arity + subs_arity + vars_arity + 2;            \
+        for (i = 0; i < heap_arity + subs_arity + vars_arity + 2; i++)  \
+          *--YENV = *aux_ptr--;                                         \
+        *--YENV = TrNode_entry(node);                                   \
+        *--YENV = heap_arity + 1;                                       \
+        next_trie_instruction(node)
+
+
+
+/* ---------------------------- **
+**      trie_float_longint      **
+** ---------------------------- */
+
+#define no_cp_trie_float_longint_instr()                         \
         if (heap_arity) {                                        \
           aux_ptr++;                                             \
           YENV = ++aux_ptr;                                      \
@@ -498,16 +518,16 @@
 **      Trie instructions      **
 ** --------------------------- */
 
-  PBOp(trie_do_nothing, e)
+  PBOp(trie_do_null, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_ptr = YENV;
     int heap_arity = *aux_ptr;
 
-    no_cp_trie_nothing_instr();
+    no_cp_trie_null_instr();
   ENDPBOp();
 
 
-  PBOp(trie_try_nothing, e)
+  PBOp(trie_try_null, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_ptr = YENV;
     int heap_arity = *aux_ptr;
@@ -515,12 +535,12 @@
     int subs_arity = *(aux_ptr + heap_arity + 2);
     int i;
 
-    store_trie_choice_point(TrNode_next(node));
-    cp_trie_nothing_instr();
+    store_trie_node(TrNode_next(node));
+    cp_trie_null_instr();
   ENDPBOp();
 
 
-  PBOp(trie_retry_nothing, e)
+  PBOp(trie_retry_null, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_ptr = (CELL *) (B + 1);
     int heap_arity = *aux_ptr;
@@ -528,12 +548,12 @@
     int subs_arity = *(aux_ptr + heap_arity + 2);
     int i;
 
-    restore_trie_choice_point(TrNode_next(node));
-    cp_trie_nothing_instr();
+    restore_trie_node(TrNode_next(node));
+    cp_trie_null_instr();
   ENDPBOp();
 
 
-  PBOp(trie_trust_nothing, e)
+  PBOp(trie_trust_null, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_ptr = (CELL *) (B + 1);
     int heap_arity = *aux_ptr;
@@ -543,16 +563,16 @@
  
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
-      restore_trie_choice_point(NULL);
-      cp_trie_nothing_instr();
+      restore_trie_node(NULL);
+      cp_trie_null_instr();
     } else
 #endif /* YAPOR */
     {
-      pop_trie_choice_point();
+      pop_trie_node();
       if ((choiceptr) YENV == B_FZ) {
-        cp_trie_nothing_instr();
+        cp_trie_null_instr();
       } else {
-        no_cp_trie_nothing_instr();
+        no_cp_trie_null_instr();
       }
     }
   ENDPBOp();
@@ -580,7 +600,7 @@
     int subs_arity = *(aux_ptr + heap_arity + 2);
     int i;
 
-    store_trie_choice_point(TrNode_next(node));
+    store_trie_node(TrNode_next(node));
     cp_trie_var_instr();
   ENDPBOp();
 
@@ -594,7 +614,7 @@
     int subs_arity = *(aux_ptr + heap_arity + 2);
     int i;
 
-    restore_trie_choice_point(TrNode_next(node));
+    restore_trie_node(TrNode_next(node));
     cp_trie_var_instr();
   ENDPBOp();
 
@@ -610,12 +630,12 @@
 
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
-      restore_trie_choice_point(NULL);
+      restore_trie_node(NULL);
       cp_trie_var_instr();
     } else
 #endif /* YAPOR */
     {
-      pop_trie_choice_point();
+      pop_trie_node();
       if ((choiceptr) YENV == B_FZ) {
         cp_trie_var_instr();
       } else {
@@ -649,7 +669,7 @@
     int var_index = VarIndexOfTableTerm(TrNode_entry(node));
     int i;
 
-    store_trie_choice_point(TrNode_next(node));
+    store_trie_node(TrNode_next(node));
     cp_trie_val_instr();
   ENDPBOp();
 
@@ -664,7 +684,7 @@
     int var_index = VarIndexOfTableTerm(TrNode_entry(node));
     int i;
 
-    restore_trie_choice_point(TrNode_next(node));
+    restore_trie_node(TrNode_next(node));
     cp_trie_val_instr();
   ENDPBOp();
 
@@ -681,12 +701,12 @@
 
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
-      restore_trie_choice_point(NULL);
+      restore_trie_node(NULL);
       cp_trie_val_instr();
     } else
 #endif /* YAPOR */
     {
-      pop_trie_choice_point();
+      pop_trie_node();
       if ((choiceptr) YENV == B_FZ) {
         cp_trie_val_instr();
       } else {
@@ -716,7 +736,7 @@
     int subs_arity = *(aux_ptr + heap_arity + 2);
     int i;
 
-    store_trie_choice_point(TrNode_next(node));
+    store_trie_node(TrNode_next(node));
     cp_trie_atom_instr();
   ENDPBOp();
 
@@ -729,7 +749,7 @@
     int subs_arity = *(aux_ptr + heap_arity + 2);
     int i;
 
-    restore_trie_choice_point(TrNode_next(node));
+    restore_trie_node(TrNode_next(node));
     cp_trie_atom_instr();
   ENDPBOp();
 
@@ -744,12 +764,12 @@
  
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
-      restore_trie_choice_point(NULL);
+      restore_trie_node(NULL);
       cp_trie_atom_instr();
     } else
 #endif /* YAPOR */
     {
-      pop_trie_choice_point();
+      pop_trie_node();
       if ((choiceptr) YENV == B_FZ) {
         cp_trie_atom_instr();
       } else {
@@ -779,7 +799,7 @@
     int subs_arity = *(aux_ptr + heap_arity + 2);
     int i;
 
-    store_trie_choice_point(TrNode_next(node));
+    store_trie_node(TrNode_next(node));
     cp_trie_list_instr();
   ENDPBOp();
 
@@ -792,7 +812,7 @@
     int subs_arity = *(aux_ptr + heap_arity + 2);
     int i;
 
-    restore_trie_choice_point(TrNode_next(node));
+    restore_trie_node(TrNode_next(node));
     cp_trie_list_instr();
   ENDPBOp();
 
@@ -807,12 +827,12 @@
 
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
-      restore_trie_choice_point(NULL);
+      restore_trie_node(NULL);
       cp_trie_list_instr();
     } else
 #endif /* YAPOR */
     {
-      pop_trie_choice_point();
+      pop_trie_node();
       if ((choiceptr) YENV == B_FZ) {
         cp_trie_list_instr();
       } else {
@@ -846,7 +866,7 @@
     int func_arity = ArityOfFunctor(func);
     int i;
 
-    store_trie_choice_point(TrNode_next(node));
+    store_trie_node(TrNode_next(node));
     cp_trie_struct_instr();
   ENDPBOp();
 
@@ -861,7 +881,7 @@
     int func_arity = ArityOfFunctor(func);
     int i;
 
-    restore_trie_choice_point(TrNode_next(node));
+    restore_trie_node(TrNode_next(node));
     cp_trie_struct_instr();
   ENDPBOp();
 
@@ -878,16 +898,76 @@
 
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
-      restore_trie_choice_point(NULL);
+      restore_trie_node(NULL);
       cp_trie_struct_instr();
     } else
 #endif /* YAPOR */
     {
-      pop_trie_choice_point();
+      pop_trie_node();
       if ((choiceptr) YENV == B_FZ) {
         cp_trie_struct_instr();
       } else {
         no_cp_trie_struct_instr();
+      }
+    }
+  ENDPBOp();
+
+
+  PBOp(trie_do_extension, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = YENV;
+    int heap_arity = *aux_ptr;
+
+    no_cp_trie_extension_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_try_extension, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = YENV;
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int i;
+
+    store_trie_node(TrNode_next(node));
+    cp_trie_extension_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_retry_extension, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = (CELL *) (B + 1);
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int i;
+
+    restore_trie_node(TrNode_next(node));
+    cp_trie_extension_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_trust_extension, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = (CELL *) (B + 1);
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int i;
+ 
+#ifdef YAPOR
+    if (SCH_top_shared_cp(B)) {
+      restore_trie_node(NULL);
+      cp_trie_extension_instr();
+    } else
+#endif /* YAPOR */
+    {
+      pop_trie_node();
+      if ((choiceptr) YENV == B_FZ) {
+        cp_trie_extension_instr();
+      } else {
+        no_cp_trie_extension_instr();
       }
     }
   ENDPBOp();
@@ -912,7 +992,7 @@
     heap_arity -= 2;
 #endif /* SIZEOF_DOUBLE x SIZEOF_LONG_INT */
     t = MkFloatTerm(dbl);
-    no_cp_trie_extension_instr();
+    no_cp_trie_float_longint_instr();
   ENDPBOp();
 
 
@@ -940,7 +1020,7 @@
     int i;
     Term t = MkLongIntTerm(*++aux_ptr);
     heap_arity -= 2;
-    no_cp_trie_extension_instr();
+    no_cp_trie_float_longint_instr();
   ENDPBOp();
 
 

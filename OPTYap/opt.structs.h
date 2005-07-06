@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.structs.h
-  version:     $Id: opt.structs.h,v 1.6 2005-05-31 08:24:24 ricroc Exp $   
+  version:     $Id: opt.structs.h,v 1.7 2005-07-06 19:34:10 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -167,6 +167,7 @@ struct global_data{
 
 #ifdef TABLING
   /* global data related to tabling */
+  struct table_entry *root_table_entry;
   struct dependency_frame *root_dependency_frame;
   CELL table_var_enumerator[MAX_TABLE_VARS];
 #ifdef TABLE_LOCK_AT_WRITE_LEVEL
@@ -225,6 +226,7 @@ struct global_data{
 #define GLOBAL_branch(worker, depth)          (GLOBAL.branch[worker][depth])
 #define PARALLEL_EXECUTION_MODE               (GLOBAL.parallel_execution_mode)
 #define GLOBAL_answers                        (GLOBAL.answers)
+#define GLOBAL_root_tab_ent                   (GLOBAL.root_table_entry)
 #define GLOBAL_root_dep_fr                    (GLOBAL.root_dependency_frame)
 #define GLOBAL_table_var_enumerator(index)    (GLOBAL.table_var_enumerator[index])
 #define GLOBAL_table_lock(index)              (GLOBAL.table_lock[index])

@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.preds.c
-  version:     $Id: opt.preds.c,v 1.18 2005-06-04 08:05:27 ricroc Exp $   
+  version:     $Id: opt.preds.c,v 1.19 2005-07-06 19:33:54 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -63,9 +63,9 @@ static void answer_to_stdout(char *answer);
 #ifdef TABLING
 static int p_do_table(void);
 static int p_do_tabling_mode(void);
-static int p_do_abolish_trie(void);
-static int p_do_show_trie(void);
-static int p_do_show_trie_stats(void);
+static int p_do_abolish_table(void);
+static int p_do_show_table(void);
+static int p_do_show_table_stats(void);
 #endif /* TABLING */
 #ifdef STATISTICS
 static int p_show_frames_stats(void);
@@ -94,9 +94,9 @@ void Yap_init_optyap_preds(void) {
 #ifdef TABLING
   Yap_InitCPred("$do_table", 2, p_do_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$do_tabling_mode", 3, p_do_tabling_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$do_abolish_trie", 2, p_do_abolish_trie, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$do_show_trie", 2, p_do_show_trie, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$do_show_trie_stats", 2, p_do_show_trie_stats, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$do_abolish_table", 2, p_do_abolish_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$do_show_table", 2, p_do_show_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$do_show_table_stats", 2, p_do_show_table_stats, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #endif /* TABLING */
 #ifdef STATISTICS
   Yap_InitCPred("show_frames_stats", 0, p_show_frames_stats, SafePredFlag|SyncPredFlag);
@@ -459,8 +459,9 @@ static
 int p_do_table(void) {
   Term t, mod;
   PredEntry *pe;
-  tab_ent_ptr te;
+  tab_ent_ptr tab_ent;
   sg_node_ptr sg_node;
+  UInt arity;
 
   mod = Deref(ARG2);
   if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
@@ -470,9 +471,11 @@ int p_do_table(void) {
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
     pe = RepPredProp(PredPropByAtom(at, mod));
+    arity = 0;
   } else if (IsApplTerm(t)) {
     Functor func = FunctorOfTerm(t);
     pe = RepPredProp(PredPropByFunc(func, mod));
+    arity = ArityOfFunctor(func);
   } else {
     return (FALSE);
   }
@@ -481,51 +484,68 @@ int p_do_table(void) {
   }
   pe->PredFlags |= TabledPredFlag;
   new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);
-  new_table_entry(te, sg_node);
-  pe->TableOfPred = te;
+  new_table_entry(tab_ent, pe, arity, sg_node);
+  pe->TableOfPred = tab_ent;
   return (TRUE);
 }
 
 
 static
 int p_do_tabling_mode(void) {
-  Term t, mod, s;
+  Term mod, t, val;
   tab_ent_ptr tab_ent;
 
-  mod = Deref(ARG2);
-  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
-    return (FALSE);
-  }
-  t = Deref(ARG1);
+  mod = Deref(ARG1);
+  t = Deref(ARG2);
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
     tab_ent = RepPredProp(PredPropByAtom(at, mod))->TableOfPred;
   } else if (IsApplTerm(t)) {
-    Functor func = FunctorOfTerm(t);
-    tab_ent = RepPredProp(PredPropByFunc(func, mod))->TableOfPred;
-  } else {
+    Functor ft = FunctorOfTerm(t);
+    tab_ent = RepPredProp(PredPropByFunc(ft, mod))->TableOfPred;
+  } else
     return (FALSE);
-  }
-  s = Deref(ARG3);
-  if (IsVarTerm(s)) {
-    Term sa;
-    if (TabEnt_mode(tab_ent) == batched) {
-      sa = MkAtomTerm(Yap_LookupAtom("batched"));
-    } else { 
-      sa = MkAtomTerm(Yap_LookupAtom("local"));
-    }
-    Bind((CELL *)s, sa);
+  val = Deref(ARG3);
+  if (IsVarTerm(val)) {
+    Term mode;
+    t = MkAtomTerm(AtomNil);
+    if (IsDefaultMode_LoadAnswers(TabEnt_mode(tab_ent)))
+      mode = MkAtomTerm(Yap_LookupAtom("load_answers"));
+    else
+      mode = MkAtomTerm(Yap_LookupAtom("exec_answers"));
+    t = MkPairTerm(mode, t);
+    if (IsDefaultMode_Local(TabEnt_mode(tab_ent)))
+      mode = MkAtomTerm(Yap_LookupAtom("local"));
+    else
+      mode = MkAtomTerm(Yap_LookupAtom("batched"));
+    t = MkPairTerm(mode, t);
+    Bind((CELL *)val, t);
     return(TRUE);
   }
-  if (IsAtomTerm(s)) {
-    char *sa;
-    sa = RepAtom(AtomOfTerm(s))->StrOfAE;
-    if (strcmp(sa,"batched") == 0) {
-      TabEnt_mode(tab_ent) = batched;
+  if (IsAtomTerm(val)) {
+    char *str_val = RepAtom(AtomOfTerm(val))->StrOfAE;
+    if (strcmp(str_val,"batched") == 0) {
+      SetDefaultMode_Batched(TabEnt_mode(tab_ent));
+      if (IsMode_SchedulingOff(yap_flags[TABLING_MODE_FLAG]))
+	SetMode_Batched(TabEnt_mode(tab_ent));
       return(TRUE);
     } 
-    if (strcmp(sa, "local") == 0) {
-      TabEnt_mode(tab_ent) = local;
+    if (strcmp(str_val,"local") == 0) {
+      SetDefaultMode_Local(TabEnt_mode(tab_ent));
+      if (IsMode_SchedulingOff(yap_flags[TABLING_MODE_FLAG]))
+	SetMode_Local(TabEnt_mode(tab_ent));
+      return(TRUE);
+    }
+    if (strcmp(str_val,"exec_answers") == 0) {
+      SetDefaultMode_ExecAnswers(TabEnt_mode(tab_ent));
+      if (IsMode_CompletedOff(yap_flags[TABLING_MODE_FLAG]))
+	SetMode_ExecAnswers(TabEnt_mode(tab_ent));
+      return(TRUE);
+    } 
+    if (strcmp(str_val,"load_answers") == 0) {
+      SetDefaultMode_LoadAnswers(TabEnt_mode(tab_ent));
+      if (IsMode_CompletedOff(yap_flags[TABLING_MODE_FLAG]))
+	SetMode_LoadAnswers(TabEnt_mode(tab_ent));
       return(TRUE);
     }
   }
@@ -534,7 +554,7 @@ int p_do_tabling_mode(void) {
 
 
 static
-int p_do_abolish_trie(void) {
+int p_do_abolish_table(void) {
   Term t, mod;
   tab_ent_ptr tab_ent;
   sg_hash_ptr hash;
@@ -570,7 +590,7 @@ int p_do_abolish_trie(void) {
 
 
 static
-int p_do_show_trie(void) {
+int p_do_show_table(void) {
   Term t1, mod;
   PredEntry *pe;
   Atom at;
@@ -599,7 +619,7 @@ int p_do_show_trie(void) {
 
 
 static
-int p_do_show_trie_stats(void) {
+int p_do_show_table_stats(void) {
   Term t, mod;
   PredEntry *pe;
   Atom at;

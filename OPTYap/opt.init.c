@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.init.c  
-  version:     $Id: opt.init.c,v 1.7 2005-06-03 18:28:11 ricroc Exp $   
+  version:     $Id: opt.init.c,v 1.8 2005-07-06 19:33:54 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -143,6 +143,7 @@ void init_global(int n_workers, int sch_loop, int delay_load) {
 
 #ifdef TABLING
   /* global data related to tabling */
+  GLOBAL_root_tab_ent = NULL;
   for (i = 0; i < MAX_TABLE_VARS; i++)
     GLOBAL_table_var_enumerator(i) = (CELL) & GLOBAL_table_var_enumerator(i);
 #ifdef TABLE_LOCK_AT_WRITE_LEVEL

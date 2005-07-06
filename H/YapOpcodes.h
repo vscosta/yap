@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2005-07-06 15:10:15 $							 *
+* Last rev:     $Date: 2005-07-06 19:34:11 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.31  2005/07/06 15:10:15  vsc
+* improvements to compiler: merged instructions and fixes for ->
+*
 * Revision 1.30  2005/06/04 07:26:43  ricroc
 * long int support for tabling
 *
@@ -83,11 +86,12 @@
     OPCODE(table_new_answer        ,s),
     OPCODE(table_answer_resolution ,ld),
     OPCODE(table_completion        ,ld),
+    OPCODE(table_load_answer       ,ld),
 
-    OPCODE(trie_do_nothing         ,e),
-    OPCODE(trie_trust_nothing      ,e),
-    OPCODE(trie_try_nothing        ,e),
-    OPCODE(trie_retry_nothing      ,e),
+    OPCODE(trie_do_null            ,e),
+    OPCODE(trie_trust_null         ,e),
+    OPCODE(trie_try_null           ,e),
+    OPCODE(trie_retry_null         ,e),
     OPCODE(trie_do_var             ,e),
     OPCODE(trie_trust_var          ,e),
     OPCODE(trie_try_var            ,e),
@@ -108,6 +112,10 @@
     OPCODE(trie_trust_struct       ,e),
     OPCODE(trie_try_struct         ,e),
     OPCODE(trie_retry_struct       ,e),
+    OPCODE(trie_do_extension       ,e),
+    OPCODE(trie_trust_extension    ,e),
+    OPCODE(trie_try_extension      ,e),
+    OPCODE(trie_retry_extension    ,e),
     OPCODE(trie_do_float           ,e),
     OPCODE(trie_trust_float        ,e),
     OPCODE(trie_try_float          ,e),

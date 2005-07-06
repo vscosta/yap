@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.C
-  version:     $Id: tab.tries.c,v 1.12 2005-06-04 07:28:23 ricroc Exp $   
+  version:     $Id: tab.tries.c,v 1.13 2005-07-06 19:34:10 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -747,7 +747,7 @@ sg_fr_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
 #endif /* TABLE_LOCK_LEVEL */
   if (TrNode_sg_fr(current_sg_node) == NULL) {
     /* new tabled subgoal */
-    new_subgoal_frame(sg_fr, arity);
+    new_subgoal_frame(sg_fr, tab_ent, arity);
     TrNode_sg_fr(current_sg_node) = (sg_node_ptr) sg_fr;
   } else {
     sg_fr = (sg_fr_ptr) TrNode_sg_fr(current_sg_node);
@@ -819,16 +819,16 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	if (f == FunctorDouble) {
 	  volatile Float dbl = FloatOfTerm(t);
 	  volatile Term *t_dbl = (Term *)((void *) &dbl);
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_nothing);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_null);
 #if SIZEOF_DOUBLE == 2 * SIZEOF_LONG_INT
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, *(t_dbl + 1), _trie_retry_nothing);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, *(t_dbl + 1), _trie_retry_extension);
 #endif /* SIZEOF_DOUBLE x SIZEOF_LONG_INT */
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, *t_dbl, _trie_retry_nothing);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, *t_dbl, _trie_retry_extension);
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_float);
 	} else if (f == FunctorLongInt) {
 	  Int li = LongIntOfTerm (t);
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_nothing);
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, li, _trie_retry_nothing);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_null);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, li, _trie_retry_extension);
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_long);
 	} else {
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_struct);
@@ -1027,7 +1027,7 @@ void update_answer_trie(sg_fr_ptr sg_fr) {
     update_answer_trie_branch(node);
 #endif /* TABLING_INNER_CUTS */
   }
-  SgFr_state(sg_fr) = executable;
+  SgFr_state(sg_fr) = compiled;
   return;
 }
 
@@ -1095,7 +1095,7 @@ void traverse_trie(sg_node_ptr sg_node, int pred_arity, Atom pred_atom, int show
   str_index = sprintf(str, "  ?- %s(", AtomName(pred_atom));
   arity[0] = 1;
   arity[1] = pred_arity;
-  SHOW_INFO("\n[ Trie structure for predicate '%s/%d' ]\n", AtomName(pred_atom), pred_arity);
+  SHOW_INFO("\n[ Table structure for predicate '%s/%d' ]\n", AtomName(pred_atom), pred_arity);
   TrStat_sg_nodes++;
   if (sg_node && ! traverse_subgoal_trie(sg_node, str, str_index, arity, 1, TRAVERSE_NORMAL))
     return;

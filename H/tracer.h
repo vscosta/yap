@@ -22,8 +22,9 @@ typedef enum {
   try_or,
   retry_or,
   retry_pred,
-  retry_table_producer,
-  retry_table_consumer
+  retry_table_generator,
+  retry_table_consumer,
+  retry_table_loader
 } yap_low_level_port;
 
 void	STD_PROTO(low_level_trace,(yap_low_level_port, PredEntry *, CELL *));

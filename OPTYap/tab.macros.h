@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.macros.h
-  version:     $Id: tab.macros.h,v 1.13 2005-06-03 08:19:18 ricroc Exp $   
+  version:     $Id: tab.macros.h,v 1.14 2005-07-06 19:34:10 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -62,6 +62,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #define NORM_CP(CP)            ((choiceptr)(CP))
 #define CONS_CP(CP)            ((struct consumer_choicept *)(CP))
 #define GEN_CP(CP)             ((struct generator_choicept *)(CP))
+#define LOAD_CP(CP)            ((struct loader_choicept *)(CP))
 #define IS_BATCHED_GEN_CP(CP)  (GEN_CP(CP)->cp_dep_fr == NULL)
 
 
@@ -226,16 +227,17 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
         memcpy(SuspFr_trail_start(SUSP_FR), SuspFr_trail_reg(SUSP_FR), TR_SIZE)
 
 
-#define new_subgoal_frame(SG_FR, ARITY)                            \
+#define new_subgoal_frame(SG_FR, TAB_ENT, ARITY)                   \
         { register ans_node_ptr ans_node;                          \
           ALLOC_SUBGOAL_FRAME(SG_FR);                              \
           INIT_LOCK(SgFr_lock(SG_FR));                             \
+          SgFr_tab_ent(SG_FR) = TAB_ENT;                           \
+          SgFr_arity(SG_FR) = ARITY;                               \
+          SgFr_abolish(SG_FR) = 0;                                 \
           new_answer_trie_node(ans_node, 0, 0, NULL, NULL, NULL);  \
           SgFr_answer_trie(SG_FR) = ans_node;                      \
           SgFr_hash_chain(SG_FR) = NULL;                           \
           SgFr_state(SG_FR) = start;                               \
-          SgFr_abolish(SG_FR) = 0;                                 \
-          SgFr_arity(SG_FR) = ARITY;                               \
 	}
 
 
@@ -262,11 +264,16 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
         DepFr_next(DEP_FR) = NEXT
 
 
-#define new_table_entry(TAB_ENT, SUBGOAL_TRIE)        \
-        ALLOC_TABLE_ENTRY(TAB_ENT);                   \
-        TabEnt_init_lock_field(TAB_ENT);              \
-        TabEnt_subgoal_trie(TAB_ENT) = SUBGOAL_TRIE;  \
-        TabEnt_hash_chain(TAB_ENT) = NULL
+#define new_table_entry(TAB_ENT, PRED_ENTRY, ARITY, SUBGOAL_TRIE)  \
+        ALLOC_TABLE_ENTRY(TAB_ENT);                                \
+        TabEnt_init_lock_field(TAB_ENT);                           \
+        TabEnt_pe(TAB_ENT) = PRED_ENTRY;                           \
+        TabEnt_arity(TAB_ENT) = ARITY;                             \
+        TabEnt_mode(TAB_ENT) = 0;                                  \
+        TabEnt_subgoal_trie(TAB_ENT) = SUBGOAL_TRIE;               \
+        TabEnt_hash_chain(TAB_ENT) = NULL;                         \
+        TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;                \
+        GLOBAL_root_tab_ent = TAB_ENT
 
 
 #define new_subgoal_trie_node(NODE, ENTRY, CHILD, PARENT, NEXT)  \

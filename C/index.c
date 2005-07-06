@@ -11,8 +11,13 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-07-05 18:32:32 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-07-06 19:33:53 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.138  2005/07/05 18:32:32  vsc
+* ifix some wierd cases in indexing code:
+* would not look at next argument
+* problem with pvar as last clause (R Camacho).
+*
 * Revision 1.137  2005/06/04 07:27:34  ricroc
 * long int support for tabling
 *
@@ -704,6 +709,7 @@ has_cut(yamop *pc)
     case _table_trust_me:
     case _table_answer_resolution:
     case _table_completion:
+    case _table_load_answer:
 #endif /* TABLING */
       pc = NEXTOP(pc,ld);
       break;
@@ -773,10 +779,10 @@ has_cut(yamop *pc)
     case _getwork_first_time:
 #endif /* YAPOR */
 #ifdef TABLING
-    case _trie_do_nothing:
-    case _trie_trust_nothing:
-    case _trie_try_nothing:
-    case _trie_retry_nothing:
+    case _trie_do_null:
+    case _trie_trust_null:
+    case _trie_try_null:
+    case _trie_retry_null:
     case _trie_do_var:
     case _trie_trust_var:
     case _trie_try_var:
@@ -797,6 +803,10 @@ has_cut(yamop *pc)
     case _trie_trust_struct:
     case _trie_try_struct:
     case _trie_retry_struct:
+    case _trie_do_extension:
+    case _trie_trust_extension:
+    case _trie_try_extension:
+    case _trie_retry_extension:
     case _trie_do_float:
     case _trie_trust_float:
     case _trie_try_float:
@@ -2121,6 +2131,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _table_trust:
     case _table_answer_resolution:
     case _table_completion:
+    case _table_load_answer:
 #endif /* TABLING */
     case _enter_profiling:
     case _count_call:
@@ -2175,10 +2186,10 @@ add_info(ClauseDef *clause, UInt regno)
 #endif /* YAPOR */
 #ifdef TABLING
     case _table_new_answer:
-    case _trie_do_nothing:
-    case _trie_trust_nothing:
-    case _trie_try_nothing:
-    case _trie_retry_nothing:
+    case _trie_do_null:
+    case _trie_trust_null:
+    case _trie_try_null:
+    case _trie_retry_null:
     case _trie_do_var:
     case _trie_trust_var:
     case _trie_try_var:
@@ -2199,6 +2210,10 @@ add_info(ClauseDef *clause, UInt regno)
     case _trie_trust_struct:
     case _trie_try_struct:
     case _trie_retry_struct:
+    case _trie_do_extension:
+    case _trie_trust_extension:
+    case _trie_try_extension:
+    case _trie_retry_extension:
     case _trie_do_float:
     case _trie_trust_float:
     case _trie_try_float:

@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2005-07-06 15:10:15 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-07-06 19:34:11 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.8  2005/07/06 15:10:15  vsc
+* improvements to compiler: merged instructions and fixes for ->
+*
 * Revision 1.7  2005/06/04 07:26:43  ricroc
 * long int support for tabling
 *
@@ -130,6 +133,7 @@ restore_opcodes(yamop *pc)
     case _table_trust:
     case _table_answer_resolution:
     case _table_completion:
+    case _table_load_answer:
 #endif /* TABLING */
       pc->u.ld.p = PtoPredAdjust(pc->u.ld.p);
       pc->u.ld.d = PtoOpAdjust(pc->u.ld.d);
@@ -220,10 +224,10 @@ restore_opcodes(yamop *pc)
     case _getwork_first_time:
 #endif
 #ifdef TABLING
-    case _trie_do_nothing:
-    case _trie_trust_nothing:
-    case _trie_try_nothing:
-    case _trie_retry_nothing:
+    case _trie_do_null:
+    case _trie_trust_null:
+    case _trie_try_null:
+    case _trie_retry_null:
     case _trie_do_var:
     case _trie_trust_var:
     case _trie_try_var:
@@ -244,6 +248,10 @@ restore_opcodes(yamop *pc)
     case _trie_trust_struct:
     case _trie_try_struct:
     case _trie_retry_struct:
+    case _trie_do_extension:
+    case _trie_trust_extension:
+    case _trie_try_extension:
+    case _trie_retry_extension:
     case _trie_do_float:
     case _trie_trust_float:
     case _trie_try_float:

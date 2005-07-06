@@ -742,11 +742,7 @@ InitFlags(void)
 #endif
   /* current default */
   yap_flags[INDEXING_MODE_FLAG] = INDEX_MODE_MULTI;
-#ifdef TABLING
-  yap_flags[TABLING_MODE_FLAG] = TABLING_MODE_DEFAULT;
-#else
-  yap_flags[TABLING_MODE_FLAG] = TABLING_MODE_OFF;
-#endif /* TABLING */
+  yap_flags[TABLING_MODE_FLAG] = 0;
 }
 
 static void 
@@ -780,18 +776,20 @@ InitCodes(void)
   Yap_InitModules();
 #ifdef YAPOR
   Yap_heap_regs->seq_def = TRUE;
-  Yap_heap_regs->getworkfirsttimecode.opc = Yap_opcode(_getwork_first_time);
-  Yap_heap_regs->getworkcode.opc = Yap_opcode(_getwork);
-  INIT_YAMOP_LTT(&(Yap_heap_regs->getworkcode), 0);
-  Yap_heap_regs->getworkcode_seq.opc = Yap_opcode(_getwork_seq);
-  INIT_YAMOP_LTT(&(Yap_heap_regs->getworkcode_seq), 0);
+  Yap_heap_regs->getwork_code.opc = Yap_opcode(_getwork);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->getwork_code), 0);
+  Yap_heap_regs->getwork_seq_code.opc = Yap_opcode(_getwork_seq);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->getwork_seq_code), 0);
+  Yap_heap_regs->getwork_first_time_code.opc = Yap_opcode(_getwork_first_time);
 #endif /* YAPOR */
 #ifdef TABLING
-  Yap_heap_regs->tablecompletioncode.opc = Yap_opcode(_table_completion);
-  Yap_heap_regs->tableanswerresolutioncode.opc = Yap_opcode(_table_answer_resolution);
+  Yap_heap_regs->table_completion_code.opc = Yap_opcode(_table_completion);
+  Yap_heap_regs->table_answer_resolution_code.opc = Yap_opcode(_table_answer_resolution);
+  Yap_heap_regs->table_load_answer_code.opc = Yap_opcode(_table_load_answer);
 #ifdef YAPOR
-  INIT_YAMOP_LTT(&(Yap_heap_regs->tablecompletioncode), 0);
-  INIT_YAMOP_LTT(&(Yap_heap_regs->tableanswerresolutioncode), 0);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->table_completion_code), 0);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->table_answer_resolution_code), 0);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->table_load_answer_code), 0);
 #endif /* YAPOR */
 #endif /* TABLING */
   Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);
@@ -1098,9 +1096,9 @@ InitCodes(void)
     modp->PredFlags |= MetaPredFlag;
   }
 #ifdef YAPOR
-  Yap_heap_regs->getworkcode.u.ld.p = RepPredProp(PredPropByAtom(Yap_FullLookupAtom("$getwork"), PROLOG_MODULE));
-  Yap_heap_regs->getworkcode_seq.u.ld.p = RepPredProp(PredPropByAtom(Yap_FullLookupAtom("$getwork_seq"), PROLOG_MODULE));
-#endif
+  Yap_heap_regs->getwork_code.u.ld.p = RepPredProp(PredPropByAtom(Yap_FullLookupAtom("$getwork"), PROLOG_MODULE));
+  Yap_heap_regs->getwork_seq_code.u.ld.p = RepPredProp(PredPropByAtom(Yap_FullLookupAtom("$getwork_seq"), PROLOG_MODULE));
+#endif /* YAPOR */
   Yap_heap_regs->db_erased_marker =
     (DBRef)Yap_AllocCodeSpace(sizeof(DBStruct));
   Yap_heap_regs->db_erased_marker->id = FunctorDBRef;

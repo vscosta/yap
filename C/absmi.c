@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-07-06 15:10:01 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-07-06 19:33:51 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.169  2005/07/06 15:10:01  vsc
+* improvements to compiler: merged instructions and fixes for ->
+*
 * Revision 1.168  2005/06/04 07:27:33  ricroc
 * long int support for tabling
 *
@@ -1405,31 +1408,23 @@ Yap_absmi(int inp)
 	      go_on = FALSE;
 	      switch (opnum) {
 #ifdef TABLING
-	      case _table_answer_resolution:
-		{
-		  PredEntry *pe = ENV_ToP(B->cp_cp);
-		  op_numbers caller_op = Yap_op_from_opcode(ENV_ToOp(B->cp_cp));
-		  /* first condition  checks if this was a meta-call */
-		  if ((caller_op != _call && caller_op != _fcall) || pe == NULL) {
-		    low_level_trace(retry_table_consumer, NULL, NULL);
-		  } else {
-		    low_level_trace(retry_table_consumer, pe, NULL);
-		  }
-		}
-	      case _table_completion:
-		{
-		  PredEntry *pe = ENV_ToP(B->cp_cp);
-		  op_numbers caller_op = Yap_op_from_opcode(ENV_ToOp(B->cp_cp));
-		  /* first condition  checks if this was a meta-call */
-		  if ((caller_op != _call && caller_op != _fcall) || pe == NULL) {
-		    low_level_trace(retry_table_producer, NULL, NULL);
-		  } else {
-		    low_level_trace(retry_table_producer, pe, (CELL *)(GEN_CP(B)+1));
-		  }
-		}
+	      case _table_retry_me:
+	      case _table_trust_me:
+	      case _table_retry:
+	      case _table_trust:
+		low_level_trace(retry_table_generator, TabEnt_pe(GEN_CP(B)->cp_tab_ent), (CELL *)(GEN_CP(B)+ 1));
 		break;
-	      case _trie_retry_nothing:
-	      case _trie_trust_nothing:
+	      case _table_completion:
+		low_level_trace(retry_table_generator, TabEnt_pe(GEN_CP(B)->cp_tab_ent), (CELL *)(GEN_CP(B)+1));
+		break;
+	      case _table_answer_resolution:
+		low_level_trace(retry_table_consumer, TabEnt_pe(CONS_CP(B)->cp_tab_ent), NULL);
+		break;
+	      case _table_load_answer:
+		low_level_trace(retry_table_loader, TabEnt_pe(LOAD_CP(B)->cp_tab_ent), NULL);
+		break;
+	      case _trie_retry_null:
+	      case _trie_trust_null:
 	      case _trie_retry_var:
 	      case _trie_trust_var:
 	      case _trie_retry_val:
@@ -1440,15 +1435,13 @@ Yap_absmi(int inp)
 	      case _trie_trust_list:
 	      case _trie_retry_struct:
 	      case _trie_trust_struct:
+	      case _trie_retry_extension:
+	      case _trie_trust_extension:
 	      case _trie_retry_float:
 	      case _trie_trust_float:
 	      case _trie_retry_long:
 	      case _trie_trust_long:
-		low_level_trace(retry_table_consumer, NULL, NULL);
-		break;
-	      case _table_retry_me:
-	      case _table_trust_me:
-		low_level_trace(retry_pred, ipc->u.lds.p, (CELL *)(GEN_CP(B)+ 1));
+		low_level_trace(retry_table_loader, UndefCode, NULL);
 		break;
 #endif /* TABLING */
 	      case _or_else:

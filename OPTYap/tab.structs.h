@@ -5,9 +5,45 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.structs.h
-  version:     $Id: tab.structs.h,v 1.6 2005-06-04 08:05:27 ricroc Exp $   
+  version:     $Id: tab.structs.h,v 1.7 2005-07-06 19:34:10 ricroc Exp $   
                                                                      
 **********************************************************************/
+
+/* ---------------------------- **
+**      Tabling mode flags      **
+** ---------------------------- */
+
+#define Mode_SchedulingOn       0x10000000L  /* yap_flags[TABLING_MODE_FLAG] */
+#define Mode_CompletedOn        0x20000000L  /* yap_flags[TABLING_MODE_FLAG] */
+
+#define Mode_Local              0x00000010L  /* yap_flags[TABLING_MODE_FLAG] + table_entry */
+#define Mode_LoadAnswers        0x00000020L  /* yap_flags[TABLING_MODE_FLAG] + table_entry */
+
+#define DefaultMode_Local       0x00000001L  /* table_entry */
+#define DefaultMode_LoadAnswers 0x00000002L  /* table_entry */
+
+#define SetMode_SchedulingOn(X)        (X) |= Mode_SchedulingOn
+#define SetMode_CompletedOn(X)         (X) |= Mode_CompletedOn
+#define IsMode_SchedulingOn(X)         ((X) & Mode_SchedulingOn)
+#define IsMode_SchedulingOff(X)        !IsMode_SchedulingOn(X)
+#define IsMode_CompletedOn(X)          ((X) & Mode_CompletedOn)
+#define IsMode_CompletedOff(X)         !IsMode_CompletedOn(X)
+
+#define SetMode_Local(X)               (X) |= Mode_Local
+#define SetMode_Batched(X)             (X) &= ~Mode_Local
+#define SetMode_LoadAnswers(X)         (X) |= Mode_LoadAnswers
+#define SetMode_ExecAnswers(X)         (X) &= ~Mode_LoadAnswers
+#define IsMode_Local(X)                ((X) & Mode_Local)
+#define IsMode_LoadAnswers(X)          ((X) & Mode_LoadAnswers)
+
+#define SetDefaultMode_Local(X)        (X) |= DefaultMode_Local
+#define SetDefaultMode_Batched(X)      (X) &= ~DefaultMode_Local
+#define SetDefaultMode_LoadAnswers(X)  (X) |= DefaultMode_LoadAnswers
+#define SetDefaultMode_ExecAnswers(X)  (X) &= ~DefaultMode_LoadAnswers
+#define IsDefaultMode_Local(X)         ((X) & DefaultMode_Local)
+#define IsDefaultMode_LoadAnswers(X)   ((X) & DefaultMode_LoadAnswers)
+
+
 
 /* ---------------------------- **
 **      Struct table_entry      **
@@ -17,17 +53,18 @@ typedef struct table_entry {
 #ifdef YAPOR
   lockvar lock;
 #endif /* YAPOR */
-  enum {
-    batched = 0,
-    local   = 1
-  } tabling_mode;
+  struct pred_entry *pred_entry;
+  int pred_arity;
+  int mode_flags;
   struct subgoal_trie_node *subgoal_trie;
   struct subgoal_hash *hash_chain;
   struct table_entry *next;
 } *tab_ent_ptr;
 
 #define TabEnt_lock(X)          ((X)->lock)
-#define TabEnt_mode(X)          ((X)->tabling_mode)
+#define TabEnt_pe(X)            ((X)->pred_entry)
+#define TabEnt_arity(X)         ((X)->pred_arity)
+#define TabEnt_mode(X)          ((X)->mode_flags)
 #define TabEnt_subgoal_trie(X)  ((X)->subgoal_trie)
 #define TabEnt_hash_chain(X)    ((X)->hash_chain)
 #define TabEnt_next(X)          ((X)->next)
@@ -117,6 +154,9 @@ typedef struct subgoal_frame {
   int generator_worker;
   struct or_frame *top_or_frame_on_generator_branch;
 #endif /* YAPOR */
+  struct table_entry *tab_ent;
+  int subgoal_arity;
+  int abolish_operations;
   choiceptr generator_choice_point;
   struct answer_trie_node *answer_trie;
   struct answer_trie_node *first_answer;
@@ -126,24 +166,23 @@ typedef struct subgoal_frame {
     start      = 0,
     evaluating = 1,
     complete   = 2,
-    executable = 3
+    compiled   = 3
   } state_flag;
-  int abolish_operations;
-  int subgoal_arity;
   struct subgoal_frame *next;
 } *sg_fr_ptr;
 
 #define SgFr_lock(X)           ((X)->lock)
 #define SgFr_gen_worker(X)     ((X)->generator_worker)
 #define SgFr_gen_top_or_fr(X)  ((X)->top_or_frame_on_generator_branch)
+#define SgFr_tab_ent(X)        ((X)->tab_ent)
+#define SgFr_arity(X)          ((X)->subgoal_arity)
+#define SgFr_abolish(X)        ((X)->abolish_operations)
 #define SgFr_gen_cp(X)         ((X)->generator_choice_point)
 #define SgFr_answer_trie(X)    ((X)->answer_trie)
 #define SgFr_first_answer(X)   ((X)->first_answer)
 #define SgFr_last_answer(X)    ((X)->last_answer)
 #define SgFr_hash_chain(X)     ((X)->hash_chain)
 #define SgFr_state(X)          ((X)->state_flag)
-#define SgFr_abolish(X)        ((X)->abolish_operations)
-#define SgFr_arity(X)          ((X)->subgoal_arity)
 #define SgFr_next(X)           ((X)->next)
 
 /* ------------------------------------------------------------------------------------------- **
@@ -153,6 +192,9 @@ typedef struct subgoal_frame {
                        When the generator choice point is shared the pointer is updated 
                        to its or-frame. It is used to find the direct dependency node for 
                        consumer nodes in other workers branches.
+   SgFr_tab_ent        a pointer to the correspondent table entry.
+   SgFr_arity          the arity of the subgoal.
+   SgFr_abolish        the number of times the subgoal was abolished.
    SgFr_gen_cp:        a pointer to the correspondent generator choice point.
    SgFr_answer_trie:   a pointer to the top answer trie node.
                        It is used to check for/insert new answers.
@@ -160,8 +202,6 @@ typedef struct subgoal_frame {
    SgFr_last_answer:   a pointer to the bottom answer trie node of the last available answer.
    SgFr_hash_chain:    a pointer to the first answer_hash struct for the subgoal in hand.
    SgFr_state:         a flag that indicates the subgoal state.
-   SgFr_abolish        the number of times the subgoal was abolished.
-   SgFr_arity          the arity of the subgoal.
    SgFr_next:          a pointer to chain between subgoal frames.
 ** ------------------------------------------------------------------------------------------- */
 
@@ -252,17 +292,31 @@ typedef struct suspension_frame {
 
 
 
-/* ---------------------------------------------------------- **
-**      Structs generator_choicept and consumer_choicept      **
-** ---------------------------------------------------------- */
+/* --------------------------------------------------------------------------- **
+**      Structs generator_choicept, consumer_choicept and loader_choicept      **
+** --------------------------------------------------------------------------- */
 
 struct generator_choicept {
   struct choicept cp;
   struct dependency_frame *cp_dep_fr;  /* NULL if batched scheduling */
   struct subgoal_frame *cp_sg_fr;
+#ifdef LOW_LEVEL_TRACER
+  struct table_entry* cp_tab_ent;
+#endif /* LOW_LEVEL_TRACER */
 };
 
 struct consumer_choicept {
   struct choicept cp;
   struct dependency_frame *cp_dep_fr;
+#ifdef LOW_LEVEL_TRACER
+  struct table_entry* cp_tab_ent;
+#endif /* LOW_LEVEL_TRACER */
+};
+
+struct loader_choicept {
+  struct choicept cp;
+  struct answer_trie_node *cp_last_answer;
+#ifdef LOW_LEVEL_TRACER
+  struct table_entry* cp_tab_ent;
+#endif /* LOW_LEVEL_TRACER */
 };

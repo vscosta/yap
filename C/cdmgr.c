@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-07-06 15:10:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-07-06 19:33:52 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.164  2005/07/06 15:10:03  vsc
+* improvements to compiler: merged instructions and fixes for ->
+*
 * Revision 1.163  2005/06/08 00:35:27  vsc
 * fix silly calls such as 0.15 ( bug reported by Jude Shavlik)
 *
@@ -289,8 +292,8 @@ PredForChoicePt(yamop *p_code) {
     case _Nstop:
       return NULL;
 #ifdef TABLING
-    case _trie_retry_nothing:
-    case _trie_trust_nothing:
+    case _trie_retry_null:
+    case _trie_trust_null:
     case _trie_retry_var:
     case _trie_trust_var:
     case _trie_retry_val:
@@ -301,13 +304,16 @@ PredForChoicePt(yamop *p_code) {
     case _trie_trust_list:
     case _trie_retry_struct:
     case _trie_trust_struct:
+    case _trie_retry_extension:
+    case _trie_trust_extension:
     case _trie_retry_float:
     case _trie_trust_float:
     case _trie_retry_long:
     case _trie_trust_long:
       return NULL;
-    case _table_completion:
     case _table_answer_resolution:
+    case _table_completion:
+    case _table_load_answer:
       return NULL; /* ricroc: is this OK? */
       /* compile error --> return ENV_ToP(gc_B->cp_cp); */
 #endif

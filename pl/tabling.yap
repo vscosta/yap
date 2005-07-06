@@ -15,9 +15,13 @@
 *									 *
 *************************************************************************/
 
-:- meta_predicate table(:), tabling_mode(:), abolish_trie(:), show_trie(:), show_trie_stats(:).
+:- meta_predicate table(:), tabling_mode(:), abolish_table(:), show_table(:), show_table_stats(:).
 
 
+
+/******************
+*     table/1     *
+******************/
 
 table(P) :- '$current_module'(M), '$table'(P,M).
 
@@ -35,64 +39,101 @@ table(P) :- '$current_module'(M), '$table'(P,M).
 
 
 
-tabling_mode(P,S) :- '$current_module'(M), '$tabling_mode'(P,M,S).
+/*************************
+*     tabling_mode/2     *
+*************************/
 
-'$tabling_mode'(P,M,S) :- var(P), !, '$do_error'(instantiation_error,tabling_mode(M:P,S)).
-'$tabling_mode'(M:P,_,S) :- !, '$tabling_mode'(P,M,S).
-'$tabling_mode'([],_,_) :- !.
-'$tabling_mode'([H|T],M,S) :- !, '$tabling_mode'(H,M,S), '$tabling_mode'(T,M,S).
-'$tabling_mode'((P1,P2),M,S) :- !, '$tabling_mode'(P1,M,S), '$tabling_mode'(P2,M,S).
-'$tabling_mode'(A/N,M,S) :- integer(N), atom(A), !, functor(T,A,N), '$flags'(T,M,F,F),
-	(F /\ 0x000040 =\= 0, !, '$set_tabling_mode'(T,M,S)
+tabling_mode(Pred,Options) :- 
+   '$current_module'(Mod), 
+   '$tabling_mode'(Mod,Pred,Options).
+
+'$tabling_mode'(Mod,Pred,Options) :- 
+   var(Pred), !, 
+   '$do_error'(instantiation_error,tabling_mode(Mod:Pred,Options)).
+'$tabling_mode'(_,Mod:Pred,Options) :- !, 
+   '$tabling_mode'(Mod,Pred,Options).
+'$tabling_mode'(_,[],_) :- !.
+'$tabling_mode'(Mod,[HPred|TPred],Options) :- !,
+   '$tabling_mode'(Mod,HPred,Options),
+   '$tabling_mode'(Mod,TPred,Options).
+'$tabling_mode'(Mod,PredName/PredArity,Options) :- 
+   atom(PredName), 
+   integer(PredArity), !, 
+   functor(PredFunctor,PredName,PredArity),
+   '$flags'(PredFunctor,Mod,Flags,Flags),
+   (Flags /\ 0x000040 =\= 0, !, '$set_tabling_mode'(Mod,PredFunctor,Options)
+   ;
+   '$do_error'(domain_error(table,Mod:PredName/PredArity),tabling_mode(Mod:PredName/PredArity,Options))).
+'$tabling_mode'(Mod,Pred,Options) :- 
+   '$do_error'(type_error(callable,Pred),tabling_mode(Mod:Pred,Options)).
+
+'$set_tabling_mode'(Mod,PredFunctor,Options) :-
+   var(Options), !, 
+   '$do_tabling_mode'(Mod,PredFunctor,Options).
+'$set_tabling_mode'(Mod,PredFunctor,[]) :- !.
+'$set_tabling_mode'(Mod,PredFunctor,[HOption|TOption]) :- !,
+   '$set_tabling_mode'(Mod,PredFunctor,HOption),
+   '$set_tabling_mode'(Mod,PredFunctor,TOption).
+'$set_tabling_mode'(Mod,PredFunctor,Option) :- 
+   (Option = batched ; Option = local ; Option = exec_answers ; Option = load_answers), !, 
+   '$do_tabling_mode'(Mod,PredFunctor,Option).
+'$set_tabling_mode'(Mod,PredFunctor,Options) :- 
+   functor(PredFunctor,PredName,PredArity), 
+   '$do_error'(domain_error(flag_value,tabling_mode+Options),tabling_mode(Mod:PredName/PredArity,Options)).
+
+
+
+/**************************
+*     abolish_table/1     *
+**************************/
+
+abolish_table(P) :- '$current_module'(M), '$abolish_table'(P,M).
+
+'$abolish_table'(P,M) :- var(P), !, '$do_error'(instantiation_error,abolish_table(M:P)).
+'$abolish_table'(M:P,_) :- !, '$abolish_table'(P,M).
+'$abolish_table'([],_) :- !.
+'$abolish_table'([H|T],M) :- !, '$abolish_table'(H,M), '$abolish_table'(T,M).
+'$abolish_table'((P1,P2),M) :- !, '$abolish_table'(P1,M), '$abolish_table'(P2,M).
+'$abolish_table'(A/N,M) :- integer(N), atom(A), !, functor(T,A,N), '$flags'(T,M,F,F),
+	(F /\ 0x000040 =\= 0, !, '$do_abolish_table'(T,M)
 	;
-	'$do_error'(domain_error(table,M:A/N),tabling_mode(M:A/N,S))).
-'$tabling_mode'(P,M,S) :- '$do_error'(type_error(callable,P),tabling_mode(M:P,S)).
-
-'$set_tabling_mode'(T,M,S) :- var(S), !, '$do_tabling_mode'(T,M,S).
-'$set_tabling_mode'(T,M,S) :- (S = local ; S = batched), !, '$do_tabling_mode'(T,M,S).
-'$set_tabling_mode'(T,M,S) :- functor(T,A,N), '$do_error'(domain_error(flag_value,tabling_mode+S),tabling_mode(M:A/N,S)).
+	'$do_error'(domain_error(table,M:A/N),abolish_table(M:A/N))).
+'$abolish_table'(P,M) :- '$do_error'(type_error(callable,P),abolish_table(M:P)).
 
 
 
-abolish_trie(P) :- '$current_module'(M), '$abolish_trie'(P,M).
+/***********************
+*     show_table/1     *
+***********************/
 
-'$abolish_trie'(P,M) :- var(P), !, '$do_error'(instantiation_error,abolish_trie(M:P)).
-'$abolish_trie'(M:P,_) :- !, '$abolish_trie'(P,M).
-'$abolish_trie'([],_) :- !.
-'$abolish_trie'([H|T],M) :- !, '$abolish_trie'(H,M), '$abolish_trie'(T,M).
-'$abolish_trie'((P1,P2),M) :- !, '$abolish_trie'(P1,M), '$abolish_trie'(P2,M).
-'$abolish_trie'(A/N,M) :- integer(N), atom(A), !, functor(T,A,N), '$flags'(T,M,F,F),
-	(F /\ 0x000040 =\= 0, !, '$do_abolish_trie'(T,M)
+show_table(P) :-	'$current_module'(M), '$show_table'(P,M).
+
+'$show_table'(P,M) :- var(P), !, '$do_error'(instantiation_error,show_table(M:P)).
+'$show_table'(M:P,_) :- !, '$show_table'(P,M).
+'$show_table'([],_) :- !.
+'$show_table'([H|T],M) :- !, '$show_table'(H,M), '$show_table'(T,M).
+'$show_table'((P1,P2),M) :- !, '$show_table'(P1,M), '$show_table'(P2,M).
+'$show_table'(A/N,M) :- integer(N), atom(A), !,	functor(T,A,N), '$flags'(T,M,F,F),
+	(F /\ 0x000040 =\= 0, !, '$do_show_table'(T,M)
 	;
-	'$do_error'(domain_error(table,M:A/N),abolish_trie(M:A/N))).
-'$abolish_trie'(P,M) :- '$do_error'(type_error(callable,P),abolish_trie(M:P)).
+	'$do_error'(domain_error(table,M:A/N),show_table(M:A/N))).
+'$show_table'(P,M) :- '$do_error'(type_error(callable,P),show_table(M:P)).
 
 
 
-show_trie(P) :-	'$current_module'(M), '$show_trie'(P,M).
+/*****************************
+*     show_table_stats/1     *
+*****************************/
 
-'$show_trie'(P,M) :- var(P), !, '$do_error'(instantiation_error,show_trie(M:P)).
-'$show_trie'(M:P,_) :- !, '$show_trie'(P,M).
-'$show_trie'([],_) :- !.
-'$show_trie'([H|T],M) :- !, '$show_trie'(H,M), '$show_trie'(T,M).
-'$show_trie'((P1,P2),M) :- !, '$show_trie'(P1,M), '$show_trie'(P2,M).
-'$show_trie'(A/N,M) :- integer(N), atom(A), !,	functor(T,A,N), '$flags'(T,M,F,F),
-	(F /\ 0x000040 =\= 0, !, '$do_show_trie'(T,M)
+show_table_stats(P) :- '$current_module'(M), '$show_table_stats'(P,M).
+
+'$show_table_stats'(P,M) :- var(P), !, '$do_error'(instantiation_error,show_table_stats(M:P)).
+'$show_table_stats'(M:P,_) :- !, '$show_table_stats'(P,M).
+'$show_table_stats'([],_) :- !.
+'$show_table_stats'([H|T],M) :- !, '$show_table_stats'(H,M), '$show_table_stats'(T,M).
+'$show_table_stats'((P1,P2),M) :- !, '$show_table_stats'(P1,M), '$show_table_stats'(P2,M).
+'$show_table_stats'(A/N,M) :- atom(A), integer(N), !, functor(T,A,N), '$flags'(T,M,F,F),
+	(F /\ 0x000040 =\= 0, !, '$do_show_table_stats'(T,M)
 	;
-	'$do_error'(domain_error(table,M:A/N),show_trie(M:A/N))).
-'$show_trie'(P,M) :- '$do_error'(type_error(callable,P),show_trie(M:P)).
-
-
-
-show_trie_stats(P) :- '$current_module'(M), '$show_trie_stats'(P,M).
-
-'$show_trie_stats'(P,M) :- var(P), !, '$do_error'(instantiation_error,show_trie_stats(M:P)).
-'$show_trie_stats'(M:P,_) :- !, '$show_trie_stats'(P,M).
-'$show_trie_stats'([],_) :- !.
-'$show_trie_stats'([H|T],M) :- !, '$show_trie_stats'(H,M), '$show_trie_stats'(T,M).
-'$show_trie_stats'((P1,P2),M) :- !, '$show_trie_stats'(P1,M), '$show_trie_stats'(P2,M).
-'$show_trie_stats'(A/N,M) :- atom(A), integer(N), !, functor(T,A,N), '$flags'(T,M,F,F),
-	(F /\ 0x000040 =\= 0, !, '$do_show_trie_stats'(T,M)
-	;
-	'$do_error'(domain_error(table,M:A/N),show_trie_stats(M:A/N))).
-'$show_trie_stats'(P,M) :- '$do_error'(type_error(callable,P),show_trie_stats(M:P)).
+	'$do_error'(domain_error(table,M:A/N),show_table_stats(M:A/N))).
+'$show_table_stats'(P,M) :- '$do_error'(type_error(callable,P),show_table_stats(M:P)).

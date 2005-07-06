@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-07-06 15:10:14 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-07-06 19:33:54 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.90  2005/07/06 15:10:14  vsc
+* improvements to compiler: merged instructions and fixes for ->
+*
 * Revision 1.89  2005/05/26 18:01:11  rslopes
 * *** empty log message ***
 *
@@ -2822,6 +2825,32 @@ p_access_yap_flags(void)
   if (flag < 0 || flag > NUMBER_OF_YAP_FLAGS) {
     return(FALSE);
   }
+#ifdef TABLING
+  if (flag == TABLING_MODE_FLAG) {
+    int n = 0;
+    if (IsMode_CompletedOn(yap_flags[flag])) {
+      if (IsMode_LoadAnswers(yap_flags[flag]))
+	tout = MkAtomTerm(Yap_LookupAtom("load_answers"));
+      else
+	tout = MkAtomTerm(Yap_LookupAtom("exec_answers"));
+      n++;
+    }
+    if (IsMode_SchedulingOn(yap_flags[flag])) {
+      Term taux = tout;
+      if (IsMode_Local(yap_flags[flag]))
+	tout = MkAtomTerm(Yap_LookupAtom("local"));
+      else
+	tout = MkAtomTerm(Yap_LookupAtom("batched"));
+      if (n) {
+	taux = MkPairTerm(taux, MkAtomTerm(AtomNil));
+	tout = MkPairTerm(tout, taux);
+      }
+      n++;
+    }
+    if (n == 0)
+      tout = MkAtomTerm(Yap_LookupAtom("default"));
+  } else
+#endif /* TABLING */
   tout = MkIntegerTerm(yap_flags[flag]);
   return(Yap_unify(ARG2, tout));
 }
@@ -2931,15 +2960,57 @@ p_set_yap_flags(void)
       return(FALSE);
     yap_flags[INDEXING_MODE_FLAG] = value;
     break;
-  case TABLING_MODE_FLAG:
 #ifdef TABLING
-    if (value != TABLING_MODE_DEFAULT && value != TABLING_MODE_BATCHED && value != TABLING_MODE_LOCAL)
-      return(FALSE);
-    yap_flags[TABLING_MODE_FLAG] = value;
-#else
-    return(FALSE);
-#endif /* TABLING */
+  case TABLING_MODE_FLAG:
+    if (value == 0) {  /* default */
+      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      while(tab_ent) {
+	if (IsDefaultMode_Local(TabEnt_mode(tab_ent)))
+	  SetMode_Local(TabEnt_mode(tab_ent));
+	else
+	  SetMode_Batched(TabEnt_mode(tab_ent));
+	if (IsDefaultMode_LoadAnswers(TabEnt_mode(tab_ent)))
+	  SetMode_LoadAnswers(TabEnt_mode(tab_ent));
+	else
+	  SetMode_ExecAnswers(TabEnt_mode(tab_ent));
+	tab_ent = TabEnt_next(tab_ent);
+      }
+      yap_flags[TABLING_MODE_FLAG] = 0;
+    } else if (value == 1) {  /* batched */
+      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      while(tab_ent) {
+	SetMode_Batched(TabEnt_mode(tab_ent));
+	tab_ent = TabEnt_next(tab_ent);
+      }
+      SetMode_Batched(yap_flags[TABLING_MODE_FLAG]);
+      SetMode_SchedulingOn(yap_flags[TABLING_MODE_FLAG]);
+    } else if (value == 2) {  /* local */
+      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      while(tab_ent) {
+	SetMode_Local(TabEnt_mode(tab_ent));
+	tab_ent = TabEnt_next(tab_ent);
+      }
+      SetMode_Local(yap_flags[TABLING_MODE_FLAG]);
+      SetMode_SchedulingOn(yap_flags[TABLING_MODE_FLAG]);
+    } else if (value == 3) {  /* exec_answers */
+      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      while(tab_ent) {
+	SetMode_ExecAnswers(TabEnt_mode(tab_ent));
+	tab_ent = TabEnt_next(tab_ent);
+      }
+      SetMode_ExecAnswers(yap_flags[TABLING_MODE_FLAG]);
+      SetMode_CompletedOn(yap_flags[TABLING_MODE_FLAG]);
+    } else if (value == 4) {  /* load_answers */
+      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      while(tab_ent) {
+	SetMode_LoadAnswers(TabEnt_mode(tab_ent));
+	tab_ent = TabEnt_next(tab_ent);
+      }
+      SetMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]);
+      SetMode_CompletedOn(yap_flags[TABLING_MODE_FLAG]);
+    } 
     break;
+#endif /* TABLING */
   default:
     return(FALSE);
   }

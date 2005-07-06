@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.4 2005-07-06 15:10:14 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.5 2005-07-06 19:34:11 ricroc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -546,14 +546,6 @@ typedef enum
   INDEX_MODE_MULTI = 3,
   INDEX_MODE_MAX = 4
 } index_mode_options;
-
-typedef enum
-{
-  TABLING_MODE_OFF = 0,
-  TABLING_MODE_BATCHED = 1,
-  TABLING_MODE_LOCAL = 2,
-  TABLING_MODE_DEFAULT = 3
-} tabling_mode_options;
 
 typedef enum
 {

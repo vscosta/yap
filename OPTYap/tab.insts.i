@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.insts.i
-  version:     $Id: tab.insts.i,v 1.15 2005-06-04 08:05:27 ricroc Exp $   
+  version:     $Id: tab.insts.i,v 1.16 2005-07-06 19:34:10 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -13,70 +13,76 @@
 **      Tabling instructions: auxiliary macros      **
 ** ------------------------------------------------ */
 
+#ifdef LOW_LEVEL_TRACER
+#define store_low_level_trace_info(CP, TAB_ENT)  CP->cp_tab_ent = TAB_ENT
+#else
+#define store_low_level_trace_info(CP, TAB_ENT)
+#endif /* LOW_LEVEL_TRACER */
+
+
 #ifdef TABLING_ERRORS
-#define TABLING_ERRORS_check_stack                                       \
-        if (Unsigned(H) + 1024 > Unsigned(B))                            \
-	  TABLING_ERROR_MESSAGE("H + 1024 > B (check_stack)");           \
-        if (Unsigned(H_FZ) + 1024 > Unsigned(B))                         \
+#define TABLING_ERRORS_check_stack                                                     \
+        if (Unsigned(H) + 1024 > Unsigned(B))                                          \
+	  TABLING_ERROR_MESSAGE("H + 1024 > B (check_stack)");                         \
+        if (Unsigned(H_FZ) + 1024 > Unsigned(B))                                       \
 	  TABLING_ERROR_MESSAGE("H_FZ + 1024 > B (check_stack)")
+#define TABLING_ERRORS_consume_answer_and_procceed                                     \
+        if (IS_BATCHED_GEN_CP(B))                                                      \
+	  TABLING_ERROR_MESSAGE("IS_BATCHED_GEN_CP(B) (consume_answer_and_procceed)")
 #else
 #define TABLING_ERRORS_check_stack
+#define TABLING_ERRORS_consume_answer_and_procceed
 #endif /* TABLING_ERRORS */
-#define store_generator_node(TAB_ENT, SG_FR, ARITY, AP)                  \
-        { register int subs_arity = *YENV;                               \
-          register CELL *pt_args;                                        \
-          register choiceptr gcp;                                        \
-          /* store args */                                               \
-          pt_args = XREGS + (ARITY);                                     \
-	  while (pt_args > XREGS) {                                      \
-            register CELL aux_arg = pt_args[0];                          \
-            --YENV;                                                      \
-            --pt_args;                                                   \
-            *YENV = aux_arg;                                             \
-	  }                                                              \
-          /* initialize gcp and adjust subgoal frame field */            \
-          YENV = (CELL *) (GEN_CP(YENV) - 1);                            \
-          gcp = NORM_CP(YENV);                                           \
-          SgFr_gen_cp(SG_FR) = gcp;                                      \
-          /* store generator choice point */                             \
-          HBREG = H;                                                     \
-          store_yaam_reg_cpdepth(gcp);                                   \
-          gcp->cp_tr = TR;            	                                 \
-          gcp->cp_ap = (yamop *)(AP);                                    \
-          gcp->cp_h  = H;                                                \
-          gcp->cp_b  = B;                                                \
-          gcp->cp_env = ENV;                                             \
-          gcp->cp_cp = CPREG;                                            \
-                                                                         \
-                                                                         \
-	  /*if (SgFr_abolish(SG_FR) == 0) {*/                            \
-	  if (subs_arity == 0 ||                                         \
-              (yap_flags[TABLING_MODE_FLAG] != TABLING_MODE_LOCAL &&     \
-              (TabEnt_mode(TAB_ENT) == batched ||                        \
-              yap_flags[TABLING_MODE_FLAG] == TABLING_MODE_BATCHED))) {  \
-                                                                         \
-                                                                         \
-            /* go batched */                                             \
-            GEN_CP(gcp)->cp_dep_fr = NULL;                               \
-          } else {                                                       \
-            /* go local */                                               \
-            register dep_fr_ptr new_dep_fr;                              \
-            /* adjust freeze registers */                                \
-            H_FZ = H;                                                    \
-            B_FZ = gcp;                                                  \
-            TR_FZ = TR;                                                  \
-            /* store dependency frame */                                 \
-            new_dependency_frame(new_dep_fr, TRUE, LOCAL_top_or_fr,      \
-                                 gcp, gcp, SG_FR, LOCAL_top_dep_fr);     \
-            LOCAL_top_dep_fr = new_dep_fr;                               \
-            GEN_CP(gcp)->cp_dep_fr = LOCAL_top_dep_fr;                   \
-          }                                                              \
-          GEN_CP(gcp)->cp_sg_fr = SG_FR;                                 \
-          set_cut((CELL *)gcp, B);                                       \
-          B = gcp;                                                       \
-          YAPOR_SET_LOAD(B);                                             \
-          SET_BB(B);                                                     \
-          TABLING_ERRORS_check_stack;                                    \
+
+
+#define store_generator_node(TAB_ENT, SG_FR, ARITY, AP)               \
+        { register int subs_arity = *YENV;                            \
+          register CELL *pt_args;                                     \
+          register choiceptr gcp;                                     \
+          /* store args */                                            \
+          pt_args = XREGS + (ARITY);                                  \
+	  while (pt_args > XREGS) {                                   \
+            register CELL aux_arg = pt_args[0];                       \
+            --YENV;                                                   \
+            --pt_args;                                                \
+            *YENV = aux_arg;                                          \
+	  }                                                           \
+          /* initialize gcp and adjust subgoal frame field */         \
+          YENV = (CELL *) (GEN_CP(YENV) - 1);                         \
+          gcp = NORM_CP(YENV);                                        \
+          SgFr_gen_cp(SG_FR) = gcp;                                   \
+          /* store generator choice point */                          \
+          HBREG = H;                                                  \
+          store_yaam_reg_cpdepth(gcp);                                \
+          gcp->cp_tr = TR;            	                              \
+          gcp->cp_ap = (yamop *)(AP);                                 \
+          gcp->cp_h  = H;                                             \
+          gcp->cp_b  = B;                                             \
+          gcp->cp_env = ENV;                                          \
+          gcp->cp_cp = CPREG;                                         \
+	  if (subs_arity && IsMode_Local(TabEnt_mode(TAB_ENT))) {     \
+            /* go local */                                            \
+            register dep_fr_ptr new_dep_fr;                           \
+            /* adjust freeze registers */                             \
+            H_FZ = H;                                                 \
+            B_FZ = gcp;                                               \
+            TR_FZ = TR;                                               \
+            /* store dependency frame */                              \
+            new_dependency_frame(new_dep_fr, TRUE, LOCAL_top_or_fr,   \
+                                 gcp, gcp, SG_FR, LOCAL_top_dep_fr);  \
+            LOCAL_top_dep_fr = new_dep_fr;                            \
+            GEN_CP(gcp)->cp_dep_fr = LOCAL_top_dep_fr;                \
+          } else {                                                    \
+            /* go batched */                                          \
+            GEN_CP(gcp)->cp_dep_fr = NULL;                            \
+          }                                                           \
+          GEN_CP(gcp)->cp_sg_fr = SG_FR;                              \
+          store_low_level_trace_info(GEN_CP(gcp), TAB_ENT);           \
+          set_cut((CELL *)gcp, B);                                    \
+          B = gcp;                                                    \
+          YAPOR_SET_LOAD(B);                                          \
+          SET_BB(B);                                                  \
+          TABLING_ERRORS_check_stack;                                 \
         }
 
 
@@ -127,7 +133,7 @@
         }
 
 
-#define store_consumer_node(SG_FR, LEADER_CP, DEP_ON_STACK)                \
+#define store_consumer_node(TAB_ENT, SG_FR, LEADER_CP, DEP_ON_STACK)       \
         { register choiceptr ccp;                                          \
           register dep_fr_ptr new_dep_fr;                                  \
 	  /* initialize ccp */                                             \
@@ -151,20 +157,15 @@
           ccp->cp_env= ENV;                                                \
           ccp->cp_cp = CPREG;                                              \
           CONS_CP(ccp)->cp_dep_fr = LOCAL_top_dep_fr;                      \
-          set_cut((CELL *)ccp, B);                                         \
+          store_low_level_trace_info(CONS_CP(ccp), TAB_ENT);               \
+          /* set_cut((CELL *)ccp, B); --> no effect */                     \
           B = ccp;                                                         \
           YAPOR_SET_LOAD(B);                                               \
           SET_BB(B);                                                       \
           TABLING_ERRORS_check_stack;                                      \
         }
 
-#ifdef TABLING_ERRORS
-#define TABLING_ERRORS_consume_answer_and_procceed                                     \
-        if (IS_BATCHED_GEN_CP(B))                                                      \
-	  TABLING_ERROR_MESSAGE("IS_BATCHED_GEN_CP(B) (consume_answer_and_procceed)")
-#else
-#define TABLING_ERRORS_consume_answer_and_procceed
-#endif /* TABLING_ERRORS */
+
 #define consume_answer_and_procceed(DEP_FR, ANSWER)       \
         { CELL *subs_ptr;                                 \
           /* restore consumer choice point */             \
@@ -190,6 +191,50 @@
           YENV = ENV;                                     \
           GONext();                                       \
         }
+
+
+#define store_loader_node(TAB_ENT, ANSWER)                    \
+        { register choiceptr lcp;                             \
+	  /* initialize lcp */                                \
+          lcp = NORM_CP(LOAD_CP(YENV) - 1);                   \
+          /* store loader choice point */                     \
+          HBREG = H;                                          \
+          store_yaam_reg_cpdepth(lcp);                        \
+          lcp->cp_tr = TR;         	                      \
+          lcp->cp_ap = LOAD_ANSWER;                           \
+          lcp->cp_h  = H;                                     \
+          lcp->cp_b  = B;                                     \
+          lcp->cp_env= ENV;                                   \
+          lcp->cp_cp = CPREG;                                 \
+          LOAD_CP(lcp)->cp_last_answer = ANSWER;              \
+          store_low_level_trace_info(LOAD_CP(lcp), TAB_ENT);  \
+          /* set_cut((CELL *)lcp, B); --> no effect */        \
+          B = lcp;                                            \
+          YAPOR_SET_LOAD(B);                                  \
+          SET_BB(B);                                          \
+          TABLING_ERRORS_check_stack;                         \
+        }
+
+
+#define restore_loader_node(ANSWER)           \
+        H = HBREG = PROTECT_FROZEN_H(B);      \
+        restore_yaam_reg_cpdepth(B);          \
+        CPREG = B->cp_cp;                     \
+        ENV = B->cp_env;                      \
+        LOAD_CP(B)->cp_last_answer = ANSWER;  \
+        SET_BB(PROTECT_FROZEN_B(B))
+
+
+#define pop_loader_node()             \
+        H = PROTECT_FROZEN_H(B);      \
+        pop_yaam_reg_cpdepth(B);      \
+	CPREG = B->cp_cp;             \
+        TABLING_close_alt(B);	      \
+        ENV = B->cp_env;              \
+	B = B->cp_b;	              \
+        HBREG = PROTECT_FROZEN_H(B);  \
+        SET_BB(PROTECT_FROZEN_B(B))
+
 
 #ifdef DEPTH_LIMIT
 #define allocate_environment()        \
@@ -252,7 +297,7 @@
       find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
       UNLOCK(SgFr_lock(sg_fr));
       find_leader_node(leader_cp, leader_dep_on_stack);
-      store_consumer_node(sg_fr, leader_cp, leader_dep_on_stack);
+      store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef OPTYAP_ERRORS
       if (PARALLEL_EXECUTION_MODE) {
 	choiceptr aux_cp;
@@ -271,11 +316,12 @@
       goto answer_resolution;
     } else {
       /* subgoal completed */
-      if (SgFr_first_answer(sg_fr) == NULL) {
+      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
+      if (ans_node == NULL) {
 	/* no answers --> fail */
 	UNLOCK(SgFr_lock(sg_fr));
 	goto fail;
-      } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+      } else if (ans_node == SgFr_answer_trie(sg_fr)) {
 	/* yes answer --> procceed */
 	UNLOCK(SgFr_lock(sg_fr));
 	PREG = (yamop *) CPREG;
@@ -283,15 +329,29 @@
 	YENV = ENV;
 	GONext();
       } else {
-	/* answers -> load first answer */
-	if (SgFr_state(sg_fr) == complete)
-	  update_answer_trie(sg_fr);
-	UNLOCK(SgFr_lock(sg_fr));
-	PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
-	PREFETCH_OP(PREG);
-	*--YENV = 0;  /* vars_arity */
-	*--YENV = 0;  /* heap_arity */
-	GONext();
+	/* answers -> get first answer */
+	if (IsMode_LoadAnswers(TabEnt_mode(tab_ent))) {
+          /* load answers from the trie */
+	  UNLOCK(SgFr_lock(sg_fr));
+	  if(TrNode_child(ans_node) != NULL) {
+	    store_loader_node(tab_ent, ans_node);
+	  }
+          PREG = (yamop *) CPREG;
+          PREFETCH_OP(PREG);
+          load_answer_trie(ans_node, YENV);
+	  YENV = ENV;
+          GONext();
+	} else {
+	  /* execute compiled code from the trie */
+	  if (SgFr_state(sg_fr) == complete)
+	    update_answer_trie(sg_fr);
+	  UNLOCK(SgFr_lock(sg_fr));
+	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
+	  PREFETCH_OP(PREG);
+	  *--YENV = 0;  /* vars_arity */
+	  *--YENV = 0;  /* heap_arity */
+	  GONext();
+	}
       }
     }
   ENDPBOp();
@@ -322,7 +382,7 @@
       find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
       UNLOCK(SgFr_lock(sg_fr));
       find_leader_node(leader_cp, leader_dep_on_stack);
-      store_consumer_node(sg_fr, leader_cp, leader_dep_on_stack);
+      store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef OPTYAP_ERRORS
       if (PARALLEL_EXECUTION_MODE) {
 	choiceptr aux_cp;
@@ -341,7 +401,8 @@
       goto answer_resolution;
     } else {
       /* subgoal completed */
-      if (SgFr_first_answer(sg_fr) == NULL) {
+      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
+      if (ans_node == NULL) {
 	/* no answers --> fail */
 	UNLOCK(SgFr_lock(sg_fr));
 	goto fail;
@@ -353,15 +414,29 @@
 	YENV = ENV;
 	GONext();
       } else {
-	/* answers -> load first answer */
-	if (SgFr_state(sg_fr) == complete)
-	  update_answer_trie(sg_fr);
-	UNLOCK(SgFr_lock(sg_fr));
-	PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
-	PREFETCH_OP(PREG);
-	*--YENV = 0;  /* vars_arity */
-	*--YENV = 0;  /* heap_arity */
-	GONext();
+	/* answers -> get first answer */
+	if (IsMode_LoadAnswers(TabEnt_mode(tab_ent))) {
+          /* load answers from the trie */
+	  UNLOCK(SgFr_lock(sg_fr));
+	  if(TrNode_child(ans_node) != NULL) {
+	    store_loader_node(tab_ent, ans_node);
+	  }
+          PREG = (yamop *) CPREG;
+          PREFETCH_OP(PREG);
+          load_answer_trie(ans_node, YENV);
+	  YENV = ENV;
+          GONext();
+	} else {
+	  /* execute compiled code from the trie */
+	  if (SgFr_state(sg_fr) == complete)
+	    update_answer_trie(sg_fr);
+	  UNLOCK(SgFr_lock(sg_fr));
+	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
+	  PREFETCH_OP(PREG);
+	  *--YENV = 0;  /* vars_arity */
+	  *--YENV = 0;  /* heap_arity */
+	  GONext();
+	}
       }
     }
   ENDPBOp();
@@ -392,7 +467,7 @@
       find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
       UNLOCK(SgFr_lock(sg_fr));
       find_leader_node(leader_cp, leader_dep_on_stack);
-      store_consumer_node(sg_fr, leader_cp, leader_dep_on_stack);
+      store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef OPTYAP_ERRORS
       if (PARALLEL_EXECUTION_MODE) {
 	choiceptr aux_cp;
@@ -411,7 +486,8 @@
       goto answer_resolution;
     } else {
       /* subgoal completed */
-      if (SgFr_first_answer(sg_fr) == NULL) {
+      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
+      if (ans_node == NULL) {
 	/* no answers --> fail */
 	UNLOCK(SgFr_lock(sg_fr));
 	goto fail;
@@ -423,15 +499,29 @@
 	YENV = ENV;
 	GONext();
       } else {
-        /* answers -> load first answer */
-	if (SgFr_state(sg_fr) == complete)
-	  update_answer_trie(sg_fr);
-	UNLOCK(SgFr_lock(sg_fr));
-	PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
-	PREFETCH_OP(PREG);
-	*--YENV = 0;  /* vars_arity */
-	*--YENV = 0;  /* heap_arity */
-	GONext();
+        /* answers -> get first answer */
+	if (IsMode_LoadAnswers(TabEnt_mode(tab_ent))) {
+          /* load answers from the trie */
+	  UNLOCK(SgFr_lock(sg_fr));
+	  if(TrNode_child(ans_node) != NULL) {
+	    store_loader_node(tab_ent, ans_node);
+	  }
+          PREG = (yamop *) CPREG;
+          PREFETCH_OP(PREG);
+          load_answer_trie(ans_node, YENV);
+	  YENV = ENV;
+          GONext();
+	} else {
+	  /* execute compiled code from the trie */
+	  if (SgFr_state(sg_fr) == complete)
+	    update_answer_trie(sg_fr);
+	  UNLOCK(SgFr_lock(sg_fr));
+	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
+	  PREFETCH_OP(PREG);
+	  *--YENV = 0;  /* vars_arity */
+	  *--YENV = 0;  /* heap_arity */
+	  GONext();
+	}
       }
     }
   ENDPBOp();
@@ -1307,7 +1397,8 @@
         goto fail;
       } else {
         /* subgoal completed */
-        if (SgFr_first_answer(sg_fr) == NULL) {
+	ans_node = SgFr_first_answer(sg_fr);
+        if (ans_node == NULL) {
           /* no answers --> fail */
           B = B->cp_b;
           SET_BB(PROTECT_FROZEN_B(B));
@@ -1322,25 +1413,65 @@
         }
 #endif /* TABLING_ERRORS */
         pop_generator_node(SgFr_arity(sg_fr));
-        if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+        if (ans_node == SgFr_answer_trie(sg_fr)) {
           /* yes answer --> procceed */
           PREG = (yamop *) CPREG;
           PREFETCH_OP(PREG);
           YENV = ENV;
           GONext();
         } else  {
-          /* answers -> load first answer */
-	  LOCK(SgFr_lock(sg_fr));
-	  if (SgFr_state(sg_fr) == complete)
-	    update_answer_trie(sg_fr);
-	  UNLOCK(SgFr_lock(sg_fr));
-          PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
-          PREFETCH_OP(PREG);
-          *--YENV = 0;  /* vars_arity */
-          *--YENV = 0;  /* heap_arity */
-          GONext();
-        }
+          /* answers -> get first answer */
+	  tab_ent_ptr tab_ent = SgFr_tab_ent(sg_fr);
+	  if (IsMode_LoadAnswers(TabEnt_mode(tab_ent))) {
+            /* load answers from the trie */
+	    if(TrNode_child(ans_node) != NULL) {
+	      store_loader_node(tab_ent, ans_node);
+	    }
+            PREG = (yamop *) CPREG;
+            PREFETCH_OP(PREG);
+            load_answer_trie(ans_node, YENV);
+	    YENV = ENV;
+            GONext();
+	  } else {
+	    /* execute compiled code from the trie */
+	    LOCK(SgFr_lock(sg_fr));
+	    if (SgFr_state(sg_fr) == complete)
+	      update_answer_trie(sg_fr);
+	    UNLOCK(SgFr_lock(sg_fr));
+	    PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
+	    PREFETCH_OP(PREG);
+	    *--YENV = 0;  /* vars_arity */
+	    *--YENV = 0;  /* heap_arity */
+	    GONext();
+	  }
+	}
       }
     }
     END_PREFETCH()
+  ENDBOp();
+
+
+
+  BOp(table_load_answer, ld);
+    CELL *subs_ptr;
+    ans_node_ptr ans_node;
+#ifdef YAPOR
+    if (SCH_top_shared_cp(B)) {
+      PROBLEM: cp_last_answer field is local to the cp!
+               -> we need a shared data structure to avoid redundant computations!
+      UNLOCK_OR_FRAME(LOCAL_top_or_fr);
+    }
+#endif /* YAPOR */
+    subs_ptr = (CELL *) (LOAD_CP(B) + 1);
+    ans_node = TrNode_child(LOAD_CP(B)->cp_last_answer);
+    if(TrNode_child(ans_node) != NULL) {
+      restore_loader_node(ans_node);
+    } else {
+      pop_loader_node();
+    }
+    PREG = (yamop *) CPREG;
+    PREFETCH_OP(PREG);
+    load_answer_trie(ans_node, subs_ptr);
+    YENV = ENV;
+    GONext();
   ENDBOp();

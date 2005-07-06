@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.80 2005-05-31 08:20:23 ricroc Exp $	 *
+* version:      $Id: Heap.h,v 1.81 2005-07-06 19:34:11 ricroc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -135,14 +135,15 @@ typedef struct various_codes {
   worker_local wl;
 #endif
 #ifdef YAPOR
-  int   seq_def;
-  yamop getworkcode;
-  yamop getworkcode_seq;
-  yamop getworkfirsttimecode;
+  int seq_def;
+  yamop getwork_code;
+  yamop getwork_seq_code;
+  yamop getwork_first_time_code;
 #endif /* YAPOR */
 #ifdef TABLING
-  yamop tablecompletioncode;
-  yamop tableanswerresolutioncode;
+  yamop table_answer_resolution_code;
+  yamop table_completion_code;
+  yamop table_load_answer_code;
 #endif /* TABLING */
   OPCODE expand_op_code;
   yamop *expand_clauses_first, *expand_clauses_last;
@@ -463,13 +464,14 @@ struct various_codes *Yap_heap_regs;
 #define  HeapLim                 Yap_heap_regs->heap_lim
 #ifdef YAPOR
 #define  SEQUENTIAL_IS_DEFAULT   Yap_heap_regs->seq_def
-#define  GETWORK		 (&(Yap_heap_regs->getworkcode               ))
-#define  GETWORK_SEQ             (&(Yap_heap_regs->getworkcode_seq           ))
-#define  GETWORK_FIRST_TIME      (&(Yap_heap_regs->getworkfirsttimecode      ))
+#define  GETWORK		 (&(Yap_heap_regs->getwork_code))
+#define  GETWORK_SEQ             (&(Yap_heap_regs->getwork_seq_code))
+#define  GETWORK_FIRST_TIME      (&(Yap_heap_regs->getwork_first_time_code))
 #endif /* YAPOR */
 #ifdef TABLING
-#define  COMPLETION               ((yamop *)&(Yap_heap_regs->tablecompletioncode   ))
-#define  ANSWER_RESOLUTION        ((yamop *)&(Yap_heap_regs->tableanswerresolutioncode ))
+#define  ANSWER_RESOLUTION        ((yamop *)&(Yap_heap_regs->table_answer_resolution_code))
+#define  COMPLETION               ((yamop *)&(Yap_heap_regs->table_completion_code))
+#define  LOAD_ANSWER              ((yamop *)&(Yap_heap_regs->table_load_answer_code))
 #endif /* TABLING */
 #define  EXPAND_OP_CODE           Yap_heap_regs->expand_op_code
 #define  ExpandClausesFirst       Yap_heap_regs->expand_clauses_first

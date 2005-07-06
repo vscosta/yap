@@ -220,7 +220,7 @@ yap_flag(index,X) :-
 yap_flag(home,X) :-
 	'$yap_home'(X).
 
-% should match definitions in Yap.h.m4
+% should match definitions in Yap.h
 '$transl_to_index_mode'(0, off).
 '$transl_to_index_mode'(1, single).
 '$transl_to_index_mode'(2, compact).
@@ -228,25 +228,26 @@ yap_flag(home,X) :-
 '$transl_to_index_mode'(3, on). % default is multi argument indexing
 '$transl_to_index_mode'(4, max).
 
-% tabling schedulinhg mode
-yap_flag(tabling_mode,X) :- var(X),
-	'$access_yap_flags'(19, X1),
-	'$transl_to_tabling_mode'(X1,X), !.
-yap_flag(tabling_mode,X) :-
-	'$access_yap_flags'(19, X1),
-	'$transl_to_tabling_mode'(X1,off), !,
-	'$do_error'(permission_error(modify,flag,tabling_mode),yap_flag(tabling_mode,X)).
-yap_flag(tabling_mode,X) :- X \= off,
-	'$transl_to_tabling_mode'(X1,X), !,
-	'$set_yap_flags'(19,X1).
-yap_flag(tabling_mode,X) :-
-	'$do_error'(domain_error(flag_value,tabling_mode+X),yap_flag(tabling_mode,X)).
+% tabling mode
+yap_flag(tabling_mode,Options) :- 
+   var(Options), !,
+   '$access_yap_flags'(19,Options).
+yap_flag(tabling_mode,[]) :- !.
+yap_flag(tabling_mode,[HOption|TOption]) :- !,
+   yap_flag(tabling_mode,HOption),
+   yap_flag(tabling_mode,TOption).
+yap_flag(tabling_mode,Option) :-
+   '$transl_to_tabling_mode'(Flag,Option),
+   '$set_yap_flags'(19,Flag).
+yap_flag(tabling_mode,Options) :-
+   '$do_error'(domain_error(flag_value,tabling_mode+Options),yap_flag(tabling_mode,Options)).
 
-% should match definitions in Yap.h.m4
-'$transl_to_tabling_mode'(0,off).
+% should match with code in stdpreds.c
+'$transl_to_tabling_mode'(0,default).
 '$transl_to_tabling_mode'(1,batched).
 '$transl_to_tabling_mode'(2,local).
-'$transl_to_tabling_mode'(3,default).
+'$transl_to_tabling_mode'(3,exec_answers).
+'$transl_to_tabling_mode'(4,load_answers).
 
 yap_flag(informational_messages,X) :- var(X), !,
 	 get_value('$verbose',X).
@@ -610,7 +611,7 @@ yap_flag(host_type,X) :-
 	    V = home  ;
 	    V = host_type  ;
 	    V = index ;
-	    V = tabling ;
+	    V = tabling_mode ;
 	    V = informational_messages ;
 	    V = integer_rounding_function ;
 	    V = language ;
