@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.structs.h
-  version:     $Id: opt.structs.h,v 1.7 2005-07-06 19:34:10 ricroc Exp $   
+  version:     $Id: opt.structs.h,v 1.8 2005-07-11 19:17:27 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -24,13 +24,13 @@ typedef unsigned long bitmap;
 
 typedef struct page_header {
   volatile int structs_in_use;
-  void *next_free_struct;
+  void *first_free_struct;
   struct page_header *previous;
   struct page_header *next;
 } *pg_hd_ptr;
 
 #define PgHd_str_in_use(X)  ((X)->structs_in_use)
-#define PgHd_free_str(X)    ((X)->next_free_struct)
+#define PgHd_free_str(X)    ((X)->first_free_struct)
 #define PgHd_previous(X)    ((X)->previous)
 #define PgHd_next(X)        ((X)->next)
 
@@ -44,23 +44,18 @@ struct pages {
 #ifdef YAPOR
   lockvar lock;
 #endif /* YAPOR */
-#ifdef STATISTICS
   volatile long pages_allocated;
-  volatile long structs_allocated;
   volatile long structs_in_use;
-  volatile long requests;
-#endif /* STATISTICS */
   int structs_per_page;
-  struct page_header *free_pages;
+  struct page_header *first_free_page;
 };
 
 #define Pg_lock(X)        ((X).lock)
 #define Pg_pg_alloc(X)    ((X).pages_allocated)
-#define Pg_str_alloc(X)   ((X).structs_allocated)
 #define Pg_str_in_use(X)  ((X).structs_in_use)
-#define Pg_requests(X)    ((X).requests)
 #define Pg_str_per_pg(X)  ((X).structs_per_page)
-#define Pg_free_pg(X)     ((X).free_pages)
+#define Pg_free_pg(X)     ((X).first_free_page)
+#define Pg_str_free(X)    (Pg_pg_alloc(X) * Pg_str_per_pg(X) - Pg_str_in_use(X))
 
 
 

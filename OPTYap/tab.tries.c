@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.C
-  version:     $Id: tab.tries.c,v 1.13 2005-07-06 19:34:10 ricroc Exp $   
+  version:     $Id: tab.tries.c,v 1.14 2005-07-11 19:17:29 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -161,7 +161,7 @@ sg_node_ptr subgoal_trie_node_check_insert(tab_ent_ptr tab_ent, sg_node_ptr pare
       new_subgoal_trie_node(new_node, t, NULL, parent_node, first_node);
 #endif /* ALLOC_BEFORE_CHECK */
     }
-    if (count_nodes > MAX_NODES_PER_TRIE_LEVEL) {
+    if (count_nodes >= MAX_NODES_PER_TRIE_LEVEL) {
       /* alloc a new hash */
       sg_node_ptr next_node, *bucket;
       new_subgoal_hash(hash, count_nodes, tab_ent);
@@ -234,7 +234,7 @@ subgoal_hash:
     }
     *bucket = new_node;
     Hash_num_nodes(hash)++;
-    if (count_nodes > MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
+    if (count_nodes >= MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
       /* expand current hash */ 
       sg_node_ptr next_node, *first_old_bucket, *old_bucket;
       first_old_bucket = Hash_buckets(hash);
@@ -362,7 +362,7 @@ ans_node_ptr answer_trie_node_check_insert(sg_fr_ptr sg_fr, ans_node_ptr parent_
       new_answer_trie_node(new_node, instr, t, NULL, parent_node, first_node);
 #endif /* ALLOC_BEFORE_CHECK */
     }
-    if (count_nodes > MAX_NODES_PER_TRIE_LEVEL) {
+    if (count_nodes >= MAX_NODES_PER_TRIE_LEVEL) {
       /* alloc a new hash */
       ans_node_ptr next_node, *bucket;
       new_answer_hash(hash, count_nodes, sg_fr);
@@ -435,7 +435,7 @@ answer_hash:
     }
     *bucket = new_node;
     Hash_num_nodes(hash)++;
-    if (count_nodes > MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
+    if (count_nodes >= MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
       /* expand current hash */ 
       ans_node_ptr next_node, *first_old_bucket, *old_bucket;
       first_old_bucket = Hash_buckets(hash);
@@ -500,7 +500,7 @@ sg_node_ptr subgoal_trie_node_check_insert(tab_ent_ptr tab_ent, sg_node_ptr pare
       child_node = TrNode_next(child_node);
     } while (child_node);
     new_subgoal_trie_node(child_node, t, NULL, parent_node, TrNode_child(parent_node));
-    if (count_nodes > MAX_NODES_PER_TRIE_LEVEL) {
+    if (count_nodes >= MAX_NODES_PER_TRIE_LEVEL) {
       /* alloc a new hash */
       sg_hash_ptr hash;
       sg_node_ptr chain_node, next_node, *bucket;
@@ -540,7 +540,7 @@ sg_node_ptr subgoal_trie_node_check_insert(tab_ent_ptr tab_ent, sg_node_ptr pare
     Hash_num_nodes(hash)++;
     new_subgoal_trie_node(child_node, t, NULL, parent_node, *bucket);
     *bucket = child_node;
-    if (count_nodes > MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
+    if (count_nodes >= MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
       /* expand current hash */
       sg_node_ptr chain_node, next_node, *first_old_bucket, *old_bucket;
       int seed;
@@ -600,7 +600,7 @@ ans_node_ptr answer_trie_node_check_insert(sg_fr_ptr sg_fr, ans_node_ptr parent_
       child_node = TrNode_next(child_node);
     } while (child_node);
     new_answer_trie_node(child_node, instr, t, NULL, parent_node, TrNode_child(parent_node));
-    if (count_nodes > MAX_NODES_PER_TRIE_LEVEL) {
+    if (count_nodes >= MAX_NODES_PER_TRIE_LEVEL) {
       /* alloc a new hash */
       ans_hash_ptr hash;
       ans_node_ptr chain_node, next_node, *bucket;
@@ -640,7 +640,7 @@ ans_node_ptr answer_trie_node_check_insert(sg_fr_ptr sg_fr, ans_node_ptr parent_
     Hash_num_nodes(hash)++;
     new_answer_trie_node(child_node, instr, t, NULL, parent_node, *bucket);
     *bucket = child_node;
-    if (count_nodes > MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
+    if (count_nodes >= MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
       /* expand current hash */ 
       ans_node_ptr chain_node, next_node, *first_old_bucket, *old_bucket;
       int seed;
@@ -1034,8 +1034,7 @@ void update_answer_trie(sg_fr_ptr sg_fr) {
 static struct trie_statistics{
   int show;
   long subgoals;
-  long subgoals_abolished;
-  long subgoals_abolish_operations;
+  long subgoals_not_complete;
   long subgoal_trie_nodes;
   long subgoal_linear_nodes;
   int  subgoal_trie_max_depth;
@@ -1051,8 +1050,7 @@ static struct trie_statistics{
 } trie_stats;
 #define TrStat_show                   trie_stats.show
 #define TrStat_subgoals               trie_stats.subgoals
-#define TrStat_sg_abolished           trie_stats.subgoals_abolished
-#define TrStat_sg_abolish_operations  trie_stats.subgoals_abolish_operations
+#define TrStat_sg_not_complete        trie_stats.subgoals_not_complete
 #define TrStat_sg_nodes               trie_stats.subgoal_trie_nodes
 #define TrStat_sg_linear_nodes        trie_stats.subgoal_linear_nodes
 #define TrStat_sg_max_depth           trie_stats.subgoal_trie_max_depth
@@ -1071,15 +1069,16 @@ static struct trie_statistics{
 #define SHOW_INFO(MESG, ARGS...)      fprintf(Yap_stderr, MESG, ##ARGS)
 #define SHOW_TRIE(MESG, ARGS...)      if (TrStat_show) fprintf(Yap_stderr, MESG, ##ARGS)
 
-void traverse_trie(sg_node_ptr sg_node, int pred_arity, Atom pred_atom, int show) {
+void traverse_trie(tab_ent_ptr tab_ent, Atom pred_atom, int show_trie) {
   char str[STR_ARRAY_SIZE];
   int arity[ARITY_ARRAY_SIZE];
   int str_index;
+  int pred_arity = TabEnt_arity(tab_ent);
+  sg_node_ptr sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
 
-  TrStat_show = show;
+  TrStat_show = show_trie;
   TrStat_subgoals = 0;
-  TrStat_sg_abolished = 0;
-  TrStat_sg_abolish_operations = 0;
+  TrStat_sg_not_complete = 0;
   TrStat_sg_nodes = 0;
   TrStat_sg_linear_nodes = 0;
   TrStat_sg_max_depth = -1;
@@ -1095,42 +1094,40 @@ void traverse_trie(sg_node_ptr sg_node, int pred_arity, Atom pred_atom, int show
   str_index = sprintf(str, "  ?- %s(", AtomName(pred_atom));
   arity[0] = 1;
   arity[1] = pred_arity;
-  SHOW_INFO("\n[ Table structure for predicate '%s/%d' ]\n", AtomName(pred_atom), pred_arity);
+  SHOW_TRIE("\ntable structure for predicate '%s/%d'\n", AtomName(pred_atom), pred_arity);
   TrStat_sg_nodes++;
   if (sg_node && ! traverse_subgoal_trie(sg_node, str, str_index, arity, 1, TRAVERSE_NORMAL))
     return;
-  SHOW_INFO("\n  Subgoal Trie structure\n    %ld subgoals", TrStat_subgoals);
-  if (TrStat_sg_abolished)
-    SHOW_INFO(" including %ld abolished", TrStat_sg_abolished);
-  if (TrStat_sg_abolish_operations)
-    SHOW_INFO(" (%ld abolish operations executed)", TrStat_sg_abolish_operations);
-  SHOW_INFO("\n    %ld nodes (%ld%c saving)\n    %.2f average depth (%d min - %d max)", 
+  SHOW_INFO("\ntable statistics for predicate '%s/%d'", AtomName(pred_atom), pred_arity);
+  SHOW_INFO("\n  subgoal trie structure");
+  SHOW_INFO("\n    subgoals: %ld", TrStat_subgoals);
+  SHOW_INFO("\n    subgoals not complete: %ld", TrStat_sg_not_complete);
+  SHOW_INFO("\n    nodes: %ld (%ld%c saving)", 
 	    TrStat_sg_nodes,
 	    TrStat_sg_linear_nodes == 0 ? 0 : (TrStat_sg_linear_nodes - TrStat_sg_nodes + 1) * 100 / TrStat_sg_linear_nodes,
-	    '%',
+	    '%');
+  SHOW_INFO("\n    average depth: %.2f (%d min - %d max)", 
 	    TrStat_subgoals == 0 ? 0 : (float)TrStat_sg_linear_nodes / (float)TrStat_subgoals,
 	    TrStat_sg_min_depth < 0 ? 0 : TrStat_sg_min_depth,
 	    TrStat_sg_max_depth < 0 ? 0 : TrStat_sg_max_depth);
-  SHOW_INFO("\n  Answer Trie Structure\n    ");
-  if (TrStat_answers_yes)
-    SHOW_INFO("%ld yes answers/", TrStat_answers_yes);
-  SHOW_INFO("%ld answers", TrStat_answers);
-  if (TrStat_ans_pruned)
-    SHOW_INFO(" including %ld pruned", TrStat_ans_pruned);
-  if (TrStat_answers_no)
-    SHOW_INFO(" (%ld no answers)", TrStat_answers_no);
-  SHOW_INFO("\n    %ld nodes (%ld%c saving)\n    %.2f average depth (%d min - %d max)",
+  SHOW_INFO("\n  answer trie structure");
+  SHOW_INFO("\n    answers: %ld", TrStat_answers);
+  SHOW_INFO("\n    yes answers: %ld", TrStat_answers_yes);
+  SHOW_INFO("\n    no answers: %ld", TrStat_answers_no);
+  SHOW_INFO("\n    pruned answers: %ld", TrStat_ans_pruned);
+  SHOW_INFO("\n    nodes: %ld (%ld%c saving)",
 	    TrStat_ans_nodes,
 	    TrStat_ans_linear_nodes == 0 ? 0 : (TrStat_ans_linear_nodes - TrStat_ans_nodes + TrStat_subgoals) * 100 / TrStat_ans_linear_nodes,
-	    '%',
+	    '%');
+  SHOW_INFO("\n    average depth: %.2f (%d min - %d max)",
 	    TrStat_answers == 0 ? 0 : (float)TrStat_ans_linear_nodes / (float)TrStat_answers,
 	    TrStat_ans_min_depth < 0 ? 0 : TrStat_ans_min_depth,
 	    TrStat_ans_max_depth < 0 ? 0 : TrStat_ans_max_depth);
-  SHOW_INFO("\n  Total Memory Used\n    %ld bytes",
-	    TrStat_sg_nodes * sizeof(struct subgoal_trie_node) +
+  SHOW_INFO("\n  total memory in use\n      %ld bytes\n\n",
+	    sizeof(struct table_entry) + 
+            TrStat_sg_nodes * sizeof(struct subgoal_trie_node) +
 	    TrStat_ans_nodes * sizeof(struct answer_trie_node) +
 	    TrStat_subgoals * sizeof(struct subgoal_frame));
-  SHOW_INFO("\n\n");
   return;
 }
 
@@ -1423,7 +1420,6 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
     sg_fr_ptr sg_fr = (sg_fr_ptr) TrNode_child(sg_node);
     str[str_index] = 0;
     TrStat_subgoals++;
-    TrStat_sg_abolish_operations += SgFr_abolish(sg_fr);
     TrStat_sg_linear_nodes+= depth;
     if (TrStat_sg_max_depth < 0) {
       TrStat_sg_min_depth = TrStat_sg_max_depth = depth;
@@ -1432,33 +1428,26 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
     } else if (depth > TrStat_sg_max_depth) {
       TrStat_sg_max_depth = depth;
     }
-    if (SgFr_state(sg_fr) == start) {
-      TrStat_sg_abolished++;
-      SHOW_TRIE("%s.\n    ABOLISHED\n", str);
+    if (SgFr_state(sg_fr) == start || SgFr_state(sg_fr) == evaluating) {
+      TrStat_sg_not_complete++;
+      SHOW_TRIE("%s. ---> NOT COMPLETE\n", str);
+    } else {
+      SHOW_TRIE("%s.\n", str);
     }
-    if (SgFr_state(sg_fr) == evaluating) {
-      SHOW_INFO("%s. --> TRIE ERROR: subgoal not completed !!!\n", str);
-      return FALSE;
-    }
-    LOCK(SgFr_lock(sg_fr));
-    if (SgFr_state(sg_fr) == complete)
-      update_answer_trie(sg_fr);
-    UNLOCK(SgFr_lock(sg_fr));
-    SHOW_TRIE("%s.\n", str);
     TrStat_ans_nodes++;
     if (SgFr_first_answer(sg_fr) == NULL) {
       if (TrStat_ans_max_depth < 0)
-        TrStat_ans_max_depth = 0;
+	TrStat_ans_max_depth = 0;
       TrStat_ans_min_depth = 0;
       TrStat_answers_no++;
-      SHOW_TRIE("    NO\n");
+      SHOW_TRIE("    NO ANSWERS\n");
     } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
       if (TrStat_ans_max_depth < 0)
-        TrStat_ans_max_depth = 0;
+	TrStat_ans_max_depth = 0;
       TrStat_ans_min_depth = 0;
       TrStat_answers_yes++;
       TrStat_answers++;
-      SHOW_TRIE("    YES\n");
+      SHOW_TRIE("    TRUE\n");
     } else {
       char answer_str[STR_ARRAY_SIZE];
       int answer_arity[ARITY_ARRAY_SIZE];
@@ -1492,6 +1481,24 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
   old_str_index = str_index;
   memcpy(old_arity, arity, sizeof(int) * (arity[0] + 1));
   t = TrNode_entry(ans_node);
+
+  /* test if hashing */
+  if (IS_ANSWER_HASH(ans_node)) {
+    ans_node_ptr *bucket, *last_bucket;
+    ans_hash_ptr hash;
+    hash = (ans_hash_ptr) ans_node;
+    bucket = Hash_buckets(hash);
+    last_bucket = bucket + Hash_num_buckets(hash);
+    do {
+      if (*bucket) {
+        ans_node = *bucket;
+        if (! traverse_answer_trie(ans_node, str, str_index, arity, var_index, depth, mode))
+          return FALSE;
+	memcpy(arity, old_arity, sizeof(int) * (old_arity[0] + 1));
+      }
+    } while (++bucket != last_bucket);
+    return TRUE;
+  }
 
   /* print VAR when starting a term */
   if (arity[0] == 0 && mode == TRAVERSE_NORMAL) {

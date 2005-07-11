@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.structs.h
-  version:     $Id: tab.structs.h,v 1.7 2005-07-06 19:34:10 ricroc Exp $   
+  version:     $Id: tab.structs.h,v 1.8 2005-07-11 19:17:29 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -13,14 +13,14 @@
 **      Tabling mode flags      **
 ** ---------------------------- */
 
-#define Mode_SchedulingOn       0x10000000L  /* yap_flags[TABLING_MODE_FLAG] */
-#define Mode_CompletedOn        0x20000000L  /* yap_flags[TABLING_MODE_FLAG] */
+#define Mode_SchedulingOn       0x00000001L  /* yap_flags[TABLING_MODE_FLAG] */
+#define Mode_CompletedOn        0x00000002L  /* yap_flags[TABLING_MODE_FLAG] */
 
-#define Mode_Local              0x00000010L  /* yap_flags[TABLING_MODE_FLAG] + table_entry */
-#define Mode_LoadAnswers        0x00000020L  /* yap_flags[TABLING_MODE_FLAG] + table_entry */
+#define Mode_Local              0x10000000L  /* yap_flags[TABLING_MODE_FLAG] + struct table_entry */
+#define Mode_LoadAnswers        0x20000000L  /* yap_flags[TABLING_MODE_FLAG] + struct table_entry */
 
-#define DefaultMode_Local       0x00000001L  /* table_entry */
-#define DefaultMode_LoadAnswers 0x00000002L  /* table_entry */
+#define DefaultMode_Local       0x00000001L  /* struct table_entry */
+#define DefaultMode_LoadAnswers 0x00000002L  /* struct table_entry */
 
 #define SetMode_SchedulingOn(X)        (X) |= Mode_SchedulingOn
 #define SetMode_CompletedOn(X)         (X) |= Mode_CompletedOn
@@ -156,17 +156,16 @@ typedef struct subgoal_frame {
 #endif /* YAPOR */
   struct table_entry *tab_ent;
   int subgoal_arity;
-  int abolish_operations;
   choiceptr generator_choice_point;
   struct answer_trie_node *answer_trie;
   struct answer_trie_node *first_answer;
   struct answer_trie_node *last_answer;
   struct answer_hash *hash_chain;
   enum {
-    start      = 0,
-    evaluating = 1,
-    complete   = 2,
-    compiled   = 3
+    start      =  0,
+    evaluating =  1,
+    complete   =  2,
+    compiled   =  3
   } state_flag;
   struct subgoal_frame *next;
 } *sg_fr_ptr;
@@ -176,7 +175,6 @@ typedef struct subgoal_frame {
 #define SgFr_gen_top_or_fr(X)  ((X)->top_or_frame_on_generator_branch)
 #define SgFr_tab_ent(X)        ((X)->tab_ent)
 #define SgFr_arity(X)          ((X)->subgoal_arity)
-#define SgFr_abolish(X)        ((X)->abolish_operations)
 #define SgFr_gen_cp(X)         ((X)->generator_choice_point)
 #define SgFr_answer_trie(X)    ((X)->answer_trie)
 #define SgFr_first_answer(X)   ((X)->first_answer)
@@ -194,7 +192,6 @@ typedef struct subgoal_frame {
                        consumer nodes in other workers branches.
    SgFr_tab_ent        a pointer to the correspondent table entry.
    SgFr_arity          the arity of the subgoal.
-   SgFr_abolish        the number of times the subgoal was abolished.
    SgFr_gen_cp:        a pointer to the correspondent generator choice point.
    SgFr_answer_trie:   a pointer to the top answer trie node.
                        It is used to check for/insert new answers.

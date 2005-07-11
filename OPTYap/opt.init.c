@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.init.c  
-  version:     $Id: opt.init.c,v 1.8 2005-07-06 19:33:54 ricroc Exp $   
+  version:     $Id: opt.init.c,v 1.9 2005-07-11 19:17:26 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -48,21 +48,12 @@ ma_h_inner_struct *ma_h_top;
 
 #define STRUCTS_PER_PAGE(STR_TYPE)  ((Yap_page_size - STRUCT_SIZE(struct page_header)) / STRUCT_SIZE(STR_TYPE))
 
-#ifdef STATISTICS
-#define INIT_PAGE_STATISTICS(PG)  \
-        Pg_pg_alloc(PG) = 0;      \
-        Pg_str_alloc(PG) = 0;     \
-        Pg_str_in_use(PG) = 0;    \
-        Pg_requests(PG) = 0
-#else
-#define INIT_PAGE_STATISTICS(PG)
-#endif /* STATISTICS */
-
 #define INIT_PAGES(PG, STR_TYPE)                         \
         INIT_LOCK(Pg_lock(PG));                          \
+        Pg_pg_alloc(PG) = 0;                             \
+        Pg_str_in_use(PG) = 0;                           \
         Pg_str_per_pg(PG) = STRUCTS_PER_PAGE(STR_TYPE);  \
-        Pg_free_pg(PG) = NULL;                           \
-        INIT_PAGE_STATISTICS(PG)
+        Pg_free_pg(PG) = NULL
 
 
 

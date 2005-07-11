@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.macros.h
-  version:     $Id: tab.macros.h,v 1.14 2005-07-06 19:34:10 ricroc Exp $   
+  version:     $Id: tab.macros.h,v 1.15 2005-07-11 19:17:27 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -233,7 +233,6 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
           INIT_LOCK(SgFr_lock(SG_FR));                             \
           SgFr_tab_ent(SG_FR) = TAB_ENT;                           \
           SgFr_arity(SG_FR) = ARITY;                               \
-          SgFr_abolish(SG_FR) = 0;                                 \
           new_answer_trie_node(ans_node, 0, 0, NULL, NULL, NULL);  \
           SgFr_answer_trie(SG_FR) = ans_node;                      \
           SgFr_hash_chain(SG_FR) = NULL;                           \
@@ -518,22 +517,11 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
     sg_fr = LOCAL_top_sg_fr;
     LOCAL_top_sg_fr = SgFr_next(sg_fr);
     LOCK(SgFr_lock(sg_fr));
-    if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
-      /* yes answer --> complete */
+    if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr))  /* yes answer --> complete */
       SgFr_state(sg_fr) = complete;
-      UNLOCK(SgFr_lock(sg_fr));
-    } else {
-      ans_node_ptr node;
+    else
       SgFr_state(sg_fr) = start;
-      SgFr_abolish(sg_fr)++;
-      free_answer_hash_chain(SgFr_hash_chain(sg_fr));
-      SgFr_hash_chain(sg_fr) = NULL;
-      node = TrNode_child(SgFr_answer_trie(sg_fr));
-      TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
-      UNLOCK(SgFr_lock(sg_fr));
-      if (node)
-	free_answer_trie_branch(node);
-    }
+    UNLOCK(SgFr_lock(sg_fr));
   }
 
   return;
@@ -668,11 +656,12 @@ susp_fr_ptr suspension_frame_to_resume(or_fr_ptr susp_or_fr) {
 #endif /* YAPOR */
 
 
-#ifdef TABLING_INNER_CUTS
+
 /* --------------------------------------------------- **
 **      Cut Stuff: Managing table subgoal answers      **
 ** --------------------------------------------------- */
 
+#ifdef TABLING_INNER_CUTS
 static inline
 void CUT_store_tg_answer(or_fr_ptr or_frame, ans_node_ptr ans_node, choiceptr gen_cp, int ltt) {
   tg_sol_fr_ptr tg_sol_fr, *solution_ptr, next, ltt_next;

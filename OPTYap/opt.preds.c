@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.preds.c
-  version:     $Id: opt.preds.c,v 1.19 2005-07-06 19:33:54 ricroc Exp $   
+  version:     $Id: opt.preds.c,v 1.20 2005-07-11 19:17:27 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -59,20 +59,51 @@ static int p_parallel_yes_answer(void);
 static int parallel_new_answer_putchar(int sno, int ch);
 static void show_answers(void);
 static void answer_to_stdout(char *answer);
+static int p_or_statistics(void);
 #endif /* YAPOR */
+
 #ifdef TABLING
-static int p_do_table(void);
-static int p_do_tabling_mode(void);
-static int p_do_abolish_table(void);
-static int p_do_show_table(void);
-static int p_do_show_table_stats(void);
+static int p_table(void);
+static int p_tabling_mode(void);
+static int p_abolish_table(void);
+static int p_abolish_all_tables(void);
+static int p_show_table(void);
+static int p_table_statistics(void);
+static int p_tabling_statistics(void);
 #endif /* TABLING */
-#ifdef STATISTICS
-static int p_show_frames_stats(void);
-#endif /* STATISTICS */
+
+#if defined(YAPOR) && defined(TABLING)
+static int p_opt_statistics(void);
+#endif /* YAPOR && TABLING */
+
 #if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
 static int p_debug_prolog(void);
 #endif /* YAPOR_ERRORS || TABLING_ERRORS */
+
+#ifdef SHM_MEMORY_ALLOC_SCHEME
+static void shm_pages(long pages_in_use, long bytes_in_use);
+#ifdef YAPOR
+static void shm_or_frames(long *pages_in_use, long *bytes_in_use);
+static void shm_query_goal_solution_frames(long *pages_in_use, long *bytes_in_use);
+static void shm_query_goal_answer_frames(long *pages_in_use, long *bytes_in_use);
+#endif /* YAPOR */
+#ifdef TABLING_INNER_CUTS
+static void shm_table_subgoal_solution_frames(long *pages_in_use, long *bytes_in_use);
+static void shm_table_subgoal_answer_frames(long *pages_in_use, long *bytes_in_use);
+#endif /* TABLING_INNER_CUTS */
+#ifdef TABLING
+static void shm_table_entries(long *pages_in_use, long *bytes_in_use);
+static void shm_subgoal_frames(long *pages_in_use, long *bytes_in_use);
+static void shm_subgoal_trie_nodes(long *pages_in_use, long *bytes_in_use);
+static void shm_answer_trie_nodes(long *pages_in_use, long *bytes_in_use);
+static void shm_subgoal_hashes(long *pages_in_use, long *bytes_in_use);
+static void shm_answer_hashes(long *pages_in_use, long *bytes_in_use);
+static void shm_dependency_frames(long *pages_in_use, long *bytes_in_use);
+#endif /* TABLING */
+#if defined(YAPOR) && defined(TABLING)
+static void shm_suspension_frames(long *pages_in_use, long *bytes_in_use);
+#endif /* YAPOR && TABLING */
+#endif /* SHM_MEMORY_ALLOC_SCHEME */
 
 
 
@@ -90,17 +121,20 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("performance", 1, p_performance, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$parallel_yes_answer", 0, p_parallel_yes_answer, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("or_statistics", 0, p_or_statistics, SafePredFlag|SyncPredFlag);
 #endif /* YAPOR */
 #ifdef TABLING
-  Yap_InitCPred("$do_table", 2, p_do_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$do_tabling_mode", 3, p_do_tabling_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$do_abolish_table", 2, p_do_abolish_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$do_show_table", 2, p_do_show_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$do_show_table_stats", 2, p_do_show_table_stats, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$c_table", 2, p_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$c_tabling_mode", 3, p_tabling_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$c_abolish_table", 2, p_abolish_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("abolish_all_tables", 0, p_abolish_all_tables, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$c_show_table", 2, p_show_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$c_table_statistics", 2, p_table_statistics, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("tabling_statistics", 0, p_tabling_statistics, SafePredFlag|SyncPredFlag);
 #endif /* TABLING */
-#ifdef STATISTICS
-  Yap_InitCPred("show_frames_stats", 0, p_show_frames_stats, SafePredFlag|SyncPredFlag);
-#endif /* STATISTICS */
+#if defined(YAPOR) && defined(TABLING)
+  Yap_InitCPred("opt_statistics", 0, p_opt_statistics, SafePredFlag|SyncPredFlag);
+#endif /* YAPOR && TABLING */
 #if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
   Yap_InitCPred("debug_prolog", 1, p_debug_prolog, SafePredFlag|SyncPredFlag);
 #endif /* YAPOR_ERRORS || TABLING_ERRORS */
@@ -287,32 +321,32 @@ int p_performance(void) {
     return(FALSE);
 
   if (GLOBAL_number_goals) {
-    fprintf(stdout, "[\n  Best execution times:\n");
+    fprintf(Yap_stderr, "[\n  Best execution times:\n");
     for (i = 1; i <= GLOBAL_number_goals; i++) {
-      fprintf(stdout, "    %d. time: %f seconds", i, GLOBAL_best_times(i));  
+      fprintf(Yap_stderr, "    %d. time: %f seconds", i, GLOBAL_best_times(i));  
       if (one_worker_execution_time != 0)
-        fprintf(stdout, " --> speedup %f (%6.2f %% )\n",
+        fprintf(Yap_stderr, " --> speedup %f (%6.2f %% )\n",
                 one_worker_execution_time / GLOBAL_best_times(i),
                 one_worker_execution_time / GLOBAL_best_times(i) / number_workers * 100 );
-      else fprintf(stdout, "\n");
+      else fprintf(Yap_stderr, "\n");
     }
 
-    fprintf(stdout, "  Average             : %f seconds",
+    fprintf(Yap_stderr, "  Average             : %f seconds",
             GLOBAL_best_times(0) / GLOBAL_number_goals);
     if (one_worker_execution_time != 0)
-      fprintf(stdout, " --> speedup %f (%6.2f %% )",
+      fprintf(Yap_stderr, " --> speedup %f (%6.2f %% )",
               one_worker_execution_time * GLOBAL_number_goals / GLOBAL_best_times(0),
               one_worker_execution_time * GLOBAL_number_goals / GLOBAL_best_times(0) / number_workers * 100 );
 
     if (GLOBAL_number_goals >= 3) {
-      fprintf(stdout, "\n  Average (best three): %f seconds",
+      fprintf(Yap_stderr, "\n  Average (best three): %f seconds",
               (GLOBAL_best_times(1) + GLOBAL_best_times(2) + GLOBAL_best_times(3)) / 3);
       if (one_worker_execution_time != 0)
-        fprintf(stdout, " --> speedup %f (%6.2f %% ) ]\n\n",
+        fprintf(Yap_stderr, " --> speedup %f (%6.2f %% ) ]\n\n",
                 one_worker_execution_time * 3 / (GLOBAL_best_times(1) + GLOBAL_best_times(2) + GLOBAL_best_times(3)),
                 one_worker_execution_time * 3 / (GLOBAL_best_times(1) + GLOBAL_best_times(2) + GLOBAL_best_times(3)) / number_workers * 100 );
-      else fprintf(stdout, "\n]\n\n");
-    } else fprintf(stdout, "\n]\n\n");
+      else fprintf(Yap_stderr, "\n]\n\n");
+    } else fprintf(Yap_stderr, "\n]\n\n");
     return (TRUE);
   }
   return (FALSE);
@@ -373,19 +407,19 @@ void show_answers(void) {
   }
   switch(GLOBAL_answers) {
     case YES_ANSWER:
-      fprintf(stdout, "[ yes");
+      fprintf(Yap_stderr, "[ yes");
       break;
     case NO_ANSWER:  
-      fprintf(stdout, "[ no");
+      fprintf(Yap_stderr, "[ no");
       break;
     case 1:
-      fprintf(stdout, "[ 1 answer found");
+      fprintf(Yap_stderr, "[ 1 answer found");
       break;
     default:
-         fprintf(stdout, "[ %d answers found", GLOBAL_answers);
+         fprintf(Yap_stderr, "[ %d answers found", GLOBAL_answers);
       break;
   }
-  fprintf(stdout, " (in %f seconds) ]\n\n", GLOBAL_execution_time);
+  fprintf(Yap_stderr, " (in %f seconds) ]\n\n", GLOBAL_execution_time);
 
   if (GLOBAL_performance_mode & PERFORMANCE_IN_EXECUTION) {
     GLOBAL_performance_mode &= ~PERFORMANCE_IN_EXECUTION;
@@ -448,26 +482,54 @@ void answer_to_stdout(char *answer) {
     else break;
   }
   output[length_output] = 0;
-  fprintf(stdout, "  %s\n", output);
+  fprintf(Yap_stderr, "  %s\n", output);
   return;
+}
+
+
+static
+int p_or_statistics(void) {
+#ifdef SHM_MEMORY_ALLOC_SCHEME
+  long pages_in_use = 0, bytes_in_use = 0;
+
+  fprintf(Yap_stderr, "\n");
+  shm_or_frames(&pages_in_use, &bytes_in_use);
+  shm_query_goal_solution_frames(&pages_in_use, &bytes_in_use);
+  shm_query_goal_answer_frames(&pages_in_use, &bytes_in_use);
+  shm_pages(pages_in_use, bytes_in_use);
+  fprintf(Yap_stderr, "\n");
+#else
+  long bytes_in_use = 0;
+
+  fprintf(Yap_stderr, "\n");
+  fprintf(Yap_stderr, "%s or frames:                     %10ld structs in use\n", 
+          Pg_str_in_use(GLOBAL_PAGES_or_fr) == 1 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_or_fr));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_or_fr) * sizeof(struct or_frame);
+  fprintf(Yap_stderr, "%s query goal solution frames:    %10ld structs in use\n",
+          Pg_str_in_use(GLOBAL_PAGES_qg_sol_fr) == 0 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_qg_sol_fr));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_qg_sol_fr) * sizeof(struct query_goal_solution_frame);
+  fprintf(Yap_stderr, "%s query goal answer frames:      %10ld structs in use\n",
+          Pg_str_in_use(GLOBAL_PAGES_qg_ans_fr) == 0 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_qg_ans_fr));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_qg_ans_fr) * sizeof(struct query_goal_answer_frame);
+  fprintf(Yap_stderr, "\n  total memory in use:                    %10ld bytes\n", bytes_in_use);
+  fprintf(Yap_stderr, "\n");
+#endif /* MEMORY_ALLOC_SCHEME */
+  return (TRUE);
 }
 #endif /* YAPOR */
 
 
 #ifdef TABLING
 static
-int p_do_table(void) {
-  Term t, mod;
+int p_table(void) {
+  Term mod, t;
   PredEntry *pe;
   tab_ent_ptr tab_ent;
   sg_node_ptr sg_node;
   UInt arity;
 
-  mod = Deref(ARG2);
-  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
-    return (FALSE);
-  }
-  t = Deref(ARG1);
+  mod = Deref(ARG1);
+  t = Deref(ARG2);
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
     pe = RepPredProp(PredPropByAtom(at, mod));
@@ -476,22 +538,20 @@ int p_do_table(void) {
     Functor func = FunctorOfTerm(t);
     pe = RepPredProp(PredPropByFunc(func, mod));
     arity = ArityOfFunctor(func);
-  } else {
+  } else
     return (FALSE);
+  if (!(pe->PredFlags & TabledPredFlag)) {
+    pe->PredFlags |= TabledPredFlag;
+    new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);
+    new_table_entry(tab_ent, pe, arity, sg_node);
+    pe->TableOfPred = tab_ent;
   }
-  if (pe->PredFlags & TabledPredFlag) {
-    return (TRUE);
-  }
-  pe->PredFlags |= TabledPredFlag;
-  new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);
-  new_table_entry(tab_ent, pe, arity, sg_node);
-  pe->TableOfPred = tab_ent;
   return (TRUE);
 }
 
 
 static
-int p_do_tabling_mode(void) {
+int p_tabling_mode(void) {
   Term mod, t, val;
   tab_ent_ptr tab_ent;
 
@@ -554,363 +614,210 @@ int p_do_tabling_mode(void) {
 
 
 static
-int p_do_abolish_table(void) {
-  Term t, mod;
+int p_abolish_table(void) {
+  Term mod, t;
   tab_ent_ptr tab_ent;
   sg_hash_ptr hash;
   sg_node_ptr sg_node;
-  UInt arity;
 
-  mod = Deref(ARG2);
-  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
+  mod = Deref(ARG1);
+  t = Deref(ARG2);
+  if (IsAtomTerm(t))
+    tab_ent = RepPredProp(PredPropByAtom(AtomOfTerm(t), mod))->TableOfPred;
+  else if (IsApplTerm(t))
+    tab_ent = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod))->TableOfPred;
+  else
     return (FALSE);
-  } 
-  t = Deref(ARG1);
-  if (IsAtomTerm(t)) {
-    Atom at = AtomOfTerm(t);
-    tab_ent = RepPredProp(PredPropByAtom(at, mod))->TableOfPred;
-    arity = 0;
-  } else if (IsApplTerm(t)) {
-    Functor func = FunctorOfTerm(t);
-    tab_ent = RepPredProp(PredPropByFunc(func, mod))->TableOfPred;
-    arity = ArityOfFunctor(func);
-  } else {
-    return (FALSE);
-  }
   hash = TabEnt_hash_chain(tab_ent);
   TabEnt_hash_chain(tab_ent) = NULL;
   free_subgoal_hash_chain(hash);
   sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
   if (sg_node) {
     TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
-    free_subgoal_trie_branch(sg_node, arity);
+    free_subgoal_trie_branch(sg_node, TabEnt_arity(tab_ent));
   }
   return (TRUE);
 }
 
 
 static
-int p_do_show_table(void) {
-  Term t1, mod;
-  PredEntry *pe;
-  Atom at;
-  UInt arity;
+int p_abolish_all_tables(void) {
+  tab_ent_ptr tab_ent;
+  sg_hash_ptr hash;
+  sg_node_ptr sg_node;
 
-  mod = Deref(ARG2);
-  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
-    return (FALSE);
-  } 
-  t1 = Deref(ARG1);
-  if (IsAtomTerm(t1)) {
-    at = AtomOfTerm(t1);
-    pe = RepPredProp(PredPropByAtom(at, mod));
-    arity = 0;
-  } else if (IsApplTerm(t1)) {
-    Functor func = FunctorOfTerm(t1);
-    at = NameOfFunctor(func);
-    pe = RepPredProp(PredPropByFunc(func, mod));
-    arity = ArityOfFunctor(func);
-  } else {
-    return (FALSE);
+  tab_ent = GLOBAL_root_tab_ent;
+  while(tab_ent) {
+    hash = TabEnt_hash_chain(tab_ent);
+    TabEnt_hash_chain(tab_ent) = NULL;
+    free_subgoal_hash_chain(hash);
+    sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
+    if (sg_node) {
+      TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
+      free_subgoal_trie_branch(sg_node, TabEnt_arity(tab_ent));
+    }
+    tab_ent = TabEnt_next(tab_ent);
   }
-  traverse_trie(TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, TRUE);
+  GLOBAL_root_tab_ent = NULL;
   return (TRUE);
 }
 
 
 static
-int p_do_show_table_stats(void) {
-  Term t, mod;
-  PredEntry *pe;
+int p_show_table(void) {
+  Term mod, t;
+  tab_ent_ptr tab_ent;
   Atom at;
-  UInt arity;
 
-  mod = Deref(ARG2);
-  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
-    return (FALSE);
-  } 
-  t = Deref(ARG1);
+  mod = Deref(ARG1);
+  t = Deref(ARG2);
   if (IsAtomTerm(t)) {
     at = AtomOfTerm(t);
-    pe = RepPredProp(PredPropByAtom(at, mod));
-    arity = 0;
+    tab_ent = RepPredProp(PredPropByAtom(at, mod))->TableOfPred;
   } else if (IsApplTerm(t)) {
-    Functor func = FunctorOfTerm(t);
-    at = NameOfFunctor(func);
-    pe = RepPredProp(PredPropByFunc(func, mod));
-    arity = ArityOfFunctor(func);
-  } else {
-    return(FALSE);
-  }
-  traverse_trie(TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, FALSE);
+    at = NameOfFunctor(FunctorOfTerm(t));
+    tab_ent = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod))->TableOfPred;
+  } else
+    return (FALSE);
+  traverse_trie(tab_ent, at, TRUE);
+  return (TRUE);
+}
+
+
+static
+int p_table_statistics(void) {
+  Term mod, t;
+  tab_ent_ptr tab_ent;
+  Atom at;
+
+  mod = Deref(ARG1);
+  t = Deref(ARG2);
+  if (IsAtomTerm(t)) {
+    at = AtomOfTerm(t);
+    tab_ent = RepPredProp(PredPropByAtom(at, mod))->TableOfPred;
+  } else if (IsApplTerm(t)) {
+    at = NameOfFunctor(FunctorOfTerm(t));
+    tab_ent = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod))->TableOfPred;
+  } else
+    return (FALSE);
+  traverse_trie(tab_ent, at, FALSE);
+  return (TRUE);
+}
+
+
+static
+int p_tabling_statistics(void) {
+#ifdef SHM_MEMORY_ALLOC_SCHEME
+  long pages_in_use = 0, bytes_in_use = 0;
+
+  fprintf(Yap_stderr, "\n");
+  shm_table_entries(&pages_in_use, &bytes_in_use);
+  shm_subgoal_frames(&pages_in_use, &bytes_in_use);
+  shm_subgoal_trie_nodes(&pages_in_use, &bytes_in_use);
+  shm_answer_trie_nodes(&pages_in_use, &bytes_in_use);
+  shm_subgoal_hashes(&pages_in_use, &bytes_in_use);
+  shm_answer_hashes(&pages_in_use, &bytes_in_use);
+  shm_dependency_frames(&pages_in_use, &bytes_in_use);
+  shm_pages(pages_in_use, bytes_in_use);
+  fprintf(Yap_stderr, "\n");
+#else
+  long bytes_in_use = 0;
+
+  fprintf(Yap_stderr, "\n");
+  fprintf(Yap_stderr, "  table entries:                 %10ld structs in use\n", Pg_str_in_use(GLOBAL_PAGES_tab_ent));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_tab_ent) * sizeof(struct table_entry);
+  fprintf(Yap_stderr, "  subgoal frames:                %10ld structs in use\n", Pg_str_in_use(GLOBAL_PAGES_sg_fr));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_sg_fr) * sizeof(struct subgoal_frame);
+  fprintf(Yap_stderr, "  subgoal trie nodes:            %10ld structs in use\n", Pg_str_in_use(GLOBAL_PAGES_sg_node));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_sg_node) * sizeof(struct subgoal_trie_node);
+  fprintf(Yap_stderr, "  answer trie nodes:             %10ld structs in use\n", Pg_str_in_use(GLOBAL_PAGES_ans_node));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_ans_node) * sizeof(struct answer_trie_node);
+  fprintf(Yap_stderr, "  subgoal hashes:                %10ld structs in use\n", Pg_str_in_use(GLOBAL_PAGES_sg_hash));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_sg_hash) * sizeof(struct subgoal_hash);
+  fprintf(Yap_stderr, "%s answer hashes:                 %10ld structs in use\n",
+          Pg_str_in_use(GLOBAL_PAGES_ans_hash) == 0 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_ans_hash));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_ans_hash) * sizeof(struct answer_hash);
+  fprintf(Yap_stderr, "%s dependency frames:             %10ld structs in use\n",
+          Pg_str_in_use(GLOBAL_PAGES_dep_fr) == 1 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_dep_fr));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_dep_fr) * sizeof(struct dependency_frame);
+  fprintf(Yap_stderr, "\n  total memory in use:                    %10ld bytes\n", bytes_in_use);
+  fprintf(Yap_stderr, "\n");
+#endif /* MEMORY_ALLOC_SCHEME */
   return (TRUE);
 }
 #endif /* TABLING */
 
-
-#ifdef STATISTICS
-static
-int p_show_frames_stats(void) {
-  long cont, pages;
-  pg_hd_ptr pg_hd;
-  void *str_ptr;
-
-  fprintf(stdout, "[\n");
-  pages = 0;
-
-#ifdef YAPOR
-  /* show or frames */
-  pages += Pg_pg_alloc(GLOBAL_PAGES_or_fr);
-  cont = 0;
-  pg_hd = Pg_free_pg(GLOBAL_PAGES_or_fr);
-  while (pg_hd) {
-    str_ptr = PgHd_free_str(pg_hd);
-    while (str_ptr) {
-      cont++;
-      str_ptr = (void *) OrFr_next((or_fr_ptr)str_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  fprintf(stdout, " %s[%ld] Or frames: Alloc %ld - In Use %ld - Free %ld (%ld Accesses)\n",
-          (Pg_str_alloc(GLOBAL_PAGES_or_fr) - Pg_str_in_use(GLOBAL_PAGES_or_fr) == cont &&
-          Pg_str_in_use(GLOBAL_PAGES_or_fr) == 1) ? " ": "*",
-          Pg_pg_alloc(GLOBAL_PAGES_or_fr), Pg_str_alloc(GLOBAL_PAGES_or_fr), 
-          Pg_str_in_use(GLOBAL_PAGES_or_fr), cont, Pg_requests(GLOBAL_PAGES_or_fr));
-
-  /* show query goal solution frames */
-  pages += Pg_pg_alloc(GLOBAL_PAGES_qg_sol_fr);
-  cont = 0;
-  pg_hd = Pg_free_pg(GLOBAL_PAGES_qg_sol_fr);
-  while (pg_hd) {
-    str_ptr = PgHd_free_str(pg_hd);
-    while (str_ptr) {
-      cont++;
-      str_ptr = (void *) SolFr_next((qg_sol_fr_ptr)str_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  fprintf(stdout, " %s[%ld] Query goal solution frames: Alloc %ld - In Use %ld - Free %ld (%ld Accesses)\n",
-          (Pg_str_alloc(GLOBAL_PAGES_qg_sol_fr) - Pg_str_in_use(GLOBAL_PAGES_qg_sol_fr) == cont &&
-          Pg_str_in_use(GLOBAL_PAGES_qg_sol_fr) == 0) ? " ": "*",
-          Pg_pg_alloc(GLOBAL_PAGES_qg_sol_fr), Pg_str_alloc(GLOBAL_PAGES_qg_sol_fr), 
-          Pg_str_in_use(GLOBAL_PAGES_qg_sol_fr), cont, Pg_requests(GLOBAL_PAGES_qg_sol_fr));
-
-  /* show query goal answer frames */
-  pages += Pg_pg_alloc(GLOBAL_PAGES_qg_ans_fr);
-  cont = 0;
-  pg_hd = Pg_free_pg(GLOBAL_PAGES_qg_ans_fr);
-  while (pg_hd) {
-    str_ptr = PgHd_free_str(pg_hd);
-    while (str_ptr) {
-      cont++;
-      str_ptr = (void *) AnsFr_next((qg_ans_fr_ptr)str_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  fprintf(stdout, " %s[%ld] Query goal answer frames: Alloc %ld - In Use %ld - Free %ld (%ld Accesses)\n",
-          (Pg_str_alloc(GLOBAL_PAGES_qg_ans_fr) - Pg_str_in_use(GLOBAL_PAGES_qg_ans_fr) == cont &&
-          Pg_str_in_use(GLOBAL_PAGES_qg_ans_fr) == 0) ? " ": "*",
-          Pg_pg_alloc(GLOBAL_PAGES_qg_ans_fr), Pg_str_alloc(GLOBAL_PAGES_qg_ans_fr), 
-          Pg_str_in_use(GLOBAL_PAGES_qg_ans_fr), cont, Pg_requests(GLOBAL_PAGES_qg_ans_fr));
-#endif /* YAPOR */
-
-#ifdef TABLING_INNER_CUTS
-  /* show table subgoal solution frames */
-  pages += Pg_pg_alloc(GLOBAL_PAGES_tg_sol_fr);
-  cont = 0;
-  pg_hd = Pg_free_pg(GLOBAL_PAGES_tg_sol_fr);
-  while (pg_hd) {
-    str_ptr = PgHd_free_str(pg_hd);
-    while (str_ptr) {
-      cont++;
-      str_ptr = (void *) SolFr_next((tg_sol_fr_ptr)str_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  fprintf(stdout, " %s[%ld] Table subgoal solution frames: Alloc %ld - In Use %ld - Free %ld (%ld Accesses)\n",
-          (Pg_str_alloc(GLOBAL_PAGES_tg_sol_fr) - Pg_str_in_use(GLOBAL_PAGES_tg_sol_fr) == cont &&
-          Pg_str_in_use(GLOBAL_PAGES_tg_sol_fr) == 0) ? " ": "*",
-          Pg_pg_alloc(GLOBAL_PAGES_tg_sol_fr), Pg_str_alloc(GLOBAL_PAGES_tg_sol_fr), 
-          Pg_str_in_use(GLOBAL_PAGES_tg_sol_fr), cont, Pg_requests(GLOBAL_PAGES_tg_sol_fr));
-
-  /* show table subgoal answer frames */
-  pages += Pg_pg_alloc(GLOBAL_PAGES_tg_ans_fr);
-  cont = 0;
-  pg_hd = Pg_free_pg(GLOBAL_PAGES_tg_ans_fr);
-  while (pg_hd) {
-    str_ptr = PgHd_free_str(pg_hd);
-    while (str_ptr) {
-      cont++;
-      str_ptr = (void *) AnsFr_next((tg_ans_fr_ptr)str_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  fprintf(stdout, " %s[%ld] Table subgoal answer frames: Alloc %ld - In Use %ld - Free %ld (%ld Accesses)\n",
-          (Pg_str_alloc(GLOBAL_PAGES_tg_ans_fr) - Pg_str_in_use(GLOBAL_PAGES_tg_ans_fr) == cont &&
-          Pg_str_in_use(GLOBAL_PAGES_tg_ans_fr) == 0) ? " ": "*",
-          Pg_pg_alloc(GLOBAL_PAGES_tg_ans_fr), Pg_str_alloc(GLOBAL_PAGES_tg_ans_fr), 
-          Pg_str_in_use(GLOBAL_PAGES_tg_ans_fr), cont, Pg_requests(GLOBAL_PAGES_tg_ans_fr));
-#endif /* TABLING_INNER_CUTS */
-
-#ifdef TABLING
-  /* show table entries */
-  pages += Pg_pg_alloc(GLOBAL_PAGES_tab_ent);
-  cont = 0;
-  pg_hd = Pg_free_pg(GLOBAL_PAGES_tab_ent);
-  while (pg_hd) {
-    str_ptr = PgHd_free_str(pg_hd);
-    while (str_ptr) {
-      cont++;
-      str_ptr = (void *) TabEnt_next((tab_ent_ptr)str_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  fprintf(stdout, " %s[%ld] Table entries: Alloc %ld - In Use %ld - Free %ld (%ld Accesses)\n",
-          (Pg_str_alloc(GLOBAL_PAGES_tab_ent) - Pg_str_in_use(GLOBAL_PAGES_tab_ent) == cont) ? " ": "*",
-          Pg_pg_alloc(GLOBAL_PAGES_tab_ent), Pg_str_alloc(GLOBAL_PAGES_tab_ent), 
-          Pg_str_in_use(GLOBAL_PAGES_tab_ent), cont, Pg_requests(GLOBAL_PAGES_tab_ent));
-
-  /* show subgoal frames */
-  pages += Pg_pg_alloc(GLOBAL_PAGES_sg_fr);
-  cont = 0;
-  pg_hd = Pg_free_pg(GLOBAL_PAGES_sg_fr);
-  while (pg_hd) {
-    str_ptr = PgHd_free_str(pg_hd);
-    while (str_ptr) {
-      cont++;
-      str_ptr = (void *) SgFr_next((sg_fr_ptr)str_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  fprintf(stdout, " %s[%ld] Subgoal frames: Alloc %ld - In Use %ld - Free %ld (%ld Accesses)\n",
-          (Pg_str_alloc(GLOBAL_PAGES_sg_fr) - Pg_str_in_use(GLOBAL_PAGES_sg_fr) == cont) ? " ": "*",
-          Pg_pg_alloc(GLOBAL_PAGES_sg_fr), Pg_str_alloc(GLOBAL_PAGES_sg_fr), 
-          Pg_str_in_use(GLOBAL_PAGES_sg_fr), cont, Pg_requests(GLOBAL_PAGES_sg_fr));
-
-  /* show subgoal trie nodes */
-  pages += Pg_pg_alloc(GLOBAL_PAGES_sg_node);
-  cont = 0;
-  pg_hd = Pg_free_pg(GLOBAL_PAGES_sg_node);
-  while (pg_hd) {
-    str_ptr = PgHd_free_str(pg_hd);
-    while (str_ptr) {
-      cont++;
-      str_ptr = (void *) TrNode_next((sg_node_ptr)str_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  fprintf(stdout, " %s[%ld] Subgoal trie nodes: Alloc %ld - In Use %ld - Free %ld (%ld Accesses)\n",
-          (Pg_str_alloc(GLOBAL_PAGES_sg_node) - Pg_str_in_use(GLOBAL_PAGES_sg_node) == cont) ? " ": "*",
-          Pg_pg_alloc(GLOBAL_PAGES_sg_node), Pg_str_alloc(GLOBAL_PAGES_sg_node), 
-          Pg_str_in_use(GLOBAL_PAGES_sg_node), cont, Pg_requests(GLOBAL_PAGES_sg_node));
-
-  /* show answer trie nodes */
-  pages += Pg_pg_alloc(GLOBAL_PAGES_ans_node);
-  cont = 0;
-  pg_hd = Pg_free_pg(GLOBAL_PAGES_ans_node);
-  while (pg_hd) {
-    str_ptr = PgHd_free_str(pg_hd);
-    while (str_ptr) {
-      cont++;
-      str_ptr = (void *) TrNode_next((ans_node_ptr)str_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  fprintf(stdout, " %s[%ld] Answer trie nodes: Alloc %ld - In Use %ld - Free %ld (%ld Accesses)\n",
-          (Pg_str_alloc(GLOBAL_PAGES_ans_node) - Pg_str_in_use(GLOBAL_PAGES_ans_node) == cont) ? " ": "*",
-          Pg_pg_alloc(GLOBAL_PAGES_ans_node), Pg_str_alloc(GLOBAL_PAGES_ans_node), 
-          Pg_str_in_use(GLOBAL_PAGES_ans_node), cont, Pg_requests(GLOBAL_PAGES_ans_node));
-
-  /* show subgoal hashes */
-  pages += Pg_pg_alloc(GLOBAL_PAGES_sg_hash);
-  cont = 0;
-  pg_hd = Pg_free_pg(GLOBAL_PAGES_sg_hash);
-  while (pg_hd) {
-    str_ptr = PgHd_free_str(pg_hd);
-    while (str_ptr) {
-      cont++;
-      str_ptr = (void *) Hash_next((sg_hash_ptr)str_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  fprintf(stdout, " %s[%ld] Subgoal hashes: Alloc %ld - In Use %ld - Free %ld (%ld Accesses)\n",
-          (Pg_str_alloc(GLOBAL_PAGES_sg_hash) - Pg_str_in_use(GLOBAL_PAGES_sg_hash) == cont) ? " ": "*",
-          Pg_pg_alloc(GLOBAL_PAGES_sg_hash), Pg_str_alloc(GLOBAL_PAGES_sg_hash), 
-          Pg_str_in_use(GLOBAL_PAGES_sg_hash), cont, Pg_requests(GLOBAL_PAGES_sg_hash));
-
-  /* show answer hashes */
-  pages += Pg_pg_alloc(GLOBAL_PAGES_ans_hash);
-  cont = 0;
-  pg_hd = Pg_free_pg(GLOBAL_PAGES_ans_hash);
-  while (pg_hd) {
-    str_ptr = PgHd_free_str(pg_hd);
-    while (str_ptr) {
-      cont++;
-      str_ptr = (void *) Hash_next((ans_hash_ptr)str_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  fprintf(stdout, " %s[%ld] Answer hashes: Alloc %ld - In Use %ld - Free %ld (%ld Accesses)\n",
-          (Pg_str_alloc(GLOBAL_PAGES_ans_hash) - Pg_str_in_use(GLOBAL_PAGES_ans_hash) == cont &&
-          Pg_pg_alloc(GLOBAL_PAGES_ans_hash) == 0) ? " ": "*",
-          Pg_pg_alloc(GLOBAL_PAGES_ans_hash), Pg_str_alloc(GLOBAL_PAGES_ans_hash), 
-          Pg_str_in_use(GLOBAL_PAGES_ans_hash), cont, Pg_requests(GLOBAL_PAGES_ans_hash));
-
-  /* show dependency frames */
-  pages += Pg_pg_alloc(GLOBAL_PAGES_dep_fr);
-  cont = 0;
-  pg_hd = Pg_free_pg(GLOBAL_PAGES_dep_fr);
-  while (pg_hd) {
-    str_ptr = PgHd_free_str(pg_hd);
-    while (str_ptr) {
-      cont++;
-      str_ptr = (void *) DepFr_next((dep_fr_ptr)str_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  fprintf(stdout, " %s[%ld] Dependency frames: Alloc %ld - In Use %ld - Free %ld (%ld Accesses)\n",
-          (Pg_str_alloc(GLOBAL_PAGES_dep_fr) - Pg_str_in_use(GLOBAL_PAGES_dep_fr) == cont &&
-          Pg_str_in_use(GLOBAL_PAGES_dep_fr) == 1) ? " ": "*", 
-          Pg_pg_alloc(GLOBAL_PAGES_dep_fr), Pg_str_alloc(GLOBAL_PAGES_dep_fr), 
-          Pg_str_in_use(GLOBAL_PAGES_dep_fr), cont, Pg_requests(GLOBAL_PAGES_dep_fr));
-#endif /* TABLING */
 
 #if defined(YAPOR) && defined(TABLING)
-  /* show suspension frames */
-  pages += Pg_pg_alloc(GLOBAL_PAGES_susp_fr);
-  cont = 0;
-  pg_hd = Pg_free_pg(GLOBAL_PAGES_susp_fr);
-  while (pg_hd) {
-    str_ptr = PgHd_free_str(pg_hd);
-    while (str_ptr) {
-      cont++;
-      str_ptr = (void *) SuspFr_next((susp_fr_ptr)str_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  fprintf(stdout, " %s[%ld] Suspension frames: Alloc %ld - In Use %ld - Free %ld (%ld Accesses)\n",
-          (Pg_str_alloc(GLOBAL_PAGES_susp_fr) - Pg_str_in_use(GLOBAL_PAGES_susp_fr) == cont &&
-          Pg_str_in_use(GLOBAL_PAGES_susp_fr) == 0) ? " ": "*",  
-          Pg_pg_alloc(GLOBAL_PAGES_susp_fr), Pg_str_alloc(GLOBAL_PAGES_susp_fr), 
-          Pg_str_in_use(GLOBAL_PAGES_susp_fr), cont, Pg_requests(GLOBAL_PAGES_susp_fr));
-#endif /* YAPOR && TABLING */
+static
+int p_opt_statistics(void) {
+#ifdef SHM_MEMORY_ALLOC_SCHEME
+  long pages_in_use = 0, bytes_in_use = 0;
 
-  /* show pages */
-  cont = 0;
-  pg_hd = Pg_free_pg(GLOBAL_PAGES_void);
-  while (pg_hd) {
-    cont++;
-    pg_hd = PgHd_next(pg_hd);
-  }
-  fprintf(stdout, " %s[%ld] Pages: In Use %ld - Free %ld (%ld Accesses)\n]\n\n",
-          (Pg_str_alloc(GLOBAL_PAGES_void) - Pg_str_in_use(GLOBAL_PAGES_void) == cont &&
-          Pg_str_in_use(GLOBAL_PAGES_void) == pages) ? " ": "*", 
-          Pg_str_alloc(GLOBAL_PAGES_void), 
-          Pg_str_in_use(GLOBAL_PAGES_void), cont, Pg_requests(GLOBAL_PAGES_void));
+  fprintf(Yap_stderr, "\n");
+  shm_or_frames(&pages_in_use, &bytes_in_use);
+  shm_query_goal_solution_frames(&pages_in_use, &bytes_in_use);
+  shm_query_goal_answer_frames(&pages_in_use, &bytes_in_use);
+#ifdef TABLING_INNER_CUTS
+  shm_table_subgoal_solution_frames(&pages_in_use, &bytes_in_use);
+  shm_table_subgoal_answer_frames(&pages_in_use, &bytes_in_use);
+#endif /* TABLING_INNER_CUTS */
+  shm_table_entries(&pages_in_use, &bytes_in_use);
+  shm_subgoal_frames(&pages_in_use, &bytes_in_use);
+  shm_subgoal_trie_nodes(&pages_in_use, &bytes_in_use);
+  shm_answer_trie_nodes(&pages_in_use, &bytes_in_use);
+  shm_subgoal_hashes(&pages_in_use, &bytes_in_use);
+  shm_answer_hashes(&pages_in_use, &bytes_in_use);
+  shm_dependency_frames(&pages_in_use, &bytes_in_use);
+  shm_show_suspension_frames(&pages_in_use, &bytes_in_use);
+  shm_pages(pages_in_use, bytes_in_use);
+  fprintf(Yap_stderr, "\n");
+#else
+  long bytes_in_use = 0;
 
+  fprintf(Yap_stderr, "\n");
+  fprintf(Yap_stderr, "%s or frames:                     %10ld structs in use\n", 
+          Pg_str_in_use(GLOBAL_PAGES_or_fr) == 1 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_or_fr));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_or_fr) * sizeof(struct or_frame);
+  fprintf(Yap_stderr, "%s query goal solution frames:    %10ld structs in use\n",
+          Pg_str_in_use(GLOBAL_PAGES_qg_sol_fr) == 1 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_qg_sol_fr));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_qg_sol_fr) * sizeof(struct query_goal_solution_frame);
+  fprintf(Yap_stderr, "%s query goal answer frames:      %10ld structs in use\n",
+          Pg_str_in_use(GLOBAL_PAGES_qg_ans_fr) == 1 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_qg_ans_fr));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_qg_ans_fr) * sizeof(struct query_goal_answer_frame);
+#ifdef TABLING_INNER_CUTS
+  fprintf(Yap_stderr, "%s table subgoal solution frames: %10ld structs in use\n",
+          Pg_str_in_use(GLOBAL_PAGES_tg_sol_fr) == 0 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_tg_sol_fr));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_tg_sol_fr) * sizeof(struct table_subgoal_solution_frame);
+  fprintf(Yap_stderr, "%s table subgoal answer frames:   %10ld structs in use\n",
+          Pg_str_in_use(GLOBAL_PAGES_tg_ans_fr) == 0 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_tg_ans_fr));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_tg_ans_fr) * sizeof(struct table_subgoal_answer_frame);
+#endif /* TABLING_INNER_CUTS */
+  fprintf(Yap_stderr, "  table entries:                 %10ld structs in use\n", Pg_str_in_use(GLOBAL_PAGES_tab_ent));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_tab_ent) * sizeof(struct table_entry);
+  fprintf(Yap_stderr, "  subgoal frames:                %10ld structs in use\n", Pg_str_in_use(GLOBAL_PAGES_sg_fr));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_sg_fr) * sizeof(struct subgoal_frame);
+  fprintf(Yap_stderr, "  subgoal trie nodes:            %10ld structs in use\n", Pg_str_in_use(GLOBAL_PAGES_sg_node));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_sg_node) * sizeof(struct subgoal_trie_node);
+  fprintf(Yap_stderr, "  answer trie nodes:             %10ld structs in use\n", Pg_str_in_use(GLOBAL_PAGES_ans_node));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_ans_node) * sizeof(struct answer_trie_node);
+  fprintf(Yap_stderr, "  subgoal hashes:                %10ld structs in use\n", Pg_str_in_use(GLOBAL_PAGES_sg_hash));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_sg_hash) * sizeof(struct subgoal_hash);
+  fprintf(Yap_stderr, "%s answer hashes:                 %10ld structs in use\n",
+          Pg_str_in_use(GLOBAL_PAGES_ans_hash) == 0 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_ans_hash));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_ans_hash) * sizeof(struct answer_hash);
+  fprintf(Yap_stderr, "%s dependency frames:             %10ld structs in use\n",
+          Pg_str_in_use(GLOBAL_PAGES_dep_fr) == 1 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_dep_fr));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_dep_fr) * sizeof(struct dependency_frame);
+  fprintf(Yap_stderr, "%s suspension frames:             %10ld structs in use\n",
+          Pg_str_in_use(GLOBAL_PAGES_susp_fr) == 0 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_susp_fr));
+  bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_susp_fr) * sizeof(struct suspension_frame);
+  fprintf(Yap_stderr, "\n  total memory in use:                    %10ld bytes\n", bytes_in_use);
+  fprintf(Yap_stderr, "\n");
+#endif /* MEMORY_ALLOC_SCHEME */
   return (TRUE);
 }
-#endif /* STATISTICS */
+#endif /* YAPOR && TABLING */
 
 
 #if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
@@ -922,9 +829,9 @@ int p_debug_prolog(void) {
     char *s;
     s = RepAtom(AtomOfTerm(t))->StrOfAE;
 #ifdef YAPOR_ERRORS
-    fprintf(stdout, "W%d: %s\n", worker_id, s);
+    fprintf(Yap_stderr, "W%d: %s\n", worker_id, s);
 #else /* TABLING_ERRORS */
-    fprintf(stdout, "%s\n", s);
+    fprintf(Yap_stderr, "%s\n", s);
 #endif /* YAPOR_ERRORS */
     return(TRUE);
   } else {
@@ -932,4 +839,351 @@ int p_debug_prolog(void) {
   }
 }
 #endif /* YAPOR_ERRORS || TABLING_ERRORS */
+
+
+
+/* ----------------------------- **
+**      Auxiliary functions      **
+** ----------------------------- */
+
+#ifdef SHM_MEMORY_ALLOC_SCHEME
+static
+void shm_pages(long pages_in_use, long bytes_in_use) {
+  long cont = 0;
+  pg_hd_ptr pg_hd;
+
+  pg_hd = Pg_free_pg(GLOBAL_PAGES_void);
+  while (pg_hd) {
+    cont++;
+    pg_hd = PgHd_next(pg_hd);
+  }
+  fprintf(Yap_stderr, "\n%s total memory in use:           %8ld pages          %10ld bytes\n",
+          (Pg_str_in_use(GLOBAL_PAGES_void) == pages_in_use && 
+          Pg_pg_alloc(GLOBAL_PAGES_void) - pages_in_use == cont) ? " ": "*", 
+          Pg_str_in_use(GLOBAL_PAGES_void), bytes_in_use);
+  fprintf(Yap_stderr, "  total memory:                  %8ld pages          %10ld bytes\n",
+          Pg_pg_alloc(GLOBAL_PAGES_void), Pg_pg_alloc(GLOBAL_PAGES_void) * Yap_page_size);
+  return;
+}
+
+
+#ifdef YAPOR
+static
+void shm_or_frames(long *pages_in_use, long *bytes_in_use) {
+  long cont = 0;
+  pg_hd_ptr pg_hd;
+  or_fr_ptr aux_ptr;
+
+  pg_hd = Pg_free_pg(GLOBAL_PAGES_or_fr);
+  while (pg_hd) {
+    aux_ptr = PgHd_free_str(pg_hd);
+    while (aux_ptr) {
+      cont++;
+      aux_ptr = OrFr_next(aux_ptr);
+    }
+    pg_hd = PgHd_next(pg_hd);
+  }
+  fprintf(Yap_stderr, "%s or frames:                     %8ld pages %10ld structs in use\n",
+          (Pg_str_free(GLOBAL_PAGES_or_fr) == cont && Pg_str_in_use(GLOBAL_PAGES_or_fr) == 1) ? " ": "*",
+          Pg_pg_alloc(GLOBAL_PAGES_or_fr), Pg_str_in_use(GLOBAL_PAGES_or_fr));
+  *pages_in_use += Pg_pg_alloc(GLOBAL_PAGES_or_fr);
+  *bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_or_fr) * sizeof(struct or_frame);
+  return;
+}
+
+
+static
+void shm_query_goal_solution_frames(long *pages_in_use, long *bytes_in_use) {
+  long cont = 0;
+  pg_hd_ptr pg_hd;
+  qg_sol_fr_ptr aux_ptr;
+
+  pg_hd = Pg_free_pg(GLOBAL_PAGES_qg_sol_fr);
+  while (pg_hd) {
+    aux_ptr = PgHd_free_str(pg_hd);
+    while (aux_ptr) {
+      cont++;
+      aux_ptr = SolFr_next(aux_ptr);
+    }
+    pg_hd = PgHd_next(pg_hd);
+  }
+  fprintf(Yap_stderr, "%s query goal solution frames:    %8ld pages %10ld structs in use\n",
+          (Pg_str_free(GLOBAL_PAGES_qg_sol_fr) == cont && Pg_str_in_use(GLOBAL_PAGES_qg_sol_fr) == 0) ? " ": "*",
+          Pg_pg_alloc(GLOBAL_PAGES_qg_sol_fr), Pg_str_in_use(GLOBAL_PAGES_qg_sol_fr));
+  *pages_in_use += Pg_pg_alloc(GLOBAL_PAGES_qg_sol_fr);
+  *bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_qg_sol_fr) * sizeof(struct query_goal_solution_frame);
+  return;
+}
+
+
+static
+void shm_query_goal_answer_frames(long *pages_in_use, long *bytes_in_use) {
+  long cont = 0;
+  pg_hd_ptr pg_hd;
+  qg_ans_fr_ptr aux_ptr;
+
+  pg_hd = Pg_free_pg(GLOBAL_PAGES_qg_ans_fr);
+  while (pg_hd) {
+    aux_ptr = PgHd_free_str(pg_hd);
+    while (aux_ptr) {
+      cont++;
+      aux_ptr = AnsFr_next(aux_ptr);
+    }
+    pg_hd = PgHd_next(pg_hd);
+  }
+  fprintf(Yap_stderr, "%s query goal answer frames:      %8ld pages %10ld structs in use\n",
+          (Pg_str_free(GLOBAL_PAGES_qg_ans_fr) == cont && Pg_str_in_use(GLOBAL_PAGES_qg_ans_fr) == 0) ? " ": "*",
+          Pg_pg_alloc(GLOBAL_PAGES_qg_ans_fr), Pg_str_in_use(GLOBAL_PAGES_qg_ans_fr));
+  *pages_in_use += Pg_pg_alloc(GLOBAL_PAGES_qg_ans_fr);
+  *bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_qg_ans_fr) * sizeof(struct query_goal_answer_frame);
+  return;
+}
+#endif /* YAPOR */
+
+
+#ifdef TABLING_INNER_CUTS
+static
+void shm_table_subgoal_solution_frames(long *pages_in_use, long *bytes_in_use) {
+  long cont = 0;
+  pg_hd_ptr pg_hd;
+  tg_sol_fr_ptr aux_ptr;
+
+  pg_hd = Pg_free_pg(GLOBAL_PAGES_tg_sol_fr);
+  while (pg_hd) {
+    aux_ptr = PgHd_free_str(pg_hd);
+    while (aux_ptr) {
+      cont++;
+      aux_ptr = SolFr_next(aux_ptr);
+    }
+    pg_hd = PgHd_next(pg_hd);
+  }
+  fprintf(Yap_stderr, "%s table subgoal solution frames: %8ld pages %10ld structs in use\n",
+          (Pg_str_free(GLOBAL_PAGES_tg_sol_fr) == cont && Pg_str_in_use(GLOBAL_PAGES_tg_sol_fr) == 0) ? " ": "*",
+          Pg_pg_alloc(GLOBAL_PAGES_tg_sol_fr), Pg_str_in_use(GLOBAL_PAGES_tg_sol_fr));
+  *pages_in_use += Pg_pg_alloc(GLOBAL_PAGES_tg_sol_fr);
+  *bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_tg_sol_fr) * sizeof(struct table_subgoal_solution_frame);
+  return;
+}
+
+
+static
+void shm_table_subgoal_answer_frames(long *pages_in_use, long *bytes_in_use) {
+  long cont = 0;
+  pg_hd_ptr pg_hd;
+  tg_ans_fr_ptr aux_ptr;
+
+  pg_hd = Pg_free_pg(GLOBAL_PAGES_tg_ans_fr);
+  while (pg_hd) {
+    aux_ptr = PgHd_free_str(pg_hd);
+    while (aux_ptr) {
+      cont++;
+      aux_ptr = AnsFr_next(aux_ptr);
+    }
+    pg_hd = PgHd_next(pg_hd);
+  }
+  fprintf(Yap_stderr, "%s table subgoal answer frames:   %8ld pages %10ld structs in use\n",
+          (Pg_str_free(GLOBAL_PAGES_tg_ans_fr) == cont && Pg_str_in_use(GLOBAL_PAGES_tg_ans_fr) == 0) ? " ": "*",
+          Pg_pg_alloc(GLOBAL_PAGES_tg_ans_fr), Pg_str_in_use(GLOBAL_PAGES_tg_ans_fr));
+  *pages_in_use += Pg_pg_alloc(GLOBAL_PAGES_tg_ans_fr);
+  *bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_tg_ans_fr) * sizeof(struct table_subgoal_answer_frame);
+  return;
+}
+#endif /* TABLING_INNER_CUTS */
+
+
+#ifdef TABLING
+static
+void shm_table_entries(long *pages_in_use, long *bytes_in_use) {
+  long cont = 0;
+  pg_hd_ptr pg_hd;
+  tab_ent_ptr aux_ptr;
+
+  pg_hd = Pg_free_pg(GLOBAL_PAGES_tab_ent);
+  while (pg_hd) {
+    aux_ptr = PgHd_free_str(pg_hd);
+    while (aux_ptr) {
+      cont++;
+      aux_ptr = TabEnt_next(aux_ptr);
+    }
+    pg_hd = PgHd_next(pg_hd);
+  }
+  fprintf(Yap_stderr, "%s table entries:                 %8ld pages %10ld structs in use\n",
+          (Pg_str_free(GLOBAL_PAGES_tab_ent) == cont) ? " ": "*",
+          Pg_pg_alloc(GLOBAL_PAGES_tab_ent), Pg_str_in_use(GLOBAL_PAGES_tab_ent));
+  *pages_in_use += Pg_pg_alloc(GLOBAL_PAGES_tab_ent);
+  *bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_tab_ent) * sizeof(struct table_entry);
+  return;
+}
+
+
+static
+void shm_subgoal_frames(long *pages_in_use, long *bytes_in_use) {
+  long cont = 0;
+  pg_hd_ptr pg_hd;
+  sg_fr_ptr aux_ptr;
+
+  pg_hd = Pg_free_pg(GLOBAL_PAGES_sg_fr);
+  while (pg_hd) {
+    aux_ptr = PgHd_free_str(pg_hd);
+    while (aux_ptr) {
+      cont++;
+      aux_ptr = SgFr_next(aux_ptr);
+    }
+    pg_hd = PgHd_next(pg_hd);
+  }
+  fprintf(Yap_stderr, "%s subgoal frames:                %8ld pages %10ld structs in use\n",
+          (Pg_str_free(GLOBAL_PAGES_sg_fr) == cont) ? " ": "*",
+          Pg_pg_alloc(GLOBAL_PAGES_sg_fr), Pg_str_in_use(GLOBAL_PAGES_sg_fr));
+  *pages_in_use += Pg_pg_alloc(GLOBAL_PAGES_sg_fr);
+  *bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_sg_fr) * sizeof(struct subgoal_frame);
+  return;
+}
+
+
+static
+void shm_subgoal_trie_nodes(long *pages_in_use, long *bytes_in_use) {
+  long cont = 0;
+  pg_hd_ptr pg_hd;
+  sg_node_ptr aux_ptr;
+
+  pg_hd = Pg_free_pg(GLOBAL_PAGES_sg_node);
+  while (pg_hd) {
+    aux_ptr = PgHd_free_str(pg_hd);
+    while (aux_ptr) {
+      cont++;
+      aux_ptr = TrNode_next(aux_ptr);
+    }
+    pg_hd = PgHd_next(pg_hd);
+  }
+  fprintf(Yap_stderr, "%s subgoal trie nodes:            %8ld pages %10ld structs in use\n",
+          (Pg_str_free(GLOBAL_PAGES_sg_node) == cont) ? " ": "*",
+          Pg_pg_alloc(GLOBAL_PAGES_sg_node), Pg_str_in_use(GLOBAL_PAGES_sg_node));
+  *pages_in_use += Pg_pg_alloc(GLOBAL_PAGES_sg_node);
+  *bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_sg_node) * sizeof(struct subgoal_trie_node);
+  return;
+}
+
+
+static
+void shm_answer_trie_nodes(long *pages_in_use, long *bytes_in_use) {
+  long cont = 0;
+  pg_hd_ptr pg_hd;
+  ans_node_ptr aux_ptr;
+
+  pg_hd = Pg_free_pg(GLOBAL_PAGES_ans_node);
+  while (pg_hd) {
+    aux_ptr = PgHd_free_str(pg_hd);
+    while (aux_ptr) {
+      cont++;
+      aux_ptr = TrNode_next(aux_ptr);
+    }
+    pg_hd = PgHd_next(pg_hd);
+  }
+  fprintf(Yap_stderr, "%s answer trie nodes:             %8ld pages %10ld structs in use\n",
+          (Pg_str_free(GLOBAL_PAGES_ans_node) == cont) ? " ": "*",
+          Pg_pg_alloc(GLOBAL_PAGES_ans_node), Pg_str_in_use(GLOBAL_PAGES_ans_node));
+  *pages_in_use += Pg_pg_alloc(GLOBAL_PAGES_ans_node);
+  *bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_ans_node) * sizeof(struct answer_trie_node);
+  return;
+}
+
+
+static
+void shm_subgoal_hashes(long *pages_in_use, long *bytes_in_use) {
+  long cont = 0;
+  pg_hd_ptr pg_hd;
+  sg_hash_ptr aux_ptr;
+
+  pg_hd = Pg_free_pg(GLOBAL_PAGES_sg_hash);
+  while (pg_hd) {
+    aux_ptr = PgHd_free_str(pg_hd);
+    while (aux_ptr) {
+      cont++;
+      aux_ptr = Hash_next(aux_ptr);
+    }
+    pg_hd = PgHd_next(pg_hd);
+  }
+  fprintf(Yap_stderr, "%s subgoal hashes:                %8ld pages %10ld structs in use\n",
+          (Pg_str_free(GLOBAL_PAGES_sg_hash) == cont) ? " ": "*",
+          Pg_pg_alloc(GLOBAL_PAGES_sg_hash), Pg_str_in_use(GLOBAL_PAGES_sg_hash));
+  *pages_in_use += Pg_pg_alloc(GLOBAL_PAGES_sg_hash);
+  *bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_sg_hash) * sizeof(struct subgoal_hash);
+  return;
+}
+
+
+static
+void shm_answer_hashes(long *pages_in_use, long *bytes_in_use) {
+  long cont = 0;
+  pg_hd_ptr pg_hd;
+  ans_hash_ptr aux_ptr;
+
+  pg_hd = Pg_free_pg(GLOBAL_PAGES_ans_hash);
+  while (pg_hd) {
+    aux_ptr = PgHd_free_str(pg_hd);
+    while (aux_ptr) {
+      cont++;
+      aux_ptr = Hash_next(aux_ptr);
+    }
+    pg_hd = PgHd_next(pg_hd);
+  }
+  fprintf(Yap_stderr, "%s answer hashes:                 %8ld pages %10ld structs in use\n",
+          (Pg_str_free(GLOBAL_PAGES_ans_hash) == cont && Pg_str_in_use(GLOBAL_PAGES_ans_hash) == 0) ? " ": "*",
+          Pg_pg_alloc(GLOBAL_PAGES_ans_hash), Pg_str_in_use(GLOBAL_PAGES_ans_hash));
+  *pages_in_use += Pg_pg_alloc(GLOBAL_PAGES_ans_hash);
+  *bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_ans_hash) * sizeof(struct answer_hash);
+  return;
+}
+
+
+static
+void shm_dependency_frames(long *pages_in_use, long *bytes_in_use) {
+  long cont = 0;
+  pg_hd_ptr pg_hd;
+  dep_fr_ptr aux_ptr;
+
+  pg_hd = Pg_free_pg(GLOBAL_PAGES_dep_fr);
+  while (pg_hd) {
+    aux_ptr = PgHd_free_str(pg_hd);
+    while (aux_ptr) {
+      cont++;
+      aux_ptr = DepFr_next(aux_ptr);
+    }
+    pg_hd = PgHd_next(pg_hd);
+  }
+  fprintf(Yap_stderr, "%s dependency frames:             %8ld pages %10ld structs in use\n",
+          (Pg_str_free(GLOBAL_PAGES_dep_fr) == cont && Pg_str_in_use(GLOBAL_PAGES_dep_fr) == 1) ? " ": "*", 
+          Pg_pg_alloc(GLOBAL_PAGES_dep_fr), Pg_str_in_use(GLOBAL_PAGES_dep_fr));
+  *pages_in_use += Pg_pg_alloc(GLOBAL_PAGES_dep_fr);
+  *bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_dep_fr) * sizeof(struct dependency_frame);
+  return;
+}
+#endif /* TABLING */
+
+
+#if defined(YAPOR) && defined(TABLING)
+static
+void shm_suspension_frames(long *pages_in_use, long *bytes_in_use) {
+  long cont = 0;
+  pg_hd_ptr pg_hd;
+  susp_fr_ptr aux_ptr;
+
+  pg_hd = Pg_free_pg(GLOBAL_PAGES_susp_fr);
+  while (pg_hd) {
+    aux_ptr = PgHd_free_str(pg_hd);
+    while (aux_ptr) {
+      cont++;
+      aux_ptr = SuspFr_next(aux_ptr);
+    }
+    pg_hd = PgHd_next(pg_hd);
+  }
+  fprintf(Yap_stderr, "%s suspension frames:             %8ld pages %10ld structs in use\n",
+          (Pg_str_free(GLOBAL_PAGES_susp_fr) == cont && Pg_str_in_use(GLOBAL_PAGES_susp_fr) == 0) ? " ": "*",  
+          Pg_pg_alloc(GLOBAL_PAGES_susp_fr), Pg_str_in_use(GLOBAL_PAGES_susp_fr));
+  *pages_in_use += Pg_pg_alloc(GLOBAL_PAGES_susp_fr);
+  *bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_susp_fr) * sizeof(struct suspension_frame);
+  return;
+}
+#endif /* YAPOR && TABLING */
+#endif /* SHM_MEMORY_ALLOC_SCHEME */
 #endif /* YAPOR || TABLING */

@@ -5,17 +5,17 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.config.h
-  version:     $Id: opt.config.h,v 1.6 2005-06-03 18:28:11 ricroc Exp $   
+  version:     $Id: opt.config.h,v 1.7 2005-07-11 19:17:24 ricroc Exp $   
                                                                      
 **********************************************************************/
 
-/* ---------------------------------- **
-**      Configuration Parameters      **
-** ---------------------------------- */
+/* ---------------------------------------------------------------- **
+**                     Configuration Parameters                     **
+** ---------------------------------------------------------------- */
 
-/* --------------- **
-**      sizes      **
-** --------------- */
+/* ----------------------- **
+**      default sizes      **
+** ----------------------- */
 #define MAX_LENGTH_ANSWER  500
 #define MAX_DEPTH          1000
 #define MAX_BEST_TIMES     21
@@ -23,20 +23,27 @@
 #define TABLE_LOCK_BUCKETS 512
 #define TG_ANSWER_SLOTS    20
 
-/* ---------------------------- **
-**      memory (define one)     **
-** ---------------------------- */
+/* ----------------------------------------- **
+**      memory alloc scheme (define one)     **
+** ----------------------------------------- */
+#define SHM_MEMORY_ALLOC_SCHEME 1
+/* #define YAP_MEMORY_ALLOC_SCHEME 1 */
+/* #define MALLOC_MEMORY_ALLOC_SCHEME 1 */
+
+/* ------------------------------------------- **
+**      memory mapping scheme (define one)     **
+** ------------------------------------------- */
 #define MMAP_MEMORY_MAPPING_SCHEME 1
 /* #define SHM_MEMORY_MAPPING_SCHEME  1 */
 
-/* ------------------------------------- **
-**      freezing trail (define one)      **
-** ------------------------------------- */
+/* ------------------------------------------ **
+**      trail freeze scheme (define one)      **
+** ------------------------------------------ */
 #define BFZ_TRAIL_SCHEME   1
 /* #define BBREG_TRAIL_SCHEME 1 */
 
 /* ------------------------------------------------------------------ **
-**                      locking tries (define one)                    **
+**                  tries locking scheme (define one)                 **
 ** ------------------------------------------------------------------ **
 ** The TABLE_LOCK_AT_ENTRY_LEVEL scheme locks the access to the table **
 ** space in the entry data structure. It restricts the number of lock **
@@ -56,28 +63,42 @@
 /* #define TABLE_LOCK_AT_NODE_LEVEL  1 */
 /* #define ALLOC_BEFORE_CHECK        1 */
 
-/* ------------------------ **
-**      cuts (optional)     **
-** ------------------------ */
+/* --------------------------------------- **
+**      support inner cuts? (optional)     **
+** --------------------------------------- */
 #define TABLING_INNER_CUTS 1
 
-/* ------------------------------ **
-**      suspension (optional)     **
-** ------------------------------ */
+/* -------------------------------------------------- **
+**      use timestamps for suspension? (optional)     **
+** -------------------------------------------------- */
 #define TIMESTAMP_CHECK 1
 
-/* ----------------------------- **
-**      debugging (optional)     **
-** ----------------------------- */
-/* #define STATISTICS     1 */
+/* ------------------------------------------ **
+**      enable error checking? (optional)     **
+** ------------------------------------------ */
 /* #define YAPOR_ERRORS   1 */
 /* #define TABLING_ERRORS 1 */
 
 
 
-/* -------------------------- **
-**      Parameter Checks      **
-** -------------------------- */
+/* -------------------------------------------------------- **
+**                     Parameter Checks                     **
+** -------------------------------------------------------- */
+
+#if !defined(SHM_MEMORY_ALLOC_SCHEME) && !defined(MALLOC_MEMORY_ALLOC_SCHEME) && !defined(YAP_MEMORY_ALLOC_SCHEME)
+#error Define a memory alloc scheme
+#endif /* !SHM_MEMORY_ALLOC_SCHEME && !MALLOC_MEMORY_ALLOC_SCHEME && !YAP_MEMORY_ALLOC_SCHEME */
+#if defined(SHM_MEMORY_ALLOC_SCHEME)
+#if defined(MALLOC_MEMORY_ALLOC_SCHEME) || defined(YAP_MEMORY_ALLOC_SCHEME)
+#error Do not define multiple memory alloc schemes
+#endif /* MALLOC_MEMORY_ALLOC_SCHEME || YAP_MEMORY_ALLOC_SCHEME */
+#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#if defined(MALLOC_MEMORY_ALLOC_SCHEME) && defined(YAP_MEMORY_ALLOC_SCHEME)
+#error Do not define multiple memory alloc schemes
+#endif /* MALLOC_MEMORY_ALLOC_SCHEME && YAP_MEMORY_ALLOC_SCHEME */
+#if defined(YAPOR) && defined(MALLOC_MEMORY_ALLOC_SCHEME)
+#error YAPOR is incompatible with MALLOC_MEMORY_ALLOC_SCHEME 
+#endif /* YAPOR && TABLING && (MALLOC_MEMORY_ALLOC_SCHEME || YAP_MEMORY_ALLOC_SCHEME) */
 
 #ifdef YAPOR
 #ifdef i386 /* For i386 machines we use shared memory segments */
