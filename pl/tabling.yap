@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 
-:- meta_predicate table(:), tabling_mode(:), abolish_table(:), show_table(:), table_statistics(:).
+:- meta_predicate table(:), is_tabled(:), tabling_mode(:), abolish_table(:), show_table(:), table_statistics(:).
 
 
 
@@ -60,6 +60,37 @@ table(Pred) :-
 
 
 
+/**********************
+*     is_tabled/1     *
+**********************/
+
+is_tabled(Pred) :- 
+   '$current_module'(Mod), 
+   '$do_is_tabled'(Mod,Pred).
+
+'$do_is_tabled'(Mod,Pred) :- 
+   var(Pred), !, 
+   '$do_error'(instantiation_error,is_tabled(Mod:Pred)).
+'$do_is_tabled'(_,Mod:Pred) :- !, 
+   '$do_is_tabled'(Mod,Pred).
+'$do_is_tabled'(_,[]) :- !.
+'$do_is_tabled'(Mod,[HPred|TPred]) :- !,
+   '$do_is_tabled'(Mod,HPred),
+   '$do_is_tabled'(Mod,TPred).
+'$do_is_tabled'(Mod,(Pred1,Pred2)) :- !,
+   '$do_is_tabled'(Mod,Pred1),
+   '$do_is_tabled'(Mod,Pred2).
+'$do_is_tabled'(Mod,PredName/PredArity) :- 
+   atom(PredName), 
+   integer(PredArity),
+   functor(PredFunctor,PredName,PredArity),
+   '$flags'(PredFunctor,Mod,Flags,Flags), !,
+   Flags /\ 0x000040 =\= 0.
+'$do_is_tabled'(Mod,Pred) :- 
+   '$do_error'(type_error(callable,Mod:Pred),is_tabled(Mod:Pred)).
+
+
+
 /*************************
 *     tabling_mode/2     *
 *************************/
@@ -77,6 +108,9 @@ tabling_mode(Pred,Options) :-
 '$do_tabling_mode'(Mod,[HPred|TPred],Options) :- !,
    '$do_tabling_mode'(Mod,HPred,Options),
    '$do_tabling_mode'(Mod,TPred,Options).
+'$do_tabling_mode'(Mod,(Pred1,Pred2),Options) :- !,
+   '$do_tabling_mode'(Mod,Pred1,Options),
+   '$do_tabling_mode'(Mod,Pred2,Options).
 '$do_tabling_mode'(Mod,PredName/PredArity,Options) :- 
    atom(PredName), 
    integer(PredArity),
@@ -89,12 +123,15 @@ tabling_mode(Pred,Options) :-
    '$do_error'(type_error(callable,Mod:Pred),tabling_mode(Mod:Pred,Options)).
 
 '$set_tabling_mode'(Mod,PredFunctor,Options) :-
-   var(Options), !, 
+   var(Options), !,
    '$c_tabling_mode'(Mod,PredFunctor,Options).
 '$set_tabling_mode'(Mod,PredFunctor,[]) :- !.
 '$set_tabling_mode'(Mod,PredFunctor,[HOption|TOption]) :- !,
    '$set_tabling_mode'(Mod,PredFunctor,HOption),
    '$set_tabling_mode'(Mod,PredFunctor,TOption).
+'$set_tabling_mode'(Mod,PredFunctor,(Option1,Option2)) :- !,
+   '$set_tabling_mode'(Mod,PredFunctor,Option1),
+   '$set_tabling_mode'(Mod,PredFunctor,Option2).
 '$set_tabling_mode'(Mod,PredFunctor,Option) :- 
    (Option = batched ; Option = local ; Option = exec_answers ; Option = load_answers), !, 
    '$c_tabling_mode'(Mod,PredFunctor,Option).

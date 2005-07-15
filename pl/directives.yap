@@ -236,6 +236,9 @@ yap_flag(tabling_mode,[]) :- !.
 yap_flag(tabling_mode,[HOption|TOption]) :- !,
    yap_flag(tabling_mode,HOption),
    yap_flag(tabling_mode,TOption).
+yap_flag(tabling_mode,(Option1,Option2)) :- !,
+   yap_flag(tabling_mode,Option1),
+   yap_flag(tabling_mode,Option2).
 yap_flag(tabling_mode,Option) :-
    '$transl_to_tabling_mode'(Flag,Option),
    '$set_yap_flags'(19,Flag).
