@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-07-06 19:33:53 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-07-18 17:41:16 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.139  2005/07/06 19:33:53  ricroc
+* TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
+*
 * Revision 1.138  2005/07/05 18:32:32  vsc
 * ifix some wierd cases in indexing code:
 * would not look at next argument
@@ -3970,7 +3973,8 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
 	}
 	Yap_emit(jump_nv_op, susp_lab, argno, cint);
       }
-      if (argno == ap->ArityOfPE) {
+      if (argno == ap->ArityOfPE ||
+	  yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
 	do_var_clauses(min, max, FALSE, cint, first, clleft, fail_l, argno0);
 	cint->expand_block = eblk;
 	return lablx;
