@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-07-18 17:41:16 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-07-19 16:54:20 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.140  2005/07/18 17:41:16  vsc
+* Yap should respect single argument indexing.
+*
 * Revision 1.139  2005/07/06 19:33:53  ricroc
 * TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
 *
@@ -3161,12 +3164,13 @@ emit_try(ClauseDef *cl, struct intermediates *cint, int var_group, int first, in
 {
   PredEntry *ap = cint->CurrentPred;
   yamop *clcode = cl->CurrentCode;
+  compiler_vm_op comp_op;
 
   if (ap->PredFlags & TabledPredFlag) {
     clcode = NEXTOP(cl->Code, ld);
   }
 
-  compiler_vm_op comp_op = emit_optry(var_group, first, clauses, clleft, cint->CurrentPred);
+  comp_op = emit_optry(var_group, first, clauses, clleft, cint->CurrentPred);
   Yap_emit(comp_op, (CELL)clcode, ((clauses+clleft) << 1) | has_cut(cl->CurrentCode), cint);
 }
 
