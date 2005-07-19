@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-05-31 00:23:47 $,$Author: ricroc $						 *
+* Last rev:	$Date: 2005-07-19 17:12:18 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.68  2005/05/31 00:23:47  ricroc
+* remove abort_yapor function
+*
 * Revision 1.67  2005/04/10 04:35:19  vsc
 * AllocMemoryFromYap should now handle large requests the right way.
 *
@@ -1126,7 +1129,8 @@ YAP_Init(YAP_init_args *yap_init)
 	      yap_init->DelayedReleaseLoad
 	      );
   Yap_InitExStacks (Trail, Stack);
-  BACKUP_MACHINE_REGS();
+
+{ BACKUP_MACHINE_REGS();
   Yap_InitYaamRegs();
 
 #if HAVE_MPI
@@ -1152,6 +1156,7 @@ YAP_Init(YAP_init_args *yap_init)
     if (restore_result == FAIL_RESTORE) {
       yap_init->ErrorNo = Yap_Error_TYPE;
       yap_init->ErrorCause = Yap_ErrorMessage;
+      /* shouldn't RECOVER_MACHINE_REGS();  be here ??? */
       return YAP_BOOT_FROM_SAVED_ERROR;
     }
 #endif
@@ -1183,7 +1188,7 @@ YAP_Init(YAP_init_args *yap_init)
 #endif /* YAPOR */
 #endif /* YAPOR || TABLING */
   RECOVER_MACHINE_REGS();
-
+}
   if (yap_init->YapPrologRCFile != NULL) {
     Yap_PutValue(Yap_FullLookupAtom("$consult_on_boot"), MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologRCFile)));
     /*
