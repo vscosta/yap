@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-07-06 19:33:54 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-07-20 13:54:27 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.91  2005/07/06 19:33:54  ricroc
+* TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
+*
 * Revision 1.90  2005/07/06 15:10:14  vsc
 * improvements to compiler: merged instructions and fixes for ->
 *
@@ -293,7 +296,7 @@ typedef struct clause_entry {
   PredEntry *pp;
   UInt pcs;  /* counter with total for each clause */
   UInt pca;  /* counter with total for each predicate (repeated for each clause)*/  
-  Int ts;    /* start end timestamp towards retracts, eventually */
+  int ts;    /* start end timestamp towards retracts, eventually */
 } clauseentry;
 
 static int

@@ -1795,7 +1795,7 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
     pt1 = to_visit[2];
-    write_mode = (int)to_visit[3];
+    write_mode = (UInt)to_visit[3];
     to_visit += 4;
 #endif
     goto loop;
