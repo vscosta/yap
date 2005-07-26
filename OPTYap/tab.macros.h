@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.macros.h
-  version:     $Id: tab.macros.h,v 1.15 2005-07-11 19:17:27 ricroc Exp $   
+  version:     $Id: tab.macros.h,v 1.16 2005-07-26 16:28:28 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -517,11 +517,22 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
     sg_fr = LOCAL_top_sg_fr;
     LOCAL_top_sg_fr = SgFr_next(sg_fr);
     LOCK(SgFr_lock(sg_fr));
-    if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr))  /* yes answer --> complete */
+    if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
       SgFr_state(sg_fr) = complete;
-    else
+      UNLOCK(SgFr_lock(sg_fr));
+    } else {
+      ans_node_ptr node;
       SgFr_state(sg_fr) = start;
-    UNLOCK(SgFr_lock(sg_fr));
+      free_answer_hash_chain(SgFr_hash_chain(sg_fr));
+      SgFr_first_answer(sg_fr) = NULL;
+      SgFr_last_answer(sg_fr) = NULL;
+      SgFr_hash_chain(sg_fr) = NULL;
+      node = TrNode_child(SgFr_answer_trie(sg_fr));
+      TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
+      UNLOCK(SgFr_lock(sg_fr));
+      if (node)
+	free_answer_trie_branch(node);
+    }
   }
 
   return;
