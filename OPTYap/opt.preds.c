@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.preds.c
-  version:     $Id: opt.preds.c,v 1.20 2005-07-11 19:17:27 ricroc Exp $   
+  version:     $Id: opt.preds.c,v 1.21 2005-07-28 16:29:50 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -658,7 +658,6 @@ int p_abolish_all_tables(void) {
     }
     tab_ent = TabEnt_next(tab_ent);
   }
-  GLOBAL_root_tab_ent = NULL;
   return (TRUE);
 }
 
