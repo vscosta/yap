@@ -52,8 +52,8 @@ table(Pred) :-
    '$c_table'(Mod,PredFunctor).
 '$set_table'(Mod,PredFunctor) :-
    '$flags'(PredFunctor,Mod,Flags,Flags),
-   Flags /\ 0x1991F880 =:= 0, !,
-   '$c_table'(Mod,PredFunctor).
+   Flags /\ 0x1991F880 =:= 0,
+   '$c_table'(Mod,PredFunctor), !.
 '$set_table'(Mod,PredFunctor) :-
    functor(PredFunctor,PredName,PredArity), 
    '$do_error'(permission_error(modify,table,Mod:PredName/PredArity),table(Mod:PredName/PredArity)).

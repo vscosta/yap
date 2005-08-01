@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.preds.c
-  version:     $Id: opt.preds.c,v 1.22 2005-08-01 15:40:38 ricroc Exp $   
+  version:     $Id: opt.preds.c,v 1.23 2005-08-01 17:59:49 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -540,10 +540,16 @@ int p_table(void) {
     arity = ArityOfFunctor(func);
   } else
     return (FALSE);
+  if (pe->cs.p_code.FirstClause) /* predicate already defined */
+    return (FALSE);
   if (!(pe->PredFlags & TabledPredFlag)) {
     pe->PredFlags |= TabledPredFlag;
     new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);
     new_table_entry(tab_ent, pe, arity, sg_node);
+    if (IsMode_Local(yap_flags[TABLING_MODE_FLAG]))
+      SetMode_Local(TabEnt_mode(tab_ent));
+    if (IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]))
+      SetMode_LoadAnswers(TabEnt_mode(tab_ent));
     pe->TableOfPred = tab_ent;
   }
   return (TRUE);
