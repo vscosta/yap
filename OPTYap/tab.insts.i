@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.insts.i
-  version:     $Id: tab.insts.i,v 1.17 2005-08-01 15:40:38 ricroc Exp $   
+  version:     $Id: tab.insts.i,v 1.18 2005-08-01 18:26:28 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -328,20 +328,19 @@
       GONext();
     } else {
       yamop *code_ap;
-      OPCODE code = Yap_opcode(_table_try_me);
       PREG = SgFr_code(sg_fr);
-      if (PREG->opc > code) {
+      if (PREG->opc == Yap_opcode(_table_try)) {
 	/* table_try */
 	code_ap = NEXTOP(PREG,ld);
 	PREG = PREG->u.ld.d;
-      } else if (PREG->opc == code) {
-	/* table_try_me */
-	code_ap = PREG->u.ld.d;
-	PREG = NEXTOP(PREG,ld);
-      } else {
+      } else if (PREG->opc == Yap_opcode(_table_try_single)) {
 	/* table_try_single */
 	code_ap = COMPLETION;
 	PREG = PREG->u.ld.d;
+      } else {
+	/* table_try_me */
+	code_ap = PREG->u.ld.d;
+	PREG = NEXTOP(PREG,ld);
       }
       restore_generator_node(SgFr_arity(sg_fr), code_ap);
       YENV = (CELL *) PROTECT_FROZEN_B(B);
