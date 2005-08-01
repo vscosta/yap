@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2005-07-06 19:34:11 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-08-01 15:40:38 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.9  2005/07/06 19:34:11  ricroc
+* TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
+*
 * Revision 1.8  2005/07/06 15:10:15  vsc
 * improvements to compiler: merged instructions and fixes for ->
 *
@@ -124,6 +127,8 @@ restore_opcodes(yamop *pc)
     case _sync:
 #endif
 #ifdef TABLING
+    case _table_load_answer:
+    case _table_try_answer:
     case _table_try_single:
     case _table_try_me:
     case _table_retry_me:
@@ -133,7 +138,6 @@ restore_opcodes(yamop *pc)
     case _table_trust:
     case _table_answer_resolution:
     case _table_completion:
-    case _table_load_answer:
 #endif /* TABLING */
       pc->u.ld.p = PtoPredAdjust(pc->u.ld.p);
       pc->u.ld.d = PtoOpAdjust(pc->u.ld.d);

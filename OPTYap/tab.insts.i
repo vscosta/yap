@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.insts.i
-  version:     $Id: tab.insts.i,v 1.16 2005-07-06 19:34:10 ricroc Exp $   
+  version:     $Id: tab.insts.i,v 1.17 2005-08-01 15:40:38 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -14,7 +14,7 @@
 ** ------------------------------------------------ */
 
 #ifdef LOW_LEVEL_TRACER
-#define store_low_level_trace_info(CP, TAB_ENT)  CP->cp_tab_ent = TAB_ENT
+#define store_low_level_trace_info(CP, TAB_ENT)  CP->cp_pred_entry = TabEnt_pe(TAB_ENT)
 #else
 #define store_low_level_trace_info(CP, TAB_ENT)
 #endif /* LOW_LEVEL_TRACER */
@@ -273,16 +273,115 @@
 
 
 
+  PBOp(table_load_answer, ld)
+    CELL *subs_ptr;
+    ans_node_ptr ans_node;
+
+#ifdef YAPOR
+    if (SCH_top_shared_cp(B)) {
+      PROBLEM: cp_last_answer field is local to the cp!
+               -> we need a shared data structure to avoid redundant computations!
+      UNLOCK_OR_FRAME(LOCAL_top_or_fr);
+    }
+#endif /* YAPOR */
+    subs_ptr = (CELL *) (LOAD_CP(B) + 1);
+    ans_node = TrNode_child(LOAD_CP(B)->cp_last_answer);
+    if(TrNode_child(ans_node) != NULL) {
+      restore_loader_node(ans_node);
+    } else {
+      pop_loader_node();
+    }
+    PREG = (yamop *) CPREG;
+    PREFETCH_OP(PREG);
+    load_answer_trie(ans_node, subs_ptr);
+    YENV = ENV;
+    GONext();
+  ENDPBOp();
+
+
+
+  PBOp(table_try_answer, ld)
+#ifdef INCOMPLETE_TABLING
+    sg_fr_ptr sg_fr;
+    ans_node_ptr ans_node;
+
+    sg_fr = GEN_CP(B)->cp_sg_fr;
+    ans_node = TrNode_child(SgFr_try_answer(sg_fr));
+    if(ans_node) {
+      CELL *subs_ptr = (CELL *) (GEN_CP(B) + 1) + SgFr_arity(sg_fr);
+
+      H = HBREG = PROTECT_FROZEN_H(B);
+      restore_yaam_reg_cpdepth(B);
+      CPREG = B->cp_cp;
+      ENV = B->cp_env;
+      SgFr_try_answer(sg_fr) = ans_node;
+#ifdef YAPOR
+      if (SCH_top_shared_cp(B))
+	UNLOCK_OR_FRAME(LOCAL_top_or_fr);
+#endif /* YAPOR */
+      SET_BB(PROTECT_FROZEN_B(B));
+
+      PREG = (yamop *) CPREG;
+      PREFETCH_OP(PREG);
+      load_answer_trie(ans_node, subs_ptr);
+      YENV = ENV;
+      GONext();
+    } else {
+      yamop *code_ap;
+      OPCODE code = Yap_opcode(_table_try_me);
+      PREG = SgFr_code(sg_fr);
+      if (PREG->opc > code) {
+	/* table_try */
+	code_ap = NEXTOP(PREG,ld);
+	PREG = PREG->u.ld.d;
+      } else if (PREG->opc == code) {
+	/* table_try_me */
+	code_ap = PREG->u.ld.d;
+	PREG = NEXTOP(PREG,ld);
+      } else {
+	/* table_try_single */
+	code_ap = COMPLETION;
+	PREG = PREG->u.ld.d;
+      }
+      restore_generator_node(SgFr_arity(sg_fr), code_ap);
+      YENV = (CELL *) PROTECT_FROZEN_B(B);
+      set_cut(YENV, B->cp_b);
+      SET_BB(NORM_CP(YENV));
+      allocate_environment();
+      GONext();
+    }
+#endif /* INCOMPLETE_TABLING */
+  ENDPBOp();
+
+
+
   PBOp(table_try_single, ld)
     tab_ent_ptr tab_ent;
     sg_fr_ptr sg_fr;
 
     check_trail();
     tab_ent = PREG->u.ld.te;
-    sg_fr = subgoal_search(tab_ent, PREG->u.ld.s, &YENV);
+    sg_fr = subgoal_search(PREG, &YENV);
     LOCK(SgFr_lock(sg_fr));
     if (SgFr_state(sg_fr) == start) {
-      /* subgoal new or abolished */
+      /* subgoal new or not complete (abolished) */
+#ifdef INCOMPLETE_TABLING
+      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
+      if (ans_node) {
+	/* subgoal not complete --> start by loading the answers already found */
+	CELL *subs_ptr = YENV;
+	init_subgoal_frame(sg_fr);
+	UNLOCK(SgFr_lock(sg_fr));
+	SgFr_try_answer(sg_fr) = ans_node;
+	store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, TRY_ANSWER);
+	PREG = (yamop *) CPREG;
+	PREFETCH_OP(PREG);
+	load_answer_trie(ans_node, subs_ptr);
+	YENV = ENV;
+	GONext();
+      }
+#endif /* INCOMPLETE_TABLING */
+      /* subgoal new */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
       store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, COMPLETION);
@@ -364,10 +463,27 @@
 
     check_trail();
     tab_ent = PREG->u.ld.te;
-    sg_fr = subgoal_search(tab_ent, PREG->u.ld.s, &YENV);
+    sg_fr = subgoal_search(PREG, &YENV);
     LOCK(SgFr_lock(sg_fr));
     if (SgFr_state(sg_fr) == start) {
-      /* subgoal new or abolished */
+      /* subgoal new or not complete (abolished) */
+#ifdef INCOMPLETE_TABLING
+      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
+      if (ans_node) {
+	/* subgoal not complete --> start by loading the answers already found */
+	CELL *subs_ptr = YENV;
+	init_subgoal_frame(sg_fr);
+	UNLOCK(SgFr_lock(sg_fr));
+	SgFr_try_answer(sg_fr) = ans_node;
+	store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, TRY_ANSWER);
+	PREG = (yamop *) CPREG;
+	PREFETCH_OP(PREG);
+	load_answer_trie(ans_node, subs_ptr);
+	YENV = ENV;
+	GONext();
+      }
+#endif /* INCOMPLETE_TABLING */
+      /* subgoal new */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
       store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, PREG->u.ld.d);
@@ -449,10 +565,27 @@
 
     check_trail();
     tab_ent = PREG->u.ld.te;
-    sg_fr = subgoal_search(tab_ent, PREG->u.ld.s, &YENV);
+    sg_fr = subgoal_search(PREG, &YENV);
     LOCK(SgFr_lock(sg_fr));
     if (SgFr_state(sg_fr) == start) {
-      /* subgoal new or abolished */
+      /* subgoal new or not complete (abolished) */
+#ifdef INCOMPLETE_TABLING
+      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
+      if (ans_node) {
+	/* subgoal not complete --> start by loading the answers already found */
+	CELL *subs_ptr = YENV;
+	init_subgoal_frame(sg_fr);
+	UNLOCK(SgFr_lock(sg_fr));
+	SgFr_try_answer(sg_fr) = ans_node;
+	store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, TRY_ANSWER);
+	PREG = (yamop *) CPREG;
+	PREFETCH_OP(PREG);
+	load_answer_trie(ans_node, subs_ptr);
+	YENV = ENV;
+	GONext();
+      }
+#endif /* INCOMPLETE_TABLING */
+      /* subgoal new */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
       store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, NEXTOP(PREG,ld));
@@ -1092,7 +1225,7 @@
 
 
 
-  BOp(table_completion, ld);
+  BOp(table_completion, ld)
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
       if (IS_BATCHED_GEN_CP(B)) {
@@ -1448,30 +1581,4 @@
       }
     }
     END_PREFETCH()
-  ENDBOp();
-
-
-
-  BOp(table_load_answer, ld);
-    CELL *subs_ptr;
-    ans_node_ptr ans_node;
-#ifdef YAPOR
-    if (SCH_top_shared_cp(B)) {
-      PROBLEM: cp_last_answer field is local to the cp!
-               -> we need a shared data structure to avoid redundant computations!
-      UNLOCK_OR_FRAME(LOCAL_top_or_fr);
-    }
-#endif /* YAPOR */
-    subs_ptr = (CELL *) (LOAD_CP(B) + 1);
-    ans_node = TrNode_child(LOAD_CP(B)->cp_last_answer);
-    if(TrNode_child(ans_node) != NULL) {
-      restore_loader_node(ans_node);
-    } else {
-      pop_loader_node();
-    }
-    PREG = (yamop *) CPREG;
-    PREFETCH_OP(PREG);
-    load_answer_trie(ans_node, subs_ptr);
-    YENV = ENV;
-    GONext();
   ENDBOp();

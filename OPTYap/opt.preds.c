@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.preds.c
-  version:     $Id: opt.preds.c,v 1.21 2005-07-28 16:29:50 ricroc Exp $   
+  version:     $Id: opt.preds.c,v 1.22 2005-08-01 15:40:38 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -678,7 +678,8 @@ int p_show_table(void) {
     tab_ent = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod))->TableOfPred;
   } else
     return (FALSE);
-  traverse_trie(tab_ent, at, TRUE);
+  fprintf(Yap_stderr, "Table structure for predicate '%s/%d'\n", AtomName(at), TabEnt_arity(tab_ent));
+  traverse_table(tab_ent, at, TRUE);
   return (TRUE);
 }
 
@@ -699,7 +700,9 @@ int p_table_statistics(void) {
     tab_ent = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod))->TableOfPred;
   } else
     return (FALSE);
-  traverse_trie(tab_ent, at, FALSE);
+  fprintf(Yap_stderr, "Table statistics for predicate '%s/%d'", AtomName(at), TabEnt_arity(tab_ent));
+  if (traverse_table(tab_ent, at, FALSE))
+    table_stats();
   return (TRUE);
 }
 

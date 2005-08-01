@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.structs.h
-  version:     $Id: tab.structs.h,v 1.8 2005-07-11 19:17:29 ricroc Exp $   
+  version:     $Id: tab.structs.h,v 1.9 2005-08-01 15:40:39 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -154,51 +154,59 @@ typedef struct subgoal_frame {
   int generator_worker;
   struct or_frame *top_or_frame_on_generator_branch;
 #endif /* YAPOR */
-  struct table_entry *tab_ent;
-  int subgoal_arity;
-  choiceptr generator_choice_point;
-  struct answer_trie_node *answer_trie;
-  struct answer_trie_node *first_answer;
-  struct answer_trie_node *last_answer;
-  struct answer_hash *hash_chain;
+  yamop *code_of_subgoal;
   enum {
     start      =  0,
     evaluating =  1,
     complete   =  2,
     compiled   =  3
   } state_flag;
+  choiceptr generator_choice_point;
+  struct answer_hash *hash_chain;
+  struct answer_trie_node *answer_trie;
+  struct answer_trie_node *first_answer;
+  struct answer_trie_node *last_answer;
+#ifdef INCOMPLETE_TABLING
+  struct answer_trie_node *try_answer;
+#endif /* INCOMPLETE_TABLING */
   struct subgoal_frame *next;
 } *sg_fr_ptr;
 
 #define SgFr_lock(X)           ((X)->lock)
 #define SgFr_gen_worker(X)     ((X)->generator_worker)
 #define SgFr_gen_top_or_fr(X)  ((X)->top_or_frame_on_generator_branch)
-#define SgFr_tab_ent(X)        ((X)->tab_ent)
-#define SgFr_arity(X)          ((X)->subgoal_arity)
+#define SgFr_code(X)           ((X)->code_of_subgoal)
+#define SgFr_tab_ent(X)        (((X)->code_of_subgoal)->u.ld.te)
+#define SgFr_arity(X)          (((X)->code_of_subgoal)->u.ld.s)
+#define SgFr_state(X)          ((X)->state_flag)
 #define SgFr_gen_cp(X)         ((X)->generator_choice_point)
+#define SgFr_hash_chain(X)     ((X)->hash_chain)
 #define SgFr_answer_trie(X)    ((X)->answer_trie)
 #define SgFr_first_answer(X)   ((X)->first_answer)
 #define SgFr_last_answer(X)    ((X)->last_answer)
-#define SgFr_hash_chain(X)     ((X)->hash_chain)
-#define SgFr_state(X)          ((X)->state_flag)
+#define SgFr_try_answer(X)     ((X)->try_answer)
 #define SgFr_next(X)           ((X)->next)
 
 /* ------------------------------------------------------------------------------------------- **
-   SgFr_lock:          lock variable to modify the frame fields.
+   SgFr_lock:          spin-lock to modify the frame fields.
    SgFr_gen_worker:    the id of the worker that had allocated the frame.
    SgFr_gen_top_or_fr: a pointer to the top or-frame in the generator choice point branch. 
                        When the generator choice point is shared the pointer is updated 
                        to its or-frame. It is used to find the direct dependency node for 
                        consumer nodes in other workers branches.
+   SgFr_code           initial instruction of the subgoal's compiled code.
    SgFr_tab_ent        a pointer to the correspondent table entry.
    SgFr_arity          the arity of the subgoal.
+   SgFr_state:         a flag that indicates the subgoal state.
    SgFr_gen_cp:        a pointer to the correspondent generator choice point.
+   SgFr_hash_chain:    a pointer to the first answer_hash struct for the subgoal in hand.
    SgFr_answer_trie:   a pointer to the top answer trie node.
                        It is used to check for/insert new answers.
    SgFr_first_answer:  a pointer to the bottom answer trie node of the first available answer.
    SgFr_last_answer:   a pointer to the bottom answer trie node of the last available answer.
-   SgFr_hash_chain:    a pointer to the first answer_hash struct for the subgoal in hand.
-   SgFr_state:         a flag that indicates the subgoal state.
+   SgFr_try_answer:    a pointer to the bottom answer trie node of the last tried answer.
+                       It is used when a subgoal was not completed during the previous evaluation.
+                       Not completed subgoals start by trying the answers already found.
    SgFr_next:          a pointer to chain between subgoal frames.
 ** ------------------------------------------------------------------------------------------- */
 
@@ -298,7 +306,7 @@ struct generator_choicept {
   struct dependency_frame *cp_dep_fr;  /* NULL if batched scheduling */
   struct subgoal_frame *cp_sg_fr;
 #ifdef LOW_LEVEL_TRACER
-  struct table_entry* cp_tab_ent;
+  struct pred_entry *cp_pred_entry;
 #endif /* LOW_LEVEL_TRACER */
 };
 
@@ -306,7 +314,7 @@ struct consumer_choicept {
   struct choicept cp;
   struct dependency_frame *cp_dep_fr;
 #ifdef LOW_LEVEL_TRACER
-  struct table_entry* cp_tab_ent;
+  struct pred_entry *cp_pred_entry;
 #endif /* LOW_LEVEL_TRACER */
 };
 
@@ -314,6 +322,6 @@ struct loader_choicept {
   struct choicept cp;
   struct answer_trie_node *cp_last_answer;
 #ifdef LOW_LEVEL_TRACER
-  struct table_entry* cp_tab_ent;
+  struct pred_entry *cp_pred_entry;
 #endif /* LOW_LEVEL_TRACER */
 };

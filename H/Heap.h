@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.81 2005-07-06 19:34:11 ricroc Exp $	 *
+* version:      $Id: Heap.h,v 1.82 2005-08-01 15:40:38 ricroc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -141,9 +141,10 @@ typedef struct various_codes {
   yamop getwork_first_time_code;
 #endif /* YAPOR */
 #ifdef TABLING
+  yamop table_load_answer_code;
+  yamop table_try_answer_code;
   yamop table_answer_resolution_code;
   yamop table_completion_code;
-  yamop table_load_answer_code;
 #endif /* TABLING */
   OPCODE expand_op_code;
   yamop *expand_clauses_first, *expand_clauses_last;
@@ -469,9 +470,10 @@ struct various_codes *Yap_heap_regs;
 #define  GETWORK_FIRST_TIME      (&(Yap_heap_regs->getwork_first_time_code))
 #endif /* YAPOR */
 #ifdef TABLING
+#define  LOAD_ANSWER              ((yamop *)&(Yap_heap_regs->table_load_answer_code))
+#define  TRY_ANSWER               ((yamop *)&(Yap_heap_regs->table_try_answer_code))
 #define  ANSWER_RESOLUTION        ((yamop *)&(Yap_heap_regs->table_answer_resolution_code))
 #define  COMPLETION               ((yamop *)&(Yap_heap_regs->table_completion_code))
-#define  LOAD_ANSWER              ((yamop *)&(Yap_heap_regs->table_load_answer_code))
 #endif /* TABLING */
 #define  EXPAND_OP_CODE           Yap_heap_regs->expand_op_code
 #define  ExpandClausesFirst       Yap_heap_regs->expand_clauses_first

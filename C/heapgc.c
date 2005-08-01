@@ -1828,6 +1828,19 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	nargs = 0;
 	break;
 #ifdef TABLING
+      case _table_load_answer:
+	{
+	  CELL *vars_ptr, vars;
+	  vars_ptr = (CELL *) (LOAD_CP(gc_B) + 1);
+	  vars = *vars_ptr++;
+	  while (vars--) {	
+	    mark_external_reference(vars_ptr);
+	    vars_ptr++;
+	  }
+	}
+	nargs = 0;
+	break;
+      case _table_try_answer:
       case _table_retry_me:
       case _table_trust_me:
       case _table_retry:
@@ -1869,18 +1882,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	{
 	  CELL *vars_ptr, vars;
 	  init_substitution_pointer(gc_B, vars_ptr, CONS_CP(gc_B)->cp_dep_fr);
-	  vars = *vars_ptr++;
-	  while (vars--) {	
-	    mark_external_reference(vars_ptr);
-	    vars_ptr++;
-	  }
-	}
-	nargs = 0;
-	break;
-      case _table_load_answer:
-	{
-	  CELL *vars_ptr, vars;
-	  vars_ptr = (CELL *) (LOAD_CP(gc_B) + 1);
 	  vars = *vars_ptr++;
 	  while (vars--) {	
 	    mark_external_reference(vars_ptr);
@@ -2548,6 +2549,25 @@ sweep_choicepoints(choiceptr gc_B)
       opnum = Yap_op_from_opcode(op);
       goto restart_cp;
 #ifdef TABLING
+    case _table_load_answer:
+      {
+	CELL *vars_ptr, vars;
+	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+	vars_ptr = (CELL *) (LOAD_CP(gc_B) + 1);
+	vars = *vars_ptr++;
+	while (vars--) {	
+	  CELL cp_cell = *vars_ptr;
+	  if (MARKED_PTR(vars_ptr)) {
+	    UNMARK(vars_ptr);
+	    if (HEAP_PTR(cp_cell)) {
+	      into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
+	    }
+	  }
+	  vars_ptr++;
+	}
+      }
+      break;
+    case _table_try_answer:
     case _table_retry_me:
     case _table_trust_me:
     case _table_retry:
@@ -2616,24 +2636,6 @@ sweep_choicepoints(choiceptr gc_B)
 	CELL *vars_ptr, vars;
 	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
 	init_substitution_pointer(gc_B, vars_ptr, CONS_CP(gc_B)->cp_dep_fr);
-	vars = *vars_ptr++;
-	while (vars--) {	
-	  CELL cp_cell = *vars_ptr;
-	  if (MARKED_PTR(vars_ptr)) {
-	    UNMARK(vars_ptr);
-	    if (HEAP_PTR(cp_cell)) {
-	      into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
-	    }
-	  }
-	  vars_ptr++;
-	}
-      }
-      break;
-    case _table_load_answer:
-      {
-	CELL *vars_ptr, vars;
-	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
-	vars_ptr = (CELL *) (LOAD_CP(gc_B) + 1);
 	vars = *vars_ptr++;
 	while (vars--) {	
 	  CELL cp_cell = *vars_ptr;

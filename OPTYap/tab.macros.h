@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.macros.h
-  version:     $Id: tab.macros.h,v 1.16 2005-07-26 16:28:28 ricroc Exp $   
+  version:     $Id: tab.macros.h,v 1.17 2005-08-01 15:40:38 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -227,23 +227,22 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
         memcpy(SuspFr_trail_start(SUSP_FR), SuspFr_trail_reg(SUSP_FR), TR_SIZE)
 
 
-#define new_subgoal_frame(SG_FR, TAB_ENT, ARITY)                   \
+#define new_subgoal_frame(SG_FR, CODE)                             \
         { register ans_node_ptr ans_node;                          \
           ALLOC_SUBGOAL_FRAME(SG_FR);                              \
           INIT_LOCK(SgFr_lock(SG_FR));                             \
-          SgFr_tab_ent(SG_FR) = TAB_ENT;                           \
-          SgFr_arity(SG_FR) = ARITY;                               \
-          new_answer_trie_node(ans_node, 0, 0, NULL, NULL, NULL);  \
-          SgFr_answer_trie(SG_FR) = ans_node;                      \
-          SgFr_hash_chain(SG_FR) = NULL;                           \
+          SgFr_code(SG_FR) = CODE;                                 \
           SgFr_state(SG_FR) = start;                               \
+          new_answer_trie_node(ans_node, 0, 0, NULL, NULL, NULL);  \
+          SgFr_hash_chain(SG_FR) = NULL;                           \
+          SgFr_answer_trie(SG_FR) = ans_node;                      \
+          SgFr_first_answer(SG_FR) = NULL;                         \
+          SgFr_last_answer(SG_FR) = NULL;                          \
 	}
 
 
 #define init_subgoal_frame(SG_FR)                                  \
         { SgFr_init_yapor_fields(SG_FR);                           \
-          SgFr_first_answer(SG_FR) = NULL;                         \
-          SgFr_last_answer(SG_FR) = NULL;                          \
           SgFr_state(SG_FR) = evaluating;                          \
           SgFr_next(SG_FR) = LOCAL_top_sg_fr;                      \
           LOCAL_top_sg_fr = sg_fr;                                 \
@@ -518,9 +517,14 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
     LOCAL_top_sg_fr = SgFr_next(sg_fr);
     LOCK(SgFr_lock(sg_fr));
     if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+      /* yes answer --> complete */
       SgFr_state(sg_fr) = complete;
       UNLOCK(SgFr_lock(sg_fr));
     } else {
+#ifdef INCOMPLETE_TABLING
+      SgFr_state(sg_fr) = start;
+      UNLOCK(SgFr_lock(sg_fr));
+#else
       ans_node_ptr node;
       SgFr_state(sg_fr) = start;
       free_answer_hash_chain(SgFr_hash_chain(sg_fr));
@@ -532,6 +536,7 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
       UNLOCK(SgFr_lock(sg_fr));
       if (node)
 	free_answer_trie_branch(node);
+#endif /* INCOMPLETE_TABLING */
     }
   }
 

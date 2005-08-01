@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.C
-  version:     $Id: tab.tries.c,v 1.14 2005-07-11 19:17:29 ricroc Exp $   
+  version:     $Id: tab.tries.c,v 1.15 2005-08-01 15:40:39 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -675,12 +675,15 @@ ans_node_ptr answer_trie_node_check_insert(sg_fr_ptr sg_fr, ans_node_ptr parent_
 **      Global functions      **
 ** -------------------------- */
 
-sg_fr_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
-  int i, j, count_vars;
+sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
+  int i, j, count_vars, arity;
   CELL *stack_vars, *stack_terms_limit, *stack_terms_base, *stack_terms;
   sg_node_ptr current_sg_node;
+  tab_ent_ptr tab_ent;
   sg_fr_ptr sg_fr;
 
+  arity = preg->u.ld.s;
+  tab_ent = preg->u.ld.te;
   count_vars = 0;
   stack_vars = *Yaddr;
   stack_terms_limit = (CELL *)TR;
@@ -747,7 +750,7 @@ sg_fr_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
 #endif /* TABLE_LOCK_LEVEL */
   if (TrNode_sg_fr(current_sg_node) == NULL) {
     /* new tabled subgoal */
-    new_subgoal_frame(sg_fr, tab_ent, arity);
+    new_subgoal_frame(sg_fr, preg);
     TrNode_sg_fr(current_sg_node) = (sg_node_ptr) sg_fr;
   } else {
     sg_fr = (sg_fr_ptr) TrNode_sg_fr(current_sg_node);
@@ -1031,6 +1034,7 @@ void update_answer_trie(sg_fr_ptr sg_fr) {
   return;
 }
 
+
 static struct trie_statistics{
   int show;
   long subgoals;
@@ -1048,38 +1052,34 @@ static struct trie_statistics{
   int  answer_trie_max_depth;
   int  answer_trie_min_depth;
 } trie_stats;
-#define TrStat_show                   trie_stats.show
-#define TrStat_subgoals               trie_stats.subgoals
-#define TrStat_sg_not_complete        trie_stats.subgoals_not_complete
-#define TrStat_sg_nodes               trie_stats.subgoal_trie_nodes
-#define TrStat_sg_linear_nodes        trie_stats.subgoal_linear_nodes
-#define TrStat_sg_max_depth           trie_stats.subgoal_trie_max_depth
-#define TrStat_sg_min_depth           trie_stats.subgoal_trie_min_depth
-#define TrStat_answers                trie_stats.answers
-#define TrStat_answers_yes            trie_stats.answers_yes
-#define TrStat_answers_no             trie_stats.answers_no
-#define TrStat_ans_pruned             trie_stats.answers_pruned
-#define TrStat_ans_nodes              trie_stats.answer_trie_nodes
-#define TrStat_ans_linear_nodes       trie_stats.answer_linear_nodes
-#define TrStat_ans_max_depth          trie_stats.answer_trie_max_depth
-#define TrStat_ans_min_depth          trie_stats.answer_trie_min_depth
+#define TrStat_show              trie_stats.show
+#define TrStat_subgoals          trie_stats.subgoals
+#define TrStat_sg_not_complete   trie_stats.subgoals_not_complete
+#define TrStat_sg_nodes          trie_stats.subgoal_trie_nodes
+#define TrStat_sg_linear_nodes   trie_stats.subgoal_linear_nodes
+#define TrStat_sg_max_depth      trie_stats.subgoal_trie_max_depth
+#define TrStat_sg_min_depth      trie_stats.subgoal_trie_min_depth
+#define TrStat_answers           trie_stats.answers
+#define TrStat_answers_yes       trie_stats.answers_yes
+#define TrStat_answers_no        trie_stats.answers_no
+#define TrStat_ans_pruned        trie_stats.answers_pruned
+#define TrStat_ans_nodes         trie_stats.answer_trie_nodes
+#define TrStat_ans_linear_nodes  trie_stats.answer_linear_nodes
+#define TrStat_ans_max_depth     trie_stats.answer_trie_max_depth
+#define TrStat_ans_min_depth     trie_stats.answer_trie_min_depth
 
 #define STR_ARRAY_SIZE  1000
 #define ARITY_ARRAY_SIZE 100
-#define SHOW_INFO(MESG, ARGS...)      fprintf(Yap_stderr, MESG, ##ARGS)
-#define SHOW_TRIE(MESG, ARGS...)      if (TrStat_show) fprintf(Yap_stderr, MESG, ##ARGS)
+#define SHOW_TABLE(MESG, ARGS...)  if (TrStat_show) fprintf(Yap_stderr, MESG, ##ARGS)
 
-void traverse_trie(tab_ent_ptr tab_ent, Atom pred_atom, int show_trie) {
-  char str[STR_ARRAY_SIZE];
-  int arity[ARITY_ARRAY_SIZE];
-  int str_index;
-  int pred_arity = TabEnt_arity(tab_ent);
+
+int traverse_table(tab_ent_ptr tab_ent, Atom pred_atom, int show_table) {
   sg_node_ptr sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
 
-  TrStat_show = show_trie;
+  TrStat_show = show_table;
   TrStat_subgoals = 0;
   TrStat_sg_not_complete = 0;
-  TrStat_sg_nodes = 0;
+  TrStat_sg_nodes = 1;
   TrStat_sg_linear_nodes = 0;
   TrStat_sg_max_depth = -1;
   TrStat_sg_min_depth = -1;
@@ -1091,43 +1091,49 @@ void traverse_trie(tab_ent_ptr tab_ent, Atom pred_atom, int show_trie) {
   TrStat_ans_linear_nodes = 0;
   TrStat_ans_max_depth = -1;
   TrStat_ans_min_depth = -1;
-  str_index = sprintf(str, "  ?- %s(", AtomName(pred_atom));
-  arity[0] = 1;
-  arity[1] = pred_arity;
-  SHOW_TRIE("\ntable structure for predicate '%s/%d'\n", AtomName(pred_atom), pred_arity);
-  TrStat_sg_nodes++;
-  if (sg_node && ! traverse_subgoal_trie(sg_node, str, str_index, arity, 1, TRAVERSE_NORMAL))
-    return;
-  SHOW_INFO("\ntable statistics for predicate '%s/%d'", AtomName(pred_atom), pred_arity);
-  SHOW_INFO("\n  subgoal trie structure");
-  SHOW_INFO("\n    subgoals: %ld", TrStat_subgoals);
-  SHOW_INFO("\n    subgoals not complete: %ld", TrStat_sg_not_complete);
-  SHOW_INFO("\n    nodes: %ld (%ld%c saving)", 
-	    TrStat_sg_nodes,
-	    TrStat_sg_linear_nodes == 0 ? 0 : (TrStat_sg_linear_nodes - TrStat_sg_nodes + 1) * 100 / TrStat_sg_linear_nodes,
+  if (sg_node) {
+    char str[STR_ARRAY_SIZE];
+    int str_index = sprintf(str, "  ?- %s(", AtomName(pred_atom));
+    int arity[ARITY_ARRAY_SIZE];
+    arity[0] = 1;
+    arity[1] = TabEnt_arity(tab_ent);
+    return traverse_subgoal_trie(sg_node, str, str_index, arity, 1, TRAVERSE_NORMAL);
+  }
+  SHOW_TABLE("  empty\n");
+  return TRUE;
+}
+
+
+void table_stats(void) {
+  fprintf(Yap_stderr, "\n  Subgoal trie structure");
+  fprintf(Yap_stderr, "\n    subgoals: %ld", TrStat_subgoals);
+  fprintf(Yap_stderr, "\n    subgoals not complete: %ld", TrStat_sg_not_complete);
+  fprintf(Yap_stderr, "\n    nodes: %ld (%ld%c saving)", 
+          TrStat_sg_nodes,
+	  TrStat_sg_linear_nodes == 0 ? 0 : (TrStat_sg_linear_nodes - TrStat_sg_nodes + 1) * 100 / TrStat_sg_linear_nodes,
+	  '%');
+  fprintf(Yap_stderr, "\n    average depth: %.2f (%d min - %d max)", 
+	  TrStat_subgoals == 0 ? 0 : (float)TrStat_sg_linear_nodes / (float)TrStat_subgoals,
+	  TrStat_sg_min_depth < 0 ? 0 : TrStat_sg_min_depth,
+	  TrStat_sg_max_depth < 0 ? 0 : TrStat_sg_max_depth);
+  fprintf(Yap_stderr, "\n  Answer trie structure");
+  fprintf(Yap_stderr, "\n    answers: %ld", TrStat_answers);
+  fprintf(Yap_stderr, "\n    yes answers: %ld", TrStat_answers_yes);
+  fprintf(Yap_stderr, "\n    no answers: %ld", TrStat_answers_no);
+  fprintf(Yap_stderr, "\n    pruned answers: %ld", TrStat_ans_pruned);
+  fprintf(Yap_stderr, "\n    nodes: %ld (%ld%c saving)",
+	  TrStat_ans_nodes,
+	  TrStat_ans_linear_nodes == 0 ? 0 : (TrStat_ans_linear_nodes - TrStat_ans_nodes + TrStat_subgoals) * 100 / TrStat_ans_linear_nodes,
 	    '%');
-  SHOW_INFO("\n    average depth: %.2f (%d min - %d max)", 
-	    TrStat_subgoals == 0 ? 0 : (float)TrStat_sg_linear_nodes / (float)TrStat_subgoals,
-	    TrStat_sg_min_depth < 0 ? 0 : TrStat_sg_min_depth,
-	    TrStat_sg_max_depth < 0 ? 0 : TrStat_sg_max_depth);
-  SHOW_INFO("\n  answer trie structure");
-  SHOW_INFO("\n    answers: %ld", TrStat_answers);
-  SHOW_INFO("\n    yes answers: %ld", TrStat_answers_yes);
-  SHOW_INFO("\n    no answers: %ld", TrStat_answers_no);
-  SHOW_INFO("\n    pruned answers: %ld", TrStat_ans_pruned);
-  SHOW_INFO("\n    nodes: %ld (%ld%c saving)",
-	    TrStat_ans_nodes,
-	    TrStat_ans_linear_nodes == 0 ? 0 : (TrStat_ans_linear_nodes - TrStat_ans_nodes + TrStat_subgoals) * 100 / TrStat_ans_linear_nodes,
-	    '%');
-  SHOW_INFO("\n    average depth: %.2f (%d min - %d max)",
-	    TrStat_answers == 0 ? 0 : (float)TrStat_ans_linear_nodes / (float)TrStat_answers,
-	    TrStat_ans_min_depth < 0 ? 0 : TrStat_ans_min_depth,
-	    TrStat_ans_max_depth < 0 ? 0 : TrStat_ans_max_depth);
-  SHOW_INFO("\n  total memory in use\n      %ld bytes\n\n",
-	    sizeof(struct table_entry) + 
-            TrStat_sg_nodes * sizeof(struct subgoal_trie_node) +
-	    TrStat_ans_nodes * sizeof(struct answer_trie_node) +
-	    TrStat_subgoals * sizeof(struct subgoal_frame));
+  fprintf(Yap_stderr, "\n    average depth: %.2f (%d min - %d max)",
+	  TrStat_answers == 0 ? 0 : (float)TrStat_ans_linear_nodes / (float)TrStat_answers,
+	  TrStat_ans_min_depth < 0 ? 0 : TrStat_ans_min_depth,
+	  TrStat_ans_max_depth < 0 ? 0 : TrStat_ans_max_depth);
+  fprintf(Yap_stderr, "\n  Total memory in use\n    %ld bytes\n",
+	  sizeof(struct table_entry) + 
+          TrStat_sg_nodes * sizeof(struct subgoal_trie_node) +
+	  TrStat_ans_nodes * sizeof(struct answer_trie_node) +
+	  TrStat_subgoals * sizeof(struct subgoal_frame));
   return;
 }
 
@@ -1278,7 +1284,7 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
 	  str[str_index] = 0;
-	  SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
 	  return FALSE;
 	}
 	str_index += sprintf(& str[str_index], "|");
@@ -1303,7 +1309,7 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
 	  str[str_index] = 0;
-	  SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
 	  return FALSE;
 	}
 	str_index += sprintf(& str[str_index], "|");
@@ -1350,7 +1356,7 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
 	  str[str_index] = 0;
-	  SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
 	  return FALSE;
 	}
 	str_index += sprintf(& str[str_index], "|");
@@ -1361,7 +1367,7 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
     if (arity[arity[0]] == -1) {
       if (strcmp("[]", AtomName(AtomOfTerm(t)))) {
 	str[str_index] = 0;
-	SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
 	return FALSE;
       }
       str[str_index - 1] = ']';
@@ -1383,7 +1389,7 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
 	  str[str_index] = 0;
-	  SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
 	  return FALSE;
 	}
 	str_index += sprintf(& str[str_index], "|");
@@ -1430,9 +1436,9 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
     }
     if (SgFr_state(sg_fr) == start || SgFr_state(sg_fr) == evaluating) {
       TrStat_sg_not_complete++;
-      SHOW_TRIE("%s. ---> NOT COMPLETE\n", str);
+      SHOW_TABLE("%s. ---> NOT COMPLETE\n", str);
     } else {
-      SHOW_TRIE("%s.\n", str);
+      SHOW_TABLE("%s.\n", str);
     }
     TrStat_ans_nodes++;
     if (SgFr_first_answer(sg_fr) == NULL) {
@@ -1440,14 +1446,14 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
 	TrStat_ans_max_depth = 0;
       TrStat_ans_min_depth = 0;
       TrStat_answers_no++;
-      SHOW_TRIE("    NO ANSWERS\n");
+      SHOW_TABLE("    NO ANSWERS\n");
     } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
       if (TrStat_ans_max_depth < 0)
 	TrStat_ans_max_depth = 0;
       TrStat_ans_min_depth = 0;
       TrStat_answers_yes++;
       TrStat_answers++;
-      SHOW_TRIE("    TRUE\n");
+      SHOW_TABLE("    TRUE\n");
     } else {
       char answer_str[STR_ARRAY_SIZE];
       int answer_arity[ARITY_ARRAY_SIZE];
@@ -1536,7 +1542,7 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
 	  str[str_index] = 0;
-	  SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
 	  return FALSE;
 	}
 	str_index += sprintf(& str[str_index], "|");
@@ -1563,7 +1569,7 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
 	  str[str_index] = 0;
-	  SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
 	  return FALSE;
 	}
 	str_index += sprintf(& str[str_index], "|");
@@ -1612,7 +1618,7 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
 	  str[str_index] = 0;
-	  SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
 	  return FALSE;
 	}
 	str_index += sprintf(& str[str_index], "|");
@@ -1623,7 +1629,7 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
     if (arity[arity[0]] == -1) {
       if (strcmp("[]", AtomName(AtomOfTerm(t)))) {
 	str[str_index] = 0;
-	SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
 	return FALSE;
       }
       str[str_index - 1] = ']';
@@ -1645,7 +1651,7 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
 	  str[str_index] = 0;
-	  SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
 	  return FALSE;
 	}
 	str_index += sprintf(& str[str_index], "|");
@@ -1680,7 +1686,7 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
   /* show answer .... */
   if (IS_ANSWER_LEAF_NODE(ans_node)) {
     str[str_index] = 0;
-    SHOW_TRIE("%s\n", str);
+    SHOW_TABLE("%s\n", str);
     TrStat_answers++;
     TrStat_ans_linear_nodes+= depth;
     if (TrStat_ans_max_depth < 0)

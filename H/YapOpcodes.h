@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2005-07-06 19:34:11 $							 *
+* Last rev:     $Date: 2005-08-01 15:40:38 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.32  2005/07/06 19:34:11  ricroc
+* TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
+*
 * Revision 1.31  2005/07/06 15:10:15  vsc
 * improvements to compiler: merged instructions and fixes for ->
 *
@@ -76,6 +79,8 @@
     OPCODE(clause_with_cut         ,e),
 #endif /* TABLING_INNER_CUTS */
 #ifdef TABLING
+    OPCODE(table_load_answer       ,ld),
+    OPCODE(table_try_answer        ,ld),
     OPCODE(table_try_single        ,ld),
     OPCODE(table_try_me            ,ld),
     OPCODE(table_try	           ,ld),
@@ -86,7 +91,6 @@
     OPCODE(table_new_answer        ,s),
     OPCODE(table_answer_resolution ,ld),
     OPCODE(table_completion        ,ld),
-    OPCODE(table_load_answer       ,ld),
 
     OPCODE(trie_do_null            ,e),
     OPCODE(trie_trust_null         ,e),

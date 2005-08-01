@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-07-06 19:33:52 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-08-01 15:40:37 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.165  2005/07/06 19:33:52  ricroc
+* TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
+*
 * Revision 1.164  2005/07/06 15:10:03  vsc
 * improvements to compiler: merged instructions and fixes for ->
 *
@@ -311,12 +314,13 @@ PredForChoicePt(yamop *p_code) {
     case _trie_retry_long:
     case _trie_trust_long:
       return NULL;
+    case _table_load_answer:
+    case _table_try_answer:
     case _table_answer_resolution:
     case _table_completion:
-    case _table_load_answer:
       return NULL; /* ricroc: is this OK? */
       /* compile error --> return ENV_ToP(gc_B->cp_cp); */
-#endif
+#endif /* TABLING */
     case _or_else:
       if (p_code == p_code->u.sla.sla_u.l) {
 	/* repeat */
@@ -331,7 +335,7 @@ PredForChoicePt(yamop *p_code) {
       return p_code->u.sla.p0;
 #else
       return p_code->u.p.p;
-#endif
+#endif /* YAPOR */
       break;
     case _trust_logical_pred:
     case _count_retry_me:
@@ -444,7 +448,7 @@ Yap_BuildMegaClause(PredEntry *ap)
   if (ap->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MegaClausePredFlag
 #ifdef TABLING
 		       |TabledPredFlag
-#endif
+#endif /* TABLING */
 		       ) ||
       ap->cs.p_code.FirstClause == NULL ||
       ap->cs.p_code.NOfClauses < 16) {
@@ -663,7 +667,7 @@ RemoveMainIndex(PredEntry *ap)
   } else if (ap->cs.p_code.NOfClauses > 1
 #ifdef TABLING
 	     ||ap->PredFlags & TabledPredFlag
-#endif
+#endif /* TABLING */
 	     ) {
     ap->OpcodeOfPred = INDEX_OPCODE;
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 

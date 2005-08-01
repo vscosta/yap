@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2005-07-06 19:34:11 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-08-01 15:40:38 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.52  2005/07/06 19:34:11  ricroc
+* TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
+*
 * Revision 1.51  2005/07/06 15:10:15  vsc
 * improvements to compiler: merged instructions and fixes for ->
 *
@@ -114,13 +117,15 @@ restore_codes(void)
   Yap_heap_regs->getwork_first_time_code.opc = Yap_opcode(_getwork_first_time);
 #endif /* YAPOR */
 #ifdef TABLING
+  Yap_heap_regs->table_load_answer_code.opc = Yap_opcode(_table_load_answer);
+  Yap_heap_regs->table_try_answer_code.opc = Yap_opcode(_table_try_answer);
   Yap_heap_regs->table_answer_resolution_code.opc = Yap_opcode(_table_answer_resolution);
   Yap_heap_regs->table_completion_code.opc = Yap_opcode(_table_completion);
-  Yap_heap_regs->table_load_answer_code.opc = Yap_opcode(_table_load_answer);
 #ifdef YAPOR
+  INIT_YAMOP_LTT(&(Yap_heap_regs->table_load_answer_code), 0);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->table_try_answer_code), 0);
   INIT_YAMOP_LTT(&(Yap_heap_regs->table_completion_code), 0);
   INIT_YAMOP_LTT(&(Yap_heap_regs->table_answer_resolution_code), 0);
-  INIT_YAMOP_LTT(&(Yap_heap_regs->table_load_answer_code), 0);
 #endif /* YAPOR */
 #endif /* TABLING */
   Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);

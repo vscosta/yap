@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.macros.h 
-  version:     $Id: opt.macros.h,v 1.7 2005-07-11 19:17:27 ricroc Exp $   
+  version:     $Id: opt.macros.h,v 1.8 2005-08-01 15:40:38 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -51,11 +51,6 @@ extern int Yap_page_size;
 #define UPDATE_STATS(STAT, VALUE)  STAT += VALUE
 
 #ifdef MALLOC_MEMORY_ALLOC_SCHEME  /* --------------------------------------------- */
-#define ALLOC_BLOCK(BLOCK, SIZE)                                                    \
-        if ((BLOCK = malloc(SIZE)) == NULL)                                         \
-          Yap_Error(FATAL_ERROR, TermNil, "malloc error (ALLOC_BLOCK)")
-#define FREE_BLOCK(BLOCK)                                                           \
-        free(BLOCK)
 #define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)                                      \
         UPDATE_STATS(Pg_str_in_use(STR_PAGES), 1);                                  \
         if ((STR = (STR_TYPE *)malloc(sizeof(STR_TYPE))) == NULL)                   \
@@ -66,11 +61,6 @@ extern int Yap_page_size;
         UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                 \
         free(STR)
 #elif YAP_MEMORY_ALLOC_SCHEME  /* ----------------------------------------------- */
-#define ALLOC_BLOCK(BLOCK, SIZE)                                                    \
-        if ((BLOCK = (void *) Yap_AllocCodeSpace(SIZE)) == NULL)                    \
-          Yap_Error(FATAL_ERROR, TermNil, "Yap_AllocCodeSpace error (ALLOC_BLOCK)")
-#define FREE_BLOCK(BLOCK)                                                           \
-        Yap_FreeCodeSpace((char *) (BLOCK))
 #define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)                                      \
         UPDATE_STATS(Pg_str_in_use(STR_PAGES), 1);                                  \
         if ((STR = (STR_TYPE *) Yap_AllocCodeSpace(sizeof(STR_TYPE))) == NULL)      \
@@ -81,12 +71,6 @@ extern int Yap_page_size;
         UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                 \
         Yap_FreeCodeSpace((char *) (STR))
 #elif SHM_MEMORY_ALLOC_SCHEME  /* ------------------------------------------------ */
-#define ALLOC_BLOCK(BLOCK, SIZE)                                                    \
-        if ((BLOCK = (void *) Yap_AllocCodeSpace(SIZE)) == NULL)                    \
-          Yap_Error(FATAL_ERROR, TermNil, "Yap_AllocCodeSpace error (ALLOC_BLOCK)")
-#define FREE_BLOCK(BLOCK)                                                           \
-        Yap_FreeCodeSpace((char *) (BLOCK))
-
 #define ALLOC_PAGE(PG_HD)                                                           \
         LOCK(Pg_lock(GLOBAL_PAGES_void));                                           \
         UPDATE_STATS(Pg_str_in_use(GLOBAL_PAGES_void), 1);                          \
@@ -216,6 +200,22 @@ extern int Yap_page_size;
         }
 #endif /* ------------------------- MEMORY_ALLOC_SCHEME -------------------------- */
 
+
+
+#ifdef YAPOR
+#define ALLOC_BLOCK(BLOCK, SIZE)                                                    \
+        if ((BLOCK = (void *) Yap_AllocCodeSpace(SIZE)) == NULL)                    \
+          Yap_Error(FATAL_ERROR, TermNil, "Yap_AllocCodeSpace error (ALLOC_BLOCK)")
+#define FREE_BLOCK(BLOCK)                                                           \
+        Yap_FreeCodeSpace((char *) (BLOCK))
+#else /* TABLING */
+#define ALLOC_BLOCK(BLOCK, SIZE)                                                    \
+        if ((BLOCK = malloc(SIZE)) == NULL)                                         \
+          Yap_Error(FATAL_ERROR, TermNil, "malloc error (ALLOC_BLOCK)")
+#define FREE_BLOCK(BLOCK)                                                           \
+        free(BLOCK)
+#endif /* YAPOR - TABLING */
+
 #define ALLOC_HASH_BUCKETS(BUCKET_PTR, NUM_BUCKETS)                                 \
         { int i; void **ptr;                                                        \
           ALLOC_BLOCK(ptr, NUM_BUCKETS * sizeof(void *));                           \
@@ -224,6 +224,8 @@ extern int Yap_page_size;
             *ptr++ = NULL;                                                          \
         }
 #define FREE_HASH_BUCKETS(BUCKET_PTR)  FREE_BLOCK(BUCKET_PTR)
+
+
 
 #define ALLOC_OR_FRAME(STR)          ALLOC_STRUCT(STR, GLOBAL_PAGES_or_fr, struct or_frame)
 #define FREE_OR_FRAME(STR)            FREE_STRUCT(STR, GLOBAL_PAGES_or_fr, struct or_frame)

@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.config.h
-  version:     $Id: opt.config.h,v 1.7 2005-07-11 19:17:24 ricroc Exp $   
+  version:     $Id: opt.config.h,v 1.8 2005-08-01 15:40:38 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -62,6 +62,11 @@
 /* #define TABLE_LOCK_AT_ENTRY_LEVEL 1 */
 /* #define TABLE_LOCK_AT_NODE_LEVEL  1 */
 /* #define ALLOC_BEFORE_CHECK        1 */
+
+/* ----------------------------------------------- **
+**      support incomplete tabling? (optional)     **
+** ----------------------------------------------- */
+/* #define INCOMPLETE_TABLING 1 */
 
 /* --------------------------------------- **
 **      support inner cuts? (optional)     **
@@ -155,9 +160,12 @@
 #ifndef YAPOR
 #undef YAPOR_ERRORS
 #endif /* !YAPOR */
+
 #ifndef TABLING
+#undef INCOMPLETE_TABLING
 #undef TABLING_ERRORS
 #endif /* !TABLING */
+
 #if defined(YAPOR_ERRORS) && defined(TABLING_ERRORS)
 #define OPTYAP_ERRORS
 #endif /* YAPOR_ERRORS && TABLING_ERRORS */

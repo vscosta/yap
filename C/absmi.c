@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-07-06 19:33:51 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-08-01 15:40:36 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.170  2005/07/06 19:33:51  ricroc
+* TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
+*
 * Revision 1.169  2005/07/06 15:10:01  vsc
 * improvements to compiler: merged instructions and fixes for ->
 *
@@ -1408,20 +1411,19 @@ Yap_absmi(int inp)
 	      go_on = FALSE;
 	      switch (opnum) {
 #ifdef TABLING
+	      case _table_load_answer:
+		low_level_trace(retry_table_loader, LOAD_CP(B)->cp_pred_entry, NULL);
+		break;
+	      case _table_try_answer:
 	      case _table_retry_me:
 	      case _table_trust_me:
 	      case _table_retry:
 	      case _table_trust:
-		low_level_trace(retry_table_generator, TabEnt_pe(GEN_CP(B)->cp_tab_ent), (CELL *)(GEN_CP(B)+ 1));
-		break;
 	      case _table_completion:
-		low_level_trace(retry_table_generator, TabEnt_pe(GEN_CP(B)->cp_tab_ent), (CELL *)(GEN_CP(B)+1));
+		low_level_trace(retry_table_generator, GEN_CP(B)->cp_pred_entry, (CELL *)(GEN_CP(B) + 1));
 		break;
 	      case _table_answer_resolution:
-		low_level_trace(retry_table_consumer, TabEnt_pe(CONS_CP(B)->cp_tab_ent), NULL);
-		break;
-	      case _table_load_answer:
-		low_level_trace(retry_table_loader, TabEnt_pe(LOAD_CP(B)->cp_tab_ent), NULL);
+		low_level_trace(retry_table_consumer, CONS_CP(B)->cp_pred_entry, NULL);
 		break;
 	      case _trie_retry_null:
 	      case _trie_trust_null:

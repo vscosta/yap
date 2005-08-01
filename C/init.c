@@ -783,13 +783,15 @@ InitCodes(void)
   Yap_heap_regs->getwork_first_time_code.opc = Yap_opcode(_getwork_first_time);
 #endif /* YAPOR */
 #ifdef TABLING
+  Yap_heap_regs->table_load_answer_code.opc = Yap_opcode(_table_load_answer);
+  Yap_heap_regs->table_try_answer_code.opc = Yap_opcode(_table_try_answer);
   Yap_heap_regs->table_completion_code.opc = Yap_opcode(_table_completion);
   Yap_heap_regs->table_answer_resolution_code.opc = Yap_opcode(_table_answer_resolution);
-  Yap_heap_regs->table_load_answer_code.opc = Yap_opcode(_table_load_answer);
 #ifdef YAPOR
+  INIT_YAMOP_LTT(&(Yap_heap_regs->table_load_answer_code), 0);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->table_try_answer_code), 0);
   INIT_YAMOP_LTT(&(Yap_heap_regs->table_completion_code), 0);
   INIT_YAMOP_LTT(&(Yap_heap_regs->table_answer_resolution_code), 0);
-  INIT_YAMOP_LTT(&(Yap_heap_regs->table_load_answer_code), 0);
 #endif /* YAPOR */
 #endif /* TABLING */
   Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);

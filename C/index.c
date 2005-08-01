@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-07-19 16:54:20 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2005-08-01 15:40:37 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.141  2005/07/19 16:54:20  rslopes
+* fix for older compilers...
+*
 * Revision 1.140  2005/07/18 17:41:16  vsc
 * Yap should respect single argument indexing.
 *
@@ -709,13 +712,14 @@ has_cut(yamop *pc)
     case _sync:
 #endif /* YAPOR */
 #ifdef TABLING
+    case _table_load_answer:
+    case _table_try_answer:
     case _table_try_me_single:
     case _table_try_me:
     case _table_retry_me:
     case _table_trust_me:
     case _table_answer_resolution:
     case _table_completion:
-    case _table_load_answer:
 #endif /* TABLING */
       pc = NEXTOP(pc,ld);
       break;
@@ -2129,6 +2133,8 @@ add_info(ClauseDef *clause, UInt regno)
     case _table_try_single:
       cl = NEXTOP(cl,ld);
       break;      
+    case _table_load_answer:
+    case _table_try_answer:
     case _table_try_me:
     case _table_retry_me:
     case _table_trust_me:
@@ -2137,7 +2143,6 @@ add_info(ClauseDef *clause, UInt regno)
     case _table_trust:
     case _table_answer_resolution:
     case _table_completion:
-    case _table_load_answer:
 #endif /* TABLING */
     case _enter_profiling:
     case _count_call:
