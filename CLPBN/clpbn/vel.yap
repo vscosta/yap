@@ -88,6 +88,7 @@ find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Parents,Size
 
 var_with_deps(V, Table, Deps, Sizes, Ev, Vals) :-
 	clpbn:get_atts(V, [dist(Vals,OTable,Parents)]),
+	clpbn:get_atts(V, [key(K)]), format('~w(~w) Parents: ~w~n',[V,K,Parents]),
 	( clpbn:get_atts(V, [evidence(Ev)]) -> true ; true),
 	reorder_CPT([V|Parents],OTable,Deps0,Table0,Sizes0),
 	simplify_evidence(Deps0, Table0, Deps0, Sizes0, Table, Deps, Sizes).
@@ -135,8 +136,14 @@ multiply_sizes([V|Vs],K0,K) :-
 process(LV0, InputVs, Out) :-
 	find_best(LV0, V0, -1, V, WorkTables, LVI, InputVs),
 	V \== V0, !,
-	multiply_tables(WorkTables, Table),
+%format('1 ~w: ~w~n',[V,WorkTables]),
+	multiply_tables(WorkTables, tab(Tab0,Deps0,_)),
+	Tab0 =.. [_|LTab0],
+	reorder_CPT(Deps0,LTab0,Deps,Tab,Sizes),
+	Table = tab(Tab,Deps,Sizes),
+%format('2 ~w: ~w~n',[V,Table]),
 	project_from_CPT(V,Table,NewTable),
+%format('3 ~w: ~w~n',[V,NewTable]),
 	include(LVI,NewTable,V,LV2),
 	process(LV2, InputVs, Out).
 process(LV0, _, Out) :-
@@ -256,7 +263,7 @@ bind_vals([],_,_) :- !.
 bind_vals(Vs,Ps,AllDiffs) :-
 	get_all_combs(Vs, Vals),
 	Vs = [V|_],
-	put_atts(V, posterior(Vs, Vals, Ps,AllDiffs)).
+	put_atts(V, posterior(Vs, Vals, Ps, AllDiffs)).
 
 get_all_combs(Vs, Vals) :-
 	get_all_doms(Vs,Ds),

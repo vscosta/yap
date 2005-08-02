@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-08-01 15:40:37 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-08-02 03:09:49 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.166  2005/08/01 15:40:37  ricroc
+* TABLING NEW: better support for incomplete tabling
+*
 * Revision 1.165  2005/07/06 19:33:52  ricroc
 * TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
 *
@@ -4121,6 +4124,10 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
   } else {
     Term t;
 
+    if (!(pe->PredFlags & SourcePredFlag)) {
+      rtn = Yap_MkStaticRefTerm(cl);
+      return Yap_unify(tr, rtn);
+    }
     while ((t = Yap_FetchTermFromDB(cl->usc.ClSource)) == 0L) {
       if (first_time) {
 	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {

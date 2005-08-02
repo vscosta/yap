@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-08-01 15:40:36 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-08-02 03:09:48 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.171  2005/08/01 15:40:36  ricroc
+* TABLING NEW: better support for incomplete tabling
+*
 * Revision 1.170  2005/07/06 19:33:51  ricroc
 * TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
 *
@@ -12157,6 +12160,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	SCH_check_requests();
 #endif	/* YAPOR */
+	CACHE_A1();
 	ALWAYS_GONext();
 	ALWAYS_END_PREFETCH();
 
@@ -12170,7 +12174,6 @@ Yap_absmi(int inp)
 	  ARG4 = mod;
 	else
 	  ARG4 = TermProlog;
-	CACHE_A1();
 	goto execute_end;
 	ENDP(pt1);
 

@@ -26,7 +26,9 @@ cpt_min(Vars, Key, Els0, CPT) :-
 
 build_avg_table(Vars, Domain, SDomain, _, p(Domain, CPT, Vars)) :-
 	int_power(Vars, SDomain, 1, TabSize),
-	TabSize =< 16, !,
+	TabSize =< 16, 
+	/* case gmp is not there !! */
+	TabSize > 0, !,
 	average_cpt(Vars, Domain, CPT).
 build_avg_table(Vars, Domain, _, Key, p(Domain, CPT, [V1,V2])) :-
 	length(Vars,L),

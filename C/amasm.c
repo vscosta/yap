@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-07-06 15:10:02 $							 *
+* Last rev:     $Date: 2005-08-02 03:09:49 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.82  2005/07/06 15:10:02  vsc
+* improvements to compiler: merged instructions and fixes for ->
+*
 * Revision 1.81  2005/06/01 21:23:44  vsc
 * inline compare
 *
@@ -2465,6 +2468,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->sc.ClFlags = StaticMask;
 	cl_u->sc.ClNext = NULL;
 	cl_u->sc.ClSize = size;
+	cl_u->sc.usc.ClPred = cip->CurrentPred;
 	if (*clause_has_blobsp) {
 	  cl_u->sc.ClFlags |= HasBlobsMask;
 	}

@@ -419,8 +419,10 @@ debugging :-
 	'$do_spy'(Cl, M, CP, InControl).
 '$spycall'(G, M, InControl) :-
 	% I lost control here.
-	'$continue_debugging'(InControl,G,M),
-	'$execute_nonstop'(G, M).
+	CP is '$last_choice_pt',
+	'$static_clause'(G,M,C,R),
+	'$continue_debugging'(InControl, G, M),
+	'$execute_clause'(G, M, R, CP).
 
 '$trace'(P,G,Module,L) :-
 	flush_output(user_output),

@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-08-01 15:40:37 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-08-02 03:09:50 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.142  2005/08/01 15:40:37  ricroc
+* TABLING NEW: better support for incomplete tabling
+*
 * Revision 1.141  2005/07/19 16:54:20  rslopes
 * fix for older compilers...
 *
@@ -6528,9 +6531,15 @@ static_clause(yamop *ipc, PredEntry *ap)
   while ((c = ClauseCodeToStaticClause(p))) {
     UInt fls = c->ClFlags & ~HasBlobsMask;
     if (fls == StaticMask) {
-      if ((char *)c->usc.ClSource < (char *)c+c->ClSize &&
-	  valid_instructions(ipc, c->ClCode))
-	return c;
+      if (ap->PredFlags & SourcePredFlag) {
+	if ((char *)c->usc.ClSource < (char *)c+c->ClSize &&
+	    valid_instructions(ipc, c->ClCode))
+	  return c;
+      } else {
+	if (c->usc.ClPred == ap &&
+	    valid_instructions(ipc, c->ClCode))
+	  return c;
+      }
     } else if (fls == (StaticMask|FactMask)) {
       if (c->usc.ClPred == ap &&
 	  valid_instructions(ipc,c->ClCode))

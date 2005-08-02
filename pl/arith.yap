@@ -63,6 +63,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	).
 '$do_c_built_in'(once(G), M, ('$save_current_choice_point'(CP),NG,'$$cut_by'(CP))) :- !,
 	'$do_c_built_in'(G,M,NG).
+'$do_c_built_in'('C'(A,B.C), _, (A=[B|C])) :- !.
 '$do_c_built_in'(X is Y, _, P) :-
 	nonvar(Y),		% Don't rewrite variables
 	!,

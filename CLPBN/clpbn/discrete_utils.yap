@@ -81,7 +81,7 @@ reorder_CPT(Vs0, T0, Vs, TF, Sizes) :-
 reorder_CPT(Vs0, T0, Vs, TF, Sizes) :-
 	get_sizes(Vs0, Szs),
 	numb_vars(Vs0, Szs, _, VPs0, VLs0),
-	sort_according_to_parent(Vs,VLs0, VLs),
+	sort_according_to_parent(Vs, VLs0, VLs),
 	compute_new_factors(VLs, _, Vs, Sizes),
 	get_factors(VLs0,Fs),
 	length(T0,L),

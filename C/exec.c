@@ -30,7 +30,13 @@ STATIC_PROTO(Int  p_execute0, (void));
 static Term
 cp_as_integer(choiceptr cp)
 {
-  return(MkIntTerm(LCL0-(CELL *)cp));
+  return(MkIntegerTerm(LCL0-(CELL *)cp));
+}
+
+static choiceptr
+cp_from_integer(Term cpt)
+{
+  return (choiceptr)(LCL0-(CELL *)IntegerOfTerm(cpt));
 }
 
 Term
@@ -240,6 +246,64 @@ p_execute(void)
 {				/* '$execute'(Goal)	 */
   Term            t = Deref(ARG1);
   return(do_execute(t, CurrentModule));
+}
+
+static Int
+p_execute_clause(void)
+{				/* '$execute_clause'(Goal)	 */
+  Term            t = Deref(ARG1);
+  Term            mod = Deref(ARG2);
+  StaticClause   *cl = Yap_ClauseFromTerm(Deref(ARG3));
+  choiceptr       cp = cp_from_integer(Deref(ARG4));
+  unsigned int    arity;
+  Prop            pe;
+
+ restart_exec:
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,ARG3,"call/1");    
+    return FALSE;
+  } else if (IsAtomTerm(t)) {
+    Atom a = AtomOfTerm(t);
+    pe = PredPropByAtom(a, mod);
+  } else if (IsApplTerm(t)) {
+    register Functor f = FunctorOfTerm(t);
+    register unsigned int    i;
+    register CELL *pt;
+
+    if (IsExtensionFunctor(f))
+      return(FALSE);
+    if (f == FunctorModule) {
+      Term tmod = ArgOfTerm(1,t);
+      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+	mod = tmod;
+	t = ArgOfTerm(2,t);
+	goto restart_exec;
+      }
+    }
+    pe = PredPropByFunc(f, mod);
+    arity = ArityOfFunctor(f);
+    /* I cannot use the standard macro here because
+       otherwise I would dereference the argument and
+       might skip a svar */
+    pt = RepAppl(t)+1;
+    for (i = 1; i <= arity; ++i) {
+#if SBA
+	Term d0 = *pt++;
+	if (d0 == 0)
+	  XREGS[i] = (CELL)(pt-1);
+	else
+	  XREGS[i] = d0;
+#else
+      XREGS[i] = *pt++;
+#endif
+    }
+  } else {
+    Yap_Error(TYPE_ERROR_CALLABLE,ARG3,"call/1");    
+    return FALSE;
+  }
+  /*	N = arity; */
+  /* call may not define new system predicates!! */
+  return CallPredicate(RepPredProp(pe), cp, cl->ClCode);
 }
 
 static Int
@@ -1580,6 +1644,7 @@ Yap_InitExecFs(void)
 #endif
   Yap_InitCPred("$execute0", 2, p_execute0, HiddenPredFlag);
   Yap_InitCPred("$execute_nonstop", 2, p_execute_nonstop, HiddenPredFlag);
+  Yap_InitCPred("$execute_clause", 4, p_execute_clause, HiddenPredFlag);
   Yap_InitCPred("$save_current_choice_point", 1, p_save_cp, HiddenPredFlag);
   Yap_InitCPred("$pred_goal_expansion_on", 0, p_pred_goal_expansion_on, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag|HiddenPredFlag);
