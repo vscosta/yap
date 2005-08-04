@@ -10,8 +10,12 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-07-19 17:12:18 $,$Author: rslopes $						 *
+* Last rev:	$Date: 2005-08-04 15:45:51 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.69  2005/07/19 17:12:18  rslopes
+* fix for older compilers that do not support declaration of vars
+* in the middle of the function code.
+*
 * Revision 1.68  2005/05/31 00:23:47  ricroc
 * remove abort_yapor function
 *
@@ -1124,6 +1128,7 @@ YAP_Init(YAP_init_args *yap_init)
   /* tell the system who should cope with interruptions */
   Yap_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
   Yap_InitWorkspace(Heap, Stack, Trail,
+	      yap_init->MaxTableSpaceSize,
 	      yap_init->NumberWorkers,
 	      yap_init->SchedulerLoop,
 	      yap_init->DelayedReleaseLoad

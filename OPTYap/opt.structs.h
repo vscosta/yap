@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.structs.h
-  version:     $Id: opt.structs.h,v 1.8 2005-07-11 19:17:27 ricroc Exp $   
+  version:     $Id: opt.structs.h,v 1.9 2005-08-04 15:45:55 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -64,6 +64,9 @@ struct pages {
 ** ----------------------------- */
 
 struct global_pages {
+#ifdef LIMIT_TABLING
+  int max_pages;
+#endif /* LIMIT_TABLING */
   struct pages void_pages;
 #ifdef YAPOR
   struct pages or_frame_pages;
@@ -163,6 +166,11 @@ struct global_data{
 #ifdef TABLING
   /* global data related to tabling */
   struct table_entry *root_table_entry;
+#ifdef LIMIT_TABLING
+  struct subgoal_frame *first_subgoal_frame;
+  struct subgoal_frame *last_subgoal_frame;
+  struct subgoal_frame *check_subgoal_frame;
+#endif /* LIMIT_TABLING */
   struct dependency_frame *root_dependency_frame;
   CELL table_var_enumerator[MAX_TABLE_VARS];
 #ifdef TABLE_LOCK_AT_WRITE_LEVEL
@@ -174,6 +182,7 @@ struct global_data{
 #endif /* TABLING */
 };
 
+#define GLOBAL_MAX_PAGES                      (GLOBAL.pages.max_pages)
 #define GLOBAL_PAGES_void                     (GLOBAL.pages.void_pages)
 #define GLOBAL_PAGES_or_fr                    (GLOBAL.pages.or_frame_pages)
 #define GLOBAL_PAGES_qg_sol_fr                (GLOBAL.pages.query_goal_solution_frame_pages)
@@ -222,6 +231,9 @@ struct global_data{
 #define PARALLEL_EXECUTION_MODE               (GLOBAL.parallel_execution_mode)
 #define GLOBAL_answers                        (GLOBAL.answers)
 #define GLOBAL_root_tab_ent                   (GLOBAL.root_table_entry)
+#define GLOBAL_first_sg_fr                    (GLOBAL.first_subgoal_frame)
+#define GLOBAL_last_sg_fr                     (GLOBAL.last_subgoal_frame)
+#define GLOBAL_check_sg_fr                    (GLOBAL.check_subgoal_frame)
 #define GLOBAL_root_dep_fr                    (GLOBAL.root_dependency_frame)
 #define GLOBAL_table_var_enumerator(index)    (GLOBAL.table_var_enumerator[index])
 #define GLOBAL_table_lock(index)              (GLOBAL.table_lock[index])

@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.macros.h
-  version:     $Id: tab.macros.h,v 1.17 2005-08-01 15:40:38 ricroc Exp $   
+  version:     $Id: tab.macros.h,v 1.18 2005-08-04 15:45:55 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -232,7 +232,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
           ALLOC_SUBGOAL_FRAME(SG_FR);                              \
           INIT_LOCK(SgFr_lock(SG_FR));                             \
           SgFr_code(SG_FR) = CODE;                                 \
-          SgFr_state(SG_FR) = start;                               \
+          SgFr_state(SG_FR) = ready;                               \
           new_answer_trie_node(ans_node, 0, 0, NULL, NULL, NULL);  \
           SgFr_hash_chain(SG_FR) = NULL;                           \
           SgFr_answer_trie(SG_FR) = ans_node;                      \
@@ -319,6 +319,35 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
         ALLOC_HASH_BUCKETS(Hash_buckets(HASH), BASE_HASH_BUCKETS);  \
         Hash_num_nodes(HASH) = NUM_NODES;                           \
         AnsHash_init_next_field(HASH, SG_FR)
+
+
+#ifdef LIMIT_TABLING
+#define insert_into_global_sg_fr_list(SG_FR)                                 \
+        SgFr_previous(SG_FR) = GLOBAL_last_sg_fr;                            \
+        SgFr_next(SG_FR) = NULL;                                             \
+        if (GLOBAL_first_sg_fr == NULL)                                      \
+          GLOBAL_first_sg_fr = SG_FR;                                        \
+        else                                                                 \
+          SgFr_next(GLOBAL_last_sg_fr) = SG_FR;                              \
+        GLOBAL_last_sg_fr = SG_FR
+#define remove_from_global_sg_fr_list(SG_FR)                                 \
+        if (SgFr_previous(SG_FR)) {                                          \
+          if ((SgFr_next(SgFr_previous(SG_FR)) = SgFr_next(SG_FR)) != NULL)  \
+            SgFr_previous(SgFr_next(SG_FR)) = SgFr_previous(SG_FR);          \
+          else                                                               \
+            GLOBAL_last_sg_fr = SgFr_previous(SG_FR);                        \
+        } else {                                                             \
+          if ((GLOBAL_first_sg_fr = SgFr_next(SG_FR)) != NULL)               \
+            SgFr_previous(SgFr_next(SG_FR)) = NULL;                          \
+          else                                                               \
+            GLOBAL_last_sg_fr = NULL;                                        \
+	}                                                                    \
+        if (GLOBAL_check_sg_fr == SG_FR)                                     \
+          GLOBAL_check_sg_fr = SgFr_previous(SG_FR)
+#else
+#define insert_into_global_sg_fr_list(SG_FR)
+#define remove_from_global_sg_fr_list(SG_FR)
+#endif /* LIMIT_TABLING */
 
 
 
@@ -516,28 +545,37 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
     sg_fr = LOCAL_top_sg_fr;
     LOCAL_top_sg_fr = SgFr_next(sg_fr);
     LOCK(SgFr_lock(sg_fr));
-    if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
-      /* yes answer --> complete */
-      SgFr_state(sg_fr) = complete;
+    if (SgFr_first_answer(sg_fr) == NULL) {
+      /* no answers --> ready */
+      SgFr_state(sg_fr) = ready;
       UNLOCK(SgFr_lock(sg_fr));
     } else {
+      if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+	/* yes answer --> complete */
+	SgFr_state(sg_fr) = complete;
+	UNLOCK(SgFr_lock(sg_fr));
+      } else {
+	/* answers --> incomplete/ready */
 #ifdef INCOMPLETE_TABLING
-      SgFr_state(sg_fr) = start;
-      UNLOCK(SgFr_lock(sg_fr));
+	SgFr_state(sg_fr) = incomplete;
+	UNLOCK(SgFr_lock(sg_fr));
 #else
-      ans_node_ptr node;
-      SgFr_state(sg_fr) = start;
-      free_answer_hash_chain(SgFr_hash_chain(sg_fr));
-      SgFr_first_answer(sg_fr) = NULL;
-      SgFr_last_answer(sg_fr) = NULL;
-      SgFr_hash_chain(sg_fr) = NULL;
-      node = TrNode_child(SgFr_answer_trie(sg_fr));
-      TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
-      UNLOCK(SgFr_lock(sg_fr));
-      if (node)
+	ans_node_ptr node;
+	SgFr_state(sg_fr) = ready;
+	free_answer_hash_chain(SgFr_hash_chain(sg_fr));
+	SgFr_hash_chain(sg_fr) = NULL;
+	SgFr_first_answer(sg_fr) = NULL;
+	SgFr_last_answer(sg_fr) = NULL;
+	node = TrNode_child(SgFr_answer_trie(sg_fr));
+	TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
+	UNLOCK(SgFr_lock(sg_fr));
 	free_answer_trie_branch(node);
 #endif /* INCOMPLETE_TABLING */
+      }
     }
+#ifdef LIMIT_TABLING
+    insert_into_global_sg_fr_list(sg_fr);
+#endif /* LIMIT_TABLING */
   }
 
   return;

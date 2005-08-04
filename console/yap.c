@@ -236,16 +236,19 @@ print_usage(void)
 	  DefStackSpace, MinStackSpace);
   fprintf(stderr,"  -t   Trail area in Kbytes (default: %d, minimum: %d)\n",
 	  DefTrailSpace, MinTrailSpace);
+#ifdef TABLING
+  fprintf(stderr,"  -ts  Maximum table space area in Mbytes (default: unlimited)\n");
+#endif /* TABLING */
 #ifdef YAPOR
-  fprintf(stderr,"  -w   YapOr option: Number of workers (default: %d)\n",
+  fprintf(stderr,"  -w   Number of workers (default: %d)\n",
 	  DEFAULT_NUMBERWORKERS);
-  fprintf(stderr,"  -sl  YapOr option: Loop scheduler executions before look for hiden shared work (default: %d)\n", DEFAULT_SCHEDULERLOOP);
-												      
-  /*nf: Preprocessor */		
-  fprintf(stderr,"  -DVar=Name : persistent definition\n");
-  fprintf(stderr,"  -d   YapOr option: Value of delayed release of load (default: %d)\n",
+  fprintf(stderr,"  -sl  Loop scheduler executions before look for hiden shared work (default: %d)\n", 
+          DEFAULT_SCHEDULERLOOP);
+  fprintf(stderr,"  -d   Value of delayed release of load (default: %d)\n",
 	  DEFAULT_DELAYEDRELEASELOAD);
-#endif
+  /* nf: Preprocessor */		
+  fprintf(stderr,"  -DVar=Name : persistent definition\n");
+#endif /* YAPOR */
   fprintf(stderr,"\n");
 }
 
@@ -354,6 +357,10 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	  case 't':
 	  case 'T':
 	    ssize = &(iap->TrailSize);
+	    if (p[1] == 's') {
+	      p++;
+	      ssize = &(iap->MaxTableSpaceSize);
+	    }
 	  GetSize:
 	    if (*++p == '\0')
 	      {
@@ -473,6 +480,7 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
   iap->YapPrologRCFile = NULL;
   iap->HaltAfterConsult = FALSE;
   iap->FastBoot = FALSE;
+  iap->MaxTableSpaceSize = 0;
   iap->NumberWorkers = DEFAULT_NUMBERWORKERS;
   iap->SchedulerLoop = DEFAULT_SCHEDULERLOOP;
   iap->DelayedReleaseLoad = DEFAULT_DELAYEDRELEASELOAD;

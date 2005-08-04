@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-08-02 03:09:48 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-08-04 15:45:49 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.172  2005/08/02 03:09:48  vsc
+* fix debugger to do well nonsource predicates.
+*
 * Revision 1.171  2005/08/01 15:40:36  ricroc
 * TABLING NEW: better support for incomplete tabling
 *
@@ -1528,7 +1531,15 @@ Yap_absmi(int inp)
 	  {
 	    register CELL flags;
 	    CELL *pt1 = RepPair(d1);
-
+#ifdef LIMIT_TABLING
+	    if ((ADDR) pt1 == Yap_TrailBase) {
+	      sg_fr_ptr sg_fr = (sg_fr_ptr) TrailVal(pt0);
+	      TrailTerm(pt0) = AbsPair((CELL *)(pt0 - 1));
+	      SgFr_state(sg_fr)--;  /* complete_in_use --> complete : compiled_in_use --> compiled */
+	      insert_into_global_sg_fr_list(sg_fr);
+	      goto failloop;
+	    }
+#endif /* LIMIT_TABLING */
 #ifdef FROZEN_STACKS  /* TRAIL */
             /* avoid frozen segments */
 #ifdef SBA
@@ -1536,10 +1547,10 @@ Yap_absmi(int inp)
 #else
 	    if ((ADDR) pt1 >= Yap_TrailBase)
 #endif /* SBA */
-	      {
-		pt0 = (tr_fr_ptr) pt1;
-		goto failloop;
-	      }
+            {
+	      pt0 = (tr_fr_ptr) pt1;
+	      goto failloop;
+	    }
 #endif /* FROZEN_STACKS */
 	    flags = *pt1;
 #if defined(YAPOR) || defined(THREADS)
@@ -1702,6 +1713,13 @@ Yap_absmi(int inp)
 	      pt1 -= 3;
 	    } else if (IsPairTerm(d1)) {
 	      CELL *pt = RepPair(d1);
+#ifdef LIMIT_TABLING
+	      if ((ADDR) pt == Yap_TrailBase) {
+		sg_fr_ptr sg_fr = (sg_fr_ptr) TrailVal(pt1);
+		SgFr_state(sg_fr)--;  /* complete_in_use --> complete : compiled_in_use --> compiled */
+		insert_into_global_sg_fr_list(sg_fr);
+	      } else
+#endif /* LIMIT_TABLING */
 	      if ((ADDR) pt >= Yap_TrailBase) {
 		pt1 = (tr_fr_ptr)pt;
 	      } else if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {

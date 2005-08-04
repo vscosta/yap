@@ -136,8 +136,8 @@ AlignGlobalForDouble(void)
   register tr_fr_ptr r;          \
   r = TR;                        \
   TR = r + 1;                    \
-  TrailTerm(r) = (CELL) (TERM);  \
-  TrailVal(r) = (VAL);           \
+  TrailTerm(r) = (Term) (TERM);  \
+  TrailVal(r) = (CELL) (VAL);    \
 }
 
 #ifdef BFZ_TRAIL_SCHEME
@@ -304,20 +304,18 @@ Binding Macros for Multiple Assignment Variables.
 #endif /* TABLING */
 
 
-#define REF_TO_TRENTRY(REF)     AbsPair(((CELL *)&((REF)->Flags)))
-#define CLREF_TO_TRENTRY(REF)     AbsPair(((CELL *)&((REF)->ClFlags)))
+#define REF_TO_TRENTRY(REF)    AbsPair(((CELL *)&((REF)->Flags)))
+#define CLREF_TO_TRENTRY(REF)  AbsPair(((CELL *)&((REF)->ClFlags)))
 
-#define TRAIL_REF(REF)     TrailTerm(TR++) = REF_TO_TRENTRY(REF)
-#define TRAIL_CLREF(REF)     TrailTerm(TR++) = CLREF_TO_TRENTRY(REF)
-#define TRAIL_LINK(REF)     TrailTerm(TR++) = AbsPair((CELL *)(REF))
+#define TRAIL_REF(REF)         TrailTerm(TR++) = REF_TO_TRENTRY(REF)
+#define TRAIL_CLREF(REF)       TrailTerm(TR++) = CLREF_TO_TRENTRY(REF)
+#define TRAIL_LINK(REF)        TrailTerm(TR++) = AbsPair((CELL *)(REF))
+#define TRAIL_FRAME(FR)        DO_TRAIL(AbsPair((CELL *)(Yap_TrailBase)), FR)
 
-#define Bind(A,D)          TRAIL(A,D); *(A) = (D)
-
-#define Bind_Global(A,D)   TRAIL_GLOBAL(A,D); *(A) = (D)
-
-#define BIND(A,D,L)          *(A) = (D); Trail(A,D,L)
-
-#define BIND_GLOBAL(A,D,L)    *(A) = (D); Trail_Global(A,D,L)
+#define Bind(A,D)              TRAIL(A,D); *(A) = (D)
+#define Bind_Global(A,D)       TRAIL_GLOBAL(A,D); *(A) = (D)
+#define BIND(A,D,L)            *(A) = (D); Trail(A,D,L)
+#define BIND_GLOBAL(A,D,L)     *(A) = (D); Trail_Global(A,D,L)
 
 #ifdef COROUTINING
 #define BIND_GLOBAL2(A,D,LAB,LAB1)   *(A) = (D); if ((A) < HBREG) goto LAB; goto LAB1

@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.insts.i
-  version:     $Id: tab.insts.i,v 1.18 2005-08-01 18:26:28 ricroc Exp $   
+  version:     $Id: tab.insts.i,v 1.19 2005-08-04 15:45:55 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -362,32 +362,33 @@
     tab_ent = PREG->u.ld.te;
     sg_fr = subgoal_search(PREG, &YENV);
     LOCK(SgFr_lock(sg_fr));
-    if (SgFr_state(sg_fr) == start) {
-      /* subgoal new or not complete (abolished) */
-#ifdef INCOMPLETE_TABLING
-      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
-      if (ans_node) {
-	/* subgoal not complete --> start by loading the answers already found */
-	CELL *subs_ptr = YENV;
-	init_subgoal_frame(sg_fr);
-	UNLOCK(SgFr_lock(sg_fr));
-	SgFr_try_answer(sg_fr) = ans_node;
-	store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, TRY_ANSWER);
-	PREG = (yamop *) CPREG;
-	PREFETCH_OP(PREG);
-	load_answer_trie(ans_node, subs_ptr);
-	YENV = ENV;
-	GONext();
-      }
-#endif /* INCOMPLETE_TABLING */
+    if (SgFr_state(sg_fr) == ready) {
       /* subgoal new */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
       store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, COMPLETION);
-      PREG = PREG->u.ld.d;   /* PREG = NEXTOP(PREG,ld); */
+      PREG = PREG->u.ld.d;  /* should work also with PREG = NEXTOP(PREG,ld); */
       PREFETCH_OP(PREG);
       allocate_environment();
       GONext();
+#ifdef INCOMPLETE_TABLING
+    } else if (SgFr_state(sg_fr) == incomplete) {
+      /* subgoal incomplete --> start by loading the answers already found */
+      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
+      CELL *subs_ptr = YENV;
+      init_subgoal_frame(sg_fr);
+      UNLOCK(SgFr_lock(sg_fr));
+#ifdef LIMIT_TABLING
+      remove_from_global_sg_fr_list(sg_fr);
+#endif /* LIMIT_TABLING */
+      SgFr_try_answer(sg_fr) = ans_node;
+      store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, TRY_ANSWER);
+      PREG = (yamop *) CPREG;
+      PREFETCH_OP(PREG);
+      load_answer_trie(ans_node, subs_ptr);
+      YENV = ENV;
+      GONext();
+#endif /* INCOMPLETE_TABLING */
     } else if (SgFr_state(sg_fr) == evaluating) {
       /* subgoal in evaluation */
       choiceptr leader_cp;
@@ -403,12 +404,12 @@
 	while (YOUNGER_CP(aux_cp, LOCAL_top_cp_on_stack))
 	  aux_cp = aux_cp->cp_b;
 	if (aux_cp->cp_or_fr != DepFr_top_or_fr(LOCAL_top_dep_fr))
-	  OPTYAP_ERROR_MESSAGE("Error on DepFr_top_or_fr (table_try_me_single)");
+	  OPTYAP_ERROR_MESSAGE("Error on DepFr_top_or_fr (table_try_single)");
 	aux_cp = B;
 	while (YOUNGER_CP(aux_cp, DepFr_leader_cp(LOCAL_top_dep_fr)))
 	  aux_cp = aux_cp->cp_b;
 	if (aux_cp != DepFr_leader_cp(LOCAL_top_dep_fr))
-	  OPTYAP_ERROR_MESSAGE("Error on DepFr_leader_cp (table_try_me_single)");
+	  OPTYAP_ERROR_MESSAGE("Error on DepFr_leader_cp (table_try_single)");
       }
 #endif /* OPTYAP_ERRORS */
       goto answer_resolution;
@@ -428,6 +429,13 @@
 	GONext();
       } else {
 	/* answers -> get first answer */
+#ifdef LIMIT_TABLING
+	if (SgFr_state(sg_fr) == complete || SgFr_state(sg_fr) == compiled) {
+	  SgFr_state(sg_fr)++;  /* complete --> complete_in_use : compiled --> compiled_in_use */
+	  remove_from_global_sg_fr_list(sg_fr);
+	  TRAIL_FRAME(sg_fr);
+	}
+#endif /* LIMIT_TABLING */
 	if (IsMode_LoadAnswers(TabEnt_mode(tab_ent))) {
           /* load answers from the trie */
 	  UNLOCK(SgFr_lock(sg_fr));
@@ -441,7 +449,7 @@
           GONext();
 	} else {
 	  /* execute compiled code from the trie */
-	  if (SgFr_state(sg_fr) == complete)
+	  if (SgFr_state(sg_fr) < compiled)
 	    update_answer_trie(sg_fr);
 	  UNLOCK(SgFr_lock(sg_fr));
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
@@ -464,24 +472,7 @@
     tab_ent = PREG->u.ld.te;
     sg_fr = subgoal_search(PREG, &YENV);
     LOCK(SgFr_lock(sg_fr));
-    if (SgFr_state(sg_fr) == start) {
-      /* subgoal new or not complete (abolished) */
-#ifdef INCOMPLETE_TABLING
-      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
-      if (ans_node) {
-	/* subgoal not complete --> start by loading the answers already found */
-	CELL *subs_ptr = YENV;
-	init_subgoal_frame(sg_fr);
-	UNLOCK(SgFr_lock(sg_fr));
-	SgFr_try_answer(sg_fr) = ans_node;
-	store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, TRY_ANSWER);
-	PREG = (yamop *) CPREG;
-	PREFETCH_OP(PREG);
-	load_answer_trie(ans_node, subs_ptr);
-	YENV = ENV;
-	GONext();
-      }
-#endif /* INCOMPLETE_TABLING */
+    if (SgFr_state(sg_fr) == ready) {
       /* subgoal new */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
@@ -490,6 +481,24 @@
       PREFETCH_OP(PREG);
       allocate_environment();
       GONext();
+#ifdef INCOMPLETE_TABLING
+    } else if (SgFr_state(sg_fr) == incomplete) {
+      /* subgoal incomplete --> start by loading the answers already found */
+      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
+      CELL *subs_ptr = YENV;
+      init_subgoal_frame(sg_fr);
+      UNLOCK(SgFr_lock(sg_fr));
+#ifdef LIMIT_TABLING
+      remove_from_global_sg_fr_list(sg_fr);
+#endif /* LIMIT_TABLING */
+      SgFr_try_answer(sg_fr) = ans_node;
+      store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, TRY_ANSWER);
+      PREG = (yamop *) CPREG;
+      PREFETCH_OP(PREG);
+      load_answer_trie(ans_node, subs_ptr);
+      YENV = ENV;
+      GONext();
+#endif /* INCOMPLETE_TABLING */
     } else if (SgFr_state(sg_fr) == evaluating) {
       /* subgoal in evaluation */
       choiceptr leader_cp;
@@ -530,6 +539,13 @@
 	GONext();
       } else {
 	/* answers -> get first answer */
+#ifdef LIMIT_TABLING
+	if (SgFr_state(sg_fr) == complete || SgFr_state(sg_fr) == compiled) {
+	  SgFr_state(sg_fr)++;  /* complete --> complete_in_use : compiled --> compiled_in_use */
+	  remove_from_global_sg_fr_list(sg_fr);
+	  TRAIL_FRAME(sg_fr);
+	}
+#endif /* LIMIT_TABLING */
 	if (IsMode_LoadAnswers(TabEnt_mode(tab_ent))) {
           /* load answers from the trie */
 	  UNLOCK(SgFr_lock(sg_fr));
@@ -543,7 +559,7 @@
           GONext();
 	} else {
 	  /* execute compiled code from the trie */
-	  if (SgFr_state(sg_fr) == complete)
+	  if (SgFr_state(sg_fr) < compiled)
 	    update_answer_trie(sg_fr);
 	  UNLOCK(SgFr_lock(sg_fr));
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
@@ -566,24 +582,7 @@
     tab_ent = PREG->u.ld.te;
     sg_fr = subgoal_search(PREG, &YENV);
     LOCK(SgFr_lock(sg_fr));
-    if (SgFr_state(sg_fr) == start) {
-      /* subgoal new or not complete (abolished) */
-#ifdef INCOMPLETE_TABLING
-      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
-      if (ans_node) {
-	/* subgoal not complete --> start by loading the answers already found */
-	CELL *subs_ptr = YENV;
-	init_subgoal_frame(sg_fr);
-	UNLOCK(SgFr_lock(sg_fr));
-	SgFr_try_answer(sg_fr) = ans_node;
-	store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, TRY_ANSWER);
-	PREG = (yamop *) CPREG;
-	PREFETCH_OP(PREG);
-	load_answer_trie(ans_node, subs_ptr);
-	YENV = ENV;
-	GONext();
-      }
-#endif /* INCOMPLETE_TABLING */
+    if (SgFr_state(sg_fr) == ready) {
       /* subgoal new */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
@@ -592,6 +591,24 @@
       PREFETCH_OP(PREG);
       allocate_environment();
       GONext();
+#ifdef INCOMPLETE_TABLING
+    } else if (SgFr_state(sg_fr) == incomplete) {
+      /* subgoal incomplete --> start by loading the answers already found */
+      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
+      CELL *subs_ptr = YENV;
+      init_subgoal_frame(sg_fr);
+      UNLOCK(SgFr_lock(sg_fr));
+#ifdef LIMIT_TABLING
+      remove_from_global_sg_fr_list(sg_fr);
+#endif /* LIMIT_TABLING */
+      SgFr_try_answer(sg_fr) = ans_node;
+      store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, TRY_ANSWER);
+      PREG = (yamop *) CPREG;
+      PREFETCH_OP(PREG);
+      load_answer_trie(ans_node, subs_ptr);
+      YENV = ENV;
+      GONext();
+#endif /* INCOMPLETE_TABLING */
     } else if (SgFr_state(sg_fr) == evaluating) {
       /* subgoal in evaluation */
       choiceptr leader_cp;
@@ -632,6 +649,13 @@
 	GONext();
       } else {
         /* answers -> get first answer */
+#ifdef LIMIT_TABLING
+	if (SgFr_state(sg_fr) == complete || SgFr_state(sg_fr) == compiled) {
+	  SgFr_state(sg_fr)++;  /* complete --> complete_in_use : compiled --> compiled_in_use */
+	  remove_from_global_sg_fr_list(sg_fr);
+	  TRAIL_FRAME(sg_fr);
+	}
+#endif /* LIMIT_TABLING */
 	if (IsMode_LoadAnswers(TabEnt_mode(tab_ent))) {
           /* load answers from the trie */
 	  UNLOCK(SgFr_lock(sg_fr));
@@ -645,7 +669,7 @@
           GONext();
 	} else {
 	  /* execute compiled code from the trie */
-	  if (SgFr_state(sg_fr) == complete)
+	  if (SgFr_state(sg_fr) < compiled)
 	    update_answer_trie(sg_fr);
 	  UNLOCK(SgFr_lock(sg_fr));
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
@@ -1554,6 +1578,11 @@
         } else  {
           /* answers -> get first answer */
 	  tab_ent_ptr tab_ent = SgFr_tab_ent(sg_fr);
+#ifdef LIMIT_TABLING
+	  SgFr_state(sg_fr)++;  /* complete --> complete_in_use */
+	  remove_from_global_sg_fr_list(sg_fr);
+	  TRAIL_FRAME(sg_fr);
+#endif /* LIMIT_TABLING */
 	  if (IsMode_LoadAnswers(TabEnt_mode(tab_ent))) {
             /* load answers from the trie */
 	    if(TrNode_child(ans_node) != NULL) {
@@ -1567,7 +1596,7 @@
 	  } else {
 	    /* execute compiled code from the trie */
 	    LOCK(SgFr_lock(sg_fr));
-	    if (SgFr_state(sg_fr) == complete)
+	    if (SgFr_state(sg_fr) < compiled)
 	      update_answer_trie(sg_fr);
 	    UNLOCK(SgFr_lock(sg_fr));
 	    PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));

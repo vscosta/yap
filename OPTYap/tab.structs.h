@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.structs.h
-  version:     $Id: tab.structs.h,v 1.9 2005-08-01 15:40:39 ricroc Exp $   
+  version:     $Id: tab.structs.h,v 1.10 2005-08-04 15:45:56 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -25,9 +25,9 @@
 #define SetMode_SchedulingOn(X)        (X) |= Mode_SchedulingOn
 #define SetMode_CompletedOn(X)         (X) |= Mode_CompletedOn
 #define IsMode_SchedulingOn(X)         ((X) & Mode_SchedulingOn)
-#define IsMode_SchedulingOff(X)        !IsMode_SchedulingOn(X)
+#define IsMode_SchedulingOff(X)        (!IsMode_SchedulingOn(X))
 #define IsMode_CompletedOn(X)          ((X) & Mode_CompletedOn)
-#define IsMode_CompletedOff(X)         !IsMode_CompletedOn(X)
+#define IsMode_CompletedOff(X)         (!IsMode_CompletedOn(X))
 
 #define SetMode_Local(X)               (X) |= Mode_Local
 #define SetMode_Batched(X)             (X) &= ~Mode_Local
@@ -156,11 +156,14 @@ typedef struct subgoal_frame {
 #endif /* YAPOR */
   yamop *code_of_subgoal;
   enum {
-    start      =  0,
-    evaluating =  1,
-    complete   =  2,
-    compiled   =  3
-  } state_flag;
+    incomplete      = 0,  /* INCOMPLETE_TABLING */
+    ready           = 1,
+    evaluating      = 2,
+    complete        = 3,
+    complete_in_use = 4,  /* LIMIT_TABLING */
+    compiled        = 5,
+    compiled_in_use = 6   /* LIMIT_TABLING */
+  } state_flag;  /* do not change order !!! */
   choiceptr generator_choice_point;
   struct answer_hash *hash_chain;
   struct answer_trie_node *answer_trie;
@@ -169,6 +172,9 @@ typedef struct subgoal_frame {
 #ifdef INCOMPLETE_TABLING
   struct answer_trie_node *try_answer;
 #endif /* INCOMPLETE_TABLING */
+#ifdef LIMIT_TABLING
+  struct subgoal_frame *previous;
+#endif /* LIMIT_TABLING */
   struct subgoal_frame *next;
 } *sg_fr_ptr;
 
@@ -185,6 +191,7 @@ typedef struct subgoal_frame {
 #define SgFr_first_answer(X)   ((X)->first_answer)
 #define SgFr_last_answer(X)    ((X)->last_answer)
 #define SgFr_try_answer(X)     ((X)->try_answer)
+#define SgFr_previous(X)       ((X)->previous)
 #define SgFr_next(X)           ((X)->next)
 
 /* ------------------------------------------------------------------------------------------- **
@@ -207,7 +214,8 @@ typedef struct subgoal_frame {
    SgFr_try_answer:    a pointer to the bottom answer trie node of the last tried answer.
                        It is used when a subgoal was not completed during the previous evaluation.
                        Not completed subgoals start by trying the answers already found.
-   SgFr_next:          a pointer to chain between subgoal frames.
+   SgFr_previous:      a pointer to the previous subgoal frame on the chain.
+   SgFr_next:          a pointer to the next subgoal frame on the chain.
 ** ------------------------------------------------------------------------------------------- */
 
 
@@ -258,7 +266,7 @@ typedef struct dependency_frame {
    DepFr_leader_cp:              a pointer to the leader choice point.
    DepFr_cons_cp:                a pointer to the correspondent consumer choice point.
    DepFr_last_answer:            a pointer to the last consumed answer.
-   DepFr_next:                   a pointer to chain between dependency frames.  
+   DepFr_next:                   a pointer to the next dependency frame on the chain.  
 ** ---------------------------------------------------------------------------------------------------- */
 
 

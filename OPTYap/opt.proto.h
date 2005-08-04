@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.proto.h
-  version:     $Id: opt.proto.h,v 1.10 2005-08-01 15:40:38 ricroc Exp $   
+  version:     $Id: opt.proto.h,v 1.11 2005-08-04 15:45:55 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -41,7 +41,7 @@ void error_message(const char *mesg, ...);
 **  opt.init.c  **
 ** ------------ */
 
-void init_global(int n_workers, int sch_loop, int delay_load);
+void init_global(int max_table_size, int n_workers, int sch_loop, int delay_load);
 void init_local(void);
 void make_root_frames(void);
 #ifdef YAPOR

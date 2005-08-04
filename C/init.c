@@ -1126,13 +1126,8 @@ InitVersion(void)
 
 
 void
-Yap_InitWorkspace(int Heap,
-	   int Stack,
-	   int Trail,
-	   int aux_number_workers,
-	   int aux_scheduler_loop,
-	   int aux_delayed_release_load
-)
+Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size, 
+                  int n_workers, int sch_loop, int delay_load)
 {
   int             i;
 
@@ -1159,22 +1154,22 @@ Yap_InitWorkspace(int Heap,
 
 #ifdef YAPOR
   worker_id = 0;
-  if (aux_number_workers > MAX_WORKERS)
+  if (n_workers > MAX_WORKERS)
     Yap_Error(INTERNAL_ERROR, TermNil, "excessive number of workers (Yap_InitWorkspace)");
 #ifdef ENV_COPY
-  INFORMATION_MESSAGE("YapOr: copy model with %d worker%s", aux_number_workers, aux_number_workers == 1 ? "":"s");
+  INFORMATION_MESSAGE("YapOr: copy model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
 #elif ACOW
-  INFORMATION_MESSAGE("YapOr: acow model with %d worker%s", aux_number_workers, aux_number_workers == 1 ? "":"s");
+  INFORMATION_MESSAGE("YapOr: acow model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
 #else /* SBA */
-  INFORMATION_MESSAGE("YapOr: sba model with %d worker%s", aux_number_workers, aux_number_workers == 1 ? "":"s");
+  INFORMATION_MESSAGE("YapOr: sba model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
 #endif /* ENV_COPY - ACOW - SBA */
-  map_memory(Heap, Stack, Trail, aux_number_workers);
+  map_memory(Heap, Stack, Trail, n_workers);
 #else
   Yap_InitMemory (Trail, Heap, Stack);
 #endif /* YAPOR */
 
 #if defined(YAPOR) || defined(TABLING)
-  init_global(aux_number_workers, aux_scheduler_loop, aux_delayed_release_load);
+  init_global(max_table_size, n_workers, sch_loop, delay_load);
 #endif /* YAPOR || TABLING */
 
   Yap_InitTime ();

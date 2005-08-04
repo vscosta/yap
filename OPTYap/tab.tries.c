@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.C
-  version:     $Id: tab.tries.c,v 1.15 2005-08-01 15:40:39 ricroc Exp $   
+  version:     $Id: tab.tries.c,v 1.16 2005-08-04 15:45:56 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -946,12 +946,26 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
 
 void private_completion(sg_fr_ptr sg_fr) {
   /* complete subgoals */
-  mark_as_completed(LOCAL_top_sg_fr);
+#ifdef LIMIT_TABLING
+  sg_fr_ptr aux_sg_fr;
   while (LOCAL_top_sg_fr != sg_fr) {
-    LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
-    mark_as_completed(LOCAL_top_sg_fr);
+    aux_sg_fr = LOCAL_top_sg_fr;
+    LOCAL_top_sg_fr = SgFr_next(aux_sg_fr);
+    mark_as_completed(aux_sg_fr);
+    insert_into_global_sg_fr_list(aux_sg_fr);
   }
+  aux_sg_fr = LOCAL_top_sg_fr;
+  LOCAL_top_sg_fr = SgFr_next(aux_sg_fr);
+  mark_as_completed(aux_sg_fr);
+  insert_into_global_sg_fr_list(aux_sg_fr);
+#else
+  while (LOCAL_top_sg_fr != sg_fr) {
+    mark_as_completed(LOCAL_top_sg_fr);
+    LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
+  }
+  mark_as_completed(LOCAL_top_sg_fr);
   LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
+#endif /* LIMIT_TABLING */
 
   /* release dependency frames */
   while (EQUAL_OR_YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), B)) {  /* never equal if batched scheduling */
@@ -994,6 +1008,9 @@ void free_subgoal_trie_branch(sg_node_ptr node, int missing_nodes) {
     if (TrNode_child(ans_node))
       free_answer_trie_branch(TrNode_child(ans_node));
     FREE_ANSWER_TRIE_NODE(ans_node);
+#ifdef LIMIT_TABLING
+    remove_from_global_sg_fr_list(sg_fr);
+#endif /* LIMIT_TABLING */
     FREE_SUBGOAL_FRAME(sg_fr);
   }
 
@@ -1030,7 +1047,7 @@ void update_answer_trie(sg_fr_ptr sg_fr) {
     update_answer_trie_branch(node);
 #endif /* TABLING_INNER_CUTS */
   }
-  SgFr_state(sg_fr) = compiled;
+  SgFr_state(sg_fr) += 2;  /* complete --> compiled : complete_in_use --> compiled_in_use */
   return;
 }
 
@@ -1038,7 +1055,7 @@ void update_answer_trie(sg_fr_ptr sg_fr) {
 static struct trie_statistics{
   int show;
   long subgoals;
-  long subgoals_not_complete;
+  long subgoals_incomplete;
   long subgoal_trie_nodes;
   long subgoal_linear_nodes;
   int  subgoal_trie_max_depth;
@@ -1054,7 +1071,7 @@ static struct trie_statistics{
 } trie_stats;
 #define TrStat_show              trie_stats.show
 #define TrStat_subgoals          trie_stats.subgoals
-#define TrStat_sg_not_complete   trie_stats.subgoals_not_complete
+#define TrStat_sg_incomplete     trie_stats.subgoals_incomplete
 #define TrStat_sg_nodes          trie_stats.subgoal_trie_nodes
 #define TrStat_sg_linear_nodes   trie_stats.subgoal_linear_nodes
 #define TrStat_sg_max_depth      trie_stats.subgoal_trie_max_depth
@@ -1078,7 +1095,7 @@ int traverse_table(tab_ent_ptr tab_ent, Atom pred_atom, int show_table) {
 
   TrStat_show = show_table;
   TrStat_subgoals = 0;
-  TrStat_sg_not_complete = 0;
+  TrStat_sg_incomplete = 0;
   TrStat_sg_nodes = 1;
   TrStat_sg_linear_nodes = 0;
   TrStat_sg_max_depth = -1;
@@ -1107,7 +1124,7 @@ int traverse_table(tab_ent_ptr tab_ent, Atom pred_atom, int show_table) {
 void table_stats(void) {
   fprintf(Yap_stderr, "\n  Subgoal trie structure");
   fprintf(Yap_stderr, "\n    subgoals: %ld", TrStat_subgoals);
-  fprintf(Yap_stderr, "\n    subgoals not complete: %ld", TrStat_sg_not_complete);
+  fprintf(Yap_stderr, "\n    subgoals incomplete: %ld", TrStat_sg_incomplete);
   fprintf(Yap_stderr, "\n    nodes: %ld (%ld%c saving)", 
           TrStat_sg_nodes,
 	  TrStat_sg_linear_nodes == 0 ? 0 : (TrStat_sg_linear_nodes - TrStat_sg_nodes + 1) * 100 / TrStat_sg_linear_nodes,
@@ -1434,9 +1451,9 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
     } else if (depth > TrStat_sg_max_depth) {
       TrStat_sg_max_depth = depth;
     }
-    if (SgFr_state(sg_fr) == start || SgFr_state(sg_fr) == evaluating) {
-      TrStat_sg_not_complete++;
-      SHOW_TABLE("%s. ---> NOT COMPLETE\n", str);
+    if (SgFr_state(sg_fr) < complete) {
+      TrStat_sg_incomplete++;
+      SHOW_TABLE("%s. ---> INCOMPLETE\n", str);
     } else {
       SHOW_TABLE("%s.\n", str);
     }

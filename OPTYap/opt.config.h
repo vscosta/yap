@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.config.h
-  version:     $Id: opt.config.h,v 1.8 2005-08-01 15:40:38 ricroc Exp $   
+  version:     $Id: opt.config.h,v 1.9 2005-08-04 15:45:54 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -64,6 +64,11 @@
 /* #define ALLOC_BEFORE_CHECK        1 */
 
 /* ----------------------------------------------- **
+**      limit the table space size? (optional)     **
+** ----------------------------------------------- */
+/* #define LIMIT_TABLING 1 */
+
+/* ----------------------------------------------- **
 **      support incomplete tabling? (optional)     **
 ** ----------------------------------------------- */
 /* #define INCOMPLETE_TABLING 1 */
@@ -116,6 +121,7 @@
 #if defined(MMAP_MEMORY_MAPPING_SCHEME) && defined(SHM_MEMORY_MAPPING_SCHEME)
 #error Do not define multiple memory mapping schemes
 #endif /* MMAP_MEMORY_MAPPING_SCHEME && SHM_MEMORY_MAPPING_SCHEME */
+#undef LIMIT_TABLING
 #endif /* YAPOR */
 
 #ifdef TABLING
@@ -125,9 +131,6 @@
 #if defined(BFZ_TRAIL_SCHEME) && defined(BBREG_TRAIL_SCHEME)
 #error Do not define multiple trail schemes
 #endif /* BFZ_TRAIL_SCHEME && BBREG_TRAIL_SCHEME */
-#else
-#undef BFZ_TRAIL_SCHEME
-#undef BBREG_TRAIL_SCHEME
 #endif /* TABLING */
 
 #if defined(YAPOR) && defined(TABLING)
@@ -162,9 +165,16 @@
 #endif /* !YAPOR */
 
 #ifndef TABLING
+#undef BFZ_TRAIL_SCHEME
+#undef BBREG_TRAIL_SCHEME
+#undef LIMIT_TABLING
 #undef INCOMPLETE_TABLING
 #undef TABLING_ERRORS
 #endif /* !TABLING */
+
+#ifndef SHM_MEMORY_ALLOC_SCHEME
+#undef LIMIT_TABLING
+#endif /* !SHM_MEMORY_ALLOC_SCHEME */
 
 #if defined(YAPOR_ERRORS) && defined(TABLING_ERRORS)
 #define OPTYAP_ERRORS

@@ -422,9 +422,13 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       tmpbuf[0] = '\0';
     }
     if (Yap_PrologMode == UserCCallMode) {
+      fprintf(stderr,"%%\n%%\n");
       fprintf(stderr,"%% YAP OOOPS in USER C-CODE: %s.\n",tmpbuf);
+      fprintf(stderr,"%%\n%%\n");
     } else {
+      fprintf(stderr,"%%\n%%\n");
       fprintf(stderr,"%% YAP OOOPS: %s.\n",tmpbuf);
+      fprintf(stderr,"%%\n%%\n");
     }
     error_exit_yap (1);
   }

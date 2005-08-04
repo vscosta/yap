@@ -87,6 +87,9 @@ typedef struct {
   int HaltAfterConsult;
   /* ignore .yaprc, .prolog.ini, etc. files.  */
   int FastBoot;
+  /* the next field only interest YAPTAB */
+  /* if NON-0, maximum size for Table Space */
+  int MaxTableSpaceSize;
   /* the next three fields only interest YAPOR, but we keep them so that
      users don't need to recompile DLL in order to use YAPOR */
   /* if NON-0, number of workers we want to have (default=1) */

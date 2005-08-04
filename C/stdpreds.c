@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-07-20 13:54:27 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2005-08-04 15:45:53 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.92  2005/07/20 13:54:27  rslopes
+* solved warning: cast from pointer to integer of different size
+*
 * Revision 1.91  2005/07/06 19:33:54  ricroc
 * TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
 *
@@ -2814,7 +2817,7 @@ p_access_yap_flags(void)
 {
   Term tflag = Deref(ARG1);
   Int flag;
-  Term tout;
+  Term tout = 0;
 
   if (IsVarTerm(tflag)) {
     Yap_Error(INSTANTIATION_ERROR, tflag, "access_yap_flags/2");
