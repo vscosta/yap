@@ -284,7 +284,7 @@ typedef struct gc_ma_hash_entry_struct {
 
 static gc_ma_hash_entry gc_ma_hash_table[GC_MAVARS_HASH_SIZE];
 
-static UInt timestamp;    /* an unsigned int */
+static UInt gc_timestamp;    /* an unsigned int */
 
 static inline unsigned int
 GC_MAVAR_HASH(CELL *addr) {
@@ -318,8 +318,8 @@ gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp) {
   unsigned int i = GC_MAVAR_HASH(addr);
   gc_ma_hash_entry *nptr, *optr = NULL;
 
-  if (gc_ma_hash_table[i].timestmp != timestamp) {
-    gc_ma_hash_table[i].timestmp = timestamp;
+  if (gc_ma_hash_table[i].timestmp != gc_timestamp) {
+    gc_ma_hash_table[i].timestmp = gc_timestamp;
     gc_ma_hash_table[i].addr = addr;
     gc_ma_hash_table[i].next = NULL;
     return NULL;
@@ -341,14 +341,14 @@ gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp) {
 
 static inline void
 GC_NEW_MAHASH(gc_ma_hash_entry *top) {
-  UInt time = ++timestamp;
+  UInt time = ++gc_timestamp;
   if (time == 0) {
     unsigned int i;
 
     /* damn, we overflowed */
     for (i = 0; i < GC_MAVARS_HASH_SIZE; i++)
       gc_ma_hash_table[i].timestmp = 0L;
-    time = ++timestamp;
+    time = ++gc_timestamp;
   }
   gc_ma_h_top = top;
   cont_top = (cont *)gc_ma_h_top;

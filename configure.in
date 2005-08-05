@@ -192,23 +192,6 @@ then
   AC_DEFINE(MinHeapSpace, (400*SIZEOF_INT_P))
   AC_DEFINE(MinStackSpace,(300*SIZEOF_INT_P))
   AC_DEFINE(MinTrailSpace,( 48*SIZEOF_INT_P))
-  if test "$coroutining" = yes 
-  then
-   echo
-   echo
-   echo "********************************************************"
-   echo
-   echo
-   echo "!!!!!! ERROR !!!!!"
-   echo "Coroutining is currently incompatible with Tabling/Parallelism/Threads"
-   echo "Please contact ricroc@ncc.up.pt for help" 
-   echo
-   echo
-   echo "********************************************************"
-   echo
-   echo
-   exit 1
-  fi
   if test "$depthlimit" = yes -a "$tabling" = yes
   then
    echo
@@ -259,7 +242,7 @@ then
        CFLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes"
        C_INTERF_FLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes"
      else
-       CFLAGS="-O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes"
+       CFLAGS="-O3 -fno-gcse -fno-crossjumping -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes"
        C_INTERF_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes"
        C_PARSER_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes"
        case "$target_cpu" in

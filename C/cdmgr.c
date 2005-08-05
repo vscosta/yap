@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-08-02 03:09:49 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-08-05 14:55:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.167  2005/08/02 03:09:49  vsc
+* fix debugger to do well nonsource predicates.
+*
 * Revision 1.166  2005/08/01 15:40:37  ricroc
 * TABLING NEW: better support for incomplete tabling
 *
@@ -4123,6 +4126,12 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
     return TRUE;
   } else {
     Term t;
+    
+    if (!(pe->PredFlags & SourcePredFlag)) {
+      /* no source */
+      rtn = Yap_MkStaticRefTerm(cl);
+      return Yap_unify(tr, rtn);
+    }
 
     if (!(pe->PredFlags & SourcePredFlag)) {
       rtn = Yap_MkStaticRefTerm(cl);

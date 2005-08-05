@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.insts.i
-  version:     $Id: tab.insts.i,v 1.19 2005-08-04 15:45:55 ricroc Exp $   
+  version:     $Id: tab.insts.i,v 1.20 2005-08-05 14:55:03 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -358,7 +358,7 @@
     tab_ent_ptr tab_ent;
     sg_fr_ptr sg_fr;
 
-    check_trail();
+    check_trail(TR);
     tab_ent = PREG->u.ld.te;
     sg_fr = subgoal_search(PREG, &YENV);
     LOCK(SgFr_lock(sg_fr));
@@ -468,7 +468,7 @@
     tab_ent_ptr tab_ent;
     sg_fr_ptr sg_fr;
 
-    check_trail();
+    check_trail(TR);
     tab_ent = PREG->u.ld.te;
     sg_fr = subgoal_search(PREG, &YENV);
     LOCK(SgFr_lock(sg_fr));
@@ -578,7 +578,7 @@
     tab_ent_ptr tab_ent;
     sg_fr_ptr sg_fr;
 
-    check_trail();
+    check_trail(TR);
     tab_ent = PREG->u.ld.te;
     sg_fr = subgoal_search(PREG, &YENV);
     LOCK(SgFr_lock(sg_fr));

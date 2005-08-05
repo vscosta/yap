@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.macros.h
-  version:     $Id: tab.macros.h,v 1.18 2005-08-04 15:45:55 ricroc Exp $   
+  version:     $Id: tab.macros.h,v 1.19 2005-08-05 14:55:03 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -417,7 +417,7 @@ void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
     TABLING_ERROR_MESSAGE("rebind_tr < end_tr (function rebind_variables)");
 #endif /* TABLING_ERRORS */
   /* rebind loop */
-  NEW_MAHASH((ma_h_inner_struct *)H);
+  Yap_NEW_MAHASH((ma_h_inner_struct *)H);
   while (rebind_tr != end_tr) {
     CELL ref = (CELL) TrailTerm(--rebind_tr);
     /* check for global or local variables */
@@ -439,7 +439,7 @@ void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     } else {
       CELL *cell_ptr = RepAppl(ref);
-      if (!lookup_ma_var(cell_ptr)) {
+      if (!Yap_lookup_ma_var(cell_ptr)) {
 	/* first time we found the variable, let's put the new value */
 	*cell_ptr = TrailVal(rebind_tr);
       }

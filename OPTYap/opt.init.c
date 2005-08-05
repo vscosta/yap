@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.init.c  
-  version:     $Id: opt.init.c,v 1.10 2005-08-04 15:45:55 ricroc Exp $   
+  version:     $Id: opt.init.c,v 1.11 2005-08-05 14:55:03 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -31,9 +31,9 @@
 #include "opt.mavar.h"
 #endif /* !TABLING */
 #ifdef MULTI_ASSIGNMENT_VARIABLES
-ma_hash_entry ma_hash_table[MAVARS_HASH_SIZE];
-UInt timestamp;    /* an unsigned int */
-ma_h_inner_struct *ma_h_top;
+ma_hash_entry Yap_ma_hash_table[MAVARS_HASH_SIZE];
+UInt Yap_timestamp;    /* an unsigned int */
+ma_h_inner_struct *Yap_ma_h_top;
 #endif /* MULTI_ASSIGNMENT_VARIABLES */
 #endif /* TABLING || !ACOW */
 #ifdef ACOW

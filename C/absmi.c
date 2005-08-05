@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-08-04 15:45:49 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-08-05 14:55:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.173  2005/08/04 15:45:49  ricroc
+* TABLING NEW: support to limit the table space size
+*
 * Revision 1.172  2005/08/02 03:09:48  vsc
 * fix debugger to do well nonsource predicates.
 *
@@ -302,6 +305,8 @@ push_live_regs(yamop *pco)
   }
 }
 #endif
+
+
 
 #if LOW_PROF 
 #include <signal.h>
@@ -1691,36 +1696,45 @@ Yap_absmi(int inp)
 #endif /* TABLING */
       trim_trail:
 	HBREG = PROTECT_FROZEN_H(B->cp_b);
-#if TABLING
+#if FROZEN_STACKS
         {
 	  tr_fr_ptr pt0, pt1, pbase;
 	  pbase = B->cp_tr;
-	  pt0 = pt1 = TR - 1;
+	  pt0 = pt1 = TR-1;
+	  
 	  while (pt1 >= pbase) {
 	    BEGD(d1);
+
 	    d1 = TrailTerm(pt1);
 	    if (IsVarTerm(d1)) {
 	      if (d1 < (CELL)HBREG || d1 > Unsigned(B->cp_b)) { 
+		CELL d2 = TrailVal(pt0);
+
+		TrailVal(pt0) = d2;
 		TrailTerm(pt0) = d1;
-		TrailVal(pt0) = TrailVal(pt1);
 		pt0--;
 	      }
 	      pt1--;
 	    } else if (IsApplTerm(d1)) {
-	      TrailTerm(pt0) = TrailTerm(pt0-2) = d1;
-	      TrailTerm(pt0-1) = TrailTerm(pt1-1);
-	      pt0 -= 3;
-	      pt1 -= 3;
+	      CELL v2, t3, v4;
+
+	      v2 = TrailVal(pt1);
+	      t3 = TrailTerm(pt1-1);
+	      v4 = TrailVal(pt1-1);
+	      TrailTerm(pt0) = d1;
+	      TrailVal(pt0) = v2;
+	      TrailTerm(pt0-1) = t3;
+	      TrailVal(pt0-1) = v4;
+	      pt0 -= 2;
+	      pt1 -= 2;
 	    } else if (IsPairTerm(d1)) {
 	      CELL *pt = RepPair(d1);
-#ifdef LIMIT_TABLING
-	      if ((ADDR) pt == Yap_TrailBase) {
-		sg_fr_ptr sg_fr = (sg_fr_ptr) TrailVal(pt1);
-		SgFr_state(sg_fr)--;  /* complete_in_use --> complete : compiled_in_use --> compiled */
-		insert_into_global_sg_fr_list(sg_fr);
-	      } else
-#endif /* LIMIT_TABLING */
+
 	      if ((ADDR) pt >= Yap_TrailBase) {
+		/*
+		  skip, this is a problem because we lose information, namely
+		  active references
+		*/
 		pt1 = (tr_fr_ptr)pt;
 	      } else if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
 		LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt);
@@ -1739,12 +1753,17 @@ Yap_absmi(int inp)
 		  setregs();
 		}
 	      } else {
+		CELL v = TrailVal(pt0);
 		TrailTerm(pt0) = d1;
+		TrailVal(pt0) = v;
 		pt0--;
 	      }
 	      pt1--;
 	    } else {
+	      CELL v = TrailVal(pt0);
+
 	      TrailTerm(pt0) = d1;
+	      TrailVal(pt0) = v;
 	      pt0--;
 	      pt1--;
 	    }
@@ -1767,15 +1786,27 @@ Yap_absmi(int inp)
 	    d1 = TrailTerm(pt1);
 	    if (IsVarTerm(d1)) {
 	      if (d1 < (CELL)HBREG || d1 > Unsigned(B->cp_b)) { 
+#if FROZEN_STACKS
+		TrailVal(pt0) = TrailVal(pt1);
+#endif
 		TrailTerm(pt0) = d1;
 		pt0++;
 	      }     
 	      pt1++;
 	    } else if (IsApplTerm(d1)) {
+#if FROZEN_STACKS
+	      TrailVal(pt0) = TrailVal(pt1);
+	      TrailTerm(pt0) = TrailTerm(pt0+2) = d1;
+	      TrailVal(pt0+1) = TrailVal(pt1+1);
+	      TrailTerm(pt0+1) = TrailTerm(pt1+1);
+	      pt0 += 2;
+	      pt1 += 2;
+#else
 	      TrailTerm(pt0+1) = TrailTerm(pt1+1);
 	      TrailTerm(pt0) = TrailTerm(pt0+2) = d1;
 	      pt0 += 3;
 	      pt1 += 3;
+#endif
 	    } else if (IsPairTerm(d1)) {
 	      CELL *pt = RepPair(d1);
 	      if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
@@ -2903,7 +2934,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.cc.c1, gatom_2b);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.cc.c1);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
@@ -2960,7 +2991,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.ccc.c1, gatom_3b);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.ccc.c1);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
@@ -2983,7 +3014,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.ccc.c2, gatom_3c);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.ccc.c2);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
@@ -3040,7 +3071,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.cccc.c1, gatom_4b);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.cccc.c1);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
@@ -3063,7 +3094,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.cccc.c2, gatom_4c);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.cccc.c2);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
@@ -3086,7 +3117,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.cccc.c3, gatom_4d);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.cccc.c3);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
@@ -3143,7 +3174,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.ccccc.c1, gatom_5b);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.ccccc.c1);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
@@ -3166,7 +3197,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.ccccc.c2, gatom_5c);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.ccccc.c2);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
@@ -3189,7 +3220,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.ccccc.c3, gatom_5d);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.ccccc.c3);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
@@ -3212,7 +3243,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.ccccc.c4, gatom_5e);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.ccccc.c4);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
@@ -3269,7 +3300,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.cccccc.c1, gatom_6b);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.cccccc.c1);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
@@ -3292,7 +3323,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.cccccc.c2, gatom_6c);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.cccccc.c2);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
@@ -3315,7 +3346,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.cccccc.c3, gatom_6d);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.cccccc.c3);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
@@ -3338,7 +3369,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.cccccc.c4, gatom_6e);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.cccccc.c4);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
@@ -3361,7 +3392,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       BIND(pt0, PREG->u.cccccc.c5, gatom_6f);
 #ifdef COROUTINING
-      DO_TRAIL(pt0, d1);
+      DO_TRAIL(pt0, PREG->u.cccccc.c5);
       if (pt0 < H0) Yap_WakeUp(pt0);
 #endif
       ENDP(pt0);
