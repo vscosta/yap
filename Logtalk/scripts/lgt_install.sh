@@ -13,7 +13,7 @@ else
 	prefix="$1"
 fi
 
-if ! [ -d "$1" ]; then
+if ! [ -d "$prefix" ]; then
 	echo "Directory prefix does not exist!"
 	echo
 	exit 1
