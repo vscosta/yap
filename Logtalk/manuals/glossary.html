@@ -23,7 +23,7 @@
 <dl>
 
 <dt class="glossary"><strong>ancestor</strong><a name="ancestor"></a></dt>
-<dd>A class or parent that contributes (via inheritance) to the definition of an object. The ancestors of an object are its class and all the superclasses of its class (in class-based hierarchies) or its parent and the ancestors of its parent (in prototype-based hierarchies).</dd>
+<dd>A class or parent that contributes (via inheritance) to the definition of an object. For class-based hierarchies, the ancestors of an object are its class(es) and all the superclasses of its class(es). For prototype-based hierarchies, the ancestors of an object are its parent(s) and the ancestors of its parent(s).</dd>
 
 <dt class="glossary"><strong>category</strong><a name="category"></a></dt>
 <dd>A set of predicates directives and clauses that can be imported by any object.</dd>
@@ -48,7 +48,7 @@
 </dl></dd>
 
 <dt class="glossary"><strong>directive</strong><a name="directive"></a></dt>
-<dd>A Prolog term that affects the interpretation of Prolog code. Directives are represented using the <code>:-/1</code> prefix functor.</dd>
+<dd>A Prolog term that affects the interpretation of Prolog code. Directives are represented using the <code>:-/1</code> prefix operator.</dd>
 
 <dd><dl>
 
@@ -57,6 +57,9 @@
 
 <dt class="glossary"><strong>predicate directive</strong><a name="predicate_directive"></a></dt>
 <dd>A directive that affects how predicates are called or compiled.</dd>
+
+<dt class="glossary"><strong>source file directive</strong><a name="source_file_directive"></a></dt>
+<dd>A directive that affects how a source file is compiled.</dd>
 
 </dl></dd>
 
@@ -70,7 +73,7 @@
 <dd>The sending of a message to an object. An event can be expressed as an ordered tuple: <code>(Event, Object, Message, Sender)</code>. Logtalk distinguish between the sending of a message - <code>before</code> event - and the return of control to the sender - <code>after</code> event.</dd>
 
 <dt class="glossary"><strong>grammar rule</strong><a name="grammar_rule"></a></dt>
-<dd>An alternative notation for predicates used to parse or generate sentences on some language. This notation hides the arguments used to pass the lists of tokens being processed, thus simplifying the representation of grammars. Grammar rules are represented using the infix operator <code>-->/2</code> instead of the operator used on predicate clauses (<code>:-/2</code>).</dd>
+<dd>An alternative notation for predicates used to parse or generate sentences on some language. This notation hides the arguments used to pass the lists of tokens being processed, thus simplifying the representation of grammars. Grammar rules are represented using the infix operator <code>--&gt;/2</code> instead of the operator used on predicate clauses (<code>:-/2</code>).</dd>
 
 <dd><dl>
 
@@ -105,7 +108,7 @@
 <dd>The same as object. This term is used when we want to emphasize that an object characteristics are defined by another object (its class).</dd>
 
 <dt class="glossary"><strong>instantiation</strong><a name="instantiation"></a></dt>
-<dd>The process of creating a new class instance.</dd>
+<dd>The process of creating a new class instance. In Logtalk does not necessarily implies dynamic creation of an object at runtime; an instance may also be defined as a static object in a source file.</dd>
 
 <dt class="glossary"><strong>message</strong><a name="message"></a></dt>
 <dd>A request for a service, sent to an object. In more logical terms, a message can be seen as a request for proof construction using an object's predicates.</dd>
@@ -190,7 +193,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: October 5, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 5, 2005</span></p>
 </div>
 </body>
 </html>

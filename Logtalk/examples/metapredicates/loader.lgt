@@ -1,5 +1,4 @@
 
 :- initialization(
 	logtalk_load([
-		tracer,
-		sort1])). 
+		metapredicates])). 

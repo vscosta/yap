@@ -27,7 +27,7 @@
 	<code>this(This)</code>
 </p>
 <p>
-	Unifies its argument with the identifier of the object that contains the predicate definition that is being executed. Note that this predicate implies an instantiation between its argument and the corresponding implicit context argument in the predicate containing the call. This instantiation occurs at the clause head, not at the clause body. This method is useful in avoiding problems when an object is renamed or when using parametric objects. Can also be used to retrieve runtime parametric object parameters though unification (see also <a  href="parameter2.html"><code>parameter/2</code></a>).
+	Unifies its argument with the identifier of the object that contains the predicate clause that is being used. Note that this predicate implies an instantiation between its argument and the corresponding implicit context argument in the predicate containing the call. This instantiation occurs at the clause head, not at the clause body. This method is useful in avoiding problems when an object is renamed or when using parametric objects. Can also be used to retrieve runtime parametric object parameters through unification (see also <a  href="parameter2.html"><code>parameter/2</code></a>).
 </p>
 </blockquote>
 
@@ -49,9 +49,9 @@
 
 <blockquote>
 <pre>test :-
-    this(This),
-    write('executing a definition contained in '),
-    writeq(This), nl.</pre>
+    this(This),                                       % after compilation, the write/1 call
+    write('executing a definition contained in '),    % will be the first condition on the
+    writeq(This), nl.                                 % clause body</pre>
 </blockquote>
 
 <div class="navbottom">
@@ -63,7 +63,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 5, 2005</span></p>
 </div>
 </body>
 </html>

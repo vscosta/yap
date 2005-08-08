@@ -3,6 +3,7 @@
 	logtalk_load([
 		state_space,
 		water_jug,
+		salt3,
 		farmer,
 		heuristic_state_space,
 		bridge,

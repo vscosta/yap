@@ -54,12 +54,16 @@ Normally used only in <a class="glossary" title="Go to glossary definition" href
 <h4>Examples</h4>
 
 <blockquote>
-<pre>:- object(box(_Colour)).
+<pre>:- object(box(_colour, _weight)).
 
     ...
     
-    colour(Colour) :-
+    colour(Colour) :-            % this clause is translated to a fact upon compilation
         parameter(1, Colour).
+
+    heavy :-
+        parameter(2, Weight),    % after compilation, the >/2 call will be the first
+        Weight > 10.             % condition on the clause body
 
     ...</pre>
 </blockquote>
@@ -73,7 +77,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: June 11, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 5, 2005</span></p>
 </div>
 </body>
 </html>

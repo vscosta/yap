@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.0
+Release 2.25.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -12,7 +12,7 @@ This folder contains examples of public, protected, and private inheritance,
 for both prototype-based and class-based hierarchies.
 
 This example defines a category named "predicates" which specifies three 
-predicates, one public, one protected and one private. This category is 
+predicates, one public, one protected, and one private. This category is 
 imported by the root objects: "parent" for the prototype hierarchy and 
 "root" for the class hierarchy. Each root object have a set of three 
 descendants, each one using one of the inheritance types.
@@ -36,4 +36,4 @@ The two object hierarchies are organized as follows:
 			instance3
 
 A second category named "interface", imported by all objects except the 
-sub-class instances, allows us to query the objercts about their interfaces.
+sub-class instances, allows us to query the objects about their interfaces.

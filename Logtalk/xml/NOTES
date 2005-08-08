@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.0
+Release 2.25.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -19,7 +19,7 @@ the XML documenting files that you wish to convert. See the description of
 each script below for details.
 
 MAKE SURE THAT THE XSL PROCESSORS YOU INTEND TO USE ARE PROPERLY INSTALLED 
-AND WORKING BEFORE RUNNING THE SCRIPTS!
+AND WORKING BEFORE RUNNING THESE SCRIPTS!
 
 Regarding conversion to HTML/XHTML, the links to the .xsl files on the 
 .xml files and the links to the .css files in the generated .html files 
@@ -189,6 +189,13 @@ lgt2xml.js
 	need to type "lgt2xml" in order to run the script).
 
 
+Note that you can write other XSL files for converting the XML files to other 
+formats besides PDF or (X)HTML. You can also write alternative CSS and XSL 
+files to change the appearance of the (X)HTML and PDF files.
+
+
+============================== OUTDATED SCRIPTS ==============================
+
 html.sh
 xhtml.sh
 
@@ -246,8 +253,3 @@ pdf.bat
 	your Logtalk source files). You will need either to copy your .xml files to 
 	this directory or to copy these files to the directory where the .xml files 
 	reside.
-
-
-Note that you can write other XSL files for converting the XML files to other 
-formats besides PDF or (X)HTML. You can also write alternative CSS and XSL 
-files to change the appearance of the (X)HTML and PDF files.

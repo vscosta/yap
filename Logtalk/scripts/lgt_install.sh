@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.25.0
+## Release 2.25.1
 ##
 ## Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -13,24 +13,30 @@ else
 	prefix="$1"
 fi
 
+if ! [ -d "$1" ]; then
+	echo "Directory prefix does not exist!"
+	echo
+	exit 1
+fi
+
 echo
 echo "Installing Logtalk on $prefix ..."
 echo
 
-rm -rf $prefix/lgt2250
+rm -rf $prefix/lgt2251
 rm -f $prefix/logtalk
 
-mkdir $prefix/lgt2250
+mkdir $prefix/lgt2251
 
 cd ..
-cp -R * $prefix/lgt2250
+cp -R * $prefix/lgt2251
 
 cd $prefix
-chmod -R go-w,a+r lgt2250
-chmod a+x lgt2250
-chmod a+x lgt2250/scripts/*.sh
-chmod a+x lgt2250/xml/*.sh
-ln -sf lgt2250 logtalk
+chmod -R go-w,a+r lgt2251
+chmod a+x lgt2251
+chmod a+x lgt2251/scripts/*.sh
+chmod a+x lgt2251/xml/*.sh
+ln -sf lgt2251 logtalk
 
 mkdir -p bin
 cd bin

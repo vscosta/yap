@@ -178,7 +178,7 @@ See the session on <a href="events.html">Event-driven programming</a> for more d
 <h2>Message sending performace<a name="performance"></a></h2>
 
 <p>
-Logtalk implements dynamic binding, coupled with a cache mechanism which avoids repeated lookups of predicate declarations and predicate definitions for the same messages. This is a solution common to other programming languages supporting dynamic binding. Message lookups are automatically cached the first time a message is sent. Cache entries are automatically removed when loading entities or using Logtalk dynamic features which invalidates the cached lookups.
+Logtalk implements dynamic binding, coupled with a cache mechanism that avoids repeated lookups of predicate declarations and predicate definitions for the same messages. This is a solution common to other programming languages supporting dynamic binding. Message lookups are automatically cached the first time a message is sent. Cache entries are automatically removed when loading entities or using Logtalk dynamic features which invalidate the cached lookups.
 </p>
 <p>
 When discussing Logtalk message sending performance, two distinct cases should be considered: messages sent by the user from the top-level interpreter and messages sent from compiled objects. In addition, the message declaration and definition lookups may, or may not be already cached by the runtime engine. In what follows, we will assume that the message lookups are already cached.
@@ -198,12 +198,12 @@ A message sent from a compiled object to another object translates to six predic
 		<dd>one predicate call to a dynamic table</dd>
 	<dt>checking for <em>before</em> events</dt>
 		<dd>two predicate calls assuming that no events are defined</dd>
-		<dd>(one of them to the built-in predicate \+/1)</dd>
+		<dd>(one of them to the built-in predicate <code>\+/1</code>)</dd>
 	<dt>method call</dt>
 		<dd>one predicate call</dd>
 	<dt>checking for <em>after</em> events</dt>
 		<dd>two predicate calls assuming that no events are defined</dd>
-		<dd>(one of them to the built-in predicate \+/1)</dd>
+		<dd>(one of them to the built-in predicate <code>\+/1</code>)</dd>
 </dl>
 </blockquote>
 <p>
@@ -280,7 +280,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: February 6, 2005</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 5, 2005</span></p>
 </div>
 </body>
 </html>

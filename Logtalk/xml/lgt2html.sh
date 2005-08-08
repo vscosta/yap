@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.25.0
+## Release 2.25.1
 ##
 ## Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -70,8 +70,15 @@ create_index_file()
 
 	for file in *.xml; do
 		name="`expr "$file" : '\(.*\)\.[^./]*$' \| "$file"`"
+		entity=${name%_*}
+		pars=${name##*_}
 		echo "  indexing $name.html"
-		echo "    <li><a href=\""$name.html"\">"$name"</a></li>" >> "$index_file"
+		if [ $pars -gt 0 ]
+		then
+			echo "    <li><a href=\""$name".html\">"$entity"/"$pars"</a></li>" >> "$index_file"
+		else
+			echo "    <li><a href=\""$name".html\">"$entity"</a></li>" >> "$index_file"
+		fi
 	done
 
 	echo "</ul>" >> "$index_file"

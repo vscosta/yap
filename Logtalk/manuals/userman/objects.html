@@ -54,7 +54,7 @@ If an object implements one or more protocols then the opening directive will be
 </p>
 <pre>
     :- object(Object,
-            implements(Protocol)).
+        implements(Protocol)).
         ...
     :- end_object.
 </pre>
@@ -63,7 +63,7 @@ An object can import one or more categories:
 </p>
 <pre>
     :- object(Object,
-            imports(Category)).
+        imports(Category)).
         ...
     :- end_object.
 </pre>
@@ -72,8 +72,8 @@ If an object implements protocols and imports categories then we will write:
 </p>
 <pre>
     :- object(Object,
-            implements(Protocol),
-            imports(Category)).
+        implements(Protocol),
+        imports(Category)).
         ...
     :- end_object.
 </pre>
@@ -82,7 +82,7 @@ In object-oriented programming objects are usually organized in hierarchies that
 </p>
 <pre>
     :- object(Prototype,
-            extends(Parent)).
+        extends(Parent)).
         ...
     :- end_object.
 </pre>
@@ -91,7 +91,7 @@ We can also have class-based hierarchies by defining instantiation and specializ
 </p>
 <pre>
     :- object(Object,
-            instantiates(Class)).
+        instantiates(Class)).
         ...
     :- end_object.
 </pre>
@@ -100,7 +100,7 @@ A class may specialize another class, its superclass:
 </p>
 <pre>
     :- object(Class,
-            specializes(Superclass)).
+        specializes(Superclass)).
         ...
     :- end_object.
 </pre>
@@ -109,8 +109,8 @@ If we are defining a reflexive system where every class is also an object, we wi
 </p>
 <pre>
     :- object(Class,
-            instantiates(Metaclass),
-            specializes(Superclass)).
+        instantiates(Metaclass),
+        specializes(Superclass)).
         ...
     :- end_object.
 </pre>
@@ -122,21 +122,21 @@ A <em>stand-alone</em> object is always compiled as a prototype, that is, a self
 </p>
 <pre>
     :- object(object,               % default root of the inheritance graph
-            instantiates(class)).   % predicates common to all objects
+        instantiates(class)).       % predicates common to all objects
         ...
     :- end_object.
 
 
     :- object(class,                % default metaclass for all classes
-            instantiates(class),    % predicates common to all instantiable classes
-            specializes(abstract_class)).
+        instantiates(class),        % predicates common to all instantiable classes
+        specializes(abstract_class)).
         ...
     :- end_object.
 
 
     :- object(abstract_class,       % default metaclass for all abstract classes
-            instantiates(class),    % predicates common to all classes
-            specializes(object)).
+        instantiates(class),        % predicates common to all classes
+        specializes(object)).
         ...
     :- end_object.
 </pre>
@@ -148,7 +148,7 @@ If you do not need a reflective system solution but still want to play with clas
 </p>
 <pre>
     :- object(class,
-            instantiates(class)).
+        instantiates(class)).
         ...
     :- end_object.
 </pre>
@@ -188,10 +188,10 @@ Note that we can't use this method with the message sending operators (<a title=
             ... .
 </pre>
 <p>
-Both solutions are equally efficient because the cost of the methods <code>this/1</code> and <code>parameter/2</code> is only one single variable unification. The drawback of the second solution is that we must check all calls of <code>this/1</code> if we change the object name.
+Both solutions are equally efficient because the runtime cost of the methods <code>this/1</code> and <code>parameter/2</code> is negligible. The drawback of the second solution is that we must check all calls of <code>this/1</code> if we change the object name.
 </p>
 <p>
-Parametric objects are by convention stored in source files named after the objects with the object arity appended. For instance, if we define an object named <code>sort(Type)</code>, we may save it in a <code>sort1.lgt</code> text file. This way it is easy to avoid file name clashes when saving Logtalk entities that have the same functor but different arities.
+When storing a parametric object in its own source file, the convention is to name the file after the object, with the object arity appended. For instance, when defining an object named <code>sort(Type)</code>, we may save it in a <code>sort_1.lgt</code> text file. This way it is easy to avoid file name clashes when saving Logtalk entities that have the same functor but different arities.
 </p>
 
 <h2>Finding defined objects<a name="finding"></a></h2>
@@ -228,7 +228,7 @@ is equivalent to compiling and loading the object:
 </p>
 <pre>
     :- object(foo,
-            extends(bar)).
+        extends(bar)).
 
         :- dynamic.
 
@@ -441,13 +441,13 @@ An object may have the property <code>static</code>, <code>dynamic</code>, or <c
 <h2>The pseudo-object user<a name="user"></a></h2>
 
 <p>
-Logtalk defines a pseudo-object named <code>user</code> which contains all user predicate definitions not encapsulated in a Logtalk entity. These predicates are assumed to be implicitly declared public.
+Logtalk defines a built-in, pseudo-object named <code>user</code> which contains all user predicate definitions not encapsulated in a Logtalk entity. These predicates are assumed to be implicitly declared public.
 </p>
 
 <h2>The pseudo-object debugger<a name="debugger"></a></h2>
 
 <p>
-Logtalk defines a pseudo-object named <code>debugger</code> which implements the Logtalk built-in debugger (see the section <a href="running.html#debugging">Debugging Logtalk programs</a>).
+Logtalk defines a built-in, pseudo-object named <code>debugger</code> which implements the Logtalk built-in debugger (see the section <a href="running.html#debugging">Debugging Logtalk programs</a>).
 </p>
 
 <div class="navbottom">
@@ -459,7 +459,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: February 3, 2005</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 5, 2005</span></p>
 </div>
 </body>
 </html>

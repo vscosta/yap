@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.25.0
+// Release 2.25.1
 //
 // Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -51,7 +51,7 @@ WScript.Echo('LOGTALKUSER are defined for all users wishing to use the shortcuts
 WScript.Echo('');
 WScript.Echo('If you get an unexpected failure to create a shortcut for one of the');
 WScript.Echo('above Prolog compilers, make sure that the Prolog compiler is properly');
-WScript.Echo('installed, consult the NOTES file on the scripts directory and try to');
+WScript.Echo('installed, consult the NOTES file on the scripts directory, and try to');
 WScript.Echo('run the corresponding script individually.');
 WScript.Echo('');
 

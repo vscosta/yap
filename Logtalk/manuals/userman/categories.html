@@ -277,7 +277,7 @@ Any number of objects can import a category. In addition, an object may import a
 </p>
 <pre>
     :- object(Object,
-        imports(Category1, Category2, ...).
+        imports(Category1, Category2, ...)).
         ...
     :- end_object.
 </pre>
@@ -286,7 +286,7 @@ To make all public predicates imported via a category protected or to make all p
 </p>
 <pre>
     :- object(Object,
-        imports(private::Category).
+        imports(private::Category)).
         ...
     :- end_object.
 </pre>
@@ -295,7 +295,7 @@ or:
 </p>
 <pre>
     :- object(Object,
-        imports(protected::Category).
+        imports(protected::Category)).
         ...
     :- end_object.
 </pre>
@@ -304,7 +304,7 @@ Omitting the scope keyword is equivalent to writing:
 </p>
 <pre>
     :- object(Object,
-        imports(public::Category).
+        imports(public::Category)).
         ...
     :- end_object.
 </pre>
@@ -318,7 +318,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: April 27, 2005</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 5, 2005</span></p>
 </div>
 </body>
 </html>

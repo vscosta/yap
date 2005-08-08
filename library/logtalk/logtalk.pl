@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.25.0
+%  Release 2.25.1
 %
 %  Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 %
@@ -1308,7 +1308,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_current_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 25, 0)).
+current_logtalk_flag(version, version(2, 25, 1)).
 
 
 
@@ -3206,12 +3206,10 @@ current_logtalk_flag(version, version(2, 25, 0)).
 
 '$lgt_entity_doc_file_name'(Entity, File) :-
 	functor(Entity, Functor, Arity),
-	(Arity > 0 ->
-		number_codes(Arity, Codes),
-		atom_codes(Atom, Codes),
-		atom_concat(Functor, Atom, Name)
-		;
-		Name = Functor),
+	number_codes(Arity, Codes),
+	atom_codes(Atom, Codes),
+	atom_concat(Functor, '_', Aux),
+	atom_concat(Aux, Atom, Name),
 	'$lgt_file_name'(xml, Name, File).
 
 
@@ -7521,13 +7519,7 @@ current_logtalk_flag(version, version(2, 25, 0)).
 % constructs all the functors used in the compiled code of an object
 
 '$lgt_construct_object_functors'(Obj, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef, Rnm) :-
-	'$lgt_compiler_flag'(code_prefix, Code),
-	functor(Obj, Functor, Arity),
-	number_codes(Arity, Codes),
-	atom_codes(Atom, Codes),
-	atom_concat(Functor, Atom, Aux),
-	atom_concat(Code, Aux, Aux2),
-	atom_concat(Aux2, '_', Prefix),
+	'$lgt_construct_entity_prefix'(Obj, Prefix),
 	atom_concat(Prefix, '_dcl', Dcl),
 	atom_concat(Prefix, '_def', Def),
 	atom_concat(Prefix, '_super', Super),
@@ -7544,13 +7536,7 @@ current_logtalk_flag(version, version(2, 25, 0)).
 % constructs all the functors used in the compiled code of a protocol
 
 '$lgt_construct_protocol_functors'(Ptc, Prefix, Dcl, Rnm) :-
-	'$lgt_compiler_flag'(code_prefix, Code),
-	functor(Ptc, Functor, Arity),
-	number_codes(Arity, Codes),
-	atom_codes(Atom, Codes),
-	atom_concat(Functor, Atom, Aux),
-	atom_concat(Code, Aux, Aux2),
-	atom_concat(Aux2, '_', Prefix),
+	'$lgt_construct_entity_prefix'(Ptc, Prefix),
 	atom_concat(Prefix, '_dcl', Dcl),
 	atom_concat(Prefix, '_alias', Rnm).
 
@@ -7561,16 +7547,26 @@ current_logtalk_flag(version, version(2, 25, 0)).
 % constructs all the functors used in the compiled code of a category
 
 '$lgt_construct_category_functors'(Ctg, Prefix, Dcl, Def, Rnm) :-
-	'$lgt_compiler_flag'(code_prefix, Code),
-	functor(Ctg, Functor, Arity),
-	number_codes(Arity, Codes),
-	atom_codes(Atom, Codes),
-	atom_concat(Functor, Atom, Aux),
-	atom_concat(Code, Aux, Aux2),
-	atom_concat(Aux2, '_', Prefix),
+	'$lgt_construct_entity_prefix'(Ctg, Prefix),
 	atom_concat(Prefix, '_dcl', Dcl),
 	atom_concat(Prefix, '_def', Def),
 	atom_concat(Prefix, '_alias', Rnm).
+
+
+
+% '$lgt_construct_entity_prefix'(@entity_identifier, -atom)
+%
+% constructs the entity prefix used in the compiled code
+
+'$lgt_construct_entity_prefix'(Entity, Prefix) :-
+	'$lgt_compiler_flag'(code_prefix, CodePrefix),
+	functor(Entity, Functor, Arity),
+	atom_concat(CodePrefix, Functor, Aux1),
+	number_codes(Arity, ArityCodes),
+	atom_codes(ArityAtom, ArityCodes),
+	atom_concat(Aux1, '_', Aux2),
+	atom_concat(Aux2, ArityAtom, Aux3),
+	atom_concat(Aux3, '_', Prefix).
 
 
 
@@ -8870,13 +8866,11 @@ current_logtalk_flag(version, version(2, 25, 0)).
 % needed to build filenames in links to parametric objects
 
 '$lgt_relation_to_xml_filename'(Relation, File) :-
-	atom(Relation) ->
-		File = Relation
-		;
-		functor(Relation, Functor, Arity),
-		number_codes(Arity, Codes),
-		atom_codes(Atom, Codes),
-		atom_concat(Functor, Atom, File).
+	functor(Relation, Functor, Arity),
+	number_codes(Arity, Codes),
+	atom_codes(Atom, Codes),
+	atom_concat(Functor, '_', Aux),
+	atom_concat(Aux, Atom, File).
 
 
 

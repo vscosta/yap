@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.0
+Release 2.25.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -195,6 +195,82 @@ time: 0.00
 
 Path = [(0,0),(4,0),(4,3),(0,3),(3,0),(3,3),(4,2),(0,2)],
 Initial = (0,0) ? 
+
+yes
+
+
+% salt puzzle using breadth first search
+
+| ?- performance::init, salt(100, 500, 200)::initial_state(Initial), breadth_first(6)::solve(salt(100, 500, 200), Initial, Path), salt(100, 500, 200)::print_path(Path), performance::report.
+
+(0, 0, 0)       all_empty
+(0, 500, 0)     fill(m1)
+(0, 300, 200)   transfer(m1, m2)
+(0, 300, 0)     empty(m2)
+(0, 100, 200)   transfer(m1, m2)
+(100, 0, 200)   transfer(m1, acc)
+solution length: 6
+state transitions: 476
+ratio solution length / state transitions: 0.0126050420168067
+minimum branching degree: 1
+average branching degree: 4.05829596412556
+maximum branching degree: 6
+time: 0.0899999999999999
+
+Initial = 0, 0, 0, all_empty
+Path = [(0, 0, 0, all_empty), (0, 500, 0, fill(m1)), (0, 300, 200, transfer(m1, m2)), (0, 300, 0, empty(m2)), (0, 100, 200, transfer(m1, m2)), (100, 0, 200, transfer(m1, acc))]
+
+yes
+
+
+| ?- performance::init, salt(200, 250, 550)::initial_state(Initial), breadth_first(7)::solve(salt(200, 250, 550), Initial, Path), salt(200, 250, 550)::print_path(Path), performance::report.
+
+(0, 0, 0)       all_empty
+(0, 250, 0)     fill(m1)
+(0, 0, 250)     transfer(m1, m2)
+(0, 250, 250)   fill(m1)
+(0, 0, 500)     transfer(m1, m2)
+(0, 250, 500)   fill(m1)
+(0, 200, 550)   transfer(m1, m2)
+(200, 0, 550)   transfer(m1, acc)
+solution length: 8
+state transitions: 3037
+ratio solution length / state transitions: 0.00263417846559104
+minimum branching degree: 1
+average branching degree: 4.22404371584699
+maximum branching degree: 6
+time: 1.41
+
+Initial = 0, 0, 0, all_empty
+Path = [(0, 0, 0, all_empty), (0, 250, 0, fill(m1)), (0, 0, 250, transfer(m1, m2)), (0, 250, 250, fill(m1)), (0, 0, 500, transfer(m1, m2)), (0, 250, 500, fill(m1)), (0, 200, 550, transfer(m1, m2)), (200, 0, 550, transfer(m1, acc))]
+
+yes
+
+
+| ?- performance::init, salt(100, 250, 550)::initial_state(Initial), breadth_first(11)::solve(salt(100, 250, 550), Initial, Path), salt(100, 250, 550)::print_path(Path), performance::report.
+
+(0, 0, 0)       all_empty
+(0, 0, 550)     fill(m2)
+(0, 250, 300)   transfer(m2, m1)
+(0, 0, 300)     empty(m1)
+(0, 250, 50)    transfer(m2, m1)
+(50, 250, 0)    transfer(m2, acc)
+(50, 0, 0)      empty(m1)
+(50, 0, 550)    fill(m2)
+(50, 250, 300)  transfer(m2, m1)
+(50, 0, 300)    empty(m1)
+(50, 250, 50)   transfer(m2, m1)
+(100, 250, 0)   transfer(m2, acc)
+solution length: 12
+state transitions: 289904
+ratio solution length / state transitions: 4.13930128594293e-5
+minimum branching degree: 1
+average branching degree: 4.50438946528332
+maximum branching degree: 6
+time: 1882.81
+
+Initial = 0, 0, 0, all_empty
+Path = [(0, 0, 0, all_empty), (0, 0, 550, fill(m2)), (0, 250, 300, transfer(m2, m1)), (0, 0, 300, empty(m1)), (0, 250, 50, transfer(m2, m1)), (50, 250, 0, transfer(m2, acc)), (50, 0, 0, empty(m1)), (50, 0, 550, fill(m2)), (50, 250, 300, transfer(m2, m1)), (50, 0, 300, empty(m1)), (50, 250, 50, transfer(m2, m1)), (100, 250, 0, transfer(m2, acc))]
 
 yes
 

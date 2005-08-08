@@ -1,13 +1,13 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.0
+Release 2.25.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-This directory contains some files that provide syntax highlighting and 
-project and template files for editing Logtalk source files with MacOS X 
+This directory contains some files that provide basic syntax highlighting 
+and project and template files for editing Logtalk source files with MacOS X 
 Xcode 1.1 or later version.
 
 

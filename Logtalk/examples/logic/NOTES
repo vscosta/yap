@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.0
+Release 2.25.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -10,9 +10,10 @@ To load this example and for sample queries, please see the SCRIPT
 file.
 
 This folder contains an object which implements a translator from 
-logic propositions to a set of clauses in conjunctive normal form. 
-The translator code is partially based on code published in the 
-book "Programming in Prolog" by W. F. Clocksin and C. S. Mellish.
+first-order predicate logic propositions to conjunctive normal form 
+and to clausal form. The translator code is partially based on code 
+published in the book "Programming in Prolog" by W. F. Clocksin and 
+C. S. Mellish.
 
 The following operators are used for representing logic connectives:
 

@@ -11,7 +11,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_object.
 !		
@@ -27,7 +27,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_object.
 !
@@ -42,7 +42,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_object.
 !
@@ -58,7 +58,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_object.
 !
@@ -76,7 +76,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_object.
 !
@@ -92,7 +92,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_object.
 !
@@ -109,7 +109,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_object.
 !
@@ -126,7 +126,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_object.
 !
@@ -143,7 +143,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_object.
 !
@@ -162,7 +162,7 @@
 		date is Year/Month/Day,
 		comment is '${6:Description']).
 
-	\^
+\^
 
 :- end_object.
 !
@@ -178,7 +178,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_object.
 !
@@ -195,7 +195,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_object.
 !
@@ -212,7 +212,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_object.
 !
@@ -230,7 +230,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_object.
 !
@@ -245,7 +245,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_protocol.
 !
@@ -261,7 +261,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_protocol.
 !
@@ -276,7 +276,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_category.
 !
@@ -292,7 +292,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_category.
 !
@@ -308,7 +308,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_category.
 !
@@ -325,7 +325,7 @@
 		date is Year/Month/Day,
 		comment is 'Description']).
 
-	\^
+\^
 
 :- end_category.
 !

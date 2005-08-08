@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.0
+Release 2.25.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -25,6 +25,7 @@ state-spaces and another for representing search methods:
 	state_space
 		farmer
 		water_jug
+		salt(Quantity, Measure1, Measure2)
 		heuristic_state_space
 			bridge
 			eight_puzzle

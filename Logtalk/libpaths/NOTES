@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.0
+Release 2.25.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -20,8 +20,8 @@ requirements (for example, some Prolog compilers do not accept or expand
 environment variables occurring on paths).
 
 As defined, the provided "libpaths.pl" file is already compatible with some 
-of the most popular Prolog compilers, running on both Windows, Unix, and 
-Unix-like operating-systems.
+of the most popular Prolog compilers, running on both MacOS X, Linux, Windows, 
+Unix, and Unix-like operating-systems.
 
 The Prolog integration scripts found on the "scripts" directory generate 
 scripts and shortcuts that automatically load the copy of the "libpaths.pl" 

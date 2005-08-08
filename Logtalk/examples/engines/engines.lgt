@@ -43,7 +43,7 @@ imported in two car models (sedan and coupe).
 % from the standard one only in its reference and in its horsepower:
 
 :- category(sport,
-	imports(classic)).
+	imports(classic)).
 
 	reference('M180.941').
 	horsepower_rpm(110, 5000).

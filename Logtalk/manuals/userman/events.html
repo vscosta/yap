@@ -129,7 +129,7 @@ In other words, if the message contains uninstantiated variables, these are not 
 <h2>Event generation<a name="generation"></a></h2>
 
 <p>
-For each message that is sent (using the <a title="Consult reference manual" href="../refman/control/to_object2.html"><code>::/2</code></a> message sending mechanism) the runtime system automatically generates two events. The first - <code>before event</code> - is generated when the message is sent. The second - <code>after event</code> - is generated after the message has successfully been executed.
+For each message that is sent (using the <a title="Consult reference manual" href="../refman/control/to_object2.html"><code>::/2</code></a> message sending mechanism) the runtime system automatically generates two events. The first &mdash; <code>before event</code> &mdash; is generated when the message is sent. The second &mdash; <code>after event</code> &mdash; is generated after the message has successfully been executed.
 </p>
 
 <h2>Communicating events to monitors<a name="communicating"></a></h2>
@@ -141,7 +141,7 @@ Whenever a spied event occurs, the message sending mechanisms call the correspon
 <h2>Performance concerns<a name="performance"></a></h2>
 
 <p>
-The existence of monitored messages should not affect the processing of the remaining messages. On the other hand, for each message that has been sent, the system must verify if its respective event is monitored. This verification clearly must be ideally performed in constant time and independently from the number of monitored events. The events representation takes advantage of the first argument indexing performed by most Prolog compilers, which ensure - in the general case - an access in constant time.
+The existence of monitored messages should not affect the processing of the remaining messages. On the other hand, for each message that has been sent, the system must verify if its respective event is monitored. This verification clearly must be ideally performed in constant time and independently from the number of monitored events. The events representation takes advantage of the first argument indexing performed by most Prolog compilers, which ensure &mdash; in the general case &mdash; an access in constant time.
 </p>
 
 <h2>Monitor semantics<a name="semantics"></a></h2>
@@ -287,7 +287,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 5, 2005</span></p>
 </div>
 </body>
 </html>

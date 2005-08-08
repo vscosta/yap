@@ -1,7 +1,7 @@
 ; TextPad syntax definitions for Logtalk (http://www.logtalk.org/)
 ; 
 ; Author: 			Paulo Moura
-; Last changed in: 	April 5, 2005
+; Last changed in: 	June 7, 2005
 ;
 ; Tags used and sugested colors:
 ;   Keywords 1	message sending operators	blue
@@ -35,13 +35,13 @@ SingleCommentAlt =
 SingleCommentColAlt =
 SingleCommentEsc =
 StringsSpanLines = Yes
-StringStart = '
-StringEnd = '
-StringAlt = "
-StringEsc = '
-CharStart =
-CharEnd =
-CharEsc =
+StringStart = "
+StringEnd = "
+StringAlt = 
+StringEsc = \
+CharStart = '
+CharEnd = '
+CharEsc = \
 
 
 [Keywords 1]

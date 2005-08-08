@@ -1,21 +1,21 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.0
+Release 2.25.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-This directory contains a file that provides syntax highlighting 
-for editing Logtalk source files with the text editor VIM 6.1 or 
-later version (http://www.vim.org).
+This directory contains a file that provides code folding and syntax 
+highlighting for editing Logtalk source files with the text editor 
+Vim 6.1 or later version (http://www.vim.org).
 
-Recent versions of VIM already contain support for Logtalk. However, 
+Recent versions of Vim already contain support for Logtalk. However, 
 this directory may contain an updated syntax file. If that is the 
 case, install the syntax file by performing the following steps:
 
 1.	Copy the file logtalk.vim to the "syntax" sub-directory in your 
-	VIM installation directory.
+	VIM installation directory (replacing any existing older file).
 
 2.	Add the following entries to the "filetype.vim" configuration 
 	file (only if not already present):

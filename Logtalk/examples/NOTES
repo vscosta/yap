@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.0
+Release 2.25.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -16,7 +16,7 @@ sample queries for your to try.
 
 Most of these examples need objects, protocols, and categories which are 
 defined in the Logtalk standard library or in other examples. See the NOTES 
-files inside the library folder and the NOTES and SCRIPT files inside each 
+files inside the library folder, plus the NOTES and SCRIPT files inside each 
 example folder).
 
 Some examples may redefine objects already loaded from other examples.
@@ -47,19 +47,20 @@ assignvars
 	example of using assignable variables in the context of parametric objects
 
 benchmarks
-	simple benchmarks for for helping measuring performance of Logtalk message 
-	seding between Prolog compilers and for comparing message sending with 
-	predicate calls in plain Prolog and with calls to modules predicates
+	simple benchmarks for helping measuring performance of Logtalk message 
+	sending between Prolog compilers and for comparing performance of message 
+	sending calls with predicate calls in plain Prolog
 
 birds
 	bird identification expert system
-	example adopted from the Adventure in Prolog Amzi! book
+	(example adopted from the Adventure in Prolog Amzi! book)
 
 bricks
 	example of representation and handling of relations using events
 
 classvars
-	example of implementation of class variables (as found in Smalltalk)
+	example of implementation of class variables
+	(as found in Smalltalk; i.e. shared instance variables)
 
 dcgs
 	examples of using DCG rules inside objects and categories
@@ -72,7 +73,7 @@ dynpred
 	example of using some of the built-in database handling methods
 
 encodings
-	very simple example of using the new, experimental enconding/1 
+	very simple example of using the new, experimental encoding/1 
 	directive (requires Logtalk to be run with the SWI-Prolog compiler)
 
 engines
@@ -86,7 +87,7 @@ hello_world
 	the unavoidable hello world programming example
 
 inheritance
-	examples of public, protected and private inheritance with both 
+	examples of public, protected, and private inheritance using both 
 	prototypes and classes/instances
 
 instmethods
@@ -96,8 +97,8 @@ lo
 	examples adopted from the Francis G. McCabe L&O system
 
 logic
-	example of a translator of logic propositions to clauses in conjunctive 
-	normal form
+	example of a translator of first-order predicate logic propositions 
+	to conjunctive normal form and to clausal form
 
 lpa
 	examples adopted from the LPA Prolog++ system
@@ -151,8 +152,8 @@ roots
 
 searching
 	state-space searching framework
-	example adopted from Ivan Bratko's "Prolog Programming for Artificial 
-	Intelligence" book
+	(example adopted from Ivan Bratko's "Prolog Programming for Artificial 
+	Intelligence" book)
 
 shapes
 	geometric shapes implemented as both a prototype hierarchy and a class 

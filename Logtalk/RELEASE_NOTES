@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.0
+Release 2.25.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,38 @@ Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.25.1 - August 8, 2005
+
+	Added support for using the "source-highlight" package (version 2.0 or 
+	later) by Lorenzo Bettini with Logtalk source files.
+
+	Several optimizations to the syntax coloring configuration files of most 
+	of the supported text editors. Added support for code folding to the Vim, 
+	Kate, and TextMate text editors.
+
+	Updated the SWI-Prolog shell integration script (make_swilgt.sh) to use 
+	either "swipl" or "pl" as the name of the Prolog executable, depending 
+	on the host operating system.
+
+	Modified the way entity prefixes are generated for compiled code in order 
+	to further minimize possible conflicts resulting from the same prefix being
+	used for different entities (bug report and fix by Brian Hulley). Changes 
+	to the prefix format are also reflected on the names of the automatically 
+	generated XML documenting files.
+
+	Updated the lgt2html.* and lgt2xml.* documenting scripts in order to index 
+	parametric objects using the notation <entity>/<number of parameters>.
+
+	Corrected a bug on the lgtxml.xsl XSLT file where links to related files 
+	pointed to .html files instead of .xml files.
+
+	Updated the lgt_install.sh and the make_*lgt.sh shell scripts to check and
+	report invalid installation directory prefixes.
+
+	Added a new state-space search problem, "salt3.lgt", contributed by Paula 
+	Marisa Sampaio, to the "searching" example.
 
 
 2.25.0 - May 23, 2005

@@ -1,14 +1,14 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.0
+Release 2.25.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-This directory contains files that provide syntax highlighting 
-for editing Logtalk source files with the KDE Kate and KWrite 
-text editors (http://kate.kde.org/).
+This directory contains files that provide support for code folding 
+and syntax highlighting for editing Logtalk source files with the 
+KDE Kate and KWrite text editors (http://kate.kde.org/).
 
 
 To install copy the file "logtalk.xml" to the directory:

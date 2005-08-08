@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.25.0
+## Release 2.25.1
 ##
 ## Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -15,25 +15,32 @@ then
 	echo "The environment variable LOGTALKHOME must be defined first!"
 	echo
 	exit 1
-else
-	cd "$LOGTALKHOME"
-	if [ -z "$1" ]; then
-		prefix=/usr/local
-	else
-		prefix="$1"
-	fi
-	mkdir -p bin
-	cd bin
-	echo ":- reconsult('\$LOGTALKUSER/configs/yap.config')." > logtalk_yap.rc
-	echo ":- reconsult('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalk_yap.rc
-	echo ":- reconsult('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_yap.rc
-
-	echo "#/bin/sh" > yaplgt
-	echo "yap -l \$LOGTALKHOME/bin/logtalk_yap.rc" >> yaplgt
-	chmod a+x yaplgt
-	ln -sf $LOGTALKHOME/bin/yaplgt $prefix/bin/yaplgt
-	echo "Done. A link to the script was been created in $prefix/bin."
-	echo "Users should define the environment variables LOGTALKHOME and"
-	echo "LOGTALKUSER in order to use the script."
-	echo
 fi
+
+if [ -z "$1" ]; then
+	prefix=/usr/local
+else
+	prefix="$1"
+fi
+
+if ! [ -d "$1" ]; then
+	echo "Directory prefix does not exist!"
+	echo
+	exit 1
+fi
+
+cd "$LOGTALKHOME"
+mkdir -p bin
+cd bin
+echo ":- reconsult('\$LOGTALKUSER/configs/yap.config')." > logtalk_yap.rc
+echo ":- reconsult('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalk_yap.rc
+echo ":- reconsult('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_yap.rc
+
+echo "#/bin/sh" > yaplgt
+echo "yap -l \$LOGTALKHOME/bin/logtalk_yap.rc" >> yaplgt
+chmod a+x yaplgt
+ln -sf $LOGTALKHOME/bin/yaplgt $prefix/bin/yaplgt
+echo "Done. A link to the script was been created in $prefix/bin."
+echo "Users should define the environment variables LOGTALKHOME and"
+echo "LOGTALKUSER in order to use the script."
+echo

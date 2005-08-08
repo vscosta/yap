@@ -1,16 +1,22 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.0
+Release 2.25.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-This file contains detailed instruction for installing and configuring 
+This file contains detailed instructions for installing and configuring 
 Logtalk. You should also consult the "scripts/NOTES" file for a description 
 of a set of shell scripts that might be used for Logtalk installation on 
 some operating-systems and for easy Logtalk integration with popular 
 Prolog compilers.
+
+Note that the broad compatibility of Logtalk, both with Prolog compilers and 
+operating-systems, together with all the possible user scenarios, means that 
+installation can vary from very simple by running a couple of scripts to the 
+need of patching both Logtalk and Prolog compilers to workaround the lack of 
+strong Prolog standards.
 
 
 1. LOGTALK INSTALLATION

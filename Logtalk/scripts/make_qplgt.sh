@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.25.0
+## Release 2.25.1
 ##
 ## Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -15,32 +15,39 @@ then
 	echo "The environment variable LOGTALKHOME must be defined first!"
 	echo
 	exit 1
+fi
+
+if [ -z "$1" ]; then
+	prefix=/usr/local
 else
-	cd "$LOGTALKHOME"
-	if [ -z "$1" ]; then
-		prefix=/usr/local
-	else
-		prefix="$1"
-	fi
-	mkdir -p bin
-	find . -name "*.lgt" -exec perl -pi -e "s/version is (\d)\.(\d)/version is '\1\.\2'/" {} \;
-	cd configs
-	cp qu.config qu.ql
-	echo "fcompile('qu.ql', [assemble_only(true)]), load(qu). \
+	prefix="$1"
+fi
+
+if ! [ -d "$1" ]; then
+	echo "Directory prefix does not exist!"
+	echo
+	exit 1
+fi
+
+cd "$LOGTALKHOME"
+mkdir -p bin
+find . -name "*.lgt" -exec perl -pi -e "s/version is (\d)\.(\d)/version is '\1\.\2'/" {} \;
+cd configs
+cp qu.config qu.ql
+echo "fcompile('qu.ql', [assemble_only(true)]), load(qu). \
 chdir('../compiler/'), fcompile('logtalk.pl', [assemble_only(true), string_table(256)]), load(logtalk). \
 chdir('../libpaths/'), fcompile('libpaths.pl', [assemble_only(true)]), load(libpaths)." | qp -s 2048 -d 1024 -h 2000
-	qc -c qphook.ql
-	cd ../bin
-	qc -s 2048 -d 1024 -h 2000 -o qplgt ../configs/qphook.qo ../configs/qu.qo ../compiler/logtalk.qo  ../libpaths/libpaths.qo
-	chmod a+x qplgt
-	ln -sf $LOGTALKHOME/bin/qplgt $prefix/bin/qplgt
-	rm ../configs/qu.ql
-	rm ../configs/qphook.qo
-	rm ../configs/qu.qo
-	rm ../compiler/logtalk.qo
-	rm ../libpaths/libpaths.qo
-	echo "Done. A link to the script was been created in $prefix/bin."
-	echo "Users should define the environment variables LOGTALKHOME and"
-	echo "LOGTALKUSER in order to use the script."
-	echo
-fi
+qc -c qphook.ql
+cd ../bin
+qc -s 2048 -d 1024 -h 2000 -o qplgt ../configs/qphook.qo ../configs/qu.qo ../compiler/logtalk.qo  ../libpaths/libpaths.qo
+chmod a+x qplgt
+ln -sf $LOGTALKHOME/bin/qplgt $prefix/bin/qplgt
+rm ../configs/qu.ql
+rm ../configs/qphook.qo
+rm ../configs/qu.qo
+rm ../compiler/logtalk.qo
+rm ../libpaths/libpaths.qo
+echo "Done. A link to the script was been created in $prefix/bin."
+echo "Users should define the environment variables LOGTALKHOME and"
+echo "LOGTALKUSER in order to use the script."
+echo

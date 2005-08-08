@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.25.0
+// Release 2.25.1
 //
 // Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -200,7 +200,13 @@ function create_index_file() {
 		if (FSObject.GetExtensionName(file) == "xml") {
 			var html_file = FSObject.GetBaseName(file) + ".html";
 			WScript.Echo("  indexing " + html_file);
-			f.WriteLine("    <li><a href=\"" + html_file + "\">" + FSObject.GetBaseName(file) + "</a></li>");
+			var index = FSObject.GetBaseName(file).lastIndexOf("_");
+			var pars = FSObject.GetBaseName(file).slice(index+1);
+			var entity = FSObject.GetBaseName(file).slice(0, index);
+			if (pars == 0)
+				f.WriteLine("    <li><a href=\"" + html_file + "\">" + entity + "</a></li>");
+			else
+				f.WriteLine("    <li><a href=\"" + html_file + "\">" + entity + "/" + pars + "</a></li>");
 		}
 	}
 

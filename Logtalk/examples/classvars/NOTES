@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.0
+Release 2.25.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -10,7 +10,7 @@ To load this example and for sample queries, please see the SCRIPT file.
 
 This folder contains an example that shows how to implement class variables 
 as defined in Smalltalk. The name shared instance variables is however much
-more accurate. In systems like Logtalk that enable the use of explicit 
+more accurate. In systems like Logtalk, which enables the use of explicit 
 metaclasses, true class variables are just the class (as an object) own 
 instance variables!
 

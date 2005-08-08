@@ -21,25 +21,25 @@
 <h1>Inheritance</h1>
 
 <p>
-The inheritance mechanisms existent in object-oriented programming languages allow us the specialization of previously defined objects, avoiding the unnecessary repetition of code. In the context of logic programming, we can interpret inheritance as a form of theory extension: an object will virtually contain, besides its own predicates, all the predicates inherited from other objects.
+The inheritance mechanisms existent in object-oriented programming languages allow us the specialization of previously defined objects, avoiding the unnecessary repetition of code. In the context of logic programming, we can interpret inheritance as a form of theory extension: an object will virtually contain, besides its own predicates, all the predicates inherited from other objects (which are redefined by itself).
 </p>
 
 <h2>Protocol inheritance<a name="protocol"></a></h2>
 
 <p>
-Protocol inheritance refers to the inheritance of predicate declarations (scope directives). These can be contained in objects, in protocols or in categories. Logtalk supports multi-inheritance of protocols: an object or a category may implement several protocols and a protocol may extend several protocols. 
+Protocol inheritance refers to the inheritance of predicate declarations (scope directives). These can be contained in objects, in protocols, or in categories. Logtalk supports single and multi-inheritance of protocols: an object or a category may implement several protocols and a protocol may extend several protocols. 
 </p>
 
 <h3>Search order for prototype hierarchies<a name="protocol_prototype"></a></h3>
 
 <p>
-The search order for predicate declarations is first the object, second the implemented protocols (and the protocols that these may extend), third the imported categories (and the protocols that they may implement), and last the objects that the object extends. This search is done in a depth-first way. If the object inherits two different declarations for the same predicate, only the first one will be considered.
+The search order for predicate declarations is first the object, second the implemented protocols (and the protocols that these may extend), third the imported categories (and the protocols that they may implement), and last the objects that the object extends. This search is performed in a depth-first way. When an object inherits two different declarations for the same predicate, only the first one will be considered.
 </p>
 
 <h3>Search order for class hierarchies<a name="protocol_class"></a></h3>
 
 <p>
-The search order for predicate declarations starts in the object classes. Following the classes declaration order, the search starts in the classes implemented protocols (and the protocols that these may extend), third the classes imported categories (and the protocols that they may implement), and last the superclasses of the object classes. This search is done in a depth-first way. If the object inherits two different declarations for the same predicate, only the first one will be considered.
+The search order for predicate declarations starts in the object classes. Following the classes declaration order, the search starts in the classes implemented protocols (and the protocols that these may extend), third the classes imported categories (and the protocols that they may implement), and last the superclasses of the object classes. This search is performed in a depth-first way. If the object inherits two different declarations for the same predicate, only the first one will be considered.
 </p>
 
 <h2>Implementation inheritance<a name="implementation"></a></h2>
@@ -96,7 +96,7 @@ After compiling and loading these objects, we can check the overriding behavior 
     yes
 
 
-    | ?- descendant::( bar(Bar ), foo(Foo)).
+    | ?- descendant::(bar(Bar), foo(Foo)).
 
     Bar = root
     Foo = descendant
@@ -109,7 +109,7 @@ However, we can explicitly program other behaviors. Let us see a few examples.
 <h4>Specialization inheritance<a name="specialization"></a></h4>
 
 <p>
-Specialization of inherited definitions: the new definition uses the inherited definitions, adding to this new code. This is done by calling the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> operator in the new definition.
+Specialization of inherited definitions: the new definition uses the inherited definitions, adding to this new code. This is accomplished by calling the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> operator in the new definition.
 </p>
 <pre>
     :- object(root).
@@ -217,7 +217,7 @@ To make all public predicates declared via implemented protocols, importeds cate
 </p>
 <pre>
     :- object(Object,
-        implements(private::Protocol).        % all the Protocol public and protected
+        implements(private::Protocol)).       % all the Protocol public and protected
         ...                                   % predicates become Object's private predicates
     :- end_object.
 </pre>
@@ -226,7 +226,7 @@ or:
 </p>
 <pre>
     :- object(Class,
-        specializes(protected::Superclass).   % all the Superclass public predicates
+        specializes(protected::Superclass)).  % all the Superclass public predicates
         ...                                   % become Object's protected predicates
     :- end_object.
 </pre>
@@ -235,7 +235,7 @@ Omitting the scope keyword is equivalent to using the public scope keyword. For 
 </p>
 <pre>
     :- object(Object,
-        imports(public::Category).
+        imports(public::Category)).
         ...
     :- end_object.
 </pre>
@@ -244,7 +244,7 @@ This is the same as:
 </p>
 <pre>
     :- object(Object,
-        imports(Category).
+        imports(Category)).
         ...
     :- end_object.
 </pre>
@@ -273,7 +273,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: September 7, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 5, 2005</span></p>
 </div>
 </body>
 </html>

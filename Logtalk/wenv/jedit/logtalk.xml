@@ -13,7 +13,7 @@
 	directory installation.   Next, check the "catalog" file in the 
 	same subdirectory and add (if not present) the following entry:
 	
-	<MODE NAME="logtalk" FILE="logtalk.xml" FILE_NAME_GLOB="*.{mlgt,lgt,loader,config}" />
+	<MODE NAME="logtalk" FILE="logtalk.xml" FILE_NAME_GLOB="*.{lgt,config}" />
 -->
 
 <MODE>

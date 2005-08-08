@@ -36,7 +36,7 @@ All object (or category) predicates that we want to access from other objects mu
 A predicate can be public, protected or private. Public predicates can be called from any object. Protected predicates can only be called from the container object or from a container descendant. Private predicates can only be called from the container object.
 </p>
 <p>
-The scope declarations are made using the <a title="Consult reference manual" href="../refman/directives/public1.html"><code>public/1</code></a>, <a title="Consult reference manual" href="../refman/directives/protected1.html"><code>protected/1</code></a> and <a title="Consult reference manual" href="../refman/directives/private1.html"><code>private/1</code></a> directives. For example:
+The scope declarations are made using the directives <a title="Consult reference manual" href="../refman/directives/public1.html"><code>public/1</code></a>, <a title="Consult reference manual" href="../refman/directives/protected1.html"><code>protected/1</code></a>, and <a title="Consult reference manual" href="../refman/directives/private1.html"><code>private/1</code></a>. For example:
 </p>
 <pre>
     :- public(init/1).
@@ -179,7 +179,7 @@ Operators are local to the object (or category) where they are declared. This me
 <h3>Uses directive<a name="uses"></a></h3>
 
 <p>
-When a predicate makes heavy use of predicates defined on other objects, its definition can be excessively verbose due to all the necessary message sending constructs. Consider the following example:
+When a predicate makes heavy use of predicates defined on other objects, its clauses can be excessively verbose due to all the necessary message sending constructs. Consider the following example:
 </p>
 <pre>
     foo :-
@@ -232,7 +232,7 @@ A common use for the <code>alias/3</code> directive is to give an alternative na
 </p>
 <pre>
     :- object(square,
-    	extends(rectangle).
+    	extends(rectangle)).
 
         :- alias(rectangle, width/1, side/1).
 
@@ -248,7 +248,7 @@ Another common use for this directive is to solve conflicts when two inherited p
 </p>
 <pre>
     :- object(my_data_structure,
-    	extends(list, set).
+    	extends(list, set)).
 
         :- alias(list, member/2, list_member/2).
         :- alias(set, member/2, set_member/2).
@@ -274,11 +274,11 @@ When used this way, the <code>alias/3</code> directive provides functionality si
 Note that the <code>alias/3</code> directive never hides a predicate which is visible on the entity containing the directive as a result of the Logtalk lookup algorithm. However, it may be used to make visible a predicate which otherwise would be masked by another predicate, as illustrated in the above example.
 </p>
 <p>
-The <code>alias/3</code> directive may also be used to make visible a predicate, which otherwise would be masked by another predicate, while keeping the original name as follows:
+The <code>alias/3</code> directive may also be used to give access to an inherited predicate, which otherwise would be masked by another inherited predicate, while keeping the original name as follows:
 </p>
 <pre>
     :- object(my_data_structure,
-    	extends(list, set).
+    	extends(list, set)).
 
         :- alias(list, member/2, list_member/2).
         :- alias(set, member/2, set_member/2).
@@ -722,7 +722,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: February 6, 2005</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 5, 2005</span></p>
 </div>
 </body>
 </html>
