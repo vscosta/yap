@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.init.c  
-  version:     $Id: opt.init.c,v 1.11 2005-08-05 14:55:03 vsc Exp $   
+  version:     $Id: opt.init.c,v 1.12 2005-08-10 21:36:34 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -66,7 +66,10 @@ void init_global(int max_table_size, int n_workers, int sch_loop, int delay_load
 
   /* global data related to memory management */
 #ifdef LIMIT_TABLING
-  GLOBAL_MAX_PAGES = max_table_size * 1024 * 1024 / Yap_page_size;
+  if (max_table_size)
+    GLOBAL_MAX_PAGES = ((max_table_size - 1) * 1024 * 1024 / SHMMAX + 1) * SHMMAX / Yap_page_size;
+  else
+    GLOBAL_MAX_PAGES = -1;
 #endif /* LIMIT_TABLING */
   INIT_PAGES(GLOBAL_PAGES_void, void *);      
 #ifdef YAPOR
