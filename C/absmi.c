@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-08-05 14:55:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-08-12 17:00:00 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.174  2005/08/05 14:55:02  vsc
+* first steps to allow mavars with tabling
+* fix trailing for tabling with multiple get_cons
+*
 * Revision 1.173  2005/08/04 15:45:49  ricroc
 * TABLING NEW: support to limit the table space size
 *
@@ -1532,7 +1536,7 @@ Yap_absmi(int inp)
 	/* or updatable variable */
 #if defined(TERM_EXTENSIONS) || defined(FROZEN_STACKS) || defined(MULTI_ASSIGNMENT_VARIABLES)
 	if (IsPairTerm(d1))
-#endif
+#endif /* TERM_EXTENSIONS || FROZEN_STACKS || MULTI_ASSIGNMENT_VARIABLES */
 	  {
 	    register CELL flags;
 	    CELL *pt1 = RepPair(d1);
@@ -1656,7 +1660,7 @@ Yap_absmi(int inp)
 	  /* AbsAppl means */
 	  /* multi-assignment variable */
 	  /* so the next cell is the old value */ 
-#if FROZEN_STACKS
+#ifdef FROZEN_STACKS
 	  pt[0] = TrailVal(pt0-1);
 	  pt0 -= 1;
 #else
@@ -1696,45 +1700,33 @@ Yap_absmi(int inp)
 #endif /* TABLING */
       trim_trail:
 	HBREG = PROTECT_FROZEN_H(B->cp_b);
-#if FROZEN_STACKS
+#ifdef FROZEN_STACKS
         {
 	  tr_fr_ptr pt0, pt1, pbase;
 	  pbase = B->cp_tr;
-	  pt0 = pt1 = TR-1;
-	  
+	  pt0 = pt1 = TR - 1;
 	  while (pt1 >= pbase) {
 	    BEGD(d1);
-
 	    d1 = TrailTerm(pt1);
 	    if (IsVarTerm(d1)) {
 	      if (d1 < (CELL)HBREG || d1 > Unsigned(B->cp_b)) { 
-		CELL d2 = TrailVal(pt0);
-
-		TrailVal(pt0) = d2;
 		TrailTerm(pt0) = d1;
+		TrailVal(pt0) = TrailVal(pt1);
 		pt0--;
 	      }
 	      pt1--;
-	    } else if (IsApplTerm(d1)) {
-	      CELL v2, t3, v4;
-
-	      v2 = TrailVal(pt1);
-	      t3 = TrailTerm(pt1-1);
-	      v4 = TrailVal(pt1-1);
-	      TrailTerm(pt0) = d1;
-	      TrailVal(pt0) = v2;
-	      TrailTerm(pt0-1) = t3;
-	      TrailVal(pt0-1) = v4;
-	      pt0 -= 2;
-	      pt1 -= 2;
 	    } else if (IsPairTerm(d1)) {
 	      CELL *pt = RepPair(d1);
-
+#ifdef LIMIT_TABLING
+	      if ((ADDR) pt == Yap_TrailBase) {
+		sg_fr_ptr sg_fr = (sg_fr_ptr) TrailVal(pt1);
+		SgFr_state(sg_fr)--;  /* complete_in_use --> complete : compiled_in_use --> compiled */
+		insert_into_global_sg_fr_list(sg_fr);
+	      } else
+#endif /* LIMIT_TABLING */
 	      if ((ADDR) pt >= Yap_TrailBase) {
-		/*
-		  skip, this is a problem because we lose information, namely
-		  active references
-		*/
+		/* skip, this is a problem because we lose information,
+                   namely active references */
 		pt1 = (tr_fr_ptr)pt;
 	      } else if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
 		LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt);
@@ -1753,17 +1745,21 @@ Yap_absmi(int inp)
 		  setregs();
 		}
 	      } else {
-		CELL v = TrailVal(pt0);
 		TrailTerm(pt0) = d1;
-		TrailVal(pt0) = v;
+		TrailVal(pt0) = TrailVal(pt1);
 		pt0--;
 	      }
 	      pt1--;
-	    } else {
-	      CELL v = TrailVal(pt0);
-
+	    } else if (IsApplTerm(d1)) {
 	      TrailTerm(pt0) = d1;
-	      TrailVal(pt0) = v;
+	      TrailVal(pt0) = TrailVal(pt1);
+	      TrailTerm(pt0-1) = TrailTerm(pt1-1);
+	      TrailVal(pt0-1) = TrailVal(pt1-1);
+	      pt0 -= 2;
+	      pt1 -= 2;
+	    } else {
+	      TrailTerm(pt0) = d1;
+	      TrailVal(pt0) = TrailVal(pt1);
 	      pt0--;
 	      pt1--;
 	    }
@@ -1786,15 +1782,15 @@ Yap_absmi(int inp)
 	    d1 = TrailTerm(pt1);
 	    if (IsVarTerm(d1)) {
 	      if (d1 < (CELL)HBREG || d1 > Unsigned(B->cp_b)) { 
-#if FROZEN_STACKS
+#ifdef FROZEN_STACKS
 		TrailVal(pt0) = TrailVal(pt1);
-#endif
+#endif /* FROZEN_STACKS */
 		TrailTerm(pt0) = d1;
 		pt0++;
 	      }     
 	      pt1++;
 	    } else if (IsApplTerm(d1)) {
-#if FROZEN_STACKS
+#ifdef FROZEN_STACKS
 	      TrailVal(pt0) = TrailVal(pt1);
 	      TrailTerm(pt0) = TrailTerm(pt0+2) = d1;
 	      TrailVal(pt0+1) = TrailVal(pt1+1);
@@ -1806,7 +1802,7 @@ Yap_absmi(int inp)
 	      TrailTerm(pt0) = TrailTerm(pt0+2) = d1;
 	      pt0 += 3;
 	      pt1 += 3;
-#endif
+#endif /* FROZEN_STACKS */
 	    } else if (IsPairTerm(d1)) {
 	      CELL *pt = RepPair(d1);
 	      if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
@@ -1839,7 +1835,7 @@ Yap_absmi(int inp)
 	  }
 	  TR = pt0;
 	}
-#endif /* TABLING */
+#endif /* FROZEN_STACKS */
 	B = B->cp_b;
 	SET_BB(PROTECT_FROZEN_B(B));
       }
@@ -1921,7 +1917,7 @@ Yap_absmi(int inp)
       XREG(d0) = MkIntegerTerm((Int)B);
 #else
       XREG(d0) = MkIntTerm(LCL0-(CELL *) (B));
-#endif
+#endif /* SBA && FROZEN_STACKS */
       PREG = NEXTOP(PREG, x);
       ENDD(d0);
       GONext();
@@ -1933,7 +1929,7 @@ Yap_absmi(int inp)
       Bind_Local(YREG+PREG->u.y.y,MkIntegerTerm((Int)B));
 #else
       YREG[PREG->u.y.y] = MkIntTerm(LCL0-(CELL *) (B));
-#endif
+#endif /* SBA && FROZEN_STACKS */
       PREG = NEXTOP(PREG, y);
       GONext();
       ENDOp();
@@ -1956,7 +1952,7 @@ Yap_absmi(int inp)
 	pt0 = (choiceptr)IntegerOfTerm(d0);
 #else
 	pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
-#endif
+#endif /* SBA && FROZEN_STACKS */
 #ifdef YAPOR
 	CUT_prune_to(pt0);
 #endif	/* YAPOR */
@@ -1991,7 +1987,7 @@ Yap_absmi(int inp)
 	pt0 = (choiceptr)IntegerOfTerm(d0);
 #else
 	pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
-#endif
+#endif /* SBA && FROZEN_STACKS */
 #ifdef YAPOR
 	CUT_prune_to(pt0);
 #endif	/* YAPOR */
@@ -2713,7 +2709,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       GONext();
       ENDP(pt0);
       ENDD(d0);
@@ -3996,7 +3992,7 @@ Yap_absmi(int inp)
       Bind_Local(YREG+PREG->u.xy.y,d0);
 #else
       YREG[PREG->u.xy.y] = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       PREG = NEXTOP(PREG, xy);
       GONext();
 
@@ -4010,7 +4006,7 @@ Yap_absmi(int inp)
       Bind_Local(YREG+PREG->u.xy.y,Unsigned(pt1 + 1));
 #else
       YREG[PREG->u.xy.y] = Unsigned(pt1 + 1);
-#endif
+#endif /* SBA && FROZEN_STACKS */
       PREG = NEXTOP(PREG, xy);
       RESET_VARIABLE(pt1);
       RESET_VARIABLE(pt1+1);
@@ -4440,7 +4436,7 @@ Yap_absmi(int inp)
       Bind_Local(YREG+PREG->u.oy.y,(CELL) S_SREG);
 #else
       YREG[PREG->u.oy.y] = (CELL) S_SREG;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       PREG = NEXTOP(PREG, oy);
       RESET_VARIABLE(S_SREG);
       WRITEBACK_S(S_SREG+1);
@@ -4480,7 +4476,7 @@ Yap_absmi(int inp)
       Bind_Local(YREG+PREG->u.oy.y,(CELL) S_SREG);
 #else
       YREG[PREG->u.oy.y] = (CELL) S_SREG;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       PREG = NEXTOP(PREG, oy);
       RESET_VARIABLE(S_SREG);
       ENDCACHE_S();
@@ -6054,7 +6050,7 @@ Yap_absmi(int inp)
 	  Unsigned((Int)(B_FZ)-(Int)(H_FZ))) {
 	*pt0 =  (CELL)STACK_TO_SBA(pt0);
       } else
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	RESET_VARIABLE(pt0);
       ENDP(pt0);
       GONext();
@@ -6201,7 +6197,7 @@ Yap_absmi(int inp)
       Bind_Local(YREG+PREG->u.y.y,Unsigned(SREG));
 #else
       YREG[PREG->u.y.y] = Unsigned(SREG);
-#endif
+#endif /* SBA && FROZEN_STACKS */
       PREG = NEXTOP(PREG, y);
       RESET_VARIABLE(SREG);
       SREG++;
@@ -6232,7 +6228,7 @@ Yap_absmi(int inp)
       if (pt0 > H && pt0<(CELL *)B_FZ) {
 #else
       if (pt0 > H) {
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	/* local variable: let us bind it to the list */
 #ifdef FROZEN_STACKS  /* TRAIL */
 	Bind_Local(pt0, Unsigned(SREG));
@@ -6282,7 +6278,7 @@ Yap_absmi(int inp)
       if (pt0 > H && pt0<(CELL *)B_FZ) {
 #else
       if (pt0 > H) {
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	PREG = NEXTOP(PREG, y);
 	/* local variable: let us bind it to the list */
 #ifdef FROZEN_STACKS
@@ -6417,7 +6413,7 @@ Yap_absmi(int inp)
       Bind_Local(YREG+PREG->u.oy.y,AbsPair(SREG));
 #else
       YREG[PREG->u.oy.y] = AbsPair(SREG);
-#endif
+#endif /* SBA && FROZEN_STACKS */
       PREG = NEXTOP(PREG, oy);
       GONextW();
       ENDOpW();
@@ -6427,7 +6423,7 @@ Yap_absmi(int inp)
       Bind_Local(YREG+PREG->u.oy.y,AbsPair(SREG));
 #else
       YREG[PREG->u.oy.y] = AbsPair(SREG);
-#endif
+#endif /* SBA && FROZEN_STACKS */
       PREG = NEXTOP(PREG, oy);
       GONext();
       ENDOp();
@@ -6449,7 +6445,7 @@ Yap_absmi(int inp)
       Bind_Local(YREG+PREG->u.oy.y,AbsAppl(SREG-1));
 #else
       YREG[PREG->u.oy.y] = AbsAppl(SREG - 1);
-#endif
+#endif /* SBA && FROZEN_STACKS */
       PREG = NEXTOP(PREG, oy);
       GONextW();
       ENDOpW();
@@ -6459,7 +6455,7 @@ Yap_absmi(int inp)
       Bind_Local(YREG+PREG->u.oy.y,AbsAppl(SREG-1));
 #else
       YREG[PREG->u.oy.y] = AbsAppl(SREG - 1);
-#endif
+#endif /* SBA && FROZEN_STACKS */
       PREG = NEXTOP(PREG, oy);
       GONext();
       ENDOp();
@@ -8297,7 +8293,7 @@ Yap_absmi(int inp)
       if (!IsIntegerTerm(d0)) {
 #else
       if (!IsIntTerm(d0)) {
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	PREG = NEXTOP(PREG, xF);
 	GONext();
       }
@@ -8306,7 +8302,7 @@ Yap_absmi(int inp)
       pt0 = (choiceptr)IntegerOfTerm(d0);
 #else
       pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
-#endif
+#endif /* SBA && FROZEN_STACKS */
 #ifdef YAPOR
       CUT_prune_to(pt0);
 #endif /* YAPOR */
@@ -8354,7 +8350,7 @@ Yap_absmi(int inp)
       pt1 = (choiceptr)IntegerOfTerm(d0);
 #else
       pt1 = (choiceptr)(LCL0-IntOfTerm(d0));
-#endif
+#endif /* SBA && FROZEN_STACKS */
 #ifdef YAPOR
       CUT_prune_to(pt1);
 #endif /* YAPOR */
@@ -8487,7 +8483,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -8536,7 +8532,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -8657,7 +8653,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -8706,7 +8702,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -8827,7 +8823,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -8876,7 +8872,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -9050,7 +9046,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -9099,7 +9095,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -9146,7 +9142,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -9268,7 +9264,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -9317,7 +9313,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -9438,7 +9434,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -9487,7 +9483,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -9641,7 +9637,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -9690,7 +9686,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -9731,7 +9727,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -9885,7 +9881,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -9934,7 +9930,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -9973,7 +9969,7 @@ Yap_absmi(int inp)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt0);
       GONext();
 
@@ -10362,13 +10358,13 @@ Yap_absmi(int inp)
 	    /* AbsAppl means */
 	    /* multi-assignment variable */
 	    /* so the next cell is the old value */ 
-#if FROZEN_STACKS
+#ifdef FROZEN_STACKS
 	    pt[0] = TrailVal(--TR);
 #else
 	    pt[0] = TrailTerm(--TR);
 	    TR--;
-#endif
-#endif
+#endif /* FROZEN_STACKS */
+#endif /* MULTI_ASSIGNMENT_VARIABLES */
 	  }
 	  ENDD(d1);
 	}
@@ -10789,7 +10785,7 @@ Yap_absmi(int inp)
 	Bind_Local(pt1,pt0[d0]);
 #else
 	*pt1 = pt0[d0];
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	ENDP(pt1);
 	GONext();
 	ENDP(pt0);
@@ -10813,7 +10809,7 @@ Yap_absmi(int inp)
 	Bind_Local(pt1,pt0[d0-1]);
 #else
 	*pt1 = pt0[d0-1];
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	GONext();
 	ENDP(pt1);
 	ENDP(pt0);
@@ -10891,7 +10887,7 @@ Yap_absmi(int inp)
 	Bind_Local(pt1,pt0[d0]);
 #else
 	*pt1 = pt0[d0];
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	ENDP(pt1);
 	GONext();
 	ENDP(pt0);
@@ -10915,7 +10911,7 @@ Yap_absmi(int inp)
 	Bind_Local(pt1,pt0[d0-1]);
 #else
 	*pt1 = pt0[d0-1];
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	ENDP(pt1);
 	GONext();
 	ENDP(pt0);
@@ -11315,7 +11311,7 @@ Yap_absmi(int inp)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	ENDP(pt1);
 	GONext();
       } else if ((Int)d1 > 0) {
@@ -11363,7 +11359,7 @@ Yap_absmi(int inp)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	ENDP(pt1);
 	GONext();
       }	else if (d1  == 0) {
@@ -11374,7 +11370,7 @@ Yap_absmi(int inp)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	ENDP(pt1);
 	GONext();
       }	else {
@@ -11449,7 +11445,7 @@ Yap_absmi(int inp)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	ENDP(pt1);
 	GONext();
       }
@@ -11498,7 +11494,7 @@ Yap_absmi(int inp)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	ENDP(pt1);
 	GONext();
       }	else if (d1  == 0) {
@@ -11509,7 +11505,7 @@ Yap_absmi(int inp)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	ENDP(pt1);
 	GONext();
       }	else {
@@ -11576,7 +11572,7 @@ Yap_absmi(int inp)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	ENDP(pt1);
 	GONext();
       }
@@ -11588,7 +11584,7 @@ Yap_absmi(int inp)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
 	ENDP(pt1);
 	GONext();
       }
@@ -11642,7 +11638,7 @@ Yap_absmi(int inp)
       Bind_Local(pt1,d0);
 #else
       *pt1 = d0;
-#endif
+#endif /* SBA && FROZEN_STACKS */
       ENDP(pt1);
       ENDD(d1);
       GONext();
@@ -12272,7 +12268,7 @@ Yap_absmi(int inp)
 	  if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
 #else
 	  if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
-#endif
+#endif /* SBA */
 	  else E_YREG = (CELL *)((CELL)E_YREG + ENV_Size(CPREG));
 	}
 #else
