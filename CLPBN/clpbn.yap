@@ -44,7 +44,7 @@
 	incorporate_evidence/2
 	]).
 
-:- dynamic solver/1,output/1.
+:- dynamic solver/1,output/1,use/1.
 
 solver(vel).
 

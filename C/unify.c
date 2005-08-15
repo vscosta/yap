@@ -26,10 +26,31 @@ STATIC_PROTO(int    rtable_hash_op, (OPCODE));
 STATIC_PROTO(void   InitReverseLookupOpcode, (void));
 #endif
 
+/* support for rational trees and unification with occur checking */
+
+#if USE_SYSTEM_MALLOC
+#define address_to_visit_max (&to_visit_max)
+#define to_visit_base ((CELL **)AuxSp)
+
+#define TO_VISIT to_visit, to_visit_max
+int STD_PROTO(rational_tree_loop,(CELL *, CELL *, CELL **, CELL **));
+
+#else
+#define to_visit_max ((CELL **)TR+16)
+#define address_to_visit_max NULL
+#define to_visit_base ((CELL **)Yap_TrailTop)
+
+#define TO_VISIT to_visit
 int STD_PROTO(rational_tree_loop,(CELL *, CELL *, CELL **));
 
+#endif
+
 int
-rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0)
+rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0
+#if USE_SYSTEM_MALLOC
+		   , CELL *to_visit_max
+#endif
+		   )
 {
   CELL **to_visit = to_visit0;
 
@@ -47,10 +68,13 @@ loop:
       if (d0 == TermFoundVar)
 	goto cufail;
       if (IsPairTerm(d0)) {
+	to_visit -= 3;
+	if (to_visit < to_visit_max) {
+	  to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)d0;
-	to_visit += 3;
 	*pt0 = TermFoundVar;
 	pt0_end = (pt0 = RepPair(d0) - 1) + 2;
 	continue;
@@ -66,10 +90,13 @@ loop:
 	if (IsExtensionFunctor(f)) {
 	  continue;
 	}
+	to_visit -= 3;
+	if (to_visit < to_visit_max) {
+	  to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)d0;
-	to_visit += 3;
 	*pt0 = TermFoundVar;
 	d0 = ArityOfFunctor(f);
 	pt0 = ap2;
@@ -83,43 +110,45 @@ loop:
   }
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
-    to_visit -= 3;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
     *pt0 = (CELL)to_visit[2];
+    to_visit += 3;
     goto loop;
   }
   return (FALSE);
 
 cufail:
-#ifdef RATIONAL_TREES
   /* we found an infinite term */
   while (to_visit > to_visit) {
     CELL *pt0;
-    to_visit -= 3;
     pt0 = to_visit[0];
     *pt0 = (CELL)to_visit[2];
+    to_visit += 3;
   }
-#endif
   return (TRUE);
   
 }
 
 static inline int
 rational_tree(Term d0) {
+#if USE_SYSTEM_MALLOC
+  CELL  **to_visit_max = (CELL **)Yap_PreAllocCodeSpace(), **to_visit  = (CELL **)AuxSp;
+#else
+  CELL  **to_visit  = (CELL **)Yap_TrailTop;
+#endif
+
   if (IsPairTerm(d0)) {
     CELL *pt0 = RepPair(d0);
-    CELL **to_visit = (CELL **)H;
 
-    return(rational_tree_loop(pt0-1, pt0+1, to_visit));
+    return rational_tree_loop(pt0-1, pt0+1, TO_VISIT);
   } else if (IsApplTerm(d0)) {
     CELL *pt0 = RepAppl(d0);
     Functor f = (Functor)(*pt0);
-    CELL **to_visit = (CELL **)H;
 
-    return rational_tree_loop(pt0, pt0+ArityOfFunctor(f), to_visit);
+    return rational_tree_loop(pt0, pt0+ArityOfFunctor(f), TO_VISIT);
   } else
-    return(FALSE);
+    return FALSE;
 }
 
 static Int 
@@ -128,13 +157,17 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
 )
 {
 
-  register CELL **to_visit;
 #if SHADOW_HB
   register CELL *HBREG;
   HBREG = HB;
 #endif
 
-  to_visit = (CELL **) H;
+#if USE_SYSTEM_MALLOC
+  CELL  **to_visit_max = (CELL **)Yap_PreAllocCodeSpace(), **to_visit  = (CELL **)AuxSp;
+#else
+  CELL  **to_visit  = (CELL **)Yap_TrailTop;
+#endif
+
  loop:
   while (pt0 < pt0_end) {
     register CELL *ptd0 = ++pt0;
@@ -150,7 +183,7 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
       deref_head(d1, unify_comp_nvar_unk);
     unify_comp_nvar_nvar:
       if (d0 == d1) {
-	if (rational_tree_loop(pt0-1, pt0, to_visit))
+	if (rational_tree_loop(pt0-1, pt0, TO_VISIT))
 	  goto cufail;
 	continue;
       } if (IsPairTerm(d0)) {
@@ -159,13 +192,16 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
 	}
 	/* now link the two structures so that no one else will */
 	/* come here */
+	to_visit -= 5;
+	if (to_visit < to_visit_max) {
+	  to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
 	/* we want unification of rational trees to fail */
 	to_visit[3] = (CELL *)*pt0;
 	to_visit[4] = (CELL *)*pt1;
-	to_visit += 5;
 	*pt0 = TermFoundVar;
 	*pt1 = TermFoundVar;
 	pt0_end = (pt0 = RepPair(d0) - 1) + 2;
@@ -210,12 +246,15 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
 	}
 	/* now link the two structures so that no one else will */
 	/* come here */
+	to_visit -= 5;
+	if (to_visit < to_visit_max) {
+	  to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
 	to_visit[3] = (CELL *)*pt0;
 	to_visit[4] = (CELL *)*pt1;
-	to_visit += 5;
 	*pt0 = TermFoundVar;
 	*pt1 = TermFoundVar;
 	d0 = ArityOfFunctor(f);
@@ -238,7 +277,7 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
       if (ptd1 < H0) Yap_WakeUp(ptd1);
     bind_ocunify1:
 #endif
-      if (rational_tree_loop(ptd1-1, ptd1, to_visit))
+      if (rational_tree_loop(ptd1-1, ptd1, TO_VISIT))
 	goto cufail;
       continue;
 
@@ -260,7 +299,7 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
       if (ptd0 < H0) Yap_WakeUp(ptd0);
     bind_ocunify2:
 #endif
-      if (rational_tree_loop(ptd0-1, ptd0, to_visit))
+      if (rational_tree_loop(ptd0-1, ptd0, TO_VISIT))
 	goto cufail;
       continue;
 
@@ -270,13 +309,13 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
     }
   }
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **) H) {
-    to_visit -= 5;
+  if (to_visit < to_visit_max) {
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
     pt1 = to_visit[2];
     *pt0 = (CELL)to_visit[3];
     *pt1 = (CELL)to_visit[4];
+    to_visit += 5;
     goto loop;
   }
   /* successful exit */
@@ -284,13 +323,13 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
 
 cufail:
   /* failure */
-  while (to_visit > (CELL **) H) {
+  while (to_visit < to_visit_base) {
     CELL *pt0;
-    to_visit -= 5;
     pt0 = to_visit[0];
     pt1 = to_visit[2];
     *pt0 = (CELL)to_visit[3];
     *pt1 = (CELL)to_visit[4];
+    to_visit += 5;
   }
   /* failure */
   return (FALSE);
@@ -426,7 +465,7 @@ p_cyclic(void)
   Term t = Deref(ARG1);
   if (IsVarTerm(t))
     return(FALSE);
-  return(rational_tree(t));
+  return rational_tree(t);
 }
 
 static Int
@@ -435,7 +474,7 @@ p_acyclic(void)
   Term t = Deref(ARG1);
   if (IsVarTerm(t))
     return(TRUE);
-  return(!rational_tree(t));
+  return !rational_tree(t);
 }
 
 int 

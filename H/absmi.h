@@ -1276,6 +1276,17 @@ cufail:
 #endif
 }
 
+/*  don't pollute name space */
+#if USE_SYSTEM_MALLOC
+#undef address_to_visit_max
+#undef to_visit_base
+#else
+#undef to_visit_max
+#undef address_to_visit_max
+#undef to_visit_base
+#endif
+
+
 #endif
 
 
