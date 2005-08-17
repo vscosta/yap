@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-08-02 03:09:50 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-08-17 18:48:35 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.143  2005/08/02 03:09:50  vsc
+* fix debugger to do well nonsource predicates.
+*
 * Revision 1.142  2005/08/01 15:40:37  ricroc
 * TABLING NEW: better support for incomplete tabling
 *
@@ -6652,10 +6655,13 @@ static yamop *
 add_to_expand_clauses(path_stack_entry **spp, yamop *ipc, ClauseDef *cls, PredEntry *ap, int first)
 {
   path_stack_entry *sp = *spp;
-  yamop **clar = (yamop **)NEXTOP(ipc,sp);
+  yamop **clar;
 
   if (first) {
+
     do {
+      clar = (yamop **)NEXTOP(ipc,sp);
+
       if (*clar == NULL || clar[0] == cls->Code) {
 	while (*clar == NULL) clar++;
 	if (clar[0] != cls->Code) {
@@ -6667,7 +6673,7 @@ add_to_expand_clauses(path_stack_entry **spp, yamop *ipc, ClauseDef *cls, PredEn
     } while (compacta_expand_clauses(ipc));
   } else {
     do {
-      clar += ipc->u.sp.s1;
+      clar = (yamop **)NEXTOP(ipc,sp) + ipc->u.sp.s1;
       if (clar[-1] == NULL  || clar[-1] == cls->Code) {
 	while (*--clar == NULL);
 	if (clar[0] != cls->Code) {
