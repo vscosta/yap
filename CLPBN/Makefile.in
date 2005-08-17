@@ -33,8 +33,10 @@ CLPBN_PROGRAMS= \
 	$(srcdir)/clpbn/gibbs.yap \
 	$(srcdir)/clpbn/graphs.yap \
 	$(srcdir)/clpbn/graphviz.yap \
+	$(srcdir)/clpbn/topsort.yap \
 	$(srcdir)/clpbn/utils.yap \
 	$(srcdir)/clpbn/vel.yap \
+	$(srcdir)/clpbn/viterbi.yap \
 	$(srcdir)/clpbn/xbif.yap
 
 CLPBN_EXAMPLES=

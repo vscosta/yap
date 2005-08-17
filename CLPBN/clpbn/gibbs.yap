@@ -30,6 +30,9 @@
 :- use_module(library('clpbn/utils'), [
 	check_for_hidden_vars/3]).
 
+:- use_module(library('clpbn/topsort'), [
+	topsort/2]).
+
 :- dynamic gibbs_params/3.
 
 :- dynamic implicit/1.
@@ -446,27 +449,6 @@ clean_up.
 
 gibbs_params(5,10000,100000).
 
-/* simple implementation of a topological sorting algorithm */
-/* graph is as Node-[Parents] */
-
-topsort([], []) :- !.
-topsort(Graph0,Sorted) :-
-	add_parentless(Graph0, Sorted, IncludedI, Graph1, SortedRest),
-	sort(IncludedI, Included),
-	delete_parents(Graph1, Included, NoParents),
-	topsort(NoParents, SortedRest).
-
-add_parentless([], Sorted, [], [], Sorted).
-add_parentless([Node-[]|Graph0], [Node|Sorted], [Node|Included], Graph1, SortedRest) :- !,
-	add_parentless(Graph0, Sorted, Included, Graph1, SortedRest).
-add_parentless([Node|Graph0], Sorted, Included, [Node|Graph1], SortedRest) :-
-	add_parentless(Graph0, Sorted, Included, Graph1, SortedRest).
-
-delete_parents([], _, []).
-delete_parents([Node-Parents|Graph1], Included, [Node-NewParents|NoParents]) :-
-	ord_subtract(Parents, Included, NewParents),
-	delete_parents(Graph1, Included, NoParents).
-
 cvt2problist([], []).
 cvt2problist([[[_|E]]|Est0], [Ps|Probs]) :-
 	sum_all(E,0,Sum),
@@ -486,6 +468,6 @@ do_probs([E|Es],Sum,[P|Ps]) :-
 show_sorted([], _) :- nl.
 show_sorted([I|VarOrder], Graph) :-
 	arg(I,Graph,var(V,I,_,_,_,_,_,_,_)),		
-	clpbn:get_atts(V,[key(K)]),
+%	clpbn:get_atts(V,[key(K)]),
 %	format('~w ',[K]),
 	show_sorted(VarOrder, Graph).

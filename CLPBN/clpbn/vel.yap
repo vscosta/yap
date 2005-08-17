@@ -88,7 +88,6 @@ find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Parents,Size
 
 var_with_deps(V, Table, Deps, Sizes, Ev, Vals) :-
 	clpbn:get_atts(V, [dist(Vals,OTable,Parents)]),
-	clpbn:get_atts(V, [key(K)]), format('~w(~w) Parents: ~w~n',[V,K,Parents]),
 	( clpbn:get_atts(V, [evidence(Ev)]) -> true ; true),
 	reorder_CPT([V|Parents],OTable,Deps0,Table0,Sizes0),
 	simplify_evidence(Deps0, Table0, Deps0, Sizes0, Table, Deps, Sizes).
