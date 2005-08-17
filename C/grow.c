@@ -22,6 +22,7 @@
 #include "alloc.h"
 #include "sshift.h"
 #include "compile.h"
+#include "attvar.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -590,8 +591,11 @@ static_growglobal(long size, CELL **ptr)
 {
   UInt start_growth_time, growth_time;
   int gc_verbose;
+  char *omax = (ADDR)DelayTop();
 
   /* adjust to a multiple of 256) */
+  if (size < (omax-Yap_GlobalBase)/8)
+    size = (omax-Yap_GlobalBase)/8;
   size = AdjustPageSize(size);
   Yap_ErrorMessage = NULL;
   if (!Yap_ExtendWorkSpace(size)) {

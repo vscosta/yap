@@ -437,20 +437,31 @@ GetAllAtts(attvar_record *attv) {
 
 static Term
 AllAttVars(Term t) {
-  if (t == TermNil) {
-    return t;
-  } else {
-    attvar_record *attv = (attvar_record *)VarOfTerm(t);
-    if (!IsVarTerm(attv->Done) || !IsUnboundVar(&attv->Done))
-      return AllAttVars(attv->NS);
-    else return MkPairTerm(t,AllAttVars(attv->NS));
+  CELL *h0 = H;
+
+  while (t != TermNil) {
+    attvar_record *attv;
+
+    if (ASP - H < 1024) {
+      H = h0;
+      return 0L;
+    }
+    attv = (attvar_record *)VarOfTerm(t);
+    if (IsVarTerm(attv->Done) && IsUnboundVar(&attv->Done)) {
+      if (H != h0) {
+	H[-1] = AbsPair(H);
+      }
+      H[0] = t;
+      H += 2;
+    }
+    t = attv->NS;
   }
-}
-
-Term
-Yap_CurrentAttVars(void) {
-  return(AllAttVars(Yap_ReadTimedVar(AttsMutableList)));
-
+  if (H != h0) {
+    H[-1] = TermNil;
+    return AbsPair(h0);
+  } else {
+    return TermNil;
+  }
 }
 
 static Int
@@ -650,8 +661,14 @@ p_n_atts(void)
 static Int
 p_all_attvars(void)
 {
-  Term t = Yap_ReadTimedVar(AttsMutableList);
-  return Yap_unify(ARG1,AllAttVars(t));
+  Term t = Yap_ReadTimedVar(AttsMutableList), out;
+  while ((out = AllAttVars(t)) == 0L) {
+    if (!Yap_gc(1, ENV, P)) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      return FALSE;
+    }    
+  }
+  return Yap_unify(ARG1,out);
 }
 
 static Int

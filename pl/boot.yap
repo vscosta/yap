@@ -14,14 +14,6 @@
 * comments:	boot file for Prolog					 *
 *									 *
 *************************************************************************/
-% process an input clause
-
-'$test'(I,D,H,[Y|L]) :-
-	arg(I,D,X), ( X=':' ; integer(X)),
-	arg(I,H,Y), var(Y), !,
-	I1 is I-1,
-	'$module_u_vars'(I1,D,H,L).
-
 
 % This one should come first so that disjunctions and long distance
 % cuts are compiled right with co-routining.

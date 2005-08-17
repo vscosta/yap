@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.59 2005-08-04 15:45:53 ricroc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.60 2005-08-17 20:13:49 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -91,7 +91,6 @@ void   STD_PROTO(Yap_InitAnalystPreds,(void));
 void   STD_PROTO(Yap_InitArrayPreds,(void));
 
 /* attvar.c */
-Term   STD_PROTO(Yap_CurrentAttVars,(void));
 void   STD_PROTO(Yap_InitAttVarPreds,(void));
 
 /* bb.c */
