@@ -3436,7 +3436,8 @@ p_get_byte (void)
   if (sno < 0)
     return(FALSE);
   status = Stream[sno].status;
-  if (!(status & Binary_Stream_f)) {
+  if (!(status & Binary_Stream_f) &&
+      yap_flags[STRICT_ISO_FLAG]) {
     Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "get_byte/2");
     return(FALSE);
   }
@@ -3471,7 +3472,8 @@ p_put_byte (void)
   int sno = CheckStream (ARG1, Output_Stream_f, "put/2");
   if (sno < 0)
     return (FALSE);
-  if (!(Stream[sno].status & Binary_Stream_f)) {
+  if (!(Stream[sno].status & Binary_Stream_f) &&
+      yap_flags[STRICT_ISO_FLAG]) {
     Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "get0/2");
     return(FALSE);
   }
