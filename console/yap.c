@@ -621,6 +621,7 @@ main (int argc, char **argv)
       YAP_RunGoal(t_goal);
     }
   }
+  YAP_ClearExceptions();
   /* End preprocessor code */
 
   exec_top_level(BootMode, &init_args);

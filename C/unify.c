@@ -116,7 +116,7 @@ loop:
     to_visit += 3;
     goto loop;
   }
-  return (FALSE);
+  return FALSE;
 
 cufail:
   /* we found an infinite term */
@@ -361,9 +361,7 @@ oc_unify_nvar:
 oc_unify_nvar_nvar:
 
   if (d0 == d1) {
-    if (rational_tree(d0))
-      return(FALSE);
-    return(TRUE);
+    return (!rational_tree(d0));
   }
   /* both arguments are bound */
   if (IsPairTerm(d0)) {

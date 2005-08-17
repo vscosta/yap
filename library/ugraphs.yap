@@ -42,6 +42,7 @@
 	neighbors/3,
 	reachable/3,
 	top_sort/2,
+	top_sort/3,
 	transitive_closure/2,
 	transpose/2,
 	vertices/2,
@@ -450,6 +451,12 @@ top_sort(Graph, Sorted) :-
 	select_zeros(Counts1, Vertices, Zeros),
 	top_sort(Zeros, Sorted, Graph, Vertices, Counts1).
  
+top_sort(Graph, Sorted0, Sorted) :-
+	vertices_and_zeros(Graph, Vertices, Counts0),
+	count_edges(Graph, Vertices, Counts0, Counts1),
+	select_zeros(Counts1, Vertices, Zeros),
+	top_sort(Zeros, Sorted, Sorted0, Graph, Vertices, Counts1).
+ 
  
 vertices_and_zeros([], [], []) :- !.
 vertices_and_zeros([Vertex-_|Graph], [Vertex|Vertices], [0|Zeros]) :-
@@ -484,6 +491,13 @@ top_sort([Zero|Zeros], [Zero|Sorted], Graph, Vertices, Counts1) :-
 	graph_memberchk(Zero-Neibs, Graph),
 	decr_list(Neibs, Vertices, Counts1, Counts2, Zeros, NewZeros),
 	top_sort(NewZeros, Sorted, Graph, Vertices, Counts2).
+ 
+top_sort([], Sorted0, Sorted0, Graph, _, Counts) :- !,
+	vertices_and_zeros(Graph, _, Counts).
+top_sort([Zero|Zeros], [Zero|Sorted], Sorted0, Graph, Vertices, Counts1) :-
+	graph_memberchk(Zero-Neibs, Graph),
+	decr_list(Neibs, Vertices, Counts1, Counts2, Zeros, NewZeros),
+	top_sort(NewZeros, Sorted, Sorted0, Graph, Vertices, Counts2).
  
 graph_memberchk(Element1-Edges, [Element2-Edges2|_]) :- Element1 == Element2, !,
 	Edges = Edges2.

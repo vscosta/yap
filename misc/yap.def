@@ -51,6 +51,7 @@ YAP_Error
 YAP_RunGoal
 YAP_RestartGoal
 YAP_GoalHasException
+YAP_ClearExceptions
 YAP_ContinueGoal
 YAP_PruneGoal
 YAP_InitConsult

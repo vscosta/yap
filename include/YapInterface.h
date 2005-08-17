@@ -218,8 +218,11 @@ extern X_API YAP_Bool PROTO(YAP_ContinueGoal,(void));
 /*  void YAP_PruneGoal(void) */
 extern X_API void PROTO(YAP_PruneGoal,(void));
 
-/*  int YAP_GoalHasException(void) */
+/*  int YAP_GoalHasException(YAP_Term *) */
 extern X_API YAP_Bool PROTO(YAP_GoalHasException,(YAP_Term *));
+
+/*  void YAP_ClearExceptions(void) */
+extern X_API void PROTO(YAP_ClearExceptions,(void));
 
 /*  int YAP_Reset(void) */
 extern X_API void PROTO(YAP_Reset,(void));

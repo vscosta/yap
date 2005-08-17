@@ -8753,6 +8753,13 @@ Generate the set of nodes @var{Sort} as a topological sorting of graph
 L = [_138,_219,_139]
 @end example
 
+@item top_sort(+@var{Graph}, -@var{Sort0}, -@var{Sort})
+@findex  top_sort/3
+@syindex top_sort/3
+@cnindex top_sort/3
+Generate the difference list @var{Sort}-@var{Sort0} as a topological
+sorting of graph @var{Graph}, if one is possible.
+
 @item transitive_closure(+@var{Graph}, +@var{Closure})
 @findex  transitive_closure/2
 @syindex transitive_closure/2
@@ -14190,6 +14197,15 @@ Look for the next solution to the current query by forcing YAP to backtrack.
 Reset execution environment (similar to the @code{abort/0}
 builtin). This is useful when you want to start a new query before
 asking all solutions to the previous query.
+
+@item  @code{YAP_Bool} YAP_GoalHasException(@code{YAP_Term *tp})
+@findex YAP_RestartGoal/1
+Check if the last goal generated an exception, and if so copy it to the
+space pointed to by @var{tp}
+
+@item  @code{void} YAP_ClearExceptions(@code{void})
+@findex YAP_ClearExceptions/0
+Reset any exceptions left over by the system.
 
 @item  @code{void} YAP_Write(@code{YAP_Term} @var{t}, @code{void (*)(int)}
 @var{PutC}, @code{int} @var{flags})

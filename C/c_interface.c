@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-08-04 15:45:51 $,$Author: ricroc $						 *
+* Last rev:	$Date: 2005-08-17 13:35:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.70  2005/08/04 15:45:51  ricroc
+* TABLING NEW: support to limit the table space size
+*
 * Revision 1.69  2005/07/19 17:12:18  rslopes
 * fix for older compilers that do not support declaration of vars
 * in the middle of the function code.
@@ -205,6 +208,7 @@ X_API void    STD_PROTO(YAP_Error,(int, Term, char *, ...));
 X_API Term    STD_PROTO(YAP_RunGoal,(Term));
 X_API int     STD_PROTO(YAP_RestartGoal,(void));
 X_API int     STD_PROTO(YAP_GoalHasException,(Term *));
+X_API void    STD_PROTO(YAP_ClearExceptions,(void));
 X_API int     STD_PROTO(YAP_ContinueGoal,(void));
 X_API void    STD_PROTO(YAP_PruneGoal,(void));
 X_API void    STD_PROTO(YAP_InitConsult,(int, char *));
@@ -980,7 +984,14 @@ YAP_GoalHasException(Term *t)
     out = TRUE;
   }
   RECOVER_MACHINE_REGS();
-  return(out);
+  return out;
+}
+
+X_API void
+YAP_ClearExceptions(void)
+{
+  EX = 0L;
+  UncaughtThrow = FALSE;
 }
 
 X_API void
