@@ -1101,7 +1101,7 @@ fi
 dnl disable smart memory management
 if test "$use_malloc" = yes 
 then
-AC_DEFINE(USE_MALLOC,1)
+AC_DEFINE(USE_SYSTEM_MALLOC,1)
 AC_DEFINE(GC_NO_TAGS,1)
 fi
 

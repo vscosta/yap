@@ -48,7 +48,7 @@ int STD_PROTO(rational_tree_loop,(CELL *, CELL *, CELL **));
 int
 rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0
 #if USE_SYSTEM_MALLOC
-		   , CELL *to_visit_max
+		   , CELL **to_visit_max
 #endif
 		   )
 {

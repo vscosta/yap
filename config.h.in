@@ -241,9 +241,10 @@
 
 #undef  USE_DL_MALLOC
 #undef  USE_MALLOC
-#define USE_MMAP    (HAVE_MMAP  & !USE_MALLOC)
-#define USE_SHM	    (HAVE_SHMAT & !HAVE_MMAP & !USE_MALLOC)
-#define USE_SBRK    (HAVE_SBRK  & !HAVE_MMAP & !HAVE_SHMAT & !USE_MALLOC)
+#undef  USE_SYSTEM_MALLOC
+#define USE_MMAP    (HAVE_MMAP  & !USE_MALLOC & !USE_SYSTEM_MALLOC)
+#define USE_SHM	    (HAVE_SHMAT & !HAVE_MMAP & !USE_MALLOC & !USE_SYSTEM_MALLOC)
+#define USE_SBRK    (HAVE_SBRK  & !HAVE_MMAP & !HAVE_SHMAT & !USE_MALLOC & !USE_SYSTEM_MALLOC)
 
 /* for OSes that do not allow user access to the first
    quadrant of the memory space */
