@@ -9,7 +9,7 @@
 :- use_module(library('clpbn'), []).
 
 :- use_module(library('clpbn/utils'), [
-	sort_vars_by_key/3]).
+	sort_vars_by_key_and_parents/3]).
 
 :- use_module(library('ugraphs'), [
 				   vertices_edges_to_ugraph/3,
@@ -20,7 +20,7 @@
 
 viterbi(Start,End,Trace) :-
 	attributes:all_attvars(Vars0),
-	sort_vars_by_key(Vars0,Vars,_),
+	sort_vars_by_key_and_parents(Vars0,Vars,_),
 	add_emissions(Vars),
 	topsort_vars(Vars,SortedVars),
 	init_viterbi(Start),
@@ -34,14 +34,36 @@ add_emissions([Var|Vars]) :-
 	add_emissions(Vars).
 	
 add_emission(Var) :-
-	clpbn:get_atts(Var,[evidence(Ev),dist(Vals,emission(CPT),Parents)]), !,
-	nth(Nth, Vals, Ev),
-	find_probs(CPT,Nth,Prob),
+	clpbn:get_atts(Var,[key(K),evidence(Ev),dist(Vals,emission(CPT),Parents)]), !,
+	cvt_vals(Vals,LVals),
+	once(nth(Nth, LVals, Ev)),
+	find_probs(CPT,K,Nth,Prob),
 	adde2pars(Parents,Prob).
 add_emission(_).
 
-find_probs(log(Logs,_Norms),Nth,Log) :-
+%
+% well known domains
+%
+cvt_vals(aminoacids,[a,  c,  d,  e,  f,  g,  h,  i,  k,  l,  m,  n,  p,  q,  r,  s,  t,  v,  w,  y]).
+cvt_vals(bool,[t,f]).
+cvt_vals(bases,[a,c,g,t]).
+cvt_vals([A|B],[A|B]).
+
+
+% first, try standard representation
+find_probs(Logs,_,Nth,Log) :-
+	compound(Logs),
+	arg(Nth,Logs,Log), !.
+% key independent, compacted
+find_probs(A,_,Nth,Log) :- atom(A), !,
+	user:compacted_cpt(A,Logs),
 	arg(Nth,Logs,Log).
+% key dependent, compacted
+find_probs(I,K,Nth,Log) :- integer(I), !,
+	functor(K,A,_),
+	user:compacted_cpt(A,I,Logs),
+	arg(Nth,Logs,Log).
+% now, try hacked representation
 %	get_norm(Norms,Nth,Norm).
 
 %get_norm(Norms,_,Norms) :- number(Norms), !.
@@ -74,25 +96,25 @@ fetch_times([V|Vs], [T-V|TVs]) :-
 sort_times([], _, []).
 sort_times([T-V|TVs], Graph0, SortedVars) :-
 	fetch_same_time(TVs, T, Vars, NTVs),
-	fetch_parents([V|Vars],Graph0,Graph),
+	fetch_parents([V|Vars],Edges),
+	add_edges(Graph0, Edges, Graph),
 	top_sort(Graph,SortedVars0,SortedVars),
 	sort_times(NTVs, Graph0, SortedVars0).
 
-fetch_same_time([T-V|TVs], T, [V|Vs], TVs0) :-
+fetch_same_time([T-V|TVs], T, [V|Vs], TVs0) :- !,
 	fetch_same_time(TVs, T, Vs, TVs0).
 fetch_same_time(TVs, _, [], TVs) :- !.
 
 
-fetch_parents([],Graph,Graph).
-fetch_parents([V|Vars],Graph0,GraphF) :-
+fetch_parents([],[]).
+fetch_parents([V|Vars],EdgesF) :-
 	clpbn:get_atts(V,[dist(_,_,Parents)]),
-	exp_edges(Parents,V,Graph0,GraphI),
-	fetch_parents(Vars,GraphI,GraphF).
+	exp_edges(Parents,V,EdgesF,Edges0),
+	fetch_parents(Vars,Edges0).
 
-exp_edges([],_,Graph,Graph).
-exp_edges([P|Parents],V,Graph0,GraphF) :-
-	add_edges(Graph0,[V-P],GraphI),
-	exp_edges(Parents,V,GraphI,GraphF).
+exp_edges([],_,Edges,Edges).
+exp_edges([P|Parents],V,[V-P|Edges],Edges0) :-
+	exp_edges(Parents,V,Edges,Edges0).
 
 extract_vars([],[]).
 extract_vars([_-V|KVars],[V|Vars]) :-
@@ -105,6 +127,7 @@ viterbi_alg([]).
 viterbi_alg([V|Vs]) :-
 	% get the current status
 	get_atts(V,[prob(P0)]), !,
+%	clpbn:get_atts(V,[key(K)]),format('doing(~w)~n',[K]),
 	clpbn:get_atts(V,[dist(_,trans(Probs),States)]),
 	% adjust to consider emission probabilities
 	adjust_for_emission(V, P0, Pf),
@@ -120,7 +143,9 @@ adjust_for_emission(V, P0, Pf) :-
 adjust_for_emission(_, P, P).
 
 propagate([],[],_,_).
-propagate([log(Prob,_)|Probs],[State|States],Pf,V) :-
+propagate([-inf|Probs],[_|States],Pf,V) :- !,
+	propagate(Probs,States,Pf,V).
+propagate([Prob|Probs],[State|States],Pf,V) :-
 	get_atts(State,[prob(P0)]), !,
 	mprob(Pf,Prob,P),
 	(P > P0 ->
@@ -128,10 +153,12 @@ propagate([log(Prob,_)|Probs],[State|States],Pf,V) :-
 	;
 	    true
 	),
+%	clpbn:get_atts(State,[key(K)]),format('  ~w:  ~w -> ~w~n',[K,P0,P]),
 	propagate(Probs,States,Pf,V).
-propagate([log(Prob,_)|Probs],[State|States],Pf,V) :-
+propagate([Prob|Probs],[State|States],Pf,V) :-
 	mprob(Pf,Prob,P),
 	put_atts(State,[prob(P),backp(V)]),
+%	clpbn:get_atts(State,[key(K)]),format('  ~w:  ~w!!~n',[K,P]),
 	propagate(Probs,States,Pf,V).
 
 backtrace(Start,Var,Trace,Trace) :- Start == Var, !.
@@ -142,8 +169,8 @@ backtrace(Start,Var,Trace0,Trace) :-
 
 
 	
-mprob(*,P,P) :- !.
-mprob(P,*,P) :- !.
+mprob(*,_,-inf) :- !.
+mprob(_,*,-inf) :- !.
 mprob(P1,P2,P) :- P is P1+P2.
 
 

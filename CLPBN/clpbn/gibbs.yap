@@ -57,7 +57,7 @@ initialise(LVs, Graph, GVs, OutputVars, VarOrder) :-
 	graph_representation(LVs, Graph, 0, Keys, TGraph),
 	compile_graph(Graph),
 	topsort(TGraph, VarOrder),
-	show_sorted(VarOrder, Graph),
+%	show_sorted(VarOrder, Graph),
 	add_output_vars(GVs, Keys, OutputVars).
 
 init_keys(Keys0) :-
@@ -468,6 +468,6 @@ do_probs([E|Es],Sum,[P|Ps]) :-
 show_sorted([], _) :- nl.
 show_sorted([I|VarOrder], Graph) :-
 	arg(I,Graph,var(V,I,_,_,_,_,_,_,_)),		
-%	clpbn:get_atts(V,[key(K)]),
-%	format('~w ',[K]),
+	clpbn:get_atts(V,[key(K)]),
+	format('~w ',[K]),
 	show_sorted(VarOrder, Graph).
