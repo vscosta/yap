@@ -1,8 +1,7 @@
 #/bin/bash
 # Guess what: this code works for me!
 
-version="Yap-4.5.7"
-PATH="$PATH":~/bin/noarch
+version="Yap-5.0.0"
 splat
 cd C
 splat
@@ -40,7 +39,8 @@ splat
 if test "$1" = "--small"; then
   make realclean
 else
-  make 
+  make html
+  make pdf
   make clean
 fi
 cd ../include
@@ -51,9 +51,7 @@ cd regex
 splat
 cd ../yap2swi
 splat
-cd ../../m4
-splat
-cd ../misc
+cd ../../misc
 splat
 cd ../pl
 splat
@@ -83,7 +81,7 @@ cd examples
 splat
 cd ../../../..
 if test "$1" = "--small"; then
-  tar cvzf  "$version"-small.tar.gz --exclude=CVS  "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL/README,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,LGPL/JPL/jpl.yap,LGPL/JPL/jpl_paths.yap.in,LGPL/JPL/Makefile.in,LGPL/JPL/java,LGPL/JPL/src,build-distr,OPTYap,CLPQR,CHR,CLPBN} # --exclude=CLPQR/clpqr/examples  --exclude=CHR/chr/examples
+  tar cvzf  "$version"-small.tar.gz --exclude=CVS  "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,misc,pl,LGPL/README,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,LGPL/JPL/jpl.yap,LGPL/JPL/jpl_paths.yap.in,LGPL/JPL/Makefile.in,LGPL/JPL/java,LGPL/JPL/src,build-distr,OPTYap,CLPQR,CHR,CLPBN} # --exclude=CLPQR/clpqr/examples  --exclude=CHR/chr/examples
 else
-  tar cvzf "$version".tar.gz --exclude=CVS  "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL/README,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,LGPL/JPL/jpl.yap,LGPL/JPL/Makefile.in,LGPL/JPL/java,LGPL/JPL/src,build-distr,build-distr,OPTYap,CLPQR,CHR,CLPBN,Logtalk}
+  tar cvzf "$version".tar.gz --exclude=CVS  "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,misc,pl,LGPL/README,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,LGPL/JPL/jpl.yap,LGPL/JPL/jpl_paths.yap.in,LGPL/JPL/Makefile.in,LGPL/JPL/java,LGPL/JPL/src,build-distr,build-distr,OPTYap,CLPQR,CHR,CLPBN,Logtalk}
 fi
