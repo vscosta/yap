@@ -14176,9 +14176,7 @@ An alternative is to use @emph{slots}, as shown next:
   out = YAP_RunGoal(t);
   t = YAP_GetFromSlot(sl);
   YAP_RecoverSlots(1);
-  if (out == 0) {
-     return FALSE;
-  }
+  if (out == 0) return FALSE;
 @end example
 Slots are safe houses in the stack, preserved by the garbage collector
 and the stack shifter. In this case, we use a slot to preserve @var{t}
