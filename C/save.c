@@ -789,6 +789,9 @@ get_regs(int flag)
     CreepFlag = get_cell();
     if (Yap_ErrorMessage)
       return -1;
+    EX = get_cell();
+    if (Yap_ErrorMessage)
+      return -1;
 #ifdef COROUTINING
     DelayedVars = get_cell();
     if (Yap_ErrorMessage)
