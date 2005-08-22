@@ -1,10 +1,10 @@
-%define _unpackaged_files_terminate_build 0
-%undefine __check_files
+#%define _unpackaged_files_terminate_build 0
+#%undefine __check_files
 
 Name: Yap
 Summary: Prolog Compiler
-Version: 4.5.7
-Packager:     Vitor Santos Costa <vitor@cos.ufrj.br>
+Version: 5.0.0
+Packager: Vitor Santos Costa <vitor@cos.ufrj.br>
 Release: 1
 Source: http://www.ncc.up.pt/~vsc/Yap/%{name}-%{version}.tar.gz
 Copyright: Perl Artistic License
@@ -13,6 +13,7 @@ Requires: readline
 Group: Development/Languages
 URL: http://www.ncc.up.pt/~vsc/Yap
 Prefix: /usr
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
 A high-performance Prolog compiler developed at LIACC,
@@ -23,17 +24,18 @@ compatible with the ISO-Prolog standard and with Quintus and SICStus
 Prolog.
 
 %prep
-rm -rf $RPM_BUILD_ROOT
 
 %setup -q
 
 %build
-./configure --prefix=/usr  --enable-coroutining --enable-max-performance
+./configure --prefix=/usr --enable-max-performance
 make
 
 %install
-make install
-make install_info
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+mkdir -p $RPM_BUILD_ROOT/usr/share/info
+make DESTDIR=$RPM_BUILD_ROOT install_info
 
 %post
 /sbin/install-info  --quiet /usr/share/info/yap.info --section "Programming Languages" /usr/share/info/dir
@@ -49,12 +51,15 @@ rm -f /usr/info/yap.info*
 rm -rf $RPM_BUILD_ROOT $RPM_BUILD_DIR/file.list.%{name}
 
 %files
+%defattr(-,root,root,-)
 %doc README*
 %doc INSTALL
 %doc changes4.3.html
 %doc docs/yap.tex
 /usr/bin/yap
 /usr/lib/Yap/
+/usr/lib/libYap.a
+/usr/include/Yap/
 /usr/share/Yap/
 /usr/share/info/yap.info*
 /usr/share/info/pillow_doc.info*
