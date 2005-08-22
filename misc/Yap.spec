@@ -7,7 +7,7 @@ Version: 5.0.0
 Packager: Vitor Santos Costa <vitor@cos.ufrj.br>
 Release: 1
 Source: http://www.ncc.up.pt/~vsc/Yap/%{name}-%{version}.tar.gz
-Copyright: Perl Artistic License
+License: Perl Artistic License
 Provides: yap
 Requires: readline
 Group: Development/Languages
