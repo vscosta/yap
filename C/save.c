@@ -992,6 +992,8 @@ restore_regs(int flag)
     HB = PtoLocAdjust(HB);
     YENV = PtoLocAdjust(YENV);
     S = PtoGloAdjust(S);
+    if (EX)
+      EX = AbsAppl(PtoGloAdjust(RepAppl(EX)));
 #ifdef COROUTINING
     DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
 #ifdef MULTI_ASSIGNMENT_VARIABLES
