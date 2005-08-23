@@ -661,8 +661,8 @@ p_n_atts(void)
 static Int
 p_all_attvars(void)
 {
-  Term t = Yap_ReadTimedVar(AttsMutableList), out;
-  while ((out = AllAttVars(t)) == 0L) {
+  Term out;
+  while ((out = AllAttVars(Yap_ReadTimedVar(AttsMutableList))) == 0L) {
     if (!Yap_gc(1, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;
@@ -733,7 +733,7 @@ void Yap_InitAttVarPreds(void)
   Yap_InitCPred("n_of_atts", 1, p_n_atts, SafePredFlag);
   Yap_InitCPred("bind_attvar", 1, p_bind_attvar, SafePredFlag);
 #endif /* COROUTINING */
-  Yap_InitCPred("all_attvars", 1, p_all_attvars, SafePredFlag);
+  Yap_InitCPred("all_attvars", 1, p_all_attvars, 0);
   CurrentModule = OldCurrentModule;
   Yap_InitCPred("attvar", 1, p_is_attvar, SafePredFlag|TestPredFlag);
   Yap_InitCPred("$att_bound", 1, p_attvar_bound, SafePredFlag|TestPredFlag|HiddenPredFlag);
