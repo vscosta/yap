@@ -157,15 +157,15 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
 )
 {
 
-#if SHADOW_HB
-  register CELL *HBREG;
-  HBREG = HB;
-#endif
-
 #if USE_SYSTEM_MALLOC
   CELL  **to_visit_max = (CELL **)Yap_PreAllocCodeSpace(), **to_visit  = (CELL **)AuxSp;
 #else
   CELL  **to_visit  = (CELL **)Yap_TrailTop;
+#endif
+
+#if SHADOW_HB
+  register CELL *HBREG;
+  HBREG = HB;
 #endif
 
  loop:
