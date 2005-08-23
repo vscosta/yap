@@ -242,7 +242,10 @@ then
        CFLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes"
        C_INTERF_FLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes"
      else
-       CFLAGS="-O3 -fno-gcse -fno-crossjumping -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes"
+       CFLAGS="-O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes"
+       case "`$CC --version < /dev/null`" in	
+	  *3.4*) CFLAGS="-fno-gcse -fno-crossjumping $CFLAGS" ;;
+       esac
        C_INTERF_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes"
        C_PARSER_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes"
        case "$target_cpu" in
@@ -344,7 +347,7 @@ then
     yap_cv_readline=no
     if test "$prefix" = "NONE"
     then
-      prefix="c:/Program\\ Files/Yap"
+      prefix="c:/Yap"
     fi
   else
     use_malloc="yes"
@@ -357,7 +360,7 @@ then
   AC_CHECK_LIB(wsock32,main)
   if test "$prefix" = "NONE"
   then
-    prefix="c:/Program\\ Files/Yap"
+    prefix="c:/Yap"
   fi
 else
   INSTALL_COMMAND="install_unix"
