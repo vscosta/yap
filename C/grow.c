@@ -31,6 +31,10 @@
 #define strncat(s0,s1,sz)   strcat(s0,s1)
 #endif
 
+#if !COROUTINING
+#define DelayTop() Yap_GlobalBase
+#endif
+
 static int heap_overflows = 0;
 static Int total_heap_overflow_time = 0;
 
