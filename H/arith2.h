@@ -36,7 +36,13 @@ add_int(Int i, Int j E_ARGS)
   }
 #endif
   /* Integer overflow, we need to use big integers */
+
+#ifdef BEAM
   RINT(x);
+  return( MkIntegerTerm (x));
+#else
+  RINT(x);
+#endif
 }
 
 /* Extended version with two possibilities:

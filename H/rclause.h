@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2005-08-01 15:40:38 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-09-08 21:55:47 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.10  2005/08/01 15:40:38  ricroc
+* TABLING NEW: better support for incomplete tabling
+*
 * Revision 1.9  2005/07/06 19:34:11  ricroc
 * TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
 *
@@ -707,6 +710,9 @@ restore_opcodes(yamop *pc)
       /* instructions type s */
     case _write_n_voids:
     case _pop_n:
+#ifdef BEAM
+    case _run_eam:
+#endif
 #ifdef TABLING
     case _table_new_answer:
 #endif /* TABLING */

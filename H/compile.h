@@ -144,6 +144,31 @@ typedef enum compiler_op {
 #ifdef TABLING_INNER_CUTS
   clause_with_cut_op,
 #endif /* TABLING_INNER_CUTS */
+#ifdef BEAM
+  run_op,
+  body_op,
+  endgoal_op,
+  try_me_op,
+  retry_me_op,
+  trust_me_op,
+  only_1_clause_op,
+  create_first_box_op,
+  create_box_op,
+  create_last_box_op,
+  remove_box_op,
+  remove_last_box_op,
+  prepare_tries,
+  std_base_op,
+  direct_safe_call_op,
+  commit_op,
+  skip_while_var_op,
+  wait_while_var_op,
+  force_wait_op,
+  write_op,
+  is_op,
+  equal_op,
+  exit_op, 
+#endif
   fetch_args_for_bccall,
   bccall_op,
   blob_op
@@ -240,7 +265,6 @@ typedef struct intermediates {
 #define	 VoidVar	0x01000000L
 #define	 TempVar	0x02000000L
 #define	 PermVar	0x03000000L
-
 
 #define save_b_flag	   0x10000
 #define commit_b_flag	   0x10001

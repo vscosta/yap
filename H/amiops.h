@@ -446,7 +446,6 @@ Yap_unify_constant(register Term a, register Term cons)
       }
     } else return(FALSE);
   }
-    
 
   deref_body(a,pt,unify_cons_unk,unify_cons_nonvar);
   BIND(pt,cons,wake_for_cons);

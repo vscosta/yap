@@ -1,17 +1,17 @@
 
 
 
-			README for Yap 4.5
+			README for Yap 5.0
 
 
-This directory contains a release of the Yap 4.t Prolog system,
+This directory contains a release of the Yap 5.t Prolog system,
 originally developed at the Universidade do Porto by Luis Damas and
 Vitor Santos Costa, with contributions from the Edinburgh Prolog
 library, the C-Prolog manual authors, Ricardo Rocha, and many
 others. You should read the rest of this file for information on what
 Yap is and for instructions on how to build it.
 
-YAP 4.2 is known to build with many versions of gcc (<= gcc-2.7.2, >=
+YAP 52 is known to build with many versions of gcc (<= gcc-2.7.2, >=
 gcc-2.8.1, >= egcs-1.0.1, gcc-2.95.*) and on a variety of Unix'es:
 SunOS 4.1, Solaris 2.*, Irix 5.2, HP-UX 10.20, Dec Alpha Unix, Linux 1.2
 and Linux 2.* (RedHat 4.0 through 5.2, Debian 2.*) in both the x86 and

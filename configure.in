@@ -59,30 +59,33 @@ AC_ARG_ENABLE(max-performance,
 	[ --enable-max-performance   try using the best flags for specific architecture ],
 	maxperformance="$enableval", maxperformance=no)
 AC_ARG_ENABLE(max-memory,
-	[ --enable-max-memory     try using the best flags for using the memory to the most ],
+	[ --enable-max-memory        try using the best flags for using the memory to the most ],
 	maxmemory="$enableval", maxmemory=no)
 AC_ARG_ENABLE(debug-yap,
 	[ --enable-debug-yap         enable C-debugging for YAP ],
 	debugyap="$enableval", debugyap=no)
+AC_ARG_ENABLE(eam,
+	[ --enable-eam               enable EAM on YAP ],
+	eam="$enableval", eam=no)
 AC_ARG_ENABLE(cygwin,
 	[ --enable-cygwin            use cygwin library in WIN32 ],
 	cygwin="$enableval", cygwin=no)
 AC_ARG_ENABLE(dynamic_loading,
-	[ --enable-dynamic-loading    compile Yap as a DLL ],
+	[ --enable-dynamic-loading   compile Yap as a DLL ],
 	dynamic_loading="$enableval", dynamic_loading=no)
 AC_ARG_ENABLE(use-malloc,
-	[ --enable-use-malloc    use malloc to allocate memory ],
+	[ --enable-use-malloc        use malloc to allocate memory ],
 	use_malloc="$enableval", use_malloc=no)
 AC_ARG_ENABLE(condor,
-	[ --enable-condor    allow Yap to be used from condor ],
+	[ --enable-condor            allow Yap to be used from condor ],
 	use_condor="$enableval", use_condor=no)
 	
 AC_ARG_ENABLE(april,
-	[ --enable-april    compile Yap to support April ILP system],
+	[ --enable-april             compile Yap to support April ILP system],
 	use_april="$enableval", use_april=no)
 
 AC_ARG_ENABLE(dlcompat,
-	[ --enable-dlcompat    use dlcompat library for dynamic loading on Mac OS X],
+	[ --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X],
 	use_dlcompat="$enableval", use_dlcompat=no)
 	
 AC_ARG_WITH(gmp,
@@ -99,7 +102,7 @@ AC_ARG_WITH(gmp,
 	[yap_cv_gmp=yes])
 
 AC_ARG_WITH(jpl,
-	[ --with-jpl=JAVA_HOME           use Java instalation in JAVA_HOME],
+	[ --with-jpl=JAVA_HOME       use Java instalation in JAVA_HOME],
 	if test "$withval" = yes; then
 		yap_cv_jpl="$JAVA_HOME"
 		dynamic_loading=yes
@@ -237,7 +240,7 @@ if test "$GCC" = "yes"
 then
    if test -z "${mycflags}"
    then
-     if test "$debugyap" = "yes"
+     if test "$debugyap" = "yes" 
      then
        CFLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes"
        C_INTERF_FLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes"
@@ -674,6 +677,11 @@ fi
 if test "$debugyap" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DDEBUG=1"
+fi
+
+if test "$eam" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DBEAM"
 fi
   
 if test "$wamprofile" = "yes"

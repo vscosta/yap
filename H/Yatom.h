@@ -560,6 +560,9 @@ typedef struct pred_entry
 #ifdef TABLING
   tab_ent_ptr TableOfPred;
 #endif				/* TABLING */
+#ifdef BEAM
+  struct Predicates *beamTable;
+#endif
   Term ModuleOfPred;		/* module for this definition           */
   /* This must be at an odd number of cells, otherwise it
      will not be aligned on RISC machines */

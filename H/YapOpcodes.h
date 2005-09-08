@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2005-08-01 15:40:38 $							 *
+* Last rev:     $Date: 2005-09-08 21:55:48 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.33  2005/08/01 15:40:38  ricroc
+* TABLING NEW: better support for incomplete tabling
+*
 * Revision 1.32  2005/07/06 19:34:11  ricroc
 * TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
 *
@@ -192,6 +195,9 @@
 #else
     OPCODE(or_last                 ,p),
 #endif /* YAPOR */
+#ifdef BEAM 
+    OPCODE(run_eam                 ,x),  
+#endif
     OPCODE(call_cpred              ,sla),		
     OPCODE(call_usercpred          ,sla),
     OPCODE(call_c_wfail            ,sdl),

@@ -855,20 +855,21 @@ Optional Features:
  --enable-threads           support system threads
  --pthread-locking           use pthread locking primitives for internal locking (requires threads)
  --enable-max-performance   try using the best flags for specific architecture
- --enable-max-memory     try using the best flags for using the memory to the most
+ --enable-max-memory        try using the best flags for using the memory to the most
  --enable-debug-yap         enable C-debugging for YAP
+ --enable-eam               enable EAM on YAP
  --enable-cygwin            use cygwin library in WIN32
- --enable-dynamic-loading    compile Yap as a DLL
- --enable-use-malloc    use malloc to allocate memory
- --enable-condor    allow Yap to be used from condor
- --enable-april    compile Yap to support April ILP system
- --enable-dlcompat    use dlcompat library for dynamic loading on Mac OS X
+ --enable-dynamic-loading   compile Yap as a DLL
+ --enable-use-malloc        use malloc to allocate memory
+ --enable-condor            allow Yap to be used from condor
+ --enable-april             compile Yap to support April ILP system
+ --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
  --with-gmp=DIR           use GNU Multiple Precision in DIR
- --with-jpl=JAVA_HOME           use Java instalation in JAVA_HOME
+ --with-jpl=JAVA_HOME       use Java instalation in JAVA_HOME
  --with-readline=DIR      use GNU Readline Library in DIR
  --with-mpi=DIR           use MPI library in DIR
  --with-mpe=DIR           use MPE library in DIR
@@ -2366,6 +2367,13 @@ if test "${enable_debug_yap+set}" = set; then
   debugyap="$enableval"
 else
   debugyap=no
+fi;
+# Check whether --enable-eam or --disable-eam was given.
+if test "${enable_eam+set}" = set; then
+  enableval="$enable_eam"
+  eam="$enableval"
+else
+  eam=no
 fi;
 # Check whether --enable-cygwin or --disable-cygwin was given.
 if test "${enable_cygwin+set}" = set; then
@@ -6198,6 +6206,11 @@ fi
 if test "$debugyap" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DDEBUG=1"
+fi
+
+if test "$eam" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DBEAM"
 fi
 
 if test "$wamprofile" = "yes"
