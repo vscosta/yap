@@ -1,0 +1,302 @@
+                   BEAM How-to-get-started
+
+This document gives you an introduction on how to use the EAM withing YAP. 
+We start by explaining how to prepare YAP to use the EAM.
+Then we present some code examples that you can use to try 
+out the EAM.
+
+
+WARNING:
+THE BEAM WITHING YAP IS STILL IN EARLY DEVELOPMENT, 
+SO DON'T EXPECT IT TO RUN SMOOTHLY... 
+WE ARE WORKING TO IMPROVE THE INTEGRATION OF BEAM WITHIN
+YAP, BUT THIS THINGS TAKE TIME. SO PLEASE BE PATIENT...
+
+
+---------------------------------------------------------------------------
+1. Compiling Yap to support the EAM.
+---------------------------------------------------------------------------
+If you want to use the BEAM prototype you must compile YAP using the 
+flag --enable-eam 
+
+tar -xvzf yapfile.tar.gz           <- will extract yap to $YAPDIR
+mkdir tmp                          
+cd tmp
+../YAPDIR/configure --enable-eam   <- prepare yap to compilation
+make                               <- compile yap
+su                                 <- enter as root
+make install                       <- install yap
+
+You are now ready to try YAP-BEAM. Just run "yap" on the
+command line. 
+
+
+---------------------------------------------------------------------------
+2. Quick start + Examples...
+---------------------------------------------------------------------------
+Quick example on how to run a Prolog program using the EAM.
+
+First you must enable the EAM using the comand 
+?- eam.
+yes
+
+then you should load your program, and make your queries 
+using ?- eam(query).
+You can write the query normally as in normal Prolog mode, but
+in this case you will only receive the first solution (or yes or no).
+
+
+Small example:
+Supose that you have the file Example.pl with the Prolog code:
+f(1).
+f(2).
+f(3).
+
+Here is an execution example:
+[user]$ ./yap
+% Restoring file /.../startup
+YAP version Yap-5.0.0
+   ?- eam.
+yes
+   ?- [t].
+ % consulting /.../t.pl...
+ % consulted /.../t.pl in module user, 1 msec 1328 bytes
+yes
+   ?- eam(f(X)).
+[ EAM execution started to solve f/1 ]
+X = 1 ? ;
+X = 2 ? ;
+X = 3 ? ;
+no
+   ?- f(X).
+[ EAM execution started to solve f/1 ]
+X = 1 ? ;
+no
+   ?-
+
+---------------------------------------------------------------------------
+A bigger example:
+
+You can try out the next example, the well-known benchmark scanner.pl
+that behaves badly in standard Prolog systems.
+Just run the demos... (demo1, demo2, demo3 or demo4).
+Remember to enable the EAM before loading the program.
+After running the examples, try restarting YAP and 
+loading the program without the EAM enabled. Try to run
+the demo4... :)
+
+demo1:- demo(tiny).
+demo2:- demo(small).
+demo3:- demo(data).
+demo4:- demo(snake).
+
+demo(Data):- 
+	scannerdata(Data,R,C,D1,D2), 
+	write('Rows '), write(R),nl,
+	write('Columns '), write(C),nl,
+	write('Left diagonals '), write(D1),nl,
+	write('Right diagonals '), write(D2),nl,nl,
+	scanner(R,C,D1,D2,Image), !,
+	displi(Image).
+
+sequence(Spec):-
+	samples(Spec,Samples),
+	cat(Samples,Images), !,
+	displ(Images).
+
+samples([],Samples):- !, Samples=[].
+samples([S|Spec],Samples):- !, 
+	scannerdata(S,R,C,D1,D2),
+	Samples=[sample(R,C,D1,D2)|Smpls],
+	samples(Spec,Smpls).
+
+cat([],Images):- !, Images=[].
+cat([Sample|Samples], Images):- !, 
+	image(Sample,Image),
+	Images=[Image|Imgs],
+	cat(Samples,Imgs).
+
+image(sample(R,C,D1,D2), Image):-
+	scanner(proc,R,C,D1,D2,I), !,
+	Image=I.
+
+
+displ([]):- nl, nl.
+displ([I|Imgs]):- nl, displi(I), nl, displ(Imgs).
+
+displi([]):- nl .
+displi([R|Rws]):- write('    '),displr(R), displi(Rws).
+
+displr([]):- nl.
+displr([on|R]):- write('X '), displr(R).
+displr([off|R]):- write('_ '), displr(R).
+
+
+scannerdata(tiny, [1,1],[2,0],[1,1,0],[0,1,1]).
+
+scannerdata(small, [1,2,1],[2,1,1],[1,1,1,0,1],[0,0,3,1,0]).
+
+scannerdata(double, 
+	[2,2,3,2,2,1],
+	[1,3,3,1,3,1], 
+	[0,1,1,2,1,2,3,1,1,0,0],
+	[0,2,0,1,2,2,2,1,2,0,0]).
+
+scannerdata(snake, 
+	[4,2,6,2,4,4,3,2],
+	[3,5,5,3,2,3,3,3],
+	[1,2,2,1,1,2,5,2,2,3,3,2,1,0,0],
+	[0,1,0,3,2,2,4,3,3,3,1,3,2,0,0]).
+
+scanner(RwData,ClData,D1Data, D2Data, Rws):- 
+	llength(RwData,R),
+	llength(ClData,C),
+	board(R,C,All,Rws,Cls,D1,D2), 
+	check(RwData,Rws),
+	check(ClData,Cls),
+	check(D1Data,D1),
+	check(D2Data,D2).
+
+pixle(on).
+pixle(off).
+
+
+check([],[]).
+check([K|RwsD],[R|Rws]):-
+	llength(R,L),
+	line(K,L,R),
+	check(RwsD,Rws).
+
+line(0,0,[]).
+line(K,L,[on|R]):-
+	K > 0,    
+	K1 is K - 1,
+	L1 is L - 1,
+	line(K1,L1,R).
+line(K,L,[off|R]):-
+	L > K,  
+	L1 is L - 1,
+	line(K,L1,R).
+
+board(0,C,[],[],Cls,D,D):- 
+	C > 0, 
+	C1 is C - 1,
+	seed(C,Cls),
+	seed(C1,D).
+board(R,C,All,[Row|Rws],Cols,Rdiag,Ldiag):- 
+	R > 0,
+	R1 is R - 1,
+	row(C, Row),
+	all2(Row,Al,All),
+	column(Row,Cls,Cols),
+	diagonal(Row,Rdg,Rdiag),
+	rev(Row,[],Rev),
+	diagonal(Rev,Ldg,Ldiag),
+	board(R1,C,Al,Rws,Cls,Rdg,Ldg).
+
+seed(0,[]).
+seed(C,[[]|S1]):- C > 0, C1 is C -1 , seed(C1,S1).
+
+all2([],Al,Al).
+all2([H|Row],Al,[H|All]):- all2(Row,Al,All).
+
+row(0,[]).
+row(C,[_|R]):- C > 0, C1 is C -1, row(C1,R).
+
+column([],X,X).
+column([H|R],[Cl|Cls],[[H|Cl]|Columns]):-  column(R,Cls,Columns).
+
+diagonal([H|Row],Dg, [[H]|Diag]):- column(Row,Dg,Diag).
+
+rev([],Y,Y).
+rev([H|T],Y,Z):- rev(T,[H|Y],Z).
+
+llength([],0).
+llength([A|R],N):- llength(R,M), N is M+1.
+
+
+
+
+
+
+---------------------------------------------------------------------------
+3. Some notes...
+---------------------------------------------------------------------------
+
+- BEAM create the indexing code (try, retry and trust) only
+considering the first argument and only when the predicates are first called.
+So the first time you run a query there can be a slowdown, because the
+EAM is indexing the code.
+
+---------------------------------------------------------------------------
+- A lot of builtins/code are not yet supported...
+For example var(X), not , ; (or), ... 
+You will have a internal compiler error for these cases. 
+and the clause that uses the builtin/code not supported  will always fail.
+Example: consider the code:
+  tst(X):- var(X), X=1.
+  tst(2).
+
+You will receive a warning that there is unsupported code.
+Although you can still use the tst predicate, the first alternative
+will always fail...
+
+  ?- tst(X).
+[ EAM execution started to solve tst/1 ]
+X = 2 ? ;
+no
+
+
+---------------------------------------------------------------------------
+- The EAM prefers deterministic instead of non-deterministic.
+and thus can change the order of goals of your code to delay
+non-deterministic bindings.
+
+So, you must be careful when using builtins that have side-effects,
+or that may expect variables to be bound.
+
+For example, supose that you have  the following Prolog code:
+f(1). 
+f(2).
+
+tst(Y):- f(X), Y is X+1.
+
+Normal prolog would be fine, but the EAM can not execute this
+code correctly because since f(X) is non-deterministic, 
+Y is X+1 is executed before X being bound. The result would be:
+
+?- tst(X).
+[ EAM execution started to solve tst/1 ]
+% INSTANTIATION ERROR- in arithmetic at user:tst/1 (clause 1): expected bound value
+
+
+The solution for this case is to force the EAM to wait for X to be bound.
+
+So the code correct code would be:
+tst(Y):- f(X), skip_while_var(X), Y is X+1.
+
+That means that the code Y is X+1 should be skipped 
+while X is var. Note that in this case there is no more
+after Y is X+1. If there were, execution would continue
+on that code. 
+
+Another alternative is to use:
+tst(Y):- f(X), wait_while_var(X), Y is X+1.
+
+that means what execution can not proceed while X is not bound.
+
+
+---------------------------------------------------------------------------
+
+- To support the EAM within the YAP the WAM compilation was 
+specially the classification of permanent variables.
+This code was adapted from the initial BEAM implementation and is not
+yet completed. 
+I've have already discover some code examples where the variables
+should are not being classified as permanent, and as result the BEAM
+returns false solutions. We are also working on this problem...
+
+---------------------------------------------------------------------------
+Expect more info soon...
+...
+
