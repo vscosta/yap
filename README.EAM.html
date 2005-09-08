@@ -75,7 +75,7 @@ no
    ?-
 
 ---------------------------------------------------------------------------
-A bigger example:
+A first example:
 
 You can try out the next example, the well-known benchmark scanner.pl
 that behaves badly in standard Prolog systems.
@@ -216,8 +216,58 @@ llength([A|R],N):- llength(R,M), N is M+1.
 
 
 
+---------------------------------------------------------------------------
+Another example:
 
+The famours queens...
+Try to evaluate in normal Prolog que query:
+?- queens([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],X).
+Now quit YAP and enable eam before loading the queens program
+Here is the code for you to try it:
 
+demo1:- queens([1,2,3,4,5,6,7,8,9],L), write(L), nl, fail.
+demo2:- queens([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],L), write(L), nl.
+
+queens(L,C):-	
+	perm(L,P),
+	pair(L,P,C),
+	safe([],C).
+
+perm([],[]).
+perm(Xs,[Z|Zs]):-
+	select(Z,Xs,Ys), 
+	perm(Ys,Zs).
+
+select(X,[X|Xs],Xs).    
+select(X,[Y|Ys],[Y|Zs]):-
+	select(X,Ys,Zs).
+
+pair([],[],[]).
+pair([X|Y],[U|V],[p(X,U)|W]):-
+	pair(Y,V,W).
+
+safe(X,[]).
+safe(X,[Q|R]):-
+	test(X,Q),
+	safe([Q|X],R).
+
+test([],X).
+test([p(C1,R1)|S],p(C2,R2)):-
+	test(S,p(C2,R2)),
+	nd(p(C1,R1),p(C2,R2)).
+
+nd(p(C1,R1),p(C2,R2)):-
+	wait_while_var([C1,C2,R1,R2]),
+	C is C1-C2, 
+	R is R1-R2, 
+	C=\=R,
+	NR is R2-R1, 
+	C=\=NR.
+
+Note that on the nd predicate, we have used wait_while_var
+to force the EAM to wait while C1, C2, R1, R2 are not bound,
+because the operations in this predicate can't be done with 
+those variables unbound.
 
 ---------------------------------------------------------------------------
 3. Some notes...
