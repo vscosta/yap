@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-08-17 18:48:35 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-09-08 22:06:44 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.144  2005/08/17 18:48:35  vsc
+* fix bug in processing overflows of expand_clauses.
+*
 * Revision 1.143  2005/08/02 03:09:50  vsc
 * fix debugger to do well nonsource predicates.
 *
@@ -2240,6 +2243,9 @@ add_info(ClauseDef *clause, UInt regno)
     case _trie_try_long:
     case _trie_retry_long:
 #endif /* TABLING */
+#ifdef BEAM
+    case _run_eam:
+#endif
       clause->Tag = (CELL)NULL;
       return;
     }

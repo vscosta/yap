@@ -32,8 +32,8 @@ yap_error_number Yap_matherror = YAP_NO_ERROR;
 #define E_FUNC   blob_type
 #define E_ARGS   arith_retptr o
 #define USE_E_ARGS   o
-#define RBIG(v)     (o)->big = v; return(big_int_e)
 
+#define RBIG(v)     (o)->big = v; return(big_int_e)
 #define RINT(v)     (o)->Int = v; return(long_int_e)
 #define RFLOAT(v)   (o)->dbl = v; return(double_e)
 #define RERROR()    return(db_ref_e)
@@ -181,7 +181,23 @@ Yap_Eval(Term t, E_ARGS)
   }
 }
 
-static Int 
+#ifdef BEAM
+Int BEAM_is(void);
+
+Int
+BEAM_is(void)
+{				/* X is Y	 */
+  union arith_ret res;
+  blob_type bt;
+
+  bt = Eval(Deref(XREGS[2]), &res);
+  if (bt==db_ref_e) return (NULL);
+  return (EvalToTerm(bt,&res));
+}
+
+#endif
+
+static Int
 p_is(void)
 {				/* X is Y	 */
   union arith_ret res;

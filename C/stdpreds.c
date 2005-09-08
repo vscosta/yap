@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-08-04 15:45:53 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-09-08 22:06:45 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.93  2005/08/04 15:45:53  ricroc
+* TABLING NEW: support to limit the table space size
+*
 * Revision 1.92  2005/07/20 13:54:27  rslopes
 * solved warning: cast from pointer to integer of different size
 *
@@ -173,7 +176,11 @@ STD_PROTO(static Int p_number_chars, (void));
 STD_PROTO(static Int p_number_codes, (void));
 STD_PROTO(static Int p_univ, (void));
 STD_PROTO(static Int p_abort, (void));
+#ifdef BEAM
+STD_PROTO(Int p_halt, (void));
+#else
 STD_PROTO(static Int p_halt, (void));
+#endif
 STD_PROTO(static Int init_current_atom, (void));
 STD_PROTO(static Int cont_current_atom, (void));
 STD_PROTO(static Int init_current_predicate, (void));
@@ -207,6 +214,84 @@ STD_PROTO(static Int p_runtime, (void));
 STD_PROTO(static Int p_walltime, (void));
 STD_PROTO(static Int p_access_yap_flags, (void));
 STD_PROTO(static Int p_set_yap_flags, (void));
+
+#ifdef BEAM
+STD_PROTO(Int use_eam, (void));
+STD_PROTO(Int eager_split, (void));
+STD_PROTO(Int force_wait, (void));
+STD_PROTO(Int commit, (void));
+STD_PROTO(Int skip_while_var, (void));
+STD_PROTO(Int wait_while_var, (void));
+STD_PROTO(Int show_time, (void));
+STD_PROTO(Int start_eam, (void));
+STD_PROTO(Int cont_eam, (void));
+
+extern int EAM;
+extern int eam_am(PredEntry*);
+extern int showTime(void); 
+
+Int start_eam(void) {
+  if (eam_am((PredEntry *) 0x1)) return (TRUE); 
+  else { cut_fail(); return (FALSE); }
+}
+
+Int cont_eam(void) {
+  if (eam_am((PredEntry *) 0x2)) return (TRUE); 
+  else { cut_fail(); return (FALSE); }
+}
+
+Int use_eam(void) { 
+  if (EAM)  EAM=0;
+    else { Yap_PutValue(Yap_FullLookupAtom("$c_arith"),0); EAM=1; }
+  return(TRUE);
+}
+
+Int commit(void) { 
+  if (EAM) {
+  printf("Nao deveria ter sido chamado commit do stdpreds\n");
+  exit(1);
+  }
+  return(TRUE);
+}
+
+Int skip_while_var(void) { 
+  if (EAM) {
+  printf("Nao deveria ter sido chamado skip_while_var do stdpreds\n");
+  exit(1);
+  }
+  return(TRUE);
+}
+
+Int wait_while_var(void) { 
+  if (EAM) {
+  printf("Nao deveria ter sido chamado wait_while_var do stdpreds\n");
+  exit(1);
+  }
+  return(TRUE);
+}
+
+Int force_wait(void) {
+  if (EAM) {
+  printf("Nao deveria ter sido chamado force_wait do stdpreds\n");
+  exit(1);
+  }
+  return(TRUE);
+}
+
+Int eager_split(void) {
+  if (EAM) {
+  printf("Nao deveria ter sido chamado eager_split do stdpreds\n");
+  exit(1);
+  }
+  return(TRUE);
+}
+
+Int show_time(void)  /* MORE PRECISION */
+{
+  return (showTime());
+}
+
+#endif /* BEAM */ 
 
 
 #ifdef LOW_PROF
@@ -2055,11 +2140,21 @@ p_abort(void)
   return(FALSE);
 }
 
+#ifdef BEAM
+extern void exit_eam(char *s); 
+
+Int 
+#else
 static Int 
+#endif
 p_halt(void)
 {				/* halt				 */
   Term t = Deref(ARG1);
   Int out;
+
+#ifdef BEAM
+  if (EAM) exit_eam("\n\n[ Prolog execution halted ]\n");
+#endif
 
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR,t,"halt/1");
@@ -2871,6 +2966,16 @@ p_has_yap_or(void)
 #endif
 }
 
+static Int 
+p_has_eam(void)
+{
+#ifdef BEAM
+  return(TRUE);
+#else
+  return(FALSE);
+#endif
+}
+
 
 static Int
 p_set_yap_flags(void)
@@ -3106,6 +3211,11 @@ Yap_InitBackCPreds(void)
 		SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPredBack("current_op", 3, 3, init_current_op, cont_current_op,
 		SafePredFlag|SyncPredFlag);
+#ifdef BEAM
+  Yap_InitCPredBack("eam", 1, 0, start_eam, cont_eam,
+		SafePredFlag);
+#endif
+
   Yap_InitBackIO();
   Yap_InitBackDB();
   Yap_InitUserBacks();
@@ -3150,6 +3260,15 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$access_yap_flags", 2, p_access_yap_flags, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
+#ifdef BEAM
+  Yap_InitCPred("@", 0, eager_split, SafePredFlag);
+  Yap_InitCPred(":", 0, force_wait, SafePredFlag);
+  Yap_InitCPred("/", 0, commit, SafePredFlag);
+  Yap_InitCPred("skip_while_var",1,skip_while_var,SafePredFlag);
+  Yap_InitCPred("wait_while_var",1,wait_while_var,SafePredFlag);
+  Yap_InitCPred("eamtime", 0, show_time, SafePredFlag);
+  Yap_InitCPred("eam", 0, use_eam, SafePredFlag);
+#endif
   Yap_InitCPred("$halt", 1, p_halt, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$lock_system", 0, p_lock_system, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$unlock_system", 0, p_unlock_system, SafePredFlag|HiddenPredFlag);
@@ -3171,6 +3290,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("unhide", 1, p_unhide, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$hidden", 1, p_hidden, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$has_eam", 0, p_has_eam, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #ifdef LOW_PROF
   Yap_InitCPred("profinit",0, profinit, SafePredFlag);
   Yap_InitCPred("profend" ,0, profend, SafePredFlag);

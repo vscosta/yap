@@ -769,6 +769,31 @@ fix_compiler_instructions(PInstr *pcpc)
     case table_new_answer_op:
     case table_try_single_op:
 #endif /* TABLING */
+#ifdef BEAM
+    case run_op:
+    case body_op:
+    case endgoal_op:
+    case try_me_op:
+    case retry_me_op:
+    case trust_me_op:
+    case only_1_clause_op:
+    case create_first_box_op:
+    case create_box_op:
+    case create_last_box_op:
+    case remove_box_op:
+    case remove_last_box_op:
+    case prepare_tries:
+    case std_base_op:
+    case direct_safe_call_op:
+    case commit_op:
+    case skip_while_var_op:
+    case wait_while_var_op:
+    case force_wait_op:
+    case write_op:
+    case is_op:
+    case equal_op:
+    case exit_op:
+#endif
       break;
     }
     if (ncpc != NULL) {

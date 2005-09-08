@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-08-02 03:09:49 $							 *
+* Last rev:     $Date: 2005-09-08 22:06:44 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.83  2005/08/02 03:09:49  vsc
+* fix debugger to do well nonsource predicates.
+*
 * Revision 1.82  2005/07/06 15:10:02  vsc
 * improvements to compiler: merged instructions and fixes for ->
 *
@@ -3076,6 +3079,14 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case nop_op:
     case name_op:
       break;
+#ifdef BEAM 
+    case body_op:
+    case endgoal_op:
+      break;
+    case run_op:
+      code_p=a_n(_run_eam,cip->cpc->rnd2,code_p,pass_no);
+      break;
+#endif
     default:
       Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "instruction %d found while assembling", (int) cip->cpc->op);
       save_machine_regs();

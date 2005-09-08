@@ -11,8 +11,11 @@
 * File:		computils.c						 *
 * comments:	some useful routines for YAP's compiler			 *
 *									 *
-* Last rev:     $Date: 2005-07-06 15:10:04 $							 *
+* Last rev:     $Date: 2005-09-08 22:06:44 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.27  2005/07/06 15:10:04  vsc
+* improvements to compiler: merged instructions and fixes for ->
+*
 * Revision 1.26  2005/01/04 02:50:21  vsc
 * - allow MegaClauses with blobs
 * - change Diffs to be thread specific
@@ -336,6 +339,14 @@ ShowOp (char *f, struct PSEUDO *cpc)
       if (ch == '%')
 	switch (ch = *f++)
 	  {
+#ifdef BEAM
+	case '1':
+		Yap_plwrite(MkIntTerm(rn), Yap_DebugPutc, 0);
+		break;
+	case '4':
+		Yap_plwrite(MkIntTerm(arg), Yap_DebugPutc, 0);
+		break;
+#endif
 	  case 'a':
 	  case 'n':
 	    Yap_plwrite ((Term) arg, Yap_DebugPutc, 0);
@@ -654,6 +665,31 @@ static char *opformat[] =
 #ifdef TABLING_INNER_CUTS
   "clause_with_cut",
 #endif /* TABLING_INNER_CUTS */
+#ifdef BEAM
+  "run_op %1,%4",
+  "body_op %1",
+  "endgoal_op",
+  "try_me_op %1,%4",
+  "retry_me_op %1,%4",
+  "trust_me_op %1,%4",
+  "only_1_clause_op %1,%4",
+  "create_first_box_op %1,%4",
+  "create_box_op %1,%4",
+  "create_last_box_op %1,%4",
+  "remove_box_op %1,%4",
+  "remove_last_box_op %1,%4",
+  "prepare_tries",
+  "std_base_op %1,%4",
+  "direct_safe_call",
+  "commit_op",
+  "skip_while_var_op",
+  "wait_while_var_op",
+  "force_wait_op",
+  "write_op",
+  "is_op",
+  "equal_op",
+  "exit",
+#endif
   "fetch_args_for_bccall\t%v",
   "binary_cfunc\t\t%v,%P",
   "blob\t%O"

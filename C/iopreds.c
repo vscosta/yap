@@ -2726,6 +2726,22 @@ p_current_output (void)
   }
 }
 
+
+#ifdef BEAM
+int beam_write (void)
+{
+  Yap_StartSlots();
+  Yap_plwrite (ARG1, Stream[Yap_c_output_stream].stream_putc, 0);
+  if (EX != 0L) {
+    Term ball = EX;
+    EX = 0L;
+    Yap_JumpToEnv(ball);
+    return(FALSE);
+  }
+  return (TRUE);
+}
+#endif
+
 static Int
 p_write (void)
 {				/* '$write'(+Flags,?Term) */

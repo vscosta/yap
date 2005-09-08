@@ -528,6 +528,9 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
 #ifdef TABLING
   p->TableOfPred = NULL;
 #endif /* TABLING */
+#ifdef BEAM
+  p->beamTable = NULL;
+#endif  /* BEAM */
   /* careful that they don't cross MkFunctor */
   p->NextOfPE = fe->PropsOfFE;
   if (PRED_GOAL_EXPANSION_FUNC) {
@@ -568,6 +571,9 @@ Yap_NewThreadPred(PredEntry *ap)
 #ifdef TABLING
   p->TableOfPred = NULL;
 #endif /* TABLING */
+#ifdef BEAM
+  p->beamTable = NULL;
+#endif 
   /* careful that they don't cross MkFunctor */
   p->NextOfPE = AbsPredProp(ThreadHandle[worker_id].local_preds);
   ThreadHandle[worker_id].local_preds = p;
@@ -607,6 +613,9 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
 #ifdef TABLING
   p->TableOfPred = NULL;
 #endif /* TABLING */
+#ifdef BEAM
+  p->beamTable = NULL;
+#endif 
   /* careful that they don't cross MkFunctor */
   p->NextOfPE = ae->PropsOfAE;
   if (PRED_GOAL_EXPANSION_FUNC) {

@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-08-12 17:00:00 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-09-08 22:06:44 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.175  2005/08/12 17:00:00  ricroc
+* TABLING FIX: support for incomplete tables
+*
 * Revision 1.174  2005/08/05 14:55:02  vsc
 * first steps to allow mavars with tabling
 * fix trailing for tabling with multiple get_cons
@@ -2686,6 +2689,17 @@ Yap_absmi(int inp)
 #endif /* TABLING */
 
 
+
+#ifdef BEAM
+ extern int eam_am(PredEntry *);
+     Op(run_eam, s);
+        if (!eam_am((PredEntry *) PREG->u.s.s)) FAIL();
+        PREG = NEXTOP(PREG, s);
+        GONext();
+      ENDOp();
+#endif
+
+
 /************************************************************************\
 *    Get Instructions							*
 \************************************************************************/
@@ -6649,6 +6663,7 @@ Yap_absmi(int inp)
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
+
 #ifdef SBA
 	if (YREG > (CELL *) top_b || YREG < H) ASP = (CELL *)top_b;
 #else

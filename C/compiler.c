@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2005-07-06 15:10:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-09-08 22:06:44 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.68  2005/07/06 15:10:03  vsc
+* improvements to compiler: merged instructions and fixes for ->
+*
 * Revision 1.67  2005/05/25 21:43:32  vsc
 * fix compiler bug in 1 << X, found by Nuno Fonseca.
 * compiler internal errors get their own message.
@@ -101,6 +104,11 @@ static char SccsId[] = "%W% %G%";
 #include "yapio.h"
 #if HAVE_STRING_H
 #include <string.h>
+#endif
+
+#ifdef BEAM
+extern int EAM;
+//extern PInstr *CodeStart, *ppc, *ppc1, *BodyStart, *ppc_body;
 #endif
 
 typedef struct branch_descriptor {
@@ -396,6 +404,10 @@ optimize_ce(Term t, unsigned int arity, unsigned int level, compiler_struct *cgl
 {
   CExpEntry *p = cglobs->common_exps;
   int cmp = 0;
+
+#ifdef BEAM
+  if (EAM) return t;
+#endif
 
   if (IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t)))
     return (t);
@@ -810,6 +822,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
 {
   /* compile Z = X Op Y  arithmetic function */
   /* first we fetch the arguments */
+
   if (IsVarTerm(t1)) {
     if (IsNewVar(t1)) {
       char s[32];
@@ -1583,6 +1596,7 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
     }
     else if (p->PredFlags & AsmPredFlag) {
       int op = p->PredFlags & 0x7f;
+
       if (profiling)
 	Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
       else if (call_counting)
@@ -1635,8 +1649,13 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 	c_args(Goal, 0, cglobs);
       }
     }
+#ifdef BEAM
+    else if (p->PredFlags & BinaryTestPredFlag && !EAM) {
+#else
     else if (p->PredFlags & BinaryTestPredFlag) {
+#endif
       Term a1 = ArgOfTerm(1,Goal);
+
       if (IsVarTerm(a1) && !IsNewVar(a1)) {
 	Term a2 = ArgOfTerm(2,Goal);
 	if (IsVarTerm(a2) && !IsNewVar(a2)) {
@@ -1659,7 +1678,6 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 	    save_machine_regs();
 	    longjmp(cglobs->cint.CompilerBotch,4);
 	  }
-
 	  c_eq(t2, a2, cglobs);
 	  c_var(a1, bt1_flag, 2, 0, cglobs);
 	  cglobs->current_p0 = p0;
@@ -1673,8 +1691,8 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 	  save_machine_regs();
 	  longjmp(cglobs->cint.CompilerBotch,4);
 	}
-
 	c_eq(t1, a1, cglobs);
+
 	if (IsVarTerm(a2) && !IsNewVar(a2)) {
 	  c_var(t1, bt1_flag, 2, 0, cglobs);
 	  cglobs->current_p0 = p0;
@@ -1687,7 +1705,6 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 	    save_machine_regs();
 	    longjmp(cglobs->cint.CompilerBotch,4);
 	  }
-
 	  c_eq(t2, a2, cglobs);
 	  c_var(t1, bt1_flag, 2, 0, cglobs);
 	  cglobs->current_p0 = p0;
@@ -1817,9 +1834,22 @@ c_body(Term Body, int mod, compiler_struct *cglobs)
     }
     c_goal(ArgOfTerm(1, Body), mod, cglobs);
     Body = t2;
+#ifdef BEAM
+    if (EAM) Yap_emit(endgoal_op, Zero, Zero, &cglobs->cint);
+#endif
+
   }
   cglobs->onlast = TRUE;
   c_goal(Body, mod, cglobs);
+#ifdef BEAM
+    if (EAM && cglobs->goalno > 1) {
+      if (cglobs->cint.cpc->op==procceed_op) {
+  	cglobs->cint.cpc->op=endgoal_op;
+        Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
+      } else
+        Yap_emit(endgoal_op, Zero, Zero, &cglobs->cint);
+    }
+#endif
 }
 
 static void
@@ -1842,7 +1872,11 @@ c_head(Term t, compiler_struct *cglobs)
 }
 
 /* number of permanent variables in the clause */
+#ifdef BEAM
+int nperm;
+#else
 static int nperm;
+#endif
 
 inline static int
 usesvar(compiler_vm_op ic)
@@ -1936,6 +1970,16 @@ AssignPerm(PInstr *pc, compiler_struct *cglobs)
     uses_var = usesvar(pc->op);
     if (uses_var) {
       Ventry *v = (Ventry *) (pc->rnd1);
+
+#ifdef BEAM
+   if (EAM) {
+      if (v->NoOfVE == Unassigned || v->KindOfVE!=PermVar) {
+	v->NoOfVE = PermVar | (nperm++);
+	v->KindOfVE = PermVar;
+	v->FlagsOfVE |= PermFlag;	
+      }
+   }
+#endif
       if (v->NoOfVE == Unassigned) {
 	if ((v->AgeOfVE > 1 && (v->AgeOfVE > v->FirstOfVE))
 	    || v->KindOfVE == PermVar	/*
@@ -2454,6 +2498,11 @@ c_layout(compiler_struct *cglobs)
 
   rn_to_kill[0] = rn_to_kill[1] = 0;
   cglobs->cint.cpc = cglobs->BodyStart;
+  /*
+#ifdef BEAM
+  if (!cglobs->is_a_fact || EAM) {
+#else
+  */
   if (!cglobs->is_a_fact) {
     while (v != NIL) {
       if (v->FlagsOfVE & BranchVar) {
@@ -2467,7 +2516,11 @@ c_layout(compiler_struct *cglobs)
     }
     cglobs->cint.cpc->nextInst = savepc;
 
+#ifdef BEAM
+    if (cglobs->needs_env || EAM) {
+#else
     if (cglobs->needs_env) {
+#endif
       nperm = 0;
       AssignPerm(cglobs->cint.CodeStart, cglobs);
 #ifdef DEBUG
@@ -2485,6 +2538,7 @@ c_layout(compiler_struct *cglobs)
 #endif
     }
   }
+
   cglobs->MaxCTemps = cglobs->nvars + cglobs->max_args - cglobs->tmpreg + cglobs->n_common_exps + 2;
   if (cglobs->MaxCTemps >= MaxTemps)
     cglobs->MaxCTemps = MaxTemps;
@@ -2496,7 +2550,9 @@ c_layout(compiler_struct *cglobs)
       *cop++ = NIL;
     }
   }
+
   CheckVoids(cglobs);
+
   /* second scan: allocate registers                                       */
   cglobs->cint.cpc = cglobs->cint.CodeStart;
   while (cglobs->cint.cpc) {
@@ -2542,7 +2598,11 @@ c_layout(compiler_struct *cglobs)
     case get_var_op:
       --cglobs->Uses[rn];
       if (checktemp(arg, rn, ic, cglobs)) {
+#ifdef BEAM
+	if (cglobs->vreg == rn && !EAM)
+#else
 	if (cglobs->vreg == rn)
+#endif
 	  cglobs->cint.cpc->op = nop_op;
       }
       cglobs->Contents[rn] = cglobs->vadr;
@@ -2590,7 +2650,11 @@ c_layout(compiler_struct *cglobs)
     case put_val_op:
       rn = checkreg(arg, rn, ic, TRUE, cglobs);
       checktemp(arg, rn, ic, cglobs);
+#ifdef BEAM
+      if (cglobs->Contents[rn] == (Term)cglobs->vadr && !EAM)
+#else
       if (cglobs->Contents[rn] == (Term)cglobs->vadr)
+#endif
 	cglobs->cint.cpc->op = nop_op;
       cglobs->Contents[rn] = cglobs->vadr;
       ++cglobs->Uses[rn];
@@ -3042,6 +3106,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
   cglobs.is_a_fact = (body == MkAtomTerm(AtomTrue));
   /* phase 1 : produce skeleton code and variable information              */
   c_head(head, &cglobs);
+
   if (cglobs.is_a_fact && !cglobs.vtable) {
 #ifdef TABLING
     READ_LOCK(cglobs.cint.CurrentPred->PRWLock);
@@ -3070,12 +3135,19 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
     cglobs->cut_mark = cpc;
 #endif /* TABLING_INNER_CUTS */
     Yap_emit(allocate_op, Zero, Zero, &cglobs.cint);
+
+#ifdef BEAM
+  if (EAM) Yap_emit(body_op, Zero, Zero, &cglobs.cint);
+#endif
+
     c_body(body, mod, &cglobs);
     /* Insert blobs at the very end */ 
+
     if (cglobs.cint.BlobsStart != NULL) {
       cglobs.cint.cpc->nextInst = cglobs.cint.BlobsStart;
       cglobs.cint.BlobsStart = NULL;
     }
+
     reset_vars(cglobs.vtable);
     H = HB;
     if (B != NULL) {
@@ -3103,9 +3175,14 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
   if (Yap_Option['f' - 96])
     Yap_ShowCode(&cglobs.cint);
 #endif
+
+#ifdef BEAM
+  void codigo_eam(compiler_struct *);
+  if (EAM) codigo_eam(&cglobs);
+#endif
+
   /* phase 3: assemble code                                                */
   acode = Yap_assemble(ASSEMBLING_CLAUSE, src, cglobs.cint.CurrentPred, (cglobs.is_a_fact && !cglobs.hasdbrefs), &cglobs.cint);
-
 
   /* check first if there was space for us */
   if (acode == NULL) {
@@ -3116,7 +3193,12 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
       Yap_inform_profiler_of_clause(acode, ProfEnd, cglobs.cint.CurrentPred,0);
     }
 #endif /* LOW_PROF */
+
     return(acode);
   }
 }
+
+#ifdef BEAM
+  #include "toeam.c"
+#endif
 
