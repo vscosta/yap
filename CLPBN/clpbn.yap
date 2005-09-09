@@ -76,9 +76,20 @@ clpbn_flag(solver,Before,After) :-
 
 extract_dist(V, Tab.Inps, Domain) :- var(V), !,
 	V = p(Domain, Tab, Inps).
+extract_dist(p(Domain, trans(L), Parents), Tab, Inps, Domain) :- !,
+	compress_hmm_table(L, Parents, Tab, Inps).
 extract_dist(p(Domain, Tab, Inps), Tab, Inps, Domain).
 extract_dist(p(Domain, Tab), Tab, [], Domain).
-	
+
+compress_hmm_table(L, Parents, trans(Tab), Inps) :-
+	get_rid_of_nuls(L,Parents,Tab,Inps).
+
+get_rid_of_nuls([], [], [], []).
+get_rid_of_nuls([*|L],[_|Parents],NL,NParents) :- !,
+	get_rid_of_nuls(L,Parents,NL,NParents).
+get_rid_of_nuls([Prob|L],[P|Parents],[Prob|NL],[P|NParents]) :-
+	get_rid_of_nuls(L,Parents,NL,NParents).
+
 check_constraint(Constraint, _, _, Constraint) :- var(Constraint), !.
 check_constraint((A->D), _, _, (A->D)) :- var(A), !.
 check_constraint((([A|B].L)->D), Vars, NVars, (([A|B].NL)->D)) :- !,
@@ -105,6 +116,7 @@ add_evidence(V,V).
 % or by call_residue/2
 %
 project_attributes(GVars, AVars) :-
+	GVars = [_|_],
 	AVars = [_|_], !,
 	sort_vars_by_key(AVars,SortedAVars,DiffVars),
 	get_clpbn_vars(GVars,CLPBNGVars),
