@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.82 2005-08-01 15:40:38 ricroc Exp $	 *
+* version:      $Id: Heap.h,v 1.83 2005-09-09 17:24:39 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -264,6 +264,7 @@ typedef struct various_codes {
     atom_append,
     atom_array,
     atom_assert,
+    atom_att,
     atom_b,
     atom_break,
     atom_call,
@@ -534,6 +535,7 @@ struct various_codes *Yap_heap_regs;
 #define  AtomAppend               Yap_heap_regs->atom_append
 #define  AtomArray                Yap_heap_regs->atom_array
 #define  AtomAssert               Yap_heap_regs->atom_assert
+#define  AtomAtt                  Yap_heap_regs->atom_att
 #define  AtomB                    Yap_heap_regs->atom_b
 #define  AtomBreak                Yap_heap_regs->atom_break
 #define  AtomCall                 Yap_heap_regs->atom_call

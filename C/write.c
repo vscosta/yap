@@ -313,8 +313,8 @@ write_var(CELL *t,  struct write_globs *wglb)
       Yap_Portray_delays = FALSE;
       if (ext == attvars_ext) {
 	attvar_record *attv = (attvar_record *)t;
-	int i;
 	long sl = 0;
+	Term l = attv->Atts;
 
 	wrputs("$AT(",wglb->writech);
 	write_var(t, wglb);
@@ -324,25 +324,11 @@ write_var(CELL *t,  struct write_globs *wglb)
 	  sl = Yap_InitSlot((CELL)attv);
 	}
 	writeTerm((Term)&(attv->Value), 999, 1, FALSE, wglb);
+	wrputc(',', wglb->writech);
+	writeTerm(l, 999, 1, FALSE, wglb);
 	if (wglb->keep_terms) {
 	  attv = (attvar_record *)Yap_GetFromSlot(sl);
 	  Yap_RecoverSlots(1);
-	}
-	for (i = 0; i < NUM_OF_ATTS; i ++) {
-	  if (!IsVarTerm(attv->Atts[2*i+1])) {
-	    long sl = 0;
-
-	    wrputc(',', wglb->writech);
-	    if (wglb->keep_terms) {
-	      /* garbage collection may be called */
-	      sl = Yap_InitSlot((CELL)attv);
-	    }
-	    writeTerm((Term)&(attv->Atts[2*i+1]), 999, 1, FALSE, wglb);
-	    if (wglb->keep_terms) {
-	      attv = (attvar_record *)Yap_GetFromSlot(sl);
-	      Yap_RecoverSlots(1);
-	    }
-	  }
 	}
 	wrputc(')', wglb->writech);
       }

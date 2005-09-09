@@ -24,20 +24,10 @@
 :- multifile
 	user:term_expansion/2.
 
-:- dynamic_predicate(existing_attribute/3,logical).
-:- dynamic_predicate(modules_with_attributes/1,logical).
+:- dynamic existing_attribute/4.
+:- dynamic modules_with_attributes/1.
 
-modules_with_attributes([]).
-
-:- user_defined_directive(attribute(G), attributes:new_attribute(G)).
-
-user:goal_expansion(get_atts(Var,AccessSpec), Mod, Gs) :- !,
-	expand_get_attributes(AccessSpec,Mod,Var,[],GL),
-	convert_to_goals(GL,Gs).
-user:goal_expansion(put_atts(Var,AccessSpec), Mod, Gs) :- !,
-	expand_put_attributes(AccessSpec,Mod,Var,[],GL),
-	convert_to_goals(GL,Gs).
-
+modules_with_attributes([prolog]).
 
 %
 % defining a new attribute is just a question of establishing a
@@ -51,90 +41,135 @@ new_attribute((At1,At2)) :-
 new_attribute(Na/Ar) :-
 	source_module(Mod),
 	functor(S,Na,Ar),
-	existing_attribute(S,Mod,_) , !.
+	existing_attribute(S,Mod,_,_) , !.
 new_attribute(Na/Ar) :-
 	source_module(Mod),
-	inc_n_of_atts(Key),
 	functor(S,Na,Ar),
-	store_new_module(Mod),
-	assertz(existing_attribute(S,Mod,Key)).
+	store_new_module(Mod,Ar,Position),
+	assertz(existing_attribute(S,Mod,Ar,Position)).
 
-store_new_module(Mod) :-
-	existing_attribute(_,Mod,_), !.
+existing_attribute(delay(_),prolog,1,2).
+
+store_new_module(Mod,Ar,ArgPosition) :-
+	(
+	  retract(attributed_module(Mod,Position,_))
+	->
+	  true
+	;
+	  store_new_module(Mod), Position = 1
+	),
+	ArgPosition is Position+1,
+	( Ar == 0 -> NOfAtts is Position+1 ; NOfAtts is Position+Ar),
+	functor(AccessTerm,Mod,NOfAtts),
+	assertz(attributed_module(Mod,NOfAtts,AccessTerm)).
+	
 store_new_module(Mod) :-
 	retract(modules_with_attributes(Mods)),
 	assertz(modules_with_attributes([Mod|Mods])).
 
-expand_get_attributes(V,Mod,Var,GL0,GL) :- var(V), !,
-	GL = [attributes:get_atts_at_run_time(Var,V,Mod)|GL0].
-expand_get_attributes([],_,_,LG,LG) :- !.
-expand_get_attributes([Att|Atts],Mod,Var,L0,LF) :- !,
-	expand_get_attributes(Att,Mod,Var,L0,L1),
-	expand_get_attributes(Atts,Mod,Var,L1,LF).
-expand_get_attributes(+Att,Mod,Var,L0,LF) :- !,
-	expand_get_attributes(Att,Mod,Var,L0,LF).
-expand_get_attributes(-Att,Mod,Var,L0,[attributes:free_att(Var,Key)|L0]) :- !,
-	existing_attribute(Att,Mod,Key).
-expand_get_attributes(Att,Mod,Var,L0,[attributes:get_att(Var,Key,Att)|L0]) :-
-	% searching for an attribute
-	existing_attribute(Att,Mod,Key).
+:- user_defined_directive(attribute(G), attributes:new_attribute(G)).
 
-get_atts_at_run_time(Var,Atts,Module) :-
-	var(Atts), !,
-	get_all_atts(Var,LAtts),
-	fetch_interesting_attributes(LAtts, Module, Atts).
-get_atts_at_run_time(Var,Atts,Module) :-
-	expand_get_attributes(Atts,Module,Var,[],GL),
-	convert_to_goals(GL,Gs),
-	call(Gs).
+user:goal_expansion(get_atts(Var,AccessSpec), Mod, Goal) :-
+	expand_get_attributes(AccessSpec,Mod,Var,Goal).
+user:goal_expansion(put_atts(Var,AccessSpec), Mod, Goal) :-
+	expand_put_attributes(AccessSpec, Mod, Var, Goal).
 
-fetch_interesting_attributes([], _, []).
-fetch_interesting_attributes([[I|Att]|LAtts], Module, Atts) :-
-	fetch_interesting_attribute(Att, Module, I, Atts, AttsI),
-	fetch_interesting_attributes(LAtts, Module, AttsI).
 
-%
-% only output attributes if they are for the current module.
-%
-fetch_interesting_attribute(Att, Module, Key, [Att|Atts], Atts) :-
-	existing_attribute(Att, Module, Key), !.
-fetch_interesting_attribute(_, _, _, Atts, Atts).
+expand_get_attributes(V,_,_,_) :- var(V), !, fail.
+expand_get_attributes([],_,_,true) :- !.
+expand_get_attributes([-G1],Mod,V,attributes:free_att(V,Mod,Pos)) :-
+	existing_attribute(G1,Mod,_,Pos), !.
+expand_get_attributes([+G1],Mod,V,attributes:get_att(V,Mod,Pos,A)) :-
+	existing_attribute(G1,Mod,1,Pos), !,
+	arg(1,G1,A).
+expand_get_attributes([G1],Mod,V,attributes:get_att(V,Mod,Pos,A)) :-
+	existing_attribute(G1,Mod,1,Pos), !,
+	arg(1,G1,A).
+expand_get_attributes(Atts,Mod,Var,attributes:get_module_atts(Var,AccessTerm)) :- Atts = [_|_], !,
+	attributed_module(Mod,NOfAtts,AccessTerm),
+	cvt_atts(Atts,Mod,LAtts),
+	sort(LAtts,SortedLAtts),
+	free_term(Void),
+	build_att_term(1,NOfAtts,SortedLAtts,Void,AccessTerm).
+expand_get_attributes(Att,Mod,Var,Goal) :- 
+	expand_get_attributes([Att],Mod,Var,Goal).
 
-expand_put_attributes(V,Mod,Var,G0,GF) :- var(V), !,
-	GF = [attributes:put_atts_at_run_time(Var,V,Mod)|G0].
-expand_put_attributes([],_,_,G,G) :- !.
-expand_put_attributes([Att|Atts],Mod,Var,G0,GF) :- !,
-	expand_put_attributes(Att,Mod,Var,G0,GI),
-	expand_put_attributes(Atts,Mod,Var,GI,GF).
-expand_put_attributes(+Att,Mod,Var,G0,GF) :- !,
-	expand_put_attributes(Att,Mod,Var,G0,GF).
-expand_put_attributes(-Att,Mod,Var,G0,[attributes:rm_att(Var,Key)|G0]) :- !,
-	existing_attribute(Att,Mod,Key).
-expand_put_attributes(Att,Mod,Var,G0,[attributes:put_att(Var,Key,Att)|G0]) :-
-	% searching for an attribute
-	existing_attribute(Att,Mod,Key).
+build_att_term(NOfAtts,NOfAtts,[],_,_) :- !.
+build_att_term(I0,NOfAtts,[I-Info|SortedLAtts],Void,AccessTerm) :-
+	I is I0+1, !,
+	copy_att_args(Info,I0,NI,AccessTerm),
+	build_att_term(NI,NOfAtts,SortedLAtts,Void,AccessTerm).
+build_att_term(I0,NOfAtts,SortedLAtts,Void,AccessTerm) :-
+	I is I0+1,
+	arg(I,AccessTerm,Void),
+	build_att_term(I,NOfAtts,SortedLAtts,Void,AccessTerm).
 
-put_atts_at_run_time(Var,Atts,_) :-
-	var(Atts), !,
-	throw(error(instantiation_error,put_atts(Var,Atts))).
-put_atts_at_run_time(Var,Atts,Module) :-
-	expand_put_attributes(Atts,Module,Var,[],GL),
-	convert_to_goals(GL,Gs),
-	call(Gs).
+cvt_atts(V,_,_) :- var(V), !, fail.
+cvt_atts([],_,[]).
+cvt_atts([V|_],_,_) :- var(V), !, fail.
+cvt_atts([+Att|Atts],Mod,[Pos-LAtts|Read]) :- !,
+	existing_attribute(Att,Mod,_,Pos),
+	(atom(Att) -> LAtts = [_] ; Att=..[_|LAtts]),
+	cvt_atts(Atts,Mod,Read).
+cvt_atts([-Att|Atts],Mod,[Pos-LVoids|Read]) :- !,
+	existing_attribute(Att,Mod,_,Pos),
+	void_term(Void),
+	(
+	  atom(Att)
+	->
+	  LVoids = [Void]
+	;
+	  Att =..[_|LAtts],
+	  void_vars(LAtts,Void,LVoids)
+	),	  
+	cvt_atts(Atts,Mod,Read).
+cvt_atts([Att|Atts],Mod,[Pos-LAtts|Read]) :- !,
+	existing_attribute(Att,Mod,_,Pos),
+	(atom(Att) -> LAtts = [_] ; Att=..[_|LAtts]),
+	cvt_atts(Atts,Mod,Read).
+
+copy_att_args([],I,I,_).
+copy_att_args([V|Info],I,NI,AccessTerm) :-
+	I1 is I+1,
+	arg(I1,AccessTerm,V),
+	copy_att_args(Info,I1,NI,AccessTerm).
+
+void_vars([],_,[]).
+void_vars([_|LAtts],Void,[Void|LVoids]) :-
+	void_vars(LAtts,Void,LVoids).
+
+expand_put_attributes(V,_,_,_) :- var(V), !, fail.
+expand_put_attributes([-G1],Mod,V,attributes:rm_att(V,Mod,NOfAtts,Pos)) :-
+	existing_attribute(G1,Mod,_,Pos), !,
+	attributed_module(Mod,NOfAtts,_).
+expand_put_attributes([+G1],Mod,V,attributes:put_att(V,Mod,NOfAtts,Pos,A)) :-
+	existing_attribute(G1,Mod,1,Pos), !,
+	attributed_module(Mod,NOfAtts,_),
+	arg(1,G1,A).
+expand_put_attributes([G1],Mod,V,attributes:put_att(V,Mod,NOfAtts,Pos,A)) :-
+	existing_attribute(G1,Mod,1,Pos), !,
+	attributed_module(Mod,NOfAtts,_),
+	arg(1,G1,A).
+expand_put_attributes(Atts,Mod,Var,attributes:put_module_atts(Var,AccessTerm)) :- Atts = [_|_], !,
+	attributed_module(Mod,NOfAtts,AccessTerm),
+	cvt_atts(Atts,Mod,LAtts),
+	sort(LAtts,SortedLAtts),
+	void_term(Void),
+	build_att_term(1,NOfAtts,SortedLAtts,Void,AccessTerm).
+expand_put_attributes(Att,Mod,Var,Goal) :- 
+	expand_put_attributes([Att],Mod,Var,Goal).
 
 woken_att_do(AttVar, Binding) :-
-	modules_with_attributes(Mods),
+	modules_with_attributes(AttVar,Mods),
 	do_verify_attributes(Mods, AttVar, Binding, Goals),
 	bind_attvar(AttVar),
 	lcall(Goals).
 
 do_verify_attributes([], _, _, []).
 do_verify_attributes([Mod|Mods], AttVar, Binding, [Mod:Goal|Goals]) :-
-	existing_attribute(_,Mod,Key),
-	get_att(AttVar,Key,_),
-	current_predicate(verify_attributes, Mod:verify_attributes(_,_,_)), !,
-	do_verify_attributes(Mods, AttVar, Binding, Goals),
-	Mod:verify_attributes(AttVar, Binding, Goal).
+	current_predicate(verify_attributes,Mod:verify_attributes(_,_,_)), !,
+	Mod:verify_attributes(AttVar, Binding, Goal),
+	do_verify_attributes(Mods, AttVar, Binding, Goals).
 do_verify_attributes([_|Mods], AttVar, Binding, Goals) :-
 	do_verify_attributes(Mods, AttVar, Binding, Goals).
 
@@ -149,7 +184,7 @@ lcall2([Goal|Goals], Mod) :-
 	lcall2(Goals, Mod).
 
 convert_att_var(V, Gs) :-
-	modules_with_attributes(LMods),
+	modules_with_attributes(V,LMods),
 	fetch_att_goals(LMods,V,Gs0), !,
 	simplify_trues(Gs0, Gs).
 convert_att_var(_, true).
@@ -167,8 +202,6 @@ fetch_att_goals([_|LMods], Att, LGoal) :-
 % if there is an active attribute for this module call attribute_goal.
 %
 call_module_attributes(Mod, AttV, G1) :-
-	existing_attribute(_,Mod,Key),
-	get_att(AttV,Key,_), !,
 	current_predicate(attribute_goal, Mod:attribute_goal(AttV,G1)),
 	Mod:attribute_goal(AttV, G1).
 

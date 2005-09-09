@@ -36,17 +36,15 @@ Each attribute contains;
 
 */
 
+/*
+  attvar_entry is just a Prolog structure such that the first argument is
+  a pointer to the next args
+*/
+
 typedef struct attvar_struct {
-  Term	Done;		/* if unbound suspension active, if bound terminated */
-  CELL sus_id;
-  Term NS;			 /* other attributed variables */
-  Term Value;                    /* value the variable will take */
-#ifdef __GNUC__
-  /* GNUCC understands empty arrays */
-  Term  Atts[0];
-#else
-  Term  Atts[2];                 /* size of an entry */
-#endif
+  Term Done;		/* if unbound suspension active, if bound terminated */
+  Term Value;           /* value the variable will take */
+  Term Atts; /* actual data */
 } attvar_record;
 
 /*********** tags for suspension variables */
@@ -56,12 +54,12 @@ typedef struct attvar_struct {
 
 static inline attvar_record *
 DelayTop(void) {
-  return (attvar_record *)((CELL *)Yap_GlobalBase+IntegerOfTerm(Yap_ReadTimedVar(DelayedVars)));
+  return (attvar_record *)((attvar_record *)Yap_GlobalBase+IntegerOfTerm(Yap_ReadTimedVar(DelayedVars)));
 }
 
 static inline void
-SetDelayTop(CELL *new_top) {
-  Yap_UpdateTimedVar(DelayedVars, MkIntegerTerm((CELL)(new_top-(CELL *)Yap_GlobalBase)));
+SetDelayTop(attvar_record *new_top) {
+  Yap_UpdateTimedVar(DelayedVars, MkIntegerTerm((CELL)(new_top-(attvar_record *)Yap_GlobalBase)));
 }
 
 #endif

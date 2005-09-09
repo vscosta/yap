@@ -558,8 +558,7 @@ call_residue(Goal,Residue) :-
 '$call_residue'(Goal,Module,Residue) :-
 	'$read_svar_list'(OldAttsList),
 	'$copy_term_but_not_constraints'(Goal, NGoal),
-	(  create_mutable([], CurrentAttsList),
-          '$set_svar_list'(CurrentAttsList),
+	( '$set_svar_list'(CurrentAttsList),
 	  '$system_catch'(NGoal,Module,Error,'$residue_catch_trap'(Error,OldAttsList)),
 
 	    '$call_residue_continuation'(NGoal,NResidue),
@@ -729,14 +728,20 @@ call_residue(Goal,Residue) :-
 %'$freeze'(V,G) :-
 %	attributes:get_att(V, 0, Gs), write(G+Gs),nl,fail.
 '$freeze'(V,G) :-
-	attributes:update_att(V, 0, G).
+	'$update_att'(V, G).
 
+'$update_att'(V, G) :-
+	  attributes:get_module_atts(V, prolog(_,Gs)), !,
+	  attributes:put_module_atts(V, prolog(_,[G|Gs])).
+'$update_att'(V, G) :-
+	attributes:put_module_atts(V, prolog(_,[G])).
+	  
 '$goal_in'(G,[G1|_]) :- G == G1, !.
 '$goal_in'(G,[_|Gs]) :-	
 	'$goal_in'(G,Gs).
 
 '$frozen_goals'(V,Gs) :-
 	var(V),
-	attributes:get_att(V, 0, Gs), nonvar(Gs).
+	attributes:get_att(V, prolog, 2, Gs), nonvar(Gs).
 
 

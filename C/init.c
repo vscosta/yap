@@ -937,6 +937,9 @@ InitCodes(void)
   Yap_heap_regs->atom_sig_pending = Yap_FullLookupAtom("$sig_pending");
 #endif
   AtomBraces = Yap_LookupAtom("{}");
+#ifdef COROUTINING
+  Yap_heap_regs->atom_att = Yap_FullLookupAtom("$att");
+#endif
   Yap_heap_regs->atom_b = Yap_FullLookupAtom("$last_choice_pt");
   Yap_heap_regs->atom_break = Yap_FullLookupAtom("$break");
   Yap_heap_regs->atom_call = Yap_LookupAtom("call");
@@ -1182,8 +1185,10 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
     INIT_RWLOCK(HashChain[i].AERWLock);
     HashChain[i].Entry = NIL;
   }
-  Yap_LookupAtomWithAddress("FoundVar",&(SF_STORE->AtFoundVar));
+  Yap_LookupAtomWithAddress(".",&(SF_STORE->AtFoundVar));
   Yap_ReleaseAtom(AtomFoundVar);
+  Yap_LookupAtomWithAddress("?",&(SF_STORE->AtFreeTerm));
+  Yap_ReleaseAtom(AtomFreeTerm);
   Yap_LookupAtomWithAddress("[]",&(SF_STORE->AtNil));
   Yap_LookupAtomWithAddress(".",&(SF_STORE->AtDot));
   /* InitAbsmi must be done before InitCodes */

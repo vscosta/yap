@@ -1605,7 +1605,7 @@ Yap_InitYaamRegs(void)
   DelayedVars = Yap_NewTimedVar(MkIntTerm(0));
   WokenGoals = Yap_NewTimedVar(TermNil);
   MutableList = Yap_NewTimedVar(TermNil);
-  AttsMutableList = Yap_NewTimedVar(TermNil);
+  AttsMutableList = Yap_NewTimedVar(MkIntTerm(0));
 #endif
 #if defined(YAPOR) || defined(THREADS)
   PP = NULL;

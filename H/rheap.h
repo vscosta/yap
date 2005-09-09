@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2005-08-01 15:40:38 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-09-09 17:24:39 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.53  2005/08/01 15:40:38  ricroc
+* TABLING NEW: better support for incomplete tabling
+*
 * Revision 1.52  2005/07/06 19:34:11  ricroc
 * TABLING: answers for completed calls can now be obtained by loading (new option) or executing (default) them from the trie data structure.
 *
@@ -282,6 +285,9 @@ restore_codes(void)
   Yap_heap_regs->atom_array = AtomAdjust(Yap_heap_regs->atom_array);
   Yap_heap_regs->atom_assert = AtomAdjust(Yap_heap_regs->atom_assert);
   Yap_heap_regs->atom_alarm = AtomAdjust(Yap_heap_regs->atom_alarm);
+#ifdef COROUTINING
+  Yap_heap_regs->atom_att = AtomAdjust(Yap_heap_regs->atom_att);
+#endif
   Yap_heap_regs->atom_b = AtomAdjust(Yap_heap_regs->atom_b);
   Yap_heap_regs->atom_break = AtomAdjust(Yap_heap_regs->atom_break);
   Yap_heap_regs->atom_call = AtomAdjust(Yap_heap_regs->atom_call);

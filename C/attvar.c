@@ -30,10 +30,6 @@ static char SccsId[]="%W% %G%";
 
 #ifdef COROUTINING
 
-STATIC_PROTO(Term  InitVarTime, (void));
-STATIC_PROTO(void   PutAtt, (attvar_record *,Int,Term));
-STATIC_PROTO(Int   BuildNewAttVar, (Term,Int,Term));
-
 static CELL *
 AddToQueue(attvar_record *attv)
 {
@@ -75,68 +71,55 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
   register attvar_record *attv = (attvar_record *)orig;
   register attvar_record *newv;
   CELL **to_visit = *to_visit_ptr;
-  Term time = InitVarTime();
-  Int j;
+  CELL *vt;
 
   /* add a new attributed variable */
   newv = DelayTop();
-  if (H0 - (CELL *)newv < 1024+(2*NUM_OF_ATTS))
+  if (H0 - (CELL *)newv < 1024)
     return FALSE;
-  RESET_VARIABLE(&(newv->Done));
-  newv->sus_id = attvars_ext;
   RESET_VARIABLE(&(newv->Value));
-  newv->NS = Yap_UpdateTimedVar(AttsMutableList, (CELL)&(newv->Done));
-  for (j = 0; j < NUM_OF_ATTS; j++) {
-    Term t = Deref(attv->Atts[2*j+1]);
-    newv->Atts[2*j] = time;
-    
-    if (IsVarTerm(t)) {
-      CELL *vt = VarOfTerm(t);
-      if (vt == attv->Atts+(2*j+1)) {
-	RESET_VARIABLE(newv->Atts+(2*j+1));
-      } else {
-	to_visit[0] = vt-1;
-	to_visit[1] = vt;
-	to_visit[2] = newv->Atts+2*j+1;
-	to_visit[3] = (CELL *)vt[-1];
-	to_visit += 4;
-      }
-    } else if (IsVarTerm(t) && IsAtomicTerm(t)) {
-      newv->Atts[2*j+1] = t;
-    } else {
-      to_visit[0] = attv->Atts+2*j;
-      to_visit[1] = attv->Atts+2*j+1;
-      to_visit[2] = newv->Atts+2*j+1;
-      to_visit[3] = (CELL *)(attv->Atts[2*j]);
-      to_visit += 4;
-    }
-  }
-  *to_visit_ptr = to_visit;
+  RESET_VARIABLE(&(newv->Done));
+  vt = &(attv->Atts);
+  to_visit[0] = vt-1;
+  to_visit[1] = vt;
+  to_visit[2] = &(newv->Atts);
+  to_visit[3] = (CELL *)vt[-1];
+  *to_visit_ptr = to_visit+4;
   *res = (CELL)&(newv->Done);
-  SetDelayTop(attv->Atts+2*j);
-  return(TRUE);
+  SetDelayTop(newv+1);
+  return TRUE;
 }
 
 static Term
 AttVarToTerm(CELL *orig)
 {
-  register attvar_record *attv = (attvar_record *)orig;
-  Term list = TermNil;
-  int j;
-  for (j = 0; j < NUM_OF_ATTS; j++) {
-    Term t = attv->Atts[2*(NUM_OF_ATTS-j-1)+1];
-    if (IsVarTerm(t))
-      list = MkPairTerm(MkVarTerm(),list);
-    else
-      list = MkPairTerm(t,list);
+  attvar_record *attv = (attvar_record *)orig;
+
+  return attv->Atts;
+}
+
+static attvar_record *
+BuildNewAttVar(void)
+{
+  attvar_record *attv = DelayTop();
+  if (H0 - (CELL *)(attv+1) < 1024) {
+    return NULL;
   }
-  return(list);
+  RESET_VARIABLE(&(attv->Done));
+  RESET_VARIABLE(&(attv->Value));
+  RESET_VARIABLE(&(attv->Atts));
+  SetDelayTop(attv+1);  
+  return attv;
 }
 
 static int
 TermToAttVar(Term attvar, Term to)
 {
-  return(BuildNewAttVar(to, -1, attvar));
+  attvar_record *attv = BuildNewAttVar();
+  if (!attv)
+    return FALSE;
+  attv->Atts = attvar;
+  return TRUE;
 }
 
 static void
@@ -155,11 +138,6 @@ WakeAttVar(CELL* pt1, CELL reg2)
       attvar_record *susp2 = (attvar_record *)VarOfTerm(reg2);
 
       /* binding two suspended variables, be careful */
-      if (susp2->sus_id != attvars_ext) {
-	/* joining two different kinds of suspensions */
-	Yap_Error(SYSTEM_ERROR, TermNil, "joining two different suspensions not implemented");
-	return;
-      }
       if (susp2 >= attv) {
 	if (!IsVarTerm(susp2->Value) || !IsUnboundVar(&susp2->Value)) {
 	  /* oops, our goal is on the queue to be woken */
@@ -207,13 +185,10 @@ static void
 mark_attvar(CELL *orig)
 {
   register attvar_record *attv = (attvar_record *)orig;
-  Int i;
 
   Yap_mark_external_reference(&(attv->Value));
   Yap_mark_external_reference(&(attv->Done));
-  for (i = 0; i < NUM_OF_ATTS; i++) {
-    Yap_mark_external_reference(attv->Atts+2*i+1);
-  }
+  Yap_mark_external_reference(&(attv->Atts));
 }
 
 #if FROZEN_STACKS
@@ -224,173 +199,113 @@ CurrentTime(void) {
 #endif
 
 static Term
-InitVarTime(void) {
-#if FROZEN_STACKS
-  if (B->cp_tr == TR) {
-    /* we run the risk of not making non-determinate bindings before
-       the end of the night */
-    /* so we just init a TR cell that will not harm anyone */
-    Bind((CELL *)(TR+1),AbsAppl(H-1));
-  }
-  return(MkIntegerTerm(B->cp_tr-(tr_fr_ptr)Yap_TrailBase));
-#else
-  Term t = (CELL)H;
-  *H++ = TermFoundVar;
-  return(t);
-#endif
-}
-
-static void
-PutAtt(attvar_record *attv, Int i, Term tatt) {
-  Int pos = i*2;
-#if FROZEN_STACKS
-  tr_fr_ptr timestmp = (tr_fr_ptr)Yap_TrailBase+IntegerOfTerm(attv->Atts[pos]);
-  if (B->cp_tr <= timestmp
-      && timestmp <= TR) {
-#if defined(SBA)
-    if (Unsigned((Int)(attv)-(Int)(H_FZ)) >
-	Unsigned((Int)(B_FZ)-(Int)(H_FZ))) {
-      CELL *ptr = STACK_TO_SBA(attv->Atts+pos+1);
-      *ptr = tatt;
-    } else
-#endif
-      attv->Atts[pos+1] = tatt;
-    if (Unsigned((Int)(attv)-(Int)(HBREG)) >
-	Unsigned(BBREG)-(Int)(HBREG))
-      TrailVal(timestmp-1) = tatt;
-  } else {
-    Term tnewt;
-    MaBind(attv->Atts+pos+1, tatt);
-    tnewt = CurrentTime();
-    MaBind(attv->Atts+pos, tnewt);    
-  }
-#else
-  CELL *timestmp = (CELL *)(attv->Atts[pos]);
-  if (B->cp_h <= timestmp) {
-    attv->Atts[pos+1] = tatt;
-  } else {
-    Term tnewt;
-    MaBind(attv->Atts+pos+1, tatt);
-    tnewt = (Term)H;
-    *H++ = TermFoundVar;
-    MaBind(attv->Atts+pos, tnewt);    
-  }
-#endif
-}
-
-static Int
-UpdateAtt(attvar_record *attv, Int i, Term tatt) {
-  Int pos = i*2;
-  Term tv = attv->Atts[pos+1];
-  if (!IsVarTerm(tv) || !IsUnboundVar(attv->Atts+pos+1)) {
-    tatt = MkPairTerm(tatt, attv->Atts[pos+1]);
-  } else {
-    tatt = MkPairTerm(tatt, TermNil);
-  }    
-  PutAtt(attv, i, tatt);
-  return TRUE;
-}
-
-static Int
-RmAtt(attvar_record *attv, Int i) {
-  Int pos = i *2;
-  if (!IsVarTerm(attv->Atts[pos+1])) {
-#if FROZEN_STACKS
-    tr_fr_ptr timestmp = (tr_fr_ptr)Yap_TrailBase+IntegerOfTerm(attv->Atts[pos]);
-    if (B->cp_tr <= timestmp
-	&& timestmp <= TR) {
-      RESET_VARIABLE(attv->Atts+(pos+1));
-      if (Unsigned((Int)(attv)-(Int)(HBREG)) >
-	  Unsigned(BBREG)-(Int)(HBREG))
-	TrailVal(timestmp-1) = attv->Atts[pos+1];
-    } else {
-      /* reset the variable */
-      Term tnewt;
-#ifdef SBA
-      MaBind(attv->Atts+(pos+1), 0L);    
-#else
-      MaBind(attv->Atts+(pos+1), (CELL)(attv->Atts+(pos+1)));    
-#endif
-      tnewt = CurrentTime();
-      MaBind(attv->Atts+pos, tnewt);    
-    }
-#else
-    CELL *timestmp = (CELL *)(attv->Atts[pos]);
-    if (B->cp_h <= timestmp) {
-      RESET_VARIABLE(attv->Atts+(pos+1));
-    } else {
-      /* reset the variable */
-      Term tnewt;
-#ifdef SBA
-      MaBind(attv->Atts+(pos+1), 0L);    
-#else
-      MaBind(attv->Atts+(pos+1), (CELL)(attv->Atts+(pos+1)));    
-#endif
-      tnewt = (Term)H;
-      *H++ = TermFoundVar;
-      MaBind(attv->Atts+pos, tnewt);    
-    }
-#endif
-  }
-  return(TRUE);
-}
-
-static Int
-BuildNewAttVar(Term t, Int i, Term tatt)
+BuildAttTerm(Functor mfun, UInt ar)
 {
-  /* allocate space in Heap */
-  Term time;
-  int j;
+  CELL *h0 = H;
+  UInt i;
 
-  attvar_record *attv = DelayTop();
-  if (H0 - (CELL *)attv < 1024+(2*NUM_OF_ATTS)) {
-    return FALSE;
+  if (H+(1024+ar) > ASP) {
+    return 0L;
   }
-  time = InitVarTime();
-  RESET_VARIABLE(&(attv->Value));
-  RESET_VARIABLE(&(attv->Done));
-  attv->sus_id = attvars_ext;
-  for (j = 0; j < NUM_OF_ATTS; j++) {
-    attv->Atts[2*j] = time;
-    RESET_VARIABLE(attv->Atts+(2*j+1));
+  H[0] = (CELL)mfun;
+  RESET_VARIABLE(H+1);
+  H += 2;
+  for (i = 1; i< ar; i++) {
+    *H = TermFoundVar;
+    H++;
   }
-  attv->NS = Yap_UpdateTimedVar(AttsMutableList, (CELL)&(attv->Done));
-  Bind((CELL *)t,(CELL)attv);
-  SetDelayTop(attv->Atts+2*j);
-  /* avoid trouble in gc */
-  /* if i < 0 then we have the list of arguments */
-  if (i < 0) {
-    Int j = 0;
-    while (IsPairTerm(tatt)) {
-      Term t = HeadOfTerm(tatt);
-      /* I need to do this because BuildNewAttVar may shift the stacks */
-      if (!IsVarTerm(t)) {
-	attv->Atts[2*j+1] = t;
-      }
-      j++;
-      tatt = TailOfTerm(tatt);
+  return AbsAppl(h0);
+}
+
+static Term 
+SearchAttsForModule(Term start, Functor mfun)
+{
+  do {
+    if (IsVarTerm(start) ||
+	FunctorOfTerm(start) == mfun)
+      return start;
+    start = ArgOfTerm(1,start);
+  } while (TRUE);
+}
+
+static Term 
+SearchAttsForModuleName(Term start, Atom mname)
+{
+  do {
+    if (IsVarTerm(start) ||
+	NameOfFunctor(FunctorOfTerm(start)) == mname)
+      return start;
+    start = ArgOfTerm(1,start);
+  } while (TRUE);
+}
+
+static void 
+AddNewModule(attvar_record *attv, Term t, int new)
+{
+  if (IsVarTerm(attv->Atts)) {
+    if (new) {
+      attv->Atts = t;
+    } else {
+      Bind(&(attv->Atts),t);
     }
-    return TRUE;
   } else {
-    PutAtt(attv, i, tatt);
-    return TRUE;
+    Term *wherep = &attv->Atts;
+
+    do {
+      if (IsVarTerm(*wherep)) {
+	Bind_Global(wherep,t);      
+	return;
+      } else {
+	wherep = RepAppl(Deref(*wherep))+1;
+      }
+    } while (TRUE);
   }
 }
 
-static Int
-GetAtt(attvar_record *attv, int i) {
-  Int pos = i *2;
-#if SBA
-  if (IsVarTerm(attv->Atts[pos+1]) && IsUnboundVar(attv->Atts+pos+1))
-    return((CELL)&(attv->Atts[pos+1]));
-#endif  
-  return(attv->Atts[pos+1]);
+static void 
+ReplaceAtts(attvar_record *attv, Term oatt, Term att)
+{
+  UInt ar = ArityOfFunctor(FunctorOfTerm(oatt)), i;
+  CELL *oldp = RepAppl(oatt)+1;
+  CELL *newp = RepAppl(att)+1;
+
+  *newp++ = *oldp++;
+  for (i=1; i< ar; i++) {
+    if (*newp == TermFoundVar) {
+      *newp = *oldp;
+    }
+    oldp++;
+    newp++;
+  }
+  if (attv->Atts == oatt) {
+    if (RepAppl(attv->Atts) >= HB)
+      attv->Atts = att;
+    else
+      MaBind(&(attv->Atts), att);
+  } else {
+    Term *wherep = &attv->Atts;
+
+    do {
+      if (*wherep == oatt) {
+	MaBind(wherep, att);
+	return;
+      } else {
+	wherep = RepAppl(Deref(*wherep))+1;
+      }
+    } while (TRUE);
+  }
 }
 
-static Int
-FreeAtt(attvar_record *attv, int i) {
-  Int pos = i *2;
-  return(IsVarTerm(attv->Atts[pos+1]));
+static void 
+PutAtt(Int pos, Term atts, Term att)
+{
+  if (IsVarTerm(att) && (CELL *)att > H && (CELL *)att < LCL0) {
+    /* globalise locals */
+    Term tnew = MkVarTerm();
+    Bind((CELL *)att, tnew);
+    att = tnew;
+  }
+  MaBind(RepAppl(atts)+pos, att);
 }
 
 static Int
@@ -426,35 +341,35 @@ BindAttVar(attvar_record *attv) {
 
 static Term
 GetAllAtts(attvar_record *attv) {
-  Int i;
-  Term t = TermNil;
-  for (i = NUM_OF_ATTS-1; i >= 0; i --) {
-    if (!IsVarTerm(attv->Atts[2*i+1]))
-      t = MkPairTerm(MkPairTerm(MkIntegerTerm(i),attv->Atts[2*i+1]), t);
-  }
-  return(t);
+  /* check if we are already there */
+  return attv->Atts;
 }
 
 static Term
-AllAttVars(Term t) {
+AllAttVars(attvar_record *attv) {
   CELL *h0 = H;
+  attvar_record *max = DelayTop();
 
-  while (t != TermNil) {
-    attvar_record *attv;
+  while (attv != max) {
 
     if (ASP - H < 1024) {
       H = h0;
       return 0L;
     }
-    attv = (attvar_record *)VarOfTerm(t);
     if (IsVarTerm(attv->Done) && IsUnboundVar(&attv->Done)) {
-      if (H != h0) {
-	H[-1] = AbsPair(H);
+      if (IsIntegerTerm(attv->Atts)) {
+	/* skip call residue(s) */
+	UInt n = IntegerOfTerm(attv->Atts)-1;
+	attv += n;
+      } else {
+	if (H != h0) {
+	  H[-1] = AbsPair(H);
+	}
+	H[0] = (CELL)attv;
+	H += 2;
       }
-      H[0] = t;
-      H += 2;
     }
-    t = attv->NS;
+    attv++;
   }
   if (H != h0) {
     H[-1] = TermNil;
@@ -470,54 +385,37 @@ p_put_att(void) {
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
+    attvar_record *attv;
+    Atom modname = AtomOfTerm(Deref(ARG2));
+    UInt ar = IntegerOfTerm(Deref(ARG3));
+    Functor mfun;
+    Term tatts;
+    int new = FALSE;
+
     if (IsAttachedTerm(inp)) {
-      attvar_record *attv = (attvar_record *)VarOfTerm(inp);
-      exts id = (exts)attv->sus_id;
-
-      if (id != attvars_ext) {
-	Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
-	return(FALSE);
+      attv = (attvar_record *)VarOfTerm(inp);
+    } else {
+      while (!(attv = BuildNewAttVar())) {
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, ARG1, Yap_ErrorMessage);
+	  return FALSE;
+	}
+	inp = Deref(ARG1);
       }
-      PutAtt(attv, IntegerOfTerm(Deref(ARG2)), Deref(ARG3));
-      return TRUE;
+      new = TRUE;
     }
-    while (!BuildNewAttVar(inp, IntegerOfTerm(Deref(ARG2)), Deref(ARG3))) {
-      if (!Yap_growglobal(NULL)) {
-	Yap_Error(OUT_OF_ATTVARS_ERROR, ARG1, Yap_ErrorMessage);
-	return FALSE;
+    mfun= Yap_MkFunctor(modname,ar);
+    if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts,mfun))) {
+      while (!(tatts = BuildAttTerm(mfun,ar))) {
+	if (!Yap_gc(5, ENV, P)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}    
       }
-      inp = Deref(ARG1);
+      Yap_unify(ARG1, (Term)attv);
+      AddNewModule(attv,tatts,new);
     }
-    return TRUE;
-  } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
-    return(FALSE);
-  }
-}
-
-static Int
-p_update_att(void) {
-  /* receive a variable in ARG1 */
-  Term inp = Deref(ARG1);
-  /* if this is unbound, ok */
-  if (IsVarTerm(inp)) {
-    if (IsAttachedTerm(inp)) {
-      attvar_record *attv = (attvar_record *)VarOfTerm(inp);
-      exts id = (exts)attv->sus_id;
-
-      if (id != attvars_ext) {
-	Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
-	return(FALSE);
-      }
-      return(UpdateAtt(attv, IntegerOfTerm(Deref(ARG2)), Deref(ARG3)));
-    }
-    while (!BuildNewAttVar(inp, IntegerOfTerm(Deref(ARG2)), MkPairTerm(Deref(ARG3),TermNil))) {
-      if (!Yap_growglobal(NULL)) {
-	Yap_Error(OUT_OF_ATTVARS_ERROR, ARG1, Yap_ErrorMessage);
-	return FALSE;
-      }
-      inp = Deref(ARG1);
-    }
+    PutAtt(IntegerOfTerm(Deref(ARG4)), tatts, Deref(ARG5));
     return TRUE;
   } else {
     Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
@@ -531,68 +429,197 @@ p_rm_att(void) {
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
-    if (IsAttachedTerm(inp)) {
-      attvar_record *attv = (attvar_record *)VarOfTerm(inp);
-      exts id = (exts)attv->sus_id;
+    attvar_record *attv;
+    Atom modname = AtomOfTerm(Deref(ARG2));
+    UInt ar = IntegerOfTerm(Deref(ARG3));
+    Functor mfun;
+    Term tatts;
+    int new = FALSE;
 
-      if (id != attvars_ext) {
-	Yap_Error(TYPE_ERROR_VARIABLE,inp,"delete_attribute/2");
-	return(FALSE);
+    if (IsAttachedTerm(inp)) {
+      attv = (attvar_record *)VarOfTerm(inp);
+    } else {
+      while (!(attv = BuildNewAttVar())) {
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, ARG1, Yap_ErrorMessage);
+	  return FALSE;
+	}
+	inp = Deref(ARG1);
       }
-      return(RmAtt(attv, IntegerOfTerm(Deref(ARG2))));
+      new = TRUE;
+      Yap_unify(ARG1, (Term)attv);
     }
-    return(TRUE);
+    mfun= Yap_MkFunctor(modname,ar);
+    if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts,mfun))) {
+      while (!(tatts = BuildAttTerm(mfun,ar))) {
+	if (!Yap_gc(4, ENV, P)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}    
+      }
+      AddNewModule(attv,tatts,new);
+    } else {
+      PutAtt(IntegerOfTerm(Deref(ARG4)), tatts, TermFoundVar);
+    }
+    return TRUE;
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"delete_attribute/2");
+    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
     return(FALSE);
+  }
+}
+
+static Int
+p_put_atts(void) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  Term otatts;
+
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    attvar_record *attv;
+    Term tatts = Deref(ARG2);
+    Functor mfun = FunctorOfTerm(tatts);
+    int new = FALSE;
+
+    if (IsAttachedTerm(inp)) {
+      attv = (attvar_record *)VarOfTerm(inp);
+    } else {
+      while (!(attv = BuildNewAttVar())) {
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, ARG1, Yap_ErrorMessage);
+	  return FALSE;
+	}
+	tatts = Deref(ARG2);
+      }
+      new = TRUE;
+      Yap_unify(ARG1, (Term)attv);
+    }
+    if (IsVarTerm(otatts = SearchAttsForModule(attv->Atts,mfun))) {
+      AddNewModule(attv,tatts,new);
+    } else {
+      ReplaceAtts(attv, otatts, tatts);
+    }
+    return TRUE;
+  } else {
+    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+    return FALSE;
   }
 }
 
 static Int
 p_get_att(void) {
   /* receive a variable in ARG1 */
-  Term  inp = Deref(ARG1);
+  Term inp = Deref(ARG1);
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
-    if (IsAttachedTerm(inp)) {
-      attvar_record *attv = (attvar_record *)VarOfTerm(inp);
-      Term out;
-      exts id = (exts)attv->sus_id;
+    Atom modname = AtomOfTerm(Deref(ARG2));
 
-      if (id != attvars_ext) {
-	Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv;
+      Term tout, tatts;
+
+      attv = (attvar_record *)VarOfTerm(inp);
+      if (IsVarTerm(tatts = SearchAttsForModuleName(attv->Atts,modname)))
 	return FALSE;
-      }
-      out = GetAtt(attv,IntegerOfTerm(Deref(ARG2)));
-      return !IsVarTerm(out) && Yap_unify(ARG3,out);
+      tout = ArgOfTerm(IntegerOfTerm(Deref(ARG3)),tatts);
+      if (tout == TermFoundVar) return FALSE;
+      return Yap_unify(tout, ARG4);      
+    } else {
+      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
+      return FALSE;
     }
-    /*    Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2");*/
-    return FALSE;
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
-    return FALSE;
+    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+    return(FALSE);
   }
 }
 
 static Int
 p_free_att(void) {
   /* receive a variable in ARG1 */
-  Term  inp = Deref(ARG1);
+  Term inp = Deref(ARG1);
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    Atom modname = AtomOfTerm(Deref(ARG2));
+
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv;
+      Term tout, tatts;
+
+      attv = (attvar_record *)VarOfTerm(inp);
+      if (IsVarTerm(tatts = SearchAttsForModuleName(attv->Atts,modname)))
+	return TRUE;
+      tout = ArgOfTerm(IntegerOfTerm(Deref(ARG3)),tatts);
+      return (tout == TermFoundVar);
+    } else {
+      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
+      return TRUE;
+    }
+  } else {
+    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+    return(FALSE);
+  }
+}
+
+static Int
+p_get_atts(void) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
     if (IsAttachedTerm(inp)) {
-      attvar_record *attv = (attvar_record *)VarOfTerm(inp);
-      exts id = (exts)attv->sus_id;
+      attvar_record *attv;
+      Term tatts;
+      Term access = Deref(ARG2);
+      Functor mfun = FunctorOfTerm(access);
+      UInt ar, i;
+      CELL *old, *new;
 
-      if (id != attvars_ext) {
-	Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
-	return(FALSE);
+      attv = (attvar_record *)VarOfTerm(inp);
+      if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts,mfun)))
+	return FALSE;
+      
+      ar = ArityOfFunctor(mfun);
+      new = RepAppl(access)+2;
+      old = RepAppl(tatts)+2;
+      for (i = 1; i < ar; i++,new++,old++) {
+	if (*new != TermFreeTerm) {
+	  if (*old == TermFoundVar && *new != TermFoundVar)
+	    return FALSE;
+	  if (!Yap_unify(*new,*old)) return FALSE;
+	}
       }
-      return(FreeAtt(attv,IntegerOfTerm(Deref(ARG2))));
+      return TRUE;
+    } else {
+      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
+      return FALSE;
     }
-    return(TRUE);
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"free_att/2");
+    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+    return(FALSE);
+  }
+}
+
+static Int
+p_has_atts(void) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv;
+      Term tatts;
+      Term access = Deref(ARG2);
+      Functor mfun = FunctorOfTerm(access);
+
+      attv = (attvar_record *)VarOfTerm(inp);
+      return !IsVarTerm(tatts = SearchAttsForModule(attv->Atts,mfun));
+    } else {
+      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
+      return FALSE;
+    }
+  } else {
+    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
     return(FALSE);
   }
 }
@@ -605,12 +632,6 @@ p_bind_attvar(void) {
   if (IsVarTerm(inp)) {
     if (IsAttachedTerm(inp)) {
       attvar_record *attv = (attvar_record *)VarOfTerm(inp);
-      exts id = (exts)attv->sus_id;
-
-      if (id != attvars_ext) {
-	Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
-	return(FALSE);
-      }
       return(BindAttVar(attv));
     }
     return(TRUE);
@@ -628,12 +649,6 @@ p_get_all_atts(void) {
   if (IsVarTerm(inp)) {
     if (IsAttachedTerm(inp)) {
       attvar_record *attv = (attvar_record *)VarOfTerm(inp);
-      exts id = (exts)(attv->sus_id);
-
-      if (id != attvars_ext) {
-	Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
-	return(FALSE);
-      }
       return Yap_unify(ARG2,GetAllAtts(attv));
     }
     return TRUE;
@@ -644,31 +659,52 @@ p_get_all_atts(void) {
 }
 
 static Int
-p_inc_atts(void)
-{
-  Term t = MkIntegerTerm(NUM_OF_ATTS);
-  NUM_OF_ATTS++;
-  return(Yap_unify(ARG1,t));
-}
+p_modules_with_atts(void) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv = (attvar_record *)VarOfTerm(inp);
+      CELL *h0 = H;
+      Term tatt;
 
-static Int
-p_n_atts(void)
-{
-  Term t = MkIntegerTerm(NUM_OF_ATTS);
-  return Yap_unify(ARG1,t);
+      if (IsVarTerm(tatt = attv->Atts))
+	  return Yap_unify(ARG2,TermNil);
+      while (!IsVarTerm(tatt)) {
+	if (H != H0)
+	  H[-1] = AbsPair(H);
+	*H = MkAtomTerm(NameOfFunctor(FunctorOfTerm(tatt)));
+	H+=2;
+	tatt = ArgOfTerm(1,tatt);
+      }
+      H[-1] = TermNil;
+      return Yap_unify(ARG2,AbsPair(h0));
+    }
+    return TermNil;
+  } else {
+    Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
+    return FALSE;
+  }
 }
 
 static Int
 p_all_attvars(void)
 {
-  Term out;
-  while ((out = AllAttVars(Yap_ReadTimedVar(AttsMutableList))) == 0L) {
-    if (!Yap_gc(1, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return FALSE;
-    }    
-  }
-  return Yap_unify(ARG1,out);
+  do {
+    Term out;
+    attvar_record *base;
+
+    base = (attvar_record *)Yap_GlobalBase+IntegerOfTerm(Yap_ReadTimedVar(AttsMutableList));
+    if (!(out = AllAttVars(base))) {
+      if (!Yap_gc(1, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }    
+    } else {
+      return Yap_unify(ARG1,out);
+    }
+  } while (TRUE);
 }
 
 static Int
@@ -676,8 +712,7 @@ p_is_attvar(void)
 {
   Term t = Deref(ARG1);
   return(IsVarTerm(t) &&
-	 IsAttachedTerm(t) &&
-	 ((attvar_record *)VarOfTerm(t))->sus_id == attvars_ext);
+	 IsAttachedTerm(t));
 }
 
 /* check if we are not redoing effort */
@@ -687,7 +722,6 @@ p_attvar_bound(void)
   Term t = Deref(ARG1);
   return(IsVarTerm(t) &&
 	 IsAttachedTerm(t) &&
-	 ((attvar_record *)VarOfTerm(t))->sus_id == attvars_ext &&
          !IsUnboundVar(&((attvar_record *)VarOfTerm(t))->Done));
 }
 
@@ -713,6 +747,18 @@ p_attvar_bound(void)
 
 #endif /* COROUTINING */
 
+static Int
+p_void_term(void)
+{
+  return Yap_unify(ARG1,TermFoundVar);
+}
+
+static Int
+p_free_term(void)
+{
+  return Yap_unify(ARG1,TermFreeTerm);
+}
+
 void Yap_InitAttVarPreds(void)
 {
   Term OldCurrentModule = CurrentModule;
@@ -723,15 +769,18 @@ void Yap_InitAttVarPreds(void)
   attas[attvars_ext].to_term_op = AttVarToTerm;
   attas[attvars_ext].term_to_op = TermToAttVar;
   attas[attvars_ext].mark_op = mark_attvar;
-  Yap_InitCPred("get_att", 3, p_get_att, SafePredFlag);
+  Yap_InitCPred("get_att", 4, p_get_att, SafePredFlag);
+  Yap_InitCPred("get_module_atts", 2, p_get_atts, SafePredFlag);
+  Yap_InitCPred("has_module_atts", 2, p_has_atts, SafePredFlag);
   Yap_InitCPred("get_all_atts", 2, p_get_all_atts, SafePredFlag);
-  Yap_InitCPred("free_att", 2, p_free_att, SafePredFlag);
-  Yap_InitCPred("put_att", 3, p_put_att, 0);
-  Yap_InitCPred("update_att", 3, p_update_att, 0);
-  Yap_InitCPred("rm_att", 2, p_rm_att, SafePredFlag);
-  Yap_InitCPred("inc_n_of_atts", 1, p_inc_atts, SafePredFlag);
-  Yap_InitCPred("n_of_atts", 1, p_n_atts, SafePredFlag);
+  Yap_InitCPred("free_att", 3, p_free_att, SafePredFlag);
+  Yap_InitCPred("put_att", 5, p_put_att, 0);
+  Yap_InitCPred("put_module_atts", 2, p_put_atts, 0);
+  Yap_InitCPred("rm_att", 4, p_rm_att, 0);
   Yap_InitCPred("bind_attvar", 1, p_bind_attvar, SafePredFlag);
+  Yap_InitCPred("void_term", 1, p_void_term, SafePredFlag);
+  Yap_InitCPred("free_term", 1, p_free_term, SafePredFlag);
+  Yap_InitCPred("modules_with_attributes", 2, p_modules_with_atts, SafePredFlag);
 #endif /* COROUTINING */
   Yap_InitCPred("all_attvars", 1, p_all_attvars, 0);
   CurrentModule = OldCurrentModule;

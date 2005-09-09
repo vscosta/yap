@@ -22,6 +22,7 @@ static char SccsId[]="%W% %G%";
 #include "Yatom.h"
 #include "Heap.h"
 #include "heapgc.h"
+#include "attvar.h"
 #ifndef NULL
 #define NULL (void *)0
 #endif
@@ -31,7 +32,7 @@ p_read_svar_list(void)
 {
 #ifdef COROUTINING
 #ifdef MULTI_ASSIGNMENT_VARIABLES
-  return(Yap_unify(ARG1, AttsMutableList));
+  return Yap_unify(ARG1,Yap_ReadTimedVar(AttsMutableList));
 #else
   return(TRUE);
 #endif
@@ -45,10 +46,39 @@ p_set_svar_list(void)
 {
 #ifdef COROUTINING
 #ifdef MULTI_ASSIGNMENT_VARIABLES
-  AttsMutableList = Deref(ARG1);
+  Term newl = Deref(ARG1);
+  attvar_record *max = DelayTop();
+
+  if (IsVarTerm(newl)) {
+    /* set to current top */
+    UInt diff;
+    Term tdiff;
+
+    RESET_VARIABLE(&max->Done);
+    RESET_VARIABLE(&max->Value);
+    max->Atts = MkIntTerm(1);
+    max++;
+    SetDelayTop(max);
+    diff = max-(attvar_record *)Yap_GlobalBase;
+    tdiff = MkIntegerTerm(diff);
+
+    Yap_UpdateTimedVar(AttsMutableList,tdiff);
+    return Yap_unify(ARG1,tdiff);
+  } else {
+    UInt old = IntegerOfTerm(Yap_UpdateTimedVar(AttsMutableList,newl));
+    attvar_record *aold = (attvar_record *)Yap_GlobalBase + (old-1);
+    
+    if (max > aold+1) {
+      /* we are moving forward */
+      /* these items are protected by call-residue, should not
+         be visible to AllAtts
+      */
+      MaBind(&(aold->Atts),MkIntegerTerm(max-aold));
+    }
+  }
 #endif
 #endif
-  return(TRUE);
+  return TRUE;
 }
 
 #ifdef COROUTINING

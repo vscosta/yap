@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 	%W% %G% 					 *
@@ -17,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h,v 1.1 2005-05-27 22:27:06 rslopes Exp $	 *
+* version:      $Id: TermExt.h,v 1.2 2005-09-09 17:24:39 vsc Exp $	 *
 *************************************************************************/
 
 #ifdef USE_SYSTEM_MALLOC
@@ -28,15 +21,18 @@
 
 #if USE_OFFSETS
 #define   AtomFoundVar ((Atom)(&(((special_functors *)(NULL))->AtFoundVar)))
+#define   AtomFreeTerm ((Atom)(&(((special_functors *)(NULL))->AtFreeTerm)))
 #define   AtomNil ((Atom)(&(((special_functors *)(NULL))->AtNil)))
 #define   AtomDot ((Atom)(&(((special_functors *)(NULL))->AtDot)))
 #else
 #define   AtomFoundVar AbsAtom(&(SF_STORE->AtFoundVar))
+#define   AtomFreeTerm AbsAtom(&(SF_STORE->AtFreeTerm))
 #define   AtomNil AbsAtom(&(SF_STORE->AtNil))
 #define   AtomDot AbsAtom(&(SF_STORE->AtDot))
 #endif
 
 #define   TermFoundVar MkAtomTerm(AtomFoundVar)
+#define   TermFreeTerm MkAtomTerm(AtomFreeTerm)
 #define   TermNil MkAtomTerm(AtomNil)
 #define   TermDot MkAtomTerm(AtomDot)
 
@@ -125,6 +121,8 @@ typedef struct special_functors_struct
 {
   AtomEntry AtFoundVar;
   char AtFoundVarChars[8];
+  AtomEntry AtFreeTerm;
+  char AtFreeTermChars[8];
   AtomEntry AtNil;
   char AtNilChars[8];
   AtomEntry AtDot;
@@ -495,7 +493,7 @@ inline EXTERN exts ExtFromCell (CELL *);
 inline EXTERN exts
 ExtFromCell (CELL * pt)
 {
-  return (exts) (pt[1]);
+  return attvars_ext;
 }
 
 

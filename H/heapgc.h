@@ -67,7 +67,7 @@
 /* is val pointing to something bound to the heap? */
 
 
-#define GCIsPrimitiveTerm(X)    (!IsVarTerm(X) && IsAtomOrIntTerm(X))
+#define GCIsPrimitiveTerm(X)    (/* not really needed !IsVarTerm(X) && */ IsAtomOrIntTerm(X))
 
 /* Does X point to an object in the heap */
 #define HEAP_PTR(val)    (!GCIsPrimitiveTerm(val) && ONHEAP(GET_NEXT(val)))
@@ -131,8 +131,7 @@ UNRMARK(CELL* ptr)
 static inline int
 RMARKED(CELL* ptr)
 {
-  CELL val = *ptr;
-  return !GCIsPrimitiveTerm(val) && (mcell(ptr) & RMARK_BIT);
+  return mcell(ptr) & RMARK_BIT;
 }
 
 #else

@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-09-08 22:06:44 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2005-09-09 17:24:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.176  2005/09/08 22:06:44  rslopes
+* BEAM for YAP update...
+*
 * Revision 1.175  2005/08/12 17:00:00  ricroc
 * TABLING FIX: support for incomplete tables
 *
@@ -1754,12 +1757,17 @@ Yap_absmi(int inp)
 	      }
 	      pt1--;
 	    } else if (IsApplTerm(d1)) {
-	      TrailTerm(pt0) = d1;
-	      TrailVal(pt0) = TrailVal(pt1);
-	      TrailTerm(pt0-1) = TrailTerm(pt1-1);
-	      TrailVal(pt0-1) = TrailVal(pt1-1);
-	      pt0 -= 2;
-	      pt1 -= 2;
+	       if (IN_BETWEEN(HBREG,RepAppl(d1),B->cp_b)) {
+		 /* deterministic binding to multi-assignment variable */
+		 pt1 -= 2;
+	       } else {
+		 TrailTerm(pt0) = d1;
+		 TrailVal(pt0) = TrailVal(pt1);
+		 TrailTerm(pt0-1) = TrailTerm(pt1-1);
+		 TrailVal(pt0-1) = TrailVal(pt1-1);
+		 pt0 -= 2;
+		 pt1 -= 2;
+	       }
 	    } else {
 	      TrailTerm(pt0) = d1;
 	      TrailVal(pt0) = TrailVal(pt1);
@@ -1793,19 +1801,27 @@ Yap_absmi(int inp)
 	      }     
 	      pt1++;
 	    } else if (IsApplTerm(d1)) {
+	       if (IN_BETWEEN(HBREG,RepAppl(d1),B->cp_b)) {
 #ifdef FROZEN_STACKS
-	      TrailVal(pt0) = TrailVal(pt1);
-	      TrailTerm(pt0) = TrailTerm(pt0+2) = d1;
-	      TrailVal(pt0+1) = TrailVal(pt1+1);
-	      TrailTerm(pt0+1) = TrailTerm(pt1+1);
-	      pt0 += 2;
-	      pt1 += 2;
+		 pt1 += 2;
 #else
-	      TrailTerm(pt0+1) = TrailTerm(pt1+1);
-	      TrailTerm(pt0) = TrailTerm(pt0+2) = d1;
-	      pt0 += 3;
-	      pt1 += 3;
+		 pt1 += 3;
+#endif
+	       } else {
+#ifdef FROZEN_STACKS
+		 TrailVal(pt0) = TrailVal(pt1);
+		 TrailTerm(pt0) = TrailTerm(pt0+2) = d1;
+		 TrailVal(pt0+1) = TrailVal(pt1+1);
+		 TrailTerm(pt0+1) = TrailTerm(pt1+1);
+		 pt0 += 2;
+		 pt1 += 2;
+#else
+		 TrailTerm(pt0+1) = TrailTerm(pt1+1);
+		 TrailTerm(pt0) = TrailTerm(pt0+2) = d1;
+		 pt0 += 3;
+		 pt1 += 3;
 #endif /* FROZEN_STACKS */
+	       }
 	    } else if (IsPairTerm(d1)) {
 	      CELL *pt = RepPair(d1);
 	      if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
