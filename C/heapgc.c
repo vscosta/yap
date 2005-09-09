@@ -1281,69 +1281,56 @@ Yap_mark_variable(CELL_PTR current)
 }
 
 static void
-mark_external_reference(CELL *ptr) {
-  CELL reg = *ptr;
-
-  /* first, mark variables in environments */
-  if (IsVarTerm(reg)) {
-    if (ONHEAP(reg)) {
-#ifdef HYBRID_SCHEME
-      CELL_PTR *old = iptop;
-#endif      
-      mark_variable(ptr);
-      total_marked--;
-      POPSWAP_POINTER(old);
-    } else {
-      MARK(ptr);
-    }
-  } else if (IsApplTerm(reg)) {
-    CELL *next = RepAppl(reg);
-
-    if (ONHEAP(next)) {
-#ifdef HYBRID_SCHEME
-      CELL_PTR *old = iptop;
-#endif      
-      mark_variable(ptr);
-      total_marked--;
-      POPSWAP_POINTER(old);
-    } else {
-      MARK(ptr);
-      if (ONCODE(next)) {
-	if ((Functor)(*next) == FunctorDBRef) {
-	  DBRef tref = DBRefOfTerm(reg);
-	  /* make sure the reference is marked as in use */
-	  if ((tref->Flags & ErasedMask) &&
-	      tref->Parent != NULL &&
-	      tref->Parent->KindOfPE & LogUpdDBBit) {
-	    *ptr = MkDBRefTerm(DBErasedMarker);
-	    MARK(ptr);
-	  } else {
-	    tref->Flags |= GcFoundMask;
-	  }
-	} else {
-	  mark_db_fixed(next);
-	}
+mark_code(CELL_PTR ptr, CELL *next)
+{
+  if (ONCODE(next)) {
+    CELL reg = *ptr;
+    if (IsApplTerm(reg) && (Functor)(*next) == FunctorDBRef) {
+      DBRef tref = DBRefOfTerm(reg);
+      /* make sure the reference is marked as in use */
+      if ((tref->Flags & ErasedMask) &&
+	  tref->Parent != NULL &&
+	  tref->Parent->KindOfPE & LogUpdDBBit) {
+	*ptr = MkDBRefTerm(DBErasedMarker);
+      } else {
+	tref->Flags |= GcFoundMask;
       }
+    } else {
+      mark_db_fixed(next);
     }
-  } else if (IsPairTerm(reg)) {
-   CELL *next = RepPair(reg);
-   
-   if (ONHEAP(next)) {
+  }
+}
+
+static void
+mark_external_reference(CELL *ptr) {
+  CELL *next = GET_NEXT(*ptr);
+
+  if (ONHEAP(next)) {
 #ifdef HYBRID_SCHEME
       CELL_PTR *old = iptop;
 #endif      
       mark_variable(ptr);
       total_marked--;
-      POPSWAP_POINTER(old);
-   } else {
-     MARK(ptr);
-     if (ONCODE(next)) {
-       mark_db_fixed(next);
-     }
-   }
+      POPSWAP_POINTER(old);    
   } else {
-    /* atom or integer */
     MARK(ptr);
+    mark_code(ptr, next);
+  }
+}
+
+static void inline
+mark_external_reference2(CELL *ptr) {
+  CELL *next = GET_NEXT(*ptr);
+
+  if (ONHEAP(next)) {
+#ifdef HYBRID_SCHEME
+    CELL_PTR *old = iptop;
+#endif      
+    mark_variable(ptr);
+    total_marked--;
+    POPSWAP_POINTER(old);    
+  } else {
+    mark_code(ptr,next);
   }
 }
 
@@ -1375,7 +1362,7 @@ mark_delays(CELL *max)
 {
   CELL *ptr = (CELL *)Yap_GlobalBase;
   for (; ptr < max; ptr++) {
-    mark_external_reference(ptr);
+    mark_external_reference2(ptr);
   }
 }
 #endif
@@ -2005,36 +1992,36 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 static inline void 
 into_relocation_chain(CELL_PTR current, CELL_PTR next)
 {
+#if GC_NO_TAGS
+  CELL             current_tag;
+
+  current_tag = TAG(*current);
+  if (RMARKED(next))
+    RMARK(current);
+  else {
+    UNRMARK(current);
+    RMARK(next);
+  }
+  *current = *next;
+  *next = (CELL) current | current_tag;
+#else
 #ifdef TAGS_FAST_OPS
   register CELL ccur = *current, cnext = *next;
 
   if (IsVarTerm(ccur)) {
-#if GC_NO_TAGS
-  RMARK(next);
-  *current = UNMARKED(cnext);
-#else
     *current = ( MARKED(ccur) ? MARK_CELL(UNMARKED(cnext)) :
 		 UNMARKED(cnext) );
     *next = (MARKED(cnext) ? MBIT : 0) | RBIT | (Int) current;
-#endif
   } else if (IsPairTerm(ccur)) {
-#if GC_NO_TAGS
-    *next = current;
-#else
     *current = ( MARKED(ccur) ? MARK_CELL(UNMARKED(cnext)) :
 		 UNMARKED(cnext) );
     *next = AbsPair((CELL *)
 		    ((MARKED(cnext) ? MBIT : 0) | RBIT | (Int) current));
-#endif
   } else if (IsApplTerm(ccur)) {
-#if GC_NO_TAGS
-    *next = AbsPair((CELL *)current);
-#else
     *current = ( MARKED(ccur) ? MARK_CELL(UNMARKED(cnext)) :
 		 UNMARKED(cnext) );
     *next = AbsAppl((CELL *)
 		    ((MARKED(cnext) ? MBIT : 0) | RBIT | (Int) current));
-#endif
   } else {
     fprintf(Yap_stderr," OH MY GOD !!!!!!!!!!!!\n");
   }
@@ -2042,23 +2029,14 @@ into_relocation_chain(CELL_PTR current, CELL_PTR next)
   CELL             current_tag;
 
   current_tag = TAG(*current);
-#if GC_NO_TAGS
-  if (RMARKED(next))
-    RMARK(current);
-  else
-    UNRMARK(current);
-  *current = *next;
-  *next = (CELL) current | current_tag;
-  RMARK(next);
-#else
   *current = (*current & MBIT) | (*next & ~MBIT);
 #if INVERT_RBIT
   *next = ((*next & MBIT) | (CELL) current | current_tag) & ~RBIT;
 #else
   *next = (*next & MBIT) | RBIT | (CELL) current | current_tag;
 #endif
-#endif /* GC_NO_TAGS */
 #endif
+#endif /* GC_NO_TAGS */
 }
 
 
@@ -2765,7 +2743,19 @@ update_relocation_chain(CELL_PTR current, CELL_PTR dest)
   CELL_PTR        next;
   CELL            ccur = *current;
 
-#ifdef TAGS_FAST_OPS
+#if GC_NO_TAGS
+  int rmarked = RMARKED(current);
+
+  while (rmarked) {
+    CELL             current_tag;
+    next = GET_NEXT(ccur);
+    current_tag = TAG(ccur);
+    ccur = *next;
+    rmarked = RMARKED(next); 
+    *next = (CELL) dest | current_tag;
+    /* UNRMARK(next); we are not going to use this */
+  }
+#elif TAGS_FAST_OPS
   while (RMARKED(current)) {
     register CELL cnext;
 
@@ -2803,24 +2793,14 @@ update_relocation_chain(CELL_PTR current, CELL_PTR dest)
     CELL             current_tag;
     next = GET_NEXT(ccur);
     current_tag = TAG(ccur);
-#if GC_NO_TAGS
-    ccur = *current = *next;
-    if (RMARKED(next))
-      RMARK(current);
-    else
-      UNRMARK(current);
-    *next = (CELL) dest | current_tag;
-    UNRMARK(next);
-#else
     ccur = *current = (ccur & MBIT) | (*next & ~MBIT);
 #if INVERT_RBIT
     *next = (*next & MBIT) | (CELL) dest | current_tag | RBIT;
 #else
     *next = (*next & MBIT) | (CELL) dest | current_tag;
 #endif
-#endif /* GC_NO_TAGS */
   }
-#endif /* TAGS_FAST_OPS */
+#endif
 }
 
 #ifdef TABLING
@@ -2849,6 +2829,44 @@ update_B_H( choiceptr gc_B, CELL *current, CELL *dest, CELL *odest) {
     return(gc_B);
 }
 
+static inline CELL *
+set_next_hb(choiceptr gc_B)
+{
+  if (gc_B) {
+    return gc_B->cp_h;
+  } else {
+    return H0;
+  }
+}
+
+static void
+fast_compact(CELL *current)
+{
+  /* all cells are marked */
+  CELL_PTR top = current;
+
+  for (; current >= H0; current--) {
+    CELL ccell = *current;
+    CELL_PTR next;
+
+    if (
+	IN_BETWEEN(EndSpecials, ccell, MAX_SPECIALS_TAG) /* two first pages */
+	&& IsVarTerm(ccell)
+	) {
+      int nofcells = (UNMARK_CELL(*current)-EndSpecials) / sizeof(CELL);
+      current -= nofcells ;
+      ccell = *current;
+    }
+    update_relocation_chain(current, current);
+    next = GET_NEXT(ccell);
+    if (next > top && next < H)	{
+      /* push into reloc. */
+      into_relocation_chain(current, next);
+    }
+    UNMARK(current);
+  }  
+}
+
 /*
  * move marked objects on the heap upwards over unmarked objects, and reset
  * all pointers to point to new locations 
@@ -2862,7 +2880,8 @@ compact_heap(void)
 #endif /* DEBUG */
   choiceptr        gc_B = B;
   int in_garbage = 0;
-
+  CELL *next_hb;
+  CELL *start_from = H0;
  
 
   /*
@@ -2871,16 +2890,29 @@ compact_heap(void)
    * objects pointed to  
    */
 
+  next_hb = set_next_hb(gc_B);
 #ifdef TABLING
   gl_depfr = LOCAL_top_dep_fr;
 #endif /* TABLING */
   dest = (CELL_PTR) H0 + total_marked - 1;
-  for (current = H - 1; current >= H0; current--) {
+  for (current = H - 1; current >= start_from; current--) {
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(*current);
+      if (FALSE && current == dest) {
+#ifdef DEBUG
+	found_marked+=1+(current-H0);
+#endif /* DEBUG */
+	fast_compact(current);
+	start_from = current+1;
+	if (in_garbage > 0) {
+	  current[1] = in_garbage;
+	  in_garbage = 0;
+	}
+	break;
+      }
       if (
-	  ccell < MAX_SPECIALS_TAG &&  /* two first pages */
-	  ccell > EndSpecials && IsVarTerm(ccell)
+	  IN_BETWEEN(EndSpecials, ccell, MAX_SPECIALS_TAG) /* two first pages */
+	  && IsVarTerm(ccell)
 	  ) {
 	/* oops, we found a blob */
 	int nofcells = (UNMARK_CELL(*current)-EndSpecials) / sizeof(CELL);
@@ -2890,7 +2922,10 @@ compact_heap(void)
 #ifdef DEBUG
 	  found_marked+=nofcells;
 #endif /* DEBUG */
-	  gc_B = update_B_H(gc_B, current, dest, dest+1);
+	  if (current <= next_hb) {
+	    gc_B = update_B_H(gc_B, current, dest, dest+1);
+	    next_hb = set_next_hb(gc_B);
+	  }
 	  /* this one's being used */
 	  /* first swap the tag so that it will be seen by the next step */
 	  {
@@ -2915,7 +2950,10 @@ compact_heap(void)
 	  continue;
 	}
       } else{
-	gc_B = update_B_H(gc_B, current, dest, dest+1);
+	if (current <= next_hb) {
+	  gc_B = update_B_H(gc_B, current, dest, dest+1);
+	  next_hb = set_next_hb(gc_B);
+	}
       }
       if (in_garbage > 0) {
 	current[1] = in_garbage;
@@ -2946,7 +2984,7 @@ compact_heap(void)
     }
   }
   if (in_garbage)
-    H0[0] = in_garbage;
+    start_from[0] = in_garbage;
 
 #ifdef DEBUG
   if (total_marked != found_marked)
@@ -2954,7 +2992,7 @@ compact_heap(void)
 	       GcCalls,
 	       (unsigned long int)total_marked,
 	       (unsigned long int)found_marked);
-  found_marked = 0;
+  found_marked = start_from-H0;
 #endif
 
 
@@ -2964,8 +3002,8 @@ compact_heap(void)
    * locations 
    */
 
-  dest = (CELL_PTR) H0;
-  for (current = H0; current < H; current++) {
+  dest = (CELL_PTR) start_from;
+  for (current = start_from; current < H; current++) {
     CELL ccur = *current;
     if (MARKED_PTR(current)) {
       CELL uccur = UNMARK_CELL(ccur);
@@ -2992,7 +3030,7 @@ compact_heap(void)
       update_relocation_chain(current, dest);
       ccur = *current;
       next = GET_NEXT(ccur);
-      if (HEAP_PTR(ccur) &&	/* move current cell &
+      if (next < H && /* move current cell &
 				 * push */
 	  next > current) {	/* into relocation chain  */
 	*dest = ccur;
