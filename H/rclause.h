@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2005-09-08 21:55:47 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2005-09-19 19:14:50 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.11  2005/09/08 21:55:47  rslopes
+* BEAM for YAP update...
+*
 * Revision 1.10  2005/08/01 15:40:38  ricroc
 * TABLING NEW: better support for incomplete tabling
 *
@@ -180,6 +183,7 @@ restore_opcodes(yamop *pc)
     case _retry3:
     case _retry4:
     case _p_eq:
+    case _p_dif:
       pc->u.l.l = PtoOpAdjust(pc->u.l.l);
       pc = NEXTOP(pc,l);
       break;
@@ -220,7 +224,6 @@ restore_opcodes(yamop *pc)
     case _undef_p:
     case _spy_pred:
     case _p_equal:
-    case _p_dif:
     case _p_functor:
     case _enter_a_profiling:
     case _count_a_call:
@@ -776,10 +779,10 @@ restore_opcodes(yamop *pc)
       /* instructions type xllll */
     case _switch_list_nl:
       pc->u.ollll.pop = Yap_opcode(Yap_op_from_opcode(pc->u.ollll.pop));
-      pc->u.ollll.l1 = PtoOpAdjust(pc->u.llll.l1);
-      pc->u.ollll.l2 = PtoOpAdjust(pc->u.llll.l2);
-      pc->u.ollll.l3 = PtoOpAdjust(pc->u.llll.l3);
-      pc->u.ollll.l4 = PtoOpAdjust(pc->u.llll.l4);
+      pc->u.ollll.l1 = PtoOpAdjust(pc->u.ollll.l1);
+      pc->u.ollll.l2 = PtoOpAdjust(pc->u.ollll.l2);
+      pc->u.ollll.l3 = PtoOpAdjust(pc->u.ollll.l3);
+      pc->u.ollll.l4 = PtoOpAdjust(pc->u.ollll.l4);
       pc = NEXTOP(pc,ollll);
       break;
       /* instructions type xllll */
