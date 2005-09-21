@@ -1607,6 +1607,7 @@ Yap_InitYaamRegs(void)
   MutableList = Yap_NewTimedVar(TermNil);
   AttsMutableList = Yap_NewTimedVar(MkIntTerm(0));
 #endif
+  GcGeneration = Yap_NewTimedVar(MkIntTerm(0));
 #if defined(YAPOR) || defined(THREADS)
   PP = NULL;
   WPP = NULL;

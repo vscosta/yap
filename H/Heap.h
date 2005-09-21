@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.83 2005-09-09 17:24:39 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.84 2005-09-21 03:49:33 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -86,6 +86,7 @@ typedef struct worker_local_struct {
   Term   atts_mutable_list;
 #endif
   /* gc_stuff */
+  Term     gc_generation;	/* global stack limit at last generation */ 
   unsigned int      gc_calls;	/* number of times GC has been called */ 
   Int      tot_gc_time; /* total time spent in GC */
   Int      tot_gc_recovered; /* number of heap objects in all garbage collections */
@@ -732,6 +733,7 @@ struct various_codes *Yap_heap_regs;
 #define  MutableList              Yap_heap_regs->wl[worker_id].mutable_list
 #define  AttsMutableList          Yap_heap_regs->wl[worker_id].atts_mutable_list
 #endif
+#define  GcGeneration             Yap_heap_regs->wl[worker_id].gc_generation
 #define  GcCalls                  Yap_heap_regs->wl[worker_id].gc_calls
 #define  TotGcTime                Yap_heap_regs->wl[worker_id].tot_gc_time
 #define  TotGcRecovered           Yap_heap_regs->wl[worker_id].tot_gc_recovered
@@ -769,6 +771,7 @@ struct various_codes *Yap_heap_regs;
 #define  MutableList              Yap_heap_regs->wl.mutable_list
 #define  AttsMutableList          Yap_heap_regs->wl.atts_mutable_list
 #endif
+#define  GcGeneration             Yap_heap_regs->wl.gc_generation
 #define  GcCalls                  Yap_heap_regs->wl.gc_calls
 #define  TotGcTime                Yap_heap_regs->wl.tot_gc_time
 #define  TotGcRecovered           Yap_heap_regs->wl.tot_gc_recovered

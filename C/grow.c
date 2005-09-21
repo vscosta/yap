@@ -159,6 +159,7 @@ SetHeapRegs(void)
   if (WokenGoals)
     WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(WokenGoals)));
 #endif
+  GcGeneration = AbsAppl(PtoGloAdjust(RepAppl(GcGeneration)));
 }
 
 static void
@@ -209,6 +210,7 @@ SetStackRegs(void)
   if (WokenGoals)
     WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(WokenGoals)));
 #endif
+  GcGeneration = AbsAppl(PtoGloAdjust(RepAppl(GcGeneration)));
 }
 
 static void

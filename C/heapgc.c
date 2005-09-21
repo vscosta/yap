@@ -34,7 +34,7 @@ static char     SccsId[] = "%W% %G%";
 /* global variables for garbage collection */
 
 /* in a single gc */
-static unsigned long int   total_marked;	/* number of heap objects marked */
+static unsigned long int   total_marked, total_oldies;	/* number of heap objects marked */
 
 #if DEBUG
 #ifdef COROUTINING
@@ -54,6 +54,8 @@ static CELL *prev_HB;
 #endif
 
 static tr_fr_ptr new_TR;
+
+static CELL *HGEN;
 
 STATIC_PROTO(void push_registers, (Int, yamop *));
 STATIC_PROTO(void marking_phase, (tr_fr_ptr, CELL *, yamop *, CELL *));
@@ -231,7 +233,7 @@ insort(CELL *a[], Int p, Int q)
 
     key = a[j];
     i = j;
-	 
+
     while (i > p && a[i-1] > key) {
       a[i] = a[i-1];
       i --;
@@ -379,6 +381,8 @@ push_registers(Int num_regs, yamop *nextop)
     }
     al = al->NextArrayE;
   }
+  TrailTerm(TR) = GcGeneration;
+  TR++;
 #ifdef COROUTINING
   TrailTerm(TR) = WokenGoals;
   TrailTerm(TR+1) = MutableList;
@@ -429,6 +433,7 @@ pop_registers(Int num_regs, yamop *nextop)
     }
     al = al->NextArrayE;
   }
+  GcGeneration = TrailTerm(ptr++);
 #ifdef COROUTINING
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   WokenGoals = TrailTerm(ptr++);
@@ -1071,13 +1076,17 @@ mark_variable(CELL_PTR current)
   unsigned int    arity;
 
  begin:
-  ccur = *current;
   if (MARKED_PTR(current)) {
     POP_CONTINUATION();
   }
   MARK(current);
-  total_marked++;
+  if (current >= H0 && current < H) {
+    total_marked++;
+    if (current < HGEN)
+      total_oldies++;
+  }
   PUSH_POINTER(current);
+  ccur = *current;
   next = GET_NEXT(ccur);
 
   if (IsVarTerm(ccur)) {
@@ -1086,6 +1095,7 @@ mark_variable(CELL_PTR current)
       CELL cnext;
       /* do variable shunting between variables in the global */
       cnext = *next;
+
       if (!MARKED_PTR(next)) {
 	if (IsVarTerm(cnext) && (CELL)next == cnext) {
 	  /* new global variable to new global variable */
@@ -1116,7 +1126,11 @@ mark_variable(CELL_PTR current)
 	    UNMARK(current);
 #endif
 	    *current = cnext;
-	    total_marked--;
+	    if (current >= H0 && current < H) {
+	      total_marked--;
+	      if (current < HGEN)
+		total_oldies--;
+	    }
 	    POP_POINTER();
 	  } else {
 #ifdef INSTRUMENT_GC
@@ -1133,7 +1147,11 @@ mark_variable(CELL_PTR current)
 #if GC_NO_TAGS
 	UNMARK(current);
 #endif
-	total_marked--;
+	if (current >= H0 && current < H) {
+	  total_marked--;
+	  if (current < HGEN)
+	    total_oldies--;
+	}
 	POP_POINTER();
       } else
 #endif
@@ -1207,6 +1225,9 @@ mark_variable(CELL_PTR current)
 #if GC_NO_TAGS
 	MARK(next+2);
 #endif
+	if (next >= H0 && next < HGEN) {
+	  total_oldies+=3;
+	}
 	total_marked += 3;
 	PUSH_POINTER(next);
 	PUSH_POINTER(next+1);
@@ -1214,6 +1235,9 @@ mark_variable(CELL_PTR current)
 	POP_CONTINUATION();
       case (CELL)FunctorDouble:
 	MARK(next);
+	if (next >= H0 && next < HGEN) {
+	  total_oldies+=2+SIZEOF_DOUBLE/SIZEOF_LONG_INT;
+	}
 	total_marked += 2+SIZEOF_DOUBLE/SIZEOF_LONG_INT;
 	PUSH_POINTER(next);
 	PUSH_POINTER(next+1);
@@ -1231,6 +1255,11 @@ mark_variable(CELL_PTR current)
       case (CELL)FunctorBigInt:
 	MARK(next);
 	/* size is given by functor + friends */
+	if (next >= H0 && next < HGEN) {
+	  total_oldies+=2+
+	    (sizeof(MP_INT)+
+	     (((MP_INT *)(next+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
+	}
 	total_marked += 2+
 	  (sizeof(MP_INT)+
 	   (((MP_INT *)(next+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
@@ -1260,6 +1289,9 @@ mark_variable(CELL_PTR current)
     arity = ArityOfFunctor((Functor)(cnext));
     MARK(next);
     ++total_marked;
+  if (next >= H0 && next < HGEN) {
+    ++total_oldies;
+  }
     PUSH_POINTER(next);
     current = next+1;
     PUSH_CONTINUATION(current+1,arity-1);
@@ -1310,7 +1342,6 @@ mark_external_reference(CELL *ptr) {
       CELL_PTR *old = iptop;
 #endif      
       mark_variable(ptr);
-      total_marked--;
       POPSWAP_POINTER(old);    
   } else {
     MARK(ptr);
@@ -1327,7 +1358,6 @@ mark_external_reference2(CELL *ptr) {
     CELL_PTR *old = iptop;
 #endif      
     mark_variable(ptr);
-    total_marked--;
     POPSWAP_POINTER(old);    
   } else {
     mark_code(ptr,next);
@@ -2746,15 +2776,17 @@ update_relocation_chain(CELL_PTR current, CELL_PTR dest)
 #if GC_NO_TAGS
   int rmarked = RMARKED(current);
 
+  UNRMARK(current);
   while (rmarked) {
     CELL             current_tag;
     next = GET_NEXT(ccur);
     current_tag = TAG(ccur);
     ccur = *next;
-    rmarked = RMARKED(next); 
+    rmarked = RMARKED(next);
+    UNRMARK(next);
     *next = (CELL) dest | current_tag;
-    /* UNRMARK(next); we are not going to use this */
   }
+  *current = ccur;
 #elif TAGS_FAST_OPS
   while (RMARKED(current)) {
     register CELL cnext;
@@ -2839,34 +2871,6 @@ set_next_hb(choiceptr gc_B)
   }
 }
 
-static void
-fast_compact(CELL *current)
-{
-  /* all cells are marked */
-  CELL_PTR top = current;
-
-  for (; current >= H0; current--) {
-    CELL ccell = *current;
-    CELL_PTR next;
-
-    if (
-	IN_BETWEEN(EndSpecials, ccell, MAX_SPECIALS_TAG) /* two first pages */
-	&& IsVarTerm(ccell)
-	) {
-      int nofcells = (UNMARK_CELL(*current)-EndSpecials) / sizeof(CELL);
-      current -= nofcells ;
-      ccell = *current;
-    }
-    update_relocation_chain(current, current);
-    next = GET_NEXT(ccell);
-    if (next > top && next < H)	{
-      /* push into reloc. */
-      into_relocation_chain(current, next);
-    }
-    UNMARK(current);
-  }  
-}
-
 /*
  * move marked objects on the heap upwards over unmarked objects, and reset
  * all pointers to point to new locations 
@@ -2895,21 +2899,10 @@ compact_heap(void)
   gl_depfr = LOCAL_top_dep_fr;
 #endif /* TABLING */
   dest = (CELL_PTR) H0 + total_marked - 1;
+
   for (current = H - 1; current >= start_from; current--) {
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(*current);
-      if (FALSE && current == dest) {
-#ifdef DEBUG
-	found_marked+=1+(current-H0);
-#endif /* DEBUG */
-	fast_compact(current);
-	start_from = current+1;
-	if (in_garbage > 0) {
-	  current[1] = in_garbage;
-	  in_garbage = 0;
-	}
-	break;
-      }
       if (
 	  IN_BETWEEN(EndSpecials, ccell, MAX_SPECIALS_TAG) /* two first pages */
 	  && IsVarTerm(ccell)
@@ -3312,6 +3305,24 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 #endif
 }
 
+static void
+sweep_oldgen(CELL *max, CELL *base)
+{
+  CELL *ptr = base;
+  long int nof = 0;
+  while (ptr < max) {
+    if (MARKED_PTR(ptr)) {
+      nof++;
+      UNMARK(ptr);
+      if (HEAP_PTR(*ptr)) {
+	into_relocation_chain(ptr, GET_NEXT(*ptr));
+      }
+    }
+    ptr++;
+  }
+  /* fprintf(stderr,"found %d, %p-%p\n", nof, base, max); */
+}
+
 #ifdef COROUTINING
 static void
 sweep_delays(CELL *max)
@@ -3338,6 +3349,23 @@ sweep_delays(CELL *max)
 static void 
 compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 {
+  CELL *CurrentH0 = NULL;
+
+  int icompact = (iptop < (CELL_PTR *)ASP && 10*total_marked < H-H0);
+
+  if (icompact) {
+    /* we are going to reuse the total space */
+    if (HGEN != H0) {
+      /* undo optimisation */
+      total_marked += total_oldies;
+    }
+  } else {
+    if (HGEN != H0) {
+      CurrentH0 = H0;
+      H0 = HGEN;
+      sweep_oldgen(HGEN, CurrentH0);
+    }
+  }
 #ifdef COROUTINING
   sweep_delays(max);
 #endif
@@ -3345,19 +3373,25 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   sweep_choicepoints(B);
   sweep_trail(B, old_TR);
 #ifdef HYBRID_SCHEME
+  if (icompact) {
 #ifdef DEBUG
-  if (total_marked
+    if (total_marked
 #ifdef COROUTINING
-      -total_smarked
+	-total_smarked
 #endif
-      != iptop-(CELL_PTR *)H && iptop < (CELL_PTR *)ASP -1024)
-    fprintf(Yap_stderr,"%% Oops on iptop-H (%ld) vs %ld\n", (unsigned long int)(iptop-(CELL_PTR *)H), total_marked);
+	!= iptop-(CELL_PTR *)H && iptop < (CELL_PTR *)ASP -1024)
+      fprintf(Yap_stderr,"%% Oops on iptop-H (%ld) vs %ld\n", (unsigned long int)(iptop-(CELL_PTR *)H), total_marked);
 #endif
-  if (iptop < (CELL_PTR *)ASP && 10*total_marked < H-H0) {
-#ifdef INSTRUMENT_GC
+#if DEBUGX
     int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
     fprintf(Yap_stderr,"%% using pointers (%d)\n", effectiveness);
 #endif
+    if (CurrentH0) {
+      H0 = CurrentH0;
+      HGEN = H0;
+      total_marked += total_oldies;
+      CurrentH0 = NULL; 
+    }
     quicksort((CELL_PTR *)H, 0, (iptop-(CELL_PTR *)H)-1);
     adjust_cp_hbs();
     icompact_heap();
@@ -3375,6 +3409,9 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 #endif
       compact_heap();
     }
+  if (CurrentH0) {
+    H0 = CurrentH0;
+  }
 }
 
 static Int
@@ -3385,7 +3422,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   tr_fr_ptr     old_TR = NULL;
   UInt		m_time, c_time, time_start, gc_time;
   CELL *max;
-  Int           effectiveness;
+  Int           effectiveness, tot;
   int           gc_trace;
 
   if (setjmp(Yap_gc_restore) == 2) {
@@ -3472,6 +3509,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif
   time_start = Yap_cputime();
   total_marked = 0;
+  total_oldies = 0;
 #ifdef COROUTING
   total_smarked = 0;
 #endif
@@ -3499,22 +3537,33 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   iptop = (CELL_PTR *)H;
 #endif
   /* get the number of active registers */
+  HGEN = H0+IntegerOfTerm(Yap_ReadTimedVar(GcGeneration));
+  /*  fprintf(stderr,"HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(GcGeneration)), HGEN, H,H0);*/
   YAPEnterCriticalSection();
   OldTR = (tr_fr_ptr)(old_TR = TR);
   push_registers(predarity, nextop);
   marking_phase(old_TR, current_env, nextop, max);
+  if (total_oldies > ((HGEN-H0)*8)/10) {
+    total_marked -= total_oldies;
+    tot = total_marked+(HGEN-H0);
+  } else {
+    HGEN = H0;
+    tot = total_marked;
+  }
   m_time = Yap_cputime();
   gc_time = m_time-time_start;
   if (heap_cells) {
     if (heap_cells > 1000000)
-      effectiveness = (heap_cells-total_marked)/(heap_cells/100);
+      effectiveness = (heap_cells-tot)/(heap_cells/100);
     else
-      effectiveness = 100*(heap_cells-total_marked)/heap_cells;
+      effectiveness = 100*(heap_cells-tot)/heap_cells;
   } else
     effectiveness = 0;
   if (gc_verbose) {
     fprintf(Yap_stderr, "%%   Mark: Recovered %ld cells of %ld (%ld%%) in %g sec\n",
-	       (long int)(heap_cells-total_marked), (long int)heap_cells, (long int)effectiveness, (double)(m_time-time_start)/1000);
+	       (long int)tot, (long int)heap_cells, (long int)effectiveness, (double)(m_time-time_start)/1000);
+    if (HGEN-H0)
+      fprintf(Yap_stderr,"%%       previous generation has size %lu, with %lu (%ld%%) unmarked\n", HGEN-H0, (HGEN-H0)-total_oldies, 100*((HGEN-H0)-total_oldies)/(HGEN-H0));
 #ifdef INSTRUMENT_GC
     {
       int i;
@@ -3523,7 +3572,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 	  fprintf(Yap_stderr, "%%     chain[%d]=%lu\n", i, chain[i]);
 	}
       }
-      put_type_info((unsigned long int)total_marked);
+      put_type_info((unsigned long int)tot);
       fprintf(Yap_stderr,"%%  %lu/%ld before and %lu/%ld after\n", old_vars, (unsigned long int)(B->cp_h-H0), new_vars, (unsigned long int)(H-B->cp_h));
       fprintf(Yap_stderr,"%%  %ld choicepoints\n", num_bs);
     }
@@ -3535,13 +3584,15 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   pop_registers(predarity, nextop);
   TR = new_TR;
   YAPLeaveCriticalSection();
+  /*  fprintf(Yap_stderr,"NEW HGEN %ld (%ld)\n", H-H0, HGEN-H0);*/
+  Yap_UpdateTimedVar(GcGeneration, MkIntegerTerm(H-H0));
   c_time = Yap_cputime();
   if (gc_verbose) {
     fprintf(Yap_stderr, "%%   Compress: took %g sec\n", (double)(c_time-time_start)/1000);
   }
   gc_time += (c_time-time_start);
   TotGcTime += gc_time;
-  TotGcRecovered += heap_cells-total_marked;
+  TotGcRecovered += heap_cells-tot;
   if (gc_verbose) {
     fprintf(Yap_stderr, "%% GC %d took %g sec, total of %g sec doing GC so far.\n", GcCalls, (double)gc_time/1000, (double)TotGcTime/1000);
     fprintf(Yap_stderr, "%%  Left %ld cells free in stacks.\n",
