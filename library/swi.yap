@@ -1,14 +1,20 @@
 
 :- module(swi, [
-	absolute_file_name/3,
-	concat_atom/3,
-	setenv/2,
-	nth1/3,
-	forall/2,
-	between/3,
-	term_to_atom/2,
-	concat_atom/2,
-	volatile/1]).
+		absolute_file_name/3,
+		concat_atom/3,
+		setenv/2,
+		nth1/3,
+		forall/2,
+		between/3,
+		term_to_atom/2,
+		concat_atom/2,
+		volatile/1,
+		b_setval/2,
+		b_getval/2,
+		nb_setval/2,
+		nb_getval/2,
+		nb_current/2,
+		nb_delete/1]).
 
 
 :- use_module(library(charsio),[write_to_chars/2,read_from_chars/2]).
@@ -100,4 +106,25 @@ between(I,_,I).
 between(I0,I,J) :- I0 < I, 
 	I1 is I0+1,
 	between(I1,I,J).
+
+b_getval(GlobalVariable,Value) :-
+	array_element(GlobalVariable,0,Value).
+
+b_setval(GlobalVariable,Value) :-
+	array(GlobalVariable,1),
+	update_array(GlobalVariable,0,Value).
+
+nb_getval(GlobalVariable,Value) :-
+	array_element(GlobalVariable,0,Value).
+
+nb_setval(GlobalVariable,Value) :-
+	static_array(GlobalVariable,1,term),
+	update_array(GlobalVariable,0,Value).
+
+nb_delete(GlobalVariable) :-
+	close_static_array(GlobalVariable).
+
+nb_current(GlobalVariable,Val) :-
+	static_array_properties(GlobalVariable,1,term),
+	array_element(GlobalVariable,0,Val).
 

@@ -855,6 +855,29 @@ p_term_variables(void)	/* variables in term t		 */
   return Yap_unify(ARG2,out);
 }
 
+static Int 
+p_term_variables3(void)	/* variables in term t		 */
+{
+  Term t = Deref(ARG1);
+  Term out;
+
+  if (IsVarTerm(t)) {
+    return Yap_unify(MkPairTerm(t,ARG3), ARG2);
+  }  else if (IsPrimitiveTerm(t)) {
+    return Yap_unify(ARG2, ARG3);
+  } else if (IsPairTerm(t)) {
+    out = vars_in_complex_term(RepPair(t)-1,
+			       RepPair(t)+1, ARG3);
+  }
+  else {
+    Functor f = FunctorOfTerm(t);
+    out = vars_in_complex_term(RepAppl(t),
+			       RepAppl(t)+
+			       ArityOfFunctor(f), ARG3);
+  }
+  return Yap_unify(ARG2,out);
+}
+
 static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt0_end)
 {
 
@@ -1923,6 +1946,7 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, SafePredFlag|HiddenPredFlag);
   CurrentModule = TERMS_MODULE;
   Yap_InitCPred("term_variables", 2, p_term_variables, SafePredFlag);
+  Yap_InitCPred("term_variables", 3, p_term_variables3, SafePredFlag);
   Yap_InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
   Yap_InitCPred("term_hash", 4, GvNTermHash, SafePredFlag);
   Yap_InitCPred("variant", 2, p_variant, 0);

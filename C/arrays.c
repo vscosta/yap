@@ -149,7 +149,12 @@ AccessNamedArray(Atom a, Int indx)
 
   READ_LOCK(ae->ARWLock);
   pp = RepArrayProp(ae->PropsOfAE);
-  while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
+  while (!EndOfPAEntr(pp) &&
+	 pp->KindOfPE != ArrayProperty
+#if THREADS
+	 && pp->owner_id != worker_id
+#endif
+	 )
     pp = RepArrayProp(pp->NextOfPE);
   READ_UNLOCK(ae->ARWLock);
 
@@ -427,7 +432,9 @@ CreateNamedArray(PropEntry * pp, Int dim, AtomEntry *ae)
   p->NextOfPE = ae->PropsOfAE;
   INIT_RWLOCK(p->ArRWLock);
   ae->PropsOfAE = AbsArrayProp(p);
-
+#if THREADS
+  p->owner_id = worker_id;
+#endif
   InitNamedArray(p, dim);
   p->NextArrayE = DynArrayList;
   DynArrayList = p;
@@ -668,7 +675,12 @@ p_create_array(void)
 
     WRITE_LOCK(ae->ARWLock);
     pp = RepProp(ae->PropsOfAE);
-    while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
+    while (!EndOfPAEntr(pp) &&
+	   pp->KindOfPE != ArrayProperty
+#if THREADS
+	   && pp->owner_id != worker_id
+#endif	   
+	   )
       pp = RepProp(pp->NextOfPE);
     if (EndOfPAEntr(pp)) {
       if (H+1+size > ASP-1024) {
@@ -686,10 +698,13 @@ p_create_array(void)
       ArrayEntry *app = (ArrayEntry *) pp;
 
       WRITE_UNLOCK(ae->ARWLock);
-      if (!IsVarTerm(app->ValueOfVE) || !IsUnboundVar(&app->ValueOfVE))
+      if (!IsVarTerm(app->ValueOfVE)
+	  || !IsUnboundVar(&app->ValueOfVE)) {
+	if (size == app->ArrayEArity)
+	  return TRUE;
 	Yap_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"create_array",
 	      ae->StrOfAE);
-      else {
+      } else {
 	if (H+1+size > ASP-1024) {
 	  if (!Yap_gc(2, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
@@ -790,15 +805,18 @@ p_create_static_array(void)
 	return (TRUE);
       } else {
 	Yap_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"cannot create static array over dynamic array");
-	return (FALSE);
+	return FALSE;
       }
     } else {
+      if (pp->ArrayEArity  == -size &&
+	  pp->ArrayType == props)
+	  return TRUE;
       Yap_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"cannot create static array over static array");
-      return (FALSE);
+      return FALSE;
     }
   }
   Yap_Error(TYPE_ERROR_ATOM,t,"create static array");
-  return (FALSE);
+  return FALSE;
 }
 
 /* has a static array associated (+Name) */

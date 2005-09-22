@@ -942,6 +942,9 @@ typedef struct array_entry
   rwlock_t ArRWLock;		/* a read-write lock to protect the entry */
 #endif
   struct array_entry *NextArrayE;	/* Pointer to the actual array               */
+#if THREADS
+  unsigned int owner_id;
+#endif
   Term ValueOfVE;		/* Pointer to the actual array          */
 } ArrayEntry;
 
