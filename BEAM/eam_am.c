@@ -27,10 +27,10 @@
 #include "eam.h"
 #include "eamamasm.h"
 
-#define Debug 000
+#define Debug 0
 #define Debug_GC 0
 #define Debug_Dump_State 0  /* 0 =off || 1==only on Scheduling || 2== only on GC || 4=on every abs inst NOTE: DEBUG has to be enable to use 4*/
-#define Debug_MEMORY 0      
+#define Debug_MEMORY 0
 #define Memory_Stat  0
 #define Clear_MEMORY 0      /* 0- do not clear || 1-> clear on request  || 2-> clear on release || 3 -> both*/
 #define Fast_go 1           /* normaly 1 ; use 0 to run some extra tests only to control some possible bugs (slower) */
@@ -114,7 +114,8 @@ void del_orbox_and_sons(struct OR_BOX *orbox);
 void waking_boxes_suspended_on_var(struct PERM_VAR *v);
 struct PERM_VAR *request_permVar(struct AND_BOX *a);
 void free_permVar(struct PERM_VAR *v);
-Cell *request_memory_locals(int nr, int set_vars);
+Cell *request_memory_locals(int nr);
+Cell *request_memory_locals_noinit(int nr);
 void free_memory_locals(Cell *l);
 void add_to_list_perms(struct PERM_VAR *var,struct AND_BOX *a);
 void remove_list_perms(struct AND_BOX *a);
@@ -224,7 +225,7 @@ Cell *c;
    }
    total=total+nr*i;
  } 
- printf("Ultimo Pedido (bytes) =%d ¦ Ultimo bloco livre=%ld\n",size,ult*CELL_SIZE);
+ printf("Ultimo Pedido (bytes) =%d ¦ Ultimo bloco livre=%d\n",size,ult*CELL_SIZE);
  printf("Memoria TOTAL (bytes)      =%ld \n",((unsigned long) END_BOX)-((unsigned long) START_ADDR_BOXES));
  printf("Memoria livre no Index_Free=%ld \n",total*CELL_SIZE);
  printf("Memoria Total livre        =%ld \n",total*CELL_SIZE+((unsigned long) END_BOX)-((unsigned long)Next_Free));
@@ -442,7 +443,7 @@ void free_memory(Cell *mem,int size) {
 #else
 INLINE void free_memory(Cell *mem,int size) /* size in bytes */
 {
-    register long size_cells;
+    register int size_cells;
 
     if (size==0 || mem==NULL) return;
 
@@ -497,7 +498,7 @@ struct PERM_VAR *pv;
   else PERMS_REUSED+=PERM_VAR_SIZE;
 #endif  
 
-#if Debug_MEMORY
+#if Debug || Debug_MEMORY
   printf("Requesting a permVar...\n");
 #endif
 
@@ -534,7 +535,7 @@ void free_permVar(struct PERM_VAR *v) {
 }
 
 
-INLINE Cell *request_memory_locals(int nr, int set_vars)
+INLINE Cell *request_memory_locals(int nr)
 {
 Cell *l;
 int i;
@@ -554,10 +555,35 @@ int i;
     l[0]=nr;
     l++;
 
-    if (set_vars==0) return(l);
     for(i=0;i<nr;i++) {
       l[i]=(Cell) &l[i];
     }
+
+#if Memory_Stat
+    if (old==Next_Free) TEMPS_REUSED+=CELL_SIZE*(nr+1); 
+#endif
+
+return(l);
+}
+
+INLINE Cell *request_memory_locals_noinit(int nr)
+{
+Cell *l;
+
+#if Memory_Stat
+    Cell *old;
+    old=Next_Free;
+    TOTAL_TEMPS+=CELL_SIZE*(nr+1); 
+#endif
+
+#if Debug_MEMORY
+  printf("Requesting Memory for %d+1 locals (not initialized)...\n",nr);
+#endif
+
+
+    l=(Cell *)request_memory(CELL_SIZE*(nr+1));
+    l[0]=nr;
+    l++;
 
 #if Memory_Stat
     if (old==Next_Free) TEMPS_REUSED+=CELL_SIZE*(nr+1); 
@@ -2124,7 +2150,7 @@ break_debug();
 			  register int nr_locals;
 			  nr_locals=arg3;
 			  /* nr_locals=((struct Clauses *)arg1)->nr_vars; */
-			  var_locals=request_memory_locals(nr_locals,1);
+			  var_locals=request_memory_locals(nr_locals);
 			  // add_to_list_locals(var_locals,ABX);
 			} else { 
 			  var_locals=NULL; 
@@ -2821,7 +2847,7 @@ break_debug();
 		      }  else {  /* write Mode */
 			register Cell *_DR;
 			_DR=(Cell *) deref(var_locals[arg1]);
-			if (isvar((Cell) _DR)) {
+			if (isvar((Cell) _DR) && !is_perm_var((Cell *) _DR)) {
 			  *_S=(Cell) request_permVar(ABX);
 			  UnifyCells(_DR,_S);
 			} else {
@@ -2865,7 +2891,7 @@ break_debug();
 			register Cell *_DR;
 			_DR=(Cell *) deref(_X[arg1]);
 
-			if (isvar((Cell) _DR)) {
+			if (isvar((Cell) _DR) && !is_perm_var((Cell *) _DR)) {
 			  *_S=(Cell) request_permVar(ABX);
 			  UnifyCells(_DR,_S);
 			} else {
@@ -2960,7 +2986,7 @@ break_debug();
 			pc+=2;
 			execute_next();
 		     } else {
-			  *_S=(Cell) request_permVar(ABX);
+			*_S=(Cell) request_permVar(ABX);
 			_X[arg1]=(Cell) _S;
 			_S++;
 			pc+=2;
@@ -3192,7 +3218,7 @@ break_debug();
 break_debug();
 		        printf("put_var_P X%d,Y%d \n",(int) arg1,(int) arg2);
 #endif
-			if (!is_perm_var((Cell *) var_locals[arg2])) 
+			if (isvar(var_locals[arg2]) && !is_perm_var((Cell *) var_locals[arg2])) 
 			   var_locals[arg2]=(Cell) request_permVar(ABX);
 			_X[arg1]=var_locals[arg2];
 			pc+=3;
@@ -3302,7 +3328,7 @@ break_debug();
 break_debug();
 		        printf("write_var_P Y%d \n",(int) arg1);
 #endif 
-			if (!is_perm_var((Cell *) var_locals[arg1])) 
+			if (isvar(var_locals[arg1]) && !is_perm_var((Cell *) var_locals[arg1])) 
                            var_locals[arg1]=(Cell) request_permVar(ABX);
 			*(_S)=var_locals[arg1];
 			_S++;

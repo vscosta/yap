@@ -354,7 +354,7 @@ if (a==NULL) return;
 
 	    oldvars=calls->locals;
 	    nr=oldvars[-1];
-       	    newvars=request_memory_locals(nr,0);
+       	    newvars=request_memory_locals_noinit(nr);
 	    calls->locals=newvars;
 	    /* primeiro actualizo as variaveis */
 	    for(i=0;i<nr;i++) {

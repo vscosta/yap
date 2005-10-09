@@ -229,6 +229,28 @@ void eam_pass(CInstr *ppc)
 			emit_par(ArityOfFunctor((Functor )ppc->new4));
 			break;
 
+		case put_unsafe_op:
+		  /*
+		  printf("Got a put_unsafe...\n");
+		        emit_inst(_put_unsafe_op);
+			emit_par(ppc->new1);
+			emit_par(Y_Var((Ventry *) ppc->new4));
+			break;
+		  */
+		case put_val_op:
+		  /*
+		        if (Is_X_Var((Ventry *) ppc->new4)) {
+			       emit_inst(_put_val_X_op);
+			       emit_par(ppc->new1);
+			       emit_par(X_Var((Ventry *) ppc->new4));
+			       break;
+			} else {
+			       emit_inst(_put_val_Y_op);
+			       emit_par(ppc->new1);
+			       emit_par(Y_Var((Ventry *) ppc->new4));
+			       break;
+			}
+		  */
 		case put_var_op:
 		        if (Is_X_Var((Ventry *) ppc->new4)) {
 			       emit_inst(_put_var_X_op);
@@ -240,24 +262,6 @@ void eam_pass(CInstr *ppc)
 			       emit_par(ppc->new1);
 			       emit_par(Y_Var((Ventry *) ppc->new4));
 			}
-			break;
-		case put_val_op:
-		        if (Is_X_Var((Ventry *) ppc->new4)) {
-			       emit_inst(_put_val_X_op);
-			       emit_par(ppc->new1);
-			       emit_par(X_Var((Ventry *) ppc->new4));
-			       break;
-			} else { /* else put_val_Y */
-			       emit_inst(_put_val_Y_op);
-			       emit_par(ppc->new1);
-			       emit_par(Y_Var((Ventry *) ppc->new4));
-			       break;
-			}
-
-		case put_unsafe_op:
-		        emit_inst(_put_unsafe_op);
-			emit_par(ppc->new1);
-			emit_par(Y_Var((Ventry *) ppc->new4));
 			break;
 
 		case put_num_op:
@@ -275,19 +279,6 @@ void eam_pass(CInstr *ppc)
 			emit_par(ppc->new1);
 			emit_par(ppc->new4);
 			emit_par(ArityOfFunctor((Functor )ppc->new4));
-			break;
-
-		case write_var_op:
-		        if (((Ventry *)(ppc->new4))->KindOfVE!=VoidVar) {
-		           if (Is_X_Var((Ventry *) ppc->new4)) {
-		                  emit_inst(_write_var_X_op);
-	  		          emit_par(X_Var((Ventry *) ppc->new4));
-			   } else {
- 		              if (Is_P_Var((Ventry *) ppc->new4)) emit_inst(_write_var_P_op);
-		              else emit_inst(_write_var_Y_op);
-			           emit_par(Y_Var((Ventry *) ppc->new4));
-			   }
-		        } else emit_inst(_write_void);
 			break;
 
 		case write_local_op:
@@ -311,6 +302,21 @@ void eam_pass(CInstr *ppc)
 			   }
 		        } else emit_inst(_write_void);
 			break;
+
+		case write_var_op:
+		        if (((Ventry *)(ppc->new4))->KindOfVE!=VoidVar) {
+		           if (Is_X_Var((Ventry *) ppc->new4)) {
+		                  emit_inst(_write_var_X_op);
+	  		          emit_par(X_Var((Ventry *) ppc->new4));
+			   } else {
+ 		              if (Is_P_Var((Ventry *) ppc->new4)) emit_inst(_write_var_P_op);
+		              else emit_inst(_write_var_Y_op);
+			           emit_par(Y_Var((Ventry *) ppc->new4));
+			   }
+		        } else emit_inst(_write_void);
+			break;
+
+
 		case write_num_op:
 		case write_atom_op:
 		        emit_inst(_write_atom_op);

@@ -336,7 +336,7 @@ struct EXTERNAL_VAR *old_externals,*externals;
 
 	    oldvars=calls->locals;
 	    nr=oldvars[-1];
-       	    newvars=request_memory_locals(nr,1);
+       	    newvars=request_memory_locals(nr);
 
 	    if (var_locals==oldvars) var_locals=newvars;
 
