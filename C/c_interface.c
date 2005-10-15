@@ -10,8 +10,12 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-08-17 13:35:51 $,$Author: vsc $						 *
+* Last rev:	$Date: 2005-10-15 02:42:57 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.71  2005/08/17 13:35:51  vsc
+* YPP would leave exceptions on the system, disabling Yap-4.5.7
+* message.
+*
 * Revision 1.70  2005/08/04 15:45:51  ricroc
 * TABLING NEW: support to limit the table space size
 *
@@ -286,7 +290,7 @@ X_API Bool
 YAP_IsBigNumTerm(Term t)
 {
 #if USE_GMP
-  return IsIntegerTerm(t);
+  return IsBigNumTerm(t);
 #else
   return FALSE;
 #endif
