@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-09-09 17:24:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-10-15 17:05:23 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.177  2005/09/09 17:24:37  vsc
+* a new and hopefully much better implementation of atts.
+*
 * Revision 1.176  2005/09/08 22:06:44  rslopes
 * BEAM for YAP update...
 *
@@ -330,7 +333,7 @@ void prof_alrm(int signo, siginfo_t *si, ucontext_t *sc);
 
 void prof_alrm(int signo, siginfo_t *si, ucontext_t *sc)
 {
-#if __linux__ && defined(i386)
+#if __linux__ && (defined(i386) || defined(__amd64__))
   void * oldpc=(void *) sc->uc_mcontext.gregs[14]; /* 14= REG_EIP */
 
   if (Yap_PrologMode & TestMode) {
