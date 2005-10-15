@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-08-05 14:55:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-10-15 02:05:57 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.168  2005/08/05 14:55:02  vsc
+* first steps to allow mavars with tabling
+* fix trailing for tabling with multiple get_cons
+*
 * Revision 1.167  2005/08/02 03:09:49  vsc
 * fix debugger to do well nonsource predicates.
 *
@@ -1676,8 +1680,9 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
 #endif
   pflags = p->PredFlags;
   /* we are redefining a prolog module predicate */
-  if (p->ModuleOfPred == PROLOG_MODULE && 
-      mod != TermProlog && mod) {
+  if ((pflags & (UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryTestPredFlag)) ||
+      (p->ModuleOfPred == PROLOG_MODULE && 
+       mod != TermProlog && mod) ) {
 #if defined(YAPOR) || defined(THREADS)
     WPP = NULL;
 #endif
