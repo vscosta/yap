@@ -392,24 +392,33 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    break;
 #endif
 	  case 'L':
-	    p++;
-	    while (*p != '\0' && (*p == ' ' || *p == '\t'))
-	      p++;
-	    /* skip zeroth argument */
-	    argc--;
-	    if (argc == 0) {
-	      fprintf(stderr," [ YAP unrecoverable error: missing file name with option 'l' ]\n");
-	      exit(1);
-	    }
-	    argv++;
-	    if (p[0] == '-' && p[1] == '-'&& p[2] == '\0') {
-	      /* we're done here */
-	      argc = 1;
-	    }
-	    iap->YapPrologRCFile = *argv;
-	    argv++;
-	    iap->HaltAfterConsult = TRUE;
-	    break;
+           p++;
+           iap->HaltAfterConsult = TRUE;
+           if (*p != '\0') {
+             iap->YapPrologRCFile = p;
+             break;
+           } else {
+             if (--argc == 0) {
+               fprintf(stderr,
+                       " [ YAP unrecoverable error: missing file name with option 'L' ]\n");
+               exit(1);
+             }
+             p = *++argv;
+             if (p[0] == '-' && p[1] == '-' && p[2] == '\0') {
+               if (--argc == 0) {
+                 fprintf(stderr,
+                         " [ YAP unrecoverable error: missing filename with option 'L' ]\n");
+                 exit(1);
+               }
+               p = *++argv;
+               iap->YapPrologRCFile = p;
+               argc = 1;
+
+             } else {
+               iap->YapPrologRCFile = p;
+             }
+           }
+           break;
 	  case 'l':
 	    if ((*argv)[0] == '\0') 
 	      iap->YapPrologRCFile = *argv;
