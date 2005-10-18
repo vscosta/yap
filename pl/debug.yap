@@ -354,17 +354,21 @@ debugging :-
 '$loop_spy2'(GoalNumber, G, Module, InControl) :- 
 /* the following choice point is where the predicate is  called */
 	(
+	/* call port */
 	    '$enter_goal'(GoalNumber, G, Module),
 	    '$spycall'(G, Module, InControl),
 	/* go execute the predicate	*/
 	    (
 	       '$do_not_creep',
-	       '$show_trace'(exit,G,Module,GoalNumber),	/* output message at exit	*/
-	       '$continue_debugging'(InControl)
+	       '$show_trace'(exit,G,Module,GoalNumber),	/* output
+	       message at exit	*/
+	       /* exit port */
+	       '$continue_debugging'	       
 	     ;
-		/* exit				*/
+		/* backtracking from exit				*/
 	        /* we get here when we want to redo a goal		*/
 	        '$do_not_creep',
+		/* redo port */
 	        '$show_trace'(redo,G,Module,GoalNumber), /* inform user_error		*/
 	        '$continue_debugging'(InControl,G,Module),
 	        fail			/* to backtrack to spycalls	*/
@@ -372,7 +376,8 @@ debugging :-
 	  ;
 	    '$do_not_creep',
 	    '$show_trace'(fail,G,Module,GoalNumber), /* inform at fail port		*/
-	    '$continue_debugging'(InControl,G,Module),
+	    '$continue_debugging',
+	    /* fail port */
 	    fail
 	).
 
@@ -411,7 +416,7 @@ debugging :-
 	'$execute_nonstop'(G, M).
 '$spycall'(G, M, InControl) :-
 	'$flags'(G,M,F,F),
-	F /\ 0x8402000 =\= 0, !, % dynamic procedure, logical semantics, or source
+	F /\ 0x18402000 =\= 0, !, % dynamic procedure, logical semantics, or source
 	% use the interpreter
 	CP is '$last_choice_pt',
 	'$clause'(G, M, Cl),
@@ -580,12 +585,12 @@ debugging :-
 	'$system_predicate'(G,M), !,
 	( '$access_yap_flags'(10,1) -> '$late_creep' ; true).
 '$continue_debugging'(Flag,_,_) :-
-	'$continue_debugging'(Flag).
+	'$continue_debugging'.
 	
-'$continue_debugging'(_) :-
+'$continue_debugging' :-
 	'$access_yap_flags'(10,1), !,
 	'$creep'.
-'$continue_debugging'(_).
+'$continue_debugging'.
 
 '$action_help' :-
 	format(user_error,"newline  creep       a       abort~n", []),

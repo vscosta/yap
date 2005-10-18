@@ -36,6 +36,14 @@
 :- assert((extensions_to_present_answer(Level) :-
 	   '$show_frozen_goals'(Level))).
 
+'$show_frozen'(G,V,LGs) :-
+	\+ '$undefined'(all_attvars(LAV), attributes),
+	attributes:all_attvars(LAV),
+	LAV = [_|_], !,
+	'$convert_to_list_of_frozen_goals'(V,LAV,G,LGs).
+'$show_frozen'(_,_,[]).
+
+
 '$convert_to_list_of_frozen_goals'(LIV,LAV,G,NLG) :-
 	'$project'(LAV,LIV,NLG).
 

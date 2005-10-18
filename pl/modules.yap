@@ -17,103 +17,6 @@
 
 % module handling
 
-use_module(M) :-
-	'$use_module'(M).
-
-'$use_module'(V) :- var(V), !,
-	'$do_error'(instantiation_error,use_module(V)).
-'$use_module'([]) :- !.
-'$use_module'([A|B]) :- !,
-	'$use_module'(A),
-	'$use_module'(B).
-'$use_module'(M:F) :- atom(M), !,
-        '$current_module'(M0),
-        '$change_module'(M),
-        '$use_module'(F),
-        '$change_module'(M0).
-'$use_module'(File) :- 
-	'$find_in_path'(File,X,use_module(File)), !,
-	(  recorded('$module','$module'(_,X,Publics),_) ->
-		'$use_module'(File,Publics)
-	;
-		'$ensure_loaded'(File)
-	).
-'$use_module'(File) :-
-	'$do_error'(permission_error(input,stream,File),use_module(File)).
-	
-
-use_module(File,I) :-
-	'$use_module'(File, I).
-
-'$use_module'(File,Imports) :- var(File), !,
-	'$do_error'(instantiation_error,use_module(File,Imports)).
-'$use_module'(File,Imports) :- var(Imports), !,
-	'$do_error'(instantiation_error,use_module(File,Imports)).	
-'$use_module'(M:F, Imports) :- atom(M), !,
-        '$current_module'(M0),
-        '$change_module'(M),
-        '$use_module'(F, Imports),
-        '$change_module'(M0).
-'$use_module'(File,Imports) :-
-	'$current_module'(M),
-	'$find_in_path'(File,X,use_module(File,Imports)), !,
-	'$open'(X,'$csult',Stream,0), !,
-	( '$loaded'(Stream,M,TrueFileName) -> true
-	     ;
-	       % the following avoids import of all public predicates
-	     '$consulting_file_name'(Stream,TrueFileName),
-	     recorda('$importing','$importing'(TrueFileName),R),
-	     '$reconsult'(File,M,Stream)
-	 ),
-	 '$close'(Stream),
-	 ( var(R) -> true; erased(R) -> true; erase(R)),
-	 ( recorded('$module','$module'(TrueFileName,Mod,Publics),_) ->
-	     '$use_preds'(Imports,Publics,Mod,M)
-	 ;
-
-	  true
-	 ).
-'$use_module'(File,Imports) :-
-	'$do_error'(permission_error(input,stream,File),use_module(File,Imports)).
-	
-use_module(Mod,F,I) :-
-	'$use_module'(Mod,F,I).
-
-'$use_module'(Module,V,Imports) :- var(V), !,
-	'$use_module'(Module,Module,Imports).
-'$use_module'(Module,M:File,Imports) :-
-	atom(M), !,
-        '$current_module'(M0),
-        '$change_module'(M),
-        '$use_module'(Module,File,Imports),
-        '$change_module'(M0).
-'$use_module'(Module,File,Imports) :-
-	'$find_in_path'(File,X,use_module(Module,File,Imports)),
-	'$open'(X,'$csult',Stream,0), !,
-	'$current_module'(M),
-	'$file_name'(Stream,FName),
-	(
-	  '$loaded'(Stream, M, TrueFileName)
-	  ->
-	  true
-	;
-	  '$consulting_file_name'(Stream,TrueFileName),
-	  % the following avoids import of all public predicates
-	  recorda('$importing','$importing'(TrueFileName),R),
-	  '$reconsult'(File,M,Stream)
-	  ),
-	'$close'(Stream),
-	( var(R) -> true; erased(R) -> true; erase(R)),
-	(
-	  recorded('$module','$module'(TrueFileName,Module,Publics),_)
-	  ->
-	  '$use_preds'(Imports,Publics,Module,M)
-	  ;
-	  true
-	).
-'$use_module'(Module,File,Imports) :-
-	'$do_error'(permission_error(input,stream,File),use_module(Module,File,Imports)).
-	
 '$consulting_file_name'(Stream,F)  :-
 	'$file_name'(Stream, F).
 
@@ -176,12 +79,7 @@ module(N) :-
 '$module_dec'(N,P) :-
 	'$current_module'(Old,N),
 	get_value('$consulting_file',F),
-	'$add_module_on_file'(N, F, P),
-	( recorded('$importing','$importing'(F),_) ->
-	         true
-	;
-	 	'$import'(P,N,Old)
-	).
+	'$add_module_on_file'(N, F, P).
 
 '$add_module_on_file'(Mod, F, Exports) :-
 	recorded('$module','$module'(F0,Mod,_),R), !,
@@ -238,6 +136,8 @@ module(N) :-
 '$check_import'(_,_,_,_).
 
 % $use_preds(Imports,Publics,Mod,M)
+'$use_preds'(Imports,Publics,Mod,M) :- var(Imports), !,
+	'$import'(Publics,Mod,M).
 '$use_preds'(M:L,Publics,Mod,_) :-
 	'$use_preds'(L,Publics,Mod,M).
 '$use_preds'([],_,_,_) :- !.
@@ -411,7 +311,7 @@ module(N) :-
 
 % directive now meta_predicate Ps :- $meta_predicate(Ps).
 
-:- dynamic_predicate('$meta_predicate'/4,logical).
+:- dynamic('$meta_predicate'/4).
 
 :- multifile '$meta_predicate'/4.
 

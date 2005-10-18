@@ -670,7 +670,7 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPred
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCPredBack");
       return;
     }
-    cl->ClFlags = 0;
+    cl->ClFlags = 0L;
     code = cl->ClCode;
     pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred =
       pe->cs.p_code.FirstClause = pe->cs.p_code.LastClause = code;

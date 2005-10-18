@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-10-15 17:05:23 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2005-10-18 17:04:43 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.178  2005/10/15 17:05:23  rslopes
+* enable profiling on amd64
+*
 * Revision 1.177  2005/09/09 17:24:37  vsc
 * a new and hopefully much better implementation of atts.
 *
@@ -1938,7 +1941,7 @@ Yap_absmi(int inp)
 #if defined(SBA) && defined(FROZEN_STACKS)
       XREG(d0) = MkIntegerTerm((Int)B);
 #else
-      XREG(d0) = MkIntTerm(LCL0-(CELL *) (B));
+      XREG(d0) = MkIntegerTerm(LCL0-(CELL *) (B));
 #endif /* SBA && FROZEN_STACKS */
       PREG = NEXTOP(PREG, x);
       ENDD(d0);
@@ -1950,7 +1953,7 @@ Yap_absmi(int inp)
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(YREG+PREG->u.y.y,MkIntegerTerm((Int)B));
 #else
-      YREG[PREG->u.y.y] = MkIntTerm(LCL0-(CELL *) (B));
+      YREG[PREG->u.y.y] = MkIntegerTerm(LCL0-(CELL *) (B));
 #endif /* SBA && FROZEN_STACKS */
       PREG = NEXTOP(PREG, y);
       GONext();
@@ -1973,7 +1976,7 @@ Yap_absmi(int inp)
 #if defined(SBA) && defined(FROZEN_STACKS)
 	pt0 = (choiceptr)IntegerOfTerm(d0);
 #else
-	pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
+	pt0 = (choiceptr)(LCL0-IntegerOfTerm(d0));
 #endif /* SBA && FROZEN_STACKS */
 #ifdef YAPOR
 	CUT_prune_to(pt0);
@@ -2008,7 +2011,7 @@ Yap_absmi(int inp)
 #if defined(SBA) && defined(FROZEN_STACKS)
 	pt0 = (choiceptr)IntegerOfTerm(d0);
 #else
-	pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
+	pt0 = (choiceptr)(LCL0-IntegerOfTerm(d0));
 #endif /* SBA && FROZEN_STACKS */
 #ifdef YAPOR
 	CUT_prune_to(pt0);

@@ -253,10 +253,11 @@ p_execute_clause(void)
 {				/* '$execute_clause'(Goal)	 */
   Term            t = Deref(ARG1);
   Term            mod = Deref(ARG2);
-  StaticClause   *cl = Yap_ClauseFromTerm(Deref(ARG3));
   choiceptr       cp = cp_from_integer(Deref(ARG4));
   unsigned int    arity;
   Prop            pe;
+  yamop *code;
+  Term            clt = Deref(ARG3);
 
  restart_exec:
   if (IsVarTerm(t)) {
@@ -303,7 +304,12 @@ p_execute_clause(void)
   }
   /*	N = arity; */
   /* call may not define new system predicates!! */
-  return CallPredicate(RepPredProp(pe), cp, cl->ClCode);
+  if (RepPredProp(pe)->PredFlags & MegaClausePredFlag) {
+    code = Yap_MegaClauseFromTerm(clt);    
+  } else {
+    code = Yap_ClauseFromTerm(clt)->ClCode;
+  }
+  return CallPredicate(RepPredProp(pe), cp, code);
 }
 
 static Int

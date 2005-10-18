@@ -3,7 +3,7 @@
 
 Name: Yap
 Summary: Prolog Compiler
-Version: 5.0.0
+Version: 5.1.0
 Packager: Vitor Santos Costa <vitor@cos.ufrj.br>
 Release: 1
 Source: http://www.ncc.up.pt/~vsc/Yap/%{name}-%{version}.tar.gz

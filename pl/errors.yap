@@ -11,8 +11,12 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2005-05-25 21:43:33 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-10-18 17:04:43 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.65  2005/05/25 21:43:33  vsc
+* fix compiler bug in 1 << X, found by Nuno Fonseca.
+* compiler internal errors get their own message.
+*
 * Revision 1.64  2005/05/25 18:18:02  vsc
 * fix error handling
 * configure should not allow max-memory and use-malloc at same time
@@ -134,15 +138,13 @@ print_message(Level, Mss) :-
 '$print_message'(error,Throw) :-
 	format(user_error,'% YAP: no handler for error ~w~n', [Throw]).
 '$print_message'(informational,M) :-
-	( get_value('$verbose',on) ->
-	    '$do_informational_message'(M) ;
-	    true
-	).
+	'$do_informational_message'(M).
 '$print_message'(warning,M) :-
 	'$output_error_location'('!! WARNING:'),
 	format(user_error, '!! ', []),
 	'$do_print_message'(M),
 	format(user_error, '~n', []).
+'$print_message'(silent,_).
 '$print_message'(help,M) :-
 	'$do_print_message'(M),
 	format(user_error, '~n', []).
@@ -177,6 +179,26 @@ print_message(Level, Mss) :-
 	'$show_consult_level'(LC0),
 	LC is LC0+1,
 	format(user_error, '~*|% ~a ~a in module ~a, ~d msec ~d bytes~n', [LC, What, AbsoluteFileName,Mod,Time,Space]).
+'$do_informational_message'(prompt(BreakLevel,TraceDebug)) :- !,
+	(BreakLevel =:= 0 ->
+	    (
+	      var(TraceDebug) ->
+	      true
+	    ;
+	      format(user_error, '% ~a~n', [TraceDebug])
+	    )
+	;
+	    (
+	      var(TraceDebug) ->
+	      format(user_error, '% ~d~n', [BreakLevel])
+	    ;
+	      format(user_error, '% ~d,~a~n', [BreakLevel,TraceDebug])
+	    )
+	).
+'$do_informational_message'(debug) :- !,
+	format(user_error, '% [debug]~n', []).
+'$do_informational_message'(trace) :- !,
+	format(user_error, '% [trace]~n', []).
 '$do_informational_message'(M) :-
 	format(user_error,'% ', []),
 	'$do_print_message'(M),
@@ -236,8 +258,10 @@ print_message(Level, Mss) :-
 	format(user_error, 'Singleton variable',[]),
 	'$write_svs'(SVs),
 	format(user_error, ' in ~q, clause ~d.',[P,CLN]).
+'$do_print_message'(trace_command(C)) :- !,
+	format(user_error,'~c is not a valid debugger command.', [C]).
 '$do_print_message'(trace_help) :- !,
-	format(user_error,'  Please enter a valid debugger command (h for help).', []).
+	format(user_error,'   Please enter a valid debugger command (h for help).', []).
 '$do_print_message'(version(Version)) :- !,
 	format(user_error,'YAP version ~a', [Version]).
 '$do_print_message'(yes) :- !,
@@ -513,6 +537,9 @@ print_message(Level, Mss) :-
 	[Where,Option, Opts]).
 '$output_error_message'(domain_error(time_out_spec,What), Where) :-
 	format(user_error,'% DOMAIN ERROR- ~w: ~w not a valid specification for a time out~n',
+	[Where,What]).
+'$output_error_message'(domain_error(unimplemented_option,What), Where) :-
+	format(user_error,'% DOMAIN ERROR- ~w: ~w not yet implemented~n',
 	[Where,What]).
 '$output_error_message'(domain_error(write_option,N), Where) :-
 	format(user_error,'% DOMAIN ERROR- ~w: ~w invalid option to write~n',

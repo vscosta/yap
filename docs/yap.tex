@@ -8,7 +8,7 @@
 @c @setchapternewpage odd
 @c %**end of header
 
-@set VERSION: 5.0.0
+@set VERSION: 5.1.0
 @set EDITION 4.2.4
 @set UPDATED December 2004
 
@@ -13820,6 +13820,11 @@ of prolog terms, containing the information to be preserved on backtracking
 and a pointer variable to a structure of that type.
 
 @example
+#include "YapInterface.h"
+
+static int start_n100(void);
+static int continue_n100(void);
+
 typedef struct @{
     YAP_Term next_solution;  /* the next solution */
    @} n100_data_type;
@@ -13830,13 +13835,13 @@ n100_data_type *n100_data;
 We now write the @code{C} function to handle the first call:
 
 @example
-static int start_n100()
+static int start_n100(void)
 @{
-      YAP_Term t = ARG1;
+      YAP_Term t = YAP_ARG1;
       YAP_PRESERVE_DATA(n100_data,n100_data_type);
       if(YAP_IsVarTerm(t)) @{
           n100_data->next_solution = YAP_MkIntTerm(0);
-          return(continue_n100());
+          return continue_n100();
        @}
       if(!YAP_IsIntTerm(t) || YAP_IntOfTerm(t)<0 || YAP_IntOfTerm(t)>100) @{
           YAP_cut_fail();
@@ -13859,10 +13864,10 @@ structure to be preserved across backtracking with the information
 required to provide the next solution, and exits by calling @code{
 continue_n100} to provide that solution.
 
-If the argument was not a variable, the routine then checks if it was
-an integer, and if so, if its value is positive and less than 100. In that case
-it exits, denoting success, with @code{YAP_cut_succeed}, or otherwise exits with
-@code{YAP_cut_fail} denoting failure.
+If the argument was not a variable, the routine then checks if it was an
+integer, and if so, if its value is positive and less than 100. In that
+case it exits, denoting success, with @code{YAP_cut_succeed}, or
+otherwise exits with @code{YAP_cut_fail} denoting failure.
 
 The reason for using for using the functions @code{YAP_cut_succeed} and
 @code{YAP_cut_fail} instead of just returning a non-zero value in the
@@ -13872,20 +13877,20 @@ called to provide additional solutions.
 
 The code required for the second function is
 @example
-static int continue_n100()
+static int continue_n100(void)
 @{
       int n;
       YAP_Term t;
-      YAP_Term sol = ARG1;
+      YAP_Term sol = YAP_ARG1;
       YAP_PRESERVED_DATA(n100_data,n100_data_type);
       n = YAP_IntOfTerm(n100_data->next_solution);
       if( n == 100) @{
            t = YAP_MkIntTerm(n);
-           YAP_Unify(&sol,&t);
+           YAP_Unify(sol,t);
            YAP_cut_succeed();
         @}
        else @{
-           YAP_Unify(&sol,&(n100_data->next_solution));
+           YAP_Unify(sol,n100_data->next_solution);
            n100_data->next_solution = YAP_MkIntTerm(n+1);
            return(TRUE);
         @}
@@ -13918,7 +13923,17 @@ call to
 where @var{name} is a string with the name of the predicate, @var{init} and
 @var{cont} are the C functions used to start and continue the execution of
 the predicate, @var{arity} is the predicate arity, and @var{sizeof} is
-the size of the data to be preserved in the stack.
+the size of the data to be preserved in the stack. In this example, we
+would have something like
+
+@example
+void
+init_n100(void)
+{
+  YAP_UserBackCPredicate("n100", start_n100, continue_n100, 1, 1);
+}
+@end example
+
 
 @node Loading Objects, Sav&Rest, Writing C, C-Interface
 @section Loading Object Files

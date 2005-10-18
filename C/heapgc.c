@@ -1082,8 +1082,9 @@ mark_variable(CELL_PTR current)
   MARK(current);
   if (current >= H0 && current < H) {
     total_marked++;
-    if (current < HGEN)
+    if (current < HGEN) {
       total_oldies++;
+    }
   }
   PUSH_POINTER(current);
   ccur = *current;
@@ -1128,8 +1129,9 @@ mark_variable(CELL_PTR current)
 	    *current = cnext;
 	    if (current >= H0 && current < H) {
 	      total_marked--;
-	      if (current < HGEN)
+	      if (current < HGEN) {
 		total_oldies--;
+	      }
 	    }
 	    POP_POINTER();
 	  } else {
@@ -1149,8 +1151,9 @@ mark_variable(CELL_PTR current)
 #endif
 	if (current >= H0 && current < H) {
 	  total_marked--;
-	  if (current < HGEN)
+	  if (current < HGEN) {
 	    total_oldies--;
+	  }
 	}
 	POP_POINTER();
       } else
@@ -1225,7 +1228,7 @@ mark_variable(CELL_PTR current)
 #if GC_NO_TAGS
 	MARK(next+2);
 #endif
-	if (next >= H0 && next < HGEN) {
+	if (next < HGEN) {
 	  total_oldies+=3;
 	}
 	total_marked += 3;
@@ -1235,7 +1238,7 @@ mark_variable(CELL_PTR current)
 	POP_CONTINUATION();
       case (CELL)FunctorDouble:
 	MARK(next);
-	if (next >= H0 && next < HGEN) {
+	if (next < HGEN) {
 	  total_oldies+=2+SIZEOF_DOUBLE/SIZEOF_LONG_INT;
 	}
 	total_marked += 2+SIZEOF_DOUBLE/SIZEOF_LONG_INT;
@@ -1255,7 +1258,7 @@ mark_variable(CELL_PTR current)
       case (CELL)FunctorBigInt:
 	MARK(next);
 	/* size is given by functor + friends */
-	if (next >= H0 && next < HGEN) {
+	if (next < HGEN) {
 	  total_oldies+=2+
 	    (sizeof(MP_INT)+
 	     (((MP_INT *)(next+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
@@ -1289,9 +1292,9 @@ mark_variable(CELL_PTR current)
     arity = ArityOfFunctor((Functor)(cnext));
     MARK(next);
     ++total_marked;
-  if (next >= H0 && next < HGEN) {
-    ++total_oldies;
-  }
+    if (next < HGEN) {
+      ++total_oldies;
+    }
     PUSH_POINTER(next);
     current = next+1;
     PUSH_CONTINUATION(current+1,arity-1);
@@ -3538,6 +3541,20 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif
   /* get the number of active registers */
   HGEN = H0+IntegerOfTerm(Yap_ReadTimedVar(GcGeneration));
+  /* old HGEN are not very reliable, but still may have data to recover */
+  if (HGEN < HB) {
+    choiceptr b_ptr = B;
+    /* cannot trust the data between HGEN and its current choice-point */
+    while (b_ptr) {
+      if (b_ptr->cp_h <= HGEN) {
+	HGEN = b_ptr->cp_h;
+	break;
+      } else {
+	b_ptr = b_ptr->cp_b;
+      }
+    }
+    if (!b_ptr) HGEN = H0;
+  }
   /*  fprintf(stderr,"HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(GcGeneration)), HGEN, H,H0);*/
   YAPEnterCriticalSection();
   OldTR = (tr_fr_ptr)(old_TR = TR);
@@ -3563,7 +3580,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     fprintf(Yap_stderr, "%%   Mark: Recovered %ld cells of %ld (%ld%%) in %g sec\n",
 	       (long int)tot, (long int)heap_cells, (long int)effectiveness, (double)(m_time-time_start)/1000);
     if (HGEN-H0)
-      fprintf(Yap_stderr,"%%       previous generation has size %lu, with %lu (%ld%%) unmarked\n", HGEN-H0, (HGEN-H0)-total_oldies, 100*((HGEN-H0)-total_oldies)/(HGEN-H0));
+      fprintf(Yap_stderr,"%%       previous generation has size %lu, with %lu (%lu%%) unmarked\n", (unsigned long)(HGEN-H0), (HGEN-H0)-total_oldies, 100*((HGEN-H0)-total_oldies)/(HGEN-H0));
 #ifdef INSTRUMENT_GC
     {
       int i;

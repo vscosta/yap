@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-10-15 02:05:57 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-10-18 17:04:43 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.169  2005/10/15 02:05:57  vsc
+* fix for trying to add clauses to a C pred.
+*
 * Revision 1.168  2005/08/05 14:55:02  vsc
 * first steps to allow mavars with tabling
 * fix trailing for tabling with multiple get_cons
@@ -3670,23 +3673,23 @@ p_system_pred(void)
 
  restart_system_pred:
   if (IsVarTerm(t1))
-    return (FALSE);
+    return FALSE;
   if (IsAtomTerm(t1)) {
     pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t1), mod));
   } else if (IsApplTerm(t1)) {
     Functor         funt = FunctorOfTerm(t1);
     if (IsExtensionFunctor(funt)) {
-      return(FALSE);
+      return FALSE;
     } 
     if (funt == FunctorModule) {
       Term nmod = ArgOfTerm(1, t1);
       if (IsVarTerm(nmod)) {
 	Yap_Error(INSTANTIATION_ERROR,ARG1,"system_predicate/1");
-	return(FALSE);
+	return FALSE;
       } 
       if (!IsAtomTerm(nmod)) {
 	Yap_Error(TYPE_ERROR_ATOM,ARG1,"system_predicate/1");
-	return(FALSE);
+	return FALSE;
       }
       t1 = ArgOfTerm(2, t1);
       goto restart_system_pred;
@@ -3695,10 +3698,14 @@ p_system_pred(void)
   } else if (IsPairTerm(t1)) {
     return TRUE;
   } else
-    return (FALSE);
+    return FALSE;
   if (EndOfPAEntr(pe))
-    return(FALSE);
-  return(!pe->ModuleOfPred || pe->PredFlags & (UserCPredFlag|CPredFlag|BinaryTestPredFlag|AsmPredFlag|TestPredFlag));
+    return FALSE;
+  return(!pe->ModuleOfPred || /* any predicate in prolog module */
+	 /* any C-pred */
+	 pe->PredFlags & (UserCPredFlag|CPredFlag|BinaryTestPredFlag|AsmPredFlag|TestPredFlag) ||
+	 /* any weird user built-in */
+	 pe->OpcodeOfPred == Yap_opcode(_try_userc));
 }
 
 static Int			/* $system_predicate(P) */

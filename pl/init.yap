@@ -137,3 +137,4 @@ library_directory(D) :-
 	getenv('YAPSHAREDIR', D).
 
 :- get_value(system_library_directory,D), assert(library_directory(D)).
+

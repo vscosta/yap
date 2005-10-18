@@ -34,53 +34,6 @@ static char     SccsId[] = "%W% %G%";
 
 static CELL *pre_alloc_base = NULL, *alloc_ptr;
 
-MP_INT *
-Yap_PreAllocBigNum(void)
-{
-  MP_INT *ret;
-
-  if (pre_alloc_base != H) {
-    /* inform where we are allocating */
-    alloc_ptr = pre_alloc_base = H;
-  }
-  ret = (MP_INT *)(alloc_ptr+1);
-  /* first reserve space for the functor */
-  alloc_ptr[0] = 0L;
-  /* now allocate space for mpz_t */
-  alloc_ptr = (CELL *)(ret+1);
-  /* initialise the fields */
-  mpz_init(ret);
-  return(ret);
-}
-
-void
-Yap_CleanBigNum(void)
-{
-  H = pre_alloc_base;
-  pre_alloc_base = NULL;
-}
-
-MP_INT *
-Yap_InitBigNum(Int in)
-{
-  MP_INT *ret;
-
-  if (pre_alloc_base == NULL) {
-    /* inform where we are allocating */
-    alloc_ptr = pre_alloc_base = H;
-  }
-  ret = (MP_INT *)(alloc_ptr+1);
-  /* first reserve space for the functor */
-  /* I use a 0 to indicate this is the first time
-     we are building the bignum */
-  alloc_ptr[0] = 0L;
-  /* now allocate space for mpz_t */
-  alloc_ptr = (CELL *)(ret+1);
-  /* initialise the fields */
-  mpz_init_set_si(ret, in);
-  return(ret);
-}
-
 /* This is a trivial allocator that use the global space:
 
    Each unit has a:
@@ -137,6 +90,60 @@ FreeBigNumSpace(void *optr, size_t size)
   }
   /* just say it is free */
   bp[-1] = -bp[-1];
+}
+
+MP_INT *
+Yap_PreAllocBigNum(void)
+{
+  MP_INT *ret;
+
+#ifdef USE_GMP
+  /* YAP style memory allocation */
+  mp_set_memory_functions(
+			  AllocBigNumSpace,
+			  ReAllocBigNumSpace,
+			  FreeBigNumSpace);
+#endif
+  if (pre_alloc_base != H) {
+    /* inform where we are allocating */
+    alloc_ptr = pre_alloc_base = H;
+  }
+  ret = (MP_INT *)(alloc_ptr+1);
+  /* first reserve space for the functor */
+  alloc_ptr[0] = 0L;
+  /* now allocate space for mpz_t */
+  alloc_ptr = (CELL *)(ret+1);
+  /* initialise the fields */
+  mpz_init(ret);
+  return(ret);
+}
+
+void
+Yap_CleanBigNum(void)
+{
+  H = pre_alloc_base;
+  pre_alloc_base = NULL;
+}
+
+MP_INT *
+Yap_InitBigNum(Int in)
+{
+  MP_INT *ret;
+
+  if (pre_alloc_base == NULL) {
+    /* inform where we are allocating */
+    alloc_ptr = pre_alloc_base = H;
+  }
+  ret = (MP_INT *)(alloc_ptr+1);
+  /* first reserve space for the functor */
+  /* I use a 0 to indicate this is the first time
+     we are building the bignum */
+  alloc_ptr[0] = 0L;
+  /* now allocate space for mpz_t */
+  alloc_ptr = (CELL *)(ret+1);
+  /* initialise the fields */
+  mpz_init_set_si(ret, in);
+  return(ret);
 }
 
 /* This can be done in several different situations:
@@ -251,12 +258,5 @@ p_is_bignum(void)
 void
 Yap_InitBigNums(void)
 {
-#ifdef USE_GMP
-  /* YAP style memory allocation */
-  mp_set_memory_functions(
-			  AllocBigNumSpace,
-			  ReAllocBigNumSpace,
-			  FreeBigNumSpace);
-#endif
   Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag|HiddenPredFlag);
 }

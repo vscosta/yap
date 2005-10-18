@@ -56,17 +56,14 @@ store_new_module(Mod,Ar,ArgPosition) :-
 	->
 	  true
 	;
-	  store_new_module(Mod), Position = 1
+	  retract(modules_with_attributes(Mods)),
+	  assert(modules_with_attributes([Mod|Mods])), Position = 1
 	),
 	ArgPosition is Position+1,
 	( Ar == 0 -> NOfAtts is Position+1 ; NOfAtts is Position+Ar),
 	functor(AccessTerm,Mod,NOfAtts),
 	assertz(attributed_module(Mod,NOfAtts,AccessTerm)).
 	
-store_new_module(Mod) :-
-	retract(modules_with_attributes(Mods)),
-	assertz(modules_with_attributes([Mod|Mods])).
-
 :- user_defined_directive(attribute(G), attributes:new_attribute(G)).
 
 user:goal_expansion(get_atts(Var,AccessSpec), Mod, Goal) :-
@@ -160,9 +157,11 @@ expand_put_attributes(Att,Mod,Var,Goal) :-
 	expand_put_attributes([Att],Mod,Var,Goal).
 
 woken_att_do(AttVar, Binding) :-
+	get_all_swi_atts(AttVar,SWIAtts),
 	modules_with_attributes(AttVar,Mods),
 	do_verify_attributes(Mods, AttVar, Binding, Goals),
 	bind_attvar(AttVar),
+	do_hook_attributes(SWIAtts, Binding),
 	lcall(Goals).
 
 do_verify_attributes([], _, _, []).
@@ -172,6 +171,14 @@ do_verify_attributes([Mod|Mods], AttVar, Binding, [Mod:Goal|Goals]) :-
 	do_verify_attributes(Mods, AttVar, Binding, Goals).
 do_verify_attributes([_|Mods], AttVar, Binding, Goals) :-
 	do_verify_attributes(Mods, AttVar, Binding, Goals).
+
+do_hook_attributes([], _).
+do_hook_attributes(att(Mod,Att,Atts), Binding) :-
+	current_predicate(attr_unify_hook,Mod:attr_unify_hook(_,_)), !,
+	Mod:attr_unify_hook(Att, Binding),
+	do_hook_attributes(Atts, Binding).
+do_hook_attributes(att(_,_,Atts), Binding) :-
+	do_hook_attributes(Atts, Binding).
 
 lcall([]).
 lcall([Mod:Gls|Goals]) :-

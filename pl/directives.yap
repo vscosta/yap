@@ -47,8 +47,8 @@
 '$directive'(use_module(_)).
 '$directive'(use_module(_,_)).
 '$directive'(use_module(_,_,_)).
-'$directive'(uncutable(_)).
 '$directive'(thread_local(_)).
+'$directive'(uncutable(_)).
 
 '$exec_directives'((G1,G2), Mode, M) :- !,
 	'$exec_directives'(G1, Mode, M),
@@ -88,24 +88,24 @@
 	op(P,OPSEC,OP).
 '$exec_directive'(set_prolog_flag(F,V), _, _) :-
 	set_prolog_flag(F,V).
-'$exec_directive'(ensure_loaded(F), _, M) :-
-	'$ensure_loaded'(M:F).
+'$exec_directive'(ensure_loaded(Fs), _, M) :-
+	'$load_files'(Fs, [if(changed)],ensure_loaded(Fs)).
 '$exec_directive'(char_conversion(IN,OUT), _, _) :-
 	char_conversion(IN,OUT).
 '$exec_directive'(public(P), _, M) :-
 	'$public'(P, M).
 '$exec_directive'(compile(F), _, M) :-
-	'$compile'(M:F).
+	'$load_files'(M:Fs, [], compile(Fs)).
 '$exec_directive'(reconsult(Fs), _, M) :-
-	'$reconsult'(Fs, M).
+	'$load_files'(M:Fs, [], reconsult(Fs)).
 '$exec_directive'(consult(Fs), _, M) :-
 	'$consult'(Fs, M).
-'$exec_directive'(use_module(Fs), _, M) :-
-	'$use_module'(M:Fs).
-'$exec_directive'(use_module(Fs,I), _, M) :-
-	'$use_module'(M:Fs,I).
-'$exec_directive'(use_module(Fs,F,I), _, M) :-
-	'$use_module'(Fs,M:F,I).
+'$exec_directive'(use_module(F), _, M) :-
+	'$load_files'(M:F, [if(not_loaded)],use_module(F)).
+'$exec_directive'(use_module(F,Is), _, M) :-
+	'$load_files'(M:F, [if(not_loaded),imports(Is)],use_module(F,Is)).
+'$exec_directive'(use_module(_Mod,F,Is), _, M) :-
+	'$load_files'(F, [if(not_loaded),imports(Is)],use_module(M,F,Is)).
 '$exec_directive'(block(BlockSpec), _, _) :-
 	'$block'(BlockSpec).
 '$exec_directive'(wait(BlockSpec), _, _) :-
@@ -594,6 +594,17 @@ yap_flag(fileerrors,X) :-
 yap_flag(host_type,X) :-
 	'$host_type'(X).
 
+yap_flag(verbose_auto_load,X) :-
+	var(X), !,
+	( get_value('$verbose_auto_load',true) -> X = true ; X = false ).
+yap_flag(verbose_auto_load,true) :- !,
+	set_value('$verbose_auto_load',true).
+yap_flag(verbose_auto_load,false) :- !,
+	set_value('$verbose_auto_load',false),
+	'$set_yap_flags'(7,1).
+yap_flag(verbose_auto_load,X) :-
+	'$do_error'(domain_error(flag_value,verbose_auto_load+X),yap_flag(verbose_auto_load,X)).
+
 '$show_yap_flag_opts'(V,Out) :-
 	(
 	    V = argv ;
@@ -638,6 +649,7 @@ yap_flag(host_type,X) :-
             V = user_error ;
 	    V = user_input ;
             V = user_output ;
+            V = verbose_auto_load ;
             V = version ;
             V = write_strings
 	),

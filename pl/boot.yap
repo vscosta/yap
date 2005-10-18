@@ -47,11 +47,12 @@ true :- true.
 	'$set_yap_flags'(10,0),
 	set_value(fileerrors,1),
 	set_value('$gc',on),
-	set_value('$verbose',on),
+	set_value('$lf_verbose',informational),
 	('$exit_undefp' -> true ; true),
 	prompt('  ?- '),
+	get_value('$break',BreakLevel),
 	(
-	    get_value('$break',0)
+	  BreakLevel =:= 0
 	->
 	    % '$set_read_error_handler'(error), let the user do that
 	    % after an abort, make sure all spy points are gone.
@@ -74,7 +75,7 @@ true :- true.
 	    '$startup_reconsult',
 	    '$startup_goals'
 	;
-	    true
+	  '$print_message'(informational,break(BreakLevel))
 	).
 
 
@@ -117,12 +118,16 @@ true :- true.
 	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
 	fail.
 '$enter_top_level' :-
+        get_value('$break',BreakLevel),
 	( recorded('$trace',on,_) ->
-	    format(user_error, '% trace~n', [])
+	    TraceDebug = trace
 	;
 	  recorded('$debug', on, _) ->
-	  format(user_error, '% debug~n', [])
+	    TraceDebug = debug
+	;
+	    true
 	),
+	'$print_message'(informational,prompt(BreakLevel,TraceDebug)),
 	fail.
 '$enter_top_level' :-
 	prompt(_,'   ?- '),
@@ -373,8 +378,7 @@ repeat :- '$repeat'.
 	        ( recorded('$trace',on,_) -> '$creep' ; true),
 		'$execute'(G),
 		'$do_not_creep',
-		'$extract_goal_vars_for_dump'(V,LIV),
-		'$show_frozen'(G,LIV,LGs),
+		'$output_frozen'(G, V, LGs),
 		'$write_answer'(V, LGs, Written),
 		'$write_query_answer_true'(Written),
 		'$another',
@@ -392,7 +396,7 @@ repeat :- '$repeat'.
 	'$current_module'(M),
 	'$do_yes_no'(G,M),
 	'$do_not_creep',
-	'$show_frozen'(G, [], LGs),
+	'$output_frozen'(G, [], LGs),
 	'$write_answer'([], LGs, Written),
         ( Written = [] ->
 	!,'$present_answer'(C, yes);
@@ -413,21 +417,20 @@ repeat :- '$repeat'.
 	  ( recorded('$trace',on,_) -> '$creep' ; true),
 	  '$execute'(M:G).
 
-'$extract_goal_vars_for_dump'([],[]).
-'$extract_goal_vars_for_dump'([[_|V]|VL],[V|LIV]) :-
-	'$extract_goal_vars_for_dump'(VL,LIV).
-
 '$write_query_answer_true'([]) :- !,
 	format(user_error,'~ntrue',[]).
 '$write_query_answer_true'(_).
 
-'$show_frozen'(_,_,[]) :-
-	'$undefined'(all_attvars(LAV), attributes), !.
-'$show_frozen'(G,V,LGs) :-
-	attributes:all_attvars(LAV),
-	LAV = [_|_], !,
-	'$convert_to_list_of_frozen_goals'(V,LAV,G,LGs).
-'$show_frozen'(_,_,[]).
+'$output_frozen'(G,V,LGs) :-
+	\+ '$undefined'(bindings_message(_,_,_), swi),
+	swi:bindings_message(V, LGs, []), !.
+'$output_frozen'(G,V,LGs) :-
+	'$extract_goal_vars_for_dump'(V,LIV),
+	'$show_frozen'(G,LIV,LGs).
+
+'$extract_goal_vars_for_dump'([],[]).
+'$extract_goal_vars_for_dump'([[_|V]|VL],[V|LIV]) :-
+	'$extract_goal_vars_for_dump'(VL,LIV).
 
 %
 % present_answer has three components. First it flushes the streams,
@@ -528,8 +531,12 @@ repeat :- '$repeat'.
 	'$write_remaining_vars_and_goals'(LG).
 
 '$write_remaining_vars_and_goals'([]).
+'$write_remaining_vars_and_goals'([nl,G1|LG]) :- !,
+	nl(user_error),
+	'$write_goal_output'(G1),
+	'$write_remaining_vars_and_goals'(LG).
 '$write_remaining_vars_and_goals'([G1|LG]) :-
-	format(user_error,',~n',[]),
+	( LG = [] -> nl(user_error) ; format(user_error,',~n',[]) ),
 	'$write_goal_output'(G1),
 	'$write_remaining_vars_and_goals'(LG).
 
@@ -544,6 +551,9 @@ repeat :- '$repeat'.
 	   write_term(user_error,B,Opts) ;
 	   format(user_error,'~w',[B])
         ).
+'$write_goal_output'(Format-G) :-
+	G = [_|_], !,
+        format(user_error,Format,G).
 '$write_goal_output'(_-G) :-
         ( recorded('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,G,Opts) ;
@@ -762,7 +772,7 @@ break :-
 	get_value(spy_gn,SPY_GN),
 	'$access_yap_flags'(10,SPY_CREEP),
 	get_value(spy_cl,SPY_CL),
-	get_value(spy_leap,_Leap),
+	get_value(spy_leap,Leap),
 	set_value('$break',NBL),
 	current_output(OutStream), current_input(InpStream),
 	format(user_error, '% Break (level ~w)~n', [NBL]),
@@ -772,50 +782,22 @@ break :-
 	set_value(spy_gn,SPY_GN),
 	'$set_yap_flags'(10,SPY_CREEP),
 	set_value(spy_cl,SPY_CL),
-	set_value(spy_leap,_Leap),
+	set_value(spy_leap,Leap),
 	'$set_input'(InpStream), '$set_output'(OutStream),
 	( recorded('$trace',_,R2), erase(R2), fail; true),
 	( recorded('$debug',_,R3), erase(R3), fail; true),
-	(nonvar(Trace) -> recorda('$trace',Trace,_)),
-	(nonvar(Debug) -> recorda('$debug',Debug,_)),
+	(nonvar(Trace) -> recorda('$trace',Trace,_); true),
+	(nonvar(Debug) -> recorda('$debug',Debug,_); true),
 	set_value('$break',BL).
 
 
 '$csult'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,consult(V)).
 '$csult'([], _).
-'$csult'([-F|L], M) :- !, '$reconsult'(F, M), '$csult'(L, M).
+'$csult'([-F|L], M) :- !, '$load_files'(M:F, [],[-M:F]), '$csult'(L, M).
 '$csult'([F|L], M) :- '$consult'(F, M), '$csult'(L, M).
 
-'$consult'(V, _) :- var(V), !,
-	'$do_error'(instantiation_error,consult(V)).
-'$consult'([], _) :- !.
-'$consult'([F|Fs], M) :- !,
-	'$consult'(F, M),
-	'$consult'(Fs, M).
-'$consult'(M:X, _) :- !,
-	( atom(M) ->
-	    '$consult'(X, M)
-	;
-	    '$do_error'(type_error(atom,M),[M:X])
-	).
-'$consult'(X, OldModule) :-
-	'$find_in_path'(X,Y,consult(X)),
-	'$open'(Y,'$csult',Stream,0), !,
-        '$consult'(X,OldModule,Stream),
-	'$close'(Stream).
-'$consult'(X, _) :-
-	'$do_error'(permission_error(input,stream,X),[X]).
-
-
-'$consult'(_,Module,Stream) :-
-        '$record_loaded'(Stream,Module),
-	fail.
-'$consult'(F,Module,Stream) :-
-	'$access_yap_flags'(8, 2), % SICStus Prolog compatibility
-	!,
-	'$reconsult'(F,Module,Stream).
-'$consult'(F,Mod,Stream) :-
+'$bconsult'(F,Mod,Stream) :-
 	'$current_module'(OldModule, Mod),
 	'$getcwd'(OldD),
 	get_value('$consulting_file',OldF),
@@ -825,45 +807,29 @@ break :-
 	'$start_consult'(consult,File,LC),
 	get_value('$consulting',Old),
 	set_value('$consulting',true),
-	recorda('$initialisation','$',_),
-	( '$undefined'('$print_message'(_,_),prolog) -> 
-	    ( get_value('$verbose',on) ->
-		format(user_error, '~*|% consulting ~w...~n', [LC,F])
-		; true )
-	;
-	    '$print_message'(informational, loading(consulting, File))
-	),
-	( recorded('$trace', on, TraceR) -> erase(TraceR) ; true),
+	format(user_error, '~*|% consulting ~w...~n', [LC,F]),
 	'$loop'(Stream,consult),
 	'$end_consult',
-	( nonvar(TraceR) -> recorda('$trace', on, _) ; true),
 	set_value('$consulting',Old),
 	set_value('$consulting_file',OldF),
 	'$current_module'(NewMod,OldModule),
 	'$cd'(OldD),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-	( '$undefined'('$print_message'(_,_),prolog) -> 
-	  ( get_value('$verbose',on) ->
-	     format(user_error, '~*|% ~w consulted ~w bytes in ~d msecs~n', [LC,F,H,T])
-	  ;
-	     true
-	  )
-	;
-	    '$print_message'(informational, loaded(consulted, File, NewMod, T, H))
-	),
-	'$exec_initialisation_goals',
+	format(user_error, '~*|% ~w consulted ~w bytes in ~d msecs~n', [LC,F,H,T]),
 	!.
 
 
-'$record_loaded'(user, _).
-'$record_loaded'(user_input, _).
 '$record_loaded'(Stream, M) :-
-	'$loaded'(Stream, M, _), !.
-'$record_loaded'(Stream, M) :-
+	Stream \= user,
+	Stream \= user_input,
 	'$file_name'(Stream,F),
+	( recorded('$lf_loaded','$lf_loaded'(F,M,_),R), erase(R), fail ; true ),
+
 	'$file_age'(F,Age),
-	recorda('$loaded','$loaded'(F,M,Age),_).
+	recorda('$lf_loaded','$lf_loaded'(F,M,Age),_),
+	fail.
+'$record_loaded'(_, _).
 
 '$set_consulting_file'(user) :- !,
 	set_value('$consulting_file',user_input).

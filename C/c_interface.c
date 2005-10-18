@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-10-15 02:42:57 $,$Author: vsc $						 *
+* Last rev:	$Date: 2005-10-18 17:04:43 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.72  2005/10/15 02:42:57  vsc
+* fix interface
+*
 * Revision 1.71  2005/08/17 13:35:51  vsc
 * YPP would leave exceptions on the system, disabling Yap-4.5.7
 * message.
@@ -195,8 +198,7 @@ X_API Functor STD_PROTO(YAP_MkFunctor,(Atom,Int));
 X_API Atom    STD_PROTO(YAP_NameOfFunctor,(Functor));
 X_API Int     STD_PROTO(YAP_ArityOfFunctor,(Functor));
 X_API void   *STD_PROTO(YAP_ExtraSpace,(void));
-X_API Int     STD_PROTO(YAP_cut_fail,(void));
-X_API Int     STD_PROTO(YAP_cut_succeed,(void));
+X_API void    STD_PROTO(YAP_cut_up,(void));
 X_API Int     STD_PROTO(YAP_Unify,(Term,Term));
 X_API int     STD_PROTO(YAP_Reset,(void));
 X_API Int     STD_PROTO(YAP_Init,(YAP_init_args *));
@@ -290,7 +292,7 @@ X_API Bool
 YAP_IsBigNumTerm(Term t)
 {
 #if USE_GMP
-  return IsBigNumTerm(t);
+  return IsBigIntTerm(t);
 #else
   return FALSE;
 #endif
@@ -584,28 +586,21 @@ YAP_ExtraSpace(void)
   return(ptr);
 }
 
-X_API Int
-YAP_cut_fail(void)
+X_API void
+YAP_cut_up(void)
 {
   BACKUP_B();
 
+#ifdef YAPOR
+  CUT_prune_to(pt0);
+#endif	/* YAPOR */
   B = B->cp_b;  /* cut_fail */
+#ifdef TABLING
+  abolish_incomplete_subgoals(B);
+#endif /* TABLING */
   HB = B->cp_h; /* cut_fail */
 
   RECOVER_B();
-  return(FALSE);
-}
-
-X_API Int
-YAP_cut_succeed(void)
-{
-  BACKUP_B();
-
-  B = B->cp_b;
-  HB = B->cp_h;
-
-  RECOVER_B();
-  return(TRUE);
 }
 
 X_API Int

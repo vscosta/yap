@@ -88,7 +88,7 @@ TEXI2PDF=texi2pdf
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #
-VERSION=Yap-5.0.0
+VERSION=Yap-5.1.0
 #
 
 INTERFACE_HEADERS = $(srcdir)/include/c_interface.h $(srcdir)/include/yap_structs.h $(srcdir)/include/YapInterface.h
@@ -522,7 +522,7 @@ install_win32: startup
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
-	$(INSTALL) $(srcdir)/include/c_interface.h $(DESTDIR)$(INCLUDEDIR)/c_interface.h
+	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 	$(INSTALL) config.h $(INCLUDEDIR)/config.h
 	(cd library/random; make install)
 	(cd library/regex; make install)

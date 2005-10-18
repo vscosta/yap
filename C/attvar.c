@@ -297,6 +297,28 @@ ReplaceAtts(attvar_record *attv, Term oatt, Term att)
 }
 
 static void 
+DelAtts(attvar_record *attv, Term oatt)
+{
+  if (attv->Atts == oatt) {
+    if (RepAppl(attv->Atts) >= HB)
+      attv->Atts = ArgOfTerm(1,oatt);
+    else
+      MaBind(&(attv->Atts), ArgOfTerm(1,oatt));
+  } else {
+    Term *wherep = &attv->Atts;
+
+    do {
+      if (*wherep == oatt) {
+	MaBind(wherep, ArgOfTerm(1,oatt));
+	return;
+      } else {
+	wherep = RepAppl(Deref(*wherep))+1;
+      }
+    } while (TRUE);
+  }
+}
+
+static void 
 PutAtt(Int pos, Term atts, Term att)
 {
   if (IsVarTerm(att) && (CELL *)att > H && (CELL *)att < LCL0) {
@@ -507,6 +529,34 @@ p_put_atts(void) {
 }
 
 static Int
+p_del_atts(void) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  Term otatts;
+
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    attvar_record *attv;
+    Term tatts = Deref(ARG2);
+    Functor mfun = FunctorOfTerm(tatts);
+
+    if (IsAttachedTerm(inp)) {
+      attv = (attvar_record *)VarOfTerm(inp);
+    } else {
+      return TRUE;
+    }
+    if (IsVarTerm(otatts = SearchAttsForModule(attv->Atts,mfun))) {
+      return TRUE;
+    } else {
+      DelAtts(attv, otatts);
+    }
+    return TRUE;
+  } else {
+    return TRUE;
+  }
+}
+
+static Int
 p_get_att(void) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
@@ -595,7 +645,7 @@ p_get_atts(void) {
       return FALSE;
     }
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+    //    Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_attributes/2");
     return(FALSE);
   }
 }
@@ -619,7 +669,7 @@ p_has_atts(void) {
       return FALSE;
     }
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+    Yap_Error(TYPE_ERROR_VARIABLE,inp,"has_attributes/2");
     return(FALSE);
   }
 }
@@ -658,6 +708,19 @@ p_get_all_atts(void) {
   }
 }
 
+static int
+ActiveAtt(Term tatt, UInt ar)
+{
+  CELL *cp = RepAppl(tatt);
+  UInt i;
+
+  for (i = 1; i < ar; i++) {
+    if (cp[i] != TermFoundVar)
+      return TRUE;
+  }
+  return FALSE;
+}
+
 static Int
 p_modules_with_atts(void) {
   /* receive a variable in ARG1 */
@@ -672,16 +735,61 @@ p_modules_with_atts(void) {
       if (IsVarTerm(tatt = attv->Atts))
 	  return Yap_unify(ARG2,TermNil);
       while (!IsVarTerm(tatt)) {
+	Functor f = FunctorOfTerm(tatt);
 	if (H != H0)
 	  H[-1] = AbsPair(H);
-	*H = MkAtomTerm(NameOfFunctor(FunctorOfTerm(tatt)));
-	H+=2;
+	if (ActiveAtt(tatt, ArityOfFunctor(f))) {
+	  *H = MkAtomTerm(NameOfFunctor(f));
+	  H+=2;
+	}
 	tatt = ArgOfTerm(1,tatt);
       }
-      H[-1] = TermNil;
-      return Yap_unify(ARG2,AbsPair(h0));
+      if (h0 != H) {
+	H[-1] = TermNil;
+	return Yap_unify(ARG2,AbsPair(h0));
+      }
     }
-    return TermNil;
+    return Yap_unify(ARG2,TermNil);
+  } else {
+    Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
+    return FALSE;
+  }
+}
+
+static Int
+p_swi_all_atts(void) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  Functor attf = Yap_MkFunctor(Yap_LookupAtom("att"),3);
+
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv = (attvar_record *)VarOfTerm(inp);
+      CELL *h0 = H;
+      Term tatt;
+
+      if (IsVarTerm(tatt = attv->Atts))
+	  return Yap_unify(ARG2,TermNil);
+      while (!IsVarTerm(tatt)) {
+	Functor f = FunctorOfTerm(tatt);
+
+	if (ArityOfFunctor(f) == 2) {
+	  if (H != h0)
+	    H[-1] = AbsAppl(H);
+	  H[0] = (CELL) attf;
+	  H[1] = MkAtomTerm(NameOfFunctor(f));
+	  H[2] = ArgOfTerm(2,tatt);
+	  H+=4;
+	}
+	tatt = ArgOfTerm(1,tatt);
+      }
+      if (h0 != H) {
+	H[-1] = TermNil;
+	return Yap_unify(ARG2,AbsAppl(h0));
+      }
+    }
+    return Yap_unify(ARG2,TermNil);
   } else {
     Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
     return FALSE;
@@ -773,9 +881,11 @@ void Yap_InitAttVarPreds(void)
   Yap_InitCPred("get_module_atts", 2, p_get_atts, SafePredFlag);
   Yap_InitCPred("has_module_atts", 2, p_has_atts, SafePredFlag);
   Yap_InitCPred("get_all_atts", 2, p_get_all_atts, SafePredFlag);
+  Yap_InitCPred("get_all_swi_atts", 2, p_swi_all_atts, SafePredFlag);
   Yap_InitCPred("free_att", 3, p_free_att, SafePredFlag);
   Yap_InitCPred("put_att", 5, p_put_att, 0);
   Yap_InitCPred("put_module_atts", 2, p_put_atts, 0);
+  Yap_InitCPred("del_all_module_atts", 2, p_del_atts, 0);
   Yap_InitCPred("rm_att", 4, p_rm_att, 0);
   Yap_InitCPred("bind_attvar", 1, p_bind_attvar, SafePredFlag);
   Yap_InitCPred("void_term", 1, p_void_term, SafePredFlag);
