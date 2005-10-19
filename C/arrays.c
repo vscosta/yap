@@ -182,17 +182,17 @@ GetNBTerm(live_term *ar, Int indx)
   }
   if (IsVarTerm(termt)) {
     Term livet = MkVarTerm();
-    Bind(&(ar[indx].tlive), livet);
+    MaBind(&(ar[indx].tlive), livet);
     return livet;
   } else if (IsAtomicTerm(termt)) {
-    Bind(&(ar[indx].tlive), termt);
+    MaBind(&(ar[indx].tlive), termt);
     return termt;
   } else {
     DBTerm *ref = (DBTerm *)RepAppl(termt);
     if ((livet = GetTermFromArray(ref)) == TermNil) {
       return TermNil;
     }
-    Bind(&(ar[indx].tlive), livet);
+    MaBind(&(ar[indx].tlive), livet);
     return livet;
   }
 }
@@ -1689,10 +1689,12 @@ p_assign_static(void)
 
   case array_of_nb_terms:
 
-    RESET_VARIABLE(&(ptr->ValueOfVE.lterms[indx].tlive));
     {
       Term told = ptr->ValueOfVE.lterms[indx].tstore;
       Term tnew = Deref(ARG3);
+
+      CELL *livep = &(ptr->ValueOfVE.lterms[indx].tlive);
+      MaBind(livep,(CELL)livep);
       /* recover space */
       if (IsApplTerm(told)) {
 	Yap_ReleaseTermFromDB((DBTerm *)RepAppl(told));
