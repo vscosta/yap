@@ -1058,7 +1058,7 @@ Cell *l;
   e=andbox->externals;
   while(e!=NULL) {
     if (deve_limpar_var(e)) {  
-	(Cell *) l=(Cell *) e->var;
+	l=(Cell *) e->var;
 	*((Cell *) l)=(Cell) l;
     }
     e=e->next;
@@ -3288,7 +3288,7 @@ break_debug();
 #endif
 			{ register Cell _DR1;
 
-                        (Cell) _DR1=absappl((Cell) _H); /* SaveExpression in _DR1*/
+                        _DR1=absappl((Cell) _H); /* SaveExpression in _DR1*/
 			_X[arg1]=(Cell) _DR1;
 			*(_H++)=arg2;
 			_S=_H;
