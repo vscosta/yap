@@ -960,8 +960,15 @@ typedef enum
   array_of_ptrs,
   array_of_atoms,
   array_of_dbrefs,
+  array_of_nb_terms,
   array_of_terms
 } static_array_types;
+
+typedef  struct {
+  Term tlive;
+  Term tstore;
+} live_term;
+
 
 typedef union
 {
@@ -973,6 +980,7 @@ typedef union
   Term *atoms;
   Term *dbrefs;
   DBTerm **terms;
+  live_term *lterms;
 } statarray_elements;
 
 /* next, the actual data structure */

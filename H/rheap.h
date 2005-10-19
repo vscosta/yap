@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2005-09-09 17:24:39 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-10-19 19:00:48 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.54  2005/09/09 17:24:39  vsc
+* a new and hopefully much better implementation of atts.
+*
 * Revision 1.53  2005/08/01 15:40:38  ricroc
 * TABLING NEW: better support for incomplete tabling
 *
@@ -545,7 +548,9 @@ RestoreDBEntry(DBRef dbr)
     fprintf(stderr, " a var\n");
 #endif
   RestoreDBTerm(&(dbr->DBT));
-  dbr->Parent = (DBProp)AddrAdjust((ADDR)(dbr->Parent));
+  if (dbr->Parent) {
+    dbr->Parent = (DBProp)AddrAdjust((ADDR)(dbr->Parent));
+  }
   if (dbr->Code != NULL)
     dbr->Code = PtoOpAdjust(dbr->Code);
   if (dbr->Prev != NULL)
@@ -836,6 +841,49 @@ restore_static_array(StaticArrayEntry *ae)
       }
     }
   return;
+  case array_of_nb_terms:
+    {
+      live_term *base = (live_term *)AddrAdjust((ADDR)(ae->ValueOfVE.lterms));
+      Int i;
+
+      ae->ValueOfVE.lterms = base;
+      if (ae != 0L) {
+	for (i=0; i < sz; i++,base++) {
+	  Term reg = base->tlive;
+	  if (IsVarTerm(reg)) {
+	    CELL *var = (CELL *)reg;
+
+	    if (IsOldGlobalPtr(var)) {
+	      base->tlive = (CELL)PtoGloAdjust(var);
+	    } else {
+	      base->tlive = (CELL)PtoHeapCellAdjust(var);
+	    }
+	  } else if (IsAtomTerm(reg)) {
+	    base->tlive = AtomTermAdjust(reg);
+	  } else if (IsApplTerm(reg)) {
+	    CELL *db = RepAppl(reg);
+	    db = PtoGloAdjust(db);
+	    base->tlive = AbsAppl(db);
+	  } else if (IsApplTerm(reg)) {
+	    CELL *db = RepPair(reg);
+	    db = PtoGloAdjust(db);
+	    base->tlive = AbsPair(db);
+	  }
+
+	  reg = base->tstore;
+	  if (IsVarTerm(reg)) {
+	    base->tstore = (Term)GlobalAddrAdjust((ADDR)reg);
+	  } else if (IsAtomTerm(reg)) {
+	    base->tstore = AtomTermAdjust(reg);
+	  } else {
+	    DBTerm *db = (DBTerm *)RepAppl(reg);
+	    db = DBTermAdjust(db);
+	    RestoreDBTerm(db);
+	    base->tstore = AbsAppl((CELL *)db);
+	  }
+	}
+      }
+    }
   case array_of_terms:
     {
       DBTerm **base = (DBTerm **)AddrAdjust((ADDR)(ae->ValueOfVE.terms));

@@ -142,6 +142,62 @@ STATIC_PROTO(Int  p_access_array, (void));
 STATIC_PROTO(Int  p_assign_static, (void));
 
 static Term
+GetTermFromArray(DBTerm *ref)
+{
+  if (ref != NULL) {
+    Term TRef;
+
+    while ((TRef = Yap_FetchTermFromDB(ref)) == 0L) {
+      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  return TermNil;
+	}
+      } else {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_gc(3, ENV, CP)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return TermNil;
+	}
+      }
+    }
+    return TRef;
+  } else {
+    P = (yamop *)FAILCODE;
+    return TermNil;
+  }
+}
+
+static Term
+GetNBTerm(live_term *ar, Int indx)
+{
+  /* The object is now in use */
+  Term livet = ar[indx].tlive;
+  Term termt = ar[indx].tstore;
+
+  if (!IsVarTerm(livet)
+      || !IsUnboundVar(&(ar[indx].tlive))) {
+    return livet;
+  }
+  if (IsVarTerm(termt)) {
+    Term livet = MkVarTerm();
+    Bind(&(ar[indx].tlive), livet);
+    return livet;
+  } else if (IsAtomicTerm(termt)) {
+    Bind(&(ar[indx].tlive), termt);
+    return termt;
+  } else {
+    DBTerm *ref = (DBTerm *)RepAppl(termt);
+    if ((livet = GetTermFromArray(ref)) == TermNil) {
+      return TermNil;
+    }
+    Bind(&(ar[indx].tlive), livet);
+    return livet;
+  }
+}
+
+static Term
 AccessNamedArray(Atom a, Int indx)
 {
   AtomEntry *ae = RepAtom(a);
@@ -263,36 +319,23 @@ AccessNamedArray(Atom a, Int indx)
 	    P = (yamop *)FAILCODE;
 	    TRef = TermNil;
 	  }
-	  return (TRef);
+	  return TRef;
+	}
+      case array_of_nb_terms:
+	{
+	  /* The object is now in use */
+	  Term out = GetNBTerm(ptr->ValueOfVE.lterms, indx);
+
+	  READ_UNLOCK(ptr->ArRWLock);
+	  return out;
 	}
       case array_of_terms:
 	{
 	  /* The object is now in use */
 	  DBTerm *ref = ptr->ValueOfVE.terms[indx];
-	  Term TRef;
 
 	  READ_UNLOCK(ptr->ArRWLock);
-	  if (ref != NULL) {
-	    while ((TRef = Yap_FetchTermFromDB(ref)) == 0L) {
-	      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-		Yap_Error_TYPE = YAP_NO_ERROR;
-		if (!Yap_growglobal(NULL)) {
-		  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
-		  return TermNil;
-		}
-	      } else {
-		Yap_Error_TYPE = YAP_NO_ERROR;
-		if (!Yap_gc(3, ENV, CP)) {
-		  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-		  return(TermNil);
-		}
-	      }
-	    }
-	  } else {
-	    P = (yamop *)FAILCODE;
-	    TRef = TermNil;
-	  }
-	  return (TRef);
+	  return GetTermFromArray(ref);
 	}
       default:
 	READ_UNLOCK(ptr->ArRWLock);
@@ -461,11 +504,12 @@ AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, Int arra
   case array_of_ptrs:
     asize = array_size*sizeof(AtomEntry *);
     break;
-  case array_of_dbrefs:
   case array_of_atoms:
-    asize = array_size*sizeof(Term);
-    break;
   case array_of_terms:
+  case array_of_nb_terms:
+    asize = array_size*sizeof(live_term);
+    break;
+  case array_of_dbrefs:
     asize = array_size*sizeof(DBRef);
     break;
   }
@@ -534,6 +578,12 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
     case array_of_terms:
       for (i = 0; i < dim; i++)
 	p->ValueOfVE.terms[i] = NULL;
+      break;
+    case array_of_nb_terms:
+      for (i = 0; i < dim; i++) {
+	RESET_VARIABLE(&(p->ValueOfVE.lterms[i].tlive));
+	p->ValueOfVE.lterms[i].tstore = TermNil;
+      }
       break;
     }
   } else {
@@ -613,6 +663,17 @@ ResizeStaticArray(StaticArrayEntry *pp, Int dim)
       pp->ValueOfVE.terms[i] = old_v.terms[i];
     for (i = mindim; i<dim; i++)
       pp->ValueOfVE.terms[i] = NULL;
+    break;
+  case array_of_nb_terms:
+    for (i = 0; i <mindim; i++) {
+      Term tlive = pp->ValueOfVE.lterms[i].tlive;
+      if (IsVarTerm(tlive) && IsUnboundVar(&(pp->ValueOfVE.lterms[i].tlive))) {
+	RESET_VARIABLE(&(pp->ValueOfVE.lterms[i].tlive));
+      } else {
+	pp->ValueOfVE.lterms[i].tlive = tlive;
+      }
+      pp->ValueOfVE.lterms[i].tstore = old_v.lterms[i].tstore;
+    }
     break;
   }
   WRITE_UNLOCK(pp->ArRWLock);
@@ -767,6 +828,8 @@ p_create_static_array(void)
       props = array_of_uchars;
     else if (!strcmp(atname, "term"))
       props = array_of_terms;
+    else if (!strcmp(atname, "nb_term"))
+      props = array_of_nb_terms;
     else {
       Yap_Error(DOMAIN_ERROR_ARRAY_TYPE,tprops,"create static array");
       return(FALSE);
@@ -862,6 +925,8 @@ p_static_array_properties(void)
 	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("unsigned char"))));
       case array_of_terms:
 	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("term"))));
+      case array_of_nb_terms:
+	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("nb_term"))));
       case array_of_atoms:
 	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("atom"))));
       }
@@ -1622,6 +1687,31 @@ p_assign_static(void)
     }
     break;
 
+  case array_of_nb_terms:
+
+    RESET_VARIABLE(&(ptr->ValueOfVE.lterms[indx].tlive));
+    {
+      Term told = ptr->ValueOfVE.lterms[indx].tstore;
+      Term tnew = Deref(ARG3);
+      /* recover space */
+      if (IsApplTerm(told)) {
+	Yap_ReleaseTermFromDB((DBTerm *)RepAppl(told));
+      }
+      if (IsVarTerm(tnew)) {
+	RESET_VARIABLE(&(ptr->ValueOfVE.lterms[indx].tstore));
+      } else if (IsAtomicTerm(tnew)) {
+	ptr->ValueOfVE.lterms[indx].tstore = tnew;
+      } else {
+	DBTerm *new = Yap_StoreTermInDB(tnew,3);
+	if (!new) {
+	  WRITE_UNLOCK(ptr->ArRWLock);
+	  return FALSE;
+	}
+	ptr->ValueOfVE.lterms[indx].tstore = AbsAppl((CELL *)new);
+      }
+    }
+    break;
+
   case array_of_terms:
     {
       
@@ -1633,7 +1723,7 @@ p_assign_static(void)
       ptr->ValueOfVE.terms[indx] = Yap_StoreTermInDB(Deref(ARG3),3);
       if (ptr->ValueOfVE.terms[indx] == NULL){
 	WRITE_UNLOCK(ptr->ArRWLock);
-	return(FALSE);
+	return FALSE;
       }
     }
     break;
@@ -1986,29 +2076,30 @@ p_static_array_to_term(void)
 	  for (indx=0; indx < dim; indx++) {
 	    /* The object is now in use */
 	    DBTerm *ref = pp->ValueOfVE.terms[indx];
-	    Term TRef;
 
-	    if (ref != NULL) {
-	      while ((TRef = Yap_FetchTermFromDB(ref)) == 0L) {
-		if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-		  Yap_Error_TYPE = YAP_NO_ERROR;
-		  if (!Yap_growglobal(NULL)) {
-		    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
-		    return TermNil;
-		  }
-		} else {
-		  Yap_Error_TYPE = YAP_NO_ERROR;
-		  if (!Yap_gc(3, YENV, P)) {
-		    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-		    return TermNil;
-		  }
-		}
-	      }
-	    } else {
-	      P = (yamop *)FAILCODE;
-	      TRef = TermNil;
+	    Term TRef = GetTermFromArray(ref);
+
+	    if (P == FAILCODE) {
+	      return FALSE;
 	    }
+
 	    *sptr++ = TRef;
+	  }
+	}
+	break;
+      case array_of_nb_terms:
+	{
+	  CELL *sptr = H;
+	  H += dim;
+	  for (indx=0; indx < dim; indx++) {
+	    /* The object is now in use */
+	    Term To = GetNBTerm(pp->ValueOfVE.lterms, indx);
+
+	    if (P == FAILCODE) {
+	      return FALSE;
+	    }
+
+	    *sptr++ = To;
 	  }
 	}
 	break;
@@ -2026,7 +2117,7 @@ p_static_array_to_term(void)
       return Yap_unify(AbsAppl(base),ARG2);
     }
   }
-  return(FALSE);
+  return FALSE;
 }
 
 static Int

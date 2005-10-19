@@ -114,7 +114,7 @@ prolog:nb_getval(GlobalVariable,Value) :-
 	array_element(GlobalVariable,0,Value).
 
 prolog:nb_setval(GlobalVariable,Value) :-
-	static_array(GlobalVariable,1,term),
+	static_array(GlobalVariable,1,nb_term),
 	update_array(GlobalVariable,0,Value).
 
 prolog:nb_delete(GlobalVariable) :-
