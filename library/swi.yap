@@ -169,3 +169,9 @@ tv(Term,List,Tail) :- term_variables(Term,List,Tail).
 
 prolog:term_variables(Term,List,Tail) :- tv(Term,List,Tail).
 
+prolog:working_directory(OCWD,NCWD) :-
+	getcwd(OCWD),
+	(var(NCWD) -> true ; cd(NCWD)).
+
+prolog:chdir(X) :- cd(X).
+

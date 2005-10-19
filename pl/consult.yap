@@ -79,8 +79,8 @@ load_files(Files,Opts) :-
 '$process_lf_opt'(silent(false),_,_,_,_,_,_,_,_,_,_,_).
 '$process_lf_opt'(consult(reconsult),_,_,_,_,_,_,_,_,reconsult,_,_).
 '$process_lf_opt'(consult(consult),_,_,_,_,_,_,_,_,consult,_,_).
-'$process_lf_opt'(stream(Stream),_,_,_,_,_,_,_,Stream,_,_,_,Call) :-
-	( '$stream'(Stream) -> true ;  '$do_error'(domain_error(stream,Stream),Call) ),
+'$process_lf_opt'(stream(Stream),_,_,_,_,_,_,Stream,_,_,Files,_) :-
+/*	( '$stream'(Stream) -> true ;  '$do_error'(domain_error(stream,Stream),Call) ), */
 	( atom(Files) -> true ;  '$do_error'(type_error(atom,Files),Call) ).
 
 '$lf'(V,_,Call,_,_,_,_,_,_,_) :- var(V), !,
@@ -264,17 +264,18 @@ use_module(M,F,Is) :-
 
 '$do_startup_reconsult'(X) :-
 	( '$access_yap_flags'(15, 0) ->
-	  true
+	  Opts=[]
 	;
-	  set_value('$lf_verbose',silent)
+	  Opts=[silent(true)]
 	),
 	( '$find_in_path'(X,Y,reconsult(X)),
 	  '$open'(Y,'$csult',Stream,0) ->
 		( '$access_yap_flags'(15, 0) -> true ; '$skip_unix_comments'(Stream) ),
-		'$current_module'(M), '$do_lf'(Y,M,Stream,silent,_,_), '$close'(Stream)
+		load_files(Y,[stream(Stream)|Opts])
 	;
 		'$output_error_message'(permission_error(input,stream,X),reconsult(X))
 	),
+	
 	( '$access_yap_flags'(15, 0) -> true ; halt).
 
 '$skip_unix_comments'(Stream) :-
@@ -426,5 +427,14 @@ remove_from_path(New) :- '$check_path'(New,Path),
 	file_directory_name(F, Dir),
 	cd(Dir).
 
-	
+'$record_loaded'(Stream, M) :-
+	Stream \= user,
+	Stream \= user_input,
+	'$file_name'(Stream,F),
+	( recorded('$lf_loaded','$lf_loaded'(F,M,_),R), erase(R), fail ; true ),
+
+	'$file_age'(F,Age),
+	recorda('$lf_loaded','$lf_loaded'(F,M,Age),_),
+	fail.
+'$record_loaded'(_, _).
 

@@ -64,9 +64,9 @@ true :- true.
 	    ;
 		'$current_module'(_,V), '$compile_mode'(_,0),
 		('$access_yap_flags'(16,0) ->
-		    ( exists('~/.yaprc') -> [-'~/.yaprc'] ; true ),
-		    ( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
-		    ( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true )
+		    ( exists('~/.yaprc') -> load_files('~/.yaprc', []) ; true ),
+		    ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
+		    ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true )
 		;
 		    true
 		)
@@ -807,17 +807,6 @@ bootstrap(F) :-
 	format(user_error, '~*|% ~w consulted ~w bytes in ~d msecs~n', [LC,F,H,T]),
 	!.
 
-
-'$record_loaded'(Stream, M) :-
-	Stream \= user,
-	Stream \= user_input,
-	'$file_name'(Stream,F),
-	( recorded('$lf_loaded','$lf_loaded'(F,M,_),R), erase(R), fail ; true ),
-
-	'$file_age'(F,Age),
-	recorda('$lf_loaded','$lf_loaded'(F,M,Age),_),
-	fail.
-'$record_loaded'(_, _).
 
 '$loop'(Stream,Status) :-
 	'$change_alias_to_stream'('$loop_stream',Stream),
