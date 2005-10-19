@@ -125,7 +125,7 @@ load_files(Files,Opts) :-
 	set_value('$lf_verbose',Silent).
 '$close_lf'(_).
 	
-ensure_looaded(Fs) :-
+ensure_loaded(Fs) :-
 	'$load_files'(Fs, [if(changed)],ensure_loaded(Fs)).
 
 compile(Fs) :-
