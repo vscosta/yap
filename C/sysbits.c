@@ -1614,10 +1614,10 @@ TrueFileName (char *source, char *result, int in_lib)
       strncpy(ares1,yap_pwd,YAP_FILENAME_MAX);
 #elif HAVE_GETCWD
       if (getcwd (ares1, YAP_FILENAME_MAX) == NULL)
-	return (FALSE);
+	return FALSE;
 #else
       if (getwd (ares1) == NULL)
-	return (FALSE);
+	return FALSE;
 #endif
 #if _MSC_VER || defined(__MINGW32__)
       strncat (ares1, "\\", YAP_FILENAME_MAX);
@@ -1709,15 +1709,13 @@ p_getcwd(void)
   strncpy(Yap_FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
 #elif HAVE_GETCWD
   if (getcwd (Yap_FileNameBuf, YAP_FILENAME_MAX) == NULL)
-    return (FALSE);
+    return FALSE;
 #else
   if (getwd (Yap_FileNameBuf) == NULL)
-    return (FALSE);
+    return FALSE;
 #endif
-
   t = Yap_StringToList(Yap_FileNameBuf);
-  return(Yap_unify(ARG1,t));
-
+  return Yap_unify(ARG1,t);
 }
 
 /* Executes $SHELL under Prolog */
@@ -1885,19 +1883,51 @@ p_mv (void)
 }
 
 
+/* find the directory info from a file name */
+static Int
+p_file_directory_name (void)
+{
+  Term t1 = Deref(ARG1);
+  char *chp;
+
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "first arg of file_directory_name/2");
+    return FALSE;
+  }
+  if (!IsAtomTerm(t1)) {
+    Yap_Error(TYPE_ERROR_ATOM, t1,  "first arg of file_directory_name/2");
+    return FALSE;
+  }
+  TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE,  Yap_FileNameBuf, FALSE);
+  chp = Yap_FileNameBuf+strlen(Yap_FileNameBuf);
+  while (!dir_separator(*--chp) && chp != Yap_FileNameBuf);
+  if (chp == Yap_FileNameBuf) {
+    return Yap_unify(MkAtomTerm(Yap_LookupAtom(".")),ARG2);
+  }
+  *chp = '\0';
+  return Yap_unify(MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)),ARG2);
+}
+
 /* Change the working directory */
 static Int
 p_cd (void)
 {				/* cd(+NewD)			 */
-#if HAVE_CHDIR
   Term t1 = Deref (ARG1);
-  if (t1 == TermNil)
-    return(TRUE);
-  if (!Yap_GetName (Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
-    Yap_Error(SYSTEM_ERROR,t1,"argument to cd/1 is not valid");
-    return(FALSE);
+
+  if (IsVarTerm(t1)) {
+    return FALSE;
+  } else if (IsAtomTerm(t1)) {
+    TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE, Yap_FileNameBuf2, FALSE);
+  } else {
+    if (t1 == TermNil)
+      return TRUE;
+    if (!Yap_GetName (Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
+      Yap_Error(SYSTEM_ERROR,t1,"argument to cd/1 is not valid");
+      return FALSE;
+    }
+    TrueFileName (Yap_FileNameBuf, Yap_FileNameBuf2, FALSE);
   }
-  TrueFileName (Yap_FileNameBuf, Yap_FileNameBuf2, FALSE);
+#if HAVE_CHDIR
 #if  __simplescalar__
   strncpy(yap_pwd,Yap_FileNameBuf2,YAP_FILENAME_MAX);
 #endif
@@ -1908,21 +1938,15 @@ p_cd (void)
 #else
     Yap_Error(SYSTEM_ERROR,t1,"cd(%s)", Yap_FileNameBuf2);
 #endif
-    return(FALSE);
+    return FALSE;
   }
-  return(TRUE);
+  return TRUE;
 #else
 #ifdef MACYAP
-  Term t1 = Deref (ARG1);
-  if (!Yap_GetName (Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
-    Yap_Error(SYSTEM_ERROR,t1,"argument to cd/1 is not valid");
-    return(FALSE);
-  }
-  TrueFileName (Yap_FileNameBuf, Yap_FileNameBuf2, FALSE);
   return (!chdir (Yap_FileNameBuf2));
 #else
   Yap_Error(SYSTEM_ERROR,TermNil,"cd/1 not available in this machine");
-  return(FALSE);
+  return FALSE;
 #endif
 #endif
 }
@@ -2398,7 +2422,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$system", 1, p_system, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$rename", 2, p_mv, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$cd", 1, p_cd, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("cd", 1, p_cd, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$getcwd", 1, p_getcwd, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag|HiddenPredFlag);
@@ -2410,6 +2434,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$first_signal", 1, p_first_signal, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$continue_signals", 0, p_continue_signals, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("file_directory_name", 2, p_file_directory_name, SafePredFlag);
 }
 
 

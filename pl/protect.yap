@@ -22,6 +22,9 @@
 	atom_codes(Name,[0'$|_]),
 	'$hide_predicates'(Name),
 	'$hide'(Name).
+'$protect' :-
+	'$hide_predicates'(bootstrap),
+	'$hide'(bootstrap).
 '$protect'.
 
 '$hide_predicates'(Name) :-

@@ -121,8 +121,9 @@ load_files(Files,Opts) :-
 	'$do_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, Reconsult).
 
 '$close_lf'(Silent) :- 
-	nonvar(Silent),
+	nonvar(Silent), !,
 	set_value('$lf_verbose',Silent).
+'$close_lf'(_).
 	
 ensure_looaded(Fs) :-
 	'$load_files'(Fs, [if(changed)],ensure_loaded(Fs)).
@@ -147,7 +148,7 @@ consult(Fs) :-
 	!,
 	'$load_files'(Module:Fs,[],Fs).
 '$consult'(Fs, Module) :- var(V), !,
-	'$load_files'(Module:Fs,[reconsult(consult)],Fs).
+	'$load_files'(Module:Fs,[consult(consult)],Fs).
 
 reconsult(Fs) :-
 	'$load_files'(Fs, [], reconsult(Fs)).
@@ -161,6 +162,12 @@ use_module(F,Is) :-
 use_module(M,F,Is) :-
 	'$load_files'(F, [if(not_loaded),imports(Is)],use_module(M,F,Is)).
 
+'$csult'(V, _) :- var(V), !,
+	'$do_error'(instantiation_error,consult(V)).
+'$csult'([], _).
+'$csult'([-F|L], M) :- !, '$load_files'(M:F, [],[-M:F]), '$csult'(L, M).
+'$csult'([F|L], M) :- '$consult'(F, M), '$csult'(L, M).
+
 '$do_lf'(F, ContextModule, Stream, InfLevel, _, Imports, Reconsult) :-
 	'$record_loaded'(Stream, M),
 	'$current_module'(OldModule,ContextModule),
@@ -168,13 +175,13 @@ use_module(M,F,Is) :-
 	get_value('$consulting_file',OldF),
 	'$set_consulting_file'(Stream),
 	H0 is heapused, '$cputime'(T0,_),
-	current_stream(File,_,Stream),
+	'$current_stream'(File,_,Stream),
 	get_value('$consulting',Old),
 	set_value('$consulting',false),
 	'$consult_infolevel'(InfLevel),
 	recorda('$initialisation','$',_),
 	( Reconsult = reconsult ->
-	    '$start_reconsulting'(F)
+	    '$start_reconsulting'(F),
 	    '$start_consult'(Reconsult,File,LC),
 	    '$remove_multifile_clauses'(File),
 	    StartMsg = reconsulting,
@@ -186,13 +193,18 @@ use_module(M,F,Is) :-
 	),
 	'$print_message'(InfLevel, loading(StartMsg, File)),
 	( recorded('$trace', on, TraceR) -> erase(TraceR) ; true),
-	'$loop'(Stream,reconsult),
+	'$loop'(Stream,Reconsult),
 	'$end_consult',
 	( nonvar(TraceR) -> recorda('$trace', on, _) ; true),
-	'$clear_reconsulting',
+	( 
+	    Reconsult = reconsult ->
+	    '$clear_reconsulting'
+	;
+	    true
+	),
 	set_value('$consulting',Old),
 	set_value('$consulting_file',OldF),
-	'$cd'(OldD),
+	cd(OldD),
 	'$current_module'(Mod,OldModule),
 	'$import_to_current_module'(File, ContextModule, Imports),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
@@ -397,4 +409,22 @@ remove_from_path(New) :- '$check_path'(New,Path),
 	erase(R),
 	fail.
 '$remove_multifile_clauses'(_).
+
+'$set_consulting_file'(user) :- !,
+	set_value('$consulting_file',user_input).
+'$set_consulting_file'(user_input) :- !,
+	set_value('$consulting_file',user_input).
+'$set_consulting_file'(Stream) :-
+	'$file_name'(Stream,F),
+	set_value('$consulting_file',F),
+	'$set_consulting_dir'(F).
+
+%
+% Use directory where file exists
+%
+'$set_consulting_dir'(F) :-
+	file_directory_name(F, Dir),
+	cd(Dir).
+
+	
 

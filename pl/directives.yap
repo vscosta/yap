@@ -94,7 +94,7 @@
 	char_conversion(IN,OUT).
 '$exec_directive'(public(P), _, M) :-
 	'$public'(P, M).
-'$exec_directive'(compile(F), _, M) :-
+'$exec_directive'(compile(Fs), _, M) :-
 	'$load_files'(M:Fs, [], compile(Fs)).
 '$exec_directive'(reconsult(Fs), _, M) :-
 	'$load_files'(M:Fs, [], reconsult(Fs)).

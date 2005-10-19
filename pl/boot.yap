@@ -791,30 +791,18 @@ break :-
 	set_value('$break',BL).
 
 
-'$csult'(V, _) :- var(V), !,
-	'$do_error'(instantiation_error,consult(V)).
-'$csult'([], _).
-'$csult'([-F|L], M) :- !, '$load_files'(M:F, [],[-M:F]), '$csult'(L, M).
-'$csult'([F|L], M) :- '$consult'(F, M), '$csult'(L, M).
-
-'$bconsult'(F,Mod,Stream) :-
-	'$current_module'(OldModule, Mod),
-	'$getcwd'(OldD),
-	get_value('$consulting_file',OldF),
-	'$set_consulting_file'(Stream),
+bootstrap(F) :-
+	'$open'(F,'$csult',Stream,0),
 	H0 is heapused, '$cputime'(T0,_),
 	'$current_stream'(File,_,Stream),
-	'$start_consult'(consult,File,LC),
-	get_value('$consulting',Old),
-	set_value('$consulting',true),
+	'$start_consult'(consult, File, LC),
+	file_directory_name(File, Dir),
+	'$getcwd'(OldD),
+	cd(Dir),
 	format(user_error, '~*|% consulting ~w...~n', [LC,F]),
 	'$loop'(Stream,consult),
+	cd(OldD),
 	'$end_consult',
-	set_value('$consulting',Old),
-	set_value('$consulting_file',OldF),
-	'$current_module'(NewMod,OldModule),
-	'$cd'(OldD),
-	( LC == 0 -> prompt(_,'   |: ') ; true),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	format(user_error, '~*|% ~w consulted ~w bytes in ~d msecs~n', [LC,F,H,T]),
 	!.
@@ -830,35 +818,6 @@ break :-
 	recorda('$lf_loaded','$lf_loaded'(F,M,Age),_),
 	fail.
 '$record_loaded'(_, _).
-
-'$set_consulting_file'(user) :- !,
-	set_value('$consulting_file',user_input).
-'$set_consulting_file'(user_input) :- !,
-	set_value('$consulting_file',user_input).
-'$set_consulting_file'(Stream) :-
-	'$file_name'(Stream,F),
-	set_value('$consulting_file',F),
-	'$set_consulting_dir'(F).
-
-%
-% Use directory where file exists
-%
-'$set_consulting_dir'(F) :-
-	atom_codes(F,S),
-	'$strip_file_for_scd'(S,Dir,Unsure,Unsure),
-	'$cd'(Dir).
-
-%
-% The algorithm: I have two states, one for what I am sure will be an answer,
-% the other for what I have found so far.
-%
-'$strip_file_for_scd'([], [], _, _).
-'$strip_file_for_scd'([D|L], Out, Out, Cont) :-
-	'$dir_separator'(D), !,
-	'$strip_file_for_scd'(L, Cont, [D|C2], C2).
-'$strip_file_for_scd'([F|L], Out, Cont, [F|C2]) :-
-	'$strip_file_for_scd'(L, Out, Cont, C2).
-	
 
 '$loop'(Stream,Status) :-
 	'$change_alias_to_stream'('$loop_stream',Stream),

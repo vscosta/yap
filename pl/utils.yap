@@ -180,9 +180,6 @@ op(P,T,V) :- '$op2'(P,T,V).
 
 %%% Operating System utilities
 
-cd(A) :- atom(A), !, atom_codes(A,S), '$cd'(S).
-cd(S) :- '$cd'(S).
-
 getcwd(D) :- '$getcwd'(SD), atom_codes(D, SD).
 
 system(A) :- atom(A), !, atom_codes(A,S), '$system'(S).

@@ -473,7 +473,7 @@ all: startup
 
 startup: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup
-	echo "['$(srcdir)/pl/init.yap']. module(user). save_program(startup)." |  @CROSS_SIMULATOR@ ./yap -b $(srcdir)/pl/boot.yap
+	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). save_program(startup)." |  @CROSS_SIMULATOR@ ./yap -b $(srcdir)/pl/boot.yap
 
 yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
 	$(MPI_CC) $(STANDARD_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS) @MPI_LIBS@

@@ -40,8 +40,10 @@ otherwise.
 % force having indexing code for throw.
 :- '$handle_throw'(_,_,_), !.
 
-:- 	['errors.yap',
-	 'utils.yap',
+:- bootstrap('errors.yap').
+:- bootstrap('consult.yap').
+
+:- [	 'utils.yap',
 	 'arith.yap',
 	 'directives.yap'].
 
@@ -49,7 +51,6 @@ otherwise.
 
 :- [	 'yio.yap',
 	 'debug.yap',
-	 'consult.yap',
 	 'checker.yap',
 	 'depth_bound.yap',
 	 'grammar.yap',
@@ -108,7 +109,7 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 
 % :- yap_flag(gc_trace,verbose).
 
-:- initialization((system_mode(verbose,on),module(user))).
+:- system_mode(verbose,on).
 
 :- module(user).
 
