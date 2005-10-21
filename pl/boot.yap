@@ -131,7 +131,7 @@ true :- true.
 	fail.
 '$enter_top_level' :-
 	'$current_module'(Module),
-	get_value('$top_level_goal',GA), T \= [], !,
+	get_value('$top_level_goal',GA), GA \= [], !,
 	set_value('$top_level_goal',[]),
 	'$run_atom_goal'(GA),
 	set_value('$live','$false').
