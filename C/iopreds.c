@@ -1313,9 +1313,9 @@ MemGetc (int sno)
   Int ch, spos;
 
   spos = s->u.mem_string.pos;
-  if (spos == s->u.mem_string.max_size)
+  if (spos == s->u.mem_string.max_size) {
     ch = -1;
-  else {
+  } else {
     ch = s->u.mem_string.buf[spos];
     s->u.mem_string.pos = ++spos;
   }
@@ -2961,6 +2961,15 @@ p_get_read_error_handler(void)
   return (Yap_unify_constant (ARG1, t));
 }
 
+/*
+  Assumes
+  Flag: ARG1
+  Term: ARG2
+  Module: ARG3
+  Vars: ARG4
+  Pos: ARG5
+  Err: ARG6
+ */
 static Int
 do_read(int inp_stream)
 {
@@ -2969,10 +2978,17 @@ do_read(int inp_stream)
 #if EMACS
   int emacs_cares = FALSE;
 #endif
-    
+  Term tmod = Deref(ARG3), OCurrentModule = CurrentModule;
+
+  if (IsVarTerm(tmod)) {
+    tmod = CurrentModule;
+  } else if (!IsAtomTerm(tmod)) {
+    Yap_Error(TYPE_ERROR_ATOM, tmod, "read_term/2");
+    return FALSE;
+  }
   if (Stream[inp_stream].status & Binary_Stream_f) {
     Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, MkAtomTerm(Stream[inp_stream].u.file.name), "read_term/2");
-    return(FALSE);
+    return FALSE;
   }
   while (TRUE) {
     CELL *old_H;
@@ -3000,13 +3016,15 @@ do_read(int inp_stream)
 	} else {
 	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	
-	  return (Yap_unify(MkIntegerTerm(StartLine = Stream[inp_stream].linecount),ARG4) &&
+	  return (Yap_unify(MkIntegerTerm(StartLine = Stream[inp_stream].linecount),ARG5) &&
 		  Yap_unify_constant (ARG2, MkAtomTerm (AtomEof)));
 	}
       }
     }
   repeat_cycle:
+    CurrentModule = tmod;
     if (Yap_ErrorMessage || (t = Yap_Parse()) == 0) {
+      CurrentModule = OCurrentModule;
       if (Yap_ErrorMessage) {
 	int res;
 
@@ -3057,11 +3075,12 @@ do_read(int inp_stream)
 	  t[1] = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
 	  t1 = MkIntegerTerm(StartLine = tokstart->TokPos);
 	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-	  return(Yap_unify(t1,ARG4) &&
-		 Yap_unify(ARG5,Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("error"),2),2,t)));
+	  return(Yap_unify(t1,ARG5) &&
+		 Yap_unify(ARG6,Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("error"),2),2,t)));
 	}
       }
     } else {
+      CurrentModule = OCurrentModule;
       /* parsing succeeded */
       break;
     }
@@ -3090,27 +3109,27 @@ do_read(int inp_stream)
       }
     }
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-    return(Yap_unify(t, ARG2) && Yap_unify (v, ARG3) &&
-	   Yap_unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4));
+    return Yap_unify(t, ARG2) && Yap_unify (v, ARG4) &&
+	   Yap_unify(MkIntTerm(StartLine = tokstart->TokPos),ARG5);
   } else {
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-    return(Yap_unify(t, ARG2) && Yap_unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4));
+    return(Yap_unify(t, ARG2) && Yap_unify(MkIntTerm(StartLine = tokstart->TokPos),ARG5));
   }
 }
 
 static Int
 p_read (void)
-{				/* '$read'(+Flag,?Term,?Vars,-Pos,-Err)    */
+{				/* '$read'(+Flag,?Term,?Module,?Vars,-Pos,-Err)    */
   return(do_read(Yap_c_input_stream));
 }
 
 static Int
 p_read2 (void)
-{				/* '$read2'(+Flag,?Term,?Vars,-Pos,-Err,+Stream)  */
+{				/* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
   int inp_stream;
 
   /* needs to change Yap_c_output_stream for write */
-  inp_stream = CheckStream (ARG6, Input_Stream_f, "read/3");
+  inp_stream = CheckStream (ARG7, Input_Stream_f, "read/3");
   if (inp_stream == -1) {
     return(FALSE);
   }
@@ -4860,8 +4879,8 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$put_byte", 2, p_put_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$read", 5, p_read, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$read", 6, p_read2, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$read", 6, p_read, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$read", 7, p_read2, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$set_input", 1, p_set_input, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$set_output", 1, p_set_output, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$skip", 2, p_skip, SafePredFlag|SyncPredFlag|HiddenPredFlag);

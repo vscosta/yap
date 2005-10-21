@@ -1320,10 +1320,28 @@ X_API int Sdprintf(char *format,...)
   return 1;
 }
 
-int
+static int
+SWI_ctime(void)
+{
+  YAP_Term t1 = YAP_ARG1;
+
+  if (YAP_IsVarTerm(t1)) {
+    YAP_Error(0,t1,"bad argumento to ctime");
+    return FALSE;
+  }
+#if HAVE_CTIME
+  time_t tim = (time_t)YAP_IntOfTerm(t1);
+  return YAP_Unify(YAP_BufferToString(ctime(&tim)), YAP_ARG2);
+#else
+  YAP_Error(0,0L,"convert_time requires ctime");
+  return FALSE;
+#endif
+}
+
+void
 swi_install(void)
 {
-  return TRUE;
+  YAP_UserCPredicate("ctime", SWI_ctime, 2);
 }
 
 #ifdef _WIN32

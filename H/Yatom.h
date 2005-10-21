@@ -268,6 +268,7 @@ typedef struct
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t OpRWLock;		/* a read-write lock to protect the entry */
 #endif
+  Term OpModule;		/* module of predicate          */
   BITS16 Prefix, Infix, Posfix;	/* precedences                  */
 } OpEntry;
 #if USE_OFFSETS_IN_PROPS
@@ -279,8 +280,6 @@ RepOpProp (Prop p)
 {
   return (OpEntry *) (AtomBase + Unsigned (p));
 }
-
-
 
 inline EXTERN Prop AbsOpProp (OpEntry * p);
 
@@ -324,7 +323,11 @@ IsOpProperty (int flags)
   return (PropFlags) ((flags == OpProperty));
 }
 
+OpEntry   *STD_PROTO(Yap_GetOpProp,(Atom));
 
+int	STD_PROTO(Yap_IsPrefixOp,(OpEntry *,int *,int *));
+int	STD_PROTO(Yap_IsInfixOp,(OpEntry *,int *,int *,int *));
+int	STD_PROTO(Yap_IsPosfixOp,(OpEntry *,int *,int *));
 
 /* defines related to operator specifications				*/
 #define	MaskPrio  0x0fff

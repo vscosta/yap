@@ -59,7 +59,7 @@ int  Yap_output_msg = FALSE;
 STATIC_PROTO(void  InTTYLine, (char *));
 #endif
 #endif
-STATIC_PROTO(void  SetOp, (int, int, char *));
+STATIC_PROTO(void  SetOp, (int, int, char *, Term));
 STATIC_PROTO(void  InitOps, (void));
 STATIC_PROTO(void  InitDebug, (void));
 STATIC_PROTO(void  CleanBack, (PredEntry *, CPredicate, CPredicate));
@@ -222,7 +222,7 @@ Yap_IsOpType(char *type)
 }
 
 static int 
-OpDec(int p, char *type, Atom a)
+OpDec(int p, char *type, Atom a, Term m)
 {
   int             i;
   AtomEntry      *ae = RepAtom(a);
@@ -247,6 +247,7 @@ OpDec(int p, char *type, Atom a)
     info = (OpEntry *) Yap_AllocAtomSpace(sizeof(OpEntry));
     info->KindOfPE = Ord(OpProperty);
     info->NextOfPE = RepAtom(a)->PropsOfAE;
+    info->OpModule = m;
     RepAtom(a)->PropsOfAE = AbsOpProp(info);
     INIT_RWLOCK(info->OpRWLock);
     WRITE_LOCK(info->OpRWLock);
@@ -280,19 +281,19 @@ OpDec(int p, char *type, Atom a)
 }
 
 int 
-Yap_OpDec(int p, char *type, Atom a)
+Yap_OpDec(int p, char *type, Atom a, Term m)
 {
-  return(OpDec(p,type,a));
+  return(OpDec(p,type,a,m));
 }
 
 static void 
-SetOp(int p, int type, char *at)
+SetOp(int p, int type, char *at, Term m)
 {
 #ifdef DEBUG
   if (Yap_Option[5])
     fprintf(stderr,"[setop %d %s %s]\n", p, optypes[type], at);
 #endif
-  OpDec(p, optypes[type], Yap_LookupAtom(at));
+  OpDec(p, optypes[type], Yap_LookupAtom(at), m);
 }
 
 /* Gets the info about an operator in a prop */
@@ -403,7 +404,7 @@ InitOps(void)
 {
   unsigned int             i;
   for (i = 0; i < sizeof(Ops) / sizeof(*Ops); ++i)
-    SetOp(Ops[i].opPrio, Ops[i].opType, Ops[i].opName);
+    SetOp(Ops[i].opPrio, Ops[i].opType, Ops[i].opName, PROLOG_MODULE);
 }
 
 #ifdef DEBUG

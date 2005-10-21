@@ -8,8 +8,12 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.22 2005-03-10 18:04:01 rslopes Exp $									 *
+* $Id: sys.c,v 1.23 2005-10-21 16:09:03 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.22  2005/03/10 18:04:01  rslopes
+* mods:		update YAP_Error arguments
+* mods:		to be able to compile on Windows...
+* mods:		
 * mods:		Revision 1.21  2004/08/11 16:14:54  vsc
 * mods:		whole lot of fixes:
 * mods:		  - memory leak in indexing
@@ -144,7 +148,7 @@ sysmktime(void)
     return YAP_Unify(YAP_ARG8,YAP_MkIntTerm((long int)((f1-f0)/10000000)));
   }
 #else
-  return FALSE
+  return FALSE;
 #endif
 #else
 #ifdef HAVE_MKTIME
@@ -208,7 +212,7 @@ datime(void)
   oops
 #endif /* HAVE_TIME */
   tf = YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("datime"),6), 6, out);
-  return(YAP_Unify(YAP_ARG1, tf));
+  return YAP_Unify(YAP_ARG1, tf);
 }
 
 #define BUF_SIZE 1024

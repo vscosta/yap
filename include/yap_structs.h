@@ -83,6 +83,10 @@ typedef struct {
   char *YapPrologInitFile;
   /* if NON-NULL, name for a Prolog file to consult before entering top-level  */
   char *YapPrologRCFile;
+  /* if NON-NULL, a goal to run before top-level  */
+  char *YapPrologGoal;
+  /* if NON-NULL, a goal to run as top-level  */
+  char *YapPrologTopLevelGoal;
   /* if previous NON-NULL and TRUE, halt after consulting that file  */
   int HaltAfterConsult;
   /* ignore .yaprc, .prolog.ini, etc. files.  */

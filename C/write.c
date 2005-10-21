@@ -184,14 +184,14 @@ legalAtom(char *s)			/* Is this a legal atom ? */
 static int LeftOpToProtect(Atom at, int p)
 {
   int op, rp;
-  Prop            opinfo = Yap_GetAProp(at, OpProperty);
+  OpEntry            *opinfo = Yap_GetOpProp(at);
   return(opinfo && Yap_IsPrefixOp(opinfo, &op, &rp) );
 }
 
 static int RightOpToProtect(Atom at, int p)
 {
   int op, lp;
-  Prop            opinfo = Yap_GetAProp(at, OpProperty);
+  OpEntry            *opinfo = Yap_GetOpProp(at);
   return(opinfo && Yap_IsPosfixOp(opinfo, &op, &lp) );
 }
 
@@ -430,7 +430,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
     Functor         functor = FunctorOfTerm(t);
     int             Arity;
     Atom            atom;
-    Prop            opinfo;
+    OpEntry        *opinfo;
     int             op, lp, rp;
 
     if (IsExtensionFunctor(functor)) {
@@ -459,7 +459,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
     }
     Arity = ArityOfFunctor(functor);
     atom = NameOfFunctor(functor);
-    opinfo = Yap_GetAProp(atom, OpProperty);
+    opinfo = Yap_GetOpProp(atom);
 #ifdef SFUNC
     if (Arity == SFArity) {
       int             argno = 1;

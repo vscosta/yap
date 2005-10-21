@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.60 2005-08-17 20:13:49 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.61 2005-10-21 16:09:03 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -194,7 +194,7 @@ void	STD_PROTO(Yap_KillStacks,(void));
 #endif
 void	STD_PROTO(Yap_InitYaamRegs,(void));
 void    STD_PROTO(Yap_ReInitWallTime, (void));
-int	STD_PROTO(Yap_OpDec,(int,char *,Atom));
+int	STD_PROTO(Yap_OpDec,(int,char *,Atom,Term));
 
 /* inlines.c */
 void         STD_PROTO(Yap_InitInlines,(void));
@@ -243,9 +243,6 @@ Term	STD_PROTO(Yap_MkNewPairTerm,(void));
 
 
 /* parser.c */
-int	STD_PROTO(Yap_IsPrefixOp,(Prop,int *,int *));
-int	STD_PROTO(Yap_IsInfixOp,(Prop,int *,int *,int *));
-int	STD_PROTO(Yap_IsPosfixOp,(Prop,int *,int *));
 Term	STD_PROTO(Yap_Parse,(void));
 
 /* save.c */

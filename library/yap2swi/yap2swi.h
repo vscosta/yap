@@ -12,8 +12,12 @@
 
 
 //=== includes ===============================================================
+#include "config.h"
 #include	<YapInterface.h>
 #include	<stdarg.h>
+#if HAVE_TIME_H
+#include <time.h>
+#endif
 
 #if defined(_MSC_VER) && defined(YAP_EXPORTS)
 #define X_API __declspec(dllexport)
@@ -231,5 +235,5 @@ extern X_API int PL_action(int,...);
 extern X_API int Sprintf(char *,...);
 extern X_API int Sdprintf(char *,...);
 
-int swi_install(void);
+void swi_install(void);
 

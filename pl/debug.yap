@@ -416,12 +416,20 @@ debugging :-
 	'$execute_nonstop'(G, M).
 '$spycall'(G, M, InControl) :-
 	'$flags'(G,M,F,F),
-	F /\ 0x18402000 =\= 0, !, % dynamic procedure, logical semantics, or source
+	F /\ 0x18402000 =\= 0, !, % dynamic procedure, logical semantics, user-C, or source
 	% use the interpreter
 	CP is '$last_choice_pt',
 	'$clause'(G, M, Cl),
 	'$do_not_creep',
 	'$do_spy'(Cl, M, CP, InControl).
+'$spycall'(G, M, InControl) :-
+	'$undefined'(G, M), !,
+	'$enter_undefp',
+	(
+	    '$find_undefp_handler'(G,M,Goal,NM)
+	->
+	   '$spycall'(Goal, NM, InControl)
+       ).
 '$spycall'(G, M, InControl) :-
 	% I lost control here.
 	CP is '$last_choice_pt',

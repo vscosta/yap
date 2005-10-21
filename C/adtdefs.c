@@ -282,7 +282,7 @@ GetAPropHavingLock(AtomEntry *ae, PropFlags kind)
 Prop
 Yap_GetAPropHavingLock(AtomEntry *ae, PropFlags kind)
 {				/* look property list of atom a for kind  */
-  return (GetAPropHavingLock(ae,kind));
+  return GetAPropHavingLock(ae,kind);
 }
 
 static Prop
@@ -302,6 +302,27 @@ Yap_GetAProp(Atom a, PropFlags kind)
 {				/* look property list of atom a for kind  */
   return GetAProp(a,kind);
 }
+
+OpEntry *
+Yap_GetOpProp(Atom a)
+{				/* look property list of atom a for kind  */
+  AtomEntry *ae = RepAtom(a);
+  PropEntry *pp;
+
+  READ_LOCK(ae->ARWLock);
+  pp = RepProp(ae->PropsOfAE);
+  while (!EndOfPAEntr(pp) &&
+	 pp->KindOfPE != OpProperty &&
+	 ((OpEntry *)pp)->OpModule &&
+	 ((OpEntry *)pp)->OpModule != CurrentModule)
+    pp = RepProp(pp->NextOfPE);
+  READ_UNLOCK(ae->ARWLock);
+  if (EndOfPAEntr(pp))
+    return NULL;
+  else
+    return (OpEntry *)pp;
+}
+
 
 inline static Prop
 GetPredPropByAtomHavingLock(AtomEntry* ae, Term cur_mod)

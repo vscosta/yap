@@ -229,7 +229,10 @@ print_usage(void)
   fprintf(stderr,"\n[ Valid switches for command line arguments: ]\n");
   fprintf(stderr,"  -?   Shows this screen\n");
   fprintf(stderr,"  -b   Boot file \n");
-  fprintf(stderr,"  -l   Prolog file\n");
+  fprintf(stderr,"  -g   Run Goal Before Top-Level \n");
+  fprintf(stderr,"  -z   Run Goal Before Top-Level \n");
+  fprintf(stderr,"  -l   load Prolog file\n");
+  fprintf(stderr,"  -L   run Prolog file and exit\n");
   fprintf(stderr,"  -h   Heap area in Kbytes (default: %d, minimum: %d)\n",
 	  DefHeapSpace, MinHeapSpace);
   fprintf(stderr,"  -s   Stack area in Kbytes (default: %d, minimum: %d)\n",
@@ -432,6 +435,34 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      iap->YapPrologRCFile = *argv;
 	    }
 	    break;
+	    /* run goal before top-level */
+	  case 'g':
+	    if ((*argv)[0] == '\0') 
+	      iap->YapPrologRCFile = *argv;
+	    else {
+	      argc--;
+	      if (argc == 0) {
+		fprintf(stderr," [ YAP unrecoverable error: missing file name with option 'l' ]\n");
+		exit(EXIT_FAILURE);
+	      }
+	      argv++;
+	      iap->YapPrologGoal = *argv;
+	    }
+	    break;
+	    /* run goal as top-level */
+	  case 'z':
+	    if ((*argv)[0] == '\0') 
+	      iap->YapPrologRCFile = *argv;
+	    else {
+	      argc--;
+	      if (argc == 0) {
+		fprintf(stderr," [ YAP unrecoverable error: missing file name with option 'l' ]\n");
+		exit(EXIT_FAILURE);
+	      }
+	      argv++;
+	      iap->YapPrologTopLevelGoal = *argv;
+	    }
+	    break;
 	    /* nf: Begin preprocessor code */
 	  case 'D':
 	    {
@@ -487,6 +518,8 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
   iap->YapPrologBootFile = NULL;
   iap->YapPrologInitFile = NULL;
   iap->YapPrologRCFile = NULL;
+  iap->YapPrologGoal = NULL;
+  iap->YapPrologTopLevelGoal = NULL;
   iap->HaltAfterConsult = FALSE;
   iap->FastBoot = FALSE;
   iap->MaxTableSpaceSize = 0;

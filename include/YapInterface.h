@@ -22,15 +22,15 @@
    functions indirectly
 ****************************************************/
 
+#ifndef _yap_c_interface_h
+
+#define _yap_c_interface_h 1
+
 #include "yap_structs.h"
 
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif
-
-#ifndef _yap_c_interface_h
-
-#define _yap_c_interface_h 1
 
 /*
    __BEGIN_DECLS should be used at the beginning of the C declarations,
@@ -195,10 +195,11 @@ extern X_API void PROTO(YAP_UserBackCPredicate,(char *, YAP_Bool (*)(void), YAP_
 extern X_API YAP_Bool PROTO(YAP_CallProlog,(YAP_Term t));
 
 /*  void cut_fail(void) */
-extern X_API void PROTO(YAP_cut_fail,(void));
+extern X_API void PROTO(YAP_cut_up,(void));
 
-/*  void cut_succeed(void) */
-extern X_API void PROTO(YAP_cut_succeed,(void));
+#define YAP_cut_succeed() { YAP_cut_up(); return TRUE; }
+
+#define YAP_cut_fail() { YAP_cut_up(); return FALSE; }
 
 /*  void *AllocSpaceFromYAP_(int) */
 extern X_API void *PROTO(YAP_AllocSpaceFromYap,(unsigned int));

@@ -85,7 +85,17 @@ module(N) :-
 	recorded('$module','$module'(F0,Mod,_),R), !,
 	'$add_preexisting_module_on_file'(F, F0, Mod, Exports, R).
 '$add_module_on_file'(Mod, F, Exports) :-
-	recorda('$module','$module'(F,Mod,Exports),_).
+	'$process_exports'(Exports,Mod,ExportedPreds),
+	recorda('$module','$module'(F,Mod,ExportedPreds),_).
+
+'$process_exports'([],_,[]).
+'$process_exports'([Name/Arity|Exports],Mod,[Name/Arity|ExportedPreds]):- !,
+	'$process_exports'(Exports,Mod,ExportedPreds).
+'$process_exports'([op(Prio,Assoc,Name)|Exports],Mod,ExportedPreds) :- !,
+	'$opdec'(Prio,Assoc,Name,Mod),
+	'$process_exports'(Exports,Mod,ExportedPreds).
+'$process_exports'([Trash|Exports],Mod,_) :-
+	'$do_error'(type_error(predicate_indicator,Trash),module(Mod,[Trash])).
 
 % redefining a previously-defined file, no problem.
 '$add_preexisting_module_on_file'(F, F, Mod, Exports, R) :- !,

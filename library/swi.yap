@@ -9,6 +9,9 @@
 
 :- use_module(library(lists),[nth/3]).
 
+:- use_module(library(system),[datime/1,
+   mktime/2]).
+
 :- use_module(library(terms),[term_variables/2,
 			      term_variables/3]).
 
@@ -161,6 +164,10 @@ prolog:append([],L,L).
 prolog:append([X|L0],L,[X|Lf]) :-
 	prolog:append(L0,L,Lf).
 
+prolog:member(X[X|_]).
+prolog:member(X,[_|L0]) :-
+	prolog:member(X,L0).
+
 tv(Term,List) :- term_variables(Term,List).
 
 prolog:term_variables(Term,List) :- tv(Term,List).
@@ -174,4 +181,14 @@ prolog:working_directory(OCWD,NCWD) :-
 	(var(NCWD) -> true ; cd(NCWD)).
 
 prolog:chdir(X) :- cd(X).
+
+% Time is given as int, not as float.
+prolog:get_time(Secs) :- datime(Datime),  mktime(Datime, Secs).
+
+% Time is received as int, and converted to "..."
+prolog:convert_time(X,Y) :- swi:ctime(X,Y).
+
+
+
+
 

@@ -96,8 +96,8 @@ true :- true.
 */
 
 /* main execution loop							*/
-'$read_vars'(Stream,T,Pos,V) :-
-	'$read'(true,T,V,Pos,Err,Stream),
+'$read_vars'(Stream,T,Mod,Pos,V) :-
+	'$read'(true,T,Mod,V,Pos,Err,Stream),
 	(nonvar(Err) ->
 	    '$print_message'(error,Err), fail
 	    ;
@@ -130,10 +130,16 @@ true :- true.
 	'$print_message'(informational,prompt(BreakLevel,TraceDebug)),
 	fail.
 '$enter_top_level' :-
+	'$current_module'(Module),
+	get_value('$top_level_goal',GA), T \= [], !,
+	set_value('$top_level_goal',[]),
+	'$run_atom_goal'(GA),
+	set_value('$live','$false').
+'$enter_top_level' :-
 	prompt(_,'   ?- '),
 	prompt('   | '),
 	'$run_toplevel_hooks',
-	'$read_vars'(user_input,Command,_,Varnames),
+	'$read_vars'(user_input,Command,_,_,Varnames),
 	set_value(spy_gn,1),
 	( recorded('$spy_skip',_,R), erase(R), fail ; true),
 	( recorded('$spy_stop',_,R), erase(R), fail ; true),
@@ -145,9 +151,14 @@ true :- true.
 '$startup_goals' :-
 	recorded('$startup_goal',G,_),
 	'$current_module'(Module),
-	'$system_catch'('$query'((G->true), []),Module,Error,user:'$Error'(Error)),
+	'$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)),
 	fail.
-'$startup_goals'.
+'$startup_goals' :-
+	get_value('$init_goal',GA), GA \= [],
+	set_value('$init_goal',[]),
+	'$run_atom_goal'(GA),
+	fail.
+'$startup_goals' :- stop_low_level_trace.
 
 '$startup_reconsult' :-
 	get_value('$consult_on_boot',X), X \= [], !,
@@ -723,9 +734,10 @@ not(G) :-    \+ '$execute'(G).
 	% make sure we do not loop on undefined predicates
         % for undefined_predicates.
 	'$enter_undefp',
-	'$do_undefp'(G,M).
+	'$find_undefp_handler'(G,M,Goal,NM), !,
+	'$execute'(NM:Goal).	
 
-'$do_undefp'(G,M) :-
+'$find_undefp_handler'(G,M,NG,S) :-
 	functor(G,F,N),
 	recorded('$import','$import'(S,M,F,N),_),
 	S \= M, % can't try importing from the module itself.
@@ -734,25 +746,22 @@ not(G) :-    \+ '$execute'(G).
 	(
 	  '$meta_expansion'(S,M,G,G1,[])
 	   ->
-	  '$execute'(S:G1)
+	  NG = G1
 	;
-	  '$execute'(S:G)
+	  NG = G
 	).
-'$do_undefp'(G,M) :-
+'$find_undefp_handler'(G,M,NG,M) :-
 	'$is_expand_goal_or_meta_predicate'(G,M),
 	'$system_catch'(goal_expansion(G, M, NG), user, _, fail), !,
-	'$exit_undefp',
-	'$execute0'(NG,M).
-'$do_undefp'(G,M) :-
+	'$exit_undefp'.
+'$find_undefp_handler'(G,M,NG,user) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
-	'$system_catch'(unknown_predicate_handler(G,M,NG), user, Error, '$leave_undefp'(Error)),
-	'$exit_undefp', !,
-	'$execute'(user:NG).
-'$do_undefp'(G,M) :-
+	'$system_catch'(unknown_predicate_handler(G,M,NG), user, Error, '$leave_undefp'(Error)), !,
+	'$exit_undefp'.
+'$find_undefp_handler'(G,M,US,user) :-
 	recorded('$unknown','$unknown'(M:G,US),_), !,
-	'$exit_undefp',
-	'$execute'(user:US).
-'$do_undefp'(_,_) :-
+	'$exit_undefp'.
+'$find_undefp_handler'(G,M,_,_) :-
 	'$exit_undefp',
 	fail.
 
@@ -821,7 +830,7 @@ bootstrap(F) :-
 	!.
 
 '$enter_command'(Stream,Status) :-
-	'$read_vars'(Stream,Command,_,Vars),
+	'$read_vars'(Stream,Command,_,_,Vars),
 	'$command'(Command,Vars,Status).
 
 '$abort_loop'(Stream) :-

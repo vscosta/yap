@@ -176,7 +176,7 @@ op(P,T,V) :- '$op2'(P,T,V).
 
 '$op'(P,T,',') :- !,
 	'$do_error'(permission_error(modify,operator,','),op(P,T,',')).
-'$op'(P,T,A) :- '$opdec'(P,T,A).
+'$op'(P,T,A) :- '$opdec'(P,T,A,prolog).
 
 %%% Operating System utilities
 
@@ -725,3 +725,14 @@ nth_instance(X,Y,Z) :-
 nth_instance(X,Y,Z) :-
 	'$nth_instance'(X,Y,Z).
 
+'$run_atom_goal'(GA) :-
+	'$current_module'(Module),
+	atom_codes(GA,Gs),
+	charsio:open_mem_read_stream(Gs, Stream),
+	( '$system_catch'(read(Stream, G),Module,_,fail) ->
+	    close(Stream)
+	;
+	    close(Stream),
+	    fail
+	),
+	'$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)).

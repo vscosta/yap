@@ -11,8 +11,12 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2005-10-19 19:00:48 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-10-21 16:09:03 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.55  2005/10/19 19:00:48  vsc
+* extend arrays with nb_terms so that we can implement nb_ builtins
+* correctly.
+*
 * Revision 1.54  2005/09/09 17:24:39  vsc
 * a new and hopefully much better implementation of atts.
 *
@@ -1090,8 +1094,14 @@ RestoreEntries(PropEntry *pp)
 	  RestoreBB(bb);
       }
       break;
-    case ExpProperty:
     case OpProperty:
+      {
+	OpEntry *opp = (OpEntry *)pp;
+	if (opp->OpModule) {
+	 opp->OpModule = AtomTermAdjust(opp->OpModule);
+	}
+      }
+    case ExpProperty:
     case ModProperty:
       pp->NextOfPE =
 	PropAdjust(pp->NextOfPE);

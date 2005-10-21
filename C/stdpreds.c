@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-09-08 22:06:45 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2005-10-21 16:09:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.94  2005/09/08 22:06:45  rslopes
+* BEAM for YAP update...
+*
 * Revision 1.93  2005/08/04 15:45:53  ricroc
 * TABLING NEW: support to limit the table space size
 *
@@ -891,8 +894,12 @@ p_opdec(void)
 {				/* '$opdec'(p,type,atom)		 */
   /* we know the arguments are integer, atom, atom */
   Term            p = Deref(ARG1), t = Deref(ARG2), at = Deref(ARG3);
-  return (Yap_OpDec((int) IntOfTerm(p), RepAtom(AtomOfTerm(t))->StrOfAE,
-		AtomOfTerm(at)));
+  Term tmod = Deref(ARG4);
+  if (tmod == TermProlog) {
+    tmod = PROLOG_MODULE;
+  }
+  return Yap_OpDec((int) IntOfTerm(p), RepAtom(AtomOfTerm(t))->StrOfAE,
+		   AtomOfTerm(at), tmod);
 }
 
 
@@ -3233,7 +3240,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("get_value", 2, p_value, TestPredFlag|SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$values", 3, p_values, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   /* general purpose */
-  Yap_InitCPred("$opdec", 3, p_opdec, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$opdec", 4, p_opdec, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("name", 2, p_name, 0);
   Yap_InitCPred("char_code", 2, p_char_code, SafePredFlag);
   Yap_InitCPred("atom_chars", 2, p_atom_chars, 0);

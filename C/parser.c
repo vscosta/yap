@@ -196,74 +196,84 @@ Yap_VarNames(VarEntry *p,Term l)
 }
 
 static int
-IsPrefixOp(Prop opinfo,int  *pptr, int *rpptr)
+IsPrefixOp(OpEntry *opp,int  *pptr, int *rpptr)
 {
   int p;
 
-  READ_LOCK(RepOpProp(opinfo)->OpRWLock);
-  if ((p = RepOpProp(opinfo)->Prefix) != 0) {
-    READ_UNLOCK(RepOpProp(opinfo)->OpRWLock);
+  READ_LOCK(opp->OpRWLock);
+  if (opp->OpModule &&
+      opp->OpModule != CurrentModule)
+    return FALSE;
+  if ((p = opp->Prefix) != 0) {
+    READ_UNLOCK(opp->OpRWLock);
     *pptr = *rpptr = p & MaskPrio;
     if (p & DcrrpFlag)
       --* rpptr;
-    return (TRUE);
+    return TRUE;
   } else {
-    READ_UNLOCK(RepOpProp(opinfo)->OpRWLock);
-    return (FALSE);
+    READ_UNLOCK(opp->OpRWLock);
+    return FALSE;
   }
 }
 
 int
-Yap_IsPrefixOp(Prop opinfo,int  *pptr, int *rpptr)
+Yap_IsPrefixOp(OpEntry *opinfo,int  *pptr, int *rpptr)
 {
   return IsPrefixOp(opinfo,pptr,rpptr);
 }
 
 static int
-IsInfixOp(Prop opinfo, int *pptr, int *lpptr, int *rpptr)
+IsInfixOp(OpEntry *opp, int *pptr, int *lpptr, int *rpptr)
 {
   int p;
 
-  READ_LOCK(RepOpProp(opinfo)->OpRWLock);
-  if ((p = RepOpProp(opinfo)->Infix) != 0) {
-    READ_UNLOCK(RepOpProp(opinfo)->OpRWLock);
+  READ_LOCK(opp->OpRWLock);
+  if (opp->OpModule &&
+      opp->OpModule != CurrentModule)
+    return FALSE;
+  if ((p = opp->Infix) != 0) {
+    READ_UNLOCK(opp->OpRWLock);
     *pptr = *rpptr = *lpptr = p & MaskPrio;
     if (p & DcrrpFlag)
       --* rpptr;
     if (p & DcrlpFlag)
       --* lpptr;
-    return (TRUE);
+    return TRUE;
   } else {
-    READ_UNLOCK(RepOpProp(opinfo)->OpRWLock);
-    return (FALSE);
+    READ_UNLOCK(opp->OpRWLock);
+    return FALSE;
   }
 }
 
 int
-Yap_IsInfixOp(Prop opinfo, int *pptr, int *lpptr, int *rpptr)
+Yap_IsInfixOp(OpEntry *opinfo, int *pptr, int *lpptr, int *rpptr)
 {
   return IsInfixOp(opinfo, pptr, lpptr, rpptr);
 }
 
 static int
-IsPosfixOp(Prop opinfo, int *pptr, int *lpptr)
+IsPosfixOp(OpEntry *opp, int *pptr, int *lpptr)
 {
   int p;
-  READ_LOCK(RepOpProp(opinfo)->OpRWLock);
-  if ((p = RepOpProp(opinfo)->Posfix) != 0) {
-    READ_UNLOCK(RepOpProp(opinfo)->OpRWLock);
+
+  READ_LOCK(opp->OpRWLock);
+  if (opp->OpModule &&
+      opp->OpModule != CurrentModule)
+    return FALSE;
+  if ((p = opp->Posfix) != 0) {
+    READ_UNLOCK(opp->OpRWLock);
     *pptr = *lpptr = p & MaskPrio;
     if (p & DcrlpFlag)
       --* lpptr;
     return (TRUE);
   } else {
-    READ_UNLOCK(RepOpProp(opinfo)->OpRWLock);
+    READ_UNLOCK(opp->OpRWLock);
     return (FALSE);
   }
 }
 
 int
-Yap_IsPosfixOp(Prop opinfo, int *pptr, int *lpptr)
+Yap_IsPosfixOp(OpEntry *opinfo, int *pptr, int *lpptr)
 {
   return IsPosfixOp(opinfo, pptr, lpptr);
 }
@@ -396,7 +406,7 @@ static Term
 ParseTerm(int prio, JMPBUFF *FailBuff)
 {
   /* parse term with priority prio */
-  Volatile Prop opinfo;
+  Volatile OpEntry *opinfo;
   Volatile Term t;
   Volatile Functor func;
   Volatile VarEntry *varinfo;
@@ -408,7 +418,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
     NextToken;
     if ((Yap_tokptr->Tok != Ord(Ponctuation_tok)
 	 || Unsigned(Yap_tokptr->TokInfo) != 'l')
-	&& (opinfo = Yap_GetAProp((Atom) t, OpProperty))
+	&& (opinfo = Yap_GetOpProp((Atom) t))
 	&& IsPrefixOp(opinfo, &opprio, &oprprio)
 	) {
       /* special rules apply for +1, -2.3, etc... */
@@ -561,8 +571,8 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
   /* main loop to parse infix and posfix operators starts here */
   while (TRUE) {
     if (Yap_tokptr->Tok == Ord(Name_tok)
-	&& (opinfo = Yap_GetAProp((Atom)(Yap_tokptr->TokInfo), OpProperty))) {
-      Prop save_opinfo = opinfo;
+	&& (opinfo = Yap_GetOpProp((Atom)(Yap_tokptr->TokInfo)))) {
+      OpEntry *save_opinfo = opinfo;
       if (IsInfixOp(opinfo, &opprio, &oplprio, &oprprio)
 	  && opprio <= prio && oplprio >= curprio) {
 	/* try parsing as infix operator */
