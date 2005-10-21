@@ -10,8 +10,38 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-10-18 17:04:43 $,$Author: vsc $						 *
+* Last rev:	$Date: 2005-10-21 16:07:07 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.73  2005/10/18 17:04:43  vsc
+* 5.1:
+* - improvements to GC
+*    2 generations
+*    generic speedups
+* - new scheme for attvars
+*    - hProlog like interface also supported
+* - SWI compatibility layer
+*    - extra predicates
+*    - global variables
+*    - moved to Prolog module
+* - CLP(R) by Leslie De Koninck, Tom Schrijvers, Cristian Holzbaur, Bart
+* Demoen and Jan Wielemacker
+* - load_files/2
+*
+* from 5.0.1
+*
+* - WIN32 missing include files (untested)
+* - -L trouble (my thanks to Takeyuchi Shiramoto-san)!
+* - debugging of backtrable user-C preds would core dump.
+* - redeclaring a C-predicate as Prolog core dumps.
+* - badly protected  YapInterface.h.
+* - break/0 was failing at exit.
+* - YAP_cut_fail and YAP_cut_succeed were different from manual.
+* - tracing through data-bases could core dump.
+* - cut could break on very large computations.
+* - first pass at BigNum issues (reported by Roberto).
+* - debugger could get go awol after fail port.
+* - weird message on wrong debugger option.
+*
 * Revision 1.72  2005/10/15 02:42:57  vsc
 * fix interface
 *
@@ -147,6 +177,9 @@
 #include "iopreds.h"
 #define HAS_YAP_H 1
 #include "yap_structs.h"
+#ifdef TABLING
+#include "tab.macros.h"
+#endif /* TABLING */
 #ifdef YAPOR
 #include "or.macros.h"
 #endif	/* YAPOR */
@@ -592,12 +625,16 @@ YAP_cut_up(void)
   BACKUP_B();
 
 #ifdef YAPOR
-  CUT_prune_to(pt0);
-#endif	/* YAPOR */
+  {
+    choiceptr cut_pt;
+
+    cut_pt = B->cp_b;
+    CUT_prune_to(cut_pt);
+    B = cut_pt;
+  }
+#else	/* YAPOR */
   B = B->cp_b;  /* cut_fail */
-#ifdef TABLING
-  abolish_incomplete_subgoals(B);
-#endif /* TABLING */
+#endif
   HB = B->cp_h; /* cut_fail */
 
   RECOVER_B();
@@ -1204,13 +1241,19 @@ YAP_Init(YAP_init_args *yap_init)
 #endif /* YAPOR || TABLING */
   RECOVER_MACHINE_REGS();
 }
-  if (yap_init->YapPrologRCFile != NULL) {
+  if (yap_init->YapPrologRCFile) {
     Yap_PutValue(Yap_FullLookupAtom("$consult_on_boot"), MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologRCFile)));
     /*
       This must be done again after restore, as yap_flags
       has been overwritten ....
     */
     yap_flags[HALT_AFTER_CONSULT_FLAG] = yap_init->HaltAfterConsult;
+  }
+  if (yap_init->YapPrologTopLevelGoal) {
+    Yap_PutValue(Yap_FullLookupAtom("$top_level_goal"), MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologTopLevelGoal)));
+  }
+  if (yap_init->YapPrologGoal) {
+    Yap_PutValue(Yap_FullLookupAtom("$init_goal"), MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologGoal)));
   }
   if (yap_init->SavedState != NULL ||
       yap_init->YapPrologBootFile == NULL) {
@@ -1242,6 +1285,8 @@ YAP_FastInit(char saved_state[])
   init_args.YapPrologBootFile = NULL;
   init_args.YapPrologInitFile = NULL;
   init_args.YapPrologRCFile = NULL;
+  init_args.YapPrologGoal = NULL;
+  init_args.YapPrologTopLevelGoal = NULL;
   init_args.HaltAfterConsult = FALSE;
   init_args.FastBoot = FALSE;
   init_args.NumberWorkers = 1;
