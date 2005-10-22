@@ -158,7 +158,7 @@ true :- true.
 	set_value('$init_goal',[]),
 	'$run_atom_goal'(GA),
 	fail.
-'$startup_goals' :- stop_low_level_trace.
+'$startup_goals'.
 
 '$startup_reconsult' :-
 	get_value('$consult_on_boot',X), X \= [], !,
