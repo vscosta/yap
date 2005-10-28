@@ -8,7 +8,7 @@
 @c @setchapternewpage odd
 @c %**end of header
 
-@set VERSION: 5.0.1
+@set VERSION: 5.1.0
 @set EDITION 4.2.4
 @set UPDATED December 2004
 
@@ -234,6 +234,7 @@ Subnodes of Library
 * System:: System Utilities
 * Terms:: Utilities on Terms
 * Cleanup:: Call With registered Cleanup Calls
+* SWI-Prolog:: SWI-Prolog emulation
 * Timeout:: Call With Timeout
 * Trees:: Updatable Binary Trees
 * UGraphs:: Unweighted Graphs
@@ -305,7 +306,7 @@ Subnodes of C-Interface
 * Yap4 Notes:: Changes in Foreign Predicates Interface
 
 Subnodes of C-Prolog
-* Major Differences with C-Prolog:: Major Differences between YAP and C-Prolog
+* Major Differences from C-Prolog:: Major Differences between YAP and C-Prolog
 * Fully C-Prolog Compatible:: Yap predicates fully compatible with
 C-Prolog
 * Not Strictly C-Prolog Compatible:: Yap predicates not strictly as C-Prolog
@@ -313,7 +314,7 @@ C-Prolog
 * Not in YAP:: C-Prolog predicates not available in YAP
 
 Subnodes of SICStus Prolog
-* Major Differences with SICStus:: Major Differences between YAP and SICStus Prolog
+* Major Differences from SICStus:: Major Differences between YAP and SICStus Prolog
 * Fully SICStus Compatible:: Yap predicates fully compatible with
 SICStus Prolog
 * Not Strictly SICStus Compatible:: Yap predicates not strictly as
@@ -367,14 +368,14 @@ MA". Other references should include the classical @cite{Programming in
 Prolog}, by W.F. Clocksin and C.S. Mellish, published by
 Springer-Verlag.
 
-YAP is known to build with many versions of gcc (<= gcc-2.7.2, >=
+YAP 4.3 is known to build with many versions of gcc (<= gcc-2.7.2, >=
 gcc-2.8.1, >= egcs-1.0.1, gcc-2.95.*) and on a variety of Unixen:
 SunOS 4.1, Solaris 2.*, Irix 5.2, HP-UX 10, Dec Alpha Unix, Linux 1.2
 and Linux 2.* (RedHat 4.0 thru 5.2, Debian 2.*) in both the x86 and
-alpha platforms. It has been built on Windows using Cygwin from
-Cygnus Solutions (see README.nt).
+alpha platforms. It has been built on Windows NT 4.0 using Cygwin from
+Cygnus Solutions (see README.nt) and using Visual C++ 6.0.
 
-The overall copyright and permission notice for YAP can be found in
+The overall copyright and permission notice for YAP4.3 can be found in
 the Artistic file in this directory. YAP follows the Perl Artistic
 license, and it is thus non-copylefted freeware.
 
@@ -901,6 +902,12 @@ compile the Prolog file @var{YAP_FILE} before entering the top-level.
 @item -L @var{YAP_FILE}
 compile the Prolog file @var{YAP_FILE} and then halt. This option is
 useful for implementing scripts.
+@item -g @var{Goal}
+run the goal @var{Goal} before top-level. The goal is converted from
+an atom to a Prolog term.
+@item -z @var{Goal}
+run the goal @var{Goal} as top-level. The goal is converted from
+an atom to a Prolog term.
 @item -b @var{BOOT_FILE}
 boot code is in Prolog file @var{BOOT_FILE}. The filename must define
 the predicate '$live'/0.
@@ -6376,12 +6383,26 @@ architecture, and on whether YAP uses the @code{GMP} multiprecision
 library. If @code{bounded} is false, requests for @code{max_integer}
 will fail.
 
+@item max_tagged_integer 
+@findex max_tagged_integer (yap_flag/2 option)
+@*
+Read-only flag telling the maximum integer we can store as a single
+word. Depends on machine and Operating System
+architecture. It can be used to find the word size of the current machine.
+
 @item min_integer [ISO]
 @findex min_integer (yap_flag/2 option)
 @* Read-only flag telling the minimum integer in the
 implementation. Depends on machine and Operating System architecture,
 and on whether YAP uses the @code{GMP} multiprecision library. If
 @code{bounded} is false, requests for @code{min_integer} will fail.
+
+@item min_tagged_integer 
+@findex max_tagged_integer (yap_flag/2 option)
+@*
+Read-only flag telling the minimum integer we can store as a single
+word. Depends on machine and Operating System
+architecture.
 
 @item n_of_integer_keys_in_bb
 @findex n_of_integer_keys_in_bb (yap_flag/2 option)
@@ -6741,6 +6762,7 @@ Library, Extensions, Builtins, Top
 * System:: System Utilities
 * Terms:: Utilities on Terms
 * Cleanup:: Call With registered Cleanup Calls
+* SWI-Prolog:: SWI-Prolog emulation
 * Timeout:: Call With Timeout
 * Trees:: Updatable Binary Trees
 * UGraphs:: Unweighted Graphs
@@ -8014,7 +8036,7 @@ The @code{mktime/1} procedure returns the number of @var{Seconds}
 elapsed since 00:00:00 on January 1, 1970, Coordinated Universal Time
 (UTC).  The user provides information on @var{Year}, @var{Month},
 @var{DayOfTheMonth}, @var{Hour}, @var{Minute}, and @var{Second}. The
-@var{Hour} is returned on local time. This function uses the WIN32
+@var{Hour} is given on local time. This function uses the WIN32
 @code{GetLocalTime} function or the Unix @code{mktime} function.
 
 @example
@@ -8386,8 +8408,8 @@ term @var{Term}.
 
 @end table
 
-@node Cleanup, Timeout, Terms, Library
-@section Call With registered Cleanup Calls
+@node Cleanup, SWI-Prolog, Cleanup, Library
+@section Call Cleanup
 @cindex cleanup
 
 @t{call_cleanup/1} and @t{call_cleanup/2} allow predicates to register
@@ -8452,7 +8474,134 @@ CleanUpGoals for other than the current cleanup-context.
 Read the Source Luke.
 
 
-@node Timeout, Trees, Cleanup, Library
+@node SWI-Prolog, Timeout, SWI-Prolog, Library
+@section SWI-Prolog Emulation
+@cindex SWI-Prolog
+
+This library provides a number of SWI-Prolog builtins that are not by
+default in YAP. This library is loaded with the
+@code{use_module(library(swi))} command.
+
+@table @code
+
+@item append(?@var{List1},?@var{List2},?@var{List3})
+@findex append/3
+@snindex append/3
+@cnindex append/3
+Succeeds when @var{List3} unifies with the concatenation of @var{List1}
+and @var{List2}. The predicate can be used with any instantiation
+pattern (even three variables).
+
+@item between(+@var{Low},+@var{High},?@var{Value})
+@findex between/3
+@snindex between/3
+@cnindex between/3
+
+@var{Low} and @var{High} are integers, @var{High} less or equal than
+@var{Low}. If @var{Value} is an integer, $@var{Low} less or equal than
+@var{Value} less or equal than @var{High}$.  When @var{Value} is a
+variable it is successively bound to all integers between @var{Low} and
+@var{High}.  If @var{High} is @const{inf} @code{between/3| is true iff
+@var{Value} less or equal than @var{Low}, a feature that is particularly
+interesting for generating integers from a certain value.
+
+@item chdir(+@var{Dir})
+@findex chdir/1
+@snindex chdir/1
+@cnindex chdir/1
+
+Compatibility predicate.  New code should use @code{working_directory/2}.
+
+@item concat_atom(+@var{List},-@var{Atom})
+@findex concat_atom/2
+@snindex concat_atom/2
+@cnindex concat_atom/2
+
+@var{List} is a list of atoms, integers or floating point numbers. Succeeds
+if @var{Atom} can be unified with the concatenated elements of @var{List}. If
+@var{List} has exactly 2 elements it is equivalent to @code{atom_concat/3},
+allowing for variables in the list.
+
+@item concat_atom(?@var{List},+@var{Separator},?@var{Atom})
+@findex concat_atom/3
+@snindex concat_atom/3
+@cnindex concat_atom/3
+
+Creates an atom just like concat_atom/2, but inserts @var{Separator}
+between each pair of atoms.  For example:
+\@example
+?- concat_atom([gnu, gnat], ', ', A).
+
+A = 'gnu, gnat'
+@end example
+
+(Unimplemented) This predicate can also be used to split atoms by
+instantiating @var{Separator} and @var{Atom}:
+
+@example
+?- concat_atom(L, -, 'gnu-gnat').
+
+L = [gnu, gnat]
+@end example
+
+@item forall(+@var{Cond},+@var{Action})
+@findex forall/2
+@snindex forall/2
+@cnindex forall/2
+
+For all alternative bindings of @var{Cond} @var{Action} can be proven.
+The next example verifies that all arithmetic statements in the list
+@var{L} are correct. It does not say which is wrong if one proves wrong.
+
+@example
+?- forall(member(Result = Formula, [2 = 1 + 1, 4 = 2 * 2]),
+                 Result =:= Formula).
+@end example
+
+@item nth1(+@var{Index},?@var{List},?@var{Elem})
+@findex nth1/3
+@snindex nth1/3
+@cnindex nth1/3
+Succeeds when the @var{Index}-th element of @var{List} unifies with
+@var{Elem}. Counting starts at 1.
+
+Set environment variable.  @var{Name} and @var{Value} should be
+instantiated to atoms or integers.  The environment variable will be
+passed to @code{shell/[0-2]} and can be requested using @code{getenv/2}.
+They also influence @code{expand_file_name/2}.
+
+@item setenv(+@var{Name},+@var{Value})
+@findex setenv/2
+@snindex setenv/2
+@cnindex setenv/2
+Set environment variable.  @var{Name} and @var{Value} should be
+instantiated to atoms or integers.  The environment variable will be
+passed to @code{shell/[0-2]} and can be requested using @code{getenv/2}.
+They also influence @code{expand_file_name/2}.
+
+@item term_to_atom(?@var{Term},?@var{Atom})
+@findex term_to_atom/2
+@snindex term_to_atom/2
+@cnindex term_to_atom/2
+Succeeds if @var{Atom} describes a term that unifies with @var{Term}. When
+@var{Atom} is instantiated @var{Atom} is converted and then unified with
+@var{Term}.  If @var{Atom} has no valid syntax, a @code{syntax_error}
+exception is raised. Otherwise @var{Term} is ``written'' on @var{Atom}
+using @code{write/1}.
+
+@item working_directory(-@var{Old},+@var{New})
+@findex working_directory/2
+@snindex working_directory/2
+@cnindex working_directory/2
+
+Unify @var{Old} with an absolute path to the current working directory
+and change working directory to @var{New}.  Use the pattern
+@code{working_directory(CWD, CWD)} to get the current directory.  See
+also @code{absolute_file_name/2} and @code{chdir/1}.
+
+@end table
+
+@node Timeout, Trees, SWI-Prolog, Library
 @section Calls With Timeout
 @cindex timeout
 
@@ -13929,9 +14078,9 @@ would have something like
 @example
 void
 init_n100(void)
-@{
+{
   YAP_UserBackCPredicate("n100", start_n100, continue_n100, 1, 1);
-@}
+}
 @end example
 
 
@@ -14300,7 +14449,7 @@ YAP compatible with the ISO-Prolog standard.
 
 @menu
 C-Prolog Compatibility
-* Major Differences with C-Prolog:: Major Differences between YAP and C-Prolog
+* Major Differences from C-Prolog:: Major Differences between YAP and C-Prolog
 * Fully C-Prolog Compatible:: Yap predicates fully compatible with
 C-Prolog
 * Not Strictly C-Prolog Compatible:: Yap predicates not strictly as C-Prolog
@@ -14308,7 +14457,7 @@ C-Prolog
 * Not in YAP:: C-Prolog predicates not available in YAP
 @end menu
 
-@node Major Differences with C-Prolog, Fully C-Prolog Compatible, , C-Prolog
+@node Major Differences from C-Prolog, Fully C-Prolog Compatible, , C-Prolog
 @subsection Major Differences between YAP and C-Prolog.
 
 YAP includes several extensions over the original C-Prolog system. Even
@@ -14347,7 +14496,7 @@ or by using:
 @code{:- yap_flag(language,cprolog).}
 @end example
 
-@node Fully C-Prolog Compatible, Not Strictly C-Prolog Compatible, Major Differences with C-Prolog, C-Prolog
+@node Fully C-Prolog Compatible, Not Strictly C-Prolog Compatible, Major Differences from C-Prolog, C-Prolog
 @subsection Yap predicates fully compatible with C-Prolog
 
 These are the Prolog built-ins that are fully compatible in both
@@ -14410,7 +14559,7 @@ for maximum compatibility with SICStus Prolog.
 
 @menu
 SICStus Compatibility
-* Major Differences with SICStus:: Major Differences between YAP and SICStus Prolog
+* Major Differences from SICStus:: Major Differences between YAP and SICStus Prolog
 * Fully SICStus Compatible:: Yap predicates fully compatible with
 SICStus Prolog
 * Not Strictly SICStus Compatible:: Yap predicates not strictly as
@@ -14418,7 +14567,7 @@ SICStus Prolog
 * Not in SICstus Prolog:: Yap predicates not available in SICStus Prolog
 @end menu
 
-@node Major Differences with SICStus, Fully SICStus Compatible, , SICStus Prolog
+@node Major Differences from SICStus, Fully SICStus Compatible, , SICStus Prolog
 @subsection Major Differences between YAP and SICStus Prolog.
 
 Both YAP and SICStus Prolog obey the Edinburgh Syntax and are based on

@@ -233,6 +233,7 @@ print_usage(void)
   fprintf(stderr,"  -z   Run Goal Before Top-Level \n");
   fprintf(stderr,"  -l   load Prolog file\n");
   fprintf(stderr,"  -L   run Prolog file and exit\n");
+  fprintf(stderr,"  -p   extra path for file-search-path\n");
   fprintf(stderr,"  -h   Heap area in Kbytes (default: %d, minimum: %d)\n",
 	  DefHeapSpace, MinHeapSpace);
   fprintf(stderr,"  -s   Stack area in Kbytes (default: %d, minimum: %d)\n",
@@ -389,7 +390,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    }
 	    break;
 #ifdef DEBUG
-	  case 'p':
+	  case 'P':
 	    YAP_SetOutputMessage();
 	    output_msg = TRUE;
 	    break;
@@ -438,11 +439,11 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    /* run goal before top-level */
 	  case 'g':
 	    if ((*argv)[0] == '\0') 
-	      iap->YapPrologRCFile = *argv;
+	      iap->YapPrologGoal = *argv;
 	    else {
 	      argc--;
 	      if (argc == 0) {
-		fprintf(stderr," [ YAP unrecoverable error: missing file name with option 'l' ]\n");
+		fprintf(stderr," [ YAP unrecoverable error: missing initialization goal for option 'g' ]\n");
 		exit(EXIT_FAILURE);
 	      }
 	      argv++;
@@ -452,15 +453,28 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    /* run goal as top-level */
 	  case 'z':
 	    if ((*argv)[0] == '\0') 
-	      iap->YapPrologRCFile = *argv;
+	      iap->YapPrologTopLevelGoal = *argv;
 	    else {
 	      argc--;
 	      if (argc == 0) {
-		fprintf(stderr," [ YAP unrecoverable error: missing file name with option 'l' ]\n");
+		fprintf(stderr," [ YAP unrecoverable error: missing goal for option 'z' ]\n");
 		exit(EXIT_FAILURE);
 	      }
 	      argv++;
 	      iap->YapPrologTopLevelGoal = *argv;
+	    }
+	    break;
+	  case 'p':
+	    if ((*argv)[0] == '\0') 
+	      iap->YapPrologAddPath = *argv;
+	    else {
+	      argc--;
+	      if (argc == 0) {
+		fprintf(stderr," [ YAP unrecoverable error: missing paths for option 'p' ]\n");
+		exit(EXIT_FAILURE);
+	      }
+	      argv++;
+	      iap->YapPrologAddPath = *argv;
 	    }
 	    break;
 	    /* nf: Begin preprocessor code */
@@ -520,6 +534,7 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
   iap->YapPrologRCFile = NULL;
   iap->YapPrologGoal = NULL;
   iap->YapPrologTopLevelGoal = NULL;
+  iap->YapPrologAddPath = NULL;
   iap->HaltAfterConsult = FALSE;
   iap->FastBoot = FALSE;
   iap->MaxTableSpaceSize = 0;
@@ -603,9 +618,8 @@ exec_top_level(int BootMode, YAP_init_args *iap)
 	/* consult init file */
 	atfile = YAP_LookupAtom(init_file);
 	as[0] = YAP_MkAtomTerm(atfile);
-	as[1] = YAP_MkAtomTerm(YAP_LookupAtom("prolog"));
-	fgoal = YAP_MkFunctor(YAP_FullLookupAtom("$consult"), 2);
-	goal = YAP_MkApplTerm(fgoal, 2, as);
+	fgoal = YAP_MkFunctor(YAP_FullLookupAtom("$silent_bootstrap"), 1);
+	goal = YAP_MkApplTerm(fgoal, 1, as);
 	/* launch consult */
 	YAP_RunGoal(goal);
 	/* set default module to user */
