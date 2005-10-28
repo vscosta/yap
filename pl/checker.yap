@@ -11,8 +11,11 @@
 * File:		checker.yap						 *
 * comments:	style checker for Prolog				 *
 *									 *
-* Last rev:     $Date: 2005-04-20 20:06:11 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-10-28 17:38:50 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.18  2005/04/20 20:06:11  vsc
+* try to improve error handling and warnings from within consults.
+*
 * Revision 1.17  2005/04/20 04:08:20  vsc
 * fix warnings
 *
@@ -53,7 +56,11 @@ style_check(all) :- '$syntax_check_mode'(_,on),
 	'$syntax_check_multiple'(_,on).
 style_check(single_var) :- '$syntax_check_mode'(_,on),
 	'$syntax_check_single_var'(_,on).
+style_check(singleton) :-
+	style_check(single_var).
 style_check(-single_var) :-
+	no_style_check(single_var).
+style_check(-singleton) :-
 	no_style_check(single_var).
 style_check(discontiguous) :- '$syntax_check_mode'(_,on),
 	'$syntax_check_discontiguous'(_,on).
@@ -188,7 +195,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
 '$multifile'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,multifile(V)).
-'$multifile'((X,Y), M) :- '$multifile'(X, M), '$multifile'(Y, M).
+'$multifile'((X,Y), M) :- !, '$multifile'(X, M), '$multifile'(Y, M).
 '$multifile'(Mod:PredSpec, _) :- !,
 	'$multifile'(PredSpec, Mod).
 '$multifile'(N/A, M) :-

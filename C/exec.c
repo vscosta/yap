@@ -214,6 +214,125 @@ do_execute(Term t, Term mod)
   }
 }
 
+static Term
+copy_execn_to_heap(Functor f, CELL *pt, unsigned int n, unsigned int arity, Term mod)
+{
+  CELL *h0 = H;
+  Term tf;
+  unsigned int i;
+
+  if (arity == 2 &&
+      NameOfFunctor(f) == AtomDot) {
+    for (i = 0; i<arity-n;i++) {
+      *H++ = pt[i];
+    }
+    for (i=0; i< n; i++) {
+      *H++ = h0[i-n];
+    }
+    tf = AbsPair(h0);
+  } else {
+    *H++ = (CELL)f;
+    for (i = 0; i<arity-n;i++) {
+      *H++ = pt[i];
+    }
+    for (i=0; i< n; i++) {
+      *H++ = h0[i-n];
+    }
+    tf = AbsAppl(h0);
+  }
+  if (mod != CurrentModule) {
+    CELL *h0 = H;
+    *H++ = (CELL)FunctorModule;
+    *H++ = mod;
+    *H++ = tf;
+    tf = AbsAppl(h0);
+  }
+  return tf;
+}
+
+inline static Int
+do_execute_n(Term t, Term mod, unsigned int n)
+{
+  Functor f;
+  Atom Name;
+  register CELL *pt;
+  PredEntry *pen;
+  unsigned int i, arity, j = -n;
+
+ restart_exec:
+  if (IsVarTerm(t)) {
+    return CallError(INSTANTIATION_ERROR, mod);
+  } else if (IsAtomTerm(t)) {
+    arity = n;
+    Name = AtomOfTerm(t);
+    pt = NULL;
+  } else if (IsIntTerm(t)) {
+    return CallError(TYPE_ERROR_CALLABLE, mod);
+  } else if (IsPairTerm(t)) {
+    arity = n+2;
+    pt = RepPair(t);
+    Name = AtomOfTerm(TermNil);
+  } else /* if (IsApplTerm(t)) */ {
+    f = FunctorOfTerm(t);
+    while (f == FunctorModule) {
+      Term tmod = ArgOfTerm(1,t);
+      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+	mod = tmod;
+	t = ArgOfTerm(2,t);
+	goto restart_exec;
+      }
+    }
+    arity = ArityOfFunctor(f)+n;
+    Name = NameOfFunctor(f);
+    pt = RepAppl(t)+1;
+  }
+  f = Yap_MkFunctor(Name,arity);
+  if (IsExtensionFunctor(f)) {
+    return CallError(TYPE_ERROR_CALLABLE, mod);
+  }
+  arity = ArityOfFunctor(f);
+    
+  if (PRED_GOAL_EXPANSION_ALL) {
+    LOCK(SignalLock);
+    /* disable creeping when we do goal expansion */
+    if (ActiveSignals & YAP_CREEP_SIGNAL) {
+      ActiveSignals &= ~YAP_CREEP_SIGNAL;
+      CreepFlag = CalculateStackGap();
+    }
+    UNLOCK(SignalLock);
+    ARG1 = copy_execn_to_heap(f, pt, n, arity, mod);
+    return CallMetaCall(mod);
+  } else if (ActiveSignals) {
+    return EnterCreepMode(copy_execn_to_heap(f, pt, n, arity, CurrentModule), mod);
+  }
+  pen = RepPredProp(PredPropByFunc(f, mod));
+  /* You thought we would be over by now */
+  /* but no meta calls require special preprocessing */
+  if (pen->PredFlags & (GoalExPredFlag|MetaPredFlag)) {
+    ARG1 = copy_execn_to_heap(f, pt, n, arity, mod);
+    return(CallMetaCall(mod));
+  }
+  /* now let us do what we wanted to do from the beginning !! */
+  /* I cannot use the standard macro here because
+     otherwise I would dereference the argument and
+     might skip a svar */
+  for (i = 1; i <= arity-n; i++) {
+#if SBA
+    Term d0 = *pt++;
+    if (d0 == 0)
+      XREGS[i] = (CELL)(pt-1);
+    else
+      XREGS[i] = d0;
+#else
+    XREGS[i] = *pt++;
+#endif
+  }
+  for (i = arity-n+1; i <= arity; i++,j++) {
+    XREGS[i] = H[j];
+  }
+  return (CallPredicate(pen, B, pen->CodeOfPred));
+}
+
 static Int
 EnterCreepMode(Term t, Term mod) {
   PredEntry *PredCreep;
@@ -246,6 +365,49 @@ p_execute(void)
 {				/* '$execute'(Goal)	 */
   Term            t = Deref(ARG1);
   return(do_execute(t, CurrentModule));
+}
+
+static void
+heap_store(Term t)
+{
+  if (IsVarTerm(t)) {
+    if (VarOfTerm(t) < H) {
+      *H++ = t;
+    } else {
+      RESET_VARIABLE(H);
+      Bind_Local(VarOfTerm(t), (CELL)H);
+      H++;
+    }
+  } else {
+    *H++ = t;
+  }
+}
+
+static Int
+p_execute2(void)
+{				/* '$execute'(Goal)	 */
+  Term       t = Deref(ARG1);
+  heap_store(Deref(ARG2));
+  return(do_execute_n(t, CurrentModule, 1));
+}
+
+static Int
+p_execute3(void)
+{				/* '$execute'(Goal)	 */
+  Term            t = Deref(ARG1);
+  heap_store(Deref(ARG2));
+  heap_store(Deref(ARG3));
+  return(do_execute_n(t, CurrentModule, 2));
+}
+
+static Int
+p_execute4(void)
+{				/* '$execute'(Goal)	 */
+  Term            t = Deref(ARG1);
+  heap_store(Deref(ARG2));
+  heap_store(Deref(ARG3));
+  heap_store(Deref(ARG4));
+  return(do_execute_n(t, CurrentModule, 3));
 }
 
 static Int
@@ -1634,6 +1796,9 @@ Yap_InitExecFs(void)
 {
   Yap_InitComma();
   Yap_InitCPred("$execute", 1, p_execute, HiddenPredFlag);
+  Yap_InitCPred("$execute", 2, p_execute2, HiddenPredFlag);
+  Yap_InitCPred("$execute", 3, p_execute3, HiddenPredFlag);
+  Yap_InitCPred("$execute", 4, p_execute4, HiddenPredFlag);
   Yap_InitCPred("$execute_in_mod", 2, p_execute_in_mod, HiddenPredFlag);
   Yap_InitCPred("$call_with_args", 2, p_execute_0, HiddenPredFlag);
   Yap_InitCPred("$call_with_args", 3, p_execute_1, HiddenPredFlag);

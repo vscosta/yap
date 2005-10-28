@@ -177,6 +177,16 @@ yap_flag(syntax_errors, Option) :-
 yap_flag(enhanced,on) :- !, set_value('$enhanced',true).
 yap_flag(enhanced,off) :- set_value('$enhanced',[]).
 %
+% SWI compatibility flag
+%
+yap_flag(generate_debug_info,V) :- var(V), !,
+	source_mode(OnOff,OnOff),
+	(OnOff = on -> V = true ; V = false).
+yap_flag(generate_debug_info,true) :- !.
+yap_flag(generate_debug_info,false) :- !.
+yap_flag(generate_debug_info,X) :-
+	'$do_error'(domain_error(flag_value,generate_domain_info+X),yap_flag(generate_debug_info,X)).
+%
 % show state of $
 %
 yap_flag(dollar_as_lower_case,V) :-
@@ -295,6 +305,15 @@ yap_flag(max_integer,X) :-
 yap_flag(max_integer,X) :-
 	'$do_error'(domain_error(flag_value,max_integer+X),yap_flag(max_integer,X)).
 
+yap_flag(max_tagged_integer,X) :-
+	var(X), !,
+	'$max_tagged_integer'(X).
+yap_flag(max_tagged_integer,X) :-
+	integer(X), X > 0, !,
+	'$do_error'(permission_error(modify,flag,max_tagged_integer),yap_flag(max_tagged_integer,X)).
+yap_flag(max_tagged_integer,X) :-
+	'$do_error'(domain_error(flag_value,max_tagged_integer+X),yap_flag(max_tagged_integer,X)).
+
 yap_flag(min_integer,X) :-
 	var(X), !,
 	'$access_yap_flags'(0, 1),
@@ -304,6 +323,15 @@ yap_flag(min_integer,X) :-
 	'$do_error'(permission_error(modify,flag,min_integer),yap_flag(min_integer,X)).
 yap_flag(min_integer,X) :-
 	'$do_error'(domain_error(flag_value,min_integer+X),yap_flag(min_integer,X)).
+
+yap_flag(min_tagged_integer,X) :-
+	var(X), !,
+	'$min_tagged_integer'( X).
+yap_flag(min_tagged_integer,X) :-
+	integer(X), X > 0, !,
+	'$do_error'(permission_error(modify,flag,min_tagged_integer),yap_flag(min_tagged_integer,X)).
+yap_flag(min_tagged_integer,X) :-
+	'$do_error'(domain_error(flag_value,min_tagged_integer+X),yap_flag(min_tagged_integer,X)).
 
 yap_flag(char_conversion,X) :-
 	var(X), !,
@@ -621,6 +649,7 @@ yap_flag(verbose_auto_load,X) :-
 	    V = gc    ;
 	    V = gc_margin    ;
 	    V = gc_trace     ;
+	    V = generate_debug_info     ;
 %	    V = hide  ;
 	    V = home  ;
 	    V = host_type  ;
@@ -631,7 +660,9 @@ yap_flag(verbose_auto_load,X) :-
 	    V = language ;
 	    V = max_arity ;
 	    V = max_integer ;
+	    V = max_tagged_integer ;
 	    V = min_integer ;
+	    V = min_tagged_integer ;
             V = n_of_integer_keys_in_db ;
 	    V = profiling ;
 	    V = redefine_warnings ;

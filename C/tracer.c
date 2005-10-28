@@ -120,6 +120,12 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /*  extern int gc_calls; */
 
   vsc_count++;
+  if (vsc_count == 21857LL) {
+    jmp_deb(1);
+  }
+  if (vsc_count < 21800LL) {
+    return;
+  }
 #ifdef COMMENTED
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;
@@ -181,6 +187,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 #if defined(THREADS) || defined(YAPOR)
   fprintf(Yap_stderr,"(%d)", worker_id);
 #endif
+  fprintf(Yap_stderr," %x ", Yap_ReadTimedVar(WokenGoals));
   /* check_trail_consistency(); */
   if (pred == NULL) 
     return;
@@ -298,5 +305,6 @@ Yap_InitLowLevelTrace(void)
 }
 
 #endif
+
 
 

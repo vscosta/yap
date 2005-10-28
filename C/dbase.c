@@ -265,6 +265,16 @@ STATIC_PROTO(DBProp find_int_key, (Int));
 }
 #endif
 
+static UInt new_trail_size(void)
+{
+  UInt sz = (Yap_TrailTop-(ADDR)TR)/2;
+  if (sz < 64 * 1024L)
+    return 64 * 1024L;
+  if (sz > 1024*1024L)
+    return 1024*1024L;
+  return sz;
+}
+
 static int
 recover_from_record_error(int nargs)
 {
@@ -276,7 +286,7 @@ recover_from_record_error(int nargs)
     }
     goto recover_record;
   case OUT_OF_TRAIL_ERROR:
-    if (!Yap_growtrail(64 * 1024L, FALSE)) {
+    if (!Yap_growtrail(new_trail_size(), FALSE)) {
       Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
       return FALSE;
     }
@@ -1005,9 +1015,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #ifdef COROUTINING
   /* we still may have constraints to do */
   if (ConstraintsTerm != TermNil &&
-      !(RepAppl(ConstraintsTerm) >= tbase &&
-	RepAppl(ConstraintsTerm) < StoPoint)
-      ) {
+      !IN_BETWEEN(tbase,RepAppl(ConstraintsTerm),CodeMax)) {
     *attachmentsp = (CELL)(CodeMax+1);
     pt0 = RepAppl(ConstraintsTerm)+1;
     pt0_end = RepAppl(ConstraintsTerm)+4;
@@ -1025,7 +1033,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #ifdef COROUTINING
   H = origH;
 #endif
-  return(CodeMax);
+  return CodeMax;
 
  error:
   Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
@@ -1044,7 +1052,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #ifdef COROUTINING
   H = origH;
 #endif
-  return(NULL);
+  return NULL;
 
  error2:
   Yap_Error_TYPE = OUT_OF_STACK_ERROR;
@@ -1062,7 +1070,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #ifdef COROUTINING
   H = origH;
 #endif
-  return(NULL);
+  return NULL;
 
  error_tr_overflow:
   Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;
@@ -1080,7 +1088,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #ifdef COROUTINING
   H = origH;
 #endif
-  return(NULL);
+  return NULL;
 #if THREADS
 #undef Yap_REGS
 #define Yap_REGS (*Yap_regp)  

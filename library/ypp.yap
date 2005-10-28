@@ -4,7 +4,7 @@
 %
 % Author: Nuno Fonseca (nunofonseca@acm.org)
 % Date: 2005-05-14
-% $Id: ypp.yap,v 1.1 2005-06-06 05:10:37 vsc Exp $
+% $Id: ypp.yap,v 1.2 2005-10-28 17:38:50 vsc Exp $
 %
 %====================================================================================
 
@@ -39,6 +39,8 @@ ypp_define(Name,Value):-
 
 ypp_undefine(Name):-
 	ground(Name),
+	del_define(Name).
+
 ypp_extcmd(Cmd):-
 	ground(Cmd),!,
 	eraseall('____ypp_extcmd'),

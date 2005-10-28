@@ -1758,7 +1758,7 @@ static Int
 p_shell (void)
 {				/* '$shell'(+SystCommand)			 */
 #if _MSC_VER || defined(__MINGW32__)
-   return(0);
+   return 0;
 #else
 #if HAVE_SYSTEM 
   char *shell;
@@ -2251,6 +2251,15 @@ p_yap_home(void) {
   return(Yap_unify(out,ARG1));
 }
 
+static Int
+p_env_separator(void) {
+#if defined(_WIN32)
+  return Yap_unify(MkIntegerTerm(';'),ARG1);
+#else
+  return Yap_unify(MkIntegerTerm(':'),ARG1);
+#endif
+}
+
 /*
  * This is responsable for the initialization of all machine dependant
  * predicates
@@ -2435,6 +2444,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$continue_signals", 0, p_continue_signals, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("file_directory_name", 2, p_file_directory_name, SafePredFlag);
+  Yap_InitCPred ("$env_separator", 1, p_env_separator, SafePredFlag);
 }
 
 

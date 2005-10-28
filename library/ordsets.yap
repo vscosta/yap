@@ -36,8 +36,13 @@
 	ord_symdiff/3,		%  Set x Set -> Set
         ord_union/2,            %  Set^2 -> Set
 	ord_union/3,		%  Set x Set -> Set
-	ord_union/4		%  Set x Set -> Set x Set
+	ord_union/4,		%  Set x Set -> Set x Set,
+	ord_empty/1,             % -> Set
+	ord_memberchk/2             % Element X Set
       ]).
+
+:- use_module(library(lists),
+   [memberchk/2]).
 
 /*
 :- mode
@@ -346,4 +351,9 @@ ord_union_all(N,Sets0,Union,Sets) :-
        ord_union_all(Z, Sets1, Y, Sets),
        ord_union(X, Y, Union)
     ).
+
+ord_empty([]).
+
+ord_memberchk(Element, Set) :-
+	memberchk(Element, Set).
 

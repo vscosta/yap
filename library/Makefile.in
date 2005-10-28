@@ -29,7 +29,9 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/avl.yap \
 	$(srcdir)/charsio.yap \
 	$(srcdir)/cleanup.yap \
+	$(srcdir)/gensym.yap \
 	$(srcdir)/heaps.yap \
+	$(srcdir)/listing.yap \
 	$(srcdir)/lists.yap \
 	$(srcdir)/logtalk.yap \
 	$(srcdir)/ordsets.yap \

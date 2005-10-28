@@ -24,10 +24,17 @@ if(X,Y,_Z) :-
 	'$execute'(Y).
 if(_X,_Y,Z) :-
 	'$execute'(Z).
-	
+
+call(X,A) :- '$execute'(X,A).
+
+call(X,A1,A2) :- '$execute'(X,A1,A2).
+
+call(X,A1,A2,A3) :- '$execute'(X,A1,A2,A3).
 
 call_with_args(M:V) :- var(V), !,
 	'$do_error'(instantiation_error,call_with_args(M:V)).
+call_with_args(_:M:A) :- !,
+	call_with_args(M:A).
 call_with_args(M:A) :- !,
 	'$call_with_args'(A,M).
 call_with_args(A) :- atom(A), !,
@@ -39,6 +46,8 @@ call_with_args(A) :-
 
 call_with_args(M:V,A1) :- var(V), !,
 	'$do_error'(instantiation_error,call_with_args(M:V,A1)).
+call_with_args(_:M:A,A1) :- !,
+	call_with_args(M:A,A1).
 call_with_args(M:A,A1) :- !,
 	'$call_with_args'(A,A1,M).
 call_with_args(A,A1) :- atom(A), !,
@@ -49,6 +58,8 @@ call_with_args(A,A1) :-
 	
 call_with_args(M:V,A1,A2) :- var(V), !,
 	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2)).
+call_with_args(_:M:A,A1,A2) :- !,
+	call_with_args(M:A,A1,A2).
 call_with_args(M:A,A1,A2) :- !,
 	'$call_with_args'(A,A1,A2,M).
 call_with_args(A,A1,A2) :- atom(A), !,
@@ -59,6 +70,8 @@ call_with_args(A,A1,A2) :-
 	
 call_with_args(M:V,A1,A2,A3) :- var(V), !,
 	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3)).
+call_with_args(_:M:A,A1,A2,A3) :- !,
+	call_with_args(M:A,A1,A2,A3).
 call_with_args(M:A,A1,A2,A3) :- !,
 	'$call_with_args'(A,A1,A2,A3,M).
 call_with_args(A,A1,A2,A3) :- atom(A), !,
@@ -69,6 +82,8 @@ call_with_args(A,A1,A2,A3) :-
 	
 call_with_args(M:V,A1,A2,A3,A4) :- var(V), !,
 	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3,A4)).
+call_with_args(_:M:A,A1,A2,A3,A4) :- !,
+	call_with_args(M:A,A1,A2,A3,A4).
 call_with_args(M:A,A1,A2,A3,A4) :- !,
 	'$call_with_args'(A,A1,A2,A3,A4,M).
 call_with_args(A,A1,A2,A3,A4) :- atom(A), !,
@@ -79,6 +94,8 @@ call_with_args(A,A1,A2,A3,A4) :-
 	
 call_with_args(M:V,A1,A2,A3,A4,A5) :- var(V), !,
 	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3,A4,A5)).
+call_with_args(_:M:A,A1,A2,A3,A4,A5) :- !,
+	call_with_args(M:A,A1,A2,A3,A4,A5).
 call_with_args(M:A,A1,A2,A3,A4,A5) :- !,
 	'$call_with_args'(A,A1,A2,A3,A4,A5,M).
 call_with_args(A,A1,A2,A3,A4,A5) :- atom(A), !,
@@ -89,6 +106,8 @@ call_with_args(A,A1,A2,A3,A4,A5) :-
 	
 call_with_args(M:V,A1,A2,A3,A4,A5,A6) :- var(V), !,
 	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3,A4,A5,A6)).
+call_with_args(_:M:A,A1,A2,A3,A4,A5,A6) :- !,
+	call_with_args(M:A,A1,A2,A3,A4,A5,A6).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6) :- !,
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6) :- atom(A), !,
@@ -99,6 +118,8 @@ call_with_args(A,A1,A2,A3,A4,A5,A6) :-
 	
 call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7) :- var(V), !,
 	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7)).
+call_with_args(_:M:A,A1,A2,A3,A4,A5,A6,A7) :- !,
+	call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7) :- !,
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7) :- atom(A), !,
@@ -109,6 +130,8 @@ call_with_args(A,A1,A2,A3,A4,A5,A6,A7) :-
 	
 call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7,A8) :- var(V), !,
 	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7,A8)).
+call_with_args(_:M:A,A1,A2,A3,A4,A5,A6,A7,A8) :- !,
+	call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7,A8).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7,A8) :- !,
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8) :- atom(A), !,
@@ -119,6 +142,8 @@ call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8) :-
 	
 call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- var(V), !,
 	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7,A8,A9)).
+call_with_args(_:M:A,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- !,
+	call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7,A8,A9).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- !,
 	'$current_module'(M),
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,M).
@@ -131,6 +156,8 @@ call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9) :-
 
 call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- var(V), !,
 	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10)).
+call_with_args(_:M:A,A1,A2,A3,A4,A5,A6,A7,A8,A10) :- !,
+	call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7,A8,A10).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- !,
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- atom(A), !,

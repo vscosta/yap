@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-10-21 16:09:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-10-28 17:38:49 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.95  2005/10/21 16:09:02  vsc
+* SWI compatible module only operators
+*
 * Revision 1.94  2005/09/08 22:06:45  rslopes
 * BEAM for YAP update...
 *
@@ -771,6 +774,18 @@ do_signal(yap_signals sig)
   UNLOCK(SignalLock);
 }
 
+inline static void
+undo_signal(yap_signals sig)
+{
+  LOCK(SignalLock);
+  if (ActiveSignals == sig) {
+    CreepFlag = CalculateStackGap();
+  }
+  ActiveSignals &= ~sig;
+  UNLOCK(SignalLock);
+}
+
+
 static Int 
 p_creep(void)
 {
@@ -818,6 +833,12 @@ void
 Yap_signal(yap_signals sig)
 {
   do_signal(sig);
+}
+
+void 
+Yap_undo_signal(yap_signals sig)
+{
+  undo_signal(sig);
 }
 
 #ifdef undefined
@@ -3207,6 +3228,16 @@ p_loop(void) {
 }
 #endif
 
+static Int
+p_max_tagged_integer(void) {
+  return Yap_unify(ARG1, MkIntTerm(MAX_ABS_INT-1L));
+}
+
+static Int
+p_min_tagged_integer(void) {
+  return Yap_unify(ARG1, MkIntTerm(-MAX_ABS_INT));
+}
+
 void 
 Yap_InitBackCPreds(void)
 {
@@ -3267,6 +3298,8 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$access_yap_flags", 2, p_access_yap_flags, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
+  Yap_InitCPred("$max_tagged_integer", 1, p_max_tagged_integer, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$min_tagged_integer", 1, p_min_tagged_integer, SafePredFlag|HiddenPredFlag);
 #ifdef BEAM
   Yap_InitCPred("@", 0, eager_split, SafePredFlag);
   Yap_InitCPred(":", 0, force_wait, SafePredFlag);

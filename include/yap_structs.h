@@ -87,6 +87,8 @@ typedef struct {
   char *YapPrologGoal;
   /* if NON-NULL, a goal to run as top-level  */
   char *YapPrologTopLevelGoal;
+  /* if NON-NULL, a path to extend file-search-path   */
+  char *YapPrologAddPath;
   /* if previous NON-NULL and TRUE, halt after consulting that file  */
   int HaltAfterConsult;
   /* ignore .yaprc, .prolog.ini, etc. files.  */

@@ -231,6 +231,7 @@ Yap_LookupAtomWithAddress(char *atom, AtomEntry *ae)
     return;
   }
   /* add new atom to start of chain */
+  NOfAtoms++;
   ae->NextOfAE = a;
   HashChain[hash].Entry = AbsAtom(ae);
   ae->PropsOfAE = NIL;

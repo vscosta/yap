@@ -923,4 +923,58 @@ current_char_conversion(X,Y) :-
 current_stream(File, Opts, Stream) :-
 	'$current_stream'(File, Opts, Stream).
 
+'$extend_file_search_path'(P) :-
+	atom_codes(P,S),
+	'$env_separator'(ES),
+	'$split_for_path'(S,0'=,ES,Paths),
+	'$add_file_search_paths'(Paths).
+
+'$split_for_path'([], _, _, []).
+'$split_for_path'(S, S1, S2, [A1=A2|R]) :-
+	'$fetch_first_path'(S, S1, A1, SR1),
+	'$fetch_second_path'(SR1, S2, A2, SR),
+	'$split_for_path'(SR, S1, S2, R) .
+
+'$fetch_first_path'([S1|SR],S1,[],SR) :- !.
+'$fetch_first_path'([C|S],S1,[C|F],SR) :-
+	'$fetch_first_path'(S,S1,F,SR).
+
+'$fetch_second_path'([],_,[],[]).
+'$fetch_second_path'([S1|SR],S1,[],SR) :- !.
+'$fetch_second_path'([C|S],S1,[C|A2],SR) :-
+	'$fetch_second_path'(S,S1,A2,SR).
+
+'$add_file_search_paths'([]).
+'$add_file_search_paths'([NS=DS|Paths]) :-
+	atom_codes(N,NS),
+	atom_codes(D,DS),
+	assert(user:file_search_path(N,D)),
+	'$add_file_search_paths'(Paths).
+
+
+'$format@'(Goal,Out) :-
+	'$with_output_to_chars'(Goal, _, [], Out).
+
+'$with_output_to_chars'(Goal, Stream, L0, Chars) :-
+	charsio:open_mem_write_stream(Stream),
+	current_output(SO),
+	set_output(Stream),
+	'$do_output_to_chars'(Goal, Stream, L0, Chars, SO).
+
+'$do_output_to_chars'(Goal, Stream, L0, Chars, SO) :-
+	catch(Goal, Exception, '$handle_exception'(Exception,Stream,SO)),
+	!,
+	set_output(SO),
+	charsio:peek_mem_write_stream(Stream, L0, Chars).
+'$do_output_to_chars'(_Goal, Stream, _L0, _Chars, SO) :-
+	set_output(SO),
+	close(Stream),
+	fail.
+
+'$handle_exception'(Exception, Stream, SO) :-
+	close(Stream),
+	current_output(SO),
+	throw(Exception).
+
+	
 	

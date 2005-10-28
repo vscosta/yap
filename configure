@@ -12881,7 +12881,8 @@ _ACEOF
 
 
 
-for ac_func in acosh asinh atanh chdir dlopen dup2
+
+for ac_func in acosh asinh atanh chdir ctime dlopen dup2
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
@@ -14864,8 +14865,11 @@ mkdir -p  LGPL/JPL/java
 mkdir -p  LGPL/JPL/java/jpl
 mkdir -p  LGPL/JPL/java/jpl/fli
 mkdir -p  LGPL/JPL/src
+mkdir -p  LGPL/clp
+mkdir -p  LGPL/clpr
+mkdir -p  LGPL/chr
 
-                                                                                                                                                                ac_config_files="$ac_config_files Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile CHR/Makefile CLPBN/Makefile CLPQR/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap"
+                                                                                                                                                                                    ac_config_files="$ac_config_files Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -15399,9 +15403,11 @@ do
   "library/mpi/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/mpi/Makefile" ;;
   ".depend" ) CONFIG_FILES="$CONFIG_FILES .depend" ;;
   "library/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/Makefile" ;;
-  "CHR/Makefile" ) CONFIG_FILES="$CONFIG_FILES CHR/Makefile" ;;
+  "LGPL/chr/Makefile" ) CONFIG_FILES="$CONFIG_FILES LGPL/chr/Makefile" ;;
+  "LGPL/chr/chr_swi_bootstrap.yap" ) CONFIG_FILES="$CONFIG_FILES LGPL/chr/chr_swi_bootstrap.yap" ;;
   "CLPBN/Makefile" ) CONFIG_FILES="$CONFIG_FILES CLPBN/Makefile" ;;
-  "CLPQR/Makefile" ) CONFIG_FILES="$CONFIG_FILES CLPQR/Makefile" ;;
+  "LGPL/clp/Makefile" ) CONFIG_FILES="$CONFIG_FILES LGPL/clp/Makefile" ;;
+  "LGPL/clpr/Makefile" ) CONFIG_FILES="$CONFIG_FILES LGPL/clpr/Makefile" ;;
   "library/Tries/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/Tries/Makefile" ;;
   "LGPL/JPL/Makefile" ) CONFIG_FILES="$CONFIG_FILES LGPL/JPL/Makefile" ;;
   "LGPL/JPL/src/Makefile" ) CONFIG_FILES="$CONFIG_FILES LGPL/JPL/src/Makefile" ;;

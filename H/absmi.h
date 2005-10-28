@@ -235,19 +235,19 @@ restore_absmi_regs(REGSTORE * old_regs)
 
 #if Y_IN_MEM
 
-#define CACHE_Y_AS_ENV(A) { register CELL *E_YREG = (A)
+#define CACHE_Y_AS_ENV(A) { register CELL *ENV_YREG = (A)
 
-#define WRITEBACK_Y_AS_ENV()   YREG = E_YREG
+#define WRITEBACK_Y_AS_ENV()   YREG = ENV_YREG
 
 #define ENDCACHE_Y_AS_ENV() }
 
-#define saveregs_and_ycache() YREG = E_YREG; saveregs()
+#define saveregs_and_ycache() YREG = ENV_YREG; saveregs()
 
-#define setregs_and_ycache() E_YREG = YREG; setregs()
+#define setregs_and_ycache() ENV_YREG = YREG; setregs()
 
 #else
 
-#define E_YREG (YREG)
+#define ENV_YREG (YREG)
 
 #define WRITEBACK_Y_AS_ENV()   
 
@@ -679,10 +679,10 @@ Macros to check the limits of stacks
 
 #if (defined(SBA) && defined(YAPOR)) || defined(TABLING)
 #define check_stack(Label, GLOB)                             \
- if ( (Int)(Unsigned(YOUNGEST_CP((choiceptr)E_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,GLOB))) < CFREG  ) goto Label
+ if ( (Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,GLOB))) < CFREG  ) goto Label
 #else
 #define check_stack(Label, GLOB)                             \
- if ( (Int)(Unsigned(E_YREG) - Unsigned(GLOB)) < CFREG ) goto Label
+ if ( (Int)(Unsigned(ENV_YREG) - Unsigned(GLOB)) < CFREG ) goto Label
 #endif /* SBA && YAPOR */
 
 /***************************************************************

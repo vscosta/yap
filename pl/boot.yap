@@ -37,6 +37,7 @@ true :- true.
 		'$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
 
 '$init_system' :-
+	'$add_alias_to_stream'('$loop_stream','$stream'(0)),
         % do catch as early as possible
 	(
 	 '$access_yap_flags'(15, 0), \+ '$uncaught_throw' ->
@@ -148,6 +149,11 @@ true :- true.
 	'$sync_mmapped_arrays',
 	set_value('$live','$false').
 
+'$startup_goals' :-
+	get_value('$extend_file_search_path',P), P \= [],
+	set_value('$extend_file_search_path',[]),
+	'$extend_file_search_path'(P),
+	fail.
 '$startup_goals' :-
 	recorded('$startup_goal',G,_),
 	'$current_module'(Module),
@@ -492,12 +498,12 @@ repeat :- '$repeat'.
 '$write_answer'(_,_,_) :-
         '$flush_all_streams',
 	fail.
-'$write_answer'(Vs, LBlk, LAnsw) :-
+'$write_answer'(Vs, LBlk, FLAnsw) :-
 	'$purge_dontcares'(Vs,IVs),
 	'$sort'(IVs, NVs),
 	'$prep_answer_var_by_var'(NVs, LAnsw, LBlk),
 	'$name_vars_in_goals'(LAnsw, Vs, NLAnsw),
-        '$write_vars_and_goals'(NLAnsw).
+        '$write_vars_and_goals'(NLAnsw, FLAnsw).
 
 '$purge_dontcares'([],[]).
 '$purge_dontcares'([[[95|_]|_]|Vs],NVs) :- !,
@@ -536,25 +542,25 @@ repeat :- '$repeat'.
 	C is I1+65,
 	'$gen_name_string'(I2,[C|L0],LF).
 
-'$write_vars_and_goals'([]).
-'$write_vars_and_goals'([G1|LG]) :-
-	'$write_goal_output'(G1),
-	'$write_remaining_vars_and_goals'(LG).
+'$write_vars_and_goals'([], []).
+'$write_vars_and_goals'([G1|LG], NG) :-
+	'$write_goal_output'(G1, NG, IG),
+	'$write_remaining_vars_and_goals'(LG, IG).
 
-'$write_remaining_vars_and_goals'([]).
-'$write_remaining_vars_and_goals'([nl,G1|LG]) :- !,
+'$write_remaining_vars_and_goals'([], []).
+'$write_remaining_vars_and_goals'([nl,G1|LG], NG) :- !,
 	nl(user_error),
-	'$write_goal_output'(G1),
-	'$write_remaining_vars_and_goals'(LG).
-'$write_remaining_vars_and_goals'([G1|LG]) :-
+	'$write_goal_output'(G1, NG, IG),
+	'$write_remaining_vars_and_goals'(LG, IG).
+'$write_remaining_vars_and_goals'([G1|LG], NG) :-
 	( LG = [] -> nl(user_error) ; format(user_error,',~n',[]) ),
-	'$write_goal_output'(G1),
-	'$write_remaining_vars_and_goals'(LG).
+	'$write_goal_output'(G1, NG, IG),
+	'$write_remaining_vars_and_goals'(LG, IG).
 
-'$write_goal_output'(var([V|VL])) :-
+'$write_goal_output'(var([V|VL]), [var([V|VL])|L], L) :-
 	format(user_error,'~s',[V]),
 	'$write_output_vars'(VL).
-'$write_goal_output'(nonvar([V|VL],B)) :-
+'$write_goal_output'(nonvar([V|VL],B), [nonvar([V|VL],B)|L], L) :-
 	format(user_error,'~s',[V]),
 	'$write_output_vars'(VL),
 	format(user_error,' = ', []),
@@ -562,17 +568,17 @@ repeat :- '$repeat'.
 	   write_term(user_error,B,Opts) ;
 	   format(user_error,'~w',[B])
         ).
-'$write_goal_output'(Format-G) :-
+'$write_goal_output'(Format-G, NG, NG) :-
 	G = [_|_], !,
         format(user_error,Format,G).
-'$write_goal_output'(_-G) :-
+'$write_goal_output'(_-G, NG, NG) :-
         ( recorded('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,G,Opts) ;
 	   format(user_error,'~w',[G])
         ).
 
 '$name_vars_in_goals'(G, VL0, NG) :-
-	'$copy_term_but_not_constraints'(G+VL0, NG+NVL0),
+	copy_term_nat(G+VL0, NG+NVL0),
 	'$name_well_known_vars'(NVL0),
 	'$variables_in_term'(NG, [], NGVL),
 	'$name_vars_in_goals1'(NGVL, 0, _).
@@ -799,21 +805,38 @@ break :-
 	(nonvar(Debug) -> recorda('$debug',Debug,_); true),
 	set_value('$break',BL).
 
+'$silent_bootstrap'(F) :-
+	get_value('$lf_verbose',OldSilent),
+	set_value('$lf_verbose',silent),
+	bootstrap(F),
+	set_value('$lf_verbose', OldSilent).
 
 bootstrap(F) :-
 	'$open'(F,'$csult',Stream,0),
-	H0 is heapused, '$cputime'(T0,_),
 	'$current_stream'(File,_,Stream),
 	'$start_consult'(consult, File, LC),
 	file_directory_name(File, Dir),
 	'$getcwd'(OldD),
 	cd(Dir),
-	format(user_error, '~*|% consulting ~w...~n', [LC,F]),
+	(
+	  get_value('$lf_verbose',silent)
+	->
+	  true
+	;
+	  H0 is heapused, '$cputime'(T0,_),
+	  format(user_error, '~*|% consulting ~w...~n', [LC,F])
+	),
 	'$loop'(Stream,consult),
 	cd(OldD),
 	'$end_consult',
-	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-	format(user_error, '~*|% ~w consulted ~w bytes in ~d msecs~n', [LC,F,H,T]),
+	(
+	  get_value('$lf_verbose',silent)
+	->
+	  true
+	;
+	  H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+	  format(user_error, '~*|% ~w consulted ~w bytes in ~d msecs~n', [LC,F,H,T])
+	),
 	!.
 
 

@@ -324,20 +324,6 @@ AdjustTrail(int adjusting_heap)
 	TrailTerm(ptt) = DelayAdjust(reg);
       else if (IsOldTrail(reg))
 	TrailTerm(ptt) = TrailAdjust(reg);
-      else if (IsOldCode(reg)) {
-	CELL *ptr;
-	TrailTerm(ptt) = reg = CodeAdjust(reg);
-	ptr = (CELL *)reg;
-	if (IsApplTerm(*ptr)) {
-	  *ptr = AdjustAppl(*ptr);
-	} else if (IsPairTerm(*ptr)) {
-	  *ptr = AdjustAppl(*ptr);
-	}
-#ifdef DEBUG_STRONG
-	else 
-	  fprintf(Yap_stderr,"%% garbage heap ptr %p to %lx found in trail at %p by stack shifter\n", ptr, (unsigned long int)*ptr, ptt);
-#endif
-      }
     } else if (IsPairTerm(reg)) {
      TrailTerm(ptt) = AdjustPair(reg);
 #ifdef MULTI_ASSIGNMENT_VARIABLES /* does not work with new structures */
@@ -357,8 +343,6 @@ AdjustTrail(int adjusting_heap)
 	TrailVal(ptt) = DelayAdjust(reg2);
       else if (IsOldTrail(reg2))
 	TrailVal(ptt) = TrailAdjust(reg2);
-      else if (IsOldCode(reg2))
-	TrailVal(ptt) = CodeAdjust(reg2);
     } else if (IsApplTerm(reg2)) {
       TrailVal(ptt) = AdjustAppl(reg2);
     } else if (IsPairTerm(reg2)) {
@@ -398,10 +382,51 @@ AdjustLocal(void)
 
 }
 
+static Term
+AdjustGlobTerm(Term reg)
+{
+  if (IsVarTerm(reg)) {
+    if (IsOldGlobal(reg))
+      return GlobalAdjust(reg);
+    else if (IsOldDelay(reg))
+      return DelayAdjust(reg);
+    else if (IsOldLocal(reg))
+      return LocalAdjust(reg);
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+    else if (IsOldTrail(reg))
+      return TrailAdjust(reg);
+#endif
+  } else if (IsApplTerm(reg))
+    return AdjustAppl(reg);
+  else if (IsPairTerm(reg))
+    return AdjustPair(reg);
+  return AtomTermAdjust(reg);
+}
+
 static void
 AdjustGlobal(void)
 {
-  register CELL *pt;
+  CELL *pt;
+  ArrayEntry *al = DynamicArrays;
+  StaticArrayEntry *sal = StaticArrays;
+
+  while (al) {
+    al->ValueOfVE = AdjustGlobTerm(al->ValueOfVE);
+    al = al->NextAE;
+  }
+  while (sal) {
+    if (sal->ArrayType == array_of_nb_terms) {
+      UInt arity = -sal->ArrayEArity, i;
+      for (i=0; i < arity; i++) {
+	/*	    sal->ValueOfVE.lterms[i].tlive = AdjustGlobTerm(sal->ValueOfVE.lterms[i].tlive); */
+	Term tlive  = sal->ValueOfVE.lterms[i].tlive;
+	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
+	    sal->ValueOfVE.lterms[i].tlive = AdjustGlobTerm(sal->ValueOfVE.lterms[i].tlive);
+	}
+      }
+    }
+    sal = sal->NextAE;
+  }
 
   /*
    * to clean the global now that functors are just variables pointing to
@@ -415,7 +440,7 @@ AdjustGlobal(void)
       if (IsVarTerm(reg)) {
 	if (IsOldGlobal(reg))
 	  *pt = GlobalAdjust(reg);
-	if (IsOldDelay(reg))
+	else if (IsOldDelay(reg))
 	  *pt = DelayAdjust(reg);
 	else if (IsOldLocal(reg))
 	  *pt = LocalAdjust(reg);

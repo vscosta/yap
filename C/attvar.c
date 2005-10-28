@@ -82,7 +82,13 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
   vt = &(attv->Atts);
   to_visit[0] = vt-1;
   to_visit[1] = vt;
-  to_visit[2] = &(newv->Atts);
+  if (IsVarTerm(attv->Atts)) {
+    newv->Atts = (CELL)H;
+    to_visit[2] = H;
+    H++;
+  } else {
+    to_visit[2] = &(newv->Atts);
+  }
   to_visit[3] = (CELL *)vt[-1];
   *to_visit_ptr = to_visit+4;
   *res = (CELL)&(newv->Done);

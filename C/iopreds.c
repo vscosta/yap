@@ -120,6 +120,7 @@ STATIC_PROTO (void PurgeAlias, (int));
 STATIC_PROTO (int CheckAlias, (Atom));
 STATIC_PROTO (Atom FetchAlias, (int));
 STATIC_PROTO (int FindAliasForStream, (int, Atom));
+STATIC_PROTO (int FindStreamForAlias, (Atom));
 STATIC_PROTO (int CheckStream, (Term, int, char *));
 STATIC_PROTO (Int p_check_stream, (void));
 STATIC_PROTO (Int p_check_if_stream, (void));
@@ -1831,25 +1832,29 @@ static Int p_check_if_valid_new_alias (void)
 
 static Int
 p_fetch_stream_alias (void)
-{				/* '$fetch_stream_alias'(Stream)                  */
+{				/* '$fetch_stream_alias'(Stream,Alias)                  */
   int sno;
   Term t2 = Deref(ARG2);
+  Term t1 = Deref(ARG1);
 
-  if ((sno = CheckStream (ARG1, Input_Stream_f | Output_Stream_f,
+  if (IsVarTerm(t1)) {
+    return Yap_unify(ARG1,MkStream(FindStreamForAlias(AtomOfTerm(t2))));
+  }
+  if ((sno = CheckStream (t1, Input_Stream_f | Output_Stream_f,
 			  "fetch_stream_alias/2"))  == -1)
-    return(FALSE);
+    return FALSE;
   if (IsVarTerm(t2)) {
     Atom at = FetchAlias(sno);
     if (at == AtomFoundVar)
-      return(FALSE);
+      return FALSE;
     else 
-      return(Yap_unify_constant(t2, MkAtomTerm(at)));
+      return Yap_unify_constant(t2, MkAtomTerm(at));
   } else if (IsAtomTerm(t2)) {
     Atom at = AtomOfTerm(t2);
-    return((Int)FindAliasForStream(sno,at));
+    return (Int)FindAliasForStream(sno,at);
   } else {
     Yap_Error(TYPE_ERROR_ATOM, t2, "fetch_stream_alias/2");
-    return(FALSE);
+    return FALSE;
   }
 }
 
@@ -2282,6 +2287,21 @@ FindAliasForStream (int sno, Atom al)
   while (aliasp < aliasp_max) {
     if (aliasp->alias_stream == sno && aliasp->name == al) {
       return(TRUE);
+    }
+    aliasp++;
+  }
+  return(FALSE);
+}
+
+/* check if arg is an alias */
+static int
+FindStreamForAlias (Atom al)
+{
+  AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases;
+
+  while (aliasp < aliasp_max) {
+    if (aliasp->name == al) {
+      return(aliasp->alias_stream);
     }
     aliasp++;
   }
@@ -3520,66 +3540,66 @@ p_put_byte (void)
   return (TRUE);
 }
 
-static int format_error = FALSE;
-
 #define FORMAT_MAX_SIZE 256
-
-static char *format_ptr, *format_base, *format_max;
-static int   format_buf_size;
 
 typedef struct {
   Int pos;                   /* tab point */
   char pad;                  /* ok, it's not standard english */
 } pads;
 
-static  pads pad_entries[16], *pad_max = pad_entries;
+typedef struct format_status {
+  int format_error;
+  char *format_ptr, *format_base, *format_max;
+  int   format_buf_size;
+  pads pad_entries[16], *pad_max;
+} format_info;
 
 static int
 format_putc(int sno, int ch) {
-  if (format_buf_size == -1)
-    return(EOF);
+  if (FormatInfo->format_buf_size == -1)
+    return EOF;
   if (ch == 10) {
-    char *ptr = format_base;
+    char *ptr = FormatInfo->format_base;
 #if MAC || _MSC_VER
     ch = '\n';
 #endif
-    for (ptr = format_base; ptr < format_ptr; ptr++) {
+    for (ptr = FormatInfo->format_base; ptr < FormatInfo->format_ptr; ptr++) {
       Stream[sno].stream_putc(sno, *ptr);
     }
     /* reset line */
-    format_ptr = format_base;
-    pad_max = pad_entries;
+    FormatInfo->format_ptr = FormatInfo->format_base;
+    FormatInfo->pad_max = FormatInfo->pad_entries;
     Stream[sno].stream_putc(sno, '\n');
     return((int)10);
   } else {
-    *format_ptr++ = (char)ch;
-    if (format_ptr == format_max) {
+    *FormatInfo->format_ptr++ = (char)ch;
+    if (FormatInfo->format_ptr == FormatInfo->format_max) {
       /* oops, we have reached an overflow */
-      Int new_max_size = format_buf_size + FORMAT_MAX_SIZE;
+      Int new_max_size = FormatInfo->format_buf_size + FORMAT_MAX_SIZE;
       char *newbuf;
 
       if ((newbuf = Yap_AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
-	format_buf_size = -1;
+	FormatInfo->format_buf_size = -1;
 	Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap for format/2");
 	return(EOF);
       }
 #if HAVE_MEMMOVE
-      memmove((void *)newbuf, (void *)format_base, (size_t)((format_ptr-format_base)*sizeof(char)));
+      memmove((void *)newbuf, (void *)FormatInfo->format_base, (size_t)((FormatInfo->format_ptr-FormatInfo->format_base)*sizeof(char)));
 #else
       {
-	Int n = format_ptr-format_base;
+	Int n = FormatInfo->format_ptr-FormatInfo->format_base;
 	char *to = newbuf;
-	char *from = format_base;
+	char *from = FormatInfo->format_base;
 	while (n-- >= 0) {
 	  *to++ = *from++;
 	}
       }
 #endif
-      Yap_FreeAtomSpace(format_base);
-      format_ptr = newbuf+(format_ptr-format_base);
-      format_base = newbuf;
-      format_max = newbuf+new_max_size;
-      format_buf_size = new_max_size;
+      Yap_FreeAtomSpace(FormatInfo->format_base);
+      FormatInfo->format_ptr = newbuf+(FormatInfo->format_ptr-FormatInfo->format_base);
+      FormatInfo->format_base = newbuf;
+      FormatInfo->format_max = newbuf+new_max_size;
+      FormatInfo->format_buf_size = new_max_size;
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
 	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap at format");
@@ -3595,11 +3615,11 @@ static void fill_pads(int nchars)
   int nfillers, fill_space, lfill_space;
 
   if (nchars <= 0) return; /* ignore */
-  nfillers = pad_max-pad_entries;
+  nfillers = FormatInfo->pad_max-FormatInfo->pad_entries;
   if (nfillers == 0) {
     /* OK, just pad with spaces */
     while (nchars--) {
-      *format_ptr++ = ' ';
+      *FormatInfo->format_ptr++ = ' ';
     }    
     return;
   }
@@ -3607,35 +3627,35 @@ static void fill_pads(int nchars)
   lfill_space = nchars%nfillers;
 
   if (fill_space) {
-    pads *padi = pad_max;
+    pads *padi = FormatInfo->pad_max;
 
-    while (padi > pad_entries) {
+    while (padi > FormatInfo->pad_entries) {
       char *start_pos;
       int n, i;
       padi--;
-      start_pos = format_base+padi->pos;
-      n = format_ptr-start_pos;
+      start_pos = FormatInfo->format_base+padi->pos;
+      n = FormatInfo->format_ptr-start_pos;
 
 #if HAVE_MEMMOVE
       memmove((void *)(start_pos+fill_space), (void *)start_pos, (size_t)(n*sizeof(char)));
 #else
       {
 	char *to = start_pos+(fill_space+n);
-	char *from = format_ptr;
+	char *from = FormatInfo->format_ptr;
 
 	while (n-- > 0) {
 	  *--to = *--from;
 	}
       }
 #endif
-      format_ptr += fill_space;
+      FormatInfo->format_ptr += fill_space;
       for (i = 0; i < fill_space; i++) {
 	*start_pos++ = padi->pad;
       }
     }
   }
   while (lfill_space--) {
-    *format_ptr++ = pad_max[-1].pad;
+    *FormatInfo->format_ptr++ = FormatInfo->pad_max[-1].pad;
   }
 }
 
@@ -3780,7 +3800,7 @@ format_has_tabs(const char *seq)
       if (ch == '*') {
 	ch = *seq++;
       }
-      if (ch == 't' || ch == '|') {
+      if (ch == 't' || ch == '|' || ch == '@') {
 	return TRUE;
       }
     }
@@ -3804,7 +3824,12 @@ format(volatile Term otail, volatile Term oargs, int sno)
   jmp_buf format_botch;
   volatile void *old_handler;
   volatile int old_pos;
+  format_info finfo;
+  Term fmod = CurrentModule;
 
+  FormatInfo = &finfo;
+  finfo.pad_max = finfo.pad_entries;
+  finfo.format_error = FALSE;
   if (Stream[sno].status & InMemory_Stream_f) {
     old_handler = Stream[sno].u.mem_string.error_handler;
     Stream[sno].u.mem_string.error_handler = (void *)&format_botch;
@@ -3850,6 +3875,26 @@ format(volatile Term otail, volatile Term oargs, int sno)
     Yap_Error(CONSISTENCY_ERROR, tail, "format/2");
     return FALSE;
   }
+  if (IsVarTerm(args)) {
+    Yap_Error(INSTANTIATION_ERROR, args, "format/2");
+    return FALSE;
+  } 
+  while (IsApplTerm(args) && FunctorOfTerm(args) == FunctorModule) {
+    fmod = ArgOfTerm(1,args);
+    args = ArgOfTerm(2,args);
+    if (IsVarTerm(fmod)) {
+      Yap_Error(INSTANTIATION_ERROR, fmod, "format/2");
+      return FALSE;
+    }
+    if (!IsAtomTerm(fmod)) {
+      Yap_Error(TYPE_ERROR_ATOM, fmod, "format/2");
+      return FALSE;
+    }
+    if (IsVarTerm(args)) {
+      Yap_Error(INSTANTIATION_ERROR, args, "format/2");
+      return FALSE;
+    }
+  } 
   if (IsPairTerm(args)) {
     Int tsz = 8;
 
@@ -3876,20 +3921,20 @@ format(volatile Term otail, volatile Term oargs, int sno)
     tnum = 0;
     targs = mytargs;
   }
-  format_error = FALSE;
+  finfo.format_error = FALSE;
 
   if ((has_tabs = format_has_tabs(fptr))) {
-    format_base = format_ptr = Yap_AllocAtomSpace(FORMAT_MAX_SIZE*sizeof(char));
-    format_max = format_base+FORMAT_MAX_SIZE;
-    if (format_ptr == NULL) {
+    finfo.format_base = finfo.format_ptr = Yap_AllocAtomSpace(FORMAT_MAX_SIZE*sizeof(char));
+    finfo.format_max = finfo.format_base+FORMAT_MAX_SIZE;
+    if (finfo.format_ptr == NULL) {
       Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
       return(FALSE);
     }  
-    format_buf_size = FORMAT_MAX_SIZE;
+    finfo.format_buf_size = FORMAT_MAX_SIZE;
     f_putc = format_putc;
   } else {
     f_putc = Stream[sno].stream_putc;
-    format_base = NULL;
+    finfo.format_base = NULL;
   }
   while ((ch = *fptr++)) {
     Term t = TermNil;
@@ -3932,6 +3977,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	if (!IsAtomTerm(t))
 	  goto do_type_atom_error;
 	Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f);
+	FormatInfo = &finfo;
 	break;
       case 'c':
 	{
@@ -4004,6 +4050,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    goto do_type_int_error;
 	  if (!has_repeats) {
 	    Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f);
+	    FormatInfo = &finfo;
 	  } else {
 	    Int siz, dec = IntegerOfTerm(t), i, div = 1;
 
@@ -4044,6 +4091,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      f_putc(sno, (int) '.');
 	    }
 	    Yap_plwrite (MkIntegerTerm(dec), f_putc, Handle_vars_f|To_heap_f);
+	    FormatInfo = &finfo;
 	  break;
 	  case 'r':
 	  case 'R':
@@ -4107,7 +4155,36 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    t = targs[targ++];
 	    Yap_StartSlots();
 	    Yap_plwrite (t, f_putc, Quote_illegal_f|Ignore_ops_f|To_heap_f );
+	    FormatInfo = &finfo;
 	    ASP++;
+	    break;
+	  case '@':
+	    t = targs[targ++];
+	    Yap_StartSlots();
+	    { 
+	      long sl = Yap_InitSlot(args);
+	      long sl2;
+	      Int res;
+	      Term ta[2];
+	      Term ts;
+
+	      ta[0] = fmod;
+	      ta[1] = t;
+	      ta[0] = Yap_MkApplTerm(FunctorModule, 2, ta);
+	      ta[1] = MkVarTerm();
+	      sl2 = Yap_InitSlot(ta[1]);
+	      ts = Yap_MkApplTerm(FunctorGFormatAt, 2, ta);
+	      res = Yap_execute_goal(ts, 0, 1);
+	      FormatInfo = &finfo;
+	      args = Yap_GetFromSlot(sl);
+	      if (EX) goto ex_handler;
+	      if (!res) return FALSE;
+	      ts = Yap_GetFromSlot(sl2);
+	      Yap_RecoverSlots(2);
+	      if (!format_print_str (sno, repeats, has_repeats, ts, f_putc)) {
+		goto do_default_error;
+	      }
+	    }
 	    break;
 	  case 'p':
 	    if (targ > tnum-1 || has_repeats)
@@ -4117,11 +4194,15 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    { 
 	      long sl = Yap_InitSlot(args);
 	      Yap_plwrite(t, f_putc, Handle_vars_f|Use_portray_f|To_heap_f);
+	      FormatInfo = &finfo;
 	      args = Yap_GetFromSlot(sl);
 	      Yap_RecoverSlots(1);
 	    }
 	    if (EX != 0L) {
-	      Term ball = EX;
+	      Term ball;
+
+	    ex_handler:
+	      ball = EX;
 	      EX = 0L;
 	      if (tnum <= 8)
 		targs = NULL;
@@ -4131,8 +4212,9 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      if (Stream[sno].status & InMemory_Stream_f) {
 		Stream[sno].u.mem_string.error_handler = old_handler;
 	      }
-	      format_clean_up(format_base, fstr, targs);
+	      format_clean_up(finfo.format_base, fstr, targs);
 	      Yap_JumpToEnv(ball);
+	      return FALSE;
 	    }
 	    ASP++;
 	    break;
@@ -4142,6 +4224,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    t = targs[targ++];
 	    Yap_StartSlots();
 	    Yap_plwrite (t, f_putc, Handle_vars_f|Quote_illegal_f|To_heap_f);
+	    FormatInfo = &finfo;
 	    ASP++;
 	    break;
 	  case 'w':
@@ -4150,6 +4233,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    t = targs[targ++];
 	    Yap_StartSlots();
 	    Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f);
+	    FormatInfo = &finfo;
 	    ASP++;
 	    break;
 	  case '~':
@@ -4164,7 +4248,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      f_putc(sno, (int) '\n');
 	    }
 	    column_boundary = 0;
-	    pad_max = pad_entries;
+	    finfo.pad_max = finfo.pad_entries;
 	    break;
 	  case 'N':
 	    if (!has_repeats)
@@ -4172,41 +4256,41 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    if (Stream[sno].linepos != 0) {
 	      f_putc(sno, (int) '\n');
 	      column_boundary = 0;
-	      pad_max = pad_entries;
+	      finfo.pad_max = finfo.pad_entries;
 	    }
 	    if (repeats > 1) {
 	      Int i;
 	      for (i = 1; i < repeats; i++)
 		f_putc(sno, (int) '\n');
 	      column_boundary = 0;
-	      pad_max = pad_entries;
+	      finfo.pad_max = finfo.pad_entries;
 	    }
 	    break;
 	    /* padding */
 	  case '|':
 	    if (has_repeats) {
-	      fill_pads(repeats-(format_ptr-format_base));
+	      fill_pads(repeats-(finfo.format_ptr-finfo.format_base));
 	    }
-	    pad_max = pad_entries;
+	    finfo.pad_max = finfo.pad_entries;
 	    column_boundary = repeats;
 	    break;
 	  case '+':
 	    if (has_repeats) {
-	      fill_pads((repeats+column_boundary)-(format_ptr-format_base));
+	      fill_pads((repeats+column_boundary)-(finfo.format_ptr-finfo.format_base));
 	    } else {
 	      repeats = 8;
 	      fill_pads(8);
 	    }
-	    pad_max = pad_entries;
+	    finfo.pad_max = finfo.pad_entries;
 	    column_boundary = repeats+column_boundary;
 	    break;
 	  case 't':
 	    if (!has_repeats)
-	      pad_max->pad = ' ';
+	      finfo.pad_max->pad = ' ';
 	    else
-	      pad_max->pad = fptr[-2];
-	    pad_max->pos = format_ptr-format_base;
-	    pad_max++;
+	      finfo.pad_max->pad = fptr[-2];
+	    finfo.pad_max->pos = finfo.format_ptr-finfo.format_base;
+	    finfo.pad_max++;
 	    f_putc = format_putc;
 	    break;
 	  do_instantiation_error:
@@ -4245,7 +4329,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    if (Stream[sno].status & InMemory_Stream_f) {
 	      Stream[sno].u.mem_string.error_handler = old_handler;
 	    }
-	    format_clean_up(format_base, fstr, targs);
+	    format_clean_up(finfo.format_base, fstr, targs);
 	    Yap_Error_TYPE = YAP_NO_ERROR;
 	    return FALSE;
 	  }
@@ -4257,7 +4341,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
     }
   }
   if (has_tabs) {
-    for (fptr = format_base; fptr < format_ptr; fptr++) {
+    for (fptr = finfo.format_base; fptr < finfo.format_ptr; fptr++) {
       Stream[sno].stream_putc(sno, *fptr);
     }
   }
@@ -4269,7 +4353,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
   if (Stream[sno].status & InMemory_Stream_f) {
     Stream[sno].u.mem_string.error_handler = old_handler;
   }
-  format_clean_up(format_base, fstr, targs);
+  format_clean_up(finfo.format_base, fstr, targs);
   return (TRUE);
 }
 

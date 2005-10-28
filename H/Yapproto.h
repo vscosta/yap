@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.61 2005-10-21 16:09:03 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.62 2005-10-28 17:38:50 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -260,6 +260,7 @@ void	STD_PROTO(Yap_InitBackCPreds,(void));
 void	STD_PROTO(Yap_InitCPreds,(void));
 void	STD_PROTO(Yap_show_statistics,(void));
 void	STD_PROTO(Yap_signal,(yap_signals));
+void	STD_PROTO(Yap_undo_signal,(yap_signals));
 
 /* sysbits.c */
 void	STD_PROTO(Yap_set_fpu_exceptions,(int));

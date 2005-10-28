@@ -472,6 +472,15 @@ PtoArrayEAdjust (ArrayEntry * ptr)
 }
 
 
+inline EXTERN StaticArrayEntry *PtoArraySAdjust (StaticArrayEntry *);
+
+inline EXTERN StaticArrayEntry *
+PtoArraySAdjust (StaticArrayEntry * ptr)
+{
+  return (StaticArrayEntry *) (((StaticArrayEntry *) (CharP (ptr) + HDiff)));
+}
+
+
 
 inline EXTERN struct logic_upd_clause *PtoLUCAdjust (struct logic_upd_clause
 						     *);

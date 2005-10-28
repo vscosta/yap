@@ -11,8 +11,38 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2005-10-18 17:04:43 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-10-28 17:38:50 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.66  2005/10/18 17:04:43  vsc
+* 5.1:
+* - improvements to GC
+*    2 generations
+*    generic speedups
+* - new scheme for attvars
+*    - hProlog like interface also supported
+* - SWI compatibility layer
+*    - extra predicates
+*    - global variables
+*    - moved to Prolog module
+* - CLP(R) by Leslie De Koninck, Tom Schrijvers, Cristian Holzbaur, Bart
+* Demoen and Jan Wielemacker
+* - load_files/2
+*
+* from 5.0.1
+*
+* - WIN32 missing include files (untested)
+* - -L trouble (my thanks to Takeyuchi Shiramoto-san)!
+* - debugging of backtrable user-C preds would core dump.
+* - redeclaring a C-predicate as Prolog core dumps.
+* - badly protected  YapInterface.h.
+* - break/0 was failing at exit.
+* - YAP_cut_fail and YAP_cut_succeed were different from manual.
+* - tracing through data-bases could core dump.
+* - cut could break on very large computations.
+* - first pass at BigNum issues (reported by Roberto).
+* - debugger could get go awol after fail port.
+* - weird message on wrong debugger option.
+*
 * Revision 1.65  2005/05/25 21:43:33  vsc
 * fix compiler bug in 1 << X, found by Nuno Fonseca.
 * compiler internal errors get their own message.
@@ -236,7 +266,7 @@ print_message(Level, Mss) :-
 '$do_print_message'(declaration(Args,Action)) :- !,
 	format(user_error,'declaration ~w ~w.',	[Args,Action]).
 '$do_print_message'(defined_elsewhere(P,F)) :- !,
-	format(user_error, 'predicate ~q, at line ~d, previously defined in file ~a.',[P,LN,F]).
+	format(user_error, 'predicate ~q previously defined in file ~a.',[P,F]).
 '$do_print_message'(import(Pred,To,From,private)) :- !,
 	format(user_error,'Importing private predicate ~w:~w to ~w.',
 	[From,Pred,To]).

@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2005-10-21 16:09:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-10-28 17:38:50 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.56  2005/10/21 16:09:03  vsc
+* SWI compatible module only operators
+*
 * Revision 1.55  2005/10/19 19:00:48  vsc
 * extend arrays with nb_terms so that we can implement nb_ builtins
 * correctly.
@@ -362,6 +365,7 @@ restore_codes(void)
   Yap_heap_regs->functor_alt_not = FuncAdjust(Yap_heap_regs->functor_alt_not);
   Yap_heap_regs->functor_arrow = FuncAdjust(Yap_heap_regs->functor_arrow);
   Yap_heap_regs->functor_assert = FuncAdjust(Yap_heap_regs->functor_assert);
+  Yap_heap_regs->functor_at_found_one = FuncAdjust(Yap_heap_regs->functor_at_found_one);
 #ifdef COROUTINING
   Yap_heap_regs->functor_att_goal = FuncAdjust(Yap_heap_regs->functor_att_goal);
 #endif
@@ -378,6 +382,7 @@ restore_codes(void)
   Yap_heap_regs->functor_g_atomic = FuncAdjust(Yap_heap_regs->functor_g_atomic);
   Yap_heap_regs->functor_g_compound = FuncAdjust(Yap_heap_regs->functor_g_compound);
   Yap_heap_regs->functor_g_float = FuncAdjust(Yap_heap_regs->functor_g_float);
+  Yap_heap_regs->functor_g_format_at = FuncAdjust(Yap_heap_regs->functor_g_format_at);
   Yap_heap_regs->functor_g_integer = FuncAdjust(Yap_heap_regs->functor_g_integer);
   Yap_heap_regs->functor_g_number = FuncAdjust(Yap_heap_regs->functor_g_number);
   Yap_heap_regs->functor_g_primitive = FuncAdjust(Yap_heap_regs->functor_g_primitive);
@@ -414,10 +419,6 @@ restore_codes(void)
   Yap_heap_regs->attributes_module = AtomTermAdjust(Yap_heap_regs->attributes_module);
   Yap_heap_regs->charsio_module = AtomTermAdjust(Yap_heap_regs->charsio_module);
   Yap_heap_regs->terms_module = AtomTermAdjust(Yap_heap_regs->terms_module);
-  if (Yap_heap_regs->dyn_array_list != NULL) {
-    Yap_heap_regs->dyn_array_list =
-      (struct array_entry *)AddrAdjust((ADDR)Yap_heap_regs->dyn_array_list);
-  }
   if (Yap_heap_regs->file_aliases != NULL) {
     Yap_heap_regs->yap_streams =
       (struct stream_desc *)AddrAdjust((ADDR)Yap_heap_regs->yap_streams);
@@ -446,8 +447,6 @@ restore_codes(void)
     (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_throw);
   Yap_heap_regs->pred_handle_throw =
     (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_handle_throw);
-  if (Yap_heap_regs->dyn_array_list != NULL)
-    Yap_heap_regs->dyn_array_list = PtoArrayEAdjust(Yap_heap_regs->dyn_array_list);
   if (Yap_heap_regs->undef_code != NULL)
     Yap_heap_regs->undef_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->undef_code));
   if (Yap_heap_regs->creep_code != NULL)
@@ -462,6 +461,14 @@ restore_codes(void)
     AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.mutable_list)));
   Yap_heap_regs->wl.atts_mutable_list =
     AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.atts_mutable_list)));
+  if (Yap_heap_regs->wl.dynamic_arrays) {
+    Yap_heap_regs->wl.dynamic_arrays =
+      PtoArrayEAdjust(Yap_heap_regs->wl.dynamic_arrays);
+  }
+  if (Yap_heap_regs->wl.static_arrays) {
+    Yap_heap_regs->wl.static_arrays =
+      PtoArraySAdjust(Yap_heap_regs->wl.static_arrays);
+  }
 #endif
 #endif
   if (Yap_heap_regs->last_wtime != NULL)
@@ -1035,10 +1042,14 @@ RestoreEntries(PropEntry *pp)
 	ae->NextOfPE =
 	  PropAdjust(ae->NextOfPE);
 	if (ae->ArrayEArity < 0) {
-	  restore_static_array((StaticArrayEntry *)ae);
+	  /* static array entry */
+	  StaticArrayEntry *sae = (StaticArrayEntry *)ae;
+	  if (sae->NextAE)
+	    sae->NextAE = PtoArraySAdjust(sae->NextAE);
+	  restore_static_array(sae);
 	} else {
-	  if (ae->NextArrayE != NULL)
-	    ae->NextArrayE = PtoArrayEAdjust(ae->NextArrayE);
+	  if (ae->NextAE)
+	    ae->NextAE = PtoArrayEAdjust(ae->NextAE);
 	  if (IsVarTerm(ae->ValueOfVE))
 	    RESET_VARIABLE(&(ae->ValueOfVE));
 	  else {

@@ -92,7 +92,7 @@ module(N) :-
 '$process_exports'([Name/Arity|Exports],Mod,[Name/Arity|ExportedPreds]):- !,
 	'$process_exports'(Exports,Mod,ExportedPreds).
 '$process_exports'([op(Prio,Assoc,Name)|Exports],Mod,ExportedPreds) :- !,
-	'$opdec'(Prio,Assoc,Name,Mod),
+%	'$opdec'(Prio,Assoc,Name,Mod),
 	'$process_exports'(Exports,Mod,ExportedPreds).
 '$process_exports'([Trash|Exports],Mod,_) :-
 	'$do_error'(type_error(predicate_indicator,Trash),module(Mod,[Trash])).
@@ -134,7 +134,8 @@ module(N) :-
 	'$do_error'(domain_error(predicate_spec,PS),import([PS|L])).
 
 '$check_import'(M,T,N,K) :-
-    recorded('$import','$import'(M1,T,N,K),R), M1 \= M, /* ZP */ !,
+   recorded('$import','$import'(MI,T,N,K),_),
+    \+ '$module_produced by'(M,T,N,K), !,
     format(user_error,"NAME CLASH: ~w was already imported to module ~w;~n",[M1:N/K,T]),
     format(user_error,"            Do you want to import it from ~w ? [y or n] ",M),
     repeat,
@@ -144,6 +145,12 @@ module(N) :-
 	  write(user_error, ' Please answer with ''y'' or ''n'' '), fail
 	).
 '$check_import'(_,_,_,_).
+
+'$module_produced by'(M,M0,N,K) :-
+	recorded('$import','$import'(M,M0,N,K),_), !.
+'$module_produced by'(M,M0,N,K) :-
+	recorded('$import','$import'(MI,M0,N,K),_), 
+	'$module_produced by'(M,MI,N,K).	
 
 % $use_preds(Imports,Publics,Mod,M)
 '$use_preds'(Imports,Publics,Mod,M) :- var(Imports), !,
@@ -461,6 +468,8 @@ source_module(Mod) :-
 	call_with_args(:,?,?,?,?,?,?,?),
 	call_with_args(:,?,?,?,?,?,?,?,?),
 	call_with_args(:,?,?,?,?,?,?,?,?,?),
+	format(+,:),
+	format(+,+,:),
 	call_residue(:,?),
 	catch(:,+,:),
 	clause(:,?),

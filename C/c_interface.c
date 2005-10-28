@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-10-21 16:07:07 $,$Author: vsc $						 *
+* Last rev:	$Date: 2005-10-28 17:38:49 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.74  2005/10/21 16:07:07  vsc
+* fix tabling
+*
 * Revision 1.73  2005/10/18 17:04:43  vsc
 * 5.1:
 * - improvements to GC
@@ -1255,6 +1258,9 @@ YAP_Init(YAP_init_args *yap_init)
   if (yap_init->YapPrologGoal) {
     Yap_PutValue(Yap_FullLookupAtom("$init_goal"), MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologGoal)));
   }
+  if (yap_init->YapPrologAddPath) {
+    Yap_PutValue(Yap_FullLookupAtom("$extend_file_search_path"), MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologAddPath)));
+  }
   if (yap_init->SavedState != NULL ||
       yap_init->YapPrologBootFile == NULL) {
     if (restore_result == FAIL_RESTORE) {
@@ -1287,6 +1293,7 @@ YAP_FastInit(char saved_state[])
   init_args.YapPrologRCFile = NULL;
   init_args.YapPrologGoal = NULL;
   init_args.YapPrologTopLevelGoal = NULL;
+  init_args.YapPrologAddPath = NULL;
   init_args.HaltAfterConsult = FALSE;
   init_args.FastBoot = FALSE;
   init_args.NumberWorkers = 1;

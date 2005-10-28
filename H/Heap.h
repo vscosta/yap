@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.84 2005-09-21 03:49:33 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.85 2005-10-28 17:38:50 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -67,6 +67,7 @@ extern struct restore_info rinfo;
 #endif
 
 typedef struct worker_local_struct {
+  struct format_status *f_info;
   char *scanner_stack;
   struct scanner_extra_alloc *scanner_extra_blocks;
 #if defined(YAPOR) || defined(THREADS)
@@ -91,6 +92,8 @@ typedef struct worker_local_struct {
   Int      tot_gc_time; /* total time spent in GC */
   Int      tot_gc_recovered; /* number of heap objects in all garbage collections */
   jmp_buf  gc_restore; /* where to jump if garbage collection crashes */
+  struct array_entry *dynamic_arrays;
+  struct static_array_entry *static_arrays;
   yamop trust_lu_code[3];
 } worker_local;
 
@@ -338,6 +341,7 @@ typedef struct various_codes {
 #endif
     functor_arrow,
     functor_assert,
+    functor_at_found_one,
 #ifdef COROUTINING
     functor_att_goal,   /* goal that activates attributed variables */
 #endif
@@ -354,6 +358,7 @@ typedef struct various_codes {
     functor_g_atom,
     functor_g_atomic,
     functor_g_compound,
+    functor_g_format_at,
     functor_g_integer,
     functor_g_float,
     functor_g_number,
@@ -403,7 +408,6 @@ typedef struct various_codes {
   struct pred_entry *pred_static_clause;
   struct pred_entry *pred_throw;
   struct pred_entry *pred_handle_throw;
-  struct array_entry *dyn_array_list;
   struct DB_STRUCT *db_erased_marker;
 #ifdef DEBUG
   struct logic_upd_clause *db_erased_list;
@@ -605,6 +609,7 @@ struct various_codes *Yap_heap_regs;
 #endif
 #define  FunctorArrow             Yap_heap_regs->functor_arrow
 #define  FunctorAssert            Yap_heap_regs->functor_assert
+#define  FunctorAtFoundOne        Yap_heap_regs->functor_at_found_one
 #ifdef COROUTINING
 #define  FunctorAttGoal           Yap_heap_regs->functor_att_goal
 #endif
@@ -623,6 +628,7 @@ struct various_codes *Yap_heap_regs;
 #define  FunctorGCompound         Yap_heap_regs->functor_g_compound
 #define  FunctorGFloat            Yap_heap_regs->functor_g_float
 #define  FunctorGInteger          Yap_heap_regs->functor_g_integer
+#define  FunctorGFormatAt         Yap_heap_regs->functor_g_format_at
 #define  FunctorGNumber           Yap_heap_regs->functor_g_number
 #define  FunctorGPrimitive        Yap_heap_regs->functor_g_primitive
 #define  FunctorGVar              Yap_heap_regs->functor_g_var
@@ -668,7 +674,6 @@ struct various_codes *Yap_heap_regs;
 #define  PredStaticClause         Yap_heap_regs->pred_static_clause
 #define  PredThrow                Yap_heap_regs->pred_throw
 #define  PredHandleThrow          Yap_heap_regs->pred_handle_throw
-#define  DynArrayList             Yap_heap_regs->dyn_array_list
 #define  DBErasedMarker           Yap_heap_regs->db_erased_marker
 #ifdef DEBUG
 #define  DBErasedList             Yap_heap_regs->db_erased_list
@@ -717,6 +722,7 @@ struct various_codes *Yap_heap_regs;
 #define  TrDiff                   rinfo[worker_id].tr_diff
 #define  XDiff                    rinfo[worker_id].x_diff
 #define  DelayDiff                rinfo[worker_id].delay_diff
+#define  FormatInfo               Yap_heap_regs->wl[worker_id].f_info
 #define  ScannerStack             Yap_heap_regs->wl[worker_id].scanner_stack
 #define  ScannerExtraBlocks       Yap_heap_regs->wl[worker_id].scanner_extra_blocks
 #define  SignalLock               Yap_heap_regs->wl[worker_id].signal_lock
@@ -739,6 +745,8 @@ struct various_codes *Yap_heap_regs;
 #define  TotGcRecovered           Yap_heap_regs->wl[worker_id].tot_gc_recovered
 #define  Yap_gc_restore           Yap_heap_regs->wl[worker_id].gc_restore
 #define  TrustLUCode              Yap_heap_regs->wl[worker_id].trust_lu_code
+#define  DynamicArrays            Yap_heap_regs->wl[worker_id].dynamic_arrays
+#define  StaticArrays             Yap_heap_regs->wl[worker_id].static_arrays
 #else
 #define  OldASP                   rinfo.old_ASP
 #define  OldLCL0                  rinfo.old_LCL0
@@ -757,6 +765,7 @@ struct various_codes *Yap_heap_regs;
 #define  TrDiff                   rinfo.tr_diff
 #define  XDiff                    rinfo.x_diff
 #define  DelayDiff                rinfo.delay_diff
+#define  FormatInfo               Yap_heap_regs->wl.f_info
 #define  ScannerStack             Yap_heap_regs->wl.scanner_stack
 #define  ScannerExtraBlocks       Yap_heap_regs->wl.scanner_extra_blocks
 #define  ActiveSignals            Yap_heap_regs->wl.active_signals
@@ -777,6 +786,8 @@ struct various_codes *Yap_heap_regs;
 #define  TotGcRecovered           Yap_heap_regs->wl.tot_gc_recovered
 #define  Yap_gc_restore           Yap_heap_regs->wl.gc_restore
 #define  TrustLUCode              Yap_heap_regs->wl.trust_lu_code
+#define  DynamicArrays            Yap_heap_regs->wl.dynamic_arrays
+#define  StaticArrays             Yap_heap_regs->wl.static_arrays
 #endif
 #define  profiling                Yap_heap_regs->compiler_profiling
 #define  call_counting            Yap_heap_regs->compiler_call_counting

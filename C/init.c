@@ -861,8 +861,13 @@ InitCodes(void)
       Yap_heap_regs->wl[i].scratchpad.ptr = NULL;
       Yap_heap_regs->wl[i].scratchpad.sz = SCRATCH_START_SIZE;
       Yap_heap_regs->wl[i].scratchpad.msz = SCRATCH_START_SIZE;
+      Yap_heap_regs->wl[i].dynamic_arrays = NULL;
+      Yap_heap_regs->wl[i].static_arrays = NULL;
     }
   }
+#else
+  Yap_heap_regs->wl.dynamic_arrays = NULL;
+  Yap_heap_regs->wl.static_arrays = NULL;
 #endif /* YAPOR */
   Yap_heap_regs->clausecode->arity = 0;
   Yap_heap_regs->clausecode->clause = NULL;
@@ -1017,6 +1022,7 @@ InitCodes(void)
 #endif
   Yap_heap_regs->functor_arrow = Yap_MkFunctor(AtomArrow, 2);
   Yap_heap_regs->functor_assert = Yap_MkFunctor(AtomAssert, 2);
+  Yap_heap_regs->functor_at_found_one = Yap_MkFunctor(AtomFoundVar, 2);
 #ifdef COROUTINING
   Yap_heap_regs->functor_att_goal = Yap_MkFunctor(Yap_FullLookupAtom("$att_do"),2);
 #endif
@@ -1033,6 +1039,7 @@ InitCodes(void)
   Yap_heap_regs->functor_g_atomic = Yap_MkFunctor(Yap_LookupAtom("atomic"), 1);
   Yap_heap_regs->functor_g_compound = Yap_MkFunctor(Yap_LookupAtom("compound"), 1);
   Yap_heap_regs->functor_g_float = Yap_MkFunctor(Yap_LookupAtom("float"), 1);
+  Yap_heap_regs->functor_g_format_at = Yap_MkFunctor(Yap_LookupAtom("$format@"), 2);
   Yap_heap_regs->functor_g_integer = Yap_MkFunctor(Yap_LookupAtom("integer"), 1);
   Yap_heap_regs->functor_g_number = Yap_MkFunctor(Yap_LookupAtom("number"), 1);
   Yap_heap_regs->functor_g_primitive = Yap_MkFunctor(Yap_LookupAtom("primitive"), 1);
@@ -1067,7 +1074,6 @@ InitCodes(void)
   Yap_heap_regs->term_dollar_u = MkAtomTerm(Yap_FullLookupAtom("$u"));
 #endif
   Yap_heap_regs->term_refound_var = MkAtomTerm(Yap_FullLookupAtom("$I_FOUND_THE_VARIABLE_AGAIN"));
-  Yap_heap_regs->dyn_array_list = NULL;
   Yap_heap_regs->n_of_file_aliases = 0;
   Yap_heap_regs->file_aliases = NULL;
   Yap_heap_regs->foreign_code_loaded = NULL;
@@ -1186,6 +1192,7 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
     INIT_RWLOCK(HashChain[i].AERWLock);
     HashChain[i].Entry = NIL;
   }
+  NOfAtoms = 0;
   Yap_LookupAtomWithAddress(".",&(SF_STORE->AtFoundVar));
   Yap_ReleaseAtom(AtomFoundVar);
   Yap_LookupAtomWithAddress("?",&(SF_STORE->AtFreeTerm));

@@ -372,14 +372,25 @@ static void
 push_registers(Int num_regs, yamop *nextop)
 {
   int             i;
+  StaticArrayEntry *sal = StaticArrays;
 
   /* push array entries first */
-  ArrayEntry *al = DynArrayList;
-  while (al != NULL) {
-    if (al->ArrayEArity > 0) {
-      TrailTerm(TR++) = al->ValueOfVE;
+  ArrayEntry *al = DynamicArrays;
+  while (al) {
+    TrailTerm(TR++) = al->ValueOfVE;
+    al = al->NextAE;
+  }
+  while (sal) {
+    if (sal->ArrayType == array_of_nb_terms) {
+      UInt arity = -sal->ArrayEArity, i;
+      for (i=0; i < arity; i++) {
+	Term tlive  = sal->ValueOfVE.lterms[i].tlive;
+	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
+	    TrailTerm(TR++) = tlive;
+	}
+      }
     }
-    al = al->NextArrayE;
+    sal = sal->NextAE;
   }
   TrailTerm(TR) = GcGeneration;
   TR++;
@@ -424,14 +435,26 @@ pop_registers(Int num_regs, yamop *nextop)
 {
   int             i;
   tr_fr_ptr ptr = TR;
+  StaticArrayEntry *sal = StaticArrays;
 
   /* pop array entries first */
-  ArrayEntry *al = DynArrayList;
-  while (al != NULL) {
-    if (al->ArrayEArity > 0) {
-      al->ValueOfVE = TrailTerm(ptr++);
+  ArrayEntry *al = DynamicArrays;
+  while (al) {
+    al->ValueOfVE = TrailTerm(ptr++);
+    al = al->NextAE;
+  }
+  sal = StaticArrays;
+  while (sal) {
+    if (sal->ArrayType == array_of_nb_terms) {
+      UInt arity = -sal->ArrayEArity;
+      for (i=0; i < arity; i++) {
+	Term tlive  = sal->ValueOfVE.lterms[i].tlive;
+	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
+	  sal->ValueOfVE.lterms[i].tlive = TrailTerm(ptr++);
+	}
+      }
     }
-    al = al->NextArrayE;
+    sal = sal->NextAE;
   }
   GcGeneration = TrailTerm(ptr++);
 #ifdef COROUTINING
@@ -1342,10 +1365,10 @@ mark_external_reference(CELL *ptr) {
 
   if (ONHEAP(next)) {
 #ifdef HYBRID_SCHEME
-      CELL_PTR *old = iptop;
-#endif      
-      mark_variable(ptr);
-      POPSWAP_POINTER(old);    
+    CELL_PTR *old = iptop;
+#endif     
+    mark_variable(ptr);
+    POPSWAP_POINTER(old);    
   } else {
     MARK(ptr);
     mark_code(ptr, next);
@@ -1556,9 +1579,8 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	UNMARK(&TrailTerm(trail_base));
 #endif /* EARLY_RESET */
       } else if (hp < (CELL *)Yap_GlobalBase || hp > (CELL *)Yap_TrailTop) {
-	  /* I decided to allow pointers from the Heap back into the trail.
-	   The point of doing so is to have dynamic arrays */
-	mark_external_reference(hp);
+	  /*  pointers from the Heap back into the trail are process in mark_regs.  */
+	/* do nothing !!! */
       } else if ((hp < (CELL *)gc_B && hp >= gc_H) || hp > (CELL *)Yap_TrailBase) {
 	/* clean the trail, avoid dangling pointers! */
 	RESET_VARIABLE(&TrailTerm(trail_base));
@@ -2106,7 +2128,8 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
   /* first, whatever we dumped on the trail. Easier just to do
      the registers separately?  */
   for (trail_ptr = old_TR; trail_ptr < TR; trail_ptr++) {
-    if (MARKED_PTR(&TrailTerm(trail_ptr))) {
+    if (IN_BETWEEN(Yap_GlobalBase,TrailTerm(trail_ptr),Yap_TrailTop) &&
+	MARKED_PTR(&TrailTerm(trail_ptr))) {
       UNMARK(&TrailTerm(trail_ptr));
       if (HEAP_PTR(TrailTerm(trail_ptr))) {
 	into_relocation_chain(&TrailTerm(trail_ptr), GET_NEXT(TrailTerm(trail_ptr)));
@@ -2134,27 +2157,10 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
       TrailTerm(dest) = trail_cell;
       if (IsVarTerm(trail_cell)) {
 	/* we need to check whether this is a honest to god trail entry */
-	if ((CELL *)trail_cell < H && MARKED_PTR((CELL *)trail_cell) && (CELL *)trail_cell >= H0) {
+	/* make sure it is a heap cell before we test whether it has been marked */
+	if ((CELL *)trail_cell < H && (CELL *)trail_cell >= H0 && MARKED_PTR((CELL *)trail_cell)) {
 	  if (HEAP_PTR(trail_cell)) {
 	    into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell));
-	  }
-#ifdef FROZEN_STACKS
-	  /* it is complex to recover cells with frozen segments */
-	  TrailVal(dest) = TrailVal(trail_ptr);
-	  if (MARKED_PTR(&TrailVal(dest))) {
-	    UNMARK(&TrailVal(dest));
-	    if (HEAP_PTR(TrailVal(dest))) {
-	      into_relocation_chain(&TrailVal(dest), GET_NEXT(TrailVal(dest)));
-	    }
-	  }
-#endif
-	} else if ((CELL *)trail_cell < (CELL *)Yap_GlobalBase ||
-		   (CELL *)trail_cell > (CELL *)Yap_TrailTop) {
-	  /* we may have pointers from the heap back into the cell */
-	  CELL *next =  GET_NEXT(*CellPtr(trail_cell));
-	  UNMARK(CellPtr(trail_cell));
-	  if (HEAP_PTR(*CellPtr(trail_cell))) {
-	    into_relocation_chain(CellPtr(trail_cell),next);
 	  }
 #ifdef FROZEN_STACKS
 	  /* it is complex to recover cells with frozen segments */
@@ -3661,6 +3667,8 @@ p_inform_gc(void)
 }
 
 
+int vsc_gc_calls;
+
 static int
 call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 {
@@ -3695,6 +3703,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   if (gc_margin < gc_lim)
     gc_margin = gc_lim;
   GcCalls++;
+vsc_gc_calls = GcCalls;
   if (gc_on && !(Yap_PrologMode & InErrorMode)) {
     effectiveness = do_gc(predarity, current_env, nextop);
     if (effectiveness > 90) {

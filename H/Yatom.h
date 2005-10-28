@@ -944,10 +944,10 @@ typedef struct array_entry
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t ArRWLock;		/* a read-write lock to protect the entry */
 #endif
-  struct array_entry *NextArrayE;	/* Pointer to the actual array               */
 #if THREADS
   unsigned int owner_id;
 #endif
+  struct array_entry *NextAE;
   Term ValueOfVE;		/* Pointer to the actual array          */
 } ArrayEntry;
 
@@ -987,7 +987,7 @@ typedef union
 } statarray_elements;
 
 /* next, the actual data structure */
-typedef struct
+typedef struct static_array_entry
 {
   Prop NextOfPE;		/* used to chain properties             */
   PropFlags KindOfPE;		/* kind of property                     */
@@ -995,6 +995,7 @@ typedef struct
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t ArRWLock;		/* a read-write lock to protect the entry */
 #endif
+  struct static_array_entry *NextAE;
   static_array_types ArrayType;	/* Type of Array Elements.              */
   statarray_elements ValueOfVE;	/* Pointer to the Array itself  */
 } StaticArrayEntry;

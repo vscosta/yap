@@ -10,8 +10,38 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-10-18 17:04:43 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-10-28 17:38:49 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.179  2005/10/18 17:04:43  vsc
+* 5.1:
+* - improvements to GC
+*    2 generations
+*    generic speedups
+* - new scheme for attvars
+*    - hProlog like interface also supported
+* - SWI compatibility layer
+*    - extra predicates
+*    - global variables
+*    - moved to Prolog module
+* - CLP(R) by Leslie De Koninck, Tom Schrijvers, Cristian Holzbaur, Bart
+* Demoen and Jan Wielemacker
+* - load_files/2
+*
+* from 5.0.1
+*
+* - WIN32 missing include files (untested)
+* - -L trouble (my thanks to Takeyuchi Shiramoto-san)!
+* - debugging of backtrable user-C preds would core dump.
+* - redeclaring a C-predicate as Prolog core dumps.
+* - badly protected  YapInterface.h.
+* - break/0 was failing at exit.
+* - YAP_cut_fail and YAP_cut_succeed were different from manual.
+* - tracing through data-bases could core dump.
+* - cut could break on very large computations.
+* - first pass at BigNum issues (reported by Roberto).
+* - debugger could get go awol after fail port.
+* - weird message on wrong debugger option.
+*
 * Revision 1.178  2005/10/15 17:05:23  rslopes
 * enable profiling on amd64
 *
@@ -2055,7 +2085,7 @@ Yap_absmi(int inp)
 	check_stack(NoStackExecute, H);
 #endif
 	PREG = pt0->CodeOfPred;
-	E_YREG[E_CB] = d0;
+	ENV_YREG[E_CB] = d0;
 	ENDD(d0);
 #ifdef DEPTH_LIMIT
 	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is prolog */
@@ -2117,29 +2147,29 @@ Yap_absmi(int inp)
 	PREG = pt0->CodeOfPred;
 	ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
 	/* do deallocate */
-	CPREG = (yamop *) E_YREG[E_CP];
-	E_YREG = ENV = (CELL *) E_YREG[E_E];
+	CPREG = (yamop *) ENV_YREG[E_CP];
+	ENV_YREG = ENV = (CELL *) ENV_YREG[E_E];
 #ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
-	  if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
+	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
 #else
-	  if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
+	  if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* SBA */
-	  else E_YREG = (CELL *)((CELL)E_YREG + ENV_Size(CPREG));
+	  else ENV_YREG = (CELL *)((CELL)ENV_YREG + ENV_Size(CPREG));
 	}
 #else
-	if (E_YREG > (CELL *)B) {
-	  E_YREG = (CELL *)B;
+	if (ENV_YREG > (CELL *)B) {
+	  ENV_YREG = (CELL *)B;
 	}
 	else {
-	  E_YREG = (CELL *) ((CELL) E_YREG + ENV_Size(CPREG));
+	  ENV_YREG = (CELL *) ((CELL) ENV_YREG + ENV_Size(CPREG));
 	}
 #endif /* FROZEN_STACKS */
 	WRITEBACK_Y_AS_ENV();
 	/* setup GB */
-	E_YREG[E_CB] = (CELL) B;
+	ENV_YREG[E_CB] = (CELL) B;
 	ALWAYS_GONext();
 	ALWAYS_END_PREFETCH();
       }
@@ -2148,10 +2178,10 @@ Yap_absmi(int inp)
 
       BOp(fcall, sla);
       CACHE_Y_AS_ENV(YREG);
-      E_YREG[E_CP] = (CELL) CPREG;
-      E_YREG[E_E] = (CELL) ENV;
+      ENV_YREG[E_CP] = (CELL) CPREG;
+      ENV_YREG[E_E] = (CELL) ENV;
 #ifdef DEPTH_LIMIT
-      E_YREG[E_DEPTH] = DEPTH;
+      ENV_YREG[E_DEPTH] = DEPTH;
 #endif	/* DEPTH_LIMIT */
       ENDCACHE_Y_AS_ENV();
       ENDBOp();
@@ -2169,9 +2199,9 @@ Yap_absmi(int inp)
 #ifndef NO_CHECKING
 	check_stack(NoStackCall, H);
 #endif
-	ENV = E_YREG;
+	ENV = ENV_YREG;
 	/* Try to preserve the environment */
-	E_YREG = (CELL *) (((char *) E_YREG) + PREG->u.sla.s);
+	ENV_YREG = (CELL *) (((char *) ENV_YREG) + PREG->u.sla.s);
 	CPREG = NEXTOP(PREG, sla);
 	ALWAYS_LOOKAHEAD(pt->OpcodeOfPred);
 	PREG = pt->CodeOfPred;
@@ -2189,19 +2219,19 @@ Yap_absmi(int inp)
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
-	  if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
+	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
 #else
-	  if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
+	  if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* SBA */
 	}
 #else
-	if (E_YREG > (CELL *) B) {
-	  E_YREG = (CELL *) B;
+	if (ENV_YREG > (CELL *) B) {
+	  ENV_YREG = (CELL *) B;
 	}
 #endif /* FROZEN_STACKS */
 	WRITEBACK_Y_AS_ENV();
 	/* setup GB */
-	E_YREG[E_CB] = (CELL) B;
+	ENV_YREG[E_CB] = (CELL) B;
 #ifdef YAPOR
 	SCH_check_requests();
 #endif	/* YAPOR */
@@ -2218,9 +2248,9 @@ Yap_absmi(int inp)
 	if (ap->PredFlags & HiddenPredFlag) {
 	  CACHE_Y_AS_ENV(YREG);
 	  CACHE_A1();
-	  ENV = E_YREG;
+	  ENV = ENV_YREG;
 	  /* Try to preserve the environment */
-	  E_YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+	  ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
 	  CPREG = NEXTOP(PREG, sla);
 	  ALWAYS_LOOKAHEAD(ap->OpcodeOfPred);
 	  PREG = ap->CodeOfPred;
@@ -2229,19 +2259,19 @@ Yap_absmi(int inp)
 	  { 
 	    choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
-	    if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
+	    if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
 #else
-	    if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
+	    if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif
 	  }
 #else
-	  if (E_YREG > (CELL *) B) {
-	    E_YREG = (CELL *) B;
+	  if (ENV_YREG > (CELL *) B) {
+	    ENV_YREG = (CELL *) B;
 	  }
 #endif /* FROZEN_STACKS */
 	  WRITEBACK_Y_AS_ENV();
 	  /* setup GB */
-	  E_YREG[E_CB] = (CELL) B;
+	  ENV_YREG[E_CB] = (CELL) B;
 #ifdef YAPOR
 	  SCH_check_requests();
 #endif	/* YAPOR */
@@ -2341,10 +2371,10 @@ Yap_absmi(int inp)
 	    {
 	      /* fill it up */
 	      CACHE_Y_AS_ENV(YREG);
-	      E_YREG[E_CP] = (CELL) CPREG;
-	      E_YREG[E_E] = (CELL) ENV;
+	      ENV_YREG[E_CP] = (CELL) CPREG;
+	      ENV_YREG[E_E] = (CELL) ENV;
 #ifdef DEPTH_LIMIT
-	      E_YREG[E_DEPTH] = DEPTH;
+	      ENV_YREG[E_DEPTH] = DEPTH;
 #endif	/* DEPTH_LIMIT */
 	      ENDCACHE_Y_AS_ENV();
 	    }
@@ -2443,29 +2473,29 @@ Yap_absmi(int inp)
 	  PREG = ap->CodeOfPred;
 	  ALWAYS_LOOKAHEAD(ap->OpcodeOfPred);
 	  /* do deallocate */
-	  CPREG = (yamop *) E_YREG[E_CP];
-	  E_YREG = ENV = (CELL *) E_YREG[E_E];
+	  CPREG = (yamop *) ENV_YREG[E_CP];
+	  ENV_YREG = ENV = (CELL *) ENV_YREG[E_E];
 #ifdef FROZEN_STACKS
 	  { 
 	    choiceptr top_b = PROTECT_FROZEN_B(B);
 
 #ifdef SBA
-	    if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
+	    if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
 #else
-	    if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
+	    if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif
-	    else E_YREG = (CELL *)((CELL)E_YREG + ENV_Size(CPREG));
+	    else ENV_YREG = (CELL *)((CELL)ENV_YREG + ENV_Size(CPREG));
 	  }
 #else
-	  if (E_YREG > (CELL *)B) {
-	    E_YREG = (CELL *)B;
+	  if (ENV_YREG > (CELL *)B) {
+	    ENV_YREG = (CELL *)B;
 	  } else {
-	    E_YREG = (CELL *) ((CELL) E_YREG + ENV_Size(CPREG));
+	    ENV_YREG = (CELL *) ((CELL) ENV_YREG + ENV_Size(CPREG));
 	  }
 #endif /* FROZEN_STACKS */
 	  WRITEBACK_Y_AS_ENV();
 	  /* setup GB */
-	  E_YREG[E_CB] = (CELL) B;
+	  ENV_YREG[E_CB] = (CELL) B;
 	  ALWAYS_GONext();
 	  ALWAYS_END_PREFETCH();
 	  ENDCACHE_Y_AS_ENV();
@@ -2640,9 +2670,9 @@ Yap_absmi(int inp)
       BOp(procceed, e);
       CACHE_Y_AS_ENV(YREG);
       PREG = CPREG;
-      E_YREG = ENV;
+      ENV_YREG = ENV;
 #ifdef DEPTH_LIMIT
-      DEPTH = E_YREG[E_DEPTH];
+      DEPTH = ENV_YREG[E_DEPTH];
 #endif
       WRITEBACK_Y_AS_ENV();
       JMPNext();
@@ -2652,12 +2682,12 @@ Yap_absmi(int inp)
       Op(allocate, e);
       CACHE_Y_AS_ENV(YREG);
       PREG = NEXTOP(PREG, e);
-      E_YREG[E_CP] = (CELL) CPREG;
-      E_YREG[E_E] = (CELL) ENV;
+      ENV_YREG[E_CP] = (CELL) CPREG;
+      ENV_YREG[E_E] = (CELL) ENV;
 #ifdef DEPTH_LIMIT
-      E_YREG[E_DEPTH] = DEPTH;
+      ENV_YREG[E_DEPTH] = DEPTH;
 #endif	/* DEPTH_LIMIT */
-      ENV = E_YREG;
+      ENV = ENV_YREG;
       ENDCACHE_Y_AS_ENV();
       GONext();
       ENDOp();
@@ -2668,26 +2698,26 @@ Yap_absmi(int inp)
       /* other instructions do depend on S being set by deallocate
 	 :-( */
       SREG = YREG;
-      CPREG = (yamop *) E_YREG[E_CP];
-      ENV = E_YREG = (CELL *) E_YREG[E_E];
+      CPREG = (yamop *) ENV_YREG[E_CP];
+      ENV = ENV_YREG = (CELL *) ENV_YREG[E_E];
 #ifdef DEPTH_LIMIT
-      DEPTH = E_YREG[E_DEPTH];
+      DEPTH = ENV_YREG[E_DEPTH];
 #endif	/* DEPTH_LIMIT */
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
-	if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
+	if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
 #else
-	if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
+	if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* SBA */
-	else E_YREG = (CELL *)((CELL) E_YREG + ENV_Size(CPREG));
+	else ENV_YREG = (CELL *)((CELL) ENV_YREG + ENV_Size(CPREG));
       }
 #else
-      if (E_YREG > (CELL *) B)
-	E_YREG = (CELL *) B;
+      if (ENV_YREG > (CELL *) B)
+	ENV_YREG = (CELL *) B;
       else
-	E_YREG = (CELL *) ((CELL) E_YREG + ENV_Size(CPREG));
+	ENV_YREG = (CELL *) ((CELL) ENV_YREG + ENV_Size(CPREG));
 #endif /* FROZEN_STACKS */
       WRITEBACK_Y_AS_ENV();
 #ifndef NO_CHECKING
@@ -6682,6 +6712,12 @@ Yap_absmi(int inp)
 
       BOp(call_cpred, sla);
      
+
+      if (!(P->u.sla.sla_u.p->PredFlags & ( SafePredFlag|HiddenPredFlag))) {
+	CACHE_Y_AS_ENV(YREG);
+	check_stack(NoStackCall, H);
+	ENDCACHE_Y_AS_ENV();
+      }
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -6724,6 +6760,11 @@ Yap_absmi(int inp)
       /* guarantee that *all* machine registers are saved and */
       /* restored */
       BOp(call_usercpred, sla);
+#ifdef COROUTINING
+      CACHE_Y_AS_ENV(YREG);
+      check_stack(NoStackCall, H);
+      ENDCACHE_Y_AS_ENV();
+#endif
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -10364,10 +10405,17 @@ Yap_absmi(int inp)
 	B = (choiceptr) H;
 	SET_BB(B);
 	save_hb();
-	if (Yap_IUnify(d0, d1) == TRUE) {
+	if (Yap_IUnify(d0, d1)) {
 	  /* restore B, no need to restore HB */
 	  PREG = PREG->u.l.l;
 	  B = pt1;
+#ifdef COROUTINING
+	  /* now restore Woken Goals to its old value */
+	  Yap_UpdateTimedVar(WokenGoals, OldWokenGoals);
+	  if (OldWokenGoals == TermNil) {
+	    Yap_undo_signal(YAP_WAKEUP_SIGNAL);
+	  }
+#endif
 	  GONext();
 	}
 	/* restore B, and later HB */
@@ -10409,6 +10457,9 @@ Yap_absmi(int inp)
 #ifdef COROUTINING
 	/* now restore Woken Goals to its old value */
 	Yap_UpdateTimedVar(WokenGoals, OldWokenGoals);
+	if (OldWokenGoals == TermNil) {
+	  Yap_undo_signal(YAP_WAKEUP_SIGNAL);
+	}
 #endif
       }
       GONext();
@@ -12103,19 +12154,19 @@ Yap_absmi(int inp)
 
 	CACHE_Y_AS_ENV(YREG);
 	/* Try to preserve the environment */
-	E_YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
 #ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
-	  if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
+	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
 #else
-	  if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
+	  if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* SBA */
 	}
 #else
-	if (E_YREG > (CELL *) B) {
-	  E_YREG = (CELL *) B;
+	if (ENV_YREG > (CELL *) B) {
+	  ENV_YREG = (CELL *) B;
 	}
 #endif /* FROZEN_STACKS */
 	BEGD(d0);
@@ -12145,29 +12196,29 @@ Yap_absmi(int inp)
 	      deref_head(d1, execute_comma_unk);
 	    execute_comma_nvar:
 	      if (IsAtomTerm(d1)) {
-		E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
-		E_YREG[-EnvSizeInCells-3]  = mod;
+		ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
+		ENV_YREG[-EnvSizeInCells-3]  = mod;
 	      } else if (IsApplTerm(d1)) {
 		Functor f = FunctorOfTerm(d1);
 		if (IsExtensionFunctor(f)) {
 		  goto execute_metacall;
 		} else {
 		  if (f == FunctorModule) goto execute_metacall;
-		  E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
-		  E_YREG[-EnvSizeInCells-3]  = mod;
+		  ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
+		  ENV_YREG[-EnvSizeInCells-3]  = mod;
 		}
 	      } else {
 		goto execute_metacall;
 	      }
-	      E_YREG[E_CP] = (CELL)NEXTOP(PREG,sla);
-	      E_YREG[E_CB] = (CELL)B;
-	      E_YREG[E_E]  = (CELL)ENV;
+	      ENV_YREG[E_CP] = (CELL)NEXTOP(PREG,sla);
+	      ENV_YREG[E_CB] = (CELL)B;
+	      ENV_YREG[E_E]  = (CELL)ENV;
 #ifdef DEPTH_LIMIT
-	      E_YREG[E_DEPTH] = DEPTH;
+	      ENV_YREG[E_DEPTH] = DEPTH;
 #endif	/* DEPTH_LIMIT */
-	      E_YREG[-EnvSizeInCells-1]  = d1;
-	      ENV = E_YREG;
-	      E_YREG -= EnvSizeInCells+3;
+	      ENV_YREG[-EnvSizeInCells-1]  = d1;
+	      ENV = ENV_YREG;
+	      ENV_YREG -= EnvSizeInCells+3;
 	      PREG = COMMA_CODE;
 	      d0 = SREG[1];
 	      goto restart_execute;
@@ -12238,7 +12289,7 @@ Yap_absmi(int inp)
 #endif	/* LOW_LEVEL_TRACER */
 	WRITEBACK_Y_AS_ENV();
 	/* setup GB */
-	E_YREG[E_CB] = (CELL) B;
+	ENV_YREG[E_CB] = (CELL) B;
 #ifdef YAPOR
 	SCH_check_requests();
 #endif	/* YAPOR */
@@ -12262,7 +12313,7 @@ Yap_absmi(int inp)
 	ENDD(d0);
       NoStackPExecute:
 	SREG = (CELL *) pen;
-	ASP = E_YREG;
+	ASP = ENV_YREG;
 	/* setup GB */
 	WRITEBACK_Y_AS_ENV();
 	YREG[E_CB] = (CELL) B;
@@ -12292,27 +12343,27 @@ Yap_absmi(int inp)
 	CACHE_Y_AS_ENV(YREG);
 	BEGP(pt0);
 	BEGD(d0);
-	d0 = E_YREG[-EnvSizeInCells-1];
-	pen = RepPredProp((Prop)IntegerOfTerm(E_YREG[-EnvSizeInCells-2]));
-	CPREG = (yamop *) E_YREG[E_CP];
-	pt0 = E_YREG;
-	E_YREG = ENV = (CELL *) E_YREG[E_E];
+	d0 = ENV_YREG[-EnvSizeInCells-1];
+	pen = RepPredProp((Prop)IntegerOfTerm(ENV_YREG[-EnvSizeInCells-2]));
+	CPREG = (yamop *) ENV_YREG[E_CP];
+	pt0 = ENV_YREG;
+	ENV_YREG = ENV = (CELL *) ENV_YREG[E_E];
 #ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 
 #ifdef SBA
-	  if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
+	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
 #else
-	  if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
+	  if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* SBA */
-	  else E_YREG = (CELL *)((CELL)E_YREG + ENV_Size(CPREG));
+	  else ENV_YREG = (CELL *)((CELL)ENV_YREG + ENV_Size(CPREG));
 	}
 #else
-	if (E_YREG > (CELL *)B) {
-	  E_YREG = (CELL *)B;
+	if (ENV_YREG > (CELL *)B) {
+	  ENV_YREG = (CELL *)B;
 	} else {
-	  E_YREG = (CELL *) ((CELL) E_YREG+ ENV_Size(CPREG));
+	  ENV_YREG = (CELL *) ((CELL) ENV_YREG+ ENV_Size(CPREG));
 	}
 #endif /* FROZEN_STACKS */
 	arity = pen->ArityOfPE;
@@ -12326,9 +12377,9 @@ Yap_absmi(int inp)
 	    /* create an to execute the call */
 	    deref_head(d1, execute_comma_comma_unk);
 	  execute_comma_comma_nvar:
-	    E_YREG[E_CB] = (CELL)pt0[E_CB];
+	    ENV_YREG[E_CB] = (CELL)pt0[E_CB];
 	    if (IsAtomTerm(d1)) {
-	      E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
+	      ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
 	    } else if (IsApplTerm(d1)) {
 	      Functor f = FunctorOfTerm(d1);
 	      if (IsExtensionFunctor(f)) {
@@ -12341,20 +12392,20 @@ Yap_absmi(int inp)
 		d1 = RepAppl(d1)[2];
 		goto execute_comma_comma;
 	      } else {
-		E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
+		ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
 	      }
 	    } else {
 	      goto execute_metacall_after_comma;
 	    }
-	    E_YREG[E_CP] = (CELL)CPREG;
-	    E_YREG[E_E]  = (CELL)ENV;
+	    ENV_YREG[E_CP] = (CELL)CPREG;
+	    ENV_YREG[E_E]  = (CELL)ENV;
 #ifdef DEPTH_LIMIT
-	    E_YREG[E_DEPTH] = DEPTH;
+	    ENV_YREG[E_DEPTH] = DEPTH;
 #endif	/* DEPTH_LIMIT */
-	    E_YREG[-EnvSizeInCells-1]  = d1;
-	    E_YREG[-EnvSizeInCells-3]  = mod;
-	    ENV = E_YREG;
-	    E_YREG -= EnvSizeInCells+3;
+	    ENV_YREG[-EnvSizeInCells-1]  = d1;
+	    ENV_YREG[-EnvSizeInCells-3]  = mod;
+	    ENV = ENV_YREG;
+	    ENV_YREG -= EnvSizeInCells+3;
 	    d0 = SREG[1];
 	    CPREG = NEXTOP(COMMA_CODE,sla);
 	  execute_comma_comma2:
@@ -12480,7 +12531,7 @@ Yap_absmi(int inp)
 #endif
 	PREG = pen->CodeOfPred;
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
-	E_YREG[E_CB] = (CELL)B;
+	ENV_YREG[E_CB] = (CELL)B;
 #ifdef LOW_LEVEL_TRACER
 	if (Yap_do_low_level_trace)
 	  low_level_trace(enter_pred,pen,XREGS+1);
@@ -12506,7 +12557,7 @@ Yap_absmi(int inp)
       NoStackPTExecute:
 	WRITEBACK_Y_AS_ENV();
 	SREG = (CELL *) pen;
-	ASP = E_YREG;
+	ASP = ENV_YREG;
 	if (ASP > (CELL *)B)
 	  ASP = (CELL *)B;
 	LOCK(SignalLock);

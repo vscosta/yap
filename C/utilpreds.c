@@ -1940,7 +1940,7 @@ void Yap_InitUtilCPreds(void)
 {
   Term cm = CurrentModule;
   Yap_InitCPred("copy_term", 2, p_copy_term, 0);
-  Yap_InitCPred("$copy_term_but_not_constraints", 2, p_copy_term_no_delays, HiddenPredFlag);
+  Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, HiddenPredFlag);
   Yap_InitCPred("ground", 1, p_ground, SafePredFlag);
   Yap_InitCPred("$variables_in_term", 3, p_variables_in_term, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, SafePredFlag|HiddenPredFlag);

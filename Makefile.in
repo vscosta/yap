@@ -541,8 +541,11 @@ install_data:
 	@ENABLE_JPL@ (cd LGPL/JPL/java; make install)
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(SHAREDIR)/Yap/
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(SHAREDIR)/Yap/
-	(cd CLPQR ; make install)
-	(cd CHR ; make install)
+#	(cd CLPQR ; make install)
+	(cd LGPL/clp ; make install)
+	(cd LGPL/clpr ; make install)
+#	(cd CHR ; make install)
+	(cd LGPL/chr ; make install)
 	(cd CLPBN ; make install)
 
 

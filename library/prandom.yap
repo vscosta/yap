@@ -56,13 +56,13 @@
 %
 %
 wsize(32) :-
-	yap_flag(max_integer,2147483647), !.
+	yap_flag(max_tagged_integer,I), I >> 32 =:= 0, !.
 wsize(64).
 
 ranstart :- ranstart(8'365).
  
 ranstart(N) :-
-	wsize(32),				% bits available for int.
+	wsize(Wsize),				% bits available for int.
 	MaxInt is \(1 << (Wsize - 1)),		% all bits but sign bit are 1.
 	Incr is (8'154 << (Wsize - 9)) + 1,	% per Knuth, v.2 p.78
 	Mult is 8'3655,				% OK for 16-18 Wsize

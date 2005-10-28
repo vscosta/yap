@@ -1,4 +1,10 @@
 
+:- source.
+
+:- style_check(all).
+
+:- yap_flag(unknown,error).
+
 % redefines stuff in prolog module.
 
 :- module(swi, []).
@@ -13,7 +19,8 @@
    mktime/2]).
 
 :- use_module(library(terms),[term_variables/2,
-			      term_variables/3]).
+			      term_variables/3,
+			      term_hash/2]).
 
 :- multifile
    prolog:message/3.
@@ -111,7 +118,7 @@ prolog:b_getval(GlobalVariable,Value) :-
 
 prolog:b_setval(GlobalVariable,Value) :-
 	array(GlobalVariable,1),
-	update_array(GlobalVariable,0,Value).
+	dynamic_update_array(GlobalVariable,0,Value).
 
 prolog:nb_getval(GlobalVariable,Value) :-
 	array_element(GlobalVariable,0,Value).
@@ -124,7 +131,7 @@ prolog:nb_delete(GlobalVariable) :-
 	close_static_array(GlobalVariable).
 
 prolog:nb_current(GlobalVariable,Val) :-
-	static_array_properties(GlobalVariable,1,term),
+	static_array_properties(GlobalVariable,1,nb_term),
 	array_element(GlobalVariable,0,Val).
 
 % SWI has a dynamic attribute scheme
@@ -141,7 +148,7 @@ prolog:del_attr(Var, Mod) :-
 	      AttTerm =.. [Mod,_,_],
 	      attributes:del_all_module_atts(Var, AttTerm).
 
-prolog:get_attrs(Var, SWIAtts) :-
+prolog:get_attrs(AttVar, SWIAtts) :-
 	get_all_swi_atts(AttVar,SWIAtts).
 
 prolog:put_attrs(_, []).
@@ -164,7 +171,7 @@ prolog:append([],L,L).
 prolog:append([X|L0],L,[X|Lf]) :-
 	prolog:append(L0,L,Lf).
 
-prolog:member(X[X|_]).
+prolog:member(X,[X|_]).
 prolog:member(X,[_|L0]) :-
 	prolog:member(X,L0).
 
@@ -188,7 +195,49 @@ prolog:get_time(Secs) :- datime(Datime),  mktime(Datime, Secs).
 % Time is received as int, and converted to "..."
 prolog:convert_time(X,Y) :- swi:ctime(X,Y).
 
+:- hide(atom_concat).
+
+prolog:atom_concat(A,B) :- atomic_concat(A,B).
+
+prolog:atom_concat(A,B,C) :- atomic_concat(A,B,C).
+
+:- hide(create_mutable).
+
+:- hide(get_mutable).
+
+:- hide(update_mutable).
+
+prolog:hash_term(X,Y) :- term_hash(X,Y).
+
+:- meta_predicate prolog:maplist(:,?), prolog:maplist(:,?,?), prolog:maplist(:,?,?).
 
 
+prolog:maplist(_, []).
+prolog:maplist(G, [H|L]) :-
+	call(G,H),
+	prolog:maplist(G, L).
+
+prolog:maplist(_, [], []).
+prolog:maplist(G, [H1|L1], [H2|L2]) :-
+	call(G,H1,H2),
+	prolog:maplist(G, L1, L2).
+
+prolog:maplist(_, [], [], []).
+prolog:maplist(G, [H1|L1], [H2|L2], [H3|L3]) :-
+	call(G,H1,H2,H3),
+	prolog:maplist(G, L1, L2, L3).
+
+prolog:make.
+
+prolog:source_location(File,Line) :-
+	prolog_load_context(file, File),
+	prolog_load_context(term_position, '$stream_position'(_,Line,_)).
+
+prolog:memberchk(Element, [Element|_]) :- !.
+prolog:memberchk(Element, [_|Rest]) :-
+        prolog:memberchk(Element, Rest).
+
+
+	
 
 

@@ -406,10 +406,17 @@ p_dif(void)
 	HBREG = H;
 	B = (choiceptr) H;
 	save_hb();
-	if (Yap_IUnify(d0, d1) == TRUE) {
+	if (Yap_IUnify(d0, d1)) {
 	  /* restore B, no need to restore HB */
 	  B = pt1;
-	  return(FALSE);
+#ifdef COROUTINING
+	  /* now restore Woken Goals to its old value */
+	  Yap_UpdateTimedVar(WokenGoals, OldWokenGoals);
+	  if (OldWokenGoals == TermNil) {
+	    Yap_undo_signal(YAP_WAKEUP_SIGNAL);
+	  }
+#endif
+	  return FALSE;
 	}
 	B = pt1;
 	/* restore B, and later HB */
@@ -426,8 +433,11 @@ p_dif(void)
 #ifdef COROUTINING
       /* now restore Woken Goals to its old value */
       Yap_UpdateTimedVar(WokenGoals, OldWokenGoals);
+      if (OldWokenGoals == TermNil) {
+	Yap_undo_signal(YAP_WAKEUP_SIGNAL);
+      }
 #endif
-      return(TRUE);
+      return TRUE;
       ENDP(pt0);
 
       BEGP(pt0);
@@ -440,7 +450,7 @@ p_dif(void)
       deref_body(d1, pt0, dif_nvar1_unk2, dif_nvar1_nvar2);
       ENDP(pt0);
       /* second argument is unbound */
-      return(FALSE);
+      return FALSE;
       ENDD(d1);
       ENDD(d0);
 }

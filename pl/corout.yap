@@ -565,13 +565,13 @@ call_residue(Goal,Residue) :-
 	
 '$call_residue'(Goal,Module,Residue) :-
 	'$read_svar_list'(OldAttsList),
-	'$copy_term_but_not_constraints'(Goal, NGoal),
+	copy_term_nat(Goal, NGoal),
 	( '$set_svar_list'(CurrentAttsList),
 	  '$system_catch'(NGoal,Module,Error,'$residue_catch_trap'(Error,OldAttsList)),
 
 	    '$call_residue_continuation'(NGoal,NResidue),
 	    ( '$set_svar_list'(OldAttsList),
-		'$copy_term_but_not_constraints'(NGoal+NResidue, Goal+Residue)
+		copy_term_nat(NGoal+NResidue, Goal+Residue)
 		;
 		'$set_svar_list'(CurrentAttsList), fail
 	    )
