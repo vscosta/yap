@@ -146,6 +146,7 @@
 #undef  HAVE_ASINH
 #undef  HAVE_ATANH
 #undef  HAVE_CHDIR
+#undef  HAVE_CTIME
 #undef  HAVE_DLOPEN
 #undef  HAVE_DUP2
 #undef  HAVE_FESETTRAPENABLE
