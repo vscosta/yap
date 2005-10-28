@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/1999/REC-html401-19991224/strict.dtd">
+
+<html>
+
+<head>
+	<title>YAP change log</title>
+	<link rel=stylesheet href="changes.css" type="text/css">
+</head>
+
+<body>
+
+<hr>
+
+<h1>Changes in YAP-5.1</h1>
+
+<h2>Yap-5.1.0:</h2>
+<ul>
+<li> FIXED: fix corruption in ypp.yap. </li>
+<li> FIXED: ~@ makes format a meta-predicate. </li>
+<li> FIXED: format should do immediate exit on exception (from Prolog call). </li>
+<li> FIXED: make format reentrant and thread-safe (format may call itself). </li>
+<li> FIXED: don't complain if a module is loading a reexported
+  predicate and the original predicate. </li>
+<li> FIXED: change a few defaults for SWI compatibility. </li>
+<li> FIXED: library prandom was broken (report from Nuno Fonseca). </li>
+<li> NEW: add max_tagged_integer and min_tagged_inter prolog_flags. </li>
+<li> NEW: add ~@ option to format. </li>
+<li> NEW: memberchk/2 is like builtin in SWI emulation lib. </li>
+<li> NEW: SWI like prolog_source_location/2 </li>
+<li> FIXED: $loop_stream usage was broken. Fix $fetch_stream_alias to
+  be bidirectional.</li>
+<li> FIXED: allow nb_set followed by b_set, bheakkkk! The other way round
+is still not allowed.</li>
+<li> NEW: from SWI maplist/2, maplist/3, maplist/4.</li>
+<li> NEW: call/2, call/3, call/4.</li>
+<li> FIXED: disable mutables in SWI mode. </li>
+<li> FIXED: safe C-preds should always use P when calling garbage
+       collector, aarrggh :-(, CP use found in GetTermFromArray.</li>
+<li> NEW: SWI-like ord_empty/1 and ord_memberchk/2 in library(ordsets).</li>
+<li> FIXED: safe call_c should check for signals before calling a built-in.</li>
+<li> NEW: -p option allows setting path from command line.</li>
+<li> FIXED: during grow, heap references should not be followed from trail.</li>
+<li> FIXED: \= was not resetting wakeups correctly.</li>
+<li> FIXED: copy_term was broken if attrs were an unbound variable.</li>
+<li> FIXED: during garbage collection, heap references should be
+  copied to trail, and that's it.</li>
+<li> FIXED: excessive backtracking in multifile declaration.</li>
+<li> NEW: allow style_check(singleton) and style_check(-singleton).</li>
+<li> NEW: SWI module now makes atom_concat/{2,3} behave like atomic_concat/{2,3}.</li>
+<li> NEW: add SWI-like copy_term_nat/2.</li>
+<li> NEW: add SWI-like get_time and convert_time, but using integers, not floats.</li>
+<li> NEW: add SWI-like working_directory/2 and chdir/2.</li>
+<li> NEW: add append/3 and member/2 to SWI module.</li>
+<li> FIXED: use bootstrap/1 to load up system.</li>
+<li> FIXED: use_module/3 did not get info on loaded_module.</li>
+<li> NEW:  use_load_files as main file loading option.</li>
+<li> FIXED:  broken do_print_message for defined_elsewhere.</li>
+<li> FIXED:  debugger option.</li>
+<li> FIXED: trace through undefined predicates correctly.</li>
+<li> FIXED: WIN32 missing include files (untested)</li>
+<li> FIXED: -L trouble (my thanks to Takeyuchi Shiramoto-san)!</li>
+<li> FIXED: debugging of backtrable user-C preds would core dump.</li>
+<li> FIXED: redeclaring a C-predicate as Prolog core dumps.</li>
+<li> FIXED: badly protected  YapInterface.h.</li>
+<li> FIXED: break/0 was failing at exit.</li>
+<li> FIXED: YAP_cut_fail and YAP_cut_succeed were different from manual.</li>
+<li> FIXED: tracing through data-bases could core dump.</li>
+<li> FIXED: cut could break on very large computations.</li>
+<li> FIXED: first pass at BigNum issues (reported by Roberto).</li>
+<li> FIXED: debugger could get go awol after fail port.</li>
+<li> FIXED: weird message on wrong debugger option.</li>
+<li> FIXED: cases where restore/1 could break.</li>
+<li> NEW:  SWI predicates now update prolog module</li>
+<li> NEW:  port of Leslie's CLP(R) system.</li>
+<li> NEW:  generations in garbage collector.</li>
+<li> SPEEDUP:  optimise some garbage collector code.</li>
+</ul>
+
+<hr>
+
+</body>
+
+</html>

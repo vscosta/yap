@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/1999/REC-html401-19991224/strict.dtd">
+
+<html>
+
+<head>
+	<title>YAP change log</title>
+	<link rel=stylesheet href="changes.css" type="text/css">
+</head>
+
+<body>
+
+<hr>
+
+<h1>Changes in YAP-5.0</h1>
+
+<h2>Yap-5.0.2:</h2>
+<ul>
+<li> FIXED: excessive backtracking in multifile declaration.</li>
+<li> FIXED:  broken do_print_message for defined_elsewhere.</li>
+<li> FIXED:  debugger option.</li>
+<li> FIXED: trace through undefined predicates correctly.</li>
+</ul>
+
+<h2>Yap-5.0.1:</h2>
+<ul>
+<li> FIXED: WIN32 missing include files (untested)</li>
+<li> FIXED: -L trouble (my thanks to Takeyuchi Shiramoto-san)!</li>
+<li> FIXED: debugging of backtrable user-C preds would core dump.</li>
+<li> FIXED: redeclaring a C-predicate as Prolog core dumps.</li>
+<li> FIXED: badly protected  YapInterface.h.</li>
+<li> FIXED: break/0 was failing at exit.</li>
+<li> FIXED: YAP_cut_fail and YAP_cut_succeed were different from manual.</li>
+<li> FIXED: tracing through data-bases could core dump.</li>
+<li> FIXED: cut could break on very large computations.</li>
+<li> FIXED: first pass at BigNum issues (reported by Roberto).</li>
+<li> FIXED: debugger could get go awol after fail port.</li>
+<li> FIXED: weird message on wrong debugger option.</li>
+</ul>
+
+<hr>
+
+</body>
+
+</html>

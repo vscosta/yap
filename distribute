@@ -15,6 +15,12 @@ cd ../VC
 splat
 cd ../LGPL
 splat
+cd chr
+splat
+cd ../clpr
+splat
+cd ../clp
+splat
 cd JPL
 splat
 cd src
@@ -83,7 +89,7 @@ cd examples
 splat
 cd ../../../..
 if test "$1" = "--small"; then
-  tar cvzf  "$version"-small.tar.gz --exclude=CVS  "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,misc,pl,LGPL/README,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,LGPL/JPL/jpl.yap,LGPL/JPL/jpl_paths.yap.in,LGPL/JPL/Makefile.in,LGPL/JPL/java,LGPL/JPL/src,build-distr,OPTYap,BEAM,CLPQR,CHR,CLPBN} # --exclude=CLPQR/clpqr/examples  --exclude=CHR/chr/examples
+  tar cvzf  "$version"-small.tar.gz --exclude=CVS  "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,misc,pl,LGPL/README,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,LGPL/JPL/jpl.yap,LGPL/JPL/jpl_paths.yap.in,LGPL/JPL/Makefile.in,LGPL/JPL/java,LGPL/JPL/src,build-distr,OPTYap,BEAM,LGPL/clpr,LGPL/chr,CLPBN} # --exclude=CLPQR/clpqr/examples  --exclude=CHR/chr/examples
 else
-  tar cvzf "$version".tar.gz --exclude=CVS  "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,misc,pl,LGPL/README,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,LGPL/JPL/jpl.yap,LGPL/JPL/jpl_paths.yap.in,LGPL/JPL/Makefile.in,LGPL/JPL/java,LGPL/JPL/src,build-distr,build-distr,OPTYap,BEAM,CLPQR,CHR,CLPBN,Logtalk}
+  tar cvzf "$version".tar.gz --exclude=CVS  "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,misc,pl,LGPL/README,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,LGPL/JPL/jpl.yap,LGPL/JPL/jpl_paths.yap.in,LGPL/JPL/Makefile.in,LGPL/JPL/java,LGPL/JPL/src,build-distr,build-distr,OPTYap,BEAM,LHPL/clpr,LGPL/chr,CLPBN,Logtalk}
 fi
