@@ -8,11 +8,16 @@
 
 :- use_module(library(clpbn), []).
 
+:- use_module(library('clpbn/utils'), [
+	sort_vars_by_key_and_parents/3]).
+
 :- attribute prob/1, emission/1, backp/1, ancestors/1.
 
 viterbi(Start,End,Trace,Ticks,Slices) :-
 	attributes:all_attvars(Vars0),
-	group_vars_by_key_and_parents(Vars0,Ticks,Slices),
+	sort_vars_by_key_and_parents(Vars0,Vars,_),
+	add_emissions(Vars),
+	topsort_vars(Vars,SortedVars),
 	init_viterbi(Start),
 	viterbi_alg([Start|R],R),
 	backtrace(Start,End,[],Trace).

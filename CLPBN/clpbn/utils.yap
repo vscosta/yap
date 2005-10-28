@@ -3,7 +3,7 @@
 	clpbn_var_member/2,
 	check_for_hidden_vars/3,
 	sort_vars_by_key/3,
-	sort_vars_by_key_and_parents/4]).
+	sort_vars_by_key_and_parents/3]).
 
 %
 % It may happen that variables from a previous query may still be around.
@@ -57,5 +57,39 @@ merge_same_key([K1-V1|KVs], [V1|Vs], [K1|Ks]) :-
 eat_same_key([K-V|KVs],K,V,RKVs) :- !,
 	eat_same_key(KVs,K,V,RKVs).
 eat_same_key(KVs,_,_,KVs).
+
+
+sort_vars_by_key_and_parents(AVars, SortedAVars, UnifiableVars) :-
+	get_keys_and_parents(AVars, KeysVars),
+	keysort(KeysVars, KVars),
+	merge_same_key(KVars, SortedAVars, [], UnifiableVars).
+
+get_keys_and_parents([], []).
+get_keys_and_parents([V|AVars], [K-V|KeysVarsF]) :-
+	clpbn:get_atts(V, [key(K),dist(D,T,Parents)]), !,
+	add_parents(Parents,V,D,T,KeysVarsF,KeysVars0),
+	get_keys_and_parents(AVars, KeysVars0).
+get_keys_and_parents([_|AVars], KeysVars) :-  % may be non-CLPBN vars.
+	get_keys_and_parents(AVars, KeysVars).
+
+add_parents(Parents,_,_,_,KeyVars,KeyVars) :-
+	all_vars(Parents), !.
+add_parents(Parents,V,D,T,KeyVarsF,KeyVars0) :-
+	transform_parents(Parents,NParents,KeyVarsF,KeyVars0),
+	clpbn:put_atts(V, [dist(D,T,NParents)]).
+
+
+all_vars([]).
+all_vars([P|Parents]) :-
+	var(P), 
+	all_vars(Parents).
+
+
+transform_parents([],[],KeyVars,KeyVars).
+transform_parents([P|Parents0],[P|NParents],KeyVarsF,KeyVars0) :-
+	var(P), !,
+	transform_parents(Parents0,NParents,KeyVarsF,KeyVars0).
+transform_parents([P|Parents0],[V|NParents],[P-V|KeyVarsF],KeyVars0) :-
+	transform_parents(Parents0,NParents,KeyVarsF,KeyVars0).
 
 
