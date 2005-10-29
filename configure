@@ -2359,7 +2359,7 @@ if test "${enable_max_memory+set}" = set; then
   enableval="$enable_max_memory"
   maxmemory="$enableval"
 else
-  maxmemory=no
+  maxmemory=yes
 fi;
 # Check whether --enable-debug-yap or --disable-debug-yap was given.
 if test "${enable_debug_yap+set}" = set; then

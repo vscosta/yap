@@ -60,7 +60,7 @@ AC_ARG_ENABLE(max-performance,
 	maxperformance="$enableval", maxperformance=no)
 AC_ARG_ENABLE(max-memory,
 	[ --enable-max-memory        try using the best flags for using the memory to the most ],
-	maxmemory="$enableval", maxmemory=no)
+	maxmemory="$enableval", maxmemory=yes)
 AC_ARG_ENABLE(debug-yap,
 	[ --enable-debug-yap         enable C-debugging for YAP ],
 	debugyap="$enableval", debugyap=no)
