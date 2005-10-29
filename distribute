@@ -1,7 +1,7 @@
 #/bin/bash
 # Guess what: this code works for me!
 
-version="Yap-5.0.0"
+version="Yap-5.1.0"
 splat
 cd C
 splat
@@ -21,7 +21,7 @@ cd ../clpr
 splat
 cd ../clp
 splat
-cd JPL
+cd ../JPL
 splat
 cd src
 splat

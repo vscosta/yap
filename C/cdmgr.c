@@ -11,8 +11,38 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-10-18 17:04:43 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-10-29 01:28:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.170  2005/10/18 17:04:43  vsc
+* 5.1:
+* - improvements to GC
+*    2 generations
+*    generic speedups
+* - new scheme for attvars
+*    - hProlog like interface also supported
+* - SWI compatibility layer
+*    - extra predicates
+*    - global variables
+*    - moved to Prolog module
+* - CLP(R) by Leslie De Koninck, Tom Schrijvers, Cristian Holzbaur, Bart
+* Demoen and Jan Wielemacker
+* - load_files/2
+*
+* from 5.0.1
+*
+* - WIN32 missing include files (untested)
+* - -L trouble (my thanks to Takeyuchi Shiramoto-san)!
+* - debugging of backtrable user-C preds would core dump.
+* - redeclaring a C-predicate as Prolog core dumps.
+* - badly protected  YapInterface.h.
+* - break/0 was failing at exit.
+* - YAP_cut_fail and YAP_cut_succeed were different from manual.
+* - tracing through data-bases could core dump.
+* - cut could break on very large computations.
+* - first pass at BigNum issues (reported by Roberto).
+* - debugger could get go awol after fail port.
+* - weird message on wrong debugger option.
+*
 * Revision 1.169  2005/10/15 02:05:57  vsc
 * fix for trying to add clauses to a C pred.
 *
@@ -4483,6 +4513,30 @@ p_predicate_erased_statistics(void)
 }
 #endif /* DEBUG */
 
+static int
+p_program_continuation(void)
+{
+  PredEntry *pe = EnvPreg(((CELL *)ENV[E_E])[E_CP]);
+  if (pe->ModuleOfPred) {
+    if (!Yap_unify(ARG1,pe->ModuleOfPred))
+      return FALSE;
+  } else {
+    if (!Yap_unify(ARG1,TermProlog))
+      return FALSE;
+  }
+  if (pe->ArityOfPE) {
+    if (!Yap_unify(ARG2,MkAtomTerm(NameOfFunctor(pe->FunctorOfPred))))
+      return FALSE;
+    if (!Yap_unify(ARG3,MkIntegerTerm(ArityOfFunctor(pe->FunctorOfPred))))
+      return FALSE;
+  } else {
+    if (!Yap_unify(ARG2,MkAtomTerm((Atom)pe->FunctorOfPred)))
+      return FALSE;
+    if (!Yap_unify(ARG3,MkIntTerm(0)))
+      return FALSE;
+  }
+  return TRUE;
+}
 
 void 
 Yap_InitCdMgr(void)
@@ -4539,6 +4593,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$continue_static_clause", 5, p_continue_static_clause, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$static_pred_statistics", 5, p_static_pred_statistics, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$p_nth_clause", 4, p_nth_clause, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$program_continuation", 3, p_program_continuation, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #ifdef DEBUG
   Yap_InitCPred("predicate_erased_statistics", 5, p_predicate_erased_statistics, SyncPredFlag);
 #endif

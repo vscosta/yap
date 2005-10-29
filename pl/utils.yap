@@ -456,8 +456,10 @@ unknown(V0,V) :-
 	arg(1,X,A),
 	recorda('$unknown','$unknown'(A,M:X),_).
 
-'$unknown_error'(P) :-
-	'$do_error'(unknown,P).
+'$unknown_error'(Mod:Goal) :-
+	functor(Goal,Name,Arity),
+	'$program_continuation'(PMod,PName,PAr),
+	'$do_error'(existence_error(procedure,Name/Arity),context(Mod:Goal,PMod:PName/PAr)).
 
 '$unknown_warning'(P) :-
 	P=M:F,

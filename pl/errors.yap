@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2005-10-28 17:38:50 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-10-29 01:28:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.67  2005/10/28 17:38:50  vsc
+* sveral updates
+*
 * Revision 1.66  2005/10/18 17:04:43  vsc
 * 5.1:
 * - improvements to GC
@@ -589,9 +592,9 @@ print_message(Level, Mss) :-
 '$output_error_message'(existence_error(queue,F), W) :-
 	format(user_error,'% EXISTENCE ERROR- ~w could not open message queue ~w~n',
 	[W,F]).
-'$output_error_message'(existence_error(procedure,P), _) :-
-	format(user_error,'% EXISTENCE ERROR- procedure ~w undefined~n',
-	[P]).
+'$output_error_message'(existence_error(procedure,P), context(Call,Parent)) :-
+	format(user_error,'% EXISTENCE ERROR- procedure ~w is undefined, called from context  ~w~n%                  Goal was ~w~n',
+	[P,Parent,Call]).
 '$output_error_message'(existence_error(source_sink,F), W) :-
 	format(user_error,'% EXISTENCE ERROR- ~w could not find file ~w~n',
 	[W,F]).
