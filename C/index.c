@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-09-08 22:06:44 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2005-10-29 02:21:47 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.145  2005/09/08 22:06:44  rslopes
+* BEAM for YAP update...
+*
 * Revision 1.144  2005/08/17 18:48:35  vsc
 * fix bug in processing overflows of expand_clauses.
 *
@@ -3973,6 +3976,7 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
     return emit_single_switch_case(min, cint, first, clleft, fail_l);
   }
   if ((argno > 1 && yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) ||
+      yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_OFF ||
       ap->ArityOfPE < argno) {
     return do_var_clauses(min, max, FALSE, cint, first, clleft, fail_l, ap->ArityOfPE+1);
   }
