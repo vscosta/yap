@@ -57,7 +57,7 @@ chr_translate_bootstrap1.pl: $(srcdir)/chr_translate_bootstrap1.chr
 		      -g "chr_compile_step2('$<','$@'),halt." \
 		      -z 'halt(1).'
 
-chr_translate_bootstrap2.pl: $(srcdir)/chr_translate_bootstrap2.chr 
+chr_translate_bootstrap2.pl: $(srcdir)/chr_translate_bootstrap2.chr  chr_translate_bootstrap1.pl
 		$(PL) -l chr_swi_bootstrap.yap \
 		      -g "chr_compile_step2('$<','$@'),halt." \
 		      -z 'halt(1).'
