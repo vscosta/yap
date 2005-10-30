@@ -328,12 +328,12 @@ CopyTerm(Term inp, UInt arity) {
 	  goto restart_attached;
 	}
       }
-      return(Hi[0]);
+      return Hi[0];
     }
 #endif
-    return(MkVarTerm());
+    return MkVarTerm();
   } else if (IsPrimitiveTerm(t)) {
-    return(t);
+    return t;
   } else if (IsPairTerm(t)) {
     Term tf;
     CELL *ap;
@@ -366,7 +366,7 @@ CopyTerm(Term inp, UInt arity) {
 	}
       }
     }
-    return(tf);
+    return tf;
   } else {
     Functor f = FunctorOfTerm(t);
     Term tf;
@@ -403,7 +403,7 @@ CopyTerm(Term inp, UInt arity) {
 	}
       }
     }
-    return(tf);
+    return tf;
   }
 }
  
@@ -1940,7 +1940,7 @@ void Yap_InitUtilCPreds(void)
 {
   Term cm = CurrentModule;
   Yap_InitCPred("copy_term", 2, p_copy_term, 0);
-  Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, HiddenPredFlag);
+  Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
   Yap_InitCPred("ground", 1, p_ground, SafePredFlag);
   Yap_InitCPred("$variables_in_term", 3, p_variables_in_term, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, SafePredFlag|HiddenPredFlag);
