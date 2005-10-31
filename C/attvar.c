@@ -452,6 +452,39 @@ p_put_att(void) {
 }
 
 static Int
+p_put_att_term(void) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    attvar_record *attv;
+    int new = FALSE;
+
+    if (IsAttachedTerm(inp)) {
+      attv = (attvar_record *)VarOfTerm(inp);
+    } else {
+      while (!(attv = BuildNewAttVar())) {
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, ARG1, Yap_ErrorMessage);
+	  return FALSE;
+	}
+	inp = Deref(ARG1);
+      }
+      new = TRUE;
+    }
+    if (new) {
+      attv->Atts = Deref(ARG2);
+    } else {
+      MaBind(&(attv->Atts), Deref(ARG2));
+    }
+    return TRUE;
+  } else {
+    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+    return(FALSE);
+  }
+}
+
+static Int
 p_rm_att(void) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
@@ -890,6 +923,7 @@ void Yap_InitAttVarPreds(void)
   Yap_InitCPred("get_all_swi_atts", 2, p_swi_all_atts, SafePredFlag);
   Yap_InitCPred("free_att", 3, p_free_att, SafePredFlag);
   Yap_InitCPred("put_att", 5, p_put_att, 0);
+  Yap_InitCPred("put_att_term", 5, p_put_att_term, 0);
   Yap_InitCPred("put_module_atts", 2, p_put_atts, 0);
   Yap_InitCPred("del_all_module_atts", 2, p_del_atts, 0);
   Yap_InitCPred("rm_att", 4, p_rm_att, 0);

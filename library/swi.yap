@@ -152,9 +152,14 @@ prolog:get_attrs(AttVar, SWIAtts) :-
 	get_all_swi_atts(AttVar,SWIAtts).
 
 prolog:put_attrs(_, []).
-prolog:put_attrs(V, att(Mod,Att,Atts)) :-
-	prolog:put_attr(V,Mod,Att),
-	prolog:put_attrs(V, Atts).
+prolog:put_attrs(V, Atts) :-
+	cvt_to_swi_atts(Atts, YapAtts),
+	attributes:put_att_term(V, YapAtts).
+
+cvt_to_swi_atts([], _).
+cvt_to_swi_atts(att(Mod,Attribute,Atts), ModAttribute) :-
+	ModAttribute =.. [Mod, YapAtts, Attribute],
+	cvt_to_swi_atts(Atts, YapAtts).
 
 bindings_message(V) -->
        { cvt_bindings(V, Bindings) },
