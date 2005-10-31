@@ -667,6 +667,13 @@ if test "$rationaltrees" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DRATIONAL_TREES=1"
 fi
+
+if test "$rationaltrees" = "yes" -a "$coroutining" = "yes"
+  then
+  INSTALLCLP=""
+  else
+  INSTALLCLP="#"
+fi
   
 if test "$debugyap" = "yes"
   then
@@ -845,6 +852,7 @@ AC_SUBST(MPI_OBJS)
 AC_SUBST(MPI_LIBS)
 AC_SUBST(INSTALL_COMMAND)
 AC_SUBST(CROSS_SIMULATOR)
+AC_SUBST(INSTALLCLP)
 
 
 dnl check for threaded code

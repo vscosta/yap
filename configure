@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT GCC C_INTERF_FLAGS C_PARSER_FLAGS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os LN_S INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA RANLIB ac_ct_RANLIB INDENT ac_ct_INDENT AR ac_ct_AR MPI_CC ac_ct_MPI_CC INSTALL_INFO CPP EGREP M4 M4GENHDRS INSTALL_DLLS MERGE_DLL_OBJS SHLIB_CFLAGS SHLIB_SUFFIX EXEC_SUFFIX DO_SECOND_LD SHLIB_LD YAPLIB YAP_EXTRAS NO_BUILTIN_REGEXP ENABLE_JPL JAVA_HOME JAVAC JAR IN_UNIX YAPMPILIB MPI_OBJS MPI_LIBS INSTALL_COMMAND CROSS_SIMULATOR M4GENABSMI LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT GCC C_INTERF_FLAGS C_PARSER_FLAGS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os LN_S INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA RANLIB ac_ct_RANLIB INDENT ac_ct_INDENT AR ac_ct_AR MPI_CC ac_ct_MPI_CC INSTALL_INFO CPP EGREP M4 M4GENHDRS INSTALL_DLLS MERGE_DLL_OBJS SHLIB_CFLAGS SHLIB_SUFFIX EXEC_SUFFIX DO_SECOND_LD SHLIB_LD YAPLIB YAP_EXTRAS NO_BUILTIN_REGEXP ENABLE_JPL JAVA_HOME JAVAC JAR IN_UNIX YAPMPILIB MPI_OBJS MPI_LIBS INSTALL_COMMAND CROSS_SIMULATOR INSTALLCLP M4GENABSMI LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -6191,6 +6191,13 @@ fi
 if test "$rationaltrees" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DRATIONAL_TREES=1"
+fi
+
+if test "$rationaltrees" = "yes" -a "$coroutining" = "yes"
+  then
+  INSTALLCLP=""
+  else
+  INSTALLCLP="#"
 fi
 
 if test "$debugyap" = "yes"
@@ -12261,6 +12268,7 @@ EXEC_SUFFIX=""
 
 
 
+
 echo "$as_me:$LINENO: checking for gcc threaded code" >&5
 echo $ECHO_N "checking for gcc threaded code... $ECHO_C" >&6
 if test "${yap_cv_threaded_code+set}" = set; then
@@ -14736,11 +14744,7 @@ fi
 
 if test "$use_malloc" = "yes" -a "$maxmemory" = "yes"
 then
-  echo ****************************************
-  echo Malloc and Max Memory are not compatible
-  echo Please use different options
-  echo ****************************************
-  exit 1
+  maxmemory="no"
 fi
 
 echo "$as_me:$LINENO: checking if fflush(NULL) clobbers input pipes" >&5
@@ -15547,6 +15551,7 @@ s,@MPI_OBJS@,$MPI_OBJS,;t t
 s,@MPI_LIBS@,$MPI_LIBS,;t t
 s,@INSTALL_COMMAND@,$INSTALL_COMMAND,;t t
 s,@CROSS_SIMULATOR@,$CROSS_SIMULATOR,;t t
+s,@INSTALLCLP@,$INSTALLCLP,;t t
 s,@M4GENABSMI@,$M4GENABSMI,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
