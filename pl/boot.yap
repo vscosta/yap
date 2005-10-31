@@ -37,7 +37,7 @@ true :- true.
 		'$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
 
 '$init_system' :-
-	'$add_alias_to_stream'('$loop_stream','$stream'(0)),
+	'$change_alias_to_stream'('$loop_stream','$stream'(0)),
         % do catch as early as possible
 	(
 	 '$access_yap_flags'(15, 0), \+ '$uncaught_throw' ->
