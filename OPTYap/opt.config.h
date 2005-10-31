@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.config.h
-  version:     $Id: opt.config.h,v 1.9 2005-08-04 15:45:54 ricroc Exp $   
+  version:     $Id: opt.config.h,v 1.10 2005-10-31 12:27:54 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -26,8 +26,8 @@
 /* ----------------------------------------- **
 **      memory alloc scheme (define one)     **
 ** ----------------------------------------- */
-#define SHM_MEMORY_ALLOC_SCHEME 1
-/* #define YAP_MEMORY_ALLOC_SCHEME 1 */
+/* #define SHM_MEMORY_ALLOC_SCHEME 1 */
+#define YAP_MEMORY_ALLOC_SCHEME 1
 /* #define MALLOC_MEMORY_ALLOC_SCHEME 1 */
 
 /* ------------------------------------------- **

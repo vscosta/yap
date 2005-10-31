@@ -2110,7 +2110,7 @@ Yap_ReInitUnaryExps(void)
     WRITE_LOCK(ae->ARWLock);
     if ((p = Yap_GetExpPropHavingLock(ae, 1)) == NULL) {
       WRITE_UNLOCK(ae->ARWLock);
-      return(FALSE);
+      return FALSE;
     }
     RepExpProp(p)->FOfEE.unary = InitUnTab[i].f;
     WRITE_UNLOCK(ae->ARWLock);

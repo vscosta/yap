@@ -4,7 +4,7 @@
 %
 % Author: Nuno Fonseca (nunofonseca@acm.org)
 % Date: 2005-05-14
-% $Id: ypp.yap,v 1.2 2005-10-28 17:38:50 vsc Exp $
+% $Id: ypp.yap,v 1.3 2005-10-31 12:27:54 vsc Exp $
 %
 %====================================================================================
 
@@ -55,7 +55,7 @@ ypp_consult(File):-
 
 ypp_reconsult(File):-
 	(get_state(on)->ypp_file(File,NFile);NFile=File),
-	reconsult(NFile),
+	reconsult(NFile).
 %====================================================================================
 % Private Predicates
 %====================================================================================

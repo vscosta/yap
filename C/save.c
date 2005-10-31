@@ -408,6 +408,11 @@ save_regs(int mode)
 #ifdef COROUTINING
     putout(DelayedVars);
 #endif
+#if defined(SBA) || defined(TABLING)
+    putcellptr(H_FZ);
+    putcellptr((CELL *)B_FZ);
+    putcellptr((CELL *)TR_FZ);
+#endif /* SBA || TABLING */
   }
   putout(CurrentModule);
   if (mode == DO_EVERYTHING) {
@@ -464,7 +469,7 @@ save_heap(void)
 {
   int j;
   /* Then save the whole heap */
-#if defined(YAPOR) || defined(TABLING)
+#if defined(YAPOR) || defined(TABLING) && !defined(YAP_MEMORY_ALLOC_SCHEME)
   /* skip the local and global data structures */
   j = Unsigned(&GLOBAL) - Unsigned(Yap_HeapBase);
   putout(j);
@@ -798,6 +803,17 @@ get_regs(int flag)
     if (Yap_ErrorMessage)
       return -1;
 #endif
+#if defined(SBA) || defined(TABLING)
+    H_FZ = get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
+    B_FZ = (choiceptr)get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
+    TR_FZ = (tr_fr_ptr)get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
+#endif /* SBA || TABLING */
   }
   CurrentModule = get_cell();
     if (Yap_ErrorMessage)
@@ -875,7 +891,7 @@ get_hash(void)
 static int 
 CopyCode(void)
 {
-#if defined(YAPOR) || defined(TABLING)
+#if (defined(YAPOR) || defined(TABLING)) && !defined(YAP_MEMORY_ALLOC_SCHEME)
   /* skip the local and global data structures */
   CELL j = get_cell();
   if (Yap_ErrorMessage)

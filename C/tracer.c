@@ -181,7 +181,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 #if defined(THREADS) || defined(YAPOR)
   fprintf(Yap_stderr,"(%d)", worker_id);
 #endif
-  fprintf(Yap_stderr," %x ", Yap_ReadTimedVar(WokenGoals));
   /* check_trail_consistency(); */
   if (pred == NULL) 
     return;

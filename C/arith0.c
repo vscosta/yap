@@ -242,13 +242,13 @@ Yap_ReInitConstExps(void)
     AtomEntry *ae = RepAtom(Yap_FullLookupAtom(InitConstTab[i].OpName));
 
     WRITE_LOCK(ae->ARWLock);
-    if ((p = Yap_GetExpPropHavingLock(ae, 0)) == NULL) {
+    if (!(p = Yap_GetExpPropHavingLock(ae, 0))) {
       WRITE_UNLOCK(ae->ARWLock);
-      return(FALSE);
+      return FALSE;
     }
     RepExpProp(p)->FOfEE.constant = InitConstTab[i].f;
     WRITE_UNLOCK(ae->ARWLock);
   }
-  return(TRUE);
+  return TRUE;
 }
 
