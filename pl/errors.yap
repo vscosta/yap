@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2005-10-29 01:28:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-01 18:54:06 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.68  2005/10/29 01:28:37  vsc
+* make undefined more ISO compatible.
+*
 * Revision 1.67  2005/10/28 17:38:50  vsc
 * sveral updates
 *
@@ -269,7 +272,7 @@ print_message(Level, Mss) :-
 '$do_print_message'(declaration(Args,Action)) :- !,
 	format(user_error,'declaration ~w ~w.',	[Args,Action]).
 '$do_print_message'(defined_elsewhere(P,F)) :- !,
-	format(user_error, 'predicate ~q previously defined in file ~a.',[P,F]).
+	format(user_error, 'predicate ~q previously defined in file ~w'',[P,F]).
 '$do_print_message'(import(Pred,To,From,private)) :- !,
 	format(user_error,'Importing private predicate ~w:~w to ~w.',
 	[From,Pred,To]).

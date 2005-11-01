@@ -1,4 +1,4 @@
-/*  $Id: clpr.pl,v 1.2 2005-11-01 18:43:09 vsc Exp $
+/*  $Id: clpr.pl,v 1.3 2005-11-01 18:54:06 vsc Exp $
 
     Part of CPL(R) (Constraint Logic Programming over Reals)
 
@@ -97,7 +97,6 @@ user:portray_message(warning,import(_,_,clpr,private)).
 prolog:message(query(YesNo,Bindings)) --> !,
 	{ dump_toplevel_bindings(Bindings,Constraints)},
 	{ dump_format(Constraints,Format) },
-  { write( vsc:Format),nl },
 	Format,
         '$messages':prolog_message(query(YesNo,Bindings)).
 

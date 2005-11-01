@@ -1,7 +1,5 @@
 
-:- load_files(library(swi),[silent(true)]).
-
-:- yap_flag(unknown,error).
+:- load_files(library(swi),[silent(true),if(not_loaded)]).
 
 :- include('clpr.pl').
 
