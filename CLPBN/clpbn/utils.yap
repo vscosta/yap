@@ -37,10 +37,10 @@ clpbn_not_var_member([V1|Vs], V) :- V1 \== V,
 	clpbn_not_var_member(Vs, V).
 
 
-sort_vars_by_key(AVars, SortedAVars, Keys) :-
+sort_vars_by_key(AVars, SortedAVars, UnifiableVars) :-
 	get_keys(AVars, KeysVars),
 	keysort(KeysVars, KVars),
-	merge_same_key(KVars, SortedAVars, Keys).
+	merge_same_key(KVars, SortedAVars, [], UnifiableVars).
 
 get_keys([], []).
 get_keys([V|AVars], [K-V|KeysVars]) :-
@@ -49,15 +49,24 @@ get_keys([V|AVars], [K-V|KeysVars]) :-
 get_keys([_|AVars], KeysVars) :-  % may be non-CLPBN vars.
 	get_keys(AVars, KeysVars).
 
-merge_same_key([], [], []).
-merge_same_key([K1-V1|KVs], [V1|Vs], [K1|Ks]) :-
-	eat_same_key(KVs,K1,V1,RKVs),
-	merge_same_key(RKVs, Vs, Ks).
+merge_same_key([], [], _, []).
+merge_same_key([K1-V1,K2-V2|Vs], SortedAVars, Ks, UnifiableVars) :-
+	K1 == K2, !, V1 = V2,
+	merge_same_key([K1-V1|Vs], SortedAVars, Ks, UnifiableVars).
+merge_same_key([K1-V1,K2-V2|Vs], [V1|SortedAVars], Ks, [K1|UnifiableVars]) :-
+	(in_keys(K1, Ks) ; \+ \+ K1 == K2), !, 
+	add_to_keys(K1, Ks, NKs),
+	merge_same_key([K2-V2|Vs], SortedAVars, NKs, UnifiableVars).
+merge_same_key([K-V|Vs], [V|SortedAVars], Ks, UnifiableVars) :-
+	add_to_keys(K, Ks, NKs),
+	merge_same_key(Vs, SortedAVars, NKs, UnifiableVars).
 
-eat_same_key([K-V|KVs],K,V,RKVs) :- !,
-	eat_same_key(KVs,K,V,RKVs).
-eat_same_key(KVs,_,_,KVs).
-
+in_keys(K1,[K|_]) :- \+ \+ K1 = K, !.
+in_keys(K1,[_|Ks]) :- 
+	in_keys(K1,Ks).
+	
+add_to_keys(K1, Ks, Ks) :- ground(K1), !.
+add_to_keys(K1, Ks, [K1|Ks]).
 
 sort_vars_by_key_and_parents(AVars, SortedAVars, UnifiableVars) :-
 	get_keys_and_parents(AVars, KeysVars),

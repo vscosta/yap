@@ -184,6 +184,9 @@ PL_SOURCES= \
 	$(srcdir)/pl/utils.yap \
 	$(srcdir)/pl/yapor.yap $(srcdir)/pl/yio.yap
 
+YAPDOCS=$(srcdir)/docs/yap.tex $(srcdir)/docs/chr.tex \
+	$(srcdir)/docs/clpr.tex $(srcdir)/docs/swi.tex 
+
 ENGINE_OBJECTS = \
 	agc.o absmi.o adtdefs.o alloc.o amasm.o analyst.o arrays.o \
 	arith0.o arith1.o arith2.o attvar.o bb.o \
@@ -616,7 +619,7 @@ install_info:
 
 info: yap.info
 
-yap.info: $(srcdir)/docs/yap.tex 
+yap.info: $(YAPDOCS)
 	$(MAKEINFO) $(srcdir)/docs/yap.tex
 
 html: yap.html
@@ -626,17 +629,17 @@ yap.html: $(srcdir)/docs/yap.tex
 
 dvi: yap.dvi
 
-yap.dvi: $(srcdir)/docs/yap.tex
+yap.dvi: $(YAPDOCS)
 	$(TEXI2DVI) $(srcdir)/docs/yap.tex
 
 ps:	yap.ps
 
-yap.ps: $(srcdir)/docs/yap.dvi
+yap.ps:  $(YAPDOCS)
 	dvips -o yap.ps $(srcdir)/docs/yap
 
 pdf: yap.pdf
 
-yap.pdf: $(srcdir)/docs/yap.tex
+yap.pdf:  $(YAPDOCS)
 	$(TEXI2PDF) $(srcdir)/docs/yap.tex
 
 clean_docs:

@@ -297,7 +297,7 @@ divide_by_sum([P|Ps0],Sum,[PN|Ps]) :-
 % what is actually output
 %
 attribute_goal(V, G) :-
-	get_atts(V, [posterior(Vs,Vals,Ps,AllDiffs)]), !,
+	get_atts(V, [posterior(Vs,Vals,Ps,AllDiffs)]),
 	massage_out(Vs, Vals, Ps, G, AllDiffs, V).
 
 massage_out([], Ev, _, V=Ev, _, V) :- !.
