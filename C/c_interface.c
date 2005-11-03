@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-10-28 17:38:49 $,$Author: vsc $						 *
+* Last rev:	$Date: 2005-11-03 18:49:26 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.75  2005/10/28 17:38:49  vsc
+* sveral updates
+*
 * Revision 1.74  2005/10/21 16:07:07  vsc
 * fix tabling
 *
@@ -404,8 +407,10 @@ YAP_MkBigNumTerm(void *big)
 #if USE_GMP
   Term I;
   BACKUP_H();
+  MP_INT *new = Yap_PreAllocBigNum();
 
-  I = Yap_MkBigIntTerm((MP_INT *)big);
+  mpz_set(new, (MP_INT *)big);
+  I = Yap_MkBigIntTerm(new);
   RECOVER_H();
   return I;
 #else
