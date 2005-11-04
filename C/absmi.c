@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-10-28 17:38:49 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-04 15:39:14 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.180  2005/10/28 17:38:49  vsc
+* sveral updates
+*
 * Revision 1.179  2005/10/18 17:04:43  vsc
 * 5.1:
 * - improvements to GC
@@ -6713,7 +6716,7 @@ Yap_absmi(int inp)
       BOp(call_cpred, sla);
      
 
-      if (!(P->u.sla.sla_u.p->PredFlags & ( SafePredFlag|HiddenPredFlag))) {
+      if (!(PREG->u.sla.sla_u.p->PredFlags & ( SafePredFlag|HiddenPredFlag))) {
 	CACHE_Y_AS_ENV(YREG);
 	check_stack(NoStackCall, H);
 	ENDCACHE_Y_AS_ENV();
@@ -6760,11 +6763,9 @@ Yap_absmi(int inp)
       /* guarantee that *all* machine registers are saved and */
       /* restored */
       BOp(call_usercpred, sla);
-#ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCall, H);
       ENDCACHE_Y_AS_ENV();
-#endif
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
