@@ -1179,7 +1179,7 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
 #endif /* YAPOR */
 
 #if defined(YAPOR) || defined(TABLING)
-  init_global(max_table_size, n_workers, sch_loop, delay_load);
+  Yap_init_global(max_table_size, n_workers, sch_loop, delay_load);
 #endif /* YAPOR || TABLING */
 
   Yap_InitTime ();

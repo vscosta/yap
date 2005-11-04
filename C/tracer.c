@@ -111,6 +111,8 @@ CELL old_value = 0L, old_value2 = 0L;
 static void
 jmp_deb(int i) {if (i) printf("Here we go\n"); else jmp_deb(0);}
 
+struct various_codes *sc;
+
 void
 low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 {
@@ -119,6 +121,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   Int arity;
   /*  extern int gc_calls; */
 
+  sc = Yap_heap_regs;
   vsc_count++;
 #ifdef COMMENTED
   //  if (vsc_count == 218280)

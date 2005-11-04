@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.structs.h
-  version:     $Id: opt.structs.h,v 1.9 2005-08-04 15:45:55 ricroc Exp $   
+  version:     $Id: opt.structs.h,v 1.10 2005-11-04 01:17:17 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -236,8 +236,10 @@ struct global_data{
 #define GLOBAL_check_sg_fr                    (GLOBAL.check_subgoal_frame)
 #define GLOBAL_root_dep_fr                    (GLOBAL.root_dependency_frame)
 #define GLOBAL_table_var_enumerator(index)    (GLOBAL.table_var_enumerator[index])
+#define ADDR_GLOBAL_table_var_enumerator(index)    (GLOBAL.table_var_enumerator+(index))
 #define GLOBAL_table_lock(index)              (GLOBAL.table_lock[index])
 #define GLOBAL_timestamp                      (GLOBAL.timestamp)
+
 
 
 

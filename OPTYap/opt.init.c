@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.init.c  
-  version:     $Id: opt.init.c,v 1.12 2005-08-10 21:36:34 ricroc Exp $   
+  version:     $Id: opt.init.c,v 1.13 2005-11-04 01:17:17 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -61,7 +61,7 @@ ma_h_inner_struct *Yap_ma_h_top;
 **      Global functions      **
 ** -------------------------- */
 
-void init_global(int max_table_size, int n_workers, int sch_loop, int delay_load) {
+void Yap_init_global(int max_table_size, int n_workers, int sch_loop, int delay_load) {
   int i;
 
   /* global data related to memory management */
@@ -146,8 +146,11 @@ void init_global(int max_table_size, int n_workers, int sch_loop, int delay_load
   GLOBAL_last_sg_fr = NULL;
   GLOBAL_check_sg_fr = NULL;
 #endif /* LIMIT_TABLING */
-  for (i = 0; i < MAX_TABLE_VARS; i++)
-    GLOBAL_table_var_enumerator(i) = (CELL) & GLOBAL_table_var_enumerator(i);
+  for (i = 0; i < MAX_TABLE_VARS; i++) {
+    CELL *pt = ADDR_GLOBAL_table_var_enumerator(i);
+
+    RESET_VARIABLE(pt);
+  }
 #ifdef TABLE_LOCK_AT_WRITE_LEVEL
   for (i = 0; i < TABLE_LOCK_BUCKETS; i++)
     INIT_LOCK(GLOBAL_table_lock(i));

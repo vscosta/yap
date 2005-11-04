@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.C
-  version:     $Id: tab.tries.c,v 1.16 2005-08-04 15:45:56 ricroc Exp $   
+  version:     $Id: tab.tries.c,v 1.17 2005-11-04 01:17:17 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -694,6 +694,8 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
   LOCK(TabEnt_lock(tab_ent));
 #endif /* TABLE_LOCK_LEVEL */
   for (i = 1; i <= arity; i++) {
+    extern long long vsc_count;
+
     STACK_PUSH_UP(XREGS[i], stack_terms);
     STACK_CHECK_EXPAND(stack_terms, stack_terms_limit, stack_terms_base);
     do {
