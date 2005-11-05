@@ -11,8 +11,11 @@
 * File:		checker.yap						 *
 * comments:	style checker for Prolog				 *
 *									 *
-* Last rev:     $Date: 2005-10-28 17:38:50 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-05 23:56:10 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.19  2005/10/28 17:38:50  vsc
+* sveral updates
+*
 * Revision 1.18  2005/04/20 20:06:11  vsc
 * try to improve error handling and warnings from within consults.
 *
@@ -211,6 +214,15 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	'$multifile'(T,M).
 '$multifile'(P, M) :-
 	'$do_error'(type_error(predicate_indicator,P),multifile(M:P)).
+
+discontiguous(V) :-
+	var(V), !,
+	'$do_error'(instantiation_error,discontiguous(V)).
+discontiguous(M:F) :- !,
+	'$discontiguous'(F,M).
+discontiguous(F) :-
+	'$current_module'(M),
+	'$discontiguous'(F,M).
 
 '$discontiguous'(V,M) :- var(V), !,
 	'$do_error'(instantiation_error,M:discontiguous(V)).
