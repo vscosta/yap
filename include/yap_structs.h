@@ -17,11 +17,12 @@
 #if	defined(__STDC__)
 
 #define PROTO(X,ARGS) X ARGS
+#define CONST const
 
 #else
 
 #define PROTO(X,ARGS) X()
-
+#define CONST /* empty */
 #endif
 
 #ifndef HAS_YAP_H

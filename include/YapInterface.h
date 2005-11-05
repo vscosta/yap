@@ -130,14 +130,14 @@ extern X_API YAP_Term PROTO(YAP_MkAtomTerm,(YAP_Atom));
 /*    YAP_Atom  AtomOfTerm(Term) */
 extern X_API YAP_Atom PROTO(YAP_AtomOfTerm,(YAP_Term));
 
-/*    YAP_Atom  LookupAtom(char *) */
-extern X_API YAP_Atom PROTO(YAP_LookupAtom,(char *));
+/*    YAP_Atom  LookupAtom(const char *) */
+extern X_API YAP_Atom PROTO(YAP_LookupAtom,(CONST char *));
 
-/*    YAP_Atom  FullLookupAtom(char *) */
-extern X_API YAP_Atom PROTO(YAP_FullLookupAtom,(char *));
+/*    YAP_Atom  FullLookupAtom(const char *) */
+extern X_API YAP_Atom PROTO(YAP_FullLookupAtom,(CONST char *));
 
-/*    char* AtomName(YAP_Atom) */
-extern X_API char *PROTO(YAP_AtomName,(YAP_Atom));
+/*    const char* AtomName(YAP_Atom) */
+extern X_API CONST char *PROTO(YAP_AtomName,(YAP_Atom));
 
 /*    YAP_Term  MkPairTerm(YAP_Term Head, YAP_Term Tail) */
 extern X_API YAP_Term PROTO(YAP_MkPairTerm,(YAP_Term,YAP_Term));
@@ -181,15 +181,15 @@ extern X_API void *PROTO(YAP_ExtraSpace,(void));
 /*   YAP_Bool      unify(YAP_Term a, YAP_Term b) */
 extern X_API YAP_Bool PROTO(YAP_Unify,(YAP_Term, YAP_Term));
 
-/*  void UserCPredicate(char *name, int *fn(), int arity) */
-extern X_API void PROTO(YAP_UserCPredicate,(char *, YAP_Bool (*)(void), unsigned int));
+/*  void UserCPredicate(const char *name, int *fn(), int arity) */
+extern X_API void PROTO(YAP_UserCPredicate,(CONST char *, YAP_Bool (*)(void), unsigned int));
 
-/*  void UserCPredicateWithArgs(char *name, int *fn(), unsigned int arity) */
-extern X_API void PROTO(YAP_UserCPredicateWithArgs,(char *, YAP_Bool (*)(void), unsigned int,unsigned int));
+/*  void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int arity) */
+extern X_API void PROTO(YAP_UserCPredicateWithArgs,(CONST char *, YAP_Bool (*)(void), unsigned int,unsigned int));
 
-/*  void UserBackCPredicate(char *name, int *init(), int *cont(), int
+/*  void UserBackCPredicate(const char *name, int *init(), int *cont(), int
     arity, int extra) */
-extern X_API void PROTO(YAP_UserBackCPredicate,(char *, YAP_Bool (*)(void), YAP_Bool (*)(void), unsigned int, unsigned int));
+extern X_API void PROTO(YAP_UserBackCPredicate,(CONST char *, YAP_Bool (*)(void), YAP_Bool (*)(void), unsigned int, unsigned int));
 
 /*  void CallProlog(YAP_Term t) */
 extern X_API YAP_Bool PROTO(YAP_CallProlog,(YAP_Term t));
@@ -228,8 +228,8 @@ extern X_API void PROTO(YAP_ClearExceptions,(void));
 /*  int YAP_Reset(void) */
 extern X_API void PROTO(YAP_Reset,(void));
 
-/*  void YAP_Error(int, YAP_Term, char *,...) */
-extern X_API void PROTO(YAP_Error,(int, YAP_Term, char *, ...));
+/*  void YAP_Error(int, YAP_Term, const char *,...) */
+extern X_API void PROTO(YAP_Error,(int, YAP_Term, CONST char *, ...));
 
 /*  YAP_Term YAP_Read(int (*)(void)) */
 extern X_API YAP_Term PROTO(YAP_Read,(int (*)(void)));
@@ -246,13 +246,13 @@ extern X_API char *PROTO(YAP_CompileClause,(YAP_Term));
 /*  int YAP_Init(YAP_init_args *) */
 extern X_API int PROTO(YAP_Init,(YAP_init_args *));
 
-/*  int YAP_FastInit(char *) */
-extern X_API int PROTO(YAP_FastInit,(char *));
+/*  int YAP_FastInit(const char *) */
+extern X_API int PROTO(YAP_FastInit,(CONST char *));
 
-/*  int YAP_InitConsult(int, char *) */
-extern X_API int PROTO(YAP_InitConsult,(int, char *));
+/*  int YAP_InitConsult(int, const char *) */
+extern X_API int PROTO(YAP_InitConsult,(int, CONST char *));
 
-/*  int YAP_StartConsult(int, char *) */
+/*  int YAP_EndConsult(void) */
 extern X_API int PROTO(YAP_EndConsult,(void));
 
 /*  void YAP_Exit(int) */
@@ -267,17 +267,17 @@ extern X_API YAP_Term PROTO(YAP_GetValue,(YAP_Atom));
 /*  int StringToBuffer(YAP_Term,char *,unsigned int) */
 extern X_API int PROTO(YAP_StringToBuffer,(YAP_Term,char *,unsigned int));
 
-/*  int BufferToString(char *) */
-extern X_API YAP_Term PROTO(YAP_BufferToString,(char *));
+/*  int BufferToString(const char *) */
+extern X_API YAP_Term PROTO(YAP_BufferToString,(CONST char *));
 
-/* YAP_Term BufferToTerm(char *) */
-extern X_API YAP_Term PROTO(YAP_ReadBuffer,(char *,YAP_Term *));
+/* YAP_Term BufferToTerm(const char *) */
+extern X_API YAP_Term PROTO(YAP_ReadBuffer,(CONST char *,YAP_Term *));
 
-/*  int BufferToAtomList(char *) */
-extern X_API YAP_Term PROTO(YAP_BufferToAtomList,(char *));
+/*  int BufferToAtomList(const char *) */
+extern X_API YAP_Term PROTO(YAP_BufferToAtomList,(CONST char *));
 
-/*  void YAP_InitSocks(char *,long) */
-extern X_API int PROTO(YAP_InitSocks,(char *,long));
+/*  void YAP_InitSocks(const char *,long) */
+extern X_API int PROTO(YAP_InitSocks,(CONST char *,long));
 
 #ifdef  SFUNC
 
@@ -307,7 +307,7 @@ extern X_API void PROTO(YAP_CloseAllOpenStreams,(void));
 #define YAP_SEEKABLE_STREAM	0x80
 
 /*  YAP_Term  YAP_OpenStream()  */
-extern X_API YAP_Term PROTO(YAP_OpenStream,(void *, char *, YAP_Term, int));
+extern X_API YAP_Term PROTO(YAP_OpenStream,(void *, CONST char *, YAP_Term, int));
 
 /*  YAP_Term  *YAP_NewSlots()  */
 extern X_API long PROTO(YAP_NewSlots,(int));
