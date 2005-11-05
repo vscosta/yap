@@ -114,13 +114,13 @@ bagof(Template, Generator, Bag) :-
 '$bagof'(Template, Generator, Bag) :-
 	'$check_list_for_bags'(Bag, bagof(Template, Generator, Bag)),
 	'$variables_in_term'(Template, [], TemplateV),
-	'$excess_vars'(Generator, TemplateV, [], FreeVars),
+	'$excess_vars'(Generator, StrippedGenerator, TemplateV, [], FreeVars),
 	FreeVars \== [],
 	!,
 	'$variables_in_term'(FreeVars, [], LFreeVars),
 	Key =.. ['$'|LFreeVars],
 	'$init_db_queue'(Ref),
-	'$findall_with_common_vars'(Key-Template, Generator, Ref, Bags0),
+	'$findall_with_common_vars'(Key-Template, StrippedGenerator, Ref, Bags0),
 	'$keysort'(Bags0, Bags),
 	'$pick'(Bags, Key, Bag).
 % or we just have a list of answers
@@ -155,38 +155,40 @@ bagof(Template, Generator, Bag) :-
 %
 % Detect free variables in the source term
 %
-'$excess_vars'(V, X, L0, L) :-
+'$excess_vars'(V, V, X, L0, L) :-
 	var(V),
 	!,
 	(   '$doesnt_include'(X, V) -> L = [V|L0]
 	;   L = L0
 	).
-'$excess_vars'(A, _, L, L) :-
+'$excess_vars'(A, A, _, L, L) :-
 	atomic(A),  !.
-'$excess_vars'(X^P, Y, L0, L) :- !,
+'$excess_vars'(X^P, NP, Y, L0, L) :- !,
 	'$variables_in_term'(X+Y, [], NY),
-	'$excess_vars'(P, NY, L0, L).
-'$excess_vars'(setof(X,P,S), Y, L0, L) :- !,
+	'$excess_vars'(P, NP, NY, L0, L).
+'$excess_vars'(setof(X,P,S), setof(X,P,S), Y, L0, L) :- !,
 	'$variables_in_term'(X+Y, [], NY),
-	'$excess_vars'((P,S), NY, L0, L).
-'$excess_vars'(bagof(X,P,S), Y, L0, L) :- !,
+	'$excess_vars'((P,S), _, NY, L0, L).
+'$excess_vars'(bagof(X,P,S), bagof(X,P,S), Y, L0, L) :- !,
 	'$variables_in_term'(X+Y, [], NY),
-	'$excess_vars'((P,S), NY, L0, L).
-'$excess_vars'(findall(_,_,S), Y, L0, L) :- !,
+	'$excess_vars'((P,S), _,  NY, L0, L).
+'$excess_vars'(findall(X,P,S), findall(X,P,S), Y, L0, L) :- !,
 	'$excess_vars'(S, Y, L0, L).
-'$excess_vars'(findall(_,_,_,S), Y, L0, L) :- !,
-	'$excess_vars'(S, Y, L0, L).
-'$excess_vars'(\+_, _, L0, LF) :- !,
+'$excess_vars'(findall(X,P,S0,S), (X,P,S0,S), Y, L0, L) :- !,
+	'$excess_vars'(S, _, Y, L0, L).
+'$excess_vars'(\+G, \+G, _, L0, LF) :- !,
 	L0 = LF.
-'$excess_vars'(_:G, Y, L0, LF) :- !,
-	'$excess_vars'(G, Y, L0, LF).
-'$excess_vars'(T, X, L0, L) :-
+'$excess_vars'(_:M:G, M:NG, Y, L0, LF) :- !,
+	'$excess_vars'(G, NG, Y, L0, LF).
+'$excess_vars'(M:G, M:NG, Y, L0, LF) :- !,
+	'$excess_vars'(G, NG, Y, L0, LF).
+'$excess_vars'(T, T, X, L0, L) :-
 	T =.. [_|LArgs],
 	'$recurse_for_excess_vars'(LArgs, X, L0, L).
 
 '$recurse_for_excess_vars'([], _, L, L).
 '$recurse_for_excess_vars'([T1|LArgs], X, L0, L) :-
-	'$excess_vars'(T1, X, L0, L1),
+	'$excess_vars'(T1, _, X, L0, L1),
 	'$recurse_for_excess_vars'(LArgs, X, L1, L).
 
 '$doesnt_include'([], _).

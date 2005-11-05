@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-11-04 15:39:14 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-05 03:02:33 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.181  2005/11/04 15:39:14  vsc
+* absmi should PREG, never P!!
+*
 * Revision 1.180  2005/10/28 17:38:49  vsc
 * sveral updates
 *
@@ -10119,6 +10122,7 @@ Yap_absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, call_bfunc_xx_unk, call_bfunc_xx_nvar);
+      d1 = Deref(d1);
       goto exec_bin_cmp_xx;
       ENDP(pt0);
 
@@ -10191,6 +10195,7 @@ Yap_absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, call_bfunc_yx_unk, call_bfunc_yx_nvar);
+      d1 = Deref(d1);
       goto exec_bin_cmp_yx;
       ENDP(pt0);
 
@@ -10263,6 +10268,7 @@ Yap_absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, call_bfunc_xy_unk, call_bfunc_xy_nvar);
+      d1 = Deref(d1);
       goto exec_bin_cmp_xy;
       ENDP(pt0);
 
@@ -10338,6 +10344,7 @@ Yap_absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, call_bfunc_yy_unk, call_bfunc_yy_nvar);
+      d1 = Deref(d1);
       goto exec_bin_cmp_yy;
       ENDP(pt0);
 

@@ -16,6 +16,9 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: if first argument was unbound, comparisons might be
+  called with second argument undereferenced!! </li>
+<li> FIXED: strip ^ before doing execute in setof or bagof. </li>
 <li> FIXED: use CONST declarations in interface (thanks to Roberto Bagnara). </li>
 <li> FIXED: absmi should consult PREG, not P. </li>
 <li> FIXED: bad init in tabling code. </li>
