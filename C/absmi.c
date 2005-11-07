@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-11-05 03:02:33 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-07 15:35:47 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.182  2005/11/05 03:02:33  vsc
+* get rid of unnecessary ^ in setof
+* Found bug in comparisons
+*
 * Revision 1.181  2005/11/04 15:39:14  vsc
 * absmi should PREG, never P!!
 *
@@ -1803,10 +1807,10 @@ Yap_absmi(int inp)
 		 /* deterministic binding to multi-assignment variable */
 		 pt1 -= 2;
 	       } else {
-		 TrailTerm(pt0) = d1;
 		 TrailVal(pt0) = TrailVal(pt1);
-		 TrailTerm(pt0-1) = TrailTerm(pt1-1);
+		 TrailTerm(pt0) = d1;
 		 TrailVal(pt0-1) = TrailVal(pt1-1);
+		 TrailTerm(pt0-1) = TrailTerm(pt1-1);
 		 pt0 -= 2;
 		 pt1 -= 2;
 	       }
@@ -1852,7 +1856,7 @@ Yap_absmi(int inp)
 	       } else {
 #ifdef FROZEN_STACKS
 		 TrailVal(pt0) = TrailVal(pt1);
-		 TrailTerm(pt0) = TrailTerm(pt0+2) = d1;
+		 TrailTerm(pt0) = d1;
 		 TrailVal(pt0+1) = TrailVal(pt1+1);
 		 TrailTerm(pt0+1) = TrailTerm(pt1+1);
 		 pt0 += 2;

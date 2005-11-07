@@ -71,7 +71,6 @@ STATIC_PROTO(void into_relocation_chain, (CELL *, CELL *));
 STATIC_PROTO(void sweep_trail, (choiceptr, tr_fr_ptr));
 STATIC_PROTO(void sweep_environments, (CELL *, OPREG, CELL *));
 STATIC_PROTO(void sweep_choicepoints, (choiceptr));
-STATIC_PROTO(choiceptr update_B_H, (choiceptr, CELL *, CELL *, CELL *));
 STATIC_PROTO(void compact_heap, (void));
 STATIC_PROTO(void update_relocation_chain, (CELL *, CELL *));
 STATIC_PROTO(int  is_gc_verbose, (void));
@@ -168,8 +167,10 @@ POP_POINTER(void) {
 }
 
 inline static void
-POPSWAP_POINTER(CELL_PTR *vp) {
+POPSWAP_POINTER(CELL_PTR *vp, CELL_PTR v) {
   if (iptop >= (CELL_PTR *)ASP) return;
+  if (*vp != v)
+    return;
   --iptop;
   if (vp != iptop)
     *vp = *iptop;
@@ -1368,7 +1369,7 @@ mark_external_reference(CELL *ptr) {
     CELL_PTR *old = iptop;
 #endif     
     mark_variable(ptr);
-    POPSWAP_POINTER(old);    
+    POPSWAP_POINTER(old, ptr);    
   } else {
     MARK(ptr);
     mark_code(ptr, next);
@@ -1384,7 +1385,7 @@ mark_external_reference2(CELL *ptr) {
     CELL_PTR *old = iptop;
 #endif      
     mark_variable(ptr);
-    POPSWAP_POINTER(old);    
+    POPSWAP_POINTER(old, ptr);    
   } else {
     mark_code(ptr,next);
   }
@@ -1639,9 +1640,14 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  mark_external_reference(&(TrailTerm(trail_base)));
 	  /* reset the gc to believe the original tag */
 	  TrailTerm(trail_base) = AbsAppl((CELL *)TrailTerm(trail_base));
+#ifdef TABLING
+	  mark_external_reference(&(TrailVal(trail_base)));
+#endif
 	}
+#ifndef TABLING
 	trail_base++;
 	mark_external_reference(&(TrailTerm(trail_base)));
+#endif
 	trail_base ++;
 	if (HEAP_PTR(trail_cell)) {
 	  /* fool the gc into thinking this is a variable */
@@ -1649,6 +1655,9 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  mark_external_reference(&(TrailTerm(trail_base)));
 	  /* reset the gc to believe the original tag */
 	  TrailTerm(trail_base) = AbsAppl((CELL *)TrailTerm(trail_base));
+#ifdef TABLING
+	  mark_external_reference(&(TrailVal(trail_base)));
+#endif
 	} 
       } else {
 	/* we can safely ignore this little monster */
@@ -1657,11 +1666,13 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #ifdef FROZEN_STACKS
 	RESET_VARIABLE(&TrailVal(trail_base));
 #endif
+#ifndef TABLING
 	trail_base++;
 	RESET_VARIABLE(&TrailTerm(trail_base));
 #ifdef FROZEN_STACKS
 	RESET_VARIABLE(&TrailVal(trail_base));
 #endif
+#endif /* TABLING */
 	trail_base++;
 	RESET_VARIABLE(&TrailTerm(trail_base));
 #ifdef FROZEN_STACKS
@@ -2268,16 +2279,44 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	}
 #if  MULTI_ASSIGNMENT_VARIABLES
       } else {
+#ifdef FROZEN_STACKS
+	CELL trail_cell = TrailTerm(trail_ptr+1);
+	CELL old = TrailVal(trail_ptr);
+	CELL old1 = TrailVal(trail_ptr+1);
+	Int marked_ptr = MARKED_PTR(&TrailTerm(trail_ptr+1));
+	Int marked_val_old = MARKED_PTR(&TrailVal(trail_ptr));
+	Int marked_val_ptr = MARKED_PTR(&TrailVal(trail_ptr+1));
+
+	TrailTerm(dest+1) = TrailTerm(dest) = trail_cell;
+	if (marked_ptr) {
+	  UNMARK(&TrailTerm(dest));
+	  UNMARK(&TrailTerm(dest+1));
+	  if (HEAP_PTR(trail_cell)) {
+	    into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell));
+	    into_relocation_chain(&TrailTerm(dest+1), GET_NEXT(trail_cell));
+	  }
+	}
+	if (marked_val_old) {
+	  UNMARK(&TrailVal(dest));
+	  if (HEAP_PTR(old)) {
+	    into_relocation_chain(&TrailVal(dest), GET_NEXT(old));
+	  }
+	}
+	if (marked_val_ptr) {
+	  UNMARK(&TrailVal(dest+1));
+	  if (HEAP_PTR(old1)) {
+	    into_relocation_chain(&TrailVal(dest+1), GET_NEXT(old1));
+	  }
+	}
+	trail_ptr ++;
+	dest ++;
+#else
 	CELL trail_cell = TrailTerm(trail_ptr+2);
-	CELL *ptr;
-	CELL old = TrailTerm(trail_ptr+1);
-	/* be sure we don't overwrite before we read */
+ 	CELL old = TrailTerm(trail_ptr+1);
 	Int marked_ptr = MARKED_PTR(&TrailTerm(trail_ptr+2));
 	Int marked_old = MARKED_PTR(&TrailTerm(trail_ptr+1));
-#ifdef FROZEN_STACKS
-	Int marked_val_old = MARKED_PTR(&TrailVal(trail_ptr+1));
-	Int marked_val_ptr = MARKED_PTR(&TrailVal(trail_ptr+2));
-#endif
+	CELL *ptr;
+	/* be sure we don't overwrite before we read */
 
 	if (marked_ptr) 
 	  ptr = RepAppl(UNMARK_CELL(trail_cell));
@@ -2292,22 +2331,6 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	  }
 	}
 	TrailTerm(dest+2) = TrailTerm(dest) = trail_cell;
-#ifdef FROZEN_STACKS
-	TrailVal(dest+1) = TrailVal(trail_ptr+1);
-	if (marked_val_old) {
-	  UNMARK(&TrailVal(dest+1));
-	  if (HEAP_PTR(TrailVal(dest+1))) {
-	    into_relocation_chain(&TrailVal(dest+1), GET_NEXT(TrailTerm(dest+1)));
-	  }
-	}
-	TrailVal(dest+2) = TrailVal(trail_ptr+2);
-	if (marked_val_ptr) {
-	  UNMARK(&TrailVal(dest+2));
-	  if (HEAP_PTR(TrailVal(dest+2))) {
-	    into_relocation_chain(&TrailVal(dest+2), GET_NEXT(TrailTerm(dest+2)));
-	  }
-	}
-#endif
 	if (marked_ptr) {
 	  UNMARK(&TrailTerm(dest));
 	  UNMARK(&TrailTerm(dest+2));
@@ -2318,6 +2341,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	}
 	trail_ptr += 2;
 	dest += 2;
+#endif
 #endif
       }
       trail_ptr++;
@@ -2844,15 +2868,19 @@ update_relocation_chain(CELL_PTR current, CELL_PTR dest)
 #endif
 }
 
-#ifdef TABLING
-static dep_fr_ptr gl_depfr;
-#endif /* TABLING */
-
 static inline choiceptr
-update_B_H( choiceptr gc_B, CELL *current, CELL *dest, CELL *odest) {
+update_B_H( choiceptr gc_B, CELL *current, CELL *dest, CELL *odest
+#ifdef TABLING
+	    , dep_fr_ptr *depfrp
+#endif
+	    ) {
   /* also make the value of H in a choicepoint
      coherent with the new global
      */
+#ifdef TABLING
+  dep_fr_ptr depfr = *depfrp;
+#endif
+
   while (gc_B && current <= gc_B->cp_h) {
     if (gc_B->cp_h == current) {
       gc_B->cp_h = dest;
@@ -2861,13 +2889,14 @@ update_B_H( choiceptr gc_B, CELL *current, CELL *dest, CELL *odest) {
     }
     gc_B = gc_B->cp_b;
 #ifdef TABLING
-    if (gl_depfr != NULL && gc_B >= DepFr_cons_cp(gl_depfr)) {
-      gc_B = DepFr_cons_cp(gl_depfr);
-      gl_depfr = DepFr_next(gl_depfr);
+    /* make sure we include consumers */
+    if (depfr && gc_B >= DepFr_cons_cp(depfr)) {
+      *depfrp = DepFr_next(depfr);
+      gc_B = DepFr_cons_cp(depfr);
     }
 #endif /* TABLING */
   }
-    return(gc_B);
+  return gc_B;
 }
 
 static inline CELL *
@@ -2895,7 +2924,10 @@ compact_heap(void)
   int in_garbage = 0;
   CELL *next_hb;
   CELL *start_from = H0;
- 
+#ifdef TABLING
+  dep_fr_ptr depfr = LOCAL_top_dep_fr;
+#endif /* TABLING */
+
 
   /*
    * upward phase - scan heap from high to low, setting marked upward
@@ -2904,9 +2936,6 @@ compact_heap(void)
    */
 
   next_hb = set_next_hb(gc_B);
-#ifdef TABLING
-  gl_depfr = LOCAL_top_dep_fr;
-#endif /* TABLING */
   dest = (CELL_PTR) H0 + total_marked - 1;
 
   for (current = H - 1; current >= start_from; current--) {
@@ -2925,7 +2954,11 @@ compact_heap(void)
 	  found_marked+=nofcells;
 #endif /* DEBUG */
 	  if (current <= next_hb) {
-	    gc_B = update_B_H(gc_B, current, dest, dest+1);
+	    gc_B = update_B_H(gc_B, current, dest, dest+1
+#ifdef TABLING
+			      , &depfr
+#endif
+			      );
 	    next_hb = set_next_hb(gc_B);
 	  }
 	  /* this one's being used */
@@ -2953,7 +2986,11 @@ compact_heap(void)
 	}
       } else{
 	if (current <= next_hb) {
-	  gc_B = update_B_H(gc_B, current, dest, dest+1);
+	  gc_B = update_B_H(gc_B, current, dest, dest+1
+#ifdef TABLING
+				, &depfr
+#endif
+			    );
 	  next_hb = set_next_hb(gc_B);
 	}
       }
@@ -3080,13 +3117,23 @@ adjust_cp_hbs(void)
   while (gc_B != NULL) {
     CELL *gc_H = gc_B->cp_h;
     CELL_PTR *nbase = base;
+
+#ifdef TABLING
+    if (depfr && gc_B >= DepFr_cons_cp(depfr)) {
+      gc_B = DepFr_cons_cp(depfr);
+      depfr = DepFr_next(depfr);
+      continue;
+    }
+#endif /* TABLING */
     if (top[0] <= gc_H) {
-      if (top[0] == gc_H)
+      if (top[0] == gc_H) {
 	gc_B->cp_h = H0+(top-base);
-      else
+      } else {
 	gc_B->cp_h = H0+((top+1)-base);
+      }
     } else while (TRUE) {
       CELL_PTR *nxt = nbase+(top-nbase)/2;
+
       if (nxt[0] > gc_H) {
 	if (nbase == top) {
 	  if (nbase == base) {
@@ -3100,25 +3147,17 @@ adjust_cp_hbs(void)
 	top = nxt;
       } else if (nxt[0] < gc_H && nxt[1] < gc_H) {
 	nbase = nxt+1;
-      } else {
-	if (nxt[0] == gc_H) {
+      } else if (nxt[0] == gc_H) {
 	  gc_B->cp_h = H0+(nxt-base);
 	  top = nxt;
 	  break;
-	} else {
+      } else {
 	  gc_B->cp_h = H0+((nxt-base)+1);
-	  top = nxt;
+	  top = nxt+1;
 	  break;
-	}
       } 
     }
-#ifdef TABLING
-    if (depfr != NULL && gc_B >= DepFr_cons_cp(depfr)) {
-      gc_B = DepFr_cons_cp(depfr);
-      depfr = DepFr_next(depfr);
-    } else
-#endif /* TABLING */
-      gc_B = gc_B->cp_b;
+    gc_B = gc_B->cp_b;
   }
 }
 
@@ -3583,7 +3622,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   } else
     effectiveness = 0;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "%%   Mark: Recovered %ld cells of %ld (%ld%%) in %g sec\n",
+    fprintf(Yap_stderr, "%%   Mark: Marked %ld cells of %ld (efficiency: %ld%%) in %g sec\n",
 	       (long int)tot, (long int)heap_cells, (long int)effectiveness, (double)(m_time-time_start)/1000);
     if (HGEN-H0)
       fprintf(Yap_stderr,"%%       previous generation has size %lu, with %lu (%lu%%) unmarked\n", (unsigned long)(HGEN-H0), (HGEN-H0)-total_oldies, 100*((HGEN-H0)-total_oldies)/(HGEN-H0));
