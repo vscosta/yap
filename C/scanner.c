@@ -128,12 +128,15 @@ typedef struct scanner_extra_alloc {
   void *filler;
 } ScannerExtraBlock;
 
+#if USE_SYSTEM_MALLOC
+#define EXPAND_TRAIL TRUE
+#else
+#define EXPAND_TRAIL FALSE
+#endif
+
 static char *
 AllocScannerMemory(unsigned int size)
 {
-#if USE_SYSTEM_MALLOC
-  return malloc(AdjustSize(size));
-#else
   char *AuxSpScan;
 
   AuxSpScan = ScannerStack;
@@ -152,7 +155,7 @@ AllocScannerMemory(unsigned int size)
  
     if (size > alloc_size)
       alloc_size = size;
-    if(!Yap_growtrail (alloc_size, TRUE)) {
+    if(!EXPAND_TRAIL || !Yap_growtrail (alloc_size, TRUE)) {
       struct scanner_extra_alloc *ptr;
 
       if (!(ptr = (struct scanner_extra_alloc *)malloc(size+sizeof(ScannerExtraBlock)))) {
@@ -165,15 +168,11 @@ AllocScannerMemory(unsigned int size)
   }
   ScannerStack = AuxSpScan+size;
   return AuxSpScan;
-#endif
 }
 
 static void
 PopScannerMemory(char *block, unsigned int size)
 {
-#if USE_SYSTEM_MALLOC
-  return free(block);
-#else
   if (block == ScannerStack-size) {
     ScannerStack -= size;
   } else if (block == (char *)(ScannerExtraBlocks+1)) {
@@ -182,7 +181,6 @@ PopScannerMemory(char *block, unsigned int size)
     ScannerExtraBlocks = ptr->next;
     free(ptr);
   }
-#endif
 }
 
 char *
@@ -656,7 +654,8 @@ Yap_scan_num(int (*Nxtch) (int))
     ch = Nxtch(-1);
   }
   if (chtype[ch] != NU) {
-    return(TermNil);
+    Yap_clean_tokenizer(NULL, NULL, NULL);
+    return TermNil;
   }
   cherr = 0;
   out = get_num(&ch, &cherr, -1, Nxtch, Nxtch, ptr, 4096);
@@ -667,6 +666,7 @@ Yap_scan_num(int (*Nxtch) (int))
     else if (IsFloatTerm(out))
       out = MkFloatTerm(-FloatOfTerm(out));
   }
+  Yap_clean_tokenizer(NULL, NULL, NULL);
   if (Yap_ErrorMessage != NULL || ch != -1 || cherr)
     return TermNil;
   return(out);
@@ -1040,30 +1040,6 @@ Yap_tokenizer(int inp_stream)
   return (l);
 }
 
-#if USE_SYSTEM_MALLOC
-static
-void clean_vtable(VarEntry *vt)
-{
-  if (vt == NULL)
-    return;
-  clean_vtable(vt->VarLeft);
-  clean_vtable(vt->VarRight);
-  free(vt);
-}
-
-static
-void clean_tokens(TokEntry *tk)
-{
-  while (tk != NULL) {
-    TokEntry *ntk = tk->TokNext;
-    if (tk->Tok == Ord(String_tok)) {
-      free((void *)(tk->TokInfo));
-    }
-    free(tk);
-    tk = ntk;
-  }
-}
-
 void
 Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable, VarEntry *anonvartable)
 {
@@ -1073,8 +1049,5 @@ Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable, VarEntry *anonvartab
     free(ptr);
     ptr = next;
   }
-  clean_vtable(vartable);
-  clean_vtable(anonvartable);
-  clean_tokens(tokstart);
 }
-#endif
+

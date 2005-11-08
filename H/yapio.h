@@ -255,11 +255,7 @@ Term STD_PROTO(Yap_VarNames,(VarEntry *,Term));
 
 /* routines in scanner.c */
 TokEntry STD_PROTO(*Yap_tokenizer,(int));
-#if USE_SYSTEM_MALLOC
 void     STD_PROTO(Yap_clean_tokenizer,(TokEntry *, VarEntry *, VarEntry *));
-#else
-#define Yap_clean_tokenizer(T,V,A)
-#endif
 Term     STD_PROTO(Yap_scan_num,(int (*)(int)));
 char	 STD_PROTO(*Yap_AllocScannerMemory,(unsigned int));
 

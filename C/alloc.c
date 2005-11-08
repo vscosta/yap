@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.72 2005-07-06 15:10:02 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.73 2005-11-08 13:51:15 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -65,27 +65,64 @@ static char SccsId[] = "%W% %G%";
 
 #if USE_SYSTEM_MALLOC||USE_DL_MALLOC
 
+long long unsigned int mallocs, reallocs, frees;
+long long unsigned int tmalloc;
+
+#include <malloc.h>
+
+#if INSTRUMENT_MALLOC
+static void
+minfo(char mtype)
+{
+  struct mallinfo minfo = mallinfo();
+
+  fprintf(stderr,"%c %lld (%lld), %lld, %lld %d/%d/%d\n", mtype, mallocs, tmalloc, reallocs, frees,minfo.arena,minfo.ordblks,minfo.fordblks);
+}
+#endif
+
 char *
 Yap_AllocCodeSpace(unsigned int size)
 {
+#if INSTRUMENT_MALLOC
+  if (mallocs % 1024*4 == 0) 
+    minfo('A');
+  mallocs++;
+  tmalloc += size;
+#endif
   return malloc(size);
 }
 
 void
 Yap_FreeCodeSpace(char *p)
 {
+#if INSTRUMENT_MALLOC
+  if (frees % 1024*4 == 0) 
+    minfo('F');
+  frees++;
+#endif
   free (p);
 }
 
 char *
 Yap_AllocAtomSpace(unsigned int size)
 {
+#if INSTRUMENT_MALLOC
+  if (mallocs % 1024*4 == 0) 
+    minfo('A');
+  mallocs++;
+  tmalloc += size;
+#endif
   return malloc(size);
 }
 
 void
 Yap_FreeAtomSpace(char *p)
 {
+#if INSTRUMENT_MALLOC
+  if (frees % 1024*4 == 0) 
+    minfo('F');
+  frees++;
+#endif
   free (p);
 }
 
@@ -121,6 +158,11 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip)
     ScratchPad.sz =
     sz = sz + sz0;
 
+#if INSTRUMENT_MALLOC
+  if (reallocs % 1024*4 == 0) 
+    minfo('R');
+  reallocs++;
+#endif
   while (!(ptr = realloc(ScratchPad.ptr, sz))) {
 #if USE_DL_MALLOC
     if (!Yap_growheap((cip!=NULL), sz, cip)) {
@@ -1136,7 +1178,7 @@ free(MALLOC_T ptr)
 }
 
 MALLOC_T
-realloc(MALLOC_T ptr, size_t size)
+XX realloc(MALLOC_T ptr, size_t size)
 {
   MALLOC_T new = malloc(size);
 
