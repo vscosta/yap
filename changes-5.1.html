@@ -16,9 +16,11 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
-<li> FIXED: adjust_cp_hbs was looking at readjusting consumer choice-points. </li>
+<li> FIXED: plug holes in memory allocation from scanner. </li>
+<li> FIXED: instrument memory allocation use use_malloc. </li>
+<li> FIXED: adjust_cp_hbs was readjusting consumer choice-points (it
+  can only adjust hb once). </li>
 <li> FIXED: try to make GC trace message "marked  N vars" intelligible. </li>
-<li> FIXED: try to make marked N vars message intelligible. </li>
 <li> FIXED: garbage collection of mabindings was broken with tabling. </li>
 <li> FIXED: should have meta-predicate definitions for calls and
 discontiguous. </li>

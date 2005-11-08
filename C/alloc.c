@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.73 2005-11-08 13:51:15 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.74 2005-11-08 13:57:41 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -67,8 +67,6 @@ static char SccsId[] = "%W% %G%";
 
 long long unsigned int mallocs, reallocs, frees;
 long long unsigned int tmalloc;
-
-#include <malloc.h>
 
 #if INSTRUMENT_MALLOC
 static void
@@ -269,9 +267,9 @@ Yap_ExtendWorkSpace(Int s)
   void *bp = (void *)Yap_GlobalBase, *nbp;
   UInt s0 = (char *)Yap_TrailTop-(char *)Yap_GlobalBase;
   nbp = realloc(bp, s+s0);
-  Yap_GlobalBase = (char *)nbp;
   if (nbp == NULL) 
     return FALSE;
+  Yap_GlobalBase = (char *)nbp;
   return TRUE;
 }
 
