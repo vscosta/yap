@@ -3799,10 +3799,14 @@ format_has_tabs(const char *seq)
       ch = *seq++;
       if (ch == '*') {
 	ch = *seq++;
+      } else {
+	while (ch >= '0' && ch <= '9') ch = *seq++;
       }
-      if (ch == 't' || ch == '|' || ch == '@') {
+      if (ch == 't' || ch == '|' || ch == '@' || ch == '+') {
 	return TRUE;
       }
+      if (!ch)
+	return FALSE;
     }
   }
   return FALSE;
