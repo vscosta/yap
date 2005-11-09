@@ -1254,6 +1254,10 @@ InteractSIGINT(int ch) {
 #endif
     }
     return -1;
+  case 'b':
+    /* continue */
+    Yap_signal (YAP_BREAK_SIGNAL);
+    return 1;
   case 'c':
     /* continue */
     return 1;

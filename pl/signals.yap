@@ -49,29 +49,26 @@
 	'$continue_signals',
 	'$current_module'(M0),
 	'$execute0'(G,M0).
-'$do_signal'(sig_trace, G) :-
+'$do_signal'(sig_trace, [M|G]) :-
 	'$continue_signals',
-	trace.
-'$do_signal'(sig_debug, G) :-
+	trace,
+	'$execute'(M:G).
+'$do_signal'(sig_debug, [M|G]) :-
 	'$continue_signals',
-	'$current_module'(M0),
 	debug,
-	'$execute0'(G,M0).
-'$do_signal'(sig_break, G) :-
+	'$execute'(M:G).
+'$do_signal'(sig_break, [M|G]) :-
 	'$continue_signals',
-	'$current_module'(M0),
 	break,
-	'$execute0'(G,M0).
-'$do_signal'(sig_statistics, G) :-
+	'$execute0'(G,M).
+'$do_signal'(sig_statistics, [M|G]) :-
 	'$continue_signals',
-	'$current_module'(M0),
 	statistics,
-	'$execute0'(G,M0).
-'$do_signal'(sig_stack_dump, G) :-
+	'$execute0'(G,M).
+'$do_signal'(sig_stack_dump, [M|G]) :-
 	'$continue_signals',
-	'$current_module'(M0),
 	'$stack_dump',
-	'$execute0'(G,M0).
+	'$execute0'(G,M).
 % Unix signals
 '$do_signal'(sig_alarm, G) :-
 	'$signal_handler'(sig_alarm, G).
