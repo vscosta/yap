@@ -4069,6 +4069,9 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    if (dec < 0) {
 	      dec = -dec;
 	      f_putc(sno, (int) '-');
+	    } else if (dec == 0) {
+	      f_putc(sno, '0');
+	      break;
 	    }
 	    i = dec;
 	    siz = 0;
