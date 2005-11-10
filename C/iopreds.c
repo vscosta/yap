@@ -4070,8 +4070,11 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      dec = -dec;
 	      f_putc(sno, (int) '-');
 	    } else if (dec == 0) {
-	      f_putc(sno, '0');
-	      break;
+	      /* make sure we write something */
+		f_putc(sno, '0');
+	      if (repeats == 0) {
+		break;
+	      }
 	    }
 	    i = dec;
 	    siz = 0;
