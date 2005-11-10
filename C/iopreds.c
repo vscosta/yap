@@ -3797,12 +3797,15 @@ format_has_tabs(const char *seq)
   while ((ch = *seq++)) {
     if (ch == '~') {
       ch = *seq++;
+      if (ch == 'p' || ch == '@') {
+	return TRUE;
+      }
       if (ch == '*') {
 	ch = *seq++;
       } else {
 	while (ch >= '0' && ch <= '9') ch = *seq++;
       }
-      if (ch == 't' || ch == '|' || ch == '@' || ch == '+') {
+      if (ch == 't' || ch == '|' || ch == '+') {
 	return TRUE;
       }
       if (!ch)
@@ -4052,12 +4055,13 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    goto do_instantiation_error;
 	  if (!IsIntegerTerm(t))
 	    goto do_type_int_error;
-	  if (!has_repeats) {
+	  if (!has_repeats && ch == 'd') {
 	    Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f);
 	    FormatInfo = &finfo;
 	  } else {
-	    Int siz, dec = IntegerOfTerm(t), i, div = 1;
+	    Int siz, dec, i, div = 1;
 
+	    dec = IntegerOfTerm(t);
 	    /*
 	     * The guys at Quintus have probably
 	     * read too much Cobol! 
@@ -4090,11 +4094,16 @@ format(volatile Term otail, volatile Term oargs, int sno)
 		f_putc(sno, (int)((dec/div)+'0'));
 		output_done = TRUE;
 		siz--;
-		dec = dec%div;
+		dec %= div;
 	      }
-	      f_putc(sno, (int) '.');
+	      if (repeats) {
+		f_putc(sno, (int) '.');
+	      }
 	    }
-	    Yap_plwrite (MkIntegerTerm(dec), f_putc, Handle_vars_f|To_heap_f);
+	    for (;siz>0;siz--,dec%=div) {
+	      div /= 10;
+	      f_putc(sno, (int)((dec/div)+'0'));	      
+	    }
 	    FormatInfo = &finfo;
 	  break;
 	  case 'r':
