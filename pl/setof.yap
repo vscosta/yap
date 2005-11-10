@@ -178,7 +178,7 @@ bagof(Template, Generator, Bag) :-
 	'$excess_vars'(S, _, Y, L0, L).
 '$excess_vars'(\+G, \+G, _, L0, LF) :- !,
 	L0 = LF.
-'$excess_vars'(_:M:G, M:NG, Y, L0, LF) :- !,
+'$excess_vars'(_:G1, M:NG, Y, L0, LF) :- nonvar(G1), G1 = M:G, !,
 	'$excess_vars'(G, NG, Y, L0, LF).
 '$excess_vars'(M:G, M:NG, Y, L0, LF) :- !,
 	'$excess_vars'(G, NG, Y, L0, LF).

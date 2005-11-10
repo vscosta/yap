@@ -16,26 +16,35 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: profiler should not talk about hidden predicates or idb entries. </li>
+<li> FIXED: recentg change in setof could bind argument (obs
+  Jude Shavlik). </li>
+<li> FIXED: EOF (-1) at debugger prompt would generate exception (obs
+  Jude Shavlik). </li>
 <li> FIXED: ^C was very broken: break was not accepted, and debug,
-trace and statistics did not work at all. </li>
-<li> FIXED: format_has_tabs could miss tab signs. </li>
-<li> FIXED: plug holes in memory allocation from scanner. </li>
-<li> FIXED: instrument memory allocation use use_malloc. </li>
+trace and statistics did not work at all (obs Jude Shavlik). </li>
+<li> FIXED: format_has_tabs could miss tab signs (obs Jude Shavlik). </li>
+<li> FIXED: plug holes in memory allocation from scanner (obs
+Mark Goadrich). </li>
+<li> FIXED: instrument memory allocation when using system malloc. </li>
 <li> FIXED: adjust_cp_hbs was readjusting consumer choice-points (it
-  can only adjust hb once). </li>
+  can only adjust hb once) (obs Remko Troncon). </li>
 <li> FIXED: try to make GC trace message "marked  N vars" intelligible. </li>
-<li> FIXED: garbage collection of mabindings was broken with tabling. </li>
+<li> FIXED: garbage collection of mabindings was broken with tabling
+(obs Remko Troncon). </li>
+<li> FIXED: did not initialise tabling variables
+(obs Remko Troncon). </li>
 <li> FIXED: should have meta-predicate definitions for calls and
 discontiguous. </li>
 <li> FIXED: have discontiguous as a builtin, not just as a
-  declaration. </li>
+  declaration (obs Jude Shavlik). </li>
 <li> FIXED: if first argument was unbound, comparisons might be
   called with second argument undereferenced!! </li>
 <li> FIXED: strip ^ before doing execute in setof or bagof. </li>
 <li> FIXED: use CONST declarations in interface (thanks to Roberto Bagnara). </li>
-<li> FIXED: absmi should consult PREG, not P. </li>
+<li> FIXED: absmi should consult PREG, not P (obs Remko Troncon). </li>
 <li> FIXED: bad init in tabling code. </li>
-<li> FIXED: YAP_MkBigIntTerm was broken. </li>
+<li> FIXED: YAP_MkBigIntTerm was broken (obs Roberto Bagnara). </li>
 <li> NEW: update documentation to support new CLP(R) and CHR packages. </li>
 <li> FIXED: regression in clpbn/utils.yap. </li>
 <li> NEW: put_attrs/2. </li>
@@ -101,7 +110,7 @@ is still not allowed.</li>
 <li> FIXED: YAP_cut_fail and YAP_cut_succeed were different from manual.</li>
 <li> FIXED: tracing through data-bases could core dump.</li>
 <li> FIXED: cut could break on very large computations.</li>
-<li> FIXED: first pass at BigNum issues (reported by Roberto).</li>
+<li> FIXED: first pass at BigNum issues (obs Roberto Bagnara).</li>
 <li> FIXED: debugger could get go awol after fail port.</li>
 <li> FIXED: weird message on wrong debugger option.</li>
 <li> FIXED: cases where restore/1 could break.</li>

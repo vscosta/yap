@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2005-11-03 18:27:10 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-10 01:27:12 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.70  2005/11/03 18:27:10  vsc
+* fix quote
+*
 * Revision 1.69  2005/11/01 18:54:06  vsc
 * small fixes
 *
@@ -297,6 +300,8 @@ print_message(Level, Mss) :-
 	format(user_error, 'Singleton variable',[]),
 	'$write_svs'(SVs),
 	format(user_error, ' in ~q, clause ~d.',[P,CLN]).
+'$do_print_message'(trace_command(-1)) :- !,
+	format(user_error,'EOF is not a valid debugger command.', []).
 '$do_print_message'(trace_command(C)) :- !,
 	format(user_error,'~c is not a valid debugger command.', [C]).
 '$do_print_message'(trace_help) :- !,

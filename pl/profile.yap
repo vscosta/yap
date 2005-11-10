@@ -43,6 +43,7 @@ profile_data(P, Parm, Data) :-
 '$profile_data_for_var'(Name/Arity, Parm, Data, M) :-
 	'$current_predicate'(M,Name,Arity),
 	functor(P,Name,Arity),
+	\+ '$hidden'(Name), % don't show hidden predicates.
 	'$profile_info'(M, P, Stats),
 	'$profile_say'(Stats, Parm, Data).
 
