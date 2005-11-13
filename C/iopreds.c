@@ -4110,7 +4110,15 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      }
 	    }
 	    if (repeats) {
+	      if (ptr == tmp1 ||
+		  ptr[-1] == '-') {
+		f_putc(sno, (int) '0');
+	      }
 	      f_putc(sno, (int) '.');
+	      while (repeats > siz) {
+		f_putc(sno, (int) '0');
+		repeats--;
+	      }
 	      while (repeats) {
 		f_putc(sno, (int) (*ptr++));
 		repeats--;
