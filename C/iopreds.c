@@ -4053,7 +4053,12 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	  t = targs[targ++];
 	  if (IsVarTerm(t))
 	    goto do_instantiation_error;
-	  if (!IsIntegerTerm(t))
+	  if (!IsIntegerTerm(t)
+#ifdef USE_GMP
+	      && !IsBigIntTerm(t)
+#endif
+
+	      )
 	    goto do_type_int_error;
 	  if (!has_repeats && ch == 'd') {
 	    Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f);
@@ -4061,6 +4066,37 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	  } else {
 	    Int siz, dec, i, div = 1;
 
+#ifdef USE_GMP
+	    if (IsBigIntTerm(t)) {
+	      MP_INT *dst = Yap_BigIntOfTerm(t);
+	      int siz = mpz_sizeinbase (dst, 10);
+	      char *ptr = tmp1;
+	      if (siz+2 > 256) {
+		goto do_type_int_error;
+	      }
+	      mpz_get_str (tmp1, 10, dst);
+
+	      if (tmp1[0] == '-') {
+		f_putc(sno, (int) '-');
+		ptr++;
+	      }
+	      while (siz > repeats) {
+		if ((siz-repeats) % 3 == 0) {
+		  f_putc(sno, (int) ',');
+		}
+		f_putc(sno, (int) (*ptr++));
+		siz--;
+	      }
+	      if (repeats) {
+		  f_putc(sno, (int) '.');
+		  while (repeats) {
+		    f_putc(sno, (int) (*ptr++));
+		    repeats--;
+		  }
+	      }
+	      break;
+	    }
+#endif
 	    dec = IntegerOfTerm(t);
 	    /*
 	     * The guys at Quintus have probably
