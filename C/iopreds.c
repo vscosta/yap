@@ -4060,94 +4060,63 @@ format(volatile Term otail, volatile Term oargs, int sno)
 
 	      )
 	    goto do_type_int_error;
-	  if (!has_repeats && ch == 'd') {
-	    Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f);
-	    FormatInfo = &finfo;
-	  } else {
-	    Int siz, dec, i, div = 1;
 
+	  {
+	    Int siz = 0, i;
+	    char *ptr = tmp1;
+
+	    if (IsIntegerTerm(t)) {
+	      UInt il = IntegerOfTerm(t);
+#if HAVE_SNPRINTF
+	      snprintf(tmp1, 256, "%d", il);
+#else
+	      sprintf(tmp1, "%ld", (long int)il);
+#endif
+	      siz = strlen(tmp1);
+	      if (il < 0)  siz--;
+	    }
 #ifdef USE_GMP
-	    if (IsBigIntTerm(t)) {
+	    else if (IsBigIntTerm(t)) {
 	      MP_INT *dst = Yap_BigIntOfTerm(t);
-	      int siz = mpz_sizeinbase (dst, 10);
-	      char *ptr = tmp1;
+	      siz = mpz_sizeinbase (dst, 10);
+
 	      if (siz+2 > 256) {
 		goto do_type_int_error;
 	      }
 	      mpz_get_str (tmp1, 10, dst);
+	    }
+#endif
 
-	      if (tmp1[0] == '-') {
-		f_putc(sno, (int) '-');
-		ptr++;
-	      }
+	    if (tmp1[0] == '-') {
+	      f_putc(sno, (int) '-');
+	      ptr++;
+	    }
+	    if (ch == 'D') {
+	      int first = TRUE;
+
 	      while (siz > repeats) {
-		if ((siz-repeats) % 3 == 0) {
+		if ((siz-repeats) % 3 == 0 &&
+		    !first) {
 		  f_putc(sno, (int) ',');
 		}
 		f_putc(sno, (int) (*ptr++));
+		first = FALSE;
 		siz--;
-	      }
-	      if (repeats) {
-		  f_putc(sno, (int) '.');
-		  while (repeats) {
-		    f_putc(sno, (int) (*ptr++));
-		    repeats--;
-		  }
-	      }
-	      break;
-	    }
-#endif
-	    dec = IntegerOfTerm(t);
-	    /*
-	     * The guys at Quintus have probably
-	     * read too much Cobol! 
-	     */
-	    if (dec < 0) {
-	      dec = -dec;
-	      f_putc(sno, (int) '-');
-	    } else if (dec == 0) {
-	      /* make sure we write something */
-		f_putc(sno, '0');
-	      if (repeats == 0) {
-		break;
-	      }
-	    }
-	    i = dec;
-	    siz = 0;
-	    while (i > 0) {
-	      siz++;
-	      i /= 10;
-	      div *= 10;
-	    }
-	    if (repeats > siz) {
-	      f_putc(sno, (int) '.');
-	      while (repeats > siz) {
-		f_putc(sno, (int) '0');
-		repeats--;
 	      }
 	    } else {
-	      int output_done = FALSE;
 	      while (siz > repeats) {
-		div /= 10;
-		if (ch == 'D'&&
-		    (siz - repeats) % 3 == 0 &&
-		    output_done)
-		  f_putc(sno, (int)',');
-		f_putc(sno, (int)((dec/div)+'0'));
-		output_done = TRUE;
+		f_putc(sno, (int) (*ptr++));
 		siz--;
-		dec %= div;
-	      }
-	      if (repeats) {
-		f_putc(sno, (int) '.');
 	      }
 	    }
-	    for (;siz>0;siz--,dec%=div) {
-	      div /= 10;
-	      f_putc(sno, (int)((dec/div)+'0'));	      
+	    if (repeats) {
+	      f_putc(sno, (int) '.');
+	      while (repeats) {
+		f_putc(sno, (int) (*ptr++));
+		repeats--;
+	      }
 	    }
-	    FormatInfo = &finfo;
-	  break;
+	    break;
 	  case 'r':
 	  case 'R':
 	    {
