@@ -222,25 +222,24 @@ Yap_BigIntOfTerm(Term t)
 Term
 Yap_MkULLIntTerm(YAP_ULONG_LONG n)
 {
-#ifdef __GNUC__
-  if (n != (UInt)n) {
-#if USE_GMP
-    /* try to scan it as a bignum */
+#ifdef __GNUC__ && USE_GMP
     MP_INT *new = Yap_PreAllocBigNum();
-    
-    mpz_init(new);
-    mpz_set_ui(new, n>>32);
-    mpz_mul_2exp(new, new, 32);
-    mpz_add_ui(new, new, (UInt)n);
-    return(Yap_MkBigIntTerm(new));
-#else
-    return(MkFloatTerm(n));
+    char tmp[256];
+
+#if HAVE_SNPRINTF
+    sprintf(tmp,256,"%llu",n);
+#else    
+    sprintf(tmp,"%llu",n);
 #endif
-  } else {
-    return MkIntegerTerm(n);
-  }
+    /* try to scan it as a bignum */
+    mpz_init(new);
+    mpz_set_str(new, tmp, 10);
+    if (mpz_fits_slong_p(new)) {
+      return MkIntegerTerm(mpz_get_si(new));
+    }
+    return Yap_MkBigIntTerm(new);
 #else
-  return MkIntegerTerm(n);
+    return MkIntegerTerm(n);
 #endif
 }
 
