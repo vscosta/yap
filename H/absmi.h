@@ -813,6 +813,7 @@ Macros to check the limits of stacks
 #define PROTECT_FROZEN_H(CPTR)  (((CPTR)->cp_h > H_FZ) ? (CPTR)->cp_h : H_FZ)
 #endif /* SBA */
 #else
+#define PROTECT_FROZEN_B(CPTR)  (CPTR)
 #define PROTECT_FROZEN_H(CPTR)  (CPTR)->cp_h
 #endif /* FROZEN_STACKS */
 

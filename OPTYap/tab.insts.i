@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.insts.i
-  version:     $Id: tab.insts.i,v 1.20 2005-08-05 14:55:03 vsc Exp $   
+  version:     $Id: tab.insts.i,v 1.21 2005-11-15 00:50:49 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -968,7 +968,6 @@
       UNLOCK_OR_FRAME(LOCAL_top_or_fr);
     }
 #endif /* YAPOR */
-
 
   answer_resolution:
     INIT_PREFETCH()

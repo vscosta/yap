@@ -1738,10 +1738,17 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 #ifdef TABLING
   dep_fr_ptr depfr = LOCAL_top_dep_fr;
 #endif /* TABLING */
+
 #ifdef EASY_SHUNTING
   HB = H;
 #endif
 
+#ifdef TABLING
+  if (depfr != NULL && gc_B >= DepFr_cons_cp(depfr)) {
+    gc_B = DepFr_cons_cp(depfr);
+    depfr = DepFr_next(depfr);
+  }
+#endif
   while (gc_B != NULL) {
     op_numbers opnum;
     register OPCODE op;
@@ -1915,7 +1922,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	nargs = 0;
 	break;
       case _table_completion:
-	{
+	if (rtp) {
 	  CELL *vars_ptr, vars;
 	  vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
 	  nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
@@ -2521,6 +2528,12 @@ sweep_choicepoints(choiceptr gc_B)
    dep_fr_ptr depfr = LOCAL_top_dep_fr;
 #endif /* TABLING */
 
+#ifdef TABLING
+  if (depfr != NULL && gc_B >= DepFr_cons_cp(depfr)) {
+    gc_B = DepFr_cons_cp(depfr);
+    depfr = DepFr_next(depfr);
+  }
+#endif
   while(gc_B != NULL) {
     yamop *rtp = gc_B->cp_ap;
     register OPCODE op;
@@ -2643,7 +2656,7 @@ sweep_choicepoints(choiceptr gc_B)
       }
       break;
     case _table_completion:
-      {
+      if (rtp) {
 	int nargs;
 	CELL *vars_ptr, vars;
 	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
@@ -2891,7 +2904,7 @@ update_B_H( choiceptr gc_B, CELL *current, CELL *dest, CELL *odest
 #ifdef TABLING
     /* make sure we include consumers */
     if (depfr && gc_B >= DepFr_cons_cp(depfr)) {
-      *depfrp = DepFr_next(depfr);
+      *depfrp = depfr = DepFr_next(depfr);
       gc_B = DepFr_cons_cp(depfr);
     }
 #endif /* TABLING */
@@ -2935,6 +2948,12 @@ compact_heap(void)
    * objects pointed to  
    */
 
+#ifdef TABLING
+  if (depfr != NULL && gc_B >= DepFr_cons_cp(depfr)) {
+    gc_B = DepFr_cons_cp(depfr);
+    depfr = DepFr_next(depfr);
+  }
+#endif
   next_hb = set_next_hb(gc_B);
   dest = (CELL_PTR) H0 + total_marked - 1;
 
@@ -3114,6 +3133,12 @@ adjust_cp_hbs(void)
   choiceptr gc_B = B;
   CELL_PTR *top = iptop-1, *base = (CELL_PTR *)H;
 
+#ifdef TABLING
+  if (depfr != NULL && gc_B >= DepFr_cons_cp(depfr)) {
+    gc_B = DepFr_cons_cp(depfr);
+    depfr = DepFr_next(depfr);
+  }
+#endif
   while (gc_B != NULL) {
     CELL *gc_H = gc_B->cp_h;
     CELL_PTR *nbase = base;
@@ -3706,8 +3731,6 @@ p_inform_gc(void)
 }
 
 
-int vsc_gc_calls;
-
 static int
 call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 {
@@ -3742,8 +3765,9 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   if (gc_margin < gc_lim)
     gc_margin = gc_lim;
   GcCalls++;
-vsc_gc_calls = GcCalls;
-  if (gc_on && !(Yap_PrologMode & InErrorMode)) {
+  if (gc_on && !(Yap_PrologMode & InErrorMode) &&
+      /* make sure there is a point in collecting th eheap */
+      H-H0 > (LCL0-ASP)/2) {
     effectiveness = do_gc(predarity, current_env, nextop);
     if (effectiveness > 90) {
       while (gc_margin < H-H0) 

@@ -16,6 +16,10 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: in tabling don't look inside cp_ap == NULL and fix recent
+  bug in walking dependency frames. </li>
+<li> FIXED: with tabling ASP sometimes was miscalculated, causing
+  trouble with stack shifter (obs Kostis Sagonas). </li>
 <li> FIXED: ~D should print bignums (obs Jude Shavlik). </li>
 <li> FIXED: format's ~d and ~D were broken (obs Jude Shavlik). </li>
 <li> FIXED: profiler should not talk about hidden predicates or idb entries. </li>

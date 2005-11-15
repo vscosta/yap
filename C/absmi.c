@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-11-07 15:35:47 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-15 00:50:49 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.183  2005/11/07 15:35:47  vsc
+* fix bugs in garbage collection of tabling.
+*
 * Revision 1.182  2005/11/05 03:02:33  vsc
 * get rid of unnecessary ^ in setof
 * Found bug in comparisons
@@ -602,10 +605,9 @@ Yap_absmi(int inp)
       /* YREG =was pointing to where we were going to build the
        * next choice-point. The stack shifter will need to know this
        * to move the local stack */
-      if (YREG > (CELL *) B) {
-	ASP = (CELL *) B;
-      }
-      else {
+      if (YREG > (CELL *) PROTECT_FROZEN_B(B)) {
+	ASP = (CELL *) PROTECT_FROZEN_B(B);
+      } else {
 	ASP = YREG+E_CB;
       }
       saveregs();
@@ -620,8 +622,8 @@ Yap_absmi(int inp)
 #endif /* OS_HANDLES_TR_OVERFLOW */
 
       BOp(Ystop, e);
-      if (YREG > (CELL *) B) {
-	ASP = (CELL *) B;
+      if (YREG > (CELL *) PROTECT_FROZEN_B(B)) {
+	ASP = (CELL *) PROTECT_FROZEN_B(B);
       }
       else {
 	ASP = YREG;
@@ -638,8 +640,8 @@ Yap_absmi(int inp)
       ENDBOp();
 
       BOp(Nstop, e);
-      if (YREG > (CELL *) B) {
-	ASP = (CELL *) B;
+      if (YREG > (CELL *) PROTECT_FROZEN_B(B)) {
+	ASP = (CELL *) PROTECT_FROZEN_B(B);
       }
       else {
 	ASP = YREG;
@@ -1027,8 +1029,8 @@ Yap_absmi(int inp)
 
 	/* update ASP before calling IPred */
 	ASP = YREG+E_CB;
-	if (ASP > (CELL *) B) {
-	  ASP = (CELL *) B;
+	if (ASP > (CELL *) PROTECT_FROZEN_B(B)) {
+	  ASP = (CELL *) PROTECT_FROZEN_B(B);
 	}
 	saveregs();
 #if defined(YAPOR) || defined(THREADS)
@@ -2118,8 +2120,8 @@ Yap_absmi(int inp)
       SREG = (CELL *) PREG->u.p.p;
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	ASP = YREG+E_CB;
-	if (ASP > (CELL *)B)
-	  ASP = (CELL *)B;
+	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	goto noheapleft;
       }
       if (ActiveSignals)
@@ -2296,16 +2298,16 @@ Yap_absmi(int inp)
       SREG = (CELL *) PREG->u.sla.sla_u.p;
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
-	if (ASP > (CELL *)B)
-	  ASP = (CELL *)B;
+	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	goto noheapleft;
       }
       if (ActiveSignals) {
 	goto creepc;
       }
       ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
-      if (ASP > (CELL *)B)
-	ASP = (CELL *)B;
+      if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	ASP = (CELL *)PROTECT_FROZEN_B(B);
       saveregs();
       if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, YREG, NEXTOP(PREG, sla))) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
@@ -2404,16 +2406,16 @@ Yap_absmi(int inp)
       SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,1),0));
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
-	if (ASP > (CELL *)B)
-	  ASP = (CELL *)B;
+	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	goto noheapleft;
       }
       if (ActiveSignals) {
 	goto creep_either;
       }
       ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
-      if (ASP > (CELL *)B)
-	ASP = (CELL *)B;
+      if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	ASP = (CELL *)PROTECT_FROZEN_B(B);
       saveregs();
       if (!Yap_gc(0, YREG, NEXTOP(PREG, sla))) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
@@ -2518,8 +2520,8 @@ Yap_absmi(int inp)
       SREG = (CELL *) PREG->u.p.p;
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	ASP = YREG+E_CB;
-	if (ASP > (CELL *)B)
-	  ASP = (CELL *)B;
+	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	goto noheapleft;
       }
       if (ActiveSignals)
@@ -2527,8 +2529,8 @@ Yap_absmi(int inp)
       /* try performing garbage collection */
 
       ASP = YREG+E_CB;
-      if (ASP > (CELL *)B)
-	ASP = (CELL *)B;
+      if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	ASP = (CELL *)PROTECT_FROZEN_B(B);
       saveregs();
       if (!Yap_gc(((PredEntry *)(SREG))->ArityOfPE, (CELL *)YREG[E_E], (yamop *)YREG[E_CP])) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
@@ -2543,8 +2545,8 @@ Yap_absmi(int inp)
       /* try performing garbage collection */
 
       ASP = YREG+E_CB;
-      if (ASP > (CELL *)B)
-	ASP = (CELL *)B;
+      if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	ASP = (CELL *)PROTECT_FROZEN_B(B);
       saveregs();
       if (!Yap_gc(((PredEntry *)(SREG))->ArityOfPE, ENV, CPREG)) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
@@ -2596,8 +2598,8 @@ Yap_absmi(int inp)
 	if (Yap_PrologMode & InterruptMode) {
 	  Yap_PrologMode &= ~InterruptMode;
 	  ASP = YREG+E_CB;
-	  if (ASP > (CELL *)B)
-	    ASP = (CELL *)B;
+	  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	    ASP = (CELL *)PROTECT_FROZEN_B(B);
 	  saveregs();
 	  Yap_ProcessSIGINT();
 	  setregs();
@@ -6992,8 +6994,8 @@ Yap_absmi(int inp)
 #endif
       /* update ASP before calling IPred */
 	ASP = YREG+E_CB;
-	if (ASP > (CELL *) B) {
-	  ASP = (CELL *) B;
+	if (ASP > (CELL *) PROTECT_FROZEN_B(B)) {
+	  ASP = (CELL *) PROTECT_FROZEN_B(B);
 	}
 	saveregs();
 	Yap_IPred(ap, 0);
@@ -7024,8 +7026,8 @@ Yap_absmi(int inp)
 
 	/* update ASP before calling IPred */
 	ASP = YREG+E_CB;
-	if (ASP > (CELL *) B) {
-	  ASP = (CELL *) B;
+	if (ASP > (CELL *) PROTECT_FROZEN_B(B)) {
+	  ASP = (CELL *) PROTECT_FROZEN_B(B);
 	}
 #if defined(YAPOR) || defined(THREADS)
 	if (PP == NULL) {
@@ -7066,8 +7068,8 @@ Yap_absmi(int inp)
 
 	/* update ASP before calling IPred */
 	ASP = YREG+E_CB;
-	if (ASP > (CELL *) B) {
-	  ASP = (CELL *) B;
+	if (ASP > (CELL *) PROTECT_FROZEN_B(B)) {
+	  ASP = (CELL *) PROTECT_FROZEN_B(B);
 	}
 #if defined(YAPOR) || defined(THREADS)
 	if (PP == NULL) {
@@ -12570,8 +12572,8 @@ Yap_absmi(int inp)
 	WRITEBACK_Y_AS_ENV();
 	SREG = (CELL *) pen;
 	ASP = ENV_YREG;
-	if (ASP > (CELL *)B)
-	  ASP = (CELL *)B;
+	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	LOCK(SignalLock);
 	UNLOCK(SignalLock);
 	if (ActiveSignals & YAP_CDOVF_SIGNAL) {

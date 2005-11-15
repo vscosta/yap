@@ -841,7 +841,7 @@ fix_tabling_info(void)
   struct subgoal_frame *sg;
 
   df = LOCAL_top_dep_fr;
-  while (df != NULL) {
+  while (df) {
     if (DepFr_backchain_cp(df))
       DepFr_backchain_cp(df) = ChoicePtrAdjust(DepFr_backchain_cp(df));
     DepFr_leader_cp(df) = ChoicePtrAdjust(DepFr_leader_cp(df));
@@ -849,7 +849,7 @@ fix_tabling_info(void)
     df = DepFr_next(df);
   }
   sg = LOCAL_top_sg_fr;
-  while (sg != NULL) {
+  while (sg) {
     SgFr_gen_cp(sg) = GeneratorChoicePtrAdjust(SgFr_gen_cp(sg));
     sg = SgFr_next(sg);
   }
