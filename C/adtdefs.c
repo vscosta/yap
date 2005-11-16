@@ -313,9 +313,9 @@ Yap_GetOpProp(Atom a)
   READ_LOCK(ae->ARWLock);
   pp = RepProp(ae->PropsOfAE);
   while (!EndOfPAEntr(pp) &&
-	 pp->KindOfPE != OpProperty &&
-	 ((OpEntry *)pp)->OpModule &&
-	 ((OpEntry *)pp)->OpModule != CurrentModule)
+	 ( pp->KindOfPE != OpProperty ||
+	   (((OpEntry *)pp)->OpModule &&
+	    ((OpEntry *)pp)->OpModule != CurrentModule)))
     pp = RepProp(pp->NextOfPE);
   READ_UNLOCK(ae->ARWLock);
   if (EndOfPAEntr(pp))
