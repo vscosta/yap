@@ -512,14 +512,6 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	  func = Yap_MkFunctor((Atom) t, 1);
 	  t = ParseTerm(oprprio, FailBuff);
 	  t = Yap_MkApplTerm(func, 1, &t);
-#ifdef DEBUG
-	  if (Yap_Option['p' - 'a' + 1]) {
-	    Yap_DebugPutc(Yap_c_error_stream,'[');
-	    Yap_plwrite (t, Yap_DebugPutc, 0);
-	    Yap_DebugPutc(Yap_c_error_stream,']');
-	    Yap_DebugPutc(Yap_c_error_stream,'\n');
-	  }
-#endif
 	  /* check for possible overflow against local stack */
 	  if (H > ASP-4096) {
 	    Yap_ErrorMessage = "Stack Overflow";
@@ -540,14 +532,6 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 
   case Number_tok:
     t = Yap_tokptr->TokInfo;
-#ifdef DEBUG
-	  if (Yap_Option['p' - 'a' + 1]) {
-	    Yap_DebugPutc(Yap_c_error_stream,'[');
-	    Yap_plwrite (t, Yap_DebugPutc, 0);
-	    Yap_DebugPutc(Yap_c_error_stream,']');
-	    Yap_DebugPutc(Yap_c_error_stream,'\n');
-	  }
-#endif
     NextToken;
     break;
 
@@ -562,14 +546,6 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	t = MkAtomTerm(Yap_LookupAtom(p));
       else
 	t = Yap_StringToList(p);
-#ifdef DEBUG
-	  if (Yap_Option['p' - 'a' + 1]) {
-	    Yap_DebugPutc(Yap_c_error_stream,'[');
-	    Yap_plwrite (t, Yap_DebugPutc, 0);
-	    Yap_DebugPutc(Yap_c_error_stream,']');
-	    Yap_DebugPutc(Yap_c_error_stream,'\n');
-	  }
-#endif
       NextToken;
     }
   break;

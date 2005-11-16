@@ -222,7 +222,7 @@ Yap_BigIntOfTerm(Term t)
 Term
 Yap_MkULLIntTerm(YAP_ULONG_LONG n)
 {
-#ifdef __GNUC__ && USE_GMP
+#if __GNUC__ && USE_GMP
     MP_INT *new = Yap_PreAllocBigNum();
     char tmp[256];
 
