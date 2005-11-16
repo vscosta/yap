@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.74 2005-11-08 13:57:41 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.75 2005-11-16 01:55:03 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -78,6 +78,8 @@ minfo(char mtype)
 }
 #endif
 
+static int vsc_allocs;
+
 char *
 Yap_AllocCodeSpace(unsigned int size)
 {
@@ -87,6 +89,7 @@ Yap_AllocCodeSpace(unsigned int size)
   mallocs++;
   tmalloc += size;
 #endif
+  vsc_allocs++;
   return malloc(size);
 }
 

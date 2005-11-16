@@ -434,7 +434,7 @@ InitDebug(void)
     fprintf(stderr,"Set	Trace Options:\n");
     fprintf(stderr,"a getch\t\tb token\t\tc Lookup\td LookupVar\ti Index\n");
     fprintf(stderr,"e SetOp\t\tf compile\tg icode\t\th boot\t\tl log\n");
-    fprintf(stderr,"m Machine\n");
+    fprintf(stderr,"m Machine\t p parser\n");
     while ((ch = YP_putchar(YP_getchar())) != '\n')
       if (ch >= 'a' && ch <= 'z')
 	Yap_Option[ch - 'a' + 1] = 1;

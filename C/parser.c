@@ -111,6 +111,7 @@ STATIC_PROTO(Term ParseTerm, (int, JMPBUFF *));
                 F }                            \
    }
 
+
 #define FAIL  longjmp(FailBuff->JmpBuff,1)
 
 VarEntry *
@@ -415,6 +416,14 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
   switch (Yap_tokptr->Tok) {
   case Name_tok:
     t = Yap_tokptr->TokInfo;
+#ifdef DEBUG
+    if (Yap_Option['p' - 'a' + 1]) {
+      Yap_DebugPutc(Yap_c_error_stream,'[');
+      Yap_plwrite (t, Yap_DebugPutc, 0);
+      Yap_DebugPutc(Yap_c_error_stream,']');
+      Yap_DebugPutc(Yap_c_error_stream,'\n');
+    }
+#endif
     NextToken;
     if ((Yap_tokptr->Tok != Ord(Ponctuation_tok)
 	 || Unsigned(Yap_tokptr->TokInfo) != 'l')
@@ -425,6 +434,14 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
       if (Yap_tokptr->Tok == Number_tok) {
 	if ((Atom)t == AtomMinus) {
 	  t = Yap_tokptr->TokInfo;
+#ifdef DEBUG
+	  if (Yap_Option['p' - 'a' + 1]) {
+	    Yap_DebugPutc(Yap_c_error_stream,'[');
+	    Yap_plwrite (t, Yap_DebugPutc, 0);
+	    Yap_DebugPutc(Yap_c_error_stream,']');
+	    Yap_DebugPutc(Yap_c_error_stream,'\n');
+	  }
+#endif
 	  if (IsIntTerm(t))
 	    t = MkIntTerm(-IntOfTerm(t));
 	  else if (IsFloatTerm(t))
@@ -440,9 +457,25 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	  else
 	    t = MkLongIntTerm(-LongIntOfTerm(t));
 	  NextToken;
+#ifdef DEBUG
+	  if (Yap_Option['p' - 'a' + 1]) {
+	    Yap_DebugPutc(Yap_c_error_stream,'[');
+	    Yap_plwrite (t, Yap_DebugPutc, 0);
+	    Yap_DebugPutc(Yap_c_error_stream,']');
+	    Yap_DebugPutc(Yap_c_error_stream,'\n');
+	  }
+#endif
 	  break;
 	} else if ((Atom)t == AtomPlus) {
 	  t = Yap_tokptr->TokInfo;
+#ifdef DEBUG
+	  if (Yap_Option['p' - 'a' + 1]) {
+	    Yap_DebugPutc(Yap_c_error_stream,'[');
+	    Yap_plwrite (t, Yap_DebugPutc, 0);
+	    Yap_DebugPutc(Yap_c_error_stream,']');
+	    Yap_DebugPutc(Yap_c_error_stream,'\n');
+	  }
+#endif
 	  NextToken;
 	  break;
 	}
@@ -479,6 +512,14 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	  func = Yap_MkFunctor((Atom) t, 1);
 	  t = ParseTerm(oprprio, FailBuff);
 	  t = Yap_MkApplTerm(func, 1, &t);
+#ifdef DEBUG
+	  if (Yap_Option['p' - 'a' + 1]) {
+	    Yap_DebugPutc(Yap_c_error_stream,'[');
+	    Yap_plwrite (t, Yap_DebugPutc, 0);
+	    Yap_DebugPutc(Yap_c_error_stream,']');
+	    Yap_DebugPutc(Yap_c_error_stream,'\n');
+	  }
+#endif
 	  /* check for possible overflow against local stack */
 	  if (H > ASP-4096) {
 	    Yap_ErrorMessage = "Stack Overflow";
@@ -499,6 +540,14 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 
   case Number_tok:
     t = Yap_tokptr->TokInfo;
+#ifdef DEBUG
+	  if (Yap_Option['p' - 'a' + 1]) {
+	    Yap_DebugPutc(Yap_c_error_stream,'[');
+	    Yap_plwrite (t, Yap_DebugPutc, 0);
+	    Yap_DebugPutc(Yap_c_error_stream,']');
+	    Yap_DebugPutc(Yap_c_error_stream,'\n');
+	  }
+#endif
     NextToken;
     break;
 
@@ -513,6 +562,14 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	t = MkAtomTerm(Yap_LookupAtom(p));
       else
 	t = Yap_StringToList(p);
+#ifdef DEBUG
+	  if (Yap_Option['p' - 'a' + 1]) {
+	    Yap_DebugPutc(Yap_c_error_stream,'[');
+	    Yap_plwrite (t, Yap_DebugPutc, 0);
+	    Yap_DebugPutc(Yap_c_error_stream,']');
+	    Yap_DebugPutc(Yap_c_error_stream,'\n');
+	  }
+#endif
       NextToken;
     }
   break;
@@ -522,6 +579,14 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
     if ((t = varinfo->VarAdr) == TermNil) {
       t = varinfo->VarAdr = MkVarTerm();
     }
+#ifdef DEBUG
+	  if (Yap_Option['p' - 'a' + 1]) {
+	    Yap_DebugPutc(Yap_c_error_stream,'[');
+	    Yap_plwrite (t, Yap_DebugPutc, 0);
+	    Yap_DebugPutc(Yap_c_error_stream,']');
+	    Yap_DebugPutc(Yap_c_error_stream,'\n');
+	  }
+#endif
     NextToken;
     break;
 
@@ -534,11 +599,27 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
     case 'l':	/* non solo ( */
       NextToken;
       t = ParseTerm(1200, FailBuff);
+#ifdef DEBUG
+	  if (Yap_Option['p' - 'a' + 1]) {
+	    Yap_DebugPutc(Yap_c_error_stream,'[');
+	    Yap_plwrite (t, Yap_DebugPutc, 0);
+	    Yap_DebugPutc(Yap_c_error_stream,']');
+	    Yap_DebugPutc(Yap_c_error_stream,'\n');
+	  }
+#endif
       checkfor((Term) ')', FailBuff);
       break;
     case '[':
       NextToken;
       t = ParseList(FailBuff);
+#ifdef DEBUG
+	  if (Yap_Option['p' - 'a' + 1]) {
+	    Yap_DebugPutc(Yap_c_error_stream,'[');
+	    Yap_plwrite (t, Yap_DebugPutc, 0);
+	    Yap_DebugPutc(Yap_c_error_stream,']');
+	    Yap_DebugPutc(Yap_c_error_stream,'\n');
+	  }
+#endif
       checkfor((Term) ']', FailBuff);
       break;
     case '{':
@@ -603,6 +684,14 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	  && opprio <= prio && oplprio >= curprio) {
 	/* parse as posfix operator */
 	t = Yap_MkApplTerm(Yap_MkFunctor((Atom) Yap_tokptr->TokInfo, 1), 1, &t);
+#ifdef DEBUG
+  if (Yap_Option['p' - 'a' + 1]) {
+    Yap_DebugPutc(Yap_c_error_stream,'[');
+    Yap_DebugPutc(Yap_c_error_stream,']');
+    Yap_plwrite (t, Yap_DebugPutc, 0);
+    Yap_DebugPutc(Yap_c_error_stream,'\n');
+  }
+#endif
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
 	  Yap_ErrorMessage = "Stack Overflow";
@@ -622,6 +711,14 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	args[0] = t;
 	args[1] = ParseTerm(1000, FailBuff);
 	t = Yap_MkApplTerm(Yap_MkFunctor(AtomComma, 2), 2, args);
+#ifdef DEBUG
+  if (Yap_Option['p' - 'a' + 1]) {
+    Yap_DebugPutc(Yap_c_error_stream,'[');
+    Yap_DebugPutc(Yap_c_error_stream,']');
+    Yap_plwrite (t, Yap_DebugPutc, 0);
+    Yap_DebugPutc(Yap_c_error_stream,'\n');
+  }
+#endif
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
 	  Yap_ErrorMessage = "Stack Overflow";
@@ -636,6 +733,14 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	args[0] = t;
 	args[1] = ParseTerm(1100, FailBuff);
 	t = Yap_MkApplTerm(FunctorVBar, 2, args);
+#ifdef DEBUG
+  if (Yap_Option['p' - 'a' + 1]) {
+    Yap_DebugPutc(Yap_c_error_stream,'[');
+    Yap_DebugPutc(Yap_c_error_stream,']');
+    Yap_plwrite (t, Yap_DebugPutc, 0);
+    Yap_DebugPutc(Yap_c_error_stream,'\n');
+  }
+#endif
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
 	  Yap_ErrorMessage = "Stack Overflow";
@@ -649,7 +754,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
       FAIL;
     break;
   }
-  return (t);
+  return t;
 }
 
 

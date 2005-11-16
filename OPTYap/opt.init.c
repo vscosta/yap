@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.init.c  
-  version:     $Id: opt.init.c,v 1.13 2005-11-04 01:17:17 vsc Exp $   
+  version:     $Id: opt.init.c,v 1.14 2005-11-16 01:55:03 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -56,6 +56,36 @@ ma_h_inner_struct *Yap_ma_h_top;
         Pg_free_pg(PG) = NULL
 
 
+
+#if YAP_MEMORY_ALLOC_SCHEME
+char *
+Yap_get_yap_space(int sz)
+{
+  char *ptr = Yap_AllocCodeSpace(sz+sizeof(CELL));
+  if (ptr) {
+    *ptr = 'y';
+    return ptr+sizeof(CELL);
+  }
+  ptr = (char *)malloc(sz+sizeof(CELL));
+  if (ptr) {
+    *ptr = 'm';
+    return ptr+sizeof(CELL);
+  }
+  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "Yap_AllocCodeSpace error (ALLOC_STRUCT), when allocating %d B", sz);
+  return NULL;
+}
+
+void
+Yap_free_yap_space(char *ptr)
+{
+  ptr -= sizeof(CELL);
+  if (ptr[0] == 'y') {
+    Yap_FreeCodeSpace(ptr);
+  } else {
+    free((void *)ptr);
+  }
+}
+#endif
 
 /* -------------------------- **
 **      Global functions      **
@@ -265,3 +295,4 @@ void init_workers(void) {
 }
 #endif /* YAPOR */
 #endif /* YAPOR || TABLING */
+

@@ -227,7 +227,7 @@ Yap_MkULLIntTerm(YAP_ULONG_LONG n)
     char tmp[256];
 
 #if HAVE_SNPRINTF
-    sprintf(tmp,256,"%llu",n);
+    snprintf(tmp,256,"%llu",n);
 #else    
     sprintf(tmp,"%llu",n);
 #endif

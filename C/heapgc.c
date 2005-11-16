@@ -2904,8 +2904,8 @@ update_B_H( choiceptr gc_B, CELL *current, CELL *dest, CELL *odest
 #ifdef TABLING
     /* make sure we include consumers */
     if (depfr && gc_B >= DepFr_cons_cp(depfr)) {
-      *depfrp = depfr = DepFr_next(depfr);
       gc_B = DepFr_cons_cp(depfr);
+      *depfrp = depfr = DepFr_next(depfr);
     }
 #endif /* TABLING */
   }
@@ -3765,9 +3765,10 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   if (gc_margin < gc_lim)
     gc_margin = gc_lim;
   GcCalls++;
-  if (gc_on && !(Yap_PrologMode & InErrorMode) &&
+  if (gc_on && !(Yap_PrologMode & InErrorMode) //&&
       /* make sure there is a point in collecting th eheap */
-      H-H0 > (LCL0-ASP)/2) {
+      //H-H0 > (LCL0-ASP)/2) {
+      ) {
     effectiveness = do_gc(predarity, current_env, nextop);
     if (effectiveness > 90) {
       while (gc_margin < H-H0) 

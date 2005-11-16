@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.macros.h 
-  version:     $Id: opt.macros.h,v 1.10 2005-08-10 21:36:34 ricroc Exp $   
+  version:     $Id: opt.macros.h,v 1.11 2005-11-16 01:55:03 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -61,15 +61,19 @@ extern int Yap_page_size;
         UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                     \
         free(STR)
 #elif YAP_MEMORY_ALLOC_SCHEME  /* ---------------------------------------------------- */
+
+
+char *STD_PROTO(Yap_get_yap_space, (int));
+void  STD_PROTO(Yap_free_yap_space, (char *));
+	
 #define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)                                          \
         UPDATE_STATS(Pg_str_in_use(STR_PAGES), 1);                                      \
-        if ((STR = (STR_TYPE *) Yap_AllocCodeSpace(sizeof(STR_TYPE))) == NULL)          \
-          Yap_Error(FATAL_ERROR, TermNil, "Yap_AllocCodeSpace error (ALLOC_STRUCT)")
+        STR = (STR_TYPE *)Yap_get_yap_space(sizeof(STR_TYPE))
 #define ALLOC_NEXT_FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                                \
         ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)
 #define FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                                           \
         UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                     \
-        Yap_FreeCodeSpace((char *) (STR))
+        Yap_free_yap_space((char *)(STR))
 #elif SHM_MEMORY_ALLOC_SCHEME  /* ---------------------------------------------------- */
 #ifdef LIMIT_TABLING
 #define INIT_PAGE(PG_HD, STR_PAGES, STR_TYPE)                                           \

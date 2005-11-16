@@ -749,7 +749,7 @@ p_create_array(void)
     while (!EndOfPAEntr(pp) &&
 	   pp->KindOfPE != ArrayProperty
 #if THREADS
-	   && pp->owner_id != worker_id
+	   && ((ArrayEntry *)pp)->owner_id != worker_id
 #endif	   
 	   )
       pp = RepProp(pp->NextOfPE);
