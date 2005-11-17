@@ -943,9 +943,9 @@ typedef struct array_entry
   Int ArrayEArity;		/* Arity of Array (positive)            */
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t ArRWLock;		/* a read-write lock to protect the entry */
-#endif
 #if THREADS
   unsigned int owner_id;
+#endif
 #endif
   struct array_entry *NextAE;
   Term ValueOfVE;		/* Pointer to the actual array          */

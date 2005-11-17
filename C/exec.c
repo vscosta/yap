@@ -1524,7 +1524,7 @@ Yap_RunTopGoal(Term t)
   READ_LOCK(ppe->PRWLock);
   CodeAdr = ppe->CodeOfPred;
   READ_UNLOCK(ppe->PRWLock);
-#if !USE_MALLOC
+#if !USE_SYSTEM_MALLOC
   if (Yap_TrailTop - HeapTop < 2048) {
     Yap_PrologMode = BootMode;
     Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,

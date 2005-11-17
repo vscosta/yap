@@ -219,9 +219,9 @@ MoveLocalAndTrail(void)
 	/* cpcellsd(To,From,NOfCells) - copy the cells downwards  */
 #if USE_SYSTEM_MALLOC
 #if HAVE_MEMMOVE
-  cpcellsd(ASP, (CELL *)((char *)OldASP+GDiff), (CELL *)OldTR - OldASP);
+  cpcellsd(ASP, (CELL *)((char *)OldASP+DelayDiff), (CELL *)OldTR - OldASP);
 #else
-  cpcellsd((CELL *)TR, (CELL *)((char *)OldTR+Gdiff), (CELL *)OldTR - OldASP);
+  cpcellsd((CELL *)TR, (CELL *)((char *)OldTR+Delaydiff), (CELL *)OldTR - OldASP);
 #endif
 #else
 #if HAVE_MEMMOVE
@@ -254,9 +254,9 @@ MoveGlobalOnly(void)
 	 * absmi.asm 
 	 */
 #if HAVE_MEMMOVE
-  cpcellsd(H0, OldH0, OldH - OldH0);  
+  cpcellsd(H0, (CELL *)((ADDR)OldH0+DelayDiff), OldH - OldH0);  
 #else
-  cpcellsd(H, OldH, OldH - OldH0);
+  cpcellsd(H, (CELL *)((ADDR)OldH+DelayDiff), OldH - OldH0);
 #endif
 }
 
@@ -623,6 +623,8 @@ static_growglobal(long size, CELL **ptr)
   UInt start_growth_time, growth_time;
   int gc_verbose;
   char *omax = (ADDR)DelayTop();
+  ADDR old_GlobalBase = Yap_GlobalBase;
+  Int ReallocDiff;
 
   /* adjust to a multiple of 256) */
   if (size < (omax-Yap_GlobalBase)/8)
@@ -631,7 +633,7 @@ static_growglobal(long size, CELL **ptr)
   Yap_ErrorMessage = NULL;
   if (!Yap_ExtendWorkSpace(size)) {
     Yap_ErrorMessage = "Global Stack crashed against Local Stack";
-    return(FALSE);
+    return FALSE;
   }
   start_growth_time = Yap_cputime();
   gc_verbose = Yap_is_gc_verbose();
@@ -642,8 +644,11 @@ static_growglobal(long size, CELL **ptr)
   }
   ASP -= 256;
   YAPEnterCriticalSection();
-  TrDiff = LDiff = GDiff = size;
-  XDiff = HDiff = DelayDiff = 0;
+  ReallocDiff = Yap_GlobalBase-old_GlobalBase;
+  TrDiff = LDiff = GDiff = size + ReallocDiff;
+  DelayDiff = ReallocDiff;
+  XDiff = HDiff = 0;
+  Yap_GlobalBase = old_GlobalBase;
   SetHeapRegs();
   MoveLocalAndTrail();
   MoveGlobalOnly();

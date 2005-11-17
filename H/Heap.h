@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.85 2005-10-28 17:38:50 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.86 2005-11-17 13:40:18 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -46,7 +46,7 @@ typedef struct scratch_block_struct {
 } scratch_block;
 
 typedef struct restore_info {
-  int cl_diff,
+  Int cl_diff,
     g_diff,
     h_diff,
     l_diff,
