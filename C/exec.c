@@ -20,6 +20,9 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 
 #include "absmi.h"
 #include "yapio.h"
+#ifdef CUT_C
+#include "cut_c.h"
+#endif
 
 STATIC_PROTO(Int  CallPredicate, (PredEntry *, choiceptr, yamop *));
 STATIC_PROTO(Int  EnterCreepMode, (Term, Term));
@@ -1404,6 +1407,16 @@ Yap_execute_goal(Term t, int nargs, Term mod)
     /* restore the old environment */
     /* get to previous environment */
     cut_B = (choiceptr)ENV[E_CB];
+#ifdef CUT_C
+    {
+      /* Note that 
+	 cut_B == (choiceptr)ENV[E_CB] */
+      while (POP_CHOICE_POINT(ENV[E_CB]))
+	{
+	  POP_EXECUTE();
+	}
+    }
+#endif /* CUT_C */
 #ifdef YAPOR
     CUT_prune_to(cut_B);
 #endif /* YAPOR */
@@ -1592,6 +1605,14 @@ p_restore_regs2(void)
 #else
   pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
+#ifdef CUT_C
+  {
+    while (POP_CHOICE_POINT(pt0))
+      {
+	POP_EXECUTE();
+      }
+  }
+#endif /* CUT_C */
 #ifdef YAPOR
   CUT_prune_to(pt0);
 #endif /* YAPOR */

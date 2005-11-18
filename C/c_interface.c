@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-11-03 18:49:26 $,$Author: vsc $						 *
+* Last rev:	$Date: 2005-11-18 18:48:51 $,$Author: tiagosoares $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.76  2005/11/03 18:49:26  vsc
+* fix bignum conversion
+*
 * Revision 1.75  2005/10/28 17:38:49  vsc
 * sveral updates
 *
@@ -190,6 +193,10 @@
 #include "or.macros.h"
 #endif	/* YAPOR */
 #include "threads.h"
+#ifdef CUT_C
+#include "cut_c.h"
+#endif /* CUT_C */
+
 
 #define YAP_BOOT_FROM_PROLOG       0
 #define YAP_BOOT_FROM_SAVED_CODE   1
@@ -286,6 +293,10 @@ X_API void    STD_PROTO(YAP_PredicateInfo,(void *,Atom *,unsigned long int *,Ter
 X_API void    STD_PROTO(YAP_UserCPredicate,(char *,CPredicate,unsigned long int));
 X_API void    STD_PROTO(YAP_UserBackCPredicate,(char *,CPredicate,CPredicate,unsigned long int,unsigned int));
 X_API void    STD_PROTO(YAP_UserCPredicateWithArgs,(char *,CPredicate,unsigned long int,Term));
+#ifdef CUT_C
+X_API void    STD_PROTO(YAP_UserBackCutCPredicate,(char *,CPredicate,CPredicate,CPredicate,unsigned long int,unsigned int));
+X_API void   *STD_PROTO(YAP_ExtraSpaceCut,(void));
+#endif
 X_API Term     STD_PROTO(YAP_CurrentModule,(void));
 X_API Term     STD_PROTO(YAP_CreateModule,(Atom));
 X_API int     STD_PROTO(YAP_ThreadSelf,(void));
@@ -614,6 +625,20 @@ YAP_ArityOfFunctor(Functor f)
   return (ArityOfFunctor(f));
 }
 
+#ifdef CUT_C
+X_API void *
+YAP_ExtraSpaceCut(void)
+{
+  void *ptr;
+  BACKUP_B();
+
+  ptr = (void *)(((CELL *)(Yap_regp->CUT_C_TOP))-(((yamop *)Yap_regp->CUT_C_TOP->try_userc_cut_yamop)->u.lds.extra));
+
+  RECOVER_B();
+  return(ptr);
+}
+#endif /*CUT_C*/
+
 X_API void *
 YAP_ExtraSpace(void)
 {
@@ -631,7 +656,14 @@ X_API void
 YAP_cut_up(void)
 {
   BACKUP_B();
-
+#ifdef CUT_C
+      {
+	while (POP_CHOICE_POINT(B->cp_b))
+	  { 
+	    POP_EXECUTE();
+	  }
+      }
+#endif /* CUT_C */
 #ifdef YAPOR
   {
     choiceptr cut_pt;
@@ -1463,8 +1495,23 @@ X_API void
 YAP_UserBackCPredicate(char *name, CPredicate init, CPredicate cont,
 		   unsigned long int arity, unsigned int extra)
 {
+#ifdef CUT_C
+  Yap_InitCPredBackCut(name, arity, extra, init, cont, NULL ,UserCPredFlag);
+#else
   Yap_InitCPredBack(name, arity, extra, init, cont, UserCPredFlag);
+#endif
+
 }
+
+#ifdef CUT_C
+X_API void 
+YAP_UserBackCutCPredicate(char *name, CPredicate init, CPredicate cont, CPredicate cut,
+			  unsigned long int arity, unsigned int extra)
+{
+  Yap_InitCPredBackCut(name, arity, extra, init, cont, cut, UserCPredFlag);
+}
+#endif
+
 
 X_API void
 YAP_UserCPredicateWithArgs(char *a, CPredicate f, unsigned long int arity, Term mod)

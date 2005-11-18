@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2005-09-08 21:55:48 $							 *
+* Last rev:     $Date: 2005-11-18 18:50:34 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.34  2005/09/08 21:55:48  rslopes
+* BEAM for YAP update...
+*
 * Revision 1.33  2005/08/01 15:40:38  ricroc
 * TABLING NEW: better support for incomplete tabling
 *
@@ -138,9 +141,15 @@
     OPCODE(try_and_mark            ,ld),
     OPCODE(retry_and_mark          ,ld),
     OPCODE(try_c                   ,lds),		
-    OPCODE(retry_c                 ,lds),		
+    OPCODE(retry_c                 ,lds),
+#ifdef CUT_C
+    OPCODE(cut_c   ,lds),
+#endif		
     OPCODE(try_userc               ,lds),		
     OPCODE(retry_userc             ,lds),		
+#ifdef CUT_C
+    OPCODE(cut_userc ,lds),
+#endif		
     OPCODE(cut                     ,e),		
     OPCODE(get_x_var               ,xx),		
     OPCODE(get_y_var               ,yx),		

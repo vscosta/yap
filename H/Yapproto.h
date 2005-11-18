@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.62 2005-10-28 17:38:50 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.63 2005-11-18 18:50:34 tiagosoares Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -185,6 +185,10 @@ void	STD_PROTO(Yap_InitCPred,(char *, unsigned long int, CPredicate, int));
 void	STD_PROTO(Yap_InitAsmPred,(char *, unsigned long int, int, CPredicate, int));
 void	STD_PROTO(Yap_InitCmpPred,(char *, unsigned long int, CmpPredicate, int));
 void	STD_PROTO(Yap_InitCPredBack,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,int));
+#ifdef CUT_C
+void	STD_PROTO(Yap_InitCPredBackCut,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,int));
+void    STD_PROTO(Yap_InitCPredBack_,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,int));
+#endif
 void	STD_PROTO(Yap_InitWorkspace,(int,int,int,int,int,int,int));
 
 #if defined(YAPOR) || defined(THREADS)
@@ -303,6 +307,7 @@ Term	STD_PROTO(Yap_CopyTerm,(Term));
 void	STD_PROTO(Yap_InitUtilCPreds,(void));
 
 /* yap.c */
+
 
 /* ypsocks.c */
 void	STD_PROTO(Yap_InitSockets,(void));

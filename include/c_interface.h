@@ -178,6 +178,7 @@
 
 #define PRESERVE_DATA(ptr, type) (ptr = (type *)YAP_ExtraSpace())
 #define PRESERVED_DATA(ptr, type) (ptr = (type *)YAP_ExtraSpace())
+#define PRESERVED_DATA_CUT(ptr,type) (ptr = (type *)YAP_ExtraSpaceCut())
 
 /*   YAP_Int      unify(YAP_Term a, YAP_Term b) */
 #define unify(t1,t2)  YAP_Unify(t1, t2)

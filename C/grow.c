@@ -23,6 +23,9 @@
 #include "sshift.h"
 #include "compile.h"
 #include "attvar.h"
+#ifdef CUT_C
+#include "cut_c.h"
+#endif /* CUT_C */
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -131,6 +134,10 @@ SetHeapRegs(void)
     HB = PtoGloAdjust(HB);
   if (B)
     B = ChoicePtrAdjust(B);
+#ifdef CUT_C
+  if (Yap_regp->CUT_C_TOP)
+    Yap_regp->CUT_C_TOP = (cut_c_str_ptr)ChoicePtrAdjust((choiceptr)Yap_regp->CUT_C_TOP);
+#endif
 #ifdef TABLING
   if (B_FZ)
     B_FZ = ChoicePtrAdjust(B_FZ);
@@ -190,6 +197,10 @@ SetStackRegs(void)
     LCL0 = PtoLocAdjust(LCL0);
   if (B)
     B = ChoicePtrAdjust(B);
+#ifdef CUT_C
+  if (Yap_regp->CUT_C_TOP)
+    Yap_regp->CUT_C_TOP = (cut_c_str_ptr)ChoicePtrAdjust((choiceptr)Yap_regp->CUT_C_TOP);
+#endif
 #ifdef TABLING
   if (B_FZ)
     B_FZ = ChoicePtrAdjust(B_FZ);

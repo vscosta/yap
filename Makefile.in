@@ -122,7 +122,8 @@ HEADERS = \
 	$(srcdir)/OPTYap/sparc_locks.h $(srcdir)/OPTYap/mips_locks.h \
 	$(srcdir)/OPTYap/mips_locks_funcs.h $(srcdir)/OPTYap/alpha_locks.h \
 	$(srcdir)/OPTYap/alpha_locks_funcs.h \
-	$(srcdir)/OPTYap/pthread_locks.h
+	$(srcdir)/OPTYap/pthread_locks.h \
+	$(srcdir)/H/cut_c.h 
 
 C_SOURCES= \
 	$(srcdir)/C/absmi.c $(srcdir)/C/adtdefs.c \
@@ -161,7 +162,8 @@ C_SOURCES= \
 	$(srcdir)/OPTYap/or.cowengine.c $(srcdir)/OPTYap/or.sbaengine.c \
 	$(srcdir)/OPTYap/or.scheduler.c $(srcdir)/OPTYap/or.cut.c \
 	$(srcdir)/OPTYap/tab.tries.c $(srcdir)/OPTYap/tab.suspend.c \
-	$(srcdir)/library/mpi/mpi.c $(srcdir)/library/mpi/mpe.c
+	$(srcdir)/library/mpi/mpi.c $(srcdir)/library/mpi/mpe.c \
+	$(srcdir)/C/cut_c.c 
 
 PL_SOURCES= \
 	$(srcdir)/pl/arith.yap $(srcdir)/pl/arrays.yap $(srcdir)/pl/boot.yap \
@@ -191,7 +193,7 @@ ENGINE_OBJECTS = \
 	agc.o absmi.o adtdefs.o alloc.o amasm.o analyst.o arrays.o \
 	arith0.o arith1.o arith2.o attvar.o bb.o \
 	cdmgr.o cmppreds.o compiler.o computils.o \
-	corout.o dbase.o dlmalloc.o errors.o eval.o bignum.o \
+	corout.o cut_c.o dbase.o dlmalloc.o errors.o eval.o bignum.o \
 	exec.o grow.o heapgc.o index.o init.o  inlines.o \
 	iopreds.o depth_bound.o mavar.o modules.o other.o   \
 	parser.o save.o scanner.o sort.o stdpreds.o sysbits.o threads.o \
@@ -281,6 +283,9 @@ computils.o: $(srcdir)/C/computils.c
 
 corout.o: $(srcdir)/C/corout.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/corout.c -o $@
+
+cut_c.o: $(srcdir)/C/cut_c.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/cut_c.c -o $@
 
 dbase.o: $(srcdir)/C/dbase.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/dbase.c -o $@

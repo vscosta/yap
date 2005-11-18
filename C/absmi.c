@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-11-15 00:50:49 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-18 18:48:51 $,$Author: tiagosoares $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.184  2005/11/15 00:50:49  vsc
+* fixes for stack expansion and garbage collection under tabling.
+*
 * Revision 1.183  2005/11/07 15:35:47  vsc
 * fix bugs in garbage collection of tabling.
 *
@@ -267,10 +270,15 @@
 *									 *
 *************************************************************************/
 
+
 #define IN_ABSMI_C 1
 
 #include "absmi.h"
 #include "heapgc.h"
+
+#ifdef CUT_C
+#include "cut_c.h"
+#endif
 
 inline static Functor
 AritFunctorOfTerm(Term t) {
@@ -1431,6 +1439,14 @@ Yap_absmi(int inp)
 
       /* trust_fail                       */
       BOp(trust_fail, e);
+#ifdef CUT_C
+      {
+	while (POP_CHOICE_POINT(B->cp_b))
+	  { 
+	    POP_EXECUTE();
+	  }
+      }
+#endif /* CUT_C */
 #ifdef YAPOR
       {
 	choiceptr cut_pt;
@@ -1741,6 +1757,17 @@ Yap_absmi(int inp)
       BEGD(d0);
       /* assume cut is always in stack */
       d0 = YREG[E_CB];
+#ifdef CUT_C
+      {
+	if (SHOULD_CUT_UP_TO(B,(choiceptr) d0))
+	  {
+	    while (POP_CHOICE_POINT(d0))
+	      {
+		POP_EXECUTE();
+	      }
+	  }
+      }
+#endif /* CUT_C */
 #ifdef YAPOR
       CUT_prune_to((choiceptr) d0);
 #endif /* YAPOR */
@@ -1917,6 +1944,17 @@ Yap_absmi(int inp)
       BEGD(d0);
       /* assume cut is always in stack */
       d0 = YREG[E_CB];
+#ifdef CUT_C
+      {
+	if (SHOULD_CUT_UP_TO(B,(choiceptr) d0))
+	  {
+	    while (POP_CHOICE_POINT(d0))
+	      {
+		POP_EXECUTE();
+	      }
+	  }
+      }
+#endif /* CUT_C */
 #ifdef YAPOR
       CUT_prune_to((choiceptr) d0);
 #endif	/* YAPOR */
@@ -1959,6 +1997,17 @@ Yap_absmi(int inp)
       BEGD(d0);
       /* we assume dealloc leaves in S the previous env             */
       d0 = SREG[E_CB];
+#ifdef CUT_C
+      {
+	if (SHOULD_CUT_UP_TO(B,(choiceptr) d0))
+	  {
+	    while (POP_CHOICE_POINT(d0))
+	      {
+		POP_EXECUTE();
+	      }
+	  }
+      }
+#endif /* CUT_C */
 #ifdef YAPOR
       CUT_prune_to((choiceptr) d0);
 #endif	/* YAPOR */
@@ -2020,6 +2069,17 @@ Yap_absmi(int inp)
 #else
 	pt0 = (choiceptr)(LCL0-IntegerOfTerm(d0));
 #endif /* SBA && FROZEN_STACKS */
+#ifdef CUT_C
+      {
+	if (SHOULD_CUT_UP_TO(B,(choiceptr) pt0))
+	  {
+	    while (POP_CHOICE_POINT(pt0))
+	      {
+		POP_EXECUTE();
+	      }
+	  }
+      }
+#endif /* CUT_C */
 #ifdef YAPOR
 	CUT_prune_to(pt0);
 #endif	/* YAPOR */
@@ -2055,6 +2115,17 @@ Yap_absmi(int inp)
 #else
 	pt0 = (choiceptr)(LCL0-IntegerOfTerm(d0));
 #endif /* SBA && FROZEN_STACKS */
+#ifdef CUT_C
+	{
+	  if (SHOULD_CUT_UP_TO(B,(choiceptr) pt0))
+	    {
+	      while (POP_CHOICE_POINT(pt0))
+		{
+		  POP_EXECUTE();
+		}
+	    }
+	}
+#endif /* CUT_C */
 #ifdef YAPOR
 	CUT_prune_to(pt0);
 #endif	/* YAPOR */
@@ -6863,6 +6934,10 @@ Yap_absmi(int inp)
       CUT_wait_leftmost();
 #endif /* YAPOR */
       CACHE_Y(YREG);
+#ifdef CUT_C
+      /* Alocate space for the cut_c structure*/
+      CUT_C_PUSH(NEXTOP(NEXTOP(PREG,lds),lds),S_YREG);
+#endif  
       S_YREG = S_YREG - PREG->u.lds.extra;
       store_args(PREG->u.lds.s);
       store_yaam_regs(NEXTOP(PREG, lds), 0);
@@ -6879,9 +6954,22 @@ Yap_absmi(int inp)
 	CPredicate f = (CPredicate)(PREG->u.lds.f);
 	saveregs();
 	SREG = (CELL *) ((f) ());
+	/* This last instruction changes B B*/
+#ifdef CUT_C
+	while (POP_CHOICE_POINT(B)){ 
+	  cut_c_pop();
+	}
+#endif 
       }
       setregs();
       if (!SREG) {
+#ifdef CUT_C
+	/* Removes the cut functions from the stack
+	 without executing them because we have fail 
+	 and not cuted the predicate*/
+	while(POP_CHOICE_POINT(B))
+	  cut_c_pop();
+#endif 
 	FAIL();
       }
       if ((CELL *) B == YREG && ASP != (CELL *) B) {
@@ -6914,11 +7002,26 @@ Yap_absmi(int inp)
       goto TRYCC;
       ENDBOp();
 
+#ifdef CUT_C
+      BOp(cut_c, lds);
+      /*This is a phantom instruction. This is not executed by the WAM*/
+#ifdef DEBUG
+      /*If WAM executes this instruction, probably there's an error
+       when we put this instruction, cut_c, after retry_c*/
+      printf ("ERROR: Should not print this message FILE: absmi.c %d\n",__LINE__);
+#endif /*DEBUG*/
+      ENDBOp();
+#endif
+
       BOp(try_userc, lds);
 #ifdef YAPOR
       CUT_wait_leftmost();
 #endif /* YAPOR */
       CACHE_Y(YREG);
+#ifdef CUT_C
+      /* Alocate space for the cut_c structure*/
+      CUT_C_PUSH(NEXTOP(NEXTOP(PREG,lds),lds),S_YREG);
+#endif
       S_YREG = S_YREG - PREG->u.lds.extra;
       store_args(PREG->u.lds.s);
       store_yaam_regs(NEXTOP(PREG, lds), 0);
@@ -6940,6 +7043,13 @@ Yap_absmi(int inp)
       setregs();
       Yap_PrologMode = UserMode;
       if (!SREG) {
+#ifdef CUT_C
+	/* Removes the cut functions from the stack
+	 without executing them because we have fail 
+	 and not cuted the predicate*/
+	while(POP_CHOICE_POINT(B))
+	  cut_c_pop();
+#endif 
 	FAIL();
       }
       if ((CELL *) B == YREG && ASP != (CELL *) B) {
@@ -6971,7 +7081,19 @@ Yap_absmi(int inp)
       ENDCACHE_Y();
       goto TRYUSERCC;
       ENDBOp();
-
+
+#ifdef CUT_C
+      BOp(cut_userc, lds);
+      /*This is a phantom instruction. This is not executed by the WAM*/
+#ifdef DEBUG
+      /*If WAM executes this instruction, probably there's an error
+       when we put this instruction, cut_userc, after retry_userc*/
+      printf ("ERROR: Should not print this message FILE: absmi.c %d\n",__LINE__);
+#endif /*DEBUG*/
+      ENDBOp();
+#endif
+
+
 /************************************************************************\
 *	support instructions             				 *
 \************************************************************************/
@@ -8391,6 +8513,17 @@ Yap_absmi(int inp)
 #else
       pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif /* SBA && FROZEN_STACKS */
+#ifdef CUT_C
+      {
+	if (SHOULD_CUT_UP_TO(B, pt0))
+	  {
+	    while (POP_CHOICE_POINT(pt0))
+	      {
+		POP_EXECUTE();
+	      }
+	  }
+      }
+#endif /* CUT_C */
 #ifdef YAPOR
       CUT_prune_to(pt0);
 #endif /* YAPOR */
@@ -8439,6 +8572,17 @@ Yap_absmi(int inp)
 #else
       pt1 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif /* SBA && FROZEN_STACKS */
+#ifdef CUT_C
+      {
+	if (SHOULD_CUT_UP_TO(B,(choiceptr) pt1))
+	  {
+	    while (POP_CHOICE_POINT(pt1))
+	      {
+		POP_EXECUTE();
+	      }
+	  }
+      }
+#endif /* CUT_C */
 #ifdef YAPOR
       CUT_prune_to(pt1);
 #endif /* YAPOR */
@@ -12431,6 +12575,17 @@ Yap_absmi(int inp)
 	      arity = 0;
 	      if (at == AtomCut) {
 		choiceptr cut_pt = (choiceptr)pt0[E_CB];
+#ifdef CUT_C
+		{
+		  if (SHOULD_CUT_UP_TO(B,(choiceptr) cut_pt))
+		    {
+		      while (POP_CHOICE_POINT(cut_pt))
+			{
+			  POP_EXECUTE();
+			}
+		    }
+		}
+#endif /* CUT_C */
 #ifdef YAPOR
 		CUT_prune_to(cut_pt);
 #endif /* YAPOR */
@@ -12522,6 +12677,17 @@ Yap_absmi(int inp)
 	  CACHE_A1();
 	} else if ((Atom)(pen->FunctorOfPred) == AtomCut) {
 	  choiceptr cut_pt = (choiceptr)pt0[E_CB];
+#ifdef CUT_C
+	  {
+	    if (SHOULD_CUT_UP_TO(B,(choiceptr) cut_pt))
+	      {
+		while (POP_CHOICE_POINT(cut_pt))
+		  {
+		    POP_EXECUTE();
+		  }
+	      }
+	  }
+#endif /* CUT_C */
 #ifdef YAPOR
 	  CUT_prune_to(cut_pt);
 #endif /* YAPOR */

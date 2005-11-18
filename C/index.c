@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-10-29 02:21:47 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-18 18:48:52 $,$Author: tiagosoares $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.146  2005/10/29 02:21:47  vsc
+* people should be able to disable indexing.
+*
 * Revision 1.145  2005/09/08 22:06:44  rslopes
 * BEAM for YAP update...
 *
@@ -301,6 +304,9 @@ static char     SccsId[] = "%W% %G%";
 #endif
 #if HAVE_STRING_H
 #include <string.h>
+#endif
+#ifdef CUT_C
+#include "cut_c.h"
 #endif
 
 UInt STATIC_PROTO(do_index, (ClauseDef *,ClauseDef *,struct intermediates *,UInt,UInt,int,int,CELL *));
@@ -3090,9 +3096,9 @@ groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp)
       } while (min <= max &&
 	       (!IsVarTerm(min->Tag)));
       if (min <= max && min->Tag == (_var+1)*sizeof(CELL)) {
-	  min++;
-	  if (min < max)
-	    goto restart_loop;
+	min++;
+	if (min < max)
+	  goto restart_loop;
       }
       grp->LastClause = min-1;
     }
@@ -7830,6 +7836,14 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       ipc = NEXTOP(ipc,ld);
       break;
     case _trust:
+#ifdef CUT_C
+      {
+	while (POP_CHOICE_POINT(B->cp_b))
+	  {
+	    POP_EXECUTE();
+	  }
+      }
+#endif /* CUT_C */
 #ifdef YAPOR
       {
 	choiceptr cut_pt;
@@ -7848,6 +7862,14 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _profiled_trust_me:
     case _trust_me:
     case _count_trust_me:
+#ifdef CUT_C
+      {
+	while (POP_CHOICE_POINT(B->cp_b))
+	  {
+	    POP_EXECUTE();
+	  }
+      }
+#endif /* CUT_C */
 #ifdef YAPOR
       {
 	choiceptr cut_pt;
@@ -8164,6 +8186,14 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	return NULL;
     default:
       if (b0) {
+#ifdef CUT_C
+      {
+	while (POP_CHOICE_POINT(B->cp_b))
+	  {
+	    POP_EXECUTE();
+	  }
+      }
+#endif /* CUT_C */
 #ifdef YAPOR
 	{
 	  choiceptr cut_pt;
@@ -8184,6 +8214,14 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
   }
   if (b0) {
     /* I did a trust */
+#ifdef CUT_C
+      {
+	while (POP_CHOICE_POINT(B->cp_b))
+	  {
+	    POP_EXECUTE();
+	  }
+      }
+#endif /* CUT_C */
 #ifdef YAPOR
     {
       choiceptr cut_pt;

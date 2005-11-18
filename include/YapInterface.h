@@ -174,9 +174,11 @@ extern X_API unsigned int PROTO(YAP_ArityOfFunctor,(YAP_Functor));
 
 /*  void ExtraSpace(void) */
 extern X_API void *PROTO(YAP_ExtraSpace,(void));
+extern X_API void *PROTO(YAP_ExtraSpaceCut,(void));
 
 #define YAP_PRESERVE_DATA(ptr, type) (ptr = (type *)YAP_ExtraSpace())
 #define YAP_PRESERVED_DATA(ptr, type) (ptr = (type *)YAP_ExtraSpace())
+#define YAP_PRESERVED_DATA_CUT(ptr,type) (ptr = (type *)YAP_ExtraSpaceCut())
 
 /*   YAP_Bool      unify(YAP_Term a, YAP_Term b) */
 extern X_API YAP_Bool PROTO(YAP_Unify,(YAP_Term, YAP_Term));
@@ -190,6 +192,10 @@ extern X_API void PROTO(YAP_UserCPredicateWithArgs,(CONST char *, YAP_Bool (*)(v
 /*  void UserBackCPredicate(const char *name, int *init(), int *cont(), int
     arity, int extra) */
 extern X_API void PROTO(YAP_UserBackCPredicate,(CONST char *, YAP_Bool (*)(void), YAP_Bool (*)(void), unsigned int, unsigned int));
+
+/*  void UserBackCPredicate(char *name, int *init(), int *cont(), int *cut(), int
+    arity, int extra) */
+extern X_API void PROTO(YAP_UserBackCutCPredicate,(char *, YAP_Bool (*)(void), YAP_Bool (*)(void), YAP_Bool (*)(void), unsigned long int, unsigned int));
 
 /*  void CallProlog(YAP_Term t) */
 extern X_API YAP_Bool PROTO(YAP_CallProlog,(YAP_Term t));

@@ -845,6 +845,7 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+--enable-cut-c             support for executing c code when a cut occurs
  --enable-tabling           support tabling
  --enable-or-parallelism    support or-parallelism as: env-copy,sba,a-cow
  --enable-depth-limit       support depth-bound computation
@@ -2262,7 +2263,13 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-
+# Check whether --enable-cut-c was given.
+if test "${enable_cut_c+set}" = set; then
+  enableval="$enable_cut_c"
+  cut_c="$enableval"
+else
+  cut_c=no
+fi;
 # Check whether --enable-tabling or --disable-tabling was given.
 if test "${enable_tabling+set}" = set; then
   enableval="$enable_tabling"
@@ -6252,6 +6259,11 @@ case "$orparallelism" in
    YAP_EXTRAS="$YAP_EXTRAS -DENV_COPY=1"
   ;;
 esac
+
+if test "$cut_c" = "yes"
+  then  
+  YAP_EXTRAS="$YAP_EXTRAS -DCUT_C=1"
+fi
 
 if test "$tabling" = "yes"
   then

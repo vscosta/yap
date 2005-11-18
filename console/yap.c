@@ -19,6 +19,11 @@
 #include "config.h"
 #include "YapInterface.h"
 
+#ifdef CUT_C
+#include "cut_c.h"
+#endif
+
+
 #if (DefTrailSpace < MinTrailSpace)
 #undef DefTrailSpace
 #define DefTrailSpace	MinTrailSpace
@@ -657,7 +662,13 @@ main (int argc, char **argv)
   YAP_init_args init_args;
   int i;
 
+
   BootMode = init_standard_system(argc, argv, &init_args);
+
+#ifdef CUT_C
+  cut_c_initialize();
+#endif
+
   if (BootMode == YAP_BOOT_ERROR) {
     fprintf(stderr,"[ FATAL ERROR: could not find saved state ]\n");
     exit(1);

@@ -10,11 +10,15 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.30 2004-09-16 17:29:08 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.31 2005-11-18 18:50:34 tiagosoares Exp $	 *
 *************************************************************************/
 
 
 /*********  abstract machine registers **********************************/
+#ifdef CUT_C
+#include "cut_c.h"
+#endif
+
 
 #define MaxTemps	512
 
@@ -76,6 +80,9 @@ typedef struct
     tr_fr_ptr TR_;		/* 24 top of trail                            */
     CELL   *H_;			/* 25 top of heap (global)  stack             */
     choiceptr B_;		/* 26 latest choice point                     */
+#ifdef CUT_C
+    cut_c_str_ptr CUT_C_TOP;
+#endif
 #ifdef  DEPTH_LIMIT
     CELL   DEPTH_;		/* 27                                         */
 #endif  /* DEPTH_LIMIT */

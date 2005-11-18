@@ -62,11 +62,16 @@ STATIC_PROTO(void  InTTYLine, (char *));
 STATIC_PROTO(void  SetOp, (int, int, char *, Term));
 STATIC_PROTO(void  InitOps, (void));
 STATIC_PROTO(void  InitDebug, (void));
+#ifdef CUT_C
+STATIC_PROTO(void  CleanBack, (PredEntry *, CPredicate, CPredicate, CPredicate));
+#else
 STATIC_PROTO(void  CleanBack, (PredEntry *, CPredicate, CPredicate));
+#endif
 STATIC_PROTO(void  InitStdPreds,(void));
 STATIC_PROTO(void  InitFlags, (void));
 STATIC_PROTO(void  InitCodes, (void));
 STATIC_PROTO(void  InitVersion, (void));
+
 
 STD_PROTO(void  exit, (int));
 
@@ -614,7 +619,11 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
 
 
 static void 
+#ifdef CUT_C
+CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont, CPredicate Cut)
+#else
 CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont)
+#endif
 {
   yamop   *code;
   if (pe->cs.p_code.FirstClause != pe->cs.p_code.LastClause ||
@@ -644,11 +653,43 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont)
   PUT_YAMOP_SEQ(code);
 #endif /* YAPOR */
   code->u.lds.f = Cont;
+#ifdef CUT_C
+  code = NEXTOP(code,lds);
+  if (pe->PredFlags & UserCPredFlag)
+    code->opc = Yap_opcode(_cut_c);
+  else
+    code->opc = Yap_opcode(_cut_userc);
+  code->u.lds.f = Cut;
+#endif
 }
 
 
+#ifdef CUT_C
 void 
-Yap_InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPredicate Start, CPredicate Cont, int flags)
+Yap_InitCPredBack(char *Name, unsigned long int Arity,
+		  unsigned int Extra, CPredicate Start,
+		  CPredicate Cont,int flags){
+  Yap_InitCPredBack_(Name,Arity,Extra,Start,Cont,NULL,flags);
+}
+
+void
+Yap_InitCPredBackCut(char *Name, unsigned long int Arity,
+		     unsigned int Extra, CPredicate Start,
+		     CPredicate Cont,CPredicate Cut,int flags){
+  Yap_InitCPredBack_(Name,Arity,Extra,Start,Cont,Cut,flags);
+}
+#endif /* CUT_C */
+
+void
+#ifdef CUT_C 
+Yap_InitCPredBack_(char *Name, unsigned long int Arity,
+		  unsigned int Extra, CPredicate Start,
+		  CPredicate Cont, CPredicate Cut,int flags)
+#else
+Yap_InitCPredBack(char *Name, unsigned long int Arity,
+		  unsigned int Extra, CPredicate Start,
+		  CPredicate Cont, int flags)
+#endif 
 {
   PredEntry      *pe;
   Atom            atom = Yap_FullLookupAtom(Name);
@@ -658,15 +699,35 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPred
   else
     pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
   if (pe->cs.p_code.FirstClause != NIL)
-    CleanBack(pe, Start, Cont);
+    {
+#ifdef CUT_C
+      CleanBack(pe, Start, Cont, Cut);
+#else
+      CleanBack(pe, Start, Cont);
+#endif /*CUT_C*/
+    }
   else {
     StaticClause *cl;
     yamop      *code = ((StaticClause *)NULL)->ClCode;
-    pe->PredFlags = CompiledPredFlag | StandardPredFlag ;
+#ifdef CUT_C
+    if (flags &  UserCPredFlag) 
+      pe->PredFlags = UserCPredFlag | CompiledPredFlag | StandardPredFlag;
+    else
+      pe->PredFlags = CompiledPredFlag | StandardPredFlag;
+#else /* BUG ?*/
+    pe->PredFlags = CompiledPredFlag | StandardPredFlag;
+#endif /*CUT_C*/
+
 #ifdef YAPOR
     pe->PredFlags |= SequentialPredFlag;
 #endif /* YAPOR */
+    
+#ifdef CUT_C
+    cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,lds),lds),lds),e));
+#else
     cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(code,lds),lds),e));
+#endif
+    
     if (cl == NULL) {
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCPredBack");
       return;
@@ -701,6 +762,17 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPred
     PUT_YAMOP_SEQ(code);
 #endif /* YAPOR */
     code = NEXTOP(code,lds);
+#ifdef CUT_C
+    if (flags & UserCPredFlag)
+      code->opc = Yap_opcode(_cut_userc);
+    else
+      code->opc = Yap_opcode(_cut_c);
+    code->u.lds.f = Cut;
+    code->u.lds.p = pe;
+    code->u.lds.s = Arity;
+    code->u.lds.extra = Extra;
+    code = NEXTOP(code,lds);
+#endif /* CUT_C */
     code->opc = Yap_opcode(_Ystop);
   }
 }

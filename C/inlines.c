@@ -19,6 +19,10 @@
 
 #include "absmi.h"
 
+#ifdef CUT_C
+#include "cut_c.h"
+#endif
+
 STATIC_PROTO(Int    p_atom, (void));
 STATIC_PROTO(Int    p_atomic, (void));
 STATIC_PROTO(Int    p_integer, (void));
@@ -761,6 +765,14 @@ p_cut_by( void)
 #else
   pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
+#ifdef CUT_C
+  {
+    while (POP_CHOICE_POINT(pt0))
+      {
+	POP_EXECUTE();
+      }
+  }
+#endif /* CUT_C */
 #ifdef YAPOR
     CUT_prune_to(pt0);
 #endif /* YAPOR */
