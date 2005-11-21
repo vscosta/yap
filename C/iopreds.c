@@ -4066,7 +4066,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    char *ptr = tmp1;
 
 	    if (IsIntegerTerm(t)) {
-	      UInt il = IntegerOfTerm(t);
+	      Int il = IntegerOfTerm(t);
 #if HAVE_SNPRINTF
 	      snprintf(tmp1, 256, "%d", il);
 #else
