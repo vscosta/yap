@@ -350,9 +350,13 @@ ParseArgs(Atom a, JMPBUFF *FailBuff)
   else
     t = Yap_MkApplTerm(Yap_MkFunctor(a, nargs), nargs, p);
 #endif
+  if (H > ASP-4096) {
+    Yap_ErrorMessage = "Stack Overflow";
+    return TermNil;
+  }  
   /* check for possible overflow against local stack */
   checkfor((Term) ')', FailBuff);
-  return (t);
+  return t;
 }
 
 

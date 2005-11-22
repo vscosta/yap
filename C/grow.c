@@ -1336,6 +1336,10 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
     execute_growstack(size, TRUE, in_parser, old_trp, tksp, vep);
   } else {
     YAPEnterCriticalSection();
+    if (in_parser) {
+      TrDiff = LDiff = GDiff = DelayDiff = XDiff = HDiff = 0;
+      AdjustScannerStacks(tksp, vep);
+    }
     Yap_TrailTop += size;
     YAPLeaveCriticalSection();
   }
