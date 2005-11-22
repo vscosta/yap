@@ -845,7 +845,9 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
---enable-cut-c             support for executing c code when a cut occurs
+ --enable-cut-c             support for executing c code when a cut occurs
+ --enable-myddas            enable the MYDDAS library
+ --enable-myddas-stats      enable the MYDDAS library statistics support
  --enable-tabling           support tabling
  --enable-or-parallelism    support or-parallelism as: env-copy,sba,a-cow
  --enable-depth-limit       support depth-bound computation
@@ -2270,6 +2272,167 @@ if test "${enable_cut_c+set}" = set; then
 else
   cut_c=no
 fi;
+# Check whether --enable-myddas was given
+# and if so, trys to guess which development libraries
+# (MySQL or ODBC) to use
+if test "${enable_myddas+set}" = set; then
+
+    #Tests for MySQL Devel Libraries
+    echo "$as_me:$LINENO: checking for MySQL for MYDDAS" >&5
+    echo $ECHO_N "checking for MySQL for MYDDAS... $ECHO_C" >&6
+    if test "${ac_cv_lib_mysql_myddas+set}" = set; then
+	echo $ECHO_N "(cached) $ECHO_C" >&6
+    else
+	ac_check_lib_save_LIBS=$LIBS
+	LIBS="-L/usr/lib/mysql -lmysqlclient -lz -lcrypt -lnsl -lm -lc -lnss_files -lnss_dns -lresolv  $LIBS"
+	cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+	cat confdefs.h >>conftest.$ac_ext
+	cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <mysql/mysql.h>
+#include <stdio.h>
+
+int main(){
+  MYSQL *conn;
+  conn = mysql_init(NULL);
+  return 0;
+}
+_ACEOF
+	
+	rm -f conftest.$ac_objext conftest$ac_exeext
+	if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+		(eval $ac_link) 2>conftest.er1
+		ac_status=$?
+		grep -v '^ *+' conftest.er1 >conftest.err
+		rm -f conftest.er1
+		cat conftest.err >&5
+		echo "$as_me:$LINENO: \$? = $ac_status" >&5
+		(exit $ac_status); } &&
+	    { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+		{ (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+		    (eval $ac_try) 2>&5
+		    ac_status=$?
+		    echo "$as_me:$LINENO: \$? = $ac_status" >&5
+		    (exit $ac_status); }; } &&
+	    { ac_try='test -s conftest$ac_exeext'
+		{ (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+		    (eval $ac_try) 2>&5
+		    ac_status=$?
+		    echo "$as_me:$LINENO: \$? = $ac_status" >&5
+		    (exit $ac_status); }; }; then
+	    ac_cv_lib_mysql_myddas=yes
+	else
+	    echo "$as_me: failed program was:" >&5
+	    sed 's/^/| /' conftest.$ac_ext >&5
+	    
+	    ac_cv_lib_mysql_myddas=no
+	fi
+	rm -f conftest.err conftest.$ac_objext \
+	    conftest$ac_exeext conftest.$ac_ext
+	LIBS=$ac_check_lib_save_LIBS
+    fi
+    echo "$as_me:$LINENO: result: $ac_cv_lib_mysql_myddas" >&5
+    echo "${ECHO_T}$ac_cv_lib_mysql_myddas" >&6
+    if test $ac_cv_lib_mysql_myddas = yes; then
+	LIBS="-L/usr/lib/mysql -lmysqlclient -lz -lcrypt -lnsl -lm -lc -lnss_files -lnss_dns -lresolv  $LIBS"
+    fi
+    
+    
+    # Tests for ODBC Devel Libraries
+    echo "$as_me:$LINENO: checking for ODBC for MYDDAS" >&5
+    echo $ECHO_N "checking for ODBC for MYDDAS... $ECHO_C" >&6
+    if test "${ac_cv_lib_ODBC_myddas+set}" = set; then
+	echo $ECHO_N "(cached) $ECHO_C" >&6
+    else
+	ac_check_lib_save_LIBS=$LIBS
+	LIBS="-lodbc $LIBS"
+	cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+	cat confdefs.h >>conftest.$ac_ext
+	cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <sql.h>
+#include <sqlucode.h>
+#include <stdio.h>
+
+int main(){
+  SQLHENV henv;
+  SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
+  return 0;
+}
+_ACEOF
+	
+	rm -f conftest.$ac_objext conftest$ac_exeext
+	if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+		(eval $ac_link) 2>conftest.er1
+		ac_status=$?
+		grep -v '^ *+' conftest.er1 >conftest.err
+		rm -f conftest.er1
+		cat conftest.err >&5
+		echo "$as_me:$LINENO: \$? = $ac_status" >&5
+		(exit $ac_status); } &&
+	    { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+		{ (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+		    (eval $ac_try) 2>&5
+		    ac_status=$?
+		    echo "$as_me:$LINENO: \$? = $ac_status" >&5
+		    (exit $ac_status); }; } &&
+	    { ac_try='test -s conftest$ac_exeext'
+		{ (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+		    (eval $ac_try) 2>&5
+		    ac_status=$?
+		    echo "$as_me:$LINENO: \$? = $ac_status" >&5
+		    (exit $ac_status); }; }; then
+	    ac_cv_lib_odbc_myddas=yes
+	else
+	    echo "$as_me: failed program was:" >&5
+	    sed 's/^/| /' conftest.$ac_ext >&5
+	    
+	    ac_cv_lib_odbc_myddas=no
+	fi
+	rm -f conftest.err conftest.$ac_objext \
+	    conftest$ac_exeext conftest.$ac_ext
+	LIBS=$ac_check_lib_save_LIBS
+    fi
+    echo "$as_me:$LINENO: result: $ac_cv_lib_odbc_myddas" >&5
+    echo "${ECHO_T}$ac_cv_lib_odbc_myddas" >&6
+    if test $ac_cv_lib_odbc_myddas = yes; then
+	LIBS="-lodbc $LIBS"
+    fi
+    
+    
+    if test "$ac_cv_lib_mysql_myddas" = "no" 
+	then
+	if test "$ac_cv_lib_odbc_myddas" = "no"
+	    then
+	    echo "-------------------------------"
+	    echo "--"
+	    echo "--"
+	    echo "--"
+	    echo "-- Theres no Devel Libraries for MySQL or ODBC"
+	    echo "--"
+	    echo "--"
+	    echo "--"
+	    echo "-------------------------------"
+	    exit
+	fi
+    fi
+
+    # Check whether --enable-myddas-stats was given.
+    if test "${enable_myddas_stats+set}" = set; then
+	enableval="$enable_myddas_stats"
+	myddas_stats="$enableval"
+    else
+	myddas_stats=no
+fi;
+
+fi
+    
 # Check whether --enable-tabling or --disable-tabling was given.
 if test "${enable_tabling+set}" = set; then
   enableval="$enable_tabling"
@@ -6263,6 +6426,55 @@ esac
 if test "$cut_c" = "yes"
   then  
   YAP_EXTRAS="$YAP_EXTRAS -DCUT_C=1"
+fi
+
+if test "$ac_cv_lib_mysql_myddas" = "yes"
+    then  
+    if test "$cut_c" = "no"
+	then
+	echo
+	echo
+	echo "********************************************************"
+	echo
+	echo
+	echo "!!!!!! WARNING !!!!!!"
+	echo "The MyDDAS interface makes no sense without cut-c"
+	echo "Please contact tiagosoares@ncc.up.pt for help"
+	echo 
+	echo
+	echo "********************************************************"
+	echo
+	echo
+	exit
+    fi
+    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
+fi
+
+if test "$ac_cv_lib_odbc_myddas" = "yes"
+    then
+    if test "$cut_c" = "no"
+	then
+	echo
+	echo
+	echo "********************************************************"
+	echo
+	echo
+	echo "!!!!!! WARNING !!!!!!"
+	echo "The MyDDAS interface makes no sense without cut-c"
+	echo "Please contact tiagosoares@ncc.up.pt for help"
+	echo 
+	echo
+	echo "********************************************************"
+	echo
+	echo
+	exit
+    fi
+    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
+fi
+
+if test "$myddas_stats" = "yes"
+    then  
+    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_STATS"
 fi
 
 if test "$tabling" = "yes"

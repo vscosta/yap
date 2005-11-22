@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.63 2005-11-18 18:50:34 tiagosoares Exp $	 *
+* version:      $Id: Yapproto.h,v 1.64 2005-11-22 11:25:10 tiagosoares Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -308,6 +308,23 @@ void	STD_PROTO(Yap_InitUtilCPreds,(void));
 
 /* yap.c */
 
+/* myddas_* */
+#if defined CUT_C && defined MYDDAS_MYSQL
+void    STD_PROTO(Yap_InitMYDDAS_MySQLPreds,(void));
+void    STD_PROTO(Yap_InitBackMYDDAS_MySQLPreds,(void));
+#endif
+#if defined CUT_C && defined MYDDAS_ODBC
+void    STD_PROTO(Yap_InitMYDDAS_ODBCPreds,(void));
+void    STD_PROTO(Yap_InitBackMYDDAS_ODBCPreds,(void));
+#endif
+#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
+void    STD_PROTO(Yap_InitMYDDAS_SharedPreds,(void));
+void    STD_PROTO(Yap_InitBackMYDDAS_SharedPreds,(void));
+#endif
+#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
+void    STD_PROTO(Yap_InitMYDDAS_testPreds,(void));
+void    STD_PROTO(Yap_InitBackMYDDAS_testPreds,(void));
+#endif
 
 /* ypsocks.c */
 void	STD_PROTO(Yap_InitSockets,(void));

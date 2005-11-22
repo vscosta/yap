@@ -1,0 +1,308 @@
+/*************************************************************************
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		myddas_util_predicates.yap	                         *
+  * Last rev:							         *
+* mods:									 *
+* comments:	Auxiliary for the MyDDAS MySQL and ODBC library		 *
+*									 *
+*************************************************************************/
+
+:- module(myddas_util_predicates,[
+				  '$check_fields'/2,
+				  '$get_value'/2,
+				  '$get_values_for_insert'/3,
+				  '$make_atom'/2,
+				  '$write_or_not'/1,
+				  '$abolish_all'/1,
+				  '$get_values_for_update'/5,
+				  '$get_table_name'/2,
+				  '$extract_args'/4,
+				  '$copy_term_nv'/4,
+				  '$assert_attribute_information'/4,
+				  '$make_a_list'/2,
+				  '$make_list_of_args'/4,
+				  '$where_exists'/2,
+				  '$build_query'/5,
+				  '$assert_facts'/2
+				  ]).
+
+:- use_module(myddas).
+:- use_module(myddas_errors).
+:- use_module(lists,[append/3]).
+
+%
+% Predicate's used to determine if the command 'WHERE' exists in the
+% query
+%
+'$where_exists'(SQL,1):-
+        atom_codes(SQL,ListSQL),
+	% Code for ' WHERE ', the spaces garantee that is the WHERE
+	% command, and not a value of a field
+	'$where_exists_aux'(ListSQL,[32,87,72,69,82,69,32]),!. 
+'$where_exists'(_,0).
+
+	
+'$where_exists_aux'([W|TCodes],[W|TWhere]):-
+	'$where_found'(TCodes,TWhere),!.
+'$where_exists_aux'([_|TCodes],Where):-
+	'$where_exists_aux'(TCodes,Where).
+
+	
+'$where_found'(_,[]).
+'$where_found'([Letter|TCodes],[Letter|TWhere]):-
+	'$where_found'(TCodes,TWhere).
+
+%
+% Predicates used to build the new string SQL
+%
+
+'$build_query'(0,SQL,[query(CodeArgs,_,_)],LA,FinalSQL):-
+	'$build_query_aux'(0,SQL,CodeArgs,LA,FinalSQL).
+'$build_query'(1,SQL,[query(CodeArgs,_,_)],LA,FinalSQL):-
+	'$build_query_aux'(1,SQL,CodeArgs,LA,FinalSQL).
+
+	
+%Flag it necessary for knowing if it is the first argument
+%added to where, and if so we do not add 'and'
+'$build_query_aux'(_,SQL,[],[],SQL).
+'$build_query_aux'(Flag,SQL,[CodeArg|CodeT],[LArg|LT],FinalSQL):-
+	nonvar(LArg),!,
+	'$concatSQL'(Flag,SQL,CodeArg,LArg,ConcatSQL),
+	'$build_query_aux'(1,ConcatSQL,CodeT,LT,FinalSQL).
+'$build_query_aux'(Flag,SQL,[_|CodeT],[_|LT],FinalSQL):-
+	'$build_query_aux'(Flag,SQL,CodeT,LT,FinalSQL).
+
+%This Predicate will concat the SQL query generated to the
+% moment with the field and it's value
+'$concatSQL'(Flag,SQL,att(Rel,Field),Value,ConcatSQL) :-
+	number(Value),!,
+	number_atom(Value,Number),
+	'$and_or_where'(Flag,SQL,Temp0),
+	atom_concat(Temp0,Rel,Temp1),
+	atom_concat(Temp1,'.',Temp2),
+	atom_concat(Temp2,Field,Temp3),
+	atom_concat(Temp3,'=',Temp4),
+	atom_concat(Temp4,Number,Temp5),
+	atom_concat(Temp5,' ',ConcatSQL).
+
+'$concatSQL'(Flag,SQL,att(Rel,Field),Value,ConcatSQL) :-
+	'$and_or_where'(Flag,SQL,Temp0),
+	atom_concat(Temp0,Rel,Temp1),
+	atom_concat(Temp1,'.',Temp2),
+	atom_concat(Temp2,Field,Temp3),
+	atom_concat(Temp3,'=',Temp4),
+	atom_concat(Temp4,'"',Temp5),  %"
+	atom_concat(Temp5,Value,Temp6),
+	atom_concat(Temp6,'" ',ConcatSQL). %"
+
+% This predicate will determin if we should use AND or WHERE
+'$and_or_where'(1,SQL,ConcatSQL):-
+	atom_concat(SQL,'AND ',ConcatSQL).
+'$and_or_where'(0,SQL,ConcatSQL):-
+        atom_concat(SQL,' WHERE ',ConcatSQL).
+
+%
+% End of Predicates for making the SQL query
+%
+
+'$make_list_of_args'(N,N,F,[H]) :- !,
+	arg(N,F,H).
+'$make_list_of_args'(N,M,F,[H|T]) :-
+	arg(N,F,H),
+	N1 is N+1,
+	'$make_list_of_args'(N1,M,F,T).
+
+'$make_a_list'(0,[]) :- !.
+'$make_a_list'(N,[_|T]) :-
+	N1 is N-1,
+	'$make_a_list'(N1,T).
+
+'$assert_attribute_information'(N,N,_,_) :- !.
+'$assert_attribute_information'(N,M,Relation,[FieldName,HeadType|TailTypes]) :-
+	functor(Attrib,attribute,4),
+	N1 is N+1,
+	arg(1,Attrib,N1),
+	arg(2,Attrib,Relation),
+	arg(3,Attrib,FieldName),
+	arg(4,Attrib,HeadType),
+	'$assert_facts'(myddas_prolog2sql,Attrib),
+	%assert(myddas_prolog2sql:Attrib),
+	'$assert_attribute_information'(N1,M,Relation,TailTypes).
+
+
+'$copy_term_nv'(T,Dic,NT,[(T,NT)|Dic]) :-
+	var(T),!, 
+	'$v_member'(T,Dic,(T,NT)).
+'$copy_term_nv'(T,Dic,T,Dic) :-
+	functor(T,_,0),!.
+'$copy_term_nv'(T,Dic,NT,NDic) :-
+	functor(T,F,N),
+	functor(NT,F,N),
+	'$iterate_on_args'(N,T,NT,Dic,NDic).
+
+'$iterate_on_args'(0,_,_,Dic,Dic) :- !.
+'$iterate_on_args'(N,T,NT,Dic,NDic2) :-
+	arg(N,T,A),
+	'$copy_term_nv'(A,Dic,NA,NDic),
+	arg(N,NT,NA),
+	N1 is N-1,
+	'$iterate_on_args'(N1,T,NT,NDic,NDic2).
+
+'$v_member'(T,[],(T,_)).
+'$v_member'(T,[(V,V1)|_],(T,V1)) :-
+	T == V, !.
+'$v_member'(T,[_|R],V) :-
+	'$v_member'(T,R,V).
+
+
+
+% '$extract_args(+Predicate,+FirstArg,+Arity,-ArgList).
+% extracts args from predicate, to a list
+'$extract_args'(Predicate,Arity,Arity,[Arg]):-
+        arg(Arity,Predicate,Arg).
+'$extract_args'(Predicate,ArgNumber,Arity,[Arg|ArgList]):-
+        arg(ArgNumber,Predicate,Arg),
+	NextArg is ArgNumber+1,
+	'$extract_args'(Predicate,NextArg,Arity,ArgList).
+
+% '$get_table_name'(+SQLQueryTerm,?TableName).
+% Gets the Table name from the SQLQueryTerm of translate/3
+'$get_table_name'([query(_,[rel(TableName,_)],_)],TableName).
+
+
+% '$get_values_for_update'(+SQLQueryTerm,-SetFields,+ArgList,+Updatelist,-WhereCondition)
+% It will unify with the first clause
+% only on the first call of the predicate 
+'$get_values_for_update'([query(Fields,_,Comp)],[' SET '|SQLSet],ArgList,UpdateList,[' WHERE '|Where]):-!,
+	'$get_values_for_set'(Fields,ArgList,UpdateList,Set),
+	'$build_set_condition'(Set,SQLSet),
+	'$get_values_for_where'(Comp,Where).
+
+'$get_values_for_where'([comp(att(_,Field),'=','$const$'(Atom))],[' ',Field,' = "',Atom,'" ']).
+'$get_values_for_where'([comp(att(_,Field),'=','$const$'(Atom))|Comp],[' ',Field,' = "',Atom,'" '|Rest]):-
+	'$get_values_for_where'(Comp,Rest).
+
+'$get_values_for_set'([],[],_,[]).
+'$get_values_for_set'([att(_,Field)|FieldList],[Var|ArgList],UpdateList,[Field,Value|ValueList]):-!,
+	'$lookup_variable_value'(Var,UpdateList,Value),
+	'$get_values_for_set'(FieldList,ArgList,UpdateList,ValueList).
+'$get_values_for_set'([_|FieldList],[_|ArgList],UpdateList,ValueList):-
+	'$get_values_for_set'(FieldList,ArgList,UpdateList,ValueList).
+	
+'$lookup_variable_value'(Var,[TestVar,Value|_],Value):-
+	Var==TestVar,!.
+'$lookup_variable_value'(Var,[_,_|List],Value):-
+        '$lookup_variable_value'(Var,List,Value).
+
+'$build_set_condition'([Field,Value|FieldValues],[SQLFirst|SQLRest]):-
+        '$make_atom'([' ',Field,' = "',Value,'" '],SQLFirst),
+        '$build_set_condition_with_comma'(FieldValues,SQLRest).
+
+'$build_set_condition_with_comma'([],[]).
+'$build_set_condition_with_comma'([Field,Value|FieldValues],[SQL|SQLRest]):-
+        '$make_atom'([' , ',Field,' = "',Value,'" '],SQL),
+        '$build_set_condition_with_comma'(FieldValues,SQLRest).
+
+
+% Este predicado vai sempre falhar
+'$abolish_all'(Conn):-
+        '$get_value'(Conn,Connection),!,
+	% C Predicate
+        p_db_preds_conn(Connection,Pred_Name,Pred_Arity),
+	abolish(user:Pred_Name,Pred_Arity),
+        fail.
+
+'$write_or_not'(X) :-
+	get_value(db_verbose,1),!,
+	write(X),nl.
+'$write_or_not'(_).
+
+
+'$make_atom'(L,A) :-
+	'$make_atom_list'(L,L1),
+	atom_codes(A,L1).
+
+'$make_atom_list'([],[]).
+'$make_atom_list'([H|T],L2) :-
+        atom(H),!,
+	atom_codes(H,L),
+	'$make_atom_list'(T,L1),
+	append(L,L1,L2).
+'$make_atom_list'([H|T],L2) :-
+        number_chars(H,L),
+	'$make_atom_list'(T,L1),
+	append(L,L1,L2).
+
+
+
+% for db_my_insert/3
+% integer,real, string, came from the myddas_mysql.c get_attributes_types function
+'$get_values_for_insert'([_,_],[Value],['NULL',')']):-var(Value),!.
+'$get_values_for_insert'([_,integer],[Value],[Value,')']):-!.
+'$get_values_for_insert'([_,real],[Value],[Value,')']):-!.
+'$get_values_for_insert'([_,string],[Value],['"',Value,'")']):-!.
+
+'$get_values_for_insert'([_,_|TTypesList],[Value|TValues],['NULL',','|RestValues]):-
+        var(Value),!,
+	'$get_values_for_insert'(TTypesList,TValues,RestValues).
+'$get_values_for_insert'([_,integer|TTypesList],[Value|TValues],[Value,','|RestValues]):-!,
+        '$get_values_for_insert'(TTypesList,TValues,RestValues).
+'$get_values_for_insert'([_,real|TTypesList],[Value|TValues],[Value,','|RestValues]):-!,
+        '$get_values_for_insert'(TTypesList,TValues,RestValues).
+'$get_values_for_insert'([_,string|TTypesList],[Value|TValues],['"',Value,'",'|RestValues]):-!,
+        '$get_values_for_insert'(TTypesList,TValues,RestValues).
+
+
+% for db_my_insert/2
+'$get_values_for_insert'([query(Att,[rel(Relation,_)],_)],['('|ValuesList],Relation):-
+        '$get_values_for_insert_make_list'(Att,ValuesList).
+
+'$get_values_for_insert_make_list'([att(_,_)],['NULL',')']):-!.
+'$get_values_for_insert_make_list'(['$const$'(Value)],[Value,')']):-
+        number(Value),!.
+'$get_values_for_insert_make_list'(['$const$'(Value)],['"',Value,'")']):-!.
+
+'$get_values_for_insert_make_list'([att(_,_)|TAtt],['NULL',','|TList]):-!,
+       '$get_values_for_insert_make_list'(TAtt,TList).
+'$get_values_for_insert_make_list'(['$const$'(Value)|TAtt],[Value,','|TList]):-
+        number(Value),!,
+        '$get_values_for_insert_make_list'(TAtt,TList).
+'$get_values_for_insert_make_list'(['$const$'(Value)|TAtt],['"',Value,'"',','|TList]):-
+        '$get_values_for_insert_make_list'(TAtt,TList).
+
+
+% Only for making the error tests in all of the calls to
+% get_value/2
+'$get_value'(Conn,Connection) :-
+	'$error_checks'(get_value(Conn,Connection)),
+	get_value(Conn,Connection).
+
+
+'$check_fields'([],[]).
+'$check_fields'(['$const$'(_)|TAtt],[_|TFields]):-
+        '$check_fields'(TAtt,TFields).
+% um campo auto_incrementavel, é sempre parte da chave, e como é auto
+% pode-se dar valores NULOS 
+'$check_fields'([att(_,Name)|TAtt],[property(Name,_,1,1)|TFields]):-!,
+        '$check_fields'(TAtt,TFields).
+'$check_fields'([att(_,Name)|TAtt],[property(Name,0,_,_)|TFields]):-!,
+        '$check_fields'(TAtt,TFields).
+
+
+
+%
+% This predicate asserts facts in a Module, but if that
+% fact already exists, it dosen't assert it
+%
+'$assert_facts'(Module,Fact):-
+        Module:Fact,!.
+'$assert_facts'(Module,Fact):-
+        assert(Module:Fact).

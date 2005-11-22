@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-10-28 17:38:49 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-22 11:25:59 $,$Author: tiagosoares $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.96  2005/10/28 17:38:49  vsc
+* sveral updates
+*
 * Revision 1.95  2005/10/21 16:09:02  vsc
 * SWI compatible module only operators
 *
@@ -3257,6 +3260,18 @@ Yap_InitBackCPreds(void)
   Yap_InitBackIO();
   Yap_InitBackDB();
   Yap_InitUserBacks();
+#if defined MYDDAS_MYSQL && defined CUT_C
+  Yap_InitBackMYDDAS_MySQLPreds();
+#endif
+#if defined MYDDAS_ODBC && defined CUT_C
+  Yap_InitBackMYDDAS_ODBCPreds();
+#endif
+#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
+  Yap_InitBackMYDDAS_SharedPreds();
+#endif
+#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
+  Yap_InitBackMYDDAS_testPreds();
+#endif
 }
 
 typedef void (*Proc)(void);
@@ -3367,7 +3382,18 @@ Yap_InitCPreds(void)
   Yap_InitArrayPreds();
   Yap_InitLoadForeign();
   Yap_InitModulesC();
-
+#if defined CUT_C && defined MYDDAS_MYSQL 
+  Yap_InitMYDDAS_MySQLPreds();
+#endif
+#if defined CUT_C && defined MYDDAS_ODBC 
+  Yap_InitMYDDAS_ODBCPreds();
+#endif
+#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
+  Yap_InitMYDDAS_SharedPreds();
+#endif
+#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
+  Yap_InitMYDDAS_testPreds();
+#endif
   Yap_InitUserCPreds();
   Yap_InitUtilCPreds();
   Yap_InitSortPreds();

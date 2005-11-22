@@ -1,0 +1,638 @@
+/*************************************************************************
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		myddas_mysql.c						 *
+* Last rev:	22/03/05						 *
+* mods:									 *
+* comments:	Predicates for comunicating with a mysql database system *
+*									 *
+*************************************************************************/
+
+#if defined MYDDAS_MYSQL && defined CUT_C
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <mysql/mysql.h>
+#include "Yap.h"
+#include "Yatom.h"
+#include "cut_c.h"
+#include "myddas_util.h"
+
+#define IS_SQL_INT(FIELD) FIELD == FIELD_TYPE_INT24    || \
+	                  FIELD == FIELD_TYPE_LONG     || \
+	                  FIELD == FIELD_TYPE_LONGLONG || \
+	                  FIELD == FIELD_TYPE_SHORT    || \
+	                  FIELD == FIELD_TYPE_TINY
+
+#define IS_SQL_FLOAT(FIELD) FIELD == FIELD_TYPE_DECIMAL    || \
+	                    FIELD == FIELD_TYPE_DOUBLE     || \
+	                    FIELD == FIELD_TYPE_FLOAT 
+
+
+static int null_id = 0;
+
+STATIC_PROTO(int c_db_my_connect,(void));
+STATIC_PROTO(int c_db_my_disconnect,(void));
+STATIC_PROTO(int c_db_my_number_of_fields,(void));
+STATIC_PROTO(int c_db_my_get_attributes_types,(void));
+STATIC_PROTO(int c_db_my_query,(void));
+STATIC_PROTO(int c_db_my_table_write,(void));
+STATIC_PROTO(int c_db_my_row,(void));
+STATIC_PROTO(int c_db_my_row_cut,(void));
+STATIC_PROTO(int c_db_my_get_fields_properties,(void));
+STATIC_PROTO(int c_db_my_number_of_fields_in_query,(void));
+
+
+static void n_print(int, char);
+
+static int
+c_db_my_connect(void) {
+  Term arg_host = Deref(ARG1); 
+  Term arg_user = Deref(ARG2);
+  Term arg_passwd = Deref(ARG3);
+  Term arg_database = Deref(ARG4);
+  Term arg_conn = Deref(ARG5);  
+
+  MYSQL *conn;
+
+  MYDDAS_UTIL_CONNECTION new = NULL;
+
+  char *host = AtomName(AtomOfTerm(arg_host));
+  char *user = AtomName(AtomOfTerm(arg_user));
+  char *passwd = AtomName(AtomOfTerm(arg_passwd));
+  char *database = AtomName(AtomOfTerm(arg_database));
+
+    
+  conn = mysql_init(NULL);
+  if (conn == NULL) {
+    printf("erro no init\n");
+    return FALSE;
+  }
+
+  if (mysql_real_connect(conn, host, user, passwd, database,0, NULL, 0) == NULL) {
+    printf("erro no connect\n");
+    return FALSE;
+  }
+
+  if (!Yap_unify(arg_conn, MkIntegerTerm((int)conn)))
+    return FALSE;
+  else
+    {
+      /* Criar um novo no na lista de ligacoes*/
+      //new = add_connection(&TOP,conn,NULL);
+      new = myddas_util_add_connection(conn,NULL);
+      if (new == NULL){
+	printf("Erro ao alocar memoria para lista\n");
+	return FALSE;
+      }
+      return TRUE;
+    }
+}
+
+/* db_query: SQLQuery x ResultSet x Connection */
+static int 
+c_db_my_query(void) {
+  Term arg_sql_query = Deref(ARG1);
+  Term arg_result_set = Deref(ARG2);
+  Term arg_conn = Deref(ARG3);
+  Term arg_mode = Deref(ARG4);
+  
+  char *sql = AtomName(AtomOfTerm(arg_sql_query));
+  char *mode = AtomName(AtomOfTerm(arg_mode));
+  MYSQL *conn = (MYSQL *) (IntegerOfTerm(arg_conn));
+  
+  MYSQL_RES *res_set;
+  
+  int length=strlen(sql);
+
+/* Measure time spent by the MySQL Server 
+   processing the SQL Query */ 
+#ifdef MYDDAS_STATS 
+  unsigned long start,end,total_time;
+  start = myddas_current_time();
+#endif 
+  /* executar a query SQL */
+  if (mysql_real_query(conn, sql, length) != 0)
+    {
+      printf("Erro na query!\n");
+      return FALSE;
+    }
+/* Measure time spent by the MySQL Server 
+   processing the SQL Query */ 
+#ifdef MYDDAS_STATS 
+  end = myddas_current_time();
+  MYDDAS_UTIL_CONNECTION node = myddas_util_search_connection(conn);
+  total_time = (end-start) + myddas_util_get_conn_total_time_DBServer(node);
+  myddas_util_set_conn_total_time_DBServer(node,total_time);
+#endif 
+ 
+  /* guardar os tuplos do lado do cliente */
+  if (strcmp(mode,"store_result")!=0) //Verdadeiro
+    res_set = mysql_use_result(conn);
+  else{
+    /* */
+#ifdef MYDDAS_STATS
+#endif 
+    res_set = mysql_store_result(conn);
+#ifdef MYDDAS_STATS
+    /* With an INSERT statement, 
+       mysql_(use or store)_result() returns 
+       a NULL pointer*/
+    if (res_set != NULL)
+      {
+	MYDDAS_UTIL_CONNECTION node = 
+	  myddas_util_search_connection(conn);
+	
+	/* This is only works if we use mysql_store_result */ 
+	unsigned long numberRows = mysql_num_rows(res_set);
+	numberRows = numberRows + myddas_util_get_conn_total_rows(node);
+	myddas_util_set_conn_total_rows(node,numberRows);
+      }
+#endif 
+
+  }
+  
+  if (res_set == NULL)
+    {
+      //INSERT statements don't return any res_set
+      if (mysql_field_count(conn) == 0)
+	return TRUE;
+      printf("Query vazia!\n");
+      return FALSE;
+    }
+  
+  if (!Yap_unify(arg_result_set, MkIntegerTerm((int) res_set)))
+    {
+      mysql_free_result(res_set);
+      return FALSE;
+    }
+  else
+    {
+      return TRUE;
+    }
+}
+
+static int 
+c_db_my_number_of_fields(void) {
+  Term arg_relation = Deref(ARG1);
+  Term arg_conn = Deref(ARG2);
+  Term arg_fields = Deref(ARG3);
+
+  char *relation = AtomName(AtomOfTerm(arg_relation));
+  MYSQL *conn = (MYSQL *) (IntegerOfTerm(arg_conn));
+
+  char sql[256];
+
+  MYSQL_RES *res_set;
+
+  sprintf(sql,"DESCRIBE %s",relation);
+
+  /* executar a query SQL */
+  if (mysql_query(conn, sql) != 0)
+    {
+      
+      printf("Erro na query!\n");
+      return FALSE;
+    }
+  
+  /* guardar os tuplos do lado do cliente */
+  if ((res_set = mysql_store_result(conn)) == NULL)
+    {
+      printf("Query vazia!\n");
+      return FALSE;
+  }
+
+  if (!Yap_unify(arg_fields, MkIntegerTerm(mysql_num_rows(res_set)))){
+    mysql_free_result(res_set);
+    return FALSE;
+  }
+  mysql_free_result(res_set);
+  return TRUE;  
+}
+
+
+/* db_get_attributes_types: RelName x Connection -> TypesList */
+static int 
+c_db_my_get_attributes_types(void) {
+  Term arg_relation = Deref(ARG1);
+  Term arg_conn = Deref(ARG2);
+  Term arg_types_list = Deref(ARG3);
+
+  char *relation = AtomName(AtomOfTerm(arg_relation));
+  MYSQL *conn = (MYSQL *) IntegerOfTerm(arg_conn);
+  char sql[256];
+
+  MYSQL_RES *res_set;
+  MYSQL_ROW row;
+  Term head, list;
+
+  sprintf(sql,"DESCRIBE %s",relation);
+
+  /* executar a query SQL */
+  if (mysql_query(conn, sql) != 0)
+    {
+      printf("Erro na query!\n");
+      return FALSE;
+    }
+  /* guardar os tuplos do lado do cliente */
+  if ((res_set = mysql_store_result(conn)) == NULL)
+  {
+      printf("Query vazia!\n");
+      return FALSE;
+  }
+
+  list = arg_types_list;
+
+  while ((row = mysql_fetch_row(res_set)) != NULL)
+  {
+    head = HeadOfTerm(list);
+    Yap_unify(head, MkAtomTerm(Yap_LookupAtom(row[0])));
+    list = TailOfTerm(list);
+    head = HeadOfTerm(list);
+    list = TailOfTerm(list);
+  
+    if (strncmp(row[1], "smallint",8) == 0 || strncmp(row[1],"int",3) == 0 ||
+	strncmp(row[1], "mediumint",9) == 0 || strncmp(row[1], "tinyint",7) == 0 ||
+	strncmp(row[1], "bigint",6) == 0 || strcmp(row[1], "year") == 0)
+      Yap_unify(head, MkAtomTerm(Yap_LookupAtom("integer")));
+    else if (strcmp(row[1], "float") == 0 || strncmp(row[1], "double",6) == 0 
+	     || strcmp(row[1], "real") == 0)
+      Yap_unify(head, MkAtomTerm(Yap_LookupAtom("real")));
+    else Yap_unify(head, MkAtomTerm(Yap_LookupAtom("string")));
+  }
+    
+  mysql_free_result(res_set);
+  return TRUE;
+  
+}
+
+/* db_disconnect */
+static int
+c_db_my_disconnect(void) {
+  Term arg_conn = Deref(ARG1);  
+
+  MYSQL *conn = (MYSQL *) IntegerOfTerm(arg_conn);
+
+  if ((myddas_util_search_connection(conn)) != NULL)
+    {
+      myddas_util_delete_connection(conn);
+      mysql_close(conn);
+      return TRUE;
+    }
+  else 
+    {
+      return FALSE;
+    }
+}
+
+/* db_table_write: Result Set */
+static int 
+c_db_my_table_write(void) {
+  Term arg_res_set = Deref(ARG1);
+
+  MYSQL_RES *res_set = (MYSQL_RES *) IntegerOfTerm(arg_res_set);
+  MYSQL_ROW row;
+  MYSQL_FIELD *fields;
+  int i,f;
+
+  f = mysql_num_fields(res_set);
+
+  fields = mysql_fetch_field(res_set);
+  for(i=0;i<f;i++) 
+  {
+    printf("+");
+    if (strlen(fields[i].name)>fields[i].max_length) fields[i].max_length=strlen(fields[i].name);
+    n_print(fields[i].max_length+2,'-');
+  }
+  printf("+\n");
+  
+  for(i=0;i<f;i++) 
+    {
+    printf("|");
+    printf(" %s ",fields[i].name);
+    n_print(fields[i].max_length - strlen(fields[i].name),' ');
+    }
+  printf("|\n");
+  
+  for(i=0;i<f;i++) 
+  {
+    printf("+");
+    n_print(fields[i].max_length+2,'-');
+  }
+  printf("+\n");
+  
+  while ((row = mysql_fetch_row(res_set)) != NULL)
+    {
+      for(i=0;i<f;i++) 
+	{
+	  printf("|");
+	  if (row[i] != NULL) 
+	    {
+	      printf(" %s ",row[i]);
+	      n_print(fields[i].max_length - strlen(row[i]),' ');
+	    }
+	  else 
+	    {
+	      printf(" NULL ");
+	      n_print(fields[i].max_length - 4,' ');
+	    }
+	}
+      printf("|\n");
+    }
+  
+  for(i=0;i<f;i++) 
+    {
+      printf("+");
+      n_print(fields[i].max_length+2,'-');
+    }
+  printf("+\n");
+  
+  mysql_free_result(res_set);
+  return TRUE;  
+}
+
+/* Auxilary function to table_write*/
+static void
+n_print(int n, char c)
+{
+  for(;n>0;n--) printf("%c",c);
+}
+
+
+static int
+c_db_my_row_cut(void) {
+  MYSQL_RES *mysql_res=NULL;
+  
+  mysql_res = (MYSQL_RES *) IntegerOfTerm(EXTRA_CBACK_CUT_ARG(Term,1));
+  mysql_free_result(mysql_res);
+  return TRUE;
+}
+
+/* db_row: ResultSet x Arity_ListOfArgs x ListOfArgs -> */
+static int
+c_db_my_row(void) {
+  Term arg_result_set = Deref(ARG1);
+  Term arg_arity = Deref(ARG2);
+  Term arg_list_args = Deref(ARG3);
+    
+  MYSQL_RES *res_set = (MYSQL_RES *) IntegerOfTerm(arg_result_set);
+  EXTRA_CBACK_ARG(3,1)=(CELL) MkIntegerTerm((int)res_set);
+  MYSQL_ROW row;
+  MYSQL_FIELD *field;
+  
+  Term head, list, null_atom[1];
+  int i, arity;
+  
+  arity = IntegerOfTerm(arg_arity);
+
+  while(TRUE)
+    {
+      if ((row = mysql_fetch_row(res_set)) != NULL)
+	{
+	  mysql_field_seek(res_set,0); 
+	  list = arg_list_args;
+	  
+	  for (i = 0; i < arity; i++)
+	    {
+	      /* Aqui serão feitas as conversões de tipos de dados */
+	      field = mysql_fetch_field(res_set);
+	      head = HeadOfTerm(list);
+	      list = TailOfTerm(list);
+	    
+	      if (row[i] == NULL)
+		{
+		  null_atom[0] = MkIntegerTerm(null_id++);
+		  
+		  if (!Yap_unify(head, Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("null"),1),1,null_atom)))
+		    continue;
+		}
+	      else
+		{
+		  if (IS_SQL_INT(field->type)) 
+		    {
+		      if (!Yap_unify(head, MkIntegerTerm(atoi(row[i]))))
+			continue;
+		    }
+		  else if (IS_SQL_FLOAT(field->type))
+		    {
+		      if (!Yap_unify(head, MkFloatTerm(atof(row[i]))))
+			continue;
+		    }
+		  else 
+		    {
+		      if (!Yap_unify(head, MkAtomTerm(Yap_LookupAtom(row[i]))))
+			continue;
+		    }
+		}
+	    }
+	  return TRUE;
+	}
+      else 
+	{
+	  mysql_free_result(res_set);
+	  cut_fail();
+	  return FALSE;
+	}
+    }
+}
+
+
+/* Mudar esta funcao de forma a nao fazer a consulta, pois 
+ no predicate db_sql_selet vai fazer duas vezes a mesma consutla*/ 
+static int 
+c_db_my_number_of_fields_in_query(void) {
+  Term arg_query = Deref(ARG1);
+  Term arg_conn = Deref(ARG2);
+  Term arg_fields = Deref(ARG3);
+
+  char *query = AtomName(AtomOfTerm(arg_query));
+  MYSQL *conn = (MYSQL *) (IntegerOfTerm(arg_conn));
+
+  MYSQL_RES *res_set;
+
+  /* executar a query SQL */
+  if (mysql_query(conn, query) != 0)
+    {
+      printf("Erro na query!\n");
+      return FALSE;
+    }
+  
+  /* guardar os tuplos do lado do cliente */
+  if ((res_set = mysql_store_result(conn)) == NULL)
+    {
+      printf("Query vazia!\n");
+      return FALSE;
+    }
+  
+  if (!Yap_unify(arg_fields, MkIntegerTerm(mysql_num_fields(res_set)))){
+    return FALSE;
+  }
+  mysql_free_result(res_set);
+  return TRUE;  
+}
+
+static int 
+c_db_my_get_fields_properties(void) {
+  Term nome_relacao = Deref(ARG1);
+  Term arg_conn = Deref(ARG2);
+  Term fields_properties_list = Deref(ARG3);
+  Term head, list;
+
+  char *relacao = AtomName(AtomOfTerm(nome_relacao));
+  char sql[256];
+  int num_fields,i;
+  MYSQL_FIELD *fields;
+  MYSQL_RES *res_set;
+  MYSQL *conn = (MYSQL *) (IntegerOfTerm(arg_conn));
+  
+  
+  /* 1=2 -> We only need the meta information about the fields
+     to know their properties, we don't need the results of the 
+     query*/
+  sprintf (sql,"SELECT * FROM %s where 1=2",relacao);
+
+  /* executar a query SQL */
+  if (mysql_query(conn, sql) != 0)
+    {
+      printf("Erro na query!\n");
+      return FALSE;
+    }
+    
+  Functor functor = Yap_MkFunctor(Yap_LookupAtom("property"),4);
+  
+  Term properties[4];
+  
+
+  /* guardar os tuplos do lado do cliente */
+  /* nao precisamos do resultado, mas apenas no res_set */
+  /* para obter a informação através do mysql_fetch_fields*/
+  res_set = mysql_store_result(conn);
+  
+  num_fields = mysql_num_fields(res_set);
+  fields = mysql_fetch_fields(res_set);
+
+  list = fields_properties_list;
+
+  
+  
+  for (i=0;i<num_fields;i++)
+    {
+      head = HeadOfTerm(list);
+      
+      properties[0] = MkAtomTerm(Yap_LookupAtom(fields[i].name));
+
+      if (fields[i].flags & NOT_NULL_FLAG)
+	properties[1] = MkIntegerTerm(1); //Can't be NULL 
+      else
+	properties[1] = MkIntegerTerm(0);
+      
+      if (fields[i].flags & PRI_KEY_FLAG)	
+	properties[2] = MkIntegerTerm(1); //It''s a primary key 
+      else
+	properties[2] = MkIntegerTerm(0);
+      
+      if (fields[i].flags & AUTO_INCREMENT_FLAG)
+	properties[3] = MkIntegerTerm(1); //It's auto_incremented field
+      else
+	properties[3] = MkIntegerTerm(0);
+      
+            
+      list = TailOfTerm(list);
+      if (!Yap_unify(head, Yap_MkApplTerm(functor,4,properties))){
+      	return FALSE;
+      }
+    }
+  
+  mysql_free_result(res_set);
+
+  return TRUE;
+}
+
+#ifdef MYDDAS_STATS
+//Returns the stats of this module in a list
+
+static int 
+c_db_my_stats(void) {
+  Term arg_conn = Deref(ARG1);
+  Term arg_list = Deref(ARG2);
+  
+  MYSQL *conn = (MYSQL *) (IntegerOfTerm(arg_conn));
+  MYDDAS_UTIL_CONNECTION 
+    node = myddas_util_search_connection(conn);
+  Term head, list;
+  list = arg_list;
+  
+  //[Index 1] -> Total Number of Rows by connection
+  //Total number of Rows returned by the server
+  //WARNING: only works with store_result
+  head = HeadOfTerm(list);
+  list = TailOfTerm(list);
+  int totalRows = myddas_util_get_conn_total_rows(node);
+  Yap_unify(head, MkIntegerTerm(totalRows));
+  printf ("Total Number of Rows returned from the Server: %d\n",totalRows);
+
+  //[Index 2] -> Total Number of Rows by connection
+  //Total number of Rows returned by the server
+  //WARNING: only works with store_result
+  head = HeadOfTerm(list);
+  list = TailOfTerm(list);
+  int totalTimeDBServer = myddas_util_get_conn_total_time_DBServer(node);
+  Yap_unify(head, MkIntegerTerm(totalTimeDBServer));
+  printf ("Total Time Spent by the Server: %d\n",totalTimeDBServer);
+  
+  return TRUE;
+}
+#endif
+
+void Yap_InitMYDDAS_MySQLPreds(void)
+{
+  /* db_connect: Host x User x Passwd x Database x Connection x ERROR_CODE */
+  Yap_InitCPred("c_db_my_connect", 5, c_db_my_connect,  SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  
+  /* db_number_of_fields: Relation x Connection x NumberOfFields */
+  Yap_InitCPred("c_db_my_number_of_fields",3, c_db_my_number_of_fields, 0);  
+  
+  /* db_number_of_fields_in_query: SQLQuery x Connection x NumberOfFields */
+  Yap_InitCPred("c_db_my_number_of_fields_in_query",3, c_db_my_number_of_fields_in_query, 0);  
+  
+  /* db_get_attributes_types: Relation x TypesList */
+  Yap_InitCPred("c_db_my_get_attributes_types", 3, c_db_my_get_attributes_types,  0);  
+  
+  /* db_query: SQLQuery x ResultSet x Connection */
+  Yap_InitCPred("c_db_my_query", 4, c_db_my_query, 0);  
+  
+  /* db_disconnect: Connection */
+  Yap_InitCPred("c_db_my_disconnect", 1,c_db_my_disconnect, 0);
+  
+  /* db_table_write: Result Set */
+  Yap_InitCPred("c_db_my_table_write", 1, c_db_my_table_write,  0);  
+  
+  /* db_get_fields_properties: PredName x Connnection x PropertiesList*/
+  Yap_InitCPred("c_db_my_get_fields_properties",3,c_db_my_get_fields_properties,0);
+
+#ifdef MYDDAS_STATS
+  /* db_stats: Connection */
+  Yap_InitCPred("c_db_my_stats",2, c_db_my_stats, 0);
+#endif
+
+}
+
+void Yap_InitBackMYDDAS_MySQLPreds(void)
+{
+  /* db_row: ResultSet x Arity x ListOfArgs */
+  Yap_InitCPredBackCut("c_db_my_row", 3, sizeof(int),
+		    c_db_my_row,
+		    c_db_my_row,
+		    c_db_my_row_cut, 0);
+
+}
+
+#endif /*MYDDAS_MYSQL && CUT_C*/

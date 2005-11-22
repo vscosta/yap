@@ -123,7 +123,8 @@ HEADERS = \
 	$(srcdir)/OPTYap/mips_locks_funcs.h $(srcdir)/OPTYap/alpha_locks.h \
 	$(srcdir)/OPTYap/alpha_locks_funcs.h \
 	$(srcdir)/OPTYap/pthread_locks.h \
-	$(srcdir)/H/cut_c.h 
+	$(srcdir)/H/cut_c.h \
+	$(srcdir)/MYDDAS/myddas_util.h 
 
 C_SOURCES= \
 	$(srcdir)/C/absmi.c $(srcdir)/C/adtdefs.c \
@@ -163,7 +164,12 @@ C_SOURCES= \
 	$(srcdir)/OPTYap/or.scheduler.c $(srcdir)/OPTYap/or.cut.c \
 	$(srcdir)/OPTYap/tab.tries.c $(srcdir)/OPTYap/tab.suspend.c \
 	$(srcdir)/library/mpi/mpi.c $(srcdir)/library/mpi/mpe.c \
-	$(srcdir)/C/cut_c.c 
+	$(srcdir)/C/cut_c.c \
+	$(srcdir)/MYDDAS/myddas_mysql.c \
+	$(srcdir)/MYDDAS/myddas_odbc.c \
+	$(srcdir)/MYDDAS/myddas_util.c \
+	$(srcdir)/MYDDAS/myddas_shared.c \
+	$(srcdir)/MYDDAS/myddas_test_predicates.c 
 
 PL_SOURCES= \
 	$(srcdir)/pl/arith.yap $(srcdir)/pl/arrays.yap $(srcdir)/pl/boot.yap \
@@ -195,7 +201,9 @@ ENGINE_OBJECTS = \
 	cdmgr.o cmppreds.o compiler.o computils.o \
 	corout.o cut_c.o dbase.o dlmalloc.o errors.o eval.o bignum.o \
 	exec.o grow.o heapgc.o index.o init.o  inlines.o \
-	iopreds.o depth_bound.o mavar.o modules.o other.o   \
+	iopreds.o depth_bound.o mavar.o \
+	myddas_mysql.o myddas_odbc.o myddas_shared.o myddas_test_predicates.o \
+	myddas_util.o modules.o other.o   \
 	parser.o save.o scanner.o sort.o stdpreds.o sysbits.o threads.o \
 	tracer.o \
 	unify.o userpreds.o utilpreds.o write.o ypsocks.o ypstdio.o @MPI_OBJS@
@@ -403,6 +411,21 @@ ypsocks.o: $(srcdir)/C/ypsocks.c
 
 ypstdio.o: $(srcdir)/C/ypstdio.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/ypstdio.c -o $@
+
+myddas_mysql.o: $(srcdir)/MYDDAS/myddas_mysql.c
+	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_mysql.c -o $@
+
+myddas_odbc.o: $(srcdir)/MYDDAS/myddas_odbc.c
+	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_odbc.c -o $@
+
+myddas_shared.o: $(srcdir)/MYDDAS/myddas_shared.c
+	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_shared.c -o $@
+
+myddas_test_predicates.o: $(srcdir)/MYDDAS/myddas_test_predicates.c
+	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_test_predicates.c -o $@
+
+myddas_util.o: $(srcdir)/MYDDAS/myddas_util.c
+	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_util.c -o $@
 
 opt.memory.o: $(srcdir)/OPTYap/opt.memory.c
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.memory.c -o $@
