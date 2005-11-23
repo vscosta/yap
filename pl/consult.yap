@@ -180,7 +180,7 @@ use_module(M,F,Is) :-
 '$do_lf'(F, ContextModule, Stream, InfLevel, _, Imports, Reconsult, UseModule) :-
 	'$record_loaded'(Stream, M),
 	'$current_module'(OldModule,ContextModule),
-	'$getcwd'(OldD),
+	getcwd(OldD),
 	get_value('$consulting_file',OldF),
 	'$set_consulting_file'(Stream),
 	H0 is heapused, '$cputime'(T0,_),
@@ -304,15 +304,7 @@ use_module(M,F,Is) :-
 prolog_load_context(_, _) :-
 	get_value('$consulting_file',[]), !, fail.
 prolog_load_context(directory, DirName) :- 
-	get_value('$consulting_file',FileName),
-	(FileName = user_input ->
-	  '$getcwd'(S),
-	  atom_codes(DirName,S)
-        ;
-	  atom_codes(FileName,S),
-	  '$strip_file_for_scd'(S,Dir,Unsure,Unsure),
-	  atom_codes(DirName,Dir)
-	).
+	getcwd(DirName).
 prolog_load_context(file, FileName) :- 
 	get_value('$included_file',IncFileName),
 	( IncFileName = [] ->

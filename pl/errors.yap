@@ -11,8 +11,13 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2005-11-10 01:27:12 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-23 13:24:00 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.71  2005/11/10 01:27:12  vsc
+* fix debugger message for EOF input
+* fix fix to setof
+* fix profiler spewing out hidden atoms.
+*
 * Revision 1.70  2005/11/03 18:27:10  vsc
 * fix quote
 *
@@ -632,6 +637,9 @@ print_message(Level, Mss) :-
 	[Where]).
 '$output_error_message'(instantiation_error, Where) :-
 	format(user_error,'% INSTANTIATION ERROR- ~w: expected bound value~n',
+	[Where]).
+'$output_error_message'(operating_system_error, Where) :-
+	format(user_error,'% OPERATING SYSTEM ERROR- ~w~n',
 	[Where]).
 '$output_error_message'(out_of_heap_error, Where) :-
 	format(user_error,'% OUT OF DATABASE SPACE ERROR- ~w~n',

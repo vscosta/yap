@@ -816,7 +816,7 @@ bootstrap(F) :-
 	'$current_stream'(File,_,Stream),
 	'$start_consult'(consult, File, LC),
 	file_directory_name(File, Dir),
-	'$getcwd'(OldD),
+	getcwd(OldD),
 	cd(Dir),
 	(
 	  get_value('$lf_verbose',silent)

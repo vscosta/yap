@@ -128,7 +128,7 @@ Yap_WinError(char *yap_error)
 		  NULL, GetLastError(), 
 		  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, 256,
 		  NULL);
-    Yap_Error(SYSTEM_ERROR, TermNil, "%s: %s", yap_error, msg);
+    Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s at %s", msg, yap_error);
 }
 #endif /* _WIN32 */
 
@@ -1706,20 +1706,29 @@ Yap_TrueFileName (char *source, char *result, int in_lib)
 static Int
 p_getcwd(void)
 {
-  Term t;
-
 #if __simplescalar__
   /* does not implement getcwd */
   strncpy(Yap_FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
 #elif HAVE_GETCWD
-  if (getcwd (Yap_FileNameBuf, YAP_FILENAME_MAX) == NULL)
-    return FALSE;
+  if (getcwd (Yap_FileNameBuf, YAP_FILENAME_MAX) == NULL) {
+#if HAVE_STRERROR
+    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in getcwd/1", strerror(errno));
 #else
-  if (getwd (Yap_FileNameBuf) == NULL)
-    return FALSE;
+    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "in getcwd/1");
 #endif
-  t = Yap_StringToList(Yap_FileNameBuf);
-  return Yap_unify(ARG1,t);
+    return FALSE;
+  }
+#else
+  if (getwd (Yap_FileNameBuf) == NULL) {
+#if HAVE_STRERROR
+    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in getcwd/1", strerror(errno));
+#else
+    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "in getcwd/1");
+#endif
+    return FALSE;
+  }
+#endif
+  return Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
 }
 
 /* Executes $SHELL under Prolog */
@@ -1728,27 +1737,23 @@ static Int
 p_sh (void)
 {				/* sh				 */
 #ifdef HAVE_SYSTEM
-  register char *shell;
+  char *shell;
   shell = (char *) getenv ("SHELL");
   if (shell == NULL)
     shell = "/bin/sh";
-  /* Yap_CloseStreams(TRUE); */
   if (system (shell) < 0) {
 #if HAVE_STRERROR
-    Yap_Error(SYSTEM_ERROR, TermNil, 
-	"sh: %s", strerror(errno));
+    Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s in sh/0", strerror(errno));
 #else
-    Yap_Error(SYSTEM_ERROR, TermNil,
-	  "sh");
+    Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "in sh/0");
 #endif
-    return (FALSE);
+    return FALSE;
   }
-  return (TRUE);
+  return TRUE;
 #else
 #ifdef MSH
   register char *shell;
   shell = "msh -i";
-  /* Yap_CloseStreams(); */
   system (shell);
   return (TRUE);
 #else
@@ -1762,17 +1767,14 @@ static Int
 p_shell (void)
 {				/* '$shell'(+SystCommand)			 */
 #if _MSC_VER || defined(__MINGW32__)
-   return 0;
+  Yap_Error(SYSTEM_ERROR,TermNil,"shell not available in this configuration");
+  return FALSE;
 #else
 #if HAVE_SYSTEM 
   char *shell;
   register int bourne = FALSE;
   Term t1 = Deref (ARG1);
 
-  if (!Yap_GetName (Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
-    Yap_Error(SYSTEM_ERROR,t1,"invalid argument to shell/1");
-    return(FALSE);
-  }
   shell = (char *) getenv ("SHELL");
   if (!strcmp (shell, "/bin/sh"))
     bourne = TRUE;
@@ -1780,14 +1782,13 @@ p_shell (void)
     bourne = TRUE;
   /* Yap_CloseStreams(TRUE); */
   if (bourne)
-    return (system (Yap_FileNameBuf) == 0);
-  else
-    {
+    return (system (RepAtom(AtomOfTerm(t1))->StrOfAE) == 0);
+  else {
       int status = -1;
       int child = fork ();
       if (child == 0)
 	{			/* let the children go */
-	  if (!execl (shell, shell, "-c", Yap_FileNameBuf, NIL)) {
+	  if (!execl (shell, shell, "-c", RepAtom(AtomOfTerm(t1))->StrOfAE , NULL)) {
 	    exit(-1);
 	  }
 	  exit(TRUE);
@@ -1804,10 +1805,9 @@ p_shell (void)
 #endif
 */
 	status == 0;
-	return (result);
+	return result;
       }
     }
-#undef command
 #else /* HAVE_SYSTEM */
 #ifdef MSH
   register char *shell;
@@ -1828,15 +1828,33 @@ p_system (void)
 {				/* '$system'(+SystCommand)	       */
 #ifdef HAVE_SYSTEM
   Term t1 = Deref (ARG1);
-  if (!Yap_GetName (Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
-    Yap_Error(SYSTEM_ERROR,t1,"argument to system/1 is not valid");
-    return(FALSE);
+  char *s;
+
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR,t1,"argument to system/1 unbound");
+    return FALSE;
+  } else if (IsAtomTerm(t1)) {
+    s = RepAtom(AtomOfTerm(t1))->StrOfAE;
+  } else {
+    if (!Yap_GetName (Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
+      Yap_Error(TYPE_ERROR_ATOM,t1,"argument to system/1");
+      return FALSE;
+    }
+    s = Yap_FileNameBuf;
   }
   /* Yap_CloseStreams(TRUE); */
 #if _MSC_VER
   _flushall();
 #endif
-  return (system (Yap_FileNameBuf) == 0);
+  if (system (s)) {
+#if HAVE_STRERROR
+    Yap_Error(OPERATING_SYSTEM_ERROR,t1,"%s in system(%s)", strerror(errno), s);
+#else
+    Yap_Error(OPERATING_SYSTEM_ERROR,t1,"in system(%s)", s);
+#endif
+    return FALSE;
+  }
+  return TRUE;
 #else
 #ifdef MSH
   register char *shell;
@@ -1863,23 +1881,29 @@ p_mv (void)
   char oldname[YAP_FILENAME_MAX], newname[YAP_FILENAME_MAX];
   Term t1 = Deref (ARG1);
   Term t2 = Deref (ARG2);
-  if (!Yap_GetName (Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
-    Yap_Error(SYSTEM_ERROR,t1,"first argument to rename/2 is not valid");
-    return(FALSE);
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "first argument to rename/2 unbound");
+  } else if (!IsAtomTerm(t1)) {
+    Yap_Error(TYPE_ERROR_ATOM, t1, "first argument to rename/2 not atom");
   }
-  TrueFileName (Yap_FileNameBuf, oldname, FALSE);
-  if (!Yap_GetName (Yap_FileNameBuf, YAP_FILENAME_MAX, t2)) {
-    Yap_Error(SYSTEM_ERROR,t2,"second argument to rename/2 is not valid");
-    return(FALSE);
+  if (IsVarTerm(t2)) {
+    Yap_Error(INSTANTIATION_ERROR, t2, "second argument to rename/2 unbound");
+  } else if (!IsAtomTerm(t2)) {
+    Yap_Error(TYPE_ERROR_ATOM, t2, "second argument to rename/2 not atom");
   }
-  TrueFileName (Yap_FileNameBuf, newname, FALSE);
+  TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE, oldname, FALSE);
+  TrueFileName (RepAtom(AtomOfTerm(t2))->StrOfAE, newname, FALSE);
   if ((r = link (oldname, newname)) == 0 && (r = unlink (oldname)) != 0)
     unlink (newname);
   if (r != 0) {
-    Yap_Error(SYSTEM_ERROR,t2,"operating system error in rename/2");
-    return(FALSE);
+#if HAVE_STRERROR
+    Yap_Error(OPERATING_SYSTEM_ERROR,t2,"%s in rename(%s,%s)", strerror(errno),oldname,newname);
+#else
+    Yap_Error(OPERATING_SYSTEM_ERROR,t2,"in rename(%s,%s)",oldname,newname);
+#endif
+    return FALSE;
   }
-  return (TRUE);
+  return TRUE;
 #else
   Yap_Error(SYSTEM_ERROR,TermNil,"rename/2 not available in this machine");
   return (FALSE);
@@ -1919,6 +1943,7 @@ p_cd (void)
   Term t1 = Deref (ARG1);
 
   if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR,t1,"argument to cd/1 is not valid");
     return FALSE;
   } else if (IsAtomTerm(t1)) {
     TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE, Yap_FileNameBuf2, FALSE);
@@ -1926,7 +1951,7 @@ p_cd (void)
     if (t1 == TermNil)
       return TRUE;
     if (!Yap_GetName (Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
-      Yap_Error(SYSTEM_ERROR,t1,"argument to cd/1 is not valid");
+      Yap_Error(TYPE_ERROR_ATOM,t1,"argument to cd/1 is not valid");
       return FALSE;
     }
     TrueFileName (Yap_FileNameBuf, Yap_FileNameBuf2, FALSE);
@@ -1937,10 +1962,10 @@ p_cd (void)
 #endif
   if (chdir (Yap_FileNameBuf2) < 0) {
 #if HAVE_STRERROR
-    Yap_Error(SYSTEM_ERROR, t1, 
-	"cd(%s): %s", Yap_FileNameBuf2, strerror(errno));
+    Yap_Error(OPERATING_SYSTEM_ERROR, t1, 
+	"%s in cd(%s)", strerror(errno), Yap_FileNameBuf2);
 #else
-    Yap_Error(SYSTEM_ERROR,t1,"cd(%s)", Yap_FileNameBuf2);
+    Yap_Error(OPERATING_SYSTEM_ERROR,t1," in cd(%s)", Yap_FileNameBuf2);
 #endif
     return FALSE;
   }
@@ -2043,11 +2068,11 @@ static Int p_putenv(void)
   if (putenv(p0) == 0)
     return(TRUE);
 #if HAVE_STRERROR
-  Yap_Error(SYSTEM_ERROR, TermNil,
-	"putenv: %s", strerror(errno));
+  Yap_Error(OPERATING_SYSTEM_ERROR, TermNil,
+	"in putenv(%s)", strerror(errno), p0);
 #else
-  Yap_Error(SYSTEM_ERROR, TermNil,
-	"putenv");
+  Yap_Error(OPERATING_SYSTEM_ERROR, TermNil,
+	"in putenv(%s)", p0);
 #endif
   return (FALSE);
 #else
@@ -2433,11 +2458,11 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("srandom", 1, p_srandom, SafePredFlag);
   Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$system", 1, p_system, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$rename", 2, p_mv, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("rename", 2, p_mv, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("cd", 1, p_cd, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$getcwd", 1, p_getcwd, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("getcwd", 1, p_getcwd, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred ("$alarm", 2, p_alarm, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag|HiddenPredFlag);

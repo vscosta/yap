@@ -207,15 +207,6 @@ op(P,T,V) :- '$op2'(P,T,V).
 
 %%% Operating System utilities
 
-getcwd(D) :- '$getcwd'(SD), atom_codes(D, SD).
-
-system(A) :- atom(A), !, atom_codes(A,S), '$system'(S).
-system(S) :- '$system'(S).
-
-rename(Old,New) :- atom(Old), atom(New), !,
-	name(Old,SOld), name(New,SNew),
-	'$rename'(SOld,SNew).
-
 unix(V) :- var(V), !,
 	'$do_error'(instantiation_error,unix(V)).
 unix(argv(L)) :- '$is_list_of_atoms'(L,L), !, '$argv'(L).
@@ -231,12 +222,12 @@ unix(environ(X,Y)) :- '$do_environ'(X,Y).
 unix(getcwd(X)) :- getcwd(X).
 unix(shell(V)) :- var(V), !,
 	'$do_error'(instantiation_error,unix(shell(V))).
-unix(shell(A)) :- atomic(A), !, '$shell'(A).
+unix(shell(A)) :- atom(A), !, '$shell'(A).
 unix(shell(V)) :-
 	'$do_error'(type_error(atomic,V),unix(shell(V))).
 unix(system(V)) :- var(V), !,
 	'$do_error'(instantiation_error,unix(system(V))).
-unix(system(A)) :- atomic(A), !, system(A).
+unix(system(A)) :- atom(A), !, system(A).
 unix(system(V)) :-
 	'$do_error'(type_error(atom,V),unix(system(V))).
 unix(shell) :- sh.

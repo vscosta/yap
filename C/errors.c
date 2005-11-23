@@ -961,6 +961,18 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       serious = TRUE;
     }
     break;
+  case OPERATING_SYSTEM_ERROR:
+    {
+      int i;
+
+      i = strlen(tmpbuf);
+      nt[0] = MkAtomTerm(Yap_LookupAtom("operating_system_error"));
+      tp = tmpbuf+i;
+      psize -= i;
+      fun = Yap_MkFunctor(Yap_LookupAtom("error"),2);
+      serious = TRUE;
+    }
+    break;
   case OUT_OF_HEAP_ERROR:
     {
       int i;
