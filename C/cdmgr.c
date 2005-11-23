@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-10-29 01:28:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-23 03:01:33 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.171  2005/10/29 01:28:37  vsc
+* make undefined more ISO compatible.
+*
 * Revision 1.170  2005/10/18 17:04:43  vsc
 * 5.1:
 * - improvements to GC
@@ -4345,7 +4348,7 @@ add_code_in_pred(PredEntry *pp) {
 	char *code_end;
 
 	cl = ClauseCodeToDynamicClause(clcode);
- 	code_end = (CODEADDR)cl + cl->ClSize;
+ 	code_end = (char *)cl + cl->ClSize;
 	Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp,0);
 	if (clcode == pp->cs.p_code.LastClause)
 	  break;

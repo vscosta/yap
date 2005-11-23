@@ -9,6 +9,14 @@
 #include "alloc.h"
 #include "dlmalloc.h"
 
+static struct malloc_chunk *
+ChunkPtrAdjust (struct malloc_chunk *ptr)
+{
+  return (struct malloc_chunk *) ((char *) (ptr) + HDiff);
+}
+
+
+
 /*
   This is a version (aka dlmalloc) of malloc/free/realloc written by
   Doug Lea and released to the public domain.  Use, modify, and
@@ -2897,4 +2905,128 @@ Yap_initdlmalloc(void)
   HeapMax = HeapUsed = HeapTop-Yap_HeapBase;
 }
 
+void Yap_RestoreDLMalloc(void)
+{
+  mstate av = Yap_av;
+  int i;
+  mchunkptr p;
+  mchunkptr q;
+  mbinptr b;
+  unsigned int binbit;
+  int empty;
+  unsigned int idx;
+  INTERNAL_SIZE_T size;
+  CHUNK_SIZE_T  total = 0;
+  int max_fast_bin;
+
+  /* internal size_t must be no wider than pointer type */
+  assert(sizeof(INTERNAL_SIZE_T) <= sizeof(char*));
+
+  /* alignment is a power of 2 */
+  assert((MALLOC_ALIGNMENT & (MALLOC_ALIGNMENT-1)) == 0);
+
+  /* cannot run remaining checks until fully initialized */
+  if (av->top == 0 || av->top == initial_top(av))
+    return;
+
+  /* pagesize is a power of 2 */
+  assert((av->pagesize & (av->pagesize-1)) == 0);
+
+  /* properties of fastbins */
+
+  /* max_fast is in allowed range */
+  assert(get_max_fast(av) <= request2size(MAX_FAST_SIZE));
+
+  max_fast_bin = fastbin_index(av->max_fast);
+
+  if (av->top) {
+    av->top = ChunkPtrAdjust(av->top);
+  }
+  if (av->last_remainder) {
+    av->last_remainder = ChunkPtrAdjust(av->last_remainder);
+  }
+  for (i = 0; i < NFASTBINS; ++i) {
+    
+    if (av->fastbins[i]) {
+      av->fastbins[i] = ChunkPtrAdjust(av->fastbins[i]);
+    }
+    p = av->fastbins[i];
+
+    /* all bins past max_fast are empty */
+    if (i > max_fast_bin)
+      assert(p == 0);
+
+    while (p != 0) {
+      /* each chunk claims to be inuse */
+      check_inuse_chunk(p);
+      total += chunksize(p);
+      /* chunk belongs in this bin */
+      assert(fastbin_index(chunksize(p)) == i);
+      if (p->fd)
+	p->fd = ChunkPtrAdjust(p->fd);
+      if (p->bk)
+	p->bk = ChunkPtrAdjust(p->bk);
+      p = p->fd;
+    }
+  }
+
+  if (total != 0)
+    assert(have_fastchunks(av));
+  else if (!have_fastchunks(av))
+    assert(total == 0);
+
+  for (i = 0; i < NBINS*2; i++) {
+    if (av->bins[i]) {
+      av->bins[i] = ChunkPtrAdjust(av->bins[i]);
+    }
+  }
+
+  /* check normal bins */
+  for (i = 1; i < NBINS; ++i) {
+    b = bin_at(av,i);
+
+    /* binmap is accurate (except for bin 1 == unsorted_chunks) */
+    if (i >= 2) {
+      binbit = get_binmap(av,i);
+      empty = last(b) == b;
+      if (!binbit)
+        assert(empty);
+      else if (!empty)
+        assert(binbit);
+    }
+
+    for (p = last(b); p != b; p = p->bk) {
+      /* each chunk claims to be free */
+      check_free_chunk(p);
+      if (p->fd)
+	p->fd = ChunkPtrAdjust(p->fd);
+      if (p->bk)
+	p->bk = ChunkPtrAdjust(p->bk);
+      size = chunksize(p);
+      total += size;
+      if (i >= 2) {
+        /* chunk belongs in bin */
+        idx = bin_index(size);
+        assert(idx == i);
+        /* lists are sorted */
+        if ((CHUNK_SIZE_T) size >= (CHUNK_SIZE_T)(FIRST_SORTED_BIN_SIZE)) {
+          assert(p->bk == b || 
+                 (CHUNK_SIZE_T)chunksize(p->bk) >= 
+                 (CHUNK_SIZE_T)chunksize(p));
+        }
+      }
+      /* chunk is followed by a legal chain of inuse chunks */
+      for (q = next_chunk(p);
+           (q != av->top && inuse(q) && 
+             (CHUNK_SIZE_T)(chunksize(q)) >= MINSIZE);
+           q = next_chunk(q)) {
+	check_inuse_chunk(q);
+      }
+    }
+  }
+
+}
+
+
 #endif /* USE_DL_MALLOC */
+

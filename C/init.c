@@ -600,6 +600,10 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
     yamop      *p_code = ((StaticClause *)NULL)->ClCode;
     StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),sla),e),e)); 
 
+    if (!cl) {
+      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitAsmPred");
+      return;
+    }
     cl->ClFlags = 0;
     p_code = cl->ClCode;
     pe->CodeOfPred = p_code;
@@ -1265,12 +1269,21 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
     HashChain[i].Entry = NIL;
   }
   NOfAtoms = 0;
+#if THREADS
+  SF_STORE->AtFoundVar = Yap_LookupAtom(".");
+  Yap_ReleaseAtom(AtomFoundVar);
+  SF_STORE->AtFreeTerm = Yap_LookupAtom("?");
+  Yap_ReleaseAtom(AtomFreeTerm);
+  SF_STORE->AtNil = Yap_LookupAtom("[]");
+  SF_STORE->AtDot = Yap_LookupAtom(".");
+#else
   Yap_LookupAtomWithAddress(".",&(SF_STORE->AtFoundVar));
   Yap_ReleaseAtom(AtomFoundVar);
   Yap_LookupAtomWithAddress("?",&(SF_STORE->AtFreeTerm));
   Yap_ReleaseAtom(AtomFreeTerm);
   Yap_LookupAtomWithAddress("[]",&(SF_STORE->AtNil));
   Yap_LookupAtomWithAddress(".",&(SF_STORE->AtDot));
+#endif
   /* InitAbsmi must be done before InitCodes */
 #ifdef MPW
   Yap_InitAbsmi(REGS, FunctorList);

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.75 2005-11-16 01:55:03 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.76 2005-11-23 03:01:33 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -78,19 +78,23 @@ minfo(char mtype)
 }
 #endif
 
-static int vsc_allocs;
-
-char *
-Yap_AllocCodeSpace(unsigned int size)
+static inline char *
+call_malloc(unsigned int size)
 {
+  char *tmp;
 #if INSTRUMENT_MALLOC
   if (mallocs % 1024*4 == 0) 
     minfo('A');
   mallocs++;
   tmalloc += size;
 #endif
-  vsc_allocs++;
-  return malloc(size);
+  return (char *) malloc(size);
+}
+
+char *
+Yap_AllocCodeSpace(unsigned int size)
+{
+  return call_malloc(size);
 }
 
 void
@@ -107,13 +111,7 @@ Yap_FreeCodeSpace(char *p)
 char *
 Yap_AllocAtomSpace(unsigned int size)
 {
-#if INSTRUMENT_MALLOC
-  if (mallocs % 1024*4 == 0) 
-    minfo('A');
-  mallocs++;
-  tmalloc += size;
-#endif
-  return malloc(size);
+  return call_malloc(size);
 }
 
 void

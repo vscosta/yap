@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-11-18 18:48:51 $,$Author: tiagosoares $						 *
+* Last rev:     $Date: 2005-11-23 03:01:32 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.185  2005/11/18 18:48:51  tiagosoares
+* support for executing c code when a cut occurs
+*
 * Revision 1.184  2005/11/15 00:50:49  vsc
 * fixes for stack expansion and garbage collection under tabling.
 *
@@ -423,7 +426,6 @@ char *Yap_op_names[_std_top + 1] =
 Int 
 Yap_absmi(int inp)
 {
-
 
 #if BP_FREE
   /* some function might be using bp for an internal variable, it is the

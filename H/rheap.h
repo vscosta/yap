@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2005-10-28 17:38:50 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-23 03:01:33 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.57  2005/10/28 17:38:50  vsc
+* sveral updates
+*
 * Revision 1.56  2005/10/21 16:09:03  vsc
 * SWI compatible module only operators
 *
@@ -121,6 +124,9 @@ static void
 restore_codes(void)
 {
   Yap_heap_regs->heap_top = AddrAdjust(OldHeapTop);
+  if (Yap_heap_regs->heap_lim) {
+    Yap_heap_regs->heap_lim = AddrAdjust(Yap_heap_regs->heap_lim);
+  }
 #ifdef YAPOR
   Yap_heap_regs->seq_def = TRUE;
   Yap_heap_regs->getwork_code.opc = Yap_opcode(_getwork);
@@ -447,12 +453,28 @@ restore_codes(void)
     (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_throw);
   Yap_heap_regs->pred_handle_throw =
     (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_handle_throw);
+#if DEBUG
+  if (Yap_heap_regs->db_erased_list) {
+    Yap_heap_regs->db_erased_list = 
+      PtoLUCAdjust(Yap_heap_regs->db_erased_list);
+  }
+  if (Yap_heap_regs->db_erased_ilist) {
+    Yap_heap_regs->db_erased_ilist = 
+      LUIndexAdjust(Yap_heap_regs->db_erased_ilist);
+  }
+#endif
   if (Yap_heap_regs->undef_code != NULL)
     Yap_heap_regs->undef_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->undef_code));
   if (Yap_heap_regs->creep_code != NULL)
     Yap_heap_regs->creep_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->creep_code));
   if (Yap_heap_regs->spy_code != NULL)
     Yap_heap_regs->spy_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->spy_code));
+#if !defined(THREADS)
+  if (Yap_heap_regs->wl.scratchpad.ptr) {
+    Yap_heap_regs->wl.scratchpad.ptr =
+      (char *)AddrAdjust((ADDR)Yap_heap_regs->wl.scratchpad.ptr);
+  }
+#endif
 #ifdef COROUTINING
   if (Yap_heap_regs->wake_up_code != NULL)
     Yap_heap_regs->wake_up_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->wake_up_code));
@@ -492,7 +514,7 @@ AdjustDBTerm(Term trm, Term *p_base)
     Term           *p;
 
     p = PtoHeapCellAdjust(RepPair(trm));
-    if (p > p_base) {
+    if (p >= p_base) {
       p[0] = AdjustDBTerm(p[0], p);
       p[1] = AdjustDBTerm(p[1], p);
     }
@@ -504,7 +526,7 @@ AdjustDBTerm(Term trm, Term *p_base)
     Term *p0 = p = PtoHeapCellAdjust(RepAppl(trm));
     /* if it is before the current position, then we are looking
        at old code */
-    if (p > p_base) {
+    if (p >= p_base) {
       f = (Functor)p[0];
       if (!IsExtensionFunctor(f)) {
 	UInt             Arity, i;

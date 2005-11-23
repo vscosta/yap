@@ -292,7 +292,7 @@ inline EXTERN Term AtomTermAdjust (Term);
 inline EXTERN Term
 AtomTermAdjust (Term at)
 {
-  return (Term) ((at));
+  return at + HDiff;
 }
 
 
@@ -422,6 +422,15 @@ CodeAddrAdjust (CODEADDR addr)
 }
 
 
+inline EXTERN char * CodeCharPAdjust (char *);
+
+inline EXTERN char *
+CodeCharPAdjust (char * addr)
+{
+  return addr + HDiff;
+}
+
+
 
 inline EXTERN BlockHeader *BlockAdjust (BlockHeader *);
 
@@ -504,19 +513,6 @@ PtoStCAdjust (struct static_clause *ptr)
 }
 
 
-#if USE_DL_MALLOC
-
-inline EXTERN struct malloc_chunk *ChunkPtrAdjust (struct malloc_chunk *);
-
-inline EXTERN struct malloc_chunk *
-ChunkPtrAdjust (struct malloc_chunk *ptr)
-{
-  return (struct malloc_chunk
-	  *) (((struct malloc_chunk *) (CharP (ptr) + HDiff)));
-}
-
-
-#endif
 #if PRECOMPUTE_REGADDRESS
 
 inline EXTERN wamreg XAdjust (wamreg);

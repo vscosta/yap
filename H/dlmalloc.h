@@ -4,6 +4,7 @@
 /* YAP only stuff */
 
 void STD_PROTO(Yap_initdlmalloc,(void));
+void STD_PROTO(Yap_RestoreDLMalloc,(void));
 
 
 /* Synopsis of compile-time options:

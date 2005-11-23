@@ -101,6 +101,9 @@ static cont *cont_top;
 static void
 gc_growtrail(int committed)
 {
+#if THREADS
+  longjmp(Yap_gc_restore, 2);
+#endif
 #if USE_SYSTEM_MALLOC
   TR = OldTR;
 #endif

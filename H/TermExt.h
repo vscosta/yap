@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h,v 1.2 2005-09-09 17:24:39 vsc Exp $	 *
+* version:      $Id: TermExt.h,v 1.3 2005-11-23 03:01:33 vsc Exp $	 *
 *************************************************************************/
 
 #ifdef USE_SYSTEM_MALLOC
@@ -24,6 +24,11 @@
 #define   AtomFreeTerm ((Atom)(&(((special_functors *)(NULL))->AtFreeTerm)))
 #define   AtomNil ((Atom)(&(((special_functors *)(NULL))->AtNil)))
 #define   AtomDot ((Atom)(&(((special_functors *)(NULL))->AtDot)))
+#elif THREADS
+#define   AtomFoundVar AbsAtom(SF_STORE->AtFoundVar)
+#define   AtomFreeTerm AbsAtom(SF_STORE->AtFreeTerm)
+#define   AtomNil AbsAtom(SF_STORE->AtNil)
+#define   AtomDot AbsAtom(SF_STORE->AtDot)
 #else
 #define   AtomFoundVar AbsAtom(&(SF_STORE->AtFoundVar))
 #define   AtomFreeTerm AbsAtom(&(SF_STORE->AtFreeTerm))
@@ -117,6 +122,15 @@ extern ext_op attas[attvars_ext + 1];
 
 /* make sure that these data structures are the first thing to be allocated
    in the heap when we start the system */
+#if THREADS
+typedef struct special_functors_struct
+{
+  AtomEntry *AtFoundVar;
+  AtomEntry *AtFreeTerm;
+  AtomEntry *AtNil;
+  AtomEntry *AtDot;
+} special_functors;
+#else
 typedef struct special_functors_struct
 {
   AtomEntry AtFoundVar;
@@ -129,6 +143,7 @@ typedef struct special_functors_struct
   char AtDotChars[8];
 }
 special_functors;
+#endif
 
 #if USE_SYSTEM_MALLOC
 #define MAX_SPECIALS_TAG (4*4096)
