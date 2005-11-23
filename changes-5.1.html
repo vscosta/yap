@@ -16,6 +16,13 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: Restore could not recover DL_MALLOC info and was not recovering
+DBTerms correctly. </li>
+<li> FIXED: with locking field, AtomNil and friends might not be
+aligned, and would be confused with int. </li>
+<li> FIXED: variables should always be reset when doing trail
+expansion from the parser, even if there is no shifting (obs Trevor
+Walker). </li>
 <li> FIXED: growglobal with realloc was broken. </li>
 <li> FIXED: with threads, self-deadlocking in new array codes. </li>
 <li> FIXED: in tabling, use malloc when AllocCodeSpace fails. </li>

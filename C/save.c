@@ -415,7 +415,6 @@ save_regs(int mode)
 #endif /* SBA || TABLING */
   }
   putout(CurrentModule);
-  putcellptr(AuxSp);
   if (mode == DO_EVERYTHING) {
 #ifdef COROUTINING
     putout(WokenGoals);

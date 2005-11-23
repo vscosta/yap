@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.76 2005-11-23 03:01:33 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.77 2005-11-23 12:09:50 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -81,7 +81,6 @@ minfo(char mtype)
 static inline char *
 call_malloc(unsigned int size)
 {
-  char *tmp;
 #if INSTRUMENT_MALLOC
   if (mallocs % 1024*4 == 0) 
     minfo('A');
