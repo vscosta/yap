@@ -2414,7 +2414,7 @@ _ACEOF
 	    echo "--"
 	    echo "--"
 	    echo "--"
-	    echo "-- Theres no Devel Libraries for MySQL or ODBC"
+	    echo "-- There\'s no devel libraries for MySQL or ODBC"
 	    echo "--"
 	    echo "--"
 	    echo "--"
@@ -6423,11 +6423,6 @@ case "$orparallelism" in
   ;;
 esac
 
-if test "$cut_c" = "yes"
-  then  
-  YAP_EXTRAS="$YAP_EXTRAS -DCUT_C=1"
-fi
-
 if test "$ac_cv_lib_mysql_myddas" = "yes"
     then  
     if test "$cut_c" = "no"
@@ -6441,11 +6436,12 @@ if test "$ac_cv_lib_mysql_myddas" = "yes"
 	echo "The MyDDAS interface makes no sense without cut-c"
 	echo "Please contact tiagosoares@ncc.up.pt for help"
 	echo 
+	echo "Enabling cut-c"
 	echo
 	echo "********************************************************"
 	echo
 	echo
-	exit
+	cut_c="yes"
     fi
     YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
 fi
@@ -6462,12 +6458,13 @@ if test "$ac_cv_lib_odbc_myddas" = "yes"
 	echo "!!!!!! WARNING !!!!!!"
 	echo "The MyDDAS interface makes no sense without cut-c"
 	echo "Please contact tiagosoares@ncc.up.pt for help"
-	echo 
+	echo
+	echo "Enabling cut-c"
 	echo
 	echo "********************************************************"
 	echo
 	echo
-	exit
+	cut_c="yes"
     fi
     YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
 fi
@@ -6477,15 +6474,20 @@ if test "$myddas_stats" = "yes"
     YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_STATS"
 fi
 
+if test "$cut_c" = "yes"
+    then  
+    YAP_EXTRAS="$YAP_EXTRAS -DCUT_C=1"
+fi
+
 if test "$tabling" = "yes"
-  then
-  YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
+    then
+    YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
 fi
 
 echo "$as_me:$LINENO: checking for ANSI C header files" >&5
 echo $ECHO_N "checking for ANSI C header files... $ECHO_C" >&6
 if test "${ac_cv_header_stdc+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
+    echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -13198,10 +13200,10 @@ fi
 echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_var'}'`" >&5
 echo "${ECHO_T}`eval echo '${'$as_ac_var'}'`" >&6
 if test `eval echo '${'$as_ac_var'}'` = yes; then
-  cat >>confdefs.h <<_ACEOF
+    cat >>confdefs.h <<_ACEOF
 #define `echo "HAVE_$ac_func" | $as_tr_cpp` 1
 _ACEOF
-
+    
 fi
 done
 
