@@ -12,8 +12,12 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2005-09-19 19:14:50 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-24 15:35:29 $,$Author: tiagosoares $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.12  2005/09/19 19:14:50  vsc
+* fix two instructions that were being read badly: op_fail and
+* switch_list_nl.
+*
 * Revision 1.11  2005/09/08 21:55:47  rslopes
 * BEAM for YAP update...
 *
@@ -768,6 +772,14 @@ restore_opcodes(yamop *pc)
       pc->u.lds.p = PtoPredAdjust(pc->u.lds.p);
       pc = NEXTOP(pc,lds);
       break;
+#ifdef CUT_C
+    case _cut_c:
+    case _cut_userc:
+      /* don't need to do nothing here, because this two instructions 
+       are "phantom" instructions. (see: cut_c implementation paper 
+       on PADL 2006) */
+      break;
+#endif 
       /* instructions type llll */
     case _switch_on_type:
       pc->u.llll.l1 = PtoOpAdjust(pc->u.llll.l1);

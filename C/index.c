@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-11-18 18:48:52 $,$Author: tiagosoares $						 *
+* Last rev:     $Date: 2005-11-24 15:33:52 $,$Author: tiagosoares $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.147  2005/11/18 18:48:52  tiagosoares
+* support for executing c code when a cut occurs
+*
 * Revision 1.146  2005/10/29 02:21:47  vsc
 * people should be able to disable indexing.
 *
@@ -1981,6 +1984,10 @@ add_info(ClauseDef *clause, UInt regno)
     case _try_userc:
     case _retry_c:
     case _retry_userc:
+#ifdef CUT_C
+    case _cut_c:
+    case _cut_userc:
+#endif
     case _switch_on_type:
     case _switch_list_nl:
     case _switch_on_arg_type:
