@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-11-23 03:01:32 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-11-26 02:57:25 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.186  2005/11/23 03:01:32  vsc
+* fix several bugs in save/restore.b
+*
 * Revision 1.185  2005/11/18 18:48:51  tiagosoares
 * support for executing c code when a cut occurs
 *
@@ -8639,7 +8642,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, plus_vv_unk, plus_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is _+B");
       setregs();
       FAIL();
       ENDP(pt0);

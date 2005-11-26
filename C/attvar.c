@@ -125,6 +125,7 @@ TermToAttVar(Term attvar, Term to)
   if (!attv)
     return FALSE;
   attv->Atts = attvar;
+  *VarOfTerm(to) = (CELL)attv;
   return TRUE;
 }
 

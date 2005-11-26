@@ -568,10 +568,10 @@ repeat :- '$repeat'.
 	   write_term(user_error,B,Opts) ;
 	   format(user_error,'~w',[B])
         ).
-'$write_goal_output'(Format-G, NG, NG) :-
+'$write_goal_output'(Format-G, [G|NG], NG) :-
 	G = [_|_], !,
         format(user_error,Format,G).
-'$write_goal_output'(_-G, NG, NG) :-
+'$write_goal_output'(_-G, [G|NG], NG) :-
         ( recorded('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,G,Opts) ;
 	   format(user_error,'~w',[G])

@@ -115,20 +115,19 @@ bagof(Template, Generator, Bag) :-
 	'$check_list_for_bags'(Bag, bagof(Template, Generator, Bag)),
 	'$variables_in_term'(Template, [], TemplateV),
 	'$excess_vars'(Generator, StrippedGenerator, TemplateV, [], FreeVars),
-	FreeVars \== [],
-	!,
-	'$variables_in_term'(FreeVars, [], LFreeVars),
-	Key =.. ['$'|LFreeVars],
-	'$init_db_queue'(Ref),
-	'$findall_with_common_vars'(Key-Template, StrippedGenerator, Ref, Bags0),
-	'$keysort'(Bags0, Bags),
-	'$pick'(Bags, Key, Bag).
-% or we just have a list of answers
-'$bagof'(Template, Generator, Bag) :-
-	'$init_db_queue'(Ref),
-	'$findall'(Template, Generator, Ref, [], Bag0),
-	Bag0 \== [],
-	Bag = Bag0.
+	( FreeVars \== [] ->
+		'$variables_in_term'(FreeVars, [], LFreeVars),
+		Key =.. ['$'|LFreeVars],
+		'$init_db_queue'(Ref),
+		'$findall_with_common_vars'(Key-Template, StrippedGenerator, Ref, Bags0),
+		'$keysort'(Bags0, Bags),
+		'$pick'(Bags, Key, Bag)
+	;
+		'$init_db_queue'(Ref),
+		'$findall'(Template, StrippedGenerator, Ref, [], Bag0),
+		Bag0 \== [],
+		Bag = Bag0
+	).
 
 
 % picks a solution attending to the free variables

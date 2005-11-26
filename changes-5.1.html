@@ -16,7 +16,15 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
-<li> FIXED: prolog_load_context(directory). </li>
+<li> FIXED: overflow handling in DB/AttVars was resetting old var, and
+  wasn't resetting trail. </li>
+<li> FIXED: when rebuilding DB term with attvars, set global var to
+  point to attvar. </li>
+<li> NEW: add school CLP(BN) example. </li>
+<li> NEW: add sc CLP(BN) example. </li>
+<li> FIXED: make exception port more like a true port. </li>
+<li> FIXED: don't run ^ in setof if there are no excess variables. </li>
+<li> FIXED: prolog_load_context(directory) relied on dead code. </li>
 <li> FIXED: some small beautifications for system/1, getcwd/1, sh/1, rename/2. </li>
 <li> NEW: operating_system_error. </li>
 <li> FIXED: Restore could not recover DL_MALLOC info and was not recovering

@@ -756,3 +756,7 @@ nth_instance(X,Y,Z) :-
 	    fail
 	),
 	'$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)).
+
+prolog_current_frame(Env) :-
+	X is $env.
+

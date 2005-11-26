@@ -337,11 +337,17 @@ debugging :-
      throw('$fail_spy'(GoalNumber)).
 '$loop_spy_event'(abort, _, _, _, _) :- !,
      throw('$abort').
-'$loop_spy_event'(Event, GoalNumber, G, Module, InControl) :- !,
+'$loop_spy_event'(Event, GoalNumber, G, Module, InControl) :-
+     '$debug_error'(Event),     
      '$system_catch'(
-		     ('$trace'(exception(Event),G,Module,GoalNumber),fail),
+		     ('$trace'(exception,G,Module,GoalNumber),fail),
 		     Module,NewEvent,
 		     '$loop_spy_event'(NewEvent, GoalNumber, G, Module, InControl)).
+
+
+'$debug_error'(Event) :-
+	'$Error'(Event), fail.
+'$debug_error'(_).
 
 
 '$loop_fail'(GoalNumber, G, Module, InControl) :-
@@ -468,7 +474,7 @@ debugging :-
 '$unleashed'(redo) :- get_value('$leash',L), L /\ 2'0010 =:= 0.
 '$unleashed'(fail) :- get_value('$leash',L), L /\ 2'0001 =:= 0.
 % the same as fail.
-'$unleashed'(exception(_)) :- get_value('$leash',L), L /\ 2'0001 =:= 0.
+'$unleashed'(exception) :- get_value('$leash',L), L /\ 2'0001 =:= 0.
 
 '$debugger_write'(Stream, G) :-
 	recorded('$print_options','$debugger'(OUT),_), !,

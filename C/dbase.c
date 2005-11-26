@@ -2395,16 +2395,18 @@ p_still_variant(void)
 static int
 copy_attachments(CELL *ts)
 {
+  /* we will change delayed vars, and that also means the trail */
   Term orig = Yap_ReadTimedVar(DelayedVars);
-  Term orig2 = Yap_ReadTimedVar(AttsMutableList);
+  tr_fr_ptr tr0 = TR;
 
   while (TRUE) {
     /* store away in case there is an overflow */
+
     if (attas[IntegerOfTerm(ts[2])].term_to_op(ts[1], ts[0])  == FALSE) {
       /* oops, we did not have enough space to copy the elements */
       /* reset queue of woken up goals */
       Yap_UpdateTimedVar(DelayedVars, orig);      
-      Yap_UpdateTimedVar(AttsMutableList, orig2);
+      TR = tr0;
       return FALSE;
     }
     if (ts[3] == TermNil) return TRUE;
