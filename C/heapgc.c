@@ -33,6 +33,7 @@ static char     SccsId[] = "%W% %G%";
 
 /* global variables for garbage collection */
 
+#if !defined(YAPOR) && !defined(THREADS)
 /* in a single gc */
 static unsigned long int   total_marked, total_oldies;	/* number of heap objects marked */
 
@@ -41,9 +42,7 @@ static unsigned long int   total_marked, total_oldies;	/* number of heap objects
 static unsigned long int   total_smarked;
 #endif
 #endif
-
-STATIC_PROTO(Int  p_inform_gc, (void));
-STATIC_PROTO(Int  p_gc, (void));
+#endif /* !defined(YAPOR) && !defined(THREADS) */
 
 #ifdef EASY_SHUNTING
 static choiceptr current_B;
@@ -57,6 +56,8 @@ static tr_fr_ptr new_TR;
 
 static CELL *HGEN;
 
+STATIC_PROTO(Int  p_inform_gc, (void));
+STATIC_PROTO(Int  p_gc, (void));
 STATIC_PROTO(void push_registers, (Int, yamop *));
 STATIC_PROTO(void marking_phase, (tr_fr_ptr, CELL *, yamop *, CELL *));
 STATIC_PROTO(void compaction_phase, (tr_fr_ptr, CELL *, yamop *, CELL *));
@@ -3091,7 +3092,8 @@ compact_heap(void)
       update_relocation_chain(current, dest);
       ccur = *current;
       next = GET_NEXT(ccur);
-      if (next < H && /* move current cell &
+      if (HEAP_PTR(ccur) &&
+	  (next = GET_NEXT(ccur)) < H && /* move current cell &
 				 * push */
 	  next > current) {	/* into relocation chain  */
 	*dest = ccur;
