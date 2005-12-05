@@ -10,8 +10,13 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-11-26 02:57:25 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-12-05 17:16:10 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.187  2005/11/26 02:57:25  vsc
+* improvements to debugger
+* overflow fixes
+* reading attvars from DB was broken.
+*
 * Revision 1.186  2005/11/23 03:01:32  vsc
 * fix several bugs in save/restore.b
 *
@@ -10545,6 +10550,7 @@ Yap_absmi(int inp)
 	GONext();
       }
       {
+	Int opresult;
 #ifdef COROUTINING
 	/*
 	 * We may wake up goals during our attempt to unify the
@@ -10568,24 +10574,21 @@ Yap_absmi(int inp)
 	B = (choiceptr) H;
 	SET_BB(B);
 	save_hb();
-	if (Yap_IUnify(d0, d1)) {
-	  /* restore B, no need to restore HB */
-	  PREG = PREG->u.l.l;
-	  B = pt1;
+	opresult = Yap_IUnify(d0, d1);
 #ifdef COROUTINING
-	  /* now restore Woken Goals to its old value */
-	  Yap_UpdateTimedVar(WokenGoals, OldWokenGoals);
-	  if (OldWokenGoals == TermNil) {
-	    Yap_undo_signal(YAP_WAKEUP_SIGNAL);
-	  }
-#endif
-	  GONext();
+	/* now restore Woken Goals to its old value */
+	Yap_UpdateTimedVar(WokenGoals, OldWokenGoals);
+	if (OldWokenGoals == TermNil) {
+	  Yap_undo_signal(YAP_WAKEUP_SIGNAL);
 	}
-	/* restore B, and later HB */
-	PREG = NEXTOP(PREG, l);
+#endif
+	/* restore B */
 	B = pt1;
 	SET_BB(PROTECT_FROZEN_B(pt1));
-	ENDCHO(pt1);
+#ifdef COROUTINING
+	H = HBREG;
+#endif
+	HBREG = B->cp_h;
 	/* untrail all bindings made by Yap_IUnify */
 	while (TR != pt0) {
 	  BEGD(d1);
@@ -10616,14 +10619,14 @@ Yap_absmi(int inp)
 	  }
 	  ENDD(d1);
 	}
-	HBREG = B->cp_h;
-#ifdef COROUTINING
-	/* now restore Woken Goals to its old value */
-	Yap_UpdateTimedVar(WokenGoals, OldWokenGoals);
-	if (OldWokenGoals == TermNil) {
-	  Yap_undo_signal(YAP_WAKEUP_SIGNAL);
+	if (opresult) {
+	  /* restore B, no need to restore HB */
+	  PREG = PREG->u.l.l;
+	  GONext();
 	}
-#endif
+	/* restore B, and later HB */
+	PREG = NEXTOP(PREG, l);
+	ENDCHO(pt1);
       }
       GONext();
 

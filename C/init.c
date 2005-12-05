@@ -982,8 +982,9 @@ InitCodes(void)
     Yap_heap_regs->consultlow + Yap_heap_regs->consultcapacity;
   Yap_heap_regs->compiler_compile_mode = 0; /* fast will be for native code */
   Yap_heap_regs->compiler_optimizer_on = TRUE;
-  Yap_heap_regs->maxdepth = 0;
-  Yap_heap_regs->maxlist  = 0;
+  Yap_heap_regs->maxdepth      = 0;
+  Yap_heap_regs->maxlist       = 0;
+  Yap_heap_regs->maxwriteargs  = 0;
 
   Yap_heap_regs->atprompt = 0;
 #ifdef COROUTINING

@@ -16,6 +16,13 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: dif/2 might get into trouble restoring assignments to
+attributes. </li>
+<li> NEW: Yap_DebugPlWrite and Yap_DebugErrorPutc for those debugging
+moments. </li>
+<li> FIXED: get rid of dead internal variable MutableList. </li>
+<li> NEW: write_depth/3 for very large compound terms. </li>
+<li> FIXED: new bug in garbage collection. </li>
 <li> FIXED: overflow handling in DB/AttVars was resetting old var, and
   wasn't resetting trail. </li>
 <li> FIXED: when rebuilding DB term with attvars, set global var to

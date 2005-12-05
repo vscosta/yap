@@ -16,14 +16,20 @@ project_from_CPT(V,tab(Table,Deps,Szs),tab(NewTable,NDeps,NSzs)) :-
 
 propagate_evidence(V, Evs) :-
 	clpbn:get_atts(V, [evidence(Ev),dist(Out,_,_)]), !,
-	generate_szs_with_evidence(Out,Ev,Evs).
+	generate_szs_with_evidence(Out,Ev,Evs,Found),
+	(var(Found) -> 
+	    clpbn:get_atts(V, [key(K)]),
+	    throw(clpbn(evidence_does_not_match,K,Ev,[Out]))
+	;
+	     true
+	).
 propagate_evidence(_, _).
 
-generate_szs_with_evidence([],_,[]).
-generate_szs_with_evidence([Ev|Out],Ev,[ok|Evs]) :- !,
-	generate_szs_with_evidence(Out,Ev,Evs).
-generate_szs_with_evidence([_|Out],Ev,[not_ok|Evs]) :-
-	generate_szs_with_evidence(Out,Ev,Evs).
+generate_szs_with_evidence([],_,[],_).
+generate_szs_with_evidence([Ev|Out],Ev,[ok|Evs],found) :- !,
+	generate_szs_with_evidence(Out,Ev,Evs,found).
+generate_szs_with_evidence([_|Out],Ev,[not_ok|Evs],Found) :-
+	generate_szs_with_evidence(Out,Ev,Evs,Found).
 
 find_projection_factor([V|Deps], V1, Deps, [Sz|Szs], Szs, F, Sz) :-
 	V == V1, !,

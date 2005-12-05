@@ -1793,7 +1793,6 @@ Yap_InitYaamRegs(void)
   RESET_VARIABLE((CELL *)Yap_GlobalBase);
   DelayedVars = Yap_NewTimedVar(MkIntTerm(0));
   WokenGoals = Yap_NewTimedVar(TermNil);
-  MutableList = Yap_NewTimedVar(TermNil);
   AttsMutableList = Yap_NewTimedVar(MkIntTerm(0));
 #endif
   GcGeneration = Yap_NewTimedVar(MkIntTerm(0));

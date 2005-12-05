@@ -401,10 +401,9 @@ push_registers(Int num_regs, yamop *nextop)
   TR++;
 #ifdef COROUTINING
   TrailTerm(TR) = WokenGoals;
-  TrailTerm(TR+1) = MutableList;
-  TrailTerm(TR+2) = AttsMutableList;
-  TrailTerm(TR+3) = DelayedVars;
-  TR += 4;
+  TrailTerm(TR+1) = AttsMutableList;
+  TrailTerm(TR+2) = DelayedVars;
+  TR += 3;
 #endif
   for (i = 1; i <= num_regs; i++)
     TrailTerm(TR++) = (CELL) XREGS[i];
@@ -465,7 +464,6 @@ pop_registers(Int num_regs, yamop *nextop)
 #ifdef COROUTINING
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   WokenGoals = TrailTerm(ptr++);
-  MutableList = TrailTerm(ptr++);
   AttsMutableList = TrailTerm(ptr++);
   DelayedVars = TrailTerm(ptr++);
 #endif

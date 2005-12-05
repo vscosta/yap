@@ -110,7 +110,7 @@ add_table_deps_to_variables([], []).
 add_table_deps_to_variables([var(V,_,_,_,_,_,Deps,K)|LV], DepGraph) :-
 	steal_deps_for_variable(DepGraph, V, NDepGraph, Deps),
 	compute_size(Deps,[],K),
-%	( clpbn:get_atts(V,[key(Key)]) -> write(Key:K), nl ; true),
+%	( clpbn:get_atts(V,[key(Key)]) -> format('~w:~w~n',[Key,K]) ; true),
 	add_table_deps_to_variables(LV, NDepGraph).
 	
 steal_deps_for_variable([V-Info|DepGraph], V0, NDepGraph, [Info|Deps]) :-
@@ -148,6 +148,7 @@ process(LV0, InputVs, Out) :-
 process(LV0, _, Out) :-
 	fetch_tables(LV0, WorkTables),
 	multiply_tables(WorkTables, Out).
+
 
 find_best([], V, _TF, V, _, [], _).
 %:-
@@ -242,7 +243,6 @@ include([var(V,P,VSz,D,Parents,Ev,Tabs,Est)|LV],tab(T,Vs,Sz),V1,[var(V,P,VSz,D,P
 include([var(V,P,VSz,D,Parents,Ev,Tabs,_)|LV],Table,NV,[var(V,P,VSz,D,Parents,Ev,NTabs,NEst)|NLV]) :-
 	update_tables(Tabs,NTabs,Table,NV),
 	compute_size(NTabs, [], NEst),
-%	( clpbn:get_atts(V,[key(Key)]) -> write(Key:NEst), nl ; true),
 	include(LV,Table,NV,NLV).
 
 update_tables([],[Table],Table,_).

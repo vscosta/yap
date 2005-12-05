@@ -18,7 +18,8 @@
 :- use_module(library(lists),
 	      [member/2,
 	       append/3,
-	       delete/3]).
+	       delete/3,
+	       max_list/2]).
 
 :- use_module(library(ordsets),
 	      [ord_subtract/3]).
@@ -98,6 +99,11 @@ graph_representation([V|Vs], Graph, I0, Keys, [I-IParents|TGraph]) :-
 	arg(I, Graph, var(_,_,_,_,_,_,_,NewTable2,SortedIndices)),
 	graph_representation(Vs, Graph, I, Keys, TGraph).
 
+write_pars([]).
+write_pars([V|Parents]) :- 
+	clpbn:get_atts(V, [key(K)]),write(K),nl,
+	write_pars(Parents).
+
 get_sizes([], []).
 get_sizes([V|Parents], [Sz|Szs]) :-
 	clpbn:get_atts(V, [dist(Vals,_,_)]),
@@ -167,6 +173,7 @@ compile_graph(Graph) :-
 compile_vars([],_).
 compile_vars([var(_,I,_,Vals,Sz,VarSlot,Parents,_,_)|VarsInfo],Graph)
 :-
+	
 	compile_var(I,Vals,Sz,VarSlot,Parents,Graph),
 	compile_vars(VarsInfo,Graph).
 
@@ -204,7 +211,7 @@ mult_list([Sz|Sizes],Mult0,Mult) :-
 
 % compile node as set of facts, faster execution 
 compile_var(TotSize,I,_Vals,Sz,CPTs,Parents,_Sizes,Graph) :-
-	TotSize < 1024, TotSize > 0, !,
+	TotSize < 1024*64, TotSize > 0, !,
 	multiply_all(I,Parents,CPTs,Sz,Graph).
 compile_var(_,I,_,_,_,_,_,_) :-
 	assert(implicit(I)).
@@ -231,13 +238,15 @@ fetch_val([_|Vals],I0,Pos) :-
 	I is I0+1,
 	fetch_val(Vals,I,Pos).
 
+:- dynamic a/0.
+
 multiply_all(CPTs,Size,Graph,Probs) :-
 	init_factors(Size,Factors0),
 	mult_factors(CPTs,Size,Graph,Factors0,Factors),
-	normalise_factors(Factors,0,_,Probs,_).
+	normalise_factors(Factors,Probs).
 
 init_factors(0,[]) :- !.
-init_factors(I0,[1|Factors]) :-
+init_factors(I0,[0.0|Factors]) :-
 	I is I0-1,
 	init_factors(I,Factors).
 	
@@ -260,9 +269,20 @@ factor([I|Parents],Table,Graph,Pos0,Weight0,Pos) :-
 mult_with_probs([],_,_,_,[]).
 mult_with_probs([F0|Factors0],Indx,Off,Table,[F|Factors]) :-
 	arg(Indx,Table,P1),
-	F is F0*P1,
+	F is F0+log(P1),
 	Indx1 is Indx+Off,
 	mult_with_probs(Factors0,Indx1,Off,Table,Factors).	
+
+normalise_factors(Factors,Probs) :-
+	max_list(Factors,Max),
+	logs2list(Factors,Max,NFactors),
+	normalise_factors(NFactors,0,_,Probs,_).
+
+logs2list([],_,[]).
+logs2list([Log|Factors],Max,[P|NFactors]) :-
+	P is exp(Log+Max),
+	logs2list(Factors,Max,NFactors).
+
 
 normalise_factors([],Sum,Sum,[],1.0) :- Sum > 0.0.
 normalise_factors([F|Factors],S0,S,[P0|Probs],PF) :-
@@ -360,7 +380,7 @@ gen_e0(Sz,[0|E0L]) :-
 process_chains(0,_,F,F,_,_,Est,Est) :- !.
 process_chains(ToDo,VarOrder,End,Start,Graph,Len,Est0,Estf) :-
 	process_chains(Start,VarOrder,Int,Graph,Len,Est0,Esti),
-%cvt2problist(Esti, Probs), format('done ~d: ~w~n',[ToDo,Probs]),
+(ToDo mod 100 =:= 0 -> statistics,cvt2problist(Esti, Probs), Int =[S|_], format('did ~d: ~w~n ~w~n',[ToDo,Probs,S]) ; true),
 	ToDo1 is ToDo-1,
 	process_chains(ToDo1,VarOrder,End,Int,Graph,Len,Esti,Estf).
 
@@ -369,7 +389,7 @@ process_chains([], _, [], _, _,[],[]).
 process_chains([Sample0|Samples0], VarOrder, [Sample|Samples], Graph, SampLen,[E0|E0s],[Ef|Efs]) :-
 	functor(Sample,sample,SampLen),
 	do_sample(VarOrder,Sample,Sample0,Graph),
-%	format('~w ',[Sample]),
+%format('Sample = ~w~n',[Sample]),
 	update_estimate(E0,Sample,Ef),
 	process_chains(Samples0, VarOrder, Samples, Graph, SampLen,E0s,Efs).
 
@@ -396,8 +416,7 @@ do_var(I,Sample,Sample0,Graph) :-
 multiply_all_in_context(Parents,Args,CPTs,Sz,Graph,Vals) :-
 	set_pos(Parents,Args,Graph),
 	multiply_all(CPTs,Sz,Graph,Vals),
-	assert(mall(Vals)),
-	fail.
+	assert(mall(Vals)), fail.
 multiply_all_in_context(_,_,_,_,_,Vals) :-
 	retract(mall(Vals)).
 

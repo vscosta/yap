@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.64 2005-11-22 11:25:10 tiagosoares Exp $	 *
+* version:      $Id: Yapproto.h,v 1.65 2005-12-05 17:16:11 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -207,6 +207,10 @@ void         STD_PROTO(Yap_InitInlines,(void));
 void	STD_PROTO(Yap_InitPlIO,(void));
 void	STD_PROTO(Yap_InitBackIO,(void));
 void	STD_PROTO(Yap_InitIOPreds,(void));
+#ifdef DEBUG
+extern void Yap_DebugPlWrite (Term t);
+extern void Yap_DebugErrorPutc (int n);
+#endif
 
 /* depth_lim.c */
 void	STD_PROTO(Yap_InitItDeepenPreds,(void));

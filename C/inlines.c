@@ -369,94 +369,107 @@ static Int
 p_dif(void)
 {				/* ? \= ?  */
 #if SHADOW_HB
-      register CELL *HBREG = HB;
+  register CELL *HBREG = HB;
 #endif
-      BEGD(d0);
+  BEGD(d0);
+  BEGD(d1);
+  d0 = ARG1;
+  deref_head(d0, dif_unk1);
+ dif_nvar1:
+  /* first argument is bound */
+  d1 = ARG2;
+  deref_head(d1, dif_nvar1_unk2);
+ dif_nvar1_nvar2:
+  /* both arguments are bound */
+  if (d0 == d1) {
+    return FALSE;
+  }
+  if (IsAtomOrIntTerm(d0) || IsAtomOrIntTerm(d1)) {
+    return TRUE;
+  } else {
+#ifdef COROUTINING
+    /*
+     * We may wake up goals during our attempt to unify the
+     * two terms. If we are adding to the tail of a list of
+     * woken goals that should be ok, but otherwise we need
+     * to restore WokenGoals to its previous value.
+     */
+    CELL OldWokenGoals = Yap_ReadTimedVar(WokenGoals);
+#endif
+    register tr_fr_ptr pt0;
+    /* store the old value of TR for clearing bindings */
+    pt0 = TR;
+    BEGCHO(pt1);
+    pt1 = B;
+    /* make B and HB point to H to guarantee all bindings will
+     * be trailed
+     */
+    HBREG = H;
+    B = (choiceptr) H;
+    SET_BB(B);
+    save_hb();
+    d0 = Yap_IUnify(d0, d1);
+#ifdef COROUTINING
+    /* now restore Woken Goals to its old value */
+    Yap_UpdateTimedVar(WokenGoals, OldWokenGoals);
+    if (OldWokenGoals == TermNil) {
+      Yap_undo_signal(YAP_WAKEUP_SIGNAL);
+    }
+#endif
+    /* restore B */
+    B = pt1;
+    SET_BB(PROTECT_FROZEN_B(pt1));
+#ifdef COROUTINING
+    H = HBREG;
+#endif
+    HBREG = B->cp_h;
+    /* untrail all bindings made by Yap_IUnify */
+    while (TR != pt0) {
       BEGD(d1);
-      d0 = ARG1;
-      deref_head(d0, dif_unk1);
-    dif_nvar1:
-      /* first argument is bound */
-      d1 = ARG2;
-      deref_head(d1, dif_nvar1_unk2);
-    dif_nvar1_nvar2:
-      /* both arguments are bound */
-      if (d0 == d1) {
-	return(FALSE);
-      }
-      if (IsAtomOrIntTerm(d0) || IsAtomOrIntTerm(d1)) {
-	return(TRUE);
-      }
-      {
-#ifdef COROUTINING
-	/*
-	 * We may wake up goals during our attempt to unify the
-	 * two terms. If we are adding to the tail of a list of
-	 * woken goals that should be ok, but otherwise we need
-	 * to restore WokenGoals to its previous value.
-	 */
-	CELL OldWokenGoals = Yap_ReadTimedVar(WokenGoals);
-
+      d1 = TrailTerm(--TR);
+      if (IsVarTerm(d1)) {
+#if defined(SBA) && defined(YAPOR)
+	/* clean up the trail when we backtrack */
+	if (Unsigned((Int)(d1)-(Int)(H_FZ)) >
+	    Unsigned((Int)(B_FZ)-(Int)(H_FZ))) {
+	  RESET_VARIABLE(STACK_TO_SBA(d1));
+	} else
 #endif
-	/* We will have to look inside compound terms */
-	BEGP(pt0);
-	/* store the old value of TR for clearing bindings */
-	pt0 = (CELL *)TR;
-	BEGCHO(pt1);
-	pt1 = B;
-	/* make B and HB point to H to guarantee all bindings will
-	 * be trailed
-	 */
-	HBREG = H;
-	B = (choiceptr) H;
-	save_hb();
-	if (Yap_IUnify(d0, d1)) {
-	  /* restore B, no need to restore HB */
-	  B = pt1;
-#ifdef COROUTINING
-	  /* now restore Woken Goals to its old value */
-	  Yap_UpdateTimedVar(WokenGoals, OldWokenGoals);
-	  if (OldWokenGoals == TermNil) {
-	    Yap_undo_signal(YAP_WAKEUP_SIGNAL);
-	  }
-#endif
-	  return FALSE;
-	}
-	B = pt1;
-	/* restore B, and later HB */
-	ENDCHO(pt1);
-	BEGP(pt1);
-	/* untrail all bindings made by Yap_IUnify */
-	while (TR != (tr_fr_ptr)pt0) {
-	  pt1 = (CELL *) TrailTerm(--TR);
-	  RESET_VARIABLE(pt1);
-	}
-	HBREG = B->cp_h;
-	ENDP(pt1);
+	  /* normal variable */
+	  RESET_VARIABLE(d1);
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+      } else /* if (IsApplTerm(d1)) */ {
+	CELL *pt = RepAppl(d1);
+	/* AbsAppl means */
+	/* multi-assignment variable */
+	/* so the next cell is the old value */ 
+#ifdef FROZEN_STACKS
+	pt[0] = TrailVal(--TR);
+#else
+	pt[0] = TrailTerm(--TR);
+	TR--;
+#endif /* FROZEN_STACKS */
+#endif /* MULTI_ASSIGNMENT_VARIABLES */
       }
-#ifdef COROUTINING
-      /* now restore Woken Goals to its old value */
-      Yap_UpdateTimedVar(WokenGoals, OldWokenGoals);
-      if (OldWokenGoals == TermNil) {
-	Yap_undo_signal(YAP_WAKEUP_SIGNAL);
-      }
-#endif
-      return TRUE;
-      ENDP(pt0);
-
-      BEGP(pt0);
-      deref_body(d0, pt0, dif_unk1, dif_nvar1);
-      ENDP(pt0);
-      /* first argument is unbound */
-      return(FALSE);
-
-      BEGP(pt0);
-      deref_body(d1, pt0, dif_nvar1_unk2, dif_nvar1_nvar2);
-      ENDP(pt0);
-      /* second argument is unbound */
-      return FALSE;
       ENDD(d1);
-      ENDD(d0);
+    }
+    return !d0;
+    ENDP(pt0);
+  }
+
+  BEGP(pt0);
+  deref_body(d0, pt0, dif_unk1, dif_nvar1);
+  ENDP(pt0);
+  /* first argument is unbound */
+  return FALSE;
+
+  BEGP(pt0);
+  deref_body(d1, pt0, dif_nvar1_unk2, dif_nvar1_nvar2);
+  ENDP(pt0);
+  /* second argument is unbound */
+  return FALSE;
+  ENDD(d1);
+  ENDD(d0);
 }
 
 static Int 

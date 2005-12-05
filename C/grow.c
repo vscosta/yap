@@ -159,8 +159,6 @@ SetHeapRegs(void)
 #ifdef COROUTINING
   if (DelayedVars)
     DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
-  if (MutableList)
-    MutableList = AbsAppl(PtoGloAdjust(RepAppl(MutableList)));
   if (AttsMutableList)
     AttsMutableList = AbsAppl(PtoGloAdjust(RepAppl(AttsMutableList)));
   if (WokenGoals)
@@ -214,8 +212,6 @@ SetStackRegs(void)
 #ifdef COROUTINING
   if (DelayedVars)
     DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
-  if (MutableList)
-    MutableList = AbsAppl(PtoGloAdjust(RepAppl(MutableList)));
   if (AttsMutableList)
     AttsMutableList = AbsAppl(PtoGloAdjust(RepAppl(AttsMutableList)));
   if (WokenGoals)

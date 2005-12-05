@@ -1,6 +1,7 @@
 
 :- module(clpbn_aggregates, [
 	cpt_average/4,
+	cpt_average/5,
 	cpt_max/4,
 	cpt_min/4
 	]).
@@ -12,59 +13,64 @@
 cpt_average(Vars, Key, Els0, CPT) :-
 	check_domain(Els0, Els),
 	length(Els, SDomain),
-	build_avg_table(Vars, Els, SDomain, Key, CPT).
+	build_avg_table(Vars, Els, SDomain, Els0, Key, 1.0, CPT).
+
+cpt_average(Vars, Key, Els0, Softness, CPT) :-
+	check_domain(Els0, Els),
+	length(Els, SDomain),
+	build_avg_table(Vars, Els, SDomain, Els0, Key, Softness, CPT).
 
 cpt_max(Vars, Key, Els0, CPT) :-
 	check_domain(Els0, Els),
 	length(Els, SDomain),
-	build_max_table(Vars, Els, SDomain, Key, CPT).
+	build_max_table(Vars, Els, SDomain, Els0, Key, CPT).
 
 cpt_min(Vars, Key, Els0, CPT) :-
 	check_domain(Els0, Els),
 	length(Els, SDomain),
-	build_min_table(Vars, Els, SDomain, Key, CPT).
+	build_min_table(Vars, Els, SDomain, Els0, Key, CPT).
 
-build_avg_table(Vars, Domain, SDomain, _, p(Domain, CPT, Vars)) :-
+build_avg_table(Vars, Domain, SDomain, ODomain, _, 1.0, p(ODomain, CPT, Vars)) :-
 	int_power(Vars, SDomain, 1, TabSize),
 	TabSize =< 16, 
 	/* case gmp is not there !! */
 	TabSize > 0, !,
 	average_cpt(Vars, Domain, CPT).
-build_avg_table(Vars, Domain, _, Key, p(Domain, CPT, [V1,V2])) :-
+build_avg_table(Vars, Domain, _, ODomain, Key, Softness, p(ODomain, CPT, [V1,V2])) :-
 	length(Vars,L),
 	LL1 is L//2,
 	LL2 is L-LL1,
 	list_split(LL1, Vars, L1, L2),
 	Domain = [Min|Els1],
 	last(Els1,Max),
-	build_intermediate_table(LL1, sum(Min,Max), L1, V1, Key,  0, I1),
-	build_intermediate_table(LL2, sum(Min,Max), L2, V2, Key, I1, _),
-	normalised_average_cpt(L, [V1,V2], Domain, CPT).
+	build_intermediate_table(LL1, sum(Min,Max), L1, V1, Key,  Softness, 0, I1),
+	build_intermediate_table(LL2, sum(Min,Max), L2, V2, Key, Softness, I1, _),
+	normalised_average_cpt(L, [V1,V2], Domain, Softness, CPT).
 	
-build_max_table(Vars, Domain, SDomain, _, p(Domain, CPT, Vars)) :-
+build_max_table(Vars, Domain, SDomain, ODomain, _, p(ODomain, CPT, Vars)) :-
 	int_power(Vars, SDomain, 1, TabSize),
 	TabSize =< 16, !,
 	max_cpt(Vars, Domain, CPT).
-build_max_table(Vars, Domain, Domain, Key, p(Domain, CPT, [V1,V2])) :-
+build_max_table(Vars, Domain, _, ODomain, Key, p(ODomain, CPT, [V1,V2])) :-
 	length(Vars,L),
 	LL1 is L//2,
 	LL2 is L-LL1,
 	list_split(LL1, Vars, L1, L2),
-	build_intermediate_table(LL1, max(Domain,CPT), L1, V1, Key,  0, I1),
-	build_intermediate_table(LL2, max(Domain,CPT), L2, V2, Key, I1, _),
+	build_intermediate_table(LL1, max(Domain,CPT), L1, V1, Key, 1.0,  0, I1),
+	build_intermediate_table(LL2, max(Domain,CPT), L2, V2, Key, 1.0, I1, _),
 	max_cpt([V1,V2], Domain, CPT).
 	
-build_min_table(Vars, Domain, SDomain, _, p(Domain, CPT, Vars)) :-
+build_min_table(Vars, Domain, SDomain, ODomain, _, p(ODomain, CPT, Vars)) :-
 	int_power(Vars, SDomain, 1, TabSize),
 	TabSize =< 16, !,
 	min_cpt(Vars, Domain, CPT).
-build_min_table(Vars, Domain, _, Key, p(Domain, CPT, [V1,V2])) :-
+build_min_table(Vars, Domain, _, ODomain, Key, p(ODomain, CPT, [V1,V2])) :-
 	length(Vars,L),
 	LL1 is L//2,
 	LL2 is L-LL1,
 	list_split(LL1, Vars, L1, L2),
-	build_intermediate_table(LL1, min(Domain,CPT), L1, V1, Key,  0, I1),
-	build_intermediate_table(LL2, min(Domain,CPT), L2, V2, Key, I1, _),
+	build_intermediate_table(LL1, min(Domain,CPT), L1, V1, Key, 1.0,  0, I1),
+	build_intermediate_table(LL2, min(Domain,CPT), L2, V2, Key, 1.0, I1, _),
 	min_cpt([V1,V2], Domain, CPT).
 	
 int_power([], _, TabSize, TabSize).
@@ -72,25 +78,25 @@ int_power([_|L], X, I0, TabSize) :-
 	I is I0*X,
 	int_power(L, X, I, TabSize).
 
-build_intermediate_table(1,_,[V],V, _, I, I) :- !.
-build_intermediate_table(2, Op, [V1,V2], V, Key, I0, If) :- !,
+build_intermediate_table(1,_,[V],V, _, _, I, I) :- !.
+build_intermediate_table(2, Op, [V1,V2], V, Key, Softness, I0, If) :- !,
 	If is I0+1,
-	generate_tmp_random(Op, 2, [V1,V2], V, Key, I0).
-build_intermediate_table(N, Op, L, V, Key, I0, If) :-
+	generate_tmp_random(Op, 2, [V1,V2], V, Key, Softness, I0).
+build_intermediate_table(N, Op, L, V, Key, Softness, I0, If) :-
 	LL1 is N//2,
 	LL2 is N-LL1,
 	list_split(LL1, L, L1, L2),
 	I1 is I0+1,
-	build_intermediate_table(LL1, Op, L1, V1, Key, I1, I2),
-	build_intermediate_table(LL2, Op, L2, V2, Key, I2, If),
-	generate_tmp_random(Op, N, [V1,V2], V, Key, I0).
+	build_intermediate_table(LL1, Op, L1, V1, Key, Softness, I1, I2),
+	build_intermediate_table(LL2, Op, L2, V2, Key, Softness, I2, If),
+	generate_tmp_random(Op, N, [V1,V2], V, Key, Softness, I0).
 
 % averages are transformed into sums.
-generate_tmp_random(sum(Min,Max), N, [V1,V2], V, Key, I) :-
+generate_tmp_random(sum(Min,Max), N, [V1,V2], V, Key, Softness, I) :-
 	Lower is Min*N,
 	Upper is Max*N,
 	generate_list(Lower, Upper, Nbs),
-	sum_cpt([V1,V2], Nbs, CPT),
+	sum_cpt([V1,V2], Nbs, Softness, CPT),
 %	write(sum(Nbs, CPT, [V1,V2])),nl, % debugging
 	{ V = 'AVG'(I,Key) with p(Nbs,CPT,[V1,V2]) }.
 generate_tmp_random(max(Domain,CPT), _, [V1,V2], V, Key, I) :-
@@ -134,17 +140,17 @@ average_cpt(Vs,Vals,CPT) :-
 	generate_indices(Vals,Inds,0,Av),
 	combine_all(Vs, Inds, Cs),
 	length(Vs, Max),
-	average_possible_cases(0, Av, Max, Cs, CPT).
+	average_possible_cases(0, Av, Max, Cs, 1.0, CPT).
 
-sum_cpt(Vs, Vals, CPT) :-
+sum_cpt(Vs, Vals, Softness, CPT) :-
 	length(Vals,Sz),
 	combine_all(Vs, Cs),
-	sum_possible_cases(0, Sz, Cs, CPT).
+	sum_possible_cases(0, Sz, Cs, Softness, CPT).
 
-normalised_average_cpt(Max, Vs, Vals, CPT) :-
+normalised_average_cpt(Max, Vs, Vals, Softness, CPT) :-
 	generate_indices(Vals,_,0,Sz),
 	combine_all(Vs, Cs),
-	average_possible_cases(0, Sz, Max, Cs, CPT).
+	average_possible_cases(0, Sz, Max, Cs, Softness, CPT).
 
 
 generate_indices([],[],Av,Av).
@@ -185,37 +191,39 @@ sum_all([C|Cs],N0,N) :-
 	X is C+N0,
 	sum_all(Cs,X,N).
 
-average_possible_cases(Av,Av,_,_,[]) :- !.
-average_possible_cases(I,Av,Max,Cs,Lf) :-
-	average_cases2(Cs,I,Max,Lf,L0),
+average_possible_cases(Av,Av,_,_,_,[]) :- !.
+average_possible_cases(I,Av,Max,Cs,Softness,Lf) :-
+	average_cases2(Cs,I,Av,Softness,Lf,L0),
 	I1 is I+1,
-	average_possible_cases(I1,Av,Max,Cs,L0).
+	average_possible_cases(I1,Av,Max,Cs,Softness,L0).
 
-average_cases2([], _, _, L, L).
-average_cases2([C|Cs], I, Av, [P|Lf], L0) :-
-	calculate_avg_prob(C, I, Av, P),
-	average_cases2(Cs, I, Av, Lf, L0).
+average_cases2([], _, _, _, L, L).
+average_cases2([C|Cs], I, Av, Softness, [P|Lf], L0) :-
+	calculate_avg_prob(C, I, Av, Softness, P),
+	average_cases2(Cs, I, Av, Softness, Lf, L0).
 
-calculate_avg_prob(C, I, Av, 1.0) :-
+calculate_avg_prob(C, I, Av, Softness, Softness) :-
 	sum_all(C,0,N),
 	I =:= integer(round(N/Av)), !.
-calculate_avg_prob(_, _, _, 0.0).
+calculate_avg_prob(_, _, Av, Softness, Comp) :-
+	Comp is (1.0-Softness)/(Av-1).
 
-sum_possible_cases(Av,Av,_,[]) :- !.
-sum_possible_cases(I,Av,Cs,Lf) :-
-	sum_cases2(Cs,I,Lf,L0),
+sum_possible_cases(Av,Av,_, _, []) :- !.
+sum_possible_cases(I,Av,Cs,Softness, Lf) :-
+	sum_cases2(Cs,I, Av, Softness, Lf,L0),
 	I1 is I+1,
-	sum_possible_cases(I1,Av,Cs,L0).
+	sum_possible_cases(I1,Av,Cs,Softness, L0).
 
-sum_cases2([], _, L, L).
-sum_cases2([C|Cs], I, [P|Lf], L0) :-
-	calculate_sum_prob(C, I, P),
-	sum_cases2(Cs, I, Lf, L0).
+sum_cases2([], _, _, _, L, L).
+sum_cases2([C|Cs], I, Av, Softness, [P|Lf], L0) :-
+	calculate_sum_prob(C, I, Av, Softness, P),
+	sum_cases2(Cs, I, Av, Softness, Lf, L0).
 
-calculate_sum_prob(C, I, 1.0) :-
+calculate_sum_prob(C, I, _, Softness, Softness) :-
 	sum_all(C,0,N),
 	I =:= N, !.
-calculate_sum_prob(_, _, 0.0).
+calculate_sum_prob(_, _, Av, Softness, Comp) :-
+	Comp is (1.0-Softness)/(Av-1).
 
 %
 % generate a CPT for max.

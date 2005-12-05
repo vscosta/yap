@@ -489,14 +489,15 @@ write_term(_,_,_).
 '$process_wt_opts'([portrayed(false)|Opts], Flag0, Flag, CallBacks) :-
 	FlagI is Flag0 /\ 7,
 	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
-'$process_wt_opts'([max_depth(D)|Opts], Flag0, Flag, [max_depth(D1,D0)|CallBacks]) :-
-	write_depth(D1,D0),
-	write_depth(D,D),
+'$process_wt_opts'([max_depth(D)|Opts], Flag0, Flag, [max_depth(D1,D0,D2)|CallBacks]) :-
+	write_depth(D1,D0,D2),
+	D10 is D*10,
+	write_depth(D,D,D10),
 	'$process_wt_opts'(Opts, Flag0, Flag, CallBacks).
 
 '$process_wt_callbacks'([]).
-'$process_wt_callbacks'([max_depth(D1,D0)|Cs]) :-
-	write_depth(D1,D0),
+'$process_wt_callbacks'([max_depth(D1,D0,D2)|Cs]) :-
+	write_depth(D1,D0,D2),
 	'$process_wt_callbacks'(Cs).
 
 
@@ -976,5 +977,4 @@ current_stream(File, Opts, Stream) :-
 	current_output(SO),
 	throw(Exception).
 
-	
-	
+write_depth(T,L) :- write_depth(T,L,_).

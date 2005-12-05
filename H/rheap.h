@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2005-11-23 03:01:33 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-12-05 17:16:11 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.58  2005/11/23 03:01:33  vsc
+* fix several bugs in save/restore.b
+*
 * Revision 1.57  2005/10/28 17:38:50  vsc
 * sveral updates
 *
@@ -479,8 +482,6 @@ restore_codes(void)
   if (Yap_heap_regs->wake_up_code != NULL)
     Yap_heap_regs->wake_up_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->wake_up_code));
 #if !defined(THREADS)
-  Yap_heap_regs->wl.mutable_list =
-    AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.mutable_list)));
   Yap_heap_regs->wl.atts_mutable_list =
     AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.atts_mutable_list)));
   if (Yap_heap_regs->wl.dynamic_arrays) {

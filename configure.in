@@ -463,6 +463,7 @@ fi
 
 dnl defaults
 INSTALL_DLLS="#"
+EXTRA_OBJS=""
 SHLIB_LD="@#"
 DO_SECOND_LD="#"
 M4="m4"

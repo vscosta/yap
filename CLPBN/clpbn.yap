@@ -116,11 +116,11 @@ add_evidence(V,V).
 % or by call_residue/2
 %
 project_attributes(GVars, AVars) :-
-	GVars = [_|_],
-	AVars = [_|_], !,
+	AVars = [_|_],
+	solver(Solver),
+	( GVars = [_|_] ; Solver = graphs), !,
 	sort_vars_by_key(AVars,SortedAVars,DiffVars),
 	get_clpbn_vars(GVars,CLPBNGVars),
-	solver(Solver),
 	incorporate_evidence(SortedAVars, AllVars),
 	write_out(Solver,CLPBNGVars, AllVars, DiffVars).
 project_attributes(_, _).

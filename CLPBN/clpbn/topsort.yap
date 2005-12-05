@@ -3,28 +3,52 @@
 		    topsort/3,
 		    reversed_topsort/3]).
 
-:- use_module(library(ordsets),
-	      [ord_subtract/3,
-	       ord_insert/3]).
+:- use_module(library(rbtrees),
+	      [new/1,
+	       lookup/3,
+	       insert/4]).
 
-:- attribute index/1,count/1.
+:- use_module(library(lists),
+	      [reverse/2]).
 
 /* simple implementation of a topological sorting algorithm */
 /* graph is as Node-[Parents] */
 
-topsort([], []) :- !.
-topsort(Graph0,Sorted) :-
-	add_parentless(Graph0, Sorted, IncludedI, Graph1, SortedRest),
-	sort(IncludedI, Included),
-	delete_parents(Graph1, Included, NoParents),
-	topsort(NoParents, SortedRest).
+topsort(Graph0, Sorted) :-
+	new(RB),
+	topsort(Graph0, [], RB, Sorted).
 
-topsort([], Sorted0, Sorted0) :- !.
-topsort(Graph0,Sorted0, Sorted) :-
-	add_parentless(Graph0, Sorted, IncludedI, Graph1, SortedRest),
-	sort(IncludedI, Included),
-	delete_parents(Graph1, Included, NoParents),
-	topsort(NoParents, Sorted0, SortedRest).
+topsort(Graph0, Sorted0, Sorted) :-
+        new(RB),
+	topsort(Graph0, Sorted0, RB, Sorted).
+
+topsort([], Sort, _, Sort) :- !.
+topsort(Graph0, Sort0, Found0, Sort) :-
+	add_nodes(Graph0, Found0, SortI, NewGraph, Found, Sort),
+	topsort(NewGraph, Sort0, Found, SortI).
+
+add_nodes([], Found, Sort, [], Found, Sort).
+add_nodes([N-Ns|Graph0], Found0, SortI, NewGraph, Found, NSort) :-
+(N=1600 -> write(Ns), nl ; true),
+	delete_nodes(Ns, Found0, NNs),
+	( NNs == [] ->
+	   NewGraph = IGraph,
+	   NSort = [N|Sort],
+	   insert(Found0, N, '$', FoundI)
+	;
+	   NewGraph = [N-NNs|IGraph],
+	   NSort = Sort,
+	   FoundI = Found0
+	),	   
+	add_nodes(Graph0, FoundI, SortI, IGraph, Found, Sort).
+
+delete_nodes([], _, []).
+delete_nodes([N|Ns], Found, NNs) :-
+	lookup(N,'$',Found), !,
+	delete_nodes(Ns, Found, NNs).
+delete_nodes([N|Ns], Found, [N|NNs]) :-
+	delete_nodes(Ns, Found, NNs).
+
 
 %
 % add the first elements found by topsort to the end of the list, so we

@@ -50,7 +50,7 @@ typedef struct write_globs {
   wrf      writech;
   int      Quote_illegal, Ignore_ops, Handle_vars, Use_portray;
   int      keep_terms;
-  UInt     MaxDepth, MaxList;
+  UInt     MaxDepth, MaxList, MaxArgs;
 } wglbs;
 
 STATIC_PROTO(void wrputn, (Int, wrf));
@@ -698,6 +698,12 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
       wrputc('{', wglb->writech);
       lastw = separator;
       for (op = 1; op <= Arity; ++op) {
+	if (op == wglb->MaxArgs) {
+	  wrputc('.', wglb->writech);
+	  wrputc('.', wglb->writech);
+	  wrputc('.', wglb->writech);
+	  break;
+	}
 	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot(t);      
@@ -722,6 +728,12 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
       for (op = 1; op <= Arity; ++op) {
 	long sl = 0;
 
+	if (op == wglb->MaxArgs) {
+	  wrputc('.', wglb->writech);
+	  wrputc('.', wglb->writech);
+	  wrputc('.', wglb->writech);
+	  break;
+	}
 	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot(t);      
@@ -758,6 +770,7 @@ Yap_plwrite(Term t, int (*mywrite) (int, int), int flags)
   wglb.Use_portray = flags & Use_portray_f;
   wglb.MaxDepth = max_depth;
   wglb.MaxList = max_list;
+  wglb.MaxArgs = max_write_args;
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   wglb.keep_terms = (flags & (Use_portray_f|To_heap_f)); 

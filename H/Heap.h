@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.86 2005-11-17 13:40:18 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.87 2005-12-05 17:16:11 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -83,14 +83,28 @@ typedef struct worker_local_struct {
   scratch_block scratchpad;
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   Term   woken_goals;
-  Term   mutable_list;
   Term   atts_mutable_list;
 #endif
   /* gc_stuff */
   Term     gc_generation;	/* global stack limit at last generation */ 
   unsigned int      gc_calls;	/* number of times GC has been called */ 
   Int      tot_gc_time; /* total time spent in GC */
-  Int      tot_gc_recovered; /* number of heap objects in all garbage collections */
+  YAP_ULONG_LONG      tot_gc_recovered; /* number of heap objects in all garbage collections */
+/* in a single gc */
+#if defined(YAPOR) || defined(THREADS)
+  /* otherwise, use global variables for speed */
+  unsigned long int   tot_marked, tot_oldies;	/* number of heap objects marked */
+#if DEBUG
+#ifdef COROUTINING
+  unsigned long int   tot_smarked;
+#endif
+#endif
+#ifdef EASY_SHUNTING
+  struct choicept *wl_current_B;
+  struct trail_frame *wl_sTR, *wl_sTR0;
+  CELL *wl_prev_HB;
+#endif
+#endif
   jmp_buf  gc_restore; /* where to jump if garbage collection crashes */
   struct array_entry *dynamic_arrays;
   struct static_array_entry *static_arrays;
@@ -222,7 +236,7 @@ typedef struct various_codes {
   int   compiler_compile_mode;
   AtomHashEntry invisiblechain;
   OPCODE dummycode[1];
-  UInt maxdepth, maxlist;
+  UInt maxdepth, maxlist, maxwriteargs;
   int update_mode;
   Atom atprompt;
   char prompt[MAX_PROMPT];
@@ -496,6 +510,7 @@ struct various_codes *Yap_heap_regs;
 #define  INVISIBLECHAIN           Yap_heap_regs->invisiblechain
 #define  max_depth                Yap_heap_regs->maxdepth
 #define  max_list                 Yap_heap_regs->maxlist
+#define  max_write_args           Yap_heap_regs->maxwriteargs
 #define  AtPrompt                 (&(Yap_heap_regs->atprompt    	         ))
 #define  Prompt                   Yap_heap_regs->prompt
 #if USE_THREADED_CODE
@@ -736,13 +751,25 @@ struct various_codes *Yap_heap_regs;
 #define  ScratchPad               Yap_heap_regs->wl[worker_id].scratchpad
 #ifdef  COROUTINING
 #define  WokenGoals               Yap_heap_regs->wl[worker_id].woken_goals
-#define  MutableList              Yap_heap_regs->wl[worker_id].mutable_list
 #define  AttsMutableList          Yap_heap_regs->wl[worker_id].atts_mutable_list
 #endif
 #define  GcGeneration             Yap_heap_regs->wl[worker_id].gc_generation
 #define  GcCalls                  Yap_heap_regs->wl[worker_id].gc_calls
 #define  TotGcTime                Yap_heap_regs->wl[worker_id].tot_gc_time
 #define  TotGcRecovered           Yap_heap_regs->wl[worker_id].tot_gc_recovered
+#define  total_marked             Yap_heap_regs->wl[worker_id].tot_marked
+#define  total_oldies             Yap_heap_regs->wl[worker_id].tot_oldies
+#if DEBUG
+#ifdef COROUTINING
+#define  total_smarked            Yap_heap_regs->wl[worker_id].tot_smarked
+#endif
+#endif
+#ifdef EASY_SHUNTING
+#define  current_B                Yap_heap_regs->wl[worker_id].wl_current_B
+#define  sTR                      Yap_heap_regs->wl[worker_id].wl_sTR
+#define  sTR0                     Yap_heap_regs->wl[worker_id].wl_sTR0
+#define  prev_HB                  Yap_heap_regs->wl[worker_id].wl_prev_HB
+#endif
 #define  Yap_gc_restore           Yap_heap_regs->wl[worker_id].gc_restore
 #define  TrustLUCode              Yap_heap_regs->wl[worker_id].trust_lu_code
 #define  DynamicArrays            Yap_heap_regs->wl[worker_id].dynamic_arrays
@@ -777,7 +804,6 @@ struct various_codes *Yap_heap_regs;
 #define  ScratchPad               Yap_heap_regs->wl.scratchpad
 #ifdef  COROUTINING
 #define  WokenGoals               Yap_heap_regs->wl.woken_goals
-#define  MutableList              Yap_heap_regs->wl.mutable_list
 #define  AttsMutableList          Yap_heap_regs->wl.atts_mutable_list
 #endif
 #define  GcGeneration             Yap_heap_regs->wl.gc_generation

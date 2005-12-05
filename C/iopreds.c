@@ -608,6 +608,19 @@ Yap_DebugPutc(int sno, int ch)
     (void) putc(ch, Yap_logfile);
   return (putc(ch, Yap_stderr));
 }
+
+void 
+Yap_DebugPlWrite(Term t)
+{
+  Yap_plwrite(t, Yap_DebugPutc, 0);
+}
+
+void 
+Yap_DebugErrorPutc(int c)
+{
+  Yap_DebugPutc (Yap_c_error_stream, c);
+}
+
 #endif
 
 /* static */
@@ -4589,27 +4602,45 @@ p_write_depth (void)
 {				/* write_depth(Old,New)          */
   Term t1 = Deref (ARG1);
   Term t2 = Deref (ARG2);
-  if (!IsVarTerm (t1) && !IsIntTerm (t1))
-    return (FALSE);
-  if (!IsVarTerm (t2) && !IsIntTerm (t2))
-    return (FALSE);
+  Term t3 = Deref (ARG3);
+
+  if (!IsVarTerm (t1) && !IsIntegerTerm (t1)) {
+    Yap_Error(TYPE_ERROR_INTEGER,t1,"write_depth/3");
+    return FALSE;
+  }
+  if (!IsVarTerm (t2) && !IsIntegerTerm (t2)) {
+    Yap_Error(TYPE_ERROR_INTEGER,t2,"write_depth/3");
+    return FALSE;
+  }
+  if (!IsVarTerm (t3) && !IsIntegerTerm (t3)) {
+    Yap_Error(TYPE_ERROR_INTEGER,t3,"write_depth/3");
+    return FALSE;
+  }
   if (IsVarTerm (t1))
     {
-      Term t = MkIntTerm (max_depth);
-      if (!Yap_unify_constant(ARG1, t))
-	return (FALSE);
+      Term t = MkIntegerTerm (max_depth);
+      if (!Yap_unify_constant(t1, t))
+	return FALSE;
     }
   else
-    max_depth = IntOfTerm (t1);
-  if (IsVarTerm (ARG2))
+    max_depth = IntegerOfTerm (t1);
+  if (IsVarTerm (t2))
     {
-      Term t = MkIntTerm (max_list);
-      if (!Yap_unify_constant (ARG2, t))
-	return (FALSE);
+      Term t = MkIntegerTerm (max_list);
+      if (!Yap_unify_constant (t2, t))
+	return FALSE;
     }
   else
-    max_list = IntOfTerm (t2);
-  return (TRUE);
+    max_list = IntegerOfTerm (t2);
+  if (IsVarTerm (t3))
+    {
+      Term t = MkIntegerTerm (max_write_args);
+      if (!Yap_unify_constant (t3, t))
+	return FALSE;
+    }
+  else
+    max_write_args = IntegerOfTerm (t3);
+  return TRUE;
 }
 
 static Int
@@ -5022,7 +5053,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$is_same_tty", 2, p_is_same_tty, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("prompt", 2, p_prompt, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("always_prompt_user", 0, p_always_prompt_user, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("write_depth", 2, p_write_depth, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("write_depth", 3, p_write_depth, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$change_type_of_char", 2, p_change_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$type_of_char", 2, p_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("char_conversion", 2, p_char_conversion, SyncPredFlag);
