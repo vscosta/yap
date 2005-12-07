@@ -89,12 +89,14 @@
 
 #if GC_NO_TAGS
 
-extern char *bp;
+#if !defined(YAPOR) && !defined(THREADS)
+extern char *Yap_bp;
+#endif
 
 #define  MARK_BIT 1
 #define RMARK_BIT 2
 
-#define mcell(X)  bp[X-(CELL *)Yap_GlobalBase]
+#define mcell(X)  Yap_bp[X-(CELL *)Yap_GlobalBase]
 
 static inline Int
 MARKED_PTR(CELL* ptr)

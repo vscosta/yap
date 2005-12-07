@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.77 2005-11-23 12:09:50 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.78 2005-12-07 17:53:29 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -264,9 +264,9 @@ Yap_InitMemory(int Trail, int Heap, int Stack)
 int
 Yap_ExtendWorkSpace(Int s)
 {
-  void *bp = (void *)Yap_GlobalBase, *nbp;
+  void *basebp = (void *)Yap_GlobalBase, *nbp;
   UInt s0 = (char *)Yap_TrailTop-(char *)Yap_GlobalBase;
-  nbp = realloc(bp, s+s0);
+  nbp = realloc(basebp, s+s0);
   if (nbp == NULL) 
     return FALSE;
   Yap_GlobalBase = (char *)nbp;

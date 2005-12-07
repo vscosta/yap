@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.87 2005-12-05 17:16:11 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.88 2005-12-07 17:53:30 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -23,6 +23,14 @@
 #define INT_KEYS_DEFAULT_SIZE 256
 #endif
 
+
+#define GC_MAVARS_HASH_SIZE 512
+
+typedef struct gc_ma_hash_entry_struct {
+  UInt timestmp;
+  CELL* addr;
+  struct gc_ma_hash_entry_struct *next;
+} gc_ma_hash_entry;
 
 typedef struct atom_hash_entry {
 #if defined(YAPOR) || defined(THREADS)
@@ -99,12 +107,29 @@ typedef struct worker_local_struct {
   unsigned long int   tot_smarked;
 #endif
 #endif
-#ifdef EASY_SHUNTING
   struct choicept *wl_current_B;
+#if defined(TABLING) || defined(SBA)
   struct trail_frame *wl_sTR, *wl_sTR0;
+  struct trail_frame *new_tr;
+#else
+  Term *wl_sTR, *wl_sTR0;
+  Term *new_tr;
+#endif
   CELL *wl_prev_HB;
+  CELL *hgen;
+  CELL **ip_top;
+#if GC_NO_TAGS
+  char *b_p;
 #endif
-#endif
+  struct gc_mark_continuation *conttop0;
+  struct gc_mark_continuation *conttop;
+  int disc_trail_entries;
+  gc_ma_hash_entry Gc_ma_hash_table[GC_MAVARS_HASH_SIZE];
+  gc_ma_hash_entry *Gc_ma_h_top;
+  UInt Gc_timestamp;    /* an unsigned int */
+  ADDR  DB_vec, DB_vec0;
+  struct RB_red_blk_node *DB_root, *DB_nil;
+#endif /* defined(YAPOR) || defined(THREADS) */
   jmp_buf  gc_restore; /* where to jump if garbage collection crashes */
   struct array_entry *dynamic_arrays;
   struct static_array_entry *static_arrays;
@@ -763,13 +788,27 @@ struct various_codes *Yap_heap_regs;
 #ifdef COROUTINING
 #define  total_smarked            Yap_heap_regs->wl[worker_id].tot_smarked
 #endif
-#endif
-#ifdef EASY_SHUNTING
+#endif /* DEBUG */
 #define  current_B                Yap_heap_regs->wl[worker_id].wl_current_B
 #define  sTR                      Yap_heap_regs->wl[worker_id].wl_sTR
 #define  sTR0                     Yap_heap_regs->wl[worker_id].wl_sTR0
 #define  prev_HB                  Yap_heap_regs->wl[worker_id].wl_prev_HB
-#endif
+#define  new_TR                   Yap_heap_regs->wl[worker_id].new_tr
+#define  HGEN                     Yap_heap_regs->wl[worker_id].hgen
+#define  iptop                    Yap_heap_regs->wl[worker_id].ip_top
+#define  discard_trail_entries    Yap_heap_regs->wl[worker_id].disc_trail_entries
+#if GC_NO_TAGS
+#define  Yap_bp                   Yap_heap_regs->wl[worker_id].b_p
+#endif /* GC_NO_TAGS */
+#define  gc_ma_hash_table         Yap_heap_regs->wl[worker_id].Gc_ma_hash_table
+#define  gc_ma_h_top              Yap_heap_regs->wl[worker_id].Gc_ma_h_top
+#define  gc_timestamp             Yap_heap_regs->wl[worker_id].Gc_timestamp
+#define  cont_top0                Yap_heap_regs->wl[worker_id].conttop0
+#define  db_vec                   Yap_heap_regs->wl[worker_id].DB_vec
+#define  db_vec0                  Yap_heap_regs->wl[worker_id].DB_vec0
+#define  db_root                  Yap_heap_regs->wl[worker_id].DB_root
+#define  db_nil                   Yap_heap_regs->wl[worker_id].DB_nil
+#define  cont_top                 Yap_heap_regs->wl[worker_id].conttop
 #define  Yap_gc_restore           Yap_heap_regs->wl[worker_id].gc_restore
 #define  TrustLUCode              Yap_heap_regs->wl[worker_id].trust_lu_code
 #define  DynamicArrays            Yap_heap_regs->wl[worker_id].dynamic_arrays

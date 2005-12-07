@@ -23,7 +23,6 @@ static char     SccsId[] = "%W% %G%";
 #include "alloc.h"
 #include "attvar.h"
 
-
 #define EARLY_RESET 1
 #if !defined(TABLING)
 #define EASY_SHUNTING 1
@@ -32,29 +31,6 @@ static char     SccsId[] = "%W% %G%";
 
 
 /* global variables for garbage collection */
-
-#if !defined(YAPOR) && !defined(THREADS)
-/* in a single gc */
-static unsigned long int   total_marked, total_oldies;	/* number of heap objects marked */
-
-#if DEBUG
-#ifdef COROUTINING
-static unsigned long int   total_smarked;
-#endif
-#endif
-#endif /* !defined(YAPOR) && !defined(THREADS) */
-
-#ifdef EASY_SHUNTING
-static choiceptr current_B;
-
-static tr_fr_ptr sTR, sTR0;
-
-static CELL *prev_HB;
-#endif
-
-static tr_fr_ptr new_TR;
-
-static CELL *HGEN;
 
 STATIC_PROTO(Int  p_inform_gc, (void));
 STATIC_PROTO(Int  p_gc, (void));
@@ -79,31 +55,105 @@ STATIC_PROTO(int  is_gc_very_verbose, (void));
 
 #include "heapgc.h"
 
-#if GC_NO_TAGS
-char *bp;
-#endif
-
-static int discard_trail_entries = 0;
-
-/* support for hybrid garbage collection scheme */
-
-typedef struct {
+typedef struct gc_mark_continuation {
   CELL *v;
   int nof;
 } cont;
 
+/* straightforward binary tree scheme that, given a key, finds a
+   matching dbref */  
+
+typedef enum {
+  db_entry,
+  cl_entry,
+  lcl_entry,
+  li_entry,
+  dcl_entry
+} db_entry_type;
+
+typedef struct db_entry {
+  CODEADDR val;
+  db_entry_type db_type;
+  int in_use;
+  struct db_entry *left;
+  CODEADDR lim;
+  struct db_entry *right;
+} *dbentry;
+
+typedef struct RB_red_blk_node {
+  CODEADDR key;
+  CODEADDR lim;
+  db_entry_type db_type;
+  int in_use;
+  int red; /* if red=0 then the node is black */
+  struct RB_red_blk_node* left;
+  struct RB_red_blk_node* right;
+  struct RB_red_blk_node* parent;
+} rb_red_blk_node;
+
 #ifdef EASY_SHUNTING
+#undef cont_top0
 #define cont_top0 (cont *)sTR
-#else
+#endif
+
+#if !defined(YAPOR) && !defined(THREADS)
+/* in a single gc */
+static unsigned long int   total_marked, total_oldies;	/* number of heap objects marked */
+
+#if DEBUG
+#ifdef COROUTINING
+static unsigned long int   total_smarked;
+#endif
+#endif
+
+#ifdef EASY_SHUNTING
+static choiceptr current_B;
+
+static tr_fr_ptr sTR, sTR0;
+
+static CELL *prev_HB;
+#endif
+
+static tr_fr_ptr new_TR;
+
+static CELL *HGEN;
+
+#if GC_NO_TAGS
+char *Yap_bp;
+#endif
+
+static int discard_trail_entries = 0;
+
+#ifdef HYBRID_SCHEME
+static CELL_PTR *iptop;
+#endif
+
+#ifndef EASY_SHUNTING
 static cont *cont_top0;
 #endif
 static cont *cont_top;
 
+static gc_ma_hash_entry gc_ma_hash_table[GC_MAVARS_HASH_SIZE];
+
+static gc_ma_hash_entry *gc_ma_h_top;
+
+static UInt gc_timestamp;    /* an unsigned int */
+
+static ADDR  db_vec, db_vec0;
+
+static rb_red_blk_node *db_root, *db_nil;
+
+#endif /* !defined(YAPOR) && !defined(THREADS) */
+
+/* support for hybrid garbage collection scheme */
+
 static void
 gc_growtrail(int committed)
 {
-#if THREADS
+#if !GC_TAGS
   YAPLeaveCriticalSection();
+#endif
+#if THREADS
   longjmp(Yap_gc_restore, 2);
 #endif
 #if USE_SYSTEM_MALLOC
@@ -156,8 +206,6 @@ PUSH_CONTINUATION(CELL *v, int nof) {
   goto begin; }
 
 #ifdef HYBRID_SCHEME
-
-static CELL_PTR *iptop;
 
 inline static void
 PUSH_POINTER(CELL *v) {
@@ -282,18 +330,6 @@ quicksort(CELL *a[], Int p, Int r)
    one will remain.
 */
 
-#define GC_MAVARS_HASH_SIZE 512
-
-typedef struct gc_ma_hash_entry_struct {
-  UInt timestmp;
-  CELL* addr;
-  struct gc_ma_hash_entry_struct *next;
-} gc_ma_hash_entry;
-
-static gc_ma_hash_entry gc_ma_hash_table[GC_MAVARS_HASH_SIZE];
-
-static UInt gc_timestamp;    /* an unsigned int */
-
 static inline unsigned int
 GC_MAVAR_HASH(CELL *addr) {
 #if SIZEOF_INT_P==8
@@ -302,8 +338,6 @@ GC_MAVAR_HASH(CELL *addr) {
   return((((unsigned int)((CELL)(addr)))>>2)%GC_MAVARS_HASH_SIZE); 
 #endif
 }
-
-gc_ma_hash_entry *gc_ma_h_top;
 
 static inline gc_ma_hash_entry *
 GC_ALLOC_NEW_MASPACE(void)
@@ -510,41 +544,6 @@ count_cells_marked(void)
 }
 #endif
 
-
-/* straightforward binary tree scheme that, given a key, finds a
-   matching dbref */  
-
-typedef enum {
-  db_entry,
-  cl_entry,
-  lcl_entry,
-  li_entry,
-  dcl_entry
-} db_entry_type;
-
-typedef struct db_entry {
-  CODEADDR val;
-  db_entry_type db_type;
-  int in_use;
-  struct db_entry *left;
-  CODEADDR lim;
-  struct db_entry *right;
-} *dbentry;
-
-static ADDR  db_vec, db_vec0;
-
-typedef struct RB_red_blk_node {
-  CODEADDR key;
-  CODEADDR lim;
-  db_entry_type db_type;
-  int in_use;
-  int red; /* if red=0 then the node is black */
-  struct RB_red_blk_node* left;
-  struct RB_red_blk_node* right;
-  struct RB_red_blk_node* parent;
-} rb_red_blk_node;
-
-static rb_red_blk_node *db_root, *db_nil;
 
 static rb_red_blk_node *
 RBMalloc(UInt size)
@@ -3336,12 +3335,12 @@ icompact_heap(void)
 
 #ifdef EASY_SHUNTING
 static void
-set_conditionals(tr_fr_ptr sTR) {
-  while (sTR != sTR0) {
+set_conditionals(tr_fr_ptr str) {
+  while (str != sTR0) {
     CELL *cptr;
-    sTR -= 2;
-    cptr = (CELL *)TrailTerm(sTR+1);
-    *cptr = TrailTerm(sTR);
+    str -= 2;
+    cptr = (CELL *)TrailTerm(str+1);
+    *cptr = TrailTerm(str);
   } 
 }
 #endif
@@ -3589,12 +3588,12 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #if GC_NO_TAGS
   {
     UInt alloc_sz = (CELL *)Yap_TrailTop-(CELL*)Yap_GlobalBase;
-    bp = Yap_PreAllocCodeSpace();
-    while (bp+alloc_sz > (char *)AuxSp) {
+    Yap_bp = Yap_PreAllocCodeSpace();
+    while (Yap_bp+alloc_sz > (char *)AuxSp) {
       /* not enough space */
       *--ASP = (CELL)current_env;
-      bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz, NULL);
-      if (!bp)
+      Yap_bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz, NULL);
+      if (!Yap_bp)
 	return 0;
       current_env = (CELL *)*ASP;
       ASP++;
@@ -3602,7 +3601,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
       max = (CELL *)DelayTop();
 #endif
     }
-    memset((void *)bp, 0, alloc_sz);
+    memset((void *)Yap_bp, 0, alloc_sz);
   }
 #endif /* GC_NO_TAGS */
   if (setjmp(Yap_gc_restore) == 2) {
@@ -3651,7 +3650,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     if (!b_ptr) HGEN = H0;
   }
   /*  fprintf(stderr,"HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(GcGeneration)), HGEN, H,H0);*/
+#if !GC_TAGS
   YAPEnterCriticalSection();
+#endif
   OldTR = (tr_fr_ptr)(old_TR = TR);
   push_registers(predarity, nextop);
   marking_phase(old_TR, current_env, nextop, max);
@@ -3695,7 +3696,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   TR = old_TR;
   pop_registers(predarity, nextop);
   TR = new_TR;
+#if !GC_TAGS
   YAPLeaveCriticalSection();
+#endif
   /*  fprintf(Yap_stderr,"NEW HGEN %ld (%ld)\n", H-H0, HGEN-H0);*/
   Yap_UpdateTimedVar(GcGeneration, MkIntegerTerm(H-H0));
   c_time = Yap_cputime();
