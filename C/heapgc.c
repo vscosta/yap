@@ -103,6 +103,7 @@ static void
 gc_growtrail(int committed)
 {
 #if THREADS
+  YAPLeaveCriticalSection();
   longjmp(Yap_gc_restore, 2);
 #endif
 #if USE_SYSTEM_MALLOC
@@ -524,6 +525,7 @@ typedef enum {
 typedef struct db_entry {
   CODEADDR val;
   db_entry_type db_type;
+  int in_use;
   struct db_entry *left;
   CODEADDR lim;
   struct db_entry *right;
@@ -535,6 +537,7 @@ typedef struct RB_red_blk_node {
   CODEADDR key;
   CODEADDR lim;
   db_entry_type db_type;
+  int in_use;
   int red; /* if red=0 then the node is black */
   struct RB_red_blk_node* left;
   struct RB_red_blk_node* right;
@@ -758,6 +761,7 @@ RBTreeInsert(CODEADDR key, CODEADDR end, db_entry_type db_type) {
   x->key=key;
   x->lim=end;
   x->db_type=db_type;
+  x->in_use = FALSE;
 
   TreeInsertHelp(x);
   newNode=x;
@@ -832,29 +836,28 @@ find_ref_in_dbtable(CODEADDR entry)
   return current;
 }
 
+/* find an element in the dbentries table */
+static void
+mark_ref_in_use(DBRef ref)
+{
+  rb_red_blk_node *el = find_ref_in_dbtable((CODEADDR)ref);
+  el->in_use = TRUE;
+}
+
+static int
+ref_in_use(DBRef ref)
+{
+  rb_red_blk_node *el = find_ref_in_dbtable((CODEADDR)ref);
+  return el->in_use;
+}
+
 static void 
 mark_db_fixed(CELL *ptr) {
   rb_red_blk_node *el;
 
   el = find_ref_in_dbtable((CODEADDR)ptr);
   if (el != db_nil) {
-    switch (el->db_type) {
-    case db_entry:
-      ((DBRef)(el->key))->Flags |= GcFoundMask;
-      break;
-    case cl_entry:
-      ((DynamicClause *)(el->key))->ClFlags |= GcFoundMask;
-      break;
-    case lcl_entry:
-      ((LogUpdClause *)(el->key))->ClFlags |= GcFoundMask;
-      break;
-    case li_entry:
-      ((LogUpdIndex *)(el->key))->ClFlags |= GcFoundMask;
-      break;
-    case dcl_entry:
-      ((DeadClause *)(el->key))->ClFlags |= GcFoundMask;
-      break;
-    }
+    el->in_use = TRUE;
   }
 }
 
@@ -1236,7 +1239,7 @@ mark_variable(CELL_PTR current)
 	  *current = MkDBRefTerm(DBErasedMarker);
 	  MARK(current);
 	} else {
-	  tref->Flags |= GcFoundMask;
+	  mark_ref_in_use(tref);
 	}
       } else {
 	mark_db_fixed(next);
@@ -1354,7 +1357,7 @@ mark_code(CELL_PTR ptr, CELL *next)
 	  tref->Parent->KindOfPE & LogUpdDBBit) {
 	*ptr = MkDBRefTerm(DBErasedMarker);
       } else {
-	tref->Flags |= GcFoundMask;
+	mark_ref_in_use(tref);
       }
     } else {
       mark_db_fixed(next);
@@ -1863,9 +1866,9 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	  DBRef ref;
 	  B = gc_B;
 	  ref = (DBRef)EXTRA_CBACK_ARG(3,1);
-	  if (IsVarTerm((CELL)ref))
-	    ref->Flags |= GcFoundMask;
-	  else {
+	  if (IsVarTerm((CELL)ref)) {
+	    mark_ref_in_use(ref);
+	  } else {
 	    if (ONCODE((CELL)ref)) {
 	      mark_db_fixed(RepAppl((CELL)ref));
 	    }
@@ -2006,7 +2009,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _profiled_retry_and_mark:
       case _count_retry_and_mark:
       case _retry_and_mark:
-	ClauseCodeToDynamicClause(gc_B->cp_ap)->ClFlags |= GcFoundMask;
+	mark_ref_in_use((DBRef)ClauseCodeToDynamicClause(gc_B->cp_ap));
       case _retry2:
 	nargs = 2;
 	break;
@@ -2215,7 +2218,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	flags = *pt0;
 #ifdef DEBUG
 	hp_entrs++;
-	if (!FlagOn(GcFoundMask, flags)) {
+	if (!ref_in_use((DBRef)pt0)) {
 	  hp_not_in_use++;
 	  if (!FlagOn(DBClMask, flags)) {
 	    code_entries++;
@@ -2229,7 +2232,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	  }		
 	}
 #endif
-      	if (!FlagOn(GcFoundMask, flags)) {
+      	if (!ref_in_use((DBRef)pt0)) {
 	  if (FlagOn(DBClMask, flags)) {
 	    DBRef dbr = (DBRef) ((CELL)pt0 - (CELL) &(((DBRef) NIL)->Flags));
 	    dbr->Flags &= ~InUseMask;
@@ -2283,8 +2286,6 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	  }
 	  RESET_VARIABLE(&TrailTerm(dest));
 	  discard_trail_entries++;
-	} else {
-	  *pt0 = ResetFlag(GcFoundMask, flags);
 	}
 #if  MULTI_ASSIGNMENT_VARIABLES
       } else {
@@ -2394,13 +2395,12 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
     cptr = &(DeadClauses);
     cl = DeadClauses;
     while (cl != NULL) {
-      if (!(cl->ClFlags & GcFoundMask)) {
+      if (!ref_in_use((DBRef)cl)) {
 	char *ocl = (char *)cl;
 	cl = cl->NextCl;
 	*cptr = cl;
 	Yap_FreeCodeSpace(ocl);
       } else {
-	cl->ClFlags &= ~GcFoundMask;
 	cptr = &(cl->NextCl);
 	cl = cl->NextCl;
       }
@@ -3490,21 +3490,17 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   }
 }
 
-static Int
+static int
 do_gc(Int predarity, CELL *current_env, yamop *nextop)
 {
   Int		heap_cells;
   int		gc_verbose;
-  tr_fr_ptr     old_TR = NULL;
+  volatile tr_fr_ptr     old_TR = NULL;
   UInt		m_time, c_time, time_start, gc_time;
   CELL *max;
   Int           effectiveness, tot;
   int           gc_trace;
 
-  if (setjmp(Yap_gc_restore) == 2) {
-    /* we cannot recover, fail system */
-    Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"could not expand trail during garbage collection");
-  }
   heap_cells = H-H0;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;
@@ -3609,6 +3605,32 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     memset((void *)bp, 0, alloc_sz);
   }
 #endif /* GC_NO_TAGS */
+  if (setjmp(Yap_gc_restore) == 2) {
+    /* we cannot recover, fail system */
+    *--ASP = (CELL)current_env;
+    TR = OldTR;
+    if (
+#if GC_NO_TAGS
+	!Yap_growtrail(64 * 1024L, FALSE)
+#else
+	TRUE
+#endif
+	) {
+#if GC_NO_TAGS
+      Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"out of %lB during gc", 64*1024L);
+      return -1;
+#else
+      /* try stack expansion, who knows */
+      return 0;
+#endif
+    } else {
+      current_env = (CELL *)*ASP;
+      ASP++;
+#if COROUTINING
+      max = (CELL *)DelayTop();
+#endif
+    }
+  }
 #ifdef HYBRID_SCHEME
   iptop = (CELL_PTR *)H;
 #endif
@@ -3772,6 +3794,8 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
       /* make sure there is a point in collecting the heap */
       H-H0 > (LCL0-ASP)/2) {
     effectiveness = do_gc(predarity, current_env, nextop);
+    if (effectiveness < 0)
+      return FALSE;
     if (effectiveness > 90) {
       while (gc_margin < H-H0) 
 	gc_margin <<= 1;
@@ -3811,8 +3835,7 @@ Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 static Int
 p_gc(void)
 {
-  do_gc(0, ENV, P);
-  return(TRUE);
+  return do_gc(0, ENV, P);
 }
 
 void 
