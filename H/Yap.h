@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.9 2005-11-23 13:24:00 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.10 2005-12-17 03:25:39 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -221,7 +221,7 @@ typedef long int YAP_LONG_LONG;
 typedef unsigned long int YAP_ULONG_LONG;
 #endif
 
-#if HAVE_SIGPROF && __linux__
+#if HAVE_SIGPROF && (defined(__linux__)  || defined(__POWERPC__))
 #define LOW_PROF 1
 #endif
 
@@ -642,7 +642,7 @@ typedef enum
 	if you place things in the lower addresses (power to the libc people).
 */
 
-#if (defined(_AIX) || defined(_WIN32) || defined(__APPLE__) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(__linux__) || defined(IN_SECOND_QUADRANT) || defined(__CYGWIN__))
+#if (defined(_AIX) || defined(_WIN32) || defined(__APPLE__) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(__POWERPC__) || defined(__linux__) || defined(IN_SECOND_QUADRANT) || defined(__CYGWIN__))
 #define USE_LOW32_TAGS 1
 #endif
 
@@ -1154,7 +1154,8 @@ typedef enum
   ErrorHandlingMode = 0x800,	/* doing error handling */
   CCallMode = 0x1000,		/* In c Call */
   UnifyMode = 0x2000,		/* In Unify Code */
-  UserCCallMode = 0x4000	/* In User C-call Code */
+  UserCCallMode = 0x4000,	/* In User C-call Code */
+  MallocMode = 0x8000	/* Doing malloc, realloc, free */
 } prolog_exec_mode;
 
 extern prolog_exec_mode Yap_PrologMode;

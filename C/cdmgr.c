@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-11-23 03:01:33 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-12-17 03:25:39 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.172  2005/11/23 03:01:33  vsc
+* fix several bugs in save/restore.b
+*
 * Revision 1.171  2005/10/29 01:28:37  vsc
 * make undefined more ISO compatible.
 *
@@ -515,9 +518,9 @@ Yap_BuildMegaClause(PredEntry *ap)
   if (has_blobs) {
     sz -= sizeof(StaticClause);
   } else {
-    sz -= (UInt)NEXTOP((yamop *)NULL,e) + sizeof(StaticClause);
+    sz -= (UInt)NEXTOP((yamop *)NULL,p) + sizeof(StaticClause);
   }
-  required = sz*ap->cs.p_code.NOfClauses+sizeof(MegaClause)+(UInt)NEXTOP((yamop *)NULL,e);
+  required = sz*ap->cs.p_code.NOfClauses+sizeof(MegaClause)+(UInt)NEXTOP((yamop *)NULL,l);
   while (!(mcl = (MegaClause *)Yap_AllocCodeSpace(required))) {
     if (!Yap_growheap(FALSE, sizeof(consult_obj)*ConsultCapacity, NULL)) {
       /* just fail, the system will keep on going */
@@ -544,6 +547,7 @@ Yap_BuildMegaClause(PredEntry *ap)
     cl = cl->ClNext;
   }
   ptr->opc = Yap_opcode(_Ystop);
+  ptr->u.l.l = mcl->ClCode;
   cl =
     ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
   /* recover the space spent on the original clauses */
@@ -551,6 +555,8 @@ Yap_BuildMegaClause(PredEntry *ap)
     StaticClause *ncl;
 
     ncl = cl->ClNext;
+    if (cl->ClFlags & ProfFoundMask)
+      Yap_InformOfRemoval((CODEADDR)cl);
     Yap_FreeCodeSpace((ADDR)cl);
     if (cl->ClCode == ap->cs.p_code.LastClause)
       break;
@@ -582,6 +588,8 @@ split_megaclause(PredEntry *ap)
 	while (start) {
 	  StaticClause *cl = start;
 	  start = cl->ClNext;
+	  if (cl->ClFlags & ProfFoundMask)
+	    Yap_InformOfRemoval((CODEADDR)cl);
 	  Yap_FreeCodeSpace((char *)cl);
 	  start = NULL;
 	}
@@ -936,6 +944,8 @@ kill_static_child_indxs(StaticIndex *indx)
     kill_static_child_indxs(cl);
     cl = next;
   }
+  if (indx->ClFlags & ProfFoundMask)
+    Yap_InformOfRemoval((CODEADDR)indx);
   Yap_FreeCodeSpace((char *)indx);
 }
 
@@ -957,14 +967,13 @@ kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 	kill_off_lu_block(parent, NULL, ap);
       } else {
 	UNLOCK(parent->ClLock);
-	kill_off_lu_block(parent, parent->u.ParentIndex, ap);
+	kill_off_lu_block(parent, parent->ParentIndex, ap);
       }
     } else {
       UNLOCK(parent->ClLock);
     }
   }
   UNLOCK(c->ClLock);
-#ifdef DEBUG
   {
     LogUpdIndex *parent = DBErasedIList, *c0 = NULL;
     while (parent != NULL) {
@@ -977,7 +986,8 @@ kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
       parent = parent->SiblingIndex;
     }
   }
-#endif
+  if (c->ClFlags & ProfFoundMask)
+    Yap_InformOfRemoval((CODEADDR)c);
   Yap_FreeCodeSpace((char *)c);
 }
 
@@ -1035,18 +1045,16 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 	parent->ClFlags & SwitchTableMask) {
     
       LOCK(parent->ClLock);
-      c->u.ParentIndex = parent->u.ParentIndex;
+      c->ParentIndex = parent->ParentIndex;
       LOCK(parent->u.ParentIndex->ClLock);
-      parent->u.ParentIndex->ClRefCount++;
+      parent->ParentIndex->ClRefCount++;
       UNLOCK(parent->u.ParentIndex->ClLock);
       parent->ClRefCount--;
       UNLOCK(parent->ClLock);
     }
-    c->ChildIndex = NULL;
-#ifdef DEBUG
+    c->ChildIndex = (LogUpdIndex *)ap;
     c->SiblingIndex = DBErasedIList;
     DBErasedIList = c;
-#endif
     UNLOCK(c->ClLock);
   }
 
@@ -1133,33 +1141,29 @@ Yap_ErLogUpdIndex(LogUpdIndex *clau, yamop *ipc)
   if (clau->ClFlags & ErasedMask) {
     if (!c->ClRefCount) {
       if (c->ClFlags & SwitchRootMask) {
-	kill_off_lu_block(clau, NULL, c->u.pred);
+	kill_off_lu_block(clau, NULL, c->ClPred);
       } else {
-	while (!(c->ClFlags & SwitchRootMask)) 
-	  c = c->u.ParentIndex;
-	kill_off_lu_block(clau, clau->u.ParentIndex, c->u.pred);
+	kill_off_lu_block(clau, clau->ParentIndex, clau->ClPred);
       }
     }
     /* otherwise, nothing I can do, I have been erased already */
     return codep;
   }
   if (c->ClFlags & SwitchRootMask) {
-    kill_first_log_iblock(clau, NULL, c->u.pred);
+    kill_first_log_iblock(clau, NULL, c->ClPred);
   } else {
-    while (!(c->ClFlags & SwitchRootMask)) 
-      c = c->u.ParentIndex;
 #if defined(THREADS) || defined(YAPOR)
     LOCK(clau->u.ParentIndex->ClLock);
     /* protect against attempts at erasing */
     clau->ClRefCount++;
     UNLOCK(clau->u.ParentIndex->ClLock);
 #endif
-    kill_first_log_iblock(clau, clau->u.ParentIndex, c->u.pred);
+    kill_first_log_iblock(clau, clau->ParentIndex, clau->ClPred);
 #if defined(THREADS) || defined(YAPOR)
-    LOCK(clau->u.ParentIndex->ClLock);
+    LOCK(clau->ParentIndex->ClLock);
     /* protect against attempts at erasing */
     clau->ClRefCount--;
-    UNLOCK(clau->u.ParentIndex->ClLock);
+    UNLOCK(clau->ParentIndex->ClLock);
 #endif
   }
   return codep;
@@ -1229,6 +1233,8 @@ retract_all(PredEntry *p, int in_use)
 	dcl->ClSize = sz;
 	DeadClauses = dcl;
       } else {
+	if (cl->ClFlags & ProfFoundMask)
+	  Yap_InformOfRemoval((CODEADDR)cl);
 	Yap_FreeCodeSpace((char *)cl);
       }
       p->cs.p_code.NOfClauses = 0;
@@ -1244,6 +1250,8 @@ retract_all(PredEntry *p, int in_use)
 	  dcl->ClSize = sz;
 	  DeadClauses = dcl;
 	} else {
+	  if (cl->ClFlags & ProfFoundMask)
+	    Yap_InformOfRemoval((CODEADDR)cl);
 	  Yap_FreeCodeSpace((char *)cl);
 	}
 	p->cs.p_code.NOfClauses--;
@@ -1362,7 +1370,7 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
   /* allocate starter block, containing info needed to start execution,
    * that is a try_mark to start the code and a fail to finish things up */
   cl =
-    (DynamicClause *) Yap_AllocCodeSpace((Int)NEXTOP(NEXTOP(NEXTOP(ncp,ld),e),e));
+    (DynamicClause *) Yap_AllocCodeSpace((Int)NEXTOP(NEXTOP(NEXTOP(ncp,ld),e),l));
   if (cl == NIL) {
     Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"Heap crashed against Stacks");
     return;
@@ -1419,6 +1427,7 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
   /* and close the code */
   ncp = NEXTOP(ncp,e);
   ncp->opc = Yap_opcode(_Ystop);
+  ncp->u.l.l = cl->ClCode;
 }
 
 /* p is already locked */
@@ -1964,6 +1973,8 @@ Yap_EraseStaticClause(StaticClause *cl, Term mod) {
     dcl->ClSize = sz;
     DeadClauses = dcl;
   } else {
+    if (cl->ClFlags & ProfFoundMask)
+      Yap_InformOfRemoval((CODEADDR)cl);
     Yap_FreeCodeSpace((char *)cl);
   }
   if (ap->cs.p_code.NOfClauses == 0) {
@@ -3294,14 +3305,16 @@ code_in_pred_info(PredEntry *pp, Atom *pat, UInt *parity) {
 }
 
 static int
-code_in_pred_lu_index(LogUpdIndex *icl, yamop *codeptr) {
+code_in_pred_lu_index(LogUpdIndex *icl, yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
   LogUpdIndex *cicl;
   if (IN_BLOCK(codeptr,icl,icl->ClSize)) {
+    if (startp) *startp = (CODEADDR)icl;
+    if (endp) *endp = (CODEADDR)icl+icl->ClSize;
     return TRUE;
   }
   cicl = icl->ChildIndex;
   while (cicl != NULL) {
-    if (code_in_pred_lu_index(cicl, codeptr))
+    if (code_in_pred_lu_index(cicl, codeptr, startp, endp))
       return TRUE;
     cicl = cicl->SiblingIndex;
   }
@@ -3309,14 +3322,16 @@ code_in_pred_lu_index(LogUpdIndex *icl, yamop *codeptr) {
 }
 
 static int
-code_in_pred_s_index(StaticIndex *icl, yamop *codeptr) {
+code_in_pred_s_index(StaticIndex *icl, yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
   StaticIndex *cicl;
   if (IN_BLOCK(codeptr,icl,icl->ClSize)) {
+    if (startp) *startp = (CODEADDR)icl;
+    if (endp) *endp = (CODEADDR)icl+icl->ClSize;
     return TRUE;
   }
   cicl = icl->ChildIndex;
   while (cicl != NULL) {
-    if (code_in_pred_s_index(cicl, codeptr))
+    if (code_in_pred_s_index(cicl, codeptr, startp, endp))
       return TRUE;
     cicl = cicl->SiblingIndex;
   }
@@ -3324,7 +3339,7 @@ code_in_pred_s_index(StaticIndex *icl, yamop *codeptr) {
 }
 
 static Int
-find_code_in_clause(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
+find_code_in_clause(PredEntry *pp, yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
   Int i = 1;
   yamop *clcode;
 
@@ -3334,7 +3349,10 @@ find_code_in_clause(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
       LogUpdClause *cl = ClauseCodeToLogUpdClause(clcode);
       do {
 	if (IN_BLOCK(codeptr,(CODEADDR)cl,cl->ClSize)) {
-	  clause_was_found(pp, pat, parity);
+	  if (startp)
+	    *startp = (CODEADDR)cl;
+	  if (endp)
+	    *endp = (CODEADDR)cl+cl->ClSize;
 	  return i;
 	}
 	i++;
@@ -3346,7 +3364,10 @@ find_code_in_clause(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
 	
 	cl = ClauseCodeToDynamicClause(clcode);
 	if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
-	  clause_was_found(pp, pat, parity);
+	  if (startp)
+	    *startp = (CODEADDR)cl;
+	  if (endp)
+	    *endp = (CODEADDR)cl+cl->ClSize;
 	  return i;
 	}
 	if (clcode == pp->cs.p_code.LastClause)
@@ -3359,7 +3380,10 @@ find_code_in_clause(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
 	
       cl = ClauseCodeToMegaClause(clcode);
       if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
-	clause_was_found(pp, pat, parity);
+	  if (startp)
+	    *startp = (CODEADDR)cl;
+	  if (endp)
+	    *endp = (CODEADDR)cl+cl->ClSize;
 	return 1+((char *)codeptr-(char *)cl->ClCode)/cl->ClItemSize;
       }
     } else {
@@ -3368,7 +3392,10 @@ find_code_in_clause(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
       cl = ClauseCodeToStaticClause(clcode);
       do {
 	if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
-	  clause_was_found(pp, pat, parity);
+	  if (startp)
+	    *startp = (CODEADDR)cl;
+	  if (endp)
+	    *endp = (CODEADDR)cl+cl->ClSize;
 	  return i;
 	}
 	if (cl->ClCode == pp->cs.p_code.LastClause)
@@ -3381,6 +3408,44 @@ find_code_in_clause(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
   return(0);
 }
 
+static int
+cl_code_in_pred(PredEntry *pp, yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
+  Int out;
+
+  READ_LOCK(pp->PRWLock);
+  /* check if the codeptr comes from the indexing code */
+  if (pp->PredFlags & IndexedPredFlag) {
+    if (pp->PredFlags & LogUpdatePredFlag) {
+      if (code_in_pred_lu_index(ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), codeptr, startp, endp)) {
+	READ_UNLOCK(pp->PRWLock);
+	return TRUE;
+      }
+    } else {
+      if (code_in_pred_s_index(ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred), codeptr, startp, endp)) {
+	READ_UNLOCK(pp->PRWLock);
+	return TRUE;
+      }
+    }
+  }
+  if (pp->PredFlags & (CPredFlag|AsmPredFlag|UserCPredFlag)) {
+    StaticClause *cl = ClauseCodeToStaticClause(pp->CodeOfPred);
+    if (IN_BLOCK(codeptr,(CODEADDR)cl,cl->ClSize)) {
+      if (startp)
+	*startp = (CODEADDR)cl;
+      if (endp)
+	*endp = (CODEADDR)cl+cl->ClSize;
+      return TRUE;
+    } else {
+      return FALSE;
+    }
+  } else {
+    out = find_code_in_clause(pp, codeptr, startp, endp);
+  }
+  READ_UNLOCK(pp->PRWLock); 
+  if (out) return TRUE;
+  return FALSE;
+}
+
 static Int
 code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
   Int out;
@@ -3389,20 +3454,22 @@ code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
   /* check if the codeptr comes from the indexing code */
   if (pp->PredFlags & IndexedPredFlag) {
     if (pp->PredFlags & LogUpdatePredFlag) {
-      if (code_in_pred_lu_index(ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), codeptr)) {
+      if (code_in_pred_lu_index(ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), codeptr, NULL, NULL)) {
 	code_in_pred_info(pp, pat, parity);
 	READ_UNLOCK(pp->PRWLock);
 	return -1;
       }
     } else {
-      if (code_in_pred_s_index(ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred), codeptr)) {
+      if (code_in_pred_s_index(ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred), codeptr, NULL, NULL)) {
 	code_in_pred_info(pp, pat, parity);
 	READ_UNLOCK(pp->PRWLock);
 	return -1;
       }
     }
   }
-  out = find_code_in_clause(pp, pat, parity, codeptr);
+  if ((out = find_code_in_clause(pp, codeptr, NULL, NULL))) {
+    clause_was_found(pp, pat, parity);
+  }
   READ_UNLOCK(pp->PRWLock); 
   return out;
 }
@@ -3440,11 +3507,14 @@ Yap_PredForCode(yamop *codeptr, find_pred_type where_from, Atom *pat, UInt *pari
   } else if (where_from == FIND_PRED_FROM_ENV) {
     p = EnvPreg(codeptr);
     if (p) {
+      Int out;
       if (p->ModuleOfPred == PROLOG_MODULE)
 	*pmodule = ModuleName[0];
       else
 	*pmodule = p->ModuleOfPred;
-      return find_code_in_clause(p, pat, parity, codeptr); 
+      out = find_code_in_clause(p, codeptr, NULL, NULL); 
+      clause_was_found(p, pat, parity);
+      return out;
     }
   } else {
     return PredForCode(codeptr, pat, parity, pmodule);
@@ -3458,6 +3528,700 @@ Yap_PredForCode(yamop *codeptr, find_pred_type where_from, Atom *pat, UInt *pari
   else
     *pmodule = p->ModuleOfPred;
   return -1;
+}
+
+static PredEntry *
+ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
+  yamop *pc;
+  PredEntry *pp = NULL;
+  int clause_code = FALSE;
+
+  if (codeptr >= COMMA_CODE &&
+	codeptr < FAILCODE) {
+    pp = RepPredProp(Yap_GetPredPropByFunc(FunctorComma,CurrentModule));
+    *startp = (CODEADDR)COMMA_CODE;
+    *endp = (CODEADDR)(FAILCODE-1);
+    return pp;
+  }
+  pc = codeptr;
+  while (TRUE) {
+    op_numbers op;
+
+    op = Yap_op_from_opcode(pc->opc);
+    /* C-code, maybe indexing */
+    switch (op) {
+    case _Nstop:
+      return NULL;
+    case _Ystop:
+      if (!pp) {
+	/* must be an index */
+	PredEntry **pep = (PredEntry **)pc->u.l.l;
+	pp = pep[-1];
+      }
+      if (pp->PredFlags & LogUpdatePredFlag) {
+	if (clause_code) {
+	  LogUpdClause *cl = ClauseCodeToLogUpdClause(pc->u.l.l);
+	  *startp = (CODEADDR)cl;
+	  *endp = (CODEADDR)cl+cl->ClSize;
+	} else {
+	  LogUpdIndex *cl = ClauseCodeToLogUpdIndex(pc->u.l.l);
+	  *startp = (CODEADDR)cl;
+	  *endp = (CODEADDR)cl+cl->ClSize;
+	}
+      } else if (pp->PredFlags & DynamicPredFlag) {
+	  DynamicClause *cl = ClauseCodeToDynamicClause(pc->u.l.l);
+	  *startp = (CODEADDR)cl;
+	  *endp = (CODEADDR)cl+cl->ClSize;
+      } else {
+	if (clause_code) {
+	  StaticClause *cl = ClauseCodeToStaticClause(pc->u.l.l);
+	  *startp = (CODEADDR)cl;
+	  *endp = (CODEADDR)cl+cl->ClSize;
+	} else {
+	  StaticIndex *cl = ClauseCodeToStaticIndex(pc->u.l.l);
+	  *startp = (CODEADDR)cl;
+	  *endp = (CODEADDR)cl+cl->ClSize;
+	}
+      }
+      return pp;
+      /* instructions type ld */
+    case _try_me:
+    case _retry_me:
+    case _trust_me:
+    case _profiled_retry_me:
+    case _profiled_trust_me:
+    case _count_retry_me:
+    case _count_trust_me:
+    case _spy_or_trymark:
+    case _try_and_mark:
+    case _profiled_retry_and_mark:
+    case _count_retry_and_mark:
+    case _retry_and_mark:
+    case _try_clause:
+    case _retry:
+    case _trust:
+#ifdef YAPOR
+    case _getwork:
+    case _getwork_seq:
+    case _sync:
+#endif
+#ifdef TABLING
+    case _table_load_answer:
+    case _table_try_answer:
+    case _table_try_single:
+    case _table_try_me:
+    case _table_retry_me:
+    case _table_trust_me:
+    case _table_try:
+    case _table_retry:
+    case _table_trust:
+    case _table_answer_resolution:
+    case _table_completion:
+#endif /* TABLING */
+      pp = pc->u.ld.p;
+      pc = NEXTOP(pc,ld);
+      break;
+    case _enter_lu_pred:
+    case _stale_lu_index:
+      {
+	LogUpdIndex *icl = ClauseCodeToLogUpdIndex(pc);
+	*startp = (CODEADDR)icl;
+	*endp = (CODEADDR)icl+icl->ClSize;
+	return icl->ClPred;
+      }
+      break;
+      /* instructions type p */
+    case _count_call:
+    case _count_retry:
+    case _enter_profiling:
+    case _retry_profiled:
+      pc = NEXTOP(pc,p);
+      break;
+#if !defined(YAPOR)
+    case _or_last:
+#endif
+    case _procceed:
+    case _lock_lu:
+      pp = pc->u.p.p;
+      if (pp->PredFlags & MegaClausePredFlag) {
+	MegaClause *mcl = ClauseCodeToMegaClause(pp->cs.p_code.FirstClause);
+	*startp = (CODEADDR)mcl;
+	*endp = (CODEADDR)mcl+mcl->ClSize;
+	return pp;
+      }
+      clause_code = TRUE;
+      pc = NEXTOP(pc,p);
+      break;
+    case _execute:
+    case _dexecute:
+      clause_code = TRUE;
+      pp = pc->u.pp.p0;
+      pc = NEXTOP(pc,pp);
+      break;
+    case _trust_logical_pred:
+    case _jump:
+    case _move_back:
+    case _skip:
+    case _jump_if_var:
+    case _try_in:
+    case _try_clause2:
+    case _try_clause3:
+    case _try_clause4:
+    case _retry2:
+    case _retry3:
+    case _retry4:
+    case _p_eq:
+    case _p_dif:
+      pc = NEXTOP(pc,l);
+      break;
+      /* instructions type EC */
+    case _jump_if_nonvar:
+      pc = NEXTOP(pc,xll);
+      break;
+      /* instructions type EC */
+    case _alloc_for_logical_pred:
+      {
+	LogUpdClause *cl = pc->u.EC.ClBase;
+
+	*startp = (CODEADDR)cl;
+	*endp = (CODEADDR)NEXTOP((yamop *)cl,e);
+	return cl->ClPred;
+      }
+      /* instructions type e */
+    case _unify_idb_term:
+    case _copy_idb_term:
+      {
+	LogUpdClause *cl = (LogUpdClause *)((CELL)pc - (CELL)(((LogUpdClause *)NULL)->ClCode));
+	*startp = (CODEADDR)cl;
+	*endp = (CODEADDR)NEXTOP((yamop *)cl,e);
+	return cl->ClPred;
+      }
+    case _cut:
+    case _cut_t:
+    case _cut_e:
+    case _allocate:
+    case _deallocate:
+    case _write_void:
+    case _write_list:
+    case _write_l_list:
+    case _pop:
+#if THREADS
+    case _thread_local:
+#endif
+    case _p_equal:
+    case _p_functor:
+    case _enter_a_profiling:
+    case _count_a_call:
+    case _index_dbref:
+    case _index_blob:
+    case _unlock_lu:
+#ifdef YAPOR
+    case _getwork_first_time:
+#endif
+#ifdef TABLING
+    case _trie_do_null:
+    case _trie_trust_null:
+    case _trie_try_null:
+    case _trie_retry_null:
+    case _trie_do_var:
+    case _trie_trust_var:
+    case _trie_try_var:
+    case _trie_retry_var:
+    case _trie_do_val:
+    case _trie_trust_val:
+    case _trie_try_val:
+    case _trie_retry_val:
+    case _trie_do_atom:
+    case _trie_trust_atom:
+    case _trie_try_atom:
+    case _trie_retry_atom:
+    case _trie_do_list:
+    case _trie_trust_list:
+    case _trie_try_list:
+    case _trie_retry_list:
+    case _trie_do_struct:
+    case _trie_trust_struct:
+    case _trie_try_struct:
+    case _trie_retry_struct:
+    case _trie_do_extension:
+    case _trie_trust_extension:
+    case _trie_try_extension:
+    case _trie_retry_extension:
+    case _trie_do_float:
+    case _trie_trust_float:
+    case _trie_try_float:
+    case _trie_retry_float:
+    case _trie_do_long:
+    case _trie_trust_long:
+    case _trie_try_long:
+    case _trie_retry_long:
+#endif /* TABLING */
+#ifdef TABLING_INNER_CUTS
+    case _clause_with_cut:
+#endif /* TABLING_INNER_CUTS */
+      pc = NEXTOP(pc,e);
+      break;
+      /* instructions type x */
+    case _save_b_x:
+    case _commit_b_x:
+    case _get_list:
+    case _put_list:
+    case _write_x_var:
+    case _write_x_val:
+    case _write_x_loc:
+      pc = NEXTOP(pc,x);
+      break;
+      /* instructions type xF */
+    case _p_atom_x:
+    case _p_atomic_x:
+    case _p_integer_x:
+    case _p_nonvar_x:
+    case _p_number_x:
+    case _p_var_x:
+    case _p_db_ref_x:
+    case _p_primitive_x:
+    case _p_compound_x:
+    case _p_float_x:
+    case _p_cut_by_x:
+      pc = NEXTOP(pc,xF);
+      break;
+      /* instructions type y */
+    case _save_b_y:
+    case _commit_b_y:
+    case _write_y_var:
+    case _write_y_val: 
+    case _write_y_loc:
+      pc = NEXTOP(pc,y);
+      break;
+      /* instructions type yF */
+    case _p_atom_y:
+    case _p_atomic_y:
+    case _p_integer_y:
+    case _p_nonvar_y:
+    case _p_number_y:
+    case _p_var_y:
+    case _p_db_ref_y:
+    case _p_primitive_y:
+    case _p_compound_y:
+    case _p_float_y:
+    case _p_cut_by_y:
+      pc = NEXTOP(pc,yF);
+      break;
+      /* instructions type sla */      
+    case _p_execute_tail:
+    case _p_execute:
+      clause_code = TRUE;
+      pp = RepPredProp(Yap_GetPredPropByFunc(FunctorCall, CurrentModule));
+      *startp = (CODEADDR)&(pp->CodeOfPred);
+      *endp = (CODEADDR)&(pp->CodeOfPred);
+      return pp;
+    case _fcall:
+    case _call:
+#ifdef YAPOR
+    case _or_last:
+#endif
+      clause_code = TRUE;
+      pp = pc->u.sla.sla_u.p;
+      pc = NEXTOP(pc,sla);
+      break;
+      /* instructions type sla, but for disjunctions */
+    case _either:
+    case _or_else:
+    case _call_cpred:
+    case _call_usercpred:
+      clause_code = TRUE;
+      pp = pc->u.sla.p0;
+      pc = NEXTOP(pc,sla);
+      break;
+      /* instructions type xx */
+    case _get_x_var:
+    case _get_x_val:
+    case _glist_valx:
+    case _gl_void_varx:
+    case _gl_void_valx:
+    case _put_x_var:
+    case _put_x_val:
+      pc = NEXTOP(pc,xx);
+      break;
+    case _put_xx_val:
+      pc = NEXTOP(pc,xxxx);
+      break;
+      /* instructions type yx */
+    case _get_y_var:
+    case _get_y_val:
+    case _put_y_var:
+    case _put_y_val:
+    case _put_unsafe:
+      pc = NEXTOP(pc,yx);
+      break;
+      /* instructions type xc */
+    case _get_atom:
+    case _put_atom:
+    case _get_float:
+    case _get_longint:
+    case _get_bigint:
+      pc = NEXTOP(pc,xc);
+      break;
+      /* instructions type cc */
+    case _get_2atoms:
+      pc = NEXTOP(pc,cc);
+      break;
+      /* instructions type ccc */
+    case _get_3atoms:
+      pc = NEXTOP(pc,ccc);
+      break;
+      /* instructions type cccc */
+    case _get_4atoms:
+      pc = NEXTOP(pc,cccc);
+      break;
+      /* instructions type ccccc */
+    case _get_5atoms:
+      pc = NEXTOP(pc,ccccc);
+      break;
+      /* instructions type cccccc */
+    case _get_6atoms:
+      pc = NEXTOP(pc,cccccc);
+      break;
+      /* instructions type xf */
+    case _get_struct:
+    case _put_struct:
+      pc = NEXTOP(pc,xf);
+      break;
+      /* instructions type xy */
+    case _glist_valy:
+    case _gl_void_vary:
+    case _gl_void_valy:
+      pc = NEXTOP(pc,xy);
+      break;
+      /* instructions type ox */
+    case _unify_x_var:
+    case _unify_x_var_write:
+    case _unify_l_x_var:
+    case _unify_l_x_var_write:
+    case _unify_x_val_write:
+    case _unify_x_val:
+    case _unify_l_x_val_write:
+    case _unify_l_x_val:
+    case _unify_x_loc_write:
+    case _unify_x_loc:
+    case _unify_l_x_loc_write:
+    case _unify_l_x_loc:
+    case _save_pair_x_write:
+    case _save_pair_x:
+    case _save_appl_x_write:
+    case _save_appl_x:
+      pc = NEXTOP(pc,ox);
+      break;
+      /* instructions type oxx */
+    case _unify_x_var2:
+    case _unify_x_var2_write:
+    case _unify_l_x_var2:
+    case _unify_l_x_var2_write:
+      pc = NEXTOP(pc,oxx);
+      break;
+      /* instructions type oy */
+    case _unify_y_var:
+    case _unify_y_var_write:
+    case _unify_l_y_var:
+    case _unify_l_y_var_write:
+    case _unify_y_val_write:
+    case _unify_y_val:
+    case _unify_l_y_val_write:
+    case _unify_l_y_val:
+    case _unify_y_loc_write:
+    case _unify_y_loc:
+    case _unify_l_y_loc_write:
+    case _unify_l_y_loc:
+    case _save_pair_y_write:
+    case _save_pair_y:
+    case _save_appl_y_write:
+    case _save_appl_y:
+      pc = NEXTOP(pc,oy);
+      break;
+      /* instructions type o */
+    case _unify_void_write:
+    case _unify_void:
+    case _unify_l_void_write:
+    case _unify_l_void:
+    case _unify_list_write:
+    case _unify_list:
+    case _unify_l_list_write:
+    case _unify_l_list:
+      pc = NEXTOP(pc,o);
+      break;
+      /* instructions type os */
+    case _unify_n_voids_write:
+    case _unify_n_voids:
+    case _unify_l_n_voids_write:
+    case _unify_l_n_voids:
+      pc = NEXTOP(pc,os);
+      break;
+      /* instructions type oc */
+    case _unify_atom_write:
+    case _unify_atom:
+    case _unify_l_atom_write:
+    case _unify_l_atom:
+    case _unify_float:
+    case _unify_l_float:
+    case _unify_longint:
+    case _unify_l_longint:
+    case _unify_bigint:
+    case _unify_l_bigint:
+      pc = NEXTOP(pc,oc);
+      break;
+      /* instructions type osc */
+    case _unify_n_atoms_write:
+    case _unify_n_atoms:
+      pc = NEXTOP(pc,osc);
+      break;
+      /* instructions type of */
+    case _unify_struct_write:
+    case _unify_struct:
+    case _unify_l_struc_write:
+    case _unify_l_struc:
+      pc = NEXTOP(pc,of);
+      break;
+      /* instructions type s */
+    case _write_n_voids:
+    case _pop_n:
+#ifdef BEAM
+    case _run_eam:
+#endif
+#ifdef TABLING
+    case _table_new_answer:
+#endif /* TABLING */
+      pc = NEXTOP(pc,s);
+      break;
+      /* instructions type c */
+   case _write_atom:
+      pc = NEXTOP(pc,c);
+      break;
+      /* instructions type sc */
+   case _write_n_atoms:
+      pc = NEXTOP(pc,sc);
+      break;
+      /* instructions type f */
+   case _write_struct:
+   case _write_l_struc:
+      pc = NEXTOP(pc,f);
+      break;
+      /* instructions type sdl */
+    case _call_c_wfail:
+      clause_code = TRUE;
+      pp = pc->u.sdl.p;
+      pc = NEXTOP(pc,sdl);
+      break;
+      /* instructions type lds */
+    case _try_c:
+    case _try_userc:
+    case _retry_c:
+    case _retry_userc:
+      clause_code = TRUE;
+      pp = pc->u.lds.p;
+      pc = NEXTOP(pc,lds);
+      break;
+#ifdef CUT_C
+    case _cut_c:
+    case _cut_userc:
+      /* don't need to do nothing here, because this two instructions 
+       are "phantom" instructions. (see: cut_c implementation paper 
+       on PADL 2006) */
+      break;
+#endif 
+      /* instructions type llll */
+    case _switch_on_type:
+      pc = NEXTOP(pc,llll);
+      break;
+      /* instructions type ollll */
+    case _switch_list_nl:
+      pc = NEXTOP(pc,ollll);
+      break;
+      /* instructions type xllll */
+    case _switch_on_arg_type:
+      pc = NEXTOP(pc,xllll);
+      break;
+      /* instructions type sllll */
+    case _switch_on_sub_arg_type:
+      pc = NEXTOP(pc,sllll);
+      break;
+      /* instructions type clll */
+    case _if_not_then:
+      pc = NEXTOP(pc,clll);
+      break;
+      /* switch_on_func */
+    case _switch_on_func:
+    case _switch_on_cons:
+    case _go_on_func:
+    case _go_on_cons:
+    case _if_func:
+    case _if_cons:
+      pc = NEXTOP(pc,sssl);
+      break;
+      /* instructions type xxx */
+    case _p_plus_vv:
+    case _p_minus_vv:
+    case _p_times_vv:
+    case _p_div_vv:
+    case _p_and_vv:
+    case _p_or_vv:
+    case _p_sll_vv:
+    case _p_slr_vv:
+    case _p_arg_vv:
+    case _p_func2s_vv:
+    case _p_func2f_xx:
+      clause_code = TRUE;
+      pc = NEXTOP(pc,xxx);
+      break;
+      /* instructions type xxc */
+    case _p_plus_vc:
+    case _p_minus_cv:
+    case _p_times_vc:
+    case _p_div_cv:
+    case _p_and_vc:
+    case _p_or_vc:
+    case _p_sll_vc:
+    case _p_slr_vc:
+    case _p_func2s_vc:
+      clause_code = TRUE;
+      pc = NEXTOP(pc,xxc);
+      break;
+    case _p_div_vc:
+    case _p_sll_cv:
+    case _p_slr_cv:
+    case _p_arg_cv:
+      clause_code = TRUE;
+      pc = NEXTOP(pc,xcx);
+      break;
+    case _p_func2s_cv:
+      clause_code = TRUE;
+      pc = NEXTOP(pc,xcx);
+      break;
+      /* instructions type xyx */
+    case _p_func2f_xy:
+      clause_code = TRUE;
+      pc = NEXTOP(pc,xyx);
+      break;
+      /* instructions type yxx */
+    case _p_plus_y_vv:
+    case _p_minus_y_vv:
+    case _p_times_y_vv:
+    case _p_div_y_vv:
+    case _p_and_y_vv:
+    case _p_or_y_vv:
+    case _p_sll_y_vv:
+    case _p_slr_y_vv:
+    case _p_arg_y_vv:
+    case _p_func2s_y_vv:
+    case _p_func2f_yx:
+      clause_code = TRUE;
+      pc = NEXTOP(pc,yxx);
+      break;
+      /* instructions type yyx */
+    case _p_func2f_yy:
+      clause_code = TRUE;
+      pc = NEXTOP(pc,yyx);
+      break;
+      /* instructions type yxc */
+    case _p_plus_y_vc:
+    case _p_minus_y_cv:
+    case _p_times_y_vc:
+    case _p_div_y_vc:
+    case _p_div_y_cv:
+    case _p_and_y_vc:
+    case _p_or_y_vc:
+    case _p_sll_y_vc:
+    case _p_slr_y_vc:
+    case _p_func2s_y_vc:
+      clause_code = TRUE;
+      pc = NEXTOP(pc,yxc);
+      break;
+      /* instructions type ycx */
+    case _p_sll_y_cv:
+    case _p_slr_y_cv:
+    case _p_arg_y_cv:
+      clause_code = TRUE;
+      pc = NEXTOP(pc,ycx);
+      break;
+      /* instructions type ycx */
+    case _p_func2s_y_cv:
+      clause_code = TRUE;
+      pc = NEXTOP(pc,ycx);
+      break;
+      /* instructions type llxx */
+    case _call_bfunc_xx:
+      clause_code = TRUE;
+      pc = NEXTOP(pc,llxx);
+      break;
+      /* instructions type llxy */
+    case _call_bfunc_yx:
+    case _call_bfunc_xy:
+      clause_code = TRUE;
+      pc = NEXTOP(pc,llxy);
+      break;
+    case _call_bfunc_yy:
+      clause_code = TRUE;
+      pc = NEXTOP(pc,llyy);
+      break;
+    case _expand_index:
+      pp = ((PredEntry *)(Unsigned(pc)-(CELL)(&(((PredEntry *)NULL)->cs.p_code.ExpandCode))));
+      if (pc == codeptr) {
+	*startp = (CODEADDR)&(pp->cs.p_code.ExpandCode);
+	*endp = (CODEADDR)&(pp->cs.p_code.ExpandCode);
+      }
+      return pp;
+    case _undef_p:
+    case _spy_pred:
+    case _index_pred:
+      pp = ((PredEntry *)(Unsigned(pc)-(CELL)(&(((PredEntry *)NULL)->OpcodeOfPred))));
+      *startp = (CODEADDR)&(pp->CodeOfPred);
+      *endp = (CODEADDR)&(pp->CodeOfPred);
+      return pp;
+    case _expand_clauses:
+      /* expansion points may not be found when following the indices tree */
+      pp = codeptr->u.sp.p;
+      if (pc == codeptr) {
+	*startp = (CODEADDR)codeptr;
+	*endp = (CODEADDR)NEXTOP(codeptr,sp);
+      }
+      return pp;
+    case _op_fail:
+      if (codeptr == FAILCODE) {
+	pp = RepPredProp(Yap_GetPredPropByAtom(AtomFail,CurrentModule));
+	*startp = *endp = (CODEADDR)FAILCODE;
+	return pp;
+      }
+      pc = NEXTOP(pc,e);
+      break;
+    case _trust_fail:
+      if (codeptr == TRUSTFAILCODE) {
+	pp = RepPredProp(Yap_GetPredPropByAtom(AtomFail,CurrentModule));
+	*startp = *endp = (CODEADDR)TRUSTFAILCODE;
+	return pp;
+      }
+      pc = NEXTOP(pc,e);
+      break;
+    }
+  }
+  return NULL;
+}
+
+PredEntry *
+Yap_PredEntryForCode(yamop *codeptr, find_pred_type where_from, CODEADDR *startp, CODEADDR *endp) {
+
+  if (where_from == FIND_PRED_FROM_CP) {
+    PredEntry *pp = PredForChoicePt(codeptr);
+    if (cl_code_in_pred(pp, codeptr, startp, endp)) {
+      return pp;
+    }
+  } else if (where_from == FIND_PRED_FROM_ENV) {
+    PredEntry *pp = EnvPreg(codeptr);
+    if (cl_code_in_pred(pp, codeptr, startp, endp)) {
+      return pp;
+    }
+  } else {
+    return ClauseInfoForCode(codeptr, startp, endp);
+  }
+  return NULL;
 }
 
 
@@ -3673,6 +4437,8 @@ p_clean_up_dead_clauses(void)
   while (DeadClauses != NULL) {
     char *pt = (char *)DeadClauses;
     DeadClauses = DeadClauses->NextCl;
+    if (((DeadClause *)pt)->ClFlags & ProfFoundMask)
+      Yap_InformOfRemoval((CODEADDR)pt);
     Yap_FreeCodeSpace(pt);
   }
   return(TRUE);
@@ -4299,7 +5065,7 @@ p_continue_static_clause(void)
   return fetch_next_static_clause(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_ap, FALSE);
 }
 
-#ifdef LOW_PROF
+#if LOW_PROF
 
 static void
 add_code_in_pred(PredEntry *pp) {
@@ -4307,7 +5073,9 @@ add_code_in_pred(PredEntry *pp) {
 
   READ_LOCK(pp->PRWLock);
   /* check if the codeptr comes from the indexing code */
-  
+
+  /* highly likely this is used for indexing */
+  Yap_inform_profiler_of_clause((yamop *)&(pp->OpcodeOfPred), (yamop *)(&(pp->OpcodeOfPred)+1), pp, 1);
   if (pp->PredFlags & (CPredFlag|AsmPredFlag)) {
     char *code_end;
     StaticClause *cl;
@@ -4319,6 +5087,7 @@ add_code_in_pred(PredEntry *pp) {
     READ_UNLOCK(pp->PRWLock);
     return;
   }
+  Yap_inform_profiler_of_clause((yamop *)&(pp->cs.p_code.ExpandCode), (yamop *)(&(pp->cs.p_code.ExpandCode)+1), pp, 1);
   clcode = pp->cs.p_code.TrueCodeOfPred;
   if (pp->PredFlags & IndexedPredFlag) {
     char *code_end;
@@ -4345,10 +5114,10 @@ add_code_in_pred(PredEntry *pp) {
     } else if (pp->PredFlags & DynamicPredFlag) {
       do {
 	DynamicClause *cl;
-	char *code_end;
+	CODEADDR code_end;
 
 	cl = ClauseCodeToDynamicClause(clcode);
- 	code_end = (char *)cl + cl->ClSize;
+ 	code_end = (CODEADDR)cl + cl->ClSize;
 	Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp,0);
 	if (clcode == pp->cs.p_code.LastClause)
 	  break;
@@ -4466,7 +5235,6 @@ p_static_pred_statistics(void)
   return static_statistics(pe);
 }
 
-#if DEBUG
 static Int
 p_predicate_erased_statistics(void)
 {
@@ -4498,13 +5266,9 @@ p_predicate_erased_statistics(void)
     cl = cl->ClNext;
   }
   while (icl) {
-    LogUpdIndex *c = icl;
-
-    while (!c->ClFlags & SwitchRootMask)
-      c = c->u.ParentIndex;
-    if (pe == c->u.pred) {
+    if (pe == icl->ClPred) {
       icls++;
-      isz += c->ClSize;
+      isz += icl->ClSize;
     }
     icl = icl->SiblingIndex;
   }
@@ -4514,7 +5278,6 @@ p_predicate_erased_statistics(void)
     Yap_unify(ARG4,MkIntegerTerm(icls)) &&
     Yap_unify(ARG5,MkIntegerTerm(isz));
 }
-#endif /* DEBUG */
 
 static int
 p_program_continuation(void)

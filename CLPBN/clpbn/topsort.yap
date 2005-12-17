@@ -1,7 +1,7 @@
 
 :- module(topsort, [topsort/2,
 		    topsort/3,
-		    reversed_topsort/3]).
+	reversed_topsort/2]).
 
 :- use_module(library(rbtrees),
 	      [new/1,
@@ -21,6 +21,14 @@ topsort(Graph0, Sorted) :-
 topsort(Graph0, Sorted0, Sorted) :-
         new(RB),
 	topsort(Graph0, Sorted0, RB, Sorted).
+
+%
+% Have children first in the list
+%
+reversed_topsort(Graph0, RSorted) :-
+	new(RB),
+	topsort(Graph0, [], RB, Sorted),
+	reverse(Sorted, RSorted).
 
 topsort([], Sort, _, Sort) :- !.
 topsort(Graph0, Sort0, Found0, Sort) :-

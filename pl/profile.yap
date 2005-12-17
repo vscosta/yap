@@ -58,3 +58,72 @@ profile_reset :-
 	fail.
 profile_reset.
 
+showprofres(A) :-
+	  '$proftype'(offline),
+	  '$offline_showprofres'(A).
+showprofres(_) :- fail.
+
+showprofres :-
+	  '$proftype'(offline),
+	  '$offline_showprofres'.
+showprofres :-
+	'$profglobs'(Tot,GCs,HGrows,SGrows,Mallocs),
+	% root node has no useful info.
+	'$get_all_profinfo'(0,[],ProfInfo0),
+	sort(ProfInfo0,ProfInfo),
+	'$get_ppreds'(ProfInfo,Preds0),
+	'$add_extras_prof'(GCs, HGrows, SGrows, Mallocs, Preds0, PredsI),
+	keysort(PredsI,Preds),
+	'$sum_alls'(Preds,0,Tot0),
+	Accounted is -Tot0,
+	format(user_error,'~d ticks, ~d accounted for~n',[Tot,Accounted]),
+	'$display_preds'(Preds, Tot, 0, 1).
+
+'$get_all_profinfo'([],L,L) :- !.
+'$get_all_profinfo'(Node,L0,Lf) :-
+	'$profnode'(Node,Clause,PredId,Count,Left,Right),
+	'$get_all_profinfo'(Left,L0,Li),
+	'$get_all_profinfo'(Right,[gprof(PredId,Clause,Count)|Li],Lf).
+
+'$get_ppreds'([],[]).
+'$get_ppreds'([gprof(0,_,0)|Cls],Ps) :- !,
+	'$get_ppreds'(Cls,Ps).
+'$get_ppreds'([gprof(0,_,Count)|Cls],Ps) :- !,
+	'$do_error'(system_error,showprofres(gprof(0,_,Count))).
+'$get_ppreds'([gprof(PProfInfo,_,Count0)|Cls],[Sum-(Mod:Name/Arity)|Ps]) :-
+	'$get_more_ppreds'(Cls,PProfInfo,Count0,NCls,Sum),
+	'$get_pred_pinfo'(PProfInfo,Mod,Name,Arity),
+	'$get_ppreds'(NCls,Ps).
+
+'$get_more_ppreds'([gprof(PProfInfo,_,Count)|Cls],PProfInfo,Count0,NCls,Sum)
+:- !,
+	Count1 is Count+Count0,
+	'$get_more_ppreds'(Cls,PProfInfo,Count1,NCls,Sum).
+'$get_more_ppreds'(Cls, _, Sum, Cls, NSum) :- NSum is -Sum.
+
+'$display_preds'([], _, _, _).
+'$display_preds'([NSum-P|Ps], Tot, SoFar, I) :-
+	Sum is -NSum,
+	Perc is (100*Sum)/Tot,
+        Next is SoFar+Sum,
+	NextP is (100*Next)/Tot,
+	format(user_error,'~|~t~d.~7+ ~|~w:~t~d~50+ (~|~t~2f~6+%)  |~|~t~2f~6+%|~n',[I,P,Sum,Perc,NextP]),
+	I1 is I+1,
+	'$display_preds'(Ps,Tot,Next,I1).
+
+'$sum_alls'([],Tot,Tot).
+'$sum_alls'([C-_|Preds],Tot0,Tot) :-
+	TotI is C+Tot0,
+	'$sum_alls'(Preds,TotI,Tot).
+
+
+'$add_extras_prof'(GCs, HGrows, SGrows, Mallocs, Preds0, PredsI) :-
+	'$add_extra_prof'(GCs, 'Garbage Collections',Preds0,Preds1),
+	'$add_extra_prof'(HGrows, 'Code Expansion',Preds1,Preds2),
+	'$add_extra_prof'(SGrows, 'Stack Expansion',Preds2,Preds3),
+	'$add_extra_prof'(Mallocs, 'Heap Allocation',Preds3,PredsI).
+
+'$add_extra_prof'(0, _,Preds, Preds) :- !.
+'$add_extra_prof'(Ticks, Name, Preds, [NTicks-Name|Preds]) :-
+	NTicks is -Ticks.
+

@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-09-08 22:06:44 $							 *
+* Last rev:     $Date: 2005-12-17 03:25:39 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.84  2005/09/08 22:06:44  rslopes
+* BEAM for YAP update...
+*
 * Revision 1.83  2005/08/02 03:09:49  vsc
 * fix debugger to do well nonsource predicates.
 *
@@ -435,7 +438,7 @@ a_cle(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
     code_p->u.EC.ClTrail = 0;
     code_p->u.EC.ClENV = 0;
     code_p->u.EC.ClRefs = 0;
-    code_p->u.EC.ClBase = cip->code_addr;
+    code_p->u.EC.ClBase = cl;
     cl->ClExt = code_p;
     cl->ClFlags |= LogUpdRuleMask;
   }
@@ -1087,6 +1090,14 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
     }
     GONEXT(sla);
   }
+  else if (opcode == _execute ||
+      opcode == _dexecute) {
+    if (pass_no) {
+      code_p->u.pp.p = RepPredProp(fe);
+      code_p->u.pp.p0 = clinfo->CurrentPred;
+    }
+    GONEXT(pp);
+  }
   else {
     if (pass_no)
       code_p->u.p.p = RepPredProp(fe);
@@ -1430,7 +1441,7 @@ init_log_upd_table(LogUpdIndex *ic, union clause_obj *cl_u)
   ic->PrevSiblingIndex = NULL;
   ic->ChildIndex = NULL;
   ic->ClRefCount = 0;
-  ic->u.ParentIndex = (LogUpdIndex *)cl_u;
+  ic->ParentIndex = (LogUpdIndex *)cl_u;
   INIT_LOCK(ic->ClLock);
   cl_u->lui.ChildIndex = ic;
   cl_u->lui.ClRefCount++;
@@ -2500,7 +2511,8 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->lui.ChildIndex = NULL;
 	cl_u->lui.SiblingIndex = NULL;
 	cl_u->lui.PrevSiblingIndex = NULL;
-	cl_u->lui.u.pred = cip->CurrentPred;
+	cl_u->lui.ClPred = cip->CurrentPred;
+	cl_u->lui.ParentIndex = NULL;
 	cl_u->lui.ClSize = size;
 	cl_u->lui.ClRefCount =  0;
 	INIT_LOCK(cl_u->lui.ClLock);
@@ -2526,6 +2538,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->si.ClFlags = IndexMask; 
 	cl_u->si.ChildIndex = NULL;
 	cl_u->si.SiblingIndex = NULL;
+	cl_u->si.ClPred = cip->CurrentPred;
       }
       code_p = cl_u->si.ClCode;
       *entry_codep = code_p;
@@ -2750,6 +2763,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case fail_op:
       code_p = a_e(_op_fail, code_p, pass_no);
+      code_p = a_pl(_procceed, cip->CurrentPred, code_p, pass_no);
       break;
     case cut_op:
       code_p = a_cut(&clinfo, code_p, pass_no, cip);
@@ -2770,7 +2784,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	   !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag))
 	code_p = a_e(_unlock_lu, code_p, pass_no);
 #endif
-      code_p = a_e(_procceed, code_p, pass_no);
+      code_p = a_pl(_procceed, cip->CurrentPred, code_p, pass_no);
 #ifdef YAPOR
       if (pass_no)
 	PUT_YAMOP_CUT(*entry_codep);
@@ -2876,7 +2890,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	   !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag))
 	code_p = a_e(_unlock_lu, code_p, pass_no);
 #endif
-      code_p = a_e(_procceed, code_p, pass_no);
+      code_p = a_pl(_procceed, cip->CurrentPred, code_p, pass_no);
       break;
     case call_op:
       code_p = a_p(_call, &clinfo, code_p, pass_no, cip);
@@ -2898,7 +2912,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	  (cip->cpc->nextInst->op == mark_initialised_pvars_op ||
 	   cip->cpc->nextInst->op == blob_op)) {
 	ystop_found = TRUE;
-	code_p = a_e(_Ystop, code_p, pass_no);
+	code_p = a_il((CELL)*entry_codep, _Ystop, code_p, pass_no, cip);
       }
       if (!pass_no) {
 	if (CellPtr(cip->label_offset+cip->cpc->rnd1) > ASP-256) {
@@ -3011,9 +3025,17 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_e(_index_blob, code_p, pass_no);
       break;
     case mark_initialised_pvars_op:
+      if (!ystop_found) {
+	code_p = a_il((CELL)*entry_codep, _Ystop, code_p, pass_no, cip);
+	ystop_found = TRUE;
+      }
       code_p = a_bmap(code_p, pass_no, cip->cpc);
       break;
     case mark_live_regs_op:
+      if (!ystop_found) {
+	code_p = a_il((CELL)*entry_codep, _Ystop, code_p, pass_no, cip);
+	ystop_found = TRUE;
+      }
       code_p = a_bregs(code_p, pass_no, cip->cpc);
       break;
     case commit_opt_op:
@@ -3095,7 +3117,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     cip->cpc = cip->cpc->nextInst;
   }
   if (!ystop_found)
-    code_p = a_e(_Ystop, code_p, pass_no);
+    code_p = a_il((CELL)*entry_codep, _Ystop, code_p, pass_no, cip);
   return code_p;
 }
 
@@ -3218,6 +3240,12 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
   }
   code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, cip, size);
   ProfEnd=code_p;
+#ifdef LOW_PROF
+  if (ProfilerOn &&
+      Yap_OffLineProfiler) {
+    Yap_inform_profiler_of_clause(entry_code, ProfEnd, ap, mode == ASSEMBLING_INDEX); 
+  }
+#endif /* LOW_PROF */
   return entry_code;
 }
 
@@ -3247,7 +3275,8 @@ Yap_InitComma(void)
     code_p->opc = emit_op(_deallocate);
     GONEXT(e);
     code_p->opc = emit_op(_procceed);
-    GONEXT(e);
+    code_p->u.p.p =  PredMetaCall;
+    GONEXT(p);
   } else {
     if (PROFILING) {
       code_p->opc = opcode(_enter_a_profiling);

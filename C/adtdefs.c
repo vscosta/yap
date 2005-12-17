@@ -564,6 +564,15 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
   fe->PropsOfFE = p0 = AbsPredProp(p);
   p->FunctorOfPred = (Functor)fe;
   WRITE_UNLOCK(fe->FRWLock);
+#ifdef LOW_PROF
+    if (ProfilerOn &&
+	Yap_OffLineProfiler) {
+      Yap_inform_profiler_of_clause((yamop *)&(p->OpcodeOfPred), (yamop *)(&(p->OpcodeOfPred)+1), p, 1);
+      if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
+	Yap_inform_profiler_of_clause((yamop *)&(p->cs.p_code.ExpandCode), (yamop *)(&(p->cs.p_code.ExpandCode)+1), p, 1);
+      }
+    }
+#endif /* LOW_PROF */
   return p0;
 }
 
@@ -600,6 +609,15 @@ Yap_NewThreadPred(PredEntry *ap)
   p->NextOfPE = AbsPredProp(ThreadHandle[worker_id].local_preds);
   ThreadHandle[worker_id].local_preds = p;
   p->FunctorOfPred = ap->FunctorOfPred;
+#ifdef LOW_PROF
+    if (ProfilerOn &&
+	Yap_OffLineProfiler) {
+      Yap_inform_profiler_of_clause((yamop *)&(p->OpcodeOfPred), (yamop *)(&(p->OpcodeOfPred)+1), p, 1);
+      if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
+	Yap_inform_profiler_of_clause((yamop *)&(p->cs.p_code.ExpandCode), (yamop *)(&(p->cs.p_code.ExpandCode)+1), p, 1);
+      }
+    }
+#endif /* LOW_PROF */
   return AbsPredProp(p);
 }
 #endif
@@ -658,6 +676,15 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   ae->PropsOfAE = p0 = AbsPredProp(p);
   p->FunctorOfPred = (Functor)AbsAtom(ae);
   WRITE_UNLOCK(ae->ARWLock);
+#ifdef LOW_PROF
+    if (ProfilerOn &&
+	Yap_OffLineProfiler) {
+      Yap_inform_profiler_of_clause((yamop *)&(p->OpcodeOfPred), (yamop *)(&(p->OpcodeOfPred)+1), p, 1);
+      if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
+	Yap_inform_profiler_of_clause((yamop *)&(p->cs.p_code.ExpandCode), (yamop *)(&(p->cs.p_code.ExpandCode)+1), p, 1);
+      }
+    }
+#endif /* LOW_PROF */
   return p0;
 }
 

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.78 2005-12-07 17:53:29 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.79 2005-12-17 03:25:39 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -81,30 +81,36 @@ minfo(char mtype)
 static inline char *
 call_malloc(unsigned int size)
 {
+  char *out;
 #if INSTRUMENT_MALLOC
   if (mallocs % 1024*4 == 0) 
     minfo('A');
   mallocs++;
   tmalloc += size;
 #endif
-  return (char *) malloc(size);
+  Yap_PrologMode |= MallocMode;
+  out = (char *) malloc(size);
+  Yap_PrologMode &= ~MallocMode;
+  return out;
 }
 
 char *
 Yap_AllocCodeSpace(unsigned int size)
 {
-  return call_malloc(size);
+  return  call_malloc(size);
 }
 
 void
 Yap_FreeCodeSpace(char *p)
 {
+  Yap_PrologMode |= MallocMode;
 #if INSTRUMENT_MALLOC
   if (frees % 1024*4 == 0) 
     minfo('F');
   frees++;
 #endif
   free (p);
+  Yap_PrologMode &= ~MallocMode;
 }
 
 char *
@@ -116,12 +122,14 @@ Yap_AllocAtomSpace(unsigned int size)
 void
 Yap_FreeAtomSpace(char *p)
 {
+  Yap_PrologMode |= MallocMode;
 #if INSTRUMENT_MALLOC
   if (frees % 1024*4 == 0) 
     minfo('F');
   frees++;
 #endif
   free (p);
+  Yap_PrologMode &= ~MallocMode;
 }
 
 /* If you need to dinamically allocate space from the heap, this is
@@ -132,11 +140,16 @@ Yap_InitPreAllocCodeSpace(void)
   char *ptr;
   UInt sz = ScratchPad.msz;
   if (ScratchPad.ptr == NULL) {
-    while (!(ptr = malloc(sz)))
+    Yap_PrologMode |= MallocMode;
+    while (!(ptr = malloc(sz))) {
+      Yap_PrologMode &= ~MallocMode;
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return(NULL);
       }
+      Yap_PrologMode |= MallocMode;
+    }
+    Yap_PrologMode &= ~MallocMode;
     ScratchPad.ptr = ptr;
   } else {
     ptr = ScratchPad.ptr;
@@ -161,7 +174,9 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip)
     minfo('R');
   reallocs++;
 #endif
+  Yap_PrologMode |= MallocMode;
   while (!(ptr = realloc(ScratchPad.ptr, sz))) {
+    Yap_PrologMode &= ~MallocMode;
 #if USE_DL_MALLOC
     if (!Yap_growheap((cip!=NULL), sz, cip)) {
       return NULL;
@@ -169,7 +184,9 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip)
 #else
     return NULL;
 #endif
+    Yap_PrologMode |= MallocMode;
   }
+  Yap_PrologMode &= ~MallocMode;
   ScratchPad.ptr = ptr;
   AuxSp = (CELL *)(AuxTop = ptr+sz);
   return ptr;

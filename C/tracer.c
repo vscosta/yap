@@ -125,15 +125,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 
   sc = Yap_heap_regs;
   vsc_count++;
-  {
-    Term WGs = Yap_ReadTimedVar(WokenGoals);
-    fprintf(stderr,"%d %p %lld: ",port, H, vsc_count);
-    Yap_DebugPlWrite(WGs);
-    Yap_DebugErrorPutc ('\n');
-  }
-  if (vsc_count < 100) {
-    return;
-  }
 #ifdef COMMENTED
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;

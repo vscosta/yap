@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.88 2005-12-07 17:53:30 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.89 2005-12-17 03:25:39 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -448,11 +448,9 @@ typedef struct various_codes {
   struct pred_entry *pred_throw;
   struct pred_entry *pred_handle_throw;
   struct DB_STRUCT *db_erased_marker;
-#ifdef DEBUG
   struct logic_upd_clause *db_erased_list;
   struct logic_upd_index *db_erased_ilist;
   UInt expand_clauses_sz;
-#endif /* DEBUG */
   struct stream_desc *yap_streams;
 #ifdef DEBUG
   int    debugger_output_msg;
@@ -462,6 +460,7 @@ typedef struct various_codes {
   struct AliasDescS * file_aliases;
 #if LOW_PROF
   int   profiler_on;
+  int   offline_profiler;
   FILE *f_prof, *f_preds;
   UInt  prof_preds;
 #endif /* LOW_PROF */
@@ -715,11 +714,9 @@ struct various_codes *Yap_heap_regs;
 #define  PredThrow                Yap_heap_regs->pred_throw
 #define  PredHandleThrow          Yap_heap_regs->pred_handle_throw
 #define  DBErasedMarker           Yap_heap_regs->db_erased_marker
-#ifdef DEBUG
 #define  DBErasedList             Yap_heap_regs->db_erased_list
 #define  DBErasedIList            Yap_heap_regs->db_erased_ilist
 #define  Yap_expand_clauses_sz    Yap_heap_regs->expand_clauses_sz
-#endif /* DEBUG */
 #define  Stream		          Yap_heap_regs->yap_streams
 #define  output_msg	          Yap_heap_regs->debugger_output_msg
 #define  NOfFileAliases           Yap_heap_regs->n_of_file_aliases
@@ -727,6 +724,7 @@ struct various_codes *Yap_heap_regs;
 #define  FileAliases              Yap_heap_regs->file_aliases
 #if LOW_PROF
 #define  ProfilerOn		  Yap_heap_regs->profiler_on
+#define  Yap_OffLineProfiler	  Yap_heap_regs->offline_profiler
 #define  FProf     		  Yap_heap_regs->f_prof
 #define  FPreds     		  Yap_heap_regs->f_preds
 #define  ProfPreds		  Yap_heap_regs->prof_preds

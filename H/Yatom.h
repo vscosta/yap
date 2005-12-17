@@ -638,7 +638,7 @@ typedef enum
   SwitchRootMask = 0x80000,	/* informs this is the root for the index tree */
   SwitchTableMask = 0x40000,	/* informs this is a switch table */
   HasBlobsMask = 0x20000,	/* informs this has blobs which may be in use */
-  GcFoundMask = 0x10000,	/* informs this is a dynamic predicate */
+  ProfFoundMask = 0x10000,	/* informs this clause is being counted by profiler */
   DynamicMask = 0x8000,		/* informs this is a dynamic predicate */
   InUseMask = 0x4000,		/* informs this block is being used */
   ErasedMask = 0x2000,		/* informs this block has been erased */

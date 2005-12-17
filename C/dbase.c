@@ -1941,6 +1941,12 @@ record_lu(PredEntry *pe, Term t, int position)
 #if defined(YAPOR) || defined(THREADS)
   WPP = pe;
 #endif
+#ifdef LOW_PROF
+    if (ProfilerOn &&
+	Yap_OffLineProfiler) {
+      Yap_inform_profiler_of_clause(cl->ClCode, (yamop *)(cl+cl->ClSize), pe, 0); 
+    }
+#endif /* LOW_PROF */
   Yap_add_logupd_clause(pe, cl, (position == MkFirst ? 2 : 0));
 #if defined(YAPOR) || defined(THREADS)
   WPP = NULL;
@@ -3828,13 +3834,9 @@ p_key_erased_statistics(void)
     cl = cl->ClNext;
   }
   while (icl) {
-    LogUpdIndex *c = icl;
-
-    while (!c->ClFlags & SwitchRootMask)
-      c = c->u.ParentIndex;
-    if (pe == c->u.pred) {
+    if (pe == icl->ClPred) {
       icls++;
-      isz += c->ClSize;
+      isz += icl->ClSize;
     }
     icl = icl->SiblingIndex;
   }
@@ -4065,6 +4067,8 @@ complete_lu_erase(LogUpdClause *clau)
       }
     }
   }
+  if (clau->ClFlags & ProfFoundMask)
+    Yap_InformOfRemoval((CODEADDR)clau);
   Yap_FreeCodeSpace((char *)clau);
 }
 
@@ -4184,6 +4188,8 @@ MyEraseClause(DynamicClause *clau)
       P = np;
     }
   } else {
+    if (clmask & ProfFoundMask)
+      Yap_InformOfRemoval((CODEADDR)clau);
     Yap_FreeCodeSpace((char *)clau);
 #ifdef DEBUG
     if (ref->NOfRefsTo)

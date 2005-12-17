@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2005-09-08 22:06:44 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2005-12-17 03:25:39 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.69  2005/09/08 22:06:44  rslopes
+* BEAM for YAP update...
+*
 * Revision 1.68  2005/07/06 15:10:03  vsc
 * improvements to compiler: merged instructions and fixes for ->
 *
@@ -3189,11 +3192,11 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
     return NULL;
   } else {
 #ifdef LOW_PROF
-    if (ProfilerOn) {
+    if (ProfilerOn &&
+	Yap_OffLineProfiler) {
       Yap_inform_profiler_of_clause(acode, ProfEnd, cglobs.cint.CurrentPred,0);
     }
 #endif /* LOW_PROF */
-
     return(acode);
   }
 }

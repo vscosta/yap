@@ -1,4 +1,4 @@
-Mdnl
+vMdnl
 dnl Process this file with autoconf to produce a configure script.
 dnl
 
@@ -189,22 +189,6 @@ then
   AC_DEFINE(MinHeapSpace, (400*SIZEOF_INT_P))
   AC_DEFINE(MinStackSpace,(300*SIZEOF_INT_P))
   AC_DEFINE(MinTrailSpace,( 48*SIZEOF_INT_P))
-  if test "$depthlimit" = yes -a "$tabling" = yes
-  then
-   echo
-   echo
-   echo "********************************************************"
-   echo
-   echo
-   echo "!!!!!! WARNING !!!!!!"
-   echo "Depth Limit makes no sense with Tabling"
-   echo "Please contact ricroc@ncc.up.pt for help" 
-   echo
-   echo
-   echo "********************************************************"
-   echo
-   echo
-  fi
 else
 	AC_DEFINE(MinHeapSpace, (200*SIZEOF_INT_P))
 	AC_DEFINE(MinStackSpace,(200*SIZEOF_INT_P))
@@ -1001,7 +985,7 @@ fi
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(acosh asinh atanh chdir ctime dlopen dup2)
-AC_CHECK_FUNCS(fesettrapenable finite getcwd getenv)
+AC_CHECK_FUNCS(fesettrapenable fgetpos finite getcwd getenv)
 AC_CHECK_FUNCS(gethostbyname gethostid gethostname)
 AC_CHECK_FUNCS(gethrtime getpwnam getrusage gettimeofday getwd)
 AC_CHECK_FUNCS(isatty isnan kill labs link lgamma)

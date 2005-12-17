@@ -60,7 +60,7 @@ static char SccsId[] = "%W% %G%";
 #define USE_PREFETCH   1
 #endif
 
-#ifdef _POWER
+#if defined(_POWER)
 #define SHADOW_P       1
 #define SHADOW_REGS    1
 #define USE_PREFETCH   1

@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.65 2005-12-05 17:16:11 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.66 2005-12-17 03:25:39 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -156,6 +156,13 @@ Int	STD_PROTO(Yap_execute_goal,(Term, int, Term));
 int	STD_PROTO(Yap_exec_absmi,(int));
 void	STD_PROTO(Yap_trust_last,(void));
 
+/* gprof.c */
+void	STD_PROTO(Yap_InitLowProf,(void));
+#if  LOW_PROF
+void	STD_PROTO(Yap_inform_profiler_of_clause,(struct yami *,struct yami *,struct pred_entry *,int));
+#else
+#define	Yap_inform_profiler_of_clause(A,B,C,D)
+#endif
 
 /* grow.c */
 Int     STD_PROTO(Yap_total_stack_shift_time,(void));
@@ -340,7 +347,3 @@ void	STD_PROTO(Yap_init_socks,(char *, long));
 void    STD_PROTO(Yap_init_optyap_preds,(void));
 
 
-#if LOW_PROF
-void STD_PROTO(Yap_dump_code_area_for_profiler,(void));
-void STD_PROTO(Yap_inform_profiler_of_clause,(yamop *,yamop *, struct pred_entry *,int index_code));
-#endif /* LOW_PROF */

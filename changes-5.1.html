@@ -16,6 +16,16 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> NEW: tabling does not conflit with depth limit (Trevor Walker). </li>
+<li> NEW: make scanner restartable on seekable files (Nuno Fonseca). </li>
+<li> NEW: improve error discovery within scanner (Jude Shavlik). </li>
+<li> NEW: change event profiler to do profiling online and
+off-line. </li>
+<li> NEW: routine to find clause/pred </li>
+<li> NEW: always end clauses with Ystop START, so that we can refer
+back to the clause's beginning. </li>
+<li> NEW: always have a pointer to Pred in clauses, so that we can
+find current predicate. </li>
 <li> NEW: heapgc should now be concurrent when using threads. </li>
 <li> FIXED: heapgc wo tags can handle trail overflows right. </li>
 <li> NEW: heapgc wo tags does not write on the collected areas during marking. </li>

@@ -489,9 +489,9 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
     UInt sz;
 
     if (flags & SafePredFlag) {
-      sz = (CELL)NEXTOP(NEXTOP(NEXTOP(p_code,sla),e),e);
+      sz = (CELL)NEXTOP(NEXTOP(NEXTOP(p_code,sla),p),l);
     } else {
-      sz = (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(NEXTOP(p_code,e),sla),e),e),e);
+      sz = (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(NEXTOP(p_code,e),sla),e),p),l);
     }
     cl = (StaticClause *)Yap_AllocCodeSpace(sz);
     if (!cl) {
@@ -527,8 +527,10 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
     p_code = NEXTOP(p_code,e);
   }
   p_code->opc = Yap_opcode(_procceed);
-  p_code = NEXTOP(p_code,e);
+  p_code->u.p.p = pe;
+  p_code = NEXTOP(p_code,p);
   p_code->opc = Yap_opcode(_Ystop);
+  p_code->u.l.l = cl->ClCode;
   pe->OpcodeOfPred = pe->CodeOfPred->opc;
   pe->ModuleOfPred = CurrentModule;
 }
@@ -551,7 +553,7 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int 
     /* already exists */
   } else {
     while (!cl) {
-      UInt sz = sizeof(StaticClause)+(CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)NULL),llxx),e),e);
+      UInt sz = sizeof(StaticClause)+(CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)NULL),llxx),p),l);
       cl = (StaticClause *)Yap_AllocCodeSpace(sz); 
       if (!cl) {
 	if (!Yap_growheap(FALSE, sz, NULL)) {
@@ -579,8 +581,10 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int 
   p_code->u.llxx.flags = Yap_compile_cmp_flags(pe);
   p_code = NEXTOP(p_code,llxx);
   p_code->opc = Yap_opcode(_procceed);
-  p_code = NEXTOP(p_code,e);
+  p_code->u.p.p = pe;
+  p_code = NEXTOP(p_code,p);
   p_code->opc = Yap_opcode(_Ystop);
+  p_code->u.l.l = cl->ClCode;
 }
 
 void 
@@ -598,13 +602,15 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
   pe->ModuleOfPred = CurrentModule;
   if (def != NULL) {
     yamop      *p_code = ((StaticClause *)NULL)->ClCode;
-    StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),sla),e),e)); 
+    StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),sla),p),l)); 
 
     if (!cl) {
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitAsmPred");
       return;
     }
     cl->ClFlags = 0;
+    cl->ClSize = (CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),sla),e),e);
+    cl->usc.ClPred = pe;
     p_code = cl->ClCode;
     pe->CodeOfPred = p_code;
     p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_cpred);
@@ -613,8 +619,10 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
     p_code->u.sla.sla_u.p = pe;
     p_code = NEXTOP(p_code,sla);
     p_code->opc = Yap_opcode(_procceed);
-    p_code = NEXTOP(p_code,e);
+    p_code->u.p.p = pe;
+    p_code = NEXTOP(p_code,p);
     p_code->opc = Yap_opcode(_Ystop);
+    p_code->u.l.l = cl->ClCode;
   } else {
     pe->OpcodeOfPred = Yap_opcode(_undef_p);
     pe->CodeOfPred =  (yamop *)(&(pe->OpcodeOfPred)); 
@@ -727,9 +735,9 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
 #endif /* YAPOR */
     
 #ifdef CUT_C
-    cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,lds),lds),lds),e));
+    cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,lds),lds),lds),l));
 #else
-    cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(code,lds),lds),e));
+    cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(code,lds),lds),l));
 #endif
     
     if (cl == NULL) {
@@ -737,6 +745,15 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
       return;
     }
     cl->ClFlags = 0L;
+#ifdef CUT_C
+    cl->ClSize = 
+      (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,lds),lds),lds),e);
+#else
+    cl->ClSize = 
+      (CELL)NEXTOP(NEXTOP(NEXTOP(code,lds),lds),e);
+#endif
+    cl->usc.ClPred = pe;
+
     code = cl->ClCode;
     pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred =
       pe->cs.p_code.FirstClause = pe->cs.p_code.LastClause = code;
@@ -778,6 +795,7 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
     code = NEXTOP(code,lds);
 #endif /* CUT_C */
     code->opc = Yap_opcode(_Ystop);
+    code->u.l.l = cl->ClCode;
   }
 }
 

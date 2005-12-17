@@ -74,7 +74,7 @@ clpbn_flag(solver,Before,After) :-
 	extract_dist(Dist, Table, Parents, Domain),
 	add_evidence(Var,El).
 
-extract_dist(V, Tab.Inps, Domain) :- var(V), !,
+extract_dist(V, Tab, Inps, Domain) :- var(V), !,
 	V = p(Domain, Tab, Inps).
 extract_dist(p(Domain, trans(L), Parents), Tab, Inps, Domain) :- !,
 	compress_hmm_table(L, Parents, Tab, Inps).

@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-11-24 15:33:52 $,$Author: tiagosoares $						 *
+* Last rev:     $Date: 2005-12-17 03:25:39 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.148  2005/11/24 15:33:52  tiagosoares
+* removed some compilation warnings related to the cut-c code
+*
 * Revision 1.147  2005/11/18 18:48:52  tiagosoares
 * support for executing c code when a cut occurs
 *
@@ -749,14 +752,16 @@ has_cut(yamop *pc)
     case _stale_lu_index:
       pc = pc->u.Ill.l1;
       break;
+    case _execute:
+    case _dexecute:
+      pc = NEXTOP(pc,pp);
+      break;
       /* instructions type l */
     case _enter_profiling:
     case _count_call:
     case _retry_profiled:
     case _count_retry:
     case _trust_logical_pred:
-    case _execute:
-    case _dexecute:
     case _jump:
     case _move_back:
     case _skip:
@@ -782,7 +787,6 @@ has_cut(yamop *pc)
       /* instructions type e */
     case _trust_fail:
     case _op_fail:
-    case _procceed:
     case _allocate:
     case _deallocate:
     case _write_void:
@@ -3228,7 +3232,14 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint)
     }
     cl->ClFlags = SwitchTableMask|LogUpdMask;
     cl->ClSize = sz;
+    cl->ClPred = cint->CurrentPred;
     /* insert into code chain */
+#ifdef LOW_PROF
+    if (ProfilerOn &&
+	Yap_OffLineProfiler) {
+      Yap_inform_profiler_of_clause(cl->ClCode, (yamop*)((CODEADDR)cl+sz), ap, 1); 
+    }
+#endif /* LOW_PROF */
     return cl->ClCode;
   } else {
     UInt sz = sizeof(StaticIndex)+n*item_size;
@@ -3239,6 +3250,13 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint)
     }
     cl->ClFlags = SwitchTableMask;
     cl->ClSize = sz;
+    cl->ClPred = cint->CurrentPred;
+#ifdef LOW_PROF
+    if (ProfilerOn &&
+	Yap_OffLineProfiler) {
+      Yap_inform_profiler_of_clause(cl->ClCode, (yamop*)((CODEADDR)cl+sz), ap, 1); 
+    }
+#endif /* LOW_PROF */
     return cl->ClCode;
     /* insert into code chain */
   }  
@@ -3563,6 +3581,12 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
     if ((ncode = (yamop *)Yap_AllocCodeSpace(sz)) == NULL) {
       longjmp(cint->CompilerBotch, 2);
     }
+#ifdef LOW_PROF
+    if (ProfilerOn &&
+	Yap_OffLineProfiler) {
+      Yap_inform_profiler_of_clause(ncode, NEXTOP(ncode,sp), ap, 1); 
+    }
+#endif /* LOW_PROF */
     /* create an expand_block */
     ncode->opc = Yap_opcode(_expand_clauses);
     ncode->u.sp.p = ap;
@@ -3611,8 +3635,10 @@ recover_ecls_block(yamop *ipc)
     }
     UNLOCK(ExpandClausesListLock);
 #if DEBUG
-	Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sp))+ipc->u.sp.s1*sizeof(yamop *);
+    Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sp))+ipc->u.sp.s1*sizeof(yamop *);
 #endif
+    /* no dangling pointers for gprof */
+    Yap_InformOfRemoval((CODEADDR)ipc);
     Yap_FreeCodeSpace((char *)ipc);
   }
 }
@@ -4381,11 +4407,6 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots)
   } else {
     return NULL;
   }
-#ifdef LOW_PROF
-  if (ProfilerOn) {
-    Yap_inform_profiler_of_clause(indx_out, ProfEnd, ap,1); 
-  }
-#endif /* LOW_PROF */
   if (ap->PredFlags & LogUpdatePredFlag) {
     LogUpdIndex *cl = ClauseCodeToLogUpdIndex(indx_out);
     cl->ClFlags |= SwitchRootMask;
@@ -4892,6 +4913,7 @@ expand_index(struct intermediates *cint) {
       ipc = ipc->u.l.l;
       break;
     case _lock_lu:
+    case _procceed:
       ipc = NEXTOP(ipc,p);
       break;
     case _unlock_lu:
@@ -5273,9 +5295,6 @@ expand_index(struct intermediates *cint) {
       lab = do_index(cls, max, cint, argno+1, fail_l, isfirstcl, clleft, top);
     }
   }
-  if (eblk) {
-    recover_ecls_block(eblk);
-  }
   if (labp && !(lab & 1))
     *labp = (yamop *)lab; /* in case we have a single clause */
   return labp;
@@ -5284,7 +5303,7 @@ expand_index(struct intermediates *cint) {
 
 static yamop *
 ExpandIndex(PredEntry *ap, int ExtraArgs) {
-  yamop *indx_out;
+  yamop *indx_out, *expand_clauses;
   yamop **labp;
   int cb;
   struct intermediates cint;
@@ -5332,6 +5351,11 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
   cint.CurrentPred = ap;
   Yap_ErrorMessage = NULL;
   Yap_Error_Size = 0;
+  if (P->opc == Yap_opcode(_expand_clauses)) {
+    expand_clauses = P;
+  } else {
+    expand_clauses = NULL;
+  }
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
@@ -5393,11 +5417,6 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
     /* single case */
     return *labp;
   }
-#ifdef LOW_PROF
-  if (ProfilerOn) {
-    Yap_inform_profiler_of_clause(indx_out, ProfEnd, ap,1); 
-  }
-#endif /* LOW_PROF */
   if (indx_out == NULL) {
     return FAILCODE;
   }
@@ -5414,7 +5433,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
     if (ic->ChildIndex) {
       ic->ChildIndex->PrevSiblingIndex = nic;
     }
-    nic->u.ParentIndex = ic;
+    nic->ParentIndex = ic;
     nic->ClFlags &= ~SwitchRootMask;
     ic->ChildIndex = nic;
     ic->ClRefCount++;
@@ -5427,6 +5446,10 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
     /* insert myself in the indexing code chain */ 
     nic->SiblingIndex = ic->ChildIndex;
     ic->ChildIndex = nic;
+  }
+  if (expand_clauses) {
+    P = indx_out;
+    recover_ecls_block(expand_clauses);
   }
   return indx_out;
 }
@@ -5588,7 +5611,8 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
     ncl->PrevSiblingIndex = cl->PrevSiblingIndex;
     ncl->ClRefCount = cl->ClRefCount;
     ncl->ChildIndex = cl->ChildIndex;
-    ncl->u.ParentIndex = cl->u.ParentIndex;
+    ncl->ParentIndex = cl->ParentIndex;
+    ncl->ClPred = cl->ClPred;
     INIT_LOCK(ncl->ClLock);
     if (c == cl) {
       parent_block->lui.ChildIndex = ncl;
@@ -5600,7 +5624,7 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
     }
     c = cl->ChildIndex;
     while (c != NULL) {
-      c->u.ParentIndex = ncl;
+      c->ParentIndex = ncl;
       c = c->SiblingIndex;
     }
     Yap_FreeCodeSpace((char *)cl);
@@ -5610,6 +5634,7 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
       *ncl = ClauseCodeToStaticIndex(ncod),
       *c = parent_block->si.ChildIndex;
     ncl->SiblingIndex = cl->SiblingIndex;
+    ncl->ClPred = cl->ClPred;
     if (c == cl) {
       parent_block->si.ChildIndex = ncl;
     } else {
@@ -6073,6 +6098,9 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
   if (flag == RECORDZ) {
     codep = gen_lui_trust(codep, ocodep, profiled, count_reds, ap, code, has_cut, nblk);    
   }
+  codep->opc = Yap_opcode(_Ystop);
+  /* this must be updated if we are copying to  different place */
+  codep->u.l.l = ostart;
   return codep;
 }
 
@@ -6109,13 +6137,15 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
       ((UInt)NEXTOP((yamop *)NULL,ld))+
       jnvs*((UInt)NEXTOP((yamop *)NULL,xll))+
       (UInt)NEXTOP((yamop *)NULL,Ill)+
-      (UInt)NEXTOP((yamop *)NULL,p);
+      (UInt)NEXTOP((yamop *)NULL,p)+
+      (UInt)NEXTOP((yamop *)NULL,l);
   } else {
     sz = sizeof(LogUpdIndex)+
       xcls*((UInt)NEXTOP((yamop *)NULL,ld))+
       jnvs*((UInt)NEXTOP((yamop *)NULL,xll))+
       (UInt)NEXTOP((yamop *)NULL,Ill)+
-      (UInt)NEXTOP((yamop *)NULL,p);
+      (UInt)NEXTOP((yamop *)NULL,p)+
+      (UInt)NEXTOP((yamop *)NULL,l);
   }
   if (count_reds) sz += xcls*((UInt)NEXTOP((yamop *)NULL,p));
   if (profiled) sz += xcls*((UInt)NEXTOP((yamop *)NULL,p));
@@ -6125,23 +6155,29 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
     Yap_ErrorMessage = "while at indexing code";
     return NULL;
   }
+#ifdef LOW_PROF
+    if (ProfilerOn &&
+	Yap_OffLineProfiler) {
+      Yap_inform_profiler_of_clause(ncl->ClCode, (yamop *)(ncl+sz), ap, 1); 
+    }
+#endif /* LOW_PROF */
   ncl->ClFlags = LogUpdMask|IndexedPredFlag|IndexMask;
   if (blk->ClFlags & SwitchRootMask) {
       ncl->ClFlags |= SwitchRootMask;
-      ncl->u.pred = blk->u.pred;
-  } else {
-    ncl->u.ParentIndex = blk->u.ParentIndex;
   }
+  ncl->ClPred = blk->ClPred;
+  ncl->ParentIndex = blk->ParentIndex;
   ncl->ClRefCount = 0;
   {
     LogUpdIndex *idx = ncl->ChildIndex = blk->ChildIndex;
+
     while (idx) {
       LogUpdIndex *nidx;
 
       LOCK(idx->ClLock);
       blk->ClRefCount--;
       ncl->ClRefCount++;
-      idx->u.ParentIndex = ncl;
+      idx->ParentIndex = ncl;
       nidx = idx->SiblingIndex;
       UNLOCK(idx->ClLock);
       idx = nidx;
@@ -6212,12 +6248,16 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
   codep = cp_lu_trychain(codep, ocodep, begin, flag, ap, code, has_cut, ncl, ncls, i);
   /* the copying has been done */
   start->u.Ill.l2 = codep;
+  /* make sure we have access to the clause */
+  codep->u.l.l = start; 
   /* insert ourselves into chain */
   if (blk->ClFlags & SwitchRootMask) {
     Yap_kill_iblock((ClauseUnion *)blk, NULL, ap);
   } else {
-    pcl = blk->u.ParentIndex;
+    pcl = blk->ParentIndex;
     ncl->SiblingIndex = pcl->ChildIndex;
+    ncl->ClPred = pcl->ClPred;
+    ncl->ParentIndex = pcl;
     ncl->PrevSiblingIndex = NULL;
     if (pcl->ChildIndex) {
       pcl->ChildIndex->PrevSiblingIndex = ncl;
@@ -6290,16 +6330,12 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
      otherwise I just don't understand what is going on */
   if ((op != _enter_lu_pred && op != _stale_lu_index) ||
       ! is_trust(PREVOP(begin->u.xll.l2,ld)->opc)) {
-    if (blk->ClFlags & SwitchRootMask) {
-      Yap_kill_iblock((ClauseUnion *)blk, NULL, ap);
-    } else {
-      Yap_kill_iblock((ClauseUnion *)blk, (ClauseUnion *)blk->u.ParentIndex, ap);
-    }
+    Yap_kill_iblock((ClauseUnion *)blk, (ClauseUnion *)blk->ParentIndex, ap);
     return (yamop *)&(ap->cs.p_code.ExpandCode);
   }
   /* ok, we are in a sequence of try-retry-trust instructions, or something
      similar */
-  bsize = blk->ClSize;
+  bsize = blk->ClSize -(CELL)NEXTOP((yamop*)NULL,l);
   end = (yamop *)((CODEADDR)blk+bsize);
   where = last = begin->u.Ill.l2;
   next = NEXTOP(where, ld);
@@ -6373,7 +6409,10 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
 #ifdef TABLING
     where->u.ld.te = last->u.ld.te;
 #endif /* TABLING */
-    begin->u.Ill.l2 = NEXTOP(where,ld);
+    where = NEXTOP(where,ld);
+    begin->u.Ill.l2 = where;
+    where->opc = Yap_opcode(_Ystop);
+    where->u.l.l = begin;
     begin->u.Ill.s++;
     tgl->ClRefCount++;
     return blk->ClCode;
@@ -6396,11 +6435,7 @@ inserta_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
   }
   if ((op != _enter_lu_pred && op != _stale_lu_index) ||
       ! is_trust(PREVOP(begin->u.xll.l2,ld)->opc)) {
-    if (blk->ClFlags & SwitchRootMask) {
-      Yap_kill_iblock((ClauseUnion *)blk, NULL, ap);
-    } else {
-      Yap_kill_iblock((ClauseUnion *)blk, (ClauseUnion *)blk->u.ParentIndex, ap);
-    }
+    Yap_kill_iblock((ClauseUnion *)blk, (ClauseUnion *)blk->ParentIndex, ap);
     return (yamop *)&(ap->cs.p_code.ExpandCode);
   }
   /* ok, we are in a sequence of try-retry-trust instructions, or something
@@ -8694,13 +8729,10 @@ yamop *
 Yap_CleanUpIndex(LogUpdIndex *blk)
 {
   PredEntry *ap;
-  LogUpdIndex *pblk = blk, *tblk;
+  LogUpdIndex *pblk = blk;
 
   /* first, go up until findin'your pred */
-  tblk = pblk;
-  while (!(tblk->ClFlags & SwitchRootMask))
-    tblk = tblk->u.ParentIndex;
-  ap = tblk->u.pred;
+  ap = pblk->ClPred;
 
   if (
 #if defined(THREADS) || defined(YAPOR)

@@ -644,6 +644,7 @@ Yap_scan_num(int (*Nxtch) (int))
   ScannerExtraBlocks = NULL;
   if (!(ptr = AllocScannerMemory(4096))) {
     Yap_ErrorMessage = "Trail Overflow";
+    Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
     return TermNil;
   }
   ch = Nxtch(-1);
@@ -658,6 +659,8 @@ Yap_scan_num(int (*Nxtch) (int))
     return TermNil;
   }
   cherr = 0;
+  if (ASP-H < 1024)
+    return TermNil;
   out = get_num(&ch, &cherr, -1, Nxtch, Nxtch, ptr, 4096);
   PopScannerMemory(ptr, 4096);
   if (sign == -1) {
@@ -702,12 +705,13 @@ Yap_tokenizer(int inp_stream)
     t->TokNext = NULL;
     if (t == NULL) {
       Yap_ErrorMessage = "Trail Overflow";
+      Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
       if (p)
-	p->TokInfo = eot_tok;
+	p->Tok = Ord(kind = eot_tok);
       /* serious error now */
       return l;
     }
-    if (l == NIL)
+    if (!l)
       l = t;
     else
       p->TokNext = t;
@@ -740,8 +744,18 @@ Yap_tokenizer(int inp_stream)
       charp = TokImage;
       isvar = (chtype[och] != LC);
       *charp++ = och;
-      for (; chtype[ch] <= NU; ch = Nxtch(inp_stream))
+      for (; chtype[ch] <= NU; ch = Nxtch(inp_stream)) {
+	if (charp == (char *)AuxSp-1024) {
+	  /* huge atom or variable, we are in trouble */
+	  Yap_ErrorMessage = "Code Space Overflow due to huge atom";
+	  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
+	  if (p)
+	    p->Tok = Ord(kind = eot_tok);
+	  /* serious error now */
+	  return l;
+	}
 	*charp++ = ch;
+      }
       *charp++ = '\0';
       if (!isvar) {
 	/* don't do this in iso */
@@ -749,7 +763,7 @@ Yap_tokenizer(int inp_stream)
 	if (ae == NIL) {
 	  Yap_ErrorMessage = "Code Space Overflow";
 	  if (p)
-	    p->TokInfo = eot_tok;
+	    t->Tok = Ord(kind = eot_tok);
 	  /* serious error now */
 	  return l;
 	}
@@ -773,12 +787,21 @@ Yap_tokenizer(int inp_stream)
 	cherr = 0;
 	if (!(ptr = AllocScannerMemory(4096))) {
 	  Yap_ErrorMessage = "Trail Overflow";
+	  Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
 	  if (p)
-	    t->TokInfo = eot_tok;
+	    t->Tok = Ord(kind = eot_tok);
 	  /* serious error now */
 	  return l;
 	}
-	t->TokInfo = get_num(&cha,&cherr,inp_stream,Nxtch,QuotedNxtch,ptr,4096);
+	if (ASP-H < 1024 ||
+	    ((t->TokInfo = get_num(&cha,&cherr,inp_stream,Nxtch,QuotedNxtch,ptr,4096)) == 0L)) {
+	  Yap_ErrorMessage = "Stack Overflow";
+	  Yap_Error_TYPE = OUT_OF_STACK_ERROR;	            
+	  if (p)
+	    p->Tok = Ord(kind = eot_tok);
+	  /* serious error now */
+	  return l;
+	}
 	PopScannerMemory(ptr, 4096);
 	ch = cha;
 	if (cherr) {
@@ -788,8 +811,9 @@ Yap_tokenizer(int inp_stream)
 	  e = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	  if (e == NULL) {
 	    Yap_ErrorMessage = "Trail Overflow";
+	    Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
 	    if (p)
-	      p->TokInfo = eot_tok;
+	      p->Tok = Ord(kind = eot_tok);
 	    /* serious error now */
 	    return l;
 	  } else {
@@ -816,8 +840,9 @@ Yap_tokenizer(int inp_stream)
 	      e2 = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	      if (e2 == NULL) {
 		Yap_ErrorMessage = "Trail Overflow";
+		Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
 		if (p)
-		  p->TokInfo = eot_tok;
+		  p->Tok = Ord(kind = eot_tok);
 		/* serious error now */
 		return l;
 	      } else {
@@ -846,7 +871,8 @@ Yap_tokenizer(int inp_stream)
 	      e2 = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	      if (e2 == NULL) {
 		Yap_ErrorMessage = "Trail Overflow";
-		p->TokInfo = eot_tok;
+		Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
+		t->Tok = Ord(kind = eot_tok);
 		/* serious error now */
 		return l;
 	      } else {
@@ -875,6 +901,7 @@ Yap_tokenizer(int inp_stream)
       ch = QuotedNxtch(inp_stream);
       while (1) {
 	if (charp + 1024 > (char *)AuxSp) {
+	  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
 	  Yap_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	  break;
 	}
@@ -906,7 +933,8 @@ Yap_tokenizer(int inp_stream)
 	++len;
 	if (charp > (char *)AuxSp - 1024) {
 	  /* Not enough space to read in the string. */
-	  Yap_ErrorMessage = "not enough heap space to read in string or quoted atom";
+	  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
+	  Yap_ErrorMessage = "not enough space to read in string or quoted atom";
 	  /* serious error now */
 	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  t->Tok = Ord(kind = eot_tok);
@@ -917,7 +945,7 @@ Yap_tokenizer(int inp_stream)
       if (quote == '"') {
 	mp = AllocScannerMemory(len + 1);
 	if (mp == NULL) {
-	  Yap_ErrorMessage = "not enough stack space to read in string or quoted atom";
+	  Yap_ErrorMessage = "not enough heap space to read in string or quoted atom";
 	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  t->Tok = Ord(kind = eot_tok);
 	  return l;
@@ -1024,7 +1052,8 @@ Yap_tokenizer(int inp_stream)
       TokEntry *e = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
       if (e == NULL) {
 	Yap_ErrorMessage = "Trail Overflow";
-	p->TokInfo = eot_tok;
+	Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
+	p->Tok = Ord(kind = eot_tok);
 	/* serious error now */
 	return l;
       }

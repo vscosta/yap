@@ -47,14 +47,12 @@ typedef struct logic_upd_index {
   lockvar          ClLock;
 #endif
   UInt		   ClSize;
-  union {
-    PredEntry *pred;
-    struct logic_upd_index *ParentIndex;
-  } u;
+  struct logic_upd_index *ParentIndex;
   struct logic_upd_index *SiblingIndex;
   struct logic_upd_index *PrevSiblingIndex;
   struct logic_upd_index *ChildIndex;
   /* The instructions, at least one of the form sl */
+  PredEntry *ClPred;
   yamop            ClCode[MIN_ARRAY];
 } LogUpdIndex;
 
@@ -105,6 +103,7 @@ typedef struct static_index {
   struct static_index *SiblingIndex;
   struct static_index *ChildIndex;
   /* The instructions, at least one of the form sl */
+  PredEntry *ClPred;
   yamop            ClCode[MIN_ARRAY];
 } StaticIndex;
 
@@ -309,6 +308,7 @@ typedef enum {
 } find_pred_type;
 
 Int	        STD_PROTO(Yap_PredForCode,(yamop *, find_pred_type, Atom *, UInt *, Term *));
+PredEntry *STD_PROTO(Yap_PredEntryForCode,(yamop *, find_pred_type, CODEADDR *, CODEADDR *));
 LogUpdClause   *STD_PROTO(Yap_new_ludbe,(Term, PredEntry *, UInt));
 Term            STD_PROTO(Yap_LUInstance,(LogUpdClause *, UInt));
 
@@ -316,5 +316,9 @@ Term            STD_PROTO(Yap_LUInstance,(LogUpdClause *, UInt));
 void    STD_PROTO(Yap_bug_location,(yamop *));
 #endif
 
-
-
+#if  LOW_PROF
+void	STD_PROTO(Yap_InformOfRemoval,(CODEADDR));
+void	STD_PROTO(Yap_dump_code_area_for_profiler,(void));
+#else
+#define	Yap_InformOfRemoval(X)
+#endif

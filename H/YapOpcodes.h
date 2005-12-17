@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2005-11-18 18:50:34 $							 *
+* Last rev:     $Date: 2005-12-17 03:25:39 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.35  2005/11/18 18:50:34  tiagosoares
+* support for executing c code when a cut occurs
+*
 * Revision 1.34  2005/09/08 21:55:48  rslopes
 * BEAM for YAP update...
 *
@@ -67,11 +70,11 @@
 *									 *
 *									 *
 *************************************************************************/
-    OPCODE(Ystop                   ,e),
+    OPCODE(Ystop                   ,l),
     OPCODE(Nstop                   ,e),               
-    OPCODE(execute                 ,l),		
+    OPCODE(execute                 ,pp),		
     OPCODE(call                    ,sla),
-    OPCODE(procceed                ,e),		
+    OPCODE(procceed                ,p),		
     OPCODE(allocate                ,e),		
     OPCODE(deallocate              ,e),	
     OPCODE(op_fail                 ,e),	
@@ -265,7 +268,7 @@
     OPCODE(glist_valx              ,ss),       /* peephole */
     OPCODE(glist_valy              ,xy),       /* peephole */
     OPCODE(fcall                   ,sla),		
-    OPCODE(dexecute                ,l),			
+    OPCODE(dexecute                ,pp),			
     OPCODE(gl_void_varx            ,xx),       /* peephole */
     OPCODE(gl_void_vary            ,xy),       /* peephole */
     OPCODE(gl_void_valx            ,xx),       /* peephole */

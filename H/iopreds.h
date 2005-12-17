@@ -47,7 +47,7 @@ typedef struct stream_desc
       struct {
 	char *buf;         /* where the file is being read from/written to */
 	Int max_size;	   /* maximum buffer size (may be changed dynamically) */
-	Int pos;
+	UInt pos;
 	volatile void *error_handler;
       } mem_string;
       struct {

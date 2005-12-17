@@ -11,8 +11,11 @@
 * File:		amidefs.h						 *
 * comments:	Abstract machine peculiarities				 *
 *									 *
-* Last rev:     $Date: 2005-07-06 15:10:15 $							 *
+* Last rev:     $Date: 2005-12-17 03:25:39 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.29  2005/07/06 15:10:15  vsc
+* improvements to compiler: merged instructions and fixes for ->
+*
 * Revision 1.28  2005/05/30 06:07:35  vsc
 * changes to support more tagging schemes from tabulation.
 *
@@ -220,7 +223,7 @@ typedef struct yami {
 	 Int  ClTrail;
 	 Int  ClENV;
 	 Int  ClRefs;
-	 struct yami *ClBase;
+	 struct logic_upd_clause *ClBase;
 	 CELL  next;
        } EC;
        struct {
@@ -422,6 +425,11 @@ typedef struct yami {
 	 struct pred_entry   *p;
 	 CELL next;
        } p;
+       struct {
+	 struct pred_entry   *p;
+	 struct pred_entry   *p0;
+	 CELL next;
+       } pp;
        struct {
 	 COUNT               s;
 	 CELL next;

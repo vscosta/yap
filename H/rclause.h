@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2005-11-24 15:35:29 $,$Author: tiagosoares $						 *
+* Last rev:     $Date: 2005-12-17 03:25:39 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.13  2005/11/24 15:35:29  tiagosoares
+* removed some compilation warnings related to the cut-c code
+*
 * Revision 1.12  2005/09/19 19:14:50  vsc
 * fix two instructions that were being read badly: op_fail and
 * switch_list_nl.
@@ -114,6 +117,7 @@ restore_opcodes(yamop *pc)
 #ifdef DEBUG_RESTORE2
       fprintf(stderr, "OK\n");
 #endif
+      pc->u.l.l = PtoOpAdjust(pc->u.l.l);
       return;
       /* instructions type ld */
     case _try_me:
@@ -169,12 +173,17 @@ restore_opcodes(yamop *pc)
     case _lock_lu:
     case _count_call:
     case _count_retry:
-    case _execute:
+    case _procceed:
       pc->u.p.p = PtoPredAdjust(pc->u.p.p);
       pc = NEXTOP(pc,p);
       break;
-    case _trust_logical_pred:
+    case _execute:
     case _dexecute:
+      pc->u.pp.p = PtoPredAdjust(pc->u.pp.p);
+      pc->u.pp.p0 = PtoPredAdjust(pc->u.pp.p0);
+      pc = NEXTOP(pc,pp);
+      break;
+    case _trust_logical_pred:
     case _jump:
     case _move_back:
     case _skip:
@@ -200,7 +209,7 @@ restore_opcodes(yamop *pc)
       break;
       /* instructions type EC */
     case _alloc_for_logical_pred:
-      pc->u.EC.ClBase = PtoOpAdjust(pc->u.EC.ClBase);
+      pc->u.EC.ClBase = (struct logic_upd_clause *)PtoOpAdjust((yamop *)pc->u.EC.ClBase);
       pc = NEXTOP(pc,EC);
       break;
       /* instructions type e */
@@ -213,7 +222,6 @@ restore_opcodes(yamop *pc)
     case _cut:
     case _cut_t:
     case _cut_e:
-    case _procceed:
     case _allocate:
     case _deallocate:
     case _write_void:

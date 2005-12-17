@@ -11,8 +11,14 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2005-12-05 17:16:11 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-12-17 03:25:39 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.59  2005/12/05 17:16:11  vsc
+* write_depth/3
+* overflow handlings and garbage collection
+* Several ipdates to CLPBN
+* dif/2 could be broken in the presence of attributed variables.
+*
 * Revision 1.58  2005/11/23 03:01:33  vsc
 * fix several bugs in save/restore.b
 *
@@ -754,11 +760,9 @@ CleanLUIndex(LogUpdIndex *idx)
 {
   idx->ClRefCount = 0;
   INIT_LOCK(idx->ClLock);
-  if (idx->ClFlags & SwitchRootMask) {
-    idx->u.pred = PtoPredAdjust(idx->u.pred);
-  } else {
-    idx->u.ParentIndex = LUIndexAdjust(idx->u.ParentIndex);
-  }
+  idx->ClPred = PtoPredAdjust(idx->ClPred);
+  if (idx->ParentIndex)
+    idx->ParentIndex = LUIndexAdjust(idx->ParentIndex);
   if (idx->SiblingIndex) {
     idx->SiblingIndex = LUIndexAdjust(idx->SiblingIndex);
     CleanLUIndex(idx->SiblingIndex);
@@ -775,6 +779,7 @@ CleanLUIndex(LogUpdIndex *idx)
 static void 
 CleanSIndex(StaticIndex *idx)
 {
+  idx->ClPred = PtoPredAdjust(idx->ClPred);
   if (idx->SiblingIndex) {
     idx->SiblingIndex = SIndexAdjust(idx->SiblingIndex);
     CleanSIndex(idx->SiblingIndex);

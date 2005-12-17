@@ -3509,7 +3509,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   while (H0 - max < 1024+(2*NUM_OF_ATTS)) {
     if (!Yap_growglobal(&current_env)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return 0;
+      return -1;
     }
     max = (CELL *)DelayTop();
   }
@@ -3549,7 +3549,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
       fprintf(Yap_stderr, "%% TrailTop at %p clashes with gc bits: %lx\n", Yap_TrailTop, (unsigned long int)(MBIT|RBIT));
       fprintf(Yap_stderr, "%% garbage collection disallowed\n");
     }
-    return(0);
+    return -1;
   }
 #endif
   if (gc_trace) {
@@ -3569,7 +3569,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     *--ASP = (CELL)current_env;
     if (!Yap_growheap(FALSE, MinHeapGap, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
-      return FALSE;
+      return -1;
     }
     current_env = (CELL *)*ASP;
     ASP++;
@@ -3594,7 +3594,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
       *--ASP = (CELL)current_env;
       Yap_bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz, NULL);
       if (!Yap_bp)
-	return 0;
+	return -1;
       current_env = (CELL *)*ASP;
       ASP++;
 #if COROUTINING
@@ -3809,6 +3809,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   /* expand the stack if effectiveness is less than 20 % */
   if (ASP - H < gc_margin/sizeof(CELL) ||
       effectiveness < 20) {
+    Yap_PrologMode &= ~GCMode;
     return Yap_growstack(gc_margin);
   }
   /*
@@ -3838,7 +3839,7 @@ Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 static Int
 p_gc(void)
 {
-  return do_gc(0, ENV, P);
+  return do_gc(0, ENV, P) >= 0;
 }
 
 void 

@@ -10,8 +10,14 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-12-05 17:16:10 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-12-17 03:25:38 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.188  2005/12/05 17:16:10  vsc
+* write_depth/3
+* overflow handlings and garbage collection
+* Several ipdates to CLPBN
+* dif/2 could be broken in the presence of attributed variables.
+*
 * Revision 1.187  2005/11/26 02:57:25  vsc
 * improvements to debugger
 * overflow fixes
@@ -384,41 +390,6 @@ push_live_regs(yamop *pco)
 }
 #endif
 
-
-
-#if LOW_PROF 
-#include <signal.h>
-#include <ucontext.h>
-#include <stdio.h>
-
-#define TestMode (GCMode | GrowHeapMode | GrowStackMode | ErrorHandlingMode | InErrorMode | AbortMode)
-int Yap_absmiEND(void);
-
-void prof_alrm(int signo, siginfo_t *si, ucontext_t *sc);
-
-void prof_alrm(int signo, siginfo_t *si, ucontext_t *sc)
-{
-#if __linux__ && (defined(i386) || defined(__amd64__))
-  void * oldpc=(void *) sc->uc_mcontext.gregs[14]; /* 14= REG_EIP */
-
-  if (Yap_PrologMode & TestMode) {
-    fprintf(FProf,"%p %p\n", (void *) (Yap_PrologMode & TestMode), P);
-    return;
-  }
-  
-  //  printf("[%p,%p] -> %p\n", Yap_ABSMI_OPCODES[_try_me], Yap_ABSMI_OPCODES[_p_execute_tail], oldpc);
-  // if (oldpc<(void *) &Yap_absmi || oldpc> (void *) Yap_ABSMI_OPCODES[_p_execute_tail]) { 
-  if (oldpc<(void *) &Yap_absmi || oldpc> (void *) &Yap_absmiEND) { 
-     fprintf(FProf,"%p %p\n", (void *) oldpc, P);
-     return;
-  }
-  fprintf(FProf,"0 %p\n", PREG);
-#endif
-  return;
-}
-
-#endif
-
 #if defined(ANALYST) || defined(DEBUG)
 
 char *Yap_op_names[_std_top + 1] =
@@ -639,7 +610,7 @@ Yap_absmi(int inp)
 
 #endif /* OS_HANDLES_TR_OVERFLOW */
 
-      BOp(Ystop, e);
+      BOp(Ystop, l);
       if (YREG > (CELL *) PROTECT_FROZEN_B(B)) {
 	ASP = (CELL *) PROTECT_FROZEN_B(B);
       }
@@ -1171,7 +1142,7 @@ Yap_absmi(int inp)
       /* we have our own copy for the clause */
 #if defined(YAPOR) || defined(THREADS)
       {
-	LogUpdClause *cl = (LogUpdClause *)PREG->u.EC.ClBase;
+	LogUpdClause *cl = PREG->u.EC.ClBase;
 
 	LOCK(cl->ClLock);
 	/* always add an extra reference */
@@ -2160,11 +2131,11 @@ Yap_absmi(int inp)
 /* Macros for stack trimming                                            */
 
       /* execute     Label               */
-      BOp(execute, p);
+      BOp(execute, pp);
       {
 	PredEntry *pt0;
 	CACHE_Y_AS_ENV(YREG);
-	pt0 = PREG->u.p.p;
+	pt0 = PREG->u.pp.p;
 #ifdef LOW_LEVEL_TRACER
 	if (Yap_do_low_level_trace) {
 	  low_level_trace(enter_pred,pt0,XREGS+1);
@@ -2198,7 +2169,7 @@ Yap_absmi(int inp)
       ENDBOp();
 
     NoStackExecute:
-      SREG = (CELL *) PREG->u.p.p;
+      SREG = (CELL *) PREG->u.pp.p;
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	ASP = YREG+E_CB;
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
@@ -2212,17 +2183,17 @@ Yap_absmi(int inp)
 
       /* dexecute    Label               */
 /* joint deallocate and execute */
-      BOp(dexecute, p);
+      BOp(dexecute, pp);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
-	low_level_trace(enter_pred,PREG->u.p.p,XREGS+1);
+	low_level_trace(enter_pred,PREG->u.pp.p,XREGS+1);
 #endif	/* LOW_LEVEL_TRACER */ 
      CACHE_Y_AS_ENV(YREG);
       {
 	PredEntry *pt0;
 
 	CACHE_A1();
-	pt0 = PREG->u.p.p;
+	pt0 = PREG->u.pp.p;
 #ifndef NO_CHECKING
 	/* check stacks */
 	check_stack(NoStackDExecute, H);
@@ -2760,7 +2731,7 @@ Yap_absmi(int inp)
       CACHE_A1();
       JMPNext();
 
-      BOp(procceed, e);
+      BOp(procceed, p);
       CACHE_Y_AS_ENV(YREG);
       PREG = CPREG;
       ENV_YREG = ENV;
@@ -7178,6 +7149,10 @@ Yap_absmi(int inp)
 	}
 #endif
  	saveregs();
+ {
+   static yamop *opppp;
+   opppp= PREG;
+ }
 	pt0 = Yap_ExpandIndex(pe, 0);
 	/* restart index */
 	setregs();
@@ -7815,16 +7790,17 @@ Yap_absmi(int inp)
       /* we use a very simple hash function to find elements in a
        * switch table */
       {
-	register CELL
+	CELL
 	/* first, calculate the mask */
 	  Mask = (PREG->u.sssl.s - 1) << 1,	/* next, calculate the hash function */
 	  hash = d1 >> (HASH_SHIFT - 1) & Mask;
+	CELL *base;
 
-	PREG = (yamop *)(PREG->u.sssl.l);
+	base = (CELL *)PREG->u.sssl.l;
 	/* PREG now points at the beginning of the hash table */
 	BEGP(pt0);
 	/* pt0 will always point at the item */
-	pt0 = (CELL *) (PREG) + hash;
+	pt0 = base + hash;
 	BEGD(d0);
 	d0 = pt0[0];
 	/* a match happens either if we found the value, or if we
@@ -7840,7 +7816,7 @@ Yap_absmi(int inp)
 
 	  while (1) {
 	    hash = (hash + d) & Mask;
-	    pt0 = (CELL *) (PREG) + hash;
+	    pt0 = base + hash;
 	    d0 = pt0[0];
 	    if (d0 == d1 || d0 == 0) {
 	      copy_jmp_addressa(pt0+1);
@@ -7861,16 +7837,17 @@ Yap_absmi(int inp)
       /* we use a very simple hash function to find elements in a
        * switch table */
       {
-	register CELL
+	CELL
 	/* first, calculate the mask */
 	  Mask = (PREG->u.sssl.s - 1) << 1,	/* next, calculate the hash function */
 	  hash = d1 >> (HASH_SHIFT - 1) & Mask;
+	CELL *base;
 
-	PREG = (yamop *)(PREG->u.sssl.l);
+	base = (CELL *)PREG->u.sssl.l;
 	/* PREG now points at the beginning of the hash table */
 	BEGP(pt0);
 	/* pt0 will always point at the item */
-	pt0 = (CELL *) (PREG) + hash;
+	pt0 = base + hash;
 	BEGD(d0);
 	d0 = pt0[0];
 	/* a match happens either if we found the value, or if we
@@ -7886,7 +7863,7 @@ Yap_absmi(int inp)
 
 	  while (1) {
 	    hash = (hash + d) & Mask;
-	    pt0 = (CELL *) (PREG) + hash;
+	    pt0 = base + hash;
 	    d0 = pt0[0];
 	    if (d0 == d1 || d0 == 0) {
 	      copy_jmp_addressa(pt0+1);

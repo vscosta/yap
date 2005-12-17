@@ -2886,6 +2886,7 @@ syntax_error (TokEntry * tokptr)
       }
       break;
     case Error_tok:
+    case eot_tok:
       break;
     case Ponctuation_tok:
       {
@@ -3004,7 +3005,7 @@ p_get_read_error_handler(void)
   Err: ARG6
  */
 static Int
-do_read(int inp_stream)
+  do_read(int inp_stream, int nargs)
 {
   Term t, v;
   TokEntry *tokstart;
@@ -3025,10 +3026,63 @@ do_read(int inp_stream)
   }
   while (TRUE) {
     CELL *old_H;
+    UInt cpos = 0;
+    int seekable = Stream[inp_stream].status & Seekable_Stream_f;
+#if HAVE_FGETPOS
+    fpos_t rpos;
+#endif
 
+    /* two cases where we can seek: memory and console */
+    if (seekable) {
+      if (Stream[inp_stream].status & InMemory_Stream_f) {
+	cpos = Stream[inp_stream].u.mem_string.pos;
+      } else {
+#if HAVE_FGETPOS
+	fgetpos(Stream[inp_stream].u.file.file, &rpos);
+#else
+	cpos = ftell(Stream[inp_stream].u.file.file);
+#endif
+      }
+    }
     /* Scans the term using stack space */
-    Yap_eot_before_eof = FALSE;
-    tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(inp_stream);
+    while (TRUE) {
+      old_H = H;
+      Yap_eot_before_eof = FALSE;
+      tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(inp_stream);
+      if (Yap_Error_TYPE && seekable) {
+	H = old_H;
+	Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+	if (Stream[inp_stream].status & InMemory_Stream_f) {
+	  Stream[inp_stream].u.mem_string.pos = cpos;
+	} else {
+#if HAVE_FGETPOS
+	  fsetpos(Stream[inp_stream].u.file.file, &rpos);
+#else
+	  fseek(Stream[inp_stream].u.file.file, cpos, 0L);
+#endif
+	}
+	if (Yap_Error_TYPE == OUT_OF_TRAIL_ERROR) {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growtrail (sizeof(CELL) * 16 * 1024L, FALSE)) {
+	    return FALSE;
+	  }
+	} else if (Yap_Error_TYPE == OUT_OF_AUXSPACE_ERROR) {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
+	    return FALSE;
+	  }
+	} else if (Yap_Error_TYPE == OUT_OF_STACK_ERROR) {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_gc(nargs, ENV, CP)) {
+	    return FALSE;
+	  }
+	}
+      } else {
+	/* done with this */
+	break;
+      }
+    }
+    Yap_Error_TYPE = YAP_NO_ERROR;
     /* preserve value of H after scanning: otherwise we may lose strings
        and floats */
     old_H = H;
@@ -3049,8 +3103,8 @@ do_read(int inp_stream)
 	} else {
 	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	
-	  return (Yap_unify(MkIntegerTerm(StartLine = Stream[inp_stream].linecount),ARG5) &&
-		  Yap_unify_constant (ARG2, MkAtomTerm (AtomEof)));
+	  return Yap_unify(MkIntegerTerm(StartLine = Stream[inp_stream].linecount),ARG5) &&
+	    Yap_unify_constant(ARG2, MkAtomTerm (AtomEof));
 	}
       }
     }
@@ -3153,7 +3207,7 @@ do_read(int inp_stream)
 static Int
 p_read (void)
 {				/* '$read'(+Flag,?Term,?Module,?Vars,-Pos,-Err)    */
-  return(do_read(Yap_c_input_stream));
+  return(do_read(Yap_c_input_stream, 6));
 }
 
 static Int
@@ -3166,7 +3220,7 @@ p_read2 (void)
   if (inp_stream == -1) {
     return(FALSE);
   }
-  return(do_read(inp_stream));
+  return(do_read(inp_stream, 7));
 }
 
 static Int
@@ -4317,7 +4371,10 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      fill_pads(repeats-(finfo.format_ptr-finfo.format_base));
 	    }
 	    finfo.pad_max = finfo.pad_entries;
-	    column_boundary = repeats;
+	    if (repeats) 
+	      column_boundary =  repeats;
+	    else
+	      column_boundary = finfo.format_ptr-finfo.format_base;
 	    break;
 	  case '+':
 	    if (has_repeats) {
