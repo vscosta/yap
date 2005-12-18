@@ -371,6 +371,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   char *tp = tmpbuf;
   int psize = YAP_BUF_SIZE;
 
+  Yap_Error_TYPE = YAP_NO_ERROR;
 #if DEBUG_STRICT
   if (Yap_heap_regs && !(Yap_PrologMode & BootMode)) 
     fprintf(stderr,"***** Processing Error %d (%lx,%x) %s***\n", type, (unsigned long int)ActiveSignals,Yap_PrologMode,format);

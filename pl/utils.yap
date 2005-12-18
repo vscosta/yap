@@ -429,6 +429,7 @@ unknown(V0,V) :-
 '$valid_unknown_handler'(S,_) :-
 	'$do_error'(domain_error(flag_value,unknown+S),yap_flag(unknown,S)).
 
+
 '$ask_unknown_flag'(Old) :-
 	recorded('$unknown','$unkonwn'(_,MyOld),_), !,
 	'$cleanup_unknwon_handler'(MyOld,Old).
@@ -452,10 +453,10 @@ unknown(V0,V) :-
 	'$program_continuation'(PMod,PName,PAr),
 	'$do_error'(existence_error(procedure,Name/Arity),context(Mod:Goal,PMod:PName/PAr)).
 
-'$unknown_warning'(P) :-
-	P=M:F,
-	functor(F,Na,Ar),
-	'$print_message'(error,error(existence_error(procedure,M:Na/Ar), [P])),
+'$unknown_warning'(Mod:Goal) :-
+	functor(Goal,Name,Arity),
+	'$program_continuation'(PMod,PName,PAr),
+	'$print_message'(error,error(existence_error(procedure,Name/Ar), context(Mod:Goal,PMod:PName/PAr))),
 	fail.
 
 %%% Some "dirty" predicates

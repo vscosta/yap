@@ -3024,6 +3024,7 @@ static Int
     Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, MkAtomTerm(Stream[inp_stream].u.file.name), "read_term/2");
     return FALSE;
   }
+  Yap_Error_TYPE = YAP_NO_ERROR;
   while (TRUE) {
     CELL *old_H;
     UInt cpos = 0;
@@ -3900,6 +3901,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
   volatile int old_pos;
   format_info finfo;
   Term fmod = CurrentModule;
+
 
   FormatInfo = &finfo;
   finfo.pad_max = finfo.pad_entries;

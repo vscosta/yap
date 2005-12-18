@@ -101,7 +101,7 @@ load_files(Files,Opts) :-
 	  '$do_error'(type_error(atom,M),Call)
 	).
 '$lf'([F|Fs], Mod,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,Reconsult,UseModule) :- !,
-	'$lf'(F, Mod,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,Reconsult,UseModule),
+	'$lf'(F,Mod,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,Reconsult,_),
 	'$lf'(Fs, Mod,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,Reconsult,UseModule).
 '$lf'(X, Mod, Call,InfLevel,_,Changed,CompilationMode,Imports,Stream,_,Reconsult,UseModule) :-
         nonvar(Stream), !,
