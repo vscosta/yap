@@ -15,10 +15,6 @@
 *									 *
 *************************************************************************/
 
-/* Problema colocar no configure uma forma de detctar se o mysql *
-* devel esta instalado*/
-
-/* This flag should be deleted, and do this test, off including this file, which is depending on the flag "MYDDAS_MYSQL", on configure time */
 #if defined MYDDAS_ODBC && defined CUT_C
 
 #include <stdio.h>
