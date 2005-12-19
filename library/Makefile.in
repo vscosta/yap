@@ -50,8 +50,8 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/ugraphs.yap \
 	$(srcdir)/ypp.yap \
 	$(srcdir)/MYDDAS/myddas.yap \
+	$(srcdir)/MYDDAS/myddas_assert_predicates.yap \
 	$(srcdir)/MYDDAS/myddas_mysql.yap \
-	$(srcdir)/MYDDAS/myddas_odbc.yap \
 	$(srcdir)/MYDDAS/myddas_errors.yap \
 	$(srcdir)/MYDDAS/myddas_prolog2sql.yap \
 	$(srcdir)/MYDDAS/myddas_util_predicates.yap \

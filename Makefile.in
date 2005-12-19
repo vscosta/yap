@@ -124,7 +124,7 @@ HEADERS = \
 	$(srcdir)/OPTYap/alpha_locks_funcs.h \
 	$(srcdir)/OPTYap/pthread_locks.h \
 	$(srcdir)/H/cut_c.h \
-	$(srcdir)/MYDDAS/myddas_util.h 
+	$(srcdir)/MYDDAS/myddas_util.h $(srcdir)/MYDDAS/myddas_structs.h  
 
 C_SOURCES= \
 	$(srcdir)/C/absmi.c $(srcdir)/C/adtdefs.c \

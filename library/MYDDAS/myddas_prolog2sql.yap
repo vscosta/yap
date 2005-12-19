@@ -287,7 +287,7 @@ translate_goal(distinct(Goal),List,SQL,Dict,DistinctDict):-!,
 
 %DEBUG
 add_distinct_statement(Dict,Dict):-
-	append([A],[1,2],_).
+	append([_],[1,2],_).
 	
 
 

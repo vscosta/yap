@@ -16,6 +16,8 @@
 *************************************************************************/
 
 :- module(myddas_util_predicates,[
+				  '$process_sql_goal'/4,
+				  '$process_fields'/3,
 				  '$check_fields'/2,
 				  '$get_value'/2,
 				  '$get_values_for_insert'/3,
@@ -34,9 +36,75 @@
 				  '$assert_facts'/2
 				  ]).
 
-:- use_module(myddas).
-:- use_module(myddas_errors).
-:- use_module(lists,[append/3]).
+:- use_module(myddas,[
+		      db_verbose/1
+		     ]).
+
+:- use_module(myddas_errors,[
+			     '$error_checks'/1
+			     ]).
+
+:- use_module(myddas_prolog2sql,[
+				 translate/3,
+				 queries_atom/2
+				 ]).
+
+'$process_sql_goal'(TableViewName,SQLorDbGoal,TableName,SQL):-
+        (atom(SQLorDbGoal) ->
+	    SQL = SQLorDbGoal,
+	    TableName = TableViewName
+	;
+	    % This copy_term is done to prevent the unification
+	    % with top-level variables   A='var('A')' error
+	    copy_term((TableViewName,SQLorDbGoal),(CopyView,CopyGoal)),
+	    translate(CopyView,CopyGoal,Code),
+	    queries_atom(Code,SQL),
+	    functor(TableViewName,TableName,_)
+	).
+
+'$process_fields'(FieldsInf,FieldString,KeysSQL):-
+        '$create_field_list'(FieldsInf,FieldString,PrimaryKeys),
+	'$process_primary_keys'(PrimaryKeys,KeysSQL).
+
+
+'$process_primary_keys'([],'').
+'$process_primary_keys'([FieldName|Fields],KeysSQL):-
+        '$process_primary_keys_put_comma'(Fields,CommaSQL),
+        '$make_atom'([' , PRIMARY KEY ( ',FieldName,CommaSQL,' )'],KeysSQL).
+
+'$process_primary_keys_put_comma'([],''):-!.
+'$process_primary_keys_put_comma'([FieldName|Fields],CommaSQL):-!,
+        '$process_primary_keys_put_comma'(Fields,TempSQL),
+        '$make_atom'([' , `',FieldName,'` ',TempSQL],CommaSQL).
+
+
+'$create_field_list'([field(Name,Type,Null,Key,DefaultValue)],FinalSQL,PrimaryKeys):-!,
+        '$field_extra_options'(Name,Null,Key,[],DefaultValue,TempSQL,PrimaryKeys),
+        '$make_atom'([' `',Name,'` ',Type,TempSQL],FinalSQL).
+'$create_field_list'([field(Name,Type,Null,Key,DefaultValue)|T],FinalSQL,PrimaryKeys):-
+        %'$check_field_type'
+        '$create_field_list'(T,Result,KeyInfo),
+        '$field_extra_options'(Name,Null,Key,KeyInfo,DefaultValue,TempSQL1,PrimaryKeys),
+	'$make_atom'([' `',Name,'` ',Type,TempSQL1,' , ',Result],FinalSQL).
+
+
+'$field_extra_options'(Name,Null,Key,KeyInfo,DefaultValue,Result,PrimaryKeys):-
+        ( Null == 'y' ->
+	    '$make_atom'([' NOT NULL '],TempSQL1)
+	;
+	    TempSQL1 = ''
+	),
+	(var(DefaultValue) ->
+	    Result = TempSQL1
+	;
+	    '$make_atom'([TempSQL1,' DEFAULT \'',DefaultValue,'\' '],Result)
+	),
+	( Key == 'y' ->
+	    PrimaryKeys = [Name|KeyInfo]
+	;
+	    PrimaryKeys = KeyInfo
+	).
+
 
 %
 % Predicate's used to determine if the command 'WHERE' exists in the
@@ -212,12 +280,10 @@
         '$build_set_condition_with_comma'(FieldValues,SQLRest).
 
 
-% Este predicado vai sempre falhar
-'$abolish_all'(Conn):-
-        '$get_value'(Conn,Connection),!,
-	% C Predicate
-        p_db_preds_conn(Connection,Pred_Name,Pred_Arity),
-	abolish(user:Pred_Name,Pred_Arity),
+% This predicate will always fail
+'$abolish_all'(Con):-
+        c_db_preds_conn(Con,Pred_Module,Pred_Name,Pred_Arity),
+	abolish(Pred_Module:Pred_Name,Pred_Arity),
         fail.
 
 '$write_or_not'(X) :-
@@ -226,20 +292,15 @@
 '$write_or_not'(_).
 
 
-'$make_atom'(L,A) :-
-	'$make_atom_list'(L,L1),
-	atom_codes(A,L1).
-
-'$make_atom_list'([],[]).
-'$make_atom_list'([H|T],L2) :-
-        atom(H),!,
-	atom_codes(H,L),
-	'$make_atom_list'(T,L1),
-	append(L,L1,L2).
-'$make_atom_list'([H|T],L2) :-
-        number_chars(H,L),
-	'$make_atom_list'(T,L1),
-	append(L,L1,L2).
+'$make_atom'([],'').
+'$make_atom'([Atom|T],Final) :-
+        atom(Atom),!,
+	'$make_atom'(T,Result),
+	atom_concat(Atom,Result,Final).
+'$make_atom'([Number|T],Final) :-
+        '$make_atom'(T,Result),
+        number_atom(Number,Atom),
+	atom_concat(Atom,Result,Final).
 
 
 
@@ -281,9 +342,9 @@
 
 % Only for making the error tests in all of the calls to
 % get_value/2
-'$get_value'(Conn,Connection) :-
-	'$error_checks'(get_value(Conn,Connection)),
-	get_value(Conn,Connection).
+'$get_value'(Connection,Con) :-
+	'$error_checks'(get_value(Connection,Con)),
+	get_value(Connection,Con).
 
 
 '$check_fields'([],[]).

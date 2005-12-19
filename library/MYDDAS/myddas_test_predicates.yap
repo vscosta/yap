@@ -1,10 +1,13 @@
 :- module(myddas_test_predicates,[
 				  % Tests or Debug Predicates
 				  %db_my_delete/2,
+				  db_create_table/3,
+				  db_export_view/4,
+				  db_assert_view/4,
 				  db_my_insert_test/2,
 				  db_my_update/3,
 				  db_my_import_query_normal/3,
-				  db_view/3, % DEBUG ONLY
+				  db_view_original/3, % DEBUG ONLY
 				  db_my_ilpview/4
 				  ]).
 
@@ -15,6 +18,36 @@
 :- use_module(myddas_prolog2sql,[translate/3,queries_atom/2]).
 :- use_module(myddas_errors).
 :- use_module(lists).
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
+% db_assert_view/4
+% TODO Test with ODBC
+% TODO error checks
+db_assert_view(ViewName,SQLorDbGoal,FieldsInf,Connection):-
+	'$get_value'(Connection,Con),
+	%'$error_checks'(),
+	( var(ViewName) ->
+	    c_db_get_new_table_name(Con,ViewName),
+	    TableName = ViewName
+	),
+	'$process_sql_goal'(ViewName,SQLorDbGoal,TableName,SQL),
+
+	% Case there's some information about the
+	% attribute fields of the relation given
+	% by the user
+	'$generate_final_sql'(FieldsInf,TableName,SQL,FinalSQL),
+	'$run_query'(Con,FinalSQL),
+
+	% TODO: Optimize this
+	db_my_import(TableName,TableName,Connection).
+	
+
+	
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
@@ -271,10 +304,10 @@ db_my_ilpview(LA,ViewName,DbGoal,Connection):-
 
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_view/3
+% db_view_original/3
 %
 %
-db_view(PredName,DbGoal,Connection) :-
+db_view_original(PredName,DbGoal,Connection) :-
 	'$error_checks'(db_my_view(PredName,DbGoal,Connection)),
 	'$get_value'(Connection,Conn),
 	'$assert_view_clause2'(PredName,DbGoal,Conn).
