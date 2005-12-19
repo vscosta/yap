@@ -1333,7 +1333,9 @@ Yap_exit (int value)
   remove("PROFPREDS");
   remove("PROFILING");
 #endif
-
+#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
+  Yap_MyDDAS_delete_all_myddas_structs();
+#endif
   if (! (Yap_PrologMode & BootMode) )
     Yap_ShutdownLoadForeign();
   exit(value);

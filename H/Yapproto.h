@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.66 2005-12-17 03:25:39 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.67 2005-12-19 13:52:35 tiagosoares Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -329,6 +329,7 @@ void    STD_PROTO(Yap_InitMYDDAS_ODBCPreds,(void));
 void    STD_PROTO(Yap_InitBackMYDDAS_ODBCPreds,(void));
 #endif
 #if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
+void    STD_PROTO(Yap_MyDDAS_delete_all_myddas_structs,(void));
 void    STD_PROTO(Yap_InitMYDDAS_SharedPreds,(void));
 void    STD_PROTO(Yap_InitBackMYDDAS_SharedPreds,(void));
 #endif
