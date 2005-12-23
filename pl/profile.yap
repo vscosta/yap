@@ -67,23 +67,40 @@ showprofres :-
 	  '$proftype'(offline),
 	  '$offline_showprofres'.
 showprofres :-
-	'$profglobs'(Tot,GCs,HGrows,SGrows,Mallocs),
+	('$profison' -> profoff, Stop = true ; Stop = false),
+	'$profglobs'(Tot,GCs,HGrows,SGrows,Mallocs,ProfOns),
 	% root node has no useful info.
-	'$get_all_profinfo'(0,[],ProfInfo0),
-	sort(ProfInfo0,ProfInfo),
+	'$get_all_profinfo'(0,[],ProfInfo0,0,TotCode),
+	msort(ProfInfo0,ProfInfo),
 	'$get_ppreds'(ProfInfo,Preds0),
 	'$add_extras_prof'(GCs, HGrows, SGrows, Mallocs, Preds0, PredsI),
 	keysort(PredsI,Preds),
 	'$sum_alls'(Preds,0,Tot0),
 	Accounted is -Tot0,
-	format(user_error,'~d ticks, ~d accounted for~n',[Tot,Accounted]),
-	'$display_preds'(Preds, Tot, 0, 1).
+	(ProfOns == 0 ->
+	    format(user_error,'~d ticks, ~d accounted for~n',[Tot,Accounted])
+	;
+	    format(user_error,'~d ticks, ~d accounted for (~d overhead)~n',[Tot,Accounted,ProfOns])
+	),
+	'$display_preds'(Preds, Tot, 0, 1),
+	 (Stop = true -> profon ; true).
 
-'$get_all_profinfo'([],L,L) :- !.
-'$get_all_profinfo'(Node,L0,Lf) :-
+/*
+'$check_duplicates'([]).
+'$check_duplicates'([A,A|ProfInfo]) :- !,
+	write(A),nl,
+	'$check_duplicates'(ProfInfo).
+'$check_duplicates'([_|ProfInfo]) :-
+	'$check_duplicates'(ProfInfo).
+*/
+
+
+'$get_all_profinfo'([],L,L,Tot,Tot) :- !.
+'$get_all_profinfo'(Node,L0,Lf,Tot0,Totf) :-
 	'$profnode'(Node,Clause,PredId,Count,Left,Right),
-	'$get_all_profinfo'(Left,L0,Li),
-	'$get_all_profinfo'(Right,[gprof(PredId,Clause,Count)|Li],Lf).
+	Tot1 is Tot0+Count,
+	'$get_all_profinfo'(Left,L0,Li,Tot1,Tot2),
+	'$get_all_profinfo'(Right,[gprof(PredId,Clause,Count)|Li],Lf,Tot2,Totf).
 
 '$get_ppreds'([],[]).
 '$get_ppreds'([gprof(0,_,0)|Cls],Ps) :- !,

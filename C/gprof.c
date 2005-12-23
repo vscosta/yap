@@ -11,8 +11,11 @@
 * File:		gprof.c							 *
 * comments:	Interrupt Driven Profiler				 *
 *									 *
-* Last rev:     $Date: 2005-12-17 03:26:38 $,$Author: vsc $						 *
-* $Log: not supported by cvs2svn $									 *
+* Last rev:     $Date: 2005-12-23 00:20:13 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $
+* Revision 1.1  2005/12/17 03:26:38  vsc
+* move event profiler outside from stdpreds.c
+*									 *
 *************************************************************************/
 
 #ifdef SCCS
@@ -31,7 +34,7 @@ static char     SccsId[] = "%W% %G%";
 #include <sys/time.h>
 #include <ucontext.h>
 
-Int ProfCalls, ProfGCs, ProfHGrows, ProfSGrows, ProfMallocs;
+static Int ProfCalls, ProfGCs, ProfHGrows, ProfSGrows, ProfMallocs, ProfOn, ProfOns;
 
 #define TIMER_DEFAULT 100
 #define MORE_INFO_FILE 1
@@ -98,6 +101,7 @@ Yap_inform_profiler_of_clause(yamop *code_start, yamop *code_end, PredEntry *pe,
 static Int order=0;
  
   ProfPreds++;
+  ProfOn = TRUE;
   if (FPreds != NULL) {
     Int temp;
     order++;
@@ -114,6 +118,7 @@ static Int order=0;
 #endif
     fprintf(FPreds,"\n");
   }
+  ProfOn = FALSE;
 }
 
 typedef struct clause_entry {
@@ -535,7 +540,7 @@ TreeInsertHelp(rb_red_blk_node* z) {
   x=ProfilerRoot->left;
   while( x != nil) {
     y=x;
-    if (x->key < z->key) { /* x.key > z.key */
+    if (x->key > z->key) { /* x.key > z.key */
       x=x->left;
     } else { /* x,key <= z.key */
       x=x->right;
@@ -543,7 +548,7 @@ TreeInsertHelp(rb_red_blk_node* z) {
   }
   z->parent=y;
   if ( (y == ProfilerRoot) ||
-       (y->key < z->key)) { /* y.key > z.key */
+       (y->key > z->key)) { /* y.key > z.key */
     y->left=z;
   } else {
     y->right=z;
@@ -652,14 +657,14 @@ RBExactQuery(yamop* q) {
 
   if (!ProfilerRoot) return NULL;
   x=ProfilerRoot->left;
-  if (x == nil) return(0);
+  if (x == nil) return NULL;
   while(x->key != q) {/*assignemnt*/
-    if (x->key < q) { /* x->key > q */
+    if (x->key > q) { /* x->key > q */
       x=x->left;
     } else {
       x=x->right;
     }
-    if ( x == nil) return(0);
+    if ( x == nil) return NULL;
   }
   return(x);
 }
@@ -673,7 +678,7 @@ RBLookup(yamop *entry) {
     if (current->key <= entry && current->lim >= entry) {
       return current;
     }
-    if (entry < current->key)
+    if (entry > current->key)
       current = current->right;
     else
       current = current->left;
@@ -880,7 +885,7 @@ prof_alrm(int signo, siginfo_t *si, ucontext_t *sc)
   void * oldpc= NULL;
 #endif
 #else
-#if __POWERPC__
+#if __POWERPC__ || _POWER
   void * oldpc=(void *) sc->uc_mcontext->ss.srr0; /* 14= POWER PC */
 #else
   void *NULL;
@@ -893,26 +898,31 @@ prof_alrm(int signo, siginfo_t *si, ucontext_t *sc)
   if (Yap_PrologMode & TestMode) {
     if (Yap_OffLineProfiler) {
       fprintf(FProf,"%p %p\n", (void *) (Yap_PrologMode & TestMode), P);
+      ProfOn = FALSE;
       return;
     }
   
     if (Yap_PrologMode & GCMode) {
       ProfGCs++;
+      ProfOn = FALSE;
       return;
     }
 
     if (Yap_PrologMode & MallocMode) {
       ProfMallocs++;
+      ProfOn = FALSE;
       return;
     }
 
     if (Yap_PrologMode & GrowHeapMode) {
       ProfHGrows++;
+      ProfOn = FALSE;
       return;
     }
   
     if (Yap_PrologMode & GrowStackMode) {
       ProfSGrows++;
+      ProfOn = FALSE;
       return;
     }
    
@@ -936,13 +946,28 @@ prof_alrm(int signo, siginfo_t *si, ucontext_t *sc)
       current_p = P;
     }
   }
-  
-  if (Yap_OffLineProfiler) {
-    fprintf(FProf,"0 %p\n", current_p);    
+
+  if (P < (yamop *)Yap_HeapBase || P > (yamop *)HeapTop) {
+#if DEBUG
+    fprintf(stderr,"Oops: %p, %p\n", oldpc, current_p);
+#endif
     return;
   }
+
+  if (Yap_OffLineProfiler) {
+    ProfOn = FALSE;
+    return;
+  }
+
+  if (ProfOn) {
+    ProfOns++;
+    return;
+  }
+  ProfOn = TRUE;
+
   if ((node = RBLookup((yamop *)current_p))) {
     node->pcs++;
+    ProfOn = FALSE;
     return;
   } else {
     PredEntry *pp = NULL;
@@ -954,13 +979,28 @@ prof_alrm(int signo, siginfo_t *si, ucontext_t *sc)
       fprintf(stderr,"lost %p, %d\n", P, Yap_op_from_opcode(P->opc));
 #endif
       /* lost profiler event !! */
+      ProfOn=FALSE;
       return;
     }
     /* add this clause as new node to the tree */
+    if (start < (CODEADDR)Yap_HeapBase || start > (CODEADDR)HeapTop ||
+	end < (CODEADDR)Yap_HeapBase || end > (CODEADDR)HeapTop) {
+#if DEBUG
+      fprintf(stderr,"Oops2: %p, %p\n", start, end);
+#endif
+      return;
+    }
+    if (pp->ArityOfPE > 100) {
+#if DEBUG
+     fprintf(stderr,"%p:%p(%d)-->%p\n",oldpc,current_p,Yap_op_from_opcode(current_p->opc),pp);
+#endif
+     return;
+    }
     node = RBTreeInsert((yamop *)start, (yamop *)end);
     node->pe = pp;
     node->pcs = 1;
   }
+  ProfOn = FALSE;
 }
 
 
@@ -971,26 +1011,36 @@ Yap_InformOfRemoval(CODEADDR clau)
   UInt count;
   PredEntry *pp;
 
+  if (FPreds != NULL) {
+    /* ricardo? */
+    /* do something  */
+    return;
+  }
   if (!ProfilerRoot) return;
+  ProfOn = TRUE;
   if (!(x = RBExactQuery((yamop *)clau))) {
     /* send message */
+    ProfOn = FALSE;
     return;
   }
   /* just keep within the other profiler for now */
-  RBDelete(x);
   pp = x->pe;
   count = x->pcs;
+  /* fprintf(stderr,"D %p:%p\n",x,pp); */
+  RBDelete(x);
   /* use a single node to represent all deleted clauses */
-  if (!(node = RBExactQuery((yamop *)pp))) {
-    node = RBTreeInsert((yamop *)pp, (yamop *)pp);
+  if (!(node = RBExactQuery((yamop *)(pp->OpcodeOfPred)))) {
+    node = RBTreeInsert((yamop *)(pp->OpcodeOfPred), NEXTOP((yamop *)(pp->OpcodeOfPred),e));
     node->lim = (yamop *)pp;
     node->pe = pp;
     node->pcs = count;
     /* send message */
+    ProfOn = FALSE;
     return;
   } else {
     node->pcs += count;
   }
+  ProfOn = FALSE;
 }
 
 static void
@@ -1007,7 +1057,7 @@ reset_tree(void) {
   clean_tree(ProfilerRoot);
   Yap_FreeCodeSpace((char *)ProfilerNil);
   ProfilerNil = ProfilerRoot = NULL;
-  ProfCalls = ProfGCs = ProfHGrows = ProfSGrows = ProfMallocs = 0L;
+  ProfCalls = ProfGCs = ProfHGrows = ProfSGrows = ProfMallocs = ProfOns = 0L;
 }
 
 static Int profend(void); 
@@ -1021,6 +1071,10 @@ profnode(void) {
     return FALSE;
   if (!(node = (rb_red_blk_node *)IntegerOfTerm(t1)))
     node = ProfilerRoot;
+  /*
+    if (node->key)
+    fprintf(stderr,"%p: %p,%p,%d,%p(%d),%p,%p\n",node,node->key,node->lim,node->pcs,node->pe,node->pe->ArityOfPE,node->right,node->left);
+  */
   if (node->left == ProfilerNil) {
     tleft = TermNil;
   } else {
@@ -1051,7 +1105,8 @@ profglobs(void) {
     Yap_unify(ARG2,MkIntegerTerm(ProfGCs)) &&
     Yap_unify(ARG3,MkIntegerTerm(ProfHGrows)) &&
     Yap_unify(ARG4,MkIntegerTerm(ProfSGrows)) &&
-    Yap_unify(ARG5,MkIntegerTerm(ProfMallocs));
+    Yap_unify(ARG5,MkIntegerTerm(ProfMallocs)) &&
+    Yap_unify(ARG6,MkIntegerTerm(ProfOns)) ;
 }
 
 static Int profinit(void)
@@ -1067,8 +1122,14 @@ static Int profinit(void)
 
     Yap_dump_code_area_for_profiler();
   } else {
-    if (ProfilerRoot)
+    if (ProfilerRoot) 
       reset_tree();
+    while (!(ProfilerRoot = RBTreeCreate())) {
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "while initialisating profiler");
+	return FALSE;
+      }    
+    }
   }
   ProfilerOn = -1; /* Inited but not yet started */
   return(TRUE);
@@ -1116,14 +1177,6 @@ static Int start_profilers(int msec)
   
   if (ProfilerOn!=-1) return (FALSE); /* have to go through profinit */
 
-  if (ProfilerRoot) 
-    reset_tree();
-  while (!(ProfilerRoot = RBTreeCreate())) {
-    if (!Yap_growheap(FALSE, 0, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "while initialisating profiler");
-      return FALSE;
-    }    
-  }
   sa.sa_sigaction=prof_alrm;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags=SA_SIGINFO;
@@ -1149,6 +1202,10 @@ static Int profon(void) {
 
 static Int profon0(void) { 
   return(start_profilers(TIMER_DEFAULT));
+}
+
+static Int profison(void) {
+  return (ProfilerOn > 0);
 }
 
 static Int profoff(void) {
@@ -1242,7 +1299,8 @@ Yap_InitLowProf(void)
   Yap_InitCPred("$offline_showprofres", 0, profres0, SafePredFlag);
   Yap_InitCPred("$offline_showprofres", 1, profres, SafePredFlag);
   Yap_InitCPred("$profnode", 6, profnode, SafePredFlag);
-  Yap_InitCPred("$profglobs", 5, profglobs, SafePredFlag);
+  Yap_InitCPred("$profglobs", 6, profglobs, SafePredFlag);
+  Yap_InitCPred("$profison",0 , profison, SafePredFlag);
   Yap_InitCPred("$get_pred_pinfo", 4, getpredinfo, SafePredFlag);
   Yap_InitCPred("showprofres", 4, getpredinfo, SafePredFlag);
 #endif

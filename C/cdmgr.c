@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-12-17 03:25:39 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-12-23 00:20:13 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.173  2005/12/17 03:25:39  vsc
+* major changes to support online event-based profiling
+* improve error discovery and restart on scanner.
+*
 * Revision 1.172  2005/11/23 03:01:33  vsc
 * fix several bugs in save/restore.b
 *
@@ -552,13 +556,12 @@ Yap_BuildMegaClause(PredEntry *ap)
     ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
   /* recover the space spent on the original clauses */
   while (TRUE) {
-    StaticClause *ncl;
+    StaticClause *ncl, *curcl = cl;
 
     ncl = cl->ClNext;
-    if (cl->ClFlags & ProfFoundMask)
-      Yap_InformOfRemoval((CODEADDR)cl);
+    Yap_InformOfRemoval((CODEADDR)cl);
     Yap_FreeCodeSpace((ADDR)cl);
-    if (cl->ClCode == ap->cs.p_code.LastClause)
+    if (curcl->ClCode == ap->cs.p_code.LastClause)
       break;
     cl = ncl;
   }
@@ -588,8 +591,7 @@ split_megaclause(PredEntry *ap)
 	while (start) {
 	  StaticClause *cl = start;
 	  start = cl->ClNext;
-	  if (cl->ClFlags & ProfFoundMask)
-	    Yap_InformOfRemoval((CODEADDR)cl);
+	  Yap_InformOfRemoval((CODEADDR)cl);
 	  Yap_FreeCodeSpace((char *)cl);
 	  start = NULL;
 	}
@@ -772,6 +774,7 @@ release_wcls(yamop *cop, OPCODE ecs)
 #if DEBUG
       Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sp)+cop->u.sp.s1*sizeof(yamop *));
 #endif
+      Yap_InformOfRemoval((CODEADDR)cop);
       Yap_FreeCodeSpace((char *)cop);
     }
   }
@@ -944,8 +947,7 @@ kill_static_child_indxs(StaticIndex *indx)
     kill_static_child_indxs(cl);
     cl = next;
   }
-  if (indx->ClFlags & ProfFoundMask)
-    Yap_InformOfRemoval((CODEADDR)indx);
+  Yap_InformOfRemoval((CODEADDR)indx);
   Yap_FreeCodeSpace((char *)indx);
 }
 
@@ -986,8 +988,7 @@ kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
       parent = parent->SiblingIndex;
     }
   }
-  if (c->ClFlags & ProfFoundMask)
-    Yap_InformOfRemoval((CODEADDR)c);
+  Yap_InformOfRemoval((CODEADDR)c);
   Yap_FreeCodeSpace((char *)c);
 }
 
@@ -1233,8 +1234,7 @@ retract_all(PredEntry *p, int in_use)
 	dcl->ClSize = sz;
 	DeadClauses = dcl;
       } else {
-	if (cl->ClFlags & ProfFoundMask)
-	  Yap_InformOfRemoval((CODEADDR)cl);
+	Yap_InformOfRemoval((CODEADDR)cl);
 	Yap_FreeCodeSpace((char *)cl);
       }
       p->cs.p_code.NOfClauses = 0;
@@ -1250,8 +1250,7 @@ retract_all(PredEntry *p, int in_use)
 	  dcl->ClSize = sz;
 	  DeadClauses = dcl;
 	} else {
-	  if (cl->ClFlags & ProfFoundMask)
-	    Yap_InformOfRemoval((CODEADDR)cl);
+	  Yap_InformOfRemoval((CODEADDR)cl);
 	  Yap_FreeCodeSpace((char *)cl);
 	}
 	p->cs.p_code.NOfClauses--;
@@ -1973,8 +1972,7 @@ Yap_EraseStaticClause(StaticClause *cl, Term mod) {
     dcl->ClSize = sz;
     DeadClauses = dcl;
   } else {
-    if (cl->ClFlags & ProfFoundMask)
-      Yap_InformOfRemoval((CODEADDR)cl);
+    Yap_InformOfRemoval((CODEADDR)cl);
     Yap_FreeCodeSpace((char *)cl);
   }
   if (ap->cs.p_code.NOfClauses == 0) {
@@ -3553,6 +3551,12 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _Nstop:
       return NULL;
     case _Ystop:
+      if (pc == YESCODE) {
+	pp = RepPredProp(Yap_GetPredPropByAtom(AtomTrue,CurrentModule));
+	*startp = (CODEADDR)YESCODE;
+	*endp = (CODEADDR)YESCODE; /*+(CELL)(NEXTOP((yamop *)NULL,e));*/
+	return pp;
+      }
       if (!pp) {
 	/* must be an index */
 	PredEntry **pep = (PredEntry **)pc->u.l.l;
@@ -3623,12 +3627,7 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
       break;
     case _enter_lu_pred:
     case _stale_lu_index:
-      {
-	LogUpdIndex *icl = ClauseCodeToLogUpdIndex(pc);
-	*startp = (CODEADDR)icl;
-	*endp = (CODEADDR)icl+icl->ClSize;
-	return icl->ClPred;
-      }
+      pc = pc->u.Ill.l2;
       break;
       /* instructions type p */
     case _count_call:
@@ -3684,16 +3683,17 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
 	LogUpdClause *cl = pc->u.EC.ClBase;
 
 	*startp = (CODEADDR)cl;
-	*endp = (CODEADDR)NEXTOP((yamop *)cl,e);
+	*endp = (CODEADDR)cl+cl->ClSize;
 	return cl->ClPred;
       }
       /* instructions type e */
     case _unify_idb_term:
     case _copy_idb_term:
       {
-	LogUpdClause *cl = (LogUpdClause *)((CELL)pc - (CELL)(((LogUpdClause *)NULL)->ClCode));
+	LogUpdClause *cl = ClauseCodeToLogUpdClause(pc);
+
 	*startp = (CODEADDR)cl;
-	*endp = (CODEADDR)NEXTOP((yamop *)cl,e);
+	*endp = (CODEADDR)cl+cl->ClSize;
 	return cl->ClPred;
       }
     case _cut:
@@ -3812,8 +3812,8 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _p_execute:
       clause_code = TRUE;
       pp = RepPredProp(Yap_GetPredPropByFunc(FunctorCall, CurrentModule));
-      *startp = (CODEADDR)&(pp->CodeOfPred);
-      *endp = (CODEADDR)&(pp->CodeOfPred);
+      *startp = (CODEADDR)&(pp->OpcodeOfPred);
+      *endp = (CODEADDR)NEXTOP((yamop *)&(pp->OpcodeOfPred),e);
       return pp;
     case _fcall:
     case _call:
@@ -4173,8 +4173,8 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _spy_pred:
     case _index_pred:
       pp = ((PredEntry *)(Unsigned(pc)-(CELL)(&(((PredEntry *)NULL)->OpcodeOfPred))));
-      *startp = (CODEADDR)&(pp->CodeOfPred);
-      *endp = (CODEADDR)&(pp->CodeOfPred);
+      *startp = (CODEADDR)&(pp->OpcodeOfPred);
+      *endp = (CODEADDR)NEXTOP((yamop *)&(pp->OpcodeOfPred),e);
       return pp;
     case _expand_clauses:
       /* expansion points may not be found when following the indices tree */
@@ -4437,8 +4437,7 @@ p_clean_up_dead_clauses(void)
   while (DeadClauses != NULL) {
     char *pt = (char *)DeadClauses;
     DeadClauses = DeadClauses->NextCl;
-    if (((DeadClause *)pt)->ClFlags & ProfFoundMask)
-      Yap_InformOfRemoval((CODEADDR)pt);
+    Yap_InformOfRemoval((CODEADDR)pt);
     Yap_FreeCodeSpace(pt);
   }
   return(TRUE);

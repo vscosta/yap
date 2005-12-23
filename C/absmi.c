@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-12-17 03:25:38 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-12-23 00:20:13 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.189  2005/12/17 03:25:38  vsc
+* major changes to support online event-based profiling
+* improve error discovery and restart on scanner.
+*
 * Revision 1.188  2005/12/05 17:16:10  vsc
 * write_depth/3
 * overflow handlings and garbage collection
@@ -524,12 +528,10 @@ Yap_absmi(int inp)
 
   setregs();
 
+  CACHE_A1();
+
  reset_absmi:
   
-#if !S_IN_MEM
-  CACHE_A1();
-#endif
-
   SP = SP0;
 
 #if USE_THREADED_CODE
@@ -582,6 +584,7 @@ Yap_absmi(int inp)
 	FAIL();
       }
       setregs();
+      CACHE_A1();
       goto reset_absmi;
 
 #if !OS_HANDLES_TR_OVERFLOW
@@ -1037,10 +1040,11 @@ Yap_absmi(int inp)
 #endif
 	ipc = Yap_CleanUpIndex(PREG->u.Ill.I);
 	setregs();
-	/* restart index */
-	PREG = ipc;
 	UNLOCK(pe->PELock);
-	if (PREG == NULL) FAIL();
+	/* restart index */
+	if (ipc == NULL) FAIL();
+	PREG = ipc;
+	save_pc();
 	CACHE_A1();
 	JMPNext();
       }
@@ -1109,6 +1113,7 @@ Yap_absmi(int inp)
 	    UNLOCK(lcl->ClLock);
 	  }
 	  PREG = Yap_ErLogUpdIndex(cl, PREG);
+	  save_pc();
 	} else {
 	  UNLOCK(cl->ClLock);
 	}
@@ -1129,6 +1134,7 @@ Yap_absmi(int inp)
 	      }
 	    }
 	    PREG = Yap_ErLogUpdIndex(cl, PREG);
+	    save_pc();
 	  }
 	}
 #endif
@@ -1312,6 +1318,8 @@ Yap_absmi(int inp)
 	   anything yet */
 	READ_UNLOCK(((PredEntry *)(PREG->u.ld.p))->PRWLock);
 	PREG = PREG->u.ld.p->CodeOfPred;
+	/* for profiler */
+	save_pc();
 	JMPNext();
       }
 #endif
@@ -1461,6 +1469,7 @@ Yap_absmi(int inp)
 	}
 #endif
 	PREG = B->cp_ap;
+	save_pc();
 	CACHE_TR(B->cp_tr);
 	PREFETCH_OP(PREG);
       failloop:
@@ -2149,6 +2158,8 @@ Yap_absmi(int inp)
 	check_stack(NoStackExecute, H);
 #endif
 	PREG = pt0->CodeOfPred;
+	/* for profiler */
+	save_pc();
 	ENV_YREG[E_CB] = d0;
 	ENDD(d0);
 #ifdef DEPTH_LIMIT
@@ -2209,6 +2220,8 @@ Yap_absmi(int inp)
 	  DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
 	PREG = pt0->CodeOfPred;
+	/* for profiler */
+	save_pc();
 	ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
 	/* do deallocate */
 	CPREG = (yamop *) ENV_YREG[E_CP];
@@ -2269,6 +2282,8 @@ Yap_absmi(int inp)
 	CPREG = NEXTOP(PREG, sla);
 	ALWAYS_LOOKAHEAD(pt->OpcodeOfPred);
 	PREG = pt->CodeOfPred;
+	/* for profiler */
+	save_pc();
 #ifdef DEPTH_LIMIT
 	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
 	  if (pt->ModuleOfPred) {
@@ -2318,6 +2333,8 @@ Yap_absmi(int inp)
 	  CPREG = NEXTOP(PREG, sla);
 	  ALWAYS_LOOKAHEAD(ap->OpcodeOfPred);
 	  PREG = ap->CodeOfPred;
+	  /* for profiler */
+	  save_pc();
 	  check_depth(DEPTH, ap);
 #ifdef FROZEN_STACKS
 	  { 
@@ -2535,6 +2552,8 @@ Yap_absmi(int inp)
 	  CACHE_A1();
 	  check_depth(DEPTH, ap);
 	  PREG = ap->CodeOfPred;
+	  /* for profiler */
+	  save_pc();
 	  ALWAYS_LOOKAHEAD(ap->OpcodeOfPred);
 	  /* do deallocate */
 	  CPREG = (yamop *) ENV_YREG[E_CP];
@@ -2728,12 +2747,16 @@ Yap_absmi(int inp)
 	low_level_trace(enter_pred,(PredEntry *)(SREG),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       PREG = ((PredEntry *)(SREG))->CodeOfPred;
+      /* for profiler */
+      save_pc();
       CACHE_A1();
       JMPNext();
 
       BOp(procceed, p);
       CACHE_Y_AS_ENV(YREG);
       PREG = CPREG;
+      /* for profiler */
+      save_pc();
       ENV_YREG = ENV;
 #ifdef DEPTH_LIMIT
       DEPTH = ENV_YREG[E_DEPTH];
@@ -7091,6 +7114,8 @@ Yap_absmi(int inp)
 	if (ap->OpcodeOfPred != INDEX_OPCODE) {
 	  /* someone was here before we were */
 	  PREG = ap->CodeOfPred;
+	  /* for profiler */
+	  save_pc();
 	  WRITE_UNLOCK(ap->PRWLock);
 	  JMPNext();
 	}
@@ -7106,6 +7131,8 @@ Yap_absmi(int inp)
 	setregs();
 	CACHE_A1();
 	PREG = ap->CodeOfPred;
+	/* for profiler */
+	save_pc();
 	WRITE_UNLOCK(ap->PRWLock);
       }
       JMPNext();
@@ -7117,6 +7144,8 @@ Yap_absmi(int inp)
 	PredEntry *ap = PredFromDefCode(PREG);
 	ap = Yap_GetThreadPred(ap);
 	PREG = ap->CodeOfPred;
+	/* for profiler */
+	save_pc();
       }
       JMPNext();
       ENDBOp();
@@ -7270,6 +7299,8 @@ Yap_absmi(int inp)
       }
 
       PREG = UndefCode->CodeOfPred;
+      /* for profiler */
+      save_pc();
       CACHE_A1();
       JMPNext();
       ENDBOp();
@@ -7326,6 +7357,8 @@ Yap_absmi(int inp)
 	pt0 = SpyCode;
 	P_before_spy = PREG;
 	PREG = pt0->CodeOfPred;
+	/* for profiler */
+	save_pc();
 	CACHE_A1();
 #ifdef LOW_LEVEL_TRACER
 	if (Yap_do_low_level_trace)
@@ -12363,6 +12396,8 @@ Yap_absmi(int inp)
 	      ENV = ENV_YREG;
 	      ENV_YREG -= EnvSizeInCells+3;
 	      PREG = COMMA_CODE;
+	      /* for profiler */
+	      save_pc();
 	      d0 = SREG[1];
 	      goto restart_execute;
 
@@ -12416,6 +12451,8 @@ Yap_absmi(int inp)
 	CPREG = NEXTOP(PREG, sla);
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	PREG = pen->CodeOfPred;
+	/* for profiler */
+	save_pc();
 #ifdef DEPTH_LIMIT
 	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
 	  if (pen->ModuleOfPred) {
@@ -12695,6 +12732,8 @@ Yap_absmi(int inp)
 	check_stack(NoStackPTExecute, H);
 #endif
 	PREG = pen->CodeOfPred;
+	/* for profiler */
+	save_pc();
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	ENV_YREG[E_CB] = (CELL)B;
 #ifdef LOW_LEVEL_TRACER
@@ -12744,6 +12783,9 @@ Yap_absmi(int inp)
 	  }
 	}
 	if (ActiveSignals & YAP_TROVF_SIGNAL) {
+#if SHADOW_S
+	  S = SREG;
+#endif
 	  saveregs_and_ycache();
 	  if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L, FALSE)) {
 	    Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);

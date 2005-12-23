@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.31 2005-11-18 18:50:34 tiagosoares Exp $	 *
+* version:      $Id: Regs.h,v 1.32 2005-12-23 00:20:14 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -37,7 +37,7 @@
 #undef  PUSH_X
 #endif
 
-#ifdef _POWER
+#if defined(_POWER) || defined(__POWERPC__)
 #undef  PUSH_REGS
 #undef  PUSH_X
 #endif
@@ -513,7 +513,7 @@ EXTERN inline void restore_TR(void) {
   TR = Yap_REGS.TR_;
 }
 
-#elif defined(__GNUC__) && defined(_POWER)
+#elif defined(__GNUC__) && (defined(_POWER)  || defined(__POWERPC__))
 
 /* 
 

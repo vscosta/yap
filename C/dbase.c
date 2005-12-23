@@ -4067,8 +4067,7 @@ complete_lu_erase(LogUpdClause *clau)
       }
     }
   }
-  if (clau->ClFlags & ProfFoundMask)
-    Yap_InformOfRemoval((CODEADDR)clau);
+  Yap_InformOfRemoval((CODEADDR)clau);
   Yap_FreeCodeSpace((char *)clau);
 }
 
@@ -4188,8 +4187,7 @@ MyEraseClause(DynamicClause *clau)
       P = np;
     }
   } else {
-    if (clmask & ProfFoundMask)
-      Yap_InformOfRemoval((CODEADDR)clau);
+    Yap_InformOfRemoval((CODEADDR)clau);
     Yap_FreeCodeSpace((char *)clau);
 #ifdef DEBUG
     if (ref->NOfRefsTo)

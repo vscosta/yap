@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.10 2005-12-17 03:25:39 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.11 2005-12-23 00:20:14 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -642,7 +642,7 @@ typedef enum
 	if you place things in the lower addresses (power to the libc people).
 */
 
-#if (defined(_AIX) || defined(_WIN32) || defined(__APPLE__) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(__POWERPC__) || defined(__linux__) || defined(IN_SECOND_QUADRANT) || defined(__CYGWIN__))
+#if (defined(_AIX) || defined(_WIN32) || defined(__APPLE__) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(__POWERPC__) || defined(__linux__) || defined(IN_SECOND_QUADRANT) || defined(__CYGWIN__))
 #define USE_LOW32_TAGS 1
 #endif
 

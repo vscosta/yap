@@ -1244,6 +1244,7 @@ InteractSIGINT(int ch) {
     } else {
       Yap_Error(PURE_ABORT, TermNil, "");
       /* in case someone mangles the P register */
+      save_machine_regs();
 #if  _MSC_VER || defined(__MINGW32__)
       /* don't even think about trying this */
 #else

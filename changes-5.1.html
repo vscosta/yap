@@ -16,6 +16,10 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: handle assert/retracts and gprof overhead right. </li>
+<li> FIXED: indexing code was not setting up properly registers on longjmps. </li>
+<li> FIXED: use RISC architecture on MacOsX (__POWERPC__ + _POWER). </li>
+<li> FIXED: init system predicates should generate full static clause. </li>
 <li> NEW: tabling does not conflit with depth limit (Trevor Walker). </li>
 <li> NEW: make scanner restartable on seekable files (Nuno Fonseca). </li>
 <li> NEW: improve error discovery within scanner (Jude Shavlik). </li>

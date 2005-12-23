@@ -500,7 +500,8 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
 	return;
       }
     } else {
-      cl->ClFlags = 0;
+      cl->ClFlags = StaticMask;
+      cl->ClNext = NULL;
       cl->ClSize = sz;
       cl->usc.ClPred = pe;
       p_code = cl->ClCode;
@@ -561,9 +562,10 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int 
 	  return;
 	}
       } else {
+	cl->ClFlags = StaticMask;
+	cl->ClNext = NULL;
 	cl->ClSize = sz;
 	cl->usc.ClPred = pe;
-	cl->ClFlags = 0;
 	p_code = cl->ClCode;
 	break;
       }
@@ -608,7 +610,8 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitAsmPred");
       return;
     }
-    cl->ClFlags = 0;
+    cl->ClFlags = StaticMask;
+    cl->ClNext = NULL;
     cl->ClSize = (CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),sla),e),e);
     cl->usc.ClPred = pe;
     p_code = cl->ClCode;
@@ -744,7 +747,8 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCPredBack");
       return;
     }
-    cl->ClFlags = 0L;
+    cl->ClFlags = StaticMask;
+    cl->ClNext = NULL;
 #ifdef CUT_C
     cl->ClSize = 
       (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,lds),lds),lds),e);

@@ -60,7 +60,7 @@ static char SccsId[] = "%W% %G%";
 #define USE_PREFETCH   1
 #endif
 
-#if defined(_POWER)
+#if defined(_POWER) || defined(__POWERPC__)
 #define SHADOW_P       1
 #define SHADOW_REGS    1
 #define USE_PREFETCH   1
@@ -553,7 +553,7 @@ typedef CELL label;
 
 #endif /* PRECOMPUTE_REGADDRESS */
 
-	/* The Unification Stack is the Auxiliary stack */
+/* The Unification Stack is the Auxiliary stack */
 
 #define SP0 ((CELL *)AuxTop)
 #define SP  AuxSp
