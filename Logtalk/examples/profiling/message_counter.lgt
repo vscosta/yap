@@ -12,17 +12,12 @@
 
 
 	:- public(report/0).
-
 	:- mode(report, one).
-
 	:- info(report/0,
 		[comment is 'Reports current calls and exits message counts.']).
 
-
 	:- public(stop/0).
-
 	:- mode(stop, one).
-
 	:- info(stop/0,
 		[comment is 'Stops message counting.']).
 

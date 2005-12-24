@@ -4,19 +4,20 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 1998/3/23,
+		date is 2005/10/22,
 		comment is 'Breadth first state space search strategy.',
+		source is 'Example adopted from the book "Prolog Programming for Artificial Intelligence" by Ivan Bratko.',
 		parnames is ['Bound']]).
 
 
-	:- uses(list).
+	:- uses(list, [member/2, reverse/2]).
 
 
 	search(Space, State, Bound, Solution) :-
 		breadt(Space, l(State), Bound, Path),
-		list::reverse(Path, Solution).
+		reverse(Path, Solution).
 
 
 	breadt(Space, Tree, Bound, Solution) :-
@@ -34,7 +35,7 @@
 		Bound > 0,
 		bagof(l(Next),
 			(Space::next_state(State, Next),
-			\+ list::member(Next, [State| Path])),
+			\+ member(Next, [State| Path])),
 			Subs).
 
 	expand(Path, t(State,Subs), t(State, Subs2), Solved, Solution, Space, Bound) :-

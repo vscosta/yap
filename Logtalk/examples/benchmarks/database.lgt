@@ -1,5 +1,4 @@
 
-
 :- object(database).
 
 	:- public(db_test_this/0, db_test_self/0, db_test_obj/0).
@@ -24,7 +23,6 @@
 		::retract(pred_self),
 		fail.
 	db_test_self.
-
 
 	db_test_obj :-
 		this(This),

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -68,9 +68,9 @@ sub-directory.
 
 2. Read the example NOTES file for a description of the example.
 
-3. Open SCRIPT file for instructions on how to load the example and for sample 
-queries that you may try by copying-and-pasting or dragging-and-droping them 
-on your Prolog interpreter top-level.
+3. Open the SCRIPT file for instructions on how to load the example and for 
+sample queries that you may try by copying-and-pasting or dragging-and-droping
+them on your Prolog interpreter top-level.
 
 
 Ready to start writing your own programs?

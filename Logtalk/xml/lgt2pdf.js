@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.25.1
+// Release 2.26.2
 //
 // Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -14,31 +14,41 @@ var directory = WshShell.CurrentDirectory;
 
 var processor = "fop";
 // var processor = "xep";
+// var processor = "xinc";
 
 if (WScript.Arguments.Unnamed.Length > 0) {
 	usage_help();
 	WScript.Quit(0);
 }
 
-var WshProcessEnv = WshShell.Environment("PROCESS");
 var WshSystemEnv = WshShell.Environment("SYSTEM");
 var WshUserEnv = WshShell.Environment("USER");
-var logtalk_home;
 
-if (WshProcessEnv.Item("LOGTALKUSER"))
-	logtalk_home = WshProcessEnv.Item("LOGTALKUSER");
-else if (WshSystemEnv.Item("LOGTALKUSER"))
-	logtalk_home = WshSystemEnv.Item("LOGTALKUSER");
+var logtalk_home;
+var logtalk_user;
+
+if (WshSystemEnv.Item("LOGTALKHOME"))
+	logtalk_home = WshSystemEnv.Item("LOGTALKHOME");
+else if (WshUserEnv.Item("LOGTALKHOME"))
+	logtalk_home = WshUserEnv.Item("LOGTALKHOME")
+else {
+	WScript.Echo("Error! The environment variable LOGTALKHOME must be defined first!");
+	usage_help();
+	WScript.Quit(1);
+}
+
+if (WshSystemEnv.Item("LOGTALKUSER"))
+	logtalk_user = WshSystemEnv.Item("LOGTALKUSER");
 else if (WshUserEnv.Item("LOGTALKUSER"))
-	logtalk_home = WshUserEnv.Item("LOGTALKUSER")
+	logtalk_user = WshUserEnv.Item("LOGTALKUSER")
 else {
 	WScript.Echo("Error! The environment variable LOGTALKUSER must be defined first!");
 	usage_help();
 	WScript.Quit(1);
 }
 
-var a4_xsl = logtalk_home + "\\xml\\lgtpdfa4.xsl";
-var us_xsl = logtalk_home + "\\xml\\lgtpdfus.xsl";
+var a4_xsl = logtalk_user + "\\xml\\lgtpdfa4.xsl";
+var us_xsl = logtalk_user + "\\xml\\lgtpdfus.xsl";
 var xsl;
 
 var f_arg = "";
@@ -70,7 +80,7 @@ if (d_arg != "" && !FSObject.FolderExists(d_arg)) {
 } else if (d_arg != "")
 	directory = d_arg;
 
-if (p_arg != "" && p_arg != "fop" && p_arg != "xep") {
+if (p_arg != "" && p_arg != "fop" && p_arg != "xep" && p_arg != "xinc") {
 	WScript.Echo("Error! Unsupported XSL-FO processor:" + p_arg);
 	WScript.Echo("");
 	usage_help();
@@ -82,8 +92,13 @@ if (format == "a4")
 else
 	xsl = us_xsl;
 
-FSObject.CopyFile(logtalk_home + "\\xml\\logtalk.dtd", WshShell.CurrentDirectory + "\\logtalk.dtd");
-FSObject.CopyFile(logtalk_home + "\\xml\\logtalk.xsd", WshShell.CurrentDirectory + "\\logtalk.xsd");
+if (!FSObject.FileExists(WshShell.CurrentDirectory + "\\logtalk.dtd")) {
+	FSObject.CopyFile(logtalk_home + "\\xml\\logtalk.dtd", WshShell.CurrentDirectory + "\\logtalk.dtd");
+}
+
+if (!FSObject.FileExists(WshShell.CurrentDirectory + "\\logtalk.xsd")) {
+	FSObject.CopyFile(logtalk_home + "\\xml\\logtalk.xsd", WshShell.CurrentDirectory + "\\logtalk.xsd");
+}
 
 WScript.Echo("");
 WScript.Echo("converting XML files to PDF...");
@@ -95,15 +110,22 @@ for (files.moveFirst(); !files.atEnd(); files.moveNext()) {
 	if (FSObject.GetExtensionName(file) == "xml") {
 		WScript.Echo("  converting " + file);
 		var pdf_file = directory + "\\" + FSObject.GetBaseName(file) + ".pdf";
-		WshShell.Run(processor + " -q -xml \"" + file + "\" -xsl \"" + xsl + "\" -pdf \"" + pdf_file + "\"", true);
+		switch (processor) {
+			case "fop" :
+				WshShell.Run("fop -q -xml \"" + file + "\" -xsl \"" + xsl + "\" -pdf \"" + pdf_file + "\"", true);
+				break;
+			case "xep" :
+				WshShell.Run("xep -q -xml \"" + file + "\" -xsl \"" + xsl + "\" -pdf \"" + pdf_file + "\"", true);
+				break;
+			case "xinc" :
+				WshShell.Run("xinc -xml \"" + file + "\" -xsl \"" + xsl + "\" -pdf \"" + pdf_file + "\"", true);
+				break;
+		}
 	}
 }
 
 WScript.Echo("conversion done");
 WScript.Echo("");
-
-FSObject.DeleteFile("logtalk.dtd");
-FSObject.DeleteFile("logtalk.xsd");
 
 WScript.Quit(0);
 
@@ -119,7 +141,7 @@ function usage_help() {
 	WScript.Echo("Optional arguments:");
 	WScript.Echo("  f - paper format (either a4 or us; default is " + format + ")");
 	WScript.Echo("  d - output directory for the PDF files (default is " + directory + ")");
-	WScript.Echo("  p - XSL-FO processor (either fop or xep; default is " + processor + ")");
+	WScript.Echo("  p - XSL-FO processor (either fop, xep, or xinc; default is " + processor + ")");
 	WScript.Echo("");
 	WScript.Quit(1);
 }

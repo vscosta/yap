@@ -2,14 +2,11 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.25.1
+## Release 2.26.2
 ##
 ## Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 ## =================================================================
 
-xslt=lgtxml.xsl
-spec=logtalk.dtd
-css=logtalk.css
 format=xhtml
 index_file=index.html
 index_title="Entity documentation index"
@@ -82,7 +79,11 @@ create_index_file()
 }
 
 
-if ! [ "$LOGTALKUSER" ]
+if ! [ "$LOGTALKHOME" ]
+then
+	echo "Error! The environment variable LOGTALKHOME must be defined first!"
+	exit 1
+elif ! [ "$LOGTALKUSER" ]
 then
 	echo "Error! The environment variable LOGTALKUSER must be defined first!"
 	exit 1
@@ -119,17 +120,38 @@ else
 		index_title=$t_arg
 	fi
 
-	cp "$LOGTALKUSER"/xml/$spec .
-	cp "$LOGTALKUSER"/xml/$css .
-	cp "$LOGTALKUSER"/xml/$xslt .
+	if ! [[ -a "./logtalk.dtd" ]]
+	then
+		cp "$LOGTALKHOME"/xml/logtalk.dtd .
+	fi
+	
+	if ! [[ -a "./logtalk.xsd" ]]
+	then
+		cp "$LOGTALKHOME"/xml/logtalk.xsd .
+	fi
 
-	echo
-	echo "generating index file..."
+	if ! [[ -a "./logtalk.css" ]]
+	then
+		cp "$LOGTALKUSER"/xml/logtalk.css .
+	fi
 
-	create_index_file
+	if ! [[ -a "./lgtxml.xsl" ]]
+	then
+		cp "$LOGTALKUSER"/xml/lgtxml.xsl .
+	fi
 
-	echo "index file generated"
-	echo
+	if [[ `(ls *.xml | wc -l) 2> /dev/null` -gt 0 ]]
+	then
+		echo
+		echo "generating index file..."
+		create_index_file
+		echo "index file generated"
+		echo
+	else
+		echo
+		echo "No XML files exist in the current directory!"
+		echo
+	fi
 
 	exit 0
 

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -19,7 +19,7 @@ need of patching both Logtalk and Prolog compilers to workaround the lack of
 strong Prolog standards.
 
 
-1. LOGTALK INSTALLATION
+1. LOGTALK BASIC INSTALLATION
 
 Installing Logtalk can be as simple as decompressing the downloaded archive 
 and copying the resulting directory to a suitable location. This location 
@@ -46,35 +46,26 @@ directory can be copied to any location that its accessible by all the users
 for some reason, not feasible or desired).
 
 The "scripts" sub-directory contains shell scripts for easy installation of 
-Logtalk on MacOS X, Windows, Linux, and Unix-like operating systems (see the 
-"scripts/NOTES" file for details).
+Logtalk on MacOS X, Windows, Linux, and Unix-like (POSIX) operating systems 
+(see the "scripts/NOTES" file for details).
 
-After running the appropriated script for your operating-system, the second 
-step will be to run the Prolog integration scripts that you find on the 
-"scripts" sub-directory, assuming that your favorite Prolog compilers are 
-supported (if that is not the case, don't worry: just follow the steps 
-described in the "QUICK_START" file). The third step is for each user to 
-make a local copy of the Logtalk user-modifiable files to its home directory.
-This allows each user to easily customize Logtalk to its needs. These copies 
-can be easily made by instructing end-users to simply run the shell command 
-"cplgtdirs" (the corresponding scripts are described in the "scripts/NOTES" 
-file).
+>> POSIX systems installation (starting from the Logtalk directory):
+
+	% cd scripts
+	% sudo ./lgt_install.sh
+
+>> Windows installation (starting from the Logtalk directory):
+
+	C:\logtalk> cd scripts
+	C:\logtalk> cscript lgt_install.js
+	RESTART
 
 The "scripts/lgt_install.*" installation scripts make all files read-only in 
 order to avoid user tempering. This is a convenient setup for computer labs, 
-given that making directories world-writable is a security risk. Of course, 
-the local copies made by the "cplgtdirs" scripts have both read and write 
-permissions for the user running the script.
-
-When used with one of the Prolog compilers for which an integration script 
-is provided on the "scripts" directory, this setup as the advantage of 
-allowing each end-user to independently customize default compilation options 
-and library paths.
+given that making directories world-writable is a security risk.
 
 
-2. LOGTALK CONFIGURATION
-
-2.1 Setting environment variables
+2. SETTING LOGTALK ENVIRONMENT VARIABLES
 
 You need to set two environment variables, LOGTALKHOME and LOGTALKUSER. The 
 environment variable LOGTALKHOME should point to the Logtalk installation 
@@ -87,19 +78,19 @@ you have full permissions to the Logtalk installation directory. In addition,
 you may want to add the Logtalk sub-directory "xml", which contains useful 
 scripts for processing XML documenting files, to your execution path.
 
-* Unix and Unix-like systems:
+>> POSIX systems:
 
 If you use a csh shell, add the following line to your ~/.cshrc file:
 
 	setenv LOGTALKHOME /your/logtalk/installation/directory
 	setenv LOGTALKUSER $HOME/logtalk
-	setenv PATH $PATH:$LOGTALKUSER/xml:$LOGTALKHOME/scripts
+	setenv PATH $PATH:$LOGTALKHOME/xml:$LOGTALKHOME/scripts
 
 If you use a bash shell, add the following lines to your ~/.profile file:
 
 	LOGTALKHOME=/your/logtalk/installation/directory
 	LOGTALKUSER=$HOME/logtalk
-	PATH=$PATH:$LOGTALKUSER/xml:$LOGTALKHOME/scripts
+	PATH=$PATH:$LOGTALKHOME/xml:$LOGTALKHOME/scripts
 	export PATH LOGTALKHOME LOGTALKUSER
 
 When using the provided shell script for installing Logtalk, a symbolic link 
@@ -108,23 +99,66 @@ named "logtalk". In this case, you may use this symbolic link to define the
 LOGTALKHOME environment variable in order to avoid breaking it when upgrading 
 Logtalk.
 
-* Windows systems:
-
-In Windows 95/98/ME, environment variables are defined in the "autoexec.bat" 
-file (you will need to reboot after editing the file):
-
-	SET LOGTALKHOME=C:\your\logtalk\installation\folder\
-	SET LOGTALKUSER=%HOMEPATH%\logtalk
+>> Windows systems:
 
 In Windows 2000/XP, environment variables are defined using the System 
-properties control panel (if you are a system administrator, you should 
-use the JScript install script provided in the "scripts" sub-directory; 
-this script sets the LOGTALKHOME environment variable for all users and 
-also sets the LOGTALKUSER environment variable for the administrator user 
-running the script).
+properties control panel. If you are a system administrator, the "scripts/
+lgt_install.js" JScript install script sets the LOGTALKHOME environment 
+variable for all users and also sets the LOGTALKUSER environment variable 
+for the administrator user running the script.
 
 
-2.2 Setting library paths
+3. CREATING NEW PROLOG TOP-LEVELS FOR AUTOMATIC LOADING OF LOGTALK
+
+Most Prolog compilers allows the user to define an initialization file that 
+is automatically consulted at startup. This initialization file may contain 
+directives for loading other files, such as the Logtalk configuration file 
+and the Logtalk compiler. The "$LOGTALKHOME/scripts" sub-directory contains 
+several scripts (named "make_*lgt.*") for automating the creation of these 
+initialization files for some Prolog compilers. In addition, be sure to read 
+the "configs/NOTES" file notes on the Prolog compilers that you intend to use.
+There are also "makeall_lgt.*" scripts that try to run all the individual
+"make_*lgt.*" scripts:
+
+>> POSIX systems:
+
+	% cd $LOGTALKHOME/scripts
+	% sudo ./makeall_lgt.sh
+
+>> Windows:
+
+	C:\> cd %LOGTALKHOME%\scripts
+	C:\> cscript makeall_lgt.js
+
+This assumes that your favorite Prolog compilers are supported by the 
+"make_*lgt.*" scripts. If that is not the case, don't worry: just follow 
+the steps described in the "QUICK_START" file.
+
+
+4. COPYING THE LOGTALK USER-MODIFIABLE FILES TO USERS HOME DIRECTORIES
+
+Each user must make a local copy of the Logtalk user-modifiable files to its 
+home directory. This setup allows each user to easily and independently 
+customize Logtalk to its needs. These copies can be easily made by instructing
+end-users to simply run the shell scripts "cplgtdirs.*" (which are described 
+in the "scripts/NOTES" file).
+
+>> POSIX systems:
+
+	% cplgtdirs
+
+>> Windows:
+
+	C:\> cplgtdirs
+
+The local copies made by the "cplgtdirs" scripts have both read and write 
+permissions for the user running the script. When used with one of the 
+Prolog compilers for which an integration script is provided on the "scripts"
+directory, this setup as the advantage of allowing each end-user to 
+independently customize default compilation options and library paths.
+
+
+5. SETTING LIBRARY PATHS
 
 In Logtalk, a library is simply a directory containing source files. Library 
 paths can be declared using a dynamic predicate. This allows compiling and 
@@ -138,7 +172,7 @@ installation and your Prolog compiler and operating-system requirements. For
 more details, see the file "$LOGTALKUSER/libpaths/NOTES".
 
 
-2.3 Customizing Prolog configuration files
+6. CUSTOMIZING PROLOG CONFIGURATION FILES
 
 Logtalk interfaces with a specific Prolog compiler via a configuration file 
 that can be found on the "$LOGTALKUSER/configs" directory. These configuration 
@@ -147,29 +181,18 @@ used by Logtalk when compiling source files. For a full description of these
 default flags, consult the "Running and debugging Logtalk programs" section of 
 the User Manual. Some of the default flags that you may want to change are: 
 "smart_compilation", "startup_message", "portability", "underscore_vars", 
-"altdirs", and the set of documentation-related flags ("xml", "xsl", "xmlspec", 
-and "doctype"). Be sure to read the "$LOGTALKUSER/configs/NOTES" file for 
-Prolog specific notes; some Prolog compilers do not support the whole range of 
-compilation flags.  
+"altdirs", and the set of documentation-related flags ("xmldocs", "xslfile", 
+"xmlspec", and "xmlsref"). Be sure to read the "$LOGTALKUSER/configs/NOTES" 
+file for Prolog specific notes; some Prolog compilers do not support the whole
+range of compilation flag values.  
 
 
-2.4 Customizing documentation processing scripts and supporting files
+7. CUSTOMIZING DOCUMENTATION PROCESSING SCRIPTS AND SUPPORTING FILES
 
 Logtalk provides, in the "$LOGTALKUSER/xml" directory, a set of shell scripts, 
 CSS and XSLT style-sheets, and DTD and XML Schema files for processing the XML 
 documenting files that are automatically generated when you compile source 
-files. You may want to customize these scripts and their supporting files to 
-modify the layout or style of the resulting PDF/(X)HTML files or to write new 
-scripts and transformations to generate other formats. For more details, see 
-the file "$LOGTALKUSER/xml/NOTES".
-
-
-3. CREATING NEW PROLOG TOP-LEVELS FOR AUTOMATIC LOADING OF LOGTALK
-
-Most Prolog compilers allows the user to define an initialization file that 
-is automatically consulted at startup. This initialization file may contain 
-directives for loading other files, such as the Logtalk configuration file 
-and the Logtalk compiler. The "$LOGTALKHOME/scripts" sub-directory contains 
-several scripts for automating the creation of these initialization files 
-for some Prolog compilers. In addition, be sure to read the "configs/NOTES" 
-file notes on the Prolog compilers that you intend to use. 
+files. You may want to customize these CSS and XSLT files to modify the layout 
+or style of the resulting PDF/(X)HTML files or to write new scripts and 
+transformations to generate other formats. For more details, see the file 
+"$LOGTALKUSER/xml/NOTES".

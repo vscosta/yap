@@ -1,6 +1,13 @@
 
 :- initialization(
-	logtalk_load([
-		class,
-		abstract_class,
-		object])).
+	logtalk_load(
+		[reflection])).
+
+/*
+If you intend to use the FOP XSL:FO processor for generating PDF documenting
+files, comment the directive above and uncomment the directive below
+
+:- initialization(
+	logtalk_load(
+		[reflection], [xmlsref(standalone)])).
+*/

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -34,11 +34,16 @@ Sorted = [red, orange, yellow, green, blue, indigo, violet]
 yes
 
 
+% using the pseudo-object user implies using the Prolog built-in standard 
+% order operators:
+
 | ?- sort(user)::sort([3, 1, 4, 2, 9], Sorted).
 
 Sorted = [1, 2, 3, 4, 9]
 yes
 
+
+% some messages testing object parameter passing and using:
 
 | ?- red_circle(3)::color(Color).
 
@@ -58,6 +63,8 @@ As = [circle(3, red), ellipse(3, 3, red)]
 yes
 
 
+% show the execution context using a method (context/3) that is defined in the
+% hierarchy root and specialized (using super calls) in each descendant:
 
 | ?- red_circle(3)::context.
 
@@ -79,6 +86,9 @@ sender: user
 yes
 
 
+% send a conjunction of messages/goals to an object; just some useful syntax 
+% sugar:
+
 | ?- square(2)::(side(Side), width(Width), height(Height), area(Area)).
 
 Side = 2
@@ -88,27 +98,23 @@ Area = 4
 yes
 
 
+% find all messages accepted by an object:
+
 | ?- square(2)::current_predicate(Pred).
 
 Pred = side/1 ; 
-
 Pred = width/1 ;
-
 Pred = height/1 ;
+Pred = area/1
+yes
 
-Pred = area/1 ; 
 
-no
-
+% find all data on a specific message accepted by an object:
 
 | ?- square(_)::predicate_property(side(_), Prop).
 
 Prop = public ;
-
 Prop = static ;
-
 Prop = declared_in(square(_133)) ;
-
-Prop = defined_in(square(_164)) ;
-
-no
+Prop = defined_in(square(_164))
+yes

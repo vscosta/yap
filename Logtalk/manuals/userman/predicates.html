@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<?xml-stylesheet type="text/css" href="../styles.css" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
 	<title>Logtalk user manual: predicates</title>
-	<link rel="stylesheet" href="../styles.css" type="text/css" />
+	<link rel="stylesheet" href="../screen.css" type="text/css" media="screen"/>
+	<link rel="stylesheet" href="../print.css" type="text/css" media="print"/>
 </head>
 
 <body>
 
-<div class="navtop">
-<a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a>
-</div>
+<div class="top-left">Logtalk user manual</div> 
+<div class="top-right">Predicates</div>
+<div class="bottom-left"><span class="page"/></div> 
+<div class="bottom-right"><span class="page"/></div>
+<div class="navtop"><a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a></div>
 
 <h1>Predicates</h1>
 
@@ -24,39 +25,35 @@
 Predicate declarations and definitions can be encapsulated inside objects and categories. Protocols can only contain predicate declarations.
 </p>
 
-<h2>Declaring predicates<a name="declaring"></a></h2>
+<h2>Declaring predicates<a id="declaring"></a></h2>
 
 <p>
 All object (or category) predicates that we want to access from other objects must be explicitly declared. A predicate declaration must contain, at least, a scope directive. Other directives may be used to document the predicate or to ensure proper compilation of the predicate definitions.
 </p>
 
-<h3>Scope directives<a name="scope"></a></h3>
+<h3>Scope directives<a id="scope"></a></h3>
 
 <p>
-A predicate can be public, protected or private. Public predicates can be called from any object. Protected predicates can only be called from the container object or from a container descendant. Private predicates can only be called from the container object.
+A predicate can be public, protected, or private. Public predicates can be called from any object. Protected predicates can only be called from the container object or from a container descendant. Private predicates can only be called from the container object.
 </p>
 <p>
 The scope declarations are made using the directives <a title="Consult reference manual" href="../refman/directives/public1.html"><code>public/1</code></a>, <a title="Consult reference manual" href="../refman/directives/protected1.html"><code>protected/1</code></a>, and <a title="Consult reference manual" href="../refman/directives/private1.html"><code>private/1</code></a>. For example:
 </p>
-<pre>
-    :- public(init/1).
+<pre>:- public(init/1).
 
-    :- protected(valid_init_option/1).
+:- protected(valid_init_option/1).
 
-    :- private(process_init_options/1).
-</pre>
+:- private(process_init_options/1).</pre>
 <p>
 Note that we do not need to write scope declarations for all defined predicates. If a predicate does not have a scope declaration, it is assumed that the predicate is private, although it will be invisible to the reflection methods and to the message and error handling mechanisms.
 </p>
 
-<h3>Mode directive<a name="mode"></a></h3>
+<h3>Mode directive<a id="mode"></a></h3>
 
 <p>
 Many predicates cannot be called with arbitrary arguments with arbitrary instantiation status. The valid arguments and instantiation modes can be documented by using the <a title="Consult reference manual" href="../refman/directives/mode2.html"><code>mode/2</code></a> directive. For instance:
 </p>
-<pre>
-    :- mode(member(?term, +list), zero_or_more).
-</pre>
+<pre>:- mode(member(?term, +list), zero_or_more).</pre>
 <p>
 The first argument describes a valid calling mode. The minimum information will be the instantiation mode of each argument. There are four possible values (described in <a title="ISO Prolog Standard" href="../bibliography.html#ISO95">[ISO 95]</a>):
 </p>
@@ -97,28 +94,22 @@ The second argument documents the number of proofs (or solutions) for the specif
 <p>
 Mode declarations can also be used to document that some call modes will throw an error. For instance, regarding the <code>arg/3</code> ISO Prolog built-in predicate, we may write:
 </p>
-<pre>
-    :- mode(arg(-, -, +), error).
-</pre> 
+<pre>:- mode(arg(-, -, +), error).</pre> 
 <p>
-Note that most predicates have more than one valid mode implying several mode directives. For example, to document the possible use modes of the atom_concat/3 ISO built-in predicate we would write:
+Note that most predicates have more than one valid mode implying several mode directives. For example, to document the possible use modes of the <code>atom_concat/3</code> ISO built-in predicate we would write:
 </p>
-<pre>
-    :- mode(atom_concat(?atom, ?atom, +atom), one_or_more).
-    :- mode(atom_concat(+atom, +atom, -atom), zero_or_one).
-</pre>
+<pre>:- mode(atom_concat(?atom, ?atom, +atom), one_or_more).
+:- mode(atom_concat(+atom, +atom, -atom), zero_or_one).</pre>
 <p>
 Some old Prolog compilers supported some sort of mode directives to improve performance. To the best of my knowledge, there is no modern Prolog compiler supporting these kind of directive. The current version of the Logtalk preprocessor just parses and than discards this directive. Nevertheless, the use of mode directives is a good starting point to the documentation of your predicates.
 </p>
 
-<h3>Metapredicate directive<a name="meta"></a></h3>
+<h3>Metapredicate directive<a id="meta"></a></h3>
 
 <p>
 Some predicates may have arguments that will be called as goals. To ensure that these calls will be executed in the correct scope we need to use the <a title="Consult reference manual" href="../refman/directives/metapredicate1.html"><code>metapredicate/1</code></a> directive. For example:
 </p>
-<pre>
-    :- metapredicate(findall(*, ::, *)).
-</pre>
+<pre>:- metapredicate(findall(*, ::, *)).</pre>
 <p>
 The predicate arguments in this directive have the following meaning:
 </p>
@@ -137,14 +128,12 @@ This is similar to the declaration of metapredicates in the ISO draft for Prolog
 Since each Logtalk entity is independently compiled, this directive must be included in every object or category that contains a definition for the described predicate, even if the predicate declaration is inherited from another entity, to ensure proper compilation of meta-arguments.
 </p>
 
-<h3>Discontiguous directive<a name="discontiguous"></a></h3>
+<h3>Discontiguous directive<a id="discontiguous"></a></h3>
 
 <p>
 The clause of an object (or category) predicate may not be contiguous. In that case, we must declare the predicate discontiguous by using the <a title="Consult reference manual" href="../refman/directives/discontiguous1.html"><code>discontiguous/1</code></a> directive:
 </p>
-<pre>
-    :- discontiguous(foo/1).
-</pre>
+<pre>:- discontiguous(foo/1).</pre>
 <p>
 This is a directive that we should avoid using: it makes your code harder to read and it is not supported by some Prolog compilers.
 </p>
@@ -152,121 +141,111 @@ This is a directive that we should avoid using: it makes your code harder to rea
 Because each Logtalk entity is compiled independently from other entities, this directive must be included in every object or category that contains a definition for the described predicate (even if the predicate declaration is inherited from other entity).
 </p>
 
-<h3>Dynamic directive<a name="dynamic"></a></h3>
+<h3>Dynamic directive<a id="dynamic"></a></h3>
 
 <p>
 An object (or category) predicate can be static or dynamic. By default, all object predicates are static. To declare a dynamic predicate we use the <a title="Consult reference manual" href="../refman/directives/dynamic1.html"><code>dynamic/1</code></a> directive:
 </p>
-<pre>
-    :- dynamic(foo/1).
-</pre>
+<pre>:- dynamic(foo/1).</pre>
 <p>
 Because each Logtalk entity is compiled independently from other entities, this directive must be included in every object or category that contains a definition for the described predicate (even if the predicate declaration is inherited from other entity). If we omit the dynamic declaration then the predicate definition will be compiled to static code. Note that any static object may declare and define dynamic predicates.
 </p>
 
-<h3>Operator directive<a name="op"></a></h3>
+<h3>Operator directive<a id="op"></a></h3>
 
 <p>
 An object (or category) predicate can be declared as an operator using the familiar <a title="Consult reference manual" href="../refman/directives/op3.html"><code>op/3</code></a> directive:
 </p>
-<pre>
-    :- op(Priority, Specifier, Operator).
-</pre>
+<pre>:- op(Priority, Specifier, Operator).</pre>
 <p>
 Operators are local to the object (or category) where they are declared. This means that, if you declare a public predicate as an operator, you cannot use operator notation when sending to an object (where the predicate is visible) the respective message (as this would imply visibility of the operator declaration in the context of the <em>sender</em> of the message). If you want to declare global operators and, at the same time, use them inside an entity, just write the corresponding directives at the top of your source file, before the entity opening directive.
 </p>
 
-<h3>Uses directive<a name="uses"></a></h3>
+<h3>Uses directive<a id="uses"></a></h3>
 
 <p>
 When a predicate makes heavy use of predicates defined on other objects, its clauses can be excessively verbose due to all the necessary message sending constructs. Consider the following example:
 </p>
-<pre>
-    foo :-
-        ...,
-        findall(X, list::member(X, L), A),
-        list::append(A, B, C),
-        list::select(Y, C, R),
-        ...
-</pre>
+<pre>foo :-
+    ...,
+    findall(X, list::member(X, L), A),
+    list::append(A, B, C),
+    list::select(Y, C, R),
+    ...</pre>
 <p>
 Logtalk provides a directive, <a title="Consult reference manual" href="../refman/directives/uses2.html"><code>uses/2</code></a>, which allows us to simplify the code above. The usage template for this directive is:
 </p>
-<pre>
-    :- uses(Object, [Functor1/Arity1, Functor2/Arity2, ...]).
-</pre>
+<pre>:- uses(Object, [Functor1/Arity1, Functor2/Arity2, ...]).</pre>
 <p>
 Rewriting the code above using this directive results in a simplified and more easily readable predicate definition:
 </p>
-<pre>
-    :- uses(list,
-        [append/3, member/2, select/3]).
+<pre>:- uses(list,
+    [append/3, member/2, select/3]).
 
     foo :-
         ...,
         findall(X, member(X, L), A),
         append(A, B, C),
         select(Y, C, R),
-        ...
-</pre>
+        ...</pre>
 <p>
-The <code>uses/2</code> directive allows simpler predicate definitions as long as there are no conflicts between the predicates declared in the directive and the predicates defined in the object (or category) containing the directive. A predicate cannot be listed in more than one <code>uses/2</code> directive. In addition, a <code>uses/2</code> directive cannot list a predicate which is defined in the object (or category) containing the directive. Any conflicts are reported by the Logtalk pre-processor as compilation errors.
+Logtalk supports an extended version of this directive that allows the declaration of predicate alias using the notation <code>Predicate::Alias</code>. For example:
+</p>
+<pre>:- uses(btrees, [new/1::new_btree/1]).
+:- uses(queues, [new/1::new_queue/1]).</pre>
+<p>
+You may use this extended version for solving conflicts between predicates declared on several <code>uses/2</code> directives or just for giving new  names to the predicates that will be more meaningful on their using context.
+</p>
+<p>
+The <code>uses/2</code> directive allows simpler predicate definitions as long as there are no conflicts between the predicates declared in the directive and the predicates defined in the object (or category) containing the directive. A predicate (or its alias if defined) cannot be listed in more than one <code>uses/2</code> directive. In addition, a <code>uses/2</code> directive cannot list a predicate (or its alias if defined) which is defined in the object (or category) containing the directive. Any conflicts are reported by the Logtalk pre-processor as compilation errors.
 </p>
 <p>
 In the current Logtalk version, the omission of the <code>Object::</code> prefix is not supported when the predicate call occurs as an argument of a user-defined metapredicate (Logtalk specified metapredicates and Prolog non-standard metapredicates declared in the config files pose no problem).
 </p>
 
-<h3>Alias directive<a name="alias"></a></h3>
+<h3>Alias directive<a id="alias"></a></h3>
 
 <p>
-Logtalk allows the definition of an alternative name for a predicate through the use of the <a title="Consult reference manual" href="../refman/directives/alias3.html"><code>alias/3</code></a> directive:
+Logtalk allows the definition of an alternative name for an inherited or imported predicate through the use of the <a title="Consult reference manual" href="../refman/directives/alias3.html"><code>alias/3</code></a> directive:
 </p>
-<pre>
-    :- alias(Entity, Predicate, Alias).
-</pre>
+<pre>:- alias(Entity, Predicate, Alias).</pre>
 <p>
 This directive can be used in objects, protocols, or categories. The first argument, <code>Entity</code>, must be an entity referenced in the opening directive of the entity contain the <code>alias/3</code> directive. It can be an implemented protocol, an imported category, an extended prototype, an instantiated class, or a specialized class. The second and third arguments are predicate indicators.
 </p>
 <p>
 A common use for the <code>alias/3</code> directive is to give an alternative name to an inherited predicate in order to improve readability. For example:
 </p>
-<pre>
-    :- object(square,
-    	extends(rectangle)).
+<pre>:- object(square,
+	extends(rectangle)).
 
-        :- alias(rectangle, width/1, side/1).
+    :- alias(rectangle, width/1, side/1).
 
-        ...
+    ...
 
-    :- end_object.
-</pre>
+:- end_object.</pre>
 <p>
-The directive allows both <code>width/1</code> and <code>side/1</code> to be used as mesages to the object <code>square</code>. Thus, using this directive, there is no need to explictly declare and define a "new" <code>side/1</code> predicate. Note that the <code>alias/3</code> directive does not rename a predicate, only provides an alternative, addtional name; the original name continues to be available.
+The directive allows both <code>width/1</code> and <code>side/1</code> to be used as messages to the object <code>square</code>. Thus, using this directive, there is no need to explicitly declare and define a "new" <code>side/1</code> predicate. Note that the <code>alias/3</code> directive does not rename a predicate, only provides an alternative, additional name; the original name continues to be available.
 </p>
 <p>
 Another common use for this directive is to solve conflicts when two inherited predicates have the same functor and arity. We may want to call the predicate which is masked by the Logtalk lookup algorithm (see the <a href="inheritance.html">Inheritance</a> section) or we may need to call both predicates. This is simply accomplished by using the <code>alias/3</code> directive to give alternative names to masked or conflicting predicates. Consider the following example:
 </p>
-<pre>
-    :- object(my_data_structure,
-    	extends(list, set)).
+<pre>:- object(my_data_structure,
+	extends(list, set)).
 
-        :- alias(list, member/2, list_member/2).
-        :- alias(set, member/2, set_member/2).
+    :- alias(list, member/2, list_member/2).
+    :- alias(set, member/2, set_member/2).
 
-        ...
+    ...
 
-    :- end_object.
-</pre>
+:- end_object.</pre>
 <p>
 Assuming that both <code>list</code> and <code>set</code> objects define a <code>member/2</code> predicate, without the <code>alias/3</code> directives, only the definition of <code>member/2</code> predicate in the object <code>list</code> would be visible on the object <code>my_data_structure</code>, as a result of the application of the Logtalk predicate lookup algorithm. By using the <code>alias/3</code> directives, all the following messages would be valid (assuming a public scope for the predicates):
 </p>
-<pre>
-    | ?- my_data_structure::list_member(X, L).    % uses list member/2
+<pre>| ?- my_data_structure::list_member(X, L).    % uses list member/2
 
-    | ?- my_data_structure::set_member(X, L).     % uses set member/2
+| ?- my_data_structure::set_member(X, L).     % uses set member/2
 
-    | ?- my_data_structure::member(X, L).         % uses list member/2
-</pre>
+| ?- my_data_structure::member(X, L).         % uses list member/2</pre>
 <p>
 When used this way, the <code>alias/3</code> directive provides functionality similar to programming constructs of other object-oriented languages which support multi-inheritance (the most notable example probably being the renaming of inherited features in Eiffel).
 </p>
@@ -276,272 +255,242 @@ Note that the <code>alias/3</code> directive never hides a predicate which is vi
 <p>
 The <code>alias/3</code> directive may also be used to give access to an inherited predicate, which otherwise would be masked by another inherited predicate, while keeping the original name as follows:
 </p>
-<pre>
-    :- object(my_data_structure,
-    	extends(list, set)).
+<pre>:- object(my_data_structure,
+	extends(list, set)).
 
-        :- alias(list, member/2, list_member/2).
-        :- alias(set, member/2, set_member/2).
+    :- alias(list, member/2, list_member/2).
+    :- alias(set, member/2, set_member/2).
 
-        member(X, L) :-
-        	::set_member(X, L).
+    member(X, L) :-
+    	::set_member(X, L).
 
-        ...
+    ...
 
-    :- end_object.
-</pre>
+:- end_object.</pre>
 <p>
 Thus, when sending the message <code>member/2</code> to <code>my_data_structure</code>, the predicate definition in <code>set</code> will be used instead of the one contained in <code>list</code>.
 </p>
 
-<h3>Documenting directive<a name="info"></a></h3>
+<h3>Documenting directive<a id="info"></a></h3>
 
 <p>
 A predicate can be documented with arbitrary user-defined information by using the <a title="Consult reference manual" href="../refman/directives/info2.html"><code>info/2</code></a> directive:
 </p>
-<pre>
-    :- info(Functor/Arity, List).
-</pre>
+<pre>:- info(Functor/Arity, List).</pre>
 <p>
 The second argument is a list of <code>Key is Value</code> terms. See the <a href="documenting.html">Documenting Logtalk programs</a> session for details.
 </p>
 
-<h2>Defining predicates<a name="defining"></a></h2>
+<h2>Defining predicates<a id="defining"></a></h2>
 
-<h3>Object predicates<a name="objects"></a></h3>
+<h3>Object predicates<a id="objects"></a></h3>
 
 <p>
 We define object predicates as we have always defined Prolog predicates, the only difference be that we have four more control structures (the three message sending operators plus the external call operator) to play with. For example, if we wish to define an object containing common utility list predicates like <code>append/2</code> or <code>member/2</code> we could write something like:
 </p>
-<pre>
-    :- object(list).
+<pre>:- object(list).
 
-        :- public(append/3).
-        :- public(member/2).
+    :- public(append/3).
+    :- public(member/2).
 
-        append([], L, L).
-        append([H| T], L, [H| T2]) :-
-            append(T, L, T2).
+    append([], L, L).
+    append([H| T], L, [H| T2]) :-
+        append(T, L, T2).
 
-        member(H, [H| _]).
-        member(H, [_| T]) :-
-            member(H, T).
+    member(H, [H| _]).
+    member(H, [_| T]) :-
+        member(H, T).
 
-    :- end_object.
-</pre>
+:- end_object.</pre>
 <p>
 Note that, abstracting from the opening and closing object directives and the scope directives, what we have written is plain Prolog.  Calls in a predicate definition body default to the local predicates, unless we use the message sending operators or the external call operator. This enables easy conversion from Prolog code to Logtalk objects: we just need to add the necessary encapsulation and scope directives to the old code.
 </p>
 
-<h3>Category predicates<a name="categories"></a></h3>
+<h3>Category predicates<a id="categories"></a></h3>
 
 <p>
 Because a category can be imported by several different objects, dynamic private predicates must be called using the <a title="Consult reference manual" href="../refman/control/to_self1.html"><code>::/1</code></a> message sending operator. This ensures that the correct predicate definition will be used. For example, if we want to define a category implementing variables using destructive assignment we could write:
 </p>
-<pre>
-    :- category(variable).
+<pre>:- category(variable).
 
-        :- public(get/2).
-        :- public(set/2).
+    :- public(get/2).
+    :- public(set/2).
 
-        :- private(value_/2).
-        :- dynamic(value_/2).
+    :- private(value_/2).
+    :- dynamic(value_/2).
 
-        get(Var, Value) :-
-            ::value_(Var, Value).
+    get(Var, Value) :-
+        ::value_(Var, Value).
 
-        set(Var, Value) :-
-            ::retractall(value_(Var, _)), 
-            ::asserta(value_(Var, Value).
+    set(Var, Value) :-
+        ::retractall(value_(Var, _)), 
+        ::asserta(value_(Var, Value).
 
-    :- end_category.
-</pre>
+:- end_category.</pre>
 <p>
 This way, each importing object will have its own definition for the <code>value_/2</code> private predicate. Furthermore, the <code>get/2</code> and <code>set/2</code> predicates will always access/update the correct definition, contained in the object receiving the messages.
 </p>
 <p>
-A category may only contain clauses for static predicates. Nevertheless, as the example above illustrates, there are no retrictions in declaring and calling dynamic predicates from inside a category.
+A category may only contain clauses for static predicates. Nevertheless, as the example above illustrates, there are no restrictions in declaring and calling dynamic predicates from inside a category.
 </p>
 
-<h3>Metapredicates<a name="metadef"></a></h3>
+<h3>Metapredicates<a id="metadef"></a></h3>
 
 <p>
 Metapredicates may be defined inside objects (and categories) as any other predicate. A metapredicate is declared using the <code>metapredicate/1</code> directive as described earlier on this section.
 </p>
 <p>
-Some metapredicates have meta-arguments which are not called directly as goals. Instead, the meta-arguments are used for constructing a call, usually with other arguments of the metapredicate. A common example is the metapredicate <code>apply/2</code>. The typical definiton is: 
+Some metapredicates have meta-arguments which are not called directly as goals. Instead, the meta-arguments are used for constructing a call, usually with other arguments of the metapredicate. A common example is the metapredicate <code>apply/2</code>. The typical definition is: 
 </p>
-<pre>
-    apply(Pred, Args) :-
-        (atom(Pred) ->
-            Goal =.. [Pred| Args]
-            ;
-            Pred =.. Old,
-            append(Old, Args, New),
-            Goal =.. New),
-        call(Goal).
-</pre>
+<pre>apply(Pred, Args) :-
+    (atom(Pred) -&gt;
+        Goal =.. [Pred| Args]
+        ;
+        Pred =.. Old,
+        append(Old, Args, New),
+        Goal =.. New),
+    call(Goal).</pre>
 <p>
 However, encapsulating the above definition in an object (or category) preceded with the directive:
 </p>
-<pre>
-    :- metapredicate(apply(::, *)).
-</pre>
+<pre>:- metapredicate(apply(::, *)).</pre>
 <p>
 will not work as you might expect because the meta-argument is not called as a goal as the metapredicate directive seams to imply. The solution is to write an auxiliary predicate which extends the metapredicate which you want to define with an extra argument which will be bound to the goal constructed by the metapredicate. Applying this solution to our example result in the following code:
 </p>
-<pre>
-    :- public(apply/2).
+<pre>:- public(apply/2).
 
-    apply(Pred, Args) :-
-        apply(Pred, Args, _).
+apply(Pred, Args) :-
+    apply(Pred, Args, _).
 
 
-    :- private(apply/3).
-    :- metapredicate(apply(*, *, ::)).
+:- private(apply/3).
+:- metapredicate(apply(*, *, ::)).
 
-    apply(Pred, Args, Goal) :-
-        (atom(Pred) ->
-            Goal =.. [Pred| Args]
-            ;
-            Pred =.. Old,
-            append(Old, Args, New),
-            Goal =.. New),
-        call(Goal).
-</pre>
+apply(Pred, Args, Goal) :-
+    (atom(Pred) -&gt;
+        Goal =.. [Pred| Args]
+        ;
+        Pred =.. Old,
+        append(Old, Args, New),
+        Goal =.. New),
+    call(Goal).</pre>
 <p>
 Note that the predicate <code>apply/2</code> is no longer declared as a metapredicate. However, it will work as expected when called because of the implicit passing of the method execution context between the two predicates.
 </p>
 
-<h3>Definite clause grammars<a name="dcgs"></a></h3>
+<h3>Definite clause grammars<a id="dcgs"></a></h3>
 
 <p>
 Definite clause grammar rules provide a convenient notation to represent the rewrite rules common of most grammars in Prolog. In Logtalk, definite clause grammar rules can be encapsulated in objects and categories. Currently, the ISO/IEC WG17 group is working on a draft specification for a definite clause grammars Prolog standard. Therefore, in the mean time, Logtalk follows the common practice of Prolog compilers supporting definite clause grammars, extending it to support calling grammar rules contained in categories and objects. A common example of a definite clause grammar is the definition of a set of rules for parsing simple arithmetic expressions:
 </p>
-<pre>
-    :- object(calculator).
+<pre>:- object(calculator).
 
-        :- public(parse/2).
+    :- public(parse/2).
 
-        parse(Expression, Value) :-
-            phrase(expr(Value), Expression).
+    parse(Expression, Value) :-
+        phrase(expr(Value), Expression).
 
-        expr(Z) --&gt; term(X), "+", expr(Y), {Z is X + Y}.
-        expr(Z) --&gt; term(X), "-", expr(Y), {Z is X - Y}.
-        expr(X) --&gt; term(X).
+    expr(Z) --&gt; term(X), "+", expr(Y), {Z is X + Y}.
+    expr(Z) --&gt; term(X), "-", expr(Y), {Z is X - Y}.
+    expr(X) --&gt; term(X).
 
-        term(Z) --&gt; number(X), "*", term(Y), {Z is X * Y}.
-        term(Z) --&gt; number(X), "/", term(Y), {Z is X / Y}.
-        term(Z) --&gt; number(Z).
+    term(Z) --&gt; number(X), "*", term(Y), {Z is X * Y}.
+    term(Z) --&gt; number(X), "/", term(Y), {Z is X / Y}.
+    term(Z) --&gt; number(Z).
 
-        number(C) --&gt; "+", number(C).
-        number(C) --&gt; "-", number(X), {C is -X}.
-        number(X) --&gt; [C], {0'0 =&lt; C, C =&lt; 0'9, X is C - 0'0}.
+    number(C) --&gt; "+", number(C).
+    number(C) --&gt; "-", number(X), {C is -X}.
+    number(X) --&gt; [C], {0'0 =&lt; C, C =&lt; 0'9, X is C - 0'0}.
 
-    :- end_object. 
-</pre>
+:- end_object. </pre>
 <p>
 The predicate <a title="Consult reference manual" href="../refman/methods/phrase2.html"><code>phrase/2</code></a> called in the definition of predicate <code>parse/2</code> above is a Logtalk built-in method, similar to the predicate with the same name found on most Prolog compilers that support definite clause grammars. After compiling and loading this object, we can test the grammar rules with calls such as the following one:
 </p>
-<pre>
-    | ?- calculator::parse("1+2-3*4", Result).
+<pre>| ?- calculator::parse("1+2-3*4", Result).
 
-    Result = -9
-    yes
-</pre>
+Result = -9
+yes</pre>
 <p>
 In most cases, the predicates resulting from the translation of the grammar rules to regular clauses are not declared. Instead, these predicates are usually called by using the built-in methods <code>phrase/2</code> and <code>phrase/3</code> as shown in the example above. When we want to send the messages <code>phrase/2</code> and <code>phrase/3</code> to <em>self</em> or to another object, the non-terminal used as first argument must be within the scope of the <em>sender</em>. For the above example, assuming that we want the predicate corresponding to the <code>expr/1</code> non-terminal to be public, the corresponding scope directive would be:
 </p>
-<pre>
-    :- public(expr//1). 
-</pre>
+<pre>:- public(expr//1). </pre>
 <p>
 The <code>//</code> infix operator used above tells the Logtalk compiler that the scope directive refers to a grammar rule non-terminal, not to a predicate. The idea is that the predicate corresponding to the translation of the <code>expr/1</code> non-terminal will have a number of arguments equal to one plus the number of additional arguments necessary for processing the subjacent lists of tokens.
 </p>
 <p>
 In the body of a grammar rule, we can call rules that are inherited from ancestor objects, imported from categories, or contained in other objects. This is accomplished by using non-terminals as messages. Using a non-terminal as a message to <em>self</em> allows us to call grammar rules in categories and ancestor objects. To call grammar rules encapsulated in other objects, we use a non-terminal as a message to those objects. Consider the following example, containing grammar rules for parsing natural language sentences:
 </p>
-<pre>
-    :- object(sentence,
-        imports(determiners, nouns, verbs)).
+<pre>:- object(sentence,
+    imports(determiners, nouns, verbs)).
 
-        :- public(parse/2).
+    :- public(parse/2).
 
-        parse(List, true) :-
-            phrase(sentence, List).
-        parse(_, false).
+    parse(List, true) :-
+        phrase(sentence, List).
+    parse(_, false).
 
-        sentence --&gt; noun_phrase, verb_phrase.
+    sentence --&gt; noun_phrase, verb_phrase.
 
-        noun_phrase --&gt; ::determiner, ::noun.
-        noun_phrase --&gt; ::noun.
+    noun_phrase --&gt; ::determiner, ::noun.
+    noun_phrase --&gt; ::noun.
 
-        verb_phrase --&gt; ::verb.
-        verb_phrase --&gt; ::verb, noun_phrase.
+    verb_phrase --&gt; ::verb.
+    verb_phrase --&gt; ::verb, noun_phrase.
 
-    :- end_object.
-</pre>
+:- end_object.</pre>
 <p>
 The categories imported by the object would contain the necessary grammar rules for parsing determiners, nouns, and verbs. For example:
 </p>
-<pre>
-    :- category(determiners).
+<pre>:- category(determiners).
 
-        :- private(determiner//0).
+    :- private(determiner//0).
 
-        determiner --&gt; [the].
-        determiner --&gt; [a].
+    determiner --&gt; [the].
+    determiner --&gt; [a].
 
-    :- end_category.
-</pre>
+:- end_category.</pre>
 <p>
 Along with the message sending operators (<code>::/1</code> and <code>::/2</code>), we may also use other control constructs such as <code>\+/1</code>, <code>!/0</code>, <code>;/2</code>, <code>-&gt;/2</code>, and <code>{}/1</code> in the body of a grammar. In addition, grammar rules may contain metacalls (a variable taking the place of a non-terminal), which are translated to calls of the built-in method <code>phrase/3</code>. 
 </p>
 <p>
 You may have noticed that Logtalk defines <code>{}/1</code> as a control construct for bypassing the compiler when compiling a clause body goal. As exemplified above, this is the same control construct that is used in grammar rules for bypassing the expansion of rule body goals when a rule is converted into a clause. Both control constructs can be combined in order to call a goal from a grammar rule body, while bypassing at the same time the Logtalk compiler. Consider the following example:
 </p>
-<pre>
-    bar :-
-        write('bar predicate called'), nl.
+<pre>bar :-
+    write('bar predicate called'), nl.
 
 
-    :- object(bypass).
+:- object(bypass).
 
-        :- public(foo//0).
+    :- public(foo//0).
 
-        foo --&gt; {{bar}}.
+    foo --&gt; {{bar}}.
 
-    :- end_object.
-</pre>
+:- end_object.</pre>
 <p>
 After compiling and loading this code, we may try the following query:
 </p>
-<pre>
-    | ?- bypass::phrase(foo, _, _).
+<pre>| ?- bypass::phrase(foo, _, _).
 
-    bar predicate called
-    yes
-</pre>
+bar predicate called
+yes</pre>
 <p>
 This is the expected result as the expansion of the grammar rule into a clause leaves the <code>{bar}</code> goal untouched, which, in turn, is converted into the goal <code>bar</code> when the clause is compiled.
 </p>
 <p>
 Grammar rule non-terminal may be declared as dynamic or discontiguous, as any other object predicate, using the same <code><em>Functor//Arity</em></code> notation illustrated above for the scope directives. In addition, grammar rule non-terminals can be documented using the <a title="Consult reference manual" href="../refman/directives/info2.html"><code>info/2</code></a> directive, as in the following example:
 </p>
-<pre>
-    :- public(sentence//0).
+<pre>:- public(sentence//0).
 
-    :- info(sentence//0, [
-        comment is 'Rewrites a sentence in a noun phrase and verb phrase.']).
-</pre>
+:- info(sentence//0, [
+    comment is 'Rewrites a sentence in a noun phrase and verb phrase.']).</pre>
 
-<h2>Built-in object predicates (methods)<a name="methods"></a></h2>
+<h2>Built-in object predicates (methods)<a id="methods"></a></h2>
 
 <p>
 Logtalk defines a set of built-in object predicates or methods to access message execution context, to find sets of solutions, to inspect objects and for database handling. Similar to Prolog built-in predicates, these built-in methods should not be redefined.
 </p>
 
-<h3>Execution context methods<a name="context"></a></h3>
+<h3>Execution context methods<a id="context"></a></h3>
 
 <p>
 Logtalk defines four built-in methods to access an object execution context. These methods are compiled in-line and can be freely used without worrying about performance penalties. When called from inside a category, these methods refer to the execution context of the object importing the category.
@@ -555,97 +504,87 @@ The method <a title="Consult reference manual" href="../refman/methods/this1.htm
 <p>
 Here is a short example including calls to these three object execution context methods:
 </p>
-<pre>
-    :- object(test).
+<pre>:- object(test).
 
-        :- public(test/0).
+    :- public(test/0).
 
-        test :-
-            this(This), 
-            write('Executing  a predicate definition contained in '), writeq(This), nl,
-            self(Self),
-            write('to answer a message received by '), writeq(Self), nl,
-            sender(Sender),
-            write('that was sent by '), writeq(Sender), nl, nl.
+    test :-
+        this(This), 
+        write('Executing  a predicate definition contained in '), writeq(This), nl,
+        self(Self),
+        write('to answer a message received by '), writeq(Self), nl,
+        sender(Sender),
+        write('that was sent by '), writeq(Sender), nl, nl.
 
-    :- end_object.
+:- end_object.
 
 
-    :- object(descendant,
-        extends(test)).
+:- object(descendant,
+    extends(test)).
 
-    :- end_object.
-</pre>
+:- end_object.</pre>
 <p>
 After compiling and loading these two objects, we can try the following goal:
 </p>
-<pre>
-    | ?- descendant::test.
+<pre>| ?- descendant::test.
 
-    Executing  a predicate definition contained in test
-    to answer a message received by descendant
-    that was sent by user
-    yes
-</pre>
+Executing  a predicate definition contained in test
+to answer a message received by descendant
+that was sent by user
+yes</pre>
 <p>
 For parametric objects, the method <a title="Consult reference manual" href="../refman/methods/parameter2.html"><code>parameter/2</code></a> enables us to retrieve current parameter values (see the session on <a href="objects.html#parametric">parametric objects</a> for a detailed description). For example:
 </p>
-<pre>
-    :- object(block(_Color)).
+<pre>:- object(block(_Color)).
 
-        :- public(test/0).
+    :- public(test/0).
 
-        test :-
-            parameter(1, Color), 
-            write('Color parameter value  is '), writeq(Color), nl.
+    test :-
+        parameter(1, Color), 
+        write('Color parameter value  is '), writeq(Color), nl.
 
-    :- end_object.
-</pre>
+:- end_object.</pre>
 <p>
 After compiling and loading these two objects, we can try the following goal:
 </p>
-<pre>
-    | ?- block(blue)::test.
+<pre>| ?- block(blue)::test.
 
-    Color parameter value is blue
-    yes
-</pre>
+Color parameter value is blue
+yes</pre>
 <p>
-The method <code>parameter/2</code> is only compiled in-ilne when used inside objects; its use inside categories implies a call to the built-in Prolog predicate <code>arg/3</code>. Nevertheless, note that calls to <code>parameter/2</code> from inside categories are inherently problematic: a category may be implemented by several objects, both parametric (with different number of parameters) and non-parametric. Care must be taken to ensure that a parametric object importing such a category match the interpretation of its parameters used in the category.
+The method <code>parameter/2</code> is only compiled in-line when used inside objects; its use inside categories implies a call to the built-in Prolog predicate <code>arg/3</code>. Nevertheless, note that calls to <code>parameter/2</code> from inside categories are inherently problematic: a category may be implemented by several objects, both parametric (with different number of parameters) and non-parametric. Care must be taken to ensure that a parametric object importing such a category match the interpretation of its parameters used in the category.
 </p>
 
-<h3>Database methods<a name="database"></a></h3>
+<h3>Database methods<a id="database"></a></h3>
 
 <p>
 Logtalk provides a set of built-in methods for object database handling similar to the usual database Prolog predicates: <a title="Consult reference manual" href="../refman/methods/abolish1.html"><code>abolish/1</code></a>, <a title="Consult reference manual" href="../refman/methods/asserta1.html"><code>asserta/1</code></a>, <a title="Consult reference manual" href="../refman/methods/assertz1.html"><code>assertz/1</code></a>, <a title="Consult reference manual" href="../refman/methods/clause2.html"><code>clause/2</code></a>, <a title="Consult reference manual" href="../refman/methods/retract1.html"><code>retract/1</code></a> and <a title="Consult reference manual" href="../refman/methods/retractall1.html"><code>retractall/1</code></a>. These methods always operate on the database of the object receiving the corresponding message.
 </p>
 
-<h3>All solutions methods<a name="solutions"></a></h3>
+<h3>All solutions methods<a id="solutions"></a></h3>
 
 <p>
 The usual all solutions metapredicates are pre-defined methods in Logtalk: <a title="Consult reference manual" href="../refman/methods/bagof3.html"><code>bagof/3</code></a>, <a title="Consult reference manual" href="../refman/methods/findall3.html"><code>findall/3</code></a> and <a title="Consult reference manual" href="../refman/methods/setof3.html"><code>setof/3</code></a>. There is also a <a title="Consult reference manual" href="../refman/methods/forall2.html"><code>forall/2</code></a> method that implements generate and test loops.
 </p>
 
-<h3>Reflection methods<a name="reflection"></a></h3>
+<h3>Reflection methods<a id="reflection"></a></h3>
 
 <p>
 Logtalk provides two built-in methods for inspecting object predicates: <a title="Consult reference manual" href="../refman/methods/predicate_property2.html"><code>predicate_property/2</code></a>, that return predicate properties and <a title="Consult reference manual" href="../refman/methods/current_predicate1.html"><code>current_predicate/1</code></a>, that enables us to query about predicate definitions. See below for a more detailed description of both methods.
 </p>
 
-<h3>Definite clause grammar parsing methods<a name="parsing"></a></h3>
+<h3>Definite clause grammar parsing methods<a id="parsing"></a></h3>
 
 <p>
 Logtalk supports two definite clause grammar parsing built-in methods, <a title="Consult reference manual" href="../refman/methods/phrase2.html"><code>phrase/2</code></a> and <a title="Consult reference manual" href="../refman/methods/phrase3.html"><code>phrase/3</code></a>, with definitions similar to the predicates with the same name found on most Prolog compilers that support definite clause grammars. The current implementation of the parsing methods only accepts as first argument a non-terminal instead of a rule body.
 </p>
 
-<h2>Predicate properties<a name="properties"></a></h2>
+<h2>Predicate properties<a id="properties"></a></h2>
 
 <p>
 We can find the properties of visible predicates by calling the <a title="Consult reference manual" href="../refman/methods/predicate_property2.html"><code>predicate_property/2</code></a> built-in method. For example:
 </p>
-<pre>
-    | ?- bar::predicate_property(foo(_), Property).
-</pre>
+<pre>| ?- bar::predicate_property(foo(_), Property).</pre>
 <p>
 Note that this method respects the predicate's scope declarations. For instance, the above call will only return properties for public predicates.
 </p>
@@ -671,29 +610,25 @@ The properties <code>declared_in/1</code> and <code>defined_in/1</code> do not a
 Note that if a predicate is declared in a category imported by the object, it will be the category name &mdash; not the object name &mdash; which will be returned by the property <code>declared_in/1</code>. The same goes for protocol declared predicates.
 </p>
 
-<h2>Finding declared predicates<a name="finding"></a></h2>
+<h2>Finding declared predicates<a id="finding"></a></h2>
 
 <p>
 We can find, by backtracking, all visible user predicates by calling the <a title="Consult reference manual" href="../refman/methods/current_predicate1.html"><code>current_predicate/1</code></a> built-in method. This method respects the predicate's scope declarations. For instance, the following call:
 </p>
-<pre>
-    | ?- some_object::current_predicate(Functor/Arity).
-</pre>
+<pre>| ?- some_object::current_predicate(Functor/Arity).</pre>
 <p>
 will only return user predicates that are declared public.
 </p>
 
-<h2>Calling Prolog built-in predicates<a name="prolog"></a></h2>
+<h2>Calling Prolog built-in predicates<a id="prolog"></a></h2>
 
 <p>
 In predicate definitions, predicate calls which are not prefixed with a message sending operator (either <code>::</code> or <code>^^</code>), are compiled to either calls to local predicates or as calls to Logtalk/Prolog built-in predicates. A predicate call is compiled as a call to a local predicate if the object (or category) contains a definition for the called predicate or a dynamic declaration for it. When the object (or category) does not contain either a definition of the called predicate or a corresponding dynamic declaration, Logtalk tests if the call corresponds to a Logtalk or Prolog built-in predicate. Calling a predicate which is neither a local predicate nor a Logtalk/Prolog built-in predicate results in a compile time warning. This means that, in the following example:
 </p>
-<pre>
-    foo :-
-        ...,
-        write(bar),
-        ...
-</pre>
+<pre>foo :-
+    ...,
+    write(bar),
+    ...</pre>
 <p>
 the call to the predicate <code>write/1</code> will be compiled as a call to the corresponding Prolog built-in predicate unless the object (or category) encapsulating the above definition also contains a predicate named <code>write/1</code> or a dynamic declaration for the predicate.
 </p>
@@ -701,28 +636,24 @@ the call to the predicate <code>write/1</code> will be compiled as a call to the
 When calling non-standard Prolog built-in predicates, you may run into portability problems when trying your applications with other Prolog compilers which might not have the same set of built-in predicates. You may use the Logtalk compiler flag <a title="Consult user manual" href="running.html#options"><code>portability/1</code></a> to help you check for problematic calls in your code.
 </p>
 
-<h3>Calling Prolog non-standard metapredicates<a name="prolog_meta"></a></h3>
+<h3>Calling Prolog non-standard metapredicates<a id="prolog_meta"></a></h3>
 
 <p>
 Compiling calls to non-standard, Prolog built-in metapredicates can be tricky for two reasons: first, there is no standard way of checking if a built-in predicate is also a metapredicate and finding out which are its meta-arguments; second, in some cases, the meta-arguments of a metapredicate are not directly called as goals but are used instead for constructing goals. The way the goals are constructed is specific to the metapredicate and cannot be reliable inferred by the Logtalk compiler. For metapredicates whose meta-arguments are directly called as goals, the solution is to explicitly declare them in the corresponding Prolog configuration file using the predicate <code>'$lgt_pl_metapredicate'/1</code>. For example:
 </p>
-<pre>
-    '$lgt_pl_metapredicate'(call_with_depth_limit(::, *, *)).
-</pre>
+<pre>'$lgt_pl_metapredicate'(call_with_depth_limit(::, *, *)).</pre>
 <p>
 Currenlty, there is no clean workaround for calling non-standard, Prolog built-in metapredicates whose meta-arguments are used for constructing goals instead of called as goals directly.
 </p>
 
-<div class="navbottom">
-<a href="categories.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="inheritance.html">next</a>
-</div>
-
-<div class="copyright">
-Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
-</div>
-
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 5, 2005</span></p>
+	<div class="navbottom"><a href="categories.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="inheritance.html">next</a></div>
+	<div class="copyright">Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a></div>
+	<div class="footnote">
+		<span class="validators"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
+		<span class="date">Last updated on: November 16, 2005</span>
+	</div>
 </div>
+
 </body>
 </html>

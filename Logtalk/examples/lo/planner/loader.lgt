@@ -1,21 +1,13 @@
 
 :- initialization(
 	logtalk_load([
-		plan1,
-		airport,
-		aberdeen_air,
-		city,
-		london,
-		albert_hall,
-		edinburgh,
-		edin,
-		aiai,
-		castle,
-		fly,
-		glasgow,
-		imperial,
-		lhr,
-		manchester,
-		renfrew,
-		ringway,
-		victoria])).
+		planner])).
+
+/*
+If you intend to use the FOP XSL:FO processor for generating PDF documenting
+files, comment the directive above and uncomment the directive below
+
+:- initialization(
+	logtalk_load(
+		[planner], [xmlsref(standalone)])).
+*/

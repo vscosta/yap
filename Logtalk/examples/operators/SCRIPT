@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -19,7 +19,7 @@ Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 Syntax error: Operator expected
 
 
-% you must use instead:
+% you must use instead functor notation:
 
 | ?- double::double(I, J).
 
@@ -49,3 +49,7 @@ I = 3
 J = 9 
 
 Yes
+
+
+% check the file "previous.txt" generated from the file "next.txt" by the object "reverse"
+% by opening the files on a text editor

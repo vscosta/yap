@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -36,7 +36,7 @@ The code could be greatly simplified by using a multifile predicate directive
 for the library path dynamic predicate. Unfortunately, not all Prolog compilers
 support multifile predicates.
 
-Some Prolog compilers which are expected to be compatible with the provided 
+Prolog compilers that are expected to be compatible with the provided 
 "libpaths.pl" file as is, across operating systems:
 
 	* B-Prolog
@@ -49,9 +49,11 @@ Some Prolog compilers which are expected to be compatible with the provided
 	* SWI-Prolog
 	* YAP
 
-Some Prolog compilers which imply editing the provided "libpaths.pl" file:
+Prolog compilers that imply editing the provided "libpaths.pl" file due to 
+the lack of support for expanding environment variables on paths:
 
-	* JIProlog (does not support expansion of environment variables on paths)
-	* XSB (does not support expansion of environment variables on paths)
+	* Amzi! Prolog
+	* JIProlog
+	* XSB
 
 Feedback on other Prolog compilers is most appreciated.

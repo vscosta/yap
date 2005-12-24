@@ -1,5 +1,5 @@
 
-:- encoding(iso_latin_1).
+:- encoding(iso_latin_1).	% this directive, when present, must be the first term in a source file
 
 
 :- object(latin).

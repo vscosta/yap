@@ -1,7 +1,7 @@
 ; TextPad syntax definitions for Logtalk (http://www.logtalk.org/)
 ; 
 ; Author: 			Paulo Moura
-; Last changed in: 	June 7, 2005
+; Last changed in: 	October 9, 2005
 ;
 ; Tags used and sugested colors:
 ;   Keywords 1	message sending operators	blue
@@ -67,6 +67,7 @@ CharEsc = \
 object
 protocol
 category
+module
 
 
 ; Logtalk closing entity directives
@@ -87,6 +88,7 @@ implements
 ; Logtalk directives
 alias
 encoding
+export
 initialization
 info
 mode
@@ -97,9 +99,11 @@ public
 protected
 private
 metapredicate
+meta_predicate
 op
 calls
 uses
+use_module
 
 
 [Keywords 4]

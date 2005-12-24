@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -20,10 +20,10 @@ need to configure your text editor to open the source file using the
 declared encoding. If you are using the SWI-Prolog GUI application on 
 Windows, be sure to select a font which supports Unicode characters.
 
-Currently, Logtalk accepts any atom is an argument for the encoding/1 
+The current Logtalk version accepts any atom as an argument for the encoding/1
 directive. As, by default, Logtalk automatically generates a XML documenting 
-file for each compiled entity, the following table is used to set the 
-encoding of the XML file:
+file for each compiled entity, the following table is used to set the encoding
+of the XML file:
 
 	Logtalk source file		XML file
 	ascii					us-ascii

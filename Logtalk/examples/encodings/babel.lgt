@@ -1,5 +1,5 @@
 
-:- encoding(utf8).
+:- encoding(utf8).		% this directive, when present, must be the first term in a source file
 
 
 :- object(babel).
@@ -21,7 +21,7 @@
 	hello_world(es, '¡Hola mundo!').
 	hello_world(ja, 'こんにちは世界!').
 	hello_world(ko, '여보세요 세계!').
-	hello_world(nl, 'Hello wereld!').
+	hello_world(nl, 'Hallo wereld!').
 	hello_world(pt, 'Olá mundo!').
 	hello_world(ru, 'Здравствулте! мир!').
 	hello_world(zh, '你好世界!').

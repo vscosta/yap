@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.25.1
+// Release 2.26.2
 //
 // Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -23,6 +23,7 @@ var FSObject = new ActiveXObject("Scripting.FileSystemObject");
 
 if (!FSObject.FileExists(prolog_path)) {
 	WScript.Echo("Error! Cannot find ciaosh.cpx at the expected place!");
+	WScript.Echo("Please, edit the script and update the location of the ciaosh.cpx executable.");
 	WScript.Quit(1);
 }
 
@@ -40,6 +41,15 @@ else {
 	WScript.Quit(1);
 }
 
+if (!FSObject.FolderExists(logtalk_home)) {
+	WScript.Echo("The environment variable LOGTALKHOME points to a non-existing directory!");
+	WScript.Echo("Its current value is: %LOGTALKHOME%");
+	WScript.Echo("The variable must be set to your Logtalk installation directory!");
+	WScript.Echo("");
+	usage_help();
+	WScript.Quit(1);
+}
+
 logtalk_home = logtalk_home.replace(/\\/g, "\\\\");
 
 if (!FSObject.FolderExists(logtalk_home + "\\bin")) 
@@ -48,15 +58,16 @@ if (!FSObject.FolderExists(logtalk_home + "\\bin"))
 var f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalk_ciao.pl", true);
 
 f.WriteLine(":- ensure_loaded('\$LOGTALKUSER/configs/ciao_aux.config').");
+f.WriteLine(":- set_prolog_flag(multi_arity_warnings, off).");
 f.WriteLine(":- ensure_loaded('\$LOGTALKHOME/compiler/logtalk.pl').");
 f.WriteLine(":- ensure_loaded('\$LOGTALKUSER/libpaths/libpaths.pl').");
 f.WriteLine(":- op(600, xfy, ::).");
-f.WriteLine(":- op(600,  fy, ::).");
-f.WriteLine(":- op(600,  fy, ^^).");
-f.WriteLine(":- op(200,  fy, +).");
-f.WriteLine(":- op(200,  fy, ?).");
-f.WriteLine(":- op(200,  fy, @).");
-f.WriteLine(":- op(200,  fy, -).");
+f.WriteLine(":- op(600, fy, ::).");
+f.WriteLine(":- op(600, fy, ^^).");
+f.WriteLine(":- op(200, fy, +).");
+f.WriteLine(":- op(200, fy, ?).");
+f.WriteLine(":- op(200, fy, @).");
+f.WriteLine(":- op(200, fy, -).");
 f.Close();
 
 var ProgramsPath = WshShell.SpecialFolders("AllUsersPrograms");
@@ -77,6 +88,12 @@ WScript.Echo('Done. The "Logtalk - CIAO" shortcut was been added to the');
 WScript.Echo('Start Menu Programs. Make sure that the environment variables');
 WScript.Echo('LOGTALKHOME and LOGTALKUSER are defined for all users wishing');
 WScript.Echo('to use the shortcut.');
+WScript.Echo('');
+WScript.Echo('The first call to the shortcut must be made by a user with');
+WScript.Echo('administrative rights.');
+WScript.Echo('');
+WScript.Echo('Users must run the batch script "cplgtdirs" before using the');
+WScript.Echo('"Logtalk - CIAO" shortcut.');
 WScript.Echo('');
 
 WScript.Quit(0);

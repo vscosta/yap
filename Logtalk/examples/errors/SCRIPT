@@ -1,13 +1,15 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-% The entities on this example are divided in two sets. To load each 
-% sets of entities, compile and load the corresponding loader files:
+The entities on this example are divided in two sets. The first set 
+results on compiler warning messages, while the second set results 
+in compiler error messages. To load each sets of entities, compile 
+and load the corresponding loader files:
 
 | ?- logtalk_load(errors(warnings_loader)).
 ...

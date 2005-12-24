@@ -72,20 +72,24 @@
 				<string>\:\-[[:space:]](end_category)\.</string>			
 				<string>\:\-[[:space:]](alias)\(</string>			
 				<string>\:\-[[:space:]](encoding)\(</string>			
+				<string>\:\-[[:space:]](export)\(</string>			
 				<string>\:\-[[:space:]](initialization)\(</string>			
 				<string>\:\-[[:space:]](info)\(</string>			
 				<string>\:\-[[:space:]](mode)\(</string>			
+				<string>\:\-[[:space:]](module)\(</string>			
 				<string>\:\-[[:space:]](dynamic)\(</string>			
 				<string>\:\-[[:space:]](dynamic)\.</string>			
 				<string>\:\-[[:space:]](discontiguous)\(</string>			
-				<string>\:\-[[:space:]](multifile)\(</string>			
 				<string>\:\-[[:space:]](public)\(</string>			
 				<string>\:\-[[:space:]](protected)\(</string>			
 				<string>\:\-[[:space:]](private)\(</string>			
 				<string>\:\-[[:space:]](metapredicate)\(</string>			
+				<string>\:\-[[:space:]](meta_predicate)\(</string>			
+				<string>\:\-[[:space:]](multifile)\(</string>			
 				<string>\:\-[[:space:]](op)\(</string>			
 				<string>\:\-[[:space:]](calls)\(</string>			
 				<string>\:\-[[:space:]](uses)\(</string>			
+				<string>\:\-[[:space:]](use_module)\(</string>			
 			</array>
 		</dict>
 

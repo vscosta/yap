@@ -4,19 +4,19 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 1998/3/23,
+		date is 2005/10/22,
 		comment is 'Depth first state space search strategy.',
 		parnames is ['Bound']]).
 
 
-	:- uses(list).
+	:- uses(list, [member/2, reverse/2]).
 
 
 	search(Space, State, Bound, Solution) :-
 		depth(Space, State, Bound, [], Path),
-		list::reverse(Path, Solution).
+		reverse(Path, Solution).
 
 
 	depth(Space, State, _, Path, [State| Path]) :-
@@ -25,7 +25,7 @@
 	depth(Space, State, Bound, Path, Solution) :-
 		Bound > 0,
 		Space::next_state(State, Next),
-		\+ list::member(Next, [State| Path]),
+		\+ member(Next, [State| Path]),
 		Bound2 is Bound - 1,
 		depth(Space, Next, Bound2, [State| Path], Solution).
 

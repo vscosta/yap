@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.25.1
+## Release 2.26.2
 ##
 ## Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -90,8 +90,11 @@ create_index_file()
 	echo "</html>" >> "$index_file"
 }
 
-
-if ! [ "$LOGTALKUSER" ]
+if ! [ "$LOGTALKHOME" ]
+then
+	echo "Error! The environment variable LOGTALKHOME must be defined first!"
+	exit 1
+elif ! [ "$LOGTALKUSER" ]
 then
 	echo "Error! The environment variable LOGTALKUSER must be defined first!"
 	exit 1
@@ -157,35 +160,46 @@ else
 		xslt=$html_xslt
 	fi
 
-	cp "$LOGTALKUSER"/xml/logtalk.dtd .
-	cp "$LOGTALKUSER"/xml/logtalk.xsd .
-	cp "$LOGTALKUSER"/xml/logtalk.css "$directory"
+	if ! [[ -a "./logtalk.dtd" ]]
+	then
+		cp "$LOGTALKHOME"/xml/logtalk.dtd .
+	fi
 
-	echo
-	echo "converting XML files..."
+	if ! [[ -a "./logtalk.xsd" ]]
+	then
+		cp "$LOGTALKHOME"/xml/logtalk.xsd .
+	fi
 
-	for file in *.xml; do
-		echo "  converting $file"
-		name="`expr "$file" : '\(.*\)\.[^./]*$' \| "$file"`"
-		case "$processor" in
-			xsltproc)	eval xsltproc -o \"$directory\"/\"$name.html\" \"$xslt\" \"$file\";;
-			xalan)		eval xalan -o \"$directory\"/\"$name.html\" \"$file\" \"$xslt\";;
-			sabcmd)		eval sabcmd \"$xslt\" \"$file\" \"$directory\"/\"$name.html\";;
-		esac
-	done
+	if ! [[ -a "$directory/logtalk.css" ]]
+	then
+		cp "$LOGTALKUSER"/xml/logtalk.css "$directory"
+	fi
 
-	echo "conversion done"
-	echo
-	echo "generating index file..."
-
-	index_file="$directory/$index_file"
-	create_index_file
-
-	echo "index file generated"
-	echo
-
-	rm -f logtalk.dtd
-	rm -f logtalk.xsd
+	if [[ `(ls *.xml | wc -l) 2> /dev/null` -gt 0 ]]
+	then
+		echo
+		echo "converting XML files..."
+		for file in *.xml; do
+			echo "  converting $file"
+			name="`expr "$file" : '\(.*\)\.[^./]*$' \| "$file"`"
+			case "$processor" in
+				xsltproc)	eval xsltproc -o \"$directory\"/\"$name.html\" \"$xslt\" \"$file\";;
+				xalan)		eval xalan -o \"$directory\"/\"$name.html\" \"$file\" \"$xslt\";;
+				sabcmd)		eval sabcmd \"$xslt\" \"$file\" \"$directory\"/\"$name.html\";;
+			esac
+		done
+		echo "conversion done"
+		echo
+		echo "generating index file..."
+		index_file="$directory/$index_file"
+		create_index_file
+		echo "index file generated"
+		echo
+	else
+		echo
+		echo "No XML files exist in the current directory!"
+		echo
+	fi
 
 	exit 0
 

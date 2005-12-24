@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -42,4 +42,6 @@ Short description of each example entity:
 	nil
 		object used to represent a void reference
 
-Please note that the entities above are just example definitions.
+Please note that the entities above are just example definitions. There is 
+nothing fundamental about either of them; they can and should be replaced 
+by definitions better fitted to the requirements of specific applications.

@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<?xml-stylesheet type="text/css" href="../styles.css" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
 	<title>Logtalk tutorial: a reflective class-based system</title>
-	<link rel="stylesheet" href="../styles.css" type="text/css" />
+	<link rel="stylesheet" href="../screen.css" type="text/css" media="screen"/>
+	<link rel="stylesheet" href="../print.css" type="text/css" media="print"/>
 </head>
 
 <body>
 
-<div class="navtop">
-<a href="../index.html">contents</a> &gt; <a href="index.html">tutorial</a>
-</div>
+<div class="top-left">Logtalk tutorial</div> 
+<div class="top-right">A reflective class-based system</div>
+<div class="bottom-left"><span class="page"/></div> 
+<div class="bottom-right"><span class="page"/></div>
+<div class="navtop"><a href="../index.html">contents</a> &gt; <a href="index.html">tutorial</a></div>
 
 <h1>A reflective class-based system</h1>
 
@@ -27,48 +28,42 @@ When compiling an object, Logtalk distinguishes prototypes from instance or clas
 In this example, we are going to define the basis for a reflective class-based system, based on an extension of the ideas presented in <a href="../bibliography.html#Cointe87">[Cointe 87]</a>. This extension provides, along with root objects for the instantiation and specialization hierarchies, explicit support for abstract classes <a href="../bibliography.html#Moura94">[Moura 94]</a>.
 </p>
 
-<h2>Defining the base classes<a name="classes"></a></h2>
+<h2>Defining the base classes<a id="classes"></a></h2>
 
 <p>
 We will start by defining three classes: <code>object</code>, <code>abstract_class</code>, and <code>class</code>. The class <code>object</code> will contain all predicates common to all objects. It will be the root of the inheritance graph:
 </p>
-<pre>
-    :- object(object,
-        instantiates(class)).
+<pre>:- object(object,
+    instantiates(class)).
 
-        % predicates common to all objects
+    % predicates common to all objects
 
-    :- end_object.
-</pre>
+:- end_object.</pre>
 <p>
 The class <code>abstract_class</code> specializes <code>object</code> by adding predicates common to all classes. It will be the default metaclass for abstract classes:
 </p>
-<pre>
-    :- object(abstract_class,
-        instantiates(class),
-        specializes(object)).
+<pre>:- object(abstract_class,
+    instantiates(class),
+    specializes(object)).
 
-        % predicates common to all classes
+    % predicates common to all classes
 
-    :- end_object.
-</pre>
+:- end_object.</pre>
 <p>
 The class <code>class</code> specializes <code>abstract_class</code> by adding predicates common to all instantiable classes. It will be the root of the instantiation graph and the default metaclass for instantiable classes:
 </p>
-<pre>
-    :- object(class,
-        instantiates(class),
-        specializes(abstract_class)).
+<pre>:- object(class,
+    instantiates(class),
+    specializes(abstract_class)).
 
-        % predicates common to all instantiable classes
+    % predicates common to all instantiable classes
 
-    :- end_object.
-</pre>
+:- end_object.</pre>
 <p>
-Note that all three objects are instances of class <code>class</code>. The instantiation and specialization relationships are choosen so that each object may use the predicates defined in itself and in the other two objects, with no danger of method lookup endless loops.
+Note that all three objects are instances of class <code>class</code>. The instantiation and specialization relationships are chosen so that each object may use the predicates defined in itself and in the other two objects, with no danger of method lookup endless loops.
 </p>
 
-<h2>Summary<a name="summary"></a></h2>
+<h2>Summary<a id="summary"></a></h2>
 
 <ul>
 	<li>An object that does not instantiate or specialize other objects is always compiled as a prototype.</li>
@@ -80,16 +75,14 @@ Note that all three objects are instances of class <code>class</code>. The insta
 	<li>The distinction between abstract classes and instantiable classes is a operational one, depending on the class inherited methods. A class is instantiable if inherits methods for creating instances. Conversely, a class is abstract if does not inherit any instance creation method.</li>
 </ul>
 
-<div class="navbottom">
-<a href="index.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="profiling.html">next</a>
-</div>
-
-<div class="copyright">
-Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
-</div>
-
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+	<div class="navbottom"><a href="index.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="profiling.html">next</a></div>
+	<div class="copyright">Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a></div>
+	<div class="footnote">
+		<span class="validators"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
+		<span class="date">Last updated on: November 16, 2005</span>
+	</div>
 </div>
+
 </body>
 </html>

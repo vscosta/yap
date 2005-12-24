@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,8 +8,8 @@ Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 
 This directory contains several scripts used for Logtalk packaging, 
 installation, and integration with Prolog compilers. Those with extension 
-.sh are shell scripts for MacOS X, Linux, and similar systems. Those with 
-extension .js are JScript command-line scripts for Windows; they require 
+".sh" are shell scripts for MacOS X, Linux, and similar systems. Those with 
+extension ".js" are JScript command-line scripts for Windows; they require 
 WSH 5.6 or later version to be installed and should be run using cscript.exe 
 from a DOS shell command line.
 
@@ -27,9 +27,9 @@ lgt_install.js
 	and by adding the directories %LOGTALKHOME%\scripts and %LOGTALKHOME%\xml 
 	to the system path environment variable (must be run from this directory 
 	by a user with administration privileges after decompressing the Logtalk 
-	distribution into its final destination; you will need to restart your 
-	computer in order to use the items created in the "Logtalk" program group 
-	due to the definition of new system environment variables)
+	distribution into its final destination; you must restart your computer 
+	after running this script in order to use the items on the "Logtalk"
+	program group due to the definition of new system environment variables)
 
 logtalk.spec
 	specification file for building Linux RPMs
@@ -58,7 +58,7 @@ compilers; they must be run by a user with administration privileges:
 
 make_ciaolgt.sh
 	makes a shell script named "ciaolgt" for running Logtalk with CIAO Prolog
-	(the first run of the ciaolgt script must be made as root or using sudo)
+	(the first run of the "ciaolgt" script must be made as root or using sudo)
 make_ciaolgt.js
 	makes a Windows shortcut named "Logtalk - CIAO" for running Logtalk with 
 	CIAO 1.10 (the first call to the shortcut must be made by a user with 
@@ -114,15 +114,23 @@ make_yaplgt.sh
 make_yaplgt.js
 	makes a Windows shortcut named "Logtalk - YAP" for running Logtalk with 
 	YAP (assumes that the Yap folder is installed in C:\Program Files; edit 
-	the path to the yap.exe executable in the script if necessary)
+	the path to the "yap.exe" executable in the script if necessary)
 
 make_xsblgt.sh
 	makes a shell script named "xsblgt" for running Logtalk with XSB (the 
-	first run of the xsblgt script must be made as root or using sudo; each 
-	user will need to rename the file configs/xsbXX.config to configs/xsb.P 
+	first run of the "xsblgt" script must be made as root or using sudo; each
+	user will need to rename the file configs/xsb.config to configs/xsb.P 
 	and make and edit a copy of the libpaths/libpaths.pl in order to replace 
 	all occurrences of the LOGTALKUSER environment variable with its value; 
 	the new file should also use the .P extension)
+make_xsbcvslgt.sh
+	similar to the script above but for running Logtalk with the XSB CVS 
+	version (each user will need to rename the file configs/xsbcvs.config 
+	to configs/xsbcvs.P)
+make_xsbcvslgt.js
+	similar to the script above but for running Logtalk with the XSB CVS 
+	version (assumes that the XSB folder is installed in C:\Program Files; 
+	edit the path to the "xsb.exe" executable in the script if necessary)
 
 makeall_lgt.sh
 	simple shell script for running all the make_*lgt.sh shell scripts in 

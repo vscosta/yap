@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -31,8 +31,7 @@ stated.
 
 2. HOME OF LOGTALK PACKAGE
 
-The latest release of the Logtalk package is always available at the
-URL:
+The latest release of the Logtalk package is always available at the URL:
 
     http://www.logtalk.org/
 
@@ -45,7 +44,7 @@ about Logtalk.
 To register as a Logtalk user either use the registration form found at 
 the Logtalk web site or send an email message to:
 
-    registration@logtalk.org
+	registration@logtalk.org
 
 with the following information:
 
@@ -59,34 +58,36 @@ platforms (mac, pc, unix,...) (optional)
 Logtalk support is available for registered users via email to 
 support@logtalk.org.
 
-At the URL http://www.logtalk.org/bugs.html you can find a list of 
-known problems and download bug fixes. The latest news about Logtalk are
+At the URL http://www.logtalk.org/bugs.html you can find a list of known 
+problems and download bug fixes. The latest news about Logtalk are
 available at the URL http://www.logtalk.org/news.html.
 
-There is also a mailing list, logtalk, used to announce new releases and
-bug fixes and for discussion between Logtalk users, that you can subscribe.
-For instructions on how to subscribe open the web page:
+There is also a mailing list, "logtalk", used to announce new releases and
+bug fixes and for discussion between registered Logtalk users, that you 
+may subscribe. For instructions on how to subscribe, please visit the web 
+page:
 
-    http://sagitta.ci.uc.pt/mailman/listinfo.cgi/logtalk
+	http://lserv.ci.uc.pt/mailman/listinfo/logtalk
  
 or send an email message to:
 
-    logtalk-request@list-serv.ci.uc.pt
+    logtalk-request@lserv.ci.uc.pt
 
 with just the word "help" in the subject or in the message body.
 
 
 5. INSTALLATION
 
-Installing Logtalk is just a matter of uncompressing/unpacking the
-distribution archive file for your operating system. You can install
-Logtalk in any directory that you find convenient. See the file INSTALL 
-for detailed instructions on how to customize your working environment.
+Installing Logtalk is just a matter of uncompressing/unpacking the 
+distribution archive file for your operating system and running a 
+few shell scripts. You may install Logtalk in any directory that 
+you find convenient. See the file INSTALL for detailed instructions 
+on how to customize your working environment.
 
 See the user manual for a description of the source files organization 
 and for using instructions (to read the user manual open the file 
-"manuals/index.html" with a web browser). Most files are formatted using 
-four-space tabs.
+"manuals/index.html" with a web browser). Most files are formatted 
+using four-space tabs.
 
 
 6. QUICK START
@@ -98,23 +99,18 @@ to run Logtalk, provided that your favorite Prolog compiler is supported.
 7. DOCUMENTATION
 
 The reference and user manuals and the tutorial are provided in XHTML format 
-and can be found in the manuals directory.
+and can be found in the "manuals" directory.
 
-PDF versions of all documentation are also available as a separated download 
-from the Logtalk web site. The PDF files include page numbers, an index, and 
-a table of contents and are available for printing in both A4 and US Letter 
-paper formats.
-
-The file RELEASE_NOTES contains descriptions of the changes made in Logtalk 
-since the first public version. Read it carefully if you have been using a 
-previous Logtalk version.
+The file RELEASE_NOTES contains descriptions of all Logtalk updates since the 
+first public version. Read it carefully if you have been using a previous 
+Logtalk version.
 
 
 8. UPGRADING
 
-If you have been using a previous Logtalk version read the file UPGRADING for 
-instructions on how to upgrade your programs or your custom configuration 
-files to run under this new version.
+If you are upgrading from a previous Logtalk version, please check the file 
+UPGRADING for instructions on how to upgrade your programs or your custom 
+configuration files to run under this new version.
 
 
 9. CITATIONS

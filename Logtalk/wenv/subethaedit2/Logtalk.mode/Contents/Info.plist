@@ -11,7 +11,7 @@
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
     <key>CFBundleGetInfoString</key>
-	<string>1.0, Copyright Paulo Moura 2004</string>
+	<string>1.0, Copyright Paulo Moura 2004-05</string>
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -20,8 +20,6 @@
 	<array>
 	   <string>config</string>
 	   <string>lgt</string>
-	   <string>loader</string>
-	   <string>mlgt</string>
 	</array>
 </dict>
 </plist>

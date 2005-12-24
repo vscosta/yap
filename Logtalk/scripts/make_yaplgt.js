@@ -1,11 +1,11 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.25.1
+// Release 2.26.2
 //
 // Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 // =================================================================
 
-var prolog_path = "C:\\Program Files\\Yap\\bin\\yap.exe";
+var prolog_path = "C:\\Yap\\bin\\yap.exe";
 
 if (WScript.Arguments.Unnamed.Length > 0) {
 	usage_help();
@@ -21,6 +21,7 @@ var FSObject = new ActiveXObject("Scripting.FileSystemObject");
 
 if (!FSObject.FileExists(prolog_path)) {
 	WScript.Echo("Error! Cannot find yap.exe at the expected place!");
+	WScript.Echo("Please edit the script and update the location of the yap.exe executable.");
 	WScript.Quit(1);
 }
 
@@ -36,6 +37,15 @@ else if (WshUserEnv.Item("LOGTALKHOME"))
 	logtalk_home = WshUserEnv.Item("LOGTALKHOME")
 else {
 	WScript.Echo("Error! The environment variable LOGTALKHOME must be defined first!");
+	usage_help();
+	WScript.Quit(1);
+}
+
+if (!FSObject.FolderExists(logtalk_home)) {
+	WScript.Echo("The environment variable LOGTALKHOME points to a non-existing directory!");
+	WScript.Echo("Its current value is: %LOGTALKHOME%");
+	WScript.Echo("The variable must be set to your Logtalk installation directory!");
+	WScript.Echo("");
 	usage_help();
 	WScript.Quit(1);
 }
@@ -69,6 +79,9 @@ link.Save();
 WScript.Echo('Done. The "Logtalk - YAP" shortcut was been added to the Start Menu');
 WScript.Echo('Programs. Make sure that the environment variables LOGTALKHOME and');
 WScript.Echo('LOGTALKUSER are defined for all users wishing to use the shortcut.');
+WScript.Echo('');
+WScript.Echo('Users must run the batch script "cplgtdirs" before using the');
+WScript.Echo('"Logtalk - YAP" shortcut.');
 WScript.Echo('');
 
 WScript.Quit(0);

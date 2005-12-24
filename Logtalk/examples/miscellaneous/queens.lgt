@@ -9,7 +9,7 @@
 :- object(queens).
 
 
-	:- uses(list).
+	:- uses(list, [keysort/2, member/2]).
 
 
 	:- public(queens/1).
@@ -130,7 +130,7 @@
 	place([], []).
 	place(UnplacedQueens, [Queen-Col|Placement]) :-
 		least_room_to_move(UnplacedQueens, Queen, Columns, OtherQueens),
-		list::member(Col, Columns),	% backtrack over possible places
+		member(Col, Columns),	% backtrack over possible places
 		prune(OtherQueens, Queen, Col, RemainingQueens),
 		place(RemainingQueens, Placement).
 
@@ -209,7 +209,7 @@
 	queens(N) :-
 		make_initial_table(N, Table),
 		place(Table, Placement),
-		list::keysort(Placement, DisplayForm),
+		keysort(Placement, DisplayForm),
 		write(DisplayForm), nl.
 
 

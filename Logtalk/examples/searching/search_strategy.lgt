@@ -12,9 +12,7 @@
 
 
 	:- public(solve/3).
-
 	:- mode(solve(+object, +nonvar, -list), zero_or_more).
-
 	:- info(solve/3,
 		[comment is 'State space search solution.',
 		 argnames is ['Space', 'State', 'Path']]).

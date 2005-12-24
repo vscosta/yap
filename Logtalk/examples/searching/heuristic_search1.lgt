@@ -13,27 +13,20 @@
 
 
 	:- public(threshold/1).
-
 	:- mode(threshold(?number), one).
-
 	:- info(threshold/1,
 		[comment is 'Search cost threshold.',
 		 argnames is ['Threshold']]).
 
-
 	:- public(solve/4).
-
 	:- mode(solve(+object, +nonvar, -list, -number), zero_or_more).
-
 	:- info(solve/4,
 		[comment is 'State space search solution.',
 		 argnames is ['Space', 'State', 'Path', 'Cost']]).
 
 
 	:- protected(search/5).
-
 	:- mode(search(+object, +nonvar, +number, -list, -number), zero_or_more).
-
 	:- info(search/5,
 		[comment is 'State space search solution.',
 		 argnames is ['Space', 'State', 'Threshold', 'Path', 'Cost']]).

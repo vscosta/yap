@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -17,7 +17,7 @@ sample queries for your to try.
 Most of these examples need objects, protocols, and categories which are 
 defined in the Logtalk standard library or in other examples. See the NOTES 
 files inside the library folder, plus the NOTES and SCRIPT files inside each 
-example folder).
+example folder.
 
 Some examples may redefine objects already loaded from other examples.
 You may want to restart Logtalk after trying each example.
@@ -32,7 +32,7 @@ files to fully understand them.
 All examples are formatted using four spaces tabs.
 
 By default, compiling an example generates a .xml documenting file for each 
-compiled entity (object, category, or protocol). See the xml folder for 
+compiled entity (object, category, or protocol). See the "xml" folder for 
 instructions on how to browse the .xml files for on-line reading or how to 
 convert the files to a print-ready format such as PDF.
 
@@ -41,7 +41,8 @@ Here is a short description of each included example:
 
 aliases
 	example of using the alias/3 predicate directive to provide alternative 
-	names to inherited predicates in order to improve readability
+	names to inherited predicates in order to improve readability or to solve 
+	multi-inheritance conflicts
 
 assignvars
 	example of using assignable variables in the context of parametric objects
@@ -82,9 +83,10 @@ engines
 
 errors
 	example showing the Logtalk compiler warning and error reporting
+	for common programming errors
 
 hello_world
-	the unavoidable hello world programming example
+	the unavoidable "hello world" programming example
 
 inheritance
 	examples of public, protected, and private inheritance using both 
@@ -114,6 +116,9 @@ mi
 
 miscellaneous
 	unsorted examples
+
+modules
+	simple example of compiling Prolog module files as objects
 
 msglog
 	example of using events and monitors for recording, replaying, and 
@@ -148,7 +153,7 @@ relations
 	constrained relations between objects
 
 roots
-	objects, protocols and categories needed by most of the other examples
+	objects, protocols, and categories needed by most of the other examples;
 
 searching
 	state-space searching framework

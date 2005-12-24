@@ -5,7 +5,8 @@
 		version is 1.0,
 		date is 2004/6/8,
 		author is 'Paulo Moura',
-		comment is 'Translator of logic propostions to clauses in conjunctive normal form.']).
+		comment is 'Translator of logic propostions to clauses in conjunctive normal form.',
+		source is 'Code partially based on an example found on the Clocksin and Mellish Prolog book.']).
 
 	:- public(translate/2).
 	:- mode(translate(+nonvar, -list), zero_or_one).
@@ -22,10 +23,10 @@
 	:- dynamic(gensym_counter_/1).
 
 
-	:- op(10,  fy, ~ ).	% negation
-	:- op(20, yfx, & ).	% conjunction
-	:- op(30, yfx, v ).	% disjunction
-	:- op(40, xfx, =>).	% implication
+	:- op(10,  fy, ~ ).		% negation
+	:- op(20, yfx, & ).		% conjunction
+	:- op(30, yfx, v ).		% disjunction
+	:- op(40, xfx, =>).		% implication
 	:- op(40, xfx, <=>).	% equivalence
 
 

@@ -4,31 +4,31 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns="http://www.w3.org/1999/xhtml">
 
-
-<xsl:output
-	method="xml"
-    indent="yes"
-    encoding="utf-8"
-	doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN"
-	doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"/>
-
-
 <!-- 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.25.1
+%  Release 2.26.2
 %
 %  Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -->
 
+<xsl:output
+	method="xml"
+	indent="yes"
+	encoding="utf-8"
+	omit-xml-declaration="no"
+	standalone="no"
+	doctype-public="-//W3C//DTD XHTML 1.1//EN"
+	doctype-system="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"/>
+
 
 <xsl:template match="/">
 	<xsl:processing-instruction name="xml-stylesheet">href="logtalk.css" type="text/css"</xsl:processing-instruction>
 
-	<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 	<head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<title><xsl:value-of select="logtalk/entity/name" /></title>
@@ -38,6 +38,7 @@
 		<div class="header">
 			<p class="type"><xsl:value-of select="logtalk/entity/type" /></p>
 			<h1 class="code"><xsl:value-of select="logtalk/entity/name" /></h1>
+			<xsl:if test="logtalk/entity/comment or logtalk/entity/parameters">
 			<blockquote>
 			<xsl:if test="logtalk/entity/comment">
 				<p class="comment"><xsl:value-of select="logtalk/entity/comment" /></p>
@@ -50,6 +51,7 @@
 				</ul>
 			</xsl:if>
 			</blockquote>
+			</xsl:if>
 		</div>
 		<div class="entity">
 			<div class="section">
@@ -69,6 +71,7 @@
 
 
 <xsl:template match="logtalk/entity">
+	<xsl:if test="author or version or date">
 	<dl class="properties">
 	<xsl:if test="author">
 		<dt class ="key">author:</dt>
@@ -83,6 +86,7 @@
 			<dd class="value"><code><xsl:value-of select="date" /></code></dd>
 	</xsl:if>
 	</dl>
+	</xsl:if>
 	<dl class="properties">
 		<dt class ="key">compilation:</dt>
 			<dd class ="value"><code><xsl:value-of select="compilation" /></code></dd>
@@ -215,11 +219,11 @@
 <xsl:template match="*/predicate">
 	<div class="section">
 	<h3 class="code"><xsl:value-of select="name" /></h3>
-	<blockquote>
 	<xsl:if test="comment">
+	<blockquote>
 		<p class="comment"><xsl:value-of select="comment" /></p>
-	</xsl:if>
 	</blockquote>
+	</xsl:if>
 	<dl class="properties">
 		<dt class ="key">compilation:</dt>
 			<dd class ="value"><code><xsl:value-of select="compilation" /></code></dd>

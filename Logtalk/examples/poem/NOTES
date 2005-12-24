@@ -3,10 +3,14 @@ object-oriented extension to Prolog developed by Ben Staveley-Taylor.
 
 To load all entities in this example compile and load the loader file:
 
-| ?- logtalk_load(loader).
+| ?- logtalk_load(poem(loader)).
 
 Contrary to the other cases, to test this example consult the Prolog 
-file SCRIPT and then call the predicate run/0 to run the example.
+file SCRIPT and then call the predicate run/0 to run the example. On 
+most Prolog compilers, you can type:
+
+| ?- ['SCRIPT'], run.
+
 
 Original author contact:
 

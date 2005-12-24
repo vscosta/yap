@@ -2,7 +2,7 @@
 "
 " Language:	Logtalk
 " Maintainer:	Paulo Moura <pmoura@logtalk.org>
-" Last Change:	June 6, 2005
+" Last Change:	October 9, 2005
 
 
 " Quit when a syntax file was already loaded:
@@ -87,6 +87,14 @@ syn region	logtalkDir		matchgroup=logtalkDirTag	start=":- metapredicate("	matchg
 syn region	logtalkDir		matchgroup=logtalkDirTag	start=":- op("			matchgroup=logtalkDirTag	end=")\."	contains=ALL
 syn region	logtalkDir		matchgroup=logtalkDirTag	start=":- calls("		matchgroup=logtalkDirTag	end=")\."	contains=ALL
 syn region	logtalkDir		matchgroup=logtalkDirTag	start=":- uses("		matchgroup=logtalkDirTag	end=")\."	contains=ALL
+
+
+" Module directives
+
+syn region	logtalkDir		matchgroup=logtalkDirTag	start=":- module("		matchgroup=logtalkDirTag	end=")\."	contains=ALL
+syn region	logtalkDir		matchgroup=logtalkDirTag	start=":- export("		matchgroup=logtalkDirTag	end=")\."	contains=ALL
+syn region	logtalkDir		matchgroup=logtalkDirTag	start=":- meta_predicate("		matchgroup=logtalkDirTag	end=")\."	contains=ALL
+syn region	logtalkDir		matchgroup=logtalkDirTag	start=":- use_module("		matchgroup=logtalkDirTag	end=")\."	contains=ALL
 
 
 " Logtalk built-in predicates

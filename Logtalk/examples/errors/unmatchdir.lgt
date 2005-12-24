@@ -1,4 +1,6 @@
 
+% misspelt opening object directive
+
 :- objecto(unmatchdir).
 
 

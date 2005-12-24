@@ -1,5 +1,5 @@
 
 :- initialization(
 	logtalk_load(
-		[misspell, singletons1, plredef, lgtredef, unknownrefs, portability],
+		[warnings],
 		[unknown(warning), misspelt(warning), singletons(warning), plredef(warning), lgtredef(warning), portability(warning), report(on)])).

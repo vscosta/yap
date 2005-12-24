@@ -1,35 +1,36 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<?xml-stylesheet type="text/css" href="../styles.css" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
 	<title>Logtalk user manual: running and debugging Logtalk programs</title>
-	<link rel="stylesheet" href="../styles.css" type="text/css" />
+	<link rel="stylesheet" href="../screen.css" type="text/css" media="screen"/>
+	<link rel="stylesheet" href="../print.css" type="text/css" media="print"/>
 </head>
 
 <body>
 
-<div class="navtop">
-<a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a>
-</div>
+<div class="top-left">Logtalk user manual</div> 
+<div class="top-right">Running and debugging Logtalk programs</div>
+<div class="bottom-left"><span class="page"/></div> 
+<div class="bottom-right"><span class="page"/></div>
+<div class="navtop"><a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a></div>
 
 <h1>Running and debugging Logtalk programs</h1>
 
-<h2>Running a Logtalk session<a name="running"></a></h2>
+<h2>Running a Logtalk session<a id="running"></a></h2>
 
 <p>
 We run Logtalk inside a normal Prolog session, after loading the necessary files. Logtalk extends but does not modify your Prolog compiler. We can freely mix Prolog queries with the sending of messages and our programs can be made of both normal Prolog clauses and object definitions.
 </p>
 
-<h3>Starting Logtalk<a name="starting"></a></h3>
+<h3>Starting Logtalk<a id="starting"></a></h3>
 
 <p>
-To start a Logtalk session just:
+Depending on your Logtalk installation, you may use a script or a shortcut to start Logtalk with your chosen Prolog compiler. On POSIX operating systems, the scripts should be available from the command-line; scripts are named upon the used Prolog compilers. On Windows, the shortcuts should be available from the Start Menu. If no scripts or shortcuts are available for your installation, operating-system, or Prolog compiler, you can start a Logtalk session by performing the following steps:
 </p>
 <ol>
 	<li>Start your Prolog compiler.</li>
@@ -44,48 +45,40 @@ Note that the configuration files, compiler/runtime files, and library paths fil
 Most Prolog compilers support automatic loading of an initialization file, which can include the necessary directives to load both the Prolog configuration file and the Logtalk compiler. This feature, when available, allows automatic loading of Logtalk when you start your Prolog compiler.
 </p>
 
-<h3>Compiling and loading your programs<a name="compiling"></a></h3>
+<h3>Compiling and loading your programs<a id="compiling"></a></h3>
 
 <p>
 Your programs will be made of source files containing your objects, protocols, and categories. After changing the Prolog working directory to the one containing your files, you can compile them to disk by calling the Logtalk built-in predicate  
 <a title="Consult reference manual" href="../refman/builtins/logtalk_compile1.html"><code>logtalk_compile/1</code></a>:
 </p>
-<pre>
-    | ?- logtalk_compile([source_file1, source_file2, ...]).
-</pre>
+<pre>| ?- logtalk_compile([source_file1, source_file2, ...]).</pre>
 <p>
 This predicate runs the preprocessor on each argument file and, if no fatal errors are found, outputs Prolog source files that can then be consulted or compiled in the usual way by your Prolog compiler. Note that the predicate argument must be either an entity name or a list of entity names.
 </p>
 <p>
 To compile to disk and also load into memory the source files we can use the Logtalk built-in predicate <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a>:
 </p>
-<pre>
-    | ?- logtalk_load([source_file1, source_file2, ...]).
-</pre>
+<pre>| ?- logtalk_load([source_file1, source_file2, ...]).</pre>
 <p>
 This predicate works in the same way of the predicate <code>logtalk_compile/1</code> but also loads the compiled files to memory. 
 </p>
 <p>
-Both predicates expect a source name name or a list of source name names as an argument. The Logtalk source file name extension, as defined in the configuration file, should be omitted.
+Both predicates expect a source name name or a list of source name names as an argument. The Logtalk source file name extension, as defined in the configuration file, must be omitted.
 </p>
 <p>
 If you have more than a few source files then you may want to use a loader helper file containing the calls to the <code>logtalk_load/1</code> predicate. Consulting or compiling the loader file will then compile and load all your Logtalk entities into memory (see the <a href="programming.html#loaders">next</a> section for details).
 </p>
 
-<h3>Compiler flags<a name="flags"></a></h3>
+<h3>Compiler flags<a id="flags"></a></h3>
 
 <p>
-The <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a> and <a title="Consult reference manual" href="../refman/builtins/logtalk_compile1.html"><code>logtalk_compile/1</code></a> always use the set of default compiler flags specified in the Logtalk configuration files. Although the default flag values cover the usual cases, you may want to use a different set of flag values while compiling or loading some of your Logtalk source files. This can be accomplished by using the <a title="Consult reference manual" href="../refman/builtins/logtalk_load2.html"><code>logtalk_load/2</code></a> or the <a title="Consult reference manual" href="../refman/builtins/logtalk_compile2.html"><code>logtalk_compile/2</code></a> built-in predicates. These two predicates accept a list of flag values affecting how a Logtalk source file is compiled and loaded:
+The <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a> and <a title="Consult reference manual" href="../refman/builtins/logtalk_compile1.html"><code>logtalk_compile/1</code></a> always use the current set of default compiler flags as specified in the Logtalk configuration files or changed for the current session using the built-in predicate <a title="Consult reference manual" href="../refman/builtins/set_logtalk_flag2.html"><code>set_logtalk_flag/2</code></a>. Although the default flag values cover the usual cases, you may want to use a different set of flag values while compiling or loading some of your Logtalk source files. This can be accomplished by using the <a title="Consult reference manual" href="../refman/builtins/logtalk_load2.html"><code>logtalk_load/2</code></a> or the <a title="Consult reference manual" href="../refman/builtins/logtalk_compile2.html"><code>logtalk_compile/2</code></a> built-in predicates. These two predicates accept a list of flag values affecting how a Logtalk source file is compiled and loaded:
 </p>
-<pre>
-    | ?- logtalk_compile(Files, Flags).
-</pre>
+<pre>| ?- logtalk_compile(Files, Flags).</pre>
 <p>
 or:
 </p>
-<pre>
-    | ?- logtalk_load(Files, Flags).
-</pre>
+<pre>| ?- logtalk_load(Files, Flags).</pre>
 <p>
 In fact, the <code>logtalk_load/1</code> and <code>logtalk_compile/1</code> predicates are just shortcuts to the extended versions called with the default compiler flag values.
 </p>
@@ -99,7 +92,7 @@ You can use the following flags:
 </dl>
 <dl>
 	<dt><code>unknown(Option)</code></dt>
-		<dd>Controls the unknown entity warnings, resulting from loading an entity that references some other entity that is not currently loaded. Possible option values are <code>warning</code> (the usual default) and <code>silent</code>.</dd>
+		<dd>Controls the unknown entity warnings, resulting from loading an entity that references some other entity that is not currently loaded. Possible option values are <code>warning</code> (the usual default) and <code>silent</code>. Note that these warnings are not always avoidable, specially when using reflective designs of class-based hierarchies.</dd>
 </dl>
 <dl>
 	<dt><code>singletons(Option)</code></dt>
@@ -115,30 +108,30 @@ You can use the following flags:
 </dl>
 <dl>
 	<dt><code>lgtredef(Option)</code></dt>
-		<dd>Controls the Logtalk built-in predicates redefinition warnings. Possible option values are <code>warning</code> (the usual default) and <code>silent</code>.</dd>
+		<dd>Controls the Logtalk built-in predicate redefinition warnings. Possible option values are <code>warning</code> (the usual default) and <code>silent</code>. These warnings are almost always programming errors.</dd>
 </dl>
 <dl>
 	<dt><code>plredef(Option)</code></dt>
-		<dd>Controls the Prolog built-in predicates redefinition warnings. Possible option values are <code>warning</code> (can be very verbose if your code redefines a lot of Prolog built-in predicates) and <code>silent</code> (the usual default).</dd>
+		<dd>Controls the Prolog built-in predicate redefinition warnings. Possible option values are <code>warning</code> (can be very verbose if your code redefines a lot of Prolog built-in predicates) and <code>silent</code> (the usual default). When running a Logtalk application on several Prolog compilers, is possible to get different sets of warnings due to different sets of built-in predicates implemented by each Prolog compiler.</dd>
 </dl>
 <dl>
 	<dt><code>portability(Option)</code></dt>
 		<dd>Controls the non-ISO specified built-in predicate calls warnings. Possible option values are <code>warning</code> and <code>silent</code> (the usual default).</dd>
 </dl>
 <dl>
-	<dt><code>xml(Option)</code></dt>
+	<dt><code>xmldocs(Option)</code></dt>
 		<dd>Controls the automatic generation of documenting files in XML format. Possible option values are <code>on</code> (the usual default) and <code>off</code>.</dd>
 </dl>
 <dl>
 	<dt><code>xmlspec(Option)</code></dt>
-		<dd>Defines the XML documenting files specification format. Possible option values are <code>dtd</code> (for the DTD specification; the usual default) and <code>xsd</code> (for the XML Schema specification). Most XSL processors support DTDs but only some of them support XML Schemes.</dd>
+		<dd>Defines the XML documenting files specification format. Possible option values are <code>dtd</code> (for the DTD specification; the usual default) and <code>xsd</code> (for the XML Schema specification). Most XSL processors support DTDs but only some of them support XML Schemas.</dd>
 </dl>
 <dl>
-	<dt><code>doctype(Option)</code></dt>
-		<dd>Sets the DOCTYPE reference in the automatically generated XML documenting files. The default value is <code>local</code>, that is, the DOCTYPE reference points to a local DTD or XSD file (respectively, <code>logtalk.dtd</code> or <code>logtalk.xsd</code>), residing in the same directory as the XML file. Other possible values are <code>web</code> (DOCTYPE reference points to an web location, either <code>http://www.logtalk.org/xml/1.3/logtalk.dtd</code> or <code>http://www.logtalk.org/xml/1.3/logtalk.xsd</code>), and <code>standalone</code> (no DOCTYPE reference in the XML documenting files). The most appropriated option value depends on the XSL processor you intend to use. Some of them are buggy an may not work with the default option value.</dd>
+	<dt><code>xmlsref(Option)</code></dt>
+		<dd>Sets the reference to the XML specification file in the automatically generated XML documenting files. The default value is <code>local</code>, that is, the reference points to a local DTD or XSD file (respectively, <code>logtalk.dtd</code> or <code>logtalk.xsd</code>), residing in the same directory as the XML file. Other possible values are <code>web</code> (the reference points to an web location, either <code>http://www.logtalk.org/xml/1.3/logtalk.dtd</code> or <code>http://www.logtalk.org/xml/1.3/logtalk.xsd</code>), and <code>standalone</code> (no reference to specification files in the XML documenting files). The most appropriated option value depends on the XSL processor you intend to use. Some of them are buggy an may not work with the default option value.</dd>
 </dl>
 <dl>
-	<dt><code>xsl(File)</code></dt>
+	<dt><code>xslfile(File)</code></dt>
 		<dd>Sets the XSLT file to be used with the automatically generated XML documenting files. The default value is <code>lgtxml.xsl</code>, which allows the XML files to be viewed by simply opening them with recent versions of web navigators which support XSLT transformations (after copying the <code>lgtxml.xsl</code> and of the <code>logtalk.css</code> files to the directory containing the XML files).</dd>
 </dl>
 <dl>
@@ -161,20 +154,16 @@ You can use the following flags:
 <p>
 We may also change the default flag values from the ones loaded from the config file by using the <a title="Consult reference manual" href="../refman/builtins/set_logtalk_flag2.html"><code>set_logtalk_flag/2</code></a> built-in predicate. For example:
 </p>
-<pre>
-    | ?- set_logtalk_flag(xml, off).
-</pre>
+<pre>| ?- set_logtalk_flag(xml, off).</pre>
 <p>
 The current default flags values can be enumerated using the <a title="Consult reference manual" href="../refman/builtins/current_logtalk_flag2.html"><code>current_logtalk_flag/2</code></a> built-in predicate:
 </p>
-<pre>
-    | ?- current_logtalk_flag(xml, Value).
+<pre>| ?- current_logtalk_flag(xml, Value).
 
-    Value = off
-    yes
-</pre>
+Value = off
+yes</pre>
 
-<h3>Smart compilation of source files<a name="smart"></a></h3>
+<h3>Smart compilation of source files<a id="smart"></a></h3>
 
 <p>
 If the Prolog compiler that you are using supports retrieving  of file modification dates, then you can turn on smart compilation of source files to avoid recompiling files that have not been modified since last compilation.
@@ -182,57 +171,43 @@ If the Prolog compiler that you are using supports retrieving  of file modificat
 <p>
 Smart compilation of source files is usually off by default. You can turn it on by changing the default flag value in the configuration file, by using the corresponding compiler flag with the compiling and loading built-in predicates, or, for the remaining of a working session, by using the call:
 </p>
-<pre>
-    | ?- set_logtalk_flag(smart_compilation, on).
-</pre>
+<pre>| ?- set_logtalk_flag(smart_compilation, on).</pre>
 <p>
 Some caveats that you should be aware. First, some warnings that might be produced when compiling a source file will not show up if the corresponding object file is up-to-date because the source file is not being (re)compiled. Second, if you are using several Prolog compilers with Logtalk, be sure to perform the first compilation of your source files with smart compilation turned off: the intermediate Prolog files generated by the Logtalk preprocessor may be not compatible across Prolog compilers or even for the same Prolog compiler across operating systems (due to the use of different end-of-line characters).
 </p>
 
-<h2>Using Logtalk for batch processing<a name="batch"></a></h2>
+<h2>Using Logtalk for batch processing<a id="batch"></a></h2>
 
 <p>
-If you use Logtalk for batch processing, you probably want to supress most, if not all, banners, messages, and warnings that are normally printed by the system.
-</p>
-<p>
-To supress printing of the Logtalk startup banner and default flags, set the option <code>startup_message</code> in the config file that you are using to <code>none</code>.
-</p>
-<p>
-To supress printing of compiling and loading messages (including compiling warnings but not compiling error messages), turn off the option <code>report</code>.
+If you use Logtalk for batch processing, you probably want to suppress most, if not all, banners, messages, and warnings that are normally printed by the system. To suppress printing of the Logtalk startup banner and default flags, set the option <code>startup_message</code> in the config file that you are using to <code>none</code>. To suppress printing of compiling and loading messages (including compiling warnings but not compiling error messages), turn off the option <code>report</code>.
 </p>
 
-<h2>Debugging Logtalk programs<a name="debugging"></a></h2>
+<h2>Debugging Logtalk programs<a id="debugging"></a></h2>
 
 <p>
-Logtalk defines a built-in pseudo-object named <code>debugger</code>, which implements debugging features similar to those found on most Prolog compilers. However, there are some differences between the usual implementation of Prolog debuggers and the current implementation of the Logtalk debugger that you should be aware. First, unlikely most Prolog debuggers, the Logtalk debugger is not implemented as a meta-interpreter. This translates to a different, although similar, set of debugging features with some limitations when compared with some Prolog debuggers. Second, debugging is only possible for objects compiled in debug mode. When compiling an object in this mode, Logtalk keeps each  clause goal in both source form and compiled form in order to allow tracing of the goal execution. Third, implementation of spy points allows the user to specify the execution context for entering the debugger. This feature is a consequence of the encapsulation of predicates inside objects.
+Logtalk defines a built-in pseudo-object named <code>debugger</code>, which implements debugging features similar to those found on most Prolog compilers. However, there are some differences between the usual implementation of Prolog debuggers and the current implementation of the Logtalk debugger that you should be aware. First, unlike some Prolog debuggers, the Logtalk debugger is not implemented as a meta-interpreter. This translates to a different, although similar, set of debugging features with some limitations when compared with some Prolog debuggers. Second, debugging is only possible for objects compiled in debug mode. When compiling an object in debug mode, Logtalk keeps each clause goal in both source form and compiled form in order to allow tracing of the goal execution. Third, implementation of spy points allows the user to specify the execution context for entering the debugger. This feature is a consequence of the encapsulation of predicates inside objects.
 </p>
 
-<h3>Compiling entities in debug mode<a name="debugmode"></a></h3>
+<h3>Compiling entities in debug mode<a id="debugmode"></a></h3>
 
 <p>
 Compilation of source files in debug mode is controlled by the compiler flag <code>debug</code>. The default value for this flag, usually <code>off</code>, is defined in the config files. Its value may be changed at runtime by writing:
 </p>
-<pre>
-    | ?- set_logtalk_flag(debug, on).
+<pre>| ?- set_logtalk_flag(debug, on).
 
-    yes
-</pre>
+yes</pre>
 <p>
 In alternative, if we want to compile only some entities in debug mode, we may instead write:
 </p>
-<pre>
-    | ?- logtalk_load([file1, file2, ...], [debug(on)]).
-</pre>
+<pre>| ?- logtalk_load([file1, file2, ...], [debug(on)]).</pre>
 <p>
-The compiler flag <code>smart_compilation</code> is automatically turned off whenever the debug flag is turned on at runtime. This is necessary because debug code would not be generated for files previously compiled in normal mode if there is no changes to the source files. However, note that you should be carefull to not turn both flags on at the same time in a config file.
+The compiler flag <code>smart_compilation</code> is automatically turned off whenever the debug flag is turned on at runtime. This is necessary because debug code would not be generated for files previously compiled in normal mode if there is no changes to the source files. However, note that you should be careful to not turn both flags on at the same time in a config file.
 </p>
 <p>We may check or enumerate, by backtracking, all loaded entities compiled in debug mode as follows:
 </p>
-<pre>
-    | ?- debugger::debugging(Entity).
-</pre>
+<pre>| ?- debugger::debugging(Entity).</pre>
 
-<h3>Logtalk Procedure Box model<a name="boxmodel"></a></h3>
+<h3>Logtalk Procedure Box model<a id="boxmodel"></a></h3>
 
 <p>
 Logtalk uses a <em>Procedure Box model</em> similar to those found on most Prolog compilers. The traditional Prolog procedure box model uses four ports (<em>call</em>, <em>exit</em>, <em>redo</em>, and <em>fail</em>) for describing control flow when a predicate clause is used during program execution: 
@@ -244,7 +219,7 @@ Logtalk uses a <em>Procedure Box model</em> similar to those found on most Prolo
 	<dt><code>exit</code></dt>
 		<dd>success of a predicate call</dd>
 	<dt><code>redo</code></dt>
-		<dd>backtraking into a predicate</dd>
+		<dd>backtracking into a predicate</dd>
 	<dt><code>fail</code></dt>
 		<dd>failure of a predicate call</dd>
 </dl>
@@ -270,17 +245,13 @@ In addition to the ports described above, Logtalk adds two more ports, <em>fact<
 </dl>
 </blockquote>
 <p>
-The user may define for which ports the debugger should pause for user interaction by specifiying a list of leashed ports. For example:
+The user may define for which ports the debugger should pause for user interaction by specifying a list of leashed ports. For example:
 </p>
-<pre>
-    | ?- debugger::leash([call, exit, fail]).
-</pre>
+<pre>| ?- debugger::leash([call, exit, fail]).</pre>
 <p>
 Alternatively, the user may use an atom abbreviation for a pre-defined set of ports. For example:
 </p>
-<pre>
-    | ?- debugger::leash(loose).
-</pre>
+<pre>| ?- debugger::leash(loose).</pre>
 <p>
 The abbreviations defined in Logtalk are similar to those defined on some Prolog compilers:
 </p>
@@ -299,139 +270,117 @@ The abbreviations defined in Logtalk are similar to those defined on some Prolog
 </dl>
 </blockquote>
 
-<h3>Defining spy points<a name="spypoints"></a></h3>
+<h3>Defining spy points<a id="spypoints"></a></h3>
 
 <p>
 Logtalk spy points can be defined by simply stating which predicates should be spied, as in most Prolog debuggers, or by fully specifying the context for activating a spy point. 
 </p>
 
-<h4>Defining predicate spy points<a name="spypoints"></a></h4>
+<h4>Defining predicate spy points<a id="pspypoints"></a></h4>
 
 <p>
 Predicate spy points are specified using the method <code>spy/1</code>. The argument can be either a predicate indicator (<code>Functor/Arity</code>) or a list of predicate indicators. For example:
 </p>
-<pre>
-    | ?- debugger::spy(foo/2).
-    
-    Spy points set.
-    yes
+<pre>| ?- debugger::spy(foo/2).
 
-    | ?- debugger::spy([foo/4, bar/1]).
-    
-    Spy points set.
-    yes
-</pre>
+Spy points set.
+yes
+
+| ?- debugger::spy([foo/4, bar/1]).
+
+Spy points set.
+yes</pre>
 <p>
 Predicate spy points can be removed by using the method <code>nospy/1</code>. The argument can be a predicate indicator, a list of predicate indicators, or a non-instantiated variable in which case all predicate spy points will be removed. For example:
 </p>
-<pre>
-    | ?- debugger::nospy(_).
-    
-    All matching predicate spy points removed.
-    yes
-</pre>
+<pre>| ?- debugger::nospy(_).
 
-<h4>Defining context spy points<a name="spypoints"></a></h4>
+All matching predicate spy points removed.
+yes</pre>
+
+<h4>Defining context spy points<a id="cspypoints"></a></h4>
 
 <p>
 A context spy point is a term describing a message execution context and a goal:
 </p>
-<pre>
-    (Sender, This, Self, Goal)
-</pre>
+<pre>(Sender, This, Self, Goal)</pre>
 <p>
 The debugger is evoked whenever the execution context is true and when the spy point goal unifies with the goal currently being executed. Variable bindings resulting from the unification between the current goal and the goal argument are discarded. The user may establish any number of context spy points as necessary. For example, in order to call the debugger whenever a predicate defined on an object named <code>foo</code> is called we may define the following spy point:
 </p>
-<pre>
-    | ?- debugger::spy(_, foo, _, _).
-    
-    Spy point set.
-    yes
-</pre>
+<pre>| ?- debugger::spy(_, foo, _, _).
+
+Spy point set.
+yes</pre>
 <p>
 For example, we can spy all calls to a <code>foo/2</code> predicate by setting the condition:
 </p>
-<pre>
-    | ?- debugger::spy(_, _, _, foo(_, _)).
-    
-    Spy point set.
-    yes
-</pre>
+<pre>| ?- debugger::spy(_, _, _, foo(_, _)).
+
+Spy point set.
+yes</pre>
 <p>
 The method <code>nospy/4</code> may be used to remove all matching spy points. For example, the call: 
 </p>
-<pre>
-    | ?- debugger::nospy(_, _, foo, _).
-    
-    All matching context spy points removed.
-    yes
-</pre>
+<pre>| ?- debugger::nospy(_, _, foo, _).
+
+All matching context spy points removed.
+yes</pre>
 <p>
 will remove all context spy points where the value of <em>Self</em> matches the name <code>foo</code>.
 </p>
 
-<h4>Removing all spy points<a name="nospyall"></a></h4>
+<h4>Removing all spy points<a id="nospyall"></a></h4>
 
 <p>
 We may remove all predicate spy points and all context spy points by using the method <code>nospyall/0</code>:
 </p>
-<pre>
-    | ?- debugger::nospyall.
-    
-    All predicate spy points removed.
-    All context spy points removed.
-    yes
-</pre>
+<pre>| ?- debugger::nospyall.
 
-<h3>Tracing program execution<a name="trace"></a></h3>
+All predicate spy points removed.
+All context spy points removed.
+yes</pre>
+
+<h3>Tracing program execution<a id="trace"></a></h3>
 
 <p>
 Logtalk allows tracing of execution for all objects compiled in debug mode. To start the debugger in trace mode, write:
 </p>
-<pre>
-    | ?- debugger::trace.
+<pre>| ?- debugger::trace.
 
-    yes
-</pre>
+yes</pre>
 <p>
 Note that, when tracing, spy points will be ignored. While tracing, the debugger will pause for user input at each leashed port.
 </p>
 <p>
 To stop tracing and turning off the debugger, write:
 </p>
-<pre>
-    | ?- debugger::notrace.
+<pre>| ?- debugger::notrace.
 
-    yes
-</pre>
+yes</pre>
 
 
-<h3>Debugging using spy points<a name="debug"></a></h3>
+<h3>Debugging using spy points<a id="debug"></a></h3>
 
 <p>
 Tracing a program execution may generate large amounts of debugging data. Debugging using spy points allows the user to concentrate its attention in specific points of its code. To start a debugging session using spy points, write:
 </p>
-<pre>
-    | ?- debugger::debug.
+<pre>| ?- debugger::debug.
 
-    yes
-</pre>
+yes</pre>
 <p>
 At the beginning of a port description, the debugger will print a <code>+</code> or a <code>*</code> before the current goal if there is, respectively, a predicate spy point or a context spy point defined.
 </p>
 <p>
 To stop the debugger, write:
 </p>
-<pre>
-    | ?- debugger::nodebug.
+<pre>| ?- debugger::nodebug.
 
-    yes
-</pre>
+yes</pre>
 <p>
 Note that stopping the debugger does not remove any defined spy points.
 </p>
 
-<h3>Debugging commands<a name="commands"></a></h3>
+<h3>Debugging commands<a id="commands"></a></h3>
 
 <p>
 The debugger pauses at leashed posts when tracing or when finding a spy point for user interaction. The commands available are as follows:
@@ -439,8 +388,8 @@ The debugger pauses at leashed posts when tracing or when finding a spy point fo
 <blockquote>
 <dl>
 	<dt><code>c</code> &mdash; creep</dt>
-		<dd>go on; you may use the spacebar in alternative</dd>
-	<dt><code>l</code> &mdash; leep</dt>
+		<dd>go on; you may use the spacebar in alternative (but not the return or enter keys)</dd>
+	<dt><code>l</code> &mdash; leap</dt>
 		<dd>continues execution until the next spy point is found</dd>
 	<dt><code>s</code> &mdash; skip</dt>
 		<dd>skips debugging for the current goal; only valid at call and redo ports</dd>
@@ -473,16 +422,14 @@ The debugger pauses at leashed posts when tracing or when finding a spy point fo
 </dl>
 </blockquote>
 
-<div class="navbottom">
-<a href="installing.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="programming.html">next</a>
-</div>
-
-<div class="copyright">
-Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
-</div>
-
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 5, 2005</span></p>
+	<div class="navbottom"><a href="installing.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="programming.html">next</a></div>
+	<div class="copyright">Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a></div>
+	<div class="footnote">
+		<span class="validators"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
+		<span class="date">Last updated on: November 16, 2005</span>
+	</div>
 </div>
+
 </body>
 </html>

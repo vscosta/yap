@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,5 +8,5 @@ Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 
 To load this example and for sample queries, please see the SCRIPT file.
 
-This folder contains two examples of parametric objects dealing with 
-time and date values.
+This folder contains three examples of parametric objects, the first two 
+dealing with time and date values and the third one representing rectangles.

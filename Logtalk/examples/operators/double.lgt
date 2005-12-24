@@ -10,7 +10,7 @@
 
 	:- public(double/2).
 
-	:- op(500, xfx, double).
+	:- op(500, xfx, double).	% local object operators, not visible outside this object
 
 
 	1 double 2.

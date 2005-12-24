@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<?xml-stylesheet type="text/css" href="../styles.css" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
 	<title>Logtalk user manual: documenting programs</title>
-	<link rel="stylesheet" href="../styles.css" type="text/css" />
+	<link rel="stylesheet" href="../screen.css" type="text/css" media="screen"/>
+	<link rel="stylesheet" href="../print.css" type="text/css" media="print"/>
 </head>
 
 <body>
 
-<div class="navtop">
-<a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a>
-</div>
+<div class="top-left">Logtalk user manual</div> 
+<div class="top-right">Documenting programs</div>
+<div class="bottom-left"><span class="page"/></div> 
+<div class="bottom-right"><span class="page"/></div>
+<div class="navtop"><a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a></div>
 
 <h1>Documenting Logtalk programs</h1>
 
@@ -27,23 +28,21 @@ Logtalk automatically generates a documentation file for each compiled entity (o
 The XML documentation files can be enriched with arbitrary user-defined information, either about an entity or about its predicates, by using the two directives described below.
 </p>
 
-<h2>Documenting directives<a name="directives"></a></h2>
+<h2>Documenting directives<a id="directives"></a></h2>
 
 <p>
 Logtalk supports two documentation directives for providing arbitrary user-defined information about an entity or a predicate. These two directives complement other Logtalk directives that also provide important documentation information like <a title="Consult reference manual" href="../refman/directives/uses1.html"><code>uses/1</code></a>, <a title="Consult reference manual" href="../refman/directives/calls1.html"><code>calls/1</code></a>, or <a title="Consult reference manual" href="../refman/directives/mode2.html"><code>mode/2</code></a>.
 </p>
 
-<h3>Entity directives<a name="entity"></a></h3>
+<h3>Entity directives<a id="entity"></a></h3>
 
 <p>
 Arbitrary user-defined entity information can be represented using the <a title="Consult reference manual" href="../refman/directives/info1.html"><code>info/1</code></a> directive:
 </p>
-<pre>
-    :- info([
-        Key1 is Value1,
-        Key2 is Value2,
-        ...]).
-</pre>
+<pre>:- info([
+    Key1 is Value1,
+    Key2 is Value2,
+    ...]).</pre>
 <p>
 In this pattern, keys should be atoms and values should be ground terms. The following keys are pre-defined and may be processed specially by Logtalk:
 </p>
@@ -68,30 +67,26 @@ In this pattern, keys should be atoms and values should be ground terms. The fol
 <p>
 For example:
 </p>
-<pre>
-    :- info([
-        version is 2.1,
-        author is 'Paulo Moura',
-        date is 2000/4/20,
-        comment is 'Building representation.',
-        diagram is 'UML Class Diagram #312']).
-</pre>
+<pre>:- info([
+    version is 2.1,
+    author is 'Paulo Moura',
+    date is 2000/4/20,
+    comment is 'Building representation.',
+    diagram is 'UML Class Diagram #312']).</pre>
 <p>
 Use only the keywords that make sense for your application and remember that you are free to invent your own keywords.
 </p>
 
-<h3>Predicate directives<a name="predicate"></a></h3>
+<h3>Predicate directives<a id="predicate"></a></h3>
 
 <p>
 Arbitrary user-defined predicate information can be represented using the
 <a title="Consult reference manual" href="../refman/directives/info2.html"><code>info/2</code></a> directive:
 </p>
-<pre>
-    :- info(Functor/Arity, [
-        Key1 is Value1,
-        Key2 is Value2,
-        ...]).
-</pre>
+<pre>:- info(Functor/Arity, [
+    Key1 is Value1,
+    Key2 is Value2,
+    ...]).</pre>
 <p>
 Keys should be atoms and values should be ground terms. The following keys are pre-defined and may be processed specially by Logtalk:
 </p>
@@ -108,7 +103,7 @@ Keys should be atoms and values should be ground terms. The following keys are p
 	<dt><code>redefinition</code></dt>
 		<dd>Describes if the predicate can be redefined and, if so, in what way. Some possible values are <code>never</code>, <code>free</code>, <code>specialize</code>, <code>call_super_first</code>, <code>call_super_last</code>.</dd>
 	<dt><code>exceptions</code></dt>
-		<dd>List of possible expections throw by the predicate using the format <em>Description</em> <code>-</code> <em>Exception term</em>. The description must be an atom. The exception term must be a non-variable term.</dd>
+		<dd>List of possible exceptions throw by the predicate using the format <em>Description</em> <code>-</code> <em>Exception term</em>. The description must be an atom. The exception term must be a non-variable term.</dd>
 	<dt><code>examples</code></dt>
 		<dd>List of typical predicate call examples using the format <em>Description</em> <code>-</code> <em>Predicate call</em> <code>-</code> <em>Variable bindings</em>. The description must be an atom. The predicate call term must be a non-variable term. The variable bindings term uses the format <code>{</code><em>Variable</em><code>=</code><em>Term</em>, ...<code>}</code>. When there are no variable bindings, the success or failure of the predicate call should be represented by the terms <code>{yes}</code> or <code>{no}</code>, respectively.</dd>
 </dl>
@@ -116,17 +111,15 @@ Keys should be atoms and values should be ground terms. The following keys are p
 <p>
 For example:
 </p>
-<pre>
-    :- info(color/1, [
-        comment is 'Table of defined colors.',
-        argnames is ['Color'],
-        constraint is 'Only a maximum of four visible colors allowed.']).
-</pre>
+<pre>:- info(color/1, [
+    comment is 'Table of defined colors.',
+    argnames is ['Color'],
+    constraint is 'Only a maximum of four visible colors allowed.']).</pre>
 <p>
 Use only the keywords that make sense for your application and remember that you are free to invent your own keywords.
 </p>
 
-<h2>Processing and viewing documenting files<a name="processing"></a></h2>
+<h2>Processing and viewing documenting files<a id="processing"></a></h2>
 
 <p>
 The XML documenting files are (by default) automatically generated when you compile a Logtalk entity. For example, assuming the default filename extensions, compiling a <code>trace</code> object and a <code>sort(_)</code> parametric object contained in a source file will result in <code>trace_0.xml</code> and <code>sort_1.xml</code> XML files.
@@ -138,16 +131,13 @@ Each XML file contains references to two other files, a XML specification file a
 There is a set of compilers options, used with the Logtalk <a title="Consult reference manual" href="../refman/builtins/logtalk_load2.html"><code>logtalk_load/2</code></a> or the <a title="Consult reference manual" href="../refman/builtins/logtalk_compile2.html"><code>logtalk_compile/2</code></a> built-in predicates, that can be used to control the generation of the XML documentation files. Please see the <a href="running.html#options">Running Logtalk</a> section of this manual for details.
 </p>
 
-<div class="navbottom">
-<a href="errors.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="installing.html">next</a>
-</div>
-
-<div class="copyright">
-Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
-</div>
-
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 5, 2005</span></p>
+	<div class="navbottom"><a href="errors.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="installing.html">next</a></div>
+	<div class="copyright">Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a></div>
+	<div class="footnote">
+		<span class="validators"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
+		<span class="date">Last updated on: November 16, 2005</span>
+	</div>
 </div>
 </body>
 </html>

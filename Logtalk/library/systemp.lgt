@@ -2,15 +2,23 @@
 :- protocol(systemp).
 
 	:- info([
-		version is 1.9,
+		version is 1.10,
 		author is 'Portable Operating-System Interface (POSI) initiative',
-		date is 2004/7/27,
-		comment is 'Portable operating system access protocol.']).
+		date is 2005/8/18,
+		comment is 'Portable operating system access protocol.',
+		remarks is [
+			'File names overview:' - 'The main idea is that file names should be operating-system independent. As such, predicates are needed to convert between portable file names and operating-system specific file names. The solution chosen is to use URL syntax for portable file names.',
+			'Local and remote file names:' - 'A (portable) file name may point to either a local file or a remote file.',
+			'URL file names:' - 'These are file names which start with an access protocol (e.g. {http, https, ftp, gopher, file}://).',
+			'Absolute file names:' - 'These are file names that always point to a local file. They always start with a slash character (/).',
+			'Relative file names:' - 'These are file names that always point to a local file. A file name is a relative file name if it does not start with a slash character or a file access protocol (including the :// characters).',
+			'Canonical file names' - 'These are file names where any environment variables was been expanded and where the sequences for current (.) and parent (..) directories have been resolved.',
+			'Time stamps:' - 'Time stamps are used for representing current, system time and in file properties to represent creation, modification, and access times. Time stamps are system-dependent terms but that can be compared (e.g. when testing which of two given files is older).']]).
 
 	:- public(make_directory/1).
 	:- mode(make_directory(+atom), one).
 	:- info(make_directory/1, [
-		comment is 'Makes a new directory.',
+		comment is 'Makes a new directory. Argument is first expanded to a canonical file name.',
 		argnames is ['Directory'],
 		exceptions is [
 			'Directory is not instantiated' - instantiation_error,
@@ -20,13 +28,14 @@
 	:- public(delete_directory/1).
 	:- mode(delete_directory(+atom), one).
 	:- info(delete_directory/1, [
-		comment is 'Deletes a directory (and all of its contents).',
+		comment is 'Deletes an empty directory.',
 		argnames is ['Directory'],
 		exceptions is [
 			'Directory is not instantiated' - instantiation_error,
 			'Directory is neither a variable nor a valid file name' - type_error(file_name, 'Directory'),
+			'Directory does not exists' - existence_error(directory, 'Directory'),
 			'No permission for deleting the directory' - permission_error(write, 'Directory'),
-			'Directory does not exists' - existence_error(directory, 'Directory')]]).
+			'Directory is not empty' - permission_error(write, 'Directory')]]).
 
 	:- public(change_directory/1).
 	:- mode(change_directory(+atom), one).
@@ -56,10 +65,23 @@
 			'Directory is not instantiated' - instantiation_error,
 			'Directory is neither a variable nor a valid file name' - type_error(file_name, 'Directory')]]).
 
+	:- public(directory_files/3).
+	:- mode(directory_files(+atom, +atom, -list), one).
+	:- info(directory_files/3, [
+		comment is 'List of all directory files that matches a regular expression (returns an empty list when no file matches; may be used to find hidden files given an appropriate filter).',
+		argnames is ['Directory', 'Filter', 'Files'],
+		exceptions is [
+			'Directory is not instantiated' - instantiation_error,
+			'Directory is neither a variable nor a valid file name' - type_error(file_name, 'Directory'),
+			'No read permission for the directory' - permission_error(read, 'Directory'),
+			'Directory does not exists' - existence_error(directory, 'Directory'),
+			'Filter is not instantiated' - instantiation_error,
+			'Filter is neither a variable nor a valid regular expression' - type_error(regular_expression, 'Filter')]]).
+
 	:- public(directory_files/2).
 	:- mode(directory_files(+atom, -list), one).
 	:- info(directory_files/2, [
-		comment is 'List of all directory files (returns an empty list if the directory is empty).',
+		comment is 'List of all directory files (returns an empty list when the directory is empty; hidden files are not retrieved).',
 		argnames is ['Directory', 'Files'],
 		exceptions is [
 			'Directory is not instantiated' - instantiation_error,
@@ -77,6 +99,16 @@
 			'File is neither a variable nor a valid file name' - type_error(file_name, 'File'),
 			'File does not exists' - existence_error(file, 'File'),
 			'No write permission to the file' - permission_error(write, 'File')]]).
+
+	:- public(delete_files/1).
+	:- mode(delete_files(+atom), one).
+	:- info(delete_files/1, [
+		comment is 'Deletes a set of matching files.',
+		argnames is ['Filter'],
+		exceptions is [
+			'Filter is not instantiated' - instantiation_error,
+			'Filter is neither a variable nor a valid regular expression' - type_error(regular_expression, 'Filter'),
+			'No permission to delete some of the matching files' - permission_error(write, 'File')]]).
 
 	:- public(rename_file/2).
 	:- mode(rename_file(+atom, +atom), zero_or_one).
@@ -137,7 +169,15 @@
 			'File is neither a variable nor a valid file name' - type_error(file_name, 'File'),
 			'File does not exists' - existence_error(file, 'File'),
 			'No read permission to the file' - permission_error(read, 'File'),
-			'Property is neither a variable nor a file property' - type_error(file_property, 'Property')]]).
+			'Property is neither a variable nor a valid file property' - type_error(file_property, 'Property')],
+		examples is [
+			'Querying file size:' - file_property(foo, size(Bytes)) - {Bytes = 32568},
+			'Querying file type:' - file_property(foo, type(Type)) - {Type = regular},
+			'Querying file creation date:' - file_property(foo, creation_time(Time)) - {Time = 13768092},
+			'Querying file last access date:' - file_property(foo, access_time(Time)) - {Time = 813261042},
+			'Querying file modification date:' - file_property(foo, modification_time(Time)) - {Time = 813261042},
+			'Querying file permissions:' - file_property(foo, permission(Permission)) - {Permission = read}
+	  ]]).
 
 	:- public(current_environment_variable/1).
 	:- mode(current_environment_variable(?atom), zero_or_more).
@@ -155,7 +195,7 @@
 		exceptions is [
 			'Variable is not instantiated' - instantiation_error,
 			'Variable is neither a variable nor an atom' - type_error(atom, 'Variable'),
-			'Variable is not a currenttly defined environment variable' - existence_error(environment_variable, 'Variable')]]).
+			'Variable is not a currently defined environment variable' - existence_error(environment_variable, 'Variable')]]).
 
 	:- public(get_environment_variable/2).
 	:- mode(get_environment_variable(+atom, ?atom), zero_or_one).
@@ -166,7 +206,7 @@
 			'Variable is not instantiated' - instantiation_error,
 			'Variable is neither a variable nor an atom' - type_error(atom, 'Variable'),
 			'Value is neither a variable nor an atom' - type_error(atom, 'Value'),
-			'Variable is not a currenttly defined environment variable' - existence_error(environment_variable, 'Variable')]]).
+			'Variable is not a currently defined environment variable' - existence_error(environment_variable, 'Variable')]]).
 
 	:- public(set_environment_variable/2).
 	:- mode(set_environment_variable(+atom, +atom), one).
@@ -296,7 +336,22 @@
 			'File is not instantiated' - instantiation_error,
 			'File is neither a variable nor a valid file name' - type_error(file_name, 'File'),
 			'File does not exists' - existence_error(file, 'File'),
-			'Part is neither a variable nor a file name part' - type_error(file_name_part, 'Port')]]).
+			'Part is neither a variable nor a file name part' - type_error(file_name_part, 'Port')],
+		examples is [
+			'Querying file access protocol:' - file_name_part(foo, protocol(Protocol)) - {Protocol = file},
+			'Querying file host location:' - file_name_part('http://www.prolog-standard.org:8080/index.html', host(Host)) - {Host = 'www.prolog-standard.org'},
+			'Querying file port access:' - file_name_part('http://www.prolog-standard.org:8080/index.html', port(Port)) - {Port = 8080},
+			'Querying file creation date:' - file_name_part(foo, port(Port)) - {no},
+			'Querying file modification date:' - file_name_part(foo, user(Username)) - {Username = 813261042},
+			'Querying file modification date:' - file_name_part(foo, password(Password)) - {Password = 813261042},
+			'Querying file base name:' - file_name_part(foo, base(Basename)) - {Basename = 813261042},
+			'Querying file path:' - file_name_part(foo, path(Path)) - {Path = 813261042},
+			'Querying file extension:' - file_name_part('foo.pl', extension(Extension)) - {Extension = '.pl'},
+			'Querying file extension:' - file_name_part('foo.', extension(Extension)) - {Extension = '.'},
+			'Querying file extension:' - file_name_part(foo, extension(Extension)) - {Extension = ''},
+			'Querying file modification date:' - file_name_part(foo, search(Pairs)) - {Pairs = 813261042},
+			'Querying file modification date:' - file_name_part(foo, fragment(Fragment)) - {Fragment = 813261042}
+	  ]]).
 
 	:- public(file_name_parts/2).
 	:- mode(file_name_parts(+atom, -list(compound)), one).
@@ -307,6 +362,8 @@
 		exceptions is [
 			'None of the arguments are instantiated' - instantiation_error,
 			'File is neither a variable nor a valid file name' - type_error(file_name, 'File'),
-			'Parts is neither a variable nor a list' - type_error(list(compound), 'Parts')]]).
+			'Parts is neither a variable nor a list' - type_error(list(compound), 'Parts')],
+		examples is [
+			'Decomposing a file name:' - file_name_parts('http://www.prolog-standard.org:8080/index.html', Parts) - {Parts = [protocol(http), host('www.prolog-standard.org'), port(8080), path('/'), base(index), extension('.html')]}]]).
 
 :- end_protocol.

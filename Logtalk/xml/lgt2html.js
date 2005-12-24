@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.25.1
+// Release 2.26.2
 //
 // Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -25,25 +25,34 @@ if (WScript.Arguments.Unnamed.Length > 0) {
 	WScript.Quit(0);
 }
 
-var WshProcessEnv = WshShell.Environment("PROCESS");
 var WshSystemEnv = WshShell.Environment("SYSTEM");
 var WshUserEnv = WshShell.Environment("USER");
-var logtalk_home;
 
-if (WshProcessEnv.Item("LOGTALKUSER"))
-	logtalk_home = WshProcessEnv.Item("LOGTALKUSER");
-else if (WshSystemEnv.Item("LOGTALKUSER"))
-	logtalk_home = WshSystemEnv.Item("LOGTALKUSER");
+var logtalk_home;
+var logtalk_user;
+
+if (WshSystemEnv.Item("LOGTALKHOME"))
+	logtalk_home = WshSystemEnv.Item("LOGTALKHOME");
+else if (WshUserEnv.Item("LOGTALKHOME"))
+	logtalk_home = WshUserEnv.Item("LOGTALKHOME")
+else {
+	WScript.Echo("Error! The environment variable LOGTALKHOME must be defined first!");
+	usage_help();
+	WScript.Quit(1);
+}
+
+if (WshSystemEnv.Item("LOGTALKUSER"))
+	logtalk_user = WshSystemEnv.Item("LOGTALKUSER");
 else if (WshUserEnv.Item("LOGTALKUSER"))
-	logtalk_home = WshUserEnv.Item("LOGTALKUSER")
+	logtalk_user = WshUserEnv.Item("LOGTALKUSER")
 else {
 	WScript.Echo("Error! The environment variable LOGTALKUSER must be defined first!");
 	usage_help();
 	WScript.Quit(1);
 }
 
-var html_xslt = logtalk_home + "\\xml\\lgthtml.xsl";
-var xhtml_xslt = logtalk_home + "\\xml\\lgtxhtml.xsl";
+var html_xslt = logtalk_user + "\\xml\\lgthtml.xsl";
+var xhtml_xslt = logtalk_user + "\\xml\\lgtxhtml.xsl";
 
 var xslt;
 
@@ -90,7 +99,7 @@ if (i_arg != "")
 if (t_arg != "")
 	index_title=t_arg;
 
-if (p_arg != "" && p_arg != "xsltproc" && p_arg != "xalan" && p_arg != "sabcmd") {
+if (p_arg != "" && p_arg != "msxsl" && p_arg != "xsltproc" && p_arg != "xalan" && p_arg != "sabcmd") {
 	WScript.Echo("Error! Unsupported XSLT processor:" + p_arg);
 	WScript.Echo("");
 	usage_help();
@@ -102,9 +111,17 @@ if (format == "xhtml")
 else
 	xslt = html_xslt;
 
-FSObject.CopyFile(logtalk_home + "\\xml\\logtalk.dtd", WshShell.CurrentDirectory + "\\logtalk.dtd");
-FSObject.CopyFile(logtalk_home + "\\xml\\logtalk.xsd", WshShell.CurrentDirectory + "\\logtalk.xsd");
-FSObject.CopyFile(logtalk_home + "\\xml\\logtalk.css", directory + "\\logtalk.css");
+if (!FSObject.FileExists(WshShell.CurrentDirectory + "\\logtalk.dtd")) {
+	FSObject.CopyFile(logtalk_home + "\\xml\\logtalk.dtd", WshShell.CurrentDirectory + "\\logtalk.dtd");
+}
+
+if (!FSObject.FileExists(WshShell.CurrentDirectory + "\\logtalk.xsd")) {
+	FSObject.CopyFile(logtalk_home + "\\xml\\logtalk.xsd", WshShell.CurrentDirectory + "\\logtalk.xsd");
+}
+
+if (!FSObject.FileExists(directory + "\\logtalk.css")) {
+	FSObject.CopyFile(logtalk_user + "\\xml\\logtalk.css", directory + "\\logtalk.css");
+}
 
 WScript.Echo("");
 WScript.Echo("converting XML files...");
@@ -143,9 +160,6 @@ create_index_file();
 WScript.Echo("index file generated");
 WScript.Echo("");
 
-FSObject.DeleteFile("logtalk.dtd");
-FSObject.DeleteFile("logtalk.xsd");
-
 WScript.Quit(0);
 
 function usage_help() {
@@ -162,7 +176,7 @@ function usage_help() {
 	WScript.Echo("  d - output directory for the generated files (default is " + directory + ")");
 	WScript.Echo("  i - name of the index file (default is " + index_file + ")");
 	WScript.Echo("  t - title to be used on the index file (default is " + index_title + ")");
-	WScript.Echo("  p - XSLT processor (xsltproc, xalan, or sabcmd; default is " + processor + ")");
+	WScript.Echo("  p - XSLT processor (msxsl, xsltproc, xalan, or sabcmd; default is " + processor + ")");
 	WScript.Echo("");
 	WScript.Quit(1);
 }

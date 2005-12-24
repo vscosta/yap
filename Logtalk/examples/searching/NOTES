@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -13,8 +13,8 @@ dates_loader, types_loader, events_loader, metapredicates_loader, and
 hierarchies_loader. Alternatively, you can just load the library all_loader 
 file.
 
-Some of the code in this folder is adopted from the book "Prolog Programming
-for Artificial Intelligence" by Ivan Bratko.
+Some of the code in this folder is adopted, with permission, from the book 
+"Prolog Programming for Artificial Intelligence" by Ivan Bratko.
 
 For a description of the search problems, please see a classical AI book 
 (such as the one above) or visit the url <http://www.plastelina.net/games>.
@@ -40,4 +40,7 @@ state-spaces and another for representing search methods:
 			hill_climbing(Threshold)
 
 Taken together, these two hierarchies implement a framework for solving 
-state-space search problems in Logtalk.
+state-space search problems in Logtalk. There is also a monitor object, 
+"performance", which tries to measure the time taken to find a solution, 
+the branching factor while searching for a solution, and the number of 
+transitions made to find a solution.

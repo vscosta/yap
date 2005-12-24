@@ -1,13 +1,13 @@
 
 :- initialization(
-	logtalk_load([
-		math_constants,
-		ellipse3,
-		circle2,
-		circle11,
-		red_circle1,
-		colours,
-		rational,
-		rectangle2,
-		sort1,
-		square1])).
+	logtalk_load(
+		[ovals, polygons, sorting])).
+
+/*
+If you intend to use the FOP XSL:FO processor for generating PDF documenting
+files, comment the directive above and uncomment the directive below
+
+:- initialization(
+	logtalk_load(
+		[ovals, polygons, sorting], [xmlsref(standalone)])).
+*/

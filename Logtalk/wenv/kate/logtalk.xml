@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
 
-<language name="Logtalk" version="1.40" kateversion="2.4" section="Sources" extensions="*.lgt;*.config" mimetype="text/x-logtalk" author="Paulo Moura (pmoura@logtalk.org)" license="Artistic License 2.0">
+<language name="Logtalk" version="1.50" kateversion="2.4" section="Sources" extensions="*.lgt;*.config" mimetype="text/x-logtalk" author="Paulo Moura (pmoura@logtalk.org)" license="Artistic License 2.0">
 
 	<highlighting>
 
@@ -149,15 +149,16 @@
 				<!-- Entity directives -->
 				<RegExpr String = "\b(category|object|protocol)(?=[(])" attribute = "Directive" context = "entityrelations" beginRegion = "Entity"/>
 				<RegExpr String = "\bend_(category|object|protocol)[.]" attribute = "Directive" context = "#pop" endRegion = "Entity" />
+				<RegExpr String = "\bmodule(?=[(])" attribute = "Directive" context = "#pop"/>
  				<!-- Predicate scope directives -->
 				<RegExpr String = "\bp(ublic|r(otected|ivate))(?=[(])" attribute = "Directive" context = "#pop" />
 				<!-- Other directives -->
-				<RegExpr String = "\bencoding(?=[(])" attribute = "Directive" context = "#pop" />
+				<RegExpr String = "\be(ncoding|xport)(?=[(])" attribute = "Directive" context = "#pop" />
 			   	<RegExpr String = "\bin(fo|itialization)(?=[(])" attribute = "Directive" context = "#pop" />
 				<RegExpr String = "\bdynamic[.]" attribute = "Directive" context = "#pop" />
-				<RegExpr String = "\b(alias|d(ynamic|iscontiguous)|m(etapredicate|ode|ultifile))(?=[(])" attribute = "Directive" context = "#pop" />
+				<RegExpr String = "\b(alias|d(ynamic|iscontiguous)|meta_predicate|m(etapredicate|ode|ultifile))(?=[(])" attribute = "Directive" context = "#pop" />
 				<RegExpr String = "\bop(?=[(])" attribute = "Directive" context = "#pop" />
-				<RegExpr String = "\b(calls|uses)(?=[(])" attribute = "Directive" context = "#pop" />
+				<RegExpr String = "\b(calls|use(s|_module))(?=[(])" attribute = "Directive" context = "#pop" />
 			</context>
 
 			<context name = "entityrelations" attribute = "Normal" lineEndContext = "#stay" >

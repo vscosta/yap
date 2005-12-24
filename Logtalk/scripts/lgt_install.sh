@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.25.1
+## Release 2.26.2
 ##
 ## Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -23,20 +23,20 @@ echo
 echo "Installing Logtalk on $prefix ..."
 echo
 
-rm -rf $prefix/lgt2251
+rm -rf $prefix/lgt2262
 rm -f $prefix/logtalk
 
-mkdir $prefix/lgt2251
+mkdir $prefix/lgt2262
 
 cd ..
-cp -R * $prefix/lgt2251
+cp -R * $prefix/lgt2262
 
 cd $prefix
-chmod -R go-w,a+r lgt2251
-chmod a+x lgt2251
-chmod a+x lgt2251/scripts/*.sh
-chmod a+x lgt2251/xml/*.sh
-ln -sf lgt2251 logtalk
+chmod -R go-w,a+r lgt2262
+chmod a+x lgt2262
+chmod a+x lgt2262/scripts/*.sh
+chmod a+x lgt2262/xml/*.sh
+ln -sf lgt2262 logtalk
 
 mkdir -p bin
 cd bin
@@ -51,7 +51,7 @@ echo
 echo "You may want to run some of the Prolog integration scripts, which you"
 echo "will find on the same directory as this installer script."
 echo
-echo "Users should define the environment variable LOGTALKHOME pointing"
+echo "Users must define the environment variable LOGTALKHOME pointing"
 echo "to $prefix/logtalk and then run the shell script cplgtdirs"
 echo "in order to copy the Logtalk user-modifiable files to their home"
 echo "directories."

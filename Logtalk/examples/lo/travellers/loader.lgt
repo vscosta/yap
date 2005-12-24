@@ -1,47 +1,13 @@
 
-:- op(400, yfx, ~).
+:- initialization(
+	logtalk_load(
+		[sorting, towns, salesman])).
+
+/*
+If you intend to use the FOP XSL:FO processor for generating PDF documenting
+files, comment the directive above and uncomment the directive below
 
 :- initialization(
-	logtalk_load([
-		quick1,
-
-		location2,
-
-		aberdeen,
-		aberystwyth,
-		birmingham,
-		brighton,
-		bristol,
-		cambridge,
-		cardiff,
-		carlisle,
-		dover,
-		edinburgh,
-		exeter,
-		glasgow,
-		hull,
-		leeds,
-		liverpool,
-		london,
-		manchester,
-		newcastle,
-		nottingham,
-		oxford,
-		penzance,
-		portsmouth,
-		sheffield,
-		swansea,
-		york,
-
-		salesman,
-
-		circular,
-		incremental,
-		presort,
-		driving,
-		geographic2,
-		metric1,
-		permute,
-
-		descend,
-		natural])).
+	logtalk_load(
+		[sorting, towns, salesman], [xmlsref(standalone)])).
+*/

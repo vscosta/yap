@@ -1,7 +1,7 @@
 /*
 This category defines a set of predicates, which are imported by the 
 roots of both the class-based and the prototype-based hierarchies of
-this example
+this example.
 */
 
 :- category(predicates).

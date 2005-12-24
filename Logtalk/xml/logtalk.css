@@ -12,29 +12,35 @@ blockquote {
 
 h1, h2, h3, h4, h5, h6 {
 	color: teal;
+	background-color: inherit;
 }
 
 a:link {
 	color: blue;
+	background-color: inherit;
 	text-decoration: none
 }
 
 a:visited {
 	color: navy;
+	background-color: inherit;
 	text-decoration: none
 }
 
 a:hover {
 	color: blue;
+	background-color: inherit;
 	text-decoration: underline
 } 
 
 a:active {
 	color: red;
+	background-color: inherit;
 	text-decoration: underline
 }
 
 .header {
+	color: inherit;
 	background-color: #dfdfdf;
 	margin-left: 0em;
 	margin-right: 0em;
@@ -59,6 +65,7 @@ a:active {
 }
 
 .section {
+	color: inherit;
 	background-color: #f3f3f3;
 	margin-left: 0em;
 	margin-top: 0.5em;
@@ -95,17 +102,20 @@ a:active {
 
 .comment {
 	color: navy;
+	background-color: inherit;
 	font-family: sans-serif;
 	font-style: italic;
 }
 
 .code, code, pre {
 	color: navy;
+	background-color: inherit;
 	font-family: monospace;
 }
 
 .type {
 	color: maroon;
+	background-color: inherit;
 	text-align: right;
 	font-weight: bold;
 }
@@ -120,11 +130,13 @@ dl.properties {
 
 .key {
 	color: teal;
+	background-color: inherit;
 	padding-top: 0.5em;
 }
 
 .value {
 	color: navy;
+	background-color: inherit;
 	padding-left: 0em;
 }
 
@@ -151,6 +163,7 @@ dl.examples {
 
 dl.examples .code {
 	color: maroon;
+	background-color: inherit;
 }
 
 dl.remarks {

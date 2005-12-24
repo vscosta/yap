@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.25.1
+// Release 2.26.2
 //
 // Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -17,7 +17,18 @@ if (WshSystemEnv.Item("LOGTALKHOME"))
 else if (WshUserEnv.Item("LOGTALKHOME"))
 	logtalk_home = WshUserEnv.Item("LOGTALKHOME")
 else {
-	WScript.Echo("Error! The environment variable LOGTALKHOME must be defined first!");
+	WScript.Echo("The environment variable LOGTALKHOME must be defined first!");
+	usage_help();
+	WScript.Quit(1);
+}
+
+var FSObject = new ActiveXObject("Scripting.FileSystemObject");
+
+if (!FSObject.FolderExists(logtalk_home)) {
+	WScript.Echo("The environment variable LOGTALKHOME points to a non-existing directory!");
+	WScript.Echo("Its current value is: %LOGTALKHOME%");
+	WScript.Echo("The variable must be set to your Logtalk installation directory!");
+	WScript.Echo("");
 	usage_help();
 	WScript.Quit(1);
 }
@@ -34,11 +45,9 @@ else {
 	WScript.Echo("");
 }
 
-var fso = new ActiveXObject("Scripting.FileSystemObject");
-
-if (fso.FolderExists(logtalk_user)) {
-	WScript.Echo("Error! Logtalk directory already exists!");
-	WScript.Echo("Please rename it and run this script again.");
+if (FSObject.FolderExists(logtalk_user)) {
+	WScript.Echo("Error! Logtalk user directory already exists!");
+	WScript.Echo("Please rename it or delete it and run this script again.");
 	WScript.Echo("");
 	usage_help();
 }
@@ -48,17 +57,54 @@ WScript.Echo("");
 WScript.Echo("  " + logtalk_user);
 WScript.Echo("");
 
-fso.CreateFolder(logtalk_user);
+FSObject.CreateFolder(logtalk_user);
 
 WScript.Echo("Copying Logtalk files and directories...");
-fso.CopyFolder(logtalk_home + "\\configs", logtalk_user + "\\configs");
-fso.CopyFolder(logtalk_home + "\\contributions", logtalk_user + "\\contributions");
-fso.CopyFolder(logtalk_home + "\\examples", logtalk_user + "\\examples");
-fso.CopyFolder(logtalk_home + "\\libpaths", logtalk_user + "\\libpaths");
-fso.CopyFolder(logtalk_home + "\\library", logtalk_user + "\\library");
-fso.CopyFolder(logtalk_home + "\\xml", logtalk_user + "\\xml");
+FSObject.CopyFolder(logtalk_home + "\\configs", logtalk_user + "\\configs");
+FSObject.CopyFile(logtalk_user + "\\configs\\xsb.config", logtalk_user + "\\configs\\xsb.P");
+FSObject.CopyFile(logtalk_user + "\\configs\\xsbcvs.config", logtalk_user + "\\configs\\xsbcvs.P");
+FSObject.CopyFolder(logtalk_home + "\\contributions", logtalk_user + "\\contributions");
+FSObject.CopyFolder(logtalk_home + "\\examples", logtalk_user + "\\examples");
+FSObject.CopyFolder(logtalk_home + "\\libpaths", logtalk_user + "\\libpaths");
+FSObject.CopyFile(logtalk_user + "\\libpaths\\libpaths.pl", logtalk_user + "\\libpaths\\libpaths.P");
+FSObject.CopyFolder(logtalk_home + "\\library", logtalk_user + "\\library");
+FSObject.CopyFolder(logtalk_home + "\\xml", logtalk_user + "\\xml");
 
-WScript.Echo("Finished copying Logtalk files directories.");
+FSObject.DeleteFile(logtalk_user + "\\xml\\lgt2*.*");
+FSObject.DeleteFile(logtalk_user + "\\xml\\logtalk.dtd");
+FSObject.DeleteFile(logtalk_user + "\\xml\\logtalk.xsd");
+
+var link = WshShell.CreateShortcut(logtalk_user + "\\manuals.lnk");
+link.Description = "Shortcut to Logtalk documentation";
+link.TargetPath = logtalk_home + "\\manuals";
+link.Save();
+
+link = WshShell.CreateShortcut(logtalk_user + "\\xml\\lgt2html.js.lnk");
+link.Description = "Shortcut to lgt2html script";
+link.TargetPath = logtalk_home + "\\xml\\lgt2html.js";
+link.Save();
+
+link = WshShell.CreateShortcut(logtalk_user + "\\xml\\lgt2pdf.js.lnk");
+link.Description = "Shortcut to lgt2pdf script";
+link.TargetPath = logtalk_home + "\\xml\\lgt2pdf.js";
+link.Save();
+
+link = WshShell.CreateShortcut(logtalk_user + "\\xml\\lgt2xml.js.lnk");
+link.Description = "Shortcut to lgt2xml script";
+link.TargetPath = logtalk_home + "\\xml\\lgt2xml.js";
+link.Save();
+
+link = WshShell.CreateShortcut(logtalk_user + "\\xml\\logtalk.dtd.lnk");
+link.Description = "Shortcut to Logtalk DTD";
+link.TargetPath = logtalk_home + "\\xml\\logtalk.dtd";
+link.Save();
+
+link = WshShell.CreateShortcut(logtalk_user + "\\xml\\logtalk.xsd.lnk");
+link.Description = "Shortcut to Logtalk XML Schema";
+link.TargetPath = logtalk_home + "\\xml\\logtalk.xsd";
+link.Save();
+
+WScript.Echo("Finished copying Logtalk files and directories.");
 WScript.Echo("");
 WScript.Echo("You may need to edit the contents of the file:");
 WScript.Echo("");

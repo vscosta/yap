@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<?xml-stylesheet type="text/css" href="../styles.css" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
 	<title>Logtalk user manual: programming in Logtalk</title>
-	<link rel="stylesheet" href="../styles.css" type="text/css" />
+	<link rel="stylesheet" href="../screen.css" type="text/css" media="screen"/>
+	<link rel="stylesheet" href="../print.css" type="text/css" media="print"/>
 </head>
 
 <body>
 
-<div class="navtop">
-<a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a>
-</div>
+<div class="top-left">Logtalk user manual</div> 
+<div class="top-right">Programming in Logtalk</div>
+<div class="bottom-left"><span class="page"/></div> 
+<div class="bottom-right"><span class="page"/></div>
+<div class="navtop"><a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a></div>
 
 <h1>Programming in Logtalk</h1>
 
-<h2>Writing programs<a name="writing"></a></h2>
+<h2>Writing programs<a id="writing"></a></h2>
 
 <p>
 For a successful programming in Logtalk, you need a good working knowledge of Prolog and an understanding of the principles of object-oriented programming. All guidelines for writing good Prolog code apply as well to Logtalk programming. To those guidelines, you should add the basics of good object-oriented design.
@@ -29,68 +30,75 @@ For a successful programming in Logtalk, you need a good working knowledge of Pr
 One of the advantages of a system like Logtalk is that it enable us to use the currently available object-oriented methodologies, tools, and metrics <a href="../bibliography.html#Champaux92">[Champaux 92]</a> in Prolog programming. That said, writing programs in Logtalk is similar to writing programs in Prolog: we define new predicates describing what is true about our domain objects, about our problem solution. We encapsulate our predicate directives and definitions inside new objects, categories and protocols that we create by hand with a text editor or by using the Logtalk built-in predicates. Some of the information collected during the analysis and design phases can be integrated in the objects, categories and protocols that we define by using the available entity and predicate documenting directives.
 </p>
 
-<h3>Source files<a name="source_files"></a></h3>
+<h3>Source files<a id="source_files"></a></h3>
 
 <p>
-Logtalk source files may contain any number of objects, categories, or protocols. If you prefer to define each entity in its own source file, then it is recommended that the source file be named after the entity identifier. For parametric objects, the identifier arity can be appended to the identifier functor. By default, all Logtalk source files use the extension <code>.lgt</code> but this is optional and can be set in the configuration files. Compiled source files (by the Logtalk preprocessor) have, by default, a <code>.pl</code> extension. Again, this can be set to match the needs of a particular Prolog compiler in the corresponding configuration file. For example, we may define an object named <code>vehicle</code> and save it in a <code>vehicle.lgt</code> source file that will be compiled to a <code>vehicle.pl</code> Prolog file. If we have a <code>sort(_)</code> parametric object we can save it on a <code>sort_1.lgt</code> source file that will be compiled to a <code>sort_1.pl</code> Prolog file. This name scheme helps avoid file name conflicts (remember that all Logtalk entities share the same name space).
+Logtalk source files may contain any number of objects, categories, protocols, and plain Prolog code. If you prefer to define each entity in its own source file, then it is recommended that the source file be named after the entity identifier. For parametric objects, the identifier arity can be appended to the identifier functor. By default, all Logtalk source files use the extension <code>.lgt</code> but this is optional and can be set in the configuration files. Compiled source files (by the Logtalk preprocessor) have, by default, a <code>.pl</code> extension. Again, this can be set to match the needs of a particular Prolog compiler in the corresponding configuration file. For example, we may define an object named <code>vehicle</code> and save it in a <code>vehicle.lgt</code> source file that will be compiled to a <code>vehicle.pl</code> Prolog file. If we have a <code>sort(_)</code> parametric object we can save it on a <code>sort_1.lgt</code> source file that will be compiled to a <code>sort_1.pl</code> Prolog file. This name scheme helps avoid file name conflicts (remember that all Logtalk entities share the same name space).
 </p>
 <p>
 Logtalk source files may contain arbitrary Prolog directives and clauses interleaved with Logtalk entity definitions. These directives and clauses will not be compiled by the Logtalk preprocessor and will be copied unchanged to the corresponding Prolog output file. This feature is included to help the integration of Logtalk with other Prolog extensions such as, for example, constraint programming extensions.
 </p>
 
-<h3>Loader utility files<a name="loaders"></a></h3>
+<h3>Loader utility files<a id="loaders"></a></h3>
 
 <p>
 Most examples directories contain a Logtalk utility file that can be used to load all included source files. These loader utility files are usually named <code>loader.lgt</code> or contain the word "loader" in their name. Loader files are compiled and loaded like any ordinary Logtalk source file. For an example loader file named <code>loader.lgt</code> we would type:
 </p>
-<pre>
-    | ?- logtalk_load(loader). 
-</pre>
+<pre>| ?- logtalk_load(loader).</pre>
 <p>
 Usually these files contain a call to the Logtalk built-in predicates <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a> or <a title="Consult reference manual" href="../refman/builtins/logtalk_load2.html"><code>logtalk_load/2</code></a>, wrapped inside an <code>initialization/1</code> directive. For instance, if your code is split in three Logtalk source files named <code>source1.lgt</code>, <code>source2.lgt</code>, and <code>source3.lgt</code>, then the contents of your loader file could be:
 </p>
-<pre>
-    :- initialization(
-        logtalk_load([
-            source1,
-            source2,
-            source3])). 
-</pre>
+<pre>:- initialization(
+    logtalk_load([
+        source1, source2, source3])). </pre>
 <p>
-Another example of directives that are often used in a loader file would be <code>op/3</code> directives declaring global operators needed by your application.
+Another example of directives that are often used in a loader file would be <code>op/3</code> directives declaring global operators needed by your application. Loader files are also often used for setting compiler options for the source files (this is useful even when you only have a single source file if you always load it with using the same set of compiler options). For example:
 </p>
+<pre>:- initialization(
+    logtalk_load(
+        [source1, source2, source3],
+        [underscore_vars(dont_care), portability(warning), xmlspec(xsd)])). </pre>
 <p>
 To take the best advantage of loader files, assert a clause to the dynamic predicate <code>logtalk_library_path/2</code> for the directory containing your source files, as explained in the next section.
 </p>
+<p>
+A common mistake is to try to set compiler options using <code>logtalk_load/2</code> with a loader file. For example, by writing:
+</p>
+<pre>| ?- logtalk_load(loader, [xmlspec(xsd), xslfile('lgtxhtml.xsl')]).</pre>
+<p>
+This will not work as you might expect as the compiler options will only be used in the compilation of the <code>loader.lgt</code> file itself and will not affect the compilation of files loaded through the <code>initialization/1</code> directive contained on the loader file.	
+</p>
 
-<h3>Libraries of source files<a name="libraries"></a></h3>
+<h3>Libraries of source files<a id="libraries"></a></h3>
 
 <p>
-Logtalk defines a <em>library</em> simply as a directory containing source files. Library locations can be specified by asserting clauses to the dynamic predicate <code>logtalk_library_path/2</code>. For example:
+Logtalk defines a <em>library</em> simply as a directory containing source files. Library locations can be specified by asserting clauses to the dynamic predicate <a title="Consult reference manual" href="../refman/builtins/logtalk_library_path2.html"><code>logtalk_library_path/2</code></a>. For example:
 </p>
-<pre>
-    | ?- assertz(logtalk_library_path(shapes, '$LOGTALKHOME/examples/shapes/')). 
-</pre>
+<pre>| ?- assertz(logtalk_library_path(shapes, '$LOGTALKUSER/examples/shapes/')). </pre>
+<p>
+The first argument of the predicate is used as an alias for the path on the second argument. Library aliases may also be used on the second argument. For example:
+</p>
+<pre>| ?- assertz(logtalk_library_path(lgtuser, '$LOGTALKUSER/')),
+     assertz(logtalk_library_path(examples, lgtuser('examples/'))),
+     assertz(logtalk_library_path(viewpoints, examples('viewpoints/'))).</pre>
 <p>
 This allows us to load a library source file without the need to first change the current working directory to the library directory and then back to the original directory. For example, in order to load a <code>loader.lgt</code> file, contained in a library named <code>shapes</code>, we just need to type:
 </p>
-<pre>
-    | ?- logtalk_load(shapes(loader)). 
-</pre>
+<pre>| ?- logtalk_load(viewpoints(loader)). </pre>
 <p>
-The best way to take advantage of this feature is to load at startup a source file containing an <code>initialization/1</code> directive which asserts all the <code>logtalk_library_path/2</code> clauses needed for all available libraries. This allows us to load library source files or entire libraries without worrying about libraries paths, improving code portability.
+The best way to take advantage of this feature is to load at startup a source file containing an <code>initialization/1</code> directive which asserts all the <code>logtalk_library_path/2</code> clauses needed for all available libraries. This allows us to load library source files or entire libraries without worrying about libraries paths, improving code portability. The directory paths on the second argument must always end with the  path directory separator character.
 </p>
 <p>
-Unfortunately, a few Prolog compilers do not support the <code>&lt;library&gt;(&lt;source file&gt;)</code> notation. In this case, you will need to set the working directory to be the one that contains the source file in order to load it.
+Unfortunately, a few Prolog compilers do not support the <code>&lt;library&gt;(&lt;source file&gt;)</code> notation. In this case, you will need to set the working directory to be the one that contains the source file in order to load it. The library notation provides functionality similar to the <code>file_search_path/2</code> mechanism introduced by Quintus Prolog and later adopted by some other Prolog compilers.
 </p>
 
-<h3>Portable programs<a name="portability"></a></h3>
+<h3>Portable programs<a id="portability"></a></h3>
 
 <p>
 Logtalk is compatible with almost all modern Prolog compilers. However, this does not necessarily imply that your Logtalk programs will have the same level of portability. If possible, you should only use in your programs Logtalk built-in predicates and ISO Prolog defined built-in predicates. If you need to use built-in predicates that may not be available in other Prolog compilers, you should try to encapsulate the non-portable code in a small number of objects and provide a portable <strong>interface</strong> for that code through the use of Logtalk protocols. An example will be code that access operating-system specific features. The Logtalk compiler can warn you of the use of non-ISO defined built-in predicates by using the <code>portability/1</code> compiler flag.
 </p>
 
-<h3>Avoiding common errors<a name="errors"></a></h3>
+<h3>Avoiding common errors<a id="errors"></a></h3>
 
 <p>
 Try to write objects and protocol documentation <strong>before</strong> writing any other code; if you are having trouble documenting a predicate perhaps we need to go back to the design stage.
@@ -111,7 +119,7 @@ In general, Logtalk does not verify if a user predicate call/return arguments co
 Logtalk error handling strongly depends on the ISO compliance of the chosen Prolog compiler. For instance, the error terms that are generated by some Logtalk built-in predicates assume that the Prolog built-ins behave as defined in the ISO standard regarding error conditions. In particular, if your Prolog compiler does not support a <code>read_term/3</code> built-in predicate compliant with the ISO Prolog Standard definition, then the current version of the Logtalk preprocessor will not be able to detect misspell variables in your source code.
 </p>
 
-<h2>Logtalk scope<a name="scope"></a></h2>
+<h2>Logtalk scope<a id="scope"></a></h2>
 
 <p>
 Logtalk, as an object-oriented extension to Prolog, shares with it the same preferred areas of application but also extends them with those areas where object-oriented features provide an advantage compared to plain Prolog. Among these areas we have:
@@ -141,16 +149,14 @@ Logtalk, as an object-oriented extension to Prolog, shares with it the same pref
 		<dd>Logtalk support for most key object-oriented features helps users integrating Prolog with object-oriented languages like C++, Java, or Smalltalk by providing an high-level mapping between the two languages.</dd>
 </dl>
 
-<div class="navbottom">
-<a href="running.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="index.html">next</a>
-</div>
-
-<div class="copyright">
-Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
-</div>
-
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 3, 2005</span></p>
+	<div class="navbottom"><a href="running.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="index.html">next</a></div>
+	<div class="copyright">Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a></div>
+	<div class="footnote">
+		<span class="validators"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
+		<span class="date">Last updated on: November 16, 2005</span>
+	</div>
 </div>
+
 </body>
 </html>

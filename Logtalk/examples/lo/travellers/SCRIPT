@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -16,7 +16,7 @@ Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 
 | ?- incremental::route([london, brighton, portsmouth, exeter, oxford, aberystwyth], Route).
 
-Route = oxford~london~portsmouth~brighton~exeter~aberystwyth ?
+Route = oxford-london-portsmouth-brighton-exeter-aberystwyth ?
 yes
 
 
@@ -24,7 +24,7 @@ yes
 
 | ?- presort::route([london, brighton, portsmouth, exeter, oxford, aberystwyth], Route).
 
-Route = brighton~london~oxford~portsmouth~exeter~aberystwyth ?
+Route = brighton-london-oxford-portsmouth-exeter-aberystwyth ?
 yes
 
 
@@ -32,7 +32,7 @@ yes
 
 | ?- circular::route([london, brighton, portsmouth, exeter, oxford, aberystwyth], Route).
 
-Route = london~brighton~portsmouth~exeter~aberystwyth~oxford~london ?
+Route = london-brighton-portsmouth-exeter-aberystwyth-oxford-london ?
 yes
 
 
@@ -40,5 +40,5 @@ yes
 
 | ?- permute::route([london, brighton, portsmouth, exeter, oxford, aberystwyth], Route).
 
-Route = (aberystwyth~exeter~portsmouth~brighton~london~oxford,273.6237583942784) ? 
+Route = (aberystwyth-exeter-portsmouth-brighton-london-oxford,273.6237583942784) ? 
 yes

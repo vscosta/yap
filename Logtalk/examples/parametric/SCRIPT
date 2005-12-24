@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.25.1
+Release 2.26.2
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -35,5 +35,19 @@ yes
 Hours = 13
 Mins = 52
 Secs = 42 
+
+Yes
+
+
+| ?- R = rectangle(W, H, X, Y), R::init, R::move(3, 4, NR), NR::position(X2, Y2).
+
+R = rectangle(2, 1, 0, 0)
+W = 2
+H = 1
+X = 0
+Y = 0
+NR = rectangle(2, 1, 3, 4)
+X2 = 3
+Y2 = 4 
 
 Yes
