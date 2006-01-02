@@ -10,8 +10,13 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2006-01-02 02:16:18 $,$Author: vsc $						 *
+* Last rev:	$Date: 2006-01-02 02:25:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.78  2006/01/02 02:16:18  vsc
+* support new interface between YAP and GMP, so that we don't rely on our own
+* allocation routines.
+* Several big fixes.
+*
 * Revision 1.77  2005/11/18 18:48:51  tiagosoares
 * support for executing c code when a cut occurs
 *
@@ -421,7 +426,7 @@ YAP_MkBigNumTerm(void *big)
 #if USE_GMP
   Term I;
   BACKUP_H();
-  I = Yap_MkBigIntTerm((MP_INT *)big);
+  I = Yap_MkBigIntTermCopy((MP_INT *)big);
   RECOVER_H();
   return I;
 #else
