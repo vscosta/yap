@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2006-01-02 02:25:44 $,$Author: vsc $						 *
+* Last rev:	$Date: 2006-01-02 03:35:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.79  2006/01/02 02:25:44  vsc
+* cannot release space from external GMPs.
+*
 * Revision 1.78  2006/01/02 02:16:18  vsc
 * support new interface between YAP and GMP, so that we don't rely on our own
 * allocation routines.
@@ -443,7 +446,7 @@ YAP_BigNumOfTerm(Term t, void *b)
     return;
   if (!IsBigIntTerm(t))
     return;
-  mpz_init_set(bz,Yap_BigIntOfTerm(t));
+  mpz_set(bz,Yap_BigIntOfTerm(t));
 #endif /* USE_GMP */
 }
 

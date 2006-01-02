@@ -10716,13 +10716,31 @@ a big int, creating a term from a big integer and to access the value
 of a big int from a term.
 @example
       YAP_Bool YAP_IsBigNumTerm(YAP_Term @var{t})
-      YAP_Term YAP_MkBigNumTerm(YAP_Int  @var{i})
-      YAP_Int  YAP_BigNumOfTerm(YAP_Term @var{t})
+      YAP_Term YAP_MkBigNumTerm(void  *@var{b})
+      void *YAP_BigNumOfTerm(YAP_Term @var{t}, void *@var{b})
 @end example
 @noindent
-YAP must support bignum for the configuration you are using (check
-the YAP configuration and setup). For now, Yap only supports the GNU
-GMP library and the @code{MP_INT *} type.
+YAP must support bignum for the configuration you are using (check the
+YAP configuration and setup). For now, Yap only supports the GNU GMP
+library, and @code{void *} will be a cast for @code{mpz_t}. Notice
+that @code{YAP_BigNumOfTerm} requires the number to be already
+initialised. As an example, we show how to print a bignum:
+
+@example
+static int
+p_print_bignum(void)
+{
+  mpz_t mz;
+  if (!YAP_IsBigNumTerm(YAP_ARG1))
+    return FALSE;
+
+  mpz_init(mz);
+  YAP_BigNumOfTerm(YAP_ARG1, mz);
+  gmp_printf("Shows up as %Zd\n", mz);
+  mpz_clear(mz);
+}
+@end example
+
 
 Currently, no primitives are supplied to users for manipulating data base
 references. 

@@ -116,7 +116,7 @@ extern X_API YAP_Term PROTO(YAP_MkBigNumTerm,(void *));
 extern X_API YAP_Int PROTO(YAP_IntOfTerm,(YAP_Term));
 
 /*    void *  BigNumOfTerm(Term) */
-extern X_API void *PROTO(YAP_BigNumOfTerm,(YAP_Term));
+extern X_API void *PROTO(YAP_BigNumOfTerm,(YAP_Term, void *));
 
 /*    Term MkFloatTerm(YAP_Float)  */
 extern X_API YAP_Term PROTO(YAP_MkFloatTerm,(YAP_Float));
