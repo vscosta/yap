@@ -117,12 +117,18 @@ wrputf(Float f, wrf writech)		/* writes a float	 */
       wrputc(' ', writech);
   }
   lastw = alphanum;
-  sprintf(s, "%.15g", f);
+  //  sprintf(s, "%.15g", f);
+  sprintf(s, RepAtom(FloatFormat)->StrOfAE, f);
   while (*pt == ' ')
     pt++;
-  if (*pt == 'i' || *pt == 'n')  /* inf or nan */
+  if (*pt == 'i' || *pt == 'n')  /* inf or nan */ {
+    wrputc('(', writech);    
     wrputc('+', writech);    
-  wrputs(pt, writech);
+    wrputs(pt, writech);
+    wrputc(')', writech);    
+  } else {    
+    wrputs(pt, writech);
+  }
   if (*pt == '-') pt++;
   while ((ch = *pt) != '\0') {
     if (ch < '0' || ch > '9')
@@ -448,9 +454,19 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
       case (CELL)FunctorBigInt:
 	{
 	  char *s = (char *)TR;
-	  while (s+2+mpz_sizeinbase(Yap_BigIntOfTerm(t), 10) > (char *)Yap_TrailTop)
-	    Yap_growtrail(2+mpz_sizeinbase(Yap_BigIntOfTerm(t), 10), TRUE);
-	  mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
+	  MP_INT *big = Yap_BigIntOfTerm(t);
+	  while (s+2+mpz_sizeinbase(big, 10) > (char *)Yap_TrailTop) {
+	    Yap_growtrail(2+mpz_sizeinbase(big, 10), TRUE);
+	    big = Yap_BigIntOfTerm(t);
+	  }
+	  if (mpz_sgn(big) < 0) {
+	    if (lastw == symbol)
+	      wrputc(' ', wglb->writech);  
+	  } else {
+	    if (lastw == alphanum)
+	      wrputc(' ', wglb->writech);
+	  }
+	  mpz_get_str(s, 10, big);
 	  wrputs(s,wglb->writech);
 	}
 	return;

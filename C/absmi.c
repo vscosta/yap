@@ -10,8 +10,13 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-12-23 00:20:13 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-01-02 02:16:17 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.190  2005/12/23 00:20:13  vsc
+* updates to gprof
+* support for __POWER__
+* Try to saveregs before longjmp.
+*
 * Revision 1.189  2005/12/17 03:25:38  vsc
 * major changes to support online event-based profiling
 * improve error discovery and restart on scanner.
@@ -316,6 +321,7 @@ AritFunctorOfTerm(Term t) {
   }
 }
 
+#define TMP_BIG(v)  Yap_BigTmp
 #define RINT(v)     return(MkIntegerTerm(v))
 #define RFLOAT(v)   return(MkFloatTerm(v))
 #define RBIG(v)     return(Yap_MkBigIntTerm(v))
@@ -3788,6 +3794,7 @@ Yap_absmi(int inp)
       ENDOp();
 
       Op(get_bigint, xc);
+#ifdef USE_GMP
       BEGD(d0);
       d0 = XREG(PREG->u.xc.x);
       deref_head(d0, gbigint_unk);
@@ -3797,25 +3804,17 @@ Yap_absmi(int inp)
 	FAIL();
       /* we have met a preexisting bigint */
       START_PREFETCH(xc);
-#ifdef USE_GMP
       BEGP(pt0);
       pt0 = RepAppl(d0);
       /* check functor */
       if (*pt0 != (CELL)FunctorBigInt)
-#else
-      if (TRUE)
-#endif
 	{
 	  FAIL();
 	}
-#ifdef USE_GMP
       if (mpz_cmp(Yap_BigIntOfTerm(d0),Yap_BigIntOfTerm(PREG->u.xc.c)))
 	FAIL();
-#endif
       PREG = NEXTOP(PREG, xc);      
-#ifdef USE_GMP
       ENDP(pt0);
-#endif
       /* enter read mode */
       GONext();
       END_PREFETCH();
@@ -3840,6 +3839,9 @@ Yap_absmi(int inp)
       ENDP(pt0);
 
       ENDD(d0);
+#else
+      FAIL();
+#endif
       ENDOp();
 
 /************************************************************************\
@@ -5809,6 +5811,7 @@ Yap_absmi(int inp)
       ENDOp();
 
       Op(unify_bigint, oc);
+#ifdef USE_GMP
       BEGD(d0);
       BEGP(pt0);
       pt0 = SREG++;
@@ -5819,25 +5822,19 @@ Yap_absmi(int inp)
       if (!IsApplTerm(d0)) {
 	FAIL();	
       }
-#ifdef USE_GMP
       BEGP(pt0);
       pt0 = RepAppl(d0);
-      BEGD(d0);
-      d0 = *pt0;
-      if (d0 != (CELL)FunctorBigInt)
-#endif
+      BEGD(d1);
+      d1 = *pt0;
+      if (d1 != (CELL)FunctorBigInt)
       {
 	FAIL();
       }
-#ifdef USE_GMP
-      ENDD(d0);
+      ENDD(d1);
       if (mpz_cmp(Yap_BigIntOfTerm(d0),Yap_BigIntOfTerm(PREG->u.oc.c)))
 	FAIL();
       PREG = NEXTOP(PREG, oc);
-#endif
-#ifdef USE_GMP
       ENDP(pt0);
-#endif
       GONext();
 
       derefa_body(d0, pt0, ubigint_unk, ubigint_nonvar);
@@ -5854,9 +5851,13 @@ Yap_absmi(int inp)
       ENDD(d1);
       ENDP(pt0);
       ENDD(d0);
+#else
+      FAIL();
+#endif
       ENDOp();
 
       Op(unify_l_bigint, oc);
+#ifdef USE_GMP
       BEGD(d0);
       CACHE_S();
       READ_IN_S();
@@ -5866,25 +5867,19 @@ Yap_absmi(int inp)
       if (!IsApplTerm(d0)) {
 	FAIL();	
       }
-#ifdef USE_GMP
       BEGP(pt0);
       pt0 = RepAppl(d0);
       BEGD(d0);
       d0 = *pt0;
       if (d0 != (CELL)FunctorBigInt)
-#endif
       {
 	FAIL();
       }
-#ifdef USE_GMP
       ENDD(d0);
       if (mpz_cmp(Yap_BigIntOfTerm(d0),Yap_BigIntOfTerm(PREG->u.oc.c)))
 	FAIL();
       PREG = NEXTOP(PREG, oc);
-#endif
-#ifdef USE_GMP
       ENDP(pt0);
-#endif
       GONext();
 
       derefa_body(d0, S_SREG, ulbigint_unk, ulbigint_nonvar);
@@ -5901,6 +5896,9 @@ Yap_absmi(int inp)
       ENDD(d1);
       ENDCACHE_S();
       ENDD(d0);
+#else
+      FAIL();
+#endif
       ENDOp();
 
       OpW(unify_list_write, o);
@@ -9762,15 +9760,19 @@ Yap_absmi(int inp)
     sll_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
-	d0 = MkIntegerTerm(IntOfTerm(d0) << IntOfTerm(d1));
+	Int i2 = IntOfTerm(d1);
+	if (i2 < 0)
+	  d0 = MkIntegerTerm(IntOfTerm(d0) >> -i2);
+	else
+	  d0 = do_sll(IntOfTerm(d0),i2);
       }
       else {
 	saveregs();
 	d0 = p_sll(d0, d1);
 	setregs();
-	if (PREG == (yamop *)FAILCODE)
-	  FAIL();
       }
+      if (PREG == (yamop *)FAILCODE)
+	FAIL();
       XREG(PREG->u.xxx.x) = d0;
       PREG = NEXTOP(PREG, xxx);
       GONext();
@@ -9803,16 +9805,18 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.xxc.c;
 	if (IsIntTerm(d0)) {
-	  d0 = MkIntegerTerm(IntOfTerm(d0) << d1);
+	  fprintf(stderr,"%d<<%d\n",IntOfTerm(d0), d1);
+	  d0 = do_sll(IntOfTerm(d0), (Int)d1);
+	  fprintf(stderr,"%d\n",IntegerOfTerm(d0));
 	}
 	else {
 	  saveregs();
 	  d0 = p_sll(d0, MkIntegerTerm(d1));
 	  setregs();
-	  if (PREG == (yamop *)FAILCODE)
-	    FAIL();
 	}
       }
+      if (PREG == (yamop *)FAILCODE)
+	FAIL();
       XREG(PREG->u.xxc.x) = d0;
       PREG = NEXTOP(PREG, xxc);
       GONext();
@@ -9836,16 +9840,20 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.xcx.c;
 	if (IsIntTerm(d0)) {
-	  d0 = MkIntegerTerm(d1 << IntOfTerm(d0));
+	  Int i2 = IntOfTerm(d0);
+	  if (i2 < 0)
+	    d0 = MkIntegerTerm(d1 >> -i2);
+	  else
+	    d0 = do_sll(d1,i2);
 	}
 	else {
 	  saveregs();
 	  d0 = p_sll(MkIntegerTerm(d1), d0);
 	  setregs();
-	  if (PREG == (yamop *)FAILCODE)
-	    FAIL();
 	}
       }
+      if (PREG == (yamop *)FAILCODE)
+	FAIL();
       XREG(PREG->u.xxc.x) = d0;
       PREG = NEXTOP(PREG, xcx);
       GONext();
@@ -9873,15 +9881,19 @@ Yap_absmi(int inp)
     sll_y_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
-	d0 = MkIntegerTerm(IntOfTerm(d0) << IntOfTerm(d1));
+	Int i2 = IntOfTerm(d1);
+	if (i2 < 0)
+	  d0 = MkIntegerTerm(IntOfTerm(d0) >> -i2);
+	else
+	  d0 = do_sll(IntOfTerm(d0),i2);
       }
       else {
 	saveregs();
 	d0 = p_sll(d0, d1);
 	setregs();
-	if (PREG == (yamop *)FAILCODE)
-	  FAIL();
       }
+      if (PREG == (yamop *)FAILCODE)
+	FAIL();
       BEGP(pt0);
       pt0 = YREG + PREG->u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
@@ -9921,16 +9933,16 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.yxc.c;
 	if (IsIntTerm(d0)) {
-	  d0 = MkIntegerTerm(IntOfTerm(d0) << d1);
+	  d0 = do_sll(IntOfTerm(d0), d1);
 	}
 	else {
 	  saveregs();
 	  d0 = p_sll(d0, MkIntegerTerm(d1));
 	  setregs();
-	  if (PREG == (yamop *)FAILCODE)
-	    FAIL();
 	}
       }
+      if (PREG == (yamop *)FAILCODE)
+	FAIL();
       BEGP(pt0);
       pt0 = YREG + PREG->u.yxc.y;
       PREG = NEXTOP(PREG, yxc);
@@ -9962,16 +9974,20 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.ycx.c;
 	if (IsIntTerm(d0)) {
-	  d0 = MkIntegerTerm(d1 << IntOfTerm(d0));
+	  Int i2 = IntOfTerm(d0);
+	  if (i2 < 0)
+	    d0 = MkIntegerTerm(d1 >> -i2);
+	  else
+	    d0 = do_sll(d1,i2);
 	}
 	else {
 	  saveregs();
 	  d0 = p_sll(MkIntegerTerm(d1), d0);
 	  setregs();
-	  if (PREG == (yamop *)FAILCODE)
-	    FAIL();
 	}
       }
+      if (PREG == (yamop *)FAILCODE)
+	FAIL();
       BEGP(pt0);
       pt0 = YREG + PREG->u.ycx.y;
       PREG = NEXTOP(PREG, ycx);
@@ -10006,15 +10022,19 @@ Yap_absmi(int inp)
     slr_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
-	d0 = MkIntegerTerm(IntOfTerm(d0) >> IntOfTerm(d1));
+	Int i2 = IntOfTerm(d1);
+	if (i2 < 0)
+	  d0 = do_sll(IntOfTerm(d0), -i2);
+	else
+	  d0 = MkIntTerm(IntOfTerm(d0) >> i2);
       }
       else {
 	saveregs();
 	d0 = p_slr(d0, d1);
 	setregs();
-	if (PREG == (yamop *)FAILCODE)
-	  FAIL();
       }
+      if (PREG == (yamop *)FAILCODE)
+	FAIL();
       XREG(PREG->u.xxx.x) = d0;
       PREG = NEXTOP(PREG, xxx);
       GONext();
@@ -10047,7 +10067,7 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.xxc.c;
 	if (IsIntTerm(d0)) {
-	  d0 = MkIntegerTerm(IntOfTerm(d0) >> d1);
+	  d0 = MkIntTerm(IntOfTerm(d0) >> d1);
 	}
 	else {
 	  saveregs();
@@ -10080,16 +10100,20 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.xcx.c;
 	if (IsIntTerm(d0)) {
-	  d0 = MkIntegerTerm(d1 >> IntOfTerm(d0));
+	 Int i2 = IntOfTerm(d0);
+	 if (i2 < 0)
+	   d0 = do_sll(d1, -i2);
+	 else
+	   d0 = MkIntTerm(d1 >> i2);
 	}
 	else {
 	  saveregs();
 	  d0 = p_slr(MkIntegerTerm(d1), d0);
 	  setregs();
-	  if (PREG == (yamop *)FAILCODE)
-	    FAIL();
 	}
       }
+      if (PREG == (yamop *)FAILCODE)
+	FAIL();
       XREG(PREG->u.xxc.x) = d0;
       PREG = NEXTOP(PREG, xcx);
       GONext();
@@ -10117,16 +10141,20 @@ Yap_absmi(int inp)
     slr_y_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
-	d0 = MkIntegerTerm(IntOfTerm(d0) >> IntOfTerm(d1));
+	 Int i2 = IntOfTerm(d1);
+	 if (i2 < 0)
+	   d0 = do_sll(IntOfTerm(d0), -i2);
+	 else
+	   d0 = MkIntTerm(IntOfTerm(d0) >> i2);
       }
       else {
 	saveregs();
 	d0 = p_slr(d0, d1);
 	setregs();
-	if (PREG == (yamop *)FAILCODE)
-	  FAIL();
       }
       BEGP(pt0);
+      if (PREG == (yamop *)FAILCODE)
+	FAIL();
       pt0 = YREG + PREG->u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
 #if defined(SBA) && defined(FROZEN_STACKS)
@@ -10165,7 +10193,7 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.yxc.c;
 	if (IsIntTerm(d0)) {
-	  d0 = MkIntegerTerm(IntOfTerm(d0) >> d1);
+	  d0 = MkIntTerm(IntOfTerm(d0) >> d1);
 	}
 	else {
 	  saveregs();
@@ -10204,16 +10232,20 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.ycx.c;
 	if (IsIntTerm(d0)) {
-	  d0 = MkIntegerTerm(d1 >> IntOfTerm(d0));
+	 Int i2 = IntOfTerm(d0);
+	 if (i2 < 0)
+	   d0 = do_sll(d1, -i2);
+	 else
+	   d0 = MkIntTerm(d1 >> i2);
 	}
 	else {
 	  saveregs();
 	  d0 = p_slr(MkIntegerTerm(d1), d0);
 	  setregs();
-	  if (PREG == (yamop *)FAILCODE)
-	    FAIL();
 	}
       }
+      if (PREG == (yamop *)FAILCODE)
+	FAIL();
       BEGP(pt0);
       pt0 = YREG + PREG->u.ycx.y;
       PREG = NEXTOP(PREG, ycx);

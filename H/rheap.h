@@ -11,8 +11,12 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2005-12-17 03:25:39 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-01-02 02:16:18 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.60  2005/12/17 03:25:39  vsc
+* major changes to support online event-based profiling
+* improve error discovery and restart on scanner.
+*
 * Revision 1.59  2005/12/05 17:16:11  vsc
 * write_depth/3
 * overflow handlings and garbage collection
@@ -372,6 +376,7 @@ restore_codes(void)
   Yap_heap_regs->atom_usr_out = AtomAdjust(Yap_heap_regs->atom_usr_out);
   Yap_heap_regs->atom_version_number = AtomAdjust(Yap_heap_regs->atom_version_number);
   Yap_heap_regs->atom_write = AtomAdjust(Yap_heap_regs->atom_write);
+  Yap_heap_regs->float_format = AtomAdjust(Yap_heap_regs->float_format);
 #ifdef   USE_SOCKET
   Yap_heap_regs->functor_af_inet = FuncAdjust(Yap_heap_regs->functor_af_inet);
   Yap_heap_regs->functor_af_local = FuncAdjust(Yap_heap_regs->functor_af_local);

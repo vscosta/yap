@@ -275,6 +275,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 '$binaryop'(X*Y		,*	,X,Y).
 '$binaryop'(X/Y		,/	,X,Y).
 '$binaryop'(X mod Y	,mod	,X,Y).
+'$binaryop'(X rem Y	,rem 	,X,Y).
 '$binaryop'(X//Y	,//	,X,Y).
 '$binaryop'(X/\Y	,/\	,X,Y).
 '$binaryop'(X\/Y	,\/	,X,Y).
@@ -287,7 +288,6 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 '$binaryop'(max(X,Y)	,max	,X,Y).
 '$binaryop'(min(X,Y)	,min	,X,Y).
 '$binaryop'(gcd(X,Y)	,gcd	,X,Y).
-'$binaryop'(gcdmult(X,Y),gcdmult,X,Y).
 
 
 % The table number for each operation is given here

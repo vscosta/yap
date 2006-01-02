@@ -27,7 +27,7 @@ true :- true.
 
 '$do_live' :-
 	repeat,
-		'$set_input'(user),'$set_output'(user),
+		'$set_input'(user_input),'$set_output'(user),
 		'$current_module'(Module),
 		( Module==user ->
 		    '$compile_mode'(_,0)
@@ -65,380 +65,380 @@ true :- true.
 	    ;
 		'$current_module'(_,V), '$compile_mode'(_,0),
 		('$access_yap_flags'(16,0) ->
-		    ( exists('~/.yaprc') -> load_files('~/.yaprc', []) ; true ),
-		    ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
-		    ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true )
-		;
-		    true
-		)
-	    ),
-	    '$db_clean_queues'(0),
-	    '$startup_reconsult',
-	    '$startup_goals'
-	;
-	  '$print_message'(informational,break(BreakLevel))
-	).
+		     ( exists('~/.yaprc') -> load_files('~/.yaprc', []) ; true ),
+		     ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
+		     ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true )
+		 ;
+		     true
+		 )
+	     ),
+	     '$db_clean_queues'(0),
+	     '$startup_reconsult',
+	     '$startup_goals'
+	 ;
+	   '$print_message'(informational,break(BreakLevel))
+	 ).
 
 
-%
-% encapsulate $cut_by because of co-routining.
-%
-'$cut_by'(X) :- '$$cut_by'(X).
+ %
+ % encapsulate $cut_by because of co-routining.
+ %
+ '$cut_by'(X) :- '$$cut_by'(X).
 
-% Start file for yap
+ % Start file for yap
 
-/*		I/O predicates						*/
+ /*		I/O predicates						*/
 
-/* meaning of flags for '$write' is
-	 1	quote illegal atoms
-	 2	ignore operator declarations
-	 4	output '$VAR'(N) terms as A, B, C, ...
-	 8	use portray(_)
-*/
+ /* meaning of flags for '$write' is
+	  1	quote illegal atoms
+	  2	ignore operator declarations
+	  4	output '$VAR'(N) terms as A, B, C, ...
+	  8	use portray(_)
+ */
 
-/* main execution loop							*/
-'$read_vars'(Stream,T,Mod,Pos,V) :-
-	'$read'(true,T,Mod,V,Pos,Err,Stream),
-	(nonvar(Err) ->
-	    '$print_message'(error,Err), fail
-	    ;
-	    true
-	).
+ /* main execution loop							*/
+ '$read_vars'(Stream,T,Mod,Pos,V) :-
+	 '$read'(true,T,Mod,V,Pos,Err,Stream),
+	 (nonvar(Err) ->
+	     '$print_message'(error,Err), fail
+	     ;
+	     true
+	 ).
 
-% reset alarms when entering top-level.
-'$enter_top_level' :-
-        '$alarm'(0, _),
-	fail.
-'$enter_top_level' :-
-	'$clean_up_dead_clauses',
-	fail.
-'$enter_top_level' :-
-	recorded('$restore_goal',G,R),
-	erase(R),
-	prompt(_,'   | '),
-	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
-	fail.
-'$enter_top_level' :-
-        get_value('$break',BreakLevel),
-	( recorded('$trace',on,_) ->
-	    TraceDebug = trace
-	;
-	  recorded('$debug', on, _) ->
-	    TraceDebug = debug
-	;
-	    true
-	),
-	'$print_message'(informational,prompt(BreakLevel,TraceDebug)),
-	fail.
-'$enter_top_level' :-
-	'$current_module'(Module),
-	get_value('$top_level_goal',GA), GA \= [], !,
-	set_value('$top_level_goal',[]),
-	'$run_atom_goal'(GA),
-	set_value('$live','$false').
-'$enter_top_level' :-
-	prompt(_,'   ?- '),
-	prompt('   | '),
-	'$run_toplevel_hooks',
-	'$read_vars'(user_input,Command,_,_,Varnames),
-	set_value(spy_gn,1),
-	( recorded('$spy_skip',_,R), erase(R), fail ; true),
-	( recorded('$spy_stop',_,R), erase(R), fail ; true),
-	prompt(_,'   |: '),
-	'$command'((?-Command),Varnames,top),
-	'$sync_mmapped_arrays',
-	set_value('$live','$false').
+ % reset alarms when entering top-level.
+ '$enter_top_level' :-
+	 '$alarm'(0, _),
+	 fail.
+ '$enter_top_level' :-
+	 '$clean_up_dead_clauses',
+	 fail.
+ '$enter_top_level' :-
+	 recorded('$restore_goal',G,R),
+	 erase(R),
+	 prompt(_,'   | '),
+	 '$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
+	 fail.
+ '$enter_top_level' :-
+	 get_value('$break',BreakLevel),
+	 ( recorded('$trace',on,_) ->
+	     TraceDebug = trace
+	 ;
+	   recorded('$debug', on, _) ->
+	     TraceDebug = debug
+	 ;
+	     true
+	 ),
+	 '$print_message'(informational,prompt(BreakLevel,TraceDebug)),
+	 fail.
+ '$enter_top_level' :-
+	 '$current_module'(Module),
+	 get_value('$top_level_goal',GA), GA \= [], !,
+	 set_value('$top_level_goal',[]),
+	 '$run_atom_goal'(GA),
+	 set_value('$live','$false').
+ '$enter_top_level' :-
+	 prompt(_,'   ?- '),
+	 prompt('   | '),
+	 '$run_toplevel_hooks',
+	 '$read_vars'(user_input,Command,_,_,Varnames),
+	 set_value(spy_gn,1),
+	 ( recorded('$spy_skip',_,R), erase(R), fail ; true),
+	 ( recorded('$spy_stop',_,R), erase(R), fail ; true),
+	 prompt(_,'   |: '),
+	 '$command'((?-Command),Varnames,top),
+	 '$sync_mmapped_arrays',
+	 set_value('$live','$false').
 
-'$startup_goals' :-
-	get_value('$extend_file_search_path',P), P \= [],
-	set_value('$extend_file_search_path',[]),
-	'$extend_file_search_path'(P),
-	fail.
-'$startup_goals' :-
-	recorded('$startup_goal',G,_),
-	'$current_module'(Module),
-	'$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)),
-	fail.
-'$startup_goals' :-
-	get_value('$init_goal',GA), GA \= [],
-	set_value('$init_goal',[]),
-	'$run_atom_goal'(GA),
-	fail.
-'$startup_goals'.
+ '$startup_goals' :-
+	 get_value('$extend_file_search_path',P), P \= [],
+	 set_value('$extend_file_search_path',[]),
+	 '$extend_file_search_path'(P),
+	 fail.
+ '$startup_goals' :-
+	 recorded('$startup_goal',G,_),
+	 '$current_module'(Module),
+	 '$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)),
+	 fail.
+ '$startup_goals' :-
+	 get_value('$init_goal',GA), GA \= [],
+	 set_value('$init_goal',[]),
+	 '$run_atom_goal'(GA),
+	 fail.
+ '$startup_goals'.
 
-'$startup_reconsult' :-
-	get_value('$consult_on_boot',X), X \= [], !,
-	set_value('$consult_on_boot',[]),
-	'$do_startup_reconsult'(X).
-'$startup_reconsult'.
+ '$startup_reconsult' :-
+	 get_value('$consult_on_boot',X), X \= [], !,
+	 set_value('$consult_on_boot',[]),
+	 '$do_startup_reconsult'(X).
+ '$startup_reconsult'.
 
-%
-% remove any debugging info after an abort.
-%
-'$clean_debugging_info' :-
-	recorded('$spy',_,R),
-	erase(R),
-	fail.
-'$clean_debugging_info'.
+ %
+ % remove any debugging info after an abort.
+ %
+ '$clean_debugging_info' :-
+	 recorded('$spy',_,R),
+	 erase(R),
+	 fail.
+ '$clean_debugging_info'.
 
-'$erase_sets' :- 
-		eraseall('$'),
-		eraseall('$$set'),
-		eraseall('$$one'), 
-		eraseall('$reconsulted'), fail.
-'$erase_sets' :- \+ recorded('$path',_,_), recorda('$path',"",_).
-'$erase_sets'.
+ '$erase_sets' :- 
+		 eraseall('$'),
+		 eraseall('$$set'),
+		 eraseall('$$one'), 
+		 eraseall('$reconsulted'), fail.
+ '$erase_sets' :- \+ recorded('$path',_,_), recorda('$path',"",_).
+ '$erase_sets'.
 
-'$version' :- 
-	get_value('$version_name',VersionName),
-	'$print_message'(help, version(VersionName)),
-	fail.
-'$version' :- recorded('$version',VersionName,_),
-	'$print_message'(help, VersionName),
-	fail.
-'$version'.
+ '$version' :- 
+	 get_value('$version_name',VersionName),
+	 '$print_message'(help, version(VersionName)),
+	 fail.
+ '$version' :- recorded('$version',VersionName,_),
+	 '$print_message'(help, VersionName),
+	 fail.
+ '$version'.
 
-repeat :- '$repeat'.
+ repeat :- '$repeat'.
 
-'$repeat'.
-'$repeat'.
-'$repeat'.
-'$repeat'.
-'$repeat'.
-'$repeat'.
-'$repeat'.
-'$repeat'.
-'$repeat'.
-'$repeat' :- '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat' :- '$repeat'.
 
-'$start_corouts' :- recorded('$corout','$corout'(Name,_,_),R), Name \= main, finish_corout(R),
-		fail.
-'$start_corouts' :- 
-		eraseall('$corout'),
-		eraseall('$result'),
-		eraseall('$actual'),
-		fail.
-'$start_corouts' :- recorda('$actual',main,_),
-	recordz('$corout','$corout'(main,main,'$corout'([],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[])),_Ref),
-	recorda('$result',going,_).
+ '$start_corouts' :- recorded('$corout','$corout'(Name,_,_),R), Name \= main, finish_corout(R),
+		 fail.
+ '$start_corouts' :- 
+		 eraseall('$corout'),
+		 eraseall('$result'),
+		 eraseall('$actual'),
+		 fail.
+ '$start_corouts' :- recorda('$actual',main,_),
+	 recordz('$corout','$corout'(main,main,'$corout'([],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[])),_Ref),
+	 recorda('$result',going,_).
 
-'$command'(C,VL,Con) :-
-	'$access_yap_flags'(9,1), !,
-	'$execute_command'(C,VL,Con,C).
-'$command'(C,VL,Con) :-
-	( (Con = top ; var(C) ; C = [_|_])  ->  
-	'$execute_command'(C,VL,Con,C), ! ;
-        expand_term(C, EC),
-	'$execute_commands'(EC,VL,Con,C)
-        ).
+ '$command'(C,VL,Con) :-
+	 '$access_yap_flags'(9,1), !,
+	 '$execute_command'(C,VL,Con,C).
+ '$command'(C,VL,Con) :-
+	 ( (Con = top ; var(C) ; C = [_|_])  ->  
+	 '$execute_command'(C,VL,Con,C), ! ;
+	 expand_term(C, EC),
+	 '$execute_commands'(EC,VL,Con,C)
+	 ).
 
-%
-% Hack in case expand_term has created a list of commands.
-%
-'$execute_commands'(V,_,_,Source) :- var(V), !,
-	'$do_error'(instantiation_error,meta_call(Source)).
-'$execute_commands'([],_,_,_) :- !, fail.
-'$execute_commands'([C|Cs],VL,Con,Source) :- !,
-	(
-	  '$execute_command'(C,VL,Con,Source)
-	;
-	  '$execute_commands'(Cs,VL,Con,Source)
-	),
-	fail.
-'$execute_commands'(C,VL,Con,Source) :-
-	'$execute_command'(C,VL,Con,Source).
+ %
+ % Hack in case expand_term has created a list of commands.
+ %
+ '$execute_commands'(V,_,_,Source) :- var(V), !,
+	 '$do_error'(instantiation_error,meta_call(Source)).
+ '$execute_commands'([],_,_,_) :- !, fail.
+ '$execute_commands'([C|Cs],VL,Con,Source) :- !,
+	 (
+	   '$execute_command'(C,VL,Con,Source)
+	 ;
+	   '$execute_commands'(Cs,VL,Con,Source)
+	 ),
+	 fail.
+ '$execute_commands'(C,VL,Con,Source) :-
+	 '$execute_command'(C,VL,Con,Source).
 
-%
-%
-%
+ %
+ %
+ %
 
-'$execute_command'(C,_,top,Source) :- var(C), !,
-	'$do_error'(instantiation_error,meta_call(Source)).
-'$execute_command'(C,_,top,Source) :- number(C), !,
-	'$do_error'(type_error(callable,C),meta_call(Source)).
-'$execute_command'(R,_,top,Source) :- db_reference(R), !,
-	'$do_error'(type_error(callable,R),meta_call(Source)).
-'$execute_command'(end_of_file,_,_,_) :- !.
-'$execute_command'((:-G),_,Option,_) :- !,
-	'$current_module'(M),
-	'$process_directive'(G, Option, M),
-	fail.
-'$execute_command'((?-G),V,_,Source) :- !,
-	'$execute_command'(G,V,top,Source).
-'$execute_command'(G,V,Option,Source) :-
-	'$continue_with_command'(Option,V,G,Source).
+ '$execute_command'(C,_,top,Source) :- var(C), !,
+	 '$do_error'(instantiation_error,meta_call(Source)).
+ '$execute_command'(C,_,top,Source) :- number(C), !,
+	 '$do_error'(type_error(callable,C),meta_call(Source)).
+ '$execute_command'(R,_,top,Source) :- db_reference(R), !,
+	 '$do_error'(type_error(callable,R),meta_call(Source)).
+ '$execute_command'(end_of_file,_,_,_) :- !.
+ '$execute_command'((:-G),_,Option,_) :- !,
+	 '$current_module'(M),
+	 '$process_directive'(G, Option, M),
+	 fail.
+ '$execute_command'((?-G),V,_,Source) :- !,
+	 '$execute_command'(G,V,top,Source).
+ '$execute_command'(G,V,Option,Source) :-
+	 '$continue_with_command'(Option,V,G,Source).
 
-%
-% This command is very different depending on the language mode we are in.
-%
-% ISO only wants directives in files
-% SICStus accepts everything in files
-% YAP accepts everything everywhere
-% 
-'$process_directive'(G, top, M) :-
-	'$access_yap_flags'(8, 0), !, % YAP mode, go in and do it,
-	'$process_directive'(G, consult, M).
-'$process_directive'(G, top, _) :- !,
-	'$do_error'(context_error((:- G),clause),query).
-%
-% allow modules
-%
-'$process_directive'(M:G, Mode, _) :- !,
-	'$process_directive'(G, Mode, M).
-%
-% default case
-%
-'$process_directive'(Gs, Mode, M) :-
-	'$all_directives'(Gs), !,
-	'$exec_directives'(Gs, Mode, M).
+ %
+ % This command is very different depending on the language mode we are in.
+ %
+ % ISO only wants directives in files
+ % SICStus accepts everything in files
+ % YAP accepts everything everywhere
+ % 
+ '$process_directive'(G, top, M) :-
+	 '$access_yap_flags'(8, 0), !, % YAP mode, go in and do it,
+	 '$process_directive'(G, consult, M).
+ '$process_directive'(G, top, _) :- !,
+	 '$do_error'(context_error((:- G),clause),query).
+ %
+ % allow modules
+ %
+ '$process_directive'(M:G, Mode, _) :- !,
+	 '$process_directive'(G, Mode, M).
+ %
+ % default case
+ %
+ '$process_directive'(Gs, Mode, M) :-
+	 '$all_directives'(Gs), !,
+	 '$exec_directives'(Gs, Mode, M).
 
-%
-% ISO does not allow goals (use initialization).
-%
-'$process_directive'(D, _, M) :-
-	'$access_yap_flags'(8, 1), !, % ISO Prolog mode, go in and do it,
-	'$do_error'(context_error((:- M:D),query),directive).
-%
-% but YAP and SICStus does.
-%
-'$process_directive'(G, _, M) :-
-	( '$do_yes_no'(G,M) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ),
-	'$do_not_creep'.
+ %
+ % ISO does not allow goals (use initialization).
+ %
+ '$process_directive'(D, _, M) :-
+	 '$access_yap_flags'(8, 1), !, % ISO Prolog mode, go in and do it,
+	 '$do_error'(context_error((:- M:D),query),directive).
+ %
+ % but YAP and SICStus does.
+ %
+ '$process_directive'(G, _, M) :-
+	 ( '$do_yes_no'(G,M) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ),
+	 '$do_not_creep'.
 
-'$continue_with_command'(reconsult,V,G,Source) :-
-	'$go_compile_clause'(G,V,5,Source),
-	fail.
-'$continue_with_command'(consult,V,G,Source) :-
-	'$go_compile_clause'(G,V,13,Source),
-	fail.
-'$continue_with_command'(top,V,G,_) :-
-	'$query'(G,V),
-	'$do_not_creep'.
+ '$continue_with_command'(reconsult,V,G,Source) :-
+	 '$go_compile_clause'(G,V,5,Source),
+	 fail.
+ '$continue_with_command'(consult,V,G,Source) :-
+	 '$go_compile_clause'(G,V,13,Source),
+	 fail.
+ '$continue_with_command'(top,V,G,_) :-
+	 '$query'(G,V),
+	 '$do_not_creep'.
 
-%
-% not 100% compatible with SICStus Prolog, as SICStus Prolog would put
-% module prefixes all over the place, although unnecessarily so.
-%
-'$go_compile_clause'(Mod:G,V,N,Source) :- !,
-	'$go_compile_clause'(G,V,N,Mod,Source).
-'$go_compile_clause'((M:G :- B),V,N,Source) :- !,
-	'$current_module'(M1),
-	(M1 = M ->
-	   NG = (G :- B)
-        ;
-	   '$preprocess_clause_before_mod_change'((G:-B),M1,M,NG)
-	),
-	'$go_compile_clause'(NG,V,N,M,Source).
-'$go_compile_clause'(G,V,N,Source) :-
-	'$current_module'(Mod),
-	'$go_compile_clause'(G,V,N,Mod,Source).
+ %
+ % not 100% compatible with SICStus Prolog, as SICStus Prolog would put
+ % module prefixes all over the place, although unnecessarily so.
+ %
+ '$go_compile_clause'(Mod:G,V,N,Source) :- !,
+	 '$go_compile_clause'(G,V,N,Mod,Source).
+ '$go_compile_clause'((M:G :- B),V,N,Source) :- !,
+	 '$current_module'(M1),
+	 (M1 = M ->
+	    NG = (G :- B)
+	 ;
+	    '$preprocess_clause_before_mod_change'((G:-B),M1,M,NG)
+	 ),
+	 '$go_compile_clause'(NG,V,N,M,Source).
+ '$go_compile_clause'(G,V,N,Source) :-
+	 '$current_module'(Mod),
+	 '$go_compile_clause'(G,V,N,Mod,Source).
 
-'$go_compile_clause'(G, V, N, Mod, Source) :-
-	'$prepare_term'(G, V, G0, G1, Mod, Source),
-	'$$compile'(G1, G0, N, Mod).
+ '$go_compile_clause'(G, V, N, Mod, Source) :-
+	 '$prepare_term'(G, V, G0, G1, Mod, Source),
+	 '$$compile'(G1, G0, N, Mod).
 
-'$prepare_term'(G, V, G0, G1, Mod, Source) :-
-	( get_value('$syntaxcheckflag',on) ->
-		'$check_term'(Source, V, Mod) ; true ),
-	'$precompile_term'(G, G0, G1, Mod).
+ '$prepare_term'(G, V, G0, G1, Mod, Source) :-
+	 ( get_value('$syntaxcheckflag',on) ->
+		 '$check_term'(Source, V, Mod) ; true ),
+	 '$precompile_term'(G, G0, G1, Mod).
 
-% process an input clause
-'$$compile'(G, G0, L, Mod) :-
-	'$head_and_body'(G,H,_), 
-	'$flags'(H, Mod, Fl, Fl),
-	is(NFl, /\, Fl, 0x00002000),
-	( NFl \= 0 -> '$assertz_dynamic'(L,G,G0,Mod) ;
-	    '$compile'(G, L, G0, Mod) ).
+ % process an input clause
+ '$$compile'(G, G0, L, Mod) :-
+	 '$head_and_body'(G,H,_), 
+	 '$flags'(H, Mod, Fl, Fl),
+	 is(NFl, /\, Fl, 0x00002000),
+	 ( NFl \= 0 -> '$assertz_dynamic'(L,G,G0,Mod) ;
+	     '$compile'(G, L, G0, Mod) ).
 
-% process a clause for a static predicate 
-'$$compile_stat'(G,G0,L,H, Mod) :-
-      '$compile'(G,L,G0,Mod).
+ % process a clause for a static predicate 
+ '$$compile_stat'(G,G0,L,H, Mod) :-
+       '$compile'(G,L,G0,Mod).
 
-'$check_if_reconsulted'(N,A) :-
-	recorded('$reconsulted',X,_),
-	( X = N/A , !;
-	  X = '$', !, fail;
-	  fail
-	).
+ '$check_if_reconsulted'(N,A) :-
+	 recorded('$reconsulted',X,_),
+	 ( X = N/A , !;
+	   X = '$', !, fail;
+	   fail
+	 ).
 
-'$inform_as_reconsulted'(N,A) :-
-	recorda('$reconsulted',N/A,_).
+ '$inform_as_reconsulted'(N,A) :-
+	 recorda('$reconsulted',N/A,_).
 
-'$clear_reconsulting' :-
-	recorded('$reconsulted',X,Ref),
-	erase(Ref),
-	X == '$', !,
-	( recorded('$reconsulting',_,R) -> erase(R) ).
+ '$clear_reconsulting' :-
+	 recorded('$reconsulted',X,Ref),
+	 erase(Ref),
+	 X == '$', !,
+	 ( recorded('$reconsulting',_,R) -> erase(R) ).
 
-/* Executing a query */
+ /* Executing a query */
 
-'$query'(end_of_file,_).
+ '$query'(end_of_file,_).
 
-% ***************************
-% * -------- YAPOR -------- *
-% ***************************
+ % ***************************
+ % * -------- YAPOR -------- *
+ % ***************************
 
-'$query'(G,V) :-
-	\+ '$undefined'('$yapor_on', prolog),
-	'$yapor_on',
-        \+ '$undefined'('$start_yapor', prolog),
-	'$parallelizable'(G), !,
-	'$parallel_query'(G,V),
-	fail.
+ '$query'(G,V) :-
+	 \+ '$undefined'('$yapor_on', prolog),
+	 '$yapor_on',
+	 \+ '$undefined'('$start_yapor', prolog),
+	 '$parallelizable'(G), !,
+	 '$parallel_query'(G,V),
+	 fail.
 
-% end of YAPOR
+ % end of YAPOR
 
-'$query'(G,[]) :- !,
-	'$yes_no'(G,(?-)).
-'$query'(G,V) :-
-	(
-	        ( recorded('$trace',on,_) -> '$creep' ; true),
-		'$execute'(G),
-		'$do_not_creep',
-		'$output_frozen'(G, V, LGs),
-		'$write_answer'(V, LGs, Written),
-		'$write_query_answer_true'(Written),
-		'$another',
-		!, fail ;
-		'$do_not_creep',
-		( '$undefined'('$print_message'(_,_),prolog) -> 
-		   '$present_answer'(user_error,"no~n", [])
-	        ;
-		   print_message(help,no)
-		),
-		fail
-	).
+ '$query'(G,[]) :- !,
+	 '$yes_no'(G,(?-)).
+ '$query'(G,V) :-
+	 (
+		 ( recorded('$trace',on,_) -> '$creep' ; true),
+		 '$execute'(G),
+		 '$do_not_creep',
+		 '$output_frozen'(G, V, LGs),
+		 '$write_answer'(V, LGs, Written),
+		 '$write_query_answer_true'(Written),
+		 '$another',
+		 !, fail ;
+		 '$do_not_creep',
+		 ( '$undefined'('$print_message'(_,_),prolog) -> 
+		    '$present_answer'(user_error,"no~n", [])
+		 ;
+		    print_message(help,no)
+		 ),
+		 fail
+	 ).
 
-'$yes_no'(G,C) :-
-	'$current_module'(M),
-	'$do_yes_no'(G,M),
-	'$do_not_creep',
-	'$output_frozen'(G, [], LGs),
-	'$write_answer'([], LGs, Written),
-        ( Written = [] ->
-	!,'$present_answer'(C, yes);
-	'$another', !
-	),
-	fail.
-'$yes_no'(_,_) :-
-	'$do_not_creep',
-	( '$undefined'('$print_message'(_,_),prolog) -> 
-	   '$present_answer'(user_error,"no~n", [])
-	;
-	   print_message(help,no)
-	),
-	fail.
+ '$yes_no'(G,C) :-
+	 '$current_module'(M),
+	 '$do_yes_no'(G,M),
+	 '$do_not_creep',
+	 '$output_frozen'(G, [], LGs),
+	 '$write_answer'([], LGs, Written),
+	 ( Written = [] ->
+	 !,'$present_answer'(C, yes);
+	 '$another', !
+	 ),
+	 fail.
+ '$yes_no'(_,_) :-
+	 '$do_not_creep',
+	 ( '$undefined'('$print_message'(_,_),prolog) -> 
+	    '$present_answer'(user_error,"no~n", [])
+	 ;
+	    print_message(help,no)
+	 ),
+	 fail.
 
-'$do_yes_no'([X|L], M) :- !, '$csult'([X|L], M).
-'$do_yes_no'(G, M) :-
-	  ( recorded('$trace',on,_) -> '$creep' ; true),
-	  '$execute'(M:G).
+ '$do_yes_no'([X|L], M) :- !, '$csult'([X|L], M).
+ '$do_yes_no'(G, M) :-
+	   ( recorded('$trace',on,_) -> '$creep' ; true),
+	   '$execute'(M:G).
 
-'$write_query_answer_true'([]) :- !,
-	format(user_error,'~ntrue',[]).
-'$write_query_answer_true'(_).
+ '$write_query_answer_true'([]) :- !,
+	 format(user_error,'~ntrue',[]).
+ '$write_query_answer_true'(_).
 
-'$output_frozen'(G,V,LGs) :-
+ '$output_frozen'(G,V,LGs) :-
 	\+ '$undefined'(bindings_message(_,_,_), swi),
 	swi:bindings_message(V, LGs, []), !.
 '$output_frozen'(G,V,LGs) :-

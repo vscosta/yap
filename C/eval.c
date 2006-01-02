@@ -33,7 +33,8 @@ yap_error_number Yap_matherror = YAP_NO_ERROR;
 #define E_ARGS   arith_retptr o
 #define USE_E_ARGS   o
 
-#define RBIG(v)     (o)->big = v; return(big_int_e)
+#define TMP_BIG()   ((o)->big)
+#define RBIG(v)     return(big_int_e)
 #define RINT(v)     (o)->Int = v; return(long_int_e)
 #define RFLOAT(v)   (o)->dbl = v; return(double_e)
 #define RERROR()    return(db_ref_e)
@@ -72,7 +73,11 @@ Eval(Term t, E_ARGS)
       RFLOAT(FloatOfTerm(t));
 #ifdef USE_GMP
     case (CELL)FunctorBigInt:
-      RBIG(Yap_BigIntOfTerm(t));
+      {
+	MP_INT *new = TMP_BIG();
+	mpz_init_set(new, Yap_BigIntOfTerm(t));
+	RBIG(new);
+      }
 #endif
     default:
       {
@@ -128,6 +133,7 @@ Yap_Eval(Term t, E_ARGS)
   }
   if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
+
     switch ((CELL)fun) {
     case (CELL)FunctorLongInt:
       RINT(LongIntOfTerm(t));
@@ -135,7 +141,11 @@ Yap_Eval(Term t, E_ARGS)
       RFLOAT(FloatOfTerm(t));
 #ifdef USE_GMP
     case (CELL)FunctorBigInt:
-      RBIG(Yap_BigIntOfTerm(t));
+      {
+	MP_INT *new = TMP_BIG();
+	mpz_init_set(new, Yap_BigIntOfTerm(t));
+	RBIG(new);
+      }
 #endif
     default:
       {
@@ -202,9 +212,15 @@ p_is(void)
 {				/* X is Y	 */
   union arith_ret res;
   blob_type bt;
+  Term out;
 
   bt = Eval(Deref(ARG2), &res);
-  return (Yap_unify_constant(ARG1,EvalToTerm(bt,&res)));
+  out = EvalToTerm(bt,&res);
+  if (out == TermNil) {
+    Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, ARG2, "is/2");
+    return FALSE;
+  }
+  return Yap_unify_constant(ARG1,out);
 }
 
 void

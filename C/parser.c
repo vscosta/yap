@@ -179,6 +179,7 @@ VarNames(VarEntry *p,Term l)
 			  VarNames(p->VarRight,
 				   VarNames(p->VarLeft,l)));
       if (H > ASP-4096) {
+	save_machine_regs();
 	longjmp(Yap_IOBotch,1);
       }  
       return(o);
@@ -436,8 +437,9 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	    t = MkFloatTerm(-FloatOfTerm(t));
 #ifdef USE_GMP
 	  else if (IsBigIntTerm(t)) {
-	    MP_INT *new = Yap_PreAllocBigNum();
+	    mpz_t new;
 
+	    mpz_init(new);
 	    mpz_neg(new, Yap_BigIntOfTerm(t));
 	    t = Yap_MkBigIntTerm(new);
 	  }

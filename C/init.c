@@ -1110,6 +1110,7 @@ InitCodes(void)
   AtomVar = Yap_FullLookupAtom("$VAR");
   Yap_heap_regs->atom_version_number = Yap_FullLookupAtom("$version_name");
   Yap_heap_regs->atom_write = Yap_LookupAtom ("write");
+  Yap_heap_regs->float_format = Yap_LookupAtom ("\%.15g");
 #ifdef   USE_SOCKET
   Yap_heap_regs->functor_af_inet = Yap_MkFunctor(Yap_LookupAtom("AF_INET"),2);
   Yap_heap_regs->functor_af_local = Yap_MkFunctor(Yap_LookupAtom("AF_LOCAL"),1);

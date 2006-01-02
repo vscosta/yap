@@ -634,12 +634,14 @@ static_growglobal(long size, CELL **ptr)
   Int ReallocDiff;
 
   /* adjust to a multiple of 256) */
+  Yap_PrologMode |= GrowStackMode;
   if (size < (omax-Yap_GlobalBase)/8)
     size = (omax-Yap_GlobalBase)/8;
   size = AdjustPageSize(size);
   Yap_ErrorMessage = NULL;
   if (!Yap_ExtendWorkSpace(size)) {
     Yap_ErrorMessage = "Global Stack crashed against Local Stack";
+    Yap_PrologMode &= ~GrowStackMode;
     return FALSE;
   }
   start_growth_time = Yap_cputime();
@@ -671,6 +673,7 @@ static_growglobal(long size, CELL **ptr)
     fprintf(Yap_stderr, "%% DO   took %g sec\n", (double)growth_time/1000);
     fprintf(Yap_stderr, "%% DO Total of %g sec expanding stacks \n", (double)total_delay_overflow_time/1000);
   }
+  Yap_PrologMode &= ~GrowStackMode;
   return(TRUE);
 }
 

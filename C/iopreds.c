@@ -666,6 +666,7 @@ MemPutc(int sno, int ch)
     if ((newbuf = Yap_AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
       if (Stream[sno].u.mem_string.error_handler) {
 	Yap_Error_Size = new_max_size*sizeof(char);
+	save_machine_regs();
 	longjmp(*(jmp_buf *)Stream[sno].u.mem_string.error_handler,1);
       } else {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP could not grow heap for writing to string");
@@ -2267,6 +2268,7 @@ CheckAlias (Atom arg)
 {
   AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases;
 
+  
   while (aliasp < aliasp_max) {
     if (aliasp->name == arg) {
       return(aliasp->alias_stream);
@@ -2328,9 +2330,8 @@ CheckStream (Term arg, int kind, char *msg)
   arg = Deref (arg);
   if (IsVarTerm (arg)) {
     Yap_Error(INSTANTIATION_ERROR, arg, msg);
-    return (-1);
-  }
-  else if (IsAtomTerm (arg)) {
+    return -1;
+  } else if (IsAtomTerm (arg)) {
     Atom sname = AtomOfTerm (arg);
 
     if (sname == AtomUser) {
@@ -3184,7 +3185,10 @@ static Int
 	v = Yap_VarNames(Yap_VarTable, TermNil);
 	break;
       } else {
-	tr_fr_ptr old_TR = TR;
+	tr_fr_ptr old_TR;
+	restore_machine_regs();
+
+	old_TR = TR;
 	/* don't need to recheck tokens */
 	tokstart = NULL;
 	/* restart global */
@@ -3912,6 +3916,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
     old_pos = Stream[sno].u.mem_string.pos;
     /* set up an error handler */
     if (setjmp(format_botch)) {
+      restore_machine_regs();
       *H++ = oargs;
       *H++ = otail;
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
@@ -4985,6 +4990,16 @@ p_same_file(void) {
 #endif
 }
 
+static Int
+p_float_format(void)
+{
+  Term in = Deref(ARG1);
+  if (IsVarTerm(in))
+    return Yap_unify(ARG1, MkAtomTerm(FloatFormat));
+  FloatFormat = AtomOfTerm(in);
+  return TRUE;
+}
+
 
 Term
 Yap_StringToTerm(char *s,Term *tp)
@@ -5129,6 +5144,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif
   Yap_InitCPred ("$same_file", 2, p_same_file, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 
 #if USE_SOCKET
   Yap_InitSockets ();

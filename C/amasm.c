@@ -11,8 +11,12 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-12-17 03:25:39 $							 *
+* Last rev:     $Date: 2006-01-02 02:16:17 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.85  2005/12/17 03:25:39  vsc
+* major changes to support online event-based profiling
+* improve error discovery and restart on scanner.
+*
 * Revision 1.84  2005/09/08 22:06:44  rslopes
 * BEAM for YAP update...
 *
@@ -2241,10 +2245,20 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_or_y_vc);
 	  break;
 	case _sll:
-	  code_p->opc = emit_op(_p_sll_y_vc);
+	  if ((Int)cmp_info->c_arg < 0) {
+	    code_p->opc = emit_op(_p_slr_y_vc);
+	    cmp_info->c_arg = -(Int)cmp_info->c_arg;
+	  } else {
+	    code_p->opc = emit_op(_p_sll_y_vc);
+	  }
 	  break;
 	case _slr:
-	  code_p->opc = emit_op(_p_slr_y_vc);
+	  if ((Int)cmp_info->c_arg < 0) {
+	    code_p->opc = emit_op(_p_sll_y_vc);
+	    cmp_info->c_arg = -(Int)cmp_info->c_arg;
+	  } else {
+	    code_p->opc = emit_op(_p_slr_y_vc);
+	  }
 	  break;
 	case _arg:
 	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x2_arg, "internal assembler error for arg/3");
@@ -2376,10 +2390,20 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_or_vc);
 	  break;
 	case _sll:
-	  code_p->opc = emit_op(_p_sll_vc);
+	  if ((Int)cmp_info->c_arg < 0) {
+	    code_p->opc = emit_op(_p_slr_vc);
+	    cmp_info->c_arg = -(Int)cmp_info->c_arg;
+	  } else {
+	    code_p->opc = emit_op(_p_sll_vc);
+	  }
 	  break;
 	case _slr:
-	  code_p->opc = emit_op(_p_slr_vc);
+	  if ((Int)cmp_info->c_arg < 0) {
+	    code_p->opc = emit_op(_p_sll_vc);
+	    cmp_info->c_arg = -(Int)cmp_info->c_arg;
+	  } else {
+	    code_p->opc = emit_op(_p_slr_vc);
+	  }
 	  break;
 	case _arg:
 	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x2_arg, "internal assembler error for arg/3");

@@ -16,6 +16,11 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> NEW: SWI-like yap_flag(float_format,_). </li>
+<li> FIXED: change C-interface to use new interface. </li>
+<li> FIXED: << and >> should handle overflows. </li>
+<li> FIXED: mod and rem now implement ISO semantics (hopefully). </li>
+<li> FIXED: change implementation of bigints to be more like GMP style. </li>
 <li> FIXED: handle assert/retracts and gprof overhead right. </li>
 <li> FIXED: indexing code was not setting up properly registers on longjmps. </li>
 <li> FIXED: use RISC architecture on MacOsX (__POWERPC__ + _POWER). </li>

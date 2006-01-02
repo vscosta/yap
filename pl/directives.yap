@@ -466,13 +466,6 @@ yap_flag(single_var_warnings,X) :-
 yap_flag(single_var_warnings,X) :-
 	'$do_error'(domain_error(flag_value,single_var_warnings+X),yap_flag(single_var_warnings,X)).
 
-yap_flag(single_var_warnings,X) :-
-	var(X), !,
-	('$syntax_check_mode'(on,_), '$syntax_check_single_var'(on,_) ->
-	    X = on
-	;
-	    X = off
-	).
 yap_flag(system_options,X) :-
 	'$system_options'(X).
 
@@ -633,8 +626,18 @@ yap_flag(verbose_auto_load,false) :- !,
 yap_flag(verbose_auto_load,X) :-
 	'$do_error'(domain_error(flag_value,verbose_auto_load+X),yap_flag(verbose_auto_load,X)).
 
+yap_flag(float_format,X) :-
+	var(X), !,
+	'$float_format'(X).
+yap_flag(float_format,X) :-
+	atom(X), !,
+	'$float_format'(X).
+yap_flag(float_format,X) :-
+	'$do_error'(type_error(atom,X),yap_flag(float_format,X)).
+
 '$show_yap_flag_opts'(V,Out) :-
 	(
+	    V = answer_format ;
 	    V = argv ;
 	    V = bounded ;
 	    V = char_conversion ;
@@ -646,6 +649,7 @@ yap_flag(verbose_auto_load,X) :-
 	    V = double_quotes ;
 %	    V = fast  ;
 	    V = fileerrors  ;
+	    V = float_format ;
 	    V = gc    ;
 	    V = gc_margin    ;
 	    V = gc_trace     ;

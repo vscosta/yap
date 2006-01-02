@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.89 2005-12-17 03:25:39 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.90 2006-01-02 02:16:18 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -81,6 +81,9 @@ typedef struct worker_local_struct {
 #if defined(YAPOR) || defined(THREADS)
   lockvar  signal_lock;        /* protect signal handlers from IPIs */
   struct pred_entry *wpp;
+#endif
+#ifdef USE_GMP
+  mpz_t  big_tmp;
 #endif
   UInt   active_signals;
   UInt   i_pred_arity;
@@ -368,6 +371,8 @@ typedef struct various_codes {
     atom_usr_err,
     atom_version_number,
     atom_write;
+  Atom answer_format,
+    float_format;
   Functor
 #ifdef   USE_SOCKET
     functor_af_inet,
@@ -637,6 +642,7 @@ struct various_codes *Yap_heap_regs;
 #define  AtomUsrOut               Yap_heap_regs->atom_usr_out
 #define  AtomVersionNumber        Yap_heap_regs->atom_version_number
 #define  AtomWrite                Yap_heap_regs->atom_write
+#define  FloatFormat              Yap_heap_regs->float_format
 #ifdef   USE_SOCKET
 #define  FunctorAfInet            Yap_heap_regs->functor_af_inet
 #define  FunctorAfLocal           Yap_heap_regs->functor_af_local
@@ -767,6 +773,7 @@ struct various_codes *Yap_heap_regs;
 #define  WPP                      Yap_heap_regs->wl[worker_id].wpp
 #define  UncaughtThrow            Yap_heap_regs->wl[worker_id].uncaught_throw
 #define  DoingUndefp              Yap_heap_regs->wl[worker_id].doing_undefp
+#define  Yap_BigTmp               Yap_heap_regs->wl[worker_id].big_tmp
 #define  ActiveSignals            Yap_heap_regs->wl[worker_id].active_signals
 #define  IPredArity               Yap_heap_regs->wl[worker_id].i_pred_arity
 #define  ProfEnd                  Yap_heap_regs->wl[worker_id].prof_end
@@ -832,6 +839,7 @@ struct various_codes *Yap_heap_regs;
 #define  FormatInfo               Yap_heap_regs->wl.f_info
 #define  ScannerStack             Yap_heap_regs->wl.scanner_stack
 #define  ScannerExtraBlocks       Yap_heap_regs->wl.scanner_extra_blocks
+#define  Yap_BigTmp               Yap_heap_regs->wl.big_tmp
 #define  ActiveSignals            Yap_heap_regs->wl.active_signals
 #define  IPredArity               Yap_heap_regs->wl.i_pred_arity
 #define  ProfEnd                  Yap_heap_regs->wl.prof_end

@@ -31,9 +31,12 @@ static char     SccsId[] = "%W% %G%";
 #define E_FUNC   blob_type
 #define E_ARGS   , arith_retptr o
 
-#define RINT(v)     (o)->Int = v; return(long_int_e)
-#define RFLOAT(v)   (o)->dbl = v; return(double_e)
-#define RBIG(v)     (o)->big = v; return(big_int_e)
+#define TMP_BIG()     ((o)->big)
+#define RINT(v)       (o)->Int = v; return(long_int_e)
+#define RFLOAT(v)     (o)->dbl = v; return(double_e)
+#define RBIG(v)       return(big_int_e)
+#define RERROR()      return(db_ref_e)
+
 #if  USE_GMP
 static blob_type
 float_to_int(Float v, union arith_ret *o)
@@ -43,18 +46,32 @@ float_to_int(Float v, union arith_ret *o)
     o->Int = i;
     return(long_int_e);
   } else {
-    MP_INT *new = Yap_PreAllocBigNum();
-
-    mpz_set_d(new, v);
-    o->big = new;
-    return(big_int_e);
+    mpz_init_set_d(o->big, v);
+    return big_int_e;
   }
 }
 #define RBIG_FL(v)  return(float_to_int(v,o))
 #else
-#define RBIG_FL(v)  (o)->Int = (Int)v; return(long_int_e)
+#define RBIG_FL(v)  (o)->Int = (Int)v; return long_int_e)
 #endif
-#define RERROR()    return(db_ref_e)
+
+static void
+process_iso_error(MP_INT *big, Term t, char *operation)
+{ /* iso */
+  Int sz = 2+mpz_sizeinbase(big,10);
+  char *s = Yap_AllocCodeSpace(sz);
+
+  if (s != NULL) {
+    mpz_get_str(s, 10, big);
+    Yap_Error(TYPE_ERROR_FLOAT, t, "X is %s(%s)", operation, s);
+    Yap_FreeCodeSpace(s);
+    P = (yamop *)FAILCODE;
+  } else {
+    Yap_Error(TYPE_ERROR_FLOAT, t, "X is %s(t)",operation);
+    P = (yamop *)FAILCODE;
+  }
+}
+
 
 inline static Functor
 AritFunctorOfTerm(Term t) {
@@ -81,10 +98,14 @@ EvalToTerm(blob_type f, union arith_ret *res)
     return(MkFloatTerm(res->dbl));
 #ifdef USE_GMP
   case big_int_e:
-    return(Yap_MkBigIntTerm(res->big));
+    {
+      Term t = Yap_MkBigIntTerm(res->big);
+      mpz_clear(res->big);
+      return t;
+    }
 #endif
   default:
-    return(TermNil);
+    return TermNil;
   }
 }
 
@@ -132,7 +153,9 @@ p_uplus(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     {
-      RBIG(Yap_BigIntOfTerm(t));
+      MP_INT *new = TMP_BIG();
+      mpz_init_set(new, Yap_BigIntOfTerm(t));
+      RBIG(new);
     }
 #endif
   default:
@@ -147,7 +170,9 @@ p_uplus(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       {
-	RBIG(v.big);
+	MP_INT *new = TMP_BIG();
+	MPZ_SET(new, v.big);
+	RBIG(new);
       }
 #endif
     default:
@@ -175,9 +200,10 @@ p_uminus(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     {
-      MP_INT *new = Yap_PreAllocBigNum();
+      MP_INT *new = TMP_BIG();
 
-      mpz_neg(new, Yap_BigIntOfTerm(t));
+      MPZ_SET(new, Yap_BigIntOfTerm(t));
+      mpz_neg(new, new);
       RBIG(new);
     }
 #endif
@@ -192,12 +218,8 @@ p_uminus(Term t E_ARGS)
       RFLOAT(-v.dbl);
 #ifdef USE_GMP
     case big_int_e:
-      {
-	MP_INT *new = Yap_PreAllocBigNum();
-
-	mpz_neg(new, v.big);
-	RBIG(new);
-      }
+      mpz_neg(v.big, v.big);
+      RBIG(v.big);
 #endif
     default:
       /* Error */
@@ -226,9 +248,10 @@ p_unot(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     {
-      MP_INT *new = Yap_PreAllocBigNum();
+      mpz_t new;
 
-      mpz_com(new, Yap_BigIntOfTerm(t));
+      mpz_init_set(new, Yap_BigIntOfTerm(t));
+      mpz_com(new, new);
       RBIG(new);
     }
 #endif
@@ -245,12 +268,13 @@ p_unot(Term t E_ARGS)
       RERROR();
 #ifdef USE_GMP
     case big_int_e:
-      {
-	MP_INT *new = Yap_PreAllocBigNum();
-	
-	mpz_com(new, v.big);
-	RBIG(new);
-      }
+    {
+      MP_INT *new = TMP_BIG();
+
+      MPZ_SET(new, v.big);
+      mpz_com(new, new);
+      RBIG(new);
+    }
 #endif
     default:
       /* Yap_Error */
@@ -276,7 +300,7 @@ p_exp(Term t E_ARGS)
     RFLOAT(exp(FloatOfTerm(t)));
 #ifdef USE_GMP
   case big_int_e:
-    RFLOAT(mpz_get_d(Yap_BigIntOfTerm(t)));
+    RFLOAT(exp(mpz_get_d(Yap_BigIntOfTerm(t))));
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
@@ -289,7 +313,12 @@ p_exp(Term t E_ARGS)
       RFLOAT(exp(v.dbl));
 #ifdef USE_GMP
     case big_int_e:
-      RFLOAT(mpz_get_d(v.big));
+      {
+	double dbl = mpz_get_d(v.big);
+
+	mpz_clear(v.big);
+	RFLOAT(exp(dbl));
+      }
 #endif
     default:
       /* Yap_Error */
@@ -333,8 +362,8 @@ p_log(Term t E_ARGS)
       dbl = v.dbl;
       break;
 #ifdef USE_GMP
-    case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -389,6 +418,7 @@ p_log10(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -443,6 +473,7 @@ p_sqrt(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -498,6 +529,7 @@ p_sin(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -546,6 +578,7 @@ p_cos(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -594,6 +627,7 @@ p_tan(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -642,6 +676,7 @@ p_sinh(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -690,6 +725,7 @@ p_cosh(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -738,6 +774,7 @@ p_tanh(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -786,6 +823,7 @@ p_asin(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -842,6 +880,7 @@ p_acos(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -898,6 +937,7 @@ p_atan(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -946,6 +986,7 @@ p_asinh(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -994,6 +1035,7 @@ p_acosh(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -1050,6 +1092,7 @@ p_atanh(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -1106,6 +1149,7 @@ p_lgamma(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       dbl = mpz_get_d(v.big);
+      mpz_clear(v.big);
       break;
 #endif
     default:
@@ -1161,8 +1205,8 @@ p_floor(Term t E_ARGS)
       char *s = Yap_AllocCodeSpace(sz);
 
       if (s != NULL) {
-	mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
-	Yap_Error(TYPE_ERROR_FLOAT, t, "X is floor(%s)", IntegerOfTerm(t));
+	mpz_get_str(s, 10, big);
+	Yap_Error(TYPE_ERROR_FLOAT, t, "X is floor(%s)", s);
 	P = (yamop *)FAILCODE;
 	Yap_FreeCodeSpace(s);
 	RERROR();
@@ -1172,7 +1216,7 @@ p_floor(Term t E_ARGS)
 	RERROR();
       }
     } else {
-      RFLOAT(mpz_get_d(Yap_BigIntOfTerm(t)));
+      dbl = mpz_get_d(Yap_BigIntOfTerm(t));
     }
 #endif
   default:
@@ -1194,23 +1238,25 @@ p_floor(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	MP_INT *big = v.big;
-	Int sz = 2+mpz_sizeinbase(big,10);
+	Int sz = 2+mpz_sizeinbase(v.big,10);
 	char *s = Yap_AllocCodeSpace(sz);
 
 	if (s != NULL) {
-	  mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is floor(%s)", IntegerOfTerm(t));
+	  mpz_get_str(s, 10, v.big);
+	  mpz_clear(v.big);
+	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is floor(%s)", s);
 	  Yap_FreeCodeSpace(s);
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else {
+	  mpz_clear(v.big);
 	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is floor(t)");
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	}
       } else {
-	RFLOAT(mpz_get_d(v.big));
+	dbl = mpz_get_d(v.big);
+	mpz_clear(v.big);
       }
 #endif
     default:
@@ -1252,23 +1298,10 @@ p_ceiling(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      MP_INT *big = Yap_BigIntOfTerm(t);
-      Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = Yap_AllocCodeSpace(sz);
-
-      if (s != NULL) {
-	mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
-	Yap_Error(TYPE_ERROR_FLOAT, t, "X is ceiling(%s)", IntegerOfTerm(t));
-	Yap_FreeCodeSpace(s);
-	P = (yamop *)FAILCODE;
-	RERROR();
-      } else {
-	Yap_Error(TYPE_ERROR_FLOAT, t, "X is ceiling(t)");
-	P = (yamop *)FAILCODE;
-	RERROR();
-      }
+      process_iso_error(Yap_BigIntOfTerm(t), t, "ceiling");
+      RERROR();
     } else {
-      RFLOAT(mpz_get_d(Yap_BigIntOfTerm(t)));
+      dbl = mpz_get_d(Yap_BigIntOfTerm(t));
     }
 #endif
   default:
@@ -1290,23 +1323,12 @@ p_ceiling(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	MP_INT *big = v.big;
-	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = Yap_AllocCodeSpace(sz);
-
-	if (s != NULL) {
-	  mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is ceiling(%s)", IntegerOfTerm(t));
-	  Yap_FreeCodeSpace(s);
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	} else {
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is ceiling(t)");
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	}
+	process_iso_error(v.big, t, "ceiling");
+	mpz_clear(v.big);
+	RERROR();
       } else {
-	RFLOAT(mpz_get_d(v.big));
+	dbl = mpz_get_d(v.big);
+	mpz_clear(v.big);
       }
 #endif
     default:
@@ -1374,24 +1396,11 @@ p_round(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      MP_INT *big = Yap_BigIntOfTerm(t);
-      Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = Yap_AllocCodeSpace(sz);
-
-      if (s != NULL) {
-	mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
-	Yap_Error(TYPE_ERROR_FLOAT, t, "X is round(%s)", IntegerOfTerm(t));
-	Yap_FreeCodeSpace(s);
-	P = (yamop *)FAILCODE;
-	RERROR();
-      } else {
-	Yap_Error(TYPE_ERROR_FLOAT, t, "X is round(t)");
-	P = (yamop *)FAILCODE;
-	RERROR();
-      }
+    if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {
+      process_iso_error(Yap_BigIntOfTerm(t), t, "round");
+      RERROR();      
     } else {
-      RFLOAT(mpz_get_d(Yap_BigIntOfTerm(t)));
+      dbl = mpz_get_d(Yap_BigIntOfTerm(t));
     }
 #endif
   default:
@@ -1413,23 +1422,12 @@ p_round(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	MP_INT *big = v.big;
-	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = Yap_AllocCodeSpace(sz);
-
-	if (s == NULL) {
-	  mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is round(%s)", IntegerOfTerm(t));
-	  Yap_FreeCodeSpace(s);
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	} else {
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is round(t)");
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	}
+	process_iso_error(v.big, t, "round");
+	mpz_clear(v.big);
+	RERROR();
       } else {
-	RFLOAT(mpz_get_d(v.big));
+	dbl = mpz_get_d(v.big);
+	mpz_clear(v.big);
       }
 #endif
     default:
@@ -1473,23 +1471,10 @@ p_truncate(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      MP_INT *big = Yap_BigIntOfTerm(t);
-      Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = Yap_AllocCodeSpace(sz);
-
-      if (s != NULL) {
-	mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
-	Yap_Error(TYPE_ERROR_FLOAT, t, "X is truncate(%s)", IntegerOfTerm(t));
-	Yap_FreeCodeSpace(s);
-	P = (yamop *)FAILCODE;
-	RERROR();
-      } else {
-	Yap_Error(TYPE_ERROR_FLOAT, t, "X is truncate(t)");
-	P = (yamop *)FAILCODE;
-	RERROR();
-      }
+      process_iso_error(Yap_BigIntOfTerm(t), t, "truncate");
+      RERROR();
     } else {
-      RFLOAT(mpz_get_d(Yap_BigIntOfTerm(t)));
+      dbl = mpz_get_d(Yap_BigIntOfTerm(t));
     }
 #endif
   default:
@@ -1511,23 +1496,12 @@ p_truncate(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	MP_INT *big = v.big;
-	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = Yap_AllocCodeSpace(sz);
-
-	if (s == NULL) {
-	  mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is truncate(%s)", IntegerOfTerm(t));
-	  Yap_FreeCodeSpace(s);
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	} else {
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is truncate(t)");
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	}
+	process_iso_error(v.big, t, "truncate");
+	mpz_clear(v.big);
+	RERROR();
       } else {
-	RFLOAT(mpz_get_d(v.big));
+	dbl = mpz_get_d(v.big);
+	mpz_clear(v.big);
       }
 #endif
     default:
@@ -1570,7 +1544,11 @@ p_integer(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    RBIG(Yap_BigIntOfTerm(t));
+    {
+      MP_INT *new = TMP_BIG();
+      mpz_init_set(new, Yap_BigIntOfTerm(t));
+      RBIG(new);
+    }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
@@ -1584,7 +1562,12 @@ p_integer(Term t E_ARGS)
       break;
 #ifdef USE_GMP
     case big_int_e:
-      RBIG(v.big);
+    {
+      MP_INT *new = TMP_BIG();
+
+      MPZ_SET(new,v.big);
+      RBIG(new);
+    }
 #endif
     default:
       /* Yap_Error */
@@ -1595,9 +1578,9 @@ p_integer(Term t E_ARGS)
     RINT((Int) dbl);
   } else {
 #ifdef USE_GMP
-    MP_INT *new = Yap_PreAllocBigNum();
+    mpz_t new;
 
-    mpz_set_d(new, dbl);
+    mpz_init_set_d(new, dbl);
     RBIG(new);
 #else
     Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer/1");
@@ -1637,7 +1620,11 @@ p_float(Term t E_ARGS)
       RFLOAT(v.dbl);
 #ifdef USE_GMP
     case big_int_e:
-      RFLOAT(mpz_get_d(v.big));
+      {
+	Float dbl = mpz_get_d(v.big);
+	mpz_clear(v.big);
+	RFLOAT(dbl);
+      }
 #endif
     default:
       /* Yap_Error */
@@ -1689,9 +1676,10 @@ p_abs(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     {
-      MP_INT *new = Yap_PreAllocBigNum();
+      MP_INT *new = TMP_BIG();
 
-      mpz_abs(new, Yap_BigIntOfTerm(t));
+      mpz_init_set(new, Yap_BigIntOfTerm(t));
+      mpz_abs(new, new);
       RBIG(new);
     }
 #endif
@@ -1707,9 +1695,10 @@ p_abs(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       {
-	MP_INT *new = Yap_PreAllocBigNum();
+	MP_INT *new =  TMP_BIG();
 
-	mpz_abs(new, v.big);
+	MPZ_SET(new, v.big);
+	mpz_abs(new, new);
 	RBIG(new);
       }
 #endif
@@ -1754,7 +1743,12 @@ p_msb(Term t E_ARGS)
       RERROR();
 #ifdef USE_GMP
     case big_int_e:
-      RINT(mpz_sizeinbase(v.big,2));
+      {
+	int sz = mpz_sizeinbase(v.big,2);
+
+	mpz_clear(v.big);
+	RINT(sz);
+      }
 #endif
     default:
       /* Yap_Error */
@@ -1789,21 +1783,8 @@ p_ffracp(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      MP_INT *big = Yap_BigIntOfTerm(t);
-      Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = Yap_AllocCodeSpace(sz);
-
-      if (s != NULL) {
-	mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
-	Yap_Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%s)", IntegerOfTerm(t));
-	Yap_FreeCodeSpace(s);
-	P = (yamop *)FAILCODE;
-	RERROR();
-      } else {
-	Yap_Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(t)");
-	P = (yamop *)FAILCODE;
-	RERROR();
-      }
+      process_iso_error(Yap_BigIntOfTerm(t), t, "float_fractional_part");
+      RERROR();
     } else {
       RFLOAT(0.0);
     }
@@ -1827,22 +1808,11 @@ p_ffracp(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	MP_INT *big = v.big;
-	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = Yap_AllocCodeSpace(sz);
-
-	if (s == NULL) {
-	  mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%s)", IntegerOfTerm(t));
-	  Yap_FreeCodeSpace(s);
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	} else {
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(t)");
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	}
+	process_iso_error(v.big, t, "float_fractional_part");
+	mpz_clear(v.big);
+	RERROR();
       } else {
+	mpz_clear(v.big);
 	RFLOAT(0.0);
       }
 #endif
@@ -1881,21 +1851,8 @@ p_fintp(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      MP_INT *big = Yap_BigIntOfTerm(t);
-      Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = Yap_AllocCodeSpace(sz);
-
-      if (s == NULL) {
-	mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
-	Yap_Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%s)", IntegerOfTerm(t));
-	Yap_FreeCodeSpace(s);
-	P = (yamop *)FAILCODE;
-	RERROR();
-      } else {
-	Yap_Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(t)");
-	P = (yamop *)FAILCODE;
-	RERROR();
-      }
+      process_iso_error(Yap_BigIntOfTerm(t), t, "float_integer_part");
+      RERROR();
     } else {
       RFLOAT(mpz_get_d(Yap_BigIntOfTerm(t)));
     }
@@ -1919,23 +1876,13 @@ p_fintp(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	MP_INT *big = v.big;
-	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = Yap_AllocCodeSpace(sz);
-
-	if (s == NULL) {
-	  mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%s)", IntegerOfTerm(t));
-	  Yap_FreeCodeSpace(s);
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	} else {
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(t)");
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	}
+	process_iso_error(Yap_BigIntOfTerm(t), t, "float_integer_part");
+	RERROR();
       } else {
-	RFLOAT(mpz_get_d(v.big));
+	Float dbl = mpz_get_d(v.big);
+
+	mpz_clear(v.big);
+	RFLOAT(dbl);
       }
 #endif
     default:
@@ -1983,7 +1930,12 @@ p_sign(Term t E_ARGS)
       RINT((v.dbl > 0.0 ? 1 : (v.dbl < 0.0 ? -1 : 0)));
 #ifdef USE_GMP
     case big_int_e:
-      RINT(mpz_sgn(v.big));
+      { 
+	int sgn = mpz_sgn(v.big);
+
+	mpz_clear(v.big);
+	RINT(sgn);
+      }
 #endif
     default:
       /* Yap_Error */

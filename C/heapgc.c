@@ -153,9 +153,6 @@ gc_growtrail(int committed)
 #if !GC_TAGS
   YAPLeaveCriticalSection();
 #endif
-#if THREADS
-  longjmp(Yap_gc_restore, 2);
-#endif
 #if USE_SYSTEM_MALLOC
   TR = OldTR;
 #endif
@@ -166,9 +163,11 @@ gc_growtrail(int committed)
 #if USE_SYSTEM_MALLOC
 #if !GC_NO_TAGS
   if (committed) {
+    save_machine_regs();
     longjmp(Yap_gc_restore, 2);
   }
 #endif
+  save_machine_regs();
   longjmp(Yap_gc_restore, 1);
 #endif
   
@@ -3606,6 +3605,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif /* GC_NO_TAGS */
   if (setjmp(Yap_gc_restore) == 2) {
     /* we cannot recover, fail system */
+    restore_machine_regs();    
     *--ASP = (CELL)current_env;
     TR = OldTR;
     if (
@@ -3825,7 +3825,8 @@ Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
   int res;
   Yap_PrologMode |= GCMode;
   res=call_gc(4096, predarity, current_env, nextop);
-  Yap_PrologMode &= ~GCMode;
+  if (Yap_PrologMode & GCMode)
+    Yap_PrologMode &= ~GCMode;
   return res;
 }
 

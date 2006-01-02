@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-11-18 18:48:51 $,$Author: tiagosoares $						 *
+* Last rev:	$Date: 2006-01-02 02:16:18 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.77  2005/11/18 18:48:51  tiagosoares
+* support for executing c code when a cut occurs
+*
 * Revision 1.76  2005/11/03 18:49:26  vsc
 * fix bignum conversion
 *
@@ -224,7 +227,7 @@ X_API Bool    STD_PROTO(YAP_IsApplTerm,(Term));
 X_API Term    STD_PROTO(YAP_MkIntTerm,(Int));
 X_API Term    STD_PROTO(YAP_MkBigNumTerm,(void *));
 X_API Int     STD_PROTO(YAP_IntOfTerm,(Term));
-X_API void   *STD_PROTO(YAP_BigNumOfTerm,(Term));
+X_API void    STD_PROTO(YAP_BigNumOfTerm,(Term, void *));
 X_API Term    STD_PROTO(YAP_MkFloatTerm,(flt));
 X_API flt     STD_PROTO(YAP_FloatOfTerm,(Term));
 X_API Term    STD_PROTO(YAP_MkAtomTerm,(Atom));
@@ -418,10 +421,7 @@ YAP_MkBigNumTerm(void *big)
 #if USE_GMP
   Term I;
   BACKUP_H();
-  MP_INT *new = Yap_PreAllocBigNum();
-
-  mpz_set(new, (MP_INT *)big);
-  I = Yap_MkBigIntTerm(new);
+  I = Yap_MkBigIntTerm((MP_INT *)big);
   RECOVER_H();
   return I;
 #else
@@ -429,17 +429,16 @@ YAP_MkBigNumTerm(void *big)
 #endif /* USE_GMP */
 }
 
-X_API void * 
-YAP_BigNumOfTerm(Term t)
+X_API void
+YAP_BigNumOfTerm(Term t, void *b)
 {
 #if USE_GMP
+  MP_INT *bz = (MP_INT *)b;
   if (IsVarTerm(t))
-    return NULL;
+    return;
   if (!IsBigIntTerm(t))
-    return NULL;
-  return (void *)Yap_BigIntOfTerm(t); 
-#else
-  return NULL;
+    return;
+  mpz_init_set(bz,Yap_BigIntOfTerm(t));
 #endif /* USE_GMP */
 }
 

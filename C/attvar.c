@@ -274,8 +274,22 @@ ReplaceAtts(attvar_record *attv, Term oatt, Term att)
 {
   UInt ar = ArityOfFunctor(FunctorOfTerm(oatt)), i;
   CELL *oldp = RepAppl(oatt)+1;
-  CELL *newp = RepAppl(att)+1;
+  CELL *newp;
 
+  if (oldp > HB) {
+    oldp++;
+    newp = RepAppl(att)+2;
+    /* if deterministic */
+    for (i=1; i< ar; i++) {
+      if (*newp != TermFoundVar) {
+	*oldp = *newp;
+      }
+      oldp++;
+      newp++;
+    }
+    return;
+  }
+  newp = RepAppl(att)+1;
   *newp++ = *oldp++;
   for (i=1; i< ar; i++) {
     if (*newp == TermFoundVar) {

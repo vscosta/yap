@@ -224,10 +224,12 @@ read_int_overflow(const char *s, Int base, Int val)
 {
 #ifdef USE_GMP
   /* try to scan it as a bignum */
-  MP_INT *new = Yap_PreAllocBigNum();
+  mpz_t new;
+  Term t;
 
   mpz_init_set_str (new, s, base);
-  return(Yap_MkBigIntTerm(new));
+  t = Yap_MkBigIntTerm(new);
+  return t;
 #else
   /* try to scan it as a float */
   return(MkIntegerTerm(val));

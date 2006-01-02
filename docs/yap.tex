@@ -6277,6 +6277,15 @@ available in experimental implementations.
 If @code{on} @code{fileerrors} is @code{on}, if @code{off} (default)
 @code{fileerrors} is disabled.
 
+@item float_format
+@findex float_format (yap_flag/2 option)
+@* C-library @code{printf()} format specification used by @code{write/1} and
+friends to determine how floating point numbers are printed. The
+default is @code{%.15g}. The specified value is passed to @code{printf()}
+without further checking. For example, if you want less digits
+printed, @code{%g} will print all floats using 6 digits instead of the
+default 15.
+
 @item  gc
 @findex gc (yap_flag/2 option)
 @*

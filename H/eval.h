@@ -43,7 +43,7 @@ typedef union arith_ret {
   Int Int;
   Float dbl;
 #ifdef USE_GMP
-  MP_INT *big;
+  mpz_t big;
 #endif
 } *arith_retptr;
 
