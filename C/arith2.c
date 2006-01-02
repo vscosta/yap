@@ -228,6 +228,10 @@ p_mod(Term t1, Term t2 E_ARGS)
       RERROR();
     }
   case double_e:
+#if USE_GMP
+    if (bt2 == big_int_e)
+      mpz_clear(v2.big);
+#endif
     Yap_Error(TYPE_ERROR_INTEGER, MkFloatTerm(v1.dbl), "mod/2");
     P = (yamop *)FAILCODE;
     RERROR();
@@ -404,6 +408,10 @@ p_rem(Term t1, Term t2 E_ARGS)
       RERROR();
     }
   case double_e:
+#if USE_GMP
+    if (bt2 == big_int_e)
+      mpz_clear(v2.big);
+#endif
     Yap_Error(TYPE_ERROR_INTEGER, MkFloatTerm(v1.dbl), "mod/2");
     P = (yamop *)FAILCODE;
     RERROR();
@@ -795,6 +803,10 @@ p_xor(Term t1, Term t2 E_ARGS)
       RERROR();
     }
   case double_e:
+#if USE_GMP
+    if (bt2 == big_int_e)
+      mpz_clear(v2.big);
+#endif
     Yap_Error(TYPE_ERROR_INTEGER, MkFloatTerm(v1.dbl), "#/2");
     P = (yamop *)FAILCODE;
     RERROR();
@@ -1394,6 +1406,10 @@ p_gcd(Term t1, Term t2 E_ARGS)
       RERROR();
     }
   case double_e:
+#if USE_GMP
+    if (bt2 == big_int_e)
+      mpz_clear(v2.big);
+#endif
     Yap_Error(TYPE_ERROR_INTEGER, MkFloatTerm(v1.dbl), "gcd/2");
     P = (yamop *)FAILCODE;
     RERROR();

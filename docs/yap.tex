@@ -10738,6 +10738,7 @@ p_print_bignum(void)
   YAP_BigNumOfTerm(YAP_ARG1, mz);
   gmp_printf("Shows up as %Zd\n", mz);
   mpz_clear(mz);
+  return TRUE;
 }
 @end example
 

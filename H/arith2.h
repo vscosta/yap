@@ -1214,9 +1214,9 @@ sll_ovflw(Int x,Int i)
 inline static E_FUNC
 do_sll(Int i, Int j E_ARGS)
 {
+#if USE_GMP
   Int x = (8*sizeof(CELL)-2)-j;
   
-#if USE_GMP
   if (x < 0||
       sll_ovflw(x,i)) {
     MP_INT *new = TMP_BIG();
@@ -1226,11 +1226,7 @@ do_sll(Int i, Int j E_ARGS)
     RBIG(new);
   }
 #endif
-#ifdef BEAM
   RINT(i << j);
-#else
-  RINT(i << j);
-#endif
 }
 
 /*
@@ -1517,8 +1513,10 @@ p_slr(Term t1, Term t2 E_ARGS)
       RERROR();
     }
   case double_e:
+#if USE_GMP
     if (bt2 == big_int_e)
       mpz_clear(v2.big);
+#endif
     Yap_Error(TYPE_ERROR_INTEGER, MkFloatTerm(v1.dbl), ">>/2");
     P = (yamop *)FAILCODE;
     RERROR();
