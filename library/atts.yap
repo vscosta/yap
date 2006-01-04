@@ -84,10 +84,11 @@ expand_get_attributes([G1],Mod,V,attributes:get_att(V,Mod,Pos,A)) :-
 	arg(1,G1,A).
 expand_get_attributes(Atts,Mod,Var,attributes:get_module_atts(Var,AccessTerm)) :- Atts = [_|_], !,
 	attributed_module(Mod,NOfAtts,AccessTerm),
-	cvt_atts(Atts,Mod,LAtts),
+	void_term(Void),
+	cvt_atts(Atts,Mod,Void,LAtts),
 	sort(LAtts,SortedLAtts),
-	free_term(Void),
-	build_att_term(1,NOfAtts,SortedLAtts,Void,AccessTerm).
+	free_term(Free),
+	build_att_term(1,NOfAtts,SortedLAtts,Free,AccessTerm).
 expand_get_attributes(Att,Mod,Var,Goal) :- 
 	expand_get_attributes([Att],Mod,Var,Goal).
 
@@ -101,16 +102,15 @@ build_att_term(I0,NOfAtts,SortedLAtts,Void,AccessTerm) :-
 	arg(I,AccessTerm,Void),
 	build_att_term(I,NOfAtts,SortedLAtts,Void,AccessTerm).
 
-cvt_atts(V,_,_) :- var(V), !, fail.
-cvt_atts([],_,[]).
-cvt_atts([V|_],_,_) :- var(V), !, fail.
-cvt_atts([+Att|Atts],Mod,[Pos-LAtts|Read]) :- !,
+cvt_atts(V,_,_,_) :- var(V), !, fail.
+cvt_atts([],_,_,[]).
+cvt_atts([V|_],_,_,_) :- var(V), !, fail.
+cvt_atts([+Att|Atts],Mod,Void,[Pos-LAtts|Read]) :- !,
 	existing_attribute(Att,Mod,_,Pos),
 	(atom(Att) -> LAtts = [_] ; Att=..[_|LAtts]),
-	cvt_atts(Atts,Mod,Read).
-cvt_atts([-Att|Atts],Mod,[Pos-LVoids|Read]) :- !,
+	cvt_atts(Atts,Mod,Void,Read).
+cvt_atts([-Att|Atts],Mod,Void,[Pos-LVoids|Read]) :- !,
 	existing_attribute(Att,Mod,_,Pos),
-	void_term(Void),
 	(
 	  atom(Att)
 	->
@@ -119,11 +119,11 @@ cvt_atts([-Att|Atts],Mod,[Pos-LVoids|Read]) :- !,
 	  Att =..[_|LAtts],
 	  void_vars(LAtts,Void,LVoids)
 	),	  
-	cvt_atts(Atts,Mod,Read).
-cvt_atts([Att|Atts],Mod,[Pos-LAtts|Read]) :- !,
+	cvt_atts(Atts,Mod,Void,Read).
+cvt_atts([Att|Atts],Mod,Void,[Pos-LAtts|Read]) :- !,
 	existing_attribute(Att,Mod,_,Pos),
 	(atom(Att) -> LAtts = [_] ; Att=..[_|LAtts]),
-	cvt_atts(Atts,Mod,Read).
+	cvt_atts(Atts,Mod,Void,Read).
 
 copy_att_args([],I,I,_).
 copy_att_args([V|Info],I,NI,AccessTerm) :-
@@ -149,7 +149,8 @@ expand_put_attributes([G1],Mod,V,attributes:put_att(V,Mod,NOfAtts,Pos,A)) :-
 	arg(1,G1,A).
 expand_put_attributes(Atts,Mod,Var,attributes:put_module_atts(Var,AccessTerm)) :- Atts = [_|_], !,
 	attributed_module(Mod,NOfAtts,AccessTerm),
-	cvt_atts(Atts,Mod,LAtts),
+	free_term(Free),
+	cvt_atts(Atts,Mod,Free,LAtts),
 	sort(LAtts,SortedLAtts),
 	void_term(Void),
 	build_att_term(1,NOfAtts,SortedLAtts,Void,AccessTerm).
