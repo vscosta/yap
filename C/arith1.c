@@ -52,9 +52,10 @@ float_to_int(Float v, union arith_ret *o)
 }
 #define RBIG_FL(v)  return(float_to_int(v,o))
 #else
-#define RBIG_FL(v)  (o)->Int = (Int)v; return long_int_e)
+#define RBIG_FL(v)  ((o)->Int = (Int)v; return long_int_e)
 #endif
 
+#if USE_GMP
 static void
 process_iso_error(MP_INT *big, Term t, char *operation)
 { /* iso */
@@ -71,7 +72,7 @@ process_iso_error(MP_INT *big, Term t, char *operation)
     P = (yamop *)FAILCODE;
   }
 }
-
+#endif
 
 inline static Functor
 AritFunctorOfTerm(Term t) {
