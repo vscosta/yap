@@ -765,7 +765,7 @@ p_get_all_atts(void) {
 static int
 ActiveAtt(Term tatt, UInt ar)
 {
-  CELL *cp = RepAppl(tatt);
+  CELL *cp = RepAppl(tatt)+1;
   UInt i;
 
   for (i = 1; i < ar; i++) {
