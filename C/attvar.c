@@ -30,6 +30,8 @@ static char SccsId[]="%W% %G%";
 
 #ifdef COROUTINING
 
+#define TermVoidAtt TermFoundVar
+
 static CELL *
 AddToQueue(attvar_record *attv)
 {
@@ -218,7 +220,7 @@ BuildAttTerm(Functor mfun, UInt ar)
   RESET_VARIABLE(H+1);
   H += 2;
   for (i = 1; i< ar; i++) {
-    *H = TermFoundVar;
+    *H = TermVoidAtt;
     H++;
   }
   return AbsAppl(h0);
@@ -247,8 +249,23 @@ SearchAttsForModuleName(Term start, Atom mname)
 }
 
 static void 
-AddNewModule(attvar_record *attv, Term t, int new)
+AddNewModule(attvar_record *attv, Term t, int new, int do_it)
 {
+  CELL *newp = RepAppl(t)+2;
+  UInt i, ar = ArityOfFunctor((Functor)newp[-2]);
+
+  for (i=1; i< ar; i++) {
+    Term n = Deref(*newp);
+    if (n == TermFreeTerm) {
+      *newp = TermVoidAtt;
+    } else {
+      if (n != TermVoidAtt)
+	do_it = TRUE;
+    }
+    newp++;
+  }
+  if (!do_it)
+    return;
   if (IsVarTerm(attv->Atts)) {
     if (new) {
       attv->Atts = t;
@@ -280,9 +297,11 @@ ReplaceAtts(attvar_record *attv, Term oatt, Term att)
     oldp++;
     newp = RepAppl(att)+2;
     /* if deterministic */
+
     for (i=1; i< ar; i++) {
-      if (*newp != TermFoundVar) {
-	*oldp = *newp;
+      Term n = Deref(*newp);
+      if (n != TermFreeTerm) {
+	*oldp = n;
       }
       oldp++;
       newp++;
@@ -292,8 +311,10 @@ ReplaceAtts(attvar_record *attv, Term oatt, Term att)
   newp = RepAppl(att)+1;
   *newp++ = *oldp++;
   for (i=1; i< ar; i++) {
-    if (*newp == TermFoundVar) {
-      *newp = *oldp;
+    Term n = Deref(*newp);
+
+    if (n == TermFreeTerm) {
+      *newp = Deref(*oldp);
     }
     oldp++;
     newp++;
@@ -456,7 +477,7 @@ p_put_att(void) {
 	}    
       }
       Yap_unify(ARG1, (Term)attv);
-      AddNewModule(attv,tatts,new);
+      AddNewModule(attv,tatts,new,TRUE);
     }
     PutAtt(IntegerOfTerm(Deref(ARG4)), tatts, Deref(ARG5));
     return TRUE;
@@ -533,9 +554,9 @@ p_rm_att(void) {
 	  return FALSE;
 	}    
       }
-      AddNewModule(attv,tatts,new);
+      AddNewModule(attv,tatts,new, FALSE);
     } else {
-      PutAtt(IntegerOfTerm(Deref(ARG4)), tatts, TermFoundVar);
+      PutAtt(IntegerOfTerm(Deref(ARG4)), tatts, TermVoidAtt);
     }
     return TRUE;
   } else {
@@ -571,7 +592,7 @@ p_put_atts(void) {
       Yap_unify(ARG1, (Term)attv);
     }
     if (IsVarTerm(otatts = SearchAttsForModule(attv->Atts,mfun))) {
-      AddNewModule(attv,tatts,new);
+      AddNewModule(attv,tatts,new,FALSE);
     } else {
       ReplaceAtts(attv, otatts, tatts);
     }
@@ -626,7 +647,7 @@ p_get_att(void) {
       if (IsVarTerm(tatts = SearchAttsForModuleName(attv->Atts,modname)))
 	return FALSE;
       tout = ArgOfTerm(IntegerOfTerm(Deref(ARG3)),tatts);
-      if (tout == TermFoundVar) return FALSE;
+      if (tout == TermVoidAtt) return FALSE;
       return Yap_unify(tout, ARG4);      
     } else {
       /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
@@ -654,7 +675,7 @@ p_free_att(void) {
       if (IsVarTerm(tatts = SearchAttsForModuleName(attv->Atts,modname)))
 	return TRUE;
       tout = ArgOfTerm(IntegerOfTerm(Deref(ARG3)),tatts);
-      return (tout == TermFoundVar);
+      return (tout == TermVoidAtt);
     } else {
       /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
       return TRUE;
@@ -688,7 +709,9 @@ p_get_atts(void) {
       old = RepAppl(tatts)+2;
       for (i = 1; i < ar; i++,new++,old++) {
 	if (*new != TermFreeTerm) {
-	  if (*old == TermFoundVar && *new != TermFoundVar)
+	  if (*old == TermVoidAtt && *new != TermVoidAtt)
+	    return FALSE;
+	  if (*new == TermVoidAtt && *old != TermVoidAtt)
 	    return FALSE;
 	  if (!Yap_unify(*new,*old)) return FALSE;
 	}
@@ -769,7 +792,7 @@ ActiveAtt(Term tatt, UInt ar)
   UInt i;
 
   for (i = 1; i < ar; i++) {
-    if (cp[i] != TermFoundVar)
+    if (cp[i] != TermVoidAtt)
       return TRUE;
   }
   return FALSE;
@@ -912,7 +935,7 @@ p_attvar_bound(void)
 static Int
 p_void_term(void)
 {
-  return Yap_unify(ARG1,TermFoundVar);
+  return Yap_unify(ARG1,TermVoidAtt);
 }
 
 static Int

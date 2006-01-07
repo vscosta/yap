@@ -149,21 +149,34 @@ expand_put_attributes([G1],Mod,V,attributes:put_att(V,Mod,NOfAtts,Pos,A)) :-
 	arg(1,G1,A).
 expand_put_attributes(Atts,Mod,Var,attributes:put_module_atts(Var,AccessTerm)) :- Atts = [_|_], !,
 	attributed_module(Mod,NOfAtts,AccessTerm),
-	free_term(Free),
-	cvt_atts(Atts,Mod,Free,LAtts),
-	sort(LAtts,SortedLAtts),
 	void_term(Void),
-	build_att_term(1,NOfAtts,SortedLAtts,Void,AccessTerm).
+	cvt_atts(Atts,Mod,Void,LAtts),
+	sort(LAtts,SortedLAtts),
+	free_term(Free),
+	build_att_term(1,NOfAtts,SortedLAtts,Free,AccessTerm).
 expand_put_attributes(Att,Mod,Var,Goal) :- 
 	expand_put_attributes([Att],Mod,Var,Goal).
 
 woken_att_do(AttVar, Binding) :-
 	get_all_swi_atts(AttVar,SWIAtts),
-	modules_with_attributes(AttVar,Mods),
-	do_verify_attributes(Mods, AttVar, Binding, Goals),
+	modules_with_attributes(AttVar,Mods0),
+	modules_with_attributes(Mods),
+	find_used(Mods,Mods0,[],ModsI),
+	do_verify_attributes(ModsI, AttVar, Binding, Goals),
 	bind_attvar(AttVar),
 	do_hook_attributes(SWIAtts, Binding),
 	lcall(Goals).
+
+find_used([],_,L,L).
+find_used([M|Mods],Mods0,L0,Lf) :-
+        in(M,Mods0), !,
+	find_used(Mods,Mods0,[M|L0],Lf).
+find_used([M|Mods],Mods0,L0,Lf) :-
+	find_used(Mods,Mods0,L0,Lf).
+
+in(X,[X|_]).
+in(X,[_|L]) :-
+	in(X,L).
 
 do_verify_attributes([], _, _, []).
 do_verify_attributes([Mod|Mods], AttVar, Binding, [Mod:Goal|Goals]) :-

@@ -741,25 +741,20 @@ not(G) :-    \+ '$execute'(G).
         % for undefined_predicates.
 	'$enter_undefp',
 	'$find_undefp_handler'(G,M,Goal,NM), !,
-	'$execute'(NM:Goal).	
+	'$execute0'(Goal,NM).	
 
-'$find_undefp_handler'(G,M,NG,S) :-
+'$find_undefp_handler'(G,M,G,S) :-
 	functor(G,F,N),
 	recorded('$import','$import'(S,M,F,N),_),
 	S \= M, % can't try importing from the module itself.
 	!,
-	'$exit_undefp',
-	(
-	  '$meta_expansion'(S,M,G,G1,[])
-	   ->
-	  NG = G1
-	;
-	  NG = G
-	).
+	'$exit_undefp'.
+/*
 '$find_undefp_handler'(G,M,NG,M) :-
 	'$is_expand_goal_or_meta_predicate'(G,M),
 	'$system_catch'(goal_expansion(G, M, NG), user, _, fail), !,
 	'$exit_undefp'.
+*/
 '$find_undefp_handler'(G,M,NG,user) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
 	'$system_catch'(unknown_predicate_handler(G,M,NG), user, Error, '$leave_undefp'(Error)), !,

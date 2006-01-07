@@ -654,7 +654,7 @@ call_residue(Goal,Residue) :-
 	'$undefined'(convert_att_var(Vs,LIV),attributes), !.
 '$convert_att_vars'(Vs0, LIV, LGs) :-
 	'$sort'(Vs0, Vs),
-	'$do_convert_att_vars'(Vs, LIV, LGs).
+	'$do_convert_att_vars'(Vs0, LIV, LGs).
 	
 '$do_convert_att_vars'([], _, []).
 '$do_convert_att_vars'([V|LAV], LIV, NGs) :-
