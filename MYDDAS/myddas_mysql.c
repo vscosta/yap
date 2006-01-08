@@ -114,6 +114,12 @@ c_db_my_query(void) {
   int length=strlen(sql);
 
 #ifdef MYDDAS_STATS 
+  MYDDAS_UTIL_CONNECTION node = myddas_util_search_connection(conn);
+
+  /* Count the number of querys made to the server */
+  unsigned long number_querys = myddas_util_get_conn_number_querys_made(node);
+  myddas_util_set_conn_number_querys_made(node,++number_querys);
+
   /* Measure time spent by the MySQL Server 
      processing the SQL Query */ 
   unsigned long start,end,total_time,last_time;
@@ -134,7 +140,6 @@ c_db_my_query(void) {
      processing the SQL Query */ 
   end = myddas_current_time();
   
-  MYDDAS_UTIL_CONNECTION node = myddas_util_search_connection(conn);
   last_time = (end-start);
   total_time = last_time + myddas_util_get_conn_total_time_DBServer(node);
   
@@ -143,7 +148,7 @@ c_db_my_query(void) {
 #endif 
   
   /* guardar os tuplos do lado do cliente */
-  if (strcmp(mode,"store_result")!=0) //Verdadeiro
+  if (strcmp(mode,"store_result")!=0) //True
     res_set = mysql_use_result(conn);
   else{
     
@@ -178,6 +183,24 @@ c_db_my_query(void) {
 	unsigned long numberRows = mysql_num_rows(res_set);
 	numberRows = numberRows + myddas_util_get_conn_total_rows(node);
 	myddas_util_set_conn_total_rows(node,numberRows);
+      
+	/* Calculate the ammount of data sent by the server */
+	unsigned long int total,number_fields = mysql_num_fields(res_set); 
+	MYSQL_ROW row;
+	unsigned int i;
+	total=0;
+	while ((row = mysql_fetch_row(res_set)) != NULL){
+	  mysql_field_seek(res_set,0); 
+	  
+	  for(i=0;i<number_fields;i++){
+	    if (row[i] != NULL)
+	      total = total + strlen(row[i]);
+	  }
+	}
+	myddas_util_set_conn_last_bytes_transfering_from_DBserver(node,total);
+	total = total + myddas_util_get_conn_total_bytes_transfering_from_DBserver(node);
+	myddas_util_set_conn_total_bytes_transfering_from_DBserver(node,total);
+	mysql_data_seek(res_set,0);
       }
 #endif 
 
@@ -229,9 +252,12 @@ c_db_my_number_of_fields(void) {
   /* guardar os tuplos do lado do cliente */
   if ((res_set = mysql_store_result(conn)) == NULL)
     {
-      printf("Query vazia!\n");
+#ifdef DEBUG
+      printf("Erro na query! %s\n",sql);
+#endif
+      
       return FALSE;
-  }
+    }
 
   if (!Yap_unify(arg_fields, MkIntegerTerm(mysql_num_rows(res_set)))){
     mysql_free_result(res_set);
@@ -419,6 +445,7 @@ c_db_my_row(void) {
   MYSQL_ROW row;
   MYSQL_FIELD *field;
   
+  
   Term head, list, null_atom[1];
   int i, arity;
   
@@ -517,7 +544,9 @@ c_db_my_number_of_fields_in_query(void) {
   /* guardar os tuplos do lado do cliente */
   if ((res_set = mysql_store_result(conn)) == NULL)
     {
-      printf("Query vazia!\n");
+#ifdef DEBUG
+      printf("Erro na query! %s\n",query);
+#endif
       return FALSE;
     }
   

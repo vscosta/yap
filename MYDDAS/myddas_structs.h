@@ -59,8 +59,15 @@ struct list_connection {
      transfering the data of the last query */
   unsigned long lastFromDBServer; 
   
+  /* Last bytes transfered from the server */
+  unsigned long totalBytesTransfered;
+  /* Total bytes transfered from the server */
+  unsigned long lastBytesTransfered;
+
   /* Total Time spent on the db_row function */
   unsigned long total_db_row;
+
+  unsigned long total_querys_made;
 #endif
   MYDDAS_UTIL_PREDICATE predicates;
   struct list_connection *next;

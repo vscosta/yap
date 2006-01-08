@@ -93,6 +93,20 @@ void
 myddas_util_set_conn_total_transfering_from_DBServer(MYDDAS_UTIL_CONNECTION,unsigned long);
 
 unsigned long
+myddas_util_get_conn_last_bytes_transfering_from_DBserver(MYDDAS_UTIL_CONNECTION);
+void 
+myddas_util_set_conn_last_bytes_transfering_from_DBserver(MYDDAS_UTIL_CONNECTION,unsigned long);
+unsigned long
+myddas_util_get_conn_total_bytes_transfering_from_DBserver(MYDDAS_UTIL_CONNECTION);
+void 
+myddas_util_set_conn_total_bytes_transfering_from_DBserver(MYDDAS_UTIL_CONNECTION,unsigned long);
+
+unsigned long
+myddas_util_get_conn_number_querys_made(MYDDAS_UTIL_CONNECTION);
+void
+myddas_util_set_conn_number_querys_made(MYDDAS_UTIL_CONNECTION, unsigned long);
+
+unsigned long
 myddas_util_get_total_db_row_function(void);
 void
 myddas_util_set_total_db_row_function(unsigned long);
@@ -109,5 +123,10 @@ myddas_current_time(void);
 #ifdef DEBUG
 void check_int(void);
 #endif
+
+
+//DELETE THIS WHEN DB_STATS  IS COMPLETED
+int
+get_myddas_top(void);
 
 #endif /*__MYDDAS_UTIL_H__*/

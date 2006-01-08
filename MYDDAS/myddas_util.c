@@ -127,6 +127,33 @@ myddas_util_set_conn_total_transfering_from_DBServer(MYDDAS_UTIL_CONNECTION node
 }
 
 unsigned long
+myddas_util_get_conn_last_bytes_transfering_from_DBserver(MYDDAS_UTIL_CONNECTION node){
+  return node->lastBytesTransfered;
+}
+void
+myddas_util_set_conn_last_bytes_transfering_from_DBserver(MYDDAS_UTIL_CONNECTION node, unsigned long bytes){
+  node->lastBytesTransfered = bytes;
+}
+
+unsigned long
+myddas_util_get_conn_total_bytes_transfering_from_DBserver(MYDDAS_UTIL_CONNECTION node){
+  return node->totalBytesTransfered;
+}
+void
+myddas_util_set_conn_total_bytes_transfering_from_DBserver(MYDDAS_UTIL_CONNECTION node, unsigned long bytes){
+  node->totalBytesTransfered = bytes;
+}
+
+unsigned long
+myddas_util_get_conn_number_querys_made(MYDDAS_UTIL_CONNECTION node){
+  return node->total_querys_made;
+}
+void
+myddas_util_set_conn_number_querys_made(MYDDAS_UTIL_CONNECTION node, unsigned long number){
+  node->total_querys_made = number;
+}
+
+unsigned long
 myddas_util_get_total_db_row_function(void){
   return MYDDAS_GLOBAL_STRUCT->myddas_statistics->total_db_row;
 }
@@ -156,7 +183,7 @@ myddas_current_time(void) {
     microseconds -> s/1000000
   */
   /* struct timeval tempo; */
-/*   if (!gettimeofday(&tempo, NULL)) */
+ /*   if (!gettimeofday(&tempo, NULL)) */
 /*     //returns time in microseconds */
 /*     return (tempo.tv_sec %1000)*1000000+tempo.tv_usec; */
 /*   //return (tempo.tv_sec %1000)*1000+tempo.tv_usec; */
@@ -512,6 +539,9 @@ myddas_util_initialize_connection(void *conn,void *enviromment,
   new->totalFromDBServer=0;
   new->lastFromDBServer=0;
   new->total_db_row=0;
+  new->lastBytesTransfered=0;
+  new->totalBytesTransfered=0;
+  new->total_querys_made=0;
 #endif
   return new;
 }
@@ -568,6 +598,14 @@ myddas_util_delete_predicate_list(MYDDAS_UTIL_PREDICATE preds_list){
   return;
 }
 
+
+//DELETE THIS WHEN DB_STATS  IS COMPLETED
+int
+get_myddas_top(){
+  if (MYDDAS_GLOBAL_STRUCT == NULL)
+    return 0;
+  return (int)MYDDAS_GLOBAL_STRUCT->myddas_top_connections;
+}
 
 #endif /*defined MYDDAS_ODBC || defined MYDDAS_MYSQL*/
 #endif /*CUT_C*/

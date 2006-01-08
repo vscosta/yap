@@ -192,10 +192,11 @@ c_db_stats(void) {
   Term arg_list = Deref(ARG2);
   
   int *conn = (int *) (IntegerOfTerm(arg_conn));
-  
-  //if (conn == 0) /* We want all the statistics */
     
-     
+  // TODO
+  if (get_myddas_top() == 0 ){ /* We want all the statistics */
+    return FALSE;
+  }
 
   MYDDAS_UTIL_CONNECTION 
     node = myddas_util_search_connection(conn);
@@ -261,6 +262,35 @@ c_db_stats(void) {
   Yap_unify(head, MkIntegerTerm(db_row));
 #ifdef DEBUG
   printf ("Time Spent by the db_row_function: %lu\n",db_row);
+#endif
+  
+  //[Index 7] -> Total of Bytes Transfered by the 
+  // DB Server on all SQL Querys
+  head = HeadOfTerm(list);
+  list = TailOfTerm(list);
+  unsigned long totalBytes = myddas_util_get_conn_total_bytes_transfering_from_DBserver(node);
+  Yap_unify(head, MkIntegerTerm(totalBytes));
+#ifdef DEBUG
+  printf ("Bytes Transfered by the DB Server from all querys: %lu\n",totalBytes);
+#endif
+  
+  //[Index 8] -> Total of Bytes Transfered by the 
+  // DB Server on the last SQL Query
+  head = HeadOfTerm(list);
+  list = TailOfTerm(list);
+  unsigned long lastBytes = myddas_util_get_conn_last_bytes_transfering_from_DBserver(node);
+  Yap_unify(head, MkIntegerTerm(lastBytes));
+#ifdef DEBUG
+  printf ("Bytes Transfered by the DB Server on the last query: %lu\n",lastBytes);
+#endif
+  
+  //[Index 9] -> Number of querys made to the DBserver
+  head = HeadOfTerm(list);
+  list = TailOfTerm(list);
+  unsigned long number_querys = myddas_util_get_conn_number_querys_made(node);
+  Yap_unify(head, MkIntegerTerm(number_querys));
+#ifdef DEBUG
+  printf ("Number of Querys made to the server: %lu\n",number_querys);
 #endif
   
   return TRUE;
