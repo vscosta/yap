@@ -749,10 +749,12 @@ not(G) :-    \+ '$execute'(G).
 	S \= M, % can't try importing from the module itself.
 	!,
 	'$exit_undefp'.
+/*
 '$find_undefp_handler'(G,M,NG,M) :-
 	'$is_expand_goal_or_meta_predicate'(G,M),
 	'$system_catch'(goal_expansion(G, M, NG), user, _, fail), !,
 	'$exit_undefp'.
+*/
 '$find_undefp_handler'(G,M,NG,user) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
 	'$system_catch'(unknown_predicate_handler(G,M,NG), user, Error, '$leave_undefp'(Error)), !,
