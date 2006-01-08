@@ -250,6 +250,8 @@ query_generation([Conjunction|Conjunctions],ProjectionTerm,[Query|Queries]):-
 %
 % --------------------------------------------------------------------------------------
 
+
+
 translate_goal(SimpleGoal,[SQLFrom],SQLWhere,Dict,NewDict):-
    % --- positive goal binds variables - these bindings are held in the dictionary -----
    functor(SimpleGoal,Functor,Arity),
@@ -273,6 +275,13 @@ translate_goal(not ComparisonGoal,[],SQLCompOp,Dict,Dict):-
    comparison(ComparisonOperator,SQLOperator),
    negated_comparison(SQLOperator,SQLNegOperator),
    translate_comparison(LeftArg,RightArg,SQLNegOperator,Dict,SQLCompOp).
+
+translate_goal(exists(ExistsGoals),[],SQLExistsSubquery,Dict,Dict):-
+   % --- exists goals do not bind variables - hence Dict is returned unchanged --------
+   functor(ExistsGoals,Functor,_),
+   not comparison(Functor,_),
+   translate_conjunction(ExistsGoals,SQLFrom,SQLWhere,Dict,_),
+   SQLExistsSubquery = [existential_subquery([*],SQLFrom,SQLWhere)].
 
 translate_goal(ComparisonGoal,[],SQLCompOp,Dict,Dict):-
    % --- comparison operations do not bind variables - Dict is returned unchanged ------
@@ -794,7 +803,7 @@ printqueries([Query|Queries]):-
    nl,
    print_query(Query),
    nl,
-   write('UNION'),
+   write('UNION '),
    nl,
    printqueries(Queries).
 
@@ -826,6 +835,18 @@ print_query(agg_query(Function,Select,From,Where,Group)):-
 
 print_query(negated_existential_subquery(Select,From,Where)):-
    write('NOT EXISTS'),
+   nl,
+   write('('),
+   print_clause('SELECT',Select,','),
+   nl,
+   print_clause('FROM',From,','),
+   nl,
+   print_clause('WHERE',Where,'AND'),
+   nl,
+   write(')').
+
+print_query(existential_subquery(Select,From,Where)):-
+   write('EXISTS'),
    nl,
    write('('),
    print_clause('SELECT',Select,','),
@@ -947,6 +968,9 @@ print_column(agg_query(Function,Select,From,Where,Group)):-
 print_column(negated_existential_subquery(Select,From,Where)):-
    print_query(negated_existential_subquery(Select,From,Where)).
 
+print_column(existential_subquery(Select,From,Where)):-
+   print_query(existential_subquery(Select,From,Where)).
+
 
 
 
@@ -972,7 +996,7 @@ queries_atom([Query],QueryList,Diff):-
 queries_atom([Query|Queries],QueryList,Diff):-
    Queries \= [],
    query_atom(Query,QueryList,X1),
-   column_atom('UNION',X1,X2),
+   column_atom('UNION ',X1,X2),
    queries_atom(Queries,X2,Diff).
 
 
@@ -997,6 +1021,13 @@ query_atom(agg_query(Function,Select,From,Where,Group),QueryList,Diff):-
 
 query_atom(negated_existential_subquery(Select,From,Where),QueryList,Diff):-
    column_atom('NOT EXISTS(',QueryList,X1),   
+   clause_atom('SELECT',Select,',',X1,X2),
+   clause_atom('FROM',From,',',X2,X3),
+   clause_atom('WHERE',Where,'AND',X3,X4),
+   column_atom(')',X4,Diff).
+
+query_atom(existential_subquery(Select,From,Where),QueryList,Diff):-
+   column_atom('EXISTS(',QueryList,X1),   
    clause_atom('SELECT',Select,',',X1,X2),
    clause_atom('FROM',From,',',X2,X3),
    clause_atom('WHERE',Where,'AND',X3,X4),
@@ -1059,8 +1090,6 @@ clause_atom([Item,NextItem|RestItems],Junctor,QueryList,Diff):-
 
 
 
-
-
 column_atom(att(RangeVar,Attribute),QueryList,Diff):-
    column_atom(RangeVar,QueryList,X1),
    column_atom('.',X1,X2),
@@ -1116,6 +1145,9 @@ column_atom(agg_query(Function,Select,From,Where,Group),QueryList,Diff):-
 
 column_atom(negated_existential_subquery(Select,From,Where),QueryList,Diff):-
    query_atom(negated_existential_subquery(Select,From,Where),QueryList,Diff).
+
+column_atom(existential_subquery(Select,From,Where),QueryList,Diff):-
+   query_atom(existential_subquery(Select,From,Where),QueryList,Diff).
 
 
 column_atom(Atom,List,Diff):-
