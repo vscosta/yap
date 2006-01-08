@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.79 2005-12-17 03:25:39 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.80 2006-01-08 23:01:46 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -662,10 +662,6 @@ Yap_ExpandPreAllocCodeSpace(UInt sz, void *cip)
 
 #include "windows.h"
 
-#define BASE_ADDRESS  ((LPVOID) MMAP_ADDR)
-/* #define MAX_WORKSPACE 0x40000000L */
-#define MAX_WORKSPACE 0x80000000L
-
 static LPVOID brk;
 
 static int
@@ -673,6 +669,8 @@ ExtendWorkSpace(Int s, int fixed_allocation)
 {
   LPVOID b = brk;
   prolog_exec_mode OldPrologMode = Yap_PrologMode;
+
+
 
   Yap_PrologMode = ExtendStackMode;
   if (fixed_allocation) {
@@ -685,6 +683,7 @@ ExtendWorkSpace(Int s, int fixed_allocation)
   }
   if (!b) {
     Yap_PrologMode = OldPrologMode;
+    /*  fprintf(stderr,"NOT OK1: %p--%p\n",b,brk);*/
     return FALSE;
   }
   b = VirtualAlloc(b, s, MEM_COMMIT, PAGE_READWRITE);
@@ -694,9 +693,11 @@ ExtendWorkSpace(Int s, int fixed_allocation)
 	      "VirtualAlloc could not commit %ld bytes",
 	      (long int)s);
     Yap_PrologMode = OldPrologMode;
+    /*  fprintf(stderr,"NOT OK2: %p--%p\n",b,brk);*/
     return FALSE;
   }
-  brk = (LPVOID) ((Int) brk + s);
+  brk = (LPVOID) ((Int) b + s);
+  /*  fprintf(stderr,"OK: %p--%p\n",b,brk);*/
   Yap_PrologMode = OldPrologMode;
   return TRUE;
 }
@@ -705,35 +706,14 @@ static MALLOC_T
 InitWorkSpace(Int s)
 {
   SYSTEM_INFO si;
-  UInt max_mem = MAX_WORKSPACE;
-  LPVOID b = NULL;
 
   GetSystemInfo(&si);
   Yap_page_size = si.dwPageSize;
-  
   s = ((s+ (ALLOC_SIZE-1))/ALLOC_SIZE)*ALLOC_SIZE;
-  brk = NULL;
-  b = VirtualAlloc((LPVOID)MMAP_ADDR, s, MEM_RESERVE, PAGE_NOACCESS);
-  if (b == NULL) {
-    b = VirtualAlloc(NULL, max_mem, MEM_RESERVE, PAGE_NOACCESS);
-    if (!b) {
-      fprintf(stderr,"%% Warning: YAP reserving space at variable address %p\n", brk);
-      return NULL;
-    } 
-    b = VirtualAlloc(b, s, MEM_COMMIT, PAGE_READWRITE);
-    if (b== NULL) {
-      fprintf(stderr,"%% Warning: YAP failed to reserve space at %p\n", brk);
-      return NULL;
-    }
-  } else {
-    b = VirtualAlloc(b, s, MEM_COMMIT, PAGE_READWRITE);
-    if (!b) {
-      fprintf(stderr,"%% Warning: YAP failed to reserve space at %p\n", brk);
-      return NULL;
-    }
-  }
-  brk = (LPVOID) ((Int) b + s);
-  return b;
+  brk = (LPVOID)Yap_page_size;
+  if (!ExtendWorkSpace(s,0))
+    return FALSE;
+  return (MALLOC_T)brk-s;
 }
 
 int
@@ -1365,7 +1345,6 @@ Yap_InitMemory(int Trail, int Heap, int Stack)
   Yap_GlobalBase = Yap_LocalBase - sa;
   HeapLim = Yap_GlobalBase;	/* avoid confusions while
 					 * * restoring */
-
 #if !USE_DL_MALLOC
   AuxTop = (ADDR)(AuxSp = (CELL *)Yap_GlobalBase);
 #endif

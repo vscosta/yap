@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.11 2005-12-23 00:20:14 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.12 2006-01-08 23:01:47 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -250,10 +250,6 @@ extern char Yap_Option[20];
 #endif
 #elif __svr4__ || defined(__SVR4)
 #define MMAP_ADDR 0x02000000
-#elif defined(_WIN32)
-#define MMAP_ADDR 0x00480000L
-#elif defined(__CYGWIN__)
-#define MMAP_ADDR 0x00480000L
 #endif
 #endif /* !IN_SECOND_QUADRANT */
 
