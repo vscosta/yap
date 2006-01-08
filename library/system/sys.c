@@ -8,8 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.23 2005-10-21 16:09:03 vsc Exp $									 *
+* $Id: sys.c,v 1.24 2006-01-08 23:01:48 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.23  2005/10/21 16:09:03  vsc
+* mods:		SWI compatible module only operators
+* mods:		
 * mods:		Revision 1.22  2005/03/10 18:04:01  rslopes
 * mods:		update YAP_Error arguments
 * mods:		to be able to compile on Windows...
@@ -145,7 +148,7 @@ sysmktime(void)
   {
     unsigned long long f1 = (((unsigned long long)ftime.dwHighDateTime)<<32)+(unsigned long long)ftime.dwLowDateTime;
     unsigned long long f0 = (((unsigned long long)ftime0.dwHighDateTime)<<32)+(unsigned long long)ftime0.dwLowDateTime;
-    return YAP_Unify(YAP_ARG8,YAP_MkIntTerm((long int)((f1-f0)/10000000)));
+    return YAP_Unify(YAP_ARG7,YAP_MkIntTerm((long int)((f1-f0)/10000000)));
   }
 #else
   return FALSE;

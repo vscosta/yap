@@ -1,4 +1,4 @@
-/*  $Id: chr_translate_bootstrap.pl,v 1.2 2006-01-08 23:01:47 vsc Exp $
+/*  $Id: chr_translate_bootstrap.pl,v 1.3 2006-01-08 23:04:41 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -124,10 +124,7 @@
 :- use_module(library(lists)).
 :- use_module(hprolog).
 :- use_module(library(assoc)).
-:- write_depth(3,3).
-%:- start_low_level_trace.
 :- use_module(pairlist).
-:- stop_low_level_trace.
 :- use_module(library(ordsets)).
 :- include(chr_op).
 
