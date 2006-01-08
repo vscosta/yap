@@ -82,6 +82,7 @@ least(one(node(X,Xs)),one(node(Y,Ys)),T) :-
 		T = one(node(Y,Ys))
 	).		
 
+
 remove_tree([],_,[]).
 remove_tree([T|Ts],I,[NT|NTs]) :-
 	( T == zero ->

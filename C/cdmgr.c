@@ -11,8 +11,13 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-12-23 00:20:13 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-01-08 03:12:00 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.174  2005/12/23 00:20:13  vsc
+* updates to gprof
+* support for __POWER__
+* Try to saveregs before longjmp.
+*
 * Revision 1.173  2005/12/17 03:25:39  vsc
 * major changes to support online event-based profiling
 * improve error discovery and restart on scanner.
@@ -1047,9 +1052,9 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
     
       LOCK(parent->ClLock);
       c->ParentIndex = parent->ParentIndex;
-      LOCK(parent->u.ParentIndex->ClLock);
+      LOCK(parent->ParentIndex->ClLock);
       parent->ParentIndex->ClRefCount++;
-      UNLOCK(parent->u.ParentIndex->ClLock);
+      UNLOCK(parent->ParentIndex->ClLock);
       parent->ClRefCount--;
       UNLOCK(parent->ClLock);
     }
@@ -1154,10 +1159,10 @@ Yap_ErLogUpdIndex(LogUpdIndex *clau, yamop *ipc)
     kill_first_log_iblock(clau, NULL, c->ClPred);
   } else {
 #if defined(THREADS) || defined(YAPOR)
-    LOCK(clau->u.ParentIndex->ClLock);
+    LOCK(clau->ParentIndex->ClLock);
     /* protect against attempts at erasing */
     clau->ClRefCount++;
-    UNLOCK(clau->u.ParentIndex->ClLock);
+    UNLOCK(clau->ParentIndex->ClLock);
 #endif
     kill_first_log_iblock(clau, clau->ParentIndex, clau->ClPred);
 #if defined(THREADS) || defined(YAPOR)

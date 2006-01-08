@@ -813,7 +813,7 @@ p_modules_with_atts(void) {
 	  return Yap_unify(ARG2,TermNil);
       while (!IsVarTerm(tatt)) {
 	Functor f = FunctorOfTerm(tatt);
-	if (H != H0)
+	if (H != h0)
 	  H[-1] = AbsPair(H);
 	if (ActiveAtt(tatt, ArityOfFunctor(f))) {
 	  *H = MkAtomTerm(NameOfFunctor(f));

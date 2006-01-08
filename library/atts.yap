@@ -188,7 +188,8 @@ do_verify_attributes([_|Mods], AttVar, Binding, Goals) :-
 
 do_hook_attributes([], _).
 do_hook_attributes(att(Mod,Att,Atts), Binding) :-
-	current_predicate(attr_unify_hook,Mod:attr_unify_hook(_,_)), !,
+	current_predicate(attr_unify_hook,Mod:attr_unify_hook(_,_)),
+	!,
 	Mod:attr_unify_hook(Att, Binding),
 	do_hook_attributes(Atts, Binding).
 do_hook_attributes(att(_,_,Atts), Binding) :-
