@@ -1204,12 +1204,14 @@ p_or(Term t1, Term t2 E_ARGS)
     }
 }
 
-static Int
+#if USE_GMP
+static inline Int
 sll_ovflw(Int x,Int i)
 {
   CELL t = (1<<x)-1;
   return (t & i) != i;
 }
+#endif
 
 inline static E_FUNC
 do_sll(Int i, Int j E_ARGS)
