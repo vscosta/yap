@@ -1,14 +1,12 @@
 :- module(myddas_test_predicates,[
 				  % Tests or Debug Predicates
 				  %db_my_delete/2,
-				  db_create_table/3,
-				  db_export_view/4,
 				  db_assert_view/4,
 				  db_my_insert_test/2,
 				  db_my_update/3,
-				  db_my_import_query_normal/3,
+				  db_my_import_michel/3,
 				  db_view_original/3, % DEBUG ONLY
-				  db_my_ilpview/4
+				  db_ilpview/4
 				  ]).
 
 
@@ -44,11 +42,6 @@ db_assert_view(ViewName,SQLorDbGoal,FieldsInf,Connection):-
 	% TODO: Optimize this
 	db_my_import(TableName,TableName,Connection).
 	
-
-	
-
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
 % db_my_insert/2
@@ -109,7 +102,7 @@ db_my_update(UpdateList,Relation,Connection):-
 % db_my_import_michel/3
 %
 %
-db_my_import_query_normal(RelationName,PredName,Connection) :-
+db_my_import_michel(RelationName,PredName,Connection) :-
 	'$error_checks'(db_my_import(RelationName,PredName,Connection)),
 	% get connection id based on given atom
 	'$get_value'(Connection,Conn),
@@ -278,24 +271,30 @@ db_my_import_query_normal(RelationName,PredName,Connection) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_my_ilpview/4
+% db_ilpview/4
 %
 %
-db_my_ilpview(LA,ViewName,DbGoal,Connection):-
-	'$get_value'(Connection,Conn),
+db_ilpview(Connection,LA,ViewName,DbGoal):-
+	
 	functor(ViewName,PredName,Arity),
 	functor(NewName,PredName,Arity),
 	translate(ViewName,DbGoal,Code),
 	queries_atom(Code,SQL),
+	
 	% build arg list for db_my_row/2
         '$make_list_of_args'(1,Arity,NewName,LA),
-	% checks if the WHERE commend of SQL exists in the string
-	'$where_exists'(SQL,Flag),
-	'$build_query'(Flag,SQL,Code,LA,FinalSQL),
-	db_my_result_set(Mode),
-	'$write_or_not'(FinalSQL),
-	c_db_my_query(FinalSQL,ResultSet,Conn,Mode),
-	!,c_db_my_row(ResultSet,Arity,LA).
+
+	get_value(Connection,Con),
+	c_db_connection_type(Con,ConType),
+	'$write_or_not'(SQL),
+	( ConType == mysql ->
+	    db_my_result_set(Mode),
+	    c_db_my_query(SQL,ResultSet,Con,Mode),
+	    !,c_db_my_row(ResultSet,Arity,LA)
+	;
+	    true
+	).
+	    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

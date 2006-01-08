@@ -180,7 +180,8 @@ db_is_database_predicate(PredName,Arity,Module):-
 %
 :- set_value(db_myddas_stats_count,0).
 db_stats(Connection,List):-
-	NumberOfStats = 6,
+	'$error_checks'(db_stats(Connection,List)),
+	NumberOfStats = 9,
 	'$make_a_list'(NumberOfStats,List),
 	( var(Connection) ->
 	    c_db_stats(0,List)
@@ -188,9 +189,9 @@ db_stats(Connection,List):-
 	    get_value(Connection,Conn),
 	    c_db_stats(Conn,List)
 	),
-	write('MYDDAS'),nl,write(List),nl,
+	write('MYDDAS: '),nl,write(List),nl,
 	get_value(db_myddas_stats_count,Value),
-	write(Value),nl.
+	write('Stats Counts '),write(Value),nl.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -269,7 +270,7 @@ db_create_table(Connection,TableName,FieldsInf):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
 % db_export_view/4
 % TODO Test with ODBC
-%
+% 
 db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf):-
 	'$error_checks'(db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf)),
 	get_value(Connection,Con),

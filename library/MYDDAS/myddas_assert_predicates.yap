@@ -93,35 +93,44 @@ db_import(Connection,RelationName,PredName) :-
 	'$copy_term_nv'(P,[],G,_),
 
 	%generate the SQL query
-	translate(G,G,Code),
-	queries_atom(Code,SQL),
+	%translate(G,G,Code),
+	%queries_atom(Code,SQL),
 
+	M=myddas_assert_predicates,
 	%build PredName clause
 	( ConType == mysql ->
-	    Assert =..[':-',P,','(myddas_assert_predicates:'$build_query'(0,SQL,Code,LA,FinalSQL),
-				  ','(myddas_assert_predicates:db_my_result_set(Mode),
-				      ','(myddas_assert_predicates:'$write_or_not'(FinalSQL),
-					  ','(myddas_assert_predicates:c_db_my_query(FinalSQL,ResultSet,Con,Mode),
-					      ','(!,myddas_assert_predicates:c_db_my_row(ResultSet,Arity,LA))))))]
+
+	    Assert =..[':-',P,','(M:translate(G,G,Code),
+		              ','(M:queries_atom(Code,FinalSQL),
+			      ','(M:db_my_result_set(Mode),
+			      ','(M:'$write_or_not'(FinalSQL),
+	                      ','(M:c_db_my_query(FinalSQL,ResultSet,Con,Mode),
+			      ','(!,M:c_db_my_row(ResultSet,Arity,LA)))))))]
+	    
+	    % Assert =..[':-',P,','(M:'$build_query'(0,SQL,Code,LA,FinalSQL),
+% 		              ','(M:db_my_result_set(Mode),
+% 			      ','(M:'$write_or_not'(FinalSQL),
+% 		       	      ','(M:c_db_my_query(FinalSQL,ResultSet,Con,Mode),
+% 			      ','(!,M:c_db_my_row(ResultSet,Arity,LA))))))]
 	    
 % 	    Assert =..[':-',P,','(get_value(db_myddas_stats_count,Number),
 % 				  ','(statistics(cputime,TimeI),
-% 				      ','(myddas_assert_predicates:'$build_query'(0,SQL,Code,LA,FinalSQL),
-% 					  ','(myddas_assert_predicates:db_my_result_set(Mode),
-% 					      ','(myddas_assert_predicates:'$write_or_not'(FinalSQL),
-% 						  ','(myddas_assert_predicates:c_db_my_query(FinalSQL,ResultSet,Con,Mode),
+% 				      ','(M:'$build_query'(0,SQL,Code,LA,FinalSQL),
+% 					  ','(M:db_my_result_set(Mode),
+% 					      ','(M:'$write_or_not'(FinalSQL),
+% 						  ','(M:c_db_my_query(FinalSQL,ResultSet,Con,Mode),
 % 						      ','(statistics(cputime,TimeF),
 % 							  ','(Temp is TimeF - TimeI,
 % 							      ','(Temp2 is Temp + Number,
 % 								  ','(set_value(db_myddas_stats_count,Temp2),
-% 								      ','(!,myddas_assert_predicates:c_db_my_row(ResultSet,Arity,LA))))))))))))]
+% 								      ','(!,M:c_db_my_row(ResultSet,Arity,LA))))))))))))]
 	    ;
-	    
-	    Assert =..[':-',P,','(myddas_assert_predicates:'$build_query'(0,SQL,Code,LA,FinalSQL),
-				  ','(myddas_assert_predicates:'$make_a_list'(Arity,BindList),
-				      ','(myddas_assert_predicates:c_db_odbc_query(FinalSQL,ResultSet,Arity,BindList,Connection),
-					  ','(myddas_assert_predicates:'$write_or_not'(FinalSQL),
-					      ','(!,myddas_assert_predicates:c_db_odbc_row(ResultSet,BindList,LA))))))]
+	    '$make_a_list'(Arity,BindList),
+	    Assert =..[':-',P,','(M:translate(G,G,Code),
+			      ','(M:queries_atom(Code,FinalSQL),
+			      ','(M:c_db_odbc_query(FinalSQL,ResultSet,Arity,BindList,Connection),
+		              ','(M:'$write_or_not'(FinalSQL),
+			      ','(!,M:c_db_odbc_row(ResultSet,BindList,LA))))))]
 	    ),
 	
 	assert(Module:Assert),
@@ -147,30 +156,29 @@ db_view(Connection,PredName,DbGoal) :-
 	% This copy_term is done to prevent the unification
 	% with top-level variables   A='var('A')' error
 	copy_term((PredName,DbGoal),(CopyView,CopyGoal)),
-	translate(CopyView,CopyGoal,Code),
-	queries_atom(Code,SQL),
-
-	% checks if the WHERE commend of SQL exists in the string
-	'$where_exists'(SQL,Flag),
 
 	'$make_list_of_args'(1,Arity,NewName,LA),
 
+	M=myddas_assert_predicates,
 	c_db_connection_type(Con,ConType),
+
 	% build view clause
 	( ConType == mysql ->
 	    Assert =..[':-',NewName,
-		       ','(myddas_assert_predicates:'$build_query'(Flag,SQL,Code,LA,FinalSQL),
-			   ','(myddas_assert_predicates:db_my_result_set(Mode),
-			       ','(myddas_assert_predicates:'$write_or_not'(FinalSQL),
-				   ','(myddas_assert_predicates:c_db_my_query(FinalSQL,ResultSet,Con,Mode),
-				       ','(!,myddas_assert_predicates:c_db_my_row(ResultSet,Arity,LA))))))]
+		       ','(M:translate(CopyView,CopyGoal,Code),
+		       ','(M:queries_atom(Code,FinalSQL),
+		       ','(M:db_my_result_set(Mode),
+		       ','(M:'$write_or_not'(FinalSQL),
+               	       ','(M:c_db_my_query(FinalSQL,ResultSet,Con,Mode),
+		       ','(!,M:c_db_my_row(ResultSet,Arity,LA)))))))]
 	    ;
 	    Assert =..[':-',NewName,
-		       ','(myddas_assert_predicates:'$build_query'(Flag,SQL,Code,LA,FinalSQL),
-			   ','(myddas_assert_predicates:'$make_a_list'(Arity,BindList),
-			       ','(myddas_assert_predicates:'$write_or_not'(FinalSQL),
-				   ','(myddas_assert_predicates:c_db_odbc_query(FinalSQL,ResultSet,Arity,BindList,Con),
-				       ','(!,myddas_assert_predicates:c_db_odbc_row(ResultSet,BindList,LA))))))]
+		       ','(M:translate(CopyView,CopyGoal,Code),
+		       ','(M:queries_atom(Code,FinalSQL),
+	               ','(M:'$make_a_list'(Arity,BindList),
+		       ','(M:'$write_or_not'(FinalSQL),
+	      	       ','(M:c_db_odbc_query(FinalSQL,ResultSet,Arity,BindList,Con),
+		       ','(!,M:c_db_odbc_row(ResultSet,BindList,LA)))))))]
 	    
 	    ),
 	assert(Module:Assert),
