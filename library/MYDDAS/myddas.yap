@@ -29,7 +29,7 @@
 		  db_insert/2,
 		  db_create_table/3,
 		  db_export_view/4,
-		  db_update/3,
+		  db_update/2,
 
 		  db_get_attributes_types/3,
 		  db_number_of_fields/3,
@@ -90,7 +90,7 @@
 				      '$make_a_list'/2,
 				      '$make_list_of_args'/4,
 				      '$get_table_name'/2,
-				      '$get_values_for_update'/5,
+				      '$get_values_for_update'/4,
 				      '$extract_args'/4
 				      ]).
 
@@ -325,25 +325,33 @@ db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf):-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_update/3
-% UpdaList = [X,1,Y,2,T,0]
+% db_update/2
+% 
 %
-db_update(UpdateList,Relation,Connection):-
-	get_value(Connection,Conn),
+db_update(Connection,WherePred-SetPred):-
 	%TODO: error_checks
-	functor(Relation,PredName,Arity),
+	get_value(Connection,Conn),
+
+	% Match and Values must be "unifiable" 
+	functor(WherePred,PredName,Arity),
+	functor(SetPred,PredName,Arity),
+
 	functor(NewRelation,PredName,Arity),
-	'$extract_args'(Relation,1,Arity,ArgsList1),
-	copy_term(ArgsList1,ArgsList2),
-	'$make_list_of_args'(1,Arity,NewRelation,ArgsList2),
+	
+	'$extract_args'(WherePred,1,Arity,WhereArgs),
+	'$extract_args'(SetPred,1,Arity,SetArgs),
+
+	copy_term(WhereArgs,WhereArgsTemp),
+	'$make_list_of_args'(1,Arity,NewRelation,WhereArgsTemp),
 	translate(NewRelation,NewRelation,Code),
+
+	'$get_values_for_update'(Code,SetArgs,SetCondition,WhereCondition),
+	
 	'$get_table_name'(Code,TableName),
-	'$get_values_for_update'(Code,SetCondition,ArgsList1,UpdateList,WhereCondition),
 	append(SetCondition,WhereCondition,Conditions), 
 	'$make_atom'(['UPDATE ',TableName,' '|Conditions],SQL),
 	'$write_or_not'(SQL),
 	c_db_my_query_no_result(SQL,Conn).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

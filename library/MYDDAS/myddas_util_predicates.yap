@@ -24,7 +24,7 @@
 				  '$make_atom'/2,
 				  '$write_or_not'/1,
 				  '$abolish_all'/1,
-				  '$get_values_for_update'/5,
+				  '$get_values_for_update'/4,
 				  '$get_table_name'/2,
 				  '$extract_args'/4,
 				  '$copy_term_nv'/4,
@@ -248,30 +248,25 @@
 
 % '$get_values_for_update'(+SQLQueryTerm,-SetFields,+ArgList,+Updatelist,-WhereCondition)
 % It will unify with the first clause
-% only on the first call of the predicate 
-'$get_values_for_update'([query(Fields,_,[])],[' SET '|SQLSet],ArgList,UpdateList,[]):-!,
-	'$get_values_for_set'(Fields,ArgList,UpdateList,Set),
+% only on the first call of the predicate
+'$get_values_for_update'([query(Fields,_,[])],SetArgs,[' SET '|SQLSet],[]):-!,
+	'$get_values_for_set'(Fields,SetArgs,Set),
 	'$build_set_condition'(Set,SQLSet).
-'$get_values_for_update'([query(Fields,_,Comp)],[' SET '|SQLSet],ArgList,UpdateList,[' WHERE '|Where]):-!,
-	'$get_values_for_set'(Fields,ArgList,UpdateList,Set),
+'$get_values_for_update'([query(Fields,_,Comp)],SetArgs,[' SET '|SQLSet],[' WHERE '|Where]):-!,
+	'$get_values_for_set'(Fields,SetArgs,Set),
 	'$build_set_condition'(Set,SQLSet),
 	'$get_values_for_where'(Comp,Where).
+	
+'$get_values_for_set'([],[],[]).
+'$get_values_for_set'([att(_,Field)|FieldList],[Value|ValueList],[Field,Value|FieldValueList]):-
+	ground(Value),!,
+	'$get_values_for_set'(FieldList,ValueList,FieldValueList).
+'$get_values_for_set'([_|FieldList],[_|ValueList],FieldValueList):-!,
+	'$get_values_for_set'(FieldList,ValueList,FieldValueList).
 
 '$get_values_for_where'([comp(att(_,Field),'=','$const$'(Atom))],[' ',Field,' = "',Atom,'" ']).
 '$get_values_for_where'([comp(att(_,Field),'=','$const$'(Atom))|Comp],[' ',Field,' = "',Atom,'" '|Rest]):-
 	'$get_values_for_where'(Comp,Rest).
-
-'$get_values_for_set'([],[],_,[]).
-'$get_values_for_set'([att(_,Field)|FieldList],[Var|ArgList],UpdateList,[Field,Value|ValueList]):-!,
-	'$lookup_variable_value'(Var,UpdateList,Value),
-	'$get_values_for_set'(FieldList,ArgList,UpdateList,ValueList).
-'$get_values_for_set'([_|FieldList],[_|ArgList],UpdateList,ValueList):-
-	'$get_values_for_set'(FieldList,ArgList,UpdateList,ValueList).
-	
-'$lookup_variable_value'(Var,[TestVar,Value|_],Value):-
-	Var==TestVar,!.
-'$lookup_variable_value'(Var,[_,_|List],Value):-
-        '$lookup_variable_value'(Var,List,Value).
 
 '$build_set_condition'([Field,Value|FieldValues],[SQLFirst|SQLRest]):-
         '$make_atom'([' ',Field,' = "',Value,'" '],SQLFirst),

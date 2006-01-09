@@ -93,7 +93,7 @@
 '$error_checks'(db_sql_select(Connection,SQL,LA)):- !,
         atom(Connection),
         nonvar(SQL),
-	var(LA).
+	not ground(LA).
 '$error_checks'(db_number_of_fields(Connection,RelationName,_)) :- !,
         atom(Connection),
 	nonvar(RelationName).
