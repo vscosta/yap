@@ -25,10 +25,12 @@
 		  db_stats/2,
 		  
 		  db_sql_select/3,
+		  db_command/2,
 		  db_insert/2,
 		  db_create_table/3,
 		  db_export_view/4,
-		  
+		  db_update/3,
+
 		  db_get_attributes_types/3,
 		  db_number_of_fields/3,
 		  
@@ -85,7 +87,11 @@
 				      '$make_atom'/2,
 				      '$write_or_not'/1,
 				      '$abolish_all'/1,
-				      '$make_a_list'/2
+				      '$make_a_list'/2,
+				      '$make_list_of_args'/4,
+				      '$get_table_name'/2,
+				      '$get_values_for_update'/5,
+				      '$extract_args'/4
 				      ]).
 
 :- use_module(myddas_errors,[
@@ -95,6 +101,10 @@
 :- use_module(myddas_prolog2sql,[
 				 translate/3
 				]).
+
+:- use_module(lists,[
+		     append/3
+		    ]).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -221,6 +231,23 @@ db_sql_select(Connection,SQL,LA):-
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_command/2
+% 
+%
+db_command(Connection,SQL):-
+	'$error_checks'(db_command(Connection,SQL)),
+	get_value(Connection,Con),
+	'$write_or_not'(SQL),
+	c_db_connection_type(Con,ConType),
+	( ConType == mysql ->
+	    db_my_result_set(Mode),
+	    c_db_my_query(SQL,_,Con,Mode)
+	;
+	    true
+	).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_insert/2
@@ -295,7 +322,29 @@ db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf):-
 	    c_db_odbc_query(FinalSQL,_,_,_,Con)
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_update/3
+% UpdaList = [X,1,Y,2,T,0]
+%
+db_update(UpdateList,Relation,Connection):-
+	get_value(Connection,Conn),
+	%TODO: error_checks
+	functor(Relation,PredName,Arity),
+	functor(NewRelation,PredName,Arity),
+	'$extract_args'(Relation,1,Arity,ArgsList1),
+	copy_term(ArgsList1,ArgsList2),
+	'$make_list_of_args'(1,Arity,NewRelation,ArgsList2),
+	translate(NewRelation,NewRelation,Code),
+	'$get_table_name'(Code,TableName),
+	'$get_values_for_update'(Code,SetCondition,ArgsList1,UpdateList,WhereCondition),
+	append(SetCondition,WhereCondition,Conditions), 
+	'$make_atom'(['UPDATE ',TableName,' '|Conditions],SQL),
+	'$write_or_not'(SQL),
+	c_db_my_query_no_result(SQL,Conn).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_get_attributes_types/3

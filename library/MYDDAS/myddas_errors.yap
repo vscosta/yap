@@ -28,6 +28,9 @@
 		     is_list/1
 		    ]).
 
+'$error_checks'(db_command(Connection,SQL)):-!,
+        atom(Connection),
+        nonvar(SQL).
 '$error_checks'(db_stats(_,List)):-!,
 	var(List).
 '$error_checks'(db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf)):-!,

@@ -3,7 +3,6 @@
 				  %db_my_delete/2,
 				  db_assert_view/4,
 				  db_my_insert_test/2,
-				  db_my_update/3,
 				  db_my_import_michel/3,
 				  db_view_original/3, % DEBUG ONLY
 				  db_ilpview/4
@@ -55,32 +54,6 @@ db_my_insert_test(PredName,Connection):-
 	'$make_atom'(['INSERT INTO ',RelName,' VALUES'|ValuesList],SQL),
 	c_db_my_query_no_result(SQL,Conn).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_my_update/3
-% UpdaList = [X,1,Y,2,T,0]
-%
-db_my_update(UpdateList,Relation,Connection):-
-	'$get_value'(Connection,Conn),
-	%TODO: error_checks
-	functor(Relation,PredName,Arity),
-	functor(NewRelation,PredName,Arity),
-	'$extract_args'(Relation,1,Arity,ArgsList1),
-	copy_term(ArgsList1,ArgsList2),
-	'$make_list_of_args'(1,Arity,NewRelation,ArgsList2),
-	translate(NewRelation,NewRelation,Code),
-	'$get_table_name'(Code,TableName),
-	'$get_values_for_update'(Code,SetCondition,ArgsList1,UpdateList,WhereCondition),
-	append(SetCondition,WhereCondition,Conditions), 
-	'$make_atom'(['UPDATE ',TableName,' '|Conditions],SQL),
-	'$write_or_not'(SQL),
-	c_db_my_query_no_result(SQL,Conn).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-
 
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

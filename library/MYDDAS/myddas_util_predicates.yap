@@ -249,6 +249,9 @@
 % '$get_values_for_update'(+SQLQueryTerm,-SetFields,+ArgList,+Updatelist,-WhereCondition)
 % It will unify with the first clause
 % only on the first call of the predicate 
+'$get_values_for_update'([query(Fields,_,[])],[' SET '|SQLSet],ArgList,UpdateList,[]):-!,
+	'$get_values_for_set'(Fields,ArgList,UpdateList,Set),
+	'$build_set_condition'(Set,SQLSet).
 '$get_values_for_update'([query(Fields,_,Comp)],[' SET '|SQLSet],ArgList,UpdateList,[' WHERE '|Where]):-!,
 	'$get_values_for_set'(Fields,ArgList,UpdateList,Set),
 	'$build_set_condition'(Set,SQLSet),
