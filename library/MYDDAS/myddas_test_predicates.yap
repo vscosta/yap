@@ -244,38 +244,6 @@ db_my_import_michel(RelationName,PredName,Connection) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_ilpview/4
-%
-%
-db_ilpview(Connection,LA,ViewName,DbGoal):-
-	
-	functor(ViewName,PredName,Arity),
-	functor(NewName,PredName,Arity),
-	translate(ViewName,DbGoal,Code),
-	queries_atom(Code,SQL),
-	
-	% build arg list for db_my_row/2
-        '$make_list_of_args'(1,Arity,NewName,LA),
-
-	get_value(Connection,Con),
-	c_db_connection_type(Con,ConType),
-	'$write_or_not'(SQL),
-	( ConType == mysql ->
-	    db_my_result_set(Mode),
-	    c_db_my_query(SQL,ResultSet,Con,Mode),
-	    !,c_db_my_row(ResultSet,Arity,LA)
-	;
-	    true
-	).
-	    
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-
-
-	
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_view_original/3
 %
 %

@@ -22,9 +22,11 @@
 		  db_verbose/1,
 		  db_module/1,
 		  db_is_database_predicate/3,
+		  db_abolish/2,
 		  db_stats/2,
 		  
 		  db_sql_select/3,
+		  db_prolog_select/4,
 		  db_command/2,
 		  db_insert/2,
 		  db_create_table/3,
@@ -175,7 +177,7 @@ db_module(ModuleName):-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_is_database_predicate/3
+% db_is_database_predicate(+,+,+)
 %
 %
 db_is_database_predicate(PredName,Arity,Module):-
@@ -185,7 +187,24 @@ db_is_database_predicate(PredName,Arity,Module):-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_stats/2
+% db_abolish(+,+)
+%
+%
+db_abolish(Module:PredName,Arity):-!,
+	'$error_checks'(db_abolish(Module:PredName,Arity)),
+	%c_db_delete_predicate(
+	abolish(Module:PredName,Arity).
+db_abolish(PredName,Arity):-
+	'$error_checks'(db_abolish(PredName,Arity)),
+	
+	%c_db_delete_predicate(
+	abolish(PredName,Arity).
+			      
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_stats(+,-)
 %
 %
 :- set_value(db_myddas_stats_count,0).
@@ -206,7 +225,7 @@ db_stats(Connection,List):-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_sql_select/3
+% db_sql_select(+,+,-)
 % 
 %
 db_sql_select(Connection,SQL,LA):-
@@ -230,6 +249,35 @@ db_sql_select(Connection,SQL,LA):-
 	    c_db_odbc_row(ResultSet,BindList,LA)
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_prolog_select(+,-,+,+)
+%
+%
+db_prolog_select(Connection,LA,ViewName,DbGoal):-
+	
+	functor(ViewName,PredName,Arity),
+	%functor(NewName,PredName,Arity),
+	translate(ViewName,DbGoal,Code),
+	queries_atom(Code,SQL),
+	
+	% build arg list for db_my_row/2
+        '$make_list_of_args'(1,Arity,ViewName,LA),
+
+	get_value(Connection,Con),
+	c_db_connection_type(Con,ConType),
+	'$write_or_not'(SQL),
+	( ConType == mysql ->
+	    db_my_result_set(Mode),
+	    c_db_my_query(SQL,ResultSet,Con,Mode),
+	    !,c_db_my_row(ResultSet,Arity,LA)
+	;
+	    true
+	).
+	    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_command/2
