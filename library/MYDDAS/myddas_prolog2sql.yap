@@ -1226,127 +1226,11 @@ set_difference([Element|RestSet],Set,RestDifference):-
    set_difference(RestSet,Set,RestDifference).
 
 
-
-% % --- benchmarking programs --------------------------------------------
-% %
-% % taken from R. O'Keefe: The Craft of Prolog, MIT Press 1990
-% %
-% % Sepia Prolog version
-
-% cpu_time(Time):-
-%    cputime(Time).
-
-
-% cpu_time(Goal,Duration):-
-%    !,
-%    cputime(T1),
-%    (call(Goal) -> true; true),
-%    cputime(T2),
-%    Duration is T2 - T1.
-
-% cpu_time(N,Goal,Duration):-
-%    !,
-%    cpu_time((repeat_n(N),(Goal -> fail);true),D1),
-%    cpu_time((repeat_n(N),(true -> fail);true),D2),
-%    Duration is D1 - D2.
-
-
-
-
-% % --- benchmarks of sample queries ---------
-
-% benchmark(N,1,D):-
-%    cpu_time(N,
-%      (translate(flight(No,Dep,Dest,Type),flight(No,Dep,Dest,Type),Code),
-% 	  printqueries(Code)),
-%    D).
-
-% benchmark(N,2,D):-
-%    cpu_time(N,
-%      (translate(capacity(No,Dep,Dest,Type,Seats),
-% 	    (flight(No,Dep,Dest,Type),
-% 		 plane(Type,Seats),
-% 		 Type='b-737'),Code),
-% 	   printqueries(Code)),
-%    D).
-
-% benchmark(N,3,D):-
-%    cpu_time(N,
-%       (translate(no_planes(No,Dep,Dest,Type),
-% 	      (flight(No,Dep,Dest,Type),
-% 		   not plane(Type,Seats)),Code),
-% 	   printqueries(Code)),
-% 	D).
-
-% benchmark(N,4,D):-
-%    cpu_time(N,(translate(X,X is count(S,plane(P,S)),Code),printqueries(Code)),D).
-
-% benchmark(N,5,D):-
-%    cpu_time(N,
-%       (translate(big_planes(munich,Dest,Type,Seats),
-% 	      FNo^(flight(FNo,munich,Dest,Type),
-% 		       plane(Type,Seats),
-% 			   Seats > avg(S, T^plane(T,S))),Code),
-% 	  printqueries(Code)),
-%    D).
-
-% benchmark(N,6,D):-
-%    cpu_time(N,(
-%      translate(big_planes(munich,Dest,Type,Seats),
-% 	     FNo^(flight(FNo,munich,Dest,Type),
-% 		      plane(Type,Seats),
-% 			  Seats > avg(S, T^plane(T,S))),Code),
-% 		 printqueries(Code)),
-%    D).
-
-% benchmark(N,7,D):-
-%    cpu_time(N,(
-%      translate(big_planes(munich,Dest,Type,Seats),
-% 	     FNo^(flight(FNo,munich,Dest,Type),
-% 		      plane(Type,Seats),
-% 			  Seats > avg(S, T^plane(T,S))),Code),
-% 		 queries_atom(Code,SQLQueryAtom),
-% 		 writeq(query_atom(SQLQueryAtom)),
-% 		 nl),
-%    D).
-   
-   
-   
-
-
-% % --- Meta Database for schema definition of SQL DB in Prolog --------------------------
-% %
-% % maps Prolog predicates to SQL table names, Prolog predicate argument positions to SQL
-% % attributes, and Prolog operators to SQL operators. 
-% %
-% % ATTENTION! It is assumed that the arithmetic operators in Prolog and SQL are the same,
-% % i.e. + is addition in Prolog and in SQL, etc. If this is not the case, then a mapping
-% % function for arithmetic operators is necessary too.
-% % --------------------------------------------------------------------------------------
-
-
-% % --- relation(PrologFunctor,Arity,SQLTableName) ---------------------------------------
-
-% relation(flight,4,'FLIGHT').
-% relation(plane,2,'PLANE').
-
-
-% % --- attribute(PrologArgumentPosition,SQLTableName,SQLAttributeName) ------------------
-
-% attribute(1,'FLIGHT','FLIGHT_NO',string).
-% attribute(2,'FLIGHT','DEPARTURE',string).
-% attribute(3,'FLIGHT','DESTINATION',string).
-% attribute(4,'FLIGHT','PLANE_TYPE',string).
-
-
-% attribute(1,'PLANE','TYPE',string).
-% attribute(2,'PLANE','SEATS',integer).
-
-
 % --- Mapping of Prolog operators to SQL operators -------------------------------------
 
 comparison(=,=).
 comparison(<,<).
+comparison(=<,'<=').
 comparison(>,>).
 comparison(@<,<).
 comparison(@>,>).
@@ -1354,7 +1238,7 @@ comparison(@>,>).
 
 negated_comparison(=,'<>').
 negated_comparison(\=,=).
-negated_comparison(>,=<).
+negated_comparison(>,'<=').
 negated_comparison(=<,>).
 negated_comparison(<,>=).
 negated_comparison(>=,<).
