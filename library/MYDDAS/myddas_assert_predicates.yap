@@ -90,7 +90,7 @@ db_import(Connection,RelationName,PredName) :-
 	'$make_list_of_args'(1,Arity,P,LA),
 
 	%Optimization
-	'$copy_term_nv'(P,[],G,_),
+				%'$copy_term_nv'(P,[],G,_),
 
 	%generate the SQL query
 	%translate(G,G,Code),
@@ -100,12 +100,13 @@ db_import(Connection,RelationName,PredName) :-
 	%build PredName clause
 	( ConType == mysql ->
 
-	    Assert =..[':-',P,','(M:translate(G,G,Code),
+	    Assert =..[':-',P,','(M:'$copy_term_nv'(P,[],G,_),
+		              ','(M:translate(G,G,Code),
 		              ','(M:queries_atom(Code,FinalSQL),
 			      ','(M:db_my_result_set(Mode),
 			      ','(M:'$write_or_not'(FinalSQL),
 	                      ','(M:c_db_my_query(FinalSQL,ResultSet,Con,Mode),
-			      ','(!,M:c_db_my_row(ResultSet,Arity,LA)))))))]
+			      ','(!,M:c_db_my_row(ResultSet,Arity,LA))))))))]
 	    
 	    % Assert =..[':-',P,','(M:'$build_query'(0,SQL,Code,LA,FinalSQL),
 % 		              ','(M:db_my_result_set(Mode),
@@ -126,11 +127,12 @@ db_import(Connection,RelationName,PredName) :-
 % 								      ','(!,M:c_db_my_row(ResultSet,Arity,LA))))))))))))]
 	    ;
 	    '$make_a_list'(Arity,BindList),
-	    Assert =..[':-',P,','(M:translate(G,G,Code),
+	    Assert =..[':-',P,','(M:'$copy_term_nv'(P,[],G,_),
+		              ','(M:translate(G,G,Code),
 			      ','(M:queries_atom(Code,FinalSQL),
 			      ','(M:c_db_odbc_query(FinalSQL,ResultSet,Arity,BindList,Connection),
 		              ','(M:'$write_or_not'(FinalSQL),
-			      ','(!,M:c_db_odbc_row(ResultSet,BindList,LA))))))]
+			      ','(!,M:c_db_odbc_row(ResultSet,BindList,LA)))))))]
 	    ),
 	
 	assert(Module:Assert),
@@ -149,28 +151,29 @@ db_view(Connection,PredName,DbGoal) :-
 		
        	% get arity of projection term
 	functor(PredName,ViewName,Arity),
-	functor(NewName,ViewName,Arity),
 	db_module(Module),
-	not c_db_check_if_exists_pred(ViewName,Arity,Module),
+	%not c_db_check_if_exists_pred(ViewName,Arity,Module),
 
 	% This copy_term is done to prevent the unification
 	% with top-level variables   A='var('A')' error
 	copy_term((PredName,DbGoal),(CopyView,CopyGoal)),
 
-	'$make_list_of_args'(1,Arity,NewName,LA),
+	'$make_list_of_args'(1,Arity,CopyView,LA),
 
 	M=myddas_assert_predicates,
 	c_db_connection_type(Con,ConType),
 
 	% build view clause
 	( ConType == mysql ->
-	    Assert =..[':-',NewName,
-		       ','(M:translate(CopyView,CopyGoal,Code),
+	    Assert =..[':-',CopyView,
+		       ','(M:'$copy_term_nv'(CopyView,[],ProjT,Dic),
+		       ','(M:'$copy_term_nv'(CopyGoal,Dic,NG,_),
+		       ','(M:translate(ProjT,NG,Code),
 		       ','(M:queries_atom(Code,FinalSQL),
 		       ','(M:db_my_result_set(Mode),
 		       ','(M:'$write_or_not'(FinalSQL),
                	       ','(M:c_db_my_query(FinalSQL,ResultSet,Con,Mode),
-		       ','(!,M:c_db_my_row(ResultSet,Arity,LA)))))))]
+		       ','(!,M:c_db_my_row(ResultSet,Arity,LA)))))))))]
 	    ;
 	    Assert =..[':-',NewName,
 		       ','(M:translate(CopyView,CopyGoal,Code),
