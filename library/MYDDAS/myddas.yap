@@ -26,7 +26,7 @@
 		  db_stats/2,
 		  
 		  db_sql_select/3,
-		  db_prolog_select/4,
+		  db_prolog_select/3,
 		  db_command/2,
 		  db_insert/2,
 		  db_create_table/3,
@@ -93,7 +93,8 @@
 				      '$make_list_of_args'/4,
 				      '$get_table_name'/2,
 				      '$get_values_for_update'/4,
-				      '$extract_args'/4
+				      '$extract_args'/4,
+				      '$lenght'/2
 				      ]).
 
 :- use_module(myddas_errors,[
@@ -101,12 +102,13 @@
 			     ]).
 
 :- use_module(myddas_prolog2sql,[
-				 translate/3
+				 translate/3,
+				 queries_atom/2
 				]).
 
 :- use_module(lists,[
 		     append/3
-		    ]).
+		     ]).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -252,19 +254,20 @@ db_sql_select(Connection,SQL,LA):-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_prolog_select(+,-,+,+)
+% db_prolog_select(+,+,+)
 %
 %
-db_prolog_select(Connection,LA,ViewName,DbGoal):-
+db_prolog_select(Connection,LA,DbGoal):-
 	
-	functor(ViewName,PredName,Arity),
-	%functor(NewName,PredName,Arity),
-	translate(ViewName,DbGoal,Code),
+	'$lenght'(LA,Arity),
+	functor(ViewName,viewname,Arity),
+	% build arg list for viewname/Arity
+	'$make_list_of_args'(1,Arity,ViewName,LA),
+	
+	copy_term((ViewName,DbGoal),(CopyView,CopyGoal)),
+	translate(CopyView,CopyGoal,Code),
 	queries_atom(Code,SQL),
 	
-	% build arg list for db_my_row/2
-        '$make_list_of_args'(1,Arity,ViewName,LA),
-
 	get_value(Connection,Con),
 	c_db_connection_type(Con,ConType),
 	'$write_or_not'(SQL),

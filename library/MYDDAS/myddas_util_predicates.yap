@@ -33,7 +33,8 @@
 				  '$make_list_of_args'/4,
 				  '$where_exists'/2,
 				  '$build_query'/5,
-				  '$assert_facts'/2
+				  '$assert_facts'/2,
+				  '$lenght'/2
 				  ]).
 
 :- use_module(myddas,[
@@ -365,3 +366,8 @@
         Module:Fact,!.
 '$assert_facts'(Module,Fact):-
         assert(Module:Fact).
+
+'$lenght'([],0).
+'$lenght'([_|T],Sum):-
+        '$lenght'(T,Num),
+        Sum is Num + 1.
