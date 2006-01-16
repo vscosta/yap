@@ -232,7 +232,7 @@ read_int_overflow(const char *s, Int base, Int val)
   return t;
 #else
   /* try to scan it as a float */
-  return(MkIntegerTerm(val));
+  return MkIntegerTerm(val);
 #endif    
 }
 

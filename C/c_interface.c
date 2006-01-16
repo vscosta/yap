@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2006-01-02 03:35:44 $,$Author: vsc $						 *
+* Last rev:	$Date: 2006-01-16 02:57:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.80  2006/01/02 03:35:44  vsc
+* fix interface and docs
+*
 * Revision 1.79  2006/01/02 02:25:44  vsc
 * cannot release space from external GMPs.
 *
@@ -410,7 +413,7 @@ YAP_MkIntTerm(Int n)
 
   I = MkIntegerTerm(n);
   RECOVER_H();
-  return(I);
+  return I;
 }
 
 X_API Int 

@@ -11,8 +11,13 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-12-23 00:20:13 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-01-16 02:57:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.150  2005/12/23 00:20:13  vsc
+* updates to gprof
+* support for __POWER__
+* Try to saveregs before longjmp.
+*
 * Revision 1.149  2005/12/17 03:25:39  vsc
 * major changes to support online event-based profiling
 * improve error discovery and restart on scanner.
@@ -1249,6 +1254,8 @@ add_info(ClauseDef *clause, UInt regno)
     case _cut:
     case _cut_t:
     case _cut_e:
+      clause->Tag = (CELL)NULL;
+      return;
     case _allocate:
     case _deallocate:
     case _write_void:
@@ -1258,8 +1265,10 @@ add_info(ClauseDef *clause, UInt regno)
     case _count_a_call:
       cl = NEXTOP(cl,e);
       break;
-    case _save_b_x:
     case _commit_b_x:
+      clause->Tag = (CELL)NULL;
+      return;
+    case _save_b_x:
     case _write_x_val:
     case _write_x_loc:
     case _write_x_var:
@@ -1400,10 +1409,12 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,x);
       break;
     case _p_cut_by_x:
-      cl = NEXTOP(cl,xF);
-      break;
-    case _save_b_y:
+      clause->Tag = (CELL)NULL;
+      return;
     case _commit_b_y:
+      clause->Tag = (CELL)NULL;
+      return;
+    case _save_b_y:
     case _write_y_var:
     case _write_y_val: 
     case _write_y_loc:
@@ -1535,8 +1546,8 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,yF);
       break;
     case _p_cut_by_y:
-      cl = NEXTOP(cl,yF);
-      break;
+      clause->Tag = (CELL)NULL;
+      return;
     case _p_execute:
     case _fcall:
     case _call:

@@ -33,12 +33,11 @@ static char     SccsId[] = "%W% %G%";
 Term
 Yap_MkBigIntTerm(MP_INT *big)
 {
-  int sz0 = mpz_sizeinbase(big, 2);
   Int nlimbs;
   MP_INT *dst = (MP_INT *)(H+1);
   CELL *ret = H;
 
-  if (sz0 < SIZEOF_LONG_INT*8-1) {
+  if (mpz_fits_slong_p(big)) {
     int out = mpz_get_si(big);
     mpz_clear(big);
     return MkIntegerTerm(out);
@@ -72,12 +71,11 @@ Yap_MkBigIntTerm(MP_INT *big)
 Term
 Yap_MkBigIntTermCopy(MP_INT *big)
 {
-  int sz0 = mpz_sizeinbase(big, 2);
   Int nlimbs;
   MP_INT *dst = (MP_INT *)(H+1);
   CELL *ret = H;
 
-  if (sz0 < SIZEOF_LONG_INT*8-1) {
+  if (mpz_fits_slong_p(big)) {
     int out = mpz_get_si(big);
     return MkIntegerTerm(out);
   }

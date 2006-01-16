@@ -16,8 +16,11 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
-<li> FIXED: mktime was broken in WIN32.
-<li> FIXED: don't assume a fixed point for WIN32 memory allocation.
+<li> FIXED: scanner would convert LONG_MIN to bigint, but it can be
+  represent as a LONG; fixed by using mpz_fits_slong_p (Roberto Bagnara). </li>
+<li> FIXED: indexing cut should stop looking after a cut!!!! (Paulo Moura).
+<li> FIXED: mktime was broken in WIN32. </li>
+<li> FIXED: don't assume a fixed point for WIN32 memory allocation. </li>
 <li> FIXED: don't call goal_expand when looking for handlers of undefined procedures. </li>
 <li> FIXED: always walk through modules in the same order when waking
   up variables (otherwise, breaks CLP(QR)). </li>
