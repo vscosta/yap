@@ -1031,7 +1031,7 @@ query_atom(existential_subquery(Select,From,Where),QueryList,Diff):-
    clause_atom('SELECT',Select,',',X1,X2),
    clause_atom('FROM',From,',',X2,X3),
    clause_atom('WHERE',Where,'AND',X3,X4),
-   column_atom(')',X4,Diff).
+   column_atom('LIMIT 1)',X4,Diff).
 
 
 
