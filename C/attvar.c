@@ -910,6 +910,18 @@ p_attvar_bound(void)
          !IsUnboundVar(&((attvar_record *)VarOfTerm(t))->Done));
 }
 
+static Int
+p_void_term(void)
+{
+  return Yap_unify(ARG1,TermVoidAtt);
+}
+
+static Int
+p_free_term(void)
+{
+  return Yap_unify(ARG1,TermFreeTerm);
+}
+
 #else
 
 static Int
@@ -931,18 +943,6 @@ p_attvar_bound(void)
 }
 
 #endif /* COROUTINING */
-
-static Int
-p_void_term(void)
-{
-  return Yap_unify(ARG1,TermVoidAtt);
-}
-
-static Int
-p_free_term(void)
-{
-  return Yap_unify(ARG1,TermFreeTerm);
-}
 
 void Yap_InitAttVarPreds(void)
 {
@@ -966,9 +966,9 @@ void Yap_InitAttVarPreds(void)
   Yap_InitCPred("del_all_module_atts", 2, p_del_atts, 0);
   Yap_InitCPred("rm_att", 4, p_rm_att, 0);
   Yap_InitCPred("bind_attvar", 1, p_bind_attvar, SafePredFlag);
+  Yap_InitCPred("modules_with_attributes", 2, p_modules_with_atts, SafePredFlag);
   Yap_InitCPred("void_term", 1, p_void_term, SafePredFlag);
   Yap_InitCPred("free_term", 1, p_free_term, SafePredFlag);
-  Yap_InitCPred("modules_with_attributes", 2, p_modules_with_atts, SafePredFlag);
 #endif /* COROUTINING */
   Yap_InitCPred("all_attvars", 1, p_all_attvars, 0);
   CurrentModule = OldCurrentModule;

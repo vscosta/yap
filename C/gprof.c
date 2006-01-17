@@ -11,8 +11,13 @@
 * File:		gprof.c							 *
 * comments:	Interrupt Driven Profiler				 *
 *									 *
-* Last rev:     $Date: 2005-12-23 00:20:13 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-01-17 14:10:40 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.2  2005/12/23 00:20:13  vsc
+* updates to gprof
+* support for __POWER__
+* Try to saveregs before longjmp.
+*
 * Revision 1.1  2005/12/17 03:26:38  vsc
 * move event profiler outside from stdpreds.c
 *									 *
@@ -42,320 +47,6 @@ static Int ProfCalls, ProfGCs, ProfHGrows, ProfSGrows, ProfMallocs, ProfOn, Prof
 #define PROFPREDS_FILE 2
 
 static char *DIRNAME=NULL;
-
-char *set_profile_dir(char *);
-char *set_profile_dir(char *name){
-int size=0;
-
-    if (name!=NULL) {
-      size=strlen(name)+1;
-      if (DIRNAME!=NULL) free(DIRNAME);
-      DIRNAME=malloc(size);
-      if (DIRNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
-      strcpy(DIRNAME,name);
-    } 
-    if (DIRNAME==NULL) {
-      do {
-        if (DIRNAME!=NULL) free(DIRNAME);
-        size+=20;
-        DIRNAME=malloc(size);
-        if (DIRNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
-      } while (getcwd(DIRNAME, size-15)==NULL); 
-    }
-
-return DIRNAME;
-}
-
-char *profile_names(int);
-char *profile_names(int k) {
-static char *FNAME=NULL;
-int size=200;
-   
-  if (DIRNAME==NULL) set_profile_dir(NULL);
-  size=strlen(DIRNAME)+40;
-  if (FNAME!=NULL) free(FNAME);
-  FNAME=malloc(size);
-  if (FNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
-  strcpy(FNAME,DIRNAME);
-
-  if (k==PROFILING_FILE) {
-    sprintf(FNAME,"%s/PROFILING_%d",FNAME,getpid());
-  } else { 
-    sprintf(FNAME,"%s/PROFPREDS_%d",FNAME,getpid());
-  }
-
-  //  printf("%s\n",FNAME);
-  return FNAME;
-}
-
-void del_profile_files(void);
-void del_profile_files() {
-  if (DIRNAME!=NULL) {
-    remove(profile_names(PROFPREDS_FILE));
-    remove(profile_names(PROFILING_FILE));
-  }
-}
-
-void
-Yap_inform_profiler_of_clause(yamop *code_start, yamop *code_end, PredEntry *pe,int index_code) {
-static Int order=0;
- 
-  ProfPreds++;
-  ProfOn = TRUE;
-  if (FPreds != NULL) {
-    Int temp;
-    order++;
-    if (index_code) temp=-order; else temp=order;
-    fprintf(FPreds,"+%p %p %p %ld",code_start,code_end, pe, (long int)temp);
-#if MORE_INFO_FILE
-    if (pe->FunctorOfPred->KindOfPE==47872) {
-      if (pe->ArityOfPE) {
-	fprintf(FPreds," %s/%d", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
-      } else {
-	fprintf(FPreds," %s",RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
-      }
-      }
-#endif
-    fprintf(FPreds,"\n");
-  }
-  ProfOn = FALSE;
-}
-
-typedef struct clause_entry {
-  yamop *beg, *end;
-  PredEntry *pp;
-  UInt pcs;  /* counter with total for each clause */
-  UInt pca;  /* counter with total for each predicate (repeated for each clause)*/  
-  int ts;    /* start end timestamp towards retracts, eventually */
-} clauseentry;
-
-static int
-cl_cmp(const void *c1, const void *c2)
-{
-  const clauseentry *cl1 = (const clauseentry *)c1;
-  const clauseentry *cl2 = (const clauseentry *)c2;
-  if (cl1->beg > cl2->beg) return 1;
-  if (cl1->beg < cl2->beg) return -1;
-  return 0;
-}
-
-static int
-p_cmp(const void *c1, const void *c2)
-{
-  const clauseentry *cl1 = (const clauseentry *)c1;
-  const clauseentry *cl2 = (const clauseentry *)c2;
-  if (cl1->pp > cl2->pp) return 1;
-  if (cl1->pp < cl2->pp) return -1;
-
-  /* else same pp, but they are always different on the ts */
-  if (cl1->ts > cl2->ts) return 1;
-  else return -1;
-}
-
-static clauseentry *
-search_pc_pred(yamop *pc_ptr,clauseentry *beg, clauseentry *end) {
-  Int i, j, f, l;
-  f = 0; l = (end-beg);
-  i = l/2;
-  while (TRUE) {
-    if (beg[i].beg > pc_ptr) {
-      l = i-1;
-      if (l < f) {
-	return NULL;
-      }
-      j = i;
-      i = (f+l)/2;
-    } else if (beg[i].end < pc_ptr) {
-      f = i+1;
-      if (f > l) {
-	return NULL;
-      }
-      i = (f+l)/2;
-    } else if (beg[i].beg <= pc_ptr && beg[i].end >= pc_ptr) {
-      return (&beg[i]);
-    } else {
-      return NULL;
-    }
-  }
-}
-
-extern void Yap_InitAbsmi(void);
-extern int rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0);
-
-static Int profend(void); 
-
-static int
-showprofres(UInt type) { 
-  clauseentry *pr, *t, *t2;
-  UInt count=0, ProfCalls=0, InGrowHeap=0, InGrowStack=0, InGC=0, InError=0, InUnify=0, InCCall=0;
-  yamop *pc_ptr,*y; void *oldpc;
-
-  profend(); /* Make sure profiler has ended */
-
-  /* First part: Read information about predicates and store it on yap trail */
-
-  FPreds=fopen(profile_names(PROFPREDS_FILE),"r"); 
-
-  if (FPreds == NULL) { printf("Sorry, profiler couldn't find PROFPREDS file. \n"); return FALSE; }
-
-  ProfPreds=0;
-  pr=(clauseentry *) TR;
-  while (fscanf(FPreds,"+%p %p %p %d",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
-    int c;
-    pr->pcs = 0L;
-    pr++;
-    if (pr > (clauseentry *)Yap_TrailTop - 1024) {
-      Yap_growtrail(64 * 1024L, FALSE);
-    }
-    ProfPreds++;
-
-    do {
-      c=fgetc(FPreds);
-    } while(c!=EOF && c!='\n');
-  }
-  fclose(FPreds);
-  if (ProfPreds==0) return(TRUE);
-
-  qsort((void *)TR, ProfPreds, sizeof(clauseentry), cl_cmp);
-
-  /* Second part: Read Profiling to know how many times each predicate has been profiled */
-
-  FProf=fopen(profile_names(PROFILING_FILE),"r"); 
-  if (FProf==NULL) { printf("Sorry, profiler couldn't find PROFILING file. \n"); return FALSE; }
-
-  t2=NULL;
-  ProfCalls=0;
-  while(fscanf(FProf,"%p %p\n",&oldpc, &pc_ptr) >0){
-    if (type<10) ProfCalls++;
-    
-    if (oldpc!=0 && type<=2) {
-      if ((unsigned long)oldpc< 70000) {
-        if ((unsigned long) oldpc & GrowHeapMode) { InGrowHeap++; continue; }
-        if ((unsigned long)oldpc & GrowStackMode) { InGrowStack++; continue; }
-        if ((unsigned long)oldpc & GCMode) { InGC++; continue; }
-        if ((unsigned long)oldpc & (ErrorHandlingMode | InErrorMode)) { InError++; continue; }
-      }
-      if (oldpc>(void *) rational_tree_loop && oldpc<(void *) Yap_InitAbsmi) { InUnify++; continue; }
-      y=(yamop *) ((long) pc_ptr-20);
-      if (y->opc==Yap_opcode(_call_cpred) || y->opc==Yap_opcode(_call_usercpred)) {
-             InCCall++;  /* I Was in a C Call */
-	     pc_ptr=y;
-    	     /* 
-	      printf("Aqui está um call_cpred(%p) \n",y->u.sla.sla_u.p->cs.f_code);
-              for(i=0;i<_std_top && pc_ptr->opc!=Yap_ABSMI_OPCODES[i];i++);
-      	         printf("Outro syscall diferente  %s\n", Yap_op_names[i]);
-             */
-             continue;
-       } 
-       /* I should never get here, but since I'm, it is certanly Unknown Code, so 
-	  continue running to try to count it as Prolog Code  */
-    }
-   
-    t=search_pc_pred(pc_ptr,(clauseentry *)TR,pr);
-    if (t!=NULL) { /* pc was found */
-        if (type<10) t->pcs++;
-        else {
-	  if (t->pp==(PredEntry *)type) {
-	    ProfCalls++;
-	    if (t2!=NULL) t2->pcs++;
-	  }
-        } 
-        t2=t;
-    }
-
-  }
-
-  fclose(FProf);
-  if (ProfCalls==0) return(TRUE);
-
-  /*I have the counting by clauses, but we also need them by predicate */
-  qsort((void *)TR, ProfPreds, sizeof(clauseentry), p_cmp);
-  t = (clauseentry *)TR;
-  while (t < pr) {
-      UInt calls=t->pcs;
-
-      t2=t+1;
-      while(t2<pr && t2->pp==t->pp) {
-	calls+=t2->pcs;
-	t2++;
-      }
-      while(t<t2) {
-	t->pca=calls;
-	t++;
-      }
-  }
-
-  /* counting done: now it is time to present the results */
-  fflush(stdout);
-
-  /*
-  if (type>10) {
-    PredEntry *myp = (PredEntry *)type;
-    if (myp->FunctorOfPred->KindOfPE==47872) {
-	printf("Details on predicate:");
-	printf(" %s",RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE);
-	printf(":%s",RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE);
-        if (myp->ArityOfPE) printf("/%d\n",myp->ArityOfPE);	
-    }    
-    type=1;
-  }
-  */
-
-  if (type==0 || type==1 || type==3) {  /* Results by predicate */
-    t = (clauseentry *)TR;
-    while (t < pr) {
-      UInt calls=t->pca;
-      PredEntry *myp = t->pp;
-      
-      if (calls && myp->FunctorOfPred->KindOfPE==47872) {
-        count+=calls;
-	printf("%p",myp);
-	printf(" %s",RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE);
-	printf(":%s",RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE);
-        if (myp->ArityOfPE) printf("/%d",myp->ArityOfPE);	
-	printf(" -> %lu (%3.1f%c)\n",(unsigned long int)calls,(float) calls*100/ProfCalls,'%');
-      }
-      while (t<pr && t->pp == myp) t++;
-    }
-  } else { /* Results by clauses */
-    t = (clauseentry *)TR;
-    while (t < pr) {
-      if (t->pca!=0 && (t->ts>=0 || t->pcs!=0) && t->pp->FunctorOfPred->KindOfPE==47872) {
-	UInt calls=t->pcs;
-	if (t->ts<0) { /* join all index entries */
-	  t2=t+1;
-	  while(t2<pr && t2->pp==t->pp && t2->ts<0) {
-	    t++;
-	    calls+=t->pcs;
-	    t2++;
-	  }
-          printf("IDX"); 
-	} else {
-          printf("   ");
-	}
-        count+=calls;
-	//	printf("%p %p",t->pp, t->beg);
-        printf(" %s",RepAtom(AtomOfTerm(t->pp->ModuleOfPred))->StrOfAE);
-        printf(":%s",RepAtom(NameOfFunctor(t->pp->FunctorOfPred))->StrOfAE);
-        if (t->pp->ArityOfPE) printf("/%d",t->pp->ArityOfPE);	
-        printf(" -> %lu (%3.1f%c)\n",(unsigned long int)calls,(float) calls*100/ProfCalls,'%');
-      }
-      t++;
-    }
-  }
-  count=ProfCalls-(count+InGrowHeap+InGrowStack+InGC+InError+InUnify+InCCall); // Falta +InCCall
-  if (InGrowHeap>0) printf("%p sys: GrowHeap -> %lu (%3.1f%c)\n",(void *) GrowHeapMode,(unsigned long int)InGrowHeap,(float) InGrowHeap*100/ProfCalls,'%');
-  if (InGrowStack>0) printf("%p sys: GrowStack -> %lu (%3.1f%c)\n",(void *) GrowStackMode,(unsigned long int)InGrowStack,(float) InGrowStack*100/ProfCalls,'%');
-  if (InGC>0) printf("%p sys: GC -> %lu (%3.1f%c)\n",(void *) GCMode,(unsigned long int)InGC,(float) InGC*100/ProfCalls,'%');
-  if (InError>0) printf("%p sys: ErrorHandling -> %lu (%3.1f%c)\n",(void *) ErrorHandlingMode,(unsigned long int)InError,(float) InError*100/ProfCalls,'%');
-  if (InUnify>0) printf("%p sys: Unify -> %lu (%3.1f%c)\n",(void *) UnifyMode,(unsigned long int)InUnify,(float) InUnify*100/ProfCalls,'%');
-  if (InCCall>0) printf("%p sys: C Code -> %lu (%3.1f%c)\n",(void *) CCallMode,(unsigned long int)InCCall,(float) InCCall*100/ProfCalls,'%');
-  if (count>0) printf("Unknown:Unknown -> %lu (%3.1f%c)\n",(unsigned long int)count,(float) count*100/ProfCalls,'%');
-  printf("Total of Calls=%lu \n",(unsigned long int)ProfCalls);
-
-  return TRUE;
-}
-
 
 typedef struct RB_red_blk_node {
   yamop *key; /* first address */
@@ -871,14 +562,330 @@ RBDelete(rb_red_blk_node* z){
 #endif
 }
 
+char *set_profile_dir(char *);
+char *set_profile_dir(char *name){
+int size=0;
+
+    if (name!=NULL) {
+      size=strlen(name)+1;
+      if (DIRNAME!=NULL) free(DIRNAME);
+      DIRNAME=malloc(size);
+      if (DIRNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
+      strcpy(DIRNAME,name);
+    } 
+    if (DIRNAME==NULL) {
+      do {
+        if (DIRNAME!=NULL) free(DIRNAME);
+        size+=20;
+        DIRNAME=malloc(size);
+        if (DIRNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
+      } while (getcwd(DIRNAME, size-15)==NULL); 
+    }
+
+return DIRNAME;
+}
+
+char *profile_names(int);
+char *profile_names(int k) {
+static char *FNAME=NULL;
+int size=200;
+   
+  if (DIRNAME==NULL) set_profile_dir(NULL);
+  size=strlen(DIRNAME)+40;
+  if (FNAME!=NULL) free(FNAME);
+  FNAME=malloc(size);
+  if (FNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
+  strcpy(FNAME,DIRNAME);
+
+  if (k==PROFILING_FILE) {
+    sprintf(FNAME,"%s/PROFILING_%d",FNAME,getpid());
+  } else { 
+    sprintf(FNAME,"%s/PROFPREDS_%d",FNAME,getpid());
+  }
+
+  //  printf("%s\n",FNAME);
+  return FNAME;
+}
+
+void del_profile_files(void);
+void del_profile_files() {
+  if (DIRNAME!=NULL) {
+    remove(profile_names(PROFPREDS_FILE));
+    remove(profile_names(PROFILING_FILE));
+  }
+}
+
+void
+Yap_inform_profiler_of_clause(yamop *code_start, yamop *code_end, PredEntry *pe,int index_code) {
+static Int order=0;
+ 
+  ProfPreds++;
+  ProfOn = TRUE;
+  if (FPreds != NULL) {
+    Int temp;
+    order++;
+    if (index_code) temp=-order; else temp=order;
+    fprintf(FPreds,"+%p %p %p %ld",code_start,code_end, pe, (long int)temp);
+#if MORE_INFO_FILE
+    if (pe->FunctorOfPred->KindOfPE==47872) {
+      if (pe->ArityOfPE) {
+	fprintf(FPreds," %s/%d", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
+      } else {
+	fprintf(FPreds," %s",RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
+      }
+      }
+#endif
+    fprintf(FPreds,"\n");
+  }
+  ProfOn = FALSE;
+}
+
+typedef struct clause_entry {
+  yamop *beg, *end;
+  PredEntry *pp;
+  UInt pcs;  /* counter with total for each clause */
+  UInt pca;  /* counter with total for each predicate (repeated for each clause)*/  
+  int ts;    /* start end timestamp towards retracts, eventually */
+} clauseentry;
+
+static int
+cl_cmp(const void *c1, const void *c2)
+{
+  const clauseentry *cl1 = (const clauseentry *)c1;
+  const clauseentry *cl2 = (const clauseentry *)c2;
+  if (cl1->beg > cl2->beg) return 1;
+  if (cl1->beg < cl2->beg) return -1;
+  return 0;
+}
+
+static int
+p_cmp(const void *c1, const void *c2)
+{
+  const clauseentry *cl1 = (const clauseentry *)c1;
+  const clauseentry *cl2 = (const clauseentry *)c2;
+  if (cl1->pp > cl2->pp) return 1;
+  if (cl1->pp < cl2->pp) return -1;
+
+  /* else same pp, but they are always different on the ts */
+  if (cl1->ts > cl2->ts) return 1;
+  else return -1;
+}
+
+static clauseentry *
+search_pc_pred(yamop *pc_ptr,clauseentry *beg, clauseentry *end) {
+  Int i, j, f, l;
+  f = 0; l = (end-beg);
+  i = l/2;
+  while (TRUE) {
+    if (beg[i].beg > pc_ptr) {
+      l = i-1;
+      if (l < f) {
+	return NULL;
+      }
+      j = i;
+      i = (f+l)/2;
+    } else if (beg[i].end < pc_ptr) {
+      f = i+1;
+      if (f > l) {
+	return NULL;
+      }
+      i = (f+l)/2;
+    } else if (beg[i].beg <= pc_ptr && beg[i].end >= pc_ptr) {
+      return (&beg[i]);
+    } else {
+      return NULL;
+    }
+  }
+}
+
+extern void Yap_InitAbsmi(void);
+extern int rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0);
+
+static Int profend(void); 
+
+static int
+showprofres(UInt type) { 
+  clauseentry *pr, *t, *t2;
+  UInt count=0, ProfCalls=0, InGrowHeap=0, InGrowStack=0, InGC=0, InError=0, InUnify=0, InCCall=0;
+  yamop *pc_ptr,*y; void *oldpc;
+
+  profend(); /* Make sure profiler has ended */
+
+  /* First part: Read information about predicates and store it on yap trail */
+
+  FPreds=fopen(profile_names(PROFPREDS_FILE),"r"); 
+
+  if (FPreds == NULL) { printf("Sorry, profiler couldn't find PROFPREDS file. \n"); return FALSE; }
+
+  ProfPreds=0;
+  pr=(clauseentry *) TR;
+  while (fscanf(FPreds,"+%p %p %p %d",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
+    int c;
+    pr->pcs = 0L;
+    pr++;
+    if (pr > (clauseentry *)Yap_TrailTop - 1024) {
+      Yap_growtrail(64 * 1024L, FALSE);
+    }
+    ProfPreds++;
+
+    do {
+      c=fgetc(FPreds);
+    } while(c!=EOF && c!='\n');
+  }
+  fclose(FPreds);
+  if (ProfPreds==0) return(TRUE);
+
+  qsort((void *)TR, ProfPreds, sizeof(clauseentry), cl_cmp);
+
+  /* Second part: Read Profiling to know how many times each predicate has been profiled */
+
+  FProf=fopen(profile_names(PROFILING_FILE),"r"); 
+  if (FProf==NULL) { printf("Sorry, profiler couldn't find PROFILING file. \n"); return FALSE; }
+
+  t2=NULL;
+  ProfCalls=0;
+  while(fscanf(FProf,"%p %p\n",&oldpc, &pc_ptr) >0){
+    if (type<10) ProfCalls++;
+    
+    if (oldpc!=0 && type<=2) {
+      if ((unsigned long)oldpc< 70000) {
+        if ((unsigned long) oldpc & GrowHeapMode) { InGrowHeap++; continue; }
+        if ((unsigned long)oldpc & GrowStackMode) { InGrowStack++; continue; }
+        if ((unsigned long)oldpc & GCMode) { InGC++; continue; }
+        if ((unsigned long)oldpc & (ErrorHandlingMode | InErrorMode)) { InError++; continue; }
+      }
+      if (oldpc>(void *) rational_tree_loop && oldpc<(void *) Yap_InitAbsmi) { InUnify++; continue; }
+      y=(yamop *) ((long) pc_ptr-20);
+      if (y->opc==Yap_opcode(_call_cpred) || y->opc==Yap_opcode(_call_usercpred)) {
+             InCCall++;  /* I Was in a C Call */
+	     pc_ptr=y;
+    	     /* 
+	      printf("Aqui está um call_cpred(%p) \n",y->u.sla.sla_u.p->cs.f_code);
+              for(i=0;i<_std_top && pc_ptr->opc!=Yap_ABSMI_OPCODES[i];i++);
+      	         printf("Outro syscall diferente  %s\n", Yap_op_names[i]);
+             */
+             continue;
+       } 
+       /* I should never get here, but since I'm, it is certanly Unknown Code, so 
+	  continue running to try to count it as Prolog Code  */
+    }
+   
+    t=search_pc_pred(pc_ptr,(clauseentry *)TR,pr);
+    if (t!=NULL) { /* pc was found */
+        if (type<10) t->pcs++;
+        else {
+	  if (t->pp==(PredEntry *)type) {
+	    ProfCalls++;
+	    if (t2!=NULL) t2->pcs++;
+	  }
+        } 
+        t2=t;
+    }
+
+  }
+
+  fclose(FProf);
+  if (ProfCalls==0) return(TRUE);
+
+  /*I have the counting by clauses, but we also need them by predicate */
+  qsort((void *)TR, ProfPreds, sizeof(clauseentry), p_cmp);
+  t = (clauseentry *)TR;
+  while (t < pr) {
+      UInt calls=t->pcs;
+
+      t2=t+1;
+      while(t2<pr && t2->pp==t->pp) {
+	calls+=t2->pcs;
+	t2++;
+      }
+      while(t<t2) {
+	t->pca=calls;
+	t++;
+      }
+  }
+
+  /* counting done: now it is time to present the results */
+  fflush(stdout);
+
+  /*
+  if (type>10) {
+    PredEntry *myp = (PredEntry *)type;
+    if (myp->FunctorOfPred->KindOfPE==47872) {
+	printf("Details on predicate:");
+	printf(" %s",RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE);
+	printf(":%s",RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE);
+        if (myp->ArityOfPE) printf("/%d\n",myp->ArityOfPE);	
+    }    
+    type=1;
+  }
+  */
+
+  if (type==0 || type==1 || type==3) {  /* Results by predicate */
+    t = (clauseentry *)TR;
+    while (t < pr) {
+      UInt calls=t->pca;
+      PredEntry *myp = t->pp;
+      
+      if (calls && myp->FunctorOfPred->KindOfPE==47872) {
+        count+=calls;
+	printf("%p",myp);
+	printf(" %s",RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE);
+	printf(":%s",RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE);
+        if (myp->ArityOfPE) printf("/%d",myp->ArityOfPE);	
+	printf(" -> %lu (%3.1f%c)\n",(unsigned long int)calls,(float) calls*100/ProfCalls,'%');
+      }
+      while (t<pr && t->pp == myp) t++;
+    }
+  } else { /* Results by clauses */
+    t = (clauseentry *)TR;
+    while (t < pr) {
+      if (t->pca!=0 && (t->ts>=0 || t->pcs!=0) && t->pp->FunctorOfPred->KindOfPE==47872) {
+	UInt calls=t->pcs;
+	if (t->ts<0) { /* join all index entries */
+	  t2=t+1;
+	  while(t2<pr && t2->pp==t->pp && t2->ts<0) {
+	    t++;
+	    calls+=t->pcs;
+	    t2++;
+	  }
+          printf("IDX"); 
+	} else {
+          printf("   ");
+	}
+        count+=calls;
+	//	printf("%p %p",t->pp, t->beg);
+        printf(" %s",RepAtom(AtomOfTerm(t->pp->ModuleOfPred))->StrOfAE);
+        printf(":%s",RepAtom(NameOfFunctor(t->pp->FunctorOfPred))->StrOfAE);
+        if (t->pp->ArityOfPE) printf("/%d",t->pp->ArityOfPE);	
+        printf(" -> %lu (%3.1f%c)\n",(unsigned long int)calls,(float) calls*100/ProfCalls,'%');
+      }
+      t++;
+    }
+  }
+  count=ProfCalls-(count+InGrowHeap+InGrowStack+InGC+InError+InUnify+InCCall); // Falta +InCCall
+  if (InGrowHeap>0) printf("%p sys: GrowHeap -> %lu (%3.1f%c)\n",(void *) GrowHeapMode,(unsigned long int)InGrowHeap,(float) InGrowHeap*100/ProfCalls,'%');
+  if (InGrowStack>0) printf("%p sys: GrowStack -> %lu (%3.1f%c)\n",(void *) GrowStackMode,(unsigned long int)InGrowStack,(float) InGrowStack*100/ProfCalls,'%');
+  if (InGC>0) printf("%p sys: GC -> %lu (%3.1f%c)\n",(void *) GCMode,(unsigned long int)InGC,(float) InGC*100/ProfCalls,'%');
+  if (InError>0) printf("%p sys: ErrorHandling -> %lu (%3.1f%c)\n",(void *) ErrorHandlingMode,(unsigned long int)InError,(float) InError*100/ProfCalls,'%');
+  if (InUnify>0) printf("%p sys: Unify -> %lu (%3.1f%c)\n",(void *) UnifyMode,(unsigned long int)InUnify,(float) InUnify*100/ProfCalls,'%');
+  if (InCCall>0) printf("%p sys: C Code -> %lu (%3.1f%c)\n",(void *) CCallMode,(unsigned long int)InCCall,(float) InCCall*100/ProfCalls,'%');
+  if (count>0) printf("Unknown:Unknown -> %lu (%3.1f%c)\n",(unsigned long int)count,(float) count*100/ProfCalls,'%');
+  printf("Total of Calls=%lu \n",(unsigned long int)ProfCalls);
+
+  return TRUE;
+}
+
+
 #define TestMode (GCMode | GrowHeapMode | GrowStackMode | ErrorHandlingMode | InErrorMode | AbortMode | MallocMode)
 
 extern int Yap_absmiEND(void);
 
 static void
-prof_alrm(int signo, siginfo_t *si, ucontext_t *sc)
+prof_alrm(int signo, siginfo_t *si, void *scv)
 {
+  
 #if __linux__ 
+  ucontext_t *sc = (ucontext_t *)scv;
 #if (defined(i386) || defined(__amd64__))
   void * oldpc=(void *) sc->uc_mcontext.gregs[14]; /* 14= REG_EIP */
 #else
@@ -886,6 +893,7 @@ prof_alrm(int signo, siginfo_t *si, ucontext_t *sc)
 #endif
 #else
 #if __POWERPC__ || _POWER
+  ucontext_t *sc = (ucontext_t *)scv;
   void * oldpc=(void *) sc->uc_mcontext->ss.srr0; /* 14= POWER PC */
 #else
   void *NULL;

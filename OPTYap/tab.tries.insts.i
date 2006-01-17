@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.insts.i
-  version:     $Id: tab.tries.insts.i,v 1.10 2005-07-06 19:34:11 ricroc Exp $   
+  version:     $Id: tab.tries.insts.i,v 1.11 2006-01-17 14:10:41 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -996,19 +996,19 @@
   ENDPBOp();
 
 
-  PBOp(trie_try_float, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_float)");
-  ENDPBOp();
+  BOp(trie_try_float, e)
+  Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_float)");
+  ENDBOp();
 
 
-  PBOp(trie_retry_float, e)
+  BOp(trie_retry_float, e)
     Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_float)");
-  ENDPBOp();
+  ENDBOp();
 
 
-  PBOp(trie_trust_float, e)
+  BOp(trie_trust_float, e)
     Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_float)");
-  ENDPBOp();
+  ENDBOp();
 
 
   PBOp(trie_do_long, e)
@@ -1024,16 +1024,16 @@
   ENDPBOp();
 
 
-  PBOp(trie_try_long, e)
+  BOp(trie_try_long, e)
     Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_long)");
-  ENDPBOp();
+  ENDBOp();
 
 
-  PBOp(trie_retry_long, e)
+  BOp(trie_retry_long, e)
     Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_long)");
-  ENDPBOp();
+  ENDBOp();
 
 
-  PBOp(trie_trust_long, e)
+  BOp(trie_trust_long, e)
     Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_long)");
-  ENDPBOp();
+  ENDBOp();

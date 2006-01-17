@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.32 2005-12-23 00:20:14 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.33 2006-01-17 14:10:40 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -184,6 +184,10 @@ extern int Yap_stack_overflows;
 #define ASP  Yap_REGS.ASP_	/* top of local   stack                   */
 #define H0   Yap_REGS.H0_	/* base of heap (global) stack            */
 #define LCL0 Yap_REGS.LCL0_	/* local stack base                       */
+
+#define YENV2MEM
+#define YENV_ADDRESS (&(YENV))
+#define MEM2YENV  
 
 #if defined(__GNUC__) && defined(sparc) && !defined(__NetBSD__) && !defined(THREADS)
 
@@ -539,6 +543,16 @@ register CELL *S asm ("r18");
 register CELL *YENV asm ("r19");
 register tr_fr_ptr TR asm ("r20");
 #define P    Yap_REGS.P_		/* prolog machine program counter */
+
+#undef YENV2MEM
+#undef YENV_ADDRESS (&(YENV))
+#undef MEM2YENV  
+
+#define YENV2MEM     { CELL *YENV_MEM = YENV
+#define YENV_ADDRESS   (&YENV_MEM)
+#define MEM2YENV       YENV = YENV_MEM; }
+
+
 
 EXTERN inline void save_machine_regs(void) {
   Yap_REGS.CreepFlag_ = CreepFlag;

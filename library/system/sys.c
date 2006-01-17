@@ -8,8 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.24 2006-01-08 23:01:48 vsc Exp $									 *
+* $Id: sys.c,v 1.25 2006-01-17 14:10:42 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.24  2006/01/08 23:01:48  vsc
+* mods:		*** empty log message ***
+* mods:		
 * mods:		Revision 1.23  2005/10/21 16:09:03  vsc
 * mods:		SWI compatible module only operators
 * mods:		
@@ -227,7 +230,7 @@ list_directory(void)
   YAP_Term tf = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
   long sl = YAP_InitSlot(tf);
 
-  char *buf = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+  char *buf = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if defined(__MINGW32__) || _MSC_VER
   struct _finddata_t c_file;
   char bs[BUF_SIZE];
@@ -275,7 +278,7 @@ list_directory(void)
 static int
 p_unlink(void)
 {
-  char *fd = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+  char *fd = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if defined(__MINGW32__) || _MSC_VER
   if (_unlink(fd) == -1)
 #else
@@ -291,7 +294,7 @@ p_unlink(void)
 static int
 p_mkdir(void)
 {
-  char *fd = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+  char *fd = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if defined(__MINGW32__) || _MSC_VER
   if (_mkdir(fd) == -1) {
 #else
@@ -306,7 +309,7 @@ p_mkdir(void)
 static int
 p_rmdir(void)
 {
-  char *fd = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+  char *fd = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if defined(__MINGW32__) || _MSC_VER
   if (_rmdir(fd) == -1) {
 #else
@@ -321,8 +324,8 @@ p_rmdir(void)
 static int
 rename_file(void)
 {
-  char *s1 = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
-  char *s2 = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG2));
+  char *s1 = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+  char *s2 = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG2));
 #if HAVE_RENAME
   if (rename(s1, s2) == -1) {
     /* return an error number */
@@ -345,7 +348,7 @@ file_property(void)
 #if HAVE_LSTAT 
   struct stat buf;
 
-  fd = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+  fd = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
   if (lstat(fd, &buf) == -1) {
     /* return an error number */
     return(YAP_Unify(YAP_ARG7, YAP_MkIntTerm(errno)));
@@ -424,7 +427,7 @@ p_mktemp(void)
 {
 #if HAVE_MKTEMP || defined(__MINGW32__) || _MSC_VER
   char *s, tmp[BUF_SIZE];
-  s = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+  s = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if HAVE_STRNCPY
   strncpy(tmp, s, BUF_SIZE);
 #else
@@ -662,7 +665,7 @@ execute_command(void)
     close(errf);
     argv[0] = "sh";
     argv[1] = "-c";
-    argv[2] = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+    argv[2] = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
     argv[3] = NULL;
     execv("/bin/sh", argv);
     exit(127);
@@ -680,7 +683,7 @@ execute_command(void)
 static int
 do_system(void)
 {
-  char *command = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+  char *command = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if HAVE_SYSTEM
   int sys = system(command);
   if (sys < 0) {
@@ -736,9 +739,9 @@ do_shell(void)
   int t;
   int sys;
 
-  cptr[0]= YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
-  cptr[1]= YAP_AtomName(YAP_AtomOfTerm(YAP_ARG2));
-  cptr[2]= YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3));
+  cptr[0]= (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+  cptr[1]= (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG2));
+  cptr[2]= (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3));
   cptr[3]= NULL;
   t = fork();
   if (t < 0) {
@@ -795,7 +798,7 @@ p_wait(void)
 static int
 p_popen(void)
 {
-  char *command = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
+  char *command = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
   long int mode = YAP_IntOfTerm(YAP_ARG2);
   FILE *pfd;
   YAP_Term tsno;

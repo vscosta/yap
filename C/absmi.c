@@ -10,8 +10,13 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-01-02 02:16:17 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-01-17 14:10:40 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.191  2006/01/02 02:16:17  vsc
+* support new interface between YAP and GMP, so that we don't rely on our own
+* allocation routines.
+* Several big fixes.
+*
 * Revision 1.190  2005/12/23 00:20:13  vsc
 * updates to gprof
 * support for __POWER__
@@ -7364,6 +7369,8 @@ Yap_absmi(int inp)
 #endif	/* LOW_LEVEL_TRACE */
       }
       JMPNext();
+      ENDBOp();
+
 
 /************************************************************************\
 * 	Try / Retry / Trust for main indexing blocks			*

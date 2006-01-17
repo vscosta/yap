@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.insts.i
-  version:     $Id: tab.insts.i,v 1.21 2005-11-15 00:50:49 vsc Exp $   
+  version:     $Id: tab.insts.i,v 1.22 2006-01-17 14:10:41 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -342,6 +342,7 @@
 	code_ap = PREG->u.ld.d;
 	PREG = NEXTOP(PREG,ld);
       }
+      PREFETCH_OP(PREG);
       restore_generator_node(SgFr_arity(sg_fr), code_ap);
       YENV = (CELL *) PROTECT_FROZEN_B(B);
       set_cut(YENV, B->cp_b);
@@ -349,6 +350,10 @@
       allocate_environment();
       GONext();
     }
+#else
+  PREG = PREG->u.ld.d;
+  PREFETCH_OP(PREG);
+  GONext();    
 #endif /* INCOMPLETE_TABLING */
   ENDPBOp();
 
@@ -357,10 +362,13 @@
   PBOp(table_try_single, ld)
     tab_ent_ptr tab_ent;
     sg_fr_ptr sg_fr;
+    
 
     check_trail(TR);
     tab_ent = PREG->u.ld.te;
-    sg_fr = subgoal_search(PREG, &YENV);
+    YENV2MEM;
+    sg_fr = subgoal_search(PREG, YENV_ADDRESS);
+    MEM2YENV;
     LOCK(SgFr_lock(sg_fr));
     if (SgFr_state(sg_fr) == ready) {
       /* subgoal new */
@@ -470,7 +478,9 @@
 
     check_trail(TR);
     tab_ent = PREG->u.ld.te;
-    sg_fr = subgoal_search(PREG, &YENV);
+    YENV2MEM;
+    sg_fr = subgoal_search(PREG, YENV_ADDRESS);
+    MEM2YENV;
     LOCK(SgFr_lock(sg_fr));
     if (SgFr_state(sg_fr) == ready) {
       /* subgoal new */
@@ -580,7 +590,9 @@
 
     check_trail(TR);
     tab_ent = PREG->u.ld.te;
-    sg_fr = subgoal_search(PREG, &YENV);
+    YENV2MEM;
+    sg_fr = subgoal_search(PREG, YENV_ADDRESS);
+    MEM2YENV;
     LOCK(SgFr_lock(sg_fr));
     if (SgFr_state(sg_fr) == ready) {
       /* subgoal new */

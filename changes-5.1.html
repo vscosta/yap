@@ -16,6 +16,10 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: YENV may be an HW register (breaks some tabling code) </li>
+<li> FIXED: All YAAM instructions are now brackedted, so Op introduced an { and EndOp intr
+oduces an }. This is because Ricardo assumes that. </li>
+<li> Fix attvars when COROUTING is undefined. </li>
 <li> FIXED: scanner would convert LONG_MIN to bigint, but it can be
   represent as a LONG; fixed by using mpz_fits_slong_p (Roberto Bagnara). </li>
 <li> FIXED: indexing cut should stop looking after a cut!!!! (Paulo Moura).

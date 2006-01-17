@@ -46,7 +46,7 @@ PL_agc_hook(PL_agc_hook_t entry)
    YAP: char* AtomName(Atom) */
 X_API char* PL_atom_chars(atom_t a)	 /* SAM check type */
 {
-  return YAP_AtomName((YAP_Atom)a);
+  return (char *)YAP_AtomName((YAP_Atom)a);
 }
 
 
@@ -119,7 +119,7 @@ X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
   YAP_Term t = YAP_GetFromSlot(ts);
   if (!YAP_IsAtomTerm(t))
     return 0;
-  *a = YAP_AtomName(YAP_AtomOfTerm(t));
+  *a = (char *)YAP_AtomName(YAP_AtomOfTerm(t));
   return 1;
 }
 
@@ -206,7 +206,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
   if (YAP_IsAtomTerm(t)) {
     if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_ALL)))
       return 0;
-    *sp = YAP_AtomName(YAP_AtomOfTerm(t));
+    *sp = (char *)YAP_AtomName(YAP_AtomOfTerm(t));
     return 1;
   } else if (YAP_IsIntTerm(t)) {
     if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_ALL)))

@@ -2544,6 +2544,9 @@ struct mallinfo mALLINFo()
   mi.fsmblks = fastavail;
   mi.keepcost = chunksize(av->top);
   mi.usmblks = av->max_total_mem;
+  /* YAP doesn't have special mmapped regions */
+  mi.hblkhd = 0L;
+  mi.hblks = 0L;
   return mi;
 }
 

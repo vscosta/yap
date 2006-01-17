@@ -453,15 +453,15 @@ restore_absmi_regs(REGSTORE * old_regs)
 
 #endif /* USE_PREFETCH */
 
-#define Op(Label,Type)	 Label: START_PREFETCH(Type)
+#define Op(Label,Type)	 Label:{ START_PREFETCH(Type)
 
-#define OpW(Label,Type)	 Label: START_PREFETCH_W(Type)
+#define OpW(Label,Type)	 Label: { START_PREFETCH_W(Type)
 
-#define BOp(Label,Type)	 Label:
+#define BOp(Label,Type)	 Label: {
 
-#define PBOp(Label,Type) Label: INIT_PREFETCH()
+#define PBOp(Label,Type) Label: { INIT_PREFETCH()
 
-#define OpRW(Label,Type) Label:
+#define OpRW(Label,Type) Label: {
 
 #else /* do not use threaded code */
 
@@ -477,27 +477,27 @@ restore_absmi_regs(REGSTORE * old_regs)
 
 #define ALWAYS_GONextW() GONextW()
 
-#define Op(Label,Type)	 case _##Label: START_PREFETCH(Type)
+#define Op(Label,Type)	 case _##Label: { START_PREFETCH(Type)
 
-#define OpW(Label,Type)	 case _##Label: START_PREFETCH_W(Type)
+#define OpW(Label,Type)	 case  _##Label: { START_PREFETCH_W(Type)
 
-#define BOp(Label,Type)	 case _##Label:
+#define BOp(Label,Type)	 case _##Label: {
 
-#define PBOp(Label,Type) case _##Label: INIT_PREFETCH()
+#define PBOp(Label,Type) case _##Label: { INIT_PREFETCH()
 
-#define OpRW(Label,Type) case _##Label:
+#define OpRW(Label,Type) case _##Label: {
 
 #endif
 
-#define ENDOp() END_PREFETCH()
+#define ENDOp() END_PREFETCH() }
 
-#define ENDOpW() END_PREFETCH_W()
+#define ENDOpW() END_PREFETCH_W() }
 
-#define ENDOpRW()
+#define ENDOpRW() }
 
-#define ENDBOp()
+#define ENDBOp() }
 
-#define ENDPBOp() END_PREFETCH()
+#define ENDPBOp() END_PREFETCH() }
 
 /**********************************************************************
  *                                                                    *

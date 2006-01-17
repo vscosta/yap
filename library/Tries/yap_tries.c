@@ -124,7 +124,7 @@ static int p_put_trie_entry(void) {
   int mode;
 
   /* check args */
-  mode_str = YAP_AtomName(YAP_AtomOfTerm(arg_mode));
+  mode_str = (char *)YAP_AtomName(YAP_AtomOfTerm(arg_mode));
   if (!strcmp(mode_str, "std")) {
     mode = MODE_STANDARD;
   } else if (!strcmp(mode_str, "rev")) {
@@ -152,7 +152,7 @@ static int p_get_trie_entry(void) {
   int mode;
 
   /* check args */
-  mode_str = YAP_AtomName(YAP_AtomOfTerm(arg_mode));
+  mode_str = (char *)YAP_AtomName(YAP_AtomOfTerm(arg_mode));
   if (!strcmp(mode_str, "std")) {
     mode = MODE_STANDARD;
   } else if (!strcmp(mode_str, "rev")) {
