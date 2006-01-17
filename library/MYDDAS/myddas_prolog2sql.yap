@@ -1016,8 +1016,9 @@ query_atom(query(Select,From,Where),QueryList,Diff):-
 query_atom(agg_query(Function,Select,From,Where,Group),QueryList,Diff):-
    clause_atom('SELECT',Function,Select,',',QueryList,X1),
    clause_atom('FROM',From,',',X1,X2),
-   clause_atom('WHERE',Where,'AND',X2,X3),
-   clause_atom('GROUP BY',Group,',',X3,Diff).
+   clause_atom('WHERE',Where,'AND',X2,Diff).
+%ILP : PARA NAO POR OS GROUP BYS. FAZER FLAG PARA ISTO
+   %clause_atom('GROUP BY',Group,',',X3,Diff).
 
 query_atom(negated_existential_subquery(Select,From,Where),QueryList,Diff):-
    column_atom('NOT EXISTS(',QueryList,X1),   
@@ -1056,12 +1057,12 @@ clause_atom(Keyword,[Column|RestColumns],Junctor,QueryList,Diff):-
 
 %DISTINCT
 clause_atom(Keyword,'COUNTDISTINCT',[Column],Junctor,QueryList,Diff):-!,
-   column_atom(Keyword,QueryList,X1),
-   column_atom(' ',X1,X2),
-   column_atom('COUNT',X2,X3),
-   column_atom('(DISTINCT ',X3,X4),
-   clause_atom([Column],Junctor,X4,X5),
-   column_atom(') ',X5,Diff).
+	column_atom(Keyword,QueryList,X1),
+	column_atom(' ',X1,X2),
+	column_atom('COUNT',X2,X3),
+	column_atom('(DISTINCT ',X3,X4),
+	clause_atom([Column],Junctor,X4,X5),
+	column_atom(') ',X5,Diff).
 
 clause_atom(Keyword,Function,[Column],Junctor,QueryList,Diff):-
    column_atom(Keyword,QueryList,X1),
