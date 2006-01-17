@@ -44,7 +44,7 @@ CLPBN_PROGRAMS= \
 	$(CLPBN_SRCDIR)/viterbi.yap \
 	$(CLPBN_SRCDIR)/xbif.yap
 
-CLPBN_EXAMPLES=
+CLPBN_EXAMPLES= \
 	$(CLPBN_EXDIR)/cg.yap \
 	$(CLPBN_EXDIR)/School/README \
 	$(CLPBN_EXDIR)/School/evidence_128.yap \
