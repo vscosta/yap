@@ -22,7 +22,6 @@
 		  db_verbose/1,
 		  db_module/1,
 		  db_is_database_predicate/3,
-		  db_abolish/2,
 		  db_stats/2,
 		  
 		  db_sql_select/3,
@@ -35,11 +34,14 @@
 
 		  db_get_attributes_types/3,
 		  db_number_of_fields/3,
+
+		  db_multi_queries_number/2,
 		  
 		  % myddas_assert_predicates.yap
 		  db_import/3,
 		  db_view/3,
 		  db_insert/3,
+		  db_abolish/2,
 
 		  % myddas_mysql.yap
 		  db_my_open/5,
@@ -56,13 +58,13 @@
 		  db_my_sql_select/3,
 		  db_my_number_of_fields/3,
 		  db_my_get_attributes_types/3
-
 		 ]).
 
 :- use_module(myddas_assert_predicates,[
 					db_import/3,
 					db_view/3,
-					db_insert/3
+					db_insert/3,
+					db_abolish/2
 				       ]).
 
 :- use_module(myddas_mysql,[
@@ -185,23 +187,6 @@ db_module(ModuleName):-
 db_is_database_predicate(PredName,Arity,Module):-
 	'$error_checks'(db_is_database_predicate(PredName,Arity,Module)),
 	c_db_check_if_exists_pred(PredName,Arity,Module).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_abolish(+,+)
-%
-%
-db_abolish(Module:PredName,Arity):-!,
-	'$error_checks'(db_abolish(Module:PredName,Arity)),
-	%c_db_delete_predicate(
-	abolish(Module:PredName,Arity).
-db_abolish(PredName,Arity):-
-	'$error_checks'(db_abolish(PredName,Arity)),
-	
-	%c_db_delete_predicate(
-	abolish(PredName,Arity).
-			      
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -443,3 +428,16 @@ db_number_of_fields(Connection,RelationName,Arity) :-
 	    c_db_odbc_number_of_fields(RelationName,Con,Arity)
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_multi_queries_number(+,+)
+% TO
+%
+db_multi_queries_number(Connection,Number) :-
+	'$error_checks'(db_multi_queries_number(Connection,Number)),
+	get_value(Connection,Con),
+	c_db_multi_queries_number(Con,Number).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+

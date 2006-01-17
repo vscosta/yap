@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.33 2006-01-17 14:10:40 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.34 2006-01-17 22:50:10 tiagosoares Exp $	 *
 *************************************************************************/
 
 
@@ -19,6 +19,9 @@
 #include "cut_c.h"
 #endif
 
+#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
+#include "myddas_util.h"
+#endif
 
 #define MaxTemps	512
 
@@ -82,6 +85,9 @@ typedef struct
     choiceptr B_;		/* 26 latest choice point                     */
 #ifdef CUT_C
     cut_c_str_ptr CUT_C_TOP;
+#endif
+#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
+    MYDDAS_GLOBAL MYDDAS_GLOBAL_POINTER;
 #endif
 #ifdef  DEPTH_LIMIT
     CELL   DEPTH_;		/* 27                                         */

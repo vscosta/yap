@@ -664,11 +664,6 @@ main (int argc, char **argv)
 
 
   BootMode = init_standard_system(argc, argv, &init_args);
-
-#ifdef CUT_C
-  cut_c_initialize();
-#endif
-
   if (BootMode == YAP_BOOT_ERROR) {
     fprintf(stderr,"[ FATAL ERROR: could not find saved state ]\n");
     exit(1);

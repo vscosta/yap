@@ -1,6 +1,8 @@
 #ifndef __MYDDAS_STRUCTS_H__
 #define __MYDDAS_STRUCTS_H__
 
+#include "myddas_util.h"
+
 struct myddas_global {
   MYDDAS_UTIL_CONNECTION myddas_top_connections;
 #ifdef MYDDAS_STATS
@@ -26,14 +28,15 @@ struct myddas_global_stats {
 };
 #endif /* MYDDAS_STATS */
 
-struct list_preds {
+struct myddas_list_preds {
   char *pred_module;
   char *pred_name;
   short pred_arity;
-  struct list_preds *next;
+  MYDDAS_UTIL_PREDICATE next;
+  MYDDAS_UTIL_PREDICATE previous;
 };
 
-struct list_connection {
+struct myddas_list_connection {
   void *connection;
   MYDDAS_TEMP_TABLES temporary_tables;
   
@@ -70,9 +73,19 @@ struct list_connection {
   unsigned long total_querys_made;
 #endif
   MYDDAS_UTIL_PREDICATE predicates;
-  struct list_connection *next;
+
+  /*Multi Queries Section */
+  unsigned long total_number_queries;
+  unsigned long actual_number_queries;
+  MYDDAS_UTIL_QUERY *queries;
+
+  MYDDAS_UTIL_CONNECTION next;
+  MYDDAS_UTIL_CONNECTION previous;
 };
 
-
+struct myddas_util_query{
+  char *query;
+  MYDDAS_UTIL_QUERY next;
+};
 
 #endif 

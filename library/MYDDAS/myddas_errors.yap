@@ -28,6 +28,14 @@
 		     is_list/1
 		    ]).
 
+'$error_checks'(db_multi_queries_number(Connection,Number)):-!,
+        atom(Connection),
+	( var(Number) ->
+	    true
+	;
+	    number(Number),
+	    Number > 0
+	).
 '$error_checks'(db_command(Connection,SQL)):-!,
         atom(Connection),
         nonvar(SQL).

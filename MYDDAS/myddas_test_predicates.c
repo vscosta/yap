@@ -11,7 +11,9 @@
 #include "Yatom.h"
 #include "cut_c.h"
 #include "myddas_util.h"
-
+#ifdef MYDDAS_STATS
+#include "myddas_statistics.h"
+#endif
 
 
 #define IS_SQL_INT(FIELD) FIELD == FIELD_TYPE_INT24    || \
