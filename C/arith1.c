@@ -249,7 +249,7 @@ p_unot(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     {
-      mpz_t new;
+      MP_INT *new = TMP_BIG();
 
       mpz_init_set(new, Yap_BigIntOfTerm(t));
       mpz_com(new, new);
@@ -1579,7 +1579,7 @@ p_integer(Term t E_ARGS)
     RINT((Int) dbl);
   } else {
 #ifdef USE_GMP
-    mpz_t new;
+    MP_INT *new = TMP_BIG();
 
     mpz_init_set_d(new, dbl);
     RBIG(new);
