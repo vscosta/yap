@@ -1,0 +1,53 @@
+
+This is a version of the school database, based on the PRM School example.
+
+There are four main files:
+
+school_128.yap: a school with 128 professors, 256 courses and 4096 students.
+school_64.yap: medium size school
+school_32.yap: small school
+
+schema.yap: the schema
+tables: CPTs
+
+
+
+
+
+professor_ability(p0,X).
+
+professor_popularity(p0,X).
+
+professor_ability(p0,X), professor_popularity(p0,h).
+
+professor_ability(p0,h), professor_popularity(p0,X).
+
+registration_grade(r0,X).
+
+registration_grade(r0,X), registration_course(r0,C), course_difficulty(C,h).
+
+registration_grade(r0,X), registration_course(r0,C), course_difficulty(C,h), registration_student(r0,S), student_intelligence(S,h).
+
+registration_grade(r0,X), registration_course(r0,C), course_difficulty(C,l), registration_student(r0,S), student_intelligence(S,h).
+
+registration_satisfaction(r0,X).
+
+registration_satisfaction(r0,X), registration_student(r0,S), student_intelligence(S,h).
+
+registration_satisfaction(r0,X), registration_grade(r0,a).
+
+registration_satisfaction(r0,X), registration_grade(r0,d).
+
+registration_satisfaction(r0,h), registration_grade(r0,X).
+
+course_rating(c0,X).
+
+course_rating(c0,h), course_difficulty(c0,X).
+
+course_difficulty(c0,X).
+
+student_ranking(s0,X).
+
+student_ranking(s0,X), student_intelligence(s0,h).
+
+
