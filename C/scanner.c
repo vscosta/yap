@@ -229,6 +229,7 @@ read_int_overflow(const char *s, Int base, Int val)
 
   mpz_init_set_str (new, s, base);
   t = Yap_MkBigIntTerm(new);
+  mpz_clear(new);
   return t;
 #else
   /* try to scan it as a float */

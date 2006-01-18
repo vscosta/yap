@@ -10,8 +10,12 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2006-01-16 02:57:51 $,$Author: vsc $						 *
+* Last rev:	$Date: 2006-01-18 15:34:53 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.81  2006/01/16 02:57:51  vsc
+* fix bug with very large integers
+* fix bug where indexing code was looking at code after a cut.
+*
 * Revision 1.80  2006/01/02 03:35:44  vsc
 * fix interface and docs
 *
@@ -432,7 +436,7 @@ YAP_MkBigNumTerm(void *big)
 #if USE_GMP
   Term I;
   BACKUP_H();
-  I = Yap_MkBigIntTermCopy((MP_INT *)big);
+  I = Yap_MkBigIntTerm((MP_INT *)big);
   RECOVER_H();
   return I;
 #else

@@ -10,8 +10,13 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-01-17 14:10:40 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-01-18 15:34:53 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.192  2006/01/17 14:10:40  vsc
+* YENV may be an HW register (breaks some tabling code)
+* All YAAM instructions are now brackedted, so Op introduced an { and EndOp introduces an }. This is because Ricardo assumes that.
+* Fix attvars when COROUTING is undefined.
+*
 * Revision 1.191  2006/01/02 02:16:17  vsc
 * support new interface between YAP and GMP, so that we don't rely on our own
 * allocation routines.
@@ -329,7 +334,15 @@ AritFunctorOfTerm(Term t) {
 #define TMP_BIG(v)  Yap_BigTmp
 #define RINT(v)     return(MkIntegerTerm(v))
 #define RFLOAT(v)   return(MkFloatTerm(v))
-#define RBIG(v)     return(Yap_MkBigIntTerm(v))
+#define RBIG(v)     return(rbig(v))
+
+static inline Term rbig(MP_INT *big)
+{
+  Term t = Yap_MkBigIntTerm(big);
+  mpz_clear(big);
+  return t;
+}
+
 #define RERROR()    return(TermNil)
 
 #define ArithIEval(t,v)     Yap_Eval(Deref(t),v)

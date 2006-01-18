@@ -67,6 +67,7 @@ EvalToTerm(blob_type f, union arith_ret *res)
   case big_int_e:
     {
       Term t = Yap_MkBigIntTerm(res->big);
+      mpz_clear(res->big);
       return t;
     }
 #endif

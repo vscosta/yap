@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h,v 1.5 2006-01-02 02:25:45 vsc Exp $	 *
+* version:      $Id: TermExt.h,v 1.6 2006-01-18 15:34:54 vsc Exp $	 *
 *************************************************************************/
 
 #ifdef USE_SYSTEM_MALLOC
@@ -343,7 +343,6 @@ IsLongIntTerm (Term t)
 
 
 Term STD_PROTO (Yap_MkBigIntTerm, (MP_INT *));
-Term STD_PROTO (Yap_MkBigIntTermCopy, (MP_INT *));
 MP_INT *STD_PROTO (Yap_BigIntOfTerm, (Term));
 
 inline EXTERN int IsBigIntTerm (Term);

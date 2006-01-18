@@ -39,44 +39,6 @@ Yap_MkBigIntTerm(MP_INT *big)
 
   if (mpz_fits_slong_p(big)) {
     int out = mpz_get_si(big);
-    mpz_clear(big);
-    return MkIntegerTerm(out);
-  }
-  nlimbs = (big->_mp_alloc)*(sizeof(mp_limb_t)/CellSize);
-  if (nlimbs > (ASP-ret)-1024) {
-    mpz_clear(big);
-    return TermNil;
-  }
-  H[0] = (CELL)FunctorBigInt;
-
-  dst->_mp_size = big->_mp_size;
-  dst->_mp_alloc = big->_mp_alloc;
-  memmove((void *)(dst+1), (const void *)(big->_mp_d), nlimbs*CellSize);
-  H = (CELL *)(dst+1)+nlimbs;
-  if ((char *)H-(char *)ret > MAX_SPECIALS_TAG-EndSpecials) {
-    /* too large */
-    mpz_clear(big);
-    return TermNil;
-  }
-#if GC_NO_TAGS
-  H[0] = (H-ret)*sizeof(CELL)+EndSpecials;
-#else
-  H[0] = ((H-ret)*sizeof(CELL)+EndSpecials)|MBIT;
-#endif
-  H++;
-  mpz_clear(big);
-  return AbsAppl(ret);
-}
-
-Term
-Yap_MkBigIntTermCopy(MP_INT *big)
-{
-  Int nlimbs;
-  MP_INT *dst = (MP_INT *)(H+1);
-  CELL *ret = H;
-
-  if (mpz_fits_slong_p(big)) {
-    int out = mpz_get_si(big);
     return MkIntegerTerm(out);
   }
   nlimbs = (big->_mp_alloc)*(sizeof(mp_limb_t)/CellSize);
@@ -132,6 +94,7 @@ Yap_MkULLIntTerm(YAP_ULONG_LONG n)
       return MkIntegerTerm(mpz_get_si(new));
     }
     t = Yap_MkBigIntTerm(new);
+    mpz_clear(new);
     return t;
 #else
     return MkIntegerTerm(n);

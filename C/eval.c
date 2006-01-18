@@ -44,15 +44,19 @@ EvalToTerm(blob_type bt, union arith_ret *res)
 {
   switch (bt) {
   case long_int_e:
-    return(MkIntegerTerm(res->Int));
+    return MkIntegerTerm(res->Int);
   case double_e:
-    return(MkFloatTerm(res->dbl));
+    return MkFloatTerm(res->dbl);
 #ifdef USE_GMP
   case big_int_e:
-    return(Yap_MkBigIntTerm(res->big));
+    {
+      Term t = Yap_MkBigIntTerm(res->big);
+      mpz_clear(res->big);
+      return t;
+    }
 #endif
   default:
-    return(TermNil);
+    return TermNil;
   }
 }
 

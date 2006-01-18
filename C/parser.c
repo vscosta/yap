@@ -442,6 +442,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	    mpz_init(new);
 	    mpz_neg(new, Yap_BigIntOfTerm(t));
 	    t = Yap_MkBigIntTerm(new);
+	    mpz_clear(new);
 	  }
 #endif
 	  else
