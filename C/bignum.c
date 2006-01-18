@@ -132,7 +132,6 @@ Yap_MkULLIntTerm(YAP_ULONG_LONG n)
       return MkIntegerTerm(mpz_get_si(new));
     }
     t = Yap_MkBigIntTerm(new);
-    mpz_clear(new);
     return t;
 #else
     return MkIntegerTerm(n);
