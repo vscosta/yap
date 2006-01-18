@@ -688,7 +688,11 @@ p_times(Term t1, Term t2 E_ARGS)
       }
     case double_e:
       /* big * float */
-      RFLOAT(mpz_get_d(v1.big)*v2.dbl);
+      {
+	Float dbl = mpz_get_d(v1.big)*v2.dbl;
+	mpz_clear(v1.big);
+	RFLOAT(dbl);
+      }
     case big_int_e:
       /* big * big */
       {

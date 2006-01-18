@@ -751,7 +751,7 @@ Yap_GetValue(Atom a)
     }
 #ifdef USE_GMP
     else {
-      out = Yap_MkBigIntTerm(Yap_BigIntOfTerm(out));
+      out = Yap_MkBigIntTermCopy(Yap_BigIntOfTerm(out));
     }
 #endif
   }
