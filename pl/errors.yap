@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2005-11-23 13:24:00 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-01-20 04:35:28 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.72  2005/11/23 13:24:00  vsc
+* cleanups in OS interface predicates.
+*
 * Revision 1.71  2005/11/10 01:27:12  vsc
 * fix debugger message for EOF input
 * fix fix to setof
@@ -172,7 +175,6 @@ print_message(Level, Mss) :-
 	( var(Msg) ; var(Info) ), !,
 	format(user_error,'% YAP: no handler for error ~w~n', [error(Msg,Info)]).
 '$print_message'(error,error(syntax_error(A,B,C,D,E,F),_)) :- !,
-	'$output_error_location'('\%'),
 	'$output_error_message'(syntax_error(A,B,C,D,E,F), 'SYNTAX ERROR').
 '$print_message'(error,error(Msg,[Info|local_sp(Where,Envs,CPs)])) :-
 	'$output_error_location'('\% ERROR:'),
@@ -747,7 +749,7 @@ print_message(Level, Mss) :-
 	format(user_error,'% SYNTAX ERROR: ~a',[G,Msg]).
 '$output_error_message'(syntax_error(_,_,_,Term,Pos,Start), Where) :-
 	format(user_error,'% ~w ',[Where]),
-%	'$dump_syntax_error_line'(Start,Position),
+	'$dump_syntax_error_line'(Start,Pos),
 	'$dump_syntax_error_term'(10,Pos, Term),
 	format(user_error,'.~n',[]).
 '$output_error_message'(system_error, Where) :-
@@ -846,7 +848,7 @@ print_message(Level, Mss) :-
 
 
 '$dump_syntax_error_line'(_,Position) :-
-	format(user_error,'% near line ~d,~n',[Position]).
+	format(user_error,', near line ~d:~n',[Position]).
 
 '$dump_syntax_error_term'(0,J,L) :- !,
 	format(user_error,'~n', []),
