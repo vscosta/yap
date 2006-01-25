@@ -26,6 +26,7 @@
 		  
 		  db_sql_select/3,
 		  db_prolog_select/3,
+		  db_prolog_select_multi/3,
 		  db_command/2,
 		  db_insert/2,
 		  db_create_table/3,
@@ -85,6 +86,9 @@
 			    ]).
 
 :- use_module(myddas_util_predicates,[
+				      '$prolog2sql'/3,
+				      '$create_multi_query'/3,
+				      '$get_multi_results'/4,
 				      '$process_sql_goal'/4,
 				      '$process_fields'/3,
 				      '$get_values_for_insert'/3,
@@ -157,12 +161,11 @@ db_close(Connection) :-
 db_verbose(X):-
 	var(X),!,
 	get_value(db_verbose,X).
-db_verbose(1):-!,
-	set_value(db_verbose,1).
-db_verbose(_):-
-	set_value(db_verbose,0).
+db_verbose(N):-!,
+	set_value(db_verbose,N).
 %default value
-:- db_verbose(0).
+:- set_value(db_verbose,0).
+:- set_value(db_verbose_filename,myddas_queries).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -249,9 +252,7 @@ db_prolog_select(Connection,LA,DbGoal):-
 	% build arg list for viewname/Arity
 	'$make_list_of_args'(1,Arity,ViewName,LA),
 	
-	copy_term((ViewName,DbGoal),(CopyView,CopyGoal)),
-	translate(CopyView,CopyGoal,Code),
-	queries_atom(Code,SQL),
+	'$prolog2sql'(ViewName,DbGoal,SQL),
 	
 	get_value(Connection,Con),
 	c_db_connection_type(Con,ConType),
@@ -265,6 +266,28 @@ db_prolog_select(Connection,LA,DbGoal):-
 	).
 	    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_prolog_select_multi(+,+,-)
+% db_prolog_select_multi(guest,[(ramos(A,C),A=C),(ramos(D,B),B=10)],[[A],[D,B]]).
+%
+db_prolog_select_multi(Connection,DbGoalsList,ListOfResults) :-
+	'$error_checks'(db_prolog_select_multi(Connection,DbGoalsList,ListOfResults)),
+	'$create_multi_query'(ListOfResults,DbGoalsList,SQL),
+
+	get_value(Connection,Con),
+	c_db_connection_type(Con,ConType),
+	'$write_or_not'(SQL),
+	( ConType == mysql ->
+	    db_my_result_set(Mode),
+	    c_db_my_query(SQL,ResultSet,Con,Mode)
+	;
+	    true
+	),
+	'$get_multi_results'(Con,ConType,ResultSet,ListOfResults).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -432,7 +455,7 @@ db_number_of_fields(Connection,RelationName,Arity) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_multi_queries_number(+,+)
-% TO
+% TODO: EVERITHING
 %
 db_multi_queries_number(Connection,Number) :-
 	'$error_checks'(db_multi_queries_number(Connection,Number)),
@@ -441,3 +464,4 @@ db_multi_queries_number(Connection,Number) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+	

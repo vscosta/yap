@@ -28,6 +28,9 @@
 		     is_list/1
 		    ]).
 
+'$error_checks'(db_prolog_select_multi(Connection,DbGoalsList,_)):- !,
+	atom(Connection),
+	is_list(DbGoalsList).
 '$error_checks'(db_multi_queries_number(Connection,Number)):-!,
         atom(Connection),
 	( var(Number) ->

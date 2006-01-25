@@ -16,6 +16,9 @@
 *************************************************************************/
 
 :- module(myddas_util_predicates,[
+				  '$prolog2sql'/3,
+				  '$create_multi_query'/3,
+				  '$get_multi_results'/4,
 				  '$process_sql_goal'/4,
 				  '$process_fields'/3,
 				  '$check_fields'/2,
@@ -49,6 +52,35 @@
 				 translate/3,
 				 queries_atom/2
 				 ]).
+
+'$prolog2sql'(ProjTerm,DbGoal,SQL):-
+	copy_term((ProjTerm,DbGoal),(CopyTerm,CopyGoal)),
+	translate(CopyTerm,CopyGoal,Code),
+	queries_atom(Code,SQL).
+	
+'$create_multi_query'([ProjTerm],[DbGoal],SQL):- !,
+	'$lenght'(ProjTerm,Arity),
+	functor(ViewName,viewname,Arity),
+	'$make_list_of_args'(1,Arity,ViewName,ProjTerm),
+	'$prolog2sql'(ViewName,DbGoal,SQL).
+'$create_multi_query'([ProjTerm|TermList],[DbGoal|GoalList],SQL):-
+	'$lenght'(ProjTerm,Arity),
+	functor(ViewName,viewname,Arity),
+	'$make_list_of_args'(1,Arity,ViewName,ProjTerm),
+	'$prolog2sql'(ViewName,DbGoal,SQLQuery),
+	'$create_multi_query'(TermList,GoalList,SQLMulti),
+	'$make_atom'([SQLQuery,' ; ',SQLMulti],SQL).
+
+'$get_multi_results'(_,_,_,[]).
+'$get_multi_results'(Con,ConType,ResSet,[List|Results]):-
+	'$lenght'(List,Arity),
+	( ConType == mysql ->
+	    c_db_my_row(ResSet,Arity,List),!,
+	    c_db_my_get_next_result_set(Con,NextResSet)
+	;
+	    true
+	),
+	'$get_multi_results'(Con,ConType,NextResSet,Results).
 
 '$process_sql_goal'(TableViewName,SQLorDbGoal,TableName,SQL):-
         (atom(SQLorDbGoal) ->
@@ -288,8 +320,13 @@
 '$write_or_not'(X) :-
 	get_value(db_verbose,1),!,
 	write(X),nl.
+'$write_or_not'(X) :-
+	get_value(db_verbose,2),!,
+	get_value(db_verbose_filename,FileName),
+	open(FileName,append,Stream),
+	write(Stream,X),write(Stream,';'),nl(Stream),
+	close(Stream).
 '$write_or_not'(_).
-
 
 '$make_atom'([],'').
 '$make_atom'([Atom|T],Final) :-

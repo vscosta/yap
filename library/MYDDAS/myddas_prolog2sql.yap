@@ -71,10 +71,6 @@ translate(ProjectionTerm,DatabaseGoal,SQLQueryTerm):-
    % --- code generation ---------------------------------------------------------------
    query_generation(Disjunction,TokenProjectionTerm,SQLQueryTerm).
 
-
-
-
-
 % --- disjunction(Goal,Disjunction) ----------------------------------------------------
 %
 % turns original goal into disjunctive normalized form by computing all conjunctions
@@ -1012,13 +1008,14 @@ query_atom(query(Select,From,Where),QueryList,Diff):-
    clause_atom('SELECT',Select,',',QueryList,X1),
    clause_atom('FROM',From,',',X1,X2),
    clause_atom('WHERE',Where,'AND',X2,Diff).
-
+ %  column_atom('LIMIT 1',Diff,Diff2).
 query_atom(agg_query(Function,Select,From,Where,Group),QueryList,Diff):-
    clause_atom('SELECT',Function,Select,',',QueryList,X1),
    clause_atom('FROM',From,',',X1,X2),
    clause_atom('WHERE',Where,'AND',X2,Diff).
 %ILP : PARA NAO POR OS GROUP BYS. FAZER FLAG PARA ISTO
    %clause_atom('GROUP BY',Group,',',X3,Diff).
+   
 
 query_atom(negated_existential_subquery(Select,From,Where),QueryList,Diff):-
    column_atom('NOT EXISTS(',QueryList,X1),   

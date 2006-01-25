@@ -99,7 +99,10 @@ myddas_current_time(void) {
   /* to get time as Yap */
   
     Int now, interval;
-    Yap_cputime_interval(&now, &interval);
+    //Yap_cputime_interval(&now, &interval);
+    
+    //milliseconds
+    Yap_walltime_interval(&now, &interval);
     //return ((realtime)now);
     return (now);
   

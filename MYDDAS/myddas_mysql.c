@@ -52,6 +52,7 @@ STATIC_PROTO(int c_db_my_row,(void));
 STATIC_PROTO(int c_db_my_row_cut,(void));
 STATIC_PROTO(int c_db_my_get_fields_properties,(void));
 STATIC_PROTO(int c_db_my_number_of_fields_in_query,(void));
+STATIC_PROTO(int c_db_my_get_next_result_set,(void));
 
 
 static void n_print(int, char);
@@ -80,7 +81,7 @@ c_db_my_connect(void) {
     return FALSE;
   }
 
-  if (mysql_real_connect(conn, host, user, passwd, database,0, NULL, 0) == NULL) {
+  if (mysql_real_connect(conn, host, user, passwd, database,0, NULL, CLIENT_MULTI_STATEMENTS) == NULL) {
     printf("erro no connect\n");
     return FALSE;
   }
@@ -639,6 +640,21 @@ c_db_my_get_fields_properties(void) {
   return TRUE;
 }
 
+/* c_db_my_get_next_result_set: Connection * NextResSet */
+static int 
+c_db_my_get_next_result_set(void) {
+  Term arg_conn = Deref(ARG1);
+  Term arg_next_res_set = Deref(ARG2);
+  
+  MYSQL *conn = (MYSQL *) (IntegerOfTerm(arg_conn));
+  MYSQL_RES *res_set=NULL;
+  
+  if (mysql_next_result(conn) == 0){
+    res_set = mysql_store_result(conn);
+    Yap_unify(arg_next_res_set, MkIntegerTerm((int) res_set));
+  }
+  return TRUE;
+}
 
 void Yap_InitMYDDAS_MySQLPreds(void)
 {
@@ -665,6 +681,9 @@ void Yap_InitMYDDAS_MySQLPreds(void)
   
   /* db_get_fields_properties: PredName x Connnection x PropertiesList*/
   Yap_InitCPred("c_db_my_get_fields_properties",3,c_db_my_get_fields_properties,0);
+  
+  /* db_get_fields_properties: PredName x Connnection x PropertiesList*/
+  Yap_InitCPred("c_db_my_get_next_result_set",2,c_db_my_get_next_result_set,0);
 }
 
 void Yap_InitBackMYDDAS_MySQLPreds(void)
