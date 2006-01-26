@@ -153,7 +153,7 @@ db_view(Connection,PredName,DbGoal) :-
        	% get arity of projection term
 	functor(PredName,ViewName,Arity),
 	db_module(Module),
-	not c_db_check_if_exists_pred(ViewName,Arity,Module),
+	%not c_db_check_if_exists_pred(ViewName,Arity,Module),
 
 	% This copy_term is done to prevent the unification
 	% with top-level variables   A='var('A')' error

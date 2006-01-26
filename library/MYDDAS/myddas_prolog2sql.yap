@@ -226,7 +226,13 @@ query_generation([],_,[]).
 
 query_generation([Conjunction|Conjunctions],ProjectionTerm,[Query|Queries]):-
    projection_term_variables(ProjectionTerm,InitDict),
-   translate_conjunction(Conjunction,SQLFrom,SQLWhere,InitDict,Dict),
+   ( Conjunction =.. [once|Arguments] ->
+       [Args] = Arguments, 
+       translate_conjunction(Args,SQLFrom,SQLWhereTemp,InitDict,Dict),
+       append(SQLWhereTemp,[once],SQLWhere)
+   ;
+       translate_conjunction(Conjunction,SQLFrom,SQLWhere,InitDict,Dict)
+   ),
    translate_projection(ProjectionTerm,Dict,SQLSelect),
    Query = query(SQLSelect,SQLFrom,SQLWhere),
    query_generation(Conjunctions,ProjectionTerm,Queries).
@@ -1008,7 +1014,7 @@ query_atom(query(Select,From,Where),QueryList,Diff):-
    clause_atom('SELECT',Select,',',QueryList,X1),
    clause_atom('FROM',From,',',X1,X2),
    clause_atom('WHERE',Where,'AND',X2,Diff).
- %  column_atom('LIMIT 1',Diff,Diff2).
+
 query_atom(agg_query(Function,Select,From,Where,Group),QueryList,Diff):-
    clause_atom('SELECT',Function,Select,',',QueryList,X1),
    clause_atom('FROM',From,',',X1,X2),
@@ -1045,7 +1051,11 @@ query_atom(existential_subquery(Select,From,Where),QueryList,Diff):-
 % ILP
 % clause_atom(Keyword,[],_,QueryList,QueryList).
 clause_atom(_,[],_,QueryList,QueryList).
-
+% case there is no WHERE condition
+clause_atom(_,[once],_,QueryList,Diff):-!,
+	column_atom(' ',QueryList,X1),
+	column_atom('LIMIT 1',X1,X2),
+	column_atom(' ',X2,Diff).
 clause_atom(Keyword,[Column|RestColumns],Junctor,QueryList,Diff):-
    column_atom(Keyword,QueryList,X1),
    column_atom(' ',X1,X2),
@@ -1076,14 +1086,21 @@ clause_atom(Keyword,Function,[Column],Junctor,QueryList,Diff):-
 
 % --- clause_atom(ClauseCode,Junctor) --------------------------------
 
+clause_atom([once],_,QueryList,Diff):-!,
+	column_atom(' LIMIT 1 ',QueryList,Diff).
+
 clause_atom([Item],_,QueryList,Diff):-
    column_atom(Item,QueryList,Diff).
 
 clause_atom([Item,NextItem|RestItems],Junctor,QueryList,Diff):-
    column_atom(Item,QueryList,X1),
    column_atom(' ',X1,X2),
-   column_atom(Junctor,X2,X3),
-   column_atom(' ',X3,X4),
+   ( NextItem = once ->
+       X4 = X2
+   ;
+       column_atom(Junctor,X2,X3),
+       column_atom(' ',X3,X4)
+   ),
    clause_atom([NextItem|RestItems],Junctor,X4,Diff).
 
 
