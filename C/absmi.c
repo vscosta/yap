@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-01-18 15:34:53 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-01-26 19:13:24 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.193  2006/01/18 15:34:53  vsc
+* avoid sideffects from MkBigInt
+*
 * Revision 1.192  2006/01/17 14:10:40  vsc
 * YENV may be an HW register (breaks some tabling code)
 * All YAAM instructions are now brackedted, so Op introduced an { and EndOp introduces an }. This is because Ricardo assumes that.
@@ -334,6 +337,8 @@ AritFunctorOfTerm(Term t) {
 #define TMP_BIG(v)  Yap_BigTmp
 #define RINT(v)     return(MkIntegerTerm(v))
 #define RFLOAT(v)   return(MkFloatTerm(v))
+#if USE_GMP
+
 #define RBIG(v)     return(rbig(v))
 
 static inline Term rbig(MP_INT *big)
@@ -342,6 +347,7 @@ static inline Term rbig(MP_INT *big)
   mpz_clear(big);
   return t;
 }
+#endif
 
 #define RERROR()    return(TermNil)
 
@@ -1554,6 +1560,10 @@ Yap_absmi(int inp)
 	      case _retry4:
 	      case _trust_logical_pred:
 		ipc = NEXTOP(ipc,l);
+		go_on = TRUE;
+		break;
+	      case _jump:
+		ipc = ipc->u.l.l;
 		go_on = TRUE;
 		break;
 	      case _retry_c:

@@ -468,12 +468,12 @@ case "$target_os" in
           if test "$have_dl" = "yes"
 	  then
 	    SHLIB_SUFFIX=".so"
-            SHLIB_LD="ld -shared"
+            SHLIB_LD="ld -shared -export-dynamic"
             DO_SECOND_LD=""
 	    LIBS="$LIBS -ldl"
 	    case "$host_cpu" in
 	      alpha*)
-	        LDFLAGS="-export-dynamic $LDFLAGS"
+	        LDFLAGS="-dynamic $LDFLAGS"
               ;;
               *)
 	        if test "$CC" != "lcc"

@@ -425,7 +425,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 {
   char *sp = s;
   int ch = *chp;
-  Int val = 0, base = ch - '0';
+  Int val = 0L, base = ch - '0';
   int might_be_float = TRUE, has_overflow = FALSE;
 
   *sp++ = ch;
