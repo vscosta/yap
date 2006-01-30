@@ -298,7 +298,7 @@
 	'$get_values_for_set'(FieldList,ValueList,FieldValueList).
 
 '$get_values_for_where'([comp(att(_,Field),'=','$const$'(Atom))],[' ',Field,' = "',Atom,'" ']).
-'$get_values_for_where'([comp(att(_,Field),'=','$const$'(Atom))|Comp],[' ',Field,' = "',Atom,'" '|Rest]):-
+'$get_values_for_where'([comp(att(_,Field),'=','$const$'(Atom))|Comp],[' ',Field,' = "',Atom,'" AND '|Rest]):-
 	'$get_values_for_where'(Comp,Rest).
 
 '$build_set_condition'([Field,Value|FieldValues],[SQLFirst|SQLRest]):-
