@@ -16,6 +16,8 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: handle heap overflow from huge atoms in
+Yap_LookupAtom/scanner (Nuno Fonseca).</li>
 <li> FIXED: bignum was using int where should be long int (Roberto Bagnara).</li>
 <li> NEW: x86_64 should have registers, right? First cut at using them.</li>
 <li> FIXED: call_n would break under 64 bits, an int problem.</li>

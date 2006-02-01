@@ -3073,6 +3073,11 @@ static Int
 	  if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
 	    return FALSE;
 	  }
+	} else if (Yap_Error_TYPE == OUT_OF_HEAP_ERROR) {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growheap(FALSE, 0, NULL)) {
+	    return FALSE;
+	  }
 	} else if (Yap_Error_TYPE == OUT_OF_STACK_ERROR) {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_gc(nargs, ENV, CP)) {
@@ -4142,7 +4147,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    if (IsIntegerTerm(t)) {
 	      Int il = IntegerOfTerm(t);
 #if HAVE_SNPRINTF
-	      snprintf(tmp1, 256, "%ld", il);
+	      snprintf(tmp1, 256, "%ld", (long int)il);
 #else
 	      sprintf(tmp1, "%ld", (long int)il);
 #endif

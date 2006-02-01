@@ -752,6 +752,7 @@ Yap_tokenizer(int inp_stream)
 	  /* huge atom or variable, we are in trouble */
 	  Yap_ErrorMessage = "Code Space Overflow due to huge atom";
 	  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
+	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  if (p)
 	    p->Tok = Ord(kind = eot_tok);
 	  /* serious error now */
@@ -764,6 +765,7 @@ Yap_tokenizer(int inp_stream)
 	/* don't do this in iso */
 	Atom ae = Yap_LookupAtom(TokImage);
 	if (ae == NIL) {
+	  Yap_Error_TYPE = OUT_OF_HEAP_ERROR;	  
 	  Yap_ErrorMessage = "Code Space Overflow";
 	  if (p)
 	    t->Tok = Ord(kind = eot_tok);
