@@ -1,4 +1,4 @@
-/*  $Id: jpl.c,v 1.8 2005-05-25 18:18:00 vsc Exp $
+/*  $Id: jpl.c,v 1.9 2006-02-01 13:28:56 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -1908,7 +1908,7 @@ jni_create_jvm_c(
  // opt[optn].optionString = "abort";	    // I don't understand this yet...
  // opt[optn++].extraInfo = jvm_abort;
  // opt[optn++].optionString = "-Xcheck:jni";    // extra checking of JNI calls
-    opt[optn++].optionString = "-Xmx1024m";    // give java enough space
+    opt[optn++].optionString = "-Xmx1512m";    // give java enough space
  // opt[optn++].optionString = "-Xnoclassgc";    // so method/field IDs remain valid (?)
  // opt[optn].optionString = "vfprintf";
  // opt[optn++].extraInfo = fprintf;		    // no O/P, then SEGV

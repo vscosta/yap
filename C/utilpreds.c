@@ -1812,7 +1812,7 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
     pt0_end = to_visit[1];
     pt1 = to_visit[2];
     *pt0 = (CELL)to_visit[3];
-    write_mode = (int)to_visit[4];
+    write_mode = (Int)to_visit[ 4];
     to_visit += 5;
 #else
     pt0 = to_visit[0];

@@ -263,7 +263,8 @@ do_execute_n(Term t, Term mod, unsigned int n)
   Atom Name;
   register CELL *pt;
   PredEntry *pen;
-  unsigned int i, arity, j = -n;
+  unsigned int i, arity;
+  int j = -n;
 
  restart_exec:
   if (IsVarTerm(t)) {

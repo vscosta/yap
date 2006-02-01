@@ -11,8 +11,13 @@
 * File:		gprof.c							 *
 * comments:	Interrupt Driven Profiler				 *
 *									 *
-* Last rev:     $Date: 2006-01-17 14:10:40 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-02-01 13:28:56 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.3  2006/01/17 14:10:40  vsc
+* YENV may be an HW register (breaks some tabling code)
+* All YAAM instructions are now brackedted, so Op introduced an { and EndOp introduces an }. This is because Ricardo assumes that.
+* Fix attvars when COROUTING is undefined.
+*
 * Revision 1.2  2005/12/23 00:20:13  vsc
 * updates to gprof
 * support for __POWER__
@@ -905,7 +910,7 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
   ProfCalls++;
   if (Yap_PrologMode & TestMode) {
     if (Yap_OffLineProfiler) {
-      fprintf(FProf,"%p %p\n", (void *) (Yap_PrologMode & TestMode), P);
+      fprintf(FProf,"%p %p\n", (void *) ((CELL)Yap_PrologMode & TestMode), P);
       ProfOn = FALSE;
       return;
     }

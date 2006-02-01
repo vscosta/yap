@@ -1260,7 +1260,7 @@ PL_create_engine(const PL_thread_attr_t *attr)
 X_API int
 PL_destroy_engine(PL_engine_t e)
 {
-  return YAP_ThreadDestroyEngine((int)e);
+  return YAP_ThreadDestroyEngine((YAP_Int)e);
 }
 
 X_API int

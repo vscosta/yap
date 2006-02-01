@@ -4142,7 +4142,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    if (IsIntegerTerm(t)) {
 	      Int il = IntegerOfTerm(t);
 #if HAVE_SNPRINTF
-	      snprintf(tmp1, 256, "%d", il);
+	      snprintf(tmp1, 256, "%ld", il);
 #else
 	      sprintf(tmp1, "%ld", (long int)il);
 #endif

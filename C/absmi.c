@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-01-26 19:13:24 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-02-01 13:28:56 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.194  2006/01/26 19:13:24  vsc
+* avoid compilation issues with lack of gmp (Remko Troncon)
+*
 * Revision 1.193  2006/01/18 15:34:53  vsc
 * avoid sideffects from MkBigInt
 *
@@ -9835,9 +9838,7 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.xxc.c;
 	if (IsIntTerm(d0)) {
-	  fprintf(stderr,"%d<<%d\n",IntOfTerm(d0), d1);
 	  d0 = do_sll(IntOfTerm(d0), (Int)d1);
-	  fprintf(stderr,"%d\n",IntegerOfTerm(d0));
 	}
 	else {
 	  saveregs();

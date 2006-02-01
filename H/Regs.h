@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.34 2006-01-17 22:50:10 tiagosoares Exp $	 *
+* version:      $Id: Regs.h,v 1.35 2006-02-01 13:28:56 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -27,6 +27,11 @@
 
 #ifdef i386
 #define PUSH_REGS 1
+#undef  PUSH_X
+#endif
+
+#ifdef __x86_64__
+#undef  PUSH_REGS
 #undef  PUSH_X
 #endif
 

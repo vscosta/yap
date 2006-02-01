@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-01-08 03:12:00 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-02-01 13:28:56 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.175  2006/01/08 03:12:00  vsc
+* fix small bug in attvar handling.
+*
 * Revision 1.174  2005/12/23 00:20:13  vsc
 * updates to gprof
 * support for __POWER__
@@ -5283,7 +5286,7 @@ p_predicate_erased_statistics(void)
     Yap_unify(ARG5,MkIntegerTerm(isz));
 }
 
-static int
+static Int
 p_program_continuation(void)
 {
   PredEntry *pe = EnvPreg(((CELL *)ENV[E_E])[E_CP]);

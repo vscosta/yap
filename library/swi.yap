@@ -25,6 +25,9 @@
 :- multifile
    prolog:message/3.
 
+:- dynamic
+   prolog:message/3.
+
 :- multifile
    user:file_search_path/2.
 

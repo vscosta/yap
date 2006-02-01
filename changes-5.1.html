@@ -16,6 +16,9 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: bignum was using int where should be long int (Roberto Bagnara).</li>
+<li> NEW: x86_64 should have registers, right? First cut at using them.</li>
+<li> FIXED: call_n would break under 64 bits, an int problem.</li>
 <li> FIXED: more compilation problems if GMP not there (Remko Troncon).</li>
 <li> FIXED: make syntax error report the line where the bug was (Jude Shavlik).</li>
 <li> FIXED: ok, MkBigInt shouldn't free the bigint.</li>

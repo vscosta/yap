@@ -38,8 +38,8 @@ Yap_MkBigIntTerm(MP_INT *big)
   CELL *ret = H;
 
   if (mpz_fits_slong_p(big)) {
-    int out = mpz_get_si(big);
-    return MkIntegerTerm(out);
+    long int out = mpz_get_si(big);
+    return MkIntegerTerm((Int)out);
   }
   nlimbs = (big->_mp_alloc)*(sizeof(mp_limb_t)/CellSize);
   if (nlimbs > (ASP-ret)-1024) {
