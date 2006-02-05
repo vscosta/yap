@@ -23,6 +23,7 @@
 #include "myddas_util.h"
 #include <stdlib.h>
 #ifdef MYDDAS_STATS
+#include "myddas_structs.h"
 #include "myddas_statistics.h"
 #endif
 
@@ -252,95 +253,113 @@ c_db_stats(void) {
     node = myddas_util_search_connection(conn);
   Term head, list;
   list = arg_list;
+
+  MYDDAS_STATS_TIME time;
+  unsigned long number;
+
   
   //[Index 1] -> Total Number of Rows by connection
   //Total number of Rows returned by the server
   //WARNING: only works with store_result
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  unsigned long totalRows = myddas_util_get_conn_total_rows(node);
-  Yap_unify(head, MkIntegerTerm(totalRows));
+  MYDDAS_STATS_CON_GET_TOTAL_ROWS(node,number);
+  Yap_unify(head, MkIntegerTerm(number));
 #ifdef DEBUG
-  printf ("Total Number of Rows returned from the Server: %lu\n",totalRows);
+  printf ("Total Number of Rows returned from the Server\n");
+  printf ("%lu\n\n",number);
 #endif
 
   //[Index 2] -> Total of Time Spent by the DB Server
   // processing all the  SQL Querys
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  unsigned long totalTimeDBServer = myddas_util_get_conn_total_time_DBServer(node);
-  Yap_unify(head, MkIntegerTerm(totalTimeDBServer));
+  MYDDAS_STATS_CON_GET_TOTAL_TIME_DBSERVER(node,time);
+  Yap_unify(head, MkIntegerTerm((int)time));
 #ifdef DEBUG
-  printf ("Time Spent by the Server, on all the SQL Querys: %lu\n",totalTimeDBServer);
+  printf ("Reference to time Spent by the Server, on all the SQL Querys\n");
+  MYDDAS_STATS_PRINT_TIME_STRUCT(time);
+  printf ("\n\n");
 #endif  
 
   //[Index 3] -> Total of Time Spent by the DB Server
   // processing a the last SQL Query
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  unsigned long lastTimeDBServer = myddas_util_get_conn_last_time_DBServer(node);
-  Yap_unify(head, MkIntegerTerm(lastTimeDBServer));
+  MYDDAS_STATS_CON_GET_LAST_TIME_DBSERVER(node,time);
+  Yap_unify(head, MkIntegerTerm((int)time));
 #ifdef DEBUG
-  printf ("Time Spent by the Server, on the last SQL Query: %lu\n",lastTimeDBServer);
+  printf ("Reference to time Spent by the Server, on the last SQL Query\n");
+  MYDDAS_STATS_PRINT_TIME_STRUCT(time);
+  printf ("\n\n");
 #endif
   
   //[Index 4] -> Total of Time Spent by the DB Server
   // transfering all the results of the  SQL Querys
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  unsigned long totalFromDBServer = myddas_util_get_conn_total_transfering_from_DBServer(node);
-  Yap_unify(head, MkIntegerTerm(totalFromDBServer));
+  MYDDAS_STATS_CON_GET_TOTAL_TIME_TRANSFERING(node,time);
+  Yap_unify(head, MkIntegerTerm((int)time));
 #ifdef DEBUG
-  printf ("Time Spent by the Server, transfering all the results SQL Query: %lu\n",totalFromDBServer);
+  printf ("Refence to time Spent by the Server, transfering all the results SQL Query\n");
+  MYDDAS_STATS_PRINT_TIME_STRUCT(time);
+  printf ("\n\n");
 #endif
   
   //[Index 5] -> Total of Time Spent by the DB Server
   // transfering the result of the last SQL Query
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  unsigned long lastFromDBServer = myddas_util_get_conn_last_transfering_from_DBServer(node);
-  Yap_unify(head, MkIntegerTerm(lastFromDBServer));
+  MYDDAS_STATS_CON_GET_LAST_TIME_TRANSFERING(node,time);
+  Yap_unify(head, MkIntegerTerm((int)time));
 #ifdef DEBUG
-  printf ("Time Spent by the Server, transfering the result of the last SQL Query: %lu\n",lastFromDBServer);
+  printf ("Reference to time Spent by the Server, transfering the result of the last SQL Query\n");
+  MYDDAS_STATS_PRINT_TIME_STRUCT(time);
+  printf ("\n\n");
 #endif
   
   //[Index 6] -> Total of Time Spent by the 
   // db_row_function
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  unsigned long db_row = myddas_util_get_total_db_row_function();
-  Yap_unify(head, MkIntegerTerm(db_row));
+  MYDDAS_STATS_GET_DB_ROW_FUNCTION(time);
+  Yap_unify(head, MkIntegerTerm((int)time));
 #ifdef DEBUG
-  printf ("Time Spent by the db_row_function: %lu\n",db_row);
+  printf ("Reference to time Spent by the db_row_function\n");
+  MYDDAS_STATS_PRINT_TIME_STRUCT(time);
+  printf ("\n\n");
 #endif
   
   //[Index 7] -> Total of Bytes Transfered by the 
   // DB Server on all SQL Querys
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  unsigned long totalBytes = myddas_util_get_conn_total_bytes_transfering_from_DBserver(node);
-  Yap_unify(head, MkIntegerTerm(totalBytes));
+  MYDDAS_STATS_CON_GET_TOTAL_BYTES_TRANSFERING_FROM_DBSERVER(node,number);
+  Yap_unify(head, MkIntegerTerm(number));
 #ifdef DEBUG
-  printf ("Bytes Transfered by the DB Server from all querys: %lu\n",totalBytes);
+  printf ("Bytes Transfered by the DB Server from all querys\n");
+  printf ("%lu\n\n",number);
 #endif
   
   //[Index 8] -> Total of Bytes Transfered by the 
   // DB Server on the last SQL Query
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  unsigned long lastBytes = myddas_util_get_conn_last_bytes_transfering_from_DBserver(node);
-  Yap_unify(head, MkIntegerTerm(lastBytes));
+  MYDDAS_STATS_CON_GET_LAST_BYTES_TRANSFERING_FROM_DBSERVER(node,number);
+  Yap_unify(head, MkIntegerTerm(number));
 #ifdef DEBUG
-  printf ("Bytes Transfered by the DB Server on the last query: %lu\n",lastBytes);
+  printf ("Bytes Transfered by the DB Server on the last query\n");
+  printf ("%lu\n\n",number);
 #endif
   
   //[Index 9] -> Number of querys made to the DBserver
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  unsigned long number_querys = myddas_util_get_conn_number_querys_made(node);
-  Yap_unify(head, MkIntegerTerm(number_querys));
+  MYDDAS_STATS_CON_GET_NUMBER_QUERIES_MADE(node,number);
+  Yap_unify(head, MkIntegerTerm(number));
 #ifdef DEBUG
-  printf ("Number of Querys made to the server: %lu\n",number_querys);
+  printf ("Number of Querys made to the server\n");
+  printf ("%lu\n\n",number);
 #endif
   
   return TRUE;

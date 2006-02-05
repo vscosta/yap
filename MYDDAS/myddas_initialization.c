@@ -8,6 +8,8 @@ static MYDDAS_UTIL_PREDICATE
 myddas_util_initialize_predicate(char *, int,char *,
 				 MYDDAS_UTIL_PREDICATE);
 
+
+
 MYDDAS_GLOBAL
 myddas_util_initialize_myddas(){
   MYDDAS_GLOBAL global = NULL;
@@ -15,13 +17,15 @@ myddas_util_initialize_myddas(){
   global = (MYDDAS_GLOBAL) malloc (sizeof(struct myddas_global));
   
   global->myddas_top_connections = NULL;
+#ifdef MYDDAS_TOP_LEVEL
+  global->myddas_top_level_connection = NULL;
+#endif
 #ifdef MYDDAS_STATS
   global->myddas_statistics = (MYDDAS_GLOBAL_STATS) malloc (sizeof(struct myddas_global_stats));
-  global->myddas_statistics->total_db_row = 0;
+  MYDDAS_STATS_INITIALIZE_TIME_STRUCT(global->myddas_statistics->total_db_row,time_final);
 #endif
   return global;
 }
-
 
 
 
@@ -37,7 +41,6 @@ myddas_util_initialize_connection(void *conn,void *enviromment,
     }
   new->predicates=NULL;
   new->connection=conn;
-  new->temporary_tables=NULL;
   new->odbc_enviromment=enviromment;
 
   /* It saves n queries, doing at once n+1 queries */
@@ -55,13 +58,15 @@ myddas_util_initialize_connection(void *conn,void *enviromment,
   
 #ifdef MYDDAS_STATS
   new->totalNumberOfRows=0;
-  new->totalTimeofDBServer=0;
-  new->lastTimeofDBServer=0;
-  new->totalFromDBServer=0;
-  new->lastFromDBServer=0;
-  new->total_db_row=0;
+  
+  MYDDAS_STATS_INITIALIZE_TIME_STRUCT(new->totalTimeofDBServer,time_final);
+  MYDDAS_STATS_INITIALIZE_TIME_STRUCT(new->lastTimeofDBServer,time_final);
+  MYDDAS_STATS_INITIALIZE_TIME_STRUCT(new->totalFromDBServer,time_final);
+  MYDDAS_STATS_INITIALIZE_TIME_STRUCT(new->lastFromDBServer,time_final);
+  
   new->lastBytesTransfered=0;
   new->totalBytesTransfered=0;
+  MYDDAS_STATS_INITIALIZE_TIME_STRUCT(new->total_db_row,time_final);
   new->total_querys_made=0;
 #endif
   return new;
@@ -89,3 +94,4 @@ myddas_util_initialize_predicate(char *pred_name, int pred_arity,
   
   return new;
 }
+

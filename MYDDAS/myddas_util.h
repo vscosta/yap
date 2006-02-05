@@ -6,27 +6,39 @@
 #include <sql.h>
 #endif
 
+#ifdef MYDDAS_MYSQL
+#include <mysql/mysql.h>
+#endif
+
 #ifdef MYDDAS_STATS
 #include <time.h>
 #include <sys/time.h>
 #endif
 
 typedef struct myddas_global *MYDDAS_GLOBAL;
-#ifdef MYDDAS_STATS
-typedef struct myddas_global_stats *MYDDAS_GLOBAL_STATS;
-#endif
 typedef struct myddas_util_query *MYDDAS_UTIL_QUERY;
 typedef struct myddas_list_connection *MYDDAS_UTIL_CONNECTION;
 typedef struct myddas_list_preds *MYDDAS_UTIL_PREDICATE;
-typedef struct myddas_temp_tables *MYDDAS_TEMP_TABLES;
+
+#if defined MYDDAS_STATS || defined MYDDAS_TOP_LEVEL
+typedef struct myddas_stats_time_struct *MYDDAS_STATS_TIME;
+#endif
+
+#ifdef MYDDAS_STATS
+typedef struct myddas_global_stats *MYDDAS_GLOBAL_STATS;
+#endif
 
 MYDDAS_GLOBAL
 myddas_util_initialize_myddas(void);
 
+#ifdef MYDDAS_MYSQL
+void
+myddas_util_table_write(MYSQL_RES *);
+#endif
+
 /* Returns the connection type (mysql -> 1  or odbc -> 2) */
 short int 
 myddas_util_connection_type(void *);
-
 /* Adds a connection identifier to the MYDDAS connections list*/
 MYDDAS_UTIL_CONNECTION 
 myddas_util_add_connection(void *,void *);

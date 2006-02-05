@@ -26,6 +26,7 @@
 #include "cut_c.h"
 #include "myddas_util.h"
 #ifdef MYDDAS_STATS
+#include "myddas_structs.h"
 #include "myddas_statistics.h"
 #endif
 
@@ -53,9 +54,56 @@ STATIC_PROTO(int c_db_my_row_cut,(void));
 STATIC_PROTO(int c_db_my_get_fields_properties,(void));
 STATIC_PROTO(int c_db_my_number_of_fields_in_query,(void));
 STATIC_PROTO(int c_db_my_get_next_result_set,(void));
+STATIC_PROTO(int c_db_my_get_database,(void));
+STATIC_PROTO(int c_db_my_change_database,(void));
+
+void Yap_InitMYDDAS_MySQLPreds(void)
+{
+  /* db_connect: Host x User x Passwd x Database x Connection x ERROR_CODE */
+  Yap_InitCPred("c_db_my_connect", 5, c_db_my_connect,  SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  
+  /* db_number_of_fields: Relation x Connection x NumberOfFields */
+  Yap_InitCPred("c_db_my_number_of_fields",3, c_db_my_number_of_fields, 0);  
+  
+  /* db_number_of_fields_in_query: SQLQuery x Connection x NumberOfFields */
+  Yap_InitCPred("c_db_my_number_of_fields_in_query",3, c_db_my_number_of_fields_in_query, 0);  
+  
+  /* db_get_attributes_types: Relation x TypesList */
+  Yap_InitCPred("c_db_my_get_attributes_types", 3, c_db_my_get_attributes_types,  0);  
+  
+  /* db_query: SQLQuery x ResultSet x Connection */
+  Yap_InitCPred("c_db_my_query", 4, c_db_my_query, 0);  
+  
+  /* db_disconnect: Connection */
+  Yap_InitCPred("c_db_my_disconnect", 1,c_db_my_disconnect, 0);
+  
+  /* db_table_write: Result Set */
+  Yap_InitCPred("c_db_my_table_write", 1, c_db_my_table_write,  0);  
+  
+  /* db_get_fields_properties: PredName x Connnection x PropertiesList*/
+  Yap_InitCPred("c_db_my_get_fields_properties",3,c_db_my_get_fields_properties,0);
+  
+ 
+  Yap_InitCPred("c_db_my_get_next_result_set",2,c_db_my_get_next_result_set,0);
+  
+  /* c_db_my_get_database: Connnection x DataBaseName */
+  Yap_InitCPred("c_db_my_get_database",2,c_db_my_get_database,0);
+  
+  /* c_db_my_change_database: Connnection x DataBaseName */
+  Yap_InitCPred("c_db_my_change_database",2,c_db_my_change_database,0);
 
 
-static void n_print(int, char);
+}
+
+void Yap_InitBackMYDDAS_MySQLPreds(void)
+{
+  /* db_row: ResultSet x Arity x ListOfArgs */
+  Yap_InitCPredBackCut("c_db_my_row", 3, sizeof(int),
+		    c_db_my_row,
+		    c_db_my_row,
+		    c_db_my_row_cut, 0);
+
+}
 
 static int
 c_db_my_connect(void) {
@@ -121,13 +169,14 @@ c_db_my_query(void) {
   MYDDAS_UTIL_CONNECTION node = myddas_util_search_connection(conn);
 
   /* Count the number of querys made to the server */
-  unsigned long number_querys = myddas_util_get_conn_number_querys_made(node);
-  myddas_util_set_conn_number_querys_made(node,++number_querys);
+  unsigned long number_querys;
+  MYDDAS_STATS_CON_GET_NUMBER_QUERIES_MADE(node,number_querys);
+  MYDDAS_STATS_CON_SET_NUMBER_QUERIES_MADE(node,++number_querys);
 
   /* Measure time spent by the MySQL Server 
      processing the SQL Query */ 
-  unsigned long start,end,total_time,last_time;
-  start = myddas_current_time();
+  MYDDAS_STATS_TIME start,end,total_time,diff;
+  start = myddas_stats_walltime();
 #endif 
   
   /* executar a query SQL */
@@ -140,15 +189,23 @@ c_db_my_query(void) {
     }
 
 #ifdef MYDDAS_STATS 
-  /* Measure time spent by the MySQL Server 
-     processing the SQL Query */ 
-  end = myddas_current_time();
+  /* Measure time spent by the MySQL Server
+     processing the SQL Query */
+  end = myddas_stats_walltime();
   
-  last_time = (end-start);
-  total_time = last_time + myddas_util_get_conn_total_time_DBServer(node);
+  MYDDAS_STATS_INITIALIZE_TIME_STRUCT(diff,time_copy);
+  myddas_stats_subtract_time(diff,end,start);
+  diff = myddas_stats_time_copy_to_final(diff);
   
-  myddas_util_set_conn_last_time_DBServer(node,last_time);
-  myddas_util_set_conn_total_time_DBServer(node,total_time);
+  free(end);
+  free(start);
+  
+  MYDDAS_STATS_CON_GET_TOTAL_TIME_DBSERVER(node,total_time);
+  
+  /* Automacally updates the MYDDAS_STRUCTURE */
+  myddas_stats_add_time(total_time,diff,total_time);
+  
+  myddas_stats_move_time(diff,node->lastTimeofDBServer);
 #endif 
   
   /* guardar os tuplos do lado do cliente */
@@ -158,52 +215,64 @@ c_db_my_query(void) {
     
 #ifdef MYDDAS_STATS
     /* Measure time spent by the MySQL Server
-       transferring the result of the last query 
+       transferring the result of the last query
        back to the client */
-    start = myddas_current_time();
+    start = myddas_stats_walltime();
 #endif 
     res_set = mysql_store_result(conn);
 #ifdef MYDDAS_STATS
     /* Measure time spent by the MySQL Server
-       transferring the result of the last query 
+       transferring the result of the last query
        back to the client */
-    end = myddas_current_time();
+    end = myddas_stats_walltime();
     
-    node = myddas_util_search_connection(conn);
-    last_time = (end-start);
-    total_time = last_time + myddas_util_get_conn_total_transfering_from_DBServer(node);
+    MYDDAS_STATS_INITIALIZE_TIME_STRUCT(diff,time_copy);
+    myddas_stats_subtract_time(diff,end,start);
+    diff = myddas_stats_time_copy_to_final(diff);
     
-    myddas_util_set_conn_last_transfering_from_DBServer(node,last_time);
-    myddas_util_set_conn_total_transfering_from_DBServer(node,total_time);
+    free(end);
+    free(start);
+    
+    MYDDAS_STATS_CON_GET_TOTAL_TIME_TRANSFERING(node,total_time);
+    
+    /* Automacally updates the MYDDAS_STRUCTURE */
+    myddas_stats_add_time(total_time,diff,total_time);
+        
+    myddas_stats_move_time(diff,node->lastFromDBServer);
     
     /* Measure the number of Rows returned from the server */
     if (res_set != NULL)
       {
-	/* With an INSERT statement, mysql_(use or store)_result() 
+	/* With an INSERT statement, mysql_(use or store)_result()
 	   returns a NULL pointer*/
-	node = myddas_util_search_connection(conn);
 	
-	/* This is only works if we use mysql_store_result */ 
+	/* This is only works if we use mysql_store_result */
 	unsigned long numberRows = mysql_num_rows(res_set);
-	numberRows = numberRows + myddas_util_get_conn_total_rows(node);
-	myddas_util_set_conn_total_rows(node,numberRows);
+	unsigned long rows;
+	
+	MYDDAS_STATS_CON_GET_TOTAL_ROWS(node,rows);
+	numberRows = numberRows + rows;
+	MYDDAS_STATS_CON_SET_TOTAL_ROWS(node,numberRows);
       
 	/* Calculate the ammount of data sent by the server */
-	unsigned long int total,number_fields = mysql_num_fields(res_set); 
+	unsigned long int total,number_fields = mysql_num_fields(res_set);
 	MYSQL_ROW row;
 	unsigned int i;
 	total=0;
 	while ((row = mysql_fetch_row(res_set)) != NULL){
-	  mysql_field_seek(res_set,0); 
+	  mysql_field_seek(res_set,0);
 	  
 	  for(i=0;i<number_fields;i++){
 	    if (row[i] != NULL)
 	      total = total + strlen(row[i]);
 	  }
 	}
-	myddas_util_set_conn_last_bytes_transfering_from_DBserver(node,total);
-	total = total + myddas_util_get_conn_total_bytes_transfering_from_DBserver(node);
-	myddas_util_set_conn_total_bytes_transfering_from_DBserver(node,total);
+	MYDDAS_STATS_CON_SET_LAST_BYTES_TRANSFERING_FROM_DBSERVER(node,total);
+	unsigned long bytes;
+	
+	MYDDAS_STATS_CON_GET_TOTAL_BYTES_TRANSFERING_FROM_DBSERVER(node,bytes);
+	total = total + bytes;
+	MYDDAS_STATS_CON_SET_TOTAL_BYTES_TRANSFERING_FROM_DBSERVER(node,total);
 	mysql_data_seek(res_set,0);
       }
 #endif 
@@ -234,7 +303,7 @@ c_db_my_number_of_fields(void) {
   Term arg_relation = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
   Term arg_fields = Deref(ARG3);
-
+  
   char *relation = AtomName(AtomOfTerm(arg_relation));
   MYSQL *conn = (MYSQL *) (IntegerOfTerm(arg_conn));
 
@@ -354,73 +423,12 @@ c_db_my_table_write(void) {
   Term arg_res_set = Deref(ARG1);
 
   MYSQL_RES *res_set = (MYSQL_RES *) IntegerOfTerm(arg_res_set);
-  MYSQL_ROW row;
-  MYSQL_FIELD *fields;
-  int i,f;
-
-  f = mysql_num_fields(res_set);
-
-  fields = mysql_fetch_field(res_set);
-  for(i=0;i<f;i++) 
-  {
-    printf("+");
-    if (strlen(fields[i].name)>fields[i].max_length) fields[i].max_length=strlen(fields[i].name);
-    n_print(fields[i].max_length+2,'-');
-  }
-  printf("+\n");
   
-  for(i=0;i<f;i++) 
-    {
-    printf("|");
-    printf(" %s ",fields[i].name);
-    n_print(fields[i].max_length - strlen(fields[i].name),' ');
-    }
-  printf("|\n");
-  
-  for(i=0;i<f;i++) 
-  {
-    printf("+");
-    n_print(fields[i].max_length+2,'-');
-  }
-  printf("+\n");
-  
-  while ((row = mysql_fetch_row(res_set)) != NULL)
-    {
-      for(i=0;i<f;i++) 
-	{
-	  printf("|");
-	  if (row[i] != NULL) 
-	    {
-	      printf(" %s ",row[i]);
-	      n_print(fields[i].max_length - strlen(row[i]),' ');
-	    }
-	  else 
-	    {
-	      printf(" NULL ");
-	      n_print(fields[i].max_length - 4,' ');
-	    }
-	}
-      printf("|\n");
-    }
-  
-  for(i=0;i<f;i++) 
-    {
-      printf("+");
-      n_print(fields[i].max_length+2,'-');
-    }
-  printf("+\n");
-  
+  myddas_util_table_write(res_set);
   mysql_free_result(res_set);
+  
   return TRUE;  
 }
-
-/* Auxilary function to table_write*/
-static void
-n_print(int n, char c)
-{
-  for(;n>0;n--) printf("%c",c);
-}
-
 
 static int
 c_db_my_row_cut(void) {
@@ -437,8 +445,8 @@ c_db_my_row(void) {
 #ifdef MYDDAS_STATS
   /* Measure time used by the 
      c_db_my_row function */
-  unsigned long start,end,total_time,last_time;
-  start = myddas_current_time();
+  MYDDAS_STATS_TIME start,end,total_time,diff;
+  start = myddas_stats_walltime();
 #endif 
   Term arg_result_set = Deref(ARG1);
   Term arg_arity = Deref(ARG2);
@@ -496,12 +504,19 @@ c_db_my_row(void) {
 		}
 	    }
 #ifdef MYDDAS_STATS
-	  end = myddas_current_time();
+	  end = myddas_stats_walltime();
 	  
-	  last_time = (end-start);
-	  total_time = last_time + myddas_util_get_total_db_row_function();
+	  MYDDAS_STATS_INITIALIZE_TIME_STRUCT(diff,time_copy);
+	  myddas_stats_subtract_time(diff,end,start);
+	  diff = myddas_stats_time_copy_to_final(diff);
 	  
-	  myddas_util_set_total_db_row_function(total_time);
+	  free(end);
+	  free(start);
+	  
+	  MYDDAS_STATS_GET_DB_ROW_FUNCTION(total_time);
+	  myddas_stats_add_time(total_time,diff,total_time);
+	  
+	  free(diff);
 #endif /* MYDDAS_STATS */
 	  return TRUE;
 	}
@@ -510,12 +525,19 @@ c_db_my_row(void) {
 	  mysql_free_result(res_set);
 	  cut_fail();
 #ifdef MYDDAS_STATS
-	  end = myddas_current_time();
+	  end = myddas_stats_walltime();
 	  
-	  last_time = (end-start);
-	  total_time = last_time + myddas_util_get_total_db_row_function();
+	  MYDDAS_STATS_INITIALIZE_TIME_STRUCT(diff,time_copy);
+	  myddas_stats_subtract_time(diff,end,start);
+	  diff = myddas_stats_time_copy_to_final(diff);
 	  
-	  myddas_util_set_total_db_row_function(total_time);
+	  free(end);
+	  free(start);
+	  
+	  MYDDAS_STATS_GET_DB_ROW_FUNCTION(total_time);
+	  myddas_stats_add_time(total_time,diff,total_time);
+	  
+	  free(diff);
 #endif /* MYDDAS_STATS */
 	  return FALSE;
 	}
@@ -656,44 +678,32 @@ c_db_my_get_next_result_set(void) {
   return TRUE;
 }
 
-void Yap_InitMYDDAS_MySQLPreds(void)
-{
-  /* db_connect: Host x User x Passwd x Database x Connection x ERROR_CODE */
-  Yap_InitCPred("c_db_my_connect", 5, c_db_my_connect,  SafePredFlag|SyncPredFlag|HiddenPredFlag);
+static int 
+c_db_my_get_database(void) {
+  Term arg_con = Deref(ARG1);
+  Term arg_database = Deref(ARG2);
   
-  /* db_number_of_fields: Relation x Connection x NumberOfFields */
-  Yap_InitCPred("c_db_my_number_of_fields",3, c_db_my_number_of_fields, 0);  
+  MYSQL *con = (MYSQL *) (IntegerOfTerm(arg_con));
+
+  if (!Yap_unify(arg_database,MkAtomTerm(Yap_LookupAtom(con->db))))
+    return FALSE;
   
-  /* db_number_of_fields_in_query: SQLQuery x Connection x NumberOfFields */
-  Yap_InitCPred("c_db_my_number_of_fields_in_query",3, c_db_my_number_of_fields_in_query, 0);  
+  return TRUE;
   
-  /* db_get_attributes_types: Relation x TypesList */
-  Yap_InitCPred("c_db_my_get_attributes_types", 3, c_db_my_get_attributes_types,  0);  
-  
-  /* db_query: SQLQuery x ResultSet x Connection */
-  Yap_InitCPred("c_db_my_query", 4, c_db_my_query, 0);  
-  
-  /* db_disconnect: Connection */
-  Yap_InitCPred("c_db_my_disconnect", 1,c_db_my_disconnect, 0);
-  
-  /* db_table_write: Result Set */
-  Yap_InitCPred("c_db_my_table_write", 1, c_db_my_table_write,  0);  
-  
-  /* db_get_fields_properties: PredName x Connnection x PropertiesList*/
-  Yap_InitCPred("c_db_my_get_fields_properties",3,c_db_my_get_fields_properties,0);
-  
-  /* db_get_fields_properties: PredName x Connnection x PropertiesList*/
-  Yap_InitCPred("c_db_my_get_next_result_set",2,c_db_my_get_next_result_set,0);
 }
 
-void Yap_InitBackMYDDAS_MySQLPreds(void)
-{
-  /* db_row: ResultSet x Arity x ListOfArgs */
-  Yap_InitCPredBackCut("c_db_my_row", 3, sizeof(int),
-		    c_db_my_row,
-		    c_db_my_row,
-		    c_db_my_row_cut, 0);
+static int 
+c_db_my_change_database(void) {
+  Term arg_con = Deref(ARG1);
+  Term arg_database = Deref(ARG2);
 
+  MYSQL *con = (MYSQL *) (IntegerOfTerm(arg_con));
+  char *database = AtomName(AtomOfTerm(arg_database));
+
+  if (mysql_select_db(con,database)!=0)
+    return FALSE;
+
+  return TRUE;
 }
 
 #endif /*MYDDAS_MYSQL && CUT_C*/

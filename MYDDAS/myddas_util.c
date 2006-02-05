@@ -6,10 +6,16 @@
 #include "cut_c.h"
 #include "myddas_util.h"
 #include "myddas_structs.h"
+#ifdef MYDDAS_STATS
+#include "myddas_statistics.h"
+#endif
 #include "myddas_initialization.c"
 #ifdef MYDDAS_ODBC
 #include <sql.h>
 #endif /*MYDDAS_ODBC*/
+#ifdef MYDDAS_MYSQL
+#include <mysql/mysql.h>
+#endif /*MYDDAS_MYSQL*/
 #include "Yap.h"
 
 
@@ -25,6 +31,11 @@ static void
 myddas_util_error_message(char *,int,char *);
 
 
+#ifdef MYDDAS_MYSQL
+/* Auxilary function to table_write*/
+static void
+n_print(int , char );
+#endif
 
 /* Type: MYSQL->1 ODBC->2*/
 short int
@@ -192,6 +203,14 @@ myddas_util_set_total_multi_queries_number(MYDDAS_UTIL_CONNECTION con,
   con->total_number_queries = number;
 }
 
+#ifdef MYDDAS_MYSQL
+/* Auxilary function to table_write*/
+static void
+n_print(int n, char c)
+{
+  for(;n>0;n--) printf("%c",c);
+}
+#endif
 
 static
 void myddas_util_error_message(char *message,int line,char *file){
@@ -229,6 +248,69 @@ myddas_util_delete_predicate_list(MYDDAS_UTIL_PREDICATE preds_list){
   return;
 }
 
+
+#ifdef MYDDAS_MYSQL
+void
+myddas_util_table_write(MYSQL_RES *res_set){
+  
+  MYSQL_ROW row;
+  MYSQL_FIELD *fields;
+  int i,f;
+
+  f = mysql_num_fields(res_set);
+
+  fields = mysql_fetch_field(res_set);
+  for(i=0;i<f;i++) 
+  {
+    printf("+");
+    if (strlen(fields[i].name)>fields[i].max_length) fields[i].max_length=strlen(fields[i].name);
+    n_print(fields[i].max_length+2,'-');
+  }
+  printf("+\n");
+  
+  for(i=0;i<f;i++) 
+    {
+    printf("|");
+    printf(" %s ",fields[i].name);
+    n_print(fields[i].max_length - strlen(fields[i].name),' ');
+    }
+  printf("|\n");
+  
+  for(i=0;i<f;i++) 
+  {
+    printf("+");
+    n_print(fields[i].max_length+2,'-');
+  }
+  printf("+\n");
+  
+  while ((row = mysql_fetch_row(res_set)) != NULL)
+    {
+      for(i=0;i<f;i++) 
+	{
+	  printf("|");
+	  if (row[i] != NULL) 
+	    {
+	      printf(" %s ",row[i]);
+	      n_print(fields[i].max_length - strlen(row[i]),' ');
+	    }
+	  else 
+	    {
+	      printf(" NULL ");
+	      n_print(fields[i].max_length - 4,' ');
+	    }
+	}
+      printf("|\n");
+    }
+  
+  for(i=0;i<f;i++) 
+    {
+      printf("+");
+      n_print(fields[i].max_length+2,'-');
+    }
+  printf("+\n");
+
+}
+#endif
 
 //DELETE THIS WHEN DB_STATS  IS COMPLETED
 int
