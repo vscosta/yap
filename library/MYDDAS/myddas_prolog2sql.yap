@@ -1018,9 +1018,9 @@ query_atom(query(Select,From,Where),QueryList,Diff):-
 query_atom(agg_query(Function,Select,From,Where,Group),QueryList,Diff):-
    clause_atom('SELECT',Function,Select,',',QueryList,X1),
    clause_atom('FROM',From,',',X1,X2),
-   clause_atom('WHERE',Where,'AND',X2,Diff).
+   clause_atom('WHERE',Where,'AND',X2,X3),
 %ILP : PARA NAO POR OS GROUP BYS. FAZER FLAG PARA ISTO
-   %clause_atom('GROUP BY',Group,',',X3,Diff).
+   clause_atom('GROUP BY',Group,',',X3,Diff).
    
 
 query_atom(negated_existential_subquery(Select,From,Where),QueryList,Diff):-

@@ -27,6 +27,10 @@
 			db_my_describe/3,
 			db_my_show_tables/1,
 			db_my_show_tables/2,
+			db_show_database/2,
+			db_show_databases/2,
+			db_show_databases/1,
+			db_change_database/2,
 			db_my_sql_select/3,
 			db_my_number_of_fields/3,
 			db_my_get_attributes_types/3
@@ -195,6 +199,59 @@ db_my_show_tables(Connection,table(Table)) :-
 	'$write_or_not'('SHOW TABLES'),
 	c_db_my_query('SHOW TABLES',ResultSet,Conn,Mode),
 	!,c_db_my_row(ResultSet,1,[Table]).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_show_database/2
+% 
+%
+db_show_database(Connection,Database) :-
+	'$error_checks'(db_show_database(Connection,Database)),
+	'$get_value'(Connection,Con),
+	c_db_my_get_database(Con,Database).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_show_databases/2
+% 
+%
+db_show_databases(Connection,database(Databases)) :-
+	%'$error_checks'(db_show_databases(Connection,Database)),
+	'$get_value'(Connection,Conn),
+	db_my_result_set(Mode),
+	'$write_or_not'('SHOW DATABASES'),
+	c_db_my_query('SHOW DATABASES',ResultSet,Conn,Mode),
+	!,c_db_my_row(ResultSet,1,[Databases]).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_show_databases/1
+% TODO Error Checks
+%
+db_show_databases(Connection) :-
+	%'$error_checks'(db_my_show_databases(Connection)),
+	'$get_value'(Connection,Conn),
+	db_my_result_set(Mode),
+	'$write_or_not'('SHOW DATABASES'),
+	c_db_my_query('SHOW DATABASES',ResultSet,Conn,Mode),
+	c_db_my_table_write(ResultSet).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_change_database/2
+% 
+%
+db_change_database(Connection,Database) :-
+	'$error_checks'(db_change_database(Connection,Database)),
+	'$get_value'(Connection,Con),
+	'$make_atom'(['USE ',Database],SQL),
+	'$write_or_not'(SQL),
+	c_db_my_change_database(Con,Database).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

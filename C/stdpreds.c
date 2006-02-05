@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-12-17 03:25:39 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-02-05 02:17:54 $,$Author: tiagosoares $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.98  2005/12/17 03:25:39  vsc
+* major changes to support online event-based profiling
+* improve error discovery and restart on scanner.
+*
 * Revision 1.97  2005/11/22 11:25:59  tiagosoares
 * support for the MyDDAS interface library
 *
@@ -2963,6 +2967,9 @@ Yap_InitCPreds(void)
 #endif
 #if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
   Yap_InitMYDDAS_SharedPreds();
+#endif
+#if defined MYDDAS_TOP_LEVEL && defined MYDDAS_MYSQL // && defined HAVE_LIBREADLINE
+  Yap_InitMYDDAS_TopLevelPreds();
 #endif
 #if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
   Yap_InitMYDDAS_testPreds();

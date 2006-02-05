@@ -171,8 +171,8 @@ C_SOURCES= \
 	$(srcdir)/MYDDAS/myddas_odbc.c \
 	$(srcdir)/MYDDAS/myddas_util.c \
 	$(srcdir)/MYDDAS/myddas_shared.c \
-	$(srcdir)/MYDDAS/myddas_test_predicates.c \
-	$(srcdir)/MYDDAS/myddas_statistics.c 
+	$(srcdir)/MYDDAS/myddas_statistics.c \
+	$(srcdir)/MYDDAS/myddas_top_level.c
 
 PL_SOURCES= \
 	$(srcdir)/pl/arith.yap $(srcdir)/pl/arrays.yap $(srcdir)/pl/boot.yap \
@@ -207,8 +207,8 @@ ENGINE_OBJECTS = \
 	exec.o gprof.o grow.o \
 	heapgc.o index.o init.o  inlines.o \
 	iopreds.o depth_bound.o mavar.o \
-	myddas_mysql.o myddas_odbc.o myddas_shared.o myddas_test_predicates.o \
-	myddas_util.o myddas_statistics.o modules.o other.o   \
+	myddas_mysql.o myddas_odbc.o myddas_shared.o \
+	myddas_util.o myddas_statistics.o myddas_top_level.o modules.o other.o   \
 	parser.o save.o scanner.o sort.o stdpreds.o sysbits.o threads.o \
 	tracer.o \
 	unify.o userpreds.o utilpreds.o write.o ypsocks.o ypstdio.o @MPI_OBJS@
@@ -429,11 +429,11 @@ myddas_odbc.o: $(srcdir)/MYDDAS/myddas_odbc.c
 myddas_shared.o: $(srcdir)/MYDDAS/myddas_shared.c
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_shared.c -o $@
 
-myddas_test_predicates.o: $(srcdir)/MYDDAS/myddas_test_predicates.c
-	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_test_predicates.c -o $@
-
 myddas_util.o: $(srcdir)/MYDDAS/myddas_util.c
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_util.c -o $@
+
+myddas_top_level.o: $(srcdir)/MYDDAS/myddas_top_level.c
+	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_top_level.c -o $@
 
 myddas_statistics.o: $(srcdir)/MYDDAS/myddas_statistics.c
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_statistics.c -o $@

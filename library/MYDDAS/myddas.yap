@@ -37,6 +37,9 @@
 		  db_number_of_fields/3,
 
 		  db_multi_queries_number/2,
+
+		  % myddas_top_level.yap
+		  db_top_level/4,
 		  
 		  % myddas_assert_predicates.yap
 		  db_import/3,
@@ -56,10 +59,18 @@
 		  db_my_describe/3,
 		  db_my_show_tables/1,
 		  db_my_show_tables/2,
+		  db_show_database/2,
+		  db_show_databases/2,
+		  db_show_databases/1,
+		  db_change_database/2,
 		  db_my_sql_select/3,
 		  db_my_number_of_fields/3,
 		  db_my_get_attributes_types/3
 		 ]).
+
+:- use_module(myddas_top_level,[
+				db_top_level/4
+			       ]).
 
 :- use_module(myddas_assert_predicates,[
 					db_import/3,
@@ -80,6 +91,10 @@
 			    db_my_describe/3,
 			    db_my_show_tables/1,
 			    db_my_show_tables/2,
+			    db_show_database/2,
+			    db_show_databases/2,
+			    db_show_databases/1,
+			    db_change_database/2,
 			    db_my_sql_select/3,
 			    db_my_number_of_fields/3,
 			    db_my_get_attributes_types/3
@@ -121,11 +136,12 @@
 % db_open/5
 %
 %
-db_open(mysql,Connection,Host/Db,User,Password) :-!,
+db_open(mysql,Connection,Host/Db,User,Password) :-
 	'$error_checks'(db_open(mysql,Connection,Host/Db,User,Password)),
 	c_db_my_connect(Host,User,Password,Db,Con),
 	set_value(Connection,Con).
-db_open(odbc,Connection,ODBCEntry,User,Password) :-!,
+	
+db_open(odbc,Connection,ODBCEntry,User,Password) :-
 	'$error_checks'(db_open(odbc,Connection,ODBCEntry,User,Password)),
 	c_db_odbc_connect(ODBCEntry,User,Password,Con),
 	set_value(Connection,Con).

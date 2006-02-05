@@ -28,6 +28,11 @@
 		     is_list/1
 		    ]).
 
+'$error_checks'(db_show_database(Connection,_)):- !,
+	atom(Connection).
+'$error_checks'(db_change_database(Connection,Database)):- !,
+	atom(Connection),
+	atom(Database).
 '$error_checks'(db_prolog_select_multi(Connection,DbGoalsList,_)):- !,
 	atom(Connection),
 	is_list(DbGoalsList).
