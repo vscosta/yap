@@ -13,7 +13,7 @@
 	    TIME->u.time_final.miliseconds,				\
 	    TIME->u.time_final.microseconds);				\
   } else {								\
-    printf ("%d Seconds, %d Microseconds", \
+    printf ("%lu Seconds, %lu Microseconds", \
 	    TIME->u.time_copy.tv_sec,					\
 	    TIME->u.time_copy.tv_usec);					\
   }

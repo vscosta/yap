@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.68 2006-02-05 02:17:55 tiagosoares Exp $	 *
+* version:      $Id: Yapproto.h,v 1.69 2006-02-05 02:26:35 tiagosoares Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -335,10 +335,6 @@ void    STD_PROTO(Yap_InitBackMYDDAS_SharedPreds,(void));
 #endif
 #if defined MYDDAS_TOP_LEVEL && defined MYDDAS_MYSQL //&& defined HAVE_LIBREADLINE
 void    STD_PROTO(Yap_InitMYDDAS_TopLevelPreds,(void));
-#endif
-#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
-void    STD_PROTO(Yap_InitMYDDAS_testPreds,(void));
-void    STD_PROTO(Yap_InitBackMYDDAS_testPreds,(void));
 #endif
 
 /* ypsocks.c */
