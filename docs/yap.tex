@@ -220,7 +220,7 @@ Subnodes of Attributes
 
 Subnodes of SWI-Prolog
 * Invoking Predicates on all Members of a List :: maplist and friends
-* Forall :: forall builtin
+* Forall :: forall built-in
 * hProlog and SWI-Prolog Attributed Variables :: Emulating SWI-like attributed variables
 * SWI-Prolog Global Variables :: Emulating SWI-like attributed variables
 
@@ -575,7 +575,7 @@ and YAP will get two extra registers! This trick does not work on
 SunOS 4 machines.
 
 Note that versions of GCC can be tweaked to recognize different
-processors within the same instruction set, eg, 486, Pentium, and
+processors within the same instruction set, e.g. 486, Pentium, and
 PentiumPro for the x86; or Ultrasparc, and Supersparc for
 Sparc. Unfortunately, some of these tweaks do may make Yap run slower or
 not at all in other machines with the same instruction set, so they
@@ -992,7 +992,7 @@ main( [H|T] ) :-
 @end example
 
 The @code{--} indicates the next arguments are not for YAP. Instead,
-they must be sent directly to the @code{argv} builtin. Hence, running
+they must be sent directly to the @code{argv} built-in. Hence, running
 @example
 ./dump_args test
 @end example
@@ -1074,7 +1074,7 @@ Notes:
 Since ',' is itself a pre-declared operator with type @i{xfy} and
 precedence 1000, is @i{subterm} starts with a '(', @i{op} must be
 followed by a space to avoid ambiguity with the case of a functor
-followed by arguments, eg:
+followed by arguments, e.g.:
 
 @example
 @code{ + (a,b)        [the same as '+'(','(a,b)) of arity one]}
@@ -1941,7 +1941,7 @@ where @code{call/1} was defined, that is, it only knows of
 @code{primitives}. A similar problem arises for @code{assert/1} and
 friends.
 
-The @code{meta_call/1} declaration informs the system that some
+The @code{meta_predicate/1} declaration informs the system that some
 arguments of a procedure are goals, clauses or clauses heads, and that
 these arguments must be expanded to receive the current source module:
 
@@ -2258,7 +2258,7 @@ is converted to:
 Call goal @var{H} once per each solution of goal @var{H}. If goal
 @var{H} has no solutions, call goal @var{I}.
 
-The builtin @code{if/3} is similar to @code{->/3}, with the difference
+The built-in @code{if/3} is similar to @code{->/3}, with the difference
 that it will backtrack over the test goal. Consider the following
 small data-base:
 
@@ -2835,7 +2835,7 @@ standard ordering:
 @itemize @bullet
 @item
 variables come before numbers, numbers come before atoms which in turn
-come before compound terms, ie: variables @@< numbers @@< atoms @@<
+come before compound terms, i.e.: variables @@< numbers @@< atoms @@<
 compound terms.
 @item
 variables are roughly ordered by "age" (the "oldest" variable is put
@@ -3166,7 +3166,7 @@ atoms have a special meaning when present in arithmetic expressions:
 
 @table @code
 @item pi
-The value of @emph{pi}, the ratio of a circle's circumrefence to its
+The value of @emph{pi}, the ratio of a circle's circumference to its
 diameter.
 
 @item e
@@ -4401,7 +4401,7 @@ YAP includes a SICStus Prolog compatible socket interface. This
 is a low level interface that provides direct access to the major socket
 system calls. These calls can be used both to open a new connection in
 the network or connect to a networked server. Socket connections are
-described as read/write streams, and standard I/O builtins can be used
+described as read/write streams, and standard I/O built-ins can be used
 to write on or read from sockets. The following calls are available:
 
 @table @code
@@ -4673,7 +4673,7 @@ away in future versions.
 @var{PredSpec} is an unbound variable, delete all predicates for the
 current module. The
 specification must include the name and arity, and it may include module
-information. Under @t{iso} language mode this builtin will only abolish
+information. Under @t{iso} language mode this built-in will only abolish
 dynamic procedures. Under other modes it will abolish any procedures. 
 
 @item abolish(+@var{P},+@var{N})
@@ -4913,7 +4913,7 @@ database reference is @var{R}. The predicate must be dynamic.
 
 @node Internal Database, BlackBoard, Database References, Database
 @section Internal Data Base
-Some programs need global information for, eg.,  counting or collecting 
+Some programs need global information for, e.g. counting or collecting 
 data obtained by backtracking. As a rule, to keep this information, the
 internal data base should be used instead of asserting and retracting
 clauses (as most novice programmers  do), .
@@ -4946,7 +4946,7 @@ with its reference.
 @findex recorda_at/3
 @snindex recorda_at/3
 @cnindex recorda_at/3
-Makes term @var{T} the record preceeding record with reference
+Makes term @var{T} the record preceding record with reference
 @var{R0}, and unifies @var{R} with its reference.
 
 @item recordz_at(+@var{R0},@var{T},-@var{R})
@@ -5220,7 +5220,7 @@ forget previous solutions.
 YAP allows the programmer to choose from several system
 predicates instead of writing his own routines.  @code{findall/3} gives you
 the fastest, but crudest solution. The other built-in predicates
-postprocess the result of the query in several different ways:
+post-process the result of the query in several different ways:
 
 @table @code
 
@@ -5442,7 +5442,7 @@ Changes the current directory (on UNIX environments).
 @comment This backtrackable predicate unifies the first argument with an
 @comment environment variable @var{E}, and the second with its value @var{S}. It
 @comment can used to detect all environment variables.
-    Given an enviromment variable @var{E} this predicate unifies the second argument @var{S} with its value.
+    Given an environment variable @var{E} this predicate unifies the second argument @var{S} with its value.
 
 @item getcwd(-@var{D})
 @findex getcwd/1
@@ -5850,7 +5850,7 @@ program. In more detail, the clause
 @example
 g(X) :- array_element(a,2,X).
 @end example
-will succeed as long as the programmer has used the builtin @t{array/2}
+will succeed as long as the programmer has used the built-in @t{array/2}
 to create an array term with at least 3 elements in the current
 environment, and the array was associated with the name @code{a}.  The
 element @code{X} is a Prolog term, so one can bind it and any such
@@ -6048,7 +6048,7 @@ Built-ins that return information on the current predicates and modules:
 @cnindex current_module/1
 Succeeds if @var{M} are defined modules. A module is defined as soon as some
 predicate defined in the module is loaded, as soon as a goal in the
-module is called, or as soon as it becomes the current typein module.
+module is called, or as soon as it becomes the current type-in module.
 
 @item current_module(@var{M},@var{F})
 @findex current_module/2
@@ -6352,7 +6352,7 @@ Read-only flag telling the maximum arity of a functor. Takes the value
 @*
 Read-only flag telling the maximum integer in the
 implementation. Depends on machine and Operating System
-architecture, and on whether YAP uses the @code{GMP} multiprecision
+architecture, and on whether YAP uses the @code{GMP} multi-precision
 library. If @code{bounded} is false, requests for @code{max_integer}
 will fail.
 
@@ -6367,7 +6367,7 @@ architecture. It can be used to find the word size of the current machine.
 @findex min_integer (yap_flag/2 option)
 @* Read-only flag telling the minimum integer in the
 implementation. Depends on machine and Operating System architecture,
-and on whether YAP uses the @code{GMP} multiprecision library. If
+and on whether YAP uses the @code{GMP} multi-precision library. If
 @code{bounded} is false, requests for @code{min_integer} will fail.
 
 @item min_tagged_integer 
@@ -6782,7 +6782,7 @@ elements of @var{ListIn}.
 @findex convlist/3
 @snindex convlist/3
 @cnindex convlist/3
-      A combination of maplist and selectlist: creates @var{ListOut} by
+      A combination of @code{maplist} and @code{selectlist}: creates @var{ListOut} by
 applying the predicate @var{Pred} to all list elements on which
 @var{Pred} succeeds
 
@@ -7325,7 +7325,7 @@ and @var{Set2}.
 @syindex ord_intersect/4
 @cnindex ord_intersect/4
 Holds when Intersection is the ordered representation of @var{Set1}
-and @var{Set2}. @var{Diff} is the diffference between @var{Set2} and @var{Set1}.
+and @var{Set2}. @var{Diff} is the difference between @var{Set2} and @var{Set1}.
 
 @item ord_seteq(+@var{Set1}, +@var{Set2})
 @findex ord_seteq/2
@@ -7387,7 +7387,7 @@ Holds when @var{Union} is the union of @var{Set1} and @var{Set2} and
 @cindex pseudo random
 
 The following routines produce random non-negative integers in the range
-0 .. 2^(w-1) -1, where w is the word size available for integers, e.g.,
+0 .. 2^(w-1) -1, where w is the word size available for integers, e.g.
 32 for Intel machines and 64 for Alpha machines. Note that the numbers
 generated by this random number generator are repeatable. This generator
 was originally written by Allen Van Gelder and is based on Knuth Vol 2.
@@ -7711,7 +7711,7 @@ to an input string.  For example,  consider the command
 Considering only the rules given so far, @var{X} and @var{Y} could end up
 with the values @code{"aabb"} and @code{"aa"}, @code{"aaab"} and
 @code{"aaa"}, @code{"ab"} and @code{"a"}, or any of several other
-combinations.  To resolve this potential ambiguity regexp chooses among
+combinations.  To resolve this potential ambiguity @code{regexp} chooses among
 alternatives using the rule ``first then longest''.  In other words, it
 considers the possible matches in order working from left to right
 across the input string and the pattern, and it attempts to match longer
@@ -7824,7 +7824,7 @@ String I/O. The library allows users to read from and write to a memory
 buffer as if it was a file. The memory buffer is built from or converted
 to a string of character codes by the routines in library. Therefore, if
 one wants to read from a string the string must be fully instantiated
-before the library builtin opens the string for reading. These commands
+before the library built-in opens the string for reading. These commands
 are available through the @code{use_module(library(charsio))} command.
 
 @table @code
@@ -7947,7 +7947,7 @@ the memory buffer.
 @end table
 
 The implementation of the character IO operations relies on three YAP
-builtins:
+built-ins:
 @table @code
 
 @item charsio:open_mem_read_stream(+@var{String}, -@var{Stream})
@@ -7963,7 +7963,7 @@ difference list of character codes @var{L-L0}.
 
 @end table
 @noindent
-These builtins are initialized to belong to the module @code{charsio} in
+These built-ins are initialized to belong to the module @code{charsio} in
 @code{init.yap}. Novel procedures for manipulating strings by explicitly
 importing these built-ins.
 
@@ -8110,7 +8110,7 @@ Create a directory @var{Dir}. The name of the directory must be an atom.
 @syindex rename_file/2
 @cnindex rename_file/2
 Create file @var{OldFile} to @var{NewFile}. This predicate uses the
-@code{C} builtin function @code{rename}.
+@code{C} built-in function @code{rename}.
 
 
 @item environ(?@var{EnvVar},+@var{EnvValue})
@@ -8554,7 +8554,7 @@ and the neighbors of each vertex are also in standard order (as
 produced by sort).  This form is convenient for many calculations.
 @end itemize
 
-These builtins are available once included with the
+These built-ins are available once included with the
 @code{use_module(library(ugraphs))} command.
 
 @table @code
@@ -8788,7 +8788,7 @@ V = [1,3,5]
 @menu SWI-Prolog Emulation
 Subnodes of SWI-Prolog
 * Invoking Predicates on all Members of a List :: maplist and friends
-* Forall :: forall builtin
+* Forall :: forall built-in
 * hProlog and SWI-Prolog Attributed Variables :: Emulating SWI-like attributed variables
 * SWI-Prolog Global Variables :: Emulating SWI-like attributed variables
 @end menu
@@ -8828,7 +8828,7 @@ The @code{RATIONAL_TREES} flag improves support for these
 terms. Internal primitives are now aware that these terms can exist, and
 will not enter infinite loops. Hence, the previous unification will
 succeed. Another example, @code{X = a(X), ground(X)} will succeed
-instead of looping. Other affected builtins include the term comparison
+instead of looping. Other affected built-ins include the term comparison
 primitives, @code{numbervars/3}, @code{copy_term/2}, and the internal
 data base routines. The support does not extend to Input/Output routines
 or to @code{assert/1} YAP does not allow directly reading
@@ -9018,7 +9018,7 @@ One single such declaration is allowed per module @var{Module}.
 
 Although the YAP module system is predicate based, attributes are local
 to modules. This is implemented by rewriting all calls to the
-builtins that manipulate attributes so that attribute names are
+built-ins that manipulate attributes so that attribute names are
 preprocessed depending on the module.  The @code{user:goal_expansion/3}
 mechanism is used for this purpose.
 
@@ -9037,9 +9037,9 @@ operators. The prefix @t{+} may be dropped for convenience.
 @end enumerate
 
 The following three procedures are available to the user. Notice that
-these builtins are rewritten by the system into internal builtins, and
+these built-ins are rewritten by the system into internal built-ins, and
 that the rewriting process @emph{depends} on the module on which the
-builtins have been invoked.
+built-ins have been invoked.
 
 @table @code
 @item @var{Module}:get_atts(@var{-Var},@var{?ListOfAttributes})
@@ -9116,7 +9116,7 @@ Succeed if @var{Var} is an attributed variable.
 @section Displaying Attributes
 
 Attributes are usually presented as goals. The following routines are
-used by builtin predicates such as @code{call_residue/2} and by the
+used by built-in predicates such as @code{call_residue/2} and by the
 Prolog top-level to display attributes:
 
 @table @code
@@ -10020,7 +10020,7 @@ that this option is of most interest to implementers, as it quickly generates
 an huge amount of information.
 
 Low level tracing can be toggled from an interrupt handler by using the
-option @code{T}. There are also two builtins that activate and
+option @code{T}. There are also two built-ins that activate and
 deactivate low level tracing:
 
 @table @code
@@ -11414,7 +11414,7 @@ Look for the next solution to the current query by forcing YAP to backtrack.
 @item  @code{int} YAP_Reset(@code{void})
 @findex YAP_Reset/0
 Reset execution environment (similar to the @code{abort/0}
-builtin). This is useful when you want to start a new query before
+built-in). This is useful when you want to start a new query before
 asking all solutions to the previous query.
 
 @item  @code{YAP_Bool} YAP_GoalHasException(@code{YAP_Term *tp})
@@ -11477,7 +11477,7 @@ space for your program.
 
 @item The initial library includes the complete YAP system. In
 the future we plan to split this library into several smaller libraries
-(e.g., if you do not want to perform I/O).
+(e.g. if you do not want to perform I/O).
 
 @item You can generate your own saved states. Look at  the
 @code{boot.yap} and @code{init.yap} files.
@@ -11648,7 +11648,7 @@ compatible built-in.
 @item Prolog flags are different in SICStus Prolog and in YAP.
 
 @item The SICStus Prolog @code{on_exception/3} and
-@code{raise_exception} built-ins correspond to the ISO builtins
+@code{raise_exception} built-ins correspond to the ISO built-ins
 @code{catch/3} and @code{throw/1}.
 
 @item The following SICStus Prolog v3 built-ins are not (currently)
@@ -11666,7 +11666,7 @@ releases of SICStus Prolog.
 
 @item YAP allows asserting and abolishing static code during
 execution through the @code{assert_static/1} and @code{abolish/1}
-builtins. This is not allowed in Quintus Prolog or SICStus Prolog.
+built-ins. This is not allowed in Quintus Prolog or SICStus Prolog.
 
 @item YAP implements rational trees and co-routining but they
 are not included by default in the system. You must enable these
