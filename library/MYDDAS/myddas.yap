@@ -39,7 +39,8 @@
 		  db_multi_queries_number/2,
 
 		  % myddas_top_level.yap
-		  db_top_level/4,
+		  db_top_level/5,
+		  db_datalog_select/3,
 		  
 		  % myddas_assert_predicates.yap
 		  db_import/3,
@@ -69,7 +70,8 @@
 		 ]).
 
 :- use_module(myddas_top_level,[
-				db_top_level/4
+				db_top_level/5,
+				db_datalog_select/3
 			       ]).
 
 :- use_module(myddas_assert_predicates,[
@@ -140,7 +142,7 @@ db_open(mysql,Connection,Host/Db,User,Password) :-
 	'$error_checks'(db_open(mysql,Connection,Host/Db,User,Password)),
 	c_db_my_connect(Host,User,Password,Db,Con),
 	set_value(Connection,Con).
-	
+
 db_open(odbc,Connection,ODBCEntry,User,Password) :-
 	'$error_checks'(db_open(odbc,Connection,ODBCEntry,User,Password)),
 	c_db_odbc_connect(ODBCEntry,User,Password,Con),

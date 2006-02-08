@@ -164,6 +164,31 @@ true :- true.
 	 set_value('$init_goal',[]),
 	 '$run_atom_goal'(GA),
 	 fail.
+ '$startup_goals' :-
+	 get_value('$myddas_goal',GA), GA \= [],
+	 set_value('$myddas_goal',[]),
+	 get_value('$myddas_user',User), User \= [],
+	 set_value('$myddas_user',[]),
+	 get_value('$myddas_db',Db), Db \= [],
+	 set_value('$myddas_db',[]),
+	 get_value('$myddas_host',HostT),
+	 ( HostT \= [] ->
+	     Host = HostT,
+	     set_value('$myddas_host',[])
+	 ;
+	     Host = localhost
+	 ),
+	 get_value('$myddas_pass',PassT),
+	 ( PassT \= [] ->
+	     Pass = PassT,
+	     set_value('$myddas_pass',[])
+	 ;
+	     Pass = ''
+	 ),
+	 use_module(library(myddas)),
+	 call(db_open(mysql,myddas,Host/Db,User,Pass)),
+	 '$myddas_import_all',
+	 fail.
  '$startup_goals'.
 
  '$startup_reconsult' :-
@@ -171,6 +196,18 @@ true :- true.
 	 set_value('$consult_on_boot',[]),
 	 '$do_startup_reconsult'(X).
  '$startup_reconsult'.
+
+ %
+ % MYDDAS: Import all the tables from one database
+ %
+
+ '$myddas_import_all':-
+	 call(db_my_show_tables(myddas,table(Table))),
+	 call(db_import(myddas,Table,Table)),
+	 fail.
+ '$myddas_import_all'.
+	 
+
 
  %
  % remove any debugging info after an abort.

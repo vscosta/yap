@@ -8,8 +8,6 @@ static MYDDAS_UTIL_PREDICATE
 myddas_util_initialize_predicate(char *, int,char *,
 				 MYDDAS_UTIL_PREDICATE);
 
-
-
 MYDDAS_GLOBAL
 myddas_util_initialize_myddas(){
   MYDDAS_GLOBAL global = NULL;

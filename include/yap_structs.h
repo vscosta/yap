@@ -112,6 +112,15 @@ typedef struct {
   int Argc;
   /* array of arguments as seen by Prolog */
   char **Argv;
+#ifdef MYDDAS_MYSQL
+  /* If any myddas option was given */
+  short myddas;
+  /* MYDDAS Fields */
+  char *myddas_user;
+  char *myddas_pass;
+  char *myddas_db;
+  char *myddas_host;
+#endif
   /* errornumber */
   int ErrorNo;
   /* errorstring */

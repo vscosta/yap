@@ -257,6 +257,12 @@ myddas_util_table_write(MYSQL_RES *res_set){
   MYSQL_FIELD *fields;
   int i,f;
 
+  if (mysql_num_rows(res_set) == 0)
+    {
+      printf ("Empty Set\n");
+      return;
+    }
+
   f = mysql_num_fields(res_set);
 
   fields = mysql_fetch_field(res_set);

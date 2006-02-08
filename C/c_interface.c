@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2006-01-18 15:34:53 $,$Author: vsc $						 *
+* Last rev:	$Date: 2006-02-08 17:29:54 $,$Author: tiagosoares $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.82  2006/01/18 15:34:53  vsc
+* avoid sideffects from MkBigInt
+*
 * Revision 1.81  2006/01/16 02:57:51  vsc
 * fix bug with very large integers
 * fix bug where indexing code was looking at code after a cut.
@@ -1303,6 +1306,21 @@ YAP_Init(YAP_init_args *yap_init)
     */
     yap_flags[HALT_AFTER_CONSULT_FLAG] = yap_init->HaltAfterConsult;
   }
+#ifdef MYDDAS_MYSQL
+  if (yap_init->myddas) {
+    Yap_PutValue(Yap_FullLookupAtom("$myddas_goal"),MkIntegerTerm(yap_init->myddas));
+    
+    /* Mandatory Fields */
+    Yap_PutValue(Yap_FullLookupAtom("$myddas_user"),MkAtomTerm(Yap_LookupAtom(yap_init->myddas_user)));
+    Yap_PutValue(Yap_FullLookupAtom("$myddas_db"),MkAtomTerm(Yap_LookupAtom(yap_init->myddas_db)));
+    
+    /* Non-Mandatory Fields */
+    if (yap_init->myddas_pass != NULL)
+      Yap_PutValue(Yap_FullLookupAtom("$myddas_pass"),MkAtomTerm(Yap_LookupAtom(yap_init->myddas_pass)));
+    if (yap_init->myddas_host != NULL)
+      Yap_PutValue(Yap_FullLookupAtom("$myddas_host"),MkAtomTerm(Yap_LookupAtom(yap_init->myddas_host)));
+  }
+#endif
   if (yap_init->YapPrologTopLevelGoal) {
     Yap_PutValue(Yap_FullLookupAtom("$top_level_goal"), MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologTopLevelGoal)));
   }
