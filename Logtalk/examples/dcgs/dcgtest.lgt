@@ -13,95 +13,106 @@
 		comment is 'Runs the Logtalk DCG translator on the test cases.']).
 
 	run :-
-		case(N, Rule),
-		write('Test '), write(N), write(':'), nl,
-		write('  '), writeq(Rule), nl,
-		(catch(expand_term(Rule, Clause), Error, write_error(Error)) ->
-			write('  '), writeq(Clause)
-			;
-			write('  FAILED TRANSLATION')),
-		nl, nl,
-		fail.
+	    write('Testing expand_term/2 predicate ...'), nl, nl,
+	    gr_tr_test(N, GR, Result),
+	    write(N), write(':  '), writeq(GR), write('  ---  '),
+	    write(Result), write(' expected'), nl,
+	    (    catch(
+	             expand_term(GR, Clause),
+	             Error,
+	             (write('  error: '), write(Error), nl, fail)) ->
+	         write('  '), writeq(Clause)
+	    ;    write('  expansion failed!')
+	    ),
+	    nl, nl, 
+	    fail. 
 	run.
 
 	write_error(Error) :-
 		write('  ERROR: '), writeq(Error), nl, fail.
 
-	% basic tests
-	case( 1, (p --> b)).
-	case( 2, (p --> 3)).
-	case( 3, (p(X) --> b(X))).
+	% terminal tests with list notation:
+	gr_tr_test(101, (p --> []), success).
+	gr_tr_test(102, (p --> [b]), success).
+	gr_tr_test(103, (p --> [abc, xyz]), success).
+	gr_tr_test(104, (p --> [abc | xyz]), error).
+	gr_tr_test(105, (p --> [[], {}, 3, 3.2, a(b)]), success).
+	gr_tr_test(106, (p --> [_]), success).
 
-	% metacall test
-	case( 9, (p --> _)).
+	% terminal tests with string notation:
+	gr_tr_test(151, (p --> "b"), success).
+	gr_tr_test(152, (p --> "abc", "q"), success).
+	gr_tr_test(153, (p --> "abc" ; "q"), success).
 
-	% terminal tests with list notation
-	case(11, (p --> [])).
-	case(12, (p --> [b])).
-	case(13, (p --> [abc, xyz])).
-	case(14, (p --> [abc | xyz])).
-	case(15, (p --> [[], {}, 3, 3.2, a(b)])).
-	case(16, (p --> [_])).
+	% simple non-terminal tests:
+	gr_tr_test(201, (p --> b), success).
+	gr_tr_test(202, (p --> 3), error).
+	gr_tr_test(203, (p(X) --> b(X)), success).
 
-	% terminal tests with string notation
-	case(17, (p --> "b")).
-	case(18, (p --> "abc", "q")).
-	case(19, (p --> "abc" ; "q")).
+	% conjunction tests:
+	gr_tr_test(301, (p --> b, c), success).
+	gr_tr_test(311, (p --> true, c), success).
+	gr_tr_test(312, (p --> fail, c), success).
+	gr_tr_test(313, (p(X) --> call(X), c), success).
 
-	% control construct tests
-	case(21, (p --> b, c)).
-	case(22, (p --> b ; c)).
-	case(23, (p --> b -> c)).
-	case(24, (p --> b -> c1, c2 ; d)).
-	case(25, (p --> b -> c ; d1, d2)).
-	case(26, (p --> b1, b2 -> c ; d)).
-	case(27, (p --> q ; [])).
-	case(28, (p --> [x] -> [] ; q)).
-	case(29, (p --> [a] ; [b])).
+	% disjunction tests:
+	gr_tr_test(351, (p --> b ; c), success).
+	gr_tr_test(352, (p --> q ; []), success).
+	gr_tr_test(353, (p --> [a] ; [b]), success).
 
-	% negation tests
-	case(31, (p --> \+ b, c)).
-	case(32, (p --> b, \+ c, d)).
+	% if-then-else tests:
+	gr_tr_test(401, (p --> b -> c), success).
+	gr_tr_test(411, (p --> b -> c; d), success).
+	gr_tr_test(421, (p --> b -> c1, c2 ; d), success).
+	gr_tr_test(422, (p --> b -> c ; d1, d2), success).
+	gr_tr_test(431, (p --> b1, b2 -> c ; d), success).
+	gr_tr_test(441, (p --> [x] -> [] ; q), success).
 
-	% {}/1 tests
-	case(41, (p --> {b})).
-	case(42, (p --> {3})).
-	case(43, (p --> {c,d})).
-	case(44, (p --> '{}'((c,d)))).
-	case(45, (p --> {a}, {b}, {c})).
-	case(46, (p --> {q} -> [a] ; [b])).
-	case(47, (p --> {q} -> [] ; b)).
-	case(48, (p --> [foo], {write(x)}, [bar])).
-	case(49, (p --> [foo], {write(hello)},{nl})).
-	case(50, (p --> [foo], {write(hello), nl})).
+	% negation tests:
+	gr_tr_test(451, (p --> \+ b, c), success).
+	gr_tr_test(452, (p --> b, \+ c, d), success).
 
-	% cut tests
-	case(51, (p --> !, [a])).
-	case(52, (p --> b, !, c, d)).
-	case(53, (p --> b, !, c ; d)).
-	case(54, (p --> [a], !, {fail})).
-	case(55, (p(a), [X] --> !, [X, a], q)).
-	case(56, (p --> a, ! ; b)).
+	% cut tests:
+	gr_tr_test(501, (p --> !, [a]), success).
+	gr_tr_test(502, (p --> b, !, c, d), success).
+	gr_tr_test(503, (p --> b, !, c ; d), success).
+	gr_tr_test(504, (p --> [a], !, {fail}), success).
+	gr_tr_test(505, (p(a), [X] --> !, [X, a], q), success).
+	gr_tr_test(506, (p --> a, ! ; b), success).
 
-	% non-terminals corresponding to "graphic" characters or built-in operators 
-	case(61, ('[' --> b, c)).
-	case(62, ('=' --> b, c)).
+	% {}/1 tests:
+	gr_tr_test(601, (p --> {b}), success).
+	gr_tr_test(602, (p --> {3}), error).
+	gr_tr_test(603, (p --> {c,d}), success).
+	gr_tr_test(604, (p --> '{}'((c,d))), success).
+	gr_tr_test(605, (p --> {a}, {b}, {c}), success).
+	gr_tr_test(606, (p --> {q} -> [a] ; [b]), success).
+	gr_tr_test(607, (p --> {q} -> [] ; b), success).
+	gr_tr_test(608, (p --> [foo], {write(x)}, [bar]), success).
+	gr_tr_test(609, (p --> [foo], {write(hello)},{nl}), success).
+	gr_tr_test(610, (p --> [foo], {write(hello), nl}), success).
 
-	% more tests
-	case(71, (p --> true, c)).
-	case(72, (p --> fail, c)).
-	case(73, (p(X) --> call(X), c)).
+	% "metacall" tests:
+	gr_tr_test(701, (p --> X), success).
+	gr_tr_test(702, (p --> _), success).
 
-	% pushback tests
-	case(81, (p, [t] --> b, c)).
-	case(82, (p, [t] --> b, [t])).
-	case(83, (p, [t] --> b, [s, t])).
-	case(84, (p, [t] --> b, [s], [t])).
-	case(85, (p(X, Y), [X, Y] --> [X, Y])).
-	case(86, (p(a), [X] --> !, [X, a], q)).
-	case(87, (p, [a,b] --> [foo], {write(hello), nl})).
-	case(88, (p, [t], [t2] --> b, c)).
-	case(89, (p, b --> c)).
-	case(90, ([b], a(27) --> c)).
+	% non-terminals corresponding to "graphic" characters
+	% or built-in operators/predicates:
+	gr_tr_test(801, ('[' --> b, c), success).
+	gr_tr_test(802, ((=) --> b, c), success).
+
+	% pushback tests:
+	gr_tr_test(901, (p, [t] --> b, c), success).
+	gr_tr_test(902, (p, [t] --> b, [t]), success).
+	gr_tr_test(903, (p, [t] --> b, [s, t]), success).
+	gr_tr_test(904, (p, [t] --> b, [s], [t]), success).
+	gr_tr_test(905, (p(X), [X] --> [X]), success).
+	gr_tr_test(906, (p(X, Y), [X, Y] --> [X, Y]), success).
+	gr_tr_test(907, (p(a), [X] --> !, [X, a], q), success).
+	gr_tr_test(908, (p, [a,b] --> [foo], {write(hello), nl}), success).
+	gr_tr_test(909, (p, [t1], [t2] --> b, c), error).
+	gr_tr_test(910, (p, b --> b), error).
+	gr_tr_test(911, ([t], p --> b), error).
+	gr_tr_test(911, ([t1], p, [t2] --> b), error).
 
 :- end_object.

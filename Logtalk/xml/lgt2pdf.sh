@@ -2,9 +2,9 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.26.2
+## Release 2.27.0
 ##
-## Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
+## Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 ## =================================================================
 
 a4_xsl="$LOGTALKUSER/xml/lgtpdfa4.xsl"

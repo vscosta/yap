@@ -1,8 +1,8 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.26.2
+Release 2.27.0
 
-Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
@@ -91,7 +91,9 @@ make_plclgt.js
 
 make_qplgt.sh
 	makes a shell script named "qplgt" for running Logtalk with Qu-Prolog 
-	(based on script code contributed by Peter Robinson)
+	(based on script code contributed by Peter Robinson); this script does 
+	not read at runtime the config and the libpaths files: you will need to 
+	run this script again if you modify these files
 
 make_sicstuslgt.sh
 	makes a shell script named "sicstuslgt" for running Logtalk with SICStus 
@@ -157,7 +159,11 @@ be defined in order to run the *lgt scripts that are created by the shell
 scripts above or the Windows shortcuts (see the INSTALL file for details on 
 setting the variables).
 
-Note: when Logtalk is manually installed from sources, the shell scripts 
-might not have the executable permission bit set. In that case it will 
-be necessary to first run the command "chmod a+x *.sh" on the "scripts" and 
-"xml" directories.
+When Logtalk is manually installed from sources, the shell scripts might not 
+have the executable permission bit set. In that case it will be necessary to 
+first run the command "chmod a+x *.sh" on the "scripts" and "xml" directories.
+
+Depending on the size and complexity of your Logtalk applications, you may 
+need to change the integration scripts in order to allocate more memory to
+Prolog compilers. Please consult the documentation on the Prolog compilers 
+you intend to use for details.

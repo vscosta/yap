@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 
 	<head>
-	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<meta http-equiv="content-type" content="application/xml+xhtml; charset=utf-8" />
 		<title>Logtalk built-in method: phrase/2</title>
 		<link rel="stylesheet" href="../../screen.css" type="text/css" media="screen"/>
 	<link rel="stylesheet" href="../../print.css" type="text/css" media="print"/>
@@ -24,9 +24,9 @@
 
 <h4>Description</h4>
 
-<pre>phrase(Ruleset, Input)</pre>
+<pre>phrase(NonTerminal, Input)</pre>
 <p>
-	True if the list <code>Input</code> can be parsed using the specified non-terminal <code>Ruleset</code>.
+True if the list <code>Input</code> can be parsed using the specified non-terminal <code>NonTerminal</code>. This method also accepts grammar rule bodies in the first argument (with the limitation that cuts are only supported in local calls).
 </p>
 
 <h4>Template and modes</h4>
@@ -36,18 +36,18 @@
 <h4>Errors</h4>
 
 <dl class="errors">
-	<dt>Ruleset is a variable:</dt>
+	<dt>NonTerminal is a variable:</dt>
 		<dd><code>instantiation_error</code></dd>
-	<dt>Ruleset is neither a variable nor a callable term:</dt>
-		<dd><code>type_error(callable, Ruleset)</code></dd>
-	<dt>Input is neither a variable nor a proper list:</dt>
+	<dt>NonTerminal is neither a variable nor a callable term:</dt>
+		<dd><code>type_error(callable, NonTerminal)</code></dd>
+	<dt>Input is neither a partial list nor a list:</dt>
 		<dd><code>type_error(list, Input)</code></dd>
-	<dt>The predicate Pred corresponding to Ruleset is private:</dt>
-		<dd><code>permission_error(access, private_predicate, Pred)</code></dd>
-	<dt>The predicate Pred corresponding to Ruleset is protected:</dt>
-		<dd><code>permission_error(access, protected_predicate, Pred)</code></dd>
-	<dt>The predicate Pred corresponding to Ruleset is not declared:</dt>
-		<dd><code>existence_error(predicate_declaration, Pred)</code></dd>
+	<dt>The grammar rule non-terminal NonTerminal is private:</dt>
+		<dd><code>permission_error(access, private_non_terminal, NonTerminal)</code></dd>
+	<dt>The grammar rule non-terminal NonTerminal is protected:</dt>
+		<dd><code>permission_error(access, protected_non_terminal, NonTerminal)</code></dd>
+	<dt>The grammar rule non-terminal NonTerminal is not declared:</dt>
+		<dd><code>existence_error(non_terminal_declaration, NonTerminal)</code></dd>
 </dl>
 
 <h4>Examples</h4>
@@ -67,7 +67,7 @@ yes</pre>
 	<div class="copyright">Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a></div>
 	<div class="footnote">
 		<span class="validators"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
-		<span class="date">Last updated on: November 16, 2005</span>
+		<span class="date">Last updated on: January 20, 2006</span>
 	</div>
 </div>
 

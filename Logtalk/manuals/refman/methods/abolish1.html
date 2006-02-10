@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<meta http-equiv="content-type" content="application/xml+xhtml; charset=utf-8" />
 	<title>Logtalk built-in method: abolish/1</title>
 	<link rel="stylesheet" href="../../screen.css" type="text/css" media="screen"/>
 	<link rel="stylesheet" href="../../print.css" type="text/css" media="print"/>
@@ -39,6 +39,10 @@ Removes a runtime declared dynamic predicate from an object database.
 <dl class="errors">
 	<dt>Predicate is a variable:</dt>
 		<dd><code>instantiation_error</code></dd>
+	<dt>Functor is a variable:</dt>
+		<dd><code>instantiation_error</code></dd>
+	<dt>Arity is a variable:</dt>
+		<dd><code>instantiation_error</code></dd>
 	<dt>Predicate is neither a variable nor a valid predicate indicator:</dt>
 		<dd><code>type_error(predicate_indicator, Predicate)</code></dd>
 	<dt>Functor is neither a variable nor an atom:</dt>
@@ -53,7 +57,7 @@ Removes a runtime declared dynamic predicate from an object database.
 		<dd><code>permission_error(modify, protected_predicate, Functor/Arity)</code></dd>
 	<dt>Predicate is a static predicate:</dt>
 		<dd><code>permission_error(modify, static_predicate, Functor/Arity)</code></dd>
-	<dt>Predicate is not declared or is declared but not in the object receiving the message:</dt>
+	<dt>Predicate is not declared for the object receiving the message:</dt>
 		<dd><code>existence_error(predicate_declaration, Functor/Arity)</code></dd>
 </dl>
 
@@ -73,7 +77,7 @@ Removes a runtime declared dynamic predicate from an object database.
 	<div class="copyright">Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a></div>
 	<div class="footnote">
 		<span class="validators"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
-		<span class="date">Last updated on: November 16, 2005</span>
+		<span class="date">Last updated on: January 21, 2006</span>
 	</div>
 </div>
 

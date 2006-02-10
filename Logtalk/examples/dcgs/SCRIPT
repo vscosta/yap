@@ -1,8 +1,8 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.26.2
+Release 2.27.0
 
-Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
@@ -17,6 +17,14 @@ Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 | ?- calculator::parse("1+2-3*4", Result).
 
 Result = -9
+yes
+
+
+% solve a cellphone keypad encoded enigma:
+
+| ?- enigma::solve("4 96853 5683 86 4283 346637 9484 968 8664448", Message).
+
+Message = [i, would, love, to, have, dinner, with, you, tonight] 
 yes
 
 

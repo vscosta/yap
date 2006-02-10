@@ -1,0 +1,45 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.27.0
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% start by loading the example:
+
+| ?- logtalk_load([library(term_expansionp), expansion(loader)]).
+...
+
+
+% simple tests of the expand_term/2 built-in method:
+
+| ?- exp_public::expand_term(8, Term).
+
+Term = eight 
+yes
+
+| ?- exp_protected::expand_term(8, Term).
+
+Term = 8 
+yes
+
+| ?- exp_private::expand_term(8, Term).
+
+Term = 8 
+yes
+
+| ?- desc_public::test(8, Term).
+
+Term = eight 
+yes
+
+| ?- desc_protected::test(8, Term).
+
+Term = eight 
+yes
+
+| ?- desc_private::test(8, Term).
+
+Term = 8 
+yes

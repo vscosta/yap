@@ -5,7 +5,7 @@
 		version is 1.0,
 		date is 2004/6/8,
 		author is 'Paulo Moura',
-		comment is 'Translator of logic propostions to clauses in conjunctive normal form.',
+		comment is 'Translator of logic propositions to clauses in conjunctive normal form.',
 		source is 'Code partially based on an example found on the Clocksin and Mellish Prolog book.']).
 
 	:- public(translate/2).

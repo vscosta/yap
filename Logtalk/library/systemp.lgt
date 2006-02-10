@@ -4,7 +4,7 @@
 	:- info([
 		version is 1.10,
 		author is 'Portable Operating-System Interface (POSI) initiative',
-		date is 2005/8/18,
+		date is 2006/1/21,
 		comment is 'Portable operating system access protocol.',
 		remarks is [
 			'File names overview:' - 'The main idea is that file names should be operating-system independent. As such, predicates are needed to convert between portable file names and operating-system specific file names. The solution chosen is to use URL syntax for portable file names.',
@@ -173,9 +173,9 @@
 		examples is [
 			'Querying file size:' - file_property(foo, size(Bytes)) - {Bytes = 32568},
 			'Querying file type:' - file_property(foo, type(Type)) - {Type = regular},
-			'Querying file creation date:' - file_property(foo, creation_time(Time)) - {Time = 13768092},
-			'Querying file last access date:' - file_property(foo, access_time(Time)) - {Time = 813261042},
-			'Querying file modification date:' - file_property(foo, modification_time(Time)) - {Time = 813261042},
+			'Querying file creation date:' - file_property(foo, creation_time(Time)) - {Time = 137692},
+			'Querying file last access date:' - file_property(foo, access_time(Time)) - {Time = 811042},
+			'Querying file modification date:' - file_property(foo, modification_time(Time)) - {Time = 811042},
 			'Querying file permissions:' - file_property(foo, permission(Permission)) - {Permission = read}
 	  ]]).
 
@@ -340,17 +340,17 @@
 		examples is [
 			'Querying file access protocol:' - file_name_part(foo, protocol(Protocol)) - {Protocol = file},
 			'Querying file host location:' - file_name_part('http://www.prolog-standard.org:8080/index.html', host(Host)) - {Host = 'www.prolog-standard.org'},
-			'Querying file port access:' - file_name_part('http://www.prolog-standard.org:8080/index.html', port(Port)) - {Port = 8080},
-			'Querying file creation date:' - file_name_part(foo, port(Port)) - {no},
-			'Querying file modification date:' - file_name_part(foo, user(Username)) - {Username = 813261042},
-			'Querying file modification date:' - file_name_part(foo, password(Password)) - {Password = 813261042},
-			'Querying file base name:' - file_name_part(foo, base(Basename)) - {Basename = 813261042},
-			'Querying file path:' - file_name_part(foo, path(Path)) - {Path = 813261042},
+			'Querying file port:' - file_name_part('http://www.prolog-standard.org:8080/index.html', port(Port)) - {Port = 8080},
+			'Querying file port:' - file_name_part(foo, port(Port)) - {no},
+			'Querying file username:' - file_name_part('http://user@www.prolog-standard.org/', user(Username)) - {Username = user},
+			'Querying file password:' - file_name_part('http://user:password@www.prolog-standard.org/', password(Password)) - {Password = password},
+			'Querying file base name:' - file_name_part('/usr/local/foo.pl', base(Basename)) - {Basename = 'foo.pl'},
+			'Querying file path:' - file_name_part('/usr/local/foo.pl', path(Path)) - {Path = '/usr/local/'},
 			'Querying file extension:' - file_name_part('foo.pl', extension(Extension)) - {Extension = '.pl'},
 			'Querying file extension:' - file_name_part('foo.', extension(Extension)) - {Extension = '.'},
 			'Querying file extension:' - file_name_part(foo, extension(Extension)) - {Extension = ''},
-			'Querying file modification date:' - file_name_part(foo, search(Pairs)) - {Pairs = 813261042},
-			'Querying file modification date:' - file_name_part(foo, fragment(Fragment)) - {Fragment = 813261042}
+			'Querying file search pairs:' - file_name_part('http://user@www.prolog-standard.org/updates.cgi?date=today', search(Pairs)) - {Pairs = [date=today]},
+			'Querying file fragment:' - file_name_part('http://user@www.prolog-standard.org/updates.html#latest', fragment(Fragment)) - {Fragment = latest}
 	  ]]).
 
 	:- public(file_name_parts/2).

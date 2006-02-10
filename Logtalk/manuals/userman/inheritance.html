@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<meta http-equiv="content-type" content="application/xml+xhtml; charset=utf-8" />
 	<title>Logtalk user manual: inheritance</title>
 	<link rel="stylesheet" href="../screen.css" type="text/css" media="screen"/>
 	<link rel="stylesheet" href="../print.css" type="text/css" media="print"/>
@@ -22,7 +22,7 @@
 <h1>Inheritance</h1>
 
 <p>
-The inheritance mechanisms existent in object-oriented programming languages allow us the specialization of previously defined objects, avoiding the unnecessary repetition of code. In the context of logic programming, we can interpret inheritance as a form of theory extension: an object will virtually contain, besides its own predicates, all the predicates inherited from other objects (which are redefined by itself).
+The inheritance mechanisms found on object-oriented programming languages allow us the specialization of previously defined objects, avoiding the unnecessary repetition of code. In the context of logic programming, we can interpret inheritance as a form of theory extension: an object will virtually contain, besides its own predicates, all the predicates inherited from other objects that are not redefined by itself.
 </p>
 
 <h2>Protocol inheritance<a id="protocol"></a></h2>
@@ -34,19 +34,19 @@ Protocol inheritance refers to the inheritance of predicate declarations (scope 
 <h3>Search order for prototype hierarchies<a id="protocol_prototype"></a></h3>
 
 <p>
-The search order for predicate declarations is first the object, second the implemented protocols (and the protocols that these may extend), third the imported categories (and the protocols that they may implement), and last the objects that the object extends. This search is performed in a depth-first way. When an object inherits two different declarations for the same predicate, only the first one will be considered.
+The search order for predicate declarations is first the object, second the implemented protocols (and the protocols that these may extend), third the imported categories (and the protocols that they may implement), and last the objects that the object extends. This search is performed in a depth-first way. When an object inherits two different declarations for the same predicate, by default only the first one will be considered.
 </p>
 
 <h3>Search order for class hierarchies<a id="protocol_class"></a></h3>
 
 <p>
-The search order for predicate declarations starts in the object classes. Following the classes declaration order, the search starts in the classes implemented protocols (and the protocols that these may extend), third the classes imported categories (and the protocols that they may implement), and last the superclasses of the object classes. This search is performed in a depth-first way. If the object inherits two different declarations for the same predicate, only the first one will be considered.
+The search order for predicate declarations starts in the object classes. Following the classes declaration order, the search starts in the classes implemented protocols (and the protocols that these may extend), third the classes imported categories (and the protocols that they may implement), and last the superclasses of the object classes. This search is performed in a depth-first way. If the object inherits two different declarations for the same predicate, by default only the first one will be considered.
 </p>
 
 <h2>Implementation inheritance<a id="implementation"></a></h2>
 
 <p>
-Implementation inheritance refers to the inheritance of predicate definitions. These can be contained in objects or in categories. Logtalk supports multi-inheritance of implementation: an object may import several categories or extend, specialize or instantiate several objects. 
+Implementation inheritance refers to the inheritance of predicate definitions. These can be contained in objects or in categories. Logtalk supports multi-inheritance of implementation: an object may import several categories or extend, specialize, or instantiate several objects. 
 </p>
 
 <h3>Search order for prototype hierarchies<a id="implementation_prototype"></a></h3>
@@ -201,7 +201,7 @@ Mode = walks ;
 
 no</pre>
 
-<h2>Public, protected and private inheritance<a id="types"></a></h2>
+<h2>Public, protected, and private inheritance<a id="types"></a></h2>
 
 <p>
 To make all public predicates declared via implemented protocols, importeds categories, or inherited objects protected or to make all public and protected predicates private we prefix the entity's name with the corresponding keyword. For instance:
@@ -252,7 +252,7 @@ Nevertheless, Logtalk supports multi-inheritance by enabling an object to extend
 	<div class="copyright">Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a></div>
 	<div class="footnote">
 		<span class="validators"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
-		<span class="date">Last updated on: November 16, 2005</span>
+		<span class="date">Last updated on: January 29, 2006</span>
 	</div>
 </div>
 

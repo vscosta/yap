@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<meta http-equiv="content-type" content="application/xml+xhtml; charset=utf-8" />
 	<title>Logtalk tutorial: a reflective class-based system</title>
 	<link rel="stylesheet" href="../screen.css" type="text/css" media="screen"/>
 	<link rel="stylesheet" href="../print.css" type="text/css" media="print"/>
@@ -40,7 +40,7 @@ We will start by defining three classes: <code>object</code>, <code>abstract_cla
 
 :- end_object.</pre>
 <p>
-The class <code>abstract_class</code> specializes <code>object</code> by adding predicates common to all classes. It will be the default metaclass for abstract classes:
+The class <code>abstract_class</code> specializes <code>object</code> by adding predicates common to all classes. It will be the default meta-class for abstract classes:
 </p>
 <pre>:- object(abstract_class,
     instantiates(class),
@@ -50,7 +50,7 @@ The class <code>abstract_class</code> specializes <code>object</code> by adding 
 
 :- end_object.</pre>
 <p>
-The class <code>class</code> specializes <code>abstract_class</code> by adding predicates common to all instantiable classes. It will be the root of the instantiation graph and the default metaclass for instantiable classes:
+The class <code>class</code> specializes <code>abstract_class</code> by adding predicates common to all instantiable classes. It will be the root of the instantiation graph and the default meta-class for instantiable classes:
 </p>
 <pre>:- object(class,
     instantiates(class),
@@ -72,7 +72,7 @@ Note that all three objects are instances of class <code>class</code>. The insta
 	<li>An instance must instantiate at least one object (its class). Similarly, a class must at least specialize or instantiate other object.</li>
 </ul>
 <ul>
-	<li>The distinction between abstract classes and instantiable classes is a operational one, depending on the class inherited methods. A class is instantiable if inherits methods for creating instances. Conversely, a class is abstract if does not inherit any instance creation method.</li>
+	<li>The distinction between abstract classes and instantiable classes is an operational one, depending on the class inherited methods. A class is instantiable if inherits methods for creating instances. Conversely, a class is abstract if does not inherit any instance creation method.</li>
 </ul>
 
 <div class="footer">

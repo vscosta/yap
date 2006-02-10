@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<meta http-equiv="content-type" content="application/xml+xhtml; charset=utf-8" />
 	<title>Logtalk user manual: protocols</title>
 	<link rel="stylesheet" href="../screen.css" type="text/css" media="screen"/>
 	<link rel="stylesheet" href="../print.css" type="text/css" media="print"/>
@@ -118,7 +118,7 @@ As usually happens with Prolog code, a protocol can be either static or dynamic.
 </p>
 <pre>:- dynamic.</pre>
 <p>
-Let us just remember that the loss of performance of the dynamic code is usually of considerable importance to the static code. We should only use dynamic protocols when these need to be abolished during program execution.
+The directive must precede any predicate directives. Please be aware that using dynamic code implies a performance hit when compared to  static code. We should only use dynamic protocols when these need to be abolished during program execution.
 </p>
 
 <h3>Protocol documentation<a id="documentation"></a></h3>
@@ -128,7 +128,7 @@ A protocol can be documented with arbitrary user-defined information by using th
 </p>
 <pre>:- info(List).</pre>
 <p>
-See the <a href="documenting.html">Documenting Logtalk programs</a> session for details.
+See the <a href="documenting.html">documenting Logtalk programs</a> session for details.
 </p>
 
 <h2>Protocol relationships<a id="relationships"></a></h2>
@@ -212,7 +212,7 @@ The same rules applies to protocols implemented by categories.
 	<div class="copyright">Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a></div>
 	<div class="footnote">
 		<span class="validators"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
-		<span class="date">Last updated on: November 16, 2005</span>
+		<span class="date">Last updated on: January 21, 2006</span>
 	</div>
 </div>
 

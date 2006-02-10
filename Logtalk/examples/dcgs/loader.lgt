@@ -3,6 +3,7 @@
 	logtalk_load([
 		parsep,
 		calculator,
+		enigma,
 		parsetree,
 		sentences,
 		url,
@@ -22,6 +23,7 @@ files, comment the directive above and uncomment the directive below
 	logtalk_load(
 		[parsep,
 		calculator,
+		enigma,
 		parsetree,
 		sentences,
 		url,

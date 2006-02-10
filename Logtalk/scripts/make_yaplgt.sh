@@ -2,9 +2,9 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.26.2
+## Release 2.27.0
 ##
-## Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
+## Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 ## =================================================================
 
 echo
@@ -46,7 +46,7 @@ echo ":- reconsult('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalk_yap.rc
 echo ":- reconsult('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_yap.rc
 
 echo "#/bin/sh" > yaplgt
-echo "yap -l \$LOGTALKHOME/bin/logtalk_yap.rc" >> yaplgt
+echo "yap -s 49152 -h 16384 -t 1024 -l \$LOGTALKHOME/bin/logtalk_yap.rc" >> yaplgt
 chmod a+x yaplgt
 ln -sf $LOGTALKHOME/bin/yaplgt $prefix/bin/yaplgt
 echo "Done. A link to the script was been created in $prefix/bin."

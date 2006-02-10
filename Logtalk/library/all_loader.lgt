@@ -25,20 +25,18 @@
 		randomp,										% random
 		random,
 
-		systemp,										% os interface protocol
-
 		termp, term,									% types
 		atomic,
 		atom, callable,
 		characterp, character,
 		number, float, integer, natural,
 		compound,
-		listp, list, difflist,
-		numberlistp, numberlist,
-		varlist,
+		listp, list, list1,
+		difflist,
+		numberlistp, numberlist, varlist,
 		queuep, queue,
 		dictionaryp, bintree,
-		setp, set,
+		setp, set, set1,
 		comparingp])).
 
 /*
@@ -71,20 +69,18 @@ files, comment the directive above and uncomment the directive below
 		randomp,										% random
 		random,
 
-		systemp,										% os interface protocol
-
 		termp, term,									% types
 		atomic,
 		atom, callable,
 		characterp, character,
 		number, float, integer, natural,
 		compound,
-		listp, list, difflist,
-		numberlistp, numberlist,
-		varlist,
+		listp, list, list1,
+		difflist,
+		numberlistp, numberlist, varlist,
 		queuep, queue,
 		dictionaryp, bintree,
-		setp, set,
+		setp, set, set1,
 		comparingp],
 		[xmlsref(standalone)])).
 */

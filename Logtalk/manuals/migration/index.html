@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<meta http-equiv="content-type" content="application/xml+xhtml; charset=utf-8" />
 	<title>Logtalk: Prolog Integration and Migration Guide</title>
 	<link rel="stylesheet" href="../print.css" type="text/css" media="print"/>
 	<link rel="stylesheet" href="../screen.css" type="text/css" media="screen"/>
@@ -66,7 +66,7 @@ An alternative to convert Prolog modules into objects is to just compile the mod
 	<dt><code>export/1</code></dt>
 		<dd>Exported predicates are compiled as public object predicates. The argument must be a predicate indicator (<code>Functor/Arity</code>) or a list of predicate indicators.</dd>
 	<dt><code>meta_predicate/1</code></dt>
-		<dd>Module meta-predicates become object meta-predicates. Only predicate arguments marked as <code>:</code> are interpreted as meta-arguments.</dd>
+		<dd>Module meta-predicates become object meta-predicates. Only predicate arguments marked as <code>:</code> are interpreted as meta-arguments. However, note that Prolog module meta-predicates and Logtalk meta-predicates don't share the same exact semantics; check results carefully.</dd>
 </dl>
 <p>
 Logtalk supports the use of the <a title="Consult user manual" href="../userman/programming.html#libraries"><em>library(name)</em> notation</a> on the <code>module/1-2</code> and <code>use_module/2</code> directives (assuming there is an entry for the library on the <a title="Consult reference manual" href="../refman/builtins/logtalk_library_path2.html"><code>logtalk_library_path/2</code></a> table).
@@ -122,7 +122,7 @@ This feature is needed to properly support compilation of modules containing <co
 	<div class="copyright">Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a></div>
 	<div class="footnote">
 		<span class="validators"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
-		<span class="date">Last updated on: November 16, 2005</span>
+		<span class="date">Last updated on: January 21, 2006</span>
 	</div>
 </div>
 

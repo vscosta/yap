@@ -1,0 +1,13 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.27.0
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+To load this example and for sample queries, please see the SCRIPT file.
+
+This folder contains a very simple example of using the Logtalk compiler 
+hook to expand author abbreviations in info/1 directives into full names 
+and email addresses.
