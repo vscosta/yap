@@ -42,8 +42,8 @@
 			     translate/3,
 			     queries_atom/2
 			    ]).
-			    
-
+			   
+ 
 
 
 
@@ -1057,10 +1057,10 @@ clause_atom(_,[once],_,QueryList,Diff):-!,
 	column_atom('LIMIT 1',X1,X2),
 	column_atom(' ',X2,Diff).
 clause_atom(Keyword,[Column|RestColumns],Junctor,QueryList,Diff):-
-   column_atom(Keyword,QueryList,X1),
-   column_atom(' ',X1,X2),
-   clause_atom([Column|RestColumns],Junctor,X2,X3),
-   column_atom(' ',X3,Diff).
+	column_atom(Keyword,QueryList,X1),
+	column_atom(' ',X1,X2),
+	clause_atom([Column|RestColumns],Junctor,X2,X3),
+	column_atom(' ',X3,Diff).
 
 %DISTINCT
 clause_atom(Keyword,'COUNTDISTINCT',[Column],Junctor,QueryList,Diff):-!,
@@ -1111,9 +1111,10 @@ column_atom(att(RangeVar,Attribute),QueryList,Diff):-
    column_atom(Attribute,X2,Diff).
 
 column_atom(rel(Relation,RangeVar),QueryList,Diff):-
-   column_atom(Relation,QueryList,X1),
-   column_atom(' ',X1,X2),
-   column_atom(RangeVar,X2,Diff).
+	column_atom('`',QueryList,X0),
+	column_atom(Relation,X0,X1),
+	column_atom('` ',X1,X2),
+	column_atom(RangeVar,X2,Diff).
 
 column_atom('$const$'(String),QueryList,Diff):-
    get_type('$const$'(String),string),
