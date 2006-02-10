@@ -16,10 +16,14 @@
 *************************************************************************/
 
 :- module(myddas_assert_predicates,[
+				    db_import/2,
 				    db_import/3,
+				    db_view/2,
 				    db_view/3,
 				    db_insert/3,
-				    db_abolish/2
+				    db_abolish/2,
+				    db_listing/0,
+				    db_listing/1
 				   ]).
 
 
@@ -54,8 +58,10 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_import/3
+% db_import/2
 %
-%
+db_import(RelationName,PredName):-
+	db_import(myddas,Relation,PredName).
 db_import(Connection,RelationName,PredName) :-
 	'$error_checks'(db_import(Connection,RelationName,PredName)),
 	get_value(Connection,Con),
@@ -90,13 +96,6 @@ db_import(Connection,RelationName,PredName) :-
 	functor(P,PredName,Arity),
 	'$make_list_of_args'(1,Arity,P,LA),
 
-	%Optimization
-	%'$copy_term_nv'(P,[],G,_),
-
-	%generate the SQL query
-%	translate(G,G,Code),
-	%queries_atom(Code,SQL),
-
 	M=myddas_assert_predicates,
 	%build PredName clause
 	( ConType == mysql ->
@@ -109,27 +108,10 @@ db_import(Connection,RelationName,PredName) :-
 	                      ','(M:c_db_my_query(FinalSQL,ResultSet,Con,Mode),
 			      ','(!,M:c_db_my_row(ResultSet,Arity,LA))))))))]
 	    
-% 	    Assert =..[':-',P,','(M:'$build_query'(0,SQL,Code,LA,FinalSQL),
-% 		              ','(M:db_my_result_set(Mode),
-% 			      ','(M:'$write_or_not'(FinalSQL),
-% 		       	      ','(M:c_db_my_query(FinalSQL,ResultSet,Con,Mode),
-% 			      ','(!,M:c_db_my_row(ResultSet,Arity,LA))))))]
-	    
-% 	    Assert =..[':-',P,','(get_value(db_myddas_stats_count,Number),
-% 				  ','(statistics(cputime,TimeI),
-% 				      ','(M:'$build_query'(0,SQL,Code,LA,FinalSQL),
-% 					  ','(M:db_my_result_set(Mode),
-% 					      ','(M:'$write_or_not'(FinalSQL),
-% 						  ','(M:c_db_my_query(FinalSQL,ResultSet,Con,Mode),
-% 						      ','(statistics(cputime,TimeF),
-% 							  ','(Temp is TimeF - TimeI,
-% 							      ','(Temp2 is Temp + Number,
-% 								  ','(set_value(db_myddas_stats_count,Temp2),
-% 								      ','(!,M:c_db_my_row(ResultSet,Arity,LA))))))))))))]
 	    ;
 	    '$make_a_list'(Arity,BindList),
 	    Assert =..[':-',P,','(M:'$copy_term_nv'(P,[],G,_),
-		              ','(M:translate(G,G,Code),
+			      ','(M:translate(G,G,Code),
 			      ','(M:queries_atom(Code,FinalSQL),
 			      ','(M:c_db_odbc_query(FinalSQL,ResultSet,Arity,BindList,Connection),
 		              ','(M:'$write_or_not'(FinalSQL),
@@ -144,8 +126,10 @@ db_import(Connection,RelationName,PredName) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_view/3
+% db_view/2
 %
-%
+db_view(PredName,DbGoal) :-
+	db_view(myddas,PredName,DbGoal).
 db_view(Connection,PredName,DbGoal) :-
 	'$error_checks'(db_view(Connection,PredName,DbGoal)),
 	get_value(Connection,Con),
@@ -247,13 +231,61 @@ db_insert(Connection,RelationName,PredName) :-
 %
 %
 db_abolish(Module:PredName,Arity):-!,
-	%'$error_checks'(db_abolish(Module:PredName,Arity)),
+	'$error_checks'(db_abolish(Module:PredName,Arity)),
 	c_db_delete_predicate(Module,PredName,Arity),
 	abolish(Module:PredName,Arity).
 db_abolish(PredName,Arity):-
-	%'$error_checks'(db_abolish(PredName,Arity)),
+	'$error_checks'(db_abolish(PredName,Arity)),
 	db_module(Module),
 	c_db_delete_predicate(Module,PredName,Arity),
 	abolish(Module:PredName,Arity).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_abolish(+,+)
+%
+%
+db_abolish(Module:PredName,Arity):-!,
+	'$error_checks'(db_abolish(Module:PredName,Arity)),
+	c_db_delete_predicate(Module,PredName,Arity),
+	abolish(Module:PredName,Arity).
+db_abolish(PredName,Arity):-
+	'$error_checks'(db_abolish(PredName,Arity)),
+	db_module(Module),
+	c_db_delete_predicate(Module,PredName,Arity),
+	abolish(Module:PredName,Arity).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_listing.
+%
+%
+db_listing:-
+	c_db_connection(Con),
+	c_db_preds_conn(Con,Module,Name,Arity),
+	listing(Module:Name/Arity),
+	fail.
+db_listing.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_listing.
+%
+%
+db_listing(Module:Name/Arity):-!,
+	c_db_connection(Con),
+	c_db_preds_conn(Con,Module,Name,Arity),
+	listing(Module:Name/Arity).
+db_listing(Name/Arity):-!,
+	c_db_connection(Con),
+	c_db_preds_conn(Con,Module,Name,Arity),
+	listing(Module:Name/Arity).
+db_listing(Name):-
+	c_db_connection(Con),
+	c_db_preds_conn(Con,Module,Name,Arity),
+	listing(Module:Name/Arity).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

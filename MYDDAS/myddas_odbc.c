@@ -624,9 +624,9 @@ c_db_odbc_get_fields_properties(void) {
   SQLHDBC  hdbc =(SQLHDBC) (IntegerOfTerm(arg_conn));
 
 
-  /* 1=2 -> We don't need the results of the query, 
+  /* LIMIT 0 -> We don't need the results of the query, 
      only the information about the fields of the relation*/
-  sprintf (sql,"SELECT * FROM %s where 1=2",relacao);
+  sprintf (sql,"SELECT * FROM `%s` LIMIT 0",relacao);
 
   /*Allocate an handle for the query*/ 
   SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_get_fields_properties");

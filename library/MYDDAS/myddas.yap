@@ -17,13 +17,17 @@
 
 :- module(myddas,[
 		  db_open/5,
+		  db_open/4,
 		  db_close/1,
+		  db_close/0,
 
 		  db_verbose/1,
 		  db_module/1,
 		  db_is_database_predicate/3,
 		  db_stats/2,
 		  
+		  db_sql/2,
+		  db_sql/3,
 		  db_sql_select/3,
 		  db_prolog_select/3,
 		  db_prolog_select_multi/3,
@@ -43,11 +47,15 @@
 		  db_datalog_select/3,
 		  
 		  % myddas_assert_predicates.yap
+		  db_import/2,
 		  db_import/3,
+		  db_view/2,
 		  db_view/3,
 		  db_insert/3,
 		  db_abolish/2,
-
+		  db_listing/0,
+		  db_listing/1,
+		  
 		  % myddas_mysql.yap
 		  db_my_open/5,
 		  db_my_close/1,
@@ -75,10 +83,14 @@
 			       ]).
 
 :- use_module(myddas_assert_predicates,[
+					db_import/2,
 					db_import/3,
+					db_view/2,
 					db_view/3,
 					db_insert/3,
-					db_abolish/2
+					db_abolish/2,
+					db_listing/0,
+					db_listing/1
 				       ]).
 
 :- use_module(myddas_mysql,[
@@ -135,9 +147,11 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_open/5
+% db_open/5 
+% db_open/4
 %
-%
+db_open(Interface,HostDb,User,Password):-
+	db_open(Interface,myddas,HostDb,User,Password).
 db_open(mysql,Connection,Host/Db,User,Password) :-
 	'$error_checks'(db_open(mysql,Connection,Host/Db,User,Password)),
 	c_db_my_connect(Host,User,Password,Db,Con),
@@ -153,8 +167,10 @@ db_open(odbc,Connection,ODBCEntry,User,Password) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_close/1
+% db_close/0
 %
-%
+db_close:-
+	db_close(myddas).
 db_close(Connection):-
 	'$error_checks'(db_close(Connection)),
 	get_value(Connection,Con),
@@ -232,12 +248,18 @@ db_stats(Connection,List):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
+db_sql_select(_,_,_):-
+	nl,write('Know use db_sql/3 insted of db_sql_select/3'),nl,
+	halt.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_sql_select(+,+,-)
+% db_sql(+,+,-)
 % 
 %
-db_sql_select(Connection,SQL,LA):-
-	'$error_checks'(db_sql_select(Connection,SQL,LA)),
+db_sql(SQL,LA):-
+	db_sql(myddas,SQL,LA).
+db_sql(Connection,SQL,LA):-
+	'$error_checks'(db_sql(Connection,SQL,LA)),
 	get_value(Connection,Con),
 	c_db_connection_type(Con,ConType),
 	( ConType == mysql ->

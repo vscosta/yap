@@ -28,6 +28,15 @@
 		     is_list/1
 		    ]).
 
+
+'$error_checks'(db_abolish(ModulePredName,Arity)):-!,
+	(ModulePredName = Module:PredName ->
+	    atom(Module),
+	    atom(PredName)
+	;
+	    atom(ModulePredName)
+	),
+	number(Arity).
 '$error_checks'(db_show_database(Connection,_)):- !,
 	atom(Connection).
 '$error_checks'(db_change_database(Connection,Database)):- !,
@@ -106,7 +115,7 @@
 '$error_checks'(db_get_attributes_types(Connection,RelationName,_)) :- !,
         atom(Connection),
 	nonvar(RelationName).
-'$error_checks'(db_sql_select(Connection,SQL,LA)):- !,
+'$error_checks'(db_sql(Connection,SQL,LA)):- !,
         atom(Connection),
         nonvar(SQL),
 	not ground(LA).

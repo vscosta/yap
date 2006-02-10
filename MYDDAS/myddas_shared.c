@@ -27,11 +27,13 @@
 #include "myddas_statistics.h"
 #endif
 
-STATIC_PROTO(int c_db_get_new_table_name,(void));
+//STATIC_PROTO(int c_db_get_new_table_name,(void));
 STATIC_PROTO(int c_db_connection_type,(void));
 STATIC_PROTO(int c_db_add_preds,(void));
 STATIC_PROTO(int c_db_preds_conn_start ,(void));
 STATIC_PROTO(int c_db_preds_conn_continue ,(void));
+STATIC_PROTO(int c_db_connection_start ,(void));
+STATIC_PROTO(int c_db_connection_continue ,(void));
 STATIC_PROTO(int c_db_check_if_exists_pred,(void));
 STATIC_PROTO(int c_db_delete_predicate,(void));
 STATIC_PROTO(int c_db_multi_queries_number,(void));
@@ -42,23 +44,46 @@ STATIC_PROTO(int c_db_stats,(void));
 STATIC_PROTO(int c_db_check,(void));
 #endif
 
-/* c_db_get_new_table_name: -TableName */
-static int
-c_db_get_new_table_name (void){
-/*   Term arg_con = Deref(ARG1); */
-/*   Term arg_name = Deref(ARG2); */
-  
-/*   int *con = (int *) IntegerOfTerm(arg_con); */
-/*   char *tableName = myddas_util_get_table_name(con); */
-  
-/*   Yap_unify(arg_name, MkAtomTerm(Yap_LookupAtom(tableName))); */
-  
-/*   free(tableName); */
-  
-  return TRUE; 
-} 
+void Yap_InitMYDDAS_SharedPreds(void)
+{
+  /* c_db_connection_type: Connection x Type */
+  Yap_InitCPred("c_db_connection_type",2,c_db_connection_type, 0);
 
+  /* CORRECT THIS: db_add_preds : PredName * Arity * Connection */
+  Yap_InitCPred("c_db_add_preds",4,c_db_add_preds, 0);
 
+  /* c_db_check_if_exists_pred : PredName * Arity * Connection */
+  Yap_InitCPred("c_db_check_if_exists_pred",3,c_db_check_if_exists_pred, 0);
+  
+  /* c_db_delete_pred : Module * PredName * Arity */
+  Yap_InitCPred("c_db_delete_predicate",3,c_db_delete_predicate, 0);
+
+  /* c_db_delete_pred : Module * PredName * Arity */
+  Yap_InitCPred("c_db_multi_queries_number",2,c_db_multi_queries_number, 0);
+
+#ifdef MYDDAS_STATS
+  /* db_stats: Connection * Stats*/
+  Yap_InitCPred("c_db_stats",2, c_db_stats, 0);
+#endif
+
+#ifdef DEBUG
+  Yap_InitCPred("c_db_check",0, c_db_check, 0);
+#endif
+}
+
+void Yap_InitBackMYDDAS_SharedPreds(void)
+{
+  /* Gives all the predicates associated to a given connection */
+  Yap_InitCPredBack("c_db_preds_conn", 4, sizeof(int),
+		    c_db_preds_conn_start, 
+		    c_db_preds_conn_continue,  0);
+  /* Gives all the connections stored on the MYDDAS Structure*/
+  Yap_InitCPredBack("c_db_connection", 1, sizeof(int),
+		    c_db_connection_start, 
+		    c_db_connection_continue,  0); 
+  
+
+}
 
 /* Gives the type of a given connection, 
    in other words, type will be mysql or odbc 
@@ -99,7 +124,7 @@ c_db_add_preds (void){
   if (myddas_util_add_predicate(nome,aridade,module,conn) == NULL)
     {
 #ifdef DEBUG
-      printf ("ERRO : Nao consegui adicionar predicado\n");
+      printf ("ERROR : Could not add Predicate: Line: %d File: %s\n",__LINE__,__FILE__);
 #endif 
       return FALSE;
     }
@@ -170,14 +195,44 @@ c_db_multi_queries_number(void){
   return TRUE;
   
 }
+
+static int
+c_db_connection_start(void){
+
+  MYDDAS_UTIL_CONNECTION node =
+    Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_connections;
+
+  EXTRA_CBACK_ARG(1,1)=(CELL) MkIntegerTerm((int)node);
+  
+  return (c_db_connection_continue());
+}
+
+static int
+c_db_connection_continue(void){
+  Term arg_conn = Deref(ARG1);
+  
+  MYDDAS_UTIL_CONNECTION node;
+  node = (MYDDAS_UTIL_CONNECTION) IntegerOfTerm(EXTRA_CBACK_ARG(1,1));
+  
+  /* There is no connections */
+  if (node == NULL)
+    {
+      cut_fail();
+      return FALSE;
+    }
+
+  Yap_unify(arg_conn, MkIntegerTerm((int)(node->connection)));
+  EXTRA_CBACK_ARG(1,1)=(CELL) MkIntegerTerm((int)(node->next));
+  
+  return TRUE;
+  
+}
+
 /* db_preds_conn : Connection(+) * Pred_name(-) * Pred_arity */
 static int
 c_db_preds_conn_start (void){
   Term arg_conn = Deref(ARG1);
-  Term module = Deref(ARG2);
-  Term nome = Deref(ARG3);
-  Term aridade = Deref(ARG4);
-  
+   
   int *conn = (int *) IntegerOfTerm(arg_conn);
   MYDDAS_UTIL_CONNECTION node = 
     myddas_util_search_connection(conn);
@@ -192,30 +247,32 @@ c_db_preds_conn_start (void){
   void *pointer = myddas_util_get_list_pred(node);
   EXTRA_CBACK_ARG(4,1)=(CELL) MkIntegerTerm((int)pointer);
   
-  if (IsVarTerm(nome) && IsVarTerm(aridade) && IsVarTerm(module))
-    return (c_db_preds_conn_continue());
-      
-  cut_fail();
-  return FALSE;
+  return (c_db_preds_conn_continue());
 }
 
 /* db_preds_conn : Connection(+) * Pred_name(-) * Pred_arity*/
 static int 
 c_db_preds_conn_continue (void){
   Term module = Deref(ARG2);
-  Term nome = Deref(ARG3);
-  Term aridade = Deref(ARG4);
+  Term name = Deref(ARG3);
+  Term arity = Deref(ARG4);
 
   void *pointer;
   pointer = (void *) IntegerOfTerm(EXTRA_CBACK_ARG(4,1));
     
   if (pointer != NULL)
     {
-      Yap_unify(module, MkAtomTerm(Yap_LookupAtom(myddas_util_get_pred_module(pointer))));
-      Yap_unify(nome, MkAtomTerm(Yap_LookupAtom(myddas_util_get_pred_name(pointer))));
-      Yap_unify(aridade, MkIntegerTerm((int)myddas_util_get_pred_arity(pointer)));
-      
       EXTRA_CBACK_ARG(4,1)=(CELL) MkIntegerTerm((int)myddas_util_get_pred_next(pointer));
+      
+      if (!Yap_unify(module, MkAtomTerm(Yap_LookupAtom(myddas_util_get_pred_module(pointer))))){
+	return FALSE;
+      }
+      if (!Yap_unify(name,MkAtomTerm(Yap_LookupAtom(myddas_util_get_pred_name(pointer))))){
+	return FALSE;
+      }
+      if (!Yap_unify(arity, MkIntegerTerm((int)myddas_util_get_pred_arity(pointer)))){
+	return FALSE;
+      }
       return TRUE;
     }
   else
@@ -386,43 +443,6 @@ void Yap_MyDDAS_delete_all_myddas_structs(void)
 /*   } */   
 }
 
-void Yap_InitMYDDAS_SharedPreds(void)
-{
-  
-  Yap_InitCPred("c_db_get_new_table_name",2,c_db_get_new_table_name, 0);
-
-  
-  Yap_InitCPred("c_db_connection_type",2,c_db_connection_type, 0);
-
-  /* CORRECT THIS: db_add_preds : PredName * Arity * Connection */
-  Yap_InitCPred("c_db_add_preds",4,c_db_add_preds, 0);
-
-  /* c_db_check_if_exists_pred : PredName * Arity * Connection */
-  Yap_InitCPred("c_db_check_if_exists_pred",3,c_db_check_if_exists_pred, 0);
-  
-  /* c_db_delete_pred : Module * PredName * Arity */
-  Yap_InitCPred("c_db_delete_predicate",3,c_db_delete_predicate, 0);
-
-  /* c_db_delete_pred : Module * PredName * Arity */
-  Yap_InitCPred("c_db_multi_queries_number",2,c_db_multi_queries_number, 0);
-
-#ifdef MYDDAS_STATS
-  /* db_stats: Connection * Stats*/
-  Yap_InitCPred("c_db_stats",2, c_db_stats, 0);
-#endif
-
-#ifdef DEBUG
-  Yap_InitCPred("c_db_check",0, c_db_check, 0);
-#endif
-}
-
-void Yap_InitBackMYDDAS_SharedPreds(void)
-{
-  Yap_InitCPredBack("c_db_preds_conn", 4, sizeof(int),
-		    c_db_preds_conn_start, 
-		    c_db_preds_conn_continue,  0); 
-
-}
 
 
 

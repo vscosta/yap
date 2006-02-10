@@ -311,7 +311,7 @@ c_db_my_number_of_fields(void) {
 
   MYSQL_RES *res_set;
 
-  sprintf(sql,"DESCRIBE %s",relation);
+  sprintf(sql,"DESCRIBE `%s`",relation);
 
   /* executar a query SQL */
   if (mysql_query(conn, sql) != 0)
@@ -356,7 +356,7 @@ c_db_my_get_attributes_types(void) {
   MYSQL_ROW row;
   Term head, list;
 
-  sprintf(sql,"DESCRIBE %s",relation);
+  sprintf(sql,"DESCRIBE `%s`",relation);
 
   /* executar a query SQL */
   if (mysql_query(conn, sql) != 0)
@@ -598,10 +598,10 @@ c_db_my_get_fields_properties(void) {
   MYSQL *conn = (MYSQL *) (IntegerOfTerm(arg_conn));
   
   
-  /* 1=2 -> We only need the meta information about the fields
+  /* LIMIT 0 -> We only need the meta information about the fields
      to know their properties, we don't need the results of the 
      query*/
-  sprintf (sql,"SELECT * FROM %s where 1=2",relacao);
+  sprintf (sql,"SELECT * FROM `%s` LIMIT 0",relacao);
 
   /* executar a query SQL */
   if (mysql_query(conn, sql) != 0)
