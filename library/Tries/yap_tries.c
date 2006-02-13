@@ -86,7 +86,7 @@ static int p_open_trie(void) {
 
   /* open trie */
   node = open_trie();
-  if (!YAP_Unify(arg_trie, YAP_MkIntTerm((int) node))) 
+  if (!YAP_Unify(arg_trie, YAP_MkIntTerm((YAP_Int) node))) 
     return FALSE;
   return TRUE;
 }
@@ -136,7 +136,7 @@ static int p_put_trie_entry(void) {
 
   /* put trie entry */
   node = put_trie_entry((TrNode) YAP_IntOfTerm(arg_trie), arg_entry, mode);
-  if (!YAP_Unify(arg_ref, YAP_MkIntTerm((int) node)))
+  if (!YAP_Unify(arg_ref, YAP_MkIntTerm((YAP_Int) node)))
     return FALSE;
   return TRUE;
 }

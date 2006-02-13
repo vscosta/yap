@@ -1239,16 +1239,12 @@ exec_absmi(int top)
 	/* otherwise, SetDBForThrow will fail entering critical mode */
 	Yap_PrologMode = UserMode;
 	/* find out where to cut to */
-#if defined(__GNUC__)
-#if defined(hppa) || defined(__alpha)
 	/* siglongjmp resets the TR hardware register */
+	/* TR and B are crucial, they might have been changed, or not */
 	restore_TR();
-#endif
-#if defined(__alpha)
-	/* siglongjmp resets the H hardware register */
+	restore_B();
+	/* H is not so important, because we're gonna backtrack */
 	restore_H();
-#endif
-#endif
 	yap_flags[SPY_CREEP_FLAG] = 0;
 	LOCK(SignalLock);
 	CreepFlag = CalculateStackGap();

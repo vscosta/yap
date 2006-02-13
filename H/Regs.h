@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.35 2006-02-01 13:28:56 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.36 2006-02-13 16:58:55 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -445,6 +445,8 @@ EXTERN inline void restore_B(void) {
 
 #define RECOVER_B()  save_B(); B = BK_B
 
+#define restore_TR() 
+
 #elif defined(__GNUC__) && defined(hppa)
 
 #define P               Yap_REGS.P_	/* prolog machine program counter */
@@ -627,6 +629,17 @@ EXTERN inline void restore_B(void) {
 
 #define RECOVER_B()  save_B(); B = BK_B
 
+EXTERN void restore_TR(void);
+EXTERN void save_TR(void);
+
+EXTERN inline void save_TR(void) {
+  Yap_REGS.TR_ = TR;
+}
+
+EXTERN inline void restore_TR(void) {
+  TR = Yap_REGS.TR_;
+}
+
 #else
 
 #define CP         Yap_REGS.CP_	/* continuation   program counter         */
@@ -668,6 +681,8 @@ EXTERN inline void restore_B(void) {
 #define BACKUP_B()
 
 #define RECOVER_B()
+
+#define restore_TR() 
 
 #endif
 

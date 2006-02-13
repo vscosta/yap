@@ -16,8 +16,9 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
-<li> FIXED: handle heap overflow from huge atoms in
-Yap_LookupAtom/scanner (Nuno Fonseca).</li>
+<li> FIXED: ^c should take care about TR and B.</li>
+<li> FIXED: don't pass a pointer to a mpz_t. (Nuno Fonseca)</li>
+<li> FIXED: handle heap overflow from huge atoms in Yap_LookupAtom/scanner (Nuno Fonseca).</li>
 <li> FIXED: bignum was using int where should be long int (Roberto Bagnara).</li>
 <li> NEW: x86_64 should have registers, right? First cut at using them.</li>
 <li> FIXED: call_n would break under 64 bits, an int problem.</li>
@@ -26,8 +27,7 @@ Yap_LookupAtom/scanner (Nuno Fonseca).</li>
 <li> FIXED: ok, MkBigInt shouldn't free the bigint.</li>
 <li> FIXED: MkBigInt already frees bigint.</li>
 <li> FIXED: don't pass a pointer to a mpz_t. (Nuno Fonseca)</li>
-<li> FIXED: YENV may be an HW register ('d break some tabling code)
-  (Remko Troncon) </li>
+<li> FIXED: YENV may be an HW register (could break some tabling code)  (Remko Troncon) </li>
 <li> FIXED: All YAAM instructions are now brackedted, so Op introduced an { and EndOp intr
 oduces an }. This is because Ricardo assumes that. </li>
 <li> FIXED: compile attvars when COROUTING is undefined. </li>

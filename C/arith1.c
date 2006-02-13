@@ -1581,6 +1581,7 @@ p_integer(Term t E_ARGS)
 #ifdef USE_GMP
     MP_INT *new = TMP_BIG();
 
+    fprintf(stderr,"dbl is %g\n",dbl);
     mpz_init_set_d(new, dbl);
     RBIG(new);
 #else
