@@ -823,7 +823,7 @@ find_ref_in_dbtable(CODEADDR entry)
   rb_red_blk_node *current = db_root->left;
 
   while (current != db_nil) {
-    if (current->key < entry && current->lim > entry) {
+    if (current->key <= entry && current->lim > entry) {
       return current;
     }
     if (entry < current->key)
