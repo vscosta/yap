@@ -192,7 +192,7 @@ use_module(M,F,Is) :-
 	'$consult_infolevel'(InfLevel),
 	recorda('$initialisation','$',_),
 	( Reconsult = reconsult ->
-	    '$start_reconsulting'(F),
+	    '$start_reconsulting'(File),
 	    '$start_consult'(Reconsult,File,LC),
 	    '$remove_multifile_clauses'(File),
 	    StartMsg = reconsulting,
@@ -284,14 +284,7 @@ use_module(M,F,Is) :-
 	;
 	  Opts=[silent(true)]
 	),
-	( '$find_in_path'(X,Y,reconsult(X)),
-	  '$open'(Y,'$csult',Stream,0) ->
-		( '$access_yap_flags'(15, 0) -> true ; '$skip_unix_comments'(Stream) ),
-		load_files(Y,[stream(Stream)|Opts])
-	;
-		'$output_error_message'(permission_error(input,stream,X),reconsult(X))
-	),
-	
+	load_files(X, Opts),
 	( '$access_yap_flags'(15, 0) -> true ; halt).
 
 '$skip_unix_comments'(Stream) :-

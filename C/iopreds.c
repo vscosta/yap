@@ -1977,6 +1977,7 @@ p_open_pipe_stream (void)
   sno = GetFreeStreamD();
   if (sno < 0)
     return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_pipe_stream/2"));
+  t1 = MkStream (sno);
   st = &Stream[sno];
   st->status = Input_Stream_f | Pipe_Stream_f;
   st->linepos = 0;
@@ -1996,7 +1997,6 @@ p_open_pipe_stream (void)
   sno = GetFreeStreamD();
   if (sno < 0)
     return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_pipe_stream/2"));
-  t1 = MkStream (sno);
   st = &Stream[sno];
   st->status = Output_Stream_f | Pipe_Stream_f;
   st->linepos = 0;
@@ -3272,7 +3272,7 @@ p_file_name (void)
     tout = MkAtomTerm(Yap_LookupAtom("charsio"));
   else
     tout = MkAtomTerm(Stream[sno].u.file.name);
-  return (Yap_unify_constant (ARG2, tout));
+  return Yap_unify_constant (ARG2, tout);
 }
 
 static Int
