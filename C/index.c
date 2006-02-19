@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-01-16 02:57:51 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-02-19 02:55:46 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.151  2006/01/16 02:57:51  vsc
+* fix bug with very large integers
+* fix bug where indexing code was looking at code after a cut.
+*
 * Revision 1.150  2005/12/23 00:20:13  vsc
 * updates to gprof
 * support for __POWER__
@@ -1761,6 +1765,9 @@ add_info(ClauseDef *clause, UInt regno)
       }
       break;
    case _get_bigint:
+     clause->Tag = (CELL)NULL;
+     return;
+     /*
       if (regcopy_in(myregs, nofregs, cl->u.xc.x)) {
 	clause->u.t_ptr = cl->u.xc.c;
 #ifdef USE_GMP
@@ -1773,6 +1780,7 @@ add_info(ClauseDef *clause, UInt regno)
 	cl = NEXTOP(cl,xc);
       }
       break;
+     */
     case _copy_idb_term:
     case _unify_idb_term:
       if (regno == 2) {
@@ -2455,6 +2463,9 @@ add_head_info(ClauseDef *clause, UInt regno)
       }
       break;
    case _get_bigint:
+     clause->Tag = (CELL)NULL;
+     return;
+     /*
       if (cl->u.xc.x == iarg) {
 	clause->u.t_ptr = cl->u.xc.c;
 #ifdef USE_GMP
@@ -2467,6 +2478,7 @@ add_head_info(ClauseDef *clause, UInt regno)
 	cl = NEXTOP(cl,xc);
       }
       break;
+     */
     case _get_struct:
       if (cl->u.xf.x == iarg) {
 	clause->u.WorkPC = NEXTOP(cl,xf);
