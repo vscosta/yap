@@ -1333,7 +1333,7 @@ HandleSIGINT (int sig)
   my_signal(SIGINT, HandleSIGINT);
   /* do this before we act */
 #if HAVE_ISATTY
-  if (!isatty(0)) {
+  if (!isatty(0)  && !Yap_sockets_io) {
     Yap_Error(INTERRUPT_ERROR,MkIntTerm(SIGINT),NULL);
   }
 #endif

@@ -2,6 +2,9 @@
 # tkyap -- a TK shell for YAP
 # $Locker:  $
 # $Log: not supported by cvs2svn $
+# Revision 1.1.1.1  2001/04/09 19:53:46  vsc
+# Imported sources
+#
 # Revision 1.1  1997/06/02  16:32:00  vsc
 # Initial revision
 #
@@ -119,7 +122,7 @@ menu .menu.file.m
 menubutton .menu.exec -text "Execution" -menu .menu.exec.m -underline 0
 menu .menu.exec.m
 .menu.exec.m add command -label "Interrupt" \
-	-command {global tcl_mode; set tcl_mode 0; exec kill SIGINT $pid}
+	-command {global tcl_mode; set tcl_mode 0; exec kill -SIGINT $pid}
 .menu.exec.m add separator
 .menu.exec.m add command -label "Statistics" -command {YapStats}
 
@@ -178,7 +181,7 @@ set InputStart [.frame.text index {end - 1 chars}]
 bind .frame.text <Control-Key-c> {
    set tcl_mode 0
    .frame.text yview -pickplace end
-   exec kill SIGINT $pid
+   exec kill -SIGINT $pid
 }
 
 

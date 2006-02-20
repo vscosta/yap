@@ -280,11 +280,10 @@ use_module(M,F,Is) :-
 
 '$do_startup_reconsult'(X) :-
 	( '$access_yap_flags'(15, 0) ->
-	  Opts=[]
+	  '$system_catch'(load_files(X, []),Module,Error,'$Error'(Error))
 	;
-	  Opts=[silent(true)]
+	  load_files(X, [silent(true)])
 	),
-	load_files(X, Opts),
 	( '$access_yap_flags'(15, 0) -> true ; halt).
 
 '$skip_unix_comments'(Stream) :-
