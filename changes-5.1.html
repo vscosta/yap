@@ -16,6 +16,10 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: indexing code would get confused about size of inlined
+float/1 (Paulo Moura).</li>
+<li> FIXED: broken SIGINT with tkyap (Keri Harris).</li>
+<li> FIXED: indexing of bignums was broken, just disable it for now.</li>
 <li> FIXED: pipe open was returning the same descriptor twice (Christian Thaeter).</li>
 <li> FIXED: style check should compare with true file name.</li>
 <li> FIXED: ^c should take care about TR and B.</li>

@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-02-19 02:55:46 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-02-22 11:55:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.152  2006/02/19 02:55:46  vsc
+* disable indexing on bigints
+*
 * Revision 1.151  2006/01/16 02:57:51  vsc
 * fix bug with very large integers
 * fix bug where indexing code was looking at code after a cut.
@@ -2649,8 +2652,8 @@ move_next(ClauseDef *clause, UInt regno)
   switch (op) {
   case _p_db_ref_x:
   case _p_float_x:
-    if (wreg == cl->u.x.x) {
-      clause->CurrentCode = NEXTOP(cl,x);
+    if (wreg == cl->u.xF.x) {
+      clause->CurrentCode = NEXTOP(cl,xF);
     }	
     return;
   case _get_list:
@@ -3026,6 +3029,8 @@ valid_instructions(yamop *end, yamop *cl)
     switch (op) {
     case _p_db_ref_x:
     case _p_float_x:
+      cl = NEXTOP(cl,xF);
+      break;
     case _get_list:
       cl = NEXTOP(cl,x);
       break;
