@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2006-01-26 19:20:00 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-02-24 14:26:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.74  2006/01/26 19:20:00  vsc
+* syntax error was giving the offset
+*
 * Revision 1.73  2006/01/20 04:35:28  vsc
 *
 * fix error message
@@ -190,6 +193,8 @@ print_message(Level, Mss) :-
 	'$output_error_message'(Type, Where), !.
 '$print_message'(error,Throw) :-
 	format(user_error,'% YAP: no handler for error ~w~n', [Throw]).
+'$print_message'(informational,_) :-
+	 get_value('$verbose',off).				  
 '$print_message'(informational,M) :-
 	'$do_informational_message'(M).
 '$print_message'(warning,M) :-

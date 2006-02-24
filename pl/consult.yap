@@ -251,7 +251,10 @@ use_module(M,F,Is) :-
 '$initialization'(C) :- db_reference(C), !,
 	'$do_error'(type_error(callable,C),initialization(C)).
 '$initialization'(G) :-
-	recorda('$initialisation',G,_),
+	'$show_consult_level'(Level1),
+	% it will be done after we leave the current consult level.
+	Level is Level1-1,
+	recorda('$initialisation',do(Level,G),_),
 	fail.
 '$initialization'(_).
 
@@ -282,6 +285,7 @@ use_module(M,F,Is) :-
 	( '$access_yap_flags'(15, 0) ->
 	  '$system_catch'(load_files(X, []),Module,Error,'$Error'(Error))
 	;
+	  '$set_value'('$verbose',off),
 	  load_files(X, [silent(true)])
 	),
 	( '$access_yap_flags'(15, 0) -> true ; halt).

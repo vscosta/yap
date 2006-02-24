@@ -1066,7 +1066,8 @@ throw(Ball) :-
 	call(G),
 	fail.
 '$exec_initialisation_goals' :-
-	recorded('$initialisation',G,R),
+	'$show_consult_level'(Level),
+	recorded('$initialisation',do(Level,G),R),
 	erase(R),
 	G \= '$',
 	'$current_module'(M),
