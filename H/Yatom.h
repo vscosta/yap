@@ -788,11 +788,8 @@ typedef struct
   DBRef Index;			/* age counter                          */
 } LogUpdDBEntry;
 typedef LogUpdDBEntry *LogUpdDBProp;
-#define	LogUpdDBBit        0x1
 #define	CodeDBBit          0x2
 
-#define	LogUpdDBProperty   ((PropFlags)(0x8000|LogUpdDBBit))
-#define	CodeLogUpdDBProperty   (DBProperty|LogUpdDBBit|CodeDBBit)
 #define	CodeDBProperty     (DBProperty|CodeDBBit)
 
 
@@ -801,7 +798,7 @@ inline EXTERN PropFlags IsDBProperty (int);
 inline EXTERN PropFlags
 IsDBProperty (int flags)
 {
-  return (PropFlags) (((flags & ~(LogUpdDBBit | CodeDBBit)) == DBProperty));
+  return (PropFlags) ((flags & ~CodeDBBit) == DBProperty);
 }
 
 

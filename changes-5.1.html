@@ -16,6 +16,9 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: garbage collector now makes refs to erased LU clauses point
+  to LogUpdErasedMarker.</li>
+<li> FIXED: get rid of old code referring to LogUpds from within ImmediateSemantics.</li>
 <li> FIXED: indexing code would get confused about size of inlined
 float/1 (Paulo Moura).</li>
 <li> FIXED: broken SIGINT with tkyap (Keri Harris).</li>

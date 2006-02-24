@@ -1230,11 +1230,10 @@ mark_variable(CELL_PTR current)
     if (ONCODE(next)) {
       if ((Functor)cnext == FunctorDBRef) {
 	DBRef tref = DBRefOfTerm(ccur);
+
 	/* make sure the reference is marked as in use */
-	if ((tref->Flags & ErasedMask) &&
-	    tref->Parent != NULL &&
-	    tref->Parent->KindOfPE & LogUpdDBBit) {
-	  *current = MkDBRefTerm(DBErasedMarker);
+	if ((tref->Flags & (ErasedMask|LogUpdMask)) == (ErasedMask|LogUpdMask)) {
+	  *current = MkDBRefTerm((DBRef)LogDBErasedMarker);
 	  MARK(current);
 	} else {
 	  mark_ref_in_use(tref);
@@ -1350,10 +1349,8 @@ mark_code(CELL_PTR ptr, CELL *next)
     if (IsApplTerm(reg) && (Functor)(*next) == FunctorDBRef) {
       DBRef tref = DBRefOfTerm(reg);
       /* make sure the reference is marked as in use */
-      if ((tref->Flags & ErasedMask) &&
-	  tref->Parent != NULL &&
-	  tref->Parent->KindOfPE & LogUpdDBBit) {
-	*ptr = MkDBRefTerm(DBErasedMarker);
+      if ((tref->Flags & (LogUpdMask|ErasedMask)) == (LogUpdMask|ErasedMask)) {
+	*ptr = MkDBRefTerm((DBRef)LogDBErasedMarker);
       } else {
 	mark_ref_in_use(tref);
       }

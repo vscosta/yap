@@ -4358,14 +4358,6 @@ EraseEntry(DBRef entryref)
   entryref->Flags |= ErasedMask;
   /* update FirstNEr */
   p = entryref->Parent;
-  if (p->KindOfPE & LogUpdDBBit) {
-    LogUpdDBProp lup = (LogUpdDBProp)p;
-    lup->NOfEntries--;
-    if (lup->Index != NULL) {
-      clean_lu_index(lup->Index);
-      lup->Index = NULL;
-    }
-  }
   /* exit the db chain */
   if (entryref->Next != NIL) {
     entryref->Next->Prev = entryref->Prev;
@@ -4381,11 +4373,7 @@ EraseEntry(DBRef entryref)
   if (!DBREF_IN_USE(entryref)) {
     ErDBE(entryref);
   } else if ((entryref->Flags & DBCode) && entryref->Code) {
-    if (p->KindOfPE & LogUpdDBBit) {
-      PrepareToEraseLogUpdClause(ClauseCodeToLogUpdClause(entryref->Code), entryref);
-    } else {
-      PrepareToEraseClause(ClauseCodeToDynamicClause(entryref->Code), entryref);
-    }
+    PrepareToEraseClause(ClauseCodeToDynamicClause(entryref->Code), entryref);
   }
 }
 
@@ -4465,14 +4453,6 @@ p_eraseall(void)
     return(TRUE);
   }
   WRITE_LOCK(p->DBRWLock);
-  if (p->KindOfPE & LogUpdDBBit) {
-    LogUpdDBProp lup = (LogUpdDBProp)p;
-    lup->NOfEntries = 0;
-    if (lup->Index != NULL) {
-      clean_lu_index(lup->Index);
-      lup->Index = NULL;
-    }
-  }
   entryref = FrstDBRef(p);
   do {
     DBRef next_entryref;

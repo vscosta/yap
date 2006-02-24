@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.90 2006-01-02 02:16:18 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.91 2006-02-24 14:03:42 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -453,6 +453,7 @@ typedef struct various_codes {
   struct pred_entry *pred_throw;
   struct pred_entry *pred_handle_throw;
   struct DB_STRUCT *db_erased_marker;
+  struct logic_upd_clause *logdb_erased_marker;
   struct logic_upd_clause *db_erased_list;
   struct logic_upd_index *db_erased_ilist;
   UInt expand_clauses_sz;
@@ -720,6 +721,7 @@ struct various_codes *Yap_heap_regs;
 #define  PredThrow                Yap_heap_regs->pred_throw
 #define  PredHandleThrow          Yap_heap_regs->pred_handle_throw
 #define  DBErasedMarker           Yap_heap_regs->db_erased_marker
+#define  LogDBErasedMarker        Yap_heap_regs->logdb_erased_marker
 #define  DBErasedList             Yap_heap_regs->db_erased_list
 #define  DBErasedIList            Yap_heap_regs->db_erased_ilist
 #define  Yap_expand_clauses_sz    Yap_heap_regs->expand_clauses_sz

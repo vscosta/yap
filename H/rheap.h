@@ -11,8 +11,13 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2006-01-02 02:16:18 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-02-24 14:03:42 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.61  2006/01/02 02:16:18  vsc
+* support new interface between YAP and GMP, so that we don't rely on our own
+* allocation routines.
+* Several big fixes.
+*
 * Revision 1.60  2005/12/17 03:25:39  vsc
 * major changes to support online event-based profiling
 * improve error discovery and restart on scanner.
@@ -509,6 +514,12 @@ restore_codes(void)
     Yap_heap_regs->last_wtime = (void *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->last_wtime));
   Yap_heap_regs->db_erased_marker =
     DBRefAdjust(Yap_heap_regs->db_erased_marker);
+  Yap_heap_regs->logdb_erased_marker =
+    PtoLUCAdjust(Yap_heap_regs->logdb_erased_marker);
+  Yap_heap_regs->logdb_erased_marker->Id = FunctorDBRef;
+  Yap_heap_regs->logdb_erased_marker->ClCode->opc = Yap_opcode(_op_fail);
+  Yap_heap_regs->logdb_erased_marker->ClPred = 
+    PtoPredAdjust(Yap_heap_regs->logdb_erased_marker->ClPred);
   Yap_heap_regs->hash_chain = 
     (AtomHashEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->hash_chain));
 }
@@ -622,29 +633,20 @@ RestoreDB(DBEntry *pp)
     pp->FunctorOfDB = FuncAdjust(pp->FunctorOfDB);
   else
     pp->FunctorOfDB = (Functor) AtomAdjust((Atom)(pp->FunctorOfDB));
-  if (pp->KindOfPE & LogUpdDBBit) {
-    dbr = pp->First;
-    /* While we have something in the data base, restore it */
-    while (dbr) {
-      RestoreDBEntry(dbr);
-      dbr = dbr->Next;
-    }
-  } else {
-    if (pp->F0 != NULL)
-      pp->F0 = DBRefAdjust(pp->F0);
-    if (pp->L0 != NULL)
-      pp->L0 = DBRefAdjust(pp->L0);
-    /* immediate update semantics */
-    dbr = pp->F0;
-    /* While we have something in the data base, even if erased, restore it */
-    while (dbr) {
-      RestoreDBEntry(dbr);
-      if (dbr->n != NULL)
-	dbr->n = DBRefAdjust(dbr->n);
-      if (dbr->p != NULL)
-	dbr->p = DBRefAdjust(dbr->p);
-      dbr = dbr->n;
-    }
+  if (pp->F0 != NULL)
+    pp->F0 = DBRefAdjust(pp->F0);
+  if (pp->L0 != NULL)
+    pp->L0 = DBRefAdjust(pp->L0);
+  /* immediate update semantics */
+  dbr = pp->F0;
+  /* While we have something in the data base, even if erased, restore it */
+  while (dbr) {
+    RestoreDBEntry(dbr);
+    if (dbr->n != NULL)
+      dbr->n = DBRefAdjust(dbr->n);
+    if (dbr->p != NULL)
+      dbr->p = DBRefAdjust(dbr->p);
+    dbr = dbr->n;
   }
 }
 
@@ -1115,8 +1117,6 @@ RestoreEntries(PropEntry *pp)
       }
       break;
     case DBProperty:
-    case LogUpdDBProperty:
-    case CodeLogUpdDBProperty:
     case CodeDBProperty:
 #ifdef DEBUG_RESTORE2
       fprintf(stderr, "Correcting data base clause at %p\n", pp);

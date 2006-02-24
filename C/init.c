@@ -1218,8 +1218,20 @@ InitCodes(void)
   Yap_heap_regs->db_erased_marker->Code = NULL;
   Yap_heap_regs->db_erased_marker->DBT.DBRefs = NULL;
   Yap_heap_regs->db_erased_marker->Parent = NULL;
-  INIT_LOCK(Yap_heap_regs->db_erased_marker->lock);
-  INIT_DBREF_COUNT(Yap_heap_regs->db_erased_marker);
+  Yap_heap_regs->logdb_erased_marker =
+    (LogUpdClause *)Yap_AllocCodeSpace(sizeof(LogUpdClause)+(UInt)NEXTOP((yamop*)NULL,e));
+  Yap_heap_regs->logdb_erased_marker->Id = FunctorDBRef;
+  Yap_heap_regs->logdb_erased_marker->ClFlags = ErasedMask|LogUpdMask;
+  Yap_heap_regs->logdb_erased_marker->ClSource = NULL;
+  Yap_heap_regs->logdb_erased_marker->ClRefCount = 0;
+  Yap_heap_regs->logdb_erased_marker->ClPred = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_log_upd_clause"),5),PROLOG_MODULE));
+  Yap_heap_regs->logdb_erased_marker->ClExt = NULL;
+  Yap_heap_regs->logdb_erased_marker->ClPrev = NULL;
+  Yap_heap_regs->logdb_erased_marker->ClNext = NULL;
+  Yap_heap_regs->logdb_erased_marker->ClSize = (UInt)NEXTOP(((LogUpdClause *)NULL)->ClCode,e);
+  Yap_heap_regs->logdb_erased_marker->ClCode->opc = Yap_opcode(_op_fail);
+  INIT_LOCK(Yap_heap_regs->logdb_erased_marker->ClLock);
+  INIT_CLREF_COUNT(Yap_heap_regs->logdb_erased_marker);
   Yap_heap_regs->yap_streams = NULL;
 #if DEBUG
   Yap_heap_regs->expand_clauses_sz = 0L;
