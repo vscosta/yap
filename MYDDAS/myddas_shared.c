@@ -22,8 +22,8 @@
 #include "cut_c.h"
 #include "myddas_util.h"
 #include <stdlib.h>
-#ifdef MYDDAS_STATS
 #include "myddas_structs.h"
+#ifdef MYDDAS_STATS
 #include "myddas_statistics.h"
 #endif
 
