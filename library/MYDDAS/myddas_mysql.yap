@@ -23,10 +23,14 @@
 			db_my_insert/2,
 			db_my_insert/3,
 			db_my_result_set/1,
-			db_my_describe/2,
-			db_my_describe/3,
-			db_my_show_tables/1,
-			db_my_show_tables/2,
+			db_datalog_describe/1,
+			db_datalog_describe/2,
+			db_describe/3,
+			db_describe/2,
+			db_datalog_show_tables/1,
+			db_datalog_show_tables/0,
+			db_show_tables/2,
+			db_show_tables/1,
 			db_show_database/2,
 			db_show_databases/2,
 			db_show_databases/1,
@@ -146,7 +150,9 @@ db_my_result_set(store_result):-
 % db_my_describe/2
 %
 %
-db_my_describe(Relation,Connection) :-
+db_datalog_describe(Relation):-
+	db_datalog_describe(myddas,Relation).
+db_datalog_describe(Connection,Relation) :-
 	'$error_checks'(db_my_describe(Relation,Connection)),
 	'$get_value'(Connection,Conn),
 	'$make_atom'(['DESCRIBE ',Relation],SQL),
@@ -158,10 +164,13 @@ db_my_describe(Relation,Connection) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_my_describe/3
+% db_describe/3
+% db_describe/2
 % gives the results of the DESCRIBE statement
 % by backtracking
-db_my_describe(Relation,Connection,tableinfo(A1,A2,A3,A4,A5,A6)) :-
+db_describe(Relation,TableInfo) :-
+	db_describe(myddas,Relation,TableInfo).
+db_describe(Connection,Relation,tableinfo(A1,A2,A3,A4,A5,A6)) :-
 	'$error_checks'(db_my_describe(Relation,Connection)),
 	'$get_value'(Connection,Conn),
 	'$make_atom'(['DESCRIBE ',Relation],SQL),
@@ -174,10 +183,12 @@ db_my_describe(Relation,Connection,tableinfo(A1,A2,A3,A4,A5,A6)) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_my_show_tables/1
+% db_datalog_show_tables/1
 %
 %
-db_my_show_tables(Connection) :-
+db_datalog_show_tables:-
+	db_datalog_show_tables(myddas).
+db_datalog_show_tables(Connection) :-
 	'$error_checks'(db_my_show_tables(Connection)),
 	'$get_value'(Connection,Conn),
 	db_my_result_set(Mode),
@@ -189,10 +200,13 @@ db_my_show_tables(Connection) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_my_show_tables/2
+% db_show_tables/2
+% db_show_tables/1
 % gives the results of the SHOW TABLES statement
 % by backtracking
-db_my_show_tables(Connection,table(Table)) :-
+db_show_tables(Table) :-
+	db_show_tables(myddas,Table).
+db_show_tables(Connection,table(Table)) :-
 	'$error_checks'(db_my_show_tables(Connection)),
 	'$get_value'(Connection,Conn),
 	db_my_result_set(Mode),

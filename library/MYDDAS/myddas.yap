@@ -32,12 +32,15 @@
 		  db_prolog_select/3,
 		  db_prolog_select_multi/3,
 		  db_command/2,
-		  db_insert/2,
+		  db_assert/2,
+		  db_assert/1,
 		  db_create_table/3,
 		  db_export_view/4,
 		  db_update/2,
 
+		  db_get_attributes_types/2,
 		  db_get_attributes_types/3,
+		  db_number_of_fields/2,
 		  db_number_of_fields/3,
 
 		  db_multi_queries_number/2,
@@ -51,6 +54,7 @@
 		  db_import/3,
 		  db_view/2,
 		  db_view/3,
+		  db_insert/2,
 		  db_insert/3,
 		  db_abolish/2,
 		  db_listing/0,
@@ -64,10 +68,14 @@
 		  db_my_insert/2,
 		  db_my_insert/3,
 		  db_my_result_set/1,
-		  db_my_describe/2,
-		  db_my_describe/3,
-		  db_my_show_tables/1,
-		  db_my_show_tables/2,
+		  db_datalog_describe/1,
+		  db_datalog_describe/2,
+		  db_describe/3,
+		  db_describe/2,
+		  db_datalog_show_tables/1,
+		  db_datalog_show_tables/0,
+		  db_show_tables/2,
+		  db_show_tables/1,
 		  db_show_database/2,
 		  db_show_databases/2,
 		  db_show_databases/1,
@@ -87,6 +95,7 @@
 					db_import/3,
 					db_view/2,
 					db_view/3,
+					db_insert/2,
 					db_insert/3,
 					db_abolish/2,
 					db_listing/0,
@@ -101,10 +110,14 @@
 			    db_my_insert/2,
 			    db_my_insert/3,
 			    db_my_result_set/1,
-			    db_my_describe/2,
-			    db_my_describe/3,
-			    db_my_show_tables/1,
-			    db_my_show_tables/2,
+			    db_datalog_describe/1,
+			    db_datalog_describe/2,
+			    db_describe/3,
+			    db_describe/2,
+			    db_datalog_show_tables/1,
+			    db_datalog_show_tables/0,
+			    db_show_tables/2,
+			    db_show_tables/1,
 			    db_show_database/2,
 			    db_show_databases/2,
 			    db_show_databases/1,
@@ -221,7 +234,7 @@ db_module(ModuleName):-
 % db_is_database_predicate(+,+,+)
 %
 %
-db_is_database_predicate(PredName,Arity,Module):-
+db_is_database_predicate(Module,PredName,Arity):-
 	'$error_checks'(db_is_database_predicate(PredName,Arity,Module)),
 	c_db_check_if_exists_pred(PredName,Arity,Module).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -249,13 +262,18 @@ db_stats(Connection,List):-
 
 
 
-db_sql_select(_,_,_):-
-	nl,write('Know use db_sql/3 insted of db_sql_select/3'),nl,
-	halt.
+%db_sql_select(_,_,_):-
+	%nl,write('Know use db_sql/3 insted of db_sql_select/3'),nl,
+	%halt.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_sql(+,+,-)
 % 
 %
+
+%compatibility
+db_sql_select(Connection,SQL,LA):-
+	db_sql(Connection,SQL.LA).
+
 db_sql(SQL,LA):-
 	db_sql(myddas,SQL,LA).
 db_sql(Connection,SQL,LA):-
@@ -349,14 +367,17 @@ db_command(Connection,SQL):-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_insert/2
+% db_assert/2
+% db_assert/1
 %
-%
-db_insert(Connection,PredName):-
+db_assert(PredName):-
+	db_assert(myddas,PredName).
+
+db_assert(Connection,PredName):-
 	translate(PredName,PredName,Code),
 	'$error_checks'(db_insert2(Connection,PredName,Code)),
 	'$get_values_for_insert'(Code,ValuesList,RelName),
-	'$make_atom'(['INSERT INTO ',RelName,' VALUES'|ValuesList],SQL),
+	'$make_atom'(['INSERT INTO `',RelName,'` VALUES'|ValuesList],SQL),
 
 	get_value(Connection,Con),
 	c_db_connection_type(Con,ConType),
@@ -455,8 +476,10 @@ db_update(Connection,WherePred-SetPred):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_get_attributes_types/3
+% db_get_attributes_types/2
 %
-%
+db_get_attributes_types(RelationName,TypesList) :-
+	db_get_attributes_types(myddas,RelationName,TypesList).
 db_get_attributes_types(Connection,RelationName,TypesList) :-
 	'$error_checks'(db_get_attributes_types(Connection,RelationName,TypesList)),
 	get_value(Connection,Con),
@@ -481,6 +504,8 @@ db_get_attributes_types(Connection,RelationName,TypesList) :-
 % db_number_of_fields/3
 %
 %
+db_number_of_fields(RelationName,Arity) :-
+	db_number_of_fields(myddas,RelationName,Arity).
 db_number_of_fields(Connection,RelationName,Arity) :-
 	'$error_checks'(db_number_of_fields(Connection,RelationName,Arity)),
 	get_value(Connection,Con),

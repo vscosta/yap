@@ -20,6 +20,7 @@
 				    db_import/3,
 				    db_view/2,
 				    db_view/3,
+				    db_insert/2,
 				    db_insert/3,
 				    db_abolish/2,
 				    db_listing/0,
@@ -61,7 +62,7 @@
 % db_import/2
 %
 db_import(RelationName,PredName):-
-	db_import(myddas,Relation,PredName).
+	db_import(myddas,RelationName,PredName).
 db_import(Connection,RelationName,PredName) :-
 	'$error_checks'(db_import(Connection,RelationName,PredName)),
 	get_value(Connection,Con),
@@ -180,6 +181,8 @@ db_view(Connection,PredName,DbGoal) :-
 % db_insert/3
 %
 %
+db_insert(RelationName,PredName) :-
+	db_insert(myddas,RelationName,PredName).
 db_insert(Connection,RelationName,PredName) :-
 	'$error_checks'(db_insert3(Connection,RelationName,PredName)),
 	get_value(Connection,Con),
@@ -210,14 +213,14 @@ db_insert(Connection,RelationName,PredName) :-
 	( ConType == mysql ->
 	    c_db_my_get_attributes_types(RelationName,Con,TypesList),
 	    Assert =..[':-',Predicate,','(myddas_assert_predicates:'$get_values_for_insert'(TypesList,LA,ValuesList),
-					  ','(myddas_assert_predicates:'$make_atom'(['INSERT INTO ',RelationName,' VALUES ('|ValuesList],SQL),
+					  ','(myddas_assert_predicates:'$make_atom'(['INSERT INTO `',RelationName,'` VALUES ('|ValuesList],SQL),
 					      ','(myddas_assert_predicates:db_my_result_set(Mode),
 						  ','(myddas_assert_predicates:'$write_or_not'(SQL),
 						      myddas_assert_predicates:c_db_my_query(SQL,_,Con,Mode)))))]
 	;
 	    c_db_odbc_get_attributes_types(RelationName,Con,TypesList),
 	    Assert =..[':-',Predicate,','(myddas_assert_predicates:'$get_values_for_insert'(TypesList,LA,ValuesList),
-					  ','(myddas_assert_predicates:'$make_atom'(['INSERT INTO ',RelationName,' VALUES ('|ValuesList],SQL),
+					  ','(myddas_assert_predicates:'$make_atom'(['INSERT INTO `',RelationName,'` VALUES ('|ValuesList],SQL),
 					      ','(myddas_assert_predicates:'$write_or_not'(SQL),
 						  myddas_assert_predicates:c_db_odbc_query(SQL,_,_,_,Con))))]
 	),
