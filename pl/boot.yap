@@ -14,8 +14,6 @@
 * comments:	boot file for Prolog					 *
 *									 *
 *************************************************************************/
-'$spycall'(G, M, InControl) :-
-	F /\ 0x18402000 =\= 0, !. % dynamic procedure, logical semantics, user-C, or source
 
 % This one should come first so that disjunctions and long distance
 % cuts are compiled right with co-routining.
