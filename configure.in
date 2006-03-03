@@ -15,6 +15,9 @@ AC_SUBST(GCC)
 AC_SUBST(C_INTERF_FLAGS)
 AC_SUBST(C_PARSER_FLAGS)
 
+AC_ARG_ENABLE(cut-c,
+	[ --enable-cut-c             support for executing c code when a cut occurs ],
+	cutc="$enableval", cutc=no)
 AC_ARG_ENABLE(tabling,
 	[ --enable-tabling           support tabling ],
 	tabling="$enableval", tabling=no)
@@ -712,6 +715,11 @@ case "$orparallelism" in
    YAP_EXTRAS="$YAP_EXTRAS -DENV_COPY=1"
   ;;
 esac
+
+if test "$cutc" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DCUT_C=1"
+fi
 
 if test "$tabling" = "yes"
   then
