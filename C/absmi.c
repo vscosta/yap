@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-02-01 13:28:56 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-03 23:10:47 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.195  2006/02/01 13:28:56  vsc
+* bignum support fixes
+*
 * Revision 1.194  2006/01/26 19:13:24  vsc
 * avoid compilation issues with lack of gmp (Remko Troncon)
 *
@@ -466,10 +469,6 @@ Yap_absmi(int inp)
 #if SHADOW_HB
   register CELL *HBREG = HB;
 #endif /* SHADOW_HB */
-
-#if SHADOW_CrFl
-  register CELL CFREG = CreepFlag;
-#endif /* SHADOW_CP */
 
 #if SHADOW_Y
   register CELL *YREG = Yap_REGS.YENV_;
@@ -2700,7 +2699,7 @@ Yap_absmi(int inp)
 	   is not proceesed by same thread as absmi */
       LOCK(SignalLock);
       if (Yap_PrologMode & (AbortMode|InterruptMode)) {
-	CFREG = CalculateStackGap();
+	CreepFlag = CalculateStackGap();
 	UNLOCK(SignalLock);
 	/* same instruction */
 	if (Yap_PrologMode & InterruptMode) {
@@ -2766,7 +2765,7 @@ Yap_absmi(int inp)
 
       H += 2;
       LOCK(SignalLock);
-      CFREG = CalculateStackGap();
+      CreepFlag = CalculateStackGap();
 #ifdef COROUTINING
       if (ActiveSignals & YAP_WAKEUP_SIGNAL) {
 	ActiveSignals &= ~YAP_WAKEUP_SIGNAL;
@@ -12839,7 +12838,7 @@ Yap_absmi(int inp)
 	  setregs_and_ycache();
 	  LOCK(SignalLock);
 	  ActiveSignals &= ~YAP_CDOVF_SIGNAL;
-	  CFREG = CalculateStackGap();
+	  CreepFlag = CalculateStackGap();
 	  UNLOCK(SignalLock);
 	  if (!ActiveSignals) {
 	    goto execute_after_comma;
@@ -12858,7 +12857,7 @@ Yap_absmi(int inp)
 	  setregs_and_ycache();
 	  LOCK(SignalLock);
 	  ActiveSignals &= ~YAP_TROVF_SIGNAL;
-	  CFREG = CalculateStackGap();
+	  CreepFlag = CalculateStackGap();
 	  UNLOCK(SignalLock);
 	  if (!ActiveSignals) {
 	    goto execute_after_comma;

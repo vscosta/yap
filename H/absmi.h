@@ -35,7 +35,6 @@ static char SccsId[] = "%W% %G%";
 #define SHADOW_REGS    1
 #define SHADOW_CP      1
 #define SHADOW_HB      1
-/*#define SHADOW_CrFl    1 Breaks alarm/3 */
 #define USE_PREFETCH   1
 #endif
 
@@ -621,30 +620,15 @@ typedef CELL label;
 #define CPREG           CP
 #endif
 
-/* 
- * Next, CP
- */
-	/* Breaks alarm/3 */
-#if SHADOW_CrFl
-#define set_cf()	CFREG = CreepFlag
-#define save_cf()	CreepFlag = CFREG
-#else
-#define set_cf()
-#define save_cf()
-#define CFREG           CreepFlag
-#endif
-
 /* Say which registers must be saved at register entry and register
  * exit */
 #define setregs()                     \
-	set_cf();                     \
 	set_hb();                     \
 	set_cp();                     \
 	set_pc();                     \
         set_y()
 
 #define saveregs()                     \
-	save_cf();                     \
 	save_hb();                     \
 	save_cp();                     \
 	save_pc();                     \
@@ -687,10 +671,10 @@ Macros to check the limits of stacks
 
 #if (defined(SBA) && defined(YAPOR)) || defined(TABLING)
 #define check_stack(Label, GLOB)                             \
- if ( (Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,GLOB))) < CFREG  ) goto Label
+ if ( (Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,GLOB))) < CreepFlag  ) goto Label
 #else
 #define check_stack(Label, GLOB)                             \
- if ( (Int)(Unsigned(ENV_YREG) - Unsigned(GLOB)) < CFREG ) goto Label
+ if ( (Int)(Unsigned(ENV_YREG) - Unsigned(GLOB)) < CreepFlag ) goto Label
 #endif /* SBA && YAPOR */
 
 /***************************************************************

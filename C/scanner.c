@@ -798,10 +798,15 @@ Yap_tokenizer(int inp_stream)
 	  /* serious error now */
 	  return l;
 	}
-	if (ASP-H < 1024 ||
-	    ((t->TokInfo = get_num(&cha,&cherr,inp_stream,Nxtch,QuotedNxtch,ptr,4096)) == 0L)) {
+	if (ASP-H < 1024) {
 	  Yap_ErrorMessage = "Stack Overflow";
 	  Yap_Error_TYPE = OUT_OF_STACK_ERROR;	            
+	  if (p)
+	    p->Tok = Ord(kind = eot_tok);
+	  /* serious error now */
+	  return l;
+	}
+	if ((t->TokInfo = get_num(&cha,&cherr,inp_stream,Nxtch,QuotedNxtch,ptr,4096)) == 0L) {
 	  if (p)
 	    p->Tok = Ord(kind = eot_tok);
 	  /* serious error now */

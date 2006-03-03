@@ -14,6 +14,8 @@
 * comments:	boot file for Prolog					 *
 *									 *
 *************************************************************************/
+'$spycall'(G, M, InControl) :-
+	F /\ 0x18402000 =\= 0, !. % dynamic procedure, logical semantics, user-C, or source
 
 % This one should come first so that disjunctions and long distance
 % cuts are compiled right with co-routining.
@@ -1053,28 +1055,6 @@ throw(Ball) :-
 	    ;
 	    throw(Ball)
 	).
-
-'$exec_initialisation_goals' :-
-	recorded('$blocking_code',_,R),
-	erase(R),
-	fail.
-% system goals must be performed first 
-'$exec_initialisation_goals' :-
-	recorded('$system_initialisation',G,R),
-	erase(R),
-	G \= '$',
-	call(G),
-	fail.
-'$exec_initialisation_goals' :-
-	'$show_consult_level'(Level),
-	recorded('$initialisation',do(Level,G),R),
-	erase(R),
-	G \= '$',
-	'$current_module'(M),
-	'$system_catch'(once(M:G), M, Error, user:'$LoopError'(Error, top)),
-	'$do_not_creep',
-	fail.
-'$exec_initialisation_goals'.
 
 '$run_toplevel_hooks' :-
 	get_value('$break',0),

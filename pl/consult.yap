@@ -32,55 +32,56 @@ load_files(Files,Opts) :-
 	'$load_files'(Files,Opts,load_files(Files,Opts)).
 
 '$load_files'(Files,Opts,Call) :-		    
-	'$process_lf_opts'(Opts,Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,Reconsult,Files,Call),
+	'$process_lf_opts'(Opts,Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,Files,Call),
 	'$check_use_module'(Call,UseModule),
         '$current_module'(M0),
-	'$lf'(Files,M0,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,Reconsult,UseModule),
+	'$lf'(Files,M0,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,UseModule),
 	'$close_lf'(Silent).
 
-'$process_lf_opts'(V,_,_,_,_,_,_,_,_,_,_,Call) :-
+'$process_lf_opts'(V,_,_,_,_,_,_,_,_,_,_,_,Call) :-
 	var(V), !,
 	'$do_error'(instantiation_error,Call).
-'$process_lf_opts'([],_,_,_,_,_,_,_,_,_,_,_).
-'$process_lf_opts'([Opt|Opts],Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,Reconsult,Files,Call) :-
-	'$process_lf_opt'(Opt,Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,Reconsult,Files,Call), !, 
-	'$process_lf_opts'(Opts,Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,Reconsult,Files,Call).
-'$process_lf_opts'([Opt|Opts],_,_,_,_,_,_,_,_,_,_,Call) :-
+'$process_lf_opts'([],_,_,_,_,_,_,_,_,_,_,_,_).
+'$process_lf_opts'([Opt|Opts],Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,Files,Call) :-
+	'$process_lf_opt'(Opt,Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,Files,Call), !, 
+	'$process_lf_opts'(Opts,Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,Files,Call).
+'$process_lf_opts'([Opt|Opts],_,_,_,_,_,_,_,_,_,_,_,Call) :-
 	'$do_error'(domain_error(unimplemented_option,Opt),Call).
 
-'$process_lf_opt'(autoload(true),_,InfLevel,_,_,_,_,_,_,_,_,_) :-
+'$process_lf_opt'(autoload(true),_,InfLevel,_,_,_,_,_,_,_,_,_,_) :-
 	get_value('$verbose_auto_load',VAL),
 	(VAL = true ->
 	    InfLevel = informational
 	;
 	    InfLevel = silent
 	).
-'$process_lf_opt'(autoload(false),_,_,_,_,_,_,_,_,_,_,_).
-'$process_lf_opt'(derived_from(File),_,_,_,_,_,_,_,_,_,Files,Call) :-
+'$process_lf_opt'(autoload(false),_,_,_,_,_,_,_,_,_,_,_,_).
+'$process_lf_opt'(derived_from(File),_,_,_,_,_,_,_,_,_,_,Files,Call) :-
 	( atom(File) -> true ;  '$do_error'(type_error(atom,File),Call) ),
 	( atom(Files) -> true ;  '$do_error'(type_error(atom,Files),Call) ),
 	/* call make */
 	'$do_error'(domain_error(unimplemented_option,derived_from),Call).
-'$process_lf_opt'(encoding(Encoding),_,_,_,_,_,_,_,_,_,_,Call) :-
+'$process_lf_opt'(encoding(Encoding),_,_,_,_,_,_,_,_,_,_,_,Call) :-
 	'$do_error'(domain_error(unimplemented_option,encoding),Call).
-'$process_lf_opt'(expand(true),_,_,true,_,_,_,_,_,_,_,Call) :-
+'$process_lf_opt'(expand(true),_,_,true,_,_,_,_,_,_,_,_,Call) :-
 	'$do_error'(domain_error(unimplemented_option,expand),Call).
-'$process_lf_opt'(expand(false),_,_,false,_,_,_,_,_,_,_,_).
-'$process_lf_opt'(if(changed),_,_,_,changed,_,_,_,_,_,_,_).
-'$process_lf_opt'(if(true),_,_,_,true,_,_,_,_,_,_,_).
-'$process_lf_opt'(if(not_loaded),_,_,_,not_loaded,_,_,_,_,_,_,_).
-'$process_lf_opt'(imports(all),_,_,_,_,_,_,_,_,_,_).
-'$process_lf_opt'(imports(Imports),_,_,_,_,_,Imports,_,_,_,_,_).
-'$process_lf_opt'(qcompile(true),_,_,_,_,true,_,_,_,_,_,Call) :-
+'$process_lf_opt'(expand(false),_,_,false,_,_,_,_,_,_,_,_,_).
+'$process_lf_opt'(if(changed),_,_,_,changed,_,_,_,_,_,_,_,_).
+'$process_lf_opt'(if(true),_,_,_,true,_,_,_,_,_,_,_,_).
+'$process_lf_opt'(if(not_loaded),_,_,_,not_loaded,_,_,_,_,_,_,_,_).
+'$process_lf_opt'(imports(all),_,_,_,_,_,_,_,_,_,_,_).
+'$process_lf_opt'(imports(Imports),_,_,_,_,_,Imports,_,_,_,_,_,_).
+'$process_lf_opt'(qcompile(true),_,_,_,_,true,_,_,_,_,_,_,Call) :-
 	'$do_error'(domain_error(unimplemented_option,qcompile),Call).
-'$process_lf_opt'(qcompile(false),_,_,_,_,false,_,_,_,_,_).
-'$process_lf_opt'(silent(true),Silent,silent,_,_,_,_,_,_,_,_,_) :-
+'$process_lf_opt'(qcompile(false),_,_,_,_,false,_,_,_,_,_,_).
+'$process_lf_opt'(silent(true),Silent,silent,_,_,_,_,_,_,_,_,_,_) :-
 	( get_value('$lf_verbose',Silent) -> true ;  Silent = informational),
 	set_value('$lf_verbose',silent).
-'$process_lf_opt'(silent(false),_,_,_,_,_,_,_,_,_,_,_).
-'$process_lf_opt'(consult(reconsult),_,_,_,_,_,_,_,_,reconsult,_,_).
-'$process_lf_opt'(consult(consult),_,_,_,_,_,_,_,_,consult,_,_).
-'$process_lf_opt'(stream(Stream),_,_,_,_,_,_,Stream,_,_,Files,_) :-
+'$process_lf_opt'(skip_unix_comments,_,_,_,_,_,_,_,_,skip_unix_comments,_,_,_).
+'$process_lf_opt'(silent(false),_,_,_,_,_,_,_,_,_,_,_,_).
+'$process_lf_opt'(consult(reconsult),_,_,_,_,_,_,_,_,_,reconsult,_,_).
+'$process_lf_opt'(consult(consult),_,_,_,_,_,_,_,_,_,consult,_,_).
+'$process_lf_opt'(stream(Stream),_,_,_,_,_,_,Stream,_,_,_,Files,_) :-
 /*	( '$stream'(Stream) -> true ;  '$do_error'(domain_error(stream,Stream),Call) ), */
 	( atom(Files) -> true ;  '$do_error'(type_error(atom,Files),Call) ).
 
@@ -89,45 +90,45 @@ load_files(Files,Opts) :-
 '$check_use_module'(use_module(M,_,_),use_module(M)) :- !.
 '$check_use_module'(_,load_files) :- !.
 
-'$lf'(V,_,Call,_,_,_,_,_,_,_,_) :- var(V), !,
+'$lf'(V,_,Call,_,_,_,_,_,_,_,_,_) :- var(V), !,
 	'$do_error'(instantiation_error,Call).
-'$lf'([],_,_,_,_,_,_,_,_,_,_,_) :- !.
-'$lf'(M:X, _, Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,Reconsult,UseModule) :- !,
+'$lf'([],_,_,_,_,_,_,_,_,_,_,_,_) :- !.
+'$lf'(M:X, _, Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,UseModule) :- !,
 	(
 	  atom(M)
 	->
-	  '$lf'(X, M, Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,Reconsult,UseModule)
+	  '$lf'(X, M, Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,UseModule)
 	  ;
 	  '$do_error'(type_error(atom,M),Call)
 	).
-'$lf'([F|Fs], Mod,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,Reconsult,UseModule) :- !,
-	'$lf'(F,Mod,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,Reconsult,_),
-	'$lf'(Fs, Mod,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,Reconsult,UseModule).
-'$lf'(X, Mod, Call,InfLevel,_,Changed,CompilationMode,Imports,Stream,_,Reconsult,UseModule) :-
+'$lf'([F|Fs], Mod,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,UseModule) :- !,
+	'$lf'(F,Mod,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,_),
+	'$lf'(Fs, Mod,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,UseModule).
+'$lf'(X, Mod, Call,InfLevel,_,Changed,CompilationMode,Imports,Stream,_,Reconsult,SkipUnixComments,UseModule) :-
         nonvar(Stream), !,
-	'$do_lf'(X, Mod, Stream, InfLevel,CompilationMode,Imports,Reconsult,UseModule).
-'$lf'(user, Mod, Call,InfLevel,_,Changed,CompilationMode,Imports,_,_,Reconsult,UseModule) :- !,
+	'$do_lf'(X, Mod, Stream, InfLevel,CompilationMode,Imports,SkipUnixComments,Reconsult,UseModule).
+'$lf'(user, Mod, Call,InfLevel,_,Changed,CompilationMode,Imports,_,_,SkipUnixComments,Reconsult,UseModule) :- !,
+	'$do_lf'(user_input, Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,Reconsult,UseModule).
+'$lf'(user_input, Mod, Call,InfLevel,_,Changed,CompilationMode,Imports,_,_,SkipUnixComments,Reconsult,UseModule) :- !,
 	'$do_lf'(user_input, Mod, user_input, InfLevel, CompilationMode,Imports,Reconsult,UseModule).
-'$lf'(user_input, Mod, Call,InfLevel,_,Changed,CompilationMode,Imports,_,_,UseModule) :- !,
-	'$do_lf'(user_input, Mod, user_input, InfLevel, CompilationMode,Imports,UseModule).
-'$lf'(X, Mod, Call, InfLevel,_,Changed,CompilationMode,Imports,_,_,Reconsult,UseModule) :-
+'$lf'(X, Mod, Call, InfLevel,_,Changed,CompilationMode,Imports,_,_,SkipUnixComments,Reconsult,UseModule) :-
 	'$find_in_path'(X, Y, Call),
 	'$open'(Y, '$csult', Stream, 0), !,
 	'$set_changed_lfmode'(Changed),
-	'$start_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, Changed,Reconsult,UseModule),
+	'$start_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, Changed,SkipUnixComments,Reconsult,UseModule),
 	'$close'(Stream).
-'$lf'(X, _, Call, _, _, _, _, _, _, _,_,_) :-
+'$lf'(X, _, Call, _, _, _, _, _, _, _, _, _, _) :-
 	'$do_error'(permission_error(input,stream,X),Call).
 
 '$set_changed_lfmode'(true) :- !.
 '$set_changed_lfmode'(_).
 
-'$start_lf'(_, Mod, Stream,_ ,_, Imports, not_loaded, _,_) :-
+'$start_lf'(_, Mod, Stream,_ ,_, Imports, not_loaded, _, _, _) :-
 	'$file_loaded'(Stream, Mod, Imports), !.
-'$start_lf'(_, Mod, Stream, _, _, Imports, changed, _,_) :-
+'$start_lf'(_, Mod, Stream, _, _, Imports, changed, _, _, _) :-
 	'$file_unchanged'(Stream, Mod, Imports), !.
-'$start_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, _, Reconsult, UseModule) :-
-	'$do_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, Reconsult, UseModule).
+'$start_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, _, SkipUnixComments, Reconsult, UseModule) :-
+	'$do_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, SkipUnixComments, Reconsult, UseModule).
 
 '$close_lf'(Silent) :- 
 	nonvar(Silent), !,
@@ -177,7 +178,7 @@ use_module(M,F,Is) :-
 '$csult'([-F|L], M) :- !, '$load_files'(M:F, [],[-M:F]), '$csult'(L, M).
 '$csult'([F|L], M) :- '$consult'(F, M), '$csult'(L, M).
 
-'$do_lf'(F, ContextModule, Stream, InfLevel, _, Imports, Reconsult, UseModule) :-
+'$do_lf'(F, ContextModule, Stream, InfLevel, _, Imports, SkipUnixComments, Reconsult, UseModule) :-
 	'$record_loaded'(Stream, M),
 	'$current_module'(OldModule,ContextModule),
 	getcwd(OldD),
@@ -204,6 +205,11 @@ use_module(M,F,Is) :-
 	),
 	'$print_message'(InfLevel, loading(StartMsg, File)),
 	( recorded('$trace', on, TraceR) -> erase(TraceR) ; true),
+	( SkipUnixComments == skip_unix_comments ->
+	    '$skip_unix_comments'(Stream)
+	;
+	    true
+	),
 	'$loop'(Stream,Reconsult),
 	'$end_consult',
 	( nonvar(TraceR) -> recorda('$trace', on, _) ; true),
@@ -258,6 +264,27 @@ use_module(M,F,Is) :-
 	fail.
 '$initialization'(_).
 
+'$exec_initialisation_goals' :-
+	recorded('$blocking_code',_,R),
+	erase(R),
+	fail.
+% system goals must be performed first 
+'$exec_initialisation_goals' :-
+	recorded('$system_initialisation',G,R),
+	erase(R),
+	G \= '$',
+	call(G),
+	fail.
+'$exec_initialisation_goals' :-
+	'$show_consult_level'(Level),
+	recorded('$initialisation',do(Level,G),R),
+	erase(R),
+	G \= '$',
+	'$current_module'(M),
+	'$system_catch'(once(M:G), M, Error, user:'$LoopError'(Error, top)),
+	'$do_not_creep',
+	fail.
+'$exec_initialisation_goals'.
 
 '$include'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,include(V)).
@@ -285,8 +312,8 @@ use_module(M,F,Is) :-
 	( '$access_yap_flags'(15, 0) ->
 	  '$system_catch'(load_files(X, []),Module,Error,'$Error'(Error))
 	;
-	  '$set_value'('$verbose',off),
-	  load_files(X, [silent(true)])
+	  set_value('$verbose',off),
+	  load_files(X, [silent(true),skip_unix_comments])
 	),
 	( '$access_yap_flags'(15, 0) -> true ; halt).
 

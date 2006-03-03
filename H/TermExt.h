@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h,v 1.6 2006-01-18 15:34:54 vsc Exp $	 *
+* version:      $Id: TermExt.h,v 1.7 2006-03-03 23:11:03 vsc Exp $	 *
 *************************************************************************/
 
 #ifdef USE_SYSTEM_MALLOC
@@ -288,33 +288,22 @@ IsFloatTerm (Term t)
 
 
 /* extern Functor FunctorLongInt; */
+
+inline EXTERN Term MkLongIntTerm (Int);
+
+inline EXTERN Term
+MkLongIntTerm (Int i)
+{
+  H[0] = (CELL) FunctorLongInt;
+  H[1] = (CELL) (i);
 #if GC_NO_TAGS
-
-inline EXTERN Term MkLongIntTerm (Int);
-
-inline EXTERN Term
-MkLongIntTerm (Int i)
-{
-  return (Term) ((H[0] = (CELL) FunctorLongInt, H[1] = (CELL) (i), H[2] =
-		  (2 * sizeof (CELL) + EndSpecials), H +=
-		  3, AbsAppl (H - 3)));
-}
-
-
+  H[2] =  2 * sizeof (CELL) + EndSpecials;
 #else
-
-inline EXTERN Term MkLongIntTerm (Int);
-
-inline EXTERN Term
-MkLongIntTerm (Int i)
-{
-  return (Term) ((H[0] = (CELL) FunctorLongInt, H[1] = (CELL) (i), H[2] =
-		  ((2 * sizeof (CELL) + EndSpecials) | MBIT), H +=
-		  3, AbsAppl (H - 3)));
-}
-
-
+  H[2] = ((2 * sizeof (CELL) + EndSpecials) | MBIT);
 #endif
+  H += 3;
+  return AbsAppl(H - 3);
+}
 
 inline EXTERN Int LongIntOfTerm (Term t);
 

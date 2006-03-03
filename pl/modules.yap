@@ -14,7 +14,6 @@
 * comments:	module support						 *
 *									 *
 *************************************************************************/
-
 % module handling
 
 '$consulting_file_name'(Stream,F)  :-

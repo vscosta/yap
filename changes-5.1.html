@@ -16,6 +16,10 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: Yap on OSX should not make CreepFlag a register, as this
+  breaks Interrupt Handling. Also, it seems that if I do not reserve
+  r13, GCC will use r14 for its own evil purposes.</li>
+<li> FIXED: make Yap files usable again as a script (Ales Kozumplik).</li>
 <li> FIXED: informational_messages was being ignored (Nicos Angelopoulos).</li>
 <li> FIXED: initialization should only be performed after all
   consulted files are done.</li>

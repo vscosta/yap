@@ -2205,7 +2205,7 @@ SetAlias (Atom arg, int sno)
 	default:
 	  break;
 	}
-#if HAVE_SETBUF
+#if HAVE_SETBUF_COMMENTED_OUT
 	YP_setbuf (Stream[sno].u.file.file, NULL); 
 #endif /* HAVE_SETBUF */
       }

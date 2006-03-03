@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.36 2006-02-13 16:58:55 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.37 2006-03-03 23:11:03 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -543,10 +543,15 @@ EXTERN inline void restore_TR(void) {
    restore the global registers :-(.
 
  */
+#define CreepFlag Yap_REGS.CreepFlag_
+/* 
+   vsc: this MUST start from register 13, otherwise GCC will break down in flames and
+   use the registers for evil purposes. :-(
+ */
 #ifndef __svr4__
-register CELL CreepFlag  asm ("r13");
+register tr_fr_ptr TR  asm ("r13");
 #else
-register CELL CreepFlag  asm ("r21");
+register tr_fr_ptr TR asm ("r21");
 #endif
 register CELL *H asm ("r14");
 register CELL *HB asm ("r15");
@@ -554,7 +559,6 @@ register choiceptr B asm ("r16");
 register yamop *CP asm ("r17");
 register CELL *S asm ("r18");
 register CELL *YENV asm ("r19");
-register tr_fr_ptr TR asm ("r20");
 #define P    Yap_REGS.P_		/* prolog machine program counter */
 
 #undef YENV2MEM
@@ -568,7 +572,6 @@ register tr_fr_ptr TR asm ("r20");
 
 
 EXTERN inline void save_machine_regs(void) {
-  Yap_REGS.CreepFlag_ = CreepFlag;
   Yap_REGS.H_   = H;
   Yap_REGS.HB_ = HB;
   Yap_REGS.B_   = B;
@@ -578,7 +581,6 @@ EXTERN inline void save_machine_regs(void) {
 }
 
 EXTERN inline void restore_machine_regs(void) {
-  CreepFlag = Yap_REGS.CreepFlag_;
   H = Yap_REGS.H_;
   HB = Yap_REGS.HB_;
   B = Yap_REGS.B_;
@@ -591,7 +593,6 @@ EXTERN inline void restore_machine_regs(void) {
   CELL     *BK_H = H;                   \
   CELL     *BK_HB = HB;                 \
   choiceptr BK_B = B;                   \
-  CELL      BK_CreepFlag = CreepFlag;   \
   yamop    *BK_CP = CP;                 \
   tr_fr_ptr BK_TR = TR;                 \
   restore_machine_regs()
@@ -601,7 +602,6 @@ EXTERN inline void restore_machine_regs(void) {
   H = BK_H;                             \
   HB = BK_HB;                           \
   B = BK_B;                             \
-  CreepFlag = BK_CreepFlag;             \
   CP = BK_CP;                           \
   TR = BK_TR
 
