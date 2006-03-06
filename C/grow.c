@@ -165,6 +165,7 @@ SetHeapRegs(void)
     WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(WokenGoals)));
 #endif
   GcGeneration = AbsAppl(PtoGloAdjust(RepAppl(GcGeneration)));
+  GcPhase = AbsAppl(PtoGloAdjust(RepAppl(GcPhase)));
 }
 
 static void
@@ -218,6 +219,7 @@ SetStackRegs(void)
     WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(WokenGoals)));
 #endif
   GcGeneration = AbsAppl(PtoGloAdjust(RepAppl(GcGeneration)));
+  GcPhase = AbsAppl(PtoGloAdjust(RepAppl(GcPhase)));
 }
 
 static void

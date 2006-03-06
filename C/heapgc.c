@@ -433,6 +433,8 @@ push_registers(Int num_regs, yamop *nextop)
   }
   TrailTerm(TR) = GcGeneration;
   TR++;
+  TrailTerm(TR) = GcPhase;
+  TR++;
 #ifdef COROUTINING
   TrailTerm(TR) = WokenGoals;
   TrailTerm(TR+1) = AttsMutableList;
@@ -495,6 +497,7 @@ pop_registers(Int num_regs, yamop *nextop)
     sal = sal->NextAE;
   }
   GcGeneration = TrailTerm(ptr++);
+  GcPhase = TrailTerm(ptr++);
 #ifdef COROUTINING
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   WokenGoals = TrailTerm(ptr++);
@@ -3495,6 +3498,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   CELL *max;
   Int           effectiveness, tot;
   int           gc_trace;
+  UInt		gc_phase;
 
   heap_cells = H-H0;
   gc_verbose = is_gc_verbose();
@@ -3632,19 +3636,10 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif
   /* get the number of active registers */
   HGEN = H0+IntegerOfTerm(Yap_ReadTimedVar(GcGeneration));
+  gc_phase = (UInt)IntegerOfTerm(Yap_ReadTimedVar(GcPhase));
   /* old HGEN are not very reliable, but still may have data to recover */
-  if (HGEN < HB) {
-    choiceptr b_ptr = B;
-    /* cannot trust the data between HGEN and its current choice-point */
-    while (b_ptr) {
-      if (b_ptr->cp_h <= HGEN) {
-	HGEN = b_ptr->cp_h;
-	break;
-      } else {
-	b_ptr = b_ptr->cp_b;
-      }
-    }
-    if (!b_ptr) HGEN = H0;
+  if (gc_phase != GcCurrentPhase) {
+    HGEN = H0;
   }
   /*  fprintf(stderr,"HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(GcGeneration)), HGEN, H,H0);*/
 #if !GC_TAGS
@@ -3657,7 +3652,10 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     total_marked -= total_oldies;
     tot = total_marked+(HGEN-H0);
   } else {
-    HGEN = H0;
+    if (HGEN != H0) {
+      HGEN = H0;
+      GcCurrentPhase++;
+    }
     tot = total_marked;
   }
   m_time = Yap_cputime();
@@ -3698,6 +3696,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif
   /*  fprintf(Yap_stderr,"NEW HGEN %ld (%ld)\n", H-H0, HGEN-H0);*/
   Yap_UpdateTimedVar(GcGeneration, MkIntegerTerm(H-H0));
+  Yap_UpdateTimedVar(GcPhase, MkIntegerTerm(GcCurrentPhase));
   c_time = Yap_cputime();
   if (gc_verbose) {
     fprintf(Yap_stderr, "%%   Compress: took %g sec\n", (double)(c_time-time_start)/1000);

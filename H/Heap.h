@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.91 2006-02-24 14:03:42 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.92 2006-03-06 14:04:56 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -98,6 +98,8 @@ typedef struct worker_local_struct {
 #endif
   /* gc_stuff */
   Term     gc_generation;	/* global stack limit at last generation */ 
+  Term     gc_phase;	        /* gc phase to be sure we are on a valid compression */ 
+  UInt     gc_current_phase;    /* gc currrent phase */ 
   unsigned int      gc_calls;	/* number of times GC has been called */ 
   Int      tot_gc_time; /* total time spent in GC */
   YAP_ULONG_LONG      tot_gc_recovered; /* number of heap objects in all garbage collections */
@@ -785,7 +787,10 @@ struct various_codes *Yap_heap_regs;
 #define  WokenGoals               Yap_heap_regs->wl[worker_id].woken_goals
 #define  AttsMutableList          Yap_heap_regs->wl[worker_id].atts_mutable_list
 #endif
+/* support for generations with backtracking */
 #define  GcGeneration             Yap_heap_regs->wl[worker_id].gc_generation
+#define  GcPhase                  Yap_heap_regs->wl[worker_id].gc_phase
+#define  GcCurrentPhase           Yap_heap_regs->wl[worker_id].gc_current_phase
 #define  GcCalls                  Yap_heap_regs->wl[worker_id].gc_calls
 #define  TotGcTime                Yap_heap_regs->wl[worker_id].tot_gc_time
 #define  TotGcRecovered           Yap_heap_regs->wl[worker_id].tot_gc_recovered
@@ -854,6 +859,8 @@ struct various_codes *Yap_heap_regs;
 #define  AttsMutableList          Yap_heap_regs->wl.atts_mutable_list
 #endif
 #define  GcGeneration             Yap_heap_regs->wl.gc_generation
+#define  GcPhase                  Yap_heap_regs->wl.gc_phase
+#define  GcCurrentPhase           Yap_heap_regs->wl.gc_current_phase
 #define  GcCalls                  Yap_heap_regs->wl.gc_calls
 #define  TotGcTime                Yap_heap_regs->wl.tot_gc_time
 #define  TotGcRecovered           Yap_heap_regs->wl.tot_gc_recovered

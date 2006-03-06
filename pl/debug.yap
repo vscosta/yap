@@ -318,7 +318,8 @@ debugging :-
 % we are skipping, so we can just call the goal,
 % while leaving the minimal structure in place.
 '$loop_spy'(GoalNumber, G, Module, InControl) :-
-    '$system_catch'('$loop_spy2'(GoalNumber, G, Module, InControl),
+	CP is '$last_choice_pt',
+	'$system_catch'('$loop_spy2'(GoalNumber, CP, G, Module, InControl),
 		    Module, Event,
 		    '$loop_spy_event'(Event, GoalNumber, G, Module, InControl)).
 
@@ -357,7 +358,7 @@ debugging :-
 		    '$loop_spy_event'(Event, GoalNumber, G, Module, InControl)).
 
 % if we are in 
-'$loop_spy2'(GoalNumber, G, Module, InControl) :- 
+'$loop_spy2'(GoalNumber, CP, G, Module, InControl) :- 
 /* the following choice point is where the predicate is  called */
 	(
 	/* call port */
@@ -366,10 +367,11 @@ debugging :-
 	/* go execute the predicate	*/
 	    (
 	       '$do_not_creep',
-	       '$show_trace'(exit,G,Module,GoalNumber),	/* output
-	       message at exit	*/
+	       '$show_trace'(exit,G,Module,GoalNumber),	/* output message at exit	*/
 	       /* exit port */
-	       '$continue_debugging'	       
+	       /* get rid of deterministic computations */
+	        ('$debugger_deterministic_goal'(G) ->  '$cut_by'(CP) ; true),
+	       '$continue_debugging'	   
 	     ;
 		/* backtracking from exit				*/
 	        /* we get here when we want to redo a goal		*/
@@ -448,14 +450,15 @@ debugging :-
 	flush_output(user_error),
 	recorded('$debug',on,R0), erase(R0),
 	repeat,
+	        (P = exit, \+ '$debugger_deterministic_goal'(G) -> Det = '?' ; Det = ''),
 		('$pred_being_spied'(G,Module) -> CSPY = '*' ; CSPY = ' '),
 		( SL = L -> SLL = '>' ; SLL = ' '),
 	        ( recorded('$debug',on, R), erase(R), fail ; true),
 		( Module\=prolog,
 		  Module\=user ->
-		    format(user_error,"~a~a (~d) ~q: ~a:",[CSPY,SLL,L,P,Module])
+		    format(user_error,"~a~a~a       (~d)    ~q: ~a:",[Det,CSPY,SLL,L,P,Module])
 		    ;
-		    format(user_error,"~a~a (~d) ~q:",[CSPY,SLL,L,P])
+		    format(user_error,"~a~a~a       (~d)    ~q:",[Det,CSPY,SLL,L,P])
 		),
 		'$debugger_write'(user_error,G),
 	        ( nonvar(R0), recordaifnot('$debug',on,_), fail ; true),
@@ -503,11 +506,15 @@ debugging :-
 	'$skipeol'(0'^),
 	fail.
 '$action'(0'a,_,_,_,_) :- !,			% a		abort
-	'$skipeol'(0'^),
+	'$skipeol'(0'a),
 	abort.
 '$action'(0'b,_,_,_,_) :- !,			% b		break
 	'$skipeol'(0'b),
 	break,
+	fail.
+'$action'(0'A,_,_,_,_) :- !,			% b		break
+	'$skipeol'(0'A),
+	'$show_choicepoint_stack',
 	fail.
 '$action'(0'c,_,_,_,_) :- !,			% c		creep
 	'$set_yap_flags'(10,1),
@@ -618,6 +625,7 @@ debugging :-
 	format(user_error,"<D       depth D     <       full term~n", []),
 	format(user_error,"+        spy this    -       nospy this~n", []),
 	format(user_error,"^        view subg   ^^      view using~n", []),
+	format(user_error,"A        alternatives~n", []),
 	format(user_error,"! g execute goal~n", []).
 	
 '$ilgl'(C) :-
@@ -712,3 +720,52 @@ debugging :-
 '$delete_if_there'([Q|L], T, [Q|LN]) :-
 	'$delete_if_there'(L, T, LN).
 
+'$show_choicepoint_stack' :-
+	'$all_choicepoints'(Cps),
+	length(Cps,Level),
+	'$debug_show_cps'(Cps,Level).
+
+'$debug_show_cps'([],_).
+'$debug_show_cps'([C|Cps],Level) :-
+	'$debug_show_cp'(C, Level),
+	Level1 is Level-1,
+	'$debug_show_cps'(Cps, Level1).
+
+'$debug_show_cp'(C, Level) :-
+	'$choicepoint_info'(C,Module,Name,Arity,Goal),
+	'$continue_debug_show_cp'(Module,Name,Arity,Goal,Level).
+
+'$continue_debug_show_cp'(prolog,'$do_live',0,(_;_),Level) :- !,
+	format(user_error,'      [~d] \'$toplevel\'',[Level]).
+'$continue_debug_show_cp'(prolog,'$do_log_upd_clause',4,'$do_log_upd_clause'(_,_,Goal,_),Level) :- !,
+	format(user_error,'      [~d] ~q~n',[Level,Goal]).
+'$continue_debug_show_cp'(prolog,'$do_static_clause',5,'$do_static_clause'(_,_,Goal,_,_),Level) :- !,
+	format(user_error,'      [~d] ~q~n',[Level,Goal]).
+'$continue_debug_show_cp'(Module,Name,Arity,Goal,_) :-
+	functor(G0, Name, Arity), fail,
+	'$hidden_predicate'(G0,Module),
+	!.
+'$continue_debug_show_cp'(Module,Name,Arity,Goal,Level) :-
+	var(Goal), !,
+	format(user_error,'      [~d] ~q:~q/~d~n',[Level,Module,Name,Arity]).
+'$continue_debug_show_cp'(Module,Name,Arity,(V1;V2),Level) :-
+	var(V1),  var(V2), !,
+	format(user_error,'      [~d] ~q:~q/~d: ;/2~n',[Level,Module,Name,Arity]).
+'$continue_debug_show_cp'(Module,Name,Arity,G,Level) :-
+	format(user_error,'      [~d] ~q~n',[Level,G]).
+	
+'$debugger_deterministic_goal'(G) :-
+	'$all_choicepoints'(CPs),
+	'$debugger_check_traces'(CPs,CPs1),
+	'$debugger_check_loop_spy2'(CPs1,[Catch|_]),
+	'$choicepoint_info'(Catch,prolog,'$catch',3,'$catch'(_,'$loop_spy_event'(_,_,G,_,_),_)).
+
+'$debugger_check_traces'([CP|CPs],CPs1) :-
+	'$choicepoint_info'(CP,prolog,'$trace',4,(_;_)), !,
+	'$debugger_check_traces'(CPs,CPs1).
+'$debugger_check_traces'(CPs,CPs).
+
+'$debugger_check_loop_spy2'([CP|CPs],CPs1) :-
+	'$choicepoint_info'(CP,prolog,'$loop_spy2',5,(_;_)), !,
+	'$debugger_check_loop_spy2'(CPs,CPs1).
+'$debugger_check_loop_spy2'(CPs,CPs).

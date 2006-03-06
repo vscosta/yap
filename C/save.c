@@ -423,6 +423,8 @@ save_regs(int mode)
     putout(DEPTH);
 #endif
     putout(GcGeneration);
+    putout(GcPhase);
+    putout(GcCurrentPhase);
   }
   /* The operand base */
   putcellptr(CellPtr(XREGS));
@@ -830,6 +832,12 @@ get_regs(int flag)
       return -1;
 #endif
     GcGeneration = get_cell();
+    if (Yap_ErrorMessage)
+      return -1;
+    GcPhase = get_cell();
+    if (Yap_ErrorMessage)
+      return -1;
+    GcCurrentPhase = get_cell();
     if (Yap_ErrorMessage)
       return -1;
   }

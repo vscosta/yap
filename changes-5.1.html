@@ -16,41 +16,49 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> NEW: debugger will not backtrack over complete deterministic computations.</li>
+<li> NEW: debugger can show CP stack.</li>
+<li> NEW: internal procedure to show choice-point stack.</li>
+<li> FIXED: Incremental GC could still get confused after backtracking
+  over GEN marker. Associate GEN marker with timestamp and make sure
+  we only use current GEN markers (obs Mark Goadrich).</li>
 <li> FIXED: Yap on OSX should not make CreepFlag a register, as this
   breaks Interrupt Handling. Also, it seems that if I do not reserve
   r13, GCC will use r14 for its own evil purposes.</li>
-<li> FIXED: make Yap files usable again as a script (Ales Kozumplik).</li>
-<li> FIXED: informational_messages was being ignored (Nicos Angelopoulos).</li>
+<li> FIXED: make Yap files usable again as a script (obs Ales Kozumplik).</li>
+<li> FIXED: silent informational_messages was being ignored (obs Nicos Angelopoulos).</li>
 <li> FIXED: initialization should only be performed after all
   consulted files are done.</li>
 <li> FIXED: garbage collector now makes refs to erased LU clauses point
   to LogUpdErasedMarker.</li>
 <li> FIXED: get rid of old code referring to LogUpds from within ImmediateSemantics.</li>
 <li> FIXED: indexing code would get confused about size of inlined
-float/1 (Paulo Moura).</li>
+float/1 (obs Paulo Moura).</li>
 <li> FIXED: broken SIGINT with tkyap (Keri Harris).</li>
 <li> FIXED: indexing of bignums was broken, just disable it for now.</li>
-<li> FIXED: pipe open was returning the same descriptor twice (Christian Thaeter).</li>
+<li> FIXED: pipe open was returning the same descriptor twice (obs Christian Thaeter).</li>
 <li> FIXED: style check should compare with true file name.</li>
 <li> FIXED: ^c should take care about TR and B.</li>
-<li> FIXED: don't pass a pointer to a mpz_t. (Nuno Fonseca)</li>
-<li> FIXED: handle heap overflow from huge atoms in Yap_LookupAtom/scanner (Nuno Fonseca).</li>
-<li> FIXED: bignum was using int where should be long int (Roberto Bagnara).</li>
+<li> FIXED: don't pass a pointer to a mpz_t. (obs Nuno Fonseca)</li>
+<li> FIXED: handle heap overflow from huge atoms in
+  Yap_LookupAtom/scanner (obs Nuno Fonseca).</li>
+<li> FIXED: bignum was using int where should be long int (obs Roberto Bagnara).</li>
 <li> NEW: x86_64 should have registers, right? First cut at using them.</li>
 <li> FIXED: call_n would break under 64 bits, an int problem.</li>
-<li> FIXED: more compilation problems if GMP not there (Remko Troncon).</li>
-<li> FIXED: make syntax error report the line where the bug was (Jude Shavlik).</li>
+<li> FIXED: more compilation problems if GMP not there (obs Remko Troncon).</li>
+<li> FIXED: make syntax error report the line where the bug was (obs Jude Shavlik).</li>
 <li> FIXED: ok, MkBigInt shouldn't free the bigint.</li>
 <li> FIXED: MkBigInt already frees bigint.</li>
-<li> FIXED: don't pass a pointer to a mpz_t. (Nuno Fonseca)</li>
-<li> FIXED: YENV may be an HW register (could break some tabling code)  (Remko Troncon) </li>
+<li> FIXED: don't pass a pointer to a mpz_t. (obs Nuno Fonseca)</li>
+<li> FIXED: YENV may be an HW register (could break some tabling code)
+  (obs Remko Troncon) </li>
 <li> FIXED: All YAAM instructions are now brackedted, so Op introduced an { and EndOp intr
 oduces an }. This is because Ricardo assumes that. </li>
 <li> FIXED: compile attvars when COROUTING is undefined. </li>
 <li> FIXED: compiler warnings due to c-interface changes</li>.
 <li> FIXED: scanner would convert LONG_MIN to bigint, but it can be
-  represent as a LONG; fixed by using mpz_fits_slong_p (Roberto Bagnara). </li>
-<li> FIXED: indexing cut should stop looking after a cut!!!! (Paulo Moura).
+  represent as a LONG; fixed by using mpz_fits_slong_p (obs Roberto Bagnara). </li>
+<li> FIXED: indexing cut should stop looking after a cut!!!! (obs Paulo Moura).
 <li> FIXED: mktime was broken in WIN32. </li>
 <li> FIXED: don't assume a fixed point for WIN32 memory allocation. </li>
 <li> FIXED: don't call goal_expand when looking for handlers of undefined procedures. </li>
@@ -151,7 +159,7 @@ discontiguous. </li>
 <li> FIXED: save/restore FZ regs. </li>
 <li> FIXED: $loop_stream could be defined early in boot process. </li>
 <li> NEW: make rational trees default. </li>
-<li> NEW: make enable-max-memory default. </li>
+v<li> NEW: make enable-max-memory default. </li>
 <li> FIXED: allow people to disable indexing (obs Ricardo Lopes). </li>
 <li> FIXED: make undefined exception more ISO like (obs Paulo Moura). </li>
 <li> FIXED: add missing dependency in chr's Makefile.in. </li>

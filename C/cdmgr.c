@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-02-01 13:28:56 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-06 14:04:56 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.176  2006/02/01 13:28:56  vsc
+* bignum support fixes
+*
 * Revision 1.175  2006/01/08 03:12:00  vsc
 * fix small bug in attvar handling.
 *
@@ -3207,7 +3210,7 @@ all_cps(choiceptr b_ptr)
     bp = H;
     H += 2;
     /* notice that MkIntegerTerm may increase the Heap */
-    bp[0] = MkIntegerTerm((Int)b_ptr->cp_ap);
+    bp[0] = MkIntegerTerm((Int)(LCL0-(CELL *)b_ptr));
     if (H >= ASP) {
       bp[1] = TermNil;
       return tf;
@@ -3241,6 +3244,12 @@ Term
 Yap_all_calls(void)
 {
   return all_calls();
+}
+
+static Int
+p_all_choicepoints(void)
+{
+  return Yap_unify(ARG1,all_cps(B));
 }
 
 static Int
@@ -5311,6 +5320,149 @@ p_program_continuation(void)
   return TRUE;
 }
 
+static Term
+BuildActivePred(PredEntry *ap, CELL *vect)
+{
+  if (!ap->ArityOfPE) {
+    return MkVarTerm();
+  }
+  return Yap_MkApplTerm(ap->FunctorOfPred, ap->ArityOfPE, vect);
+}
+
+static Int
+p_choicepoint_info(void)
+{
+  choiceptr cptr = (choiceptr)(LCL0-IntegerOfTerm(Deref(ARG1)));
+  PredEntry *pe;
+  int go_on = TRUE;
+  yamop *ipc = cptr->cp_ap;
+  Term t, tname, tmod;
+  UInt arity;
+
+  while (go_on) {
+    op_numbers opnum = Yap_op_from_opcode(ipc->opc);
+
+    go_on = FALSE;
+    switch (opnum) {
+#ifdef TABLING
+    case _table_load_answer:
+      pe = LOAD_CP(cptr)->cp_pred_entry;
+      t = MkVarTerm();
+      break;
+    case _table_try_answer:
+    case _table_retry_me:
+    case _table_trust_me:
+    case _table_retry:
+    case _table_trust:
+    case _table_completion:
+      pe = GEN_CP(cptr)->cp_pred_entry;
+      t = BuildActivePred(pe, (CELL *)(GEN_CP(B) + 1));
+      break;
+    case _table_answer_resolution:
+      pe = CONS_CP(cptr)->cp_pred_entry;
+      t = MkVarTerm();
+      break;
+    case _trie_retry_null:
+    case _trie_trust_null:
+    case _trie_retry_var:
+    case _trie_trust_var:
+    case _trie_retry_val:
+    case _trie_trust_val:
+    case _trie_retry_atom:
+    case _trie_trust_atom:
+    case _trie_retry_list:
+    case _trie_trust_list:
+    case _trie_retry_struct:
+    case _trie_trust_struct:
+    case _trie_retry_extension:
+    case _trie_trust_extension:
+    case _trie_retry_float:
+    case _trie_trust_float:
+    case _trie_retry_long:
+    case _trie_trust_long:
+      pe = UndefCode;
+      t = MkVarTerm();
+      break;
+#endif /* TABLING */
+    case _or_else:
+      pe = ipc->u.sla.p0;
+      t = Yap_MkNewApplTerm(FunctorOr, 2);
+      break;
+    case _or_last:
+      pe = ipc->u.p.p;
+      t = Yap_MkNewApplTerm(FunctorOr, 2);
+      break;
+    case _retry2:
+    case _retry3:
+    case _retry4:
+    case _trust_logical_pred:
+      ipc = NEXTOP(ipc,l);
+      go_on = TRUE;
+      break;
+    case _jump:
+      ipc = ipc->u.l.l;
+      go_on = TRUE;
+      break;
+    case _retry_c:
+    case _retry_userc:
+      pe = ipc->u.lds.p;
+      t = BuildActivePred(pe, cptr->cp_args);
+      break;
+    case _retry_profiled:
+    case _count_retry:
+      ipc = NEXTOP(ipc,p);
+      go_on = TRUE;
+      break;
+    case _retry_me:
+    case _trust_me:
+    case _count_retry_me:
+    case _count_trust_me:
+    case _profiled_retry_me:
+    case _profiled_trust_me:
+    case _retry_and_mark:
+    case _profiled_retry_and_mark:
+    case _retry:
+    case _trust:
+      pe = ipc->u.ld.p;
+      t = BuildActivePred(pe, cptr->cp_args);
+      break;
+    case _Nstop:
+    case _Ystop:
+    default:
+      pe = NULL;
+      return FALSE;
+    }
+  }
+  arity = pe->ArityOfPE;
+  if (pe->ModuleOfPred != IDB_MODULE) {
+    if (pe->ModuleOfPred == PROLOG_MODULE) {
+      tmod = TermProlog;
+    } else {
+      tmod = pe->ModuleOfPred;
+    }
+    if (pe->ArityOfPE == 0) {
+      tname = MkAtomTerm((Atom)pe->FunctorOfPred);
+    } else {
+      Functor f = pe->FunctorOfPred;
+      tname = MkAtomTerm(NameOfFunctor(f));
+    }
+  } else {
+    tmod = pe->ModuleOfPred;
+    if (pe->PredFlags & NumberDBPredFlag) {
+      tname = MkIntegerTerm(pe->src.IndxId);
+    } else if (pe->PredFlags & AtomDBPredFlag) {
+      tname = MkAtomTerm((Atom)pe->FunctorOfPred);
+    } else {
+      Functor f = pe->FunctorOfPred;
+      tname = MkAtomTerm(NameOfFunctor(f));
+    }
+  }
+  return Yap_unify(ARG2, tmod) &&
+    Yap_unify(ARG3,tname) &&
+    Yap_unify(ARG4,MkIntegerTerm(arity)) &&
+    Yap_unify(ARG5,t);
+}
+
 void 
 Yap_InitCdMgr(void)
 {
@@ -5367,6 +5519,8 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$static_pred_statistics", 5, p_static_pred_statistics, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$p_nth_clause", 4, p_nth_clause, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$program_continuation", 3, p_program_continuation, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$all_choicepoints", 1, p_all_choicepoints, HiddenPredFlag);
+  Yap_InitCPred("$choicepoint_info", 5, p_choicepoint_info, HiddenPredFlag);
 #ifdef DEBUG
   Yap_InitCPred("predicate_erased_statistics", 5, p_predicate_erased_statistics, SyncPredFlag);
 #endif

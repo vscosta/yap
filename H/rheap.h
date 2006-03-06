@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2006-02-24 14:03:42 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-06 14:04:56 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.62  2006/02/24 14:03:42  vsc
+* fix refs to old LogUpd implementation (pre 5).
+*
 * Revision 1.61  2006/01/02 02:16:18  vsc
 * support new interface between YAP and GMP, so that we don't rely on our own
 * allocation routines.
@@ -493,6 +496,11 @@ restore_codes(void)
     Yap_heap_regs->wl.scratchpad.ptr =
       (char *)AddrAdjust((ADDR)Yap_heap_regs->wl.scratchpad.ptr);
   }
+  Yap_heap_regs->wl.gc_generation = 
+    AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.gc_generation)));
+  Yap_heap_regs->wl.gc_phase = 
+    AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.gc_phase)));
+  /* current phase is an integer */
 #endif
 #ifdef COROUTINING
   if (Yap_heap_regs->wake_up_code != NULL)

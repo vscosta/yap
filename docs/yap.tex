@@ -10258,9 +10258,10 @@ and it includes four or five fields:
 
 @itemize @bullet
 @item
- The first two characters are used to point out special states of the
-debugger. If the first character is a @code{*}, execution is at a
-spy-point. If the second character is a @code{>}, execution has returned
+ The first three characters are used to point out special states of the
+debugger. If the port is exit and the first character is '?', the
+current call still has alternatives to be tried. If the second character is a @code{*}, execution is at a
+spy-point. If the third character is a @code{>}, execution has returned
 either from a skip, a fail or a redo command.
 @item
  The second field is the activation number, and uniquely identifies the
@@ -10343,6 +10344,8 @@ information about @code{write_depth/2} (@pxref{I/O Control}).
 @item < - full term
 resets to the default of ten the debugger's maximum write depth. For
 more information about @code{write_depth/2} (@pxref{I/O Control}).
+@item A - alternatives
+ show the list of backtrack points in the current execution. 
 @end table
 
 The debugging information, when fast-skip @code{quasi-leap} is used, will
