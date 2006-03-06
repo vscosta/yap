@@ -98,6 +98,27 @@ AC_ARG_WITH(gmp,
 	fi,
 	[yap_cv_gmp=yes])
 
+AC_ARG_WITH(myddas,
+	[ --enable-myddas         enable the MYDDAS library],
+	if test "$withval" = yes; then
+		yap_cv_myddas=yes
+	elif test "$withval" = no; then
+		yap_cv_myddas=no
+	else
+		yap_cv_myddas=$with_myddas
+		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib"
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include"
+	fi,
+	[yap_cv_myddas=yes])
+
+AC_ARG_ENABLE(myddas-stats,
+	[ --enable-myddas-stats     enable the MYDDAS library statistics support],
+	myddasstats="$enableval", myddasstats=no)
+
+AC_ARG_ENABLE(myddas-top-level,
+	[ --enable-myddas-top-level enable the MYDDAS top-level support to MySQL],
+	myddastoplevel="$enableval", myddastoplevel=no)
+
 AC_ARG_WITH(jpl,
 	[ --with-jpl=JAVA_HOME       use Java instalation in JAVA_HOME],
 	if test "$withval" = yes; then
@@ -367,6 +388,89 @@ fi
 if test "$yap_cv_gmp" != "no"
 then
   AC_CHECK_LIB(gmp,main)
+fi
+
+if test "$yap_cv_myddas" != "no"
+then
+	dnl check for mysql
+	AC_MSG_CHECKING(for main in -lmysqlclient)
+	AC_CACHE_VAL(yap_mysql,[
+	AC_TRY_COMPILE(
+		#include <mysql/mysql.h>
+		#include <stdio.h>
+		,
+		MYSQL *conn;
+		conn = mysql_init(NULL);	
+		,
+		yap_mysql=yes,yap_mysql=no)])
+	AC_MSG_RESULT($yap_mysql)
+	if test "$yap_mysql" = yes 
+	then
+		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
+		LIBS="$LIBS -L/usr/lib/mysql -lmysqlclient -lz -lcrypt -lnsl -lm -lc -lnss_files -lnss_dns -lresolv "
+	fi
+	
+	dnl check for odbc
+	AC_MSG_CHECKING(for main in -lodbc)
+	AC_CACHE_VAL(yap_odbc,[
+	AC_TRY_COMPILE(
+		#include <sql.h>
+		#include <sqlucode.h>
+		#include <stdio.h>
+		,
+		SQLHENV henv;
+  		SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
+		,
+		yap_odbc=yes,yap_odbc=no)])
+	AC_MSG_RESULT($yap_odbc)
+	if test "$yap_odbc" = yes 
+	then
+		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
+		LIBS="$LIBS -lodbc "
+	fi
+	
+	if test "$yap_mysql" = no -a "$yap_odbc" = no
+	then
+		echo "-------------------------------"
+	    	echo "--"
+	    	echo "--"
+	    	echo "--"
+	    	echo "-- There\'s no devel libraries for MySQL or ODBC"
+	    	echo "--"
+	    	echo "--"
+	    	echo "--"
+	    	echo "-------------------------------"
+	    	exit
+	fi
+
+	if test "$cutc" = no
+	then
+		echo
+		echo
+		echo "********************************************************"
+		echo
+		echo
+		echo "!!!!!! WARNING !!!!!!"
+		echo "The MYDDAS interface makes no sense without cut-c"
+		echo "Please contact tiagosoares@ncc.up.pt for help"
+		echo 
+		echo "Enabling cut-c"
+		echo
+		echo "********************************************************"
+		echo
+		echo
+		cutc="yes"
+	fi
+fi	
+
+if test "$myddasstats" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_STATS"
+fi
+
+if test "$myddastoplevel" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
 fi
 
 if test "$threads" = yes
@@ -745,6 +849,10 @@ AC_CHECK_HEADERS(mach-o/dyld.h)
 if test "$yap_cv_gmp" != "no"
 then
   AC_CHECK_HEADERS(gmp.h)
+fi
+if test "$yap_cv_myddas" != "no"
+then
+  AC_CHECK_HEADERS(mysql/mysql.h)
 fi
 if test "$yap_cv_readline" != "no"
 then
