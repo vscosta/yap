@@ -109,7 +109,7 @@ AC_ARG_WITH(myddas,
 		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include"
 	fi,
-	[yap_cv_myddas=yes])
+	[yap_cv_myddas=no])
 
 AC_ARG_ENABLE(myddas-stats,
 	[ --enable-myddas-stats     enable the MYDDAS library statistics support],

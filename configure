@@ -2452,7 +2452,7 @@ if test "${with_myddas+set}" = set; then
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include"
 	fi
 else
-  yap_cv_myddas=yes
+  yap_cv_myddas=no
 fi;
 
 # Check whether --enable-myddas-stats or --disable-myddas-stats was given.
