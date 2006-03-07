@@ -4,7 +4,7 @@
 %
 % Author: Nuno Fonseca (nunofonseca@acm.org)
 % Date: 2005-05-14
-% $Id: ypp.yap,v 1.3 2005-10-31 12:27:54 vsc Exp $
+% $Id: ypp.yap,v 1.4 2006-03-07 17:30:47 tiagosoares Exp $
 %
 %====================================================================================
 
@@ -102,6 +102,6 @@ ypp_file(File,PPFile):-
 
 % initialization
 :-set_state(on),
-	ypp_extcmd('cpp -E -w -o ').
+	ypp_extcmd('cpp -P -E -w -o ').
 %	ypp_extcmd('gpp -o').
 
