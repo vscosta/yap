@@ -865,6 +865,7 @@ Optional Features:
  --enable-condor            allow Yap to be used from condor
  --enable-april             compile Yap to support April ILP system
  --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
+ --enable-myddas         enable the MYDDAS library
  --enable-myddas-stats     enable the MYDDAS library statistics support
  --enable-myddas-top-level enable the MYDDAS top-level support to MySQL
 
@@ -872,7 +873,6 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
  --with-gmp=DIR           use GNU Multiple Precision in DIR
- --enable-myddas         enable the MYDDAS library
  --with-jpl=JAVA_HOME       use Java instalation in JAVA_HOME
  --with-readline=DIR      use GNU Readline Library in DIR
  --with-mpi=DIR           use MPI library in DIR
@@ -2438,16 +2438,15 @@ else
   yap_cv_gmp=yes
 fi;
 
-
-# Check whether --with-myddas or --without-myddas was given.
-if test "${with_myddas+set}" = set; then
-  withval="$with_myddas"
-  if test "$withval" = yes; then
+# Check whether --enable-myddas or --disable-myddas was given.
+if test "${enable_myddas+set}" = set; then
+  enableval="$enable_myddas"
+  if test "$enableval" = yes; then
 		yap_cv_myddas=yes
-	elif test "$withval" = no; then
+	elif test "$enableval" = no; then
 		yap_cv_myddas=no
 	else
-		yap_cv_myddas=$with_myddas
+		yap_cv_myddas=$enable_myddas
 		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include"
 	fi
