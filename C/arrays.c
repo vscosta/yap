@@ -545,13 +545,13 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
     p->KindOfPE = ArrayProperty;
     p->NextOfPE = ae->PropsOfAE;
     INIT_RWLOCK(p->ArRWLock);
+    p->NextAE = StaticArrays;
+    StaticArrays = p;
   }
   WRITE_LOCK(p->ArRWLock);
   p->ArrayEArity = -dim;
   p->ArrayType = type;
   ae->PropsOfAE = AbsArrayProp((ArrayEntry *)p);
-  p->NextAE = StaticArrays;
-  StaticArrays = p;
   if (start_addr == NULL) {
     int i;
 
