@@ -46,9 +46,10 @@
 		  db_multi_queries_number/2,
 
 		  % myddas_top_level.yap
+#ifdef MYDDAS_TOP_LEVEL
 		  db_top_level/5,
 		  db_datalog_select/3,
-		  
+#endif
 		  % myddas_assert_predicates.yap
 		  db_import/2,
 		  db_import/3,

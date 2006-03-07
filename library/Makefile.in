@@ -22,6 +22,7 @@ INSTALL=@INSTALL@
 INSTALL_DATA=@INSTALL_DATA@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
 srcdir=@srcdir@
+YAP_EXTRAS=@YAP_EXTRAS@ 
 
 PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/assoc.yap \
@@ -48,21 +49,36 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/timeout.yap \
 	$(srcdir)/trees.yap \
 	$(srcdir)/ugraphs.yap \
-	$(srcdir)/ypp.yap \
-	$(srcdir)/MYDDAS/myddas.yap \
-	$(srcdir)/MYDDAS/myddas_assert_predicates.yap \
-	$(srcdir)/MYDDAS/myddas_mysql.yap \
-	$(srcdir)/MYDDAS/myddas_top_level.yap \
-	$(srcdir)/MYDDAS/myddas_errors.yap \
-	$(srcdir)/MYDDAS/myddas_prolog2sql.yap \
-	$(srcdir)/MYDDAS/myddas_util_predicates.yap 
+	$(srcdir)/ypp.yap 
+
+MYDDAS_PROGRAMS= $(srcdir)/MYDDAS/myddas.ypp \
+	$(srcdir)/MYDDAS/myddas_assert_predicates.ypp \
+	$(srcdir)/MYDDAS/myddas_mysql.ypp \
+	$(srcdir)/MYDDAS/myddas_top_level.ypp \
+	$(srcdir)/MYDDAS/myddas_errors.ypp \
+	$(srcdir)/MYDDAS/myddas_prolog2sql.ypp \
+	$(srcdir)/MYDDAS/myddas_util_predicates.ypp 
 
 LOGTALK_PROGRAMS= \
 	$(srcdir)/logtalk/logtalk.pl \
 	$(srcdir)/logtalk/yap.config
 
-install: $(PROGRAMS)
+install: $(PROGRAMS) install_myddas
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/logtalk
 	for p in $(LOGTALK_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/logtalk; done
+
+install_myddas: $(MYDDAS_PROGRAMS)
+	count=`echo "$(YAP_EXTRAS)" | grep MYDDAS | wc -l`; \
+	if [ $$count -ne 0 ]; then \
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap; \
+	for p in $(MYDDAS_PROGRAMS); \
+	do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; \
+	done; \
+	for p in $(DESTDIR)$(SHAREDIR)/Yap/myddas*.ypp; \
+	do name=`basename $$p .ypp`; \
+	cpp $(YAP_EXTRAS) -P -E -w $$p -o $(DESTDIR)$(SHAREDIR)/Yap/$$name.yap; \
+	rm -fr $$p; \
+	done; \
+	fi
