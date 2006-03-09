@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.69 2006-02-05 02:26:35 tiagosoares Exp $	 *
+* version:      $Id: Yapproto.h,v 1.70 2006-03-09 15:52:05 tiagosoares Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -319,20 +319,70 @@ void	STD_PROTO(Yap_InitUtilCPreds,(void));
 
 /* yap.c */
 
-/* myddas_* */
-#if defined CUT_C && defined MYDDAS_MYSQL
+/* MYDDAS */
+
+/* myddas_initialization.c */
+MYDDAS_GLOBAL          STD_PROTO(myddas_util_initialize_myddas,(void));
+
+/* myddas_util.c */
+#ifdef MYDDAS_MYSQL
+void                   STD_PROTO(myddas_util_table_write,(MYSQL_RES *));
+#endif
+/* Returns the connection type (mysql -> 1  or odbc -> 2) */
+Short                  STD_PROTO(myddas_util_connection_type,(void *));
+/* Adds a connection identifier to the MYDDAS connections list*/
+MYDDAS_UTIL_CONNECTION STD_PROTO(myddas_util_add_connection,(void *,void *));
+/* Search for the node of the specified connection*/
+MYDDAS_UTIL_CONNECTION STD_PROTO(myddas_util_search_connection,(void *));
+/* Deletes a connection node from the MYDDAS connections list*/
+void                   STD_PROTO(myddas_util_delete_connection,(void *));
+/* Adds a new predicate to it's connection node list*/
+MYDDAS_UTIL_CONNECTION STD_PROTO(myddas_util_add_predicate,(char * ,Int , char *,void *));
+/* Search for a predicate node*/
+MYDDAS_UTIL_PREDICATE  STD_PROTO(myddas_util_search_predicate,(char * ,Int , char *));
+/* Deletes predicate from the prediate list */
+void                   STD_PROTO(myddas_util_delete_predicate,(MYDDAS_UTIL_PREDICATE));
+
+/* Get's the number of queries to save */
+UInt                   STD_PROTO(myddas_util_get_total_multi_queries_number,(MYDDAS_UTIL_CONNECTION));
+void                   STD_PROTO(myddas_util_set_total_multi_queries_number,(MYDDAS_UTIL_CONNECTION,UInt));
+#ifdef MYDDAS_ODBC
+/* Return enviromment identifier*/
+SQLHENV                STD_PROTO(myddas_util_get_odbc_enviromment,(SQLHDBC));
+#endif
+
+void *                 STD_PROTO(myddas_util_get_list_pred,(MYDDAS_UTIL_CONNECTION));
+void *                 STD_PROTO(myddas_util_get_pred_next,(void *));
+char *                 STD_PROTO(myddas_util_get_pred_module,(void *));
+char *                 STD_PROTO(myddas_util_get_pred_name,(void *));
+Int                    STD_PROTO(myddas_util_get_pred_arity,(void *));
+//DELETE THIS WHEN DB_STATS  IS COMPLETED
+Int                    STD_PROTO(get_myddas_top,(void));
+
+#ifdef DEBUG
+void check_int(void);
+#endif
+
+/* myddas_mysql.c */
+#if defined MYDDAS_MYSQL
 void    STD_PROTO(Yap_InitMYDDAS_MySQLPreds,(void));
 void    STD_PROTO(Yap_InitBackMYDDAS_MySQLPreds,(void));
 #endif
-#if defined CUT_C && defined MYDDAS_ODBC
+
+/* myddas_odbc.c */
+#if defined MYDDAS_ODBC
 void    STD_PROTO(Yap_InitMYDDAS_ODBCPreds,(void));
 void    STD_PROTO(Yap_InitBackMYDDAS_ODBCPreds,(void));
 #endif
-#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
+
+/* myddas_shared.c */
+#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
 void    STD_PROTO(Yap_MyDDAS_delete_all_myddas_structs,(void));
 void    STD_PROTO(Yap_InitMYDDAS_SharedPreds,(void));
 void    STD_PROTO(Yap_InitBackMYDDAS_SharedPreds,(void));
 #endif
+
+/* myddas_top_level.c */
 #if defined MYDDAS_TOP_LEVEL && defined MYDDAS_MYSQL //&& defined HAVE_LIBREADLINE
 void    STD_PROTO(Yap_InitMYDDAS_TopLevelPreds,(void));
 #endif

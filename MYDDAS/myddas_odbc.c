@@ -27,17 +27,17 @@
 #include <sql.h>
 #include <sqlucode.h>
 
-static int null_id = 0;
+static Int null_id = 0;
 
-STATIC_PROTO(int c_db_odbc_connect,(void));
-STATIC_PROTO(int c_db_odbc_disconnect,(void));
-STATIC_PROTO(int c_db_odbc_number_of_fields,(void));
-STATIC_PROTO(int c_db_odbc_get_attributes_types,(void));
-STATIC_PROTO(int c_db_odbc_query,(void));
-STATIC_PROTO(int c_db_odbc_row,(void));
-STATIC_PROTO(int c_db_odbc_row_cut,(void));
-STATIC_PROTO(int c_db_odbc_get_fields_properties,(void));
-STATIC_PROTO(int c_db_odbc_number_of_fields_in_query,(void));
+STATIC_PROTO(Int c_db_odbc_connect,(void));
+STATIC_PROTO(Int c_db_odbc_disconnect,(void));
+STATIC_PROTO(Int c_db_odbc_number_of_fields,(void));
+STATIC_PROTO(Int c_db_odbc_get_attributes_types,(void));
+STATIC_PROTO(Int c_db_odbc_query,(void));
+STATIC_PROTO(Int c_db_odbc_row,(void));
+STATIC_PROTO(Int c_db_odbc_row_cut,(void));
+STATIC_PROTO(Int c_db_odbc_get_fields_properties,(void));
+STATIC_PROTO(Int c_db_odbc_number_of_fields_in_query,(void));
 
 
 #define SQLALLOCHANDLE(A,B,C,print)                               \
@@ -248,7 +248,7 @@ STATIC_PROTO(int c_db_odbc_number_of_fields_in_query,(void));
 
 
 
-static int
+static Int
 c_db_odbc_connect(void) {
   Term arg_driver = Deref(ARG1); 
   Term arg_user = Deref(ARG2);
@@ -278,7 +278,7 @@ c_db_odbc_connect(void) {
 	     (SQLCHAR*) user, SQL_NTS,
 	     (SQLCHAR*) passwd, SQL_NTS, "connect");
   
-  if (!Yap_unify(arg_conn, MkIntegerTerm((int)(hdbc))))
+  if (!Yap_unify(arg_conn, MkIntegerTerm((Int)(hdbc))))
     return FALSE;
   else
     {
@@ -294,7 +294,7 @@ c_db_odbc_connect(void) {
 }
 
 /* db_query: SQLQuery x ResultSet x Arity x BindList x Connection */
-static int
+static Int
 c_db_odbc_query(void) {
   Term arg_sql_query = Deref(ARG1);
   Term arg_result_set = Deref(ARG2);
@@ -314,8 +314,8 @@ c_db_odbc_query(void) {
   /* Executes the query*/ 
   SQLEXECDIRECT(hstmt,sql,SQL_NTS, "db_query");
   
-  int arity;
-  int i;
+  Int arity;
+  Int i;
   
   if (IsNonVarTerm(arg_arity)){
     arity = IntegerOfTerm(arg_arity);
@@ -323,7 +323,8 @@ c_db_odbc_query(void) {
     
     char *bind_space=NULL;
 
-    const int functor_arity=3;
+    //const Int functor_arity=3;
+    const Short functor_arity=3;
     Functor functor = Yap_MkFunctor(Yap_LookupAtom("bind"),functor_arity);
     Term properties[functor_arity];
   
@@ -344,8 +345,8 @@ c_db_odbc_query(void) {
 	data_info = malloc(sizeof(SQLINTEGER));
 	SQLBINDCOL(hstmt,i,SQL_C_CHAR,bind_space,(ColumnSizePtr+1),data_info,"db_query");
 	
-	properties[0] = MkIntegerTerm((int)bind_space);
-	properties[2] = MkIntegerTerm((int)data_info);
+	properties[0] = MkIntegerTerm((Int)bind_space);
+	properties[2] = MkIntegerTerm((Int)data_info);
 	
 	if (IS_SQL_INT(type))
 	  properties[1]=MkAtomTerm(Yap_LookupAtom("integer"));
@@ -360,7 +361,7 @@ c_db_odbc_query(void) {
       }
   }
   
-  if (!Yap_unify(arg_result_set, MkIntegerTerm((int) hstmt)))
+  if (!Yap_unify(arg_result_set, MkIntegerTerm((Int) hstmt)))
     {
       SQLCLOSECURSOR(hstmt,"db_query");
       SQLFREESTMT(hstmt,SQL_CLOSE,"db_query");
@@ -369,7 +370,7 @@ c_db_odbc_query(void) {
   return TRUE;
 }
 
-static int
+static Int
 c_db_odbc_number_of_fields(void) {
   Term arg_relation = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
@@ -406,7 +407,7 @@ c_db_odbc_number_of_fields(void) {
 
 
 /* db_get_attributes_types: RelName x Connection -> TypesList */
-static int
+static Int
 c_db_odbc_get_attributes_types(void) {
   Term arg_relation = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
@@ -461,7 +462,7 @@ c_db_odbc_get_attributes_types(void) {
 }
 
 /* db_disconnect */
-static int
+static Int
 c_db_odbc_disconnect(void) {
   Term arg_conn = Deref(ARG1);
 
@@ -483,7 +484,7 @@ c_db_odbc_disconnect(void) {
     return FALSE;
 }
 
-static int
+static Int
 c_db_odbc_row_cut(void) {
     
   SQLHSTMT hstmt = (SQLHSTMT) IntegerOfTerm(EXTRA_CBACK_CUT_ARG(Term,1)); 
@@ -495,7 +496,7 @@ c_db_odbc_row_cut(void) {
 }
 
 /* db_row: ResultSet x BindList x ListOfArgs -> */
-static int
+static Int
 c_db_odbc_row(void) {
   Term arg_result_set = Deref(ARG1);
   Term arg_bind_list = Deref(ARG2);
@@ -504,7 +505,7 @@ c_db_odbc_row(void) {
   SQLHSTMT hstmt = (SQLHSTMT) IntegerOfTerm(arg_result_set);
     
   /* EXTRA_CBACK_ARG(ARIDADE,LOCAL_ONDE_COLOCAR_VALOR)*/
-  EXTRA_CBACK_ARG(3,1)=(CELL) MkIntegerTerm((int)hstmt);
+  EXTRA_CBACK_ARG(3,1)=(CELL) MkIntegerTerm((Int)hstmt);
 
   Term head, list, null_atom[1];
   Term head_bind, list_bind;
@@ -574,7 +575,7 @@ c_db_odbc_row(void) {
 
 /* Mudar esta funcao de forma a nao fazer a consulta, pois 
  no predicate db_sql_selet vai fazer duas vezes a mesma consutla*/ 
-static int
+static Int
 c_db_odbc_number_of_fields_in_query(void) {
   Term arg_query = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
@@ -604,7 +605,7 @@ c_db_odbc_number_of_fields_in_query(void) {
   return TRUE;
 }
 
-static int
+static Int
 c_db_odbc_get_fields_properties(void) {
   Term nome_relacao = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
@@ -614,7 +615,7 @@ c_db_odbc_get_fields_properties(void) {
   char *relacao = AtomName(AtomOfTerm(nome_relacao));
   char sql[256];
   char name[200];
-  int i;
+  Int i;
   
   
   SQLSMALLINT num_fields=0;
@@ -643,7 +644,7 @@ c_db_odbc_get_fields_properties(void) {
   
   SQLSMALLINT bind_prim_key;
   //por causa de as rows em odbc começam em 1 :)
-  short *null=malloc(sizeof(short)*(1+num_fields));
+  Short *null=malloc(sizeof(Short)*(1+num_fields));
   
   SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt2, "db_get_fields_properties");
   /* Executes the query*/ 
@@ -734,7 +735,7 @@ void Yap_InitBackMYDDAS_ODBCPreds(void)
 {
   
   /*  db_row: ResultSet x ListOfArgs */
-  Yap_InitCPredBackCut("c_db_odbc_row", 3, sizeof(int),
+  Yap_InitCPredBackCut("c_db_odbc_row", 3, sizeof(Int),
 		       c_db_odbc_row,
 		       c_db_odbc_row,
 		       c_db_odbc_row_cut, 0);

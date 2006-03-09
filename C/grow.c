@@ -135,8 +135,8 @@ SetHeapRegs(void)
   if (B)
     B = ChoicePtrAdjust(B);
 #ifdef CUT_C
-  if (Yap_regp->CUT_C_TOP)
-    Yap_regp->CUT_C_TOP = (cut_c_str_ptr)ChoicePtrAdjust((choiceptr)Yap_regp->CUT_C_TOP);
+  if (Yap_REGS.CUT_C_TOP)
+    Yap_REGS.CUT_C_TOP = (cut_c_str_ptr)ChoicePtrAdjust((choiceptr)Yap_REGS.CUT_C_TOP);
 #endif
 #ifdef TABLING
   if (B_FZ)
@@ -197,8 +197,8 @@ SetStackRegs(void)
   if (B)
     B = ChoicePtrAdjust(B);
 #ifdef CUT_C
-  if (Yap_regp->CUT_C_TOP)
-    Yap_regp->CUT_C_TOP = (cut_c_str_ptr)ChoicePtrAdjust((choiceptr)Yap_regp->CUT_C_TOP);
+  if (Yap_REGS.CUT_C_TOP)
+    Yap_REGS.CUT_C_TOP = (cut_c_str_ptr)ChoicePtrAdjust((choiceptr)Yap_REGS.CUT_C_TOP);
 #endif
 #ifdef TABLING
   if (B_FZ)

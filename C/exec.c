@@ -1807,7 +1807,7 @@ Yap_InitYaamRegs(void)
   cut_c_initialize();
 #endif
 #if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
-  Yap_regp->MYDDAS_GLOBAL_POINTER = myddas_util_initialize_myddas(); 
+  Yap_REGS.MYDDAS_GLOBAL_POINTER = myddas_util_initialize_myddas(); 
 #endif
 }
 

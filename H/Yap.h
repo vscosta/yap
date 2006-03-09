@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.12 2006-01-08 23:01:47 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.13 2006-03-09 15:52:04 tiagosoares Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -1268,3 +1268,4 @@ extern char emacs_tmp[], emacs_tmp2[];
 #if SBA
 #include "sbaunify.h"
 #endif
+

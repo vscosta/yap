@@ -85,7 +85,7 @@ myddas_stats_time_copy_to_final(MYDDAS_STATS_TIME);
   NODE->total_querys_made = NUMBER;
 
 #define MYDDAS_STATS_GET_DB_ROW_FUNCTION(TIME) \
-  TIME = Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_statistics->total_db_row;
+  TIME = Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_statistics->total_db_row;
 
 #endif /* MYDDAS_STATS */
 

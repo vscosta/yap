@@ -31,11 +31,11 @@
 #include <sys/times.h>
 
 
-STATIC_PROTO(int c_db_tl_top_level_mysql,(void));
-STATIC_PROTO(int c_db_tl_readline,(void));
+STATIC_PROTO(Int c_db_tl_top_level_mysql,(void));
+STATIC_PROTO(Int c_db_tl_readline,(void));
 
-STATIC_PROTO(int com_quit,(char *,char*));
-STATIC_PROTO(int myddas_top_level_command,(char *,char *));
+STATIC_PROTO(Int com_quit,(char *,char*));
+STATIC_PROTO(Int myddas_top_level_command,(char *,char *));
 STATIC_PROTO(void myddas_top_level_print_time,(MYDDAS_STATS_TIME));
 
 
@@ -51,7 +51,7 @@ void Yap_InitMYDDAS_TopLevelPreds(void)
 typedef struct {
   const char *name;		/* User printable name of the function. */
   char cmd_char;		/* msql command character */
-  int (*func)(char *str,char *); /* Function to call to do the job. */
+  Int (*func)(char *str,char *); /* Function to call to do the job. */
   //bool takes_params;		/* Max parameters for command */
   const char *doc;		/* Documentation for this function.  */
 } COMMANDS;
@@ -66,7 +66,7 @@ static COMMANDS commands[] = {
   { (char *)NULL,       0, 0, ""}
 };
 
-static int
+static Int
 c_db_tl_readline(void) {
   Term arg_prompt = Deref(ARG1);
   Term arg_line = Deref(ARG2);
@@ -88,7 +88,7 @@ c_db_tl_readline(void) {
   
 }
 
-static int
+static Int
 c_db_tl_top_level_mysql(void) {
   Term arg_conn = Deref(ARG1);
   Term arg_res_set_mode = Deref(ARG2);
@@ -96,9 +96,9 @@ c_db_tl_top_level_mysql(void) {
   MYSQL *con = (MYSQL *) IntegerOfTerm(arg_conn);
   char *res_set_mode = AtomName(AtomOfTerm(arg_res_set_mode));
   char *line;
-  int quit;
+  Int quit;
   
-  Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_level_connection = myddas_util_search_connection(con);
+  Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_level_connection = myddas_util_search_connection(con);
 
   printf ("\n");
   for (;;) {
@@ -115,10 +115,10 @@ c_db_tl_top_level_mysql(void) {
   
 }
 
-static int    
+static Int    
 myddas_top_level_command(char *line,char *res_set_mode){
   
-  int i;
+  Int i;
   MYSQL *conn;
   MYSQL_RES *res_set;
 
@@ -131,13 +131,13 @@ myddas_top_level_command(char *line,char *res_set_mode){
   for (i=0;commands[i].name!=NULL;i++)
     if (!strcmp(commands[i].name,line))
       {
-	int quit = (*(commands[i].func))(NULL,NULL);
+	Int quit = (*(commands[i].func))(NULL,NULL);
 	return quit;
       }
 
-  int length=strlen(line);
+  Int length=strlen(line);
 
-  conn = (MYSQL *) (Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_level_connection->connection);
+  conn = (MYSQL *) (Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_level_connection->connection);
 
   MYDDAS_STATS_TIME start = myddas_stats_walltime();
   if (mysql_real_query(conn, line, length) != 0){
@@ -167,8 +167,8 @@ myddas_top_level_command(char *line,char *res_set_mode){
   return 0;
 }
 
-int com_quit(char *nill,char *null){
-  Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_level_connection = NULL;
+Int com_quit(char *nill,char *null){
+  Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_level_connection = NULL;
   printf ("Bye\n");
   return -1;
 }

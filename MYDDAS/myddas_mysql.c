@@ -41,26 +41,26 @@
 	                    FIELD == FIELD_TYPE_FLOAT 
 
 
-static int null_id = 0;
+static Int null_id = 0;
 
-STATIC_PROTO(int c_db_my_connect,(void));
-STATIC_PROTO(int c_db_my_disconnect,(void));
-STATIC_PROTO(int c_db_my_number_of_fields,(void));
-STATIC_PROTO(int c_db_my_get_attributes_types,(void));
-STATIC_PROTO(int c_db_my_query,(void));
-STATIC_PROTO(int c_db_my_table_write,(void));
-STATIC_PROTO(int c_db_my_row,(void));
-STATIC_PROTO(int c_db_my_row_cut,(void));
-STATIC_PROTO(int c_db_my_get_fields_properties,(void));
-STATIC_PROTO(int c_db_my_number_of_fields_in_query,(void));
-STATIC_PROTO(int c_db_my_get_next_result_set,(void));
-STATIC_PROTO(int c_db_my_get_database,(void));
-STATIC_PROTO(int c_db_my_change_database,(void));
+STATIC_PROTO(Int c_db_my_connect,(void));
+STATIC_PROTO(Int c_db_my_disconnect,(void));
+STATIC_PROTO(Int c_db_my_number_of_fields,(void));
+STATIC_PROTO(Int c_db_my_get_attributes_types,(void));
+STATIC_PROTO(Int c_db_my_query,(void));
+STATIC_PROTO(Int c_db_my_table_write,(void));
+STATIC_PROTO(Int c_db_my_row,(void));
+STATIC_PROTO(Int c_db_my_row_cut,(void));
+STATIC_PROTO(Int c_db_my_get_fields_properties,(void));
+STATIC_PROTO(Int c_db_my_number_of_fields_in_query,(void));
+STATIC_PROTO(Int c_db_my_get_next_result_set,(void));
+STATIC_PROTO(Int c_db_my_get_database,(void));
+STATIC_PROTO(Int c_db_my_change_database,(void));
 
 void Yap_InitMYDDAS_MySQLPreds(void)
 {
   /* db_connect: Host x User x Passwd x Database x Connection x ERROR_CODE */
-  Yap_InitCPred("c_db_my_connect", 5, c_db_my_connect,  SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("c_db_my_connect", 5, c_db_my_connect,  0);
   
   /* db_number_of_fields: Relation x Connection x NumberOfFields */
   Yap_InitCPred("c_db_my_number_of_fields",3, c_db_my_number_of_fields, 0);  
@@ -98,14 +98,14 @@ void Yap_InitMYDDAS_MySQLPreds(void)
 void Yap_InitBackMYDDAS_MySQLPreds(void)
 {
   /* db_row: ResultSet x Arity x ListOfArgs */
-  Yap_InitCPredBackCut("c_db_my_row", 3, sizeof(int),
+  Yap_InitCPredBackCut("c_db_my_row", 3, sizeof(Int),
 		    c_db_my_row,
 		    c_db_my_row,
 		    c_db_my_row_cut, 0);
 
 }
 
-static int
+static Int
 c_db_my_connect(void) {
   Term arg_host = Deref(ARG1); 
   Term arg_user = Deref(ARG2);
@@ -134,7 +134,7 @@ c_db_my_connect(void) {
     return FALSE;
   }
 
-  if (!Yap_unify(arg_conn, MkIntegerTerm((int)conn)))
+  if (!Yap_unify(arg_conn, MkIntegerTerm((Int)conn)))
     return FALSE;
   else
     {
@@ -150,7 +150,7 @@ c_db_my_connect(void) {
 }
 
 /* db_query: SQLQuery x ResultSet x Connection */
-static int 
+static Int 
 c_db_my_query(void) {
   Term arg_sql_query = Deref(ARG1);
   Term arg_result_set = Deref(ARG2);
@@ -163,13 +163,13 @@ c_db_my_query(void) {
   
   MYSQL_RES *res_set;
   
-  int length=strlen(sql);
+  Int length=strlen(sql);
 
 #ifdef MYDDAS_STATS 
   MYDDAS_UTIL_CONNECTION node = myddas_util_search_connection(conn);
 
   /* Count the number of querys made to the server */
-  unsigned long number_querys;
+  UInt number_querys;
   MYDDAS_STATS_CON_GET_NUMBER_QUERIES_MADE(node,number_querys);
   MYDDAS_STATS_CON_SET_NUMBER_QUERIES_MADE(node,++number_querys);
 
@@ -247,17 +247,17 @@ c_db_my_query(void) {
 	   returns a NULL pointer*/
 	
 	/* This is only works if we use mysql_store_result */
-	unsigned long numberRows = mysql_num_rows(res_set);
-	unsigned long rows;
+	UInt numberRows = mysql_num_rows(res_set);
+	UInt rows;
 	
 	MYDDAS_STATS_CON_GET_TOTAL_ROWS(node,rows);
 	numberRows = numberRows + rows;
 	MYDDAS_STATS_CON_SET_TOTAL_ROWS(node,numberRows);
       
 	/* Calculate the ammount of data sent by the server */
-	unsigned long int total,number_fields = mysql_num_fields(res_set);
+	UInt total,number_fields = mysql_num_fields(res_set);
 	MYSQL_ROW row;
-	unsigned int i;
+	UInt i;
 	total=0;
 	while ((row = mysql_fetch_row(res_set)) != NULL){
 	  mysql_field_seek(res_set,0);
@@ -268,7 +268,7 @@ c_db_my_query(void) {
 	  }
 	}
 	MYDDAS_STATS_CON_SET_LAST_BYTES_TRANSFERING_FROM_DBSERVER(node,total);
-	unsigned long bytes;
+	UInt bytes;
 	
 	MYDDAS_STATS_CON_GET_TOTAL_BYTES_TRANSFERING_FROM_DBSERVER(node,bytes);
 	total = total + bytes;
@@ -287,7 +287,7 @@ c_db_my_query(void) {
       return FALSE;
     }
   
-  if (!Yap_unify(arg_result_set, MkIntegerTerm((int) res_set)))
+  if (!Yap_unify(arg_result_set, MkIntegerTerm((Int) res_set)))
     {
       mysql_free_result(res_set);
       return FALSE;
@@ -298,7 +298,7 @@ c_db_my_query(void) {
     }
 }
 
-static int 
+static Int 
 c_db_my_number_of_fields(void) {
   Term arg_relation = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
@@ -342,7 +342,7 @@ c_db_my_number_of_fields(void) {
 
 
 /* db_get_attributes_types: RelName x Connection -> TypesList */
-static int 
+static Int 
 c_db_my_get_attributes_types(void) {
   Term arg_relation = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
@@ -399,7 +399,7 @@ c_db_my_get_attributes_types(void) {
 }
 
 /* db_disconnect */
-static int
+static Int
 c_db_my_disconnect(void) {
   Term arg_conn = Deref(ARG1);  
 
@@ -418,7 +418,7 @@ c_db_my_disconnect(void) {
 }
 
 /* db_table_write: Result Set */
-static int 
+static Int 
 c_db_my_table_write(void) {
   Term arg_res_set = Deref(ARG1);
 
@@ -430,7 +430,7 @@ c_db_my_table_write(void) {
   return TRUE;  
 }
 
-static int
+static Int
 c_db_my_row_cut(void) {
   MYSQL_RES *mysql_res=NULL;
   
@@ -440,7 +440,7 @@ c_db_my_row_cut(void) {
 }
 
 /* db_row: ResultSet x Arity_ListOfArgs x ListOfArgs -> */
-static int
+static Int
 c_db_my_row(void) {
 #ifdef MYDDAS_STATS
   /* Measure time used by the 
@@ -453,13 +453,13 @@ c_db_my_row(void) {
   Term arg_list_args = Deref(ARG3);
     
   MYSQL_RES *res_set = (MYSQL_RES *) IntegerOfTerm(arg_result_set);
-  EXTRA_CBACK_ARG(3,1)=(CELL) MkIntegerTerm((int)res_set);
+  EXTRA_CBACK_ARG(3,1)=(CELL) MkIntegerTerm((Int)res_set);
   MYSQL_ROW row;
   MYSQL_FIELD *field;
   
   
   Term head, list, null_atom[1];
-  int i, arity;
+  Int i, arity;
   
   arity = IntegerOfTerm(arg_arity);
 
@@ -547,7 +547,7 @@ c_db_my_row(void) {
 
 /* Mudar esta funcao de forma a nao fazer a consulta, pois 
  no predicate db_sql_selet vai fazer duas vezes a mesma consutla*/ 
-static int 
+static Int 
 c_db_my_number_of_fields_in_query(void) {
   Term arg_query = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
@@ -583,7 +583,7 @@ c_db_my_number_of_fields_in_query(void) {
   return TRUE;  
 }
 
-static int 
+static Int 
 c_db_my_get_fields_properties(void) {
   Term nome_relacao = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
@@ -592,7 +592,7 @@ c_db_my_get_fields_properties(void) {
 
   char *relacao = AtomName(AtomOfTerm(nome_relacao));
   char sql[256];
-  int num_fields,i;
+  Int num_fields,i;
   MYSQL_FIELD *fields;
   MYSQL_RES *res_set;
   MYSQL *conn = (MYSQL *) (IntegerOfTerm(arg_conn));
@@ -663,7 +663,7 @@ c_db_my_get_fields_properties(void) {
 }
 
 /* c_db_my_get_next_result_set: Connection * NextResSet */
-static int 
+static Int 
 c_db_my_get_next_result_set(void) {
   Term arg_conn = Deref(ARG1);
   Term arg_next_res_set = Deref(ARG2);
@@ -673,12 +673,12 @@ c_db_my_get_next_result_set(void) {
   
   if (mysql_next_result(conn) == 0){
     res_set = mysql_store_result(conn);
-    Yap_unify(arg_next_res_set, MkIntegerTerm((int) res_set));
+    Yap_unify(arg_next_res_set, MkIntegerTerm((Int) res_set));
   }
   return TRUE;
 }
 
-static int 
+static Int 
 c_db_my_get_database(void) {
   Term arg_con = Deref(ARG1);
   Term arg_database = Deref(ARG2);
@@ -692,7 +692,7 @@ c_db_my_get_database(void) {
   
 }
 
-static int 
+static Int 
 c_db_my_change_database(void) {
   Term arg_con = Deref(ARG1);
   Term arg_database = Deref(ARG2);

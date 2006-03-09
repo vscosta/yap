@@ -9,7 +9,7 @@ myddas_util_initialize_predicate(char *, int,char *,
 				 MYDDAS_UTIL_PREDICATE);
 
 MYDDAS_GLOBAL
-myddas_util_initialize_myddas(){
+myddas_util_initialize_myddas(void){
   MYDDAS_GLOBAL global = NULL;
   
   global = (MYDDAS_GLOBAL) malloc (sizeof(struct myddas_global));

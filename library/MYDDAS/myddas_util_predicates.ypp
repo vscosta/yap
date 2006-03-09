@@ -37,7 +37,8 @@
 				  '$where_exists'/2,
 				  '$build_query'/5,
 				  '$assert_facts'/2,
-				  '$lenght'/2
+				  '$lenght'/2,
+				  '$check_list_on_list'/2
 				  ]).
 
 :- use_module(myddas,[
@@ -408,3 +409,13 @@
 '$lenght'([_|T],Sum):-
         '$lenght'(T,Num),
         Sum is Num + 1.
+
+'$check_list_on_list'([],_).
+'$check_list_on_list'([H|T],DbGoalArgs) :-
+	'$member_strick'(H,DbGoalArgs),
+	'$check_list_on_list'(T,DbGoalArgs).
+
+'$member_strick'(Element1, [Element2|_]) :-
+	Element1 == Element2,!.
+'$member_strick'(Element, [_|Rest]) :-
+        '$member_strick'(Element, Rest).

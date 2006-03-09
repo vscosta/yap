@@ -273,7 +273,7 @@ db_stats(Connection,List):-
 
 %compatibility
 db_sql_select(Connection,SQL,LA):-
-	db_sql(Connection,SQL.LA).
+	db_sql(Connection,SQL,LA).
 
 db_sql(SQL,LA):-
 	db_sql(myddas,SQL,LA).

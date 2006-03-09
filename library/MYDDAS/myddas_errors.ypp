@@ -21,12 +21,13 @@
 
 :- use_module(myddas_util_predicates,[
 				      '$make_a_list'/2,
-				      '$check_fields'/2
+				      '$check_fields'/2,
+				      '$check_list_on_list'/2
 				      ]).
 
 :- use_module(lists,[
 		     is_list/1
-		    ]).
+		     ]).
 
 
 '$error_checks'(db_abolish(ModulePredName,Arity)):-!,
@@ -104,10 +105,14 @@
 	nonvar(Password),
 	atom(Connection),
 	get_value(Connection,[]).  % Nao pode ter nenhum valor atribuido
-'$error_checks'(db_view(Connection,PredName,DbGoal)) :- !,
+'$error_checks'(db_view(Connection,Pred,DbGoal)) :- !,
         atom(Connection),
         nonvar(DbGoal),
-	nonvar(PredName).
+	nonvar(Pred),
+	nonvar(DbGoal),
+	Pred =.. [_|PredArgs],
+	DbGoal =.. [_|DbGoalArgs],
+	'$check_list_on_list'(PredArgs,DbGoalArgs).
 '$error_checks'(db_import(Connection,RelationName,PredName)) :- !,
         atom(Connection),
         atom(RelationName),

@@ -15,6 +15,8 @@
 *									 *
 *************************************************************************/
 
+#ifdef MYDDAS_TOP_LEVEL
+
 :- module(myddas_top_level,[
 			    db_top_level/5,
 			    db_datalog_select/3
@@ -107,3 +109,5 @@ db_datalog_select(Connection,LA,DbGoal):-
 % 	set_value(Connection,Con),
 % 	db_my_result_set(Mode),
 % 	c_db_top_level(Con,Mode).
+
+#endif MYDDAS_TOP_LEVEL

@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2006-02-08 17:29:54 $,$Author: tiagosoares $						 *
+* Last rev:	$Date: 2006-03-09 15:52:04 $,$Author: tiagosoares $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.83  2006/02/08 17:29:54  tiagosoares
+* MYDDAS: Myddas Top Level for MySQL and Datalog
+*
 * Revision 1.82  2006/01/18 15:34:53  vsc
 * avoid sideffects from MkBigInt
 *
@@ -649,7 +652,7 @@ YAP_ExtraSpaceCut(void)
   void *ptr;
   BACKUP_B();
 
-  ptr = (void *)(((CELL *)(Yap_regp->CUT_C_TOP))-(((yamop *)Yap_regp->CUT_C_TOP->try_userc_cut_yamop)->u.lds.extra));
+  ptr = (void *)(((CELL *)(Yap_REGS.CUT_C_TOP))-(((yamop *)Yap_REGS.CUT_C_TOP->try_userc_cut_yamop)->u.lds.extra));
 
   RECOVER_B();
   return(ptr);

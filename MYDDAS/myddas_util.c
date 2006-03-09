@@ -1,6 +1,7 @@
 #ifdef CUT_C
 #if defined MYDDAS_ODBC || defined MYDDAS_MYSQL 
 
+#include "Yap.h"
 #include <string.h>
 #include <stdlib.h>
 #include "cut_c.h"
@@ -16,29 +17,29 @@
 #ifdef MYDDAS_MYSQL
 #include <mysql/mysql.h>
 #endif /*MYDDAS_MYSQL*/
-#include "Yap.h"
+
 
 
 /* Search for the predicate in the given predicate list*/
 static MYDDAS_UTIL_PREDICATE
-myddas_util_find_predicate(char *, int , char *, MYDDAS_UTIL_PREDICATE);
+myddas_util_find_predicate(char *, Int , char *, MYDDAS_UTIL_PREDICATE);
 /* Deletes a predicate list */
 static void 
 myddas_util_delete_predicate_list(MYDDAS_UTIL_PREDICATE);
 
 /* Prints a error message */
 static void
-myddas_util_error_message(char *,int,char *);
+myddas_util_error_message(char *,Int,char *);
 
 
 #ifdef MYDDAS_MYSQL
 /* Auxilary function to table_write*/
 static void
-n_print(int , char );
+n_print(Int , char );
 #endif
 
 /* Type: MYSQL->1 ODBC->2*/
-short int
+Short
 myddas_util_connection_type(void *con){
   
   MYDDAS_UTIL_CONNECTION con_node =
@@ -55,10 +56,10 @@ myddas_util_connection_type(void *con){
 
 
 MYDDAS_UTIL_PREDICATE
-myddas_util_search_predicate(char *pred_name, int pred_arity, 
+myddas_util_search_predicate(char *pred_name, Int pred_arity, 
 			     char *pred_module){
   MYDDAS_UTIL_PREDICATE pred=NULL;
-  MYDDAS_UTIL_CONNECTION top = Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_connections;
+  MYDDAS_UTIL_CONNECTION top = Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
 
   for (;top!=NULL;top=top->next)
     {
@@ -71,7 +72,7 @@ myddas_util_search_predicate(char *pred_name, int pred_arity,
 /* When using this function, we must guarante that this predicate
  it's unique */
 MYDDAS_UTIL_CONNECTION 
-myddas_util_add_predicate(char *pred_name, int pred_arity, 
+myddas_util_add_predicate(char *pred_name, Int pred_arity, 
 			   char *pred_module, void *con){
   
   MYDDAS_UTIL_CONNECTION node_con = 
@@ -99,7 +100,7 @@ myddas_util_delete_predicate(MYDDAS_UTIL_PREDICATE to_delete){
     to_delete->previous->next = to_delete->next;
   else //First predicate of the predicate list
     {
-      MYDDAS_UTIL_CONNECTION con_node = Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_connections;
+      MYDDAS_UTIL_CONNECTION con_node = Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
       for(;con_node != NULL; con_node = con_node->next)
 	if (con_node->predicates == to_delete)
 	  break;
@@ -127,8 +128,8 @@ myddas_util_delete_connection(void *conn){
 	to_delete->next->previous = to_delete->previous;
       
       /* Is the first element of the list */
-      if (to_delete == (Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_connections))
-	Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_connections = to_delete->next;
+      if (to_delete == (Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections))
+	Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections = to_delete->next;
       else 
 	to_delete->previous->next=to_delete->next;
       
@@ -139,7 +140,7 @@ myddas_util_delete_connection(void *conn){
 
 MYDDAS_UTIL_CONNECTION 
 myddas_util_search_connection(void *conn){
-  MYDDAS_UTIL_CONNECTION list = Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_connections;
+  MYDDAS_UTIL_CONNECTION list = Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
   
 #ifdef MYDDAS_STATS
   if (conn == 0) { /* We want all the statistics */
@@ -164,7 +165,7 @@ myddas_util_add_connection(void *conn, void *enviromment){
       return node;
     }
   //put the new connection node on the top of the list
-  temp = myddas_util_initialize_connection(conn,enviromment,Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_connections);
+  temp = myddas_util_initialize_connection(conn,enviromment,Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections);
   if (temp == NULL)
     {
 #ifdef DEBUG
@@ -172,8 +173,8 @@ myddas_util_add_connection(void *conn, void *enviromment){
 #endif 
       return NULL;
     }
-  Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_connections = temp;
-  return Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_connections;
+  Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections = temp;
+  return Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
 }
 
 #ifdef MYDDAS_ODBC
@@ -182,7 +183,7 @@ myddas_util_add_connection(void *conn, void *enviromment){
  if there is any odbc connections left on the list*/
 SQLHENV
 myddas_util_get_odbc_enviromment(SQLHDBC connection){
-  MYDDAS_UTIL_CONNECTION top = Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_connections;
+  MYDDAS_UTIL_CONNECTION top = Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
   
   for (;top != NULL;top=top->next)
     if (top->connection == ((void *)connection))
@@ -192,37 +193,37 @@ myddas_util_get_odbc_enviromment(SQLHDBC connection){
 }
 #endif
 
-unsigned long
+UInt
 myddas_util_get_total_multi_queries_number(MYDDAS_UTIL_CONNECTION con){
   return con->total_number_queries;
 }
 
 void
 myddas_util_set_total_multi_queries_number(MYDDAS_UTIL_CONNECTION con,
-					   unsigned long number){
+					   UInt number){
   con->total_number_queries = number;
 }
 
 #ifdef MYDDAS_MYSQL
 /* Auxilary function to table_write*/
 static void
-n_print(int n, char c)
+n_print(Int n, char c)
 {
   for(;n>0;n--) printf("%c",c);
 }
 #endif
 
 static
-void myddas_util_error_message(char *message,int line,char *file){
+void myddas_util_error_message(char *message ,Int line,char *file){
 #ifdef DEBUG
-  printf ("ERROR: %s at line %d in file %s\n",message,line,file);
+  printf ("ERROR: %s at line %d in file %s\n",message,(int)line,file);
 #else
   printf ("ERROR: %s\n",message);
 #endif
 }
 
 static MYDDAS_UTIL_PREDICATE
-myddas_util_find_predicate(char *pred_name, int pred_arity, 
+myddas_util_find_predicate(char *pred_name, Int pred_arity, 
 			   char *pred_module, MYDDAS_UTIL_PREDICATE list){
 
   for(;list != NULL ; list = list->next)
@@ -255,7 +256,7 @@ myddas_util_table_write(MYSQL_RES *res_set){
   
   MYSQL_ROW row;
   MYSQL_FIELD *fields;
-  int i,f;
+  Int i,f;
 
   if (mysql_num_rows(res_set) == 0)
     {
@@ -319,11 +320,11 @@ myddas_util_table_write(MYSQL_RES *res_set){
 #endif
 
 //DELETE THIS WHEN DB_STATS  IS COMPLETED
-int
+Int
 get_myddas_top(){
-  if (Yap_regp->MYDDAS_GLOBAL_POINTER == NULL)
+  if (Yap_REGS.MYDDAS_GLOBAL_POINTER == NULL)
     return 0;
-  return (int)Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_connections;
+  return (Int)Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
 }
 
 void *
@@ -332,7 +333,7 @@ myddas_util_get_pred_next(void *pointer){
   return (void *) (temp->next);
 }
 
-int 
+Int 
 myddas_util_get_pred_arity(void *pointer){
   MYDDAS_UTIL_PREDICATE temp = (MYDDAS_UTIL_PREDICATE) pointer;
   return temp->pred_arity;
@@ -357,9 +358,9 @@ myddas_util_get_list_pred(MYDDAS_UTIL_CONNECTION node){
 
 #ifdef DEBUG
 void check_int(){
-  int i;
+  Int i;
   MYDDAS_UTIL_PREDICATE pred = NULL;
-  MYDDAS_UTIL_CONNECTION top = Yap_regp->MYDDAS_GLOBAL_POINTER->myddas_top_connections;
+  MYDDAS_UTIL_CONNECTION top = Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
   for (i=1 ; top!=NULL ; top=top->next)
     {
       printf ("***************\n");
