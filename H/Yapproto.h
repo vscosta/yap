@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.70 2006-03-09 15:52:05 tiagosoares Exp $	 *
+* version:      $Id: Yapproto.h,v 1.71 2006-03-10 16:58:39 tiagosoares Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -321,6 +321,8 @@ void	STD_PROTO(Yap_InitUtilCPreds,(void));
 
 /* MYDDAS */
 
+#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
+
 /* myddas_initialization.c */
 MYDDAS_GLOBAL          STD_PROTO(myddas_util_initialize_myddas,(void));
 
@@ -362,6 +364,8 @@ Int                    STD_PROTO(get_myddas_top,(void));
 #ifdef DEBUG
 void check_int(void);
 #endif
+
+#endif /* MYDDAS_MYSQL || MYDDAS_ODBC */
 
 /* myddas_mysql.c */
 #if defined MYDDAS_MYSQL
