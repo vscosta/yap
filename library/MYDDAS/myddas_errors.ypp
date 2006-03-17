@@ -92,11 +92,12 @@
 	    c_db_odbc_get_fields_properties(Relation,Con,FieldsProperties)
 	),
 	'$check_fields'(Att,FieldsProperties).
-'$error_checks'(db_open(mysql,Connection,Host/Db,User,Password)) :- !,
+'$error_checks'(db_open(mysql,Connection,Host/Db/Port/_,User,Password)) :- !,
 	nonvar(Host), % ==  \+var(Host)
 	nonvar(User),
 	nonvar(Password),
 	nonvar(Db),
+	integer(Port),
 	atom(Connection),
 	get_value(Connection,[]).  % Nao pode ter nenhum valor atribuido
 '$error_checks'(db_open(odbc,Connection,ODBCEntry,User,Password)) :- !,

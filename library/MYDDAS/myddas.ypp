@@ -166,10 +166,18 @@
 %
 db_open(Interface,HostDb,User,Password):-
 	db_open(Interface,myddas,HostDb,User,Password).
-db_open(mysql,Connection,Host/Db,User,Password) :-
-	'$error_checks'(db_open(mysql,Connection,Host/Db,User,Password)),
-	c_db_my_connect(Host,User,Password,Db,Con),
+
+db_open(mysql,Connection,Host/Db/Port/Socket,User,Password) :- !,
+	'$error_checks'(db_open(mysql,Connection,Host/Db/Port/Socket,User,Password)),
+	c_db_my_connect(Host,User,Password,Db,Port,Socket,Con),
 	set_value(Connection,Con).
+db_open(mysql,Connection,Host/Db/Port,User,Password) :-
+	integer(Port),!,
+	db_open(mysql,Connection,Host/Db/Port/_,User,Password).  % Var to be NULL, the  default socket
+db_open(mysql,Connection,Host/Db/Socket,User,Password) :- !,
+	db_open(mysql,Connection,Host/Db/0/Socket,User,Password). % 0 is default port
+db_open(mysql,Connection,Host/Db,User,Password) :-
+	db_open(mysql,Connection,Host/Db/0/_,User,Password).  % 0 is default port and Var to be NULL, the default socket
 
 db_open(odbc,Connection,ODBCEntry,User,Password) :-
 	'$error_checks'(db_open(odbc,Connection,ODBCEntry,User,Password)),

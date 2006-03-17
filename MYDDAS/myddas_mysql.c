@@ -60,7 +60,7 @@ STATIC_PROTO(Int c_db_my_change_database,(void));
 void Yap_InitMYDDAS_MySQLPreds(void)
 {
   /* db_connect: Host x User x Passwd x Database x Connection x ERROR_CODE */
-  Yap_InitCPred("c_db_my_connect", 5, c_db_my_connect,  0);
+  Yap_InitCPred("c_db_my_connect", 7, c_db_my_connect,  0);
   
   /* db_number_of_fields: Relation x Connection x NumberOfFields */
   Yap_InitCPred("c_db_my_number_of_fields",3, c_db_my_number_of_fields, 0);  
@@ -111,7 +111,9 @@ c_db_my_connect(void) {
   Term arg_user = Deref(ARG2);
   Term arg_passwd = Deref(ARG3);
   Term arg_database = Deref(ARG4);
-  Term arg_conn = Deref(ARG5);  
+  Term arg_port = Deref(ARG5);
+  Term arg_socket = Deref(ARG6);
+  Term arg_conn = Deref(ARG7);  
 
   MYSQL *conn;
 
@@ -121,15 +123,21 @@ c_db_my_connect(void) {
   char *user = AtomName(AtomOfTerm(arg_user));
   char *passwd = AtomName(AtomOfTerm(arg_passwd));
   char *database = AtomName(AtomOfTerm(arg_database));
+  Int port = IntegerOfTerm(arg_port);
+  
+  char *socket;
+  if (IsNonVarTerm(arg_socket))
+    socket = AtomName(AtomOfTerm(arg_socket));
+  else
+    socket = NULL;
 
-    
   conn = mysql_init(NULL);
   if (conn == NULL) {
     printf("erro no init\n");
     return FALSE;
   }
-
-  if (mysql_real_connect(conn, host, user, passwd, database,0, NULL, CLIENT_MULTI_STATEMENTS) == NULL) {
+  
+  if (mysql_real_connect(conn, host, user, passwd, database, port, socket, CLIENT_MULTI_STATEMENTS) == NULL) {
     printf("erro no connect\n");
     return FALSE;
   }
