@@ -16,6 +16,13 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: if LU indices have groups, we should create
+  try-retry-trust sequences immediately, otherwise LU semantics can be
+  compromised (obs ).</li>
+<li> FIXED: when cleaning trail, gc would not always clean value
+  field! (obs Remko Troncon).</li>
+<li> FIXED: when cleaning megaclauses, clean flag too.</li>
+<li> FIXED: don't put array twice in list of live arrays (gc would loop).</li>
 <li> NEW: debugger will not backtrack over complete deterministic computations.</li>
 <li> NEW: debugger can show CP stack.</li>
 <li> NEW: internal procedure to show choice-point stack.</li>

@@ -318,8 +318,7 @@ debugging :-
 % we are skipping, so we can just call the goal,
 % while leaving the minimal structure in place.
 '$loop_spy'(GoalNumber, G, Module, InControl) :-
-	CP is '$last_choice_pt',
-	'$system_catch'('$loop_spy2'(GoalNumber, CP, G, Module, InControl),
+	'$system_catch'('$loop_spy2'(GoalNumber, G, Module, InControl),
 		    Module, Event,
 		    '$loop_spy_event'(Event, GoalNumber, G, Module, InControl)).
 
@@ -336,6 +335,11 @@ debugging :-
     '$loop_fail'(GoalNumber, G, Module, InControl).
 '$loop_spy_event'('$fail_spy'(GoalNumber), _, _, _, _) :- !,
      throw('$fail_spy'(GoalNumber)).
+'$loop_spy_event'('$done_spy'(G0), GoalNumber, G, Module, InControl) :-
+     G0 >= GoalNumber, !,
+     '$continue_debugging'.
+'$loop_spy_event'('$done_spy'(GoalNumber), _, _, _, _) :- !,
+     throw('$done_spy'(GoalNumber)).
 '$loop_spy_event'(abort, _, _, _, _) :- !,
      throw('$abort').
 '$loop_spy_event'(Event, GoalNumber, G, Module, InControl) :-
@@ -358,7 +362,7 @@ debugging :-
 		    '$loop_spy_event'(Event, GoalNumber, G, Module, InControl)).
 
 % if we are in 
-'$loop_spy2'(GoalNumber, CP, G, Module, InControl) :- 
+'$loop_spy2'(GoalNumber, G, Module, InControl) :- 
 /* the following choice point is where the predicate is  called */
 	(
 	/* call port */
@@ -370,7 +374,7 @@ debugging :-
 	       '$show_trace'(exit,G,Module,GoalNumber),	/* output message at exit	*/
 	       /* exit port */
 	       /* get rid of deterministic computations */
-	        ('$debugger_deterministic_goal'(G) ->  '$cut_by'(CP) ; true),
+	        ('$debugger_deterministic_goal'(G) ->  throw('$done_spy'(GoalNumber)) ; true),
 	       '$continue_debugging'	   
 	     ;
 		/* backtracking from exit				*/
@@ -738,9 +742,13 @@ debugging :-
 '$continue_debug_show_cp'(prolog,'$do_live',0,(_;_),Level) :- !,
 	format(user_error,'      [~d] \'$toplevel\'',[Level]).
 '$continue_debug_show_cp'(prolog,'$do_log_upd_clause',4,'$do_log_upd_clause'(_,_,Goal,_),Level) :- !,
-	format(user_error,'      [~d] ~q~n',[Level,Goal]).
+	format(user_error,'      [~d] ',[Level]),
+	'$debugger_write'(user_error,Goal),
+	nl(user_error).
 '$continue_debug_show_cp'(prolog,'$do_static_clause',5,'$do_static_clause'(_,_,Goal,_,_),Level) :- !,
-	format(user_error,'      [~d] ~q~n',[Level,Goal]).
+	format(user_error,'      [~d] ',[Level]),
+	'$debugger_write'(user_error,Goal),
+	nl(user_error).
 '$continue_debug_show_cp'(Module,Name,Arity,Goal,_) :-
 	functor(G0, Name, Arity), fail,
 	'$hidden_predicate'(G0,Module),

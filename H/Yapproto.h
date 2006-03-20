@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.71 2006-03-10 16:58:39 tiagosoares Exp $	 *
+* version:      $Id: Yapproto.h,v 1.72 2006-03-20 19:51:44 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -327,9 +327,7 @@ void	STD_PROTO(Yap_InitUtilCPreds,(void));
 MYDDAS_GLOBAL          STD_PROTO(myddas_util_initialize_myddas,(void));
 
 /* myddas_util.c */
-#ifdef MYDDAS_MYSQL
 void                   STD_PROTO(myddas_util_table_write,(MYSQL_RES *));
-#endif
 /* Returns the connection type (mysql -> 1  or odbc -> 2) */
 Short                  STD_PROTO(myddas_util_connection_type,(void *));
 /* Adds a connection identifier to the MYDDAS connections list*/

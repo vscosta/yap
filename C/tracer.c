@@ -122,6 +122,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   char *mname;
   Int arity;
   /*  extern int gc_calls; */
+  static PredEntry *pe;
 
   sc = Yap_heap_regs;
   vsc_count++;

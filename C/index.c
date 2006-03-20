@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-02-22 11:55:36 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-20 19:51:43 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.153  2006/02/22 11:55:36  vsc
+* indexing code would get confused about size of float/1, db_reference1.
+*
 * Revision 1.152  2006/02/19 02:55:46  vsc
 * disable indexing on bigints
 *
@@ -3947,6 +3950,7 @@ static UInt *
 do_nonvar_group(GroupDef *grp, Term t, UInt compound_term, CELL *sreg, UInt arity, UInt labl, struct intermediates *cint, UInt argno, int first, int last_arg, UInt nxtlbl, int clleft, CELL *top) {
   TypeSwitch *type_sw;
   PredEntry *ap = cint->CurrentPred;
+  
 
   /* move cl pointer */
   if (grp->AtomClauses + grp->PairClauses + grp->StructClauses > 1) {
@@ -4116,13 +4120,19 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
     }
   } else {
     UInt special_options;
+
     if ((ap->PredFlags & LogUpdatePredFlag) && ngroups > 1) {
       /* make sure we only expand at a single point */
-      if (group[0].VarClauses && ngroups > 3) {
-	int ncls = group[ngroups-1].LastClause-group[2].FirstClause;
-	group[2].VarClauses += ncls;
-	group[2].LastClause = group[ngroups-1].LastClause;
-	ngroups = 3;
+      if (group[0].VarClauses) {
+	/* the problem here is that I really cannot safely handle the
+	   case where the index is in use and the first case is
+	   discarded. In  this case, the indexing code will try to 
+	   remove any switches below, 
+	   and they still might useful if you were backtracking
+	   from the first clause. */ 
+	group[0].VarClauses = ap->cs.p_code.NOfClauses;
+	group[0].LastClause = group[ngroups-1].LastClause;
+	ngroups = 1;
       } else if (!group[0].VarClauses && ngroups > 2) {
 	int ncls = group[ngroups-1].LastClause-group[1].FirstClause;
 	group[1].VarClauses += ncls;
@@ -4134,10 +4144,12 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
     }
     if (ngroups == 1 && group->VarClauses && !found_pvar) {
       return do_index(min, max, cint, argno+1, fail_l, first, clleft, top);
-    } else if (found_pvar) {
+    } else if (found_pvar ||
+	       (ap->PredFlags & LogUpdatePredFlag && group[0].VarClauses)) {
+      /* make sure we know where to suspend */
       Yap_emit(label_op, labl0, Zero, cint);
       labl = new_label();
-      Yap_emit(jump_v_op, suspend_indexing(min, max, ap, cint), Zero, cint);
+      Yap_emit(jump_v_op, suspend_indexing(min, max, ap, cint), Zero, cint); 
     }
   }
   for (i=0; i < ngroups; i++) {

@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-03-06 14:04:56 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-20 19:51:43 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.177  2006/03/06 14:04:56  vsc
+* fixes to garbage collector
+* fixes to debugger
+*
 * Revision 1.176  2006/02/01 13:28:56  vsc
 * bignum support fixes
 *
@@ -284,6 +288,12 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include "yapio.h"
 #include "eval.h"
 #include "tracer.h"
+#ifdef YAPOR
+#include "or.macros.h"
+#endif	/* YAPOR */
+#ifdef TABLING
+#include "tab.macros.h"
+#endif /* TABLING */
 #ifdef YAPOR
 #include "or.macros.h"
 #endif	/* YAPOR */
@@ -604,7 +614,6 @@ split_megaclause(PredEntry *ap)
 	  start = cl->ClNext;
 	  Yap_InformOfRemoval((CODEADDR)cl);
 	  Yap_FreeCodeSpace((char *)cl);
-	  start = NULL;
 	}
 	if (ap->ArityOfPE) {
 	  Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while breaking up mega clause for %s/%d\n",RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE,ap->ArityOfPE);
@@ -963,8 +972,30 @@ kill_static_child_indxs(StaticIndex *indx)
 }
 
 static void
+kill_children(LogUpdIndex *c, PredEntry *ap)
+{
+  LogUpdIndex *ncl;
+
+  LOCK(c->ClLock);
+  c->ClRefCount++;
+  ncl = c->ChildIndex;
+  /* kill children */
+  while (ncl) {
+    UNLOCK(c->ClLock);
+    kill_first_log_iblock(ncl, c, ap);
+    LOCK(c->ClLock);
+    ncl = c->ChildIndex;
+  }
+  c->ClRefCount--;
+  UNLOCK(c->ClLock);
+}
+
+static void
 kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 {
+  /* first, make sure that I killed off all my children, some children may
+     remain in case I have tables as children */
+  kill_children(c, ap);
   decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
   if (parent != NULL) {
     /* sat bye bye */
@@ -1006,8 +1037,6 @@ kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 static void
 kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 {
-
-  LogUpdIndex *ncl;
   /* parent is always locked, now I lock myself */
   LOCK(c->ClLock);
   if (parent != NULL) {
@@ -1027,25 +1056,16 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
       }
     }
     UNLOCK(parent->ClLock);
+  } else {
+    /* I am  top node */
+    if (ap->cs.p_code.TrueCodeOfPred == c->ClCode) {
+      RemoveMainIndex(ap);
+    }
   }
   /* make sure that a child cannot remove us */
-  c->ClRefCount++;
-  ncl = c->ChildIndex;
-  /* kill children */
-  while (ncl) {
-    UNLOCK(c->ClLock);
-    kill_first_log_iblock(ncl, c, ap);
-    LOCK(c->ClLock);
-    ncl = c->ChildIndex;
-  }
-  UNLOCK(c->ClLock);
+  kill_children(c, ap);
   /* check if we are still the main index */
-  if (parent == NULL &&
-      ap->cs.p_code.TrueCodeOfPred == c->ClCode) {
-    RemoveMainIndex(ap);
-  }
   LOCK(c->ClLock);
-  c->ClRefCount--;
   if (!((c->ClFlags & InUseMask) || c->ClRefCount)) {
     kill_off_lu_block(c, parent, ap);
   } else {
@@ -1064,7 +1084,6 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
       parent->ClRefCount--;
       UNLOCK(parent->ClLock);
     }
-    c->ChildIndex = (LogUpdIndex *)ap;
     c->SiblingIndex = DBErasedIList;
     DBErasedIList = c;
     UNLOCK(c->ClLock);
@@ -1222,7 +1241,6 @@ Yap_RemoveIndexation(PredEntry *ap)
 static void 
 retract_all(PredEntry *p, int in_use)
 {
-  yamop          *fclause = NULL, *lclause = NULL;
   yamop          *q;
 
   q = p->cs.p_code.FirstClause;
@@ -1248,6 +1266,8 @@ retract_all(PredEntry *p, int in_use)
 	Yap_InformOfRemoval((CODEADDR)cl);
 	Yap_FreeCodeSpace((char *)cl);
       }
+      /* make sure this is not a MegaClause */
+      p->PredFlags &= ~MegaClausePredFlag;
       p->cs.p_code.NOfClauses = 0;
     } else {
       StaticClause   *cl = ClauseCodeToStaticClause(q);
@@ -1270,27 +1290,17 @@ retract_all(PredEntry *p, int in_use)
       } while (TRUE);
     }
   }
-  p->cs.p_code.FirstClause = fclause;
-  p->cs.p_code.LastClause = lclause;
-  if (fclause == NIL) {
-    if (p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag)) {
-      p->OpcodeOfPred = FAIL_OPCODE;
-    } else {
-      p->OpcodeOfPred = UNDEF_OPCODE;
-    }
-    p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
-    p->StatisticsForPred.NOfEntries = 0;
-    p->StatisticsForPred.NOfHeadSuccesses = 0;
-    p->StatisticsForPred.NOfRetries = 0;
+  p->cs.p_code.FirstClause = NULL;
+  p->cs.p_code.LastClause = NULL;
+  if (p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag)) {
+    p->OpcodeOfPred = FAIL_OPCODE;
   } else {
-    if (p->PredFlags & SpiedPredFlag) {
-      p->OpcodeOfPred = Yap_opcode(_spy_pred);
-      p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
-    } else if (p->PredFlags & IndexedPredFlag) {
-      p->OpcodeOfPred = INDEX_OPCODE;
-      p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
-    }
+    p->OpcodeOfPred = UNDEF_OPCODE;
   }
+  p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+  p->StatisticsForPred.NOfEntries = 0;
+  p->StatisticsForPred.NOfHeadSuccesses = 0;
+  p->StatisticsForPred.NOfRetries = 0;
   if (PROFILING) {
     p->PredFlags |= ProfiledPredFlag;
   } else
@@ -1537,6 +1547,10 @@ assertz_stat_clause(PredEntry *p, yamop *cp, int spy_flag)
       p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
     return;
+  } else {
+    StaticClause *cl =   ClauseCodeToStaticClause(pt);
+
+    cl->ClNext = ClauseCodeToStaticClause(cp);
   }
   if (p->cs.p_code.FirstClause == p->cs.p_code.LastClause) {
     if (!(p->PredFlags & SpiedPredFlag)) {
@@ -1544,23 +1558,7 @@ assertz_stat_clause(PredEntry *p, yamop *cp, int spy_flag)
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
   }
-  {
-      StaticClause *cl =   ClauseCodeToStaticClause(pt);
-      cl->ClNext = ClauseCodeToStaticClause(cp);
-  }
   p->cs.p_code.LastClause = cp;
-#ifdef YAPOR
-  {
-    StaticClause *cl = ClauseCodeToStaticClause(p->cs.p_code.FirstClause);
-
-    while (TRUE) {
-      PUT_YAMOP_LTT((yamop *)code, YAMOP_LTT(cl->ClCode) + 1);
-      if (cl->ClCode == p->cs.p_code.LastClause)
-	break;
-      cl = cl->NextCl;
-    }
-  }
-#endif /* YAPOR */
 }
 
 /* p is already locked */
@@ -1933,6 +1931,9 @@ Yap_EraseStaticClause(StaticClause *cl, Term mod) {
 #if defined(YAPOR) || defined(THREADS)
   WPP = NULL;
 #endif
+  if (ap->PredFlags & MegaClausePredFlag) {
+    split_megaclause(ap);
+  }
   if (ap->PredFlags & IndexedPredFlag)
     RemoveIndexation(ap);
   ap->cs.p_code.NOfClauses--;
@@ -1959,7 +1960,6 @@ Yap_EraseStaticClause(StaticClause *cl, Term mod) {
       ocl = pcl;
       pcl = pcl->ClNext;
     }
-    ocl->ClCode->u.ld.d = cl->ClCode->u.ld.d;
     ocl->ClNext = cl->ClNext;
     if (cl->ClCode ==  ap->cs.p_code.LastClause) {
       ap->cs.p_code.LastClause = ocl->ClCode;
@@ -2937,7 +2937,7 @@ p_kill_dynamic(void)
     WRITE_UNLOCK(pe->PRWLock);
     return (FALSE);
   }
-  pe->cs.p_code.LastClause = pe->cs.p_code.FirstClause = NIL;
+  pe->cs.p_code.LastClause = pe->cs.p_code.FirstClause = NULL;
   pe->OpcodeOfPred = UNDEF_OPCODE;
   pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred)); 
   pe->PredFlags = pe->PredFlags & GoalExPredFlag;

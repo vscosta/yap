@@ -23,7 +23,6 @@ static char     SccsId[] = "%W% %G%";
 #include "alloc.h"
 #include "attvar.h"
 
-#define EARLY_RESET 1
 #if !defined(TABLING)
 #define EASY_SHUNTING 1
 #endif /* !TABLING */
@@ -1560,6 +1559,10 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
   while (trail_base < trail_ptr) {
     register CELL trail_cell;
     
+    if (trail_base == ((CELL *)0x204bc000)+0x320d) {
+      extern int jmp_deb();
+      jmp_deb(1);
+    }
     trail_cell = TrailTerm(trail_base);
 
     if (IsVarTerm(trail_cell)) {
@@ -1569,19 +1572,14 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	 we must use gc_H to avoid trouble with dangling variables
 	 in the heap */
       if (((hp < gc_H   && hp >= H0) || (hp > (CELL *)gc_B && hp < LCL0) ) && !MARKED_PTR(hp)) {
-#ifdef EARLY_RESET
-	/* reset to be a variable */
+	/* perform early reset */
+	/* reset term to be a variable */
 	RESET_VARIABLE(hp);
 	discard_trail_entries++;
 	RESET_VARIABLE(&TrailTerm(trail_base));
 #ifdef FROZEN_STACKS
 	RESET_VARIABLE(&TrailVal(trail_base));
 #endif
-#else
-	/* if I have no early reset I have to follow the trail chain */
-	mark_external_reference(&TrailTerm(trail_base));	
-	UNMARK(&TrailTerm(trail_base));
-#endif /* EARLY_RESET */
       } else if (hp < (CELL *)Yap_GlobalBase || hp > (CELL *)Yap_TrailTop) {
 	  /*  pointers from the Heap back into the trail are process in mark_regs.  */
 	/* do nothing !!! */
@@ -1596,8 +1594,9 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	if (trail_cell == (CELL)trail_base)
 	  discard_trail_entries++;
 #ifdef FROZEN_STACKS
-	else
+	else {
 	  mark_external_reference(&TrailVal(trail_base));
+	}
 #endif
 #ifdef EASY_SHUNTING
 	if (hp < gc_H   && hp >= H0) {
@@ -2183,17 +2182,16 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	  if (HEAP_PTR(trail_cell)) {
 	    into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell));
 	  }
-#ifdef FROZEN_STACKS
-	  /* it is complex to recover cells with frozen segments */
-	  TrailVal(dest) = TrailVal(trail_ptr);
-	  if (MARKED_PTR(&TrailVal(dest))) {
-	    UNMARK(&TrailVal(dest));
-	    if (HEAP_PTR(TrailVal(dest))) {
-	      into_relocation_chain(&TrailVal(dest), GET_NEXT(TrailVal(dest)));
-	    }
-	  }
-#endif
 	}
+#ifdef FROZEN_STACKS
+	/* it is complex to recover cells with frozen segments */
+	TrailVal(dest) = TrailVal(trail_ptr);
+	if (MARKED_PTR(&TrailVal(dest))) {
+	  if (HEAP_PTR(TrailVal(dest))) {
+	    into_relocation_chain(&TrailVal(dest), GET_NEXT(TrailVal(dest)));
+	  }
+	}
+#endif
       } else if (IsPairTerm(trail_cell)) {
 	CELL *pt0 = RepPair(trail_cell);
 	CELL flags;
@@ -3556,9 +3554,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     fprintf(Yap_stderr, "%% gc\n");
   } else if (gc_verbose) {
     fprintf(Yap_stderr, "%% Start of garbage collection %d:\n", GcCalls);
-#ifndef EARLY_RESET
-    fprintf(Yap_stderr, "%% no early reset in trail\n");
-#endif
     fprintf(Yap_stderr, "%%       Global: %8ld cells (%p-%p)\n", (long int)heap_cells,H0,H);
     fprintf(Yap_stderr, "%%       Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     fprintf(Yap_stderr, "%%       Trail:%8ld cells (%p-%p)\n",
