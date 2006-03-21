@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-03-21 15:06:35 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-21 17:11:39 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.155  2006/03/21 15:06:35  vsc
+* fixes to handle expansion of dyn amic predicates more efficiently.
+*
 * Revision 1.154  2006/03/20 19:51:43  vsc
 * fix indexing and tabling bugs
 *
@@ -4842,7 +4845,7 @@ count_clauses_left(yamop *cl, PredEntry *ap)
 static ClausePointer
 index_jmp(ClausePointer cur, yamop *ipc, int is_lu, yamop *e_code)
 {
-  if (cur.lui == NULL) {
+  if (cur.lui == NULL || TRUE) {
     cur.lui = NULL;
     return cur;
   }
@@ -4873,7 +4876,7 @@ index_jmp(ClausePointer cur, yamop *ipc, int is_lu, yamop *e_code)
       cur.lui = NULL;
       return cur;
     }
-    cur.lui = lcur;
+    cur.lui = ncur;
     return cur;    
   } else {
     StaticIndex *scur = cur.si;

@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-03-20 19:51:43 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-21 17:11:39 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.178  2006/03/20 19:51:43  vsc
+* fix indexing and tabling bugs
+*
 * Revision 1.177  2006/03/06 14:04:56  vsc
 * fixes to garbage collector
 * fixes to debugger
@@ -995,7 +998,6 @@ kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 {
   /* first, make sure that I killed off all my children, some children may
      remain in case I have tables as children */
-  kill_children(c, ap);
   decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
   if (parent != NULL) {
     /* sat bye bye */
