@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-03-20 19:51:43 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-21 15:06:35 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.154  2006/03/20 19:51:43  vsc
+* fix indexing and tabling bugs
+*
 * Revision 1.153  2006/02/22 11:55:36  vsc
 * indexing code would get confused about size of float/1, db_reference1.
 *
@@ -4832,6 +4835,67 @@ count_clauses_left(yamop *cl, PredEntry *ap)
   }
 }
 
+/*
+  We have jumped across indexing code. Check if we jumped within the current
+  indexing block, if we moved back to a parent, or if we jumped to a child.
+ */
+static ClausePointer
+index_jmp(ClausePointer cur, yamop *ipc, int is_lu, yamop *e_code)
+{
+  if (cur.lui == NULL) {
+    cur.lui = NULL;
+    return cur;
+  }
+  if (is_lu) {
+    LogUpdIndex *lcur = cur.lui, *ncur;
+    if (ipc == FAILCODE ||
+	ipc == e_code ||
+	ipc->opc == Yap_opcode(_expand_clauses)
+	)
+      return cur;
+    /* check myself */
+    if (ipc >= lcur->ClCode && ipc <= (yamop *)((CODEADDR)lcur+lcur->ClSize))
+      return cur;
+    /* maybe I jumped to some parent */
+    if (lcur->ParentIndex) {
+      LogUpdIndex *pcur = lcur->ParentIndex;
+      if (ipc >= pcur->ClCode && ipc <= (yamop *)((CODEADDR)pcur+pcur->ClSize)) {
+	cur.lui = pcur;
+      }
+      return cur;
+    }
+    /* maybe I am a new group */
+    ncur = ClauseCodeToLogUpdIndex(ipc);
+    if (ncur->ParentIndex != lcur) {
+#ifdef DEBUG
+      fprintf(stderr,"OOPS, bad parent in lu index\n");
+#endif
+      cur.lui = NULL;
+      return cur;
+    }
+    cur.lui = lcur;
+    return cur;    
+  } else {
+    StaticIndex *scur = cur.si;
+    /* check myself */
+    if (ipc >= scur->ClCode && ipc <= (yamop *)((CODEADDR)scur+scur->ClSize))   
+      return cur;
+    cur.si = NULL;
+    return cur;
+  }
+}
+
+static ClausePointer
+code_to_indexcl(yamop *ipc, int is_lu)
+{
+  ClausePointer ret;
+  if (is_lu)
+    ret.lui = ClauseCodeToLogUpdIndex(ipc);
+  else
+    ret.si = ClauseCodeToStaticIndex(ipc);
+  return ret;    
+}
+
 static yamop **
 expand_index(struct intermediates *cint) {
   /* first clause */
@@ -4843,7 +4907,8 @@ expand_index(struct intermediates *cint) {
   /* last clause to experiment with */
   yamop *ipc;
   /* labp should point at the beginning of the sequence */
-  yamop **labp = NULL, **olabp = NULL;
+  yamop **labp = NULL;
+  ClausePointer parentcl;
   Term t = TermNil, *s_reg = NULL;
   int is_last_arg = TRUE;
   int argno = 1;
@@ -4854,6 +4919,7 @@ expand_index(struct intermediates *cint) {
   UInt lab, fail_l, clleft, i = 0;
   int is_lu = ap->PredFlags & LogUpdatePredFlag;
   yamop *eblk = NULL;
+  yamop *e_code = (yamop *)&(ap->cs.p_code.ExpandCode);
 
   ipc = ap->cs.p_code.TrueCodeOfPred;
   first = ap->cs.p_code.FirstClause;
@@ -4863,6 +4929,7 @@ expand_index(struct intermediates *cint) {
   stack[0].pos = 0;
   /* try to refine the interval using the indexing code */
 
+  parentcl = code_to_indexcl(ipc,is_lu);
   while (ipc != NULL) {
     op_numbers op;
 
@@ -4962,8 +5029,8 @@ expand_index(struct intermediates *cint) {
       break;
     case _jump:
       /* just skip for now, but should worry about memory management */
-      olabp = NULL;  
       ipc = ipc->u.l.l;
+      parentcl = index_jmp(parentcl, ipc, is_lu, e_code);
       break;
     case _lock_lu:
     case _procceed:
@@ -4974,9 +5041,9 @@ expand_index(struct intermediates *cint) {
       break;
     case _jump_if_var:
       if (IsVarTerm(Deref(ARG1))) {
-	olabp = NULL;
 	labp = &(ipc->u.l.l);
 	ipc = ipc->u.l.l;
+	parentcl = index_jmp(parentcl, ipc, is_lu, e_code);
       } else {
 	ipc = NEXTOP(ipc,l);
       }
@@ -4988,9 +5055,9 @@ expand_index(struct intermediates *cint) {
       /* expand_index expects to find the new argument */
       if (!IsVarTerm(t)) {
 	argno--;
-	olabp = NULL;
 	labp = &(ipc->u.xll.l1);
 	ipc = ipc->u.xll.l1;
+	parentcl = index_jmp(parentcl, ipc, is_lu, e_code);
       } else {
 	ipc = NEXTOP(ipc,xll);
       }
@@ -5015,13 +5082,11 @@ expand_index(struct intermediates *cint) {
       argno = 1;
       i = 0;
       if (IsVarTerm(t)) {
-	olabp = NULL;
 	labp = &(ipc->u.llll.l4);
 	ipc = ipc->u.llll.l4;
       } else if (IsPairTerm(t)) {
 	sp = push_stack(sp, 1, AbsPair(NULL), TermNil, cint);
 	s_reg = RepPair(t);
-	olabp = NULL;
 	labp = &(ipc->u.llll.l1);
 	ipc = ipc->u.llll.l1;	
       } else if (IsApplTerm(t)) {
@@ -5031,17 +5096,16 @@ expand_index(struct intermediates *cint) {
 	sp = push_stack(sp, argno, t, TermNil, cint);
 	ipc = ipc->u.llll.l2;	
       }
+      parentcl = index_jmp(parentcl, ipc, is_lu, e_code);
       break;
     case _switch_list_nl:
       t = Deref(ARG1);
       argno = 1;
       i = 0;
       if (IsVarTerm(t)) {	
-	olabp = NULL;
 	labp = &(ipc->u.ollll.l4);
 	ipc = ipc->u.ollll.l4;
       } else if (IsPairTerm(t)) {
-	olabp = NULL;
 	s_reg = RepPair(t);
 	labp = &(ipc->u.ollll.l1);
 	sp = push_stack(sp, 1, AbsPair(NULL), TermNil, cint);
@@ -5060,18 +5124,17 @@ expand_index(struct intermediates *cint) {
 	sp = push_stack(sp, argno, tn, TermNil, cint);
 	ipc = ipc->u.ollll.l3;	
       }
+      parentcl = index_jmp(parentcl, ipc, is_lu, e_code);
       break;
     case _switch_on_arg_type:
       argno = arg_from_x(ipc->u.xllll.x);
       i = 0;
       t = Deref(XREGS[argno]);
       if (IsVarTerm(t)) {
-	olabp = NULL;
 	labp = &(ipc->u.xllll.l4);
 	ipc = ipc->u.xllll.l4;
       } else if (IsPairTerm(t)) {
 	s_reg = RepPair(t);
-	olabp = NULL;
 	sp = push_stack(sp, argno, AbsPair(NULL), TermNil, cint);
 	labp = &(ipc->u.xllll.l1);
 	ipc = ipc->u.xllll.l1;	
@@ -5082,6 +5145,7 @@ expand_index(struct intermediates *cint) {
 	sp = push_stack(sp, argno, t, TermNil, cint);
 	ipc = ipc->u.xllll.l2;	
       }
+      parentcl = index_jmp(parentcl, ipc, is_lu, e_code);
       break;
     case _switch_on_sub_arg_type:
       i = ipc->u.sllll.s;
@@ -5089,14 +5153,12 @@ expand_index(struct intermediates *cint) {
       if (i != arity-1) is_last_arg = FALSE;
       t = Deref(s_reg[i]);
       if (IsVarTerm(t)) {
-	olabp = NULL;
 	labp = &(ipc->u.sllll.l4);
 	ipc = ipc->u.sllll.l4;
 	i++;
       } else if (IsPairTerm(t)) {
 	s_reg = RepPair(t);
 	sp = push_stack(sp, -i-1, AbsPair(NULL), TermNil, cint);
-	olabp = NULL;
 	labp = &(ipc->u.sllll.l1);
 	ipc = ipc->u.sllll.l1;
 	i = 0;
@@ -5112,6 +5174,7 @@ expand_index(struct intermediates *cint) {
 	ipc = ipc->u.sllll.l2;	
 	i++;
       }
+      parentcl = index_jmp(parentcl, ipc, is_lu, e_code);
       break;
     case _if_not_then:
       labp = NULL;
@@ -5135,9 +5198,9 @@ expand_index(struct intermediates *cint) {
 	}
 	newpc = (yamop *)(fe->Label);
 
-	olabp = &(ipc->u.sssl.l);
 	labp = (yamop **)(&(fe->Label));
-	if (newpc == (yamop *)&(ap->cs.p_code.ExpandCode)) {
+	parentcl = code_to_indexcl(ipc->u.sssl.l,is_lu);
+	if (newpc == e_code) {
 	  /* we found it */
 	  ipc = NULL;
 	} else {
@@ -5157,9 +5220,9 @@ expand_index(struct intermediates *cint) {
 	  ae = lookup_c(t,ipc->u.sssl.l,ipc->u.sssl.s);
 	}
 
-	olabp = &(ipc->u.sssl.l);
 	labp = (yamop **)(&(ae->Label));
-	if (ae->Label == (CELL)&(ap->cs.p_code.ExpandCode)) {
+	parentcl = code_to_indexcl(ipc->u.sssl.l,is_lu);
+	if (ae->Label == (CELL)e_code) {
 	  /* we found it */
 	  ipc = NULL;
 	} else {
@@ -5199,15 +5262,9 @@ expand_index(struct intermediates *cint) {
   /* if there was an overflow while generating the code, make sure
      S is still correct */
   if (is_lu) {
-    if (olabp)
-      cint->current_cl.lui = ClauseCodeToLogUpdIndex(*olabp);
-    else 
-      cint->current_cl.lui = NULL;
+    cint->current_cl.lui = parentcl.lui;
   } else {
-    if (olabp)
-      cint->current_cl.si = ClauseCodeToStaticIndex(*olabp);
-    else
-      cint->current_cl.si = NULL;
+    cint->current_cl.si = parentcl.si;
   }
   if (s_reg != NULL)
     S = s_reg;

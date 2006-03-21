@@ -150,6 +150,15 @@ typedef union clause_obj {
   struct static_index si;
 } ClauseUnion;
 
+typedef union clause_ptr {
+  struct logic_upd_clause *luc;
+  struct logic_upd_index *lui;
+  struct dynamic_clause *ic;
+  struct static_clause *sc;
+  struct static_mega_clause *mc;
+  struct static_index *si;
+} ClausePointer;
+
 #define ClauseCodeToDynamicClause(p)    ((DynamicClause *)((CODEADDR)(p)-(CELL)(((DynamicClause *)NULL)->ClCode)))
 #define ClauseCodeToStaticClause(p)    ((StaticClause *)((CODEADDR)(p)-(CELL)(((StaticClause *)NULL)->ClCode)))
 #define ClauseCodeToLogUpdClause(p)    ((LogUpdClause *)((CODEADDR)(p)-(CELL)(((LogUpdClause *)NULL)->ClCode)))

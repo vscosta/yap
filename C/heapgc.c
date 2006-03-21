@@ -1559,10 +1559,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
   while (trail_base < trail_ptr) {
     register CELL trail_cell;
     
-    if (trail_base == ((CELL *)0x204bc000)+0x320d) {
-      extern int jmp_deb();
-      jmp_deb(1);
-    }
     trail_cell = TrailTerm(trail_base);
 
     if (IsVarTerm(trail_cell)) {
