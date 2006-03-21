@@ -16,9 +16,12 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: typo in manual (obs Bernd Gutmann).</li>
+<li> NEW: track the current block more aggressively, to avoid
+  expand_index taking too long searching for a block.</li>
 <li> FIXED: if LU indices have groups, we should create
   try-retry-trust sequences immediately, otherwise LU semantics can be
-  compromised (obs ).</li>
+  compromised (obs Bernd Gutmann).</li>
 <li> FIXED: when cleaning trail, gc would not always clean value
   field! (obs Remko Troncon).</li>
 <li> FIXED: when cleaning megaclauses, clean flag too.</li>

@@ -171,7 +171,7 @@ find_used([],_,L,L).
 find_used([M|Mods],Mods0,L0,Lf) :-
         in(M,Mods0), !,
 	find_used(Mods,Mods0,[M|L0],Lf).
-find_used([M|Mods],Mods0,L0,Lf) :-
+find_used([_|Mods],Mods0,L0,Lf) :-
 	find_used(Mods,Mods0,L0,Lf).
 
 in(X,[X|_]).

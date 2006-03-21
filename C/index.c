@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-03-21 17:11:39 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-21 19:20:34 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.156  2006/03/21 17:11:39  vsc
+* prevent breakage
+*
 * Revision 1.155  2006/03/21 15:06:35  vsc
 * fixes to handle expansion of dyn amic predicates more efficiently.
 *
@@ -4845,7 +4848,7 @@ count_clauses_left(yamop *cl, PredEntry *ap)
 static ClausePointer
 index_jmp(ClausePointer cur, yamop *ipc, int is_lu, yamop *e_code)
 {
-  if (cur.lui == NULL || TRUE) {
+  if (cur.lui == NULL) {
     cur.lui = NULL;
     return cur;
   }
@@ -4864,8 +4867,8 @@ index_jmp(ClausePointer cur, yamop *ipc, int is_lu, yamop *e_code)
       LogUpdIndex *pcur = lcur->ParentIndex;
       if (ipc >= pcur->ClCode && ipc <= (yamop *)((CODEADDR)pcur+pcur->ClSize)) {
 	cur.lui = pcur;
+	return cur;
       }
-      return cur;
     }
     /* maybe I am a new group */
     ncur = ClauseCodeToLogUpdIndex(ipc);
@@ -5192,6 +5195,7 @@ expand_index(struct intermediates *cint) {
 	yamop *newpc;
 	Functor f;
 
+	parentcl = code_to_indexcl(ipc->u.sssl.l,is_lu);
 	s_reg = RepAppl(t);
 	f = (Functor)(*s_reg++);
 	if (op == _switch_on_func) {
@@ -5202,12 +5206,12 @@ expand_index(struct intermediates *cint) {
 	newpc = (yamop *)(fe->Label);
 
 	labp = (yamop **)(&(fe->Label));
-	parentcl = code_to_indexcl(ipc->u.sssl.l,is_lu);
 	if (newpc == e_code) {
 	  /* we found it */
 	  ipc = NULL;
 	} else {
 	  ipc = newpc;
+	  parentcl = index_jmp(parentcl, ipc, is_lu, e_code);
 	}
       }
       break;
@@ -5217,6 +5221,7 @@ expand_index(struct intermediates *cint) {
       {
 	AtomSwiEntry *ae;
 
+	parentcl = code_to_indexcl(ipc->u.sssl.l,is_lu);
 	if (op == _switch_on_cons) {
 	  ae = lookup_c_hash(t,ipc->u.sssl.l,ipc->u.sssl.s);
 	} else {
@@ -5224,12 +5229,12 @@ expand_index(struct intermediates *cint) {
 	}
 
 	labp = (yamop **)(&(ae->Label));
-	parentcl = code_to_indexcl(ipc->u.sssl.l,is_lu);
 	if (ae->Label == (CELL)e_code) {
 	  /* we found it */
 	  ipc = NULL;
 	} else {
 	  ipc = (yamop *)(ae->Label);
+	  parentcl = index_jmp(parentcl, ipc, is_lu, e_code);
 	}
       }
       break;
