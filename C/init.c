@@ -724,14 +724,10 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
   else {
     StaticClause *cl;
     yamop      *code = ((StaticClause *)NULL)->ClCode;
-#ifdef CUT_C
     if (flags &  UserCPredFlag) 
       pe->PredFlags = UserCPredFlag | CompiledPredFlag | StandardPredFlag;
     else
       pe->PredFlags = CompiledPredFlag | StandardPredFlag;
-#else /* BUG ?*/
-    pe->PredFlags = CompiledPredFlag | StandardPredFlag;
-#endif /*CUT_C*/
 
 #ifdef YAPOR
     pe->PredFlags |= SequentialPredFlag;

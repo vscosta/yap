@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-03-21 17:11:39 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-22 16:14:20 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.179  2006/03/21 17:11:39  vsc
+* prevent breakage
+*
 * Revision 1.178  2006/03/20 19:51:43  vsc
 * fix indexing and tabling bugs
 *
@@ -371,6 +374,9 @@ PredForChoicePt(yamop *p_code) {
     switch(opnum) {
     case _Nstop:
       return NULL;
+    case _retry_me:
+    case _trust_me:
+      return p_code->u.ld.p;
 #ifdef TABLING
     case _trie_retry_null:
     case _trie_trust_null:
@@ -970,8 +976,17 @@ kill_static_child_indxs(StaticIndex *indx)
     kill_static_child_indxs(cl);
     cl = next;
   }
-  Yap_InformOfRemoval((CODEADDR)indx);
-  Yap_FreeCodeSpace((char *)indx);
+  if (static_in_use(indx->ClPred, TRUE)) {
+    DeadClause *dcl = (DeadClause *)indx;
+    UInt sz = indx->ClSize;
+    dcl->NextCl = DeadClauses;
+    dcl->ClFlags = 0;
+    dcl->ClSize = sz;
+    DeadClauses = dcl;
+  } else {
+    Yap_InformOfRemoval((CODEADDR)indx);
+    Yap_FreeCodeSpace((char *)indx);
+  }
 }
 
 static void
