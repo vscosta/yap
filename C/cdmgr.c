@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-03-22 16:14:20 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-22 20:07:28 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.180  2006/03/22 16:14:20  vsc
+* don't be too eager at throwing indexing code for static predicates away.
+*
 * Revision 1.179  2006/03/21 17:11:39  vsc
 * prevent breakage
 *
@@ -566,6 +569,7 @@ Yap_BuildMegaClause(PredEntry *ap)
   mcl->ClSize = sz*ap->cs.p_code.NOfClauses;
   mcl->ClPred = ap;
   mcl->ClItemSize = sz;
+  mcl->ClNext = NULL;
   cl =
     ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
   ptr = mcl->ClCode;
@@ -968,21 +972,20 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
 }
 
 static void
-kill_static_child_indxs(StaticIndex *indx)
+kill_static_child_indxs(StaticIndex *indx, int in_use)
 {
   StaticIndex *cl = indx->ChildIndex;
   while (cl != NULL) {
     StaticIndex *next = cl->SiblingIndex;
-    kill_static_child_indxs(cl);
+    kill_static_child_indxs(cl, in_use);
     cl = next;
   }
-  if (static_in_use(indx->ClPred, TRUE)) {
-    DeadClause *dcl = (DeadClause *)indx;
-    UInt sz = indx->ClSize;
-    dcl->NextCl = DeadClauses;
-    dcl->ClFlags = 0;
-    dcl->ClSize = sz;
-    DeadClauses = dcl;
+  if (in_use) {
+    LOCK(DeadStaticIndicesLock);
+    indx->SiblingIndex = DeadStaticIndices;
+    indx->ChildIndex = NULL;
+    DeadStaticIndices = indx;
+    UNLOCK(DeadStaticIndicesLock);
   } else {
     Yap_InformOfRemoval((CODEADDR)indx);
     Yap_FreeCodeSpace((char *)indx);
@@ -1111,7 +1114,7 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 static void
 kill_top_static_iblock(StaticIndex *c, PredEntry *ap)
 {
-  kill_static_child_indxs(c);
+  kill_static_child_indxs(c, static_in_use(ap, TRUE));
   RemoveMainIndex(ap);
 }
 
@@ -1150,7 +1153,7 @@ Yap_kill_iblock(ClauseUnion *blk, ClauseUnion *parent_blk, PredEntry *ap)
 	cl->SiblingIndex = c->SiblingIndex;
       }
     }
-    kill_static_child_indxs(c);
+    kill_static_child_indxs(c, static_in_use(ap, TRUE));
   }
 }
 
@@ -1272,13 +1275,11 @@ retract_all(PredEntry *p, int in_use)
     } else if (p->PredFlags & MegaClausePredFlag) { 
       MegaClause *cl = ClauseCodeToMegaClause(q);
 
-      if (cl->ClFlags & HasBlobsMask) {
-	DeadClause *dcl = (DeadClause *)cl;
-	UInt sz = cl->ClSize;
-	dcl->NextCl = DeadClauses;
-	dcl->ClFlags = 0;
-	dcl->ClSize = sz;
-	DeadClauses = dcl;
+      if (in_use || cl->ClFlags & HasBlobsMask) {
+	LOCK(DeadMegaClausesLock);
+	cl->ClNext = DeadMegaClauses;
+	DeadMegaClauses = cl;
+	UNLOCK(DeadMegaClausesLock);
       } else {
 	Yap_InformOfRemoval((CODEADDR)cl);
 	Yap_FreeCodeSpace((char *)cl);
@@ -1289,22 +1290,22 @@ retract_all(PredEntry *p, int in_use)
     } else {
       StaticClause   *cl = ClauseCodeToStaticClause(q);
 
-      do {
-	if (cl->ClFlags & HasBlobsMask) {
-	  DeadClause *dcl = (DeadClause *)cl;
-	  UInt sz = cl->ClSize;
-	  dcl->NextCl = DeadClauses;
-	  dcl->ClFlags = 0;
-	  dcl->ClSize = sz;
-	  DeadClauses = dcl;
+      while (cl) {
+	StaticClause *ncl = cl->ClNext;
+
+	if (in_use|| cl->ClFlags & HasBlobsMask) {
+	  LOCK(StaticClausesLock);
+	  cl->ClNext = DeadStaticClauses;
+	  DeadStaticClauses = cl;
+	  UNLOCK(StaticClausesLock);
 	} else {
 	  Yap_InformOfRemoval((CODEADDR)cl);
 	  Yap_FreeCodeSpace((char *)cl);
 	}
 	p->cs.p_code.NOfClauses--;
-	if (cl->ClCode == p->cs.p_code.LastClause) break;
-	cl = cl->ClNext;
-      } while (TRUE);
+	if (!ncl) break;
+	cl = ncl;
+      }
     }
   }
   p->cs.p_code.FirstClause = NULL;
@@ -1993,12 +1994,10 @@ Yap_EraseStaticClause(StaticClause *cl, Term mod) {
 #endif
   WRITE_UNLOCK(ap->PRWLock);
   if (cl->ClFlags & HasBlobsMask || static_in_use(ap,TRUE)) {
-    DeadClause *dcl = (DeadClause *)cl;
-    UInt sz = cl->ClSize;
-    dcl->NextCl = DeadClauses;
-    dcl->ClFlags = 0;
-    dcl->ClSize = sz;
-    DeadClauses = dcl;
+    LOCK(DeadStaticClauses);
+    cl->ClNext = DeadStaticClauses;
+    DeadStaticClauses = cl;
+    UNLOCK(DeadStaticClauses);
   } else {
     Yap_InformOfRemoval((CODEADDR)cl);
     Yap_FreeCodeSpace((char *)cl);
@@ -4468,13 +4467,25 @@ p_call_count_set(void)
 static Int
 p_clean_up_dead_clauses(void)
 {
-  while (DeadClauses != NULL) {
-    char *pt = (char *)DeadClauses;
-    DeadClauses = DeadClauses->NextCl;
+  while (DeadStaticClauses != NULL) {
+    char *pt = (char *)DeadStaticClauses;
+    DeadStaticClauses = DeadStaticClauses->ClNext;
     Yap_InformOfRemoval((CODEADDR)pt);
     Yap_FreeCodeSpace(pt);
   }
-  return(TRUE);
+  while (DeadStaticIndices != NULL) {
+    char *pt = (char *)DeadStaticIndices;
+    DeadStaticIndices = DeadStaticIndices->SiblingIndex;
+    Yap_InformOfRemoval((CODEADDR)pt);
+    Yap_FreeCodeSpace(pt);
+  }
+  while (DeadMegaClauses != NULL) {
+    char *pt = (char *)DeadMegaClauses;
+    DeadMegaClauses = DeadMegaClauses->ClNext;
+    Yap_InformOfRemoval((CODEADDR)pt);
+    Yap_FreeCodeSpace(pt);
+  }
+  return TRUE;
 }
 
 static Int			/* $parent_pred(Module, Name, Arity) */
@@ -5268,6 +5279,7 @@ p_static_pred_statistics(void)
   return static_statistics(pe);
 }
 
+#ifdef DEBUG
 static Int
 p_predicate_erased_statistics(void)
 {
@@ -5311,6 +5323,7 @@ p_predicate_erased_statistics(void)
     Yap_unify(ARG4,MkIntegerTerm(icls)) &&
     Yap_unify(ARG5,MkIntegerTerm(isz));
 }
+#endif
 
 static Int
 p_program_continuation(void)

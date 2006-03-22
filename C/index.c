@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-03-21 21:30:54 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-22 20:07:28 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.158  2006/03/21 21:30:54  vsc
+* avoid looking around when expanding for statics too.
+*
 * Revision 1.157  2006/03/21 19:20:34  vsc
 * fix fix on index expansion
 *
@@ -4883,7 +4886,7 @@ index_jmp(ClausePointer cur, ClausePointer parent, yamop *ipc, int is_lu, yamop 
     cur.lui = ncur;
     return cur;    
   } else {
-    StaticIndex *scur = cur.si, *ncur, *ncur0;
+    StaticIndex *scur = cur.si;
     /* check myself */
     if (ipc >= scur->ClCode && ipc <= (yamop *)((CODEADDR)scur+scur->ClSize))   
       return cur;

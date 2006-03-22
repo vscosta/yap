@@ -863,7 +863,9 @@ mark_db_fixed(CELL *ptr) {
 
 static void 
 init_dbtable(tr_fr_ptr trail_ptr) {
-  DeadClause *cl = DeadClauses;
+  StaticClause *sc = DeadStaticClauses;
+  MegaClause *mc = DeadMegaClauses;
+  StaticIndex *si = DeadStaticIndices;
 
   db_vec0 = db_vec = (ADDR)TR;
   db_root = RBTreeCreate();
@@ -914,9 +916,17 @@ init_dbtable(tr_fr_ptr trail_ptr) {
       }
     }
   }
-  while (cl != NULL) {
-    store_in_dbtable((CODEADDR)cl, (CODEADDR)cl+cl->ClSize, dcl_entry);
-    cl = cl->NextCl;
+  while (sc) {
+    store_in_dbtable((CODEADDR)sc, (CODEADDR)sc+sc->ClSize, dcl_entry);
+    sc = sc->ClNext;
+  }
+  while (si) {
+    store_in_dbtable((CODEADDR)si, (CODEADDR)si+si->ClSize, dcl_entry);
+    si = si->SiblingIndex;
+  }
+  while (mc) {
+    store_in_dbtable((CODEADDR)mc, (CODEADDR)mc+mc->ClSize, dcl_entry);
+    mc = mc->ClNext;
   }
   if (db_vec == db_vec0) {
     /* could not find any entries: probably using LOG UPD semantics */
@@ -2111,6 +2121,65 @@ into_relocation_chain(CELL_PTR current, CELL_PTR next)
 }
 
 
+static void
+CleanDeadClauses(void)
+{
+  {
+    StaticClause **cptr;
+    StaticClause *cl;
+
+    cptr = &(DeadStaticClauses);
+    cl = DeadStaticClauses;
+    while (cl) {
+      if (!ref_in_use((DBRef)cl)) {
+	char *ocl = (char *)cl;
+	cl = cl->ClNext;
+	*cptr = cl;
+	Yap_FreeCodeSpace(ocl);
+      } else {
+	cptr = &(cl->ClNext);
+	cl = cl->ClNext;
+      }
+    }
+  }
+  {
+    StaticIndex **cptr;
+    StaticIndex *cl;
+
+    cptr = &(DeadStaticIndices);
+    cl = DeadStaticIndices;
+    while (cl) {
+      if (!ref_in_use((DBRef)cl)) {
+	char *ocl = (char *)cl;
+	cl = cl->SiblingIndex;
+	*cptr = cl;
+	Yap_FreeCodeSpace(ocl);
+      } else {
+	cptr = &(cl->SiblingIndex);
+	cl = cl->SiblingIndex;
+      }
+    }
+  }
+  {
+    MegaClause **cptr;
+    MegaClause *cl;
+
+    cptr = &(DeadMegaClauses);
+    cl = DeadMegaClauses;
+    while (cl) {
+      if (!ref_in_use((DBRef)cl)) {
+	char *ocl = (char *)cl;
+	cl = cl->ClNext;
+	*cptr = cl;
+	Yap_FreeCodeSpace(ocl);
+      } else {
+	cptr = &(cl->ClNext);
+	cl = cl->ClNext;
+      }
+    }
+  }
+}
+
 /* insert trail cells which point to heap objects into relocation chains */
 
 static void 
@@ -2380,24 +2449,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	    (unsigned long int)OldHeapUsed);
 #endif
   }
-  {
-    DeadClause **cptr;
-    DeadClause *cl;
-
-    cptr = &(DeadClauses);
-    cl = DeadClauses;
-    while (cl != NULL) {
-      if (!ref_in_use((DBRef)cl)) {
-	char *ocl = (char *)cl;
-	cl = cl->NextCl;
-	*cptr = cl;
-	Yap_FreeCodeSpace(ocl);
-      } else {
-	cptr = &(cl->NextCl);
-	cl = cl->NextCl;
-      }
-    }
-  }
+  CleanDeadClauses();
 }
 
 

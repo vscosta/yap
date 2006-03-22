@@ -11,8 +11,12 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2006-03-06 14:04:56 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-22 20:07:28 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.63  2006/03/06 14:04:56  vsc
+* fixes to garbage collector
+* fixes to debugger
+*
 * Revision 1.62  2006/02/24 14:03:42  vsc
 * fix refs to old LogUpd implementation (pre 5).
 *
@@ -140,6 +144,183 @@ do_clean_susp_clauses(yamop *ipc) {
   }
 }
 
+#include "rclause.h"
+
+/* Restoring the heap */
+
+/* adjusts terms stored in the data base, when they have no variables */
+static Term 
+AdjustDBTerm(Term trm, Term *p_base)
+{
+  if (IsAtomTerm(trm))
+    return AtomTermAdjust(trm);
+  if (IsPairTerm(trm)) {
+    Term           *p;
+
+    p = PtoHeapCellAdjust(RepPair(trm));
+    if (p >= p_base) {
+      p[0] = AdjustDBTerm(p[0], p);
+      p[1] = AdjustDBTerm(p[1], p);
+    }
+    return AbsPair(p);
+  }
+  if (IsApplTerm(trm)) {
+    Term           *p;
+    Functor f;
+    Term *p0 = p = PtoHeapCellAdjust(RepAppl(trm));
+    /* if it is before the current position, then we are looking
+       at old code */
+    if (p >= p_base) {
+      f = (Functor)p[0];
+      if (!IsExtensionFunctor(f)) {
+	UInt             Arity, i;
+
+	f = FuncAdjust(f);
+	*p++ = (Term)f;
+	Arity = ArityOfFunctor(f);
+	for (i = 0; i < Arity; ++i) {
+	  *p = AdjustDBTerm(*p, p0);
+	  p++;
+	}
+      }
+    }
+    return AbsAppl(p0);
+  }
+  return trm;
+}
+
+static void
+RestoreDBTerm(DBTerm *dbr)
+{
+#ifdef COROUTINING
+  if (dbr->attachments)
+    dbr->attachments = AdjustDBTerm(dbr->attachments, dbr->Contents);
+#endif
+  if (dbr->DBRefs !=  NULL) {
+    DBRef          *cp;
+    DBRef            tm;
+
+    dbr->DBRefs = DBRefPAdjust(dbr->DBRefs);
+    cp = dbr->DBRefs;
+    while ((tm = *--cp) != 0)
+      *cp = DBRefAdjust(tm);
+  }
+  dbr->Entry = AdjustDBTerm(dbr->Entry, dbr->Contents);
+}
+
+/* Restores a prolog clause, in its compiled form */
+static void 
+RestoreStaticClause(StaticClause *cl)
+/*
+ * Cl points to the start of the code, IsolFlag tells if we have a single
+ * clause for this predicate or not 
+ */
+{
+  if (cl->ClFlags & FactMask) {
+    cl->usc.ClPred = PtoPredAdjust(cl->usc.ClPred);
+  } else {
+    cl->usc.ClSource = DBTermAdjust(cl->usc.ClSource);
+  }
+  if (cl->ClNext) {
+    cl->ClNext = PtoStCAdjust(cl->ClNext);
+  }
+  restore_opcodes(cl->ClCode);
+}
+
+/* Restores a prolog clause, in its compiled form */
+static void 
+RestoreMegaClause(MegaClause *cl)
+/*
+ * Cl points to the start of the code, IsolFlag tells if we have a single
+ * clause for this predicate or not 
+ */
+{
+  cl->ClPred = PtoPredAdjust(cl->ClPred);
+  if (cl->ClNext) {
+     cl->ClNext = (MegaClause *)AddrAdjust((ADDR)(cl->ClNext));
+  }
+  restore_opcodes(cl->ClCode);
+}
+
+/* Restores a prolog clause, in its compiled form */
+static void 
+RestoreDynamicClause(DynamicClause *cl, PredEntry *pp)
+/*
+ * Cl points to the start of the code, IsolFlag tells if we have a single
+ * clause for this predicate or not 
+ */
+{
+  if (cl->ClPrevious != NULL) {
+    cl->ClPrevious = PtoOpAdjust(cl->ClPrevious);
+  }
+  INIT_LOCK(cl->ClLock);
+  restore_opcodes(cl->ClCode);
+}
+
+/* Restores a prolog clause, in its compiled form */
+static void 
+RestoreLUClause(LogUpdClause *cl, PredEntry *pp)
+/*
+ * Cl points to the start of the code, IsolFlag tells if we have a single
+ * clause for this predicate or not 
+ */
+{
+  INIT_LOCK(cl->ClLock);
+  if (cl->ClFlags & LogUpdRuleMask) {
+    cl->ClExt = PtoOpAdjust(cl->ClExt);
+  }
+  if (cl->ClSource) {
+    cl->ClSource = DBTermAdjust(cl->ClSource);
+    RestoreDBTerm(cl->ClSource);
+  }
+  if (cl->ClPrev) {
+    cl->ClPrev = PtoLUCAdjust(cl->ClPrev);
+  }
+  if (cl->ClNext) {
+    cl->ClNext = PtoLUCAdjust(cl->ClNext);
+  }
+  cl->ClPred = PtoPredAdjust(cl->ClPred);
+  restore_opcodes(cl->ClCode);
+}
+
+static void 
+CleanLUIndex(LogUpdIndex *idx)
+{
+  idx->ClRefCount = 0;
+  INIT_LOCK(idx->ClLock);
+  idx->ClPred = PtoPredAdjust(idx->ClPred);
+  if (idx->ParentIndex)
+    idx->ParentIndex = LUIndexAdjust(idx->ParentIndex);
+  if (idx->SiblingIndex) {
+    idx->SiblingIndex = LUIndexAdjust(idx->SiblingIndex);
+    CleanLUIndex(idx->SiblingIndex);
+  }
+  if (idx->ChildIndex) {
+    idx->ChildIndex = LUIndexAdjust(idx->ChildIndex);
+    CleanLUIndex(idx->ChildIndex);
+  }
+  if (!(idx->ClFlags & SwitchTableMask)) {
+    restore_opcodes(idx->ClCode);
+  }
+}
+
+static void 
+CleanSIndex(StaticIndex *idx)
+{
+  idx->ClPred = PtoPredAdjust(idx->ClPred);
+  if (idx->SiblingIndex) {
+    idx->SiblingIndex = SIndexAdjust(idx->SiblingIndex);
+    CleanSIndex(idx->SiblingIndex);
+  }
+  if (idx->ChildIndex) {
+    idx->ChildIndex = SIndexAdjust(idx->ChildIndex);
+    CleanSIndex(idx->ChildIndex);
+  }
+  if (!(idx->ClFlags & SwitchTableMask)) {
+    restore_opcodes(idx->ClCode);
+  }
+}
+
 /* restore the failcodes */
 static void 
 restore_codes(void)
@@ -246,17 +427,37 @@ restore_codes(void)
     Yap_heap_regs->atprompt =
       AtomAdjust(Yap_heap_regs->atprompt);
   }
-  if (Yap_heap_regs->char_conversion_table != NULL) {
+  if (Yap_heap_regs->char_conversion_table) {
     Yap_heap_regs->char_conversion_table = (char *)
       AddrAdjust((ADDR)Yap_heap_regs->char_conversion_table);
   }
-  if (Yap_heap_regs->char_conversion_table2 != NULL) {
+  if (Yap_heap_regs->char_conversion_table2) {
     Yap_heap_regs->char_conversion_table2 = (char *)
       AddrAdjust((ADDR)Yap_heap_regs->char_conversion_table2);
   }
-  if (Yap_heap_regs->dead_clauses != NULL) {
-    Yap_heap_regs->dead_clauses = (DeadClause *)
-      AddrAdjust((ADDR)(Yap_heap_regs->dead_clauses));
+  if (Yap_heap_regs->dead_static_clauses) {
+    StaticClause *sc = PtoStCAdjust(Yap_heap_regs->dead_static_clauses);
+    Yap_heap_regs->dead_static_clauses = sc;
+    while (sc) {
+      RestoreStaticClause(sc);
+      sc = sc->ClNext;
+    }
+  }
+  if (Yap_heap_regs->dead_mega_clauses) {
+    MegaClause *mc = (MegaClause *)AddrAdjust((ADDR)(Yap_heap_regs->dead_mega_clauses));
+    Yap_heap_regs->dead_mega_clauses = mc;
+    while (mc) {
+      RestoreMegaClause(mc);
+      mc = mc->ClNext;
+    }
+  }
+  if (Yap_heap_regs->dead_static_indices) {
+    StaticIndex *si = (StaticIndex *)AddrAdjust((ADDR)(Yap_heap_regs->dead_static_indices));
+    Yap_heap_regs->dead_static_indices = si;
+    while (si) {
+      CleanSIndex(si);
+      si = si->SiblingIndex;
+    }
   }
   Yap_heap_regs->retry_recorded_k_code =
     PtoOpAdjust(Yap_heap_regs->retry_recorded_k_code);
@@ -533,68 +734,6 @@ restore_codes(void)
 }
 
 
-/* Restoring the heap */
-
-/* adjusts terms stored in the data base, when they have no variables */
-static Term 
-AdjustDBTerm(Term trm, Term *p_base)
-{
-  if (IsAtomTerm(trm))
-    return AtomTermAdjust(trm);
-  if (IsPairTerm(trm)) {
-    Term           *p;
-
-    p = PtoHeapCellAdjust(RepPair(trm));
-    if (p >= p_base) {
-      p[0] = AdjustDBTerm(p[0], p);
-      p[1] = AdjustDBTerm(p[1], p);
-    }
-    return AbsPair(p);
-  }
-  if (IsApplTerm(trm)) {
-    Term           *p;
-    Functor f;
-    Term *p0 = p = PtoHeapCellAdjust(RepAppl(trm));
-    /* if it is before the current position, then we are looking
-       at old code */
-    if (p >= p_base) {
-      f = (Functor)p[0];
-      if (!IsExtensionFunctor(f)) {
-	UInt             Arity, i;
-
-	f = FuncAdjust(f);
-	*p++ = (Term)f;
-	Arity = ArityOfFunctor(f);
-	for (i = 0; i < Arity; ++i) {
-	  *p = AdjustDBTerm(*p, p0);
-	  p++;
-	}
-      }
-    }
-    return AbsAppl(p0);
-  }
-  return trm;
-}
-
-static void
-RestoreDBTerm(DBTerm *dbr)
-{
-#ifdef COROUTINING
-  if (dbr->attachments)
-    dbr->attachments = AdjustDBTerm(dbr->attachments, dbr->Contents);
-#endif
-  if (dbr->DBRefs !=  NULL) {
-    DBRef          *cp;
-    DBRef            tm;
-
-    dbr->DBRefs = DBRefPAdjust(dbr->DBRefs);
-    cp = dbr->DBRefs;
-    while ((tm = *--cp) != 0)
-      *cp = DBRefAdjust(tm);
-  }
-  dbr->Entry = AdjustDBTerm(dbr->Entry, dbr->Contents);
-}
-
 static void
 RestoreDBEntry(DBRef dbr)
 {
@@ -658,80 +797,6 @@ RestoreDB(DBEntry *pp)
   }
 }
 
-#include "rclause.h"
-
-/* Restores a prolog clause, in its compiled form */
-static void 
-RestoreStaticClause(StaticClause *cl, PredEntry *pp)
-/*
- * Cl points to the start of the code, IsolFlag tells if we have a single
- * clause for this predicate or not 
- */
-{
-  if (cl->ClFlags & FactMask) {
-    cl->usc.ClPred = PtoPredAdjust(cl->usc.ClPred);
-  } else {
-    cl->usc.ClSource = DBTermAdjust(cl->usc.ClSource);
-  }
-  if (cl->ClNext) {
-    cl->ClNext = PtoStCAdjust(cl->ClNext);
-  }
-  restore_opcodes(cl->ClCode);
-}
-
-/* Restores a prolog clause, in its compiled form */
-static void 
-RestoreMegaClause(MegaClause *cl, PredEntry *pp)
-/*
- * Cl points to the start of the code, IsolFlag tells if we have a single
- * clause for this predicate or not 
- */
-{
-  cl->ClPred = PtoPredAdjust(cl->ClPred);
-  restore_opcodes(cl->ClCode);
-}
-
-/* Restores a prolog clause, in its compiled form */
-static void 
-RestoreDynamicClause(DynamicClause *cl, PredEntry *pp)
-/*
- * Cl points to the start of the code, IsolFlag tells if we have a single
- * clause for this predicate or not 
- */
-{
-  if (cl->ClPrevious != NULL) {
-    cl->ClPrevious = PtoOpAdjust(cl->ClPrevious);
-  }
-  INIT_LOCK(cl->ClLock);
-  restore_opcodes(cl->ClCode);
-}
-
-/* Restores a prolog clause, in its compiled form */
-static void 
-RestoreLUClause(LogUpdClause *cl, PredEntry *pp)
-/*
- * Cl points to the start of the code, IsolFlag tells if we have a single
- * clause for this predicate or not 
- */
-{
-  INIT_LOCK(cl->ClLock);
-  if (cl->ClFlags & LogUpdRuleMask) {
-    cl->ClExt = PtoOpAdjust(cl->ClExt);
-  }
-  if (cl->ClSource) {
-    cl->ClSource = DBTermAdjust(cl->ClSource);
-    RestoreDBTerm(cl->ClSource);
-  }
-  if (cl->ClPrev) {
-    cl->ClPrev = PtoLUCAdjust(cl->ClPrev);
-  }
-  if (cl->ClNext) {
-    cl->ClNext = PtoLUCAdjust(cl->ClNext);
-  }
-  cl->ClPred = PtoPredAdjust(cl->ClPred);
-  restore_opcodes(cl->ClCode);
-}
-
 /*
  * Restores a group of clauses for the same predicate, starting with First
  * and ending with Last, First may be equal to Last 
@@ -749,7 +814,7 @@ CleanClauses(yamop *First, yamop *Last, PredEntry *pp)
   } else if (pp->PredFlags & MegaClausePredFlag) {
     MegaClause *cl = ClauseCodeToMegaClause(First);
 
-    RestoreMegaClause(cl, pp);
+    RestoreMegaClause(cl);
   } else if (pp->PredFlags & DynamicPredFlag) {
     yamop *cl = First;
 
@@ -762,51 +827,13 @@ CleanClauses(yamop *First, yamop *Last, PredEntry *pp)
     StaticClause *cl = ClauseCodeToStaticClause(First);
 
     do {
-      RestoreStaticClause(cl, pp);
+      RestoreStaticClause(cl);
       if (cl->ClCode == Last) return;
       cl = cl->ClNext;
     } while (TRUE);
   }
 }
 
-
-static void 
-CleanLUIndex(LogUpdIndex *idx)
-{
-  idx->ClRefCount = 0;
-  INIT_LOCK(idx->ClLock);
-  idx->ClPred = PtoPredAdjust(idx->ClPred);
-  if (idx->ParentIndex)
-    idx->ParentIndex = LUIndexAdjust(idx->ParentIndex);
-  if (idx->SiblingIndex) {
-    idx->SiblingIndex = LUIndexAdjust(idx->SiblingIndex);
-    CleanLUIndex(idx->SiblingIndex);
-  }
-  if (idx->ChildIndex) {
-    idx->ChildIndex = LUIndexAdjust(idx->ChildIndex);
-    CleanLUIndex(idx->ChildIndex);
-  }
-  if (!(idx->ClFlags & SwitchTableMask)) {
-    restore_opcodes(idx->ClCode);
-  }
-}
-
-static void 
-CleanSIndex(StaticIndex *idx)
-{
-  idx->ClPred = PtoPredAdjust(idx->ClPred);
-  if (idx->SiblingIndex) {
-    idx->SiblingIndex = SIndexAdjust(idx->SiblingIndex);
-    CleanSIndex(idx->SiblingIndex);
-  }
-  if (idx->ChildIndex) {
-    idx->ChildIndex = SIndexAdjust(idx->ChildIndex);
-    CleanSIndex(idx->ChildIndex);
-  }
-  if (!(idx->ClFlags & SwitchTableMask)) {
-    restore_opcodes(idx->ClCode);
-  }
-}
 
 
 /* Restores a DB structure, as it was saved in the heap */

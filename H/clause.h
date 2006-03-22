@@ -126,20 +126,10 @@ typedef struct static_mega_clause {
   UInt		  ClSize;
   PredEntry      *ClPred;
   UInt            ClItemSize;
+  struct  static_mega_clause *ClNext;
   /* The instructions, at least one of the form sl */
   yamop            ClCode[MIN_ARRAY];
 } MegaClause;
-
-typedef struct dead_clause {
-  CELL            ClFlags;
-#if defined(YAPOR) || defined(THREADS)
-  /* A lock for manipulating the clause */
-  lockvar          ClLock;
-  UInt             ref_count;
-#endif
-  UInt ClSize;
-  struct dead_clause *NextCl;       /* dead clause */
-} DeadClause;
 
 typedef union clause_obj {
   struct logic_upd_clause luc;

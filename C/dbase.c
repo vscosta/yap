@@ -3912,39 +3912,6 @@ RemoveDBEntry(DBRef entryref)
   FreeDBSpace((char *) entryref);
 }
 
-static void
-clean_lu_index(DBRef index) {
-  DBRef *te = (DBRef *)(index->DBT.Contents);
-  DBRef ref;
-
-  LOCK(index->lock);
-  if (DBREF_IN_USE(index)) {
-    index->Flags |= ErasedMask;
-    UNLOCK(index->lock);
-    return;
-  }
-  while ((ref = *te++) != NULL) {
-    LOCK(ref->lock);
-    /* note that the first element of the conditional generates a
-       side-effect, and should never be swapped around with the other */
-    if ( --(ref->NOfRefsTo) == 0 && (ref->Flags & ErasedMask)) {
-      if (!DBREF_IN_USE(ref)) {
-	UNLOCK(ref->lock);
-	RemoveDBEntry(ref);
-      } else {
-	UNLOCK(ref->lock);
-      }
-    } else {
-      UNLOCK(ref->lock);
-    }
-  }
-  UNLOCK(index->lock);
-  /* can I get rid of this index? */
-  FreeDBSpace((char *)index);
-}
-
-
-
 static yamop *
 find_next_clause(DBRef ref0)
 {

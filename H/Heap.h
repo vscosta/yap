@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.92 2006-03-06 14:04:56 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.93 2006-03-22 20:07:28 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -295,7 +295,9 @@ typedef struct various_codes {
 #if defined(YAPOR) || defined(THREADS)
   lockvar  heap_used_lock;        /* protect HeapUsed */
   lockvar  heap_top_lock;        /* protect HeapTop */
-  lockvar  dead_clauses_lock;        /* protect DeadClauses */
+  lockvar  dead_static_clauses_lock;        /* protect DeadStaticClauses */
+  lockvar  dead_mega_clauses_lock;        /* protect DeadMegaClauses */
+  lockvar  dead_static_indices_lock;        /* protect DeadStaticIndices */
   int      heap_top_owner;
 #ifdef LOW_LEVEL_TRACER
   lockvar  low_level_trace_lock;
@@ -305,7 +307,9 @@ typedef struct various_codes {
   Term  module_name[MaxModules];
   struct pred_entry *module_pred[MaxModules];
   SMALLUNSGN   no_of_modules;
-  struct dead_clause *dead_clauses;
+  struct static_clause *dead_static_clauses;
+  struct static_mega_clause *dead_mega_clauses;
+  struct static_index *dead_static_indices;
   Atom
     atom_abol,
     atom_alarm,
@@ -880,7 +884,9 @@ struct various_codes *Yap_heap_regs;
 #define  ForeignCodeMax           Yap_heap_regs->foreign_code_max;
 #define  ForeignCodeLoaded        Yap_heap_regs->foreign_code_loaded
 #define  ParserErrorStyle         Yap_heap_regs->parser_error_style
-#define  DeadClauses              Yap_heap_regs->dead_clauses
+#define  DeadStaticClauses        Yap_heap_regs->dead_static_clauses
+#define  DeadMegaClauses          Yap_heap_regs->dead_mega_clauses
+#define  DeadStaticIndices        Yap_heap_regs->dead_static_indices
 #define  SizeOfOverflow           Yap_heap_regs->size_of_overflow
 #define  LastWtimePtr             Yap_heap_regs->last_wtime
 #define  BGL			  Yap_heap_regs->bgl
@@ -893,7 +899,9 @@ struct various_codes *Yap_heap_regs;
 #define  NOfThreadsCreated        Yap_heap_regs->n_of_threads_created
 #define  ThreadsTotalTime         Yap_heap_regs->threads_total_time
 #define  HeapUsedLock             Yap_heap_regs->heap_used_lock
-#define  DeadClausesLock          Yap_heap_regs->dead_clauses_lock
+#define  DeadStaticClausesLock    Yap_heap_regs->dead_static_clauses_lock
+#define  DeadMegaClausesLock      Yap_heap_regs->dead_mega_clauses_lock
+#define  DeadStaticIndicesLock    Yap_heap_regs->dead_static_indices_lock
 #endif
 #define  CreepCode                Yap_heap_regs->creep_code
 #define  UndefCode                Yap_heap_regs->undef_code

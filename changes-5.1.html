@@ -16,8 +16,13 @@
 
 <h2>Yap-5.1.0:</h2>
 <ul>
+<li> FIXED: use different chains for dead static clauses, static
+  indices and dead mega clauses. Extend dead clauses with next field so that
+  they can added into chain. Fix restore to see dead clauses.</li>
+<li> FIXED: check if indexing code is live before purging it (obs
+  Bernd Gutmann).</li>
 <li> FIXED: pass backtrackable C-preds all flags they ask for (obs
-  Tiago SOares).</li>
+  Tiago Soares).</li>
 <li> FIXED: compilation with dynamic libraries and JPL compilation.</li>
 <li> FIXED: typo in manual (obs Bernd Gutmann).</li>
 <li> NEW: track the current block more aggressively, to avoid
