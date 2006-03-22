@@ -2997,7 +2997,7 @@ compact_heap(void)
 	  current = ptr;
 	  continue;
 	}
-      } else{
+      } else {
 	if (current <= next_hb) {
 	  gc_B = update_B_H(gc_B, current, dest, dest+1
 #ifdef TABLING

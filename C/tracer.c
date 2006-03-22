@@ -126,6 +126,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 
   sc = Yap_heap_regs;
   vsc_count++;
+  if (vsc_count == 229) jmp_deb(1);
 #ifdef COMMENTED
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;
@@ -183,7 +184,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 	printf("\n");
  }
 #endif
-  fprintf(Yap_stderr,"%lld ", vsc_count);
+  fprintf(Yap_stderr,"%lld %x ", vsc_count,ActiveSignals);
 #if defined(THREADS) || defined(YAPOR)
   fprintf(Yap_stderr,"(%d)", worker_id);
 #endif

@@ -2455,7 +2455,7 @@ Prolog standard the default action is @code{error}).
 
 After defining @code{undefined/1} by:
 @example
-undefined(A) :- format('Undefined predicate: ~w~n'), fail.
+undefined(A) :- format('Undefined predicate: ~w~n',[A]), fail.
 @end example
 @noindent
 and executing the goal:
