@@ -125,7 +125,7 @@ tabling_mode(Pred,Options) :-
 '$set_tabling_mode'(Mod,PredFunctor,Options) :-
    var(Options), !,
    '$c_tabling_mode'(Mod,PredFunctor,Options).
-'$set_tabling_mode'(Mod,PredFunctor,[]) :- !.
+'$set_tabling_mode'(_,_,[]) :- !.
 '$set_tabling_mode'(Mod,PredFunctor,[HOption|TOption]) :- !,
    '$set_tabling_mode'(Mod,PredFunctor,HOption),
    '$set_tabling_mode'(Mod,PredFunctor,TOption).

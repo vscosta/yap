@@ -43,12 +43,13 @@
 '$do_signal'(sig_delay_creep, [M|G]) :-
 	'$execute'(M:G),
         '$creep'.
-'$do_signal'(sig_iti, G) :-
+'$do_signal'(sig_iti, [M|G]) :-
 	'$thread_gfetch'(Goal),
 	% if more signals alive, set creep flag
 	'$continue_signals',
 	'$current_module'(M0),
-	'$execute0'(G,M0).
+	'$execute0'(Goal,M0),
+	'$execute'(M:G).
 '$do_signal'(sig_trace, [M|G]) :-
 	'$continue_signals',
 	trace,
@@ -121,7 +122,7 @@ on_signal(Signal,OldAction,default) :-
 	'$reset_signal'(Signal, OldAction).
 on_signal(Signal,OldAction,Action) :-
 	var(Action), !,
-	'$check_signal'(OldAction),
+	'$check_signal'(Signal, OldAction),
 	Action = OldAction.
 on_signal(Signal,OldAction,Action) :-
 	'$reset_signal'(Signal, OldAction),
@@ -135,7 +136,7 @@ on_signal(Signal,OldAction,Action) :-
 
 '$check_signal'(Signal, OldAction) :-
 	recorded('$signal_handler', action(Signal,OldAction), _), !.
-'$reset_signal'(_, default).
+'$check_signal'(_, default).
 
 
 alarm(Interval, Goal, Left) :-

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.80 2006-01-08 23:01:46 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.81 2006-03-24 16:26:25 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -213,7 +213,7 @@ Yap_InitHeap(void *heap_addr)
 static void
 InitExStacks(int Trail, int Stack)
 {
-  UInt pm, sa, ta;
+  UInt pm, sa;
 
   /* sanity checking for data areas */
   if (Trail < MinTrailSpace)
@@ -235,6 +235,8 @@ InitExStacks(int Trail, int Stack)
 
 #ifdef DEBUG
   if (Yap_output_msg) {
+    Uint ta;
+
     fprintf(stderr, "HeapBase = %p  GlobalBase = %p\n  LocalBase = %p  TrailTop = %p\n",
 	       Yap_HeapBase, Yap_GlobalBase, Yap_LocalBase, Yap_TrailTop);
 

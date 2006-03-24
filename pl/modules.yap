@@ -76,7 +76,7 @@ module(N) :-
 	'$do_error'(type_error(atom,N),module(N)).
 
 '$module_dec'(N,P) :-
-	'$current_module'(Old,N),
+	'$current_module'(_,N),
 	get_value('$consulting_file',F),
 	'$add_module_on_file'(N, F, P).
 
@@ -90,16 +90,16 @@ module(N) :-
 '$process_exports'([],_,[]).
 '$process_exports'([Name/Arity|Exports],Mod,[Name/Arity|ExportedPreds]):- !,
 	'$process_exports'(Exports,Mod,ExportedPreds).
-'$process_exports'([op(Prio,Assoc,Name)|Exports],Mod,ExportedPreds) :- !,
-%	'$opdec'(Prio,Assoc,Name,Mod),
+'$process_exports'([op(_Prio,_Assoc,_Name)|Exports],Mod,ExportedPreds) :- !,
+%	'$opdec'(_Prio,_Assoc,_Name,Mod),
 	'$process_exports'(Exports,Mod,ExportedPreds).
-'$process_exports'([Trash|Exports],Mod,_) :-
+'$process_exports'([Trash|_],Mod,_) :-
 	'$do_error'(type_error(predicate_indicator,Trash),module(Mod,[Trash])).
 
 % redefining a previously-defined file, no problem.
 '$add_preexisting_module_on_file'(F, F, Mod, Exports, R) :- !,
 	erase(R),
-	( recorded('$import','$import'(M,T,_,_),R), erase(R), fail; true),
+	( recorded('$import','$import'(Mod,_,_,_),R), erase(R), fail; true),
 	recorda('$module','$module'(F,Mod,Exports),_).
 '$add_preexisting_module_on_file'(F,F0,Mod,Exports,R) :-
 	repeat,
@@ -129,13 +129,13 @@ module(N) :-
 	    true
 	),
 	'$import'(L,M,T).
-'$import'([PS|L],M,T) :-
+'$import'([PS|L],_,_) :-
 	'$do_error'(domain_error(predicate_spec,PS),import([PS|L])).
 
 '$check_import'(M,T,N,K) :-
-   recorded('$import','$import'(MI,T,N,K),_),
+   recorded('$import','$import'(MI,T,N,K),R),
     \+ '$module_produced by'(M,T,N,K), !,
-    format(user_error,"NAME CLASH: ~w was already imported to module ~w;~n",[M1:N/K,T]),
+    format(user_error,"NAME CLASH: ~w was already imported to module ~w;~n",[MI:N/K,T]),
     format(user_error,"            Do you want to import it from ~w ? [y or n] ",M),
     repeat,
 	get0(C), '$skipeol'(C),

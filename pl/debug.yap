@@ -47,11 +47,13 @@
 	% just check one such predicate exists
 	(
 	  current_predicate(A,M:_)
+	->
+	  M = EM
 	;
 	  recorded('$import','$import'(EM,M,A,_),_)
 	),
 	!,
-	'$do_suspy_predicates_by_name'(A,S,M).
+	'$do_suspy_predicates_by_name'(A,S,EM).
 '$suspy_predicates_by_name'(A,spy,M) :- !,
 	'$print_message'(warning,no_match(spy(M:A))).
 '$suspy_predicates_by_name'(A,nospy,M) :-
@@ -82,7 +84,7 @@
 	 ).
 '$do_suspy'(S, F, N, T, M) :-
 	 '$system_predicate'(T,M),
-	'$flags'(T,Mod,F,F),
+	'$flags'(T,M,F,F),
 	F /\ 0x118dd080 =\= 0,
 	 ( S = spy ->
 	     '$do_error'(permission_error(access,private_procedure,T),spy(M:F/N))
@@ -291,7 +293,7 @@ debugging :-
 	;
 	  '$do_spy'(B, M, CP, InControl)
 	).
-'$do_spy'((T->A), M, CP, InControl) :- !,
+'$do_spy'((T->A), M, CP, _) :- !,
 	( '$do_spy'(T, M, CP, yes) -> '$do_spy'(A, M, CP, yes) ).
 '$do_spy'((A;B), M, CP, InControl) :- !,
 	(
@@ -307,7 +309,7 @@ debugging :-
 	).
 '$do_spy'((\+G), M, CP, InControl) :- !,
 	\+ '$do_spy'(G, M, CP, InControl).
-'$do_spy'((not(G)), M, InControl) :- !,
+'$do_spy'((not(G)), M, CP, InControl) :- !,
 	\+ '$do_spy'(G, M, CP, InControl).
 '$do_spy'(G, Module, _, InControl) :-
     get_value(spy_gn,L),		/* get goal no.			*/
@@ -335,7 +337,7 @@ debugging :-
     '$loop_fail'(GoalNumber, G, Module, InControl).
 '$loop_spy_event'('$fail_spy'(GoalNumber), _, _, _, _) :- !,
      throw('$fail_spy'(GoalNumber)).
-'$loop_spy_event'('$done_spy'(G0), GoalNumber, G, Module, InControl) :-
+'$loop_spy_event'('$done_spy'(G0), GoalNumber, _, _, _) :-
      G0 >= GoalNumber, !,
      '$continue_debugging'.
 '$loop_spy_event'('$done_spy'(GoalNumber), _, _, _, _) :- !,
@@ -404,7 +406,7 @@ debugging :-
 '$show_trace'(P,G,Module,GoalNumber) :-
 	'$trace'(P,G,Module,GoalNumber).
 
-'$avoid_goal'(GoalNumber, G, Module) :-
+'$avoid_goal'(_, _, _) :-
     \+ recorded('$debug',on,_), !.
 '$avoid_goal'(GoalNumber, G, Module) :-
     recorded('$spy_skip', Value, _),
@@ -445,7 +447,7 @@ debugging :-
 '$spycall'(G, M, InControl) :-
 	% I lost control here.
 	CP is '$last_choice_pt',
-	'$static_clause'(G,M,C,R),
+	'$static_clause'(G,M,_,R),
 	'$continue_debugging'(InControl, G, M),
 	'$execute_clause'(G, M, R, CP).
 
@@ -456,7 +458,9 @@ debugging :-
 	repeat,
 	        (P = exit, \+ '$debugger_deterministic_goal'(G) -> Det = '?' ; Det = ''),
 		('$pred_being_spied'(G,Module) -> CSPY = '*' ; CSPY = ' '),
-		( SL = L -> SLL = '>' ; SLL = ' '),
+% vsc: fix this
+%		( SL = L -> SLL = '>' ; SLL = ' '),
+		SLL = ' ',
 	        ( recorded('$debug',on, R), erase(R), fail ; true),
 		( Module\=prolog,
 		  Module\=user ->
@@ -570,7 +574,7 @@ debugging :-
 	'$set_yap_flags'(10,0).
 	% skip first call (for current goal),
 	% stop next time.
-'$action'(0'r,P,CallId,_,_) :- !,		% r		retry
+'$action'(0'r,_,CallId,_,_) :- !,		% r		retry
 	'$scan_number'(0'r,CallId,ScanNumber),
 	throw('$retry_spy'(ScanNumber)).
 '$action'(0's,P,CallNumber,_,_) :- !,		% s		skip
@@ -606,10 +610,10 @@ debugging :-
 
 % if we are in the interpreter, don't need to care about forcing a trace, do we?
 '$continue_debugging'(no,_,_) :- !.
-'$continue_debugging'(Flag,G,M) :-
+'$continue_debugging'(_,G,M) :-
 	'$system_predicate'(G,M), !,
 	( '$access_yap_flags'(10,1) -> '$late_creep' ; true).
-'$continue_debugging'(Flag,_,_) :-
+'$continue_debugging'(_,_,_) :-
 	'$continue_debugging'.
 	
 '$continue_debugging' :-
@@ -749,8 +753,8 @@ debugging :-
 	format(user_error,'      [~d] ',[Level]),
 	'$debugger_write'(user_error,Goal),
 	nl(user_error).
-'$continue_debug_show_cp'(Module,Name,Arity,Goal,_) :-
-	functor(G0, Name, Arity), fail,
+'$continue_debug_show_cp'(Module,Name,Arity,_,_) :-
+	functor(G0, Name, Arity),
 	'$hidden_predicate'(G0,Module),
 	!.
 '$continue_debug_show_cp'(Module,Name,Arity,Goal,Level) :-
@@ -759,7 +763,7 @@ debugging :-
 '$continue_debug_show_cp'(Module,Name,Arity,(V1;V2),Level) :-
 	var(V1),  var(V2), !,
 	format(user_error,'      [~d] ~q:~q/~d: ;/2~n',[Level,Module,Name,Arity]).
-'$continue_debug_show_cp'(Module,Name,Arity,G,Level) :-
+'$continue_debug_show_cp'(_,_,_,G,Level) :-
 	format(user_error,'      [~d] ~q~n',[Level,G]).
 	
 '$debugger_deterministic_goal'(G) :-

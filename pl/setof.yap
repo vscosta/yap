@@ -72,8 +72,7 @@ findall(Template, Generator, Answers, SoFar) :-
 	'$db_dequeue'(Ref, Term), !,
 	Out = [Term|Answers],
 	'$collect_for_findall'(Ref, SoFar, Answers).
-'$collect_for_findall'(Ref, SoFar, SoFar) :-
-	Out = SoFar.
+'$collect_for_findall'(_, SoFar, SoFar).
 
 % findall_with_key is very similar to findall, but uses the SICStus
 % algorithm to guarantee that variables will have the same names.
@@ -222,7 +221,7 @@ all(T,G,S) :-
 '$$build2'([X|Ns],Hash,R,X) :-
 	'$$new'(Hash,X), !,
 	'$$build'(Ns,Hash,R).
-'$$build2'(Ns,Hash,R,X) :-
+'$$build2'(Ns,Hash,R,_) :-
 	'$$build'(Ns,Hash,R).
 
 '$$new'(V,El) :- var(V), !, V = n(_,El,_).

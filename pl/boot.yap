@@ -131,7 +131,6 @@ true :- true.
 	 '$print_message'(informational,prompt(BreakLevel,TraceDebug)),
 	 fail.
  '$enter_top_level' :-
-	 '$current_module'(Module),
 	 get_value('$top_level_goal',GA), GA \= [], !,
 	 set_value('$top_level_goal',[]),
 	 '$run_atom_goal'(GA),
@@ -387,10 +386,6 @@ true :- true.
 	 ( NFl \= 0 -> '$assertz_dynamic'(L,G,G0,Mod) ;
 	     '$compile'(G, L, G0, Mod) ).
 
- % process a clause for a static predicate 
- '$$compile_stat'(G,G0,L,H, Mod) :-
-       '$compile'(G,L,G0,Mod).
-
  '$check_if_reconsulted'(N,A) :-
 	 recorded('$reconsulted',X,_),
 	 ( X = N/A , !;
@@ -475,7 +470,7 @@ true :- true.
 	 format(user_error,'~ntrue',[]).
  '$write_query_answer_true'(_).
 
- '$output_frozen'(G,V,LGs) :-
+ '$output_frozen'(_,V,LGs) :-
 	\+ '$undefined'(bindings_message(_,_,_), swi),
 	swi:bindings_message(V, LGs, []), !.
 '$output_frozen'(G,V,LGs) :-
@@ -670,7 +665,7 @@ incore(G) :- '$execute'(G).
 '->'(X,Y) :-
 	'$save_current_choice_point'(CP),
 	'$current_module'(M),
-        ( '$call'(X,CP,G0,M) -> '$call'(Y,CP,(X->Y),M) ).
+        ( '$call'(X,CP,(X->Y),M) -> '$call'(Y,CP,(X->Y),M) ).
 \+(G) :-     \+ '$execute'(G).
 not(G) :-    \+ '$execute'(G).
 
@@ -732,9 +727,9 @@ not(G) :-    \+ '$execute'(G).
         ;
 	    '$call'(B,CP,G0,M)
 	).
-'$call'(\+ X, CP, G0, M) :- !,
+'$call'(\+ X, _CP, _G0, _M) :- !,
 	\+ '$execute'(X).
-'$call'(not(X), CP, G0, M) :- !,
+'$call'(not(X), _CP, _G0, _M) :- !,
 	\+ '$execute'(X).
 '$call'(!, CP, _,_) :- !,
 	'$$cut_by'(CP).
@@ -799,7 +794,7 @@ not(G) :-    \+ '$execute'(G).
 '$find_undefp_handler'(G,M,US,user) :-
 	recorded('$unknown','$unknown'(M:G,US),_), !,
 	'$exit_undefp'.
-'$find_undefp_handler'(G,M,_,_) :-
+'$find_undefp_handler'(_,_,_,_) :-
 	'$exit_undefp',
 	fail.
 

@@ -11,8 +11,14 @@
 * File:		checker.yap						 *
 * comments:	style checker for Prolog				 *
 *									 *
-* Last rev:     $Date: 2005-11-05 23:56:10 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-24 16:26:31 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.20  2005/11/05 23:56:10  vsc
+* should have meta-predicate definitions for calls,
+*   multifile and discontiguous.
+* have discontiguous as a builtin, not just as a
+*   declaration.
+*
 * Revision 1.19  2005/10/28 17:38:50  vsc
 * sveral updates
 *
@@ -144,7 +150,6 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$sv_warning'(SVs,T) :-
 	'$current_module'(OM),
 	'$xtract_head'(T,OM,M,H,Name,Arity),
-	'$start_line'(LN),
 	( get_value('$consulting',false),
 	   '$first_clause_in_file'(Name,Arity, OM) ->
 	    ClN = 1 ;
@@ -193,7 +198,6 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
 '$test_if_well_reconsulting'(F,F,_) :- !.
 '$test_if_well_reconsulting'(_,Fil,P) :-
-	'$start_line'(LN), 
 	print_message(warning,defined_elsewhere(P,Fil)).
 
 '$multifile'(V, _) :- var(V), !,

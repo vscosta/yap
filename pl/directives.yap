@@ -89,7 +89,7 @@
 '$exec_directive'(set_prolog_flag(F,V), _, _) :-
 	set_prolog_flag(F,V).
 '$exec_directive'(ensure_loaded(Fs), _, M) :-
-	'$load_files'(Fs, [if(changed)],ensure_loaded(Fs)).
+	'$load_files'(M:Fs, [if(changed)], ensure_loaded(Fs)).
 '$exec_directive'(char_conversion(IN,OUT), _, _) :-
 	char_conversion(IN,OUT).
 '$exec_directive'(public(P), _, M) :-

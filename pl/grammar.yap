@@ -48,7 +48,7 @@
 
 '$t_hlist'(V, _, _, _, G0) :- var(V), !,
 	'$do_error'(instantiation_error,G0).
-'$t_hlist'([], S0, SR, true, _).
+'$t_hlist'([], _, _, true, _).
 '$t_hlist'([H], S0, SR, ('C'(SR,H,S0)), _) :- !.
 '$t_hlist'([H|List], S0, SR, ('C'(SR,H,S1),G0), Goal) :- !,
 	'$t_hlist'(List, S0, S1, G0, Goal).
@@ -80,7 +80,7 @@
 '$t_body'((T->R), ToFill, Last, S, SR, (Tt->Rt)) :- !,
 	'$t_body'(T, ToFill, not_last, S, SR1, Tt),
 	'$t_body'(R, ToFill, Last, SR1, SR, Rt).
-'$t_body'(\+T, ToFill, Last, S, SR, (Tt->fail ; S=SR)) :- !,
+'$t_body'(\+T, ToFill, _, S, SR, (Tt->fail ; S=SR)) :- !,
 	'$t_body'(T, ToFill, not_last, S, _, Tt).
 '$t_body'((T;R), _ToFill, _, S, SR, (Tt;Rt)) :- !,
 	'$t_body'(T, _, last, S, SR, Tt),

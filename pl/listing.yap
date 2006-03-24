@@ -77,17 +77,17 @@ portray_clause(_).
 '$portray_clause'(Stream, (Pred :- true)) :- !,
 	'$beautify_vars'(Pred),
 	writeq(Stream, Pred),
-	format(Stream, ".~n", []).
+	format(Stream, '.~n', []).
 '$portray_clause'(Stream, (Pred:-Body)) :- !,
 	'$beautify_vars'((Pred:-Body)),
 	writeq(Stream, Pred),
-	format(Stream, " :-", []),
+	format(Stream, ' :-', []),
 	'$write_body'(Body, 3, ',', Stream),
-	format(Stream, ".~n", []).
+	format(Stream, '.~n', []).
 '$portray_clause'(Stream, Pred) :- !,
 	'$beautify_vars'(Pred),
 	writeq(Stream, Pred),
-	format(Stream, ".~n", []).
+	format(Stream, '.~n', []).
 
 '$write_body'(X,I,T,Stream) :- var(X), !,
 	'$beforelit'(T,I,Stream),
@@ -95,44 +95,44 @@ portray_clause(_).
 '$write_body'((P,Q), I, T, Stream) :-
         !,
         '$write_body'(P,I,T, Stream),
-        put(Stream, ","),
+        put(Stream, ','),
         '$write_body'(Q,I,',',Stream).
 '$write_body'((P->Q;S),I,_, Stream) :-
 	!,
-	format(Stream, "~n~*c(",[I,0' ]),
+	format(Stream, '~n~*c(',[I,0' ]),
 	I1 is I+2,
 	'$write_body'(P,I1,'(',Stream),
-	format(Stream, " ->",[]),
+	format(Stream, ' ->',[]),
 	'$write_disj'((Q;S),I,I1,'->',Stream),
-	format(Stream, "~n~*c)",[I,0' ]).
+	format(Stream, '~n~*c)',[I,0' ]).
 '$write_body'((P->Q|S),I,_,Stream) :-
 	!,
-	format(Stream, "~n~*c(",[I,0' ]),
+	format(Stream, '~n~*c(',[I,0' ]),
 	I1 is I+2,
 	'$write_body'(P,I,'(',Stream),
-	format(Stream, " ->",[]),
+	format(Stream, ' ->',[]),
 	'$write_disj'((Q|S),I,I1,'->',Stream),
-	format(Stream, "~n~*c)",[I,0' ]).
+	format(Stream, '~n~*c)',[I,0' ]).
 '$write_body'((P->Q),I,_,Stream) :-
 	!,
-	format(Stream, "~n~*c(",[I,0' ]),
+	format(Stream, '~n~*c(',[I,0' ]),
 	I1 is I+2,
         '$write_body'(P,I1,'(',Stream),
-	format(Stream, " ->",[]),
+	format(Stream, ' ->',[]),
         '$write_body'(Q,I1,'->',Stream),
-	format(Stream, "~n~*c)",[I,0' ]).
+	format(Stream, '~n~*c)',[I,0' ]).
 '$write_body'((P;Q),I,_,Stream) :-
         !,
-	format(Stream, "~n~*c(",[I,0' ]),
+	format(Stream, '~n~*c(',[I,0' ]),
 	I1 is I+2,
 	'$write_disj'((P;Q),I,I1,'->',Stream),
-	format(Stream, "~n~*c)",[I,0' ]).
+	format(Stream, '~n~*c)',[I,0' ]).
 '$write_body'((P|Q),I,_,Stream) :-
         !,
-	format(Stream, "~n~*c(",[I,0' ]),
+	format(Stream, '~n~*c(',[I,0' ]),
 	I1 is I+2,
 	'$write_disj'((P|Q),I,I1,'->',Stream),
-	format(Stream, "~n~*c)",[I,0' ]).
+	format(Stream, '~n~*c)',[I,0' ]).
 '$write_body'(X,I,T,Stream) :-
         '$beforelit'(T,I,Stream),
         writeq(Stream,X).
@@ -140,18 +140,18 @@ portray_clause(_).
 
 '$write_disj'((Q;S),I0,I,C,Stream) :- !,
 	'$write_body'(Q,I,C,Stream),
-	format(Stream, "~n~*c;",[I0,0' ]),
+	format(Stream, '~n~*c;',[I0,0' ]),
 	'$write_disj'(S,I0,I,';',Stream).
 '$write_disj'((Q|S),I0,I,C,Stream) :- !,
 	'$write_body'(Q,I,C,Stream),
-	format(Stream, "~n~*c|",[I0,0' ]),
+	format(Stream, '~n~*c|',[I0,0' ]),
 	'$write_disj'(S,I0,I,'|',Stream).
-'$write_disj'(S,I0,I,C,Stream) :-
+'$write_disj'(S,_,I,C,Stream) :-
 	'$write_body'(S,I,C,Stream).
 	
 
-'$beforelit'('(',_,Stream) :- !, format(Stream," ",[]).
-'$beforelit'(_,I,Stream) :- format(Stream,"~n~*c",[I,0' ]).
+'$beforelit'('(',_,Stream) :- !, format(Stream,' ',[]).
+'$beforelit'(_,I,Stream) :- format(Stream,'~n~*c',[I,0' ]).
 
 '$beautify_vars'(T) :-
 	'$list_get_vars'(T,[],L),

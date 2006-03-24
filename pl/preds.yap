@@ -45,7 +45,7 @@ assert(C) :-
 '$assert'(H,M1,Where,R,_) :-
 	'$assert_fact'(H, M1, Where, R).
 
-'$assert_clause'(H, G, M1, Where, R, P) :-
+'$assert_clause'(H, _, _, _, _, P) :-
 	var(H), !, '$do_error'(instantiation_error,P).
 '$assert_clause'(M1:C, G, M1, Where, R, P) :- !,
 	'$assert_clause2'(C, G, M1, Where, R, P).
@@ -72,7 +72,7 @@ assert(C) :-
 	    '$assert1'(Where,H,H,Mod,H)
         ;
 	    functor(H, Na, Ar),
-            '$do_error'(permission_error(modify,static_procedure,Na/Ar),P)
+            '$do_error'(permission_error(modify,static_procedure,Na/Ar),Mod:assert(H))
 	).
 
 
@@ -216,8 +216,8 @@ assertz_static(C) :-
 	    true
 	).
 
-'$assert1'(last,C,C0,Mod,H) :- '$compile'(C,0,C0,Mod).
-'$assert1'(first,C,C0,Mod,H) :- '$compile'(C,2,C0,Mod).
+'$assert1'(last,C,C0,Mod,_) :- '$compile'(C,0,C0,Mod).
+'$assert1'(first,C,C0,Mod,_) :- '$compile'(C,2,C0,Mod).
 
 '$assertz_dynamic'(X, C, C0, Mod) :- (X/\4)=:=0, !,
 	'$head_and_body'(C,H,B),
@@ -273,7 +273,7 @@ clause(M:P,Q) :- !,
 	'$clause'(P,M,Q,_).
 clause(V,Q) :-
 	'$current_module'(M),
-	'$clause'(V,M,Q,R).
+	'$clause'(V,M,Q,_).
 
 '$clause'(V,M,Q) :- var(V), !, 
 	'$do_error'(instantiation_error,M:clause(V,Q)).
@@ -332,26 +332,26 @@ clause(V,Q,R) :-
 '$do_log_upd_clause'(_,_,_,_,_).
 '$do_log_upd_clause'(A,B,C,D,E) :-
 	'$continue_log_update_clause'(A,B,C,D,E).
-'$do_log_upd_clause'(A,B,C,D,E).
+'$do_log_upd_clause'(_,_,_,_,_).
 
 :- '$do_log_upd_clause'(_,_,_,_,_), !.
 
 '$do_log_upd_clause'(_,_,_,_).
 '$do_log_upd_clause'(A,B,C,D) :-
 	'$continue_log_update_clause'(A,B,C,D).
-'$do_log_upd_clause'(A,B,C,D).
+'$do_log_upd_clause'(_,_,_,_).
 
 :- '$do_log_upd_clause'(_,_,_,_), !.
 
 '$do_static_clause'(_,_,_,_,_).
 '$do_static_clause'(A,B,C,D,E) :-
 	'$continue_static_clause'(A,B,C,D,E).
-'$do_static_clause'(A,B,C,D,E).
+'$do_static_clause'(_,_,_,_,_).
 
 :- '$do_static_clause'(_,_,_,_,_), !.
 
 nth_clause(V,I,R) :- var(V), var(R), !,
-	'$do_error'(instantiation_error,M:nth_clause(V,I,R)).
+	'$do_error'(instantiation_error,nth_clause(V,I,R)).
 nth_clause(M:V,I,R) :- !,
 	'$nth_clause'(V,M,I,R).
 nth_clause(V,I,R) :-
@@ -373,7 +373,7 @@ nth_clause(V,I,R) :-
 	( '$is_log_updatable'(P,M) ; '$is_source'(P,M) ), !,
 	'$p_nth_clause'(P,M,I,R).
 '$nth_clause'(P,M,I,R) :-
-	'$is_dynamic'(H,M), !,
+	'$is_dynamic'(P,M), !,
 	'$nth_instancep'(M:P,I,R).
 '$nth_clause'(P,M,I,R) :-
 	( '$system_predicate'(P,M) -> true ;
@@ -383,7 +383,7 @@ nth_clause(V,I,R) :-
 	      nth_clause(M:P,I,R)).
 
 '$nth_clause_ref'(Cl,M,I,R) :-
-	'$pred_for_code'(R, At, Ar, M1, I), I > 0, !,
+	'$pred_for_code'(R, _, _, M1, I), I > 0, !,
 	instance(R, Cl),
 	M1 = M.
 '$nth_clause_ref'(P,M,I,R) :-
@@ -411,7 +411,7 @@ retract(C) :-
 '$retract2'(H,M,B) :- 	
 	'$is_dynamic'(H,M), !,
 	'$recordedp'(M:H,(H:-B),R), erase(R).
-'$retract2'(H,M,B) :- 	
+'$retract2'(H,M,_) :- 	
 	'$undefined'(H,M), !,
 	functor(H,Na,Ar),
 	'$dynamic'(Na/Ar,M),
@@ -440,8 +440,8 @@ retract(C,R) :-
 	var(R),
 	'$recordedp'(M:H,(H:-B),R),
 	erase(R).
-'$retract'(C,M,_) :- 
-	'$check_head_and_body'(C,H,B,retract(M:C,R)),
+'$retract'(C,M,R) :- 
+	'$check_head_and_body'(C,H,_,retract(M:C,R)),
 	'$undefined'(H,M), !,
 	functor(H,Na,Ar),
 	'$dynamic'(Na/Ar,M),
@@ -773,7 +773,7 @@ hide_predicate(P) :-
 	functor(S,N,A),
 	'$hide_predicate'(S, M) .
 '$hide_predicate2'(PredDesc, M) :-
-	'$do_error'(type_error(predicate_indicator,T),hide_predicate(M:PredDesc)).
+	'$do_error'(type_error(predicate_indicator,PredDesc),hide_predicate(M:PredDesc)).
 
 predicate_property(Mod:Pred,Prop) :- !,
 	'$predicate_property2'(Pred,Prop,Mod).
@@ -805,10 +805,10 @@ predicate_property(Pred,Prop) :-
 '$predicate_property'(P,M,_,built_in) :- 
 	'$system_predicate'(P,M), !.
 '$predicate_property'(P,M,_,source) :- 
-	'$flags'(G,M,F,F),
+	'$flags'(P,M,F,F),
 	F /\ 0x00400000 =\= 0.
 '$predicate_property'(P,M,_,tabled) :- 
-	'$flags'(G,M,F,F),
+	'$flags'(P,M,F,F),
 	F /\ 0x00000040 =\= 0.
 '$predicate_property'(P,M,_,dynamic) :-
 	'$is_dynamic'(P,M).
@@ -842,11 +842,11 @@ predicate_statistics(P,NCls,Sz,ISz) :-
 	'$predicate_statistics'(P,M,NCls,Sz,ISz).
 
 '$predicate_statistics'(P,M,NCls,Sz,ISz) :-
-	'$is_dynamic'(H, M), !,
-	'$key_statistics'(M:H,NCls,Sz,ISz).
-'$predicate_statistics'(P,M,NCls,Sz,ISz) :-
+	'$is_dynamic'(P, M), !,
+	'$key_statistics'(M:P,NCls,Sz,ISz).
+'$predicate_statistics'(P,M,_,_,_) :-
 	'$system_predicate'(P,M), !, fail.
-'$predicate_statistics'(P,M,NCls,Sz,ISz) :-
+'$predicate_statistics'(P,M,_,_,_) :-
 	'$undefined'(P,M), !, fail.
 '$predicate_statistics'(P,M,NCls,Sz,ISz) :-
 	'$static_pred_statistics'(P,M,NCls,Sz,ISz).

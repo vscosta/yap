@@ -17,7 +17,7 @@
 
 :- meta_predicate profile_data(:,+,-).
 
-profile_data(M:D, Parm, Data) :- P = M:D, !,
+profile_data(M:D, Parm, Data) :-!,
 	(
 	  var(M) ->
 	  '$do_error'(instantiation_error,profile_data(M:D, Parm, Data))
@@ -70,7 +70,7 @@ showprofres :-
 	('$profison' -> profoff, Stop = true ; Stop = false),
 	'$profglobs'(Tot,GCs,HGrows,SGrows,Mallocs,ProfOns),
 	% root node has no useful info.
-	'$get_all_profinfo'(0,[],ProfInfo0,0,TotCode),
+	'$get_all_profinfo'(0,[],ProfInfo0,0,_TotCode),
 	msort(ProfInfo0,ProfInfo),
 	'$get_ppreds'(ProfInfo,Preds0),
 	'$add_extras_prof'(GCs, HGrows, SGrows, Mallocs, Preds0, PredsI),
@@ -105,7 +105,7 @@ showprofres :-
 '$get_ppreds'([],[]).
 '$get_ppreds'([gprof(0,_,0)|Cls],Ps) :- !,
 	'$get_ppreds'(Cls,Ps).
-'$get_ppreds'([gprof(0,_,Count)|Cls],Ps) :- !,
+'$get_ppreds'([gprof(0,_,Count)|_],_) :- !,
 	'$do_error'(system_error,showprofres(gprof(0,_,Count))).
 '$get_ppreds'([gprof(PProfInfo,_,Count0)|Cls],[Sum-(Mod:Name/Arity)|Ps]) :-
 	'$get_more_ppreds'(Cls,PProfInfo,Count0,NCls,Sum),

@@ -44,7 +44,7 @@
 '$show_frozen'(_,_,[]).
 
 
-'$convert_to_list_of_frozen_goals'(LIV,LAV,G,NLG) :-
+'$convert_to_list_of_frozen_goals'(LIV,LAV,_,NLG) :-
 	'$project'(LAV,LIV,NLG).
 
 
@@ -620,7 +620,7 @@ call_residue(Goal,Residue) :-
 '$project'([],_,[]).
 '$project'(Vs,_,LGs) :-
 	% we don't have constraints yet, so we must be talking about delays.
-	'$undefined'(modules_with_attributes(LAV),attributes), !,
+	'$undefined'(modules_with_attributes(_),attributes), !,
 	'$fetch_delays'(Vs, LGs, []).
 '$project'([V|LAV],LIV,LDs) :-
 	attvar(V), !,
@@ -654,7 +654,7 @@ call_residue(Goal,Residue) :-
 	'$undefined'(convert_att_var(Vs,LIV),attributes), !.
 '$convert_att_vars'(Vs0, LIV, LGs) :-
 	'$sort'(Vs0, Vs),
-	'$do_convert_att_vars'(Vs0, LIV, LGs).
+	'$do_convert_att_vars'(Vs, LIV, LGs).
 	
 '$do_convert_att_vars'([], _, []).
 '$do_convert_att_vars'([V|LAV], LIV, NGs) :-
@@ -695,7 +695,7 @@ call_residue(Goal,Residue) :-
 	'$frozen_goals'(V,G), !,
 	'$hole_in_frozen_goals'(G,GF,G1),
 	'$do_fetch_delays'(NLAV, G1).
-'$do_fetch_delays'([V|NLAV], GF) :-
+'$do_fetch_delays'([_|NLAV], GF) :-
 	'$do_fetch_delays'(NLAV, GF).
 
 

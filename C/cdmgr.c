@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-03-22 20:07:28 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-24 16:26:26 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.181  2006/03/22 20:07:28  vsc
+* take better care of zombies
+*
 * Revision 1.180  2006/03/22 16:14:20  vsc
 * don't be too eager at throwing indexing code for static predicates away.
 *
@@ -362,6 +365,8 @@ STATIC_PROTO(Int  p_toggle_static_predicates_in_use, (void));
 STATIC_PROTO(Atom  YapConsultingFile, (void));
 STATIC_PROTO(Int  PredForCode,(yamop *, Atom *, UInt *, Term *));
 STATIC_PROTO(void  kill_first_log_iblock,(LogUpdIndex *, LogUpdIndex *, PredEntry *));
+STATIC_PROTO(LogUpdIndex *find_owner_log_index,(LogUpdIndex *, yamop *));
+STATIC_PROTO(StaticIndex *find_owner_static_index,(StaticIndex *, yamop *));
 
 #define PredArity(p) (p->ArityOfPE)
 #define TRYCODE(G,F,N) ( (N)<5 ? (op_numbers)((int)F+(N)*3) : G)
@@ -456,7 +461,7 @@ static int
 static_in_use(PredEntry *p, int check_everything)
 {
 #if defined(YAPOR) || defined(THREADS)
-  return(FALSE);
+  return TRUE;
 #else
   CELL pflags = p->PredFlags;
   if (pflags & (DynamicPredFlag|LogUpdatePredFlag)) {
@@ -1011,6 +1016,7 @@ kill_children(LogUpdIndex *c, PredEntry *ap)
   UNLOCK(c->ClLock);
 }
 
+/* assumes c is already locked */
 static void
 kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 {
@@ -1027,10 +1033,8 @@ kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 	parent->ClRefCount == 0) {
       /* cool, I can erase the father too. */
       if (parent->ClFlags & SwitchRootMask) {
-	UNLOCK(parent->ClLock);
 	kill_off_lu_block(parent, NULL, ap);
       } else {
-	UNLOCK(parent->ClLock);
 	kill_off_lu_block(parent, parent->ParentIndex, ap);
       }
     } else {
@@ -1058,7 +1062,6 @@ static void
 kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 {
   /* parent is always locked, now I lock myself */
-  LOCK(c->ClLock);
   if (parent != NULL) {
     /* remove myself from parent */
     LOCK(parent->ClLock);
@@ -1108,7 +1111,6 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
     DBErasedIList = c;
     UNLOCK(c->ClLock);
   }
-
 }
 
 static void
@@ -1294,10 +1296,10 @@ retract_all(PredEntry *p, int in_use)
 	StaticClause *ncl = cl->ClNext;
 
 	if (in_use|| cl->ClFlags & HasBlobsMask) {
-	  LOCK(StaticClausesLock);
+	  LOCK(DeadStaticClausesLock);
 	  cl->ClNext = DeadStaticClauses;
 	  DeadStaticClauses = cl;
-	  UNLOCK(StaticClausesLock);
+	  UNLOCK(DeadStaticClausesLock);
 	} else {
 	  Yap_InformOfRemoval((CODEADDR)cl);
 	  Yap_FreeCodeSpace((char *)cl);
@@ -1994,10 +1996,10 @@ Yap_EraseStaticClause(StaticClause *cl, Term mod) {
 #endif
   WRITE_UNLOCK(ap->PRWLock);
   if (cl->ClFlags & HasBlobsMask || static_in_use(ap,TRUE)) {
-    LOCK(DeadStaticClauses);
+    LOCK(DeadStaticClausesLock);
     cl->ClNext = DeadStaticClauses;
     DeadStaticClauses = cl;
-    UNLOCK(DeadStaticClauses);
+    UNLOCK(DeadStaticClausesLock);
   } else {
     Yap_InformOfRemoval((CODEADDR)cl);
     Yap_FreeCodeSpace((char *)cl);
@@ -2988,7 +2990,7 @@ p_compile_mode(void)
   return (TRUE);
 }
 
-#if !defined(YAPOR)
+#if !defined(YAPOR) && !defined(THREADS)
 static yamop *cur_clause(PredEntry *pe, yamop *codeptr)
 {
   StaticClause *cl;
@@ -3018,59 +3020,6 @@ static yamop *cur_log_upd_clause(PredEntry *pe, yamop *codeptr)
   } while (cl != NULL);
   Yap_Error(SYSTEM_ERROR,TermNil,"could not find clause for indexing code");
   return(NULL);
-}
-
-static LogUpdIndex *
-find_owner_log_index(LogUpdIndex *cl, yamop *code_p)
-{
-  yamop *code_beg = cl->ClCode;
-  yamop *code_end = (yamop *)((char *)cl + cl->ClSize);
-  
-  if (code_p >= code_beg && code_p <= code_end) {
-    return cl;
-  }
-  cl = cl->ChildIndex;
-  while (cl != NULL) {
-    LogUpdIndex *out;
-    if ((out = find_owner_log_index(cl, code_p)) != NULL) {
-      return out;
-    }
-    cl = cl->SiblingIndex;
-  }
-  return NULL;
-}
-
-static StaticIndex *
-find_owner_static_index(StaticIndex *cl, yamop *code_p)
-{
-  yamop *code_beg = cl->ClCode;
-  yamop *code_end = (yamop *)((char *)cl + cl->ClSize);
-  
-  if (code_p >= code_beg && code_p <= code_end) {
-    return cl;
-  }
-  cl = cl->ChildIndex;
-  while (cl != NULL) {
-    StaticIndex *out;
-    if ((out = find_owner_static_index(cl, code_p)) != NULL) {
-      return out;
-    }
-    cl = cl->SiblingIndex;
-  }
-  return NULL;
-}
-
-ClauseUnion *
-Yap_find_owner_index(yamop *ipc, PredEntry *ap)
-{
-  /* we assume we have an owner index */
-  if (ap->PredFlags & LogUpdatePredFlag) {
-    LogUpdIndex *cl = ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred);
-    return (ClauseUnion *)find_owner_log_index(cl,ipc);
-  } else {
-    StaticIndex *cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
-    return (ClauseUnion *)find_owner_static_index(cl,ipc);
-  }
 }
 
 static Int
@@ -3190,7 +3139,60 @@ do_toggle_static_predicates_in_use(int mask)
   STATIC_PREDICATES_MARKED = mask;
 }
 
-#endif
+#endif /* !defined(YAPOR) && !defined(THREADS) */
+
+static LogUpdIndex *
+find_owner_log_index(LogUpdIndex *cl, yamop *code_p)
+{
+  yamop *code_beg = cl->ClCode;
+  yamop *code_end = (yamop *)((char *)cl + cl->ClSize);
+  
+  if (code_p >= code_beg && code_p <= code_end) {
+    return cl;
+  }
+  cl = cl->ChildIndex;
+  while (cl != NULL) {
+    LogUpdIndex *out;
+    if ((out = find_owner_log_index(cl, code_p)) != NULL) {
+      return out;
+    }
+    cl = cl->SiblingIndex;
+  }
+  return NULL;
+}
+
+static StaticIndex *
+find_owner_static_index(StaticIndex *cl, yamop *code_p)
+{
+  yamop *code_beg = cl->ClCode;
+  yamop *code_end = (yamop *)((char *)cl + cl->ClSize);
+  
+  if (code_p >= code_beg && code_p <= code_end) {
+    return cl;
+  }
+  cl = cl->ChildIndex;
+  while (cl != NULL) {
+    StaticIndex *out;
+    if ((out = find_owner_static_index(cl, code_p)) != NULL) {
+      return out;
+    }
+    cl = cl->SiblingIndex;
+  }
+  return NULL;
+}
+
+ClauseUnion *
+Yap_find_owner_index(yamop *ipc, PredEntry *ap)
+{
+  /* we assume we have an owner index */
+  if (ap->PredFlags & LogUpdatePredFlag) {
+    LogUpdIndex *cl = ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred);
+    return (ClauseUnion *)find_owner_log_index(cl,ipc);
+  } else {
+    StaticIndex *cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
+    return (ClauseUnion *)find_owner_static_index(cl,ipc);
+  }
+}
 
 static Term
 all_envs(CELL *env_ptr)
@@ -3304,7 +3306,7 @@ p_toggle_static_predicates_in_use(void)
   }
   do_toggle_static_predicates_in_use(mask);
 #endif
-  return(TRUE);
+  return TRUE;
 }
 
 static void
@@ -4263,7 +4265,7 @@ p_pred_for_code(void) {
   yamop *codeptr;
   Atom at;
   UInt arity;
-  Term module;
+  Term tmodule = TermProlog;
   Int cl;
   Term t = Deref(ARG1);
 
@@ -4278,14 +4280,14 @@ p_pred_for_code(void) {
   } else {
     return FALSE;
   }
-  cl = PredForCode(codeptr, &at, &arity, &module);
-  if (!module) module = TermProlog;
+  cl = PredForCode(codeptr, &at, &arity, &tmodule);
+  if (!tmodule) tmodule = TermProlog;
   if (cl == 0) {
-    return(Yap_unify(ARG5,MkIntTerm(0)));
+    return Yap_unify(ARG5,MkIntTerm(0));
   } else {
     return(Yap_unify(ARG2,MkAtomTerm(at)) &&
 	   Yap_unify(ARG3,MkIntegerTerm(arity)) &&
-	   Yap_unify(ARG4,module) &&
+	   Yap_unify(ARG4,tmodule) &&
 	   Yap_unify(ARG5,MkIntegerTerm(cl)));
   }
 }

@@ -88,7 +88,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	var(G1), var(Mod), !.
 '$do_c_built_metacall'(G1, Mod, '$execute_in_mod'(G1,Mod)) :- 
 	var(G1), atom(Mod), !.
-'$do_c_built_metacall'(Mod:G1, _, call(Mod:G1)) :-  !,
+'$do_c_built_metacall'(Mod:G1, _, OUT) :-  !,
 	'$do_c_built_metacall'(G1, Mod, OUT).
 '$do_c_built_metacall'(G1, Mod, '$execute_in_mod'(G1,Mod)) :-
 	atom(Mod), !.

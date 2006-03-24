@@ -242,9 +242,9 @@ unix(putenv(X,Y)) :- '$putenv'(X,Y).
 '$is_list_of_atoms'(H,L0) :-
 	'$do_error'(type_error(list,H),unix(argv(L0))).
 
-'$check_if_head_may_be_atom'(H,L0) :-
+'$check_if_head_may_be_atom'(H,_) :-
 	var(H), !.
-'$check_if_head_may_be_atom'(H,L0) :-
+'$check_if_head_may_be_atom'(H,_) :-
 	atom(H), !.
 '$check_if_head_may_be_atom'(H,L0) :-
 	'$do_error'(type_error(atom,H),unix(argv(L0))).
@@ -456,7 +456,7 @@ unknown(V0,V) :-
 '$unknown_warning'(Mod:Goal) :-
 	functor(Goal,Name,Arity),
 	'$program_continuation'(PMod,PName,PAr),
-	'$print_message'(error,error(existence_error(procedure,Name/Ar), context(Mod:Goal,PMod:PName/PAr))),
+	'$print_message'(error,error(existence_error(procedure,Name/Arity), context(Mod:Goal,PMod:PName/PAr))),
 	fail.
 
 %%% Some "dirty" predicates
@@ -585,7 +585,7 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 	Total >= After,
 	atom_codes(SubAt,SubAts).
 % SubAt, Size, and After are unbound.
-'$sub_atom3'(Size, After, SubAt, Atl, ErrorTerm) :-
+'$sub_atom3'(Size, After, SubAt, Atl, _) :-
 	'$$_length1'(Atl,0,Len),
 	'$sub_atom_split'(Atl,Len,SubAts,Size,_,After),
 	atom_codes(SubAt,SubAts).
@@ -608,7 +608,7 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 	'$sub_atom_split'(SubAt0,Size0,_,Bef,SubAts,Size),
 	atom_codes(SubAt,SubAts).
 % ok: just do everything
-'$sub_atombv'(Bef, Size, After, SubAt, Atl, ErrorTerm) :-
+'$sub_atombv'(Bef, Size, After, SubAt, Atl, _) :-
 	'$$_length1'(Atl, 0, Len),
 	'$sub_atom_split'(Atl,Len,_,Bef,Atls2,Len2),
 	'$sub_atom_split'(Atls2,Len2,SubAts,Size,_,After),
@@ -646,7 +646,7 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 	N is N1-1,
 	'$sub_atom_check_length'(L,N).	
 
-'$sub_atom_get_last_subchars'([],[],After,0,0).
+'$sub_atom_get_last_subchars'([],[],_,0,0).
 '$sub_atom_get_last_subchars'([C|Atl],SubAt,After,Total,Size) :-
 	'$sub_atom_get_last_subchars'(Atl,SubAt0,After,Total0,Size0),
 	Total is Total0+1,
@@ -670,7 +670,7 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 	'$do_error'(type_error(integer,I),ErrorTerm).
 
 '$sub_atom_needs_atom'(V,_) :- var(V), !.
-'$sub_atom_needs_atom'(A,ErrorTerm) :- atom(A), !.
+'$sub_atom_needs_atom'(A,_) :- atom(A), !.
 '$sub_atom_needs_atom'(A,ErrorTerm) :-
 	'$do_error'(type_error(atom,A),ErrorTerm).
 

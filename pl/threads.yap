@@ -91,7 +91,7 @@ thread_create(Goal, Id, Options) :-
 	( \+ integer(Stack) -> '$do_error'(type_error(integer,Stack),G0) ; true ).
 '$thread_option'(trail(Trail), Aliases, _, Trail, _, _, G0, Aliases) :- !,
 	( \+ integer(Trail) -> '$do_error'(type_error(integer,Trail),G0) ; true ).
-'$thread_option'(system(Trail), Aliases, _, _, System, _, G0, Aliases) :- !,
+'$thread_option'(system(System), Aliases, _, _, System, _, G0, Aliases) :- !,
 	( \+ integer(System) -> '$do_error'(type_error(integer,System),G0) ; true ).
 '$thread_option'(alias(Alias), [Alias|Aliases], _, _, _, _, G0, Aliases) :- !,
 	( \+ atom(Alias) -> '$do_error'(type_error(atom,Alias),G0) ; true ).
@@ -103,8 +103,8 @@ thread_create(Goal, Id, Options) :-
 '$thread_ground_stacks'(0) :- !.
 '$thread_ground_stacks'(_).
 
-'$add_thread_aliases'([Alias|Aliases], Id) :-
-	recorded('$thread_alias',[Id0|Alias],_), !,
+'$add_thread_aliases'([Alias|_], Id) :-
+	recorded('$thread_alias',[_|Alias],_), !,
 	'$do_error'(permission_error(alias,new,Alias),thread_create_alias(Id,Alias)).
 '$add_thread_aliases'([Alias|Aliases], Id) :-
 	recorda('$thread_alias',[Id|Alias],_),
@@ -315,7 +315,7 @@ message_queue_destroy(Queue) :-
 	'$clean_mqueue'(CName).
 message_queue_destroy(Queue) :-
 	atom(Queue), !,
-	'$do_error'(existence_error(queue,Queue),message_queue_destroy(QUeue)).
+	'$do_error'(existence_error(queue,Queue),message_queue_destroy(Queue)).
 message_queue_destroy(Name) :-
 	'$do_error'(type_error(atom,Name),message_queue_destroy(Name)).
 
