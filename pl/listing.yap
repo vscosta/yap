@@ -95,7 +95,7 @@ portray_clause(_).
 '$write_body'((P,Q), I, T, Stream) :-
         !,
         '$write_body'(P,I,T, Stream),
-        put(Stream, ','),
+        put(Stream, 0',),
         '$write_body'(Q,I,',',Stream).
 '$write_body'((P->Q;S),I,_, Stream) :-
 	!,
