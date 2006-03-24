@@ -11,8 +11,12 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2005-12-17 03:25:39 $							 *
+* Last rev:     $Date: 2006-03-24 16:34:21 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.36  2005/12/17 03:25:39  vsc
+* major changes to support online event-based profiling
+* improve error discovery and restart on scanner.
+*
 * Revision 1.35  2005/11/18 18:50:34  tiagosoares
 * support for executing c code when a cut occurs
 *
@@ -208,7 +212,7 @@
     OPCODE(or_last                 ,p),
 #endif /* YAPOR */
 #ifdef BEAM 
-    OPCODE(run_eam                 ,x),  
+    OPCODE(run_eam                 ,os),  
 #endif
     OPCODE(call_cpred              ,sla),		
     OPCODE(call_usercpred          ,sla),
