@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-03-22 20:07:28 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-24 17:13:41 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.159  2006/03/22 20:07:28  vsc
+* take better care of zombies
+*
 * Revision 1.158  2006/03/21 21:30:54  vsc
 * avoid looking around when expanding for statics too.
 *
@@ -2309,11 +2312,15 @@ add_info(ClauseDef *clause, UInt regno)
     case _trie_try_long:
     case _trie_retry_long:
 #endif /* TABLING */
-#ifdef BEAM
-    case _run_eam:
-#endif
       clause->Tag = (CELL)NULL;
       return;
+#ifdef BEAM
+    case _run_eam:
+      //      clause->Tag = (CELL)NULL;
+      cl = NEXTOP(cl,os);
+      break;
+#endif
+
     }
   }
 }
@@ -2327,6 +2334,11 @@ add_head_info(ClauseDef *clause, UInt regno)
   while (TRUE) {
     op_numbers op = Yap_op_from_opcode(cl->opc);
     switch (op) {
+#ifdef BEAM
+    case _run_eam:
+      cl = NEXTOP(cl,os);
+      break;
+#endif
     case _get_list:
       if (cl->u.x.x == iarg) {
 	clause->Tag = AbsPair(NULL);
@@ -2919,7 +2931,12 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
       break;            
     case _pop_n:
       cl = NEXTOP(cl,s);
-      break;      
+      break;   
+#ifdef BEAM
+    case _run_eam:
+      cl = NEXTOP(cl,os);
+      break;
+#endif   
     case _unify_idb_term:
     case _copy_idb_term:
       {
@@ -2971,6 +2988,11 @@ skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno, int at_point)
   while (!done) {
     op_numbers op = Yap_op_from_opcode(cl->opc);
     switch (op) {
+#ifdef BEAM
+    case _run_eam:
+	clause->CurrentCode = clause->Code;
+	return;
+#endif
     case _unify_void:
       if (argno == 1) {
 	clause->CurrentCode = clause->Code;

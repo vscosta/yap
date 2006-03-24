@@ -11,8 +11,13 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2006-01-02 02:16:17 $							 *
+* Last rev:     $Date: 2006-03-24 17:13:41 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.86  2006/01/02 02:16:17  vsc
+* support new interface between YAP and GMP, so that we don't rely on our own
+* allocation routines.
+* Several big fixes.
+*
 * Revision 1.85  2005/12/17 03:25:39  vsc
 * major changes to support online event-based profiling
 * improve error discovery and restart on scanner.
@@ -125,6 +130,9 @@ static char SccsId[] = "@(#)amasm.c	1.3 3/15/90";
 #include "yapio.h"
 #include "compile.h"
 #include "clause.h"
+#ifdef BEAM
+#include"eam.h"
+#endif
 #ifdef YAPOR
 #include "or.macros.h"
 #endif	/* YAPOR */
@@ -693,6 +701,20 @@ a_n(op_numbers opcode, int count, yamop *code_p, int pass_no)
   GONEXT(s);
   return code_p;
 }
+
+#ifdef BEAM
+inline static yamop *
+a_eam(op_numbers opcode, int pred, long cl, yamop *code_p, int pass_no)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.os.opcw = cl;
+    code_p->u.os.s = pred;
+  }
+  GONEXT(os);
+  return code_p;
+}
+#endif
 
 inline static yamop *
 a_un(op_numbers opcode, op_numbers opcodew, int count, yamop *code_p, int pass_no)
@@ -3130,7 +3152,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case endgoal_op:
       break;
     case run_op:
-      code_p=a_n(_run_eam,cip->cpc->rnd2,code_p,pass_no);
+      code_p=a_eam(_run_eam,cip->cpc->rnd2,(long) ((PredEntry *) cip->cpc->rnd2)->beamTable->last, code_p,pass_no);
       break;
 #endif
     default:

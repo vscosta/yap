@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-03-03 23:10:47 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-24 17:13:41 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.196  2006/03/03 23:10:47  vsc
+* fix MacOSX interrupt handling
+* fix using Yap files as Yap scripts.
+*
 * Revision 1.195  2006/02/01 13:28:56  vsc
 * bignum support fixes
 *
@@ -516,6 +520,22 @@ Yap_absmi(int inp)
   REGSTORE *old_regs = Yap_regp;
 
 #endif /* PUSH_REGS */
+
+#ifdef BEAM
+  CELL OLD_B=B;
+  extern PredEntry *bpEntry;
+  if (inp==-9000) {
+#if PUSH_REGS
+    old_regs = &Yap_REGS;
+    init_absmi_regs(&absmi_regs);
+    Yap_regp = &absmi_regs;
+#endif
+    PREG=bpEntry->CodeOfPred;
+    JMPNext();			/* go execute instruction at PREG */
+  }
+
+#endif
+
 
 #if USE_THREADED_CODE
   /* absmadr */
@@ -2867,9 +2887,26 @@ Yap_absmi(int inp)
 
 #ifdef BEAM
  extern int eam_am(PredEntry *);
-     Op(run_eam, s);
-        if (!eam_am((PredEntry *) PREG->u.s.s)) FAIL();
-        PREG = NEXTOP(PREG, s);
+     Op(run_eam, os);
+/*
+        printf("%p - %p - %p \n", &&run_eam, (PredEntry *) PREG->u.os.s, (int *) PREG->u.os.opcw);
+*/
+       if (inp==-9000) {
+ 	  extern CELL *beam_ALTERNATIVES;
+          *beam_ALTERNATIVES= (CELL *) PREG->u.os.opcw;
+	  beam_ALTERNATIVES++;
+	  if (OLD_B!=B) goto fail;
+#if PUSH_REGS
+	  Yap_regp=old_regs;
+#endif
+	  return(0);
+        } 
+
+        saveregs();
+        if (!eam_am((PredEntry *) PREG->u.os.s)) FAIL();
+	setregs();
+        goto procceed;
+        PREG = NEXTOP(PREG, os);
         GONext();
       ENDOp();
 #endif

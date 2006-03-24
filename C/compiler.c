@@ -11,8 +11,12 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2005-12-17 03:25:39 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-24 17:13:41 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.70  2005/12/17 03:25:39  vsc
+* major changes to support online event-based profiling
+* improve error discovery and restart on scanner.
+*
 * Revision 1.69  2005/09/08 22:06:44  rslopes
 * BEAM for YAP update...
 *
@@ -1867,10 +1871,20 @@ c_head(Term t, compiler_struct *cglobs)
   cglobs->branch_pointer = cglobs->parent_branches;
   if (IsAtomTerm(t)) {
     Yap_emit(name_op, (CELL) AtomOfTerm(t), Zero, &cglobs->cint);
+#ifdef BEAM
+   if (EAM) {
+     Yap_emit(run_op,Zero,(unsigned long) cglobs->cint.CurrentPred,&cglobs->cint);
+   }
+#endif
     return;
   }
   f = FunctorOfTerm(t);
   Yap_emit(name_op, (CELL) NameOfFunctor(f), ArityOfFunctor(f), &cglobs->cint);
+#ifdef BEAM
+   if (EAM) {
+     Yap_emit(run_op,Zero,(unsigned long) cglobs->cint.CurrentPred,&cglobs->cint);
+   }
+#endif
   c_args(t, 0, cglobs);
 }
 
@@ -3108,6 +3122,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
   }
   cglobs.is_a_fact = (body == MkAtomTerm(AtomTrue));
   /* phase 1 : produce skeleton code and variable information              */
+
   c_head(head, &cglobs);
 
   if (cglobs.is_a_fact && !cglobs.vtable) {
