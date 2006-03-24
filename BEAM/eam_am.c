@@ -24,11 +24,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "eam.h"
-#include "eamamasm.h"
-
 #define Debug 0
-#define Debug_GC 0
+#define Debug_GC 1
 #define Debug_Dump_State 0  /* 0 =off || 1==only on Scheduling || 2== only on GC || 4=on every abs inst NOTE: DEBUG has to be enable to use 4*/
 #define Debug_MEMORY 0
 #define Memory_Stat  0
@@ -36,47 +33,51 @@
 #define Fast_go 1           /* normaly 1 ; use 0 to run some extra tests only to control some possible bugs (slower) */
 #define USE_SPLIT     1
 
-#define MEM_FOR_BOXES  128  /* In Mb */
-#define MEM_FOR_HEAP   128  /* In Mb */
-#define MEM_FOR_VARS   64   /* In Mb */
+#define MEM_FOR_BOXES  32  /* In Mb */
+#define MEM_FOR_HEAP   32  /* In Mb */
+#define MEM_FOR_VARS   32  /* In Mb */
 #define MEM_BOXES      MEM_FOR_BOXES*1024*1024
 #define MEM_H          MEM_FOR_HEAP*1024*1024
 #define MEM_VARS       MEM_FOR_VARS*1024*1024
+#define INDEX_SIZE     100000  /* size of vector for saving memory requests */
+
 #define GARBAGE_COLLECTOR 2 /* 0= NO GC || 1 = Heap only || 2 = Heap + Box */
 #define HYBRID_BOXMEM  1    /* 0 - Off  || 1 - On */
-
 #define START_ON_NEXT  1    /* PLEASE DON'T CHANGE , specially if you use skip_while_var */
 #define USE_LEFTMOST   1    /* SHOULD ALWAYS BE 1 for now... */ 
-#define ENABLE_INDEX   1    /* 0 == indexing disable        1 == indexing on first arg enable */
 #define MICRO_TIME     1    /* 0 == eamtime uses CPU time   1 == eamtime uses total time */
-
+#define MAX_MEMORYSTAT 5000
 #define READ 0
 #define WRITE 1
 
+#include "eam.h"
+#include "eamamasm.h"
 
-/* HERE ARE THE REGS NEEDED FOR EAM EMULATOR */
+int EAM=0;                 /* Is EAM enabled ?                       */
+Cell *beam_ALTERNATIVES;   /* NEEDED FOR ABSMI */
+PredEntry *bpEntry;
+struct EAM_Global EAMGlobal;
+struct EAM_Global *eamGlobal=&EAMGlobal;
 
-#define _X   XREGS      /* use the same X-Regs as YAP */
-Cell *pc;
-Cell *_H;
-Cell *_S;
-short _Mode;            /* read or write mode                     */
-short ES;               /* goal shoud do Eager Split yes or no ?  */ 
-Cell *var_locals;       /* local vars to the working AND-BOX      */
-struct AND_BOX  *ABX;   /* working AND-BOX                        */ 
-struct OR_BOX   *OBX;   /* working OR-BOX                         */
-struct SUSPENSIONS *SU; /* list with suspended work               */
+#if !Debug
+   #define INLINE  inline
+   #define DIRECT_JUMP 1
+#else
+   #define INLINE
+   #define DIRECT_JUMP 0
+   void break_top(void);  void break_top(void) { };
+   void break_debug(void); 
+   void break_debug(void) { static int contador=1;
+ #if Debug_Dump_State & 4
+  		        dump_eam_state();
+ #endif
+			printf("(%d %1d) ->", contador++,beam_Mode); 
+			if (Debug!=-1 && contador>Debug*100) {printf("exit por contador>debug\n"); exit(1); }
+   };
+#endif
 
-struct status_and *USE_SAME_ANDBOX;  /* when only 1 alternative   */
-struct status_or *nr_alternative;    /* working alternative       */
-struct status_and *nr_call;          /* working goal              */
-
-int EAM=0;              /* Is EAM enabled ?                       */
-Cell *VAR_TRAIL;        
-int VAR_TRAIL_NR;
-int Mem_FULL;           /*  if mem_full, then perform GC          */
-int nr_call_forking;    /* number of splits already performed     */
-unsigned long START_ADDR_HEAP, START_ADDR_BOXES, END_BOX, END_H;
+#define push_mode_and_sreg() { *--beam_sp = (Cell) beam_Mode; *--beam_sp  = (Cell) beam_S; }
+#define pop_mode_and_sreg()  { beam_S = (Cell *) *beam_sp++; beam_Mode = (short) *beam_sp++; }
 
 #define isvar(a)   IsVarTerm((Cell) a)
 #define isappl(a)  IsApplTerm((Cell) a)  
@@ -86,7 +87,11 @@ unsigned long START_ADDR_HEAP, START_ADDR_BOXES, END_BOX, END_H;
 #define repappl(a) RepAppl((Cell) a)
 #define abspair(a) AbsPair((Term *) a)
 #define absappl(a) AbsAppl((Term *) a)
-int is_perm_var(Cell *a); inline int is_perm_var(Cell *a) { if (a<(Cell *) END_BOX) return(0); else return (1); }
+#if 0
+int is_perm_var(Cell *a); inline int is_perm_var(Cell *a) { if (a>=(Cell *) beam_END_BOX) return(1); else return (0); }
+#else
+int is_perm_var(Cell *a); inline int is_perm_var(Cell *a) { if ( a<(Cell *) beam_START_ADDR_HEAP || a>=(Cell *)  beam_END_BOX) return(1); else return (0); }
+#endif
 
 Cell deref(Cell a);
 int Unify(Cell *a, Cell *b);
@@ -136,7 +141,7 @@ void garbage_collector(void);
 void conta_memoria_livre(int size);
 int showTime(void);
 struct AND_BOX *choose_leftmost(void);
-extern Int BEAM_is(void);
+extern Cell BEAM_is(void);
 extern void do_eam_indexing(struct Predicates *);
 extern void Yap_plwrite(Term, int (*mywrite) (int, int), int);
 
@@ -144,65 +149,6 @@ extern void Yap_plwrite(Term, int (*mywrite) (int, int), int);
    void dump_eam_state(void);
 #endif
 
-#define Direct_Jump 1
-struct AND_BOX  *top;
-#if Debug
-   #define INLINE
-   #define DIRECT_JUMP 0
-   int contador;
-   void break_top(void); void break_top(void) { };
-   void break_debug(void); 
-   void break_debug(void) {
-#if Debug_Dump_State & 4
-  		        dump_eam_state();
-#endif
-			printf("(%d %1d) ->", contador++,_Mode); 
-   };
-#else
-#define INLINE  inline
-#define DIRECT_JUMP Direct_Jump
-#endif
-#if Memory_Stat
-   #define MAX_MEMORYSTAT 5000
-   unsigned long TOTAL_MEM, MEM_REUSED, TOTAL_TEMPS,TEMPS_REUSED, TOTAL_PERMS, PERMS_REUSED;
-   unsigned long Memory_STAT[MAX_MEMORYSTAT][5];
-#endif
- 
-#define arg1  *(pc+1)
-#define arg2  *(pc+2)
-#define arg3  *(pc+3)
-#define arg4  *(pc+4)
-
-#define STACK_SIZE 4000
-Cell MyStack[STACK_SIZE];
-Cell *sp;
-#if Fast_go
-    #define test_stack_overflow() {};
-#else
-    #define test_stack_overflow() { if (sp>&MyStack[STACK_SIZE]) abort_eam("PopStack too Small\n"); }
-#endif
-#define push_mode_and_sreg() { *--sp = (Cell) _Mode; *--sp  = (Cell) _S; }
-#define pop_mode_and_sreg()  { _S = (Cell *) *sp++; _Mode = (short) *sp++; test_stack_overflow(); }
-
-int Force_Wait;
-#define CELL_SIZE  (sizeof(Cell))
-#define POINTER_SIZE (sizeof(Cell *))
-#define ANDBOX_SIZE (sizeof(struct AND_BOX))
-#define ORBOX_SIZE (sizeof(struct OR_BOX))
-#define PERM_VAR_SIZE (sizeof(struct PERM_VAR))
-#define EXTERNAL_VAR_SIZE (sizeof(struct EXTERNAL_VAR))
-#define SUSPENSIONS_SIZE (sizeof(struct SUSPENSIONS))
-#define SUSPENSIONS_VAR_SIZE (sizeof(struct SUSPENSIONS_VAR))
-#define STATUS_AND_SIZE (sizeof(struct status_and))
-#define STATUS_OR_SIZE (sizeof(struct status_or))
-
-#define INDEX_SIZE       100000  /* size of vector for saving memory requests */
-Cell *Index_Free[INDEX_SIZE];
-Cell *Next_Free;
-struct PERM_VAR *Next_Var;
-unsigned int MEM_Going;
-unsigned int nr_call_gc_heap;
-unsigned int nr_call_gc_boxed;
 
 
 /************************************************************************\
@@ -216,7 +162,7 @@ Cell *c;
 
  for(i=0;i<INDEX_SIZE;i++) {
    nr=0;
-   c=Index_Free[i];
+   c=beam_IndexFree[i];
    
    while(c!=NULL) {
      ult=i;
@@ -226,10 +172,10 @@ Cell *c;
    total=total+nr*i;
  } 
  printf("Ultimo Pedido (bytes) =%d ¦ Ultimo bloco livre=%d\n",size,ult*CELL_SIZE);
- printf("Memoria TOTAL (bytes)      =%ld \n",((unsigned long) END_BOX)-((unsigned long) START_ADDR_BOXES));
- printf("Memoria livre no Index_Free=%ld \n",total*CELL_SIZE);
- printf("Memoria Total livre        =%ld \n",total*CELL_SIZE+((unsigned long) END_BOX)-((unsigned long)Next_Free));
- printf("Memoria Total na HEAP=%ld    livre=%ld \n",(unsigned long) MEM_H,(unsigned long) _H-(unsigned long) START_ADDR_HEAP);
+ printf("Memoria TOTAL (bytes)      =%ld \n",((unsigned long)  beam_END_BOX)-((unsigned long)  beam_START_ADDR_BOXES));
+ printf("Memoria livre no IndexFree=%ld \n",total*CELL_SIZE);
+ printf("Memoria Total livre        =%ld \n",total*CELL_SIZE+((unsigned long)  beam_END_BOX)-((unsigned long)beam_NextFree));
+ printf("Memoria Total na HEAP=%ld    livre=%ld \n",(unsigned long) MEM_H,(unsigned long) beam_H-(unsigned long) beam_START_ADDR_HEAP);
 }
 
 void abort_eam(char *s)
@@ -241,61 +187,61 @@ void abort_eam(char *s)
 void exit_eam(char *s)
 {
   printf("%s\n",s);
-  if (nr_call_forking) printf("%d forks executed\n",nr_call_forking);
+  if (beam_nr_call_forking) printf("%d forks executed\n",beam_nr_call_forking);
 
-  if (nr_call_gc_heap) 
-   printf("GC was called %d times on Heap  Mem\n",nr_call_gc_heap);
-  if (nr_call_gc_boxed)
-   printf("GC was called %d times on Boxed Mem\n",nr_call_gc_boxed);
-  if (nr_call_gc_boxed && nr_call_gc_heap)
-   printf("GC was called %d times \n",nr_call_gc_boxed+nr_call_gc_heap);
+  if (beam_nr_gc_heap) 
+   printf("GC was called %d times on Heap  Mem\n",beam_nr_gc_heap);
+  if (beam_nr_gc_boxed)
+   printf("GC was called %d times on Boxed Mem\n",beam_nr_gc_boxed);
+  if (beam_nr_gc_boxed && beam_nr_gc_heap)
+   printf("GC was called %d times \n",beam_nr_gc_boxed+beam_nr_gc_heap);
 
 #if Memory_Stat
   {unsigned long req, used;
-   req=TOTAL_MEM+TOTAL_PERMS;
-   used=(TOTAL_MEM+TOTAL_PERMS)-(MEM_REUSED+PERMS_REUSED);
+   req=beam_TOTAL_MEM+beam_TOTAL_PERMS;
+   used=(beam_TOTAL_MEM+beam_TOTAL_PERMS)-(beam_MEM_REUSED+beam_PERMS_REUSED);
 
   printf("-------------------------------------------------------------------\n");
   printf("Total Mem: Requested %ld (%.2fKb) (%.2fMb) \n", req, req/1024.0, req/1048576.0);
   printf("           Used      %ld (%.2fKb) (%.2fMb) / Reused (%3.2f%c)\n", used,used/1024.0, used/1048576.0, (float) (req-used)/req*100,'%');
   printf("-------------------------------------------------------------------\n");
 
-  used=(TOTAL_MEM-TOTAL_TEMPS)-(MEM_REUSED-TEMPS_REUSED);
-  printf("Boxed Mem: Requested %ld (%.2fKb) (%.2fMb) \n", TOTAL_MEM-TOTAL_TEMPS, (TOTAL_MEM-TOTAL_TEMPS)/1024.0, (TOTAL_MEM-TOTAL_TEMPS)/1048576.0);
-  printf("           Used      %ld (%.2fKb) (%.2fMb) / Reused (%3.2f%c)\n", used, used/1024.0, used/1048576.0, (float) (MEM_REUSED-TEMPS_REUSED)/(TOTAL_MEM-TOTAL_TEMPS)*100,'%');
+  used=(beam_TOTAL_MEM-beam_TOTAL_TEMPS)-(beam_MEM_REUSED-beam_TEMPS_REUSED);
+  printf("Boxed Mem: Requested %ld (%.2fKb) (%.2fMb) \n", beam_TOTAL_MEM-beam_TOTAL_TEMPS, (beam_TOTAL_MEM-beam_TOTAL_TEMPS)/1024.0, (beam_TOTAL_MEM-beam_TOTAL_TEMPS)/1048576.0);
+  printf("           Used      %ld (%.2fKb) (%.2fMb) / Reused (%3.2f%c)\n", used, used/1024.0, used/1048576.0, (float) (beam_MEM_REUSED-beam_TEMPS_REUSED)/(beam_TOTAL_MEM-beam_TOTAL_TEMPS)*100,'%');
 
-  used=TOTAL_TEMPS-TEMPS_REUSED;
-  printf("Temps Mem: Requested %ld (%.2fKb) (%.2fMB)\n", TOTAL_TEMPS, TOTAL_TEMPS/1024.0, TOTAL_TEMPS/1048576.0);
-  printf("           Used      %ld (%.2fKb) (%.2fMb) / Reused (%3.2f%c)\n", used, used/1024.0,used/1048576.0,(float) TEMPS_REUSED/(TOTAL_TEMPS)*100,'%');
+  used=beam_TOTAL_TEMPS-beam_TEMPS_REUSED;
+  printf("Temps Mem: Requested %ld (%.2fKb) (%.2fMB)\n", beam_TOTAL_TEMPS, beam_TOTAL_TEMPS/1024.0, beam_TOTAL_TEMPS/1048576.0);
+  printf("           Used      %ld (%.2fKb) (%.2fMb) / Reused (%3.2f%c)\n", used, used/1024.0,used/1048576.0,(float) beam_TEMPS_REUSED/(beam_TOTAL_TEMPS)*100,'%');
 
 
-  used=TOTAL_PERMS-PERMS_REUSED;
-  printf("Perms Mem: Requested %ld (%.2fKb) (%.2fMB)\n", TOTAL_PERMS, TOTAL_PERMS/1024.0, TOTAL_PERMS/1048576.0);
-  printf("           Used      %ld (%.2fKb) (%.2fMb) / Reused (%3.2f%c)\n", used, used/1024.0,used/1048576.0,(float) PERMS_REUSED/(TOTAL_PERMS)*100,'%');
+  used=beam_TOTAL_PERMS-beam_PERMS_REUSED;
+  printf("Perms Mem: Requested %ld (%.2fKb) (%.2fMB)\n", beam_TOTAL_PERMS, beam_TOTAL_PERMS/1024.0, beam_TOTAL_PERMS/1048576.0);
+  printf("           Used      %ld (%.2fKb) (%.2fMb) / Reused (%3.2f%c)\n", used, used/1024.0,used/1048576.0,(float) beam_PERMS_REUSED/(beam_TOTAL_PERMS)*100,'%');
   }
   printf("-------------------------------------------------------------------\n");
-  if (nr_call_gc_boxed+nr_call_gc_heap>0) {
+  if (beam_nr_gc_boxed+beam_nr_gc_heap>0) {
   int i;
-    Memory_STAT[0][0]=0; Memory_STAT[0][1]=0; Memory_STAT[0][2]=0; Memory_STAT[0][3]=0; Memory_STAT[0][4]=0;
-    for(i=1;i<=nr_call_gc_boxed+nr_call_gc_heap;i++) {
-      Memory_STAT[0][0]+=Memory_STAT[i][0];
-      Memory_STAT[0][1]+=Memory_STAT[i][1];
-      Memory_STAT[0][2]+=Memory_STAT[i][2];
-      Memory_STAT[0][3]+=Memory_STAT[i][3];
-      Memory_STAT[0][4]+=Memory_STAT[i][4];
+    beam_Memory_STAT[0][0]=0; beam_Memory_STAT[0][1]=0; beam_Memory_STAT[0][2]=0; beam_Memory_STAT[0][3]=0; beam_Memory_STAT[0][4]=0;
+    for(i=1;i<=beam_nr_gc_boxed+beam_nr_gc_heap;i++) {
+      beam_Memory_STAT[0][0]+=beam_Memory_STAT[i][0];
+      beam_Memory_STAT[0][1]+=beam_Memory_STAT[i][1];
+      beam_Memory_STAT[0][2]+=beam_Memory_STAT[i][2];
+      beam_Memory_STAT[0][3]+=beam_Memory_STAT[i][3];
+      beam_Memory_STAT[0][4]+=beam_Memory_STAT[i][4];
       printf("GC %4d Time=%ld  H=%ld to %ld (%3.2f) Box=%ld to %ld (%3.2f)\n",
-           i, Memory_STAT[i][0], Memory_STAT[i][1], Memory_STAT[i][3], 
-           ((float)  Memory_STAT[i][3]/Memory_STAT[i][1])*100 , Memory_STAT[i][2], Memory_STAT[i][4],
-           ((float)  Memory_STAT[i][4]/Memory_STAT[i][2])*100);
+           i, beam_Memory_STAT[i][0], beam_Memory_STAT[i][1], beam_Memory_STAT[i][3], 
+           ((float)  beam_Memory_STAT[i][3]/beam_Memory_STAT[i][1])*100 , beam_Memory_STAT[i][2], beam_Memory_STAT[i][4],
+           ((float)  beam_Memory_STAT[i][4]/beam_Memory_STAT[i][2])*100);
     }
       i--;
       printf("\nRESUME GC: Time=%ld  H=%ld to %ld (%3.2f) Box=%ld to %ld (%3.2f)\n",
-           Memory_STAT[0][0]/i, Memory_STAT[0][1]/i, Memory_STAT[0][3]/i, 
-           100.0-((float)  Memory_STAT[0][3]/Memory_STAT[0][1])*100 , Memory_STAT[0][2]/i, Memory_STAT[0][4]/i,
-           100.0-((float)  Memory_STAT[0][4]/Memory_STAT[0][2])*100);
+           beam_Memory_STAT[0][0]/i, beam_Memory_STAT[0][1]/i, beam_Memory_STAT[0][3]/i, 
+           100.0-((float)  beam_Memory_STAT[0][3]/beam_Memory_STAT[0][1])*100 , beam_Memory_STAT[0][2]/i, beam_Memory_STAT[0][4]/i,
+           100.0-((float)  beam_Memory_STAT[0][4]/beam_Memory_STAT[0][2])*100);
 
   } else {
-    printf("Heap Mem Requested %ld (%.2fKb) (%.2fMB) \n", ((unsigned long) _H-START_ADDR_HEAP), ((unsigned long) _H-START_ADDR_HEAP)/1024.0, ((unsigned long) _H-START_ADDR_HEAP)/1048576.0);
+    printf("Heap Mem Requested %ld (%.2fKb) (%.2fMB) \n", ((unsigned long) beam_H-beam_START_ADDR_HEAP), ((unsigned long) beam_H-beam_START_ADDR_HEAP)/1024.0, ((unsigned long) beam_H-beam_START_ADDR_HEAP)/1048576.0);
   printf("-------------------------------------------------------------------\n");
   }
 #endif
@@ -313,66 +259,64 @@ void initialize_memory_areas()
 
    if (first_time) {
      first_time=0;
-     START_ADDR_HEAP=(unsigned long) malloc(MEM_H+MEM_BOXES+MEM_VARS);
-     if ((void *)START_ADDR_HEAP==(void *)NULL) abort_eam("Memory Initialization Error\n");
-     START_ADDR_BOXES=START_ADDR_HEAP+MEM_H;
+     beam_IndexFree=(Cell **) malloc(INDEX_SIZE*POINTER_SIZE);
+     if ((void *) beam_IndexFree==(void *)NULL) abort_eam("Memory Initialization Error IndexFree\n");
 
-     END_H=START_ADDR_HEAP+MEM_H; 
-     END_BOX=START_ADDR_BOXES+MEM_BOXES;
+     beam_START_ADDR_HEAP=(unsigned long) malloc(MEM_H+MEM_BOXES+MEM_VARS);
+     if ((void *)beam_START_ADDR_HEAP==(void *)NULL) abort_eam("Memory Initialization Error Heap+Boxes\n");
+      beam_START_ADDR_BOXES=beam_START_ADDR_HEAP+MEM_H;
+      beam_END_H=beam_START_ADDR_HEAP+MEM_H; 
+      beam_END_BOX=beam_START_ADDR_BOXES+MEM_BOXES;
    } 
 
+   beam_sp=(Cell *) beam_END_H; beam_sp-=2;
 
-   Next_Var=(struct PERM_VAR *) END_BOX;
-   _H=(Cell *) START_ADDR_HEAP;
+   beam_NextVar=(struct PERM_VAR *)  beam_END_BOX;
+   beam_H=(Cell *) beam_START_ADDR_HEAP;
 #if GARBAGE_COLLECTOR!=2
-   Next_Free=(Cell *) END_BOX;
+   beam_NextFree=(Cell *)  beam_END_BOX;
 #else
-   Next_Free=(Cell *) START_ADDR_BOXES;
+   beam_NextFree=(Cell *)  beam_START_ADDR_BOXES;
 #endif
-   MEM_Going=1;
-   memset(Index_Free,0,INDEX_SIZE*POINTER_SIZE);
+   beam_MemGoing=1;
+   memset(beam_IndexFree,0,INDEX_SIZE*POINTER_SIZE);
    { int i,max;
      max=MEM_VARS/PERM_VAR_SIZE;
      for(i=0;i<max-1;i++) {
-       Next_Var[i].next=&Next_Var[i+1];
+       beam_NextVar[i].next=&beam_NextVar[i+1];
      }
-     Next_Var[max-1].next=NULL;
+     beam_NextVar[max-1].next=NULL;
    }
 
-#if Debug
-   contador=1;
-#endif
-   var_locals=NULL;
-   USE_SAME_ANDBOX=NULL;
-   nr_alternative=NULL;
-   nr_call=NULL;
-   Force_Wait=0;
-   sp=&MyStack[STACK_SIZE-1];
-   nr_call_gc_heap=0;
-   nr_call_gc_boxed=0;
-   _Mode=READ;
-   VAR_TRAIL_NR=0;
-   nr_call_forking=0;
-   Mem_FULL=0;
+   beam_varlocals=NULL;
+   beam_USE_SAME_ANDBOX=NULL;
+   beam_nr_alternative=NULL;
+   beam_nr_call=NULL;
+   beam_nr_gc_heap=0;
+   beam_nr_gc_boxed=0;
+   beam_Mode=READ;
+   beam_VAR_TRAIL_NR=0;
+   beam_nr_call_forking=0;
+   beam_Mem_FULL=0;
 #if Memory_Stat
-        TOTAL_MEM=0; MEM_REUSED=0; TOTAL_TEMPS=0; TEMPS_REUSED=0; TOTAL_PERMS=0; PERMS_REUSED=0;
-	memset(Memory_STAT,0,MAX_MEMORYSTAT*5*sizeof(unsigned long));
+        beam_TOTAL_MEM=0; beam_MEM_REUSED=0; beam_TOTAL_TEMPS=0; beam_TEMPS_REUSED=0; beam_TOTAL_PERMS=0; beam_PERMS_REUSED=0;
+	memset(beam_Memory_STAT,0,MAX_MEMORYSTAT*5*sizeof(unsigned long));
 #endif
 }
 
 INLINE int HEAP_MEM_FULL(void)
 {
-    if (MEM_Going==1) {
-      if ((unsigned long)_H>(unsigned long)(START_ADDR_HEAP+MEM_H/2)) {
-	Mem_FULL|=2;
+    if (beam_MemGoing==1) {
+      if ((unsigned long)beam_H>(unsigned long)(beam_START_ADDR_HEAP+MEM_H/2)) {
+	beam_Mem_FULL|=2;
       }
    } else {
-      if ((unsigned long) _H>(unsigned long)(START_ADDR_HEAP+MEM_H)) {
-	Mem_FULL|=2;
+      if ((unsigned long) beam_H>(unsigned long)(beam_START_ADDR_HEAP+MEM_H)) {
+	beam_Mem_FULL|=2;
       }
    }
 
-  return(Mem_FULL);
+  return(beam_Mem_FULL);
 }
 
 
@@ -394,37 +338,37 @@ INLINE Cell *request_memory(int size) /* size in bytes */
 #endif
 
 #if HYBRID_BOXMEM
-   mem=Index_Free[(unsigned) size_cells];
+   mem=beam_IndexFree[(unsigned) size_cells];
  #if Memory_Stat
-   TOTAL_MEM+=size;
-   if (mem!=NULL) MEM_REUSED+=size;
+   beam_TOTAL_MEM+=size;
+   if (mem!=NULL) beam_MEM_REUSED+=size;
  #endif
    if (mem==NULL) {
 
 #else  /* GC Only */
    #if Memory_Stat
-     TOTAL_MEM+=size;
+     beam_TOTAL_MEM+=size;
    #endif
    if (1) {
 #endif
 
   #if GARBAGE_COLLECTOR!=2
-       Next_Free-=size_cells;
-       mem=Next_Free;
-       if (Next_Free< (Cell *) START_ADDR_BOXES) abort_eam("No more BOX_MEM \n");
+       beam_NextFree-=size_cells;
+       mem=beam_NextFree;
+       if (beam_NextFree< (Cell *)  beam_START_ADDR_BOXES) abort_eam("No more BOX_MEM \n");
   #else
-     if (MEM_Going==1) {
-       mem=Next_Free;
-       Next_Free+=size_cells;
-       if (Next_Free> (Cell *) (START_ADDR_BOXES+MEM_BOXES/2)) Mem_FULL |= 1;
+     if (beam_MemGoing==1) {
+       mem=beam_NextFree;
+       beam_NextFree+=size_cells;
+       if (beam_NextFree> (Cell *) ( beam_START_ADDR_BOXES+MEM_BOXES/2)) beam_Mem_FULL |= 1;
      } else {
-       Next_Free-=size_cells;
-       mem=Next_Free;
-       if (Next_Free< (Cell *) (START_ADDR_BOXES+MEM_BOXES/2)) Mem_FULL |=1;
+       beam_NextFree-=size_cells;
+       mem=beam_NextFree;
+       if (beam_NextFree< (Cell *) ( beam_START_ADDR_BOXES+MEM_BOXES/2)) beam_Mem_FULL |=1;
      }
   #endif
    } else {
-     Index_Free[(unsigned) size_cells]=(Cell *) *mem;
+     beam_IndexFree[(unsigned) size_cells]=(Cell *) *mem;
    }
 
 #if Clear_MEMORY & 1
@@ -457,15 +401,15 @@ INLINE void free_memory(Cell *mem,int size) /* size in bytes */
       printf("Freeing memory size %d\n",size_cells);
 #endif
 
-    *mem=(Cell) Index_Free[size_cells];
-    Index_Free[size_cells]=mem;
+    *mem=(Cell) beam_IndexFree[size_cells];
+    beam_IndexFree[size_cells]=mem;
 }
 #endif
 
 INLINE void get_arguments(int nr, Cell *a)
 {
 register int i;
-   for(i=1;i<=nr;i++) _X[i]=a[i];
+   for(i=1;i<=nr;i++) beam_X[i]=a[i];
 }
 
 INLINE Cell *save_arguments(int nr) /* nr arguments */
@@ -477,7 +421,7 @@ INLINE Cell *save_arguments(int nr) /* nr arguments */
 
 	a=(Cell *)request_memory((nr+1)*CELL_SIZE);
 	a[0]=nr+1;  
-        for(i=1;i<=nr;i++) a[i]=_X[i];
+        for(i=1;i<=nr;i++) a[i]=beam_X[i];
 	return(a);
    } 
 }
@@ -493,21 +437,21 @@ struct PERM_VAR *pv;
 
 #if Memory_Stat
   static struct PERM_VAR *old=NULL;
-  TOTAL_PERMS+=PERM_VAR_SIZE;
-  if (old<=Next_Var) old=Next_Var;
-  else PERMS_REUSED+=PERM_VAR_SIZE;
+  beam_TOTAL_PERMS+=PERM_VAR_SIZE;
+  if (old<=beam_NextVar) old=beam_NextVar;
+  else beam_PERMS_REUSED+=PERM_VAR_SIZE;
 #endif  
 
-#if Debug || Debug_MEMORY
+#if Debug && Debug_MEMORY
   printf("Requesting a permVar...\n");
 #endif
 
 #if !Fast_go
-  if (Next_Var->next==NULL) { printf("Fim da memoria para variaveis\n"); exit (-1); }
+  if (beam_NextVar->next==NULL) { printf("Fim da memoria para variaveis\n"); exit (-1); }
 #endif
 
-  pv=Next_Var;
-  Next_Var=Next_Var->next;
+  pv=beam_NextVar;
+  beam_NextVar=beam_NextVar->next;
 
   pv->value=(Cell) &(pv->value);
   pv->home=a;
@@ -529,8 +473,8 @@ void free_permVar(struct PERM_VAR *v) {
   printf("Freeing a permVar...\n");
 #endif
 
-  v->next=Next_Var;
-  Next_Var=v;
+  v->next=beam_NextVar;
+  beam_NextVar=v;
   return;
 }
 
@@ -542,8 +486,8 @@ int i;
 
 #if Memory_Stat
     Cell *old;
-    old=Next_Free;
-    TOTAL_TEMPS+=CELL_SIZE*(nr+1); 
+    old=beam_NextFree;
+    beam_TOTAL_TEMPS+=CELL_SIZE*(nr+1); 
 #endif
 
 #if Debug_MEMORY
@@ -560,7 +504,7 @@ int i;
     }
 
 #if Memory_Stat
-    if (old==Next_Free) TEMPS_REUSED+=CELL_SIZE*(nr+1); 
+    if (old==beam_NextFree) beam_TEMPS_REUSED+=CELL_SIZE*(nr+1); 
 #endif
 
 return(l);
@@ -572,8 +516,8 @@ Cell *l;
 
 #if Memory_Stat
     Cell *old;
-    old=Next_Free;
-    TOTAL_TEMPS+=CELL_SIZE*(nr+1); 
+    old=beam_NextFree;
+    beam_TOTAL_TEMPS+=CELL_SIZE*(nr+1); 
 #endif
 
 #if Debug_MEMORY
@@ -586,7 +530,7 @@ Cell *l;
     l++;
 
 #if Memory_Stat
-    if (old==Next_Free) TEMPS_REUSED+=CELL_SIZE*(nr+1); 
+    if (old==beam_NextFree) beam_TEMPS_REUSED+=CELL_SIZE*(nr+1); 
 #endif
 
 return(l);
@@ -703,17 +647,17 @@ struct status_and *r;
 
 INLINE void totop_suspensions_list(struct SUSPENSIONS *b)
 {
-  if (SU==b) return; /* is already on top of list */ 
-  if (SU->prev==b) { SU=b; return; } /* It was the last one */
+  if (beam_su==b) return; /* is already on top of list */ 
+  if (beam_su->prev==b) { beam_su=b; return; } /* It was the last one */
 
   b->prev->next=b->next;
   b->next->prev=b->prev;
 
-  b->next=SU;
-  b->prev=SU->prev;
-  SU->prev=b;
+  b->next=beam_su;
+  b->prev=beam_su->prev;
+  beam_su->prev=b;
   b->prev->next=b;
-  SU=b;
+  beam_su=b;
 }
 
 void waking_boxes_suspended_on_var(struct PERM_VAR *v)
@@ -745,16 +689,16 @@ struct SUSPENSIONS *s;
   s=(struct SUSPENSIONS *) request_memory(SUSPENSIONS_SIZE);    
   s->and_box=a;
   s->reason=r;
-  if (SU==NULL) {
+  if (beam_su==NULL) {
     s->next=s;
     s->prev=s;
-    SU=s;
+    beam_su=s;
   } else {
-    s->next=SU;
-    s->prev=SU->prev;
-    SU->prev=s;
-    if (SU->next==SU) { /* so existem 2 elementos na lista */
-      SU->next=s;
+    s->next=beam_su;
+    s->prev=beam_su->prev;
+    beam_su->prev=s;
+    if (beam_su->next==beam_su) { /* so existem 2 elementos na lista */
+      beam_su->next=s;
     } else {
       s->prev->next=s;
     }
@@ -775,10 +719,10 @@ void delfrom_suspensions_list(struct SUSPENSIONS *b)
   remove_all_externals_suspensions(b->and_box);
   b->and_box->suspended=NULL;
 
-  if (b==SU) SU=b->next;
+  if (b==beam_su) beam_su=b->next;
 
-  if (b==SU) {  /* so existe um */ 
-    SU=NULL;
+  if (b==beam_su) {  /* so existe um */ 
+    beam_su=NULL;
   } else {
     b->prev->next=b->next;
     b->next->prev=b->prev;
@@ -973,7 +917,7 @@ struct status_and *calls;
 
 INLINE int is_leftmost(struct AND_BOX *a, struct status_and *n)
 {
-  if (a==top) return(1);
+  if (a==beam_top) return(1);
   if (a->calls!=n) return(0);
   if (a->nr_alternative->previous!=NULL) return(0);
 
@@ -986,7 +930,7 @@ struct AND_BOX *choose_leftmost(void)
   struct OR_BOX *o=NULL;
   struct status_and *ncall;
   
-  a=top;
+  a=beam_top;
   do {
     ncall=a->calls;
     if (ncall==NULL) break;
@@ -997,7 +941,7 @@ struct AND_BOX *choose_leftmost(void)
     }
     if (ncall==NULL) break;
     a=o->alternatives->alternative;
-    if (a==NULL) { OBX=o; return(a); }
+    if (a==NULL) { beam_OBX=o; return(a); }
   } while(1);
 
 return a;
@@ -1116,11 +1060,11 @@ void UnifyCells(Cell *a, Cell *b) /* a e b variaveis  */
 	 j=((struct PERM_VAR *) b)->home->level;
 	 if (i<j) {
 	   *b=(Cell) a;
-	   trail(ABX,(struct PERM_VAR *) b);
+	   trail(beam_ABX,(struct PERM_VAR *) b);
 	   return;
 	 } else {
 	   *a=(Cell) b;
-	   trail(ABX,(struct PERM_VAR *) a);
+	   trail(beam_ABX,(struct PERM_VAR *) a);
 	   return;
 	 }
        } else {
@@ -1141,11 +1085,11 @@ int Unify(Cell *a, Cell *b)
 		UnifyCells(a,b);
 		return 1;
 	}
-        { *a=(Cell) b; trail(ABX,(struct PERM_VAR *)a); }
+        { *a=(Cell) b; trail(beam_ABX,(struct PERM_VAR *)a); }
 	return 1;
     }
     if(isvar(b)) {
-        { *b=(Cell) a; trail(ABX,(struct PERM_VAR *)b); }
+        { *b=(Cell) a; trail(beam_ABX,(struct PERM_VAR *)b); }
 	return 1;
     }
     if(a==b) return 1;
@@ -1291,7 +1235,7 @@ return(0);
 void give_solution_toyap(void);
 void give_solution_toyap(void) {
     struct PERM_VAR *l;
-    l=ABX->perms;
+    l=beam_ABX->perms;
     while(l) {
 	if (l->yapvar) {
 	  *TR=(Cell) l->yapvar;
@@ -1342,7 +1286,7 @@ Prop pe;
 PredEntry *ppe;
 
   /* at this time, ARG1=call */
-    _DR=(Cell *) deref(_X[1]);
+    _DR=(Cell *) deref(beam_X[1]);
 
     if (isatom(_DR)) {
 /*      char *name = AtomOfTerm((Term) _DR)->StrOfAE; */
@@ -1369,7 +1313,7 @@ PredEntry *ppe;
 
       for(i=1;i<=arity ;i++) {
 	  _DR++;
-	  _X[i]=(Cell) _DR;
+	  beam_X[i]=(Cell) _DR;
       }
       return (ppe);
     }
@@ -1377,22 +1321,19 @@ PredEntry *ppe;
 return (NULL);
 }
 
-
-#if Debug
-     #define execute_next()  if (Debug!=-1 && contador>Debug*100) abort_eam("exit por contador>debug\n"); else goto *OpAddress[*pc]
- 
+#if DIRECT_JUMP
+     #define execute_next() goto **((void **) beam_pc)
+     Cell *TABLE_OPS=NULL;
 #else
- #if DIRECT_JUMP
-     #define execute_next() goto **((void **) pc)
- #else
-     #define execute_next()  goto *OpAddress[*pc]
- #endif
+     #define execute_next()  goto *OpAddress[*beam_pc]
 #endif
+
+
 
 int eam_am(PredEntry *initPred);
 int eam_am(PredEntry *initPred)
 {
-static void *OpAddress[] asm("TABLE")= {
+static void *OpAddress[]= {
         &&exit_eam,
         &&top_tree,
 	&&scheduler,
@@ -1503,7 +1444,11 @@ Cell code2start[]={_prepare_calls,1,0,_call_op,0,0};
         } else if ((long) initPred==1) { /* first time call eam(goal) */
 	   initPred=prepare_args_torun();  
         } 
-
+#if DIRECT_JUMP
+        else if ((long) initPred==0) { /* first time call eam_am. Init TABLE_OPS */
+	  TABLE_OPS=(Cell *) OpAddress;
+        } 
+#endif
 	if (initPred==NULL || initPred->beamTable==NULL) return (FALSE);
 
 #if DIRECT_JUMP
@@ -1519,58 +1464,58 @@ Cell code2start[]={_prepare_calls,1,0,_call_op,0,0};
 
 	initialize_memory_areas();
 
-	SU=NULL;
-	OBX=NULL;
-	ABX=(struct AND_BOX *) request_memory(ANDBOX_SIZE);
-	ABX->parent=NULL;
-	ABX->nr_alternative=NULL;
-	ABX->nr_all_calls=0;
-	ABX->perms=NULL;
-	ABX->calls=NULL;
-	ABX->level=1;
-	ABX->externals=NULL;
-	ABX->suspended=NULL;
-	ABX->side_effects=0;
-	top=ABX;
+	beam_su=NULL;
+	beam_OBX=NULL;
+	beam_ABX=(struct AND_BOX *) request_memory(ANDBOX_SIZE);
+	beam_ABX->parent=NULL;
+	beam_ABX->nr_alternative=NULL;
+	beam_ABX->nr_all_calls=0;
+	beam_ABX->perms=NULL;
+	beam_ABX->calls=NULL;
+	beam_ABX->level=1;
+	beam_ABX->externals=NULL;
+	beam_ABX->suspended=NULL;
+	beam_ABX->side_effects=0;
+	beam_top=beam_ABX;
 
 if (1) { int i;  /* criar mais um nivel acima do top para o caso de haver variaveis na chamada */
-	ABX->nr_all_calls=1;
-        ABX->calls=  (struct status_and *) request_memory(STATUS_AND_SIZE);
-	ABX->calls->locals=NULL;
-	ABX->calls->code=NULL;
-	ABX->calls->state=RUNNING;
-	ABX->calls->previous=NULL;
-	ABX->calls->next=NULL;
-        OBX= (struct OR_BOX *) request_memory(ORBOX_SIZE);
-	ABX->calls->call=OBX;
-	OBX->nr_call=ABX->calls;
-	OBX->parent=ABX;
-	OBX->nr_all_alternatives=1;
-	OBX->eager_split=0;
+	beam_ABX->nr_all_calls=1;
+        beam_ABX->calls=  (struct status_and *) request_memory(STATUS_AND_SIZE);
+	beam_ABX->calls->locals=NULL;
+	beam_ABX->calls->code=NULL;
+	beam_ABX->calls->state=RUNNING;
+	beam_ABX->calls->previous=NULL;
+	beam_ABX->calls->next=NULL;
+        beam_OBX= (struct OR_BOX *) request_memory(ORBOX_SIZE);
+	beam_ABX->calls->call=beam_OBX;
+	beam_OBX->nr_call=beam_ABX->calls;
+	beam_OBX->parent=beam_ABX;
+	beam_OBX->nr_all_alternatives=1;
+	beam_OBX->eager_split=0;
 
-	OBX->alternatives=(struct status_or *) request_memory(STATUS_OR_SIZE);
-	OBX->alternatives->previous=NULL;
-	OBX->alternatives->next=NULL;
-	OBX->alternatives->args=NULL;
-	OBX->alternatives->code=NULL;
-	OBX->alternatives->state=RUNNING;
+	beam_OBX->alternatives=(struct status_or *) request_memory(STATUS_OR_SIZE);
+	beam_OBX->alternatives->previous=NULL;
+	beam_OBX->alternatives->next=NULL;
+	beam_OBX->alternatives->args=NULL;
+	beam_OBX->alternatives->code=NULL;
+	beam_OBX->alternatives->state=RUNNING;
 
-	ABX=(struct AND_BOX *) request_memory(ANDBOX_SIZE);
-	OBX->alternatives->alternative=ABX;
-	ABX->parent=OBX;
-	ABX->nr_alternative=OBX->alternatives;
-	ABX->nr_all_calls=0;
-	ABX->perms=NULL;
-	ABX->calls=NULL;
-	ABX->level=2;
-	ABX->externals=NULL;
-	ABX->suspended=NULL;
-	ABX->side_effects=WRITE;
+	beam_ABX=(struct AND_BOX *) request_memory(ANDBOX_SIZE);
+	beam_OBX->alternatives->alternative=beam_ABX;
+	beam_ABX->parent=beam_OBX;
+	beam_ABX->nr_alternative=beam_OBX->alternatives;
+	beam_ABX->nr_all_calls=0;
+	beam_ABX->perms=NULL;
+	beam_ABX->calls=NULL;
+	beam_ABX->level=2;
+	beam_ABX->externals=NULL;
+	beam_ABX->suspended=NULL;
+	beam_ABX->side_effects=WRITE;
 	
-	for(i=1;i<=initPred->beamTable->arity;i++) add_vars_to_listperms(ABX,(Cell *) _X[i]);
+	for(i=1;i<=initPred->beamTable->arity;i++) add_vars_to_listperms(beam_ABX,(Cell *) beam_X[i]);
 }
 
-	pc=code2start;
+	beam_pc=code2start;
 	execute_next();
 
 	while (1) {
@@ -1578,7 +1523,7 @@ if (1) { int i;  /* criar mais um nivel acima do top para o caso de haver variav
                exit_eam:
 #if Debug
 break_debug();
-			printf("(%3d) %d ->", (int) *pc, contador++); 
+			printf("(%3d) exit_eam ->", (int) *beam_pc); 
 #endif		        
 
                 wake:
@@ -1586,18 +1531,18 @@ break_debug();
 break_debug();
 			printf("Trying WAKE and_box on suspension \n");
 #endif
-		        if (verify_externals(ABX)==0) goto fail_verify_externals;
-			if (ABX->externals==NULL) {
-			              nr_call=ABX->calls;
-				      if (nr_alternative->state & END) {
+		        if (verify_externals(beam_ABX)==0) goto fail_verify_externals;
+			if (beam_ABX->externals==NULL) {
+			              beam_nr_call=beam_ABX->calls;
+				      if (beam_nr_alternative->state & END) {
 					  goto success;
 			              } 
-				      nr_alternative->state=RUNAGAIN;
+				      beam_nr_alternative->state=RUNAGAIN;
 				      goto next_call;
 			 }
-			 nr_alternative->state=SUSPEND;
+			 beam_nr_alternative->state=SUSPEND;
 			 /* must clear all external assignments */
-			 limpa_trail(ABX);
+			 limpa_trail(beam_ABX);
 			 /* goto top_tree; */
 
 	       top_tree:
@@ -1612,72 +1557,72 @@ break_debug();
 #endif
 
 #if USE_LEFTMOST
-		      if (SU!=NULL) {
-			 ABX=SU->and_box;
-		         OBX=ABX->parent;
-		         nr_alternative=ABX->nr_alternative;
-		         if (nr_alternative->state & (WAKE))  goto wake;			 
+		      if (beam_su!=NULL) {
+			 beam_ABX=beam_su->and_box;
+		         beam_OBX=beam_ABX->parent;
+		         beam_nr_alternative=beam_ABX->nr_alternative;
+		         if (beam_nr_alternative->state & (WAKE))  goto wake;			 
 		       }
-		       ABX=choose_leftmost();
-		       if (ABX==NULL) { /* Must return to next_alternative in OBX  BECAUSE EAGER_SPLIT*/
-			 nr_alternative=ABX->nr_alternative;
-			 ABX=OBX->parent;
+		       beam_ABX=choose_leftmost();
+		       if (beam_ABX==NULL) { /* Must return to next_alternative in beam_OBX  BECAUSE EAGER_SPLIT*/
+			 beam_nr_alternative=beam_ABX->nr_alternative;
+			 beam_ABX=beam_OBX->parent;
 			 goto  next_alternative;
 		       }
-		       if (ABX!=top && ABX->suspended!=NULL) {
+		       if (beam_ABX!=beam_top && beam_ABX->suspended!=NULL) {
 #else
-			if (SU!=NULL) { /* There are suspended alternatives */
-			  ABX=SU->and_box;
+			if (beam_su!=NULL) { /* There are suspended alternatives */
+			  beam_ABX=beam_su->and_box;
 #endif
 
 #if !Fast_go
-			  if (ABX==NULL || ABX->parent==NULL || ABX->parent->alternatives==NULL) abort_eam("Alternativa NULL NO TOP ?????"); 
+			  if (beam_ABX==NULL || beam_ABX->parent==NULL || beam_ABX->parent->alternatives==NULL) abort_eam("Alternativa NULL NO TOP ?????"); 
 #endif
-			  OBX=ABX->parent;
-			  nr_alternative=ABX->nr_alternative;
+			  beam_OBX=beam_ABX->parent;
+			  beam_nr_alternative=beam_ABX->nr_alternative;
 
-			  if (ABX->suspended->reason==VAR_SUSPENSION) {
-                                delfrom_suspensions_list(ABX->suspended);
-			        nr_call=ABX->calls;
+			  if (beam_ABX->suspended->reason==VAR_SUSPENSION) {
+                                delfrom_suspensions_list(beam_ABX->suspended);
+			        beam_nr_call=beam_ABX->calls;
 			        goto next_call;			     
 			  }
-			  if (ABX->suspended->reason!=NORMAL_SUSPENSION) {
-			     if (ABX->calls->state==WAITING_TO_BE_FIRST ||
-				 (ABX->calls->state & WAITING && is_leftmost(ABX,0))) {
+			  if (beam_ABX->suspended->reason!=NORMAL_SUSPENSION) {
+			     if (beam_ABX->calls->state==WAITING_TO_BE_FIRST ||
+				 (beam_ABX->calls->state & WAITING && is_leftmost(beam_ABX,0))) {
 
-                                delfrom_suspensions_list(ABX->suspended);
-			        ABX->calls->state=READY;
-			        nr_call=ABX->calls;
+                                delfrom_suspensions_list(beam_ABX->suspended);
+			        beam_ABX->calls->state=READY;
+			        beam_nr_call=beam_ABX->calls;
 			        goto next_call;
 			     }
 #if !USE_LEFTMOST
-			     SU=SU->next;
+			     beam_su=beam_su->next;
 			     goto top_tree;
 #endif
 			  }
 
-			  if (OBX->nr_all_alternatives==1 && ABX->level>OBX->parent->level) {
+			  if (beam_OBX->nr_all_alternatives==1 && beam_ABX->level>beam_OBX->parent->level) {
 #if !Fast_go
-			    if (OBX->parent->parent==NULL) abort_eam("Null no top_tree ");
+			    if (beam_OBX->parent->parent==NULL) abort_eam("Null no top_tree ");
 #endif
 			    goto unique_alternative;
 			  }
-			  if (nr_alternative->state & (WAKE))  goto wake;
-			  if (OBX->nr_all_alternatives>1) {
+			  if (beam_nr_alternative->state & (WAKE))  goto wake;
+			  if (beam_OBX->nr_all_alternatives>1) {
 #if Debug
 break_debug();
 			     printf("Trying Fork in suspended and_box \n");
 #endif
 			     /* pickup the left most alternative instead */
 		 split:			     
-			     OBX=ABX->parent;
+			     beam_OBX=beam_ABX->parent;
 #if USE_SPLIT
-			     do_forking_andbox(ABX);
+			     do_forking_andbox(beam_ABX);
 #else
 			     abort_eam("ERROR: Split disable, cannot run non-deterministic programs...");
 #endif
-			     OBX=ABX->parent;
-			     nr_alternative=ABX->nr_alternative;
+			     beam_OBX=beam_ABX->parent;
+			     beam_nr_alternative=beam_ABX->nr_alternative;
 			     goto unique_alternative;
 			  } 
 			  
@@ -1694,48 +1639,48 @@ break_debug();
 		        printf("proceed... \n");
 #endif
 
-			if (USE_SAME_ANDBOX!=NULL) {  /* was only one alternative */
-			  USE_SAME_ANDBOX=NULL;
-			  nr_call=remove_call_from_andbox(nr_call,ABX);
+			if (beam_USE_SAME_ANDBOX!=NULL) {  /* was only one alternative */
+			  beam_USE_SAME_ANDBOX=NULL;
+			  beam_nr_call=remove_call_from_andbox(beam_nr_call,beam_ABX);
 			  goto next_call;
 			} 
-			if (ABX->externals!=NULL) {
-			    nr_alternative->state=SUSPEND_END;
+			if (beam_ABX->externals!=NULL) {
+			    beam_nr_alternative->state=SUSPEND_END;
 			    goto suspend;
 			}
 
 	        success:
 #if Debug
 break_debug();
-			printf("SUCCESS for call %p  in level %d \n", nr_call, ABX->level );
+			printf("SUCCESS for call %p  in level %d \n", beam_nr_call, beam_ABX->level );
 #endif
 			/* FOUND SOLUTION -> ALL_SOLUTIONS */ 
-			//if ((ABX->side_effects & WRITE) && OBX->nr_all_alternatives>1) 
-			  if (OBX->parent==top) {  
+			//if ((beam_ABX->side_effects & WRITE) && beam_OBX->nr_all_alternatives>1) 
+			  if (beam_OBX->parent==beam_top) {  
 			      give_solution_toyap(); 
 			      return (TRUE); 
 			      goto fail; 
 			  }
 
-			ABX=OBX->parent;
-			nr_call=OBX->nr_call;
-			del_orbox_and_sons(OBX);  
-			nr_call=remove_call_from_andbox(nr_call,ABX);
+			beam_ABX=beam_OBX->parent;
+			beam_nr_call=beam_OBX->nr_call;
+			del_orbox_and_sons(beam_OBX);  
+			beam_nr_call=remove_call_from_andbox(beam_nr_call,beam_ABX);
 
-			if (ABX->externals!=NULL) {
-			    if (ABX->nr_all_calls==0) {
-			         nr_alternative->state=SUSPEND_END;
-			    } else nr_alternative->state=SUSPEND;
+			if (beam_ABX->externals!=NULL) {
+			    if (beam_ABX->nr_all_calls==0) {
+			         beam_nr_alternative->state=SUSPEND_END;
+			    } else beam_nr_alternative->state=SUSPEND;
 			    goto suspend;			    
 			}
 
-			if (ABX->nr_all_calls==0) {
-			    OBX=ABX->parent;
+			if (beam_ABX->nr_all_calls==0) {
+			    beam_OBX=beam_ABX->parent;
 
-			    if (OBX==NULL) {
+			    if (beam_OBX==NULL) {
 			      goto top_tree;
 			    }
-			    nr_alternative=ABX->nr_alternative;
+			    beam_nr_alternative=beam_ABX->nr_alternative;
 			    goto success;
 			}
 
@@ -1752,21 +1697,21 @@ break_debug();
 #endif
 
 	                { register int nr;
-			nr=ABX->nr_all_calls;
+			nr=beam_ABX->nr_all_calls;
 
-			if (ABX->externals!=NULL && ABX->side_effects<CUT) {
-			    if (nr==0) nr_alternative->state=SUSPEND_END;
+			if (beam_ABX->externals!=NULL && beam_ABX->side_effects<CUT) {
+			    if (nr==0) beam_nr_alternative->state=SUSPEND_END;
 			    else { /* if next call is a cut then execute it */
-			      pc=ABX->calls->code;
+			      beam_pc=beam_ABX->calls->code;
 #if Debug
-			      if (*pc==_cut_op) {
+			      if (*beam_pc==_cut_op) {
 #else
-			      if (*pc==(Cell) &&cut) { 
+			      if (*beam_pc==(Cell) &&cut) { 
 #endif
-				nr_call=ABX->calls;
+				beam_nr_call=beam_ABX->calls;
 			        execute_next();				
 			      }
-			      nr_alternative->state=SUSPEND; 
+			      beam_nr_alternative->state=SUSPEND; 
 			    }
 			    goto suspend;	
 			}			  
@@ -1774,60 +1719,60 @@ break_debug();
 			  goto success;
 			}
 #if !START_ON_NEXT
-			nr_call=ABX->calls;
+			beam_nr_call=beam_ABX->calls;
 #else
-/*			if (ABX->parent==OBX) nr_call=ABX->calls; else nr_call=OBX->nr_call->next;  */
+/*			if (beam_ABX->parent==beam_OBX) beam_nr_call=beam_ABX->calls; else beam_nr_call=beam_OBX->nr_call->next;  */
 #endif
-			while(nr_call!=NULL) {
+			while(beam_nr_call!=NULL) {
 			  
-			   if (nr_call->state & WAITING) {
-			     if (nr_call->state==WAITING_TO_BE_LEFTMOST) {
-			       if (!is_leftmost(ABX,nr_call)) {
-				    ABX->suspended=addto_suspensions_list(ABX,LEFTMOST_SUSPENSION);
-			            nr_call=NULL;
+			   if (beam_nr_call->state & WAITING) {
+			     if (beam_nr_call->state==WAITING_TO_BE_LEFTMOST) {
+			       if (!is_leftmost(beam_ABX,beam_nr_call)) {
+				    beam_ABX->suspended=addto_suspensions_list(beam_ABX,LEFTMOST_SUSPENSION);
+			            beam_nr_call=NULL;
 			            break;			       
 			       }
-			       nr_call->state=READY;
+			       beam_nr_call->state=READY;
 			     }
 
-			     if (nr_call->state==WAITING_TO_BE_LEFTMOST_PARENT) {
-			       if (!is_leftmost(ABX->parent->parent,ABX->parent->nr_call)) {
-				    ABX->suspended=addto_suspensions_list(ABX,LEFTMOST_SUSPENSION);
-			            nr_call=NULL;
+			     if (beam_nr_call->state==WAITING_TO_BE_LEFTMOST_PARENT) {
+			       if (!is_leftmost(beam_ABX->parent->parent,beam_ABX->parent->nr_call)) {
+				    beam_ABX->suspended=addto_suspensions_list(beam_ABX,LEFTMOST_SUSPENSION);
+			            beam_nr_call=NULL;
 			            break;			       
 			       }
-			       nr_call->state=READY;
+			       beam_nr_call->state=READY;
 			     }
 
-			     if (nr_call->state==WAITING_TO_BE_FIRST) {
-			            if (nr_call->previous==NULL) { 
+			     if (beam_nr_call->state==WAITING_TO_BE_FIRST) {
+			            if (beam_nr_call->previous==NULL) { 
 #if Debug
-			               printf("I can stop Waiting on call %p\n", nr_call);
+			               printf("I can stop Waiting on call %p\n", beam_nr_call);
 #endif
-				       nr_call=remove_call_from_andbox(nr_call,ABX);
+				       beam_nr_call=remove_call_from_andbox(beam_nr_call,beam_ABX);
 				       continue;
 			            }
 #if Debug
-			            printf("Force Waiting on call %p\n", nr_call);
+			            printf("Force Waiting on call %p\n", beam_nr_call);
 #endif
-			            nr_call=NULL;
+			            beam_nr_call=NULL;
 			            break;
 			     }
 			   }
-			   if (nr_call->state==READY) {
-			     var_locals=nr_call->locals;
-			     pc=nr_call->code;
+			   if (beam_nr_call->state==READY) {
+			     beam_varlocals=beam_nr_call->locals;
+			     beam_pc=beam_nr_call->code;
 			     execute_next();
 			   }
-			   nr_call=nr_call->next;
+			   beam_nr_call=beam_nr_call->next;
 			}
-			OBX=ABX->parent;
-			/* In case (nr_call==nr) */
+			beam_OBX=beam_ABX->parent;
+			/* In case (beam_nr_call==nr) */
 
-			nr_alternative=ABX->nr_alternative;
-  			if (ABX->externals!=NULL) goto suspend;
+			beam_nr_alternative=beam_ABX->nr_alternative;
+  			if (beam_ABX->externals!=NULL) goto suspend;
 
-			if (nr_alternative!=NULL) nr_alternative=nr_alternative->next;
+			if (beam_nr_alternative!=NULL) beam_nr_alternative=beam_nr_alternative->next;
 			goto next_alternative;
 			}
 
@@ -1840,26 +1785,26 @@ break_debug();
 #endif
 
 	        fail_verify_externals:
-			if (ABX->externals!=NULL) { 
-			     limpa_trail(ABX);
+			if (beam_ABX->externals!=NULL) { 
+			     limpa_trail(beam_ABX);
 			}
 
-			OBX=ABX->parent;
-			nr_alternative=ABX->nr_alternative;
-			if (OBX==NULL) {
-			  if (ABX==top) return(FALSE);
-			  abort_eam("ERROR ->  ABX->parent = NULL  (em fail_verify_externals) ?????\n");
+			beam_OBX=beam_ABX->parent;
+			beam_nr_alternative=beam_ABX->nr_alternative;
+			if (beam_OBX==NULL) {
+			  if (beam_ABX==beam_top) return(FALSE);
+			  abort_eam("ERROR ->  beam_ABX->parent = NULL  (em fail_verify_externals) ?????\n");
 			}
 
-			OBX->nr_all_alternatives=OBX->nr_all_alternatives-1;
-			if (nr_alternative->next!=NULL) nr_alternative->next->previous=nr_alternative->previous;
-			if (nr_alternative->previous!=NULL) nr_alternative->previous->next=nr_alternative->next;
-			else OBX->alternatives=nr_alternative->next;  /* apaguei o primeiro da lista */
+			beam_OBX->nr_all_alternatives=beam_OBX->nr_all_alternatives-1;
+			if (beam_nr_alternative->next!=NULL) beam_nr_alternative->next->previous=beam_nr_alternative->previous;
+			if (beam_nr_alternative->previous!=NULL) beam_nr_alternative->previous->next=beam_nr_alternative->next;
+			else beam_OBX->alternatives=beam_nr_alternative->next;  /* apaguei o primeiro da lista */
 		      { register struct status_or *i;
-			i=nr_alternative;
-			nr_alternative=nr_alternative->next;
+			i=beam_nr_alternative;
+			beam_nr_alternative=beam_nr_alternative->next;
 			free_memory((Cell *) i,STATUS_OR_SIZE);
-  		        del_andbox_and_sons(ABX);
+  		        del_andbox_and_sons(beam_ABX);
   		      }	/* verificar se existe ainda alguma alternativa viavel nesta or_box */
 
 	        next_alternative:
@@ -1872,48 +1817,48 @@ break_debug();
 			if (HEAP_MEM_FULL()) garbage_collector();
 #endif
 
-			if (OBX==NULL) {
+			if (beam_OBX==NULL) {
 #if !Fast_go
-			      if (ABX!=top) abort_eam("Erro no next_Alternative");
+			      if (beam_ABX!=beam_top) abort_eam("Erro no next_Alternative");
 #endif
 			  goto top_tree;
 			}
 
-			if (OBX->nr_all_alternatives==0) {
-			  ABX=OBX->parent;
+			if (beam_OBX->nr_all_alternatives==0) {
+			  beam_ABX=beam_OBX->parent;
 			  goto fail;
 			} 
-			if (OBX->nr_all_alternatives==1 && ABX->level>OBX->parent->level) {
-			    nr_alternative=OBX->alternatives;
-			    ABX=OBX->alternatives->alternative;
-			    if (ABX==NULL) {
-			      pc=OBX->alternatives->code;
+			if (beam_OBX->nr_all_alternatives==1 && beam_ABX->level>beam_OBX->parent->level) {
+			    beam_nr_alternative=beam_OBX->alternatives;
+			    beam_ABX=beam_OBX->alternatives->alternative;
+			    if (beam_ABX==NULL) {
+			      beam_pc=beam_OBX->alternatives->code;
 			      execute_next();
 			    }
-      		            if (OBX->parent->parent==NULL) goto top_tree;
+      		            if (beam_OBX->parent->parent==NULL) goto top_tree;
 			    goto unique_alternative;
 			}
 #if !START_ON_NEXT
-			nr_alternative=OBX->alternatives;
+			beam_nr_alternative=beam_OBX->alternatives;
 #else
-			/*			if (OBX->parent==ABX) nr_alternative=OBX->alternatives; 
-						else { if (nr_alternative!=NULL) nr_alternative=nr_alternative->next; }  */
+			/*			if (beam_OBX->parent==beam_ABX) beam_nr_alternative=beam_OBX->alternatives; 
+						else { if (beam_nr_alternative!=NULL) beam_nr_alternative=beam_nr_alternative->next; }  */
 #endif
-			while(nr_alternative!=NULL) {
-			   if (nr_alternative->state & (WAKE) ) {
-			      ABX=nr_alternative->alternative;
+			while(beam_nr_alternative!=NULL) {
+			   if (beam_nr_alternative->state & (WAKE) ) {
+			      beam_ABX=beam_nr_alternative->alternative;
 			      goto wake;
 			   }
-			   if (nr_alternative->state==READY) {
-			       pc=nr_alternative->code;
+			   if (beam_nr_alternative->state==READY) {
+			       beam_pc=beam_nr_alternative->code;
 		 	       execute_next();
 			   }
-			   nr_alternative=nr_alternative->next;
+			   beam_nr_alternative=beam_nr_alternative->next;
 			}
 
-			/* nr_alternative==NULL -> No more alternatives */
-			ABX=OBX->parent;
-			nr_call=OBX->nr_call->next;
+			/* beam_nr_alternative==NULL -> No more alternatives */
+			beam_ABX=beam_OBX->parent;
+			beam_nr_call=beam_OBX->nr_call->next;
 			goto next_call;
 
 	        unique_alternative:  
@@ -1925,76 +1870,76 @@ break_debug();
 #if GARBAGE_COLLECTOR
 			if (HEAP_MEM_FULL() ) garbage_collector();
 #endif
-			if (OBX->parent->parent==NULL) {
+			if (beam_OBX->parent->parent==NULL) {
 			   goto top_tree;
 			}
 
 			{ int nr_a;
 			  struct AND_BOX *a;
-			  if (ABX->side_effects >= CUT) { 
+			  if (beam_ABX->side_effects >= CUT) { 
 			      /* Cut -> Avoid doing the Promotion */
-			      inc_level(ABX,OBX->parent->level-ABX->level);
+			      inc_level(beam_ABX,beam_OBX->parent->level-beam_ABX->level);
 
-			      delfrom_suspensions_list(ABX->suspended); 
-		              if (verify_externals(ABX)==0) goto fail_verify_externals; 
-			      nr_alternative=ABX->nr_alternative;
-			      if (ABX->externals==NULL) {
-				nr_call=ABX->calls;
+			      delfrom_suspensions_list(beam_ABX->suspended); 
+		              if (verify_externals(beam_ABX)==0) goto fail_verify_externals; 
+			      beam_nr_alternative=beam_ABX->nr_alternative;
+			      if (beam_ABX->externals==NULL) {
+				beam_nr_call=beam_ABX->calls;
 				goto next_call;
 			      } 
-			      ABX->suspended=addto_suspensions_list(ABX,NORMAL_SUSPENSION);
-			      nr_alternative->state=SUSPEND;
-			      nr_alternative=nr_alternative->next;
+			      beam_ABX->suspended=addto_suspensions_list(beam_ABX,NORMAL_SUSPENSION);
+			      beam_nr_alternative->state=SUSPEND;
+			      beam_nr_alternative=beam_nr_alternative->next;
 			      goto next_alternative;
 			  } 
-			  a=ABX;
-			  ABX=OBX->parent;
+			  a=beam_ABX;
+			  beam_ABX=beam_OBX->parent;
 			  nr_a=a->nr_all_calls;
-			  nr_call=OBX->nr_call;
-			  ABX->side_effects+=a->side_effects;
+			  beam_nr_call=beam_OBX->nr_call;
+			  beam_ABX->side_effects+=a->side_effects;
 			  if (nr_a==0) {  /* Means SUSPENDED ON END */
-			      nr_call->call=NULL;
-			      nr_call->state=SUCCESS;
-			      nr_call=remove_call_from_andbox(nr_call,ABX);
+			      beam_nr_call->call=NULL;
+			      beam_nr_call->state=SUCCESS;
+			      beam_nr_call=remove_call_from_andbox(beam_nr_call,beam_ABX);
 			  } else {  /* IF nr_all_calls==1 can be optimized ????? */
 			      if (nr_a==1) {
 				
 				if (a->calls->call!=NULL) {
-				    a->calls->call->nr_call=nr_call;
-				    a->calls->call->parent=ABX;
+				    a->calls->call->nr_call=beam_nr_call;
+				    a->calls->call->parent=beam_ABX;
 				}
-				nr_call->call=a->calls->call;
-				nr_call->locals=a->calls->locals;
-				nr_call->code=a->calls->code;
-				nr_call->state=a->calls->state;
+				beam_nr_call->call=a->calls->call;
+				beam_nr_call->locals=a->calls->locals;
+				beam_nr_call->code=a->calls->code;
+				beam_nr_call->state=a->calls->state;
 				free_memory((Cell *) a->calls,STATUS_AND_SIZE);
 			      } else {
 				struct status_and *first, *last;
 			        int nr;
 
-			        nr=ABX->nr_all_calls;
+			        nr=beam_ABX->nr_all_calls;
 				
 				first=a->calls;
 				last=a->calls;
 				while(1) {
 				  if (last->call!=NULL) {
-				    last->call->parent=ABX;
+				    last->call->parent=beam_ABX;
 				  }
 				  if (last->next==NULL) break;
 				  last=last->next;
 				}
-				last->next=nr_call->next;
-				if (nr_call->next!=NULL) nr_call->next->previous=last;
-				first->previous=nr_call->previous;
-				if (nr_call->previous!=NULL) nr_call->previous->next=first;
-			        else ABX->calls=first; /* nr_call era o primeiro */
-		                free_memory((Cell *) nr_call,STATUS_AND_SIZE);
-				nr_call=first;
-			        ABX->nr_all_calls=nr+nr_a-1;
+				last->next=beam_nr_call->next;
+				if (beam_nr_call->next!=NULL) beam_nr_call->next->previous=last;
+				first->previous=beam_nr_call->previous;
+				if (beam_nr_call->previous!=NULL) beam_nr_call->previous->next=first;
+			        else beam_ABX->calls=first; /* nr_call era o primeiro */
+		                free_memory((Cell *) beam_nr_call,STATUS_AND_SIZE);
+				beam_nr_call=first;
+			        beam_ABX->nr_all_calls=nr+nr_a-1;
 			      }
-			      /* Set local vars from a to point to new and_box ABX */
+			      /* Set local vars from a to point to new and_box beam_ABX */
 			  } 
-			  move_perm_vars(a,ABX);
+			  move_perm_vars(a,beam_ABX);
 
 			    /* change local vars suspensions to point to new andbox */
 			  { struct EXTERNAL_VAR *end,*e;
@@ -2004,7 +1949,7 @@ break_debug();
 			      struct SUSPENSIONS_VAR *s;
 			      s=e->var->suspensions;
 			      while(s!=NULL) {
-				if (s->and_box==a) { s->and_box=ABX; break; }
+				if (s->and_box==a) { s->and_box=beam_ABX; break; }
 				s=s->next;
 			      }
 			      end=e;
@@ -2012,7 +1957,7 @@ break_debug();
 			    }
 			    /* Clear bindings made on externals so that we are able to
 			       run the verify externals */
-			    e=ABX->externals;
+			    e=beam_ABX->externals;
 			    while(e!=NULL) {
 			      struct PERM_VAR *v;
 			      v=e->var;
@@ -2020,117 +1965,119 @@ break_debug();
 			      e=e->next;
 			    }
 			    if (end!=NULL) {
-				end->next=ABX->externals;
-				ABX->externals=a->externals;
+				end->next=beam_ABX->externals;
+				beam_ABX->externals=a->externals;
 			    }
 
 			    delfrom_suspensions_list(a->suspended); /* remove suspensions */
 			    free_memory((Cell *) a,ANDBOX_SIZE);
-			    free_memory((Cell *) OBX->alternatives,STATUS_OR_SIZE);
-			    free_memory((Cell *) OBX,ORBOX_SIZE);
+			    free_memory((Cell *) beam_OBX->alternatives,STATUS_OR_SIZE);
+			    free_memory((Cell *) beam_OBX,ORBOX_SIZE);
 
-			    OBX=ABX->parent;
-		            if (verify_externals(ABX)==0) goto fail_verify_externals; 
+			    beam_OBX=beam_ABX->parent;
+		            if (verify_externals(beam_ABX)==0) goto fail_verify_externals; 
 			  }
 
-			    nr_alternative=ABX->nr_alternative;
-			    if (ABX->externals==NULL) {
-				nr_call=ABX->calls;
+			    beam_nr_alternative=beam_ABX->nr_alternative;
+			    if (beam_ABX->externals==NULL) {
+				beam_nr_call=beam_ABX->calls;
 				goto next_call;
 			    } 
-			    ABX->suspended=addto_suspensions_list(ABX,NORMAL_SUSPENSION);
-			    nr_alternative->state=SUSPEND;
-			    nr_alternative=nr_alternative->next;
+			    beam_ABX->suspended=addto_suspensions_list(beam_ABX,NORMAL_SUSPENSION);
+			    beam_nr_alternative->state=SUSPEND;
+			    beam_nr_alternative=beam_nr_alternative->next;
 			    goto next_alternative;
 			}
-
+			
+			abort_eam("cheguei aqui para tentar executar o prepare_tries antigo...\n");
+			
 	        prepare_tries:
 #if Debug
 break_debug();
 		        printf("prepare_tries for %d clauses with arity=%d \n",(int) arg1,(int) arg2);
 #endif
 			if (!arg1) goto fail;
-			{ register int nr;
+		      { register int nr;
 			nr=arg1;
 
-			if (nr==1 && ABX->parent!=NULL) {
-			  ES=0;
-			  nr_call->state=RUNNING;
-			  pc+=3;
+			if (nr==1 && beam_ABX->parent!=NULL) {
+			  beam_ES=0;
+			  beam_nr_call->state=RUNNING;
+			  beam_pc+=3;
 			  /*			  execute_next(); */
 			  goto only_1_clause;
 			} 
 
-                        OBX=(struct OR_BOX *) request_memory(ORBOX_SIZE);
-			nr_call->call=OBX;
-			nr_call->state=RUNNING;
-			OBX->nr_call=nr_call;
-			OBX->parent=ABX;
-			OBX->eager_split=ES;
-			ES=0;
-			OBX->nr_all_alternatives=nr;
+                        beam_OBX=(struct OR_BOX *) request_memory(ORBOX_SIZE);
+			beam_nr_call->call=beam_OBX;
+			beam_nr_call->state=RUNNING;
+			beam_OBX->nr_call=beam_nr_call;
+			beam_OBX->parent=beam_ABX;
+			beam_OBX->eager_split=beam_ES;
+			beam_ES=0;
+			beam_OBX->nr_all_alternatives=nr;
 
 			{ register int i;
 			  register struct status_or *p=NULL;
 			  register Cell *a;
 			    
 			    if (nr>1) a=save_arguments(arg2);  else a=NULL;
-			    pc+=3;
+			    beam_pc+=3;
 			    for(i=0;i<nr;i++) {
-			      nr_alternative=(struct status_or *) request_memory(STATUS_OR_SIZE);
-			      if (i==0) OBX->alternatives=nr_alternative;  else  p->next=nr_alternative; 
-			      nr_alternative->previous=p;
-			      p=nr_alternative;
-			      nr_alternative->alternative=NULL;
-			      nr_alternative->code=pc;
-			      nr_alternative->state=READY;
-			      nr_alternative->args=a;
-			      pc+=5;
+			      beam_nr_alternative=(struct status_or *) request_memory(STATUS_OR_SIZE);
+			      if (i==0) beam_OBX->alternatives=beam_nr_alternative;  else  p->next=beam_nr_alternative; 
+			      beam_nr_alternative->previous=p;
+			      p=beam_nr_alternative;
+			      beam_nr_alternative->alternative=NULL;
+			      beam_nr_alternative->code=beam_pc;
+			      beam_nr_alternative->state=READY;
+			      beam_nr_alternative->args=a;
+			      beam_pc+=5;
 			    }
-			    nr_alternative->next=NULL;
+			    beam_nr_alternative->next=NULL;
 			}
-			}
-			nr_alternative=OBX->alternatives;
+		      }
+			beam_nr_alternative=beam_OBX->alternatives;
 			/* goto next_alternative; */
-                        pc=nr_alternative->code;
+                        beam_pc=beam_nr_alternative->code;
 			goto try_me;
 			execute_next();
 
 		/* explore_alternative */
 	        trust_me:
-			get_arguments(arg2,nr_alternative->args);
-			remove_memory_arguments(nr_alternative->args);
+			get_arguments(arg2,beam_nr_alternative->args);
+			remove_memory_arguments(beam_nr_alternative->args);
 			goto try_me;
 		retry_me:
-			get_arguments(arg2,nr_alternative->args);
+			get_arguments(arg2,beam_nr_alternative->args);
 	        try_me:
-			nr_alternative->args=NULL;
+			beam_nr_alternative->args=NULL;
 #if Debug
 break_debug();
 		        printf("Create AND_BOX for the %dth clause of predicate %s/%d (Yvars=%d) \n",(int) arg4,((struct Clauses *)arg1)->predi->name,(int) arg2,(int) arg3);
 #endif
-			if (OBX->nr_all_alternatives>1 || OBX->parent->parent==NULL) {
+			if (beam_OBX->nr_all_alternatives>1 || beam_OBX->parent->parent==NULL) {
 
-			  USE_SAME_ANDBOX=NULL;
-			  ABX=(struct AND_BOX *)request_memory(ANDBOX_SIZE);
-			  nr_alternative->alternative=ABX;
-			  nr_alternative->state=RUNNING;
+			  beam_USE_SAME_ANDBOX=NULL;
+			  beam_ABX=(struct AND_BOX *)request_memory(ANDBOX_SIZE);
+			  beam_nr_alternative->alternative=beam_ABX;
+			  beam_nr_alternative->state=RUNNING;
 
-			  ABX->nr_alternative=nr_alternative;
-			  ABX->level=OBX->parent->level+1;
-			  ABX->parent=OBX;
-			  ABX->externals=NULL;
-			  ABX->suspended=NULL;
-			  ABX->perms=NULL;
-			  ABX->calls=NULL;
-			  ABX->nr_all_calls=0;
-			  ABX->side_effects=((struct Clauses *)arg1)->side_effects;
+			  beam_ABX->nr_alternative=beam_nr_alternative;
+			  beam_ABX->level=beam_OBX->parent->level+1;
+			  beam_ABX->parent=beam_OBX;
+			  beam_ABX->externals=NULL;
+			  beam_ABX->suspended=NULL;
+			  beam_ABX->perms=NULL;
+			  beam_ABX->calls=NULL;
+			  beam_ABX->nr_all_calls=0;
+			  beam_ABX->side_effects=((struct Clauses *)arg1)->side_effects;
 			  /* continue on middle of only_1_clause code */
 			} else {
-			  nr_call=OBX->nr_call;
-			  ABX=OBX->parent;
-			  del_orbox_and_sons(OBX);
-			  nr_call->call=NULL;
+			  beam_nr_call=beam_OBX->nr_call;
+			  beam_ABX=beam_OBX->parent;
+			  del_orbox_and_sons(beam_OBX);
+			  beam_nr_call->call=NULL;
 			  /* continue to only 1 clause */
 
 	        only_1_clause:
@@ -2141,21 +2088,21 @@ break_debug();
 			  if (((struct Clauses *)arg1)->side_effects >= CUT) {
 			    /* printf("Must create or-box still the same ?????\n"); MUST SEE THIS CASE */
 			  }
-			  USE_SAME_ANDBOX=nr_call;
-			  nr_alternative=ABX->nr_alternative;
-			  OBX=ABX->parent;
+			  beam_USE_SAME_ANDBOX=beam_nr_call;
+			  beam_nr_alternative=beam_ABX->nr_alternative;
+			  beam_OBX=beam_ABX->parent;
 			}
 
 			if (arg3) {
 			  register int nr_locals;
 			  nr_locals=arg3;
 			  /* nr_locals=((struct Clauses *)arg1)->nr_vars; */
-			  var_locals=request_memory_locals(nr_locals);
-			  // add_to_list_locals(var_locals,ABX);
+			  beam_varlocals=request_memory_locals(nr_locals);
+			  // add_to_list_locals(beam_varlocals,beam_ABX);
 			} else { 
-			  var_locals=NULL; 
+			  beam_varlocals=NULL; 
 			}
-			pc=((struct Clauses *)arg1)->code;
+			beam_pc=((struct Clauses *)arg1)->code+5;
 			execute_next();
 
 	        prepare_calls:
@@ -2163,23 +2110,23 @@ break_debug();
 break_debug();
 		        printf("prepare_calls %d\n",(int) arg1);
 #endif
-			if (USE_SAME_ANDBOX!=NULL) {  /* only one alternative */
+			if (beam_USE_SAME_ANDBOX!=NULL) {  /* only one alternative */
 			  register int nr;
 
 			  nr=(int) arg1;
-			  pc+=2;
+			  beam_pc+=2;
 			  if (nr) {
-			    nr_call=USE_SAME_ANDBOX;
+			    beam_nr_call=beam_USE_SAME_ANDBOX;
 			    if (nr==1) {   /* ONLY ONE CALL , CHANGE DIRECTLY */
-			      nr_call->call=NULL;
-			      nr_call->code=pc+1;
-			      nr_call->locals=var_locals; 
-			      nr_call->state=READY;
+			      beam_nr_call->call=NULL;
+			      beam_nr_call->code=beam_pc+1;
+			      beam_nr_call->locals=beam_varlocals; 
+			      beam_nr_call->state=READY;
 			    } else {
 			      struct status_and *calls,*first=NULL,*last=NULL;
 			      int i,nr2;
 
-			      nr2=ABX->nr_all_calls;
+			      nr2=beam_ABX->nr_all_calls;
 			      
 			      for(i=0;i<nr;i++) {
 				calls=(struct status_and *) request_memory(STATUS_AND_SIZE);
@@ -2187,32 +2134,32 @@ break_debug();
 				if (last!=NULL) last->next=calls;
 				calls->previous=last;
 			        calls->call=NULL;
-			        calls->code=pc+1;
-			        calls->locals=var_locals; 
+			        calls->code=beam_pc+1;
+			        calls->locals=beam_varlocals; 
 			        calls->state=READY;
-			        pc=(Cell *) *pc;
+			        beam_pc=(Cell *) *beam_pc;
 				last=calls;
 			      }
 			      
-			      last->next=nr_call->next;
-			      if (nr_call->next!=NULL) nr_call->next->previous=last;
-			      first->previous=nr_call->previous;
-			      if (nr_call->previous!=NULL) nr_call->previous->next=first;
-			      else ABX->calls=first; /* nr_call era o primeiro */
+			      last->next=beam_nr_call->next;
+			      if (beam_nr_call->next!=NULL) beam_nr_call->next->previous=last;
+			      first->previous=beam_nr_call->previous;
+			      if (beam_nr_call->previous!=NULL) beam_nr_call->previous->next=first;
+			      else beam_ABX->calls=first; /* nr_call era o primeiro */
 				
-		              free_memory((Cell *) nr_call,STATUS_AND_SIZE);
-			      nr_call=first;
-			      ABX->nr_all_calls=nr+nr2-1;
+		              free_memory((Cell *) beam_nr_call,STATUS_AND_SIZE);
+			      beam_nr_call=first;
+			      beam_ABX->nr_all_calls=nr+nr2-1;
 			    } 
 			  } else {
-			      nr_call->call=NULL;
+			      beam_nr_call->call=NULL;
 			  }
 			} else 
                           { /* there where more than one alternative */
 			  register int nr;
 			  nr=(int) arg1;
-			  pc+=2;
-			  ABX->nr_all_calls=nr;
+			  beam_pc+=2;
+			  beam_ABX->nr_all_calls=nr;
 			  if (nr) {
 			    struct status_and *calls, *first=NULL, *last=NULL;
 			    register int i;
@@ -2223,17 +2170,17 @@ break_debug();
 			      if (last!=NULL) last->next=calls;
 			      calls->previous=last;
 			      calls->call=NULL;
-			      calls->code=pc+1;
-			      calls->locals=var_locals; 
+			      calls->code=beam_pc+1;
+			      calls->locals=beam_varlocals; 
 			      calls->state=READY;
-			      pc=(Cell *) *pc;
+			      beam_pc=(Cell *) *beam_pc;
 			      last=calls;
 			    }
 			    last->next=NULL;
-			    ABX->calls=first;
+			    beam_ABX->calls=first;
 
-			  } else ABX->calls=NULL;
-			  nr_call=ABX->calls;
+			  } else beam_ABX->calls=NULL;
+			  beam_nr_call=beam_ABX->calls;
 			}
 			/* goto scheduler;*/
 
@@ -2242,7 +2189,7 @@ break_debug();
 break_debug();
 		        printf("Scheduler... \n");
 #endif
-#if Debug_Dump_State & 1
+#if Debug_Dump_State 
   		        dump_eam_state();
 #endif
 			/* Have to decide if I go up or continue on same level */
@@ -2251,67 +2198,57 @@ break_debug();
 			   Another Alternative is to pick up a SUSPEND and_box       */
 			/* for the meantime I Will always suspend unless there is a cut */
 
-			if (ABX->externals==NULL || ABX->side_effects>=CUT) {
-			  pc=nr_call->code;
+			if (beam_ABX->externals==NULL || beam_ABX->side_effects>=CUT) {
+			  beam_pc=beam_nr_call->code;
 			  execute_next();
 			}
-			nr_alternative->state=SUSPEND;
+			beam_nr_alternative->state=SUSPEND;
 			/* goto suspend; */
 
 	        suspend:
 #if Debug
 break_debug();
-          	        printf("SUSPEND on alternative %p\n",nr_alternative);
+          	        printf("SUSPEND on alternative %p\n",beam_nr_alternative);
 #endif
-			OBX=ABX->parent;
+			beam_OBX=beam_ABX->parent;
 		        {   struct EXTERNAL_VAR *e;
 			    struct PERM_VAR *v;
 			    struct SUSPENSIONS_VAR *s;
 		
-			    ABX->suspended=addto_suspensions_list(ABX,NORMAL_SUSPENSION);
-			    e=ABX->externals;
+			    beam_ABX->suspended=addto_suspensions_list(beam_ABX,NORMAL_SUSPENSION);
+			    e=beam_ABX->externals;
 			    while(e!=NULL) {
 			      v=e->var;
 			      *((Cell *) v)=(Cell) v;
-			      if (v->suspensions==NULL || v->suspensions->and_box!=ABX) {
+			      if (v->suspensions==NULL || v->suspensions->and_box!=beam_ABX) {
 				/* se a and_box ja esta na lista  nao adiciona */
  			         s=(struct SUSPENSIONS_VAR *) request_memory(SUSPENSIONS_VAR_SIZE);
-			         s->and_box=ABX;
+			         s->and_box=beam_ABX;
 			         s->next=v->suspensions;
 			         v->suspensions=s;
 			      }
 			      e=e->next;
 			    }
 			 }
-			if (OBX->eager_split) goto split;
+			if (beam_OBX->eager_split) goto split;
 
-		        nr_alternative=nr_alternative->next;
+		        beam_nr_alternative=beam_nr_alternative->next;
 			goto next_alternative;
 
 
 		call_yap:
-			/* Must create term to call */
+		  /* Must create term to call */
+		  /* YAP_RunGoal(t_goal); */
 
-		  if (!Yap_execute_goal(_X[1],0,CurrentModule)) goto success;
+		  if (!Yap_execute_goal(beam_X[1],0,CurrentModule)) goto success;
 		  else goto fail;
-		  
-		  
+		  	  
 		call:
-{
-                        struct Predicates *predi;
-			
-			predi=((PredEntry *) arg1)->beamTable;
-			if (predi->idx==0) { /* predicado precisa de ser indexado  */
-#if Debug
-		        printf("Indexing pred %s/%d \n",predi->name,(int) predi->arity);
-#endif
-			   do_eam_indexing(predi);  /* gera indexing caso seja necessario */
-			}
 #if Debug
 break_debug();
-		        printf("call %s/%d \n",predi->name,(int) predi->arity);
+		        printf("call %s/%d \n",((PredEntry *) arg1)->beamTable->name,(int) ((PredEntry *) arg1)->beamTable->arity);
 #endif
-			ES=predi->eager_split;
+			beam_ES=((PredEntry *) arg1)->beamTable->eager_split;
 			
 			/* CUIDADO : vou tentar libertar a memoria caso seja o ultimo call */
 #if DIRECT_JUMP
@@ -2320,242 +2257,231 @@ break_debug();
  		        if (arg3==_exit_eam)  /* Estou no ultimo call deste predicado */
 #endif
 			  {
-			    if (ABX->nr_all_calls==1) {
-			      free_memory_locals(nr_call->locals);
+			    if (beam_ABX->nr_all_calls==1) {
+			      free_memory_locals(beam_nr_call->locals);
 			    } else {
 			      struct status_and *calls;
-			      calls=ABX->calls;
-			      while(calls!=nr_call) {
-				if (calls->locals==nr_call->locals) break;
+			      calls=beam_ABX->calls;
+			      while(calls!=beam_nr_call) {
+				if (calls->locals==beam_nr_call->locals) break;
 				calls=calls->next;
 			      }
-			      if (calls==nr_call) {
-				free_memory_locals(nr_call->locals);
+			      if (calls==beam_nr_call) {
+				free_memory_locals(beam_nr_call->locals);
 			      }
 			    }
 			  }
-			  nr_call->locals=NULL;
+			beam_nr_call->locals=NULL;
+			bpEntry=(PredEntry *) arg1;
+			beam_ALTERNATIVES=beam_H;
+			Yap_absmi(-9000);
+{
+                        int NR_INDEXED;
+			NR_INDEXED=beam_ALTERNATIVES-beam_H;
+#if Debug
+			printf("Back from yap-index with %d alternativas\n",NR_INDEXED);
+#endif
+			if (NR_INDEXED==0) goto fail;
+ 			if (NR_INDEXED==1 && beam_ABX->parent!=NULL) {
+			  struct Clauses *clause=(struct Clauses *) *(beam_H);
+			  beam_ES=0;
+			  beam_nr_call->state=RUNNING;
 
-#if ENABLE_INDEX
-                        if (predi->idx>0) { 
-			  register Cell *_DR;
-			  _DR=(Cell *) deref(_X[1]);
-			  _X[1]=(Cell) _DR;
-
-			  if (isvar((Cell *) _DR) ) {
 #if Debug
-			      printf("Caso X1=Var\n");
+		          printf("Only 1 Alternative\n");
 #endif
-			      pc=predi->code;
-			      execute_next();
+ 		          if (clause->side_effects >= CUT) {
+			    /* printf("Must create or-box still the same ?????\n"); RSLOPES: MUST SEE THIS CASE */
 			  }
 
-			  if (isatom((Cell) _DR) ) {
-                              int index,nr;
-			      struct HASH_TABLE *t;
-#if Debug
-				printf("Caso X1=Atom\n");
-#endif
-				nr=predi->idx_atom;
-				if (nr) {
-				  index=index_of_hash_table_atom((Cell) _DR,nr);
-				  t=predi->atom[index];
-				  while(t) {
-				    if ((Cell) t->value==(Cell) _DR) {
-				      pc=t->code;
-				      execute_next();
-				    }
-				    t=t->next;
-				  }  
-				} 
- 			        if (predi->idx_var!=0) {
-                                /* Not found on index but I still have code with var args */
-				 pc=predi->vars;
-				 execute_next();
-				}
-				goto fail;
+			  beam_USE_SAME_ANDBOX=beam_nr_call;
+			  beam_nr_alternative=beam_ABX->nr_alternative;
+			  beam_OBX=beam_ABX->parent;
+
+			  if (clause->nr_vars) {
+			    register int nr_locals;
+			    nr_locals=clause->nr_vars;
+			    beam_varlocals=request_memory_locals(nr_locals);
+			    // add_to_list_locals(beam_varlocals,beam_ABX);
+			  } else { 
+			    beam_varlocals=NULL; 
 			  }
-			  if (ispair((Cell) _DR)) {
-#if Debug
-			      printf("Caso X1=Pair\n");
+			  beam_pc=clause->code+5;
+			  execute_next();
+			} else { 
+			  int i, arity;
+			  register struct status_or *p=NULL;
+			  register Cell *a;
+			  arity=((PredEntry *) arg1)->beamTable->arity;
+
+                            beam_OBX=(struct OR_BOX *) request_memory(ORBOX_SIZE);
+	 		    beam_nr_call->call=beam_OBX;
+  			    beam_nr_call->state=RUNNING;
+			    beam_OBX->nr_call=beam_nr_call;
+			    beam_OBX->parent=beam_ABX;
+			    beam_OBX->eager_split=beam_ES;
+			    beam_ES=0;
+ 			    beam_OBX->nr_all_alternatives=NR_INDEXED;
+
+			    if (NR_INDEXED>1) a=save_arguments(arity);  else a=NULL;
+			    for(i=0;i<NR_INDEXED;i++) {
+			      beam_nr_alternative=(struct status_or *) request_memory(STATUS_OR_SIZE);
+			      if (i==0) beam_OBX->alternatives=beam_nr_alternative;  else  p->next=beam_nr_alternative; 
+			      beam_nr_alternative->previous=p;
+			      p=beam_nr_alternative;
+			      beam_nr_alternative->alternative=NULL;
+			      beam_pc=((struct Clauses *) beam_H[i])->code;
+
+#if DIRECT_JUMP
+			      if (i==0) {
+				if (NR_INDEXED==1) *beam_pc=(Cell) &&only_1_clause;
+				else *beam_pc=(Cell) &&try_me;
+			      } else if (i==NR_INDEXED-1) *beam_pc=(Cell) &&trust_me;
+#else
+			      if (i==0) {
+				if (NR_INDEXED==1) *beam_pc=_only_1_clause_op;
+				else *beam_pc=_try_me_op;
+			      } else if (i==NR_INDEXED-1) *beam_pc=_trust_me_op;
 #endif
-			      pc=predi->list;
-			      execute_next();
-			  }
-			  if (isappl((Cell) _DR)) {
-                              int index,nr;
-			      struct HASH_TABLE *t;
-#if Debug
-			        printf("Caso X1=Functor\n");
-#endif
-			        _DR=(Cell *) *repappl((Cell *)_DR); 
-			        nr=predi->idx_functor;
-				if (nr) {
-				  index=index_of_hash_table_appl((Cell) _DR,nr);
-				  /* index=((int)_DR>>5) % nr; */
-				  t=predi->functor[index];
-				  while(t) {
-				    if (t->value==(Cell) _DR) {
-				      pc=t->code;
-				      execute_next();
-				    }
-				    t=t->next;
-				  }  
-				} 
- 			        if (predi->idx_var!=0) {
-                                /* Not found on index but I still have code with var args */
-				   pc=predi->vars;
-				   execute_next();
-				}
-				goto fail;
-			  }
-		        }
-#endif /* ENABLE_INDEX */
-#if Debug
-			if (predi->idx>0) printf("Caso X1=Var\n");
-			else printf("Caso em que o predicado nao esta indexado\n");
-#endif
-			pc=predi->code;
-			/*			goto prepare_tries; */
-			execute_next();			
+			      arg2=arity;
+			      arg1=beam_H[i];
+			      arg3=((struct Clauses *) beam_H[i])->nr_vars;
+			      arg4=i;
+			      beam_nr_alternative->code=beam_pc;
+			      beam_nr_alternative->state=READY;
+			      beam_nr_alternative->args=a;
+			    }
+			    beam_nr_alternative->next=NULL;
+
+			beam_nr_alternative=beam_OBX->alternatives;
+			/* goto next_alternative; */
+                        beam_pc=beam_nr_alternative->code;
+			execute_next();
+
+                       }
 }
-
+			/* goto prepare_tries; */
 
 		safe_call:
 #if Debug
 break_debug();
-		        printf("safe_call 0x%lX X1=%d (0x%lX) ,X2=%d (0x%lX) \n",(unsigned long) arg1,(int) _X[1],(unsigned long) _X[1],(int) _X[2],(unsigned long) _X[2]);
+		        printf("safe_call 0x%lX X1=%d (0x%lX) ,X2=%d (0x%lX) \n",(unsigned long) arg1,(int) beam_X[1],(unsigned long) beam_X[1],(int) beam_X[2],(unsigned long) beam_X[2]);
 #endif
-			_S=(Cell *) arg1;
-			_S=(Cell *) (* ((int long  (*)(void)) _S))();
-#if !Fast_go
-			if (EAMError)
-			  abort_eam("Cought one Safe Call Error..........?????\n");
-#endif
-			if (!_S) goto fail_body;
+			beam_S=(Cell *) arg1;
+			beam_S=(Cell *) (* ((int long  (*)(void)) beam_S))();
+			if (!beam_S) goto fail_body;
 			
 			/* we didn't get to created a or_box */
-			nr_call=remove_call_from_andbox(nr_call,ABX);
- 		        OBX=ABX->parent;
+			beam_nr_call=remove_call_from_andbox(beam_nr_call,beam_ABX);
+ 		        beam_OBX=beam_ABX->parent;
 			goto next_call;
 
 		safe_call_unary:
 #if Debug
 break_debug();
-		        printf("safe_call_unary 0x%lX X1=%d (0x%lX) ,X2=%d (0x%lX) \n",(unsigned long) arg1,(int) _X[1],(unsigned long) _X[1],(int) _X[2],(unsigned long) _X[2]);
+		        printf("safe_call_unary 0x%lX X1=%d (0x%lX) ,X2=%d (0x%lX) \n",(unsigned long) arg1,(int) beam_X[1],(unsigned long) beam_X[1],(int) beam_X[2],(unsigned long) beam_X[2]);
 #endif
-			_S=(Cell *) arg1;
-			_S=(Cell *) (* ((int long  (*)(Term)) _S))(deref(_X[1]));
-#if !Fast_go
-			if (EAMError)
-			  abort_eam("Cought one Safe Call Error..........?????\n");
-#endif
-			if (!_S) goto fail_body;
+			beam_S=(Cell *) arg1;
+			beam_S=(Cell *) (* ((int long  (*)(Term)) beam_S))(deref(beam_X[1]));
+			if (!beam_S) goto fail_body;
 			
 			/* we didn't get to created a or_box */
-			nr_call=remove_call_from_andbox(nr_call,ABX);
- 		        OBX=ABX->parent;
+			beam_nr_call=remove_call_from_andbox(beam_nr_call,beam_ABX);
+ 		        beam_OBX=beam_ABX->parent;
 			goto next_call;
 
 		safe_call_binary:
 #if Debug
 break_debug();
-		        printf("safe_call_binary 0x%lX X1=%d (0x%lX) ,X2=%d (0x%lX) \n",(unsigned long) arg1,(int) _X[1],(unsigned long) _X[1],(int) _X[2],(unsigned long) _X[2]);
+		        printf("safe_call_binary 0x%lX X1=%d (0x%lX) ,X2=%d (0x%lX) \n",(unsigned long) arg1,(int) beam_X[1],(unsigned long) beam_X[1],(int) beam_X[2],(unsigned long) beam_X[2]);
 #endif
-			_S=(Cell *) arg1;
-			_S=(Cell *) (* ((int long  (*)(Term, Term)) _S))(deref(_X[1]),deref(_X[2]));
-#if !Fast_go
-			if (EAMError)
-			  abort_eam("Cought one Safe Call Error..........?????\n");
-#endif
-			if (!_S) goto fail_body;
+			beam_S=(Cell *) arg1;
+			beam_S=(Cell *) (* ((int long  (*)(Term, Term)) beam_S))(deref(beam_X[1]),deref(beam_X[2]));
+                        if (!beam_S) goto fail_body;
 			
 			/* we didn't get to created a or_box */
-			nr_call=remove_call_from_andbox(nr_call,ABX);
- 		        OBX=ABX->parent;
+			beam_nr_call=remove_call_from_andbox(beam_nr_call,beam_ABX);
+ 		        beam_OBX=beam_ABX->parent;
 			goto next_call;
 
 
 		direct_safe_call:
 #if Debug
 break_debug();
-		        printf("direct_safe_call %p X1=%d,X2=%d \n",(void *) arg1,(int) _X[1],(int) _X[2]);
+		        printf("direct_safe_call %p X1=%d,X2=%d \n",(void *) arg1,(int) beam_X[1],(int) beam_X[2]);
 #endif
-			Force_Wait=0;
-			_S=(Cell *) arg1;
-			_S=(Cell *) (* ((int long  (*)(void)) _S))();
-			/* _S=(Cell *) (* ((int long  (*)(Term,Term)) _S))(_X[1],_X[2]); */
-			if (!_S) goto fail_head;
-			pc+=2;
+			beam_S=(Cell *) arg1;
+			beam_S=(Cell *) (* ((int long  (*)(void)) beam_S))();
+			/* beam_S=(Cell *) (* ((int long  (*)(Term,Term)) beam_S))(beam_X[1],beam_X[2]); */
+			if (!beam_S) goto fail_head;
+			beam_pc+=2;
 			execute_next();
 
 		direct_safe_call_unary:
 #if Debug
 break_debug();
-		        printf("direct_safe_call_unary %p X1=%d,X2=%d \n",(void *) arg1,(int) _X[1],(int) _X[2]);
+		        printf("direct_safe_call_unary %p X1=%d,X2=%d \n",(void *) arg1,(int) beam_X[1],(int) beam_X[2]);
 #endif
-			Force_Wait=0;
-			_S=(Cell *) arg1;
-			_S=(Cell *) (* ((int long  (*)(Term)) _S))(deref(_X[1]));
-			if (!_S) goto fail_head;
-			pc+=2;
+			beam_S=(Cell *) arg1;
+			beam_S=(Cell *) (* ((int long  (*)(Term)) beam_S))(deref(beam_X[1]));
+			if (!beam_S) goto fail_head;
+			beam_pc+=2;
 			execute_next();
 
 		direct_safe_call_binary:
 #if Debug
 break_debug();
-		        printf("direct_safe_call_binary %p X1=%d,X2=%d \n",(void *) arg1,(int) _X[1],(int) _X[2]);
+		        printf("direct_safe_call_binary %p X1=%d,X2=%d \n",(void *) arg1,(int) beam_X[1],(int) beam_X[2]);
 #endif
-			Force_Wait=0;
-			_S=(Cell *) arg1;
-			_S=(Cell *) (* ((int long  (*)(Term,Term)) _S))(deref(_X[1]),deref(_X[2]));
-			if (!_S) goto fail_head;
-			pc+=2;
+			beam_S=(Cell *) arg1;
+			beam_S=(Cell *) (* ((int long  (*)(Term,Term)) beam_S))(deref(beam_X[1]),deref(beam_X[2]));
+			if (!beam_S) goto fail_head;
+			beam_pc+=2;
 			execute_next();
 
 	        skip_while_var:
 #if Debug
 break_debug();
-			    printf("Skip_while_var on call %p\n", nr_call);
+			    printf("Skip_while_var on call %p\n", beam_nr_call);
 #endif   
-			 if (exists_var_in((Cell *) _X[1])) { 
-			   ABX->suspended=addto_suspensions_list(ABX,VAR_SUSPENSION);
-			   nr_call=nr_call->next;
+			 if (exists_var_in((Cell *) beam_X[1])) { 
+			   beam_ABX->suspended=addto_suspensions_list(beam_ABX,VAR_SUSPENSION);
+			   beam_nr_call=beam_nr_call->next;
 			   goto next_call; 
 			 }
-			pc+=1;
+			beam_pc+=1;
 			execute_next();
 
 	        wait_while_var:
 #if Debug
 break_debug();
-			    printf("Wait_while_var on call %p\n", nr_call);
+			    printf("Wait_while_var on call %p\n", beam_nr_call);
 #endif   
-			 if (exists_var_in((Cell *) _X[1])) { 
-			       ABX->suspended=addto_suspensions_list(ABX,VAR_SUSPENSION);
-			       OBX=ABX->parent; 
-                               nr_alternative=ABX->nr_alternative->next;
+			 if (exists_var_in((Cell *) beam_X[1])) { 
+			       beam_ABX->suspended=addto_suspensions_list(beam_ABX,VAR_SUSPENSION);
+			       beam_OBX=beam_ABX->parent; 
+                               beam_nr_alternative=beam_ABX->nr_alternative->next;
                                goto next_alternative; 
 			 }
-			 pc+=1;
+			 beam_pc+=1;
 			 execute_next();
 
 	        force_wait:
 #if Debug
 break_debug();
-			 printf("Force Waiting on call %p\n", nr_call);
+			 printf("Force Waiting on call %p\n", beam_nr_call);
 #endif   
 			 /* we didn't get to created a or_box */
 
- 		         OBX=ABX->parent;
-			 if (nr_call->previous!=NULL) {
-			    nr_call->call=NULL;
-			    nr_call->state=WAITING_TO_BE_FIRST;
-			    ABX->suspended=addto_suspensions_list(ABX,WAIT_SUSPENSION);
-			    nr_alternative=ABX->nr_alternative->next;
+ 		         beam_OBX=beam_ABX->parent;
+			 if (beam_nr_call->previous!=NULL) {
+			    beam_nr_call->call=NULL;
+			    beam_nr_call->state=WAITING_TO_BE_FIRST;
+			    beam_ABX->suspended=addto_suspensions_list(beam_ABX,WAIT_SUSPENSION);
+			    beam_nr_alternative=beam_ABX->nr_alternative->next;
 			    goto next_alternative;
 			 } 
-			 nr_call=remove_call_from_andbox(nr_call,ABX);
+			 beam_nr_call=remove_call_from_andbox(beam_nr_call,beam_ABX);
 			 goto next_call;
 
 	        write_call:
@@ -2564,26 +2490,26 @@ break_debug();
 		         printf("write_call\n");
 #endif
 #if USE_LEFTMOST
-			 if (!is_leftmost(ABX,nr_call)) {
+			 if (!is_leftmost(beam_ABX,beam_nr_call)) {
   #if Debug
 		           printf("Force Waiting Before write_call\n");
   #endif
-			   nr_call->call=NULL;
-			   nr_call->state=WAITING_TO_BE_LEFTMOST;
-			   ABX->suspended=addto_suspensions_list(ABX,LEFTMOST_SUSPENSION);
+			   beam_nr_call->call=NULL;
+			   beam_nr_call->state=WAITING_TO_BE_LEFTMOST;
+			   beam_ABX->suspended=addto_suspensions_list(beam_ABX,LEFTMOST_SUSPENSION);
 			   goto top_tree;
 			 }
 #endif
 
 #ifdef DEBUG
-			 Yap_plwrite ((Term) _X[1], Yap_DebugPutc, 0);
+			 Yap_plwrite ((Term) beam_X[1], Yap_DebugPutc, 0);
 #else
 			 extern int beam_write (void);
 			 beam_write();
 #endif
-			 nr_call=remove_call_from_andbox(nr_call,ABX);
-			 ABX->side_effects=ABX->side_effects | WRITE;
-		         OBX=ABX->parent;
+			 beam_nr_call=remove_call_from_andbox(beam_nr_call,beam_ABX);
+			 beam_ABX->side_effects=beam_ABX->side_effects | WRITE;
+		         beam_OBX=beam_ABX->parent;
 			 goto next_call;
 
 	        is_call:
@@ -2596,13 +2522,13 @@ break_debug();
 			/* BEAM_is is declared on C/eval.c */
 			  _DR=(Cell *) BEAM_is();
 			  if (_DR==NULL) { /* erro no Eval */
-			    top=NULL;
+			    beam_top=NULL;
 			    return (FALSE);
 			  }
-			  if (!Unify((Cell *) XREGS[1],_DR)) goto fail_body;
+			  if (!Unify((Cell *) beam_X[1],_DR)) goto fail_body;
 			}
-			nr_call=remove_call_from_andbox(nr_call,ABX);
- 		        OBX=ABX->parent;
+			beam_nr_call=remove_call_from_andbox(beam_nr_call,beam_ABX);
+ 		        beam_OBX=beam_ABX->parent;
 
 			goto next_call;
 
@@ -2611,11 +2537,11 @@ break_debug();
 break_debug();
 		        printf("equal_call\n");
 #endif
-			nr_call=remove_call_from_andbox(nr_call,ABX);
-			if (ABX->externals!=NULL) {
-			    if (ABX->nr_all_calls==0) {
-			         nr_alternative->state=SUSPEND_END;
-			    } else nr_alternative->state=SUSPEND;
+			beam_nr_call=remove_call_from_andbox(beam_nr_call,beam_ABX);
+			if (beam_ABX->externals!=NULL) {
+			    if (beam_ABX->nr_all_calls==0) {
+			         beam_nr_alternative->state=SUSPEND_END;
+			    } else beam_nr_alternative->state=SUSPEND;
 			    goto suspend;			    
 			}
 
@@ -2628,14 +2554,14 @@ break_debug();
 		        printf("pop %d \n",(int) arg1);  
 #endif
                         if (arg1>1) {
-			  sp+=arg1>>2; 
+			  beam_sp+=arg1>>2; 
 			}			
 			pop_mode_and_sreg();
 #if Debug
-                        if (_Mode==READ) printf("Continues in READ mode\n"); 
+                        if (beam_Mode==READ) printf("Continues in READ mode\n"); 
                         else  printf("Continues in WRITE mode\n"); 
 #endif
-			pc+=2;
+			beam_pc+=2;
 			execute_next();
 
 		do_nothing:
@@ -2643,7 +2569,7 @@ break_debug();
 break_debug();
 		        printf("do_nothing \n");
 #endif
-			pc++;
+			beam_pc++;
 		        execute_next();
 
 
@@ -2653,8 +2579,8 @@ break_debug();
 		        printf("get_var_X X%d=X%d \n",(int) arg2,(int) arg1);
     
 #endif
-			_X[arg2]=_X[arg1];
-			pc+=3;
+			beam_X[arg2]=beam_X[arg1];
+			beam_pc+=3;
 			execute_next();
 
 		get_var_Y:
@@ -2662,16 +2588,16 @@ break_debug();
 break_debug();
 		        printf("get_var_Y Y%d=X%d \n",(int) arg2,(int) arg1);
 #endif
-			var_locals[arg2]=_X[arg1];
+			beam_varlocals[arg2]=beam_X[arg1];
 #if !Fast_go
 			{ Cell *a;
-			  a = (Cell *) deref(_X[arg1]);
+			  a = (Cell *) deref(beam_X[arg1]);
 			  if(isvar(a) && !isappl(a) && !is_perm_var(a))
 			    abort_eam("Sério problema no get_var_Y\n");
   			    /* acho que vou ter de criar uma variavel local nova no nivel superior */
 			}
 #endif
-			pc+=3;
+			beam_pc+=3;
 			execute_next();
 
 		get_val_X:
@@ -2680,26 +2606,26 @@ break_debug();
 		        printf("get_val_X X%d,X%d \n",(int) arg1,(int) arg2);    
 #endif
 			{ register Cell *_DR, *_DR1;
-			_DR=(Cell *) deref(_X[arg1]);
+			_DR=(Cell *) deref(beam_X[arg1]);
 			if (isvar((Cell) _DR)) { 
-			        _DR1=(Cell *) deref(_X[arg2]);
+			        _DR1=(Cell *) deref(beam_X[arg2]);
 				if (!isvar((Cell) _DR1)) { 
 				    *(_DR)=(Cell) _DR1;
-				    trail(ABX,(struct PERM_VAR *) _DR);
+				    trail(beam_ABX,(struct PERM_VAR *) _DR);
 				} else {
 				    UnifyCells(_DR,_DR1);
 				}		
 			} else {
-			        _DR1=(Cell *) deref(_X[arg2]);
+			        _DR1=(Cell *) deref(beam_X[arg2]);
 			        if (isvar((Cell) _DR1)) { 
 				    *(_DR1)=(Cell) _DR;
-				    trail(ABX,(struct PERM_VAR *) _DR1);
+				    trail(beam_ABX,(struct PERM_VAR *) _DR1);
 				} else {
 				    if (!Unify(_DR1,_DR)) goto fail_head;
 				}
 			}
 			}
-			pc+=3;
+			beam_pc+=3;
 		        execute_next();
 
 		get_val_Y:
@@ -2708,26 +2634,26 @@ break_debug();
 		        printf("get_val_Y X%d,Y%d \n",(int) arg1,(int) arg2);   
 #endif
 			{ register Cell *_DR, *_DR1;
-			_DR=(Cell *) deref(_X[arg1]);
+			_DR=(Cell *) deref(beam_X[arg1]);
 			if (isvar((Cell) _DR)) {  
-				 _DR1=(Cell *) deref(var_locals[arg2]);
+				 _DR1=(Cell *) deref(beam_varlocals[arg2]);
 				 if (!isvar((Cell) _DR1)) { 
 				     *(_DR)=(Cell) _DR1;
-				     trail(ABX,(struct PERM_VAR *) _DR);
+				     trail(beam_ABX,(struct PERM_VAR *) _DR);
 				 } else {
 				     UnifyCells(_DR,_DR1);
 				 }		
 		        } else {
-			         _DR1=(Cell *) deref(var_locals[arg2]);
+			         _DR1=(Cell *) deref(beam_varlocals[arg2]);
 				 if (isvar((Cell) _DR1)) { 
 				    *(_DR1)=(Cell) _DR;
-				    trail(ABX,(struct PERM_VAR *) _DR1);
+				    trail(beam_ABX,(struct PERM_VAR *) _DR1);
 				 } else {
 				    if (!Unify(_DR1,_DR)) goto fail_head;
 				 }
 			}
 			}
-			pc+=3;
+			beam_pc+=3;
 		        execute_next();
 
 		get_atom:
@@ -2736,15 +2662,15 @@ break_debug();
 		        printf("get_atom X%d, 0x%lX\n",(int) arg1,(unsigned long) arg2);
 #endif
 			{ register Cell *_DR;
-			_DR=(Cell *) deref(_X[arg1]);
+			_DR=(Cell *) deref(beam_X[arg1]);
 			if (isvar((Cell) _DR)) {  
 			      *(_DR)=arg2;
-			      trail(ABX,(struct PERM_VAR *) _DR);
+			      trail(beam_ABX,(struct PERM_VAR *) _DR);
 			} else {
 			      if ((Cell) _DR!=arg2) goto fail_head; 
 			}
 			}
-			pc+=3;
+			beam_pc+=3;
 		        execute_next();
 
 		get_list:
@@ -2753,21 +2679,21 @@ break_debug();
 		        printf("get_list X%d\n",(int) arg1);
 #endif
 			{ register Cell *_DR, *_DR1;
-			_DR=(Cell *) deref(_X[arg1]);
-			if (isvar((Cell) _DR)) { _Mode=WRITE;
-		                 _S = _H;
-		                 _H+= 2;
-			         _DR1=(Cell *) abspair(_S);
+			_DR=(Cell *) deref(beam_X[arg1]);
+			if (isvar((Cell) _DR)) { beam_Mode=WRITE;
+		                 beam_S = beam_H;
+		                 beam_H+= 2;
+			         _DR1=(Cell *) abspair(beam_S);
 				 *(_DR)=(Cell) _DR1;
-				 trail(ABX,(struct PERM_VAR *) _DR);
-				 pc+=2;
+				 trail(beam_ABX,(struct PERM_VAR *) _DR);
+				 beam_pc+=2;
 				 execute_next();
 			} else {
 			         if (!ispair((Cell) _DR)) goto fail_head;
-				 _Mode=READ;
+				 beam_Mode=READ;
 				 _DR1=_DR; /* SaveExpression in DR1*/
-				 _S=(Cell *) reppair((Cell) _DR);
-				 pc+=2;
+				 beam_S=(Cell *) reppair((Cell) _DR);
+				 beam_pc+=2;
 				 execute_next();
 			}
 			}
@@ -2779,24 +2705,24 @@ break_debug();
     
 #endif
 			{ register Cell *_DR, *_DR1;
-			_DR=(Cell *) deref(_X[arg1]);
-			if (isvar((Cell) _DR)) { _Mode=WRITE;
-			          _DR1=(Cell *) absappl((Cell) _H); /* SaveExpression in _DR1*/
+			_DR=(Cell *) deref(beam_X[arg1]);
+			if (isvar((Cell) _DR)) { beam_Mode=WRITE;
+			          _DR1=(Cell *) absappl((Cell) beam_H); /* SaveExpression in _DR1*/
 				  *(_DR)=(Cell) _DR1;
-				  trail(ABX,(struct PERM_VAR *) _DR);
-				  *(_H++)=arg2;
-				  _S=_H;
-				  _H+=arg3;  /* arg3 = arity */
-				  pc+=4;
+				  trail(beam_ABX,(struct PERM_VAR *) _DR);
+				  *( beam_H++)=arg2;
+				  beam_S= beam_H;
+				   beam_H+=arg3;  /* arg3 = arity */
+				  beam_pc+=4;
 				  execute_next();
 			} else {
 			          if (!isappl((Cell) _DR)) goto fail_head;
-				  _Mode=READ;
-				  _S=(Cell *) repappl((Cell) _DR);
-				  if (*_S!=arg2) goto fail_head;
-				  _S++;
+				  beam_Mode=READ;
+				  beam_S=(Cell *) repappl((Cell) _DR);
+				  if (*beam_S!=arg2) goto fail_head;
+				  beam_S++;
 				  _DR1=_DR; /* SaveExpression in _DR1*/
-				  pc+=4;
+				  beam_pc+=4;
 				  execute_next();
 			}
 			}
@@ -2806,11 +2732,11 @@ break_debug();
 break_debug();
 		        printf("unify_void\n");
 #endif
-			if (_Mode==WRITE) {
-			  *_S=(Cell) request_permVar(ABX);
+			if (beam_Mode==WRITE) {
+			  *beam_S=(Cell) request_permVar(beam_ABX);
 			}
-			_S++;
-			pc+=1;
+			beam_S++;
+			beam_pc+=1;
 			execute_next();
 
 
@@ -2820,41 +2746,41 @@ break_debug();
 		        printf("unify_local_Y Y%d \n",(int) arg1);
     
 #endif
-		     if (_Mode==READ) {
+		     if (beam_Mode==READ) {
 			 register Cell *_DR, *_DR1;
-			_DR1=(Cell *) deref(var_locals[arg1]);
+			_DR1=(Cell *) deref(beam_varlocals[arg1]);
 			if (isvar((Cell) _DR1)) {                 
-			  _DR=(Cell *) deref((Cell) _S);
+			  _DR=(Cell *) deref((Cell) beam_S);
 			  if (isvar((Cell) _DR)) {
 			    UnifyCells(_DR1,_DR);  /* var , var */
 			  } else {
 			    *(_DR1)=(Cell) _DR;    /* var , nonvar */
-			    trail(ABX,(struct PERM_VAR *) _DR1);
+			    trail(beam_ABX,(struct PERM_VAR *) _DR1);
 			  }
 			}
 			else {
-			  _DR=(Cell *) deref((Cell) _S);
+			  _DR=(Cell *) deref((Cell) beam_S);
 			  if (isvar((Cell) _DR)) {
 			    *(_DR)=(Cell) _DR1;    /* nonvar, var */
-			    trail(ABX,(struct PERM_VAR *) _DR);
+			    trail(beam_ABX,(struct PERM_VAR *) _DR);
 			  } else {
 			    if (!Unify(_DR,_DR1)) goto fail_head; /* nonvar, nonvar */
 			  }			  
 			}
-			_S++;
-			pc+=2;
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 		      }  else {  /* write Mode */
 			register Cell *_DR;
-			_DR=(Cell *) deref(var_locals[arg1]);
+			_DR=(Cell *) deref(beam_varlocals[arg1]);
 			if (isvar((Cell) _DR) && !is_perm_var((Cell *) _DR)) {
-			  *_S=(Cell) request_permVar(ABX);
-			  UnifyCells(_DR,_S);
+			  *beam_S=(Cell) request_permVar(beam_ABX);
+			  UnifyCells(_DR,beam_S);
 			} else {
-			  *(_S)=(Cell) _DR;
+			  *(beam_S)=(Cell) _DR;
 			}
-			_S++;
-			pc+=2;
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 		      }
 
@@ -2863,42 +2789,42 @@ break_debug();
 break_debug();
 		        printf("unify_local_X X%d \n",(int) arg1);
 #endif
-		     if (_Mode==READ) {			
+		     if (beam_Mode==READ) {			
 			 register Cell *_DR, *_DR1;
-			_DR1=(Cell *) deref(_X[arg1]);
+			_DR1=(Cell *) deref(beam_X[arg1]);
 			if (isvar((Cell) _DR1)) {                 
-			  _DR=(Cell *) deref((Cell) _S);
+			  _DR=(Cell *) deref((Cell) beam_S);
 			  if (isvar((Cell) _DR)) {
 			    UnifyCells(_DR1,_DR);  /* var , var */
 			  } else {
 			    *(_DR1)=(Cell) _DR;    /* var , nonvar */
-			    trail(ABX,(struct PERM_VAR *) _DR1);
+			    trail(beam_ABX,(struct PERM_VAR *) _DR1);
 			  }
 			}
 			else {
-			  _DR=(Cell *) deref((Cell) _S);
+			  _DR=(Cell *) deref((Cell) beam_S);
 			  if (isvar((Cell) _DR)) {
 			    *(_DR)=(Cell) _DR1;    /* nonvar, var */
-			    trail(ABX,(struct PERM_VAR *) _DR);
+			    trail(beam_ABX,(struct PERM_VAR *) _DR);
 			  } else {
 			    if (!Unify(_DR,_DR1)) goto fail_head; /* nonvar, nonvar */
 			  }			  
 			}
-			_S++;
-			pc+=2;
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 		     } else {  /* write mode */
 			register Cell *_DR;
-			_DR=(Cell *) deref(_X[arg1]);
+			_DR=(Cell *) deref(beam_X[arg1]);
 
 			if (isvar((Cell) _DR) && !is_perm_var((Cell *) _DR)) {
-			  *_S=(Cell) request_permVar(ABX);
-			  UnifyCells(_DR,_S);
+			  *beam_S=(Cell) request_permVar(beam_ABX);
+			  UnifyCells(_DR,beam_S);
 			} else {
-			  *(_S)=(Cell) _DR;
+			  *(beam_S)=(Cell) _DR;
 			}
-			_S++;
-			pc+=2;
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 		     }
 
@@ -2908,34 +2834,34 @@ break_debug();
 		        printf("unify_val_Y Y%d \n",(int) arg1);
     
 #endif
-		     if (_Mode==READ) {			
+		     if (beam_Mode==READ) {			
 			register Cell *_DR, *_DR1;
-			_DR1=(Cell *) deref(var_locals[arg1]);
+			_DR1=(Cell *) deref(beam_varlocals[arg1]);
 			if (isvar((Cell) _DR1)) {
-			  _DR=(Cell *) deref((Cell) _S);
+			  _DR=(Cell *) deref((Cell) beam_S);
 			  if (isvar((Cell) _DR)) {
 			    UnifyCells(_DR1,_DR);
 			  } else {
 			    *(_DR1)=(Cell) _DR;
-			    trail(ABX,(struct PERM_VAR *) _DR1);
+			    trail(beam_ABX,(struct PERM_VAR *) _DR1);
 			  }
 			}
 			else {
-			  _DR=(Cell *) deref((Cell) _S);
+			  _DR=(Cell *) deref((Cell) beam_S);
 			  if (isvar((Cell) _DR)) {
 			    *(_DR)=(Cell) _DR1;
-			    trail(ABX,(struct PERM_VAR *) _DR);
+			    trail(beam_ABX,(struct PERM_VAR *) _DR);
 			  } else {
 			    if (!Unify(_DR,_DR1)) goto fail_head;
 			  }			  
 			}
-			_S++;
-			pc+=2;
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 		     } else { /* write mode */
- 		        *(_S)=var_locals[arg1];
-			_S++;
-			pc+=2;
+ 		        *(beam_S)=beam_varlocals[arg1];
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 		     }
 
@@ -2945,34 +2871,34 @@ break_debug();
 break_debug();
 		        printf("unify_val_X X%d \n",(int) arg1);
 #endif
-		     if (_Mode==READ) {			
+		     if (beam_Mode==READ) {			
 			 register Cell *_DR, *_DR1;
-			_DR1=(Cell *) deref((Cell) _X[arg1]);
+			_DR1=(Cell *) deref((Cell) beam_X[arg1]);
 			if (isvar((Cell) _DR1)) {
-			  _DR=(Cell *) deref((Cell) _S);
+			  _DR=(Cell *) deref((Cell) beam_S);
 			  if (isvar((Cell) _DR)) {
 			    UnifyCells(_DR1,_DR);
 			  } else {
 			    *(_DR1)=(Cell) _DR;
-			    trail(ABX,(struct PERM_VAR *) _DR1);
+			    trail(beam_ABX,(struct PERM_VAR *) _DR1);
 			  }
 			}
 			else {
-			  _DR=(Cell *) deref((Cell) _S);
+			  _DR=(Cell *) deref((Cell) beam_S);
 			  if (isvar((Cell) _DR)) {
 			    *(_DR)=(Cell) _DR1;
-			    trail(ABX,(struct PERM_VAR *) _DR);
+			    trail(beam_ABX,(struct PERM_VAR *) _DR);
 			  } else {
 			    if (!Unify(_DR,_DR1)) goto fail_head;
 			  }			  
 			}
-			_S++;
-			pc+=2;
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 		     } else {
-			*(_S)=_X[arg1];
-			_S++;
-			pc+=2;
+			*(beam_S)=beam_X[arg1];
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 		     }
 
@@ -2981,15 +2907,15 @@ break_debug();
 break_debug();
 		        printf("unify_var_X X%d=*S \n",(int) arg1);
 #endif
-		     if (_Mode==READ) {			
-		        _X[arg1]=*(_S++);
-			pc+=2;
+		     if (beam_Mode==READ) {			
+		        beam_X[arg1]=*(beam_S++);
+			beam_pc+=2;
 			execute_next();
 		     } else {
-			*_S=(Cell) request_permVar(ABX);
-			_X[arg1]=(Cell) _S;
-			_S++;
-			pc+=2;
+			*beam_S=(Cell) request_permVar(beam_ABX);
+			beam_X[arg1]=(Cell) beam_S;
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 		     }
 
@@ -2998,15 +2924,15 @@ break_debug();
 break_debug();
 		        printf("unify_var_Y Y%d \n",(int) arg1);
 #endif
-		     if (_Mode==READ) {
-			var_locals[arg1]=*(_S++);
-			pc+=2;
+		     if (beam_Mode==READ) {
+			beam_varlocals[arg1]=*(beam_S++);
+			beam_pc+=2;
 			execute_next();
 		     } else {
-			*_S=(Cell )request_permVar(ABX);
-			var_locals[arg1]=*_S;
-			_S++;
-			pc+=2;
+			*beam_S=(Cell )request_permVar(beam_ABX);
+			beam_varlocals[arg1]=*beam_S;
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 		      }
 
@@ -3016,22 +2942,22 @@ break_debug();
 break_debug();
 		        printf("unify_atom 0x%lX \n",(unsigned long) arg1);
 #endif
-		     if (_Mode==READ) {
+		     if (beam_Mode==READ) {
 			 register Cell *_DR;
-			_DR=(Cell *) deref((Cell) _S);
+			_DR=(Cell *) deref((Cell) beam_S);
 			if (isvar((Cell) _DR)) {
 			  *(_DR)=arg1;
-			  trail(ABX,(struct PERM_VAR *) _DR);
+			  trail(beam_ABX,(struct PERM_VAR *) _DR);
 			} else {
 			  if ((Cell) _DR!=arg1)  goto fail_head;
 			}
-			_S++; 
-			pc+=2;
+			beam_S++; 
+			beam_pc+=2;
 			execute_next();
 		     } else {
-			*(_S)=arg1;
-			_S++;
-			pc+=2;
+			*(beam_S)=arg1;
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 		     }
 
@@ -3040,38 +2966,38 @@ break_debug();
 break_debug();
 		        printf("unify_list \n");
 #endif
-		     if (_Mode==READ) {
+		     if (beam_Mode==READ) {
 			 register Cell *_DR, *_DR1;
-			_DR=(Cell *) deref(*_S);
+			_DR=(Cell *) deref(*beam_S);
 			if (isvar((Cell) _DR)) { 
-                              _DR1=(Cell *) abspair((Cell) _H);  /* SavedExpression  in _DR1 */
+                              _DR1=(Cell *) abspair((Cell)  beam_H);  /* SavedExpression  in _DR1 */
 			      *(_DR)=(Cell) _DR1;
-			      trail(ABX,(struct PERM_VAR *) _DR);
-			      _S++;
+			      trail(beam_ABX,(struct PERM_VAR *) _DR);
+			      beam_S++;
 			      push_mode_and_sreg();
-			      _Mode=WRITE;  /* goes int write mode */
-			      _S=_H;
-			      _H+=2;
-			      pc+=1;
+			      beam_Mode=WRITE;  /* goes int write mode */
+			      beam_S= beam_H;
+			       beam_H+=2;
+			      beam_pc+=1;
 			      execute_next();
 			} else {
 			      if (!ispair((Cell) _DR)) goto fail_head;
-			      _S++;
+			      beam_S++;
 			      push_mode_and_sreg();
-			      _S=(Cell *) reppair((Cell) _DR);
+			      beam_S=(Cell *) reppair((Cell) _DR);
 			      _DR1=_DR;  /* SavedExpression in _DR1 */ 
-			      pc+=1;
+			      beam_pc+=1;
 			      execute_next();
 			}
 		     } else {
 			 register Cell *_DR1;
-                        _DR1=(Cell *) abspair((Cell) _H);  /* SavedExpression  in _DR1 */
-                        *(_S)=(Cell) _DR1;
-			_S++;
+                        _DR1=(Cell *) abspair((Cell)  beam_H);  /* SavedExpression  in _DR1 */
+                        *(beam_S)=(Cell) _DR1;
+			beam_S++;
 			push_mode_and_sreg();
-			_S=_H;
-		        _H+=2;
-			pc+=1;
+			beam_S= beam_H;
+		         beam_H+=2;
+			beam_pc+=1;
 			execute_next();
 		      }
 
@@ -3080,31 +3006,31 @@ break_debug();
 break_debug();
 		        printf("unify_last_list \n");
 #endif
-		     if (_Mode==READ) {
+		     if (beam_Mode==READ) {
 			register Cell *_DR, *_DR1;
-		        _DR=(Cell *) deref(*_S);
-			if (isvar((Cell) _DR)) { _Mode=WRITE;  /* goes into write mode */
-			         _DR1=(Cell *) abspair((Cell) _H);  /* SavedExpression  in _DR1 */
+		        _DR=(Cell *) deref(*beam_S);
+			if (isvar((Cell) _DR)) { beam_Mode=WRITE;  /* goes into write mode */
+			         _DR1=(Cell *) abspair((Cell)  beam_H);  /* SavedExpression  in _DR1 */
 				 *(_DR)=(Cell) _DR1;
-				 trail(ABX,(struct PERM_VAR *) _DR);
-				 _S=_H;
-				 _H+=2;
-				 pc+=1;
+				 trail(beam_ABX,(struct PERM_VAR *) _DR);
+				 beam_S= beam_H;
+				  beam_H+=2;
+				 beam_pc+=1;
 				 execute_next();
 	                } else {
 			         if (!ispair((Cell) _DR)) goto fail_head;
-				 _S=(Cell *) reppair((Cell) _DR);
+				 beam_S=(Cell *) reppair((Cell) _DR);
 				 _DR1=_DR;  /* SavedExpression  in _DR1 */
-				 pc+=1;
+				 beam_pc+=1;
 				 execute_next();
 			}
 		     } else {
 			 register Cell *_DR1;
-			_DR1=(Cell *) abspair((Cell) _H);  /* SavedExpression  in _DR1 */
-			*(_S)=(Cell) _DR1;
-			_S=_H;
-			_H+=2;
-			pc+=1;
+			_DR1=(Cell *) abspair((Cell)  beam_H);  /* SavedExpression  in _DR1 */
+			*(beam_S)=(Cell) _DR1;
+			beam_S= beam_H;
+			 beam_H+=2;
+			beam_pc+=1;
 			execute_next();
 		     }
 
@@ -3113,42 +3039,42 @@ break_debug();
 break_debug();
 		        printf("unify_struct 0x%lX,%d \n",(unsigned long) arg1,(int) arg2);
 #endif
-		     if (_Mode==READ) {
+		     if (beam_Mode==READ) {
 			 register Cell *_DR, *_DR1;
-		        _DR=(Cell *) deref(*_S);
+		        _DR=(Cell *) deref(*beam_S);
 			if (isvar((Cell) _DR)) { 
-			           _DR1=(Cell *) absappl((Cell) _H); /* SaveExpression in _DR1*/
+			           _DR1=(Cell *) absappl((Cell)  beam_H); /* SaveExpression in _DR1*/
 				   *(_DR)=(Cell) _DR1;
-				   trail(ABX,(struct PERM_VAR *) _DR);
-				   _S++;
+				   trail(beam_ABX,(struct PERM_VAR *) _DR);
+				   beam_S++;
 				   push_mode_and_sreg();
-				   _Mode=WRITE;  /* goes into write mode */
-				   *(_H++)=arg1;
-				   _S=_H;
-				   _H+=arg2;
-				   pc+=3;
+				   beam_Mode=WRITE;  /* goes into write mode */
+				   *( beam_H++)=arg1;
+				   beam_S= beam_H;
+				    beam_H+=arg2;
+				   beam_pc+=3;
 				   execute_next();
 			} else {
 			          if (!isappl((Cell) _DR)) goto fail_head;
 				  _DR1=(Cell *) repappl((Cell) _DR);
 				  if (*_DR1!=arg1) goto fail_head;
-				  ++_S;
+				  ++beam_S;
 				  push_mode_and_sreg();
-				  _S=++_DR1;
+				  beam_S=++_DR1;
 				  _DR1=_DR; /* SaveExpression in _DR1*/
-				  pc+=3;
+				  beam_pc+=3;
 				  execute_next();
 			}
 		     } else {
 			register Cell *_DR1;
-			_DR1=(Cell *) absappl((Cell) _H); /* SaveExpression in _DR1*/
-			*(_S)=(Cell) _DR1;
-			_S++;
+			_DR1=(Cell *) absappl((Cell)  beam_H); /* SaveExpression in _DR1*/
+			*(beam_S)=(Cell) _DR1;
+			beam_S++;
 			push_mode_and_sreg();
-			*(_H++)=arg1;
-		        _S=_H;
-			_H+=arg2;
-			pc+=3;
+			*( beam_H++)=arg1;
+		        beam_S= beam_H;
+			 beam_H+=arg2;
+			beam_pc+=3;
 			execute_next();
 		     }
 
@@ -3157,35 +3083,35 @@ break_debug();
 break_debug();
 		        printf("unify_last_struct 0x%lX, %d \n",(unsigned long) arg1,(int) arg2);
 #endif
-		     if (_Mode==READ) {
+		     if (beam_Mode==READ) {
 			 register Cell *_DR, *_DR1;
-		        _DR=(Cell *) deref(*_S);
-			if (isvar((Cell) _DR)) { _Mode=WRITE;  /* goes into write mode */
-			           _DR1=(Cell *) absappl((Cell) _H); /* SaveExpression in _DR1*/
+		        _DR=(Cell *) deref(*beam_S);
+			if (isvar((Cell) _DR)) { beam_Mode=WRITE;  /* goes into write mode */
+			           _DR1=(Cell *) absappl((Cell)  beam_H); /* SaveExpression in _DR1*/
 				   *(_DR)=(Cell) _DR1;
-				   trail(ABX,(struct PERM_VAR *) _DR);
-				   *(_H++)=arg1;
-				   _S=_H;
-				   _H+=arg2;
-				   pc+=3;
+				   trail(beam_ABX,(struct PERM_VAR *) _DR);
+				   *( beam_H++)=arg1;
+				   beam_S= beam_H;
+				    beam_H+=arg2;
+				   beam_pc+=3;
 				   execute_next();
 			} else {
 			          if (!isappl((Cell) _DR)) goto fail_head;
 				  _DR1=(Cell *) repappl((Cell) _DR);
 				  if (*_DR1!=arg1) goto fail_head;
-				  _S=++_DR1;
+				  beam_S=++_DR1;
 				  _DR1=_DR; /* SaveExpression in _DR1*/
-				  pc+=3;
+				  beam_pc+=3;
 				  execute_next();
 			}
 		     } else {
 			 register Cell *_DR1;
-			_DR1=(Cell *) absappl((Cell) _H); /* SaveExpression in _DR1*/
-			*(_S)=(Cell) _DR1;
-			*(_H++)=arg1;
-		        _S=_H;
-			_H+=arg2; 
-			pc+=3;
+			_DR1=(Cell *) absappl((Cell)  beam_H); /* SaveExpression in _DR1*/
+			*(beam_S)=(Cell) _DR1;
+			*( beam_H++)=arg1;
+		        beam_S= beam_H;
+			 beam_H+=arg2; 
+			beam_pc+=3;
 			execute_next();
 		     }
 
@@ -3194,11 +3120,11 @@ break_debug();
 break_debug();
 		        printf("put_var_X X%d,X%d \n",(int) arg1,(int) arg2);
 #endif
-			_X[arg1]=(Cell) _H;
-			_X[arg2]=(Cell) _H;
-			*(_H)=(Cell) _H;
-			_H++;
-			pc+=3;
+			beam_X[arg1]=(Cell)  beam_H;
+			beam_X[arg2]=(Cell)  beam_H;
+			*(beam_H)=(Cell)  beam_H;
+			beam_H++;
+			beam_pc+=3;
 			execute_next();
 			
 
@@ -3208,8 +3134,8 @@ break_debug();
 break_debug();
 		        printf("put_val_X X%d,X%d \n",(int) arg1,(int) arg2);
 #endif
-			_X[arg1]=_X[arg2];
-			pc+=3;
+			beam_X[arg1]=beam_X[arg2];
+			beam_pc+=3;
 			execute_next();
 
 
@@ -3218,10 +3144,10 @@ break_debug();
 break_debug();
 		        printf("put_var_P X%d,Y%d \n",(int) arg1,(int) arg2);
 #endif
-			if (isvar(var_locals[arg2]) && !is_perm_var((Cell *) var_locals[arg2])) 
-			   var_locals[arg2]=(Cell) request_permVar(ABX);
-			_X[arg1]=var_locals[arg2];
-			pc+=3;
+			if (isvar(beam_varlocals[arg2]) && !is_perm_var((Cell *) beam_varlocals[arg2])) 
+			   beam_varlocals[arg2]=(Cell) request_permVar(beam_ABX);
+			beam_X[arg1]=beam_varlocals[arg2];
+			beam_pc+=3;
 			execute_next();
  
 		put_var_Y:
@@ -3232,10 +3158,10 @@ break_debug();
     
 #endif
                         { register Cell *a;
-			a = &(var_locals[arg2]);
+			a = &(beam_varlocals[arg2]);
 			*a=(Cell) a;
-			_X[arg1]=(Cell) a; }
-			pc+=3;
+			beam_X[arg1]=(Cell) a; }
+			beam_pc+=3;
 			execute_next();
 			*/
 		put_val_Y:
@@ -3243,8 +3169,8 @@ break_debug();
 break_debug();
 		        printf("put_val_Y X%d,Y%d \n",(int) arg1,(int) arg2);
 #endif
-			_X[arg1]=var_locals[arg2];
-			pc+=3;
+			beam_X[arg1]=beam_varlocals[arg2];
+			beam_pc+=3;
 			execute_next();
 
 		put_unsafe:
@@ -3252,8 +3178,8 @@ break_debug();
 break_debug();
 		        printf("put_unsafe X%d, Y%d \n",(int) arg1,(int) arg2);
 #endif
-			_X[arg1]=var_locals[arg2]; 
-			pc+=3;
+			beam_X[arg1]=beam_varlocals[arg2]; 
+			beam_pc+=3;
 			execute_next();
 
 
@@ -3262,8 +3188,8 @@ break_debug();
 break_debug();
 		        printf("put_atom X%d, 0x%lX \n",(int) arg1,(unsigned long) arg2);
 #endif
-			_X[arg1]=arg2;
-			pc+=3;
+			beam_X[arg1]=arg2;
+			beam_pc+=3;
 			execute_next();
 
 		put_list:
@@ -3273,11 +3199,11 @@ break_debug();
 #endif
 			{ register Cell *_DR1;
 
-                        _DR1=(Cell *) abspair((Cell) _H); /* SaveExpression in _DR1*/
-			_X[arg1]=(Cell) _DR1;
-			_S=_H;
-			_H+=2;
-			pc+=2;
+                        _DR1=(Cell *) abspair((Cell)  beam_H); /* SaveExpression in _DR1*/
+			beam_X[arg1]=(Cell) _DR1;
+			beam_S=beam_H;
+			beam_H+=2;
+			beam_pc+=2;
 			execute_next();
 			}
 
@@ -3288,12 +3214,12 @@ break_debug();
 #endif
 			{ register Cell _DR1;
 
-                        _DR1=absappl((Cell) _H); /* SaveExpression in _DR1*/
-			_X[arg1]=(Cell) _DR1;
-			*(_H++)=arg2;
-			_S=_H;
-			_H+=arg3;
-			pc+=4;
+                        _DR1=absappl((Cell) beam_H); /* SaveExpression in _DR1*/
+			beam_X[arg1]=(Cell) _DR1;
+			*(beam_H++)=arg2;
+			beam_S=beam_H;
+			beam_H+=arg3;
+			beam_pc+=4;
 			execute_next();
 			}
 
@@ -3302,10 +3228,10 @@ break_debug();
 break_debug();
 		        printf("write_var_X X%d \n",(int) arg1);
 #endif
-			*_S=(Cell) request_permVar(ABX);
-			_X[arg1]=(Cell) _S;
-			_S++;
-			pc+=2;
+			*beam_S=(Cell) request_permVar(beam_ABX);
+			beam_X[arg1]=(Cell) beam_S;
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 
 		write_var_Y:
@@ -3314,12 +3240,12 @@ break_debug();
 		        printf("write_var_Y Y%d \n",(int) arg1);
 #endif 
 			{ Cell *c;
-			c=&var_locals[arg1];
+			c=&beam_varlocals[arg1];
 			*c=(Cell) c;
-			*_S=(Cell) c;
+			*beam_S=(Cell) c;
 			}
-			_S++;
-			pc+=2;
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 
 
@@ -3328,11 +3254,11 @@ break_debug();
 break_debug();
 		        printf("write_var_P Y%d \n",(int) arg1);
 #endif 
-			if (isvar(var_locals[arg1]) && !is_perm_var((Cell *) var_locals[arg1])) 
-                           var_locals[arg1]=(Cell) request_permVar(ABX);
-			*(_S)=var_locals[arg1];
-			_S++;
-			pc+=2;
+			if (isvar(beam_varlocals[arg1]) && !is_perm_var((Cell *) beam_varlocals[arg1])) 
+                           beam_varlocals[arg1]=(Cell) request_permVar(beam_ABX);
+			*(beam_S)=beam_varlocals[arg1];
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 
 
@@ -3342,9 +3268,9 @@ break_debug();
 break_debug();
 		        printf("write_val_X X%d  (or write_local)\n",(int) arg1);
 #endif
-			*(_S)=_X[arg1];
-			_S++;
-			pc+=2;
+			*(beam_S)=beam_X[arg1];
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 
 	        write_local_Y:
@@ -3352,9 +3278,9 @@ break_debug();
 #if Debug
 		        printf("write_val_Y Y%d (or write_local)\n",(int) arg1);  
 #endif
-			*(_S)=var_locals[arg1];
-			_S++;
-			pc+=2;
+			*(beam_S)=beam_varlocals[arg1];
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 
 	        write_void:
@@ -3362,18 +3288,18 @@ break_debug();
 break_debug();
 		        printf("write_void \n");  
 #endif
-			*_S=(Cell) request_permVar(ABX);
-			_S++;
-			pc+=1;
+			*beam_S=(Cell) request_permVar(beam_ABX);
+			beam_S++;
+			beam_pc+=1;
 			execute_next();
 		write_atom:	
 #if Debug
 break_debug();
 		        printf("write_atom 0x%lX \n",(unsigned long) arg1);
 #endif
-			*(_S)=arg1;
-			_S++;
-			pc+=2;
+			*(beam_S)=arg1;
+			beam_S++;
+			beam_pc+=2;
 			execute_next();
 
 
@@ -3384,12 +3310,12 @@ break_debug();
 #endif
 			{ register Cell *_DR1;
 
-                        _DR1=(Cell *) abspair((Cell) _H); /* SaveExpression in _DR1*/
-			*(_S++)=(Cell) _DR1; 
+                        _DR1=(Cell *) abspair((Cell) beam_H); /* SaveExpression in _DR1*/
+			*(beam_S++)=(Cell) _DR1; 
 			push_mode_and_sreg();
-			_S=_H;
-			_H+=2;
-			pc+=1;
+			beam_S=beam_H;
+			beam_H+=2;
+			beam_pc+=1;
 			execute_next();
 			}
 
@@ -3400,11 +3326,11 @@ break_debug();
 #endif
 			{ register Cell *_DR1;
 
-                        _DR1=(Cell *) abspair((Cell) _H); /* SaveExpression in _DR1*/
-			*(_S)=(Cell) _DR1;
-			_S=_H;
-			_H+=2;
-			pc+=1;
+                        _DR1=(Cell *) abspair((Cell) beam_H); /* SaveExpression in _DR1*/
+			*(beam_S)=(Cell) _DR1;
+			beam_S=beam_H;
+			beam_H+=2;
+			beam_pc+=1;
 			execute_next();
 			}
 
@@ -3415,13 +3341,13 @@ break_debug();
 #endif
 			{ register Cell *_DR1;
 
-                        _DR1=(Cell *) absappl((Cell) _H); /* SaveExpression in _DR1*/
-			*(_S++)=(Cell) _DR1; 
+                        _DR1=(Cell *) absappl((Cell) beam_H); /* SaveExpression in _DR1*/
+			*(beam_S++)=(Cell) _DR1; 
 			push_mode_and_sreg();
-			*(_H++)=arg1;
-			_S=_H;
-			_H+=arg2;
-			pc+=3;
+			*(beam_H++)=arg1;
+			beam_S=beam_H;
+			beam_H+=arg2;
+			beam_pc+=3;
 			execute_next();
 			}
 
@@ -3431,43 +3357,43 @@ break_debug();
 		        printf("write_last_struct 0x%lX, %d \n",(unsigned long) arg1,(int) arg2);
 #endif
 			{ register Cell *_DR1;
-			_DR1=(Cell *) absappl((Cell) _H); /* SaveExpression in _DR1*/
-			*(_S)=(Cell) _DR1;  
-			*(_H++)=arg1;
-			_S=_H;
-			_H+=arg2;
-			pc+=3;
+			_DR1=(Cell *) absappl((Cell) beam_H); /* SaveExpression in _DR1*/
+			*(beam_S)=(Cell) _DR1;  
+			*(beam_H++)=arg1;
+			beam_S=beam_H;
+			beam_H+=arg2;
+			beam_pc+=3;
 			execute_next();
 			}
 
 		cut: 
 #if Debug
 break_debug();
-		        printf("cut na alternativa %pª de %d \n",ABX->nr_alternative, ABX->parent->nr_all_alternatives);
+		        printf("cut na alternativa %pª de %d \n",beam_ABX->nr_alternative, beam_ABX->parent->nr_all_alternatives);
 #endif
-			OBX=ABX->parent;
+			beam_OBX=beam_ABX->parent;
 			{
 			  struct status_or *new;
-			  if (!is_leftmost(ABX,nr_call)) {
+			  if (!is_leftmost(beam_ABX,beam_nr_call)) {
 #if Debug 
 			    printf("Force Waiting Before Cut\n");
 #endif
-			    nr_call->call=NULL;
-			    nr_call->state=WAITING_TO_BE_LEFTMOST;
-			    ABX->suspended=addto_suspensions_list(ABX,LEFTMOST_SUSPENSION);
-			    nr_call=nr_call->next;
+			    beam_nr_call->call=NULL;
+			    beam_nr_call->state=WAITING_TO_BE_LEFTMOST;
+			    beam_ABX->suspended=addto_suspensions_list(beam_ABX,LEFTMOST_SUSPENSION);
+			    beam_nr_call=beam_nr_call->next;
 			    goto next_call;
 			  }
-			    ABX->side_effects-=CUT;
-			    nr_call=remove_call_from_andbox(nr_call,ABX);
+			    beam_ABX->side_effects-=CUT;
+			    beam_nr_call=remove_call_from_andbox(beam_nr_call,beam_ABX);
 #if Debug
 			    printf("Executando o cut \n");
-			    if (ABX->externals!=NULL && OBX->nr_all_alternatives>1) printf("cut com externals (noisy) \n");
-			    if (ABX->externals!=NULL && OBX->nr_all_alternatives==1) printf("cut com externals (degenerate) \n");
+			    if (beam_ABX->externals!=NULL && beam_OBX->nr_all_alternatives>1) printf("cut com externals (noisy) \n");
+			    if (beam_ABX->externals!=NULL && beam_OBX->nr_all_alternatives==1) printf("cut com externals (degenerate) \n");
 #endif
-                            nr_alternative=ABX->nr_alternative;
-                            new=nr_alternative->next;
-			    nr_alternative->next=NULL;
+                            beam_nr_alternative=beam_ABX->nr_alternative;
+                            new=beam_nr_alternative->next;
+			    beam_nr_alternative->next=NULL;
 			    if (new!=NULL) {
   			       do{
 			          struct status_or *old;
@@ -3476,10 +3402,10 @@ break_debug();
 			          del_andbox_and_sons(old->alternative);
 			          if (new==NULL) remove_memory_arguments(old->args);
                                   free_memory((Cell *) old,STATUS_OR_SIZE);
-			          OBX->nr_all_alternatives--;
+			          beam_OBX->nr_all_alternatives--;
 			       } while (new!=NULL);
-			       if (OBX->nr_all_alternatives==1) {
-				  nr_alternative=OBX->alternatives;
+			       if (beam_OBX->nr_all_alternatives==1) {
+				  beam_nr_alternative=beam_OBX->alternatives;
 				  goto unique_alternative;
 			       }
 			    }
@@ -3489,47 +3415,47 @@ break_debug();
 		commit:
 #if Debug
 break_debug();
-		        printf("commit na alternativa %pª de %d \n",ABX->nr_alternative, ABX->parent->nr_all_alternatives);
+		        printf("commit na alternativa %pª de %d \n",beam_ABX->nr_alternative, beam_ABX->parent->nr_all_alternatives);
 #endif
-			OBX=ABX->parent;
+			beam_OBX=beam_ABX->parent;
 			{
 			  struct status_or *new;
-			  if (!is_leftmost(OBX->parent,OBX->nr_call)) {
+			  if (!is_leftmost(beam_OBX->parent,beam_OBX->nr_call)) {
 #if Debug
 			    printf("Force Waiting Before Commit\n");
 #endif
-			    nr_call->call=NULL;
-			    nr_call->state=WAITING_TO_BE_LEFTMOST_PARENT;
-			    ABX->suspended=addto_suspensions_list(ABX,LEFTMOST_SUSPENSION);
-			    nr_call=nr_call->next;
+			    beam_nr_call->call=NULL;
+			    beam_nr_call->state=WAITING_TO_BE_LEFTMOST_PARENT;
+			    beam_ABX->suspended=addto_suspensions_list(beam_ABX,LEFTMOST_SUSPENSION);
+			    beam_nr_call=beam_nr_call->next;
 			    goto next_call;
 			  }
-			    ABX->side_effects-=CUT;
-			    nr_call=remove_call_from_andbox(nr_call,ABX);
+			    beam_ABX->side_effects-=CUT;
+			    beam_nr_call=remove_call_from_andbox(beam_nr_call,beam_ABX);
 
 #if Debug
-			    printf("Executando o commit (apaga %d alternatives) \n",OBX->nr_all_alternatives-1);
-			    if (ABX->externals!=NULL && OBX->nr_all_alternatives>1) printf("commit com externals (noisy) \n");
-			    if (ABX->externals!=NULL && OBX->nr_all_alternatives==1) printf("commit com externals (degenerate) \n");
+			    printf("Executando o commit (apaga %d alternatives) \n",beam_OBX->nr_all_alternatives-1);
+			    if (beam_ABX->externals!=NULL && beam_OBX->nr_all_alternatives>1) printf("commit com externals (noisy) \n");
+			    if (beam_ABX->externals!=NULL && beam_OBX->nr_all_alternatives==1) printf("commit com externals (degenerate) \n");
 #endif
 
-			    if (OBX->nr_all_alternatives>1) {
-			      nr_alternative=ABX->nr_alternative;
-			      OBX->nr_all_alternatives=1;
-			      new=OBX->alternatives;
-			      OBX->alternatives=nr_alternative; /* fica a ser a unica alternativa */
+			    if (beam_OBX->nr_all_alternatives>1) {
+			      beam_nr_alternative=beam_ABX->nr_alternative;
+			      beam_OBX->nr_all_alternatives=1;
+			      new=beam_OBX->alternatives;
+			      beam_OBX->alternatives=beam_nr_alternative; /* fica a ser a unica alternativa */
 			      do {
 			          struct status_or *old;
 			          old=new;
 			          new=new->next;
-				  if (old!=nr_alternative) {
+				  if (old!=beam_nr_alternative) {
  			            del_andbox_and_sons(old->alternative);
 			            if (new==NULL) remove_memory_arguments(old->args);
                                     free_memory((Cell *) old,STATUS_OR_SIZE);
 				  }
 			      } while (new!=NULL);
-			      nr_alternative->next=NULL;
-			      nr_alternative->previous=NULL;
+			      beam_nr_alternative->next=NULL;
+			      beam_nr_alternative->previous=NULL;
 			    }
 			    goto unique_alternative;			  
 			}
@@ -3539,7 +3465,7 @@ break_debug();
 break_debug();
 		        printf("jump inst %ld\n",(long int) arg1);
 #endif
-		        pc=(Cell *) arg1; 
+		        beam_pc=(Cell *) arg1; 
 			execute_next();
 
 
@@ -3550,9 +3476,9 @@ break_debug();
 #endif
 		        abort_eam("save_exp no emulador ?????");
 			--S;
-			var_locals[arg1]=abspair(_S);
+			beam_varlocals[arg1]=abspair(beam_S);
 			++S;
-			pc+=2;
+			beam_pc+=2;
 			execute_next();
 
 	save_appl_Y:
@@ -3562,9 +3488,9 @@ break_debug();
 #endif
 		        abort_eam("save_exp no emulador ?????");
 			--S;
-			var_locals[arg1]=absappl(_S);
+			beam_varlocals[arg1]=absappl(beam_S);
 			++S;
-			pc+=2;
+			beam_pc+=2;
 			execute_next();
 
 
@@ -3575,9 +3501,9 @@ break_debug();
 #endif
 		        abort_eam("save_exp no emulador ?????");
 			--S;
-			_X[arg1]=absappl(_S);
+			beam_X[arg1]=absappl(beam_S);
 			++S;
-			pc+=2;
+			beam_pc+=2;
 			execute_next();
 
 	save_pair_X:
@@ -3587,9 +3513,9 @@ break_debug();
 #endif
 		        abort_eam("save_exp no emulador ?????");
 			--S;
-			_X[arg1]=abspair(_S);
+			beam_X[arg1]=abspair(beam_S);
 			++S;
-			pc+=2;
+			beam_pc+=2;
 			execute_next();
 
         p_atom:
@@ -3629,29 +3555,25 @@ break_debug();
 }
 
 /* The Inst_am instruction is used in eamamasm.c */
-#define Int long int 
 
-Int inst_am(int n);
-Int am_to_inst(Cell inst);
+Cell inst_am(int n);
+Cell am_to_inst(Cell inst);
 
-#if DIRECT_JUMP
-     extern Int TABLE[];
-#endif
-
-Int inst_am(int n)
+Cell inst_am(int n)
 {
 #if DIRECT_JUMP
-     return TABLE[n];
+     if (TABLE_OPS==NULL) eam_am(NULL);
+     return TABLE_OPS[n];
 #else
      return(n);
 #endif
 }
 
-Int am_to_inst(Cell inst)
+Cell am_to_inst(Cell inst)
 {
 #if DIRECT_JUMP
 int n;
-  for(n=0;n<=_p_functor; n++) if (TABLE[n]==inst) return (n);
+  for(n=0;n<=_p_functor; n++) if ((Cell) TABLE_OPS[n]==inst) return (n);
 #endif
 
 return(inst);
@@ -3690,20 +3612,20 @@ void dump_eam_state() {
   printf("State %d:\n",++nr_state);
 
   /* verify suspended boxes */
-  if (SU!=NULL) {
+  if (beam_su!=NULL) {
        struct SUSPENSIONS *s,*l;
-       l=SU->prev;
-       s=SU;
+       l=beam_su->prev;
+       s=beam_su;
        do {
 	 nr++;
 	 if (s->prev!=l) abort_eam("Invalid list of Suspended boxes\b");
 	 l=s;
 	 s=s->next;
-       } while(s!=SU);
+       } while(s!=beam_su);
   }
   printf("%d suspended boxes\n",nr);
 
-  dump_eam_andbox(top,NULL, NULL);
+  dump_eam_andbox(beam_top,NULL, NULL);
 }
 
 
@@ -3713,7 +3635,7 @@ void dump_eam_andbox(struct AND_BOX *a, struct OR_BOX *pai, struct status_or *pa
   if (a==NULL) return;
   if (pai!=a->parent) abort_eam("Pai diferente do parent\n");
   if (pai2!=a->nr_alternative) abort_eam("Status call Pai diferente do nralternative\n");
-  if (a==ABX) printf("->"); else printf("  ");
+  if (a==beam_ABX) printf("->"); else printf("  ");
   if (a->suspended) printf("*"); else printf(" ");
   printf("%s+ANDBOX with %d goals\n",SPACES(2*(a->level)),a->nr_all_calls); 
 
@@ -3736,7 +3658,7 @@ void dump_eam_orbox(struct OR_BOX *o, struct AND_BOX *pai, struct status_and *pa
   if (o==NULL) return;
   if (pai!=o->parent) abort_eam("Pai diferente do parent\n");
   if (pai2!=o->nr_call) abort_eam("Status call Pai diferente do nrcall\n");
-  if (o==OBX) printf("=> "); else printf("   ");
+  if (o==beam_OBX) printf("=> "); else printf("   ");
 
   printf("%s>ORBOX with %d alternatives\n",SPACES(2*(o->parent->level)+1),o->nr_all_alternatives); 
 

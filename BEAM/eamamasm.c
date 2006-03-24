@@ -27,7 +27,7 @@ Cell *Code_Start;
 Cell Area_Code[200000];
 Cell area_code=0;
 
-extern  Int inst_am(int n);
+extern  Cell inst_am(int n);
 void emit_inst(long int i);
 void emit_par(long int i);
 void emit_upar(Cell i);
@@ -477,6 +477,14 @@ void eam_pass(CInstr *ppc)
 		        if (pass==0) labels[ppc->new4] = get_addr(); 
 			break;
 
+		case run_op:
+/* se ficar vazio, retirar no eam_am.c o +5 das linhas pc=clause->code+5 no only_1_clause e no call */
+		        emit_inst(_try_me_op);
+			emit_par(0);
+			emit_par(0); 
+			emit_par(0);
+			emit_par(0); 
+		        break;
 
 		case only_1_clause_op:
 		        emit_inst(_only_1_clause_op);

@@ -306,7 +306,7 @@ return(0);
 
 void eam_instructions(struct Clauses *clause)
 {
-int calls=0,nr_call=0;
+int calls=0,nrcall=0;
 CInstr *b_code=NULL;
 
    inter_code=StartCode;
@@ -345,12 +345,12 @@ if (calls) {
 	   inter_code=inter_code->nextInst;
      }
      if (needs_box(inter_code->op)) {
-         insert_inst(inter_code,remove_box_op,nr_call,0);
+         insert_inst(inter_code,remove_box_op,nrcall,0);
          inter_code=inter_code->nextInst;
          b_code=inter_code;
-	 insert_inst(inter_code,label_op,nr_call,labelno);
+	 insert_inst(inter_code,label_op,nrcall,labelno);
 	 inter_code=inter_code->nextInst;
-	 insert_inst(inter_code,create_box_op,++nr_call,++labelno);
+	 insert_inst(inter_code,create_box_op,++nrcall,++labelno);
      }
      inter_code=inter_code->nextInst;
    }
@@ -475,6 +475,7 @@ int calls=0;
         emit_new(nop_op, 0,0);
         emit_new(nop_op, 0,0);
 
+	/*
         CodeStart->nextInst=NULL;
         ppc=CodeStart;
 
@@ -483,7 +484,7 @@ int calls=0;
 	Yap_emit(cut_op,Zero,Zero,&CGLOBS->cint);
 	Yap_emit(run_op,Zero,(unsigned long) (CGLOBS->cint).CurrentPred,&CGLOBS->cint);
 	Yap_emit(procceed_op, Zero, Zero, &CGLOBS->cint);
-
+	*/
 return;
 }
 

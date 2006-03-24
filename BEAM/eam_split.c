@@ -24,7 +24,7 @@ int nr_all_alternatives, nr_all_calls;
 struct status_and *nr_call,*new_call;
 struct status_or *nr_alternative, *alternatives, *new_alternatives;
 
-  nr_call_forking++;
+  beam_nr_call_forking++;
   op=a->parent;     /* or box parent */
   ap=op->parent;    /* and box parent */
   opp=ap->parent;   /* or box parent parent */
@@ -153,10 +153,10 @@ struct status_or *nr_alternative, *alternatives, *new_alternatives;
 
   /* Now we have to create new local vars and refresh the external vars to point to those */
 
-  if (MEM_Going==1) { 
-         VAR_TRAIL=((Cell *) START_ADDR_BOXES)-1;
-  } else VAR_TRAIL=(Cell *) START_ADDR_HEAP;
-  VAR_TRAIL_NR=0;
+  if (beam_MemGoing==1) { 
+         beam_VAR_TRAIL=((Cell *) beam_START_ADDR_BOXES)-1;
+  } else beam_VAR_TRAIL=(Cell *) beam_START_ADDR_HEAP;
+  beam_VAR_TRAIL_NR=0;
   replicate_local_variables(new_andbox);
 }
 
@@ -243,7 +243,7 @@ struct EXTERNAL_VAR *old_externals,*externals;
 
 if (a==NULL) return;
 
-  OLD_VAR_TRAIL_NR=VAR_TRAIL_NR; 
+  OLD_VAR_TRAIL_NR=beam_VAR_TRAIL_NR; 
   l=a->perms;
   new_list=NULL;
   while(l) {
@@ -256,10 +256,10 @@ if (a==NULL) return;
 	new_list=new;
 
         c=&l->value;
-        VAR_TRAIL[VAR_TRAIL_NR]=(Cell) c;
-	VAR_TRAIL_NR-=MEM_Going;
-        VAR_TRAIL[VAR_TRAIL_NR]=(Cell) *c;
-	VAR_TRAIL_NR-=MEM_Going;
+        beam_VAR_TRAIL[beam_VAR_TRAIL_NR]=(Cell) c;
+	beam_VAR_TRAIL_NR-=beam_MemGoing;
+        beam_VAR_TRAIL[beam_VAR_TRAIL_NR]=(Cell) *c;
+	beam_VAR_TRAIL_NR-=beam_MemGoing;
 
         if ((Cell *)*c==c) {
 	     new->value=(Cell) &new->value;
@@ -279,10 +279,10 @@ if (a==NULL) return;
 
   /* At this point all old local vars are pointing to the new local vars */
 
-  if (a==ABX) {   /* Nao preciso de criar um novo vector das externals */
+  if (a==beam_ABX) {   /* Nao preciso de criar um novo vector das externals */
     old_externals=a->externals;
     while(old_externals) {
-      if (old_externals->var->home->level>=ABX->parent->parent->level) {
+      if (old_externals->var->home->level>=beam_ABX->parent->parent->level) {
 	  old_externals->value=copy_structures((Cell ) old_externals->value);
 	  old_externals->var=(struct PERM_VAR *) old_externals->var->value;
           if (isvar(old_externals->var)) {
@@ -309,7 +309,7 @@ if (a==NULL) return;
       e->next=externals;
       externals=e;
 
-      if (old_externals->var->home->level>=ABX->parent->parent->level) {
+      if (old_externals->var->home->level>=beam_ABX->parent->parent->level) {
 	e->value=copy_structures((Cell ) old_externals->value);
 	e->var=(struct PERM_VAR *) old_externals->var->value;
       } else {
@@ -359,10 +359,10 @@ if (a==NULL) return;
 	    /* primeiro actualizo as variaveis */
 	    for(i=0;i<nr;i++) {
 	      c=&oldvars[i];
-              VAR_TRAIL[VAR_TRAIL_NR]=(Cell) c;
- 	      VAR_TRAIL_NR-=MEM_Going;
-              VAR_TRAIL[VAR_TRAIL_NR]=(Cell) *c;
-	      VAR_TRAIL_NR-=MEM_Going;	    
+              beam_VAR_TRAIL[beam_VAR_TRAIL_NR]=(Cell) c;
+ 	      beam_VAR_TRAIL_NR-=beam_MemGoing;
+              beam_VAR_TRAIL[beam_VAR_TRAIL_NR]=(Cell) *c;
+	      beam_VAR_TRAIL_NR-=beam_MemGoing;	    
 
               if ((Cell *)*c==c) {
 	        newvars[i]=(Cell) &newvars[i];
@@ -418,21 +418,21 @@ if (a==NULL) return;
    }
   }
 
-  if (MEM_Going==1) {
-     for(i=OLD_VAR_TRAIL_NR;i>VAR_TRAIL_NR;i-=2) {
+  if (beam_MemGoing==1) {
+     for(i=OLD_VAR_TRAIL_NR;i>beam_VAR_TRAIL_NR;i-=2) {
         Cell *c;
-        c=(Cell *) VAR_TRAIL[i];
-        *c=(Cell) VAR_TRAIL[i-1];
+        c=(Cell *) beam_VAR_TRAIL[i];
+        *c=(Cell) beam_VAR_TRAIL[i-1];
      }
   } else {
-     for(i=OLD_VAR_TRAIL_NR;i<VAR_TRAIL_NR;i+=2) {
+     for(i=OLD_VAR_TRAIL_NR;i<beam_VAR_TRAIL_NR;i+=2) {
         Cell *c;
-        c=(Cell *) VAR_TRAIL[i];
-        *c=(Cell) VAR_TRAIL[i+1];
+        c=(Cell *) beam_VAR_TRAIL[i];
+        *c=(Cell) beam_VAR_TRAIL[i+1];
      }
   }
 
-  VAR_TRAIL_NR=OLD_VAR_TRAIL_NR;
+  beam_VAR_TRAIL_NR=OLD_VAR_TRAIL_NR;
 }
 
 
@@ -451,15 +451,15 @@ Cell OldC,OldH;
     return(OldC);
   }
 
-  OldH=(Cell) _H;
-  NewH=_H;
+  OldH=(Cell) beam_H;
+  NewH=beam_H;
   if (isappl(OldC)) {
     int i,arity;
 
     NewC=(Cell *) repappl(OldC);
     arity = ((int) ArityOfFunctor((Functor) *NewC));
     *NewH++=*NewC++;
-    _H+=arity+1;
+    beam_H+=arity+1;
     for(i=0;i<arity ;i++) {
        *NewH=copy_structures((Cell) NewC);
        NewH++;
@@ -469,7 +469,7 @@ Cell OldC,OldH;
   } 
   /* else if (ispair(c)) { */
      NewC=(Cell *) reppair(OldC);
-     _H+=2;
+     beam_H+=2;
      *NewH=copy_structures((Cell) NewC);
      NewC++; 
      NewH++;

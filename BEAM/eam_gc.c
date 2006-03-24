@@ -57,8 +57,8 @@ Cell OldC,OldH;
  
   OldC=deref((Cell) c);
   /*
-  if (MEM_Going==1 && ((unsigned long) OldC) <START_ADDR_HEAP+MEM_H/2) return(OldC); 
-  if (MEM_Going==-1 && ((unsigned long) OldC)>=START_ADDR_HEAP+MEM_H/2 && ((unsigned long) OldC) <START_ADDR_BOXES) return(OldC); 
+  if (beam_MemGoing==1 && ((unsigned long) OldC) <beam_START_ADDR_HEAP+beam_MEM_H/2) return(OldC); 
+  if (beam_MemGoing==-1 && ((unsigned long) OldC)>=beam_START_ADDR_HEAP+beam_MEM_H/2 && ((unsigned long) OldC) <beam_START_ADDR_BOXES) return(OldC); 
   */
   if (isvar(OldC)) {
     return(OldC);
@@ -67,15 +67,15 @@ Cell OldC,OldH;
     return(OldC);
   }
 
-  OldH=(Cell) _H;
-  NewH=_H;
+  OldH=(Cell) beam_H;
+  NewH=beam_H;
   if (isappl(OldC)) {
     int i,arity;
 
     NewC=(Cell *) repappl(OldC);
     arity = ((int) ArityOfFunctor((Functor) *NewC));
     *NewH++=*NewC++;
-    _H+=arity+1;
+    beam_H+=arity+1;
     for(i=0;i<arity ;i++) {
        *NewH=move_structures((Cell) NewC);
        NewH++;
@@ -85,7 +85,7 @@ Cell OldC,OldH;
   } 
   /* else if (ispair(c)) { */
      NewC=(Cell *) reppair(OldC);
-     _H+=2;
+     beam_H+=2;
      *NewH=move_structures((Cell) NewC);
      NewC++; 
      NewH++;
@@ -101,85 +101,91 @@ void garbage_collector()
 struct AND_BOX  *new_top;
 #endif
 
- if (Mem_FULL & 2) nr_call_gc_heap++; else nr_call_gc_boxed++; 
+ if (beam_Mem_FULL & 2) beam_nr_gc_heap++; else beam_nr_gc_boxed++; 
 #if Debug || Debug_GC 
- printf("Entering Garbage Collector for the %dth time (Reason=%d)\n",nr_call_gc_heap+nr_call_gc_boxed,Mem_FULL); 
+ printf("Entering Garbage Collector for the %dth time (Reason=%d)\n",beam_nr_gc_heap+beam_nr_gc_boxed,beam_Mem_FULL); 
 #endif
 #if Debug_Dump_State & 2
  dump_eam_state();
  printf("--------------------------------------------------------------------\n");
 #endif
 
- Mem_FULL=0;
+ beam_Mem_FULL=0;
 
 #if Memory_Stat
-    if (MEM_Going==1) {
-       Memory_STAT[nr_call_gc_heap+nr_call_gc_boxed][1]=(unsigned long) _H-START_ADDR_HEAP;
-       Memory_STAT[nr_call_gc_heap+nr_call_gc_boxed][2]=(unsigned long) Next_Free-START_ADDR_BOXES;
+    if (beam_MemGoing==1) {
+       beam_Memory_STAT[beam_nr_gc_heap+beam_nr_gc_boxed][1]=(unsigned long) beam_H-beam_START_ADDR_HEAP;
+       beam_Memory_STAT[beam_nr_gc_heap+beam_nr_gc_boxed][2]=(unsigned long) beam_NextFree-beam_START_ADDR_BOXES;
     } else {
-       Memory_STAT[nr_call_gc_heap+nr_call_gc_boxed][1]=(unsigned long) _H-START_ADDR_HEAP-MEM_H/2;
-       Memory_STAT[nr_call_gc_heap+nr_call_gc_boxed][2]=END_BOX- ((unsigned long) Next_Free);
+       beam_Memory_STAT[beam_nr_gc_heap+beam_nr_gc_boxed][1]=(unsigned long) beam_H-beam_START_ADDR_HEAP-MEM_H/2;
+       beam_Memory_STAT[beam_nr_gc_heap+beam_nr_gc_boxed][2]=beam_END_BOX- ((unsigned long) beam_NextFree);
     }
     if (GARBAGE_COLLECTOR==1)
-      Memory_STAT[nr_call_gc_heap+nr_call_gc_boxed][2]=END_BOX- ((unsigned long) Next_Free);
+      beam_Memory_STAT[beam_nr_gc_heap+beam_nr_gc_boxed][2]=beam_END_BOX- ((unsigned long) beam_NextFree);
 #endif
 
 #if GARBAGE_COLLECTOR==1 
-   if (MEM_Going==1) {
-      if (_H < (Cell *) (START_ADDR_HEAP+MEM_H/2)) _H=(Cell *) (START_ADDR_HEAP+MEM_H/2); else _H++;
-      MEM_Going=-1;
+   if (beam_MemGoing==1) {
+      if (beam_H < (Cell *) (beam_START_ADDR_HEAP+MEM_H/2)) beam_H=(Cell *) (beam_START_ADDR_HEAP+MEM_H/2); else beam_H++;
+      beam_MemGoing=-1;
+      beam_sp=(Cell *) beam_START_ADDR_HEAP+MEM_H/2;
+      beam_sp--;
    } else {
-      _H=(Cell *) START_ADDR_HEAP;
-      MEM_Going=1;
+      beam_H=(Cell *) beam_START_ADDR_HEAP;
+      beam_MemGoing=1;
+      beam_sp=(Cell *) beam_END_H;
+      beam_sp--;
    }
-   refresh_andbox(top);
+   refresh_andbox(beam_top);
 
  #if Clear_MEMORY 
-   if (MEM_Going==-1) { 
-     memset(START_ADDR_HEAP,0,MEM_H/2);
+   if (beam_MemGoing==-1) { 
+     memset(beam_START_ADDR_HEAP,0,MEM_H/2);
    } else {
-     memset(START_ADDR_HEAP+MEM_H/2,0,MEM_H/2);
+     memset(beam_START_ADDR_HEAP+MEM_H/2,0,MEM_H/2);
    }
  #endif
 
 #else
-   memset(Index_Free,0,INDEX_SIZE*POINTER_SIZE);
-   if (MEM_Going==1) {
-      if (_H < (Cell *) (START_ADDR_HEAP+MEM_H/2)) _H=(Cell *) (START_ADDR_HEAP+MEM_H/2); else _H++;
-      Next_Free=(Cell *)END_BOX;
-      MEM_Going=-1;
+   memset(beam_IndexFree,0,INDEX_SIZE*POINTER_SIZE);
+   if (beam_MemGoing==1) {
+      if (beam_H < (Cell *) (beam_START_ADDR_HEAP+MEM_H/2)) beam_H=(Cell *) (beam_START_ADDR_HEAP+MEM_H/2); else beam_H++;
+      beam_NextFree=(Cell *) beam_END_BOX;
+      beam_MemGoing=-1;
+      beam_sp=(Cell *) beam_START_ADDR_HEAP+MEM_H/2; beam_sp-=2;
    } else {
-      if (_H>=(Cell *) START_ADDR_BOXES) Next_Free=_H+1; else Next_Free=(Cell *) START_ADDR_BOXES;
-      _H=(Cell *) START_ADDR_HEAP;
-      MEM_Going=1;
+      if (beam_H>=(Cell *) beam_START_ADDR_BOXES) beam_NextFree=beam_H+1; else beam_NextFree=(Cell *)  beam_START_ADDR_BOXES;
+      beam_H=(Cell *)  beam_START_ADDR_HEAP;
+      beam_MemGoing=1;
+      beam_sp=(Cell *) beam_END_H; beam_sp-=2;
    }
-   Mem_FULL=0;
+   beam_Mem_FULL=0;
 
-   SU=NULL;
-   new_top=move_andbox(top,NULL,NULL);
-   top=new_top;
+   beam_su=NULL;
+   new_top=move_andbox(beam_top,NULL,NULL);
+   beam_top=new_top;
 
  #if Clear_MEMORY 
-   if (MEM_Going==-1) { 
-     memset((void *) START_ADDR_HEAP,0,MEM_H/2);
-     memset((void *) START_ADDR_BOXES,0,MEM_BOXES/2);
+   if (beam_MemGoing==-1) { 
+     memset((void *) beam_START_ADDR_HEAP,0,MEM_H/2);
+     memset((void *) beam_START_ADDR_BOXES,0,MEM_BOXES/2);
    } else {
-     memset((void *) START_ADDR_HEAP+MEM_H/2,0,MEM_H/2);
-     memset((void *) START_ADDR_BOXES+MEM_BOXES/2,0,MEM_BOXES/2);
+     memset((void *) beam_START_ADDR_HEAP+MEM_H/2,0,MEM_H/2);
+     memset((void *) beam_START_ADDR_BOXES+MEM_BOXES/2,0,MEM_BOXES/2);
    }
  #endif
 #endif
 
 #if Memory_Stat
-    if (MEM_Going==1) {
-       Memory_STAT[nr_call_gc_heap+nr_call_gc_boxed][3]=(unsigned long) _H-START_ADDR_HEAP;
-       Memory_STAT[nr_call_gc_heap+nr_call_gc_boxed][4]=(unsigned long) Next_Free-START_ADDR_BOXES;
+    if (beam_MemGoing==1) {
+       beam_Memory_STAT[beam_nr_gc_heap+beam_nr_gc_boxed][3]=(unsigned long) beam_H- beam_START_ADDR_HEAP;
+       beam_Memory_STAT[beam_nr_gc_heap+beam_nr_gc_boxed][4]=(unsigned long) beam_NextFree- beam_START_ADDR_BOXES;
     } else {
-       Memory_STAT[nr_call_gc_heap+nr_call_gc_boxed][3]=(unsigned long) _H-START_ADDR_HEAP-MEM_H/2;
-       Memory_STAT[nr_call_gc_heap+nr_call_gc_boxed][4]=END_BOX- ((unsigned long) Next_Free);
+       beam_Memory_STAT[beam_nr_gc_heap+beam_nr_gc_boxed][3]=(unsigned long) beam_H- beam_START_ADDR_HEAP-MEM_H/2;
+       beam_Memory_STAT[beam_nr_gc_heap+beam_nr_gc_boxed][4]= beam_END_BOX- ((unsigned long) beam_NextFree);
     }
     if (GARBAGE_COLLECTOR==1)
-      Memory_STAT[nr_call_gc_heap+nr_call_gc_boxed][4]=END_BOX- ((unsigned long) Next_Free);
+      beam_Memory_STAT[beam_nr_gc_heap+beam_nr_gc_boxed][4]= beam_END_BOX- ((unsigned long) beam_NextFree);
 #endif
 
 #if Debug_Dump_State & 2
@@ -202,11 +208,11 @@ Cell *args,*newargs;
 
    if (o==NULL) return(NULL);
 #if !Fast_go
-   if ((Cell *) o<(Cell *) START_ADDR_BOXES || (Cell *) o>(Cell *) END_BOX) return (NULL);
+   if ((Cell *) o<(Cell *) beam_START_ADDR_BOXES || (Cell *) o>(Cell *)  beam_END_BOX) return (NULL);
 #endif   
    new_orbox=(struct OR_BOX *) request_memory(ORBOX_SIZE);
-   if (Mem_FULL) abort_eam("Sem Memoria para GC\n");
-   if (OBX==o) OBX=new_orbox;
+   if (beam_Mem_FULL) abort_eam("Sem Memoria para GC\n");
+   if (beam_OBX==o) beam_OBX=new_orbox;
    new_orbox->parent=parent;
    new_orbox->nr_call=nr_call;
    new_orbox->nr_all_alternatives=o->nr_all_alternatives;
@@ -214,9 +220,9 @@ Cell *args,*newargs;
    old=o->alternatives;
    while(old!=NULL) {
      new=(struct status_or *) request_memory(STATUS_OR_SIZE);
-     if (Mem_FULL) abort_eam("Sem Memoria para GC\n");
+     if (beam_Mem_FULL) abort_eam("Sem Memoria para GC\n");
 
-     if (nr_alternative==old) nr_alternative=new;
+     if (beam_nr_alternative==old) beam_nr_alternative=new;
      new->args=old->args; 
      new->code=old->code;
      new->state=old->state;
@@ -244,7 +250,7 @@ Cell *args,*newargs;
 	 printf("Request args=%d \n",(int) args[0]);
 #endif
 	 newargs=(Cell *)request_memory((args[0])*sizeof(Cell));
-         if (Mem_FULL) abort_eam("Sem Memoria para GC\n");
+         if (beam_Mem_FULL) abort_eam("Sem Memoria para GC\n");
 	 newargs[0]=args[0];
 	 for(y=1;y<args[0];y++) newargs[y]=move_structures(args[y]);
      }
@@ -263,11 +269,11 @@ struct PERM_VAR *l;
 struct EXTERNAL_VAR *old_externals,*externals;
 
   if (a==NULL) return(NULL);
-  OLD_VAR_TRAIL_NR=VAR_TRAIL_NR;
+  OLD_VAR_TRAIL_NR=beam_VAR_TRAIL_NR;
 
   new_andbox=(struct AND_BOX *) request_memory(ANDBOX_SIZE); 
-  if (Mem_FULL) abort_eam("Sem Memoria para GC\n");
-  if (ABX==a) ABX=new_andbox;
+  if (beam_Mem_FULL) abort_eam("Sem Memoria para GC\n");
+  if (beam_ABX==a) beam_ABX=new_andbox;
   new_andbox->parent=parent;
   new_andbox->nr_alternative=alt;
   new_andbox->level=a->level;
@@ -309,7 +315,7 @@ struct EXTERNAL_VAR *old_externals,*externals;
       old_externals=old_externals->next;
    }
   new_andbox->externals=externals;
-  if (Mem_FULL) abort_eam("Sem Memoria para GC\n");
+  if (beam_Mem_FULL) abort_eam("Sem Memoria para GC\n");
 
 
  /* CUIDADO: Preciso agora de duplicar os vectores das variaveis locais */     
@@ -338,7 +344,7 @@ struct EXTERNAL_VAR *old_externals,*externals;
 	    nr=oldvars[-1];
        	    newvars=request_memory_locals(nr);
 
-	    if (var_locals==oldvars) var_locals=newvars;
+	    if (beam_varlocals==oldvars) beam_varlocals=newvars;
 
 	    calls->locals=newvars;
 	    /* primeiro actualizo as variaveis */
@@ -383,11 +389,11 @@ struct EXTERNAL_VAR *old_externals,*externals;
     calls=a->calls;
     while(calls!=NULL){ 
        calls_new=(struct status_and *) request_memory(STATUS_AND_SIZE);
-       if (Mem_FULL) abort_eam("Sem Memoria para GC\n");
+       if (beam_Mem_FULL) abort_eam("Sem Memoria para GC\n");
        calls_new->code=calls->code;
        calls_new->state=calls->state;     
        calls_new->locals=calls->locals;
-       if (nr_call==calls) nr_call=calls_new;
+       if (beam_nr_call==calls) beam_nr_call=calls_new;
 
        calls_new->call=move_orbox(calls->call,new_andbox,calls_new);  
 

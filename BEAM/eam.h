@@ -21,7 +21,6 @@
  128 -> show EAM abstrac machine code
 */
 
-
 #define Variavel  1
 #define Lista     2
 #define Estrutura 4
@@ -191,4 +190,106 @@ struct AND_BOX {
 
 #define CUT         32  /* Greater than 32 always cut */
 
+
+/**********************************************************************************/
+
+struct EAM_TEMP {
+  
+
+
+  struct EAM_TEMP *previous;
+  struct EAM_TEMP *next;
+};
+
+struct EAM_Global {
+  Cell *pc;
+  Cell *_H;
+  Cell *_S;
+  short _Mode;            /* read or write mode                     */
+  short ES;               /* goal shoud do Eager Split yes or no ?  */ 
+  short MemGoing;        /* Direction the that stacks use to grow  */
+  Cell *varlocals;        /* local vars to the working AND-BOX      */
+  struct AND_BOX  *ABX;   /* working AND-BOX                        */ 
+  struct OR_BOX   *OBX;   /* working OR-BOX                         */
+  struct SUSPENSIONS *su; /* list with suspended work               */
+  struct AND_BOX  *top;
+
+  struct status_and *USE_SAME_ANDBOX;  /* when only 1 alternative   */
+  struct status_or *nr_alternative;    /* working alternative       */
+  struct status_and *nr_call;          /* working goal              */
+
+  Cell *VAR_TRAIL;        
+  int VAR_TRAIL_NR;
+  int Mem_FULL;           /*  if mem_full, then perform GC          */
+  int nr_call_forking;    /* number of splits already performed     */
+  unsigned long START_ADDR_HEAP, START_ADDR_BOXES, END_BOX, END_H;
+  unsigned int nr_gc_heap;
+  unsigned int nr_gc_boxed; 
+  Cell **IndexFree;
+  Cell *NextFree;
+  Cell *sp;
+  struct PERM_VAR *NextVar;
+
+#if Memory_Stat
+   unsigned long TOTAL_MEM, MEM_REUSED, TOTAL_TEMPS,TEMPS_REUSED, TOTAL_PERMS, PERMS_REUSED;
+   unsigned long Memory_STAT[5000][5];
+#endif
+};
+
+
+#define beam_X   XREGS      /* use the same X-Regs as YAP */
+
+#define beam_pc (eamGlobal->pc)
+#define beam_H (eamGlobal->_H)
+#define beam_S (eamGlobal->_S)
+#define beam_Mode (eamGlobal->_Mode)
+#define beam_ES (eamGlobal->ES)
+#define beam_MemGoing (eamGlobal->MemGoing)
+#define beam_varlocals (eamGlobal->varlocals)
+#define beam_ABX (eamGlobal->ABX)
+#define beam_OBX (eamGlobal->OBX)
+#define beam_su (eamGlobal->su)
+#define beam_top (eamGlobal->top)
+#define beam_USE_SAME_ANDBOX (eamGlobal->USE_SAME_ANDBOX)
+#define beam_nr_alternative (eamGlobal->nr_alternative)
+#define beam_nr_call (eamGlobal->nr_call)
+#define beam_VAR_TRAIL (eamGlobal->VAR_TRAIL)
+#define beam_VAR_TRAIL_NR (eamGlobal->VAR_TRAIL_NR)
+#define beam_Mem_FULL (eamGlobal->Mem_FULL)
+#define beam_nr_call_forking (eamGlobal->nr_call_forking)
+#define beam_START_ADDR_HEAP (eamGlobal->START_ADDR_HEAP)
+#define beam_START_ADDR_BOXES (eamGlobal->START_ADDR_BOXES)
+#define beam_END_BOX (eamGlobal->END_BOX)
+#define beam_END_H (eamGlobal->END_H)
+#define beam_nr_gc_heap (eamGlobal->nr_gc_heap)
+#define beam_nr_gc_boxed (eamGlobal->nr_gc_boxed)
+#define beam_IndexFree (eamGlobal->IndexFree)
+#define beam_NextFree (eamGlobal->NextFree)
+#define beam_sp (eamGlobal->sp)
+#define beam_NextVar (eamGlobal->NextVar)
+#if Memory_Stat
+ #define beam_TOTAL_MEM (eamGlobal->TOTAL_MEM)
+ #define beam_MEM_REUSED (eamGlobal->MEM_REUSED)
+ #define beam_TOTAL_TEMPS (eamGlobal->TOTAL_TEMPS)
+ #define beam_TEMPS_REUSED (eamGlobal->TEMPS_REUSED)
+ #define beam_TOTAL_PERMS (eamGlobal->TOTAL_PERMS)
+ #define beam_PERMS_REUSED (eamGlobal->PERMS_REUSED)
+ #define beam_Memory_STAT (eamGlobal->Memory_STAT)
+#endif
+
+#define arg1  *(beam_pc+1)
+#define arg2  *(beam_pc+2)
+#define arg3  *(beam_pc+3)
+#define arg4  *(beam_pc+4)
+
+#define CELL_SIZE  (sizeof(Cell))
+#define POINTER_SIZE (sizeof(Cell *))
+#define ANDBOX_SIZE (sizeof(struct AND_BOX))
+#define ORBOX_SIZE (sizeof(struct OR_BOX))
+#define PERM_VAR_SIZE (sizeof(struct PERM_VAR))
+#define EXTERNAL_VAR_SIZE (sizeof(struct EXTERNAL_VAR))
+#define SUSPENSIONS_SIZE (sizeof(struct SUSPENSIONS))
+#define SUSPENSIONS_VAR_SIZE (sizeof(struct SUSPENSIONS_VAR))
+#define STATUS_AND_SIZE (sizeof(struct status_and))
+#define STATUS_OR_SIZE (sizeof(struct status_or))
 
