@@ -4,9 +4,9 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2006/2/20,
 		comment is 'Class hierarchy predicates.']).
 
 
@@ -96,7 +96,10 @@
 
 	leaves(Leaves) :-
 		self(Self),
-		findall(Leaf, leaf(Self, Leaf), Leaves).
+		(	setof(Leaf, leaf(Self, Leaf), Leaves) ->
+			true
+		;	Leaves = []
+		).
 
 
 	leaf_instance(Leaf) :-
@@ -115,7 +118,10 @@
 
 	leaf_instances(Leaves) :-
 		self(Self),
-		findall(Leaf, leaf_instance(Self, Leaf), Leaves).
+		(	setof(Leaf, leaf_instance(Self, Leaf), Leaves) ->
+			true
+		;	Leaves = []
+		).
 
 
 	leaf_class(Leaf) :-
@@ -132,7 +138,10 @@
 
 	leaf_classes(Leaves) :-
 		self(Self),
-		findall(Leaf, leaf_class(Self, Leaf), Leaves).
+		(	setof(Leaf, leaf_class(Self, Leaf), Leaves) ->
+			true
+		;	Leaves = []
+		).
 
 
 	descendant(Descendant) :-
@@ -154,7 +163,10 @@
 
 	descendants(Descendants) :-
 		self(Self),
-		findall(Descendant, descendant(Self, Descendant), Descendants).
+		(	setof(Descendant, descendant(Self, Descendant), Descendants) ->
+			true
+		;	Descendants = []
+		).
 
 
 	descendant_class(Descendant) :-
@@ -172,7 +184,10 @@
 
 	descendant_classes(Descendants) :-
 		self(Self),
-		findall(Descendant, descendant_class(Self, Descendant), Descendants).
+		(	setof(Descendant, descendant_class(Self, Descendant), Descendants) ->
+			true
+		;	Descendants = []
+		).
 
 
 	descendant_instance(Descendant) :-
@@ -190,7 +205,10 @@
 
 	descendant_instances(Descendants) :-
 		self(Self),
-		findall(Descendant, descendant_instance(Self, Descendant), Descendants).
+		(	setof(Descendant, descendant_instance(Self, Descendant), Descendants) ->
+			true
+		;	Descendants = []
+		).
 
 
 :- end_category.

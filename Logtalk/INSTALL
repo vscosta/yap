@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.27.0
+Release 2.27.1
 
 Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -108,34 +108,7 @@ variable for all users and also sets the LOGTALKUSER environment variable
 for the administrator user running the script.
 
 
-3. CREATING NEW PROLOG TOP-LEVELS FOR AUTOMATIC LOADING OF LOGTALK
-
-Most Prolog compilers allows the user to define an initialization file that 
-is automatically consulted at startup. This initialization file may contain 
-directives for loading other files, such as the Logtalk configuration file 
-and the Logtalk compiler. The "$LOGTALKHOME/scripts" sub-directory contains 
-several scripts (named "make_*lgt.*") for automating the creation of these 
-initialization files for some Prolog compilers. In addition, be sure to read 
-the "configs/NOTES" file notes on the Prolog compilers that you intend to use.
-There are also "makeall_lgt.*" scripts that try to run all the individual
-"make_*lgt.*" scripts:
-
->> POSIX systems:
-
-	% cd $LOGTALKHOME/scripts
-	% sudo ./makeall_lgt.sh
-
->> Windows:
-
-	C:\> cd %LOGTALKHOME%\scripts
-	C:\> cscript makeall_lgt.js
-
-This assumes that your favorite Prolog compilers are supported by the 
-"make_*lgt.*" scripts. If that is not the case, don't worry: just follow 
-the steps described in the "QUICK_START" file.
-
-
-4. COPYING THE LOGTALK USER-MODIFIABLE FILES TO USERS HOME DIRECTORIES
+3. COPYING THE LOGTALK USER-MODIFIABLE FILES TO USERS HOME DIRECTORIES
 
 If you installed Logtalk on your home directory, then skip this step if you 
 have set both Logtalk environment variables (LOGTALKHOME and LOGTALKUSER) to 
@@ -160,6 +133,33 @@ permissions for the user running the script. When used with one of the
 Prolog compilers for which an integration script is provided on the "scripts"
 directory, this setup as the advantage of allowing each end-user to 
 independently customize default compilation options and library paths.
+
+
+4. CREATING NEW PROLOG TOP-LEVELS FOR AUTOMATIC LOADING OF LOGTALK
+
+Most Prolog compilers allows the user to define an initialization file that 
+is automatically consulted at startup. This initialization file may contain 
+directives for loading other files, such as the Logtalk configuration file 
+and the Logtalk compiler. The "$LOGTALKHOME/scripts" sub-directory contains 
+several scripts (named "make_*lgt.*") for automating the creation of these 
+initialization files for some Prolog compilers. In addition, be sure to read 
+the "configs/NOTES" file notes on the Prolog compilers that you intend to use.
+There are also "makeall_lgt.*" scripts that try to run all the individual
+"make_*lgt.*" scripts:
+
+>> POSIX systems:
+
+	% cd $LOGTALKHOME/scripts
+	% sudo ./makeall_lgt.sh
+
+>> Windows:
+
+	C:\> cd %LOGTALKHOME%\scripts
+	C:\> cscript makeall_lgt.js
+
+This assumes that your favorite Prolog compilers are supported by the 
+"make_*lgt.*" scripts. If that is not the case, don't worry: just follow 
+the steps described in the "QUICK_START" file.
 
 
 5. SETTING LIBRARY PATHS

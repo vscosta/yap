@@ -18,8 +18,8 @@
 	<string>6.0</string>
 	<key>TCMModeExtensions</key>
 	<array>
-	   <string>config</string>
 	   <string>lgt</string>
+	   <string>config</string>
 	</array>
 </dict>
 </plist>

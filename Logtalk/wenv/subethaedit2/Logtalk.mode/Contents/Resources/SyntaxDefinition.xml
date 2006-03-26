@@ -40,10 +40,9 @@
 			</keywords>
 
 			<keywords id="Entity Relations" color="#881280" useforautocomplete="yes">
-				<regex>\b(instantiates)\(</regex>
 				<regex>\b(specializes)\(</regex>
 				<regex>\b(extends)\(</regex>
-				<regex>\b(imp(orts|lements))\(</regex>
+				<regex>\b(i(mp(orts|lements)|nstantiates))\(</regex>
 			</keywords>
 
 			<keywords id="Message Sending Operators" color="#0000ff" useforautocomplete="no">
@@ -82,6 +81,7 @@
 				<regex>\b(before)\(</regex>
 				<regex>\b(after)\(</regex>
 				<regex>\b(expand_term)\(</regex>
+				<regex>\b(term_expansion)\(</regex>
 				<regex>\b(phrase)\(</regex>
 			</keywords>
 

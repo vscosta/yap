@@ -1,0 +1,24 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.27.1
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% start by loading the example:
+
+| ?- logtalk_load(proxies(loader)).
+...
+
+
+% print the area and the perimeter for all circle proxies:
+
+| ?- forall(circle(Id, R, C), (write(Id), write(' '), circle(R, C)::print)).
+
+#1 area: 4.75291, perimeter: 7.72831, color: blue
+#2 area: 43.2412, perimeter: 23.3106, color: yellow
+#3 area: 0.477836, perimeter: 2.45044, color: green
+#4 area: 103.508, perimeter: 36.0655, color: black
+#5 area: 217.468, perimeter: 52.2761, color: cyan
+yes

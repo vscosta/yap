@@ -4,9 +4,9 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2006/2/20,
 		comment is 'Prototype hierarchy predicates.']).
 
 
@@ -38,6 +38,16 @@
 		findall(Ancestor, ancestor(Self, Ancestor), Ancestors).
 
 
+	extension(Prototype) :-
+		self(Self),
+		extends_object(Prototype, Self).
+
+
+	extensions(Prototypes) :-
+		self(Self),
+		findall(Prototype, extends_object(Prototype, Self), Prototypes).
+
+
 	leaf(Leaf) :-
 		self(Self),
 		leaf(Self, Leaf).
@@ -54,7 +64,10 @@
 
 	leaves(Leaves) :-
 		self(Self),
-		findall(Leaf, leaf(Self, Leaf), Leaves).
+		(	setof(Leaf, leaf(Self, Leaf), Leaves) ->
+			true
+		;	Leaves = []
+		).
 
 
 	descendant(Descendant) :-
@@ -76,7 +89,10 @@
 
 	descendants(Descendants) :-
 		self(Self),
-		findall(Descendant, descendant(Self, Descendant), Descendants).
+		(	setof(Descendant, descendant(Self, Descendant), Descendants) ->
+			true
+		;	Descendants = []
+		).
 
 
 :- end_category.

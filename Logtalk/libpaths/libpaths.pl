@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.27.0
+%  Release 2.27.1
 %
 %  Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 %
@@ -47,6 +47,7 @@
 	 assertz(logtalk_library_path(points, examples('points/'))),
 	 assertz(logtalk_library_path(polygons, examples('polygons/'))),
 	 assertz(logtalk_library_path(profiling, examples('profiling/'))),
+	 assertz(logtalk_library_path(proxies, examples('proxies/'))),
 	 assertz(logtalk_library_path(puzzles, examples('puzzles/'))),
 	 assertz(logtalk_library_path(reflection, examples('reflection/'))),
 	 assertz(logtalk_library_path(relations, examples('relations/'))),

@@ -17,7 +17,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.27.0
+%  Release 2.27.1
 %
 %  Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 %

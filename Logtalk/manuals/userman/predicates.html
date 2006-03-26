@@ -493,7 +493,7 @@ Logtalk defines a set of built-in object predicates or methods to access message
 <h3>Execution context methods<a id="context"></a></h3>
 
 <p>
-Logtalk defines four built-in methods to access an object execution context. These methods are compiled in-line and can be freely used without worrying about performance penalties. When called from inside a category, these methods refer to the execution context of the object importing the category.
+Logtalk defines four built-in methods to access an object execution context. These methods (with the possible exception of <code>parameter/2</code>) are translated to a single unification performed at compile time with a clause head context argument. Therefore, they can be freely used without worrying about performance penalties. When called from inside a category, these methods refer to the execution context of the object importing the category.
 </p>
 <p>
 To find the object that received the message under execution we may use the <a title="Consult reference manual" href="../refman/methods/self1.html"><code>self/1</code></a> method. We may also retrieve the object that has sent the message under execution using the <a title="Consult reference manual" href="../refman/methods/sender1.html"><code>sender/1</code></a> method.
@@ -533,6 +533,16 @@ to answer a message received by descendant
 that was sent by user
 yes</pre>
 <p>
+Note that the goals <code>self(Self)</code>, <code>sender(Sender)</code>, and <code>this(This)</code>, being translated to unifications with the clause head context arguments at compile time, are effectively removed from the clause body. This implies that a clause such as:
+</p>
+<pre>predicate(Arg) :-
+    self(Self),
+    atom(Arg),
+    ... .</pre>
+<p>
+is compiled with the goal <code>atom(Arg)</code> as the first condition on the clause body. As such, the use of these context execution methods do not interfere with the optimizations that some Prolog compilers perform when the first clause body condition is a call to a built-in type-test predicate or a comparison operator. 
+</p>
+<p>
 For parametric objects, the method <a title="Consult reference manual" href="../refman/methods/parameter2.html"><code>parameter/2</code></a> enables us to retrieve current parameter values (see the session on <a href="objects.html#parametric">parametric objects</a> for a detailed description). For example:
 </p>
 <pre>:- object(block(_Color)).
@@ -552,7 +562,7 @@ After compiling and loading these two objects, we can try the following goal:
 Color parameter value is blue
 yes</pre>
 <p>
-The method <code>parameter/2</code> is only compiled in-line when used inside objects; its use inside categories implies a call to the built-in Prolog predicate <code>arg/3</code>. Nevertheless, note that calls to <code>parameter/2</code> from inside categories are inherently problematic: a category may be implemented by several objects, both parametric (with different number of parameters) and non-parametric. Care must be taken to ensure that a parametric object importing such a category match the interpretation of its parameters used in the category.
+The method <code>parameter/2</code> is only translated to a compile time unification when used inside objects with its first argument instantiated at compile time. When the first argument is not known at compile time, or when the method is used inside categories, its call implies a call to the built-in Prolog predicate <code>arg/3</code>. Nevertheless, note that calls to <code>parameter/2</code> from inside categories are inherently problematic: a category may be implemented by several objects, both parametric (with different number of parameters) and non-parametric. Care must be taken to ensure that a parametric object importing such a category match the interpretation of its parameters used in the category.
 </p>
 
 <h3>Database methods<a id="database"></a></h3>
@@ -672,7 +682,7 @@ Currently, there is no clean workaround for calling non-standard, Prolog built-i
 	<div class="copyright">Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a></div>
 	<div class="footnote">
 		<span class="validators"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
-		<span class="date">Last updated on: January 21, 2006</span>
+		<span class="date">Last updated on: February 11, 2006</span>
 	</div>
 </div>
 

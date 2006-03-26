@@ -170,6 +170,9 @@ Both solutions are equally efficient because the runtime cost of the methods <co
 <p>
 When storing a parametric object in its own source file, the convention is to name the file after the object, with the object arity appended. For instance, when defining an object named <code>sort(Type)</code>, we may save it in a <code>sort_1.lgt</code> text file. This way it is easy to avoid file name clashes when saving Logtalk entities that have the same functor but different arity.
 </p>
+<p>
+Compound terms with the same functor and (usually) the same number of arguments as a parametric object identifier may act as <em>proxies</em> to a parametric object. Proxies may be stored on the database as Prolog facts and be used to represent different instantiations of a parametric object parameters.
+</p>
 
 <h2>Finding defined objects<a id="finding"></a></h2>
 

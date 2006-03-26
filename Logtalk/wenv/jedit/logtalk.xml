@@ -246,6 +246,7 @@
 			<FUNCTION>after</FUNCTION>
 
 			<FUNCTION>expand_term</FUNCTION>
+			<FUNCTION>term_expansion</FUNCTION>
 			<FUNCTION>phrase</FUNCTION>
 
 			<!-- Control constructs -->

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.27.0
+Release 2.27.1
 
 Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,45 @@ Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.27.1 - March 27, 2006
+
+	Allow calls to the built-in method parameter/2 with the first argument 
+	not instantiated at compile time. Detect and report as a compilation 
+	error parameter/2 indexes that are out of range.
+
+	Optimized generation of predicate definition and declaration linking 
+	clauses, resulting in small lookup performance improvements and in space 
+	savings for the Prolog code generated when compiling Logtalk entities.
+
+	Many minor code and documentation improvements to the Logtalk compiler.
+
+	Added an object version of the tokenizer described in the Michael 
+	Covington's paper "Tokenization using DCG Rules" to the "dcgs" example.
+
+	Improved integration code for Qu-Prolog and Logtalk ("configs/qphook.ql").
+
+	Improved library hierarchy methods that return lists of objects in order 
+	to avoid duplicated elements (library objects "proto_hierarchy.lgt" and 
+	"class_hierarchy.lgt"). Added new methods extension/1 and extensions/1 to 
+	the library object "proto_hierarchy.lgt".
+
+	Documented the concept of "parametric object proxy". Added a new example, 
+	"proxies", illustrating the use of parametric object proxies.
+
+	Added support for code completion and for listing entity names on the 
+	symbol pop-up menu to the MacOS X TextMate text editor.
+
+	Updated the "cplgtdirs.*" scripts to also create an alias/shortcut to the 
+	"wenv" directory.
+
+	Renamed the alternative compilation and documentation directory names on 
+	all config files to be compatible across operating-systems. Removed unused
+	predicate '$lgt_reverse'/2 from all config files.
+
+	Updated HTML manuals "print.css" CSS file for compatibility with the 
+	latest version of CSSToXSLFO.
 
 
 2.27.0 - February 9, 2006

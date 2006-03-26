@@ -4,9 +4,9 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2006/3/7,
 		comment is 'Date predicates.']).
 
 
@@ -15,11 +15,10 @@
 
 
 	leap_year(Year) :-
-		(0 is mod(Year, 4),
-		 \+ 0 is mod(Year, 100)
-		 ;
-		 0 is mod(Year, 400)),
-		!.
+		(	0 =:= mod(Year, 4), 0 =\= mod(Year, 100) ->
+			true
+		;	0 =:= mod(Year, 400)
+		).
 
 
 	name_of_day(1, 'Sunday', 'Sun').

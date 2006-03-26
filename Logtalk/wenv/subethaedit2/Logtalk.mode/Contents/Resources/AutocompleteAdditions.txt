@@ -67,8 +67,11 @@ predicate_property(, )
 
 before(, , )
 after(, , )
+
 phrase(, )
 phrase(, , )
+term_expansion(, )
+expand_term(, )
 
 unify_with_occurs_check(, )
 

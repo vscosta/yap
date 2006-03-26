@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.27.0
+Release 2.27.1
 
 Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -67,6 +67,15 @@ yes
 | ?- shell::parse("pwd; cd ..; ls -a", L).
 
 L = [pwd,'cd ..','ls -a'] ? 
+
+yes
+
+
+% convert a string to a list of tokens (words, numbers, ponctuation):
+
+| ?- tokenizer::tokens(" We owe $1,048,576.24 to Agent 007 for Version 3.14159! ", Tokens).
+
+Tokens = [we,owe,$,1048576.24,to,agent,7,for,version,3.14159,!] ? 
 
 yes
 
