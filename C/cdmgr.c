@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-03-24 16:26:26 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-03-29 16:00:10 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.182  2006/03/24 16:26:26  vsc
+* code review
+*
 * Revision 1.181  2006/03/22 20:07:28  vsc
 * take better care of zombies
 *
@@ -5378,7 +5381,11 @@ p_choicepoint_info(void)
     switch (opnum) {
 #ifdef TABLING
     case _table_load_answer:
+#ifdef LOW_LEVEL_TRACER
       pe = LOAD_CP(cptr)->cp_pred_entry;
+#else
+      pe = UndefCode;
+#endif
       t = MkVarTerm();
       break;
     case _table_try_answer:
@@ -5387,11 +5394,20 @@ p_choicepoint_info(void)
     case _table_retry:
     case _table_trust:
     case _table_completion:
+#ifdef LOW_LEVEL_TRACER
       pe = GEN_CP(cptr)->cp_pred_entry;
       t = BuildActivePred(pe, (CELL *)(GEN_CP(B) + 1));
+#else
+      pe = UndefCode;
+      t = MkVarTerm();
+#endif
       break;
     case _table_answer_resolution:
+#ifdef LOW_LEVEL_TRACER
       pe = CONS_CP(cptr)->cp_pred_entry;
+#else
+      pe = UndefCode;
+#endif
       t = MkVarTerm();
       break;
     case _trie_retry_null:
