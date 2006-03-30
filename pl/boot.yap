@@ -15,28 +15,6 @@
 *									 *
 *************************************************************************/
 
-tomic_concat(X,Y,At) :-
-	(
-	  nonvar(X),  nonvar(Y)
-	->
-	  atomic_concat([X,Y],At)
-	;
-	  atom(At) ->
-	  atom_length(At,Len),
-	  '$atom_contact_split'(At,0,Len,X,Y)
-	;
-	  number(At) ->
-	  number_codes(At,Codes),
-	  '$append'(X0,Y0,Codes),
-	  name(X,X0),
-	  name(Y,Y0)
-	;
-	  var(At) ->
-	  '$do_error'(instantiation_error,atomic_concat(X,Y,At))
-	;
-	  '$do_error'(type_error(atomic,At),atomic_concant(X,Y,At))
-	).
-
 % This one should come first so that disjunctions and long distance
 % cuts are compiled right with co-routining.
 %
