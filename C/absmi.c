@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-03-24 17:13:41 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2006-03-30 01:11:09 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.197  2006/03/24 17:13:41  rslopes
+* New update to BEAM engine.
+* BEAM now uses YAP Indexing (JITI)
+*
 * Revision 1.196  2006/03/03 23:10:47  vsc
 * fix MacOSX interrupt handling
 * fix using Yap files as Yap scripts.
@@ -6865,7 +6869,7 @@ Yap_absmi(int inp)
       BOp(call_cpred, sla);
      
 
-      if (!(PREG->u.sla.sla_u.p->PredFlags & ( SafePredFlag|HiddenPredFlag))) {
+      if (!(PREG->u.sla.sla_u.p->PredFlags & (SafePredFlag|HiddenPredFlag))) {
 	CACHE_Y_AS_ENV(YREG);
 	check_stack(NoStackCall, H);
 	ENDCACHE_Y_AS_ENV();

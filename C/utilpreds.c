@@ -766,6 +766,9 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
     /* do or pt2 are unbound  */
     *ptd0 = TermNil;
     /* leave an empty slot to fill in later */
+    if (H+1024 > ASP) {
+      goto global_overflow;
+    }
     H[1] = AbsPair(H+2);
     H += 2;
     H[-2] = (CELL)ptd0;
@@ -802,79 +805,110 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
   } else {
     return(inp);
   }
+ global_overflow:
+  clean_tr(TR0);
+  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
+  H = InitialH;
+  return 0L;
+  
 }
  
 static Int 
 p_variables_in_term(void)	/* variables in term t		 */
 {
-  Term t = Deref(ARG1);
   Term out;
 
-  if (IsVarTerm(t)) {
-    out = AbsPair(H);
-    H += 2;
-    RESET_VARIABLE(H-2);
-    RESET_VARIABLE(H-1);
-    Yap_unify((CELL)(H-2),ARG1);
-    Yap_unify((CELL)(H-1),ARG2);
-  }  else if (IsPrimitiveTerm(t)) 
-    out = ARG2;
-  else if (IsPairTerm(t)) {
-    out = vars_in_complex_term(RepPair(t)-1,
-			       RepPair(t)+1, ARG2);
-  }
-  else {
-    Functor f = FunctorOfTerm(t);
-    out = vars_in_complex_term(RepAppl(t),
-			       RepAppl(t)+
-			       ArityOfFunctor(f), ARG2);
-  }
+  do {
+    Term t = Deref(ARG1);
+    if (IsVarTerm(t)) {
+      out = AbsPair(H);
+      H += 2;
+      RESET_VARIABLE(H-2);
+      RESET_VARIABLE(H-1);
+      Yap_unify((CELL)(H-2),ARG1);
+      Yap_unify((CELL)(H-1),ARG2);
+    }  else if (IsPrimitiveTerm(t)) 
+      out = ARG2;
+    else if (IsPairTerm(t)) {
+      out = vars_in_complex_term(RepPair(t)-1,
+				 RepPair(t)+1, ARG2);
+    }
+    else {
+      Functor f = FunctorOfTerm(t);
+      out = vars_in_complex_term(RepAppl(t),
+				 RepAppl(t)+
+				 ArityOfFunctor(f), ARG2);
+    }
+    if (out == 0L) {
+      if (!Yap_gc(3, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_variables");
+	return FALSE;
+      }
+    }
+  } while (out == 0L);
   return(Yap_unify(ARG3,out));
 }
 
 static Int 
 p_term_variables(void)	/* variables in term t		 */
 {
-  Term t = Deref(ARG1);
   Term out;
 
-  if (IsVarTerm(t)) {
-    return Yap_unify(MkPairTerm(t,TermNil), ARG2);
-  }  else if (IsPrimitiveTerm(t)) {
-    return Yap_unify(TermNil, ARG2);
-  } else if (IsPairTerm(t)) {
-    out = vars_in_complex_term(RepPair(t)-1,
-			       RepPair(t)+1, TermNil);
-  }
-  else {
-    Functor f = FunctorOfTerm(t);
-    out = vars_in_complex_term(RepAppl(t),
-			       RepAppl(t)+
-			       ArityOfFunctor(f), TermNil);
-  }
+  do {
+    Term t = Deref(ARG1);
+    if (IsVarTerm(t)) {
+      return Yap_unify(MkPairTerm(t,TermNil), ARG2);
+    }  else if (IsPrimitiveTerm(t)) {
+      return Yap_unify(TermNil, ARG2);
+    } else if (IsPairTerm(t)) {
+      out = vars_in_complex_term(RepPair(t)-1,
+				 RepPair(t)+1, TermNil);
+    }
+    else {
+      Functor f = FunctorOfTerm(t);
+      out = vars_in_complex_term(RepAppl(t),
+				 RepAppl(t)+
+				 ArityOfFunctor(f), TermNil);
+    }
+    if (out == 0L) {
+      if (!Yap_gc(2, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_variables");
+	return FALSE;
+      }
+    }
+  } while (out == 0L);
   return Yap_unify(ARG2,out);
 }
 
 static Int 
 p_term_variables3(void)	/* variables in term t		 */
 {
-  Term t = Deref(ARG1);
   Term out;
 
-  if (IsVarTerm(t)) {
-    return Yap_unify(MkPairTerm(t,ARG3), ARG2);
-  }  else if (IsPrimitiveTerm(t)) {
-    return Yap_unify(ARG2, ARG3);
-  } else if (IsPairTerm(t)) {
-    out = vars_in_complex_term(RepPair(t)-1,
-			       RepPair(t)+1, ARG3);
-  }
-  else {
-    Functor f = FunctorOfTerm(t);
-    out = vars_in_complex_term(RepAppl(t),
-			       RepAppl(t)+
-			       ArityOfFunctor(f), ARG3);
-  }
+  do {
+    Term t = Deref(ARG1);
+    if (IsVarTerm(t)) {
+      return Yap_unify(MkPairTerm(t,ARG3), ARG2);
+    }  else if (IsPrimitiveTerm(t)) {
+      return Yap_unify(ARG2, ARG3);
+    } else if (IsPairTerm(t)) {
+      out = vars_in_complex_term(RepPair(t)-1,
+				 RepPair(t)+1, ARG3);
+    }
+    else {
+      Functor f = FunctorOfTerm(t);
+      out = vars_in_complex_term(RepAppl(t),
+				 RepAppl(t)+
+				 ArityOfFunctor(f), ARG3);
+    }
+    if (out == 0L) {
+      if (!Yap_gc(3, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_variables");
+	return FALSE;
+      }
+    }
+  } while (out == 0L);
+
   return Yap_unify(ARG2,out);
 }
 
@@ -1942,11 +1976,11 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("copy_term", 2, p_copy_term, 0);
   Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
   Yap_InitCPred("ground", 1, p_ground, SafePredFlag);
-  Yap_InitCPred("$variables_in_term", 3, p_variables_in_term, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$variables_in_term", 3, p_variables_in_term, HiddenPredFlag);
   Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, SafePredFlag|HiddenPredFlag);
   CurrentModule = TERMS_MODULE;
-  Yap_InitCPred("term_variables", 2, p_term_variables, SafePredFlag);
-  Yap_InitCPred("term_variables", 3, p_term_variables3, SafePredFlag);
+  Yap_InitCPred("term_variables", 2, p_term_variables, 0);
+  Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
   Yap_InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
   Yap_InitCPred("term_hash", 4, GvNTermHash, SafePredFlag);
   Yap_InitCPred("variant", 2, p_variant, 0);

@@ -424,7 +424,7 @@ push_registers(Int num_regs, yamop *nextop)
       for (i=0; i < arity; i++) {
 	Term tlive  = sal->ValueOfVE.lterms[i].tlive;
 	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
-	    TrailTerm(TR++) = tlive;
+	  TrailTerm(TR++) = tlive;
 	}
       }
     }
@@ -1746,10 +1746,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 #ifdef TABLING
   dep_fr_ptr depfr = LOCAL_top_dep_fr;
 #endif /* TABLING */
-
-#ifdef EASY_SHUNTING
-  HB = H;
-#endif
 
 #ifdef TABLING
   if (depfr != NULL && gc_B >= DepFr_cons_cp(depfr)) {
@@ -3407,6 +3403,8 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 #ifdef EASY_SHUNTING
   sTR0 = (tr_fr_ptr)db_vec;
   sTR = (tr_fr_ptr)db_vec;
+  /* make sure we set HB before we do any variable shunting!!! */
+  HB = H;
 #else
   cont_top0 = (cont *)db_vec;
 #endif
@@ -3806,12 +3804,6 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   Int    effectiveness = 0;
   int    gc_on = FALSE;
 
-#if defined(YAPOR) || defined(THREADS)
-  if (NOfThreads != 1) {
-    Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform garbage collection: more than a worker/thread running");
-    return(FALSE);
-  }
-#endif
   if (Yap_GetValue(AtomGc) != TermNil)
     gc_on = TRUE;
   if (IsIntegerTerm(Tgc_margin = Yap_GetValue(AtomGcMargin)) &&

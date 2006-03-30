@@ -38,6 +38,8 @@ TracePutchar(int sno, int ch)
 static void
 send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
 {
+  UInt omax_depth, omax_list, omax_write_args;
+
   if (name == NULL) {
 #ifdef  YAPOR
     fprintf(Yap_stderr, "(%d)%s", worker_id, start);
@@ -59,7 +61,16 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
       /* Yap_Portray_delays = TRUE; */
 #endif
 #endif
-      Yap_plwrite(args[i], TracePutchar, Handle_vars_f);
+  omax_depth = max_depth;
+  omax_list = max_list;
+  omax_write_args = max_write_args;
+  max_depth = 5;
+  max_list = 5;
+  max_write_args = 5;
+  Yap_plwrite(args[i], TracePutchar, Handle_vars_f);
+  max_depth = omax_depth;
+  max_list = omax_list;
+  max_write_args = omax_write_args;
 #if DEBUG
 #if COROUTINING
       Yap_Portray_delays = FALSE;
@@ -126,8 +137,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 
   sc = Yap_heap_regs;
   vsc_count++;
-  if (vsc_count < 183400)
-    return;
 #ifdef COMMENTED
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;

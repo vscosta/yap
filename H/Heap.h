@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.93 2006-03-22 20:07:28 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.94 2006-03-30 01:11:10 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -792,10 +792,10 @@ struct various_codes *Yap_heap_regs;
 #define  AttsMutableList          Yap_heap_regs->wl[worker_id].atts_mutable_list
 #endif
 /* support for generations with backtracking */
+#define  GcCalls                  Yap_heap_regs->wl[worker_id].gc_calls
 #define  GcGeneration             Yap_heap_regs->wl[worker_id].gc_generation
 #define  GcPhase                  Yap_heap_regs->wl[worker_id].gc_phase
 #define  GcCurrentPhase           Yap_heap_regs->wl[worker_id].gc_current_phase
-#define  GcCalls                  Yap_heap_regs->wl[worker_id].gc_calls
 #define  TotGcTime                Yap_heap_regs->wl[worker_id].tot_gc_time
 #define  TotGcRecovered           Yap_heap_regs->wl[worker_id].tot_gc_recovered
 #define  total_marked             Yap_heap_regs->wl[worker_id].tot_marked
