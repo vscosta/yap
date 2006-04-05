@@ -547,3 +547,17 @@ source_module(Mod) :-
 '$preprocess_body_before_mod_change'(G,M,_,M:G).
 
 
+%
+% get rid of a module and of all predicates included in the module.
+%
+abolish_module(Mod) :-
+	'$current_predicate'(Mod,Na,Ar),
+	abolish(Mod:Na/Ar),
+	fail.
+abolish_module(Mod) :-
+	recorded('$module','$module'(_,Mod,_),R), erase(R),
+	fail.
+abolish_module(Mod) :-
+	recorded('$import','$import'(Mod,_,_,_),R), erase(R),
+	fail.
+abolish_module(_).

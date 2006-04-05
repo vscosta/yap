@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2006-02-24 14:26:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-05 00:16:55 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.75  2006/02/24 14:26:37  vsc
+* fix informational_messages
+*
 * Revision 1.74  2006/01/26 19:20:00  vsc
 * syntax error was giving the offset
 *
@@ -194,7 +197,7 @@ print_message(Level, Mss) :-
 '$print_message'(error,Throw) :-
 	format(user_error,'% YAP: no handler for error ~w~n', [Throw]).
 '$print_message'(informational,_) :-
-	 get_value('$verbose',off).				  
+	 get_value('$verbose',off), !.				  
 '$print_message'(informational,M) :-
 	'$do_informational_message'(M).
 '$print_message'(warning,M) :-
@@ -616,7 +619,7 @@ print_message(Level, Mss) :-
 '$output_error_message'(existence_error(library,F), W) :-
 	format(user_error,'% EXISTENCE ERROR- ~w could not open library ~w~n',
 	[W,F]).
-'$output_error_message'(existence_error(queue,F), W) :-
+'$output_error_message'(existence_error(message_queue,F), W) :-
 	format(user_error,'% EXISTENCE ERROR- ~w could not open message queue ~w~n',
 	[W,F]).
 '$output_error_message'(existence_error(procedure,P), context(Call,Parent)) :-
@@ -682,8 +685,8 @@ print_message(Level, Mss) :-
 '$output_error_message'(permission_error(create,mutex,P), Where) :-
 	format(user_error,'% PERMISSION ERROR- ~w: cannot create mutex ~a~n',
 	[Where,P]).
-'$output_error_message'(permission_error(create,queue,P), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot create queue ~a~n',
+'$output_error_message'(permission_error(create,message_queue,P), Where) :-
+	format(user_error,'% PERMISSION ERROR- ~w: cannot create message queue ~a~n',
 	[Where,P]).
 '$output_error_message'(permission_error(create,operator,P), Where) :-
 	format(user_error,'% PERMISSION ERROR- ~w: cannot create operator ~w~n',

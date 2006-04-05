@@ -283,7 +283,7 @@ message_queue_create(Cond) :-
 message_queue_create(Name) :-
 	atom(Name),
 	recorded('$thread_alias',[_,Name],_), !,
-	'$do_error'(permission_error(create,queue,Name),message_queue_create(Name)).
+	'$do_error'(permission_error(create,message_queue,Name),message_queue_create(Name)).
 message_queue_create(Name) :-
 	atom(Name), !,
 	'$create_mq'(Name).
@@ -315,7 +315,7 @@ message_queue_destroy(Queue) :-
 	'$clean_mqueue'(CName).
 message_queue_destroy(Queue) :-
 	atom(Queue), !,
-	'$do_error'(existence_error(queue,Queue),message_queue_destroy(Queue)).
+	'$do_error'(existence_error(message_queue,Queue),message_queue_destroy(Queue)).
 message_queue_destroy(Name) :-
 	'$do_error'(type_error(atom,Name),message_queue_destroy(Name)).
 
@@ -329,11 +329,13 @@ thread_send_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_), !,
 	thread_send_message(Id, Term).
 thread_send_message(Queue, Term) :-
-	recorded('$queue',q(Queue,Mutex,Cond,Key),_),
+	recorded('$queue',q(Queue,Mutex,Cond,Key),_), !,
 	mutex_lock(Mutex),
 	recordz(Key,Term,_),
 	'$cond_broadcast'(Cond),
 	mutex_unlock(Mutex).
+thread_send_message(Queue, Term) :-
+	'$do_error'(existence_error(message_queue,Queue),thread_send_message(Queue,Term)).
 
 thread_get_message(Term) :-
 	'$thread_self'(Id),
@@ -343,9 +345,12 @@ thread_get_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_), !,
 	thread_get_message(Id, Term).
 thread_get_message(Queue, Term) :-
-	recorded('$queue',q(Queue,Mutex,Cond,Key),_),
+	recorded('$queue',q(Queue,Mutex,Cond,Key),_), !,
 	mutex_lock(Mutex),
 	'$thread_get_message_loop'(Key, Term, Mutex, Cond).
+thread_get_message(Queue, Term) :-
+	'$do_error'(existence_error(message_queue,Queue),thread_get_message(Queue,Term)).
+
 
 '$thread_get_message_loop'(Key, Term, Mutex, _) :-
 	recorded(Key,Term,R), !,
@@ -360,9 +365,12 @@ thread_peek_message(Term) :-
 	thread_peek_message(Id, Term).
 
 thread_peek_message(Queue, Term) :-
-	recorded('$queue',q(Queue,Mutex,_,Key),_),
+	recorded('$queue',q(Queue,Mutex,_,Key),_), !,
 	mutex_lock(Mutex),
 	'$thread_peek_message2'(Key, Term, Mutex).
+thread_peek_message(Queue, Term) :-
+	'$do_error'(existence_error(message_queue,Queue),thread_peek_message(Queue,Term)).
+
 
 '$thread_peek_message2'(Key, Term, Mutex) :-
 	recorded(Key,Term,_), !,

@@ -5746,7 +5746,7 @@ or stored parameters. Current parameters are:
 Number of times a procedure was called.
 
 @item retries
-Number of times a call to the procedure was backtracked to and retried.
+ Number of times a call to the procedure was backtracked to and retried.
 @end table
 
 @item profile_reset
@@ -10011,6 +10011,51 @@ Rocha. To experiment with tabling use @code{-DTABLING} to
 You can use the directive @code{table} to force calls for the argument
 predicate to be tabled. Tabling information is stored in a trie, as for
 XSB-Prolog.
+
+The following predicates may be useful to control tabled execution:
+@table @code
+@item is_tabled(+@var{PredIndicator})
+@findex is_tabled/1
+@snindex is_tabled/1
+@cnindex is_tabled/1
+Succeeds if the predicate @var{PredIndicator}, of the form
+@var{Name/Arity}, is a tabled predicate.
+
+@item tabling_mode(+@var{PredIndicator},+@var{Options})
+@findex is_tabled/1
+@snindex is_tabled/1
+@cnindex is_tabled/1
+Sets tabling mode options for the list or predicate given by
+@var{PredIndicator}. The list of @var{Options} includes:
+@table @code
+@item @code{batched}: use batched scheduling for this predicate (default).
+@item @code{local}: use local scheduling for this predicate.
+@item @code{exec_answers}: use complete tries as code (default).
+@item @code{load_answers}: use complete tries as a consumer, somewhat less
+efficient but creates less choice-points.
+@end table
+
+@item abolish_table(+@var{PredIndicator})
+@findex abolish_table/1
+@snindex abolish_table/1
+@cnindex abolish_table/1
+Remove tables for @var{PredIndicator}
+
+@item show_table(+@var{PredIndicator})
+@findex show_table/1
+@snindex show_table/1
+@cnindex show_table/1
+Print out the contents of the table generated for @var{PredIndicator}.
+
+@item table_statistics(+@var{PredIndicator})
+@findex table_statistics/1
+@snindex table_statistics/1
+@cnindex table_statistics/1
+Print out some information on the current tables for
+@var{PredIndicator}.
+
+@end table
+
 
 @node Low Level Tracing, Low Level Profiling, Tabling, Extensions
 @chapter Tracing at Low Level

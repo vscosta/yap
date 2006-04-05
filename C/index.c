@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-03-24 17:13:41 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2006-04-05 00:16:54 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.160  2006/03/24 17:13:41  rslopes
+* New update to BEAM engine.
+* BEAM now uses YAP Indexing (JITI)
+*
 * Revision 1.159  2006/03/22 20:07:28  vsc
 * take better care of zombies
 *
@@ -4908,10 +4912,18 @@ index_jmp(ClausePointer cur, ClausePointer parent, yamop *ipc, int is_lu, yamop 
     cur.lui = ncur;
     return cur;    
   } else {
-    StaticIndex *scur = cur.si;
+    StaticIndex *scur = parent.si, *ncur;
     /* check myself */
-    if (ipc >= scur->ClCode && ipc <= (yamop *)((CODEADDR)scur+scur->ClSize))   
+    if (!scur)
       return cur;
+    if (ipc >= scur->ClCode &&
+	ipc <= (yamop *)((CODEADDR)scur+scur->ClSize))   
+      return cur;
+    ncur = ClauseCodeToStaticIndex(ipc);
+    if (ncur->ClPred == scur->ClPred) {
+      cur.si = ncur;
+      return cur;
+    }
     /*
     if (parent.si != cur.si) {
       if (parent.si) {
@@ -4919,14 +4931,6 @@ index_jmp(ClausePointer cur, ClausePointer parent, yamop *ipc, int is_lu, yamop 
 	if (ipc >= pcur->ClCode && ipc <= (yamop *)((CODEADDR)pcur+pcur->ClSize))
 	  return parent;
       }
-    }
-    ncur = ClauseCodeToStaticIndex(ipc);
-    if (ncur->ClPred != scur->ClPred) {
-#ifdef DEBUG
-      fprintf(stderr,"OOPS, bad parent in lu index\n");
-#endif
-      cur.si = NULL;
-      return cur;
     }
     cur.si = ncur;
     return cur;

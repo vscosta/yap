@@ -3392,8 +3392,12 @@ p_show_stream_position (void)
     sargs[0] = MkIntTerm (Stream[sno].charcount);
   else if (Stream[sno].status & Null_Stream_f)
     sargs[0] = MkIntTerm (Stream[sno].charcount);
-  else
-    sargs[0] = MkIntTerm (YP_ftell (Stream[sno].u.file.file));
+  else {
+    if (Stream[sno].stream_getc == PlUnGetc)
+      sargs[0] = MkIntTerm (YP_ftell (Stream[sno].u.file.file) - 1);
+    else
+      sargs[0] = MkIntTerm (YP_ftell (Stream[sno].u.file.file));
+  }
   sargs[1] = MkIntTerm (Stream[sno].linecount);
   sargs[2] = MkIntTerm (Stream[sno].linepos);
   tout = Yap_MkApplTerm (FunctorStreamPos, 3, sargs);
@@ -3439,7 +3443,7 @@ p_set_stream_position (void)
     }
     Stream[sno].charcount = char_pos;
     Stream[sno].linecount = IntOfTerm (tp);
-    if (IsVarTerm (tp = ArgOfTerm (2, tin))) {
+    if (IsVarTerm (tp = ArgOfTerm (3, tin))) {
       Yap_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
       return (FALSE);    
     } else if (!IsIntTerm (tp)) {
@@ -3452,6 +3456,7 @@ p_set_stream_position (void)
 	    "fseek failed for set_stream_position/2");
       return(FALSE);
     }
+    Stream[sno].stream_getc = PlGetc;
   } else if (FunctorOfTerm (tin) == FunctorStreamEOS) {
     if (IsVarTerm (tp = ArgOfTerm (1, tin))) {
       Yap_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
@@ -3469,6 +3474,7 @@ p_set_stream_position (void)
 	    "fseek failed for set_stream_position/2");
       return(FALSE);
     }
+    Stream[sno].stream_getc = PlGetc;
     /* reset the counters */
     Stream[sno].linepos = 0;
     Stream[sno].linecount = 0;

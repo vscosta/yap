@@ -219,6 +219,7 @@ use_module(M,F,Is) :-
 	;
 	    true
 	),
+	'$change_alias_to_stream'('$loop_stream',OldStream),
 	set_value('$consulting',Old),
 	set_value('$consulting_file',OldF),
 	cd(OldD),
@@ -229,7 +230,6 @@ use_module(M,F,Is) :-
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	'$print_message'(InfLevel, loaded(EndMsg, File, Mod, T, H)),
 	'$exec_initialisation_goals',
-	'$change_alias_to_stream'('$loop_stream',OldStream),
 	!.
 
 '$bind_module'(_, load_files).

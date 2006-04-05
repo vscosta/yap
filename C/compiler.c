@@ -11,8 +11,12 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2006-03-24 17:13:41 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2006-04-05 00:16:54 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.71  2006/03/24 17:13:41  rslopes
+* New update to BEAM engine.
+* BEAM now uses YAP Indexing (JITI)
+*
 * Revision 1.70  2005/12/17 03:25:39  vsc
 * major changes to support online event-based profiling
 * improve error discovery and restart on scanner.
@@ -706,6 +710,10 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 static void
 c_eq(Term t1, Term t2, compiler_struct *cglobs)
 {
+  if (t1 == t2) {
+    Yap_emit(nop_op, Zero, Zero, &cglobs->cint);
+    return;
+  }
   if (IsNonVarTerm(t1)) {
     if (IsVarTerm(t2)) {
       Term t = t1;
@@ -733,6 +741,7 @@ c_eq(Term t1, Term t2, compiler_struct *cglobs)
 	/* they might */
 	c_eq(HeadOfTerm(t1), HeadOfTerm(t2), cglobs);
 	c_eq(TailOfTerm(t1), TailOfTerm(t2), cglobs);
+	return;
       } else if (IsRefTerm(t1)) {
 	/* just check if they unify */
 	if (t1 != t2) {
@@ -742,6 +751,7 @@ c_eq(Term t1, Term t2, compiler_struct *cglobs)
 	}
 	/* they do */
 	Yap_emit(nop_op, Zero, Zero, &cglobs->cint);
+	return;
       } else {
 	/* compound terms */
 	Functor f = FunctorOfTerm(t1);
@@ -3195,13 +3205,15 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
 #endif
 
 #ifdef BEAM
-  void codigo_eam(compiler_struct *);
-  if (EAM) codigo_eam(&cglobs);
+ {
+   void codigo_eam(compiler_struct *);
+   
+   if (EAM) codigo_eam(&cglobs);
+ }
 #endif
 
   /* phase 3: assemble code                                                */
   acode = Yap_assemble(ASSEMBLING_CLAUSE, src, cglobs.cint.CurrentPred, (cglobs.is_a_fact && !cglobs.hasdbrefs), &cglobs.cint);
-
   /* check first if there was space for us */
   if (acode == NULL) {
     return NULL;
