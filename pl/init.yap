@@ -71,6 +71,7 @@ otherwise.
 	 'strict_iso.yap',
 	 'tabling.yap',
 	 'threads.yap',
+	 'eam.yap',
 	 'yapor.yap'].
 
 :- thread_local([idb:'$debug'/0,idb:'$trace'/0,idb:'$spy_skip'/0,idb:'$spy_stop'/0]).
