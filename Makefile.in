@@ -193,6 +193,7 @@ PL_SOURCES= \
 	$(srcdir)/pl/strict_iso.yap \
 	$(srcdir)/pl/tabling.yap $(srcdir)/pl/threads.yap \
 	$(srcdir)/pl/utils.yap \
+	$(srcdir)/pl/eam.yap \
 	$(srcdir)/pl/yapor.yap $(srcdir)/pl/yio.yap
 
 YAPDOCS=$(srcdir)/docs/yap.tex $(srcdir)/docs/chr.tex \
