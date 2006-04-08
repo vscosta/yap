@@ -36,6 +36,33 @@ command line.
 ---------------------------------------------------------------------------
 Quick example on how to run a Prolog program using the EAM.
 
+-FIRST ALTERNATIVE:
+Consult your program using eamconsult(+File)
+?- eamconsult(qsort).
+
+then you should write your queries using ?- eam(query).
+You can write the query normally as in normal Prolog mode, but
+in this case you will only receive the first solution (or yes or no).
+
+The eamconsult will pre-compile your prolog code to control
+cases where changing the order in execution can be problematic...
+For example consider the query:  ?- g(X), f(X).
+Supose that g/1 is non-deterministic and that f/1 has a single clause.
+The EAM engine will try to execute f/1 first, since it is deterministic.
+Now supose that f/1 depends on a bound argument, for example:
+f(X):- X > 1, ...
+
+The eamconsult will be transform this code into 
+f(X):- skip_while_var([X]), X>1, ...
+
+The skip_while_var/1 will not allow the comparision X>1 to be executed
+while X is unbound. 
+
+
+
+-SECOND ALTERNATIVE:
+
+
 First you must enable the EAM using the comand 
 ?- eam.
 yes
@@ -220,6 +247,8 @@ llength([A|R],N):- llength(R,M), N is M+1.
 Another example:
 
 The famours queens...
+
+
 Try to evaluate in normal Prolog que query:
 ?- queens([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],X).
 Now quit YAP and enable eam before loading the queens program
@@ -268,17 +297,14 @@ Note that on the nd predicate, we have used wait_while_var
 to force the EAM to wait while C1, C2, R1, R2 are not bound,
 because the operations in this predicate can't be done with 
 those variables unbound.
+Alternatively, and if you don't want to use wait_while_var,
+you can compile the prolog code using eamconsult.
+eamconsult will insert this instructions for you automatically.
 
 ---------------------------------------------------------------------------
 3. Some notes...
 ---------------------------------------------------------------------------
 
-- BEAM create the indexing code (try, retry and trust) only
-considering the first argument and only when the predicates are first called.
-So the first time you run a query there can be a slowdown, because the
-EAM is indexing the code.
-
----------------------------------------------------------------------------
 - A lot of builtins/code are not yet supported...
 For example var(X), not , ; (or), ... 
 You will have a internal compiler error for these cases. 
@@ -321,6 +347,8 @@ Y is X+1 is executed before X being bound. The result would be:
 
 
 The solution for this case is to force the EAM to wait for X to be bound.
+This can be done by using eamconsult(File) instead of the normal
+consult, or by inserting the control instructions explicitly in the code.
 
 So the code correct code would be:
 tst(Y):- f(X), skip_while_var(X), Y is X+1.
@@ -334,6 +362,7 @@ Another alternative is to use:
 tst(Y):- f(X), wait_while_var(X), Y is X+1.
 
 that means what execution can not proceed while X is not bound.
+
 
 
 ---------------------------------------------------------------------------
