@@ -2,7 +2,6 @@
 *									 *
 *	       BEAM -> Basic Extended Andorra Model                      *
 *         BEAM extends the YAP Prolog system to support the EAM          *
-
 * Copyright: Ricardo Lopes and NCC - University of Porto, Portugal       *
 *									 *
 **************************************************************************
@@ -87,11 +86,10 @@ struct EAM_Global *eamGlobal=&EAMGlobal;
 #define repappl(a) RepAppl((Cell) a)
 #define abspair(a) AbsPair((Term *) a)
 #define absappl(a) AbsAppl((Term *) a)
-#if 0
-int is_perm_var(Cell *a); inline int is_perm_var(Cell *a) { if (a>=(Cell *) beam_END_BOX) return(1); else return (0); }
-#else
-int is_perm_var(Cell *a); inline int is_perm_var(Cell *a) { if ( a<(Cell *) beam_START_ADDR_HEAP || a>=(Cell *)  beam_END_BOX) return(1); else return (0); }
-#endif
+
+int is_perm_var(Cell *a); inline int is_perm_var(Cell *a) { if (a>=(Cell *)  beam_END_BOX && a<(Cell *) (beam_END_BOX+MEM_VARS)) return(1); else return (0); }
+//int is_perm_var(Cell *a); inline int is_perm_var(Cell *a) { if (a<(Cell *) beam_END_BOX) return(0); else return (1); }
+//int is_perm_var(Cell *a); inline int is_perm_var(Cell *a) { if ( a<(Cell *) beam_START_ADDR_HEAP || a>=(Cell *)  beam_END_BOX) return(1); else return (0); }
 
 Cell deref(Cell a);
 int Unify(Cell *a, Cell *b);
@@ -171,7 +169,7 @@ Cell *c;
    }
    total=total+nr*i;
  } 
- printf("Ultimo Pedido (bytes) =%d ¦ Ultimo bloco livre=%d\n",size,ult*CELL_SIZE);
+ printf("Ultimo Pedido (bytes) =%d ¦ Ultimo bloco livre=%d\n",size,(int) ult*CELL_SIZE);
  printf("Memoria TOTAL (bytes)      =%ld \n",((unsigned long)  beam_END_BOX)-((unsigned long)  beam_START_ADDR_BOXES));
  printf("Memoria livre no IndexFree=%ld \n",total*CELL_SIZE);
  printf("Memoria Total livre        =%ld \n",total*CELL_SIZE+((unsigned long)  beam_END_BOX)-((unsigned long)beam_NextFree));
@@ -429,6 +427,11 @@ INLINE Cell *save_arguments(int nr) /* nr arguments */
 INLINE void remove_memory_arguments(Cell *a)
 {
   if (a==NULL) return;
+#if !Fast_go 
+  if (a[0]<1 || a[0]>1000)
+      printf("%d Numero Invalido de Argumentos............\n",a[0]);
+#endif
+
   free_memory(a,a[0]*CELL_SIZE);
 }
 
@@ -1447,6 +1450,7 @@ Cell code2start[]={_prepare_calls,1,0,_call_op,0,0};
 #if DIRECT_JUMP
         else if ((long) initPred==0) { /* first time call eam_am. Init TABLE_OPS */
 	  TABLE_OPS=(Cell *) OpAddress;
+	  return(FALSE);
         } 
 #endif
 	if (initPred==NULL || initPred->beamTable==NULL) return (FALSE);
@@ -1512,7 +1516,8 @@ if (1) { int i;  /* criar mais um nivel acima do top para o caso de haver variav
 	beam_ABX->suspended=NULL;
 	beam_ABX->side_effects=WRITE;
 	
-	for(i=1;i<=initPred->beamTable->arity;i++) add_vars_to_listperms(beam_ABX,(Cell *) beam_X[i]);
+	for(i=1;i<=initPred->beamTable->arity;i++) 
+                add_vars_to_listperms(beam_ABX,(Cell *) beam_X[i]);
 }
 
 	beam_pc=code2start;
@@ -2310,8 +2315,8 @@ break_debug();
 			  execute_next();
 			} else { 
 			  int i, arity;
-			  register struct status_or *p=NULL;
-			  register Cell *a;
+			  struct status_or *p=NULL;
+			  Cell *a;
 			  arity=((PredEntry *) arg1)->beamTable->arity;
 
                             beam_OBX=(struct OR_BOX *) request_memory(ORBOX_SIZE);
@@ -2337,11 +2342,13 @@ break_debug();
 				if (NR_INDEXED==1) *beam_pc=(Cell) &&only_1_clause;
 				else *beam_pc=(Cell) &&try_me;
 			      } else if (i==NR_INDEXED-1) *beam_pc=(Cell) &&trust_me;
+			      else *beam_pc=(Cell) &&retry_me;
 #else
 			      if (i==0) {
 				if (NR_INDEXED==1) *beam_pc=_only_1_clause_op;
 				else *beam_pc=_try_me_op;
 			      } else if (i==NR_INDEXED-1) *beam_pc=_trust_me_op;
+			      else *beam_pc=_retry_me_op;
 #endif
 			      arg2=arity;
 			      arg1=beam_H[i];
@@ -3552,6 +3559,7 @@ break_debug();
 			abort_eam("save_b_X/Y ou comit_b_X/Y no emulador ?????\n");
 
      }
+return (TRUE);
 }
 
 /* The Inst_am instruction is used in eamamasm.c */
@@ -3647,10 +3655,13 @@ void dump_eam_andbox(struct AND_BOX *a, struct OR_BOX *pai, struct status_or *pa
     else printf("   %s%d local vars\n",SPACES(2*(a->level)+1),calls->locals[-1]); 
     if (calls->call==NULL) { 
       printf("   %s>ORBOX EMPTY\n",SPACES(2*(a->level)+1));   
-    } else dump_eam_orbox(calls->call,a,calls);
+    } else {
+      dump_eam_orbox(calls->call,a,calls);
+    }
     last=calls;
     calls=calls->next;
   }
+  //  printf("Exit from dum_eam_andbox\n");
 }
 
 void dump_eam_orbox(struct OR_BOX *o, struct AND_BOX *pai, struct status_and *pai2) {
@@ -3666,9 +3677,15 @@ void dump_eam_orbox(struct OR_BOX *o, struct AND_BOX *pai, struct status_and *pa
   last=NULL;
   while(i!=NULL) {
     if (i->previous!=last) abort_eam("link errado nas alternativas\n");
+    if (i->args) {
+        printf("   %s+%d Arguments\n",SPACES(2*(o->parent->level+1)),i->args[0]);
+        if (i->args[0]<0 || i->args[0]>1000) abort_eam("Num Invalido de Args\n");
+    }
     if (i->alternative==NULL) { 
-      printf("   %s+ANDBOX EMPTY\n",SPACES(2*(o->parent->level+1))); 
-    } else dump_eam_andbox(i->alternative,o, i);
+      printf("   %s+ANDBOX EMPTY\n",SPACES(2*(o->parent->level+2))); 
+    } else {
+      dump_eam_andbox(i->alternative,o, i);
+    }
     last=i;
     i=i->next;
   }
