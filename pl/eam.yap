@@ -16,18 +16,26 @@
 *									 *
 *************************************************************************/
 
-'$_eamtrans'((A,B),(C,D)):- !, '$_eamtrans'(A,C),'$_eamtrans'(B,D).
-'$_eamtrans'((X is Y) ,(skip_while_var(Vars), X is Y  )):- !, '$variables_in_term'(Y,[],Vars).
-'$_eamtrans'((X =\= Y),(skip_while_var(Vars), X =\= Y )):- !, '$variables_in_term'(X + Y,[],Vars).
-'$_eamtrans'((X =\= Y),(skip_while_var(Vars), X =:= Y )):- !, '$variables_in_term'(X + Y,[],Vars).
-'$_eamtrans'((X >= Y) ,(skip_while_var(Vars), X >= Y  )):- !, '$variables_in_term'(X + Y,[],Vars).
-'$_eamtrans'((X > Y)  ,(skip_while_var(Vars), X > Y   )):- !, '$variables_in_term'(X + Y,[],Vars).
-'$_eamtrans'((X < Y)  ,(skip_while_var(Vars), X < Y   )):- !, '$variables_in_term'(X + Y,[],Vars).
-'$_eamtrans'((X =< Y) ,(skip_while_var(Vars), X =< Y  )):- !, '$variables_in_term'(X + Y,[],Vars).
-'$_eamtrans'(B,B).
+eamtrans(A,A):- var(A),!.
+eamtrans((A,B),(C,D)):- !, eamtrans(A,C),eamtrans(B,D).
+eamtrans((X is Y) ,(skip_while_var(Vars), X is Y  )):- !, '$variables_in_term'(Y,[],Vars).
+eamtrans((X =\= Y),(skip_while_var(Vars), X =\= Y )):- !, '$variables_in_term'(X + Y,[],Vars).
+eamtrans((X =:= Y),(skip_while_var(Vars), X =:= Y )):- !, '$variables_in_term'(X + Y,[],Vars).
+eamtrans((X >= Y) ,(skip_while_var(Vars), X >= Y  )):- !, '$variables_in_term'(X + Y,[],Vars).
+eamtrans((X > Y)  ,(skip_while_var(Vars), X > Y   )):- !, '$variables_in_term'(X + Y,[],Vars).
+eamtrans((X < Y)  ,(skip_while_var(Vars), X < Y   )):- !, '$variables_in_term'(X + Y,[],Vars).
+eamtrans((X =< Y) ,(skip_while_var(Vars), X =< Y  )):- !, '$variables_in_term'(X + Y,[],Vars).
+eamtrans((X @>= Y) ,(skip_while_var(Vars), X @>= Y  )):- !, '$variables_in_term'(X + Y,[],Vars).
+eamtrans((X @> Y)  ,(skip_while_var(Vars), X @> Y   )):- !, '$variables_in_term'(X + Y,[],Vars).
+eamtrans((X @< Y)  ,(skip_while_var(Vars), X @< Y   )):- !, '$variables_in_term'(X + Y,[],Vars).
+eamtrans((X @=< Y) ,(skip_while_var(Vars), X @=< Y  )):- !, '$variables_in_term'(X + Y,[],Vars).
+
+eamtrans((X \= Y) ,(skip_while_var(Vars), X \= Y  )):- !, '$variables_in_term'(X + Y,[],Vars).
+eamtrans((X \== Y),(skip_while_var(Vars), X \== Y )):- !, '$variables_in_term'(X + Y,[],Vars).
+
+eamtrans(B,B).
 
 eamconsult(File):- eam, eam,                    %fails if eam is disable
-                assert((term_expansion((A :- B),(A :- C)):- '$_eamtrans'(B,C))),
+                assert((user:term_expansion((A :- B),(A :- C)):- eamtrans(B,C))),
                 eam, ( consult(File) ; true), eam,
-                retract((term_expansion((A :- B),(A :- C)):- '$_eamtrans'(B,C))).
-
+		abolish(user:term_expansion,2).
