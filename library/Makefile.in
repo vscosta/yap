@@ -30,6 +30,7 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/avl.yap \
 	$(srcdir)/charsio.yap \
 	$(srcdir)/cleanup.yap \
+	$(srcdir)/dgraphs.yap \
 	$(srcdir)/gensym.yap \
 	$(srcdir)/heaps.yap \
 	$(srcdir)/listing.yap \
@@ -49,6 +50,7 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/timeout.yap \
 	$(srcdir)/trees.yap \
 	$(srcdir)/ugraphs.yap \
+	$(srcdir)/undgraphs.yap \
 	$(srcdir)/ypp.yap 
 
 MYDDAS_PROGRAMS= $(srcdir)/MYDDAS/myddas.ypp \

@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2006-04-05 00:16:55 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-10 19:24:52 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.76  2006/04/05 00:16:55  vsc
+* Lots of fixes (check logfile for details
+*
 * Revision 1.75  2006/02/24 14:26:37  vsc
 * fix informational_messages
 *
@@ -859,9 +862,8 @@ print_message(Level, Mss) :-
 	[Where]).
 
 
-'$dump_syntax_error_line'(Start,Position) :-
-	Pos is Start+Position,
-	format(user_error,', near line ~d:~n',[Pos]).
+'$dump_syntax_error_line'(Position,_) :-
+	format(user_error,', near line ~d:~n',[Position]).
 
 '$dump_syntax_error_term'(0,J,L) :- !,
 	format(user_error,'~n', []),

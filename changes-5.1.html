@@ -15,8 +15,18 @@
 <h1>Changes in YAP-5.1</h1>
 
 <h2>Yap-5.1.0:</h2>
-<ul> FIXED: compiling inline lists would compile the lists and more
-(obs Nicos Angelopoulos). </li>
+<ul> NEW: new implementation of association list, based on red-black
+  trees. </li>
+<ul> NEW: undgraph library, based on dgraphs. </li>
+<ul> NEW: undgraph library, based on dgraphs. </li>
+<ul> NEW: dgraphs library, towards a more efficient implementation of
+directed graphs. </li>
+<ul> NEW: rb_update, rb_apply, rb_visit, rb_keys and rb_map. </li>
+<ul> FIXED: use rb_ prefix for all red black predicates. </li>
+<ul> FIXED: got confused about position of syntax error (obs Mark
+Goadrich). </li>
+<ul> FIXED: compiling inline lists would compile the lists and then
+some more (obs Nicos Angelopoulos). </li>
 <ul> FIXED: message queue ops should not fail silently  (obs Paulo
 Moura). </li>
 <ul> FIXED: stream bugs in iopreds.c (Takeyuki SHIRAMOTO). </li>

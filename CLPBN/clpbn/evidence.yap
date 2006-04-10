@@ -17,9 +17,9 @@
     ]).
 
 :- use_module(library(rbtrees), [
-	new/1,
-	lookup/3,
-	insert/4
+	rb_new/1,
+	rb_lookup/3,
+	rb_insert/4
     ]).
 
 :- meta_predicate store_evidence(:).
@@ -68,7 +68,7 @@ add_links([K0|TVs],K) :-
 
 
 incorporate_evidence(Vs,AllVs) :-
-	new(Cache0),
+	rb_new(Cache0),
 	create_open_list(Vs, OL, FL, Cache0, CacheI),
 	do_variables(OL, FL, CacheI),
 	extract_vars(OL, AllVs).
@@ -77,7 +77,7 @@ create_open_list([], L, L, C, C).
 create_open_list([V|Vs], [K-V|OL], FL, C0, CF) :-
 	clpbn:get_atts(V,[key(K)]),
 	add_evidence(K, V),
-	insert(C0, K, V, CI),
+	rb_insert(C0, K, V, CI),
 	create_open_list(Vs, OL, FL, CI, CF).
 
 do_variables([], [], _) :- !.
@@ -94,10 +94,10 @@ create_new_variable(K, V, Vf0, Vff, C0, Cf) :-
 
 add_variables([], [], Vf, Vf, C, C).
 add_variables([K|TVs], [V|NTVs], Vf0, Vff, C0, Cf) :-
-	lookup(K, V, C0), !,
+	rb_lookup(K, V, C0), !,
 	add_variables(TVs, NTVs, Vf0, Vff, C0, Cf).
 add_variables([K|TVs], [V|NTVs], [K-V|Vf0], Vff, C0, Cf) :-
-	insert(C0, K, V, C1),
+	rb_insert(C0, K, V, C1),
 	create_new_variable(K, V, Vf0, Vf1, C1, C2),
 	add_variables(TVs, NTVs, Vf1, Vff, C2, Cf).
 

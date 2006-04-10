@@ -1,129 +1,121 @@
 % This file has been included as an YAP library by Vitor Santos Costa, 1999
 
-%   File   : ASSOC.PL
-%   Author : R.A.O'Keefe
-%   Updated: 9 November 1983
-%   Purpose: Binary tree implementation of "association lists".
+% Red-Black Implementation of Association Lists.
 
-%   Note   : the keys should be ground, the associated values need not be.
+%   Note   : the keys should be bound, the associated values need not be.
 
 :- module(assoc, [
+        empty_assoc/1,
 	assoc_to_list/2,
+	is_assoc/1,
+	min_assoc/3,
+	max_assoc/3,
 	gen_assoc/3,
 	get_assoc/3,
 	get_assoc/5,
+	get_next_assoc/4,
+	get_prev_assoc/4,
 	list_to_assoc/2,
-	map_assoc/3,
 	ord_list_to_assoc/2,
+	map_assoc/2,
+	map_assoc/3,
 	put_assoc/4,
-	empty_assoc/1
+	del_assoc/4,
+	del_min_assoc/4,
+	del_max_assoc/4
     ]).
 
-:- meta_predicate map_assoc(:, ?, ?).
+:- meta_predicate map_assoc(:, +, -), map_assoc(:, +).
 
-/*
-:- mode
-	assoc_to_list(+, -),
-	assoc_to_list(+, -, +),
-	gen_assoc(+, ?, ?),
-	get_assoc(+, +, ?),
-	get_assoc(+, +, +, +, +, ?),
-	list_to_assoc(+, -),
-	list_to_assoc(+, +, -, +),
-	map_assoc(+, +, -),
-	put_assoc(+, +, +, -),
-	put_assoc(+, +, +,+,+,+, +, -).
-*/
+:- use_module(library(rbtrees), [
+	rb_empty/1,
+	rb_visit/2,
+	is_rbtree/1,
+	rb_min/3,
+	rb_max/3,
+	rb_in/3,
+	rb_lookup/3,
+	rb_update/5,
+	rb_next/4,
+	rb_previous/4,
+	list_to_rbtree/2,
+	ord_list_to_rbtree/2,
+	rb_map/2,
+	rb_map/3,
+	rb_update/4,
+	rb_insert/4,
+	rb_delete/4,
+	rb_del_min/4,
+	rb_del_max/4
+    ]).
 
+empty_assoc(T) :-
+	rb_empty(T).
 
-empty_assoc(t).
+assoc_to_list(T, L) :-
+	rb_visit(T, L).
 
-assoc_to_list(Assoc, List) :-
-	assoc_to_list(Assoc, List, []).
+is_assoc(T) :-
+	is_rbtree(T).
 
+min_assoc(T,K,V) :-
+	rb_min(T,K,V).
 
-	assoc_to_list(t(Key,Val,L,R), List, Rest) :-
-		assoc_to_list(L, List, [Key-Val|More]),
-		assoc_to_list(R, More, Rest).
-	assoc_to_list(t, List, List).
+max_assoc(T,K,V) :-
+	rb_max(T,K,V).
 
+gen_assoc(K,T,V) :-
+	rb_in(K,V,T).
 
+get_assoc(K,T,V) :-
+	rb_lookup(K,V,T).
 
-gen_assoc(t(_,_,L,_), Key, Val) :-
-	gen_assoc(L, Key, Val).
-gen_assoc(t(Key,Val,_,_), Key, Val).
-gen_assoc(t(_,_,_,R), Key, Val) :-
-	gen_assoc(R, Key, Val).
+get_assoc(K,T,V,NT,NV) :-
+	rb_update(T,K,V,NV,NT).
 
+get_next_assoc(K,T,KN,VN) :-
+	rb_next(T,K,KN,VN).
 
+get_prev_assoc(K,T,KP,VP) :-
+	rb_previous(T,K,KP,VP).
 
-get_assoc(Key, t(K,V,L,R), Val) :-
-	compare(Rel, Key, K),
-	get_assoc(Rel, Key, V, L, R, Val).
+list_to_assoc(L, T) :-
+	list_to_rbtree(L, T).
 
+ord_list_to_assoc(L, T) :-
+	ord_list_to_rbtree(L, T).
 
-	get_assoc(=, _, Val, _, _, Val).
-	get_assoc(<, Key, _, Tree, _, Val) :-
-		get_assoc(Key, Tree, Val).
-	get_assoc(>, Key, _, _, Tree, Val) :-
-		get_assoc(Key, Tree, Val).
+map_assoc(P, T) :-
+	yap_flag(typein_module, M0),
+	extract_mod(P, M0, M, G),
+	functor(G, Name, 1),
+	rb_map(T, M:Name).
 
-
-get_assoc(Key, t(K,V,L,R), Val, t(K,NV,NL,NR), NVal) :-
-	compare(Rel, Key, K),
-	get_assoc(Rel, Key, V, L, R, Val, NV, NL, NR, NVal).
-
-
-	get_assoc(=, _, Val, L, R, Val, NVal, L, R, NVal).
-	get_assoc(<, Key, V, L, R, Val, V, NL, R, NVal) :-
-		get_assoc(Key, L, Val, NL, NVal).
-	get_assoc(>, Key, V, L, R, Val, V, L, NR, NVal) :-
-		get_assoc(Key, R, Val, NR, NVal).
-
-
-
-list_to_assoc(List, Assoc) :-
-	list_to_assoc(List, t, Assoc).
-
-	list_to_assoc([], Assoc, Assoc).
-	list_to_assoc([Key-Val|List], Assoc0, Assoc) :-
-	         put_assoc(Key, Assoc0, Val, AssocI),
-		 list_to_assoc(List, AssocI, Assoc).
-
-ord_list_to_assoc(Keys, Assoc) :-
-	list_to_assoc(Keys, Assoc).
-/*
-	length(Keys,L),
-	list_to_assoc(N, Keys, Assoc, []).
+map_assoc(P, T, NT) :-
+	yap_flag(typein_module, M0),
+	extract_mod(P, M0, M, G),
+	functor(G, Name, 2),
+	rb_map(T, M:Name, NT).
 
 
-	ord_list_to_assoc(0, List, t, List).
-	ord_list_to_assoc(N, List, t(Key,Val,L,R), Rest) :-
-		A is (N-1)//2,
-		Z is (N-1)-A,
-		ord_list_to_assoc(A, List, L, [Key-Val|More]),
-		ord_list_to_assoc(Z, More, R, Rest).
-*/
+extract_mod(G,_,_) :- var(G), !, fail.
+extract_mod(M:G, _, FM, FG ) :- !,
+	extract_mod(G, M, FM, FG ).
+extract_mod(G, M, M, G ).
 
-map_assoc(Pred, t(Key,Val,L0,R0), t(Key,Ans,L1,R1)) :- !,
-	map_assoc(Pred, L0, L1),
-	assoc_apply(Pred, [Val,Ans]),
-	map_assoc(Pred, R0, R1).
-map_assoc(_, t, t).
+put_assoc(K, T, V, NT) :-
+	rb_update(T, K, V, NT), !.
+put_assoc(K, T, V, NT) :-
+	rb_insert(T, K, V, NT).
 
-assoc_apply(Pred,Args) :-
-	G =.. [Pred,Args],
-	call(G), !.
+del_assoc(K, T, V, NT) :-
+	rb_delete(T, K, V, NT).
 
-put_assoc(Key, t(K,V,L,R), Val, New) :-
-	compare(Rel, Key, K),
-	put_assoc(Rel, Key, K, V, L, R, Val, New).
-put_assoc(Key, t, Val, t(Key,Val,t,t)).
+del_min_assoc(T, K, V, NT) :-
+	rb_del_min(T, K, V, NT).
+
+del_max_assoc(T, K, V, NT) :-
+	rb_del_max(T, K, V, NT).
 
 
-	put_assoc(=, Key, _, _, L, R, Val, t(Key,Val,L,R)).
-	put_assoc(<, Key, K, V, L, R, Val, t(K,V,Tree,R)) :-
-		put_assoc(Key, L, Val, Tree).
-	put_assoc(>, Key, K, V, L, R, Val, t(K,V,L,Tree)) :-
-		put_assoc(Key, R, Val, Tree).
 

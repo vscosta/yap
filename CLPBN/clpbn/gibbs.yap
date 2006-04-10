@@ -11,9 +11,9 @@
 		check_if_gibbs_done/1]).
 
 :- use_module(library(rbtrees),
-	      [new/1,
-	       insert/4,
-	       lookup/3]).
+	      [rb_new/1,
+	       rb_insert/4,
+	       rb_lookup/3]).
 
 :- use_module(library(lists),
 	      [member/2,
@@ -62,7 +62,7 @@ initialise(LVs, Graph, GVs, OutputVars, VarOrder) :-
 	add_output_vars(GVs, Keys, OutputVars).
 
 init_keys(Keys0) :-
-	new(Keys0).
+	rb_new(Keys0).
 
 gen_keys([], I, I, Keys, Keys).
 gen_keys([V|Vs], I0, If, Keys0, Keys) :-
@@ -70,7 +70,7 @@ gen_keys([V|Vs], I0, If, Keys0, Keys) :-
 	gen_keys(Vs, I0, If, Keys0, Keys).
 gen_keys([V|Vs], I0, If, Keys0, Keys) :-
 	I is I0+1,
-	insert(Keys0,V,I,KeysI),
+	rb_insert(Keys0,V,I,KeysI),
 	gen_keys(Vs, I, If, KeysI, Keys).
 
 graph_representation([],_,_,_,[]).
@@ -112,7 +112,7 @@ get_sizes([V|Parents], [Sz|Szs]) :-
 
 parent_indices([], _, []).
 parent_indices([V|Parents], Keys, [I|IParents]) :-
-	lookup(V, I, Keys),	
+	rb_lookup(V, I, Keys),	
 	parent_indices(Parents, Keys, IParents).
 
 
@@ -139,7 +139,7 @@ propagate2parents([V|NewParents], Table, Variables, Graph, Keys) :-
 	propagate2parents(NewParents,Table, Variables, Graph, Keys).
 
 add2graph(V, Vals, Table, IParents, Graph, Keys) :-
-	lookup(V, Index, Keys),	
+	rb_lookup(V, Index, Keys),	
 	(var(Vals) -> true ; length(Vals,Sz)),
 	arg(Index, Graph, var(V,Index,_,Vals,Sz,VarSlot,_,_,_)),
 	member(tabular(Table,Index,IParents), VarSlot), !.
@@ -156,7 +156,7 @@ split_parents([I-V|Sorted], [V|SortedNVs],[I|SortedIndices]) :-
 
 vars2indices([],_,[]).
 vars2indices([V|Parents],Keys,[I-V|IParents]) :-
-	lookup(V, I, Keys),
+	rb_lookup(V, I, Keys),
 	vars2indices(Parents,Keys,IParents).
 
 compact_table(NewTable, RepTable) :-
@@ -297,7 +297,7 @@ store_mblanket(I,Values,Probs) :-
 
 add_output_vars([], _, []).
 add_output_vars([V|LVs], Keys, [I|OutputVars]) :-
-	lookup(V, I, Keys),
+	rb_lookup(V, I, Keys),
 	add_output_vars(LVs, Keys, OutputVars).
 
 process(VarOrder, Graph, OutputVars, Estimates) :-

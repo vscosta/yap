@@ -12,17 +12,48 @@
 
 
 :- module(rbtrees,
-	  [new/1,
-	   lookup/3,
-	   lookupall/3,
-	   insert/4,
-	   delete/3]).
+	  [rb_new/1,
+	   rb_empty/1,
+	   rb_lookup/3,
+	   rb_update/4,
+	   rb_update/5,
+	   rb_apply/4,
+	   rb_lookupall/3,
+	   rb_insert/4,
+	   rb_delete/3,
+	   rb_delete/4,
+	   rb_visit/2,
+	   rb_visit/3,
+	   rb_keys/2,
+	   rb_keys/3,
+	   rb_map/2,
+	   rb_map/3,
+	   rb_partial_map/4,
+	   rb_clone/3,
+	   rb_min/3,
+	   rb_max/3,
+	   rb_del_min/4,
+	   rb_del_max/4,
+	   rb_next/4,
+	   rb_previous/4,
+	   list_to_rbtree/2,
+	   ord_list_to_rbtree/2,
+	   is_rbtree/1,
+	   rb_size/2,
+	   rb_in/3
+       ]).
+
+:- meta_predicate rb_map(+,:,-), rb_apply(+,+,:,-).
 
 % create an empty tree.
-new(black([],[],[],[])).
+rb_new(t(Nil,Nil)) :- Nil = black([],[],[],[]).
 
-new(K,V,black(Nil,K,V,Nil)) :-
-	Nil = black([],[],[],[]).
+rb_empty(t(Nil,Nil)) :- Nil = black([],[],[],[]).
+
+rb_new(K,V,t(Nil,black(Nil,K,V,Nil))) :- Nil = black([],[],[],[]).
+
+rb_lookup(Key, Val, t(_,Tree)) :-
+	lookup(Key, Val, Tree).
 
 lookup(_, _, black([],_,_,[])) :- !, fail.
 lookup(Key, Val, Tree) :-
@@ -39,6 +70,168 @@ lookup(<, K, V, Tree) :-
 lookup(=, _, V, Tree) :-
 	arg(3,Tree,V).
 
+rb_min(t(_,Tree), Key, Val) :-
+	min(Tree, Key, Val).
+
+min(red(black([],_,_,_),Key,Val,_), Key, Val) :- !.
+min(black(black([],_,_,_),Key,Val,_), Key, Val) :- !.
+min(red(Right,_,_,_), Key, Val) :-
+	min(Right,Key,Val).
+min(black(Right,_,_,_), Key, Val) :-
+	min(Right,Key,Val).
+
+rb_max(t(_,Tree), Key, Val) :-
+	max(Tree, Key, Val).
+
+max(red(_,Key,Val,black([],_,_,_)), Key, Val) :- !.
+max(black(_,Key,Val,black([],_,_,_)), Key, Val) :- !.
+max(red(_,_,_,Left), Key, Val) :-
+	max(Left,Key,Val).
+max(black(_,_,_,Left), Key, Val) :-
+	max(Left,Key,Val).
+
+rb_next(t(_,Tree), Key, Next, Val) :-
+	next(Tree, Key, Next, Val, []).
+
+next(black([],_,_,[]), _, _, _, _) :- !, fail.
+next(Tree, Key, Next, Val, Candidate) :-
+	arg(2,Tree,KA),
+	arg(3,Tree,VA),
+	compare(Cmp,KA,Key),
+	next(Cmp, Key, KA, VA, Next, Val, Tree, Candidate).
+
+next(>, K, KA, VA, NK, V, Tree, _) :-
+	arg(1,Tree,NTree),
+	next(NTree,K,NK,V,KA-VA).
+next(<, K, _, _, NK, V, Tree, Candidate) :-
+	arg(4,Tree,NTree),
+	next(NTree,K,NK,V,Candidate).
+next(=, _, _, _, NK, Val, Tree, Candidate) :-
+	arg(4,Tree,NTree),
+	( 
+	    min(NTree, NK, Val) ->
+	    true
+	;
+	    Candidate = NK-Val
+	).
+
+rb_previous(t(_,Tree), Key, Previous, Val) :-
+	previous(Tree, Key, Previous, Val, []).
+
+previous(black([],_,_,[]), _, _, _, _) :- !, fail.
+previous(Tree, Key, Previous, Val, Candidate) :-
+	arg(2,Tree,KA),
+	arg(3,Tree,VA),
+	compare(Cmp,KA,Key),
+	previous(Cmp, Key, KA, VA, Previous, Val, Tree, Candidate).
+
+previous(>, K, _, _, NK, V, Tree, Candidate) :-
+	arg(1,Tree,NTree),
+	previous(NTree,K,NK,V,Candidate).
+previous(<, K, KA, VA, NK, V, Tree, _) :-
+	arg(4,Tree,NTree),
+	previous(NTree,K,NK,V,KA-VA).
+previous(=, _, _, _, K, Val, Tree, Candidate) :-
+	arg(1,Tree,NTree),
+	( 
+	    max(NTree, K, Val) ->
+	    true
+	;
+	    Candidate = K-Val
+	).
+
+rb_update(t(Nil,OldTree), Key, OldVal, Val, t(Nil,NewTree)) :-
+	update(OldTree, Key, OldVal, Val, NewTree).
+
+rb_update(t(Nil,OldTree), Key, Val, t(Nil,NewTree)) :-
+	update(OldTree, Key, _, Val, NewTree).
+
+update(black(Left,Key0,Val0,Right), Key, OldVal, Val, NewTree) :-
+	Left \= [],
+	compare(Cmp,Key0,Key),
+	(Cmp == = ->
+	    OldVal = Val0,
+	    NewTree = black(Left,Key0,Val,Right)
+	;
+	Cmp == > ->
+	   NewTree = black(NewLeft,Key0,Val0,Right),
+	  update(Left, Key, OldVal, Val, NewLeft)
+	;
+	  NewTree = black(Left,Key0,Val0,NewRight),
+	  update(Right, Key, OldVal, Val, NewRight)
+	).
+update(red(Left,Key0,Val0,Right), Key, OldVal, Val, NewTree) :-
+	compare(Cmp,Key0,Key),
+	(Cmp == = ->
+	    OldVal = Val0,
+	    NewTree = red(Left,Key0,Val,Right)
+	;
+	Cmp == > ->
+	   NewTree = red(NewLeft,Key0,Val0,Right),
+	  update(Left, Key, OldVal, Val, NewLeft)
+	;
+	  NewTree = red(Left,Key0,Val0,NewRight),
+	  update(Right, Key, OldVal, Val, NewRight)
+	).
+
+rb_apply(t(Nil,OldTree), Key, Goal, t(Nil,NewTree)) :-
+	apply(OldTree, Key, Goal, NewTree).
+
+%apply(black([],_,_,[]), _, _, _) :- !, fail.
+apply(black(Left,Key0,Val0,Right), Key, Goal, black(NewLeft,Key0,Val,NewRight)) :-
+	Left \= [],
+	compare(Cmp,Key0,Key),
+	(Cmp == (=) ->
+	    NewLeft = Left,
+	    NewRight = Right,
+	    call(Goal,Val0,Val)
+	;
+	Cmp == (>) ->
+	    NewRight = Right,
+	    apply(Left, Key, Goal, NewLeft)
+	;
+	    NewLeft = Left,
+	    apply(Right, Key, Goal, NewRight)
+	).
+apply(red(Left,Key0,Val0,Right), Key, Goal, red(NewLeft,Key0,Val,NewRight)) :-
+	compare(Cmp,Key0,Key),
+	(Cmp == (=) ->
+	    NewLeft = Left,
+	    NewRight = Right,
+	    call(Goal,Val0,Val)
+	;
+	Cmp == (>) ->
+	    NewRight = Right,
+	    apply(Left, Key, Goal, NewLeft)
+	;
+	    NewLeft = Left,
+	    apply(Right, Key, Goal, NewRight)
+	).
+
+rb_in(Key, Val, t(_,T)) :-
+	var(Key), !,
+	enum(Key, Val, T).
+rb_in(Key, Val, t(_,T)) :-
+	lookup(Key, Val, T).
+
+
+enum(Key, Val, black(L,K,V,R)) :-
+	L \= [],
+	enum_cases(Key, Val, L, K, V, R).
+enum(Key, Val, red(L,K,V,R)) :-
+	enum_cases(Key, Val, L, K, V, R).
+
+enum_cases(Key, Val, L, _, _, _) :-
+	enum(Key, Val, L).
+enum_cases(Key, Val, _, Key, Val, _).
+enum_cases(Key, Val, _, _, _, R) :-
+	enum(Key, Val, R).
+
+
+rb_lookupall(Key, Val, t(_,Tree)) :-
+	lookupall(Key, Val, Tree).
+
+
 lookupall(_, _, black([],_,_,[])) :- !, fail.
 lookupall(Key, Val, Tree) :-
 	arg(2,Tree,KA),
@@ -47,7 +240,7 @@ lookupall(Key, Val, Tree) :-
 
 lookupall(>, K, V, Tree) :-
 	arg(4,Tree,NTree),
-	lookupall(K, V, NTree).
+	rb_lookupall(K, V, NTree).
 lookupall(=, _, V, Tree) :-
 	arg(3,Tree,V).
 lookupall(=, K, V, Tree) :-
@@ -62,8 +255,12 @@ lookupall(<, K, V, Tree) :-
 %
 % We don't use parent nodes, so we may have to fix the root.
 %
-insert(Tree0,Key,Val,Tree) :-
-	insert2(Tree0,Key,Val,TreeI,_),
+rb_insert(t(Nil,Tree0),Key,Val,t(Nil,Tree)) :-
+	insert(Tree0,Key,Val,Nil,Tree).
+
+
+insert(Tree0,Key,Val,Nil,Tree) :-
+	insert2(Tree0,Key,Val,Nil,TreeI,_),
 	fix_root(TreeI,Tree).
 
 %
@@ -96,22 +293,25 @@ fix_root(red(L,K,V,R),black(L,K,V,R)).
 %
 % actual insertion
 %
-insert2(black([],[],[],[]), K, V, T, Status) :- !,
-	Nil = black([],[],[],[]),
+insert2(black([],[],[],[]), K, V, Nil, T, Status) :- !,
 	T = red(Nil,K,V,Nil),
 	Status = not_done.
-insert2(red(L,K0,V0,R), K, V, red(NL,K0,V0,R), Flag) :-
-	K @< K0, !,
-	insert2(L, K, V, NL, Flag).
-insert2(red(L,K0,V0,R), K, V, red(L,K0,V0,NR), Flag) :-
-	insert2(R, K, V, NR, Flag).
-insert2(black(L,K0,V0,R), K, V, NT, Flag) :-
-	K @< K0, !,
-	insert2(L, K, V, IL, Flag0),
-	fix_left(Flag0, black(IL,K0,V0,R), NT, Flag).
-insert2(black(L,K0,V0,R), K, V, NT, Flag) :-
-	insert2(R, K, V, IR, Flag0),
-	fix_right(Flag0, black(L,K0,V0,IR), NT, Flag).
+insert2(red(L,K0,V0,R), K, V, Nil, red(NL,K0,V0,NR), Flag) :-
+	( K @< K0 ->
+	    NR = R,
+	    insert2(L, K, V, Nil, NL, Flag)
+	;
+	    NL = L,
+	    insert2(R, K, V, Nil, NR, Flag)
+	).
+insert2(black(L,K0,V0,R), K, V, Nil, NT, Flag) :-
+	( K @< K0 ->
+	    insert2(L, K, V, Nil, IL, Flag0),
+	    fix_left(Flag0, black(IL,K0,V0,R), NT, Flag)
+	;
+	    insert2(R, K, V, Nil, IR, Flag0),
+	    fix_right(Flag0, black(L,K0,V0,IR), NT, Flag)
+	).
 
 %
 % How to fix if we have inserted on the left
@@ -199,34 +399,68 @@ pretty_print(black(L,K,_,R),D) :-
 	pretty_print(R,DN).
 
 
-delete(T, K, NT) :-
-	delete(T, K, NT, _).
+rb_delete(t(Nil,T), K, t(Nil,NT)) :-
+	delete(T, K, _, NT, _).
+
+rb_delete(t(Nil,T), K, V, t(Nil,NT)) :-
+	delete(T, K, V, NT, _).
 
 %
 % I am afraid our representation is not as nice for delete
 %
-delete(red(L,K0,V0,R), K, NT, Flag) :-
+delete(red(L,K0,V0,R), K, V, NT, Flag) :-
 	K @< K0, !,
-	delete(L, K, NL, Flag0),
+	delete(L, K, V, NL, Flag0),
 	fixup_left(Flag0,red(NL,K0,V0,R),NT, Flag).
-delete(red(L,K0,V0,R), K, NT, Flag) :-
+delete(red(L,K0,V0,R), K, V, NT, Flag) :-
 	K @> K0, !,
-	delete(R, K, NR, Flag0),
+	delete(R, K, V, NR, Flag0),
 	fixup_right(Flag0,red(L,K0,V0,NR),NT, Flag).
-delete(red(L,_,_,R), _, OUT, Flag) :-
+delete(red(L,_,V,R), _, V, OUT, Flag) :-
 %	K == K0,
 	delete_red_node(L,R,OUT,Flag).
-delete(black(L,K0,V0,R), K, NT, Flag) :-
+delete(black(L,K0,V0,R), K, V, NT, Flag) :-
 	K @< K0, !,
-	delete(L, K, NL, Flag0),
+	delete(L, K, V, NL, Flag0),
 	fixup_left(Flag0,black(NL,K0,V0,R),NT, Flag).
-delete(black(L,K0,V0,R), K, NT, Flag) :-
+delete(black(L,K0,V0,R), K, V, NT, Flag) :-
 	K @> K0, !,
-	delete(R, K, NR, Flag0),
+	delete(R, K, V, NR, Flag0),
 	fixup_right(Flag0,black(L,K0,V0,NR),NT, Flag).
-delete(black(L,_,_,R), _, OUT, Flag) :-
+delete(black(L,_,V,R), _, V, OUT, Flag) :-
 %	K == K0,
 	delete_black_node(L,R,OUT,Flag).
+
+rb_del_min(t(Nil,T), K, Val, t(Nil,NT)) :-
+	del_min(T, K, Val, Nil, NT, _).
+
+del_min(red(black([],_,_,_),K,V,R), K, V, Nil, OUT, Flag) :- !,
+	delete_red_node(Nil,R,OUT,Flag).
+del_min(red(L,K0,V0,R), K, V, Nil, NT, Flag) :-
+	del_min(L, K, V, Nil, NL, Flag0),
+	fixup_left(Flag0,red(NL,K0,V0,R), NT, Flag).
+del_min(black(black([],_,_,_),K,V,R), K, V, Nil, OUT, Flag) :- !,
+	delete_black_node(Nil,R,OUT,Flag).
+del_min(black(L,K0,V0,R), K, V, Nil, NT, Flag) :-
+	del_min(L, K, V, Nil, NL, Flag0),
+	fixup_left(Flag0,black(NL,K0,V0,R),NT, Flag).
+
+
+rb_del_max(t(Nil,T), K, Val, t(Nil,NT)) :-
+	del_max(T, K, Val, Nil, NT, _).
+
+del_max(red(L,K,V,black([],_,_,_)), K, V, Nil, OUT, Flag) :- !,
+	delete_red_node(L,Nil,OUT,Flag).
+del_max(red(L,K0,V0,R), K, V, Nil, NT, Flag) :-
+	del_max(R, K, V, Nil, NR, Flag0),
+	fixup_right(Flag0,red(L,K0,V0,NR),NT, Flag).
+del_max(black(L,K,V,black([],_,_,_)), K, V, Nil, OUT, Flag) :- !,
+	delete_black_node(L,Nil,OUT,Flag).
+del_max(black(L,K0,V0,R), K, V, Nil, NT, Flag) :-
+	del_max(R, K, V, Nil, NR, Flag0),
+	fixup_right(Flag0,black(L,K0,V0,NR), NT, Flag).
+
+
 
 delete_red_node(L,L,L,done) :- !.
 delete_red_node(black([],[],[],[]),R,R,done) :- !.
@@ -339,6 +573,171 @@ fixup3(red(black(red(Fi,KE,VE,Ep),KD,VD,C),KB,VB,black(Be,KA,VA,Al)),
 fixup3(black(black(red(Fi,KE,VE,Ep),KD,VD,C),KB,VB,black(Be,KA,VA,Al)),
 	black(black(Fi,KE,VE,Ep),KD,VD,black(C,KB,VB,black(Be,KA,VA,Al))),
 	done).
+
+
+%
+% whole list
+%
+rb_visit(t(_,T),Lf) :-
+	visit(T,[],Lf).
+
+rb_visit(t(_,T),L0,Lf) :-
+	visit(T,L0,Lf).
+
+visit(black([],_,_,_),L,L) :- !.
+visit(red(L,K,V,R),L0,Lf) :-
+	visit(L,[K-V|L1],Lf),
+	visit(R,L0,L1).
+visit(black(L,K,V,R),L0,Lf) :-
+	visit(L,[K-V|L1],Lf),
+	visit(R,L0,L1).
+
+rb_map(t(Nil,Tree),Goal,t(Nil,NewTree)) :-
+	map(Tree,Goal,NewTree).
+
+
+map(black([],[],[],[]),_,black([],[],[],[])) :- !.
+map(red(L,K,V,R),Goal,red(NL,K,NV,NR)) :-
+	call(Goal,V,NV), !,
+	map(L,Goal,NL),
+	map(R,Goal,NR).
+map(black(L,K,V,R),Goal,black(NL,K,NV,NR)) :-
+	call(Goal,V,NV), !,
+	map(L,Goal,NL),
+	map(R,Goal,NR).
+
+rb_map(t(_,Tree),Goal) :-
+	map(Tree,Goal).
+
+
+map(black([],[],[],[]),_) :- !.
+map(red(L,_,V,R),Goal) :-
+	call(Goal,V), !,
+	map(L,Goal),
+	map(R,Goal).
+map(black(L,_,V,R),Goal) :-
+	call(Goal,V), !,
+	map(L,Goal),
+	map(R,Goal).
+
+rb_clone(t(Nil,T),t(Nil,NT),Ns) :-
+	clone(T,NT,Ns,[]).
+
+rb_clone(t(Nil,T),t(Nil,NT),Ns,Ns0) :-
+	clone(T,NT,Ns,Ns0).
+
+clone(black([],[],[],[]),black([],[],[],[]),Ns,Ns) :- !.
+clone(red(L,K,_,R),red(NL,K,NV,NR),NsF,Ns0) :-
+	clone(L,NL,NsF,[K-NV|Ns1]),
+	clone(R,NR,Ns1,Ns0).
+clone(black(L,K,_,R),black(NL,K,NV,NR),NsF,Ns0) :-
+	clone(L,NL,NsF,[K-NV|Ns1]),
+	clone(R,NR,Ns1,Ns0).
+
+rb_partial_map(t(Nil,T0), Map, Goal, t(Nil,TF)) :-
+	partial_map(T0, Map, [], Goal, TF).
+
+rb_partial_map(t(Nil,T0), Map, Map0, Goal, t(Nil,TF)) :-
+	rb_partial_map(T0, Map, Map0, Goal, TF).
+
+partial_map(T,[],[],_,T) :- !.
+partial_map(black([],[],[],[]),Map,Map,_,black([],[],[],[])) :- !.
+partial_map(red(L,K,V,R),Map,MapF,Goal,red(NL,K,NV,NR)) :-
+	partial_map(L,Map,MapI,Goal,NL),
+	( 
+	    MapI == [] -> 
+	    NR = R, NV = V
+	;
+	   MapI = [K1|MapR],
+	   (
+	     K == K1 ->
+	        once(call(Goal,V,NV)),
+	        Map2 = MapR
+	    ;
+	        Map2 = [K1|MapR], NV = V
+	    )
+	),
+	partial_map(R,Map2,MapF,Goal,NR).
+partial_map(black(L,K,V,R),Map,MapF,Goal,black(NL,K,NV,NR)) :-
+	partial_map(L,Map,MapI,Goal,NL),
+	( 
+	    MapI == [] -> 
+	    NR = R, NV = V
+	;
+	   MapI = [K1|MapR],
+	   (
+	     K == K1 ->
+	        once(call(Goal,V,NV)),
+	        Map2 = MapR
+	    ;
+	        Map2 = [K1|MapR], NV = V
+	    )
+	),
+	partial_map(R,Goal,Map2,MapF,NR).
+
+
+%
+% whole keys
+%
+rb_keys(t(_,T),Lf) :-
+	keys(T,[],Lf).
+
+rb_keys(t(_,T),L0,Lf) :-
+	keys(T,L0,Lf).
+
+keys(black([],[],[],[]),L,L) :- !.
+keys(red(L,K,_,R),L0,Lf) :-
+	keys(L,[K|L1],Lf),
+	keys(R,L0,L1).
+keys(black(L,K,_,R),L0,Lf) :-
+	keys(L,[K|L1],Lf),
+	keys(R,L0,L1).
+
+list_to_rbtree(List,t(Nil,Tree)) :-
+	Nil = black([], [], [], []),
+	sort(List,Sorted),
+	Ar =.. [seq|Sorted],
+	functor(Ar,_,L),
+	construct_rbtree(1, L, Ar, black, Nil, Tree).
+
+ord_list_to_rbtree(List,t(Nil,Tree)) :-
+	Nil = black([], [], [], []),
+	Ar =.. [seq|List],
+	functor(Ar,_,L),
+	construct_rbtree(1, L, Ar, black, Nil, Tree).
+
+construct_rbtree(L, M, _, _, Nil, Nil) :- M < L, !.
+construct_rbtree(L, L, Ar, Color, Nil, Node) :- !,
+	arg(L, Ar, K-Val),
+	build_node(Color, Nil, K, Val, Nil, Node, _).
+construct_rbtree(I0, Max, Ar, Color, Nil, Node) :-
+	I is (I0+Max)//2,
+	arg(I, Ar, K-Val),
+	build_node(Color, Left, K, Val, Right, Node, NewColor),
+	I1 is I-1,
+	construct_rbtree(I0, I1, Ar, NewColor, Nil, Left),
+	I2 is I+1,
+	construct_rbtree(I2, Max, Ar, NewColor, Nil, Right).
+
+build_node(black, Left, K, Val, Right, black(Left, K, Val, Right), red).
+build_node(red, Left, K, Val, Right, red(Left, K, Val, Right), black).
+
+rb_size(t(_,T),Size) :-
+	size(T,0,Size).
+
+size(black([],_,_,_),Sz,Sz) :- !.
+size(red(L,_,_,R),Sz0,Szf) :-
+	Sz1 is Sz0+1,
+	size(L,Sz1,Sz2),
+	size(R,Sz2,Szf).
+size(black(L,_,_,R),Sz0,Szf) :-
+	Sz1 is Sz0+1,
+	size(L,Sz1,Sz2),
+	size(R,Sz2,Szf).
+
+is_rbtree(t(Nil,Nil)) :- !.
+is_rbtree(t(_,T)) :-
+	catch(rbtree1(T), msg(_,_), fail).
 
 %
 % This code checks if a tree is ordered and a rbtree

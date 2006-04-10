@@ -4,9 +4,9 @@
 	reversed_topsort/2]).
 
 :- use_module(library(rbtrees),
-	      [new/1,
-	       lookup/3,
-	       insert/4]).
+	      [rb_new/1,
+	       rb_lookup/3,
+	       rb_insert/4]).
 
 :- use_module(library(lists),
 	      [reverse/2]).
@@ -15,18 +15,18 @@
 /* graph is as Node-[Parents] */
 
 topsort(Graph0, Sorted) :-
-	new(RB),
+	rb_new(RB),
 	topsort(Graph0, [], RB, Sorted).
 
 topsort(Graph0, Sorted0, Sorted) :-
-        new(RB),
+        rb_new(RB),
 	topsort(Graph0, Sorted0, RB, Sorted).
 
 %
 % Have children first in the list
 %
 reversed_topsort(Graph0, RSorted) :-
-	new(RB),
+	rb_new(RB),
 	topsort(Graph0, [], RB, Sorted),
 	reverse(Sorted, RSorted).
 
@@ -42,7 +42,7 @@ add_nodes([N-Ns|Graph0], Found0, SortI, NewGraph, Found, NSort) :-
 	( NNs == [] ->
 	   NewGraph = IGraph,
 	   NSort = [N|Sort],
-	   insert(Found0, N, '$', FoundI)
+	   rb_insert(Found0, N, '$', FoundI)
 	;
 	   NewGraph = [N-NNs|IGraph],
 	   NSort = Sort,
@@ -52,7 +52,7 @@ add_nodes([N-Ns|Graph0], Found0, SortI, NewGraph, Found, NSort) :-
 
 delete_nodes([], _, []).
 delete_nodes([N|Ns], Found, NNs) :-
-	lookup(N,'$',Found), !,
+	rb_lookup(N,'$',Found), !,
 	delete_nodes(Ns, Found, NNs).
 delete_nodes([N|Ns], Found, [N|NNs]) :-
 	delete_nodes(Ns, Found, NNs).
