@@ -1323,6 +1323,9 @@ X_API int Sdprintf(char *format,...)
 static int
 SWI_ctime(void)
 {
+#if HAVE_CTIME
+  time_t tim;
+#endif
   YAP_Term t1 = YAP_ARG1;
 
   if (YAP_IsVarTerm(t1)) {
@@ -1330,7 +1333,7 @@ SWI_ctime(void)
     return FALSE;
   }
 #if HAVE_CTIME
-  time_t tim = (time_t)YAP_IntOfTerm(t1);
+  tim = (time_t)YAP_IntOfTerm(t1);
   return YAP_Unify(YAP_BufferToString(ctime(&tim)), YAP_ARG2);
 #else
   YAP_Error(0,0L,"convert_time requires ctime");
