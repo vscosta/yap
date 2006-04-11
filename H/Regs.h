@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.37 2006-03-03 23:11:03 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.38 2006-04-11 16:45:43 rslopes Exp $	 *
 *************************************************************************/
 
 
@@ -278,6 +278,8 @@ EXTERN inline void restore_B(void) {
 
 #define RECOVER_B()   
 #endif
+
+#define restore_TR() 
 
 #elif defined(__GNUC__) && defined(__alpha)
 
