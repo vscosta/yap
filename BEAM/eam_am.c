@@ -65,13 +65,12 @@ struct EAM_Global *eamGlobal=&EAMGlobal;
    #define INLINE
    #define DIRECT_JUMP 0
    void break_top(void);  void break_top(void) { };
-   void break_debug(void); 
-   void break_debug(void) { static int contador=1;
+   void break_debug(int); 
+   void break_debug(int conta) { 
  #if Debug_Dump_State & 4
   		        dump_eam_state();
  #endif
-			printf("(%d %1d) ->", contador++,beam_Mode); 
-			if (Debug!=-1 && contador>Debug*100) {printf("exit por contador>debug\n"); exit(1); }
+			if (Debug!=-1 && conta>Debug*100) {printf("exit por contador>debug\n"); exit(1); }
    };
 #endif
 
@@ -1440,7 +1439,11 @@ static void *OpAddress[]= {
         &&p_arg,
         &&p_functor
 };
+#if Debug
+static int contador=1;
+#endif
 Cell code2start[]={_prepare_calls,1,0,_call_op,0,0};
+
 
     	if ((long) initPred==2) { /* retry from call eam(goal) */
 	   goto fail; 
@@ -1527,14 +1530,14 @@ if (1) { int i;  /* criar mais um nivel acima do top para o caso de haver variav
 
                exit_eam:
 #if Debug
-break_debug();
-			printf("(%3d) exit_eam ->", (int) *beam_pc); 
+			printf("%5d->(%3d) exit_eam ->",contador++, (int) *beam_pc); 
+break_debug(contador);
 #endif		        
 
                 wake:
 #if Debug
-break_debug();
-			printf("Trying WAKE and_box on suspension \n");
+			printf("%5d->Trying WAKE and_box on suspension \n",contador++);
+break_debug(contador);
 #endif
 		        if (verify_externals(beam_ABX)==0) goto fail_verify_externals;
 			if (beam_ABX->externals==NULL) {
@@ -1552,9 +1555,9 @@ break_debug();
 
 	       top_tree:
 #if Debug
-break_debug();
-		        printf("I'm on top of the Tree (maybe exit or look for suspended alternatives) \n");
-			break_top();
+		        printf("%5d->I'm on top of the Tree (maybe exit or look for suspended alternatives) \n",contador++);
+break_debug(contador);
+break_top();
 #endif		        
 
 #if GARBAGE_COLLECTOR
@@ -1615,8 +1618,8 @@ break_debug();
 			  if (beam_nr_alternative->state & (WAKE))  goto wake;
 			  if (beam_OBX->nr_all_alternatives>1) {
 #if Debug
-break_debug();
-			     printf("Trying Fork in suspended and_box \n");
+			     printf("%5d->Trying Fork in suspended and_box \n",contador++);
+break_debug(contador);
 #endif
 			     /* pickup the left most alternative instead */
 		 split:			     
@@ -1640,8 +1643,7 @@ break_debug();
 
 		proceed:
 #if Debug
-break_debug();
-		        printf("proceed... \n");
+		        printf("%5d->proceed... \n",contador++);
 #endif
 
 			if (beam_USE_SAME_ANDBOX!=NULL) {  /* was only one alternative */
@@ -1656,8 +1658,8 @@ break_debug();
 
 	        success:
 #if Debug
-break_debug();
-			printf("SUCCESS for call %p  in level %d \n", beam_nr_call, beam_ABX->level );
+			printf("%5d->SUCCESS for call %p  in level %d \n",contador++, beam_nr_call, beam_ABX->level );
+break_debug(contador);
 #endif
 			/* FOUND SOLUTION -> ALL_SOLUTIONS */ 
 			//if ((beam_ABX->side_effects & WRITE) && beam_OBX->nr_all_alternatives>1) 
@@ -1691,8 +1693,8 @@ break_debug();
 
 	        next_call:
 #if Debug
-break_debug();
-		        printf("Searching for a next call in and_box... \n");
+		        printf("%5d->Searching for a next call in and_box... \n",contador++);
+break_debug(contador);
 #endif
 
 #if GARBAGE_COLLECTOR
@@ -1785,8 +1787,8 @@ break_debug();
 	        fail_head:
 	        fail:
 #if Debug
-break_debug();
-		        printf("fail... \n");
+		        printf("%5d->fail... \n",contador++);
+break_debug(contador);
 #endif
 
 	        fail_verify_externals:
@@ -1814,8 +1816,8 @@ break_debug();
 
 	        next_alternative:
 #if Debug
-break_debug();
-		        printf("Searching for a next alternative in or_box... \n");
+		        printf("%5d->Searching for a next alternative in or_box... \n",contador++);
+break_debug(contador);
 #endif
 
 #if GARBAGE_COLLECTOR
@@ -1868,8 +1870,8 @@ break_debug();
 
 	        unique_alternative:  
 #if Debug
-break_debug();
-			printf("Unique alternative, Does Promotion on and-box\n");
+			printf("%5d->Unique alternative, Does Promotion on and-box\n",contador++);
+break_debug(contador);
 #endif
 
 #if GARBAGE_COLLECTOR
@@ -1998,8 +2000,8 @@ break_debug();
 			
 	        prepare_tries:
 #if Debug
-break_debug();
-		        printf("prepare_tries for %d clauses with arity=%d \n",(int) arg1,(int) arg2);
+		        printf("%5d->prepare_tries for %d clauses with arity=%d \n",contador++,(int) arg1,(int) arg2);
+break_debug(contador);
 #endif
 			if (!arg1) goto fail;
 		      { register int nr;
@@ -2058,8 +2060,8 @@ break_debug();
 	        try_me:
 			beam_nr_alternative->args=NULL;
 #if Debug
-break_debug();
-		        printf("Create AND_BOX for the %dth clause of predicate %s/%d (Yvars=%d) \n",(int) arg4,((struct Clauses *)arg1)->predi->name,(int) arg2,(int) arg3);
+		        printf("%5d->Create AND_BOX for the %dth clause of predicate %s/%d (Yvars=%d) \n",contador++,(int) arg4,((struct Clauses *)arg1)->predi->name,(int) arg2,(int) arg3);
+break_debug(contador);
 #endif
 			if (beam_OBX->nr_all_alternatives>1 || beam_OBX->parent->parent==NULL) {
 
@@ -2112,8 +2114,8 @@ break_debug();
 
 	        prepare_calls:
 #if Debug
-break_debug();
-		        printf("prepare_calls %d\n",(int) arg1);
+		        printf("%5d->prepare_calls %d\n",contador++,(int) arg1);
+break_debug(contador);
 #endif
 			if (beam_USE_SAME_ANDBOX!=NULL) {  /* only one alternative */
 			  register int nr;
@@ -2191,8 +2193,8 @@ break_debug();
 
 	        scheduler:
 #if Debug
-break_debug();
-		        printf("Scheduler... \n");
+		        printf("%5d->Scheduler... \n",contador++);
+break_debug(contador);
 #endif
 #if Debug_Dump_State 
   		        dump_eam_state();
@@ -2212,8 +2214,8 @@ break_debug();
 
 	        suspend:
 #if Debug
-break_debug();
-          	        printf("SUSPEND on alternative %p\n",beam_nr_alternative);
+          	        printf("%5d->SUSPEND on alternative %p\n",contador++,beam_nr_alternative);
+break_debug(contador);
 #endif
 			beam_OBX=beam_ABX->parent;
 		        {   struct EXTERNAL_VAR *e;
@@ -2250,8 +2252,8 @@ break_debug();
 		  	  
 		call:
 #if Debug
-break_debug();
-		        printf("call %s/%d \n",((PredEntry *) arg1)->beamTable->name,(int) ((PredEntry *) arg1)->beamTable->arity);
+		        printf("%5d->call %s/%d \n",contador++,((PredEntry *) arg1)->beamTable->name,(int) ((PredEntry *) arg1)->beamTable->arity);
+break_debug(contador);
 #endif
 			beam_ES=((PredEntry *) arg1)->beamTable->eager_split;
 			
@@ -2371,8 +2373,8 @@ break_debug();
 
 		safe_call:
 #if Debug
-break_debug();
-		        printf("safe_call 0x%lX X1=%d (0x%lX) ,X2=%d (0x%lX) \n",(unsigned long) arg1,(int) beam_X[1],(unsigned long) beam_X[1],(int) beam_X[2],(unsigned long) beam_X[2]);
+		        printf("%5d->safe_call 0x%lX X1=%d (0x%lX) ,X2=%d (0x%lX) \n",contador++,(unsigned long) arg1,(int) beam_X[1],(unsigned long) beam_X[1],(int) beam_X[2],(unsigned long) beam_X[2]);
+break_debug(contador);
 #endif
 			beam_S=(Cell *) arg1;
 			beam_S=(Cell *) (* ((int long  (*)(void)) beam_S))();
@@ -2385,8 +2387,8 @@ break_debug();
 
 		safe_call_unary:
 #if Debug
-break_debug();
-		        printf("safe_call_unary 0x%lX X1=%d (0x%lX) ,X2=%d (0x%lX) \n",(unsigned long) arg1,(int) beam_X[1],(unsigned long) beam_X[1],(int) beam_X[2],(unsigned long) beam_X[2]);
+		        printf("%5d->safe_call_unary 0x%lX X1=%d (0x%lX) ,X2=%d (0x%lX) \n",contador++,(unsigned long) arg1,(int) beam_X[1],(unsigned long) beam_X[1],(int) beam_X[2],(unsigned long) beam_X[2]);
+break_debug(contador);
 #endif
 			beam_S=(Cell *) arg1;
 			beam_S=(Cell *) (* ((int long  (*)(Term)) beam_S))(deref(beam_X[1]));
@@ -2399,8 +2401,8 @@ break_debug();
 
 		safe_call_binary:
 #if Debug
-break_debug();
-		        printf("safe_call_binary 0x%lX X1=%d (0x%lX) ,X2=%d (0x%lX) \n",(unsigned long) arg1,(int) beam_X[1],(unsigned long) beam_X[1],(int) beam_X[2],(unsigned long) beam_X[2]);
+		        printf("%5d->safe_call_binary 0x%lX X1=%d (0x%lX) ,X2=%d (0x%lX) \n",contador++,(unsigned long) arg1,(int) beam_X[1],(unsigned long) beam_X[1],(int) beam_X[2],(unsigned long) beam_X[2]);
+break_debug(contador);
 #endif
 			beam_S=(Cell *) arg1;
 			beam_S=(Cell *) (* ((int long  (*)(Term, Term)) beam_S))(deref(beam_X[1]),deref(beam_X[2]));
@@ -2414,8 +2416,8 @@ break_debug();
 
 		direct_safe_call:
 #if Debug
-break_debug();
-		        printf("direct_safe_call %p X1=%d,X2=%d \n",(void *) arg1,(int) beam_X[1],(int) beam_X[2]);
+		        printf("%5d->direct_safe_call %p X1=%d,X2=%d \n",contador++,(void *) arg1,(int) beam_X[1],(int) beam_X[2]);
+break_debug(contador);
 #endif
 			beam_S=(Cell *) arg1;
 			beam_S=(Cell *) (* ((int long  (*)(void)) beam_S))();
@@ -2426,8 +2428,8 @@ break_debug();
 
 		direct_safe_call_unary:
 #if Debug
-break_debug();
-		        printf("direct_safe_call_unary %p X1=%d,X2=%d \n",(void *) arg1,(int) beam_X[1],(int) beam_X[2]);
+		        printf("%5d->direct_safe_call_unary %p X1=%d,X2=%d \n",contador++,(void *) arg1,(int) beam_X[1],(int) beam_X[2]);
+break_debug(contador);
 #endif
 			beam_S=(Cell *) arg1;
 			beam_S=(Cell *) (* ((int long  (*)(Term)) beam_S))(deref(beam_X[1]));
@@ -2437,8 +2439,8 @@ break_debug();
 
 		direct_safe_call_binary:
 #if Debug
-break_debug();
-		        printf("direct_safe_call_binary %p X1=%d,X2=%d \n",(void *) arg1,(int) beam_X[1],(int) beam_X[2]);
+		        printf("%5d->direct_safe_call_binary %p X1=%d,X2=%d \n",contador++,(void *) arg1,(int) beam_X[1],(int) beam_X[2]);
+break_debug(contador);
 #endif
 			beam_S=(Cell *) arg1;
 			beam_S=(Cell *) (* ((int long  (*)(Term,Term)) beam_S))(deref(beam_X[1]),deref(beam_X[2]));
@@ -2448,8 +2450,8 @@ break_debug();
 
 	        skip_while_var:
 #if Debug
-break_debug();
-			    printf("Skip_while_var on call %p\n", beam_nr_call);
+			    printf("%5d->Skip_while_var on call %p\n",contador++, beam_nr_call);
+break_debug(contador);
 #endif   
 			 if (exists_var_in((Cell *) beam_X[1])) { 
 			   beam_ABX->suspended=addto_suspensions_list(beam_ABX,VAR_SUSPENSION);
@@ -2461,8 +2463,8 @@ break_debug();
 
 	        wait_while_var:
 #if Debug
-break_debug();
-			    printf("Wait_while_var on call %p\n", beam_nr_call);
+			    printf("%5d->Wait_while_var on call %p\n",contador++, beam_nr_call);
+break_debug(contador);
 #endif   
 			 if (exists_var_in((Cell *) beam_X[1])) { 
 			       beam_ABX->suspended=addto_suspensions_list(beam_ABX,VAR_SUSPENSION);
@@ -2475,8 +2477,8 @@ break_debug();
 
 	        force_wait:
 #if Debug
-break_debug();
-			 printf("Force Waiting on call %p\n", beam_nr_call);
+			 printf("%5d->Force Waiting on call %p\n",contador++, beam_nr_call);
+break_debug(contador);
 #endif   
 			 /* we didn't get to created a or_box */
 
@@ -2493,8 +2495,8 @@ break_debug();
 
 	        write_call:
 #if Debug
-break_debug();
-		         printf("write_call\n");
+		         printf("%5d->write_call\n",contador++);
+break_debug(contador);
 #endif
 #if USE_LEFTMOST
 			 if (!is_leftmost(beam_ABX,beam_nr_call)) {
@@ -2521,8 +2523,8 @@ break_debug();
 
 	        is_call:
 #if Debug
-break_debug();
-		        printf("is_call\n");
+		        printf("%5d->is_call\n",contador++);
+break_debug(contador);
 #endif
 			{
 			  Cell *_DR;
@@ -2541,8 +2543,8 @@ break_debug();
 
 	        equal_call:
 #if Debug
-break_debug();
-		        printf("equal_call\n");
+		        printf("%5d->equal_call\n",contador++);
+break_debug(contador);
 #endif
 			beam_nr_call=remove_call_from_andbox(beam_nr_call,beam_ABX);
 			if (beam_ABX->externals!=NULL) {
@@ -2557,8 +2559,8 @@ break_debug();
 
 		pop:
 #if Debug
-break_debug();
-		        printf("pop %d \n",(int) arg1);  
+		        printf("%5d->pop %d \n",contador++,(int) arg1);  
+break_debug(contador);
 #endif
                         if (arg1>1) {
 			  beam_sp+=arg1>>2; 
@@ -2573,8 +2575,8 @@ break_debug();
 
 		do_nothing:
 #if Debug
-break_debug();
-		        printf("do_nothing \n");
+		        printf("%5d->do_nothing \n",contador++);
+break_debug(contador);
 #endif
 			beam_pc++;
 		        execute_next();
@@ -2582,8 +2584,8 @@ break_debug();
 
 		get_var_X:
 #if Debug
-break_debug();
-		        printf("get_var_X X%d=X%d \n",(int) arg2,(int) arg1);
+		        printf("%5d->get_var_X X%d=X%d \n",contador++,(int) arg2,(int) arg1);
+break_debug(contador);
     
 #endif
 			beam_X[arg2]=beam_X[arg1];
@@ -2592,8 +2594,8 @@ break_debug();
 
 		get_var_Y:
 #if Debug
-break_debug();
-		        printf("get_var_Y Y%d=X%d \n",(int) arg2,(int) arg1);
+		        printf("%5d->get_var_Y Y%d=X%d \n",contador++,(int) arg2,(int) arg1);
+break_debug(contador);
 #endif
 			beam_varlocals[arg2]=beam_X[arg1];
 #if !Fast_go
@@ -2609,8 +2611,8 @@ break_debug();
 
 		get_val_X:
 #if Debug
-break_debug();
-		        printf("get_val_X X%d,X%d \n",(int) arg1,(int) arg2);    
+		        printf("%5d->get_val_X X%d,X%d \n",contador++,(int) arg1,(int) arg2);    
+break_debug(contador);
 #endif
 			{ register Cell *_DR, *_DR1;
 			_DR=(Cell *) deref(beam_X[arg1]);
@@ -2637,8 +2639,8 @@ break_debug();
 
 		get_val_Y:
 #if Debug
-break_debug();
-		        printf("get_val_Y X%d,Y%d \n",(int) arg1,(int) arg2);   
+		        printf("%5d->get_val_Y X%d,Y%d \n",contador++,(int) arg1,(int) arg2);   
+break_debug(contador);
 #endif
 			{ register Cell *_DR, *_DR1;
 			_DR=(Cell *) deref(beam_X[arg1]);
@@ -2665,8 +2667,8 @@ break_debug();
 
 		get_atom:
 #if Debug
-break_debug();
-		        printf("get_atom X%d, 0x%lX\n",(int) arg1,(unsigned long) arg2);
+		        printf("%5d->get_atom X%d, 0x%lX\n",contador++,(int) arg1,(unsigned long) arg2);
+break_debug(contador);
 #endif
 			{ register Cell *_DR;
 			_DR=(Cell *) deref(beam_X[arg1]);
@@ -2682,8 +2684,8 @@ break_debug();
 
 		get_list:
 #if Debug
-break_debug();
-		        printf("get_list X%d\n",(int) arg1);
+		        printf("%5d->get_list X%d\n",contador++,(int) arg1);
+break_debug(contador);
 #endif
 			{ register Cell *_DR, *_DR1;
 			_DR=(Cell *) deref(beam_X[arg1]);
@@ -2707,8 +2709,8 @@ break_debug();
 
 		get_struct:
 #if Debug
-break_debug();
-		        printf("get_struct X%d, 0x%lX/%d\n",(int) arg1,(unsigned long) arg2,(int) arg3);
+		        printf("%5d->get_struct X%d, 0x%lX/%d\n",contador++,(int) arg1,(unsigned long) arg2,(int) arg3);
+break_debug(contador);
     
 #endif
 			{ register Cell *_DR, *_DR1;
@@ -2736,8 +2738,8 @@ break_debug();
 
 		unify_void:
 #if Debug
-break_debug();
-		        printf("unify_void\n");
+		        printf("%5d->unify_void\n",contador++);
+break_debug(contador);
 #endif
 			if (beam_Mode==WRITE) {
 			  *beam_S=(Cell) request_permVar(beam_ABX);
@@ -2749,8 +2751,8 @@ break_debug();
 
 		unify_local_Y:
 #if Debug
-break_debug();
-		        printf("unify_local_Y Y%d \n",(int) arg1);
+		        printf("%5d->unify_local_Y Y%d \n",contador++,(int) arg1);
+break_debug(contador);
     
 #endif
 		     if (beam_Mode==READ) {
@@ -2793,8 +2795,8 @@ break_debug();
 
 		unify_local_X:
 #if Debug
-break_debug();
-		        printf("unify_local_X X%d \n",(int) arg1);
+		        printf("%5d->unify_local_X X%d \n",contador++,(int) arg1);
+break_debug(contador);
 #endif
 		     if (beam_Mode==READ) {			
 			 register Cell *_DR, *_DR1;
@@ -2837,8 +2839,8 @@ break_debug();
 
 		unify_val_Y:
 #if Debug
-break_debug();
-		        printf("unify_val_Y Y%d \n",(int) arg1);
+		        printf("%5d->unify_val_Y Y%d \n",contador++,(int) arg1);
+break_debug(contador);
     
 #endif
 		     if (beam_Mode==READ) {			
@@ -2875,8 +2877,8 @@ break_debug();
 
 		unify_val_X:
 #if Debug
-break_debug();
-		        printf("unify_val_X X%d \n",(int) arg1);
+		        printf("%5d->unify_val_X X%d \n",contador++,(int) arg1);
+break_debug(contador);
 #endif
 		     if (beam_Mode==READ) {			
 			 register Cell *_DR, *_DR1;
@@ -2911,8 +2913,8 @@ break_debug();
 
 		unify_var_X:
 #if Debug
-break_debug();
-		        printf("unify_var_X X%d=*S \n",(int) arg1);
+		        printf("%5d->unify_var_X X%d=*S \n",contador++,(int) arg1);
+break_debug(contador);
 #endif
 		     if (beam_Mode==READ) {			
 		        beam_X[arg1]=*(beam_S++);
@@ -2928,8 +2930,8 @@ break_debug();
 
 		unify_var_Y:
 #if Debug
-break_debug();
-		        printf("unify_var_Y Y%d \n",(int) arg1);
+		        printf("%5d->unify_var_Y Y%d \n",contador++,(int) arg1);
+break_debug(contador);
 #endif
 		     if (beam_Mode==READ) {
 			beam_varlocals[arg1]=*(beam_S++);
@@ -2946,8 +2948,8 @@ break_debug();
 		unify_last_atom:
 		unify_atom:
 #if Debug
-break_debug();
-		        printf("unify_atom 0x%lX \n",(unsigned long) arg1);
+		        printf("%5d->unify_atom 0x%lX \n",contador++,(unsigned long) arg1);
+break_debug(contador);
 #endif
 		     if (beam_Mode==READ) {
 			 register Cell *_DR;
@@ -2970,8 +2972,8 @@ break_debug();
 
 		unify_list:
 #if Debug
-break_debug();
-		        printf("unify_list \n");
+		        printf("%5d->unify_list \n",contador++);
+break_debug(contador);
 #endif
 		     if (beam_Mode==READ) {
 			 register Cell *_DR, *_DR1;
@@ -3010,8 +3012,8 @@ break_debug();
 
 		unify_last_list:
 #if Debug
-break_debug();
-		        printf("unify_last_list \n");
+		        printf("%5d->unify_last_list \n",contador++);
+break_debug(contador);
 #endif
 		     if (beam_Mode==READ) {
 			register Cell *_DR, *_DR1;
@@ -3043,8 +3045,8 @@ break_debug();
 
 		unify_struct:
 #if Debug
-break_debug();
-		        printf("unify_struct 0x%lX,%d \n",(unsigned long) arg1,(int) arg2);
+		        printf("%5d->unify_struct 0x%lX,%d \n",contador++,(unsigned long) arg1,(int) arg2);
+break_debug(contador);
 #endif
 		     if (beam_Mode==READ) {
 			 register Cell *_DR, *_DR1;
@@ -3087,8 +3089,8 @@ break_debug();
 
 		unify_last_struct:
 #if Debug
-break_debug();
-		        printf("unify_last_struct 0x%lX, %d \n",(unsigned long) arg1,(int) arg2);
+		        printf("%5d->unify_last_struct 0x%lX, %d \n",contador++,(unsigned long) arg1,(int) arg2);
+break_debug(contador);
 #endif
 		     if (beam_Mode==READ) {
 			 register Cell *_DR, *_DR1;
@@ -3124,8 +3126,8 @@ break_debug();
 
 		put_var_X:
 #if Debug
-break_debug();
-		        printf("put_var_X X%d,X%d \n",(int) arg1,(int) arg2);
+		        printf("%5d->put_var_X X%d,X%d \n",contador++,(int) arg1,(int) arg2);
+break_debug(contador);
 #endif
 			beam_X[arg1]=(Cell)  beam_H;
 			beam_X[arg2]=(Cell)  beam_H;
@@ -3138,8 +3140,8 @@ break_debug();
 
 		put_val_X:
 #if Debug
-break_debug();
-		        printf("put_val_X X%d,X%d \n",(int) arg1,(int) arg2);
+		        printf("%5d->put_val_X X%d,X%d \n",contador++,(int) arg1,(int) arg2);
+break_debug(contador);
 #endif
 			beam_X[arg1]=beam_X[arg2];
 			beam_pc+=3;
@@ -3148,8 +3150,8 @@ break_debug();
 
 		put_var_P:
 #if Debug
-break_debug();
-		        printf("put_var_P X%d,Y%d \n",(int) arg1,(int) arg2);
+		        printf("%5d->put_var_P X%d,Y%d \n",contador++,(int) arg1,(int) arg2);
+break_debug(contador);
 #endif
 			if (isvar(beam_varlocals[arg2]) && !is_perm_var((Cell *) beam_varlocals[arg2])) 
 			   beam_varlocals[arg2]=(Cell) request_permVar(beam_ABX);
@@ -3160,8 +3162,8 @@ break_debug();
 		put_var_Y:
 			/*
 #if Debug
-break_debug();
-		        printf("put_var_Y X%d,Y%d \n",(int) arg1,(int) arg2);
+		        printf("%5d->put_var_Y X%d,Y%d \n",contador++,(int) arg1,(int) arg2);
+break_debug(contador);
     
 #endif
                         { register Cell *a;
@@ -3173,8 +3175,8 @@ break_debug();
 			*/
 		put_val_Y:
 #if Debug
-break_debug();
-		        printf("put_val_Y X%d,Y%d \n",(int) arg1,(int) arg2);
+		        printf("%5d->put_val_Y X%d,Y%d \n",contador++,(int) arg1,(int) arg2);
+break_debug(contador);
 #endif
 			beam_X[arg1]=beam_varlocals[arg2];
 			beam_pc+=3;
@@ -3182,8 +3184,8 @@ break_debug();
 
 		put_unsafe:
 #if Debug
-break_debug();
-		        printf("put_unsafe X%d, Y%d \n",(int) arg1,(int) arg2);
+		        printf("%5d->put_unsafe X%d, Y%d \n",contador++,(int) arg1,(int) arg2);
+break_debug(contador);
 #endif
 			beam_X[arg1]=beam_varlocals[arg2]; 
 			beam_pc+=3;
@@ -3192,8 +3194,8 @@ break_debug();
 
 		put_atom:
 #if Debug
-break_debug();
-		        printf("put_atom X%d, 0x%lX \n",(int) arg1,(unsigned long) arg2);
+		        printf("%5d->put_atom X%d, 0x%lX \n",contador++,(int) arg1,(unsigned long) arg2);
+break_debug(contador);
 #endif
 			beam_X[arg1]=arg2;
 			beam_pc+=3;
@@ -3201,8 +3203,8 @@ break_debug();
 
 		put_list:
 #if Debug
-break_debug();
-		        printf("put_list X%d \n",(int) arg1);
+		        printf("%5d->put_list X%d \n",contador++,(int) arg1);
+break_debug(contador);
 #endif
 			{ register Cell *_DR1;
 
@@ -3216,8 +3218,8 @@ break_debug();
 
 		put_struct:
 #if Debug
-break_debug();
-		        printf("put_struct X%d, 0x%lX, %d \n",(int) arg1,(unsigned long) arg2,(int) arg3);
+		        printf("%5d->put_struct X%d, 0x%lX, %d \n",contador++,(int) arg1,(unsigned long) arg2,(int) arg3);
+break_debug(contador);
 #endif
 			{ register Cell _DR1;
 
@@ -3232,8 +3234,8 @@ break_debug();
 
 		write_var_X:
 #if Debug
-break_debug();
-		        printf("write_var_X X%d \n",(int) arg1);
+		        printf("%5d->write_var_X X%d \n",contador++,(int) arg1);
+break_debug(contador);
 #endif
 			*beam_S=(Cell) request_permVar(beam_ABX);
 			beam_X[arg1]=(Cell) beam_S;
@@ -3243,8 +3245,8 @@ break_debug();
 
 		write_var_Y:
 #if Debug
-break_debug();
-		        printf("write_var_Y Y%d \n",(int) arg1);
+		        printf("%5d->write_var_Y Y%d \n",contador++,(int) arg1);
+break_debug(contador);
 #endif 
 			{ Cell *c;
 			c=&beam_varlocals[arg1];
@@ -3258,8 +3260,8 @@ break_debug();
 
 		write_var_P:
 #if Debug
-break_debug();
-		        printf("write_var_P Y%d \n",(int) arg1);
+		        printf("%5d->write_var_P Y%d \n",contador++,(int) arg1);
+break_debug(contador);
 #endif 
 			if (isvar(beam_varlocals[arg1]) && !is_perm_var((Cell *) beam_varlocals[arg1])) 
                            beam_varlocals[arg1]=(Cell) request_permVar(beam_ABX);
@@ -3272,8 +3274,8 @@ break_debug();
 	        write_local_X:
 		write_val_X:
 #if Debug
-break_debug();
-		        printf("write_val_X X%d  (or write_local)\n",(int) arg1);
+		        printf("%5d->write_val_X X%d  (or write_local)\n",contador++,(int) arg1);
+break_debug(contador);
 #endif
 			*(beam_S)=beam_X[arg1];
 			beam_S++;
@@ -3292,8 +3294,8 @@ break_debug();
 
 	        write_void:
 #if Debug
-break_debug();
-		        printf("write_void \n");  
+		        printf("%5d->write_void \n",contador++);  
+break_debug(contador);
 #endif
 			*beam_S=(Cell) request_permVar(beam_ABX);
 			beam_S++;
@@ -3301,8 +3303,8 @@ break_debug();
 			execute_next();
 		write_atom:	
 #if Debug
-break_debug();
-		        printf("write_atom 0x%lX \n",(unsigned long) arg1);
+		        printf("%5d->write_atom 0x%lX \n",contador++,(unsigned long) arg1);
+break_debug(contador);
 #endif
 			*(beam_S)=arg1;
 			beam_S++;
@@ -3312,8 +3314,8 @@ break_debug();
 
 		write_list:
 #if Debug
-break_debug();
-		        printf("write_list \n");
+		        printf("%5d->write_list \n",contador++);
+break_debug(contador);
 #endif
 			{ register Cell *_DR1;
 
@@ -3328,8 +3330,8 @@ break_debug();
 
 		write_last_list:
 #if Debug
-break_debug();
-		        printf("write_last_list \n");
+		        printf("%5d->write_last_list \n",contador++);
+break_debug(contador);
 #endif
 			{ register Cell *_DR1;
 
@@ -3343,8 +3345,8 @@ break_debug();
 
 		write_struct:
 #if Debug
-break_debug();
-		        printf("write_struct 0x%lX, %d \n",(unsigned long) arg1,(int) arg2);
+		        printf("%5d->write_struct 0x%lX, %d \n",contador++,(unsigned long) arg1,(int) arg2);
+break_debug(contador);
 #endif
 			{ register Cell *_DR1;
 
@@ -3360,8 +3362,8 @@ break_debug();
 
 		write_last_struct:
 #if Debug
-break_debug();
-		        printf("write_last_struct 0x%lX, %d \n",(unsigned long) arg1,(int) arg2);
+		        printf("%5d->write_last_struct 0x%lX, %d \n",contador++,(unsigned long) arg1,(int) arg2);
+break_debug(contador);
 #endif
 			{ register Cell *_DR1;
 			_DR1=(Cell *) absappl((Cell) beam_H); /* SaveExpression in _DR1*/
@@ -3375,8 +3377,8 @@ break_debug();
 
 		cut: 
 #if Debug
-break_debug();
-		        printf("cut na alternativa %pª de %d \n",beam_ABX->nr_alternative, beam_ABX->parent->nr_all_alternatives);
+		        printf("%5d->cut na alternativa %pª de %d \n",contador++,beam_ABX->nr_alternative, beam_ABX->parent->nr_all_alternatives);
+break_debug(contador);
 #endif
 			beam_OBX=beam_ABX->parent;
 			{
@@ -3421,8 +3423,8 @@ break_debug();
 
 		commit:
 #if Debug
-break_debug();
-		        printf("commit na alternativa %pª de %d \n",beam_ABX->nr_alternative, beam_ABX->parent->nr_all_alternatives);
+		        printf("%5d->commit na alternativa %pª de %d \n",contador++,beam_ABX->nr_alternative, beam_ABX->parent->nr_all_alternatives);
+break_debug(contador);
 #endif
 			beam_OBX=beam_ABX->parent;
 			{
@@ -3469,8 +3471,8 @@ break_debug();
 
 		jump:
 #if Debug
-break_debug();
-		        printf("jump inst %ld\n",(long int) arg1);
+		        printf("%5d->jump inst %ld\n",contador++,(long int) arg1);
+break_debug(contador);
 #endif
 		        beam_pc=(Cell *) arg1; 
 			execute_next();
@@ -3478,8 +3480,8 @@ break_debug();
 
 	save_pair_Y:
 #if Debug
-break_debug();
-		        printf("save_pair Y%ld\n",(long int) arg1);
+		        printf("%5d->save_pair Y%ld\n",contador++,(long int) arg1);
+break_debug(contador);
 #endif
 		        abort_eam("save_exp no emulador ?????");
 			--S;
@@ -3490,8 +3492,8 @@ break_debug();
 
 	save_appl_Y:
 #if Debug
-break_debug();
-		        printf("save_appl Y%ld\n",(long int) arg1);
+		        printf("%5d->save_appl Y%ld\n",contador++,(long int) arg1);
+break_debug(contador);
 #endif
 		        abort_eam("save_exp no emulador ?????");
 			--S;
@@ -3503,8 +3505,8 @@ break_debug();
 
 	save_appl_X:
 #if Debug
-break_debug();
-		        printf("save_appl X%ld\n",(long int) arg1);
+		        printf("%5d->save_appl X%ld\n",contador++,(long int) arg1);
+break_debug(contador);
 #endif
 		        abort_eam("save_exp no emulador ?????");
 			--S;
@@ -3515,8 +3517,8 @@ break_debug();
 
 	save_pair_X:
 #if Debug
-break_debug();
-		        printf("save_pair X%ld\n",(long int) arg1);
+		        printf("%5d->save_pair X%ld\n",contador++,(long int) arg1);
+break_debug(contador);
 #endif
 		        abort_eam("save_exp no emulador ?????");
 			--S;

@@ -256,15 +256,15 @@ int n;
 	      code+=4;
 	      break;
         case(_try_me_op ):
-	      printf("_try_me_op -> Create AND_BOX for the %dth clause of predicate %s/%d (Yvars=%d) \n",(int) carg4,((struct Clauses *)carg1)->predi->name,(int) carg2,(int) carg3);
+	      printf("_try_me_op (not final)\n");
 	      code+=5;
 	      break;
         case(_retry_me_op ):
-	      printf("_retry_me_op -> Create AND_BOX for the %dth clause of predicate %s/%d (Yvars=%d) \n",(int) carg4,((struct Clauses *)carg1)->predi->name,(int) carg2,(int) carg3);
+	      printf("_retry_me_op (not final)\n");
 	      code+=5;
 	      break;
         case(_trust_me_op ):
-	      printf("_trust_me_op -> Create AND_BOX for the %dth clause of predicate %s/%d (Yvars=%d) \n",(int) carg4,((struct Clauses *)carg1)->predi->name,(int) carg2,(int) carg3);
+	      printf("_trust_me_op (not final)\n");
 	      code+=5;
 	      break;
         case(_do_nothing_op ):
