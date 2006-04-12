@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-03-30 01:11:09 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-12 15:51:23 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.198  2006/03/30 01:11:09  vsc
+* fix nasty variable shunting bug in garbage collector :-(:wq
+*
 * Revision 1.197  2006/03/24 17:13:41  rslopes
 * New update to BEAM engine.
 * BEAM now uses YAP Indexing (JITI)
@@ -348,7 +351,7 @@ AritFunctorOfTerm(Term t) {
   }
 }
 
-#define TMP_BIG(v)  Yap_BigTmp
+#define TMP_BIG()  Yap_BigTmp
 #define RINT(v)     return(MkIntegerTerm(v))
 #define RFLOAT(v)   return(MkFloatTerm(v))
 #if USE_GMP

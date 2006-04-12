@@ -32,7 +32,7 @@ static char     SccsId[] = "%W% %G%";
 #define E_ARGS   , arith_retptr o
 #define USE_E_ARGS   , o
 
-#define TMP_BIG()   (o)->big
+#define TMP_BIG()   ((o)->big)
 #define RINT(v)     (o)->Int = (v); return(long_int_e)
 #define RFLOAT(v)   (o)->dbl = (v); return(double_e)
 #define RBIG(v)     return(big_int_e)
