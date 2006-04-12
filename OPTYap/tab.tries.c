@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.C
-  version:     $Id: tab.tries.c,v 1.18 2006-04-05 00:16:54 vsc Exp $   
+  version:     $Id: tab.tries.c,v 1.19 2006-04-12 14:57:59 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -754,6 +754,11 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
     TrNode_sg_fr(current_sg_node) = (sg_node_ptr) sg_fr;
   } else {
     sg_fr = (sg_fr_ptr) TrNode_sg_fr(current_sg_node);
+#ifdef LIMIT_TABLING
+    if (SgFr_state(sg_fr) == ready) {
+      remove_from_global_sg_fr_list(sg_fr);
+    }
+#endif /* LIMIT_TABLING */
   }
 #if defined(TABLE_LOCK_AT_ENTRY_LEVEL)
   UNLOCK(TabEnt_lock(tab_ent));
