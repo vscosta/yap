@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2006-04-05 00:16:54 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-12 20:08:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.72  2006/04/05 00:16:54  vsc
+* Lots of fixes (check logfile for details
+*
 * Revision 1.71  2006/03/24 17:13:41  rslopes
 * New update to BEAM engine.
 * BEAM now uses YAP Indexing (JITI)
@@ -294,6 +297,7 @@ c_var(Term t, Int argno, unsigned int arity, unsigned int level, compiler_struct
     v->NextOfVE = cglobs->vtable;
     v->RCountOfVE = 0;
     v->AgeOfVE = v->FirstOfVE = cglobs->goalno;
+    v->UnsafeUpdateVE = 0;
     new = TRUE;
     cglobs->vtable = v;
   } else {
@@ -2198,7 +2202,6 @@ CheckUnsafe(PInstr *pc, compiler_struct *cglobs)
     case put_val_op:
       {
 	Ventry *v = (Ventry *) (pc->rnd1);
-
 	if ((v->FlagsOfVE & PermFlag) && !(v->FlagsOfVE & SafeVar)) {
 	  UnsafeStack[pending].p = pc;
 	  UnsafeStack[pending++].v = v;
@@ -2243,7 +2246,7 @@ CheckUnsafe(PInstr *pc, compiler_struct *cglobs)
       break;
     case pushpop_or_op:
       reset_bvmap(vstat, nperm, cglobs);
-      break;
+      goto reset_safe_map;
     case orelse_op:
       Yap_emit(label_op, ++cglobs->labelno, Zero, &cglobs->cint);
       pc->ops.opseqt[1] = (CELL)cglobs->labelno;
@@ -2251,6 +2254,7 @@ CheckUnsafe(PInstr *pc, compiler_struct *cglobs)
       break;
     case pop_or_op:
       pop_bvmap(vstat, nperm, cglobs);
+      goto reset_safe_map;
       break;
     case empty_call_op:
       /* just get ourselves a label describing how
@@ -2272,6 +2276,7 @@ CheckUnsafe(PInstr *pc, compiler_struct *cglobs)
       pc->ops.opseqt[1] = (CELL)cglobs->labelno;
       add_bvarray_op(pc, vstat, pc->rnd2, cglobs);
     case deallocate_op:
+    reset_safe_map:
       {
 	int n = pc->op == call_op ? pc->rnd2 : 0;
 	int no;
