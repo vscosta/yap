@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-04-05 00:16:54 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-12 18:56:50 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.161  2006/04/05 00:16:54  vsc
+* Lots of fixes (check logfile for details
+*
 * Revision 1.160  2006/03/24 17:13:41  rslopes
 * New update to BEAM engine.
 * BEAM now uses YAP Indexing (JITI)
@@ -8008,8 +8011,10 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _try_clause:
       if (b0 == NULL)
 	store_clause_choice_point(Terms[0], Terms[1], Terms[2], NEXTOP(ipc,ld), ap, ap_pc, cp_pc);
-      else
+      else {
+	B = b0;
 	update_clause_choice_point(NEXTOP(ipc,ld), ap_pc);
+      }
       if (lu_pred)
 	return lu_clause(ipc->u.ld.d);
       else
@@ -8019,8 +8024,10 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _try_clause4:
       if (b0 == NULL)
 	store_clause_choice_point(Terms[0], Terms[1], Terms[2], NEXTOP(ipc,l), ap, ap_pc, cp_pc);
-      else
+      else {
+	B = b0;
 	update_clause_choice_point(NEXTOP(ipc,l), ap_pc);
+      }
       if (lu_pred)
 	return lu_clause(ipc->u.l.l);
       else
@@ -8028,8 +8035,10 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _try_me:
       if (b0 == NULL)
 	store_clause_choice_point(Terms[0], Terms[1], Terms[2], ipc->u.ld.d, ap, ap_pc, cp_pc);
-      else
+      else {
+	B = b0;
 	update_clause_choice_point(ipc->u.ld.d, ap_pc);
+      }
       ipc = NEXTOP(ipc,ld);
       break;
     case _retry_profiled:
@@ -8081,6 +8090,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _profiled_trust_me:
     case _trust_me:
     case _count_trust_me:
+      b0 = B;
 #ifdef CUT_C
       {
 	while (POP_CHOICE_POINT(B->cp_b))
