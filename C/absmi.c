@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-04-12 15:51:23 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2006-04-12 17:14:58 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.199  2006/04/12 15:51:23  rslopes
+* small fixes
+*
 * Revision 1.198  2006/03/30 01:11:09  vsc
 * fix nasty variable shunting bug in garbage collector :-(:wq
 *
@@ -537,6 +540,7 @@ Yap_absmi(int inp)
     init_absmi_regs(&absmi_regs);
     Yap_regp = &absmi_regs;
 #endif
+    CACHE_A1();
     PREG=bpEntry->CodeOfPred;
     JMPNext();			/* go execute instruction at PREG */
   }
