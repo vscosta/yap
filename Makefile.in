@@ -88,7 +88,7 @@ TEXI2PDF=texi2pdf
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #
-VERSION=Yap-5.1.0
+VERSION=Yap-5.1.2
 #
 
 INTERFACE_HEADERS = $(srcdir)/include/c_interface.h $(srcdir)/include/yap_structs.h $(srcdir)/include/YapInterface.h
