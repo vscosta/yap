@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2006-04-12 20:08:51 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-13 02:04:24 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.73  2006/04/12 20:08:51  vsc
+* make it sure that making vars safe does not propagate across branches of disjunctions.
+*
 * Revision 1.72  2006/04/05 00:16:54  vsc
 * Lots of fixes (check logfile for details
 *
@@ -297,7 +300,6 @@ c_var(Term t, Int argno, unsigned int arity, unsigned int level, compiler_struct
     v->NextOfVE = cglobs->vtable;
     v->RCountOfVE = 0;
     v->AgeOfVE = v->FirstOfVE = cglobs->goalno;
-    v->UnsafeUpdateVE = 0;
     new = TRUE;
     cglobs->vtable = v;
   } else {
