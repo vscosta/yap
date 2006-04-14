@@ -14,11 +14,13 @@
 	    undgraph_del_edges/3,
 	    undgraph_del_vertex/3,
 	    undgraph_del_vertices/3,
+	    undgraph_edge/3,
 	    undgraph_edges/2,
 	    undgraph_vertices/2,
-	    undgraph_neighbors/2,
-	    undgraph_neighbours/2,
-	    undgraph_complement/2]).
+	    undgraph_neighbors/3,
+	    undgraph_neighbours/3,
+	    undgraph_complement/2,
+	    dgraph_to_undgraph/2]).
 
 :- use_module( library(dgraphs),
 	   [
@@ -31,11 +33,13 @@
 	    dgraph_del_edges/3,
 	    dgraph_del_vertex/3,
 	    dgraph_del_vertices/3,
+	    dgraph_edge/3,
 	    dgraph_edges/2,
 	    dgraph_vertices/2,
-	    dgraph_neighbors/2,
-	    dgraph_neighbours/2,
-	    dgraph_complement/2]).
+	    dgraph_neighbors/3,
+	    dgraph_neighbours/3,
+	    dgraph_complement/2,
+	    dgraph_symmetric_closure/2]).
 
 :- use_module(library(ordsets),
 	[ ord_del_element/3,
@@ -43,7 +47,9 @@
 	  ord_subtract/3]).
 
 :- use_module(library(rbtrees),
-	[ rb_delete/4]).
+	[  rb_delete/4,
+	   rb_partial_map/4
+	]).
 
 undgraph_new(Vertices) :-
 	dgraph_new(Vertices).
@@ -54,7 +60,7 @@ undgraph_add_edge(V1,V2,Vs0,Vs2) :-
 	
 undgraph_add_edges(Edges) -->
 	{ dup_edges(Edges, DupEdges) },
-	dgraph_add_edges(Edges).
+	dgraph_add_edges(DupEdges).
 
 dup_edges([],[]).
 dup_edges([E1-E2|Edges], [E1-E2,E2-E1|DupEdges]) :-
@@ -84,10 +90,22 @@ undgraph_vertices(Vs,Vertices) :-
 
 undgraph_neighbours(V,Vertices,Children) :-
 	dgraph_neighbours(V,Vertices,Children0),
-	ord_del_element(V,Children0,Children).
+	(
+	    ord_del_element(Children0,V,Children)
+	->
+	    true
+	;
+	    Children = Children0
+	).
 undgraph_neighbors(V,Vertices,Children) :-
 	dgraph_neighbors(V,Vertices,Children0),
-	ord_del_element(V,Children0,Children).
+	(
+	    ord_del_element(Children0,V,Children)
+	->
+	    true
+	;
+	    Children = Children0
+	).
 
 undgraph_complement(Vs0,VsF) :-
 	dgraph_complement(Vs0,VsF).
@@ -104,7 +122,13 @@ undgraph_del_edges(Edges) -->
 
 undgraph_del_vertex(V, Vs0, Vsf) :-
 	rb_delete(Vs0, V, BackEdges, Vsi),
-	ord_del_element(BackEdges,V,RealBackEdges),
+	(
+	    ord_del_element(BackEdges,V,RealBackEdges)
+	->
+	    true
+	;
+	    BackEdges = RealBackEdges
+	),
 	rb_partial_map(Vsi, RealBackEdges, del_edge(V), Vsf).
 
 undgraph_del_vertices(Vs) -->
@@ -127,7 +151,13 @@ delete_remaining_edges(SortedVs, TrueBackEdges, Vs0,Vsf) :-
 del_edges(ToRemove,E0,E) :-
 	ord_subtract(E0,ToRemove,E).
 
-del_edges(ToRemove,E0,E) :-
+del_edge(ToRemove,E0,E) :-
 	ord_del_element(E0,ToRemove,E).
+
+dgraph_to_undgraph(G, U) :-
+	dgraph_symmetric_closure(G, U).
+
+undgraph_edge(N1, N2, G) :-
+	dgraph_edge(N1, N2, G).
 
 

@@ -43,7 +43,7 @@
 	   rb_in/3
        ]).
 
-:- meta_predicate rb_map(+,:,-), rb_apply(+,+,:,-).
+:- meta_predicate rb_map(+,:,-), rb_partial_map(+,+,:,-), rb_apply(+,+,:,-).
 
 % create an empty tree.
 rb_new(t(Nil,Nil)) :- Nil = black([],[],[],[]).
@@ -188,9 +188,11 @@ apply(black(Left,Key0,Val0,Right), Key, Goal, black(NewLeft,Key0,Val,NewRight)) 
 	;
 	Cmp == (>) ->
 	    NewRight = Right,
+	    Val = Val0,
 	    apply(Left, Key, Goal, NewLeft)
 	;
 	    NewLeft = Left,
+	    Val = Val0,
 	    apply(Right, Key, Goal, NewRight)
 	).
 apply(red(Left,Key0,Val0,Right), Key, Goal, red(NewLeft,Key0,Val,NewRight)) :-
@@ -202,9 +204,11 @@ apply(red(Left,Key0,Val0,Right), Key, Goal, red(NewLeft,Key0,Val,NewRight)) :-
 	;
 	Cmp == (>) ->
 	    NewRight = Right,
+	    Val = Val0,
 	    apply(Left, Key, Goal, NewLeft)
 	;
 	    NewLeft = Left,
+	    Val = Val0,
 	    apply(Right, Key, Goal, NewRight)
 	).
 
@@ -635,15 +639,31 @@ clone(black(L,K,_,R),black(NL,K,NV,NR),NsF,Ns0) :-
 	clone(R,NR,Ns1,Ns0).
 
 rb_partial_map(t(Nil,T0), Map, Goal, t(Nil,TF)) :-
-	partial_map(T0, Map, [], Goal, TF).
+	partial_map(T0, Map, [], Nil, Goal, TF).
 
 rb_partial_map(t(Nil,T0), Map, Map0, Goal, t(Nil,TF)) :-
-	rb_partial_map(T0, Map, Map0, Goal, TF).
+	rb_partial_map(T0, Map, Map0, Nil, Goal, TF).
 
-partial_map(T,[],[],_,T) :- !.
-partial_map(black([],[],[],[]),Map,Map,_,black([],[],[],[])) :- !.
-partial_map(red(L,K,V,R),Map,MapF,Goal,red(NL,K,NV,NR)) :-
-	partial_map(L,Map,MapI,Goal,NL),
+partial_map(T,[],[],_,_,T) :- !.
+partial_map(black([],_,_,_),Map,Map,Nil,_,Nil) :- !.
+partial_map(red(L,K,V,R),Map,MapF,Nil,Goal,red(NL,K,NV,NR)) :-
+	partial_map(L,Map,MapI,Nil,Goal,NL),
+	( 
+	    Map == [] -> 
+	    NR = R, NV = V
+	;
+	   MapI = [K1|MapR],
+	   (
+	     K == K1 ->
+	        once(call(Goal,V,NV)),
+	        Map2 = MapR
+	    ;
+	        Map2 = [K1|MapR], NV = V
+	    ),
+	    partial_map(R,Map2,MapF,Nil,Goal,NR)
+	).
+partial_map(black(L,K,V,R),Map,MapF,Nil,Goal,black(NL,K,NV,NR)) :-
+	partial_map(L,Map,MapI,Nil,Goal,NL),
 	( 
 	    MapI == [] -> 
 	    NR = R, NV = V
@@ -655,25 +675,9 @@ partial_map(red(L,K,V,R),Map,MapF,Goal,red(NL,K,NV,NR)) :-
 	        Map2 = MapR
 	    ;
 	        Map2 = [K1|MapR], NV = V
-	    )
-	),
-	partial_map(R,Map2,MapF,Goal,NR).
-partial_map(black(L,K,V,R),Map,MapF,Goal,black(NL,K,NV,NR)) :-
-	partial_map(L,Map,MapI,Goal,NL),
-	( 
-	    MapI == [] -> 
-	    NR = R, NV = V
-	;
-	   MapI = [K1|MapR],
-	   (
-	     K == K1 ->
-	        once(call(Goal,V,NV)),
-	        Map2 = MapR
-	    ;
-	        Map2 = [K1|MapR], NV = V
-	    )
-	),
-	partial_map(R,Goal,Map2,MapF,NR).
+	    ),
+	    partial_map(R,Map2,MapF,Nil,Goal,NR)
+	).
 
 
 %

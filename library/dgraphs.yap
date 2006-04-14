@@ -14,10 +14,13 @@
 	    dgraph_del_edges/3,
 	    dgraph_del_vertex/3,
 	    dgraph_del_vertices/3,
+	    dgraph_edge/3,
 	    dgraph_edges/2,
 	    dgraph_vertices/2,
-	    dgraph_neighbors/2,
-	    dgraph_neighbours/2,
+	    dgraph_to_ugraph/2,
+	    ugraph_to_dgraph/2,
+	    dgraph_neighbors/3,
+	    dgraph_neighbours/3,
 	    dgraph_complement/2,
 	    dgraph_transpose/2,
 	    dgraph_compose/3,
@@ -43,7 +46,7 @@
 	 ord_union/3,
 	 ord_subtract/3,
 	 ord_del_element/3,
-	 ord_member/2]).
+	 ord_memberchk/2]).
 
 dgraph_new(Vertices) :-
 	rb_new(Vertices).
@@ -65,7 +68,7 @@ dgraph_add_edges(Edges) -->
 	 all_vertices_in_edges(SortedEdges,Vertices),
 	 sort(Vertices,SortedVertices)
 	},
-	dgraph_add_egdes(SortedVertices,SortedEdges).
+	dgraph_add_edges(SortedVertices,SortedEdges).
 
 all_vertices_in_edges([],[]).
 all_vertices_in_edges([V1-V2|Edges],[V1,V2|Vertices]) :-
@@ -79,14 +82,14 @@ edges2graphl([V|Vertices], SortedEdges, [V-[]|GraphL]) :-
 	edges2graphl(Vertices, SortedEdges, GraphL).
 
 
-dgraph_add_egdes([],[]) --> [].
-dgraph_add_egdes([V|Vs],[V-V1|Es]) --> !,
+dgraph_add_edges([],[]) --> [].
+dgraph_add_edges([V|Vs],[V-V1|Es]) --> !,
 	{ get_extra_children(Es,V,Children,REs) },
 	dgraph_update_vertex(V,[V1|Children]),
-	dgraph_add_egdes(Vs,REs).
-dgraph_add_egdes([V|Vs],Es) --> !,
+	dgraph_add_edges(Vs,REs).
+dgraph_add_edges([V|Vs],Es) --> !,
 	dgraph_update_vertex(V,[]),
-	dgraph_add_egdes(Vs,Es).
+	dgraph_add_edges(Vs,Es).
 
 get_extra_children([V-C|Es],V,[C|Children],REs) :- !,
 	get_extra_children(Es,V,Children,REs).
@@ -266,7 +269,7 @@ transit_graph2([GC|GrandChildren], V, G, [V-GC|NewEdges], MoreEdges) :-
 
 is_edge(V1,V2,G) :-
 	rb_lookup(V1,Children,G),
-	ord_member(Children, V2).
+	ord_memberchk(V2, Children).
 
 dgraph_symmetric_closure(G,S) :-
 	dgraph_edges(G, Edges),
@@ -326,5 +329,17 @@ close_links([], RQ, RQ).
 close_links([l(V,A,A,S,E)|Links], RQ, RQ0) :-
 	( S == E -> RQ = [V| RQ1] ; RQ = RQ1),
 	close_links(Links, RQ1, RQ0).
+
+
+ugraph_to_dgraph(UG, DG) :-
+	ord_list_to_rbtree(UG, DG).
+
+dgraph_to_ugraph(DG, UG) :-
+	rb_visit(DG, UG).
+
+
+dgraph_edge(N1, N2, G) :-
+	rb_lookup(N1, Ns, G),
+	ord_memberchk(N2, Ns).
 
 
