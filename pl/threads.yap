@@ -55,8 +55,8 @@ thread_create(Goal, Id, Options) :-
 	'$check_callable'(Goal,G0),
 	'$thread_options'(Options, Aliases, Stack, Trail, System, Detached, G0),
 	'$thread_new_tid'(Id),
-	'$add_thread_aliases'(Aliases, Id),
 	'$clean_db_on_id'(Id),
+	'$add_thread_aliases'(Aliases, Id),
 	'$create_mq'(Id),	
 	'$create_thread'(Goal, Stack, Trail, System, Detached, Id).
 
@@ -163,12 +163,10 @@ current_thread(Tid, Status) :-
 	var(Tid), !,
 	'$cur_threads'(0, Tid, Status).
 current_thread(Tid, Status) :-
-	'$check_thread_alias'(Id0,Tid), !,
+	'$check_thread_alias'(Id0,Tid),
+	integer(Id0), !,
 	'$valid_thread'(Id0),
 	'$thr_status'(Id0, Status).
-current_thread(Tid, Status) :- integer(Tid), !,
-	'$valid_thread'(Tid),
-	'$thr_status'(Tid, Status).
 current_thread(Tid, Status) :-
 	'$do_error'(type_error(integer,Tid),current_thread(Tid, Status)).
 

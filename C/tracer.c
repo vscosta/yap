@@ -133,8 +133,8 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   char *mname;
   Int arity;
   /*  extern int gc_calls; */
-  static PredEntry *pe;
 
+  LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
 #ifdef COMMENTED
@@ -147,51 +147,72 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   if (port != enter_pred ||
       !pred ||
       pred->ArityOfPE != 4 ||
-      strcmp(RepAtom(NameOfFunctor(pred->FunctorOfPred))->StrOfAE,"in_between_target_phrases"))
+      strcmp(RepAtom(NameOfFunctor(pred->FunctorOfPred))->StrOfAE,"in_between_target_phrases")) {
+    UNLOCK(Yap_heap_regs->low_level_trace_lock);
     return;
-  if (vsc_count < 1246949400LL)
+  }
+  if (vsc_count < 1246949400LL) {
+    UNLOCK(Yap_heap_regs->low_level_trace_lock);
     return;
+  }
   if (vsc_count == 1246949493LL)
     vsc_xstop = TRUE;
-  if (vsc_count < 5646100000LL)
+  if (vsc_count < 5646100000LL) {
+    UNLOCK(Yap_heap_regs->low_level_trace_lock);
     return;
+  }
   if (vsc_count == 5646100441LL)
     vsc_xstop = TRUE;
   if (vsc_count < 2923351500LL) {
+    UNLOCK(Yap_heap_regs->low_level_trace_lock);
     return;
   }
   if (vsc_count == 123536441LL) vsc_xstop = 1;
   if (vsc_count < 5530257LL) {
+    UNLOCK(Yap_heap_regs->low_level_trace_lock);
     return;
   }
   if (vsc_count == 9414280LL) {
     vsc_xstop = TRUE;
   }
   if (vsc_count < 3399741LL) {
+    UNLOCK(Yap_heap_regs->low_level_trace_lock);
     return;
   }
   if (vsc_count == 51021) {
     printf("Here I go\n");
   }
-  if (vsc_count < 52000) return;
+  if (vsc_count < 52000) {
+    UNLOCK(Yap_heap_regs->low_level_trace_lock);
+    return;
+  }
   if (vsc_count > 52000) exit(0);
+  UNLOCK(Yap_heap_regs->low_level_trace_lock);
   return;
   if (vsc_count == 837074) {
     printf("Here I go\n");
   } 
-  if (gc_calls < 1) return;
- {
-  CELL *env_ptr = ENV;
-  PredEntry *p;
-      while (env_ptr) {
-	PredEntry *pe = EnvPreg(env_ptr[E_CP]);
-	printf("%p->",env_ptr,pe);
-	if (vsc_count == 52LL) printf("\n");
-	if (p == pe) return(TRUE);
-	if (env_ptr != NULL)
-	  env_ptr = (CELL *)(env_ptr[E_E]);
+  if (gc_calls < 1) {
+    UNLOCK(Yap_heap_regs->low_level_trace_lock);
+    return;
+  }
+  {
+    CELL *env_ptr = ENV;
+    PredEntry *p;
+
+    while (env_ptr) {
+      PredEntry *pe = EnvPreg(env_ptr[E_CP]);
+
+      printf("%p->",env_ptr,pe);
+      if (vsc_count == 52LL) printf("\n");
+      if (p == pe) {
+	UNLOCK(Yap_heap_regs->low_level_trace_lock);
+	return;
       }
-	printf("\n");
+      if (env_ptr != NULL)
+	env_ptr = (CELL *)(env_ptr[E_E]);
+      }
+      printf("\n");
  }
 #endif
   fprintf(Yap_stderr,"%lld %x ", vsc_count,ActiveSignals);
@@ -199,10 +220,14 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   fprintf(Yap_stderr,"(%d)", worker_id);
 #endif
   /* check_trail_consistency(); */
-  if (pred == NULL) 
+  if (pred == NULL) {
+    UNLOCK(Yap_heap_regs->low_level_trace_lock);
     return;
-  if (pred->ModuleOfPred == 0 && !do_trace_primitives)
+  }
+  if (pred->ModuleOfPred == 0 && !do_trace_primitives) {
+    UNLOCK(Yap_heap_regs->low_level_trace_lock);
     return;
+  }
   switch (port) {
   case enter_pred:
     mname = RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
