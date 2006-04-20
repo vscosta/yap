@@ -30,6 +30,7 @@
 	   rb_map/3,
 	   rb_partial_map/4,
 	   rb_clone/3,
+	   rb_clone/4,
 	   rb_min/3,
 	   rb_max/3,
 	   rb_del_min/4,
@@ -627,9 +628,6 @@ map(black(L,_,V,R),Goal) :-
 rb_clone(t(Nil,T),t(Nil,NT),Ns) :-
 	clone(T,NT,Ns,[]).
 
-rb_clone(t(Nil,T),t(Nil,NT),Ns,Ns0) :-
-	clone(T,NT,Ns,Ns0).
-
 clone(black([],[],[],[]),black([],[],[],[]),Ns,Ns) :- !.
 clone(red(L,K,_,R),red(NL,K,NV,NR),NsF,Ns0) :-
 	clone(L,NL,NsF,[K-NV|Ns1]),
@@ -637,6 +635,17 @@ clone(red(L,K,_,R),red(NL,K,NV,NR),NsF,Ns0) :-
 clone(black(L,K,_,R),black(NL,K,NV,NR),NsF,Ns0) :-
 	clone(L,NL,NsF,[K-NV|Ns1]),
 	clone(R,NR,Ns1,Ns0).
+
+rb_clone(t(Nil,T),ONs,t(Nil,NT),Ns) :-
+	clone(T,ONs,[],NT,Ns,[]).
+
+clone(black([],[],[],[]),ONs,ONs,black([],[],[],[]),Ns,Ns) :- !.
+clone(red(L,K,V,R),ONsF,ONs0,red(NL,K,NV,NR),NsF,Ns0) :-
+	clone(L,ONsF,[K-V|ONs1],NL,NsF,[K-NV|Ns1]),
+	clone(R,ONs1,ONs0,NR,Ns1,Ns0).
+clone(black(L,K,V,R),ONsF,ONs0,black(NL,K,NV,NR),NsF,Ns0) :-
+	clone(L,ONsF,[K-V|ONs1],NL,NsF,[K-NV|Ns1]),
+	clone(R,ONs1,ONs0,NR,Ns1,Ns0).
 
 rb_partial_map(t(Nil,T0), Map, Goal, t(Nil,TF)) :-
 	partial_map(T0, Map, [], Nil, Goal, TF).
@@ -649,7 +658,7 @@ partial_map(black([],_,_,_),Map,Map,Nil,_,Nil) :- !.
 partial_map(red(L,K,V,R),Map,MapF,Nil,Goal,red(NL,K,NV,NR)) :-
 	partial_map(L,Map,MapI,Nil,Goal,NL),
 	( 
-	    Map == [] -> 
+	    MapI == [] -> 
 	    NR = R, NV = V
 	;
 	   MapI = [K1|MapR],
@@ -658,7 +667,7 @@ partial_map(red(L,K,V,R),Map,MapF,Nil,Goal,red(NL,K,NV,NR)) :-
 	        once(call(Goal,V,NV)),
 	        Map2 = MapR
 	    ;
-	        Map2 = [K1|MapR], NV = V
+	        Map2 = MapI, NV = V
 	    ),
 	    partial_map(R,Map2,MapF,Nil,Goal,NR)
 	).
@@ -674,7 +683,7 @@ partial_map(black(L,K,V,R),Map,MapF,Nil,Goal,black(NL,K,NV,NR)) :-
 	        once(call(Goal,V,NV)),
 	        Map2 = MapR
 	    ;
-	        Map2 = [K1|MapR], NV = V
+	        Map2 = MapI, NV = V
 	    ),
 	    partial_map(R,Map2,MapF,Nil,Goal,NR)
 	).

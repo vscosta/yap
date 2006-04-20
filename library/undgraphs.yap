@@ -20,7 +20,8 @@
 	    undgraph_neighbors/3,
 	    undgraph_neighbours/3,
 	    undgraph_complement/2,
-	    dgraph_to_undgraph/2]).
+	    dgraph_to_undgraph/2,
+	    undgraph_min_tree/2]).
 
 :- use_module( library(dgraphs),
 	   [
@@ -40,6 +41,12 @@
 	    dgraph_neighbours/3,
 	    dgraph_complement/2,
 	    dgraph_symmetric_closure/2]).
+
+:- use_module(library(wundgraphs), [
+            undgraph_to_wundgraph/2,
+	    wundgraph_min_tree/3,
+	    wundgraph_max_tree/3,
+	    wundgraph_to_undgraph/2]).
 
 :- use_module(library(ordsets),
 	[ ord_del_element/3,
@@ -135,7 +142,7 @@ undgraph_del_vertices(Vs) -->
 	{ sort(Vs,SortedVs) },
 	delete_all(SortedVs, [], BackEdges),
 	{ ord_subtract(BackEdges, SortedVs, TrueBackEdges) },
-	delete_remaining_edges(Vs, TrueBackEdges, SortedVs).
+	delete_remaining_edges(SortedVs, TrueBackEdges).
 
 % it would be nice to be able to delete a set of elements from an RB tree
 % but I don't how to do it yet.
@@ -159,5 +166,16 @@ dgraph_to_undgraph(G, U) :-
 
 undgraph_edge(N1, N2, G) :-
 	dgraph_edge(N1, N2, G).
+
+
+undgraph_min_tree(G, T) :-
+	undgraph_to_wundgraph(G, WG),
+	wundgraph_min_tree(WG, WT, _),
+	wundgraph_to_undgraph(WT, T).
+
+undgraph_max_tree(G, T) :-
+	undgraph_to_wundgraph(G, WG),
+	wundgraph_max_tree(WG, WT, _),
+	wundgraph_to_undgraph(WT, T).
 
 

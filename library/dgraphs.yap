@@ -26,7 +26,11 @@
 	    dgraph_compose/3,
 	    dgraph_transitive_closure/2,
 	    dgraph_symmetric_closure/2,
-	    dgraph_top_sort/2]).
+	    dgraph_top_sort/2,
+	    dgraph_min_path/5,
+	    dgraph_max_path/5,
+	    dgraph_min_paths/3,
+	    dgraph_path/3]).
 
 :- use_module(library(rbtrees),
 	[rb_new/1,
@@ -47,6 +51,12 @@
 	 ord_subtract/3,
 	 ord_del_element/3,
 	 ord_memberchk/2]).
+
+:- use_module(library(wdgraphs),
+	[dgraph_to_wdgraph/2,
+	 wdgraph_min_path/5,
+	 wdgraph_max_path/5,
+	 wdgraph_min_paths/3]).
 
 dgraph_new(Vertices) :-
 	rb_new(Vertices).
@@ -341,5 +351,34 @@ dgraph_to_ugraph(DG, UG) :-
 dgraph_edge(N1, N2, G) :-
 	rb_lookup(N1, Ns, G),
 	ord_memberchk(N2, Ns).
+
+dgraph_min_path(V1, V2, Graph, Path, Cost) :-
+	dgraph_to_wdgraph(Graph, WGraph),
+	wdgraph_min_path(V1, V2, WGraph, Path, Cost).
+
+dgraph_max_path(V1, V2, Graph, Path, Cost) :-
+	dgraph_to_wdgraph(Graph, WGraph),
+	wdgraph_max_path(V1, V2, WGraph, Path, Cost).
+
+dgraph_min_paths(V1, Graph, Paths) :-
+	dgraph_to_wdgraph(Graph, WGraph),
+	wdgraph_min_path(V1, WGraph, Paths).
+
+dgraph_path(V, G, [V|P]) :-
+	rb_lookup(V, Children, G),
+	ord_del_element(Children, V, Ch),
+	do_path(Ch, G, [V], P).
+
+do_path([], _, _, []).
+do_path([C|Children], G, SoFar, Path) :-
+	do_children([C|Children], G, SoFar, Path).
+
+do_children([V|_], G, SoFar, [V|Path]) :-
+	rb_lookup(V, Children, G),
+	ord_subtract(Children, SoFar, Ch),
+	ord_insert(SoFar, V, NextSoFar),
+	do_path(Ch, G, NextSoFar, Path).
+do_children([_|Children], G, SoFar, Path) :-
+	do_children(Children, G, SoFar, Path).
 
 

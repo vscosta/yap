@@ -5687,16 +5687,25 @@ Set the current value of mutable term @var{M} to term @var{D}.
 @section Profiling Prolog Programs
 
 @cindex profiling
-Predicates compiled with YAP's flag @code{profiling} set to
-@code{on}, keep information on the number of times the predicate was
-called. This information can be used to detect what are the most
-commonly called predicates in the program.
 
-The YAP profiling sub-system is currently
-under-development. Functionality for this sub-system will increase with
-newer implementation.
+YAP includes two profiler. The count profiler keeps information on the
+number of times a predicate was called. This information can be used to
+detect what are the most commonly called predicates in the program.  The
+count profiler can be compiled by setting YAP's flag @code{profiling}
+to @code{on}. The time-profiler is a @code{gprof} profiler, and counts
+how many ticks are being spent on specific predicates, or on other
+system functions such as internal data-base accesses or garbage collects.
+
+The YAP profiling sub-system is currently under
+development. Functionality for this sub-system will increase with newer
+implementation.
+
+@subsection The Count Profiler
 
 @strong{Notes:}
+
+The count profiler works by incrementing counters at procedure entry or
+backtracking. It provides exact information:
 
 @itemize @bullet
 @item Profiling works for both static and dynamic predicates.
@@ -5758,6 +5767,52 @@ Number of times a procedure was called.
 Reset all profiling information.
 
 @end table
+
+@subsection{Tick Profiler}
+The tick profiler works by interrupting the Prolog code every so often
+and checking at each point the code was. The profiler must be able to
+retrace the state of the abstract machine at every moment. The major
+advantage of this approach is that it gives the actual amount of time
+being spent per procedure, or whether garbage collection dominates
+execution time. The major drawback is that tracking down the state of
+the abstract machine may take significant time, and in the worst case
+may slow down the whole execution.
+
+The following procedures are available:
+
+@table @code
+@item profinit
+@findex profinit/0
+@snindex profinit/0
+@cnindex profinit/0
+Initialise the data-structures for the profiler.
+
+@item profon
+@findex profon/0
+@snindex profon/0
+@cnindex profon/0
+Start profiling.
+
+@item profoff
+@findex profoff/0
+@snindex profoff/0
+@cnindex profoff/0
+Stop profiling.
+
+@item showprofres
+@findex showprofres/0
+@snindex showprofres/0
+@cnindex showprofres/0
+Show profiling info.
+
+@item showprofres(@var{N})
+@findex showprofres/1
+@snindex showprofres/1
+@cnindex showprofres/1
+Show profiling info for the top-most @var{N} predicates.
+
+@end table
+
 
 @node Call Counting, Arrays, Profiling, Top
 @section Counting Calls
@@ -9021,6 +9076,12 @@ trying to use the graph.
 Unify @var{Vertices} with all vertices appearing in graph
 @var{Graph}.
 
+@item dgraph_edge(+@var{N1}, +@var{N2}, +@var{Graph})
+@findex  dgraph_edge/2
+@snindex dgraph_edge/2
+@cnindex dgraph_edge/2
+Edge @var{N1}-@var{N2} is an edge in directed graph @var{Graph}.
+
 @item dgraph_edges(+@var{Graph}, -@var{Edges})
 @findex  dgraph_edges/2
 @snindex dgraph_edges/2
@@ -9115,6 +9176,22 @@ contain the edge @var{V-U}.
 @cnindex dgraph_top_sort/2
 Unify @var{Vertices} with the topological sort of graph @var{Graph}.
 
+@item dgraph_to_ugraph(+@var{Graph}, -@var{UGraph})
+@findex  dgraph_to_ugraph/2
+@snindex dgraph_to_ugraph/2
+@cnindex dgraph_to_ugraph/2
+Unify @var{UGraph} with the representation used by the @var{ugraphs}
+unweighted graphs library, that is, a list of the form
+@var{V-Neighbors}, where @var{V} is a node and @var{Neighbors} the nodes
+children.
+
+@item ugraph_to_dgraph( +@var{UGraph}, -@var{Graph})
+@findex  ugraph_to_dgraph/2
+@snindex ugraph_to_dgraph/2
+@cnindex ugraph_to_dgraph/2
+Unify @var{Graph} with the directed graph obtain from @var{UGraph},
+represented in the form used in the @var{ugraphs} unweighted graphs
+library.
 @end table
 
 @node UnDGraphs, , DGraphs, Library
@@ -9140,6 +9217,12 @@ trying to use the graph.
 @cnindex undgraph_vertices/2
 Unify @var{Vertices} with all vertices appearing in graph
 @var{Graph}.
+
+@item undgraph_edge(+@var{N1}, +@var{N2}, +@var{Graph})
+@findex  undgraph_edge/2
+@snindex undgraph_edge/2
+@cnindex undgraph_edge/2
+Edge @var{N1}-@var{N2} is an edge in undirected graph @var{Graph}.
 
 @item undgraph_edges(+@var{Graph}, -@var{Edges})
 @findex  undgraph_edges/2
@@ -9197,6 +9280,14 @@ in @var{Graph}.
 @snindex undgraph_complement/2
 @cnindex undgraph_complement/2
 Unify @var{NewGraph} with the graph complementary to @var{Graph}.
+
+@item dgraph_to_undgraph( +@var{DGraph}, -@var{UndGraph})
+@findex  dgraph_to_undgraph/2
+@snindex dgraph_to_undgraph/2
+@cnindex dgraph_to_undgraph/2
+Unify @var{UndGraph} with teh undirected graph obtained from the
+directed graph @var{DGraph}.
+
 @end table
 
 
@@ -10815,7 +10906,33 @@ The debugging information, when fast-skip @code{quasi-leap} is used, will
 be lost.
 
 @node Efficiency, C-Interface, Debugging, Top
-@chapter Indexing
+
+@chapter Efficiency Considerations
+
+We next discuss several issues on trying to make Prolog programs run
+fast in YAP. We assume two different programming styles:
+
+@table @bullet
+@item Execution of @item{deterministic} programs often
+boils down to a recursive loop of the form:
+@example
+loop(Env) :-
+        do_something(Env,NewEnv),
+        loop(NewEnv).
+@end example
+
+@end table
+
+@section Deterministic Programs
+
+@section Non-Deterministic Programs
+
+@section Data-Base Operations
+
+@section Indexing
+
+@section Profiling
+
 The indexation mechanism restricts the set of clauses to be tried in a 
 procedure by using information about the status of a selected argument of 
 the goal (in YAP, as in most compilers, the first argument). 

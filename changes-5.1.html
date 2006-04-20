@@ -14,22 +14,33 @@
 
 <h1>Changes in YAP-5.1</h1>
 
+<h2>Yap-5.1.2:</h2>
+<ul>
+<li> FIXED: rb_partial_map was broken.</li>
+<li> NEW: wdgraph and wundgraph libraries, for weighted graphs.</li>
+</ul>
+
+<h2>Yap-5.1.1:</h2>
+<ul>
+<li> FIXED: compatibility fixes .</li>
+</ul>
+
 <h2>Yap-5.1.0:</h2>
-<ul> NEW: new implementation of association list, based on red-black
+<ul>
+<li> NEW: new implementation of association lists, based on red-black
   trees. </li>
-<ul> NEW: undgraph library, based on dgraphs. </li>
-<ul> NEW: undgraph library, based on dgraphs. </li>
-<ul> NEW: dgraphs library, towards a more efficient implementation of
+<li> NEW: undgraph library, based on dgraphs. </li>
+<li> NEW: dgraphs library, towards a more efficient implementation of
 directed graphs. </li>
-<ul> NEW: rb_update, rb_apply, rb_visit, rb_keys and rb_map. </li>
-<ul> FIXED: use rb_ prefix for all red black predicates. </li>
-<ul> FIXED: got confused about position of syntax error (obs Mark
+<li> NEW: rb_update, rb_apply, rb_visit, rb_keys and rb_map. </li>
+<li> FIXED: use rb_ prefix for all red black predicates. </li>
+<li> FIXED: got confused about position of syntax error (obs Mark
 Goadrich). </li>
-<ul> FIXED: compiling inline lists would compile the lists and then
+<li> FIXED: compiling inline lists would compile the lists and then
 some more (obs Nicos Angelopoulos). </li>
-<ul> FIXED: message queue ops should not fail silently  (obs Paulo
+<li> FIXED: message queue ops should not fail silently  (obs Paulo
 Moura). </li>
-<ul> FIXED: stream bugs in iopreds.c (Takeyuki SHIRAMOTO). </li>
+<li> FIXED: stream bugs in iopreds.c (Takeyuki SHIRAMOTO). </li>
 <li> FIXED: extra backtrack in informational_messages (obs Nicos
 Angelopoulos).</li>
 <li> NEW: abolish_module/1 at the request of Nicos Angelopoulos.</li>

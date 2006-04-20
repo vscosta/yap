@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-04-12 18:56:50 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-20 15:28:08 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.162  2006/04/12 18:56:50  vsc
+* fix bug in clause: a trust_me followed by a try should be implemented by
+* reusing the choice-point.
+*
 * Revision 1.161  2006/04/05 00:16:54  vsc
 * Lots of fixes (check logfile for details
 *
@@ -8013,6 +8017,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	store_clause_choice_point(Terms[0], Terms[1], Terms[2], NEXTOP(ipc,ld), ap, ap_pc, cp_pc);
       else {
 	B = b0;
+	b0 = NULL;
 	update_clause_choice_point(NEXTOP(ipc,ld), ap_pc);
       }
       if (lu_pred)
@@ -8026,6 +8031,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	store_clause_choice_point(Terms[0], Terms[1], Terms[2], NEXTOP(ipc,l), ap, ap_pc, cp_pc);
       else {
 	B = b0;
+	b0 = NULL;
 	update_clause_choice_point(NEXTOP(ipc,l), ap_pc);
       }
       if (lu_pred)
@@ -8037,6 +8043,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	store_clause_choice_point(Terms[0], Terms[1], Terms[2], ipc->u.ld.d, ap, ap_pc, cp_pc);
       else {
 	B = b0;
+	b0 = NULL;
 	update_clause_choice_point(ipc->u.ld.d, ap_pc);
       }
       ipc = NEXTOP(ipc,ld);
