@@ -6535,6 +6535,10 @@ Yap. Currently it informs whether the system supports
 @code{or-parallelism}, @code{rational_trees}, @code{tabling},
 @code{threads}, or the @code{wam_profiler}.
 
+@item tabling_mode
+@* Sets or reads the tabling mode for all tabled predicates. Please
+@pxref{Tabling} for the list of options.
+
 @item to_chars_mode
 @findex to_chars_modes (yap_flag/2 option)
 @* Define whether YAP should follow @code{quintus}-like
@@ -10509,59 +10513,154 @@ releases.
 
 @node Tabling, Low Level Tracing, Parallelism , Extensions
 @chapter Tabling
-
 @cindex tabling
-An initial cut for an implementation of tabling in the style of
-XSB-Prolog is now available. Tabling was implemented by Ricardo
-Rocha. To experiment with tabling use @code{-DTABLING} to
-@code{YAP_EXTRAS} in the system's @code{Makefile}.
 
-You can use the directive @code{table} to force calls for the argument
-predicate to be tabled. Tabling information is stored in a trie, as for
-XSB-Prolog.
+@strong{YapTab} is the tabling engine that extends Yap's execution
+model to support tabled evaluation for definite programs. YapTab was
+implemented by Ricardo Rocha and its implementation is largely based
+on the ground-breaking design of the XSB Prolog system, which
+implements the SLG-WAM. Tables are implemented using tries and YapTab
+supports the dynamic intermixing of batched scheduling and local
+scheduling at the subgoal level. Currently, the following restrictions
+are of note:
+@itemize @bullet
+@item YapTab does not handle tabled predicates with loops through negation (undefined behaviour).
+@item YapTab does not handle tabled predicates with cuts (undefined behaviour).
+@item YapTab does not support coroutining (configure error).
+@item YapTab does not support tabling dynamic predicates (permission error).
+@end itemize
 
-The following predicates may be useful to control tabled execution:
+To experiment with YapTab use @code{--enable-tabling} in the configure
+script or add @code{-DTABLING} to @code{YAP_EXTRAS} in the system's
+@code{Makefile}. We next describe the set of built-ins predicates
+designed to interact with YapTab and control tabled execution:
+
 @table @code
-@item is_tabled(+@var{PredIndicator})
+@item table +@var{P}
+@findex table/1
+@snindex table/1
+@cnindex table/1
+Declares predicate @var{P} (or a list of predicates
+@var{P1},...,@var{Pn} or [@var{P1},...,@var{Pn}]) as a tabled
+predicate. @var{P} must be written in the form
+@var{name/arity}. Examples:
+@example
+:- table son/3.
+:- table father/2.
+:- table mother/2.
+@end example
+@noindent or
+@example
+:- table son/3, father/2, mother/2.
+@end example
+@noindent or
+@example
+:- table [son/3, father/2, mother/2].
+@end example
+
+@item is_tabled(+@var{P})
 @findex is_tabled/1
 @snindex is_tabled/1
 @cnindex is_tabled/1
-Succeeds if the predicate @var{PredIndicator}, of the form
-@var{Name/Arity}, is a tabled predicate.
+Succeeds if the predicate @var{P} (or a list of predicates
+@var{P1},...,@var{Pn} or [@var{P1},...,@var{Pn}]), of the form
+@var{name/arity}, is a tabled predicate.
 
-@item tabling_mode(+@var{PredIndicator},+@var{Options})
-@findex is_tabled/1
-@snindex is_tabled/1
-@cnindex is_tabled/1
-Sets tabling mode options for the list or predicate given by
-@var{PredIndicator}. The list of @var{Options} includes:
+@item tabling_mode(+@var{P},?@var{Mode})
+@findex tabling_mode/2
+@snindex tabling_mode/2
+@cnindex tabling_mode/2
+Sets or reads the default tabling mode for a tabled predicate @var{P}
+(or a list of predicates @var{P1},...,@var{Pn} or
+[@var{P1},...,@var{Pn}]). The list of @var{Mode} options includes:
 @table @code
-@item @code{batched}: use batched scheduling for this predicate (default).
-@item @code{local}: use local scheduling for this predicate.
-@item @code{exec_answers}: use complete tries as code (default).
-@item @code{load_answers}: use complete tries as a consumer, somewhat less
-efficient but creates less choice-points.
+@item batched
+      Defines that, by default, batched scheduling is the scheduling
+      strategy to be used to evaluated calls to predicate @var{P}.
+@item local
+      Defines that, by default, local scheduling is the scheduling
+      strategy to be used to evaluated calls to predicate @var{P}.
+@item exec_answers
+      Defines that, by default, when a call to predicate @var{P} is
+      already evaluated (completed), answers are obtained by executing
+      compiled WAM-like code directly from the trie data
+      structure. This reduces the loading time when backtracking, but
+      the order in which answers are obtained is undefined.
+@item load_answers
+      Defines that, by default, when a call to predicate @var{P} is
+      already evaluated (completed), answers are obtained (as a
+      consumer) by loading them from the trie data structure. This
+      guarantees that answers are obtained in the same order as they
+      were found. Somewhat less efficient but creates less choice-points.
+@end table
+The default tabling mode for a new tabled predicate is @code{batched}
+and @code{exec_answers}. To set the tabling mode for all predicates at
+once you can use the @code{yap_flag/2} predicate as described next.
+
+@item yap_flag(tabling_mode,?@var{Mode})
+@findex tabling_mode (yap_flag/2 option)
+Sets or reads the tabling mode for all tabled predicates. The list of
+@var{Mode} options includes:
+@table @code
+@item default
+      Defines that (i) all calls to tabled predicates are evaluated
+      using the predicate default mode, and that (ii) answers for all
+      completed calls are obtained by using the predicate default mode.
+@item batched
+      Defines that all calls to tabled predicates are evaluated using
+      batched scheduling. This option ignores the default tabling mode
+      of each predicate.
+@item local
+      Defines that all calls to tabled predicates are evaluated using
+      local scheduling. This option ignores the default tabling mode
+      of each predicate.
+@item exec_answers
+      Defines that answers for all completed calls are obtained by
+      executing compiled WAM-like code directly from the trie data
+      structure. This option ignores the default tabling mode
+      of each predicate.
+@item load_answers
+      Defines that answers for all completed calls are obtained by
+      loading them from the trie data structure. This option ignores
+      the default tabling mode of each predicate.
 @end table
 
-@item abolish_table(+@var{PredIndicator})
+@item abolish_table(+@var{P})
 @findex abolish_table/1
 @snindex abolish_table/1
 @cnindex abolish_table/1
-Remove tables for @var{PredIndicator}
+Removes all the entries from the table space for predicate @var{P} (or
+a list of predicates @var{P1},...,@var{Pn} or
+[@var{P1},...,@var{Pn}]). The predicate remains as a tabled predicate.
 
-@item show_table(+@var{PredIndicator})
+@item abolish_all_tables/0
+@findex abolish_all_tables/0
+@snindex abolish_all_tables/0
+@cnindex abolish_all_tables/0
+Removes all the entries from the table space for all tabled
+predicates. The predicates remain as tabled predicates.
+
+@item show_table(+@var{P})
 @findex show_table/1
 @snindex show_table/1
 @cnindex show_table/1
-Print out the contents of the table generated for @var{PredIndicator}.
+Prints table contents (subgoals and answers) for predicate @var{P}
+(or a list of predicates @var{P1},...,@var{Pn} or
+[@var{P1},...,@var{Pn}]).
 
-@item table_statistics(+@var{PredIndicator})
+@item table_statistics(+@var{P})
 @findex table_statistics/1
 @snindex table_statistics/1
 @cnindex table_statistics/1
-Print out some information on the current tables for
-@var{PredIndicator}.
+Prints table statistics (subgoals and answers) for predicate @var{P}
+(or a list of predicates @var{P1},...,@var{Pn} or
+[@var{P1},...,@var{Pn}]).
 
+@item tabling_statistics/0
+@findex tabling_statistics/0
+@snindex tabling_statistics/0
+@cnindex tabling_statistics/0
+Prints statistics on space used by all tables.
 @end table
 
 
