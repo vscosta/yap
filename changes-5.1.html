@@ -16,6 +16,11 @@
 
 <h2>Yap-5.1.2:</h2>
 <ul>
+<li> FIXED: garbage collector should no rewrite cp_tr fields until
+after marking (obs Paulo Moura).</li>
+<li> FIXED: garbage collector was allowing garbage trail entries for
+multi-assignment variables. Namely, old var value might point to new space
+(obs Paulo Moura).</li>
 <li> FIXED: thread aliases were being cleaned up just after being
 installed (obs Paulo Moura).</li>
 <li> FIXED: rb_partial_map was broken.</li>

@@ -149,25 +149,16 @@ static rb_red_blk_node *db_root, *db_nil;
 static void
 gc_growtrail(int committed)
 {
-#if !GC_TAGS
-  YAPLeaveCriticalSection();
-#endif
 #if USE_SYSTEM_MALLOC
   TR = OldTR;
-#endif
+  save_machine_regs();
+  longjmp(Yap_gc_restore, 2);
+#else
   if (!Yap_growtrail(64 * 1024L, TRUE)) {
     /* could not find more trail */
-    longjmp(Yap_gc_restore, 2);
-  }
-#if USE_SYSTEM_MALLOC
-#if !GC_NO_TAGS
-  if (committed) {
     save_machine_regs();
     longjmp(Yap_gc_restore, 2);
   }
-#endif
-  save_machine_regs();
-  longjmp(Yap_gc_restore, 1);
 #endif
   
 }
@@ -1640,8 +1631,21 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	 value.
 
       */
+      if (cptr < (CELL *)gc_B && cptr >= gc_H) {
+	goto remove_trash_entry;
+      }
       if (!gc_lookup_ma_var(cptr, trail_base)) {
 	/* check whether this is the first time we see it*/
+	Term t0 = TrailTerm(trail_base+1);
+     
+	if (!IsAtomicTerm(t0)) {
+	  CELL *next = GET_NEXT(t0);
+	  /* check if we have a garbage entry, where we are setting a
+	     pointer to ourselves. */
+	  if (next < (CELL *)gc_B && next >= gc_H) {
+	    goto remove_trash_entry;
+	  }
+	}
 	if (HEAP_PTR(trail_cell)) {
 	  /* fool the gc into thinking this is a variable */
 	  TrailTerm(trail_base) = (CELL)cptr;
@@ -1668,6 +1672,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif
 	} 
       } else {
+      remove_trash_entry:
 	/* we can safely ignore this little monster */
 	discard_trail_entries += 3;
 	RESET_VARIABLE(&TrailTerm(trail_base));
@@ -1806,16 +1811,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
     }
     {
       /* find out how many cells are still alive in the trail */
-#ifndef FROZEN_STACKS
-      UInt d0 = discard_trail_entries, diff, orig;
-      orig = saved_TR-gc_B->cp_tr;
-#endif
       mark_trail(saved_TR, gc_B->cp_tr, gc_B->cp_h, gc_B);
       saved_TR = gc_B->cp_tr;
-#ifndef FROZEN_STACKS
-      diff = discard_trail_entries-d0;
-      gc_B->cp_tr = (tr_fr_ptr)(orig-diff);
-#endif /* FROZEN_STACKS */
     }
     if (opnum == _or_else || opnum == _or_last) {
       /* ; choice point */
@@ -2191,19 +2188,46 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 #endif
 
 #ifndef FROZEN_STACKS
-  /* 
-     adjust cp_tr pointers,
-     we don't compress TR if we have freeze.
-   */
- {
-   Int size = old_TR-(tr_fr_ptr)Yap_TrailBase;
-   size -= discard_trail_entries;
-   while (gc_B != NULL) {
-     size -= (UInt)(gc_B->cp_tr);
-     gc_B->cp_tr = (tr_fr_ptr)Yap_TrailBase+size;
-     gc_B = gc_B->cp_b;
-   }
- }
+  { 
+    choiceptr current = gc_B;
+    choiceptr next = gc_B->cp_b;
+    tr_fr_ptr source, dest;
+
+    /* invert cp ptrs */
+    current->cp_b = NULL;
+    while (next) {
+      choiceptr n = next;
+      next = n->cp_b;
+      n->cp_b = current;
+      current = n;
+    }
+    
+    next = current;
+    current = NULL;
+    /* next, clean trail */
+    source = dest = (tr_fr_ptr)Yap_TrailBase;
+    while (source < old_TR) {
+      while (next && source == next->cp_tr) {
+	choiceptr b = next;
+	b->cp_tr = dest;
+	next = b->cp_b;
+	b->cp_b = current;
+	current = b;	
+      }
+      CELL trail_cell = TrailTerm(source);
+      if (trail_cell != (CELL)source) {
+	dest++;
+      }
+      source++;
+    }
+    while (next) {
+      choiceptr b = next;
+      b->cp_tr = dest;
+      next = b->cp_b;
+      b->cp_b = current;
+      current = b;	
+    }
+  }
 #endif /* FROZEN_STACKS */
 
   /* first, whatever we dumped on the trail. Easier just to do
@@ -3398,23 +3422,23 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 
 #ifdef EASY_SHUNTING
   current_B = B;
+  prev_HB = H;
 #endif
   init_dbtable(old_TR);
 #ifdef EASY_SHUNTING
   sTR0 = (tr_fr_ptr)db_vec;
   sTR = (tr_fr_ptr)db_vec;
   /* make sure we set HB before we do any variable shunting!!! */
-  HB = H;
 #else
   cont_top0 = (cont *)db_vec;
 #endif
   cont_top = (cont *)db_vec;
-  /* These two must be marked first so that our trail optimisation won't lose
-     values */
-  mark_regs(old_TR);		/* active registers & trail */
 #ifdef COROUTINING
   mark_delays(max);
 #endif
+  /* These two must be marked first so that our trail optimisation won't lose
+     values */
+  mark_regs(old_TR);		/* active registers & trail */
   /* active environments */
   mark_environments(current_env, EnvSize(curp), EnvBMap((CELL *)curp));
   mark_choicepoints(B, old_TR, is_gc_very_verbose());	/* choicepoints, and environs  */
@@ -3665,6 +3689,12 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
       return 0;
 #endif
     } else {
+      total_marked = 0;
+      total_oldies = 0;
+#ifdef COROUTING
+      total_smarked = 0;
+#endif
+      discard_trail_entries = 0;
       current_env = (CELL *)*ASP;
       ASP++;
 #if COROUTINING
@@ -3683,9 +3713,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     HGEN = H0;
   }
   /*  fprintf(stderr,"HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(GcGeneration)), HGEN, H,H0);*/
-#if !GC_TAGS
-  YAPEnterCriticalSection();
-#endif
   OldTR = (tr_fr_ptr)(old_TR = TR);
   push_registers(predarity, nextop);
   marking_phase(old_TR, current_env, nextop, max);
@@ -3732,9 +3759,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   TR = old_TR;
   pop_registers(predarity, nextop);
   TR = new_TR;
-#if !GC_TAGS
-  YAPLeaveCriticalSection();
-#endif
   /*  fprintf(Yap_stderr,"NEW HGEN %ld (%ld)\n", H-H0, HGEN-H0);*/
   Yap_UpdateTimedVar(GcGeneration, MkIntegerTerm(H-H0));
   Yap_UpdateTimedVar(GcPhase, MkIntegerTerm(GcCurrentPhase));

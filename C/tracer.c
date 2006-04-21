@@ -137,6 +137,10 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
+  //  if (vsc_count < 13600) {
+  //    UNLOCK(Yap_heap_regs->low_level_trace_lock);
+  //    return;
+  //  }
 #ifdef COMMENTED
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;
