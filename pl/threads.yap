@@ -363,6 +363,9 @@ thread_peek_message(Term) :-
 	thread_peek_message(Id, Term).
 
 thread_peek_message(Queue, Term) :-
+	recorded('$thread_alias',[Id|Queue],_), !,
+	thread_peek_message(Id, Term).
+thread_peek_message(Queue, Term) :-
 	recorded('$queue',q(Queue,Mutex,_,Key),_), !,
 	mutex_lock(Mutex),
 	'$thread_peek_message2'(Key, Term, Mutex).
