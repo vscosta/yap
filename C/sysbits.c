@@ -1783,19 +1783,19 @@ p_shell (void)
     bourne = TRUE;
   /* Yap_CloseStreams(TRUE); */
   if (bourne)
-    return (system (RepAtom(AtomOfTerm(t1))->StrOfAE) == 0);
+    return system(RepAtom(AtomOfTerm(t1))->StrOfAE) == 0;
   else {
-      int status = -1;
-      int child = fork ();
-      if (child == 0)
-	{			/* let the children go */
-	  if (!execl (shell, shell, "-c", RepAtom(AtomOfTerm(t1))->StrOfAE , NULL)) {
-	    exit(-1);
-	  }
-	  exit(TRUE);
-	}
-      {				/* put the father on wait */
-	int result = child < 0 ||
+    int status = -1;
+    int child = fork ();
+
+    if (child == 0) {			/* let the children go */
+      if (!execl (shell, shell, "-c", RepAtom(AtomOfTerm(t1))->StrOfAE , NULL)) {
+	exit(-1);
+      }
+      exit(TRUE);
+    }
+    {				/* put the father on wait */
+      int result = child < 0 ||
 /* vsc:I am not sure this is used, Stevens say wait returns an integer.
 #if NO_UNION_WAIT
 */
@@ -1815,10 +1815,10 @@ p_shell (void)
   shell = "msh -i";
   /* Yap_CloseStreams(); */
   system (shell);
-  return (TRUE);
+  return TRUE;
 #else
   Yap_Error (SYSTEM_ERROR,TermNil,"shell not available in this configuration");
-  return(FALSE);
+  return FALSE;
 #endif
 #endif /* HAVE_SYSTEM */
 #endif /* _MSC_VER */

@@ -42,7 +42,7 @@ cp_as_integer(choiceptr cp)
 static choiceptr
 cp_from_integer(Term cpt)
 {
-  return (choiceptr)(LCL0-(CELL *)IntegerOfTerm(cpt));
+  return (choiceptr)(LCL0-IntegerOfTerm(cpt));
 }
 
 Term
@@ -82,7 +82,7 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt, yamop *code) {
   ENV = YENV;
   YENV = ASP;
   YENV[E_CB] = (CELL) cut_pt;
-  return (TRUE);
+  return TRUE;
 }
 
 inline static Int
@@ -422,7 +422,7 @@ p_execute_clause(void)
 {				/* '$execute_clause'(Goal)	 */
   Term            t = Deref(ARG1);
   Term            mod = Deref(ARG2);
-  choiceptr       cp = cp_from_integer(Deref(ARG4));
+  choiceptr       cut_cp = cp_from_integer(Deref(ARG4));
   unsigned int    arity;
   Prop            pe;
   yamop *code;
@@ -478,7 +478,7 @@ p_execute_clause(void)
   } else {
     code = Yap_ClauseFromTerm(clt)->ClCode;
   }
-  return CallPredicate(RepPredProp(pe), cp, code);
+  return CallPredicate(RepPredProp(pe), cut_cp, code);
 }
 
 static Int

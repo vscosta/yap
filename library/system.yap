@@ -374,7 +374,8 @@ shell(Command) :-
 	G = shell(Command),
 	check_command(Command, G),
 	get_shell(Shell,Opt),
-	do_shell(Shell, Opt, Command, _, Error),
+	do_shell(Shell, Opt, Command, Status, Error),
+	Status = 0,
 	handle_system_error(Error, off, G).
 
 shell(Command, Status) :-
@@ -416,6 +417,7 @@ system(Command, Status) :-
 	G = system(Command, Status),
 	check_command(Command, G),
 	do_system(Command, Status, Error),
+	Status = 0,
 	handle_system_error(Error, off, G).
 
 sleep(Interval) :- var(Interval), !,

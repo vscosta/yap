@@ -8,8 +8,13 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.25 2006-01-17 14:10:42 vsc Exp $									 *
+* $Id: sys.c,v 1.26 2006-04-25 03:23:40 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.25  2006/01/17 14:10:42  vsc
+* mods:		YENV may be an HW register (breaks some tabling code)
+* mods:		All YAAM instructions are now brackedted, so Op introduced an { and EndOp introduces an }. This is because Ricardo assumes that.
+* mods:		Fix attvars when COROUTING is undefined.
+* mods:		
 * mods:		Revision 1.24  2006/01/08 23:01:48  vsc
 * mods:		*** empty log message ***
 * mods:		
@@ -52,9 +57,7 @@
 
 #include "config.h"
 #include "YapInterface.h"
-#if STDC_HEADERS
 #include <stdlib.h>
-#endif
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -687,12 +690,12 @@ do_system(void)
 #if HAVE_SYSTEM
   int sys = system(command);
   if (sys < 0) {
-    return(YAP_Unify(YAP_ARG3,YAP_MkIntTerm(errno)));
+    return YAP_Unify(YAP_ARG3,YAP_MkIntTerm(errno));
   }
-  return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(sys)));
+  return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(sys));
 #else
   YAP_Error(0,0L,"system not available in this configuration");
-  return(FALSE);
+  return FALSE;
 #endif
 }
 
@@ -703,6 +706,9 @@ static int
 do_shell(void)
 {
 #if defined(__MINGW32__) || _MSC_VER
+  YAP_Error(0,0L,"system not available in this configuration");
+  return(FALSE);
+#elif HAVE_SYSTEM
   char *buf = YAP_AllocSpaceFromYap(BUF_SIZE);
   int sys;
 
@@ -711,29 +717,23 @@ do_shell(void)
     return(FALSE);
   }
 #if HAVE_STRNCPY
-  strncpy(YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1)), buf, BUF_SIZE);
-  strncpy(" ", buf, BUF_SIZE);
-  strncpy(YAP_AtomName(YAP_AtomOfTerm(YAP_ARG2)), buf, BUF_SIZE);
-  strncpy(" ", buf, BUF_SIZE);
-  strncpy(YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3)), buf, BUF_SIZE);
+  strncpy(buf, YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1)), BUF_SIZE);
+  strncpy(buf, " ", BUF_SIZE);
+  strncpy(buf, YAP_AtomName(YAP_AtomOfTerm(YAP_ARG2)), BUF_SIZE);
+  strncpy(buf, " ", BUF_SIZE);
+  strncpy(buf, YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3)), BUF_SIZE);
 #else
-  strcpy(YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1)), buf);
-  strcpy(" ", buf);
-  strcpy(YAP_AtomName(YAP_AtomOfTerm(YAP_ARG2)), buf);
-  strcpy(" ", buf);
-  strcpy(YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3)), buf);
+  strcpy(buf, YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1)));
+  strcpy(buf, YAP_AtomName(YAP_AtomOfTerm(YAP_ARG2)));
+  strcpy(buf, " ");
+  strcpy(bug, YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3)));
 #endif
-#if HAVE_SYSTEM
   sys = system(buf);
   YAP_FreeSpaceFromYap(buf);
   if (sys < 0) {
-    return(YAP_Unify(YAP_ARG5,YAP_MkIntTerm(errno)));
+    return YAP_Unify(YAP_ARG5,YAP_MkIntTerm(errno));
   }
-  return(YAP_Unify(YAP_ARG4, YAP_MkIntTerm(sys)));
-#else
-  YAP_Error(0,0L,"system not available in this configuration");
-  return(FALSE);
-#endif
+  return YAP_Unify(YAP_ARG4, YAP_MkIntTerm(sys));
 #else
   char *cptr[4];
   int t;
@@ -745,17 +745,19 @@ do_shell(void)
   cptr[3]= NULL;
   t = fork();
   if (t < 0) {
-    return(YAP_Unify(YAP_ARG5,YAP_MkIntTerm(errno)));
+    return YAP_Unify(YAP_ARG5,YAP_MkIntTerm(errno));
   } else if (t == 0) {
-    t = execvp(YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1)),cptr);
-    return(t);
+    t = execvp(cptr[0],cptr);
+    return t;
   } else {
     t = wait(&sys);
+    fprintf(stderr,"after wait %x:%x\n",t,sys);
     if (t < 0) {
-      return(YAP_Unify(YAP_ARG5,YAP_MkIntTerm(errno)));
+      return YAP_Unify(YAP_ARG5,YAP_MkIntTerm(errno));
     }
   }
-  return(YAP_Unify(YAP_ARG4, YAP_MkIntTerm(sys)));
+  fprintf(stderr,"after wait %x\n", sys);
+  return YAP_Unify(YAP_ARG4, YAP_MkIntTerm(sys));
 #endif
 }
 
