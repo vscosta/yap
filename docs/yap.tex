@@ -6301,6 +6301,12 @@ If @var{Value} is unbound, tell whether debugging is @code{on} or
 @code{off}. If @var{Value} is bound to @code{on} enable debugging, and if
 it is bound to @code{off} disable debugging.
 
++@item debugger_print_options
+@findex debugger_print_options (yap_flag/2 option)
+@* 
+If bound, set the argument to the @code{write_term/3} options the
+debugger uses to write terms. If unbound, show the current options.
+
 @item discontiguous_warnings
 @findex discontiguous_warnings (yap_flag/2 option)
 @*
@@ -6552,6 +6558,12 @@ or whether it should follow the ISO standard (@code{iso} option).
 top-level. If unbound show the current goal or @code{true} if none is
 presented. Only the first solution is considered and the goal is not
 backtracked into.
+
++@item toplevel_print_options
+@findex toplevel_print_options (yap_flag/2 option)
+@*
++If bound, set the argument to the @code{write_term/3} options used to write
+terms from the top-level. If unbound, show the current options.
 
 @item typein_module
 @findex typein_module (yap_flag/2 option)

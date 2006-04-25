@@ -121,13 +121,15 @@ open(F,T,S,Opts) :-
 	    '$check_force_opt_arg'(X,G) ;
 	    '$do_error'(domain_error(close_option,Opt),G)
 	).
-'$check_opt'(open(_,_,_,_),Opt,G) :- !,
+'$check_opt'(open(_,_,_,_),Opt,G) :-
 	'$check_opt_open'(Opt, G).
-'$check_opt'(read_term(_,_),Opt,G) :- !,
+'$check_opt'(read_term(_,_),Opt,G) :-
 	'$check_opt_read'(Opt, G).
-'$check_opt'(stream_property(_,_),Opt,G) :- !,
+'$check_opt'(stream_property(_,_),Opt,G) :-
 	'$check_opt_sp'(Opt, G).
-'$check_opt'(write_term(_,_),Opt,G) :- !,
+'$check_opt'(write_term(_,_),Opt,G) :-
+	'$check_opt_write'(Opt, G).
+'$check_opt'(yap_flag(_,_),Opt,G) :-
 	'$check_opt_write'(Opt, G).
 
 
