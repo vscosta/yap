@@ -11,8 +11,11 @@
 * File:		gprof.c							 *
 * comments:	Interrupt Driven Profiler				 *
 *									 *
-* Last rev:     $Date: 2006-02-01 13:28:56 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-27 20:58:59 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.4  2006/02/01 13:28:56  vsc
+* bignum support fixes
+*
 * Revision 1.3  2006/01/17 14:10:40  vsc
 * YENV may be an HW register (breaks some tabling code)
 * All YAAM instructions are now brackedted, so Op introduced an { and EndOp introduces an }. This is because Ricardo assumes that.
@@ -711,8 +714,9 @@ static Int profend(void);
 static int
 showprofres(UInt type) { 
   clauseentry *pr, *t, *t2;
+  PredEntry *mype;
   UInt count=0, ProfCalls=0, InGrowHeap=0, InGrowStack=0, InGC=0, InError=0, InUnify=0, InCCall=0;
-  yamop *pc_ptr,*y; void *oldpc;
+  yamop *pc_ptr,*y; void *oldpc; 
 
   profend(); /* Make sure profiler has ended */
 
@@ -749,7 +753,7 @@ showprofres(UInt type) {
 
   t2=NULL;
   ProfCalls=0;
-  while(fscanf(FProf,"%p %p\n",&oldpc, &pc_ptr) >0){
+  while(fscanf(FProf,"%p %p %p\n",&oldpc, &pc_ptr,&mype) >0){
     if (type<10) ProfCalls++;
     
     if (oldpc!=0 && type<=2) {
@@ -834,7 +838,7 @@ showprofres(UInt type) {
       if (calls && myp->FunctorOfPred->KindOfPE==47872) {
         count+=calls;
 	printf("%p",myp);
-	printf(" %s",RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE);
+	if (myp->ModuleOfPred!=NULL) printf(" %s",RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE);
 	printf(":%s",RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE);
         if (myp->ArityOfPE) printf("/%d",myp->ArityOfPE);	
 	printf(" -> %lu (%3.1f%c)\n",(unsigned long int)calls,(float) calls*100/ProfCalls,'%');
@@ -859,7 +863,7 @@ showprofres(UInt type) {
 	}
         count+=calls;
 	//	printf("%p %p",t->pp, t->beg);
-        printf(" %s",RepAtom(AtomOfTerm(t->pp->ModuleOfPred))->StrOfAE);
+        if (t->pp->ModuleOfPred!=NULL) printf(" %s",RepAtom(AtomOfTerm(t->pp->ModuleOfPred))->StrOfAE);
         printf(":%s",RepAtom(NameOfFunctor(t->pp->FunctorOfPred))->StrOfAE);
         if (t->pp->ArityOfPE) printf("/%d",t->pp->ArityOfPE);	
         printf(" -> %lu (%3.1f%c)\n",(unsigned long int)calls,(float) calls*100/ProfCalls,'%');
@@ -968,8 +972,9 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
   }
 
   if (Yap_OffLineProfiler) {
+    fprintf(FProf,"%p %p ", oldpc, current_p);
     ProfOn = FALSE;
-    return;
+    //    return;
   }
 
   if (ProfOn) {
@@ -980,6 +985,7 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
 
   if ((node = RBLookup((yamop *)current_p))) {
     node->pcs++;
+    if (Yap_OffLineProfiler) fprintf(FProf,"%p\n", node->pe);
     ProfOn = FALSE;
     return;
   } else {
@@ -987,6 +993,7 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
     CODEADDR start, end;
 
     pp = Yap_PredEntryForCode(current_p, FIND_PRED_FROM_ANYWHERE, &start, &end);    
+    if (Yap_OffLineProfiler) fprintf(FProf,"%p\n", pp);
     if (!pp) {
 #if DEBUG
       fprintf(stderr,"lost %p, %d\n", P, Yap_op_from_opcode(P->opc));
@@ -1134,7 +1141,7 @@ static Int profinit(void)
     if (FProf==NULL) { fclose(FPreds); return FALSE; }
 
     Yap_dump_code_area_for_profiler();
-  } else {
+    //  } else {
     if (ProfilerRoot) 
       reset_tree();
     while (!(ProfilerRoot = RBTreeCreate())) {
@@ -1302,7 +1309,7 @@ Yap_InitLowProf(void)
   ProfilerOn = FALSE;
   Yap_OffLineProfiler = FALSE;
   Yap_InitCPred("profinit",0, profinit, SafePredFlag);
-  Yap_InitCPred("profini1",1, profinit1, SafePredFlag);
+  Yap_InitCPred("profinit",1, profinit1, SafePredFlag);
   Yap_InitCPred("$proftype",1, proftype, SafePredFlag);
   Yap_InitCPred("profend" ,0, profend, SafePredFlag);
   Yap_InitCPred("profon" , 0, profon0, SafePredFlag);
