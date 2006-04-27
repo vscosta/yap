@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-04-27 14:10:36 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2006-04-27 17:04:08 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.164  2006/04/27 14:10:36  rslopes
+* *** empty log message ***
+*
 * Revision 1.163  2006/04/20 15:28:08  vsc
 * more graph stuff.
 *
@@ -4903,13 +4906,13 @@ index_jmp(ClausePointer cur, ClausePointer parent, yamop *ipc, int is_lu, yamop 
   if (is_lu) {
     LogUpdIndex *lcur = cur.lui, *ncur;
     /* check myself */
-    if (ipc >= lcur->ClCode && ipc <= (yamop *)((CODEADDR)lcur+lcur->ClSize))
+    if (ipc >= lcur->ClCode && ipc < (yamop *)((CODEADDR)lcur+lcur->ClSize))
       return cur;
     /* check if I am returning back to a parent, eg 
        switch with intermediate node */
     if (lcur->ParentIndex) {
       LogUpdIndex *pcur = lcur->ParentIndex;
-      if (ipc >= pcur->ClCode && ipc <= (yamop *)((CODEADDR)pcur+pcur->ClSize)) {
+      if (ipc >= pcur->ClCode && ipc < (yamop *)((CODEADDR)pcur+pcur->ClSize)) {
 	cur.lui = pcur;
 	return cur;
       }
@@ -4931,7 +4934,7 @@ index_jmp(ClausePointer cur, ClausePointer parent, yamop *ipc, int is_lu, yamop 
     if (!scur)
       return cur;
     if (ipc >= scur->ClCode &&
-	ipc <= (yamop *)((CODEADDR)scur+scur->ClSize))   
+	ipc < (yamop *)((CODEADDR)scur+scur->ClSize))   
       return cur;
     ncur = ClauseCodeToStaticIndex(ipc);
     if (ncur->ClPred == scur->ClPred) {
@@ -4942,7 +4945,7 @@ index_jmp(ClausePointer cur, ClausePointer parent, yamop *ipc, int is_lu, yamop 
     if (parent.si != cur.si) {
       if (parent.si) {
 	StaticIndex *pcur = parent.si;
-	if (ipc >= pcur->ClCode && ipc <= (yamop *)((CODEADDR)pcur+pcur->ClSize))
+	if (ipc >= pcur->ClCode && ipc < (yamop *)((CODEADDR)pcur+pcur->ClSize))
 	  return parent;
       }
     }
@@ -5706,7 +5709,7 @@ cross_block(path_stack_entry *sp, yamop **pipc, PredEntry *ap)
     else
       bsize = block->si.ClSize;
     if (ipc > (yamop *)block &&
-	ipc <= (yamop *)((CODEADDR)block + bsize)) {
+	ipc < (yamop *)((CODEADDR)block + bsize)) {
       path_stack_entry *nsp = tsp+1;
       for (;tsp<sp;tsp++) {
 	if (tsp->flag == pc_entry) {
