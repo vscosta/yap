@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-04-12 17:14:58 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2006-04-27 14:11:57 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.200  2006/04/12 17:14:58  rslopes
+* fix needed by the EAM engine
+*
 * Revision 1.199  2006/04/12 15:51:23  rslopes
 * small fixes
 *
@@ -2898,11 +2901,21 @@ Yap_absmi(int inp)
 
 #ifdef BEAM
  extern int eam_am(PredEntry *);
+
+     Op(retry_eam, e);
+       printf("Aqui estou eu..................\n");
+       if (!eam_am(2)) {
+	 abort_eam("Falhei\n");
+	   FAIL();
+       }
+
+       goto procceed;
+       PREG = NEXTOP(PREG, e);
+       GONext();
+     ENDOp();
+
      Op(run_eam, os);
-/*
-        printf("%p - %p - %p \n", &&run_eam, (PredEntry *) PREG->u.os.s, (int *) PREG->u.os.opcw);
-*/
-       if (inp==-9000) {
+       if (inp==-9000) { /* usar a indexação para saber quais as alternativas validas */
  	  extern CELL *beam_ALTERNATIVES;
           *beam_ALTERNATIVES= (CELL *) PREG->u.os.opcw;
 	  beam_ALTERNATIVES++;
@@ -2916,6 +2929,34 @@ Yap_absmi(int inp)
         saveregs();
         if (!eam_am((PredEntry *) PREG->u.os.s)) FAIL();
 	setregs();
+
+	/* cut */
+	BACKUP_B();
+#ifdef CUT_C
+	while (POP_CHOICE_POINT(B->cp_b)) {
+	    POP_EXECUTE();
+	}
+#endif /* CUT_C */
+        B = B->cp_b;  /* cut_fail */
+        HB = B->cp_h; /* cut_fail */
+        RECOVER_B();
+
+        if (0) { register choiceptr ccp;                                          
+	  /* initialize ccp */
+#define NORM_CP(CP)            ((choiceptr)(CP))
+
+          YENV = (CELL *) (NORM_CP(YENV) - 1);
+          ccp = NORM_CP(YENV);
+          store_yaam_reg_cpdepth(ccp);
+          ccp->cp_tr = TR;
+          ccp->cp_ap = BEAM_RETRY_CODE;
+          ccp->cp_h  = H;
+          ccp->cp_b  = B;
+          ccp->cp_env= ENV;
+          ccp->cp_cp = CPREG;
+          B = ccp;
+          SET_BB(B);
+        }
         goto procceed;
         PREG = NEXTOP(PREG, os);
         GONext();

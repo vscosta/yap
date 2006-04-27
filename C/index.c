@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-04-20 15:28:08 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-27 14:10:36 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.163  2006/04/20 15:28:08  vsc
+* more graph stuff.
+*
 * Revision 1.162  2006/04/12 18:56:50  vsc
 * fix bug in clause: a trust_me followed by a try should be implemented by
 * reusing the choice-point.
@@ -2330,6 +2333,10 @@ add_info(ClauseDef *clause, UInt regno)
       //      clause->Tag = (CELL)NULL;
       cl = NEXTOP(cl,os);
       break;
+    case _retry_eam:
+      cl = NEXTOP(cl,e);
+      break;            
+
 #endif
 
     }

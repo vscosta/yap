@@ -869,6 +869,9 @@ InitCodes(void)
   Yap_heap_regs->charsio_module = MkAtomTerm(Yap_LookupAtom("charsio"));
   Yap_heap_regs->terms_module = MkAtomTerm(Yap_LookupAtom("terms"));
   Yap_InitModules();
+#ifdef BEAM
+  Yap_heap_regs->beam_retry_code.opc = Yap_opcode(_retry_eam);
+#endif
 #ifdef YAPOR
   Yap_heap_regs->seq_def = TRUE;
   Yap_heap_regs->getwork_code.opc = Yap_opcode(_getwork);

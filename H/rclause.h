@@ -12,8 +12,12 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2005-12-17 03:25:39 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-27 14:13:24 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.14  2005/12/17 03:25:39  vsc
+* major changes to support online event-based profiling
+* improve error discovery and restart on scanner.
+*
 * Revision 1.13  2005/11/24 15:35:29  tiagosoares
 * removed some compilation warnings related to the cut-c code
 *
@@ -229,6 +233,9 @@ restore_opcodes(yamop *pc)
     case _write_l_list:
     case _pop:
     case _index_pred:
+#ifdef BEAM
+    case _retry_eam:
+#endif
 #if THREADS
     case _thread_local:
 #endif

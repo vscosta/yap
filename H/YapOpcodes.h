@@ -11,8 +11,12 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2006-03-24 16:34:21 $							 *
+* Last rev:     $Date: 2006-04-27 14:13:24 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.37  2006/03/24 16:34:21  rslopes
+* New update to BEAM engine.
+* BEAM now uses YAP Indexing (JITI)
+*
 * Revision 1.36  2005/12/17 03:25:39  vsc
 * major changes to support online event-based profiling
 * improve error discovery and restart on scanner.
@@ -212,6 +216,7 @@
     OPCODE(or_last                 ,p),
 #endif /* YAPOR */
 #ifdef BEAM 
+    OPCODE(retry_eam               ,e),		
     OPCODE(run_eam                 ,os),  
 #endif
     OPCODE(call_cpred              ,sla),		

@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-03-29 16:00:10 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-27 14:11:57 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.183  2006/03/29 16:00:10  vsc
+* make tabling compile
+*
 * Revision 1.182  2006/03/24 16:26:26  vsc
 * code review
 *
@@ -3743,6 +3746,9 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _write_list:
     case _write_l_list:
     case _pop:
+#ifdef BEAM
+    case _retry_eam:
+#endif
 #if THREADS
     case _thread_local:
 #endif

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.94 2006-03-30 01:11:10 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.95 2006-04-27 14:13:24 rslopes Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -182,6 +182,9 @@ typedef struct various_codes {
 #else
   worker_local wl;
 #endif
+#ifdef BEAM
+  yamop beam_retry_code;
+#endif /* BEAM */
 #ifdef YAPOR
   int seq_def;
   yamop getwork_code;
@@ -525,6 +528,9 @@ struct various_codes *Yap_heap_regs;
 #define  GETWORK_SEQ             (&(Yap_heap_regs->getwork_seq_code))
 #define  GETWORK_FIRST_TIME      (&(Yap_heap_regs->getwork_first_time_code))
 #endif /* YAPOR */
+#ifdef BEAM
+#define  BEAM_RETRY_CODE         ((yamop *)&(Yap_heap_regs->beam_retry_code)) 
+#endif /* BEAM */
 #ifdef TABLING
 #define  LOAD_ANSWER              ((yamop *)&(Yap_heap_regs->table_load_answer_code))
 #define  TRY_ANSWER               ((yamop *)&(Yap_heap_regs->table_try_answer_code))
