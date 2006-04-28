@@ -54,12 +54,15 @@ LookupModule(Term a)
   /* prolog module */
   if (a == 0)
     return 0;
+  LOCK(ModulesLock);
   for (i = 0; i < NoOfModules; ++i) {
     if (ModuleName[i] == a) {       
+      UNLOCK(ModulesLock);
       return i;
     }
   }
   ModuleName[i = NoOfModules++] = a;
+  UNLOCK(ModulesLock);
   if (NoOfModules == MaxModules) {
     Yap_Error(SYSTEM_ERROR,a,"number of modules overflowed");
   }
@@ -133,9 +136,12 @@ cont_current_module(void)
   Int  imod = IntOfTerm(EXTRA_CBACK_ARG(1,1));
   Term t = ModuleName[imod];
 
+  LOCK(ModulesLock);
   if (imod == NoOfModules) {
+    UNLOCK(ModulesLock);
     cut_fail();
   }
+  UNLOCK(ModulesLock);
   EXTRA_CBACK_ARG(1,1) = MkIntTerm(imod+1);
   return(Yap_unify(ARG1,t));
 }

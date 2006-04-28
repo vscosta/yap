@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.96 2006-04-28 13:23:23 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.97 2006-04-28 15:48:32 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -18,6 +18,14 @@
 
 #ifndef HEAP_H
 #define HEAP_H 1
+
+#if defined(YAPOR) || defined(THREADS)
+#define WL wl[worker_id]
+#define RINFO rinfo[worker_id]
+#else
+#define WL wl
+#define RINFO rinfo
+#endif
 
 #ifndef INT_KEYS_DEFAULT_SIZE
 #define INT_KEYS_DEFAULT_SIZE 256
@@ -85,6 +93,10 @@ typedef struct worker_local_struct {
 #ifdef USE_GMP
   mpz_t  big_tmp;
 #endif
+  union CONSULT_OBJ *consultsp;
+  union CONSULT_OBJ *consultbase;
+  union CONSULT_OBJ *consultlow;
+  UInt   consultcapacity;
   UInt   active_signals;
   UInt   i_pred_arity;
   yamop *prof_end;
@@ -244,10 +256,6 @@ typedef struct various_codes {
     struct yami *clause;
     Functor func;
   } clausecode[1];
-  union CONSULT_OBJ *consultsp;
-  union CONSULT_OBJ *consultbase;
-  union CONSULT_OBJ *consultlow;
-  UInt   consultcapacity;
 #if HAVE_LIBREADLINE
   char *readline_buf, *readline_pos;
 #endif
@@ -306,6 +314,7 @@ typedef struct various_codes {
 #ifdef LOW_LEVEL_TRACER
   lockvar  low_level_trace_lock;
 #endif
+  lockvar  modules_lock;
 #endif
   unsigned int size_of_overflow;
   Term  module_name[MaxModules];
@@ -766,48 +775,8 @@ struct various_codes *Yap_heap_regs;
 #define  WakeUpCode               Yap_heap_regs->wake_up_code
 #endif
 #if defined(YAPOR) || defined(THREADS)
-/* The old stack pointers */
-#define  OldASP                   rinfo[worker_id].old_ASP
-#define  OldLCL0                  rinfo[worker_id].old_LCL0
-#define  OldTR                    rinfo[worker_id].old_TR
-#define  OldGlobalBase            rinfo[worker_id].old_GlobalBase
-#define  OldH                     rinfo[worker_id].old_H
-#define  OldH0                    rinfo[worker_id].old_H0
-#define  OldTrailBase             rinfo[worker_id].old_TrailBase
-#define  OldTrailTop              rinfo[worker_id].old_TrailTop
-#define  OldHeapBase              rinfo[worker_id].old_HeapBase
-#define  OldHeapTop               rinfo[worker_id].old_HeapTop
-#define  ClDiff                   rinfo[worker_id].cl_diff
-#define  GDiff                    rinfo[worker_id].g_diff
-#define  HDiff                    rinfo[worker_id].h_diff
-#define  LDiff                    rinfo[worker_id].l_diff
-#define  TrDiff                   rinfo[worker_id].tr_diff
-#define  XDiff                    rinfo[worker_id].x_diff
-#define  DelayDiff                rinfo[worker_id].delay_diff
-#define  FormatInfo               Yap_heap_regs->wl[worker_id].f_info
-#define  ScannerStack             Yap_heap_regs->wl[worker_id].scanner_stack
-#define  ScannerExtraBlocks       Yap_heap_regs->wl[worker_id].scanner_extra_blocks
 #define  SignalLock               Yap_heap_regs->wl[worker_id].signal_lock
 #define  WPP                      Yap_heap_regs->wl[worker_id].wpp
-#define  UncaughtThrow            Yap_heap_regs->wl[worker_id].uncaught_throw
-#define  DoingUndefp              Yap_heap_regs->wl[worker_id].doing_undefp
-#define  Yap_BigTmp               Yap_heap_regs->wl[worker_id].big_tmp
-#define  ActiveSignals            Yap_heap_regs->wl[worker_id].active_signals
-#define  IPredArity               Yap_heap_regs->wl[worker_id].i_pred_arity
-#define  ProfEnd                  Yap_heap_regs->wl[worker_id].prof_end
-#define  StartLine                Yap_heap_regs->wl[worker_id].start_line
-#define  ScratchPad               Yap_heap_regs->wl[worker_id].scratchpad
-#ifdef  COROUTINING
-#define  WokenGoals               Yap_heap_regs->wl[worker_id].woken_goals
-#define  AttsMutableList          Yap_heap_regs->wl[worker_id].atts_mutable_list
-#endif
-/* support for generations with backtracking */
-#define  GcCalls                  Yap_heap_regs->wl[worker_id].gc_calls
-#define  GcGeneration             Yap_heap_regs->wl[worker_id].gc_generation
-#define  GcPhase                  Yap_heap_regs->wl[worker_id].gc_phase
-#define  GcCurrentPhase           Yap_heap_regs->wl[worker_id].gc_current_phase
-#define  TotGcTime                Yap_heap_regs->wl[worker_id].tot_gc_time
-#define  TotGcRecovered           Yap_heap_regs->wl[worker_id].tot_gc_recovered
 #define  total_marked             Yap_heap_regs->wl[worker_id].tot_marked
 #define  total_oldies             Yap_heap_regs->wl[worker_id].tot_oldies
 #if DEBUG
@@ -835,54 +804,57 @@ struct various_codes *Yap_heap_regs;
 #define  db_root                  Yap_heap_regs->wl[worker_id].DB_root
 #define  db_nil                   Yap_heap_regs->wl[worker_id].DB_nil
 #define  cont_top                 Yap_heap_regs->wl[worker_id].conttop
-#define  Yap_gc_restore           Yap_heap_regs->wl[worker_id].gc_restore
-#define  TrustLUCode              Yap_heap_regs->wl[worker_id].trust_lu_code
-#define  DynamicArrays            Yap_heap_regs->wl[worker_id].dynamic_arrays
-#define  StaticArrays             Yap_heap_regs->wl[worker_id].static_arrays
-#else
-#define  OldASP                   rinfo.old_ASP
-#define  OldLCL0                  rinfo.old_LCL0
-#define  OldTR                    rinfo.old_TR
-#define  OldGlobalBase            rinfo.old_GlobalBase
-#define  OldH                     rinfo.old_H
-#define  OldH0                    rinfo.old_H0
-#define  OldTrailBase             rinfo.old_TrailBase
-#define  OldTrailTop              rinfo.old_TrailTop
-#define  OldHeapBase              rinfo.old_HeapBase
-#define  OldHeapTop               rinfo.old_HeapTop
-#define  ClDiff                   rinfo.cl_diff
-#define  GDiff                    rinfo.g_diff
-#define  HDiff                    rinfo.h_diff
-#define  LDiff                    rinfo.l_diff
-#define  TrDiff                   rinfo.tr_diff
-#define  XDiff                    rinfo.x_diff
-#define  DelayDiff                rinfo.delay_diff
-#define  FormatInfo               Yap_heap_regs->wl.f_info
-#define  ScannerStack             Yap_heap_regs->wl.scanner_stack
-#define  ScannerExtraBlocks       Yap_heap_regs->wl.scanner_extra_blocks
-#define  Yap_BigTmp               Yap_heap_regs->wl.big_tmp
-#define  ActiveSignals            Yap_heap_regs->wl.active_signals
-#define  IPredArity               Yap_heap_regs->wl.i_pred_arity
-#define  ProfEnd                  Yap_heap_regs->wl.prof_end
-#define  UncaughtThrow            Yap_heap_regs->wl.uncaught_throw
-#define  DoingUndefp              Yap_heap_regs->wl.doing_undefp
-#define  StartLine                Yap_heap_regs->wl.start_line
-#define  ScratchPad               Yap_heap_regs->wl.scratchpad
+#endif
+#define  OldASP                   RINFO.old_ASP
+#define  OldLCL0                  RINFO.old_LCL0
+#define  OldTR                    RINFO.old_TR
+#define  OldGlobalBase            RINFO.old_GlobalBase
+#define  OldH                     RINFO.old_H
+#define  OldH0                    RINFO.old_H0
+#define  OldTrailBase             RINFO.old_TrailBase
+#define  OldTrailTop              RINFO.old_TrailTop
+#define  OldHeapBase              RINFO.old_HeapBase
+#define  OldHeapTop               RINFO.old_HeapTop
+#define  ClDiff                   RINFO.cl_diff
+#define  GDiff                    RINFO.g_diff
+#define  HDiff                    RINFO.h_diff
+#define  LDiff                    RINFO.l_diff
+#define  TrDiff                   RINFO.tr_diff
+#define  XDiff                    RINFO.x_diff
+#define  DelayDiff                RINFO.delay_diff
+/* current consult stack */
+#define  ConsultSp                Yap_heap_regs->WL.consultsp
+/* top of consult stack  */
+#define  ConsultBase              Yap_heap_regs->WL.consultbase
+/* low-water mark for consult  */
+#define  ConsultLow               Yap_heap_regs->WL.consultlow
+/* current maximum number of cells in consult stack */
+#define  ConsultCapacity          Yap_heap_regs->WL.consultcapacity
+#define  FormatInfo               Yap_heap_regs->WL.f_info
+#define  ScannerStack             Yap_heap_regs->WL.scanner_stack
+#define  ScannerExtraBlocks       Yap_heap_regs->WL.scanner_extra_blocks
+#define  Yap_BigTmp               Yap_heap_regs->WL.big_tmp
+#define  ActiveSignals            Yap_heap_regs->WL.active_signals
+#define  IPredArity               Yap_heap_regs->WL.i_pred_arity
+#define  ProfEnd                  Yap_heap_regs->WL.prof_end
+#define  UncaughtThrow            Yap_heap_regs->WL.uncaught_throw
+#define  DoingUndefp              Yap_heap_regs->WL.doing_undefp
+#define  StartLine                Yap_heap_regs->WL.start_line
+#define  ScratchPad               Yap_heap_regs->WL.scratchpad
 #ifdef  COROUTINING
-#define  WokenGoals               Yap_heap_regs->wl.woken_goals
-#define  AttsMutableList          Yap_heap_regs->wl.atts_mutable_list
+#define  WokenGoals               Yap_heap_regs->WL.woken_goals
+#define  AttsMutableList          Yap_heap_regs->WL.atts_mutable_list
 #endif
-#define  GcGeneration             Yap_heap_regs->wl.gc_generation
-#define  GcPhase                  Yap_heap_regs->wl.gc_phase
-#define  GcCurrentPhase           Yap_heap_regs->wl.gc_current_phase
-#define  GcCalls                  Yap_heap_regs->wl.gc_calls
-#define  TotGcTime                Yap_heap_regs->wl.tot_gc_time
-#define  TotGcRecovered           Yap_heap_regs->wl.tot_gc_recovered
-#define  Yap_gc_restore           Yap_heap_regs->wl.gc_restore
-#define  TrustLUCode              Yap_heap_regs->wl.trust_lu_code
-#define  DynamicArrays            Yap_heap_regs->wl.dynamic_arrays
-#define  StaticArrays             Yap_heap_regs->wl.static_arrays
-#endif
+#define  GcGeneration             Yap_heap_regs->WL.gc_generation
+#define  GcPhase                  Yap_heap_regs->WL.gc_phase
+#define  GcCurrentPhase           Yap_heap_regs->WL.gc_current_phase
+#define  GcCalls                  Yap_heap_regs->WL.gc_calls
+#define  TotGcTime                Yap_heap_regs->WL.tot_gc_time
+#define  TotGcRecovered           Yap_heap_regs->WL.tot_gc_recovered
+#define  Yap_gc_restore           Yap_heap_regs->WL.gc_restore
+#define  TrustLUCode              Yap_heap_regs->WL.trust_lu_code
+#define  DynamicArrays            Yap_heap_regs->WL.dynamic_arrays
+#define  StaticArrays             Yap_heap_regs->WL.static_arrays
 #define  profiling                Yap_heap_regs->compiler_profiling
 #define  call_counting            Yap_heap_regs->compiler_call_counting
 #define  compile_arrays           Yap_heap_regs->compiler_compile_arrays
@@ -912,6 +884,7 @@ struct various_codes *Yap_heap_regs;
 #define  DeadStaticClausesLock    Yap_heap_regs->dead_static_clauses_lock
 #define  DeadMegaClausesLock      Yap_heap_regs->dead_mega_clauses_lock
 #define  DeadStaticIndicesLock    Yap_heap_regs->dead_static_indices_lock
+#define  ModulesLock		  Yap_heap_regs->modules_lock
 #endif
 #define  CreepCode                Yap_heap_regs->creep_code
 #define  UndefCode                Yap_heap_regs->undef_code
@@ -933,14 +906,6 @@ struct various_codes *Yap_heap_regs;
 /* initially allow for files with up to 1024 predicates. This number
    is extended whenever needed */
 #define  InitialConsultCapacity    1024
-/* current consult stack */
-#define  ConsultSp                (Yap_heap_regs->consultsp                   )
-/* top of consult stack  */
-#define  ConsultBase              (Yap_heap_regs->consultbase                 )
-/* low-water mark for consult  */
-#define  ConsultLow               (Yap_heap_regs->consultlow	          )
-/* current maximum number of cells in consult stack */
-#define  ConsultCapacity          (Yap_heap_regs->consultcapacity             )
 #if HAVE_LIBREADLINE
 #define  ReadlineBuf              Yap_heap_regs->readline_buf
 #define  ReadlinePos              Yap_heap_regs->readline_pos

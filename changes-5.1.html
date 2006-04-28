@@ -16,6 +16,7 @@
 
 <h2>Yap-5.1.2:</h2>
 <ul>
+<li> NEW: lock streams while using them (concurrent writing is still allowed).</li>
 <li> FIXED: make current_op only walk over atoms.</li>
 <li> FIXED: memory corruption when copying consult stack (obs Paulo Moura).</li>
 <li> FIXED: get rid of some silly locks.</li>
@@ -25,7 +26,7 @@
 <li> FIXED: system/1 and shell/1 should check return code (obs Nicos
   Angelopoulos).</li>
 <li> FIXED: thread_peek_message should use aliases (obs Paulo Moura).</li>
-<li> FIXED: garbage collector should no rewrite cp_tr fields until
+<li> FIXED: garbage collector should not rewrite cp_tr fields until
 after marking (obs Paulo Moura).</li>
 <li> FIXED: garbage collector was allowing garbage trail entries for
 multi-assignment variables. Namely, old var value might point to new space

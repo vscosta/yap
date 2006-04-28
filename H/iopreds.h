@@ -65,14 +65,17 @@ typedef struct stream_desc
       } socket;
 #endif
     } u;
+    Int charcount, linecount, linepos;
+    Int status;
+    Int och;
+#if defined(YAPOR) || defined(THREADS)
+    lockvar  streamlock;        /* protect stream access */
+#endif
     int (* stream_putc)(int, int);  /* function the stream uses for writing */
     int (* stream_getc)(int);       /* function the stream uses for reading */
     /* function the stream uses for parser. It may be different if the ISO
        character conversion is on */
     int (* stream_getc_for_read)(int);
-    Int charcount, linecount, linepos;
-    Int status;
-    Int och;
   }
 StreamDesc;
 

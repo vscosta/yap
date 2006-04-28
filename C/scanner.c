@@ -697,6 +697,7 @@ Yap_tokenizer(int inp_stream)
   ScannerExtraBlocks = NULL;
   l = NULL;
   p = NULL;			/* Just to make lint happy */
+  LOCK(Stream[inp_stream].streamlock);
   ch = Nxtch(inp_stream);
   do {
     int och, quote, isvar;
@@ -713,6 +714,7 @@ Yap_tokenizer(int inp_stream)
       if (p)
 	p->Tok = Ord(kind = eot_tok);
       /* serious error now */
+      UNLOCK(Stream[inp_stream].streamlock);
       return l;
     }
     if (!l)
@@ -757,6 +759,7 @@ Yap_tokenizer(int inp_stream)
 	  if (p)
 	    p->Tok = Ord(kind = eot_tok);
 	  /* serious error now */
+	  UNLOCK(Stream[inp_stream].streamlock);
 	  return l;
 	}
 	*charp++ = ch;
@@ -771,6 +774,7 @@ Yap_tokenizer(int inp_stream)
 	  if (p)
 	    t->Tok = Ord(kind = eot_tok);
 	  /* serious error now */
+	  UNLOCK(Stream[inp_stream].streamlock);
 	  return l;
 	}
 	t->TokInfo = Unsigned(ae);
@@ -792,6 +796,7 @@ Yap_tokenizer(int inp_stream)
 
 	cherr = 0;
 	if (!(ptr = AllocScannerMemory(4096))) {
+	  UNLOCK(Stream[inp_stream].streamlock);
 	  Yap_ErrorMessage = "Trail Overflow";
 	  Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
 	  if (p)
@@ -800,6 +805,7 @@ Yap_tokenizer(int inp_stream)
 	  return l;
 	}
 	if (ASP-H < 1024) {
+	  UNLOCK(Stream[inp_stream].streamlock);
 	  Yap_ErrorMessage = "Stack Overflow";
 	  Yap_Error_TYPE = OUT_OF_STACK_ERROR;	            
 	  if (p)
@@ -808,6 +814,7 @@ Yap_tokenizer(int inp_stream)
 	  return l;
 	}
 	if ((t->TokInfo = get_num(&cha,&cherr,inp_stream,Nxtch,QuotedNxtch,ptr,4096)) == 0L) {
+	  UNLOCK(Stream[inp_stream].streamlock);
 	  if (p)
 	    p->Tok = Ord(kind = eot_tok);
 	  /* serious error now */
@@ -821,6 +828,7 @@ Yap_tokenizer(int inp_stream)
 	  t->TokPos = GetCurInpPos(inp_stream);
 	  e = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	  if (e == NULL) {
+	    UNLOCK(Stream[inp_stream].streamlock);
 	    Yap_ErrorMessage = "Trail Overflow";
 	    Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
 	    if (p)
@@ -850,6 +858,7 @@ Yap_tokenizer(int inp_stream)
 	      t->TokPos = GetCurInpPos(inp_stream);
 	      e2 = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	      if (e2 == NULL) {
+		UNLOCK(Stream[inp_stream].streamlock);
 		Yap_ErrorMessage = "Trail Overflow";
 		Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
 		if (p)
@@ -881,6 +890,7 @@ Yap_tokenizer(int inp_stream)
 	      t->TokPos = GetCurInpPos(inp_stream);
 	      e2 = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	      if (e2 == NULL) {
+		UNLOCK(Stream[inp_stream].streamlock);
 		Yap_ErrorMessage = "Trail Overflow";
 		Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
 		t->Tok = Ord(kind = eot_tok);
@@ -943,6 +953,7 @@ Yap_tokenizer(int inp_stream)
 	}
 	++len;
 	if (charp > (char *)AuxSp - 1024) {
+	  UNLOCK(Stream[inp_stream].streamlock);
 	  /* Not enough space to read in the string. */
 	  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
 	  Yap_ErrorMessage = "not enough space to read in string or quoted atom";
@@ -956,6 +967,7 @@ Yap_tokenizer(int inp_stream)
       if (quote == '"') {
 	mp = AllocScannerMemory(len + 1);
 	if (mp == NULL) {
+	  UNLOCK(Stream[inp_stream].streamlock);
 	  Yap_ErrorMessage = "not enough heap space to read in string or quoted atom";
 	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  t->Tok = Ord(kind = eot_tok);
@@ -1062,6 +1074,7 @@ Yap_tokenizer(int inp_stream)
       /* insert an error token to inform the system of what happened */
       TokEntry *e = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
       if (e == NULL) {
+	UNLOCK(Stream[inp_stream].streamlock);
 	Yap_ErrorMessage = "Trail Overflow";
 	Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
 	p->Tok = Ord(kind = eot_tok);
@@ -1077,6 +1090,7 @@ Yap_tokenizer(int inp_stream)
       p = e;
     }
   } while (kind != eot_tok);
+  UNLOCK(Stream[inp_stream].streamlock);
   return (l);
 }
 

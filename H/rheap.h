@@ -11,8 +11,12 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2006-04-28 13:23:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-28 15:48:33 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.65  2006/04/28 13:23:23  vsc
+* fix number of overflow bugs affecting threaded version
+* make current_op faster.
+*
 * Revision 1.64  2006/03/22 20:07:28  vsc
 * take better care of zombies
 *
@@ -404,24 +408,26 @@ restore_codes(void)
 	(Functor)AtomAdjust((Atom)(Yap_heap_regs->clausecode->func));
     }
   }
+#if !defined(THREADS)
   /* restore consult stack. It consists of heap pointers, so it
      is easy to fix.
   */
-  Yap_heap_regs->consultlow  = 
-    ConsultObjAdjust(Yap_heap_regs->consultlow);
-  Yap_heap_regs->consultbase =
-    ConsultObjAdjust(Yap_heap_regs->consultbase);
-  Yap_heap_regs->consultsp   =
-    ConsultObjAdjust(Yap_heap_regs->consultsp);
+  Yap_heap_regs->wl.consultlow  = 
+    ConsultObjAdjust(Yap_heap_regs->wl.consultlow);
+  Yap_heap_regs->wl.consultbase =
+    ConsultObjAdjust(Yap_heap_regs->wl.consultbase);
+  Yap_heap_regs->wl.consultsp   =
+    ConsultObjAdjust(Yap_heap_regs->wl.consultsp);
   {
     /* we assume all pointers have the same size */
-    register consult_obj *pt = Yap_heap_regs->consultsp;
+    register consult_obj *pt = Yap_heap_regs->wl.consultsp;
     while (pt <
-	   Yap_heap_regs->consultlow+Yap_heap_regs->consultcapacity) {
+	   Yap_heap_regs->wl.consultlow+Yap_heap_regs->wl.consultcapacity) {
       pt->p = PropAdjust(pt->p);
       pt ++;
     }
   }
+#endif
 #if USE_THREADED_CODE
   Yap_heap_regs->op_rtable = (opentry *)
     CodeAddrAdjust((CODEADDR)(Yap_heap_regs->op_rtable));

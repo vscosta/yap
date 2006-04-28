@@ -959,6 +959,7 @@ InitCodes(void)
   INIT_LOCK(Yap_heap_regs->dead_mega_clauses_lock);
   INIT_LOCK(Yap_heap_regs->dead_static_indices_lock);
   INIT_LOCK(Yap_heap_regs->op_list_lock);
+  INIT_LOCK(Yap_heap_regs->modules_lock);
   Yap_heap_regs->heap_top_owner = -1;
   {
     int i;
@@ -968,11 +969,27 @@ InitCodes(void)
       Yap_heap_regs->wl[i].scratchpad.msz = SCRATCH_START_SIZE;
       Yap_heap_regs->wl[i].dynamic_arrays = NULL;
       Yap_heap_regs->wl[i].static_arrays = NULL;
+      Yap_heap_regs->wl[i].consultlow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
+      if (Yap_heap_regs->wl[i].consultlow == NULL) {
+	Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
+	return;
+      }
+      Yap_heap_regs->wl[i].consultcapacity = InitialConsultCapacity;
+      Yap_heap_regs->wl[i].consultbase = Yap_heap_regs->wl[i].consultsp =
+	Yap_heap_regs->wl[i].consultlow + Yap_heap_regs->wl[i].consultcapacity;
     }
   }
 #else
   Yap_heap_regs->wl.dynamic_arrays = NULL;
   Yap_heap_regs->wl.static_arrays = NULL;
+  Yap_heap_regs->wl.consultlow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
+  if (Yap_heap_regs->wl.consultlow == NULL) {
+    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
+    return;
+  }
+  Yap_heap_regs->wl.consultcapacity = InitialConsultCapacity;
+  Yap_heap_regs->wl.consultbase = Yap_heap_regs->wl.consultsp =
+    Yap_heap_regs->wl.consultlow + Yap_heap_regs->wl.consultcapacity;
 #endif /* YAPOR */
   Yap_heap_regs->clausecode->arity = 0;
   Yap_heap_regs->clausecode->clause = NULL;
@@ -981,12 +998,6 @@ InitCodes(void)
   Yap_heap_regs->invisiblechain.Entry = NIL;
   INIT_RWLOCK(Yap_heap_regs->invisiblechain.AERWLock);
   
-  Yap_heap_regs->consultlow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
-  if (Yap_heap_regs->consultlow == NULL) {
-    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
-   return;
-  }
-  Yap_heap_regs->consultcapacity = InitialConsultCapacity;
   {
     Atom            at;
     PredEntry      *pred;
@@ -1007,8 +1018,6 @@ InitCodes(void)
   Yap_heap_regs->system_pred_goal_expansion_func = FALSE;
   Yap_heap_regs->system_pred_goal_expansion_on = FALSE;
   Yap_heap_regs->update_mode = UPDATE_MODE_LOGICAL;
-  Yap_heap_regs->consultbase = Yap_heap_regs->consultsp =
-    Yap_heap_regs->consultlow + Yap_heap_regs->consultcapacity;
   Yap_heap_regs->compiler_compile_mode = 0; /* fast will be for native code */
   Yap_heap_regs->compiler_optimizer_on = TRUE;
   Yap_heap_regs->maxdepth      = 0;
