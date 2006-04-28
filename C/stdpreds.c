@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-04-28 13:23:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-28 17:53:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.101  2006/04/28 13:23:23  vsc
+* fix number of overflow bugs affecting threaded version
+* make current_op faster.
+*
 * Revision 1.100  2006/02/05 02:26:35  tiagosoares
 * MYDDAS: Top Level Functionality
 *
@@ -2994,7 +2998,13 @@ Yap_InitCPreds(void)
     init_time();
   }
 #endif
-
+#if SUPPORT_CONDOR
+  init_sys();
+  init_random();
+  //  init_tries();
+  swi_install();
+  init_regexp();
+#endif
 }
 
 

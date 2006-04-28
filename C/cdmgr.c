@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-04-28 13:23:22 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-28 17:53:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.185  2006/04/28 13:23:22  vsc
+* fix number of overflow bugs affecting threaded version
+* make current_op faster.
+*
 * Revision 1.184  2006/04/27 14:11:57  rslopes
 * *** empty log message ***
 *
@@ -1640,10 +1644,10 @@ static void  expand_consult(void)
   Yap_FreeCodeSpace((char *)ConsultLow);
   /* next, set up pointers correctly */
   new_cs += (ConsultSp-ConsultLow);
+  /* put ConsultBase at same offset as before move */
+  ConsultBase = ConsultBase+(new_cs-ConsultSp);
   /* new consult pointer */
   ConsultSp = new_cs;
-  /* reserve 3 slots for the last elements */
-  ConsultBase = new_cb-3;
   /* new end of memory */
   ConsultLow = new_cl;
 }
