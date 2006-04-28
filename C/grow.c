@@ -1307,6 +1307,10 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
   UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
 
+#if USE_SYSTEM_MALLOC
+  if (contiguous_only)
+    return FALSE;
+#endif
   /* at least 64K for trail */
   if (size < 64*1024)
     size = 64*1024;

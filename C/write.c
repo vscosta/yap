@@ -453,12 +453,16 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 #ifdef USE_GMP
       case (CELL)FunctorBigInt:
 	{
-	  char *s = (char *)TR;
 	  MP_INT *big = Yap_BigIntOfTerm(t);
-	  while (s+2+mpz_sizeinbase(big, 10) > (char *)Yap_TrailTop) {
-	    Yap_growtrail(2+mpz_sizeinbase(big, 10), TRUE);
-	    big = Yap_BigIntOfTerm(t);
+	  char *s = (char *)TR;
+	  if (s+2+mpz_sizeinbase(big, 10) >= Yap_TrailTop) {
+	    s = H;
+	    if (s+2+mpz_sizeinbase(big, 10) >= ASP) {
+	      return;
+	    }
 	  }
+	  if (!s)
+	    return;
 	  if (mpz_sgn(big) < 0) {
 	    if (lastw == symbol)
 	      wrputc(' ', wglb->writech);  

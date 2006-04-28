@@ -128,13 +128,6 @@ typedef struct scanner_extra_alloc {
   void *filler;
 } ScannerExtraBlock;
 
-/* Problem: we use realloc so we cannot guarantee beforehand pointers will shift or not */
-#if USE_SYSTEM_MALLOC
-#define EXPAND_TRAIL FALSE
-#else
-#define EXPAND_TRAIL TRUE
-#endif
-
 static char *
 AllocScannerMemory(unsigned int size)
 {
@@ -156,7 +149,7 @@ AllocScannerMemory(unsigned int size)
  
     if (size > alloc_size)
       alloc_size = size;
-    if(!EXPAND_TRAIL || !Yap_growtrail(alloc_size, TRUE)) {
+    if(!Yap_growtrail(alloc_size, TRUE)) {
       struct scanner_extra_alloc *ptr;
 
       if (!(ptr = (struct scanner_extra_alloc *)malloc(size+sizeof(ScannerExtraBlock)))) {

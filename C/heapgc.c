@@ -149,18 +149,12 @@ static rb_red_blk_node *db_root, *db_nil;
 static void
 gc_growtrail(int committed)
 {
-#if USE_SYSTEM_MALLOC
-  TR = OldTR;
-  save_machine_regs();
-  longjmp(Yap_gc_restore, 2);
-#else
   if (!Yap_growtrail(64 * 1024L, TRUE)) {
+    TR = OldTR;
     /* could not find more trail */
     save_machine_regs();
     longjmp(Yap_gc_restore, 2);
   }
-#endif
-  
 }
 
 inline static void
@@ -1600,8 +1594,9 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  tr_fr_ptr nsTR = (tr_fr_ptr)cont_top0;
           CELL *cptr = (CELL *)trail_cell;
 
-	  if ((ADDR)nsTR > Yap_TrailTop-1024)
-	    Yap_growtrail(64 * 1024L, TRUE);
+	  if ((ADDR)nsTR > Yap_TrailTop-1024) {
+	    gc_growtrail(TRUE);
+	  }
 	  TrailTerm(nsTR) = (CELL)NULL;
 	  TrailTerm(nsTR+1) = *hp;
 	  TrailTerm(nsTR+2) = trail_cell;
