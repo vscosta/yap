@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2006-03-22 20:07:28 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-28 13:23:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.64  2006/03/22 20:07:28  vsc
+* take better care of zombies
+*
 * Revision 1.63  2006/03/06 14:04:56  vsc
 * fixes to garbage collector
 * fixes to debugger
@@ -434,6 +437,10 @@ restore_codes(void)
   if (Yap_heap_regs->char_conversion_table2) {
     Yap_heap_regs->char_conversion_table2 = (char *)
       AddrAdjust((ADDR)Yap_heap_regs->char_conversion_table2);
+  }
+  if (Yap_heap_regs->op_list) {
+    Yap_heap_regs->op_list = (struct operator_entry *)
+      AddrAdjust((ADDR)Yap_heap_regs->op_list);
   }
   if (Yap_heap_regs->dead_static_clauses) {
     StaticClause *sc = PtoStCAdjust(Yap_heap_regs->dead_static_clauses);

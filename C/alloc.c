@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.82 2006-03-24 17:15:18 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.83 2006-04-28 13:23:22 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -104,6 +104,7 @@ void
 Yap_FreeCodeSpace(char *p)
 {
   Yap_PrologMode |= MallocMode;
+
 #if INSTRUMENT_MALLOC
   if (frees % 1024*4 == 0) 
     minfo('F');

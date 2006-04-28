@@ -261,14 +261,16 @@ IsModProperty (int flags)
 
 
 /*	    operator property entry structure				*/
-typedef struct
+typedef struct operator_entry
 {
   Prop NextOfPE;		/* used to chain properties     */
   PropFlags KindOfPE;		/* kind of property             */
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t OpRWLock;		/* a read-write lock to protect the entry */
 #endif
+  Atom OpName;			/* atom name		        */
   Term OpModule;		/* module of predicate          */
+  struct operator_entry  *OpNext; /* next in list of operators  */
   BITS16 Prefix, Infix, Posfix;	/* precedences                  */
 } OpEntry;
 #if USE_OFFSETS_IN_PROPS

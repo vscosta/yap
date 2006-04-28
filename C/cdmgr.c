@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-04-27 14:11:57 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2006-04-28 13:23:22 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.184  2006/04/27 14:11:57  rslopes
+* *** empty log message ***
+*
 * Revision 1.183  2006/03/29 16:00:10  vsc
 * make tabling compile
 *
@@ -1629,15 +1632,19 @@ static void  expand_consult(void)
       return;
     }
   }
-  new_cs = new_cl + (InitialConsultCapacity+1);
-  new_cb = new_cs + (ConsultBase-ConsultSp);
+  new_cs = new_cl + InitialConsultCapacity;
+  new_cb = new_cl + ConsultCapacity;
   /* start copying */
-  memcpy((void *)(new_cs), (void *)(ConsultSp), OldConsultCapacity*sizeof(consult_obj));
+  memcpy((void *)new_cs, (void *)ConsultLow, OldConsultCapacity*sizeof(consult_obj));
   /* copying done, release old space */
   Yap_FreeCodeSpace((char *)ConsultLow);
   /* next, set up pointers correctly */
+  new_cs += (ConsultSp-ConsultLow);
+  /* new consult pointer */
   ConsultSp = new_cs;
-  ConsultBase = new_cb;
+  /* reserve 3 slots for the last elements */
+  ConsultBase = new_cb-3;
+  /* new end of memory */
   ConsultLow = new_cl;
 }
 
@@ -1665,7 +1672,7 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
     }
     p->src.OwnerFile = YapConsultingFile();
   }
-  return (TRUE);		/* careful */
+  return TRUE;		/* careful */
 }
 
 static void

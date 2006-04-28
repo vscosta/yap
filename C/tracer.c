@@ -126,6 +126,30 @@ jmp_deb(int i) {if (i) printf("Here we go\n"); else jmp_deb(0);}
 
 struct various_codes *sc;
 
+/*
+CELL array[332];
+
+int found = FALSE;
+
+static void
+check_area(void)
+{
+  int i, first = -1;
+  for (i= 0; i < 332; i++) {
+    if (array[i] !=((CELL *)0x187a800)[i]) {
+      if (first != -1) {
+	first = i;
+	found = TRUE;
+      }
+      fprintf(stderr,"%lld changed %d\n",vsc_count,i);
+    }
+    array[i] = ((CELL *)0x187a800)[i];
+  }
+  if (first != -1)
+    jmp_deb(i);
+}
+*/
+
 void
 low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 {
@@ -137,17 +161,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
-  //  if (vsc_count < 13600) {
-  //    UNLOCK(Yap_heap_regs->low_level_trace_lock);
-  //    return;
-  //  }
-  if (vsc_count == 22965LL) {
-    jmp_deb(1);
-  }
-  if (vsc_count < 1468068888) {
-    UNLOCK(Yap_heap_regs->low_level_trace_lock);
-    return;
-  }
 #ifdef COMMENTED
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;

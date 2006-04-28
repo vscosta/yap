@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.14 2006-04-13 12:02:39 rslopes Exp $	 *
+* version:      $Id: Yap.h,v 1.15 2006-04-28 13:23:23 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -1200,7 +1200,7 @@ extern int Yap_PrologShouldHandleInterrupts;
 #elif THREADS
 #define YAPEnterCriticalSection()                                        \
 	{                                                                \
-          LOCK(BGL);                                              \
+          /* LOCK(BGL); */                                              \
           Yap_PrologMode |= CritMode;                                   \
         }
 #define YAPLeaveCriticalSection()                                        \
@@ -1214,7 +1214,7 @@ extern int Yap_PrologShouldHandleInterrupts;
 	    Yap_PrologMode &= ~AbortMode;                             \
 	    Yap_Error(PURE_ABORT, 0, "");                             \
           }                                                            \
-          UNLOCK(BGL);                                           \
+          /* UNLOCK(BGL); */                                           \
         }
 #else
 #define YAPEnterCriticalSection()                                        \

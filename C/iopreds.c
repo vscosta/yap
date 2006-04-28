@@ -4481,9 +4481,9 @@ static Int
 p_format(void)
 {				/* 'format'(Control,Args)               */
   Int res;
-  LOCK(BGL);
+  //LOCK(BGL);
   res = format(Deref(ARG1),Deref(ARG2), Yap_c_output_stream);
-  UNLOCK(BGL);
+  //UNLOCK(BGL);
   return res;
 }
 
@@ -4494,17 +4494,17 @@ p_format2(void)
   int old_c_stream = Yap_c_output_stream;
   Int out;
 
-  LOCK(BGL);
+  //LOCK(BGL);
   /* needs to change Yap_c_output_stream for write */
   Yap_c_output_stream = CheckStream (ARG1, Output_Stream_f, "format/3");
   if (Yap_c_output_stream == -1) {
     Yap_c_output_stream = old_c_stream;  
-    UNLOCK(BGL);
+    //UNLOCK(BGL);
     return(FALSE);
   }
   out = format(Deref(ARG2),Deref(ARG3),Yap_c_output_stream);
   Yap_c_output_stream = old_c_stream;  
-  UNLOCK(BGL);
+  //  UNLOCK(BGL);
   return(out);
 }
 

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.95 2006-04-27 14:13:24 rslopes Exp $	 *
+* version:      $Id: Heap.h,v 1.96 2006-04-28 13:23:23 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -201,6 +201,7 @@ typedef struct various_codes {
   yamop *expand_clauses_first, *expand_clauses_last;
 #if defined(YAPOR) || defined(THREADS)
   lockvar expand_clauses_list_lock;
+  lockvar op_list_lock;
 #endif
   yamop comma_code[5];
   yamop failcode[1];
@@ -310,6 +311,7 @@ typedef struct various_codes {
   Term  module_name[MaxModules];
   struct pred_entry *module_pred[MaxModules];
   SMALLUNSGN   no_of_modules;
+  struct operator_entry *op_list;
   struct static_clause *dead_static_clauses;
   struct static_mega_clause *dead_mega_clauses;
   struct static_index *dead_static_indices;
@@ -541,6 +543,7 @@ struct various_codes *Yap_heap_regs;
 #define  ExpandClausesFirst       Yap_heap_regs->expand_clauses_first
 #define  ExpandClausesLast        Yap_heap_regs->expand_clauses_last
 #define  ExpandClausesListLock    Yap_heap_regs->expand_clauses_list_lock
+#define  OpListLock               Yap_heap_regs->op_list_lock
 #define  COMMA_CODE               Yap_heap_regs->comma_code
 #define  FAILCODE                 Yap_heap_regs->failcode
 #define  TRUSTFAILCODE            Yap_heap_regs->trustfailcode
@@ -592,6 +595,7 @@ struct various_codes *Yap_heap_regs;
 #define  ModuleName               Yap_heap_regs->module_name
 #define  ModulePred               Yap_heap_regs->module_pred
 #define  NoOfModules              Yap_heap_regs->no_of_modules
+#define  OpList                   Yap_heap_regs->op_list
 #define  AtomAbol                 Yap_heap_regs->atom_abol
 #define  AtomAlarm                Yap_heap_regs->atom_alarm
 #define  AtomAppend               Yap_heap_regs->atom_append

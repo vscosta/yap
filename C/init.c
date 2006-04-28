@@ -253,6 +253,11 @@ OpDec(int p, char *type, Atom a, Term m)
     info->KindOfPE = Ord(OpProperty);
     info->NextOfPE = RepAtom(a)->PropsOfAE;
     info->OpModule = m;
+    info->OpName = a;
+    LOCK(OpListLock);
+    info->OpNext = OpList;
+    OpList = info;
+    UNLOCK(OpListLock);
     RepAtom(a)->PropsOfAE = AbsOpProp(info);
     INIT_RWLOCK(info->OpRWLock);
     WRITE_LOCK(info->OpRWLock);
@@ -953,6 +958,7 @@ InitCodes(void)
   INIT_LOCK(Yap_heap_regs->dead_static_clauses_lock);
   INIT_LOCK(Yap_heap_regs->dead_mega_clauses_lock);
   INIT_LOCK(Yap_heap_regs->dead_static_indices_lock);
+  INIT_LOCK(Yap_heap_regs->op_list_lock);
   Yap_heap_regs->heap_top_owner = -1;
   {
     int i;
@@ -1184,6 +1190,8 @@ InitCodes(void)
   Yap_heap_regs->size_of_overflow  = 0;
   /* make sure no one else can use these two atoms */
   CurrentModule = 0;
+  OpList = NULL;
+  Yap_heap_regs->op_list = NULL;
   Yap_heap_regs->dead_static_clauses = NULL;
   Yap_heap_regs->dead_mega_clauses = NULL;
   Yap_heap_regs->dead_static_indices = NULL;

@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-02-05 02:26:35 $,$Author: tiagosoares $						 *
+* Last rev:     $Date: 2006-04-28 13:23:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.100  2006/02/05 02:26:35  tiagosoares
+* MYDDAS: Top Level Functionality
+*
 * Revision 1.99  2006/02/05 02:17:54  tiagosoares
 * MYDDAS: Top Level Functionality
 *
@@ -1980,7 +1983,6 @@ cont_current_op(void)
 {
   int             prio;
   Atom            a = AtomOfTerm(EXTRA_CBACK_ARG(3,1));
-  Int             i = IntOfTerm(EXTRA_CBACK_ARG(3,2));
   Int             fix = IntOfTerm(EXTRA_CBACK_ARG(3,3));
   Term            TType;
   OpEntry        *pp = NIL;
@@ -1988,6 +1990,7 @@ cont_current_op(void)
   AtomEntry *at = RepAtom(a);
 
   if (fix > 3) {
+    /* starting from an atom */
     a = AtomOfTerm(Deref(ARG3));
     READ_LOCK(RepAtom(a)->ARWLock);
     if (EndOfPAEntr(pp = NextOp(RepOpProp(RepAtom(a)->PropsOfAE)))) {
@@ -2018,32 +2021,15 @@ cont_current_op(void)
     else
       cut_fail();
   }
+  pp = NextOp(RepOpProp(at->PropsOfAE));
   if (fix == 3) {
-    do {
-      if ((a = at->NextOfAE) == NIL) {
-	i++;
-	while (i < AtomHashTableSize) {
-	  READ_LOCK(HashChain[i].AERWLock);
-	  a = HashChain[i].Entry;
-	  READ_UNLOCK(HashChain[i].AERWLock);
-	  if (a != NIL) {
-	    break;
-	  }
-	  i++;
-	}
-	if (i == AtomHashTableSize)
-	  cut_fail();
-	EXTRA_CBACK_ARG(3,2) = (CELL) MkIntTerm(i);
-      }
-      at = RepAtom(a);
-      READ_LOCK(at->ARWLock);
-      pp = NextOp(RepOpProp(at->PropsOfAE));
-      READ_UNLOCK(at->ARWLock);
-    } while (EndOfPAEntr(pp));
+    if (pp->OpNext) {
+      pp = pp->OpNext;
+    } else {
+      cut_fail();
+    }
     fix = 0;
-    EXTRA_CBACK_ARG(3,1) = (CELL) MkAtomTerm(a);
-  } else {
-    pp = NextOp(RepOpProp(at->PropsOfAE));
+    EXTRA_CBACK_ARG(3,1) = (CELL) MkAtomTerm(at=RepAtom(a=pp->OpName));
   }
   READ_LOCK(pp->OpRWLock);
   if (fix == 0 && pp->Prefix == 0)
@@ -2101,15 +2087,12 @@ init_current_op(void)
       Yap_Error(TYPE_ERROR_ATOM,top,"current_op/3");
       return(FALSE);
     }
-  }
-  while (TRUE) {
-    READ_LOCK(HashChain[i].AERWLock);
-    a = HashChain[i].Entry;
-    READ_UNLOCK(HashChain[i].AERWLock);
-    if (a != NIL) {
-      break;
-    }
-    i++;
+    a = AtomOfTerm(top);
+  } else {
+    if (OpList)
+      a = OpList->OpName;
+    else
+      cut_fail();
   }
   EXTRA_CBACK_ARG(3,1) = (CELL) MkAtomTerm(a);
   EXTRA_CBACK_ARG(3,2) = (CELL) MkIntTerm(i);
