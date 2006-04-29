@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-04-28 17:53:44 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-04-29 01:15:18 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.186  2006/04/28 17:53:44  vsc
+* fix the expand_consult patch
+*
 * Revision 1.185  2006/04/28 13:23:22  vsc
 * fix number of overflow bugs affecting threaded version
 * make current_op faster.
@@ -1624,7 +1627,7 @@ assertz_dynam_clause(PredEntry *p, yamop *cp)
 
 static void  expand_consult(void)
 {
-  consult_obj *new_cl, *new_cb, *new_cs;
+  consult_obj *new_cl, *new_cs;
   UInt OldConsultCapacity = ConsultCapacity;
 
   /* now double consult capacity */
@@ -1637,7 +1640,6 @@ static void  expand_consult(void)
     }
   }
   new_cs = new_cl + InitialConsultCapacity;
-  new_cb = new_cl + ConsultCapacity;
   /* start copying */
   memcpy((void *)new_cs, (void *)ConsultLow, OldConsultCapacity*sizeof(consult_obj));
   /* copying done, release old space */
