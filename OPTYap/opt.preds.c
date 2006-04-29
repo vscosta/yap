@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.preds.c
-  version:     $Id: opt.preds.c,v 1.25 2005-08-10 21:36:34 ricroc Exp $   
+  version:     $Id: opt.preds.c,v 1.26 2006-04-29 15:52:22 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -67,6 +67,7 @@ static int p_table(void);
 static int p_tabling_mode(void);
 static int p_abolish_table(void);
 static int p_abolish_all_tables(void);
+static int p_show_tabled_predicates(void);
 static int p_show_table(void);
 static int p_table_statistics(void);
 static int p_tabling_statistics(void);
@@ -128,6 +129,7 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("$c_tabling_mode", 3, p_tabling_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$c_abolish_table", 2, p_abolish_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("abolish_all_tables", 0, p_abolish_all_tables, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("show_tabled_predicates", 0, p_show_tabled_predicates, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_show_table", 2, p_show_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$c_table_statistics", 2, p_table_statistics, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("tabling_statistics", 0, p_tabling_statistics, SafePredFlag|SyncPredFlag);
@@ -675,6 +677,31 @@ int p_abolish_all_tables(void) {
       TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
       free_subgoal_trie_branch(sg_node, TabEnt_arity(tab_ent));
     }
+    tab_ent = TabEnt_next(tab_ent);
+  }
+  return (TRUE);
+}
+
+
+static
+int p_show_tabled_predicates(void) {
+  tab_ent_ptr tab_ent;
+  PredEntry *pred;
+  char *name;
+  Int arity;
+
+  fprintf(Yap_stderr,"Tabled predicates\n");
+  tab_ent = GLOBAL_root_tab_ent;
+  if (tab_ent == NULL)
+    fprintf(Yap_stderr,"  none\n");
+  else while(tab_ent) {
+    pred = TabEnt_pe(tab_ent);
+    arity = pred->ArityOfPE;
+    if (arity == 0)
+      name = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
+    else
+      name = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
+    fprintf(Yap_stderr,"  %s/%d\n", name, arity);
     tab_ent = TabEnt_next(tab_ent);
   }
   return (TRUE);
