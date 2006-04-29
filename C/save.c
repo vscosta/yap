@@ -471,14 +471,14 @@ save_heap(void)
 {
   int j;
   /* Then save the whole heap */
-#if defined(YAPOR) || defined(TABLING) && !defined(YAP_MEMORY_ALLOC_SCHEME)
+#if (defined(YAPOR) || defined(TABLING)) && !defined(YAP_MEMORY_ALLOC_SCHEME)
   /* skip the local and global data structures */
   j = Unsigned(&GLOBAL) - Unsigned(Yap_HeapBase);
   putout(j);
   mywrite(splfild, (char *) Yap_HeapBase, j);
-  j = Unsigned(HeapTop) - Unsigned(&HashChain);
+  j = Unsigned(HeapTop) - Unsigned(REMOTE+MAX_WORKERS);
   putout(j);
-  mywrite(splfild, (char *) &HashChain, j);
+  mywrite(splfild, (char *) &(REMOTE[MAX_WORKERS]), j);
 #else
   j = Unsigned(HeapTop) - Unsigned(Yap_HeapBase);
   /* store 10 more cells because of the memory manager */
@@ -913,7 +913,7 @@ CopyCode(void)
   j = get_cell();
   if (Yap_ErrorMessage)
       return -1;
-  if (myread(splfild, (char *) &HashChain, j) < 0)
+  if (myread(splfild, (char *) &(REMOTE[MAX_WORKERS]), j) < 0)
       return -1;
 #else
   if (myread(splfild, (char *) Yap_HeapBase,
