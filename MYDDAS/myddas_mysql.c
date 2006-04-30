@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 
-#if defined MYDDAS_MYSQL && defined CUT_C
+#if defined MYDDAS_MYSQL
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,7 +52,6 @@ STATIC_PROTO(Int c_db_my_table_write,(void));
 STATIC_PROTO(Int c_db_my_row,(void));
 STATIC_PROTO(Int c_db_my_row_cut,(void));
 STATIC_PROTO(Int c_db_my_get_fields_properties,(void));
-STATIC_PROTO(Int c_db_my_number_of_fields_in_query,(void));
 STATIC_PROTO(Int c_db_my_get_next_result_set,(void));
 STATIC_PROTO(Int c_db_my_get_database,(void));
 STATIC_PROTO(Int c_db_my_change_database,(void));
@@ -65,14 +64,11 @@ void Yap_InitMYDDAS_MySQLPreds(void)
   /* db_number_of_fields: Relation x Connection x NumberOfFields */
   Yap_InitCPred("c_db_my_number_of_fields",3, c_db_my_number_of_fields, 0);  
   
-  /* db_number_of_fields_in_query: SQLQuery x Connection x NumberOfFields */
-  Yap_InitCPred("c_db_my_number_of_fields_in_query",3, c_db_my_number_of_fields_in_query, 0);  
-  
   /* db_get_attributes_types: Relation x TypesList */
   Yap_InitCPred("c_db_my_get_attributes_types", 3, c_db_my_get_attributes_types,  0);  
   
   /* db_query: SQLQuery x ResultSet x Connection */
-  Yap_InitCPred("c_db_my_query", 4, c_db_my_query, 0);  
+  Yap_InitCPred("c_db_my_query", 5, c_db_my_query, 0);  
   
   /* db_disconnect: Connection */
   Yap_InitCPred("c_db_my_disconnect", 1,c_db_my_disconnect, 0);
@@ -164,6 +160,7 @@ c_db_my_query(void) {
   Term arg_result_set = Deref(ARG2);
   Term arg_conn = Deref(ARG3);
   Term arg_mode = Deref(ARG4);
+  Term arg_arity = Deref(ARG5);
   
   char *sql = AtomName(AtomOfTerm(arg_sql_query));
   char *mode = AtomName(AtomOfTerm(arg_mode));
@@ -191,7 +188,7 @@ c_db_my_query(void) {
   if (mysql_real_query(conn, sql, length) != 0)
     {
 #ifdef DEBUG
-      printf("Erro na query! %s\n",sql);
+      printf("ERROR: **c_db_my_query** Error on query! %s\n",sql);
 #endif 
       return FALSE;
     }
@@ -291,9 +288,15 @@ c_db_my_query(void) {
       //INSERT statements don't return any res_set
       if (mysql_field_count(conn) == 0)
 	return TRUE;
-      printf("Query vazia!\n");
+#ifdef DEBUG
+      printf("Empty Query!\n");
+#endif
       return FALSE;
     }
+  
+  if (!Yap_unify(arg_arity, MkIntegerTerm(mysql_num_fields(res_set)))){
+    return FALSE;
+  }
   
   if (!Yap_unify(arg_result_set, MkIntegerTerm((Int) res_set)))
     {
@@ -325,7 +328,7 @@ c_db_my_number_of_fields(void) {
   if (mysql_query(conn, sql) != 0)
     {
 #ifdef DEBUG
-      printf("Erro na query! %s\n",sql);
+      printf("ERROR: **c_db_my_number_of_fields** Error on the query! %s\n",sql);
 #endif
       return FALSE;
     }
@@ -334,7 +337,7 @@ c_db_my_number_of_fields(void) {
   if ((res_set = mysql_store_result(conn)) == NULL)
     {
 #ifdef DEBUG
-      printf("Erro na query! %s\n",sql);
+      printf("ERROR: **c_db_my_number_of_fields** Error storing the query! %s\n",sql);
 #endif
       
       return FALSE;
@@ -366,8 +369,10 @@ c_db_my_get_attributes_types(void) {
 
   sprintf(sql,"DESCRIBE `%s`",relation);
 
+  Int length = strlen(sql);
+
   /* executar a query SQL */
-  if (mysql_query(conn, sql) != 0)
+  if (mysql_real_query(conn, sql, length) != 0)
     {
 #ifdef DEBUG
       printf("Erro na query! %s\n",sql);
@@ -377,7 +382,9 @@ c_db_my_get_attributes_types(void) {
   /* guardar os tuplos do lado do cliente */
   if ((res_set = mysql_store_result(conn)) == NULL)
   {
+#ifdef DEBUG
       printf("Query vazia!\n");
+#endif
       return FALSE;
   }
 
@@ -471,7 +478,7 @@ c_db_my_row(void) {
   
   arity = IntegerOfTerm(arg_arity);
 
-  while(TRUE)
+   while(TRUE)
     {
       if ((row = mysql_fetch_row(res_set)) != NULL)
 	{
@@ -552,45 +559,6 @@ c_db_my_row(void) {
     }
 }
 
-
-/* Mudar esta funcao de forma a nao fazer a consulta, pois 
- no predicate db_sql_selet vai fazer duas vezes a mesma consutla*/ 
-static Int 
-c_db_my_number_of_fields_in_query(void) {
-  Term arg_query = Deref(ARG1);
-  Term arg_conn = Deref(ARG2);
-  Term arg_fields = Deref(ARG3);
-
-  char *query = AtomName(AtomOfTerm(arg_query));
-  MYSQL *conn = (MYSQL *) (IntegerOfTerm(arg_conn));
-
-  MYSQL_RES *res_set;
-
-  /* executar a query SQL */
-  if (mysql_query(conn, query) != 0)
-    {
-#ifdef DEBUG
-      printf("Erro na query! %s\n",query);
-#endif
-      return FALSE;
-    }
-  
-  /* guardar os tuplos do lado do cliente */
-  if ((res_set = mysql_store_result(conn)) == NULL)
-    {
-#ifdef DEBUG
-      printf("Erro na query! %s\n",query);
-#endif
-      return FALSE;
-    }
-  
-  if (!Yap_unify(arg_fields, MkIntegerTerm(mysql_num_fields(res_set)))){
-    return FALSE;
-  }
-  mysql_free_result(res_set);
-  return TRUE;  
-}
-
 static Int 
 c_db_my_get_fields_properties(void) {
   Term nome_relacao = Deref(ARG1);
@@ -611,8 +579,10 @@ c_db_my_get_fields_properties(void) {
      query*/
   sprintf (sql,"SELECT * FROM `%s` LIMIT 0",relacao);
 
+  Int length=strlen(sql);
+
   /* executar a query SQL */
-  if (mysql_query(conn, sql) != 0)
+  if (mysql_real_query(conn, sql, length) != 0)
     {
 #ifdef DEBUG
       printf("Erro na query! %s\n",sql);
@@ -714,4 +684,4 @@ c_db_my_change_database(void) {
   return TRUE;
 }
 
-#endif /*MYDDAS_MYSQL && CUT_C*/
+#endif /*MYDDAS_MYSQL*/

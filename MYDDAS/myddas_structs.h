@@ -24,6 +24,7 @@ struct myddas_list_preds {
   char *pred_module;
   char *pred_name;
   short pred_arity;
+  //void *pe;
   MYDDAS_UTIL_PREDICATE next;
   MYDDAS_UTIL_PREDICATE previous;
 };

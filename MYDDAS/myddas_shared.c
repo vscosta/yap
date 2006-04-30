@@ -116,6 +116,10 @@ c_db_add_preds (void){
   Term arg_module = Deref(ARG3);
   Term arg_conn = Deref(ARG4);
   
+/*   PredEntry *pe; */
+/*   pe = RepPredProp(PredPropByFunc(FunctorOfTerm(arg_pred),arg_module)); */
+  
+
   char *nome = AtomName(AtomOfTerm(arg_nome));
   char *module = AtomName(AtomOfTerm(arg_module));
   Int aridade = IntegerOfTerm(arg_aridade);
@@ -125,7 +129,7 @@ c_db_add_preds (void){
     {
 #ifdef DEBUG
       printf ("ERROR : Could not add Predicate: Line: %d File: %s\n",__LINE__,__FILE__);
-#endif 
+#endif
       return FALSE;
     }
   
@@ -139,6 +143,7 @@ c_db_check_if_exists_pred (void){
   Term arg_aridade = Deref(ARG2);
   Term arg_module = Deref(ARG3);
     
+ 
   char *nome = AtomName(AtomOfTerm(arg_nome));
   char *module = AtomName(AtomOfTerm(arg_module));
   Int aridade = IntegerOfTerm(arg_aridade);
