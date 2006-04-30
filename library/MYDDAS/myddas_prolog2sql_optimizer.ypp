@@ -1,0 +1,110 @@
+:- module(myddas_prolog2sql_optimizer,[
+				       optimize_sql/2
+				      ]).
+
+:- use_module(lists,[
+		     append/3,
+		     member/2,
+		     delete/3,
+		     substitute/4
+		     ]).
+
+
+
+optimize_sql([],[]).
+
+optimize_sql([query(Proj,From,Where)|Tail],[query(Proj1,From1,Where1)|SQLTerm]):-
+	optimize_subquery(Proj,Proj1,From,From1,Where,Where1),
+	optimize_sql(Tail,SQLTerm).
+		
+
+
+% --- optimize_subquery(SQLFrom,SQLWhere) -------------------------------
+%
+%    If there is a subquery on the query,
+%    uses the less number of table necessary in the
+%    FROM token of the SQL Statement. see(EXPLAIN (SQL statemente with subquerie) ) 
+%
+%    Optimization: * All variables on the projection term must be on the outer statement
+%                  * All variables on the outer query, must have their respective raltions on the outer query
+%                  * Try to maintain as more possibles relations on the inner statement
+% --------------------------------------------------------------------------------------
+
+%TODO: BUG
+%      BEWARE WHEN THE SUBQUERY HAS NO TABLES AT THE END OF THIS OPTIMIZATION
+
+optimize_subquery(SQLSelect,OptSelectFinal,F,F,W,W):-
+	once(member(agg_query(Agg,Select,From,Where,Extra),SQLSelect)),!,
+	optimize_subquery(Select,OptSelect,From,OptFrom,Where,OptWhere),
+	substitute(agg_query(Agg,Select,From,Where,Extra),SQLSelect,agg_query(Agg,OptSelect,OptFrom,OptWhere,Extra),OptSelectFinal).
+
+optimize_subquery(SQLSelect,SQLSelect,SQLFrom,OptFrom,SQLWhere,OptWhere):-
+	%SQLSelect = OptSelect,  % In the future, if needed optimize projection term
+	once(member(negated_existential_subquery(_,SubQueryRelations,_),SQLWhere))
+	;
+	once(member(existential_subquery(_,SubQueryRelations,_),SQLWhere))
+	,!,
+	add_relation(SubQueryRelations,[],RelTotalTemp),
+	add_relation(SQLFrom,RelTotalTemp,RelTotal),
+	projection_term_analysis(SQLSelect,From1,RelTotal,RelTotal1),
+	comparasion_analysis(SQLWhere,From1,From2,RelTotal1,RelTotal2),
+	delete_surplous_tables(SQLWhere,RelTotal2,OptWhere),
+	OptFrom = From2.
+	
+optimize_subquery(ProjTerm,ProjTerm,From,From,Where,Where).
+
+delete_surplous_tables([negated_existential_subquery(A,_,B)|T],Rel,[negated_existential_subquery(A,Rel,B)|T]):-!.
+delete_surplous_tables([existential_subquery(A,_,B)|T],Rel,[existential_subquery(A,Rel,B)|T]):-!.
+delete_surplous_tables([H|T],Rel,[H|Final]):-
+	delete_surplous_tables(T,Rel,Final).
+
+comparasion_analysis([],From,From,RelTotal,RelTotal).
+
+comparasion_analysis([comp(att(Relation,_),_,att(Relation,_))|Tail],From1,[rel(Name,Relation)|FromFinal],RelTotal,RelTotalFinal):-
+	member(rel(Name,Relation),RelTotal),!,
+	delete(RelTotal,rel(Name,Relation),RelTotal1),
+	comparasion_analysis(Tail,From1,FromFinal,RelTotal1,RelTotalFinal).
+
+comparasion_analysis([comp(att(Relation1,_),_,att(Relation2,_))|Tail],From1,From4,RelTotal,RelTotal3):-
+	comparasion_analysis(Tail,From1,From2,RelTotal,RelTotal1),
+	!,
+	(member(rel(Name,Relation1),RelTotal1) ->
+	    delete(RelTotal1,rel(Name,Relation1),RelTotal2),
+	    From3 = [rel(Name,Relation1)|From2]
+	;
+	    RelTotal2 = RelTotal1,
+	    From3 = From2
+	),
+	(member(rel(Name,Relation2),RelTotal2) ->
+	    delete(RelTotal2,rel(Name,Relation1),RelTotal3),
+	    From4 = [rel(Name,Relation2)|From3]
+	;
+	    RelTotal3 = RelTotal2,
+	    From4 = From3
+	).
+
+comparasion_analysis([_|Tail],From,FromFinal,RelTotal,RelTotalFinal):-
+	comparasion_analysis(Tail,From,FromFinal,RelTotal,RelTotalFinal).
+
+
+projection_term_analysis([],[],Relation,Relation).
+
+projection_term_analysis([att(Relation,_)|Tail],[rel(Name,Relation)|FromFinal],RelTotal,RelTotal1):-
+	member(rel(Name,Relation),RelTotal),!,
+	delete(RelTotal,rel(Name,Relation),Residue),
+	projection_term_analysis(Tail,FromFinal,Residue,RelTotal1).
+
+projection_term_analysis([_|Tail],FromFinal,RelTotal,RelTotal1):-
+	projection_term_analysis(Tail,FromFinal,RelTotal,RelTotal1).
+
+
+
+add_relation([],Final,Final).
+
+add_relation([Rel|Tail],RelTotal,RelFinal):-
+	not once(member(Rel,RelTotal)),!,
+	append(RelTotal,[Rel],RelTemp),
+	add_relation(Tail,RelTemp,RelFinal).
+
+add_relation([_|Tail],RelTotal,RelFinal):-
+	add_relation(Tail,RelTotal,RelFinal).

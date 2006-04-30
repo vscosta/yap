@@ -35,7 +35,6 @@
 		    ]).
 
 :- use_module(myddas_util_predicates,[
-				      '$make_list_of_args'/4,
 				      '$prolog2sql'/3,
 				      '$write_or_not'/1,
 				      '$lenght'/2
@@ -84,18 +83,19 @@ db_top_level(datalog,Connection,_,_,_):-
 db_datalog_select(Connection,LA,DbGoal):-
 	
 	'$lenght'(LA,Arity),
-	functor(ViewName,viewname,Arity),
+	Name=viewname,
+	functor(ViewName,Name,Arity),
 	% build arg list for viewname/Arity
-	'$make_list_of_args'(1,Arity,ViewName,LA),
+	ViewName=..[Name|LA],
 	
 	'$prolog2sql'(ViewName,DbGoal,SQL),
 	
 	get_value(Connection,Con),
-	c_db_connection_type(Con,ConType),
+	%c_db_connection_type(Con,ConType),
 	'$write_or_not'(SQL),
 	%( ConType == mysql ->
 	db_my_result_set(Mode),
-	c_db_my_query(SQL,ResultSet,Con,Mode),
+	c_db_my_query(SQL,ResultSet,Con,Mode,_),
 	c_db_my_table_write(ResultSet).
 	
 

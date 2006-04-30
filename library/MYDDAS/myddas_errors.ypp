@@ -38,7 +38,11 @@
 	    atom(ModulePredName)
 	),
 	number(Arity).
+'$error_checks'(db_show_databases(Connection)):- !,
+	atom(Connection).
 '$error_checks'(db_show_database(Connection,_)):- !,
+	atom(Connection).
+'$error_checks'(db_my_sql_mode(Connection,_)):- !,
 	atom(Connection).
 '$error_checks'(db_change_database(Connection,Database)):- !,
 	atom(Connection),
@@ -112,8 +116,8 @@
 	nonvar(Pred),
 	nonvar(DbGoal),
 	Pred =.. [_|PredArgs],
-	DbGoal =.. [_|DbGoalArgs],
-	'$check_list_on_list'(PredArgs,DbGoalArgs).
+	DbGoal =.. [_|DbGoalArgs].
+	%'$check_list_on_list'(PredArgs,DbGoalArgs).
 '$error_checks'(db_import(Connection,RelationName,PredName)) :- !,
         atom(Connection),
         atom(RelationName),
@@ -121,6 +125,10 @@
 '$error_checks'(db_get_attributes_types(Connection,RelationName,_)) :- !,
         atom(Connection),
 	nonvar(RelationName).
+'$error_checks'(db_call_procedure(_,Procedure,Args,LA)) :- !,
+	nonvar(Procedure),
+	ground(Args),
+	not ground(LA).
 '$error_checks'(db_sql(Connection,SQL,LA)):- !,
         atom(Connection),
         nonvar(SQL),
@@ -131,7 +139,7 @@
 '$error_checks'(db_close(Connection)) :- !,
         atom(Connection).
 % must have only one relation
-'$error_checks'(db_my_describe(Relation,_)) :- !,
+'$error_checks'(db_datalog_describe(Relation,_)) :- !,
 	nonvar(Relation).
 '$error_checks'(db_my_show_tables(_)):- !.
 '$error_checks'(db_is_database_predicate(PredName,Arity,Module)):-!,

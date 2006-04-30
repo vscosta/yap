@@ -42,10 +42,16 @@
 			     translate/3,
 			     queries_atom/2
 			    ]).
-			   
+
+:- use_module(lists,[
+		     append/3,
+		     member/2
+		     ]).
  
 
-
+:- use_module(myddas_prolog2sql_optimizer,[
+					   optimize_sql/2
+					  ]).
 
 
 % --------------------------------------------------------------------------------------
@@ -56,7 +62,7 @@
 % --------------------------------------------------------------------------------------
 
 
-translate(ProjectionTerm,DatabaseGoal,SQLQueryTerm):-
+translate(ProjectionTerm,DatabaseGoal,SQLQueryTermOpt):-
    % --- initialize variable identifiers and range variables for relations -----
    init_gensym(var),
    init_gensym(rel),
@@ -69,8 +75,11 @@ translate(ProjectionTerm,DatabaseGoal,SQLQueryTerm):-
    disjunction(TokenDatabaseGoal,Disjunction),
 
    % --- code generation ---------------------------------------------------------------
-   query_generation(Disjunction,TokenProjectionTerm,SQLQueryTerm).
+   query_generation(Disjunction,TokenProjectionTerm,SQLQueryTerm),
 
+   % --- optimize sql ------------------------------------------------------------------
+   optimize_sql(SQLQueryTerm,SQLQueryTermOpt).
+   
 % --- disjunction(Goal,Disjunction) ----------------------------------------------------
 %
 % turns original goal into disjunctive normalized form by computing all conjunctions
@@ -225,18 +234,17 @@ tokenize_arguments([FirstArg|RestArgs],[TokFirstArg|TokRestArgs]):-
 query_generation([],_,[]).
 
 query_generation([Conjunction|Conjunctions],ProjectionTerm,[Query|Queries]):-
-   projection_term_variables(ProjectionTerm,InitDict),
-   ( Conjunction =.. [once|Arguments] ->
-       [Args] = Arguments, 
-       translate_conjunction(Args,SQLFrom,SQLWhereTemp,InitDict,Dict),
-       append(SQLWhereTemp,[once],SQLWhere)
-   ;
-       translate_conjunction(Conjunction,SQLFrom,SQLWhere,InitDict,Dict)
-   ),
-   translate_projection(ProjectionTerm,Dict,SQLSelect),
-   Query = query(SQLSelect,SQLFrom,SQLWhere),
-   query_generation(Conjunctions,ProjectionTerm,Queries).
-
+	projection_term_variables(ProjectionTerm,InitDict),
+	( Conjunction =.. [once|Arguments] ->
+	    [Args] = Arguments, 
+	    translate_conjunction(Args,SQLFrom,SQLWhereTemp,InitDict,Dict),
+	    append(SQLWhereTemp,[once],SQLWhere)
+	;
+	    translate_conjunction(Conjunction,SQLFrom,SQLWhere,InitDict,Dict)
+	),
+	translate_projection(ProjectionTerm,Dict,SQLSelect),
+	Query = query(SQLSelect,SQLFrom,SQLWhere),
+	query_generation(Conjunctions,ProjectionTerm,Queries).
 
 
 % --- translate_goal(Goal,SQLFrom,SQLWhere,Dict,NewDict) -------------------------------
@@ -278,7 +286,16 @@ translate_goal(not ComparisonGoal,[],SQLCompOp,Dict,Dict):-
    negated_comparison(SQLOperator,SQLNegOperator),
    translate_comparison(LeftArg,RightArg,SQLNegOperator,Dict,SQLCompOp).
 
-translate_goal(exists(ExistsGoals),[],SQLExistsSubquery,Dict,Dict):-
+%% EXAMPLE: db_prolog_select([Gene1],(once((eval(Gene1,_,_),exists(eval(Gene1),eval(Gene1,_,_)))))).
+translate_goal(exists(ProjectionTerm,ExistsGoals),SQLFrom,SQLExistsSubquery,Dict,Dict):-
+   % --- exists goals do not bind variables - hence Dict is returned unchanged --------
+   functor(ExistsGoals,Functor,_),
+   not comparison(Functor,_),
+   translate_projection(ProjectionTerm,Dict,SQLSelect),
+   translate_conjunction(ExistsGoals,SQLFrom,SQLWhere,Dict,_),
+   SQLExistsSubquery = [existential_subquery(SQLSelect,SQLFrom,SQLWhere)].
+
+translate_goal(exists(ExistsGoals),SQLFrom,SQLExistsSubquery,Dict,Dict):-
    % --- exists goals do not bind variables - hence Dict is returned unchanged --------
    functor(ExistsGoals,Functor,_),
    not comparison(Functor,_),
@@ -312,19 +329,28 @@ add_distinct_statement(Dict,Dict):-
 % --------------------------------------------------------------------------------------
 
 translate_conjunction('$var$'(VarId)^Goal,SQLFrom,SQLWhere,Dict,NewDict):-
-   % --- add info on existentially quantified variables to dictionary here -------------
+#ifdef DEBUG_TRANSLATE
+   write('translate_conjuntion clause 1'),nl,
+#endif
+% --- add info on existentially quantified variables to dictionary here -------------
    add_to_dictionary(VarId,_,_,_,existential,Dict,TmpDict),
    translate_conjunction(Goal,SQLFrom,SQLWhere,TmpDict,NewDict).
 
 translate_conjunction(Goal,SQLFrom,SQLWhere,Dict,NewDict):-
+#ifdef DEBUG_TRANSLATE
+   write('translate_conjuntion clause 2'),nl,
+#endif
    Goal \= (_,_),
    translate_goal(Goal,SQLFrom,SQLWhere,Dict,NewDict).
 
 translate_conjunction((Goal,Conjunction),SQLFrom,SQLWhere,Dict,NewDict):-
-   translate_goal(Goal,FromBegin,WhereBegin,Dict,TmpDict),
-   translate_conjunction(Conjunction,FromRest,WhereRest,TmpDict,NewDict),
-   append(FromBegin,FromRest,SQLFrom),
-   append(WhereBegin,WhereRest,SQLWhere).
+#ifdef DEBUG_TRANSLATE
+	write('translate_conjuntion clause 3'),nl,
+#endif
+	translate_goal(Goal,FromBegin,WhereBegin,Dict,TmpDict),
+	translate_conjunction(Conjunction,FromRest,WhereRest,TmpDict,NewDict),
+	append(FromBegin,FromRest,SQLFrom),
+	append(WhereBegin,WhereRest,SQLWhere).
 
 
 
@@ -363,9 +389,9 @@ translate_arithmetic_function('$var$'(VarId),Expression,ArithComparison,Dict,Dic
    % test whether type of attribute is numeric - if not, there's no sense in 
    % continuing the translation
 
-   type_compatible(PrevType,number),
+   %type_compatible(PrevType,number),
    evaluable_expression(Expression,Dict,ArithExpression,ExprType),
-   type_compatible(ExprType,number),
+   %type_compatible(ExprType,number),
    ArithComparison = [comp(att(PrevRangeVar,PrevAtt),'=',ArithExpression)].
 
 
@@ -376,18 +402,18 @@ translate_arithmetic_function('$var$'(VarId),Expression,ArithComparison,Dict,Dic
    % of lookup returning is/2. Type information is implicit through the is/2 functor
 
    lookup(VarId,Dict,is,LeftExpr,Type),
-   type_compatible(Type,number),
+   %type_compatible(Type,number),
    evaluable_expression(Expression,Dict,RightExpr,ExprType),
-   type_compatible(ExprType,number),
+   %type_compatible(ExprType,number),
    ArithComparison = [comp(LeftExpr,'=',RightExpr)].
 
 
 translate_arithmetic_function('$const$'(Constant),Expression,ArithComparison,Dict,Dict):-
    % --- is/2 used to test whether left side evaluates to right side -------------------
    get_type('$const$'(Constant),ConstantType),
-   type_compatible(ConstantType,number),
+   %type_compatible(ConstantType,number),
    evaluable_expression(Expression,Dict,ArithExpression,ExprType),
-   type_compatible(ExprType,number),
+   %type_compatible(ExprType,number),
    ArithComparison = [comp('$const$'(Constant),'=',ArithExpression)].
 
 
@@ -403,7 +429,7 @@ translate_arithmetic_function('$const$'(Constant),Expression,ArithComparison,Dic
 translate_comparison(LeftArg,RightArg,CompOp,Dict,Comparison):-
    evaluable_expression(LeftArg,Dict,LeftTerm,LeftArgType),
    evaluable_expression(RightArg,Dict,RightTerm,RightArgType),
-   type_compatible(LeftArgType,RightArgType),
+   %type_compatible(LeftArgType,RightArgType),
    Comparison = [comp(LeftTerm,CompOp,RightTerm)].
 
 
@@ -464,14 +490,14 @@ translate_argument('$var$'(VarId),rel(SQLTable,RangeVar),Position,AttComparison,
    % --- Variable occurred previously - retrieve first occurrence data from dictionary -
    lookup(VarId,Dict,PrevRangeVar,PrevAtt,PrevType),
    attribute(Position,SQLTable,Attribute,Type),
-   type_compatible(PrevType,Type),
+   % type_compatible(PrevType,Type),
    AttComparison = [comp(att(RangeVar,Attribute),=,att(PrevRangeVar,PrevAtt))].
 
 translate_argument('$const$'(Constant),rel(SQLTable,RangeVar),Position,ConstComparison,Dict,Dict):-
    % --- Equality comparison of constant value and attribute in table ------------------
    attribute(Position,SQLTable,Attribute,Type),
-   get_type('$const$'(Constant),ConstType),
-   type_compatible(ConstType,Type),
+   %get_type('$const$'(Constant),ConstType),
+   %type_compatible(ConstType,Type),
    ConstComparison = [comp(att(RangeVar,Attribute),=,'$const$'(Constant))].
 
 
@@ -1202,18 +1228,6 @@ gensym(Atom,Var) :-
 
 % --- auxiliary predicates (some of them may be built-in... --------------------
 
-append([],L,L).
-append([H1|L1],L2,[H1|L3]):-
-   append(L1,L2,L3).
-
-
-
-member(X,[X|_]).
-member(X,[_|T]):-
-   member(X,T).
-
-
-
 repeat_n(N):-
    integer(N),
    N > 0,
@@ -1247,6 +1261,7 @@ set_difference([Element|RestSet],Set,RestDifference):-
 comparison(=,=).
 comparison(<,<).
 comparison(=<,'<=').
+comparison(>=,'>=').
 comparison(>,>).
 comparison(@<,<).
 comparison(@>,>).
@@ -1344,3 +1359,5 @@ get_type('$const$'(Constant),real):-
 
 get_type('$const$'(Constant),string):-
    atom(Constant).
+
+

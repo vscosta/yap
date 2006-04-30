@@ -25,6 +25,7 @@
 				  '$get_value'/2,
 				  '$get_values_for_insert'/3,
 				  '$make_atom'/2,
+				  '$make_atom_args'/2,
 				  '$write_or_not'/1,
 				  '$abolish_all'/1,
 				  '$get_values_for_update'/4,
@@ -61,13 +62,15 @@
 	
 '$create_multi_query'([ProjTerm],[DbGoal],SQL):- !,
 	'$lenght'(ProjTerm,Arity),
-	functor(ViewName,viewname,Arity),
-	'$make_list_of_args'(1,Arity,ViewName,ProjTerm),
+	Name=viewname,
+	functor(ViewName,Name,Arity),
+	ViewName=..[Name|ProjTerm],
 	'$prolog2sql'(ViewName,DbGoal,SQL).
 '$create_multi_query'([ProjTerm|TermList],[DbGoal|GoalList],SQL):-
 	'$lenght'(ProjTerm,Arity),
-	functor(ViewName,viewname,Arity),
-	'$make_list_of_args'(1,Arity,ViewName,ProjTerm),
+	Name=viewname,
+	functor(ViewName,Name,Arity),
+	ViewName=..[Name|ProjTerm],
 	'$prolog2sql'(ViewName,DbGoal,SQLQuery),
 	'$create_multi_query'(TermList,GoalList,SQLMulti),
 	'$make_atom'([SQLQuery,' ; ',SQLMulti],SQL).
@@ -214,14 +217,6 @@
 %
 % End of Predicates for making the SQL query
 %
-
-'$make_list_of_args'(N,N,F,[H]) :- !,
-	arg(N,F,H).
-'$make_list_of_args'(N,M,F,[H|T]) :-
-	arg(N,F,H),
-	N1 is N+1,
-	'$make_list_of_args'(N1,M,F,T).
-
 '$make_a_list'(0,[]) :- !.
 '$make_a_list'(N,[_|T]) :-
 	N1 is N-1,
@@ -339,6 +334,21 @@
         number_atom(Number,Atom),
 	atom_concat(Atom,Result,Final).
 
+'$make_atom_args'([Atom],Atom):-
+	atom(Atom),!.	
+'$make_atom_args'([Number],Atom):-
+	number_atom(Number,Atom),!.
+'$make_atom_args'([Atom|T],Final) :-
+        atom(Atom),!,
+	'$make_atom_args'(T,Result),
+	atom_concat(',',Result,X1),
+	atom_concat(Atom,X1,Final).
+'$make_atom_args'([Number|T],Final) :-
+        '$make_atom_args'(T,Result),
+        number_atom(Number,Atom),
+	atom_concat(',',Result,X1),
+	atom_concat(Atom,X1,Final).
+
 
 
 % for db_my_insert/3
@@ -419,3 +429,5 @@
 	Element1 == Element2,!.
 '$member_strick'(Element, [_|Rest]) :-
         '$member_strick'(Element, Rest).
+
+

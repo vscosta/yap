@@ -20,7 +20,7 @@
 		  db_open/4,
 		  db_close/1,
 		  db_close/0,
-
+		  
 		  db_verbose/1,
 		  db_module/1,
 		  db_is_database_predicate/3,
@@ -29,6 +29,7 @@
 		  db_sql/2,
 		  db_sql/3,
 		  db_sql_select/3,
+		  db_prolog_select/2,
 		  db_prolog_select/3,
 		  db_prolog_select_multi/3,
 		  db_command/2,
@@ -45,12 +46,12 @@
 
 		  db_multi_queries_number/2,
 
-		  % myddas_top_level.yap
+		  % myddas_top_level.ypp
 #ifdef MYDDAS_TOP_LEVEL
 		  db_top_level/5,
 		  db_datalog_select/3,
 #endif
-		  % myddas_assert_predicates.yap
+		  % myddas_assert_predicates.ypp
 		  db_import/2,
 		  db_import/3,
 		  db_view/2,
@@ -59,15 +60,10 @@
 		  db_insert/3,
 		  db_abolish/2,
 		  db_listing/0,
-		  db_listing/1,
-		  
-		  % myddas_mysql.yap
-		  db_my_open/5,
-		  db_my_close/1,
-		  db_my_import/3,
-		  db_my_view/3,
-		  db_my_insert/2,
-		  db_my_insert/3,
+		  db_listing/1
+#ifdef MYDDAS_MYSQL		  
+		  % myddas_mysql.ypp
+		 ,
 		  db_my_result_set/1,
 		  db_datalog_describe/1,
 		  db_datalog_describe/2,
@@ -81,15 +77,19 @@
 		  db_show_databases/2,
 		  db_show_databases/1,
 		  db_change_database/2,
-		  db_my_sql_select/3,
-		  db_my_number_of_fields/3,
-		  db_my_get_attributes_types/3
+		  db_call_procedure/4,
+		  db_call_procedure/3,
+		  db_my_sql_mode/1,
+		  db_my_sql_mode/2
+#endif
 		 ]).
 
+#ifdef MYDDAS_MYSQL
 :- use_module(myddas_top_level,[
 				db_top_level/5,
 				db_datalog_select/3
 			       ]).
+#endif
 
 :- use_module(myddas_assert_predicates,[
 					db_import/2,
@@ -103,13 +103,8 @@
 					db_listing/1
 				       ]).
 
+#ifdef MYDDAS_MYSQL
 :- use_module(myddas_mysql,[
-			    db_my_open/5,
-			    db_my_close/1,
-			    db_my_import/3,
-			    db_my_view/3,
-			    db_my_insert/2,
-			    db_my_insert/3,
 			    db_my_result_set/1,
 			    db_datalog_describe/1,
 			    db_datalog_describe/2,
@@ -123,10 +118,12 @@
 			    db_show_databases/2,
 			    db_show_databases/1,
 			    db_change_database/2,
-			    db_my_sql_select/3,
-			    db_my_number_of_fields/3,
-			    db_my_get_attributes_types/3
+			    db_call_procedure/4,
+			    db_call_procedure/3,
+			    db_my_sql_mode/1,
+			    db_my_sql_mode/2
 			    ]).
+#endif /* MYDDAS_MYSQL */
 
 :- use_module(myddas_util_predicates,[
 				      '$prolog2sql'/3,
@@ -139,7 +136,6 @@
 				      '$write_or_not'/1,
 				      '$abolish_all'/1,
 				      '$make_a_list'/2,
-				      '$make_list_of_args'/4,
 				      '$get_table_name'/2,
 				      '$get_values_for_update'/4,
 				      '$extract_args'/4,
@@ -167,6 +163,7 @@
 db_open(Interface,HostDb,User,Password):-
 	db_open(Interface,myddas,HostDb,User,Password).
 
+#ifdef MYDDAS_MYSQL
 db_open(mysql,Connection,Host/Db/Port/Socket,User,Password) :- !,
 	'$error_checks'(db_open(mysql,Connection,Host/Db/Port/Socket,User,Password)),
 	c_db_my_connect(Host,User,Password,Db,Port,Socket,Con),
@@ -178,11 +175,14 @@ db_open(mysql,Connection,Host/Db/Socket,User,Password) :- !,
 	db_open(mysql,Connection,Host/Db/0/Socket,User,Password). % 0 is default port
 db_open(mysql,Connection,Host/Db,User,Password) :-
 	db_open(mysql,Connection,Host/Db/0/_,User,Password).  % 0 is default port and Var to be NULL, the default socket
+#endif
 
+#ifdef MYDDAS_ODBC
 db_open(odbc,Connection,ODBCEntry,User,Password) :-
 	'$error_checks'(db_open(odbc,Connection,ODBCEntry,User,Password)),
 	c_db_odbc_connect(ODBCEntry,User,Password,Con),
 	set_value(Connection,Con).
+#endif
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -208,6 +208,7 @@ db_close(Connection) :-
 	),
 	set_value(Connection,[]). % "deletes" atom 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -271,9 +272,6 @@ db_stats(Connection,List):-
 
 
 
-%db_sql_select(_,_,_):-
-	%nl,write('Know use db_sql/3 insted of db_sql_select/3'),nl,
-	%halt.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_sql(+,+,-)
 % 
@@ -289,17 +287,16 @@ db_sql(Connection,SQL,LA):-
 	'$error_checks'(db_sql(Connection,SQL,LA)),
 	get_value(Connection,Con),
 	c_db_connection_type(Con,ConType),
+	'$write_or_not'(SQL),
 	( ConType == mysql ->
-	    c_db_my_number_of_fields_in_query(SQL,Con,Arity)
+	    db_my_result_set(Mode),
+	    c_db_my_query(SQL,ResultSet,Con,Mode,Arity)
 	;
 	    c_db_odbc_number_of_fields(SQL,Con,Arity)
 	),
 	'$make_a_list'(Arity,LA),
-	'$write_or_not'(SQL),
 	( ConType == mysql ->
-	    db_my_result_set(Mode),
-	    c_db_my_query(SQL,ResultSet,Con,Mode),!,
-	    c_db_my_row(ResultSet,Arity,LA)
+	    !,c_db_my_row(ResultSet,Arity,LA)
 	;
 	    '$make_a_list'(Arity,BindList),
 	    c_db_odbc_query(SQL,ResultSet,Arity,BindList,Con),!,
@@ -312,13 +309,16 @@ db_sql(Connection,SQL,LA):-
 % db_prolog_select(+,+,+)
 %
 %
+db_prolog_select(LA,DbGoal):-
+	db_prolog_select(myddas,LA,DbGoal).
 db_prolog_select(Connection,LA,DbGoal):-
 	
 	'$lenght'(LA,Arity),
-	functor(ViewName,viewname,Arity),
+	Name=viewname,
+	functor(ViewName,Name,Arity),
 	% build arg list for viewname/Arity
-	'$make_list_of_args'(1,Arity,ViewName,LA),
-	
+	ViewName=..[Name|LA],
+
 	'$prolog2sql'(ViewName,DbGoal,SQL),
 	
 	get_value(Connection,Con),
@@ -326,7 +326,7 @@ db_prolog_select(Connection,LA,DbGoal):-
 	'$write_or_not'(SQL),
 	( ConType == mysql ->
 	    db_my_result_set(Mode),
-	    c_db_my_query(SQL,ResultSet,Con,Mode),
+	    c_db_my_query(SQL,ResultSet,Con,Mode,_),
 	    !,c_db_my_row(ResultSet,Arity,LA)
 	;
 	    true
@@ -348,7 +348,7 @@ db_prolog_select_multi(Connection,DbGoalsList,ListOfResults) :-
 	'$write_or_not'(SQL),
 	( ConType == mysql ->
 	    db_my_result_set(Mode),
-	    c_db_my_query(SQL,ResultSet,Con,Mode)
+	    c_db_my_query(SQL,ResultSet,Con,Mode,_)
 	;
 	    true
 	),
@@ -368,7 +368,7 @@ db_command(Connection,SQL):-
 	c_db_connection_type(Con,ConType),
 	( ConType == mysql ->
 	    db_my_result_set(Mode),
-	    c_db_my_query(SQL,_,Con,Mode)
+	    c_db_my_query(SQL,_,Con,Mode,_)
 	;
 	    true
 	).
@@ -386,14 +386,14 @@ db_assert(Connection,PredName):-
 	translate(PredName,PredName,Code),
 	'$error_checks'(db_insert2(Connection,PredName,Code)),
 	'$get_values_for_insert'(Code,ValuesList,RelName),
-	'$make_atom'(['INSERT INTO `',RelName,'` VALUES'|ValuesList],SQL),
+	'$make_atom'(['INSERT INTO `',RelName,'` VALUES '|ValuesList],SQL),
 
 	get_value(Connection,Con),
 	c_db_connection_type(Con,ConType),
 	'$write_or_not'(SQL),
 	( ConType == mysql ->
 	    db_my_result_set(Mode),
-	    c_db_my_query(SQL,_,Con,Mode)
+	    c_db_my_query(SQL,_,Con,Mode,_)
 	;
 	    c_db_odbc_query(SQL,_,_,_,Con)
 	).
@@ -416,7 +416,7 @@ db_create_table(Connection,TableName,FieldsInf):-
 	'$write_or_not'(FinalSQL),
 	( ConType == mysql ->
 	    db_my_result_set(Mode),
-	    c_db_my_query(FinalSQL,_,Con,Mode)
+	    c_db_my_query(FinalSQL,_,Con,Mode,_)
 	;
 	    c_db_odbc_query(FinalSQL,_,_,_,Con)
 	).
@@ -446,7 +446,7 @@ db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf):-
 	'$write_or_not'(FinalSQL),
 	( ConType == mysql ->
 	    db_my_result_set(Mode),
-	    c_db_my_query(FinalSQL,_,Con,Mode)
+	    c_db_my_query(FinalSQL,_,Con,Mode,_)
 	;
 	    c_db_odbc_query(FinalSQL,_,_,_,Con)
 	).
@@ -455,8 +455,9 @@ db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_update/2
-% 
-%
+% BUB: db_update dosen't work for this case, just an example
+% db_update(my1,edge(1,3)-edge(99,99)).
+% The case where the set condition is "set" to change all the fields
 db_update(Connection,WherePred-SetPred):-
 	%TODO: error_checks
 	get_value(Connection,Conn),
@@ -471,16 +472,17 @@ db_update(Connection,WherePred-SetPred):-
 	'$extract_args'(SetPred,1,Arity,SetArgs),
 
 	copy_term(WhereArgs,WhereArgsTemp),
-	'$make_list_of_args'(1,Arity,NewRelation,WhereArgsTemp),
+	NewRelation=..[PredName|WhereArgsTemp],
 	translate(NewRelation,NewRelation,Code),
 
 	'$get_values_for_update'(Code,SetArgs,SetCondition,WhereCondition),
 	
 	'$get_table_name'(Code,TableName),
 	append(SetCondition,WhereCondition,Conditions), 
-	'$make_atom'(['UPDATE ',TableName,' '|Conditions],SQL),
+	'$make_atom'(['UPDATE `',TableName,'` '|Conditions],SQL),
 	'$write_or_not'(SQL),
-	c_db_my_query_no_result(SQL,Conn).
+	db_my_result_set(Mode),
+	c_db_my_query(SQL,_,Conn,Mode,_).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -61,7 +61,8 @@ MYDDAS_PROGRAMS= $(srcdir)/MYDDAS/myddas.ypp \
 	$(srcdir)/MYDDAS/myddas_top_level.ypp \
 	$(srcdir)/MYDDAS/myddas_errors.ypp \
 	$(srcdir)/MYDDAS/myddas_prolog2sql.ypp \
-	$(srcdir)/MYDDAS/myddas_util_predicates.ypp 
+	$(srcdir)/MYDDAS/myddas_util_predicates.ypp \
+	$(srcdir)/MYDDAS/myddas_prolog2sql_optimizer.ypp
 
 LOGTALK_PROGRAMS= \
 	$(srcdir)/logtalk/logtalk.pl \

@@ -43,7 +43,6 @@
 				      '$copy_term_nv'/4,
 				      '$assert_attribute_information'/4,
 				      '$make_a_list'/2,
-				      '$make_list_of_args'/4,
 				      '$where_exists'/2,
 				      '$build_query'/5
 				      ]).
@@ -95,7 +94,7 @@ db_import(Connection,RelationName,PredName) :-
 
 	% build PredName functor
 	functor(P,PredName,Arity),
-	'$make_list_of_args'(1,Arity,P,LA),
+	P=..[PredName|LA],
 
 	M=myddas_assert_predicates,
 	%build PredName clause
@@ -106,7 +105,7 @@ db_import(Connection,RelationName,PredName) :-
 		              ','(M:queries_atom(Code,FinalSQL),
 			      ','(M:db_my_result_set(Mode),
 			      ','(M:'$write_or_not'(FinalSQL),
-	                      ','(M:c_db_my_query(FinalSQL,ResultSet,Con,Mode),
+	                      ','(M:c_db_my_query(FinalSQL,ResultSet,Con,Mode,_),
 			      ','(!,M:c_db_my_row(ResultSet,Arity,LA))))))))]
 	    
 	    ;
@@ -144,7 +143,7 @@ db_view(Connection,PredName,DbGoal) :-
 	% with top-level variables   A='var('A')' error
 	copy_term((PredName,DbGoal),(CopyView,CopyGoal)),
 
-	'$make_list_of_args'(1,Arity,CopyView,LA),
+	CopyView=..[ViewName|LA],
 
 	M=myddas_assert_predicates,
 	c_db_connection_type(Con,ConType),
@@ -158,7 +157,7 @@ db_view(Connection,PredName,DbGoal) :-
 		       ','(M:queries_atom(Code,FinalSQL),
 		       ','(M:db_my_result_set(Mode),
 		       ','(M:'$write_or_not'(FinalSQL),
-               	       ','(M:c_db_my_query(FinalSQL,ResultSet,Con,Mode),
+               	       ','(M:c_db_my_query(FinalSQL,ResultSet,Con,Mode,_),
 		       ','(!,M:c_db_my_row(ResultSet,Arity,LA)))))))))]
 	    ;
 	    % Assert =..[':-',NewName,
@@ -203,8 +202,8 @@ db_insert(Connection,RelationName,PredName) :-
 
 	% build PredName functor
 	functor(Predicate,PredName,Arity),
-	'$make_list_of_args'(1,Arity,Predicate,LA),
-
+	Predicate=..[PredName|LA],
+	
 	Size is 2*Arity,
         '$make_a_list'(Size,TypesList),
 
@@ -216,7 +215,7 @@ db_insert(Connection,RelationName,PredName) :-
 					  ','(myddas_assert_predicates:'$make_atom'(['INSERT INTO `',RelationName,'` VALUES ('|ValuesList],SQL),
 					      ','(myddas_assert_predicates:db_my_result_set(Mode),
 						  ','(myddas_assert_predicates:'$write_or_not'(SQL),
-						      myddas_assert_predicates:c_db_my_query(SQL,_,Con,Mode)))))]
+						      myddas_assert_predicates:c_db_my_query(SQL,_,Con,Mode,_)))))]
 	;
 	    c_db_odbc_get_attributes_types(RelationName,Con,TypesList),
 	    Assert =..[':-',Predicate,','(myddas_assert_predicates:'$get_values_for_insert'(TypesList,LA,ValuesList),
