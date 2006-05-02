@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-05-02 16:39:06 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-05-02 16:44:11 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.166  2006/05/02 16:39:06  vsc
+* bug in indexing code
+* fix warning messages for write.c
+*
 * Revision 1.165  2006/04/27 17:04:08  vsc
 * don't use <= to compare with block top (libc may not have block header).
 *
@@ -4029,6 +4033,7 @@ do_nonvar_group(GroupDef *grp, Term t, UInt compound_term, CELL *sreg, UInt arit
     type_sw->ConstEntry = 
       type_sw->FuncEntry = 
       type_sw->PairEntry = 
+      type_sw->VarEntry =
       nxtlbl;
     type_sw->VarEntry = do_var_entries(grp, t, cint, argno, first, clleft, nxtlbl);
     grp->LastClause = cls_move(grp->FirstClause, ap, grp->LastClause, compound_term, argno, last_arg);
