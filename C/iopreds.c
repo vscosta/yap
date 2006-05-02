@@ -875,6 +875,7 @@ p_prompt (void)
 
 #if HAVE_READLINE_READLINE_H
 #include <readline/readline.h>
+#include <readline/history.h>
 #endif
 
 static char *ttyptr = NULL;
