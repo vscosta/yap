@@ -147,12 +147,10 @@ wrputref(CODEADDR ref, int Quote_illegal, wrf writech)			/* writes a data base r
   putAtom(AtomDBRef, Quote_illegal, writech);
 #if SHORT_INTS
   sprintf(s, "(0x%p,0)", ref);
-#else
-#ifdef linux
+#elif __linux__
   sprintf(s, "(%p,0)", ref);
 #else
   sprintf(s, "(0x%p,0)", ref);
-#endif
 #endif
   wrputs(s, writech);
   lastw = alphanum;
@@ -456,8 +454,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 	  MP_INT *big = Yap_BigIntOfTerm(t);
 	  char *s = (char *)TR;
 	  if (s+2+mpz_sizeinbase(big, 10) >= Yap_TrailTop) {
-	    s = H;
-	    if (s+2+mpz_sizeinbase(big, 10) >= ASP) {
+	    s = (char *)H;
+	    if (s+2+mpz_sizeinbase(big, 10) >= (char *)ASP) {
 	      return;
 	    }
 	  }

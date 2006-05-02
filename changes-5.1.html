@@ -16,11 +16,16 @@
 
 <h2>Yap-5.1.2:</h2>
 <ul>
+<li> FIXED: recusive indexing over unbound compound terms was broken
+(obs Ricardo Lopes).</li>
+<li> FIXED: toplevel_print_options and debugger_print_options was
+broken and undocumented (obs Ashwin Srinivasan).</li>
 <li> NEW: lock streams while using them (concurrent writing is still allowed).</li>
 <li> FIXED: make current_op only walk over atoms.</li>
 <li> FIXED: memory corruption when copying consult stack (obs Paulo Moura).</li>
 <li> FIXED: get rid of some silly locks.</li>
 <li> FIXED: don't compare block top with <= (obs Paulo Moura).</li>
+>>>>>>> 1.66
 <li> FIXED: ! was not pruning right in p_execute_clause (obs Nicos
   Angelopoulos).</li>
 <li> FIXED: system/1 and shell/1 should check return code (obs Nicos
