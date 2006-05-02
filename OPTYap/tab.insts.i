@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.insts.i
-  version:     $Id: tab.insts.i,v 1.22 2006-01-17 14:10:41 vsc Exp $   
+  version:     $Id: tab.insts.i,v 1.23 2006-05-02 08:01:27 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -362,7 +362,6 @@
   PBOp(table_try_single, ld)
     tab_ent_ptr tab_ent;
     sg_fr_ptr sg_fr;
-    
 
     check_trail(TR);
     tab_ent = PREG->u.ld.te;
@@ -386,9 +385,6 @@
       CELL *subs_ptr = YENV;
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
-#ifdef LIMIT_TABLING
-      remove_from_global_sg_fr_list(sg_fr);
-#endif /* LIMIT_TABLING */
       SgFr_try_answer(sg_fr) = ans_node;
       store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, TRY_ANSWER);
       PREG = (yamop *) CPREG;
@@ -498,9 +494,6 @@
       CELL *subs_ptr = YENV;
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
-#ifdef LIMIT_TABLING
-      remove_from_global_sg_fr_list(sg_fr);
-#endif /* LIMIT_TABLING */
       SgFr_try_answer(sg_fr) = ans_node;
       store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, TRY_ANSWER);
       PREG = (yamop *) CPREG;
@@ -540,7 +533,7 @@
 	/* no answers --> fail */
 	UNLOCK(SgFr_lock(sg_fr));
 	goto fail;
-      } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+      } else if (ans_node == SgFr_answer_trie(sg_fr)) {
 	/* yes answer --> procceed */
 	UNLOCK(SgFr_lock(sg_fr));
 	PREG = (yamop *) CPREG;
@@ -610,9 +603,6 @@
       CELL *subs_ptr = YENV;
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
-#ifdef LIMIT_TABLING
-      remove_from_global_sg_fr_list(sg_fr);
-#endif /* LIMIT_TABLING */
       SgFr_try_answer(sg_fr) = ans_node;
       store_generator_node(tab_ent, sg_fr, PREG->u.ld.s, TRY_ANSWER);
       PREG = (yamop *) CPREG;
@@ -652,7 +642,7 @@
 	/* no answers --> fail */
 	UNLOCK(SgFr_lock(sg_fr));
 	goto fail;
-      } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+      } else if (ans_node == SgFr_answer_trie(sg_fr)) {
 	/* yes answer --> procceed */
 	UNLOCK(SgFr_lock(sg_fr));
 	PREG = (yamop *) CPREG;
@@ -980,6 +970,7 @@
       UNLOCK_OR_FRAME(LOCAL_top_or_fr);
     }
 #endif /* YAPOR */
+
 
   answer_resolution:
     INIT_PREFETCH()
