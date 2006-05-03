@@ -4,6 +4,12 @@
 
 #if defined MYDDAS_STATS || defined MYDDAS_TOP_LEVEL
 
+#define MYDDAS_STATS_TIME_HOURS(TIME) TIME->u.time_final.hours;
+#define MYDDAS_STATS_TIME_MINUTES(TIME) TIME->u.time_final.minutes;
+#define MYDDAS_STATS_TIME_SECONDS(TIME) TIME->u.time_final.seconds;
+#define MYDDAS_STATS_TIME_MILISECONDS(TIME) TIME->u.time_final.miliseconds;
+#define MYDDAS_STATS_TIME_MICROSECONDS(TIME) TIME->u.time_final.microseconds;
+
 #define MYDDAS_STATS_PRINT_TIME_STRUCT(TIME)				\
   if (TIME->type == time_final) {						\
     printf ("%d Hours, %d Minutes, %d Seconds, %d Miliseconds, %d Microseconds", \
@@ -46,6 +52,7 @@ void
 myddas_stats_move_time(MYDDAS_STATS_TIME,MYDDAS_STATS_TIME);
 MYDDAS_STATS_TIME
 myddas_stats_time_copy_to_final(MYDDAS_STATS_TIME);
+
 #endif 
 
 
@@ -86,6 +93,9 @@ myddas_stats_time_copy_to_final(MYDDAS_STATS_TIME);
 
 #define MYDDAS_STATS_GET_DB_ROW_FUNCTION(TIME) \
   TIME = Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_statistics->total_db_row;
+
+#define MYDDAS_STATS_GET_TRANSLATE(TIME) \
+  TIME = Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_statistics->total_translate;
 
 #endif /* MYDDAS_STATS */
 

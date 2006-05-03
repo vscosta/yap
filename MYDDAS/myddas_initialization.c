@@ -21,6 +21,7 @@ myddas_util_initialize_myddas(void){
 #ifdef MYDDAS_STATS
   global->myddas_statistics = (MYDDAS_GLOBAL_STATS) malloc (sizeof(struct myddas_global_stats));
   MYDDAS_STATS_INITIALIZE_TIME_STRUCT(global->myddas_statistics->total_db_row,time_final);
+  MYDDAS_STATS_INITIALIZE_TIME_STRUCT(global->myddas_statistics->total_translate,time_final);
 #endif
   return global;
 }
@@ -64,7 +65,6 @@ myddas_util_initialize_connection(void *conn,void *enviromment,
   
   new->lastBytesTransfered=0;
   new->totalBytesTransfered=0;
-  MYDDAS_STATS_INITIALIZE_TIME_STRUCT(new->total_db_row,time_final);
   new->total_querys_made=0;
 #endif
   return new;

@@ -129,12 +129,16 @@ c_db_my_connect(void) {
 
   conn = mysql_init(NULL);
   if (conn == NULL) {
-    printf("erro no init\n");
+#ifdef DEBUG
+    printf("ERROR: ** c_db_my_connect ** error on init\n");
+#endif
     return FALSE;
   }
   
   if (mysql_real_connect(conn, host, user, passwd, database, port, socket, CLIENT_MULTI_STATEMENTS) == NULL) {
-    printf("erro no connect\n");
+#ifdef DEBUG
+    printf("ERROR: ** c_db_my_connect ** error on connect\n");
+#endif
     return FALSE;
   }
 
@@ -143,10 +147,11 @@ c_db_my_connect(void) {
   else
     {
       /* Criar um novo no na lista de ligacoes*/
-      //new = add_connection(&TOP,conn,NULL);
       new = myddas_util_add_connection(conn,NULL);
       if (new == NULL){
-	printf("Erro ao alocar memoria para lista\n");
+#ifdef DEBUG
+	printf("ERROR: ** c_db_my_connect ** Error allocating memory\n");
+#endif
 	return FALSE;
       }
       return TRUE;
@@ -549,7 +554,7 @@ c_db_my_row(void) {
 	  free(end);
 	  free(start);
 	  
-	  MYDDAS_STATS_GET_DB_ROW_FUNCTION(total_time);
+	  MYDDAS_STATS_GET_TRANSLATE(total_time);
 	  myddas_stats_add_time(total_time,diff,total_time);
 	  
 	  free(diff);

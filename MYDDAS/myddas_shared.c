@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 
-#if defined CUT_C && (defined MYDDAS_MYSQL || defined MYDDAS_ODBC)
+#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
 
 #include "Yap.h"
 #include "Yatom.h"
@@ -39,6 +39,9 @@ STATIC_PROTO(Int c_db_delete_predicate,(void));
 STATIC_PROTO(Int c_db_multi_queries_number,(void));
 #ifdef MYDDAS_STATS
 STATIC_PROTO(Int c_db_stats,(void));
+STATIC_PROTO(Int c_db_stats_walltime,(void));
+STATIC_PROTO(Int c_db_stats_translate,(void));
+STATIC_PROTO(Int c_db_stats_time,(void));
 #endif 
 #ifdef DEBUG
 STATIC_PROTO(Int c_db_check,(void));
@@ -62,8 +65,17 @@ void Yap_InitMYDDAS_SharedPreds(void)
   Yap_InitCPred("c_db_multi_queries_number",2,c_db_multi_queries_number, 0);
 
 #ifdef MYDDAS_STATS
-  /* db_stats: Connection * Stats*/
+  /* c_db_stats: Connection * Stats */
   Yap_InitCPred("c_db_stats",2, c_db_stats, 0);
+
+  /* c_db_stats_walltime */
+  Yap_InitCPred("c_db_stats_walltime",1, c_db_stats_walltime, 0);
+
+  /* c_db_stats_translate */
+  Yap_InitCPred("c_db_stats_translate",2,c_db_stats_translate, 0);
+
+  /* c_db_stats_time */
+  Yap_InitCPred("c_db_stats_time",2,c_db_stats_time, 0);
 #endif
 
 #ifdef DEBUG
@@ -298,6 +310,93 @@ c_db_check(void){
 #endif /*DEBUG*/
 
 #ifdef MYDDAS_STATS
+
+static Int
+c_db_stats_walltime(void){
+  Term arg_time = Deref(ARG1);
+
+#ifdef DEBUG
+  if (IsVarTerm(arg_time)){
+#endif
+    Yap_unify(arg_time,MkIntegerTerm((Int)myddas_stats_walltime()));
+    return TRUE;
+#ifdef DEBUG
+  }
+  else{
+    printf ("ERROR: c_db_stats_walltime got a variable\n");
+    return FALSE;
+  }
+#endif
+}
+
+static int
+c_db_stats_translate(void){
+  Term arg_start = Deref(ARG1);
+  Term arg_end = Deref(ARG2);
+
+  MYDDAS_STATS_TIME start;
+  MYDDAS_STATS_TIME end;
+  
+  MYDDAS_STATS_TIME total_time,diff;
+
+#ifdef DEBUG
+  //Both args must be instanciated
+  if (IsNonVarTerm(arg_start) && IsNonVarTerm(arg_end)){
+#endif
+    start = (MYDDAS_STATS_TIME) IntegerOfTerm(arg_start);
+    end = (MYDDAS_STATS_TIME) IntegerOfTerm(arg_end);
+
+    MYDDAS_STATS_GET_TRANSLATE(total_time);
+    
+    MYDDAS_STATS_INITIALIZE_TIME_STRUCT(diff,time_copy);
+    myddas_stats_subtract_time(diff,end,start);
+    
+    diff = myddas_stats_time_copy_to_final(diff);
+    myddas_stats_add_time(total_time,diff,total_time);
+    
+    free(diff);
+    
+    return TRUE;
+#ifdef DEBUG
+  }
+  else{
+    printf ("ERROR: c_db_stats_translate got a variable\n");
+    return FALSE;
+  }
+#endif
+}
+
+static Int
+c_db_stats_time(void){
+  Term arg_reference = Deref(ARG1);
+  Term arg_time = Deref(ARG2);
+
+  MYDDAS_STATS_TIME time = (MYDDAS_STATS_TIME )IntegerOfTerm(arg_reference);
+  
+  Functor functor = Yap_MkFunctor(Yap_LookupAtom("myddas_time"),5);
+  Term time_numbers[5];
+  
+  int time_number;
+
+  time_number = MYDDAS_STATS_TIME_HOURS(time);
+  time_numbers[0] = MkIntegerTerm(time_number);
+  time_number = MYDDAS_STATS_TIME_MINUTES(time);
+  time_numbers[1] = MkIntegerTerm(time_number);
+  time_number = MYDDAS_STATS_TIME_SECONDS(time);
+  time_numbers[2] = MkIntegerTerm(time_number);
+  time_number = MYDDAS_STATS_TIME_MILISECONDS(time);
+  time_numbers[3] = MkIntegerTerm(time_number);
+  time_number = MYDDAS_STATS_TIME_MICROSECONDS(time);
+  time_numbers[4] = MkIntegerTerm(time_number);
+  
+
+  if (!Yap_unify(arg_time, Yap_MkApplTerm(functor,5,time_numbers))){
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
 //Returns the stats of this module in a list
 static Int 
 c_db_stats(void) {
@@ -423,6 +522,19 @@ c_db_stats(void) {
   printf ("Number of Querys made to the server\n");
   printf ("%lu\n\n",(unsigned long)number);
 #endif
+
+  //[Index 10] -> Total of Time Spent by the 
+  // translate predicate
+  head = HeadOfTerm(list);
+  list = TailOfTerm(list);
+  MYDDAS_STATS_GET_TRANSLATE(time);
+  Yap_unify(head, MkIntegerTerm((Int)time));
+#ifdef DEBUG
+  printf ("Reference to time Spent by the translate predicate\n");
+  MYDDAS_STATS_PRINT_TIME_STRUCT(time);
+  printf ("\n\n");
+#endif
+  
   
   return TRUE;
 }

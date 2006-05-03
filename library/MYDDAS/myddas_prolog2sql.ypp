@@ -61,8 +61,18 @@
 %
 % --------------------------------------------------------------------------------------
 
-
+#ifdef MYDDAS_STATS
 translate(ProjectionTerm,DatabaseGoal,SQLQueryTermOpt):-
+	c_db_stats_walltime(Start),
+	translate_(ProjectionTerm,DatabaseGoal,SQLQueryTermOpt),
+	c_db_stats_walltime(End),
+	c_db_stats_translate(Start,End).
+
+translate_(ProjectionTerm,DatabaseGoal,SQLQueryTermOpt):-
+#else
+translate(ProjectionTerm,DatabaseGoal,SQLQueryTermOpt):-
+#endif
+	
    % --- initialize variable identifiers and range variables for relations -----
    init_gensym(var),
    init_gensym(rel),

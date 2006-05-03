@@ -302,8 +302,8 @@ c_db_odbc_query(void) {
   Term arg_bind_list = Deref(ARG4);
   Term arg_conn = Deref(ARG5);
 
-  char *sql = AtomName(AtomOfTerm(arg_sql_query));
-
+  SQLCHAR *sql = AtomName(AtomOfTerm(arg_sql_query));
+  
   
   SQLHDBC  hdbc =(SQLHDBC) (IntegerOfTerm(arg_conn));
   SQLHSTMT hstmt;

@@ -24,8 +24,11 @@
 		  db_verbose/1,
 		  db_module/1,
 		  db_is_database_predicate/3,
+#ifdef MYDDAS_STATS
+		  db_stats/1,
 		  db_stats/2,
-		  
+		  db_stats_time/2,
+#endif
 		  db_sql/2,
 		  db_sql/3,
 		  db_sql_select/3,
@@ -249,27 +252,36 @@ db_is_database_predicate(Module,PredName,Arity):-
 	c_db_check_if_exists_pred(PredName,Arity,Module).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+#ifdef MYDDAS_STATS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_stats(+,-)
 %
 %
-:- set_value(db_myddas_stats_count,0).
+db_stats(List):-
+	db_stats(myddas,List).
+
 db_stats(Connection,List):-
 	'$error_checks'(db_stats(Connection,List)),
-	NumberOfStats = 9,
+	NumberOfStats = 10,
 	'$make_a_list'(NumberOfStats,List),
 	( var(Connection) ->
 	    c_db_stats(0,List)
 	;
 	    get_value(Connection,Conn),
 	    c_db_stats(Conn,List)
-	),
-	write('MYDDAS: '),nl,write(List),nl,
-	get_value(db_myddas_stats_count,Value),
-	write('Stats Counts '),write(Value),nl.
+	).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% db_stats_time(+,-)
+% Reference is C pointer (memory reference)
+% 
+db_stats_time(Reference,Time):-
+	'$error_checks'(db_stats_time(Reference,Time)),
+	c_db_stats_time(Reference,Time).
+	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#endif 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

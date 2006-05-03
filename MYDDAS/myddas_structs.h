@@ -16,7 +16,11 @@ struct myddas_global {
 #ifdef MYDDAS_STATS
 /* This strucuture holds some global statistics*/
 struct myddas_global_stats {
+  /* Total Time spent on the db_row function */
   MYDDAS_STATS_TIME total_db_row;
+  
+  /* Total Time spent on the translate/3 predicate*/
+  MYDDAS_STATS_TIME total_translate;
 };
 #endif /* MYDDAS_STATS */
 
@@ -59,11 +63,9 @@ struct myddas_list_connection {
   /* Total bytes transfered from the server */
   unsigned long lastBytesTransfered;
 
-  /* Total Time spent on the db_row function */
-  MYDDAS_STATS_TIME total_db_row;
-
   /* Number of querys made to the Server*/
   unsigned long total_querys_made;
+
 #endif
   MYDDAS_UTIL_PREDICATE predicates;
 

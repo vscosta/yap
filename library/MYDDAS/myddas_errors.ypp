@@ -61,8 +61,13 @@
 '$error_checks'(db_command(Connection,SQL)):-!,
         atom(Connection),
         nonvar(SQL).
+#ifdef MYDDAS_STATS
 '$error_checks'(db_stats(_,List)):-!,
 	var(List).
+'$error_checks'(db_stats_time(Reference,Time)):-!,
+	number(Reference),
+	var(Time).
+#endif
 '$error_checks'(db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf)):-!,
         atom(Connection),
 	( atom(TableViewName) -> atom(SQLorDbGoal) ; true ),

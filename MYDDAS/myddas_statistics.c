@@ -4,9 +4,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#ifdef CUT_C
 #if defined MYDDAS_ODBC || defined MYDDAS_MYSQL 
-
 
 #if defined MYDDAS_STATS || defined MYDDAS_TOP_LEVEL
 static void
@@ -243,4 +241,4 @@ myddas_stats_integrity_of_time(MYDDAS_STATS_TIME myddas_time){
 #endif /* MYDDAS_STATS || MYDDAS_TOP_LEVEL */
 
 #endif
-#endif
+
