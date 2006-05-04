@@ -113,11 +113,19 @@ AC_ARG_ENABLE(myddas,
 
 AC_ARG_ENABLE(myddas-stats,
 	[ --enable-myddas-stats     enable the MYDDAS library statistics support],
-	myddasstats="$enableval", myddasstats=no)
+	if test "$yap_cv_myddas" = no; then
+		myddasstats=no
+	else
+		myddasstats="$enableval"
+	fi, myddasstats=no)
 
 AC_ARG_ENABLE(myddas-top-level,
 	[ --enable-myddas-top-level enable the MYDDAS top-level support to MySQL],
-	myddastoplevel="$enableval", myddastoplevel=no)
+	if test "$yap_cv_myddas" = no; then
+	   	myddastoplevel=no
+	else
+		myddastoplevel="$enableval"
+	fi, myddastoplevel=no)
 
 AC_ARG_WITH(jpl,
 	[ --with-jpl=JAVA_HOME       use Java instalation in JAVA_HOME],
