@@ -162,6 +162,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   sc = Yap_heap_regs;
   vsc_count++;
 #ifdef COMMENTED
+  if (worker_id != 04 || worker_id != 03) return;
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;
   if (vsc_count < 1468068888) {
@@ -239,7 +240,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
       printf("\n");
  }
 #endif
-  fprintf(Yap_stderr,"%lld %x ", vsc_count,ActiveSignals);
+  fprintf(Yap_stderr,"%lld ",vsc_count);
 #if defined(THREADS) || defined(YAPOR)
   fprintf(Yap_stderr,"(%d)", worker_id);
 #endif
@@ -322,6 +323,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     }
     break;
   }
+  fflush(NULL);
   UNLOCK(Yap_heap_regs->low_level_trace_lock);
 }
 

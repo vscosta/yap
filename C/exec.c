@@ -1803,6 +1803,7 @@ Yap_InitYaamRegs(void)
   WPP = NULL;
   PREG_ADDR = NULL;
 #endif
+  Yap_PreAllocCodeSpace();
 #ifdef CUT_C
   cut_c_initialize();
 #endif
