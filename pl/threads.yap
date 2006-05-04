@@ -170,9 +170,10 @@ current_thread(Tid, Status) :-
 current_thread(Tid, Status) :-
 	'$do_error'(type_error(integer,Tid),current_thread(Tid, Status)).
 
-'$cur_threads'(Tid, Tid, Status) :-
+'$cur_threads'(Tid, TidName, Status) :-
 	'$valid_thread'(Tid),
-	'$thr_status'(Tid, Status).
+	'$thr_status'(Tid, Status),
+	'$tid_to_alias'(Tid,TidName).
 '$cur_threads'(Tid, TidF, Status) :-
 	'$valid_thread'(Tid),
 	Tid1 is Tid+1,
@@ -181,6 +182,10 @@ current_thread(Tid, Status) :-
 '$thr_status'(Tid, Status) :-
 	recorded('$thread_exit_status', [Tid|Status], _), !.
 '$thr_status'(_, running).
+
+'$tid_to_alias'(Tid,TidName) :-
+	recorded('$thread_alias', [Tid|TidName], _), !.
+'$tid_to_alias'(Tid,Tid).
 
 
 mutex_create(V) :-

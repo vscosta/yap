@@ -339,6 +339,15 @@ p_thread_set_concurrency(void)
 }
 
 static Int
+p_thread_yield(void)
+{
+  if (sched_yield() != 0) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+static Int
 p_valid_thread(void)
 {
   Int i = IntegerOfTerm(Deref(ARG1)); 
@@ -545,6 +554,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_join", 1, p_thread_join, HiddenPredFlag);
   Yap_InitCPred("$thread_destroy", 1, p_thread_destroy, HiddenPredFlag);
+  Yap_InitCPred("thread_yield", 0, p_thread_yield, 0);
   Yap_InitCPred("$detach_thread", 1, p_thread_detach, HiddenPredFlag);
   Yap_InitCPred("$thread_exit", 0, p_thread_exit, HiddenPredFlag);
   Yap_InitCPred("thread_setconcurrency", 2, p_thread_set_concurrency, 0);
