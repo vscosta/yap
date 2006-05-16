@@ -360,7 +360,7 @@ then
     yap_cv_readline=no
     if test "$prefix" = "NONE"
     then
-      prefix="c:/Yap"
+      prefix="$SYSTEMDRIVE/Yap"
     fi
   else
     use_malloc="yes"
@@ -722,6 +722,7 @@ dnl Linux has both elf and a.out, in this case we found elf
         SHLIB_LD="\$(CC) -shared ../../yap.dll"
 	SHLIB_SUFFIX=".dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
+	LDFLAGS="-Wl,--large-address-aware $LDFLAGS"
 	EXEC_SUFFIX=".exe"
 	INSTALL_DLLS=""
 	DO_SECOND_LD=""

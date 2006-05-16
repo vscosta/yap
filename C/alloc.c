@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.83 2006-04-28 13:23:22 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.84 2006-05-16 18:37:30 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -676,6 +676,10 @@ ExtendWorkSpace(Int s, int fixed_allocation)
 
 
   Yap_PrologMode = ExtendStackMode;
+
+#if DEBUG_WIN32_ALLOC
+  fprintf(stderr,"trying: %p--%x %d\n",b, s, fixed_allocation);
+#endif
   if (fixed_allocation) {
     b = VirtualAlloc(b, s, MEM_RESERVE, PAGE_NOACCESS);
   } else {
@@ -686,7 +690,16 @@ ExtendWorkSpace(Int s, int fixed_allocation)
   }
   if (!b) {
     Yap_PrologMode = OldPrologMode;
-    /*  fprintf(stderr,"NOT OK1: %p--%p\n",b,brk);*/
+#if DEBUG_WIN32_ALLOC
+    {
+      char msg[256];
+      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		    NULL, GetLastError(), 
+		    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, 256,
+		    NULL);
+      fprintf(stderr,"NOT OK1: %p--%p %s\n",b, brk, msg);
+    }
+#endif
     return FALSE;
   }
   b = VirtualAlloc(b, s, MEM_COMMIT, PAGE_READWRITE);
@@ -696,11 +709,15 @@ ExtendWorkSpace(Int s, int fixed_allocation)
 	      "VirtualAlloc could not commit %ld bytes",
 	      (long int)s);
     Yap_PrologMode = OldPrologMode;
-    /*  fprintf(stderr,"NOT OK2: %p--%p\n",b,brk);*/
+#if DEBUG_WIN32_ALLOC
+    fprintf(stderr,"NOT OK2: %p--%p\n",b,brk);
+#endif
     return FALSE;
   }
   brk = (LPVOID) ((Int) b + s);
-  /*  fprintf(stderr,"OK: %p--%p\n",b,brk);*/
+#if DEBUG_WIN32_ALLOC
+  fprintf(stderr,"OK: %p--%p\n",b,brk);
+#endif
   Yap_PrologMode = OldPrologMode;
   return TRUE;
 }
@@ -1412,10 +1429,7 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
     /* progress 1 MB */
     WorkSpaceTop += 512*1024;
     if (ExtendWorkSpace(s, MAP_FIXED)) {
-#if USE_DL_MALLOC 
-      Yap_hole_start = (ADDR)WorkSpaceTop0;
-      Yap_hole_end = (ADDR)WorkSpaceTop-s;
-#endif
+      Yap_add_memory_hole((ADDR)WorkSpaceTop0, (ADDR)WorkSpaceTop-s);
       Yap_ErrorMessage = NULL;
       return WorkSpaceTop-WorkSpaceTop0;
     }
@@ -1430,6 +1444,7 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
   WorkSpaceTop = WorkSpaceTop0;
 #endif
   if (ExtendWorkSpace(s, 0)) {
+    Yap_add_memory_hole((ADDR)WorkSpaceTop0, (ADDR)WorkSpaceTop-s);
     Yap_ErrorMessage = NULL;
     return WorkSpaceTop-WorkSpaceTop0;
   }

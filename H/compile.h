@@ -244,6 +244,7 @@ typedef struct intermediates {
   jmp_buf CompilerBotch;
   yamop *code_addr;
   yamop *expand_block;
+  UInt  i_labelno;
   /* for expanding code */
   union { 
     struct static_index *si;

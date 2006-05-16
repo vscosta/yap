@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-05-02 16:44:11 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-05-16 18:37:30 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.167  2006/05/02 16:44:11  vsc
+* avoid uninitialised memory at overflow.
+*
 * Revision 1.166  2006/05/02 16:39:06  vsc
 * bug in indexing code
 * fix warning messages for write.c
@@ -380,8 +383,6 @@ UInt STATIC_PROTO(do_index, (ClauseDef *,ClauseDef *,struct intermediates *,UInt
 UInt STATIC_PROTO(do_compound_index, (ClauseDef *,ClauseDef *,Term *t,struct intermediates *,UInt,UInt,UInt,UInt,int,int,int,CELL *,int));
 UInt STATIC_PROTO(do_dbref_index, (ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *));
 UInt STATIC_PROTO(do_blob_index, (ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *));
-
-static UInt labelno;
 
 static UInt
 cleanup_sw_on_clauses(CELL larg, UInt sz, OPCODE ecls)
@@ -3223,10 +3224,10 @@ groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp)
 }
 
 static UInt
-new_label(void)
+new_label(struct intermediates *cint)
 {
-  UInt lbl = labelno;
-  labelno += 2;
+  UInt lbl = cint->i_labelno;
+  cint->i_labelno += 2;
   return lbl;
 }
 
@@ -3507,7 +3508,7 @@ do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, struct intermediates
   UInt labl;
   UInt labl_dyn0 = 0, labl_dynf = 0;
 
-  labl = new_label();
+  labl = new_label(cint);
   Yap_emit(label_op, labl, Zero, cint);
   /*
     add expand_node if var_group == TRUE (jump on var) ||
@@ -3516,11 +3517,11 @@ do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, struct intermediates
   if (first &&
       cint->CurrentPred->PredFlags & LogUpdatePredFlag) {
     UInt ncls;
-    labl_dyn0 = new_label();
+    labl_dyn0 = new_label(cint);
     if (clleft)
       labl_dynf = labl_dyn0;
     else
-      labl_dynf = new_label();
+      labl_dynf = new_label(cint);
     if (clleft == 0) /* trust*/
       ncls = (cf-c0)+1;
     else
@@ -3637,7 +3638,7 @@ emit_single_switch_case(ClauseDef *min, struct intermediates *cint, int first, i
     /* with tabling we don't clean trust at the very end of computation.
     */
     if (clleft == 0 && !first) {
-      UInt lbl = new_label();
+      UInt lbl = new_label(cint);
 
       Yap_emit(label_op, lbl, Zero, cint);
       /* vsc: should check if this condition is sufficient */
@@ -3775,7 +3776,7 @@ do_consts(GroupDef *grp, Term t, struct intermediates *cint, int compound_term, 
     return nxtlbl;
   }
   n = count_consts(grp);
-  lbl = new_label();
+  lbl = new_label(cint);
   Yap_emit(label_op, lbl, Zero, cint);
   cs = emit_cswitch(n, (UInt)FAILCODE, cint);
   for (i = 0; i < n; i++) {
@@ -3848,7 +3849,7 @@ do_funcs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
     /* no clauses, just skip */
     return nxtlbl;
   }
-  lbl = new_label();
+  lbl = new_label(cint);
   Yap_emit(label_op, lbl, Zero, cint);
   /* generate a switch */
   fs = emit_fswitch(n, (UInt)FAILCODE, cint);
@@ -3935,7 +3936,7 @@ emit_protection_choicepoint(int first, int clleft, UInt nxtlbl, struct intermedi
   if (first) {
     if (clleft) {
       if (cint->CurrentPred->PredFlags & LogUpdatePredFlag) {
-	UInt labl = new_label();
+	UInt labl = new_label(cint);
 
 	Yap_emit_3ops(enter_lu_op, labl, labl, 0, cint);
 	Yap_emit(label_op, labl, Zero, cint);
@@ -4063,7 +4064,7 @@ do_optims(GroupDef *group, int ngroups, UInt fail_l, ClauseDef *min, struct inte
     CELL *sp;
     UInt labl;
 
-    labl = new_label();
+    labl = new_label(cint);
     sp = Yap_emit_extra_size(if_not_op, Zero, 4*CellSize, cint);
     sp[0] = (CELL)(group[0].FirstClause->Tag);
     sp[1] = (CELL)(group[1].FirstClause->Code);
@@ -4134,7 +4135,7 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
   }
   ngroups = groups_in(min, max, group);
   if (IsVarTerm(t)) {
-    lablx = new_label();
+    lablx = new_label(cint);
     Yap_emit(label_op, lablx, Zero, cint);
     while (IsVarTerm(t)) {
       if (ngroups > 1 || !group->VarClauses) {
@@ -4159,9 +4160,9 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
       }
       ngroups = groups_in(min, max, group);
     } 
-    labl0 = labl = new_label();
+    labl0 = labl = new_label(cint);
   } else {
-    lablx = labl0 = labl = new_label();
+    lablx = labl0 = labl = new_label(cint);
   }
   cint->expand_block = eblk;
   top = (CELL *)(group+ngroups);
@@ -4214,7 +4215,7 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
 	       (ap->PredFlags & LogUpdatePredFlag && group[0].VarClauses)) {
       /* make sure we know where to suspend */
       Yap_emit(label_op, labl0, Zero, cint);
-      labl = new_label();
+      labl = new_label(cint);
       Yap_emit(jump_v_op, suspend_indexing(min, max, ap, cint), Zero, cint); 
     }
   }
@@ -4224,7 +4225,7 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
     /* a group may end up not having clauses*/
 
     if (i < ngroups-1) {
-      nextlbl = new_label();
+      nextlbl = new_label(cint);
     } else {
       nextlbl = fail_l;
     }
@@ -4306,7 +4307,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
     if (ngroups == 1 && group->VarClauses == 0) {
       /* ok, we are doing a sub-argument */
       /* process groups */
-      *newlabp = new_label();
+      *newlabp = new_label(cint);
       top = (CELL *)(group+1);
       newlabp = do_nonvar_group(group, (sreg == NULL ? 0L : Deref(sreg[i])), i+1, (isvt ? NULL : sreg), arity, *newlabp, cint, argno, argno == 1, (last_arg && i+1 == arity), fail_l, clleft, top);
       if (newlabp == NULL) {
@@ -4350,7 +4351,7 @@ do_dbref_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cin
   if (ngroups > 1 || group->VarClauses) {
     return do_index(min, max, cint, argno+1, fail_l, first, clleft, top);
   } else {
-    int labl = new_label();
+    int labl = new_label(cint);
 
     Yap_emit(label_op, labl, Zero, cint);
     Yap_emit(index_dbref_op, Zero, Zero, cint);
@@ -4382,7 +4383,7 @@ do_blob_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cint
   if (ngroups > 1 || group->VarClauses) {
     return do_index(min, max, cint, argno+1, fail_l, first, clleft, top);
   } else {
-    int labl = new_label();
+    int labl = new_label(cint);
 
     Yap_emit(label_op, labl, Zero, cint);
     Yap_emit(index_blob_op, Zero, Zero, cint);
@@ -4439,7 +4440,7 @@ compile_index(struct intermediates *cint)
   CELL *top = (CELL *) TR;
 
   /* only global variable I use directly */
-  labelno = 1;
+  cint->i_labelno = 1;
 
   Yap_Error_Size = 0;
   /* reserve double the space for compiler */
@@ -4453,7 +4454,7 @@ compile_index(struct intermediates *cint)
   cint->freep = (char *)(cls+NClauses);
   if (ap->PredFlags & LogUpdatePredFlag) {
     /* throw away a label */
-    new_label();
+    new_label(cint);
     init_log_upd_clauses(cls,ap);
   } else {
     /* prepare basic data structures */ 
@@ -5005,7 +5006,7 @@ expand_index(struct intermediates *cint) {
   first = ap->cs.p_code.FirstClause;
   NClauses = ap->cs.p_code.NOfClauses;
   sp = stack = (istack_entry *)top;
-  labelno = 1;
+  cint->i_labelno = 1;
   stack[0].pos = 0;
   /* try to refine the interval using the indexing code */
 
@@ -8711,7 +8712,7 @@ find_caller(PredEntry *ap, yamop *code, struct intermediates *cint) {
   UInt arity = 0;
   sp = stack = (istack_entry *)top;
 
-  labelno = 1;
+  cint->i_labelno = 1;
   stack[0].pos = 0;
 
   /* try to refine the interval using the indexing code */

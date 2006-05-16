@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2006-03-09 15:52:04 $,$Author: tiagosoares $						 *
+* Last rev:	$Date: 2006-05-16 18:37:30 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.84  2006/03/09 15:52:04  tiagosoares
+* CUT_C and MYDDAS support for 64 bits architectures
+*
 * Revision 1.83  2006/02/08 17:29:54  tiagosoares
 * MYDDAS: Myddas Top Level for MySQL and Datalog
 *
@@ -323,13 +326,17 @@ X_API void   *STD_PROTO(YAP_ExtraSpaceCut,(void));
 #endif
 X_API Term     STD_PROTO(YAP_CurrentModule,(void));
 X_API Term     STD_PROTO(YAP_CreateModule,(Atom));
-X_API int     STD_PROTO(YAP_ThreadSelf,(void));
-X_API int     STD_PROTO(YAP_GetThreadRefCount,(int));
-X_API void    STD_PROTO(YAP_SetThreadRefCount,(int,int));
+X_API int      STD_PROTO(YAP_ThreadSelf,(void));
+X_API int      STD_PROTO(YAP_GetThreadRefCount,(int));
+X_API void     STD_PROTO(YAP_SetThreadRefCount,(int,int));
 X_API CELL     STD_PROTO(YAP_ThreadCreateEngine,(thread_attr *));
-X_API int     STD_PROTO(YAP_ThreadAttachEngine,(int));
-X_API int     STD_PROTO(YAP_ThreadDetachEngine,(int));
-X_API int     STD_PROTO(YAP_ThreadDestroyEngine,(int));
+X_API int      STD_PROTO(YAP_ThreadAttachEngine,(int));
+X_API int      STD_PROTO(YAP_ThreadDetachEngine,(int));
+X_API int      STD_PROTO(YAP_ThreadDestroyEngine,(int));
+X_API int      STD_PROTO(YAP_ArgsToIntArray,(Term, UInt, const Int *));
+X_API Term     STD_PROTO(YAP_IntArrayToArgs,(UInt, const Int *));
+X_API int      STD_PROTO(YAP_ArgsToFloatArray,(Term, UInt, const Float *));
+X_API Term     STD_PROTO(YAP_FloatArrayToArgs,(UInt, const Float *));
 
 static int (*do_getf)(void);
 
@@ -1625,5 +1632,88 @@ YAP_ThreadDestroyEngine(int wid)
 #else
   return FALSE;
 #endif
+} 
+
+/* Copy a number of terms to an array of integers */
+X_API int
+YAP_ArgsToIntArray(Term t, UInt size, const Int *ar)
+{
+  Int *dest = (Int *)ar;
+  CELL *ptr;
+
+  if (IsVarTerm(t) ||
+      !IsApplTerm(t)) return FALSE;
+  if (ArityOfFunctor(FunctorOfTerm(t)) != size)
+    return FALSE;
+  ptr = RepAppl(t)+1;
+  while (size) {
+    Term t = *ptr++;
+    if (IsVarTerm(t) || !IsIntegerTerm(t))
+      return FALSE;
+    *dest++ = IntegerOfTerm(t);
+  }
+  return TRUE;
+} 
+
+X_API Term
+YAP_IntArrayToArgs(UInt size, const Int *ar)
+{
+  Term t; 
+  BACKUP_H();
+  CELL *ptr = H+1;
+  Int *source = (Int *)ar;
+
+  if (H+(size+1) >= ASP) {
+    return TermNil;
+  }
+  t = AbsAppl(H);
+  *H++ = (CELL)Yap_MkFunctor(Yap_LookupAtom("data"),size);
+  H+=size;
+  while (size) {
+    *ptr++ = MkIntegerTerm(*source++);
+  }
+  RECOVER_H();
+  return t;
+} 
+
+X_API int
+YAP_ArgsToFloatArray(Term t, UInt size, const Float *ar)
+{
+  CELL *ptr;
+  Float *dest = (Float *)ar;
+
+  if (IsVarTerm(t) ||
+      !IsApplTerm(t)) return FALSE;
+  if (ArityOfFunctor(FunctorOfTerm(t)) != size)
+    return FALSE;
+  ptr = RepAppl(t)+1;
+  while (size) {
+    Term t = *ptr++;
+    if (IsVarTerm(t) || !IsFloatTerm(t))
+      return FALSE;
+    *dest++ = FloatOfTerm(t);
+  }
+  return TRUE;
+} 
+
+X_API Term
+YAP_FloatArrayToArgs(UInt size, const Float *ar)
+{
+  Term t; 
+  BACKUP_H();
+  CELL *ptr = H+1;
+  Float *source = (Float *)ar;
+
+  if (H+(size+1) >= ASP) {
+    return TermNil;
+  }
+  t = AbsAppl(H);
+  *H++ = (CELL)Yap_MkFunctor(Yap_LookupAtom("data"),size);
+  H+=size;
+  while (size) {
+    *ptr++ = MkFloatTerm(*source++);
+  }
+  RECOVER_H();
+  return t;
 } 
 

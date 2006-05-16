@@ -263,9 +263,20 @@ MoveGlobalOnly(void)
 	 * absmi.asm 
 	 */
 #if HAVE_MEMMOVE
-  cpcellsd(H0, (CELL *)((ADDR)OldH0+DelayDiff), OldH - OldH0);  
+  cpcellsd(H0, OldH0, OldH - OldH0);  
 #else
-  cpcellsd(H, (CELL *)((ADDR)OldH+DelayDiff), OldH - OldH0);
+  cpcellsd(H, OldH, OldH - OldH0);
+#endif
+}
+
+static void
+MoveDelays(void)
+{
+  UInt sz = (ADDR)OldH0-(ADDR)OldGlobalBase;
+#if HAVE_MEMMOVE
+  cpcellsd((CELL *)Yap_GlobalBase, OldGlobalBase, sz);  
+#else
+  cpcellsd(H0, OldH0, sz);
 #endif
 }
 
@@ -633,18 +644,25 @@ static_growglobal(long size, CELL **ptr)
   int gc_verbose;
   char *omax = (ADDR)DelayTop();
   ADDR old_GlobalBase = Yap_GlobalBase;
-  Int ReallocDiff;
+  UInt minimal_request = 0L;
+  long size0;
 
   /* adjust to a multiple of 256) */
   Yap_PrologMode |= GrowStackMode;
   if (size < (omax-Yap_GlobalBase)/8)
     size = (omax-Yap_GlobalBase)/8;
-  size = AdjustPageSize(size);
+  size0 = size = AdjustPageSize(size);
   Yap_ErrorMessage = NULL;
   if (!Yap_ExtendWorkSpace(size)) {
-    Yap_ErrorMessage = "Global Stack crashed against Local Stack";
-    Yap_PrologMode &= ~GrowStackMode;
-    return FALSE;
+
+    Yap_ErrorMessage = NULL;
+    size += AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+MinHeapGap);   minimal_request = size;
+    size = Yap_ExtendWorkSpaceThroughHole(size);
+    if (size < 0) {
+      Yap_ErrorMessage = "Global Stack crashed against Local Stack";
+      Yap_PrologMode &= ~GrowStackMode;
+      return FALSE;
+    }
   }
   start_growth_time = Yap_cputime();
   gc_verbose = Yap_is_gc_verbose();
@@ -655,13 +673,20 @@ static_growglobal(long size, CELL **ptr)
   }
   ASP -= 256;
   YAPEnterCriticalSection();
-  ReallocDiff = Yap_GlobalBase-old_GlobalBase;
-  TrDiff = LDiff = GDiff = size + ReallocDiff;
-  DelayDiff = ReallocDiff;
+  if (minimal_request) {
+    DelayDiff = size-size0;
+    TrDiff = LDiff = GDiff = size;
+  } else {
+    TrDiff = LDiff = GDiff = size;
+    DelayDiff = 0;
+  }
   XDiff = HDiff = 0;
   Yap_GlobalBase = old_GlobalBase;
   SetHeapRegs();
   MoveLocalAndTrail();
+  if (minimal_request) {
+    MoveDelays();
+  }
   MoveGlobalOnly();
   AdjustStacksAndTrail();
   AdjustRegs(MaxTemps);
@@ -669,6 +694,9 @@ static_growglobal(long size, CELL **ptr)
     *ptr = PtoLocAdjust(*ptr);
   YAPLeaveCriticalSection();
   ASP += 256;
+  if (minimal_request) {
+    Yap_AllocHole(minimal_request, size);
+  }
   growth_time = Yap_cputime()-start_growth_time;
   total_delay_overflow_time += growth_time;
   if (gc_verbose) {
@@ -885,7 +913,6 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
   }
 #if YAPOR
   Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
-  fprintf(stderr,"ERROR 1\n");
   return FALSE;
 #endif
   if (SizeOfOverflow > sz)
@@ -894,7 +921,6 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
     size = size/2;
     sz =  size << shift_factor;
     if (sz < in_size) {
-fprintf(stderr,"ERROR 2\n");
       return FALSE;
     }
   }
@@ -925,7 +951,6 @@ fprintf(stderr,"ERROR 2\n");
     return TRUE;
   }
   /* failed */
-fprintf(stderr,"ERROR 3\n");
   return FALSE;
 }
 

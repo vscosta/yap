@@ -176,16 +176,34 @@ ChunkPtrAdjust (struct malloc_chunk *ptr)
 
 /* vsc: emulation of sbrk with YAP contiguous memory management */
 
+void
+Yap_add_memory_hole(ADDR start, ADDR end)
+{
+  if (Yap_NOfMemoryHoles == MAX_DLMALLOC_HOLES) {
+    Yap_Error(OPERATING_SYSTEM_ERROR, 0L, "Unexpected Too Much Memory Fragmentation: please contact YAP maintainers");
+    return;
+  }
+  Yap_MemoryHoles[Yap_NOfMemoryHoles].start = start;
+  Yap_MemoryHoles[Yap_NOfMemoryHoles].end = end;
+  Yap_NOfMemoryHoles++;
+}
+
 static void *
 yapsbrk(long size)
 {
   ADDR newHeapTop = HeapTop, oldHeapTop = HeapTop;
   LOCK(HeapUsedLock);
   newHeapTop = HeapTop+size;
-  if (Yap_hole_start && newHeapTop > Yap_hole_start) {
-    HeapTop = oldHeapTop = Yap_hole_end;
+  if (Yap_NOfMemoryHoles && newHeapTop > Yap_MemoryHoles[0].start) {
+    UInt i;
+
+    HeapTop = oldHeapTop = Yap_MemoryHoles[0].end;
     newHeapTop = oldHeapTop+size;
-    Yap_hole_start = Yap_hole_end = NULL;
+    Yap_NOfMemoryHoles--;
+    for (i=0; i < Yap_NOfMemoryHoles; i++) {
+      Yap_MemoryHoles[i].start = Yap_MemoryHoles[i+1].start;
+      Yap_MemoryHoles[i].end = Yap_MemoryHoles[i+1].end;
+    }
   }
   if (newHeapTop > HeapLim - MinHeapGap) {
     if (HeapTop + size < HeapLim) {
@@ -1150,6 +1168,7 @@ static Void_t* sYSMALLOc(nb, av) INTERNAL_SIZE_T nb; mstate av;
     
     /* check that one of the above allocation paths succeeded */
     if ((CHUNK_SIZE_T)(size) >= (CHUNK_SIZE_T)(nb + MINSIZE)) {
+
       remainder_size = size - nb;
       remainder = chunk_at_offset(p, nb);
       av->top = remainder;
@@ -1165,7 +1184,6 @@ static Void_t* sYSMALLOc(nb, av) INTERNAL_SIZE_T nb; mstate av;
   MALLOC_FAILURE_ACTION;
   return 0;
 }
-
 
 
 
@@ -2901,6 +2919,7 @@ void
 Yap_initdlmalloc(void)
 {
   HeapTop = (ADDR)ALIGN_SIZE(HeapTop,16);
+  Yap_NOfMemoryHoles = 0;
   Yap_av = (struct malloc_state *)HeapTop;
   memset((void *)Yap_av, 0, sizeof(struct malloc_state));
   HeapTop += sizeof(struct malloc_state);

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.97 2006-04-28 15:48:32 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.98 2006-05-16 18:37:30 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -29,6 +29,16 @@
 
 #ifndef INT_KEYS_DEFAULT_SIZE
 #define INT_KEYS_DEFAULT_SIZE 256
+#endif
+
+#if USE_DL_MALLOC
+
+#define MAX_DLMALLOC_HOLES 32
+
+typedef struct memory_hole {
+  ADDR start;
+  ADDR end;
+} memory_hole_type;
 #endif
 
 
@@ -181,7 +191,10 @@ typedef int   (*Agc_hook)(Atom);
 typedef struct various_codes {
   special_functors funcs;
   struct malloc_state *av_;
-  ADDR hole_start, hole_end;
+#if USE_DL_MALLOC
+  struct memory_hole memory_holes[MAX_DLMALLOC_HOLES];
+  UInt nof_memory_holes;
+#endif
   Int heap_used;
   Int heap_max;
   ADDR heap_top;
@@ -527,8 +540,8 @@ struct various_codes *Yap_heap_regs;
 #endif
 
 #define  Yap_av                  Yap_heap_regs->av_
-#define  Yap_hole_start          Yap_heap_regs->hole_start
-#define  Yap_hole_end            Yap_heap_regs->hole_end
+#define  Yap_MemoryHoles         Yap_heap_regs->memory_holes
+#define  Yap_NOfMemoryHoles      Yap_heap_regs->nof_memory_holes
 #define  HeapUsed                Yap_heap_regs->heap_used
 #define  HeapMax                 Yap_heap_regs->heap_max
 #define  HeapTop                 Yap_heap_regs->heap_top

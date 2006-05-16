@@ -281,8 +281,13 @@ dump_stack(void)
 #if !USE_SYSTEM_MALLOC
     fprintf (stderr,"%ldKB of Code Space (%p--%p)\n",(long int)((CELL)HeapTop-(CELL)Yap_HeapBase)/1024,Yap_HeapBase,HeapTop); 
 #if USE_DL_MALLOC 
-    if (Yap_hole_start) {
-      fprintf (stderr,"  Last hole: %p--%p\n", Yap_hole_start, Yap_hole_end);
+    if (Yap_NOfMemoryHoles) {
+      UInt i;
+
+      for (i=0; i < Yap_NOfMemoryHoles; i++)
+	fprintf(stderr,"  Current hole: %p--%p\n", 
+		Yap_MemoryHoles[i].start,
+		Yap_MemoryHoles[i].end);
     }
 #endif
 #endif

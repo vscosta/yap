@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2006-04-13 02:04:24 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-05-16 18:37:30 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.74  2006/04/13 02:04:24  vsc
+* fix debugging typo
+*
 * Revision 1.73  2006/04/12 20:08:51  vsc
 * make it sure that making vars safe does not propagate across branches of disjunctions.
 *
@@ -882,15 +885,21 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
       }
     } else {
       if (Op == _arg) {
-	Term tn = MkVarTerm();
-	Int v1 = --cglobs->tmpreg;
-	Int v2 = --cglobs->tmpreg;
+	/* we know the second argument is bound */
+	if (IsPrimitiveTerm(t2) || IsNumTerm(t2)) {
+	  Yap_emit(fail_op, Zero, Zero, &cglobs->cint);
+	  return;
+	} else {
+	  Term tn = MkVarTerm();
+	  Int v1 = --cglobs->tmpreg;
+	  Int v2 = --cglobs->tmpreg;
 
-	c_arg(t2, v2, 0, 0, cglobs);
-	Yap_emit(fetch_args_vv_op, Zero, Zero, &cglobs->cint);
-	/* these should be the arguments */
-	c_var(t1, v1, 0, 0, cglobs);
-	c_var(tn, v2, 0, 0, cglobs);
+	  c_eq(t2, tn, cglobs);
+	  Yap_emit(fetch_args_vv_op, Zero, Zero, &cglobs->cint);
+	  /* these should be the arguments */
+	  c_var(t1, v1, 0, 0, cglobs);
+	  c_var(tn, v2, 0, 0, cglobs);
+	}
       /* it has to be either an integer or a floating point */
       } else if (IsIntegerTerm(t2)) {
 	/* first temp */

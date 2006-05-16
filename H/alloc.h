@@ -131,6 +131,13 @@ MALLOC_T calloc(size_t,size_t);
 
 #endif
 
+#if USE_DL_MALLOC
+void Yap_add_memory_hole(ADDR, ADDR);
+#else
+#define Yap_add_memory_hole(Start, End)
+#endif
+
 #define SCRATCH_START_SIZE        (64*1024L)
 #define SCRATCH_INC_SIZE          (64*1024L)
+
 

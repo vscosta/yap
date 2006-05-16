@@ -43,6 +43,8 @@ typedef struct AtomEntry *YAP_Atom;
 
 typedef long int  YAP_Int;
 
+typedef unsigned long int  YAP_UInt;
+
 typedef double YAP_Float;
 
 #ifndef TRUE

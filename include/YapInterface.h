@@ -366,6 +366,12 @@ extern X_API int  PROTO(YAP_ThreadAttachEngine,(int));
 extern X_API int  PROTO(YAP_ThreadDetachEngine,(int));
 extern X_API int  PROTO(YAP_ThreadDestroyEngine,(int));
 
+/* matrices stuff */
+extern X_API int      PROTO(YAP_ArgsToIntArray,(YAP_Term, YAP_UInt, const YAP_Int *));
+extern X_API YAP_Term PROTO(YAP_IntArrayToArgs,(YAP_UInt, const YAP_Int *));
+extern X_API int      PROTO(YAP_ArgsToFloatArray,(YAP_Term, YAP_UInt, const YAP_Float *));
+extern X_API YAP_Term PROTO(YAP_FloatArrayToArgs,(YAP_UInt, const YAP_Float *));
+
 /*  term comparison */
 extern X_API int  PROTO(YAP_CompareTerms,(YAP_Term, YAP_Term));
 

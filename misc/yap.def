@@ -92,4 +92,7 @@ YAP_ThreadAttachEngine
 YAP_ThreadDetachEngine
 YAP_ThreadDestroyEngine
 YAP_CompareTerms
-
+YAP_ArgsToIntArray
+YAP_IntArrayToArgs
+YAP_ArgsToFloatArray
+YAP_FloatArrayToArgs

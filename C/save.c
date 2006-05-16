@@ -1467,6 +1467,7 @@ CloseRestore(void)
   Yap_PrologMode = UserMode;
 }
 
+#if !defined(_WIN32)
 static int 
 check_opcodes(OPCODE old_ops[])
 {
@@ -1479,11 +1480,13 @@ check_opcodes(OPCODE old_ops[])
       break;
     }
   }
-  return(have_shifted);
+  return have_shifted;
 #else
-  return(FALSE);
+  /* be conservative */
+  return TRUE;
 #endif
 }
+#endif
 
 static void 
 RestoreHeap(OPCODE old_ops[])
@@ -1492,7 +1495,13 @@ RestoreHeap(OPCODE old_ops[])
   Term mod = CurrentModule;
 
   CurrentModule = PROLOG_MODULE;
+#if defined(_WIN32)
+  /* It seems that under WIN32 opcodes may not have moved but the
+     remaining code may have bmoved */ 
+  opcodes_moved = TRUE;
+#else
   opcodes_moved = check_opcodes(old_ops);
+#endif
   /* opcodes_moved has side-effects and should be tried first */
   if (heap_moved) {
     RestoreFreeSpace();
