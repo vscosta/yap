@@ -138,6 +138,27 @@ Yap_WinError(char *yap_error)
 
 
 static int
+is_directory(char *FileName)
+{
+#ifdef _WIN32
+  DWORD dwAtts = GetFileAttributes(FileName);
+  if (dwAtts == INVALID_FILE_ATTRIBUTES)
+    return FALSE;
+  return (dwAtts & FILE_ATTRIBUTE_DIRECTORY);
+#elif HAVE_LSTAT 
+  struct stat buf;
+
+  if (lstat(FileName, &buf) == -1) {
+    /* return an error number */
+    return FALSE;
+  }
+  return S_ISDIR(buf.st_mode);
+#else
+  return FALSE;
+#endif
+}
+
+static int
 dir_separator (int ch)
 {
 #ifdef MAC
@@ -1695,7 +1716,18 @@ TrueFileName (char *source, char *result, int in_lib)
 	}
       while ((*new_work++ = *next_work++)!=0);
     }
-  return (TRUE);
+  if (work != result && dir_separator(work[-1])) {
+    /* should only do this on result being a directory */
+    int ch0 = work[-1];
+    work--;
+    work[0] = '\0';
+    if (!is_directory(result)) {
+      /* put it back: */
+      work[0] = ch0;
+      work++;
+    }
+  }
+  return TRUE;
 }
 
 int
@@ -1703,6 +1735,24 @@ Yap_TrueFileName (char *source, char *result, int in_lib)
 {
   return TrueFileName (source, result, in_lib);
 }
+
+static Int
+p_true_file_name (void)
+{
+  Term t = Deref(ARG1);
+  
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"argument to true_file_name unbound");
+    return FALSE;
+  }
+  if (!IsAtomTerm(t)) {
+    Yap_Error(TYPE_ERROR_ATOM,t,"argument to true_file_name");
+    return FALSE;
+  }
+  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, Yap_FileNameBuf, FALSE);
+  return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
+}
+
 
 static Int
 p_getcwd(void)
@@ -2454,6 +2504,8 @@ p_continue_signals(void)
 void
 Yap_InitSysPreds(void)
 {
+  Term cm = CurrentModule;
+
   /* can only do after heap is initialised */
   InitLastWtime();
   Yap_InitCPred ("srandom", 1, p_srandom, SafePredFlag);
@@ -2475,6 +2527,9 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$continue_signals", 0, p_continue_signals, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("file_directory_name", 2, p_file_directory_name, SafePredFlag);
   Yap_InitCPred ("$env_separator", 1, p_env_separator, SafePredFlag);
+  CurrentModule = SYSTEM_MODULE;
+  Yap_InitCPred ("true_file_name", 2, p_true_file_name, SyncPredFlag);
+  CurrentModule = cm;
 }
 
 

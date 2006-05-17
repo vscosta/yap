@@ -179,6 +179,8 @@ Yap_InitModules(void)
     CHARSIO_MODULE;
   ModuleName[5] =
     TERMS_MODULE;
-  NoOfModules = 6;
+  ModuleName[6] =
+    SYSTEM_MODULE;
+  NoOfModules = 7;
   CurrentModule = PROLOG_MODULE;
 }

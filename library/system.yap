@@ -26,7 +26,6 @@
 	file_exists/1,
 	file_exists/2,
 	file_property/2,
-	fmode/2,
 	host_id/1,
 	host_name/1,
 	pid/1,
@@ -86,10 +85,12 @@ check_int(I, Inp) :-
 
 % file operations
 
-delete_file(File) :-
+delete_file(IFile) :-
+	true_file_name(IFile, File),
 	delete_file(File, off, on, off).
 
-delete_file(File, Opts) :-
+delete_file(IFile, Opts) :-
+	true_file_name(IFile, File),
 	process_delete_file_opts(Opts, Dir, Recurse, Ignore, delete_file(File,Opts)),
 	delete_file(File, Dir, Recurse, Ignore).
 
@@ -107,7 +108,8 @@ process_delete_file_opts([ignore|Opts], Dir, Recurse, on, T) :- !,
 process_delete_file_opts(Opts, _, _, _, T) :-
 	throw(error(domain_error(delete_file_option,Opts),T)).
 
-delete_file(File, Dir, Recurse, Ignore) :-
+delete_file(IFile, Dir, Recurse, Ignore) :-
+	true_file_name(IFile, File),
 	file_property(File, Type, _, _, _Permissions, _, Ignore),
 	delete_file(Type, File, Dir, Recurse, Ignore).
 
@@ -118,7 +120,8 @@ delete_file(directory, File, Dir, Recurse, Ignore) :-
 delete_file(_, File, _Dir, _Recurse, Ignore) :-
 	unlink_file(File, Ignore).
 
-unlink_file(File, Ignore) :-
+unlink_file(IFile, Ignore) :-
+	true_file_name(IFile, File),
 	unlink(File, N),
 	handle_system_error(N, Ignore, delete_file(File)).
 
@@ -148,7 +151,8 @@ delete_dirfiles([F|Fs], File, Ignore) :-
 	delete_file(TrueF, off, on, Ignore),
 	delete_dirfiles(Fs, File, Ignore).
 
-directory_files(File, FileList) :-
+directory_files(IFile, FileList) :-
+	true_file_name(IFile, File),
 	directory_files(File, FileList, off).
 
 directory_files(File, FileList, Ignore) :-
@@ -162,15 +166,20 @@ handle_system_error(Error, off, G) :-
 	error_message(Error, Message),
 	throw(error(system_error(Message),G)).
 
-file_property(File, type(Type)) :-
+file_property(IFile, type(Type)) :-
+	true_file_name(IFile, File),
 	file_property(File, Type, _Size, _Date, _Permissions, _LinkName).
-file_property(File, size(Size)) :-
+file_property(IFile, size(Size)) :-
+	true_file_name(IFile, File),
 	file_property(File, _Type, Size, _Date, _Permissions, _LinkName).
-file_property(File, mod_time(Date)) :-
+file_property(IFile, mod_time(Date)) :-
+	true_file_name(IFile, File),
 	file_property(File, _Type, _Size, Date, _Permissions, _LinkName).
-file_property(File, mode(Permissions)) :-
+file_property(IFile, mode(Permissions)) :-
+	true_file_name(IFile, File),
 	file_property(File, _Type, _Size, _Date, Permissions, _LinkName).
-file_property(File, linkto(LinkName)) :-
+file_property(IFile, linkto(LinkName)) :-
+	true_file_name(IFile, File),
 	file_property(File, _Type, _Size, _Date, _Permissions, LinkName),
 	atom(LinkName).
 
@@ -184,7 +193,8 @@ file_exists(File) :-
 file_exists(File) :-
 	\+ atom(File), !,
 	throw(error(type_error(atom,File),file_exists(File))).
-file_exists(File) :-
+file_exists(IFile) :-
+	true_file_name(IFile, File),
 	file_property(File, _Type, _Size, _Date, _Permissions, _, Error),
 	var(Error).
 
@@ -194,7 +204,8 @@ file_exists(File, Permissions) :-
 file_exists(File, Permissions) :-
 	\+ atom(File), !,
 	throw(error(type_error(atom,File),file_exists(File, Permissions))).
-file_exists(File, Permissions) :-
+file_exists(IFile, Permissions) :-
+	true_file_name(IFile, File),
 	file_property(File, _Type, _Size, _Date, FPermissions, _, Error),
 	var(Error),
 	process_permissions(Permissions, Perms),
@@ -205,15 +216,17 @@ process_permissions(Number, Number) :- integer(Number).
 make_directory(Dir) :-
 	var(Dir), !,
 	throw(error(instantiation_error,mkdir(Dir))).
-make_directory(Dir) :-
+make_directory(IDir) :-
 	atom(Dir), !,
+	true_file_name(IDir, Dir),
 	mkdir(Dir,Error),
 	handle_system_error(Error, off, mkdir(Dir)).
 make_directory(Dir) :-
 	throw(error(type_error(atom,Dir),make_directory(Dir))).
 
-rename_file(Old, New) :-
+rename_file(IOld, New) :-
 	atom(Old), atom(New), !,
+	true_file_name(IOld,Old),
 	rename_file(Old, New, Error),
 	handle_system_error(Error, off, rename_file(Old, New)).
 rename_file(X,Y) :- (var(X) ; var(Y)), !,

@@ -873,6 +873,7 @@ InitCodes(void)
   Yap_heap_regs->attributes_module = MkAtomTerm(Yap_LookupAtom("attributes"));
   Yap_heap_regs->charsio_module = MkAtomTerm(Yap_LookupAtom("charsio"));
   Yap_heap_regs->terms_module = MkAtomTerm(Yap_LookupAtom("terms"));
+  Yap_heap_regs->system_module = MkAtomTerm(Yap_LookupAtom("system"));
   Yap_InitModules();
 #ifdef BEAM
   Yap_heap_regs->beam_retry_code.opc = Yap_opcode(_retry_eam);

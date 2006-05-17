@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2006-04-28 15:48:33 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-05-17 18:38:11 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.66  2006/04/28 15:48:33  vsc
+* do locking on streams
+*
 * Revision 1.65  2006/04/28 13:23:23  vsc
 * fix number of overflow bugs affecting threaded version
 * make current_op faster.
@@ -661,6 +664,7 @@ restore_codes(void)
   Yap_heap_regs->attributes_module = AtomTermAdjust(Yap_heap_regs->attributes_module);
   Yap_heap_regs->charsio_module = AtomTermAdjust(Yap_heap_regs->charsio_module);
   Yap_heap_regs->terms_module = AtomTermAdjust(Yap_heap_regs->terms_module);
+  Yap_heap_regs->system_module = AtomTermAdjust(Yap_heap_regs->system_module);
   if (Yap_heap_regs->file_aliases != NULL) {
     Yap_heap_regs->yap_streams =
       (struct stream_desc *)AddrAdjust((ADDR)Yap_heap_regs->yap_streams);

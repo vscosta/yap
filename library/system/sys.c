@@ -8,8 +8,12 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.26 2006-04-25 03:23:40 vsc Exp $									 *
+* $Id: sys.c,v 1.27 2006-05-17 18:38:11 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.26  2006/04/25 03:23:40  vsc
+* mods:		fix ! in debugger (execute_clause)
+* mods:		improve system/1 and execute/1
+* mods:		
 * mods:		Revision 1.25  2006/01/17 14:10:42  vsc
 * mods:		YENV may be an HW register (breaks some tabling code)
 * mods:		All YAAM instructions are now brackedted, so Op introduced an { and EndOp introduces an }. This is because Ricardo assumes that.
@@ -347,7 +351,7 @@ dir_separator(void)
 static int
 file_property(void)
 {
-  char *fd;
+  const char *fd;
 #if HAVE_LSTAT 
   struct stat buf;
 
