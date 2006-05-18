@@ -262,10 +262,18 @@ MoveGlobalOnly(void)
 	 * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
 	 * absmi.asm 
 	 */
+#if USE_SYSTEM_MALLOC
+#if HAVE_MEMMOVE
+  cpcellsd(H0, (CELL *)((char *)OldH0+DelayDiff), OldH - OldH0);
+#else
+  cpcellsd(H, (CELL *)((char *)OldH+DelayDiff), OldH - OldH0);
+#endif
+#else
 #if HAVE_MEMMOVE
   cpcellsd(H0, OldH0, OldH - OldH0);  
 #else
   cpcellsd(H, OldH, OldH - OldH0);
+#endif
 #endif
 }
 
@@ -673,6 +681,12 @@ static_growglobal(long size, CELL **ptr)
   }
   ASP -= 256;
   YAPEnterCriticalSection();
+#if USE_SYSTEM_MALLOC
+  /* we always run the risk of shifting memory */
+  size0 = Yap_GlobalBase-old_GlobalBase;
+  DelayDiff = size0;
+  TrDiff = LDiff = GDiff = size+size0;  
+#else
   if (minimal_request) {
     DelayDiff = size-size0;
     TrDiff = LDiff = GDiff = size;
@@ -680,14 +694,15 @@ static_growglobal(long size, CELL **ptr)
     TrDiff = LDiff = GDiff = size;
     DelayDiff = 0;
   }
+#endif
   XDiff = HDiff = 0;
   Yap_GlobalBase = old_GlobalBase;
   SetHeapRegs();
   MoveLocalAndTrail();
+  MoveGlobalOnly();
   if (minimal_request) {
     MoveDelays();
   }
-  MoveGlobalOnly();
   AdjustStacksAndTrail();
   AdjustRegs(MaxTemps);
   if (ptr)
