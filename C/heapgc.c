@@ -2454,11 +2454,13 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 		 (long int)(hp_erased*100/(hp_erased+hp_in_use_erased)),
 		 (long int)(hp_erased+hp_in_use_erased));
 #endif
-    fprintf(Yap_stderr,
-	    "%%       Heap: recovered %ld bytes (%ld%%) out of %ld\n",
-	    (unsigned long int)(OldHeapUsed-HeapUsed),
-	    (unsigned long int)((OldHeapUsed-HeapUsed)/(OldHeapUsed/100)),
-	    (unsigned long int)OldHeapUsed);
+    if (OldHeapUsed) {
+      fprintf(Yap_stderr,
+	      "%%       Heap: recovered %ld bytes (%ld%%) out of %ld\n",
+	      (unsigned long int)(OldHeapUsed-HeapUsed),
+	      (unsigned long int)((OldHeapUsed-HeapUsed)/(OldHeapUsed/100)),
+	      (unsigned long int)OldHeapUsed);
+    }
   }
   CleanDeadClauses();
 }
