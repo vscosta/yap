@@ -163,8 +163,8 @@ current_thread(Tid, Status) :-
 	var(Tid), !,
 	'$cur_threads'(0, Tid, Status).
 current_thread(Tid, Status) :-
+	( atom(Tid) ; integer(Tid) ), !,
 	'$check_thread_alias'(Id0,Tid),
-	integer(Id0), !,
 	'$valid_thread'(Id0),
 	'$thr_status'(Id0, Status).
 current_thread(Tid, Status) :-
