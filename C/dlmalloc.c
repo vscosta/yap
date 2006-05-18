@@ -192,7 +192,6 @@ static void *
 yapsbrk(long size)
 {
   ADDR newHeapTop = HeapTop, oldHeapTop = HeapTop;
-  LOCK(HeapUsedLock);
   newHeapTop = HeapTop+size;
   if (Yap_NOfMemoryHoles && newHeapTop > Yap_MemoryHoles[0].start) {
     UInt i;
@@ -209,8 +208,6 @@ yapsbrk(long size)
     if (HeapTop + size < HeapLim) {
       /* small allocations, we can wait */
       HeapTop += size;
-      HeapUsed += size;
-      UNLOCK(HeapUsedLock);
       UNLOCK(HeapTopLock);
       Yap_signal(YAP_CDOVF_SIGNAL);
     } else {
@@ -223,7 +220,6 @@ yapsbrk(long size)
     }
   }
   HeapTop = newHeapTop;
-  HeapUsed += size;
   UNLOCK(HeapTopLock);
   return oldHeapTop;
 }
@@ -2572,6 +2568,14 @@ struct mallinfo mALLINFo()
   ------------------------------ malloc_stats ------------------------------
 */
 
+UInt
+Yap_givemallinfo(void)
+{
+  struct mallinfo mi = mALLINFo();
+  return mi.uordblks;
+}
+
+
 void mSTATs(void)
 {
   struct mallinfo mi = mALLINFo();
@@ -2924,7 +2928,7 @@ Yap_initdlmalloc(void)
   memset((void *)Yap_av, 0, sizeof(struct malloc_state));
   HeapTop += sizeof(struct malloc_state);
   HeapTop = (ADDR)ALIGN_SIZE(HeapTop,2*SIZEOF_LONG_LONG_INT);
-  HeapMax = HeapUsed = HeapTop-Yap_HeapBase;
+  HeapMax = HeapTop-Yap_HeapBase;
 }
 
 void Yap_RestoreDLMalloc(void)

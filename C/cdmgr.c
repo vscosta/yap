@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-04-29 01:15:18 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-05-18 16:33:04 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.187  2006/04/29 01:15:18  vsc
+* fix expand_consult patch
+*
 * Revision 1.186  2006/04/28 17:53:44  vsc
 * fix the expand_consult patch
 *
@@ -5463,10 +5466,14 @@ p_choicepoint_info(void)
     case _retry3:
     case _retry4:
     case _trust_logical_pred:
+      pe = NULL;
+      t = TermNil;
       ipc = NEXTOP(ipc,l);
       go_on = TRUE;
       break;
     case _jump:
+      pe = NULL;
+      t = TermNil;
       ipc = ipc->u.l.l;
       go_on = TRUE;
       break;
@@ -5477,6 +5484,8 @@ p_choicepoint_info(void)
       break;
     case _retry_profiled:
     case _count_retry:
+      pe = NULL;
+      t = TermNil;
       ipc = NEXTOP(ipc,p);
       go_on = TRUE;
       break;
@@ -5497,6 +5506,7 @@ p_choicepoint_info(void)
     case _Ystop:
     default:
       pe = NULL;
+      t = TermNil;
       return FALSE;
     }
   }

@@ -2174,9 +2174,7 @@ static void
 sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 {
   tr_fr_ptr     trail_ptr, dest;
-#if !USE_MALLOC
   Int OldHeapUsed = HeapUsed;
-#endif
 #ifdef DEBUG
   Int hp_entrs = 0, hp_erased = 0, hp_not_in_use = 0,
     hp_in_use_erased = 0, code_entries = 0;
@@ -2456,13 +2454,11 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 		 (long int)(hp_erased*100/(hp_erased+hp_in_use_erased)),
 		 (long int)(hp_erased+hp_in_use_erased));
 #endif
-#if !USE_SYSTEM_MALLOC
     fprintf(Yap_stderr,
 	    "%%       Heap: recovered %ld bytes (%ld%%) out of %ld\n",
 	    (unsigned long int)(OldHeapUsed-HeapUsed),
 	    (unsigned long int)((OldHeapUsed-HeapUsed)/(OldHeapUsed/100)),
 	    (unsigned long int)OldHeapUsed);
-#endif
   }
   CleanDeadClauses();
 }

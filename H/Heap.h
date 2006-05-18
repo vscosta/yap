@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.99 2006-05-17 18:38:11 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.100 2006-05-18 16:33:05 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -543,7 +543,12 @@ struct various_codes *Yap_heap_regs;
 #define  Yap_av                  Yap_heap_regs->av_
 #define  Yap_MemoryHoles         Yap_heap_regs->memory_holes
 #define  Yap_NOfMemoryHoles      Yap_heap_regs->nof_memory_holes
+#if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
+#define  HeapUsed                Yap_givemallinfo()
+#else
 #define  HeapUsed                Yap_heap_regs->heap_used
+#define  HeapUsedLock            Yap_heap_regs->heap_used_lock
+#endif
 #define  HeapMax                 Yap_heap_regs->heap_max
 #define  HeapTop                 Yap_heap_regs->heap_top
 #define  HeapLim                 Yap_heap_regs->heap_lim
@@ -895,7 +900,6 @@ struct various_codes *Yap_heap_regs;
 #define  NOfThreads               Yap_heap_regs->n_of_threads
 #define  NOfThreadsCreated        Yap_heap_regs->n_of_threads_created
 #define  ThreadsTotalTime         Yap_heap_regs->threads_total_time
-#define  HeapUsedLock             Yap_heap_regs->heap_used_lock
 #define  DeadStaticClausesLock    Yap_heap_regs->dead_static_clauses_lock
 #define  DeadMegaClausesLock      Yap_heap_regs->dead_mega_clauses_lock
 #define  DeadStaticIndicesLock    Yap_heap_regs->dead_static_indices_lock
@@ -924,6 +928,11 @@ struct various_codes *Yap_heap_regs;
 #if HAVE_LIBREADLINE
 #define  ReadlineBuf              Yap_heap_regs->readline_buf
 #define  ReadlinePos              Yap_heap_regs->readline_pos
+#endif
+
+
+#if (USE_SYSTEM_MALLOC && HAVE_MALLINFO)||USE_DL_MALLOC
+UInt STD_PROTO(Yap_givemallinfo, (void));
 #endif
 
 ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt, void *));

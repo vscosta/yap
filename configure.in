@@ -360,7 +360,7 @@ then
     yap_cv_readline=no
     if test "$prefix" = "NONE"
     then
-      prefix="$SYSTEMDRIVE/Yap"
+      prefix="\$SYSTEMDRIVE/Yap"
     fi
   else
     use_malloc="yes"
@@ -1114,7 +1114,7 @@ AC_CHECK_FUNCS(fesettrapenable fgetpos finite getcwd getenv)
 AC_CHECK_FUNCS(gethostbyname gethostid gethostname)
 AC_CHECK_FUNCS(gethrtime getpwnam getrusage gettimeofday getwd)
 AC_CHECK_FUNCS(isatty isnan kill labs link lgamma)
-AC_CHECK_FUNCS(localtime lstat)
+AC_CHECK_FUNCS(localtime lstat mallinfo)
 AC_CHECK_FUNCS(memcpy memmove mkstemp mktemp mktime opendir)
 AC_CHECK_FUNCS(putenv rand random readlink regexec)
 AC_CHECK_FUNCS(rename rint rl_set_prompt sbrk select)

@@ -3417,7 +3417,7 @@ fi
     yap_cv_readline=no
     if test "$prefix" = "NONE"
     then
-      prefix="$SYSTEMDRIVE/Yap"
+      prefix="\$SYSTEMDRIVE/Yap"
     fi
   else
     use_malloc="yes"
@@ -13778,7 +13778,8 @@ done
 
 
 
-for ac_func in localtime lstat
+
+for ac_func in localtime lstat mallinfo
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5

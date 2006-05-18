@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-04-28 17:53:44 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-05-18 16:33:05 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.102  2006/04/28 17:53:44  vsc
+* fix the expand_consult patch
+*
 * Revision 1.101  2006/04/28 13:23:23  vsc
 * fix number of overflow bugs affecting threaded version
 * make current_op faster.
@@ -177,6 +180,9 @@ static char     SccsId[] = "%W% %G%";
 #include <stdio.h>
 #if HAVE_STRING_H
 #include <string.h>
+#endif
+#if HAVE_MALLOC_H
+#include <malloc.h>
 #endif
 
 STD_PROTO(static Int p_setval, (void));
@@ -2282,9 +2288,18 @@ p_unhide(void)
 void
 Yap_show_statistics(void)
 {
-  unsigned long int heap_space_taken = 
+  unsigned long int heap_space_taken;
+  double frag;
+
+#if USE_SYSTEM_MALLOC && HAVE_MALLINFO
+  struct mallinfo mi = mallinfo();
+
+  heap_space_taken = mi.arena+mi.hblkhd;
+#else
+  heap_space_taken = 
     (unsigned long int)(Unsigned(HeapTop)-Unsigned(Yap_HeapBase));
-  double frag = (100.0*(heap_space_taken-HeapUsed))/heap_space_taken;
+#endif
+  frag  = (100.0*(heap_space_taken-HeapUsed))/heap_space_taken;
 
   fprintf(Yap_stderr, "Code Space:  %ld (%ld bytes needed, %ld bytes used, fragmentation %.3f%%).\n", 
 	     (unsigned long int)(Unsigned (H0) - Unsigned (Yap_HeapBase)),
@@ -2444,8 +2459,15 @@ p_statistics_local_max(void)
 static Int 
 p_statistics_heap_info(void)
 {
-  Term tmax = MkIntegerTerm(Unsigned(H0) - Unsigned(Yap_HeapBase));
   Term tusage = MkIntegerTerm(HeapUsed);
+
+#if USE_SYSTEM_MALLOC && HAVE_MALLINFO
+  struct mallinfo mi = mallinfo();
+
+  Term tmax = MkIntegerTerm(mi.arena+mi.hblkhd);
+#else
+  Term tmax = MkIntegerTerm(Unsigned(H0) - Unsigned(Yap_HeapBase));
+#endif
 
   return(Yap_unify(tmax, ARG1) && Yap_unify(tusage,ARG2));
   

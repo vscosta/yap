@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.84 2006-05-16 18:37:30 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.85 2006-05-18 16:33:04 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -303,6 +303,16 @@ void
 Yap_AllocHole(UInt actual_request, UInt total_size)
 {
 }
+
+#if HAVE_MALLINFO
+UInt
+Yap_givemallinfo(void)
+{
+  struct mallinfo mi = mallinfo();
+  return mi.uordblks;
+}
+#endif
+
 
 #else
 

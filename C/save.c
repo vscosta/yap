@@ -434,7 +434,7 @@ save_regs(int mode)
   putcellptr(CellPtr(Yap_HeapBase));
   putcellptr(CellPtr(HeapTop));
   /* and the space it ocuppies */
-  putout(Unsigned(HeapUsed));
+  putout(Unsigned(Yap_heap_regs->heap_used));
   /* Then the start of the free code */
   putcellptr(CellPtr(FreeBlocks));
   putcellptr(AuxSp);
@@ -1000,7 +1000,7 @@ restore_heap_regs(void)
 {
   HeapTop = AddrAdjust(HeapTop);
   *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
-  HeapMax = HeapUsed = OldHeapUsed;
+  HeapMax = Yap_heap_regs->heap_used = OldHeapUsed;
   restore_codes();
 }
 
