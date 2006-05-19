@@ -1277,43 +1277,6 @@ mark_variable(CELL_PTR current)
 	MARK(next+2);
 #endif
 	POP_CONTINUATION();
-      case (CELL)FunctorIntArray:
-	MARK(next);
-	/* size is given by functor + friends */
-	if (next < HGEN) {
-	  total_oldies+=4+next[1];
-	}
-	total_marked += 4+next[1];
-	{
-	  int i;
-	  for (i = 0; i <= 4+next[1]; i++) {
-	    PUSH_POINTER(next+i);
-	  }
-#if GC_NO_TAGS
-	  MARK(next+(3+next[1]));
-#endif
-	}
-	POP_CONTINUATION();
-      case (CELL)FunctorDoubleArray:
-	MARK(next);
-	{
-	  UInt sz = 4+next[1]+(SIZEOF_DOUBLE-SIZEOF_LONG_INT);
-	  /* size is given by functor + friends */
-	  if (next < HGEN) {
-	    total_oldies+=sz;
-	  }
-	  total_marked += sz;
-	  {
-	    int i;
-	    for (i = 0; i <= sz; i++) {
-	      PUSH_POINTER(next+i);
-	    }
-#if GC_NO_TAGS
-	    MARK(next+(sz-1));
-#endif
-	  }
-	}
-	POP_CONTINUATION();
 #ifdef USE_GMP
       case (CELL)FunctorBigInt:
 	MARK(next);

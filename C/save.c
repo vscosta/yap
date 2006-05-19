@@ -545,6 +545,12 @@ do_save(int mode) {
   NewFileInfo('YAPS', 'MYap');
 #endif
   Term t1 = Deref(ARG1);
+
+  if (Yap_HoleSize) {
+    Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)),
+	  "restore/1: address space has holes, cannot save");
+    return FALSE;
+  }
   if (!Yap_GetName(Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
     Yap_Error(TYPE_ERROR_LIST,t1,"save/1");
     return FALSE;

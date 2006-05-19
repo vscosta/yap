@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.85 2006-05-18 16:33:04 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.86 2006-05-19 14:31:31 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -61,6 +61,11 @@ static char SccsId[] = "%W% %G%";
 #define malloc Yap_dlmalloc
 #define free Yap_dlfree
 #define realloc Yap_dlrealloc
+#else
+void Yap_add_memory_hole(ADDR Start, ADDR End)
+{
+  Yap_HoleSize += Start-End;
+}
 #endif
 
 #if USE_SYSTEM_MALLOC||USE_DL_MALLOC
@@ -1322,6 +1327,7 @@ InitHeap(void *heap_addr)
   /* reserve space for specially allocated functors and atoms so that
      their values can be known statically */
   HeapTop = Yap_HeapBase + AdjustSize(sizeof(all_heap_codes));
+  Yap_HoleSize = 0;
 #if USE_DL_MALLOC
   Yap_initdlmalloc();
 #else

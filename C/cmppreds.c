@@ -377,57 +377,6 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
 	  return -1;
 	}
 #endif
-      case int_array_e:
-	{
-	  Functor f2;
-
-	  if (!IsApplTerm(t2))
-	    return 1;
-	  f2 = FunctorOfTerm(t2);
-	  if (f2 == FunctorDoubleArray) {
-	    UInt dim, i;
-	    Int *ar1, *ar2;
-
-	    if ((dim = Yap_SizeOfIntArray(t1)) != Yap_SizeOfIntArray(t2)) {
-	      return dim-Yap_SizeOfIntArray(t2);
-	    }
-	    ar1 = Yap_IntArrayOfTerm(t1);
-	    ar2 = Yap_IntArrayOfTerm(t2);
-	    for (i=0;i<dim;i++) {
-	      if (ar1[i]-ar2[i])
-		return ar1[i]-ar2[i] > 0;
-	    }
-	    return 0;
-	  } else if (f2 == FunctorIntArray) {
-	    return -1;
-	  } else 
-	    return 1;
-	}
-      case double_array_e:
-	{
-	  Functor f2;
-
-	  if (!IsApplTerm(t2))
-	    return 1;
-	  f2 = FunctorOfTerm(t2);
-	  if (f2 == FunctorDoubleArray) {
-	    UInt dim, i;
-	    Float *ar1, *ar2;
-
-	    if ((dim = Yap_SizeOfFloatArray(t1)) != Yap_SizeOfFloatArray(t2)) {
-	      return dim-Yap_SizeOfFloatArray(t2);
-	    }
-	    ar1 = Yap_FloatArrayOfTerm(t1);
-	    ar2 = Yap_FloatArrayOfTerm(t2);
-	    for (i=0;i<dim;i++) {
-	      if (ar1[i]-ar2[i])
-		return ar1[i]-ar2[i];
-	    }
-	    return 0;
-	  } else {
-	    return 1;
-	  }
-	}
       case db_ref_e:
 	if (IsRefTerm(t2))
 	  return Unsigned(RefOfTerm(t2)) -
@@ -450,9 +399,6 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
       Int r;
 
       if (IsExtensionFunctor(fun2)) {
-	if (fun2 ==  FunctorDoubleArray ||
-	    fun2 ==  FunctorIntArray)
-	  return -1;
 	return 1;
       }
       r = ArityOfFunctor(fun1) - ArityOfFunctor(fun2);

@@ -227,8 +227,6 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
 	if (IsExtensionFunctor(f)) {
 	  switch((CELL)f) {
 	  case (CELL)FunctorDBRef:
-	  case (CELL)FunctorIntArray:
-	  case (CELL)FunctorDoubleArray:
 	    if (d0 == d1) continue;
 	    goto cufail;
 	  case (CELL)FunctorLongInt:
@@ -387,8 +385,6 @@ oc_unify_nvar_nvar:
       if (IsExtensionFunctor((Functor)d0)) {
 	switch(d0) {
 	case (CELL)FunctorDBRef:
-	case (CELL)FunctorIntArray:
-	case (CELL)FunctorDoubleArray:
 	  return(pt0 == pt1);
 	case (CELL)FunctorLongInt:
 	  return(pt0[1] == pt1[1]);
@@ -530,8 +526,6 @@ unify_nvar_nvar:
       if (IsExtensionFunctor((Functor)d0)) {
 	switch(d0) {
 	case (CELL)FunctorDBRef:
-	case (CELL)FunctorIntArray:
-	case (CELL)FunctorDoubleArray:
 	  return(pt0 == pt1);
 	case (CELL)FunctorLongInt:
 	  return(pt0[1] == pt1[1]);

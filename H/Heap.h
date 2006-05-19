@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.100 2006-05-18 16:33:05 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.101 2006-05-19 14:31:32 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -190,6 +190,7 @@ typedef int   (*Agc_hook)(Atom);
 
 typedef struct various_codes {
   special_functors funcs;
+  UInt hole_size;
   struct malloc_state *av_;
 #if USE_DL_MALLOC
   struct memory_hole memory_holes[MAX_DLMALLOC_HOLES];
@@ -540,6 +541,7 @@ struct various_codes *Yap_heap_regs;
 #define Yap_heap_regs  ((all_heap_codes *)HEAP_INIT_BASE)
 #endif
 
+#define  Yap_HoleSize            Yap_heap_regs->hole_size
 #define  Yap_av                  Yap_heap_regs->av_
 #define  Yap_MemoryHoles         Yap_heap_regs->memory_holes
 #define  Yap_NOfMemoryHoles      Yap_heap_regs->nof_memory_holes

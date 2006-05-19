@@ -185,6 +185,7 @@ Yap_add_memory_hole(ADDR start, ADDR end)
   }
   Yap_MemoryHoles[Yap_NOfMemoryHoles].start = start;
   Yap_MemoryHoles[Yap_NOfMemoryHoles].end = end;
+  Yap_HoleSize += start-end;
   Yap_NOfMemoryHoles++;
 }
 

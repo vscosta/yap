@@ -796,26 +796,6 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  CodeMax = copy_long_int(CodeMax, ap2);
 	  ++pt0;
 	  continue;
-	case (CELL)FunctorIntArray:
-	  CheckDBOverflow(4+Yap_SizeOfIntArray(d0));
-#ifdef IDB_USE_MBIT
-	  *StoPoint++ = AbsAppl(CodeMax)|MBIT;
-#else
-	  *StoPoint++ = AbsAppl(CodeMax);
-#endif
-	  CodeMax = copy_int_array(CodeMax, ap2);
-	  ++pt0;
-	  continue;
-	case (CELL)FunctorDoubleArray:
-	  CheckDBOverflow(4+Yap_SizeOfFloatArray(d0));
-#ifdef IDB_USE_MBIT
-	  *StoPoint++ = AbsAppl(CodeMax)|MBIT;
-#else
-	  *StoPoint++ = AbsAppl(CodeMax);
-#endif
-	  CodeMax = copy_double_array(CodeMax, ap2);
-	  ++pt0;
-	  continue;
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
 	  CheckDBOverflow(2+Yap_SizeOfBigInt(d0));
@@ -1559,12 +1539,6 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
       fun = FunctorOfTerm(Tm);
       if (IsExtensionFunctor(fun)) {
 	switch((CELL)fun) {
-	case (CELL)FunctorIntArray:
-	  ntp = copy_int_array(ntp0, RepAppl(Tm));
-	  break;
-	case (CELL)FunctorDoubleArray:
-	  ntp = copy_double_array(ntp0, RepAppl(Tm));
-	  break;
 	case (CELL)FunctorDouble:
 	  ntp = copy_double(ntp0, RepAppl(Tm));
 	  break;

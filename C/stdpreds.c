@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-05-18 16:33:05 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-05-19 14:31:32 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.103  2006/05/18 16:33:05  vsc
+* fix info reported by memory manager under DL_MALLOC and SYSTEM_MALLOC
+*
 * Revision 1.102  2006/04/28 17:53:44  vsc
 * fix the expand_consult patch
 *
@@ -2294,10 +2297,10 @@ Yap_show_statistics(void)
 #if USE_SYSTEM_MALLOC && HAVE_MALLINFO
   struct mallinfo mi = mallinfo();
 
-  heap_space_taken = mi.arena+mi.hblkhd;
+  heap_space_taken = (mi.arena+mi.hblkhd)-Yap_HoleSize;
 #else
   heap_space_taken = 
-    (unsigned long int)(Unsigned(HeapTop)-Unsigned(Yap_HeapBase));
+    (unsigned long int)(Unsigned(HeapTop)-Unsigned(Yap_HeapBase))-Yap_HoleSize;
 #endif
   frag  = (100.0*(heap_space_taken-HeapUsed))/heap_space_taken;
 
@@ -2464,9 +2467,9 @@ p_statistics_heap_info(void)
 #if USE_SYSTEM_MALLOC && HAVE_MALLINFO
   struct mallinfo mi = mallinfo();
 
-  Term tmax = MkIntegerTerm(mi.arena+mi.hblkhd);
+  Term tmax = MkIntegerTerm((mi.arena+mi.hblkhd)-Yap_HoleSize);
 #else
-  Term tmax = MkIntegerTerm(Unsigned(H0) - Unsigned(Yap_HeapBase));
+  Term tmax = MkIntegerTerm((Unsigned(H0) - Unsigned(Yap_HeapBase))-Yap_HoleSize);
 #endif
 
   return(Yap_unify(tmax, ARG1) && Yap_unify(tusage,ARG2));
