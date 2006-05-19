@@ -761,15 +761,19 @@ then
   CROSS_SIMULATOR="LD_LIBRARY_PATH=."
   case "$target_os" in
   *darwin*)
-    YAPLIB=libYap"$SHLIB_SUFFIX"
+    DYNYAPLIB=libYap"$SHLIB_SUFFIX"
+    YAPLIB="$DYNYAPLIB"
     DYNLIB_LD="gcc -dynamiclib"
     ;;
   *)
     LDFLAGS="$LDFLAGS -Wl,-R,$prefix/lib"
-    YAPLIB=libYap"$SHLIB_SUFFIX"
+    DYNYAPLIB=libYap"$SHLIB_SUFFIX"
+    YAPLIB="$DYNYAPLIB"
     DYNLIB_LD="$SHLIB_LD"
     ;;
   esac
+else
+  DYNYAPLIB=libYap.notused
 fi
 
 if test "$coroutining" = "yes"
@@ -961,6 +965,7 @@ AC_SUBST(SHLIB_LD)
 AC_SUBST(DYNLIB_LD)
 dnl objects in YAP library
 AC_SUBST(YAPLIB)
+AC_SUBST(DYNYAPLIB)
 AC_SUBST(LDFLAGS)
 dnl install_info
 AC_SUBST(INSTALL_INFO)

@@ -663,22 +663,6 @@ copy_double(CELL *st, CELL *pt)
   return st+(2+SIZEOF_DOUBLE/SIZEOF_LONG_INT);
 }
 
-static CELL *
-copy_int_array(CELL *st, CELL *pt)
-{
-  UInt sz = SIZEOF_LONG_INT*(pt[1]+4);
-  memcpy((void *)st, (void *)pt, sz);
-  return (CELL *)((char *)st+sz);
-}
-
-static CELL *
-copy_double_array(CELL *st, CELL *pt)
-{
-  UInt sz = SIZEOF_LONG_INT*4+SIZEOF_DOUBLE*pt[1]+(SIZEOF_DOUBLE-SIZEOF_LONG_INT);
-  memcpy((void *)st, (void *)pt, sz);
-  return (CELL *)((char *)st+sz);
-}
-
 #ifdef USE_GMP
 static CELL *
 copy_big_int(CELL *st, CELL *pt)

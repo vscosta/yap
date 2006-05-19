@@ -30,7 +30,8 @@
 	    matrix_new/4,
 	    matrix_dim/2,
 	    matrix_type/2,
-	    matrix_max/2]).
+	    matrix_max/2,
+	    matrix_add/3]).
 
 :- use_module(library_lists,
 	      [append/3]).

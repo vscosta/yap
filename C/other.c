@@ -99,42 +99,4 @@ Yap_MkNewApplTerm(Functor f, unsigned int n)
   return (AbsAppl(t));
 }
 
-Term
-Yap_MkIntArrayTerm (UInt sz, Int *ptr)
-{
-  CELL *h0 = H;
-
-  H[0] = (CELL) FunctorLongInt;
-  H[1] = (CELL) (sz);
-  memcpy((void *)(H+2), (void *)ptr, sz*sizeof(Int));
-  H += sz+2;
-  H[0] = (CELL) (sz);
-#if GC_NO_TAGS
-  H[1] = EndSpecials;
-#else
-  H[1] = EndSpecials | MBIT;
-#endif  
-  H += 2;
-  return AbsAppl(h0);
-}
-
-Term
-Yap_MkFloatArrayTerm (UInt sz, Float *ptr)
-{
-  CELL *h0 = H;
-
-  H[0] = (CELL) FunctorLongInt;
-  H[1] = (CELL) (sz);
-  H[2] = 0;
-  memcpy((void *)(H+3), (void *)ptr, sz*sizeof(Float));
-  H += sz+3;
-  H[0] = (CELL) (sz);
-#if GC_NO_TAGS
-  H[1] = EndSpecials;
-#else
-  H[1] = EndSpecials | MBIT;
-#endif  
-  H += 2;
-  return AbsAppl(h0);
-}
 

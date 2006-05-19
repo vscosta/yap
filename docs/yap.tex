@@ -8,7 +8,7 @@
 @c @setchapternewpage odd
 @c %**end of header
 
-@set VERSION: 5.1.1
+@set VERSION: 5.1.2
 @set EDITION 4.2.4
 @set UPDATED December 2004
 
@@ -5768,7 +5768,7 @@ Reset all profiling information.
 
 @end table
 
-@subsection{Tick Profiler}
+@subsection Tick Profiler
 The tick profiler works by interrupting the Prolog code every so often
 and checking at each point the code was. The profiler must be able to
 retrace the state of the abstract machine at every moment. The major
@@ -7807,17 +7807,17 @@ with @var{NewVal}. Fails if it cannot find @var{Key} in @var{T}.
 @snindex rb_apply/4
 @cnindex rb_apply/4
 If the value associated with key @var{Key} is @var{Val0} in @var{T}, and
-if @var{call(G,Val0,ValF)} holds, then @var{TN} differs from @var{T}
-only in that @var{Key} is associated with value @var{ValF} in tree
-@var{TN}. Fails if it cannot find @var{Key} in @var{T}, or if
-@var{call(G,Val0,ValF)} is not satisfiable.
+if @code{call(G,Val0,ValF)} holds, then @var{TN} differs from
+@var{T} only in that @var{Key} is associated with value @var{ValF} in
+tree @var{TN}. Fails if it cannot find @var{Key} in @var{T}, or if
+@code{call(G,Val0,ValF)} is not satisfiable.
 
 @item rb_visit(+@var{T},-@var{Pairs})
 @findex rb_visit/2
 @snindex rb_visit/2
 @cnindex rb_visit/2
 @var{Pairs} is an infix visit of tree @var{T}, where each element of
-@var{Pairs} is of the form  @var{K-Val}.
+@var{Pairs} is of the form  @var{K}-@var{Val}.
 
 @item rb_size(+@var{T},-@var{Size})
 @findex rb_size/2
@@ -7838,8 +7838,8 @@ sorted, but may be duplicate.
 @cnindex rb_map/3
 For all nodes @var{Key} in the tree @var{T}, if the value associated with
 key @var{Key} is @var{Val0} in tree @var{T}, and if
-@var{call(G,Val0,ValF)} holds, then the value associated with @var{Key}
-in @var{TN} is @var{ValF}. Fails if or if @var{call(G,Val0,ValF)} is not
+@code{call(G,Val0,ValF)} holds, then the value associated with @var{Key}
+in @var{TN} is @var{ValF}. Fails if or if @code{call(G,Val0,ValF)} is not
 satisfiable for all @var{Var0}.
 
 @item rb_partial_map(+@var{T},+@var{Keys},+@var{G},-@var{TN})
@@ -7847,9 +7847,9 @@ satisfiable for all @var{Var0}.
 @snindex rb_partial_map/4
 @cnindex rb_partial_map/4
 For all nodes @var{Key} in @var{Keys}, if the value associated with key
-@var{Key} is @var{Val0} in tree @var{T}, and if @var{call(G,Val0,ValF)}
+@var{Key} is @var{Val0} in tree @var{T}, and if @code{call(G,Val0,ValF)}
 holds, then the value associated with @var{Key} in @var{TN} is
-@var{ValF}. Fails if or if @var{call(G,Val0,ValF)} is not satisfiable
+@var{ValF}. Fails if or if @code{call(G,Val0,ValF)} is not satisfiable
 for all @var{Var0}. Assumes keys are not repeated.
 
 @item rb_clone(+@var{T},+@var{NT},+@var{Nodes})
@@ -11030,7 +11030,7 @@ We next discuss several issues on trying to make Prolog programs run
 fast in YAP. We assume two different programming styles:
 
 @table @bullet
-@item Execution of @item{deterministic} programs often
+@item Execution of @emph{deterministic} programs often
 boils down to a recursive loop of the form:
 @example
 loop(Env) :-
