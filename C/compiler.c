@@ -11,8 +11,13 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2006-05-16 18:37:30 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-05-19 13:48:11 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.75  2006/05/16 18:37:30  vsc
+* WIN32 fixes
+* compiler bug fixes
+* extend interface
+*
 * Revision 1.74  2006/04/13 02:04:24  vsc
 * fix debugging typo
 *
@@ -541,8 +546,14 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
       Yap_emit((cglobs->onhead ? (argno == (Int)arity ? unify_last_atom_op
 		      : unify_atom_op) :
 	    write_atom_op), (CELL) t, Zero, &cglobs->cint);
-  }
-  else if (IsIntegerTerm(t) || IsFloatTerm(t) || IsBigIntTerm(t)) {
+  } else if (Yap_IsIntArrayTerm(t) || Yap_IsFloatArrayTerm(t)) {
+    Yap_Error_TYPE = TYPE_ERROR_NUMBER;
+    Yap_Error_Term = t;
+    Yap_ErrorMessage = Yap_ErrorSay;
+    sprintf(Yap_ErrorMessage, "compiling array term");
+    save_machine_regs();
+    longjmp(cglobs->cint.CompilerBotch,1);
+  } else  if (IsIntegerTerm(t) || IsFloatTerm(t) || IsBigIntTerm(t)) {
     if (!IsIntTerm(t)) {
       /* we are taking a blob, that is a binary that is supposed to be
 	 guarded in the clause itself. Possible examples include

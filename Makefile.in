@@ -526,8 +526,8 @@ libYap.a: $(LIB_OBJECTS)
 	$(AR) rc libYap.a $(LIB_OBJECTS)
 	$(RANLIB) libYap.a
 
-@IN_UNIX@@DO_SECOND_LD@libYap@SHLIB_SUFFIX@: $(LIB_OBJECTS)
-@IN_UNIX@@DO_SECOND_LD@	@SHLIB_LD@ -o libYap@SHLIB_SUFFIX@ $(LIB_OBJECTS) $(LIBS)
+@IN_UNIX@@DO_SECOND_LD@@YAPLIB@: $(LIB_OBJECTS)
+@IN_UNIX@@DO_SECOND_LD@	@DYNLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS)
 
 install: install_bin install_data
 

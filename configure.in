@@ -591,6 +591,8 @@ case "$target_os" in
 	        LDFLAGS="-dynamic $LDFLAGS"
               ;;
               *)
+	      	JAVALIBPATH="-L$JAVA_HOME/jre/lib/i386 -L$JAVA_HOME/jre/lib/i386/client"
+		JAVAINCPATH="-I$JAVA_HOME/include -I$JAVA_HOME/include/linux"
 	        if test "$CC" != "lcc"
                 then
 	          LDFLAGS="-rdynamic $LDFLAGS"
@@ -692,11 +694,13 @@ dnl Linux has both elf and a.out, in this case we found elf
 	  fi
 	fi
 	SHLIB_CFLAGS="-fno-common"
-	SHLIB_SUFFIX=".so"
+	SHLIB_SUFFIX=".dylib"
         DO_SECOND_LD=""
-	SHLIB_LD="cc -bundle -flat_namespace -undefined suppress"
+	SHLIB_LD="gcc -bundle -flat_namespace -undefined suppress"
 	INSTALL_DLLS=""
         CC="cc -no-cpp-precomp"
+	JAVALIBPATH="-L/System/Library/Frameworks/JavaVM.framework/Libraries"
+	JAVAINCPATH="-I/System/Library/Frameworks/JavaVM.framework/Headers"
 	;;
       *netbsd*|*freebsd*)
 	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
@@ -754,9 +758,18 @@ esac
 if test "$dynamic_loading" = "yes"
 then 
   YAP_EXTRAS="$SHLIB_CFLAGS $YAP_EXTRAS"
-  YAPLIB=libYap"$SHLIB_SUFFIX"
   CROSS_SIMULATOR="LD_LIBRARY_PATH=."
-  LDFLAGS="$LDFLAGS -Wl,-R,$prefix/lib"
+  case "$target_os" in
+  *darwin*)
+    YAPLIB=libYap"$SHLIB_SUFFIX"
+    DYNLIB_LD="gcc -dynamiclib"
+    ;;
+  *)
+    LDFLAGS="$LDFLAGS -Wl,-R,$prefix/lib"
+    YAPLIB=libYap"$SHLIB_SUFFIX"
+    DYNLIB_LD="$SHLIB_LD"
+    ;;
+  esac
 fi
 
 if test "$coroutining" = "yes"
@@ -945,8 +958,10 @@ AC_SUBST(EXEC_SUFFIX)
 dnl how to call the loader
 AC_SUBST(DO_SECOND_LD)
 AC_SUBST(SHLIB_LD)
+AC_SUBST(DYNLIB_LD)
 dnl objects in YAP library
 AC_SUBST(YAPLIB)
+AC_SUBST(LDFLAGS)
 dnl install_info
 AC_SUBST(INSTALL_INFO)
 dnl let YAP_EXTRAS fall through configure, from the env into Makefile
@@ -963,6 +978,8 @@ AC_SUBST(MPI_LIBS)
 AC_SUBST(INSTALL_COMMAND)
 AC_SUBST(CROSS_SIMULATOR)
 AC_SUBST(INSTALLCLP)
+AC_SUBST(JAVALIBPATH)
+AC_SUBST(JAVAINCPATH)
 
 
 dnl check for threaded code
@@ -1231,6 +1248,7 @@ AC_DEFINE(GC_NO_TAGS,1)
 AC_DEFINE(USE_DL_MALLOC,1)
 fi
 
+mkdir -p  library/matrices
 mkdir -p  library/mpi
 mkdir -p  library/random
 mkdir -p  library/regex
@@ -1250,7 +1268,7 @@ mkdir -p  LGPL/clp
 mkdir -p  LGPL/clpr
 mkdir -p  LGPL/chr
 
-AC_OUTPUT(Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap)
+AC_OUTPUT(Makefile library/matrices/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap)
 
 make depend
 

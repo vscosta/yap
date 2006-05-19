@@ -485,6 +485,18 @@ AdjustGlobal(void)
 	      pt += 2;
 #endif
 	      break;
+	    case (CELL)FunctorDoubleArray:
+	      {
+		Int sz = 3+(SIZEOF_DOUBLE-SIZEOF_LONG_INT)/SIZEOF_LONG_INT+pt[0];
+		pt += sz;
+	      }
+	      break;
+	    case (CELL)FunctorIntArray:
+	      {
+		Int sz = 3+pt[0];
+		pt += sz;
+	      }
+	      break;
 #if USE_GMP
 	    case (CELL)FunctorBigInt:
 	      {

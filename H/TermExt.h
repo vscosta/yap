@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h,v 1.7 2006-03-03 23:11:03 vsc Exp $	 *
+* version:      $Id: TermExt.h,v 1.8 2006-05-19 13:48:11 vsc Exp $	 *
 *************************************************************************/
 
 #ifdef USE_SYSTEM_MALLOC
@@ -41,35 +41,37 @@
 #define   TermNil MkAtomTerm(AtomNil)
 #define   TermDot MkAtomTerm(AtomDot)
 
+typedef enum
+{
 #if defined(IN_SECOND_QUADRANT) && !GC_NO_TAGS
-typedef enum
-{
   db_ref_e = sizeof (Functor *) | RBIT,
-  long_int_e = 2 * sizeof (Functor *) | RBIT,
+  int_array_e = 2 * sizeof (Functor *) | RBIT,
+  double_array_e = 3 * sizeof (Functor *) | RBIT,
+  long_int_e = 4 * sizeof (Functor *) | RBIT,
 #ifdef USE_GMP
-  big_int_e = 3 * sizeof (Functor *) | RBIT,
-  double_e = 4 * sizeof (Functor *) | RBIT
+  big_int_e = 5 * sizeof (Functor *) | RBIT,
+  double_e = 6 * sizeof (Functor *) | RBIT
 #else
-  double_e = 3 * sizeof (Functor *) | RBIT
+  double_e = 5 * sizeof (Functor *) | RBIT
 #endif
-}
-blob_type;
 #else
-typedef enum
-{
   db_ref_e = sizeof (Functor *),
-  long_int_e = 2 * sizeof (Functor *),
+  int_array_e = 2 * sizeof (Functor *),
+  double_array_e = 3 * sizeof (Functor *),
+  long_int_e = 4 * sizeof (Functor *),
 #ifdef USE_GMP
-  big_int_e = 3 * sizeof (Functor *),
-  double_e = 4 * sizeof (Functor *)
+  big_int_e = 5 * sizeof (Functor *),
+  double_e = 6 * sizeof (Functor *)
 #else
-  double_e = 3 * sizeof (Functor *)
+  double_e = 5 * sizeof (Functor *)
+#endif
 #endif
 }
 blob_type;
-#endif
 
 #define   FunctorDBRef    ((Functor)(db_ref_e))
+#define   FunctorIntArray ((Functor)(int_array_e))
+#define   FunctorDoubleArray  ((Functor)(double_array_e))
 #define   FunctorLongInt  ((Functor)(long_int_e))
 #ifdef USE_GMP
 #define   FunctorBigInt   ((Functor)(big_int_e))
@@ -324,6 +326,58 @@ IsLongIntTerm (Term t)
 }
 
 
+Term Yap_MkIntArrayTerm (UInt, Int *);
+
+inline EXTERN Int *Yap_IntArrayOfTerm (Term t);
+
+inline EXTERN Int *
+Yap_IntArrayOfTerm (Term t)
+{
+  return (Int *) (RepAppl(t)+2);
+}
+
+inline EXTERN UInt Yap_SizeOfIntArray (Term t);
+
+inline EXTERN UInt
+Yap_SizeOfIntArray (Term t)
+{
+  return (UInt) (RepAppl(t)[1]);
+}
+
+inline EXTERN int Yap_IsIntArrayTerm (Term);
+
+inline EXTERN int
+Yap_IsIntArrayTerm (Term t)
+{
+  return (int) (IsApplTerm (t) && FunctorOfTerm (t) == FunctorIntArray);
+}
+
+
+Term Yap_MkFloatArrayTerm (UInt, Float *);
+
+inline EXTERN Float *Yap_FloatArrayOfTerm (Term t);
+
+inline EXTERN Float *
+Yap_FloatArrayOfTerm (Term t)
+{
+  return (Float *) (RepAppl(t)+2);
+}
+
+inline EXTERN UInt Yap_SizeOfFloatArray (Term t);
+
+inline EXTERN UInt
+Yap_SizeOfFloatArray (Term t)
+{
+  return (UInt) (RepAppl(t)[1]);
+}
+
+inline EXTERN int Yap_IsFloatArrayTerm (Term);
+
+inline EXTERN int
+Yap_IsFloatArrayTerm (Term t)
+{
+  return (int) (IsApplTerm (t) && FunctorOfTerm (t) == FunctorDoubleArray);
+}
 
 
 #ifdef USE_GMP
@@ -360,6 +414,17 @@ IsLargeIntTerm (Term t)
   return (int) (IsApplTerm (t)
 		&& ((FunctorOfTerm (t) <= FunctorBigInt)
 		    && (FunctorOfTerm (t) >= FunctorLongInt)));
+}
+
+
+inline EXTERN UInt Yap_SizeOfBigInt (Term);
+
+inline EXTERN UInt
+Yap_SizeOfBigInt (Term t)
+{
+  CELL *pt = RepAppl(t)+1;
+  return 2+(sizeof(MP_INT)+
+	    (((MP_INT *)pt)->_mp_alloc*sizeof(mp_limb_t)))/sizeof(CELL);
 }
 
 
@@ -542,6 +607,8 @@ unify_extension (Functor f, CELL d0, CELL * pt0, CELL d1)
   switch (BlobOfFunctor (f))
     {
     case db_ref_e:
+    case int_array_e:
+    case double_array_e:
       return (d0 == d1);
     case long_int_e:
       return (pt0[1] == RepAppl (d1)[1]);

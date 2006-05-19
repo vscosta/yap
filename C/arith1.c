@@ -44,7 +44,7 @@ float_to_int(Float v, union arith_ret *o)
   Int i = (Int)v;
   if (i-v == 0.0) {
     o->Int = i;
-    return(long_int_e);
+    return long_int_e;
   } else {
     mpz_init_set_d(o->big, v);
     return big_int_e;

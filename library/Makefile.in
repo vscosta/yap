@@ -36,6 +36,7 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/listing.yap \
 	$(srcdir)/lists.yap \
 	$(srcdir)/logtalk.yap \
+	$(srcdir)/matrices.yap \
 	$(srcdir)/ordsets.yap \
 	$(srcdir)/prandom.yap \
 	$(srcdir)/queues.yap \

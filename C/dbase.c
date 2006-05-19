@@ -663,6 +663,22 @@ copy_double(CELL *st, CELL *pt)
   return st+(2+SIZEOF_DOUBLE/SIZEOF_LONG_INT);
 }
 
+static CELL *
+copy_int_array(CELL *st, CELL *pt)
+{
+  UInt sz = SIZEOF_LONG_INT*(pt[1]+4);
+  memcpy((void *)st, (void *)pt, sz);
+  return (CELL *)((char *)st+sz);
+}
+
+static CELL *
+copy_double_array(CELL *st, CELL *pt)
+{
+  UInt sz = SIZEOF_LONG_INT*4+SIZEOF_DOUBLE*pt[1]+(SIZEOF_DOUBLE-SIZEOF_LONG_INT);
+  memcpy((void *)st, (void *)pt, sz);
+  return (CELL *)((char *)st+sz);
+}
+
 #ifdef USE_GMP
 static CELL *
 copy_big_int(CELL *st, CELL *pt)
@@ -780,9 +796,29 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  CodeMax = copy_long_int(CodeMax, ap2);
 	  ++pt0;
 	  continue;
+	case (CELL)FunctorIntArray:
+	  CheckDBOverflow(4+Yap_SizeOfIntArray(d0));
+#ifdef IDB_USE_MBIT
+	  *StoPoint++ = AbsAppl(CodeMax)|MBIT;
+#else
+	  *StoPoint++ = AbsAppl(CodeMax);
+#endif
+	  CodeMax = copy_int_array(CodeMax, ap2);
+	  ++pt0;
+	  continue;
+	case (CELL)FunctorDoubleArray:
+	  CheckDBOverflow(4+Yap_SizeOfFloatArray(d0));
+#ifdef IDB_USE_MBIT
+	  *StoPoint++ = AbsAppl(CodeMax)|MBIT;
+#else
+	  *StoPoint++ = AbsAppl(CodeMax);
+#endif
+	  CodeMax = copy_double_array(CodeMax, ap2);
+	  ++pt0;
+	  continue;
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
-	  CheckDBOverflow(3);
+	  CheckDBOverflow(2+Yap_SizeOfBigInt(d0));
 	  /* first thing, store a link to the list before we move on */
 #ifdef IDB_USE_MBIT
 	  *StoPoint++ = AbsAppl(CodeMax)|MBIT;
@@ -1523,6 +1559,12 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
       fun = FunctorOfTerm(Tm);
       if (IsExtensionFunctor(fun)) {
 	switch((CELL)fun) {
+	case (CELL)FunctorIntArray:
+	  ntp = copy_int_array(ntp0, RepAppl(Tm));
+	  break;
+	case (CELL)FunctorDoubleArray:
+	  ntp = copy_double_array(ntp0, RepAppl(Tm));
+	  break;
 	case (CELL)FunctorDouble:
 	  ntp = copy_double(ntp0, RepAppl(Tm));
 	  break;

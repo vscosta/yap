@@ -1,4 +1,4 @@
-/*  $Id: jpl.c,v 1.9 2006-02-01 13:28:56 vsc Exp $
+/*  $Id: jpl.c,v 1.10 2006-05-19 13:48:11 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -608,7 +608,7 @@ JNI_term_to_ref(JNIEnv	*env, term_t tp, jobject *J)
   YAP_Term t = YAP_GetFromSlot(tp);
 
   if (YAP_IsAtomTerm(t)) {
-    char *cp = YAP_AtomName(YAP_AtomOfTerm(t));
+    const char *cp = YAP_AtomName(YAP_AtomOfTerm(t));
     return ((*J=(*env)->NewStringUTF(env,cp)) != NULL);
   } else if (YAP_IsApplTerm(t) &&
 	     YAP_FunctorOfTerm(t) == JNI_functor_at_1) {
@@ -630,7 +630,7 @@ JNI_term_to_jobject(JNIEnv *env, term_t tp, jobject *J)
   YAP_Term t = YAP_GetFromSlot(tp);
 
   if (YAP_IsAtomTerm(t)) {
-    char *cp = YAP_AtomName(YAP_AtomOfTerm(t));
+    const char *cp = YAP_AtomName(YAP_AtomOfTerm(t));
     return ((*J=(*env)->NewStringUTF(env,cp)) != NULL);
   } else if (YAP_IsApplTerm(t) &&
 	     YAP_FunctorOfTerm(t) == JNI_functor_at_1) {
@@ -1853,7 +1853,7 @@ jni_supported_jvm_version(
 static int
 jni_get_created_jvm_count(void)
     {
-    int		    n;
+    jint		    n;
 
     return  (	JNI_GetCreatedJavaVMs(NULL,0,&n) == 0		// what does the '0' arg mean?
 	    ?	n
@@ -1890,7 +1890,7 @@ jni_create_jvm_c(
     char		cpopt[1000];
     JavaVMOption	opt[MAX_JVM_OPTIONS];
     int			r;
-    int			n;
+    jint		n;
     int			optn = 0;
 
     DEBUG(1, Sdprintf( "[creating JVM with 'java.class.path=%s']\n", classpath));
@@ -2938,7 +2938,7 @@ jni_func_1_plc(
  // jlong	jl;	//  "
     void	*p1;	// temp for converted (JVM) arg
     char	*c1;	//  "
-    int		i1;	//  "
+    jint	i1;	//  "
  // jlong	l1;	//  "
  // double	d1;	//  "
     jboolean	r;	// Prolog exit/fail outcome
@@ -3078,7 +3078,7 @@ jni_func_2_plc(
     char	*c1;	//  "
     char	*c2;	//  "
  // int		i1;	//  "
-    int		i2;	//  "
+    jint	i2;	//  "
  // jlong	l1;	//  "
  // jlong	l2;	//  "
  // double	d1;	//  "
@@ -4852,14 +4852,15 @@ Java_jpl_fli_Prolog_reset_1term_1refs(
     jobject	jafter
     )
     {
-    term_t	term;
+    long	term;
+
 
     if	(   jpl_ensure_pvm_init(env)
      // &&  jafter != NULL		    // redundant: getLongValue checks this
-	&&  getLongValue(env,jafter,&term)  // SWI RM -> oughta be non-null
+	    &&  getLongValue(env,jafter,&term)  // SWI RM -> oughta be non-null
 	)
 	{
-	PL_reset_term_refs( term);	    // void; SWI RM -> "always succeeds"
+	  PL_reset_term_refs( (term_t)term);	    // void; SWI RM -> "always succeeds"
 	}
     }
 

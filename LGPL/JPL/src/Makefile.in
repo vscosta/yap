@@ -1,8 +1,8 @@
 #
 #
 JAVA_HOME=@JAVA_HOME@
-JVM_INC = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
-JVM_LIB = -L$(JAVA_HOME)/jre/lib/i386 -L$(JAVA_HOME)/jre/lib/i386/client  -ljava -lverify -ljvm
+JVM_INC = @JAVAINCPATH@
+JVM_LIB = @JAVALIBPATH@  -ljava -lverify -ljvm
 #
 #
 #

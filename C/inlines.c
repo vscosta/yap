@@ -319,6 +319,9 @@ p_eq(void)
 	    return (d0 == d1);
 	  case (CELL)FunctorLongInt:
 	    return(LongIntOfTerm(d0) == LongIntOfTerm(d1));
+	  case (CELL)FunctorIntArray:
+	  case (CELL)FunctorDoubleArray:
+	    return !Yap_compare_terms(d0,d1);
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
 	    return (mpz_cmp(Yap_BigIntOfTerm(d0), Yap_BigIntOfTerm(d1)) == 0);

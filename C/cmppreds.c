@@ -334,59 +334,125 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
 
     if (IsExtensionFunctor(fun1)) {
       /* float, long, big, dbref */
-      if (IsFloatTerm(t1)) {
-	if (IsFloatTerm(t2))
-	  return(rfloat(FloatOfTerm(t1) - FloatOfTerm(t2)));
-	if (IsRefTerm(t2))
-	  return 1;
-	return -1;
-      }
-      if (IsLongIntTerm(t1)) {
-	if (IsIntTerm(t2))
-	  return LongIntOfTerm(t1) - IntOfTerm(t2);
-	if (IsFloatTerm(t2)) {
-	  return 1;
+      switch ((CELL)fun1) {
+      case double_e:
+	{
+	  if (IsFloatTerm(t2))
+	    return(rfloat(FloatOfTerm(t1) - FloatOfTerm(t2)));
+	  if (IsRefTerm(t2))
+	    return 1;
+	  return -1;
 	}
-	if (IsLongIntTerm(t2))
-	  return LongIntOfTerm(t1) - LongIntOfTerm(t2);
+      case long_int_e:
+	{
+	  if (IsIntTerm(t2))
+	    return LongIntOfTerm(t1) - IntOfTerm(t2);
+	  if (IsFloatTerm(t2)) {
+	    return 1;
+	  }
+	  if (IsLongIntTerm(t2))
+	    return LongIntOfTerm(t1) - LongIntOfTerm(t2);
 #ifdef USE_GMP
-	if (IsBigIntTerm(t2))
-	  return -mpz_cmp_si(Yap_BigIntOfTerm(t2), LongIntOfTerm(t1));
+	  if (IsBigIntTerm(t2))
+	    return -mpz_cmp_si(Yap_BigIntOfTerm(t2), LongIntOfTerm(t1));
 #endif
-	if (IsRefTerm(t2))
-	  return 1;
-	return -1;
-      }
-#ifdef USE_GMP
-      if (IsBigIntTerm(t1)) {
-	if (IsIntTerm(t2))
-	  return mpz_cmp_si(Yap_BigIntOfTerm(t1), IntOfTerm(t2));
-	if (IsFloatTerm(t2)) {
-	  return 1;
+	  if (IsRefTerm(t2))
+	    return 1;
+	  return -1;
 	}
-	if (IsLongIntTerm(t2))
-	  return mpz_cmp_si(Yap_BigIntOfTerm(t1), LongIntOfTerm(t2));
-	if (IsBigIntTerm(t2))
-	  return mpz_cmp(Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2));
-	if (IsRefTerm(t2))
-	  return 1;
-	return -1;
-      }
+#ifdef USE_GMP
+      case big_int_e:
+	{
+	  if (IsIntTerm(t2))
+	    return mpz_cmp_si(Yap_BigIntOfTerm(t1), IntOfTerm(t2));
+	  if (IsFloatTerm(t2)) {
+	    return 1;
+	  }
+	  if (IsLongIntTerm(t2))
+	    return mpz_cmp_si(Yap_BigIntOfTerm(t1), LongIntOfTerm(t2));
+	  if (IsBigIntTerm(t2))
+	    return mpz_cmp(Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2));
+	  if (IsRefTerm(t2))
+	    return 1;
+	  return -1;
+	}
 #endif
-      if (IsRefTerm(t1)) {
+      case int_array_e:
+	{
+	  Functor f2;
+
+	  if (!IsApplTerm(t2))
+	    return 1;
+	  f2 = FunctorOfTerm(t2);
+	  if (f2 == FunctorDoubleArray) {
+	    UInt dim, i;
+	    Int *ar1, *ar2;
+
+	    if ((dim = Yap_SizeOfIntArray(t1)) != Yap_SizeOfIntArray(t2)) {
+	      return dim-Yap_SizeOfIntArray(t2);
+	    }
+	    ar1 = Yap_IntArrayOfTerm(t1);
+	    ar2 = Yap_IntArrayOfTerm(t2);
+	    for (i=0;i<dim;i++) {
+	      if (ar1[i]-ar2[i])
+		return ar1[i]-ar2[i] > 0;
+	    }
+	    return 0;
+	  } else if (f2 == FunctorIntArray) {
+	    return -1;
+	  } else 
+	    return 1;
+	}
+      case double_array_e:
+	{
+	  Functor f2;
+
+	  if (!IsApplTerm(t2))
+	    return 1;
+	  f2 = FunctorOfTerm(t2);
+	  if (f2 == FunctorDoubleArray) {
+	    UInt dim, i;
+	    Float *ar1, *ar2;
+
+	    if ((dim = Yap_SizeOfFloatArray(t1)) != Yap_SizeOfFloatArray(t2)) {
+	      return dim-Yap_SizeOfFloatArray(t2);
+	    }
+	    ar1 = Yap_FloatArrayOfTerm(t1);
+	    ar2 = Yap_FloatArrayOfTerm(t2);
+	    for (i=0;i<dim;i++) {
+	      if (ar1[i]-ar2[i])
+		return ar1[i]-ar2[i];
+	    }
+	    return 0;
+	  } else {
+	    return 1;
+	  }
+	}
+      case db_ref_e:
 	if (IsRefTerm(t2))
 	  return Unsigned(RefOfTerm(t2)) -
-		  Unsigned(RefOfTerm(t1));
+	    Unsigned(RefOfTerm(t1));
 	return -1;
       }
     }
     if (!IsApplTerm(t2)) {
+      if (IsPairTerm(t2)) {
+	Int out;
+	Functor f = FunctorOfTerm(t1);
+
+	if (!(out = ArityOfFunctor(f))-2)
+	  out = strcmp(RepAtom(NameOfFunctor(f))->StrOfAE,".");
+	return out;
+      }
       return 1;
     } else {
       Functor fun2 = FunctorOfTerm(t2);
       Int r;
 
       if (IsExtensionFunctor(fun2)) {
+	if (fun2 ==  FunctorDoubleArray ||
+	    fun2 ==  FunctorIntArray)
+	  return -1;
 	return 1;
       }
       r = ArityOfFunctor(fun1) - ArityOfFunctor(fun2);
@@ -404,7 +470,7 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
   }
 }
 
-int Yap_compare_terms(register CELL d0, register CELL d1)
+int Yap_compare_terms(CELL d0, CELL d1)
 {
   return (compare(Deref(d0),Deref(d1)));
 }

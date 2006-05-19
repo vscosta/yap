@@ -252,6 +252,10 @@ mark_global_cell(CELL *pt)
 #else
       return pt + 3;
 #endif
+    case (CELL)FunctorIntArray:
+      return pt + (4+pt[1]);
+    case (CELL)FunctorDoubleArray:
+      return pt + (4+((SIZEOF_DOUBLE -SIZEOF_LONG_INT) + pt[1]*SIZEOF_DOUBLE)/SIZEOF_LONG_INT);
 #if USE_GMP
     case (CELL)FunctorBigInt:
       {

@@ -442,6 +442,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
       case (CELL)FunctorDouble:
 	wrputf(FloatOfTerm(t),wglb->writech);
 	return;
+      case (CELL)FunctorIntArray:
+      case (CELL)FunctorDoubleArray:
       case (CELL)FunctorDBRef:
 	wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb->writech);
 	return;

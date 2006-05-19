@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT GCC C_INTERF_FLAGS C_PARSER_FLAGS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os LN_S INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA RANLIB ac_ct_RANLIB INDENT ac_ct_INDENT AR ac_ct_AR MPI_CC ac_ct_MPI_CC INSTALL_INFO CPP EGREP M4 M4GENHDRS INSTALL_DLLS MERGE_DLL_OBJS SHLIB_CFLAGS SHLIB_SUFFIX EXEC_SUFFIX DO_SECOND_LD SHLIB_LD YAPLIB YAP_EXTRAS NO_BUILTIN_REGEXP ENABLE_JPL JAVA_HOME JAVAC JAR IN_UNIX YAPMPILIB MPI_OBJS MPI_LIBS INSTALL_COMMAND CROSS_SIMULATOR INSTALLCLP M4GENABSMI LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT GCC C_INTERF_FLAGS C_PARSER_FLAGS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os LN_S INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA RANLIB ac_ct_RANLIB INDENT ac_ct_INDENT AR ac_ct_AR MPI_CC ac_ct_MPI_CC INSTALL_INFO CPP EGREP M4 M4GENHDRS INSTALL_DLLS MERGE_DLL_OBJS SHLIB_CFLAGS SHLIB_SUFFIX EXEC_SUFFIX DO_SECOND_LD SHLIB_LD DYNLIB_LD YAPLIB YAP_EXTRAS NO_BUILTIN_REGEXP ENABLE_JPL JAVA_HOME JAVAC JAR IN_UNIX YAPMPILIB MPI_OBJS MPI_LIBS INSTALL_COMMAND CROSS_SIMULATOR INSTALLCLP JAVALIBPATH JAVAINCPATH M4GENABSMI LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -6017,6 +6017,8 @@ fi
 	        LDFLAGS="-dynamic $LDFLAGS"
               ;;
               *)
+	      	JAVALIBPATH="-L$JAVA_HOME/jre/lib/i386 -L$JAVA_HOME/jre/lib/i386/client"
+		JAVAINCPATH="-I$JAVA_HOME/include -I$JAVA_HOME/include/linux"
 	        if test "$CC" != "lcc"
                 then
 	          LDFLAGS="-rdynamic $LDFLAGS"
@@ -6263,11 +6265,13 @@ fi
 	  fi
 	fi
 	SHLIB_CFLAGS="-fno-common"
-	SHLIB_SUFFIX=".so"
+	SHLIB_SUFFIX=".dylib"
         DO_SECOND_LD=""
-	SHLIB_LD="cc -bundle -flat_namespace -undefined suppress"
+	SHLIB_LD="gcc -bundle -flat_namespace -undefined suppress"
 	INSTALL_DLLS=""
         CC="cc -no-cpp-precomp"
+	JAVALIBPATH="-L/System/Library/Frameworks/JavaVM.framework/Libraries"
+	JAVAINCPATH="-I/System/Library/Frameworks/JavaVM.framework/Headers"
 	;;
       *netbsd*|*freebsd*)
 	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
@@ -6392,9 +6396,18 @@ esac
 if test "$dynamic_loading" = "yes"
 then
   YAP_EXTRAS="$SHLIB_CFLAGS $YAP_EXTRAS"
-  YAPLIB=libYap"$SHLIB_SUFFIX"
   CROSS_SIMULATOR="LD_LIBRARY_PATH=."
-  LDFLAGS="$LDFLAGS -Wl,-R,$prefix/lib"
+  case "$target_os" in
+  *darwin*)
+    YAPLIB=libYap"$SHLIB_SUFFIX"
+    DYNLIB_LD="gcc -dynamiclib"
+    ;;
+  *)
+    LDFLAGS="$LDFLAGS -Wl,-R,$prefix/lib"
+    YAPLIB=libYap"$SHLIB_SUFFIX"
+    DYNLIB_LD="$SHLIB_LD"
+    ;;
+  esac
 fi
 
 if test "$coroutining" = "yes"
@@ -12641,6 +12654,10 @@ EXEC_SUFFIX=""
 
 
 
+
+
+
+
 echo "$as_me:$LINENO: checking for gcc threaded code" >&5
 echo $ECHO_N "checking for gcc threaded code... $ECHO_C" >&6
 if test "${yap_cv_threaded_code+set}" = set; then
@@ -15218,6 +15235,7 @@ _ACEOF
 
 fi
 
+mkdir -p  library/matrices
 mkdir -p  library/mpi
 mkdir -p  library/random
 mkdir -p  library/regex
@@ -15237,7 +15255,7 @@ mkdir -p  LGPL/clp
 mkdir -p  LGPL/clpr
 mkdir -p  LGPL/chr
 
-                                                                                                                                                                                    ac_config_files="$ac_config_files Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap"
+                                                                                                                                                                                              ac_config_files="$ac_config_files Makefile library/matrices/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -15320,10 +15338,9 @@ for ac_i in : $LIBOBJS; do test "x$ac_i" = x: && continue
   # 1. Remove the extension, and $U if already installed.
   ac_i=`echo "$ac_i" |
 	 sed 's/\$U\././;s/\.o$//;s/\.obj$//'`
-  # 2. Prepend LIBOBJDIR.  When used with automake>=1.10 LIBOBJDIR
-  #    will be set to the directory where LIBOBJS objects are built.
-  ac_libobjs="$ac_libobjs \${LIBOBJDIR}$ac_i\$U.$ac_objext"
-  ac_ltlibobjs="$ac_ltlibobjs \${LIBOBJDIR}$ac_i"'$U.lo'
+  # 2. Add them.
+  ac_libobjs="$ac_libobjs $ac_i\$U.$ac_objext"
+  ac_ltlibobjs="$ac_ltlibobjs $ac_i"'$U.lo'
 done
 LIBOBJS=$ac_libobjs
 
@@ -15765,6 +15782,7 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+  "library/matrices/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/matrices/Makefile" ;;
   "library/regex/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/regex/Makefile" ;;
   "library/system/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/system/Makefile" ;;
   "library/random/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/random/Makefile" ;;
@@ -15913,6 +15931,7 @@ s,@SHLIB_SUFFIX@,$SHLIB_SUFFIX,;t t
 s,@EXEC_SUFFIX@,$EXEC_SUFFIX,;t t
 s,@DO_SECOND_LD@,$DO_SECOND_LD,;t t
 s,@SHLIB_LD@,$SHLIB_LD,;t t
+s,@DYNLIB_LD@,$DYNLIB_LD,;t t
 s,@YAPLIB@,$YAPLIB,;t t
 s,@YAP_EXTRAS@,$YAP_EXTRAS,;t t
 s,@NO_BUILTIN_REGEXP@,$NO_BUILTIN_REGEXP,;t t
@@ -15927,6 +15946,8 @@ s,@MPI_LIBS@,$MPI_LIBS,;t t
 s,@INSTALL_COMMAND@,$INSTALL_COMMAND,;t t
 s,@CROSS_SIMULATOR@,$CROSS_SIMULATOR,;t t
 s,@INSTALLCLP@,$INSTALLCLP,;t t
+s,@JAVALIBPATH@,$JAVALIBPATH,;t t
+s,@JAVAINCPATH@,$JAVAINCPATH,;t t
 s,@M4GENABSMI@,$M4GENABSMI,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t

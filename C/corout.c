@@ -198,6 +198,8 @@ static int can_unify_complex(register CELL *pt0,
 	  if (IsExtensionFunctor(f)) {
 	    switch((CELL)f) {
 	    case (CELL)FunctorDBRef:
+	    case (CELL)FunctorIntArray:
+	    case (CELL)FunctorDoubleArray:
 	      if (d0 == d1) continue;
 	      goto comparison_failed;
 	    case (CELL)FunctorLongInt:
@@ -337,7 +339,9 @@ can_unify(Term t1, Term t2, Term *Vars)
     if (IsExtensionFunctor(f)) {
       switch((CELL)f) {
       case (CELL)FunctorDBRef:
-	if (t1 == t2) return(FALSE);
+      case (CELL)FunctorIntArray:
+      case (CELL)FunctorDoubleArray:
+	if (t1 == t2) return FALSE;
 	return FALSE;
       case (CELL)FunctorLongInt:
 	if (RepAppl(t1)[1] == RepAppl(t2)[1]) return(TRUE);
