@@ -228,6 +228,9 @@ true :- true.
  '$version' :- 
 	 get_value('$version_name',VersionName),
 	 '$print_message'(help, version(VersionName)),
+	 get_value('$myddas_version_name',MYDDASVersionName),
+	 MYDDASVersionName \== [],
+	 '$print_message'(help, myddas_version(MYDDASVersionName)),
 	 fail.
  '$version' :- recorded('$version',VersionName,_),
 	 '$print_message'(help, VersionName),

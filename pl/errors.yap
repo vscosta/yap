@@ -11,8 +11,13 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2006-04-10 19:24:52 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-05-22 16:12:01 $,$Author: tiagosoares $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.77  2006/04/10 19:24:52  vsc
+* fix syntax error message handling
+* improve redblack trees and use it to reimplement association lists and
+* to have better implementation of several graph algorithms.
+*
 * Revision 1.76  2006/04/05 00:16:55  vsc
 * Lots of fixes (check logfile for details
 *
@@ -330,6 +335,8 @@ print_message(Level, Mss) :-
 	format(user_error,'   Please enter a valid debugger command (h for help).', []).
 '$do_print_message'(version(Version)) :- !,
 	format(user_error,'YAP version ~a', [Version]).
+'$do_print_message'(myddas_version(Version)) :- !,
+	format(user_error,'MYDDAS version ~a', [Version]).
 '$do_print_message'(yes) :- !,
 	format(user_error, 'yes', []).
 '$do_print_message'(Messg) :-
