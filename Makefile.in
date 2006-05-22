@@ -89,6 +89,7 @@ TEXI2PDF=texi2pdf
 CWD=$(PWD)
 #
 VERSION=Yap-5.1.2
+MYDDAS_VERSION=MYDDAS-0.9.1
 #
 
 INTERFACE_HEADERS = $(srcdir)/include/c_interface.h $(srcdir)/include/yap_structs.h $(srcdir)/include/YapInterface.h
@@ -124,8 +125,9 @@ HEADERS = \
 	$(srcdir)/OPTYap/alpha_locks_funcs.h \
 	$(srcdir)/OPTYap/pthread_locks.h \
 	$(srcdir)/H/cut_c.h \
-	$(srcdir)/MYDDAS/myddas_util.h $(srcdir)/MYDDAS/myddas_structs.h \
-	$(srcdir)/MYDDAS/myddas_statistics.h 	 
+	$(srcdir)/MYDDAS/myddas.h $(srcdir)/MYDDAS/myddas_structs.h \
+	$(srcdir)/MYDDAS/myddas_statistics.h \
+	$(srcdir)/MYDDAS/myddas_statistics_structs.h 	 
 
 C_SOURCES= \
 	$(srcdir)/C/absmi.c $(srcdir)/C/adtdefs.c \
@@ -329,7 +331,7 @@ index.o: $(srcdir)/C/index.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/index.c -o $@
 
 init.o: $(srcdir)/C/init.c
-	$(CC) -c $(CFLAGS) -DYAP_VERSION=\"$(VERSION)\" $(srcdir)/C/init.c -o $@
+	$(CC) -c $(CFLAGS) -DMYDDAS_VERSION=\"$(MYDDAS_VERSION)\" -DYAP_VERSION=\"$(VERSION)\" $(srcdir)/C/init.c -o $@
 
 inlines.o: $(srcdir)/C/inlines.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/inlines.c -o $@
