@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.15 2006-04-28 13:23:23 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.16 2006-05-22 16:03:34 tiagosoares Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -193,7 +193,7 @@
 
 #   elif SIZEOF_INT==4
 /*   */ typedef int Short;
-/*   */ typedef short int UShort;
+/*   */ typedef unsigned int UShort;
 
 #   else
 #	error Yap requires integer types half the size of a pointer
