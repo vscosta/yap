@@ -1,11 +1,10 @@
-#ifdef CUT_C
 #if defined MYDDAS_ODBC || defined MYDDAS_MYSQL 
 
 #include "Yap.h"
 #include <string.h>
 #include <stdlib.h>
 #include "cut_c.h"
-#include "myddas_util.h"
+#include "myddas.h"
 #include "myddas_structs.h"
 #ifdef MYDDAS_STATS
 #include "myddas_statistics.h"
@@ -395,5 +394,5 @@ void check_int(){
 
 
 #endif /*defined MYDDAS_ODBC || defined MYDDAS_MYSQL*/
-#endif /*CUT_C*/
+
 

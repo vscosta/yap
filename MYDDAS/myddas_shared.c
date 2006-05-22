@@ -20,7 +20,7 @@
 #include "Yap.h"
 #include "Yatom.h"
 #include "cut_c.h"
-#include "myddas_util.h"
+#include "myddas.h"
 #include <stdlib.h>
 #include "myddas_structs.h"
 #ifdef MYDDAS_STATS
@@ -329,7 +329,7 @@ c_db_stats_walltime(void){
 #endif
 }
 
-static int
+static Int
 c_db_stats_translate(void){
   Term arg_start = Deref(ARG1);
   Term arg_end = Deref(ARG2);
@@ -353,6 +353,9 @@ c_db_stats_translate(void){
     
     diff = myddas_stats_time_copy_to_final(diff);
     myddas_stats_add_time(total_time,diff,total_time);
+    MyddasULInt count;
+    MYDDAS_STATS_GET_TRANSLATE_COUNT(count);
+    MYDDAS_STATS_SET_TRANSLATE_COUNT(++count);
     
     free(diff);
     
@@ -370,27 +373,82 @@ static Int
 c_db_stats_time(void){
   Term arg_reference = Deref(ARG1);
   Term arg_time = Deref(ARG2);
-
-  MYDDAS_STATS_TIME time = (MYDDAS_STATS_TIME )IntegerOfTerm(arg_reference);
   
-  Functor functor = Yap_MkFunctor(Yap_LookupAtom("myddas_time"),5);
-  Term time_numbers[5];
+  Term final_term;
   
-  int time_number;
+  MYDDAS_STATS_STRUCT struc = (MYDDAS_STATS_STRUCT)IntegerOfTerm(arg_reference);
+  Functor functor_count = Yap_MkFunctor(Yap_LookupAtom("count"),1);
+  Term count_number[1];
+  Functor unit;
+  Term number[1];
 
-  time_number = MYDDAS_STATS_TIME_HOURS(time);
-  time_numbers[0] = MkIntegerTerm(time_number);
-  time_number = MYDDAS_STATS_TIME_MINUTES(time);
-  time_numbers[1] = MkIntegerTerm(time_number);
-  time_number = MYDDAS_STATS_TIME_SECONDS(time);
-  time_numbers[2] = MkIntegerTerm(time_number);
-  time_number = MYDDAS_STATS_TIME_MILISECONDS(time);
-  time_numbers[3] = MkIntegerTerm(time_number);
-  time_number = MYDDAS_STATS_TIME_MICROSECONDS(time);
-  time_numbers[4] = MkIntegerTerm(time_number);
+  switch(struc->type){
   
+  case integer:
+    {
+      Functor functor = Yap_MkFunctor(Yap_LookupAtom("myddas_integer"),2);
+      Term integer_number[1];
+      MyddasULInt integer;
 
-  if (!Yap_unify(arg_time, Yap_MkApplTerm(functor,5,time_numbers))){
+      unit = Yap_MkFunctor(Yap_LookupAtom("number"),1);
+      integer = struc->u.integer.integer;
+      number[0] = MkIntegerTerm(integer);
+      integer_number[0] = Yap_MkApplTerm(unit,1,number);;
+      
+      count_number[0] = MkIntegerTerm(struc->count);
+      integer_number[1] = Yap_MkApplTerm(functor_count,1,count_number);
+      final_term = Yap_MkApplTerm(functor,2,integer_number);
+      break;
+    }
+    
+  case time_str:
+    {
+      MYDDAS_STATS_TIME time = struc->u.time_str.time_str;
+    
+      Functor functor = Yap_MkFunctor(Yap_LookupAtom("myddas_time"),6);
+      Term time_numbers[6];
+      MyddasUInt time_number;
+            
+      unit = Yap_MkFunctor(Yap_LookupAtom("hours"),1);
+      time_number = MYDDAS_STATS_TIME_HOURS(time);
+      number[0] = MkIntegerTerm(time_number);
+      time_numbers[0] = Yap_MkApplTerm(unit,1,number);;
+      
+      unit = Yap_MkFunctor(Yap_LookupAtom("minutes"),1);
+      time_number = MYDDAS_STATS_TIME_MINUTES(time);
+      number[0] = MkIntegerTerm(time_number);
+      time_numbers[1] = Yap_MkApplTerm(unit,1,number);;
+
+      unit = Yap_MkFunctor(Yap_LookupAtom("seconds"),1);
+      time_number = MYDDAS_STATS_TIME_SECONDS(time);
+      number[0] = MkIntegerTerm(time_number);
+      time_numbers[2] = Yap_MkApplTerm(unit,1,number);;
+            
+      unit = Yap_MkFunctor(Yap_LookupAtom("miliseconds"),1);
+      time_number = MYDDAS_STATS_TIME_MILISECONDS(time);
+      number[0] = MkIntegerTerm(time_number);
+      time_numbers[3] = Yap_MkApplTerm(unit,1,number);;
+      
+      unit = Yap_MkFunctor(Yap_LookupAtom("microseconds"),1);
+      time_number = MYDDAS_STATS_TIME_MICROSECONDS(time); 
+      number[0] = MkIntegerTerm(time_number);
+      time_numbers[4] = Yap_MkApplTerm(unit,1,number);;
+      
+      count_number[0] = MkIntegerTerm(struc->count);
+      time_numbers[5] = Yap_MkApplTerm(functor_count,1,count_number);
+      final_term = Yap_MkApplTerm(functor,6,time_numbers);
+      break;
+    }
+  
+    default:
+#ifdef DEBUG
+    printf ("ERROR: c_db_stats_time unknow option\n");
+#endif
+    return FALSE;
+    break;
+  }
+  
+  if (!Yap_unify(arg_time,final_term )){
     return FALSE;
   }
 
@@ -403,30 +461,33 @@ c_db_stats(void) {
   Term arg_conn = Deref(ARG1);
   Term arg_list = Deref(ARG2);
   
-  Int *conn = (Int *) (IntegerOfTerm(arg_conn));
+  MyddasPointer *conn = (MyddasPointer *) (IntegerOfTerm(arg_conn));
     
   // TODO
   if (get_myddas_top() == 0 ){ /* We want all the statistics */
     return FALSE;
   }
 
+  MYDDAS_STATS_STRUCT str;
   MYDDAS_UTIL_CONNECTION 
-    node = myddas_util_search_connection(conn);
+   node = myddas_util_search_connection(conn);
   Term head, list;
   list = arg_list;
 
-  MYDDAS_STATS_TIME time;
-  UInt number;
-
-  
+#ifdef DEBUG
+  MYDDAS_STATS_TIME time = NULL;
+#endif
   //[Index 1] -> Total Number of Rows by connection
   //Total number of Rows returned by the server
   //WARNING: only works with store_result
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  MYDDAS_STATS_CON_GET_TOTAL_ROWS(node,number);
-  Yap_unify(head, MkIntegerTerm(number));
+  str = myddas_stats_get_stat(node->stats,5);
+  Yap_unify(head, MkIntegerTerm((MyddasInt)str));
 #ifdef DEBUG
+  MyddasUInt number = 0;
+
+  MYDDAS_STATS_CON_GET_TOTAL_ROWS(node,number);
   printf ("Total Number of Rows returned from the Server\n");
   printf ("%lu\n\n",(unsigned long)number);
 #endif
@@ -435,9 +496,11 @@ c_db_stats(void) {
   // processing all the  SQL Querys
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  MYDDAS_STATS_CON_GET_TOTAL_TIME_DBSERVER(node,time);
-  Yap_unify(head, MkIntegerTerm((Int)time));
+    
+  str = myddas_stats_get_stat(node->stats,1);
+  Yap_unify(head, MkIntegerTerm((MyddasInt)str));
 #ifdef DEBUG
+  MYDDAS_STATS_CON_GET_TOTAL_TIME_DBSERVER(node,time);
   printf ("Reference to time Spent by the Server, on all the SQL Querys\n");
   MYDDAS_STATS_PRINT_TIME_STRUCT(time);
   printf ("\n\n");
@@ -447,9 +510,11 @@ c_db_stats(void) {
   // processing a the last SQL Query
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  MYDDAS_STATS_CON_GET_LAST_TIME_DBSERVER(node,time);
-  Yap_unify(head, MkIntegerTerm((Int)time));
+  
+  str = myddas_stats_get_stat(node->stats,2);
+  Yap_unify(head, MkIntegerTerm((MyddasInt)str));
 #ifdef DEBUG
+  MYDDAS_STATS_CON_GET_LAST_TIME_DBSERVER(node,time);
   printf ("Reference to time Spent by the Server, on the last SQL Query\n");
   MYDDAS_STATS_PRINT_TIME_STRUCT(time);
   printf ("\n\n");
@@ -459,9 +524,11 @@ c_db_stats(void) {
   // transfering all the results of the  SQL Querys
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  MYDDAS_STATS_CON_GET_TOTAL_TIME_TRANSFERING(node,time);
-  Yap_unify(head, MkIntegerTerm((Int)time));
+  
+  str = myddas_stats_get_stat(node->stats,3);
+  Yap_unify(head, MkIntegerTerm((MyddasInt)str));
 #ifdef DEBUG
+  MYDDAS_STATS_CON_GET_TOTAL_TIME_TRANSFERING(node,time);
   printf ("Refence to time Spent by the Server, transfering all the results SQL Query\n");
   MYDDAS_STATS_PRINT_TIME_STRUCT(time);
   printf ("\n\n");
@@ -471,9 +538,11 @@ c_db_stats(void) {
   // transfering the result of the last SQL Query
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  MYDDAS_STATS_CON_GET_LAST_TIME_TRANSFERING(node,time);
-  Yap_unify(head, MkIntegerTerm((Int)time));
+  
+  str = myddas_stats_get_stat(node->stats,4);
+  Yap_unify(head, MkIntegerTerm((MyddasInt)str));
 #ifdef DEBUG
+  MYDDAS_STATS_CON_GET_LAST_TIME_TRANSFERING(node,time);
   printf ("Reference to time Spent by the Server, transfering the result of the last SQL Query\n");
   MYDDAS_STATS_PRINT_TIME_STRUCT(time);
   printf ("\n\n");
@@ -483,9 +552,12 @@ c_db_stats(void) {
   // db_row_function
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  MYDDAS_STATS_GET_DB_ROW_FUNCTION(time);
-  Yap_unify(head, MkIntegerTerm((Int)time));
+  
+  str = myddas_stats_get_stat(Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_statistics->stats,1);
+  
+  Yap_unify(head, MkIntegerTerm((MyddasInt)str));
 #ifdef DEBUG
+  MYDDAS_STATS_GET_DB_ROW_FUNCTION(time);
   printf ("Reference to time Spent by the db_row_function\n");
   MYDDAS_STATS_PRINT_TIME_STRUCT(time);
   printf ("\n\n");
@@ -495,41 +567,49 @@ c_db_stats(void) {
   // DB Server on all SQL Querys
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  MYDDAS_STATS_CON_GET_TOTAL_BYTES_TRANSFERING_FROM_DBSERVER(node,number);
-  Yap_unify(head, MkIntegerTerm(number));
+
+  str = myddas_stats_get_stat(node->stats,6);
+  Yap_unify(head, MkIntegerTerm((MyddasPointer)str));
 #ifdef DEBUG
+  MYDDAS_STATS_CON_GET_TOTAL_BYTES_TRANSFERING_FROM_DBSERVER(node,number);
   printf ("Bytes Transfered by the DB Server from all querys\n");
-  printf ("%lu\n\n",(unsigned long)number);
+  printf ("%llu\n\n",(MyddasULInt)number);
 #endif
   
   //[Index 8] -> Total of Bytes Transfered by the 
   // DB Server on the last SQL Query
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  MYDDAS_STATS_CON_GET_LAST_BYTES_TRANSFERING_FROM_DBSERVER(node,number);
-  Yap_unify(head, MkIntegerTerm(number));
-#ifdef DEBUG
-  printf ("Bytes Transfered by the DB Server on the last query\n");
-  printf ("%lu\n\n",(unsigned long)number);
-#endif
   
+  str = myddas_stats_get_stat(node->stats,7);
+  Yap_unify(head, MkIntegerTerm((MyddasPointer)str));
+#ifdef DEBUG
+  MYDDAS_STATS_CON_GET_LAST_BYTES_TRANSFERING_FROM_DBSERVER(node,number);
+  printf ("Bytes Transfered by the DB Server on the last query\n");
+  printf ("%llu\n\n",(MyddasULInt)number);
+#endif
   //[Index 9] -> Number of querys made to the DBserver
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  MYDDAS_STATS_CON_GET_NUMBER_QUERIES_MADE(node,number);
-  Yap_unify(head, MkIntegerTerm(number));
+
+  str = myddas_stats_get_stat(node->stats,8);
+  Yap_unify(head, MkIntegerTerm((MyddasPointer)str));
 #ifdef DEBUG
+  MYDDAS_STATS_CON_GET_NUMBER_QUERIES_MADE(node,number);
   printf ("Number of Querys made to the server\n");
-  printf ("%lu\n\n",(unsigned long)number);
+  printf ("%llu\n\n",(MyddasULInt)number);
 #endif
 
   //[Index 10] -> Total of Time Spent by the 
   // translate predicate
   head = HeadOfTerm(list);
   list = TailOfTerm(list);
-  MYDDAS_STATS_GET_TRANSLATE(time);
-  Yap_unify(head, MkIntegerTerm((Int)time));
+
+  str = myddas_stats_get_stat(Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_statistics->stats,2);
+  Yap_unify(head, MkIntegerTerm((Int)str));
+
 #ifdef DEBUG
+  MYDDAS_STATS_GET_TRANSLATE(time);
   printf ("Reference to time Spent by the translate predicate\n");
   MYDDAS_STATS_PRINT_TIME_STRUCT(time);
   printf ("\n\n");

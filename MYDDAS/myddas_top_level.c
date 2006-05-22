@@ -19,15 +19,18 @@
 
 #include "Yap.h"
 #include "Yatom.h"
-#include "myddas_util.h"
+#include "myddas.h"
 #include "myddas_structs.h"
 #include "myddas_statistics.h"
 #include <mysql/mysql.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if defined HAVE_LIBREADLINE
 #include <readline/readline.h>
 #include <readline/history.h>
+#endif
 #include <sys/times.h>
 
 

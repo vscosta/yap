@@ -24,7 +24,7 @@
 #include "Yap.h"
 #include "Yatom.h"
 #include "cut_c.h"
-#include "myddas_util.h"
+#include "myddas.h"
 #ifdef MYDDAS_STATS
 #include "myddas_structs.h"
 #include "myddas_statistics.h"
@@ -148,6 +148,7 @@ c_db_my_connect(void) {
     {
       /* Criar um novo no na lista de ligacoes*/
       new = myddas_util_add_connection(conn,NULL);
+      
       if (new == NULL){
 #ifdef DEBUG
 	printf("ERROR: ** c_db_my_connect ** Error allocating memory\n");
@@ -173,15 +174,18 @@ c_db_my_query(void) {
   
   MYSQL_RES *res_set;
   
-  Int length=strlen(sql);
+  MyddasInt length=strlen(sql);
 
 #ifdef MYDDAS_STATS 
   MYDDAS_UTIL_CONNECTION node = myddas_util_search_connection(conn);
-
+  MyddasULInt count = 0;
+  
   /* Count the number of querys made to the server */
-  UInt number_querys;
+  MyddasULInt number_querys;
   MYDDAS_STATS_CON_GET_NUMBER_QUERIES_MADE(node,number_querys);
   MYDDAS_STATS_CON_SET_NUMBER_QUERIES_MADE(node,++number_querys);
+  MYDDAS_STATS_CON_GET_NUMBER_QUERIES_MADE_COUNT(node,count);
+  MYDDAS_STATS_CON_SET_NUMBER_QUERIES_MADE_COUNT(node,++count);
 
   /* Measure time spent by the MySQL Server 
      processing the SQL Query */ 
@@ -211,11 +215,16 @@ c_db_my_query(void) {
   free(start);
   
   MYDDAS_STATS_CON_GET_TOTAL_TIME_DBSERVER(node,total_time);
-  
-  /* Automacally updates the MYDDAS_STRUCTURE */
+    /* Automacally updates the MYDDAS_STRUCTURE */
   myddas_stats_add_time(total_time,diff,total_time);
+  MYDDAS_STATS_CON_GET_TOTAL_TIME_DBSERVER_COUNT(node,count);
+  MYDDAS_STATS_CON_SET_TOTAL_TIME_DBSERVER_COUNT(node,++count);
   
-  myddas_stats_move_time(diff,node->lastTimeofDBServer);
+  MYDDAS_STATS_TIME time = NULL;
+  MYDDAS_STATS_CON_GET_LAST_TIME_DBSERVER(node,time);
+  myddas_stats_move_time(diff,time);
+  MYDDAS_STATS_CON_GET_LAST_TIME_DBSERVER_COUNT(node,count);
+  MYDDAS_STATS_CON_SET_LAST_TIME_DBSERVER_COUNT(node,++count);
 #endif 
   
   /* guardar os tuplos do lado do cliente */
@@ -244,11 +253,16 @@ c_db_my_query(void) {
     free(start);
     
     MYDDAS_STATS_CON_GET_TOTAL_TIME_TRANSFERING(node,total_time);
-    
     /* Automacally updates the MYDDAS_STRUCTURE */
     myddas_stats_add_time(total_time,diff,total_time);
+    MYDDAS_STATS_CON_GET_TOTAL_TIME_TRANSFERING_COUNT(node,count);
+    MYDDAS_STATS_CON_SET_TOTAL_TIME_TRANSFERING_COUNT(node,++count);
         
-    myddas_stats_move_time(diff,node->lastFromDBServer);
+    time = NULL;
+    MYDDAS_STATS_CON_GET_LAST_TIME_TRANSFERING(node,time);    
+    MYDDAS_STATS_CON_GET_LAST_TIME_TRANSFERING_COUNT(node,count);    
+    MYDDAS_STATS_CON_SET_LAST_TIME_TRANSFERING_COUNT(node,++count);    
+    myddas_stats_move_time(diff,time);
     
     /* Measure the number of Rows returned from the server */
     if (res_set != NULL)
@@ -257,17 +271,19 @@ c_db_my_query(void) {
 	   returns a NULL pointer*/
 	
 	/* This is only works if we use mysql_store_result */
-	UInt numberRows = mysql_num_rows(res_set);
-	UInt rows;
+	MyddasUInt numberRows = mysql_num_rows(res_set);
+	MyddasUInt rows;
 	
 	MYDDAS_STATS_CON_GET_TOTAL_ROWS(node,rows);
 	numberRows = numberRows + rows;
 	MYDDAS_STATS_CON_SET_TOTAL_ROWS(node,numberRows);
-      
+	MYDDAS_STATS_CON_GET_TOTAL_ROWS_COUNT(node,count);
+	MYDDAS_STATS_CON_SET_TOTAL_ROWS_COUNT(node,++count);
+
 	/* Calculate the ammount of data sent by the server */
-	UInt total,number_fields = mysql_num_fields(res_set);
+	MyddasUInt total,number_fields = mysql_num_fields(res_set);
 	MYSQL_ROW row;
-	UInt i;
+	MyddasULInt i;
 	total=0;
 	while ((row = mysql_fetch_row(res_set)) != NULL){
 	  mysql_field_seek(res_set,0);
@@ -278,11 +294,15 @@ c_db_my_query(void) {
 	  }
 	}
 	MYDDAS_STATS_CON_SET_LAST_BYTES_TRANSFERING_FROM_DBSERVER(node,total);
-	UInt bytes;
+	MYDDAS_STATS_CON_GET_LAST_BYTES_TRANSFERING_FROM_DBSERVER_COUNT(node,count);
+	MYDDAS_STATS_CON_SET_LAST_BYTES_TRANSFERING_FROM_DBSERVER_COUNT(node,++count);
 	
+	MyddasUInt bytes = 0;
 	MYDDAS_STATS_CON_GET_TOTAL_BYTES_TRANSFERING_FROM_DBSERVER(node,bytes);
 	total = total + bytes;
 	MYDDAS_STATS_CON_SET_TOTAL_BYTES_TRANSFERING_FROM_DBSERVER(node,total);
+	MYDDAS_STATS_CON_GET_TOTAL_BYTES_TRANSFERING_FROM_DBSERVER_COUNT(node,count);
+	MYDDAS_STATS_CON_SET_TOTAL_BYTES_TRANSFERING_FROM_DBSERVER_COUNT(node,++count);
 	mysql_data_seek(res_set,0);
       }
 #endif 
@@ -466,6 +486,7 @@ c_db_my_row(void) {
   /* Measure time used by the 
      c_db_my_row function */
   MYDDAS_STATS_TIME start,end,total_time,diff;
+  MyddasULInt count = 0;
   start = myddas_stats_walltime();
 #endif 
   Term arg_result_set = Deref(ARG1);
@@ -535,7 +556,9 @@ c_db_my_row(void) {
 	  
 	  MYDDAS_STATS_GET_DB_ROW_FUNCTION(total_time);
 	  myddas_stats_add_time(total_time,diff,total_time);
-	  
+	  MYDDAS_STATS_GET_DB_ROW_FUNCTION_COUNT(count);
+	  MYDDAS_STATS_SET_DB_ROW_FUNCTION_COUNT(++count);
+	  	  
 	  free(diff);
 #endif /* MYDDAS_STATS */
 	  return TRUE;
@@ -554,8 +577,10 @@ c_db_my_row(void) {
 	  free(end);
 	  free(start);
 	  
-	  MYDDAS_STATS_GET_TRANSLATE(total_time);
+	  MYDDAS_STATS_GET_DB_ROW_FUNCTION(total_time);
 	  myddas_stats_add_time(total_time,diff,total_time);
+	  MYDDAS_STATS_GET_DB_ROW_FUNCTION_COUNT(count);
+	  MYDDAS_STATS_SET_DB_ROW_FUNCTION_COUNT(++count);
 	  
 	  free(diff);
 #endif /* MYDDAS_STATS */

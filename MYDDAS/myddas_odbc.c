@@ -22,7 +22,7 @@
 #include <string.h>
 #include "Yap.h"
 #include "Yatom.h"
-#include "myddas_util.h"
+#include "myddas.h"
 #include "cut_c.h"
 #include <sql.h>
 #include <sqlucode.h>

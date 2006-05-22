@@ -4,16 +4,8 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL 
+#if defined MYDDAS_STATS
 
-#if defined MYDDAS_STATS || defined MYDDAS_TOP_LEVEL
-static void
-myddas_stats_time_subtract (unsigned long *, unsigned long *, MYDDAS_STATS_TIME, MYDDAS_STATS_TIME);
-static void
-myddas_stats_add_seconds_time(MYDDAS_STATS_TIME,unsigned long, unsigned long);
-static void
-myddas_stats_integrity_of_time(MYDDAS_STATS_TIME);
-#endif
 
 
 /* Documentation: Time Units 
@@ -62,8 +54,12 @@ long int tv_nsec -> This is the rest of the elapsed time (a fraction
 
 */
 
-#if defined MYDDAS_STATS || defined MYDDAS_TOP_LEVEL
-
+static void
+myddas_stats_time_subtract (unsigned long *, unsigned long *, MYDDAS_STATS_TIME, MYDDAS_STATS_TIME);
+static void
+myddas_stats_add_seconds_time(MYDDAS_STATS_TIME,unsigned long, unsigned long);
+static void
+myddas_stats_integrity_of_time(MYDDAS_STATS_TIME);
 
 /* Be shore to delete MYDDAS_STATS_TIME structure */
 MYDDAS_STATS_TIME
@@ -168,8 +164,8 @@ myddas_stats_time_copy_to_final(MYDDAS_STATS_TIME t_copy){
 
 static void
 myddas_stats_add_seconds_time(MYDDAS_STATS_TIME myddas_time,
-		      unsigned long sec,
-		      unsigned long usec){
+			      unsigned long sec,
+			      unsigned long usec){
  
   short hours = sec / 3600;					
   sec %= 3600;						
@@ -238,7 +234,40 @@ myddas_stats_integrity_of_time(MYDDAS_STATS_TIME myddas_time){
 }
 
 
-#endif /* MYDDAS_STATS || MYDDAS_TOP_LEVEL */
+MYDDAS_STATS_STRUCT
+myddas_stats_initialize_stat(MYDDAS_STATS_STRUCT stat,int type){
+  
+  MYDDAS_STATS_STRUCT temp_str = stat;
 
-#endif
+  if (stat == NULL){
+    stat = (MYDDAS_STATS_STRUCT) malloc (sizeof(struct myddas_stats_struct));
+    temp_str = stat;
+  } else {
+    for (;temp_str->next != NULL;temp_str = temp_str->next);
+    temp_str->next = (MYDDAS_STATS_STRUCT) malloc (sizeof(struct myddas_stats_struct));
+    temp_str = temp_str->next;
+  }
+  
+  if (type == time_str){
+    MYDDAS_STATS_INITIALIZE_TIME_STRUCT(temp_str->u.time_str.time_str,time_final);
+  } else {
+    temp_str->u.integer.integer = 0;
+  }
+  temp_str->type = type;
+  temp_str->count = 0;
+  temp_str->next = NULL;
+  return temp_str;
+}
+
+MYDDAS_STATS_STRUCT
+myddas_stats_get_stat(MYDDAS_STATS_STRUCT stat,int index){
+  
+  MYDDAS_STATS_STRUCT temp = stat;
+
+  for (;index>1;index--){
+    temp = temp->next;
+  }
+  return temp;
+}
+#endif /* MYDDAS_STATS || MYDDAS_TOP_LEVEL */
 

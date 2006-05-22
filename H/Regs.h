@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.38 2006-04-11 16:45:43 rslopes Exp $	 *
+* version:      $Id: Regs.h,v 1.39 2006-05-22 16:29:58 tiagosoares Exp $	 *
 *************************************************************************/
 
 
@@ -19,8 +19,8 @@
 #include "cut_c.h"
 #endif
 
-#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
-#include "myddas_util.h"
+#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
+#include "myddas.h"
 #endif
 
 #define MaxTemps	512
