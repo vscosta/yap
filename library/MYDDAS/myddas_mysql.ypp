@@ -100,7 +100,7 @@ db_datalog_describe(Connection,Relation) :-
 db_describe(Relation,TableInfo) :-
 	db_describe(myddas,Relation,TableInfo).
 db_describe(Connection,Relation,tableinfo(A1,A2,A3,A4,A5,A6)) :-
-	'$error_checks'(db_my_describe(Relation,Connection)),
+	'$error_checks'(db_describe(Relation,Connection,_)),
 	'$get_value'(Connection,Conn),
 	'$make_atom'(['DESCRIBE ',Relation],SQL),
 	db_my_result_set(Mode),

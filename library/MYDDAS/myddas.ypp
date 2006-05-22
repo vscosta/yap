@@ -142,6 +142,9 @@
 				      '$get_table_name'/2,
 				      '$get_values_for_update'/4,
 				      '$extract_args'/4,
+#ifdef MYDDAS_STATS
+				      '$make_stats_list'/2,
+#endif
 				      '$lenght'/2
 				      ]).
 
@@ -263,14 +266,16 @@ db_stats(List):-
 db_stats(Connection,List):-
 	'$error_checks'(db_stats(Connection,List)),
 	NumberOfStats = 10,
-	'$make_a_list'(NumberOfStats,List),
+	'$make_a_list'(NumberOfStats,ListX1),
 	( var(Connection) ->
-	    c_db_stats(0,List)
+	    c_db_stats(0,ListX1)
 	;
 	    get_value(Connection,Conn),
-	    c_db_stats(Conn,List)
-	).
+	    c_db_stats(Conn,ListX1)
+	),	
+	'$make_stats_list'(ListX1,List).
 
+#ifdef DEBUG
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_stats_time(+,-)
 % Reference is C pointer (memory reference)
@@ -280,8 +285,9 @@ db_stats_time(Reference,Time):-
 	c_db_stats_time(Reference,Time).
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#endif /* DEBUG */
 
-#endif 
+#endif /* MYDDAS_STATS */
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

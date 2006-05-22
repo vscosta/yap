@@ -39,6 +39,9 @@
 				  '$build_query'/5,
 				  '$assert_facts'/2,
 				  '$lenght'/2,
+#ifdef MYDDAS_STATS
+				  '$make_stats_list'/2,
+#endif
 				  '$check_list_on_list'/2
 				  ]).
 
@@ -431,3 +434,7 @@
         '$member_strick'(Element, Rest).
 
 
+'$make_stats_list'([],[]).
+'$make_stats_list'([Ref|Tail],[Time|Final]):-
+	c_db_stats_time(Ref,Time),
+	'$make_stats_list'(Tail,Final).

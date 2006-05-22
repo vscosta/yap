@@ -23,8 +23,8 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #ifdef CUT_C
 #include "cut_c.h"
 #endif
-#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
-#include "myddas_util.h"
+#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
+#include "myddas.h"
 #endif
 
 STATIC_PROTO(Int  CallPredicate, (PredEntry *, choiceptr, yamop *));

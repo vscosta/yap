@@ -146,6 +146,9 @@
 % must have only one relation
 '$error_checks'(db_datalog_describe(Relation,_)) :- !,
 	nonvar(Relation).
+'$error_checks'(db_describe(Connection,Relation,_)) :- !,
+	atom(Connection),
+	nonvar(Relation).
 '$error_checks'(db_my_show_tables(_)):- !.
 '$error_checks'(db_is_database_predicate(PredName,Arity,Module)):-!,
         nonvar(PredName),
