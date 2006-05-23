@@ -83,9 +83,9 @@
 /*   */ typedef unsigned short int MyddasUInt32;
 #   elif SIZEOF_INT==4
 /*   */ typedef int MyddasSInt;
-/*   */ typedef unsigned short int MyddasUSInt;
+/*   */ typedef unsigned int MyddasUSInt;
 /*   */ typedef int MyddasInt32;
-/*   */ typedef unsigned short int MyddasUInt32;
+/*   */ typedef unsigned int MyddasUInt32;
 #   else
 #	error MYDDAS requires integer types half the size of a pointer
 #   endif
