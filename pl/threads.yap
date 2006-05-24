@@ -78,7 +78,10 @@ thread_create(Goal, Id, Options) :-
 '$thread_options'(V, _, _, _, _, _, G) :- var(V), !,
 	'$do_error'(instantiation_error,G).
 '$thread_options'([], [], Stack, Trail, System, _, _) :-
-	recorded('$thread_defaults', [Stack, Trail, System], _).	
+	recorded('$thread_defaults', [DefaultStack, DefaultTrail, DefaultSystem], _),
+	( var(Stack) -> Stack = DefaultStack; true ),
+	( var(Trail) -> Trail = DefaultTrail; true ),
+	( var(System) -> System = DefaultSystem; true ).
 '$thread_options'([Opt|Opts], Aliases, Stack, Trail, System, Detached, G0) :-
 	'$thread_option'(Opt, Aliases, Stack, Trail, System, Detached, G0, Aliases0),
 	'$thread_options'(Opts, Aliases0, Stack, Trail, System, Detached, G0).
