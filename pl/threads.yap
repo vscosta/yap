@@ -50,6 +50,14 @@
 	recorda('$thread_exit_status', [Id0|exception(Exception)], _),
 	'$run_at_thread_exit'(Id0).
 
+thread_create(Goal, Id) :-
+	'$check_callable'(Goal, thread_create(Goal, Id)),
+	recorded('$thread_defaults', [Stack, Trail, System], _),
+	'$thread_new_tid'(Id),
+	'$clean_db_on_id'(Id),
+	'$create_mq'(Id),	
+	'$create_thread'(Goal, Stack, Trail, System, _, Id).
+
 thread_create(Goal, Id, Options) :-
 	G0 = thread_create(Goal, Id, Options),
 	'$check_callable'(Goal,G0),
