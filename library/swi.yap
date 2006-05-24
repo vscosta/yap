@@ -183,6 +183,10 @@ prolog:member(X,[X|_]).
 prolog:member(X,[_|L0]) :-
 	prolog:member(X,L0).
 
+prolog:select(Element, [Element|Rest], Rest).
+prolog:select(Element, [Head|Tail], [Head|Rest]) :-
+	prolog:select(Element, Tail, Rest).
+
 tv(Term,List) :- term_variables(Term,List).
 
 prolog:term_variables(Term,List) :- tv(Term,List).
@@ -245,7 +249,13 @@ prolog:memberchk(Element, [Element|_]) :- !.
 prolog:memberchk(Element, [_|Rest]) :-
         prolog:memberchk(Element, Rest).
 
-
-	
+% copied from SWI lists library.
+prolog:intersection([], _, []) :- !.
+prolog:intersection([X|T], L, Intersect) :-
+	memberchk(X, L), !, 
+	Intersect = [X|R], 
+	prolog:intersection(T, L, R).
+prolog:intersection([_|T], L, R) :-
+	prolog:intersection(T, L, R).
 
 

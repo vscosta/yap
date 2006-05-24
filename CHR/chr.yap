@@ -76,9 +76,9 @@
 	  assoc_to_list/2
       ]).
 
-:- use_module(library('chr/sbag')).   % link to sbag_l.pl or sbag_a.pl
-:- use_module(library('chr/chrcmp')).
-:- use_module(library('chr/trace')).
+:- use_module('chr/sbag').   % link to sbag_l.pl or sbag_a.pl
+:- use_module('chr/chrcmp').
+:- use_module('chr/trace').
 
 :- use_module(library(atts)).
 

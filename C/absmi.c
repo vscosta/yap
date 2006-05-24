@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-04-27 14:11:57 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2006-05-24 02:35:39 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.201  2006/04/27 14:11:57  rslopes
+* *** empty log message ***
+*
 * Revision 1.200  2006/04/12 17:14:58  rslopes
 * fix needed by the EAM engine
 *
@@ -3789,7 +3792,9 @@ Yap_absmi(int inp)
       BIND(pt0, d1, bind_gstruct);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) Yap_WakeUp(pt0);
+      if (pt0 < H0) {
+	Yap_WakeUp(pt0);
+      }
     bind_gstruct:
 #endif
       /* now, set pt0 to point to the heap where we are going to
@@ -4184,7 +4189,10 @@ Yap_absmi(int inp)
       BIND(pt0, d0, bind_glist_valy_write);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) Yap_WakeUp(pt0);
+      if (pt0 < H0) {
+	Yap_WakeUp(pt0);
+	pt1 = H;
+      }
     bind_glist_valy_write:
 #endif
       BEGD(d0);
@@ -4389,7 +4397,10 @@ Yap_absmi(int inp)
       BIND(pt0, d0, bind_glist_void_valx_write);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) Yap_WakeUp(pt0);
+      if (pt0 < H0) {
+	Yap_WakeUp(pt0);
+	pt1 = H;
+      }
     bind_glist_void_valx_write:
 #endif
       BEGD(d0);
@@ -4498,7 +4509,10 @@ Yap_absmi(int inp)
       BIND(pt0, d0, bind_glist_void_valy_write);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) Yap_WakeUp(pt0);
+      if (pt0 < H0) {
+	Yap_WakeUp(pt0);
+	S_SREG = H;
+      }
     bind_glist_void_valy_write:
 #endif
       /* include XREG on it */

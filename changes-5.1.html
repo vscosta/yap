@@ -16,6 +16,12 @@
 
 <h2>Yap-5.1.2:</h2>
 <ul>
+<li> NEW: add select/3 and intersection/3 to SWI emulation.</li>
+<li> FIXED: always keep in mind that Yap_WakeUp may change H (would
+break chr).</li>
+<li> FIXED: add_clause of new predicate could get in loop.</li>
+<li> FIXED: don't have to print anything if there is not anything to
+print.</li>
 <li> FIXED: current_thread/2 should fail if called with bad alias or
 ID (obs Paulo Moura).</li>
 <li> FIXED: correct code statistics with DL_MALLOC or SYSTEM_MALLOC.</li>
@@ -28,7 +34,6 @@ allocate up to 3GB).</li>
 <li> FIXED: compilation bug in arg(X,1,A).</li>
 <li> NEW: extend interface to pass chunks of integers/floats.</li>
 <li> FIXED: get rid of some more global variables.</li>
->>>>>>> 1.73
 <li> NEW: thread_yield/0 (request Paulo Moura).</li>
 <li> FIXED: current_thread was not returning aliases (obs Paulo Moura).</li>
 <li> FIXED: AuxSp was not properly initialised for new threads (obs Paulo Moura).</li>

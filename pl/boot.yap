@@ -505,7 +505,7 @@ true :- true.
 '$another' :-
 	format(user_error,' ? ',[]),
 	'$get0'(user_input,C),
-	(   C== 0'; ->  '$skip'(user_input,10),
+	(   C== 0'; ->  '$skip'(user_input,10), %'
 	    '$add_nl_outside_console',
 	    fail
 	;
@@ -538,7 +538,7 @@ true :- true.
 	'$sort'(IVs, NVs),
 	'$prep_answer_var_by_var'(NVs, LAnsw, LBlk),
 	'$name_vars_in_goals'(LAnsw, Vs, NLAnsw),
-        '$write_vars_and_goals'(NLAnsw, FLAnsw).
+        '$write_vars_and_goals'(NLAnsw, first, FLAnsw).
 
 '$purge_dontcares'([],[]).
 '$purge_dontcares'([[[95|_]|_]|Vs],NVs) :- !,
@@ -577,25 +577,27 @@ true :- true.
 	C is I1+65,
 	'$gen_name_string'(I2,[C|L0],LF).
 
-'$write_vars_and_goals'([], []).
-'$write_vars_and_goals'([G1|LG], NG) :-
-	'$write_goal_output'(G1, NG, IG),
-	'$write_remaining_vars_and_goals'(LG, IG).
-
-'$write_remaining_vars_and_goals'([], []).
-'$write_remaining_vars_and_goals'([nl,G1|LG], NG) :- !,
+'$write_vars_and_goals'([], _, []).
+'$write_vars_and_goals'([nl,G1|LG], First, NG) :- !,
 	nl(user_error),
-	'$write_goal_output'(G1, NG, IG),
-	'$write_remaining_vars_and_goals'(LG, IG).
-'$write_remaining_vars_and_goals'([G1|LG], NG) :-
-	( LG = [] -> nl(user_error) ; format(user_error,',~n',[]) ),
-	'$write_goal_output'(G1, NG, IG),
-	'$write_remaining_vars_and_goals'(LG, IG).
+	'$write_goal_output'(G1, First, NG, Next, IG),
+	'$write_vars_and_goals'(LG, Next, IG).
+'$write_vars_and_goals'([G1|LG], First, NG) :-
+	'$write_goal_output'(G1, First, NG, Next, IG),
+	'$write_vars_and_goals'(LG, Next, IG).
 
-'$write_goal_output'(var([V|VL]), [var([V|VL])|L], L) :-
+'$goal_to_string'(Format, G, String) :-			  
+	charsio:open_mem_write_stream(W),
+        format(W,Format,G),
+	charsio:peek_mem_write_stream(W, [], String),
+	close(W).
+
+'$write_goal_output'(var([V|VL]), First, [var([V|VL])|L], next, L) :-
+        ( First = first -> true ; format(user_error,',~n',[]) ),
 	format(user_error,'~s',[V]),
 	'$write_output_vars'(VL).
-'$write_goal_output'(nonvar([V|VL],B), [nonvar([V|VL],B)|L], L) :-
+'$write_goal_output'(nonvar([V|VL],B), First, [nonvar([V|VL],B)|L], next, L) :-
+        ( First = first -> true ; format(user_error,',~n',[]) ),
 	format(user_error,'~s',[V]),
 	'$write_output_vars'(VL),
 	format(user_error,' = ', []),
@@ -603,10 +605,22 @@ true :- true.
 	   write_term(user_error,B,Opts) ;
 	   format(user_error,'~w',[B])
         ).
-'$write_goal_output'(Format-G, [G|NG], NG) :-
+'$write_goal_output'(Format-G, First, NG, Next, IG) :-
 	G = [_|_], !,
-        format(user_error,Format,G).
-'$write_goal_output'(_-G, [G|NG], NG) :-
+	% dump on string first so that we can check whether we actually
+	% had any output from the solver.
+	'$goal_to_string'(Format, G, String),
+	( String == [] ->
+	    % we didn't
+	    IG = NG, First = Next
+	;
+	    % we did
+	    ( First = first -> true ; format(user_error,',~n',[]) ),
+	    format(user_error, '~s', [String]),
+	    NG = [G|IG]
+	).
+'$write_goal_output'(_-G, First, [G|NG], next, NG) :-
+        ( First = first -> true ; format(user_error,',~n',[]) ),
         ( recorded('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,G,Opts) ;
 	   format(user_error,'~w',[G])

@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-05-18 16:33:04 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-05-24 02:35:39 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.188  2006/05/18 16:33:04  vsc
+* fix info reported by memory manager under DL_MALLOC and SYSTEM_MALLOC
+*
 * Revision 1.187  2006/04/29 01:15:18  vsc
 * fix expand_consult patch
 *
@@ -1833,6 +1836,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
 	    PredEntry *pe = RepPredProp(p0);
 
 	    pe->PredFlags |= GoalExPredFlag;
+	    p0 = pe->NextOfPE;
 	    found = TRUE;
 	  }
 	  if (!found) {

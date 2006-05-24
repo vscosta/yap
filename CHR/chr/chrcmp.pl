@@ -32,9 +32,9 @@
 %vsc
 % debug
 :- ['operator'].
-:- use_module(library('chr/getval')).
+:- use_module(getval).
 :- ['matching'].
-:- use_module( library('chr/concat'), [concat_name/2]).
+:- use_module(concat, [concat_name/2]).
 
 :- use_module( library(terms),
 	[
