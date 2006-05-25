@@ -52,6 +52,7 @@
 
 thread_create(Goal, Id) :-
 	'$check_callable'(Goal, thread_create(Goal, Id)),
+	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
 	recorded('$thread_defaults', [Stack, Trail, System], _),
 	'$thread_new_tid'(Id),
 	'$clean_db_on_id'(Id),
@@ -61,6 +62,7 @@ thread_create(Goal, Id) :-
 thread_create(Goal, Id, Options) :-
 	G0 = thread_create(Goal, Id, Options),
 	'$check_callable'(Goal,G0),
+	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
 	'$thread_options'(Options, Aliases, Stack, Trail, System, Detached, G0),
 	'$thread_new_tid'(Id),
 	'$clean_db_on_id'(Id),
@@ -117,6 +119,8 @@ thread_create(Goal, Id, Options) :-
 	'$add_thread_aliases'(Aliases, Id).
 '$add_thread_aliases'([], _).
 
+thread_defaults(Defaults) :- nonvar(Defaults), !,
+	'$do_error'(type_error(variable,Id),thread_defaults(Defaults)).
 thread_defaults([stack(Stack), trail(Trail), system(System)]) :-
 	recorded('$thread_defaults',[Stack, Trail, System], _).
 
@@ -174,6 +178,8 @@ thread_self(Id) :-
 '$check_thread_alias'(Id,Id).
 
 /* Exit status may be true, false, exception(Term), exited(Term) */
+thread_join(Id, Status) :- nonvar(Status), !,
+	'$do_error'(type_error(variable,Status),thread_join(Id, Status)).
 thread_join(Id, Status) :-
 	'$check_thread_alias'(Id0,Id),
 	'$thread_join'(Id0),
@@ -382,6 +388,8 @@ message_queue_destroy(Name) :-
 	fail.
 '$clean_mqueue'(_).
 
+thread_send_message(Queue, Term) :- var(Queue), !,
+	'$do_error'(instantiation_error,thread_send_message(Queue,Term)).
 thread_send_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_), !,
 	thread_send_message(Id, Term).
@@ -398,6 +406,8 @@ thread_get_message(Term) :-
 	'$thread_self'(Id),
 	thread_get_message(Id, Term).
 
+thread_get_message(Queue, Term) :- var(Queue), !,
+	'$do_error'(instantiation_error,thread_get_message(Queue,Term)).
 thread_get_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_), !,
 	thread_get_message(Id, Term).
@@ -421,6 +431,8 @@ thread_peek_message(Term) :-
 	'$thread_self'(Id),
 	thread_peek_message(Id, Term).
 
+thread_peek_message(Queue, Term) :- var(Queue), !,
+	'$do_error'(instantiation_error,thread_peek_message(Queue,Term)).
 thread_peek_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_), !,
 	thread_peek_message(Id, Term).
@@ -467,6 +479,8 @@ thread_local(X) :-
 thread_signal(Thread, Goal) :-
 	var(Thread), !,
 	'$do_error'(instantiation_error,thread_signal(Thread, Goal)).
+thread_signal(Thread, Goal) :-
+	'$check_callable'(Goal,thread_signal(Thread,Goal)).
 thread_signal(Thread, Goal) :-
 	recorded('$thread_alias',[Id|Thread],_),
 	'$thread_signal'(Id, Goal).
