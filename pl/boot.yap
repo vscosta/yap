@@ -774,14 +774,15 @@ not(G) :-    \+ '$execute'(G).
 	).
 
 '$check_callable'(V,G) :- var(V), !,
-	'$current_module'(Mod),
-	'$do_error'(instantiation_error,Mod:G).
+	'$do_error'(instantiation_error,G).
+'$check_callable'(M:G1,G) :- var(M), !,
+	'$do_error'(instantiation_error,G).
+'$check_callable'(_:G1,G) :- !,
+	'$check_callable'(G1,G).
 '$check_callable'(A,G) :- number(A), !,
-	'$current_module'(Mod),
-	'$do_error'(type_error(callable,A),Mod:G).
+	'$do_error'(type_error(callable,A),G).
 '$check_callable'(R,G) :- db_reference(R), !,
-	'$current_module'(Mod),
-	'$do_error'(type_error(callable,R),Mod:G).
+	'$do_error'(type_error(callable,R),G).
 '$check_callable'(_,_).
 
 % Called by the abstract machine, if no clauses exist for a predicate

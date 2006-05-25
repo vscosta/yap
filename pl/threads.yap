@@ -476,13 +476,32 @@ thread_local(X) :-
 	'$do_error'(type_error(callable,X),thread_local(Mod:X)).
 
 
+
+thread_sleep(Time) :-
+	var(Time), !,
+	'$do_error'(instantiation_error,thread_sleep(Time)).
+thread_sleep(Time) :-
+	integer(Time),  Time >= 0, !,
+	'$thread_sleep'(Time,0,_,_).
+thread_sleep(Time) :-
+	float(Time), Time >= 0, !,
+	STime is integer(float_integer_part(Time)),
+	NTime is integer(float_fractional_part(Time))*1000000000,
+	'$thread_sleep'(STime,NTime,_,_).
+thread_sleep(Time) :-
+	number(Time),
+	'$do_error'(domain_error(not_less_than_zero,Time),thread_sleep(Time)).
+thread_sleep(Time) :-
+	'$do_error'(type_error(number,Time),thread_sleep(Time)).
+
+
 thread_signal(Thread, Goal) :-
 	var(Thread), !,
 	'$do_error'(instantiation_error,thread_signal(Thread, Goal)).
 thread_signal(Thread, Goal) :-
 	'$check_callable'(Goal,thread_signal(Thread,Goal)).
 thread_signal(Thread, Goal) :-
-	recorded('$thread_alias',[Id|Thread],_),
+	recorded('$thread_alias',[Id|Thread],_), !,
 	'$thread_signal'(Id, Goal).
 thread_signal(Thread, Goal) :-
 	integer(Thread), !,

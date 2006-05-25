@@ -1765,7 +1765,7 @@ p_getcwd(void)
 #if HAVE_STRERROR
     Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in getcwd/1", strerror(errno));
 #else
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "in getcwd/1");
+    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "error %d in getcwd/1", errno);
 #endif
     return FALSE;
   }

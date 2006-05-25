@@ -178,6 +178,7 @@
 #undef  HAVE_MKTEMP
 #undef  HAVE_MKTIME
 #undef  HAVE_MMAP
+#undef  HAVE_NANOSLEEP
 #undef  HAVE_NSLINKMODULE
 #undef  HAVE_OPENDIR
 #undef  HAVE_POPEN

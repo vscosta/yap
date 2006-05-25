@@ -10071,6 +10071,14 @@ thread-implementation provides
 @code{pthread_setconcurrency()}. Solaris is a typical example of this
 family. On other systems this predicate unifies @var{Old} to 0 (zero)
 and succeeds silently.
+
+@item thread_sleep(+@var{Time}})
+@findex thread_sleep/1
+@snindex thread_sleep/1
+@cnindex thread_sleep/1
+Make current thread sleep for @var{Time} seconds. @var{Time} may be an
+integer or a floating point number. This call should not be used if
+alarms are also being used.
 @end table
 
 

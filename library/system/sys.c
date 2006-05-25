@@ -8,8 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.27 2006-05-17 18:38:11 vsc Exp $									 *
+* $Id: sys.c,v 1.28 2006-05-25 16:28:28 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.27  2006/05/17 18:38:11  vsc
+* mods:		make system library use true file name
+* mods:		
 * mods:		Revision 1.26  2006/04/25 03:23:40  vsc
 * mods:		fix ! in debugger (execute_clause)
 * mods:		improve system/1 and execute/1
@@ -842,7 +845,7 @@ static int
 p_sleep(void)
 {
   YAP_Term ts = YAP_ARG1;
-  long int secs = 0, usecs = 0, out;
+  unsigned long int secs = 0, usecs = 0, out;
   if (YAP_IsIntTerm(ts)) {
     secs = YAP_IntOfTerm(ts);
   }  else if (YAP_IsFloatTerm(ts)) {
@@ -850,25 +853,39 @@ p_sleep(void)
     if (tfl > 1.0)
       secs = tfl;
     else
-      usecs = tfl*1000;
+      usecs = tfl*1000000;
   }
 #if defined(__MINGW32__) || _MSC_VER
-  if (secs) usecs = secs*1000;
+  if (secs) usecs = secs*1000 + usecs/1000;
   Sleep(usecs);
+  /* no errors possible */
   out = 0;
-#else
-#if HAVE_USLEEP
+#elif HAVE_NANOSLEEP
+  {
+    struct timespec req;
+    if (YAP_IsFloatTerm(ts)) {
+      double tfl = YAP_FloatOfTerm(ts);
+     
+      req.tv_nsec = (tfl-floor(tfl))*1000000000;
+      req.tv_sec = rint(tfl);
+    } else {
+      req.tv_nsec = 0;
+      req.tv_sec = secs;
+    }
+    out = nanosleep(&req, NULL);
+  }
+#elif HAVE_USLEEP
   if (usecs > 0) {
-    usleep(usecs);
-    out = 0;
+    out = usleep(usecs);
   } else
-#endif
-#if HAVE_SLEEP
+#elif HAVE_SLEEP
     {
       out = sleep(secs);
     }
+#else
+  YAP_Error(0,0L,"sleep not available in this configuration");
+  return FALSE:
 #endif
-#endif /* defined(__MINGW32__) || _MSC_VER */
   return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
 }
 
