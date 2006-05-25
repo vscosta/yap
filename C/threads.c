@@ -143,14 +143,13 @@ thread_run(void *widp)
 {
   Term tgoal;
   Term tgs[2];
-  int out;
   int myworker_id = *((int *)widp); 
 
   start_thread(myworker_id);
   tgs[0] = Yap_FetchTermFromDB(ThreadHandle[worker_id].tgoal);
   tgs[1] = ThreadHandle[worker_id].tdetach;
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
-  out = Yap_RunTopGoal(tgoal);
+  Yap_RunTopGoal(tgoal);
   thread_die(worker_id, FALSE);
   return NULL;
 }
