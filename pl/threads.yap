@@ -479,7 +479,6 @@ thread_local(X) :-
 	'$do_error'(type_error(callable,X),thread_local(Mod:X)).
 
 
-
 thread_sleep(Time) :-
 	var(Time), !,
 	'$do_error'(instantiation_error,thread_sleep(Time)).
@@ -521,3 +520,14 @@ thread_signal(Thread, Goal) :-
 	'$thread_self'(Id),
 	recorded('$thread_signal',[Id|G],R),
 	erase(R).
+
+
+threads :-
+	write('--------------------------------------------------------------'), nl,
+	format("~t~a~38+~n", 'Thread  Status'),
+	write('--------------------------------------------------------------'), nl,
+	current_thread(Thread, Status),
+	format("~t~q~30+  ~q~n", [Thread, Status]), 
+	fail.
+threads :-
+	write('--------------------------------------------------------------'), nl.
