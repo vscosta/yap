@@ -294,7 +294,7 @@ Int
 Yap_thread_detach_engine(int wid)
 {
   pthread_mutex_lock(&(ThreadHandle[wid].tlock));
-  if (ThreadHandle[wid].handle == worker_id)
+  if (ThreadHandle[wid].handle == pthread_self())
     ThreadHandle[wid].handle = 0;
   ThreadHandle[wid].ref_count--;
   pthread_mutex_unlock(&(ThreadHandle[wid].tlock));

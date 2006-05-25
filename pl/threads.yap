@@ -35,11 +35,6 @@
 	'$current_module'(Module),
 	'$system_catch'((G,'$close_thread'(Detached,true) ; '$close_thread'(Detached,false)),Module,Exception,'$thread_exception'(Exception,Detached)).
 
-'$top_thread_goal'(_) :-
-	'$thread_self'(Id0),
-	recorda('$thread_exit_status', [Id0|false], _),
-	'$run_at_thread_exit'(Id0).
-
 '$close_thread'(Detached, Status) :-
 	'$thread_self'(Id0),
 	(Detached == true ->
@@ -209,7 +204,7 @@ thread_detach(Id) :-
 thread_exit(Term) :-
 	'$thread_self'(Id0),
 	'$run_at_thread_exit'(Id0),
-	recorda('$thread_exit_status', [Id0|Term], _),
+	recorda('$thread_exit_status', [Id0|exited(Term)], _),
 	'$thread_exit'.
 
 '$run_at_thread_exit'(Id0) :-
