@@ -518,9 +518,14 @@ still highly experimental.
  @item @code{--with-gmp[=DIR]} give a path to where one can find the
 @code{GMP} library if not installed in the default path.
 
+
+ @item @code{--enable-threads} allows using of the multi-threading 
+predicates provided by YAP. Depending on the operating system, the 
+option @code{--enable-pthread-locking} may also need to be used.
+
 @end itemize
 
-Next follow machine dependent details:
+Next section discusses machine dependent details.
 
 @node Machine Options, , Configuration Options,Install
 @section Tuning YAP for a Particular Machine and Compiler
@@ -9899,9 +9904,9 @@ although we load Logtalk using the @code{use_module/1} built-in
 predicate, the system is not packaged as a module not does it use 
 modules in its implementation.
 
-Logtalk documentation is included in the Logtalk directory. Be sure to read the Logtalk/INSTALL file for additional instructions on how to customize your Logtalk installation to match your working environment.
+Logtalk documentation is included in the Logtalk directory. Be sure to read the Logtalk/INSTALL file for additional instructions on how to customize your Logtalk installation to match your working environment (the @code{use_module/1} call described above only provides minimal support).
 
-For the latest Llogtalk news, please see the URL @url{http://www.logtalk.org/}.
+For the latest Logtalk news, please see the URL @url{http://www.logtalk.org/}.
 
 @node Threads, Parallelism, Logtalk, Extensions
 @chapter Threads
