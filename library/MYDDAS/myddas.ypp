@@ -51,6 +51,7 @@
 
 		  % myddas_top_level.ypp
 #ifdef MYDDAS_TOP_LEVEL
+		  db_top_level/4,
 		  db_top_level/5,
 		  db_datalog_select/3,
 #endif
@@ -87,8 +88,9 @@
 #endif
 		 ]).
 
-#ifdef MYDDAS_MYSQL
+#ifdef MYDDAS_TOP_LEVEL
 :- use_module(myddas_top_level,[
+				db_top_level/4,
 				db_top_level/5,
 				db_datalog_select/3
 			       ]).

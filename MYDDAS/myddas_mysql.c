@@ -193,7 +193,7 @@ c_db_my_query(void) {
   start = myddas_stats_walltime();
 #endif 
   
-  /* executar a query SQL */
+  /* Send query to server and process it */
   if (mysql_real_query(conn, sql, length) != 0)
     {
 #ifdef DEBUG
