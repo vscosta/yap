@@ -184,7 +184,7 @@ myread(int fd, char *buff, Int len)
 {
   while (len > 0) {
     int nchars = read(fd, buff, len);
-    if (nchars < 0) {
+    if (nchars <= 0) {
       return do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, "bad read on saved state");
     }
     len -= nchars;
@@ -617,11 +617,13 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
   char            pp[80];
   char msg[256];
   CELL hp_size, gb_size, lc_size, tr_size, mode;
+  int n;
 
   /* make sure we always check if there are enough bytes */
   /* skip the first line */
+  pp[0] = '\0';
   do {
-    if (read(splfild, pp, 1) < 0) {
+    if ((n = read(splfild, pp, 1)) <= 0) {
       do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to scan first line from saved state");
       return FAIL_RESTORE;
     }
@@ -631,7 +633,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
   {
     int count = 0, n, to_read = Unsigned(strlen(msg) + 1);
     while (count < to_read) {
-      if ((n = read(splfild, pp, to_read-count)) < 0) {
+      if ((n = read(splfild, pp, to_read-count)) <= 0) {
 	do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to scan version info from saved state");
 	return FAIL_RESTORE;
       }
@@ -909,7 +911,7 @@ CopyCode(void)
   /* skip the local and global data structures */
   CELL j = get_cell();
   if (Yap_ErrorMessage)
-      return -1;
+    return -1;
   if (j != Unsigned(&GLOBAL) - Unsigned(Yap_HeapBase)) {
     Yap_ErrorMessage = "code space size does not match saved state";
     return -1;

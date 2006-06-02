@@ -433,47 +433,33 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    break;
 #endif
 	  case 'L':
-           p++;
            iap->HaltAfterConsult = TRUE;
-           if (*p != '\0') {
-             iap->YapPrologRCFile = p;
-             break;
-           } else {
-             if (--argc == 0) {
-               fprintf(stderr,
-                       " [ YAP unrecoverable error: missing file name with option 'L' ]\n");
-               exit(1);
-             }
-             p = *++argv;
-             if (p[0] == '-' && p[1] == '-' && p[2] == '\0') {
-               if (--argc == 0) {
-                 fprintf(stderr,
-                         " [ YAP unrecoverable error: missing filename with option 'L' ]\n");
-                 exit(1);
-               }
-               p = *++argv;
-               iap->YapPrologRCFile = p;
-               argc = 1;
-
-             } else {
-               iap->YapPrologRCFile = p;
-             }
-           }
-           break;
 	  case 'l':
-	    if ((*argv)[0] == '\0') 
-	      iap->YapPrologRCFile = *argv;
-	    else {
-	      argc--;
-	      if (argc == 0) {
-		fprintf(stderr," [ YAP unrecoverable error: missing file name with option 'l' ]\n");
-		exit(EXIT_FAILURE);
-	      }
-	      argv++;
-	      iap->YapPrologRCFile = *argv;
-	    }
-	    break;
-	    /* run goal before top-level */
+           p++;
+	   if (!*++argv) {
+	     fprintf(stderr,
+		     "%% YAP unrecoverable error: missing boot file name\n");
+	     exit(1);
+	   } else {
+	     iap->YapPrologRCFile = *argv;
+	     argc--;
+	   }
+           if (*p) {
+	     /* we have something, usually, of the form:
+		-L --
+		FileName
+		ExtraArgs
+	     */
+	     /* being called from a script */
+	     while (*p && (*p == ' ' || *p == '\t'))
+	       p++;
+	     if (p[0] == '-' && p[1] == '-') {
+	       /* ignore what is next */
+	       argc = 1;
+	     }
+	   }
+	   break;
+	   /* run goal before top-level */
 	  case 'g':
 	    if ((*argv)[0] == '\0') 
 	      iap->YapPrologGoal = *argv;
