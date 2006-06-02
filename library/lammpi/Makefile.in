@@ -1,0 +1,71 @@
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+prefix = @prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=$(EROOTDIR)/lib/Yap
+#
+#
+CC=@CC@
+MPI_CC=mpicc
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SHLIB_CFLAGS=@SHLIB_CFLAGS@
+SHLIB_SUFFIX=@SHLIB_SUFFIX@
+CWD=$(PWD)
+MPIF=`$(MPI_CC) -showme|sed "s/[^ ]*//"|sed "s/-pt/-lpt/"`
+#MPIF=-L/usr/local/lib -llammpio -llamf77mpi -lmpi -llam -lutil -lpthread 
+#
+
+OBJS=yap_mpi.o hash.o prologterms2c.o
+SOBJS=yap_mpi@SHLIB_SUFFIX@
+
+#in some systems we just create a single object, in others we need to
+# create a libray
+
+all: $(SOBJS)
+
+yap_mpi.o: $(srcdir)/yap_mpi.c   $(srcdir)/yap_mpi.c  
+	$(MPI_CC)  $(CFLAGS) $(SHLIB_CFLAGS) $(MPIF)  -c $(srcdir)/yap_mpi.c -o yap_mpi.o
+
+prologterms2c.o: $(srcdir)/prologterms2c.c $(srcdir)/prologterms2c.h
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/prologterms2c.c -o prologterms2c.o
+
+hash.o: $(srcdir)/hash.c $(srcdir)/hash.h
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/hash.c -o hash.o
+
+@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
+
+@DO_SECOND_LD@yap_mpi@SHLIB_SUFFIX@: $(OBJS)
+@DO_SECOND_LD@	@SHLIB_LD@ $(MPIF)  -o yap_mpi@SHLIB_SUFFIX@ $(OBJS)
+
+install: all
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
+
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+
+
