@@ -202,6 +202,8 @@ Subnodes of Library
 * UGraphs:: Unweighted Graphs
 * DGraphs:: Directed Graphs Implemented With Red-Black Trees
 * UnDGraphs:: Undirected Graphs Using DGraphs
+* LAM:: LAM MPI
+
 
 Subnodes of Debugging
 * Deb Preds:: Debugging Predicates
@@ -6819,9 +6821,11 @@ Library, Extensions, Builtins, Top
 * UGraphs:: Unweighted Graphs
 * DGraphs:: Directed Graphs Implemented With Red-Black Trees
 * UnDGraphs:: Undirected Graphs Using DGraphs
+* LAM:: LAM MPI
 
 
 @end menu
+
  
 @node Apply Macros, Association Lists, , Library
 @section Apply Macros
@@ -6940,6 +6944,7 @@ sumnodes(vars, [c(X), p(X,Y), q(Y)], [], [Y,Y,X,X]).
 % another one
 maplist(mapargs(number_atom),[c(1),s(1,2,3)],[c('1'),s('1','2','3')]).
 @end example
+
 
 @node Association Lists, AVL Trees, Apply Macros, Library
 @section Association Lists
@@ -9215,7 +9220,7 @@ represented in the form used in the @var{ugraphs} unweighted graphs
 library.
 @end table
 
-@node UnDGraphs, , DGraphs, Library
+@node UnDGraphs, LAM , DGraphs, Library
 @section Undirected Graphs
 @cindex undrected graphs
 
@@ -9308,6 +9313,185 @@ Unify @var{NewGraph} with the graph complementary to @var{Graph}.
 @cnindex dgraph_to_undgraph/2
 Unify @var{UndGraph} with teh undirected graph obtained from the
 directed graph @var{DGraph}.
+
+@end table
+
+@node LAM, , DGraphs , Library
+@section LAM
+@cindex lam
+
+This library provides a set of utilities for interfacing with LAM MPI.
+The following routines are available once included with the
+@code{use_module(library(lam_mpi))} command. The yap should be
+invoked using the LAM mpiexec or mpirun commands (see LAM manual for
+more details).
+
+@table @code
+@item mpi_init
+@findex mpi_init/0
+@snindex mpi_init/0
+@cnindex mpi_init/0
+      Sets up the mpi environment. This predicate should be called before any other MPI predicate.
+
+@item mpi_finalize
+@findex mpi_finalize/0
+@snindex mpi_finalize/0
+@cnindex mpi_finalize/0
+      Terminates the MPI execution environment. Every process must call this predicate before  exiting.
+
+@item mpi_comm_size(-@var{Size})
+@findex mpi_comm_size/1
+@snindex mpi_comm_size/1
+@cnindex mpi_comm_size/1
+      Unifies @var{Size} with the number of processes in the MPI environment.
+
+
+@item mpi_comm_rank(-@var{Rank})
+@findex mpi_comm_rank/1
+@snindex mpi_comm_rank/1
+@cnindex mpi_comm_rank/1
+      Unifies @var{Rank} with the rank of the current process in the MPI environment.
+
+@item mpi_version(-@var{Major},-@var{Minor})
+@findex mpi_version/2
+@snindex mpi_version/2
+@cnindex mpi_version/2
+      Unifies @var{Major} and @var{Minor} with, respectively, the major and minor version of the MPI.
+
+
+@item mpi_send(+@var{Data},+@var{Dest},+@var{Tag})
+@findex mpi_send/3
+@snindex mpi_send/3
+@cnindex mpi_send/3
+
+Blocking communication predicate. The message in @var{Data}, with tag
+@var{Tag}, is sent immediately to the processor with rank @var{Dest}.
+The predicate succeeds after the message being sent.
+
+
+
+@item mpi_isend(+@var{Data},+@var{Dest},+@var{Tag},-@var{Handle})
+@findex mpi_isend/4
+@snindex mpi_isend/4
+@cnindex mpi_isend/4
+
+Non blocking communication predicate. The message in @var{Data}, with
+tag @var{Tag}, is sent whenever possible to the processor with rank
+@var{Dest}. An @var{Handle} to the message is returned to be used to
+check for the status of the message, using the @code{mpi_wait} or
+@code{mpi_test} predicates. Until @code{mpi_wait} is called, the
+memory allocated for the buffer containing the message is not
+released.
+
+@item mpi_recv(?@var{Source},?@var{Tag},-@var{Data})
+@findex mpi_recv/3
+@snindex mpi_recv/3
+@cnindex mpi_recv/3
+
+Blocking communication predicate. The predicate blocks until a message
+is received from processor with rank @var{Source} and tag @var{Tag}.
+The message is placed in @var{Data}.
+
+@item mpi_irecv(?@var{Source},?@var{Tag},-@var{Handle})
+@findex mpi_irecv/3
+@snindex mpi_irecv/3
+@cnindex mpi_irecv/3
+
+Non-blocking communication predicate. The predicate returns an
+@var{Handle} for a message that will be received from processor with
+rank @var{Source} and tag @var{Tag}. Note that the predicate succeeds
+immediately, even if no message has been received. The predicate
+@code{mpi_wait_recv} should be used to obtain the data associated to
+the handle.
+
+@item mpi_wait_recv(?@var{Handle},-@var{Status},-@var{Data})
+@findex mpi_wait_recv/3
+@snindex mpi_wait_recv/3
+@cnindex mpi_wait_recv/3
+
+Completes a non-blocking receive operation. The predicate blocks until
+a message associated with handle @var{Hanlde} is buffered. The
+predicate succeeds unifying @var{Status} with the status of the
+message and @var{Data} with the message itself. 
+
+@item mpi_test_recv(?@var{Handle},-@var{Status},-@var{Data})
+@findex mpi_test_recv/3
+@snindex mpi_test_recv/3
+@cnindex mpi_test_recv/3
+
+Provides information regarding a handle. If the message associated
+with handle @var{Hanlde} is buffered then the predicate succeeds
+unifying @var{Status} with the status of the message and @var{Data}
+with the message itself. Otherwise, the predicate fails.
+
+
+@item mpi_wait(?@var{Handle},-@var{Status})
+@findex mpi_wait/2
+@snindex mpi_wait/2
+@cnindex mpi_wait/2
+
+Completes a non-blocking operation. If the operation was a
+@code{mpi_send}, the predicate blocks until the message is buffered
+or sent by the runtime system. At this point the send buffer is
+released. If the operation was a @code{mpi_recv}, it waits until the
+message is copied to the receive buffer. @var{Status} is unified with
+the status of the message.
+
+@item mpi_test(?@var{Handle},-@var{Status})
+@findex mpi_test/2
+@snindex mpi_test/2
+@cnindex mpi_test/2
+
+Provides information regarding the handle @var{Handle}, ie., if a
+communication operation has been completed.  If the operation
+associate with @var{Hanlde} has been completed the predicate succeeds
+with the completion status in @var{Status}, otherwise it fails.
+
+@item mpi_barrier
+@findex mpi_barrier/0
+@snindex mpi_barrier/0
+@cnindex mpi_barrier/0
+
+Collective communication predicate.  Performs a barrier
+synchronization among all processes. Note that a collective
+communication means that all processes call the same predicate. To be
+able to use a regular @code{mpi_recv} to receive the messages, one
+should use @code{mpi_bcast2}.
+
+
+@item mpi_bcast2(+@var{Root}, +@var{Data})
+@findex mpi_bcast/2
+@snindex mpi_bcast/2
+@cnindex mpi_bcast/2
+
+Broadcasts the message @var{Data} from the process with rank @var{Root}
+to all other processes.
+
+@item mpi_bcast3(+@var{Root}, +@var{Data}, +@var{Tag})
+@findex mpi_bcast/3
+@snindex mpi_bcast/3
+@cnindex mpi_bcast/3
+
+Broadcasts the message @var{Data} with tag @var{Tag} from the process with rank @var{Root}
+to all other processes.
+
+@item mpi_ibcast(+@var{Root}, +@var{Data}, +@var{Tag})
+@findex mpi_bcast/3
+@snindex mpi_bcast/3
+@cnindex mpi_bcast/3
+
+Non-blocking operation. Broadcasts the message @var{Data} with tag @var{Tag}
+from the process with rank @var{Root} to all other processes.
+
+@item mpi_gc
+@findex mpi_gc/0
+@snindex mpi_gc/0
+@cnindex mpi_gc/0
+
+Attempts to perform garbage collection with all the open handles
+associated with send and non-blocking broadcasts. For each handle it
+tests it and the message has been delivered the handle and the buffer
+are released.
 
 @end table
 
