@@ -170,6 +170,7 @@ AC_ARG_WITH(mpi,
 	fi,
 	[yap_cv_mpi=no])
 
+
 AC_ARG_WITH(mpe,
 	[ --with-mpe[=DIR]           use MPE library in DIR],
 	if test "$withval" = yes; then
@@ -182,6 +183,19 @@ AC_ARG_WITH(mpe,
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpe}/include"
 	fi,
 	[yap_cv_mpe=no])
+
+AC_ARG_WITH(lam,
+	[ --with-lam[=DIR]           use LAM MPI library in DIR],
+	if test "$withval" = yes; then
+		yap_cv_lam=yes
+	elif test "$withval" = no; then
+		yap_cv_lam=no
+	else
+		yap_cv_lam=$with_lam
+		LDFLAGS="$LDFLAGS -L${yap_cv_lam}/lib/lam"
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_lam}/include"
+	fi,
+	[yap_cv_lam=no])
 
 AC_ARG_WITH(heap-space,
 	[ --with-heap-space[=space]  default heap size in Kbytes],
@@ -531,8 +545,10 @@ then
   fi
   CC=${OLD_CC}
 else
-  MPI_CC=${CC}
+   MPI_CC=${MPI_CC}
+#  MPI_CC=${CC}
 fi
+
 
 MPI_LIBS=
 if test "$yap_cv_mpi" != "no" -a "$yap_cv_mpe" != "no"
@@ -549,6 +565,14 @@ then
   fi
   CC=${OLD_CC}
 fi
+
+# LAM
+OLD_CC=${CC}	
+CC=${MPI_CC}
+AC_CHECK_LIB([lam], [main],
+	LAMOBJS=yap_mpi@SHLIB_SUFFIX@,
+	LAMOBJS=no)
+CC=${OLD_CC}
 
 AC_PROG_CPP
 
@@ -985,6 +1009,7 @@ AC_SUBST(CROSS_SIMULATOR)
 AC_SUBST(INSTALLCLP)
 AC_SUBST(JAVALIBPATH)
 AC_SUBST(JAVAINCPATH)
+AC_SUBST(LAMOBJS)
 
 
 dnl check for threaded code
@@ -1260,6 +1285,7 @@ mkdir -p  library/random
 mkdir -p  library/regex
 mkdir -p  library/system
 mkdir -p  library/Tries
+mkdir -p  library/lammpi
 mkdir -p  library/yap2swi
 mkdir -p  CHR
 mkdir -p  CLPQR
@@ -1274,7 +1300,7 @@ mkdir -p  LGPL/clp
 mkdir -p  LGPL/clpr
 mkdir -p  LGPL/chr
 
-AC_OUTPUT(Makefile library/matrices/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap)
+AC_OUTPUT(Makefile library/matrices/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/lammpi/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap)
 
 make depend
 

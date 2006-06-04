@@ -54,6 +54,7 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/undgraphs.yap \
 	$(srcdir)/wdgraphs.yap \
 	$(srcdir)/wundgraphs.yap \
+	$(srcdir)/lam_mpi.yap \
 	$(srcdir)/ypp.yap 
 
 MYDDAS_PROGRAMS= $(srcdir)/MYDDAS/myddas.ypp \
