@@ -5,7 +5,7 @@
  *
  * Author:      Nuno Fonseca                                                 
  * File:	prologterms2c.c						
- * Last rev:	$Id: prologterms2c.c,v 1.1 2006-06-02 04:16:31 nunofonseca Exp $    
+ * Last rev:	$Id: prologterms2c.c,v 1.2 2006-06-04 18:45:20 nunofonseca Exp $    
  * Comments:	This file provides a set of functions to convert a prolog term to a C string and back.
  *************************************************************************/
 #include "prologterms2c.h"
@@ -196,6 +196,7 @@ YAP_Term
 string2term(char *const ptr,const size_t *size) {
   YAP_Term t;
   struct buffer_ds b;
+  b.size=b.len=b.pos=0;
 
   if (BUFFER_PTR!=ptr) {    //
 #ifdef DEBUG

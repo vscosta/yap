@@ -6,7 +6,7 @@
  * Author: Nuno Fonseca 
  * Date: 2004-05-02
  * YAP interface to LAM/MPI
- * $Id: yap_mpi.c,v 1.1 2006-06-02 04:16:31 nunofonseca Exp $
+ * $Id: yap_mpi.c,v 1.2 2006-06-04 18:45:20 nunofonseca Exp $
  *
  ******************************************************************************************/
 #include <stdlib.h>
@@ -91,41 +91,12 @@ static double total_time_spent;     // total time spend in communication code
 
 #define RETURN(p)     {PAUSE_TIMER();return (p);}
 
-//clock_t _tstart, _tend;
-//clock_t tz;
-
-//struct tms _tstart,_tend;
 static struct timeval _tstart, _tend;
-//static struct timezone tz;
-/* void tstart(void) { */
-/*   gettimeofday(&_tstart, &tz); */
-/* } */
-
-/* void tend(void) { */
-/*   gettimeofday(&_tend,&tz); */
-/* } */
-/* // */
-/* double tval(){ */
-/*   double t1, t2;   */
-/*   t1 =  (double)_tstart.tv_sec + (double)_tstart.tv_usec/(1000*1000); */
-/*   t2 =  (double)_tend.tv_sec + (double)_tend.tv_usec/(1000*1000); */
-/*   //  fprintf(stderr,"%f %f\n",(t2-t1),total_time_spent); */
-/*   return t2-t1; */
-/* } */
-/* void tstart(void) { */
-/*   _tstart = clock(); */
-/* } */
-/* void tend(void) { */
-/*   _tend = clock(); */
-/* } */
-/* // */
-/* double tval(){ */
-/*   fprintf(stderr,"%ld %ld %ld\n",(_tend-_tstart)/CLOCKS_PER_SEC,_tstart,_tend); */
-/*   return (_tend-_tstart)/CLOCKS_PER_SEC; */
-/* } */
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
+
+void init_mpi(void);
 
 void tstart(void) {
   struct rusage r;
@@ -838,7 +809,7 @@ my_bcast(YAP_Term t1,YAP_Term t2, YAP_Term t3) {
  * mpi_bcast(+Root,+Data).
  */
 static int 
-mpi_bcast2() {
+mpi_bcast2(void) {
   return my_bcast(YAP_ARG1,YAP_ARG2,YAP_MkIntTerm(0));
 }
 /*
@@ -930,7 +901,7 @@ mpi_ibcast3(void) {
  * mpi_ibcast(+Root,+Data).
  */
 static int 
-mpi_ibcast2() {
+mpi_ibcast2(void) {
   return my_ibcast(YAP_ARG1,YAP_ARG2,YAP_MkIntTerm(0));
 }
 /*******************************************
