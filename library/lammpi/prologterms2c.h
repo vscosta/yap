@@ -1,14 +1,25 @@
-/************************************************************************
- * Copyright (c) 2004,2005,2006 Nuno Fonseca. All rights reserved.
- * This code is freely available for academic purposes.
- * If you intend to use it for commercial purposes then please contact the author first.
- *
- * Author:      Nuno Fonseca                                                 
- * File:	prologterms2c.c						
- * Last rev:	$Id: prologterms2c.h,v 1.1 2006-06-02 04:16:31 nunofonseca Exp $    
- * Comments:	This file provides a set of functions to convert a prolog term to a C string and back.
- *************************************************************************/
+/*
+Copyright (C) 2004,2005,2006 (Nuno A. Fonseca) <nuno.fonseca@gmail.com>
 
+This program is free software; you can redistribute it and/or 
+modify it under the terms of the GNU General Public License 
+as published by the Free Software Foundation; either 
+version 2 of the License, or (at your option) any later 
+version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+Last rev: $Id: prologterms2c.h,v 1.2 2006-06-04 19:02:07 nunofonseca Exp $
+Comments: This file provides a set of functions to convert a prolog term to a C string and back.
+*/
 #ifndef PROLOGTERMS2C
 #define PROLOGTERMS2C 1
 
