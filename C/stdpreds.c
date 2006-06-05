@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-05-19 14:31:32 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-06-05 19:36:00 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.104  2006/05/19 14:31:32  vsc
+* get rid of IntArrays and FloatArray code.
+* include holes when calculating memory usage.
+*
 * Revision 1.103  2006/05/18 16:33:05  vsc
 * fix info reported by memory manager under DL_MALLOC and SYSTEM_MALLOC
 *
@@ -2833,6 +2837,40 @@ p_loop(void) {
 }
 #endif
 
+#if QSAR
+static Int
+p_in_range(void) {
+  Term t;
+  double i,j;
+  double d1;
+  double d2;
+  double d3;
+
+  t = Deref(ARG1);
+  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
+  t = Deref(ARG4);
+  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
+  d1 = i-j;
+  t = Deref(ARG2);
+  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
+  t = Deref(ARG5);
+  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
+  d2 = i-j;
+  t = Deref(ARG3);
+  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
+  t = Deref(ARG6);
+  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
+  d3 = i-j;
+  t = Deref(ARG7);
+  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
+  t = Deref(ARG8);
+  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
+  
+  return fabs(sqrt(d1*d1 + d2*d2 + d3*d3)-i) <= j; 
+
+}
+#endif
+
 static Int
 p_max_tagged_integer(void) {
   return Yap_unify(ARG1, MkIntTerm(MAX_ABS_INT-1L));
@@ -2951,6 +2989,9 @@ Yap_InitCPreds(void)
 #ifdef INES
   Yap_InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
   Yap_InitCPred("loop", 0, p_loop, SafePredFlag);
+#endif
+#if QSAR
+  Yap_InitCPred("in_range", 8, p_in_range, SafePredFlag);
 #endif
 #ifdef DEBUG
   Yap_InitCPred("dump_active_goals", 0, p_dump_active_goals, SafePredFlag|SyncPredFlag);
