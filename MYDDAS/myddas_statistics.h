@@ -41,34 +41,6 @@
     TIME->u.time_final.microseconds = 0;				\
   }
 
-/*
-  Stats [1] - Total of Time Spent by the DB Server processing all the  SQL Querys
-  Stats [2] - Total of Time Spent by the DB Server processing the last SQL Query
-  Stats [3] - Total of Time Spent by the DB Server transfering all the results of the  SQL Querys
-  Stats [4] - Total of Time Spent by the DB Server transfering the result of the last SQL Query 
-    
-  Stats [5] - Total number of Rows returned by the server
-  Stats [6] - Total of Bytes Transfered by the DB Server on all SQL Querys
-  Stats [7] - Total of Bytes Transfered by the DB Server on the last SQL Query 
-  Stats [8] - Number of querys made to the DBserver  
-*/
-#define MYDDAS_STATS_INITIALIZE_CONNECTION_STATS(STATS)                 \
-  short i;                                                              \
-                                                                        \
-  /* For the time statistics */                                         \
-                                                                        \
-  /* First */                                                           \
-  STATS = myddas_stats_initialize_stat(STATS,time_str);                 \
-  for(i=0;i<3;i++){                                                     \
-     myddas_stats_initialize_stat(STATS,time_str);                      \
-  }                                                                     \
-                                                                        \
-  /* For number statistics*/                                            \
-  for (i=0;i<4;i++){                                                    \
-    myddas_stats_initialize_stat(STATS,integer);                        \
-  }
-
-
 #define MYDDAS_STATS_CON_GET_TOTAL_TIME_DBSERVER(NODE,TIME)	\
   TIME = myddas_stats_get_stat(NODE->stats,1)->u.time_str.time_str;
 #define MYDDAS_STATS_CON_GET_TOTAL_TIME_DBSERVER_COUNT(NODE,COUNT)	\
