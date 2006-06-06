@@ -518,6 +518,7 @@ else
 	JAR="$yap_cv_jpl"/bin/jar
 fi
 
+LAM_MPI_CC=${MPI_CC}
 MPI_OBJS=
 if test "$yap_cv_mpi" != "no"
 then
@@ -545,8 +546,8 @@ then
   fi
   CC=${OLD_CC}
 else
-   MPI_CC=${MPI_CC}
-#  MPI_CC=${CC}
+#   MPI_CC=${MPI_CC}
+  MPI_CC=${CC}
 fi
 
 
@@ -568,7 +569,7 @@ fi
 
 # LAM
 OLD_CC=${CC}	
-CC=${MPI_CC}
+CC=${LAM_MPI_CC}
 AC_CHECK_LIB([lam], [main],
 	LAMOBJS=yap_mpi@SHLIB_SUFFIX@,
 	LAMOBJS=no)
@@ -1002,6 +1003,7 @@ AC_SUBST(JAVAC)
 AC_SUBST(JAR)
 AC_SUBST(IN_UNIX)
 AC_SUBST(YAPMPILIB)
+AC_SUBST(LAM_MPI_CC)
 AC_SUBST(MPI_OBJS)
 AC_SUBST(MPI_LIBS)
 AC_SUBST(INSTALL_COMMAND)

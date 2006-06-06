@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT GCC C_INTERF_FLAGS C_PARSER_FLAGS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os LN_S INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA RANLIB ac_ct_RANLIB INDENT ac_ct_INDENT AR ac_ct_AR MPI_CC ac_ct_MPI_CC INSTALL_INFO CPP EGREP M4 M4GENHDRS INSTALL_DLLS MERGE_DLL_OBJS SHLIB_CFLAGS SHLIB_SUFFIX EXEC_SUFFIX DO_SECOND_LD SHLIB_LD DYNLIB_LD YAPLIB DYNYAPLIB YAP_EXTRAS NO_BUILTIN_REGEXP ENABLE_JPL JAVA_HOME JAVAC JAR IN_UNIX YAPMPILIB MPI_OBJS MPI_LIBS INSTALL_COMMAND CROSS_SIMULATOR INSTALLCLP JAVALIBPATH JAVAINCPATH LAMOBJS M4GENABSMI LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT GCC C_INTERF_FLAGS C_PARSER_FLAGS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os LN_S INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA RANLIB ac_ct_RANLIB INDENT ac_ct_INDENT AR ac_ct_AR MPI_CC ac_ct_MPI_CC INSTALL_INFO CPP EGREP M4 M4GENHDRS INSTALL_DLLS MERGE_DLL_OBJS SHLIB_CFLAGS SHLIB_SUFFIX EXEC_SUFFIX DO_SECOND_LD SHLIB_LD DYNLIB_LD YAPLIB DYNYAPLIB YAP_EXTRAS NO_BUILTIN_REGEXP ENABLE_JPL JAVA_HOME JAVAC JAR IN_UNIX YAPMPILIB LAM_MPI_CC MPI_OBJS MPI_LIBS INSTALL_COMMAND CROSS_SIMULATOR INSTALLCLP JAVALIBPATH JAVAINCPATH LAMOBJS M4GENABSMI LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -5118,6 +5118,7 @@ else
 	JAR="$yap_cv_jpl"/bin/jar
 fi
 
+LAM_MPI_CC=${MPI_CC}
 MPI_OBJS=
 if test "$yap_cv_mpi" != "no"
 then
@@ -5291,8 +5292,8 @@ fi
   fi
   CC=${OLD_CC}
 else
-   MPI_CC=${MPI_CC}
-#  MPI_CC=${CC}
+#   MPI_CC=${MPI_CC}
+  MPI_CC=${CC}
 fi
 
 
@@ -5387,7 +5388,7 @@ fi
 
 # LAM
 OLD_CC=${CC}
-CC=${MPI_CC}
+CC=${LAM_MPI_CC}
 echo "$as_me:$LINENO: checking for main in -llam" >&5
 echo $ECHO_N "checking for main in -llam... $ECHO_C" >&6
 if test "${ac_cv_lib_lam_main+set}" = set; then
@@ -12754,6 +12755,7 @@ EXEC_SUFFIX=""
 
 
 
+
 echo "$as_me:$LINENO: checking for gcc threaded code" >&5
 echo $ECHO_N "checking for gcc threaded code... $ECHO_C" >&6
 if test "${yap_cv_threaded_code+set}" = set; then
@@ -16142,6 +16144,7 @@ s,@JAVAC@,$JAVAC,;t t
 s,@JAR@,$JAR,;t t
 s,@IN_UNIX@,$IN_UNIX,;t t
 s,@YAPMPILIB@,$YAPMPILIB,;t t
+s,@LAM_MPI_CC@,$LAM_MPI_CC,;t t
 s,@MPI_OBJS@,$MPI_OBJS,;t t
 s,@MPI_LIBS@,$MPI_LIBS,;t t
 s,@INSTALL_COMMAND@,$INSTALL_COMMAND,;t t
