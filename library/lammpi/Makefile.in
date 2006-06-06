@@ -64,7 +64,7 @@ hash.o: $(srcdir)/hash.c $(srcdir)/hash.h
 @DO_SECOND_LD@	@SHLIB_LD@ $(MPILDF)  -o yap_mpi@SHLIB_SUFFIX@ $(OBJS)
 
 install: all
-	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
+	@if test "$(SOBJS)" = "no"; then echo ""; else $(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR); fi
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
