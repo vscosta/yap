@@ -21,7 +21,7 @@ struct myddas_stats_struct{
     } integer;
   } u;
   MyddasULInt count;
-  MYDDAS_STATS_STRUCT next;
+  MYDDAS_STATS_STRUCT nxt;
 };
 
 /* Time structure for the MYDDAS Interface */

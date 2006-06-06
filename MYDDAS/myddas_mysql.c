@@ -187,8 +187,8 @@ c_db_my_query(void) {
   MYDDAS_STATS_CON_GET_NUMBER_QUERIES_MADE_COUNT(node,count);
   MYDDAS_STATS_CON_SET_NUMBER_QUERIES_MADE_COUNT(node,++count);
 
-  /* Measure time spent by the MySQL Server 
-     processing the SQL Query */ 
+  /* Measure time spent by the MySQL Server
+     processing the SQL Query */
   MYDDAS_STATS_TIME start,end,total_time,diff;
   start = myddas_stats_walltime();
 #endif 
@@ -211,8 +211,8 @@ c_db_my_query(void) {
   myddas_stats_subtract_time(diff,end,start);
   diff = myddas_stats_time_copy_to_final(diff);
   
-  free(end);
-  free(start);
+  MYDDAS_FREE(end,struct myddas_stats_time_struct);
+  MYDDAS_FREE(start,struct myddas_stats_time_struct);
   
   MYDDAS_STATS_CON_GET_TOTAL_TIME_DBSERVER(node,total_time);
     /* Automacally updates the MYDDAS_STRUCTURE */
@@ -249,8 +249,8 @@ c_db_my_query(void) {
     myddas_stats_subtract_time(diff,end,start);
     diff = myddas_stats_time_copy_to_final(diff);
     
-    free(end);
-    free(start);
+    MYDDAS_FREE(end,struct myddas_stats_time_struct);
+    MYDDAS_FREE(start,struct myddas_stats_time_struct);
     
     MYDDAS_STATS_CON_GET_TOTAL_TIME_TRANSFERING(node,total_time);
     /* Automacally updates the MYDDAS_STRUCTURE */
@@ -259,11 +259,11 @@ c_db_my_query(void) {
     MYDDAS_STATS_CON_SET_TOTAL_TIME_TRANSFERING_COUNT(node,++count);
         
     time = NULL;
-    MYDDAS_STATS_CON_GET_LAST_TIME_TRANSFERING(node,time);    
-    MYDDAS_STATS_CON_GET_LAST_TIME_TRANSFERING_COUNT(node,count);    
-    MYDDAS_STATS_CON_SET_LAST_TIME_TRANSFERING_COUNT(node,++count);    
+    MYDDAS_STATS_CON_GET_LAST_TIME_TRANSFERING(node,time);
+    MYDDAS_STATS_CON_GET_LAST_TIME_TRANSFERING_COUNT(node,count);
+    MYDDAS_STATS_CON_SET_LAST_TIME_TRANSFERING_COUNT(node,++count);
     myddas_stats_move_time(diff,time);
-    
+   
     /* Measure the number of Rows returned from the server */
     if (res_set != NULL)
       {
@@ -483,8 +483,8 @@ c_db_my_row_cut(void) {
 static Int
 c_db_my_row(void) {
 #ifdef MYDDAS_STATS
-  /* Measure time used by the 
-     c_db_my_row function */
+/*   Measure time used by the  */
+/*      c_db_my_row function */
   MYDDAS_STATS_TIME start,end,total_time,diff;
   MyddasULInt count = 0;
   start = myddas_stats_walltime();
@@ -503,8 +503,8 @@ c_db_my_row(void) {
   Int i, arity;
   
   arity = IntegerOfTerm(arg_arity);
-
-   while(TRUE)
+  
+  while(TRUE)
     {
       if ((row = mysql_fetch_row(res_set)) != NULL)
 	{
@@ -551,22 +551,21 @@ c_db_my_row(void) {
 	  myddas_stats_subtract_time(diff,end,start);
 	  diff = myddas_stats_time_copy_to_final(diff);
 	  
-	  free(end);
-	  free(start);
+	  MYDDAS_FREE(end,struct myddas_stats_time_struct);
+	  MYDDAS_FREE(start,struct myddas_stats_time_struct);
 	  
 	  MYDDAS_STATS_GET_DB_ROW_FUNCTION(total_time);
 	  myddas_stats_add_time(total_time,diff,total_time);
 	  MYDDAS_STATS_GET_DB_ROW_FUNCTION_COUNT(count);
 	  MYDDAS_STATS_SET_DB_ROW_FUNCTION_COUNT(++count);
 	  	  
-	  free(diff);
+	  MYDDAS_FREE(diff,struct myddas_stats_time_struct);
 #endif /* MYDDAS_STATS */
 	  return TRUE;
 	}
       else 
 	{
 	  mysql_free_result(res_set);
-	  cut_fail();
 #ifdef MYDDAS_STATS
 	  end = myddas_stats_walltime();
 	  
@@ -574,19 +573,21 @@ c_db_my_row(void) {
 	  myddas_stats_subtract_time(diff,end,start);
 	  diff = myddas_stats_time_copy_to_final(diff);
 	  
-	  free(end);
-	  free(start);
+	  MYDDAS_FREE(end,struct myddas_stats_time_struct);
+	  MYDDAS_FREE(start,struct myddas_stats_time_struct);
 	  
 	  MYDDAS_STATS_GET_DB_ROW_FUNCTION(total_time);
 	  myddas_stats_add_time(total_time,diff,total_time);
 	  MYDDAS_STATS_GET_DB_ROW_FUNCTION_COUNT(count);
 	  MYDDAS_STATS_SET_DB_ROW_FUNCTION_COUNT(++count);
 	  
-	  free(diff);
+	  MYDDAS_FREE(diff,struct myddas_stats_time_struct);
 #endif /* MYDDAS_STATS */
-	  return FALSE;
+	  cut_fail();  /* This macro already does a return FALSE */
 	}
+      
     }
+  
 }
 
 static Int 
@@ -714,4 +715,4 @@ c_db_my_change_database(void) {
   return TRUE;
 }
 
-#endif /*MYDDAS_MYSQL*/
+#endif /* MYDDAS_MYSQL */

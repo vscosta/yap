@@ -14,6 +14,17 @@ struct myddas_global {
 #ifdef MYDDAS_STATS
   MYDDAS_GLOBAL_STATS myddas_statistics;
 #endif
+#ifdef DEBUG
+  /* Number times malloc was called */
+  MyddasULInt malloc_called;
+  /* Memory allocated by MYDDAS */
+  MyddasULInt memory_allocated;
+  
+  /* Number times free was called */
+  MyddasULInt free_called;
+  /* Memory freed by MYDDAS */
+  MyddasULInt memory_freed;
+#endif
 };
 
 struct myddas_list_preds {
@@ -27,7 +38,7 @@ struct myddas_list_preds {
 
 struct myddas_list_connection {
   void *connection;
-    
+
   /*If variable env is NULL, then it's a 
     MySQL connection, if not then it as the pointer 
     to the ODBC enviromment variable */
@@ -36,33 +47,6 @@ struct myddas_list_connection {
 #ifdef MYDDAS_STATS
   MYDDAS_STATS_STRUCT stats;
 #endif
-/* #ifdef MYDDAS_STATS */
-/*   /\* Total number of Rows returnes from the DataBase Server *\/ */
-/*   unsigned long totalNumberOfRows; */
-  
-/*   /\* Total Time spent by the DataBase Server */
-/*      processing all querys *\/ */
-/*   MYDDAS_STATS_TIME totalTimeofDBServer;  */
-/*   /\* Time spent by the DataBase Server, processing */
-/*      the last query *\/ */
-/*   MYDDAS_STATS_TIME lastTimeofDBServer; */
-  
-/*   /\* Total Time spent by the DataBase Server, */
-/*      transfering all the data to the client *\/ */
-/*   MYDDAS_STATS_TIME totalFromDBServer;  */
-/*   /\* Time spent by the DataBase Server,  */
-/*      transfering the data of the last query *\/ */
-/*   MYDDAS_STATS_TIME lastFromDBServer;  */
-  
-/*   /\* Last bytes transfered from the server *\/ */
-/*   unsigned long totalBytesTransfered; */
-/*   /\* Total bytes transfered from the server *\/ */
-/*   unsigned long lastBytesTransfered; */
-
-/*   /\* Number of querys made to the Server*\/ */
-/*   unsigned long total_querys_made; */
-
-/* #endif */
   MYDDAS_UTIL_PREDICATE predicates;
 
   /* Multi Queries Section */

@@ -26,7 +26,7 @@
 #endif
 
 #define MYDDAS_STATS_INITIALIZE_TIME_STRUCT(TIME,TYPE)			\
-  TIME = (MYDDAS_STATS_TIME) malloc (sizeof(struct myddas_stats_time_struct)); \
+  MYDDAS_MALLOC(TIME,struct myddas_stats_time_struct);                  \
 									\
   if (TYPE == time_copy){						\
     TIME->type = TYPE;							\
@@ -40,22 +40,6 @@
     TIME->u.time_final.miliseconds = 0;				\
     TIME->u.time_final.microseconds = 0;				\
   }
-
-/*
-  Stats [1] - Total Time spent on the db_row function 
-  Stats [2] - Total Time spent on the translate/3 predicate
-*/
-#define MYDDAS_STATS_INITIALIZE_GLOBAL_STATS(STATS)                 \
-  short i;                                                              \
-                                                                        \
-  /* For the time statistics */                                         \
-                                                                        \
-  /* First */                                                           \
-  STATS = myddas_stats_initialize_stat(STATS,time_str);                 \
-  for(i=0;i<1;i++){                                                     \
-     myddas_stats_initialize_stat(STATS,time_str);                      \
-  }
-
 
 /*
   Stats [1] - Total of Time Spent by the DB Server processing all the  SQL Querys
@@ -82,7 +66,8 @@
   /* For number statistics*/                                            \
   for (i=0;i<4;i++){                                                    \
     myddas_stats_initialize_stat(STATS,integer);                        \
-  }                                                                     \
+  }
+
 
 #define MYDDAS_STATS_CON_GET_TOTAL_TIME_DBSERVER(NODE,TIME)	\
   TIME = myddas_stats_get_stat(NODE->stats,1)->u.time_str.time_str;

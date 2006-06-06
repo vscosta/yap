@@ -15,6 +15,10 @@
 *									 *
 *************************************************************************/
 
+
+/* Initialize MYDDAS GLOBAL STRUCTURES */
+:- c_db_initialize_myddas.
+	 
 :- module(myddas,[
 		  db_open/5,
 		  db_open/4,

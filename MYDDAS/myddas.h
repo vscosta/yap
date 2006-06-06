@@ -114,4 +114,46 @@ typedef struct myddas_global_stats *MYDDAS_GLOBAL_STATS;
 typedef struct myddas_stats_struct *MYDDAS_STATS_STRUCT;
 #endif
 
+#ifdef DEBUG                                                
+#define MYDDAS_MALLOC(POINTER,TYPE)                                \
+ {                                                                 \
+   POINTER = (TYPE *) malloc(sizeof(TYPE));                        \
+   Yap_REGS.MYDDAS_GLOBAL_POINTER->memory_allocated+=sizeof(TYPE); \
+   /*printf ("MALLOC %p %s %d\n",POINTER,__FILE__,__LINE__);*/ \
+   Yap_REGS.MYDDAS_GLOBAL_POINTER->malloc_called++;                \
+ }
+#else
+#define MYDDAS_MALLOC(POINTER,TYPE)                                \
+ {                                                                 \
+   POINTER = (TYPE *) malloc(sizeof(TYPE));                        \
+ }
+#endif
+
+#ifdef DEBUG                                                
+#define MYDDAS_FREE(POINTER,TYPE)                                  \
+ {                                                                 \
+   Yap_REGS.MYDDAS_GLOBAL_POINTER->memory_freed+=sizeof(TYPE);     \
+   Yap_REGS.MYDDAS_GLOBAL_POINTER->free_called++;                  \
+   /*printf ("FREE   %p %s %d\n",POINTER,__FILE__,__LINE__);*/ \
+   free(POINTER);                                                  \
+ }
+#else
+#define MYDDAS_FREE(POINTER,TYPE)                                  \
+ {                                                                 \
+   free(POINTER);                                                  \
+ }
+#endif
+
+#ifdef DEBUG
+#define MYDDAS_MEMORY_MALLOC_NR(NUMBER)   \
+  NUMBER = Yap_REGS.MYDDAS_GLOBAL_POINTER->malloc_called;
+#define MYDDAS_MEMORY_MALLOC_SIZE(NUMBER) \
+  NUMBER = Yap_REGS.MYDDAS_GLOBAL_POINTER->memory_allocated;
+#define MYDDAS_MEMORY_FREE_NR(NUMBER)     \
+  NUMBER = Yap_REGS.MYDDAS_GLOBAL_POINTER->free_called;
+#define MYDDAS_MEMORY_FREE_SIZE(NUMBER)   \
+  NUMBER = Yap_REGS.MYDDAS_GLOBAL_POINTER->memory_freed;
+#endif
+
+
 #endif /*__MYDDAS_H__*/

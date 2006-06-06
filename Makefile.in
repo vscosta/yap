@@ -173,6 +173,7 @@ C_SOURCES= \
 	$(srcdir)/MYDDAS/myddas_mysql.c \
 	$(srcdir)/MYDDAS/myddas_odbc.c \
 	$(srcdir)/MYDDAS/myddas_util.c \
+	$(srcdir)/MYDDAS/myddas_initialization.c \
 	$(srcdir)/MYDDAS/myddas_shared.c \
 	$(srcdir)/MYDDAS/myddas_statistics.c \
 	$(srcdir)/MYDDAS/myddas_top_level.c
@@ -211,7 +212,7 @@ ENGINE_OBJECTS = \
 	exec.o gprof.o grow.o \
 	heapgc.o index.o init.o  inlines.o \
 	iopreds.o depth_bound.o mavar.o \
-	myddas_mysql.o myddas_odbc.o myddas_shared.o \
+	myddas_mysql.o myddas_odbc.o myddas_shared.o myddas_initialization.o \
 	myddas_util.o myddas_statistics.o myddas_top_level.o modules.o other.o   \
 	parser.o save.o scanner.o sort.o stdpreds.o sysbits.o threads.o \
 	tracer.o \
@@ -435,6 +436,9 @@ myddas_shared.o: $(srcdir)/MYDDAS/myddas_shared.c
 
 myddas_util.o: $(srcdir)/MYDDAS/myddas_util.c
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_util.c -o $@
+
+myddas_initialization.o: $(srcdir)/MYDDAS/myddas_initialization.c
+	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_initialization.c -o $@
 
 myddas_top_level.o: $(srcdir)/MYDDAS/myddas_top_level.c
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_top_level.c -o $@

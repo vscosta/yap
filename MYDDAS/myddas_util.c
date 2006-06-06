@@ -9,7 +9,6 @@
 #ifdef MYDDAS_STATS
 #include "myddas_statistics.h"
 #endif
-#include "myddas_initialization.c"
 #ifdef MYDDAS_ODBC
 #include <sql.h>
 #endif /*MYDDAS_ODBC*/
@@ -78,7 +77,7 @@ myddas_util_add_predicate(char *pred_name, Int pred_arity,
     myddas_util_search_connection(con);
   
   MYDDAS_UTIL_PREDICATE new = 
-    myddas_util_initialize_predicate(pred_name,pred_arity,pred_module,node_con->predicates);
+    myddas_init_initialize_predicate(pred_name,pred_arity,pred_module,node_con->predicates);
   
   if (new == NULL)
     {
@@ -105,8 +104,7 @@ myddas_util_delete_predicate(MYDDAS_UTIL_PREDICATE to_delete){
 	  break;
       con_node->predicates = to_delete->next;
     }
-
-  free(to_delete);
+  MYDDAS_FREE(to_delete,struct myddas_list_preds);
 }
 
 void 
@@ -121,6 +119,10 @@ myddas_util_delete_connection(void *conn){
       /* Removes the predicates list */
       myddas_util_delete_predicate_list(to_delete->predicates);
       
+#ifdef MYDDAS_STATS
+      /* Removes the stats list */
+      myddas_stats_delete_stats_list(to_delete->stats);
+#endif
       /* List Integrety */
       /* Is the last element of the list */
       if ((to_delete->next) != NULL)
@@ -132,7 +134,7 @@ myddas_util_delete_connection(void *conn){
       else 
 	to_delete->previous->next=to_delete->next;
       
-      free(to_delete);
+      MYDDAS_FREE(to_delete,struct myddas_list_connection);
       return;
     }
 }
@@ -164,7 +166,7 @@ myddas_util_add_connection(void *conn, void *enviromment){
       return node;
     }
   //put the new connection node on the top of the list
-  temp = myddas_util_initialize_connection(conn,enviromment,Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections);
+  temp = myddas_init_initialize_connection(conn,enviromment,Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections);
   if (temp == NULL)
     {
 #ifdef DEBUG
@@ -243,11 +245,10 @@ myddas_util_delete_predicate_list(MYDDAS_UTIL_PREDICATE preds_list){
       to_delete = preds_list;
       preds_list = preds_list->next;
 
-      free(to_delete);
+      MYDDAS_FREE(to_delete,struct myddas_list_preds);
     }
   return;
 }
-
 
 #ifdef MYDDAS_MYSQL
 void
@@ -319,7 +320,7 @@ myddas_util_table_write(MYSQL_RES *res_set){
 #endif
 
 //DELETE THIS WHEN DB_STATS  IS COMPLETED
-Int
+MyddasInt
 get_myddas_top(){
   if (Yap_REGS.MYDDAS_GLOBAL_POINTER == NULL)
     return 0;
@@ -332,7 +333,7 @@ myddas_util_get_pred_next(void *pointer){
   return (void *) (temp->next);
 }
 
-Int 
+MyddasInt 
 myddas_util_get_pred_arity(void *pointer){
   MYDDAS_UTIL_PREDICATE temp = (MYDDAS_UTIL_PREDICATE) pointer;
   return temp->pred_arity;

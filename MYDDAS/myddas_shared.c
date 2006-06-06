@@ -27,7 +27,7 @@
 #include "myddas_statistics.h"
 #endif
 
-//STATIC_PROTO(Int c_db_get_new_table_name,(void));
+STATIC_PROTO(Int c_db_initialize_myddas,(void));
 STATIC_PROTO(Int c_db_connection_type,(void));
 STATIC_PROTO(Int c_db_add_preds,(void));
 STATIC_PROTO(Int c_db_preds_conn_start ,(void));
@@ -49,6 +49,9 @@ STATIC_PROTO(Int c_db_check,(void));
 
 void Yap_InitMYDDAS_SharedPreds(void)
 {
+  /* c_db_initialize_myddas */
+  Yap_InitCPred("c_db_initialize_myddas",0,c_db_initialize_myddas, 0);
+  
   /* c_db_connection_type: Connection x Type */
   Yap_InitCPred("c_db_connection_type",2,c_db_connection_type, 0);
 
@@ -96,6 +99,17 @@ void Yap_InitBackMYDDAS_SharedPreds(void)
   
 
 }
+
+/* Initialize all of the MYDDAS global structures */
+static Int 
+c_db_initialize_myddas(void){
+  Yap_REGS.MYDDAS_GLOBAL_POINTER = myddas_init_initialize_myddas(); 
+#ifdef MYDDAS_STATS
+  Yap_REGS.MYDDAS_GLOBAL_POINTER = myddas_stats_initialize_global_stats(Yap_REGS.MYDDAS_GLOBAL_POINTER);
+#endif /* MYDDAS_STATS */
+  return TRUE;
+}
+
 
 /* Gives the type of a given connection, 
    in other words, type will be mysql or odbc 
@@ -357,7 +371,9 @@ c_db_stats_translate(void){
     MYDDAS_STATS_GET_TRANSLATE_COUNT(count);
     MYDDAS_STATS_SET_TRANSLATE_COUNT(++count);
     
-    free(diff);
+    MYDDAS_FREE(diff,struct myddas_stats_time_struct);
+    MYDDAS_FREE(start, struct myddas_stats_time_struct);
+    MYDDAS_FREE(end, struct myddas_stats_time_struct);
     
     return TRUE;
 #ifdef DEBUG
@@ -614,7 +630,20 @@ c_db_stats(void) {
   MYDDAS_STATS_PRINT_TIME_STRUCT(time);
   printf ("\n\n");
 #endif
+
+  /* Memory management */
+#ifdef DEBUG
+  MyddasULInt nr;
+  MYDDAS_MEMORY_MALLOC_NR(nr);
+  printf ("Number of times malloc was called in MYDDAS: %lu \n",nr);
+  MYDDAS_MEMORY_FREE_NR(nr);
+  printf ("Number of times free was called in MYDDAS  : %lu \n",nr);
   
+  MYDDAS_MEMORY_MALLOC_SIZE(nr);
+  printf ("Total memory allocated in MYDDAS: %lu \n",nr);
+  MYDDAS_MEMORY_FREE_SIZE(nr);
+  printf ("Total memory freed in MYDDAS    : %lu \n",nr);
+#endif
   
   return TRUE;
 }
@@ -624,20 +653,44 @@ c_db_stats(void) {
 
 /* Function to delete all the temporary tables */
 /* from the mysql server */
-void Yap_MyDDAS_delete_all_myddas_structs(void)
+void Yap_MYDDAS_delete_all_myddas_structs(void)
 {
-  //char *table_name;
-  //char query[500];
-  
-  /* NAO ESQUECER DE FAZER ISTO TB PARA O DB_CLOSE*/
 
-/*   for(;(table_name = myddas_util_delete_all_temp_table()) != NULL ;) { */
-/*     printf ("%s\n",table_name); */
-/*     sprintf (query,"DROP TABLE IF EXISTS %s",table_name); */
-/*     printf ("%s\n",query); */
-/*     free(table_name); */
-/*     query[0]=0; */
-/*   } */   
+  /* NAO ESQUECER DE FAZER ISTO TB PARA O DB_CLOSE*/
+  MYDDAS_GLOBAL global = 
+    Yap_REGS.MYDDAS_GLOBAL_POINTER;
+
+  /* In case that the MYDDAS module isn't loaded */
+  if (global == NULL)
+    return;
+
+  MYDDAS_UTIL_CONNECTION connections =
+    global->myddas_top_connections;
+  
+  /* Delete all connections */
+  for(;connections!=NULL;connections=connections->next)
+    myddas_util_delete_connection(connections->connection);
+  
+#ifdef MYDDAS_STATS
+  myddas_stats_delete_stats_list(global->myddas_statistics->stats);
+  MYDDAS_FREE(global->myddas_statistics,struct myddas_global_stats);
+#endif
+
+  MYDDAS_FREE(global,struct myddas_global);
+
+#ifdef DEBUG
+  MyddasULInt nr;
+  MYDDAS_MEMORY_MALLOC_NR(nr);
+  printf ("Number of times malloc was called in MYDDAS: %lu \n",nr);
+  MYDDAS_MEMORY_FREE_NR(nr);
+  printf ("Number of times free was called in MYDDAS  : %lu \n",nr);
+  
+  MYDDAS_MEMORY_MALLOC_SIZE(nr);
+  printf ("Total memory allocated in MYDDAS: %lu \n",nr);
+  MYDDAS_MEMORY_FREE_SIZE(nr);
+  printf ("Total memory freed in MYDDAS    : %lu \n",nr);
+#endif
+  
 }
 
 

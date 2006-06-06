@@ -65,15 +65,19 @@ myddas_stats_integrity_of_time(MYDDAS_STATS_TIME);
 MYDDAS_STATS_TIME
 myddas_stats_walltime(void) {
 
-  MYDDAS_STATS_TIME myddas_time;
-  myddas_time = (MYDDAS_STATS_TIME) malloc (sizeof(struct timeval));
+  MYDDAS_STATS_TIME myddas_time = NULL;
+  MYDDAS_MALLOC(myddas_time,struct myddas_stats_time_struct);
   myddas_time->type = time_copy;
 
-  struct timeval time;
-  gettimeofday(&time,NULL);
-
-  myddas_time->u.time_copy.tv_sec = time.tv_sec;
-  myddas_time->u.time_copy.tv_usec = time.tv_usec;
+  struct timeval *time = NULL;
+  MYDDAS_MALLOC(time,struct timeval);
+  
+  gettimeofday(time,NULL);
+  
+  myddas_time->u.time_copy.tv_sec = time->tv_sec;
+  myddas_time->u.time_copy.tv_usec = time->tv_usec;
+  
+  MYDDAS_FREE(time,struct timeval);
 
   return myddas_time;
 }
@@ -146,7 +150,7 @@ myddas_stats_move_time(MYDDAS_STATS_TIME from,
       to->u.time_final.miliseconds = from->u.time_final.miliseconds; 
       to->u.time_final.microseconds = from->u.time_final.microseconds; 
     }
-  free(from);
+  MYDDAS_FREE(from,struct myddas_stats_time_struct);
 }
 
 MYDDAS_STATS_TIME
@@ -158,7 +162,8 @@ myddas_stats_time_copy_to_final(MYDDAS_STATS_TIME t_copy){
   myddas_stats_add_seconds_time(t_final,
 				t_copy->u.time_copy.tv_sec,
 				t_copy->u.time_copy.tv_usec);
-  free(t_copy);
+  
+  MYDDAS_FREE(t_copy,struct myddas_stats_time_struct);
   return t_final;
 }
 
@@ -233,6 +238,62 @@ myddas_stats_integrity_of_time(MYDDAS_STATS_TIME myddas_time){
     }								
 }
 
+MYDDAS_GLOBAL
+myddas_stats_initialize_global_stats(MYDDAS_GLOBAL global){
+  
+  MYDDAS_STATS_STRUCT stats = NULL; 
+  
+  short i;
+  
+  /* For the time statistics */
+  /*
+    Stats [1] - Total Time spent on the db_row function 
+    Stats [2] - Total Time spent on the translate/3 predicate
+  */
+
+  /* First */
+  stats = myddas_stats_initialize_stat(stats,time_str);
+  (global->myddas_statistics)->stats = stats;
+  for(i=0;i<1;i++){ 
+    myddas_stats_initialize_stat(stats,time_str);
+  }
+  
+  return global;
+}
+
+MYDDAS_STATS_STRUCT
+myddas_stats_initialize_connection_stats(){
+  /*
+  Stats [1] - Total of Time Spent by the DB Server processing all the  SQL Querys
+  Stats [2] - Total of Time Spent by the DB Server processing the last SQL Query
+  Stats [3] - Total of Time Spent by the DB Server transfering all the results of the  SQL Querys
+  Stats [4] - Total of Time Spent by the DB Server transfering the result of the last SQL Query 
+    
+  Stats [5] - Total number of Rows returned by the server
+  Stats [6] - Total of Bytes Transfered by the DB Server on all SQL Querys
+  Stats [7] - Total of Bytes Transfered by the DB Server on the last SQL Query 
+  Stats [8] - Number of querys made to the DBserver  
+  */
+
+  short i;
+  MYDDAS_STATS_STRUCT new = NULL ;
+  MYDDAS_STATS_STRUCT first;        
+  /* For the time statistics */ 
+               
+  /* First */  
+  new = myddas_stats_initialize_stat(new,time_str);
+  first = new;
+  for(i=0;i<3;i++){                 
+     new = myddas_stats_initialize_stat(new,time_str);
+  }                                               
+                                                  
+  /* For number statistics*/                      
+  for (i=0;i<4;i++){                              
+    new = myddas_stats_initialize_stat(new,integer);  
+  }
+
+  return first;
+}
 
 MYDDAS_STATS_STRUCT
 myddas_stats_initialize_stat(MYDDAS_STATS_STRUCT stat,int type){
@@ -240,12 +301,12 @@ myddas_stats_initialize_stat(MYDDAS_STATS_STRUCT stat,int type){
   MYDDAS_STATS_STRUCT temp_str = stat;
 
   if (stat == NULL){
-    stat = (MYDDAS_STATS_STRUCT) malloc (sizeof(struct myddas_stats_struct));
+    MYDDAS_MALLOC(stat,struct myddas_stats_struct);
     temp_str = stat;
   } else {
-    for (;temp_str->next != NULL;temp_str = temp_str->next);
-    temp_str->next = (MYDDAS_STATS_STRUCT) malloc (sizeof(struct myddas_stats_struct));
-    temp_str = temp_str->next;
+    for (;temp_str->nxt != NULL;temp_str = temp_str->nxt);
+    MYDDAS_MALLOC(temp_str->nxt,struct myddas_stats_struct);
+    temp_str = temp_str->nxt;
   }
   
   if (type == time_str){
@@ -255,7 +316,7 @@ myddas_stats_initialize_stat(MYDDAS_STATS_STRUCT stat,int type){
   }
   temp_str->type = type;
   temp_str->count = 0;
-  temp_str->next = NULL;
+  temp_str->nxt = NULL;
   return temp_str;
 }
 
@@ -265,9 +326,31 @@ myddas_stats_get_stat(MYDDAS_STATS_STRUCT stat,int index){
   MYDDAS_STATS_STRUCT temp = stat;
 
   for (;index>1;index--){
-    temp = temp->next;
+    temp = temp->nxt;
   }
   return temp;
 }
+
+void
+myddas_stats_delete_stats_list(MYDDAS_STATS_STRUCT list){
+  
+  MYDDAS_STATS_STRUCT to_delete = list;
+  
+  for (;to_delete!=NULL;){
+    list = list->nxt;
+ 
+    
+    if (to_delete->type == time_str){
+      MYDDAS_FREE(to_delete->u.time_str.time_str,struct myddas_stats_time_struct);
+    }
+
+    MYDDAS_FREE(to_delete,struct myddas_stats_struct);
+    
+    to_delete = list;
+  }
+
+}
+
+
 #endif /* MYDDAS_STATS || MYDDAS_TOP_LEVEL */
 
