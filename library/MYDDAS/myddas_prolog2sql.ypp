@@ -393,14 +393,14 @@ translate_arithmetic_function('$var$'(VarId),Expression,ArithComparison,Dict,Dic
    % Left side consists of qualified attribute, i.e. range variable must not be
    % arithmetic operator is/2 
 
-   lookup(VarId,Dict,PrevRangeVar,PrevAtt,PrevType),
+   lookup(VarId,Dict,PrevRangeVar,PrevAtt,_),
    not (PrevRangeVar = is),
 
    % test whether type of attribute is numeric - if not, there's no sense in 
    % continuing the translation
 
    %type_compatible(PrevType,number),
-   evaluable_expression(Expression,Dict,ArithExpression,ExprType),
+   evaluable_expression(Expression,Dict,ArithExpression,_),
    %type_compatible(ExprType,number),
    ArithComparison = [comp(att(PrevRangeVar,PrevAtt),'=',ArithExpression)].
 
@@ -411,18 +411,18 @@ translate_arithmetic_function('$var$'(VarId),Expression,ArithComparison,Dict,Dic
    % belonging to arithmetic expression which is expressed as RangeVar-argument 
    % of lookup returning is/2. Type information is implicit through the is/2 functor
 
-   lookup(VarId,Dict,is,LeftExpr,Type),
+   lookup(VarId,Dict,is,LeftExpr,_),
    %type_compatible(Type,number),
-   evaluable_expression(Expression,Dict,RightExpr,ExprType),
+   evaluable_expression(Expression,Dict,RightExpr,_),
    %type_compatible(ExprType,number),
    ArithComparison = [comp(LeftExpr,'=',RightExpr)].
 
 
 translate_arithmetic_function('$const$'(Constant),Expression,ArithComparison,Dict,Dict):-
    % --- is/2 used to test whether left side evaluates to right side -------------------
-   get_type('$const$'(Constant),ConstantType),
+   get_type('$const$'(Constant),_),
    %type_compatible(ConstantType,number),
-   evaluable_expression(Expression,Dict,ArithExpression,ExprType),
+   evaluable_expression(Expression,Dict,ArithExpression,_),
    %type_compatible(ExprType,number),
    ArithComparison = [comp('$const$'(Constant),'=',ArithExpression)].
 
@@ -437,8 +437,8 @@ translate_arithmetic_function('$const$'(Constant),Expression,ArithComparison,Dic
 % ------------------------------------------------------------------------------
 
 translate_comparison(LeftArg,RightArg,CompOp,Dict,Comparison):-
-   evaluable_expression(LeftArg,Dict,LeftTerm,LeftArgType),
-   evaluable_expression(RightArg,Dict,RightTerm,RightArgType),
+   evaluable_expression(LeftArg,Dict,LeftTerm,_),
+   evaluable_expression(RightArg,Dict,RightTerm,_),
    %type_compatible(LeftArgType,RightArgType),
    Comparison = [comp(LeftTerm,CompOp,RightTerm)].
 
@@ -498,14 +498,14 @@ translate_argument('$var$'(VarId),rel(SQLTable,RangeVar),Position,[],Dict,NewDic
 
 translate_argument('$var$'(VarId),rel(SQLTable,RangeVar),Position,AttComparison,Dict,Dict):-
    % --- Variable occurred previously - retrieve first occurrence data from dictionary -
-   lookup(VarId,Dict,PrevRangeVar,PrevAtt,PrevType),
-   attribute(Position,SQLTable,Attribute,Type),
+   lookup(VarId,Dict,PrevRangeVar,PrevAtt,_),
+   attribute(Position,SQLTable,Attribute,_),
    % type_compatible(PrevType,Type),
    AttComparison = [comp(att(RangeVar,Attribute),=,att(PrevRangeVar,PrevAtt))].
 
 translate_argument('$const$'(Constant),rel(SQLTable,RangeVar),Position,ConstComparison,Dict,Dict):-
    % --- Equality comparison of constant value and attribute in table ------------------
-   attribute(Position,SQLTable,Attribute,Type),
+   attribute(Position,SQLTable,Attribute,_),
    %get_type('$const$'(Constant),ConstType),
    %type_compatible(ConstType,Type),
    ConstComparison = [comp(att(RangeVar,Attribute),=,'$const$'(Constant))].
@@ -1021,8 +1021,18 @@ print_column(existential_subquery(Select,From,Where)):-
 % transformed to an atom by name/2
 % ---------------------------------------------------------------- 
 
-
+#ifdef MYDDAS_STATS
 queries_atom(Queries,QueryAtom):-
+	c_db_stats_walltime(Start),
+	queries_atom_(Queries,QueryAtom),
+	c_db_stats_walltime(End),
+	c_db_stats_translate(Start,End).
+
+queries_atom_(Queries,QueryAtom):-
+#else
+queries_atom(Queries,QueryAtom):-
+#endif
+
    queries_atom(Queries,QueryList,[]),
    name(QueryAtom,QueryList).
 

@@ -207,7 +207,7 @@ db_change_database(Connection,Database) :-
 db_call_procedure(Procedure,Args,Result) :-
 	db_call_procedure(myddas,Procedure,Args,Result).
 db_call_procedure(Connection,Procedure,Args,LA) :-
-	'$error_checks'(db_call_procedure(Connection,Procedure,Args,Result)),
+	'$error_checks'(db_call_procedure(Connection,Procedure,Args,LA)),
 	'$make_atom_args'(Args,ArgsSQL),
 	'$make_atom'(['CALL ',Procedure,'(',ArgsSQL,')'],SQL),
 	db_sql(Connection,SQL,LA).

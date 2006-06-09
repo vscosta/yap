@@ -120,8 +120,8 @@
         nonvar(DbGoal),
 	nonvar(Pred),
 	nonvar(DbGoal),
-	Pred =.. [_|PredArgs],
-	DbGoal =.. [_|DbGoalArgs].
+	Pred =.. [_|_],
+	DbGoal =.. [_|_].
 	%'$check_list_on_list'(PredArgs,DbGoalArgs).
 '$error_checks'(db_import(Connection,RelationName,PredName)) :- !,
         atom(Connection),
