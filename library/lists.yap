@@ -342,8 +342,8 @@ min_list([H|L],Max0,Max) :-
 	(
 	  H < Max0 
 	->
-	  max_list(L, H, Max)
+	  min_list(L, H, Max)
 	;
-	  max_list(L, Max0, Max)
+	  min_list(L, Max0, Max)
 	).
 
