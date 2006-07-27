@@ -11,8 +11,12 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2006-05-19 14:31:31 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-07-27 19:04:56 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.77  2006/05/19 14:31:31  vsc
+* get rid of IntArrays and FloatArray code.
+* include holes when calculating memory usage.
+*
 * Revision 1.76  2006/05/19 13:48:11  vsc
 * help to make Yap work with dynamic libs
 *
@@ -2794,7 +2798,7 @@ c_layout(compiler_struct *cglobs)
       {
 	up = cglobs->Uses;
 	cop = cglobs->Contents;
-	for (rn = 0; rn <= cglobs->MaxCTemps; ++rn) {
+	for (rn = 0; rn < cglobs->MaxCTemps; ++rn) {
 	  if (*cop != (TempVar | rn)) {
 	    *up++ = *cop++ = NIL;
 	  } else {

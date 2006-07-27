@@ -30,6 +30,7 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/avl.yap \
 	$(srcdir)/charsio.yap \
 	$(srcdir)/cleanup.yap \
+	$(srcdir)/dbqueues.yap \
 	$(srcdir)/dgraphs.yap \
 	$(srcdir)/gensym.yap \
 	$(srcdir)/heaps.yap \

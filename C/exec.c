@@ -1649,6 +1649,40 @@ p_clean_ifcp(void) {
 }
 
 
+
+static int disj_marker(yamop *apc) {
+  op_numbers opnum = Yap_op_from_opcode(apc->opc);
+
+  return opnum == _or_else || opnum == _or_last;
+}
+
+
+static Int
+p_cut_up_to_next_disjunction(void) {
+  choiceptr pt0 = B;
+  CELL *qenv = (CELL *)ENV[E_E];
+  
+  while (pt0 &&
+	 (!disj_marker(pt0->cp_ap) ||  qenv != pt0->cp_env)) {
+    pt0 = pt0->cp_b;
+  }
+  if (!pt0)
+    return TRUE;
+#ifdef YAPOR
+  CUT_prune_to(pt0);
+#endif /* YAPOR */
+  /* find where to cut to */
+  if (SHOULD_CUT_UP_TO(B,pt0)) {
+    B = pt0;
+#ifdef TABLING
+    abolish_incomplete_subgoals(B);
+#endif /* TABLING */
+  }
+  /* trim_trail(); */
+  return TRUE;
+}
+
+
 static Int
 JumpToEnv(Term t) {
   yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,l),
@@ -1851,6 +1885,7 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$restore_regs", 2, p_restore_regs2, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("qpack_clean_up_to_disjunction", 0, p_cut_up_to_next_disjunction, SafePredFlag);
   Yap_InitCPred("$jump_env_and_store_ball", 1, p_jump_env, HiddenPredFlag);
   Yap_InitCPred("$generate_pred_info", 4, p_generate_pred_info, HiddenPredFlag);
   Yap_InitCPred("$uncaught_throw", 0, p_uncaught_throw, HiddenPredFlag);

@@ -3084,7 +3084,7 @@ static Int
       old_H = H;
       Yap_eot_before_eof = FALSE;
       tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(inp_stream);
-      if (Yap_Error_TYPE && seekable) {
+      if (Yap_Error_TYPE != YAP_NO_ERROR && seekable) {
 	H = old_H;
 	Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	if (Stream[inp_stream].status & InMemory_Stream_f) {
@@ -3227,8 +3227,6 @@ static Int
 	restore_machine_regs();
 
 	old_TR = TR;
-	/* don't need to recheck tokens */
-	tokstart = NULL;
 	/* restart global */
 	H = old_H;
 	TR = (tr_fr_ptr)ScannerStack;

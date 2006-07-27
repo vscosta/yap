@@ -16,6 +16,11 @@
 
 <h2>Yap-5.1.2:</h2>
 <ul>
+<li> NEW: rbqueues keeps a simple db queue</li> 
+<li> NEW: cut_up_to_next_disjunction/0 tries to prune until the closest
+choice-point from the parent disjunction (think query packs).</li>
+<li> FIXED: error condition when we expand to maximum number of variables.</li>
+<li> FIXED: bug when variable list in parser overflows.</li>
 <li> FIXED: min_list (obs from Filip Zelezny).</li>
 <li> FIXED: -l and -L options (again?).</li>
 <li> FIXED: if we cannot read more chars in saved state we're dead.</li>

@@ -1,3 +1,5 @@
+% A library to implement queues of DB Terms
+
 :- module(dbqueue, [
 	db_enqueue/2,
 	db_dequeue/2,
