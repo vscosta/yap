@@ -11,8 +11,13 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2006-07-27 19:04:56 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-08-01 13:14:17 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.78  2006/07/27 19:04:56  vsc
+* fix nasty overflows in and add some very preliminary support for very large
+* clauses with lots
+* of disjuncts (eg, query packs).
+*
 * Revision 1.77  2006/05/19 14:31:31  vsc
 * get rid of IntArrays and FloatArray code.
 * include holes when calculating memory usage.
@@ -1266,7 +1271,7 @@ IsTrueGoal(Term t) {
     if (f == FunctorModule) {
       return(IsTrueGoal(ArgOfTerm(2,t)));
     }
-    if (f == FunctorComma || f == FunctorOr || f == FunctorArrow) {
+    if (f == FunctorComma || f == FunctorOr || f == FunctorVBar || f == FunctorArrow) {
       return(IsTrueGoal(ArgOfTerm(1,t)) && IsTrueGoal(ArgOfTerm(2,t)));
     }
     return(FALSE);
@@ -1421,7 +1426,7 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
   else {
     f = FunctorOfTerm(Goal);
     p = RepPredProp(p0 = Yap_PredPropByFunctorNonThreadLocal(f, mod));
-    if (f == FunctorOr) {
+    if (f == FunctorOr || f == FunctorVBar) {
       Term arg;
       CELL l = ++cglobs->labelno;
       CELL m = ++cglobs->labelno;
@@ -1530,7 +1535,8 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 	++cglobs->curbranch;
 	cglobs->onbranch = cglobs->curbranch;
       } while (IsNonVarTerm(Goal) && IsApplTerm(Goal)
-	       && FunctorOfTerm(Goal) == FunctorOr);
+	       && (FunctorOfTerm(Goal) == FunctorOr
+		   || FunctorOfTerm(Goal) == FunctorVBar));
       Yap_emit(pushpop_or_op, Zero, Zero, &cglobs->cint);
       Yap_emit(label_op, l, Zero, &cglobs->cint);
       if (!optimizing_commit) {

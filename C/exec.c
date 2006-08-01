@@ -1663,7 +1663,7 @@ p_cut_up_to_next_disjunction(void) {
   CELL *qenv = (CELL *)ENV[E_E];
   
   while (pt0 &&
-	 (!disj_marker(pt0->cp_ap) ||  qenv != pt0->cp_env)) {
+	 !( qenv == pt0->cp_env && disj_marker(pt0->cp_ap))) {
     pt0 = pt0->cp_b;
   }
   if (!pt0)
