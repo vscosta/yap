@@ -216,7 +216,7 @@ ENGINE_OBJECTS = \
 	myddas_mysql.o myddas_odbc.o myddas_shared.o myddas_initialization.o \
 	myddas_util.o myddas_statistics.o myddas_top_level.o \
 	modules.o other.o   \
-	parser.o readutil.o save.o scanner.o sort.o stdpreds.o
+	parser.o readutil.o save.o scanner.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
 	unify.o userpreds.o utilpreds.o write.o ypsocks.o ypstdio.o @MPI_OBJS@
 
