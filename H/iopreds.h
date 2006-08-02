@@ -31,6 +31,8 @@ FILE *rl_instream, *rl_outstream;
 
 #endif
 
+typedef int (*GetsFunc)(int, UInt, char *);
+
 typedef struct stream_desc
   {
     union {
@@ -73,6 +75,7 @@ typedef struct stream_desc
 #endif
     int (* stream_putc)(int, int);  /* function the stream uses for writing */
     int (* stream_getc)(int);       /* function the stream uses for reading */
+    GetsFunc stream_gets;           /* function the stream uses for reading a sequence of characters */
     /* function the stream uses for parser. It may be different if the ISO
        character conversion is on */
     int (* stream_getc_for_read)(int);

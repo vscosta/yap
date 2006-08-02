@@ -190,6 +190,7 @@ Subnodes of Library
 * Pseudo Random:: Pseudo Random Numbers
 * Queues:: Queue Manipulation
 * Random:: Random Numbers
+* Read Utilities:: SWI inspired utilities for fast stream scanning.
 * Red-Black Trees:: Predicates to add, lookup and delete in red-black binary  trees.
 * RegExp:: Regular Expression Manipulation
 * Splay Trees:: Splay Trees
@@ -6809,6 +6810,7 @@ Library, Extensions, Builtins, Top
 * Pseudo Random:: Pseudo Random Numbers
 * Queues:: Queue Manipulation
 * Random:: Random Numbers
+* Read Utilities:: SWI inspired utilities for fast stream scanning.
 * Red-Black Trees:: Predicates to add, lookup and delete in red-black binary  trees.
 * RegExp:: Regular Expression Manipulation
 * Splay Trees:: Splay Trees
@@ -7665,7 +7667,7 @@ Creates a new list with the same elements as @var{Queue}.
 @end table
 
 
-@node Random, Red-Black Trees, Queues, Library
+@node Random, Read Utilities, Queues, Library
 @section Random Number Generator
 @cindex queue
 
@@ -7724,7 +7726,91 @@ random number generator. The integer @code{X} must be in the range
 
 @end table
 
-@node Red-Black Trees, RegExp, Random, Library
+@node Read Utilities, Red-Black Trees, Random, Library
+@section Read Utilities
+
+The @code{readutil} library contains primitives to read lines, files,
+multiple terms, etc.
+
+@table @code
+@item read_line_to_codes(+@var{Stream}, -@var{Codes})
+@findex read_line_to_codes/2
+@snindex read_line_to_codes/2
+@cnindex read_line_to_codes/2
+
+Read the next line of input from @var{Stream} and unify the result with
+@var{Codes} @emph{after} the line has been read.  A line is ended by a
+newline character or end-of-file. Unlike @code{read_line_to_codes/3},
+this predicate removes trailing newline character.
+
+On end-of-file the atom @code{end_of_file} is returned.  See also
+@code{at_end_of_stream/[0,1]}.
+
+@item read_line_to_codes(+@var{Stream}, -@var{Codes}, ?@var{Tail})
+@findex read_line_to_codes/3
+@snindex read_line_to_codes/3
+@cnindex read_line_to_codes/3
+Diference-list version to read an input line to a list of character
+codes.  Reading stops at the newline or end-of-file character, but
+unlike @code{read_line_to_codes/2}, the newline is retained in the
+output.  This predicate is especially useful for readine a block of
+lines upto some delimiter.  The following example reads an HTTP header
+ended by a blank line:
+
+@example
+read_header_data(Stream, Header) :-
+	read_line_to_codes(Stream, Header, Tail),
+	read_header_data(Header, Stream, Tail).
+
+read_header_data("\r\n", _, _) :- !.
+read_header_data("\n", _, _) :- !.
+read_header_data("", _, _) :- !.
+read_header_data(_, Stream, Tail) :-
+	read_line_to_codes(Stream, Tail, NewTail),
+	read_header_data(Tail, Stream, NewTail).
+@end example
+
+@item read_stream_to_codes(+@var{Stream}, -@var{Codes})
+@findex read_stream_to_codes/3
+@snindex read_stream_to_codes/3
+@cnindex read_stream_to_codes/3
+Read all input until end-of-file and unify the result to @var{Codes}.
+
+@item read_stream_to_codes(+@var{Stream}, -@var{Codes}, ?@var{Tail})
+@findex read_stream_to_codes/3
+@snindex read_stream_to_codes/3
+@cnindex read_stream_to_codes/3
+Difference-list version of @code{read_stream_to_codes/2}.
+
+@item read_file_to_codes(+@var{Spec}, -@var{Codes}, +@var{Options})
+@findex read_file_to_codes/3
+@snindex read_file_to_codes/3
+@cnindex read_file_to_codes/3
+Read a file to a list of character codes. Currently ignores
+@var{Options}.
+
+@c  @var{Spec} is a
+@c file-specification for absolute_file_name/3.  @var{Codes} is the
+@c resulting code-list.  @var{Options} is a list of options for
+@c absolute_file_name/3 and open/4.  In addition, the option
+@c \term{tail}{Tail} is defined, forming a difference-list.
+
+@item read_file_to_terms(+@var{Spec}, -@var{Terms}, +@var{Options})
+@findex read_file_to_terms/3
+@snindex read_file_to_terms/3
+@cnindex read_file_to_terms/3
+Read a file to a list of prolog terms (see read/1). @c @var{Spec} is a
+@c file-specification for absolute_file_name/3.  @var{Terms} is the
+@c resulting list of Prolog terms.  @var{Options} is a list of options for
+@c absolute_file_name/3 and open/4.  In addition, the option
+@c \term{tail}{Tail} is defined, forming a difference-list.
+@c \end{description}
+
+@end table
+
+
+
+@node Red-Black Trees, RegExp, Read Utilities, Library
 @section Red-Black Trees
 @cindex Red-Black Trees
 

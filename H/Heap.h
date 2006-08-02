@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.101 2006-05-19 14:31:32 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.102 2006-08-02 18:18:30 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -476,7 +476,8 @@ typedef struct various_codes {
     attributes_module,
     charsio_module,
     terms_module,
-    system_module;
+    system_module,
+    readutil_module;
   void *last_wtime;
   struct pred_entry *pred_goal_expansion;
   struct pred_entry *pred_meta_call;
@@ -758,6 +759,8 @@ struct various_codes *Yap_heap_regs;
 #define  CHARSIO_MODULE           Yap_heap_regs->charsio_module
 #define  TERMS_MODULE             Yap_heap_regs->terms_module
 #define  SYSTEM_MODULE            Yap_heap_regs->system_module
+#define  READUTIL_MODULE          Yap_heap_regs->readutil_module
+#define  READUTIL_MODULE          Yap_heap_regs->readutil_module
 #define  PredGoalExpansion        Yap_heap_regs->pred_goal_expansion
 #define  PredMetaCall             Yap_heap_regs->pred_meta_call
 #define  PredDollarCatch          Yap_heap_regs->pred_dollar_catch

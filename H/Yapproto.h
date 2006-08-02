@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.74 2006-06-06 14:09:09 tiagosoares Exp $	 *
+* version:      $Id: Yapproto.h,v 1.75 2006-08-02 18:18:30 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -39,6 +39,7 @@ void	STD_PROTO(Yap_MkFunctorWithAddress,(Atom,unsigned int,FunctorEntry *));
 void	STD_PROTO(Yap_PutValue,(Atom,Term));
 void	STD_PROTO(Yap_ReleaseAtom,(Atom));
 Term	STD_PROTO(Yap_StringToList,(char *));
+Term	STD_PROTO(Yap_StringToDiffList,(char *,Term));
 Term	STD_PROTO(Yap_StringToListOfAtoms,(char *));
 
 #define Yap_StartSlots() (*--ASP = MkIntTerm(0))
@@ -259,6 +260,9 @@ Term	STD_PROTO(Yap_MkNewPairTerm,(void));
 
 /* parser.c */
 Term	STD_PROTO(Yap_Parse,(void));
+
+/* readutil.c */
+void	STD_PROTO(Yap_InitReadUtil,(void));
 
 /* save.c */
 int	STD_PROTO(Yap_SavedInfo,(char *,char *,CELL *,CELL *,CELL *));

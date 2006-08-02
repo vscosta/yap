@@ -226,6 +226,7 @@ typedef enum{       /* we accept two domains for the moment, IPV6 may follow */
 } socket_domain;
 
 Term  STD_PROTO(Yap_InitSocketStream,(int, socket_info, socket_domain));
+int   STD_PROTO(Yap_CheckStream,(Term, int, char *));
 int   STD_PROTO(Yap_CheckSocketStream,(Term, char *));
 socket_domain   STD_PROTO(Yap_GetSocketDomain,(int));
 socket_info   STD_PROTO(Yap_GetSocketStatus,(int));

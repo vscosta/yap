@@ -43,6 +43,7 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/queues.yap \
 	$(srcdir)/random.yap \
 	$(srcdir)/rbtrees.yap \
+	$(srcdir)/readutil.yap \
 	$(srcdir)/regexp.yap \
 	$(srcdir)/splay.yap \
 	$(srcdir)/swi.yap \

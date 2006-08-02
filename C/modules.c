@@ -181,6 +181,8 @@ Yap_InitModules(void)
     TERMS_MODULE;
   ModuleName[6] =
     SYSTEM_MODULE;
-  NoOfModules = 7;
+  ModuleName[7] =
+    READUTIL_MODULE;
+  NoOfModules = 8;
   CurrentModule = PROLOG_MODULE;
 }

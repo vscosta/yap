@@ -96,6 +96,8 @@ STATIC_PROTO (int ConsolePutc, (int, int));
 STATIC_PROTO (Int p_setprompt, (void));
 STATIC_PROTO (Int p_prompt, (void));
 STATIC_PROTO (int PlGetc, (int));
+STATIC_PROTO (int DefaultGets, (int,UInt,char*));
+STATIC_PROTO (int PlGets, (int,UInt,char*));
 STATIC_PROTO (int MemGetc, (int));
 STATIC_PROTO (int ISOGetc, (int));
 STATIC_PROTO (int ConsoleGetc, (int));
@@ -290,6 +292,7 @@ p_always_prompt_user(void)
   StreamDesc *s = Stream+StdInStream;
 
   s->status |= Promptable_Stream_f;
+  s->stream_gets = DefaultGets;
 #if USE_SOCKET
   if (s->status & Socket_Stream_f) {
     s->stream_getc = ConsoleSocketGetc;
@@ -320,6 +323,15 @@ is_same_tty(YP_File f1, YP_File f2)
 #endif  
 }
 
+static GetsFunc
+PlGetsFunc(void)
+{
+  if (CharConversionTable)
+      return DefaultGets;
+    else
+      return PlGets;
+}
+
 static void
 InitStdStream (int sno, SMALLUNSGN flags, YP_File file)
 {
@@ -334,6 +346,7 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file)
   /* Getting streams to prompt is a mess because we need for cooperation
      between readers and writers to the stream :-(
   */
+  s->stream_gets = PlGetsFunc();
 #if USE_SOCKET
   if (s->status & Socket_Stream_f) {
     /* Console is a socket and socket will prompt */
@@ -370,6 +383,7 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file)
       /* we are reading from a file, no need to check for prompts */
       s->stream_putc = FilePutc;
       s->stream_getc = PlGetc;
+      s->stream_gets = PlGetsFunc();
     } 
     switch(sno) {
     case 0:
@@ -1086,6 +1100,7 @@ EOFGetc(int sno)
 	}
     } else {
       s->stream_getc = PlGetc;
+      s->stream_gets = PlGetsFunc();
     }
     if (CharConversionTable != NULL)
       s->stream_getc_for_read = ISOGetc;
@@ -1324,6 +1339,42 @@ PlGetc (int sno)
   return(post_process_read_char(ch, s));
 }
 
+/* standard routine, it should read from anything pointed by a FILE *.
+   It could be made more efficient by doing our own buffering and avoiding
+   post_process_read_char, something to think about */
+static int
+PlGets (int sno, UInt size, char *buf)
+{
+  register StreamDesc *s = &Stream[sno];
+  UInt len;
+
+  if (fgets (buf, size, s->u.file.file) == NULL)
+    return -1;
+  len = strlen(buf);
+  s->charcount += len-1;
+  post_process_read_char(buf[len-2], s);
+  return strlen(buf);
+}
+
+/* standard routine, it should read from anything pointed by a FILE *.
+   It could be made more efficient by doing our own buffering and avoiding
+   post_process_read_char, something to think about */
+static int
+DefaultGets (int sno, UInt size, char *buf)
+{
+  StreamDesc *s = &Stream[sno];
+  int ch;
+  char *pt = buf;
+
+
+  if (!size)
+    return 0;
+  while((ch = *buf++ = s->stream_getc(sno)) != 
+	-1 && ch != 10 && --size); 
+  *buf++ = '\0';
+  return pt-buf;
+}
+
 /* read from memory */
 static int
 MemGetc (int sno)
@@ -1551,6 +1602,7 @@ Yap_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
   st->linepos = 0;
   st->stream_putc = SocketPutc;
   st->stream_getc = SocketGetc;
+  st->stream_gets = DefaultGets;
   if (CharConversionTable != NULL)
     st->stream_getc_for_read = ISOGetc;
   else
@@ -1707,6 +1759,7 @@ p_open (void)
   st->linepos = 0;
   st->stream_putc = FilePutc;
   st->stream_getc = PlGetc;
+  st->stream_gets = PlGetsFunc();
   unix_upd_stream_info (st);
   if (opts != 0) {
     if (opts & 2)
@@ -1719,17 +1772,21 @@ p_open (void)
 	if (st->status & Socket_Stream_f) {
 	  st->stream_putc = SocketPutc;
 	  st->stream_getc = SocketGetc;
+	  st->stream_gets = DefaultGets;
 	} else
 #endif
 	if (st->status & Pipe_Stream_f) {
 	  st->stream_putc = PipePutc;
 	  st->stream_getc = PipeGetc;
+	  st->stream_gets = DefaultGets;
 	} else if (st->status & InMemory_Stream_f) {
 	  st->stream_putc = MemPutc;
 	  st->stream_getc = MemGetc;	  
+	  st->stream_gets = DefaultGets;	  
 	} else {
 	  st->stream_putc = ConsolePutc;
 	  st->stream_getc = PlGetc;
+	  st->stream_gets = PlGetsFunc();
 	}
 	ta[1] = MkAtomTerm(AtomTrue);
 	t = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("reposition"),1),1,ta);
@@ -1900,6 +1957,7 @@ p_open_null_stream (void)
   st->linecount = 1;
   st->stream_putc = NullPutc;
   st->stream_getc = PlGetc;
+  st->stream_gets = PlGetsFunc();
   st->stream_getc_for_read = PlGetc;
   st->u.file.user_name = MkAtomTerm (st->u.file.name = Yap_LookupAtom ("/dev/null"));
   t = MkStream (sno);
@@ -1943,6 +2001,7 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
   st->u.file.user_name = file_name;
   st->u.file.file = fd;
   st->linepos = 0;
+  st->stream_gets = PlGetsFunc();
   if (flags & YAP_PIPE_STREAM) {
     st->stream_putc = PipePutc;
     st->stream_getc = PipeGetc;
@@ -1998,6 +2057,7 @@ p_open_pipe_stream (void)
   st->linecount = 1;
   st->stream_putc = PipePutc;
   st->stream_getc = PipeGetc;
+  st->stream_gets = DefaultGets;
   if (CharConversionTable != NULL)
     st->stream_getc_for_read = ISOGetc;
   else
@@ -2017,6 +2077,7 @@ p_open_pipe_stream (void)
   st->linecount = 1;
   st->stream_putc = PipePutc;
   st->stream_getc = PipeGetc;
+  st->stream_gets = DefaultGets;
   if (CharConversionTable != NULL)
     st->stream_getc_for_read = ISOGetc;
   else
@@ -2048,6 +2109,7 @@ open_buf_read_stream(char *nbuf, Int nchars)
   st->linecount = 1;
   st->stream_putc = MemPutc;
   st->stream_getc = MemGetc;
+  st->stream_gets = DefaultGets;
   if (CharConversionTable != NULL)
     st->stream_getc_for_read = ISOGetc;
   else
@@ -2123,6 +2185,7 @@ open_buf_write_stream(char *nbuf, UInt  sz)
   st->linecount = 1;
   st->stream_putc = MemPutc;
   st->stream_getc = MemGetc;
+  st->stream_gets = DefaultGets;
   if (CharConversionTable != NULL)
     st->stream_getc_for_read = ISOGetc;
   else
@@ -2388,6 +2451,12 @@ CheckStream (Term arg, int kind, char *msg)
     }
   LOCK(Stream[sno].streamlock);
   return (sno);
+}
+
+int
+Yap_CheckStream (Term arg, int kind, char *msg)
+{
+  return CheckStream(arg, kind, msg);
 }
 
 static Int
@@ -3506,6 +3575,7 @@ p_set_stream_position (void)
       return(FALSE);
     }
     Stream[sno].stream_getc = PlGetc;
+    Stream[sno].stream_gets = PlGetsFunc();
   } else if (FunctorOfTerm (tin) == FunctorStreamEOS) {
     if (IsVarTerm (tp = ArgOfTerm (1, tin))) {
       UNLOCK(Stream[sno].streamlock);
@@ -3528,6 +3598,7 @@ p_set_stream_position (void)
       return(FALSE);
     }
     Stream[sno].stream_getc = PlGetc;
+    Stream[sno].stream_gets = PlGetsFunc();
     /* reset the counters */
     Stream[sno].linepos = 0;
     Stream[sno].linecount = 0;
@@ -5067,7 +5138,7 @@ p_same_file(void) {
       }
     } else if (stat(f2, &buf2) == -1) {
       /* file does not exist, but was opened? Return -1 */
-      return(FALSE);
+      return FALSE;
     }
     return(buf1.st_ino == buf2.st_ino
 #ifdef __LCC__
@@ -5238,6 +5309,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$same_file", 2, p_same_file, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 
+  Yap_InitReadUtil ();
 #if USE_SOCKET
   Yap_InitSockets ();
 #endif

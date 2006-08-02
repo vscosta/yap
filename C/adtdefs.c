@@ -863,6 +863,17 @@ Yap_StringToList(char *s)
 }
 
 Term
+Yap_StringToDiffList(char *s, Term t)
+{
+  register unsigned char *cp = (unsigned char *)s + strlen(s);
+
+  while (cp > (unsigned char *)s) {
+    t = MkPairTerm(MkIntTerm(*--cp), t);
+  }
+  return t;
+}
+
+Term
 Yap_StringToListOfAtoms(char *s)
 {
   register Term t;
