@@ -101,26 +101,42 @@ p_stream_to_codes(void)
 {
   int sno = Yap_CheckStream (ARG1, Input_Stream_f, "read_line_to_codes/2");
   CELL *HBASE = H;
+  CELL *h0 = &ARG4;
 
   if (sno < 0)
     return FALSE;
   while (!(Stream[sno].status & Eof_Stream_f)) {
     /* skip errors */
     Int ch = Stream[sno].stream_getc(sno);
+    Term t;
     if (ch == EOFCHAR)
       break;
-    *H++ = MkIntTerm(ch);
-    *H = AbsPair(H+1);
-    H++;
-    if (H >= ASP) {
-      Yap_Error(OUT_OF_STACK_ERROR, ARG1, "read_stream_to_codes/3");
-      return FALSE;      
+    t = MkIntegerTerm(ch);
+    h0[0] = AbsPair(H);
+    *H = t;
+    H+=2;
+    h0 = H-1;
+    if (H >= ASP-1024) {
+      RESET_VARIABLE(h0);
+      ARG4 = AbsPair(HBASE);
+      ARG5 = (CELL)h0;
+      fprintf(stderr,"+ %p-%p=%p\n",HBASE,H,H-HBASE);
+      if (!Yap_gc(5, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, ARG1, "read_stream_to_codes/3");
+	return FALSE;
+      }
+      /* build a legal term again */
+      h0 = (CELL *)ARG5;
+      HBASE = RepPair(ARG4);
+      fprintf(stderr,"- %p-%p=%d\n",HBASE,h0,h0-HBASE);
     }
   }
   if (H == HBASE)
     return Yap_unify(ARG2,ARG3);
-  H[-1] = Deref(ARG3);
+  RESET_VARIABLE(H-1);
+  Yap_unify(H[-1],ARG3);
   return Yap_unify(AbsPair(HBASE),ARG2);
+    
 }
 
 static Int
@@ -162,7 +178,7 @@ Yap_InitReadUtil(void)
   CurrentModule = READUTIL_MODULE;
   Yap_InitCPred("read_line_to_codes", 2, p_rl_to_codes, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("read_line_to_codes", 3, p_rl_to_codes2, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("read_stream_to_codes", 3, p_stream_to_codes, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("read_stream_to_codes", 3, p_stream_to_codes, SyncPredFlag);
   Yap_InitCPred("read_stream_to_terms", 3, p_stream_to_terms, SafePredFlag|SyncPredFlag);
   CurrentModule = cm;
 }

@@ -30,11 +30,6 @@
 read_stream_to_codes(Stream, Codes) :-
 	read_stream_to_codes(Stream, Codes, []).
 
-read_file_to_codes(File, Codes) :-
-	open(File, read, Stream),
-	read_stream_to_codes(Stream, Codes, []),
-	close(Stream).
-
 read_file_to_codes(File, Codes, _) :-
 	open(File, read, Stream),
 	read_stream_to_codes(Stream, Codes, []),
@@ -42,7 +37,7 @@ read_file_to_codes(File, Codes, _) :-
 
 read_file_to_codes(File, Codes) :-
 	open(File, read, Stream),
-	read_stream_to_terms(Stream, Codes, []),
+	read_stream_to_codes(Stream, Codes, []),
 	close(Stream).
 
 read_file_to_terms(File, Codes, _) :-
