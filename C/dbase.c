@@ -2379,6 +2379,9 @@ p_still_variant(void)
     link_entry *lp = (link_entry *)(dbt->Contents+dbt->NOfCells);
     link_entry link;
 
+    if (!dbt->NOfCells) {
+      return IsVarTerm(t2);
+    }
     while ((link = *lp++)) {
       Term t2 = Deref(old_h[link-1]);
       if (IsUnboundVar(dbt->Contents+(link-1))) {

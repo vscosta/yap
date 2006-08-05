@@ -355,6 +355,16 @@ static Int p_stop_low_level_trace(void)
   return(TRUE);
 }
 
+volatile int vsc_wait;
+
+static Int p_vsc_wait(void)
+{
+  fprintf(stderr,"attach %d\n",getpid());
+  while (!vsc_wait);
+  vsc_wait=1;
+  return(TRUE);
+}
+
 void
 Yap_InitLowLevelTrace(void)
 {
@@ -363,6 +373,7 @@ Yap_InitLowLevelTrace(void)
   Yap_InitCPred("start_low_level_trace", 1, p_start_low_level_trace2, SafePredFlag);
 #endif
   Yap_InitCPred("stop_low_level_trace", 0, p_stop_low_level_trace, SafePredFlag);
+  Yap_InitCPred("vsc_wait", 0, p_vsc_wait, SafePredFlag);
 }
 
 #endif

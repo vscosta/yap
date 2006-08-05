@@ -96,12 +96,24 @@ extern char *Yap_bp;
 #define  MARK_BIT 1
 #define RMARK_BIT 2
 
-#define mcell(X)  Yap_bp[X-(CELL *)Yap_GlobalBase]
+#define mcell(X)  Yap_bp[(X)-(CELL *)Yap_GlobalBase]
 
 static inline Int
 MARKED_PTR(CELL* ptr)
 {
   return mcell(ptr) & MARK_BIT;
+}
+
+static inline Int
+UNMARKED_MARK(CELL* ptr, char *bp)
+{
+  Int pos = ptr - (CELL *)Yap_GlobalBase;
+  char t = bp[pos];
+  if (t & MARK_BIT) {
+    return TRUE;
+  }
+  bp[pos] = t | MARK_BIT;
+  return FALSE;
 }
 
 static inline void
@@ -115,6 +127,9 @@ UNMARK(CELL* ptr)
 {
   mcell(ptr) = mcell(ptr) & ~MARK_BIT;
 }
+
+/* not really that useful */
+#define MAY_UNMARK(X)
 
 #define UNMARK_CELL(X) (X)
 

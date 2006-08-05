@@ -120,7 +120,6 @@ p_stream_to_codes(void)
       RESET_VARIABLE(h0);
       ARG4 = AbsPair(HBASE);
       ARG5 = (CELL)h0;
-      fprintf(stderr,"+ %p-%p=%p\n",HBASE,H,H-HBASE);
       if (!Yap_gc(5, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, ARG1, "read_stream_to_codes/3");
 	return FALSE;
@@ -128,7 +127,6 @@ p_stream_to_codes(void)
       /* build a legal term again */
       h0 = (CELL *)ARG5;
       HBASE = RepPair(ARG4);
-      fprintf(stderr,"- %p-%p=%d\n",HBASE,h0,h0-HBASE);
     }
   }
   if (H == HBASE)

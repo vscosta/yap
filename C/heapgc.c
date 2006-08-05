@@ -1098,12 +1098,12 @@ mark_variable(CELL_PTR current)
   CELL_PTR        next;
   register CELL	ccur;
   unsigned int    arity;
+  char *local_bp = Yap_bp;
 
  begin:
-  if (MARKED_PTR(current)) {
+  if (UNMARKED_MARK(current,local_bp)) {
     POP_CONTINUATION();
   }
-  MARK(current);
   if (current >= H0 && current < H) {
     total_marked++;
     if (current < HGEN) {
@@ -1203,14 +1203,35 @@ mark_variable(CELL_PTR current)
 #endif
     }
     POP_CONTINUATION();
+  } else if (IsAtomOrIntTerm(ccur)) {
+#ifdef INSTRUMENT_GC
+    if (IsAtomTerm(ccur))
+      inc_vars_of_type(current,gc_atom);
+    else 
+      inc_vars_of_type(current, gc_int);
+#endif
+    POP_CONTINUATION();
   } else if (IsPairTerm(ccur)) {
 #ifdef INSTRUMENT_GC
     inc_vars_of_type(current,gc_list);
 #endif
     if (ONHEAP(next)) {
-      PUSH_CONTINUATION(next+1,1);
-      current = next;
-      goto begin;
+      /* speedup for strings */
+      if (IsAtomOrIntTerm(*next)) {
+	if (!UNMARKED_MARK(next,local_bp)) {
+	  total_marked++;
+	  if (next < HGEN) {
+	    total_oldies++;
+	  }
+	  PUSH_POINTER(next);
+	}
+	current = next+1;
+	goto begin;
+      } else {
+	PUSH_CONTINUATION(next+1,1);
+	current = next;
+	goto begin;
+      }
     } else if (ONCODE(next)) {
       mark_db_fixed(RepPair(ccur));
     }
@@ -1323,13 +1344,6 @@ mark_variable(CELL_PTR current)
     PUSH_CONTINUATION(current+1,arity-1);
     goto begin;
   }
-#ifdef INSTRUMENT_GC
-  else if (IsAtomTerm(ccur))
-    inc_vars_of_type(current,gc_atom);
-  else 
-    inc_vars_of_type(current, gc_int);
-#endif
-  POP_CONTINUATION();
 }
 
 void 
@@ -3451,18 +3465,17 @@ static void
 sweep_oldgen(CELL *max, CELL *base)
 {
   CELL *ptr = base;
-  long int nof = 0;
+  char *bpb = Yap_bp+(base-(CELL*)Yap_GlobalBase);
+
   while (ptr < max) {
-    if (MARKED_PTR(ptr)) {
-      nof++;
-      UNMARK(ptr);
+    if (*bpb & MARK_BIT) {
       if (HEAP_PTR(*ptr)) {
 	into_relocation_chain(ptr, GET_NEXT(*ptr));
       }
     }
     ptr++;
+    bpb++;
   }
-  /* fprintf(stderr,"found %d, %p-%p\n", nof, base, max); */
 }
 
 #ifdef COROUTINING
