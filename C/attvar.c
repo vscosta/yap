@@ -214,6 +214,7 @@ BuildAttTerm(Functor mfun, UInt ar)
   UInt i;
 
   if (H+(1024+ar) > ASP) {
+    Yap_Error_Size=ar*sizeof(CELL);
     return 0L;
   }
   H[0] = (CELL)mfun;
@@ -418,6 +419,7 @@ AllAttVars(attvar_record *attv) {
 
     if (ASP - H < 1024) {
       H = h0;
+      Yap_Error_Size = (ASP-H)*sizeof(CELL);
       return 0L;
     }
     if (IsVarTerm(attv->Done) && IsUnboundVar(&attv->Done)) {
@@ -471,7 +473,7 @@ p_put_att(void) {
     mfun= Yap_MkFunctor(modname,ar);
     if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts,mfun))) {
       while (!(tatts = BuildAttTerm(mfun,ar))) {
-	if (!Yap_gc(5, ENV, P)) {
+	if (!Yap_gcl(Yap_Error_Size, 5, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}    
@@ -549,7 +551,7 @@ p_rm_att(void) {
     mfun= Yap_MkFunctor(modname,ar);
     if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts,mfun))) {
       while (!(tatts = BuildAttTerm(mfun,ar))) {
-	if (!Yap_gc(4, ENV, P)) {
+	if (!Yap_gcl(Yap_Error_Size, 4, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}    
@@ -882,7 +884,7 @@ p_all_attvars(void)
 
     base = (attvar_record *)Yap_GlobalBase+IntegerOfTerm(Yap_ReadTimedVar(AttsMutableList));
     if (!(out = AllAttVars(base))) {
-      if (!Yap_gc(1, ENV, P)) {
+      if (!Yap_gcl(Yap_Error_Size, 1, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return FALSE;
       }    

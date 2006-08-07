@@ -683,6 +683,7 @@ Yap_tokenizer(int inp_stream)
   int (*QuotedNxtch) (int) = Stream[inp_stream].stream_getc;
 
   Yap_ErrorMessage = NULL;
+  Yap_Error_Size = 0;
   Yap_VarTable = NULL;
   Yap_AnonVarTable = NULL;
   Yap_eot_before_eof = FALSE;
@@ -801,6 +802,7 @@ Yap_tokenizer(int inp_stream)
 	  UNLOCK(Stream[inp_stream].streamlock);
 	  Yap_ErrorMessage = "Stack Overflow";
 	  Yap_Error_TYPE = OUT_OF_STACK_ERROR;	            
+	  Yap_Error_Size = 0L;	            
 	  if (p)
 	    p->Tok = Ord(kind = eot_tok);
 	  /* serious error now */

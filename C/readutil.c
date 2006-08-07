@@ -120,7 +120,7 @@ p_stream_to_codes(void)
       RESET_VARIABLE(h0);
       ARG4 = AbsPair(HBASE);
       ARG5 = (CELL)h0;
-      if (!Yap_gc(5, ENV, P)) {
+      if (!Yap_gcl((ASP-HBASE)*sizeof(CELL), 5, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, ARG1, "read_stream_to_codes/3");
 	return FALSE;
       }

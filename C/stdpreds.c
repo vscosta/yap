@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-06-05 19:36:00 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-08-07 18:51:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.105  2006/06/05 19:36:00  vsc
+* hacks
+*
 * Revision 1.104  2006/05/19 14:31:32  vsc
 * get rid of IntArrays and FloatArray code.
 * include holes when calculating memory usage.
@@ -1681,9 +1684,9 @@ p_univ(void)
       if (H > ASP - 1024) {
 	/* restore space */
 	H = Ar;
-	if (!Yap_gc(2, ENV, P)) {
+	if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return(FALSE);
+	  return FALSE;
 	}
 	twork = TailOfTerm(Deref(ARG2));
 	goto build_compound;
@@ -1756,7 +1759,7 @@ p_univ(void)
 #endif
       {
 	while (H+arity*2 > ASP-1024) {
-	  if (!Yap_gc(2, ENV, P)) {
+	  if (!Yap_gcl((arity*2)*sizeof(CELL), 2, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }

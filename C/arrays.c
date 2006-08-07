@@ -157,7 +157,7 @@ GetTermFromArray(DBTerm *ref)
 	}
       } else {
 	Yap_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_gc(3, ENV, P)) {
+	if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return TermNil;
 	}
@@ -721,7 +721,7 @@ p_create_array(void)
 
     farray = Yap_MkFunctor(AtomArray, size);
     if (H+1+size > ASP-1024) {
-      if (!Yap_gc(2, ENV, P)) {
+      if (!Yap_gcl((1+size)*sizeof(CELL), 2, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	return(FALSE);
       } else {
@@ -759,7 +759,7 @@ p_create_array(void)
     if (EndOfPAEntr(pp)) {
       if (H+1+size > ASP-1024) {
 	WRITE_UNLOCK(ae->ARWLock);
-	if (!Yap_gc(2, ENV, P)) {
+	if (!Yap_gcl((1+size)*sizeof(CELL), 2, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	  return(FALSE);
 	} else
@@ -781,7 +781,7 @@ p_create_array(void)
 	      ae->StrOfAE);
       } else {
 	if (H+1+size > ASP-1024) {
-	  if (!Yap_gc(2, ENV, P)) {
+	  if (!Yap_gcl((1+size)*sizeof(CELL), 2, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    return(FALSE);
 	  } else
@@ -2189,7 +2189,7 @@ p_static_array_to_term(void)
       CELL *base;
 
       while (H+1+dim > ASP-1024) {
-	if (!Yap_gc(2, ENV, P)) {
+	if (!Yap_gcl((1+dim)*sizeof(CELL), 2, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	  return(FALSE);
 	} else {

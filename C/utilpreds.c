@@ -313,7 +313,7 @@ CopyTerm(Term inp, UInt arity) {
 	XREGS[arity+1] = t;
 	H = Hi-1;
 	if (res == -1) { /* handle overflow */
-	  if (!Yap_gc(arity+1, ENV, P)) {
+	  if (!Yap_gcl((ASP-H)*sizeof(CELL), arity+1, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
@@ -350,7 +350,7 @@ CopyTerm(Term inp, UInt arity) {
 	H = Hi;
 	XREGS[arity+1] = t;
 	if (res == -1) { /* handle overflow */
-	  if (!Yap_gc(arity+1, ENV, P)) {
+	  if (!Yap_gcl((ASP-H)*sizeof(CELL), arity+1, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
@@ -387,7 +387,7 @@ CopyTerm(Term inp, UInt arity) {
 	H = HB0;
 	XREGS[arity+1] = t;
 	if (res == -1) {
-	  if (!Yap_gc(arity+1, ENV, P)) {
+	  if (!Yap_gcl((ASP-H)*sizeof(CELL),arity+1, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
@@ -631,7 +631,7 @@ CopyTermNoDelays(Term inp) {
     if (res) {
       H = Hi;
       if (res == -1) { /* handle overflow */
-	if (!Yap_gc(2, ENV, P)) {
+	if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
@@ -664,7 +664,7 @@ CopyTermNoDelays(Term inp) {
     if (res) {
       H = HB0;
       if (res == -1) {
-	if (!Yap_gc(2, ENV, P)) {
+	if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
@@ -809,6 +809,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
   clean_tr(TR0);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   H = InitialH;
+  Yap_Error_Size = (ASP-H)*sizeof(CELL);
   return 0L;
   
 }
@@ -840,7 +841,7 @@ p_variables_in_term(void)	/* variables in term t		 */
 				 ArityOfFunctor(f), ARG2);
     }
     if (out == 0L) {
-      if (!Yap_gc(3, ENV, P)) {
+      if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_variables");
 	return FALSE;
       }
@@ -871,7 +872,7 @@ p_term_variables(void)	/* variables in term t		 */
 				 ArityOfFunctor(f), TermNil);
     }
     if (out == 0L) {
-      if (!Yap_gc(2, ENV, P)) {
+      if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_variables");
 	return FALSE;
       }
@@ -902,7 +903,7 @@ p_term_variables3(void)	/* variables in term t		 */
 				 ArityOfFunctor(f), ARG3);
     }
     if (out == 0L) {
-      if (!Yap_gc(3, ENV, P)) {
+      if (!Yap_gcl((ASP-H)*sizeof(CELL), 3, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_variables");
 	return FALSE;
       }
@@ -1681,7 +1682,7 @@ p_variant(void) /* variant terms t1 and t2	 */
   }
  error:
   if (out == -1) {
-    if (!Yap_gc(2, ENV, P)) {
+    if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in variant");
       return FALSE;
     }

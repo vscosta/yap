@@ -2678,7 +2678,7 @@ p_peek_mem_write_stream (void)
     if (H + 1024 >= ASP) {
       UNLOCK(Stream[sno].streamlock);
       H = HI;
-      if (!Yap_gc(3, ENV, P)) {
+      if (!Yap_gcl((ASP-HI)*sizeof(CELL), 3, ENV, P)) {
 	UNLOCK(Stream[sno].streamlock);
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
@@ -3182,7 +3182,7 @@ static Int
 	  }
 	} else if (Yap_Error_TYPE == OUT_OF_STACK_ERROR) {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gc(nargs, ENV, CP)) {
+	  if (!Yap_gcl(Yap_Error_Size, nargs, ENV, CP)) {
 	    return FALSE;
 	  }
 	}

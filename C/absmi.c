@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-05-24 02:35:39 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-08-07 18:51:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.202  2006/05/24 02:35:39  vsc
+* make chr work and other minor fixes.
+*
 * Revision 1.201  2006/04/27 14:11:57  rslopes
 * *** empty log message ***
 *
@@ -11433,7 +11436,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxx),sla))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxx),sla))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -11546,7 +11549,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xcx),sla))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xcx),sla))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -11763,7 +11766,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,yxx),sla))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxx),sla))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -11898,7 +11901,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,ycx),sla))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,ycx),sla))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -12042,7 +12045,7 @@ Yap_absmi(int inp)
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
-	if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,yxc),sla))) {
+	if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxc),sla))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	  setregs();
 	  JMPNext();
@@ -12432,7 +12435,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gc(3, YREG, NEXTOP(NEXTOP(PREG,e),sla))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP(PREG,e),sla))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();

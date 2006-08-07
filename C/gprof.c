@@ -11,8 +11,11 @@
 * File:		gprof.c							 *
 * comments:	Interrupt Driven Profiler				 *
 *									 *
-* Last rev:     $Date: 2006-04-27 20:58:59 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2006-08-07 18:51:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.5  2006/04/27 20:58:59  rslopes
+* fix do profiler offline.
+*
 * Revision 1.4  2006/02/01 13:28:56  vsc
 * bignum support fixes
 *
@@ -101,6 +104,8 @@ RBTreeCreate(void) {
   temp->red=0;
   return temp;
 }
+
+/* This is code originally written by Emin Martinian */
 
 /***********************************************************************/
 /*  FUNCTION:  LeftRotate */

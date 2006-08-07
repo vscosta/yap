@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-05-24 02:35:39 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-08-07 18:51:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.189  2006/05/24 02:35:39  vsc
+* make chr work and other minor fixes.
+*
 * Revision 1.188  2006/05/18 16:33:04  vsc
 * fix info reported by memory manager under DL_MALLOC and SYSTEM_MALLOC
 *
@@ -4778,7 +4781,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 	  }
 	} else {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gc(7, YENV, P)) {
+	  if (!Yap_gcl(Yap_Error_Size, 7, YENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
@@ -4790,7 +4793,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 	ARG6 = th;
 	ARG7 = tb;
 	ARG8 = tr;
-	if (!Yap_gc(8, ENV, CP)) {
+	if (!Yap_gcl(Yap_Error_Size, 8, ENV, CP)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}
@@ -4894,13 +4897,13 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
 	  }
 	} else {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gc(4, YENV, P)) {
+	  if (!Yap_gcl(Yap_Error_Size, 4, YENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
 	}
       } else {
-	if (!Yap_gc(5, ENV, CP)) {
+	if (!Yap_gcl(Yap_Error_Size, 5, ENV, CP)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}
@@ -5049,7 +5052,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 	ARG6 = th;
 	ARG7 = tb;
 	ARG8 = tr;
-	if (!Yap_gc(8, ENV, CP)) {
+	if (!Yap_gcl(Yap_Error_Size, 8, ENV, CP)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}

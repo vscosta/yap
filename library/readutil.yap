@@ -42,7 +42,7 @@ read_file_to_codes(File, Codes) :-
 
 read_file_to_terms(File, Codes, _) :-
 	open(File, read, Stream),
-	read_stream_to_terms(Stream, Codes, []),
+	prolog_read_stream_to_terms(Stream, Codes, []),
 	close(Stream).
 
 read_file_to_terms(File, Codes) :-
@@ -51,7 +51,13 @@ read_file_to_terms(File, Codes) :-
 	close(Stream).
 
 
-
-
+prolog_read_stream_to_terms(Stream, Terms, Terms0) :-
+	read(Stream, Term),
+	(Term == end_of_file ->
+	    Terms = Terms0
+	;
+	    Terms = [Term|TermsI],
+	    prolog_read_stream_to_terms(Stream, TermsI, Terms0)
+	).
 
 

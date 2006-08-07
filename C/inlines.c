@@ -711,7 +711,7 @@ p_functor(void)			/* functor(?,?,?) */
     *pt1++ = d0;
     d0 = AbsAppl(H);
     if (pt1+d1 > ENV - CreepFlag) {
-      if (!Yap_gc(3, ENV, P)) {
+      if (!Yap_gcl((1+d1)*sizeof(CELL), 3, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       }

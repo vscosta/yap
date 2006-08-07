@@ -58,7 +58,7 @@ build_new_list(CELL *pt, Term t)
     }
     pt += 2;
     if (pt > ASP - 4096) {
-      if (!Yap_gc(2, ENV, P)) {
+      if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       }

@@ -280,7 +280,7 @@ recover_from_record_error(int nargs)
 {
   switch(Yap_Error_TYPE) {
   case OUT_OF_STACK_ERROR:
-    if (!Yap_gc(nargs, ENV, P)) {
+    if (!Yap_gcl(Yap_Error_Size, nargs, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;
     }
