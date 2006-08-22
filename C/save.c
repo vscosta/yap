@@ -881,6 +881,7 @@ get_regs(int flag)
     OldH = H;
     OldTR = TR;
     GDiff = Unsigned(NewGlobalBase) - Unsigned(Yap_GlobalBase);
+    GDiff0 = 0;
     LDiff = Unsigned(NewLCL0) - Unsigned(LCL0);
     TrDiff = LDiff;
     Yap_GlobalBase = (ADDR)NewGlobalBase;

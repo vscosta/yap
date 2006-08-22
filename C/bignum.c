@@ -51,15 +51,7 @@ Yap_MkBigIntTerm(MP_INT *big)
   dst->_mp_alloc = big->_mp_alloc;
   memmove((void *)(dst+1), (const void *)(big->_mp_d), nlimbs*CellSize);
   H = (CELL *)(dst+1)+nlimbs;
-  if ((char *)H-(char *)ret > MAX_SPECIALS_TAG-EndSpecials) {
-    /* too large */
-    return TermNil;
-  }
-#if GC_NO_TAGS
-  H[0] = (H-ret)*sizeof(CELL)+EndSpecials;
-#else
-  H[0] = ((H-ret)*sizeof(CELL)+EndSpecials)|MBIT;
-#endif
+  H[0] = EndSpecials;
   H++;
   return AbsAppl(ret);
 }

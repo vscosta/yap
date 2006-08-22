@@ -1779,6 +1779,7 @@ p_generate_pred_info(void) {
 void
 Yap_InitYaamRegs(void)
 {
+  Term h0var;
 
 #if PUSH_REGS
   /* Guarantee that after a longjmp we go back to the original abstract
@@ -1824,10 +1825,10 @@ Yap_InitYaamRegs(void)
   /* for slots to work */
   Yap_StartSlots();
 #if COROUTINING
-  RESET_VARIABLE((CELL *)Yap_GlobalBase);
-  DelayedVars = Yap_NewTimedVar(MkIntTerm(0));
+  h0var = MkVarTerm();
+  DelayedVars = Yap_NewTimedVar(h0var);
   WokenGoals = Yap_NewTimedVar(TermNil);
-  AttsMutableList = Yap_NewTimedVar(MkIntTerm(0));
+  AttsMutableList = Yap_NewTimedVar(h0var);
 #endif
   GcGeneration = Yap_NewTimedVar(MkIntTerm(0));
   GcCurrentPhase = 0L;

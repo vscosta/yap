@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-08-07 18:51:44 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-08-22 16:12:46 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.106  2006/08/07 18:51:44  vsc
+* fix garbage collector not to try to garbage collect when we ask for large
+* chunks of stack in a single go.
+*
 * Revision 1.105  2006/06/05 19:36:00  vsc
 * hacks
 *
@@ -3000,21 +3004,22 @@ Yap_InitCPreds(void)
   Yap_InitCPred("dump_active_goals", 0, p_dump_active_goals, SafePredFlag|SyncPredFlag);
 #endif
 
-  Yap_InitUnify();
-  Yap_InitInlines();
-  Yap_InitCdMgr();
-  Yap_InitExecFs();
-  Yap_InitIOPreds();
-  Yap_InitCmpPreds();
-  Yap_InitDBPreds();
+  Yap_InitArrayPreds();
   Yap_InitBBPreds();
   Yap_InitBigNums();
-  Yap_InitSysPreds();
-  Yap_InitSavePreds();
+  Yap_InitCdMgr();
+  Yap_InitCmpPreds();
   Yap_InitCoroutPreds();
-  Yap_InitArrayPreds();
+  Yap_InitDBPreds();
+  Yap_InitExecFs();
+  Yap_InitGlobals();
+  Yap_InitInlines();
+  Yap_InitIOPreds();
   Yap_InitLoadForeign();
   Yap_InitModulesC();
+  Yap_InitSavePreds();
+  Yap_InitSysPreds();
+  Yap_InitUnify();
 #if defined CUT_C && defined MYDDAS_MYSQL 
   Yap_InitMYDDAS_MySQLPreds();
 #endif

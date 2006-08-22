@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2006-08-02 18:18:30 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-08-22 16:12:46 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.68  2006/08/02 18:18:30  vsc
+* preliminary support for readutil library (SWI compatible).
+*
 * Revision 1.67  2006/05/17 18:38:11  vsc
 * make system library use true file name
 *
@@ -643,6 +646,7 @@ restore_codes(void)
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   Yap_heap_regs->functor_mutable = FuncAdjust(Yap_heap_regs->functor_mutable);
 #endif
+  Yap_heap_regs->functor_nb_queue = FuncAdjust(Yap_heap_regs->functor_nb_queue);
   Yap_heap_regs->functor_not = FuncAdjust(Yap_heap_regs->functor_not);
   Yap_heap_regs->functor_or = FuncAdjust(Yap_heap_regs->functor_or);
   Yap_heap_regs->functor_portray = FuncAdjust(Yap_heap_regs->functor_portray);
@@ -737,6 +741,23 @@ restore_codes(void)
   if (Yap_heap_regs->wl.static_arrays) {
     Yap_heap_regs->wl.static_arrays =
       PtoArraySAdjust(Yap_heap_regs->wl.static_arrays);
+  }
+  if (Yap_heap_regs->wl.global_variables) {
+    Yap_heap_regs->wl.global_variables =
+      PtoGlobalEAdjust(Yap_heap_regs->wl.global_variables);
+  }
+  if (Yap_heap_regs->wl.global_arena) {
+    if (IsAtomTerm(Yap_heap_regs->wl.global_arena)) {
+      Yap_heap_regs->wl.global_arena =
+	AtomTermAdjust(Yap_heap_regs->wl.global_arena);
+    } else {
+      Yap_heap_regs->wl.global_arena =
+	AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.global_arena)));
+    }
+  }
+  if (Yap_heap_regs->wl.global_delay_arena) {
+    Yap_heap_regs->wl.global_delay_arena =
+      GlobalAdjust(Yap_heap_regs->wl.global_delay_arena);
   }
 #endif
 #endif
@@ -896,8 +917,6 @@ restore_static_array(StaticArrayEntry *ae)
 	    *base++ = (AtomEntry *)LocalAddrAdjust((ADDR)reg);
 	  } else if (IsOldGlobal((CELL)reg)) {
 	    *base++ = (AtomEntry *)GlobalAddrAdjust((ADDR)reg);
-	  } else if (IsOldDelay((CELL)reg)) {
-	    *base++ = (AtomEntry *)DelayAddrAdjust((ADDR)reg);
 	  } else if (IsOldTrail((CELL)reg)) {
 	    *base++ = (AtomEntry *)TrailAddrAdjust((ADDR)reg);
 	  } else {
@@ -1155,8 +1174,6 @@ RestoreEntries(PropEntry *pp)
 	      ae->ValueOfVE = AbsAppl(PtoHeapCellAdjust(ptr));
 	    } else if (IsOldLocalInTRPtr(ptr)) {
 	      ae->ValueOfVE = AbsAppl(PtoLocAdjust(ptr));
-	    } else if (IsOldDelayPtr(ptr)) {
-	      ae->ValueOfVE = AbsAppl(PtoDelayAdjust(ptr));
 	    } else if (IsOldTrailPtr(ptr)) {
 	      ae->ValueOfVE = AbsAppl(CellPtoTRAdjust(ptr));
 	    }

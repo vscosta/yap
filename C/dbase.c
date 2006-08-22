@@ -630,11 +630,7 @@ copy_long_int(CELL *st, CELL *pt)
   /* first thing, store a link to the list before we move on */
   st[0] = (CELL)FunctorLongInt;
   st[1] = pt[1];
-#if GC_NO_TAGS
-  st[2] = 2*sizeof(CELL)+EndSpecials;
-#else
-  st[2] = ((2*sizeof(CELL)+EndSpecials)|MBIT);
-#endif
+  st[2] = EndSpecials;
   /* now reserve space */
   return st+3;
 }
@@ -647,17 +643,9 @@ copy_double(CELL *st, CELL *pt)
   st[1] = pt[1];
 #if  SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
   st[2] = pt[2];
-#if GC_NO_TAGS
-  st[3] = 3*sizeof(CELL)+EndSpecials;
+  st[3] = EndSpecials;
 #else
-  st[3] = ((3*sizeof(CELL)+EndSpecials)|MBIT);
-#endif /* GC_NO_TAGS */
-#else
-#if GC_NO_TAGS
-  st[2] = 2*sizeof(CELL)+EndSpecials;
-#else
-  st[2] = ((2*sizeof(CELL)+EndSpecials)|MBIT);
-#endif /* GC_NO_TAGS */
+  st[2] = EndSpecials;
 #endif
   /* now reserve space */
   return st+(2+SIZEOF_DOUBLE/SIZEOF_LONG_INT);
@@ -677,11 +665,7 @@ copy_big_int(CELL *st, CELL *pt)
   memcpy((void *)(st+1), (void *)(pt+1), sz);
   st = st+1+sz/CellSize;
   /* then the tail for gc */ 
-#if GC_NO_TAGS
-  st[0] = sz+CellSize+EndSpecials;
-#else
-  st[0] = (sz+CellSize+EndSpecials)|MBIT;
-#endif
+  st[0] = EndSpecials;
   return st+1;
 }
 #endif /* BIG_INT */

@@ -99,12 +99,6 @@ typedef struct RB_red_blk_node {
 /* in a single gc */
 static unsigned long int   total_marked, total_oldies;	/* number of heap objects marked */
 
-#if DEBUG
-#ifdef COROUTINING
-static unsigned long int   total_smarked;
-#endif
-#endif
-
 #ifdef EASY_SHUNTING
 static choiceptr current_B;
 
@@ -399,9 +393,16 @@ push_registers(Int num_regs, yamop *nextop)
 
   /* push array entries first */
   ArrayEntry *al = DynamicArrays;
+  GlobalEntry *gl = GlobalVariables;
+  TrailTerm(TR++) = GlobalArena;
+  TrailTerm(TR++) = GlobalDelayArena;
   while (al) {
     TrailTerm(TR++) = al->ValueOfVE;
     al = al->NextAE;
+  }
+  while (gl) {
+    TrailTerm(TR++) = gl->global;
+    gl = gl->NextGE;
   }
   while (sal) {
     if (sal->ArrayType == array_of_nb_terms) {
@@ -463,9 +464,17 @@ pop_registers(Int num_regs, yamop *nextop)
 
   /* pop array entries first */
   ArrayEntry *al = DynamicArrays;
+  GlobalEntry *gl = GlobalVariables;
+
+  GlobalArena = TrailTerm(ptr++);
+  GlobalDelayArena = TrailTerm(ptr++);
   while (al) {
     al->ValueOfVE = TrailTerm(ptr++);
     al = al->NextAE;
+  }
+  while (gl) {
+    gl->global = TrailTerm(ptr++);
+    gl = gl->NextGE;
   }
   sal = StaticArrays;
   while (sal) {
@@ -1034,19 +1043,16 @@ check_global(void) {
 
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(ccurr);
-      if (
-	  ccell < MAX_SPECIALS_TAG &&  /* two first pages */
-	  ccell > EndSpecials && IsVarTerm(ccell)) {
+      if (ccell == EndSpecials) {
 	/* oops, we found a blob */
-	int nofcells = (UNMARK_CELL(*current)-EndSpecials) / sizeof(CELL);
-	CELL *ptr = current - nofcells ;
+	CELL *ptr = current-1;
+	UInt nofcells;
+
+	while (!MARKED_PTR(ptr)) ptr--;
+	nofcells = current-ptr;
 	current = ptr;
 	ccurr = *current;
 	/* process the functor next */
-      }
-      if (MARKED_PTR(current)) {
-	printf("Oops, found marked cell at %p\n", current);
-	break;
       }
     }
 #if INSTRUMENT_GC
@@ -1279,51 +1285,35 @@ mark_variable(CELL_PTR current)
 	}
 	total_marked += 3;
 	PUSH_POINTER(next);
-	PUSH_POINTER(next+1);
 	PUSH_POINTER(next+2);
 	POP_CONTINUATION();
       case (CELL)FunctorDouble:
 	MARK(next);
-	if (next < HGEN) {
-	  total_oldies+=2+SIZEOF_DOUBLE/SIZEOF_LONG_INT;
-	}
-	total_marked += 2+SIZEOF_DOUBLE/SIZEOF_LONG_INT;
 	PUSH_POINTER(next);
-	PUSH_POINTER(next+1);
-	PUSH_POINTER(next+2);
-#if SIZEOF_DOUBLE==2*SIZEOF_LONG_INT
-	PUSH_POINTER(next+3);
-#if GC_NO_TAGS
-	MARK(next+3);
-#endif
-#elif GC_NO_TAGS
-	MARK(next+2);
-#endif
+	{
+	  UInt sz = 1+SIZEOF_DOUBLE/SIZEOF_LONG_INT;
+	  if (next < HGEN) {
+	    total_oldies+= 1+sz;
+	  }
+	  total_marked += 1+sz;
+	  PUSH_POINTER(next+sz);
+	  MARK(next+sz);
+	}
 	POP_CONTINUATION();
 #ifdef USE_GMP
       case (CELL)FunctorBigInt:
-	MARK(next);
-	/* size is given by functor + friends */
-	if (next < HGEN) {
-	  total_oldies+=2+
-	    (sizeof(MP_INT)+
-	     (((MP_INT *)(next+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
-	}
-	total_marked += 2+
-	  (sizeof(MP_INT)+
-	   (((MP_INT *)(next+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
 	{
-	  int i;
+	  UInt sz = (sizeof(MP_INT)+
+		     (((MP_INT *)(next+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
+	  MARK(next);
+	  /* size is given by functor + friends */
+	  if (next < HGEN)
+	    total_oldies += 2+sz;
+	  total_marked += 2+sz;
 	  PUSH_POINTER(next);
-	  for (i = 1; i <= (sizeof(MP_INT)+
-		 (((MP_INT *)(next+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
-	       i++) {
-	    PUSH_POINTER(next+i);
-	  }
-#if GC_NO_TAGS
-	  MARK(next+i);
-#endif
-	  PUSH_POINTER(next+i);
+	  sz++;
+	  MARK(next+sz);
+	  PUSH_POINTER(next+sz);
 	}
 	POP_CONTINUATION();
 #endif
@@ -1430,9 +1420,8 @@ mark_regs(tr_fr_ptr old_TR)
 static void 
 mark_delays(CELL *max)
 {
-  CELL *ptr = (CELL *)Yap_GlobalBase;
-  for (; ptr < max; ptr++) {
-    mark_external_reference2(ptr);
+  for (; max < H0; max++) {
+    mark_external_reference2(max);
   }
 }
 #endif
@@ -3035,67 +3024,42 @@ compact_heap(void)
   for (current = H - 1; current >= start_from; current--) {
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(*current);
-      if (
-	  IN_BETWEEN(EndSpecials, ccell, MAX_SPECIALS_TAG) /* two first pages */
-	  && IsVarTerm(ccell)
-	  ) {
-	/* oops, we found a blob */
-	int nofcells = (UNMARK_CELL(*current)-EndSpecials) / sizeof(CELL);
-	CELL *ptr;
 
-	if (!nofcells) {
-	  /* Arrays */
-	  nofcells = current[-1];
-	}
-	ptr = current - nofcells;
-	if (MARKED_PTR(ptr)) {
-#ifdef DEBUG
-	  found_marked+=nofcells;
-#endif /* DEBUG */
-	  if (current <= next_hb) {
-	    gc_B = update_B_H(gc_B, current, dest, dest+1
-#ifdef TABLING
-			      , &depfr
-#endif
-			      );
-	    next_hb = set_next_hb(gc_B);
-	  }
-	  /* this one's being used */
-	  /* first swap the tag so that it will be seen by the next step */
-	  {
-	    CELL tmp = current[0];
-	    current[0] = ptr[1];
-#if GC_NO_TAGS
-	    MARK(ptr+1);
-#endif
-	    ptr[1] = tmp;
-	  }
-	  if (in_garbage > 0) {
-	    current[1] = in_garbage;
-	    in_garbage = 0;
-	  }
-	  dest -= nofcells;
-	  current = ptr;
-	  /* process the functor next */
-	} else {
-	  /* skip the term */
-	  in_garbage += nofcells+1;
-	  current = ptr;
-	  continue;
-	}
-      } else {
-	if (current <= next_hb) {
-	  gc_B = update_B_H(gc_B, current, dest, dest+1
-#ifdef TABLING
-				, &depfr
-#endif
-			    );
-	  next_hb = set_next_hb(gc_B);
-	}
-      }
       if (in_garbage > 0) {
 	current[1] = in_garbage;
 	in_garbage = 0;
+      }
+
+      if (current <= next_hb) {
+	gc_B = update_B_H(gc_B, current, dest, dest+1
+#ifdef TABLING
+			  , &depfr
+#endif
+			  );
+	next_hb = set_next_hb(gc_B);
+      }
+
+      if (ccell == EndSpecials) {
+	/* oops, we found a blob */
+	CELL *ptr = current-1;
+	UInt nofcells;
+
+	while (!MARKED_PTR(ptr)) ptr--;
+	nofcells = current-ptr;
+	ptr++;
+#if GC_NO_TAGS
+	MARK(ptr);
+#else
+	XXX BROKEN CODE
+#endif
+	found_marked+=nofcells;
+	/* first swap the tag so that it will be seen by the next step */
+	current[0] = ptr[0];
+	ptr[0] = EndSpecials;
+	dest -= nofcells;
+	current = ptr;
+	continue;
+	/* process the functor on a separate cycle */
       }
 #ifdef DEBUG
       found_marked++;
@@ -3125,6 +3089,11 @@ compact_heap(void)
     start_from[0] = in_garbage;
 
 #ifdef DEBUG
+  if (dest != start_from-1)
+    fprintf(Yap_stderr,"%% Bad Dest (%d): %p should be %p\n",
+	       GcCalls,
+	       dest,
+	       start_from);
   if (total_marked != found_marked)
     fprintf(Yap_stderr,"%% Upward (%d): %ld total against %ld found\n",
 	       GcCalls,
@@ -3145,22 +3114,19 @@ compact_heap(void)
     CELL ccur = *current;
     if (MARKED_PTR(current)) {
       CELL uccur = UNMARK_CELL(ccur);
-      if (
-	  uccur < MAX_SPECIALS_TAG &&  /* two first pages */
-	  uccur > EndSpecials && IsVarTerm(uccur)) {
-	/* oops, we found a blob */
-	int nofcells = (uccur-EndSpecials) / sizeof(CELL) , i;
+      if (uccur == EndSpecials) {
+	CELL *old_dest = dest;
 
-
-	//FIX THIS
-	*dest++ = current[nofcells-1];
-	current ++;
-	for (i = 0; i < nofcells-2; i++) {
+	CELL *current0=current-1;
+	dest++;
+	current++;
+	while (!MARKED_PTR(current)) {
 	  *dest++ = *current++;
 	}
-	*dest++ = ccur;
+	*old_dest = *current;
+	*dest++ = EndSpecials;
 #ifdef DEBUG
-	found_marked += nofcells;
+	found_marked += (dest-old_dest);
 #endif
 	continue;
       }
@@ -3207,69 +3173,6 @@ compact_heap(void)
 }
 
 #ifdef HYBRID_SCHEME
-static void
-adjust_cp_hbs(void)
-{
-#ifdef TABLING
-  dep_fr_ptr depfr = LOCAL_top_dep_fr;
-#endif /* TABLING */
-  choiceptr gc_B = B;
-  CELL_PTR *top = iptop-1, *base = (CELL_PTR *)H;
-
-#ifdef TABLING
-  if (depfr != NULL && gc_B >= DepFr_cons_cp(depfr)) {
-    gc_B = DepFr_cons_cp(depfr);
-    depfr = DepFr_next(depfr);
-  }
-#endif
-  while (gc_B != NULL) {
-    CELL *gc_H = gc_B->cp_h;
-    CELL_PTR *nbase = base;
-
-#ifdef TABLING
-    if (depfr && gc_B >= DepFr_cons_cp(depfr)) {
-      gc_B = DepFr_cons_cp(depfr);
-      depfr = DepFr_next(depfr);
-      continue;
-    }
-#endif /* TABLING */
-    if (top[0] <= gc_H) {
-      if (top[0] == gc_H) {
-	gc_B->cp_h = H0+(top-base);
-      } else {
-	gc_B->cp_h = H0+((top+1)-base);
-      }
-    } else while (TRUE) {
-      CELL_PTR *nxt = nbase+(top-nbase)/2;
-
-      if (nxt[0] > gc_H) {
-	if (nbase == top) {
-	  if (nbase == base) {
-	    gc_B->cp_h = H0;
-	    break;
-	  } else {
-	    Yap_Error(SYSTEM_ERROR,TermNil,"Bug in Garbage collector");
-	    return;
-	  }
-	}
-	top = nxt;
-      } else if (nxt[0] < gc_H && nxt[1] < gc_H) {
-	nbase = nxt+1;
-      } else if (nxt[0] == gc_H) {
-	  gc_B->cp_h = H0+(nxt-base);
-	  top = nxt;
-	  break;
-      } else {
-	  gc_B->cp_h = H0+((nxt-base)+1);
-	  top = nxt+1;
-	  break;
-      } 
-    }
-    gc_B = gc_B->cp_b;
-  }
-}
-
-
 /*
  * move marked objects on the heap upwards over unmarked objects, and reset
  * all pointers to point to new locations 
@@ -3278,9 +3181,15 @@ static void
 icompact_heap(void)
 {
   CELL_PTR *iptr, *ibase = (CELL_PTR *)H;
+  CELL_PTR dest;
+  CELL *next_hb;
 #ifdef DEBUG
   Int             found_marked = 0;
 #endif /* DEBUG */
+#ifdef TABLING
+  dep_fr_ptr depfr = LOCAL_top_dep_fr;
+#endif /* TABLING */
+  choiceptr        gc_B = B;
 
   /*
    * upward phase - scan heap from high to low, setting marked upward
@@ -3288,39 +3197,51 @@ icompact_heap(void)
    * objects pointed to  
    */
 
+#ifdef TABLING
+  if (depfr != NULL && gc_B >= DepFr_cons_cp(depfr)) {
+    gc_B = DepFr_cons_cp(depfr);
+    depfr = DepFr_next(depfr);
+  }
+#endif
+  next_hb = set_next_hb(gc_B);
+  dest = (CELL_PTR) H0 + total_marked - 1;
   for (iptr = iptop - 1; iptr >= ibase; iptr--) {
     CELL ccell;
     CELL_PTR        current;
 
     current = *iptr;
     ccell = UNMARK_CELL(*current);
-    if (ccell < MAX_SPECIALS_TAG &&  /* two first pages */
-	ccell > EndSpecials && IsVarTerm(ccell)
-	) {
-      /* oops, we found a blob */
-      int nofcells = (UNMARK_CELL(*current)-EndSpecials) / sizeof(CELL);
-      CELL *ptr = current - nofcells ;
-
-      iptr -= nofcells;
-#ifdef DEBUG
-      found_marked+=nofcells;
-#endif /* DEBUG */
-      /* this one's being used */
-      /* first swap the tag so that it will be seen by the next step */
-      {
-	CELL tmp = current[0];
-	current[0] = ptr[1];
-#if GC_NO_TAGS
-	MARK(ptr+1);
+    if (current <= next_hb) {
+      gc_B = update_B_H(gc_B, current, dest, dest+1
+#ifdef TABLING
+			, &depfr
 #endif
-	ptr[1] = tmp;
-      }
-      current = ptr;
+			);
+      next_hb = set_next_hb(gc_B);
+    }
+    if (ccell == EndSpecials) {
+      /* oops, we found a blob */
+      CELL_PTR ptr;
+      UInt nofcells;
+
+      /* use the first cell after the functor for all our dirty tricks  */
+      ptr = iptr[-1]+1;
+      nofcells = current-ptr;
+#ifdef DEBUG
+      found_marked+=(nofcells+1);
+#endif /* DEBUG */
+      dest -= nofcells+1;
+      /* this one's being used */
+      /* make the second step see the EndSpecial tag */
+      current[0] = ptr[0];
+      ptr[0] = EndSpecials;
+      iptr[0] = ptr;
+      continue;
     }
 #ifdef DEBUG
     found_marked++;
 #endif /* DEBUG */
-    update_relocation_chain(current, H0+(iptr-ibase));
+    update_relocation_chain(current, dest);
     if (HEAP_PTR(*current)) {
       CELL_PTR next;
       next = GET_NEXT(*current);
@@ -3330,15 +3251,22 @@ icompact_heap(void)
       else if (current == next)	{ /* cell pointing to
 				   * itself */
 #if GC_NO_TAGS
-	*current = (CELL) (H0+(iptr-ibase));	/* no tag */
+	UNRMARK(current);
+	*current = (CELL) dest;	/* no tag */
 #else
-	*current = (*current & MBIT) | (CELL) (H0+(iptr-ibase));	/* no tag */
+	*current = (*current & MBIT) | (CELL) dest;	/* no tag */
 #endif
       }
     }
+    dest--;
   }
 
 #ifdef DEBUG
+  if (dest != H0-1)
+    fprintf(Yap_stderr,"%% Bad Dest (%d): %p should be %p\n",
+	       GcCalls,
+	       dest,
+	       H0-1);
   if (total_marked != found_marked)
     fprintf(Yap_stderr,"%% Upward (%d): %ld total against %ld found\n",
 	       GcCalls,
@@ -3354,25 +3282,27 @@ icompact_heap(void)
    * locations 
    */
 
+  dest = H0;
   for (iptr = ibase; iptr < iptop; iptr++) {
     CELL_PTR next;
     CELL *current = *iptr;
     CELL ccur = *current;
-    CELL_PTR dest = H0+(iptr-ibase);
     CELL uccur = UNMARK_CELL(ccur);
-    if (uccur < MAX_SPECIALS_TAG && uccur > EndSpecials && IsVarTerm(uccur)) {
-      /* oops, we found a blob */
-      int nofcells = (uccur-EndSpecials) / sizeof(CELL) , i;
 
-      *dest++ = current[nofcells-1];
-      current ++;
-      for (i = 0; i < nofcells-2; i++) {
+    if (uccur == EndSpecials) {
+      CELL *old_dest = dest;
+
+      /* leave a hole */
+      dest++;
+      current++;
+      while (!MARKED_PTR(current)) {
 	*dest++ = *current++;
       }
-      *dest = ccur;
-      iptr += nofcells-1;
+      /* fill in hole */
+      *old_dest = *current;
+      *dest++ = EndSpecials;
 #ifdef DEBUG
-      found_marked += nofcells;
+      found_marked += dest-old_dest;
 #endif
       continue;
     }
@@ -3388,12 +3318,18 @@ icompact_heap(void)
       *dest = ccur;
       into_relocation_chain(dest, next);
       UNMARK(dest);
+      dest++;
     } else {
       /* just move current cell */
-      *dest = ccur = UNMARK_CELL(ccur);
+      *dest++ = ccur = UNMARK_CELL(ccur);
     }
   }
 #ifdef DEBUG
+  if (H0+total_marked != dest)
+    fprintf(Yap_stderr,"%% Downward (%d): %p total against %p found\n",
+	       GcCalls,
+	       H0+total_marked,
+	       dest);
   if (total_marked != found_marked)
     fprintf(Yap_stderr,"%% Downward (%d): %ld total against %ld found\n",
 	       GcCalls,
@@ -3401,7 +3337,7 @@ icompact_heap(void)
 	       (unsigned long int)found_marked);
 #endif
 
-  H = H0+(iptop-ibase);		/* reset H */
+  H = dest;		/* reset H */
   HB = B->cp_h;
 #ifdef TABLING
   if (B_FZ == (choiceptr)LCL0)
@@ -3482,17 +3418,16 @@ sweep_oldgen(CELL *max, CELL *base)
 
 #ifdef COROUTINING
 static void
-sweep_delays(CELL *max)
+sweep_delays(CELL *max, CELL *myH0)
 {
-  CELL *ptr = (CELL *)Yap_GlobalBase;
-  while (ptr < max) {
-    if (MARKED_PTR(ptr)) {
-      UNMARK(ptr);
-      if (HEAP_PTR(*ptr)) {
-	into_relocation_chain(ptr, GET_NEXT(*ptr));
+  while (max < myH0) {
+    if (MARKED_PTR(max)) {
+      UNMARK(max);
+      if (HEAP_PTR(*max)) {
+	into_relocation_chain(max, GET_NEXT(*max));
       }
     }
-    ptr++;
+    max++;
   }
 }
 #endif
@@ -3506,7 +3441,7 @@ sweep_delays(CELL *max)
 static void 
 compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 {
-  CELL *CurrentH0 = NULL;
+  CELL *CurrentH0 = NULL, *myH0 = H0;
 
   int icompact = (iptop < (CELL_PTR *)ASP && 10*total_marked < H-H0);
 
@@ -3524,7 +3459,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
     }
   }
 #ifdef COROUTINING
-  sweep_delays(max);
+  sweep_delays(max, myH0);
 #endif
   sweep_environments(current_env, EnvSize(curp), EnvBMap((CELL *)curp));
   sweep_choicepoints(B);
@@ -3532,12 +3467,14 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 #ifdef HYBRID_SCHEME
   if (icompact) {
 #ifdef DEBUG
+    /*
     if (total_marked
 #ifdef COROUTINING
 	-total_smarked
 #endif
 	!= iptop-(CELL_PTR *)H && iptop < (CELL_PTR *)ASP -1024)
       fprintf(Yap_stderr,"%% Oops on iptop-H (%ld) vs %ld\n", (unsigned long int)(iptop-(CELL_PTR *)H), total_marked);
+    */
 #endif
 #if DEBUGX
     int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
@@ -3550,7 +3487,6 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
       CurrentH0 = NULL; 
     }
     quicksort((CELL_PTR *)H, 0, (iptop-(CELL_PTR *)H)-1);
-    adjust_cp_hbs();
     icompact_heap();
   } else
 #endif /* HYBRID_SCHEME */
@@ -3589,7 +3525,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   gc_trace = FALSE;
 #if COROUTINING
   max = (CELL *)DelayTop();
-  while (H0 - max < 1024+(2*NUM_OF_ATTS)) {
+  while (max - (CELL*)Yap_GlobalBase < 1024+(2*NUM_OF_ATTS)) {
     if (!Yap_growglobal(&current_env)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return -1;

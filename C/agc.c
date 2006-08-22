@@ -123,6 +123,8 @@ AtomAdjust(Atom a)
 #define CodeAddrAdjust(P) (P)
 #define ConsultObjAdjust(P) (P)
 #define DelayAddrAdjust(P) (P)
+#define DelayAdjust(P) (P)
+#define GlobalAdjust(P) (P)
 #define DBRefAdjust(P) (P)
 #define DBRefPAdjust(P) (P)
 #define DBTermAdjust(P) (P)
@@ -134,6 +136,7 @@ AtomAdjust(Atom a)
 #define PtoStCAdjust(P) (P)
 #define PtoArrayEAdjust(P) (P)
 #define PtoArraySAdjust(P) (P)
+#define PtoGlobalEAdjust(P) (P)
 #define PtoDelayAdjust(P) (P)
 #define PtoGloAdjust(P) (P)
 #define PtoLocAdjust(P) (P)
@@ -282,16 +285,13 @@ mark_global(void)
    * the code 
    */
 #if COROUTINING
-  CELL *ptf = (CELL *)DelayTop();
-
-  pt = (CELL *)Yap_GlobalBase;
-  while (pt < ptf) {
-    pt = mark_global_cell(pt);
-  }
-#endif
+  pt = (CELL *)DelayTop();
+#else
   pt = H0;
+#endif
   while (pt < H) {
     pt = mark_global_cell(pt);
+    pt++;
   }
 }
 

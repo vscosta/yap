@@ -359,7 +359,7 @@ volatile int vsc_wait;
 
 static Int p_vsc_wait(void)
 {
-  fprintf(stderr,"attach %d\n",getpid());
+  fprintf(stderr,"attach %d\n",(int)getpid());
   while (!vsc_wait);
   vsc_wait=1;
   return(TRUE);

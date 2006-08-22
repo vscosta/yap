@@ -209,7 +209,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	if (dvars == NULL) {
 	  dvars = (CELL *)DelayTop();
 	} 	
-	if (ptd0 >= dvars) {
+	if (ptd0 < dvars) {
 	  *ptf++ = (CELL) ptd0;
 	} else {
 	  tr_fr_ptr CurTR;

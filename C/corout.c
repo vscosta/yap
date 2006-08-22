@@ -49,31 +49,25 @@ p_set_svar_list(void)
   Term newl = Deref(ARG1);
   attvar_record *max = DelayTop();
 
-  if (IsVarTerm(newl)) {
+  if (IsVarTerm(newl) && VarOfTerm(newl) > H0) {
     /* set to current top */
-    UInt diff;
-    Term tdiff;
-
+    max--;
     RESET_VARIABLE(&max->Done);
     RESET_VARIABLE(&max->Value);
-    max->Atts = MkIntTerm(1);
-    max++;
+    RESET_VARIABLE(&(max->Atts));
     SetDelayTop(max);
-    diff = max-(attvar_record *)Yap_GlobalBase;
-    tdiff = MkIntegerTerm(diff);
 
-    Yap_UpdateTimedVar(AttsMutableList,tdiff);
-    return Yap_unify(ARG1,tdiff);
+    Yap_UpdateTimedVar(AttsMutableList,(CELL)max);
+    return Yap_unify(ARG1,(CELL)max);
   } else {
-    UInt old = IntegerOfTerm(Yap_UpdateTimedVar(AttsMutableList,newl));
-    attvar_record *aold = (attvar_record *)Yap_GlobalBase + (old-1);
+    attvar_record *aold = (attvar_record *)Yap_UpdateTimedVar(AttsMutableList,newl);
     
-    if (max > aold+1) {
+    if (max < aold) {
       /* we are moving forward */
       /* these items are protected by call-residue, should not
          be visible to AllAtts
       */
-      MaBind(&(aold->Atts),MkIntegerTerm(max-aold));
+      MaBind(&(aold->Atts),(CELL)max);
     }
   }
 #endif

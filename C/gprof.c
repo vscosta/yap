@@ -11,8 +11,12 @@
 * File:		gprof.c							 *
 * comments:	Interrupt Driven Profiler				 *
 *									 *
-* Last rev:     $Date: 2006-08-07 18:51:44 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-08-22 16:12:45 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.6  2006/08/07 18:51:44  vsc
+* fix garbage collector not to try to garbage collect when we ask for large
+* chunks of stack in a single go.
+*
 * Revision 1.5  2006/04/27 20:58:59  rslopes
 * fix do profiler offline.
 *
@@ -843,7 +847,7 @@ showprofres(UInt type) {
       if (calls && myp->FunctorOfPred->KindOfPE==47872) {
         count+=calls;
 	printf("%p",myp);
-	if (myp->ModuleOfPred!=NULL) printf(" %s",RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE);
+	if (myp->ModuleOfPred) printf(" %s",RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE);
 	printf(":%s",RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE);
         if (myp->ArityOfPE) printf("/%d",myp->ArityOfPE);	
 	printf(" -> %lu (%3.1f%c)\n",(unsigned long int)calls,(float) calls*100/ProfCalls,'%');
@@ -868,7 +872,7 @@ showprofres(UInt type) {
 	}
         count+=calls;
 	//	printf("%p %p",t->pp, t->beg);
-        if (t->pp->ModuleOfPred!=NULL) printf(" %s",RepAtom(AtomOfTerm(t->pp->ModuleOfPred))->StrOfAE);
+        if (t->pp->ModuleOfPred) printf(" %s",RepAtom(AtomOfTerm(t->pp->ModuleOfPred))->StrOfAE);
         printf(":%s",RepAtom(NameOfFunctor(t->pp->FunctorOfPred))->StrOfAE);
         if (t->pp->ArityOfPE) printf("/%d",t->pp->ArityOfPE);	
         printf(" -> %lu (%3.1f%c)\n",(unsigned long int)calls,(float) calls*100/ProfCalls,'%');

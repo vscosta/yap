@@ -342,7 +342,7 @@ write_var(CELL *t,  struct write_globs *wglb)
 #endif
 #endif
     wrputc('D', wglb->writech);
-    wrputn(((Int) (t- CellPtr(Yap_GlobalBase))),wglb->writech);
+    wrputn((Int) ((attvar_record *)H0-(attvar_record *)t),wglb->writech);
   } else {
     wrputn(((Int) (t- H0)),wglb->writech);
   }

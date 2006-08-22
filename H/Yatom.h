@@ -192,8 +192,80 @@ IsFunctorProperty (int flags)
 	ff fa   module property
 	ff fb   blackboard property
 	ff fc	value property
+	ff fd	global property
 	ff ff	op property
 */
+
+
+/*	Global Variable property						*/
+typedef struct global_entry
+{
+  Prop NextOfPE;		/* used to chain properties             */
+  PropFlags KindOfPE;		/* kind of property                     */
+#if defined(YAPOR) || defined(THREADS)
+  rwlock_t GRWLock;		/* a simple lock to protect this entry */
+#if THREADS
+  unsigned int owner_id;        /* owner thread */
+#endif
+#endif
+  struct AtomEntryStruct *AtomOfGE; /* parent atom for deletion */
+  struct global_entry *NextGE; /* linked list of global entries */
+  Term  global;	/* index in module table                */
+} GlobalEntry;
+
+
+#if USE_OFFSETS_IN_PROPS
+
+inline EXTERN GlobalEntry *RepGlobalProp (Prop p);
+
+inline EXTERN GlobalEntry *
+RepGlobalProp (Prop p)
+{
+  return (GlobalEntry *) (AtomBase + Unsigned (p));
+}
+
+
+
+inline EXTERN Prop AbsGlobalProp (GlobalEntry * p);
+
+inline EXTERN Prop
+AbsGlobalProp (GlobalEntry * p)
+{
+  return (Prop) (Addr (p) - AtomBase);
+}
+
+
+#else
+
+inline EXTERN GlobalEntry *RepGlobalProp (Prop p);
+
+inline EXTERN GlobalEntry *
+RepGlobalProp (Prop p)
+{
+  return (GlobalEntry *) (p);
+}
+
+inline EXTERN Prop AbsGlobalProp (GlobalEntry * p);
+
+inline EXTERN Prop
+AbsGlobalProp (GlobalEntry * p)
+{
+  return (Prop) (p);
+}
+
+
+#endif
+
+#define GlobalProperty	((PropFlags)0xfffd)
+
+inline EXTERN PropFlags IsGlobalProperty (int);
+
+inline EXTERN PropFlags
+IsGlobalProperty (int flags)
+{
+  return (PropFlags) ((flags == GlobalProperty));
+}
+
 
 /*	Module property 						*/
 typedef struct

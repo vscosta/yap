@@ -116,23 +116,6 @@ prolog:between(I0,I,J) :- I0 < I,
 	I1 is I0+1,
 	prolog:between(I1,I,J).
 
-prolog:b_getval(GlobalVariable,Value) :-
-	array_element(GlobalVariable,0,Value).
-
-prolog:b_setval(GlobalVariable,Value) :-
-	array(GlobalVariable,1),
-	dynamic_update_array(GlobalVariable,0,Value).
-
-prolog:nb_getval(GlobalVariable,Value) :-
-	array_element(GlobalVariable,0,Value).
-
-prolog:nb_setval(GlobalVariable,Value) :-
-	static_array(GlobalVariable,1,nb_term),
-	update_array(GlobalVariable,0,Value).
-
-prolog:nb_delete(GlobalVariable) :-
-	close_static_array(GlobalVariable).
-
 prolog:nb_current(GlobalVariable,Val) :-
 	static_array_properties(GlobalVariable,1,nb_term),
 	array_element(GlobalVariable,0,Val).

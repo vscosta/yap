@@ -54,12 +54,12 @@ typedef struct attvar_struct {
 
 static inline attvar_record *
 DelayTop(void) {
-  return (attvar_record *)((attvar_record *)Yap_GlobalBase+IntegerOfTerm(Yap_ReadTimedVar(DelayedVars)));
+  return (attvar_record *)Yap_ReadTimedVar(DelayedVars);
 }
 
 static inline void
 SetDelayTop(attvar_record *new_top) {
-  Yap_UpdateTimedVar(DelayedVars, MkIntegerTerm((CELL)(new_top-(attvar_record *)Yap_GlobalBase)));
+  Yap_UpdateTimedVar(DelayedVars, (CELL)new_top);
 }
 
 #endif

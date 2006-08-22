@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h,v 1.9 2006-05-19 14:31:32 vsc Exp $	 *
+* version:      $Id: TermExt.h,v 1.10 2006-08-22 16:12:46 vsc Exp $	 *
 *************************************************************************/
 
 #ifdef USE_SYSTEM_MALLOC
@@ -43,35 +43,18 @@
 
 typedef enum
 {
-#if defined(IN_SECOND_QUADRANT) && !GC_NO_TAGS
-  db_ref_e = sizeof (Functor *) | RBIT,
-  long_int_e = 2 * sizeof (Functor *) | RBIT,
-#ifdef USE_GMP
-  big_int_e = 3 * sizeof (Functor *) | RBIT,
-  double_e = 4 * sizeof (Functor *) | RBIT
-#else
-  double_e = 3 * sizeof (Functor *) | RBIT
-#endif
-#else
   db_ref_e = sizeof (Functor *),
   long_int_e = 2 * sizeof (Functor *),
-#ifdef USE_GMP
   big_int_e = 3 * sizeof (Functor *),
   double_e = 4 * sizeof (Functor *)
-#else
-  double_e = 3 * sizeof (Functor *)
-#endif
-#endif
 }
 blob_type;
 
 #define   FunctorDBRef    ((Functor)(db_ref_e))
 #define   FunctorLongInt  ((Functor)(long_int_e))
-#ifdef USE_GMP
 #define   FunctorBigInt   ((Functor)(big_int_e))
-#endif
 #define   FunctorDouble   ((Functor)(double_e))
-#define   EndSpecials     (double_e)
+#define   EndSpecials     (double_e+sizeof(Functor *))
 
 
 inline EXTERN blob_type BlobOfFunctor (Functor f);
@@ -141,14 +124,7 @@ typedef struct special_functors_struct
 special_functors;
 #endif
 
-#if USE_SYSTEM_MALLOC
-#define MAX_SPECIALS_TAG (4*4096)
-#else
-#define MAX_SPECIALS_TAG ((CELL)AtomBase)
-#endif
-
 #if SIZEOF_DOUBLE == SIZEOF_LONG_INT
-#if GC_NO_TAGS
 
 inline EXTERN Term MkFloatTerm (Float);
 
@@ -156,25 +132,9 @@ inline EXTERN Term
 MkFloatTerm (Float dbl)
 {
   return (Term) ((H[0] = (CELL) FunctorDouble, *(Float *) (H + 1) =
-		  dbl, H[2] = (2 * sizeof (CELL) + EndSpecials), H +=
+		  dbl, H[2] = EndSpecials, H +=
 		  3, AbsAppl (H - 3)));
 }
-
-
-#else
-
-inline EXTERN Term MkFloatTerm (Float);
-
-inline EXTERN Term
-MkFloatTerm (Float dbl)
-{
-  return (Term) ((H[0] = (CELL) FunctorDouble, *(Float *) (H + 1) =
-		  dbl, H[2] = ((2 * sizeof (CELL) + EndSpecials) | MBIT), H +=
-		  3, AbsAppl (H - 3)));
-}
-
-
-#endif
 
 
 inline EXTERN Float FloatOfTerm (Term t);
@@ -223,8 +183,6 @@ CpFloatUnaligned (CELL * ptr)
 
 #endif
 
-#if GC_NO_TAGS
-
 inline EXTERN Term MkFloatTerm (Float);
 
 inline EXTERN Term
@@ -232,26 +190,10 @@ MkFloatTerm (Float dbl)
 {
   return (Term) ((AlignGlobalForDouble (), H[0] =
 		  (CELL) FunctorDouble, *(Float *) (H + 1) = dbl, H[3] =
-		  (3 * sizeof (CELL) + EndSpecials), H +=
+		  EndSpecials, H +=
 		  4, AbsAppl (H - 4)));
 }
 
-
-#else
-
-inline EXTERN Term MkFloatTerm (Float);
-
-inline EXTERN Term
-MkFloatTerm (Float dbl)
-{
-  return (Term) ((AlignGlobalForDouble (), H[0] =
-		  (CELL) FunctorDouble, *(Float *) (H + 1) = dbl, H[3] =
-		  ((3 * sizeof (CELL) + EndSpecials) | MBIT), H +=
-		  4, AbsAppl (H - 4)));
-}
-
-
-#endif
 
 
 inline EXTERN Float FloatOfTerm (Term t);
@@ -292,11 +234,7 @@ MkLongIntTerm (Int i)
 {
   H[0] = (CELL) FunctorLongInt;
   H[1] = (CELL) (i);
-#if GC_NO_TAGS
-  H[2] =  2 * sizeof (CELL) + EndSpecials;
-#else
-  H[2] = ((2 * sizeof (CELL) + EndSpecials) | MBIT);
-#endif
+  H[2] =  EndSpecials;
   H += 3;
   return AbsAppl(H - 3);
 }

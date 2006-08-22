@@ -77,8 +77,9 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
 
   /* add a new attributed variable */
   newv = DelayTop();
-  if (H0 - (CELL *)newv < 1024)
+  if ((ADDR)newv - Yap_GlobalBase < 1024*sizeof(CELL))
     return FALSE;
+  newv--;
   RESET_VARIABLE(&(newv->Value));
   RESET_VARIABLE(&(newv->Done));
   vt = &(attv->Atts);
@@ -94,7 +95,7 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
   to_visit[3] = (CELL *)vt[-1];
   *to_visit_ptr = to_visit+4;
   *res = (CELL)&(newv->Done);
-  SetDelayTop(newv+1);
+  SetDelayTop(newv);
   return TRUE;
 }
 
@@ -110,13 +111,13 @@ static attvar_record *
 BuildNewAttVar(void)
 {
   attvar_record *attv = DelayTop();
-  if (H0 - (CELL *)(attv+1) < 1024) {
-    return NULL;
-  }
+  if ((ADDR)attv - Yap_GlobalBase < 1024*sizeof(CELL))
+    return FALSE;
+  attv--;
   RESET_VARIABLE(&(attv->Done));
   RESET_VARIABLE(&(attv->Value));
   RESET_VARIABLE(&(attv->Atts));
-  SetDelayTop(attv+1);  
+  SetDelayTop(attv);  
   return attv;
 }
 
@@ -415,18 +416,16 @@ AllAttVars(attvar_record *attv) {
   CELL *h0 = H;
   attvar_record *max = DelayTop();
 
-  while (attv != max) {
-
+  while (--attv >= max) {
     if (ASP - H < 1024) {
       H = h0;
       Yap_Error_Size = (ASP-H)*sizeof(CELL);
       return 0L;
     }
     if (IsVarTerm(attv->Done) && IsUnboundVar(&attv->Done)) {
-      if (IsIntegerTerm(attv->Atts)) {
+      if (IsVarTerm(attv->Atts) && VarOfTerm(attv->Atts) < (CELL *)attv) {
 	/* skip call residue(s) */
-	UInt n = IntegerOfTerm(attv->Atts)-1;
-	attv += n;
+	attv = (attvar_record *)(attv->Atts);
       } else {
 	if (H != h0) {
 	  H[-1] = AbsPair(H);
@@ -435,7 +434,6 @@ AllAttVars(attvar_record *attv) {
 	H += 2;
       }
     }
-    attv++;
   }
   if (H != h0) {
     H[-1] = TermNil;
@@ -882,7 +880,7 @@ p_all_attvars(void)
     Term out;
     attvar_record *base;
 
-    base = (attvar_record *)Yap_GlobalBase+IntegerOfTerm(Yap_ReadTimedVar(AttsMutableList));
+    base = (attvar_record *)Yap_ReadTimedVar(AttsMutableList);
     if (!(out = AllAttVars(base))) {
       if (!Yap_gcl(Yap_Error_Size, 1, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);

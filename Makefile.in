@@ -142,7 +142,7 @@ C_SOURCES= \
 	$(srcdir)/C/corout.c $(srcdir)/C/dbase.c $(srcdir)/C/dlmalloc.c \
 	$(srcdir)/C/errors.c \
 	$(srcdir)/C/eval.c $(srcdir)/C/exec.c \
-	$(srcdir)/C/gprof.c  $(srcdir)/C/grow.c \
+	$(srcdir)/C/globals.c $(srcdir)/C/gprof.c $(srcdir)/C/grow.c \
 	$(srcdir)/C/heapgc.c $(srcdir)/C/index.c	   \
 	$(srcdir)/C/init.c $(srcdir)/C/inlines.c	   \
 	$(srcdir)/C/iopreds.c $(srcdir)/C/depth_bound.c \
@@ -210,7 +210,7 @@ ENGINE_OBJECTS = \
 	bignum.o bb.o \
 	cdmgr.o cmppreds.o compiler.o computils.o \
 	corout.o cut_c.o dbase.o dlmalloc.o errors.o eval.o \
-	exec.o gprof.o grow.o \
+	exec.o globals.o gprof.o grow.o \
 	heapgc.o index.o init.o  inlines.o \
 	iopreds.o depth_bound.o mavar.o \
 	myddas_mysql.o myddas_odbc.o myddas_shared.o myddas_initialization.o \
@@ -322,11 +322,14 @@ eval.o: $(srcdir)/C/eval.c
 exec.o: $(srcdir)/C/exec.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/exec.c -o $@
 
-grow.o: $(srcdir)/C/grow.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/grow.c -o $@
+globals.o: $(srcdir)/C/globals.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/globals.c -o $@
 
 gprof.o: $(srcdir)/C/gprof.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/gprof.c -o $@
+
+grow.o: $(srcdir)/C/grow.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/grow.c -o $@
 
 heapgc.o: $(srcdir)/C/heapgc.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/heapgc.c -o $@

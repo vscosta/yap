@@ -314,6 +314,7 @@ Binding Macros for Multiple Assignment Variables.
 
 #define Bind(A,D)              TRAIL(A,D); *(A) = (D)
 #define Bind_Global(A,D)       TRAIL_GLOBAL(A,D); *(A) = (D)
+#define Bind_and_Trail(A,D)    DO_TRAIL(A,D); *(A) = (D)
 #define BIND(A,D,L)            *(A) = (D); Trail(A,D,L)
 #define BIND_GLOBAL(A,D,L)     *(A) = (D); Trail_Global(A,D,L)
 

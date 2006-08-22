@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.102 2006-08-02 18:18:30 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.103 2006-08-22 16:12:46 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -74,12 +74,14 @@ typedef struct scratch_block_struct {
 typedef struct restore_info {
   Int cl_diff,
     g_diff,
+    g_diff0,
     h_diff,
     l_diff,
     tr_diff,
     x_diff,
     delay_diff;
   CELL    *old_ASP, *old_LCL0;
+  CELL    *g_split;
   tr_fr_ptr old_TR;  
   CELL    *old_GlobalBase, *old_H, *old_H0;
   ADDR     old_TrailBase, old_TrailTop;
@@ -160,6 +162,9 @@ typedef struct worker_local_struct {
   jmp_buf  gc_restore; /* where to jump if garbage collection crashes */
   struct array_entry *dynamic_arrays;
   struct static_array_entry *static_arrays;
+  struct global_entry *global_variables;
+  Term global_arena;
+  Term global_delay_arena;
   yamop trust_lu_code[3];
 } worker_local;
 
@@ -450,6 +455,7 @@ typedef struct various_codes {
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     functor_mutable,
 #endif
+    functor_nb_queue,
     functor_not,
     functor_or,
     functor_portray,
@@ -733,6 +739,7 @@ struct various_codes *Yap_heap_regs;
 #ifdef MULTI_ASSIGNMENT_VARIABLES
 #define  FunctorMutable           Yap_heap_regs->functor_mutable
 #endif
+#define  FunctorNBQueue           Yap_heap_regs->functor_nb_queue
 #define  FunctorNot               Yap_heap_regs->functor_not
 #define  FunctorOr                Yap_heap_regs->functor_or
 #define  FunctorPortray           Yap_heap_regs->functor_portray
@@ -842,6 +849,8 @@ struct various_codes *Yap_heap_regs;
 #define  OldHeapTop               RINFO.old_HeapTop
 #define  ClDiff                   RINFO.cl_diff
 #define  GDiff                    RINFO.g_diff
+#define  GDiff0                   RINFO.g_diff0
+#define  GSplit			  RINFO.g_split
 #define  HDiff                    RINFO.h_diff
 #define  LDiff                    RINFO.l_diff
 #define  TrDiff                   RINFO.tr_diff
@@ -880,6 +889,9 @@ struct various_codes *Yap_heap_regs;
 #define  TrustLUCode              Yap_heap_regs->WL.trust_lu_code
 #define  DynamicArrays            Yap_heap_regs->WL.dynamic_arrays
 #define  StaticArrays             Yap_heap_regs->WL.static_arrays
+#define  GlobalVariables          Yap_heap_regs->WL.global_variables
+#define  GlobalArena              Yap_heap_regs->WL.global_arena
+#define  GlobalDelayArena         Yap_heap_regs->WL.global_delay_arena
 #define  profiling                Yap_heap_regs->compiler_profiling
 #define  call_counting            Yap_heap_regs->compiler_call_counting
 #define  compile_arrays           Yap_heap_regs->compiler_compile_arrays

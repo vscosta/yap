@@ -33,67 +33,43 @@ _^Goal :-
 
 findall(Template, Generator, Answers) :-
 	'$check_list_for_bags'(Answers, findall(Template, Generator, Answers)),
-	'$init_db_queue'(Ref),
+	nb_queue(Ref),
 	'$findall'(Template, Generator, Ref, [], Answers).
 
 
 % If some answers have already been found
 findall(Template, Generator, Answers, SoFar) :-
-	'$init_db_queue'(Ref),
+	nb_queue(Ref),
 	'$findall'(Template, Generator, Ref, SoFar, Answers).
 
 % starts by calling the generator,
 % and recording the answers
 '$findall'(Template, Generator, Ref, _, _) :-
-	'$catch'(Error,'$clean_findall'(Ref,Error),_),
 	'$execute'(Generator),
-	'$db_enqueue'(Ref, Template),
+	nb_queue_enqueue(Ref, Template),
 	fail.
 % now wraps it all
 '$findall'(_, _, Ref, SoFar, Answers) :-
-	'$catch'(Error,'$clean_findall'(Ref,Error),_),
-	'$collect_for_findall'(Ref, SoFar, Answers), !.
+	nb_queue_close(Ref, Answers, SoFar).
 
-% error handling: be careful to recover all the space we used up
-% in implementing findall.
-%
-'$clean_findall'(Ref,Ball) :-
-	'$db_dequeue'(Ref,_), !,
-	'$clean_findall'(Ref,Ball).
-'$clean_findall'(_,Ball) :-
-	% get this off the unwound computation.
-	copy_term(Ball,NewBall),
-	% get current jump point	
-	'$jump_env_and_store_ball'(NewBall).
-
-
-% by getting all answers
-'$collect_for_findall'(Ref, SoFar, Out) :-
-	'$db_dequeue'(Ref, Term), !,
-	Out = [Term|Answers],
-	'$collect_for_findall'(Ref, SoFar, Answers).
-'$collect_for_findall'(_, SoFar, SoFar).
 
 % findall_with_key is very similar to findall, but uses the SICStus
 % algorithm to guarantee that variables will have the same names.
 %
 '$findall_with_common_vars'(Template, Generator, Ref, _) :-
 	'$execute'(Generator),
-	'$db_enqueue'(Ref, Template),
+	nb_queue_enqueue(Ref, Template),
 	fail.
 % now wraps it all
 '$findall_with_common_vars'(_, _, Ref, Answers) :-
-	'$collect_with_common_vars'(Ref, _, [], Answers).
+	nb_queue_close(Ref, Answers, []),
+	'$collect_with_common_vars'(Answers, _).
 
-% by getting all answers
-'$collect_with_common_vars'(Ref, VarList, SoFar, Solution) :-
-	'$db_dequeue'(Ref, BDEntry), !,
-	BDEntry =  Key-_,
-	Solution = [BDEntry|Answers],
+'$collect_with_common_vars'([], _).
+'$collect_with_common_vars'([Key-_|Answers], VarList) :-
 	'$variables_in_term'(Key, _, VarList),
-	'$collect_with_common_vars'(Ref, VarList, SoFar, Answers).
-'$collect_with_common_vars'(_, _, Solution, Solution).
-
+	'$collect_with_common_vars'(Answers, VarList).
+	
 % This is the setof predicate
 
 setof(Template, Generator, Set) :-
@@ -117,12 +93,12 @@ bagof(Template, Generator, Bag) :-
 	( FreeVars \== [] ->
 		'$variables_in_term'(FreeVars, [], LFreeVars),
 		Key =.. ['$'|LFreeVars],
-		'$init_db_queue'(Ref),
+		nb_queue(Ref),
 		'$findall_with_common_vars'(Key-Template, StrippedGenerator, Ref, Bags0),
 		'$keysort'(Bags0, Bags),
 		'$pick'(Bags, Key, Bag)
 	;
-		'$init_db_queue'(Ref),
+		nb_queue(Ref),
 		'$findall'(Template, StrippedGenerator, Ref, [], Bag0),
 		Bag0 \== [],
 		Bag = Bag0

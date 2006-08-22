@@ -718,6 +718,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	    LIBS="$LIBS -ldl"	  
 	  fi
 	fi
+	LIBS="$LIBS -framework JavaVM"
 	SHLIB_CFLAGS="-fno-common"
 	SHLIB_SUFFIX=".dylib"
         DO_SECOND_LD=""

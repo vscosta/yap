@@ -971,6 +971,9 @@ InitCodes(void)
       Yap_heap_regs->wl[i].scratchpad.msz = SCRATCH_START_SIZE;
       Yap_heap_regs->wl[i].dynamic_arrays = NULL;
       Yap_heap_regs->wl[i].static_arrays = NULL;
+      Yap_heap_regs->wl[i].global_variables = NULL;
+      Yap_heap_regs->wl[i].global_arena = 0L;
+      Yap_heap_regs->wl[i].global_delay_arena = 0L;
       Yap_heap_regs->wl[i].consultlow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
       if (Yap_heap_regs->wl[i].consultlow == NULL) {
 	Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
@@ -984,6 +987,9 @@ InitCodes(void)
 #else
   Yap_heap_regs->wl.dynamic_arrays = NULL;
   Yap_heap_regs->wl.static_arrays = NULL;
+  Yap_heap_regs->wl.global_variables = NULL;
+  Yap_heap_regs->wl.global_arena = 0L;
+  Yap_heap_regs->wl.global_delay_arena = 0L;
   Yap_heap_regs->wl.consultlow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
   if (Yap_heap_regs->wl.consultlow == NULL) {
     Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
@@ -1171,6 +1177,7 @@ InitCodes(void)
   Yap_heap_regs->functor_mutable = Yap_MkFunctor(Yap_FullLookupAtom("$mutable_variable"),
 					 sizeof(timed_var)/sizeof(CELL));
 #endif
+  Yap_heap_regs->functor_nb_queue = Yap_MkFunctor(Yap_LookupAtom("queue"), 5);
   Yap_heap_regs->functor_not = Yap_MkFunctor(AtomNot, 1);
   Yap_heap_regs->functor_or = Yap_MkFunctor(AtomSemic, 2);
   Yap_heap_regs->functor_portray = Yap_MkFunctor(AtomPortray, 1);

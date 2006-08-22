@@ -43,7 +43,11 @@ inline EXTERN CELL *PtoGloAdjust (CELL *);
 inline EXTERN CELL *
 PtoGloAdjust (CELL * ptr)
 {
-  return (CELL *) (((CELL *) (CharP (ptr) + GDiff)));
+  if (ptr < GSplit) {
+    return (CELL *) (((CELL *) (CharP (ptr) + GDiff0)));
+  } else {
+    return (CELL *) (((CELL *) (CharP (ptr) + GDiff)));
+  }
 }
 
 
@@ -126,7 +130,11 @@ inline EXTERN CELL GlobalAdjust (CELL);
 inline EXTERN CELL
 GlobalAdjust (CELL val)
 {
-  return (CELL) ((val + GDiff));
+  if ((CELL *)val < GSplit) {
+    return (CELL) ((val + GDiff0));
+  } else {
+    return (CELL) ((val + GDiff));
+  }
 }
 
 
@@ -146,7 +154,11 @@ inline EXTERN ADDR GlobalAddrAdjust (ADDR);
 inline EXTERN ADDR
 GlobalAddrAdjust (ADDR ptr)
 {
-  return (ADDR) ((ptr + GDiff));
+  if ((CELL *)ptr < GSplit) {
+    return (ADDR) ((ptr + GDiff0));
+  } else {
+    return (ADDR) ((ptr + GDiff));
+  }
 }
 
 
@@ -481,6 +493,15 @@ PtoArrayEAdjust (ArrayEntry * ptr)
 }
 
 
+inline EXTERN GlobalEntry *PtoGlobalEAdjust (GlobalEntry *);
+
+inline EXTERN GlobalEntry *
+PtoGlobalEAdjust (GlobalEntry * ptr)
+{
+  return (GlobalEntry *) (((GlobalEntry *) (CharP (ptr) + HDiff)));
+}
+
+
 inline EXTERN StaticArrayEntry *PtoArraySAdjust (StaticArrayEntry *);
 
 inline EXTERN StaticArrayEntry *
@@ -608,7 +629,7 @@ inline EXTERN int IsOldGlobal (CELL);
 inline EXTERN int
 IsOldGlobal (CELL reg)
 {
-  return (int) (IN_BETWEEN (OldH0, reg, OldH));
+  return (int) (IN_BETWEEN (OldGlobalBase, reg, OldH));
 }
 
 
@@ -618,27 +639,7 @@ inline EXTERN int IsOldGlobalPtr (CELL *);
 inline EXTERN int
 IsOldGlobalPtr (CELL * ptr)
 {
-  return (int) (IN_BETWEEN (OldH0, ptr, OldH));
-}
-
-
-
-inline EXTERN int IsOldDelay (CELL);
-
-inline EXTERN int
-IsOldDelay (CELL reg)
-{
-  return (int) (IN_BETWEEN (OldGlobalBase, reg, OldH0));
-}
-
-
-
-inline EXTERN int IsOldDelayPtr (CELL *);
-
-inline EXTERN int
-IsOldDelayPtr (CELL * ptr)
-{
-  return (int) (IN_BETWEEN (OldGlobalBase, ptr, OldH0));
+  return (int) (IN_BETWEEN (OldGlobalBase, ptr, OldH));
 }
 
 
