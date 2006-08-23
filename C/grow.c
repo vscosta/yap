@@ -395,7 +395,7 @@ AdjustGlobal(void)
    */
   pt = CellPtr(Yap_GlobalBase);
   while (pt < H) {
-    register CELL reg;
+    CELL reg;
     
     reg = *pt;
     if (IsVarTerm(reg)) {
@@ -585,7 +585,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   ADDR old_GlobalBase = Yap_GlobalBase;
   UInt minimal_request = 0L;
   long size0, sz = size;
-  char vb_msg1, *vb_msg2;
+  char vb_msg1 = '\0', *vb_msg2;
 
   if (hsplit) {
     /* just a little bit of sanity checking */
@@ -628,7 +628,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
       vb_msg1 = 'D';
       vb_msg2 = "Delay";
     }
-    fprintf(Yap_stderr, "%% %cO %s overflow %d\n", vb_msg1, vb_msg2, delay_overflows); \
+    fprintf(Yap_stderr, "%% %cO %s overflow %d\n", vb_msg1, vb_msg2, delay_overflows);
     fprintf(Yap_stderr, "%% %cO   growing the stacks %ld bytes\n", vb_msg1, size);
   }
   ASP -= 256;

@@ -127,7 +127,6 @@ CreateDelayArena(attvar_record *max, attvar_record *min)
     RESET_VARIABLE(&ptr->Atts);
   }
   RESET_VARIABLE(&(ptr->Value));
-  SetDelayTop(min);
   return (CELL)max;
 }
 
@@ -135,6 +134,8 @@ static Term
 NewDelayArena(UInt size)
 {
   attvar_record *max = DelayTop(), *min = max-size;
+  Term out;
+
   while ((ADDR)min < Yap_GlobalBase+1024) {
     if (!Yap_InsertInGlobal((CELL *)max, size*sizeof(attvar_record))) {
       Yap_Error(OUT_OF_STACK_ERROR,TermNil,"No Stack Space for Non-Backtrackable terms");
@@ -142,7 +143,9 @@ NewDelayArena(UInt size)
     }
     max = DelayTop(), min = max-size;
   }
-  return CreateDelayArena(max, min);
+  out = CreateDelayArena(max, min);
+  SetDelayTop(min);
+  return out;
 }
 
 static Term
@@ -160,14 +163,14 @@ GrowDelayArena(Term *arenap, UInt old_size, UInt size, UInt arity)
     size = 64;
   }
   XREGS[arity+1] = (CELL)arenap;
-  if (!Yap_InsertInGlobal((CELL *)arena, size*sizeof(attvar_record))) {
+  if (!Yap_InsertInGlobal((CELL *)arena, (size-old_size)*sizeof(attvar_record))) {
     Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
     return TermNil;
   }
   arenap = (CELL *)XREGS[arity+1];
   arena = *arenap;
-  CreateDelayArena(DelayArenaPt(arena)+size, DelayArenaPt(arena)-size);
-  return (CELL)(ArenaPt(arena)+size);
+  CreateDelayArena(DelayArenaPt(arena), DelayArenaPt(arena)-size);
+  return arena;
 }
 
 static Term
@@ -236,7 +239,7 @@ p_allocate_default_arena(void)
       return FALSE;
   }
   GlobalArena = NewArena(IntegerOfTerm(t), 2, NULL);
-  GlobalDelayArena = NewDelayArena(IntegerOfTerm(t2));
+  GlobalDelayArena = NewDelayArena(2);
   return TRUE;
 }
 
@@ -658,7 +661,8 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
  error_handler:
   H = HB;
   CloseArena(oldH, oldHB, oldASP, newarena, old_size);
-  ResetDelayArena(old_delay_arena, att_arenap);
+  if (old_delay_arena != MkIntTerm(0))
+    ResetDelayArena(old_delay_arena, att_arenap);
   XREGS[arity+1] = t;
   XREGS[arity+2] = arena;
   XREGS[arity+3] = (CELL)newarena;
@@ -678,7 +682,8 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
       break;
     case -2:
       /* handle delay arena overflow */
-      if (!GrowDelayArena(att_arenap, 0L, 0L, arity+4)) {
+      old_size = DelayArenaSz(*att_arenap);
+      if (!GrowDelayArena(att_arenap, old_size, 0L, arity+4)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return 0L;
       }
@@ -888,6 +893,7 @@ p_nb_queue(void)
 {
   Term queue_arena, delay_queue_arena, queue, ar[5], *nar;
   Term t = Deref(ARG1);
+  UInt arena_sz = (H-H0)/16;
 
   if (!IsVarTerm(t)) {
     if (!IsApplTerm(t)) {
@@ -904,13 +910,20 @@ p_nb_queue(void)
   queue = Yap_MkApplTerm(FunctorNBQueue,5,ar);
   if (!Yap_unify(queue,ARG1))
     return FALSE;
-  queue_arena = NewArena(1024,1,NULL);
+  if (arena_sz < 1024)
+    arena_sz = 1024;
+  queue_arena = NewArena(arena_sz,1,NULL);
   if (queue_arena == 0L) {
     return FALSE;
   }
   nar = RepAppl(Deref(ARG1))+1;
   nar[QUEUE_ARENA] = queue_arena;
-  delay_queue_arena = NewDelayArena(64);
+  arena_sz = ((attvar_record *)H0- DelayTop())/16;
+  if (arena_sz <2) 
+    arena_sz = 2;
+  if (arena_sz > 256)
+      arena_sz = 256;
+  delay_queue_arena = NewDelayArena(arena_sz);
   if (delay_queue_arena == 0L) {
     return FALSE;
   }
@@ -993,6 +1006,10 @@ p_nb_queue_close(void)
       return
 	Yap_unify(ARG3, ARG2);
     }
+    if (qp[QUEUE_ARENA] != MkIntTerm(0))
+      RecoverArena(qp[QUEUE_ARENA]);
+    if (qp[QUEUE_DELAY_ARENA] != MkIntTerm(0))
+      RecoverDelayArena(qp[QUEUE_DELAY_ARENA]);
     if (qp[QUEUE_SIZE] == MkIntTerm(0)) {
       return 
 	Yap_unify(ARG3, ARG2);
@@ -1000,15 +1017,6 @@ p_nb_queue_close(void)
     out = 
       Yap_unify(ARG3, qp[QUEUE_TAIL]) &&
       Yap_unify(ARG2, qp[QUEUE_HEAD]);
-    /*
-      arena = GetQueueArena(qp, "delete_queue");
-      if ((CELL *)ArenaLimit == H &&
-      H != B->cp_h) {
-      H = RepAppl(arena);
-      }
-    */
-    RecoverArena(qp[QUEUE_ARENA]);
-    RecoverDelayArena(qp[QUEUE_DELAY_ARENA]);
     qp[QUEUE_TAIL] = 
       qp[QUEUE_HEAD] = 
       qp[QUEUE_ARENA] = 

@@ -33,37 +33,40 @@ _^Goal :-
 
 findall(Template, Generator, Answers) :-
 	'$check_list_for_bags'(Answers, findall(Template, Generator, Answers)),
-	nb_queue(Ref),
-	'$findall'(Template, Generator, Ref, [], Answers).
+	'$findall'(Template, Generator, [], Answers).
 
 
 % If some answers have already been found
 findall(Template, Generator, Answers, SoFar) :-
-	nb_queue(Ref),
-	'$findall'(Template, Generator, Ref, SoFar, Answers).
+	'$findall'(Template, Generator, SoFar, Answers).
 
 % starts by calling the generator,
 % and recording the answers
-'$findall'(Template, Generator, Ref, _, _) :-
-	'$execute'(Generator),
-	nb_queue_enqueue(Ref, Template),
-	fail.
-% now wraps it all
-'$findall'(_, _, Ref, SoFar, Answers) :-
-	nb_queue_close(Ref, Answers, SoFar).
+'$findall'(Template, Generator, SoFar, Answers) :-
+	nb_queue(Ref),
+	(
+	  '$execute'(Generator),
+	  nb_queue_enqueue(Ref, Template),
+	  fail
+	;
+	  nb_queue_close(Ref, Answers, SoFar)
+	).
+
 
 
 % findall_with_key is very similar to findall, but uses the SICStus
 % algorithm to guarantee that variables will have the same names.
 %
-'$findall_with_common_vars'(Template, Generator, Ref, _) :-
-	'$execute'(Generator),
-	nb_queue_enqueue(Ref, Template),
-	fail.
-% now wraps it all
-'$findall_with_common_vars'(_, _, Ref, Answers) :-
-	nb_queue_close(Ref, Answers, []),
-	'$collect_with_common_vars'(Answers, _).
+'$findall_with_common_vars'(Template, Generator, Answers) :-
+	nb_queue(Ref),
+	(
+	  '$execute'(Generator),
+	  nb_queue_enqueue(Ref, Template),
+	  fail
+	;
+	  nb_queue_close(Ref, Answers, []),
+	  '$collect_with_common_vars'(Answers, _)
+	).
 
 '$collect_with_common_vars'([], _).
 '$collect_with_common_vars'([Key-_|Answers], VarList) :-
@@ -93,13 +96,11 @@ bagof(Template, Generator, Bag) :-
 	( FreeVars \== [] ->
 		'$variables_in_term'(FreeVars, [], LFreeVars),
 		Key =.. ['$'|LFreeVars],
-		nb_queue(Ref),
-		'$findall_with_common_vars'(Key-Template, StrippedGenerator, Ref, Bags0),
+		'$findall_with_common_vars'(Key-Template, StrippedGenerator, Bags0),
 		'$keysort'(Bags0, Bags),
 		'$pick'(Bags, Key, Bag)
 	;
-		nb_queue(Ref),
-		'$findall'(Template, StrippedGenerator, Ref, [], Bag0),
+		'$findall'(Template, StrippedGenerator, [], Bag0),
 		Bag0 \== [],
 		Bag = Bag0
 	).
