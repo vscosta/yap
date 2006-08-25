@@ -1238,7 +1238,7 @@ p_nb_heap_close(void)
       RecoverDelayArena(qp[HEAP_DELAY_ARENA]);
     return TRUE;
   }
-  Yap_Error(INSTANTIATION_ERROR,t,"heap/3");
+  Yap_Error(INSTANTIATION_ERROR,t,"heap_close/1");
   return FALSE;
 }
 
@@ -1848,17 +1848,20 @@ p_nb_beam_check(void)
 static Int
 p_nb_beam_peek(void)
 {
-  CELL *qd = GetHeap(ARG1,"beam_peek");
-  UInt qsz;
+  CELL *qd = GetHeap(ARG1,"beam_peek"), *pt, *pt2;
+  UInt qsz, qbsize;
   Term tk, tv;
 
   if (!qd)
     return FALSE;
   qsz = IntegerOfTerm(qd[HEAP_SIZE]);
+  qbsize = IntegerOfTerm(qd[HEAP_MAX]);
   if (qsz == 0)
     return FALSE;
-  tk = qd[HEAP_START];
-  tv = qd[HEAP_START+1];
+  pt = qd+HEAP_START;
+  pt2 = pt+2*qbsize;
+  tk = pt[0];
+  tv = pt2[2];
   return Yap_unify(tk, ARG2) &&
     Yap_unify(tv, ARG3);
 }

@@ -186,6 +186,7 @@ Subnodes of Library
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
 * Lists:: List Manipulation
+* Non-Backtrackable Data Structures:: Queues, Heaps, and Beams.
 * Ordered Sets:: Ordered Set Manipulation
 * Pseudo Random:: Pseudo Random Numbers
 * Queues:: Queue Manipulation
@@ -6806,6 +6807,7 @@ Library, Extensions, Builtins, Top
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
 * Lists:: List Manipulation
+* Non-Backtrackable Data Structures:: Queues, Heaps, and Beams.
 * Ordered Sets:: Ordered Set Manipulation
 * Pseudo Random:: Pseudo Random Numbers
 * Queues:: Queue Manipulation
@@ -7207,7 +7209,7 @@ Returns the smallest (Key1) and second smallest (Key2) pairs in the
 heap, without deleting them.
 @end table
 
-@node Lists, Ordered Sets, Heaps, Library
+@node Lists, Non-Backtrackable Data Structures, Heaps, Library
 @section List Manipulation
 @cindex list manipulation
 
@@ -7402,7 +7404,157 @@ True when @var{Numbers} is a list of numbers, and @var{Min} is the minimum.
 
 @end table
 
-@node Ordered Sets, Pseudo Random, Lists, Library
+@node Non-Backtrackable Data Structures, Ordered Sets, Lists, Library
+@section Non-Backtrackable Data Structures
+
+The following routines implement well-known data-structures using global
+non-backtrackable variables (implemented on the Prolog stack). The
+data-structures currently supported are Queues, Heaps, and Beam for Beam
+search. They are allowed through @code{library(nb)}. 
+
+@table @code
+@item nb_queue(-@var{Queue})
+@findex nb_queue/1
+@snindex nb_queue/1
+@cnindex nb_queue/1
+Create a @var{Queue}.
+
+@item nb_queue_close(+@var{Queue}, -@var{Head}, ?@var{Tail})
+@findex nb_queue_close/3
+@snindex nb_queue_close/3
+@cnindex nb_queue_close/3
+Unify the queue  @var{Queue} with a difference list
+@var{Head}-@var{Tail}. The queue will now be empty and no further
+elements can be added.
+
+@item nb_queue_queue(+@var{Queue}, +@var{Element})
+@findex nb_queue_enqueue/2
+@snindex nb_queue_enqueue/2
+@cnindex nb_queue_enqueue/2
+Add @var{Element} to the front of the queue  @var{Queue}.
+
+@item nb_queue_dequeue(+@var{Queue}, -@var{Element})
+@findex nb_queue_dequeue/2
+@snindex nb_queue_dequeue/2
+@cnindex nb_queue_dequeue/2
+Remove @var{Element} from the front of the queue  @var{Queue}. Fail if
+the queue is empty.
+
+@item nb_queue_peek(+@var{Queue}, -@var{Element})
+@findex nb_queue_peek/2
+@snindex nb_queue_peek/2
+@cnindex nb_queue_peek/2
+@var{Element} is the front of the queue  @var{Queue}. Fail if
+the queue is empty.
+
+@item nb_queue_size(+@var{Queue}, -@var{Size})
+@findex nb_queue_size/2
+@snindex nb_queue_size/2
+@cnindex nb_queue_size/2
+Unify @var{Size} with the number of elements in the queue  @var{Queue}.
+
+@item nb_queue_empty(+@var{Queue})
+@findex nb_queue_empty/1
+@snindex nb_queue_empty/1
+@cnindex nb_queue_empty/1
+Succeeds if  @var{Queue} is empty.
+
+@item nb_heap(+@var{DefaultSize},-@var{Heap})
+@findex nb_heap/1
+@snindex nb_heap/1
+@cnindex nb_heap/1
+Create a @var{Heap} with default size @var{DefaultSize}. Note that size
+will expand as needed.
+
+@item nb_heap_close(+@var{Heap})
+@findex nb_heap_close/1
+@snindex nb_heap_close/1
+@cnindex nb_heap_close/1
+Close the heap @var{Heap}: no further elements can be added.
+
+@item nb_heap_add(+@var{Heap}, +@var{Key}, +@var{Value})
+@findex nb_heap_add/3
+@snindex nb_heap_add/3
+@cnindex nb_heap_add/3
+Add @var{Key}-@var{Value} to the heap @var{Heap}. The key is sorted on
+@var{Key} only.
+
+@item nb_heap_del(+@var{Heap}, -@var{Key}, -@var{Value})
+@findex nb_heap_del/3
+@snindex nb_heap_del/3
+@cnindex nb_heap_del/3
+Remove element @var{Key}-@var{Value} with smallest @var{Value} in heap
+@var{Heap}. Fail if the heap is empty.
+
+@item nb_heap_peek(+@var{Heap}, -@var{Key}, -@var{Value}))
+@findex nb_heap_peek/3
+@snindex nb_heap_peek/3
+@cnindex nb_heap_peek/3
+@var{Key}-@var{Value} is the element with smallest @var{Key} in the heap
+@var{Heap}. Fail if the heap is empty.
+
+@item nb_heap_size(+@var{Heap}, -@var{Size})
+@findex nb_heap_size/2
+@snindex nb_heap_size/2
+@cnindex nb_heap_size/2
+Unify @var{Size} with the number of elements in the heap  @var{Heap}.
+
+@item nb_heap_empty(+@var{Heap})
+@findex nb_heap_empty/1
+@snindex nb_heap_empty/1
+@cnindex nb_heap_empty/1
+Succeeds if  @var{Heap} is empty.
+
+@item nb_beam(+@var{DefaultSize},-@var{Beam})
+@findex nb_beam/1
+@snindex nb_beam/1
+@cnindex nb_beam/1
+Create a @var{Beam} with default size @var{DefaultSize}. Note that size
+is fixed throughout.
+
+@item nb_beam_close(+@var{Beam})
+@findex nb_beam_close/1
+@snindex nb_beam_close/1
+@cnindex nb_beam_close/1
+Close the beam @var{Beam}: no further elements can be added.
+
+@item nb_beam_add(+@var{Beam}, +@var{Key}, +@var{Value})
+@findex nb_beam_add/3
+@snindex nb_beam_add/3
+@cnindex nb_beam_add/3
+Add @var{Key}-@var{Value} to the beam @var{Beam}. The key is sorted on
+@var{Key} only.
+
+@item nb_beam_del(+@var{Beam}, -@var{Key}, -@var{Value})
+@findex nb_beam_del/3
+@snindex nb_beam_del/3
+@cnindex nb_beam_del/3
+Remove element @var{Key}-@var{Value} with smallest @var{Value} in beam
+@var{Beam}. Fail if the beam is empty.
+
+@item nb_beam_peek(+@var{Beam}, -@var{Key}, -@var{Value}))
+@findex nb_beam_peek/3
+@snindex nb_beam_peek/3
+@cnindex nb_beam_peek/3
+@var{Key}-@var{Value} is the element with smallest @var{Key} in the beam
+@var{Beam}. Fail if the beam is empty.
+
+@item nb_beam_size(+@var{Beam}, -@var{Size})
+@findex nb_beam_size/2
+@snindex nb_beam_size/2
+@cnindex nb_beam_size/2
+Unify @var{Size} with the number of elements in the beam  @var{Beam}.
+
+@item nb_beam_empty(+@var{Beam})
+@findex nb_beam_empty/1
+@snindex nb_beam_empty/1
+@cnindex nb_beam_empty/1
+Succeeds if  @var{Beam} is empty.
+
+@end table
+
+
+@node Ordered Sets, Pseudo Random, Non-Backtrackable Data Structures, Library
 @section Ordered Sets
 @cindex ordered set
 
