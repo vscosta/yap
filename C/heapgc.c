@@ -3117,7 +3117,6 @@ compact_heap(void)
       if (uccur == EndSpecials) {
 	CELL *old_dest = dest;
 
-	CELL *current0=current-1;
 	dest++;
 	current++;
 	while (!MARKED_PTR(current)) {

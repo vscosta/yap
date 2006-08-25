@@ -37,6 +37,14 @@ static char SccsId[] = "%W% %G%";
 #define QUEUE_TAIL 3
 #define QUEUE_SIZE 4
 
+#define HEAP_SIZE  0
+#define HEAP_MAX   1
+#define HEAP_ARENA 2
+#define HEAP_DELAY_ARENA 3
+#define HEAP_START 4
+
+#define Global_MkIntegerTerm(I) MkIntegerTerm(I)
+
 static UInt
 big2arena_sz(CELL *arena_base)
 {
@@ -1075,7 +1083,7 @@ p_nb_queue_enqueue(void)
     H = HB = ArenaPt(arena);
     old_sz = ArenaSz(arena);    
   }
-  qd[QUEUE_SIZE] = MkIntegerTerm(qsize+1);
+  qd[QUEUE_SIZE] = Global_MkIntegerTerm(qsize+1);
   if (qsize == 0) {
     qd[QUEUE_HEAD] = AbsPair(H);
   } else {
@@ -1085,7 +1093,7 @@ p_nb_queue_enqueue(void)
   RESET_VARIABLE(H);
   qd[QUEUE_TAIL] = (CELL)H;
   H++;
-  CloseArena(oldH, oldHB, ASP, qd, old_sz);
+  CloseArena(oldH, oldHB, ASP, qd+QUEUE_ARENA, old_sz);
   return TRUE;
 }
 
@@ -1111,7 +1119,7 @@ p_nb_queue_dequeue(void)
   /* garbage collection ? */
   oldH = H;
   oldHB = HB;
-  qd[QUEUE_SIZE] = MkIntegerTerm(qsz-1);
+  qd[QUEUE_SIZE] = Global_MkIntegerTerm(qsz-1);
   CloseArena(oldH, oldHB, ASP, &arena, old_sz);
   return Yap_unify(out, ARG2);
 }
@@ -1150,8 +1158,734 @@ p_nb_queue_size(void)
   return Yap_unify(ARG2,qd[QUEUE_SIZE]);
 }
 
+
+static CELL *
+GetHeap(Term t, char* caller)
+{
+  t = Deref(t);
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,caller);
+    return NULL;
+  } 
+  if (!IsApplTerm(t)) {
+      Yap_Error(TYPE_ERROR_COMPOUND,t,caller);
+      return NULL;
+  }
+  return RepAppl(t)+1;
+}
+
+static Int
+p_nb_heap(void)
+{
+  Term heap_arena, delay_heap_arena, heap, *ar, *nar;
+  UInt hsize;
+  Term tsize = Deref(ARG1);
+  UInt arena_sz = (H-H0)/16;
+
+  if (IsVarTerm(tsize)) {
+    Yap_Error(INSTANTIATION_ERROR,tsize,"nb_heap");
+    return FALSE;
+  } else {
+    if (!IsIntegerTerm(tsize)) {
+      Yap_Error(TYPE_ERROR_INTEGER,tsize,"nb_heap");
+      return FALSE;
+    }
+    hsize = IntegerOfTerm(tsize);
+  }
+  heap = Yap_MkNewApplTerm(Yap_MkFunctor(Yap_LookupAtom("heap"),2*hsize+HEAP_START),2*hsize+HEAP_START);
+  if (!Yap_unify(heap,ARG2))
+    return FALSE;
+  ar = RepAppl(heap)+1;
+  ar[HEAP_ARENA] = 
+    ar[HEAP_DELAY_ARENA] = 
+    ar[HEAP_SIZE] = 
+    MkIntTerm(0);
+  ar[HEAP_MAX] = tsize;
+  if (arena_sz < 1024)
+    arena_sz = 1024;
+  heap_arena = NewArena(arena_sz,1,NULL);
+  if (heap_arena == 0L) {
+    return FALSE;
+  }
+  nar = RepAppl(Deref(ARG2))+1;
+  nar[HEAP_ARENA] = heap_arena;
+  arena_sz = ((attvar_record *)H0- DelayTop())/16;
+  if (arena_sz <2) 
+    arena_sz = 2;
+  if (arena_sz > 256)
+      arena_sz = 256;
+  delay_heap_arena = NewDelayArena(arena_sz);
+  if (delay_heap_arena == 0L) {
+    return FALSE;
+  }
+  nar = RepAppl(Deref(ARG2))+1;
+  nar[HEAP_DELAY_ARENA] = delay_heap_arena;
+  return TRUE;
+}
+
+static Int
+p_nb_heap_close(void)
+{
+  Term t = Deref(ARG1);
+  if (!IsVarTerm(t)) {
+    CELL *qp;
+
+    qp = RepAppl(t)+1;
+    if (qp[HEAP_ARENA] != MkIntTerm(0))
+      RecoverArena(qp[HEAP_ARENA]);
+    if (qp[HEAP_DELAY_ARENA] != MkIntTerm(0))
+      RecoverDelayArena(qp[HEAP_DELAY_ARENA]);
+    return TRUE;
+  }
+  Yap_Error(INSTANTIATION_ERROR,t,"heap/3");
+  return FALSE;
+}
+
+static void
+PushHeap(CELL *pt, UInt off)
+{
+  while (off) {
+    UInt noff = (off+1)/2-1;
+    if (Yap_compare_terms(pt[2*off], pt[2*noff]) < 0) {
+      Term tk = pt[2*noff];
+      Term tv = pt[2*noff+1];
+      pt[2*noff] = pt[2*off];
+      pt[2*noff+1] = pt[2*off+1];
+      pt[2*off] = tk;
+      pt[2*off+1] = tv;
+      off = noff;
+    } else {
+      return;
+    }
+  }
+}
+
+static void
+DelHeapRoot(CELL *pt, UInt sz)
+{
+  UInt indx = 0;
+  Term tk, tv;
+
+  sz--;
+  tk = pt[2*sz];
+  tv = pt[2*sz+1];
+  while (TRUE) {
+    if (sz < 2*indx+3 || Yap_compare_terms(pt[4*indx+2],pt[4*indx+4]) < 0) {
+      if (sz < 2*indx+2 || Yap_compare_terms(tk, pt[4*indx+2]) < 0) {
+	pt[2*indx] = tk;
+	pt[2*indx+1] = tv;
+	return;
+      } else {
+	pt[2*indx] = pt[4*indx+2];
+	pt[2*indx+1] = pt[4*indx+3];
+	indx = 2*indx+1;
+      }
+    } else {
+      if (Yap_compare_terms(tk, pt[4*indx+4]) < 0) {
+	pt[2*indx] = tk;
+	pt[2*indx+1] = tv;
+	return;
+      } else {
+	pt[2*indx] = pt[4*indx+4];
+	pt[2*indx+1] = pt[4*indx+5];
+	indx = 2*indx+2;
+      }
+    }
+  }
+}
+
+static Int
+p_nb_heap_add_to_heap(void)
+{
+  CELL *qd = GetHeap(ARG1,"add_to_heap"), *oldH, *oldHB, *pt;
+  UInt hsize, hmsize, old_sz;
+  Term arena, to, key;
+
+  if (!qd)
+    return FALSE;
+ restart:
+  hsize = IntegerOfTerm(qd[HEAP_SIZE]);
+  hmsize = IntegerOfTerm(qd[HEAP_MAX]);
+  if (hsize == hmsize) {
+    CELL *top = qd+(HEAP_START+2*hmsize);
+    UInt extra_size;
+
+    if (hmsize >= 64*1024) {
+      extra_size = 64*1024;
+    } else {
+      extra_size = hmsize;
+    }
+    if (!Yap_InsertInGlobal(top, extra_size*2*sizeof(CELL))) {
+      Yap_Error(OUT_OF_STACK_ERROR,TermNil,"No Stack Space for Non-Backtrackable terms");
+      return FALSE;
+    }
+    qd = GetHeap(ARG1,"add_to_heap");
+    hmsize += extra_size;
+    if (!qd)
+      return FALSE;
+    qd[-1] = (CELL)Yap_MkFunctor(Yap_LookupAtom("heap"),2*hmsize+HEAP_START);
+    top = qd+(HEAP_START+2*(hmsize-extra_size));
+    while (extra_size) {
+      RESET_VARIABLE(top);
+      RESET_VARIABLE(top+1);
+      top+=2;
+      extra_size--;
+    }
+    arena = qd[HEAP_ARENA];
+    old_sz = ArenaSz(arena);
+    oldH = H;
+    oldHB = HB;
+    H = HB = ArenaPt(arena);
+    qd[HEAP_MAX] = Global_MkIntegerTerm(hmsize);
+    CloseArena(oldH, oldHB, ASP, qd+HEAP_ARENA, old_sz);
+    goto restart;
+  }
+  arena = qd[HEAP_ARENA];
+  if (arena == 0L)
+    return FALSE;
+  key = CopyTermToArena(ARG2, arena, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA);
+  to = CopyTermToArena(ARG3, arena, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA);
+  if (key == 0 || to == 0L)
+    return FALSE;
+  qd = GetHeap(ARG1,"add_to_heap");
+  arena = qd[HEAP_ARENA];
+  /* garbage collection ? */
+  oldH = H;
+  oldHB = HB;
+  H = HB = ArenaPt(arena);
+  old_sz = ArenaSz(arena);
+  while (old_sz < 128) {
+    UInt gsiz = hsize*2*sizeof(CELL);
+
+    H = oldH;
+    HB = oldHB;
+    if (gsiz > 1024*1024) {
+      gsiz = 1024*1024;
+    } else if (gsiz < 1024*sizeof(CELL)) {
+      gsiz = 1024*sizeof(CELL);
+    }
+    ARG3 = to;
+    if (!GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3)) {
+      Yap_Error(OUT_OF_STACK_ERROR, arena, Yap_ErrorMessage);
+      return 0L;
+    }    
+    to = ARG3;
+    qd = RepAppl(Deref(ARG1))+1;
+    arena = qd[HEAP_ARENA];
+    oldH = H;
+    oldHB = HB;
+    H = HB = ArenaPt(arena);
+    old_sz = ArenaSz(arena);    
+  }
+  pt = qd+HEAP_START;
+  pt[2*hsize] = key;
+  pt[2*hsize+1] = to;
+  PushHeap(pt, hsize);
+  qd[HEAP_SIZE] = Global_MkIntegerTerm(hsize+1);
+  CloseArena(oldH, oldHB, ASP, qd+HEAP_ARENA, old_sz);
+  return TRUE;
+}
+
+static Int
+p_nb_heap_del(void)
+{
+  CELL *qd = GetHeap(ARG1,"deheap");
+  UInt old_sz, qsz;
+  Term arena;
+  CELL *oldH, *oldHB;
+  Term tk, tv;
+
+  if (!qd)
+    return FALSE;
+  qsz = IntegerOfTerm(qd[HEAP_SIZE]);
+  if (qsz == 0)
+    return FALSE;
+  arena = qd[HEAP_ARENA];
+  if (arena == 0L)
+    return FALSE;
+  old_sz = ArenaSz(arena);
+  /* garbage collection ? */
+  oldH = H;
+  oldHB = HB;
+  qd[HEAP_SIZE] = Global_MkIntegerTerm(qsz-1);
+  CloseArena(oldH, oldHB, ASP, &arena, old_sz);
+  tk = qd[HEAP_START];
+  tv = qd[HEAP_START+1];
+  DelHeapRoot(qd+HEAP_START, qsz);
+  return Yap_unify(tk, ARG2) &&
+    Yap_unify(tv, ARG3);
+}
+
+static Int
+p_nb_heap_peek(void)
+{
+  CELL *qd = GetHeap(ARG1,"heap_peek");
+  UInt qsz;
+  Term tk, tv;
+
+  if (!qd)
+    return FALSE;
+  qsz = IntegerOfTerm(qd[HEAP_SIZE]);
+  if (qsz == 0)
+    return FALSE;
+  tk = qd[HEAP_START];
+  tv = qd[HEAP_START+1];
+  return Yap_unify(tk, ARG2) &&
+    Yap_unify(tv, ARG3);
+}
+
+static Int
+p_nb_heap_empty(void)
+{
+  CELL *qd = GetHeap(ARG1,"heap_empty");
+
+  if (!qd)
+    return FALSE;
+  return (IntegerOfTerm(qd[HEAP_SIZE]) == 0);
+}
+
+static Int
+p_nb_heap_size(void)
+{
+  CELL *qd = GetHeap(ARG1,"heap_size");
+
+  if (!qd)
+    return FALSE;
+  return Yap_unify(ARG2,qd[HEAP_SIZE]);
+}
+
+static Int
+p_nb_beam(void)
+{
+  Term beam_arena, delay_beam_arena, beam, *ar, *nar;
+  UInt hsize;
+  Term tsize = Deref(ARG1);
+  UInt arena_sz = (H-H0)/16;
+
+  if (IsVarTerm(tsize)) {
+    Yap_Error(INSTANTIATION_ERROR,tsize,"nb_beam");
+    return FALSE;
+  } else {
+    if (!IsIntegerTerm(tsize)) {
+      Yap_Error(TYPE_ERROR_INTEGER,tsize,"nb_beam");
+      return FALSE;
+    }
+    hsize = IntegerOfTerm(tsize);
+  }
+  beam = Yap_MkNewApplTerm(Yap_MkFunctor(Yap_LookupAtom("beam"),5*hsize+HEAP_START),5*hsize+HEAP_START);
+  if (!Yap_unify(beam,ARG2))
+    return FALSE;
+  ar = RepAppl(beam)+1;
+  ar[HEAP_ARENA] = 
+    ar[HEAP_DELAY_ARENA] = 
+    ar[HEAP_SIZE] = 
+    MkIntTerm(0);
+  ar[HEAP_MAX] = tsize;
+  if (arena_sz < 1024)
+    arena_sz = 1024;
+  beam_arena = NewArena(arena_sz,1,NULL);
+  if (beam_arena == 0L) {
+    return FALSE;
+  }
+  nar = RepAppl(Deref(ARG2))+1;
+  nar[HEAP_ARENA] = beam_arena;
+  arena_sz = ((attvar_record *)H0- DelayTop())/16;
+  if (arena_sz <2) 
+    arena_sz = 2;
+  if (arena_sz > 256)
+      arena_sz = 256;
+  delay_beam_arena = NewDelayArena(arena_sz);
+  if (delay_beam_arena == 0L) {
+    return FALSE;
+  }
+  nar = RepAppl(Deref(ARG2))+1;
+  nar[HEAP_DELAY_ARENA] = delay_beam_arena;
+  return TRUE;
+}
+
+static Int
+p_nb_beam_close(void)
+{
+  return p_nb_beam_close();
+}
+
+
+/* we have two queues, one with
+   Key, IndxQueue2
+   the other with
+   Key, IndxQueue1, Val
+*/
+static void
+PushBeam(CELL *pt, CELL *npt, UInt hsize, Term key, Term to)
+{
+  UInt off = hsize, off2 = hsize;
+  Term toff, toff2;
+
+  /* push into first queue */
+  while (off) {
+    UInt noff = (off+1)/2-1;
+    if (Yap_compare_terms(key, pt[2*noff]) < 0) {
+      UInt i2 = IntegerOfTerm(pt[2*noff+1]);
+
+      pt[2*off] = pt[2*noff];
+      pt[2*off+1] = pt[2*noff+1];
+      npt[3*i2+1] = Global_MkIntegerTerm(off);
+      off = noff;
+    } else {
+      break;
+    }
+  }
+  toff = Global_MkIntegerTerm(off);
+  /* off says where we are in first queue */
+  /* push into second queue */
+  while (off2) {
+    UInt noff = (off2+1)/2-1;
+    if (Yap_compare_terms(key, npt[3*noff]) > 0) {
+      UInt i1 = IntegerOfTerm(npt[3*noff+1]);
+
+      npt[3*off2] = npt[3*noff];
+      npt[3*off2+1] = npt[3*noff+1];
+      npt[3*off2+2] = npt[3*noff+2];
+      pt[2*i1+1] = Global_MkIntegerTerm(off2);
+      off2 = noff;
+    } else {
+      break;
+    }
+  }
+  toff2 = Global_MkIntegerTerm(off2);
+  /* store elements in their rightful place */
+  npt[3*off2] = pt[2*off] = key;
+  pt[2*off+1] = toff2;
+  npt[3*off2+1] = toff;
+  npt[3*off2+2] = to;
+}
+
+static void
+DelBeamMax(CELL *pt, CELL *pt2, UInt sz)
+{
+  UInt off = IntegerOfTerm(pt2[1]);
+  UInt indx = 0;
+  Term tk, ti, tv;
+
+  sz--;
+  /* first, fix the reverse queue */
+  tk = pt2[3*sz];
+  ti = pt2[3*sz+1];
+  tv = pt2[3*sz+2];
+  while (TRUE) {
+    if (sz < 2*indx+3 || Yap_compare_terms(pt2[6*indx+3],pt2[6*indx+6]) > 0) {
+      if (sz < 2*indx+2 || Yap_compare_terms(tk, pt2[6*indx+3]) > 0) {
+	break;
+      } else {
+	UInt off = IntegerOfTerm(pt2[6*indx+4]);
+
+	pt2[3*indx] = pt2[6*indx+3];
+	pt2[3*indx+1] = pt2[6*indx+4];
+	pt2[3*indx+2] = pt2[6*indx+5];
+	pt[2*off+1] = Global_MkIntegerTerm(indx);
+	indx = 2*indx+1;
+      }
+    } else {
+      if (Yap_compare_terms(tk, pt2[6*indx+6]) > 0) {
+	break;
+      } else {
+	UInt off = IntegerOfTerm(pt2[6*indx+7]);
+
+	pt2[3*indx] = pt2[6*indx+6];
+	pt2[3*indx+1] = pt2[6*indx+7];
+	pt2[3*indx+2] = pt2[6*indx+8];
+	pt[2*off+1] = Global_MkIntegerTerm(indx);
+	indx = 2*indx+2;
+      }
+    }
+  }
+  pt[2*IntegerOfTerm(ti)+1] = Global_MkIntegerTerm(indx);
+  pt2[3*indx] = tk;
+  pt2[3*indx+1] = ti;
+  pt2[3*indx+2] = tv;
+  /* now, fix the standard queue */
+  if (off != sz) {
+    Term toff, toff2, key;
+    UInt off2;
+
+    key = pt[2*sz];
+    toff2 = pt[2*sz+1];
+    off2 = IntegerOfTerm(toff2);
+    /* off says where we are in first queue */
+    /* push into second queue */
+    while (off) {
+      UInt noff = (off+1)/2-1;
+      if (Yap_compare_terms(key, pt[2*noff]) < 0) {
+	UInt i1 = IntegerOfTerm(pt[2*noff+1]);
+
+	pt[2*off] = pt[2*noff];
+	pt[2*off+1] = pt[2*noff+1];
+	pt2[3*i1+1] = Global_MkIntegerTerm(off);
+	off = noff;
+      } else {
+	break;
+      }
+    }
+    toff = Global_MkIntegerTerm(off);
+    /* store elements in their rightful place */
+    pt[2*off] = key;
+    pt2[3*off2+1] = toff;
+    pt[2*off+1] = toff2;
+  }
+}
+
+static Term
+DelBeamMin(CELL *pt, CELL *pt2, UInt sz)
+{
+  UInt off2 = IntegerOfTerm(pt[1]);
+  Term ov = pt2[3*off2+2]; /* return value */
+  UInt indx = 0;
+  Term tk, tv;
+
+  sz--;
+  /* first, fix the standard queue */
+  tk = pt[2*sz];
+  tv = pt[2*sz+1];
+  while (TRUE) {
+    if (sz < 2*indx+3 || Yap_compare_terms(pt[4*indx+2],pt[4*indx+4]) < 0) {
+      if (sz < 2*indx+2 || Yap_compare_terms(tk, pt[4*indx+2]) < 0) {
+	break;
+      } else {
+	UInt off2 = IntegerOfTerm(pt[4*indx+3]);
+	pt[2*indx] = pt[4*indx+2];
+	pt[2*indx+1] = pt[4*indx+3];
+	pt2[3*off2+1] = Global_MkIntegerTerm(indx);
+	indx = 2*indx+1;
+      }
+    } else {
+      if (Yap_compare_terms(tk, pt[4*indx+4]) < 0) {
+	break;
+      } else {
+	UInt off2 = IntegerOfTerm(pt[4*indx+5]);
+
+	pt[2*indx] = pt[4*indx+4];
+	pt[2*indx+1] = pt[4*indx+5];
+	pt2[3*off2+1] = Global_MkIntegerTerm(indx);
+	indx = 2*indx+2;
+      }
+    }
+  }
+  pt[2*indx] = tk;
+  pt[2*indx+1] = tv;
+  pt2[3*IntegerOfTerm(tv)+1] = Global_MkIntegerTerm(indx);
+  /* now, fix the reverse queue */
+  if (off2 != sz) {
+    Term to, toff, toff2, key;
+    UInt off;
+
+    key = pt2[3*sz];
+    toff = pt2[3*sz+1];
+    to = pt2[3*sz+2];
+    off = IntegerOfTerm(toff);
+    /* off says where we are in first queue */
+    /* push into second queue */
+    while (off2) {
+      UInt noff = (off2+1)/2-1;
+      if (Yap_compare_terms(key, pt2[3*noff]) > 0) {
+	UInt i1 = IntegerOfTerm(pt2[3*noff+1]);
+
+	pt2[3*off2] = pt2[3*noff];
+	pt2[3*off2+1] = pt2[3*noff+1];
+	pt2[3*off2+2] = pt2[3*noff+2];
+	pt[2*i1+1] = Global_MkIntegerTerm(off2);
+	off2 = noff;
+      } else {
+	break;
+      }
+    }
+    toff2 = Global_MkIntegerTerm(off2);
+    /* store elements in their rightful place */
+    pt2[3*off2] = key;
+    pt[2*off+1] = toff2;
+    pt2[3*off2+1] = toff;
+    pt2[3*off2+2] = to;
+  }
+  return ov;
+}
+
+static Int
+p_nb_beam_add_to_beam(void)
+{
+  CELL *qd = GetHeap(ARG1,"add_to_beam"), *oldH, *oldHB, *pt;
+  UInt hsize, hmsize, old_sz;
+  Term arena, to, key;
+
+  if (!qd)
+    return FALSE;
+  hsize = IntegerOfTerm(qd[HEAP_SIZE]);
+  hmsize = IntegerOfTerm(qd[HEAP_MAX]);
+  key = Deref(ARG2);
+  if (hsize == hmsize) {
+    pt = qd+HEAP_START;
+    if (Yap_compare_terms(pt[2*hmsize],Deref(ARG2)) > 0) {
+      /* smaller than current max, we need to drop current max */
+      DelBeamMax(pt, pt+2*hmsize, hmsize);
+      hsize--;
+    } else {
+      return TRUE;
+    }
+  }
+  arena = qd[HEAP_ARENA];
+  if (arena == 0L)
+    return FALSE;
+  key = CopyTermToArena(ARG2, arena, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA);
+  to = CopyTermToArena(ARG3, arena, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA);
+  if (key == 0 || to == 0L)
+    return FALSE;
+  qd = GetHeap(ARG1,"add_to_beam");
+  arena = qd[HEAP_ARENA];
+  /* garbage collection ? */
+  oldH = H;
+  oldHB = HB;
+  H = HB = ArenaPt(arena);
+  old_sz = ArenaSz(arena);
+  while (old_sz < 128) {
+    UInt gsiz = hsize*2*sizeof(CELL);
+
+    H = oldH;
+    HB = oldHB;
+    if (gsiz > 1024*1024) {
+      gsiz = 1024*1024;
+    } else if (gsiz < 1024*sizeof(CELL)) {
+      gsiz = 1024*sizeof(CELL);
+    }
+    ARG3 = to;
+    if (!GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3)) {
+      Yap_Error(OUT_OF_STACK_ERROR, arena, Yap_ErrorMessage);
+      return 0L;
+    }    
+    to = ARG3;
+    qd = RepAppl(Deref(ARG1))+1;
+    arena = qd[HEAP_ARENA];
+    oldH = H;
+    oldHB = HB;
+    H = HB = ArenaPt(arena);
+    old_sz = ArenaSz(arena);    
+  }
+  pt = qd+HEAP_START;
+  PushBeam(pt, pt+2*hmsize, hsize, key, to);
+  qd[HEAP_SIZE] = Global_MkIntegerTerm(hsize+1);
+  CloseArena(oldH, oldHB, ASP, qd+HEAP_ARENA, old_sz);
+  return TRUE;
+}
+
+static Int
+p_nb_beam_del(void)
+{
+  CELL *qd = GetHeap(ARG1,"debeam");
+  UInt old_sz, qsz;
+  Term arena;
+  CELL *oldH, *oldHB;
+  Term tk, tv;
+
+  if (!qd)
+    return FALSE;
+  qsz = IntegerOfTerm(qd[HEAP_SIZE]);
+  if (qsz == 0)
+    return FALSE;
+  arena = qd[HEAP_ARENA];
+  if (arena == 0L)
+    return FALSE;
+  old_sz = ArenaSz(arena);
+  /* garbage collection ? */
+  oldH = H;
+  oldHB = HB;
+  qd[HEAP_SIZE] = Global_MkIntegerTerm(qsz-1);
+  CloseArena(oldH, oldHB, ASP, &arena, old_sz);
+  tk = qd[HEAP_START];
+  tv = DelBeamMin(qd+HEAP_START, qd+(HEAP_START+2*IntegerOfTerm(qd[HEAP_MAX])), qsz);
+  return Yap_unify(tk, ARG2) &&
+    Yap_unify(tv, ARG3);
+}
+
+static Int
+p_nb_beam_check(void)
+{
+  CELL *qd = GetHeap(ARG1,"debeam");
+  UInt qsz, qmax;
+  CELL *pt, *pt2;
+  UInt i;
+
+  if (!qd)
+    return FALSE;
+  qsz = IntegerOfTerm(qd[HEAP_SIZE]);
+  qmax = IntegerOfTerm(qd[HEAP_MAX]);
+  if (qsz == 0)
+    return TRUE;
+  pt = qd+HEAP_START;
+  pt2 = pt+2*qmax;
+  for (i = 1; i < qsz; i++) {
+    UInt back;
+    if (Yap_compare_terms(pt[2*((i+1)/2-1)],pt[2*i]) > 0) {
+      Yap_DebugPlWrite(pt[2*((i+1)/2-1)]); fprintf(stderr,"\n");
+      Yap_DebugPlWrite(pt[2*i]); fprintf(stderr,"\n");
+      fprintf(stderr,"Error at %d\n",i);
+      return FALSE;
+    }
+    back = IntegerOfTerm(pt[2*i+1]);
+    if (IntegerOfTerm(pt2[3*back+1]) != i) {
+      fprintf(stderr,"Link error at %d\n",i);
+      return FALSE;
+    }
+  }
+  for (i = 1; i < qsz; i++) {
+    if (Yap_compare_terms(pt2[3*((i+1)/2-1)],pt2[3*i]) < 0) {
+      fprintf(stderr,"Error at sec %d\n",i);
+      Yap_DebugPlWrite(pt2[3*((i+1)/2-1)]); fprintf(stderr,"\n");
+      Yap_DebugPlWrite(pt2[3*i]); fprintf(stderr,"\n");
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
+static Int
+p_nb_beam_peek(void)
+{
+  CELL *qd = GetHeap(ARG1,"beam_peek");
+  UInt qsz;
+  Term tk, tv;
+
+  if (!qd)
+    return FALSE;
+  qsz = IntegerOfTerm(qd[HEAP_SIZE]);
+  if (qsz == 0)
+    return FALSE;
+  tk = qd[HEAP_START];
+  tv = qd[HEAP_START+1];
+  return Yap_unify(tk, ARG2) &&
+    Yap_unify(tv, ARG3);
+}
+
+static Int
+p_nb_beam_empty(void)
+{
+  CELL *qd = GetHeap(ARG1,"beam_empty");
+
+  if (!qd)
+    return FALSE;
+  return (IntegerOfTerm(qd[HEAP_SIZE]) == 0);
+}
+
+static Int
+p_nb_beam_size(void)
+{
+  CELL *qd = GetHeap(ARG1,"beam_size");
+
+  if (!qd)
+    return FALSE;
+  return Yap_unify(ARG2,qd[HEAP_SIZE]);
+}
+
 void Yap_InitGlobals(void)
 {
+  Term cm = CurrentModule;
   Yap_InitCPred("$allocate_arena", 2, p_allocate_arena, 0);
   Yap_InitCPred("$allocate_default_arena", 2, p_allocate_default_arena, 0);
   Yap_InitCPred("arena_size", 1, p_default_arena_size, 0);
@@ -1160,6 +1894,7 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("nb_setval", 2, p_nb_setval, 0L);
   Yap_InitCPred("nb_getval", 2, p_nb_getval, SafePredFlag);
   Yap_InitCPred("nb_delete", 1, p_nb_delete, 0L);
+  CurrentModule = GLOBALS_MODULE;
   Yap_InitCPred("nb_queue", 1, p_nb_queue, 0L);
   Yap_InitCPred("nb_queue_close", 3, p_nb_queue_close, SafePredFlag);
   Yap_InitCPred("nb_queue_enqueue", 2, p_nb_queue_enqueue, 0L);
@@ -1167,4 +1902,20 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("nb_queue_peek", 2, p_nb_queue_peek, SafePredFlag);
   Yap_InitCPred("nb_queue_empty", 1, p_nb_queue_empty, SafePredFlag);
   Yap_InitCPred("nb_queue_size", 2, p_nb_queue_size, SafePredFlag);
+  Yap_InitCPred("nb_heap", 2, p_nb_heap, 0L);
+  Yap_InitCPred("nb_heap_close", 1, p_nb_heap_close, SafePredFlag);
+  Yap_InitCPred("nb_heap_add", 3, p_nb_heap_add_to_heap, 0L);
+  Yap_InitCPred("nb_heap_del", 3, p_nb_heap_del, SafePredFlag);
+  Yap_InitCPred("nb_heap_peek", 3, p_nb_heap_peek, SafePredFlag);
+  Yap_InitCPred("nb_heap_empty", 1, p_nb_heap_empty, SafePredFlag);
+  Yap_InitCPred("nb_heap_size", 2, p_nb_heap_size, SafePredFlag);
+  Yap_InitCPred("nb_beam", 2, p_nb_beam, 0L);
+  Yap_InitCPred("nb_beam_close", 1, p_nb_beam_close, SafePredFlag);
+  Yap_InitCPred("nb_beam_add", 3, p_nb_beam_add_to_beam, 0L);
+  Yap_InitCPred("nb_beam_del", 3, p_nb_beam_del, SafePredFlag);
+  Yap_InitCPred("nb_beam_peek", 3, p_nb_beam_peek, SafePredFlag);
+  Yap_InitCPred("nb_beam_empty", 1, p_nb_beam_empty, SafePredFlag);
+  Yap_InitCPred("nb_beam_check", 1, p_nb_beam_check, SafePredFlag);
+  Yap_InitCPred("nb_beam_size", 2, p_nb_beam_size, SafePredFlag);
+  CurrentModule = cm;
 }

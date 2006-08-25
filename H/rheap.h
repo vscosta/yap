@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2006-08-22 16:12:46 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-08-25 19:50:35 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.69  2006/08/22 16:12:46  vsc
+* global variables
+*
 * Revision 1.68  2006/08/02 18:18:30  vsc
 * preliminary support for readutil library (SWI compatible).
 *
@@ -673,6 +676,7 @@ restore_codes(void)
   Yap_heap_regs->terms_module = AtomTermAdjust(Yap_heap_regs->terms_module);
   Yap_heap_regs->system_module = AtomTermAdjust(Yap_heap_regs->system_module);
   Yap_heap_regs->readutil_module = AtomTermAdjust(Yap_heap_regs->readutil_module);
+  Yap_heap_regs->globals_module = AtomTermAdjust(Yap_heap_regs->globals_module);
   if (Yap_heap_regs->file_aliases != NULL) {
     Yap_heap_regs->yap_streams =
       (struct stream_desc *)AddrAdjust((ADDR)Yap_heap_regs->yap_streams);
