@@ -199,7 +199,7 @@ MoveExpandedGlobal(void)
    * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
    * absmi.asm 
    */
-  cpcellsd((CELL *)(Yap_GlobalBase+GDiff), (CELL *)OldGlobalBase, OldH - (CELL *)OldGlobalBase);  
+  cpcellsd((CELL *)(Yap_GlobalBase+(GDiff-DelayDiff)), (CELL *)OldGlobalBase, OldH - (CELL *)OldGlobalBase);  
 }
 
 static void

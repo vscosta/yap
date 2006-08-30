@@ -1455,7 +1455,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
       }
       bmap = (Int)(((CELL)bmap) << currv);
     }
-	  
+
     for (saved_var = gc_ENV - size; saved_var < gc_ENV - EnvSizeInCells; saved_var++) {
       if (currv == sizeof(CELL)*8) {
 	if (pvbmap) {
@@ -3052,7 +3052,9 @@ compact_heap(void)
 #else
 	XXX BROKEN CODE
 #endif
+#ifdef DEBUG
 	found_marked+=nofcells;
+#endif
 	/* first swap the tag so that it will be seen by the next step */
 	current[0] = ptr[0];
 	ptr[0] = EndSpecials;

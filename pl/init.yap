@@ -116,15 +116,15 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 
 :- multifile goal_expansion/3.
 
-:- dynamic_predicate(goal_expansion/3, logical).
+:- dynamic goal_expansion/3.
 
 :- multifile term_expansion/2.
 
-:- dynamic_predicate(term_expansion/2, logical).
+:- dynamic term_expansion/2.
 
 :- multifile file_search_path/2.
 
-:- dynamic_predicate(file_search_path/2, logical).
+:- dynamic file_search_path/2.
 
 file_search_path(library, Dir) :-
      library_directory(Dir).
@@ -133,11 +133,7 @@ file_search_path(system, Dir) :-
 
 :- multifile library_directory/1.
 
-:- dynamic_predicate(library_directory/1, logical).
+:- dynamic library_directory/1.
 
-library_directory(D) :-
-	getenv('YAPSHAREDIR', D).
-
-:- get_value(system_library_directory,D), assert(library_directory(D)).
 
 

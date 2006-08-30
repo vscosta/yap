@@ -178,12 +178,57 @@ Yap_dir_separator (int ch)
   return dir_separator (ch);
 }
 
+#if _MSC_VER || defined(__MINGW32__)
+#include <psapi.h>
+
+char *libdir = NULL;
+#endif
+
 void
 Yap_InitSysPath(void) {
   strncpy(Yap_FileNameBuf, SHARE_DIR, YAP_FILENAME_MAX);
-#ifdef MAC
-  strncat(Yap_FileNameBuf,":", YAP_FILENAME_MAX);
-#elif ATARI || _MSC_VER || defined(__MINGW32__)
+#if _MSC_VER || defined(__MINGW32__)
+  {
+    DWORD fatts;
+    int buflen;
+    char *pt;
+
+    if ((fatts = GetFileAttributes(Yap_FileNameBuf)) == 0xFFFFFFFFL ||
+	!(fatts & FILE_ATTRIBUTE_DIRECTORY)) {
+      /* couldn't find it where it was supposed to be,
+	 let's try using the executable */
+      if (!GetModuleFileNameEx( GetCurrentProcess(), NULL, Yap_FileNameBuf, YAP_FILENAME_MAX)) {
+	Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name"); 
+	/* do nothing */
+	return;
+      }
+      buflen = strlen(Yap_FileNameBuf);
+      pt = Yap_FileNameBuf+strlen(Yap_FileNameBuf);
+      while (*--pt != '\\') {
+	/* skip executable */
+	if (pt == Yap_FileNameBuf) {
+	  Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
+	  /* do nothing */
+	  return;
+	}
+      }
+      while (*--pt != '\\') {
+	/* skip parent directory "bin\\" */
+	if (pt == Yap_FileNameBuf) {
+	  Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
+	  /* do nothing */
+	}
+      }
+      /* now, this is a possible location for the ROOT_DIR, let's look for a share directory here */
+      pt[1] = '\0';
+      /* grosse */
+      strncat(Yap_FileNameBuf,"lib\\Yap",YAP_FILENAME_MAX);
+      libdir = Yap_AllocCodeSpace(strlen(Yap_FileNameBuf)+1);
+      strncpy(libdir, Yap_FileNameBuf, strlen(Yap_FileNameBuf)+1);
+      pt[1] = '\0';
+      strncat(Yap_FileNameBuf,"share",YAP_FILENAME_MAX);
+    }
+  }
   strncat(Yap_FileNameBuf,"\\", YAP_FILENAME_MAX);
 #else
   strncat(Yap_FileNameBuf,"/", YAP_FILENAME_MAX);
@@ -1664,7 +1709,12 @@ TrueFileName (char *source, char *result, int in_lib)
 	      strncpy(ares1, yap_env, YAP_FILENAME_MAX);
 #endif
 	    } else {
-	      strncpy(ares1, LIB_DIR, YAP_FILENAME_MAX);
+#if _MSC_VER || defined(__MINGW32__)
+	      if (libdir)
+		strncpy(ares1, libdir, YAP_FILENAME_MAX);
+	      else
+#endif
+		strncpy(ares1, LIB_DIR, YAP_FILENAME_MAX);
 	    }
 #if HAVE_GETENV
 	  }

@@ -20,6 +20,7 @@ static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 
 #if _MSC_VER || defined(__MINGW32__)
 #include <windows.h>
+#include <psapi.h>
 #endif
 #include "absmi.h"
 #include "alloc.h"
@@ -548,7 +549,7 @@ do_save(int mode) {
 
   if (Yap_HoleSize) {
     Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)),
-	  "restore/1: address space has holes, cannot save");
+	      "restore/1: address space has holes of size %ld, cannot save", (long int)Yap_HoleSize);
     return FALSE;
   }
   if (!Yap_GetName(Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
@@ -1447,6 +1448,50 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
       }
     }
   }
+#if _MSC_VER || defined(__MINGW32__)
+  {
+    DWORD fatts;
+    int buflen;
+    char *pt;
+
+    /* try to get it from current executable */
+    if ((fatts = GetFileAttributes(Yap_FileNameBuf)) == 0xFFFFFFFFL ||
+	!(fatts & FILE_ATTRIBUTE_DIRECTORY)) {
+      /* couldn't find it where it was supposed to be,
+	 let's try using the executable */
+      if (!GetModuleFileNameEx( GetCurrentProcess(), NULL, Yap_FileNameBuf, YAP_FILENAME_MAX)) {
+	/* do nothing */
+	goto end;
+      }
+      buflen = strlen(Yap_FileNameBuf);
+      pt = Yap_FileNameBuf+strlen(Yap_FileNameBuf);
+      while (*--pt != '\\') {
+	/* skip executable */
+	if (pt == Yap_FileNameBuf) {
+	  /* do nothing */
+	  goto end;
+	}
+      }
+      while (*--pt != '\\') {
+	/* skip parent directory "bin\\" */
+	if (pt == Yap_FileNameBuf) {
+	  goto end;
+	}
+      }
+      /* now, this is a possible location for the ROOT_DIR, let's look for a share directory here */
+      pt[1] = '\0';
+      strncat(Yap_FileNameBuf,"lib/Yap/startup",YAP_FILENAME_MAX);
+    }
+    if ((splfild = open_file(Yap_FileNameBuf, O_RDONLY)) > 0) {
+      if ((mode = commit_to_saved_state(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
+	Yap_ErrorMessage = NULL;
+	return(mode);
+      }
+    }
+  }
+ end:
+#endif
+  /* try to open from current directory */
   /* could not open file */
   if (Yap_ErrorMessage == NULL) {
 #if __simplescalar__
@@ -1657,6 +1702,7 @@ Restore(char *s, char *lib_dir)
   Yap_InitPlIO();
   /* reset time */
   Yap_ReInitWallTime();
+  Yap_InitSysPath();
   CloseRestore();
   if (which_save == 2) {
     Yap_unify(ARG2, MkIntTerm(0));

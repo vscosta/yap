@@ -936,13 +936,19 @@ bootstrap(F) :-
 
 '$find_in_path'(user,user_input, _) :- !.
 '$find_in_path'(user_input,user_input, _) :- !.
+'$find_in_path'(library(File),NewFile, _) :-
+	'$dir_separator'(D),
+	atom_codes(A,[D]),
+	'$system_library_directories'(Dir),
+	'$extend_path'(Dir,A,File,NFile),
+	'$search_in_path'(NFile, NewFile), !.
 '$find_in_path'(S,NewFile, _) :-
 	S =.. [Name,File], !,
 	'$dir_separator'(D),
 	atom_codes(A,[D]),
 	( user:file_search_path(Name, Dir), '$do_not_creep' ; '$do_not_creep', fail),
 	'$extend_path'(Dir,A,File,NFile),
-	'$search_in_path'(NFile, NewFile).
+	'$search_in_path'(NFile, NewFile), !.
 '$find_in_path'(File,NewFile,_) :- atom(File), !,
 	'$search_in_path'(File,NewFile),!.
 '$find_in_path'(File,_,Call) :-

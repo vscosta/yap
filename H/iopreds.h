@@ -23,9 +23,16 @@ static char SccsId[] = "%W% %G%";
  *
  */
 
+#if _MSC_VER || defined(__MINGW32__)
+
+#include <windows.h>
+
+#endif
+
 #if HAVE_LIBREADLINE
 
 #if _MSC_VER || defined(__MINGW32__)
+
 FILE *rl_instream, *rl_outstream;
 #endif
 

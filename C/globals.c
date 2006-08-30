@@ -626,6 +626,10 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
     }
 #endif
     Term tn = MkVarTerm();
+    if (H > ASP - 128) {
+      res = -1;
+      goto error_handler;
+    }
     CloseArena(oldH, oldHB, oldASP, newarena, old_size);
     return tn;
   } else if (IsPrimitiveTerm(t)) {
@@ -1025,12 +1029,8 @@ p_nb_queue_close(void)
     out = 
       Yap_unify(ARG3, qp[QUEUE_TAIL]) &&
       Yap_unify(ARG2, qp[QUEUE_HEAD]);
-    qp[QUEUE_TAIL] = 
-      qp[QUEUE_HEAD] = 
-      qp[QUEUE_ARENA] = 
-      qp[QUEUE_DELAY_ARENA] = 
-      qp[QUEUE_SIZE] = 
-      MkIntTerm(0);
+    qp[-1] = (CELL)Yap_MkFunctor(Yap_LookupAtom("heap"),1);
+    qp[0] = MkIntegerTerm(0);
     return out;
   }
   Yap_Error(INSTANTIATION_ERROR,t,"queue/3");
@@ -1236,6 +1236,8 @@ p_nb_heap_close(void)
       RecoverArena(qp[HEAP_ARENA]);
     if (qp[HEAP_DELAY_ARENA] != MkIntTerm(0))
       RecoverDelayArena(qp[HEAP_DELAY_ARENA]);
+    qp[-1] = (CELL)Yap_MkFunctor(Yap_LookupAtom("heap"),1);
+    qp[0] = MkIntegerTerm(0);
     return TRUE;
   }
   Yap_Error(INSTANTIATION_ERROR,t,"heap_close/1");
@@ -1804,6 +1806,7 @@ p_nb_beam_del(void)
     Yap_unify(tv, ARG3);
 }
 
+#ifdef DEBUG
 static Int
 p_nb_beam_check(void)
 {
@@ -1844,6 +1847,7 @@ p_nb_beam_check(void)
   }
   return TRUE;
 }
+#endif
 
 static Int
 p_nb_beam_peek(void)
@@ -1918,7 +1922,9 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("nb_beam_del", 3, p_nb_beam_del, SafePredFlag);
   Yap_InitCPred("nb_beam_peek", 3, p_nb_beam_peek, SafePredFlag);
   Yap_InitCPred("nb_beam_empty", 1, p_nb_beam_empty, SafePredFlag);
+#ifdef DEBUG
   Yap_InitCPred("nb_beam_check", 1, p_nb_beam_check, SafePredFlag);
+#endif
   Yap_InitCPred("nb_beam_size", 2, p_nb_beam_size, SafePredFlag);
   CurrentModule = cm;
 }

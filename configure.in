@@ -371,10 +371,11 @@ then
   then
     CC="gcc  -mno-cygwin"
     AC_CHECK_LIB(wsock32,main)
+    AC_CHECK_LIB(psapi,main)
     yap_cv_readline=no
     if test "$prefix" = "NONE"
     then
-      prefix="\$SYSTEMDRIVE/Yap"
+      prefix="\${SYSTEMDRIVE}/Yap"
     fi
   else
     use_malloc="yes"
@@ -385,10 +386,11 @@ then
   yap_cv_readline=no
   INSTALL_COMMAND=install_win32
   AC_CHECK_LIB(wsock32,main)
-  if test "$prefix" = "NONE"
-  then
-    prefix="c:/Yap"
-  fi
+  AC_CHECK_LIB(psapi,main)
+    if test "$prefix" = "NONE"
+    then
+      prefix="\${SYSTEMDRIVE}/Yap"
+    fi
 else
   INSTALL_COMMAND="install_unix"
   AC_CHECK_LIB(m,sin)

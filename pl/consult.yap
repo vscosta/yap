@@ -469,3 +469,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 	fail.
 '$record_loaded'(_, _).
 
+'$system_library_directories'(Dir) :-
+	getenv('YAPSHAREDIR', Dir).
+'$system_library_directories'(Dir) :-
+	get_value(system_library_directory,Dir).
