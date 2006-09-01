@@ -1347,22 +1347,23 @@ static Int TermHash(Term t1, Int depth_lim, Int k)
   Int i;
   if (IsVarTerm(t1)) {
     return(-1);
-  } else if (IsAtomTerm(t1)) {
-    register char *s = AtomName(AtomOfTerm(t1));
-    for (i=0; s[i]; i++)
+  } else if (IsAtomOrIntTerm(t1)) {
+    if (IsAtomTerm(t1)) {
+      register char *s = AtomName(AtomOfTerm(t1));
+      for (i=0; s[i]; i++)
 	HASHADD(s[i]);
-    return(k);
+      return k;
+    } else {
+      HASHADD(IntOfTerm(t1));
+      return k;
+    }
   } else if (IsPairTerm(t1)) {
     HASHADD('.');
     depth_lim--;
     if (depth_lim == 0) return(TRUE);
     k = TermHash(HeadOfTerm(t1),depth_lim,k);
-    if (k < 0) return(-1);
-    k = TermHash(TailOfTerm(t1),depth_lim,k);
-    return(k);
-  } else if (IsIntTerm(t1)) {
-    HASHADD(IntOfTerm(t1));
-    return(k);
+    if (k < 0) return k;
+    return TermHash(TailOfTerm(t1),depth_lim,k);
   } else {
     Functor f = FunctorOfTerm(t1);
 
@@ -1386,17 +1387,18 @@ static Int TermHash(Term t1, Int depth_lim, Int k)
 	return(-1);
       }
     } else {
-      int ar = ArityOfFunctor(FunctorOfTerm(t1));
-      int res = TRUE;
-      register char *s = AtomName(NameOfFunctor(f));
+      int ar;
+      char *s;
 
-      depth_lim--;
-      if (depth_lim == 0) return(TRUE);
+      s = AtomName(NameOfFunctor(f));
       for (i=0; s[i]; i++) 
 	HASHADD(s[i]);
-      for (i=1; i<=ar && res; i++) {
+      depth_lim--;
+      if (depth_lim == 0) return k;
+      ar = ArityOfFunctor(f);
+      for (i=1; i<=ar; i++) {
 	k = TermHash(ArgOfTerm(i,t1),depth_lim,k);
-	if (k == -1 ) return(-1);
+	if (k < 0) return k;
       }
       return(k);
     }

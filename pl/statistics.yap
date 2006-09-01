@@ -110,6 +110,10 @@ statistics(stack_shifts,[NOfHO,NOfSO,NOfTO]) :-
 	'$inform_heap_overflows'(NOfHO,_),
 	'$inform_stack_overflows'(NOfSO,_),
 	'$inform_trail_overflows'(NOfTO,_).
+statistics(atoms,[NOf,SizeOf]) :-
+	'$statistics_atom_info'(NOf,SizeOf),
+	'$inform_stack_overflows'(NOfSO,_),
+	'$inform_trail_overflows'(NOfTO,_).
 
 key_statistics(Key, NOfEntries, TotalSize) :-
 	key_statistics(Key, NOfEntries, ClSize, IndxSize),

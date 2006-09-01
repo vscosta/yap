@@ -20,11 +20,7 @@
 /* macros used by garbage collection */
 
 #if TAG_64BITS
-#if GC_NO_TAGS
 #define MaskAdr		(~0x7L)
-#else
-#define MaskAdr		(~(MBIT|RBIT|0x7L))
-#endif
 #endif
 
 /* return pointer from object pointed to by ptr (remove tag & mark) */
@@ -42,13 +38,7 @@
                         ) 
 #else
 #ifdef  TAG_LOW_BITS_32
-#if GC_NO_TAGS
 #define GET_NEXT(val)  ((CELL *) ((val) & ~LowTagBits))
-#elif INVERT_RBIT
-#define GET_NEXT(val)  ((CELL *) (((val) & ~(LowTagBits|MBIT))|RBIT))
-#else
-#define GET_NEXT(val)  ((CELL *) ((val) & ~(LowTagBits|MBIT|RBIT)))
-#endif
 #else
 #define GET_NEXT(val)  ((CELL *) ((val) & MaskAdr))
 #endif
@@ -86,8 +76,6 @@
 				< cp_H) ||                          \
 			       (CellPtr(B) < CellPtr(val) && CellPtr(val) <= \
 				LCL0 && HEAP_PTR(val))))
-
-#if GC_NO_TAGS
 
 #if !defined(YAPOR) && !defined(THREADS)
 extern char *Yap_bp;
@@ -151,56 +139,6 @@ RMARKED(CELL* ptr)
   return mcell(ptr) & RMARK_BIT;
 }
 
-#else
-
-/* is the object pointed to by ptr marked? */
-#ifdef TAGS_FAST_OPS
-#define MARKED_VAR(val) ((val) &  MBIT) 
-
-#define MARKED_COMP(val) (!((val) &  MBIT))
-
-#define MARKED(val)    ((Int)(val) < 0 && (((val) & LowTagBits) != 2)\
-			? \
-			!((val) & MBIT) : ((val) & MBIT))
-#else
-#define MARKED(val)    ((val) &  MBIT) 
-#endif
-
-
-
-#define MARK(ptr)      (*(ptr) ^= MBIT) /* mark the object pointed to by ptr */
-
-#define MARK_CELL(val) ((val) ^ MBIT)   /* mark the object pointed to by ptr */
-
-#define UNMARK(ptr)    (*(ptr) ^= MBIT) /* unmark the object pointed to by ptr */
-
-#define UNMARK_CELL(val)    ((val) ^ MBIT) /* unmark the object pointed to by ptr */
-
-#define MARKED_PTR(ptr) MARKED(*(ptr))
-
-#ifdef TAGS_FAST_OPS
-
-#define RMARKED(ptr)    (!GCIsPrimitiveTerm(*(ptr)) && (IsVarTerm(*(ptr)) ?\
-				((*(ptr)) & RBIT) : !((*(ptr)) & RBIT)))
-
-#define UNMARKED(val)   ((Int)(val) < 0 && (((val) & LowTagBits) != 2)\
-			? \
-			((val) | MBIT) : ((val) & ~MBIT))
-#define ENSURE_MARKED(val)   ((Int)(val) < 0 && (((val) & LowTagBits) != 2)\
-			? \
-			((val) & ~MBIT) : ((val) | MBIT))
-#else
-
-#if INVERT_RBIT
-#define RMARKED(ptr)   (!GCIsPrimitiveTerm(*(ptr)) && !((*(ptr)) & RBIT))
-#else
-#define RMARKED(ptr)   (!GCIsPrimitiveTerm(*(ptr)) && ((*(ptr)) & RBIT))
-#endif
-
-#endif /* GC_NO_TAGS */
-
-
-#endif
 
 /* is the object pointed to by ptr marked as in a relocation chain? */
 

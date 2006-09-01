@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-08-22 16:12:46 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-09-01 20:14:42 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.107  2006/08/22 16:12:46  vsc
+* global variables
+*
 * Revision 1.106  2006/08/07 18:51:44  vsc
 * fix garbage collector not to try to garbage collect when we ask for large
 * chunks of stack in a single go.
@@ -2510,6 +2513,37 @@ p_statistics_trail_info(void)
   
 }
 
+static Int 
+p_statistics_atom_info(void)
+{
+  UInt count = 0, spaceused = 0, i;
+
+  for (i =0; i < AtomHashTableSize; i++) {
+    Atom catom;
+
+    READ_LOCK(HashChain[i].aeAERWLock);
+    catom = HashChain[i].Entry;
+    if (catom != NIL) {
+      READ_LOCK(RepAtom(catom)->ARWLock);
+    }
+    READ_UNLOCK(HashChain[i].AERWLock);
+    while (catom != NIL) {
+      Atom ncatom;
+      count++;
+      spaceused += sizeof(AtomEntry)+strlen(RepAtom(catom)->StrOfAE);
+      ncatom = RepAtom(catom)->NextOfAE;
+      if (ncatom != NIL) {
+	READ_LOCK(RepAtom(ncatom)->ARWLock);
+      }
+      READ_UNLOCK(RepAtom(ncatom)->ARWLock);
+      catom = ncatom;
+    }
+  }
+  return Yap_unify(ARG1, MkIntegerTerm(count)) &&
+    Yap_unify(ARG2, MkIntegerTerm(spaceused));
+}
+
+
 static Term
 mk_argc_list(void)
 {
@@ -2950,6 +2984,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$statistics_heap_info", 2, p_statistics_heap_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$statistics_stacks_info", 3, p_statistics_stacks_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$statistics_trail_info", 2, p_statistics_trail_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$statistics_atom_info", 2, p_statistics_atom_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$argv", 1, p_argv, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$runtime", 2, p_runtime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$cputime", 2, p_cputime, SafePredFlag|SyncPredFlag|HiddenPredFlag);

@@ -111,9 +111,7 @@ static tr_fr_ptr new_TR;
 
 static CELL *HGEN;
 
-#if GC_NO_TAGS
 char *Yap_bp;
-#endif
 
 static int discard_trail_entries = 0;
 
@@ -154,7 +152,6 @@ gc_growtrail(int committed)
 inline static void
 PUSH_CONTINUATION(CELL *v, int nof) {
   cont *x;
-  if (nof == 0) return;
   x = cont_top;
   x++;
   if ((ADDR)x > Yap_TrailTop-1024) {
@@ -1137,13 +1134,9 @@ mark_variable(CELL_PTR current)
 	    inc_var(current, current);
 #endif	      
 	    *next = (CELL)current;
-#if GC_NO_TAGS
 	    UNMARK(next);
 	    MARK(current);
 	    *current = (CELL)current;
-#else
-	    *current = MARK_CELL((CELL)current);
-#endif
 	    POP_CONTINUATION();
 	  } else {
 	      /* can't help here */
@@ -1155,9 +1148,7 @@ mark_variable(CELL_PTR current)
 	} else {
 	  /* binding to a determinate reference */
 	  if (next >= HB && current < LCL0 && cnext != TermFoundVar) {
-#if GC_NO_TAGS
 	    UNMARK(current);
-#endif
 	    *current = cnext;
 	    if (current >= H0 && current < H) {
 	      total_marked--;
@@ -1178,9 +1169,7 @@ mark_variable(CELL_PTR current)
 		 current < LCL0) {
 	/* This step is possible because we clean up the trail */
 	*current = UNMARK_CELL(cnext);
-#if GC_NO_TAGS
 	UNMARK(current);
-#endif
 	if (current >= H0 && current < H) {
 	  total_marked--;
 	  if (current < HGEN) {
@@ -1277,9 +1266,7 @@ mark_variable(CELL_PTR current)
       switch (cnext) {
       case (CELL)FunctorLongInt:
 	MARK(next);
-#if GC_NO_TAGS
 	MARK(next+2);
-#endif
 	if (next < HGEN) {
 	  total_oldies+=3;
 	}
@@ -1300,7 +1287,6 @@ mark_variable(CELL_PTR current)
 	  MARK(next+sz);
 	}
 	POP_CONTINUATION();
-#ifdef USE_GMP
       case (CELL)FunctorBigInt:
 	{
 	  UInt sz = (sizeof(MP_INT)+
@@ -1315,8 +1301,6 @@ mark_variable(CELL_PTR current)
 	  MARK(next+sz);
 	  PUSH_POINTER(next+sz);
 	}
-	POP_CONTINUATION();
-#endif
       default:
 	POP_CONTINUATION();
       }
@@ -1332,7 +1316,22 @@ mark_variable(CELL_PTR current)
       ++total_oldies;
     }
     PUSH_POINTER(next);
-    current = next+1;
+    next++;
+    /* speedup for leaves */
+    while (arity && IsAtomOrIntTerm(*next)) {
+      if (!UNMARKED_MARK(next,local_bp)) {
+	total_marked++;
+	if (next < HGEN) {
+	  total_oldies++;
+	}
+	PUSH_POINTER(next);
+      }
+      next++;
+      arity--;
+    }
+    if (!arity) POP_CONTINUATION();
+    current = next;
+    if (arity == 1)  goto begin;
     PUSH_CONTINUATION(current+1,arity-1);
     goto begin;
   }
@@ -2066,7 +2065,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 static inline void 
 into_relocation_chain(CELL_PTR current, CELL_PTR next)
 {
-#if GC_NO_TAGS
   CELL             current_tag;
 
   current_tag = TAG(*current);
@@ -2078,39 +2076,6 @@ into_relocation_chain(CELL_PTR current, CELL_PTR next)
   }
   *current = *next;
   *next = (CELL) current | current_tag;
-#else
-#ifdef TAGS_FAST_OPS
-  register CELL ccur = *current, cnext = *next;
-
-  if (IsVarTerm(ccur)) {
-    *current = ( MARKED(ccur) ? MARK_CELL(UNMARKED(cnext)) :
-		 UNMARKED(cnext) );
-    *next = (MARKED(cnext) ? MBIT : 0) | RBIT | (Int) current;
-  } else if (IsPairTerm(ccur)) {
-    *current = ( MARKED(ccur) ? MARK_CELL(UNMARKED(cnext)) :
-		 UNMARKED(cnext) );
-    *next = AbsPair((CELL *)
-		    ((MARKED(cnext) ? MBIT : 0) | RBIT | (Int) current));
-  } else if (IsApplTerm(ccur)) {
-    *current = ( MARKED(ccur) ? MARK_CELL(UNMARKED(cnext)) :
-		 UNMARKED(cnext) );
-    *next = AbsAppl((CELL *)
-		    ((MARKED(cnext) ? MBIT : 0) | RBIT | (Int) current));
-  } else {
-    fprintf(Yap_stderr," OH MY GOD !!!!!!!!!!!!\n");
-  }
-#else
-  CELL             current_tag;
-
-  current_tag = TAG(*current);
-  *current = (*current & MBIT) | (*next & ~MBIT);
-#if INVERT_RBIT
-  *next = ((*next & MBIT) | (CELL) current | current_tag) & ~RBIT;
-#else
-  *next = (*next & MBIT) | RBIT | (CELL) current | current_tag;
-#endif
-#endif
-#endif /* GC_NO_TAGS */
 }
 
 
@@ -2883,7 +2848,6 @@ update_relocation_chain(CELL_PTR current, CELL_PTR dest)
   CELL_PTR        next;
   CELL            ccur = *current;
 
-#if GC_NO_TAGS
   int rmarked = RMARKED(current);
 
   UNRMARK(current);
@@ -2897,52 +2861,6 @@ update_relocation_chain(CELL_PTR current, CELL_PTR dest)
     *next = (CELL) dest | current_tag;
   }
   *current = ccur;
-#elif TAGS_FAST_OPS
-  while (RMARKED(current)) {
-    register CELL cnext;
-
-    next = GET_NEXT(ccur);
-    cnext = *next;
-    
-    if (IsVarTerm(ccur)) {
-      ccur = *current = (MARKED_VAR(ccur) ?
-			 ENSURE_MARKED(cnext) : 
-			 UNMARKED(cnext) );
-      *next = (MARKED(cnext) ? MBIT : 0) | (Int) dest;
-    } else if (IsPairTerm(ccur)) {
-      ccur = *current = (MARKED_COMP(ccur) ?
-			 ENSURE_MARKED(cnext) :
-			 UNMARKED(cnext) );
-      *next = AbsPair((CELL *)
-		      ((MARKED(cnext) ? MBIT : 0) |
-		       (Int) dest));
-    } else if (IsApplTerm(ccur)) {
-      ccur = *current = (MARKED_COMP(ccur) ?
-			 ENSURE_MARKED(cnext) : 
-			 UNMARKED(cnext) );
-      *next = AbsAppl((CELL *)
-		      ((MARKED(cnext) ? MBIT : 0) |
-		       (Int) dest));	  
-    }
-#ifdef DEBUG
-    else {
-      Yap_Error(SYSTEM_ERROR, TermNil, "ATOMIC in a GC relocation chain");
-    }
-#endif
-  }
-#else /* !TAGS_FAST_OPS */
-  while (RMARKED(current)) {
-    CELL             current_tag;
-    next = GET_NEXT(ccur);
-    current_tag = TAG(ccur);
-    ccur = *current = (ccur & MBIT) | (*next & ~MBIT);
-#if INVERT_RBIT
-    *next = (*next & MBIT) | (CELL) dest | current_tag | RBIT;
-#else
-    *next = (*next & MBIT) | (CELL) dest | current_tag;
-#endif
-  }
-#endif
 }
 
 static inline choiceptr
@@ -3047,11 +2965,7 @@ compact_heap(void)
 	while (!MARKED_PTR(ptr)) ptr--;
 	nofcells = current-ptr;
 	ptr++;
-#if GC_NO_TAGS
 	MARK(ptr);
-#else
-	XXX BROKEN CODE
-#endif
 #ifdef DEBUG
 	found_marked+=nofcells;
 #endif
@@ -3074,12 +2988,8 @@ compact_heap(void)
 	  into_relocation_chain(current, next);
 	else if (current == next)	{ /* cell pointing to
 					 * itself */
-#if GC_NO_TAGS
 	  UNRMARK(current);
 	  *current = (CELL) dest;	/* no tag */
-#else
-	  *current = (*current & MBIT) | (CELL) dest;	/* no tag */
-#endif
 	}
       }
       dest--;
@@ -3251,12 +3161,8 @@ icompact_heap(void)
 	into_relocation_chain(current, next);
       else if (current == next)	{ /* cell pointing to
 				   * itself */
-#if GC_NO_TAGS
 	UNRMARK(current);
 	*current = (CELL) dest;	/* no tag */
-#else
-	*current = (*current & MBIT) | (CELL) dest;	/* no tag */
-#endif
       }
     }
     dest--;
@@ -3407,7 +3313,7 @@ sweep_oldgen(CELL *max, CELL *base)
   char *bpb = Yap_bp+(base-(CELL*)Yap_GlobalBase);
 
   while (ptr < max) {
-    if (*bpb & MARK_BIT) {
+    if (*bpb) {
       if (HEAP_PTR(*ptr)) {
 	into_relocation_chain(ptr, GET_NEXT(*ptr));
       }
@@ -3561,17 +3467,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif
   if (Yap_GetValue(AtomGcTrace) != TermNil)
     gc_trace = 1;
-#if !GC_NO_TAGS
-  /* sanity check: can we still do garbage_collection ? */
-  if ((CELL)Yap_TrailTop & (MBIT|RBIT)) {
-    /* oops, we can't */
-    if (gc_verbose) {
-      fprintf(Yap_stderr, "%% TrailTop at %p clashes with gc bits: %lx\n", Yap_TrailTop, (unsigned long int)(MBIT|RBIT));
-      fprintf(Yap_stderr, "%% garbage collection disallowed\n");
-    }
-    return -1;
-  }
-#endif
   if (gc_trace) {
     fprintf(Yap_stderr, "%% gc\n");
   } else if (gc_verbose) {
@@ -3602,7 +3497,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   total_smarked = 0;
 #endif
   discard_trail_entries = 0;
-#if GC_NO_TAGS
   {
     UInt alloc_sz = (CELL *)Yap_TrailTop-(CELL*)Yap_GlobalBase;
     Yap_bp = Yap_PreAllocCodeSpace();
@@ -3620,26 +3514,16 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     }
     memset((void *)Yap_bp, 0, alloc_sz);
   }
-#endif /* GC_NO_TAGS */
   if (setjmp(Yap_gc_restore) == 2) {
     /* we cannot recover, fail system */
     restore_machine_regs();    
     *--ASP = (CELL)current_env;
     TR = OldTR;
     if (
-#if GC_NO_TAGS
 	!Yap_growtrail(64 * 1024L, FALSE)
-#else
-	TRUE
-#endif
 	) {
-#if GC_NO_TAGS
       Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"out of %lB during gc", 64*1024L);
       return -1;
-#else
-      /* try stack expansion, who knows */
-      return 0;
-#endif
     } else {
       total_marked = 0;
       total_oldies = 0;
