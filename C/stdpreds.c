@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-09-01 20:14:42 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-09-15 19:32:47 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.108  2006/09/01 20:14:42  vsc
+* more fixes for global data-structures.
+* statistics on atom space.
+*
 * Revision 1.107  2006/08/22 16:12:46  vsc
 * global variables
 *
@@ -2910,6 +2914,44 @@ p_in_range(void) {
   return fabs(sqrt(d1*d1 + d2*d2 + d3*d3)-i) <= j; 
 
 }
+
+static Int
+p_in_range2(void) {
+  CELL *p1, *p2;
+  Term t;
+  double i,j;
+  double d1;
+  double d2;
+  double d3;
+  UInt arity;
+  p1 = RepAppl(Deref(ARG1));
+  arity = ArityOfFunctor((Functor)*p1);
+  p1 += arity-2;
+  p2 = RepAppl(Deref(ARG2))+(arity-2);;
+
+  t = Deref(p1[0]);
+  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
+  t = Deref(p2[0]);
+  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
+  d1 = i-j;
+  t = Deref(p1[1]);
+  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
+  t = Deref(p2[1]);
+  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
+  d2 = i-j;
+  t = Deref(p1[2]);
+  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
+  t = Deref(p2[2]);
+  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
+  d3 = i-j;
+  t = Deref(ARG3);
+  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
+  t = Deref(ARG4);
+  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
+  
+  return fabs(sqrt(d1*d1 + d2*d2 + d3*d3)-i) <= j; 
+
+}
 #endif
 
 static Int
@@ -3033,7 +3075,8 @@ Yap_InitCPreds(void)
   Yap_InitCPred("loop", 0, p_loop, SafePredFlag);
 #endif
 #if QSAR
-  Yap_InitCPred("in_range", 8, p_in_range, SafePredFlag);
+  Yap_InitCPred("in_range", 8, p_in_range, TestPredFlag|SafePredFlag);
+  Yap_InitCPred("in_range", 4, p_in_range2, TestPredFlag|SafePredFlag);
 #endif
 #ifdef DEBUG
   Yap_InitCPred("dump_active_goals", 0, p_dump_active_goals, SafePredFlag|SyncPredFlag);
