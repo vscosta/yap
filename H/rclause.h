@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2006-04-27 14:13:24 $,$Author: rslopes $						 *
+* Last rev:     $Date: 2006-09-20 20:03:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.15  2006/04/27 14:13:24  rslopes
+* *** empty log message ***
+*
 * Revision 1.14  2005/12/17 03:25:39  vsc
 * major changes to support online event-based profiling
 * improve error discovery and restart on scanner.
@@ -425,11 +428,21 @@ restore_opcodes(yamop *pc)
       pc->u.yx.y = YAdjust(pc->u.yx.y);
       pc = NEXTOP(pc,yx);
       break;
+      /* instructions type xd */
+    case _get_float:
+    case _put_float:
+      pc->u.xd.x = XAdjust(pc->u.xd.x);
+      pc = NEXTOP(pc,xd);
+      break;
+      /* instructions type xd */
+    case _get_longint:
+    case _put_longint:
+      pc->u.xi.x = XAdjust(pc->u.xi.x);
+      pc = NEXTOP(pc,xi);
+      break;
       /* instructions type xc */
     case _get_atom:
     case _put_atom:
-    case _get_float:
-    case _get_longint:
     case _get_bigint:
       pc->u.xc.x = XAdjust(pc->u.xc.x);
       {
@@ -688,15 +701,27 @@ restore_opcodes(yamop *pc)
       pc->u.os.opcw = Yap_opcode(Yap_op_from_opcode(pc->u.os.opcw));
       pc = NEXTOP(pc,os);
       break;
+      /* instructions type od */
+    case _unify_float:
+    case _unify_l_float:
+    case _unify_float_write:
+    case _unify_l_float_write:
+      pc->u.oc.opcw = Yap_opcode(Yap_op_from_opcode(pc->u.oc.opcw));
+      pc = NEXTOP(pc,od);
+      break;
+      /* instructions type oi */
+    case _unify_longint:
+    case _unify_l_longint:
+    case _unify_longint_write:
+    case _unify_l_longint_write:
+      pc->u.oc.opcw = Yap_opcode(Yap_op_from_opcode(pc->u.oc.opcw));
+      pc = NEXTOP(pc,oi);
+      break;
       /* instructions type oc */
     case _unify_atom_write:
     case _unify_atom:
     case _unify_l_atom_write:
     case _unify_l_atom:
-    case _unify_float:
-    case _unify_l_float:
-    case _unify_longint:
-    case _unify_l_longint:
     case _unify_bigint:
     case _unify_l_bigint:
       pc->u.oc.opcw = Yap_opcode(Yap_op_from_opcode(pc->u.oc.opcw));
@@ -739,6 +764,14 @@ restore_opcodes(yamop *pc)
     case _table_new_answer:
 #endif /* TABLING */
       pc = NEXTOP(pc,s);
+      break;
+      /* instructions type d */
+    case _write_float:
+      pc = NEXTOP(pc,d);
+      break;
+      /* instructions type i */
+    case _write_longint:
+      pc = NEXTOP(pc,i);
       break;
       /* instructions type c */
    case _write_atom:

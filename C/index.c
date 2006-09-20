@@ -11,8 +11,13 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-05-16 18:37:30 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-09-20 20:03:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.168  2006/05/16 18:37:30  vsc
+* WIN32 fixes
+* compiler bug fixes
+* extend interface
+*
 * Revision 1.167  2006/05/02 16:44:11  vsc
 * avoid uninitialised memory at overflow.
 *
@@ -1004,11 +1009,19 @@ has_cut(yamop *pc)
     case _put_unsafe:
       pc = NEXTOP(pc,yx);
       break;
+      /* instructions type xd */
+    case _get_float:
+    case _put_float:
+      pc = NEXTOP(pc,xd);
+      break;
+      /* instructions type xi */
+    case _get_longint:
+    case _put_longint:
+      pc = NEXTOP(pc,xi);
+      break;
       /* instructions type xc */
     case _get_atom:
     case _put_atom:
-    case _get_float:
-    case _get_longint:
     case _get_bigint:
       pc = NEXTOP(pc,xc);
       break;
@@ -1106,15 +1119,33 @@ has_cut(yamop *pc)
     case _unify_l_n_voids:
       pc = NEXTOP(pc,os);
       break;
+      /* instructions type od */
+    case _unify_float:
+    case _unify_l_float:
+    case _unify_float_write:
+    case _unify_l_float_write:
+      pc = NEXTOP(pc,od);
+      break;
+      /* instructions type d */
+    case _write_float:
+      pc = NEXTOP(pc,d);
+      break;
+      /* instructions type oi */
+    case _unify_longint:
+    case _unify_l_longint:
+    case _unify_longint_write:
+    case _unify_l_longint_write:
+      pc = NEXTOP(pc,oi);
+      break;
+      /* instructions type i */
+    case _write_longint:
+      pc = NEXTOP(pc,i);
+      break;
       /* instructions type oc */
     case _unify_atom_write:
     case _unify_atom:
     case _unify_l_atom_write:
     case _unify_l_atom:
-    case _unify_float:
-    case _unify_l_float:
-    case _unify_longint:
-    case _unify_l_longint:
     case _unify_bigint:
     case _unify_l_bigint:
       pc = NEXTOP(pc,oc);
@@ -1796,21 +1827,21 @@ add_info(ClauseDef *clause, UInt regno)
       }
       break;
     case _get_float:
-      if (regcopy_in(myregs, nofregs, cl->u.xc.x)) {
-	clause->u.t_ptr = cl->u.xc.c;
+      if (regcopy_in(myregs, nofregs, cl->u.xd.x)) {
+	clause->u.t_ptr = AbsAppl(cl->u.xd.d);
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
 	return;
       } else {
-	cl = NEXTOP(cl,xc);
+	cl = NEXTOP(cl,xd);
       }
       break;
     case _get_longint:
-      if (regcopy_in(myregs, nofregs, cl->u.xc.x)) {
-	clause->u.t_ptr = cl->u.xc.c;
+      if (regcopy_in(myregs, nofregs, cl->u.xi.x)) {
+	clause->u.t_ptr = AbsAppl(cl->u.xi.i);
 	clause->Tag = AbsAppl((CELL *)FunctorLongInt);
 	return;
       } else {
-	cl = NEXTOP(cl,xc);
+	cl = NEXTOP(cl,xi);
       }
       break;
    case _get_bigint:
@@ -1862,6 +1893,26 @@ add_info(ClauseDef *clause, UInt regno)
 	return;
       } else {
 	cl = NEXTOP(cl,xc);
+      }
+      break;
+    case _put_float:
+      if (regcopy_in(myregs, nofregs, cl->u.xd.x) &&
+	  (nofregs = delete_regcopy(myregs, nofregs, cl->u.xd.x)) == 0 &&
+	  !ycopy) {
+	clause->Tag = (CELL)NULL;
+	return;
+      } else {
+	cl = NEXTOP(cl,xd);
+      }
+      break;
+    case _put_longint:
+      if (regcopy_in(myregs, nofregs, cl->u.xi.x) &&
+	  (nofregs = delete_regcopy(myregs, nofregs, cl->u.xi.x)) == 0 &&
+	  !ycopy) {
+	clause->Tag = (CELL)NULL;
+	return;
+      } else {
+	cl = NEXTOP(cl,xi);
       }
       break;
     case _get_struct:
@@ -2023,11 +2074,21 @@ add_info(ClauseDef *clause, UInt regno)
       break;      
     case _unify_float:
     case _unify_l_float:
-      cl = NEXTOP(cl,oc);
+    case _unify_float_write:
+    case _unify_l_float_write:
+      cl = NEXTOP(cl,od);
+      break;      
+    case _write_float:
+      cl = NEXTOP(cl,d);
       break;      
     case _unify_longint:
+    case _unify_longint_write:
     case _unify_l_longint:
-      cl = NEXTOP(cl,oc);
+    case _unify_l_longint_write:
+      cl = NEXTOP(cl,oi);
+      break;      
+    case _write_longint:
+      cl = NEXTOP(cl,i);
       break;      
     case _unify_bigint:
     case _unify_l_bigint:
@@ -2507,21 +2568,21 @@ add_head_info(ClauseDef *clause, UInt regno)
       }
       break;
     case _get_float:
-      if (cl->u.xc.x == iarg) {
-	clause->u.t_ptr = cl->u.xc.c;
+      if (cl->u.xd.x == iarg) {
+	clause->u.t_ptr = AbsAppl(cl->u.xd.d);
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
 	return;
       } else {
-	cl = NEXTOP(cl,xc);
+	cl = NEXTOP(cl,xd);
       }
       break;
     case _get_longint:
-      if (cl->u.xc.x == iarg) {
-	clause->u.t_ptr = cl->u.xc.c;
+      if (cl->u.xi.x == iarg) {
+	clause->u.t_ptr = AbsAppl(cl->u.xi.i);
 	clause->Tag = AbsAppl((CELL *)FunctorLongInt);
 	return;
       } else {
-	cl = NEXTOP(cl,xc);
+	cl = NEXTOP(cl,xi);
       }
       break;
    case _get_bigint:
@@ -2645,11 +2706,21 @@ add_head_info(ClauseDef *clause, UInt regno)
       break;      
     case _unify_float:
     case _unify_l_float:
-      cl = NEXTOP(cl,oc);
+    case _unify_float_write:
+    case _unify_l_float_write:
+      cl = NEXTOP(cl,od);
+      break;      
+    case _write_float:
+      cl = NEXTOP(cl,d);
       break;      
     case _unify_longint:
+    case _unify_longint_write:
     case _unify_l_longint:
-      cl = NEXTOP(cl,oc);
+    case _unify_l_longint_write:
+      cl = NEXTOP(cl,oi);
+      break;      
+    case _write_longint:
+      cl = NEXTOP(cl,i);
       break;      
     case _unify_bigint:
     case _unify_l_bigint:
@@ -2901,25 +2972,29 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
     case _unify_l_atom_write:
       cl = NEXTOP(cl,oc);
       break;      
+    case _unify_float_write:
+    case _unify_l_float_write:
+      cl = NEXTOP(cl,od);
+      break;      
     case _unify_float:
     case _unify_l_float:
       if (argno == 1) {
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
-	clause->u.t_ptr = cl->u.oc.c;
+	clause->u.t_ptr = AbsAppl(cl->u.od.d);
 	return;
       }
-      cl = NEXTOP(cl,oc);
+      cl = NEXTOP(cl,od);
       argno--;
       break;
     case _unify_longint:
     case _unify_l_longint:
       if (argno == 1) {
 	clause->Tag = AbsAppl((CELL *)FunctorLongInt);
-	clause->u.t_ptr = cl->u.oc.c;
+	clause->u.t_ptr = AbsAppl(cl->u.oi.i);
 	return;
       }
       argno--;
-      cl = NEXTOP(cl,oc);
+      cl = NEXTOP(cl,oi);
       break;
     case _unify_bigint:
     case _unify_l_bigint:
@@ -3073,6 +3148,10 @@ skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno, int at_point)
     case _unify_l_atom_write:
       cl = NEXTOP(cl,oc);
       break;      
+    case _unify_float_write:
+    case _unify_l_float_write:
+      cl = NEXTOP(cl,od);
+      break;      
     case _unify_l_struc_write:
     case _unify_struct_write:
       cl = NEXTOP(cl,of);
@@ -3107,6 +3186,9 @@ valid_instructions(yamop *end, yamop *cl)
     case _get_atom:
       cl = NEXTOP(cl,xc);
       break;
+    case _get_float:
+      cl = NEXTOP(cl,xd);
+      break;
     case _get_2atoms:
       cl = NEXTOP(cl,cc);
       break;
@@ -3138,6 +3220,12 @@ valid_instructions(yamop *end, yamop *cl)
     case _unify_atom_write:
     case _unify_l_atom_write:
       cl = NEXTOP(cl,oc);
+      break;
+    case _unify_float:
+    case _unify_l_float:
+    case _unify_float_write:
+    case _unify_l_float_write:
+      cl = NEXTOP(cl,od);
       break;
     case _unify_struct:
     case _unify_struct_write:
@@ -4375,7 +4463,12 @@ do_blob_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cint
     if (cl->u.t_ptr == (CELL)NULL) { /* check whether it is a builtin */
       cl->Tag = Zero;
     } else {
-      cl->Tag = MkIntTerm(RepAppl(cl->u.t_ptr)[1]);
+      CELL *pt = RepAppl(cl->u.t_ptr);
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+      cl->Tag = MkIntTerm(pt[1]^pt[2]);
+#else
+      cl->Tag = MkIntTerm(pt[1]);
+#endif
     }
     cl++;
   }
@@ -4582,8 +4675,15 @@ install_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	  if (f == FunctorDBRef) {
 	    if (cls->u.t_ptr != sp->extra) break;
 	  } else {
-	    Term t = MkIntTerm(RepAppl(sp->extra)[1]),
-	      t1 = MkIntTerm(RepAppl(cls->u.t_ptr)[1]);
+	    CELL *pt = RepAppl(sp->extra);
+	    CELL *pt1 = RepAppl(cls->u.t_ptr);
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+	    Term t = MkIntTerm(pt[1]^pt[2]),
+	      t1 = MkIntTerm(pt1[1]^pt1[2]);
+#else
+	    Term t = MkIntTerm(pt[1]),
+	      t1 = MkIntTerm(pt1[1]);
+#endif
 	      if (t != t1) break;
 	  }
 	}
@@ -4735,9 +4835,16 @@ install_log_upd_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	  if (f == FunctorDBRef) {
 	    if (cls->u.t_ptr != sp->extra) break;
 	  } else {
-	    Term t = MkIntTerm(RepAppl(sp->extra)[1]),
-	      t1 = MkIntTerm(RepAppl(cls->u.t_ptr)[1]);
-	      if (t != t1) break;
+	    CELL *pt = RepAppl(sp->extra);
+	    CELL *pt1 = RepAppl(cls->u.t_ptr);
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+	    Term t = MkIntTerm(pt[1]^pt[2]),
+	      t1 = MkIntTerm(pt1[1]^pt1[2]);
+#else
+	    Term t = MkIntTerm(pt[1]),
+	      t1 = MkIntTerm(pt1[1]);
+#endif
+	    if (t != t1) break;
 	  }
 	}
       }
@@ -5153,7 +5260,11 @@ expand_index(struct intermediates *cint) {
       ipc = NEXTOP(ipc,e);
       break;
     case _index_blob:
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+      t = MkIntTerm(s_reg[0]^s_reg[1]);
+#else
       t = MkIntTerm(s_reg[0]);
+#endif
       sp[-1].extra = AbsAppl(s_reg-1);
       s_reg = NULL;
       ipc = NEXTOP(ipc,e);
@@ -5573,7 +5684,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
 	Atom At = NameOfFunctor(f);
 	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
 	Yap_DebugPutc(Yap_c_error_stream,'/');
-	Yap_plwrite(MkIntTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+	Yap_plwrite(MkIntegerTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
       }
     } else {
       if (ap->ArityOfPE == 0) {
@@ -5584,7 +5695,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
 	Atom At = NameOfFunctor(f);
 	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
 	Yap_DebugPutc(Yap_c_error_stream,'/');
-	Yap_plwrite(MkIntTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+	Yap_plwrite(MkIntegerTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
       }
     }
     Yap_DebugPutc(Yap_c_error_stream,'\n');
@@ -7317,7 +7428,14 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       ipc = NEXTOP(ipc,e);
       break;
     case _index_blob:
-      cls->Tag = MkIntTerm(RepAppl(cls->u.t_ptr)[1]);
+      {
+	CELL *pt = RepAppl(cls->u.t_ptr);
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+	cls->Tag = MkIntTerm(pt[1]^pt[2]);
+#else
+	cls->Tag = MkIntTerm(pt[1]);
+#endif
+      }
       ipc = NEXTOP(ipc,e);
       break;
     case _switch_on_cons:
@@ -7437,7 +7555,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
 	Atom At = NameOfFunctor(f);
 	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
 	Yap_DebugPutc(Yap_c_error_stream,'/');
-	Yap_plwrite(MkIntTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+	Yap_plwrite(MkIntegerTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
       }
     } else {
       if (ap->ArityOfPE == 0) {
@@ -7448,7 +7566,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
 	Atom At = NameOfFunctor(f);
 	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
 	Yap_DebugPutc(Yap_c_error_stream,'/');
-	Yap_plwrite(MkIntTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+	Yap_plwrite(MkIntegerTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
       }
     }
     Yap_DebugPutc(Yap_c_error_stream,'\n');
@@ -7787,7 +7905,14 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       ipc = NEXTOP(ipc,e);
       break;
     case _index_blob:
-      cls->Tag = MkIntTerm(RepAppl(cls->u.t_ptr)[1]);
+      {
+	CELL *pt = RepAppl(cls->u.t_ptr);
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+	cls->Tag = MkIntTerm(pt[1]^pt[2]);
+#else
+	cls->Tag = MkIntTerm(pt[1]);
+#endif
+      }
       ipc = NEXTOP(ipc,e);
       break;
     case _switch_on_cons:
@@ -7906,7 +8031,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
 	Atom At = NameOfFunctor(f);
 	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
 	Yap_DebugPutc(Yap_c_error_stream,'/');
-	Yap_plwrite(MkIntTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+	Yap_plwrite(MkIntegerTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
       }
     } else {
       if (ap->PredFlags & NumberDBPredFlag) {
@@ -7920,7 +8045,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
 	Atom At = NameOfFunctor(f);
 	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
 	Yap_DebugPutc(Yap_c_error_stream,'/');
-	Yap_plwrite(MkIntTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+	Yap_plwrite(MkIntegerTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
       }
     }
     Yap_DebugPutc(Yap_c_error_stream,'\n');
@@ -8364,7 +8489,11 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       ipc = NEXTOP(ipc,e);
       break;
     case _index_blob:
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+      t = MkIntTerm(s_reg[0]^s_reg[1]);
+#else
       t = MkIntTerm(s_reg[0]);
+#endif
       ipc = NEXTOP(ipc,e);
       break;
     case _switch_on_cons:
@@ -8755,7 +8884,11 @@ find_caller(PredEntry *ap, yamop *code, struct intermediates *cint) {
       ipc = NEXTOP(ipc,e);
       break;
     case _index_blob:
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+      t = MkIntTerm(s_reg[0]^s_reg[1]);
+#else
       t = MkIntTerm(s_reg[0]);
+#endif
       sp[-1].val = t;
       s_reg = NULL;
       ipc = NEXTOP(ipc,e);

@@ -11,8 +11,12 @@
 * File:		amidefs.h						 *
 * comments:	Abstract machine peculiarities				 *
 *									 *
-* Last rev:     $Date: 2005-12-17 03:25:39 $							 *
+* Last rev:     $Date: 2006-09-20 20:03:51 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.30  2005/12/17 03:25:39  vsc
+* major changes to support online event-based profiling
+* improve error discovery and restart on scanner.
+*
 * Revision 1.29  2005/07/06 15:10:15  vsc
 * improvements to compiler: merged instructions and fixes for ->
 *
@@ -211,7 +215,8 @@ typedef struct yami {
 	 CELL next;
        } clll;
        struct {
-	 CODEADDR            d;
+	 OPCODE              opcw;
+	 CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
 	 CELL next;
        } d;
        struct {
@@ -248,6 +253,11 @@ typedef struct yami {
 	 CELL next;
        } fy;
        struct {
+	 OPCODE              opcw;
+	 CELL    i[2];
+	 CELL next;
+       } i;
+       struct {
 	 struct logic_upd_index  *I;
 	 struct yami             *l1;
 	 struct yami             *l2;
@@ -273,6 +283,19 @@ typedef struct yami {
 	 struct yami              *d;
 	 CELL next;
        } ld;
+       struct {
+#ifdef YAPOR
+         unsigned int        or_arg;
+#endif /* YAPOR */
+#ifdef TABLING
+         struct table_entry *te; /* pointer to table entry */
+#endif /* TABLING */
+	 COUNT               s;
+	 struct pred_entry  *n, *c;
+	 struct yami              *d;
+	 CELL  *owner;
+	 CELL next;
+       } lld;
        struct {
 #ifdef YAPOR
          unsigned int        or_arg;
@@ -390,10 +413,20 @@ typedef struct yami {
        } oc;
        struct {
 	 OPCODE              opcw;
+	 CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
+	 CELL next;
+       } od;
+       struct {
+	 OPCODE              opcw;
 	 Functor             f;
 	 Int                 a;
 	 CELL next;
        } of;
+       struct {
+	 OPCODE              opcw;
+	 CELL		     i[2];
+	 CELL next;
+       } oi;
        struct {
 	 OPCODE              opcw;
 	 COUNT               s;
@@ -486,6 +519,11 @@ typedef struct yami {
        } xc;
        struct {
 	 wamreg                x;
+	 CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
+	 CELL next;
+       } xd;
+       struct {
+	 wamreg                x;
 	 Functor             f;
 	 Int                 a;
 	 CELL next;
@@ -495,6 +533,11 @@ typedef struct yami {
 	 struct yami          *F;
 	 CELL next;
        } xF;
+       struct {
+	 wamreg                x;
+	 CELL    i[2];
+	 CELL next;
+       } xi;
        struct {
 	 wamreg                x;
 	 struct yami	       *l1;

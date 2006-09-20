@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-08-07 18:51:44 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-09-20 20:03:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.203  2006/08/07 18:51:44  vsc
+* fix garbage collector not to try to garbage collect when we ask for large
+* chunks of stack in a single go.
+*
 * Revision 1.202  2006/05/24 02:35:39  vsc
 * make chr work and other minor fixes.
 *
@@ -3819,16 +3823,16 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOpRW();
 
-      Op(get_float, xc);
+      Op(get_float, xd);
       BEGD(d0);
-      d0 = XREG(PREG->u.xc.x);
+      d0 = XREG(PREG->u.xd.x);
       deref_head(d0, gfloat_unk);
 
     gfloat_nonvar:
       if (!IsApplTerm(d0))
 	FAIL();
       /* we have met a preexisting float */
-      START_PREFETCH(xc);
+      START_PREFETCH(xd);
       BEGP(pt0);
       pt0 = RepAppl(d0);
       /* check functor */
@@ -3836,7 +3840,8 @@ Yap_absmi(int inp)
 	FAIL();
       }
       BEGP(pt1);
-      pt1 = RepAppl(PREG->u.xc.c);
+      pt1 = PREG->u.xd.d;
+      PREG = NEXTOP(PREG, xd);
       if (
 	  pt1[1] != pt0[1]
 #if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
@@ -3845,7 +3850,6 @@ Yap_absmi(int inp)
 	  ) FAIL();
       ENDP(pt1);
       ENDP(pt0);
-      PREG = NEXTOP(PREG, xc);
       /* enter read mode */
       GONext();
       END_PREFETCH();
@@ -3856,8 +3860,8 @@ Yap_absmi(int inp)
       /* set d1 to be the new structure we are going to create */
       START_PREFETCH(xc);
       BEGD(d1);
-      d1 = PREG->u.xc.c;
-      PREG = NEXTOP(PREG, xc);
+      d1 = AbsAppl(PREG->u.xd.d);
+      PREG = NEXTOP(PREG, xd);
       BIND(pt0, d1, bind_gfloat);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
@@ -3872,28 +3876,25 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(get_longint, xc);
+      Op(get_longint, xi);
       BEGD(d0);
-      d0 = XREG(PREG->u.xc.x);
+      d0 = XREG(PREG->u.xi.x);
       deref_head(d0, glongint_unk);
 
     glongint_nonvar:
       if (!IsApplTerm(d0))
 	FAIL();
       /* we have met a preexisting longint */
-      START_PREFETCH(xc);
+      START_PREFETCH(xi);
       BEGP(pt0);
       pt0 = RepAppl(d0);
       /* check functor */
       if (*pt0 != (CELL)FunctorLongInt) {
 	FAIL();
       }
-      BEGP(pt1);
-      pt1 = RepAppl(PREG->u.xc.c);
-      if (pt1[1] != pt0[1]) FAIL();
-      ENDP(pt1);
+      if (PREG->u.xi.i[1] != (CELL)pt0[1]) FAIL();
       ENDP(pt0);
-      PREG = NEXTOP(PREG, xc);
+      PREG = NEXTOP(PREG, xi);
       /* enter read mode */
       GONext();
       END_PREFETCH();
@@ -3902,10 +3903,10 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, glongint_unk, glongint_nonvar);
       /* Enter Write mode */
       /* set d1 to be the new structure we are going to create */
-      START_PREFETCH(xc);
+      START_PREFETCH(xi);
       BEGD(d1);
-      d1 = PREG->u.xc.c;
-      PREG = NEXTOP(PREG, xc);
+      d1 = AbsAppl(PREG->u.xi.i);
+      PREG = NEXTOP(PREG, xi);
       BIND(pt0, d1, bind_glongint);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
@@ -5653,6 +5654,18 @@ Yap_absmi(int inp)
       GONextW();
       ENDOpW();
 
+      OpW(unify_float_write, od);
+      * SREG++ = AbsAppl(PREG->u.od.d);
+      PREG = NEXTOP(PREG, od);
+      GONextW();
+      ENDOpW();
+
+      OpW(unify_longint_write, oi);
+      * SREG++ = AbsAppl(PREG->u.oi.i);
+      PREG = NEXTOP(PREG, oi);
+      GONextW();
+      ENDOpW();
+
       Op(unify_atom, oc);
       BEGD(d0);
       BEGP(pt0);
@@ -5678,6 +5691,18 @@ Yap_absmi(int inp)
       GONext();
       ENDP(pt0);
       ENDD(d0);
+      ENDOp();
+
+      Op(unify_l_float_write, od);
+      SREG[0] = AbsAppl(PREG->u.od.d);
+      PREG = NEXTOP(PREG, od);
+      GONext();
+      ENDOp();
+
+      Op(unify_l_longint_write, oi);
+      SREG[0] = AbsAppl(PREG->u.oi.i);
+      PREG = NEXTOP(PREG, oi);
+      GONext();
       ENDOp();
 
       Op(unify_l_atom_write, oc);
@@ -5766,7 +5791,7 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      Op(unify_float, oc);
+      Op(unify_float, od);
       BEGD(d0);
       BEGP(pt0);
       pt0 = SREG++;
@@ -5786,8 +5811,8 @@ Yap_absmi(int inp)
       }
       ENDD(d0);
       BEGP(pt1);
-      pt1 = RepAppl(PREG->u.oc.c);
-      PREG = NEXTOP(PREG, oc);
+      pt1 = PREG->u.od.d;
+      PREG = NEXTOP(PREG, od);
       if (
 	  pt1[1] != pt0[1]
 #if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
@@ -5800,8 +5825,8 @@ Yap_absmi(int inp)
 
       derefa_body(d0, pt0, ufloat_unk, ufloat_nonvar);
       BEGD(d1);
-      d1 = PREG->u.oc.c;
-      PREG = NEXTOP(PREG, oc);
+      d1 = AbsAppl(PREG->u.od.d);
+      PREG = NEXTOP(PREG, od);
       BIND_GLOBAL(pt0, d1, bind_ufloat);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
@@ -5814,7 +5839,7 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(unify_l_float, oc);
+      Op(unify_l_float, od);
       BEGD(d0);
       CACHE_S();
       READ_IN_S();
@@ -5833,8 +5858,8 @@ Yap_absmi(int inp)
       }
       ENDD(d0);
       BEGP(pt1);
-      pt1 = RepAppl(PREG->u.oc.c);
-      PREG = NEXTOP(PREG, oc);
+      pt1 = PREG->u.od.d;
+      PREG = NEXTOP(PREG, od);
       if (
 	  pt1[1] != pt0[1]
 #if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
@@ -5847,8 +5872,8 @@ Yap_absmi(int inp)
 
       derefa_body(d0, S_SREG, ulfloat_unk, ulfloat_nonvar);
       BEGD(d1);
-      d1 = PREG->u.oc.c;
-      PREG = NEXTOP(PREG, oc);
+      d1 = AbsAppl(PREG->u.od.d);
+      PREG = NEXTOP(PREG, od);
       BIND_GLOBAL(S_SREG, d1, bind_ulfloat);
 #ifdef COROUTINING
       DO_TRAIL(S_SREG, d1);
@@ -5861,7 +5886,7 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(unify_longint, oc);
+      Op(unify_longint, oi);
       BEGD(d0);
       BEGP(pt0);
       pt0 = SREG++;
@@ -5881,8 +5906,8 @@ Yap_absmi(int inp)
       }
       ENDD(d0);
       BEGP(pt1);
-      pt1 = RepAppl(PREG->u.oc.c);
-      PREG = NEXTOP(PREG, oc);
+      pt1 = PREG->u.oi.i;
+      PREG = NEXTOP(PREG, oi);
       if (pt1[1] != pt0[1]) FAIL();
       ENDP(pt1);
       ENDP(pt0);
@@ -5890,8 +5915,8 @@ Yap_absmi(int inp)
 
       derefa_body(d0, pt0, ulongint_unk, ulongint_nonvar);
       BEGD(d1);
-      d1 = PREG->u.oc.c;
-      PREG = NEXTOP(PREG, oc);
+      d1 = AbsAppl(PREG->u.oi.i);
+      PREG = NEXTOP(PREG, oi);
       BIND_GLOBAL(pt0, d1, bind_ulongint);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
@@ -5904,7 +5929,7 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(unify_l_longint, oc);
+      Op(unify_l_longint, oi);
       BEGD(d0);
       CACHE_S();
       READ_IN_S();
@@ -5923,8 +5948,8 @@ Yap_absmi(int inp)
       }
       ENDD(d0);
       BEGP(pt1);
-      pt1 = RepAppl(PREG->u.oc.c);
-      PREG = NEXTOP(PREG, oc);
+      pt1 = PREG->u.oi.i;
+      PREG = NEXTOP(PREG, oi);
       if (pt1[1] != pt0[1]) FAIL();
       ENDP(pt1);
       ENDP(pt0);
@@ -5932,8 +5957,8 @@ Yap_absmi(int inp)
 
       derefa_body(d0, S_SREG, ullongint_unk, ullongint_nonvar);
       BEGD(d1);
-      d1 = PREG->u.oc.c;
-      PREG = NEXTOP(PREG, oc);
+      d1 = AbsAppl(PREG->u.oi.i);
+      PREG = NEXTOP(PREG, oi);
       BIND_GLOBAL(S_SREG, d1, bind_ullongint);
 #ifdef COROUTINING
       DO_TRAIL(S_SREG, d1);
@@ -5975,8 +6000,8 @@ Yap_absmi(int inp)
 
       derefa_body(d0, pt0, ubigint_unk, ubigint_nonvar);
       BEGD(d1);
-      d1 = PREG->u.oc.c;
-      PREG = NEXTOP(PREG, oc);
+      d1 = AbsAppl(PREG->u.oi.i);
+      PREG = NEXTOP(PREG, oi);
       BIND_GLOBAL(pt0, d1, bind_ubigint);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
@@ -6420,6 +6445,24 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
+      Op(put_float, xd);
+      BEGD(d0);
+      d0 = AbsAppl(PREG->u.xd.d);
+      XREG(PREG->u.xd.x) = d0;
+      PREG = NEXTOP(PREG, xd);
+      GONext();
+      ENDD(d0);
+      ENDOp();
+
+      Op(put_longint, xi);
+      BEGD(d0);
+      d0 = AbsAppl(PREG->u.xi.i);
+      XREG(PREG->u.xi.x) = d0;
+      PREG = NEXTOP(PREG, xi);
+      GONext();
+      ENDD(d0);
+      ENDOp();
+
       Op(put_list, x);
       CACHE_S();
       READ_IN_S();
@@ -6593,6 +6636,24 @@ Yap_absmi(int inp)
       *SREG++ = d0;
       ENDD(d0);
       PREG = NEXTOP(PREG, c);
+      GONext();
+      ENDOp();
+
+      Op(write_float, d);
+      BEGD(d0);
+      d0 = AbsAppl(PREG->u.d.d);
+      *SREG++ = d0;
+      ENDD(d0);
+      PREG = NEXTOP(PREG, d);
+      GONext();
+      ENDOp();
+
+      Op(write_longint, i);
+      BEGD(d0);
+      d0 = AbsAppl(PREG->u.i.i);
+      *SREG++ = d0;
+      ENDD(d0);
+      PREG = NEXTOP(PREG, i);
       GONext();
       ENDOp();
 
@@ -8123,7 +8184,11 @@ Yap_absmi(int inp)
       
       Op(index_blob, e);
       PREG = NEXTOP(PREG, e);
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+      I_R = MkIntTerm(SREG[0]^SREG[1]);
+#else
       I_R = MkIntTerm(SREG[0]);
+#endif
       GONext();
       ENDOp();
       

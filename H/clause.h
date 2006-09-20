@@ -78,6 +78,10 @@ typedef struct logic_upd_clause {
   struct logic_upd_clause   *ClPrev, *ClNext;
   /* parent pointer */
   PredEntry   *ClPred;
+  /*
+    support for timers, stalled for now.
+  UInt             ClTimeStart, ClTimeEnd;
+  */
   /* The instructions, at least one of the form sl */
   yamop            ClCode[MIN_ARRAY];
 } LogUpdClause;

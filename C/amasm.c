@@ -11,8 +11,12 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2006-03-24 17:13:41 $							 *
+* Last rev:     $Date: 2006-09-20 20:03:51 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.87  2006/03/24 17:13:41  rslopes
+* New update to BEAM engine.
+* BEAM now uses YAP Indexing (JITI)
+*
 * Revision 1.86  2006/01/02 02:16:17  vsc
 * support new interface between YAP and GMP, so that we don't rely on our own
 * allocation routines.
@@ -809,6 +813,62 @@ a_ublob(CELL rnd1, op_numbers opcode, op_numbers opcode_w, int *clause_has_blobs
 }
 
 inline static yamop *
+a_ud(op_numbers opcode, op_numbers opcode_w, yamop *code_p, int pass_no, struct PSEUDO *cpc)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.oc.opcw = emit_op(opcode_w);
+    code_p->u.od.d[0] = (CELL)FunctorDouble;
+    code_p->u.od.d[1] = RepAppl(cpc->rnd1)[1];
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
+    code_p->u.od.d[2] = RepAppl(cpc->rnd1)[2];
+#endif
+  }
+  GONEXT(od);
+  return code_p;
+}
+
+inline static yamop *
+a_ui(op_numbers opcode, op_numbers opcode_w, yamop *code_p, int pass_no, struct PSEUDO *cpc)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.oc.opcw = emit_op(opcode_w);
+    code_p->u.oi.i[0] = (CELL)FunctorLongInt;
+    code_p->u.oi.i[1] = RepAppl(cpc->rnd1)[1];
+  }
+  GONEXT(oi);
+  return code_p;
+}
+
+inline static yamop *
+a_wd(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.d.d[0] = (CELL)FunctorDouble;
+    code_p->u.d.d[1] = RepAppl(cpc->rnd1)[1];
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
+    code_p->u.d.d[2] = RepAppl(cpc->rnd1)[2];
+#endif
+  }
+  GONEXT(d);
+  return code_p;
+}
+
+inline static yamop *
+a_wi(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.i.i[0] = (CELL)FunctorLongInt;
+    code_p->u.i.i[1] = RepAppl(cpc->rnd1)[1];
+  }
+  GONEXT(i);
+  return code_p;
+}
+
+inline static yamop *
 a_nc(CELL rnd1, op_numbers opcode, int i, yamop *code_p, int pass_no)
 {
   if (pass_no) {
@@ -846,6 +906,35 @@ a_rf(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
   return code_p;
 }
 
+inline static yamop *
+a_rd(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.xd.x = emit_x(cpc->rnd2);
+    code_p->u.xd.d[0] = (CELL)FunctorDouble;
+    code_p->u.xd.d[1] = RepAppl(cpc->rnd1)[1];
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
+    code_p->u.xd.d[2] = RepAppl(cpc->rnd1)[2];
+#endif
+  }
+  GONEXT(xd);
+  return code_p;
+}
+
+inline static yamop *
+a_ri(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.xi.x = emit_x(cpc->rnd2);
+    code_p->u.xi.i[0] = (CELL)FunctorLongInt;
+    code_p->u.xi.i[1] = RepAppl(cpc->rnd1)[1];
+  }
+  GONEXT(xi);
+  return code_p;
+}
+
 static yamop *
 a_rc(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
 {
@@ -854,7 +943,6 @@ a_rc(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
       (cip->cpc->nextInst->op == get_atom_op ||
        cip->cpc->nextInst->op == get_num_op)) {
     struct PSEUDO *next;
-
     next = cip->cpc->nextInst;
     if (next->nextInst->rnd2 == 3 &&
 	(next->nextInst->op == get_atom_op ||
@@ -946,6 +1034,18 @@ a_rb(op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int pass_no, stru
     code_p->u.xc.c = AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]));
   }
   *clause_has_blobsp = TRUE;
+  GONEXT(xc);
+  return code_p;
+}
+
+inline static yamop *
+a_rli(op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int pass_no, struct intermediates *cip)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.xc.x = emit_x(cip->cpc->rnd2);
+    code_p->u.xc.c = AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]));
+  }
   GONEXT(xc);
   return code_p;
 }
@@ -2497,6 +2597,22 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->luc.ClRefCount = 0;
 	cl_u->luc.ClPred = cip->CurrentPred;
 	cl_u->luc.ClSize = size;
+	/*
+	  Support for timestamps, stalled for now.
+	if (cip->CurrentPred->PredFlags & ThreadLocalPredFlag) {
+	  LOCK(LocalTimeStampLock);
+	  cl_u->luc.ClTimeStart = LocalTimeStamp;
+	  LocalTimeStamp++;
+	  cl_u->luc.ClTimeEnd = LocalTimeStamp;
+	  UNLOCK(LocalTimeStampLock);
+	} else {
+	  LOCK(GlobalTimeStampLock);
+	  cl_u->luc.ClTimeStart = GlobalTimeStamp;
+	  GlobalTimeStamp++;
+	  cl_u->luc.ClTimeEnd = GlobalTimeStamp;
+	  UNLOCK(GlobalTimeStampLock);
+	}
+	*/
 	if (*clause_has_blobsp) {
 	  cl_u->luc.ClFlags |= HasBlobsMask;
 	}
@@ -2672,10 +2788,10 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_rc(_get_atom, code_p, pass_no, cip);
       break;
     case get_float_op:
-      code_p = a_rb(_get_float, clause_has_blobsp, code_p, pass_no, cip);
+      code_p = a_rd(_get_float, code_p, pass_no, cip->cpc);
       break;
     case get_longint_op:
-      code_p = a_rb(_get_longint, clause_has_blobsp, code_p, pass_no, cip);
+      code_p = a_ri(_get_longint, code_p, pass_no, cip->cpc);
       break;
     case get_bigint_op:
       code_p = a_rb(_get_bigint, clause_has_blobsp, code_p, pass_no, cip);
@@ -2685,7 +2801,11 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_rc(_put_atom, code_p, pass_no, cip);
       break;
     case put_float_op:
+      code_p = a_rd(_put_float, code_p, pass_no, cip->cpc);
+      break;
     case put_longint_op:
+      code_p = a_ri(_put_longint, code_p, pass_no, cip->cpc);
+      break;
     case put_bigint_op:
       code_p = a_rb(_put_atom, clause_has_blobsp, code_p, pass_no, cip);
       break;
@@ -2736,10 +2856,10 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_ucons(&do_not_optimise_uatom, unify_atom_op, code_p, pass_no, cip);
       break;
     case unify_float_op:
-      code_p = a_ublob(cip->cpc->rnd1, _unify_float, _unify_atom_write, clause_has_blobsp, code_p, pass_no, cip);
+      code_p = a_ud(_unify_float, _unify_float_write, code_p, pass_no, cip->cpc);
       break;
     case unify_longint_op:
-      code_p = a_ublob(cip->cpc->rnd1, _unify_longint, _unify_atom_write, clause_has_blobsp, code_p, pass_no, cip);
+      code_p = a_ui(_unify_longint, _unify_longint_write, code_p, pass_no, cip->cpc);
       break;
     case unify_bigint_op:
       code_p = a_ublob(cip->cpc->rnd1, _unify_bigint, _unify_atom_write, clause_has_blobsp, code_p, pass_no, cip);
@@ -2749,10 +2869,10 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_uc(cip->cpc->rnd1, _unify_l_atom, _unify_l_atom_write, code_p, pass_no);
       break;
     case unify_last_float_op:
-      code_p = a_ublob(cip->cpc->rnd1, _unify_l_float, _unify_l_atom_write, clause_has_blobsp, code_p, pass_no, cip);
+      code_p = a_ud(_unify_l_float, _unify_l_float_write, code_p, pass_no, cip->cpc);
       break;
     case unify_last_longint_op:
-      code_p = a_ublob(cip->cpc->rnd1, _unify_l_longint, _unify_l_atom_write, clause_has_blobsp, code_p, pass_no, cip);
+      code_p = a_ui(_unify_l_longint, _unify_l_longint_write, code_p, pass_no, cip->cpc);
       break;
     case unify_last_bigint_op:
       code_p = a_ublob(cip->cpc->rnd1, _unify_l_bigint, _unify_l_atom_write, clause_has_blobsp, code_p, pass_no, cip);
@@ -2762,7 +2882,11 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_ucons(&do_not_optimise_uatom, write_atom_op, code_p, pass_no, cip);
       break;
     case write_float_op:
+      code_p = a_wd(_write_float, code_p, pass_no, cip->cpc);
+      break;
     case write_longint_op:
+      code_p = a_wi(_write_longint, code_p, pass_no, cip->cpc);
+      break;
     case write_bigint_op:
       code_p = a_blob(cip->cpc->rnd1, _write_atom, clause_has_blobsp, code_p, pass_no, cip);
       break;

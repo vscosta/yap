@@ -709,6 +709,7 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
     if (IsExtensionFunctor(f)) {
       switch((CELL)f) {
       case (CELL)FunctorDBRef:
+	CloseArena(oldH, oldHB, oldASP, newarena, old_size);
 	return t;
       case (CELL)FunctorLongInt:
 	if (H > ASP - (128+3)) {

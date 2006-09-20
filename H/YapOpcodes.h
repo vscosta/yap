@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2006-04-27 14:13:24 $							 *
+* Last rev:     $Date: 2006-09-20 20:03:51 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.38  2006/04/27 14:13:24  rslopes
+* *** empty log message ***
+*
 * Revision 1.37  2006/03/24 16:34:21  rslopes
 * New update to BEAM engine.
 * BEAM now uses YAP Indexing (JITI)
@@ -172,8 +175,8 @@
     OPCODE(get_4atoms              ,cccc),	  /* peephole */
     OPCODE(get_5atoms              ,ccccc),	  /* peephole */
     OPCODE(get_6atoms              ,cccccc),	  /* peephole */
-    OPCODE(get_float               ,xc),		
-    OPCODE(get_longint             ,xc),		
+    OPCODE(get_float               ,xd),		
+    OPCODE(get_longint             ,xi),		
     OPCODE(get_bigint              ,xc),		
     OPCODE(get_list                ,x),		
     OPCODE(get_struct              ,xf),		
@@ -182,7 +185,7 @@
     OPCODE(unify_x_val             ,ox),	
     OPCODE(unify_y_val             ,oy),	
     OPCODE(unify_atom              ,oc),		
-    OPCODE(unify_float             ,oc),		
+    OPCODE(unify_float             ,od),		
     OPCODE(unify_longint           ,oc),		
     OPCODE(unify_bigint            ,oc),		
     OPCODE(unify_list              ,o),		
@@ -194,6 +197,8 @@
     OPCODE(put_unsafe              ,yx),		
     OPCODE(put_xx_val              ,xxxx), /* peephole */
     OPCODE(put_atom                ,xc),		
+    OPCODE(put_float               ,xd),		
+    OPCODE(put_longint             ,xi),		
     OPCODE(put_list                ,x),		
     OPCODE(put_struct              ,xf),		
     OPCODE(write_x_var             ,x),	
@@ -201,6 +206,8 @@
     OPCODE(write_x_val             ,x),	
     OPCODE(write_y_val             ,y),	
     OPCODE(write_atom              ,c),		
+    OPCODE(write_float             ,d),		
+    OPCODE(write_longint           ,i),		
     OPCODE(write_list              ,e),		
     OPCODE(write_struct            ,f),	
     OPCODE(pop                     ,e),		
@@ -296,8 +303,8 @@
     OPCODE(unify_l_x_val           ,ox),	
     OPCODE(unify_l_y_val           ,oy),	
     OPCODE(unify_l_atom            ,oc),	
-    OPCODE(unify_l_float           ,oc),	
-    OPCODE(unify_l_longint         ,oc),	
+    OPCODE(unify_l_float           ,od),	
+    OPCODE(unify_l_longint         ,oi),	
     OPCODE(unify_l_bigint          ,oc),	
     OPCODE(unify_l_void            ,o),	
     OPCODE(unify_l_n_voids         ,os),	
@@ -309,6 +316,8 @@
     OPCODE(unify_x_val_write       ,ox),	
     OPCODE(unify_y_val_write       ,oy),	
     OPCODE(unify_atom_write        ,oc),	
+    OPCODE(unify_float_write       ,od),	
+    OPCODE(unify_longint_write       ,oi),	
     OPCODE(unify_n_atoms_write     ,osc),
     OPCODE(unify_list_write        ,o),	
     OPCODE(unify_x_var2_write      ,oxx),	
@@ -322,6 +331,8 @@
     OPCODE(unify_l_x_val_write     ,ox),
     OPCODE(unify_l_y_val_write     ,oy),
     OPCODE(unify_l_atom_write      ,oc),	
+    OPCODE(unify_l_float_write     ,od),	
+    OPCODE(unify_l_longint_write   ,oi),	
     OPCODE(unify_l_void_write      ,o),	
     OPCODE(unify_l_n_voids_write   ,os),
     OPCODE(unify_l_x_loc_write     ,ox),	

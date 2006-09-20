@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2006-08-01 13:14:17 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-09-20 20:03:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.79  2006/08/01 13:14:17  vsc
+* fix compilation of |
+*
 * Revision 1.78  2006/07/27 19:04:56  vsc
 * fix nasty overflows in and add some very preliminary support for very large
 * clauses with lots
@@ -560,54 +563,41 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 	    write_atom_op), (CELL) t, Zero, &cglobs->cint);
   } else  if (IsIntegerTerm(t) || IsFloatTerm(t) || IsBigIntTerm(t)) {
     if (!IsIntTerm(t)) {
-      /* we are taking a blob, that is a binary that is supposed to be
-	 guarded in the clause itself. Possible examples include
-	 floats, long ints, bignums, bitmaps.... */
-      CELL l1 = ++cglobs->labelno;
-      CELL *src = RepAppl(t);
-      PInstr *ocpc = cglobs->cint.cpc, *OCodeStart = cglobs->cint.CodeStart;
-
-      /* use a special list to store the blobs */
-      cglobs->cint.cpc = cglobs->cint.icpc;
-      /*      if (IsFloatTerm(t)) {
-	Yap_emit(align_float_op, Zero, Zero, &cglobs->cint);
-	}*/
-      Yap_emit(label_op, l1, Zero, &cglobs->cint);
       if (IsFloatTerm(t)) {
-	/* let us do floats first */
-	CELL *dest = 
-	  Yap_emit_extra_size(blob_op,
-			  (CELL)(SIZEOF_DOUBLE/SIZEOF_LONG_INT+1),
-			  (1+SIZEOF_DOUBLE/SIZEOF_LONG_INT)*CellSize, &cglobs->cint);
-	/* copy the float bit by bit */
-	dest[0] = src[0];
-	dest[1] = src[1];
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-	dest[2] = src[2];
-#endif
-	/* note that we don't need to copy size info, unless we wanted
-	   to garbage collect clauses ;-) */
-	cglobs->cint.icpc = cglobs->cint.cpc;
-	if (cglobs->cint.BlobsStart == NULL)
-	  cglobs->cint.BlobsStart = cglobs->cint.CodeStart;
-	cglobs->cint.cpc = ocpc;
-	cglobs->cint.CodeStart = OCodeStart;
-	/* The argument to pass to the structure is now the label for
-	   where we are storing the blob */
 	if (level == 0)
-	  Yap_emit((cglobs->onhead ? get_float_op : put_float_op), l1, argno, &cglobs->cint);
+	  Yap_emit((cglobs->onhead ? get_float_op : put_float_op), t, argno, &cglobs->cint);
 	else
 	  Yap_emit((cglobs->onhead ? (argno == (Int)arity ? unify_last_float_op
 			  : unify_float_op) :
-		write_float_op), l1, Zero, &cglobs->cint);
-#if USE_GMP
-      } else if (IsBigIntTerm(t)) {
-	/* next, let us do bigints */
+		write_float_op), t, Zero, &cglobs->cint);
+      } else if (IsLongIntTerm(t)) {
+	if (level == 0)
+	  Yap_emit((cglobs->onhead ? get_longint_op : put_longint_op), t, argno, &cglobs->cint);
+	else
+	  Yap_emit((cglobs->onhead ? (argno == (Int)arity ? unify_last_longint_op
+			  : unify_longint_op) :
+		write_longint_op), t, Zero, &cglobs->cint);
+      } else {
+	/* we are taking a blob, that is a binary that is supposed to be
+	 guarded in the clause itself. Possible examples include
+	 floats, long ints, bignums, bitmaps.... */
+	CELL l1 = ++cglobs->labelno;
+	CELL *src = RepAppl(t);
+	PInstr *ocpc = cglobs->cint.cpc, *OCodeStart = cglobs->cint.CodeStart;
 	Int sz = sizeof(CELL)+
 	  sizeof(MP_INT)+
 	   ((((MP_INT *)(RepAppl(t)+1))->_mp_alloc)*sizeof(mp_limb_t));
-	CELL *dest = 
+	CELL *dest;
+
+	/* use a special list to store the blobs */
+	cglobs->cint.cpc = cglobs->cint.icpc;
+	/*      if (IsFloatTerm(t)) {
+		Yap_emit(align_float_op, Zero, Zero, &cglobs->cint);
+		}*/
+	Yap_emit(label_op, l1, Zero, &cglobs->cint);
+	dest = 
 	  Yap_emit_extra_size(blob_op, sz/CellSize, sz, &cglobs->cint);
+
 	/* copy the bignum */
 	memcpy(dest, src, sz);
 	/* note that we don't need to copy size info, unless we wanted
@@ -625,27 +615,6 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 	  Yap_emit((cglobs->onhead ? (argno == (Int)arity ? unify_last_bigint_op
 			  : unify_bigint_op) :
 		write_bigint_op), l1, Zero, &cglobs->cint);
-#endif
-      } else {
-	/* for now, it's just a long int */
-	CELL *dest = 
-	  Yap_emit_extra_size(blob_op,
-			  2,
-			  2*CellSize, &cglobs->cint);
-	/* copy the long int in one fell swoop */
-	dest[0] = src[0];
-	dest[1] = src[1];
-	cglobs->cint.icpc = cglobs->cint.cpc;
-	if (cglobs->cint.BlobsStart == NULL)
-	  cglobs->cint.BlobsStart = cglobs->cint.CodeStart;
-	cglobs->cint.cpc = ocpc;
-	cglobs->cint.CodeStart = OCodeStart;
-	if (level == 0)
-	  Yap_emit((cglobs->onhead ? get_longint_op : put_longint_op), l1, argno, &cglobs->cint);
-	else
-	  Yap_emit((cglobs->onhead ? (argno == (Int)arity ? unify_last_longint_op
-			  : unify_longint_op) :
-		write_longint_op), l1, Zero, &cglobs->cint);
       }
       /* That's it folks! */
       return;

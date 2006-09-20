@@ -135,7 +135,6 @@ typedef struct idb_queue
 #define LARGE_IDB_LINK_TABLE 1
 
 /* traditionally, YAP used a link table to recover IDB terms*/
-#define IDB_LINK_TABLE 1
 #if LARGE_IDB_LINK_TABLE
 typedef BITS32 link_entry; 
 #define SIZEOF_LINK_ENTRY 4
@@ -143,15 +142,11 @@ typedef BITS32 link_entry;
 typedef BITS16 link_entry; 
 #define SIZEOF_LINK_ENTRY 2
 #endif
-/* a second alternative is to just use a tag */
-/*#define IDB_USE_MBIT 1*/
 
 /* These global variables are necessary to build the data base
    structure */
 typedef struct db_globs {
-#ifdef IDB_LINK_TABLE
   link_entry  *lr, *LinkAr;
-#endif
 /* we cannot call Error directly from within recorded(). These flags are used
    to delay for a while
 */
@@ -180,12 +175,7 @@ typedef table {
 #endif
 
 STATIC_PROTO(CELL *cpcells,(CELL *,CELL*,Int));
-#ifdef IDB_LINK_TABLE
 STATIC_PROTO(void linkblk,(link_entry *,CELL *,CELL));
-#endif
-#ifdef IDB_USE_MBIT
-STATIC_PROTO(CELL *linkcells,(CELL *,Int));
-#endif
 STATIC_PROTO(Int cmpclls,(CELL *,CELL *,Int));
 STATIC_PROTO(Prop FindDBProp,(AtomEntry *, int, unsigned int, Term));
 STATIC_PROTO(CELL  CalcKey, (Term));
@@ -199,9 +189,7 @@ STATIC_PROTO(DBRef  record, (int, Term, Term, Term));
 STATIC_PROTO(DBRef  check_if_cons, (DBRef, Term));
 STATIC_PROTO(DBRef  check_if_var, (DBRef));
 STATIC_PROTO(DBRef  check_if_wvars, (DBRef, unsigned int, CELL *));
-#ifdef IDB_LINK_TABLE
 STATIC_PROTO(int  scheckcells, (int, CELL *, CELL *, link_entry *, CELL));
-#endif
 STATIC_PROTO(DBRef  check_if_nvars, (DBRef, unsigned int, CELL *, struct db_globs *));
 STATIC_PROTO(Int  p_rcda, (void));
 STATIC_PROTO(Int  p_rcdap, (void));
@@ -350,7 +338,6 @@ static void remove_from_table() {
 }
 #endif
 
-#ifdef IDB_LINK_TABLE
 inline static CELL *cpcells(CELL *to, CELL *from, Int n)
 {
 #if HAVE_MEMMOVE
@@ -374,37 +361,6 @@ static void linkblk(link_entry *r, CELL *c, CELL offs)
     c[p] = AdjustIDBPtr(t, offs);
   }
 }
-#endif
-
-#ifdef IDB_USE_MBIT
-inline static CELL *cpcells(register CELL *to, register CELL *from, Int n)
-{
-  CELL *last = to + n;
-  register CELL off = ((CELL)to)-MBIT;
-  while (to <= last) {
-    register d0 = *from++;
-    if (MARKED(d0)) 
-      *to++ = AdjustIDBPtr(d0, off);
-    else
-      *to++ = d0;
-  }
-  return(to);
-}
-
-static CELL *linkcells(register CELL *to, Int n)
-{
-  CELL *last = to + n;
-  register CELL off = ((CELL)to)-MBIT;
-  while(to <= last) {
-    register d0 = *to++;
-    if (MARKED(d0)) 
-      to[-1] = AdjustIDBPtr(d0, off);
-  }
-  return(to);
-}
-
-
-#endif
 
 static Int cmpclls(CELL *a,CELL *b,Int n)
 {
@@ -417,12 +373,7 @@ static Int cmpclls(CELL *a,CELL *b,Int n)
 #if !THREADS
 int Yap_DBTrailOverflow()
 {
-#ifdef IDB_USE_MBIT
-  return(FALSE);
-#endif
-#ifdef IDB_LINK_TABLE
   return((CELL *)s_dbg->lr > (CELL *)s_dbg->tofref - 2048);
-#endif
 }
 #endif
 
@@ -725,10 +676,8 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	continue;
       }
 #endif
-#ifdef IDB_LINK_TABLE
       db_check_trail(dbg->lr+1);
       *dbg->lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
-#endif
       f = (Functor)(*ap2);
       if (IsExtensionFunctor(f)) {
 	switch((CELL)f) {
@@ -738,9 +687,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	    /* store now the correct entry */
 	    dbentry = DBRefOfTerm(d0);
 	    *StoPoint++ = d0;
-#ifdef IDB_LINK_TABLE
 	    dbg->lr--;
-#endif
 	    if (dbentry->Flags & LogUpdMask) {
 	      LogUpdClause *cl = (LogUpdClause *)dbentry;
 
@@ -755,11 +702,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	    continue;
 	  }
 	case (CELL)FunctorLongInt:
-#ifdef IDB_USE_MBIT
-	  *StoPoint++ = AbsAppl(CodeMax)|MBIT;
-#else
 	  *StoPoint++ = AbsAppl(CodeMax);
-#endif
 	  CheckDBOverflow(3);
 	  CodeMax = copy_long_int(CodeMax, ap2);
 	  ++pt0;
@@ -768,11 +711,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	case (CELL)FunctorBigInt:
 	  CheckDBOverflow(2+Yap_SizeOfBigInt(d0));
 	  /* first thing, store a link to the list before we move on */
-#ifdef IDB_USE_MBIT
-	  *StoPoint++ = AbsAppl(CodeMax)|MBIT;
-#else
 	  *StoPoint++ = AbsAppl(CodeMax);
-#endif
 	  CodeMax = copy_big_int(CodeMax, ap2);
 	  ++pt0;
 	  continue;
@@ -783,11 +722,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 
 	    CheckDBOverflow(4);
 	    /* first thing, store a link to the list before we move on */
-#ifdef IDB_USE_MBIT
-	    *StoPoint++ = AbsAppl(st)|MBIT;
-#else
 	    *StoPoint++ = AbsAppl(st);
-#endif
 	    CodeMax = copy_double(CodeMax, ap2);
 	    ++pt0;
 	    continue;
@@ -795,11 +730,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	}
       }
       /* first thing, store a link to the list before we move on */
-#ifdef IDB_USE_MBIT
-      *StoPoint++ = AbsAppl(CodeMax)|MBIT;
-#else
       *StoPoint++ = AbsAppl(CodeMax);
-#endif
       /* next, postpone analysis to the rest of the current list */
 #ifdef RATIONAL_TREES
       to_visit[0] = pt0+1;
@@ -832,7 +763,6 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
     }
     else if (IsPairTerm(d0)) {
       /* we will need to link afterwards */
-#ifdef RATIONAL_TREES
       CELL *ap2 = RepPair(d0);
       if (ap2 >= tbase && ap2 < StoPoint) {
 	*StoPoint++ = d0;
@@ -841,17 +771,60 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	++pt0;
 	continue;
       }
-#endif
-#ifdef IDB_LINK_TABLE
-      db_check_trail(dbg->lr+1);
-      *dbg->lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
-#endif
-#ifdef IDB_USE_MBIT
-      *StoPoint++ =
-	AbsPair(CodeMax)|MBIT;
-#else
-      *StoPoint++ = AbsPair(CodeMax);
-#endif
+      if (IsAtomOrIntTerm(Deref(ap2[0])) &&
+	  IsPairTerm(Deref(ap2[1]))) {
+	/* shortcut for [1,2,3,4,5] */
+	Term tt = Deref(ap2[1]);
+	Term th = Deref(ap2[0]);
+	Int direction = RepPair(tt)-ap2;
+	CELL *OldStoPoint;
+	CELL *lp;
+
+	if (direction < 0)
+	  direction = -1;
+	else
+	  direction = 1;
+	db_check_trail(dbg->lr+1);
+	*dbg->lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
+	*StoPoint++ = AbsPair(CodeMax);
+	OldStoPoint = StoPoint;
+	do {
+	  lp =  RepPair(tt);
+	  
+	  if (lp >= tbase && lp < StoPoint) {
+	    break;
+	  }
+	  CheckDBOverflow(2);
+	  CodeMax[0] = th;
+	  db_check_trail(dbg->lr+1);
+	  *dbg->lr++ = ToSmall((CELL)(CodeMax+1)-(CELL)(tbase));
+	  CodeMax[1] = AbsPair(CodeMax+2);
+	  CodeMax+=2;
+	  th = Deref(lp[0]);
+	  tt = Deref(lp[1]);
+	} while (IsAtomOrIntTerm(th) &&
+		 IsPairTerm(tt) &&
+		 /* have same direction to avoid infinite terms X = [a|X] */
+		 (RepPair(tt)-lp)*direction > 0);
+	if (lp >= tbase && lp < StoPoint) {
+	  CodeMax[-1] = tt;
+	  break;
+	}
+	if (IsAtomOrIntTerm(th) && IsAtomOrIntTerm(tt)) {
+	  CheckDBOverflow(2);
+	  CodeMax[0] = th;
+	  CodeMax[1] = tt;
+	  CodeMax+=2;
+	  ++pt0;
+	  continue;
+	}
+	d0 = AbsPair(lp);
+	StoPoint = OldStoPoint;
+      } else {
+	 db_check_trail(dbg->lr+1);
+	*dbg->lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
+	*StoPoint++ = AbsPair(CodeMax);
+      }
       /* next, postpone analysis to the rest of the current list */
 #ifdef RATIONAL_TREES
       to_visit[0] = pt0+1;
@@ -919,19 +892,11 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	/* the copy we keep will be an empty variable   */
 	*StoPoint++ = 0;
 #else
-#ifdef IDB_USE_MBIT
-	/* say we've seen the variable, and make it point to its
-	   offset */
-	/* the copy we keep will be the current displacement   */
-	*StoPoint = ((CELL)StoPoint | MBIT);
-	StoPoint++;
-#else
 	/* the copy we keep will be the current displacement   */
 	*StoPoint = (CELL)StoPoint;
 	StoPoint++;
 	db_check_trail(dbg->lr+1);
 	*dbg->lr++ = ToSmall(displacement);
-#endif
 #endif
 	/* indicate we found variables */
 	vars_found++;
@@ -960,16 +925,10 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	continue;
       } else  {
 	/* references need to be offset at read time */
-#ifdef IDB_LINK_TABLE
 	db_check_trail(dbg->lr+1);
 	*dbg->lr++ = ToSmall(displacement);
-#endif
 	/* store the offset */
-#ifdef IDB_USE_MBIT
-	*StoPoint = d0 | MBIT;
-#else
 	*StoPoint = d0;
-#endif
 	StoPoint++;
 	continue;
       }
@@ -1192,8 +1151,6 @@ check_if_wvars(DBRef p, unsigned int NOfCells, CELL *BTptr)
   return (NIL);
 }
 
-#ifdef IDB_LINK_TABLE
-
 static int 
 scheckcells(int NOfCells, register CELL *m1, register CELL *m2, link_entry *lp, register CELL bp)
 {
@@ -1226,7 +1183,6 @@ scheckcells(int NOfCells, register CELL *m1, register CELL *m2, link_entry *lp, 
   }
   return (TRUE);
 }
-#endif
 
 /*
  * the cousin of the previous, but with things a bit more sophisticated.
@@ -1244,12 +1200,7 @@ check_if_nvars(DBRef p, unsigned int NOfCells, CELL *BTptr, struct db_globs *dbg
     if (p == NIL)
       return (p);
     memptr = CellPtr(p->DBT.Contents);
-#ifdef IDB_LINK_TABLE
     if (scheckcells(NOfCells, memptr, BTptr, dbg->LinkAr, Unsigned(p->DBT.Contents-1)))
-#else
-      if (NOfCells == *memptr++
-	  && cmpclls(memptr, BTptr, NOfCells))
-#endif
 	return (p);
       else
 	p = NextDBRef(p);
@@ -1403,9 +1354,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 {
   Register Term   tt, *nar = NIL;
   SMALLUNSGN      flag;
-#ifdef IDB_LINK_TABLE
   int NOfLinks = 0;
-#endif
   /* place DBRefs in ConsultStack */
   DBRef    *TmpRefBase = (DBRef *)Yap_TrailTop;
   CELL	   *CodeAbs;	/* how much code did we find	 */
@@ -1468,9 +1417,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 	return NULL;
     }
     ntp0 = ppt0->Contents;
-#ifdef IDB_LINK_TABLE
     dbg->lr = dbg->LinkAr = (link_entry *)TR;
-#endif
 #ifdef COROUTINING
     /* attachment */ 
     if (IsVarTerm(Tm)) {
@@ -1544,10 +1491,8 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
       return (NULL);	/* Error Situation */
     }
     NOfCells = ntp - ntp0;	/* End Of Code Info */
-#ifdef IDB_LINK_TABLE
     *dbg->lr++ = 0;
     NOfLinks = (dbg->lr - dbg->LinkAr);
-#endif
     if (vars_found || InFlag & InQueue) {
 
       /*
@@ -1555,7 +1500,6 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
        * for the number of links 
        */
       flag = DBComplex;
-#ifdef IDB_LINK_TABLE
       CodeAbs += CellPtr(dbg->lr) - CellPtr(dbg->LinkAr);
       if ((CELL *)((char *)ntp0+(CELL)CodeAbs) > AuxSp) {
 	Yap_Error_Size = (UInt)DBLength(CodeAbs);
@@ -1563,7 +1507,6 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return(NULL);
       }
-#endif
       if ((InFlag & MkIfNot) && (dbg->found_one = check_if_wvars(p->First, NOfCells, ntp0))) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return dbg->found_one;
@@ -1585,13 +1528,11 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
       }
       flag |= DBWithRefs;
     }
-#ifdef IDB_LINK_TABLE
 #if SIZEOF_LINK_ENTRY==2
     if (Unsigned(CodeAbs) >= 0x40000) {
       Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
       return generate_dberror_msg(SYSTEM_ERROR, 0, "trying to store term larger than 256KB");
     }
-#endif
 #endif
     if (p == NULL) {
       ADDR ptr = Yap_AllocCodeSpace((CELL)CodeAbs+extra_size+sizeof(DBTerm));
@@ -1614,9 +1555,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
       ppt = &(pp->DBT);
     }
     if (flag & DBComplex) {
-#ifdef IDB_LINK_TABLE
       link_entry         *woar;
-#endif /* IDB_LINK_TABLE */
 
       ppt->NOfCells = NOfCells;
 #ifdef COROUTINING
@@ -1624,18 +1563,10 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 #endif
       if (pp0 != pp) {
 	nar = ppt->Contents;
-#ifdef IDB_LINK_TABLE
 	nar = (Term *) cpcells(CellPtr(nar), ntp0, Unsigned(NOfCells));
-#endif
-#ifdef IDB_USE_MBIT
-	memcpy((void *)nar, (const void *)ntp0,
-	       (size_t)((NOfCells+1)*sizeof(CELL)));
-	nar += NOfCells+1;
-#endif
       } else {
 	nar = ppt->Contents + Unsigned(NOfCells);
       }
-#ifdef IDB_LINK_TABLE
       woar = (link_entry *)nar;
       memcpy((void *)woar,(const void *)dbg->LinkAr,(size_t)(NOfLinks*sizeof(link_entry)));
       woar += NOfLinks;
@@ -1649,26 +1580,17 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 #endif
 #endif
       nar = (Term *) (woar);
-#endif
       *pstat = TRUE;
     } else if (flag & DBNoVars) {
       if (pp0 != pp) {
 	nar = (Term *) cpcells(CellPtr(ppt->Contents), ntp0, Unsigned(NOfCells));
       } else {
-#ifdef IDB_LINK_TABLE
 	nar = ppt->Contents + Unsigned(NOfCells);
-#endif
-#ifdef IDB_USE_MBIT
-	/* we still need to link */
-	nar = (Term *) linkcells(ntp0, NOfCells);
-#endif
       }
       ppt->NOfCells = NOfCells;
     }
     if (ppt != ppt0) {
-#ifdef IDB_LINK_TABLE
       linkblk(dbg->LinkAr, CellPtr(ppt->Contents-1), (CELL)ppt-(CELL)ppt0);
-#endif
       ppt->Entry = AdjustIDBPtr(tt,(CELL)ppt-(CELL)ppt0);
 #ifdef COROUTINING
       if (attachments)
@@ -2354,7 +2276,6 @@ p_still_variant(void)
       return IsVarTerm(t2);
     dbt = &(dbr->DBT);
   }
-#ifdef IDB_LINK_TABLE
   /*
     we checked the trail, so we are sure only variables in the new term
     were bound
@@ -2377,9 +2298,6 @@ p_still_variant(void)
       }
     }
   }
-#else /* IDB_LINK_TABLE */
-  not IMPLEMENTED;
-#endif
   return TRUE;
 }
 
@@ -2517,12 +2435,10 @@ GetDBTerm(DBTerm *DBSP)
     HeapPtr = cpcells(HOld, pt, NOf);
     pt += HeapPtr - HOld;
     H = HeapPtr;
-#ifdef IDB_LINK_TABLE
     {
       link_entry *lp = (link_entry *)pt;
       linkblk(lp, HOld-1, (CELL)HOld-(CELL)(DBSP->Contents));
     }
-#endif
 #ifdef COROUTINING
     if (DBSP->attachments != 0L)  {
       if (!copy_attachments((CELL *)AdjustIDBPtr(DBSP->attachments,(CELL)HOld-(CELL)(DBSP->Contents)))) {

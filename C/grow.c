@@ -722,17 +722,23 @@ fix_compiler_instructions(PInstr *pcpc)
     case fetch_args_vv_op:
       pcpc->rnd1 = GlobalAdjust(pcpc->rnd1);
       break;
+    case get_float_op:
+    case put_float_op:
+    case get_longint_op:
+    case put_longint_op:
+    case unify_float_op:
+    case unify_last_float_op:
+    case write_float_op:
+      /* floats might be in the global */
+      pcpc->rnd1 = AdjustAppl(pcpc->rnd1);
+      break;
       /* hopefully nothing to do */
     case nop_op:
     case get_atom_op:
     case put_atom_op:
     case get_num_op:
     case put_num_op:
-    case get_float_op:
-    case put_float_op:
     case align_float_op:
-    case get_longint_op:
-    case put_longint_op:
     case get_bigint_op:
     case put_bigint_op:
     case get_list_op:
@@ -745,9 +751,6 @@ fix_compiler_instructions(PInstr *pcpc)
     case unify_num_op:
     case unify_last_num_op:
     case write_num_op:
-    case unify_float_op:
-    case unify_last_float_op:
-    case write_float_op:
     case unify_longint_op:
     case unify_last_longint_op:
     case write_longint_op:

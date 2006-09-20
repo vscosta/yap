@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-08-07 18:51:44 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-09-20 20:03:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.190  2006/08/07 18:51:44  vsc
+* fix garbage collector not to try to garbage collect when we ask for large
+* chunks of stack in a single go.
+*
 * Revision 1.189  2006/05/24 02:35:39  vsc
 * make chr work and other minor fixes.
 *
@@ -551,6 +555,10 @@ static Term BlobTermAdjust(Term t)
 
 #include "rclause.h"
 
+#ifdef DEBUG
+static UInt  total_megaclause, total_released, nof_megaclauses;
+#endif
+
 void
 Yap_BuildMegaClause(PredEntry *ap)
 {
@@ -588,6 +596,11 @@ Yap_BuildMegaClause(PredEntry *ap)
     sz -= (UInt)NEXTOP((yamop *)NULL,p) + sizeof(StaticClause);
   }
   required = sz*ap->cs.p_code.NOfClauses+sizeof(MegaClause)+(UInt)NEXTOP((yamop *)NULL,l);
+#ifdef DEBUG
+  total_megaclause += required;
+  total_released += ap->cs.p_code.NOfClauses*(sz+sizeof(StaticClause));
+  nof_megaclauses++;
+#endif
   while (!(mcl = (MegaClause *)Yap_AllocCodeSpace(required))) {
     if (!Yap_growheap(FALSE, sizeof(consult_obj)*ConsultCapacity, NULL)) {
       /* just fail, the system will keep on going */
@@ -615,7 +628,6 @@ Yap_BuildMegaClause(PredEntry *ap)
     cl = cl->ClNext;
   }
   ptr->opc = Yap_opcode(_Ystop);
-  ptr->u.l.l = mcl->ClCode;
   cl =
     ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
   /* recover the space spent on the original clauses */
@@ -3921,11 +3933,19 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _put_unsafe:
       pc = NEXTOP(pc,yx);
       break;
+      /* instructions type xd */
+    case _get_float:
+    case _put_float:
+      pc = NEXTOP(pc,xd);
+      break;
+      /* instructions type xi */
+    case _get_longint:
+    case _put_longint:
+      pc = NEXTOP(pc,xi);
+      break;
       /* instructions type xc */
     case _get_atom:
     case _put_atom:
-    case _get_float:
-    case _get_longint:
     case _get_bigint:
       pc = NEXTOP(pc,xc);
       break;
@@ -4023,15 +4043,24 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _unify_l_n_voids:
       pc = NEXTOP(pc,os);
       break;
+      /* instructions type od */
+    case _unify_float:
+    case _unify_l_float:
+    case _unify_float_write:
+    case _unify_l_float_write:
+      pc = NEXTOP(pc,od);
+      break;
+    case _unify_longint:
+    case _unify_l_longint:
+    case _unify_longint_write:
+    case _unify_l_longint_write:
+      pc = NEXTOP(pc,oi);
+      break;
       /* instructions type oc */
     case _unify_atom_write:
     case _unify_atom:
     case _unify_l_atom_write:
     case _unify_l_atom:
-    case _unify_float:
-    case _unify_l_float:
-    case _unify_longint:
-    case _unify_l_longint:
     case _unify_bigint:
     case _unify_l_bigint:
       pc = NEXTOP(pc,oc);
@@ -4062,6 +4091,14 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
       /* instructions type c */
    case _write_atom:
       pc = NEXTOP(pc,c);
+      break;
+      /* instructions type d */
+   case _write_float:
+      pc = NEXTOP(pc,d);
+      break;
+      /* instructions type i */
+   case _write_longint:
+      pc = NEXTOP(pc,i);
       break;
       /* instructions type sc */
    case _write_n_atoms:

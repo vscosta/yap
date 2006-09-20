@@ -11,8 +11,14 @@
 * File:		computils.c						 *
 * comments:	some useful routines for YAP's compiler			 *
 *									 *
-* Last rev:     $Date: 2005-12-05 17:16:10 $							 *
+* Last rev:     $Date: 2006-09-20 20:03:51 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.29  2005/12/05 17:16:10  vsc
+* write_depth/3
+* overflow handlings and garbage collection
+* Several ipdates to CLPBN
+* dif/2 could be broken in the presence of attributed variables.
+*
 * Revision 1.28  2005/09/08 22:06:44  rslopes
 * BEAM for YAP update...
 *
@@ -487,6 +493,9 @@ ShowOp (char *f, struct PSEUDO *cpc)
 	    Yap_DebugErrorPutc ('\t');
 	    Yap_DebugPlWrite (MkIntTerm (rn & 1));
 	    break;
+	  case 'w':
+	    Yap_DebugPlWrite (arg);
+	    break;
 	  case 'o':
 	    Yap_DebugPlWrite ((Term) * cptr++);
 	  case 'c':
@@ -552,11 +561,11 @@ static char *opformat[] =
   "put_atom\t%a,%r",
   "get_num\t\t%n,%r",
   "put_num\t\t%n,%r",
-  "get_float\t\t%l,%r",
-  "put_float\t\t%l,%r",
+  "get_float\t\t%w,%r",
+  "put_float\t\t%w,%r",
   "align_float",
-  "get_longint\t\t%l,%r",
-  "put_longint\t\t%l,%r",
+  "get_longint\t\t%w,%r",
+  "put_longint\t\t%w,%r",
   "get_bigint\t\t%l,%r",
   "put_bigint\t\t%l,%r",
   "get_list\t%r",
@@ -572,10 +581,10 @@ static char *opformat[] =
   "write_atom\t%a",
   "unify_num\t%n",
   "write_num\t%n",
-  "unify_float\t%l",
-  "write_float\t%l",
-  "unify_longint\t%l",
-  "write_longint\t%l",
+  "unify_float\t%w",
+  "write_float\t%w",
+  "unify_longint\t%w",
+  "write_longint\t%w",
   "unify_bigint\t%l",
   "write_bigint\t%l",
   "unify_list",
@@ -640,8 +649,8 @@ static char *opformat[] =
   "unify_last_local\t%v",
   "unify_last_atom\t%a",
   "unify_last_num\t%n",
-  "unify_last_float\t%l",
-  "unify_last_longint\t%l",
+  "unify_last_float\t%w",
+  "unify_last_longint\t%w",
   "unify_last_bigint\t%l",
   "pvar_bitmap\t%l,%b",
   "pvar_live_regs\t%l,%b",
