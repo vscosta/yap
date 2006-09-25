@@ -741,10 +741,6 @@ p_execute_3(void)
   Term            mod = Deref(ARG5);
   Prop            pe;
 
-  if (!IsAtomTerm(t)) {
-    Yap_Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/4");
-    return(FALSE);
-  }
   if (IsAtomTerm(t)) {
     Atom            a;
     a = AtomOfTerm(t);
@@ -759,7 +755,7 @@ p_execute_3(void)
     CELL *ptr;
 
     if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/2");
+      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/4");
       return(FALSE);
     }
     Arity = ArityOfFunctor(f);
