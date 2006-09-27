@@ -1,214 +1,201 @@
+		       The Artistic License 2.0
 
-                            The Artistic License
-                         Version 2.0beta5, October 2001
+	    Copyright (c) 2000-2006, The Perl Foundation.
 
-          Copyright (C) 2000, 2001 Larry Wall, Bradley M. Kuhn.
-       Everyone is permitted to copy and distribute verbatim copies
-        of this license document, but changing it is not allowed.
+     Everyone is permitted to copy and distribute verbatim copies
+      of this license document, but changing it is not allowed.
 
-                                  Preamble
+Preamble
 
-This copyright license states the terms under which a given free software
-Package may be copied, modified and/or redistributed, while the
-Originator(s) maintain some artistic control over the future development of
-that Package (at least as much artistic control as can be given under
-copyright law while still making the Package open source and free software).
+This license establishes the terms under which a given free software
+Package may be copied, modified, distributed, and/or redistributed.
+The intent is that the Copyright Holder maintains some artistic
+control over the development of that Package while still keeping the
+Package available as open source and free software.
 
-This license is bound by copyright law, and thus it legally applies only to
-works which the copyright holder has permitted copying, distribution or
-modification under the terms of the Artistic License, Version 2.0.
+You are always permitted to make arrangements wholly outside of this
+license directly with the Copyright Holder of a given Package.  If the
+terms of this license do not permit the full use that you propose to
+make of the Package, you should contact the Copyright Holder and seek
+a different licensing arrangement. 
 
-You are reminded that You are always permitted to make arrangements wholly
-outside of a given copyright license directly with the copyright holder(s)
-of a given Package.  If the terms of this license impede your ability to
-make full use of the Package, You are encouraged to contact the copyright
-holder(s) and seek a different licensing arrangement.
+Definitions
 
+    "Copyright Holder" means the individual(s) or organization(s)
+    named in the copyright notice for the entire Package.
 
-                                Definitions
+    "Contributor" means any party that has contributed code or other
+    material to the Package, in accordance with the Copyright Holder's
+    procedures.
 
-"Package" refers to the collection of files distributed by the
-          Originator(s), and derivatives of that collection of files created
-          through textual modification.
+    "You" and "your" means any person who would like to copy,
+    distribute, or modify the Package.
 
-"Standard Version" refers to the Package if it has not been modified, or has
-                   been modified only in ways suggested by the
-                   Originator(s).
+    "Package" means the collection of files distributed by the
+    Copyright Holder, and derivatives of that collection and/or of
+    those files. A given Package may consist of either the Standard
+    Version, or a Modified Version.
 
-"Modified Version" refers to the Package, if it has been changed by You via
-                   textual modification of the source code, and such changes
-                   were not suggested by the Originator(s).
+    "Distribute" means providing a copy of the Package or making it
+    accessible to anyone else, or in the case of a company or
+    organization, to others outside of your company or organization.
 
-"Originator"       refers to the author(s) and/or copyright holder(s) of the
-                   Standard Version of the Package.
+    "Distributor Fee" means any fee that you charge for Distributing
+    this Package or providing support for this Package to another
+    party.  It does not mean licensing fees.
 
-"You" and "Your" refers to any person who would like to copy, distribute, or
-                 modify the Package.
+    "Standard Version" refers to the Package if it has not been
+    modified, or has been modified only in ways explicitly requested
+    by the Copyright Holder.
 
-"Distribution Fee" is any fee that You charge for providing a copy of this
-                   Package to another party.  It does not refer to licensing
-                   fees.
+    "Modified Version" means the Package, if it has been changed, and
+    such changes were not explicitly requested by the Copyright
+    Holder. 
 
-"Freely Available" means that:
+    "Original License" means this Artistic License as Distributed with
+    the Standard Version of the Package, in its current version or as
+    it may be modified by The Perl Foundation in the future.
 
-       (a) no fee is charged for the right to use the item (though a
-           Distribution Fee may be charged).
+    "Source" form means the source code, documentation source, and
+    configuration files for the Package.
 
-       (b) recipients of the item may redistribute it under the same
-           conditions they received it.
-
-       (c) If the item is a binary, object code, bytecode, the complete
-           corresponding machine-readable source code is included with the
-           item.
-
-
-         Permission for Use and Modification Without Redistribution
-
-  (1) You are permitted to use the Standard Version and create and use
-      Modified Versions for any purpose without restriction, provided that
-      you do not redistribute the Modified Version to others outside of your
-      company or organization.
+    "Compiled" form means the compiled bytecode, object code, binary,
+    or any other form resulting from mechanical transformation or
+    translation of the Source form.
 
 
-           Permissions for Redistribution of the Standard Version
+Permission for Use and Modification Without Distribution
 
-  (2) You may make available verbatim copies of the source code of the
-      Standard Version of this Package in any medium without restriction,
-      either gratis or for a Distribution Fee, provided that you duplicate
-      all of the original copyright notices and associated disclaimers.  At
-      Your discretion, such verbatim copies may or may not include compiled
-      bytecode, object code or binary versions of the corresponding source
-      code in the same medium.
-
-  (3) You may apply any bug fixes, portability changes, and other
-      modifications made available from any of the Originator(s).  The
-      resulting modified Package will still be considered the Standard
-      Version, and may be copied, modified and redistributed under the terms
-      of the original license of the Standard Version as if it were the
-      Standard Version.
+(1)  You are permitted to use the Standard Version and create and use
+Modified Versions for any purpose without restriction, provided that
+you do not Distribute the Modified Version.
 
 
- Permissions for Redistribution of Modified Versions of the Package as Source
+Permissions for Redistribution of the Standard Version
 
-  (4) You may modify your copy of the source code of this Package in any way
-      and distribute that Modified Version (either gratis or for a
-      Distribution Fee, and with or without a corresponding binary, bytecode
-      or object code version of the Modified Version) provided that You
-      clearly indicate what changes You made to the Package, and provided
-      that You do at least ONE of the following:
+(2)  You may Distribute verbatim copies of the Source form of the
+Standard Version of this Package in any medium without restriction,
+either gratis or for a Distributor Fee, provided that you duplicate
+all of the original copyright notices and associated disclaimers.  At
+your discretion, such verbatim copies may or may not include a
+Compiled form of the Package.
 
-       (a) make the Modified Version available to the Originator(s) of the
-           Standard Version, under the exact license of the Standard
-           Version, so that the Originator(s) may include your modifications
-           into the Standard Version (at their discretion).
-
-       (b) modify any installation scripts and procedures so that
-           installation of the Modified Version will never conflict with an
-           installation of the Standard Version, include for each program
-           installed by the Modified Version clear documentation describing
-           how it differs from the Standard Version, and rename your
-           Modified Version so that the name is substantially different from
-           the Standard Version.
-
-       (c) permit and encourage anyone who receives a copy of the Modified
-           Version to make your modifications Freely Available in some
-           specific way.
-
-      If Your Modified Version is in turn derived from a Modified Version
-      made by a third party, then You are still required to ensure that Your
-      Modified Version complies with the requirements of this license.
+(3)  You may apply any bug fixes, portability changes, and other
+modifications made available from the Copyright Holder.  The resulting
+Package will still be considered the Standard Version, and as such
+will be subject to the Original License.
 
 
-      Permissions for Redistribution of Non-Source Versions of Package
+Distribution of Modified Versions of the Package as Source 
 
-  (5) You may distribute binary, object code, bytecode or other non-source
-      versions of the Standard Version of the Package, provided that you
-      include complete instructions on where to get the source code of the
-      Standard Version.  Such instructions must be valid at the time of Your
-      distribution.  If these instructions, at any time while You are
-      carrying our such distribution, become invalid, you must provide new
-      instructions on demand or cease further distribution.  If You cease
-      distribution within thirty days after You become aware that the
-      instructions are invalid, then You do not forfeit any of Your rights
-      under this license.
+(4)  You may Distribute your Modified Version as Source (either gratis
+or for a Distributor Fee, and with or without a Compiled form of the
+Modified Version) provided that you clearly document how it differs
+from the Standard Version, including, but not limited to, documenting
+any non-standard features, executables, or modules, and provided that
+you do at least ONE of the following:
 
-  (6) You may distribute binary, object code, bytecode or other non-source
-      versions of a Modified Version provided that You do at least ONE of
-      the following:
+    (a)  make the Modified Version available to the Copyright Holder
+    of the Standard Version, under the Original License, so that the
+    Copyright Holder may include your modifications in the Standard
+    Version.
 
-       (a) include a copy of the corresponding source code for the Modified
-           Version under the terms indicated in (4).
+    (b)  ensure that installation of your Modified Version does not
+    prevent the user installing or running the Standard Version. In
+    addition, the Modified Version must bear a name that is different
+    from the name of the Standard Version.
 
-       (b) ensure that the installation of Your non-source Modified Version
-           does not conflict in any way with an installation of the Standard
-           Version, include for each program installed by the Modified
-           Version clear documentation describing how it differs from the
-           Standard Version, and rename your Modified Version so that the
-           name is substantially different from the Standard Version.
+    (c)  allow anyone who receives a copy of the Modified Version to
+    make the Source form of the Modified Version available to others
+    under
+		
+	(i)  the Original License or
 
-       (c) ensure that the Modified Version includes notification of the
-           changes made from the Standard Version, and offer to provide
-           machine-readable source code (under a license that permits making
-           that source code Freely Available) of the Modified Version via
-           mail order.
-
-
-        Permissions for Inclusion of the Package in Aggregate Works
-
-  (7) You may aggregate this Package (either the Standard Version or
-      Modified Version) with other packages and distribute the resulting
-      aggregation provided that You do not charge a licensing fee for the
-      Package.  Distribution Fees are permitted, and licensing fees for
-      other packages in the aggregation are permitted.  Your permission to
-      distribute Standard or Modified Versions of the Package is still
-      subject to the other terms set forth in other sections of this
-      license.
-
-  (8) In addition to the permissions given elsewhere by this license, You
-      are also permitted to link Modified and Standard Versions of this
-      Package with other works and distribute the result without
-      restriction, provided You have produced binary program(s) that do not
-      overtly expose the interfaces of the Package.  This includes
-      permission to embed the Package in a larger work of your own without
-      exposing a direct interface to the Package.  This also includes
-      permission to build stand-alone binary or bytecode versions of your
-      scripts that require the Package, but do not otherwise give the casual
-      user direct access to the Package itself.
+	(ii)  a license that permits the licensee to freely copy,
+	modify and redistribute the Modified Version using the same
+	licensing terms that apply to the copy that the licensee
+	received, and requires that the Source form of the Modified
+	Version, and of any works derived from it, be made freely
+	available in that license fees are prohibited but Distributor
+	Fees are allowed.
 
 
-        Items That are Never Considered Part of a Modified Version Package
+Distribution of Compiled Forms of the Standard Version 
+or Modified Versions without the Source
 
-  (9) Works (including, but not limited to, subroutines and scripts) that
-      you have linked or aggregated with the Package that merely extend or
-      make use of the Package, but are not intended to cause the Package to
-      operate differently from the Standard Version, do not, by themselves,
-      cause the Package to be a Modified Version.  In addition, such works
-      are not considered parts of the Package itself, and are not bound by
-      the terms of the Package's license.
+(5)  You may Distribute Compiled forms of the Standard Version without
+the Source, provided that you include complete instructions on how to
+get the Source of the Standard Version.  Such instructions must be
+valid at the time of your distribution.  If these instructions, at any
+time while you are carrying out such distribution, become invalid, you
+must provide new instructions on demand or cease further distribution.
+If you provide valid instructions or cease distribution within thirty
+days after you become aware that the instructions are invalid, then
+you do not forfeit any of your rights under this license.
 
-
-              Acceptance of License and Disclaimer of Warranty
-
- (10) You are not required to accept this License, since you have not signed
-      it.  However, nothing else grants you permission to copy, modify or
-      distribute the Standard or Modified Versions of the Package.  These
-      actions are prohibited by copyright law if you do not accept this
-      License.  Therefore, by copying, modifying or distributing Standard
-      and Modified Versions of the Package, you indicate your acceptance of
-      the license of the Package.
+(6)  You may Distribute a Modified Version in Compiled form without
+the Source, provided that you comply with Section 4 with respect to
+the Source of the Modified Version.
 
 
- (11) Disclaimer of Warranty:
+Aggregating or Linking the Package 
 
-       THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-       "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-       LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-       A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT UNLESS REQUIRED BY
-       LAW OR AGREED TO IN WRITING WILL ANY COPYRIGHT HOLDER OR CONTRIBUTOR
-       BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
-       OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
-       OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, PROFITS; OR
-       BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-       WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-       OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-       EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+(7)  You may aggregate the Package (either the Standard Version or
+Modified Version) with other packages and Distribute the resulting
+aggregation provided that you do not charge a licensing fee for the
+Package.  Distributor Fees are permitted, and licensing fees for other
+components in the aggregation are permitted. The terms of this license
+apply to the use and Distribution of the Standard or Modified Versions
+as included in the aggregation.
+
+(8) You are permitted to link Modified and Standard Versions with
+other works, to embed the Package in a larger work of your own, or to
+build stand-alone binary or bytecode versions of applications that
+include the Package, and Distribute the result without restriction,
+provided the result does not expose a direct interface to the Package.
+
+
+Items That are Not Considered Part of a Modified Version 
+
+(9) Works (including, but not limited to, modules and scripts) that
+merely extend or make use of the Package, do not, by themselves, cause
+the Package to be a Modified Version.  In addition, such works are not
+considered parts of the Package itself, and are not subject to the
+terms of this license.
+
+
+General Provisions
+
+(10)  Any use, modification, and distribution of the Standard or
+Modified Versions is governed by this Artistic License. By using,
+modifying or distributing the Package, you accept this license. Do not
+use, modify, or distribute the Package, if you do not accept this
+license.
+
+(11)  If your Modified Version has been derived from a Modified
+Version made by someone other than you, you are nevertheless required
+to ensure that your Modified Version complies with the requirements of
+this license.
+
+(12)  This license does not grant you the right to use any trademark,
+service mark, tradename, or logo of the Copyright Holder.
+
+(13)  This license includes the non-exclusive, worldwide,
+free-of-charge patent license to make, have made, use, offer to sell,
+sell, import and otherwise transfer the Package with respect to any
+patent claims licensable by the Copyright Holder that are necessarily
+infringed by the Package. If you institute patent litigation
+(including a cross-claim or counterclaim) against any party alleging
+that the Package constitutes direct or contributory patent
+infringement, then this Artistic License to you shall terminate on the
+date that such litigation is filed.
+
+(14)  Disclaimer of Warranty:
+THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS
+IS' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
+NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL
+LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT HOLDER OR CONTRIBUTOR WILL
+BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES ARISING IN ANY WAY OUT OF THE USE OF THE PACKAGE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
