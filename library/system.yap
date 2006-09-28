@@ -217,15 +217,15 @@ make_directory(Dir) :-
 	var(Dir), !,
 	throw(error(instantiation_error,mkdir(Dir))).
 make_directory(IDir) :-
-	atom(Dir), !,
+	atom(IDir), !,
 	true_file_name(IDir, Dir),
 	mkdir(Dir,Error),
-	handle_system_error(Error, off, mkdir(Dir)).
+	handle_system_error(Error, off, mkdir(IDir)).
 make_directory(Dir) :-
 	throw(error(type_error(atom,Dir),make_directory(Dir))).
 
 rename_file(IOld, New) :-
-	atom(Old), atom(New), !,
+	atom(IOld), atom(New), !,
 	true_file_name(IOld,Old),
 	rename_file(Old, New, Error),
 	handle_system_error(Error, off, rename_file(Old, New)).
