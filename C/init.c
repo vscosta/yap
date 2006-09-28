@@ -875,7 +875,7 @@ InitCodes(void)
   Yap_heap_regs->terms_module = MkAtomTerm(Yap_LookupAtom("terms"));
   Yap_heap_regs->system_module = MkAtomTerm(Yap_LookupAtom("system"));
   Yap_heap_regs->readutil_module = MkAtomTerm(Yap_LookupAtom("readutil"));
-  Yap_heap_regs->readutil_module = MkAtomTerm(Yap_LookupAtom("nb"));
+  Yap_heap_regs->globals_module = MkAtomTerm(Yap_LookupAtom("nb"));
   Yap_InitModules();
 #ifdef BEAM
   Yap_heap_regs->beam_retry_code.opc = Yap_opcode(_retry_eam);

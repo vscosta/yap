@@ -43,13 +43,13 @@ findall(Template, Generator, Answers, SoFar) :-
 % starts by calling the generator,
 % and recording the answers
 '$findall'(Template, Generator, SoFar, Answers) :-
-	nb_queue(Ref),
+	nb:nb_queue(Ref),
 	(
 	  '$execute'(Generator),
-	  nb_queue_enqueue(Ref, Template),
+	  nb:nb_queue_enqueue(Ref, Template),
 	  fail
 	;
-	  nb_queue_close(Ref, Answers, SoFar)
+	  nb:nb_queue_close(Ref, Answers, SoFar)
 	).
 
 
@@ -58,13 +58,13 @@ findall(Template, Generator, Answers, SoFar) :-
 % algorithm to guarantee that variables will have the same names.
 %
 '$findall_with_common_vars'(Template, Generator, Answers) :-
-	nb_queue(Ref),
+	nb:nb_queue(Ref),
 	(
 	  '$execute'(Generator),
-	  nb_queue_enqueue(Ref, Template),
+	  nb:nb_queue_enqueue(Ref, Template),
 	  fail
 	;
-	  nb_queue_close(Ref, Answers, []),
+	  nb:nb_queue_close(Ref, Answers, []),
 	  '$collect_with_common_vars'(Answers, _)
 	).
 
