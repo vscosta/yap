@@ -17,15 +17,22 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
-Last rev: $Id: prologterms2c.c,v 1.3 2006-06-04 19:02:07 nunofonseca Exp $
+Last rev: $Id: prologterms2c.c,v 1.4 2006-09-28 11:42:51 vsc Exp $
 Comments: This file provides a set of functions to convert a prolog term to a C string and back.
 */
+#include "config.h"
 #include "prologterms2c.h"
 #include <stdio.h>
 #include <stdlib.h>
+#if HAVE_STRING_H
 #include <string.h>
+#endif
+#if HAVE_STDARG_H
 #include <stdarg.h>
+#endif
+#if HAVE_MALLOC_H
 #include <malloc.h>
+#endif
 
 #ifdef COMPRESS
 #include "minilzo.h"

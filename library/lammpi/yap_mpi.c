@@ -17,16 +17,26 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
-Last rev: $Id: yap_mpi.c,v 1.3 2006-06-04 19:02:07 nunofonseca Exp $
+Last rev: $Id: yap_mpi.c,v 1.4 2006-09-28 11:42:51 vsc Exp $
 Comments: YAP interface to LAM/MPI
 */
+#include "config.h"
 #include <stdlib.h>
 #include <stdio.h>
+#if HAVE_STRING_H
 #include <string.h>
+#endif
+#if HAVE_MALLOC_H
 #include <malloc.h>
+#endif
+#if HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#if HAVE_SYS_TIMES_H
 #include <sys/times.h>
+#endif
 
+#if HAVE_MPI_H
 #include <mpi.h>
 
 #include "prologterms2c.h"
@@ -1008,3 +1018,5 @@ init_mpi(void) {
   fflush(stderr);
 #endif
 }
+
+#endif /* HAVE_MPI_H */

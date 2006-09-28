@@ -912,14 +912,8 @@ if test "$yap_cv_readline" != "no"
 then
   AC_CHECK_HEADERS( readline/readline.h)
 fi
-if test "$yap_cv_mpi" != "no"
-then
-  AC_CHECK_HEADERS(mpi.h)
-fi
-if test "$yap_cv_mpe" != "no"
-then
-  AC_CHECK_HEADERS(mpe.h)
-fi
+AC_CHECK_HEADERS(mpi.h)
+AC_CHECK_HEADERS(mpe.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
