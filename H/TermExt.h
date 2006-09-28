@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h,v 1.11 2006-08-23 12:12:14 vsc Exp $	 *
+* version:      $Id: TermExt.h,v 1.12 2006-09-28 16:15:54 vsc Exp $	 *
 *************************************************************************/
 
 #ifdef USE_SYSTEM_MALLOC
@@ -267,9 +267,11 @@ IsLongIntTerm (Term t)
 
 #else
 
+typedef UInt mp_limb_t;
+
 typedef struct {
-  UInt _size, _mp_alloc;
-  void *_mp_d;
+  int _mp_size, _mp_alloc;
+  mp_limb_t *_mp_d;
 } MP_INT;
 
 #endif
@@ -501,9 +503,11 @@ unify_extension (Functor f, CELL d0, CELL * pt0, CELL d1)
       return (d0 == d1);
     case long_int_e:
       return (pt0[1] == RepAppl (d1)[1]);
-#ifdef USE_GMP
     case big_int_e:
+#ifdef USE_GMP
       return (mpz_cmp (Yap_BigIntOfTerm (d0), Yap_BigIntOfTerm (d1)) == 0);
+#else
+      return d0 == d1;
 #endif /* USE_GMP */
     case double_e:
       {

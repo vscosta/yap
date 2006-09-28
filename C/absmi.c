@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-09-20 20:03:51 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-09-28 16:15:54 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.204  2006/09/20 20:03:51  vsc
+* improve indexing on floats
+* fix sending large lists to DB
+*
 * Revision 1.203  2006/08/07 18:51:44  vsc
 * fix garbage collector not to try to garbage collect when we ask for large
 * chunks of stack in a single go.
@@ -8305,9 +8309,7 @@ Yap_absmi(int inp)
 	if (IsExtensionFunctor(f0)) {
 	  switch ((CELL)f0) {
 	  case (CELL)FunctorLongInt:
-#ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
-#endif
 	    PREG = NEXTOP(PREG, xF);
 	    GONext();
 	  default:
