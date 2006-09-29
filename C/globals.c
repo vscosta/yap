@@ -265,14 +265,22 @@ GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity)
   if (size < 4096) {
     size = 4096;
   }
-  if (pt == H && ArenaPt(arena) >= B->cp_h) {
+  if (pt == H) {
+    choiceptr b_ptr;
     if (H+size > ASP-1024) {
+
       XREGS[arity+1] = arena;
       if (!Yap_gcl(size*sizeof(CELL), arity+1, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;
       }
       arena = XREGS[arity+1];
+    }
+    /* adjust possible back pointers in choice-point stack */
+    b_ptr = B;
+    while (b_ptr->cp_h == H) {
+      b_ptr->cp_h += size;
+      b_ptr = b_ptr->cp_b;
     }
     H += size;
   } else {
