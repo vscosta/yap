@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-10-10 14:08:15 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-10-10 20:21:42 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.206  2006/10/10 14:08:15  vsc
+* small fixes on threaded implementation.
+*
 * Revision 1.205  2006/09/28 16:15:54  vsc
 * make GMPless version compile.
 *
@@ -2157,13 +2160,16 @@ Yap_absmi(int inp)
 		LOCK(cl->ClLock);
 		DEC_CLREF_COUNT(cl);
 		cl->ClFlags &= ~InUseMask;
-		erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
+		erase = (cl->ClFlags & (DirtyMask|ErasedMask)) && !(cl->ClRefCount);
 		UNLOCK(cl->ClLock);
 		if (erase) {
 		  /* at this point, we are the only ones accessing the clause,
 		     hence we don't need to have a lock it */
 		  saveregs();
-		  Yap_ErLogUpdIndex(cl);
+		  if (cl->ClFlags & ErasedMask) 
+		    Yap_ErLogUpdIndex(cl);
+		  else
+		    Yap_CleanUpIndex(cl);
 		  setregs();
 		}
 	      } else {

@@ -3625,6 +3625,31 @@ static UInt
 index_sz(LogUpdIndex *x)
 {
   UInt sz = x->ClSize;
+  yamop *start = x->ClCode;
+  op_numbers op = Yap_op_from_opcode(start->opc);
+
+  /* add try-retry-trust children */
+  while (op == _jump_if_nonvar) {
+    start = NEXTOP(start, xll);
+    op = Yap_op_from_opcode(start->opc);
+  }
+  if (op == _enter_lu_pred) {
+    PredEntry *ap = x->ClPred;
+    OPCODE endop, op1;
+
+    if (ap->PredFlags & CountPredFlag)
+      endop = Yap_opcode(_count_trust_logical);
+    else if (ap->PredFlags & ProfiledPredFlag)
+      endop = Yap_opcode(_profiled_trust_logical);
+    else
+      endop = Yap_opcode(_trust_logical);
+    start = start->u.Ill.l1;
+    do {
+      sz += (UInt)NEXTOP((yamop*)NULL,lld);
+      op1 = start->opc;
+      start = start->u.lld.n;
+    } while (op1 != endop);
+  }
   x = x->ChildIndex;
   while (x != NULL) {
     sz += index_sz(x);
@@ -3676,7 +3701,7 @@ p_key_statistics(void)
   if ((pe = find_lu_entry(twork)) != NULL) {
     return lu_statistics(pe);
   }
-  if (EndOfPAEntr(p = FetchDBPropFromKey(twork, 0, TRUE, "key_statistics/3"))) {
+  if (EndOfPAEntr(p = FetchDBPropFromKey(twork, 0, TRUE, "key_statistics/4"))) {
     /* This is not a key property */
     return(FALSE);
   }
@@ -3696,6 +3721,32 @@ p_key_statistics(void)
     Yap_unify(ARG3,MkIntegerTerm(sz)) &&
     Yap_unify(ARG4,MkIntTerm(0));
 }
+
+static Int
+p_lu_statistics(void)
+{
+  Term t = Deref(ARG1);
+  Term mod = Deref(ARG5);
+  PredEntry *pe;
+  if (IsVarTerm(t)) {
+    return (FALSE);
+  } else if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(Yap_GetPredPropByAtom(at, mod));
+  } else if (IsApplTerm(t)) {
+    Functor         fun = FunctorOfTerm(t);
+    pe = RepPredProp(Yap_GetPredPropByFunc(fun, mod));
+  } else
+    return FALSE;
+  if (pe == NIL)
+    return FALSE;
+  if (!(pe->PredFlags & LogUpdatePredFlag)) {
+    /* should use '$recordedp' in this case */
+    return FALSE;
+  }
+  return lu_statistics(pe);
+}
+
 
 #ifdef DEBUG
 static Int
@@ -3725,18 +3776,13 @@ p_total_erased(void)
 }
 
 static Int
-p_key_erased_statistics(void)
+lu_erased_statistics(PredEntry *pe)
 {
   UInt sz = 0, cls = 0;
   UInt isz = 0, icls = 0;
-  Term twork = Deref(ARG1);
-  PredEntry *pe;
   LogUpdClause *cl = DBErasedList;
   LogUpdIndex *icl = DBErasedIList;
 
-  /* only for log upds */
-  if ((pe = find_lu_entry(twork)) == NULL) 
-    return FALSE;
   while (cl) {
     if (cl->ClPred == pe) {
       cls++;
@@ -3756,6 +3802,18 @@ p_key_erased_statistics(void)
     Yap_unify(ARG3,MkIntegerTerm(sz)) &&
     Yap_unify(ARG4,MkIntegerTerm(icls)) &&
     Yap_unify(ARG5,MkIntegerTerm(isz));
+}
+
+static Int
+p_key_erased_statistics(void)
+{
+  Term twork = Deref(ARG1);
+  PredEntry *pe;
+
+  /* only for log upds */
+  if ((pe = find_lu_entry(twork)) == NULL) 
+    return FALSE;
+  return lu_erased_statistics(pe);
 }
 
 static Int
@@ -5190,6 +5248,7 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("$fetch_reference_from_index", 3, p_fetch_reference_from_index, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$resize_int_keys", 1, p_resize_int_keys, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("key_statistics", 4, p_key_statistics, SyncPredFlag);
+  Yap_InitCPred("$lu_statistics", 5, p_lu_statistics, SyncPredFlag);
 #ifdef DEBUG
   Yap_InitCPred("total_erased", 4, p_total_erased, SyncPredFlag);
   Yap_InitCPred("key_erased_statistics", 5, p_key_erased_statistics, SyncPredFlag);

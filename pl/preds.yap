@@ -836,15 +836,17 @@ predicate_property(Pred,Prop) :-
 
 predicate_statistics(V,NCls,Sz,ISz) :- var(V), !,
 	'$do_error'(instantiation_error,predicate_statistics(V,NCls,Sz,ISz)).
-predicate_statistics(M:P,NCls,Sz,ISz) :-
+predicate_statistics(M:P,NCls,Sz,ISz) :- !,
 	'$predicate_statistics'(P,M,NCls,Sz,ISz).
 predicate_statistics(P,NCls,Sz,ISz) :-
 	'$current_module'(M),
 	'$predicate_statistics'(P,M,NCls,Sz,ISz).
 
+'$predicate_statistics'(M:P,_,NCls,Sz,ISz) :- !,
+	'$predicate_statistics'(P,M,NCls,Sz,ISz).
 '$predicate_statistics'(P,M,NCls,Sz,ISz) :-
-	'$is_dynamic'(P, M), !,
-	'$key_statistics'(M:P,NCls,Sz,ISz).
+	'$is_log_updatable'(P, M), !,
+	'$lu_statistics'(P,NCls,Sz,ISz,M).
 '$predicate_statistics'(P,M,_,_,_) :-
 	'$system_predicate'(P,M), !, fail.
 '$predicate_statistics'(P,M,_,_,_) :-
