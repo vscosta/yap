@@ -186,7 +186,7 @@ NewArena(UInt size, UInt arity, CELL *where)
 {
   Term t;
 
-  if (where == NULL) {
+  if (where == NULL || where == H) {
     while (H+size > ASP-1024) {
       if (!Yap_gcl(size*sizeof(CELL), arity, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
@@ -827,7 +827,7 @@ FindGlobalEntry(Atom at)
     GlobalEntry *pe = RepGlobalProp(p0);
     if ( pe->KindOfPE == GlobalProperty
 #if THREADS
-	 && pe->owner_id == current_thread
+	 && pe->owner_id == worker_id
 #endif
 	 ) {
       READ_UNLOCK(ae->ARWLock);
@@ -853,7 +853,7 @@ GetGlobalEntry(Atom at)
     GlobalEntry *pe = RepGlobalProp(p0);
     if ( pe->KindOfPE == GlobalProperty
 #if THREADS
-	 && pe->owner_id == current_thread
+	 && pe->owner_id == worker_id
 #endif
 	 ) {
       WRITE_UNLOCK(ae->ARWLock);
@@ -865,7 +865,7 @@ GetGlobalEntry(Atom at)
   INIT_RWLOCK(new->GRWLock);
   new->KindOfPE = GlobalProperty;
 #if THREADS
-  new->owner_id = current_thread;
+  new->owner_id = worker_id;
 #endif
   new->NextGE = GlobalVariables;
   GlobalVariables = new;

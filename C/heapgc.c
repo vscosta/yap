@@ -1877,7 +1877,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	op = rtp->opc;
 	opnum = Yap_op_from_opcode(op);
 	goto restart_cp;
-      case _trust_logical_pred:
       case _retry_profiled:
       case _count_retry:
 	rtp = NEXTOP(rtp,l); 
@@ -2013,6 +2012,19 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	break;
       case _retry4:
 	nargs = 4;
+	break;
+      case _try_logical:
+      case _retry_logical:
+      case _count_retry_logical:
+      case _profiled_retry_logical:
+	/* mark timestamp */
+	nargs = rtp->u.lld.t.s+1;
+	break;
+      case _trust_logical:
+      case _count_trust_logical:
+      case _profiled_trust_logical:
+	/* mark timestamp */
+	nargs = rtp->u.lld.d->ClPred->ArityOfPE+1;
 	break;
 #ifdef DEBUG
       case _retry_me:
@@ -2296,7 +2308,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 		if (erase) {
 		  /* at this point, 
 		     no one is accessing the clause */
-		  Yap_ErLogUpdIndex(indx, NULL);
+		  Yap_ErLogUpdIndex(indx);
 		}
 	      } else {
 		LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt0);
@@ -2619,7 +2631,6 @@ sweep_choicepoints(choiceptr gc_B)
 #endif
 			 );
       break;
-    case _trust_logical_pred:
     case _retry_profiled:
     case _count_retry:
       rtp = NEXTOP(rtp,l);
@@ -2801,6 +2812,18 @@ sweep_choicepoints(choiceptr gc_B)
       }
       break;
 #endif /* TABLING */
+    case _try_logical:
+    case _retry_logical:
+    case _count_retry_logical:
+    case _profiled_retry_logical:
+	/* sweep timestamp */
+      sweep_b(gc_B, rtp->u.lld.t.s+1);
+      break;
+    case _trust_logical:
+    case _count_trust_logical:
+    case _profiled_trust_logical:
+      sweep_b(gc_B, rtp->u.lld.d->ClPred->ArityOfPE+1);
+      break;
     case _retry2:
       sweep_b(gc_B, 2);
       break;

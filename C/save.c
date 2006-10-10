@@ -1624,13 +1624,16 @@ UnmarkTrEntries(void)
       flags = *ent;
       ResetFlag(InUseMask, flags);
       *ent = flags;
-      if (FlagOn(ErasedMask, flags)) {
+      if (FlagOn((DirtyMask|ErasedMask), flags)) {
 	if (FlagOn(DBClMask, flags)) {
 	  Yap_ErDBE(DBStructFlagsToDBStruct(ent));
 	} else {
 	  if (flags & LogUpdMask) {
 	    if (flags & IndexMask) {
-	      Yap_ErLogUpdIndex(ClauseFlagsToLogUpdIndex(ent), NULL);
+	      if (FlagOn(ErasedMask, flags))
+		Yap_ErLogUpdIndex(ClauseFlagsToLogUpdIndex(ent));
+	      else
+		Yap_CleanUpIndex(ClauseFlagsToLogUpdIndex(ent));		
 	    } else {
 	      Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(ent));
 	    }

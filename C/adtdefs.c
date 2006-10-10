@@ -538,6 +538,8 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE; 
+  p->TimeStampOfPred = 0L; 
+  p->LastCallOfPred = LUCALL_ASSERT; 
   if (cur_mod == TermProlog)
     p->ModuleOfPred = 0L;
   else
@@ -595,6 +597,8 @@ Yap_NewThreadPred(PredEntry *ap)
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE; 
   p->ModuleOfPred = ap->ModuleOfPred;
   p->NextPredOfModule = NULL;
+  p->TimeStampOfPred = 0L; 
+  p->LastCallOfPred = LUCALL_ASSERT; 
   INIT_LOCK(p->StatisticsForPred.lock);
   p->StatisticsForPred.NOfEntries = 0;
   p->StatisticsForPred.NOfHeadSuccesses = 0;
@@ -650,6 +654,8 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   p->StatisticsForPred.NOfEntries = 0;
   p->StatisticsForPred.NOfHeadSuccesses = 0;
   p->StatisticsForPred.NOfRetries = 0;
+  p->TimeStampOfPred = 0L; 
+  p->LastCallOfPred = LUCALL_ASSERT; 
 #ifdef TABLING
   p->TableOfPred = NULL;
 #endif /* TABLING */

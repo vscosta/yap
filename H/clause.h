@@ -78,13 +78,18 @@ typedef struct logic_upd_clause {
   struct logic_upd_clause   *ClPrev, *ClNext;
   /* parent pointer */
   PredEntry   *ClPred;
-  /*
-    support for timers, stalled for now.
   UInt             ClTimeStart, ClTimeEnd;
-  */
   /* The instructions, at least one of the form sl */
   yamop            ClCode[MIN_ARRAY];
 } LogUpdClause;
+
+inline EXTERN int VALID_TIMESTAMP(UInt, struct logic_upd_clause *);
+
+inline EXTERN int
+VALID_TIMESTAMP(UInt timestamp, struct logic_upd_clause *cl)
+{
+  return IN_BETWEEN(cl->ClTimeStart, timestamp, cl->ClTimeEnd);
+}
 
 typedef struct dynamic_clause {
   /* A set of flags describing info on the clause */
@@ -198,7 +203,7 @@ ClauseUnion *STD_PROTO(Yap_find_owner_index,(yamop *, PredEntry *));
 /* dbase.c */
 void	STD_PROTO(Yap_ErCl,(DynamicClause *));
 void	STD_PROTO(Yap_ErLogUpdCl,(LogUpdClause *));
-yamop  *STD_PROTO(Yap_ErLogUpdIndex,(LogUpdIndex *, yamop *));
+void    STD_PROTO(Yap_ErLogUpdIndex,(LogUpdIndex *));
 Int	STD_PROTO(Yap_Recordz,(Atom, Term));
 
 /* exec.c */
@@ -207,7 +212,7 @@ Term    STD_PROTO(Yap_cp_as_integer,(choiceptr));
 /* index.c */
 yamop   *STD_PROTO(Yap_PredIsIndexable,(PredEntry *, UInt));
 yamop   *STD_PROTO(Yap_ExpandIndex,(PredEntry *, UInt));
-yamop   *STD_PROTO(Yap_CleanUpIndex,(struct logic_upd_index *));
+void     STD_PROTO(Yap_CleanUpIndex,(struct logic_upd_index *));
 void     STD_PROTO(Yap_AddClauseToIndex,(PredEntry *,yamop *,int));
 void     STD_PROTO(Yap_RemoveClauseFromIndex,(PredEntry *,yamop *));
 LogUpdClause  *STD_PROTO(Yap_NthClause,(PredEntry *,Int));

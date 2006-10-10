@@ -8,8 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.28 2006-05-25 16:28:28 vsc Exp $									 *
+* $Id: sys.c,v 1.29 2006-10-10 14:08:17 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.28  2006/05/25 16:28:28  vsc
+* mods:		include thread_sleep functionality.
+* mods:		
 * mods:		Revision 1.27  2006/05/17 18:38:11  vsc
 * mods:		make system library use true file name
 * mods:		
@@ -80,6 +83,9 @@
 #endif
 #if HAVE_FCNTL_H
 #include <fcntl.h>
+#endif
+#if HAVE_MATH_H
+#include <math.h>
 #endif
 #if HAVE_UNISTD_H
 #include <unistd.h>

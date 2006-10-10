@@ -1801,6 +1801,14 @@ new_lu_db_entry(Term t, PredEntry *pe)
   cl->ClExt = NULL;
   cl->ClPrev = cl->ClNext = NULL;
   cl->ClSize = ((CODEADDR)&(x->Contents)-(CODEADDR)cl)+x->NOfCells*sizeof(CELL);
+  /* Support for timestamps */
+  if (pe->LastCallOfPred != LUCALL_ASSERT) {
+    ++pe->TimeStampOfPred;
+    /*  fprintf(stderr,"+ %x--%d--%ul\n",pe,pe->TimeStampOfPred,pe->ArityOfPE);*/
+    pe->LastCallOfPred = LUCALL_ASSERT;
+  }
+  cl->ClTimeStart = pe->TimeStampOfPred;
+  cl->ClTimeEnd = ~0L; 
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(cl->ClLock);
   INIT_CLREF_COUNT(cl);
@@ -4009,6 +4017,20 @@ EraseLogUpdCl(LogUpdClause *clau)
     /* we are holding a reference to the clause */
     clau->ClRefCount++;
     if (ap) {
+      /* mark it as erased */
+      if (ap->LastCallOfPred != LUCALL_RETRACT) {
+	if (ap->cs.p_code.NOfClauses > 1) {
+	  ++ap->TimeStampOfPred;
+	  /*	  fprintf(stderr,"- %x--%d--%ul\n",ap,ap->TimeStampOfPred,ap->ArityOfPE);*/
+	  ap->LastCallOfPred = LUCALL_RETRACT;
+	} else {
+	  /* OK, there's noone left */
+	  ap->TimeStampOfPred = 0L;
+	/*	  fprintf(stderr,"- %x--%d--%ul\n",ap,ap->TimeStampOfPred,ap->ArityOfPE);*/
+	  ap->LastCallOfPred = LUCALL_ASSERT;
+	}
+      }
+      clau->ClTimeEnd = ap->TimeStampOfPred;
       UNLOCK(clau->ClLock);
       Yap_RemoveClauseFromIndex(ap, clau->ClCode);
       /* release the extra reference */

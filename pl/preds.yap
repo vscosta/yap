@@ -329,19 +329,20 @@ clause(V,Q,R) :-
 	      clause(M:P,Q,R)).
 
 % just create a choice-point
-'$do_log_upd_clause'(_,_,_,_,_).
-'$do_log_upd_clause'(A,B,C,D,E) :-
+% the 6th argument marks the time-stamp.
+'$do_log_upd_clause'(_,_,_,_,_,_).
+'$do_log_upd_clause'(A,B,C,D,E,_) :-
 	'$continue_log_update_clause'(A,B,C,D,E).
-'$do_log_upd_clause'(_,_,_,_,_).
+'$do_log_upd_clause'(_,_,_,_,_,_).
 
-:- '$do_log_upd_clause'(_,_,_,_,_), !.
+:- '$do_log_upd_clause'(_,_,_,_,_,_), !.
 
-'$do_log_upd_clause'(_,_,_,_).
-'$do_log_upd_clause'(A,B,C,D) :-
+'$do_log_upd_clause0'(_,_,_,_,_,_).
+'$do_log_upd_clause0'(A,B,C,D,_,_) :-
 	'$continue_log_update_clause'(A,B,C,D).
-'$do_log_upd_clause'(_,_,_,_).
+'$do_log_upd_clause0'(_,_,_,_,_,_).
 
-:- '$do_log_upd_clause'(_,_,_,_), !.
+:- '$do_log_upd_clause0'(_,_,_,_,_,_), !.
 
 '$do_static_clause'(_,_,_,_,_).
 '$do_static_clause'(A,B,C,D,E) :-

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.105 2006-09-20 20:03:51 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.106 2006-10-10 14:08:17 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -165,10 +165,6 @@ typedef struct worker_local_struct {
   struct global_entry *global_variables;
   Term global_arena;
   Term global_delay_arena;
-  UInt local_timestamp;
-#if defined(YAPOR) || defined(THREADS)
-  lockvar  local_timestamp_lock;
-#endif
   yamop trust_lu_code[3];
 } worker_local;
 
@@ -216,10 +212,6 @@ typedef struct various_codes {
   worker_local wl[MAX_WORKERS];
 #else
   worker_local wl;
-#endif
-  UInt global_timestamp;
-#if defined(YAPOR) || defined(THREADS)
-  lockvar  global_timestamp_lock;
 #endif
 #ifdef BEAM
   yamop beam_retry_code;
@@ -570,8 +562,6 @@ struct various_codes *Yap_heap_regs;
 #define  HeapMax                 Yap_heap_regs->heap_max
 #define  HeapTop                 Yap_heap_regs->heap_top
 #define  HeapLim                 Yap_heap_regs->heap_lim
-#define  GlobalTimeStamp         Yap_heap_regs->global_timestamp
-#define  GlobalTimeStampLock     Yap_heap_regs->global_timestamp_lock
 #ifdef YAPOR
 #define  SEQUENTIAL_IS_DEFAULT   Yap_heap_regs->seq_def
 #define  GETWORK		 (&(Yap_heap_regs->getwork_code))
@@ -903,8 +893,6 @@ struct various_codes *Yap_heap_regs;
 #define  GlobalVariables          Yap_heap_regs->WL.global_variables
 #define  GlobalArena              Yap_heap_regs->WL.global_arena
 #define  GlobalDelayArena         Yap_heap_regs->WL.global_delay_arena
-#define  LocalTimeStamp           Yap_heap_regs->WL.local_timestamp
-#define  LocalTimeStampLock       Yap_heap_regs->WL.local_timestamp_lock
 #define  profiling                Yap_heap_regs->compiler_profiling
 #define  call_counting            Yap_heap_regs->compiler_call_counting
 #define  compile_arrays           Yap_heap_regs->compiler_compile_arrays

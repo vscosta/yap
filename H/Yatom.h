@@ -603,6 +603,12 @@ typedef struct
 #endif
 } profile_data;
 
+typedef enum {
+  LUCALL_EXEC,
+  LUCALL_ASSERT,
+  LUCALL_RETRACT
+} timestamp_type;
+
 typedef struct pred_entry
 {
   Prop NextOfPE;		/* used to chain properties             */
@@ -642,6 +648,8 @@ typedef struct pred_entry
   struct Predicates *beamTable;
 #endif
   Term ModuleOfPred;		/* module for this definition           */
+  UInt TimeStampOfPred;
+  timestamp_type LastCallOfPred; 
   /* This must be at an odd number of cells, otherwise it
      will not be aligned on RISC machines */
   profile_data StatisticsForPred;	/* enable profiling for predicate  */
@@ -721,7 +729,8 @@ typedef enum
   DBClMask = 0x0800,		/* informs this is a data base structure */
   LogUpdRuleMask = 0x0400,	/* informs the code is for a log upd rule with env */
   LogUpdMask = 0x0200,		/* informs this is a logic update index. */
-  StaticMask = 0x0100		/* dealing with static predicates */
+  StaticMask = 0x0100,		/* dealing with static predicates */
+  DirtyMask = 0x0080		/* LUIndices  */
 /* other flags belong to DB */
 } dbentry_flags;
 

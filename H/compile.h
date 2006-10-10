@@ -246,6 +246,8 @@ typedef struct intermediates {
   yamop *expand_block;
   UInt  i_labelno;
   /* for expanding code */
+  yamop **current_try_lab;
+  yamop *try_instructions;
   union { 
     struct static_index *si;
     struct logic_upd_index *lui;

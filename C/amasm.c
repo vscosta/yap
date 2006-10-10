@@ -11,8 +11,12 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2006-09-20 20:03:51 $							 *
+* Last rev:     $Date: 2006-10-10 14:08:16 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.88  2006/09/20 20:03:51  vsc
+* improve indexing on floats
+* fix sending large lists to DB
+*
 * Revision 1.87  2006/03/24 17:13:41  rslopes
 * New update to BEAM engine.
 * BEAM now uses YAP Indexing (JITI)
@@ -174,7 +178,6 @@ STATIC_PROTO(Functor emit_f, (CELL));
 STATIC_PROTO(CELL emit_c, (CELL));
 STATIC_PROTO(COUNT emit_count, (CELL));
 STATIC_PROTO(OPCODE emit_op, (op_numbers));
-STATIC_PROTO(yamop *a_cl, (op_numbers, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_cle, (op_numbers, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_e, (op_numbers, yamop *, int));
 STATIC_PROTO(yamop *a_ue, (op_numbers, op_numbers, yamop *, int));
@@ -200,13 +203,13 @@ STATIC_PROTO(yamop *a_hx, (op_numbers, union clause_obj *, int, yamop *, int, st
 STATIC_PROTO(yamop *a_if, (op_numbers, union clause_obj *, int, yamop *, int, struct intermediates *cip));
 STATIC_PROTO(yamop *a_cut, (clause_info *,yamop *, int, struct intermediates *));
 #ifdef YAPOR
-STATIC_PROTO(yamop *a_try, (op_numbers, CELL, CELL, *clause_info, int, int, yamop *, int));
+STATIC_PROTO(yamop *a_try, (op_numbers, CELL, CELL, int, int, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_either, (op_numbers, CELL, CELL, int, int, yamop *, int, struct intermediates *));
 #else
-STATIC_PROTO(yamop *a_try, (op_numbers, CELL, CELL, clause_info *, yamop *, int));
+STATIC_PROTO(yamop *a_try, (op_numbers, CELL, CELL, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_either, (op_numbers, CELL, CELL, yamop *,  int, struct intermediates *));
 #endif	/* YAPOR */
-STATIC_PROTO(yamop *a_gl, (op_numbers, clause_info *, yamop *, int, struct PSEUDO *));
+STATIC_PROTO(yamop *a_gl, (op_numbers, yamop *, int, struct PSEUDO *, struct intermediates *));
 STATIC_PROTO(yamop *a_bfunc, (CELL, clause_info *, yamop *, int, struct intermediates *));
 STATIC_PROTO(wamreg compile_cmp_flags, (char *));
 STATIC_PROTO(yamop *a_igl, (CELL, op_numbers, yamop *, int, struct intermediates *));
@@ -417,24 +420,12 @@ add_clref(CELL clause_code, int pass_no)
 }
 
 static yamop *
-a_cl(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
-{
-  if (pass_no) {
-    code_p->opc = emit_op(opcode);
-    code_p->u.l.l = cip->code_addr;
-  }
-  GONEXT(l);
-  return code_p;
-}
-
-static yamop *
-a_lucl(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
+a_lucl(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip, clause_info *cla)
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
     code_p->u.Ill.I = (LogUpdIndex *)cip->code_addr;
-    code_p->u.Ill.l1 = emit_ilabel(cip->cpc->rnd1, cip);
-    code_p->u.Ill.l2 = emit_ilabel(cip->cpc->rnd2, cip);
+    cip->current_try_lab = &code_p->u.Ill.l1;
     code_p->u.Ill.s  = cip->cpc->rnd3;
 #if defined(YAPOR) || defined(THREADS)
     code_p->u.Ill.p = cip->CurrentPred;
@@ -1678,11 +1669,61 @@ a_cut(clause_info *clinfo, yamop *code_p, int pass_no, struct intermediates *cip
 
 static yamop *
 #ifdef YAPOR
-a_try(op_numbers opcode, CELL lab, CELL opr, clause_info *clinfo, int nofalts, int hascut, yamop *code_p, int pass_no)
+a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *code_p, int pass_no, struct intermediates *cip)
 #else
-a_try(op_numbers opcode, CELL lab, CELL opr, clause_info *clinfo, yamop *code_p, int pass_no)
+  a_try(op_numbers opcode, CELL lab, CELL opr, yamop *code_p, int pass_no, struct intermediates *cip)
 #endif	/* YAPOR */
 {
+  PredEntry *ap = cip->CurrentPred;
+
+  /* if predicates are logical do it in a different way */
+  if (ap->PredFlags & LogUpdatePredFlag) {
+    yamop *newcp;
+    /* emit a special instruction and then a label for backpatching */
+    if (pass_no) {
+      UInt size = (UInt)NEXTOP((yamop *)NULL,lld);
+      if ((newcp = (yamop *)Yap_AllocCodeSpace(size)) == NULL) {
+	/* OOOPS, got in trouble, must do a longjmp and recover space */
+	save_machine_regs();
+	longjmp(cip->CompilerBotch,2);
+      }
+      if (opcode == try_op) {
+	/*
+	  use the last n field to keep a chain with all 
+	  try-retry-trust
+	  instructions allocated in this run
+	*/
+	newcp->u.lld.n = cip->try_instructions;
+	cip->try_instructions = newcp;
+      } else {
+	newcp->u.lld.n = *cip->current_try_lab;
+	*cip->current_try_lab = newcp;
+      }
+      if (opcode == _try_clause) {
+	newcp->opc = emit_op(_try_logical);
+	newcp->u.lld.t.s = emit_count(opr);
+      } else if (opcode == _retry) {
+	if (ap->PredFlags & CountPredFlag)
+	  newcp->opc = emit_op(_count_retry_logical);
+	else if (ap->PredFlags & ProfiledPredFlag)
+	  newcp->opc = emit_op(_profiled_retry_logical);
+	else
+	  newcp->opc = emit_op(_retry_logical);
+	newcp->u.lld.t.s = emit_count(opr);
+      } else {
+	if (ap->PredFlags & CountPredFlag)
+	  newcp->opc = emit_op(_count_trust_logical);
+	else if (ap->PredFlags & ProfiledPredFlag)
+	  newcp->opc = emit_op(_profiled_trust_logical);
+	else
+	  newcp->opc = emit_op(_trust_logical);
+	newcp->u.lld.t.block = (LogUpdIndex *)(cip->code_addr);
+      }
+      newcp->u.lld.d = ClauseCodeToLogUpdClause(emit_a(lab));
+      cip->current_try_lab = &(newcp->u.lld.n);
+    }
+    return code_p;
+  }
   switch (opr) {
   case 2:
     if (opcode == _try_clause) {
@@ -1737,15 +1778,15 @@ a_try(op_numbers opcode, CELL lab, CELL opr, clause_info *clinfo, yamop *code_p,
     code_p->opc = emit_op(opcode);
     code_p->u.ld.d = emit_a(lab);
     code_p->u.ld.s = emit_count(opr);
-    code_p->u.ld.p = clinfo->CurrentPred;
+    code_p->u.ld.p = ap;
 #ifdef TABLING
-    code_p->u.ld.te = clinfo->CurrentPred->TableOfPred;
+    code_p->u.ld.te = ap->TableOfPred;
 #endif
 #ifdef YAPOR
     INIT_YAMOP_LTT(code_p, nofalts);
     if (hascut)
       PUT_YAMOP_CUT(code_p);
-    if (clinfo->CurrentPred->PredFlags & SequentialPredFlag)
+    if (ap->PredFlags & SequentialPredFlag)
       PUT_YAMOP_SEQ(code_p);
 #endif /* YAPOR */
   }
@@ -1783,12 +1824,12 @@ a_either(op_numbers opcode, CELL opr, CELL lab, yamop *code_p, int pass_no, stru
 }
 
 static yamop *
-a_gl(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct PSEUDO *cpc)
+a_gl(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc, struct intermediates *cip)
 {
 #ifdef YAPOR
-  return a_try(opcode, cpc->rnd1, IPredArity, clinfo, cpc->rnd2 >> 1, cpc->rnd2 & 1, code_p, pass_no);
+  return a_try(opcode, cpc->rnd1, IPredArity, cpc->rnd2 >> 1, cpc->rnd2 & 1, code_p, pass_no, cip);
 #else
-  return a_try(opcode, cpc->rnd1, IPredArity, clinfo, code_p, pass_no);
+  return a_try(opcode, cpc->rnd1, IPredArity, code_p, pass_no, cip);
 #endif /* YAPOR */
 }
 
@@ -2548,11 +2589,11 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 }
 
 #ifdef YAPOR
-#define TRYCODE(G,P) a_try((G), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], IPredArity, &clinfo, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no)
-#define TABLE_TRYCODE(G) a_try((G), (CELL)emit_ilabel(cip->cpc->rnd1, cip), IPredArity, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no)
+#define TRYCODE(G,P) a_try((G), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], IPredArity, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no, cip)
+#define TABLE_TRYCODE(G) a_try((G), (CELL)emit_ilabel(cip->cpc->rnd1, cip), IPredArity, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no, cip)
 #else
-#define TRYCODE(G,P) a_try((G), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], IPredArity, &clinfo, code_p, pass_no)
-#define TABLE_TRYCODE(G) a_try((G), (CELL)emit_ilabel(cip->cpc->rnd1, cip), IPredArity, &clinfo, code_p, pass_no)
+#define TRYCODE(G,P) a_try((G), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], IPredArity, code_p, pass_no, cip)
+#define TABLE_TRYCODE(G) a_try((G), (CELL)emit_ilabel(cip->cpc->rnd1, cip), IPredArity, code_p, pass_no, cip)
 #endif /* YAPOR */
 
 static yamop *
@@ -2581,6 +2622,8 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
   clinfo.dealloc_found = FALSE;
   clinfo.commit_lab = 0L;
   clinfo.CurrentPred = cip->CurrentPred;
+  cip->current_try_lab = NULL;
+  cip->try_instructions = NULL;
   cmp_info.c_type = TYPE_XX;
   cmp_info.cl_info = &clinfo;
   do_not_optimise_uatom = FALSE;
@@ -2597,22 +2640,14 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->luc.ClRefCount = 0;
 	cl_u->luc.ClPred = cip->CurrentPred;
 	cl_u->luc.ClSize = size;
-	/*
-	  Support for timestamps, stalled for now.
-	if (cip->CurrentPred->PredFlags & ThreadLocalPredFlag) {
-	  LOCK(LocalTimeStampLock);
-	  cl_u->luc.ClTimeStart = LocalTimeStamp;
-	  LocalTimeStamp++;
-	  cl_u->luc.ClTimeEnd = LocalTimeStamp;
-	  UNLOCK(LocalTimeStampLock);
-	} else {
-	  LOCK(GlobalTimeStampLock);
-	  cl_u->luc.ClTimeStart = GlobalTimeStamp;
-	  GlobalTimeStamp++;
-	  cl_u->luc.ClTimeEnd = GlobalTimeStamp;
-	  UNLOCK(GlobalTimeStampLock);
+	/* Support for timestamps */
+	if (cip->CurrentPred->LastCallOfPred != LUCALL_ASSERT) {
+	  ++cip->CurrentPred->TimeStampOfPred;
+	  /* fprintf(stderr,"+ %x--%d--%ul\n",cip->CurrentPred,cip->CurrentPred->TimeStampOfPred,cip->CurrentPred->ArityOfPE);*/
+	  cip->CurrentPred->LastCallOfPred = LUCALL_ASSERT;
 	}
-	*/
+	cl_u->luc.ClTimeStart = cip->CurrentPred->TimeStampOfPred;
+	cl_u->luc.ClTimeEnd = ~0L; 
 	if (*clause_has_blobsp) {
 	  cl_u->luc.ClFlags |= HasBlobsMask;
 	}
@@ -2655,14 +2690,14 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     *entry_codep = code_p;
     if (tabled) {
 #if TABLING
-      code_p = a_try(_table_try_single, (CELL)NEXTOP(code_p,ld), IPredArity, &clinfo, code_p, pass_no);
+      code_p = a_try(_table_try_single, (CELL)NEXTOP(code_p,ld), IPredArity, code_p, pass_no, cip);
 #endif
     }
     if (dynamic) {
 #ifdef YAPOR
-      code_p = a_try(_try_me, 0, IPredArity, &clinfo, 1, 0, code_p, pass_no);
+      code_p = a_try(_try_me, 0, IPredArity, 1, 0, code_p, pass_no, cip);
 #else
-      code_p = a_try(_try_me, 0, IPredArity, &clinfo, code_p, pass_no);
+      code_p = a_try(_try_me, 0, IPredArity, code_p, pass_no, cip);
 #endif	/* YAPOR */
     }
   } else {
@@ -2711,7 +2746,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     switch ((int) cip->cpc->op) {
 #ifdef YAPOR
     case sync_op:
-      code_p = a_try(_sync, cip->cpc->rnd1, cip->cpc->rnd2, 1, Zero, code_p);
+      code_p = a_try(_sync, cip->cpc->rnd1, cip->cpc->rnd2, 1, Zero, cip);
       break;
 #endif /* YAPOR */
 #ifdef TABLING
@@ -2719,7 +2754,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_n(_table_new_answer, (int) cip->cpc->rnd2, code_p, pass_no);
       break;
     case table_try_single_op:
-      code_p = a_gl(_table_try_single, &clinfo, code_p, pass_no, cip->cpc);
+      code_p = a_gl(_table_try_single, code_p, pass_no, cip->cpc, cip);
       break;
 #endif /* TABLING */
 #ifdef TABLING_INNER_CUTS
@@ -2983,11 +3018,6 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	code_p = TRYCODE(_retry_me, _retry_me0);
       break;
     case trustme_op:
-      if (log_update &&
-	  (assembling == ASSEMBLING_INDEX ||
-	   assembling == ASSEMBLING_EINDEX)) {
-	code_p = a_cl(_trust_logical_pred, code_p, pass_no, cip);
-      }
 #ifdef TABLING
       if (tabled)
 	code_p = TABLE_TRYCODE(_table_trust_me);
@@ -2996,15 +3026,18 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	code_p = TRYCODE(_trust_me, _trust_me0);
       break;
     case enter_lu_op:
-      code_p = a_lucl(_enter_lu_pred, code_p, pass_no, cip);
+      code_p = a_lucl(_enter_lu_pred, code_p, pass_no, cip, &clinfo);
       break;
     case try_op:
+      if (log_update) {
+	add_clref(cip->cpc->rnd1, pass_no);
+      }
 #ifdef TABLING
       if (tabled)
-	code_p = a_gl(_table_try, &clinfo, code_p, pass_no, cip->cpc);
+	code_p = a_gl(_table_try, code_p, pass_no, cip->cpc, cip);
       else
 #endif
-	code_p = a_gl(_try_clause, &clinfo, code_p, pass_no, cip->cpc);
+	code_p = a_gl(_try_clause, code_p, pass_no, cip->cpc, cip);
       break;
     case retry_op:
       if (log_update) {
@@ -3012,22 +3045,21 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       }
 #ifdef TABLING
       if (tabled)
-	code_p = a_gl(_table_retry, &clinfo, code_p, pass_no, cip->cpc);
+	code_p = a_gl(_table_retry, code_p, pass_no, cip->cpc, cip);
       else
 #endif
-	code_p = a_gl(_retry, &clinfo, code_p, pass_no, cip->cpc);
+	code_p = a_gl(_retry, code_p, pass_no, cip->cpc, cip);
       break;
     case trust_op:
       if (log_update) {
 	add_clref(cip->cpc->rnd1, pass_no);
-	code_p = a_cl(_trust_logical_pred, code_p, pass_no, cip);
       }
 #ifdef TABLING
       if (tabled)
-	code_p = a_gl(_table_trust, &clinfo, code_p, pass_no, cip->cpc);
+	code_p = a_gl(_table_trust, code_p, pass_no, cip->cpc, cip);
       else
 #endif
-	code_p = a_gl(_trust, &clinfo, code_p, pass_no, cip->cpc);
+	code_p = a_gl(_trust, code_p, pass_no, cip->cpc, cip);
       break;
     case try_in_op:
       code_p = a_il(cip->cpc->rnd1, _try_in, code_p, pass_no, cip);

@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-09-15 19:32:47 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-10-10 14:08:17 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.109  2006/09/15 19:32:47  vsc
+* ichanges for QSAR
+*
 * Revision 1.108  2006/09/01 20:14:42  vsc
 * more fixes for global data-structures.
 * statistics on atom space.
@@ -2525,7 +2528,7 @@ p_statistics_atom_info(void)
   for (i =0; i < AtomHashTableSize; i++) {
     Atom catom;
 
-    READ_LOCK(HashChain[i].aeAERWLock);
+    READ_LOCK(HashChain[i].AERWLock);
     catom = HashChain[i].Entry;
     if (catom != NIL) {
       READ_LOCK(RepAtom(catom)->ARWLock);

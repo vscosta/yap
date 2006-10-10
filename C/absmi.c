@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-09-28 16:15:54 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-10-10 14:08:15 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.205  2006/09/28 16:15:54  vsc
+* make GMPless version compile.
+*
 * Revision 1.204  2006/09/20 20:03:51  vsc
 * improve indexing on floats
 * fix sending large lists to DB
@@ -897,6 +900,135 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
+      BOp(profiled_retry_logical, lld);
+      check_trail(TR);
+      {
+	UInt timestamp;
+	CACHE_Y(B);
+      
+	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.lld.t.s]);
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
+	  /* jump to next instruction */
+	  PREG=PREG->u.lld.n;
+	  JMPNext();
+	}
+	restore_yaam_regs(PREG->u.lld.n);
+	restore_at_least_one_arg(PREG->u.lld.t.s);
+	LOCK(PREG->u.lld.d->ClPred->StatisticsForPred.lock);
+	PREG->u.lld.d->ClPred->StatisticsForPred.NOfRetries++;
+	UNLOCK(PREG->u.lld.d->ClPred->StatisticsForPred.lock);
+	PREG = PREG->u.lld.d->ClCode;
+#ifdef FROZEN_STACKS
+	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+	set_cut(S_YREG, B->cp_b);
+#else
+	set_cut(S_YREG, B_YREG->cp_b);
+#endif /* FROZEN_STACKS */
+	SET_BB(B_YREG);
+	ENDCACHE_Y();
+      }
+      JMPNext();
+      ENDBOp();
+
+      BOp(profiled_trust_logical, ld);
+      CACHE_Y(B);
+      {
+	LogUpdIndex *cl = PREG->u.lld.t.block;
+	PredEntry *ap = cl->ClPred;
+	LogUpdClause *lcl = PREG->u.lld.d;
+	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
+
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
+	  /* jump to next alternative */
+	  PREG = FAILCODE;
+	} else {
+	  PredEntry *pe = PREG->u.lld.d->ClPred;
+
+	  LOCK(pe->StatisticsForPred.lock);
+	  pe->StatisticsForPred.NOfRetries++;
+	  UNLOCK(pe->StatisticsForPred.lock);
+	  PREG = PREG->u.lld.d->ClCode;
+	}
+	/* HEY, leave indexing block alone!! */
+	/* check if we are the ones using this code */
+#if defined(YAPOR) || defined(THREADS)
+	LOCK(cl->ClLock);
+	DEC_CLREF_COUNT(cl);
+	/* clear the entry from the trail */
+	TR = --(B->cp_tr);
+	/* actually get rid of the code */
+	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
+	  UNLOCK(cl->ClLock);
+	  if (PREG != FAILCODE) {
+	    /* I am the last one using this clause, hence I don't need a lock
+	       to dispose of it 
+	    */
+	    LOCK(lcl->ClLock);
+	    if (lcl->ClRefCount == 1) {
+	      /* make sure the clause isn't destroyed */
+	      /* always add an extra reference */
+	      INC_CLREF_COUNT(lcl);
+	      TRAIL_CLREF(lcl);
+	    }
+	    UNLOCK(lcl->ClLock);
+	  }
+	  if (cl->ClFlags & ErasedMask)
+	    Yap_ErLogUpdIndex(cl);
+	  else
+	    Yap_CleanUpIndex(cl);
+	  save_pc();
+	} else {
+	  UNLOCK(cl->ClLock);
+	}
+#else
+	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
+	    B->cp_tr != B->cp_b->cp_tr) {
+	  cl->ClFlags &= ~InUseMask;
+	  TR = --B->cp_tr;
+	  /* next, recover space for the indexing code if it was erased */
+	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
+	    if (PREG != FAILCODE) {
+	      /* make sure we don't erase the clause we are jumping too */
+	      if (lcl->ClRefCount == 1 && !(lcl->ClFlags & InUseMask)) {
+		lcl->ClFlags |= InUseMask;
+		TRAIL_CLREF(lcl);
+	      }
+	    }
+	    if (cl->ClFlags & ErasedMask)
+	      Yap_ErLogUpdIndex(cl);
+	    else
+	      Yap_CleanUpIndex(cl);
+	    save_pc();
+	  }
+	}
+#endif
+#ifdef YAPOR
+	if (SCH_top_shared_cp(B)) {
+	  SCH_last_alternative(PREG, B_YREG);
+	  restore_at_least_one_arg(ap->ArityOfPE);
+#ifdef FROZEN_STACKS
+	  S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+#else
+	  S_YREG++;
+#endif /* FROZEN_STACKS */
+	  set_cut(S_YREG, B->cp_b);
+	} else
+#endif	/* YAPOR */
+	  {
+	    pop_yaam_regs();
+	    pop_at_least_one_arg(ap->ArityOfPE);
+	    S_YREG--;
+#ifdef FROZEN_STACKS
+	    S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+#endif /* FROZEN_STACKS */
+	    set_cut(S_YREG, B);
+	  }
+	SET_BB(B_YREG);
+	ENDCACHE_Y();
+	JMPNext();
+      }
+      ENDBOp();
+
 /*****************************************************************
 *        Call count instructions                                 *
 *****************************************************************/
@@ -1055,6 +1187,163 @@ Yap_absmi(int inp)
       PREG = NEXTOP(PREG, ld);
       GONext();
       ENDOp();
+
+      BOp(count_retry_logical, lld);
+      check_trail(TR);
+      {
+	UInt timestamp;
+	CACHE_Y(B);
+      
+	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.lld.t.s]);
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
+	  /* jump to next instruction */
+	  PREG=PREG->u.lld.n;
+	  JMPNext();
+	}
+	restore_yaam_regs(PREG->u.lld.n);
+	restore_at_least_one_arg(PREG->u.lld.t.s);
+	RetriesCounter--;
+	if (RetriesCounter == 0) {
+	  saveregs();
+	  Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	  setregs();
+	  JMPNext();
+	} 
+	PredEntriesCounter--;
+	if (PredEntriesCounter == 0) {
+	  saveregs();
+	  Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	  setregs();
+	  JMPNext();
+	} 
+	LOCK(PREG->u.lld.d->ClPred->StatisticsForPred.lock);
+	PREG->u.lld.d->ClPred->StatisticsForPred.NOfRetries++;
+	UNLOCK(PREG->u.lld.d->ClPred->StatisticsForPred.lock);
+	PREG = PREG->u.lld.d->ClCode;
+#ifdef FROZEN_STACKS
+	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+	set_cut(S_YREG, B->cp_b);
+#else
+	set_cut(S_YREG, B_YREG->cp_b);
+#endif /* FROZEN_STACKS */
+	SET_BB(B_YREG);
+	ENDCACHE_Y();
+      }
+      JMPNext();
+      ENDBOp();
+
+      BOp(count_trust_logical, ld);
+      CACHE_Y(B);
+      {
+	LogUpdIndex *cl = PREG->u.lld.t.block;
+	PredEntry *ap = cl->ClPred;
+	LogUpdClause *lcl = PREG->u.lld.d;
+	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
+
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
+	  /* jump to next alternative */
+	  PREG = FAILCODE;
+	} else {
+	  RetriesCounter--;
+	  if (RetriesCounter == 0) {
+	    saveregs();
+	    Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	    setregs();
+	    JMPNext();
+	  } 
+	  PredEntriesCounter--;
+	  if (PredEntriesCounter == 0) {
+	    saveregs();
+	    Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	    setregs();
+	    JMPNext();
+	  } 
+	  LOCK(PREG->u.lld.d->ClPred->StatisticsForPred.lock);
+	  PREG->u.lld.d->ClPred->StatisticsForPred.NOfRetries++;
+	  UNLOCK(PREG->u.lld.d->ClPred->StatisticsForPred.lock);
+	  PREG = PREG->u.lld.d->ClCode;
+	}
+	/* HEY, leave indexing block alone!! */
+	/* check if we are the ones using this code */
+#if defined(YAPOR) || defined(THREADS)
+	LOCK(cl->ClLock);
+	DEC_CLREF_COUNT(cl);
+	/* clear the entry from the trail */
+	TR = --(B->cp_tr);
+	/* actually get rid of the code */
+	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
+	  UNLOCK(cl->ClLock);
+	  if (PREG != FAILCODE) {
+	    /* I am the last one using this clause, hence I don't need a lock
+	       to dispose of it 
+	    */
+	    LOCK(lcl->ClLock);
+	    if (lcl->ClRefCount == 1) {
+	      /* make sure the clause isn't destroyed */
+	      /* always add an extra reference */
+	      INC_CLREF_COUNT(lcl);
+	      TRAIL_CLREF(lcl);
+	    }
+	    UNLOCK(lcl->ClLock);
+	  }
+	  if (cl->ClFlags & ErasedMask)
+	    Yap_ErLogUpdIndex(cl);
+	  else
+	    Yap_CleanUpIndex(cl);
+	  save_pc();
+	} else {
+	  UNLOCK(cl->ClLock);
+	}
+#else
+	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
+	    B->cp_tr != B->cp_b->cp_tr) {
+	  cl->ClFlags &= ~InUseMask;
+	  TR = --B->cp_tr;
+	  /* next, recover space for the indexing code if it was erased */
+	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
+	    if (PREG != FAILCODE) {
+	      /* make sure we don't erase the clause we are jumping too */
+	      if (lcl->ClRefCount == 1 && !(lcl->ClFlags & InUseMask)) {
+		lcl->ClFlags |= InUseMask;
+		TRAIL_CLREF(lcl);
+	      }
+	    }
+	    if (cl->ClFlags & ErasedMask)
+	      Yap_ErLogUpdIndex(cl);
+	    else
+	      Yap_CleanUpIndex(cl);
+	    save_pc();
+	  }
+	}
+#endif
+#ifdef YAPOR
+	if (SCH_top_shared_cp(B)) {
+	  SCH_last_alternative(PREG, B_YREG);
+	  restore_at_least_one_arg(ap->ArityOfPE);
+#ifdef FROZEN_STACKS
+	  S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+#else
+	  S_YREG++;
+#endif /* FROZEN_STACKS */
+	  set_cut(S_YREG, B->cp_b);
+	} else
+#endif	/* YAPOR */
+	  {
+	    pop_yaam_regs();
+	    pop_at_least_one_arg(ap->ArityOfPE);
+	    S_YREG--;
+#ifdef FROZEN_STACKS
+	    S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+#endif /* FROZEN_STACKS */
+	    set_cut(S_YREG, B);
+	  }
+	SET_BB(B_YREG);
+	ENDCACHE_Y();
+	JMPNext();
+      }
+      ENDBOp();
+
+
 
 /*****************************************************************
 *        enter a logical semantics dynamic predicate             *
@@ -1090,137 +1379,6 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
  
-
-      /* enter logical pred               */
-      BOp(stale_lu_index, Ill);
-      {
-	yamop *ipc;
-#if defined(YAPOR) || defined(THREADS)
-	PredEntry *pe = PREG->u.Ill.p;
-#endif
-
-	/* update ASP before calling IPred */
-	ASP = YREG+E_CB;
-	if (ASP > (CELL *) PROTECT_FROZEN_B(B)) {
-	  ASP = (CELL *) PROTECT_FROZEN_B(B);
-	}
-	saveregs();
-#if defined(YAPOR) || defined(THREADS)
-	LOCK(pe->PELock);
-	if (PP) {
-	  /* PP would be NULL for local preds */
-	  READ_UNLOCK(PP->PRWLock);
-	  PP = NULL;
-	}
-	if (!same_lu_block(PREG_ADDR, PREG)) {
-	  PREG = *PREG_ADDR;
-	  UNLOCK(pe->PELock);
-	  JMPNext();
-	}
-#endif
-	ipc = Yap_CleanUpIndex(PREG->u.Ill.I);
-	setregs();
-	UNLOCK(pe->PELock);
-	/* restart index */
-	if (ipc == NULL) FAIL();
-	PREG = ipc;
-	save_pc();
-	CACHE_A1();
-	JMPNext();
-      }
-      ENDBOp();
-
-
-      /* enter logical pred               */
-      BOp(enter_lu_pred, Ill);
-      /* mark the indexing code */
-      {
-	LogUpdIndex *cl = PREG->u.Ill.I;
-	PREG = PREG->u.Ill.l1;
-	LOCK(cl->ClLock);
-	/* indicate the indexing code is being used */
-#if defined(YAPOR) || defined(THREADS)
-	/* just store a reference */
-	INC_CLREF_COUNT(cl);
-	TRAIL_CLREF(cl);
-#else
-	if (!(cl->ClFlags & InUseMask)) {
-	  cl->ClFlags |= InUseMask;
-	  TRAIL_CLREF(cl);
-	}
-#endif
-	UNLOCK(cl->ClLock);
-#if defined(YAPOR) || defined(THREADS)
-	if (PP) {
-	  /* PP would be NULL for local preds */
-	  READ_UNLOCK(PP->PRWLock);
-	  PP = NULL;
-	}
-#endif
-      }
-      GONext();
-      ENDBOp();
-
-      /* trust a logical pred, that is, release the code     */
-      BOp(trust_logical_pred, l);
-      /* unmark the indexing code */
-      /* mark the indexing code */
-      {
-	LogUpdIndex *cl = (LogUpdIndex *)PREG->u.l.l;
-	PREG = NEXTOP(PREG, l);
-	/* check if we are the ones using this code */
-#if defined(YAPOR) || defined(THREADS)
-	LOCK(cl->ClLock);
-	DEC_CLREF_COUNT(cl);
-	/* clear the entry from the trail */
-	TR = --(B->cp_tr);
-	/* actually get rid of the code */
-	if (cl->ClRefCount == 0 && cl->ClFlags & ErasedMask) {
-	  yamop *next = PREG->u.ld.d;
-	  UNLOCK(cl->ClLock);
-	  if (next != FAILCODE) {
-	    LogUpdClause *lcl = ClauseCodeToLogUpdClause(next);
-	    /* I am the last one using this clause, hence I don't need a lock
-	       to dispose of it 
-	    */
-	    LOCK(lcl->ClLock);
-	    if (lcl->ClRefCount == 1) {
-	      /* make sure the clause isn't destroyed */
-	      /* always add an extra reference */
-	      INC_CLREF_COUNT(lcl);
-	      TRAIL_CLREF(lcl);
-	    }
-	    UNLOCK(lcl->ClLock);
-	  }
-	  PREG = Yap_ErLogUpdIndex(cl, PREG);
-	  save_pc();
-	} else {
-	  UNLOCK(cl->ClLock);
-	}
-#else
-	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
-	    B->cp_tr != B->cp_b->cp_tr) {
-	  cl->ClFlags &= ~InUseMask;
-	  TR = --B->cp_tr;
-	  /* next, recover space for the indexing code if it was erased */
-	  if (cl->ClFlags & ErasedMask) {
-	    yamop *next = PREG->u.ld.d;
-	    if (next != FAILCODE) {
-	      LogUpdClause *lcl = ClauseCodeToLogUpdClause(next);
-	      /* make sure we don't erase the clause we are jumping too */
-	      if (lcl->ClRefCount == 1 && !(lcl->ClFlags & InUseMask)) {
-		lcl->ClFlags |= InUseMask;
-		TRAIL_CLREF(lcl);
-	      }
-	    }
-	    PREG = Yap_ErLogUpdIndex(cl, PREG);
-	    save_pc();
-	  }
-	}
-#endif
-      }
-      GONext();
-      ENDBOp();
 
       /* enter logical pred               */
       BOp(alloc_for_logical_pred, EC);
@@ -1608,7 +1766,6 @@ Yap_absmi(int inp)
 	      case _retry2:
 	      case _retry3:
 	      case _retry4:
-	      case _trust_logical_pred:
 		ipc = NEXTOP(ipc,l);
 		go_on = TRUE;
 		break;
@@ -1636,6 +1793,15 @@ Yap_absmi(int inp)
 	      case _retry:
 	      case _trust:
 		low_level_trace(retry_pred, ipc->u.ld.p, B->cp_args);
+		break;
+	      case _try_logical:
+	      case _retry_logical:
+	      case _profiled_retry_logical:
+	      case _count_retry_logical:
+	      case _trust_logical:
+	      case _profiled_trust_logical:
+	      case _count_trust_logical:
+		low_level_trace(retry_pred, ipc->u.lld.d->ClPred, B->cp_args);
 		break;
 	      case _Nstop:
 	      case _Ystop:
@@ -1735,7 +1901,14 @@ Yap_absmi(int inp)
 		    /* at this point, 
 		       we are the only ones accessing the clause,
 		       hence we don't need to have a lock it */
-		    Yap_ErLogUpdIndex(cl, NULL);
+		    Yap_ErLogUpdIndex(cl);
+		    setregs();
+		  } else if (cl->ClFlags & DirtyMask) {
+		    saveregs();
+		    /* at this point, 
+		       we are the only ones accessing the clause,
+		       hence we don't need to have a lock it */
+		    Yap_CleanUpIndex(cl);
 		    setregs();
 		  }
 		} else {
@@ -1776,7 +1949,7 @@ Yap_absmi(int inp)
 #else
 	    ResetFlag(InUseMask, flags);
 	    *pt1 = flags;
-	    if (FlagOn(ErasedMask, flags)) {
+	    if (FlagOn((ErasedMask|DirtyMask), flags)) {
 	      if (FlagOn(DBClMask, flags)) {
 		saveregs();
 		Yap_ErDBE(DBStructFlagsToDBStruct(pt1));
@@ -1785,7 +1958,11 @@ Yap_absmi(int inp)
 		saveregs();
 		if (flags & LogUpdMask) {
 		  if (flags & IndexMask) {
-		    Yap_ErLogUpdIndex(ClauseFlagsToLogUpdIndex(pt1), NULL);
+		    if (FlagOn(ErasedMask, flags)) {
+		      Yap_ErLogUpdIndex(ClauseFlagsToLogUpdIndex(pt1));
+		    } else {
+		      Yap_CleanUpIndex(ClauseFlagsToLogUpdIndex(pt1));
+		    }
 		  } else {
 		    Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(pt1));
 		  }
@@ -1896,7 +2073,7 @@ Yap_absmi(int inp)
 		  /* at this point, we are the only ones accessing the clause,
 		     hence we don't need to have a lock it */
 		  saveregs();
-		  Yap_ErLogUpdIndex(cl, NULL);
+		  Yap_ErLogUpdIndex(cl);
 		  setregs();
 		}
 	      } else {
@@ -1986,7 +2163,7 @@ Yap_absmi(int inp)
 		  /* at this point, we are the only ones accessing the clause,
 		     hence we don't need to have a lock it */
 		  saveregs();
-		  Yap_ErLogUpdIndex(cl, NULL);
+		  Yap_ErLogUpdIndex(cl);
 		  setregs();
 		}
 	      } else {
@@ -7758,6 +7935,207 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
+
+
+/************************************************************************\
+* 	Logical Updates							*
+\************************************************************************/
+
+      /* enter logical pred               */
+      BOp(enter_lu_pred, Ill);
+      /* mark the indexing code */
+      {
+	LogUpdIndex *cl = PREG->u.Ill.I;
+	PredEntry *ap = cl->ClPred;
+
+	if (ap->LastCallOfPred != LUCALL_EXEC) {
+	  /*
+	    only increment time stamp if we are working on current time
+	    stamp
+	  */
+	  ap->TimeStampOfPred++;
+	  ap->LastCallOfPred = LUCALL_EXEC;
+	  /*	  fprintf(stderr,"R %x--%d--%ul\n",ap,ap->TimeStampOfPred,ap->ArityOfPE);*/
+	}
+	*--YENV = MkIntegerTerm(ap->TimeStampOfPred);
+	/* fprintf(stderr,"> %p/%p %d %d\n",cl,ap,ap->TimeStampOfPred,PREG->u.Ill.s);*/
+	PREG = PREG->u.Ill.l1;
+	LOCK(cl->ClLock);
+	/* indicate the indexing code is being used */
+#if defined(YAPOR) || defined(THREADS)
+	/* just store a reference */
+	INC_CLREF_COUNT(cl);
+	TRAIL_CLREF(cl);
+#else
+	if (!(cl->ClFlags & InUseMask)) {
+	  cl->ClFlags |= InUseMask;
+	  TRAIL_CLREF(cl);
+	}
+#endif
+	UNLOCK(cl->ClLock);
+#if defined(YAPOR) || defined(THREADS)
+	if (PP) {
+	  /* PP would be NULL for local preds */
+	  READ_UNLOCK(PP->PRWLock);
+	  PP = NULL;
+	}
+#endif
+      }
+      GONext();
+      ENDBOp();
+
+      BOp(try_logical, lld);
+      check_trail(TR);
+      {
+	UInt timestamp;
+	
+	CACHE_Y(YREG);
+
+	timestamp = IntegerOfTerm(S_YREG[0]);
+	/* fprintf(stderr,"+ %p/%p %d %d %d--%u\n",PREG,PREG->u.lld.d->ClPred,timestamp,PREG->u.lld.d->ClPred->TimeStampOfPred,PREG->u.lld.d->ClTimeStart,PREG->u.lld.d->ClTimeEnd);*/
+	/* Point AP to the code that follows this instruction */
+	/* always do this, even if we are not going to use it */
+	store_at_least_one_arg(PREG->u.lld.t.s);
+	store_yaam_regs(PREG->u.lld.n, 0);
+	set_cut(S_YREG, B);
+	B = B_YREG;
+#ifdef YAPOR
+	SCH_set_load(B_YREG);
+#endif	/* YAPOR */
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
+	  /* jump to next alternative */
+	  PREG=PREG->u.lld.n;
+	} else {
+	  PREG = PREG->u.lld.d->ClCode;
+	}
+	SET_BB(B_YREG);
+	ENDCACHE_Y();
+      }
+      JMPNext();
+      ENDBOp();
+
+      BOp(retry_logical, lld);
+      check_trail(TR);
+      {
+	UInt timestamp;
+	CACHE_Y(B);
+      
+	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.lld.t.s]);
+	/* fprintf(stderr,"^ %p/%p %d %d %d--%u\n",PREG,PREG->u.lld.d->ClPred,timestamp,PREG->u.lld.d->ClPred->TimeStampOfPred,PREG->u.lld.d->ClTimeStart,PREG->u.lld.d->ClTimeEnd);*/
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
+	  /* jump to next instruction */
+	  PREG=PREG->u.lld.n;
+	  JMPNext();
+	}
+	restore_yaam_regs(PREG->u.lld.n);
+	restore_at_least_one_arg(PREG->u.lld.t.s);
+	PREG = PREG->u.lld.d->ClCode;
+#ifdef FROZEN_STACKS
+	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+	set_cut(S_YREG, B->cp_b);
+#else
+	set_cut(S_YREG, B_YREG->cp_b);
+#endif /* FROZEN_STACKS */
+	SET_BB(B_YREG);
+	ENDCACHE_Y();
+      }
+      JMPNext();
+      ENDBOp();
+
+      BOp(trust_logical, ld);
+      CACHE_Y(B);
+      {
+	LogUpdIndex *cl = PREG->u.lld.t.block;
+	PredEntry *ap = cl->ClPred;
+	LogUpdClause *lcl = PREG->u.lld.d;
+	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
+
+	/*fprintf(stderr,"- %p/%p %d %d %d--%u\n",PREG,ap,timestamp,ap->TimeStampOfPred,PREG->u.lld.d->ClTimeStart,PREG->u.lld.d->ClTimeEnd);*/
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
+	  /* jump to next alternative */
+	  PREG = FAILCODE;
+	} else {
+	  PREG = PREG->u.lld.d->ClCode;
+	}
+	/* HEY, leave indexing block alone!! */
+	/* check if we are the ones using this code */
+#if defined(YAPOR) || defined(THREADS)
+	LOCK(cl->ClLock);
+	DEC_CLREF_COUNT(cl);
+	/* clear the entry from the trail */
+	TR = --(B->cp_tr);
+	/* actually get rid of the code */
+	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
+	  UNLOCK(cl->ClLock);
+	  if (PREG != FAILCODE) {
+	    /* I am the last one using this clause, hence I don't need a lock
+	       to dispose of it 
+	    */
+	    LOCK(lcl->ClLock);
+	    if (lcl->ClRefCount == 1) {
+	      /* make sure the clause isn't destroyed */
+	      /* always add an extra reference */
+	      INC_CLREF_COUNT(lcl);
+	      TRAIL_CLREF(lcl);
+	    }
+	    UNLOCK(lcl->ClLock);
+	  }
+	  if (cl->ClFlags & ErasedMask)
+	    Yap_ErLogUpdIndex(cl);
+	  else
+	    Yap_CleanUpIndex(cl);
+	  save_pc();
+	} else {
+	  UNLOCK(cl->ClLock);
+	}
+#else
+	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
+	    B->cp_tr != B->cp_b->cp_tr) {
+	  cl->ClFlags &= ~InUseMask;
+	  TR = --B->cp_tr;
+	  /* next, recover space for the indexing code if it was erased */
+	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
+	    if (PREG != FAILCODE) {
+	      /* make sure we don't erase the clause we are jumping too */
+	      if (lcl->ClRefCount == 1 && !(lcl->ClFlags & InUseMask)) {
+		lcl->ClFlags |= InUseMask;
+		TRAIL_CLREF(lcl);
+	      }
+	    }
+	    if (cl->ClFlags & ErasedMask)
+	      Yap_ErLogUpdIndex(cl);
+	    else
+	      Yap_CleanUpIndex(cl);
+	    save_pc();
+	  }
+	}
+#endif
+#ifdef YAPOR
+	if (SCH_top_shared_cp(B)) {
+	  SCH_last_alternative(PREG, B_YREG);
+	  restore_at_least_one_arg(ap->ArityOfPE);
+#ifdef FROZEN_STACKS
+	  S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+#else
+	  S_YREG++;
+#endif /* FROZEN_STACKS */
+	  set_cut(S_YREG, B->cp_b);
+	} else
+#endif	/* YAPOR */
+	  {
+	    pop_yaam_regs();
+	    pop_at_least_one_arg(ap->ArityOfPE);
+	    S_YREG--;
+#ifdef FROZEN_STACKS
+	    S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+#endif /* FROZEN_STACKS */
+	    set_cut(S_YREG, B);
+	  }
+	SET_BB(B_YREG);
+	ENDCACHE_Y();
+	JMPNext();
+      }
+      ENDBOp();
 
 
 /************************************************************************\

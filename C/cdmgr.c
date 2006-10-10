@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-09-20 20:03:51 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-10-10 14:08:16 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.191  2006/09/20 20:03:51  vsc
+* improve indexing on floats
+* fix sending large lists to DB
+*
 * Revision 1.190  2006/08/07 18:51:44  vsc
 * fix garbage collector not to try to garbage collect when we ask for large
 * chunks of stack in a single go.
@@ -414,6 +418,14 @@ PredForChoicePt(yamop *p_code) {
     case _retry_me:
     case _trust_me:
       return p_code->u.ld.p;
+    case _try_logical:
+    case _retry_logical:
+    case _trust_logical:
+    case _count_retry_logical:
+    case _count_trust_logical:
+    case _profiled_retry_logical:
+    case _profiled_trust_logical:
+      return p_code->u.lld.d->ClPred;
 #ifdef TABLING
     case _trie_retry_null:
     case _trie_trust_null:
@@ -457,7 +469,6 @@ PredForChoicePt(yamop *p_code) {
       return p_code->u.p.p;
 #endif /* YAPOR */
       break;
-    case _trust_logical_pred:
     case _count_retry_me:
     case _retry_profiled:
     case _retry2:
@@ -537,6 +548,7 @@ static_in_use(PredEntry *p, int check_everything)
 
 #define PtoPredAdjust(X) (X)
 #define PtoOpAdjust(X) (X)
+#define PtoLUClauseAdjust(P) (P)
 #define XAdjust(X) (X)
 #define YAdjust(X) (X)
 #define AtomTermAdjust(X) (X)
@@ -908,14 +920,29 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
     case _count_trust_me:
       ipc = NEXTOP(ipc,ld);
       break;
+    case _try_logical:
+    case _retry_logical:
+    case _count_retry_logical:
+    case _profiled_retry_logical:
+      {
+	yamop *oipc = ipc;
+	decrease_ref_counter(ipc->u.lld.d->ClCode, beg, end, suspend_code);
+	ipc = ipc->u.lld.n;
+	Yap_FreeCodeSpace((ADDR)oipc);
+      }
+      break;
+    case _trust_logical:
+    case _count_trust_logical:
+    case _profiled_trust_logical:
+      decrease_ref_counter(ipc->u.lld.d->ClCode, beg, end, suspend_code);
+      Yap_FreeCodeSpace((ADDR)ipc);
+      return;
     case _enter_lu_pred:
-    case _stale_lu_index:
-      if (ipc->u.Ill.s)
-	end = ipc->u.Ill.l2;
+      if (ipc->u.Ill.I->ClFlags & InUseMask)
+	return;
       ipc = ipc->u.Ill.l1;
       break;
     case _try_in:
-    case _trust_logical_pred:
     case _jump:
     case _jump_if_var:
       release_wcls(ipc->u.l.l, ecs);
@@ -1002,13 +1029,7 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
     return;
   }
   op = Yap_op_from_opcode(beg->opc);
-  if ((op == _enter_lu_pred ||
-      op == _stale_lu_index) &&
-      beg->u.Ill.l1 != beg->u.Ill.l2) {
-    end = beg->u.Ill.l2;
-  } else {
     end = (yamop *)((CODEADDR)c+c->ClSize);
-  }
   ipc = beg;
   cleanup_dangling_indices(ipc, beg, end, suspend_code);
 }
@@ -1200,47 +1221,22 @@ Yap_kill_iblock(ClauseUnion *blk, ClauseUnion *parent_blk, PredEntry *ap)
   This predicate is supposed to be called with a
   lock on the current predicate
 */
-yamop * 
-Yap_ErLogUpdIndex(LogUpdIndex *clau, yamop *ipc)
+void
+Yap_ErLogUpdIndex(LogUpdIndex *clau)
 {
-  LogUpdIndex *c = clau;
-  yamop *codep;
-
-  if (ipc) {
-    op_numbers op = Yap_op_from_opcode(ipc->opc);
-    codep = TrustLUCode;
-
-    if (op == _trust) {
-      codep->opc = ipc->opc;
-      codep->u.ld.s = ipc->u.ld.s;
-      codep->u.ld.p = ipc->u.ld.p; 
-      codep->u.ld.d = ipc->u.ld.d;
-#ifdef YAPOR
-      codep->u.ld.or_arg = ipc->u.ld.or_arg;
-#endif /* YAPOR */
-#ifdef TABLING
-      codep->u.ld.te = ipc->u.ld.te;
-#endif /* TABLING */
-    } else {
-      Yap_Error(SYSTEM_ERROR,TermNil,"Expected To Find trust, found %d", op);
-      codep = ipc;
-    }
-  } else {
-    codep = NULL;
-  }
   if (clau->ClFlags & ErasedMask) {
-    if (!c->ClRefCount) {
-      if (c->ClFlags & SwitchRootMask) {
-	kill_off_lu_block(clau, NULL, c->ClPred);
+    if (!clau->ClRefCount) {
+      if (clau->ClFlags & SwitchRootMask) {
+	kill_off_lu_block(clau, NULL, clau->ClPred);
       } else {
 	kill_off_lu_block(clau, clau->ParentIndex, clau->ClPred);
       }
     }
     /* otherwise, nothing I can do, I have been erased already */
-    return codep;
+    return;
   }
-  if (c->ClFlags & SwitchRootMask) {
-    kill_first_log_iblock(clau, NULL, c->ClPred);
+  if (clau->ClFlags & SwitchRootMask) {
+    kill_first_log_iblock(clau, NULL, clau->ClPred);
   } else {
 #if defined(THREADS) || defined(YAPOR)
     LOCK(clau->ParentIndex->ClLock);
@@ -1256,7 +1252,6 @@ Yap_ErLogUpdIndex(LogUpdIndex *clau, yamop *ipc)
     UNLOCK(clau->ParentIndex->ClLock);
 #endif
   }
-  return codep;
 }
 
 /* Routine used when wanting to remove the indexation */
@@ -3701,8 +3696,17 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
       pp = pc->u.ld.p;
       pc = NEXTOP(pc,ld);
       break;
+    case _try_logical:
+    case _retry_logical:
+    case _trust_logical:
+    case _count_retry_logical:
+    case _count_trust_logical:
+    case _profiled_retry_logical:
+    case _profiled_trust_logical:
+      pp = pc->u.lld.d->ClPred;
+      pc = pc->u.lld.n;
+      break;
     case _enter_lu_pred:
-    case _stale_lu_index:
       pc = pc->u.Ill.l2;
       break;
       /* instructions type p */
@@ -3733,7 +3737,6 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
       pp = pc->u.pp.p0;
       pc = NEXTOP(pc,pp);
       break;
-    case _trust_logical_pred:
     case _jump:
     case _move_back:
     case _skip:
@@ -4885,7 +4888,7 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
   Terms[0] = th;
   Terms[1] = tb;
   Terms[2] = TermNil;
-  cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClause0->CodeOfPred,l), cp_ptr);
+  cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClause0->CodeOfPred,ld), cp_ptr);
   th = Terms[0];
   tb = Terms[1];
   /* don't do this!! I might have stored a choice-point and changed ASP
@@ -5497,6 +5500,16 @@ p_choicepoint_info(void)
       pe = UndefCode;
       t = MkVarTerm();
       break;
+    case _try_logical:
+    case _retry_logical:
+    case _trust_logical:
+    case _count_retry_logical:
+    case _count_trust_logical:
+    case _profiled_retry_logical:
+    case _profiled_trust_logical:
+      pe = ipc->u.lld.n->ClPred;
+      t = BuildActivePred(pe, cptr->cp_args);
+      break;
 #endif /* TABLING */
     case _or_else:
       pe = ipc->u.sla.p0;
@@ -5509,7 +5522,6 @@ p_choicepoint_info(void)
     case _retry2:
     case _retry3:
     case _retry4:
-    case _trust_logical_pred:
       pe = NULL;
       t = TermNil;
       ipc = NEXTOP(ipc,l);

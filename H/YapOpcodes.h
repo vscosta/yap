@@ -11,8 +11,12 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2006-09-20 20:03:51 $							 *
+* Last rev:     $Date: 2006-10-10 14:08:17 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.39  2006/09/20 20:03:51  vsc
+* improve indexing on floats
+* fix sending large lists to DB
+*
 * Revision 1.38  2006/04/27 14:13:24  rslopes
 * *** empty log message ***
 *
@@ -245,6 +249,14 @@
     OPCODE(retry4                  ,l),		
     OPCODE(trust                   ,ld),		
     OPCODE(try_in                  ,l),
+    OPCODE(enter_lu_pred           ,Ill),
+    OPCODE(try_logical             ,lld),		
+    OPCODE(retry_logical           ,lld),		
+    OPCODE(trust_logical           ,lld),	     
+    OPCODE(count_retry_logical     ,lld),		
+    OPCODE(count_trust_logical     ,lld),	     
+    OPCODE(profiled_retry_logical  ,lld),		
+    OPCODE(profiled_trust_logical  ,lld),	     
     OPCODE(jump_if_var             ,l),	
     OPCODE(jump_if_nonvar          ,xll),	
     OPCODE(switch_on_cons          ,sssl),	
@@ -358,9 +370,6 @@
     OPCODE(count_retry_and_mark    ,ld),
     OPCODE(lock_lu	           ,p),
     OPCODE(unlock_lu	           ,e),
-    OPCODE(enter_lu_pred           ,Ill),
-    OPCODE(stale_lu_index          ,Ill),
-    OPCODE(trust_logical_pred      ,l),
     OPCODE(alloc_for_logical_pred  ,EC),
     OPCODE(unify_idb_term          ,e),
     OPCODE(copy_idb_term           ,e),

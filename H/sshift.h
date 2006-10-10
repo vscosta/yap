@@ -459,7 +459,16 @@ inline EXTERN yamop *PtoOpAdjust (yamop *);
 inline EXTERN yamop *
 PtoOpAdjust (yamop * ptr)
 {
-  return (yamop *) (((yamop *) (CharP (ptr) + HDiff)));
+  return (yamop *) (CharP (ptr) + HDiff);
+}
+
+
+inline EXTERN struct logic_upd_clause *PtoLUClauseAdjust (struct logic_upd_clause *);
+
+inline EXTERN struct logic_upd_clause *
+PtoLUClauseAdjust (struct logic_upd_clause * ptr)
+{
+  return (struct logic_upd_clause *) (CharP (ptr) + HDiff);
 }
 
 
