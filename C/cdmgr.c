@@ -11,8 +11,13 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-10-11 14:53:57 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-10-11 15:08:03 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.193  2006/10/11 14:53:57  vsc
+* fix memory leak
+* fix overflow handling
+* VS: ----------------------------------------------------------------------
+*
 * Revision 1.192  2006/10/10 14:08:16  vsc
 * small fixes on threaded implementation.
 *
@@ -5002,6 +5007,7 @@ p_continue_log_update_clause0(void)
   return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_cp, FALSE);
 }
 
+#if TIMESTAMP_OVERFLOW
 static void
 adjust_cl_timestamp(LogUpdClause *cl, UInt *arp, UInt NStamps)
 {
@@ -5077,6 +5083,8 @@ Yap_update_timestamps(PredEntry *ap, UInt arity)
   }
   goto restart;
 }
+
+#endif
 
 static Int
 fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, yamop *cp_ptr, int first_time)

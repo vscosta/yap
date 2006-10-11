@@ -1808,12 +1808,14 @@ new_lu_db_entry(Term t, PredEntry *pe)
   cl->ClPrev = cl->ClNext = NULL;
   cl->ClSize = ((CODEADDR)&(x->Contents)-(CODEADDR)cl)+x->NOfCells*sizeof(CELL);
   /* Support for timestamps */
-  if (pe->LastCallOfPred != LUCALL_ASSERT) {
+  if (pe && pe->LastCallOfPred != LUCALL_ASSERT) {
     ++pe->TimeStampOfPred;
     /*  fprintf(stderr,"+ %x--%d--%ul\n",pe,pe->TimeStampOfPred,pe->ArityOfPE);*/
     pe->LastCallOfPred = LUCALL_ASSERT;
+    cl->ClTimeStart = pe->TimeStampOfPred;
+  } else {
+    cl->ClTimeStart = 0L;
   }
-  cl->ClTimeStart = pe->TimeStampOfPred;
   cl->ClTimeEnd = ~0L; 
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(cl->ClLock);

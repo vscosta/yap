@@ -11,8 +11,12 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2006-09-20 20:03:51 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-10-11 15:08:03 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.80  2006/09/20 20:03:51  vsc
+* improve indexing on floats
+* fix sending large lists to DB
+*
 * Revision 1.79  2006/08/01 13:14:17  vsc
 * fix compilation of |
 *
@@ -2110,7 +2114,7 @@ typedef struct {
   PInstr *pc;
 }  bventry;
 
-#define MAX_DISJUNCTIONS 32
+#define MAX_DISJUNCTIONS 128
 static bventry *bvstack;
 static int bvindex = 0;
 
