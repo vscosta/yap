@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-10-11 15:08:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-10-11 17:24:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.194  2006/10/11 15:08:03  vsc
+* fix bb entries
+* comment development code for timestamp overflow.
+*
 * Revision 1.193  2006/10/11 14:53:57  vsc
 * fix memory leak
 * fix overflow handling
@@ -1102,7 +1106,6 @@ kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 {
   /* first, make sure that I killed off all my children, some children may
      remain in case I have tables as children */
-  decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
   if (parent != NULL) {
     /* sat bye bye */
     /* decrease refs */
@@ -1165,6 +1168,7 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
       RemoveMainIndex(ap);
     }
   }
+  decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
   /* make sure that a child cannot remove us */
   kill_children(c, ap);
   /* check if we are still the main index */
@@ -1248,6 +1252,7 @@ Yap_ErLogUpdIndex(LogUpdIndex *clau)
 {
   if (clau->ClFlags & ErasedMask) {
     if (!clau->ClRefCount) {
+      decrease_log_indices(clau, (yamop *)&(clau->ClPred->cs.p_code.ExpandCode));
       if (clau->ClFlags & SwitchRootMask) {
 	kill_off_lu_block(clau, NULL, clau->ClPred);
       } else {
