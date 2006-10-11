@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2006-10-10 14:08:16 $							 *
+* Last rev:     $Date: 2006-10-11 14:53:57 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.89  2006/10/10 14:08:16  vsc
+* small fixes on threaded implementation.
+*
 * Revision 1.88  2006/09/20 20:03:51  vsc
 * improve indexing on floats
 * fix sending large lists to DB
@@ -1687,6 +1690,10 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
 	save_machine_regs();
 	longjmp(cip->CompilerBotch,2);
       }
+#ifdef DEBUG
+      Yap_NewCps++;
+      Yap_LiveCps++;
+#endif
       if (opcode == try_op) {
 	/*
 	  use the last n field to keep a chain with all 

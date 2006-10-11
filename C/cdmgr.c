@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-10-10 14:08:16 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-10-11 14:53:57 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.192  2006/10/10 14:08:16  vsc
+* small fixes on threaded implementation.
+*
 * Revision 1.191  2006/09/20 20:03:51  vsc
 * improve indexing on floats
 * fix sending large lists to DB
@@ -873,7 +876,7 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
 {
   OPCODE ecs = Yap_opcode(_expand_clauses);
 
-  while (ipc < end) {
+  while (ipc) {
     op_numbers op = Yap_op_from_opcode(ipc->opc);
     /* printf("op: %d %p->%p\n", op, ipc, end); */
     switch(op) {
@@ -929,18 +932,32 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
 	decrease_ref_counter(ipc->u.lld.d->ClCode, beg, end, suspend_code);
 	ipc = ipc->u.lld.n;
 	Yap_FreeCodeSpace((ADDR)oipc);
+#ifdef DEBUG
+	Yap_DirtyCps--;
+	Yap_FreedCps++;
+#endif
       }
+      end = ipc;
       break;
     case _trust_logical:
     case _count_trust_logical:
     case _profiled_trust_logical:
+#ifdef DEBUG
+      Yap_DirtyCps--;
+      Yap_FreedCps++;
+#endif
       decrease_ref_counter(ipc->u.lld.d->ClCode, beg, end, suspend_code);
       Yap_FreeCodeSpace((ADDR)ipc);
       return;
     case _enter_lu_pred:
       if (ipc->u.Ill.I->ClFlags & InUseMask)
 	return;
+#ifdef DEBUG
+      Yap_DirtyCps+=ipc->u.Ill.s;
+      Yap_LiveCps-=ipc->u.Ill.s;
+#endif
       ipc = ipc->u.Ill.l1;
+      end = ipc;
       break;
     case _try_in:
     case _jump:
@@ -1029,7 +1046,7 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
     return;
   }
   op = Yap_op_from_opcode(beg->opc);
-    end = (yamop *)((CODEADDR)c+c->ClSize);
+  end = (yamop *)((CODEADDR)c+c->ClSize);
   ipc = beg;
   cleanup_dangling_indices(ipc, beg, end, suspend_code);
 }
@@ -3707,7 +3724,7 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
       pc = pc->u.lld.n;
       break;
     case _enter_lu_pred:
-      pc = pc->u.Ill.l2;
+      pc = pc->u.Ill.l1;
       break;
       /* instructions type p */
     case _count_call:
@@ -4985,6 +5002,82 @@ p_continue_log_update_clause0(void)
   return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_cp, FALSE);
 }
 
+static void
+adjust_cl_timestamp(LogUpdClause *cl, UInt *arp, UInt NStamps)
+{
+  UInt clstamp = cl->ClTimeStart;
+  while (arp[0]);
+  clstamp = cl->ClTimeEnd;
+}
+
+void			/* $hidden_predicate(P) */
+Yap_update_timestamps(PredEntry *ap, UInt arity)
+{
+  choiceptr bptr = B;
+  yamop *cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,ld);
+  yamop *cl = NEXTOP(PredLogUpdClause->CodeOfPred,ld);
+  UInt ar = ap->ArityOfPE;
+  UInt *arp = ASP;
+  UInt nstamps;
+  LogUpdClause *cl;
+
+#if THREADS
+  YAP_Error(SYSTEM_ERROR,TermNil,"Timestamp overflow %p", ap);
+#endif
+  if (ap->cs.p_code.NOfClauses < 2)
+    return;
+ restart:
+  while (bptr) {
+    op_numbers opnum = Yap_op_from_opcode(bptr->cp_ap->opc);
+
+    switch (opnum) {
+    case _retry_logical:
+    case _count_retry_logical:
+    case _profiled_retry_logical:
+    case _trust_logical:
+    case _count_trust_logical:
+    case _profiled_trust_logical:
+      if (bptr->cp_ap->u.lld.d->ClPred == ap) {
+	UInt ts = IntegerOfTerm(bptr->cp_args[ar]);
+	if (ts != arp[0]) {
+	  if (arp-H < 1024) {
+	    goto overflow;
+	  }
+	  *--arp = ts;
+	}
+      }
+      break;
+    case _retry:
+      if ((bptr->cp_ap == cl0 || bptr->cp_ap == cl) &&
+	  ((PredEntry *)IntegerOfTerm((bptr+1)->cp_args[0]) == ap)) {
+	UInt ts = IntegerOfTerm(bptr->cp_args[5]);
+	if (ts != arp[0]) {
+	  if (arp-H < 1024) {
+	    goto overflow;
+	  }
+	  *--arp = ts;
+	}
+      }
+      break;
+    default:
+      continue;
+    }
+  }
+  NStamps = (ASP-arp);
+  cl = ClauseCodeToLogUpdClause(ap->cs.p_code.FirstClause);
+  while (cl) {
+    adjust_cl_timestamp(cl, arp, NStamps);
+    cl = cl->ClNext;
+  }
+  return;
+ overflow:
+  if (!Yap_gc(arity, ENV, P)) {
+    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+    return;
+  }
+  goto restart;
+}
+
 static Int
 fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, yamop *cp_ptr, int first_time)
 {
@@ -5397,6 +5490,15 @@ p_predicate_erased_statistics(void)
     Yap_unify(ARG4,MkIntegerTerm(icls)) &&
     Yap_unify(ARG5,MkIntegerTerm(isz));
 }
+
+static Int
+p_predicate_lu_cps(void)
+{
+  return Yap_unify(ARG1, MkIntegerTerm(Yap_LiveCps)) &&
+    Yap_unify(ARG2, MkIntegerTerm(Yap_FreedCps)) &&
+    Yap_unify(ARG3, MkIntegerTerm(Yap_DirtyCps)) &&
+    Yap_unify(ARG4, MkIntegerTerm(Yap_NewCps));
+}
 #endif
 
 static Int
@@ -5656,6 +5758,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$choicepoint_info", 5, p_choicepoint_info, HiddenPredFlag);
 #ifdef DEBUG
   Yap_InitCPred("predicate_erased_statistics", 5, p_predicate_erased_statistics, SyncPredFlag);
+  Yap_InitCPred("predicate_live_cps", 4, p_predicate_lu_cps, 0L);
 #endif
 }
 

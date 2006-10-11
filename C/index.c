@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-10-10 14:08:16 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-10-11 14:53:57 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.170  2006/10/10 14:08:16  vsc
+* small fixes on threaded implementation.
+*
 * Revision 1.169  2006/09/20 20:03:51  vsc
 * improve indexing on floats
 * fix sending large lists to DB
@@ -6153,6 +6156,10 @@ remove_clause_from_index(yamop **prevp, yamop *curp, LogUpdClause *cl)
     ocurp->u.lld.n = curp->u.lld.n;
     ocurp->u.lld.t.block = curp->u.lld.t.block;
   }
+#ifdef DEBUG
+  Yap_DirtyCps--;
+  Yap_FreedCps++;
+#endif
   clean_ref_to_clause(cl);
   Yap_FreeCodeSpace((ADDR)curp);
 }
@@ -6173,6 +6180,10 @@ remove_dirty_clauses_from_index(yamop **prevp, yamop *curp)
   while ((cl = curp->u.lld.d)->ClFlags & ErasedMask) {
     yamop *ocurp = curp;
 
+#ifdef DEBUG
+    Yap_DirtyCps--;
+    Yap_FreedCps++;
+#endif
     clean_ref_to_clause(cl);
     curp = curp->u.lld.n;
     Yap_FreeCodeSpace((ADDR)ocurp);
@@ -6187,6 +6198,10 @@ remove_dirty_clauses_from_index(yamop **prevp, yamop *curp)
     if ((cl = curp->u.lld.d)->ClFlags & ErasedMask) {
       yamop *ocurp = curp;
 
+#ifdef DEBUG
+      Yap_DirtyCps--;
+      Yap_FreedCps++;
+#endif
       clean_ref_to_clause(cl);
       if (curp->opc == endop) {
 	previouscurp->opc = endop;
@@ -6510,6 +6525,10 @@ add_try(PredEntry *ap, ClauseDef *cls, yamop *next, struct intermediates *cint)
     save_machine_regs();
     longjmp(cint->CompilerBotch,2);
   }
+#ifdef DEBUG
+  Yap_NewCps++;
+  Yap_LiveCps++;
+#endif
   newcp->opc = Yap_opcode(_try_logical);
   newcp->u.lld.t.s = ap->ArityOfPE;
   newcp->u.lld.n = next;
@@ -6531,6 +6550,10 @@ add_trust(LogUpdIndex *icl, ClauseDef *cls, struct intermediates *cint)
     save_machine_regs();
     longjmp(cint->CompilerBotch,2);
   }
+#ifdef DEBUG
+  Yap_NewCps++;
+  Yap_LiveCps++;
+#endif
   if (ap->PredFlags & CountPredFlag)
     newcp->opc = Yap_opcode(_count_trust_logical);
   else if (ap->PredFlags & ProfiledPredFlag)
@@ -7172,6 +7195,10 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       break;
     case _enter_lu_pred:
       ipc->u.Ill.s--;
+#ifdef DEBUG
+      Yap_DirtyCps++;
+      Yap_LiveCps--;
+#endif
       sp = kill_clause(ipc, bg, lt, sp, ap);
       ipc = pop_path(&sp, cls, ap);
       break;

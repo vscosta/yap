@@ -1021,6 +1021,12 @@ InitCodes(void)
     pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
     Yap_heap_regs->spy_code = pred;
   }
+#if DEBUG
+  Yap_heap_regs->new_cps = 0;
+  Yap_heap_regs->live_cps = 0;
+  Yap_heap_regs->dirty_cps = 0;
+  Yap_heap_regs->freed_cps = 0;
+#endif
   Yap_heap_regs->system_profiling = FALSE;
   Yap_heap_regs->system_call_counting = FALSE;
   Yap_heap_regs->system_pred_goal_expansion_all = FALSE;

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.106 2006-10-10 14:08:17 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.107 2006-10-11 14:53:57 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -288,6 +288,9 @@ typedef struct various_codes {
   struct pred_entry  *creep_code;
   struct pred_entry  *undef_code;
   struct pred_entry  *spy_code;
+#if DEBUG
+  UInt new_cps, live_cps, dirty_cps, freed_cps;
+#endif
   int   system_profiling;
   int   system_call_counting;
   int   system_pred_goal_expansion_all;
@@ -926,6 +929,12 @@ struct various_codes *Yap_heap_regs;
 #define  CreepCode                Yap_heap_regs->creep_code
 #define  UndefCode                Yap_heap_regs->undef_code
 #define  SpyCode                  Yap_heap_regs->spy_code
+#ifdef DEBUG
+#define  Yap_NewCps		  Yap_heap_regs->new_cps
+#define  Yap_LiveCps		  Yap_heap_regs->live_cps
+#define  Yap_DirtyCps		  Yap_heap_regs->dirty_cps
+#define  Yap_FreedCps		  Yap_heap_regs->freed_cps
+#endif
 #if defined(YAPOR) || defined(TABLING)
 #define  GLOBAL		          Yap_heap_regs->global
 #define  REMOTE                   Yap_heap_regs->remote

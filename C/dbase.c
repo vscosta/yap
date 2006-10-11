@@ -1417,6 +1417,12 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 	return NULL;
     }
     ntp0 = ppt0->Contents;
+    if ((ADDR)TR >= Yap_TrailTop-1024) {
+	Yap_Error_Size = 0;
+	Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;
+	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+	return NULL;
+    }
     dbg->lr = dbg->LinkAr = (link_entry *)TR;
 #ifdef COROUTINING
     /* attachment */ 
@@ -3636,6 +3642,7 @@ index_sz(LogUpdIndex *x)
   if (op == _enter_lu_pred) {
     PredEntry *ap = x->ClPred;
     OPCODE endop, op1;
+    UInt count = 0, count0 = start->u.Ill.s, dead=0;
 
     if (ap->PredFlags & CountPredFlag)
       endop = Yap_opcode(_count_trust_logical);
@@ -3647,8 +3654,17 @@ index_sz(LogUpdIndex *x)
     do {
       sz += (UInt)NEXTOP((yamop*)NULL,lld);
       op1 = start->opc;
+      count++;
+      if (start->u.lld.d->ClFlags & ErasedMask)
+	dead++;
       start = start->u.lld.n;
     } while (op1 != endop);
+    if (x->ClFlags & InUseMask)
+      fprintf(stderr,"Inuse -- %p(%p)\n",ap,x);
+    if (x->ClFlags & DirtyMask)
+      fprintf(stderr,"Dirty -- %p(%p)\n",ap,x);
+    if (count > 200)
+      fprintf(stderr,"%d/%d/%d -- %p(%p)\n",count,count0,dead,ap,x);
   }
   x = x->ChildIndex;
   while (x != NULL) {
