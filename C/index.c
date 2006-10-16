@@ -11,8 +11,13 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-10-11 14:53:57 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-10-16 17:12:48 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.171  2006/10/11 14:53:57  vsc
+* fix memory leak
+* fix overflow handling
+* VS: ----------------------------------------------------------------------
+*
 * Revision 1.170  2006/10/10 14:08:16  vsc
 * small fixes on threaded implementation.
 *
@@ -6236,6 +6241,10 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *
   blk = (LogUpdIndex *)(sp->u.cle.block);
   start = blk->ClCode;
   op0 = Yap_op_from_opcode(start->opc);
+  while (op0 == _lock_lu) {
+    start = NEXTOP(start, p);
+    op0 = Yap_op_from_opcode(start->opc);
+  }
   while (op0 == _jump_if_nonvar) {
     start = NEXTOP(start, xll);
     op0 = Yap_op_from_opcode(start->opc);
@@ -8373,6 +8382,10 @@ Yap_CleanUpIndex(LogUpdIndex *blk)
   op_numbers op = Yap_op_from_opcode(start->opc);
 
   blk->ClFlags &= ~DirtyMask;
+  while (op == _lock_lu) {
+    start = NEXTOP(start, p);
+    op = Yap_op_from_opcode(start->opc);
+  }
   while (op == _jump_if_nonvar) {
     start = NEXTOP(start, xll);
     op = Yap_op_from_opcode(start->opc);

@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-10-11 17:24:36 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-10-16 17:12:48 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.195  2006/10/11 17:24:36  vsc
+* make sure we only follow pointers *before* we removed the respective code block,
+* ie don't kill the child before checking pointers from parent!
+*
 * Revision 1.194  2006/10/11 15:08:03  vsc
 * fix bb entries
 * comment development code for timestamp overflow.
@@ -887,7 +891,7 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
 
   while (ipc) {
     op_numbers op = Yap_op_from_opcode(ipc->opc);
-    /* printf("op: %d %p->%p\n", op, ipc, end); */
+    /*    fprintf(stderr,"op: %d %p->%p\n", op, ipc, end);*/
     switch(op) {
     case _Ystop:
       /* end of clause, for now */
@@ -957,9 +961,10 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
 #endif
       decrease_ref_counter(ipc->u.lld.d->ClCode, beg, end, suspend_code);
       Yap_FreeCodeSpace((ADDR)ipc);
+      end = ipc;
       return;
     case _enter_lu_pred:
-      if (ipc->u.Ill.I->ClFlags & InUseMask)
+      if (ipc->u.Ill.I->ClFlags & InUseMask || ipc->u.Ill.I->ClRefCount)
 	return;
 #ifdef DEBUG
       Yap_DirtyCps+=ipc->u.Ill.s;
@@ -1144,6 +1149,7 @@ kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 static void
 kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 {
+  decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
   /* parent is always locked, now I lock myself */
   if (parent != NULL) {
     /* remove myself from parent */
@@ -1168,7 +1174,6 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
       RemoveMainIndex(ap);
     }
   }
-  decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
   /* make sure that a child cannot remove us */
   kill_children(c, ap);
   /* check if we are still the main index */

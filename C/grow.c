@@ -199,7 +199,7 @@ MoveExpandedGlobal(void)
    * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
    * absmi.asm 
    */
-  cpcellsd((CELL *)(Yap_GlobalBase+(GDiff-DelayDiff)), (CELL *)OldGlobalBase, OldH - (CELL *)OldGlobalBase);  
+  cpcellsd((CELL *)(Yap_GlobalBase+(GDiff-DelayDiff)), (CELL *)Yap_GlobalBase, OldH - (CELL *)OldGlobalBase);  
 }
 
 static void
@@ -209,7 +209,11 @@ MoveGlobalWithHole(void)
    * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
    * absmi.asm 
    */
+#if USE_SYSTEM_MALLOC
+  cpcellsd((CELL *)((char *)Yap_GlobalBase+(GDiff0-DelayDiff)), (CELL *)Yap_GlobalBase, OldH - (CELL *)OldGlobalBase);  
+#else
   cpcellsd((CELL *)((char *)OldGlobalBase+GDiff0), (CELL *)OldGlobalBase, OldH - (CELL *)OldGlobalBase);  
+#endif
 }
 
 static void
