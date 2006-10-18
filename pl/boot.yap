@@ -940,14 +940,14 @@ bootstrap(F) :-
 	'$dir_separator'(D),
 	atom_codes(A,[D]),
 	'$system_library_directories'(Dir),
-	'$extend_path'(Dir,A,File,NFile),
+	'$extend_path'(Dir, A, File, NFile, Goal),
 	'$search_in_path'(NFile, NewFile), !.
 '$find_in_path'(S,NewFile, _) :-
 	S =.. [Name,File], !,
 	'$dir_separator'(D),
 	atom_codes(A,[D]),
 	( user:file_search_path(Name, Dir), '$do_not_creep' ; '$do_not_creep', fail),
-	'$extend_path'(Dir,A,File,NFile),
+	'$extend_path'(Dir, A, File, NFile, Goal),
 	'$search_in_path'(NFile, NewFile), !.
 '$find_in_path'(File,NewFile,_) :- atom(File), !,
 	'$search_in_path'(File,NewFile),!.
@@ -961,15 +961,14 @@ bootstrap(F) :-
 	atom_concat([Path,File],New),
 	'$exists'(New,'$csult').
 
-'$extend_path'(Dir,A,File,NFile) :-
+'$extend_path'(Dir, A, File, NFile, _) :-
 	atom(Dir), !,
 	atom_concat([Dir,A,File],NFile).
-'$extend_path'(Name,A,File,NFile) :-
+'$extend_path'(Name, A, File, NFile, Goal) :-
 	nonvar(Name),
-	Name =.. [Dir1,Dir2],
-	( user:file_search_path(Dir1, Dir), '$do_not_creep' ; '$do_not_creep', fail),
-	'$extend_path'(Dir2,A,File,EFile),
-	atom_concat([Dir,A,EFile],NFile).
+	Name =.. [_,_],
+	'$find_in_path'(Name, Path, Goal),
+	'$extend_path'(Path, A, File, NFile, Goal).
 
 % term expansion
 %

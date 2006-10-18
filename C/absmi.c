@@ -10,8 +10,13 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-10-11 14:53:57 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-10-18 13:47:31 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.208  2006/10/11 14:53:57  vsc
+* fix memory leak
+* fix overflow handling
+* VS: ----------------------------------------------------------------------
+*
 * Revision 1.207  2006/10/10 20:21:42  vsc
 * fix new indexing code to actually recover space
 * fix predicate info to work for LUs
@@ -962,7 +967,7 @@ Yap_absmi(int inp)
 	LOCK(cl->ClLock);
 	DEC_CLREF_COUNT(cl);
 	/* clear the entry from the trail */
-	TR = --(B->cp_tr);
+	TR = B->cp_tr-1;
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
 	  UNLOCK(cl->ClLock);
@@ -1276,7 +1281,7 @@ Yap_absmi(int inp)
 	LOCK(cl->ClLock);
 	DEC_CLREF_COUNT(cl);
 	/* clear the entry from the trail */
-	TR = --(B->cp_tr);
+	TR = B->cp_tr-1;
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
 	  UNLOCK(cl->ClLock);
@@ -1305,7 +1310,7 @@ Yap_absmi(int inp)
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
 	    B->cp_tr != B->cp_b->cp_tr) {
 	  cl->ClFlags &= ~InUseMask;
-	  TR = --B->cp_tr;
+	  TR = B->cp_tr-1;
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
 	    if (PREG != FAILCODE) {
@@ -8076,7 +8081,7 @@ Yap_absmi(int inp)
 	LOCK(cl->ClLock);
 	DEC_CLREF_COUNT(cl);
 	/* clear the entry from the trail */
-	TR = --(B->cp_tr);
+	TR = B->cp_tr-1;
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
 	  UNLOCK(cl->ClLock);

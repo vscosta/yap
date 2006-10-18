@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-10-16 17:12:48 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-10-18 13:47:31 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.172  2006/10/16 17:12:48  vsc
+* fixes for threaded version.
+*
 * Revision 1.171  2006/10/11 14:53:57  vsc
 * fix memory leak
 * fix overflow handling
@@ -7848,6 +7851,8 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	UInt timestamp = ((CELL *)(B+1))[5];
 	LogUpdIndex *cl = ipc->u.lld.t.block;
 
+	/* clear the entry from the trail */
+	TR = B->cp_tr-1;
 #ifdef CUT_C
 	{
 	  while (POP_CHOICE_POINT(B->cp_b))
@@ -7870,8 +7875,6 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 #if defined(YAPOR) || defined(THREADS)
 	LOCK(cl->ClLock);
 	DEC_CLREF_COUNT(cl);
-	/* clear the entry from the trail */
-	TR = --(B->cp_tr);
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && cl->ClFlags & (ErasedMask|DirtyMask)) {
 	  UNLOCK(cl->ClLock);
