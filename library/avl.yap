@@ -16,9 +16,12 @@
 *************************************************************************/
 
 :- module(avl, [
+	avl_new/1,
 	avl_insert/4,
 	avl_lookup/3
           ]).
+
+avl_new([]).
 
 avl_insert(Key, Value, T0, TF) :-
 	insert(T0, Key, Value, TF, _).
