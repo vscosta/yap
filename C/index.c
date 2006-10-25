@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-10-18 13:47:31 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-10-25 02:31:07 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.173  2006/10/18 13:47:31  vsc
+* index.c implementation of trust_logical was decrementing the wrong
+* cp_tr
+*
 * Revision 1.172  2006/10/16 17:12:48  vsc
 * fixes for threaded version.
 *
@@ -7850,29 +7854,16 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       {
 	UInt timestamp = ((CELL *)(B+1))[5];
 	LogUpdIndex *cl = ipc->u.lld.t.block;
+	LogUpdClause *newpc;
 
-	/* clear the entry from the trail */
-	TR = B->cp_tr-1;
-#ifdef CUT_C
-	{
-	  while (POP_CHOICE_POINT(B->cp_b))
-	    {
-	      POP_EXECUTE();
-	    }
+	if (!VALID_TIMESTAMP(timestamp, ipc->u.lld.d)) {
+	  /* jump to next instruction */
+	  newpc = NULL;
+	} else {
+	  newpc = ipc->u.lld.d;
 	}
-#endif /* CUT_C */
-#ifdef YAPOR
-	{
-	  choiceptr cut_pt;
-	  cut_pt = B->cp_b;
-	  CUT_prune_to(cut_pt);
-	  B = cut_pt;
-	}
-#else
-	B = B->cp_b;
-#endif /* YAPOR */
-	b0 = B;
 #if defined(YAPOR) || defined(THREADS)
+	TR = B->cp_tr-1;
 	LOCK(cl->ClLock);
 	DEC_CLREF_COUNT(cl);
 	/* actually get rid of the code */
@@ -7893,9 +7884,8 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
 	    B->cp_tr != B->cp_b->cp_tr) {
 	  
+	  TR = B->cp_tr-1;
 	  cl->ClFlags &= ~InUseMask;
-	  /* clear the entry from the trail */
-	  TR = --(B->cp_tr);
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
 	    LogUpdClause *lcl = ipc->u.lld.d;
@@ -7912,12 +7902,27 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  }
 	}
 #endif
-	if (!VALID_TIMESTAMP(timestamp, ipc->u.lld.d)) {
-	  /* jump to next instruction */
-	  return NULL;
+#ifdef CUT_C
+	{
+	  while (POP_CHOICE_POINT(B->cp_b))
+	    {
+	      POP_EXECUTE();
+	    }
 	}
+#endif /* CUT_C */
+#ifdef YAPOR
+	{
+	  choiceptr cut_pt;
+	  cut_pt = B->cp_b;
+	  CUT_prune_to(cut_pt);
+	  B = cut_pt;
+	}
+#else
+	B = B->cp_b;
+#endif /* YAPOR */
+	b0 = B;
+	return newpc;
       }
-      return ipc->u.lld.d;
     case _jump:
       ipc = ipc->u.l.l;
       break;
