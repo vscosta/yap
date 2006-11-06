@@ -485,6 +485,7 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
     /* already exists */
     cl = ClauseCodeToStaticClause(pe->CodeOfPred);
     if ((flags | StandardPredFlag | CPredFlag) != pe->PredFlags) {
+      Yap_ClauseSpace -= cl->ClSize;
       Yap_FreeCodeSpace((ADDR)cl);
       cl = NULL;
     }
@@ -505,6 +506,7 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
 	return;
       }
     } else {
+      Yap_ClauseSpace += sz;
       cl->ClFlags = StaticMask;
       cl->ClNext = NULL;
       cl->ClSize = sz;
@@ -567,6 +569,7 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int 
 	  return;
 	}
       } else {
+	Yap_ClauseSpace += sz;
 	cl->ClFlags = StaticMask;
 	cl->ClNext = NULL;
 	cl->ClSize = sz;
@@ -615,6 +618,7 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitAsmPred");
       return;
     }
+    Yap_ClauseSpace += (CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),sla),p),l);
     cl->ClFlags = StaticMask;
     cl->ClNext = NULL;
     cl->ClSize = (CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),sla),e),e);
@@ -751,9 +755,11 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
     cl->ClFlags = StaticMask;
     cl->ClNext = NULL;
 #ifdef CUT_C
+    Yap_ClauseSpace += (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,lds),lds),lds),l);
     cl->ClSize = 
       (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,lds),lds),lds),e);
 #else
+    Yap_ClauseSpace += (CELL)NEXTOP(NEXTOP(NEXTOP(code,lds),lds),l);
     cl->ClSize = 
       (CELL)NEXTOP(NEXTOP(NEXTOP(code,lds),lds),e);
 #endif
@@ -1249,6 +1255,7 @@ InitCodes(void)
 #endif /* YAPOR */
   Yap_heap_regs->db_erased_marker =
     (DBRef)Yap_AllocCodeSpace(sizeof(DBStruct));
+  Yap_LUClauseSpace += sizeof(DBStruct);
   Yap_heap_regs->db_erased_marker->id = FunctorDBRef;
   Yap_heap_regs->db_erased_marker->Flags = ErasedMask;
   Yap_heap_regs->db_erased_marker->Code = NULL;
@@ -1256,6 +1263,7 @@ InitCodes(void)
   Yap_heap_regs->db_erased_marker->Parent = NULL;
   Yap_heap_regs->logdb_erased_marker =
     (LogUpdClause *)Yap_AllocCodeSpace(sizeof(LogUpdClause)+(UInt)NEXTOP((yamop*)NULL,e));
+  Yap_LUClauseSpace += sizeof(LogUpdClause)+(UInt)NEXTOP((yamop*)NULL,e);
   Yap_heap_regs->logdb_erased_marker->Id = FunctorDBRef;
   Yap_heap_regs->logdb_erased_marker->ClFlags = ErasedMask|LogUpdMask;
   Yap_heap_regs->logdb_erased_marker->ClSource = NULL;
@@ -1329,7 +1337,15 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
 #else
   Yap_InitMemory (Trail, Heap, Stack);
 #endif /* YAPOR */
-
+  Yap_ClauseSpace = 0;
+  Yap_IndexSpace_Tree = 0;
+  Yap_IndexSpace_EXT = 0;
+  Yap_IndexSpace_SW = 0;
+  Yap_LUClauseSpace = 0;
+  Yap_LUIndexSpace_Tree = 0;
+  Yap_LUIndexSpace_CP = 0;
+  Yap_LUIndexSpace_EXT = 0;
+  Yap_LUIndexSpace_SW = 0;
 #if defined(YAPOR) || defined(TABLING)
   Yap_init_global(max_table_size, n_workers, sch_loop, delay_load);
 #endif /* YAPOR || TABLING */

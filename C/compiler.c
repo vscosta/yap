@@ -11,8 +11,12 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2006-10-11 15:08:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-06 18:35:03 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.81  2006/10/11 15:08:03  vsc
+* fix bb entries
+* comment development code for timestamp overflow.
+*
 * Revision 1.80  2006/09/20 20:03:51  vsc
 * improve indexing on floats
 * fix sending large lists to DB
@@ -894,7 +898,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
 	/* first temp */
 	Int v1 = --cglobs->tmpreg;
 
-	Yap_emit(fetch_args_vc_op, IntegerOfTerm(t2), Zero, &cglobs->cint);
+	Yap_emit(fetch_args_vi_op, IntegerOfTerm(t2), 0L, &cglobs->cint);
 	/* these should be the arguments */
 	c_var(t1, v1, 0, 0, cglobs);
 	/* now we know where the arguments are */
@@ -1130,7 +1134,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
     } else if (IsIntegerTerm(t1)) {
       /* first temp */
       Int v1 = --cglobs->tmpreg;
-      Yap_emit(fetch_args_cv_op, IntegerOfTerm(t1), Zero, &cglobs->cint);
+      Yap_emit(fetch_args_iv_op, IntegerOfTerm(t1), 0L, &cglobs->cint);
       /* these should be the arguments */
       c_var(t2, v1, 0, 0, cglobs);
       /* now we know where the arguments are */
@@ -1217,7 +1221,7 @@ c_functor(Term Goal, int mod, compiler_struct *cglobs)
   } else if (IsVarTerm(t2) && IsNewVar(t2) &&
 	     IsVarTerm(t3) && IsNewVar(t3)) {
     Int v1 = --cglobs->tmpreg;
-    Yap_emit(fetch_args_vc_op, Zero, Zero, &cglobs->cint);
+    Yap_emit(fetch_args_vi_op, Zero, Zero, &cglobs->cint);
     c_var(t1, v1, 0, 0, cglobs);
     c_var(t2,f_flag,(unsigned int)_functor, 0, cglobs);
     c_var(t3,f_flag,(unsigned int)_functor, 0, cglobs);
@@ -2698,6 +2702,8 @@ c_layout(compiler_struct *cglobs)
       break;
     case fetch_args_cv_op:
     case fetch_args_vc_op:
+    case fetch_args_iv_op:
+    case fetch_args_vi_op:
       rn_to_kill[1]=rn_to_kill[0]=0;
       if (cglobs->cint.cpc->nextInst &&
 	  cglobs->cint.cpc->nextInst->op == put_val_op &&

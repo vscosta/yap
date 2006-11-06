@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-10-25 02:31:07 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-06 18:35:04 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.174  2006/10/25 02:31:07  vsc
+* fix emulation of trust_logical
+*
 * Revision 1.173  2006/10/18 13:47:31  vsc
 * index.c implementation of trust_logical was decrementing the wrong
 * cp_tr
@@ -434,6 +437,11 @@ cleanup_sw_on_clauses(CELL larg, UInt sz, OPCODE ecls)
 #if DEBUG
 	Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sp))+xp->u.sp.s1*sizeof(yamop *);
 #endif
+	if (xp->u.sp.p->PredFlags & LogUpdatePredFlag) {
+	  //	fprintf(stderr,"VSC %p %d - %d\n",xp,(UInt)NEXTOP((yamop *)NULL,sp)+xp->u.sp.s1*sizeof(yamop *),Yap_LUIndexSpace_EXT);
+	  Yap_LUIndexSpace_EXT -= (UInt)NEXTOP((yamop *)NULL,sp)+xp->u.sp.s1*sizeof(yamop *);
+	} else
+	  Yap_IndexSpace_EXT -= (UInt)(NEXTOP((yamop *)NULL,sp))+xp->u.sp.s1*sizeof(yamop *);
 	Yap_FreeCodeSpace((char *)xp);
 	return nsz;
       } else {
@@ -482,10 +490,12 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
 	if (log_upd_pred) {
 	  LogUpdIndex *lcl = ClauseCodeToLogUpdIndex(cpc->rnd2);
 	  sz += sizeof(LogUpdIndex)+cases*sizeof(AtomSwiEntry);
+	  Yap_LUIndexSpace_SW -= sizeof(LogUpdIndex)+cases*sizeof(AtomSwiEntry);
 	  Yap_FreeCodeSpace((char *)lcl);
 	} else {
 	  StaticIndex *scl = ClauseCodeToStaticIndex(cpc->rnd2);
 	  sz += sizeof(StaticIndex)+cases*sizeof(AtomSwiEntry);
+	  Yap_IndexSpace_SW -= sizeof(StaticIndex)+cases*sizeof(AtomSwiEntry);
 	  Yap_FreeCodeSpace((char *)scl);
 	}
       }
@@ -502,9 +512,11 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
 	if (log_upd_pred) {
 	  LogUpdIndex *lcl = ClauseCodeToLogUpdIndex(cpc->rnd2);
 	  sz += sizeof(LogUpdIndex)+cases*sizeof(FuncSwiEntry);
+	  Yap_LUIndexSpace_SW -= sizeof(LogUpdIndex)+cases*sizeof(FuncSwiEntry);
 	  Yap_FreeCodeSpace((char *)lcl);
 	} else {
 	  StaticIndex *scl = ClauseCodeToStaticIndex(cpc->rnd2);
+	  Yap_IndexSpace_SW -= sizeof(StaticIndex)+cases*sizeof(FuncSwiEntry);
 	  sz += sizeof(StaticIndex)+cases*sizeof(FuncSwiEntry);
 	  Yap_FreeCodeSpace((char *)scl);
 	}
@@ -3425,11 +3437,15 @@ static void
 emit_try(ClauseDef *cl, struct intermediates *cint, int var_group, int first, int clauses, int clleft, UInt nxtlbl)
 {
   PredEntry *ap = cint->CurrentPred;
-  yamop *clcode = cl->CurrentCode;
+  yamop *clcode;
   compiler_vm_op comp_op;
 
-  if (ap->PredFlags & TabledPredFlag) {
+  if (ap->PredFlags & LogUpdatePredFlag) {
+    clcode = cl->Code;
+  } else if (ap->PredFlags & TabledPredFlag) {
     clcode = NEXTOP(cl->Code, ld);
+  } else {
+    clcode = cl->CurrentCode;
   }
 
   comp_op = emit_optry(var_group, first, clauses, clleft, cint->CurrentPred);
@@ -3456,6 +3472,7 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint)
       save_machine_regs();
       longjmp(cint->CompilerBotch,2);
     }
+    Yap_LUIndexSpace_SW += sz;
     cl->ClFlags = SwitchTableMask|LogUpdMask;
     cl->ClSize = sz;
     cl->ClPred = cint->CurrentPred;
@@ -3475,6 +3492,7 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint)
       save_machine_regs();
       longjmp(cint->CompilerBotch,2);
     }
+    Yap_IndexSpace_SW += sz;
     cl->ClFlags = SwitchTableMask;
     cl->ClSize = sz;
     cl->ClPred = cint->CurrentPred;
@@ -3809,6 +3827,12 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
       save_machine_regs();
       longjmp(cint->CompilerBotch, 2);
     }
+    if (ap->PredFlags & LogUpdatePredFlag) {
+      //	fprintf(stderr,"VSC %p %d + %d\n",ncode,sz,Yap_LUIndexSpace_EXT);
+      Yap_LUIndexSpace_EXT += sz;
+    } else {
+      Yap_IndexSpace_EXT += sz;
+    }
 #ifdef LOW_PROF
     if (ProfilerOn &&
 	Yap_OffLineProfiler) {
@@ -3867,6 +3891,10 @@ recover_ecls_block(yamop *ipc)
 #endif
     /* no dangling pointers for gprof */
     Yap_InformOfRemoval((CODEADDR)ipc);
+    if (ipc->u.sp.p->PredFlags & LogUpdatePredFlag) {
+      Yap_LUIndexSpace_EXT -= (UInt)NEXTOP((yamop *)NULL,sp)+ipc->u.sp.s1*sizeof(yamop *);
+    } else
+      Yap_IndexSpace_EXT -= (UInt)NEXTOP((yamop *)NULL,sp)+ipc->u.sp.s1*sizeof(yamop *);
     Yap_FreeCodeSpace((char *)ipc);
   }
 }
@@ -4416,22 +4444,17 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
       cl++;
     }
     group = (GroupDef *)top;
-    ngroups = groups_in(min, max, group);
+    ngroups = groups_in(min, max, group);    
     if (ngroups == 1 && group->VarClauses == 0) {
       /* ok, we are doing a sub-argument */
-      /* process groups */
-      *newlabp = new_label(cint);
+      /* process group */
+
+      found_index = TRUE;
+      ret_lab = new_label(cint);
       top = (CELL *)(group+1);
-      newlabp = do_nonvar_group(group, (sreg == NULL ? 0L : Deref(sreg[i])), i+1, (isvt ? NULL : sreg), arity, *newlabp, cint, argno, argno == 1, (last_arg && i+1 == arity), fail_l, clleft, top);
-      if (newlabp == NULL) {
-	found_index = TRUE;
+      if (do_nonvar_group(group, (sreg == NULL ? 0L : Deref(sreg[i])), i+1, (isvt ? NULL : sreg), arity, *newlabp, cint, argno, argno == 1, (last_arg && i+1 == arity), fail_l, clleft, top) == NULL) {
 	top = top0;
 	break;
-      }
-      if (sreg == NULL || !isvt) {
-	found_index = TRUE;
-      } else {
-	done_work |= TRUE;
       }
     }
     top = top0;
@@ -5624,8 +5647,9 @@ expand_index(struct intermediates *cint) {
       lab = do_index(cls, max, cint, argno+1, fail_l, isfirstcl, clleft, top);
     }
   }
-  if (labp && !(lab & 1))
+  if (labp && !(lab & 1)) {
     *labp = (yamop *)lab; /* in case we have a single clause */
+  }
   return labp;
 }
 
@@ -5722,9 +5746,17 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
   }
 #endif
   if ((labp = expand_index(&cint)) == NULL) {
+    if (expand_clauses) {
+      P = FAILCODE;
+      recover_ecls_block(expand_clauses);
+    }
     return FAILCODE;
   }
   if (*labp == FAILCODE) {
+    if (expand_clauses) {
+      P = FAILCODE;
+      recover_ecls_block(expand_clauses);
+    }
     return FAILCODE;
   }
 #ifdef DEBUG
@@ -5744,9 +5776,17 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
     }
   } else {
     /* single case */
+    if (expand_clauses) {
+      P = *labp;
+      recover_ecls_block(expand_clauses);
+    }
     return *labp;
   }
   if (indx_out == NULL) {
+    if (expand_clauses) {
+      P = FAILCODE;
+      recover_ecls_block(expand_clauses);
+    }
     return FAILCODE;
   }
   *labp = indx_out;
@@ -5958,6 +5998,7 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
       c = c->SiblingIndex;
     }
     Yap_InformOfRemoval((CODEADDR)cl);
+    Yap_LUIndexSpace_SW -= cl->ClSize;
     Yap_FreeCodeSpace((char *)cl);
   } else {
     StaticIndex
@@ -5975,6 +6016,7 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
       c->SiblingIndex = ncl;
     }
     Yap_InformOfRemoval((CODEADDR)cl);
+    Yap_IndexSpace_SW -= cl->ClSize;
     Yap_FreeCodeSpace((char *)cl);
   }
 }
@@ -6154,17 +6196,18 @@ remove_clause_from_index(yamop **prevp, yamop *curp, LogUpdClause *cl)
 {
   if (curp->u.lld.d == cl) {
     yamop *newp = curp->u.lld.n;
-    *prevp = newp;
     newp->opc = curp->opc;
+    *prevp = newp;
   } else {
-    yamop *ocurp;
+    yamop *ocurp, *ocurp0 = curp;
 
     while (curp->u.lld.d != cl) {
       ocurp = curp;
       curp = curp->u.lld.n;
     }
     /* in case we were the last */
-    ocurp->opc = curp->opc;
+    if (ocurp != ocurp0)
+      ocurp->opc = curp->opc;
     ocurp->u.lld.n = curp->u.lld.n;
     ocurp->u.lld.t.block = curp->u.lld.t.block;
   }
@@ -6173,6 +6216,7 @@ remove_clause_from_index(yamop **prevp, yamop *curp, LogUpdClause *cl)
   Yap_FreedCps++;
 #endif
   clean_ref_to_clause(cl);
+  Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop*)NULL,lld);
   Yap_FreeCodeSpace((ADDR)curp);
 }
 
@@ -6219,11 +6263,13 @@ remove_dirty_clauses_from_index(yamop **prevp, yamop *curp)
 	previouscurp->opc = endop;
 	previouscurp->u.lld.t.block = curp->u.lld.t.block;
 	previouscurp->u.lld.n = NULL;
+	Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop*)NULL,lld);
 	Yap_FreeCodeSpace((ADDR)curp);
 	return;
       }
       previouscurp->u.lld.n = curp->u.lld.n;
       curp = curp->u.lld.n;
+      Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop*)NULL,lld);
       Yap_FreeCodeSpace((ADDR)ocurp);
     } else {
       previouscurp = curp;
@@ -6534,13 +6580,14 @@ add_try(PredEntry *ap, ClauseDef *cls, yamop *next, struct intermediates *cint)
 {
   yamop *newcp;
   UInt size = (UInt)NEXTOP((yamop *)NULL,lld);
-  LogUpdClause *lcl = ClauseCodeToLogUpdClause(cls->CurrentCode);
+  LogUpdClause *lcl = ClauseCodeToLogUpdClause(cls->Code);
 
   if ((newcp = (yamop *)Yap_AllocCodeSpace(size)) == NULL) {
     /* OOOPS, got in trouble, must do a longjmp and recover space */
     save_machine_regs();
     longjmp(cint->CompilerBotch,2);
   }
+  Yap_LUIndexSpace_CP += size;
 #ifdef DEBUG
   Yap_NewCps++;
   Yap_LiveCps++;
@@ -6558,7 +6605,7 @@ add_trust(LogUpdIndex *icl, ClauseDef *cls, struct intermediates *cint)
 {
   yamop *newcp;
   UInt size = (UInt)NEXTOP((yamop *)NULL,lld);
-  LogUpdClause *lcl = ClauseCodeToLogUpdClause(cls->CurrentCode);
+  LogUpdClause *lcl = ClauseCodeToLogUpdClause(cls->Code);
   PredEntry *ap =  lcl->ClPred;
 
   if ((newcp = (yamop *)Yap_AllocCodeSpace(size)) == NULL) {
@@ -6566,6 +6613,7 @@ add_trust(LogUpdIndex *icl, ClauseDef *cls, struct intermediates *cint)
     save_machine_regs();
     longjmp(cint->CompilerBotch,2);
   }
+  Yap_LUIndexSpace_CP += size;
 #ifdef DEBUG
   Yap_NewCps++;
   Yap_LiveCps++;

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.107 2006-10-11 14:53:57 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.108 2006-11-06 18:35:05 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -197,6 +197,9 @@ typedef struct various_codes {
   special_functors funcs;
   UInt hole_size;
   struct malloc_state *av_;
+
+  UInt clause_space, index_space_Tree, index_space_EXT, index_space_SW;
+  UInt lu_clause_space, lu_index_space_Tree, lu_index_space_CP, lu_index_space_EXT, lu_index_space_SW;
 #if USE_DL_MALLOC
   struct memory_hole memory_holes[MAX_DLMALLOC_HOLES];
   UInt nof_memory_holes;
@@ -554,6 +557,15 @@ struct various_codes *Yap_heap_regs;
 
 #define  Yap_HoleSize            Yap_heap_regs->hole_size
 #define  Yap_av                  Yap_heap_regs->av_
+#define  Yap_ClauseSpace         Yap_heap_regs->clause_space
+#define  Yap_IndexSpace_Tree     Yap_heap_regs->index_space_Tree
+#define  Yap_IndexSpace_EXT      Yap_heap_regs->index_space_EXT
+#define  Yap_IndexSpace_SW       Yap_heap_regs->index_space_SW
+#define  Yap_LUClauseSpace       Yap_heap_regs->lu_clause_space
+#define  Yap_LUIndexSpace_Tree   Yap_heap_regs->lu_index_space_Tree
+#define  Yap_LUIndexSpace_CP     Yap_heap_regs->lu_index_space_CP
+#define  Yap_LUIndexSpace_EXT    Yap_heap_regs->lu_index_space_EXT
+#define  Yap_LUIndexSpace_SW     Yap_heap_regs->lu_index_space_SW
 #define  Yap_MemoryHoles         Yap_heap_regs->memory_holes
 #define  Yap_NOfMemoryHoles      Yap_heap_regs->nof_memory_holes
 #if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)

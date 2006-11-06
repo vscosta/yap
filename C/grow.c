@@ -590,6 +590,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   UInt minimal_request = 0L;
   long size0, sz = size;
   char vb_msg1 = '\0', *vb_msg2;
+  int do_grow = TRUE;
 
   if (hsplit) {
     /* just a little bit of sanity checking */
@@ -598,25 +599,31 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
       return FALSE;
     else if (hsplit == (CELL *)omax)
       hsplit = NULL;
+    if (size+H < ASP+4096) {
+      /* don't need to expand stacks */
+      do_grow = FALSE;
+    }
   }
-  /* adjust to a multiple of 256) */
-  Yap_PrologMode |= GrowStackMode;
   if (size < ((char *)H0-omax)/8)
     size = ((char *)H0-omax)/8;
   size0 = size = AdjustPageSize(size);
+  /* adjust to a multiple of 256) */
   Yap_ErrorMessage = NULL;
-  if (!Yap_ExtendWorkSpace(size)) {
+  Yap_PrologMode |= GrowStackMode;
+  start_growth_time = Yap_cputime();
+  if (do_grow) {
+    if (!Yap_ExtendWorkSpace(size)) {
 
-    Yap_ErrorMessage = NULL;
-    size += AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+MinHeapGap);   minimal_request = size;
-    size = Yap_ExtendWorkSpaceThroughHole(size);
-    if (size < 0) {
-      Yap_ErrorMessage = "Global Stack crashed against Local Stack";
-      Yap_PrologMode &= ~GrowStackMode;
-      return FALSE;
+      Yap_ErrorMessage = NULL;
+      size += AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+MinHeapGap);   minimal_request = size;
+      size = Yap_ExtendWorkSpaceThroughHole(size);
+      if (size < 0) {
+	Yap_ErrorMessage = "Global Stack crashed against Local Stack";
+	Yap_PrologMode &= ~GrowStackMode;
+	return FALSE;
+      }
     }
   }
-  start_growth_time = Yap_cputime();
   gc_verbose = Yap_is_gc_verbose();
   delay_overflows++;
   if (gc_verbose) {
@@ -640,10 +647,18 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
 #if USE_SYSTEM_MALLOC
   /* we always run the risk of shifting memory */
   size0 = Yap_GlobalBase-old_GlobalBase;
-  DelayDiff = size0;
-  TrDiff = LDiff = GDiff = size+size0;  
+  if (do_grow) {
+    DelayDiff = size0;
+    TrDiff = LDiff = GDiff = size+size0;  
+  } else {
+    TrDiff = DelayDiff = LDiff = 0;
+    GDiff = size;  
+  }
 #else
-  if (minimal_request) {
+  if (!do_grow) {
+    TrDiff = DelayDiff = LDiff = 0;
+    GDiff = size;    
+  } else if (minimal_request) {
     DelayDiff = size-size0;
     TrDiff = LDiff = GDiff = size;
   } else {
@@ -661,11 +676,13 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   XDiff = HDiff = 0;
   Yap_GlobalBase = old_GlobalBase;
   SetHeapRegs();
-  MoveLocalAndTrail();
-  if (hsplit) {
-    MoveGlobalWithHole();
-  } else {
-    MoveExpandedGlobal();
+  if (do_grow) {
+    MoveLocalAndTrail();
+    if (hsplit) {
+      MoveGlobalWithHole();
+    } else {
+      MoveExpandedGlobal();
+    }
   }
   AdjustStacksAndTrail();
   AdjustRegs(MaxTemps);
@@ -721,9 +738,9 @@ fix_compiler_instructions(PInstr *pcpc)
     case save_appl_op:
     case save_b_op:
     case commit_b_op:
+    case fetch_args_vv_op:
     case fetch_args_cv_op:
     case fetch_args_vc_op:
-    case fetch_args_vv_op:
       pcpc->rnd1 = GlobalAdjust(pcpc->rnd1);
       break;
     case get_float_op:
@@ -822,6 +839,8 @@ fix_compiler_instructions(PInstr *pcpc)
     case enter_lu_op:
     case empty_call_op:
     case blob_op:
+    case fetch_args_vi_op:
+    case fetch_args_iv_op:
 #ifdef TABLING
     case table_new_answer_op:
     case table_try_single_op:

@@ -2103,6 +2103,7 @@ CleanDeadClauses(void)
     while (cl) {
       if (!ref_in_use((DBRef)cl)) {
 	char *ocl = (char *)cl;
+	Yap_ClauseSpace -= cl->ClSize;
 	cl = cl->ClNext;
 	*cptr = cl;
 	Yap_FreeCodeSpace(ocl);
@@ -2121,6 +2122,10 @@ CleanDeadClauses(void)
     while (cl) {
       if (!ref_in_use((DBRef)cl)) {
 	char *ocl = (char *)cl;
+	if (cl->ClFlags & SwitchTableMask)
+	  Yap_IndexSpace_SW -= cl->ClSize;
+	else
+	  Yap_IndexSpace_Tree -= cl->ClSize;
 	cl = cl->SiblingIndex;
 	*cptr = cl;
 	Yap_FreeCodeSpace(ocl);
@@ -2139,6 +2144,7 @@ CleanDeadClauses(void)
     while (cl) {
       if (!ref_in_use((DBRef)cl)) {
 	char *ocl = (char *)cl;
+	Yap_ClauseSpace -= cl->ClSize;
 	cl = cl->ClNext;
 	*cptr = cl;
 	Yap_FreeCodeSpace(ocl);

@@ -11,8 +11,13 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2006-10-11 14:53:57 $							 *
+* Last rev:     $Date: 2006-11-06 18:35:03 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.90  2006/10/11 14:53:57  vsc
+* fix memory leak
+* fix overflow handling
+* VS: ----------------------------------------------------------------------
+*
 * Revision 1.89  2006/10/10 14:08:16  vsc
 * small fixes on threaded implementation.
 *
@@ -1483,9 +1488,15 @@ a_4sw(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
       code_p->u.ollll.l3 = emit_ilabel(seq_ptr[2], cip);
       code_p->u.ollll.l4 = emit_ilabel(seq_ptr[3], cip);
       if (cip->CurrentPred->PredFlags & LogUpdatePredFlag) {
-	Yap_FreeCodeSpace((char *)ClauseCodeToLogUpdIndex(ars));
+	LogUpdIndex *icl = ClauseCodeToLogUpdIndex(ars);
+
+	Yap_LUIndexSpace_Tree -= icl->ClSize;
+	Yap_FreeCodeSpace((char *)icl);
       } else {
-	Yap_FreeCodeSpace((char *)ClauseCodeToStaticIndex(ars));
+	StaticIndex *icl = ClauseCodeToStaticIndex(ars);
+
+	Yap_IndexSpace_Tree -= icl->ClSize;
+	Yap_FreeCodeSpace((char *)icl);
       }
     }
     GONEXT(ollll);
@@ -1690,6 +1701,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
 	save_machine_regs();
 	longjmp(cip->CompilerBotch,2);
       }
+      Yap_LUIndexSpace_CP += size;
 #ifdef DEBUG
       Yap_NewCps++;
       Yap_LiveCps++;
@@ -3254,9 +3266,11 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       a_fetch_vv(&cmp_info, pass_no, cip);
       break;
     case fetch_args_vc_op:
+    case fetch_args_vi_op:
       a_fetch_vc(&cmp_info, pass_no, cip);
       break;
     case fetch_args_cv_op:
+    case fetch_args_iv_op:
       a_fetch_cv(&cmp_info, pass_no, cip);
       break;
     case f_val_op:
@@ -3332,7 +3346,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 
 
 static DBTerm *
-fetch_clause_space(Term* tp, UInt size, struct intermediates *cip)
+fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep)
 {
   CELL *h0 = H;
   DBTerm *x;
@@ -3340,7 +3354,7 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip)
   /* This stuff should be just about fetching the space from the data-base,
      unfortunately we have to do all sorts of error handling :-( */
   H = (CELL *)cip->freep;
-  while ((x = Yap_StoreTermInDBPlusExtraSpace(*tp, size)) == NULL) {
+  while ((x = Yap_StoreTermInDBPlusExtraSpace(*tp, size, osizep)) == NULL) {
 
     H = h0;
     switch (Yap_Error_TYPE) {
@@ -3412,13 +3426,14 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
       !is_fact) {
     DBTerm *x;
     LogUpdClause *cl;
+    UInt osize;
 
-    if(!(x = fetch_clause_space(&t,size,cip))){
+    if(!(x = fetch_clause_space(&t,size,cip,&osize))){
       return NULL;
     }
     cl = (LogUpdClause *)((CODEADDR)x-(UInt)size);
-    cl->ClSize += sizeof(DBTerm) + sizeof(CELL)*x->NOfCells;
     cl->ClSource = x;
+    cl->ClSize = osize;
     cip->code_addr = (yamop *)cl;
   } else if (mode == ASSEMBLING_CLAUSE && 
       (ap->PredFlags & SourcePredFlag ||
@@ -3426,15 +3441,17 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
       !is_fact) {
     DBTerm *x;
     StaticClause *cl;
-    if(!(x = fetch_clause_space(&t,size,cip))) {
+    UInt osize;
+
+    if(!(x = fetch_clause_space(&t,size,cip,&osize))) {
       return NULL;
     }
     cl = (StaticClause *)((CODEADDR)x-(UInt)size);
     cip->code_addr = (yamop *)cl;
     code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, cip, size);
     /* make sure we copy after second pass */
-    cl->ClSize += sizeof(DBTerm) + sizeof(CELL)*x->NOfCells;
     cl->usc.ClSource = x;
+    cl->ClSize = osize;
     ProfEnd=code_p;
     return entry_code;
   } else {
@@ -3445,6 +3462,17 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
 	Yap_Error_Size = size;
 	return NULL;
       }
+    }
+    if (mode == ASSEMBLING_CLAUSE) {
+      if (ap->PredFlags & LogUpdatePredFlag) {
+	Yap_LUClauseSpace += size;
+      } else
+	Yap_ClauseSpace += size;
+    } else {
+      if (ap->PredFlags & LogUpdatePredFlag) {
+	Yap_LUIndexSpace_Tree += size;
+      } else
+	Yap_IndexSpace_Tree += size;
     }
   }
   code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, cip, size);

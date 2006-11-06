@@ -1197,7 +1197,7 @@ int STD_PROTO (Yap_RemoveIndexation, (PredEntry *));
 /* dbase.c */
 void STD_PROTO (Yap_ErDBE, (DBRef));
 DBTerm *STD_PROTO (Yap_StoreTermInDB, (Term, int));
-DBTerm *STD_PROTO (Yap_StoreTermInDBPlusExtraSpace, (Term, UInt));
+DBTerm *STD_PROTO (Yap_StoreTermInDBPlusExtraSpace, (Term, UInt, UInt *));
 Term STD_PROTO (Yap_FetchTermFromDB, (DBTerm *));
 void STD_PROTO (Yap_ReleaseTermFromDB, (DBTerm *));
 

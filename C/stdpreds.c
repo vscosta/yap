@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-10-10 14:08:17 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-06 18:35:04 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.110  2006/10/10 14:08:17  vsc
+* small fixes on threaded implementation.
+*
 * Revision 1.109  2006/09/15 19:32:47  vsc
 * ichanges for QSAR
 *
@@ -2510,6 +2513,7 @@ p_statistics_stacks_info(void)
 }
 
 
+
 static Int 
 p_statistics_trail_info(void)
 {
@@ -2549,6 +2553,41 @@ p_statistics_atom_info(void)
   return Yap_unify(ARG1, MkIntegerTerm(count)) &&
     Yap_unify(ARG2, MkIntegerTerm(spaceused));
 }
+
+
+static Int 
+p_statistics_db_size(void)
+{
+  Term t = MkIntegerTerm(Yap_ClauseSpace);
+  Term tit = MkIntegerTerm(Yap_IndexSpace_Tree);
+  Term tis = MkIntegerTerm(Yap_IndexSpace_SW);
+  Term tie = MkIntegerTerm(Yap_IndexSpace_EXT);
+
+  return
+    Yap_unify(t, ARG1) &&
+    Yap_unify(tit, ARG2) &&
+    Yap_unify(tis, ARG3) &&
+    Yap_unify(tie, ARG4);
+  
+}
+
+static Int 
+p_statistics_lu_db_size(void)
+{
+  Term t = MkIntegerTerm(Yap_LUClauseSpace);
+  Term tit = MkIntegerTerm(Yap_LUIndexSpace_Tree);
+  Term tic = MkIntegerTerm(Yap_LUIndexSpace_CP);
+  Term tix = MkIntegerTerm(Yap_LUIndexSpace_EXT);
+  Term tis = MkIntegerTerm(Yap_LUIndexSpace_SW);
+
+  return
+    Yap_unify(t, ARG1) &&
+    Yap_unify(tit, ARG2) &&
+    Yap_unify(tic, ARG3) &&
+    Yap_unify(tix, ARG4) &&
+    Yap_unify(tis, ARG5);
+}
+
 
 
 static Term
@@ -3030,6 +3069,8 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$statistics_stacks_info", 3, p_statistics_stacks_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$statistics_trail_info", 2, p_statistics_trail_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$statistics_atom_info", 2, p_statistics_atom_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$statistics_db_size", 4, p_statistics_db_size, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$statistics_lu_db_size", 5, p_statistics_lu_db_size, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$argv", 1, p_argv, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$runtime", 2, p_runtime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$cputime", 2, p_cputime, SafePredFlag|SyncPredFlag|HiddenPredFlag);

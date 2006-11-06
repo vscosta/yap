@@ -114,6 +114,12 @@ statistics(atoms,[NOf,SizeOf]) :-
 	'$statistics_atom_info'(NOf,SizeOf),
 	'$inform_stack_overflows'(NOfSO,_),
 	'$inform_trail_overflows'(NOfTO,_).
+statistics(static_code,[ClauseSize, IndexSize, TreeIndexSize, ExtIndexSize, SWIndexSize]) :-
+	'$statistics_db_size'(ClauseSize, TreeIndexSize, ExtIndexSize, SWIndexSize),
+	IndexSize is TreeIndexSize+ ExtIndexSize+ SWIndexSize.
+statistics(dynamic_code,[ClauseSize,IndexSize, TreeIndexSize, CPIndexSize, ExtIndexSize, SWIndexSize]) :-
+	'$statistics_lu_db_size'(ClauseSize, TreeIndexSize, CPIndexSize, ExtIndexSize, SWIndexSize),
+	IndexSize is TreeIndexSize+CPIndexSize+ ExtIndexSize+ SWIndexSize.
 
 key_statistics(Key, NOfEntries, TotalSize) :-
 	key_statistics(Key, NOfEntries, ClSize, IndxSize),

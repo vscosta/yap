@@ -161,6 +161,8 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
+  if (vsc_count < 59000)
+  return;
 #ifdef COMMENTED
   if (worker_id != 04 || worker_id != 03) return;
   //  if (vsc_count == 218280)

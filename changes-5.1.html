@@ -16,6 +16,10 @@
 
 <h2>Yap-5.1.2:</h2>
 <ul>
+<li> FIXED:  more fixes for new dynamic code and stack shifting.</li> 
+<li> FIXED:  if we can generate index on an sub-argument and the
+argument is unbound we should generate the code, suspend
+on it, and then call the system again.</li> 
 <li> FIXED:  avl_new/1 (obs from Miguel Filgueiras).</li> 
 <li> FIXED:  broken all/3 (obs from Miguel Filgueiras).</li> 
 <li> FIXED:  make 128 maximum disjunction depth (obs from Nicos Angelopoulos).</li> 

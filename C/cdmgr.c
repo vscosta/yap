@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-10-16 17:12:48 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-06 18:35:03 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.196  2006/10/16 17:12:48  vsc
+* fixes for threaded version.
+*
 * Revision 1.195  2006/10/11 17:24:36  vsc
 * make sure we only follow pointers *before* we removed the respective code block,
 * ie don't kill the child before checking pointers from parent!
@@ -635,6 +638,7 @@ Yap_BuildMegaClause(PredEntry *ap)
       return;
     }
   }
+  Yap_ClauseSpace += required;
   /* cool, it's our turn to do the conversion */
   mcl->ClFlags = MegaMask | has_blobs;
   mcl->ClSize = sz*ap->cs.p_code.NOfClauses;
@@ -664,6 +668,7 @@ Yap_BuildMegaClause(PredEntry *ap)
 
     ncl = cl->ClNext;
     Yap_InformOfRemoval((CODEADDR)cl);
+    Yap_ClauseSpace -= cl->ClSize;
     Yap_FreeCodeSpace((ADDR)cl);
     if (curcl->ClCode == ap->cs.p_code.LastClause)
       break;
@@ -696,6 +701,7 @@ split_megaclause(PredEntry *ap)
 	  StaticClause *cl = start;
 	  start = cl->ClNext;
 	  Yap_InformOfRemoval((CODEADDR)cl);
+	  Yap_ClauseSpace -= cl->ClSize;
 	  Yap_FreeCodeSpace((char *)cl);
 	}
 	if (ap->ArityOfPE) {
@@ -707,6 +713,7 @@ split_megaclause(PredEntry *ap)
 	return;
       }
     }
+    Yap_ClauseSpace += sizeof(StaticClause)+mcl->ClItemSize;
     new->ClFlags = FactMask;
     new->ClSize = mcl->ClItemSize;
     new->usc.ClPred = ap;
@@ -878,6 +885,11 @@ release_wcls(yamop *cop, OPCODE ecs)
       Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sp)+cop->u.sp.s1*sizeof(yamop *));
 #endif
       Yap_InformOfRemoval((CODEADDR)cop);
+      if (cop->u.sp.p->PredFlags & LogUpdatePredFlag) {
+	Yap_LUIndexSpace_EXT -= (UInt)NEXTOP((yamop *)NULL,sp)+cop->u.sp.s1*sizeof(yamop *);
+      } else {
+	Yap_IndexSpace_EXT -= (UInt)NEXTOP((yamop *)NULL,sp)+cop->u.sp.s1*sizeof(yamop *);
+      }
       Yap_FreeCodeSpace((char *)cop);
     }
   }
@@ -944,6 +956,7 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
 	yamop *oipc = ipc;
 	decrease_ref_counter(ipc->u.lld.d->ClCode, beg, end, suspend_code);
 	ipc = ipc->u.lld.n;
+	Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop *)NULL,lld);
 	Yap_FreeCodeSpace((ADDR)oipc);
 #ifdef DEBUG
 	Yap_DirtyCps--;
@@ -960,6 +973,7 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       Yap_FreedCps++;
 #endif
       decrease_ref_counter(ipc->u.lld.d->ClCode, beg, end, suspend_code);
+      Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop *)NULL,lld);
       Yap_FreeCodeSpace((ADDR)ipc);
       end = ipc;
       return;
@@ -1082,6 +1096,10 @@ kill_static_child_indxs(StaticIndex *indx, int in_use)
     UNLOCK(DeadStaticIndicesLock);
   } else {
     Yap_InformOfRemoval((CODEADDR)indx);
+    if (indx->ClFlags & SwitchTableMask)
+      Yap_IndexSpace_SW -= indx->ClSize;
+    else
+      Yap_IndexSpace_Tree -= indx->ClSize;
     Yap_FreeCodeSpace((char *)indx);
   }
 }
@@ -1143,6 +1161,11 @@ kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
     }
   }
   Yap_InformOfRemoval((CODEADDR)c);
+  if (c->ClFlags & SwitchTableMask)
+    Yap_LUIndexSpace_SW -= c->ClSize;
+  else {
+    Yap_LUIndexSpace_Tree -= c->ClSize;
+  }
   Yap_FreeCodeSpace((char *)c);
 }
 
@@ -1348,6 +1371,7 @@ retract_all(PredEntry *p, int in_use)
 	UNLOCK(DeadMegaClausesLock);
       } else {
 	Yap_InformOfRemoval((CODEADDR)cl);
+	Yap_ClauseSpace -= cl->ClSize;
 	Yap_FreeCodeSpace((char *)cl);
       }
       /* make sure this is not a MegaClause */
@@ -1366,6 +1390,7 @@ retract_all(PredEntry *p, int in_use)
 	  UNLOCK(DeadStaticClausesLock);
 	} else {
 	  Yap_InformOfRemoval((CODEADDR)cl);
+	  Yap_ClauseSpace -= cl->ClSize;
 	  Yap_FreeCodeSpace((char *)cl);
 	}
 	p->cs.p_code.NOfClauses--;
@@ -1479,6 +1504,7 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
     Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"Heap crashed against Stacks");
     return;
   }
+  Yap_ClauseSpace += (Int)NEXTOP(NEXTOP(NEXTOP(ncp,ld),e),l);
   /* skip the first entry, this contains the back link and will always be
      empty for this entry */
   ncp = (yamop *)(((CELL *)ncp)+1);
@@ -2070,6 +2096,7 @@ Yap_EraseStaticClause(StaticClause *cl, Term mod) {
     UNLOCK(DeadStaticClausesLock);
   } else {
     Yap_InformOfRemoval((CODEADDR)cl);
+    Yap_ClauseSpace -= cl->ClSize;
     Yap_FreeCodeSpace((char *)cl);
   }
   if (ap->cs.p_code.NOfClauses == 0) {
@@ -4575,18 +4602,24 @@ p_clean_up_dead_clauses(void)
 {
   while (DeadStaticClauses != NULL) {
     char *pt = (char *)DeadStaticClauses;
+    Yap_ClauseSpace -= DeadStaticClauses->ClSize;
     DeadStaticClauses = DeadStaticClauses->ClNext;
     Yap_InformOfRemoval((CODEADDR)pt);
     Yap_FreeCodeSpace(pt);
   }
   while (DeadStaticIndices != NULL) {
     char *pt = (char *)DeadStaticIndices;
+    if (DeadStaticIndices->ClFlags & SwitchTableMask)
+      Yap_IndexSpace_SW -= DeadStaticIndices->ClSize;
+    else
+      Yap_IndexSpace_Tree -= DeadStaticIndices->ClSize;
     DeadStaticIndices = DeadStaticIndices->SiblingIndex;
     Yap_InformOfRemoval((CODEADDR)pt);
     Yap_FreeCodeSpace(pt);
   }
   while (DeadMegaClauses != NULL) {
     char *pt = (char *)DeadMegaClauses;
+    Yap_ClauseSpace -= DeadMegaClauses->ClSize;
     DeadMegaClauses = DeadMegaClauses->ClNext;
     Yap_InformOfRemoval((CODEADDR)pt);
     Yap_FreeCodeSpace(pt);

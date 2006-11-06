@@ -124,6 +124,8 @@ typedef enum compiler_op {
   fetch_args_vv_op,
   fetch_args_cv_op,
   fetch_args_vc_op,
+  fetch_args_iv_op,
+  fetch_args_vi_op,
   f_var_op,
   f_val_op,
   enter_profiling_op,

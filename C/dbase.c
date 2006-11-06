@@ -157,6 +157,7 @@ typedef struct db_globs {
   SFKeep  *SFAr, *TopSF;	/* Where are we putting our SFunctors */
 #endif
   DBRef    found_one;	/* Place where we started recording */
+  UInt     sz;		/* total size */
 } dbglobs;
 
 static dbglobs *s_dbg;
@@ -322,6 +323,7 @@ static void create_hash_table(DBProp p, Int hint) {
     hint <<= 1;
   /* clean up the table */
   pt = tbl = (hash_db_entry *)AllocDBSpace(hint*sizeof(hash_db_entry));
+  Yap_LUClauseSpace += hint*sizeof(hash_db_entry);
   for (i=0; i< hint; i++) {
     pt->key = NULL;
     pt++;
@@ -1219,7 +1221,7 @@ generate_dberror_msg(int errnumb, UInt sz, char *msg)
 }
 
 static DBRef
-CreateDBWithDBRef(Term Tm, DBProp p)
+CreateDBWithDBRef(Term Tm, DBProp p, struct db_globs *dbg)
 {
   DBRef pp, dbr = DBRefOfTerm(Tm);
   DBTerm *ppt;
@@ -1229,12 +1231,15 @@ CreateDBWithDBRef(Term Tm, DBProp p)
     if (ppt == NULL) {
       return generate_dberror_msg(OUT_OF_HEAP_ERROR, TermNil, "could not allocate space");
     }
+    dbg->sz = sizeof(DBTerm)+2*sizeof(CELL);
+    Yap_LUClauseSpace += sizeof(DBTerm)+2*sizeof(CELL);
     pp = (DBRef)ppt;
   } else {
     pp = AllocDBSpace(DBLength(2*sizeof(DBRef)));
     if (pp == NULL) {
       return generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
     }
+    Yap_LUClauseSpace += DBLength(2*sizeof(DBRef));
     pp->id = FunctorDBRef;
     pp->Flags = DBNoVars|DBComplex|DBWithRefs;
     INIT_LOCK(pp->lock);
@@ -1259,7 +1264,7 @@ CreateDBWithDBRef(Term Tm, DBProp p)
 }
 
 static DBTerm *
-CreateDBTermForAtom(Term Tm, UInt extra_size) {
+CreateDBTermForAtom(Term Tm, UInt extra_size, struct db_globs *dbg) {
   DBTerm *ppt;
   ADDR ptr;
 
@@ -1267,6 +1272,8 @@ CreateDBTermForAtom(Term Tm, UInt extra_size) {
   if (ptr == NULL) {
     return (DBTerm *)generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
   }
+  Yap_LUClauseSpace += extra_size+sizeof(DBTerm);
+  dbg->sz = extra_size+sizeof(DBTerm);
   ppt = (DBTerm *)(ptr+extra_size);
   ppt->NOfCells = 0;
   ppt->DBRefs = NULL;
@@ -1279,7 +1286,7 @@ CreateDBTermForAtom(Term Tm, UInt extra_size) {
 }
 
 static DBTerm *
-CreateDBTermForVar(UInt extra_size)
+CreateDBTermForVar(UInt extra_size, struct db_globs *dbg)
 {
   DBTerm *ppt;
   ADDR ptr;
@@ -1288,6 +1295,8 @@ CreateDBTermForVar(UInt extra_size)
   if (ptr == NULL) {
     return (DBTerm *)generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
   }
+  Yap_LUClauseSpace += extra_size+sizeof(DBTerm);
+  dbg->sz = extra_size+sizeof(DBTerm);
   ppt = (DBTerm *)(ptr+extra_size);
   ppt->NOfCells = 0;
   ppt->DBRefs = NULL;
@@ -1311,6 +1320,8 @@ CreateDBRefForAtom(Term Tm, DBProp p, int InFlag, struct db_globs *dbg) {
   if (pp == NIL) {
     return generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
   }
+  Yap_LUClauseSpace += DBLength(NIL);
+  dbg->sz = DBLength(NIL);
   pp->id = FunctorDBRef;
   INIT_LOCK(pp->lock);
   INIT_DBREF_COUNT(pp);
@@ -1335,6 +1346,8 @@ CreateDBRefForVar(Term Tm, DBProp p, int InFlag, struct db_globs *dbg) {
   if (pp == NULL) {
     return generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
   }
+  Yap_LUClauseSpace += DBLength(NULL);
+  dbg->sz = DBLength(NULL);
   pp->id = FunctorDBRef;
   pp->Flags = DBVar;
   pp->DBT.Entry = (CELL) Tm;
@@ -1367,14 +1380,14 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 #ifdef COROUTINING
       if (!SafeIsAttachedTerm(Tm)) {
 #endif
-	DBRef out = (DBRef)CreateDBTermForVar(extra_size);
+	DBRef out = (DBRef)CreateDBTermForVar(extra_size, dbg);
 	*pstat = TRUE;
 	return out;
 #ifdef COROUTINING
       }
 #endif
     } else if (IsAtomOrIntTerm(Tm)) {
-      DBRef out = (DBRef)CreateDBTermForAtom(Tm, extra_size);
+      DBRef out = (DBRef)CreateDBTermForAtom(Tm, extra_size, dbg);
       *pstat = FALSE;
       return out;
     }
@@ -1465,7 +1478,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 	  break;
 	case (CELL)FunctorDBRef:
 	  Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-	  return CreateDBWithDBRef(Tm, p);
+	  return CreateDBWithDBRef(Tm, p, dbg);
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
 	  ntp = copy_big_int(ntp0, RepAppl(Tm));
@@ -1547,6 +1560,8 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return generate_dberror_msg(OUT_OF_HEAP_ERROR, (UInt)DBLength(CodeAbs), "heap crashed against stacks");
       }
+      Yap_LUClauseSpace += (CELL)CodeAbs+extra_size+sizeof(DBTerm);
+      dbg->sz = (CELL)CodeAbs+extra_size+sizeof(DBTerm);
       pp = (DBRef)ppt;
     } else {
       pp = AllocDBSpace(DBLength(CodeAbs));
@@ -1554,6 +1569,8 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return generate_dberror_msg(OUT_OF_HEAP_ERROR, (UInt)DBLength(CodeAbs), "heap crashed against stacks");
       }
+      Yap_LUClauseSpace += DBLength(CodeAbs);
+      dbg->sz = DBLength(CodeAbs);
       pp->id = FunctorDBRef;
       pp->Flags = flag;
       INIT_LOCK(pp->lock);
@@ -1806,7 +1823,7 @@ new_lu_db_entry(Term t, PredEntry *pe)
   cl->ClPred = pe;
   cl->ClExt = NULL;
   cl->ClPrev = cl->ClNext = NULL;
-  cl->ClSize = ((CODEADDR)&(x->Contents)-(CODEADDR)cl)+x->NOfCells*sizeof(CELL);
+  cl->ClSize = dbg.sz;
   /* Support for timestamps */
   if (pe && pe->LastCallOfPred != LUCALL_ASSERT) {
     ++pe->TimeStampOfPred;
@@ -2487,6 +2504,7 @@ init_int_keys(void) {
       p[0] = NIL;
       p++;
     }
+    Yap_LUClauseSpace += sizeof(Prop)*INT_KEYS_SIZE;
   }
 }
 
@@ -2500,6 +2518,7 @@ init_int_lu_keys(void) {
       p[0] = NULL;
       p++;
     }
+    Yap_LUClauseSpace += sizeof(Prop)*INT_KEYS_SIZE;
   }
 }
 
@@ -2507,6 +2526,7 @@ static int
 resize_int_keys(UInt new_size) {
   Prop *new;
   UInt i;
+  UInt old_size = INT_KEYS_SIZE;
 
   YAPEnterCriticalSection();
   if (INT_KEYS == NULL) {
@@ -2522,6 +2542,7 @@ resize_int_keys(UInt new_size) {
     Yap_ErrorMessage = "could not allocate space";
     return(FALSE);
   }
+  Yap_LUClauseSpace += sizeof(Prop)*new_size;
   for (i = 0; i < new_size; i++) {
     new[i] = NIL;
   }
@@ -2538,6 +2559,7 @@ resize_int_keys(UInt new_size) {
       }
     }
   }
+  Yap_LUClauseSpace -= sizeof(Prop)*old_size;
   Yap_FreeCodeSpace((char *)INT_KEYS);
   INT_KEYS = new;
   INT_KEYS_SIZE = new_size;
@@ -3896,6 +3918,7 @@ RemoveDBEntry(DBRef entryref)
     entryref->n->p = entryref->p;
   else 
     entryref->Parent->L0 = entryref->p;
+  /*  Yap_LUClauseSpace -= entryref->Size; */
   FreeDBSpace((char *) entryref);
 }
 
@@ -4022,6 +4045,7 @@ complete_lu_erase(LogUpdClause *clau)
     }
   }
   Yap_InformOfRemoval((CODEADDR)clau);
+  Yap_LUClauseSpace -= clau->ClSize;
   Yap_FreeCodeSpace((char *)clau);
 }
 
@@ -4156,6 +4180,7 @@ MyEraseClause(DynamicClause *clau)
     }
   } else {
     Yap_InformOfRemoval((CODEADDR)clau);
+    Yap_LUClauseSpace -= clau->ClSize;
     Yap_FreeCodeSpace((char *)clau);
 #ifdef DEBUG
     if (ref->NOfRefsTo)
@@ -4942,13 +4967,16 @@ Yap_StoreTermInDB(Term t, int nargs) {
 }
 
 DBTerm *
-Yap_StoreTermInDBPlusExtraSpace(Term t, UInt extra_size) {
+Yap_StoreTermInDBPlusExtraSpace(Term t, UInt extra_size, UInt *sz) {
   int needs_vars;
   struct db_globs dbg;
+  DBTerm *o;
 
   s_dbg = &dbg;
-  return (DBTerm *)CreateDBStruct(t, (DBProp)NULL,
-			  InQueue, &needs_vars, extra_size, &dbg);
+  o = (DBTerm *)CreateDBStruct(t, (DBProp)NULL,
+			       InQueue, &needs_vars, extra_size, &dbg);
+  *sz = dbg.sz;
+  return o;
 }
 
 
@@ -4964,6 +4992,7 @@ p_init_queue(void)
       return(FALSE);
     }
   }
+  /* Yap_LUClauseSpace += sizeof(db_queue); */
   dbq->id = FunctorDBRef;
   dbq->Flags = DBClMask;
   dbq->FirstInQueue = dbq->LastInQueue = NULL;
@@ -4995,6 +5024,7 @@ p_enqueue(void)
       return FALSE;
     }
   }
+  /* Yap_LUClauseSpace += sizeof(QueueEntry); */
   t = Deref(ARG1);
   x->DBT = StoreTermInDB(Deref(ARG2), 2);
   if (x->DBT == NULL) {
