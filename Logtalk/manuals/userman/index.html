@@ -21,254 +21,283 @@
 
 <h1>User Manual</h1>
 
-<ul>
-	<li><a href="#features">Logtalk features</a></li>
+<ul class="toc-entries">
+	<li><a href="#features">Logtalk features</a><span class="leader"/><span class="page-ref"><span class="features_features"/></span></li>
+	<li><a href="#nomenclature">Logtalk nomenclature</a><span class="leader"/><span class="page-ref"><span class="nomenclature_nomenclature"/></span></li>
 </ul>
-<ul>
-	<li><a href="#messages">Message sending</a></li>
-	<li><a href="#objects">Objects</a></li>
-	<li><a href="#protocols">Protocols</a></li>
-	<li><a href="#categories">Categories</a></li>
-	<li><a href="#predicates">Predicates</a></li>
-	<li><a href="#inheritance">Inheritance</a></li>
-	<li><a href="#events">Event-driven programming</a></li>
-	<li><a href="#errors">Error handling</a></li>
+<ul class="toc-entries">
+	<li><a href="#messages">Message sending</a><span class="leader"/><span class="page-ref"><span class="messages_messages"/></span></li>
+	<li><a href="#objects">Objects</a><span class="leader"/><span class="page-ref"><span class="objects_objects"/></span></li>
+	<li><a href="#protocols">Protocols</a><span class="leader"/><span class="page-ref"><span class="protocols_protocols"/></span></li>
+	<li><a href="#categories">Categories</a><span class="leader"/><span class="page-ref"><span class="categories_categories"/></span></li>
+	<li><a href="#predicates">Predicates</a><span class="leader"/><span class="page-ref"><span class="predicates_predicates"/></span></li>
+	<li><a href="#inheritance">Inheritance</a><span class="leader"/><span class="page-ref"><span class="inheritance_inheritance"/></span></li>
+	<li><a href="#events">Event-driven programming</a><span class="leader"/><span class="page-ref"><span class="events_events"/></span></li>
+	<li><a href="#threads">Multi-threading programming</a><span class="leader"/><span class="page-ref"><span class="threads_threads"/></span></li>
+	<li><a href="#errors">Error handling</a><span class="leader"/><span class="page-ref"><span class="errors_errors"/></span></li>
 </ul>
-<ul>
-	<li><a href="#documenting">Documenting Logtalk programs</a></li>
+<ul class="toc-entries">
+	<li><a href="#documenting">Documenting Logtalk programs</a><span class="leader"/><span class="page-ref"><span class="documenting_documenting"/></span></li>
 </ul>
-<ul>
-	<li><a href="#installing">Installing Logtalk</a></li>
-	<li><a href="#running">Running and debugging Logtalk programs</a></li>
-	<li><a href="#programming">Programming in Logtalk</a></li>
+<ul class="toc-entries">
+	<li><a href="#installing">Installing Logtalk</a><span class="leader"/><span class="page-ref"><span class="installing_installing"/></span></li>
+	<li><a href="#running">Running and debugging Logtalk programs</a><span class="leader"/><span class="page-ref"><span class="running_running"/></span></li>
+	<li><a href="#programming">Programming in Logtalk</a><span class="leader"/><span class="page-ref"><span class="programming_programming"/></span></li>
 </ul>
 
 <h2><a id="features" href="features.html">Logtalk features</a></h2>
 
-<dl>
-	<dt><a id="features_logic" href="features.html#logic">Integration of logic and object-oriented programming</a></dt>
-	<dt><a id="features_events" href="features.html#events">Integration of event-driven and object-oriented programming</a></dt>
-	<dt><a id="features_categories" href="features.html#categories">Support for component-based programming</a></dt>
-	<dt><a id="features_both" href="features.html#both">Support for both prototype and class-based systems</a></dt>
-	<dt><a id="features_multiple" href="features.html#multiple">Support for multiple object hierarchies</a></dt>
-	<dt><a id="features_interface" href="features.html#interface">Separation between interface and implementation</a></dt>
-	<dt><a id="features_inheritance" href="features.html#inheritance">Private, protected, and public inheritance</a></dt>
-	<dt><a id="features_predicates" href="features.html#predicates">Private, protected, and public object predicates</a></dt>
-	<dt><a id="features_parametric" href="features.html#parametric">Parametric objects</a></dt>
-	<dt><a id="features_learning" href="features.html#learning">Smooth learning curve</a></dt>
-	<dt><a id="features_compatibility" href="features.html#compatibility">Compatibility with most Prologs and the ISO standard</a></dt>
-	<dt><a id="features_performance" href="features.html#performance">Performance</a></dt>
+<dl class="toc-entries">
+	<dt><a href="features.html#features_logic">Integration of logic and object-oriented programming</a><span class="leader"/><span class="page-ref"><span class="features_logic"/></span></dt>
+	<dt><a href="features.html#features_events">Integration of event-driven and object-oriented programming</a><span class="leader"/><span class="page-ref"><span class="features_events"/></span></dt>
+	<dt><a href="features.html#features_categories">Support for component-based programming</a><span class="leader"/><span class="page-ref"><span class="features_categories"/></span></dt>
+	<dt><a href="features.html#features_both">Support for both prototype and class-based systems</a><span class="leader"/><span class="page-ref"><span class="features_both"/></span></dt>
+	<dt><a href="features.html#features_multiple">Support for multiple object hierarchies</a><span class="leader"/><span class="page-ref"><span class="features_multiple"/></span></dt>
+	<dt><a href="features.html#features_interface">Separation between interface and implementation</a><span class="leader"/><span class="page-ref"><span class="features_interface"/></span></dt>
+	<dt><a href="features.html#features_inheritance">Private, protected, and public inheritance</a><span class="leader"/><span class="page-ref"><span class="features_inheritance"/></span></dt>
+	<dt><a href="features.html#features_predicates">Private, protected, and public object predicates</a><span class="leader"/><span class="page-ref"><span class="features_predicates"/></span></dt>
+	<dt><a href="features.html#features_parametric">Parametric objects</a><span class="leader"/><span class="page-ref"><span class="features_parametric"/></span></dt>
+	<dt><a href="features.html#features_learning">Smooth learning curve</a><span class="leader"/><span class="page-ref"><span class="features_learning"/></span></dt>
+	<dt><a href="features.html#features_compatibility">Compatibility with most Prologs and the ISO standard</a><span class="leader"/><span class="page-ref"><span class="features_compatibility"/></span></dt>
+	<dt><a href="features.html#features_performance">Performance</a><span class="leader"/><span class="page-ref"><span class="features_performance"/></span></dt>
+</dl>
+
+<h2><a id="nomenclature" href="nomenclature.html">Logtalk nomenclature</a></h2>
+
+<dl class="toc-entries">
+	<dt><a href="nomenclature.html#nomenclature_cpp">C++ nomenclature</a><span class="leader"/><span class="page-ref"><span class="nomenclature_cpp"/></span></dt>
+	<dt><a href="nomenclature.html#nomenclature_java">Java nomenclature</a><span class="leader"/><span class="page-ref"><span class="nomenclature_java"/></span></dt>
 </dl>
 
 <h2><a id="messages" href="messages.html">Message sending</a></h2>
 
-<dl>
-	<dt><a id="messages_operators" href="messages.html#operators">Operators used in message sending</a></dt>
-	<dt><a id="messages_sending" href="messages.html#sending">Sending a message to an object</a></dt>
-	<dt><a id="messages_broadcasting" href="messages.html#broadcasting">Broadcasting</a></dt>
-	<dt><a id="messages_self" href="messages.html#self">Sending a message to <em>self</em></a></dt>
-	<dt><a id="messages_super" href="messages.html#super">Calling an overridden predicate definition</a></dt>
-	<dt><a id="messages_events" href="messages.html#events">Message sending and event generation</a></dt>
-	<dt><a id="messages_performance" href="messages.html#performance">Message sending performance</a></dt>
+<dl class="toc-entries">
+	<dt><a href="messages.html#messages_operators">Operators used in message sending</a><span class="leader"/><span class="page-ref"><span class="messages_operators"/></span></dt>
+	<dt><a href="messages.html#messages_sending">Sending a message to an object</a><span class="leader"/><span class="page-ref"><span class="messages_sending"/></span></dt>
+	<dt><a href="messages.html#messages_broadcasting">Broadcasting</a><span class="leader"/><span class="page-ref"><span class="messages_broadcasting"/></span></dt>
+	<dt><a href="messages.html#messages_self">Sending a message to <em>self</em></a><span class="leader"/><span class="page-ref"><span class="messages_self"/></span></dt>
+	<dt><a href="messages.html#messages_super">Calling an overridden predicate definition</a><span class="leader"/><span class="page-ref"><span class="messages_super"/></span></dt>
+	<dt><a href="messages.html#messages_events">Message sending and event generation</a><span class="leader"/><span class="page-ref"><span class="messages_events"/></span></dt>
+	<dt><a href="messages.html#messages_performance">Message sending performance</a><span class="leader"/><span class="page-ref"><span class="messages_performance"/></span></dt>
 </dl>
 
 <h2><a id="objects" href="objects.html">Objects</a></h2>
 
-<dl>
-	<dt><a id="objects_kind" href="objects.html#kind">Objects, prototypes, classes, and instances</a></dt>
-	<dt><a id="objects_defining" href="objects.html#defining">Defining a new object</a></dt>
-	<dt><a id="objects_parametric" href="objects.html#parametric">Parametric objects</a></dt>
-	<dt><a id="objects_finding" href="objects.html#finding">Finding defined objects</a></dt>
-	<dt><a id="objects_creating" href="objects.html#creating">Creating a new object in runtime</a></dt>
-	<dt><a id="objects_abolishing" href="objects.html#abolishing">Abolishing an existing object</a></dt>
-	<dt><a id="objects_directives" href="objects.html#directives">Object directives</a></dt>
-		<dd><a id="objects_initialization" href="objects.html#initialization">Object initialization</a></dd>
-		<dd><a id="objects_dynamic" href="objects.html#dynamic">Dynamic objects</a></dd>
-		<dd><a id="objects_dependencies" href="objects.html#dependencies">Object dependencies</a></dd>
-		<dd><a id="objects_documentation" href="objects.html#documentation">Object documentation</a></dd>
-	<dt><a id="objects_relationships" href="objects.html#relationships">Object relationships</a></dt>
-	<dt><a id="objects_properties" href="objects.html#properties">Object properties</a></dt>
-	<dt><a id="objects_user" href="objects.html#user">The pseudo-object user</a></dt>
-	<dt><a id="objects_debugger" href="objects.html#debugger">The pseudo-object debugger</a></dt>
+<dl class="toc-entries">
+	<dt><a href="objects.html#objects_kind">Objects, prototypes, classes, and instances</a><span class="leader"/><span class="page-ref"><span class="objects_kind"/></span></dt>
+	<dt><a href="objects.html#objects_defining">Defining a new object</a><span class="leader"/><span class="page-ref"><span class="objects_defining"/></span></dt>
+	<dt><a href="objects.html#objects_parametric">Parametric objects</a><span class="leader"/><span class="page-ref"><span class="objects_parametric"/></span></dt>
+	<dt><a href="objects.html#objects_finding">Finding defined objects</a><span class="leader"/><span class="page-ref"><span class="objects_finding"/></span></dt>
+	<dt><a href="objects.html#objects_creating">Creating a new object in runtime</a><span class="leader"/><span class="page-ref"><span class="objects_creating"/></span></dt>
+	<dt><a href="objects.html#objects_abolishing">Abolishing an existing object</a><span class="leader"/><span class="page-ref"><span class="objects_abolishing"/></span></dt>
+	<dt><a href="objects.html#objects_directives">Object directives</a><span class="leader"/><span class="page-ref"><span class="objects_directives"/></span></dt>
+		<dd><a href="objects.html#objects_initialization">Object initialization</a><span class="leader"/><span class="page-ref"><span class="objects_initialization"/></span></dd>
+		<dd><a href="objects.html#objects_dynamic">Dynamic objects</a><span class="leader"/><span class="page-ref"><span class="objects_dynamic"/></span></dd>
+		<dd><a href="objects.html#objects_dependencies">Object dependencies</a><span class="leader"/><span class="page-ref"><span class="objects_dependencies"/></span></dd>
+		<dd><a href="objects.html#objects_documentation">Object documentation</a><span class="leader"/><span class="page-ref"><span class="objects_documentation"/></span></dd>
+	<dt><a href="objects.html#objects_relationships">Object relationships</a><span class="leader"/><span class="page-ref"><span class="objects_relationships"/></span></dt>
+	<dt><a href="objects.html#objects_properties">Object properties</a><span class="leader"/><span class="page-ref"><span class="objects_properties"/></span></dt>
+	<dt><a href="objects.html#objects_user">The pseudo-object user</a><span class="leader"/><span class="page-ref"><span class="objects_user"/></span></dt>
+	<dt><a href="objects.html#objects_debugger">The pseudo-object debugger</a><span class="leader"/><span class="page-ref"><span class="objects_debugger"/></span></dt>
 </dl>
 
 <h2><a id="protocols" href="protocols.html">Protocols</a></h2>
 
-<dl>
-	<dt><a id="protocols_defining" href="protocols.html#defining">Defining a new protocol</a></dt>
-	<dt><a id="protocols_finding" href="protocols.html#finding">Finding defined protocols</a></dt>
-	<dt><a id="protocols_creating" href="protocols.html#creating">Creating a new protocol in runtime</a></dt>
-	<dt><a id="protocols_abolishing" href="protocols.html#abolishing">Abolishing an existing protocol</a></dt>
-	<dt><a id="protocols_directives" href="protocols.html#directives">Protocol directives</a></dt>
-		<dd><a id="protocols_initialization" href="protocols.html#initialization">Protocol initialization</a></dd>
-		<dd><a id="protocols_dynamic" href="protocols.html#dynamic">Dynamic protocols</a></dd>
-		<dd><a id="protocols_documentation" href="protocols.html#documentation">Protocol documentation</a></dd>
-	<dt><a id="protocols_relationships" href="protocols.html#relationships">Protocol relationships</a></dt>
-	<dt><a id="protocols_properties" href="protocols.html#properties">Protocol properties</a></dt>
-	<dt><a id="protocols_implementing" href="protocols.html#properties">Implementing protocols</a></dt>
+<dl class="toc-entries">
+	<dt><a href="protocols.html#protocols_defining">Defining a new protocol</a><span class="leader"/><span class="page-ref"><span class="protocols_defining"/></span></dt>
+	<dt><a href="protocols.html#protocols_finding">Finding defined protocols</a><span class="leader"/><span class="page-ref"><span class="protocols_finding"/></span></dt>
+	<dt><a href="protocols.html#protocols_creating">Creating a new protocol in runtime</a><span class="leader"/><span class="page-ref"><span class="protocols_creating"/></span></dt>
+	<dt><a href="protocols.html#protocols_abolishing">Abolishing an existing protocol</a><span class="leader"/><span class="page-ref"><span class="protocols_abolishing"/></span></dt>
+	<dt><a href="protocols.html#protocols_directives">Protocol directives</a><span class="leader"/><span class="page-ref"><span class="protocols_directives"/></span></dt>
+		<dd><a href="protocols.html#protocols_initialization">Protocol initialization</a><span class="leader"/><span class="page-ref"><span class="protocols_initialization"/></span></dd>
+		<dd><a href="protocols.html#protocols_dynamic">Dynamic protocols</a><span class="leader"/><span class="page-ref"><span class="protocols_dynamic"/></span></dd>
+		<dd><a href="protocols.html#protocols_documentation">Protocol documentation</a><span class="leader"/><span class="page-ref"><span class="protocols_documentation"/></span></dd>
+	<dt><a href="protocols.html#protocols_relationships">Protocol relationships</a><span class="leader"/><span class="page-ref"><span class="protocols_relationships"/></span></dt>
+	<dt><a href="protocols.html#protocols_properties">Protocol properties</a><span class="leader"/><span class="page-ref"><span class="protocols_properties"/></span></dt>
+	<dt><a href="protocols.html#protocols_implementing">Implementing protocols</a><span class="leader"/><span class="page-ref"><span class="protocols_implementing"/></span></dt>
 </dl>
 
 <h2><a id="categories" href="categories.html">Categories</a></h2>
 
-<dl>
-	<dt><a id="categories_defining" href="categories.html#defining">Defining a new category</a></dt>
-	<dt><a id="categories_finding" href="categories.html#finding">Finding defined categories</a></dt>
-	<dt><a id="categories_creating" href="categories.html#creating">Creating a new category in runtime</a></dt>
-	<dt><a id="categories_abolishing" href="categories.html#abolishing">Abolishing an existing category</a></dt>
-	<dt><a id="categories_directives" href="categories.html#directives">Category directives</a></dt>
-		<dd><a id="categories_initialization" href="categories.html#initialization">Category initialization</a></dd>
-		<dd><a id="categories_dynamic" href="categories.html#dynamic">Dynamic categories</a></dd>
-		<dd><a id="categories_dependencies" href="categories.html#dependencies">Category dependencies</a></dd>
-		<dd><a id="categories_documentation" href="categories.html#documentation">Category documentation</a></dd>
-	<dt><a id="categories_relationships" href="categories.html#relationships">Category relationships</a></dt>
-	<dt><a id="categories_properties" href="categories.html#properties">Category properties</a></dt>
-	<dt><a id="categories_importing" href="categories.html#importing">Importing categories</a></dt>
+<dl class="toc-entries">
+	<dt><a href="categories.html#categories_defining">Defining a new category</a><span class="leader"/><span class="page-ref"><span class="categories_defining"/></span></dt>
+	<dt><a href="categories.html#categories_finding">Finding defined categories</a><span class="leader"/><span class="page-ref"><span class="categories_finding"/></span></dt>
+	<dt><a href="categories.html#categories_creating">Creating a new category in runtime</a><span class="leader"/><span class="page-ref"><span class="categories_creating"/></span></dt>
+	<dt><a href="categories.html#categories_abolishing">Abolishing an existing category</a><span class="leader"/><span class="page-ref"><span class="categories_abolishing"/></span></dt>
+	<dt><a href="categories.html#categories_directives">Category directives</a><span class="leader"/><span class="page-ref"><span class="categories_directives"/></span></dt>
+		<dd><a href="categories.html#categories_initialization">Category initialization</a><span class="leader"/><span class="page-ref"><span class="categories_initialization"/></span></dd>
+		<dd><a href="categories.html#categories_dynamic">Dynamic categories</a><span class="leader"/><span class="page-ref"><span class="categories_dynamic"/></span></dd>
+		<dd><a href="categories.html#categories_dependencies">Category dependencies</a><span class="leader"/><span class="page-ref"><span class="categories_dependencies"/></span></dd>
+		<dd><a href="categories.html#categories_documentation">Category documentation</a><span class="leader"/><span class="page-ref"><span class="categories_documentation"/></span></dd>
+	<dt><a href="categories.html#categories_relationships">Category relationships</a><span class="leader"/><span class="page-ref"><span class="categories_relationships"/></span></dt>
+	<dt><a href="categories.html#categories_properties">Category properties</a><span class="leader"/><span class="page-ref"><span class="categories_properties"/></span></dt>
+	<dt><a href="categories.html#categories_importing">Importing categories</a><span class="leader"/><span class="page-ref"><span class="categories_importing"/></span></dt>
 </dl>
 
 <h2><a id="predicates" href="predicates.html">Predicates</a></h2>
 
-<dl>
-	<dt><a id="predicates_declaring" href="predicates.html#declaring">Declaring predicates</a></dt>
-		<dd><a id="predicates_scope" href="predicates.html#scope">Scope directives</a></dd>
-		<dd><a id="predicates_mode" href="predicates.html#mode">Mode directive</a></dd>
-		<dd><a id="predicates_meta" href="predicates.html#meta">Meta-predicate directive</a></dd>
-		<dd><a id="predicates_discontiguous" href="predicates.html#discontiguous">Discontiguous directive</a></dd>
-		<dd><a id="predicates_dynamic" href="predicates.html#dynamic">Dynamic directive</a></dd>
-		<dd><a id="predicates_op" href="predicates.html#op">Operator directive</a></dd>
-		<dd><a id="predicates_uses" href="predicates.html#uses">Uses directive</a></dd>
-		<dd><a id="predicates_alias" href="predicates.html#alias">Alias directive</a></dd>
-		<dd><a id="predicates_info" href="predicates.html#info">Documenting directive</a></dd>
-	<dt><a id="predicates_defining" href="predicates.html#defining">Defining predicates</a></dt>
-		<dd><a id="predicates_objects" href="predicates.html#objects">Object predicates</a></dd>
-		<dd><a id="predicates_categories" href="predicates.html#categories">Category predicates</a></dd>
-		<dd><a id="predicates_metadef" href="predicates.html#metadef">Meta-predicates</a></dd>
-		<dd><a id="predicates_dcgs" href="predicates.html#dcgs">Definite clause grammars</a></dd>
-	<dt><a id="predicates_methods" href="predicates.html#methods">Built-in object predicates (methods)</a></dt>
-		<dd><a id="predicates_context" href="predicates.html#context">Execution context methods</a></dd>
-		<dd><a id="predicates_database" href="predicates.html#database">Database methods</a></dd>
-		<dd><a id="predicates_solutions" href="predicates.html#solutions">All solutions methods</a></dd>
-		<dd><a id="predicates_reflection" href="predicates.html#reflection">Reflection methods</a></dd>
-		<dd><a id="predicates_parsing" href="predicates.html#parsing">Definite clause grammar parsing methods</a></dd>
-		<dd><a id="predicates_expanding" href="predicates.html#expanding">Term expansion methods</a></dd>
-	<dt><a id="predicates_properties" href="predicates.html#properties">Predicate properties</a></dt>
-	<dt><a id="predicates_finding" href="predicates.html#finding">Finding declared predicates</a></dt>
-	<dt><a id="predicates_prolog" href="predicates.html#prolog">Calling Prolog built-in predicates</a></dt>
-		<dd><a id="predicates_prolog_meta" href="predicates.html#prolog_meta">Calling Prolog non-standard meta-predicates</a></dd>
+<dl class="toc-entries">
+	<dt><a href="predicates.html#predicates_declaring">Declaring predicates</a><span class="leader"/><span class="page-ref"><span class="predicates_declaring"/></span></dt>
+		<dd><a href="predicates.html#predicates_scope">Scope directives</a><span class="leader"/><span class="page-ref"><span class="predicates_scope"/></span></dd>
+		<dd><a href="predicates.html#predicates_mode">Mode directive</a><span class="leader"/><span class="page-ref"><span class="predicates_mode"/></span></dd>
+		<dd><a href="predicates.html#predicates_meta">Meta-predicate directive</a><span class="leader"/><span class="page-ref"><span class="predicates_meta"/></span></dd>
+		<dd><a href="predicates.html#predicates_discontiguous">Discontiguous directive</a><span class="leader"/><span class="page-ref"><span class="predicates_discontiguous"/></span></dd>
+		<dd><a href="predicates.html#predicates_dynamic">Dynamic directive</a><span class="leader"/><span class="page-ref"><span class="predicates_dynamic"/></span></dd>
+		<dd><a href="predicates.html#predicates_op">Operator directive</a><span class="leader"/><span class="page-ref"><span class="predicates_op"/></span></dd>
+		<dd><a href="predicates.html#predicates_uses">Uses directive</a><span class="leader"/><span class="page-ref"><span class="predicates_uses"/></span></dd>
+		<dd><a href="predicates.html#predicates_alias">Alias directive</a><span class="leader"/><span class="page-ref"><span class="predicates_alias"/></span></dd>
+		<dd><a href="predicates.html#predicates_info">Documenting directive</a><span class="leader"/><span class="page-ref"><span class="predicates_info"/></span></dd>
+	<dt><a href="predicates.html#predicates_defining">Defining predicates</a><span class="leader"/><span class="page-ref"><span class="predicates_defining"/></span></dt>
+		<dd><a href="predicates.html#predicates_objects">Object predicates</a><span class="leader"/><span class="page-ref"><span class="predicates_objects"/></span></dd>
+		<dd><a href="predicates.html#predicates_categories">Category predicates</a><span class="leader"/><span class="page-ref"><span class="predicates_categories"/></span></dd>
+		<dd><a href="predicates.html#predicates_metadef">Meta-predicates</a><span class="leader"/><span class="page-ref"><span class="predicates_metadef"/></span></dd>
+		<dd><a href="predicates.html#predicates_dcgs">Definite clause grammars</a><span class="leader"/><span class="page-ref"><span class="predicates_dcgs"/></span></dd>
+	<dt><a href="predicates.html#predicates_methods">Built-in object predicates (methods)</a><span class="leader"/><span class="page-ref"><span class="predicates_methods"/></span></dt>
+		<dd><a href="predicates.html#predicates_context">Execution context methods</a><span class="leader"/><span class="page-ref"><span class="predicates_context"/></span></dd>
+		<dd><a href="predicates.html#predicates_database">Database methods</a><span class="leader"/><span class="page-ref"><span class="predicates_database"/></span></dd>
+		<dd><a href="predicates.html#predicates_metacalls">Meta-call methods</a><span class="leader"/><span class="page-ref"><span class="predicates_metacalls"/></span></dd>
+		<dd><a href="predicates.html#predicates_solutions">All solutions methods</a><span class="leader"/><span class="page-ref"><span class="predicates_solutions"/></span></dd>
+		<dd><a href="predicates.html#predicates_reflection">Reflection methods</a><span class="leader"/><span class="page-ref"><span class="predicates_reflection"/></span></dd>
+		<dd><a href="predicates.html#predicates_parsing">Definite clause grammar parsing methods</a><span class="leader"/><span class="page-ref"><span class="predicates_parsing"/></span></dd>
+		<dd><a href="predicates.html#predicates_expanding">Term expansion methods</a><span class="leader"/><span class="page-ref"><span class="predicates_expanding"/></span></dd>
+	<dt><a href="predicates.html#predicates_properties">Predicate properties</a><span class="leader"/><span class="page-ref"><span class="predicates_properties"/></span></dt>
+	<dt><a href="predicates.html#predicates_finding">Finding declared predicates</a><span class="leader"/><span class="page-ref"><span class="predicates_finding"/></span></dt>
+	<dt><a href="predicates.html#predicates_prolog">Calling Prolog built-in predicates</a><span class="leader"/><span class="page-ref"><span class="predicates_prolog"/></span></dt>
+		<dd><a href="predicates.html#predicates_prolog_meta">Calling Prolog non-standard meta-predicates</a><span class="leader"/><span class="page-ref"><span class="predicates_prolog_meta"/></span></dd>
 </dl>
 
 <h2><a id="inheritance" href="inheritance.html">Inheritance</a></h2>
 
-<dl>
-	<dt><a id="inheritance_protocol" href="inheritance.html#protocol">Protocol inheritance</a></dt>
-		<dd><a id="inheritance_protocol_prototype" href="inheritance.html#protocol_prototype">Search order for prototype hierarchies</a></dd>
-		<dd><a id="inheritance_protocol_class" href="inheritance.html#protocol_class">Search order for class hierarchies</a></dd>
-	<dt><a id="inheritance_implementation" href="inheritance.html#implementation">Implementation inheritance</a></dt>
-		<dd><a id="inheritance_implementation_prototype" href="inheritance.html#implementation_prototype">Search order for prototype hierarchies</a></dd>
-		<dd><a id="inheritance_implementation_class" href="inheritance.html#implementation_class">Search order for class hierarchies</a></dd>
-		<dd><a id="inheritance_implementation_redefinition" href="inheritance.html#implementation_redefinition">Inheritance versus predicate redefinition</a></dd>
-	<dt><a id="inheritance_types" href="inheritance.html#types">Public, protected, and private inheritance</a></dt>
-	<dt><a id="inheritance_composition" href="inheritance.html#composition">Composition versus multiple inheritance</a></dt>
+<dl class="toc-entries">
+	<dt><a href="inheritance.html#inheritance_protocol">Protocol inheritance</a><span class="leader"/><span class="page-ref"><span class="inheritance_protocol"/></span></dt>
+		<dd><a href="inheritance.html#inheritance_protocol_prototype">Search order for prototype hierarchies</a><span class="leader"/><span class="page-ref"><span class="inheritance_protocol_prototype"/></span></dd>
+		<dd><a href="inheritance.html#inheritance_protocol_class">Search order for class hierarchies</a><span class="leader"/><span class="page-ref"><span class="inheritance_protocol_class"/></span></dd>
+	<dt><a href="inheritance.html#inheritance_implementation">Implementation inheritance</a><span class="leader"/><span class="page-ref"><span class="inheritance_implementation"/></span></dt>
+		<dd><a href="inheritance.html#inheritance_implementation_prototype">Search order for prototype hierarchies</a><span class="leader"/><span class="page-ref"><span class="inheritance_implementation_prototype"/></span></dd>
+		<dd><a href="inheritance.html#inheritance_implementation_class">Search order for class hierarchies</a><span class="leader"/><span class="page-ref"><span class="inheritance_implementation_class"/></span></dd>
+		<dd><a href="inheritance.html#inheritance_implementation_redefinition">Inheritance versus predicate redefinition</a><span class="leader"/><span class="page-ref"><span class="inheritance_implementation_redefinition"/></span></dd>
+	<dt><a href="inheritance.html#inheritance_types">Public, protected, and private inheritance</a><span class="leader"/><span class="page-ref"><span class="inheritance_types"/></span></dt>
+	<dt><a href="inheritance.html#inheritance_composition">Composition versus multiple inheritance</a><span class="leader"/><span class="page-ref"><span class="inheritance_composition"/></span></dt>
 </dl>
 
 <h2><a id="events" href="events.html">Event-driven programming</a></h2>
 
-<dl>
-	<dt><a id="events_definitions" href="events.html#definitions">Definitions</a></dt>
-		<dd><a id="events_event" href="events.html#event">Event</a></dd>
-		<dd><a id="events_monitor" href="events.html#monitor">Monitor</a></dd>
-	<dt><a id="events_generation" href="events.html#generation">Event generation</a></dt>
-	<dt><a id="events_communicating" href="events.html#communicating">Communicating events to monitors</a></dt>
-	<dt><a id="events_performance" href="events.html#performance">Performance concerns</a></dt>
-	<dt><a id="events_semantics" href="events.html#semantics">Monitor semantics</a></dt>
-	<dt><a id="events_order" href="events.html#order">Activation order of monitors</a></dt>
-	<dt><a id="events_handling" href="events.html#handling">Event handling</a></dt>
-		<dd><a id="events_finding" href="events.html#finding">Finding defined events</a></dd>
-		<dd><a id="events_defining" href="events.html#defining">Defining new events</a></dd>
-		<dd><a id="events_abolishing" href="events.html#abolishing">Abolishing defined events</a></dd>
-		<dd><a id="events_handlers" href="events.html#handlers">Defining event handlers</a></dd>
+<dl class="toc-entries">
+	<dt><a href="events.html#events_definitions">Definitions</a><span class="leader"/><span class="page-ref"><span class="events_definitions"/></span></dt>
+		<dd><a href="events.html#events_event">Event</a><span class="leader"/><span class="page-ref"><span class="events_event"/></span></dd>
+		<dd><a href="events.html#events_monitor">Monitor</a><span class="leader"/><span class="page-ref"><span class="events_monitor"/></span></dd>
+	<dt><a href="events.html#events_generation">Event generation</a><span class="leader"/><span class="page-ref"><span class="events_generation"/></span></dt>
+	<dt><a href="events.html#events_communicating">Communicating events to monitors</a><span class="leader"/><span class="page-ref"><span class="events_communicating"/></span></dt>
+	<dt><a href="events.html#events_performance">Performance concerns</a><span class="leader"/><span class="page-ref"><span class="events_performance"/></span></dt>
+	<dt><a href="events.html#events_semantics">Monitor semantics</a><span class="leader"/><span class="page-ref"><span class="events_semantics"/></span></dt>
+	<dt><a href="events.html#events_order">Activation order of monitors</a><span class="leader"/><span class="page-ref"><span class="events_order"/></span></dt>
+	<dt><a href="events.html#events_handling">Event handling</a><span class="leader"/><span class="page-ref"><span class="events_handling"/></span></dt>
+		<dd><a href="events.html#events_finding">Finding defined events</a><span class="leader"/><span class="page-ref"><span class="events_finding"/></span></dd>
+		<dd><a href="events.html#events_defining">Defining new events</a><span class="leader"/><span class="page-ref"><span class="events_defining"/></span></dd>
+		<dd><a href="events.html#events_abolishing">Abolishing defined events</a><span class="leader"/><span class="page-ref"><span class="events_abolishing"/></span></dd>
+		<dd><a href="events.html#events_handlers">Defining event handlers</a><span class="leader"/><span class="page-ref"><span class="events_handlers"/></span></dd>
+</dl>
+
+<h2><a id="threads" href="threads.html">Multi-threading programming</a></h2>
+
+<dl class="toc-entries">
+	<dt><a href="threads.html#threads_enabling">Enabling multi-threading support</a><span class="leader"/><span class="page-ref"><span class="threads_enabling"/></span></dt>
+	<dt><a href="threads.html#threads_directive">Object threads</a><span class="leader"/><span class="page-ref"><span class="threads_directive"/></span></dt>
+	<dt><a href="threads.html#threads_builtins">Multi-threading built-in predicates</a><span class="leader"/><span class="page-ref"><span class="threads_builtins"/></span></dt>
+		<dd><a href="threads.html#threads_call">Proving goals asynchronously using threads</a><span class="leader"/><span class="page-ref"><span class="threads_call"/></span></dd>
+		<dd><a href="threads.html#threads_exit">Retriving asynchronous goal proof results</a><span class="leader"/><span class="page-ref"><span class="threads_exit"/></span></dd>
+		<dd><a href="threads.html#threads_noreply">One-way asynchronous calls</a><span class="leader"/><span class="page-ref"><span class="threads_noreply"/></span></dd>
+		<dd><a href="threads.html#threads_atomic_goals">Atomic goals and asynchronous calls</a><span class="leader"/><span class="page-ref"><span class="threads_atomic_goals"/></span></dd>
+	<dt><a href="threads.html#threads_competing">Competing goals</a><span class="leader"/><span class="page-ref"><span class="threads_competing"/></span></dt>
+	<dt><a href="threads.html#threads_atomic_predicates">Atomic predicates</a><span class="leader"/><span class="page-ref"><span class="threads_atomic_predicates"/></span></dt>
 </dl>
 
 <h2><a id="errors" href="errors.html">Error handling</a></h2>
 
-<dl>
-	<dt><a id="errors_compiler" href="errors.html#compiler">Compiler warnings and errors</a></dt>
-		<dd><a id="errors_wunknown" href="errors.html#wunknown">Unknown entities</a></dd>
-		<dd><a id="errors_wsingletons" href="errors.html#wsingletons">Singleton variables</a></dd>
-		<dd><a id="errors_wprolog" href="errors.html#wprolog">Redefinition of Prolog built-in predicates</a></dd>
-		<dd><a id="errors_wpredicates" href="errors.html#wpredicates">Redefinition of Logtalk built-in predicates</a></dd>
-		<dd><a id="errors_wmethods" href="errors.html#wmethods">Redefinition of Logtalk built-in methods</a></dd>
-		<dd><a id="errors_wmisspell" href="errors.html#wmisspell">Misspell calls of local predicates</a></dd>
-		<dd><a id="errors_wportability" href="errors.html#wportability">Portability warnings</a></dd>
-		<dd><a id="errors_wothers" href="errors.html#wothers">Other warnings and errors</a></dd>
-	<dt><a id="errors_runtime" href="errors.html#runtime">Runtime errors</a></dt>
-		<dd><a id="errors_predicates" href="errors.html#unknownMessage">Logtalk built-in predicates</a></dd>
-		<dd><a id="errors_methods" href="errors.html#methods">Logtalk built-in methods</a></dd>
-		<dd><a id="errors_sending" href="errors.html#sending">Message sending</a></dd>
+<dl class="toc-entries">
+	<dt><a href="errors.html#errors_compiler">Compiler warnings and errors</a><span class="leader"/><span class="page-ref"><span class="errors_compiler"/></span></dt>
+		<dd><a href="errors.html#errors_wunknown">Unknown entities</a><span class="leader"/><span class="page-ref"><span class="errors_wunknown"/></span></dd>
+		<dd><a href="errors.html#errors_wsingletons">Singleton variables</a><span class="leader"/><span class="page-ref"><span class="errors_wsingletons"/></span></dd>
+		<dd><a href="errors.html#errors_wprolog">Redefinition of Prolog built-in predicates</a><span class="leader"/><span class="page-ref"><span class="errors_wprolog"/></span></dd>
+		<dd><a href="errors.html#errors_wpredicates">Redefinition of Logtalk built-in predicates</a><span class="leader"/><span class="page-ref"><span class="errors_wpredicates"/></span></dd>
+		<dd><a href="errors.html#errors_wmethods">Redefinition of Logtalk built-in methods</a><span class="leader"/><span class="page-ref"><span class="errors_wmethods"/></span></dd>
+		<dd><a href="errors.html#errors_wmisspell">Misspell calls of local predicates</a><span class="leader"/><span class="page-ref"><span class="errors_wmisspell"/></span></dd>
+		<dd><a href="errors.html#errors_wportability">Portability warnings</a><span class="leader"/><span class="page-ref"><span class="errors_wportability"/></span></dd>
+		<dd><a href="errors.html#errors_wothers">Other warnings and errors</a><span class="leader"/><span class="page-ref"><span class="errors_wothers"/></span></dd>
+	<dt><a href="errors.html#errors_runtime">Runtime errors</a><span class="leader"/><span class="page-ref"><span class="errors_runtime"/></span></dt>
+		<dd><a href="errors.html#errors_predicates">Logtalk built-in predicates</a><span class="leader"/><span class="page-ref"><span class="errors_predicates"/></span></dd>
+		<dd><a href="errors.html#errors_methods">Logtalk built-in methods</a><span class="leader"/><span class="page-ref"><span class="errors_methods"/></span></dd>
+		<dd><a href="errors.html#errors_sending">Message sending</a><span class="leader"/><span class="page-ref"><span class="errors_sending"/></span></dd>
 </dl>
 
 <h2><a id="documenting" href="documenting.html">Documenting Logtalk programs</a></h2>
 
-<dl>
-	<dt><a id="documenting_directives" href="documenting.html#directives">Documenting directives</a></dt>
-		<dd><a id="documenting_entity" href="documenting.html#entity">Entity directives</a></dd>
-		<dd><a id="documenting_predicate" href="documenting.html#predicate">Predicate directives</a></dd>
-	<dt><a id="documenting_processing" href="documenting.html#processing">Processing and viewing documenting files</a></dt>
+<dl class="toc-entries">
+	<dt><a href="documenting.html#documenting_directives">Documenting directives</a><span class="leader"/><span class="page-ref"><span class="documenting_directives"/></span></dt>
+		<dd><a href="documenting.html#documenting_entity">Entity directives</a><span class="leader"/><span class="page-ref"><span class="documenting_entity"/></span></dd>
+		<dd><a href="documenting.html#documenting_predicate">Predicate directives</a><span class="leader"/><span class="page-ref"><span class="documenting_predicate"/></span></dd>
+	<dt><a href="documenting.html#documenting_processing">Processing and viewing documenting files</a><span class="leader"/><span class="page-ref"><span class="documenting_processing"/></span></dt>
 </dl>
 
 <h2><a id="installing" href="installing.html">Installing Logtalk</a></h2>
 
-<dl>
-	<dt><a id="installing_installing" href="installing.html#installing">Installing Logtalk</a></dt>
-	<dt><a id="installing_requirements" href="installing.html#requirements">Hardware &amp; software requirements</a></dt>
-		<dd><a id="installing_computer" href="installing.html#computer">Computer and operating system</a></dd>
-		<dd><a id="installing_compiler" href="installing.html#compiler">Prolog compiler</a></dd>
-	<dt><a id="installing_organization" href="installing.html#organization">Directories and files organization</a></dt>
-		<dd><a id="installing_configs" href="installing.html#configs">Configuration files</a></dd>
-		<dd><a id="installing_compiler" href="installing.html#compiler">Logtalk compiler and runtime</a></dd>
-		<dd><a id="installing_library" href="installing.html#library">Library</a></dd>
-		<dd><a id="installing_examples" href="installing.html#examples">Examples</a></dd>
-		<dd><a id="installing_entities" href="installing.html#entities">Logtalk source files</a></dd>
+<dl class="toc-entries">
+	<dt><a href="installing.html#installing_installing">Installing Logtalk</a><span class="leader"/><span class="page-ref"><span class="installing_installing"/></span></dt>
+	<dt><a href="installing.html#installing_requirements">Hardware &amp; software requirements</a><span class="leader"/><span class="page-ref"><span class="installing_requirements"/></span></dt>
+		<dd><a href="installing.html#installing_computer">Computer and operating system</a><span class="leader"/><span class="page-ref"><span class="installing_computer"/></span></dd>
+		<dd><a href="installing.html#installing_compiler">Prolog compiler</a><span class="leader"/><span class="page-ref"><span class="installing_compiler"/></span></dd>
+	<dt><a href="installing.html#installing_installers">Logtalk installers</a><span class="leader"/><span class="page-ref"><span class="installing_installers"/></span></dt>
+	<dt><a href="installing.html#installing_sources">Source distribution</a><span class="leader"/><span class="page-ref"><span class="installing_sources"/></span></dt>
+	<dt><a href="installing.html#installing_organization">Directories and files organization</a><span class="leader"/><span class="page-ref"><span class="installing_organization"/></span></dt>
+		<dd><a href="installing.html#installing_configs">Configuration files</a><span class="leader"/><span class="page-ref"><span class="installing_configs"/></span></dd>
+		<dd><a href="installing.html#installing_runtime">Logtalk compiler and runtime</a><span class="leader"/><span class="page-ref"><span class="installing_runtime"/></span></dd>
+		<dd><a href="installing.html#installing_library">Library</a><span class="leader"/><span class="page-ref"><span class="installing_library"/></span></dd>
+		<dd><a href="installing.html#installing_examples">Examples</a><span class="leader"/><span class="page-ref"><span class="installing_examples"/></span></dd>
+		<dd><a href="installing.html#installing_entities">Logtalk source files</a><span class="leader"/><span class="page-ref"><span class="installing_entities"/></span></dd>
 </dl>
 
 <h2><a id="running" href="running.html">Running and debugging Logtalk programs</a></h2>
 
-<dl>
-	<dt><a id="running_running" href="running.html#running">Running a Logtalk session</a></dt>
-		<dd><a id="running_starting" href="running.html#starting">Starting Logtalk</a></dd>
-		<dd><a id="running_compiling" href="running.html#compiling">Compiling and loading your programs</a></dd>
-		<dd><a id="running_flags" href="running.html#flags">Compiler flags</a></dd>
-		<dd><a id="running_smart" href="running.html#smart">Smart compilation of source files</a></dd>
-	<dt><a id="running_batch" href="running.html#batch">Using Logtalk for batch processing</a></dt>
-	<dt><a id="running_debugging" href="running.html#debugging">Debugging Logtalk programs</a></dt>
-		<dd><a id="running_debugmode" href="running.html#debugmode">Compiling objects in debug mode</a></dd>
-		<dd><a id="running_boxmodel" href="running.html#boxmodel">Logtalk Procedure Box model</a></dd>
-		<dd><a id="running_spypoints" href="running.html#spypoints">Defining spy points</a></dd>
-		<dd><a id="running_trace" href="running.html#trace">Tracing program execution</a></dd>
-		<dd><a id="running_debug" href="running.html#debug">Debugging using spy points</a></dd>
-		<dd><a id="running_commands" href="running.html#commands">Debugging commands</a></dd>
+<dl class="toc-entries">
+	<dt><a href="running.html#running_session">Running a Logtalk session</a><span class="leader"/><span class="page-ref"><span class="running_session"/></span></dt>
+		<dd><a href="running.html#running_starting">Starting Logtalk</a><span class="leader"/><span class="page-ref"><span class="running_starting"/></span></dd>
+		<dd><a href="running.html#running_compiling">Compiling and loading your programs</a><span class="leader"/><span class="page-ref"><span class="running_compiling"/></span></dd>
+		<dd><a href="running.html#running_flags">Compiler flags</a><span class="leader"/><span class="page-ref"><span class="running_flags"/></span></dd>
+		<dd><a href="running.html#running_smart">Smart compilation of source files</a><span class="leader"/><span class="page-ref"><span class="running_smart"/></span></dd>
+	<dt><a href="running.html#running_batch">Using Logtalk for batch processing</a><span class="leader"/><span class="page-ref"><span class="running_batch"/></span></dt>
+	<dt><a href="running.html#running_debugging">Debugging Logtalk programs</a><span class="leader"/><span class="page-ref"><span class="running_debugging"/></span></dt>
+		<dd><a href="running.html#running_debugmode">Compiling objects in debug mode</a><span class="leader"/><span class="page-ref"><span class="running_debugmode"/></span></dd>
+		<dd><a href="running.html#running_boxmodel">Logtalk Procedure Box model</a><span class="leader"/><span class="page-ref"><span class="running_boxmodel"/></span></dd>
+		<dd><a href="running.html#running_spypoints">Defining spy points</a><span class="leader"/><span class="page-ref"><span class="running_spypoints"/></span></dd>
+		<dd><a href="running.html#running_trace">Tracing program execution</a><span class="leader"/><span class="page-ref"><span class="running_trace"/></span></dd>
+		<dd><a href="running.html#running_debug">Debugging using spy points</a><span class="leader"/><span class="page-ref"><span class="running_debug"/></span></dd>
+		<dd><a href="running.html#running_commands">Debugging commands</a><span class="leader"/><span class="page-ref"><span class="running_commands"/></span></dd>
 </dl>
 
 <h2><a id="programming" href="programming.html">Programming in Logtalk</a></h2>
 
-<dl>
-	<dt><a id="programming_writing" href="programming.html#writing">Writing programs</a></dt>
-		<dd><a id="programming_source_files" href="programming.html#source_files">Source files</a></dd>
-		<dd><a id="programming_loaders" href="programming.html#loaders">Loader utility files</a></dd>
-		<dd><a id="programming_libraries" href="programming.html#libraries">Libraries of source files</a></dd>
-		<dd><a id="programming_portability" href="programming.html#portability">Portable programs</a></dd>
-		<dd><a id="programming_errors" href="programming.html#errors">Avoiding common errors</a></dd>
-		<dd><a id="programming_style" href="programming.html#style">Coding style guidlines</a></dd>
-	<dt><a id="programming_scope" href="programming.html#scope">Logtalk scope</a></dt>
+<dl class="toc-entries">
+	<dt><a href="programming.html#programming_writing">Writing programs</a><span class="leader"/><span class="page-ref"><span class="programming_writing"/></span></dt>
+		<dd><a href="programming.html#programming_source_files">Source files</a><span class="leader"/><span class="page-ref"><span class="programming_source_files"/></span></dd>
+		<dd><a href="programming.html#programming_loaders">Loader utility files</a><span class="leader"/><span class="page-ref"><span class="programming_loaders"/></span></dd>
+		<dd><a href="programming.html#programming_libraries">Libraries of source files</a><span class="leader"/><span class="page-ref"><span class="programming_libraries"/></span></dd>
+		<dd><a href="programming.html#programming_portability">Portable programs</a><span class="leader"/><span class="page-ref"><span class="programming_portability"/></span></dd>
+		<dd><a href="programming.html#programming_errors">Avoiding common errors</a><span class="leader"/><span class="page-ref"><span class="programming_errors"/></span></dd>
+		<dd><a href="programming.html#programming_style">Coding style guidlines</a><span class="leader"/><span class="page-ref"><span class="programming_style"/></span></dd>
+	<dt><a href="programming.html#programming_scope">Logtalk scope</a><span class="leader"/><span class="page-ref"><span class="programming_scope"/></span></dt>
 </dl>
 
 <div class="footer">
-	<div class="navbottom"><a href="../glossary.html">glossary</a></div>
-	<div class="copyright">Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a></div>
-	<div class="footnote">
-		<span class="validators"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
-		<span class="date">Last updated on: March 18, 2006</span>
+	<div class="copyright">
+		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>
+		<span>Last updated on: October 26, 2006</span>
+	</div>
+	<div class="navbottom">
+		<span><a href="../glossary.html">glossary</a></span><br/>
+		<span><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
 	</div>
 </div>
 
 </body>
+
 </html>

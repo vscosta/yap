@@ -1,11 +1,11 @@
-;; logtalk.el -- font lock support for Logtalk (http://www.logtalk.org/)
+;; logtalk.el -- font lock support for Logtalk (http://logtalk.org/)
 
-;; Copyright (C) 2003-2005 Paulo Moura
+;; Copyright (C) 2003-2006 Paulo Moura
 
 ;; Author: Paulo Moura
 ;; Creation date: November 15, 2003
-;; Last modification date: February 24, 2006
-;; Version: 0.71
+;; Last modification date: October 16, 2006
+;; Version: 0.91
 
 ;; Installation:
 ;;
@@ -27,7 +27,7 @@
 
 ;; setup 
 
-(defvar logtalk-mode-version "0.7"
+(defvar logtalk-mode-version "0.91"
 	"Logtalk mode version number")
 
 (defvar logtalk-mode-hook nil)
@@ -99,8 +99,8 @@
 		("\\(\\(end_\\(?:category\\|object\\|protocol\\)\\)\\)\\([\.]\\)" 1 'logtalk-directive-face)
 		("\\(category\\|object\\|protocol\\|module\\)\\([(]\\)" 1 'logtalk-directive-face)
 		("\\(p\\(?:r\\(?:ivate\\|otected\\)\\|ublic\\)\\)\\([(]\\)" 1 'logtalk-directive-face)
-		("\\(alias\\|calls\\|d\\(?:iscontiguous\\|ynamic\\)\\|e\\(?:ncoding\\|xport\\)\\|in\\(?:fo\\|itialization\\)\\|meta_predicate\\|m\\(?:\\(?:etapredicat\\|od\\)e\\)\\|op\\|use\\(?:s\\|_module\\)\\)\\([(]\\)" 1 'logtalk-directive-face)
-		("\\(dynamic\\)\\([\.]\\)" 1 'logtalk-directive-face)
+		("\\(a\\(?:lias\\|tomic\\)\\|calls\\|d\\(?:iscontiguous\\|ynamic\\)\\|e\\(?:ncoding\\|xport\\)\\|in\\(?:fo\\|itialization\\)\\|m\\(?:\\(?:eta_predicat\\|od\\)e\\)\\|op\\|use\\(?:s\\|_module\\)\\)\\([(]\\)" 1 'logtalk-directive-face)
+		("\\(dynamic\\|threaded\\)\\([\.]\\)" 1 'logtalk-directive-face)
 		("\\(\\(?:extend\\|i\\(?:mp\\(?:\\(?:lemen\\|or\\)t\\)\\|nstantiate\\)\\|specialize\\)s\\)\\([(]\\)" 1 'logtalk-directive-face)
 	))
 
@@ -111,6 +111,7 @@
 		("\\(current_predicate\\|predicate_property\\)\\([(]\\)" 1 'logtalk-built-in-method-face)
 		("\\(a\\(?:bolish\\|ssert[az]\\)\\|clause\\|retract\\(?:all\\)?\\)\\([(]\\)" 1 'logtalk-built-in-method-face)
 		("\\(bagof\\|f\\(?:\\(?:ind\\|or\\)all\\)\\|setof\\)\\([(]\\)" 1 'logtalk-built-in-method-face)
+		("\\(threaded_\\(?:call\\|exit\\)\\([(]\\)" 1 'logtalk-built-in-method-face)
 		("\\(after\\|before\\)\\([(]\\)" 1 'logtalk-built-in-method-face)
 		("\\(phrase\\|expand_term\\|term_expansion\\)\\([(]\\)" 1 'logtalk-built-in-method-face)
 	))

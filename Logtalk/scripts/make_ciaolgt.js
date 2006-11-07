@@ -1,9 +1,14 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.27.1
+// Release 2.28.2
 //
 // Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 // =================================================================
+
+if (ScriptEngineMajorVersion() < 5 || ScriptEngineMajorVersion() == 5 && ScriptEngineMinorVersion() < 6) {
+	WScript.Echo('Error! WSH 5.6 or later version needed for running this script.');
+	WScript.Quit(1);
+}
 
 if (WScript.Arguments.Unnamed.Length > 0) {
 	usage_help();
@@ -57,10 +62,10 @@ if (!FSObject.FolderExists(logtalk_home + "\\bin"))
 
 var f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalk_ciao.pl", true);
 
-f.WriteLine(":- ensure_loaded('\$LOGTALKUSER/configs/ciao_aux.config').");
+f.WriteLine(":- ensure_loaded('$LOGTALKUSER/configs/ciao_aux.config').");
 f.WriteLine(":- set_prolog_flag(multi_arity_warnings, off).");
-f.WriteLine(":- ensure_loaded('\$LOGTALKHOME/compiler/logtalk.pl').");
-f.WriteLine(":- ensure_loaded('\$LOGTALKUSER/libpaths/libpaths.pl').");
+f.WriteLine(":- ensure_loaded('$LOGTALKHOME/compiler/logtalk.pl').");
+f.WriteLine(":- ensure_loaded('$LOGTALKUSER/libpaths/libpaths.pl').");
 f.WriteLine(":- op(600, xfy, ::).");
 f.WriteLine(":- op(600, fy, ::).");
 f.WriteLine(":- op(600, fy, ^^).");
@@ -76,9 +81,9 @@ if (!FSObject.FolderExists(ProgramsPath + "\\Logtalk"))
 	FSObject.CreateFolder(ProgramsPath + "\\Logtalk");
 
 var link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk - CIAO.lnk");
-link.Arguments = "-l %LOGTALKHOME%\\bin\\logtalk_ciao.pl";
-link.Description = "Runs Logtalk with CIAO";
-link.IconLocation = "app.exe,1";
+link.Arguments = '-l "$LOGTALKHOME/bin/logtalk_ciao.pl"';
+link.Description = 'Runs Logtalk with CIAO';
+link.IconLocation = 'app.exe,1';
 link.TargetPath = prolog_path;
 link.WindowStyle = 1;
 link.WorkingDirectory = logtalk_home;

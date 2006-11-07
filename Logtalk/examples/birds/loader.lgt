@@ -2,8 +2,8 @@
 :- initialization(
 	logtalk_load([
 		descriptors,
-		expert,
-		birds])).
+		birds,
+		expert])).
 
 /*
 If you intend to use the FOP XSL:FO processor for generating PDF documenting

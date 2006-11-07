@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.27.1
+## Release 2.28.2
 ##
 ## Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -48,6 +48,8 @@ echo "gprolog --init-goal \"['\$LOGTALKUSER/configs/gnu.config', '\$LOGTALKHOME/
 chmod a+x gplgt
 ln -sf $LOGTALKHOME/bin/gplgt $prefix/bin/gplgt
 echo "Done. A link to the script was been created in $prefix/bin."
-echo "Users must define the environment variables LOGTALKHOME and"
-echo "LOGTALKUSER in order to use the script."
+echo
+echo "Users should ensure that the environment variables LOGTALKHOME"
+echo "and LOGTALKUSER are defined and then run the \"cplgtdirs\" script"
+echo "once prior to using the gplgt script."
 echo

@@ -1,9 +1,14 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.27.1
+// Release 2.28.2
 //
 // Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 // =================================================================
+
+if (ScriptEngineMajorVersion() < 5 || ScriptEngineMajorVersion() == 5 && ScriptEngineMinorVersion() < 6) {
+	WScript.Echo('Error! WSH 5.6 or later version needed for running this script.');
+	WScript.Quit(1);
+}
 
 var WshShell = new ActiveXObject("WScript.Shell");
 
@@ -11,7 +16,7 @@ var WshSystemEnv = WshShell.Environment("SYSTEM");
 var WshUserEnv = WshShell.Environment("USER");
 var logtalk_home;
 var logtalk_user;
-	
+
 if (WshSystemEnv.Item("LOGTALKHOME"))
 	logtalk_home = WshSystemEnv.Item("LOGTALKHOME");
 else if (WshUserEnv.Item("LOGTALKHOME"))
@@ -46,10 +51,23 @@ else {
 }
 
 if (FSObject.FolderExists(logtalk_user)) {
-	WScript.Echo("Error! Logtalk user directory already exists!");
-	WScript.Echo("Please rename it or delete it and run this script again.");
+	var today = new Date();
+	var year  = today.getFullYear();
+	var month = today.getMonth() + 1;
+	var day = today.getDate();
+	if (day < 10)
+        day = "0" + day;
+	var hours = today.getHours();
+	if (hours < 10)
+        hours = "0" + hours;
+	var mins = today.getMinutes();
+	if (mins < 10)
+        mins = "0" + mins;
+	var secs = today.getSeconds();
+	date = year + "-" + month + "-" + day + " " + hours + "-" + mins + "-" + secs;
+	FSObject.MoveFolder(logtalk_user, logtalk_user + " backup " + date);
+	WScript.Echo("Created a backup of the existing " + logtalk_user + " directory.");
 	WScript.Echo("");
-	usage_help();
 }
 
 WScript.Echo("Creating LOGTALKUSER directory:");
@@ -61,12 +79,11 @@ FSObject.CreateFolder(logtalk_user);
 
 WScript.Echo("Copying Logtalk files and directories...");
 FSObject.CopyFolder(logtalk_home + "\\configs", logtalk_user + "\\configs");
-FSObject.CopyFile(logtalk_user + "\\configs\\xsb.config", logtalk_user + "\\configs\\xsb.P");
-FSObject.CopyFile(logtalk_user + "\\configs\\xsbcvs.config", logtalk_user + "\\configs\\xsbcvs.P");
+FSObject.CopyFile(logtalk_user + "\\configs\\xsb.config", logtalk_user + "\\configs\\xsb.pl");
 FSObject.CopyFolder(logtalk_home + "\\contributions", logtalk_user + "\\contributions");
 FSObject.CopyFolder(logtalk_home + "\\examples", logtalk_user + "\\examples");
 FSObject.CopyFolder(logtalk_home + "\\libpaths", logtalk_user + "\\libpaths");
-FSObject.CopyFile(logtalk_user + "\\libpaths\\libpaths.pl", logtalk_user + "\\libpaths\\libpaths.P");
+FSObject.CopyFile(logtalk_user + "\\libpaths\\libpaths.pl", logtalk_user + "\\libpaths\\libpaths_no_env_var.pl");
 FSObject.CopyFolder(logtalk_home + "\\library", logtalk_user + "\\library");
 FSObject.CopyFolder(logtalk_home + "\\xml", logtalk_user + "\\xml");
 

@@ -9,7 +9,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.27.1
+%  Release 2.28.2
 %
 %  Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 %
@@ -183,6 +183,36 @@
 				font-family="monospace"
 				margin-left="10mm">
 			<xsl:value-of select="date"/>
+		</fo:block>
+	</xsl:if>
+
+	<xsl:if test="copyright">
+		<fo:block
+				font-size="10pt"
+				font-family="serif" 
+				keep-with-next="always">
+			copyright:
+		</fo:block>
+		<fo:block
+				font-size="9pt"
+				font-family="monospace"
+				margin-left="10mm">
+			<xsl:value-of select="copyright"/>
+		</fo:block>
+	</xsl:if>
+
+	<xsl:if test="license">
+		<fo:block
+				font-size="10pt"
+				font-family="serif" 
+				keep-with-next="always">
+			license:
+		</fo:block>
+		<fo:block
+				font-size="9pt"
+				font-family="monospace"
+				margin-left="10mm">
+			<xsl:value-of select="license"/>
 		</fo:block>
 	</xsl:if>
 

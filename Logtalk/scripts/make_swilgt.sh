@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.27.1
+## Release 2.28.2
 ##
 ## Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -41,20 +41,24 @@ fi
 cd "$LOGTALKHOME"
 mkdir -p bin
 cd bin
-echo ":- system_module." > logtalk_swi.pl
-cat ../compiler/logtalk.pl >> logtalk_swi.pl
-echo ":- consult('\$LOGTALKUSER/configs/swi.config')." > logtalk_swi.rc
-echo ":- consult('\$LOGTALKUSER/configs/swihook.pl')." >> logtalk_swi.rc
-echo ":- consult('\$LOGTALKHOME/bin/logtalk_swi.pl')." >> logtalk_swi.rc
-echo ":- consult('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_swi.rc
+echo ":- set_prolog_flag(generate_debug_info, false)." > logtalk_comp_swi.pl
+echo ":- system_module." >> logtalk_comp_swi.pl
+cat ../compiler/logtalk.pl >> logtalk_comp_swi.pl
+echo ":- consult('\$LOGTALKUSER/configs/swi.config')." > logtalk_swi.pl
+echo ":- consult('\$LOGTALKHOME/bin/logtalk_comp_swi.pl')." >> logtalk_swi.pl
+echo ":- consult('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_swi.pl
+echo ":- consult('\$LOGTALKUSER/configs/swihook.pl')." >> logtalk_swi.pl
+echo ":- consult('\$LOGTALKUSER/configs/xpcehook.pl')." >> logtalk_swi.pl
 echo "#/bin/sh" > swilgt
 case $( uname -s ) in
-	Darwin	) echo "swipl -f \$LOGTALKHOME/bin/logtalk_swi.rc" >> swilgt;;
-	*		) echo "pl -f \$LOGTALKHOME/bin/logtalk_swi.rc" >> swilgt;;
+	Darwin	) echo "swipl -f \$LOGTALKHOME/bin/logtalk_swi.pl" >> swilgt;;
+	*		) echo "pl -f \$LOGTALKHOME/bin/logtalk_swi.pl" >> swilgt;;
 esac
 chmod a+x swilgt
 ln -sf $LOGTALKHOME/bin/swilgt $prefix/bin/swilgt
 echo "Done. A link to the script was been created in $prefix/bin."
-echo "Users must define the environment variables LOGTALKHOME and"
-echo "LOGTALKUSER in order to use the script."
+echo
+echo "Users should ensure that the environment variables LOGTALKHOME"
+echo "and LOGTALKUSER are defined and then run the \"cplgtdirs\" script"
+echo "once prior to using the swilgt script."
 echo

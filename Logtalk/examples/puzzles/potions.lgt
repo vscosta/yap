@@ -9,8 +9,8 @@ http://www.csci.csusb.edu/dick/cs320/prolog/Potions.htm
 
 
 	:- info([
-		version is 1.1,
-		date is 2004/8/15,
+		version is 1.2,
+		date is 2006/3/26,
 		author is 'Paulo Moura',
 		comment is 'Harry Potter potions logical puzzle.']).
 
@@ -29,12 +29,12 @@ http://www.csci.csusb.edu/dick/cs320/prolog/Potions.htm
 		contents(H1),
 		select(P1, H1, H2),
 		select(P7, H2, H3),
-		P1 \= P7, P1 \= forward, P7 \= forward,					% second clue
+		P1 \== P7, P1 \== forward, P7 \== forward,				% second clue
 		select(P2, H3, H4),
-		P2 \= poison,
+		P2 \== poison,
 		select(P3, H4, H5),
-		P3 \= poison,											% third clue
-		P2 = P6,
+		P3 \== poison,											% third clue
+		P2 == P6,
 		select(P6, H5, H6),										% fourth clue
 		select(P4, H6, H7),
 		select(P5, H7, []),

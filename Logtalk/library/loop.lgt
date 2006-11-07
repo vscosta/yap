@@ -4,23 +4,23 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2006/9/17,
 		comment is 'Loop control structures predicates.']).
 
 
-	:- metapredicate(dowhile(::, ::)).
+	:- meta_predicate(dowhile(::, ::)).
 
-	:- metapredicate(forto(*, *, ::)).
+	:- meta_predicate(forto(*, *, ::)).
 
-	:- metapredicate(forto(*, *, *, ::)).
+	:- meta_predicate(forto(*, *, *, ::)).
 
-	:- metapredicate(fordownto(*, *, ::)).
+	:- meta_predicate(fordownto(*, *, ::)).
 
-	:- metapredicate(fordownto(*, *, *, ::)).
+	:- meta_predicate(fordownto(*, *, *, ::)).
 
-	:- metapredicate(whiledo(::, ::)).
+	:- meta_predicate(whiledo(::, ::)).
 
 
 	dowhile(Action, Condition) :-

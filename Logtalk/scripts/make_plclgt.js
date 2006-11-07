@@ -1,9 +1,14 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.27.1
+// Release 2.28.2
 //
 // Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 // =================================================================
+
+if (ScriptEngineMajorVersion() < 5 || ScriptEngineMajorVersion() == 5 && ScriptEngineMinorVersion() < 6) {
+	WScript.Echo('Error! WSH 5.6 or later version needed for running this script.');
+	WScript.Quit(1);
+}
 
 if (WScript.Arguments.Unnamed.Length > 0) {
 	usage_help();
@@ -64,7 +69,7 @@ logtalk_home = logtalk_home.replace(/\\/g, "\\\\");
 if (!FSObject.FolderExists(logtalk_home + "\\bin"))
 	FSObject.CreateFolder(logtalk_home + "\\bin");
 
-f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalk_plc.rc", true);
+f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalk_plc.pl", true);
 
 f.WriteLine(":- consult('$LOGTALKUSER/configs/k.config').");
 f.WriteLine(":- consult('$LOGTALKHOME/compiler/logtalk.pl').");
@@ -77,7 +82,7 @@ if (!FSObject.FolderExists(ProgramsPath + "\\Logtalk"))
 	FSObject.CreateFolder(ProgramsPath + "\\Logtalk");
 
 var link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk - K-Prolog.lnk");
-link.Arguments = "-h 2048k -l 1024k -g 2048k -e \"(consult('$LOGTALKHOME/bin/logtalk_plc.rc'), '$root').\"";
+link.Arguments = "-h 2048k -l 1024k -g 2048k -e \"(consult('$LOGTALKHOME/bin/logtalk_plc.pl'), '$root').\"";
 link.Description = "Runs Logtalk with K-Prolog";
 link.IconLocation = "app.exe,1";
 link.TargetPath = prolog_path;

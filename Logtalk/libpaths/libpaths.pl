@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.27.1
+%  Release 2.28.2
 %
 %  Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 %
@@ -15,8 +15,10 @@
 	 assertz(logtalk_library_path(library, lgtuser('library/'))),
 	 assertz(logtalk_library_path(aliases, examples('aliases/'))),
 	 assertz(logtalk_library_path(assignvars, examples('assignvars/'))),
+	 assertz(logtalk_library_path(atomic, threads('atomic/'))),
 	 assertz(logtalk_library_path(benchmarks, examples('benchmarks/'))),
 	 assertz(logtalk_library_path(birds, examples('birds/'))),
+	 assertz(logtalk_library_path(birthdays, threads('birthdays/'))),
 	 assertz(logtalk_library_path(bricks, examples('bricks/'))),
 	 assertz(logtalk_library_path(classvars, examples('classvars/'))),
 	 assertz(logtalk_library_path(dcgs, examples('dcgs/'))),
@@ -26,6 +28,7 @@
 	 assertz(logtalk_library_path(engines, examples('engines/'))),
 	 assertz(logtalk_library_path(errors, examples('errors/'))),
 	 assertz(logtalk_library_path(expansion, examples('expansion/'))),
+	 assertz(logtalk_library_path(functions, threads('functions/'))),
 	 assertz(logtalk_library_path(hello_world, examples('hello_world/'))),
 	 assertz(logtalk_library_path(hooks, examples('hooks/'))),
 	 assertz(logtalk_library_path(inheritance, examples('inheritance/'))),
@@ -41,11 +44,13 @@
 	 assertz(logtalk_library_path(miscellaneous, examples('miscellaneous/'))),
 	 assertz(logtalk_library_path(modules, examples('modules/'))),
 	 assertz(logtalk_library_path(msglog, examples('msglog/'))),
+	 assertz(logtalk_library_path(nondet, threads('nondet/'))),
 	 assertz(logtalk_library_path(operators, examples('operators/'))),
 	 assertz(logtalk_library_path(parametric, examples('parametric/'))),
 	 assertz(logtalk_library_path(poem, examples('poem/'))),
 	 assertz(logtalk_library_path(points, examples('points/'))),
 	 assertz(logtalk_library_path(polygons, examples('polygons/'))),
+	 assertz(logtalk_library_path(primes, threads('primes/'))),
 	 assertz(logtalk_library_path(profiling, examples('profiling/'))),
 	 assertz(logtalk_library_path(proxies, examples('proxies/'))),
 	 assertz(logtalk_library_path(puzzles, examples('puzzles/'))),
@@ -57,4 +62,5 @@
 	 assertz(logtalk_library_path(shapes_ph, examples('shapes/ph/'))),
 	 assertz(logtalk_library_path(sicstus, examples('sicstus/'))),
 	 assertz(logtalk_library_path(symdiff, examples('symdiff/'))),
+	 assertz(logtalk_library_path(threads, examples('threads/'))),
 	 assertz(logtalk_library_path(viewpoints, examples('viewpoints/'))))).

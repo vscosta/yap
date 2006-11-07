@@ -23,7 +23,7 @@
 				<regex>:-\s(protocol)\(</regex>			
 				<regex>:-\s(category)\(</regex>			
 				<regex>:-\s(end_(object|protocol|category))\.</regex>			
-				<regex>:-\s(alias)\(</regex>			
+				<regex>:-\s(a(lias|tomic))\(</regex>			
 				<regex>:-\s(e(ncoding|xport))\(</regex>			
 				<regex>:-\s(initialization)\(</regex>			
 				<regex>:-\s(info)\(</regex>			
@@ -32,11 +32,11 @@
 				<regex>:-\s(dynamic)\.</regex>			
 				<regex>:-\s(discontiguous)\(</regex>			
 				<regex>:-\s(p(ublic|r(otected|ivate)))\(</regex>			
-				<regex>:-\s(meta_predicate)\(</regex>			
-				<regex>:-\s(m(etapredicate|ultifile))\(</regex>			
+				<regex>:-\s(m(eta_predicate|ultifile))\(</regex>			
 				<regex>:-\s(op)\(</regex>			
 				<regex>:-\s(calls)\(</regex>			
 				<regex>:-\s(use(s|_module))\(</regex>			
+				<regex>:-\s(threaded)\.</regex>			
 			</keywords>
 
 			<keywords id="Entity Relations" color="#881280" useforautocomplete="yes">
@@ -83,6 +83,7 @@
 				<regex>\b(expand_term)\(</regex>
 				<regex>\b(term_expansion)\(</regex>
 				<regex>\b(phrase)\(</regex>
+				<regex>\b(threaded_(call|exit))\(</regex>
 			</keywords>
 
 			<keywords id="Built-in Predicates" color="#1A1AA6" useforautocomplete="yes">

@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.27.1
+## Release 2.28.2
 ##
 ## Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -38,71 +38,71 @@ if ! [ -d "$prefix" ]; then
 	exit 1
 fi
 
+./make_bplgt.sh $prefix > /dev/null 2> /dev/null
+if [ $? = 0 ] ; then
+	echo "bplgt script created"
+else
+	echo "bplgt script creation failed"
+fi
+
 ./make_ciaolgt.sh $prefix > /dev/null 2> /dev/null
-if [[ $? -eq 0 ]]; then
+if [ $? = 0 ] ; then
 	echo "ciaolgt script created"
 else
 	echo "ciaolgt script creation failed"
 fi
 
 ./make_eclipselgt.sh $prefix > /dev/null 2> /dev/null
-if [[ $? -eq 0 ]]; then
+if [ $? = 0 ] ; then
 	echo "eclipselgt script created"
 else
 	echo "eclipselgt script creation failed"
 fi
 
 ./make_gplgt.sh $prefix > /dev/null 2> /dev/null
-if [[ $? -eq 0 ]]; then
+if [ $? = 0 ] ; then
 	echo "gplgt script created"
 else
 	echo "gplgt script creation failed"
 fi
 
 ./make_plclgt.sh $prefix > /dev/null 2> /dev/null
-if [[ $? -eq 0 ]]; then
+if [ $? = 0 ] ; then
 	echo "plclgt script created"
 else
 	echo "plclgt script creation failed"
 fi
 
 ./make_qplgt.sh $prefix > /dev/null 2> /dev/null
-if [[ $? -eq 0 ]]; then
+if [ $? = 0 ] ; then
 	echo "qplgt script created"
 else
 	echo "qplgt script creation failed"
 fi
 
 ./make_sicstuslgt.sh $prefix > /dev/null 2> /dev/null
-if [[ $? -eq 0 ]]; then
+if [ $? = 0 ] ; then
 	echo "sicstuslgt script created"
 else
 	echo "sicstuslgt script creation failed"
 fi
 
 ./make_swilgt.sh $prefix > /dev/null 2> /dev/null
-if [[ $? -eq 0 ]]; then
+if [ $? = 0 ] ; then
 	echo "swilgt script created"
 else
 	echo "swilgt script creation failed"
 fi
 
 ./make_xsblgt.sh $prefix > /dev/null 2> /dev/null
-if [[ $? -eq 0 ]]; then
+if [ $? = 0 ] ; then
 	echo "xsblgt script created"
 else
 	echo "xsblgt script creation failed"
 fi
 
-./make_xsbcvslgt.sh $prefix > /dev/null 2> /dev/null
-if [[ $? -eq 0 ]]; then
-	echo "xsbcvslgt script created"
-else
-	echo "xsbcvslgt script creation failed"
-fi
-
 ./make_yaplgt.sh $prefix > /dev/null 2> /dev/null
-if [[ $? -eq 0 ]]; then
+if [ $? = 0 ] ; then
 	echo "yaplgt script created"
 else
 	echo "yaplgt script creation failed"
@@ -111,10 +111,14 @@ fi
 echo
 echo "Done. Links to the created scripts can be found on $prefix/bin."
 echo "Make sure that the Prolog compilers are also available on your "
-echo "execution path.  Users must define the environment variables "
-echo "LOGTALKHOME and LOGTALKUSER in order to use the scripts."
+echo "execution path."
 echo
-echo "If you get an unexpected failure to create a shortcut for one of the"
-echo "above Prolog compilers, please consult the NOTES file on the scripts"
-echo "directory or try to run the corresponding script individually."
+echo "If you got an unexpected failure when creating or using one of the"
+echo "Prolog integration scripts, make sure that the Prolog compiler is"
+echo "properly installed, consult the NOTES file on the scripts directory,"
+echo "and try to run the corresponding script individually."
+echo
+echo "Users should ensure that the environment variables LOGTALKHOME"
+echo "and LOGTALKUSER are defined and then run the \"cplgtdirs\" script"
+echo "once prior to using the Prolog integration scripts."
 echo

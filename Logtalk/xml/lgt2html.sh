@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.27.1
+## Release 2.28.2
 ##
 ## Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -163,6 +163,11 @@ else
 	if ! [[ -a "./logtalk.dtd" ]]
 	then
 		cp "$LOGTALKHOME"/xml/logtalk.dtd .
+	fi
+
+	if ! [[ -a "./custom.ent" ]]
+	then
+		cp "$LOGTALKUSER"/xml/custom.ent .
 	fi
 
 	if ! [[ -a "./logtalk.xsd" ]]

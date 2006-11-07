@@ -11,7 +11,7 @@ fsm([red-0-red, red-1-green, red-2-red,		% a simple finite state machine example
 	[red]).
 
 
-:- object(fsm(_transitions, _initial, _final),
+:- object(fsm(_Transitions, _Initial, _Final),
 	imports(private::assignvars)).
 
 	:- info([

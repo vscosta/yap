@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.27.1
+## Release 2.28.2
 ##
 ## Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -41,15 +41,23 @@ fi
 cd "$LOGTALKHOME"
 mkdir -p bin
 cd bin
-echo ":- compile('\$LOGTALKUSER/configs/sicstus.config')." > logtalk_sicstus.rc
-echo ":- compile('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalk_sicstus.rc
-echo ":- compile('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_sicstus.rc
+if sicstus -f --goal "halt." 2>&1 | grep "SICStus 4" 2>&1 >/dev/null; then
+	echo ":- compile('\$LOGTALKUSER/configs/sicstus4.config')." > logtalk_sicstus.pl
+	sed -e '/call_with_args/ s//call/g' ../compiler/logtalk.pl > logtalk_comp_sicstus.pl
+	echo ":- compile('\$LOGTALKHOME/bin/logtalk_comp_sicstus.pl')." >> logtalk_sicstus.pl
+else
+	echo ":- compile('\$LOGTALKUSER/configs/sicstus.config')." > logtalk_sicstus.pl
+	echo ":- compile('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalk_sicstus.pl
+fi
+echo ":- compile('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_sicstus.pl
 
 echo "#/bin/sh" > sicstuslgt
-echo "sicstus -l \$LOGTALKHOME/bin/logtalk_sicstus.rc" >> sicstuslgt
+echo "sicstus -l \$LOGTALKHOME/bin/logtalk_sicstus.pl" >> sicstuslgt
 chmod a+x sicstuslgt
 ln -sf $LOGTALKHOME/bin/sicstuslgt $prefix/bin/sicstuslgt
 echo "Done. A link to the script was been created in $prefix/bin."
-echo "Users must define the environment variables LOGTALKHOME and"
-echo "LOGTALKUSER in order to use the script."
+echo
+echo "Users should ensure that the environment variables LOGTALKHOME"
+echo "and LOGTALKUSER are defined and then run the \"cplgtdirs\" script"
+echo "once prior to using the sicstuslgt script."
 echo

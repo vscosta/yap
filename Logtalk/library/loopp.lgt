@@ -3,14 +3,14 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2006/9/17,
 		comment is 'Loop control structures protocol.']).
 
 
 	:- public(dowhile/2).
-	:- metapredicate(dowhile(::, ::)).
+	:- meta_predicate(dowhile(::, ::)).
 
 	:- mode(dowhile(+callable, @callable), zero_or_one).
 
@@ -20,7 +20,7 @@
 
 
 	:- public(forto/3).
-	:- metapredicate(forto(*, *, ::)).
+	:- meta_predicate(forto(*, *, ::)).
 
 	:- mode(forto(+integer, +integer, @callable), zero_or_one).
 
@@ -30,7 +30,7 @@
 
 
 	:- public(forto/4).
-	:- metapredicate(forto(*, *, *, ::)).
+	:- meta_predicate(forto(*, *, *, ::)).
 
 	:- mode(forto(-integer, +integer, +integer, @callable), zero_or_one).
 
@@ -40,7 +40,7 @@
 
 
 	:- public(fordownto/3).
-	:- metapredicate(fordownto(*, *, ::)).
+	:- meta_predicate(fordownto(*, *, ::)).
 
 	:- mode(fordownto(+integer, +integer, @callable), zero_or_one).
 
@@ -50,7 +50,7 @@
 
 
 	:- public(fordownto/4).
-	:- metapredicate(fordownto(*, *, *, ::)).
+	:- meta_predicate(fordownto(*, *, *, ::)).
 
 	:- mode(fordownto(-integer, +integer, +integer, @callable), zero_or_one).
 
@@ -60,7 +60,7 @@
 
 
 	:- public(whiledo/2).
-	:- metapredicate(whiledo(::, ::)).
+	:- meta_predicate(whiledo(::, ::)).
 
 	:- mode(whiledo(+callable, @callable), zero_or_one).
 

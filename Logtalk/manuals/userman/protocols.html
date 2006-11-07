@@ -19,13 +19,13 @@
 <div class="bottom-right"><span class="page"/></div>
 <div class="navtop"><a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a></div>
 
-<h1>Protocols</h1>
+<h1>Protocols<span id="protocols_protocols"/></h1>
 
 <p>
 Protocols enable the separation between interface and implementation: several objects can implement the same protocol and an object can implement several protocols. There are no pre-defined protocols in Logtalk.
 </p>
 
-<h2>Defining a new protocol<a id="defining"></a></h2>
+<h2>Defining a new protocol<a id="protocols_defining"></a></h2>
 
 <p>
 We can define a new object in the same way we write Prolog code: by using a text editor. Logtalk source files may contain one or more objects, categories, or protocols. If you prefer to define each entity in its own source file, it is recommended that the file be named after the protocol. By default, all Logtalk source files use the extension <code>.lgt</code> but this is optional and can be set in the configuration files. Compiled source files (by the Logtalk preprocessor) have, by default, a <code>.pl</code> extension. Again, this can be set to match the needs of a particular Prolog compiler in the corresponding configuration file. For example, we may define a protocol named <code>listp</code> and save it in a <code>listp.lgt</code> source file that will be compiled to a <code>listp.pl</code> Prolog file.
@@ -47,7 +47,7 @@ If a protocol extends one or more protocols, then the opening directive will be:
     ...
 :- end_protocol.</pre>
 
-<h2>Finding defined protocols<a id="finding"></a></h2>
+<h2>Finding defined protocols<a id="protocols_finding"></a></h2>
 
 <p>
 We can find, by backtracking, all defined protocols by using the <a title="Consult reference manual" href="../refman/builtins/current_protocol1.html"><code>current_protocol/1</code></a> built-in predicate with an uninstantiated variable:
@@ -57,7 +57,7 @@ We can find, by backtracking, all defined protocols by using the <a title="Consu
 This predicate can also be used to test if a protocol is defined by calling it with a valid protocol identifier (an atom).
 </p>
 
-<h2>Creating a new protocol in runtime<a id="creating"></a></h2>
+<h2>Creating a new protocol in runtime<a id="protocols_creating"></a></h2>
 
 <p>
 We can create a new (dynamic) protocol in runtime by calling the Logtalk built-in predicate <a title="Consult reference manual" href="../refman/builtins/create_protocol3.html"><code>create_protocol/3</code></a>:
@@ -85,7 +85,7 @@ is equivalent to compiling and loading the protocol:
 If we need to create a lot of (dynamic) protocols at runtime, then is best to define a metaclass or a prototype with a predicate that will call this built-in predicate in order to provide more sophisticated behavior.
 </p>
 
-<h2>Abolishing an existing protocol<a id="abolishing"></a></h2>
+<h2>Abolishing an existing protocol<a id="protocols_abolishing"></a></h2>
 
 <p>
 Dynamic protocols can be abolished using the <a title="Consult reference manual" href="../refman/builtins/abolish_protocol1.html"><code>abolish_protocol/1</code></a> built-in predicate:
@@ -95,13 +95,13 @@ Dynamic protocols can be abolished using the <a title="Consult reference manual"
 The argument must be an identifier of a defined dynamic protocol, otherwise an error will be thrown.
 </p>
 
-<h2>Protocol directives<a id="directives"></a></h2>
+<h2>Protocol directives<a id="protocols_directives"></a></h2>
 
 <p>
 Protocol directives are used to set initialization goals and protocol properties.
 </p>
 
-<h3>Protocol initialization<a id="initialization"></a></h3>
+<h3>Protocol initialization<a id="protocols_initialization"></a></h3>
 
 <p>
 We can define a goal to be executed as soon as a protocol is (compiled and) loaded to memory with the <a title="Consult reference manual" href="../refman/directives/initialization1.html"><code>initialization/1</code></a> directive:
@@ -111,7 +111,7 @@ We can define a goal to be executed as soon as a protocol is (compiled and) load
 The argument can be any valid Prolog or Logtalk goal, including a message sending call.
 </p>
 
-<h3>Dynamic protocols<a id="dynamic"></a></h3>
+<h3>Dynamic protocols<a id="protocols_dynamic"></a></h3>
 
 <p>
 As usually happens with Prolog code, a protocol can be either static or dynamic. A protocol created during the execution of a program is always dynamic. A protocol defined in a file can be either dynamic or static. Dynamic protocols are declared by using the <a title="Consult reference manual" href="../refman/directives/dynamic0.html"><code>dynamic/0</code></a> directive in the protocol source code:
@@ -121,7 +121,7 @@ As usually happens with Prolog code, a protocol can be either static or dynamic.
 The directive must precede any predicate directives. Please be aware that using dynamic code implies a performance hit when compared to  static code. We should only use dynamic protocols when these need to be abolished during program execution.
 </p>
 
-<h3>Protocol documentation<a id="documentation"></a></h3>
+<h3>Protocol documentation<a id="protocols_documentation"></a></h3>
 
 <p>
 A protocol can be documented with arbitrary user-defined information by using the <a title="Consult reference manual" href="../refman/directives/info1.html"><code>info/1</code></a> directive:
@@ -131,7 +131,7 @@ A protocol can be documented with arbitrary user-defined information by using th
 See the <a href="documenting.html">documenting Logtalk programs</a> session for details.
 </p>
 
-<h2>Protocol relationships<a id="relationships"></a></h2>
+<h2>Protocol relationships<a id="protocols_relationships"></a></h2>
 
 <p>
 Logtalk provides two sets of built-in predicates that enable us to query the system about the possible relationships that a protocol have with other entities.
@@ -156,7 +156,7 @@ or, if we want to know the implementation scope:
 Note that, if we use an uninstantiated variable for the first argument, we will need to use the <a title="Consult reference manual" href="../refman/builtins/current_object1.html"><code>current_object/1</code></a> or <a title="Consult reference manual" href="../refman/builtins/current_category1.html"><code>current_category/1</code></a> built-in predicates to identify the kind of entity returned.
 </p>
 
-<h2>Protocol properties<a id="properties"></a></h2>
+<h2>Protocol properties<a id="protocols_properties"></a></h2>
 
 <p>
 We can find the properties of defined protocols by calling the <a title="Consult reference manual" href="../refman/builtins/protocol_property2.html"><code>protocol_property/2</code></a> built-in predicate:
@@ -166,7 +166,7 @@ We can find the properties of defined protocols by calling the <a title="Consult
 A protocol may have the property <code>static</code>, <code>dynamic</code>, or <code>built_in</code>. Dynamic protocols can be abolished in runtime by calling the <a title="Consult reference manual" href="../refman/builtins/abolish_protocol1.html"><code>abolish_protocol/1</code></a> built-in predicate.
 </p>
 
-<h2>Implementing protocols<a id="implementing"></a></h2>
+<h2>Implementing protocols<a id="protocols_implementing"></a></h2>
 
 <p>
 Any number of objects or categories can implement a protocol. The syntax is very simple:
@@ -207,14 +207,17 @@ Omitting the scope keyword is equivalent to writing:
 The same rules applies to protocols implemented by categories.
 </p>
 
-	<div class="navbottom"><a href="objects.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="categories.html">next</a><div class="footer">
-</div>
-	<div class="copyright">Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a></div>
-	<div class="footnote">
-		<span class="validators"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
-		<span class="date">Last updated on: January 21, 2006</span>
+<div class="footer">
+	<div class="copyright">
+		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
+		<span>Last updated on: October 26, 2006</span>
+	</div>
+	<div class="navbottom">
+		<span><a href="objects.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="categories.html">next</a></span><br/>
+		<span><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
 	</div>
 </div>
 
 </body>
+
 </html>

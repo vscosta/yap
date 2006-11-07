@@ -5,9 +5,9 @@
 <!--	jEdit 4.1 Logtalk syntax file
 
 	written by		Paulo Moura
-	version			1.5
+	version			1.7
 	created on		2 May 2002
-	last revised	9 October 2005
+	last revised	17 September 2006
 
 	To install, copy this file to the "modes" subdirectory in jEdit 
 	directory installation.   Next, check the "catalog" file in the 
@@ -83,10 +83,6 @@
 			<BEGIN>:- export(</BEGIN>
 			<END>).</END>
 		</SPAN>
-		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
-			<BEGIN>:- meta_predicate(</BEGIN>
-			<END>).</END>
-		</SPAN>
 		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="PIs">
 			<BEGIN>:- use_module(</BEGIN>
 			<END>).</END>
@@ -133,6 +129,14 @@
 			<END>.</END>
 		</SPAN>
 		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="PIs">
+			<BEGIN>:- alias(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="PIs">
+			<BEGIN>:- atomic(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="PIs">
 			<BEGIN>:- discontiguous(</BEGIN>
 			<END>).</END>
 		</SPAN>
@@ -153,7 +157,7 @@
 			<END>).</END>
 		</SPAN>
 		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
-			<BEGIN>:- metapredicate(</BEGIN>
+			<BEGIN>:- meta_predicate(</BEGIN>
 			<END>).</END>
 		</SPAN>
 		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
@@ -168,9 +172,9 @@
 			<BEGIN>:- uses(</BEGIN>
 			<END>).</END>
 		</SPAN>
-		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="ENTITY_NAMES">
-			<BEGIN>:- alias(</BEGIN>
-			<END>).</END>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- threaded</BEGIN>
+			<END>.</END>
 		</SPAN>
 
 		<!-- Logtalk message sending operators -->
@@ -241,6 +245,9 @@
 			<FUNCTION>findall</FUNCTION>
 			<FUNCTION>forall</FUNCTION>
 			<FUNCTION>setof</FUNCTION>
+
+			<FUNCTION>threaded_call</FUNCTION>
+			<FUNCTION>threaded_exit</FUNCTION>
 
 			<FUNCTION>before</FUNCTION>
 			<FUNCTION>after</FUNCTION>

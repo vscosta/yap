@@ -1,11 +1,11 @@
 
-:- object(set(_type),
+:- object(set(_Type),
 	extends(set)).
 
 	:- info([
-		version is 1.0,
+		version is 1.01,
 		author is 'Paulo Moura',
-		date is 2006/2/2,
+		date is 2006/4/25,
 		comment is 'Set predicates with elements constrained to a single type.']).
 
 	valid(Set) :-

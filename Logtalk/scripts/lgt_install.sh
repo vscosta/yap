@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.27.1
+## Release 2.28.2
 ##
 ## Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -23,20 +23,20 @@ echo
 echo "Installing Logtalk on $prefix ..."
 echo
 
-rm -rf $prefix/lgt2271
+rm -rf $prefix/lgt2282
 rm -f $prefix/logtalk
 
-mkdir $prefix/lgt2271
+mkdir $prefix/lgt2282
 
 cd ..
-cp -R * $prefix/lgt2271
+cp -R * $prefix/lgt2282
 
 cd $prefix
-chmod -R go-w,a+r lgt2271
-chmod a+x lgt2271
-chmod a+x lgt2271/scripts/*.sh
-chmod a+x lgt2271/xml/*.sh
-ln -sf lgt2271 logtalk
+chmod -R go-w,a+r lgt2282
+chmod a+x lgt2282
+chmod a+x lgt2282/scripts/*.sh
+chmod a+x lgt2282/xml/*.sh
+ln -sf lgt2282 logtalk
 
 mkdir -p bin
 cd bin
@@ -45,14 +45,14 @@ ln -sf ../logtalk/xml/lgt2pdf.sh lgt2pdf
 ln -sf ../logtalk/xml/lgt2html.sh lgt2html
 ln -sf ../logtalk/xml/lgt2xml.sh lgt2xml
 
-echo "Logtalk basic installation completed. See the INSTALL file for details"
-echo "on customizing your working environment."
+echo "Logtalk basic installation completed. See the INSTALL and CUSTOMIZATION"
+echo "files for details on customizing your working environment."
 echo
 echo "You may want to run some of the Prolog integration scripts, which you"
 echo "will find on the same directory as this installer script."
 echo
-echo "Users must define the environment variable LOGTALKHOME pointing"
-echo "to $prefix/logtalk and then run the shell script cplgtdirs"
+echo "Users must define the environment variable LOGTALKHOME pointing to"
+echo "$prefix/logtalk and then run the shell script cplgtdirs"
 echo "in order to copy the Logtalk user-modifiable files to their home"
 echo "directories."
 echo

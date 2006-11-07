@@ -71,6 +71,7 @@
 				<string>\:\-[[:space:]](category)\(</string>			
 				<string>\:\-[[:space:]](end_category)\.</string>			
 				<string>\:\-[[:space:]](alias)\(</string>			
+				<string>\:\-[[:space:]](atomic)\(</string>			
 				<string>\:\-[[:space:]](encoding)\(</string>			
 				<string>\:\-[[:space:]](export)\(</string>			
 				<string>\:\-[[:space:]](initialization)\(</string>			
@@ -83,13 +84,13 @@
 				<string>\:\-[[:space:]](public)\(</string>			
 				<string>\:\-[[:space:]](protected)\(</string>			
 				<string>\:\-[[:space:]](private)\(</string>			
-				<string>\:\-[[:space:]](metapredicate)\(</string>			
 				<string>\:\-[[:space:]](meta_predicate)\(</string>			
 				<string>\:\-[[:space:]](multifile)\(</string>			
 				<string>\:\-[[:space:]](op)\(</string>			
 				<string>\:\-[[:space:]](calls)\(</string>			
 				<string>\:\-[[:space:]](uses)\(</string>			
 				<string>\:\-[[:space:]](use_module)\(</string>			
+				<string>\:\-[[:space:]](threaded)\.</string>			
 			</array>
 		</dict>
 
@@ -208,6 +209,8 @@
 				<string>[^A-Za-z0-9_](expand_term)\(</string>
 				<string>[^A-Za-z0-9_](term_expansion)\(</string>
 				<string>[^A-Za-z0-9_](phrase)\(</string>
+				<string>[^A-Za-z0-9_](threaded_call)\(</string>
+				<string>[^A-Za-z0-9_](threaded_exit)\(</string>
 			</array>
 		</dict>
 

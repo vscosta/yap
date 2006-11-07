@@ -1,5 +1,5 @@
 
-:- object(rectangle(_width, _height, _position),
+:- object(rectangle(_Width, _Height, _Position),
 	imports(private::assignvars)).
 
 	:- info([

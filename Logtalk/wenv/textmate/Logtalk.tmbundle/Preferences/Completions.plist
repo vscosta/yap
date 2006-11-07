@@ -5,7 +5,7 @@
 	<key>name</key>
 	<string>Completions</string>
 	<key>scope</key>
-	<string></string>
+	<string>source.logtalk</string>
 	<key>settings</key>
 	<dict>
 		<key>completions</key>
@@ -21,10 +21,11 @@
 			<string>initialization</string>
 			<string>object</string>
 			<string>protocol</string>
+			<string>threaded</string>
 			<string>uses</string>
 			<string>alias</string>
 			<string>discontiguous</string>
-			<string>metapredicate</string>
+			<string>meta_predicate</string>
 			<string>mode</string>
 			<string>op</string>
 			<string>private</string>
@@ -42,11 +43,16 @@
 			<string>abolish_object</string>
 			<string>abolish_protocol</string>
 			<string>abolish_category</string>
+			<string>extends</string>
 			<string>extends_object</string>
 			<string>extends_protocol</string>
+			<string>implements</string>
 			<string>implements_protocol</string>
+			<string>imports</string>
 			<string>imports_category</string>
+			<string>instantiates</string>
 			<string>instantiates_class</string>
+			<string>specializes</string>
 			<string>specializes_class</string>
 			<string>abolish_events</string>
 			<string>current_event</string>
@@ -56,6 +62,8 @@
 			<string>logtalk_library_path</string>
 			<string>current_logtalk_flag</string>
 			<string>set_logtalk_flag</string>
+			<string>threaded_call</string>
+			<string>threaded_exit</string>
 			<string>self</string>
 			<string>this</string>
 			<string>sender</string>

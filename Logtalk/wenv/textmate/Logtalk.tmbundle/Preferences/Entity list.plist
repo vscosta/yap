@@ -5,7 +5,7 @@
 	<key>name</key>
 	<string>Symbol list: entities</string>
 	<key>scope</key>
-	<string>entity.name</string>
+	<string>source.logtalk entity.name</string>
 	<key>settings</key>
 	<dict>
 		<key>showInSymbolList</key>

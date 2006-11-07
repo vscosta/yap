@@ -2,7 +2,7 @@
 
 Someone has stolen the jam! The March Hare said he didn't do it (naturally!) The Mad Hatter proclaimed one of them (the Hare, the Hatter or the Dormouse) stole the jam, but of course it wasn't the Hatter himself. When asked whether the Mad Hatter and March Hare spoke the truth, the Dormouse said that one of the three (including herself) must have stolen the jam.
 
-By employing the very expensive servieces of Dr. Himmelheber, the famous psychiatrist, we eventually learned that not both the Dormous and the March Hare spoke the truth.
+By employing the very expensive services of Dr. Himmelheber, the famous psychiatrist, we eventually learned that not both the Dormous and the March Hare spoke the truth.
 
 Assuming, as we do, that fairy-tale characters either always lie or always tell the truth, it remains to discover who really stole the jam.
 

@@ -1,4 +1,4 @@
-# Logtalk specification file (http://www.logtalk.org/)
+# Logtalk specification file (http://logtalk.org/)
 # Paulo Moura (pmoura@logtalk.org)
  
 $CASESENSITIVE=YES

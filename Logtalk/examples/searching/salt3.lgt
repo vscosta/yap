@@ -24,7 +24,7 @@ Remarks:
 */
 
 
-:- object(salt(_acumulator, _measure1, _measure2),
+:- object(salt(_Acumulator, _Measure1, _Measure2),
 	instantiates(state_space)).
 
 

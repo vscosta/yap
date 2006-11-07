@@ -3,9 +3,9 @@
 
 
 	:- info([
-		version is 1.2,
+		version is 1.3,
 		author is 'Paulo Moura',
-		date is 2004/8/15,
+		date is 2006/9/17,
 		comment is 'Call executing time profiler.']).
 
 
@@ -14,7 +14,7 @@
 
 
 	:- public(timer/2).
-	:- metapredicate(timer(::, *)).
+	:- meta_predicate(timer(::, *)).
 
 	:- mode(timer(+callable, -number), one).
 
@@ -24,7 +24,7 @@
 
 
 	:- public(timer/3).
-	:- metapredicate(timer(::, *, *)).
+	:- meta_predicate(timer(::, *, *)).
 
 	:- mode(timer(+callable, +integer, -float), one).
 

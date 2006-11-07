@@ -13,7 +13,7 @@
 
 <body>
 
-<div class="navtop"><a href="../index.html">contents</a></span>
+<div class="navtop"><span><a href="../index.html">contents</a></span> &gt; 
 	<span class="title">Prolog Integration and Migration Guide</span><span class="page"/>
 </div>
 
@@ -25,7 +25,7 @@ An application may include plain Prolog files, Prolog modules, and Logtalk objec
 </p>
 
 
-<h2>Source files with both Prolog code and Logtalk code<a id="encapsulating"></a></h2>
+<h2>Source files with both Prolog code and Logtalk code<a id="hybrid"></a></h2>
 
 <p>
 Logtalk source files may contain plain Prolog code intermixed with Logtalk code. The Logtalk compiler just copies the plain Prolog code as-is to the generated Prolog file. With Prolog modules, it is assumed that the module code starts with a <code>module/1-2</code> directive and ends at the end of the file. There is no module ending directive which would allowed us define more than one module per file. In fact, most Prolog module systems always define a single module per file. Some of them mandate that the <code>module/1-2</code> directive be the first term on a source file. As such, when the Logtalk compiler finds a <code>module/1-2</code> directive, it assumes that all code that follows until the end of the file belongs to the module.
@@ -47,11 +47,11 @@ Encapsulating Prolog code using Logtalk objects is easy. First, for each source 
 Converting Prolog modules into objects allows an application to run on a wider range of Prolog compilers, overcoming module compatibility problems. Not all Prolog compilers support a module system. Among those Prolog compilers which support a module system, the lack of standardization leads to several issues, specially with operators and meta-predicates. In addition, the conversion allows you to take advantage of Logtalk more powerful abstraction and reuse mechanisms such as separating interface from implementation.
 </p>
 <p>
-Converting a Prolog module into a Logtalk object is easy. First, convert the module <code>module/1</code> directive into an opening object directive, <a title="Consult reference manual" href="../refman/directives/object1_5.html"><code>object/1</code></a>, using the module name as the object name. For <code>module/2</code> directives apply the same conversion and convert the list of exported predicates into Logtalk <a title="Consult reference manual" href="../refman/directives/public1.html">public predicate directives</a>. Second, add a closing object directive, <a title="Consult reference manual" href="../refman/directives/end_object0.html"><code>end_object/0</code></a>, at the end of the module code. Third, convert any <code>export/1</code> directives into public predicate directives. Fourth, convert any <code>use_module/2</code> directives into Logtalk <a title="Consult reference manual" href="../refman/directives/uses2.html"><code>uses/2</code></a> directives. Any <code>use_module/1</code> directives are also converted into Logtalk <a title="Consult reference manual" href="../refman/directives/uses2.html"><code>uses/2</code></a> directives but you will need to first find out which predicates your module uses from the specified modules. Fifth, convert any <code>meta_predicate/1</code> directives into Logtalk <a title="Consult reference manual" href="../refman/directives/metapredicate1.html"><code>metapredicate/1</code></a> directives by replacing the module meta-argument indicator, <code>:</code>, into the Logtalk meta-predicate indicator, <code>::</code>. Arguments which are not meta-arguments are represented by the <code>*</code> character. Compiling the resulting objects with the Logtalk <code>portability</code> flag set to <code>warning</code> may help you find calls to predicates defined on other converted modules.
+Converting a Prolog module into a Logtalk object is easy. First, convert the module <code>module/1</code> directive into an opening object directive, <a title="Consult reference manual" href="../refman/directives/object1_5.html"><code>object/1</code></a>, using the module name as the object name. For <code>module/2</code> directives apply the same conversion and convert the list of exported predicates into Logtalk <a title="Consult reference manual" href="../refman/directives/public1.html">public predicate directives</a>. Second, add a closing object directive, <a title="Consult reference manual" href="../refman/directives/end_object0.html"><code>end_object/0</code></a>, at the end of the module code. Third, convert any <code>export/1</code> directives into public predicate directives. Fourth, convert any <code>use_module/2</code> directives into Logtalk <a title="Consult reference manual" href="../refman/directives/uses2.html"><code>uses/2</code></a> directives. Any <code>use_module/1</code> directives are also converted into Logtalk <a title="Consult reference manual" href="../refman/directives/uses2.html"><code>uses/2</code></a> directives but you will need to first find out which predicates your module uses from the specified modules. Fifth, convert any <code>meta_predicate/1</code> directives into Logtalk <a title="Consult reference manual" href="../refman/directives/meta_predicate1.html"><code>meta-predicate/1</code></a> directives by replacing the module meta-argument indicator, <code>:</code>, into the Logtalk meta-predicate indicator, <code>::</code>. Arguments which are not meta-arguments are represented by the <code>*</code> character. Compiling the resulting objects with the Logtalk <code>portability</code> flag set to <code>warning</code> may help you find calls to predicates defined on other converted modules.
 </p>
 
 
-<h2>Compiling Prolog modules as objects<a id="converting"></a></h2>
+<h2>Compiling Prolog modules as objects<a id="compiling"></a></h2>
 
 <p>
 An alternative to convert Prolog modules into objects is to just compile the modules as objects. When possible, this has the advantage of not implying any code changes. You may compile a Prolog module as an object by changing the source file name extension to <code>.lgt</code> and then using the <a title="Consult user manual" href="../userman/running.html#compiling"><code>logtalk_load/1-2</code></a> and <a title="Consult user manual" href="../userman/running.html#compiling"><code>logtalk_compile/1-2</code></a> predicates (set the Logtalk <code>portability</code> flag set to <code>warning</code> to help you catch any unnoticed cross-module predicate calls). This allows you to reuse existing module code as objects. However, there are some limitations that you should be aware. These limitations are a consequence of the lack of standardization of Prolog module systems. Currently, Logtalk supports the following module directives:
@@ -116,15 +116,17 @@ Logtalk allows you to send a message to a module in order to call one of its pre
 This feature is needed to properly support compilation of modules containing <code>use_module/2</code> directives as objects. If the modules specified in the <code>use_module/2</code> directives are not compiled as objects but are instead loaded as-is by Prolog, the exported predicates would need to be called using the <code>Module:Call</code> notation but the converted module will be calling them through message sending. Thus, this feature ensures that, on a module compiled as an object, any predicate calling other module predicates will work as expected either these other modules are loaded as-is or also compiled as objects.
 </p>
 
-
 <div class="footer">
-	<div class="navbottom"><a href="../glossary.html">glossary</a></div>
-	<div class="copyright">Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a></div>
-	<div class="footnote">
-		<span class="validators"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
-		<span class="date">Last updated on: January 21, 2006</span>
+	<div class="copyright">
+		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
+		<span>Last updated on: October 26, 2006</span>
+	</div>
+	<div class="navbottom">
+		<span><a href="../glossary.html">glossary</a></span><br/>
+		<span><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
 	</div>
 </div>
 
 </body>
+
 </html>

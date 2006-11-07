@@ -33,10 +33,11 @@ mode(, error).
 dynamic(/).
 dynamic.
 discontiguous(/).
-metapredicate().
+meta_predicate().
 op(, , ).
 initialization().
 encoding().
+threaded.
 
 asserta()
 assertz()
@@ -49,6 +50,9 @@ forall(, )
 findall(, , )
 bagof(, , )
 setof(, , )
+
+threaded_call()
+threaded_exit()
 
 true
 fail

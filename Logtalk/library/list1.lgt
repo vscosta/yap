@@ -1,11 +1,11 @@
 
-:- object(list(_type),
+:- object(list(_Type),
 	extends(list)).
 
 	:- info([
-		version is 1.0,
+		version is 1.01,
 		author is 'Paulo Moura',
-		date is 2006/1/29,
+		date is 2006/4/25,
 		comment is 'List predicates with elements constrained to a single type.']).
 
 	valid(List) :-

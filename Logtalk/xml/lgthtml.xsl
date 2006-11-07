@@ -16,7 +16,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.27.1
+%  Release 2.28.2
 %
 %  Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 %
@@ -78,6 +78,14 @@
 	<xsl:if test="date">
 		<dt class ="key">date:</dt>
 			<dd class="value"><code><xsl:value-of select="date" /></code></dd>
+	</xsl:if>
+	<xsl:if test="copyright">
+		<dt class ="key">copyright:</dt>
+			<dd class="value"><code><xsl:value-of select="copyright" /></code></dd>
+	</xsl:if>
+	<xsl:if test="license">
+		<dt class ="key">license:</dt>
+			<dd class="value"><code><xsl:value-of select="license" /></code></dd>
 	</xsl:if>
 	</dl>
 	<dl class="properties">

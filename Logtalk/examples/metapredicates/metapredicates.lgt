@@ -6,13 +6,13 @@
 :- object(tracer).
 
 	:- info([
-		version is 2.0,
+		version is 2.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2006/9/17,
 		comment is 'Tracer for a goal call, exit, and fail ports.']).
 
 	:- public(trace/1).
-	:- metapredicate(trace(::)).	% changes interpretation of meta-calls on trace/1 clauses
+	:- meta_predicate(trace(::)).	% changes interpretation of meta-calls on trace/1 clauses
 	:- mode(trace(+callable), zero_or_more).
 	:- info(trace/1, [
 		comment is 'Traces goal execution.',
@@ -31,7 +31,7 @@
 
 
 % sort code adopted from an example on the SICStus Prolog User Manual
-% metapredicate example taken from Prolog Part 2, Modules - Committee Draft
+% meta-predicate example taken from Prolog Part 2, Modules - Committee Draft
 
 :- object(sort(_Type)).
 

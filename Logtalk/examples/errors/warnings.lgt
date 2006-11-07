@@ -1,6 +1,16 @@
 
 :- object(misspell).
 
+	% call to an undefined but declared predicate
+	:- public(foo/0).
+
+	output :-
+		foo.
+
+	% call to an undefined local predicate
+	output(A) :-
+		bar(A).
+
 	% misspelt call to Prolog built-in predicate
 	output(A) :-
 		writr(A).

@@ -5,14 +5,14 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2006/9/17,
 		comment is 'Dictionary protocol implemented using binary trees.']).
 
 
 	:- private(map/4).
-	:- metapredicate(map(*, *, *, ::)).
+	:- meta_predicate(map(*, *, *, ::)).
 
 	:- mode(map(+atom, +tree, -tree, -callable), zero_or_one).
 

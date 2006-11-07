@@ -1,31 +1,31 @@
 Name: logtalk
 Summary: Logtalk - Open source object-oriented extension to Prolog
-Version: 2.27.1
+Version: 2.28.2
 Release: 1
 License: Artistic License 2.0
 Group: Development/Languages
 Packager: Paulo Moura <pmoura@logtalk.org>
-Source: http://www.logtalk.org/files/lgt2271.tgz
+Source: http://logtalk.org/files/lgt2282.tgz
 BuildArchitectures: noarch
-URL: http://www.logtalk.org/
+URL: http://logtalk.org/
 Prefix: /usr/local
 AutoReqProv: no
 %description
 Logtalk is an open source object-oriented extension to the Prolog programming language. Integrating logic programming with object-oriented and event-driven programming, it is compatible with most Prolog compilers. It supports both prototypes and classes. In addition, it supports component-based programming through category-based composition.
 %prep
-%setup -n lgt2271
+%setup -n lgt2282
 %build
 %install
-rm -rf /usr/local/lgt2271
+rm -rf /usr/local/lgt2282
 rm -f /usr/local/logtalk
-mkdir /usr/local/lgt2271
-cp -R * /usr/local/lgt2271
+mkdir /usr/local/lgt2282
+cp -R * /usr/local/lgt2282
 cd /usr/local
-chmod -R go-w,a+r lgt2271
-chmod a+x lgt2271
-chmod a+x lgt2271/scripts/*.sh
-chmod a+x lgt2271/xml/*.sh
-ln -sf lgt2271 logtalk
+chmod -R go-w,a+r lgt2282
+chmod a+x lgt2282
+chmod a+x lgt2282/scripts/*.sh
+chmod a+x lgt2282/xml/*.sh
+ln -sf lgt2282 logtalk
 cd bin
 ln -sf ../logtalk/scripts/cplgtdirs.sh cplgtdirs
 ln -sf ../logtalk/xml/lgt2pdf.sh lgt2pdf
@@ -34,26 +34,62 @@ ln -sf ../logtalk/xml/lgt2xml.sh lgt2xml
 %clean
 %files
 %defattr(-,root,users)
-%doc /usr/local/lgt2271/BIBLIOGRAPHY
-%doc /usr/local/lgt2271/INSTALL
-%doc /usr/local/lgt2271/LICENSE
-%doc /usr/local/lgt2271/QUICK_START
-%doc /usr/local/lgt2271/README
-%doc /usr/local/lgt2271/RELEASE_NOTES
-%doc /usr/local/lgt2271/UPGRADING
-/usr/local/lgt2271/compiler
-/usr/local/lgt2271/configs
-/usr/local/lgt2271/contributions
-/usr/local/lgt2271/examples
-/usr/local/lgt2271/libpaths
-/usr/local/lgt2271/library
-%docdir /usr/local/lgt2271/manuals
-/usr/local/lgt2271/manuals
-/usr/local/lgt2271/scripts
-/usr/local/lgt2271/wenv
-/usr/local/lgt2271/xml
+%doc /usr/local/lgt2282/BIBLIOGRAPHY.bib
+%doc /usr/local/lgt2282/CUSTOMIZE.txt
+%doc /usr/local/lgt2282/INSTALL.txt
+%doc /usr/local/lgt2282/LICENSE.txt
+%doc /usr/local/lgt2282/QUICK_START.txt
+%doc /usr/local/lgt2282/README.txt
+%doc /usr/local/lgt2282/RELEASE_NOTES.txt
+%doc /usr/local/lgt2282/UPGRADING.txt
+/usr/local/lgt2282/compiler
+/usr/local/lgt2282/configs
+/usr/local/lgt2282/contributions
+/usr/local/lgt2282/examples
+/usr/local/lgt2282/libpaths
+/usr/local/lgt2282/library
+%docdir /usr/local/lgt2282/manuals
+/usr/local/lgt2282/manuals
+/usr/local/lgt2282/scripts
+/usr/local/lgt2282/wenv
+/usr/local/lgt2282/xml
 /usr/local/logtalk
 /usr/local/bin/cplgtdirs
 /usr/local/bin/lgt2pdf
 /usr/local/bin/lgt2html
 /usr/local/bin/lgt2xml
+%post
+mkdir -p /etc/profile.d
+echo "# Logtalk environment setup" > /etc/profile.d/logtalk.sh
+echo "" >> /etc/profile.d/logtalk.sh
+echo "# Logtalk installation directory:" >> /etc/profile.d/logtalk.sh
+echo "export LOGTALKHOME=$RPM_INSTALL_PREFIX/logtalk" >> /etc/profile.d/logtalk.sh
+echo "" >> /etc/profile.d/logtalk.sh
+echo "# Default location for Logtalk end-user files:" >> /etc/profile.d/logtalk.sh
+echo "export LOGTALKUSER=$HOME/logtalk" >> /etc/profile.d/logtalk.sh
+chmod a+x /etc/profile.d/logtalk.sh
+echo "# Logtalk environment setup" > /etc/profile.d/logtalk.csh
+echo "" >> /etc/profile.d/logtalk.csh
+echo "# Logtalk installation directory:" >> /etc/profile.d/logtalk.csh
+echo "setenv LOGTALKHOME $RPM_INSTALL_PREFIX/logtalk" >> /etc/profile.d/logtalk.csh
+echo "" >> /etc/profile.d/logtalk.csh
+echo "# Default location for Logtalk end-user files:" >> /etc/profile.d/logtalk.csh
+echo "setenv LOGTALKUSER $HOME/logtalk" >> /etc/profile.d/logtalk.csh
+chmod a+x /etc/profile.d/logtalk.csh
+eval export LOGTALKHOME=$RPM_INSTALL_PREFIX/logtalk; cd $LOGTALKHOME/scripts; ./makeall_lgt.sh $RPM_INSTALL_PREFIX
+echo ""
+echo "Defined the following environment variables for all users:"
+echo ""
+echo "  Logtalk installation directory: LOGTALKHOME = $RPM_INSTALL_PREFIX/logtalk"
+echo "  Default Logtalk user files directory: LOGTALKUSER = $HOME/logtalk"
+echo ""
+echo "You may need to logout and login again or start a new shell in order to"
+echo "use the new environment variables."
+echo ""
+echo "You may change the default value of the LOGTALKUSER environment variable"
+echo "in your shell configuration files if you already use, or want to use, a 
+echo "different location for the Logtalk user files directory."
+echo ""
+%postun
+rm -f /etc/profile.d/logtalk.sh
+rm -f /etc/profile.d/logtalk.csh

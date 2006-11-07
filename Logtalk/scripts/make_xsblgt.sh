@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.27.1
+## Release 2.28.2
 ##
 ## Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -41,23 +41,18 @@ fi
 cd "$LOGTALKHOME"
 mkdir -p bin
 cd bin
-cp ../compiler/logtalk.pl logtalk.P
-sed 's/^..lgt_current_object_.[(]user.*[)]/:- assertz(&)/' logtalk.P > temp1
-sed 's/^..lgt_current_object_.[(]debugger.*[)]/:- assertz(&)/' temp1 > temp2
-sed 's/^..lgt_dbg_leashing_.[(].*[)]/:- assertz(&)/g' temp2 > logtalk.P
-rm temp1
-rm temp2
-echo ":- reconsult('$LOGTALKUSER/configs/xsb.P')." > logtalkxsb.P
-echo ":- reconsult('$LOGTALKHOME/bin/logtalk.P')." >> logtalkxsb.P
-echo ":- reconsult('$LOGTALKUSER/libpaths/libpaths.P')." >> logtalkxsb.P
+echo ":- reconsult('~/logtalk/configs/xsb.pl')." > logtalk_xsb.pl
+echo ":- reconsult('$LOGTALKHOME/compiler/logtalk.pl')." >> logtalk_xsb.pl
+echo ":- reconsult('~/logtalk/libpaths/libpaths_no_env_var.pl')." >> logtalk_xsb.pl
 echo "#/bin/sh" > xsblgt
-echo "xsb -e \"reconsult('\$LOGTALKHOME/bin/logtalkxsb.P').\"" >> xsblgt
+echo "xsb -l -e \"reconsult('$LOGTALKHOME/bin/logtalk_xsb.pl').\"" >> xsblgt
 chmod a+x xsblgt
 ln -sf $LOGTALKHOME/bin/xsblgt $prefix/bin/xsblgt
 echo "Done. A link to the script was been created in $prefix/bin."
-echo "Users must define the environment variables LOGTALKHOME and"
-echo "LOGTALKUSER in order to use the script. Users must run the"
-echo "the cplgtdirs script before using the xsblgt script."
+echo "The first call to the script the must be made as root or using"
+echo "sudo."
 echo
-echo "The first call to the script must be made as root or using sudo."
+echo "Users should ensure that the environment variables LOGTALKHOME"
+echo "and LOGTALKUSER are defined and then run the \"cplgtdirs\" script"
+echo "prior to using the xsblgt script."
 echo
