@@ -38,6 +38,7 @@ length(L,M) :- '$$_length2'(M,L).
           L = []
         ;
 	  L = [_|L1],
+	  N > 0,
 	  N1 is N - 1,
 	  '$$_length2'(N1, L1)
         ).
