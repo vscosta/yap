@@ -1,0 +1,26 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+This directory contains the Logtalk.tmbundle bundle, which provides code 
+folding, code completion, syntax coloring, entity index, auto-indentation, 
+and snippets of code for editing Logtalk source files with the TextMate 1.x 
+text editor: 
+
+	http://macromates.com/
+
+To install copy the bundle "Logtalk.tmbundle" to one of the following 
+folders:
+
+	~/Library/Application Support/TextMate/Bundles/
+	/Library/Application Support/TextMate/Bundles/
+
+(create the chosen folder if it does not exist).
+
+Logtalk source files (including the programming examples) are usually 
+formatted using four-spaces tabs; you may set the tab width on the 
+editor preference panel.

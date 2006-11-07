@@ -1,0 +1,46 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% start by loading the example:
+
+| ?- logtalk_load(diamonds(loader)).
+...
+
+
+% first variant of the "diamond problem", defined in the "diamond1" source file:
+
+| ?- d1::m.
+
+Redefinition of method m/0 in object b1
+yes
+
+
+% second variant of the "diamond problem", defined in the "diamond2" source file:
+
+| ?- d2::m.
+
+Redefinition of method m/0 in object c2
+yes
+
+
+% third variant of the "diamond problem", defined in the "diamond3" source file:
+
+| ?- d3::b3_m.
+
+Redefinition of method m/0 in object b3
+yes
+
+| ?- d3::c3_m.
+
+Redefinition of method m/0 in object c3
+yes
+
+| ?- d3::m.
+
+Redefinition of method m/0 in object b3
+yes

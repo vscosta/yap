@@ -1,0 +1,43 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% start by loading the necessary library support files (if not 
+% already loaded):
+
+| ?- logtalk_load(library(types_loader)).
+...
+
+
+% now you are ready for loading the example:
+
+| ?- logtalk_load(miscellaneous(loader)).
+...
+
+
+% towers of hanoi using three disks:
+
+| ?- hanoi::run(3).
+
+Move a disk from left to right.
+Move a disk from left to middle.
+Move a disk from right to middle.
+Move a disk from left to right.
+Move a disk from middle to left.
+Move a disk from middle to right.
+Move a disk from left to right.
+
+yes
+
+
+% placing eight queens in a chess table:
+
+| ?- queens::queens(8).
+
+[1-5,2-7,3-2,4-6,5-3,6-1,7-4,8-8]
+
+yes

@@ -1,0 +1,23 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+To load this example and for sample queries, please see the SCRIPT file.
+
+This folder contains examples of the used of operators inside objects 
+and categories:
+
+double.lgt
+	Simple object containing clauses using an infix operator.
+
+triple.lgt
+	Simple object reading from a file (triple.txt), and asserting into 
+	self, clauses that use an infix operator.
+
+reverse.lgt
+	Simple object reading from a file (next.txt), and writing to 
+	another file (previous.txt), clauses that use infix operators.

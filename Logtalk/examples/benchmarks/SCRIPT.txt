@@ -1,0 +1,136 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% start by loading the example:
+
+| ?- logtalk_load(benchmarks(loader)).
+...
+
+
+% run the default set of benchmark tests:
+
+| ?- benchmarks.
+...
+
+
+% or run specific benchmark tests individually as exemplified next...
+
+
+% call the predicate my_length/0 defined in the Prolog database:
+
+| ?- generate_list(30, List), benchmark(my_length(List, _)).
+
+Number of repetitions: 100000
+Loop time: 0.03 seconds
+Goal time: 0.39 seconds
+Average time per call: 3.6e-06 seconds
+Number of calls per second: 277777.777777778
+List = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29] ? 
+yes
+
+
+% call the predicate object::length/2 from the top-level:
+
+| ?- generate_list(30, List), benchmark(object::length(List, _)).
+
+Number of repetitions: 100000
+Loop time: 0.04 seconds
+Goal time: 0.79 seconds
+Average time per call: 7.5e-06 seconds
+Number of calls per second: 133333.333333333
+List = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29] ? 
+yes
+
+
+% compiled call of the predicate object::length/2 (simulates message sending 
+% from a compiled object to another object; thus with no top-level overhead):
+
+| ?- generate_list(30, List), benchmark('$lgt_send_to_object_nv'(object, length(List, _), user)).
+
+Number of repetitions: 100000
+Loop time: 0.0299999999999998 seconds
+Goal time: 0.5 seconds
+Average time per call: 4.70000000000001e-06 seconds
+Number of calls per second: 212765.957446808
+List = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29] ? 
+yes
+
+
+% compiled call of the predicate object::length/2 (simulates message sending 
+% from a compiled object to another object with event-driven programming 
+% support switched off and with no top-level overhead):
+
+| ?- generate_list(30, List), benchmark('$lgt_send_to_object_ne_nv'(object, length(List, _), user)).
+
+Number of repetitions: 100000
+Loop time: 0.0300000000000002 seconds
+Goal time: 0.46 seconds
+Average time per call: 4.3e-06 seconds
+Number of calls per second: 232558.139534884
+List = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29] ? 
+yes
+
+
+% create and abolish an elementary dynamic object:
+
+| ?- benchmark((create_object(xpto, [], [], []), abolish_object(xpto))).
+
+Number of repetitions: 100000
+Loop time: 0.0300000000000011 seconds
+Goal time: 51.59 seconds
+Average time per call: 0.0005156 seconds
+Number of calls per second: 1939.48797517455
+yes
+
+
+% test assertz/1 and retract/1 performance in plain Prolog:
+
+| ?- benchmark(db_test_plain).
+
+Number of repetitions: 100000
+Loop time: 0.0299999999999727 seconds
+Goal time: 51.07 seconds
+Average time per call: 0.0005104 seconds
+Number of calls per second: 1959.24764890282
+yes
+
+
+% test assertz/1 and retract/1 performance on "this" database:
+
+| ?- benchmark('$lgt_send_to_object_ne_nv'(database, db_test_this, user)).
+
+Number of repetitions: 100000
+Loop time: 0.0299999999999727 seconds
+Goal time: 63.37 seconds
+Average time per call: 0.0006334 seconds
+Number of calls per second: 1578.78118092832
+yes
+
+
+% test assertz/1 and retract/1 performance on "self" database:
+
+| ?- benchmark('$lgt_send_to_object_ne_nv'(database, db_test_self, user)).
+
+Number of repetitions: 100000
+Loop time: 0.0299999999999727 seconds
+Goal time: 71.3499999999999 seconds
+Average time per call: 0.000713199999999999 seconds
+Number of calls per second: 1402.13123948402
+yes
+
+
+% test assertz/1 and retract/1 performance on another object database (using ::/2):
+
+| ?- benchmark('$lgt_send_to_object_ne_nv'(database, db_test_obj, user)).
+
+Number of repetitions: 100000
+Loop time: 0.0299999999999727 seconds
+Goal time: 68.97 seconds
+Average time per call: 0.0006894 seconds
+Number of calls per second: 1450.53669857847
+yes

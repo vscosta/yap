@@ -1,0 +1,25 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% start by loading the necessary library and support example files (if not 
+% already loaded):
+
+| ?- logtalk_load([library(events_loader), library(types_loader), library(hierarchies_loader)]).
+...
+
+| ?- logtalk_load(roots(loader)).
+...
+
+
+% now you are ready for loading the example:
+
+| ?- logtalk_load(relations(loader)).
+...
+
+
+% the objects in this example are used by several of the other examples.

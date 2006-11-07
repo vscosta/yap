@@ -1,0 +1,62 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+This file contains detailed instructions for customizing your Logtalk 
+installation and working environment. Customization is mostly done on 
+a per-user basis by editing files on the Logtalk user folder (whose 
+path is sorted on the LOGTALKUSER environment variable).
+
+
+1. SETTING LIBRARY PATHS
+
+In Logtalk, a library is simply a directory containing source files. Library 
+paths can be declared using a dynamic predicate. This allows compiling and 
+loading of libraries and library files to be performed without worries about 
+library paths.
+
+Inside your Logtalk user folder, you will find a "libpaths" folder containing 
+a sample file which, when loaded, defines the library paths for the Logtalk 
+standard library and for all the supplied examples. This file may need to be 
+edited to match both your Logtalk installation and your Prolog compiler and 
+operating-system requirements. For details, see the file "libpaths/NOTES".
+
+
+2. CUSTOMIZING PROLOG CONFIGURATION FILES
+
+Logtalk interfaces with a specific Prolog compiler via a configuration file 
+that can be found on the "configs" folder inside your Logtalk user folder.
+These configuration files can be customized by changing the values of the 
+default flags that are used by Logtalk when compiling source files. For a 
+full description of these default flags, consult the "Running and debugging 
+Logtalk programs" section of the User Manual. Some of the default flags that 
+you may want to change include: "smart_compilation", "startup_message", 
+"portability", "underscore_vars", "altdirs", and the set of documentation-
+related flags ("xmldocs", "xslfile", "xmlspec", and "xmlsref"). Be sure to 
+read the "configs/NOTES" file for Prolog specific notes; some Prolog compilers
+do not support the whole range of compilation flag values.  
+
+
+3. CUSTOMIZING DOCUMENTATION PROCESSING SCRIPTS AND SUPPORTING FILES
+
+Inside your Logtalk user folder, you will find a "xml" folder containing a 
+set of shell scripts, CSS and XSLT style-sheets, and DTD and XML Schema files 
+for processing the XML documenting files that are automatically generated 
+when you compile source files. You may want to customize the CSS and XSLT 
+files to modify the layout or style of the resulting PDF/(X)HTML files or to 
+write new scripts and transformations to generate other formats. You may also 
+edit the file "custom.ent" in order to specify XML entities for your personal 
+data that can be used on Logtalk documenting directives. For details, see the 
+file "xml/NOTES".
+
+
+4. ADDING SUPPORT FOR EDITING LOGTALK SOURCE FILES TO TEXT EDITORS
+
+Inside your Logtalk user folder, you will find a "wenv" folder, containing 
+configuration files for several text editors, which add support for syntax 
+coloring and other editing services of Logtalk source files. For details, 
+see the file "wenv/NOTES".

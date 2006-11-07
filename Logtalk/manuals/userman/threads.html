@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+<head>
+	<meta http-equiv="content-type" content="application/xml+xhtml; charset=utf-8" />
+	<title>Logtalk user manual: multi-threading programming</title>
+	<link rel="stylesheet" href="../screen.css" type="text/css" media="screen"/>
+	<link rel="stylesheet" href="../print.css" type="text/css" media="print"/>
+</head>
+
+<body>
+
+<div class="top-left">Logtalk user manual</div> 
+<div class="top-right">Multi-threading programming</div>
+<div class="bottom-left"><span class="page"/></div> 
+<div class="bottom-right"><span class="page"/></div>
+<div class="navtop"><a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a></div>
+
+<h1>Multi-threading programming<span id="threads_threads"/></h1>
+
+<p>
+Logtalk supports multi-threading programming on selected Prolog compilers. Logtalk makes use of the low-level Prolog predicates that interface with POSIX threads (or a suitable emulation), providing a high-level set of predicates that allows programmers to easily take advantage of modern multi-processor and multi-core computers without caring about the details of creating, synchronizing, or communicating with threads. Logtalk multi-threading programming integrates with object-oriented programming by allowing the optional creation of per object threads, enabling objects to send and receive asynchronous messages or to call local predicates concurrently.
+</p>
+
+<h2>Enabling multi-threading support<a id="threads_enabling"></a></h2>
+
+<p>
+Multi-threading support may be disabled by default. It can be enabled on the Prolog configuration files of supported compilers by setting the read-only compiler flag <code>threads</code> to <code>on</code>.
+</p>
+
+<h2>Object threads<a id="threads_directive"></a></h2>
+
+<p>
+In order to automatically create and set up an object's thread the <a title="Consult reference manual" href="../refman/directives/threaded0.html"><code>threaded/0</code></a> object directive must be used:
+</p>
+<pre>:- threaded.</pre>
+<p>
+The thread is created when the object is loaded or created at runtime. The thread for the pseudo-object <code>user</code> is automatically created when Logtalk is loaded (provided that multi-threading programming is supported and enabled for the chosen Prolog compiler).
+</p>
+<p>
+The message queue associated with an object's thread receives both goals to be proved asynchronously and the replies to the <em>threaded calls</em> made from within the object itself.
+</p>
+
+<h2>Multi-threading built-in predicates<a id="threads_builtins"></a></h2>
+
+<p>
+Logtalk provides a small set of built-in predicates for running goals in new threads and for retrieving goal results. These predicates provide high-level support for multi-threading programming, covering the most common use cases.
+</p>
+
+<h3>Proving goals asynchronously using threads<a id="threads_call"></a></h3>
+
+<p>
+A goal may be proved asynchronously using a new thread by calling the Logtalk built-in predicate <a title="Consult reference manual" href="../refman/builtins/threaded_call1.html"><code>threaded_call/1</code></a>. The term representing the goal is copied, not shared with the thread. Therefore, any variable bindings resulting from the goal proof must be retrieved by calls to the built-in predicates <a title="Consult reference manual" href="../refman/builtins/threaded_exit1.html"><code>threaded_exit/1</code></a> and <a title="Consult reference manual" href="../refman/builtins/threaded_exit2.html"><code>threaded_exit/2</code></a>.
+</p>
+<p>
+For example, assume that we want to find all the prime numbers in a given interval, <code>[N, M]</code>. We can split the interval in two parts and then span two threads to compute the primes numbers in each sub-interval:
+</p>
+<pre>prime_numbers(N, M, Primes) :-
+    M &gt; N,
+    N1 is N + (M - N) // 2,
+    N2 is N1 + 1,
+    threaded_call(prime_numbers(N, N1, [], Acc)),
+    threaded_call(prime_numbers(N2, M, Acc, Primes)),
+    threaded_exit(prime_numbers(N, N1, [], Acc)),
+    threaded_exit(prime_numbers(N2, M, Acc, Primes)).
+
+prime_numbers(N, M, Acc, Primes) :-
+    ...
+</pre>
+<p>
+Note that a call to the <code>threaded_call/1</code> predicate is always true (assuming a callable argument). The <code>threaded_exit/1</code> calls block execution until the results of the <code>threaded_call/1</code> calls are sent to the object's thread. In a computer with two or more processors (or with a processor with two or more cores) the code above can be expected to provide better computation times when compared with single-threaded code for sufficiently large intervals.
+</p>
+
+<h3>Retrieving asynchronous goal proof results<a id="threads_exit"></a></h3>
+
+<p>
+The results of proving a goal asynchronously in a new thread may be retrieved by calling the Logtalk built-in predicates <a title="Consult reference manual" href="../refman/builtins/threaded_exit1.html"><code>threaded_exit/1</code></a> and <a title="Consult reference manual" href="../refman/builtins/threaded_exit2.html"><code>threaded_exit/2</code></a> within the same object where the call to the <code>threaded_call/1-2</code> predicate was made.
+</p>
+<p>
+The <code>threaded_exit/1-2</code> predicates allow us to retrieve alternative solutions through backtracking. For example, assuming a <code>lists</code> object implementing the usual <code>member/2</code> predicate, we could write:
+</p>
+<pre>| ?- threaded_call(lists::member(X, [1,2,3])).
+
+X = _G189 
+yes
+
+| ?- threaded_exit(lists::member(X, [1,2,3])).
+
+X = 1 ;
+X = 2 ;
+X = 3 ;
+no
+</pre>
+<p>
+Note that, in this case, the <code>threaded_call/1</code> and the <code>threaded_exit/1</code> calls are made within the pseudo-object <em>user</em>. The implicit thread running the <code>lists::member/2</code> goal suspends itself after providing a solution, waiting for the request of an alternative solution; the thread is automatically terminated when the runtime engine detects that further backtracking to the <code>threaded_exit/1</code> call is no longer possible.
+</p>
+<p>
+Calls to the <code>threaded_exit/1</code> predicate, and, by default, calls to the <code>threaded_exit/2</code> predicate, block the caller until the object's thread receives the reply to the asynchronous call. The option <code>peek</code> may be used to check if a reply is already available without removing it from the thread queue. Using this option, the <code>threaded_exit/2</code> predicate call succeeds or fails immediately without blocking the caller. However, keep in mind that repeated use of this option is equivalent to polling a thread queue, which may severely hurt performance. The <code>threaded_exit/2</code> predicate supports an additional option, <code>discard</code>, which allows us to discard all matching replies available on the object's thread waiting to be retrieved.
+</p>
+
+<h2>One-way asynchronous calls<a id="threads_noreply"></a></h2>
+
+<p>
+Sometimes we want to call a goal in a new thread without caring about the results. This may be accomplished by using the built-in predicate <a title="Consult reference manual" href="../refman/builtins/threaded_call2.html"><code>threaded_call/2</code></a> with the option <code>noreply</code>. For example, assume that we are developing a multi-agent application where an agent may send an "happy birthday" message to another agent. We could write:
+</p>
+<pre>threaded_call(agent::happy_birthday, [noreply]), ...
+</pre>
+<p>
+The call succeeds with no reply of the goal success, failure, or even exception ever being sent to the object making the call.
+</p>
+
+<h2>Atomic goals and asynchronous calls<a id="threads_atomic_goals"></a></h2>
+
+<p>
+Proving a goal asynchronously using a new thread may lead to problems when the goal implies side-effects such as input/output operations or modifications to an object's database. For example, if a new thread is started with a similar goal before the first one finished its job, we may end up with mixed output or a corrupted database. In these cases, we may call the built-in predicate <a title="Consult reference manual" href="../refman/builtins/threaded_call2.html"><code>threaded_call/2</code></a> using the option <code>atomic</code> in order to ensure that the object which will span the thread for proving the goal argument will not accept any other asynchronous request until the first one terminates. For example, assume two predicates for writing, respectively, even and odd numbers in a given interval to the standard output. Given a large interval, a goal such as:
+</p>
+<pre>
+| ?- threaded_call(odd_mumbers(1, 100000)),
+     threaded_call(even_numbers(1, 100000)).
+
+1 3 2 4 6 8 5 7 10 ...
+...
+</pre>
+<p>
+will most likely result in a mixed up output. Adding the option <code>atomic</code> to the calls solves the problem:
+</p>
+<pre>
+| ?- threaded_call(odd_mumbers(1, 100000), [atomic]),
+     threaded_call(even_numbers(1, 100000), [atomic]).
+
+1 3 5 7 9 11 ...
+...
+2 4 6 8 10 12 ...
+...
+</pre>
+<p>
+In this case, the pseudo-object <code>user</code> will only execute one goal at a time. Note that, in a more realistic scenario, the two <code>threaded_call/1</code> calls would be made concurrently from different objects.
+</p>
+
+<h2>Competing goals<a id="threads_competing"></a></h2>
+
+<p>
+Usually, the argument of the <code>threaded_call/1</code> predicate is a single goal. The predicate also accepts as an argument a conjunction or a disjunction of goals. The semantics of a conjunction of goals is simply the conjunction of the <code>threaded_call/1</code> calls of each individual goal. I.e. a call such as:
+</p>
+<pre>threaded_call((G1, G2, ...)), ...
+</pre>
+<p>
+is equivalent to writing:
+</p>
+<pre>threaded_call(G1), threaded_call(G2), ... 
+</pre>
+<p>
+A disjunction of goals is interpreted as running a set of <em>competing</em> goals, each one in its own thread. The first thread to terminate successfully leads to the termination of the other threads. This is useful when we have several methods to compute something, without knowing a priori which method will be faster. For example, assume that we have defined a predicate <code>try_method/2</code> that calls a chosen method, returning its result. We may then write:
+</p>
+<pre>method(Result) :-
+    ...,
+    threaded_call(
+        (   try_method(method1, Result)
+        ;   try_method(method2, Result)
+        ;   ...
+        )),
+    threaded_exit(try_method(Method, Result)),
+    ...
+</pre>
+<p>
+The <code>threaded_exit/1</code> call will return both the identifier of the fastest method and its result. Note that, when setting up competing goals such as in the example above, we must ensure that the argument of the <code>threaded_exit/1</code> call unifies with each individual goal in the disjunction used as argument on the <code>threaded_call/1</code> call. This ensures that the <code>threaded_exit/1</code> call will return the results of the first method to complete, no matter which one.
+</p>
+
+<h2>Atomic predicates<a id="threads_atomic_predicates"></a></h2>
+
+<p>
+Predicates and grammar rule non-terminals may be declared as <em>atomic</em> by using the <a title="Consult reference manual" href="../refman/directives/atomic1.html"><code>atomic/1</code></a> object and category directive. Proving a query to an atomic predicate (or atomic non-terminal) is protected by a mutex, thus allowing for easy thread synchronization. For example:
+</p>
+<pre>:- atomic(db_update/1).   % ensure thread synchronization
+
+db_update(Update) :-      % predicate with side-effects
+    ...
+</pre>
+<p>
+The <code>atomic/1</code> directive must precede any local calls to the atomic predicate (or atomic non-terminal) in order to ensure proper compilation. In addition, as each Logtalk entity is independently compiled, this directive must be included in every object or category that contains a definition for the described predicate, even if the predicate declaration is inherited from another entity, in order to ensure proper compilation.
+</p>
+<p>
+Whenever possible, atomic predicates should be coded as deterministic predicates in order to avoid deadlocks. Nevertheless, Logtalk supports both deterministic and non-deterministic atomic predicates (and atomic non-terminals). In those cases where the predicate (or grammar rule) is defined in the same object (or catehory) where the predicate is declared dynamic, Logtalk takes advantage off any existing <a title="Consult reference manual" href="../refman/directives/mode2.html"><code>mode/2</code></a> directives in order to generate the most appropriated mutex handling code.
+</p>
+
+<div class="footer">
+	<div class="copyright">
+		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
+		<span>Last updated on: October 26, 2006</span>
+	</div>
+	<div class="navbottom">
+		<span><a href="events.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="errors.html">next</a></span><br/>
+		<span><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
+	</div>
+</div>
+
+</body>
+
+</html>

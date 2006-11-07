@@ -1,0 +1,26 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+This directory contains files that provide syntax highlighting 
+for editing Logtalk source files with the SubEthaEdit 1.x text 
+editor (http://www.codingmonkeys.de/subethaedit/).
+
+
+To install copy the file "logtalk.plist" either to the folder:
+
+	~/Library/Application Support/SubEthaEdit/Syntax Definitions/
+
+or to the folder:
+
+	/Library/Application Support/SubEthaEdit/Syntax Definitions/
+
+(create the folder if it does not exist).
+
+Logtalk source files (including the programming examples) are usually 
+formatted using four-spaces tabs; you may set the tab width on the 
+editor preference panel.

@@ -1,0 +1,20 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+This directory contains files that provide syntax highlighting and 
+other editing services for writing Logtalk source files (*.lgt) with 
+common text editors. By default, Logtalk syntax highlighting is also 
+applied to the Prolog configuration files (*.config).
+
+Some text editors already include support for Logtalk. If that is the 
+case of your favorite editor, you may want to check if the supporting 
+files provided in this directory are newer than the editor ones.
+
+Logtalk source files (including the programming examples) are usually 
+formatted using four-spaces tabs; is recommended that you set the tab 
+width on your editor preferences panel.
