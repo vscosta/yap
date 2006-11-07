@@ -1,0 +1,24 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+This directory contains files that provides basic syntax coloring and 
+code completion for editing Logtalk source files with the text editor 
+Notepad++ 3.9 or later version:
+
+	http://notepad-plus.sourceforge.net/
+
+Install the supporting files by performing the following steps:
+
+1.	Copy the file "userDefineLang.xml" to the folder "%APPDATA%\Notepad++".
+	If the file already exists, merge the contents of the two files.
+
+2.	In order to use auto-completion, copy the file "logtalk.api" to the 
+	directory YOUR_NPP_INSTALL_DIR\plugins\APIs.
+
+
+THESE SYNTAX COLORING SUPPORT FILES ARE UNDER DEVELOPMENT.

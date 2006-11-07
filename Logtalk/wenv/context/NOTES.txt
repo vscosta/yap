@@ -1,0 +1,20 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+This directory contains files that provides basic syntax coloring for 
+editing Logtalk source files with the text editor Context 0.98.3 or 
+later version:
+
+	http://www.context.cx/
+
+To install copy the file "Logtalk.chl" to the Highlighters folder of 
+your ConTEXT folder (e.g. C:\Program Files\ConTEXT\Highlighters). If 
+ConTEXT is running, restart it to update its list of highlighters.
+
+
+THESE SYNTAX COLORING SUPPORT FILES ARE UNDER DEVELOPMENT.

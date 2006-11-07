@@ -1,0 +1,31 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% start by loading the loading the example:
+
+| ?- logtalk_load(primes(loader)).
+...
+
+
+% calculate the prime numbers in a given interval using a single thread:
+
+| ?- primes::st_prime_numbers(1, 200000, Primes).
+
+Primes = [199999, 199967, 199961, 199933, 199931, 199921, 199909, 199889, 199877|...] 
+
+Yes
+
+
+% calculate the prime numbers in a given interval by splitting the interval 
+% in two sub-intervals and using a thread pere interval:
+
+| ?- primes::mt_prime_numbers(1, 200000, Primes).
+
+Primes = [199999, 199967, 199961, 199933, 199931, 199921, 199909, 199889, 199877|...] 
+
+Yes

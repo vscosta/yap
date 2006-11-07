@@ -1,0 +1,14 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+To load this example and for sample queries, please see the SCRIPT file.
+
+This folder contains a simple multi-threading example illustrating how 
+to create threads for competing goals, which one performing the same 
+task using diferent methods. The first goal to complete leads to the 
+immediate termination of the threads running the remaining goals.

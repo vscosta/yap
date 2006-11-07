@@ -1,0 +1,52 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% start by loading the "event_handlersp" protocol:
+
+| ?- logtalk_load(library(event_handlersp)).
+...
+
+
+% now you are ready for loading the example:
+
+| ?- logtalk_load(birthdays(loader)).
+...
+
+
+% create two new agents, Paul and Nathalie:
+
+| ?- agent::(new(paul, 40, male), new(nathalie, 32, female)).
+
+Yes
+
+
+% make them friends:
+
+| ?- paul::new_friend(nathalie).
+
+Yes
+
+
+% it's birthday for Nathalie:
+
+| ?- nathalie::birthday.
+
+Happy birthday from paul!
+Thanks! Here, have a slice of cake, paul.
+Thanks for the cake nathalie!
+
+Yes
+
+
+% tell Paul to ask Nathalie her age:
+
+| ?- paul::ask_age(nathalie, Age).
+
+Age = 33
+
+Yes

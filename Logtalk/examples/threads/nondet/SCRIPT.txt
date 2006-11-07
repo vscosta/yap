@@ -1,0 +1,29 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.28.2
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% start by loading the loading the example:
+
+| ?- logtalk_load(nondet(loader)).
+...
+
+
+% make a threaded call with a non-deterministic goal:
+
+| ?- threaded_call(lists::member(X, [1,2,3])).
+
+X = _G189 
+yes
+
+% retrieve through backtracking all solutions for the non-deterministic goal:
+
+| ?- threaded_exit(lists::member(X, [1,2,3])).
+
+X = 1 ;
+X = 2 ;
+X = 3 ;
+no
