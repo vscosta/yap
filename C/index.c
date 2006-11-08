@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-11-06 18:35:04 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-08 01:53:08 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.175  2006/11/06 18:35:04  vsc
+* 1estranha
+*
 * Revision 1.174  2006/10/25 02:31:07  vsc
 * fix emulation of trust_logical
 *
@@ -3903,7 +3906,8 @@ static UInt
 do_var_entries(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int first, int clleft, UInt nxtlbl){
   PredEntry *ap = cint->CurrentPred;
 
-  if (!IsVarTerm(t) || t != 0L) {
+  if ((!IsVarTerm(t) || t != 0L) &&
+      yap_flags[INDEXING_MODE_FLAG] != INDEX_MODE_SINGLE) {
     return suspend_indexing(grp->FirstClause, grp->LastClause, ap, cint);
   }
   return do_var_group(grp, cint, FALSE, first, clleft, nxtlbl, ap->ArityOfPE+1);
@@ -3938,12 +3942,21 @@ do_consts(GroupDef *grp, Term t, struct intermediates *cint, int compound_term, 
 	   max != grp->LastClause) max++;
     if (min != max) {
       if (sreg != NULL) {
-	if (ap->PredFlags & LogUpdatePredFlag && max > min)
-	  ics->Label = suspend_indexing(min, max, ap, cint);
-	else
-	  ics->Label = do_compound_index(min, max, sreg, cint, compound_term, arity, argno, nxtlbl, first, last_arg, clleft, top, TRUE);
+	if (ap->PredFlags & LogUpdatePredFlag && max > min) {
+	  if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
+	    ics->Label = do_index(min, max, cint, ap->ArityOfPE+1, nxtlbl, first, clleft, top);
+	  } else {
+	    ics->Label = suspend_indexing(min, max, ap, cint);
+	  }
+	} else {
+	    ics->Label = do_compound_index(min, max, sreg, cint, compound_term, arity, argno, nxtlbl, first, last_arg, clleft, top, TRUE);
+	}
       } else if (ap->PredFlags & LogUpdatePredFlag) {
-	ics->Label = suspend_indexing(min, max, cint->CurrentPred, cint);
+	if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
+	  ics->Label = do_index(min, max, cint, ap->ArityOfPE+1, nxtlbl, first, clleft, top);
+	} else {
+	  ics->Label = suspend_indexing(min, max, cint->CurrentPred, cint);
+	}
       } else {
 	ics->Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
       }
@@ -3977,7 +3990,11 @@ do_blobs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
 	   max != grp->LastClause) max++;
     if (min != max &&
 	(ap->PredFlags & LogUpdatePredFlag)) {
-      ics->Label = suspend_indexing(min, max, ap, cint);
+      if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
+	ics->Label = do_index(min, max, cint, ap->ArityOfPE+1, nxtlbl, first, clleft, top);
+      } else {
+	ics->Label = suspend_indexing(min, max, ap, cint);
+      }
     } else {
       ics->Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
     }
@@ -4060,7 +4077,11 @@ do_pair(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int first
     return (UInt)(min->CurrentCode);
   }
   if (min != max && !IsPairTerm(t)) {
-    return suspend_indexing(min, max, cint->CurrentPred, cint);
+    if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
+      return do_index(min, max, cint, cint->CurrentPred->ArityOfPE+1, nxtlbl, first, clleft, top);
+    } else {
+      return suspend_indexing(min, max, cint->CurrentPred, cint);
+    }
   }
   return do_compound_index(min, max, (IsPairTerm(t) ? RepPair(t) : NULL), cint, 0, 2, argno, nxtlbl, first, last_arg, clleft, top, TRUE);
 }
