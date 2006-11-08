@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-11-06 18:35:04 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-08 01:56:47 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.111  2006/11/06 18:35:04  vsc
+* 1estranha
+*
 * Revision 1.110  2006/10/10 14:08:17  vsc
 * small fixes on threaded implementation.
 *
@@ -2584,8 +2587,8 @@ p_statistics_lu_db_size(void)
     Yap_unify(t, ARG1) &&
     Yap_unify(tit, ARG2) &&
     Yap_unify(tic, ARG3) &&
-    Yap_unify(tix, ARG4) &&
-    Yap_unify(tis, ARG5);
+    Yap_unify(tis, ARG4) &&
+    Yap_unify(tix, ARG5);
 }
 
 
