@@ -4125,11 +4125,8 @@ EraseLogUpdCl(LogUpdClause *clau)
 	  ap->LastCallOfPred = LUCALL_RETRACT;
 	} else {
 	  /* OK, there's noone left */
-	  ap->TimeStampOfPred = 0L;
-	  if (ap->cs.p_code.NOfClauses == 1) {
-	    LogUpdClause *cl = ClauseCodeToLogUpdClause(ap->cs.p_code.FirstClause);
-	    cl->ClTimeStart = 0;
-	    cl->ClTimeEnd = ~0L;
+	  if (ap->cs.p_code.NOfClauses == 0) {
+	    ap->TimeStampOfPred = 0L;
 	  }
 	/*	  fprintf(stderr,"- %x--%d--%ul\n",ap,ap->TimeStampOfPred,ap->ArityOfPE);*/
 	  ap->LastCallOfPred = LUCALL_ASSERT;
