@@ -95,6 +95,8 @@ CreateNewArena(CELL *ptr, UInt size)
     return t;
 }
 
+#if COROUTINING
+
 /* pointer to top of an arena */
 static inline attvar_record *
 DelayArenaPt(Term arena)
@@ -181,6 +183,8 @@ GrowDelayArena(Term *arenap, UInt old_size, UInt size, UInt arity)
   return arena;
 }
 
+#endif
+
 static Term
 NewArena(UInt size, UInt arity, CELL *where)
 {
@@ -247,7 +251,9 @@ p_allocate_default_arena(void)
       return FALSE;
   }
   GlobalArena = NewArena(IntegerOfTerm(t), 2, NULL);
+#if COROUTINING
   GlobalDelayArena = NewDelayArena(2);
+#endif
   return TRUE;
 }
 
@@ -330,6 +336,8 @@ clean_dirty_tr(tr_fr_ptr TR0) {
   }
 }
 
+#if COROUTINING
+
 static int
 CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res, Term *att_arenap)
 {
@@ -361,6 +369,7 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res, Term *att_arenap)
   *att_arenap = (CELL)(newv);
   return TRUE;
 }
+#endif
 
 static int
 copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *HLow, Term *att_arenap)
@@ -627,6 +636,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
   reset_trail(TR0);
   return -2;
 
+#if COROUTINING
  delay_overflow:
   /* oops, we're in trouble */
   H = HLow;
@@ -644,6 +654,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 #endif
   reset_trail(TR0);
   return -2;
+#endif
 
 }
 
@@ -655,10 +666,14 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
   CELL *oldHB = HB;
   CELL *oldASP = ASP;
   int res;
+#if COROUTINING
   Term old_delay_arena;
+#endif
 
  restart:
+#if COROUTINING
   old_delay_arena = *att_arenap;
+#endif
   t = Deref(t);
   if (IsVarTerm(t)) {
     ASP = ArenaLimit(arena);
@@ -769,8 +784,10 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
  error_handler:
   H = HB;
   CloseArena(oldH, oldHB, oldASP, newarena, old_size);
+#if COROUTINING
   if (old_delay_arena != MkIntTerm(0))
     ResetDelayArena(old_delay_arena, att_arenap);
+#endif
   XREGS[arity+1] = t;
   XREGS[arity+2] = arena;
   XREGS[arity+3] = (CELL)newarena;
@@ -788,6 +805,7 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
 	return 0L;
       }
       break;
+#if COROUTINING
     case -2:
       /* handle delay arena overflow */
       old_size = DelayArenaSz(*att_arenap);
@@ -796,6 +814,7 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
 	return 0L;
       }
       break;
+#endif
     default: /* temporary space overflow */
       if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
 	Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
@@ -999,7 +1018,10 @@ p_nb_delete(void)
 static Int
 p_nb_queue(void)
 {
-  Term queue_arena, delay_queue_arena, queue, ar[5], *nar;
+  Term queue_arena, queue, ar[5], *nar;
+#if COROUTINING
+  Term delay_queue_arena;
+#endif
   Term t = Deref(ARG1);
   UInt arena_sz = (H-H0)/16;
 
@@ -1018,6 +1040,7 @@ p_nb_queue(void)
   queue = Yap_MkApplTerm(FunctorNBQueue,5,ar);
   if (!Yap_unify(queue,ARG1))
     return FALSE;
+#if COROUTINING
   arena_sz = ((attvar_record *)H0- DelayTop())/16;
   if (arena_sz <2) 
     arena_sz = 2;
@@ -1029,6 +1052,7 @@ p_nb_queue(void)
   }
   nar = RepAppl(Deref(ARG1))+1;
   nar[QUEUE_DELAY_ARENA] = delay_queue_arena;
+#endif
   if (arena_sz < 4*1024)
     arena_sz = 4*1024;
   queue_arena = NewArena(arena_sz,1,NULL);
@@ -1080,6 +1104,7 @@ GetQueueArena(CELL *qd, char* caller)
   return t;
 }
 
+#if COROUTINING
 static void
 RecoverDelayArena(Term delay_arena)
 {
@@ -1089,6 +1114,7 @@ RecoverDelayArena(Term delay_arena)
   if (max == pt-DelayArenaSz(delay_arena))
       SetDelayTop(pt);
 }
+#endif
 
 static void
 RecoverArena(Term arena)
@@ -1116,8 +1142,10 @@ p_nb_queue_close(void)
     }
     if (qp[QUEUE_ARENA] != MkIntTerm(0))
       RecoverArena(qp[QUEUE_ARENA]);
+#if COROUTINING
     if (qp[QUEUE_DELAY_ARENA] != MkIntTerm(0))
       RecoverDelayArena(qp[QUEUE_DELAY_ARENA]);
+#endif
     if (qp[QUEUE_SIZE] == MkIntTerm(0)) {
       return 
 	Yap_unify(ARG3, ARG2);
@@ -1293,7 +1321,10 @@ MkZeroApplTerm(Functor f, UInt sz)
 static Int
 p_nb_heap(void)
 {
-  Term heap_arena, delay_heap_arena, heap, *ar, *nar;
+  Term heap_arena, heap, *ar, *nar;
+#if COROUTINING
+  Term delay_heap_arena;
+#endif
   UInt hsize;
   Term tsize = Deref(ARG1);
   UInt arena_sz = (H-H0)/16;
@@ -1331,6 +1362,7 @@ p_nb_heap(void)
   }
   nar = RepAppl(Deref(ARG2))+1;
   nar[HEAP_ARENA] = heap_arena;
+#if COROUTINING
   arena_sz = ((attvar_record *)H0- DelayTop())/16;
   if (arena_sz <2) 
     arena_sz = 2;
@@ -1342,6 +1374,7 @@ p_nb_heap(void)
   }
   nar = RepAppl(Deref(ARG2))+1;
   nar[HEAP_DELAY_ARENA] = delay_heap_arena;
+#endif
   return TRUE;
 }
 
@@ -1355,8 +1388,10 @@ p_nb_heap_close(void)
     qp = RepAppl(t)+1;
     if (qp[HEAP_ARENA] != MkIntTerm(0))
       RecoverArena(qp[HEAP_ARENA]);
+#if COROUTINING
     if (qp[HEAP_DELAY_ARENA] != MkIntTerm(0))
       RecoverDelayArena(qp[HEAP_DELAY_ARENA]);
+#endif
     qp[-1] = (CELL)Yap_MkFunctor(Yap_LookupAtom("heap"),1);
     qp[0] = MkIntegerTerm(0);
     return TRUE;
@@ -1582,7 +1617,10 @@ p_nb_heap_size(void)
 static Int
 p_nb_beam(void)
 {
-  Term beam_arena, delay_beam_arena, beam, *ar, *nar;
+  Term beam_arena, beam, *ar, *nar;
+#if COROUTINING
+  Term delay_beam_arena;
+#endif
   UInt hsize;
   Term tsize = Deref(ARG1);
   UInt arena_sz = (H-H0)/16;
@@ -1619,6 +1657,7 @@ p_nb_beam(void)
   }
   nar = RepAppl(Deref(ARG2))+1;
   nar[HEAP_ARENA] = beam_arena;
+#if COROUTINING
   arena_sz = ((attvar_record *)H0- DelayTop())/16;
   if (arena_sz <2) 
     arena_sz = 2;
@@ -1630,6 +1669,7 @@ p_nb_beam(void)
   }
   nar = RepAppl(Deref(ARG2))+1;
   nar[HEAP_DELAY_ARENA] = delay_beam_arena;
+#endif
   return TRUE;
 }
 

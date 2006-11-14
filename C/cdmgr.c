@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-11-06 18:35:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-14 11:42:25 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.197  2006/11/06 18:35:03  vsc
+* 1estranha
+*
 * Revision 1.196  2006/10/16 17:12:48  vsc
 * fixes for threaded version.
 *
@@ -5653,6 +5656,7 @@ p_choicepoint_info(void)
       pe = UndefCode;
       t = MkVarTerm();
       break;
+#endif /* TABLING */
     case _try_logical:
     case _retry_logical:
     case _trust_logical:
@@ -5660,10 +5664,9 @@ p_choicepoint_info(void)
     case _count_trust_logical:
     case _profiled_retry_logical:
     case _profiled_trust_logical:
-      pe = ipc->u.lld.n->ClPred;
+      pe = ipc->u.lld.d->ClPred;
       t = BuildActivePred(pe, cptr->cp_args);
       break;
-#endif /* TABLING */
     case _or_else:
       pe = ipc->u.sla.p0;
       t = Yap_MkNewApplTerm(FunctorOr, 2);

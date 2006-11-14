@@ -599,7 +599,8 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
       return FALSE;
     else if (hsplit == (CELL *)omax)
       hsplit = NULL;
-    if (size+H < ASP+4096) {
+    if (size+H < ASP+4096 &&
+	hsplit > H0) {
       /* don't need to expand stacks */
       do_grow = FALSE;
     }

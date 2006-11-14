@@ -338,9 +338,9 @@ write_var(CELL *t,  struct write_globs *wglb)
       return;
     }
 #endif
-#endif
     wrputc('D', wglb->writech);
     wrputn((Int) ((attvar_record *)H0-(attvar_record *)t),wglb->writech);
+#endif
   } else {
     wrputn(((Int) (t- H0)),wglb->writech);
   }
