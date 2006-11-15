@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2006-11-06 18:35:03 $							 *
+* Last rev:     $Date: 2006-11-15 00:13:36 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.91  2006/11/06 18:35:03  vsc
+* 1estranha
+*
 * Revision 1.90  2006/10/11 14:53:57  vsc
 * fix memory leak
 * fix overflow handling
@@ -2661,12 +2664,14 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->luc.ClSize = size;
 	/* Support for timestamps */
 	if (cip->CurrentPred->LastCallOfPred != LUCALL_ASSERT) {
+	  if (cip->CurrentPred->TimeStampOfPred >= TIMESTAMP_RESET)
+	    Yap_UpdateTimestamps(cip->CurrentPred);
 	  ++cip->CurrentPred->TimeStampOfPred;
 	  /* fprintf(stderr,"+ %x--%d--%ul\n",cip->CurrentPred,cip->CurrentPred->TimeStampOfPred,cip->CurrentPred->ArityOfPE);*/
 	  cip->CurrentPred->LastCallOfPred = LUCALL_ASSERT;
 	}
 	cl_u->luc.ClTimeStart = cip->CurrentPred->TimeStampOfPred;
-	cl_u->luc.ClTimeEnd = ~0L; 
+	cl_u->luc.ClTimeEnd = TIMESTAMP_EOT; 
 	if (*clause_has_blobsp) {
 	  cl_u->luc.ClFlags |= HasBlobsMask;
 	}

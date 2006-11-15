@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-10-25 02:31:07 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-15 00:13:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.210  2006/10/25 02:31:07  vsc
+* fix emulation of trust_logical
+*
 * Revision 1.209  2006/10/18 13:47:31  vsc
 * index.c implementation of trust_logical was decrementing the wrong
 * cp_tr
@@ -7975,6 +7978,8 @@ Yap_absmi(int inp)
 	    only increment time stamp if we are working on current time
 	    stamp
 	  */
+	  if (ap->TimeStampOfPred >= TIMESTAMP_RESET)
+	    Yap_UpdateTimestamps(ap);
 	  ap->TimeStampOfPred++;
 	  ap->LastCallOfPred = LUCALL_EXEC;
 	  /*	  fprintf(stderr,"R %x--%d--%ul\n",ap,ap->TimeStampOfPred,ap->ArityOfPE);*/

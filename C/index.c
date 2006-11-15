@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-11-08 01:53:08 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-15 00:13:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.176  2006/11/08 01:53:08  vsc
+* avoid generating suspensions on static code.
+*
 * Revision 1.175  2006/11/06 18:35:04  vsc
 * 1estranha
 *
@@ -3669,11 +3672,6 @@ do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, struct intermediates
     else
       ncls = 0;
     Yap_emit_3ops(enter_lu_op, labl_dyn0, labl_dynf, ncls, cint);
-    /* get some placeholders */
-    Yap_emit(jump_op, labl_dyn0, Zero, cint);
-    Yap_emit(jump_op, labl_dyn0, Zero, cint);
-    Yap_emit(jump_op, labl_dyn0, Zero, cint);
-    Yap_emit(jump_op, labl_dyn0, Zero, cint);
     Yap_emit(label_op, labl_dyn0, Zero, cint); 
   }
   if (c0 == cf) {
@@ -3693,11 +3691,6 @@ do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, struct intermediates
       if (!clleft && 
 	  cint->CurrentPred->PredFlags & LogUpdatePredFlag) {
 	Yap_emit(label_op, labl_dynf, Zero, cint); 
-	/* get some placeholders */
-	Yap_emit(jump_op, labl_dynf, Zero, cint);
-	Yap_emit(jump_op, labl_dynf, Zero, cint);
-	Yap_emit(jump_op, labl_dynf, Zero, cint);
-	Yap_emit(jump_op, labl_dynf, Zero, cint);
       }
     }
   }
@@ -7865,6 +7858,8 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	    only increment time stamp if we are working on current time
 	    stamp
 	  */
+	  if (ap->TimeStampOfPred >= TIMESTAMP_RESET)
+	    Yap_UpdateTimestamps(ap);
 	  ap->TimeStampOfPred++;
 	  /*	  fprintf(stderr,"R %x--%d--%ul\n",ap,ap->TimeStampOfPred,ap->ArityOfPE);*/
 	  ap->LastCallOfPred = LUCALL_EXEC;

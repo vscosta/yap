@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-11-14 11:42:25 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-15 00:13:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.198  2006/11/14 11:42:25  vsc
+* fix bug in growstack
+*
 * Revision 1.197  2006/11/06 18:35:03  vsc
 * 1estranha
 *
@@ -5053,32 +5056,69 @@ p_continue_log_update_clause0(void)
   return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_cp, FALSE);
 }
 
-#if TIMESTAMP_OVERFLOW
 static void
-adjust_cl_timestamp(LogUpdClause *cl, UInt *arp, UInt NStamps)
+adjust_cl_timestamp(LogUpdClause *cl, UInt *arp, UInt *base)
 {
-  UInt clstamp = cl->ClTimeStart;
-  while (arp[0]);
+  UInt clstamp = cl->ClTimeEnd;
+  if (cl->ClTimeEnd != TIMESTAMP_EOT) {
+    while (arp[0] > clstamp)
+      arp--;
+    if (arp[0] == clstamp) {
+      cl->ClTimeEnd = (arp-base);
+    } else {
+      cl->ClTimeEnd = (arp-base)+1;
+    }
+  }
+  clstamp = cl->ClTimeStart;
+  while (arp[0] > clstamp)
+    arp--;
+  if (arp[0] == clstamp) {
+    cl->ClTimeStart = (arp-base);
+  } else {
+    cl->ClTimeStart = (arp-base)+1;
+  }
   clstamp = cl->ClTimeEnd;
 }
 
+
+static Term
+replace_integer(Term orig, UInt new)
+{
+  CELL *pt;
+
+  if (IntInBnd((Int)new)) 
+    return MkIntTerm(new);
+  /* should create an old integer */
+  if (!IsApplTerm(orig)) {
+    Yap_Error(SYSTEM_ERROR,orig,"%uld-->%uld  where it should increase",(unsigned long int)IntegerOfTerm(orig),(unsigned long int)new);
+    return MkIntegerTerm(new);
+  }
+  /* appl->appl */
+  /* replace integer in situ */
+  pt = RepAppl(orig)+1;
+  *pt = new;
+  return orig;
+}
+
 void			/* $hidden_predicate(P) */
-Yap_update_timestamps(PredEntry *ap, UInt arity)
+Yap_UpdateTimestamps(PredEntry *ap)
 {
   choiceptr bptr = B;
   yamop *cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,ld);
   yamop *cl = NEXTOP(PredLogUpdClause->CodeOfPred,ld);
   UInt ar = ap->ArityOfPE;
-  UInt *arp = ASP;
-  UInt nstamps;
-  LogUpdClause *cl;
+  UInt *arp, *top, *base;
+  LogUpdClause *lcl;
 
 #if THREADS
-  YAP_Error(SYSTEM_ERROR,TermNil,"Timestamp overflow %p", ap);
+  Yap_Error(SYSTEM_ERROR,TermNil,"Timestamp overflow %p", ap);
+  return;
 #endif
-  if (ap->cs.p_code.NOfClauses < 2)
+  if (!ap->cs.p_code.NOfClauses)
     return;
  restart:
+  *--ASP = TIMESTAMP_EOT;
+  top = arp = (UInt *)ASP;
   while (bptr) {
     op_numbers opnum = Yap_op_from_opcode(bptr->cp_ap->opc);
 
@@ -5095,42 +5135,95 @@ Yap_update_timestamps(PredEntry *ap, UInt arity)
 	  if (arp-H < 1024) {
 	    goto overflow;
 	  }
+	  /* be thrifty, have this in case there is a hole */
+	  if (ts != arp[0]-1) {
+	    UInt x = arp[0];
+	    *--arp = x;
+	  }
 	  *--arp = ts;
 	}
       }
+      bptr = bptr->cp_b;
       break;
     case _retry:
       if ((bptr->cp_ap == cl0 || bptr->cp_ap == cl) &&
-	  ((PredEntry *)IntegerOfTerm((bptr+1)->cp_args[0]) == ap)) {
+	  ((PredEntry *)IntegerOfTerm(bptr->cp_args[0]) == ap)) {
 	UInt ts = IntegerOfTerm(bptr->cp_args[5]);
 	if (ts != arp[0]) {
 	  if (arp-H < 1024) {
 	    goto overflow;
 	  }
+	  if (ts != arp[0]-1) {
+	    UInt x = arp[0];
+	    *--arp = x;
+	  }
 	  *--arp = ts;
 	}
       }
+      bptr = bptr->cp_b;
       break;
     default:
+      bptr = bptr->cp_b;
       continue;
     }
   }
-  NStamps = (ASP-arp);
-  cl = ClauseCodeToLogUpdClause(ap->cs.p_code.FirstClause);
-  while (cl) {
-    adjust_cl_timestamp(cl, arp, NStamps);
-    cl = cl->ClNext;
+  if (*arp)
+    *--arp = 0L;
+  base = arp;
+  lcl = ClauseCodeToLogUpdClause(ap->cs.p_code.FirstClause);
+  while (lcl) {
+    adjust_cl_timestamp(lcl, top-1, base);
+    lcl = lcl->ClNext;
+  }
+  lcl = DBErasedList;
+  while (lcl) {
+    if (lcl->ClPred == ap)
+      adjust_cl_timestamp(lcl, top-1, base);
+    lcl = lcl->ClNext;
+  }
+  arp = top-1;
+  bptr = B;
+  while (bptr) {
+    op_numbers opnum = Yap_op_from_opcode(bptr->cp_ap->opc);
+
+    switch (opnum) {
+    case _retry_logical:
+    case _count_retry_logical:
+    case _profiled_retry_logical:
+    case _trust_logical:
+    case _count_trust_logical:
+    case _profiled_trust_logical:
+      if (bptr->cp_ap->u.lld.d->ClPred == ap) {
+	UInt ts = IntegerOfTerm(bptr->cp_args[ar]);
+	while (ts != arp[0])
+	  arp--;
+	bptr->cp_args[ar] = replace_integer(bptr->cp_args[ar], arp-base);
+      }
+      bptr = bptr->cp_b;
+      break;
+    case _retry:
+      if ((bptr->cp_ap == cl0 || bptr->cp_ap == cl) &&
+	  ((PredEntry *)IntegerOfTerm(bptr->cp_args[0]) == ap)) {
+	UInt ts = IntegerOfTerm(bptr->cp_args[5]);
+	while (ts != arp[0])
+	  arp--;
+	bptr->cp_args[5] = replace_integer(bptr->cp_args[5], arp-base);
+      }
+      bptr = bptr->cp_b;
+      break;
+    default:
+      bptr = bptr->cp_b;
+      continue;
+    }
   }
   return;
  overflow:
-  if (!Yap_gc(arity, ENV, P)) {
+  if (!Yap_growstack(64*1024)) {
     Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
     return;
   }
   goto restart;
 }
-
-#endif
 
 static Int
 fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, yamop *cp_ptr, int first_time)
@@ -5500,7 +5593,6 @@ p_static_pred_statistics(void)
   return static_statistics(pe);
 }
 
-#ifdef DEBUG
 static Int
 p_predicate_erased_statistics(void)
 {
@@ -5545,6 +5637,7 @@ p_predicate_erased_statistics(void)
     Yap_unify(ARG5,MkIntegerTerm(isz));
 }
 
+#ifdef DEBUG
 static Int
 p_predicate_lu_cps(void)
 {
@@ -5810,9 +5903,9 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$program_continuation", 3, p_program_continuation, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$all_choicepoints", 1, p_all_choicepoints, HiddenPredFlag);
   Yap_InitCPred("$choicepoint_info", 5, p_choicepoint_info, HiddenPredFlag);
+  Yap_InitCPred("$predicate_erased_statistics", 5, p_predicate_erased_statistics, SyncPredFlag);
 #ifdef DEBUG
-  Yap_InitCPred("predicate_erased_statistics", 5, p_predicate_erased_statistics, SyncPredFlag);
-  Yap_InitCPred("predicate_live_cps", 4, p_predicate_lu_cps, 0L);
+  Yap_InitCPred("$predicate_live_cps", 4, p_predicate_lu_cps, 0L);
 #endif
 }
 

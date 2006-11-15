@@ -609,6 +609,9 @@ typedef enum {
   LUCALL_RETRACT
 } timestamp_type;
 
+#define TIMESTAMP_EOT   ((UInt)(~0L))
+#define TIMESTAMP_RESET (TIMESTAMP_EOT-1024)
+
 typedef struct pred_entry
 {
   Prop NextOfPE;		/* used to chain properties             */
@@ -1193,6 +1196,7 @@ IsArrayProperty (int flags)
 
 /* cdmgr.c */
 int STD_PROTO (Yap_RemoveIndexation, (PredEntry *));
+void STD_PROTO (Yap_UpdateTimestamps, (PredEntry *));
 
 /* dbase.c */
 void STD_PROTO (Yap_ErDBE, (DBRef));

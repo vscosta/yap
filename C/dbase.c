@@ -1826,6 +1826,8 @@ new_lu_db_entry(Term t, PredEntry *pe)
   cl->ClSize = dbg.sz;
   /* Support for timestamps */
   if (pe && pe->LastCallOfPred != LUCALL_ASSERT) {
+    if (pe->TimeStampOfPred >= TIMESTAMP_RESET)
+      Yap_UpdateTimestamps(pe);
     ++pe->TimeStampOfPred;
     /*  fprintf(stderr,"+ %x--%d--%ul\n",pe,pe->TimeStampOfPred,pe->ArityOfPE);*/
     pe->LastCallOfPred = LUCALL_ASSERT;
@@ -1833,7 +1835,7 @@ new_lu_db_entry(Term t, PredEntry *pe)
   } else {
     cl->ClTimeStart = 0L;
   }
-  cl->ClTimeEnd = ~0L; 
+  cl->ClTimeEnd = TIMESTAMP_EOT; 
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(cl->ClLock);
   INIT_CLREF_COUNT(cl);
@@ -3788,7 +3790,6 @@ p_lu_statistics(void)
 }
 
 
-#ifdef DEBUG
 static Int
 p_total_erased(void)
 {
@@ -3865,7 +3866,6 @@ p_heap_space_info(void)
     Yap_unify(ARG3,MkIntegerTerm(Yap_expand_clauses_sz));
 }
 
-#endif
 
 
 /*
@@ -4004,7 +4004,6 @@ complete_lu_erase(LogUpdClause *clau)
       clau->ClExt->u.EC.ClRefs > 0) {
     return;
   }
-#ifdef DEBUG
 #ifndef THREADS
   if (clau->ClNext)
     clau->ClNext->ClPrev = clau->ClPrev;
@@ -4013,7 +4012,6 @@ complete_lu_erase(LogUpdClause *clau)
   } else {
     DBErasedList = clau->ClNext;
   }
-#endif
 #endif
   if (cp != NULL) {
     DBRef ref;
@@ -4099,7 +4097,6 @@ EraseLogUpdCl(LogUpdClause *clau)
       ap->cs.p_code.NOfClauses--;
     }
     clau->ClFlags |= ErasedMask;
-#ifdef DEBUG
 #ifndef THREADS
     {
       LogUpdClause *er_head = DBErasedList;
@@ -4113,13 +4110,14 @@ EraseLogUpdCl(LogUpdClause *clau)
       DBErasedList = clau;
     }
 #endif
-#endif
     /* we are holding a reference to the clause */
     clau->ClRefCount++;
     if (ap) {
       /* mark it as erased */
       if (ap->LastCallOfPred != LUCALL_RETRACT) {
 	if (ap->cs.p_code.NOfClauses > 1) {
+	  if (ap->TimeStampOfPred >= TIMESTAMP_RESET)
+	    Yap_UpdateTimestamps(ap);
 	  ++ap->TimeStampOfPred;
 	  /*	  fprintf(stderr,"- %x--%d--%ul\n",ap,ap->TimeStampOfPred,ap->ArityOfPE);*/
 	  ap->LastCallOfPred = LUCALL_RETRACT;
@@ -5299,11 +5297,9 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("$resize_int_keys", 1, p_resize_int_keys, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("key_statistics", 4, p_key_statistics, SyncPredFlag);
   Yap_InitCPred("$lu_statistics", 5, p_lu_statistics, SyncPredFlag);
-#ifdef DEBUG
   Yap_InitCPred("total_erased", 4, p_total_erased, SyncPredFlag);
   Yap_InitCPred("key_erased_statistics", 5, p_key_erased_statistics, SyncPredFlag);
   Yap_InitCPred("heap_space_info", 3, p_heap_space_info, SyncPredFlag);
-#endif
   Yap_InitCPred("$nth_instance", 3, p_nth_instance, SyncPredFlag);
   Yap_InitCPred("$nth_instancep", 3, p_nth_instancep, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$jump_to_next_dynamic_clause", 0, p_jump_to_next_dynamic_clause, SyncPredFlag|HiddenPredFlag);

@@ -135,4 +135,3 @@ file_search_path(system, Dir) :-
 
 :- dynamic library_directory/1.
 
-:- yap_flag(index,single).
