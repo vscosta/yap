@@ -2702,6 +2702,9 @@ p_past_eof (void)
 
   if (sno < 0)
     return (FALSE);
+  if (Stream[sno].stream_getc == PlUnGetc) {
+    return FALSE;
+  }
   out = Stream[sno].status & Eof_Stream_f;
   UNLOCK(Stream[sno].streamlock);
   return out;
@@ -2721,8 +2724,15 @@ p_peek_byte (void)
     return(FALSE);
   status = Stream[sno].status;
   if (!(status & Binary_Stream_f)) {
+    UNLOCK(Stream[sno].streamlock);
     Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek/2");
     return(FALSE);
+  }
+  if (Stream[sno].stream_getc == PlUnGetc) {
+    ch = MkIntTerm(Stream[sno].och);
+    /* sequence of peeks */
+    UNLOCK(Stream[sno].streamlock);
+    return Yap_unify_constant(ARG2,ch);
   }
   if (status & Eof_Stream_f) {
     UNLOCK(Stream[sno].streamlock);
@@ -2762,16 +2772,21 @@ p_peek (void)
   if (sno < 0)
     return(FALSE);
   status = Stream[sno].status;
-  if (status & (Binary_Stream_f|Eof_Stream_f)) {
-    if (status & Binary_Stream_f) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek/2");
-      return(FALSE);
-    } else if (status & (Eof_Error_Stream_f)) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "peek/2");
-      return(FALSE);
-    }
+  if (status & Binary_Stream_f) {
+    UNLOCK(Stream[sno].streamlock);
+    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek/2");
+    return FALSE;
+  }
+  if (Stream[sno].stream_getc == PlUnGetc) {
+    ch = MkIntTerm(Stream[sno].och);
+    UNLOCK(Stream[sno].streamlock);
+    /* sequence of peeks */
+    return Yap_unify_constant(ARG2,ch);
+  }
+  if (status & Eof_Error_Stream_f) {
+    UNLOCK(Stream[sno].streamlock);
+    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "peek/2");
+    return FALSE;
   }
   s = Stream+sno;
   ocharcount = s->charcount;
@@ -3617,6 +3632,14 @@ p_get (void)
 
   if (sno < 0)
     return(FALSE);
+  if (Stream[sno].stream_getc == PlUnGetc) {
+    ch = PlUnGetc(sno);
+    if (ch <= 32 && ch >= 0) {
+      /* done */
+      UNLOCK(Stream[sno].streamlock);
+      return (Yap_unify_constant (ARG2, MkIntTerm (ch)));
+    }
+  }
   status = Stream[sno].status;
   if (status & (Binary_Stream_f|Eof_Stream_f)) {
     if (status & Binary_Stream_f) {
@@ -3643,19 +3666,23 @@ p_get0 (void)
 
   if (sno < 0)
     return(FALSE);
-  status = Stream[sno].status;
-  if (status & (Binary_Stream_f|Eof_Stream_f)) {
-    if (status & Binary_Stream_f) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
-      return(FALSE);
-    } else if (status & (Eof_Error_Stream_f)) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get0/2");
-      return(FALSE);
+  if (Stream[sno].stream_getc == PlUnGetc) {
+    out = PlUnGetc(sno);
+  } else {
+    status = Stream[sno].status;
+    if (status & (Binary_Stream_f|Eof_Stream_f)) {
+      if (status & Binary_Stream_f) {
+	UNLOCK(Stream[sno].streamlock);
+	Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
+	return(FALSE);
+      } else if (status & (Eof_Error_Stream_f)) {
+	UNLOCK(Stream[sno].streamlock);
+	Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get0/2");
+	return(FALSE);
+      }
     }
+    out = Stream[sno].stream_getc(sno);
   }
-  out = Stream[sno].stream_getc(sno);
   UNLOCK(Stream[sno].streamlock);
   return (Yap_unify_constant (ARG2, MkIntTerm (out)) );
 }
@@ -3679,9 +3706,17 @@ p_get0_line_codes (void)
   int sno = CheckStream (ARG1, Input_Stream_f, "get0/2");
   Int status;
   Term out;
+  Int ch = '\0';
+  int rewind;
 
   if (sno < 0)
     return(FALSE);
+  if (Stream[sno].stream_getc == PlUnGetc) {
+    ch = PlUnGetc(sno);
+    rewind = TRUE;
+  } else {
+    rewind = FALSE;
+  }
   status = Stream[sno].status;
   if (status & (Binary_Stream_f|Eof_Stream_f)) {
     if (status & Binary_Stream_f) {
@@ -3696,7 +3731,10 @@ p_get0_line_codes (void)
   }
   out = read_line(sno);
   UNLOCK(Stream[sno].streamlock);
-  return(Yap_unify(out,ARG2));
+  if (rewind) 
+    return Yap_unify(MkPairTerm(MkIntegerTerm(ch),out), ARG2);
+  else
+    return Yap_unify(out,ARG2);
 }
 
 static Int
@@ -3715,12 +3753,16 @@ p_get_byte (void)
     Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "get_byte/2");
     return(FALSE);
   }
-  if ((status & (Eof_Stream_f|Eof_Error_Stream_f)) == (Eof_Stream_f|Eof_Error_Stream_f)) {
-    UNLOCK(Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get_byte/2");
-    return(FALSE);
+  if (Stream[sno].stream_getc == PlUnGetc) {
+    out = MkIntTerm(PlUnGetc(sno));
+  } else {
+    if ((status & (Eof_Stream_f|Eof_Error_Stream_f)) == (Eof_Stream_f|Eof_Error_Stream_f)) {
+      UNLOCK(Stream[sno].streamlock);
+      Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get_byte/2");
+      return FALSE;
+    }
+    out = MkIntTerm (Stream[sno].stream_getc(sno));
   }
-  out = MkIntTerm (Stream[sno].stream_getc(sno));
   UNLOCK(Stream[sno].streamlock);
   return (Yap_unify_constant (ARG2, out));
 }
