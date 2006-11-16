@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-11-08 01:56:47 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-16 14:26:00 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.112  2006/11/08 01:56:47  vsc
+* fix argument order in db statistics.
+*
 * Revision 1.111  2006/11/06 18:35:04  vsc
 * 1estranha
 *
@@ -612,6 +615,14 @@ get_char_from_string(int s)
 }
 
     
+#ifndef INFINITY
+#define INFINITY (1.0/0.0)
+#endif
+
+#ifndef NAN
+#define NAN      (0.0/0.0)
+#endif
+
 static Term 
 get_num(char *t)
 {
@@ -630,20 +641,18 @@ get_num(char *t)
       sign = -1;
     }
     if(strcmp(t,"inf") == 0) {
-      Term ta[1];
-      ta[0] = MkAtomTerm(Yap_LookupAtom("inf"));
       if (sign > 0) {
-	return(Yap_MkApplTerm(Yap_MkFunctor(AtomPlus, 1), 1, ta));
+	return MkFloatTerm(INFINITY);
+      } else {
+	return MkFloatTerm(-INFINITY);
       }
-      return(Yap_MkApplTerm(Yap_MkFunctor(AtomMinus, 1), 1, ta));
     }
     if(strcmp(t,"nan") == 0) {
-      Term ta[1];
-      ta[0] = MkAtomTerm(Yap_LookupAtom("nan"));
       if (sign > 0) {
-	return(Yap_MkApplTerm(Yap_MkFunctor(AtomPlus, 1), 1, ta));
+	return MkFloatTerm(NAN);
+      } else {
+	return MkFloatTerm(-NAN);
       }
-      return(Yap_MkApplTerm(Yap_MkFunctor(AtomMinus, 1), 1, ta));
     }
   }
   if (cur_char_ptr[0] == '\0')
