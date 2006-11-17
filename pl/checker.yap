@@ -11,8 +11,11 @@
 * File:		checker.yap						 *
 * comments:	style checker for Prolog				 *
 *									 *
-* Last rev:     $Date: 2006-03-24 16:26:31 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-17 12:10:46 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.21  2006/03/24 16:26:31  vsc
+* code review
+*
 * Revision 1.20  2005/11/05 23:56:10  vsc
 * should have meta-predicate definitions for calls,
 *   multifile and discontiguous.
@@ -164,7 +167,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$xtract_head'((H,_),OM,M,H1,Name,Arity) :- !,
 	'$xtract_head'(H,OM,M,H1,Name,Arity).
 '$xtract_head'((H-->_),OM,M,HL,Name,Arity) :- !,
-	'$xtract_head'(H,M,OM,M,Name,A1),
+	'$xtract_head'(H,M,OM,_,Name,A1),
 	Arity is A1+2,
 	functor(HL,Name,Arity).
 '$xtract_head'(M:H,_,NM,NH,Name,Arity) :- !,
