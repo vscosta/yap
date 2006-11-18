@@ -94,6 +94,13 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 
 :- default_sequential(off).
 
+:- multifile user:library_directory/1.
+
+:- dynamic user:library_directory/1.
+
+user:library_directory(D) :-
+	prolog:'$system_library_directories'(D).
+
 %
 % cleanup ensure loaded and recover some data-base space.
 %
@@ -131,7 +138,4 @@ file_search_path(library, Dir) :-
 file_search_path(system, Dir) :-
      prolog_flag(host_type, Dir).
 
-:- multifile library_directory/1.
-
-:- dynamic library_directory/1.
 

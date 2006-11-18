@@ -934,12 +934,17 @@ bootstrap(F) :-
 	( '$open'(F,Mode,S,0) -> '$close'(S), set_value(fileerrors,V) ; set_value(fileerrors,V), fail).
 
 
+% This sequence must be followed:
+% user and user_input are special;
+% library(F) must check library_directories
+% T(F) must check file_search_path
+% all must try search in path
 '$find_in_path'(user,user_input, _) :- !.
 '$find_in_path'(user_input,user_input, _) :- !.
 '$find_in_path'(library(File),NewFile, _) :-
-	'$dir_separator'(D),
+	'$dir_separator'(D), 
 	atom_codes(A,[D]),
-	'$system_library_directories'(Dir),
+	( user:library_directory(Dir), '$do_not_creep' ; '$do_not_creep', fail),
 	'$extend_path'(Dir, A, File, NFile, Goal),
 	'$search_in_path'(NFile, NewFile), !.
 '$find_in_path'(S,NewFile, _) :-

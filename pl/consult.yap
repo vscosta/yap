@@ -170,6 +170,13 @@ use_module(F,Is) :-
 	'$load_files'(F, [if(not_loaded),imports(Is)], use_module(F,Is)).
 
 use_module(M,F,Is) :-
+	'$use_module'(M,F,Is).
+
+'$use_module'(M,F,Is) :- nonvar(M), !,
+	recorded('$module','$module'(F1,M,_),_),
+	'$load_files'(F1, [if(not_loaded),imports(Is)], use_module(M,F,Is)),
+	F1 = F.
+'$use_module'(M,F,Is) :- nonvar(F),
 	'$load_files'(F, [if(not_loaded),imports(Is)], use_module(M,F,Is)).
 
 '$csult'(V, _) :- var(V), !,
@@ -333,7 +340,8 @@ prolog_load_context(file, FileName) :-
 	( IncFileName = [] ->
 	  get_value('$consulting_file',FileName)
         ;
-           FileName = IncFileName
+           FileName
+ = IncFileName
         ).
 prolog_load_context(module, X) :-
 	'$current_module'(X).

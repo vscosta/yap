@@ -104,8 +104,8 @@
 	'$load_files'(M:F, [if(not_loaded)],use_module(F)).
 '$exec_directive'(use_module(F,Is), _, M) :-
 	'$load_files'(M:F, [if(not_loaded),imports(Is)],use_module(F,Is)).
-'$exec_directive'(use_module(_Mod,F,Is), _, M) :-
-	'$load_files'(F, [if(not_loaded),imports(Is)],use_module(M,F,Is)).
+'$exec_directive'(use_module(Mod,F,Is), _, M) :-
+	'$use_module'(Mod,F,Is).
 '$exec_directive'(block(BlockSpec), _, _) :-
 	'$block'(BlockSpec).
 '$exec_directive'(wait(BlockSpec), _, _) :-
