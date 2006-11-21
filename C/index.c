@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-11-15 00:13:36 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-21 16:21:31 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.177  2006/11/15 00:13:36  vsc
+* fixes for indexing code.
+*
 * Revision 1.176  2006/11/08 01:53:08  vsc
 * avoid generating suspensions on static code.
 *
@@ -8179,8 +8182,11 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
 #endif
     case _spy_pred:
-      ipc = ap->cs.p_code.TrueCodeOfPred;
-      break;
+      if ((ap->PredFlags & IndexedPredFlag) ||
+	      ap->cs.p_code.NOfClauses <= 1) {
+	ipc = ap->cs.p_code.TrueCodeOfPred;
+	break;
+      }
     case _index_pred:
       XREGS[ap->ArityOfPE+1] = (CELL)s_reg;
       XREGS[ap->ArityOfPE+2] = (CELL)t;

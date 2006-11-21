@@ -857,17 +857,17 @@ stream_property(Stream, Props) :-
 '$show_stream_eof'(_, not).
 	
 '$show_stream_eof_action'(Fl, error) :-
-	Fl /\ 16'0200 =:= 16'0200, !.
+	Fl /\ 0x0200 =:= 0x0200, !.
 '$show_stream_eof_action'(Fl, reset) :-
-	Fl /\ 16'0400 =:= 16'0400, !.
+	Fl /\ 0x0400 =:= 0x0400, !.
 '$show_stream_eof_action'(_, eof_code).
 
 '$show_stream_reposition'(Fl, true) :-
-	Fl /\ 16'2000 =:= 16'2000, !.
+	Fl /\ 0x2000 =:= 0x2000, !.
 '$show_stream_reposition'(_, false).
 
 '$show_stream_type'(Fl, binary) :-
-	Fl /\ 16'0100 =:= 16'0100, !.
+	Fl /\ 0x0100 =:= 0x0100, !.
 '$show_stream_type'(_, text).
 
 at_end_of_stream :-

@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-11-15 00:13:36 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-21 16:21:30 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.211  2006/11/15 00:13:36  vsc
+* fixes for indexing code.
+*
 * Revision 1.210  2006/10/25 02:31:07  vsc
 * fix emulation of trust_logical
 *
@@ -7711,8 +7714,22 @@ Yap_absmi(int inp)
       {
 	PredEntry *pe = PredFromDefCode(PREG);
 	BEGD(d0);
+ 	WRITE_LOCK(pe->PRWLock);
+	if (!(pe->PredFlags & IndexedPredFlag) &&
+	      pe->cs.p_code.NOfClauses > 1) {
+	  /* update ASP before calling IPred */
+	  ASP = YREG+E_CB;
+	  if (ASP > (CELL *) PROTECT_FROZEN_B(B)) {
+	    ASP = (CELL *) PROTECT_FROZEN_B(B);
+	  }
+	  saveregs();
+	  Yap_IPred(pe, 0);
+	  /* IPred can generate errors, it thus must get rid of the lock itself */
+	  setregs();
+	}
+	WRITE_UNLOCK(pe->PRWLock);
 	d0 = pe->ArityOfPE;
-      /* save S for ModuleName */
+	/* save S for ModuleName */
 	if (d0 == 0) {
 	  H[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
 	} else {

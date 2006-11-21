@@ -1791,7 +1791,7 @@ p_open (void)
 	ta[1] = MkAtomTerm(AtomTrue);
 	t = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("reposition"),1),1,ta);
 	Yap_Error(PERMISSION_ERROR_OPEN_SOURCE_SINK,t,"open/4");
-	return(FALSE);
+	return FALSE;
       }
       /* useless crap */
       st->status |= Seekable_Stream_f;
@@ -1802,14 +1802,14 @@ p_open (void)
       st->status &= ~Seekable_Stream_f;
     }
     if (opts & 16) {
-      st->status &= ~(Reset_Eof_Stream_f);
-      st->status |= Eof_Error_Stream_f;
+      st->status &= ~Reset_Eof_Stream_f;
     }
     if (opts & 32) {
-      st->status &= ~(Eof_Error_Stream_f|Reset_Eof_Stream_f);
+      st->status &= ~Reset_Eof_Stream_f;
+      st->status &= ~Eof_Error_Stream_f;
     }
     if (opts & 64) {
-      st->status &= ~(Eof_Error_Stream_f);
+      st->status &= ~Eof_Error_Stream_f;
       st->status |= Reset_Eof_Stream_f;
     }
   }
@@ -1818,6 +1818,7 @@ p_open (void)
   else
     st->stream_getc_for_read = st->stream_getc;
   t = MkStream (sno);
+  st->status &= ~(Free_Stream_f);
   return (Yap_unify (ARG3, t));
 }
 
