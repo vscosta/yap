@@ -41,7 +41,12 @@ load_files(Files,Opts) :-
 '$process_lf_opts'(V,_,_,_,_,_,_,_,_,_,_,_,Call) :-
 	var(V), !,
 	'$do_error'(instantiation_error,Call).
-'$process_lf_opts'([],_,_,_,_,_,_,_,_,_,_,_,_).
+'$process_lf_opts'([],_,_,_,_,_,_,_,Encoding,_,_,_,_) :-
+	(var(Encoding) ->
+	    '$default_encoding'(Encoding)
+	    ;
+	    true
+	).
 '$process_lf_opts'([Opt|Opts],Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,Files,Call) :-
 	'$process_lf_opt'(Opt,Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,Files,Call), !, 
 	'$process_lf_opts'(Opts,Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,Files,Call).
@@ -61,8 +66,15 @@ load_files(Files,Opts) :-
 	( atom(Files) -> true ;  '$do_error'(type_error(atom,Files),Call) ),
 	/* call make */
 	'$do_error'(domain_error(unimplemented_option,derived_from),Call).
-'$process_lf_opt'(encoding(Encoding),_,_,_,_,_,_,_,_,_,_,_,Call) :-
-	'$do_error'(domain_error(unimplemented_option,encoding),Call).
+'$process_lf_opt'(encoding(Encoding),_,_,_,_,_,_,_,_,EncCode,_,_,Call) :-
+	( var(Encoding) ->
+	    '$do_error'(instantiation_error,Call)
+	;
+	    '$valid_encoding'(Enc, EncCode) ->
+	    true
+	;	
+	    '$do_error'(domain_error(io_mode,encoding(Encoding)),Call)
+	).
 '$process_lf_opt'(expand(true),_,_,true,_,_,_,_,_,_,_,_,Call) :-
 	'$do_error'(domain_error(unimplemented_option,expand),Call).
 '$process_lf_opt'(expand(false),_,_,false,_,_,_,_,_,_,_,_,_).
@@ -111,9 +123,9 @@ load_files(Files,Opts) :-
 	'$do_lf'(user_input, Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,Reconsult,UseModule).
 '$lf'(user_input, Mod, Call,InfLevel,_,Changed,CompilationMode,Imports,_,_,SkipUnixComments,Reconsult,UseModule) :- !,
 	'$do_lf'(user_input, Mod, user_input, InfLevel, CompilationMode,Imports,Reconsult,UseModule).
-'$lf'(X, Mod, Call, InfLevel,_,Changed,CompilationMode,Imports,_,_,SkipUnixComments,Reconsult,UseModule) :-
+'$lf'(X, Mod, Call, InfLevel,_,Changed,CompilationMode,Imports,_,Enc,SkipUnixComments,Reconsult,UseModule) :-
 	'$find_in_path'(X, Y, Call),
-	'$open'(Y, '$csult', Stream, 0), !,
+	'$open'(Y, '$csult', Stream, 0, Enc), !,
 	'$set_changed_lfmode'(Changed),
 	'$start_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, Changed,SkipUnixComments,Reconsult,UseModule),
 	'$close'(Stream).
@@ -305,7 +317,8 @@ use_module(M,F,Is) :-
 	'$values'('$included_file',OY,Y),
 	'$current_module'(Mod),
 	H0 is heapused, '$cputime'(T0,_),
-	( '$open'(Y,'$csult',Stream,0), !,
+	'$default_encoding'(Encoding),
+	( '$open'(Y,'$csult',Stream,0,Encoding), !,
 		'$print_message'(Verbosity, loading(including, Y)),
 		'$loop'(Stream,Status), '$close'(Stream)
 	;
@@ -367,7 +380,8 @@ prolog_load_context(term_position, Position) :-
 	'$use_preds'(Imports,P, NM, M).
 '$ensure_file_loaded'(F, M, _) :-
 	recorded('$lf_loaded','$lf_loaded'(F1,M,Age),R),
-	'$same_file'(F1,F).
+	'$same_file'(F1,F), !.
+	
 
 % if the file exports a module, then we can
 % be imported from any module.
@@ -481,3 +495,39 @@ remove_from_path(New) :- '$check_path'(New,Path),
 	getenv('YAPSHAREDIR', Dir).
 '$system_library_directories'(Dir) :-
 	get_value(system_library_directory,Dir).
+
+
+%
+% encoding stuff: what I believe SWI does.
+%
+% 8-bit binaries
+'$valid_encoding'(octet, 0).
+% 7-bit ASCII as America originally intended
+'$valid_encoding'(ascii, 2).
+% Ye europeaners made it 8 bits
+'$valid_encoding'(iso_latin_1, 1).
+% UTF-8: default 8 bits but 80 extends to 16bits
+'$valid_encoding'(utf8, 8).
+% UNICODE: 16 bits throughout, the way Gates does it!
+'$valid_encoding'(unicode_be, 16).
+'$valid_encoding'(unicode_le, 32).
+% whatever the system tell us to do.
+'$valid_encoding'(text, 4).
+
+'$default_encoding'(DefCode) :- nonvar(DefCode), !,
+	'$set_encoding'('$stream'(0),DefCode),
+	'$set_encoding'('$stream'(1),DefCode),
+	'$set_encoding'('$stream'(2),DefCode),
+	set_value('$default_encoding',DefCode).
+'$default_encoding'(DefCode) :-
+	get_value('$default_encoding',DefCode0),
+	( DefCode0 == [] -> 
+	    '$get_default_encoding'(DefCode)
+	 ;
+	    DefCode = DefCode0
+	).
+
+
+
+
+

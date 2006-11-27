@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.108 2006-11-06 18:35:05 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.109 2006-11-27 17:42:03 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -546,6 +546,9 @@ typedef struct various_codes {
 #endif
   UInt n_of_atoms;
   UInt atom_hash_table_size;
+  UInt wide_atom_hash_table_size;
+  UInt n_of_wide_atoms;
+  AtomHashEntry *wide_hash_chain;
   AtomHashEntry *hash_chain;
 } all_heap_codes;
 
@@ -635,6 +638,9 @@ struct various_codes *Yap_heap_regs;
 #define  NOfAtoms                 Yap_heap_regs->n_of_atoms
 #define  AtomHashTableSize        Yap_heap_regs->atom_hash_table_size
 #define  HashChain                Yap_heap_regs->hash_chain
+#define  NOfWideAtoms             Yap_heap_regs->n_of_wide_atoms
+#define  WideAtomHashTableSize    Yap_heap_regs->wide_atom_hash_table_size
+#define  WideHashChain            Yap_heap_regs->wide_hash_chain
 #define  INT_KEYS_SIZE            Yap_heap_regs->int_keys_size
 #define  INT_KEYS_TIMESTAMP       Yap_heap_regs->int_keys_timestamp
 #define  INT_KEYS                 Yap_heap_regs->IntKeys

@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.16 2006-05-22 16:03:34 tiagosoares Exp $	 *
+* version:      $Id: Yap.h,v 1.17 2006-11-27 17:42:03 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -1102,6 +1102,7 @@ TailOfTermCell (Term t)
 
 /*************** variables concerned with atoms	table *******************/
 #define	MaxHash	    1001
+#define	MaxWideHash (MaxHash/10+1)
 
 #define FAIL_RESTORE  0
 #define DO_EVERYTHING 1

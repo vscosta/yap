@@ -25,6 +25,7 @@ static char     SccsId[] = "%W% %G%";
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#include <wchar.h>
 
 STATIC_PROTO(Int compare, (Term, Term));
 STATIC_PROTO(Int p_compare, (void));
@@ -42,6 +43,36 @@ STATIC_PROTO(Int a_gen_gt, (Term,Term));
 STATIC_PROTO(Int a_gen_ge, (Term,Term));
 
 #define rfloat(X)	( X > 0.0 ? 1 : ( X == 0.0 ? 0 : -1))
+
+static int
+cmp_atoms(Atom a1, Atom a2)
+{
+  if (IsWideAtom(a1)) {
+    if (IsWideAtom(a2)) {
+      return wcscmp((wchar_t *)RepAtom(a1)->StrOfAE,(wchar_t *)RepAtom(a2)->StrOfAE);
+    } else {
+      /* The standard does not seem to have nothing on this */
+      unsigned char *s1 = (unsigned char *)RepAtom(a1)->StrOfAE;
+      wchar_t *s2 = (wchar_t *)RepAtom(a2)->StrOfAE;
+
+      while (*s1 == *s2) {
+	if (!*s1) return 0;
+      }
+      return *s1-*s2;
+    }
+  } else if (IsWideAtom(a2)) {
+    /* The standard does not seem to have nothing on this */
+    wchar_t *s1 = (wchar_t *)RepAtom(a1)->StrOfAE;
+    unsigned char *s2 = (unsigned char *)RepAtom(a2)->StrOfAE;
+
+    while (*s1 == *s2) {
+      if (!*s1) return 0;
+    }
+    return *s1-*s2;
+  } else {
+    return strcmp(RepAtom(a1)->StrOfAE,RepAtom(a2)->StrOfAE);
+  }
+}
 
 static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 		   CELL *pt1)
@@ -73,10 +104,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
       if (d0 == d1) continue;
       else if (IsAtomTerm(d0)) {
 	if (IsAtomTerm(d1))
-	    out = strcmp(
-			 RepAtom(AtomOfTerm(d0))->StrOfAE,
-			 RepAtom(AtomOfTerm(d1))->StrOfAE
-			 );
+	  out = cmp_atoms(AtomOfTerm(d0), AtomOfTerm(d1));
 	else if (IsPrimitiveTerm(d1))
 	  out = 1;
 	else out = -1;
@@ -207,8 +235,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 	  /* compare functors */
 	  if (f != (Functor)*ap3) {
 	    if (!(out = ArityOfFunctor(f)-ArityOfFunctor(f2)))
-	       out = strcmp(RepAtom(NameOfFunctor(f))->StrOfAE,
-			    RepAtom(NameOfFunctor(f2))->StrOfAE);
+	       out = cmp_atoms(NameOfFunctor(f), NameOfFunctor(f2));
 	    goto done;
 	  }
 #ifdef RATIONAL_TREES
@@ -285,10 +312,7 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
   if (IsAtomOrIntTerm(t1)) {
     if (IsAtomTerm(t1)) {
       if (IsAtomTerm(t2))
-	return strcmp(
-		      RepAtom(AtomOfTerm(t1))->StrOfAE,
-		      RepAtom(AtomOfTerm(t2))->StrOfAE
-		      );
+	return cmp_atoms(AtomOfTerm(t1),AtomOfTerm(t2));
       if (IsPrimitiveTerm(t2))
 	return 1;
       return -1;
@@ -404,8 +428,7 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
       r = ArityOfFunctor(fun1) - ArityOfFunctor(fun2);
       if (r)
 	return r;
-      r = strcmp(RepAtom(NameOfFunctor(fun1))->StrOfAE,
-		 RepAtom(NameOfFunctor(fun2))->StrOfAE);
+      r = cmp_atoms(NameOfFunctor(fun1), NameOfFunctor(fun2));
       if (r)
 	return r;
       else

@@ -1352,6 +1352,7 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
 
   Yap_InitTime ();
   AtomHashTableSize = MaxHash;
+  WideAtomHashTableSize = MaxWideHash;
   HashChain = (AtomHashEntry *)Yap_AllocAtomSpace(sizeof(AtomHashEntry) * MaxHash);
   if (HashChain == NULL) {
     Yap_Error(FATAL_ERROR,MkIntTerm(0),"allocating initial atom table");
@@ -1360,7 +1361,16 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
     INIT_RWLOCK(HashChain[i].AERWLock);
     HashChain[i].Entry = NIL;
   }
+  WideHashChain = (AtomHashEntry *)Yap_AllocAtomSpace(sizeof(AtomHashEntry) * MaxWideHash);
+  if (WideHashChain == NULL) {
+    Yap_Error(FATAL_ERROR,MkIntTerm(0),"allocating initial atom table");
+  }
+  for (i = 0; i < MaxWideHash; ++i) {
+    INIT_RWLOCK(WideHashChain[i].AERWLock);
+    WideHashChain[i].Entry = NIL;
+  }
   NOfAtoms = 0;
+  NOfWideAtoms = 0;
 #if THREADS
   SF_STORE->AtFoundVar = Yap_LookupAtom(".");
   Yap_ReleaseAtom(AtomFoundVar);

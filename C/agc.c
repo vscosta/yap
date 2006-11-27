@@ -143,6 +143,7 @@ AtomAdjust(Atom a)
 #define PtoHeapCellAdjust(P) (P)
 #define PtoOpAdjust(P) (P)
 #define PtoLUClauseAdjust(P) (P)
+#define PtoLUIndexAdjust(P) (P)
 #define PtoPredAdjust(P) (P)
 #define PropAdjust(P) (P)
 #define TrailAddrAdjust(P) (P)
@@ -162,6 +163,25 @@ rehash(CELL *oldcode, int NOfE, int KindOfEntries)
 
 #include "rheap.h"
 
+static void
+mark_hash_entry(AtomHashEntry *HashPtr)
+{
+  Atom atm;
+
+  atm = HashPtr->Entry;
+  if (atm) {
+    AtomEntry      *at =  RepAtom(atm);
+    do {
+#ifdef DEBUG_RESTORE1			/* useful during debug */
+      fprintf(errout, "Restoring %s\n", at->StrOfAE);
+#endif
+      RestoreEntries(RepProp(at->PropsOfAE));
+      atm = at->NextOfAE;
+      at = RepAtom(CleanAtomMarkedBit(atm));
+    } while (!EndOfPAEntr(at));
+  }
+}
+
 /*
  * This is the really tough part, to restore the whole of the heap 
  */
@@ -170,23 +190,17 @@ mark_atoms(void)
 {
   AtomHashEntry *HashPtr = HashChain;
   register int    i;
-  Atom atm;
   AtomEntry      *at;
+  Atom atm;
 
   restore_codes();
   for (i = 0; i < AtomHashTableSize; ++i) {
-    atm = HashPtr->Entry;
-    if (atm) {
-      at =  RepAtom(atm);
-      do {
-#ifdef DEBUG_RESTORE1			/* useful during debug */
-	fprintf(errout, "Restoring %s\n", at->StrOfAE);
-#endif
-	RestoreEntries(RepProp(at->PropsOfAE));
-	atm = at->NextOfAE;
-	at = RepAtom(CleanAtomMarkedBit(atm));
-      } while (!EndOfPAEntr(at));
-    }
+    mark_hash_entry(HashPtr);
+    HashPtr++;
+  }
+  HashPtr = WideHashChain;
+  for (i = 0; i < WideAtomHashTableSize; ++i) {
+    mark_hash_entry(HashPtr);
     HashPtr++;
   }
 
@@ -304,6 +318,29 @@ mark_stacks(void)
   mark_global();
 }
 
+static void
+clean_atom(AtomHashEntry *HashPtr)
+{
+  Atom atm = HashPtr->Entry;
+  Atom *patm = &(HashPtr->Entry);
+  while (atm != NIL) {
+    AtomEntry *at =  RepAtom(CleanAtomMarkedBit(atm));
+    if (AtomResetMark(at) || (AGCHook != NULL && !AGCHook(atm))) {
+      patm = &(at->NextOfAE);
+      atm = at->NextOfAE;
+      NOfAtoms--;
+    } else {
+#ifdef DEBUG_RESTORE3
+      fprintf(stderr, "Purged %p:%s\n", at, at->StrOfAE);
+#endif
+      *patm = at->NextOfAE;
+      atm = at->NextOfAE;
+      agc_collected += sizeof(AtomEntry)+strlen(at->StrOfAE);
+      Yap_FreeCodeSpace((char *)at);
+    }
+  }
+}
+
 /*
  * This is the really tough part, to restore the whole of the heap 
  */
@@ -317,24 +354,11 @@ clean_atoms(void)
   AtomEntry  *at;
 
   for (i = 0; i < AtomHashTableSize; ++i) {
-    atm = HashPtr->Entry;
-    patm = &(HashPtr->Entry);
-    while (atm != NIL) {
-      at =  RepAtom(CleanAtomMarkedBit(atm));
-      if (AtomResetMark(at) || (AGCHook != NULL && !AGCHook(atm))) {
-	patm = &(at->NextOfAE);
-	atm = at->NextOfAE;
-	NOfAtoms--;
-      } else {
-#ifdef DEBUG_RESTORE3
-	fprintf(stderr, "Purged %p:%s\n", at, at->StrOfAE);
-#endif
-	*patm = at->NextOfAE;
-	atm = at->NextOfAE;
-	agc_collected += sizeof(AtomEntry)+strlen(at->StrOfAE);
-	Yap_FreeCodeSpace((char *)at);
-      }
-    }
+    clean_atom(HashPtr);
+    HashPtr++;
+  }
+  for (i = 0; i < WideAtomHashTableSize; ++i) {
+    clean_atom(HashPtr);
     HashPtr++;
   }
   patm = &(INVISIBLECHAIN.Entry);

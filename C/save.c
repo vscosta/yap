@@ -1310,6 +1310,25 @@ restore_heap(void)
     }
     HashPtr++;
   }
+  HashPtr = WideHashChain;
+  for (i = 0; i < WideAtomHashTableSize; ++i) {
+    Atom atm = HashPtr->Entry;
+    if (atm) {
+      AtomEntry      *at;
+      HashPtr->Entry = atm = AtomAdjust(atm);
+      at =  RepAtom(atm);
+      do {
+#ifdef DEBUG_RESTORE2			/* useful during debug */
+	fprintf(errout, "Restoring %s\n", at->StrOfAE);
+#endif
+	at->PropsOfAE = PropAdjust(at->PropsOfAE);
+	RestoreEntries(RepProp(at->PropsOfAE));
+	atm = at->NextOfAE = AtomAdjust(at->NextOfAE);
+	at = RepAtom(atm);
+      } while (!EndOfPAEntr(at));
+    }
+    HashPtr++;
+  }
   RestoreInvisibleAtoms();
   RestoreForeignCodeStructure();
   RestoreIOStructures();
@@ -1333,6 +1352,18 @@ ShowAtoms()
   AtomHashEntry  *HashPtr = HashChain;
   register int    i;
   for (i = 0; i < AtomHashTableSize; ++i) {
+    if (HashPtr->Entry != NIL) {
+      AtomEntry      *at;
+      at = RepAtom(HashPtr->Entry);
+      do {
+	fprintf(Yap_stderr,"Passei ao %s em %x\n", at->StrOfAE, at);
+	ShowEntries(RepProp(at->PropsOfAE));
+      } while (!EndOfPAEntr(at = RepAtom(at->NextOfAE)));
+    }
+    HashPtr++;
+  }
+  HashPtr = WideHashChain;
+  for (i = 0; i < WideAtomHashTableSize; ++i) {
     if (HashPtr->Entry != NIL) {
       AtomEntry      *at;
       at = RepAtom(HashPtr->Entry);

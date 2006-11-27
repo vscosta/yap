@@ -33,6 +33,7 @@ Prop	STD_PROTO(PredPropByAtom,(Atom, Term));
 #include "Heap.h"
 #include "yapio.h"
 #include <stdio.h>
+#include <wchar.h>
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -139,6 +140,21 @@ SearchAtom(unsigned char *p, Atom a) {
   return(NIL);
 }
 
+static inline Atom
+SearchWideAtom(wchar_t *p, Atom a) {
+  AtomEntry *ae;
+
+  /* search atom in chain */
+  while (a != NIL) {
+    ae = RepAtom(a);
+    if (wcscmp((wchar_t *)ae->StrOfAE, p) == 0) {
+      return a;
+    }
+    a = ae->NextOfAE;
+  }
+  return(NIL);
+}
+
 static Atom
 LookupAtom(char *atom)
 {				/* lookup atom in atom table            */
@@ -194,10 +210,78 @@ LookupAtom(char *atom)
   return na;
 }
 
+static Atom
+LookupWideAtom(wchar_t *atom)
+{				/* lookup atom in atom table            */
+  CELL hash;
+  wchar_t *p;
+  Atom a, na;
+  AtomEntry *ae;
+  UInt sz;
+  WideAtomEntry *wae;
+
+  /* compute hash */
+  p = atom;
+  hash = WideHashFunction(p) % WideAtomHashTableSize;
+  /* we'll start by holding a read lock in order to avoid contention */
+  READ_LOCK(WideHashChain[hash].AERWLock);
+  a = WideHashChain[hash].Entry;
+  /* search atom in chain */
+  na = SearchWideAtom(atom, a);
+  if (na != NIL) {
+    READ_UNLOCK(WideHashChain[hash].AERWLock);
+    return(na);
+  }
+  READ_UNLOCK(WideHashChain[hash].AERWLock);
+  /* we need a write lock */
+  WRITE_LOCK(WideHashChain[hash].AERWLock);
+  /* concurrent version of Yap, need to take care */
+#if defined(YAPOR) || defined(THREADS)
+  if (a != WideHashChain[hash].Entry) {
+    a = WideHashChain[hash].Entry;
+    na = SearchWideAtom((unsigned char *)atom, a);
+    if (na != NIL) {
+      WRITE_UNLOCK(WideHashChain[hash].AERWLock);
+      return na;
+    }
+  }
+#endif  
+  /* add new atom to start of chain */
+  sz = wcslen(atom);
+  ae = (AtomEntry *) Yap_AllocAtomSpace(sizeof(AtomEntry) + sizeof(wchar_t)*(sz + 1)+sizeof(WideAtomEntry));
+  if (ae == NULL) {
+    WRITE_UNLOCK(WideHashChain[hash].AERWLock);
+    return NIL;
+  }
+  wae = (WideAtomEntry *)(ae->StrOfAE+sizeof(wchar_t)*(sz + 1));
+  na = AbsAtom(ae);
+  ae->PropsOfAE = AbsWideAtomProp(wae);
+  wae->NextOfPE = NIL;
+  wae->KindOfPE = WideAtomProperty;
+  wae->SizeOfAtom = sz;
+  if (ae->StrOfAE != (char *)atom)
+    wcscpy((wchar_t *)(ae->StrOfAE), atom);
+  NOfAtoms++;
+  ae->NextOfAE = a;
+  WideHashChain[hash].Entry = na;
+  INIT_RWLOCK(ae->ARWLock);
+  WRITE_UNLOCK(WideHashChain[hash].AERWLock);
+  if (NOfWideAtoms > 2*WideAtomHashTableSize) {
+    Yap_signal(YAP_CDOVF_SIGNAL);
+  }
+  return na;
+}
+
 Atom
 Yap_LookupAtom(char *atom)
 {				/* lookup atom in atom table            */
   return LookupAtom(atom);
+}
+
+Atom
+Yap_LookupWideAtom(wchar_t *atom)
+{				/* lookup atom in atom table            */
+  return LookupWideAtom(atom);
 }
 
 Atom
@@ -517,6 +601,7 @@ Yap_GetExpPropHavingLock(AtomEntry *ae, unsigned int arity)
   p = RepExpProp(p0 = ae->PropsOfAE);
   while (p0 && (p->KindOfPE != ExpProperty || p->ArityOfEE != arity))
     p = RepExpProp(p0 = p->NextOfPE);
+
   return (p0);
 }
 
@@ -869,6 +954,19 @@ Yap_StringToList(char *s)
 }
 
 Term
+Yap_WStringToList(wchar_t *s)
+{
+  Term t;
+  wchar_t *cp = s + wcslen(s);
+
+  t = MkAtomTerm(AtomNil);
+  while (cp > s) {
+    t = MkPairTerm(MkIntegerTerm(*--cp), t);
+  }
+  return t;
+}
+
+Term
 Yap_StringToDiffList(char *s, Term t)
 {
   register unsigned char *cp = (unsigned char *)s + strlen(s);
@@ -893,6 +991,22 @@ Yap_StringToListOfAtoms(char *s)
     t = MkPairTerm(MkAtomTerm(LookupAtom(so)), t);
   }
   return (t);
+}
+
+Term
+Yap_WStringToListOfAtoms(wchar_t *s)
+{
+  register Term t;
+  wchar_t so[2];
+  wchar_t *cp = s + wcslen(s);
+
+  so[1] = '\0';
+  t = MkAtomTerm(AtomNil);
+  while (cp > s) {
+    so[0] = *--cp;
+    t = MkPairTerm(MkAtomTerm(LookupWideAtom(so)), t);
+  }
+  return t;
 }
 
 Term
@@ -927,8 +1041,8 @@ Yap_GetName(char *s, UInt max, Term t)
     if (!IsNumTerm(Head))
       return (FALSE);
     i = IntOfTerm(Head);
-    if (i < 0 || i > 255)
-      return (FALSE);
+    if (i < 0 || i > MAX_ISO_LATIN1)
+      return FALSE;
     *s++ = i;
     t = TailOfTerm(t);
     if (--max == 0) {

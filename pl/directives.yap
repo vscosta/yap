@@ -49,6 +49,7 @@
 '$directive'(use_module(_,_,_)).
 '$directive'(thread_local(_)).
 '$directive'(uncutable(_)).
+'$directive'(encoding(_)).
 
 '$exec_directives'((G1,G2), Mode, M) :- !,
 	'$exec_directives'(G1, Mode, M),
@@ -64,6 +65,8 @@
 	'$discontiguous'(D,M).
 '$exec_directive'(initialization(D), _, M) :-
 	'$initialization'(M:D).
+'$exec_directive'(encoding(Enc), _, M) :-
+	'$current_encoding'(Enc).
 '$exec_directive'(parallel, _, _) :-
 	'$parallel'.
 '$exec_directive'(sequential, _, _) :-
@@ -130,6 +133,16 @@ yap_flag(argv,L) :- '$argv'(L).
 % hide/unhide atoms
 yap_flag(hide,Atom) :- !, hide(Atom).
 yap_flag(unhide,Atom) :- !, unhide(Atom).
+
+% hide/unhide atoms
+yap_flag(encoding,DefaultEncoding) :- var(DefaultEncoding), !,
+	'$default_encoding'(DefCode),
+	'$valid_encoding'(DefaultEncoding, DefCode).
+yap_flag(encoding,Encoding) :-
+	'$valid_encoding'(Encoding, EncCode), !,
+	'$default_encoding'(EncCode).
+yap_flag(encoding,Encoding) :-
+	'$do_error'(domain_error(io_mode,encoding(Encoding)),yap_flag(encoding,Encoding)).
 
 % control garbage collection
 yap_flag(gc,V) :-
@@ -647,6 +660,7 @@ yap_flag(float_format,X) :-
 	    V = discontiguous_warnings ;
 	    V = dollar_as_lower_case ;
 	    V = double_quotes ;
+	    V = encoding ;
 %	    V = fast  ;
 	    V = fileerrors  ;
 	    V = float_format ;

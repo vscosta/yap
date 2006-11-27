@@ -34,7 +34,6 @@ otherwise.
 
 [] :- true.
 
-
 :- set_value('$doindex',true).
 
 % force having indexing code for throw.

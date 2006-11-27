@@ -24,7 +24,8 @@ open(Source,M,T) :- var(M), !,
 open(Source,M,T) :- nonvar(T), !,
 	'$do_error'(type_error(variable,T),open(Source,M,T)).
 open(File,Mode,Stream) :-
-	'$open'(File,Mode,Stream,16).
+	'$default_encoding'(Encoding),
+	'$open'(File,Mode,Stream,16,Encoding).
 
 /* meaning of flags for '$write' is
 	 1	quote illegal atoms
@@ -58,42 +59,46 @@ close(S,Opts) :-
 	
 open(F,T,S,Opts) :-
 	'$check_io_opts'(Opts,open(F,T,S,Opts)),
-	'$process_open_opts'(Opts, 0, N, Aliases),
-	'$open2'(F,T,S,N),
+	'$process_open_opts'(Opts, 0, N,  Aliases, E),
+	'$open2'(F,T,S,N,E),
 	'$process_open_aliases'(Aliases,S).
 
-'$open2'(Source,M,T,N) :- var(Source), !,
+'$open2'(Source,M,T,N,_) :- var(Source), !,
 	'$do_error'(instantiation_error,open(Source,M,T,N)).
-'$open2'(Source,M,T,N) :- var(M), !,
+'$open2'(Source,M,T,N,_) :- var(M), !,
 	'$do_error'(instantiation_error,open(Source,M,T,N)).
-'$open2'(Source,M,T,N) :- nonvar(T), !,
+'$open2'(Source,M,T,N,_) :- nonvar(T), !,
 	'$do_error'(type_error(variable,T),open(Source,M,T,N)).
-'$open2'(File,Mode,Stream,N) :-
-	'$open'(File,Mode,Stream,N).
+'$open2'(File,Mode,Stream,N,Encoding) :-
+	'$open'(File,Mode,Stream,N,Encoding).
 
 '$process_open_aliases'([],_).
 '$process_open_aliases'([Alias|Aliases],S) :-
 	'$add_alias_to_stream'(Alias, S),
 	'$process_open_aliases'(Aliases,S).
 
-'$process_open_opts'([], N, N, []).
-'$process_open_opts'([type(T)|L], N0, N, Aliases) :-
+'$process_open_opts'([], N, N, [], DefaultEncoding) :-
+	'$default_encoding'(DefaultEncoding).
+'$process_open_opts'([type(T)|L], N0, N, Aliases, Encoding) :-
 	'$value_open_opt'(T,type,I1,I2),
 	N1 is I1\/N0,
 	N2 is I2/\N1,
-	'$process_open_opts'(L,N2,N, Aliases).
-'$process_open_opts'([reposition(T)|L], N0, N, Aliases) :-
+	'$process_open_opts'(L,N2,N, Aliases, Encoding).
+'$process_open_opts'([reposition(T)|L], N0, N, Aliases, Encoding) :-
 	'$value_open_opt'(T,reposition,I1,I2),
 	N1 is I1\/N0,
 	N2 is I2/\N1,
-	'$process_open_opts'(L,N2,N, Aliases).
-'$process_open_opts'([eof_action(T)|L], N0, N, Aliases) :-
+	'$process_open_opts'(L,N2,N, Aliases, Encoding).
+'$process_open_opts'([encoding(Enc)|L], N0, N, Aliases, T, EncCode) :-
+	'$valid_encoding'(Enc, EndCode),
+	'$process_open_opts'(L,N2,N, Aliases, _).
+'$process_open_opts'([eof_action(T)|L], N0, N, Aliases, Encoding) :-
 	'$value_open_opt'(T,eof_action,I1,I2),
 	N1 is I1\/N0,
 	N2 is I2/\N1,
-	'$process_open_opts'(L,N2,N, Aliases).
-'$process_open_opts'([alias(Alias)|L], N0, N, [Alias|Aliases]) :-
-	'$process_open_opts'(L,N0,N, Aliases).
+	'$process_open_opts'(L,N2,N, Aliases, Encoding).
+'$process_open_opts'([alias(Alias)|L], N0, N, [Alias|Aliases], Encoding) :-
+	'$process_open_opts'(L,N0,N, Aliases, Encoding).
 
 
 '$value_open_opt'(text,_,1,X) :- X is 128-2. % default
@@ -141,6 +146,8 @@ open(F,T,S,Opts) :-
 	'$check_open_alias_arg'(T, G).
 '$check_opt_open'(eof_action(T), G) :- !,
 	'$check_open_eof_action_arg'(T, G).
+'$check_opt_open'(encoding(T), G) :- !,
+	'$check_open_encoding'(T, G).
 '$check_opt_open'(A, G) :-
 	'$do_error'(domain_error(stream_option,A),G).
 
@@ -222,6 +229,12 @@ open(F,T,S,Opts) :-
 '$check_open_eof_action_arg'(reset,_) :- !.
 '$check_open_eof_action_arg'(X,G) :-
 	'$do_error'(domain_error(io_mode,eof_action(X)),G).
+
+'$check_open_encoding'(X, G) :- var(X), !,
+	'$do_error'(instantiation_error,G).
+'$check_open_encoding'(Encoding,_) :- '$valid_encoding'(Encoding,_), !.
+'$check_open_eof_action_arg'(Encoding,G) :-
+	'$do_error'(domain_error(io_mode,encoding(Encoding)),G).
 
 '$check_read_syntax_errors_arg'(X, G) :- var(X), !,
 	'$do_error'(instantiation_error,G).
@@ -584,26 +597,26 @@ peek_char(S,V) :-
 	( I = -1 -> V = end_of_file ; atom_codes(V,[I])).
 
 get_code(S,V) :-
-	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
+	\+ var(V), (\+ integer(V)), !,
 	'$do_error'(type_error(in_character_code,V),get_code(S,V)).
 get_code(S,V) :-
 	'$get0'(S,V).
 
 get_code(V) :-
-	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
+	\+ var(V), (\+ integer(V)), !,
 	'$do_error'(type_error(in_character_code,V),get_code(V)).
 get_code(V) :-
 	current_input(S),
 	'$get0'(S,V).
 
 peek_code(S,V) :-
-	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
+	\+ var(V), (\+ integer(V)), !,
 	'$do_error'(type_error(in_character_code,V),get_code(S,V)).
 peek_code(S,V) :-
 	'$peek'(S,V).
 
 peek_code(V) :-
-	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
+	\+ var(V), (\+ integer(V)), !,
 	'$do_error'(type_error(in_character_code,V),get_code(V)).
 peek_code(V) :-
 	current_input(S),
@@ -649,7 +662,7 @@ put_char(S,V) :-
 put_code(V) :- var(V), !,
 	'$do_error'(instantiation_error,put_code(V)).
 put_code(V) :-
-	(\+ integer(V) ; V < 0 ; V > 256), !,
+	(\+ integer(V)), !,
 	'$do_error'(type_error(character_code,V),put_code(V)).
 put_code(V) :-
 	current_output(S), 
@@ -659,7 +672,7 @@ put_code(V) :-
 put_code(S,V) :- var(V), !,
 	'$do_error'(instantiation_error,put_code(S,V)).
 put_code(S,V) :-
-	(\+ integer(V) ; V < 0 ; V > 256), !,
+	(\+ integer(V)), !,
 	'$do_error'(type_error(character_code,V),put_code(S,V)).
 put_code(S,V) :-
 	'$put'(S,V).
@@ -904,7 +917,7 @@ absolute_file_name(RelFile, AbsFile) :-
 '$exists'(F,Mode,AbsFile) :-
 	get_value(fileerrors,V),
 	set_value(fileerrors,0),
-	( '$open'(F,Mode,S,0), !,
+	( '$open'(F,Mode,S,0,0), !,
 	    '$file_name'(S, AbsFile),
 	     '$close'(S), set_value(fileerrors,V);
 	     set_value(fileerrors,V), fail).

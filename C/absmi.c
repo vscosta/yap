@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-11-21 16:21:30 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-27 17:42:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.212  2006/11/21 16:21:30  vsc
+* fix I/O mess
+* fix spy/reconsult mess
+*
 * Revision 1.211  2006/11/15 00:13:36  vsc
 * fixes for indexing code.
 *
@@ -960,16 +964,14 @@ Yap_absmi(int inp)
 	LogUpdClause *lcl = PREG->u.lld.d;
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
-	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
+	if (!VALID_TIMESTAMP(timestamp, lcl)) {
 	  /* jump to next alternative */
 	  PREG = FAILCODE;
 	} else {
-	  PredEntry *pe = PREG->u.lld.d->ClPred;
-
-	  LOCK(pe->StatisticsForPred.lock);
-	  pe->StatisticsForPred.NOfRetries++;
-	  UNLOCK(pe->StatisticsForPred.lock);
-	  PREG = PREG->u.lld.d->ClCode;
+	  LOCK(ap->StatisticsForPred.lock);
+	  ap->StatisticsForPred.NOfRetries++;
+	  UNLOCK(ap->StatisticsForPred.lock);
+	  PREG = lcl->ClCode;
 	}
 	/* HEY, leave indexing block alone!! */
 	/* check if we are the ones using this code */
@@ -977,7 +979,8 @@ Yap_absmi(int inp)
 	LOCK(cl->ClLock);
 	DEC_CLREF_COUNT(cl);
 	/* clear the entry from the trail */
-	TR = B->cp_tr-1;
+	B->cp_tr--;
+	TR = B->cp_tr;
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
 	  UNLOCK(cl->ClLock);
@@ -994,10 +997,15 @@ Yap_absmi(int inp)
 	    }
 	    UNLOCK(lcl->ClLock);
 	  }
-	  if (cl->ClFlags & ErasedMask)
+	  if (cl->ClFlags & ErasedMask) {
+	    saveregs();
 	    Yap_ErLogUpdIndex(cl);
-	  else
+	    setregs();
+	  } else {
+	    saveregs();
 	    Yap_CleanUpIndex(cl);
+	    setregs();
+	  }
 	  save_pc();
 	} else {
 	  UNLOCK(cl->ClLock);
@@ -1016,10 +1024,15 @@ Yap_absmi(int inp)
 		TRAIL_CLREF(lcl);
 	      }
 	    }
-	    if (cl->ClFlags & ErasedMask)
+	    if (cl->ClFlags & ErasedMask) {
+	      saveregs();
 	      Yap_ErLogUpdIndex(cl);
-	    else
+	      setregs();
+	    } else {
+	      saveregs();
 	      Yap_CleanUpIndex(cl);
+	      setregs();
+	    }
 	    save_pc();
 	  }
 	}
@@ -1262,7 +1275,7 @@ Yap_absmi(int inp)
 	LogUpdClause *lcl = PREG->u.lld.d;
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
-	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
+	if (!VALID_TIMESTAMP(timestamp, lcl)) {
 	  /* jump to next alternative */
 	  PREG = FAILCODE;
 	} else {
@@ -1280,10 +1293,10 @@ Yap_absmi(int inp)
 	    setregs();
 	    JMPNext();
 	  } 
-	  LOCK(PREG->u.lld.d->ClPred->StatisticsForPred.lock);
-	  PREG->u.lld.d->ClPred->StatisticsForPred.NOfRetries++;
-	  UNLOCK(PREG->u.lld.d->ClPred->StatisticsForPred.lock);
-	  PREG = PREG->u.lld.d->ClCode;
+	  LOCK(ap->StatisticsForPred.lock);
+	  ap->StatisticsForPred.NOfRetries++;
+	  UNLOCK(ap->ClPred->StatisticsForPred.lock);
+	  PREG = lcl->ClCode;
 	}
 	/* HEY, leave indexing block alone!! */
 	/* check if we are the ones using this code */
@@ -1291,7 +1304,7 @@ Yap_absmi(int inp)
 	LOCK(cl->ClLock);
 	DEC_CLREF_COUNT(cl);
 	/* clear the entry from the trail */
-	TR = B->cp_tr-1;
+	TR = --B->cp_tr;
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
 	  UNLOCK(cl->ClLock);
@@ -1308,10 +1321,15 @@ Yap_absmi(int inp)
 	    }
 	    UNLOCK(lcl->ClLock);
 	  }
-	  if (cl->ClFlags & ErasedMask)
+	  if (cl->ClFlags & ErasedMask) {
+	    saveregs();
 	    Yap_ErLogUpdIndex(cl);
-	  else
+	    setregs();
+	  } else {
+	    saveregs();
 	    Yap_CleanUpIndex(cl);
+	    setregs();
+	  }
 	  save_pc();
 	} else {
 	  UNLOCK(cl->ClLock);
@@ -1320,7 +1338,7 @@ Yap_absmi(int inp)
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
 	    B->cp_tr != B->cp_b->cp_tr) {
 	  cl->ClFlags &= ~InUseMask;
-	  TR = B->cp_tr-1;
+	  TR = --B->cp_tr;
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
 	    if (PREG != FAILCODE) {
@@ -1330,10 +1348,15 @@ Yap_absmi(int inp)
 		TRAIL_CLREF(lcl);
 	      }
 	    }
-	    if (cl->ClFlags & ErasedMask)
+	    if (cl->ClFlags & ErasedMask) {
+	      saveregs();
 	      Yap_ErLogUpdIndex(cl);
-	    else
+	      setregs();
+	    } else {
+	      saveregs();
 	      Yap_CleanUpIndex(cl);
+	      setregs();
+	    }
 	    save_pc();
 	  }
 	}
@@ -8094,12 +8117,12 @@ Yap_absmi(int inp)
 	LogUpdClause *lcl = PREG->u.lld.d;
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
-	/*fprintf(stderr,"- %p/%p %d %d %d--%u\n",PREG,ap,timestamp,ap->TimeStampOfPred,PREG->u.lld.d->ClTimeStart,PREG->u.lld.d->ClTimeEnd);*/
-	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
+	/* fprintf(stderr,"- %p/%p %d %d %p\n",PREG,ap,timestamp,ap->TimeStampOfPred,PREG->u.lld.d->ClCode);*/
+	if (!VALID_TIMESTAMP(timestamp, lcl)) {
 	  /* jump to next alternative */
 	  PREG = FAILCODE;
 	} else {
-	  PREG = PREG->u.lld.d->ClCode;
+	  PREG = lcl->ClCode;
 	}
 	/* HEY, leave indexing block alone!! */
 	/* check if we are the ones using this code */
@@ -8107,7 +8130,8 @@ Yap_absmi(int inp)
 	LOCK(cl->ClLock);
 	DEC_CLREF_COUNT(cl);
 	/* clear the entry from the trail */
-	TR = B->cp_tr-1;
+	B->cp_tr--;
+	TR = B->cp_tr;
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
 	  UNLOCK(cl->ClLock);
@@ -8121,13 +8145,19 @@ Yap_absmi(int inp)
 	      /* always add an extra reference */
 	      INC_CLREF_COUNT(lcl);
 	      TRAIL_CLREF(lcl);
+	      B->cp_tr = TR;
 	    }
 	    UNLOCK(lcl->ClLock);
 	  }
-	  if (cl->ClFlags & ErasedMask)
+	  if (cl->ClFlags & ErasedMask) {
+	    saveregs();
 	    Yap_ErLogUpdIndex(cl);
-	  else
+	    setregs();
+	  } else {
+	    saveregs();
 	    Yap_CleanUpIndex(cl);
+	    setregs();
+	  }
 	  save_pc();
 	} else {
 	  UNLOCK(cl->ClLock);
@@ -8136,7 +8166,8 @@ Yap_absmi(int inp)
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
 	    B->cp_tr != B->cp_b->cp_tr) {
 	  cl->ClFlags &= ~InUseMask;
-	  TR = B->cp_tr-1;
+	  B->cp_tr--;
+	  TR = B->cp_tr;
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
 	    if (PREG != FAILCODE) {
@@ -8144,13 +8175,18 @@ Yap_absmi(int inp)
 	      if (lcl->ClRefCount == 1 && !(lcl->ClFlags & InUseMask)) {
 		lcl->ClFlags |= InUseMask;
 		TRAIL_CLREF(lcl);
+		B->cp_tr = TR;
 	      }
 	    }
-	    if (cl->ClFlags & ErasedMask)
+	    if (cl->ClFlags & ErasedMask) {
+	      saveregs();
 	      Yap_ErLogUpdIndex(cl);
-	    else
+	      setregs();
+	    } else {
+	      saveregs();
 	      Yap_CleanUpIndex(cl);
-	    save_pc();
+	      setregs();
+	    }
 	  }
 	}
 #endif

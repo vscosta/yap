@@ -323,6 +323,8 @@ current_atom(A) :-				% check
 	atom(A), !.
 current_atom(A) :-				% generate
 	'$current_atom'(A).
+current_atom(A) :-				% generate
+	'$current_wide_atom'(A).
 
 current_predicate(A,T) :- var(T), !,		% only for the predicate
 	'$current_module'(M),

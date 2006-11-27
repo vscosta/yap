@@ -37,10 +37,30 @@ cd examples
 splat
 cd  ../../../include
 splat
+cd  ../CLPBN
+splat
+cd  clpbn
+splat
+cd  examples
+splat
+cd  School
+splat
+cd  ../mn
+splat
+cd  ../HMMer
+splat
+cd  ../../../learning
+splat
+cd  aleph_model
+splat
+cd  ../nbayes
+splat
+cd  ../utils
+splat
 #/bin/cp config.h config.h.mine
 #/bin/cp ../../../bins/cyg/*.h .
 #/bin/mv config.h.mine config.h
-cd ../console
+cd ../../../console
 splat
 cd ../docs
 splat

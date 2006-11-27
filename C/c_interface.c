@@ -10,8 +10,13 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2006-05-16 18:37:30 $,$Author: vsc $						 *
+* Last rev:	$Date: 2006-11-27 17:42:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.85  2006/05/16 18:37:30  vsc
+* WIN32 fixes
+* compiler bug fixes
+* extend interface
+*
 * Revision 1.84  2006/03/09 15:52:04  tiagosoares
 * CUT_C and MYDDAS support for 64 bits architectures
 *
@@ -293,7 +298,7 @@ X_API void    STD_PROTO(YAP_PruneGoal,(void));
 X_API void    STD_PROTO(YAP_InitConsult,(int, char *));
 X_API void    STD_PROTO(YAP_EndConsult,(void));
 X_API Term    STD_PROTO(YAP_Read, (int (*)(void)));
-X_API void    STD_PROTO(YAP_Write, (Term, void (*)(int), int));
+X_API void    STD_PROTO(YAP_Write, (Term, wchar_t (*)(wchar_t), int));
 X_API Term    STD_PROTO(YAP_WriteBuffer, (Term, char *, unsigned int, int));
 X_API char   *STD_PROTO(YAP_CompileClause, (Term));
 X_API void    STD_PROTO(YAP_PutValue, (Atom,Term));
@@ -344,9 +349,9 @@ static int do_yap_getc(int streamno) {
   return(do_getf());
 }
 
-static void (*do_putcf)(int);
+static wchar_t (*do_putcf)(wchar_t);
 
-static int do_yap_putc(int streamno,int ch) {
+static wchar_t do_yap_putc(int streamno,wchar_t ch) {
   do_putcf(ch);
   return(ch);
 }
@@ -1002,9 +1007,10 @@ YAP_Error(int myerrno, Term t, char *buf,...)
   Yap_Error(myerrno,t,tmpbuf);
 }
 
-static void myputc (int ch)
+static wchar_t myputc (wchar_t ch)
 {
   putc(ch,stderr);
+  return ch;
 }
 
 X_API Term
@@ -1130,12 +1136,12 @@ YAP_Read(int (*mygetc)(void))
   BACKUP_MACHINE_REGS();
 
   do_getf = mygetc;
-  sno = Yap_GetFreeStreamD();
+  sno = Yap_GetFreeStreamDForReading();
   if (sno < 0) {
     Yap_Error(SYSTEM_ERROR,TermNil, "new stream not available for YAP_Read");
     return TermNil;
   }
-  Stream[sno].stream_getc_for_read = Stream[sno].stream_getc = do_yap_getc;
+  Stream[sno].stream_getc = do_yap_getc;
   tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno);
   Stream[sno].status = Free_Stream_f;
   if (Yap_ErrorMessage)
@@ -1152,7 +1158,7 @@ YAP_Read(int (*mygetc)(void))
 }
 
 X_API void
-YAP_Write(Term t, void (*myputc)(int), int flags)
+YAP_Write(Term t, wchar_t (*myputc)(wchar_t), int flags)
 {
   BACKUP_MACHINE_REGS();
 

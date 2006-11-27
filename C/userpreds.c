@@ -594,7 +594,7 @@ p_grab_tokens()
   Term           *p = ASP - 20, *p0, t;
   Atom            IdAtom, VarAtom;
   Functor         IdFunctor, VarFunctor;
-  char            ch, IdChars[255], *chp;
+  char            ch, IdChars[256], *chp;
 
   IdAtom = Yap_LookupAtom("id");
   IdFunctor = Yap_MkFunctor(IdAtom, 1);

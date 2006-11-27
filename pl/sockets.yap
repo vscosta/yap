@@ -36,7 +36,7 @@ socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams) :-
 	'$do_error'(instantiation_error,G).
 '$check_list_for_sockets'([],_) :- !.
 '$check_list_for_sockets'([_|T],G) :- !,
- 	'$check_list_for_sockets'(T,G).
+	'$check_list_for_sockets'(T,G).
 '$check_list_for_sockets'(T,G) :-
 	'$do_error'(type_error(list,T),G).
 

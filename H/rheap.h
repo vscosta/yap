@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2006-08-25 19:50:35 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-27 17:42:03 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.70  2006/08/25 19:50:35  vsc
+* global data structures
+*
 * Revision 1.69  2006/08/22 16:12:46  vsc
 * global variables
 *
@@ -777,6 +780,8 @@ restore_codes(void)
     PtoPredAdjust(Yap_heap_regs->logdb_erased_marker->ClPred);
   Yap_heap_regs->hash_chain = 
     (AtomHashEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->hash_chain));
+  Yap_heap_regs->wide_hash_chain = 
+    (AtomHashEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->wide_hash_chain));
 }
 
 

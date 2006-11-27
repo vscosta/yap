@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-11-15 00:13:36 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-27 17:42:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.199  2006/11/15 00:13:36  vsc
+* fixes for indexing code.
+*
 * Revision 1.198  2006/11/14 11:42:25  vsc
 * fix bug in growstack
 *
@@ -574,6 +577,7 @@ static_in_use(PredEntry *p, int check_everything)
 #define PtoPredAdjust(X) (X)
 #define PtoOpAdjust(X) (X)
 #define PtoLUClauseAdjust(P) (P)
+#define PtoLUIndexAdjust(P) (P)
 #define XAdjust(X) (X)
 #define YAdjust(X) (X)
 #define AtomTermAdjust(X) (X)

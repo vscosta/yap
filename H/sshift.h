@@ -471,6 +471,14 @@ PtoLUClauseAdjust (struct logic_upd_clause * ptr)
   return (struct logic_upd_clause *) (CharP (ptr) + HDiff);
 }
 
+inline EXTERN struct logic_upd_index *PtoLUIndexAdjust (struct logic_upd_index *);
+
+inline EXTERN struct logic_upd_index *
+PtoLUIndexAdjust (struct logic_upd_index * ptr)
+{
+  return (struct logic_upd_index *) (CharP (ptr) + HDiff);
+}
+
 
 
 inline EXTERN CELL *PtoHeapCellAdjust (CELL *);

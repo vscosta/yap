@@ -189,6 +189,7 @@ IsFunctorProperty (int flags)
 	ff df	sparse functor
 	ff ex	arithmetic property
 	ff f7   array
+	ff f8   wide atom
 	ff fa   module property
 	ff fb   blackboard property
 	ff fc	value property
@@ -264,6 +265,79 @@ inline EXTERN PropFlags
 IsGlobalProperty (int flags)
 {
   return (PropFlags) ((flags == GlobalProperty));
+}
+
+
+/*	Wide Atom property 						*/
+typedef struct
+{
+  Prop NextOfPE;		/* used to chain properties             */
+  PropFlags KindOfPE;		/* kind of property                     */
+  UInt  SizeOfAtom;	        /* index in module table                */
+} WideAtomEntry;
+
+#if USE_OFFSETS_IN_PROPS
+
+inline EXTERN WideAtomEntry *RepWideAtomProp (Prop p);
+
+inline EXTERN WideAtomEntry *
+RepWideAtomProp (Prop p)
+{
+  return (WideAtomEntry *) (AtomBase + Unsigned (p));
+}
+
+
+
+inline EXTERN Prop AbsWideAtomProp (WideAtomEntry * p);
+
+inline EXTERN Prop
+AbsWideAtomProp (WideAtomEntry * p)
+{
+  return (Prop) (Addr (p) - AtomBase);
+}
+
+
+#else
+
+inline EXTERN WideAtomEntry *RepWideAtomProp (Prop p);
+
+inline EXTERN WideAtomEntry *
+RepWideAtomProp (Prop p)
+{
+  return (WideAtomEntry *) (p);
+}
+
+
+
+inline EXTERN Prop AbsWideAtomProp (WideAtomEntry * p);
+
+inline EXTERN Prop
+AbsWideAtomProp (WideAtomEntry * p)
+{
+  return (Prop) (p);
+}
+
+
+#endif
+
+#define WideAtomProperty	((PropFlags)0xfff8)
+
+
+inline EXTERN PropFlags IsWideAtomProperty (int);
+
+inline EXTERN PropFlags
+IsWideAtomProperty (int flags)
+{
+  return (PropFlags) ((flags == WideAtomProperty));
+}
+
+inline EXTERN int IsWideAtom (Atom);
+
+inline EXTERN int
+IsWideAtom (Atom at)
+{
+  return RepAtom(at)->PropsOfAE &&
+    IsWideAtomProperty(RepWideAtomProp(RepAtom(at)->PropsOfAE)->KindOfPE);
 }
 
 

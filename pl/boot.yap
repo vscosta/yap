@@ -745,10 +745,10 @@ not(G) :-    \+ '$execute'(G).
         ;
 	    '$call'(B,CP,G0,M)
 	).
-'$call'(\+ X, _CP, _G0, _M) :- !,
-	\+ '$execute'(X).
+'$call'(\+ X, _CP, _G0, M) :- !,
+	\+ '$execute'(M:X).
 '$call'(not(X), _CP, _G0, _M) :- !,
-	\+ '$execute'(X).
+	\+ '$execute'(M:X).
 '$call'(!, CP, _,_) :- !,
 	'$$cut_by'(CP).
 '$call'([A|B], _, _, M) :- !,
@@ -858,7 +858,7 @@ break :-
 	set_value('$lf_verbose', OldSilent).
 
 bootstrap(F) :-
-	'$open'(F,'$csult',Stream,0),
+	'$open'(F,'$csult',Stream,0,0),
 	'$current_stream'(File,_,Stream),
 	'$start_consult'(consult, File, LC),
 	file_directory_name(File, Dir),
@@ -931,7 +931,7 @@ bootstrap(F) :-
 '$exists'(F,Mode) :-
 	get_value(fileerrors,V),
 	set_value(fileerrors,0),
-	( '$open'(F,Mode,S,0) -> '$close'(S), set_value(fileerrors,V) ; set_value(fileerrors,V), fail).
+	( '$open'(F,Mode,S,0,1) -> '$close'(S), set_value(fileerrors,V) ; set_value(fileerrors,V), fail).
 
 
 % This sequence must be followed:

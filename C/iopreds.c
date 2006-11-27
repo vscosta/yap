@@ -99,7 +99,7 @@ STATIC_PROTO (int PlGetc, (int));
 STATIC_PROTO (int DefaultGets, (int,UInt,char*));
 STATIC_PROTO (int PlGets, (int,UInt,char*));
 STATIC_PROTO (int MemGetc, (int));
-STATIC_PROTO (int ISOGetc, (int));
+STATIC_PROTO (wchar_t ISOWGetc, (int));
 STATIC_PROTO (int ConsoleGetc, (int));
 STATIC_PROTO (int PipeGetc, (int));
 STATIC_PROTO (int ConsolePipeGetc, (int));
@@ -166,6 +166,28 @@ STATIC_PROTO (Int p_startline, (void));
 STATIC_PROTO (Int p_change_type_of_char, (void));
 STATIC_PROTO (Int p_type_of_char, (void));
 STATIC_PROTO (void CloseStream, (int));
+STATIC_PROTO (wchar_t get_wchar, (int));
+STATIC_PROTO (wchar_t put_wchar, (int,wchar_t));
+
+static encoding_t
+DefaultEncoding(void)
+{
+  char *s = getenv("LANG");
+  /* if we don't have a LNAG then just use ISO_LATIN1 */
+  if (s == NULL)
+    return ENC_ISO_LATIN1;
+  int sz = strlen(s);
+  if (sz > 5) {
+    if (s[sz-5] == 'U' &&
+	s[sz-4] == 'T' &&
+	s[sz-3] == 'F' &&
+	s[sz-2] == '-' &&
+	s[sz-1] == '8') {
+      return ENC_ISO_UTF8;
+    }
+  }
+  return ENC_ISO_ANSI;
+}
 
 static int
 GetFreeStreamD(void)
@@ -186,6 +208,25 @@ int
 Yap_GetFreeStreamD(void)
 {
   return GetFreeStreamD();
+}
+
+/* used from C-interface */
+int
+Yap_GetFreeStreamDForReading(void)
+{
+  int sno = GetFreeStreamD();
+  StreamDesc *s;
+
+  if (sno < 0) return sno;
+  s = Stream+sno;
+  s->status |= User_Stream_f|Input_Stream_f;
+  s->stream_wgetc = get_wchar;
+  s->encoding = DefaultEncoding();
+  if (CharConversionTable != NULL)
+    s->stream_wgetc_for_read = ISOWGetc;
+  else
+    s->stream_wgetc_for_read = s->stream_wgetc;
+  return sno;
 }
 
 
@@ -304,6 +345,7 @@ p_always_prompt_user(void)
        if (Stream[0].status & Tty_Stream_f &&
 	   s->u.file.name == Stream[0].u.file.name)
 	 s->stream_putc = ReadlinePutc;
+	 s->stream_wputc = put_wchar;
      } else
 #endif
        {
@@ -351,27 +393,32 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file)
   if (s->status & Socket_Stream_f) {
     /* Console is a socket and socket will prompt */
     s->stream_putc = ConsoleSocketPutc;
+    s->stream_wputc = put_wchar;
     s->stream_getc = ConsoleSocketGetc;
   } else
 #endif
   if (s->status & Pipe_Stream_f) {
     /* Console is a socket and socket will prompt */
     s->stream_putc = ConsolePipePutc;
+    s->stream_wputc = put_wchar;
     s->stream_getc = ConsolePipeGetc;
   } else if (s->status & InMemory_Stream_f) {
     s->stream_putc = MemPutc;
+    s->stream_wputc = put_wchar;
     s->stream_getc = MemGetc;    
   } else {
    /* check if our console is promptable: may be tty or pipe */
     if (s->status & (Promptable_Stream_f)) {
       /* the putc routine only has to check it is putting out a newline */
       s->stream_putc = ConsolePutc;
+      s->stream_wputc = put_wchar;
       /* if a tty have a special routine to call readline */
 #if HAVE_LIBREADLINE
       if (s->status & Tty_Stream_f) {
 	if (Stream[0].status & Tty_Stream_f &&
 	    is_same_tty(s->u.file.file,Stream[0].u.file.file))
 	  s->stream_putc = ReadlinePutc;
+	s->stream_wputc = put_wchar;
 	s->stream_getc = ReadlineGetc;
       } else
 #endif
@@ -382,6 +429,7 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file)
     } else {
       /* we are reading from a file, no need to check for prompts */
       s->stream_putc = FilePutc;
+      s->stream_wputc = put_wchar;
       s->stream_getc = PlGetc;
       s->stream_gets = PlGetsFunc();
     } 
@@ -398,10 +446,11 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file)
     }
     s->u.file.user_name = MkAtomTerm (s->u.file.name);
   }
+  s->stream_wgetc = get_wchar;
   if (CharConversionTable != NULL)
-    s->stream_getc_for_read = ISOGetc;
+    s->stream_wgetc_for_read = ISOWGetc;
   else
-    s->stream_getc_for_read = s->stream_getc;
+    s->stream_wgetc_for_read = s->stream_wgetc;
 #if LIGHT
   s->status |= Tty_Stream_f|Promptable_Stream_f;
 #endif
@@ -776,7 +825,7 @@ ConsolePipePutc (int sno, int ch)
     DWORD written;
     if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &written, NULL) == FALSE) {
       PlIOError (SYSTEM_ERROR,TermNil, "write to pipe returned error");
-      return(EOF);
+      return EOF;
     }
   }
 #else
@@ -802,7 +851,7 @@ PipePutc (int sno, int ch)
     DWORD written;
     if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &written, NULL) == FALSE) {
       PlIOError (SYSTEM_ERROR,TermNil, "write to pipe returned error");
-      return(EOF);
+      return EOF;
     }
   }
 #else
@@ -954,7 +1003,7 @@ ReadlineGetc(int sno)
 
   while (ttyptr == NULL) {
     /* Only sends a newline if we are at the start of a line */
-    if (myrl_line != NULL && myrl_line != (char *) EOF)
+    if (myrl_line)
       free (myrl_line);
     rl_instream = Stream[sno].u.file.file;
     rl_outstream = Stream[cur_out_sno].u.file.file;
@@ -1002,7 +1051,7 @@ ReadlineGetc(int sno)
     newline=FALSE;
     strncpy (Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
     /* window of vulnerability closed */
-    if (myrl_line == NULL || myrl_line == (char *) EOF)
+    if (myrl_line == NULL)
       return(console_post_process_read_char(EOF, s));
     if (myrl_line[0] != '\0' && myrl_line[1] != '\0')
       add_history (myrl_line);
@@ -1012,7 +1061,8 @@ ReadlineGetc(int sno)
     ttyptr = NIL;
     ch = '\n';
   } else {
-    ch = *ttyptr++;
+    ch = *((unsigned char *)ttyptr);
+    ttyptr++;
   }
   return(console_post_process_read_char(ch, s));
 }
@@ -1031,7 +1081,7 @@ Yap_GetCharForSIGINT(void)
     myrl_line = NULL;
   } else {
     myrl_line = readline ("Action (h for help): ");
-    if (myrl_line == (char *)NULL || myrl_line == (char *)EOF) {
+    if (!myrl_line) {
       ch = EOF;
     } else {
       ch = myrl_line[0];
@@ -1059,7 +1109,7 @@ EOFGetc(int sno)
   if (s->status & Push_Eof_Stream_f) {
     /* ok, we have pushed an EOF, send it away */
     s->status &= ~Push_Eof_Stream_f;
-    return(EOF);
+    return EOF;
   }	  
   if (s->status & Eof_Error_Stream_f) {
     Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,MkAtomTerm(s->u.file.name),
@@ -1075,6 +1125,7 @@ EOFGetc(int sno)
 	s->stream_putc = ConsoleSocketPutc;
       else 
 	s->stream_putc = SocketPutc;
+      s->stream_wputc = put_wchar;
     } else 
 #endif
     if (s->status & Pipe_Stream_f) {
@@ -1082,11 +1133,14 @@ EOFGetc(int sno)
 	s->stream_putc = ConsolePipePutc;
       else 
 	s->stream_putc = PipePutc;
+      s->stream_wputc = put_wchar;
     } else if (s->status & InMemory_Stream_f) {
       s->stream_getc = MemGetc;
       s->stream_putc = MemPutc;
+      s->stream_wputc = put_wchar;
     } else if (s->status & Promptable_Stream_f) {
       s->stream_putc = ConsolePutc;
+      s->stream_wputc = put_wchar;
 #if HAVE_LIBREADLINE
       if (s->status & Tty_Stream_f) {
 	s->stream_getc = ReadlineGetc;
@@ -1102,12 +1156,11 @@ EOFGetc(int sno)
       s->stream_getc = PlGetc;
       s->stream_gets = PlGetsFunc();
     }
+    s->stream_wgetc = get_wchar;
     if (CharConversionTable != NULL)
-      s->stream_getc_for_read = ISOGetc;
+      s->stream_wgetc_for_read = ISOWGetc;
     else
-      s->stream_getc_for_read = s->stream_getc;
-    if (CharConversionTable != NULL)
-      s->stream_getc = ISOGetc;
+      s->stream_wgetc_for_read = s->stream_wgetc;
     /* next, reset our own error indicator */
     s->status &= ~Eof_Stream_f;
     /* try reading again */
@@ -1115,7 +1168,7 @@ EOFGetc(int sno)
   } else {
     s->status |= Past_Eof_Stream_f;
   }
-  return (EOF);
+  return EOF;
 }
 
 /* check if we read a newline or an EOF */
@@ -1132,16 +1185,17 @@ post_process_read_char(int ch, StreamDesc *s)
   } else if (ch == EOF) {
     s->status |= Eof_Stream_f;
     s->stream_getc = EOFGetc;
+    s->stream_wgetc = get_wchar;
     if (CharConversionTable != NULL)
-      s->stream_getc_for_read = ISOGetc;
+      s->stream_wgetc_for_read = ISOWGetc;
     else
-      s->stream_getc_for_read = s->stream_getc;
-    return (EOFCHAR);
+      s->stream_wgetc_for_read = s->stream_wgetc;
+    return EOFCHAR;
   } else {
     ++s->charcount;
     ++s->linepos;
   }
-  return(ch);
+  return ch;
 }
 
 /* check if we read a newline or an EOF */
@@ -1156,10 +1210,11 @@ console_post_process_read_char(int ch, StreamDesc *s)
   } else if (ch == EOF) {
     s->status |= Eof_Stream_f;
     s->stream_getc = EOFGetc;
+    s->stream_wgetc = get_wchar;
     if (CharConversionTable != NULL)
-      s->stream_getc_for_read = ISOGetc;
+      s->stream_wgetc_for_read = ISOWGetc;
     else
-      s->stream_getc_for_read = s->stream_getc;
+      s->stream_wgetc_for_read = s->stream_wgetc;
     newline = FALSE;
     return (EOFCHAR);
   } else {
@@ -1201,7 +1256,7 @@ SocketGetc(int sno)
       Yap_Error(SYSTEM_ERROR, TermNil,
 	    "(socket_getc)");
 #endif
-    return(EOF);
+    return EOF;
   }
   return(post_process_read_char(ch, s));
 }
@@ -1259,7 +1314,7 @@ PipeGetc(int sno)
   DWORD count;
   if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
     PlIOError (SYSTEM_ERROR,TermNil, "write to pipe returned error");
-    return(EOF);
+    return EOF;
   }
 #else
   int count;
@@ -1393,19 +1448,18 @@ MemGetc (int sno)
 }
 
 /* I dispise this code!!!!! */
-static int
-ISOGetc (int sno)
+static wchar_t
+ISOWGetc (int sno)
 {
-  int ch = Stream[sno].stream_getc(sno);
+  wchar_t ch = Stream[sno].stream_wgetc(sno);
   if (ch != EOF && CharConversionTable != NULL) {
-    int nch;
 
-    nch = CharConversionTable[ch];
-    if (nch != '\0') {
-      ch = nch;
+    if (ch < NUMBER_OF_CHARS) {
+      /* only do this in ASCII */
+      return CharConversionTable[ch];
     }
   }
-  return(ch); 
+  return ch; 
 }
 
 /* send a prompt, and use the system for internal buffering. Speed is
@@ -1465,14 +1519,17 @@ PlUnGetc (int sno)
   if (s->status & InMemory_Stream_f) {
     s->stream_getc = MemGetc;
     s->stream_putc = MemPutc;
+    s->stream_wputc = put_wchar;
   } else if (s->status & Promptable_Stream_f) {
     s->stream_putc = ConsolePutc;
+    s->stream_wputc = put_wchar;
 #if HAVE_LIBREADLINE
     if (s->status & Tty_Stream_f) {
       s->stream_getc = ReadlineGetc;
       if (Stream[0].status & Tty_Stream_f &&
 	    is_same_tty(s->u.file.file,Stream[0].u.file.file))
 	s->stream_putc = ReadlinePutc;
+      s->stream_wputc = put_wchar;
     } else
 #endif
       {
@@ -1484,12 +1541,199 @@ PlUnGetc (int sno)
   return(post_process_read_char(ch, s));
 }
 
+static int
+utf8_nof(char ch)
+{
+  if (!(ch & 0x20))
+    return 1;
+  if (!(ch & 0x10))
+    return 2;
+  if (!(ch & 0x08))
+    return 3;
+  if (!(ch & 0x04))
+    return 4;
+  return 5;
+}
+
+static wchar_t
+get_wchar(int sno)
+{
+  wchar_t wch;
+  int ch;
+  int how_many = 0;
+
+  while (TRUE) {
+    ch = Stream[sno].stream_getc(sno);
+    if (ch == -1) {
+      if (how_many) {
+	/* error */
+      }
+      return EOF;
+    }
+    switch (Stream[sno].encoding) {
+    case ENC_OCTET:
+      return ch;
+    case ENC_ISO_LATIN1:
+      return ch;
+    case ENC_ISO_ASCII:
+      if (ch & 0x80) {
+	/* error */
+      }
+      return ch;
+    case ENC_ISO_ANSI:
+      {
+	char buf[1];
+	int out;
+
+	if (!how_many) {
+	  memset((void *)&(Stream[sno].mbstate), 0, sizeof(mbstate_t));
+	}
+	buf[0] = ch;
+	if ((out = mbrtowc(&wch, buf, 1, &(Stream[sno].mbstate))) == 1)
+	  return wch;
+	if (out == -1) {
+	  /* error */
+	}
+	how_many++;
+	break;
+      }
+    case ENC_ISO_UTF8:
+      {
+	if (!how_many) {
+	  if (ch & 0x80) {
+	    how_many = utf8_nof(ch);
+	    /* 
+	       keep a backup of the start character in case we meet an error,
+	       useful if we are scanning ISO files.
+	     */
+	    Stream[sno].och = ch;
+	    wch = (ch & ((1<<(6-how_many))-1))<<(6*how_many);
+	  } else {
+	    return ch;
+	  }
+	} else {
+	  how_many--;
+	  if ((ch & 0xc0) == 0x80) {
+	    wch += (ch & ~0xc0) << (how_many*6);
+	  } else {
+	    /* error */
+	    /* try to recover character, assume this is our first character */
+	    wchar_t och = Stream[sno].och;
+ 
+	    Stream[sno].och = ch;
+	    Stream[sno].stream_getc = PlUnGetc;
+	    Stream[sno].stream_wgetc = get_wchar;
+	    return och;
+	  }
+	  if (!how_many) {
+	    return wch;
+	  }
+	}
+      }
+      break;
+    case ENC_UNICODE_BE:
+      if (how_many) {
+	return wch+ch;
+      }
+      how_many=1;
+      wch = ch << 8;
+      break;
+    case ENC_UNICODE_LE:
+      if (how_many) {
+	return wch+(ch<<8);
+      }
+      how_many=1;
+      ch = ch;
+      break;
+    }
+  }
+  return EOF;
+}
+
+#ifndef MB_LEN_MAX
+#define MB_LEN_MAX 6
+#endif
+
+static wchar_t
+put_wchar(int sno, wchar_t ch)
+{
+
+  /* pass the bug if we can */
+  if (ch < 0x80)
+    return Stream[sno].stream_putc(sno, ch);
+  switch (Stream[sno].encoding) {
+  case ENC_OCTET:
+    return Stream[sno].stream_putc(sno, ch);
+  case ENC_ISO_LATIN1:
+    if (ch >= 0xff) {
+      /* error */
+    }
+    return Stream[sno].stream_putc(sno, ch);
+  case ENC_ISO_ASCII:
+    if (ch >= 0x80) {
+      /* error */
+    }
+    return Stream[sno].stream_putc(sno, ch);
+  case ENC_ISO_ANSI:
+    {
+      char buf[MB_LEN_MAX];
+      int n;
+
+      memset((void *)&(Stream[sno].mbstate), 0, sizeof(mbstate_t));
+      if ( (n = wcrtomb(buf, ch, &(Stream[sno].mbstate))) < 0 ) {
+	/* error */
+	Stream[sno].stream_putc(sno, ch);
+	return -1;
+      } else {
+	int i;
+
+	for (i =0; i< n; i++) {
+	  Stream[sno].stream_putc(sno, buf[i]);
+	}
+	return ch;
+      }
+    case ENC_ISO_UTF8:
+      {
+	if (ch < 0x800) {
+	  Stream[sno].stream_putc(sno, 0xC0 | ch>>6);
+	  return Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
+	} else if (ch < 0x10000) {
+	  Stream[sno].stream_putc(sno, 0xE0 | ch>>12);
+	  Stream[sno].stream_putc(sno, 0x80 | (ch>>6 & 0x3F));
+	  return Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
+	} else if (ch < 0x200000) {
+	  Stream[sno].stream_putc(sno, 0xF0 | ch>>18);
+	  Stream[sno].stream_putc(sno, 0x80 | (ch>>12 & 0x3F));
+	  Stream[sno].stream_putc(sno, 0x80 | (ch>>6 & 0x3F));
+	  return Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
+	} else {
+	  /* should never happen */
+	  return -1;
+	}
+      }
+      break;
+    case ENC_UNICODE_BE:
+      Stream[sno].stream_putc(sno, (ch>>8));
+      return Stream[sno].stream_putc(sno, (ch&0xff));
+    case ENC_UNICODE_LE:
+      Stream[sno].stream_putc(sno, (ch&0xff));
+      return Stream[sno].stream_putc(sno, (ch>>8));
+    }
+  }
+  return -1;
+}
 
 /* used by user-code to read characters from the current input stream */
 int
 Yap_PlGetchar (void)
 {
   return(Stream[Yap_c_input_stream].stream_getc(Yap_c_input_stream));
+}
+
+wchar_t
+Yap_PlGetWchar (void)
+{
+  return get_wchar(Yap_c_input_stream);
 }
 
 /* avoid using a variable to call a function */
@@ -1601,12 +1845,14 @@ Yap_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
   st->linecount = 1;
   st->linepos = 0;
   st->stream_putc = SocketPutc;
+  st->stream_wputc = put_wchar;
   st->stream_getc = SocketGetc;
   st->stream_gets = DefaultGets;
+  st->stream_wgetc = get_wchar;
   if (CharConversionTable != NULL)
-    st->stream_getc_for_read = ISOGetc;
+    st->stream_wgetc_for_read = ISOWGetc;
   else
-    st->stream_getc_for_read = st->stream_getc;
+    st->stream_wgetc_for_read = st->stream_wgetc;
   return(MkStream(sno));
 }
 
@@ -1675,13 +1921,14 @@ binary_file(char *file_name)
 static Int
 p_open (void)
 {				/* '$open'(+File,+Mode,?Stream,-ReturnCode)      */
-  Term file_name, t, t2, topts;
+  Term file_name, t, t2, topts, tenc;
   Atom open_mode;
   int sno;
   SMALLUNSGN s;
   char io_mode[8];
   StreamDesc *st;
   Int opts;
+  UInt encoding;
 
   file_name = Deref(ARG1);
   /* we know file_name is bound */
@@ -1722,6 +1969,11 @@ p_open (void)
   if (IsVarTerm(topts) || !IsIntTerm(topts))
     return(FALSE);
   opts = IntOfTerm(topts);
+  /* can never happen */
+  tenc = Deref(ARG5);
+  if (IsVarTerm(tenc) || !IsIntTerm(tenc))
+    return FALSE;
+  encoding = IntOfTerm(tenc);
 #ifdef _WIN32
   if (st->status & Binary_Stream_f) {
     strncat(io_mode, "b", 8);
@@ -1758,8 +2010,14 @@ p_open (void)
   st->u.file.user_name = file_name;
   st->linepos = 0;
   st->stream_putc = FilePutc;
+  st->stream_wputc = put_wchar;
   st->stream_getc = PlGetc;
   st->stream_gets = PlGetsFunc();
+  if (st->status & Binary_Stream_f) {
+    st->encoding = ENC_OCTET;
+  } else {
+    st->encoding = encoding;
+  }
   unix_upd_stream_info (st);
   if (opts != 0) {
     if (opts & 2)
@@ -1771,20 +2029,24 @@ p_open (void)
 #if USE_SOCKET
 	if (st->status & Socket_Stream_f) {
 	  st->stream_putc = SocketPutc;
+	  st->stream_wputc = put_wchar;
 	  st->stream_getc = SocketGetc;
 	  st->stream_gets = DefaultGets;
 	} else
 #endif
 	if (st->status & Pipe_Stream_f) {
 	  st->stream_putc = PipePutc;
+	  st->stream_wputc = put_wchar;
 	  st->stream_getc = PipeGetc;
 	  st->stream_gets = DefaultGets;
 	} else if (st->status & InMemory_Stream_f) {
 	  st->stream_putc = MemPutc;
+	  st->stream_wputc = put_wchar;
 	  st->stream_getc = MemGetc;	  
 	  st->stream_gets = DefaultGets;	  
 	} else {
 	  st->stream_putc = ConsolePutc;
+	  st->stream_wputc = put_wchar;
 	  st->stream_getc = PlGetc;
 	  st->stream_gets = PlGetsFunc();
 	}
@@ -1803,6 +2065,7 @@ p_open (void)
     }
     if (opts & 16) {
       st->status &= ~Reset_Eof_Stream_f;
+      st->status |= Eof_Error_Stream_f;
     }
     if (opts & 32) {
       st->status &= ~Reset_Eof_Stream_f;
@@ -1813,10 +2076,11 @@ p_open (void)
       st->status |= Reset_Eof_Stream_f;
     }
   }
+  st->stream_wgetc = get_wchar;
   if (CharConversionTable != NULL)
-    st->stream_getc_for_read = ISOGetc;
+    st->stream_wgetc_for_read = ISOWGetc;
   else
-    st->stream_getc_for_read = st->stream_getc;
+    st->stream_wgetc_for_read = st->stream_wgetc;
   t = MkStream (sno);
   st->status &= ~(Free_Stream_f);
   return (Yap_unify (ARG3, t));
@@ -1957,9 +2221,11 @@ p_open_null_stream (void)
   st->charcount = 0;
   st->linecount = 1;
   st->stream_putc = NullPutc;
+  st->stream_wputc = put_wchar;
   st->stream_getc = PlGetc;
   st->stream_gets = PlGetsFunc();
-  st->stream_getc_for_read = PlGetc;
+  st->stream_wgetc = get_wchar;
+  st->stream_wgetc_for_read = get_wchar;
   st->u.file.user_name = MkAtomTerm (st->u.file.name = Yap_LookupAtom ("/dev/null"));
   t = MkStream (sno);
   return (Yap_unify (ARG1, t));
@@ -2005,21 +2271,25 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
   st->stream_gets = PlGetsFunc();
   if (flags & YAP_PIPE_STREAM) {
     st->stream_putc = PipePutc;
+    st->stream_wputc = put_wchar;
     st->stream_getc = PipeGetc;
   } else if (flags & YAP_TTY_STREAM) {
     st->stream_putc = ConsolePutc;
+    st->stream_wputc = put_wchar;
     st->stream_getc = ConsoleGetc;
   } else {
     st->stream_putc = FilePutc;
+    st->stream_wputc = put_wchar;
     st->stream_getc = PlGetc;
     unix_upd_stream_info (st);
   }
+  st->stream_wgetc = get_wchar;
   if (CharConversionTable != NULL)
-    st->stream_getc_for_read = ISOGetc;
+    st->stream_wgetc_for_read = ISOWGetc;
   else
-    st->stream_getc_for_read = st->stream_getc; 
+    st->stream_wgetc_for_read = st->stream_wgetc; 
   t = MkStream (sno);
-  return (t);
+  return t;
 }
 
 static Int
@@ -2057,12 +2327,14 @@ p_open_pipe_stream (void)
   st->charcount = 0;
   st->linecount = 1;
   st->stream_putc = PipePutc;
+  st->stream_wputc = put_wchar;
   st->stream_getc = PipeGetc;
   st->stream_gets = DefaultGets;
+  st->stream_wgetc = get_wchar;
   if (CharConversionTable != NULL)
-    st->stream_getc_for_read = ISOGetc;
+    st->stream_wgetc_for_read = ISOWGetc;
   else
-    st->stream_getc_for_read = PipeGetc;
+    st->stream_wgetc_for_read = st->stream_wgetc;
 #if  _MSC_VER || defined(__MINGW32__) 
   st->u.pipe.hdl = ReadPipe;
 #else
@@ -2077,12 +2349,14 @@ p_open_pipe_stream (void)
   st->charcount = 0;
   st->linecount = 1;
   st->stream_putc = PipePutc;
+  st->stream_wputc = put_wchar;
   st->stream_getc = PipeGetc;
   st->stream_gets = DefaultGets;
+  st->stream_wgetc = get_wchar;
   if (CharConversionTable != NULL)
-    st->stream_getc_for_read = ISOGetc;
+    st->stream_wgetc_for_read = ISOWGetc;
   else
-    st->stream_getc_for_read = st->stream_getc; 
+    st->stream_wgetc_for_read = st->stream_wgetc; 
 #if  _MSC_VER || defined(__MINGW32__) 
   st->u.pipe.hdl = WritePipe;
 #else
@@ -2109,12 +2383,14 @@ open_buf_read_stream(char *nbuf, Int nchars)
   st->charcount = 0;
   st->linecount = 1;
   st->stream_putc = MemPutc;
+  st->stream_wputc = put_wchar;
   st->stream_getc = MemGetc;
   st->stream_gets = DefaultGets;
+  st->stream_wgetc = get_wchar;
   if (CharConversionTable != NULL)
-    st->stream_getc_for_read = ISOGetc;
+    st->stream_wgetc_for_read = ISOWGetc;
   else
-    st->stream_getc_for_read = MemGetc;
+    st->stream_wgetc_for_read = st->stream_wgetc;
   st->u.mem_string.pos = 0;
   st->u.mem_string.buf = nbuf;
   st->u.mem_string.max_size = nchars;
@@ -2185,12 +2461,14 @@ open_buf_write_stream(char *nbuf, UInt  sz)
   st->charcount = 0;
   st->linecount = 1;
   st->stream_putc = MemPutc;
+  st->stream_wputc = put_wchar;
   st->stream_getc = MemGetc;
   st->stream_gets = DefaultGets;
+  st->stream_wgetc = get_wchar;
   if (CharConversionTable != NULL)
-    st->stream_getc_for_read = ISOGetc;
+    st->stream_wgetc_for_read = ISOWGetc;
   else
-    st->stream_getc_for_read = MemGetc;
+    st->stream_wgetc_for_read = st->stream_wgetc;
   st->u.mem_string.pos = 0;
   st->u.mem_string.buf = nbuf;
   st->u.mem_string.max_size = sz;
@@ -2752,10 +3030,11 @@ p_peek_byte (void)
   s->och = ch;
   /* mark a special function to recover this character */
   s->stream_getc = PlUnGetc;
+  s->stream_wgetc = get_wchar;
   if (CharConversionTable != NULL)
-    s->stream_getc_for_read = ISOGetc;
+    s->stream_wgetc_for_read = ISOWGetc;
   else
-    s->stream_getc_for_read = s->stream_getc;
+    s->stream_wgetc_for_read = s->stream_wgetc;
   UNLOCK(s->streamlock);
   return(Yap_unify_constant(ARG2,MkIntTerm(ch)));
 }
@@ -2784,16 +3063,11 @@ p_peek (void)
     /* sequence of peeks */
     return Yap_unify_constant(ARG2,ch);
   }
-  if (status & Eof_Error_Stream_f) {
-    UNLOCK(Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "peek/2");
-    return FALSE;
-  }
   s = Stream+sno;
   ocharcount = s->charcount;
   olinecount = s->linecount;
   olinepos = s->linepos;
-  ch = Stream[sno].stream_getc(sno);
+  ch = get_wchar(sno);
   s->charcount = ocharcount;
   s->linecount = olinecount;
   s->linepos = olinepos;
@@ -2801,10 +3075,11 @@ p_peek (void)
   s->och = ch;
   /* mark a special function to recover this character */
   s->stream_getc = PlUnGetc;
+  s->stream_wgetc = get_wchar;
   if (CharConversionTable != NULL)
-    s->stream_getc_for_read = ISOGetc;
+    s->stream_wgetc_for_read = ISOWGetc;
   else
-    s->stream_getc_for_read = s->stream_getc;
+    s->stream_wgetc_for_read = s->stream_wgetc;
   UNLOCK(Stream[sno].streamlock);
   return(Yap_unify_constant(ARG2,MkIntTerm(ch)));
 }
@@ -2882,7 +3157,7 @@ p_current_output (void)
 int beam_write (void)
 {
   Yap_StartSlots();
-  Yap_plwrite (ARG1, Stream[Yap_c_output_stream].stream_putc, 0);
+  Yap_plwrite (ARG1, Stream[Yap_c_output_stream].stream_wputc, 0);
   if (EX != 0L) {
     Term ball = EX;
     EX = 0L;
@@ -2900,7 +3175,7 @@ p_write (void)
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   Yap_StartSlots();
-  Yap_plwrite (ARG2, Stream[Yap_c_output_stream].stream_putc, flags);
+  Yap_plwrite (ARG2, Stream[Yap_c_output_stream].stream_wputc, flags);
   if (EX != 0L) {
     Term ball = EX;
     EX = 0L;
@@ -2923,7 +3198,7 @@ p_write2 (void)
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   Yap_StartSlots();
-  Yap_plwrite (ARG3, Stream[Yap_c_output_stream].stream_putc, (int) IntOfTerm (Deref (ARG2)));
+  Yap_plwrite (ARG3, Stream[Yap_c_output_stream].stream_wputc, (int) IntOfTerm (Deref (ARG2)));
   Yap_c_output_stream = old_output_stream;
   if (EX != 0L) {
     Term ball = EX;
@@ -3001,6 +3276,12 @@ syntax_error (TokEntry * tokptr)
     case String_tok:
       {
 	Term t0 = Yap_StringToList((char *)info);
+	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("string"),1),1,&t0);
+      }
+      break;
+    case WString_tok:
+      {
+	Term t0 = Yap_WStringToList((wchar_t *)info);
 	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("string"),1),1,&t0);
       }
       break;
@@ -3333,7 +3614,7 @@ static Int
 static Int
 p_read (void)
 {				/* '$read'(+Flag,?Term,?Module,?Vars,-Pos,-Err)    */
-  return(do_read(Yap_c_input_stream, 6));
+  return do_read(Yap_c_input_stream, 6);
 }
 
 static Int
@@ -3628,32 +3909,26 @@ static Int
 p_get (void)
 {				/* '$get'(Stream,-N)                     */
   int sno = CheckStream (ARG1, Input_Stream_f, "get/2");
-  Int ch;
+  wchar_t ch;
   Int status;
 
   if (sno < 0)
-    return(FALSE);
+    return FALSE;
   if (Stream[sno].stream_getc == PlUnGetc) {
     ch = PlUnGetc(sno);
     if (ch <= 32 && ch >= 0) {
       /* done */
       UNLOCK(Stream[sno].streamlock);
-      return (Yap_unify_constant (ARG2, MkIntTerm (ch)));
+      return Yap_unify_constant (ARG2, MkIntegerTerm (ch));
     }
   }
   status = Stream[sno].status;
-  if (status & (Binary_Stream_f|Eof_Stream_f)) {
-    if (status & Binary_Stream_f) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get/2");
-      return(FALSE);
-    } else if (status & Eof_Error_Stream_f) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get/2");
-      return(FALSE);
-    }
+  if (status & Binary_Stream_f) {
+    UNLOCK(Stream[sno].streamlock);
+    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get/2");
+    return FALSE;
   }
-  while ((ch = Stream[sno].stream_getc(sno)) <= 32 && ch >= 0);
+  while ((ch = get_wchar(sno)) <= 32 && ch >= 0);
   UNLOCK(Stream[sno].streamlock);
   return (Yap_unify_constant (ARG2, MkIntTerm (ch)));
 }
@@ -3671,21 +3946,15 @@ p_get0 (void)
     out = PlUnGetc(sno);
   } else {
     status = Stream[sno].status;
-    if (status & (Binary_Stream_f|Eof_Stream_f)) {
-      if (status & Binary_Stream_f) {
-	UNLOCK(Stream[sno].streamlock);
-	Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
-	return(FALSE);
-      } else if (status & (Eof_Error_Stream_f)) {
-	UNLOCK(Stream[sno].streamlock);
-	Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get0/2");
-	return(FALSE);
-      }
+    if (status & Binary_Stream_f) {
+      UNLOCK(Stream[sno].streamlock);
+      Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
+      return FALSE;
     }
-    out = Stream[sno].stream_getc(sno);
+    out = get_wchar(sno);
   }
   UNLOCK(Stream[sno].streamlock);
-  return (Yap_unify_constant (ARG2, MkIntTerm (out)) );
+  return (Yap_unify_constant (ARG2, MkIntegerTerm (out)) );
 }
 
 static Term
@@ -3694,7 +3963,7 @@ read_line(int sno)
   Term tail;
   Int ch;
 
-  if ((ch = Stream[sno].stream_getc(sno)) == 10) {
+  if ((ch = Stream[sno].stream_wgetc(sno)) == 10) {
     return(TermNil);
   }
   tail = read_line(sno);
@@ -3719,16 +3988,10 @@ p_get0_line_codes (void)
     rewind = FALSE;
   }
   status = Stream[sno].status;
-  if (status & (Binary_Stream_f|Eof_Stream_f)) {
-    if (status & Binary_Stream_f) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
-      return(FALSE);
-    } else if (status & (Eof_Error_Stream_f)) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get0/2");
-      return(FALSE);
-    }
+  if (status & Binary_Stream_f) {
+    UNLOCK(Stream[sno].streamlock);
+    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
+    return FALSE;
   }
   out = read_line(sno);
   UNLOCK(Stream[sno].streamlock);
@@ -3754,18 +4017,9 @@ p_get_byte (void)
     Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "get_byte/2");
     return(FALSE);
   }
-  if (Stream[sno].stream_getc == PlUnGetc) {
-    out = MkIntTerm(PlUnGetc(sno));
-  } else {
-    if ((status & (Eof_Stream_f|Eof_Error_Stream_f)) == (Eof_Stream_f|Eof_Error_Stream_f)) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get_byte/2");
-      return FALSE;
-    }
-    out = MkIntTerm (Stream[sno].stream_getc(sno));
-  }
+  out = MkIntTerm(Stream[sno].stream_getc(sno));
   UNLOCK(Stream[sno].streamlock);
-  return (Yap_unify_constant (ARG2, out));
+  return Yap_unify_constant (ARG2, out);
 }
 
 static Int
@@ -3779,7 +4033,7 @@ p_put (void)
     Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "get0/2");
     return(FALSE);
   }
-  Stream[sno].stream_putc (sno, (int) IntOfTerm (Deref (ARG2)));
+  Stream[sno].stream_wputc (sno, (int) IntegerOfTerm (Deref (ARG2)));
   /*
    * if (!(Stream[sno].status & Null_Stream_f))
    * yap_fflush(Stream[sno].u.file.file); 
@@ -3800,7 +4054,7 @@ p_put_byte (void)
     Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "get0/2");
     return(FALSE);
   }
-  Stream[sno].stream_putc(sno, (int) IntOfTerm (Deref (ARG2)));
+  Stream[sno].stream_putc(sno, (int) IntegerOfTerm (Deref (ARG2)));
   /*
    * if (!(Stream[sno].status & Null_Stream_f))
    * yap_fflush(Stream[sno].u.file.file); 
@@ -3823,8 +4077,8 @@ typedef struct format_status {
   pads pad_entries[16], *pad_max;
 } format_info;
 
-static int
-format_putc(int sno, int ch) {
+static wchar_t
+format_putc(int sno, wchar_t ch) {
   if (FormatInfo->format_buf_size == -1)
     return EOF;
   if (ch == 10) {
@@ -3929,7 +4183,7 @@ static void fill_pads(int nchars)
 }
 
 static int
-format_print_str (Int sno, Int size, Int has_size, Term args, int (* f_putc)(int, int))
+format_print_str (Int sno, Int size, Int has_size, Term args, wchar_t (* f_putc)(int, wchar_t))
 {
   Term arghd;
   while (!has_size || size > 0) {
@@ -4095,7 +4349,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
   char *fstr = NULL, *fptr;
   Term args;
   Term tail;
-  int (* f_putc)(int, int);
+  wchar_t (* f_putc)(int, wchar_t);
   int has_tabs;
   jmp_buf format_botch;
   volatile void *old_handler;
@@ -4211,7 +4465,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
     finfo.format_buf_size = FORMAT_MAX_SIZE;
     f_putc = format_putc;
   } else {
-    f_putc = Stream[sno].stream_putc;
+    f_putc = Stream[sno].stream_wputc;
     finfo.format_base = NULL;
   }
   while ((ch = *fptr++)) {
@@ -4695,7 +4949,8 @@ static Int
 p_skip (void)
 {				/* '$skip'(Stream,N)                     */
   int sno = CheckStream (ARG1, Input_Stream_f, "skip/2");
-  Int n = IntOfTerm (Deref (ARG2)), ch;
+  Int n = IntOfTerm (Deref (ARG2));
+  wchar_t ch;
 
   if (sno < 0)
     return (FALSE);
@@ -4703,7 +4958,7 @@ p_skip (void)
     UNLOCK(Stream[sno].streamlock);
     return (FALSE);
   }
-  while ((ch = Stream[sno].stream_getc(sno)) != n && ch != -1);
+  while ((ch = get_wchar(sno)) != n && ch != -1);
   UNLOCK(Stream[sno].streamlock);
   return (TRUE);
 }
@@ -4945,7 +5200,7 @@ p_force_char_conversion(void)
     return(TRUE);
   for (i = 0; i < MaxStreams; i++) {
     if (!(Stream[i].status & Free_Stream_f))
-	Stream[i].stream_getc_for_read = ISOGetc;
+	Stream[i].stream_wgetc_for_read = ISOWGetc;
   }
   CharConversionTable = CharConversionTable2;
   return(TRUE);
@@ -4958,7 +5213,7 @@ p_disable_char_conversion(void)
 
   for (i = 0; i < MaxStreams; i++) {
     if (!(Stream[i].status & Free_Stream_f))
-      Stream[i].stream_getc_for_read = Stream[i].stream_getc;
+      Stream[i].stream_wgetc_for_read = Stream[i].stream_wgetc;
   }
   CharConversionTable = NULL;
   return(TRUE);
@@ -5141,55 +5396,64 @@ p_same_file(void) {
   char *f1 = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
   char *f2 = RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE;
   if (strcmp(f1,f2) == 0)
-    return(TRUE);
+    return TRUE;
 #if HAVE_LSTAT 
   {
-    struct stat buf1, buf2;
+    struct stat *b1, *b2;
+    while ((char *)H+sizeof(struct stat)*2 > (char *)(ASP-1024)) {
+      if (!Yap_gcl(2*sizeof(struct stat), 2, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+    }
+    b1 = (struct stat *)H;
+    b2 = b1+1;
     if (strcmp(f1,"user_input") == 0) {
-      if (fstat(fileno(Stream[0].u.file.file), &buf1) == -1) {
+      if (fstat(fileno(Stream[0].u.file.file), b1) == -1) {
 	/* file does not exist, but was opened? Return -1 */
-	return(FALSE);
+	return FALSE;
       }
     } else   if (strcmp(f1,"user_output") == 0) {
-      if (fstat(fileno(Stream[1].u.file.file), &buf1) == -1) {
+      if (fstat(fileno(Stream[1].u.file.file), b1) == -1) {
 	/* file does not exist, but was opened? Return -1 */
-	return(FALSE);    
+	return FALSE;    
       }
     } else   if (strcmp(f1,"user_error") == 0) {
-      if (fstat(fileno(Stream[2].u.file.file), &buf1) == -1) {
+      if (fstat(fileno(Stream[2].u.file.file), b1) == -1) {
 	/* file does not exist, but was opened? Return -1 */
-	return(FALSE);    
+	return FALSE;    
       }
-    } else if (stat(f1, &buf1) == -1) {
-      /* file does not exist, but was opened? Return -1 */
-      return(FALSE);
-    }
-    if (strcmp(f2,"user_input") == 0) {
-      if (fstat(fileno(Stream[0].u.file.file), &buf2) == -1) {
-	/* file does not exist, but was opened? Return -1 */
-	return(FALSE);
-      }
-    } else   if (strcmp(f2,"user_output") == 0) {
-      if (fstat(fileno(Stream[1].u.file.file), &buf2) == -1) {
-	/* file does not exist, but was opened? Return -1 */
-	return(FALSE);    
-      }
-    } else   if (strcmp(f2,"user_error") == 0) {
-      if (fstat(fileno(Stream[2].u.file.file), &buf2) == -1) {
-	/* file does not exist, but was opened? Return -1 */
-	return(FALSE);    
-      }
-    } else if (stat(f2, &buf2) == -1) {
+    } else if (stat(f1, b1) == -1) {
       /* file does not exist, but was opened? Return -1 */
       return FALSE;
     }
-    return(buf1.st_ino == buf2.st_ino
+    if (strcmp(f2,"user_input") == 0) {
+      if (fstat(fileno(Stream[0].u.file.file), b2) == -1) {
+	/* file does not exist, but was opened? Return -1 */
+	return FALSE;
+      }
+    } else   if (strcmp(f2,"user_output") == 0) {
+      if (fstat(fileno(Stream[1].u.file.file), b2) == -1) {
+	/* file does not exist, but was opened? Return -1 */
+	return FALSE;    
+      }
+    } else   if (strcmp(f2,"user_error") == 0) {
+      if (fstat(fileno(Stream[2].u.file.file), b2) == -1) {
+	/* file does not exist, but was opened? Return -1 */
+	return FALSE;    
+      }
+    } else if (stat(f2, b2) == -1) {
+      /* file does not exist, but was opened? Return -1 */
+      return FALSE;
+    }
+    int out = (b1->st_ino == b2->st_ino
 #ifdef __LCC__
-	   && memcmp((const void *)&(buf1.st_dev),(const void *)&(buf2.st_dev),sizeof(buf1.st_dev)) == 0
+	   && memcmp((const void *)&(b1->st_dev),(const void *)&(b2->st_dev),sizeof(buf1.st_dev)) == 0
 #else
-	   && buf1.st_dev == buf2.st_dev
+	   && b1->st_dev == b2->st_dev
 #endif
 		  );
+    return out;
   }
 #else
   return(FALSE);
@@ -5206,6 +5470,23 @@ p_float_format(void)
   return TRUE;
 }
 
+static Int
+p_get_default_encoding(void)
+{
+  Term out = MkIntegerTerm(DefaultEncoding());
+  return Yap_unify(ARG1, out);
+}
+
+static Int
+p_set_encoding (void)
+{				/* '$set_encoding'(Stream,N)                      */
+  int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "encoding/2");
+  if (sno < 0)
+    return FALSE;
+  Stream[sno].encoding = IntegerOfTerm(Deref(ARG2));
+  UNLOCK(Stream[sno].streamlock);
+  return TRUE;
+}
 
 Term
 Yap_StringToTerm(char *s,Term *tp)
@@ -5257,7 +5538,7 @@ Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
     return FALSE;
   Yap_StartSlots();
   Yap_c_output_stream = sno;
-  Yap_plwrite (t, Stream[sno].stream_putc, flags);
+  Yap_plwrite (t, Stream[sno].stream_wputc, flags);
   s[Stream[sno].u.mem_string.pos] = '\0';
   Stream[sno].status = Free_Stream_f;
   Yap_c_output_stream = old_output_stream;
@@ -5293,7 +5574,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$get0", 2, p_get0, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get0_line_codes", 2, p_get0_line_codes, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get_byte", 2, p_get_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$open", 4, p_open, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$open", 5, p_open, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$open_null_stream", 1, p_open_null_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$open_pipe_stream", 2, p_open_pipe_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
@@ -5345,7 +5626,9 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$change_alias_to_stream", 2, p_change_alias_to_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$check_if_valid_new_alias", 1, p_check_if_valid_new_alias, TestPredFlag|SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$fetch_stream_alias", 2, p_fetch_stream_alias, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$stream", 1, p_stream, SafePredFlag|TestPredFlag),
+  Yap_InitCPred ("$stream", 1, p_stream, SafePredFlag|TestPredFlag);
+  Yap_InitCPred ("$get_default_encoding", 1, p_get_default_encoding, SafePredFlag|TestPredFlag);
+  Yap_InitCPred ("$set_encoding", 2, p_set_encoding, SafePredFlag|TestPredFlag),
 #if HAVE_SELECT
   Yap_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif

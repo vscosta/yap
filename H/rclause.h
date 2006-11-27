@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2006-10-10 14:08:17 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-27 17:42:03 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.17  2006/10/10 14:08:17  vsc
+* small fixes on threaded implementation.
+*
 * Revision 1.16  2006/09/20 20:03:51  vsc
 * improve indexing on floats
 * fix sending large lists to DB
@@ -170,15 +173,19 @@ restore_opcodes(yamop *pc)
       break;
     case _try_logical:
     case _retry_logical:
-    case _trust_logical:
     case _count_retry_logical:
-    case _count_trust_logical:
     case _profiled_retry_logical:
-    case _profiled_trust_logical:
       pc->u.lld.n = PtoOpAdjust(pc->u.lld.n);
       pc->u.lld.d = PtoLUClauseAdjust(pc->u.lld.d);
       pc = pc->u.lld.n;
       break;
+    case _trust_logical:
+    case _count_trust_logical:
+    case _profiled_trust_logical:
+      pc->u.lld.n = PtoOpAdjust(pc->u.lld.n);
+      pc->u.lld.d = PtoLUClauseAdjust(pc->u.lld.d);
+      pc->u.lld.t.block = PtoLUIndexAdjust(pc->u.lld.t.block);
+      return;
     case _enter_lu_pred:
       pc->u.Ill.I = (LogUpdIndex *)PtoOpAdjust((yamop *)(pc->u.Ill.I));
       pc->u.Ill.l1 = PtoOpAdjust(pc->u.Ill.l1);

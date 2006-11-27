@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-11-21 16:21:31 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-27 17:42:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.178  2006/11/21 16:21:31  vsc
+* fix I/O mess
+* fix spy/reconsult mess
+*
 * Revision 1.177  2006/11/15 00:13:36  vsc
 * fixes for indexing code.
 *
@@ -776,7 +780,7 @@ delete_regcopy(wamreg regs[MAX_REG_COPIES], int regs_count, wamreg copy)
   while (i < regs_count) {
     if (regs[i] == copy) {
       /* we found it */
-      regs[i] = regs[MAX_REG_COPIES-1];
+      regs[i] = regs[regs_count-1];
       return regs_count-1;
     }
     i++;
@@ -789,13 +793,12 @@ delete_regcopy(wamreg regs[MAX_REG_COPIES], int regs_count, wamreg copy)
 inline static int
 regcopy_in(wamreg regs[MAX_REG_COPIES], int regs_count, wamreg copy)
 {
-  int i = 0;
-  do {
+  int i;
+  for (i=0; i<regs_count; i++) {
     if (regs[i] == copy) {
       return TRUE;
     }
-    i++;
-  } while (i < regs_count);
+  }
   /* this copy could not be found */
   return FALSE;
 }
@@ -1401,10 +1404,12 @@ add_info(ClauseDef *clause, UInt regno)
     case _commit_b_x:
       clause->Tag = (CELL)NULL;
       return;
-    case _save_b_x:
     case _write_x_val:
     case _write_x_loc:
     case _write_x_var:
+      cl = NEXTOP(cl,e);
+      break;
+    case _save_b_x:
     case _put_list:
       if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
 	clause->Tag = (CELL)NULL;
@@ -1771,6 +1776,10 @@ add_info(ClauseDef *clause, UInt regno)
 	nofregs = add_regcopy(myregs, nofregs, cl->u.yx.x);
       } else {
 	nofregs = delete_regcopy(myregs, nofregs, cl->u.yx.x);
+      }
+      if (nofregs == 0 && !ycopy) {
+	clause->Tag = (CELL)NULL;
+	return;
       }
       cl = NEXTOP(cl,yx);
       break;      
@@ -5454,7 +5463,7 @@ expand_index(struct intermediates *cint) {
 	}
 	newpc = (yamop *)(fe->Label);
 
-	labp = (yamop **)(&(fe->Label));
+	labp = (yamop **)&(fe->Label);
 	if (newpc == e_code) {
 	  /* we found it */
 	  parentcl = code_to_indexcl(ipc->u.sssl.l,is_lu);
@@ -7930,7 +7939,8 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  newpc = ipc->u.lld.d;
 	}
 #if defined(YAPOR) || defined(THREADS)
-	TR = B->cp_tr-1;
+	B->cp_tr--;
+	TR--;
 	LOCK(cl->ClLock);
 	DEC_CLREF_COUNT(cl);
 	/* actually get rid of the code */
@@ -7951,7 +7961,8 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
 	    B->cp_tr != B->cp_b->cp_tr) {
 	  
-	  TR = B->cp_tr-1;
+	  B->cp_tr--;
+	  TR--;
 	  cl->ClFlags &= ~InUseMask;
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {

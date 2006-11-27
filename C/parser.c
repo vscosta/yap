@@ -525,6 +525,21 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
     }
   break;
 
+  case WString_tok:	/* build list on the heap */
+    {
+      Volatile wchar_t *p = (wchar_t *) Yap_tokptr->TokInfo;
+      if (*p == 0)
+	t = MkAtomTerm(AtomNil);
+      else if (yap_flags[YAP_DOUBLE_QUOTES_FLAG] == STRING_AS_CHARS)
+	t = Yap_WStringToListOfAtoms(p);
+      else if (yap_flags[YAP_DOUBLE_QUOTES_FLAG] == STRING_AS_ATOM)
+	t = MkAtomTerm(Yap_LookupWideAtom(p));
+      else
+	t = Yap_WStringToList(p);
+      NextToken;
+    }
+  break;
+
   case Var_tok:
     varinfo = (VarEntry *) (Yap_tokptr->TokInfo);
     if ((t = varinfo->VarAdr) == TermNil) {
@@ -653,7 +668,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	continue;
       }
     }
-    if (Yap_tokptr->Tok <= Ord(String_tok))
+    if (Yap_tokptr->Tok <= Ord(WString_tok))
       FAIL;
     break;
   }

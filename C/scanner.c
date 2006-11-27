@@ -57,7 +57,7 @@
 
 STATIC_PROTO(int my_getch, (int (*) (int)));
 STATIC_PROTO(Term float_send, (char *));
-STATIC_PROTO(Term get_num, (int *, int *, int, int (*) (int), int (*) (int),char *,UInt));
+STATIC_PROTO(Term get_num, (wchar_t *, wchar_t *, int, wchar_t (*) (int), wchar_t (*) (int),char *,UInt));
 
 /* token table with some help from Richard O'Keefe's PD scanner */
 static char chtype0[NUMBER_OF_CHARS+1] =
@@ -231,8 +231,8 @@ read_int_overflow(const char *s, Int base, Int val)
 #endif    
 }
 
-static unsigned int
-read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
+static wchar_t
+read_quoted_char(int *scan_nextp, int inp_stream, wchar_t (*QuotedNxtch)(int))
 {
   int ch;
 
@@ -273,6 +273,46 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
     return '\r';
   case 't':
     return '\t';
+  case 'u':
+    {
+      int i;
+      wchar_t wc='\0';
+
+      for (i=0; i< 4; i++) {
+	ch = QuotedNxtch(inp_stream);
+	if (ch>='0' && ch <= '9') {
+	  wc += (ch-'0')<<((3-i)*4);
+	} else if (ch>='a' && ch <= 'f') {
+	  wc += ((ch-'a')+10)<<((3-i)*4);
+	} else if (ch>='A' && ch <= 'F') {
+	  wc += ((ch-'A')+10)<<((3-i)*4);
+	} else {
+	  Yap_ErrorMessage = "invalid escape sequence";
+	  return 0;
+	}
+      }
+      return wc;
+    }
+  case 'U':
+    {
+      int i;
+      wchar_t wc='\0';
+
+      for (i=0; i< 8; i++) {
+	ch = QuotedNxtch(inp_stream);
+	if (ch>='0' && ch <= '9') {
+	  wc += (ch-'0')<<((7-i)*4);
+	} else if (ch>='a' && ch <= 'f') {
+	  wc += ((ch-'a')+10)<<((7-i)*4);
+	} else if (ch>='A' && ch <= 'F') {
+	  wc += ((ch-'A')+10)<<((7-i)*4);
+	} else {
+	  Yap_ErrorMessage = "invalid escape sequence";
+	  return 0;
+	}
+      }
+      return wc;
+    }
   case 'v':
     return '\v';
   case '\\':
@@ -415,7 +455,7 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
 /* reads a number, either integer or float */
 
 static Term
-get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*QuotedNxtch) (int), char *s, UInt max_size)
+get_num(wchar_t *chp, wchar_t *chbuffp, int inp_stream, wchar_t (*Nxtch) (int), wchar_t (*QuotedNxtch) (int), char *s, UInt max_size)
 {
   char *sp = s;
   int ch = *chp;
@@ -450,7 +490,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
     *sp++ = ch;
     ch = Nxtch(inp_stream);
     if (base == 0) {
-      Int ascii = ch;
+      wchar_t ascii = ch;
       int scan_extra = TRUE;
 
       if (ch == '\\' &&
@@ -460,7 +500,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       /* a quick way to represent ASCII */
       if (scan_extra)
 	*chp = Nxtch(inp_stream);
-      return MkIntTerm(ascii);
+      return MkIntegerTerm(ascii);
     } else if (base >= 10 && base <= 36) {
       int upper_case = 'A' - 11 + base;
       int lower_case = 'a' - 11 + base;
@@ -629,11 +669,11 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 /* given a function Nxtch scan until we  either find the number
    or end of file */
 Term
-Yap_scan_num(int (*Nxtch) (int))
+Yap_scan_num(wchar_t (*Nxtch) (int))
 {
   Term out;
   int sign = 1;
-  int ch, cherr;
+  wchar_t ch, cherr;
   char *ptr;
 
   Yap_ErrorMessage = NULL;
@@ -655,7 +695,7 @@ Yap_scan_num(int (*Nxtch) (int))
     Yap_clean_tokenizer(NULL, NULL, NULL);
     return TermNil;
   }
-  cherr = 0;
+  cherr = '\0';
   if (ASP-H < 1024)
     return TermNil;
   out = get_num(&ch, &cherr, -1, Nxtch, Nxtch, ptr, 4096);
@@ -672,15 +712,33 @@ Yap_scan_num(int (*Nxtch) (int))
   return(out);
 }
 
+
+static wchar_t *
+ch_to_wide(char *base, char *charp)
+{
+  int n = charp-base, i;
+  wchar_t *nb = (wchar_t *)base;
+
+  if ((nb+n) + 1024 > (wchar_t *)AuxSp) {
+    Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
+    Yap_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
+    return NULL;
+  }
+  for (i=n; i > 0; i--) {
+    nb[i-1] = base[i-1];
+  }
+  return nb+n;
+}
+
 TokEntry *
 Yap_tokenizer(int inp_stream)
 {
   TokEntry *t, *l, *p;
   enum TokenKinds kind;
   int solo_flag = TRUE;
-  int ch;
-  int (*Nxtch) (int) = Stream[inp_stream].stream_getc_for_read;
-  int (*QuotedNxtch) (int) = Stream[inp_stream].stream_getc;
+  wchar_t ch, *wcharp;
+  wchar_t (*Nxtch) (int) = Stream[inp_stream].stream_wgetc_for_read;
+  wchar_t (*QuotedNxtch) (int) = Stream[inp_stream].stream_wgetc;
 
   Yap_ErrorMessage = NULL;
   Yap_Error_Size = 0;
@@ -694,7 +752,8 @@ Yap_tokenizer(int inp_stream)
   LOCK(Stream[inp_stream].streamlock);
   ch = Nxtch(inp_stream);
   do {
-    int och, quote, isvar;
+    wchar_t och;
+    int quote, isvar;
     char *charp, *mp;
     unsigned int len;
     char *TokImage = NULL;
@@ -785,7 +844,8 @@ Yap_tokenizer(int inp_stream)
 
     case NU:
       {
-	int cherr, cha = ch;
+	wchar_t cherr;
+	wchar_t cha = ch;
 	char *ptr;
 
 	cherr = 0;
@@ -915,11 +975,17 @@ Yap_tokenizer(int inp_stream)
       quote = ch;
       len = 0;
       ch = QuotedNxtch(inp_stream);
-      while (1) {
+      wcharp = NULL;
+
+      while (TRUE) {
 	if (charp + 1024 > (char *)AuxSp) {
 	  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
 	  Yap_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	  break;
+	}
+	if (ch >= 0xff){
+	  /* does not fit in ISO-LATIN */
+	  wcharp = ch_to_wide(TokImage, charp);
 	}
 	if (ch == 10  &&  yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
 	  /* in ISO a new line terminates a string */
@@ -930,11 +996,25 @@ Yap_tokenizer(int inp_stream)
 	  ch = QuotedNxtch(inp_stream);
 	  if (ch != quote)
 	    break;
-	  *charp++ = ch;
+	  if (wcharp) 
+	    *wcharp++ = ch;
+	  else
+	    *charp++ = ch;
 	  ch = QuotedNxtch(inp_stream);
 	} else if (ch == '\\' && yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES) {
 	  int scan_next = TRUE;
-	  *charp++ = read_quoted_char(&scan_next, inp_stream, QuotedNxtch);
+	  if (wcharp) 
+	    *wcharp++ = read_quoted_char(&scan_next, inp_stream, QuotedNxtch);
+	  else {
+	    wchar_t next = read_quoted_char(&scan_next, inp_stream, QuotedNxtch);
+	    if (next >= 0xff){
+	      /* does not fit in ISO-LATIN */
+	      wcharp = ch_to_wide(TokImage, charp);
+	      *wcharp++ = next;
+	    } else {
+	      *charp++ = next;
+	    }
+	  }
 	  if (scan_next) {
 	    ch = QuotedNxtch(inp_stream);
 	  }
@@ -943,7 +1023,10 @@ Yap_tokenizer(int inp_stream)
 	  t->Tok = Ord(kind = eot_tok);
 	  break;
 	} else {
-	  *charp++ = ch;
+	  if (wcharp) 
+	    *wcharp++ = ch;
+	  else
+	    *charp++ = ch;
 	  ch = QuotedNxtch(inp_stream);
 	}
 	++len;
@@ -958,9 +1041,16 @@ Yap_tokenizer(int inp_stream)
 	  return l;
 	}
       }
-      *charp = '\0';
+      if (wcharp) 
+	*wcharp++ = '\0';
+      else
+	*charp = '\0';
       if (quote == '"') {
-	mp = AllocScannerMemory(len + 1);
+	if (wcharp) {
+	  mp = AllocScannerMemory(sizeof(wchar_t)*(len+1));
+	} else {
+	  mp = AllocScannerMemory(len + 1);
+	}
 	if (mp == NULL) {
 	  UNLOCK(Stream[inp_stream].streamlock);
 	  Yap_ErrorMessage = "not enough heap space to read in string or quoted atom";
@@ -968,12 +1058,23 @@ Yap_tokenizer(int inp_stream)
 	  t->Tok = Ord(kind = eot_tok);
 	  return l;
 	}
-	strcpy(mp, TokImage);
+	if (wcharp) 
+	  wcscpy((wchar_t *)mp,(wchar_t *)TokImage);
+	else
+	  strcpy(mp, TokImage);
 	t->TokInfo = Unsigned(mp);
 	Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
-	t->Tok = Ord(kind = String_tok);
+	if (wcharp) {
+	  t->Tok = Ord(kind = WString_tok);
+	} else {
+	  t->Tok = Ord(kind = String_tok);
+	}
       } else {
-	t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
+	if (wcharp) {
+	  t->TokInfo = Unsigned(Yap_LookupWideAtom((wchar_t *)TokImage));
+	} else {
+	  t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
+	}
 	Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	t->Tok = Ord(kind = Name_tok);
 	if (ch == '(')

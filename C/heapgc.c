@@ -1743,7 +1743,8 @@ mark_slots(CELL *ptr)
 static void 
 mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 {
-
+  OPCODE trust_lu = Yap_opcode(_trust_logical);
+  
   yamop *lu_cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,ld),
     *lu_cl = NEXTOP(PredLogUpdClause->CodeOfPred,ld),
     *su_cl = NEXTOP(PredStaticClause->CodeOfPred,ld);
@@ -2017,6 +2018,17 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _retry_logical:
       case _count_retry_logical:
       case _profiled_retry_logical:
+	{
+	  /* find out who owns this sequence of try-retry-trust */
+	  /* I don't like this code, it's a bad idea to do a linear scan,
+	     on the other hand it's the only way we can be sure we can reclaim
+	     space
+	  */
+	  yamop *end = rtp->u.lld.n;
+	  while (end->opc != trust_lu)
+	    end = end->u.lld.n;
+	  mark_ref_in_use((DBRef)end->u.lld.t.block);
+	}
 	/* mark timestamp */
 	nargs = rtp->u.lld.t.s+1;
 	break;
@@ -2024,6 +2036,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _count_trust_logical:
       case _profiled_trust_logical:
 	/* mark timestamp */
+	mark_ref_in_use((DBRef)rtp->u.lld.t.block);
 	nargs = rtp->u.lld.d->ClPred->ArityOfPE+1;
 	break;
 #ifdef DEBUG

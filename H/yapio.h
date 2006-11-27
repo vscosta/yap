@@ -169,6 +169,7 @@ enum TokenKinds {
   Number_tok,
   Var_tok,
   String_tok,
+  WString_tok,
   Ponctuation_tok,
   Error_tok,
   eot_tok
@@ -243,6 +244,20 @@ typedef struct AliasDescS {
     int alias_stream;
 } * AliasDesc;
 
+/************ SWI compatible support for different encodings ************/
+
+typedef enum {
+  ENC_OCTET      = 0,
+  ENC_ISO_LATIN1 = 1,
+  ENC_ISO_ASCII  = 2,
+  ENC_ISO_ANSI   = 4,
+  ENC_ISO_UTF8   = 8,
+  ENC_UNICODE_BE = 16,
+  ENC_UNICODE_LE = 32
+} encoding_t;
+
+#define MAX_ISO_LATIN1 255
+
 /****************** character definition table **************************/
 #define NUMBER_OF_CHARS 256
 extern char *Yap_chtype;
@@ -257,7 +272,7 @@ Term STD_PROTO(Yap_VarNames,(VarEntry *,Term));
 /* routines in scanner.c */
 TokEntry STD_PROTO(*Yap_tokenizer,(int));
 void     STD_PROTO(Yap_clean_tokenizer,(TokEntry *, VarEntry *, VarEntry *));
-Term     STD_PROTO(Yap_scan_num,(int (*)(int)));
+Term     STD_PROTO(Yap_scan_num,(wchar_t (*)(int)));
 char	 STD_PROTO(*Yap_AllocScannerMemory,(unsigned int));
 
 /* routines in iopreds.c */
@@ -267,6 +282,7 @@ int   STD_PROTO(Yap_GetStreamFd,(int));
 void  STD_PROTO(Yap_CloseStreams,(int));
 void  STD_PROTO(Yap_CloseStream,(int));
 int   STD_PROTO(Yap_PlGetchar,(void));
+wchar_t   STD_PROTO(Yap_PlGetWchar,(void));
 int   STD_PROTO(Yap_PlFGetchar,(void));
 int   STD_PROTO(Yap_GetCharForSIGINT,(void));
 int   STD_PROTO(Yap_StreamToFileNo,(Term));
@@ -274,6 +290,11 @@ Term  STD_PROTO(Yap_OpenStream,(FILE *,char *,Term,int));
 Term  STD_PROTO(Yap_StringToTerm,(char *,Term *));
 Term  STD_PROTO(Yap_TermToString,(Term,char *,unsigned int,int));
 int   STD_PROTO(Yap_GetFreeStreamD,(void));
+int   STD_PROTO(Yap_GetFreeStreamDForReading,(void));
+
+Term	STD_PROTO(Yap_WStringToList,(wchar_t *));
+Term	STD_PROTO(Yap_WStringToListOfAtoms,(wchar_t *));
+Atom	STD_PROTO(Yap_LookupWideAtom,(wchar_t *));
 
 extern int
   Yap_c_input_stream,
@@ -297,7 +318,7 @@ extern int
 #define	To_heap_f	       16
 
 /* write.c */
-void	STD_PROTO(Yap_plwrite,(Term,int (*)(int, int),int));
+void	STD_PROTO(Yap_plwrite,(Term,wchar_t (*)(int, wchar_t),int));
 
 /* grow.c */
 int  STD_PROTO(Yap_growstack_in_parser,  (tr_fr_ptr *, TokEntry **, VarEntry **));
@@ -318,6 +339,7 @@ extern int  Yap_Portray_delays;
 #endif
 
 EXTERN inline UInt STD_PROTO(HashFunction, (unsigned char *));
+EXTERN inline UInt STD_PROTO(WideHashFunction, (wchar_t *));
 
 EXTERN inline UInt
 HashFunction(unsigned char *CHP)
@@ -336,6 +358,18 @@ HashFunction(unsigned char *CHP)
   while(*CHP != '\0') { OUT += (UInt)(*CHP++); }
   return OUT;
   */
+}
+
+EXTERN inline UInt
+WideHashFunction(wchar_t *CHP)
+{
+  UInt hash = 5381;
+  UInt c;
+
+  while ((c = *CHP++) != '\0') {
+    hash = hash * 33 ^ c;
+  }
+  return hash;
 }
 
 #define FAIL_ON_PARSER_ERROR      0

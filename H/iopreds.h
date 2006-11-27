@@ -29,6 +29,8 @@ static char SccsId[] = "%W% %G%";
 
 #endif
 
+#include <wchar.h>
+
 #if HAVE_LIBREADLINE
 
 #if _MSC_VER || defined(__MINGW32__)
@@ -76,7 +78,7 @@ typedef struct stream_desc
     } u;
     Int charcount, linecount, linepos;
     Int status;
-    Int och;
+    wchar_t och;
 #if defined(YAPOR) || defined(THREADS)
     lockvar  streamlock;        /* protect stream access */
 #endif
@@ -85,7 +87,12 @@ typedef struct stream_desc
     GetsFunc stream_gets;           /* function the stream uses for reading a sequence of characters */
     /* function the stream uses for parser. It may be different if the ISO
        character conversion is on */
-    int (* stream_getc_for_read)(int);
+    wchar_t (* stream_wgetc_for_read)(int);
+    wchar_t (* stream_wgetc)(int);
+    wchar_t (* stream_wputc)(int,wchar_t);
+    encoding_t encoding;
+    int use_bom;
+    mbstate_t mbstate;
   }
 StreamDesc;
 
@@ -115,6 +122,7 @@ StreamDesc;
 #define InMemory_Stream_f	0x020000
 #define Pipe_Stream_f		0x040000
 #define Popen_Stream_f		0x080000
+#define User_Stream_f		0x100000
 
 #define StdInStream	0
 #define StdOutStream	1
