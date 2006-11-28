@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-11-27 17:42:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-28 13:46:41 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.114  2006/11/27 17:42:03  vsc
+* support for UNICODE, and other bug fixes.
+*
 * Revision 1.113  2006/11/16 14:26:00  vsc
 * fix handling of infinity in name/2 and friends.
 *
@@ -874,13 +877,9 @@ p_name(void)
       return FALSE;
     }
     i = IntegerOfTerm(Head);
-    if (i < 0 || i >= 255) {
-      if (i<0) {
-	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,Head,"name/2");
-	return FALSE;
-      } else {
-	ws = ch_to_wide(String, s);
-      }
+    if (i < 0) {
+      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,Head,"name/2");
+      return FALSE;
     }
     if (ws) {
       if (ws > (wchar_t *)AuxSp-1024) {
@@ -888,10 +887,15 @@ p_name(void)
       }
       *ws++ = i;      
     } else {
-      if (s > (char *)AuxSp-1024) {
-	goto expand_auxsp;
+      if (i > MAX_ISO_LATIN1) {
+	ws = ch_to_wide(String, s);
+	*ws++ = i;
+      } else {
+	if (s > (char *)AuxSp-1024) {
+	  goto expand_auxsp;
+	}
+	*s++ = i;
       }
-      *s++ = i;
     }
     t = TailOfTerm(t);
   }

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.109 2006-11-27 17:42:03 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.110 2006-11-28 13:46:41 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -131,10 +131,8 @@ typedef struct worker_local_struct {
 #if defined(YAPOR) || defined(THREADS)
   /* otherwise, use global variables for speed */
   unsigned long int   tot_marked, tot_oldies;	/* number of heap objects marked */
-#if DEBUG
 #ifdef COROUTINING
   unsigned long int   tot_smarked;
-#endif
 #endif
   struct choicept *wl_current_B;
 #if defined(TABLING) || defined(SBA)
@@ -291,9 +289,7 @@ typedef struct various_codes {
   struct pred_entry  *creep_code;
   struct pred_entry  *undef_code;
   struct pred_entry  *spy_code;
-#if DEBUG
   UInt new_cps, live_cps, dirty_cps, freed_cps;
-#endif
   int   system_profiling;
   int   system_call_counting;
   int   system_pred_goal_expansion_all;
@@ -507,9 +503,7 @@ typedef struct various_codes {
   struct logic_upd_index *db_erased_ilist;
   UInt expand_clauses_sz;
   struct stream_desc *yap_streams;
-#ifdef DEBUG
   int    debugger_output_msg;
-#endif
   UInt n_of_file_aliases;
   UInt sz_of_file_aliases;
   struct AliasDescS * file_aliases;
