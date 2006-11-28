@@ -21,6 +21,7 @@
 #endif
 
 #include <stdio.h>
+#include <wchar.h>
 
 #ifndef YAP_STDIO
 
