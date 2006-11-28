@@ -239,7 +239,7 @@ LookupWideAtom(wchar_t *atom)
 #if defined(YAPOR) || defined(THREADS)
   if (a != WideHashChain[hash].Entry) {
     a = WideHashChain[hash].Entry;
-    na = SearchWideAtom((unsigned char *)atom, a);
+    na = SearchWideAtom(atom, a);
     if (na != NIL) {
       WRITE_UNLOCK(WideHashChain[hash].AERWLock);
       return na;
