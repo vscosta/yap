@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-11-27 17:42:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-11-28 00:46:28 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.213  2006/11/27 17:42:02  vsc
+* support for UNICODE, and other bug fixes.
+*
 * Revision 1.212  2006/11/21 16:21:30  vsc
 * fix I/O mess
 * fix spy/reconsult mess
@@ -1295,7 +1298,7 @@ Yap_absmi(int inp)
 	  } 
 	  LOCK(ap->StatisticsForPred.lock);
 	  ap->StatisticsForPred.NOfRetries++;
-	  UNLOCK(ap->ClPred->StatisticsForPred.lock);
+	  UNLOCK(ap->StatisticsForPred.lock);
 	  PREG = lcl->ClCode;
 	}
 	/* HEY, leave indexing block alone!! */
