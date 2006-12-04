@@ -109,7 +109,7 @@ loop:
     derefa_body(d0, ptd0, rtree_loop_unk, rtree_loop_nvar);
   }
   /* Do we still have compound terms to visit */
-  if (to_visit > to_visit0) {
+  if (to_visit < to_visit0) {
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
     *pt0 = (CELL)to_visit[2];
@@ -120,7 +120,7 @@ loop:
 
 cufail:
   /* we found an infinite term */
-  while (to_visit > to_visit) {
+  while (to_visit < to_visit0) {
     CELL *pt0;
     pt0 = to_visit[0];
     *pt0 = (CELL)to_visit[2];
