@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.17 2006-11-27 17:42:03 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.18 2006-12-13 16:10:25 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -513,7 +513,6 @@ typedef enum
   YAP_TO_CHARS_FLAG = 7,
   LANGUAGE_MODE_FLAG = 8,
   STRICT_ISO_FLAG = 9,
-  SPY_CREEP_FLAG = 10,
   SOURCE_MODE_FLAG = 11,
   CHARACTER_ESCAPE_FLAG = 12,
   WRITE_QUOTED_STRING_FLAG = 13,
@@ -1152,7 +1151,8 @@ typedef enum
   CCallMode = 0x1000,		/* In c Call */
   UnifyMode = 0x2000,		/* In Unify Code */
   UserCCallMode = 0x4000,	/* In User C-call Code */
-  MallocMode = 0x8000	/* Doing malloc, realloc, free */
+  MallocMode = 0x8000,		/* Doing malloc, realloc, free */
+  SystemMode = 0x10000,		/* in system mode */
 } prolog_exec_mode;
 
 extern prolog_exec_mode Yap_PrologMode;

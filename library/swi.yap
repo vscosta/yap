@@ -149,7 +149,7 @@ cvt_to_swi_atts(att(Mod,Attribute,Atts), ModAttribute) :-
 
 bindings_message(V) -->
        { cvt_bindings(V, Bindings) },
-       prolog:message(query(YesNo,Bindings)), !.
+       prolog:message(query(_YesNo,Bindings)), !.
 
 cvt_bindings([],[]).
 cvt_bindings([[Name|Value]|L],[AName=Value|Bindings]) :-

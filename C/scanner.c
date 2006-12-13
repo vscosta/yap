@@ -983,7 +983,7 @@ Yap_tokenizer(int inp_stream)
 	  Yap_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	  break;
 	}
-	if (ch >= 0xff){
+	if (ch > MAX_ISO_LATIN1){
 	  /* does not fit in ISO-LATIN */
 	  wcharp = ch_to_wide(TokImage, charp);
 	}
@@ -1007,7 +1007,7 @@ Yap_tokenizer(int inp_stream)
 	    *wcharp++ = read_quoted_char(&scan_next, inp_stream, QuotedNxtch);
 	  else {
 	    wchar_t next = read_quoted_char(&scan_next, inp_stream, QuotedNxtch);
-	    if (next >= 0xff){
+	    if (next > MAX_ISO_LATIN1){
 	      /* does not fit in ISO-LATIN */
 	      wcharp = ch_to_wide(TokImage, charp);
 	      *wcharp++ = next;

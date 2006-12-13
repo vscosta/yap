@@ -45,43 +45,38 @@ true :- true.
 	;
 	  true
 	),
-	'$set_yap_flags'(10,0),
 	'$allocate_default_arena'(1024, 64),
+	'$enter_system_mode',
 	set_value(fileerrors,1),
 	set_value('$gc',on),
 	set_value('$lf_verbose',informational),
 	('$exit_undefp' -> true ; true),
 	prompt('  ?- '),
-	get_value('$break',BreakLevel),
+	nb_setval('$break',0),
+	% '$set_read_error_handler'(error), let the user do that
+	nb_setval('$debug',off),
+	nb_setval('$trace',off),
+	b_setval('$spy_glist',[]),
+	% simple trick to find out if this is we are booting from Prolog.
+	get_value('$user_module',V),
 	(
-	  BreakLevel =:= 0
+	  V == []
 	->
-	    % '$set_read_error_handler'(error), let the user do that
-	    % after an abort, make sure all spy points are gone.
-	    '$clean_debugging_info',
-	    % simple trick to find out if this is we are booting from Prolog.
-	    get_value('$user_module',V),
-	    (  V = [] ->
-		'$current_module'(_,prolog)
-	    ;
-		'$current_module'(_,V), '$compile_mode'(_,0),
-		('$access_yap_flags'(16,0) ->
-		     ( exists('~/.yaprc') -> load_files('~/.yaprc', []) ; true ),
-		     ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
-		     ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true )
-		 ;
-		     true
-		 )
-	     ),
-	     '$db_clean_queues'(0),
-	     '$startup_reconsult',
-	     '$startup_goals'
-	 ;
-	   '$print_message'(informational,break(BreakLevel))
-	 ).
+	  '$current_module'(_,prolog)
+	  ;
+	  '$current_module'(_,V), '$compile_mode'(_,0),
+	  ('$access_yap_flags'(16,0) ->
+	      ( exists('~/.yaprc') -> load_files('~/.yaprc', []) ; true ),
+	      ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
+	      ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true )
+	  ;
+	      true
+	  )
+	),
+	'$db_clean_queues'(0),
+	'$startup_reconsult',
+	'$startup_goals'.
 
-
- %
  % encapsulate $cut_by because of co-routining.
  %
  '$cut_by'(X) :- '$$cut_by'(X).
@@ -120,14 +115,17 @@ true :- true.
 	 '$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
 	 fail.
  '$enter_top_level' :-
-	 get_value('$break',BreakLevel),
-	 ( recorded('$trace',on,_) ->
-	     TraceDebug = trace
+	 nb_getval('$break',BreakLevel),
+	 (
+	   nb_getval('$trace',on)
+	 ->
+	   TraceDebug = trace
 	 ;
-	   recorded('$debug', on, _) ->
-	     TraceDebug = debug
+	   nb_getval('$debug', on)
+	 ->
+	   TraceDebug = debug
 	 ;
-	     true
+	   true
 	 ),
 	 '$print_message'(informational,prompt(BreakLevel,TraceDebug)),
 	 fail.
@@ -141,9 +139,10 @@ true :- true.
 	 prompt('   | '),
 	 '$run_toplevel_hooks',
 	 '$read_vars'(user_input,Command,_,_,Varnames),
-	 set_value(spy_gn,1),
-	 ( recorded('$spy_skip',_,R), erase(R), fail ; true),
-	 ( recorded('$spy_stop',_,R), erase(R), fail ; true),
+	 nb_setval('$spy_gn',1),
+	 % stop at spy-points if debugging is on.
+	 nb_setval('$debug_run',off),
+	 nb_setval('$debug_zip',off),
 	 prompt(_,'   |: '),
 	 '$command'((?-Command),Varnames,top),
 	 '$sync_mmapped_arrays',
@@ -208,15 +207,6 @@ true :- true.
  '$myddas_import_all'.
 	 
 
-
- %
- % remove any debugging info after an abort.
- %
- '$clean_debugging_info' :-
-	 recorded('$spy',_,R),
-	 erase(R),
-	 fail.
- '$clean_debugging_info'.
 
  '$erase_sets' :- 
 		 eraseall('$'),
@@ -342,8 +332,7 @@ true :- true.
  % but YAP and SICStus does.
  %
  '$process_directive'(G, _, M) :-
-	 ( '$do_yes_no'(G,M) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ),
-	 '$do_not_creep'.
+	 ( '$do_yes_no'(G,M) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
 
  '$continue_with_command'(reconsult,V,G,Source) :-
 	 '$go_compile_clause'(G,V,5,Source),
@@ -352,8 +341,7 @@ true :- true.
 	 '$go_compile_clause'(G,V,13,Source),
 	 fail.
  '$continue_with_command'(top,V,G,_) :-
-	 '$query'(G,V),
-	 '$do_not_creep'.
+	 '$query'(G,V).
 
  %
  % not 100% compatible with SICStus Prolog, as SICStus Prolog would put
@@ -428,27 +416,22 @@ true :- true.
 	 '$yes_no'(G,(?-)).
  '$query'(G,V) :-
 	 (
-		 ( recorded('$trace',on,_) -> '$creep' ; true),
-		 '$execute'(G),
-		 '$do_not_creep',
-		 '$output_frozen'(G, V, LGs),
-		 '$write_answer'(V, LGs, Written),
-		 '$write_query_answer_true'(Written),
-		 '$another',
-		 !, fail ;
-		 '$do_not_creep',
-		 ( '$undefined'('$print_message'(_,_),prolog) -> 
-		    '$present_answer'(user_error,"no~n", [])
-		 ;
-		    print_message(help,no)
-		 ),
-		 fail
+	   '$exit_system_mode',
+	   '$execute'(G),
+	   ( '$enter_system_mode' ; '$exit_system_mode', fail),
+	   '$output_frozen'(G, V, LGs),
+	   '$write_answer'(V, LGs, Written),
+	   '$write_query_answer_true'(Written),
+	   '$another',
+	   !, fail
+	 ;
+	   '$enter_system_mode',
+           '$out_neg_answer'
 	 ).
 
  '$yes_no'(G,C) :-
 	 '$current_module'(M),
 	 '$do_yes_no'(G,M),
-	 '$do_not_creep',
 	 '$output_frozen'(G, [], LGs),
 	 '$write_answer'([], LGs, Written),
 	 ( Written = [] ->
@@ -457,7 +440,11 @@ true :- true.
 	 ),
 	 fail.
  '$yes_no'(_,_) :-
-	 '$do_not_creep',
+         '$out_neg_answer'.
+
+'$add_env_and_fail' :- fail.
+
+'$out_neg_answer' :-
 	 ( '$undefined'('$print_message'(_,_),prolog) -> 
 	    '$present_answer'(user_error,"no~n", [])
 	 ;
@@ -467,8 +454,9 @@ true :- true.
 
  '$do_yes_no'([X|L], M) :- !, '$csult'([X|L], M).
  '$do_yes_no'(G, M) :-
-	   ( recorded('$trace',on,_) -> '$creep' ; true),
-	   '$execute'(M:G).
+         '$exit_system_mode',
+	 '$execute'(M:G),
+         ( '$enter_system_mode' ; '$exit_system_mode', fail ).    
 
  '$write_query_answer_true'([]) :- !,
 	 format(user_error,'~ntrue',[]).
@@ -494,7 +482,7 @@ true :- true.
         '$flush_all_streams',
 	fail.
 '$present_answer'((?-), Answ) :-
-	get_value('$break',BL),
+	nb_getval('$break',BL),
 	( BL \= 0 -> 	format(user_error, '[~p] ',[BL]) ;
 			true ),
         ( recorded('$print_options','$toplevel'(Opts),_) ->
@@ -827,29 +815,26 @@ not(G) :-    \+ '$execute'(G).
 	debugger state */
 
 break :-
-	( recorded('$trace',Val,R) -> Trace = Val, erase(R); true),
-	( recorded('$debug',Val,R1) -> Debug = Val, erase(R1); true),
-	get_value('$break',BL), NBL is BL+1,
-	get_value(spy_gn,SPY_GN),
-	'$access_yap_flags'(10,SPY_CREEP),
-	get_value(spy_cl,SPY_CL),
-	get_value(spy_leap,Leap),
-	set_value('$break',NBL),
+	nb_getval('$trace',Trace),
+	nb_setval('$trace',off),
+	nb_getval('$debug',Debug),
+	nb_setval('$debug',off),
+	nb_getval('$break',BL), NBL is BL+1,
+	nb_getval('$spy_gn',SPY_GN),
+	b_getval('$spy_glist',GList),
+	b_setval('$spy_glist',[]),
+	nb_setval('$break',NBL),
 	current_output(OutStream), current_input(InpStream),
 	format(user_error, '% Break (level ~w)~n', [NBL]),
 	'$do_live',
 	!,
 	set_value('$live','$true'),
-	set_value(spy_gn,SPY_GN),
-	'$set_yap_flags'(10,SPY_CREEP),
-	set_value(spy_cl,SPY_CL),
-	set_value(spy_leap,Leap),
+	b_setval('$spy_glist',GList),
+	nb_setval('$spy_gn',SPY_GN),
 	'$set_input'(InpStream), '$set_output'(OutStream),
-	( recorded('$trace',_,R2), erase(R2), fail; true),
-	( recorded('$debug',_,R3), erase(R3), fail; true),
-	(nonvar(Trace) -> recorda('$trace',Trace,_); true),
-	(nonvar(Debug) -> recorda('$debug',Debug,_); true),
-	set_value('$break',BL).
+	nb_setval('$debug',Debug),
+	nb_setval('$trace',Trace),
+	nb_setval('$break',BL).
 
 '$silent_bootstrap'(F) :-
 	get_value('$lf_verbose',OldSilent),
@@ -944,14 +929,14 @@ bootstrap(F) :-
 '$find_in_path'(library(File),NewFile, _) :-
 	'$dir_separator'(D), 
 	atom_codes(A,[D]),
-	( user:library_directory(Dir), '$do_not_creep' ; '$do_not_creep', fail),
+	user:library_directory(Dir),
 	'$extend_path'(Dir, A, File, NFile, Goal),
 	'$search_in_path'(NFile, NewFile), !.
 '$find_in_path'(S,NewFile, _) :-
 	S =.. [Name,File], !,
 	'$dir_separator'(D),
 	atom_codes(A,[D]),
-	( user:file_search_path(Name, Dir), '$do_not_creep' ; '$do_not_creep', fail),
+	user:file_search_path(Name, Dir),
 	'$extend_path'(Dir, A, File, NFile, Goal),
 	'$search_in_path'(NFile, NewFile), !.
 '$find_in_path'(File,NewFile,_) :- atom(File), !,
@@ -993,10 +978,8 @@ bootstrap(F) :-
 
 expand_term(Term,Expanded) :-
 	( \+ '$undefined'(term_expansion(_,_), user),
-	  user:term_expansion(Term,Expanded),
-	 '$do_not_creep'
+	  user:term_expansion(Term,Expanded)
         ;
-	  '$do_not_creep',
 	  '$expand_term_grammar'(Term,Expanded)
 	),
 !.
@@ -1079,9 +1062,15 @@ throw(Ball) :-
 	).
 
 '$run_toplevel_hooks' :-
-	get_value('$break',0),
+	nb_getval('$break',0),
 	recorded('$toplevel_hooks',H,_), !,
-	( '$execute'(H) -> true ; true),
-	'$do_not_creep'.
+	( '$execute'(H) -> true ; true).
 '$run_toplevel_hooks'.
 
+'$enter_system_mode' :-
+	nb_setval('$system_mode',on).
+
+'$exit_system_mode' :-
+	nb_setval('$system_mode',off),
+	( nb_getval('$trace',on) -> '$creep' ; true).
+	

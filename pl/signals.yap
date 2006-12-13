@@ -32,14 +32,7 @@
 	'$continue_signals',
 	'$wake_up_goal'(G, LG).
 '$do_signal'(sig_creep, [M|G]) :-
-	( '$access_yap_flags'(10,0) ->
-	    % we're not allowed to creep for now,
-	    % maybe we're inside builtin.
-	    '$late_creep',
-	    '$execute'(M:G)
-	    ;
-	    '$start_creep'([M|G])
-	).
+        '$start_creep'([M|G]).
 '$do_signal'(sig_delay_creep, [M|G]) :-
 	'$execute'(M:G),
         '$creep'.
@@ -87,6 +80,13 @@
 	'$current_module'(M0),
 	'$execute0'((Goal,M:G),M0).
 
+% do not debug if we are not in debug mode. 
+'$start_creep'([Mod|G]) :-
+	nb_getval('$debug',off), !,
+	'$execute_nonstop'(G,Mod).
+'$start_creep'([Mod|G]) :-
+	nb_getval('$system_mode',on), !,
+	'$execute_nonstop'(G,Mod).
 % notice that the last signal to be processed must always be creep
 '$start_creep'([_|'$cut_by'(CP)]) :- !,
 	'$cut_by'(CP),
@@ -98,7 +98,17 @@
 	'$creep',
 	'$execute_nonstop'(G,Mod).
 '$start_creep'([Mod|G]) :-
-	'$do_not_creep',
+	'$system_predicate'(G, Mod),
+	'$protected_env', !,
+	'$creep',
+	'$execute_nonstop'(G,Mod).
+% do not debug if we are zipping through.  
+'$start_creep'([Mod|G]) :-
+	nb_getval('$debug_zip',on),
+	'$zip'(-1, G, Mod), !,
+	'$creep',
+	'$execute_nonstop'(G,Mod).
+'$start_creep'([Mod|G]) :-
 	CP is '$last_choice_pt',	
 	'$do_spy'(G, Mod, CP, yes).
 
@@ -153,4 +163,34 @@ read_sig :-
 	fail.
 read_sig.
 
+
+'$protected_env' :-
+	'$all_envs'(Envs),
+%'$envs'(Envs),
+	'$skim_envs'(Envs,Mod,Name,Arity),
+	\+ '$external_call_seen'(Mod,Name,Arity).
+
+
+% '$envs'([Env|Envs]) :-
+%         '$env_info'(Env,Mod0,Name0,Arity0),
+%          format(user_error,'~a:~w/~w~n',[Mod0,Name0,Arity0]),
+% 	 '$envs'(Envs).
+% '$envs'([]).
+
+
+'$skim_envs'([Env|Envs],Mod,Name,Arity) :-
+        '$env_info'(Env,Mod0,Name0,Arity0),
+	'$debugger_env'(Mod0,Name0,Arity0), !,
+	'$skim_envs'(Envs,Mod,Name,Arity).
+'$skim_envs'([Env|Envs],Mod,Name,Arity) :-
+        '$env_info'(Env,Mod,Name,Arity).
+
+'$debugger_env'(prolog,'$start_creep',1).
+
+'$external_call_seen'(prolog,Name,Arity) :- !,
+	 '$allowed'(Name,Arity).
+'$external_call_seen'(_,_,_).
+
+ '$allowed'('$spycall',3).
+ '$allowed'('$query',2).
 

@@ -528,7 +528,7 @@ print(_,_).
 /* interface to user portray	*/
 '$portray'(T) :-
 	\+ '$undefined'(portray(_),user),
-	user:portray(T), !,
+	'$system_catch'(call(portray(T)),user,Error,user:'$Error'(Error)), !,
 	set_value('$portray',true), fail.
 '$portray'(_) :- set_value('$portray',false), fail.
 

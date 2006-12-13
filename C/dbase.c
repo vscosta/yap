@@ -4845,22 +4845,6 @@ cont_current_key(void)
 	READ_UNLOCK(HashChain[i].AERWLock);
 	i++;
       }
-      i = 0;
-      while (i < WideAtomHashTableSize) {
-	/* protect current hash table line, notice that the current
-	   LOCK/UNLOCK algorithm assumes new entries are added to
-	   the *front* of the list, otherwise I should have locked
-	   earlier.
-	*/
-	READ_LOCK(HashChain[i].AERWLock);
-	a = HashChain[i].Entry;
-	if (a != NIL) {
-	  break;
-	}
-	/* move to next entry */
-	READ_UNLOCK(HashChain[i].AERWLock);
-	i++;
-      }
       if (i == AtomHashTableSize) {
 	/* we have left the atom hash table */
 	/* we don't have a lock over the hash table any longer */

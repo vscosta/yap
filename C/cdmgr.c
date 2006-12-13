@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-11-27 17:42:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-12-13 16:10:14 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.200  2006/11/27 17:42:02  vsc
+* support for UNICODE, and other bug fixes.
+*
 * Revision 1.199  2006/11/15 00:13:36  vsc
 * fixes for indexing code.
 *
@@ -3376,6 +3379,12 @@ p_all_choicepoints(void)
 }
 
 static Int
+p_all_envs(void)
+{
+  return Yap_unify(ARG1,all_envs(ENV));
+}
+
+static Int
 p_current_stack(void)
 {
 #ifdef YAPOR
@@ -5680,10 +5689,67 @@ p_program_continuation(void)
 static Term
 BuildActivePred(PredEntry *ap, CELL *vect)
 {
+  UInt i;
+
   if (!ap->ArityOfPE) {
     return MkVarTerm();
   }
+  for (i = 0; i < ap->ArityOfPE; i++) {
+    Term t = Deref(vect[i]);
+    if (IsVarTerm(t)) {
+      CELL *pt = VarOfTerm(t);
+      /* one stack */
+      if (pt > H) {
+	Term nt = MkVarTerm();
+	Yap_unify(t, nt);
+      }
+    }
+  }
   return Yap_MkApplTerm(ap->FunctorOfPred, ap->ArityOfPE, vect);
+}
+
+static int
+UnifyPredInfo(PredEntry *pe, int start_arg) {
+  UInt arity = pe->ArityOfPE;
+  Term tmod, tname;
+
+  if (pe->ModuleOfPred != IDB_MODULE) {
+    if (pe->ModuleOfPred == PROLOG_MODULE) {
+      tmod = TermProlog;
+    } else {
+      tmod = pe->ModuleOfPred;
+    }
+    if (pe->ArityOfPE == 0) {
+      tname = MkAtomTerm((Atom)pe->FunctorOfPred);
+    } else {
+      Functor f = pe->FunctorOfPred;
+      tname = MkAtomTerm(NameOfFunctor(f));
+    }
+  } else {
+    tmod = pe->ModuleOfPred;
+    if (pe->PredFlags & NumberDBPredFlag) {
+      tname = MkIntegerTerm(pe->src.IndxId);
+    } else if (pe->PredFlags & AtomDBPredFlag) {
+      tname = MkAtomTerm((Atom)pe->FunctorOfPred);
+    } else {
+      Functor f = pe->FunctorOfPred;
+      tname = MkAtomTerm(NameOfFunctor(f));
+    }
+  }
+  return Yap_unify(XREGS[start_arg], tmod) &&
+    Yap_unify(XREGS[start_arg+1],tname) &&
+    Yap_unify(XREGS[start_arg+2],MkIntegerTerm(arity));
+}
+
+
+static Int
+p_env_info(void)
+{
+  PredEntry *pe;
+  yamop *env_cp = (yamop *)IntegerOfTerm(Deref(ARG1));
+
+  pe = PREVOP(env_cp,sla)->u.sla.p0;
+  return UnifyPredInfo(pe, 2);
 }
 
 static Int
@@ -5693,8 +5759,7 @@ p_choicepoint_info(void)
   PredEntry *pe;
   int go_on = TRUE;
   yamop *ipc = cptr->cp_ap;
-  Term t, tname, tmod;
-  UInt arity;
+  Term t;
 
   while (go_on) {
     op_numbers opnum = Yap_op_from_opcode(ipc->opc);
@@ -5812,6 +5877,12 @@ p_choicepoint_info(void)
       t = BuildActivePred(pe, cptr->cp_args);
       break;
     case _Nstop:
+      { 
+	Atom at = Yap_FullLookupAtom("$live");
+	t = MkAtomTerm(at);
+	pe = RepPredProp(PredPropByAtom(at, CurrentModule));
+      }
+      break;
     case _Ystop:
     default:
       pe = NULL;
@@ -5819,33 +5890,7 @@ p_choicepoint_info(void)
       return FALSE;
     }
   }
-  arity = pe->ArityOfPE;
-  if (pe->ModuleOfPred != IDB_MODULE) {
-    if (pe->ModuleOfPred == PROLOG_MODULE) {
-      tmod = TermProlog;
-    } else {
-      tmod = pe->ModuleOfPred;
-    }
-    if (pe->ArityOfPE == 0) {
-      tname = MkAtomTerm((Atom)pe->FunctorOfPred);
-    } else {
-      Functor f = pe->FunctorOfPred;
-      tname = MkAtomTerm(NameOfFunctor(f));
-    }
-  } else {
-    tmod = pe->ModuleOfPred;
-    if (pe->PredFlags & NumberDBPredFlag) {
-      tname = MkIntegerTerm(pe->src.IndxId);
-    } else if (pe->PredFlags & AtomDBPredFlag) {
-      tname = MkAtomTerm((Atom)pe->FunctorOfPred);
-    } else {
-      Functor f = pe->FunctorOfPred;
-      tname = MkAtomTerm(NameOfFunctor(f));
-    }
-  }
-  return Yap_unify(ARG2, tmod) &&
-    Yap_unify(ARG3,tname) &&
-    Yap_unify(ARG4,MkIntegerTerm(arity)) &&
+  return UnifyPredInfo(pe, 2) &&
     Yap_unify(ARG5,t);
 }
 
@@ -5906,7 +5951,9 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$p_nth_clause", 4, p_nth_clause, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$program_continuation", 3, p_program_continuation, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$all_choicepoints", 1, p_all_choicepoints, HiddenPredFlag);
+  Yap_InitCPred("$all_envs", 1, p_all_envs, HiddenPredFlag);
   Yap_InitCPred("$choicepoint_info", 5, p_choicepoint_info, HiddenPredFlag);
+  Yap_InitCPred("$env_info", 4, p_env_info, HiddenPredFlag);
   Yap_InitCPred("$predicate_erased_statistics", 5, p_predicate_erased_statistics, SyncPredFlag);
 #ifdef DEBUG
   Yap_InitCPred("$predicate_live_cps", 4, p_predicate_lu_cps, 0L);

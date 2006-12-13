@@ -145,12 +145,14 @@ NewDelayArena(UInt size)
 {
   attvar_record *max = DelayTop(), *min = max-size;
   Term out;
+  UInt howmuch;
 
   while ((ADDR)min < Yap_GlobalBase+1024) {
-    if (!Yap_InsertInGlobal((CELL *)max, size*sizeof(attvar_record))) {
+    if ((howmuch = Yap_InsertInGlobal((CELL *)max, size*sizeof(attvar_record))==0)) {
       Yap_Error(OUT_OF_STACK_ERROR,TermNil,"No Stack Space for Non-Backtrackable terms");
       return TermNil;
     }
+    size = howmuch/sizeof(attvar_record);
     max = DelayTop(), min = max-size;
   }
   out = CreateDelayArena(max, min);
@@ -162,6 +164,8 @@ static Term
 GrowDelayArena(Term *arenap, UInt old_size, UInt size, UInt arity)
 {
   Term arena = *arenap;
+  UInt howmuch;
+
   if (size == 0) {
     if (old_size < 1024) {
       size = old_size;
@@ -173,10 +177,11 @@ GrowDelayArena(Term *arenap, UInt old_size, UInt size, UInt arity)
     size = 64;
   }
   XREGS[arity+1] = (CELL)arenap;
-  if (!Yap_InsertInGlobal((CELL *)arena, (size-old_size)*sizeof(attvar_record))) {
+  if ((howmuch = Yap_InsertInGlobal((CELL *)arena, (size-old_size)*sizeof(attvar_record)))==0) {
     Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
     return TermNil;
   }
+  size = howmuch/sizeof(attvar_record)+old_size;
   arenap = (CELL *)XREGS[arity+1];
   arena = *arenap;
   CreateDelayArena(DelayArenaPt(arena), DelayArenaPt(arena)-size);
@@ -189,6 +194,7 @@ static Term
 NewArena(UInt size, UInt arity, CELL *where)
 {
   Term t;
+  UInt new_size;
 
   if (where == NULL || where == H) {
     while (H+size > ASP-1024) {
@@ -200,10 +206,11 @@ NewArena(UInt size, UInt arity, CELL *where)
     t = CreateNewArena(H, size);
     H += size;
   } else {
-    if (!Yap_InsertInGlobal(where, size*sizeof(CELL))) {
+    if ((new_size=Yap_InsertInGlobal(where, size*sizeof(CELL)))==0) {
       Yap_Error(OUT_OF_STACK_ERROR,TermNil,"No Stack Space for Non-Backtrackable terms");
       return TermNil;
     }
+    size = new_size/sizeof(CELL);
     t = CreateNewArena(where, size);
   }
   return t;
@@ -291,10 +298,11 @@ GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity)
     H += size;
   } else {
     XREGS[arity+1] = arena;
-    if (!Yap_InsertInGlobal(pt, size*sizeof(CELL))) {
+    if ((size=Yap_InsertInGlobal(pt, size*sizeof(CELL)))==0) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;
     }
+    size = size/sizeof(CELL);
     arena = XREGS[arity+1];
   }
   CreateNewArena(ArenaPt(arena), size+old_size);
@@ -1474,10 +1482,11 @@ p_nb_heap_add_to_heap(void)
     } else {
       extra_size = hmsize;
     }
-    if (!Yap_InsertInGlobal(top, extra_size*2*sizeof(CELL))) {
+    if ((extra_size=Yap_InsertInGlobal(top, extra_size*2*sizeof(CELL)))==0) {
       Yap_Error(OUT_OF_STACK_ERROR,TermNil,"No Stack Space for Non-Backtrackable terms");
       return FALSE;
     }
+    extra_size = extra_size/(2*sizeof(CELL));
     qd = GetHeap(ARG1,"add_to_heap");
     hmsize += extra_size;
     if (!qd)

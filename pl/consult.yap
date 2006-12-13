@@ -122,7 +122,7 @@ load_files(Files,Opts) :-
 '$lf'(user, Mod, Call,InfLevel,_,Changed,CompilationMode,Imports,_,_,SkipUnixComments,Reconsult,UseModule) :- !,
 	'$do_lf'(user_input, Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,Reconsult,UseModule).
 '$lf'(user_input, Mod, Call,InfLevel,_,Changed,CompilationMode,Imports,_,_,SkipUnixComments,Reconsult,UseModule) :- !,
-	'$do_lf'(user_input, Mod, user_input, InfLevel, CompilationMode,Imports,Reconsult,UseModule).
+	'$do_lf'(user_input, Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,Reconsult,UseModule).
 '$lf'(X, Mod, Call, InfLevel,_,Changed,CompilationMode,Imports,_,Enc,SkipUnixComments,Reconsult,UseModule) :-
 	'$find_in_path'(X, Y, Call),
 	'$open'(Y, '$csult', Stream, 0, Enc), !,
@@ -184,6 +184,8 @@ use_module(F,Is) :-
 use_module(M,F,Is) :-
 	'$use_module'(M,F,Is).
 
+'$use_module'(U,F,Is) :- nonvar(U), U = user, !,
+	'$import_to_current_module'(user_input, user, Is).
 '$use_module'(M,F,Is) :- nonvar(M), !,
 	recorded('$module','$module'(F1,M,_),_),
 	'$load_files'(F1, [if(not_loaded),imports(Is)], use_module(M,F,Is)),
@@ -198,6 +200,8 @@ use_module(M,F,Is) :-
 '$csult'([F|L], M) :- '$consult'(F, M), '$csult'(L, M).
 
 '$do_lf'(F, ContextModule, Stream, InfLevel, _, Imports, SkipUnixComments, Reconsult, UseModule) :-
+	nb_getval('$system_mode', OldMode),
+        ( OldMode == off -> '$enter_system_mode' ; true ),
 	'$record_loaded'(Stream, M),
 	'$current_module'(OldModule,ContextModule),
 	getcwd(OldD),
@@ -223,7 +227,6 @@ use_module(M,F,Is) :-
 	    EndMsg = consulted
 	),
 	'$print_message'(InfLevel, loading(StartMsg, File)),
-	( recorded('$trace', on, TraceR) -> erase(TraceR) ; true),
 	( SkipUnixComments == skip_unix_comments ->
 	    '$skip_unix_comments'(Stream)
 	;
@@ -231,7 +234,6 @@ use_module(M,F,Is) :-
 	),
 	'$loop'(Stream,Reconsult),
 	'$end_consult',
-	( nonvar(TraceR) -> recorda('$trace', on, _) ; true),
 	( 
 	    Reconsult = reconsult ->
 	    '$clear_reconsulting'
@@ -248,6 +250,7 @@ use_module(M,F,Is) :-
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	'$print_message'(InfLevel, loaded(EndMsg, File, Mod, T, H)),
+        ( OldMode == off -> '$exit_system_mode' ; true ),
 	'$exec_initialisation_goals',
 	!.
 
@@ -300,9 +303,17 @@ use_module(M,F,Is) :-
 	erase(R),
 	G \= '$',
 	'$current_module'(M),
-	'$system_catch'(once(M:G), M, Error, user:'$LoopError'(Error, top)),
-	'$do_not_creep',
-	fail.
+	nb_getval('$system_mode', OldMode),
+        ( OldMode == on -> '$exit_system_mode' ; true ),
+	% run initialization under user control (so allow debugging this stuff).
+	(
+	  '$system_catch'(once(M:G), M, Error, user:'$LoopError'(Error, top)),
+	  fail
+	;
+          OldMode = on,
+	  '$enter_system_mode',
+	  fail
+	).
 '$exec_initialisation_goals'.
 
 '$include'(V, _) :- var(V), !,
@@ -333,8 +344,11 @@ use_module(M,F,Is) :-
 	  '$system_catch'(load_files(X, []),Module,Error,'$Error'(Error))
 	;
 	  set_value('$verbose',off),
-	  load_files(X, [silent(true),skip_unix_comments])
+	  '$system_catch'(load_files(X, [silent(true),skip_unix_comments]),Module,_,fail)
+	;
+	  true
 	),
+	!,
 	( '$access_yap_flags'(15, 0) -> true ; halt).
 
 '$skip_unix_comments'(Stream) :-

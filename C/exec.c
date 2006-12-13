@@ -362,7 +362,6 @@ EnterCreepMode(Term t, Term mod) {
   LOCK(SignalLock);
   CreepFlag = CalculateStackGap();
   UNLOCK(SignalLock);
-  yap_flags[SPY_CREEP_FLAG] = TRUE;
   P_before_spy = P;
   return (CallPredicate(PredCreep, B, PredCreep->CodeOfPred));
 }
@@ -601,6 +600,8 @@ p_execute_nonstop(void)
   /* call may not define new system predicates!! */
   if (RepPredProp(pe)->PredFlags & SpiedPredFlag) {
     return CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->cs.p_code.TrueCodeOfPred);
+  }  else if (RepPredProp(pe)->PredFlags & (AsmPredFlag|CPredFlag)) {
+    return RepPredProp(pe)->cs.f_code();
   } else {
     return CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred);
   }
@@ -1241,7 +1242,6 @@ exec_absmi(int top)
 	restore_B();
 	/* H is not so important, because we're gonna backtrack */
 	restore_H();
-	yap_flags[SPY_CREEP_FLAG] = 0;
 	LOCK(SignalLock);
 	CreepFlag = CalculateStackGap();
 	Yap_PrologMode = UserMode;

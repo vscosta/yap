@@ -83,8 +83,10 @@ static char SccsId[] = "%W% %G%";
 STATIC_PROTO (Int PlIOError, (yap_error_number, Term, char *));
 STATIC_PROTO (int FilePutc, (int, int));
 STATIC_PROTO (int MemPutc, (int, int));
-STATIC_PROTO (int console_post_process_read_char, (int, StreamDesc *));
+STATIC_PROTO (int console_post_process_read_char, (wchar_t, StreamDesc *));
+STATIC_PROTO (int console_post_process_eof, (StreamDesc *));
 STATIC_PROTO (int post_process_read_char, (int, StreamDesc *));
+STATIC_PROTO (int post_process_eof, (StreamDesc *));
 #if USE_SOCKET
 STATIC_PROTO (int SocketPutc, (int, int));
 STATIC_PROTO (int ConsoleSocketPutc, (int, int));
@@ -999,7 +1001,7 @@ static int
 ReadlineGetc(int sno)
 {
   register StreamDesc *s = &Stream[sno];
-  register int ch;
+  register wchar_t ch;
 
   while (ttyptr == NULL) {
     /* Only sends a newline if we are at the start of a line */
@@ -1042,7 +1044,7 @@ ReadlineGetc(int sno)
       if (Yap_PrologMode & AbortMode) {
 	Yap_Error(PURE_ABORT, TermNil, "");
 	Yap_ErrorMessage = "Abort";
-	return(console_post_process_read_char(EOF, s));
+	return console_post_process_eof(s);
       }
       continue;
     } else {
@@ -1052,7 +1054,7 @@ ReadlineGetc(int sno)
     strncpy (Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
     /* window of vulnerability closed */
     if (myrl_line == NULL)
-      return(console_post_process_read_char(EOF, s));
+      return console_post_process_eof(s);
     if (myrl_line[0] != '\0' && myrl_line[1] != '\0')
       add_history (myrl_line);
     ttyptr = myrl_line;
@@ -1064,7 +1066,7 @@ ReadlineGetc(int sno)
     ch = *((unsigned char *)ttyptr);
     ttyptr++;
   }
-  return(console_post_process_read_char(ch, s));
+  return console_post_process_read_char(ch, s);
 }
 
 #endif /* HAVE_LIBREADLINE */
@@ -1073,7 +1075,7 @@ ReadlineGetc(int sno)
 int
 Yap_GetCharForSIGINT(void)
 {
-  int ch;
+  wchar_t ch;
 #if  HAVE_LIBREADLINE
   if ((Yap_PrologMode & ConsoleGetcMode) && myrl_line != (char *) NULL) {
     ch = myrl_line[0];
@@ -1175,54 +1177,62 @@ EOFGetc(int sno)
 static int
 post_process_read_char(int ch, StreamDesc *s)
 {
+  ++s->charcount;
+  ++s->linepos;
   if (ch == '\n') {
     ++s->linecount;
-    ++s->charcount;
     s->linepos = 0;
     /* don't convert if the stream is binary */
     if (!(s->status & Binary_Stream_f))
       ch = 10;
-  } else if (ch == EOF) {
-    s->status |= Eof_Stream_f;
-    s->stream_getc = EOFGetc;
-    s->stream_wgetc = get_wchar;
-    if (CharConversionTable != NULL)
-      s->stream_wgetc_for_read = ISOWGetc;
-    else
-      s->stream_wgetc_for_read = s->stream_wgetc;
-    return EOFCHAR;
-  } else {
-    ++s->charcount;
-    ++s->linepos;
   }
   return ch;
 }
 
 /* check if we read a newline or an EOF */
 static int
-console_post_process_read_char(int ch, StreamDesc *s)
+post_process_eof(StreamDesc *s)
+{
+  s->status |= Eof_Stream_f;
+  s->stream_getc = EOFGetc;
+  s->stream_wgetc = get_wchar;
+  if (CharConversionTable != NULL)
+    s->stream_wgetc_for_read = ISOWGetc;
+  else
+    s->stream_wgetc_for_read = s->stream_wgetc;
+  return EOFCHAR;
+}
+
+/* check if we read a newline or an EOF */
+static int
+console_post_process_read_char(wchar_t ch, StreamDesc *s)
 {
   if (ch == '\n') {
     ++s->linecount;
     ++s->charcount;
     s->linepos = 0;
     newline = TRUE;
-  } else if (ch == EOF) {
-    s->status |= Eof_Stream_f;
-    s->stream_getc = EOFGetc;
-    s->stream_wgetc = get_wchar;
-    if (CharConversionTable != NULL)
-      s->stream_wgetc_for_read = ISOWGetc;
-    else
-      s->stream_wgetc_for_read = s->stream_wgetc;
-    newline = FALSE;
-    return (EOFCHAR);
   } else {
     ++s->charcount;
     ++s->linepos;
     newline = FALSE;
   }
-  return(ch);
+  return ch;
+}
+
+/* check if we read a newline or an EOF */
+static int
+console_post_process_eof(StreamDesc *s)
+{
+  s->status |= Eof_Stream_f;
+  s->stream_getc = EOFGetc;
+  s->stream_wgetc = get_wchar;
+  if (CharConversionTable != NULL)
+    s->stream_wgetc_for_read = ISOWGetc;
+  else
+    s->stream_wgetc_for_read = s->stream_wgetc;
+  newline = FALSE;
+  return EOFCHAR;
 }
 
 #if USE_SOCKET
@@ -1234,7 +1244,7 @@ static int
 SocketGetc(int sno)
 {
   register StreamDesc *s = &Stream[sno];
-  register int ch;
+  register Int ch;
   char c;
   int count;
   /* should be able to use a buffer */
@@ -1245,7 +1255,7 @@ SocketGetc(int sno)
 #endif
   if (count == 0) {
     s->u.socket.flags = closed_socket;
-    ch = EOF;
+    return post_process_eof(s);
   } else if (count > 0) {
     ch = c;
   } else {
@@ -1256,9 +1266,9 @@ SocketGetc(int sno)
       Yap_Error(SYSTEM_ERROR, TermNil,
 	    "(socket_getc)");
 #endif
-    return EOF;
+    return post_process_eof(s);
   }
-  return(post_process_read_char(ch, s));
+  return post_process_read_char(ch, s);
 }
 
 /*
@@ -1269,8 +1279,8 @@ static int
 ConsoleSocketGetc(int sno)
 {
   register StreamDesc *s = &Stream[sno];
-  register int ch;
-  char c;
+  register wchar_t ch;
+  Int c;
   int count;
 
   /* send the prompt away */
@@ -1292,14 +1302,14 @@ ConsoleSocketGetc(int sno)
 #endif
   Yap_PrologMode &= ~ConsoleGetcMode;
   if (count == 0) {
-    ch = EOF;
+    return console_post_process_eof(s);
   } else if (count > 0) {
     ch = c;
   } else {
     Yap_Error(SYSTEM_ERROR, TermNil, "read");
-    return(EOF);
+    return console_post_process_eof(s);
   }
-  return(console_post_process_read_char(ch, s));
+  return console_post_process_read_char(ch, s);
 }
 #endif
 
@@ -1307,9 +1317,10 @@ static int
 PipeGetc(int sno)
 {
   register StreamDesc *s = &Stream[sno];
-  register int ch;
+  register Int ch;
   char c;
-	/* should be able to use a buffer */
+  
+  /* should be able to use a buffer */
 #if _MSC_VER || defined(__MINGW32__) 
   DWORD count;
   if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
@@ -1321,14 +1332,14 @@ PipeGetc(int sno)
   count = read(s->u.pipe.fd, &c, sizeof(char));
 #endif
   if (count == 0) {
-    ch = EOF;
+    return post_process_eof(s);
   } else if (count > 0) {
     ch = c;
   } else {
     Yap_Error(SYSTEM_ERROR, TermNil, "read");
-    return(EOF);
+    return post_process_eof(s);
   }
-  return(post_process_read_char(ch, s));
+  return post_process_read_char(ch, s);
 }
 
 /*
@@ -1339,7 +1350,7 @@ static int
 ConsolePipeGetc(int sno)
 {
   register StreamDesc *s = &Stream[sno];
-  register int ch;
+  register wchar_t ch;
   char c;
 #if _MSC_VER || defined(__MINGW32__) 
   DWORD count;
@@ -1362,7 +1373,7 @@ ConsolePipeGetc(int sno)
     Yap_PrologMode |= ConsoleGetcMode;
     PlIOError (SYSTEM_ERROR,TermNil, "read from pipe returned error");
     Yap_PrologMode &= ~ConsoleGetcMode;
-    return(EOF);
+    return console_post_process_eof(s);
   }
 #else
   /* should be able to use a buffer */
@@ -1371,14 +1382,14 @@ ConsolePipeGetc(int sno)
   Yap_PrologMode &= ~ConsoleGetcMode;
 #endif
   if (count == 0) {
-    ch = EOF;
+    return console_post_process_eof(s);
   } else if (count > 0) {
     ch = c;
   } else {
     Yap_Error(SYSTEM_ERROR, TermNil, "read");
-    return(EOF);
+    return console_post_process_eof(s);
   }
-  return(console_post_process_read_char(ch, s));
+  return console_post_process_read_char(ch, s);
 }
 
 /* standard routine, it should read from anything pointed by a FILE *.
@@ -1388,10 +1399,12 @@ static int
 PlGetc (int sno)
 {
   register StreamDesc *s = &Stream[sno];
-  register int ch;
+  register Int ch;
 
   ch = YP_getc (s->u.file.file);
-  return(post_process_read_char(ch, s));
+  if (ch == EOF)
+    return post_process_eof(s);    
+  return post_process_read_char(ch, s);
 }
 
 /* standard routine, it should read from anything pointed by a FILE *.
@@ -1403,8 +1416,9 @@ PlGets (int sno, UInt size, char *buf)
   register StreamDesc *s = &Stream[sno];
   UInt len;
 
-  if (fgets (buf, size, s->u.file.file) == NULL)
-    return -1;
+  if (fgets (buf, size, s->u.file.file) == NULL) {
+    return post_process_eof(s);    
+  }
   len = strlen(buf);
   s->charcount += len-1;
   post_process_read_char(buf[len-2], s);
@@ -1418,7 +1432,7 @@ static int
 DefaultGets (int sno, UInt size, char *buf)
 {
   StreamDesc *s = &Stream[sno];
-  int ch;
+  char ch;
   char *pt = buf;
 
 
@@ -1435,23 +1449,24 @@ static int
 MemGetc (int sno)
 {
   register StreamDesc *s = &Stream[sno];
-  Int ch, spos;
+  Int ch;
+  int spos;
 
   spos = s->u.mem_string.pos;
   if (spos == s->u.mem_string.max_size) {
-    ch = -1;
+    return post_process_eof(s);
   } else {
     ch = s->u.mem_string.buf[spos];
     s->u.mem_string.pos = ++spos;
   }
-  return(post_process_read_char(ch, s));
+  return post_process_read_char(ch, s);
 }
 
 /* I dispise this code!!!!! */
 static wchar_t
 ISOWGetc (int sno)
 {
-  wchar_t ch = Stream[sno].stream_wgetc(sno);
+  Int ch = Stream[sno].stream_wgetc(sno);
   if (ch != EOF && CharConversionTable != NULL) {
 
     if (ch < NUMBER_OF_CHARS) {
@@ -1468,7 +1483,7 @@ static int
 ConsoleGetc(int sno)
 {
   register StreamDesc *s = &Stream[sno];
-  char ch;
+  int ch;
 
  restart:
   if (newline) {
@@ -1497,13 +1512,15 @@ ConsoleGetc(int sno)
     if (Yap_PrologMode & AbortMode) {
       Yap_Error(PURE_ABORT, TermNil, "");
       Yap_ErrorMessage = "Abort";
-      return(console_post_process_read_char(EOF, s));
+      return console_post_process_eof(s);
     }
     goto restart;
   } else {
     Yap_PrologMode &= ~ConsoleGetcMode;
   }
-  return(console_post_process_read_char(ch, s));
+  if (ch == EOF)
+    return console_post_process_eof(s);    
+  return console_post_process_read_char(ch, s);
 }
 
 /* reads a character from a buffer and does the rest  */

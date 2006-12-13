@@ -5,7 +5,7 @@
 
 
 
-:- module(evidence, [
+:- module(clpbn_evidence, [
 	store_evidence/1,
         incorporate_evidence/2
     ]).

@@ -528,7 +528,9 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
     p_code->opc = Yap_opcode(_call_cpred);
   p_code->u.sla.bmap = NULL;
   p_code->u.sla.s = -Signed(RealEnvSize);
-  p_code->u.sla.sla_u.p = pe;
+  p_code->u.sla.sla_u.p =
+    p_code->u.sla.p0 =
+    pe;
   p_code = NEXTOP(p_code,sla);
   if (!(flags & SafePredFlag)) {
     p_code->opc = Yap_opcode(_deallocate);
@@ -628,7 +630,7 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
     p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_cpred);
     p_code->u.sla.bmap = NULL;
     p_code->u.sla.s = -Signed(RealEnvSize);
-    p_code->u.sla.sla_u.p = pe;
+    p_code->u.sla.sla_u.p = p_code->u.sla.p0 = pe;
     p_code = NEXTOP(p_code,sla);
     p_code->opc = Yap_opcode(_procceed);
     p_code->u.p.p = pe;
@@ -837,7 +839,6 @@ InitFlags(void)
   yap_flags[YAP_TO_CHARS_FLAG] = QUINTUS_TO_CHARS;
   yap_flags[LANGUAGE_MODE_FLAG] = 0;
   yap_flags[STRICT_ISO_FLAG] = FALSE;
-  yap_flags[SPY_CREEP_FLAG] = 0;
   yap_flags[SOURCE_MODE_FLAG] = FALSE;
   yap_flags[CHARACTER_ESCAPE_FLAG] = SICSTUS_CHARACTER_ESCAPES;
   yap_flags[WRITE_QUOTED_STRING_FLAG] = FALSE;

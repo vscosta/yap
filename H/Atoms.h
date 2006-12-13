@@ -22,6 +22,8 @@
 #define EXTERN
 #endif
 
+#include <wchar.h>
+
 /*********  operations for atoms ****************************************/
 
 /*    Atoms are assumed to be uniquely represented by an OFFSET and to have
@@ -47,9 +49,16 @@ typedef struct AtomEntryStruct
   rwlock_t ARWLock;
 #endif
 
-  char StrOfAE[MIN_ARRAY];	/* representation of atom as a string           */
+  union {
+    char uStrOfAE[MIN_ARRAY];	/* representation of atom as a string           */
+    wchar_t uWStrOfAE[MIN_ARRAY];	/* representation of atom as a string           */
+  } rep;
 }
 AtomEntry;
+
+#define StrOfAE rep.uStrOfAE
+#define WStrOfAE rep.uWStrOfAE
+
 
 /* Props and Atoms are stored in chains, ending with a NIL */
 #if USE_OFFSETS

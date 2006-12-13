@@ -3,7 +3,9 @@
 :- module(clpbn, [{}/1,
 		  clpbn_flag/2,
 		  set_clpbn_flag/2,
-		  clpbn_flag/3]).
+		  clpbn_flag/3,
+		  clpbn_key/2,
+		  clpbn_marginalise/2]).
 
 :- use_module(library(atts)).
 :- use_module(library(lists)).
@@ -110,6 +112,11 @@ add_evidence(V,NV) :-
 	nonvar(V), !,
 	clpbn:put_atts(NV,evidence(V)).
 add_evidence(V,V).
+
+clpbn_marginalise(V, Dist) :-
+	attributes:all_attvars(AVars),
+	project_attributes([V], AVars),
+	vel:get_atts(V, posterior(_,_,Dist,_)).
 
 %
 % called by top-level
@@ -244,3 +251,5 @@ user:term_expansion((A :- {}), ( :- true )) :-	 !, % evidence
 	prolog_load_context(module, M),
 	store_evidence(M:A).
 
+clpbn_key(Var,Key) :-
+	get_atts(Var, [key(Key)]).

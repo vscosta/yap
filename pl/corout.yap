@@ -641,11 +641,9 @@ call_residue(Goal,Residue) :-
 '$project_module'([Mod|LMods], LIV, LAV) :-
 	\+ '$undefined'(project_attributes(LIV, LAV), Mod),
 	'$execute'(Mod:project_attributes(LIV, LAV)), !,
-	'$do_not_creep',
 	attributes:all_attvars(NLAV),
 	'$project_module'(LMods,LIV,NLAV).
 '$project_module'([_|LMods], LIV, LAV) :-
-	'$do_not_creep',
 	'$project_module'(LMods,LIV,LAV).
 
 
@@ -662,11 +660,9 @@ call_residue(Goal,Residue) :-
 	attributes:convert_att_var(V,G),
 	G \= true,
 	!,
-	'$do_not_creep',
 	'$split_goals_for_catv'(G,V,NGs,IGs),
 	'$do_convert_att_vars'(LAV, LIV, IGs).
 '$do_convert_att_vars'([_|LAV], LIV, Gs) :-
-	'$do_not_creep',
 	'$do_convert_att_vars'(LAV, LIV, Gs).
 
 '$split_goals_for_catv'((G,NG),V,[V-G|Gs],Gs0) :- !,

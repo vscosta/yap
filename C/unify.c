@@ -309,7 +309,7 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
     }
   }
   /* Do we still have compound terms to visit */
-  if (to_visit < to_visit_max) {
+  if (to_visit < to_visit_base) {
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
     pt1 = to_visit[2];

@@ -607,7 +607,11 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   }
   if (size < ((char *)H0-omax)/8)
     size = ((char *)H0-omax)/8;
-  size0 = size = AdjustPageSize(size);
+  if (do_grow) {
+    size0 = size = AdjustPageSize(size);
+  } else {
+    size0 = size;
+  }
   /* adjust to a multiple of 256) */
   Yap_ErrorMessage = NULL;
   Yap_PrologMode |= GrowStackMode;
@@ -621,7 +625,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
       if (size < 0) {
 	Yap_ErrorMessage = "Global Stack crashed against Local Stack";
 	Yap_PrologMode &= ~GrowStackMode;
-	return FALSE;
+	return 0;
       }
     }
   }
@@ -705,7 +709,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
     fprintf(Yap_stderr, "%% %cO Total of %g sec expanding stacks \n", vb_msg1, (double)total_delay_overflow_time/1000);
   }
   Yap_PrologMode &= ~GrowStackMode;
-  return(TRUE);
+  return size0;
 }
 
 static void
@@ -1062,24 +1066,24 @@ Yap_growglobal(CELL **ptr)
     return(FALSE);
   }
 #endif
-  if (!static_growglobal(sz, ptr, NULL))
-    return(FALSE);
-#ifdef TABLING
-  fix_tabling_info();
-#endif /* TABLING */
-  return(TRUE);
-}
-
-
-int
-Yap_InsertInGlobal(CELL *where, UInt howmuch)
-{
-  if (!static_growglobal(howmuch, NULL, where))
+  if ( static_growglobal(sz, ptr, NULL) == 0)
     return FALSE;
 #ifdef TABLING
   fix_tabling_info();
 #endif /* TABLING */
   return TRUE;
+}
+
+
+UInt
+Yap_InsertInGlobal(CELL *where, UInt howmuch)
+{
+  if ((howmuch = static_growglobal(howmuch, NULL, where)) == 0)
+    return 0;
+#ifdef TABLING
+  fix_tabling_info();
+#endif /* TABLING */
+  return howmuch;
 }
 
 

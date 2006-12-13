@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2006-05-22 16:12:01 $,$Author: tiagosoares $						 *
+* Last rev:     $Date: 2006-12-13 16:10:26 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.78  2006/05/22 16:12:01  tiagosoares
+* MYDDAS: MYDDAS version boot message
+*
 * Revision 1.77  2006/04/10 19:24:52  vsc
 * fix syntax error message handling
 * improve redblack trees and use it to reimplement association lists and
@@ -276,6 +279,9 @@ print_message(Level, Mss) :-
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
 '$do_print_message'(format(Msg, Args)) :- !,
 	format(user_error,Msg,Args).
+'$do_print_message'(ancestors([])) :- !,
+	format(user_error,'There are no ancestors.',
+	       []).	
 '$do_print_message'(breakp(bp(debugger,_,_,M:F/N,_),add,already)) :- !,
 	format(user_error,'There is already a spy point on ~w:~w/~w.',
 	[M,F,N]).	

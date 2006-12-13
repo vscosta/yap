@@ -173,7 +173,10 @@ mark_hash_entry(AtomHashEntry *HashPtr)
     AtomEntry      *at =  RepAtom(atm);
     do {
 #ifdef DEBUG_RESTORE1			/* useful during debug */
-      fprintf(errout, "Restoring %s\n", at->StrOfAE);
+      if (IsWideAtom(atm))
+	  fprintf(errout, "Restoring %S\n", at->WStrOfAE);
+      else
+	fprintf(errout, "Restoring %s\n", at->StrOfAE);
 #endif
       RestoreEntries(RepProp(at->PropsOfAE));
       atm = at->NextOfAE;
@@ -211,7 +214,10 @@ mark_atoms(void)
   }
   do {
 #ifdef DEBUG_RESTORE1		/* useful during debug */
-    fprintf(errout, "Restoring %s\n", at->StrOfAE);
+    if (IsWideAtom(atm))
+      fprintf(errout, "Restoring %S\n", at->WStrOfAE);
+    else
+      fprintf(errout, "Restoring %s\n", at->StrOfAE);
 #endif
     RestoreEntries(RepProp(at->PropsOfAE));
     atm = at->NextOfAE;
@@ -330,12 +336,19 @@ clean_atom(AtomHashEntry *HashPtr)
       atm = at->NextOfAE;
       NOfAtoms--;
     } else {
+      if (IsWideAtom(atm)) {
 #ifdef DEBUG_RESTORE3
-      fprintf(stderr, "Purged %p:%s\n", at, at->StrOfAE);
+	fprintf(errout, "Purged %p:%S\n", at, at->WStrOfAE);
 #endif
+	agc_collected += sizeof(AtomEntry)+wcslen(at->WStrOfAE);
+      } else {
+#ifdef DEBUG_RESTORE3
+	fprintf(stderr, "Purged %p:%s\n", at, at->StrOfAE);
+#endif
+	agc_collected += sizeof(AtomEntry)+strlen(at->StrOfAE);
+      }
       *patm = at->NextOfAE;
       atm = at->NextOfAE;
-      agc_collected += sizeof(AtomEntry)+strlen(at->StrOfAE);
       Yap_FreeCodeSpace((char *)at);
     }
   }
@@ -370,12 +383,19 @@ clean_atoms(void)
       NOfAtoms--;
       atm = at->NextOfAE;
     } else {
-#ifdef DEBUG_RESTORE1
-      fprintf(stderr, "Purged %s\n", at->StrOfAE);
+      if (IsWideAtom(atm)) {
+#ifdef DEBUG_RESTORE3
+	fprintf(errout, "Purged %p:%S\n", at, at->WStrOfAE);
 #endif
+	agc_collected += sizeof(AtomEntry)+wcslen(at->WStrOfAE);
+      } else {
+#ifdef DEBUG_RESTORE3
+	fprintf(stderr, "Purged %p:%s\n", at, at->StrOfAE);
+#endif
+	agc_collected += sizeof(AtomEntry)+strlen(at->StrOfAE);
+      }
       *patm = at->NextOfAE;
       atm = at->NextOfAE;
-      agc_collected += sizeof(AtomEntry) + strlen(at->StrOfAE);
       Yap_FreeCodeSpace((char *)at);
     }
   }

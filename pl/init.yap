@@ -73,8 +73,6 @@ otherwise.
 	 'eam.yap',
 	 'yapor.yap'].
 
-:- thread_local([idb:'$debug'/0,idb:'$trace'/0,idb:'$spy_skip'/0,idb:'$spy_stop'/0]).
-
 :-	 ['protect.yap'].
 
 version(yap,[4,1]).

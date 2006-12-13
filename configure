@@ -15428,7 +15428,7 @@ _ACEOF
 
 fi
 
-mkdir -p  library/matrices
+mkdir -p  library/matrix
 mkdir -p  library/mpi
 mkdir -p  library/random
 mkdir -p  library/regex
@@ -15449,7 +15449,7 @@ mkdir -p  LGPL/clp
 mkdir -p  LGPL/clpr
 mkdir -p  LGPL/chr
 
-                                                                                                                                                                                                        ac_config_files="$ac_config_files Makefile library/matrices/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/lammpi/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap"
+                                                                                                                                                                                                        ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/lammpi/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -15976,7 +15976,7 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-  "library/matrices/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/matrices/Makefile" ;;
+  "library/matrix/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/matrix/Makefile" ;;
   "library/regex/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/regex/Makefile" ;;
   "library/system/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/system/Makefile" ;;
   "library/random/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/random/Makefile" ;;

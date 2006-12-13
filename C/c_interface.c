@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2006-11-27 17:42:02 $,$Author: vsc $						 *
+* Last rev:	$Date: 2006-12-13 16:10:14 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.86  2006/11/27 17:42:02  vsc
+* support for UNICODE, and other bug fixes.
+*
 * Revision 1.85  2006/05/16 18:37:30  vsc
 * WIN32 fixes
 * compiler bug fixes
@@ -338,10 +341,9 @@ X_API CELL     STD_PROTO(YAP_ThreadCreateEngine,(thread_attr *));
 X_API int      STD_PROTO(YAP_ThreadAttachEngine,(int));
 X_API int      STD_PROTO(YAP_ThreadDetachEngine,(int));
 X_API int      STD_PROTO(YAP_ThreadDestroyEngine,(int));
-X_API int      STD_PROTO(YAP_ArgsToIntArray,(Term, UInt, const Int *));
-X_API Term     STD_PROTO(YAP_IntArrayToArgs,(UInt, const Int *));
-X_API int      STD_PROTO(YAP_ArgsToFloatArray,(Term, UInt, const Float *));
-X_API Term     STD_PROTO(YAP_FloatArrayToArgs,(UInt, const Float *));
+X_API Term     STD_PROTO(YAP_MkBlobTerm,(unsigned int));
+X_API void    *STD_PROTO(YAP_BlobOfTerm,(Term));
+X_API Term     STD_PROTO(YAP_TermNil,(void));
 
 static int (*do_getf)(void);
 
@@ -473,6 +475,40 @@ YAP_BigNumOfTerm(Term t, void *b)
     return;
   mpz_set(bz,Yap_BigIntOfTerm(t));
 #endif /* USE_GMP */
+}
+
+X_API Term 
+YAP_MkBlobTerm(unsigned int sz)
+{
+  Term I;
+  MP_INT *dst;
+  BACKUP_H();
+
+  I = AbsAppl(H);
+  if (H+(sz+sizeof(MP_INT)/sizeof(CELL)+2) > ASP-1024)
+    return TermNil;
+  H[0] = (CELL)FunctorBigInt;
+  dst = (MP_INT *)(H+1);
+  dst->_mp_size = 0L;
+  dst->_mp_alloc = sz;
+  H += (1+sizeof(MP_INT)/sizeof(CELL));
+  H[sz] = EndSpecials;
+  H += sz+1;
+  RECOVER_H();
+
+  return I;
+}
+
+X_API void *
+YAP_BlobOfTerm(Term t)
+{
+  MP_INT *src;
+  if (IsVarTerm(t))
+    return NULL;
+  if (!IsBigIntTerm(t))
+    return NULL;
+  src = (MP_INT *)(RepAppl(t)+1);
+  return (void *)(src+1);
 }
 
 X_API Term 
@@ -1640,86 +1676,9 @@ YAP_ThreadDestroyEngine(int wid)
 #endif
 } 
 
-/* Copy a number of terms to an array of integers */
-X_API int
-YAP_ArgsToIntArray(Term t, UInt size, const Int *ar)
-{
-  Int *dest = (Int *)ar;
-  CELL *ptr;
-
-  if (IsVarTerm(t) ||
-      !IsApplTerm(t)) return FALSE;
-  if (ArityOfFunctor(FunctorOfTerm(t)) != size)
-    return FALSE;
-  ptr = RepAppl(t)+1;
-  while (size) {
-    Term t = *ptr++;
-    if (IsVarTerm(t) || !IsIntegerTerm(t))
-      return FALSE;
-    *dest++ = IntegerOfTerm(t);
-  }
-  return TRUE;
-} 
-
 X_API Term
-YAP_IntArrayToArgs(UInt size, const Int *ar)
+YAP_TermNil(void)
 {
-  Term t; 
-  BACKUP_H();
-  CELL *ptr = H+1;
-  Int *source = (Int *)ar;
-
-  if (H+(size+1) >= ASP) {
-    return TermNil;
-  }
-  t = AbsAppl(H);
-  *H++ = (CELL)Yap_MkFunctor(Yap_LookupAtom("data"),size);
-  H+=size;
-  while (size) {
-    *ptr++ = MkIntegerTerm(*source++);
-  }
-  RECOVER_H();
-  return t;
-} 
-
-X_API int
-YAP_ArgsToFloatArray(Term t, UInt size, const Float *ar)
-{
-  CELL *ptr;
-  Float *dest = (Float *)ar;
-
-  if (IsVarTerm(t) ||
-      !IsApplTerm(t)) return FALSE;
-  if (ArityOfFunctor(FunctorOfTerm(t)) != size)
-    return FALSE;
-  ptr = RepAppl(t)+1;
-  while (size) {
-    Term t = *ptr++;
-    if (IsVarTerm(t) || !IsFloatTerm(t))
-      return FALSE;
-    *dest++ = FloatOfTerm(t);
-  }
-  return TRUE;
-} 
-
-X_API Term
-YAP_FloatArrayToArgs(UInt size, const Float *ar)
-{
-  Term t; 
-  BACKUP_H();
-  CELL *ptr = H+1;
-  Float *source = (Float *)ar;
-
-  if (H+(size+1) >= ASP) {
-    return TermNil;
-  }
-  t = AbsAppl(H);
-  *H++ = (CELL)Yap_MkFunctor(Yap_LookupAtom("data"),size);
-  H+=size;
-  while (size) {
-    *ptr++ = MkFloatTerm(*source++);
-  }
-  RECOVER_H();
-  return t;
+  return TermNil;
 } 
 

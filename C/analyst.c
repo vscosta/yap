@@ -87,16 +87,26 @@ static Int
 p_show_op_counters()
 {
   int i;
-  char *program;
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1) || !IsAtomTerm(t1)) {
     return FALSE;
   } else {
-    program = RepAtom(AtomOfTerm(t1))->StrOfAE;
+    Atom at1 = AtomOfTerm(t1);
+
+    if (IsWideAtom(at1)) {
+      wchar_t *program;
+
+      program = RepAtom(at1)->WStrOfAE;
+      fprintf(Yap_stderr, "\n Instructions Executed in %S\n", program);
+    } else {
+      char *program;
+
+      program = RepAtom(at1)->StrOfAE;
+      fprintf(Yap_stderr, "\n Instructions Executed in %s\n", program);
+    }
   }
 
-  fprintf(Yap_stderr, "\n Instructions Executed in %s \n", program);
   for (i = 0; i <= _std_top; ++i)
     print_instruction(i);
   fprintf(Yap_stderr, "\n Control Instructions \n");
@@ -300,14 +310,24 @@ p_show_ops_by_group(void)
   ccpcount c_cp;
   int gets, unifies, puts, writes, controls, choice_pts, indexes, misc,
     total;
-  char *program;
   Term t1;
+  Atom at1;
 
   t1 = Deref(ARG1);
   if (IsVarTerm(t1) || !IsAtomTerm(t1))
     return (FALSE);
-  else
-    program = RepAtom(AtomOfTerm(t1))->StrOfAE;
+  at1 = AtomOfTerm(t1);
+  if (IsWideAtom(at1)) {
+    wchar_t *program;
+
+    program = RepAtom(at1)->WStrOfAE;
+    fprintf(Yap_stderr, "\n Instructions Executed in %S\n", program);
+  } else {
+    char *program;
+
+    program = RepAtom(at1)->StrOfAE;
+    fprintf(Yap_stderr, "\n Instructions Executed in %s\n", program);
+  }
 
   c_get.nxvar =
     Yap_opcount[_get_x_var];
@@ -634,7 +654,6 @@ p_show_ops_by_group(void)
    * print_instruction(i);
    */
 
-  fprintf(Yap_stderr, "\n Instructions Executed in %s\n", program);
   fprintf(Yap_stderr, "Groups are\n\n");
   fprintf(Yap_stderr, "  GET               instructions: %8d (%3d%%)\n", gets,
 	     (gets * 100) / total);

@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-11-28 13:46:41 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-12-13 16:10:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.115  2006/11/28 13:46:41  vsc
+* fix wide_char support for name/2.
+*
 * Revision 1.114  2006/11/27 17:42:03  vsc
 * support for UNICODE, and other bug fixes.
 *
@@ -441,7 +444,6 @@ p_creep(void)
   at = Yap_FullLookupAtom("$creep");
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
   CreepCode = pred;
-  yap_flags[SPY_CREEP_FLAG] = TRUE;
   do_signal(YAP_CREEP_SIGNAL);
   return TRUE;
 }
@@ -455,7 +457,6 @@ p_delayed_creep(void)
   at = Yap_FullLookupAtom("$creep");
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
   CreepCode = pred;
-  yap_flags[SPY_CREEP_FLAG] = FALSE;
   do_signal(YAP_CREEP_SIGNAL);
   LOCK(SignalLock);
   CreepFlag = CalculateStackGap();
@@ -754,28 +755,52 @@ p_char_code(void)
       return(FALSE);
     } else {
       Int code = IntegerOfTerm(t1);
-      char codes[2];
       Term tout;
 
-      if (code < 0 || code > 256) {
+      if (code < 0) {
 	Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,t1,"char_code/2");
 	return(FALSE);
       }
-      codes[0] = code;
-      codes[1] = '\0';
-      tout = MkAtomTerm(Yap_LookupAtom(codes));
-      return(Yap_unify(ARG1,tout));
+      if (code > MAX_ISO_LATIN1) {
+	wchar_t wcodes[2];
+
+	wcodes[0] = code;
+	wcodes[1] = '\0';
+	tout = MkAtomTerm(Yap_LookupWideAtom(wcodes));
+      } else {
+	char codes[2];
+
+	codes[0] = code;
+	codes[1] = '\0';
+	tout = MkAtomTerm(Yap_LookupAtom(codes));
+      }
+      return Yap_unify(ARG1,tout);
     }
   } else if (!IsAtomTerm(t0)) {
     Yap_Error(TYPE_ERROR_CHARACTER,t0,"char_code/2");
     return(FALSE);
   } else {
-    char *c = RepAtom(AtomOfTerm(t0))->StrOfAE;
-    if (c[1] != '\0') {
-      Yap_Error(TYPE_ERROR_CHARACTER,t0,"char_code/2");
-      return(FALSE);
+    Atom at = AtomOfTerm(t0);
+    Term tf;
+
+    if (IsWideAtom(at)) {
+      wchar_t *c = RepAtom(at)->WStrOfAE;
+      
+      if (c[1] != '\0') {
+	Yap_Error(TYPE_ERROR_CHARACTER,t0,"char_code/2");
+	return FALSE;
+      }
+      tf = MkIntegerTerm(c[0]);
+    } else {
+      char *c = RepAtom(at)->StrOfAE;
+      
+      if (c[1] != '\0') {
+	Yap_Error(TYPE_ERROR_CHARACTER,t0,"char_code/2");
+	return FALSE;
+      }
+      tf = MkIntTerm((unsigned char)(c[0]));
     }
-    return(Yap_unify(ARG2,MkIntTerm((Int)(c[0]))));
+    return Yap_unify(ARG2,tf);
   }
 }
 
@@ -3309,11 +3334,6 @@ p_set_yap_flags(void)
       return(FALSE);
     yap_flags[STRICT_ISO_FLAG] = value;
     break;
-  case SPY_CREEP_FLAG:
-    if (value != 0 && value !=  1)
-      return(FALSE);
-    yap_flags[SPY_CREEP_FLAG] = value;
-    break;
   case SOURCE_MODE_FLAG:
     if (value != 0 && value !=  1)
       return(FALSE);
@@ -3401,6 +3421,17 @@ p_set_yap_flags(void)
     return(FALSE);
   }
   return(TRUE);
+}
+
+static Int
+p_system_mode(void)
+{
+  Int i = IntegerOfTerm(Deref(ARG1));
+  if (i == 0) 
+    Yap_PrologMode &= ~SystemMode;
+  else
+    Yap_PrologMode |= SystemMode;
+  return TRUE;
 }
 
 static Int
@@ -3631,6 +3662,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$walltime", 2, p_walltime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$access_yap_flags", 2, p_access_yap_flags, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$p_system_mode", 1, p_system_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
   Yap_InitCPred("$max_tagged_integer", 1, p_max_tagged_integer, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$min_tagged_integer", 1, p_min_tagged_integer, SafePredFlag|HiddenPredFlag);

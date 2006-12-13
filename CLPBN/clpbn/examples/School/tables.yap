@@ -1,7 +1,9 @@
 
 :- use_module(library('clpbn/aggregates'),[cpt_average/5]).
 
-int_table(_, [0.5, 0.4, 0.1],[h, m, l]).
+int_table(_, [0.5,
+	      0.4,
+	      0.1],[h, m, l]).
 
 grade_table(I, D, 
 	   /* h h   h m  h l  m h  m m  m l  l h  l m l l */

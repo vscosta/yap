@@ -417,11 +417,7 @@ yap_flag(language,X) :-
 
 yap_flag(debug,X) :-
 	var(X), !,
-	(recorded('$debug',on,_) ->
-	    X = on
-	;
-	    X = off
-	).
+	nb_getval('$debug',X).
 yap_flag(debug,X) :-
 	'$transl_to_on_off'(_,X), !,
 	(X = on -> debug ; nodebug).

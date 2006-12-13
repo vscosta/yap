@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2006-11-15 00:13:36 $							 *
+* Last rev:     $Date: 2006-12-13 16:10:14 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.92  2006/11/15 00:13:36  vsc
+* fixes for indexing code.
+*
 * Revision 1.91  2006/11/06 18:35:03  vsc
 * 1estranha
 *
@@ -1310,7 +1313,8 @@ compile_cmp_flags(char *s)
 wamreg
 Yap_compile_cmp_flags(PredEntry *pred)
 {
-  return compile_cmp_flags(RepAtom(NameOfFunctor(pred->FunctorOfPred))->StrOfAE);
+  return
+    compile_cmp_flags(RepAtom(NameOfFunctor(pred->FunctorOfPred))->StrOfAE);
 }
 
 static yamop *
@@ -3506,12 +3510,16 @@ Yap_InitComma(void)
     Functor fp = Yap_MkFunctor(Yap_FullLookupAtom("$generate_pred_info"),4);
     code_p->opc = emit_op(_call_cpred);
     code_p->u.sla.s = emit_count(-Signed(RealEnvSize));
-    code_p->u.sla.sla_u.p =  RepPredProp(Yap_GetPredPropByFunc(fp,0));
+    code_p->u.sla.sla_u.p =  
+      code_p->u.sla.p0 = 
+      RepPredProp(Yap_GetPredPropByFunc(fp,0));
     code_p->u.sla.bmap = NULL;
     GONEXT(sla);
     code_p->opc = emit_op(_call);
     code_p->u.sla.s = emit_count(-Signed(RealEnvSize));
-    code_p->u.sla.sla_u.p =  PredMetaCall;
+    code_p->u.sla.sla_u.p =  
+      code_p->u.sla.p0 = 
+      PredMetaCall;
     code_p->u.sla.bmap = NULL;
     GONEXT(sla);
     code_p->opc = emit_op(_deallocate);
