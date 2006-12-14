@@ -449,6 +449,11 @@ debugging :-
 
 % 
 '$spycall'(G, M, _) :-
+	nb_getval('$debug_run',StopPoint),
+	StopPoint \= off,
+	!,
+	'$execute_nonstop'(G, M).
+'$spycall'(G, M, _) :-
         '$system_predicate'(G,M),
          \+ '$is_metapredicate'(G,M),
 	 !,
