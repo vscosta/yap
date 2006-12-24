@@ -83,6 +83,9 @@ matrix_get_offset(int *mat, int* indx)
   /* find where we are */
   for (i = 0; i < mat[MAT_NDIMS]; i++) {
     pos /= mat[MAT_DIMS+i];
+    if (indx[i] >= mat[MAT_DIMS+i]) {
+      return off;
+    }
     off += pos*indx[i];
   }
   return off;
@@ -484,12 +487,50 @@ static void
 matrix_dec(int *mat, int *indx)
 {
   unsigned int off = matrix_get_offset(mat, indx);
-
   if (mat[MAT_TYPE]==FLOAT_MATRIX)
-    ((matrix_double_data(mat,mat[MAT_NDIMS]))[off])--;
+    (matrix_double_data(mat,mat[MAT_NDIMS])[off])--;
   else
     ((matrix_long_data(mat,mat[MAT_NDIMS]))[off])--;
 }
+
+static YAP_Term
+matrix_inc2(int *mat, int *indx)
+{
+  unsigned int off = matrix_get_offset(mat, indx);
+  if (mat[MAT_TYPE]==FLOAT_MATRIX) {
+    double *data  = matrix_double_data(mat,mat[MAT_NDIMS]);
+    double d = data[off];
+    d++;
+    data[off] = d;
+    return YAP_MkFloatTerm(d);
+  } else {
+    long int *data  = matrix_long_data(mat,mat[MAT_NDIMS]);
+    long int d = data[off];
+    d++;
+    data[off] = d;
+    return YAP_MkIntTerm(d);
+  }
+}
+
+static YAP_Term
+matrix_dec2(int *mat, int *indx)
+{
+  unsigned int off = matrix_get_offset(mat, indx);
+  if (mat[MAT_TYPE]==FLOAT_MATRIX) {
+    double *data  = matrix_double_data(mat,mat[MAT_NDIMS]);
+    double d = data[off];
+    d--;
+    data[off] = d;
+    return YAP_MkFloatTerm(d);
+  } else {
+    long int *data  = matrix_long_data(mat,mat[MAT_NDIMS]);
+    long int d = data[off];
+    d--;
+    data[off] = d;
+    return YAP_MkIntTerm(d);
+  }
+}
+
 
 static int
 matrix_set(void)
@@ -651,6 +692,42 @@ do_matrix_dec(void)
   }
   matrix_dec(mat, dims);
   return TRUE;
+}
+
+static int
+do_matrix_inc2(void)
+{
+  int dims[MAX_DIMS], *mat;
+  
+  mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+  if (!mat) {
+    /* Error */
+    return FALSE;
+  }
+  if (!scan_dims(mat[MAT_NDIMS], YAP_ARG2, dims)) {
+    /* Error */
+    return FALSE;
+  }
+  return
+    YAP_Unify(matrix_inc2(mat, dims), YAP_ARG3);
+}
+
+static int
+do_matrix_dec2(void)
+{
+  int dims[MAX_DIMS], *mat;
+  
+  mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+  if (!mat) {
+    /* Error */
+    return FALSE;
+  }
+  if (!scan_dims(mat[MAT_NDIMS], YAP_ARG2, dims)) {
+    /* Error */
+    return FALSE;
+  }
+  return
+    YAP_Unify(matrix_dec2(mat, dims), YAP_ARG3);
 }
 
 static int
@@ -1633,6 +1710,8 @@ init_matrix(void)
   YAP_UserCPredicate("matrix_get", do_matrix_access, 3);
   YAP_UserCPredicate("matrix_inc", do_matrix_inc, 2);
   YAP_UserCPredicate("matrix_dec", do_matrix_dec, 2);
+  YAP_UserCPredicate("matrix_inc", do_matrix_inc2, 3);
+  YAP_UserCPredicate("matrix_dec", do_matrix_dec2, 3);
   YAP_UserCPredicate("matrix_to_list", matrix_to_list, 2);
   YAP_UserCPredicate("matrix_dims", matrix_dims, 2);
   YAP_UserCPredicate("matrix_ndims", matrix_ndims, 2);
