@@ -184,7 +184,9 @@ Yap_InitModules(void)
   ModuleName[7] =
     READUTIL_MODULE;
   ModuleName[8] =
+    HACKS_MODULE;
+  ModuleName[9] =
     GLOBALS_MODULE;
-  NoOfModules = 9;
+  NoOfModules = 10;
   CurrentModule = PROLOG_MODULE;
 }

@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2006-12-13 16:10:14 $							 *
+* Last rev:     $Date: 2006-12-27 01:32:37 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.93  2006/12/13 16:10:14  vsc
+* several debugger and CLP(BN) improvements.
+*
 * Revision 1.92  2006/11/15 00:13:36  vsc
 * fixes for indexing code.
 *
@@ -440,6 +443,7 @@ a_lucl(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip,
     code_p->opc = emit_op(opcode);
     code_p->u.Ill.I = (LogUpdIndex *)cip->code_addr;
     cip->current_try_lab = &code_p->u.Ill.l1;
+    cip->current_trust_lab = &code_p->u.Ill.l2;
     code_p->u.Ill.s  = cip->cpc->rnd3;
 #if defined(YAPOR) || defined(THREADS)
     code_p->u.Ill.p = cip->CurrentPred;
@@ -1744,6 +1748,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
 	else
 	  newcp->opc = emit_op(_trust_logical);
 	newcp->u.lld.t.block = (LogUpdIndex *)(cip->code_addr);
+	*cip->current_trust_lab = newcp;
       }
       newcp->u.lld.d = ClauseCodeToLogUpdClause(emit_a(lab));
       cip->current_try_lab = &(newcp->u.lld.n);

@@ -33,6 +33,7 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/dbqueues.yap \
 	$(srcdir)/dgraphs.yap \
 	$(srcdir)/gensym.yap \
+	$(srcdir)/hacks.yap \
 	$(srcdir)/heaps.yap \
 	$(srcdir)/listing.yap \
 	$(srcdir)/lists.yap \
@@ -55,6 +56,7 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/trees.yap \
 	$(srcdir)/ugraphs.yap \
 	$(srcdir)/undgraphs.yap \
+	$(srcdir)/varnumbers.yap \
 	$(srcdir)/wdgraphs.yap \
 	$(srcdir)/wundgraphs.yap \
 	$(srcdir)/lam_mpi.yap \

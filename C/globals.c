@@ -269,10 +269,10 @@ static int
 GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity)
 {
   if (size == 0) {
-    if (old_size < 64*1024) {
+    if (old_size < 1024*1024) {
       size = old_size;
     } else {
-      size = 64*1024;
+      size = 1024*1024;
     }
   }
   if (size < 4096) {
@@ -299,7 +299,6 @@ GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity)
   } else {
     XREGS[arity+1] = arena;
     if ((size=Yap_InsertInGlobal(pt, size*sizeof(CELL)))==0) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;
     }
     size = size/sizeof(CELL);
@@ -573,12 +572,16 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	  to_visit = bp[0];
 	  HB = HLow;
 	  ptf++;
+	  if ((ADDR)TR > Yap_TrailTop-128)
+	    goto trail_overflow;
 	  Bind_and_Trail(ptd0, ptf[-1]);
 	}
       } else {
 #endif
 	/* first time we met this term */
 	RESET_VARIABLE(ptf);
+	if ((ADDR)TR > Yap_TrailTop-128)
+	  goto trail_overflow;
 	Bind_and_Trail(ptd0, (CELL)ptf);
 	ptf++;
 #ifdef COROUTINING
@@ -644,6 +647,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
   reset_trail(TR0);
   return -2;
 
+
 #if COROUTINING
  delay_overflow:
   /* oops, we're in trouble */
@@ -661,13 +665,30 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
   }
 #endif
   reset_trail(TR0);
-  return -2;
+  return -3;
 #endif
 
+ trail_overflow:
+  /* oops, we're in trouble */
+  H = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    ptf = to_visit[2];
+    *pt0 = (CELL)to_visit[3];
+  }
+#endif
+  reset_trail(TR0);
+  return -4;
 }
 
 static Term
-CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap)
+CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap, Int min_grow)
 {
   UInt old_size = ArenaSz(arena);
   CELL *oldH = H;
@@ -782,6 +803,10 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
       }
     } else {
       H += 1+ArityOfFunctor(f);
+      if (H > ASP-128) {
+	res = -1;
+	goto error_handler;
+      } 
       if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0, att_arenap)) < 0) {
 	goto error_handler;
       }
@@ -808,13 +833,13 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
     switch (res) {
     case -1:
       /* handle arena overflow */
-      if (!GrowArena(arena, old_top, old_size, 0L, arity+4)) {
+      if (!GrowArena(arena, old_top, old_size, min_grow, arity+4)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return 0L;
       }
       break;
 #if COROUTINING
-    case -2:
+    case -3:
       /* handle delay arena overflow */
       old_size = DelayArenaSz(*att_arenap);
       if (!GrowDelayArena(att_arenap, old_size, 0L, arity+4)) {
@@ -823,6 +848,13 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
       }
       break;
 #endif
+    case -4:
+      /* handle trail overflow */
+      if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L, FALSE)) {
+	Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, Yap_ErrorMessage);
+	return 0L;
+      }
+      break;
     default: /* temporary space overflow */
       if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
 	Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
@@ -919,7 +951,7 @@ p_nb_setval(void)
       return (FALSE);
   }
   ge = GetGlobalEntry(AtomOfTerm(t));
-  to = CopyTermToArena(ARG2, GlobalArena, 2, &GlobalArena, &GlobalDelayArena);
+  to = CopyTermToArena(ARG2, GlobalArena, 2, &GlobalArena, &GlobalDelayArena, 0);
   if (to == 0L)
     return FALSE;
   WRITE_LOCK(ge->GRWLock);
@@ -1181,7 +1213,7 @@ p_nb_queue_enqueue(void)
   arena = GetQueueArena(qd,"enqueue");
   if (arena == 0L)
     return FALSE;
-  to = CopyTermToArena(ARG2, arena, 2, qd+QUEUE_ARENA, qd+QUEUE_DELAY_ARENA);
+  to = CopyTermToArena(ARG2, arena, 2, qd+QUEUE_ARENA, qd+QUEUE_DELAY_ARENA,ArenaPt(arena)-RepPair(qd[QUEUE_HEAD]));
   if (to == 0L)
     return FALSE;
   qd = GetQueue(ARG1,"enqueue");
@@ -1193,8 +1225,7 @@ p_nb_queue_enqueue(void)
   old_sz = ArenaSz(arena);
   qsize = IntegerOfTerm(qd[QUEUE_SIZE]);
   while (old_sz < 128) {
-    UInt gsiz = qsize*2;
-
+    UInt gsiz = H-RepPair(qd[QUEUE_HEAD]);
     H = oldH;
     HB = oldHB;
     if (gsiz > 1024*1024) {
@@ -1203,6 +1234,7 @@ p_nb_queue_enqueue(void)
       gsiz = 1024;
     }
     ARG3 = to;
+    fprintf(stderr,"growing %d cells\n",gsiz);
     if (!GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3)) {
       Yap_Error(OUT_OF_STACK_ERROR, arena, Yap_ErrorMessage);
       return 0L;
@@ -1511,9 +1543,9 @@ p_nb_heap_add_to_heap(void)
   arena = qd[HEAP_ARENA];
   if (arena == 0L)
     return FALSE;
-  key = CopyTermToArena(ARG2, arena, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA);
+  key = CopyTermToArena(ARG2, arena, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
   arena = qd[HEAP_ARENA];
-  to = CopyTermToArena(ARG3, arena, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA);
+  to = CopyTermToArena(ARG3, arena, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
   if (key == 0 || to == 0L)
     return FALSE;
   qd = GetHeap(ARG1,"add_to_heap");
@@ -1912,9 +1944,9 @@ p_nb_beam_add_to_beam(void)
   arena = qd[HEAP_ARENA];
   if (arena == 0L)
     return FALSE;
-  key = CopyTermToArena(ARG2, qd[HEAP_ARENA], 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA);
+  key = CopyTermToArena(ARG2, qd[HEAP_ARENA], 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
   arena = qd[HEAP_ARENA];
-  to = CopyTermToArena(ARG3, arena, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA);
+  to = CopyTermToArena(ARG3, arena, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
   if (key == 0 || to == 0L)
     return FALSE;
   qd = GetHeap(ARG1,"add_to_beam");

@@ -278,8 +278,8 @@ debugging :-
 
 % last argument to do_spy says that we are at the end of a context. It
 % is required to know whether we are controlled by the debugger.
-'$do_spy'(!, _, CP, _) :- !, '$cut_by'(CP).
-'$do_spy'('$cut_by'(M), _, _, _) :- !, '$cut_by'(M).
+'$do_spy'(!, _, CP, _) :- !, '$$cut_by'(CP).
+'$do_spy'('$cut_by'(M), _, _, _) :- !, '$$cut_by'(M).
 '$do_spy'(true, _, _, _) :- !.
 %'$do_spy'(fail, _, _, _) :- !, fail.
 '$do_spy'(M:G, _, CP, InControl) :- !,
@@ -326,7 +326,7 @@ debugging :-
 % we are skipping, so we can just call the goal,
 % while leaving the minimal structure in place.
 '$loop_spy'(GoalNumber, G, Module, InControl) :-
-	'$save_current_choice_point'(CP),
+	yap_hacks:current_choice_point(CP),
 	'$system_catch'('$loop_spy2'(GoalNumber, G, Module, InControl, CP),
 		    Module, Event,
 		    '$loop_spy_event'(Event, GoalNumber, G, Module, InControl)).
@@ -390,7 +390,7 @@ debugging :-
 	      (
 		Det == true
 		->
-		'$cut_by'(CP)
+		'$$cut_by'(CP)
 		;
 		true
 	      ),

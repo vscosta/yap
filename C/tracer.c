@@ -162,6 +162,17 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   sc = Yap_heap_regs;
   vsc_count++;
 #ifdef COMMENTED
+  if (vsc_count > 1388060LL && vsc_count < 1388070LL) {
+    if (vsc_count==1388061LL)
+      jmp_deb(1);
+    if (vsc_count % 1LL == 0) {
+      UInt sz = Yap_regp->H0_[17];
+      UInt end = sizeof(MP_INT)/sizeof(CELL)+sz+1;
+      fprintf(stderr,"VAL %lld %d %x/%x\n",vsc_count,sz,H0[16],H0[16+end]);
+    }
+   } else
+  return;
+  Yap_DebugPlWrite(Yap_XREGS[2]);
   if (worker_id != 04 || worker_id != 03) return;
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;

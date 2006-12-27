@@ -662,7 +662,8 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
 #else
   if (!do_grow) {
     TrDiff = DelayDiff = LDiff = 0;
-    GDiff = size;    
+    /* don't grow more than what we asked for */
+    GDiff = size-(size0-sz);    
   } else if (minimal_request) {
     DelayDiff = size-size0;
     TrDiff = LDiff = GDiff = size;
@@ -672,7 +673,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   }
 #endif
   if (hsplit) {
-    GDiff0 = GDiff-sz;
+    GDiff0 = GDiff-size0;
     GSplit = hsplit;
   } else {
     GDiff0 = DelayDiff;

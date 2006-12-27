@@ -61,7 +61,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	;
 	    OUT = ('$set_depth_limit_for_next_call'(D),NG)
 	).
-'$do_c_built_in'(once(G), M, ('$save_current_choice_point'(CP),NG,'$$cut_by'(CP))) :- !,
+'$do_c_built_in'(once(G), M, (yap_hacks:current_choice_point(CP),NG,'$$cut_by'(CP))) :- !,
 	'$do_c_built_in'(G,M,NG).
 '$do_c_built_in'('C'(A,B.C), _, (A=[B|C])) :- !.
 '$do_c_built_in'(X is Y, _, P) :-
@@ -114,7 +114,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 
 '$composed_built_in'(V) :- var(V), !,
 	fail.
-'$composed_built_in'(('$save_current_choice_point'(_),NG,'$$cut_by'(_))) :- !,
+'$composed_built_in'((yap_hacks:current_choice_point(_),NG,'$$cut_by'(_))) :- !,
 	'$composed_built_in'(NG).
 '$composed_built_in'((_,_)).
 '$composed_built_in'((_;_)).

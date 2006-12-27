@@ -681,8 +681,8 @@ yap_flag(float_format,X) :-
 	    V = profiling ;
 	    V = redefine_warnings ;
 	    V = single_var_warnings ;
-	    V = strict_iso ;
 	    V = stack_dump_on_error ;
+	    V = strict_iso ;
 	    V = syntax_errors ;
 	    V = system_options ;
 	    V = to_chars_mode ;

@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-11-27 17:42:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-12-27 01:32:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.179  2006/11/27 17:42:02  vsc
+* support for UNICODE, and other bug fixes.
+*
 * Revision 1.178  2006/11/21 16:21:31  vsc
 * fix I/O mess
 * fix spy/reconsult mess
@@ -6218,8 +6221,11 @@ find_last_clause(yamop *start)
 }
 
 static void
-remove_clause_from_index(yamop **prevp, yamop *curp, LogUpdClause *cl)
+remove_clause_from_index(yamop *header, LogUpdClause *cl)
 {
+  yamop **prevp = &(header->u.Ill.l1);
+  yamop *curp = header->u.Ill.l1;
+
   if (curp->u.lld.d == cl) {
     yamop *newp = curp->u.lld.n;
     newp->opc = curp->opc;
@@ -6232,6 +6238,8 @@ remove_clause_from_index(yamop **prevp, yamop *curp, LogUpdClause *cl)
       curp = curp->u.lld.n;
     }
     /* in case we were the last */
+    if (curp == header->u.Ill.l2)
+      header->u.Ill.l2 = ocurp;
     if (ocurp != ocurp0)
       ocurp->opc = curp->opc;
     ocurp->u.lld.n = curp->u.lld.n;
@@ -6247,12 +6255,13 @@ remove_clause_from_index(yamop **prevp, yamop *curp, LogUpdClause *cl)
 }
 
 static void
-remove_dirty_clauses_from_index(yamop **prevp, yamop *curp)
+remove_dirty_clauses_from_index(yamop *header)
 {
   LogUpdClause *cl;
-  OPCODE startopc = curp->opc;
   yamop *previouscurp;
   OPCODE endop = Yap_opcode(_trust_logical);
+  yamop **prevp= &(header->u.Ill.l1), *curp = header->u.Ill.l1;
+  OPCODE startopc = curp->opc;
   PredEntry *ap = curp->u.lld.d->ClPred;
 
   if (ap->PredFlags & CountPredFlag)
@@ -6289,6 +6298,7 @@ remove_dirty_clauses_from_index(yamop **prevp, yamop *curp)
 	previouscurp->opc = endop;
 	previouscurp->u.lld.t.block = curp->u.lld.t.block;
 	previouscurp->u.lld.n = NULL;
+	header->u.Ill.l2 = previouscurp;
 	Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop*)NULL,lld);
 	Yap_FreeCodeSpace((ADDR)curp);
 	return;
@@ -6357,8 +6367,7 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *
 	!(blk->ClFlags & InUseMask)
 #endif
 ) {
-      remove_clause_from_index(&start->u.Ill.l1, 
-			       start->u.Ill.l1,
+      remove_clause_from_index(start,
 			       ClauseCodeToLogUpdClause(bg));
     } else {
       blk->ClFlags |= DirtyMask;
@@ -6675,34 +6684,13 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 
     switch(op) {
     case _try_logical:
-      if (first) {
-	/* ERROR */
-      } else {
-	/* just go to next instruction */
-	ipc = ipc->u.lld.n;
-      }
-      break;
     case _retry_logical:
     case _count_retry_logical:
     case _profiled_retry_logical:
-      ipc = ipc->u.lld.n;
-      break;
     case _trust_logical:
     case _count_trust_logical:
     case _profiled_trust_logical:
-      if (first) {
-	/* ERROR */
-      } else {
-	if (ap->PredFlags & CountPredFlag)
-	  ipc->opc = Yap_opcode(_count_trust_logical);
-	else if (ap->PredFlags & ProfiledPredFlag)
-	  ipc->opc = Yap_opcode(_profiled_trust_logical);
-	else
-	  ipc->opc = Yap_opcode(_retry_logical);
-	ipc->u.lld.n = add_trust(icl, cls, cint);
-	ipc->u.lld.t.s = ap->ArityOfPE;
-      }
-      ipc = pop_path(&sp, cls, ap);
+      /* ERROR */
       break;
     case _enter_lu_pred:
       ipc->u.Ill.s++;
@@ -6715,11 +6703,23 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	else
 	  ipc->u.Ill.l1->opc = Yap_opcode(_retry_logical);
 	ipc->u.Ill.l1 = add_try(ap, cls, ipc->u.Ill.l1, cint);
-	ipc = pop_path(&sp, cls, ap);
       } else {
 	/* just go to next instruction */
-	ipc = ipc->u.Ill.l1;
+	yamop *end = add_trust(icl, cls, cint),
+	  *old = ipc->u.Ill.l2;
+	
+	/* we used to have two clauses */
+	if (ap->PredFlags & CountPredFlag)
+	  old->opc = Yap_opcode(_count_retry_logical);
+	else if (ap->PredFlags & ProfiledPredFlag)
+	  old->opc = Yap_opcode(_profiled_retry_logical);
+	else
+	  old->opc = Yap_opcode(_retry_logical);
+	old->u.lld.n = end;
+	old->u.lld.t.s = ap->ArityOfPE;
+	ipc->u.Ill.l2 = end;
       }
+      ipc = pop_path(&sp, cls, ap);
       break;
     case _try_clause:
       /* I cannot expand a predicate that starts on a variable,
@@ -8480,6 +8480,6 @@ Yap_CleanUpIndex(LogUpdIndex *blk)
     op = Yap_op_from_opcode(start->opc);
   }
   codep = start->u.Ill.l1;
-  remove_dirty_clauses_from_index(&start->u.Ill.l1, start->u.Ill.l1);
+  remove_dirty_clauses_from_index(start);
 }
 

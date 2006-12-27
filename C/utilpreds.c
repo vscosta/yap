@@ -380,7 +380,15 @@ CopyTerm(Term inp, UInt arity) {
     tf = AbsAppl(H);
     H[0] = (CELL)f;
     H += 1+ArityOfFunctor(f);
-    {
+    if (H > ASP-128) {
+      H -= 1+ArityOfFunctor(f);
+      if (!Yap_gcl((ASP-H)*sizeof(CELL),arity+1, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+      t = Deref(XREGS[arity+1]);
+      goto restart_appl;
+    } else {
       int res;
 
       if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0)) < 0) {

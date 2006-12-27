@@ -79,7 +79,7 @@ true :- true.
 
  % encapsulate $cut_by because of co-routining.
  %
- '$cut_by'(X) :- '$$cut_by'(X).
+ '$$cut_by'(X) :- '$cut_by'(X).
 
  % Start file for yap
 
@@ -651,25 +651,25 @@ incore(G) :- '$execute'(G).
 % standard meta-call, called if $execute could not do everything.
 %
 '$meta_call'(G, M) :-
-	'$save_current_choice_point'(CP),
+	yap_hacks:current_choice_point(CP),
 	'$call'(G, CP, G, M).
 
 
 ','(X,Y) :-
-	'$save_current_choice_point'(CP),
+	yap_hacks:env_choice_point(CP),
 	'$current_module'(M),
         '$call'(X,CP,(X,Y),M),
         '$call'(Y,CP,(X,Y),M).
 ';'(X,Y) :-
-	'$save_current_choice_point'(CP),
+	yap_hacks:env_choice_point(CP),
 	'$current_module'(M),
         ( '$call'(X,CP,(X;Y),M) ; '$call'(Y,CP,(X;Y),M) ).
 '|'(X,Y) :-
-	'$save_current_choice_point'(CP),
+	yap_hacks:env_choice_point(CP),
 	'$current_module'(M),
         ( '$call'(X,CP,(X|Y),M) ; '$call'(Y,CP,(X|Y),M) ).
 '->'(X,Y) :-
-	'$save_current_choice_point'(CP),
+	yap_hacks:env_choice_point(CP),
 	'$current_module'(M),
         ( '$call'(X,CP,(X->Y),M) -> '$call'(Y,CP,(X->Y),M) ).
 \+(G) :-     \+ '$execute'(G).
@@ -681,7 +681,7 @@ not(G) :-    \+ '$execute'(G).
 %
 '$meta_call'(G,_ISO,M) :-
 	'$iso_check_goal'(G,G),
-	'$save_current_choice_point'(CP),
+	yap_hacks:current_choice_point(CP),
 	'$call'(G, CP, G, M).
 
 '$meta_call'(G, CP, G0, M) :-

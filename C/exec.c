@@ -137,6 +137,25 @@ p_save_cp(void)
   return(TRUE);
 }
 
+static Int
+p_save_env_b(void)
+{
+  Term t = Deref(ARG1);
+  Term td;
+#if SHADOW_HB
+  register CELL *HBREG = HB;
+#endif
+  if (!IsVarTerm(t)) return(FALSE);
+  td = cp_as_integer((choiceptr)YENV[E_CB]);
+  BIND((CELL *)t,td,bind_save_cp);
+#ifdef COROUTINING
+  DO_TRAIL(CellPtr(t), td);
+  if (CellPtr(t) < H0) Yap_WakeUp((CELL *)t);
+ bind_save_cp:
+#endif
+  return(TRUE);
+}
+
 inline static Int
 do_execute(Term t, Term mod)
 {
@@ -600,7 +619,8 @@ p_execute_nonstop(void)
   /* call may not define new system predicates!! */
   if (RepPredProp(pe)->PredFlags & SpiedPredFlag) {
     return CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->cs.p_code.TrueCodeOfPred);
-  }  else if (RepPredProp(pe)->PredFlags & (AsmPredFlag|CPredFlag)) {
+  }  else if ((RepPredProp(pe)->PredFlags & (AsmPredFlag|CPredFlag)) &&
+	      RepPredProp(pe)->OpcodeOfPred != Yap_opcode(_call_bfunc_xx)) {
     return RepPredProp(pe)->cs.f_code();
   } else {
     return CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred);
@@ -1854,6 +1874,7 @@ p_uncaught_throw(void)
 void 
 Yap_InitExecFs(void)
 {
+  Term cm = CurrentModule;
   Yap_InitComma();
   Yap_InitCPred("$execute", 1, p_execute, HiddenPredFlag);
   Yap_InitCPred("$execute", 2, p_execute2, HiddenPredFlag);
@@ -1877,7 +1898,10 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$execute0", 2, p_execute0, HiddenPredFlag);
   Yap_InitCPred("$execute_nonstop", 2, p_execute_nonstop, HiddenPredFlag);
   Yap_InitCPred("$execute_clause", 4, p_execute_clause, HiddenPredFlag);
-  Yap_InitCPred("$save_current_choice_point", 1, p_save_cp, HiddenPredFlag);
+  CurrentModule = HACKS_MODULE;
+  Yap_InitCPred("current_choice_point", 1, p_save_cp, HiddenPredFlag);
+  Yap_InitCPred("env_choice_point", 1, p_save_env_b, HiddenPredFlag);
+  CurrentModule = cm;
   Yap_InitCPred("$pred_goal_expansion_on", 0, p_pred_goal_expansion_on, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$restore_regs", 2, p_restore_regs2, SafePredFlag|HiddenPredFlag);

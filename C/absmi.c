@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-11-28 00:46:28 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-12-27 01:32:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.214  2006/11/28 00:46:28  vsc
+* fix bug in threaded implementation
+*
 * Revision 1.213  2006/11/27 17:42:02  vsc
 * support for UNICODE, and other bug fixes.
 *
@@ -13253,7 +13256,7 @@ Yap_absmi(int inp)
 	    /* create an to execute the call */
 	    deref_head(d1, execute_comma_comma_unk);
 	  execute_comma_comma_nvar:
-	    ENV_YREG[E_CB] = (CELL)pt0[E_CB];
+	    ENV_YREG[E_CB] = pt0[E_CB];
 	    if (IsAtomTerm(d1)) {
 	      ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
 	    } else if (IsApplTerm(d1)) {
@@ -13431,7 +13434,7 @@ Yap_absmi(int inp)
 	/* for profiler */
 	save_pc();
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
-	ENV_YREG[E_CB] = (CELL)B;
+	ENV_YREG[E_CB] = pt0[E_CB];
 #ifdef LOW_LEVEL_TRACER
 	if (Yap_do_low_level_trace)
 	  low_level_trace(enter_pred,pen,XREGS+1);

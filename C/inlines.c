@@ -825,7 +825,6 @@ void
 Yap_InitInlines(void)
 {
   Yap_InitAsmPred("$$cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
-
   Yap_InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag);
   Yap_InitAsmPred("atomic", 1, _atomic, p_atomic, SafePredFlag);
   Yap_InitAsmPred("integer", 1, _integer, p_integer, SafePredFlag);

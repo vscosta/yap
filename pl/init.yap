@@ -42,6 +42,8 @@ otherwise.
 :- bootstrap('errors.yap').
 :- bootstrap('consult.yap').
 
+
+
 :- [	 'utils.yap',
 	 'arith.yap',
 	 'directives.yap'].
@@ -75,7 +77,7 @@ otherwise.
 
 :-	 ['protect.yap'].
 
-version(yap,[4,1]).
+version(yap,[5,1]).
 
 system_mode(verbose,on)  :- set_value('$verbose',on).
 system_mode(verbose,off) :- set_value('$verbose',off).
@@ -86,6 +88,8 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 
 :- 	['corout.yap',
 	 'arrays.yap'].
+
+yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- '$change_type_of_char'(36,7). % Make $ a symbol character
 

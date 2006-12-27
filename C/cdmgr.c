@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-12-13 16:10:14 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-12-27 01:32:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.201  2006/12/13 16:10:14  vsc
+* several debugger and CLP(BN) improvements.
+*
 * Revision 1.200  2006/11/27 17:42:02  vsc
 * support for UNICODE, and other bug fixes.
 *
@@ -646,7 +649,7 @@ Yap_BuildMegaClause(PredEntry *ap)
   nof_megaclauses++;
 #endif
   while (!(mcl = (MegaClause *)Yap_AllocCodeSpace(required))) {
-    if (!Yap_growheap(FALSE, sizeof(consult_obj)*ConsultCapacity, NULL)) {
+    if (!Yap_growheap(FALSE, required, NULL)) {
       /* just fail, the system will keep on going */
       return;
     }
