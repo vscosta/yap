@@ -837,6 +837,7 @@ break :-
 	nb_setval('$break',BL).
 
 '$silent_bootstrap'(F) :-
+	'$allocate_default_arena'(1024, 64),
 	get_value('$lf_verbose',OldSilent),
 	set_value('$lf_verbose',silent),
 	bootstrap(F),
