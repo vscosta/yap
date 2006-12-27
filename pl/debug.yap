@@ -390,7 +390,7 @@ debugging :-
 	      (
 		Det == true
 		->
-		'$$cut_by'(CP)
+		'$cut_by'(CP)
 		;
 		true
 	      ),

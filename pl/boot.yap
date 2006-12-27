@@ -79,7 +79,7 @@ true :- true.
 
  % encapsulate $cut_by because of co-routining.
  %
- '$$cut_by'(X) :- '$cut_by'(X).
+ '$cut_by'(X) :- '$$cut_by'(X).
 
  % Start file for yap
 
@@ -738,7 +738,7 @@ not(G) :-    \+ '$execute'(G).
 '$call'(not(X), _CP, _G0, _M) :- !,
 	\+ '$execute'(M:X).
 '$call'(!, CP, _,_) :- !,
-	'$$cut_by'(CP).
+	'$cut_by'(CP).
 '$call'([A|B], _, _, M) :- !,
 	'$csult'([A|B], M).
 '$call'(G, CP, G0, CurMod) :-
