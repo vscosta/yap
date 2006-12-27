@@ -168,9 +168,9 @@ GrowDelayArena(Term *arenap, UInt old_size, UInt size, UInt arity)
 
   if (size == 0) {
     if (old_size < 1024) {
-      size = old_size;
+      size = old_size*2;
     } else {
-      size = 1024;
+      size = old_size+1024;
     }
   }
   if (size < 64) {
@@ -272,7 +272,7 @@ GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity)
     if (old_size < 1024*1024) {
       size = old_size;
     } else {
-      size = 1024*1024;
+      size = old_size+1024*1024;
     }
   }
   if (size < 4096) {
@@ -842,6 +842,7 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
     case -3:
       /* handle delay arena overflow */
       old_size = DelayArenaSz(*att_arenap);
+      
       if (!GrowDelayArena(att_arenap, old_size, 0L, arity+4)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return 0L;
@@ -1207,13 +1208,19 @@ p_nb_queue_enqueue(void)
   CELL *qd = GetQueue(ARG1,"enqueue"), *oldH, *oldHB;
   UInt old_sz;
   Term arena, qsize, to;
+  UInt min_size;
 
   if (!qd)
     return FALSE;
   arena = GetQueueArena(qd,"enqueue");
   if (arena == 0L)
     return FALSE;
-  to = CopyTermToArena(ARG2, arena, 2, qd+QUEUE_ARENA, qd+QUEUE_DELAY_ARENA,ArenaPt(arena)-RepPair(qd[QUEUE_HEAD]));
+  if (IsPairTerm(qd[QUEUE_HEAD])) {
+    min_size = ArenaPt(arena)-RepPair(qd[QUEUE_HEAD]);
+  } else {
+    min_size = 0L;
+  }
+  to = CopyTermToArena(ARG2, arena, 2, qd+QUEUE_ARENA, qd+QUEUE_DELAY_ARENA, min_size);
   if (to == 0L)
     return FALSE;
   qd = GetQueue(ARG1,"enqueue");

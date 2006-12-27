@@ -618,7 +618,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   start_growth_time = Yap_cputime();
   if (do_grow) {
     if (!Yap_ExtendWorkSpace(size)) {
-
+      /* always fails when using malloc */
       Yap_ErrorMessage = NULL;
       size += AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+MinHeapGap);   minimal_request = size;
       size = Yap_ExtendWorkSpaceThroughHole(size);
@@ -659,6 +659,13 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
     TrDiff = DelayDiff = LDiff = 0;
     GDiff = size;  
   }
+  GDiff0 = DelayDiff;
+  if (hsplit) {
+    GDiff = GDiff0+sz;
+    GSplit = hsplit;
+  } else {
+    GSplit = NULL;
+  }
 #else
   if (!do_grow) {
     TrDiff = DelayDiff = LDiff = 0;
@@ -671,7 +678,6 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
     TrDiff = LDiff = GDiff = size;
     DelayDiff = 0;
   }
-#endif
   if (hsplit) {
     GDiff0 = GDiff-size0;
     GSplit = hsplit;
@@ -679,6 +685,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
     GDiff0 = DelayDiff;
     GSplit = NULL;
   }
+#endif
   XDiff = HDiff = 0;
   Yap_GlobalBase = old_GlobalBase;
   SetHeapRegs();
@@ -710,7 +717,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
     fprintf(Yap_stderr, "%% %cO Total of %g sec expanding stacks \n", vb_msg1, (double)total_delay_overflow_time/1000);
   }
   Yap_PrologMode &= ~GrowStackMode;
-  return size0;
+  return size;
 }
 
 static void
