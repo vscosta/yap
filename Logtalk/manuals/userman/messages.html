@@ -106,7 +106,7 @@ The message must match a public or protected predicate declared for the receivin
 <h2>Calling an overridden predicate definition<a id="messages_super"></a></h2>
 
 <p>
-When redefining a predicate, sometimes we need to call the inherited definition in the new code. This possibility, introduced by the Smalltalk language through the <code>super</code> primitive, is available in Logtalk through the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> prefix operator:
+When redefining a predicate, sometimes we need to call the inherited definition in the new code. This functionality, introduced by the Smalltalk language through the <code>super</code> primitive, is available in Logtalk through the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> prefix operator:
 </p>
 <pre>^^Predicate</pre>
 <p>
@@ -120,7 +120,7 @@ Most of the time we will use this operator by instantiating the pattern:
 <h2>Message sending and event generation<a id="messages_events"></a></h2>
 
 <p>
-Every message sent using <a title="Consult reference manual" href="../refman/control/to_object2.html"><code>::/2</code></a> operator generates two events, one before and one after the message execution. Messages that are sent using the <a title="Consult reference manual" href="../refman/control/to_self1.html"><code>::/1</code></a> (message to <em>self</em>) operator or the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> super mechanism described above do not generate any events. The rational behind this distinction is that messages to <em>self</em> and <em>super</em> calls are only used indirectly in the definition of methods or to execute additional messages with the same target object (represented by <em>self</em>). In other words, events are only generated when using an object's public interface. They can not be used to break object encapsulation.
+Every message sent using <a title="Consult reference manual" href="../refman/control/to_object2.html"><code>::/2</code></a> operator generates two events, one before and one after the message execution. Messages that are sent using the <a title="Consult reference manual" href="../refman/control/to_self1.html"><code>::/1</code></a> (message to <em>self</em>) operator or the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> super mechanism described above do not generate any events. The rational behind this distinction is that messages to <em>self</em> and <em>super</em> calls are only used internally in the definition of methods or to execute additional messages with the same target object (represented by <em>self</em>). In other words, events are only generated when using an object's public interface; they can not be used to break object encapsulation.
 </p>
 <p>
 If we need to generate events for a public message sent to <em>self</em>, then we just need to write something like:
@@ -135,17 +135,17 @@ If we also need the sender of the message to be other than the object containing
 </p>
 <pre>Predicate :-
     ...,
-    self(Self),         % get self reference
-    {Self::Message},    % send a message to self using ::/2
-    ... .               % sender will be the pseudo-object user</pre>
+    self(Self),       % send a message to self using ::/2
+    {Self::Message},  % sender will be the pseudo-object user
+    ... .</pre>
 <p>
-See the session on <a href="events.html">Event-driven programming</a> for more details.
+When events are not used, is possible to turn off event generation on a per object basis by using the <a title="Consult user manual" href="running.html#running_flags"><code>events/1</code></a> compiler option. See the session on <a href="events.html">event-driven programming</a> for more details.
 </p>
 
 <h2>Message sending performance<a id="messages_performance"></a></h2>
 
 <p>
-Logtalk implements dynamic binding, coupled with a cache mechanism that avoids repeated lookups of predicate declarations and predicate definitions for the same messages. This is a solution common to other programming languages supporting dynamic binding. Message lookups are automatically cached the first time a message is sent. Cache entries are automatically removed when loading entities or using Logtalk dynamic features which invalidate the cached lookups.
+Logtalk implements dynamic binding, coupled with a caching mechanism that avoids repeated lookups of predicate declarations and predicate definitions for the same messages. This is a solution common to other programming languages supporting dynamic binding. Message lookups are automatically cached the first time a message is sent. Cache entries are automatically removed when loading entities or using Logtalk dynamic features which invalidate the cached lookups.
 </p>
 <p>
 When discussing Logtalk message sending performance, two distinct cases should be considered: messages sent by the user from the top-level interpreter and messages sent from compiled objects. In addition, the message declaration and definition lookups may, or may not be already cached by the runtime engine. In what follows, we will assume that the message lookups are already cached.
@@ -172,7 +172,7 @@ A message sent from a compiled object to another object translates to six predic
 		<dd>(one of them to the built-in predicate <code>\+/1</code>)</dd>
 </dl>
 <p>
-Given that events can be dynamically defined at runtime, there is no room for reducing the number of predicate calls without turning off support for event-driven programming. When events are defined, the number of predicate calls grows proportional to the number of events and event handlers (monitors). Event-driven programming support can be switched off for specific object using the compiler flag <a title="Consult compiler flag details" href="running.html#options"><code>events</code></a>. Doing so, reduces the number of predicate calls from six to just two.
+Given that events can be dynamically defined at runtime, there is no room for reducing the number of predicate calls without turning off support for event-driven programming. When events are defined, the number of predicate calls grows proportional to the number of events and event handlers (monitors). Event-driven programming support can be switched off for specific object using the compiler flag <a title="Consult compiler flag details" href="running.html#running_flags"><code>events/1</code></a>. Doing so, reduces the number of predicate calls from six to just two.
 </p>
 <p>
 Messages to <em>self</em> and <em>super</em> calls are transparent regarding events and, as such, imply only two predicate calls (the cache lookup and the method call).
@@ -232,7 +232,7 @@ It should be stressed that message sending is only one of the factors affecting 
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: October 26, 2006</span>
+		<span>Last updated on: December 8, 2006</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="nomenclature.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="objects.html">next</a></span><br/>

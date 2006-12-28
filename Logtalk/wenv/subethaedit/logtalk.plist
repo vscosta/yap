@@ -71,7 +71,6 @@
 				<string>\:\-[[:space:]](category)\(</string>			
 				<string>\:\-[[:space:]](end_category)\.</string>			
 				<string>\:\-[[:space:]](alias)\(</string>			
-				<string>\:\-[[:space:]](atomic)\(</string>			
 				<string>\:\-[[:space:]](encoding)\(</string>			
 				<string>\:\-[[:space:]](export)\(</string>			
 				<string>\:\-[[:space:]](initialization)\(</string>			
@@ -90,6 +89,7 @@
 				<string>\:\-[[:space:]](calls)\(</string>			
 				<string>\:\-[[:space:]](uses)\(</string>			
 				<string>\:\-[[:space:]](use_module)\(</string>			
+				<string>\:\-[[:space:]](synchronized)\(</string>			
 				<string>\:\-[[:space:]](threaded)\.</string>			
 			</array>
 		</dict>
@@ -210,7 +210,12 @@
 				<string>[^A-Za-z0-9_](term_expansion)\(</string>
 				<string>[^A-Za-z0-9_](phrase)\(</string>
 				<string>[^A-Za-z0-9_](threaded_call)\(</string>
+				<string>[^A-Za-z0-9_](threaded_once)\(</string>
+				<string>[^A-Za-z0-9_](threaded_ignore)\(</string>
+				<string>[^A-Za-z0-9_](threaded_race)\(</string>
 				<string>[^A-Za-z0-9_](threaded_exit)\(</string>
+				<string>[^A-Za-z0-9_](threaded_peek)\(</string>
+				<string>[^A-Za-z0-9_](threaded_discard)\(</string>
 			</array>
 		</dict>
 

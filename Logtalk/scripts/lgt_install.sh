@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.28.2
+## Release 2.29.1
 ##
 ## Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -23,20 +23,24 @@ echo
 echo "Installing Logtalk on $prefix ..."
 echo
 
-rm -rf $prefix/lgt2282
+rm -rf $prefix/lgt2291
 rm -f $prefix/logtalk
 
-mkdir $prefix/lgt2282
+mkdir $prefix/lgt2291
 
 cd ..
-cp -R * $prefix/lgt2282
+cp -R * $prefix/lgt2291
 
 cd $prefix
-chmod -R go-w,a+r lgt2282
-chmod a+x lgt2282
-chmod a+x lgt2282/scripts/*.sh
-chmod a+x lgt2282/xml/*.sh
-ln -sf lgt2282 logtalk
+chmod -R go-w,a+r lgt2291
+chmod a+x lgt2291
+chmod a+x lgt2291/scripts/*.sh
+chmod a-x lgt2291/scripts/*.js
+chmod a+x lgt2291/scripts/linux/*.sh
+chmod a+x lgt2291/scripts/macosx/postflight
+chmod a+x lgt2291/xml/*.sh
+chmod a-x lgt2291/xml/*.js
+ln -sf lgt2291 logtalk
 
 mkdir -p bin
 cd bin

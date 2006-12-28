@@ -123,11 +123,17 @@ specializes
 specializes_class
 stream_property
 sub_atom
+synchronized
 term_expansion
 this
 threaded
 threaded_call
+threaded_once
+threaded_ignore
+threaded_race
 threaded_exit
+threaded_peek
+threaded_discard
 throw
 true
 unify_with_occurs_check

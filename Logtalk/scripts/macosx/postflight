@@ -1,0 +1,37 @@
+#!/bin/bash
+
+## =================================================================
+## Logtalk - Object oriented extension to Prolog
+## Release 2.29.1
+##
+## Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+## =================================================================
+
+echo ""
+echo "Checking the LOGTALKHOME environment variable definition..."
+echo ""
+
+if grep "LOGTALKHOME=/opt/local/share/logtalk" /etc/profile >/dev/null 2>&1; then
+	echo "Logtalk environment variables default values already set for bash!"
+else
+	/bin/cp -fp /etc/profile /etc/profile.lgtsaved
+	echo '' >> /etc/profile
+	echo '# Logtalk environment variables default values' >> /etc/profile
+	echo 'LOGTALKHOME=/opt/local/share/logtalk' >> /etc/profile
+	echo 'LOGTALKUSER=$HOME/logtalk' >> /etc/profile
+	echo 'export LOGTALKHOME LOGTALKUSER' >> /etc/profile
+fi
+
+if grep "setenv LOGTALKHOME /opt/local/share/logtalk" /etc/csh.cshrc >/dev/null 2>&1; then
+	echo "Logtalk environment variables default values already set for csh!"
+else
+	/bin/cp -fp /etc/csh.cshrc /etc/csh.cshrc.lgtsaved
+	echo '' >> /etc/csh.cshrc
+	echo '# Logtalk environment variables default values' >> /etc/csh.cshrc
+	echo "setenv LOGTALKHOME /opt/local/share/logtalk" >> /etc/csh.cshrc
+	echo 'setenv LOGTALKUSER $HOME/logtalk' >> /etc/csh.cshrc
+fi
+
+echo ""
+echo "You have succesfully installed Logtalk!"
+echo ""

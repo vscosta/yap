@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.28.2
+// Release 2.29.1
 //
 // Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -59,6 +59,8 @@ var f1 = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalk_comp_swi.pl", tr
 var f2 = FSObject.OpenTextFile(logtalk_home + "\\compiler\\logtalk.pl", 1);
 var line;
 
+f1.WriteLine(":- set_prolog_flag(iso, true).");
+f1.WriteLine(":- set_prolog_flag(generate_debug_info, false).");
 f1.WriteLine(":- system_module.");
 while (!f2.AtEndOfStream) {
 	line = f2.ReadLine();
@@ -96,8 +98,8 @@ WScript.Echo('Start Menu Programs. Make sure that the environment variables');
 WScript.Echo('LOGTALKHOME and LOGTALKUSER are defined for all users wishing');
 WScript.Echo('to use the shortcut.');
 WScript.Echo('');
-WScript.Echo('Users must run the batch script "cplgtdirs" before using the');
-WScript.Echo('"Logtalk -  SWI-Prolog" shortcut.');
+WScript.Echo('Users must run the batch script "cplgtdirs" once before using');
+WScript.Echo('the "Logtalk -  SWI-Prolog" shortcut.');
 WScript.Echo('');
 
 WScript.Quit(0);

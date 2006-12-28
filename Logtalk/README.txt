@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.28.2
+Release 2.29.1
 
 Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -81,7 +81,8 @@ with just the word "help" in the subject or in the message body.
 
 Logtalk can be installed either from sources by running a few shell scripts 
 or by using one of the provided installers, depending on your operating 
-system. See the file "INSTALL.txt" for detailed instructions.
+system. For manual installation, see the file "INSTALL.txt" for detailed 
+instructions.
 
 See the user manual for a description of the source files organization 
 and for using instructions (to read the user manual open the file 

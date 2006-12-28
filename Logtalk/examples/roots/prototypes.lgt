@@ -23,12 +23,12 @@
 
 
 :- object(proto,
-	implements(protop, event_handlersp),
+	implements(protop, monitoring),
 	imports(initialization, proto_hierarchy)).
 
 	:- info([
-		version is 1.1,
-		date is 2005/10/22,
+		version is 1.2,
+		date is 2006/12/14,
 		author is 'Paulo Moura',
 		comment is 'Minimal predicates for all prototypes. Default root of the extension graph.']).
 

@@ -2,9 +2,9 @@
 :- object(primes).
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2006/04/14,
+		date is 2006/11/26,
 		comment is 'Simple example for comparing single and multi-threading calculation of prime numbers.']).
 
 	:- threaded.

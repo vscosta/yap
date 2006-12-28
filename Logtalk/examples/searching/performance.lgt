@@ -1,12 +1,12 @@
 
 :- object(performance,
-	implements(event_handlersp)).
+	implements(monitoring)).
 
 
 	:- info([
-		version is 1.2,
+		version is 1.3,
 		author is 'Paulo Moura',
-		date is 2005/12/19,
+		date is 2006/12/14,
 		comment is 'Performance monitor for state space searches.']).
 
 

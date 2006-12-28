@@ -1,4 +1,7 @@
 
+% we use a parametric object in order to give an interpretation to an 
+% object proxy arguments and to encapsulate relevant predicates:
+
 :- object(circle(_Radius, _Color)).
 
 	:- public([

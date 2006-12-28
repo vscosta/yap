@@ -1,13 +1,13 @@
 
 :- object(message_counter,
-	implements(event_handlersp),
+	implements(monitoring),
 	imports(monitor)).
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 1998/3/23,
+		date is 2006/12/14,
 		comment is 'Message counter monitor.']).
 
 

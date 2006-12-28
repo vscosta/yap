@@ -100,13 +100,13 @@ Note that most predicates have more than one valid mode implying several mode di
 <pre>:- mode(atom_concat(?atom, ?atom, +atom), one_or_more).
 :- mode(atom_concat(+atom, +atom, -atom), zero_or_one).</pre>
 <p>
-Some old Prolog compilers supported some sort of mode directives to improve performance. To the best of my knowledge, there is no modern Prolog compiler supporting these kind of directive. The current version of the Logtalk compiler just parses and than discards this directive. Nevertheless, the use of mode directives is a good starting point to the documentation of your predicates.
+Some old Prolog compilers supported some sort of mode directives to improve performance. To the best of my knowledge, there is no modern Prolog compiler supporting these kind of directive. The current version of the Logtalk compiler just parses and than discards this directive (however, see the description on <a title="Consult user manual" href="threads.html#threads_synchronized_predicates">synchronized predicates</a> on the <a title="Consult user manual" href="threads.html">multi-threading programming</a> section). Nevertheless, the use of mode directives is a good starting point for documenting your predicates.
 </p>
 
 <h3>Meta-predicate directive<a id="predicates_meta"></a></h3>
 
 <p>
-Some predicates may have arguments that will be called as goals or closures that will be used for constructing a call. To ensure that these calls and closures will be executed in the correct scope (i.e. in the calling context, not in the predicate definition context) we need to use the <a title="Consult reference manual" href="../refman/directives/meta_predicate1.html"><code>meta_predicate/1</code></a> directive. For example:
+Some predicates may have arguments that will be called as goals or closures that will be used for constructing a call. To ensure that these calls and closures will be executed in the correct scope (i.e. in the calling context, <em>this</em>, not in the predicate definition context) we need to use the <a title="Consult reference manual" href="../refman/directives/meta_predicate1.html"><code>meta_predicate/1</code></a> directive. For example:
 </p>
 <pre>:- meta_predicate(findall(*, ::, *)).</pre>
 <p>
@@ -121,7 +121,7 @@ The predicate arguments in this directive have the following meaning:
 		<dd>Normal argument.</dd>
 </dl>
 <p>
-This is similar to the declaration of meta-predicates in the ISO standard for Prolog modules except that we use the atom <code>::</code> instead of <code>:</code> to be consistent with the message sending operators. To the best of my knowledge, the use of non-negative integers to specify closures has first introduced on Quintus Prolog for prividing information for the cross-reference tools.
+This is similar to the declaration of meta-predicates in the ISO standard for Prolog modules except that we use the atom <code>::</code> instead of <code>:</code> to be consistent with the message sending operators. To the best of my knowledge, the use of non-negative integers to specify closures has first introduced on Quintus Prolog for providing information for the cross-reference tools.
 </p>
 <p>
 The <code>meta_predicate/1</code> directive must precede the meta-predicate definition and any local calls to the meta-predicate in order to ensure proper compilation. In addition, as each Logtalk entity is independently compiled, this directive must be included in every object or category that contains a definition for the described predicate, even if the predicate declaration is inherited from another entity, to ensure proper compilation of meta-arguments.
@@ -336,10 +336,10 @@ A category may only contain clauses for static predicates. Nevertheless, as the 
 <h3>Meta-predicates<a id="predicates_metadef"></a></h3>
 
 <p>
-Meta-predicates may be defined inside objects (and categories) as any other predicate. A meta-predicate is declared using the <code>meta_predicate/1</code> directive as described earlier on this section. When defining a meta-predicate, the arguments in the clause heads corresponding to the meta-arguments must be variables. All meta-arguments are called in the context of the <em>sender</em> of the message that resulted in the execution of the meta-predicate.
+Meta-predicates may be defined inside objects (and categories) as any other predicate. A meta-predicate is declared using the <code>meta_predicate/1</code> directive as described earlier on this section. When defining a meta-predicate, the arguments in the clause heads corresponding to the meta-arguments must be variables. All meta-arguments are called in the context of the object calling the meta-predicate (either directly or through message sending).
 </p>
 <p>
-Some meta-predicates have meta-arguments which are not goals but closures. Logtalk supports the definition of meta-predicates that are called with closures instead of goals as long as the definition uses the Logtalk built-in predicates <a title="Consult reference manual" href="../refman/methods/call1.html"><code>call/N</code></a> to call the closure with the addtional arguments. For example:
+Some meta-predicates have meta-arguments which are not goals but closures. Logtalk supports the definition of meta-predicates that are called with closures instead of goals as long as the definition uses the Logtalk built-in predicate <a title="Consult reference manual" href="../refman/methods/call1.html"><code>call/N</code></a> to call the closure with the addtional arguments. For example:
 </p>
 <pre>:- public(all_true/2).
 :- meta_predicate(all_true(1, *)).
@@ -349,7 +349,7 @@ all_true(Closure, [Arg| Args]) :-
     call(Closure, Arg),
     all_true(Closure, Args).</pre>
 <p>
-Note that the meta-predicate directive specifies that the closure will be extended with one extra argument.
+Note that the meta-predicate directive specifies that the closure will be extended with exactly one extra argument.
 </p>
 
 <h3>Definite clause grammars<a id="predicates_dcgs"></a></h3>
@@ -602,6 +602,7 @@ Possible predicate properties values are:
 	<li><code>defined_in(Entity)</code></li>
 	<li><code>non_terminal(NonTerminal//Arity)</code></li>
 	<li><code>alias(Predicate)</code></li>
+	<li><code>synchronized</code></li>
 </ul>
 <p>
 The properties <code>declared_in/1</code> and <code>defined_in/1</code> do not apply to built-in methods and Logtalk or Prolog built-in predicates. Note that if a predicate is declared in a category imported by the object, it will be the category name &mdash; not the object name &mdash; that will be returned by the property <code>declared_in/1</code>. The same goes for protocol declared predicates.
@@ -611,6 +612,9 @@ The property <code>non_terminal/1</code> only applies to predicates that result 
 </p>
 <p>
 The property <code>alias/1</code> is returned for predicates that are an alias to other predicate (which is returned in the property argument).
+</p>
+<p>
+The property <code>synchronized</code> is returned for predicates that are declared synchronized when using multi-threading programming.
 </p>
 
 
@@ -634,7 +638,7 @@ Usually, the non-terminal and the corresponding predicate share the same functor
 <h2>Calling Prolog built-in predicates<a id="predicates_prolog"></a></h2>
 
 <p>
-In predicate definitions, predicate calls which are not prefixed with a message sending operator (either <code>::</code> or <code>^^</code>), are compiled to either calls to local predicates or as calls to Logtalk/Prolog built-in predicates. A predicate call is compiled as a call to a local predicate if the object (or category) contains a definition for the called predicate or a dynamic declaration for it. When the object (or category) does not contain either a definition of the called predicate or a corresponding dynamic declaration, Logtalk tests if the call corresponds to a Logtalk or Prolog built-in predicate. Calling a predicate which is neither a local predicate nor a Logtalk/Prolog built-in predicate results in a compile time warning. This means that, in the following example:
+In predicate definitions, predicate calls which are not prefixed with a message sending operator (either <code>::</code> or <code>^^</code>), are compiled to either calls to local predicates or as calls to Logtalk/Prolog built-in predicates. A predicate call is compiled as a call to a local predicate if the object (or category) contains a scope directive, a definition for the called predicate, or a dynamic declaration for it. When the object (or category) does not contain either a definition of the called predicate or a corresponding dynamic declaration, Logtalk tests if the call corresponds to a Logtalk or Prolog built-in predicate. Calling a predicate which is neither a local predicate nor a Logtalk/Prolog built-in predicate results in a compile time warning. This means that, in the following example:
 </p>
 <pre>foo :-
     ...,
@@ -660,7 +664,7 @@ Currently, there is no clean workaround for calling non-standard, Prolog built-i
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: October 26, 2006</span>
+		<span>Last updated on: December 14, 2006</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="categories.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="inheritance.html">next</a></span><br/>

@@ -23,10 +23,6 @@ div.toc-bottom-right > span.page:before {
 }
 
 @page toc {
-	margin-left: 25mm;
-	margin-right: 15mm;
-	margin-top: 15mm;
-	margin-bottom: 15mm;
 	counter-reset: page;
 }
 
@@ -108,7 +104,7 @@ div.top-right > span.chapter:before {
 	border-style: solid;
 }
 
-.toc-bottom-left, .toc-bottom-right, .bottom-left, .bottom-right { 
+.toc-bottom-left { 
 	page: left-toc;
 	text-align: left;
 }

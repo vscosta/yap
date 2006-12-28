@@ -436,6 +436,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 			<dt>object_directive ::=</dt>
 				<dd><i>initialization_directive</i> |</dd>
 				<dd>"<code>:- threaded.</code>" |</dd>
+				<dd>"<code>:- synchronized.</code>" |</dd>
 				<dd>"<code>:- dynamic.</code>" |</dd>
 				<dd>"<code>:- uses(</code>" object_identifier "<code>).</code>" |</dd>
 				<dd>"<code>:- calls(</code>" protocol_identifiers "<code>).</code>" |</dd>
@@ -452,9 +453,10 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dl>
 			<dt>category_directive ::=</dt>
 				<dd><i>initialization_directive</i> |</dd>
+				<dd>"<code>:- synchronized.</code>" |</dd>
+				<dd>"<code>:- dynamic.</code>" |</dd>
 				<dd>"<code>:- uses(</code>" object_identifier "<code>).</code>" |</dd>
 				<dd>"<code>:- calls(</code>" protocol_identifiers "<code>).</code>" |</dd>
-				<dd>"<code>:- dynamic.</code>" |</dd>
 				<dd>"<code>:- info(</code>" info_list "<code>).</code>" |</dd>
 				<dd>predicate_directives</dd>
 		</dl>
@@ -482,7 +484,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dl>
 			<dt>predicate_directive ::=</dt>
 				<dd>alias_directive |</dd>
-				<dd>atomic_directive |</dd>
+				<dd>synchronized_directive |</dd>
 				<dd>uses_directive |</dd>
 				<dd>scope_directive |</dd>
 				<dd>mode_directive |</dd>
@@ -498,9 +500,9 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>"<code>:- alias(</code>" entity_identifier "<code>,</code>" non_terminal_indicator "<code>,</code>" non_terminal_indicator "<code>).</code>"</dd>
 		</dl>
 		<dl>
-			<dt>atomic_directive ::=</dt>
-				<dd>"<code>:- atomic(</code>" predicate_indicator "<code>).</code>" |</dd>
-				<dd>"<code>:- atomic(</code>" non_terminal_indicator "<code>).</code>"</dd>
+			<dt>synchronized_directive ::=</dt>
+				<dd>"<code>:- synchronized(</code>" predicate_indicator "<code>).</code>" |</dd>
+				<dd>"<code>:- synchronized(</code>" non_terminal_indicator "<code>).</code>"</dd>
 		</dl>
 		<dl>
 			<dt>uses_directive ::=</dt>
@@ -712,13 +714,16 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dt>category_property ::=<span id="grammar_category_property"/></dt>
 			<dd>"<code>static</code>" |</dd>
 			<dd>"<code>dynamic</code>" |</dd>
-			<dd>"<code>built_in</code>"</dd>
+			<dd>"<code>built_in</code>" |</dd>
+			<dd>"<code>synchronized</code>"</dd>
 	</dl>
 	<dl>
 		<dt>object_property ::=<span id="grammar_object_property"/></dt>
 			<dd>"<code>static</code>" |</dd>
 			<dd>"<code>dynamic</code>" |</dd>
-			<dd>"<code>built_in</code>"</dd>
+			<dd>"<code>built_in</code>" |</dd>
+			<dd>"<code>synchronized</code>" |</dd>
+			<dd>"<code>threaded</code>"</dd>
 	</dl>
 	<dl>
 		<dt>protocol_property ::=<span id="grammar_protocol_property"/></dt>
@@ -737,7 +742,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 			<dd>"<code>private</code>" |</dd>
 			<dd>"<code>protected</code>" |</dd>
 			<dd>"<code>public</code>" |</dd>
-			<dd>"<code>atomic</code>" |</dd>
+			<dd>"<code>synchronized</code>" |</dd>
 			<dd>"<code>built_in</code>" |</dd>
 			<dd>"<code>declared_in(</code>" entity_identifier "<code>)</code>" |</dd>
 			<dd>"<code>defined_in(</code>" object_identifier | category_identifier "<code>)</code>" |</dd>
@@ -749,7 +754,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: October 26, 2006</span>
+		<span>Last updated on: December 14, 2006</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="index.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="index.html">next</a></span><br/>

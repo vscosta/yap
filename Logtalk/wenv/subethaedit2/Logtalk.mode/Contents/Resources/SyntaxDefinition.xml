@@ -83,7 +83,7 @@
 				<regex>\b(expand_term)\(</regex>
 				<regex>\b(term_expansion)\(</regex>
 				<regex>\b(phrase)\(</regex>
-				<regex>\b(threaded_(call|exit))\(</regex>
+				<regex>\b(threaded_(call|once|ignore|race|exit|peek|discard))\(</regex>
 			</keywords>
 
 			<keywords id="Built-in Predicates" color="#1A1AA6" useforautocomplete="yes">

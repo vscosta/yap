@@ -35,12 +35,14 @@ body {
 	text-align: right;
 	float: right;
 	position: relative;
+	width: 50%;
 }
 
 .copyright {
 	text-align: left;
 	float: left;
 	position: relative;
+	width: 50%;
 }
 
 .toc {

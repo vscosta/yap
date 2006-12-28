@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.28.2
+Release 2.29.1
 
 Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -18,3 +18,9 @@ iso8601.lgt
 	one of the documentation helper scripts to transform the 
 	resulting XML file into (X)HTML or PDF documentation. Your 
 	feedback is appreciated.
+
+xml_parser
+	Contributed by: John Fletcher
+
+	This folder contains a Logtalk version of John Fletcher's 
+	Prolog XML parser (http://www.zen37763.zen.co.uk/xml.pl.html).

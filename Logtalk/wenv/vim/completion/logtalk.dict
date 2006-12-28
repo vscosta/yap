@@ -9,6 +9,7 @@ info
 initialization
 object
 protocol
+synchronized
 threaded
 uses
 alias
@@ -51,7 +52,12 @@ logtalk_library_path
 current_logtalk_flag
 set_logtalk_flag
 threaded_call
+threaded_once
+threaded_ignore
+threaded_race
 threaded_exit
+threaded_peek
+threaded_discard
 self
 this
 sender

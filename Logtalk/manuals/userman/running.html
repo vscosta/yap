@@ -30,7 +30,7 @@ We run Logtalk inside a normal Prolog session, after loading the necessary files
 <h3>Starting Logtalk<a id="running_starting"></a></h3>
 
 <p>
-Depending on your Logtalk installation, you may use a script or a shortcut to start Logtalk with your chosen Prolog compiler. On POSIX operating systems, the scripts should be available from the command-line; scripts are named upon the used Prolog compilers. On Windows, the shortcuts should be available from the Start Menu. If no scripts or shortcuts are available for your installation, operating-system, or Prolog compiler, you can start a Logtalk session by performing the following steps:
+Depending on your Logtalk installation, you may use a script or a shortcut to start Logtalk with your chosen Prolog compiler. On POSIX operating systems, the scripts should be available from the command-line; scripts are named upon the used Prolog compilers. On Windows, the shortcuts should be available from the Start Menu. If no scripts or shortcuts are available for your installation, operating-system, or Prolog compiler, you can always start a Logtalk session by performing the following steps:
 </p>
 <ol>
 	<li>Start your Prolog compiler.</li>
@@ -66,7 +66,7 @@ This predicate works in the same way of the predicate <code>logtalk_compile/1</c
 Both predicates expect a source name name or a list of source name names as an argument. The Logtalk source file name extension, as defined in the configuration file, must be omitted.
 </p>
 <p>
-If you have more than a few source files then you may want to use a loader helper file containing the calls to the <code>logtalk_load/1</code> predicate. Consulting or compiling the loader file will then compile and load all your Logtalk entities into memory (see the <a href="programming.html#loaders">next</a> section for details).
+If you have more than a few source files then you may want to use a loader helper file containing the calls to the <code>logtalk_load/1-2</code> predicates. Consulting or compiling the loader file will then compile and load all your Logtalk entities into memory (see the <a href="programming.html#loaders">next</a> section for details).
 </p>
 
 <h3>Compiler flags<a id="running_flags"></a></h3>
@@ -424,7 +424,7 @@ The debugger pauses at leashed posts when tracing or when finding a spy point fo
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: October 26, 2006</span>
+		<span>Last updated on: December 11, 2006</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="installing.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="programming.html">next</a></span><br/>

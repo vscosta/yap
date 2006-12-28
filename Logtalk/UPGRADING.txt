@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.28.2
+Release 2.29.1
 
 Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -140,5 +140,15 @@ could be used to bypass predicate scope declarations, meta-predicates that
 use closures must be re-implemented to use the new call/N Logtalk built-in 
 predicate. The directive metapredicate/1 is now deprecated, the directive 
 meta_predicate/1 should be used instead. There are also changes to the 
-config files that render the Logtalk runtime imcompatible with the config 
+config files that render the Logtalk runtime incompatible with the config 
 files of previous versions.
+
+Logtalk 2.29.0 makes some incompatible changes to the experimental support 
+for multi-threading programming that may imply updating any application that 
+uses the multi-threading predicates. The default value of the compiler flag 
+events/1 is now off. Applications using event-driven programming must either 
+turn this flag on or compile source files with the events(on) option. The 
+library protocol "event_handlersp" is now deprecated; new code should use 
+instead the built-in "monitoring" protocol. The new support for "threaded" 
+and "synchronized" entity properties implies implying recompilation of all 
+objects and categories.

@@ -5,9 +5,9 @@
 <!--	jEdit 4.1 Logtalk syntax file
 
 	written by		Paulo Moura
-	version			1.7
+	version			1.8
 	created on		2 May 2002
-	last revised	17 September 2006
+	last revised	14 December 2006
 
 	To install, copy this file to the "modes" subdirectory in jEdit 
 	directory installation.   Next, check the "catalog" file in the 
@@ -133,7 +133,7 @@
 			<END>).</END>
 		</SPAN>
 		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="PIs">
-			<BEGIN>:- atomic(</BEGIN>
+			<BEGIN>:- synchronized(</BEGIN>
 			<END>).</END>
 		</SPAN>
 		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="PIs">
@@ -247,7 +247,12 @@
 			<FUNCTION>setof</FUNCTION>
 
 			<FUNCTION>threaded_call</FUNCTION>
+			<FUNCTION>threaded_once</FUNCTION>
+			<FUNCTION>threaded_ignore</FUNCTION>
+			<FUNCTION>threaded_race</FUNCTION>
 			<FUNCTION>threaded_exit</FUNCTION>
+			<FUNCTION>threaded_peek</FUNCTION>
+			<FUNCTION>threaded_discard</FUNCTION>
 
 			<FUNCTION>before</FUNCTION>
 			<FUNCTION>after</FUNCTION>

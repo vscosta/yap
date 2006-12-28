@@ -1,7 +1,7 @@
-; TextPad syntax definitions for Logtalk (http://www.logtalk.org/)
+; TextPad syntax definitions for Logtalk (http://logtalk.org/)
 ; 
-; Author: 			Paulo Moura
-; Last changed in: 	February 24, 2006
+; Author: 		Paulo Moura
+; Last changed in: 	November 23, 2006
 ;
 ; Tags used and sugested colors:
 ;   Keywords 1	message sending operators	blue
@@ -103,6 +103,7 @@ op
 calls
 uses
 use_module
+synchronized
 threaded
 
 
@@ -164,7 +165,12 @@ expand_term
 term_expansion
 phrase
 threaded_call
+threaded_once
+threaded_ignore
+threaded_race
 threaded_exit
+threaded_peek
+threaded_discard
 
 ; Mode operators
 ?

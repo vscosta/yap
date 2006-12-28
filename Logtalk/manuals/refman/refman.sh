@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.28.2
+## Release 2.29.1
 ##
 ## Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -33,10 +33,10 @@ eval $xslt_proc -o directives/info1.section refman.xsl directives/info1.html
 eval $xslt_proc -o directives/initialization1.section refman.xsl directives/initialization1.html
 eval $xslt_proc -o directives/object1_5.section refman.xsl directives/object1_5.html
 eval $xslt_proc -o directives/protocol1_2.section refman.xsl directives/protocol1_2.html
+eval $xslt_proc -o directives/synchronized0.section refman.xsl directives/synchronized0.html
 eval $xslt_proc -o directives/threaded0.section refman.xsl directives/threaded0.html
 eval $xslt_proc -o directives/uses1.section refman.xsl directives/uses1.html
 eval $xslt_proc -o directives/alias3.section refman.xsl directives/alias3.html
-eval $xslt_proc -o directives/atomic1.section refman.xsl directives/atomic1.html
 eval $xslt_proc -o directives/discontiguous1.section refman.xsl directives/discontiguous1.html
 eval $xslt_proc -o directives/dynamic1.section refman.xsl directives/dynamic1.html
 eval $xslt_proc -o directives/info2.section refman.xsl directives/info2.html
@@ -46,6 +46,7 @@ eval $xslt_proc -o directives/op3.section refman.xsl directives/op3.html
 eval $xslt_proc -o directives/private1.section refman.xsl directives/private1.html
 eval $xslt_proc -o directives/protected1.section refman.xsl directives/protected1.html
 eval $xslt_proc -o directives/public1.section refman.xsl directives/public1.html
+eval $xslt_proc -o directives/synchronized1.section refman.xsl directives/synchronized1.html
 eval $xslt_proc -o directives/uses2.section refman.xsl directives/uses2.html
 eval $xslt_proc -o builtins/current_category1.section refman.xsl builtins/current_category1.html
 eval $xslt_proc -o builtins/current_object1.section refman.xsl builtins/current_object1.html
@@ -69,9 +70,12 @@ eval $xslt_proc -o builtins/abolish_events5.section refman.xsl builtins/abolish_
 eval $xslt_proc -o builtins/current_event5.section refman.xsl builtins/current_event5.html
 eval $xslt_proc -o builtins/define_events5.section refman.xsl builtins/define_events5.html
 eval $xslt_proc -o builtins/threaded_call1.section refman.xsl builtins/threaded_call1.html
-eval $xslt_proc -o builtins/threaded_call2.section refman.xsl builtins/threaded_call2.html
+eval $xslt_proc -o builtins/threaded_once1.section refman.xsl builtins/threaded_once1.html
+eval $xslt_proc -o builtins/threaded_ignore1.section refman.xsl builtins/threaded_ignore1.html
+eval $xslt_proc -o builtins/threaded_race1.section refman.xsl builtins/threaded_race1.html
 eval $xslt_proc -o builtins/threaded_exit1.section refman.xsl builtins/threaded_exit1.html
-eval $xslt_proc -o builtins/threaded_exit2.section refman.xsl builtins/threaded_exit2.html
+eval $xslt_proc -o builtins/threaded_peek1.section refman.xsl builtins/threaded_peek1.html
+eval $xslt_proc -o builtins/threaded_discard1.section refman.xsl builtins/threaded_discard1.html
 eval $xslt_proc -o builtins/logtalk_compile1.section refman.xsl builtins/logtalk_compile1.html
 eval $xslt_proc -o builtins/logtalk_compile2.section refman.xsl builtins/logtalk_compile2.html
 eval $xslt_proc -o builtins/logtalk_load1.section refman.xsl builtins/logtalk_load1.html
@@ -126,10 +130,10 @@ cat -s \
 	directives/initialization1.section \
 	directives/object1_5.section \
 	directives/protocol1_2.section \
+	directives/synchronized0.section \
 	directives/threaded0.section \
 	directives/uses1.section \
 	directives/alias3.section \
-	directives/atomic1.section \
 	directives/discontiguous1.section \
 	directives/dynamic1.section \
 	directives/info2.section \
@@ -139,6 +143,7 @@ cat -s \
 	directives/private1.section \
 	directives/protected1.section \
 	directives/public1.section \
+	directives/synchronized1.section \
 	directives/uses2.section \
 	builtins.header \
 	builtins/current_category1.section \
@@ -163,9 +168,12 @@ cat -s \
 	builtins/current_event5.section \
 	builtins/define_events5.section \
 	builtins/threaded_call1.section \
-	builtins/threaded_call2.section \
+	builtins/threaded_once1.section \
+	builtins/threaded_ignore1.section \
+	builtins/threaded_race1.section \
 	builtins/threaded_exit1.section \
-	builtins/threaded_exit2.section \
+	builtins/threaded_peek1.section \
+	builtins/threaded_discard1.section \
 	builtins/logtalk_compile1.section \
 	builtins/logtalk_compile2.section \
 	builtins/logtalk_load1.section \

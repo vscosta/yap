@@ -241,13 +241,13 @@
 
 
 :- object(object,
-	implements(objectp, event_handlersp),
+	implements(objectp, monitoring),
 	imports(initialization, class_hierarchy),
 	instantiates(class)).
 
 	:- info([
-		version is 1.0,
-		date is 2000/7/24,
+		version is 1.1,
+		date is 2006/12/14,
 		author is 'Paulo Moura',
 		comment is 'Minimal predicates for all objects. Default root of the inheritance graph.']).
 

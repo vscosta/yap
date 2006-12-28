@@ -209,13 +209,13 @@
 
 
 :- object(relation,
-	implements(relationp),
+	implements(relationp, monitoring),
 	instantiates(class),
 	specializes(object)).
 
 	:- info([
-		version is 1.2,
-		date is 2004/8/15,
+		version is 1.3,
+		date is 2006/12/16,
 		author is 'Esteban Zimanyi, Paulo Moura',
 		comment is 'Enables the representation of relations between independent objects.']).
 
@@ -617,12 +617,13 @@
 
 
 :- object(constrained_relation,
+	implements(monitoring),
 	instantiates(class),
 	specializes(relation)).
 
 	:- info([
-		version is 3.2,
-		date is 2005/1/29,
+		version is 3.3,
+		date is 2006/12/16,
 		author is 'Paulo Moura',
 		comment is 'Enables the representation of relations with constraints on the state of participating objects.']).
 

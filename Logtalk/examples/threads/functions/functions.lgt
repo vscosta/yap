@@ -2,9 +2,9 @@
 :- protocol(find_rootp).
 
 	:- info([
-		version is 1.0,
-		date is 2006/4/21,
-		author is 'Paulo Nunes',
+		version is 1.1,
+		author is 'Paulo Moura and Paulo Nunes',
+		date is 2006/11/26,
 		comment is 'Default protocol for root find algorithms.']).
 
 	:- public(find_root/5).
@@ -25,9 +25,9 @@
 :- protocol(functionp).
 
 	:- info([
-		version is 1.0,
-		date is 2006/4/21,
-		author is 'Paulo Nunes',
+		version is 1.1,
+		author is 'Paulo Moura and Paulo Nunes',
+		date is 2006/11/26,
 		comment is 'Default protocol for real functions of a single real variable.']).
 
 	:- public(eval/2).
@@ -93,9 +93,9 @@
 	implements(find_rootp)).
 
 	:- info([
-		version is 1.0,
-		date is 2006/4/21,
-		author is 'Paulo Nunes',
+		version is 1.1,
+		author is 'Paulo Moura and Paulo Nunes',
+		date is 2006/11/26,
 		comment is 'Multi-threading interface to root finding algorithms.']).
 
 	:- threaded.
@@ -104,7 +104,7 @@
 		find_root(Function, A, B, Error, Zero, _).
 
 	find_root(Function, A, B, Error, Zero, Algorithm) :-
-		threaded_call(
+		threaded_race(
 			(	try_method(bisection, Function, A, B, Error, Zero)
 			;	try_method(newton, Function, A, B, Error, Zero)
 			;	try_method(muller, Function, A, B, Error, Zero)
@@ -121,9 +121,9 @@
 	implements(find_rootp)).
 
 	:- info([
-		version is 1.0,
-		date is 2006/4/21,
-		author is 'Paulo Nunes',
+		version is 1.1,
+		author is 'Paulo Moura and Paulo Nunes',
+		date is 2006/11/26,
 		comment is 'Bisection algorithm.']).
 
 	find_root(Function, A, B, Error, Zero) :-
@@ -163,9 +163,9 @@
 	implements(find_rootp)).
 
 	:- info([
-		version is 1.0,
-		date is 2006/4/21,
-		author is 'Paulo Nunes',
+		version is 1.1,
+		author is 'Paulo Moura and Paulo Nunes',
+		date is 2006/11/26,
 		comment is 'Newton algorithm.']).
 
 	find_root(Function, Xa, Xb, Deviation, Zero) :-
@@ -203,9 +203,9 @@
 	implements(find_rootp)).
 
 	:- info([
-		version is 1.0,
-		date is 2006/4/21,
-		author is 'Paulo Nunes',
+		version is 1.1,
+		author is 'Paulo Moura and Paulo Nunes',
+		date is 2006/11/26,
 		comment is 'Muller algorithm.']).
 
 	find_root(Function, Xa, Xb, Deviation, Zero) :-

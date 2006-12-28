@@ -34,6 +34,8 @@
 	:- public([weather/1, weekday/1, time/1, goto/1]).
 	:- dynamic([weather/1, weekday/1, time/1, goto/1]).
 
+	:- dynamic(if/1).
+
 	:- op(200,  fx, if).
 	:- op(100, xfx, then).
 

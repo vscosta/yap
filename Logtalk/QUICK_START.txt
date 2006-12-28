@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.28.2
+Release 2.29.1
 
 Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -10,32 +10,36 @@ Quick start
 ===========
 
 
-1. Install Logtalk by following the instructions on the "INSTALL" file. 
-Depending on your operating-system, working environment, and favorite 
-Prolog compiler, you may already have a script or a shortcut installed 
-for easily running Logtalk with your favorite Prolog compiler. If so, 
-skip the instructions below for starting up Logtalk.
+1. Install Logtalk by using either the installer provided for your 
+operating-system (when available) or by following the instructions 
+on the "INSTALL" file. Depending on your operating-system, working 
+environment, and favorite Prolog compiler, you may already have a 
+script or a shortcut installed for easily running Logtalk with your 
+favorite Prolog compiler. If so, skip the instructions below for 
+starting up Logtalk.
 
 2. Open the "manuals/index.html" file with a web browser.
 
-3. Select the "Tutorial" link. This will provide you with a basic understanding
-of the main Logtalk concepts.
+3. Select the "Tutorial" link. This will provide you with a basic 
+understanding of the main Logtalk concepts.
 
-4. Go back to the "index.html" file and select the "User Manual" link and then 
-the Installing and running Logtalk links. This will provide you with a basic 
-understanding of how to start Logtalk and compile and load Logtalk code.
+4. Go back to the "index.html" file and select the "User Manual" 
+link and then the Installing and running Logtalk links. This will 
+provide you with a basic understanding of how to start Logtalk and 
+compile and load Logtalk code.
 
 
 Assuming that Logtalk supports your Prolog compiler:
 
-1. Read the "NOTES" file in the "configs" sub-directory to check if any patch 
-or workaround is needed for your compiler.
+1. Read the "NOTES" file in the "configs" sub-directory to check if 
+any patch or workaround is needed for your compiler.
 
 2. Start your Prolog compiler.
 
-3. Change the current working directory of your Prolog session to the Logtalk 
-installation directory. If you don't know which predicate to use, check the 
-"configs/NOTES" file or your Prolog compiler reference manual.
+3. Change the current working directory of your Prolog session to the 
+Logtalk installation directory. If you don't know which predicate to 
+use, check the "configs/NOTES" file or your Prolog compiler reference 
+manual.
 
 4. Compile and load the config file for your Prolog compiler.
 
@@ -75,18 +79,18 @@ them on your Prolog interpreter top-level.
 
 Ready to start writing your own programs?
 
-1. Read the User Manual sections on "Programming in Logtalk" and "Running and 
-debugging Logtalk programs".
+1. Read the User Manual sections on "Programming in Logtalk" and "Running 
+and debugging Logtalk programs".
 
 2. Take a look at the "wenv" sub-directory. There you will find syntax 
 configuration files for popular text editors that enable syntax coloring 
 and other goodies when editing Logtalk source files.
 
-3. Create a sub-directory with a suitable name to hold all the files of your 
-application. You may want to add the directory path to the libpaths.pl file 
-mentioned above in order to easily load your application.
+3. Create a sub-directory with a suitable name to hold all the files of 
+your application. You may want to add the directory path to the libpaths.pl 
+file mentioned above in order to easily load your application.
 
-4. Copy to this sub-directory a loader file from one of the example directories
-and modify it to load your own source files.
+4. Copy to this sub-directory a loader file from one of the example 
+directories and modify it to load your own source files.
 
 5. Have fun!

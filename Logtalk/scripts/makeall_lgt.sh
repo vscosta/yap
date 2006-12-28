@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.28.2
+## Release 2.29.1
 ##
 ## Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -40,72 +40,72 @@ fi
 
 ./make_bplgt.sh $prefix > /dev/null 2> /dev/null
 if [ $? = 0 ] ; then
-	echo "bplgt script created"
+	echo "bplgt script created      (B-Prolog integration script)"
 else
-	echo "bplgt script creation failed"
+	echo "bplgt script creation failed      (B-Prolog integration script)"
 fi
 
 ./make_ciaolgt.sh $prefix > /dev/null 2> /dev/null
 if [ $? = 0 ] ; then
-	echo "ciaolgt script created"
+	echo "ciaolgt script created    (Ciao Prolog integration script)"
 else
-	echo "ciaolgt script creation failed"
+	echo "ciaolgt script creation failed    (Ciao Prolog integration script)"
 fi
 
 ./make_eclipselgt.sh $prefix > /dev/null 2> /dev/null
 if [ $? = 0 ] ; then
-	echo "eclipselgt script created"
+	echo "eclipselgt script created (ECLiPSe integration script)"
 else
-	echo "eclipselgt script creation failed"
+	echo "eclipselgt script creation failed (ECLiPSe integration script)"
 fi
 
 ./make_gplgt.sh $prefix > /dev/null 2> /dev/null
 if [ $? = 0 ] ; then
-	echo "gplgt script created"
+	echo "gplgt script created      (GNU Prolog integration script)"
 else
-	echo "gplgt script creation failed"
+	echo "gplgt script creation failed      (GNU Prolog integration script)"
 fi
 
 ./make_plclgt.sh $prefix > /dev/null 2> /dev/null
 if [ $? = 0 ] ; then
-	echo "plclgt script created"
+	echo "plclgt script created     (K-Prolog integration script)"
 else
-	echo "plclgt script creation failed"
+	echo "plclgt script creation failed     (K-Prolog integration script)"
 fi
 
 ./make_qplgt.sh $prefix > /dev/null 2> /dev/null
 if [ $? = 0 ] ; then
-	echo "qplgt script created"
+	echo "qplgt script created      (Qu-Prolog integration script)"
 else
-	echo "qplgt script creation failed"
+	echo "qplgt script creation failed      (Qu-Prolog integration script)"
 fi
 
 ./make_sicstuslgt.sh $prefix > /dev/null 2> /dev/null
 if [ $? = 0 ] ; then
-	echo "sicstuslgt script created"
+	echo "sicstuslgt script created (SICStus Prolog integration script)"
 else
-	echo "sicstuslgt script creation failed"
+	echo "sicstuslgt script creation failed (SICStus Prolog integration script)"
 fi
 
 ./make_swilgt.sh $prefix > /dev/null 2> /dev/null
 if [ $? = 0 ] ; then
-	echo "swilgt script created"
+	echo "swilgt script created     (SWI-Prolog integration script)"
 else
-	echo "swilgt script creation failed"
+	echo "swilgt script creation failed     (SWI-Prolog integration script)"
 fi
 
 ./make_xsblgt.sh $prefix > /dev/null 2> /dev/null
 if [ $? = 0 ] ; then
-	echo "xsblgt script created"
+	echo "xsblgt script created     (XSB integration script)"
 else
-	echo "xsblgt script creation failed"
+	echo "xsblgt script creation failed     (XSB integration script)"
 fi
 
 ./make_yaplgt.sh $prefix > /dev/null 2> /dev/null
 if [ $? = 0 ] ; then
-	echo "yaplgt script created"
+	echo "yaplgt script created     (YAP integration script)"
 else
-	echo "yaplgt script creation failed"
+	echo "yaplgt script creation failed     (YAP integration script)"
 fi	
 
 echo

@@ -1,0 +1,19 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.29.1
+
+Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+This folder contains a Logtalk version of John Fletcher's Prolog XML 
+parser:
+
+	http://www.zen37763.zen.co.uk/xml.pl.html
+
+To load this XML parser and for sample queries, please see the SCRIPT 
+file.
+
+For a detailed description of this XML parser, please see the comments 
+in the "xml.lgt" source file or convert the automatically generated 
+documentation to HTML or PDF.

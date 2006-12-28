@@ -52,7 +52,12 @@
 			<string>current_logtalk_flag</string>
 			<string>set_logtalk_flag</string>
 			<string>threaded_call</string>
+			<string>threaded_once</string>
+			<string>threaded_ignore</string>
 			<string>threaded_exit</string>
+			<string>threaded_peek</string>
+			<string>threaded_discard</string>
+			<string>synchronized</string>
 			<string>self</string>
 			<string>this</string>
 			<string>sender</string>

@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.28.2
+// Release 2.29.1
 //
 // Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -17,16 +17,37 @@ if (WScript.Arguments.Unnamed.Length > 0) {
 
 WScript.Echo('');
 WScript.Echo('Creating a shortcut named "Logtalk - ECLiPSe" for running Logtalk with');
-WScript.Echo('ECLiPSe 5.10 (edit this script if you are using a different version)...');
+WScript.Echo('ECLiPSe 5.11 or 5.10 (edit this script if you are using a different version)...');
 WScript.Echo('');
 
 var WshShell = new ActiveXObject("WScript.Shell");
 
-var prolog_path = WshShell.RegRead("HKLM\\Software\\IC-Parc\\Eclipse\\5.10\\ECLIPSEDIR") + "\\lib\\i386_nt\\eclipse.exe";
+var prolog_path;
+var prolog_path511;
+var prolog_path510;
+
+try {
+	prolog_path511 = WshShell.RegRead("HKLM\\Software\\IC-Parc\\Eclipse\\5.11\\ECLIPSEDIR") + "\\lib\\i386_nt\\eclipse.exe";
+}
+catch(e) {
+	prolog_path511 = "not_installed.lgt";
+}
+try {
+	prolog_path510 = WshShell.RegRead("HKLM\\Software\\IC-Parc\\Eclipse\\5.10\\ECLIPSEDIR") + "\\lib\\i386_nt\\eclipse.exe";
+}
+catch(e) {
+	prolog_path510 = "not_installed.lgt";
+}
 
 var FSObject = new ActiveXObject("Scripting.FileSystemObject");
 
-if (!FSObject.FileExists(prolog_path)) {
+if (FSObject.FileExists(prolog_path511)) {
+	prolog_path = prolog_path511;
+}
+else if (FSObject.FileExists(prolog_path510)) {
+	prolog_path = prolog_path510;
+}
+else {
 	WScript.Echo("Error! Cannot find eclipse.exe at the expected place!");
 	WScript.Echo("Please, edit the script and update the location of the eclipse.exe executable.");
 	WScript.Quit(1);
@@ -104,8 +125,8 @@ WScript.Echo('Start Menu Programs. Make sure that the environment variables');
 WScript.Echo('LOGTALKHOME and LOGTALKUSER are defined for all users wishing');
 WScript.Echo('to use the shortcut.');
 WScript.Echo('');
-WScript.Echo('Users must run the batch script "cplgtdirs" before using the');
-WScript.Echo('"Logtalk - ECLiPSe" shortcut.');
+WScript.Echo('Users must run the batch script "cplgtdirs" once before using');
+WScript.Echo('the "Logtalk - ECLiPSe" shortcut.');
 WScript.Echo('');
 
 WScript.Quit(0);

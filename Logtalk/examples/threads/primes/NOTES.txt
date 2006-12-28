@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.28.2
+Release 2.29.1
 
 Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -9,7 +9,11 @@ Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 To load this example and for sample queries, please see the SCRIPT file.
 
 This folder contains a simple multi-threading example with calculating 
-prime numbers on a given interval. Try to run the example in single and
+prime numbers in a given interval. Try to run the example in single and
 multi-processor (or multi-core) computers and compare the results. Most 
 Prolog compilers allows you to measure the time taken for proving a goal 
 using proprietary predicates.
+
+Note that this example is meant to show how to use Logtalk multi-threading 
+predicates, not to illustrate the best solution for finding primes numbers 
+on a given interval.

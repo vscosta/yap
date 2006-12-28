@@ -107,11 +107,11 @@
 
 
 :- object(stack_monitor,
-	implements(event_handlersp)).
+	implements(monitoring)).
 
 	:- info([
-		version is 1.0,
-		date is 1998/3/23,
+		version is 1.1,
+		date is 2006/12/14,
 		author is 'Paulo Moura',
 		comment is 'Monitor for brick movements printing an ascii representation of each brick position.']).
 

@@ -25,7 +25,7 @@
 	% singleton variables in predicate clause
 	predicate(A) :-
 		write(C).
-	
+
 :- end_object.
 
 

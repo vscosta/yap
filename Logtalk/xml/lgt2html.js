@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.28.2
+// Release 2.29.1
 //
 // Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -118,6 +118,10 @@ else
 
 if (!FSObject.FileExists(WshShell.CurrentDirectory + "\\logtalk.dtd")) {
 	FSObject.CopyFile(logtalk_home + "\\xml\\logtalk.dtd", WshShell.CurrentDirectory + "\\logtalk.dtd");
+}
+
+if (!FSObject.FileExists(WshShell.CurrentDirectory + "\\custom.ent")) {
+	FSObject.CopyFile(logtalk_home + "\\xml\\custom.ent", WshShell.CurrentDirectory + "\\custom.ent");
 }
 
 if (!FSObject.FileExists(WshShell.CurrentDirectory + "\\logtalk.xsd")) {

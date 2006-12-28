@@ -1,12 +1,12 @@
 
 :- object(event_dbg,
-	implements(event_dbgp, event_handlersp),
+	implements(event_dbgp, monitoring),
 	imports(monitor)).
 
 
 	:- info([
-		version is 1.0,
-		date is 2000/7/24,
+		version is 1.1,
+		date is 2006/12/15,
 		author is 'Paulo Moura',
 		comment is 'Debugging facilities similar to those found in most Prolog compilers.']).
 

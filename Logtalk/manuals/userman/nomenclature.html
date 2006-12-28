@@ -28,12 +28,12 @@ Depending on your Object-oriented Programming background (or lack of it), you ma
 <h2>C++ nomenclature<a id="nomenclature_cpp"></a></h2>
 
 <p>
-There are several C++ glossaries available on the Internet.
+There are several C++ glossaries available on the Internet. The list that follows relates the most commonly used C++ terms with their Logtalk equivalents.
 </p>
 
 <dl>
 	<dt><strong>abstract class</strong></dt>
-		<dd>Logtalk supports <em>interfaces</em>/<em>protocols</em>, which are a much better way to provide the functionality of C++ abstract classes.</dd>
+		<dd>Logtalk uses a <em>functional</em> definition of abstract class: any class that does not inherit a method for creating new instances is an abstract class. Moreover, Logtalk supports <em>interfaces</em>/<em>protocols</em>, which are often a better way to provide the functionality of C++ abstract classes.</dd>
 </dl>
 <dl>
 	<dt><strong>base class</strong></dt>
@@ -77,22 +77,22 @@ There are several C++ glossaries available on the Internet.
 </dl>
 <dl>
 	<dt><strong>this</strong></dt>
-		<dd>Logtalk uses the built-in context method <code>self/1</code> for retriving the current instance. Logtalk also provides a <code>this/1</code> but for returning the class containing the method being executed. Why the name clashes? Well, the notion of <em>self</em> cames from Smalltalk, which was there first.</dd>
+		<dd>Logtalk uses the built-in context method <code>self/1</code> for retrieving the current instance. Logtalk also provides a <code>this/1</code> method but for returning the class containing the method being executed. Why the name clashes? Well, the notion of <em>self</em> was inherited from Smalltalk, which predates C++.</dd>
 </dl>
 <dl>
 	<dt><strong>virtual member function</strong></dt>
-		<dd>Logtalk allows any predicate defined in a class to be overriden on a descendant class. There is no <code>virtual</code> keyword in Logtalk.</dd>
+		<dd>Logtalk allows any predicate defined in a class to be overridden on a descendant class. There is no <code>virtual</code> keyword in Logtalk.</dd>
 </dl>
 
 <h2>Java nomenclature<a id="nomenclature_java"></a></h2>
 
 <p>
-There are several Java glossaries available on the Internet.
+There are several Java glossaries available on the Internet. The list that follows relates the most commonly used Java terms with their Logtalk equivalents.
 </p>
 
 <dl>
 	<dt><strong>abstract class</strong></dt>
-		<dd>Moreover, there is no <code>abstract</code> keyword in Logtalk.</dd>
+		<dd>Logtalk uses a <em>functional</em> definition of abstract class: any class that does not inherit a method for creating new instances is an abstract class. I.e. there is no <code>abstract</code> keyword in Logtalk.</dd>
 </dl>
 <dl>
 	<dt><strong>abstract method</strong></dt>
@@ -100,7 +100,7 @@ There are several Java glossaries available on the Internet.
 </dl>
 <dl>
 	<dt><strong>extends</strong></dt>
-		<dd>There is no <code>extends</code> keyword in Logtalk. Class inheritance is indicated using <em>specialization</em> relations. Morevover, the <em>extends</em> relation is used in Logtalk to indicate protocol or prototype extension.</dd>
+		<dd>There is no <code>extends</code> keyword in Logtalk. Class inheritance is indicated using <em>specialization</em> relations. Moreover, the <em>extends</em> relation is used in Logtalk to indicate protocol or prototype extension.</dd>
 </dl>
 <dl>
 	<dt><strong>interface</strong></dt>
@@ -112,11 +112,11 @@ There are several Java glossaries available on the Internet.
 </dl>
 <dl>
 	<dt><strong>class method</strong></dt>
-		<dd>Class methods are implemented in Logtalk by simply defining a predicate inside a class.</dd>
+		<dd>Class methods may be implemented in Logtalk by using a metaclass for the class and defining the class methods in the metaclass. I.e. class methods are simply instance methods of the class metaclass.</dd>
 </dl>
 <dl>
 	<dt><strong>class variable</strong></dt>
-		<dd>Class variables are implemented in Logtalk by simply defining a predicate inside a class. Moreover, there is no <code>static</code> keyword in Logtalk.</dd>
+		<dd>Class variables may be implemented in Logtalk by using a metaclass for the class and defining the class variables in the class. I.e. class variables are simply instance variables of the class metaclass. Moreover, there is no <code>static</code> keyword in Logtalk.</dd>
 </dl>
 <dl>
 	<dt><strong>constructor</strong></dt>
@@ -124,7 +124,7 @@ There are several Java glossaries available on the Internet.
 </dl>
 <dl>
 	<dt><strong>final</strong></dt>
-		<dd>There is no <code>final</code> keyword in Logtalk; methods may always be redefined in subclasses.</dd>
+		<dd>There is no <code>final</code> keyword in Logtalk; methods may always be redefined in subclasses (and instances!).</dd>
 </dl>
 <dl>
 	<dt><strong>instance</strong></dt>
@@ -148,17 +148,17 @@ There are several Java glossaries available on the Internet.
 </dl>
 <dl>
 	<dt><strong>synchronized</strong></dt>
-		<dd>Logtalk supports <em>multi-threading programming</em> in selected Prolog compilers, including executing an predicate atomically.</dd>
+		<dd>Logtalk supports <em>multi-threading programming</em> in selected Prolog compilers, including a <code>synchronized/1</code> predicate directive. However, Logtalk synchronized predicates use a <em>lock</em> per-predicate and not as in Java a <em>lock</em> per-object.</dd>
 </dl>
 <dl>
 	<dt><strong>this</strong></dt>
-		<dd>Logtalk uses the built-in context method <code>self/1</code> for retriving the current instance. Logtalk also provides a <code>this/1</code> but for returning the class containing the method being executed. Why the name clashes? Well, the notion of <em>self</em> cames from Smalltalk, which was there first.</dd>
+		<dd>Logtalk uses the built-in context method <code>self/1</code> for retrieving the current instance. Logtalk also provides a <code>this/1</code> method but for returning the class containing the method being executed. Why the name clashes? Well, the notion of <em>self</em> was inherited from Smalltalk, which predates Java.</dd>
 </dl>
 
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: October 26, 2006</span>
+		<span>Last updated on: December 14, 2006</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="features.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="messages.html">next</a></span><br/>

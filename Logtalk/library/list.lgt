@@ -5,9 +5,9 @@
 
 
 	:- info([
-		version is 1.2,
+		version is 1.3,
 		author is 'Paulo Moura',
-		date is 2004/5/9,
+		date is 2006/12/21,
 		comment is 'List predicates.']).
 
 
@@ -35,21 +35,21 @@
 	delete([], _, []).
 
 	delete([Head| Tail], Element, Remaining) :-
-		Head == Element ->
+		(	Head == Element ->
 			delete(Tail, Element, Remaining)
-			;
-			Remaining = [Head| Tail2],
-			delete(Tail, Element, Tail2).
+		;	Remaining = [Head| Tail2],
+			delete(Tail, Element, Tail2)
+		).
 
 
 	delete_matches([], _, []).
 
 	delete_matches([Head| Tail], Element, Remaining) :-
-		\+ \+ Head = Element ->
+		(	\+ \+ Head = Element ->
 			delete_matches(Tail, Element, Remaining)
-			;
-			Remaining = [Head| Tail2],
-			delete_matches(Tail, Element, Tail2).
+		;	Remaining = [Head| Tail2],
+			delete_matches(Tail, Element, Tail2)
+		).
 
 
 	empty(List) :-
@@ -90,11 +90,11 @@
 
 
 	length(List, Length) :-
-		integer(Length) ->
+		(	integer(Length) ->
 			Length >= 0,
 			make_list(Length, List)
-			;
-			length(List, 0, Length).
+		;	length(List, 0, Length)
+		).
 
 
 	make_list(0, []):-
@@ -118,10 +118,10 @@
 	max([], Max, Max).
 
 	max([N| Ns], Aux, Max) :-
-		N @> Aux ->
+		(	N @> Aux ->
 			max(Ns, N, Max)
-			;
-			max(Ns, Aux, Max).
+		;	max(Ns, Aux, Max)
+		).
 
 
 	member(Element, [Element| _]).
@@ -143,10 +143,10 @@
 	min([], Min, Min).
 
 	min([N| Ns], Aux, Min) :-
-		N @< Aux ->
+		(	N @< Aux ->
 			min(Ns, N, Min)
-			;
-			min(Ns, Aux, Min).
+		;	min(Ns, Aux, Min)
+		).
 
 
 	new([]).
@@ -174,11 +174,21 @@
 		nth(Element, List, 1, Nth, Tail).
 
 
-	nth(Head, [Head| Tail], Position, Position, Tail).
+	nth(Element, List, Acc, Nth, Tail) :-
+		(	integer(Nth),
+			Nth >= Acc,
+			nth_aux(NthElement, List, Acc, Nth, Tail) ->
+			Element = NthElement
+		;	var(Nth),
+			nth_aux(Element, List, Acc, Nth, Tail)
+		).
 
-	nth(Head, [_| List], Count, Position, Tail) :-
+
+	nth_aux(Head, [Head| Tail], Position, Position, Tail).
+
+	nth_aux(Head, [_| List], Count, Position, Tail) :-
 		Count2 is Count + 1,
-		nth(Head, List, Count2, Position, Tail).
+		nth_aux(Head, List, Count2, Position, Tail).
 
 
 	permutation(List, Permutation) :-
@@ -243,11 +253,11 @@
 	subtract([], _, []).
 
 	subtract([Head| Tail], List, Rest) :-
-		::memberchk(Head, List) ->
+		(	::memberchk(Head, List) ->
 			subtract(Tail, List, Rest)
-			;
-			Rest = [Head| Tail2],
-			subtract(Tail, List, Tail2).		
+		;	Rest = [Head| Tail2],
+			subtract(Tail, List, Tail2)
+		).
 
 
 	suffix(List, List).

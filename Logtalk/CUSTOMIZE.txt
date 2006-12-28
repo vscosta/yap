@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.28.2
+Release 2.29.1
 
 Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -9,7 +9,8 @@ Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 This file contains detailed instructions for customizing your Logtalk 
 installation and working environment. Customization is mostly done on 
 a per-user basis by editing files on the Logtalk user folder (whose 
-path is sorted on the LOGTALKUSER environment variable).
+path is stored on the LOGTALKUSER environment variable; the folder itself 
+can be created by running the "cplgtdirs" shell command).
 
 
 1. SETTING LIBRARY PATHS

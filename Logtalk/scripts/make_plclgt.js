@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.28.2
+// Release 2.29.1
 //
 // Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -95,8 +95,8 @@ WScript.Echo('Start Menu Programs. Make sure that the environment variables');
 WScript.Echo('LOGTALKHOME and LOGTALKUSER are defined for all users wishing');
 WScript.Echo('to use the shortcut.');
 WScript.Echo('');
-WScript.Echo('Users must run the batch script "cplgtdirs" before using the');
-WScript.Echo('"Logtalk - K-Prolog" shortcut.');
+WScript.Echo('Users must run the batch script "cplgtdirs" once before using');
+WScript.Echo('the "Logtalk - K-Prolog" shortcut.');
 WScript.Echo('');
 
 WScript.Quit(0);

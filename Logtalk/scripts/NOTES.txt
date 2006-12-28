@@ -1,18 +1,21 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.28.2
+Release 2.29.1
 
 Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-This directory contains several scripts used for Logtalk packaging, 
+This directory contains several shell scripts used for Logtalk packaging, 
 installation, and integration with Prolog compilers. Those with extension 
 ".sh" are Bourne-compatible shells scripts for MacOS X, Linux, and similar 
 systems. Those with extension ".js" are JScript command-line scripts for 
 Windows; they require WSH 5.6 or later version to be installed and should 
 be run using cscript.exe from a DOS command line shell (you may download 
 WSH 5.6 from http://msdn.microsoft.com/downloads/list/webdev.asp)
+
+build_release.sh
+	helper script for building the distribution files of a new Logtalk release
 
 lgt_install.sh
 	shell script for installing Logtalk in a system-wide location for Unix 
@@ -32,14 +35,20 @@ lgt_install.js
 	after running this script in order to use the items on the "Logtalk"
 	program group due to the definition of new system environment variables)
 
-logtalk.spec
+linux/build_rpm.sh
+	simple shell script for building Linux RPMs
+
+linux/logtalk.spec
 	specification file for building Linux RPMs
 	(copy the Logtalk tarball to your RPM SOURCES directory and then 
 	run the command: rpmbuild -ba --target=noarch-*-linux logtalk.spec)
 
-logtalk.iss
+macosx
+	directory containing files used when building MacOS X installer packages
+
+windows/logtalk.iss
 	Inno Setup GUI Windows installer script; you may compile it with Inno 
-	Setup 5.1.6 or later version to produce a Windows 2000/XP GUI installer
+	Setup 5.1.9 or later version to produce a Windows 2000/XP GUI installer
 	(http://www.jrsoftware.org/isinfo.php)
 
 cplgtdirs.sh
@@ -74,8 +83,8 @@ make_eclipselgt.sh
 	makes a shell script named "eclipselgt" for running Logtalk with ECLiPSe
 make_eclipselgt.js
 	makes a Windows shortcut named "Logtalk - ECLiPSe" for running Logtalk 
-	with ECLiPSe 5.8 (if you are using a different version, you must edit 
-	the reference to the registry key in the script; if you prefer to use
+	with ECLiPSe 5.11 or 5.10 (if you are using a different version, you must 
+	edit the reference to the registry key in the script; if you prefer to use
 	TkEclipse, open the %LOGTALKHOME%\bin\logtalke_eclipse.pl file with it)
 
 make_gplgt.sh
