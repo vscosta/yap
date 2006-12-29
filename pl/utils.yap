@@ -166,8 +166,6 @@ call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- atom(A), !,
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- 
 	'$do_error'(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10)).
 	
-/*
-	
 call_cleanup(Goal, Catcher, Cleanup) :-
 	catch('$call_cleanup'(Goal,Catcher,Cleanup),
 	      Exception,
@@ -188,7 +186,7 @@ call_cleanup(Goal, Catcher, Cleanup) :-
 	).
 '$call_cleanup'(Goal,fail,Cleanup) :-
 	call(Cleanup).
-*/    
+    
 
 op(P,T,V) :- var(P), !,
 	'$do_error'(instantiation_error,op(P,T,V)).

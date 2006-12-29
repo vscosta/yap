@@ -365,9 +365,9 @@ gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp) {
   nptr->addr = addr;
 #if TABLING
   nptr->loc = trp;
+  nptr->more = gc_ma_h_list;
 #endif
   nptr->next = NULL;
-  nptr->more = gc_ma_h_list;
   gc_ma_h_list = nptr;
   return NULL;
 }
