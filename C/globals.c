@@ -148,7 +148,7 @@ NewDelayArena(UInt size)
   UInt howmuch;
 
   while ((ADDR)min < Yap_GlobalBase+1024) {
-    if ((howmuch = Yap_InsertInGlobal((CELL *)max, size*sizeof(attvar_record))==0)) {
+    if ((howmuch = Yap_InsertInGlobal((CELL *)max, size*sizeof(attvar_record)))==0) {
       Yap_Error(OUT_OF_STACK_ERROR,TermNil,"No Stack Space for Non-Backtrackable terms");
       return TermNil;
     }

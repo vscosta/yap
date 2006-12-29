@@ -126,7 +126,7 @@ static cont *cont_top;
 
 static gc_ma_hash_entry gc_ma_hash_table[GC_MAVARS_HASH_SIZE];
 
-static gc_ma_hash_entry *gc_ma_h_top;
+static gc_ma_hash_entry *gc_ma_h_top, *gc_ma_h_list;
 
 static UInt gc_timestamp;    /* an unsigned int */
 
@@ -337,6 +337,11 @@ gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp) {
   if (gc_ma_hash_table[i].timestmp != gc_timestamp) {
     gc_ma_hash_table[i].timestmp = gc_timestamp;
     gc_ma_hash_table[i].addr = addr;
+#if TABLING
+    gc_ma_hash_table[i].loc = trp;
+    gc_ma_hash_table[i].more = gc_ma_h_list;
+    gc_ma_h_list = gc_ma_hash_table+i;
+#endif
     gc_ma_hash_table[i].next = NULL;
     return NULL;
   }
@@ -344,6 +349,13 @@ gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp) {
   while (nptr) {
     optr = nptr;
     if (nptr->addr == addr) {
+#if TABLING
+      /*
+	we're moving from oldest to more recent, so only a new entry
+	has the correct new value
+      */
+      TrailVal(nptr->loc+1) = TrailVal(trp+1);
+#endif      
       return nptr;
     }
     nptr = nptr->next;
@@ -351,13 +363,20 @@ gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp) {
   nptr = GC_ALLOC_NEW_MASPACE();
   optr->next = nptr;
   nptr->addr = addr;
+#if TABLING
+  nptr->loc = trp;
+#endif
   nptr->next = NULL;
+  nptr->more = gc_ma_h_list;
+  gc_ma_h_list = nptr;
   return NULL;
 }
 
 static inline void
 GC_NEW_MAHASH(gc_ma_hash_entry *top) {
   UInt time = ++gc_timestamp;
+
+  gc_ma_h_list = NULL;
   if (time == 0) {
     unsigned int i;
 
@@ -1651,11 +1670,10 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  mark_external_reference(&(TrailTerm(trail_base)));
 	  /* reset the gc to believe the original tag */
 	  TrailTerm(trail_base) = AbsAppl((CELL *)TrailTerm(trail_base));
-#ifdef TABLING
-	  mark_external_reference(&(TrailVal(trail_base)));
-#endif
 	}
-#ifndef TABLING
+#ifdef TABLING
+	mark_external_reference(&(TrailVal(trail_base)));
+#else
 	trail_base++;
 	mark_external_reference(&(TrailTerm(trail_base)));
 #endif
@@ -1666,9 +1684,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  mark_external_reference(&(TrailTerm(trail_base)));
 	  /* reset the gc to believe the original tag */
 	  TrailTerm(trail_base) = AbsAppl((CELL *)TrailTerm(trail_base));
-#ifdef TABLING
-	  mark_external_reference(&(TrailVal(trail_base)));
-#endif
 	} 
       } else {
       remove_trash_entry:
@@ -1695,6 +1710,19 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif
     trail_base++;
   }
+#if TABLING
+  /* 
+     Ugly, but needed: we're not really sure about what were the new
+     values until the very end
+  */
+  {
+   gc_ma_hash_entry *gl = gc_ma_h_list;
+   while (gl) {
+     mark_external_reference(&(TrailVal(gl->loc+1)));
+     gl = gl->more;
+   }
+ }
+#endif
 #ifdef EASY_SHUNTING
   sTR = (tr_fr_ptr)old_cont_top0;
   while (begsTR != NULL) {
@@ -2373,6 +2401,8 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	Int marked_val_ptr = MARKED_PTR(&TrailVal(trail_ptr+1));
 
 	TrailTerm(dest+1) = TrailTerm(dest) = trail_cell;
+	TrailVal(dest) = old;
+	TrailVal(dest+1) = old1;
 	if (marked_ptr) {
 	  UNMARK(&TrailTerm(dest));
 	  UNMARK(&TrailTerm(dest+1));

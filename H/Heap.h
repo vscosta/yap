@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.111 2006-12-27 01:32:37 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.112 2006-12-29 01:57:50 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -46,6 +46,10 @@ typedef struct memory_hole {
 
 typedef struct gc_ma_hash_entry_struct {
   UInt timestmp;
+#if TABLING
+  tr_fr_ptr loc;
+  struct gc_ma_hash_entry_struct *more;
+#endif
   CELL* addr;
   struct gc_ma_hash_entry_struct *next;
 } gc_ma_hash_entry;
@@ -153,6 +157,7 @@ typedef struct worker_local_struct {
   int disc_trail_entries;
   gc_ma_hash_entry Gc_ma_hash_table[GC_MAVARS_HASH_SIZE];
   gc_ma_hash_entry *Gc_ma_h_top;
+  gc_ma_hash_entry *Gc_ma_h_list;
   UInt Gc_timestamp;    /* an unsigned int */
   ADDR  DB_vec, DB_vec0;
   struct RB_red_blk_node *DB_root, *DB_nil;
@@ -847,6 +852,7 @@ struct various_codes *Yap_heap_regs;
 #endif /* GC_NO_TAGS */
 #define  gc_ma_hash_table         Yap_heap_regs->wl[worker_id].Gc_ma_hash_table
 #define  gc_ma_h_top              Yap_heap_regs->wl[worker_id].Gc_ma_h_top
+#define  gc_ma_h_list             Yap_heap_regs->wl[worker_id].Gc_ma_h_list
 #define  gc_timestamp             Yap_heap_regs->wl[worker_id].Gc_timestamp
 #define  cont_top0                Yap_heap_regs->wl[worker_id].conttop0
 #define  db_vec                   Yap_heap_regs->wl[worker_id].DB_vec

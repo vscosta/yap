@@ -166,6 +166,29 @@ call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- atom(A), !,
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- 
 	'$do_error'(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10)).
 	
+/*
+	
+call_cleanup(Goal, Catcher, Cleanup) :-
+	catch('$call_cleanup'(Goal,Catcher,Cleanup),
+	      Exception,
+	      '$cleanup_exception'(Exception,Catcher,Cleanup)).
+
+'$cleanup_exception'(Exception, exception(Exception), Cleanup) :-
+	call(cleanup).
+
+'$call_cleanup'(Goal,Catcher,Cleanup) :-
+	yap_hacks:current_choice_point(CP0),
+	call(Goal),
+	yap_hacks:current_choice_point(CPF),
+	( CP0 =:= CPF ->
+	    Catcher = exit,
+	    call(Cleanup)
+	;
+	    true
+	).
+'$call_cleanup'(Goal,fail,Cleanup) :-
+	call(Cleanup).
+*/    
 
 op(P,T,V) :- var(P), !,
 	'$do_error'(instantiation_error,op(P,T,V)).
@@ -465,7 +488,7 @@ unknown(V0,V) :-
 
 % Only efective if yap compiled with -DDEBUG
 % this predicate shows the code produced by the compiler
-'$show_code' :- '$debug'(0'f).
+'$show_code' :- '$debug'(0'f). %' just make emacs happy
 
 grow_heap(X) :- '$grow_heap'(X).
 grow_stack(X) :- '$grow_stack'(X).

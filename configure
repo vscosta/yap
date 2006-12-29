@@ -848,9 +848,9 @@ Optional Features:
  --enable-cut-c             support for executing c code when a cut occurs
  --enable-tabling           support tabling
  --enable-or-parallelism    support or-parallelism as: env-copy,sba,a-cow
- --enable-depth-limit       support depth-bound computation
  --enable-rational-trees    support infinite rational trees
  --enable-coroutining       support co-routining, attributed variables and constraints
+ --enable-depth-limit       support depth-bound computation
  --enable-wam-profile       support low level profiling of abstract machine
  --enable-low-level-tracer  support support for procedure-call tracing
  --enable-threads           support system threads
@@ -2283,16 +2283,6 @@ if test "${enable_or_parallelism+set}" = set; then
 else
   orparallelism=no
 fi;
-if test "$tabling" = yes -o "$orparallelism" = yes -o "$threads" = yes
-then
-# Check whether --enable-depth-limit or --disable-depth-limit was given.
-if test "${enable_depth_limit+set}" = set; then
-  enableval="$enable_depth_limit"
-  depthlimit="$enableval"
-else
-  depthlimit=no
-fi;
-else
 # Check whether --enable-rational-trees or --disable-rational-trees was given.
 if test "${enable_rational_trees+set}" = set; then
   enableval="$enable_rational_trees"
@@ -2314,7 +2304,6 @@ if test "${enable_depth_limit+set}" = set; then
 else
   depthlimit=yes
 fi;
-fi
 # Check whether --enable-wam-profile or --disable-wam-profile was given.
 if test "${enable_wam_profile+set}" = set; then
   enableval="$enable_wam_profile"

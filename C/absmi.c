@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-12-27 01:32:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-12-29 01:57:50 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.215  2006/12/27 01:32:37  vsc
+* diverse fixes
+*
 * Revision 1.214  2006/11/28 00:46:28  vsc
 * fix bug in threaded implementation
 *
@@ -506,7 +509,6 @@ char *Yap_op_names[_std_top + 1] =
 };
 
 #endif
-
 
 Int 
 Yap_absmi(int inp)
@@ -2086,6 +2088,7 @@ Yap_absmi(int inp)
 #ifdef FROZEN_STACKS
         {
 	  tr_fr_ptr pt0, pt1, pbase;
+
 	  pbase = B->cp_tr;
 	  pt0 = pt1 = TR - 1;
 	  while (pt1 >= pbase) {
