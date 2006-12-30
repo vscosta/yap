@@ -335,7 +335,28 @@ mutex_unlock_all.
 	NRefs > 0,
 	'$unlock_mutex'(Id),
 	'$mutex_unlock_all'(Id).
-	
+
+with_mutex(M, G) :-
+	var(M), !,
+	'$do_error'(instantiation_error,with_mutex(M, G)).
+with_mutex(M, G) :-
+	var(G), !,
+	'$do_error'(instantiation_error,with_mutex(M, G)).
+with_mutex(M, G) :-
+	\+ callable(G),
+	'$do_error'(type_error(callable,G),with_mutex(M, G)).
+with_mutex(M, G) :-
+	atom(M), !,
+	(	recorded('$mutex',[M|Id],_) ->
+		true
+	;	'$new_mutex'(Id),
+		recorda('$mutex',[M|Id],_)
+	),
+	'$lock_mutex'(Id),
+	call_cleanup(once(G), '$unlock_mutex'(Id)).
+with_mutex(M, G) :-
+	'$do_error'(type_error(atom,M),with_mutex(M, G)).
+
 current_mutex(M, T, NRefs) :-
 	recorded('$mutex',[M|Id],_),
 	'$mutex_info'(Id, NRefs, T).
