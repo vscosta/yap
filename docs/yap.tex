@@ -389,31 +389,32 @@ The packages are, in alphabetical order:
 @item The CHR package developed by Tom Schrijvers,
 Christian Holzbaur, and Jan Wielemaker.
 
-@item The CLP(R) package developed Leslie De Koninck, Bart Demoen, Tom
-Schrijvers and Jan Wielemaker and based on the CLP(Q,R) implementation
+@item The CLP(R) package developed by Leslie De Koninck, Bart Demoen, Tom
+Schrijvers, and Jan Wielemaker, based on the CLP(Q,R) implementation
 by Christian Holzbauer.
 
 @item The Logtalk Object-Oriented system is developed at the University 
-of Beira Interior, Portugal, by Paulo Moura.
-The package is distributed under the Perl Artistic License.
-Instructions about loading this package are included in this document.
-The documentation on this package (including full installation instructions) 
-is distributed separately from yap.tex.
+of Beira Interior, Portugal, by Paulo Moura:
 
-Copyright @copyright{} 1998-2006 Paulo Moura
+@url{http://logtalk.org/}
+
+The package is distributed under the Artistic License 2.0.
+Minimal instructions about loading this package are included in this document.
+The documentation on this package (including full installation and customization 
+instructions) is included in the @code{Logtalk} directory.
 
 @item The Pillow WEB library developed at Universidad Politecnica de
 Madrid by the CLIP group. This package is distributed under the FSF's
 LGPL. Documentation on this package is distributed separately from
 yap.tex.
 
-@item The yap2swi library implements some of the functionality of
+@item The @code{yap2swi} library implements some of the functionality of
 SWI's PL interface. Please do refer to the SWI-Prolog home page:
 
 @url{http://www.swi-prolog.org}
 
 for more information on SWI-Prolog and for a detailed description of its
-foreign interface.
+foreign language interface.
 
 @end itemize
 
@@ -10333,9 +10334,9 @@ although we load Logtalk using the @code{use_module/1} built-in
 predicate, the system is not packaged as a module not does it use 
 modules in its implementation.
 
-Logtalk documentation is included in the Logtalk directory. Be sure to read the Logtalk/INSTALL file for additional instructions on how to customize your Logtalk installation to match your working environment (the @code{use_module/1} call described above only provides minimal support).
+Logtalk documentation is included in the Logtalk directory. Be sure to read the Logtalk/INSTALL.txt and Logtalk/CUSTOMIZE.txt files for additional instructions on how to customize your Logtalk installation to match your working environment (the @code{use_module/1} call described above only provides minimal support).
 
-For the latest Logtalk news, please see the URL @url{http://www.logtalk.org/}.
+For the latest Logtalk news, please see the URL @url{http://logtalk.org/}.
 
 @node Threads, Parallelism, Logtalk, Extensions
 @chapter Threads
