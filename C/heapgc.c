@@ -1638,6 +1638,11 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
       }
     } else if (IsPairTerm(trail_cell)) {
       /* can safely ignore this */
+      CELL *cptr = RepPair(trail_cell);
+      if (cptr > (CELL*)Yap_GlobalBase && cptr < H0) {
+	trail_base++;
+	continue;
+      }
     }
 #if  MULTI_ASSIGNMENT_VARIABLES
     else {
@@ -2304,6 +2309,12 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	CELL flags;
 
 
+	if (pt0 > (CELL*)Yap_GlobalBase && pt0 < H0) {
+	  TrailTerm(dest) = trail_cell;
+	  dest++;
+	  trail_ptr++;
+	  continue;
+	}
 #ifdef FROZEN_STACKS  /* TRAIL */
 	/* process all segments */
 	if (

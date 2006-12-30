@@ -89,7 +89,7 @@
 	'$execute_nonstop'(G,Mod).
 % notice that the last signal to be processed must always be creep
 '$start_creep'([_|'$cut_by'(CP)]) :- !,
-	'$cut_by'(CP),
+	'$$cut_by'(CP),
 	'$creep'.
 '$start_creep'([_|true]) :- !,
 	'$creep'.

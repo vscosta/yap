@@ -77,10 +77,6 @@ true :- true.
 	'$startup_reconsult',
 	'$startup_goals'.
 
- % encapsulate $cut_by because of co-routining.
- %
- '$cut_by'(X) :- '$$cut_by'(X).
-
  % Start file for yap
 
  /*		I/O predicates						*/
@@ -675,6 +671,7 @@ incore(G) :- '$execute'(G).
 \+(G) :-     \+ '$execute'(G).
 not(G) :-    \+ '$execute'(G).
 
+'$cut_by'(CP) :- '$$cut_by'(CP).
 
 %
 % do it in ISO mode.
@@ -738,7 +735,7 @@ not(G) :-    \+ '$execute'(G).
 '$call'(not(X), _CP, _G0, _M) :- !,
 	\+ '$execute'(M:X).
 '$call'(!, CP, _,_) :- !,
-	'$cut_by'(CP).
+	'$$cut_by'(CP).
 '$call'([A|B], _, _, M) :- !,
 	'$csult'([A|B], M).
 '$call'(G, CP, G0, CurMod) :-

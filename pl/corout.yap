@@ -77,6 +77,8 @@
 % not act as if a meta-call.
 % 
 %
+'$do_continuation'('$cut_by'(X), _) :- !,
+	'$$cut_by'(X).
 '$do_continuation'('$restore_regs'(X), _) :- !,
 	'$restore_regs'(X).
 '$do_continuation'('$restore_regs'(X,Y), _) :- !,

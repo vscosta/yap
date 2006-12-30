@@ -166,28 +166,32 @@ call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- atom(A), !,
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- 
 	'$do_error'(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10)).
 	
-/*
-	call_cleanup(Goal, Catcher, Cleanup) :-
+
+call_cleanup(Goal, Cleanup) :-
+	call_cleanup(Goal, Catcher, Cleanup).
+
+call_cleanup(Goal, Catcher, Cleanup) :-
 	catch('$call_cleanup'(Goal,Catcher,Cleanup),
 	      Exception,
 	      '$cleanup_exception'(Exception,Catcher,Cleanup)).
 
 '$cleanup_exception'(Exception, exception(Exception), Cleanup) :-
-	call(cleanup).
+	      call(Cleanup).
 
 '$call_cleanup'(Goal,Catcher,Cleanup) :-
+	'$freeze_goal'(Catcher, once(Cleanup)),
+	yap_hacks:trail_suspension_marker(Catcher),
 	yap_hacks:current_choice_point(CP0),
 	call(Goal),
 	yap_hacks:current_choice_point(CPF),
 	( CP0 =:= CPF ->
-	    Catcher = exit,
-	    call(Cleanup)
+	    Catcher = exit, !
 	;
 	    true
 	).
 '$call_cleanup'(Goal,fail,Cleanup) :-
-	call(Cleanup).
-*/  
+	call(Cleanup), !,
+	fail.
 
 op(P,T,V) :- var(P), !,
 	'$do_error'(instantiation_error,op(P,T,V)).

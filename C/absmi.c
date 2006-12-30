@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-12-29 01:57:50 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-12-30 03:25:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.216  2006/12/29 01:57:50  vsc
+* allow coroutining plus tabling, this means fixing some trouble with the
+* gc and a bug in global variable handling.
+*
 * Revision 1.215  2006/12/27 01:32:37  vsc
 * diverse fixes
 *
@@ -1914,16 +1918,20 @@ Yap_absmi(int inp)
 #endif /* LIMIT_TABLING */
 #ifdef FROZEN_STACKS  /* TRAIL */
             /* avoid frozen segments */
+	    if (
 #ifdef SBA
-	    if ((ADDR) pt1 >= HeapTop)
+		(ADDR) pt1 >= HeapTop
 #else
-	    if ((ADDR) pt1 >= Yap_TrailBase)
+		IN_BETWEEN(Yap_TrailBase, pt1, Yap_TrailTop)
 #endif /* SBA */
+		)
             {
 	      pt0 = (tr_fr_ptr) pt1;
 	      goto failloop;
-	    }
+	    } else
 #endif /* FROZEN_STACKS */
+	      if (IN_BETWEEN(Yap_GlobalBase, pt1, H0))
+		goto failloop;		       	    
 	    flags = *pt1;
 #if defined(YAPOR) || defined(THREADS)
 	    if (FlagOn(DBClMask, flags)) {
@@ -2114,6 +2122,13 @@ Yap_absmi(int inp)
 		/* skip, this is a problem because we lose information,
                    namely active references */
 		pt1 = (tr_fr_ptr)pt;
+	      } else if (IN_BETWEEN(Yap_GlobalBase, pt, H0)) {
+		CELL val = Deref(*pt);
+		if (IsVarTerm(val)) {
+		  Bind(pt, MkAtomTerm(AtomCut));
+		  Yap_WakeUp(pt);
+		}
+		pt1--;
 	      } else if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
 		LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt);
 		int erase;
@@ -2207,7 +2222,14 @@ Yap_absmi(int inp)
 	       }
 	    } else if (IsPairTerm(d1)) {
 	      CELL *pt = RepPair(d1);
-	      if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
+	      
+	      if (IN_BETWEEN(Yap_GlobalBase, pt, H0)) {
+		CELL val = Deref(*pt);
+		if (IsVarTerm(val)) {
+		  Bind(VarOfTerm(val), MkAtomTerm(AtomCut));
+		  Yap_WakeUp(pt);
+		}
+	      } else if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
 		LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt);
 		int erase;
 

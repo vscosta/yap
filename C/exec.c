@@ -156,6 +156,16 @@ p_save_env_b(void)
   return(TRUE);
 }
 
+static Int
+p_trail_suspension_marker(void)
+{
+  Term t = Deref(ARG1);
+  
+  TrailTerm(TR) = AbsPair((CELL*)t);
+  TR++;
+  return TRUE;
+}
+
 inline static Int
 do_execute(Term t, Term mod)
 {
@@ -1901,6 +1911,7 @@ Yap_InitExecFs(void)
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("current_choice_point", 1, p_save_cp, HiddenPredFlag);
   Yap_InitCPred("env_choice_point", 1, p_save_env_b, HiddenPredFlag);
+  Yap_InitCPred("trail_suspension_marker", 1, p_trail_suspension_marker, HiddenPredFlag);
   CurrentModule = cm;
   Yap_InitCPred("$pred_goal_expansion_on", 0, p_pred_goal_expansion_on, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag|HiddenPredFlag);
