@@ -8803,11 +8803,12 @@ undefined, in this case with the option @code{" /c "}.
 @findex  sleep/1
 @syindex sleep/1
 @cnindex sleep/1
-Block the current process for @var{Time} seconds. The number of seconds
-must be a positive number, and it may an integer or a float. The Unix
-implementation uses @code{usleep} if the number of seconds is below one,
-and @code{sleep} if it is over a second. The WIN32 implementation uses
-@code{Sleep} for both cases.
+Block the current thread for @var{Time} seconds. When YAP is compiled 
+without multi-threading support, this predicate blocks the YAP process. 
+The number of seconds must be a positive number, and it may an integer 
+or a float. The Unix implementation uses @code{usleep} if the number of 
+seconds is below one, and @code{sleep} if it is over a second. The WIN32 
+implementation uses @code{Sleep} for both cases.
 
 @item system
 @findex  system/0
