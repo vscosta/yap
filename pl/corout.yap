@@ -522,10 +522,6 @@ frozen(V, LG) :-
 	'$purge_done_goals'(G0, GF).
 '$purge_done_goals'(['$redo_freeze'(Done, _, _)|G0], GF) :- nonvar(Done), !,
 	'$purge_done_goals'(G0, GF).
-'$purge_done_goals'(['$redo_freeze'(Done, _, CallCleanup)|G0], GF) :-
-	nonvar(CallCleanup),
-	CallCleanup = _:'$clean_call'(_), !,
-	'$purge_done_goals'(G0, GF).
 '$purge_done_goals'(['$redo_eq'(Done, _, _, _)|G0], GF) :- nonvar(Done), !,
 	'$purge_done_goals'(G0, GF).
 '$purge_done_goals'(['$redo_ground'(Done, _, _)|G0], GF) :- nonvar(Done), !,

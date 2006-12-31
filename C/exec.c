@@ -446,6 +446,122 @@ p_execute4(void)
 }
 
 static Int
+p_execute5(void)
+{				/* '$execute'(Goal)	 */
+  Term            t = Deref(ARG1);
+  heap_store(Deref(ARG2));
+  heap_store(Deref(ARG3));
+  heap_store(Deref(ARG4));
+  heap_store(Deref(ARG5));
+  return(do_execute_n(t, CurrentModule, 4));
+}
+
+static Int
+p_execute6(void)
+{				/* '$execute'(Goal)	 */
+  Term            t = Deref(ARG1);
+  heap_store(Deref(ARG2));
+  heap_store(Deref(ARG3));
+  heap_store(Deref(ARG4));
+  heap_store(Deref(ARG5));
+  heap_store(Deref(ARG6));
+  return(do_execute_n(t, CurrentModule, 5));
+}
+
+static Int
+p_execute7(void)
+{				/* '$execute'(Goal)	 */
+  Term            t = Deref(ARG1);
+  heap_store(Deref(ARG2));
+  heap_store(Deref(ARG3));
+  heap_store(Deref(ARG4));
+  heap_store(Deref(ARG5));
+  heap_store(Deref(ARG6));
+  heap_store(Deref(ARG7));
+  return(do_execute_n(t, CurrentModule, 6));
+}
+
+static Int
+p_execute8(void)
+{				/* '$execute'(Goal)	 */
+  Term            t = Deref(ARG1);
+  heap_store(Deref(ARG2));
+  heap_store(Deref(ARG3));
+  heap_store(Deref(ARG4));
+  heap_store(Deref(ARG5));
+  heap_store(Deref(ARG6));
+  heap_store(Deref(ARG7));
+  heap_store(Deref(ARG8));
+  return(do_execute_n(t, CurrentModule, 7));
+}
+
+static Int
+p_execute9(void)
+{				/* '$execute'(Goal)	 */
+  Term            t = Deref(ARG1);
+  heap_store(Deref(ARG2));
+  heap_store(Deref(ARG3));
+  heap_store(Deref(ARG4));
+  heap_store(Deref(ARG5));
+  heap_store(Deref(ARG6));
+  heap_store(Deref(ARG7));
+  heap_store(Deref(ARG8));
+  heap_store(Deref(ARG9));
+  return(do_execute_n(t, CurrentModule, 8));
+}
+
+static Int
+p_execute10(void)
+{				/* '$execute'(Goal)	 */
+  Term            t = Deref(ARG1);
+  heap_store(Deref(ARG2));
+  heap_store(Deref(ARG3));
+  heap_store(Deref(ARG4));
+  heap_store(Deref(ARG5));
+  heap_store(Deref(ARG6));
+  heap_store(Deref(ARG7));
+  heap_store(Deref(ARG8));
+  heap_store(Deref(ARG9));
+  heap_store(Deref(ARG10));
+  return(do_execute_n(t, CurrentModule, 9));
+}
+
+static Int
+p_execute11(void)
+{				/* '$execute'(Goal)	 */
+  Term            t = Deref(ARG1);
+  heap_store(Deref(ARG2));
+  heap_store(Deref(ARG3));
+  heap_store(Deref(ARG4));
+  heap_store(Deref(ARG5));
+  heap_store(Deref(ARG6));
+  heap_store(Deref(ARG7));
+  heap_store(Deref(ARG8));
+  heap_store(Deref(ARG9));
+  heap_store(Deref(ARG10));
+  heap_store(Deref(ARG11));
+  return(do_execute_n(t, CurrentModule, 10));
+}
+
+static Int
+p_execute12(void)
+{				/* '$execute'(Goal)	 */
+  Term            t = Deref(ARG1);
+  heap_store(Deref(ARG2));
+  heap_store(Deref(ARG3));
+  heap_store(Deref(ARG4));
+  heap_store(Deref(ARG5));
+  heap_store(Deref(ARG6));
+  heap_store(Deref(ARG7));
+  heap_store(Deref(ARG8));
+  heap_store(Deref(ARG9));
+  heap_store(Deref(ARG10));
+  heap_store(Deref(ARG11));
+  heap_store(Deref(ARG12));
+  return(do_execute_n(t, CurrentModule, 11));
+}
+
+static Int
 p_execute_clause(void)
 {				/* '$execute_clause'(Goal)	 */
   Term            t = Deref(ARG1);
@@ -1890,6 +2006,14 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$execute", 2, p_execute2, HiddenPredFlag);
   Yap_InitCPred("$execute", 3, p_execute3, HiddenPredFlag);
   Yap_InitCPred("$execute", 4, p_execute4, HiddenPredFlag);
+  Yap_InitCPred("$execute", 5, p_execute5, HiddenPredFlag);
+  Yap_InitCPred("$execute", 6, p_execute6, HiddenPredFlag);
+  Yap_InitCPred("$execute", 7, p_execute7, HiddenPredFlag);
+  Yap_InitCPred("$execute", 8, p_execute8, HiddenPredFlag);
+  Yap_InitCPred("$execute", 9, p_execute9, HiddenPredFlag);
+  Yap_InitCPred("$execute", 10, p_execute10, HiddenPredFlag);
+  Yap_InitCPred("$execute", 11, p_execute11, HiddenPredFlag);
+  Yap_InitCPred("$execute", 12, p_execute12, HiddenPredFlag);
   Yap_InitCPred("$execute_in_mod", 2, p_execute_in_mod, HiddenPredFlag);
   Yap_InitCPred("$call_with_args", 2, p_execute_0, HiddenPredFlag);
   Yap_InitCPred("$call_with_args", 3, p_execute_1, HiddenPredFlag);

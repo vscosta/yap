@@ -31,6 +31,22 @@ call(X,A1,A2) :- '$execute'(X,A1,A2).
 
 call(X,A1,A2,A3) :- '$execute'(X,A1,A2,A3).
 
+call(X,A1,A2,A3,A4) :- '$execute'(X,A1,A2,A3,A4).
+
+call(X,A1,A2,A3,A4,A5) :- '$execute'(X,A1,A2,A3,A4,A5).
+
+call(X,A1,A2,A3,A4,A5,A6) :- '$execute'(X,A1,A2,A3,A4,A5,A6).
+
+call(X,A1,A2,A3,A4,A5,A6,A7) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7).
+
+call(X,A1,A2,A3,A4,A5,A6,A7,A8) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7,A8).
+
+call(X,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7,A8,A9).
+
+call(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10).
+
+call(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11).
+
 call_with_args(M:V) :- var(V), !,
 	'$do_error'(instantiation_error,call_with_args(M:V)).
 call_with_args(_:M:A) :- !,
@@ -171,30 +187,29 @@ call_cleanup(Goal, Cleanup) :-
 	call_cleanup(Goal, Catcher, Cleanup).
 
 call_cleanup(Goal, Catcher, Cleanup) :-
-	catch('$call_cleanup'(Goal,Catcher,Cleanup),
+	catch('$call_cleanup'(Goal,Cleanup,Result),
 	      Exception,
-	      '$cleanup_exception'(Exception,Catcher,Cleanup)).
+	      '$cleanup_exception'(Exception,Catcher,Cleanup)),
+	Result = exit.
 
 '$cleanup_exception'(Exception, exception(Exception), Cleanup) :-
-	      call(Cleanup).
+	call(Cleanup).
 
-'$call_cleanup'(Goal,Catcher,Cleanup) :-
-	'$freeze_goal'(Catcher, '$clean_call'(Cleanup)),
-	yap_hacks:trail_suspension_marker(Catcher),
+'$call_cleanup'(Goal,Cleanup,Result) :-
+	'$freeze_goal'(Result, '$clean_call'(Cleanup)),
+	yap_hacks:trail_suspension_marker(Result),
 	yap_hacks:current_choice_point(CP0),
-	call(Goal),
-	yap_hacks:current_choice_point(CPF),
-	( CP0 =:= CPF ->
-	    Catcher = exit, !
-	;
-	    true
+	(	call(Goal),
+		yap_hacks:current_choice_point(CPF),
+		(	CP0 =:= CPF ->
+	    	Result = exit, !
+		;	true
+		)
+	;	Result = fail
 	).
-'$call_cleanup'(Goal,fail,Cleanup) :-
-	call(Cleanup), !,
-	fail.
 
 '$clean_call'(Cleanup) :-
-        call(Cleanup), !.
+	call(Cleanup), !.
 '$clean_call'(_).
 
 op(P,T,V) :- var(P), !,
