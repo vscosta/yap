@@ -179,7 +179,7 @@ call_cleanup(Goal, Catcher, Cleanup) :-
 	      call(Cleanup).
 
 '$call_cleanup'(Goal,Catcher,Cleanup) :-
-	'$freeze_goal'(Catcher, once(Cleanup)),
+	'$freeze_goal'(Catcher, '$clean_call'(Cleanup)),
 	yap_hacks:trail_suspension_marker(Catcher),
 	yap_hacks:current_choice_point(CP0),
 	call(Goal),
@@ -192,6 +192,10 @@ call_cleanup(Goal, Catcher, Cleanup) :-
 '$call_cleanup'(Goal,fail,Cleanup) :-
 	call(Cleanup), !,
 	fail.
+
+'$clean_call'(Cleanup) :-
+        call(Cleanup), !.
+'$clean_call'(_).
 
 op(P,T,V) :- var(P), !,
 	'$do_error'(instantiation_error,op(P,T,V)).

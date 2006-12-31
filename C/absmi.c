@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-12-30 03:25:44 $,$Author: vsc $						 *
+* Last rev:     $Date: 2006-12-31 01:50:34 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.217  2006/12/30 03:25:44  vsc
+* call_cleanup/2 and 3
+*
 * Revision 1.216  2006/12/29 01:57:50  vsc
 * allow coroutining plus tabling, this means fixing some trouble with the
 * gc and a bug in global variable handling.
@@ -1754,6 +1757,12 @@ Yap_absmi(int inp)
       /* fail                             */
       PBOp(op_fail, e);
 
+#ifdef COROUTINING
+      CACHE_Y_AS_ENV(YREG);
+      check_stack(NoStackFail, H);
+      ENDCACHE_Y_AS_ENV();
+#endif
+
     fail:
       {
 	register tr_fr_ptr pt0 = TR;
@@ -2808,6 +2817,19 @@ Yap_absmi(int inp)
       }
       /* don't do debugging and friends here */
       goto do_commit_b_x;
+
+      /* Problem: have I got an environment or not? */
+    NoStackFail:
+      /* find something to fool S */
+      if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
+	goto fail;
+      }
+      if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
+	SREG = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomFail,0));
+	goto creep;
+      }
+      /* don't do debugging and friends here */
+      goto fail;
 
       /* don't forget I cannot creep at ; */
     NoStackEither:

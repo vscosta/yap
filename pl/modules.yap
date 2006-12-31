@@ -473,6 +473,8 @@ source_module(Mod) :-
 	call_with_args(:,?,?,?,?,?,?,?,?,?),
 	format(+,:),
 	format(+,+,:),
+	call_cleanup(:,:),
+	call_cleanup(:,?,:),
 	call_residue(:,?),
 	catch(:,+,:),
 	clause(:,?),
