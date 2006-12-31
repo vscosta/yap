@@ -514,7 +514,7 @@ source_module(Mod) :-
 	use_module(:,?),
 	use_module(?,:,?),
 	when(?,:),
-	with_mutex(?,:),
+	with_mutex(+,:),
 	^(+,:),
 	\+ : .
 
