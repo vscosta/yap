@@ -130,6 +130,26 @@ thread_defaults(Defaults) :- nonvar(Defaults), !,
 thread_defaults([stack(Stack), trail(Trail), system(System), detached(Detached)]) :-
 	recorded('$thread_defaults',[Stack, Trail, System, Detached], _).
 
+thread_default(Default) :-
+	var(Default), !,
+	recorded('$thread_defaults', Defaults, _),
+	'$thread_default'(Default, Defaults).
+thread_default(stack(Stack)) :- !,
+	recorded('$thread_defaults',[Stack, _, _, _], _).
+thread_default(trail(Trail)) :- !,
+	recorded('$thread_defaults',[_, Trail, _, _], _).
+thread_default(system(System)) :- !,
+	recorded('$thread_defaults',[_, _, System, _], _).
+thread_default(detached(Detached)) :- !,
+	recorded('$thread_defaults',[_, _, _, Detached], _).
+thread_default(Default) :-
+	'$do_error'(type_error(thread_option,Default),thread_default(Default)).
+
+'$thread_default'(stack(Stack), [Stack, _, _, _]).
+'$thread_default'(trail(Trail), [_, Trail, _, _]).
+'$thread_default'(stack(System), [_, _, System, _]).
+'$thread_default'(detached(Detached), [_, _, _, Detached]).
+
 thread_set_defaults(V) :- var(V), !,
 	'$do_error'(instantiation_error, thread_set_defaults(V)).
 thread_set_defaults([Default| Defaults]) :- !,
@@ -142,6 +162,11 @@ thread_set_defaults(T) :-
 	'$thread_set_default'(Default, G),
 	'$thread_set_defaults'(Defaults, G).
 
+thread_set_default(V) :- var(V), !,
+	'$do_error'(instantiation_error, thread_set_default(V)).
+thread_set_default(Default) :-
+	'$thread_set_default'(Default, thread_set_default(Default)).
+
 '$thread_set_default'(stack(Stack), G) :-
 	\+ integer(Stack), !,
 	'$do_error'(type_error(integer, Stack), G).
@@ -149,7 +174,8 @@ thread_set_defaults(T) :-
 	Stack < 0, !,
 	'$do_error'(domain_error(not_less_than_zero, Stack), G).
 '$thread_set_default'(stack(Stack), G) :- !,
-	recorded('$thread_defaults', [_, Trail, System, Detached], _),
+	recorded('$thread_defaults', [_, Trail, System, Detached], Ref),
+	erase(Ref),
 	recorda('$thread_defaults', [Stack, Trail, System, Detached], _).
 
 '$thread_set_default'(trail(Trail), G) :-
@@ -159,7 +185,8 @@ thread_set_defaults(T) :-
 	Trail < 0, !,
 	'$do_error'(domain_error(not_less_than_zero, Trail), G).
 '$thread_set_default'(trail(Trail), G) :- !,
-	recorded('$thread_defaults', [Stack, _, System, Detached], _),
+	recorded('$thread_defaults', [Stack, _, System, Detached], Ref),
+	erase(Ref),
 	recorda('$thread_defaults', [Stack, Trail, System, Detached], _).
 
 '$thread_set_default'(system(System), G) :-
@@ -169,14 +196,16 @@ thread_set_defaults(T) :-
 	System < 0, !,
 	'$do_error'(domain_error(not_less_than_zero, System), G0).
 '$thread_set_default'(system(System), G) :- !,
-	recorded('$thread_defaults', [Stack, Trail, _, Detached], _),
+	recorded('$thread_defaults', [Stack, Trail, _, Detached], Ref),
+	erase(Ref),
 	recorda('$thread_defaults', [Stack, Trail, System, Detached], _).
 
 '$thread_set_default'(detached(Detached), G) :-
 	Detached \== true, Detached \== false, !,
 	'$do_error'(type_error(boolean, Detached), G).
 '$thread_set_default'(detached(Detached), G) :- !,
-	recorded('$thread_defaults', [Stack, Trail, System, _], _),
+	recorded('$thread_defaults', [Stack, Trail, System, _], Ref),
+	erase(Ref),
 	recorda('$thread_defaults', [Stack, Trail, System, Detached], _).
 
 '$thread_set_default'(Default, G) :-
