@@ -237,8 +237,23 @@ thread_join(Id, Status) :-
 '$erase_thread_aliases'(_).
 
 thread_detach(Id) :-
-	'$check_thread_alias'(Id0,Id),
+	var(Id), !,
+	'$do_error'(instantiation_error,thread_detach(Id)).
+thread_detach(Id) :-
+	\+ atom(Id),
+	\+ integer(Id),
+	'$do_error'(type_error(thread_or_alias, Id),thread_detach(Id)).
+thread_detach(Id) :-
+	atom(Id),
+	recorded('$thread_alias',[Id0|Id],_),
+	'$valid_thread'(Id0), !,
 	'$detach_thread'(Id0).
+thread_detach(Id) :-
+	integer(Id),
+	'$valid_thread'(Id), !,
+	'$detach_thread'(Id0).
+thread_detach(Id) :-
+	'$do_error'(existence_error(thread, Id),thread_detach(Id)).
 
 thread_exit(Term) :-
 	'$thread_self'(Id0),
