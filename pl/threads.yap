@@ -504,16 +504,19 @@ thread_sleep(Time) :-
 	var(Time), !,
 	'$do_error'(instantiation_error,thread_sleep(Time)).
 thread_sleep(Time) :-
-	integer(Time),  Time >= 0, !,
-	'$thread_sleep'(Time,0,_,_).
+	integer(Time), !,
+	(	Time > 0 ->
+		'$thread_sleep'(Time,0,_,_)
+	;	true
+	).
 thread_sleep(Time) :-
-	float(Time), Time >= 0, !,
-	STime is integer(float_integer_part(Time)),
-	NTime is integer(float_fractional_part(Time))*1000000000,
-	'$thread_sleep'(STime,NTime,_,_).
-thread_sleep(Time) :-
-	number(Time),
-	'$do_error'(domain_error(not_less_than_zero,Time),thread_sleep(Time)).
+	float(Time), !,
+	(	Time > 0 ->
+		STime is integer(float_integer_part(Time)),
+		NTime is integer(float_fractional_part(Time))*1000000000,
+		'$thread_sleep'(STime,NTime,_,_)
+	;	true
+	).
 thread_sleep(Time) :-
 	'$do_error'(type_error(number,Time),thread_sleep(Time)).
 

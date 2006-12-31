@@ -10512,7 +10512,8 @@ and succeeds silently.
 @snindex thread_sleep/1
 @cnindex thread_sleep/1
 Make current thread sleep for @var{Time} seconds. @var{Time} may be an
-integer or a floating point number. This call should not be used if
+integer or a floating point number. When time is zero or a negative value 
+the call succeeds and returns immediately. This call should not be used if
 alarms are also being used.
 @end table
 

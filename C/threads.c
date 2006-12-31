@@ -201,26 +201,11 @@ p_thread_sleep(void)
   struct timespec req, oreq ;
   req.tv_sec = time;
   req.tv_nsec = ntime;
-  if (!nanosleep(&req, &oreq)) {
+  if (nanosleep(&req, &oreq)) {
 #if HAVE_STRERROR
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in thread_sleep/2", strerror(errno));
+    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in thread_sleep/1", strerror(errno));
 #else
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "error %d in thread_sleep/2", errno);
-#endif
-    return FALSE;
-  }
-  return Yap_unify(ARG3,MkIntegerTerm(oreq.tv_sec)) &&
-    Yap_unify(ARG4,MkIntegerTerm(oreq.tv_nsec));
-#elif HAVE_NANOSLEEP
-  UInt ntime = IntegerOfTerm(Deref(ARG2));
-  struct timespec req, oreq ;
-  req.tv_sec = time;
-  req.tv_nsec = ntime;
-  if (!nanosleep(&req, &oreq)) {
-#if HAVE_STRERROR
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in thread_sleep/2", strerror(errno));
-#else
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "error %d in thread_sleep/2", errno);
+    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "error %d in thread_sleep/1", errno);
 #endif
     return FALSE;
   }
@@ -230,15 +215,15 @@ p_thread_sleep(void)
   UInt rtime;
   if ((rtime = sleep(time)) < 0) {
 #if HAVE_STRERROR
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in thread_sleep/2", strerror(errno));
+    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in thread_sleep/1", strerror(errno));
 #else
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "error %d in thread_sleep/2", errno);
+    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "error %d in thread_sleep/1", errno);
 #endif
   }
   return Yap_unify(ARG3,MkIntegerTerm(rtime)) &&
     Yap_unify(ARG4,MkIntTerm(0L));
 #else 
-  Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "no support for thread_sleep in this YAP configuration");
+  Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "no support for thread_sleep/1 in this YAP configuration");
 #endif
 }
 
@@ -622,7 +607,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$signal_thread", 1, p_thread_signal, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$nof_threads", 1, p_nof_threads, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$nof_threads_created", 1, p_nof_threads_created, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$thread_sleep", 2, p_thread_sleep, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$thread_sleep", 4, p_thread_sleep, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag|HiddenPredFlag);
 }
 
