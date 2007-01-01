@@ -57,7 +57,7 @@
 
 thread_create(Goal, Id) :-
 	G0 = thread_create(Goal, Id),
-	'$check_callable'(Goal, thread_create(Goal, Id)),
+	'$check_callable'(Goal, G0),
 	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
 	'$thread_options'([], [], Stack, Trail, System, Detached, G0),
 	'$thread_new_tid'(Id),
@@ -594,6 +594,26 @@ thread_signal(Id, Goal) :-
 	erase(R).
 
 
+thread_property(Prop) :-
+	'$check_thread_property'(Prop, thread_property(Prop)),
+	'$thread_self'(Id),
+	'$thread_property'(Id, Prop).
+
+thread_property(Id, Prop) :-
+	(	nonvar(Id) ->
+		'$check_thread_or_alias'(Id, thread_property(Id, Prop))
+	;	true
+	),
+	'$check_thread_property'(Prop, thread_property(Id, Prop)),
+	'$check_thread_alias'(Id0, Id),
+	'$thread_property'(Id0, Prop).
+
+'$thread_property'(Id, alias(Alias)) :-
+	recorded('$thread_alias', [Id|Alias], _).
+'$thread_property'(Id, status(Status)) :-
+	'$thr_status'(Id, Status).
+
+
 threads :-
 	write('--------------------------------------------------------------'), nl,
 	format("~t~a~38+~n", 'Thread  Status'),
@@ -618,3 +638,11 @@ threads :-
 	integer(Term), \+ '$valid_thread'(Term), !,
 	'$do_error'(existence_error(thread, Term), Goal).
 '$check_thread_or_alias'(_,_).
+
+'$check_thread_property'(Term, _) :-
+	var(Term), !.
+'$check_thread_property'(alias(_), _) :- !.
+'$check_thread_property'(detached(_), _) :- !.
+'$check_thread_property'(status(_), _) :- !.
+'$check_thread_property'(Term, Goal) :-
+	'$do_error'(domain_error(thread_property, Term), Goal).
