@@ -273,6 +273,9 @@ thread_detach(Id) :-
 	'$do_error'(existence_error(thread, Id),thread_detach(Id)).
 
 thread_exit(Term) :-
+	var(Term), !,
+	'$do_error'(instantiation_error, thread_exit(Term)).
+thread_exit(Term) :-
 	'$thread_self'(Id0),
 	'$run_at_thread_exit'(Id0),
 	recorda('$thread_exit_status', [Id0|exited(Term)], _),
@@ -596,15 +599,21 @@ thread_signal(Thread, Goal) :-
 	var(Thread), !,
 	'$do_error'(instantiation_error,thread_signal(Thread, Goal)).
 thread_signal(Thread, Goal) :-
+	\+ integer(Thread), \+ atom(Thread), !,
+	'$do_error'(domain_error,thread_or_alias,thread_signal(Thread, Goal)).
+thread_signal(Thread, Goal) :-
 	'$check_callable'(Goal,thread_signal(Thread,Goal)).
 thread_signal(Thread, Goal) :-
-	recorded('$thread_alias',[Id|Thread],_), !,
+	atom(Thread),
+	recorded('$thread_alias',[Id|Thread],_),
+	'$valid_thread'(Id), !,
 	'$thread_signal'(Id, Goal).
 thread_signal(Thread, Goal) :-
-	integer(Thread), !,
+	integer(Thread),
+	'$valid_thread'(Thread), !,
 	'$thread_signal'(Thread, Goal).
 thread_signal(Thread, Goal) :-
-	'$do_error'(type_error(integer,Thread),thread_signal(Thread, Goal)).
+	'$do_error'(existence_error(thread, Thread),thread_signal(Thread, Goal)).
 
 '$thread_signal'(Thread, Goal) :-
 	( recorded('$thread_signal',[Thread|_],R), erase(R), fail ; true ),
