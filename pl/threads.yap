@@ -19,7 +19,8 @@
 	thread_create(:,-,+),
 	thread_create(:,-),
 	thread_at_exit(:),
-	thread_signal(+,:).
+	thread_signal(+,:),
+	with_mutex(+,:).
 
 :- initialization('$init_thread0').
 
@@ -27,7 +28,7 @@
 	no_threads, !.
 '$init_thread0' :-
 	'$create_mq'(0),
-	'$add_thread_aliases'([main], 0),
+	'$add_thread_alias'(main, 0, '$init_thread0'),
 	recorda('$thread_defaults', [0, 0, 0, false], _).
 
 '$top_thread_goal'(G, Detached) :-
@@ -58,7 +59,7 @@ thread_create(Goal, Id) :-
 	G0 = thread_create(Goal, Id),
 	'$check_callable'(Goal, thread_create(Goal, Id)),
 	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
-	'$thread_options'([], Aliases, Stack, Trail, System, Detached, G0),
+	'$thread_options'([], [], Stack, Trail, System, Detached, G0),
 	'$thread_new_tid'(Id),
 	'$clean_db_on_id'(Id),
 	'$create_mq'(Id),	
@@ -68,10 +69,10 @@ thread_create(Goal, Id, Options) :-
 	G0 = thread_create(Goal, Id, Options),
 	'$check_callable'(Goal,G0),
 	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
-	'$thread_options'(Options, Aliases, Stack, Trail, System, Detached, G0),
+	'$thread_options'(Options, Alias, Stack, Trail, System, Detached, G0),
 	'$thread_new_tid'(Id),
 	'$clean_db_on_id'(Id),
-	'$add_thread_aliases'(Aliases, Id),
+	'$add_thread_alias'(Alias, Id, G0),
 	'$create_mq'(Id),	
 	'$create_thread'(Goal, Stack, Trail, System, Detached, Id).
 
@@ -98,32 +99,30 @@ thread_create(Goal, Id, Options) :-
 	( var(Trail) -> Trail = DefaultTrail; true ),
 	( var(System) -> System = DefaultSystem; true ),
 	( var(Detached) -> Detached = DefaultDetached; true ).
-'$thread_options'([Opt|Opts], Aliases, Stack, Trail, System, Detached, G0) :-
-	'$thread_option'(Opt, Aliases, Stack, Trail, System, Detached, G0, Aliases0),
-	'$thread_options'(Opts, Aliases0, Stack, Trail, System, Detached, G0).
+'$thread_options'([Opt|Opts], Alias, Stack, Trail, System, Detached, G0) :-
+	'$thread_option'(Opt, Alias, Stack, Trail, System, Detached, G0),
+	'$thread_options'(Opts, Alias, Stack, Trail, System, Detached, G0).
 
-'$thread_option'(Option, Aliases, _, _, _, _, G0, Aliases) :- var(Option), !,
+'$thread_option'(Option, Alias, _, _, _, _, G0) :- var(Option), !,
 	'$do_error'(instantiation_error,G0).
-'$thread_option'(stack(Stack), Aliases, Stack, _, _, _, G0, Aliases) :- !,
+'$thread_option'(stack(Stack), _, Stack, _, _, _, G0) :- !,
 	( \+ integer(Stack) -> '$do_error'(type_error(integer,Stack),G0) ; true ).
-'$thread_option'(trail(Trail), Aliases, _, Trail, _, _, G0, Aliases) :- !,
+'$thread_option'(trail(Trail), _, _, Trail, _, _, G0) :- !,
 	( \+ integer(Trail) -> '$do_error'(type_error(integer,Trail),G0) ; true ).
-'$thread_option'(system(System), Aliases, _, _, System, _, G0, Aliases) :- !,
+'$thread_option'(system(System), _, _, _, System, _, G0) :- !,
 	( \+ integer(System) -> '$do_error'(type_error(integer,System),G0) ; true ).
-'$thread_option'(alias(Alias), [Alias|Aliases], _, _, _, _, G0, Aliases) :- !,
+'$thread_option'(alias(Alias), Alias, _, _, _, _, G0) :- !,
 	( \+ atom(Alias) -> '$do_error'(type_error(atom,Alias),G0) ; true ).
-'$thread_option'(detached(B), Aliases, _, _, _, B, G0, Aliases) :- !,
-	( B \== true, B \== false  -> '$do_error'(domain_error(flag_value,B+[true,false]),G0) ; true ).
-'$thread_option'(Option, Aliases, _, _, _, _, G0, Aliases) :-
-	'$do_error'(domain_error(thread_create_option,Option+[stack(_),trail(_),system(_),alias(_),detached(_)]),G0).
+'$thread_option'(detached(Detached), _, _, _, _, Detached, G0) :- !,
+	( Detached \== true, Detached \== false  -> '$do_error'(domain_error(thread_option,Detached+[true,false]),G0) ; true ).
+'$thread_option'(Option, _, _, _, _, _, G0) :-
+	'$do_error'(domain_error(thread_option,Option),G0).
 
-'$add_thread_aliases'([Alias|_], Id) :-
+'$add_thread_alias'(Alias, Id, G) :-
 	recorded('$thread_alias',[_|Alias],_), !,
-	'$do_error'(permission_error(alias,new,Alias),thread_create_alias(Id,Alias)).
-'$add_thread_aliases'([Alias|Aliases], Id) :-
-	recorda('$thread_alias',[Id|Alias],_),
-	'$add_thread_aliases'(Aliases, Id).
-'$add_thread_aliases'([], _).
+	'$do_error'(permission_error(create,thread,alias(Alias)),G).
+'$add_thread_alias'(Alias, Id, _) :-
+	recorda('$thread_alias',[Id|Alias],_).
 
 thread_defaults(Defaults) :- nonvar(Defaults), !,
 	'$do_error'(type_error(variable,Id),thread_defaults(Defaults)).
@@ -212,6 +211,9 @@ thread_set_default(Default) :-
 	'$do_error'(domain_error(thread_default, Default), G).
 
 thread_self(Id) :-
+	nonvar(Id), \+ integer(Id), \+ atom(Id), !,
+	'$do_error'(domain_error(thread_or_alias, Id), thread_self(Id)).
+thread_self(Id) :-
 	'$thread_self'(Id0),
 	'$check_thread_alias'(Id0,Id).
 
@@ -219,8 +221,23 @@ thread_self(Id) :-
 	recorded('$thread_alias',[Id0|Id],_), !.
 '$check_thread_alias'(Id,Id).
 
-/* Exit status may be true, false, exception(Term), exited(Term) */
-thread_join(Id, Status) :- nonvar(Status), !,
+/* Exit status may be either true, false, exception(Term), or exited(Term) */
+thread_join(Id, Status) :-
+	var(Id), !,
+	'$do_error'(instantiation_error, thread_join(Id, Status)).
+thread_join(Id, Status) :-
+	\+ integer(Id), \+ atom(Id), !,
+	'$do_error'(domain_error(thread_or_alias, Id), thread_join(Id, Status)).
+thread_join(Id, Status) :-
+	integer(Id),
+	\+ '$valid_thread'(Id),
+	'$do_error'(existence_error(thread, Id), thread_join(Id, Status)).
+thread_join(Id, Status) :-
+	atom(Id),
+	\+ recorded('$thread_alias',[_|Id],_),
+	'$do_error'(existence_error(thread, Id), thread_join(Id, Status)).
+thread_join(Id, Status) :-
+	nonvar(Status), !,
 	'$do_error'(type_error(variable,Status),thread_join(Id, Status)).
 thread_join(Id, Status) :-
 	'$check_thread_alias'(Id0,Id),
@@ -565,7 +582,7 @@ thread_sleep(Time) :-
 	).
 thread_sleep(Time) :-
 	float(Time), !,
-	(	Time > 0 ->
+	(	Time > 0.0 ->
 		STime is integer(float_integer_part(Time)),
 		NTime is integer(float_fractional_part(Time))*1000000000,
 		'$thread_sleep'(STime,NTime,_,_)
