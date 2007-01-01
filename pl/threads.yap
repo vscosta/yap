@@ -223,23 +223,10 @@ thread_self(Id) :-
 
 /* Exit status may be either true, false, exception(Term), or exited(Term) */
 thread_join(Id, Status) :-
-	var(Id), !,
-	'$do_error'(instantiation_error, thread_join(Id, Status)).
-thread_join(Id, Status) :-
-	\+ integer(Id), \+ atom(Id), !,
-	'$do_error'(domain_error(thread_or_alias, Id), thread_join(Id, Status)).
-thread_join(Id, Status) :-
-	integer(Id),
-	\+ '$valid_thread'(Id),
-	'$do_error'(existence_error(thread, Id), thread_join(Id, Status)).
-thread_join(Id, Status) :-
-	atom(Id),
-	\+ recorded('$thread_alias',[_|Id],_),
-	'$do_error'(existence_error(thread, Id), thread_join(Id, Status)).
-thread_join(Id, Status) :-
 	nonvar(Status), !,
 	'$do_error'(type_error(variable,Status),thread_join(Id, Status)).
 thread_join(Id, Status) :-
+	'$check_thread_or_alias'(Id, thread_join(Id, Status)),
 	'$check_thread_alias'(Id0,Id),
 	'$thread_join'(Id0),
 	'$erase_thread_aliases'(Id0),
@@ -253,24 +240,17 @@ thread_join(Id, Status) :-
 	fail.
 '$erase_thread_aliases'(_).
 
+thread_cancel(Id) :-
+	'$check_thread_or_alias'(Id, thread_cancel(Id)),
+	'$check_thread_alias'(Id0,Id),
+	'$erase_thread_aliases'(Id0),
+	'$unlock_all_thread_mutexes'(Id0),
+	'$thread_destroy'(Id0).	
+
 thread_detach(Id) :-
-	var(Id), !,
-	'$do_error'(instantiation_error,thread_detach(Id)).
-thread_detach(Id) :-
-	\+ atom(Id),
-	\+ integer(Id),
-	'$do_error'(type_error(thread_or_alias, Id),thread_detach(Id)).
-thread_detach(Id) :-
-	atom(Id),
-	recorded('$thread_alias',[Id0|Id],_),
-	'$valid_thread'(Id0), !,
+	'$check_thread_or_alias'(Id, thread_detach(Id)),
+	'$check_thread_alias'(Id0,Id),
 	'$detach_thread'(Id0).
-thread_detach(Id) :-
-	integer(Id),
-	'$valid_thread'(Id), !,
-	'$detach_thread'(Id0).
-thread_detach(Id) :-
-	'$do_error'(existence_error(thread, Id),thread_detach(Id)).
 
 thread_exit(Term) :-
 	var(Term), !,
@@ -396,13 +376,16 @@ mutex_unlock(V) :-
 	'$do_error'(type_error(atom,V),mutex_unlock(V)).
 
 mutex_unlock_all :-
-	'$thread_self'(T),
+	'$thread_self'(Tid),
+	'$unlock_all_thread_mutexes'(Tid).
+
+'$unlock_all_thread_mutexes'(Tid) :-
 	recorded('$mutex',[_|Id],_),
-	'$mutex_info'(Id, NRefs, T),
+	'$mutex_info'(Id, NRefs, Tid),
 	NRefs > 0,
 	'$mutex_unlock_all'(Id),
 	fail.
-mutex_unlock_all.
+'$unlock_all_thread_mutexes'(_).
 
 '$mutex_unlock_all'(Id) :-
 	'$mutex_info'(Id, NRefs, _),
@@ -595,30 +578,15 @@ thread_sleep(Time) :-
 	'$do_error'(type_error(number,Time),thread_sleep(Time)).
 
 
-thread_signal(Thread, Goal) :-
-	var(Thread), !,
-	'$do_error'(instantiation_error,thread_signal(Thread, Goal)).
-thread_signal(Thread, Goal) :-
-	\+ integer(Thread), \+ atom(Thread), !,
-	'$do_error'(domain_error,thread_or_alias,thread_signal(Thread, Goal)).
-thread_signal(Thread, Goal) :-
-	'$check_callable'(Goal,thread_signal(Thread,Goal)).
-thread_signal(Thread, Goal) :-
-	atom(Thread),
-	recorded('$thread_alias',[Id|Thread],_),
-	'$valid_thread'(Id), !,
-	'$thread_signal'(Id, Goal).
-thread_signal(Thread, Goal) :-
-	integer(Thread),
-	'$valid_thread'(Thread), !,
-	'$thread_signal'(Thread, Goal).
-thread_signal(Thread, Goal) :-
-	'$do_error'(existence_error(thread, Thread),thread_signal(Thread, Goal)).
-
-'$thread_signal'(Thread, Goal) :-
-	( recorded('$thread_signal',[Thread|_],R), erase(R), fail ; true ),
-	recorda('$thread_signal',[Thread|Goal],_),
-	'$signal_thread'(Thread).
+thread_signal(Id, Goal) :-
+	'$check_thread_or_alias'(Id, thread_signal(Id, Goal)),
+	'$check_callable'(Goal, thread_signal(Id, Goal)).
+	'$check_thread_alias'(Id0, Id),
+	(	recorded('$thread_signal', [Id0| _], R), erase(R), fail
+	;	true
+	),
+	recorda('$thread_signal', [Id0| Goal], _),
+	'$signal_thread'(Id0).
 
 '$thread_gfetch'(G) :-
 	'$thread_self'(Id),
@@ -635,3 +603,18 @@ threads :-
 	fail.
 threads :-
 	write('--------------------------------------------------------------'), nl.
+
+
+'$check_thread_or_alias'(Term, Goal) :-
+	var(Term), !,
+	'$do_error'(instantiation_error, Goal).
+'$check_thread_or_alias'(Term, Goal) :-
+	\+ integer(Term), \+ atom(Term), !,
+	'$do_error'(domain_error(thread_or_alias, Term), Goal).
+'$check_thread_or_alias'(Term, Goal) :-
+	atom(Term), \+ recorded('$thread_alias',[_|Term],_), !,
+	'$do_error'(existence_error(thread, Term), Goal).
+'$check_thread_or_alias'(Term, Goal) :-
+	integer(Term), \+ '$valid_thread'(Term), !,
+	'$do_error'(existence_error(thread, Term), Goal).
+'$check_thread_or_alias'(_,_).
