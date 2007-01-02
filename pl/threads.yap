@@ -233,7 +233,7 @@ thread_self(Id) :-
 	'$do_error'(domain_error(thread_or_alias, Id), thread_self(Id)).
 thread_self(Id) :-
 	'$thread_self'(Id0),
-	'$thread_id_to_alias'(Id0,Id).
+	'$thread_id_alias'(Id0, Id).
 
 /* Exit status may be either true, false, exception(Term), or exited(Term) */
 thread_join(Id, Status) :-
@@ -241,29 +241,23 @@ thread_join(Id, Status) :-
 	'$do_error'(type_error(variable,Status),thread_join(Id, Status)).
 thread_join(Id, Status) :-
 	'$check_thread_or_alias'(Id, thread_join(Id, Status)),
-	'$thread_id_to_alias'(Id0,Id),
+	'$thread_id_alias'(Id0, Id),
 	'$thread_join'(Id0),
-	'$erase_thread_aliases'(Id0),
-	recorded('$thread_exit_status',[Id0|Status],R),
-	erase(R),
+	recorded('$thread_exit_status', [Id0|Status], _),
+	'$erase_thread_info'(Id0),
 	'$thread_destroy'(Id0).
 
-'$erase_thread_aliases'(Id0) :-
-	recorded('$thread_alias',[Id0|_],R),
-	erase(R),
-	fail.
-'$erase_thread_aliases'(_).
 
 thread_cancel(Id) :-
 	'$check_thread_or_alias'(Id, thread_cancel(Id)),
-	'$thread_id_to_alias'(Id0,Id),
-	'$erase_thread_aliases'(Id0),
+	'$thread_id_alias'(Id0, Id),
 	'$unlock_all_thread_mutexes'(Id0),
+	'$erase_thread_info'(Id0),
 	'$thread_destroy'(Id0).	
 
 thread_detach(Id) :-
 	'$check_thread_or_alias'(Id, thread_detach(Id)),
-	'$thread_id_to_alias'(Id0,Id),
+	'$thread_id_alias'(Id0, Id),
 	'$detach_thread'(Id0).
 
 thread_exit(Term) :-
@@ -294,9 +288,9 @@ current_thread(Id, Status) :-
 	thread_property(Id, status(Status)).
 
 
-'$thread_id_to_alias'(Id, Alias) :-
+'$thread_id_alias'(Id, Alias) :-
 	recorded('$thread_alias', [Id|Alias], _), !.
-'$thread_id_to_alias'(Id, Id).
+'$thread_id_alias'(Id, Id).
 
 
 mutex_create(V) :-
@@ -575,7 +569,7 @@ thread_sleep(Time) :-
 thread_signal(Id, Goal) :-
 	'$check_thread_or_alias'(Id, thread_signal(Id, Goal)),
 	'$check_callable'(Goal, thread_signal(Id, Goal)).
-	'$thread_id_to_alias'(Id0, Id),
+	'$thread_id_alias'(Id0, Id),
 	(	recorded('$thread_signal', [Id0| _], R), erase(R), fail
 	;	true
 	),
@@ -599,7 +593,7 @@ thread_property(Id, Prop) :-
 	;	'$current_thread'(Id)
 	),
 	'$check_thread_property'(Prop, thread_property(Id, Prop)),
-	'$thread_id_to_alias'(Id0, Id),
+	'$thread_id_alias'(Id0, Id),
 	'$thread_property'(Id0, Prop).
 
 '$thread_property'(Id, alias(Alias)) :-
@@ -636,7 +630,7 @@ threads :-
 	write('------------------------------------------------------------------------'), nl,
 	thread_property(Thread, detached(Detached)),
 	thread_property(Thread, status(Status)),
-	'$thread_id_to_alias'(Thread, Alias),
+	'$thread_id_alias'(Thread, Alias),
 	format("~t~q~30+~33|~w~42|~q~n", [Alias, Detached, Status]),
 	fail.
 threads :-
