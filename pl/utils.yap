@@ -192,13 +192,13 @@ call_cleanup(Goal, Catcher, Cleanup) :-
 	      '$cleanup_exception'(Exception,Catcher,Cleanup)).
 
 '$cleanup_exception'(Exception, exception(Exception), Cleanup) :-
-	call(Cleanup).
+	'$clean_call'(Cleanup).
 
-'$call_cleanup'(Goal,Cleanup,Result) :-
+'$call_cleanup'(Goal, Cleanup, Result) :-
 	'$freeze_goal'(Result, '$clean_call'(Cleanup)),
 	yap_hacks:trail_suspension_marker(Result),
 	yap_hacks:current_choice_point(CP0),
-	(	call(Goal),
+	(	'$execute'(Goal),
 		yap_hacks:current_choice_point(CPF),
 		(	CP0 =:= CPF ->
 	    	Result = exit, !
@@ -209,7 +209,7 @@ call_cleanup(Goal, Catcher, Cleanup) :-
 	).
 
 '$clean_call'(Cleanup) :-
-	call(Cleanup), !.
+	'$execute'(Cleanup), !.
 '$clean_call'(_).
 
 op(P,T,V) :- var(P), !,
