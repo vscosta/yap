@@ -189,8 +189,7 @@ call_cleanup(Goal, Cleanup) :-
 call_cleanup(Goal, Catcher, Cleanup) :-
 	catch('$call_cleanup'(Goal,Cleanup,Result),
 	      Exception,
-	      '$cleanup_exception'(Exception,Catcher,Cleanup)),
-	Result = exit.
+	      '$cleanup_exception'(Exception,Catcher,Cleanup)).
 
 '$cleanup_exception'(Exception, exception(Exception), Cleanup) :-
 	call(Cleanup).
@@ -205,7 +204,8 @@ call_cleanup(Goal, Catcher, Cleanup) :-
 	    	Result = exit, !
 		;	true
 		)
-	;	Result = fail
+	;	Result = fail,
+		fail
 	).
 
 '$clean_call'(Cleanup) :-
