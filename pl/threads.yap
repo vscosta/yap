@@ -29,7 +29,9 @@
 '$init_thread0' :-
 	'$create_mq'(0),
 	'$record_thread_info'(0, main, [0, 0, 0], false, '$init_thread0'),
-	recorda('$thread_defaults', [0, 0, 0, false], _).
+	recorda('$thread_defaults', [0, 0, 0, false], _),
+	'$new_mutex'(Id),
+	recorda('$with_mutex_mutex',Id,_).
 
 '$top_thread_goal'(G, Detached) :-
 	'$thread_self'(Id),
@@ -390,17 +392,24 @@ with_mutex(M, G) :-
 	var(G), !,
 	'$do_error'(instantiation_error,with_mutex(M, G)).
 with_mutex(M, G) :-
-	\+ callable(G),
+	\+ callable(G), !,
 	'$do_error'(type_error(callable,G),with_mutex(M, G)).
 with_mutex(M, G) :-
 	atom(M), !,
+	recorded('$with_mutex_mutex',WMId,_),
+	'$lock_mutex'(WMId),
 	(	recorded('$mutex',[M|Id],_) ->
 		true
 	;	'$new_mutex'(Id),
 		recorda('$mutex',[M|Id],_)
 	),
+	'$unlock_mutex'(WMId),
 	'$lock_mutex'(Id),
-	call_cleanup(once(G), '$unlock_mutex'(Id)).
+	(	catch('$execute'(G), E, ('$unlock_mutex'(Id), throw(E))) ->
+		'$unlock_mutex'(Id)
+	;	'$unlock_mutex'(Id),
+		fail
+	).
 with_mutex(M, G) :-
 	'$do_error'(type_error(atom,M),with_mutex(M, G)).
 
