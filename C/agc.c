@@ -116,6 +116,7 @@ AtomAdjust(Atom a)
 
 #define AddrAdjust(P) (P)
 #define AtomEntryAdjust(P) (P)
+#define GlobalEntryAdjust(P) (P)
 #define BlobTermAdjust(P) (P)
 #define CellPtoHeapAdjust(P) (P)
 #define CellPtoHeapCellAdjust(P) (P)

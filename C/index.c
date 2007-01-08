@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2006-12-27 01:32:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-01-08 08:27:19 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.180  2006/12/27 01:32:37  vsc
+* diverse fixes
+*
 * Revision 1.179  2006/11/27 17:42:02  vsc
 * support for UNICODE, and other bug fixes.
 *
@@ -2804,15 +2807,17 @@ add_head_info(ClauseDef *clause, UInt regno)
       break;      
     case _unify_idb_term:
     case _copy_idb_term:
-      if (regno == 2) {
+      if (regno != 2) {
+	clause->Tag = (CELL)NULL;
+      } else {
 	LogUpdClause *lcl = ClauseCodeToLogUpdClause(cl);
 	Term t = lcl->ClSource->Entry;
-
+      
 	if (IsVarTerm(t)) {
 	  clause->Tag = (CELL)NULL;
 	} else if (IsApplTerm(t)) {
 	  CELL *pt = RepAppl(t);
-
+	
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
 	  if (IsExtensionFunctor(FunctorOfTerm(t))) {
 	    clause->u.t_ptr = t;
@@ -2827,8 +2832,6 @@ add_head_info(ClauseDef *clause, UInt regno)
 	} else {
 	  clause->Tag = t;
 	}
-      } else {
-	clause->Tag = (CELL)NULL;
       }
       return;
     default:
@@ -4271,14 +4274,49 @@ cls_info(ClauseDef *min, ClauseDef *max, UInt argno)
 }
 
 static int
-cls_head_info(ClauseDef *min, ClauseDef *max, UInt argno)
+cls_head_info(ClauseDef *min, ClauseDef *max, UInt argno, int in_idb)
 {
   ClauseDef *cl=min;
 
-  while (cl <= max) {
-    add_head_info(cl, argno);
-    /*    if (IsVarTerm(cl->Tag)) cl->Tag = (CELL)NULL; */
-    cl++;
+  if (in_idb) {
+    if (argno != 2) {
+      while (cl <= max) {
+	cl->Tag = (CELL)NULL;
+	cl++;
+      } 
+    } else {
+      while (cl <= max) {
+	LogUpdClause *lcl = ClauseCodeToLogUpdClause(cl->CurrentCode);
+	Term t = lcl->ClSource->Entry;
+      
+	if (IsVarTerm(t)) {
+	  cl->Tag = (CELL)NULL;
+	} else if (IsApplTerm(t)) {
+	  CELL *pt = RepAppl(t);
+	
+	  cl->Tag = AbsAppl((CELL *)pt[0]);
+	  if (IsExtensionFunctor(FunctorOfTerm(t))) {
+	    cl->u.t_ptr = t;
+	  } else {
+	    cl->u.c_sreg = pt;
+	  }
+	} else if (IsPairTerm(t)) {
+	  CELL *pt = RepPair(t);
+
+	  cl->Tag = AbsPair(NULL);
+	  cl->u.c_sreg = pt-1;
+	} else {
+	  cl->Tag = t;
+	}
+	cl++;
+      }
+    }
+  } else {
+      while (cl <= max) {
+	add_head_info(cl, argno);
+	/*    if (IsVarTerm(cl->Tag)) cl->Tag = (CELL)NULL; */
+	cl++;
+      }
   }
   return FALSE;
 }
@@ -4307,7 +4345,7 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
   }
   t = Deref(XREGS[argno]);
   if (ap->PredFlags & LogUpdatePredFlag) {
-    found_pvar = cls_head_info(min, max, argno);
+    found_pvar = cls_head_info(min, max, argno, (ap->ModuleOfPred == IDB_MODULE));
   } else {
     found_pvar = cls_info(min, max, argno);
   }
@@ -4332,7 +4370,7 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
       argno++;
       t = Deref(XREGS[argno]);
       if (ap->PredFlags & LogUpdatePredFlag) {
-	found_pvar = cls_head_info(min, max, argno);
+	found_pvar = cls_head_info(min, max, argno, (ap->ModuleOfPred == IDB_MODULE) );
       } else {
 	found_pvar = cls_info(min, max, argno);
       }

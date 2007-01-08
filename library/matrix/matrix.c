@@ -535,7 +535,8 @@ matrix_dec2(int *mat, int *indx)
 static int
 matrix_set(void)
 {
-  int dims[MAX_DIMS], *mat, tf;
+  int dims[MAX_DIMS], *mat;
+  YAP_Term tf;
   
   mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
   if (!mat) {
@@ -606,7 +607,8 @@ matrix_set_all(void)
 static int
 matrix_add(void)
 {
-  int dims[MAX_DIMS], *mat, tf;
+  int dims[MAX_DIMS], *mat;
+  YAP_Term tf;
   
   mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
   if (!mat) {
@@ -643,7 +645,8 @@ matrix_add(void)
 static int
 do_matrix_access(void)
 {
-  int dims[MAX_DIMS], *mat, tf;
+  int dims[MAX_DIMS], *mat;
+  YAP_Term tf;
   
   mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
   if (!mat) {

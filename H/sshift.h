@@ -340,6 +340,14 @@ AtomEntryAdjust (AtomEntry * at)
   return (AtomEntry *) ((AtomEntry *) (CharP (at) + HDiff));
 }
 
+inline EXTERN GlobalEntry *GlobalEntryAdjust (GlobalEntry *);
+
+inline EXTERN GlobalEntry *
+GlobalEntryAdjust (GlobalEntry * at)
+{
+  return (GlobalEntry *) ((GlobalEntry *) (CharP (at) + HDiff));
+}
+
 
 
 inline EXTERN union CONSULT_OBJ *ConsultObjAdjust (union CONSULT_OBJ *);
@@ -728,7 +736,6 @@ IsGlobal (CELL reg)
 {
   return (int) (IN_BETWEEN (Yap_GlobalBase, reg, H));
 }
-
 
 
 void STD_PROTO (Yap_AdjustStacksAndTrail, (void));

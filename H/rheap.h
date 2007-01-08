@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2006-11-27 17:42:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-01-08 08:27:19 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.71  2006/11/27 17:42:03  vsc
+* support for UNICODE, and other bug fixes.
+*
 * Revision 1.70  2006/08/25 19:50:35  vsc
 * global data structures
 *
@@ -1206,8 +1209,7 @@ RestoreEntries(PropEntry *pp)
       {
 	DBEntry *de = (DBEntry *) pp;
 	de->NextOfPE =
-	  PropAdjust(de->NextOfPE);
-	if (HDiff)
+	  PropAdjust(de->NextOfPE); if (HDiff)
 	  RestoreDB(de);
       }
       break;
@@ -1218,6 +1220,38 @@ RestoreEntries(PropEntry *pp)
 	  PropAdjust(bb->NextOfPE);
 	if (HDiff)
 	  RestoreBB(bb);
+      }
+      break;
+    case GlobalProperty:
+      {
+	GlobalEntry *gb = (GlobalEntry *) pp;
+	Term gbt = gb->global;
+
+	gb->NextOfPE =
+	  PropAdjust(gb->NextOfPE);
+	gb->AtomOfGE =
+	  AtomEntryAdjust(gb->AtomOfGE);
+	gb->NextGE =
+	  GlobalEntryAdjust(gb->NextGE);
+	if (IsVarTerm(gbt)) {
+	  CELL *gbp = VarOfTerm(gbt);
+	  if (IsOldGlobalPtr(gbp))
+	    gbp = PtoGloAdjust(gbp);
+	  else
+	    gbp = CellPtoHeapAdjust(gbp);
+	  gb->global = (CELL)gbp;
+	} else if (IsPairTerm(gbt)) {
+	  gb->global = AbsPair(PtoGloAdjust(RepPair(gbt)));
+	} else if (IsApplTerm(gbt)) {
+	  CELL *gbp = RepAppl(gbt);
+	  if (IsOldGlobalPtr(gbp))
+	    gbp = PtoGloAdjust(gbp);
+	  else
+	    gbp = CellPtoHeapAdjust(gbp);
+	  gb->global = AbsAppl(gbp);
+	} else if (IsAtomTerm(gbt)) {
+	  gb->global = AtomTermAdjust(gbt);
+	} /* numbers need no adjusting */
       }
       break;
     case OpProperty:

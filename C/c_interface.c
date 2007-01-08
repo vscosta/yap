@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2006-12-13 16:10:14 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-01-08 08:27:19 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.87  2006/12/13 16:10:14  vsc
+* several debugger and CLP(BN) improvements.
+*
 * Revision 1.86  2006/11/27 17:42:02  vsc
 * support for UNICODE, and other bug fixes.
 *
@@ -757,7 +760,7 @@ YAP_Unify(Term t1, Term t2)
   out = Yap_unify(t1, t2);
 
   RECOVER_MACHINE_REGS();
-  return(out);
+  return out;
 }
 
 X_API long
