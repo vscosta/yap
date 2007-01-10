@@ -10412,6 +10412,13 @@ This implies further instantiation of this term in either thread does
 not have consequences for the other thread: Prolog threads do not share
 data from their stacks.
 
+@item thread_create(:@var{Goal}, -@var{Id})
+@findex thread_create/2
+@snindex thread_create/2
+@cnindex thread_create/2
+
+Create a new Prolog thread using default options. See @code{thread_create/3}.
+
 @item thread_self(-@var{Id})
 @findex thread_self/1
 @snindex thread_self/1
