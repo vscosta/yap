@@ -169,7 +169,6 @@ threaded_ignore
 threaded_race
 threaded_exit
 threaded_peek
-threaded_discard
 
 ; Mode operators
 ?

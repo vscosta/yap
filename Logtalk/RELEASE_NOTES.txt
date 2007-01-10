@@ -1,13 +1,37 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.1
+Release 2.29.2
 
-Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
 RELEASE NOTES
 =============
+
+
+2.29.2 - January 10, 2007
+
+	Silently compile synchronized predicates as normal predicates on 
+	single-threaded Prolog compilers.
+
+	When using the threaded_race/1 predicate, competing threads are 
+	now created detached.
+
+	Corrected a bug that resulted in a loading error when reloading 
+	source files defining threaded objects.
+
+	Corrected a bug in the implementation of the built-in predicate 
+	threaded_peek/1 that prevented alternative solutions from being 
+	retrieved using the built-in predicate threaded_exit/1. Removed 
+	the built-in predicate threaded_discard/1.
+
+	The library object "random" is now a synchronized object. Updated 
+	the "philosophers" multi-threading example accordingly.
+
+	Dropped loading of broken "cleanup" library from the YAP config file 
+	(the call_cleanup/2 predicate, required for Logtalk multi-threading, 
+	is now available as a built-in predicate in the YAP CVS version).
 
 
 2.29.1 - December 28, 2006
@@ -18,7 +42,7 @@ RELEASE NOTES
 	Added shell scripts for helping building the distribution files of a 
 	new Logtalk release. Updated the MacOS X installer package to set 
 	default values for the Logtalk environment variables. Corrected a bug 
-	in the logtalk.spec file where the default value for the LOGTALKUSER 
+	in the "logtalk.spec" file where the default value for the LOGTALKUSER 
 	environment variable only worked for the user doing the RPM installation.
 
 	Corrected a bug in the reporting of the line number where a compilation 

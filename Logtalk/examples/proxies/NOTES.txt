@@ -1,8 +1,8 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.1
+Release 2.29.2
 
-Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
@@ -26,8 +26,8 @@ In the context of parametric objects, the above terms are know as "parametric
 object proxies". Proxies represent different instantiations of a parametric 
 object parameters. They may be stored on the database as Prolog facts. This 
 results in a very compact representation, which can be an advantage when 
-dealing with a large number of objects. However, this is also a fragile 
-solution as changes on the parametric object ancestors may imply changes to 
-the number and meaning of the parametric object parameters which, in turn, 
-may imply changes to all the Prolog facts used to represent the individual 
-objects.
+dealing with a large number of objects with immutable state. However, this is 
+also a fragile solution as changes on the parametric object ancestors may 
+imply changes to the number and meaning of the parametric object parameters 
+which, in turn, may imply changes to all the Prolog facts used to represent 
+the individual objects.

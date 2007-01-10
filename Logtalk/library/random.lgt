@@ -2,32 +2,27 @@
 :- object(random,
 	implements(randomp)).
 
-
 	:- info([
-		version is 1.1,
+		version is 1.2,
 		author is 'Paulo Moura',
-		date is 2002/8/7,
+		date is 2007/1/3,
 		comment is 'Random number generator predicates.']).
 
+	:- synchronized.	% make all object predicates multi-threading aware
 
 	:- initialization(::reset_seed).
 
-
 	:- private(seed_/3).
 	:- dynamic(seed_/3).
-
 	:- mode(seed_(-integer, -integer, -integer), one).
-
 	:- info(seed_/3, [
 		comment is 'Stores the current random generator seed values.',
 		argnames is ['S0', 'S1', 'S2']]).
-
 
 	random(Random) :-
 		::retract(seed_(A0, A1, A2)),
 		random(A0, A1, A2, B0, B1, B2, Random),
 		::asserta(seed_(B0, B1, B2)).
-
 
 	random(A0, A1, A2, B0, B1, B2, Random) :-
 		B0 is (A0*171) mod 30269,
@@ -35,7 +30,6 @@
 		B2 is (A2*170) mod 30323,
 		Float is A0/30269 + A1/30307 + A2/30323,
 		Random is Float - truncate(Float).
-
 
 	random(Lower, Upper, Random) :-
 		integer(Lower),
@@ -45,14 +39,12 @@
 		random(Float),
 		Random is truncate((Float * (Upper-Lower)+Lower)).
 
-
 	random(Lower, Upper, Random) :-
 		float(Lower),
 		float(Upper),
 		Upper >= Lower,
 		random(Float),
 		Random is Float * (Upper-Lower)+Lower.
-
 
 	randseq(Length, Lower, Upper, Sequence) :-
 		integer(Length),
@@ -76,23 +68,18 @@
 		randseq(Length, Lower, Upper, (A0, A1, A2), (B0, B1, B2), [], Sequence),
 		::asserta(seed_(B0, B1, B2)).
 
-
 	randseq(0, _, _, Seed, Seed, List, List) :-
 		!.
-
 	randseq(N, Lower, Upper, (A0, A1, A2), (C0, C1, C2), Acc, List) :-
 		N2 is N - 1,
 		random(A0, A1, A2, B0, B1, B2, R),
 		Random is R * (Upper-Lower)+Lower,
 		randseq(N2, Lower, Upper, (B0, B1, B2), (C0, C1, C2), [Random| Acc], List).
 
-
 	map_truncate([], []).
-
 	map_truncate([Float| Floats], [Integer| Integers]) :-
 		Integer is truncate(Float),
 		map_truncate(Floats, Integers).
-
 
 	randset(Length, Lower, Upper, Set) :-
 		integer(Length),
@@ -105,7 +92,6 @@
 		::retract(seed_(A0, A1, A2)),
 		randset(Length, Lower, Upper, (A0, A1, A2), (B0, B1, B2), [], Set),
 		::asserta(seed_(B0, B1, B2)).
-
 	randset(Length, Lower, Upper, Set) :-
 		integer(Length),
 		Length >= 0,
@@ -116,10 +102,8 @@
 		randset(Length, Lower, Upper, (A0, A1, A2), (B0, B1, B2), [], Set),
 		::asserta(seed_(B0, B1, B2)).
 
-
 	randset(0, _, _, Seed, Seed, List, List) :-
 		!.
-
 	randset(N, Lower, Upper, (A0, A1, A2), (C0, C1, C2), Acc, List) :-
 		N2 is N - 1,
 		random(A0, A1, A2, B0, B1, B2, Float),
@@ -134,28 +118,22 @@
 			;
 			randset(N, Lower, Upper, (B0, B1, B2), (C0, C1, C2), Acc, List)).
 
-
 	not_member([], _).
-
 	not_member([H| T], R) :-
 		H =\= R,
 		not_member(T, R).
 
-
 	add_ordered([], R, [R]).
-
 	add_ordered([H| T], R, L) :-
-		H > R ->
+		(	H > R ->
 			L = [R, H| T]
-			;
-			L = [H| T2],
-			add_ordered(T, R, T2).
-
+		;	L = [H| T2],
+			add_ordered(T, R, T2)
+		).
 
 	reset_seed :-
 		::retractall(seed_(_, _, _)),
 		::asserta(seed_(3172, 9814, 20125)).
-
 
 	set_seed(Seed) :-
 		integer(Seed),
@@ -165,6 +143,5 @@
 		S1 is Seed mod 30307,
 		S2 is Seed mod 30323,
 		::asserta(seed_(S0, S1, S2)).
-
 
 :- end_object.

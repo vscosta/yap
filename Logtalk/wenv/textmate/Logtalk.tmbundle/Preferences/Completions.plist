@@ -69,7 +69,6 @@
 			<string>threaded_race</string>
 			<string>threaded_exit</string>
 			<string>threaded_peek</string>
-			<string>threaded_discard</string>
 			<string>self</string>
 			<string>this</string>
 			<string>sender</string>

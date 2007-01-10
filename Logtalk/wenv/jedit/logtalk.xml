@@ -252,7 +252,6 @@
 			<FUNCTION>threaded_race</FUNCTION>
 			<FUNCTION>threaded_exit</FUNCTION>
 			<FUNCTION>threaded_peek</FUNCTION>
-			<FUNCTION>threaded_discard</FUNCTION>
 
 			<FUNCTION>before</FUNCTION>
 			<FUNCTION>after</FUNCTION>

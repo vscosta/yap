@@ -98,7 +98,7 @@ no
 Note that, in this case, the <code>threaded_call/1</code> and the <code>threaded_exit/1</code> calls are made within the pseudo-object <em>user</em>. The implicit thread running the <code>lists::member/2</code> goal suspends itself after providing a solution, waiting for the request of an alternative solution; the thread is automatically terminated when the runtime engine detects that further backtracking to the <code>threaded_exit/1</code> call is no longer possible.
 </p>
 <p>
-Calls to the <code>threaded_exit/1</code> predicate block the caller until the object's thread receives the reply to the asynchronous call. The predicate <code>threaded_peek/1</code> may be used to check if a reply is already available without removing it from the thread queue. The <code>threaded_peek/1</code> predicate call succeeds or fails immediately without blocking the caller. However, keep in mind that repeated use of this predicate is equivalent to polling a thread queue, which may severely hurt performance. A third predicate, <code>threaded_discard/1</code>, allows us to discard all matching replies available on the object's thread waiting to be retrieved.
+Calls to the <code>threaded_exit/1</code> predicate block the caller until the object's thread receives the reply to the asynchronous call. The predicate <code>threaded_peek/1</code> may be used to check if a reply is already available without removing it from the thread queue. The <code>threaded_peek/1</code> predicate call succeeds or fails immediately without blocking the caller. However, keep in mind that repeated use of this predicate is equivalent to polling a thread queue, which may severely hurt performance.
 </p>
 
 <h2>One-way asynchronous calls<a id="threads_ignore"></a></h2>
@@ -180,11 +180,23 @@ Logtalk supports both deterministic and non-deterministic synchronized predicate
 <p>
 We may declare all predicates of an object (or a category) as synchronized by using the entity directive <a title="Consult reference manual" href="../refman/directives/synchronized0.html"><code>synchronized/0</code></a>. In this case, the <code>synchronized/1</code> predicate directive is not necessary and should not be used.
 </p>
+<p>
+Synchronized predicates may be used as wrappers to messages sent to objects that are not multi-threading aware. For example, assume a <code>random</code> object defining a <code>random/1</code> predicate that returns random numbers, using side-effects on its implementation. We can specify and define e.g. a <code>sync_random/1</code> predicate as follows:
+</p>
+<pre>
+:- synchronized(sync_random/1).
+
+sync_random(Random) :-
+    random::random(Random).
+</pre>
+<p>
+and then always use the <code>sync_random/1</code> predicate instead of the predicate <code>random/1</code> from threaded code.
+</p>
 
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: December 14, 2006</span>
+		<span>Last updated on: January 5, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="events.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="errors.html">next</a></span><br/>

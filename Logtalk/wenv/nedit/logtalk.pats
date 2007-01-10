@@ -40,7 +40,7 @@ nedit.highlightPatterns: Logtalk:1:0{\n\
 	Number:"[0-9]+(\.[0-9]+)?([eE][-+][0-9]+)?":::Numeric Const::\n\
 	String:"""":""""::String::\n\
 	String:"'":"'"::String::\n\
-	Built-in methods:"<(parameter|self|sender|this|current_predicate|predicate_property|abolish|asserta|assertz|retractall|retract|bagof|findall|forall|setof|before|after|expand_term|term_expansion|phrase|threaded_call|threaded_once|threaded_ignore|threaded_race|threaded_exit|threaded_peek|threaded_discard)(?=[(])":::Subroutine::\n\
+	Built-in methods:"<(parameter|self|sender|this|current_predicate|predicate_property|abolish|asserta|assertz|retractall|retract|bagof|findall|forall|setof|before|after|expand_term|term_expansion|phrase|threaded_call|threaded_once|threaded_ignore|threaded_race|threaded_exit|threaded_peek)(?=[(])":::Subroutine::\n\
 	Arithmetic operators:"<is>|\\+|\\*|\\-|/|=:=|=\\\\=|=\\<|\\>=|\\<|\\>":::Subroutine::\n\
 	Built-in predicates:"<(current_object|current_protocol|current_category|create_object|create_protocol|create_category|object_property|protocol_property|category_property|abolish_object|abolish_protocol|abolish_vategory|extends_object|extends_protocol|omplements_protocol|instantiates_class|specializes_class|imports_category|abolish_events|current_events|define_events|current_logtalk_flag|set_logtalk_flag|logtalk_compile|logtalk_load|logtalk_library_path|forall|retractall)(?=[(])":::Subroutine::\n\
 	Term unification:"=|\\\\=":::Subroutine::\n\

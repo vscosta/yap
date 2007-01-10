@@ -1,8 +1,8 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.1
+Release 2.29.2
 
-Copyright (c) 1998-2006 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
@@ -128,9 +128,9 @@ If you want to cite Logtalk in your publications, please consult the file
 
 11. CONTRIBUTIONS
 
-Contributions, constructive criticisms, code, and suggestions are always 
-welcome. If you want to contribute to this project, drop me a line to the 
-support address given above.
+Contributions, constructive criticisms, code, bug reports, and suggestions 
+are always welcome. If you want to contribute to this project, drop me a 
+line to the support address given above.
 
 
 Happy Logtalking!
