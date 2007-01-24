@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2006-12-31 01:50:34 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-01-24 09:57:25 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.218  2006/12/31 01:50:34  vsc
+* fix some bugs in call_cleanup: the result of action should not matter,
+* and !,fail would not wakeup the delayed goal.
+*
 * Revision 1.217  2006/12/30 03:25:44  vsc
 * call_cleanup/2 and 3
 *
@@ -4682,7 +4686,7 @@ Yap_absmi(int inp)
       /* enter write mode */
       BEGP(pt1);
       pt1 = H;
-      d0 = AbsPair(SREG);
+      d0 = AbsPair(pt1);
       BIND(pt0, d0, bind_glist_void_valx_write);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
