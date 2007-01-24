@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2006-12-27 01:32:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-01-24 10:01:38 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.202  2006/12/27 01:32:37  vsc
+* diverse fixes
+*
 * Revision 1.201  2006/12/13 16:10:14  vsc
 * several debugger and CLP(BN) improvements.
 *
@@ -3316,7 +3319,7 @@ all_envs(CELL *env_ptr)
     bp = H;
     H += 2;
     /* notice that MkIntegerTerm may increase the Heap */
-    bp[0] = MkIntegerTerm((Int)env_ptr[E_CP]);
+    bp[0] = MkIntegerTerm(LCL0-env_ptr);
     if (H >= ASP) {
       bp[1] = TermNil;
       return tf;
@@ -5739,6 +5742,7 @@ UnifyPredInfo(PredEntry *pe, int start_arg) {
       tname = MkAtomTerm(NameOfFunctor(f));
     }
   }
+  
   return Yap_unify(XREGS[start_arg], tmod) &&
     Yap_unify(XREGS[start_arg+1],tname) &&
     Yap_unify(XREGS[start_arg+2],MkIntegerTerm(arity));
@@ -5746,13 +5750,42 @@ UnifyPredInfo(PredEntry *pe, int start_arg) {
 
 
 static Int
+ClauseId(yamop *ipc, PredEntry *pe)
+{
+  if (!ipc)
+    return 0;
+  return find_code_in_clause(pe, ipc, NULL, NULL);
+}
+
+static Int
 p_env_info(void)
 {
   PredEntry *pe;
-  yamop *env_cp = (yamop *)IntegerOfTerm(Deref(ARG1));
-
+  CELL *env = LCL0-IntegerOfTerm(Deref(ARG1));
+  yamop *env_cp;
+  Term env_b, taddr;
+  
+  if (!env)
+    return FALSE;
+  env_b = MkIntegerTerm((Int)(LCL0-(CELL *)env[E_CB]));
+  env_cp = (yamop *)env[E_CP];
+  
   pe = PREVOP(env_cp,sla)->u.sla.p0;
-  return UnifyPredInfo(pe, 2);
+  taddr = MkIntegerTerm((Int)env);
+  return Yap_unify(ARG3,MkIntegerTerm((Int)env_cp)) &&
+    Yap_unify(ARG2, taddr) &&
+    Yap_unify(ARG4, env_b);
+}
+
+static Int
+p_cpc_info(void)
+{
+  PredEntry *pe;
+  yamop *ipc = (yamop *)IntegerOfTerm(Deref(ARG1));
+
+  pe = PREVOP(ipc,sla)->u.sla.p0;
+  return UnifyPredInfo(pe, 2) &&
+    Yap_unify(ARG5,MkIntegerTerm(ClauseId(ipc,pe)));
 }
 
 static Int
@@ -5762,8 +5795,10 @@ p_choicepoint_info(void)
   PredEntry *pe;
   int go_on = TRUE;
   yamop *ipc = cptr->cp_ap;
-  Term t;
-
+  yamop *ncl = NULL;
+  Term t, taddr;
+  
+  taddr = MkIntegerTerm((Int)cptr);
   while (go_on) {
     op_numbers opnum = Yap_op_from_opcode(ipc->opc);
 
@@ -5829,15 +5864,18 @@ p_choicepoint_info(void)
     case _count_trust_logical:
     case _profiled_retry_logical:
     case _profiled_trust_logical:
+      ncl = ipc->u.lld.d->ClCode;
       pe = ipc->u.lld.d->ClPred;
       t = BuildActivePred(pe, cptr->cp_args);
       break;
     case _or_else:
       pe = ipc->u.sla.p0;
+      ncl = ipc;
       t = Yap_MkNewApplTerm(FunctorOr, 2);
       break;
     case _or_last:
       pe = ipc->u.p.p;
+      ncl = ipc;
       t = Yap_MkNewApplTerm(FunctorOr, 2);
       break;
     case _retry2:
@@ -5846,6 +5884,8 @@ p_choicepoint_info(void)
       pe = NULL;
       t = TermNil;
       ipc = NEXTOP(ipc,l);
+      if (!ncl)
+	ncl = ipc->u.ld.d;
       go_on = TRUE;
       break;
     case _jump:
@@ -5856,6 +5896,7 @@ p_choicepoint_info(void)
       break;
     case _retry_c:
     case _retry_userc:
+      ncl = ipc->u.ld.d;
       pe = ipc->u.lds.p;
       t = BuildActivePred(pe, cptr->cp_args);
       break;
@@ -5863,6 +5904,7 @@ p_choicepoint_info(void)
     case _count_retry:
       pe = NULL;
       t = TermNil;
+      ncl = ipc->u.ld.d;
       ipc = NEXTOP(ipc,p);
       go_on = TRUE;
       break;
@@ -5876,6 +5918,8 @@ p_choicepoint_info(void)
     case _profiled_retry_and_mark:
     case _retry:
     case _trust:
+      if (!ncl)
+	ncl = ipc->u.ld.d;
       pe = ipc->u.ld.p;
       t = BuildActivePred(pe, cptr->cp_args);
       break;
@@ -5893,13 +5937,17 @@ p_choicepoint_info(void)
       return FALSE;
     }
   }
-  return UnifyPredInfo(pe, 2) &&
-    Yap_unify(ARG5,t);
+  return UnifyPredInfo(pe, 3) &&
+    Yap_unify(ARG2, taddr) &&
+    Yap_unify(ARG6,t) &&
+    Yap_unify(ARG7,MkIntegerTerm(ClauseId(ncl,pe)));
 }
 
 void 
 Yap_InitCdMgr(void)
 {
+  Term cm = CurrentModule;
+
   Yap_InitCPred("$compile_mode", 2, p_compile_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$start_consult", 3, p_startconsult, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$show_consult_level", 1, p_showconslultlev, SafePredFlag|HiddenPredFlag);
@@ -5953,10 +6001,13 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$static_pred_statistics", 5, p_static_pred_statistics, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$p_nth_clause", 4, p_nth_clause, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$program_continuation", 3, p_program_continuation, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$all_choicepoints", 1, p_all_choicepoints, HiddenPredFlag);
-  Yap_InitCPred("$all_envs", 1, p_all_envs, HiddenPredFlag);
-  Yap_InitCPred("$choicepoint_info", 5, p_choicepoint_info, HiddenPredFlag);
-  Yap_InitCPred("$env_info", 4, p_env_info, HiddenPredFlag);
+  CurrentModule = HACKS_MODULE;
+  Yap_InitCPred("current_choicepoints", 1, p_all_choicepoints, HiddenPredFlag);
+  Yap_InitCPred("current_continuations", 1, p_all_envs, HiddenPredFlag);
+  Yap_InitCPred("choicepoint", 7, p_choicepoint_info, HiddenPredFlag);
+  Yap_InitCPred("continuation", 4, p_env_info, HiddenPredFlag);
+  Yap_InitCPred("cp_to_predicate", 5, p_cpc_info, HiddenPredFlag);
+  CurrentModule = cm;
   Yap_InitCPred("$predicate_erased_statistics", 5, p_predicate_erased_statistics, SyncPredFlag);
 #ifdef DEBUG
   Yap_InitCPred("$predicate_live_cps", 4, p_predicate_lu_cps, 0L);

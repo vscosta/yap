@@ -1028,6 +1028,9 @@ InitCodes(void)
     at = Yap_FullLookupAtom("$spy");
     pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
     Yap_heap_regs->spy_code = pred;
+    Yap_heap_regs->env_for_trustfail_code.p =
+      Yap_heap_regs->env_for_trustfail_code.p0 =
+      RepPredProp(PredPropByAtom(Yap_FullLookupAtom("fail"),PROLOG_MODULE));
   }
 #if DEBUG
   Yap_heap_regs->new_cps = 0;

@@ -4355,6 +4355,17 @@ format_has_tabs(const char *seq)
   return FALSE;
 }
 
+static wchar_t
+base_dig(Int dig, Int ch)
+{
+  if (dig < 10) 
+    return dig+'0';
+  else if (ch == 'r')
+    return (dig-10)+'a';
+  else /* ch == 'R' */
+    return (dig-10)+'A';
+}
+
 static Int
 format(volatile Term otail, volatile Term oargs, int sno)
 {
@@ -4604,7 +4615,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    goto do_type_int_error;
 
 	  {
-	    Int siz = 0, i;
+	    Int siz = 0;
 	    char *ptr = tmp1;
 
 	    if (IsIntegerTerm(t)) {
@@ -4670,7 +4681,8 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	  case 'r':
 	  case 'R':
 	    {
-	      Int numb, radix, div = 1;
+	      Int numb, radix, div = 1, size = 1, i;
+	      wchar_t och;
 
 	      /* print a decimal, using weird . stuff */
 	      if (targ > tnum-1)
@@ -4691,23 +4703,23 @@ format(volatile Term otail, volatile Term oargs, int sno)
 		numb = -numb;
 		f_putc(sno, (int) '-');
 	      }
-	      i = numb;
-	      while (i > 0) {
-		i /= radix;
+	      while (div <  numb) {
 		div *= radix;
+		size++;
 	      }
-	      div /= radix;
-	      while (numb) {
+	      if (div != numb) {
+		div /= radix;
+		size--;
+	      }
+	      for (i = 1; i < size; i++) {
 		Int dig = numb/div;
-		if (dig < 10) 
-		  f_putc(sno, (int)(dig+'0'));
-		else if (ch == 'r')
-		  f_putc(sno, (int)((dig-10)+'a'));
-		else
-		  f_putc(sno, (int)((dig-10)+'A'));
+		och = base_dig(dig, ch);
+		f_putc(sno, och);
 		numb %= div;
 		div /= radix;
 	      }
+	      och = base_dig(numb, ch);
+	      f_putc(sno, och);
 	      break;
 	    }
 	  case 's':

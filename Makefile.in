@@ -528,7 +528,7 @@ all: startup
 	@INSTALL_DLLS@ (cd library/yap2swi; make)
 	@INSTALL_DLLS@ (cd library/Tries; make)
 	@INSTALL_DLLS@ (cd library/lammpi; make)
-	@INSTALL_DLLS@ (cd library/matrices; make)
+	@INSTALL_DLLS@ (cd library/matrix; make)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; make)
 
 startup: yap@EXEC_SUFFIX@ $(PL_SOURCES)

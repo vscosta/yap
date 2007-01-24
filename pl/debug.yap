@@ -793,7 +793,7 @@ debugging :-
 	'$delete_if_there'(L, T, LN).
 
 '$show_choicepoint_stack' :-
-	'$all_choicepoints'(Cps),
+	yap_hacks:current_choicepoints(Cps),
 	length(Cps,Level),
 	'$debug_show_cps'(Cps,Level).
 
@@ -804,7 +804,7 @@ debugging :-
 	'$debug_show_cps'(Cps, Level1).
 
 '$debug_show_cp'(C, Level) :-
-	'$choicepoint_info'(C,Module,Name,Arity,Goal),
+	yap_hacks:choicepoint(C,_,Module,Name,Arity,Goal,_),
 	'$continue_debug_show_cp'(Module,Name,Arity,Goal,Level).
 
 '$continue_debug_show_cp'(prolog,'$do_live',0,(_;_),Level) :- !,
@@ -831,26 +831,25 @@ debugging :-
 	format(user_error,'      [~d] ~q~n',[Level,G]).
 	
 '$debugger_deterministic_goal'(G) :-
-	'$all_choicepoints'(CPs),
+	yap_hacks:current_choicepoints(CPs),
 	'$debugger_skip_traces'(CPs,CPs1),
 	'$debugger_skip_loop_spy2'(CPs1,[Catch|_]),
-	'$choicepoint_info'(Catch,prolog,'$catch',3,'$catch'(_,'$loop_spy_event'(_,_,G,_,_),_)).
+	yap_hacks:choicepoint(Catch,_,prolog,'$catch',3,'$catch'(_,'$loop_spy_event'(_,_,G,_,_),_),_).
 
 
 '$cps'([CP|CPs]) :-
-    '$choicepoint_info'(CP,A,B,C,D),
-    write(A:B:C:D:CPs),nl,
+    yap_hacks:choicepoint(CP,_,_,_,_,_,_),
     '$cps'(CPs).
 '$cps'([]).
 
 
 '$debugger_skip_traces'([CP|CPs],CPs1) :-
-	'$choicepoint_info'(CP,prolog,'$trace',4,(_;_)), !,
+	yap_hacks:choicepoint(CP,_,prolog,'$trace',4,(_;_),_), !,
 	'$debugger_skip_traces'(CPs,CPs1).
 '$debugger_skip_traces'(CPs,CPs).
 
 '$debugger_skip_loop_spy2'([CP|CPs],CPs1) :-
-	'$choicepoint_info'(CP,prolog,'$loop_spy2',5,(_;_)), !,
+	yap_hacks:choicepoint(CP,_,prolog,'$loop_spy2',5,(_;_),_), !,
 	'$debugger_skip_loop_spy2'(CPs,CPs1).
 '$debugger_skip_loop_spy2'(CPs,CPs).
 

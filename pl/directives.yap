@@ -563,7 +563,7 @@ yap_flag(stack_dump_on_error,OUT) :-
 	'$access_yap_flags'(17,X),
 	'$transl_to_on_off'(X,OUT).
 yap_flag(stack_dump_on_error,on) :- !,
-	'$transl_to_on_off'(X,on),
+'$transl_to_on_off'(X,on),
 	'$set_yap_flags'(17,X).
 yap_flag(stack_dump_on_error,off) :- !,
 	'$transl_to_on_off'(X,off),

@@ -165,9 +165,10 @@ read_sig.
 
 
 '$protected_env' :-
-	'$all_envs'(Envs),
+	yap_hacks:current_continuations([Env|Envs]),
 %'$envs'(Envs),
-	'$skim_envs'(Envs,Mod,Name,Arity),
+	yap_hacks:continuation(Env,_,Addr,_),
+	'$skim_envs'(Envs,Addr,Mod,Name,Arity),
 	\+ '$external_call_seen'(Mod,Name,Arity).
 
 
@@ -177,13 +178,13 @@ read_sig.
 % 	 '$envs'(Envs).
 % '$envs'([]).
 
-
-'$skim_envs'([Env|Envs],Mod,Name,Arity) :-
-        '$env_info'(Env,Mod0,Name0,Arity0),
+'$skim_envs'([Env|Envs],Addr0,Mod,Name,Arity) :-
+	yap_hacks:cp_to_predicate(Addr0, Mod0, Name0, Arity0, _ClId),
 	'$debugger_env'(Mod0,Name0,Arity0), !,
-	'$skim_envs'(Envs,Mod,Name,Arity).
-'$skim_envs'([Env|Envs],Mod,Name,Arity) :-
-        '$env_info'(Env,Mod,Name,Arity).
+        yap_hacks:continuation(Env,_,Addr,_),
+	'$skim_envs'(Envs,Addr,Mod,Name,Arity).
+'$skim_envs'(_,Addr,Mod,Name,Arity) :-
+	yap_hacks:cp_to_predicate(Addr, Mod, Name, Arity, _ClId).
 
 '$debugger_env'(prolog,'$start_creep',1).
 
