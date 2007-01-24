@@ -27,7 +27,7 @@
 <div class="bottom-right"><span class="page"/></div>
 
 <div class="title-page">
-	<p class="title">Logtalk 2.29.2</p>
+	<p class="title">Logtalk 2.29.3</p>
 	<p class="sub-title">Reference Manual</p>
 	<p class="credits">Copyright &copy; Paulo Moura</p>
 	<p class="credits">
@@ -35,7 +35,7 @@
 		<br/>
 		<span>http://logtalk.org/</span>
 	</p>
-	<p class="date">Last updated on December 14, 2006</p>
+	<p class="date">Last updated on January 15, 2007</p>
 </div>
 
 <div class="toc">

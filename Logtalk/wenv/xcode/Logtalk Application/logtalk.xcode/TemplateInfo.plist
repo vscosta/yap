@@ -1,6 +1,5 @@
 {
 	FilesToRename = {
-		"logtalk.loader" = "«PROJECTNAMEASIDENTIFIER».loader";
 	};
     FilesToMacroExpand = (
 		NOTES,

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.2
+Release 2.29.3
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -69,12 +69,12 @@ no
 
 | ?- space_time(2,3,4,7)::distance(D).
 
-D = 5.385164807134504 ? 
+D = 5.385164807134504
 yes
 
 | ?- space_time(2,3,4,7)::time(T).
 
-T = 7 ? 
+T = 7
 yes
 
 

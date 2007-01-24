@@ -34,8 +34,8 @@ http://www.csci.csusb.edu/dick/cs320/prolog/Potions.htm
 		P2 \== poison,
 		select(P3, H4, H5),
 		P3 \== poison,											% third clue
-		P2 == P6,
 		select(P6, H5, H6),										% fourth clue
+		P2 == P6,
 		select(P4, H6, H7),
 		select(P5, H7, []),
 		two_pairs_poison_wine([P1, P2, P3, P4, P5, P6, P7]).	% first clue

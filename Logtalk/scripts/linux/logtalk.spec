@@ -1,11 +1,11 @@
 Name: logtalk
 Summary: Logtalk - Open source object-oriented extension to Prolog
-Version: 2.29.2
+Version: 2.29.3
 Release: 1
 License: Artistic License 2.0
 Group: Development/Languages
 Packager: Paulo Moura <pmoura@logtalk.org>
-Source: http://logtalk.org/files/lgt2292.tgz
+Source: http://logtalk.org/files/lgt2293.tgz
 BuildArchitectures: noarch
 URL: http://logtalk.org/
 Prefix: /usr/local
@@ -13,23 +13,23 @@ AutoReqProv: no
 %description
 Logtalk is an open source object-oriented extension to the Prolog programming language. Integrating logic programming with object-oriented and event-driven programming, it is compatible with most Prolog compilers. It supports both prototypes and classes. In addition, it supports component-based programming through category-based composition.
 %prep
-%setup -n lgt2292
+%setup -n lgt2293
 %build
 %install
-rm -rf /usr/local/lgt2292
+rm -rf /usr/local/lgt2293
 rm -f /usr/local/logtalk
-mkdir /usr/local/lgt2292
-cp -R * /usr/local/lgt2292
+mkdir /usr/local/lgt2293
+cp -R * /usr/local/lgt2293
 cd /usr/local
-chmod -R go-w,a+r lgt2292
-chmod a+x lgt2292
-chmod a+x lgt2292/scripts/*.sh
-chmod a-x lgt2292/scripts/*.js
-chmod a+x lgt2292/scripts/linux/*.sh
-chmod a+x lgt2292/scripts/macosx/postflight
-chmod a+x lgt2292/xml/*.sh
-chmod a-x lgt2292/xml/*.js
-ln -sf lgt2292 logtalk
+chmod -R go-w,a+r lgt2293
+chmod a+x lgt2293
+chmod a+x lgt2293/scripts/*.sh
+chmod a-x lgt2293/scripts/*.js
+chmod a+x lgt2293/scripts/linux/*.sh
+chmod a+x lgt2293/scripts/macosx/postflight
+chmod a+x lgt2293/xml/*.sh
+chmod a-x lgt2293/xml/*.js
+ln -sf lgt2293 logtalk
 cd bin
 ln -sf ../logtalk/scripts/cplgtdirs.sh cplgtdirs
 ln -sf ../logtalk/xml/lgt2pdf.sh lgt2pdf
@@ -38,25 +38,25 @@ ln -sf ../logtalk/xml/lgt2xml.sh lgt2xml
 %clean
 %files
 %defattr(-,root,users)
-%doc /usr/local/lgt2292/BIBLIOGRAPHY.bib
-%doc /usr/local/lgt2292/CUSTOMIZE.txt
-%doc /usr/local/lgt2292/INSTALL.txt
-%doc /usr/local/lgt2292/LICENSE.txt
-%doc /usr/local/lgt2292/QUICK_START.txt
-%doc /usr/local/lgt2292/README.txt
-%doc /usr/local/lgt2292/RELEASE_NOTES.txt
-%doc /usr/local/lgt2292/UPGRADING.txt
-/usr/local/lgt2292/compiler
-/usr/local/lgt2292/configs
-/usr/local/lgt2292/contributions
-/usr/local/lgt2292/examples
-/usr/local/lgt2292/libpaths
-/usr/local/lgt2292/library
-%docdir /usr/local/lgt2292/manuals
-/usr/local/lgt2292/manuals
-/usr/local/lgt2292/scripts
-/usr/local/lgt2292/wenv
-/usr/local/lgt2292/xml
+%doc /usr/local/lgt2293/BIBLIOGRAPHY.bib
+%doc /usr/local/lgt2293/CUSTOMIZE.txt
+%doc /usr/local/lgt2293/INSTALL.txt
+%doc /usr/local/lgt2293/LICENSE.txt
+%doc /usr/local/lgt2293/QUICK_START.txt
+%doc /usr/local/lgt2293/README.txt
+%doc /usr/local/lgt2293/RELEASE_NOTES.txt
+%doc /usr/local/lgt2293/UPGRADING.txt
+/usr/local/lgt2293/compiler
+/usr/local/lgt2293/configs
+/usr/local/lgt2293/contributions
+/usr/local/lgt2293/examples
+/usr/local/lgt2293/libpaths
+/usr/local/lgt2293/library
+%docdir /usr/local/lgt2293/manuals
+/usr/local/lgt2293/manuals
+/usr/local/lgt2293/scripts
+/usr/local/lgt2293/wenv
+/usr/local/lgt2293/xml
 /usr/local/logtalk
 /usr/local/bin/cplgtdirs
 /usr/local/bin/lgt2pdf

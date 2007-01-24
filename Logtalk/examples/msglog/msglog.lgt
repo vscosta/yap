@@ -1,11 +1,12 @@
 
-:- object(msglog).
+:- object(msglog,
+	implements(monitoring)).
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2003/03/04,
+		date is 2007/01/13,
 		comment is 'Monitor for recording, replaying, and saving user messages.']).
 
 

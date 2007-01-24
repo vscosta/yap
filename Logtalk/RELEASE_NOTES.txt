@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.2
+Release 2.29.3
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,25 @@ Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.29.3 - January 15, 2007
+
+	Corrected a bug in the Logtalk compiler optimizer code which was 
+	discarding some declaration and definition catchall clauses needed 
+	by the Logtalk built-in database methods when there is no initial 
+	declaration and definition for the referenced dynamic predicates.
+	Thanks to Parker Jones for the bug report.
+
+	Corrected a bug in the compilation of empty, standalone protocols 
+	and categories.
+
+	Updated the "make_xsblgt.sh" integration script to workaround 
+	the lack of support in XSB for using environment variables in 
+	the argument of the reconsult/1 predicate.
+
+	Corrected a bug in the "potions.lgt" example puzzle that prevented 
+	its solution of being found.
 
 
 2.29.2 - January 10, 2007

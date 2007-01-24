@@ -100,6 +100,9 @@ Note that, in this case, the <code>threaded_call/1</code> and the <code>threaded
 <p>
 Calls to the <code>threaded_exit/1</code> predicate block the caller until the object's thread receives the reply to the asynchronous call. The predicate <code>threaded_peek/1</code> may be used to check if a reply is already available without removing it from the thread queue. The <code>threaded_peek/1</code> predicate call succeeds or fails immediately without blocking the caller. However, keep in mind that repeated use of this predicate is equivalent to polling a thread queue, which may severely hurt performance.
 </p>
+<p>
+Be careful when using the <code>threaded_exit/1</code> predicate inside failure-driven loops. When all the solutions have been found (and the thread generating them is threfore terminated), re-calling the predicate will block the calling thread, waiting for a reply that most likely will never arrive.
+</p>
 
 <h2>One-way asynchronous calls<a id="threads_ignore"></a></h2>
 
@@ -196,7 +199,7 @@ and then always use the <code>sync_random/1</code> predicate instead of the pred
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: January 5, 2007</span>
+		<span>Last updated on: January 15, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="events.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="errors.html">next</a></span><br/>
