@@ -146,6 +146,8 @@ rational_tree(Term d0) {
     CELL *pt0 = RepAppl(d0);
     Functor f = (Functor)(*pt0);
 
+    if (IsExtensionFunctor(f))
+      return FALSE;
     return rational_tree_loop(pt0, pt0+ArityOfFunctor(f), TO_VISIT);
   } else
     return FALSE;
