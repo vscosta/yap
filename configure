@@ -3294,7 +3294,7 @@ test -n "$target_alias" &&
   program_prefix=${target_alias}-
 
 cat >>confdefs.h <<_ACEOF
-#define HOST_ALIAS "${host}"
+#define HOST_ALIAS "${target}"
 _ACEOF
 
 
@@ -3330,8 +3330,7 @@ then
         ;;
         sparc*)
 	  case "$target_os" in
-           *solaris2-9*)
-             CFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFLAGS"
+           *solaris2-9*)	             CFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFLAGS"
             ;;
           esac
         ;;
@@ -7656,7 +7655,18 @@ then
     DYNLIB_LD="gcc -dynamiclib"
     ;;
   *)
-    LDFLAGS="$LDFLAGS -Wl,-R,$prefix/lib"
+       case "$target_cpu" in
+        i*86*)
+        JAVA_TARGET=i386
+        ;;
+        x86*)
+        JAVA_TARGET=amd64
+        ;;
+        sparc*)
+        JAVA_TARGET=sparc
+        ;;
+       esac
+    LDFLAGS="$LDFLAGS -Wl,-R,$prefix/lib  -Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET"
     DYNYAPLIB=libYap"$SHLIB_SUFFIX"
     YAPLIB="$DYNYAPLIB"
     DYNLIB_LD="$SHLIB_LD"

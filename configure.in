@@ -240,7 +240,7 @@ eval "AC_DEFINE(DefTrailSpace,($yap_cv_trail_space))"
 
 AC_CANONICAL_SYSTEM
 
-AC_DEFINE_UNQUOTED(HOST_ALIAS,"${host}")
+AC_DEFINE_UNQUOTED(HOST_ALIAS,"${target}")
 
 dnl condor does not like dynamic linking on Linux, DEC, and HP-UX platforms.
 if test "$use_condor" = yes 
@@ -274,7 +274,7 @@ then
         ;;
         sparc*)
 	  case "$target_os" in
-           *solaris[2-9]*)
+           *solaris[2-9]*)	dnl 
              CFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFLAGS"
             ;;
           esac
@@ -787,7 +787,18 @@ then
     DYNLIB_LD="gcc -dynamiclib"
     ;;
   *)
-    LDFLAGS="$LDFLAGS -Wl,-R,$prefix/lib"
+       case "$target_cpu" in
+        i*86*)
+        JAVA_TARGET=i386
+        ;;
+        x86*)
+        JAVA_TARGET=amd64
+        ;;
+        sparc*)
+        JAVA_TARGET=sparc
+        ;;
+       esac
+    LDFLAGS="$LDFLAGS -Wl,-R,$prefix/lib  -Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET"
     DYNYAPLIB=libYap"$SHLIB_SUFFIX"
     YAPLIB="$DYNYAPLIB"
     DYNLIB_LD="$SHLIB_LD"

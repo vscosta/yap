@@ -1,4 +1,4 @@
-/*  $Id: jpl.yap,v 1.6 2006-05-19 13:48:11 vsc Exp $
+/*  $Id: jpl.yap,v 1.7 2007-01-24 17:28:28 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -4273,7 +4273,7 @@ load_jpl_lib :-
 	jpl_java_home(JavaHome),
 	fetch_arch(Arch),
 	gen_jvm_lib(JavaHome,Arch,JPL,JLibs),
-	load_foreign_files(JPL, JLibs, jpl_install), !.
+	load_foreign_files(JPL, JLibs, jpl_install), write(ok),nl, !.
 
 fetch_arch(Arch) :-
 	current_prolog_flag(host_type,Name),
@@ -4289,16 +4289,19 @@ gen_arch([0'/,0'u,0's,0'r|_],mac).
 
 gen_jvm_lib(_,mac,[jpl],[]) :- !.
 gen_jvm_lib(JavaHome,Arch,[jpl], [JLib]) :-
-	atom_concat([JavaHome,'/jre/lib/',Arch,'/client/libjvm.so'],JLib),
+	get_jvm_lib(JavaHome, Arch, 'libjvm.so', JLib).
+	
+get_jvm_lib(JavaHome, Arch, Lib, JLib) :-
+	atom_concat([JavaHome,'/jre/lib/',Arch,'/client/',Lib],JLib),
 	exists(JLib), !.
-gen_jvm_lib(JavaHome,Arch,[jpl], [JLib]) :-
-	atom_concat([JavaHome,'/jre/lib/',Arch,'/server/libjvm.so'],JLib),
+get_jvm_lib(JavaHome,Arch, Lib, JLib) :-
+	atom_concat([JavaHome,'/jre/lib/',Arch,'/server/',Lib],JLib),
 	exists(JLib), !.
-gen_jvm_lib(JavaHome,Arch,[jpl], [JLib]) :-
-	atom_concat([JavaHome,'/jre/lib/',Arch,'/classic/libjvm.so'],JLib),
+get_jvm_lib(JavaHome,Arch, Lib, JLib) :-
+	atom_concat([JavaHome,'/jre/lib/',Arch,'/classic/',Lib],JLib),
 	exists(JLib), !.
-gen_jvm_lib(JavaHome,Arch,[jpl], [JLib]) :-
-	atom_concat([JavaHome,'/jre/lib/',Arch,'/libjvm.so'],JLib),
+get_jvm_lib(JavaHome, Arch, Lib, JLib) :-
+	atom_concat([JavaHome,'/jre/lib/',Arch,'/',Lib],JLib),
 	exists(JLib), !.
 
 

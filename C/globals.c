@@ -1241,7 +1241,7 @@ p_nb_queue_enqueue(void)
       gsiz = 1024;
     }
     ARG3 = to;
-    fprintf(stderr,"growing %ld cells\n",gsiz);
+    fprintf(stderr,"growing %ld cells\n",(unsigned long int)gsiz);
     if (!GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3)) {
       Yap_Error(OUT_OF_STACK_ERROR, arena, Yap_ErrorMessage);
       return 0L;
@@ -2044,18 +2044,18 @@ p_nb_beam_check(void)
     if (Yap_compare_terms(pt[2*((i+1)/2-1)],pt[2*i]) > 0) {
       Yap_DebugPlWrite(pt[2*((i+1)/2-1)]); fprintf(stderr,"\n");
       Yap_DebugPlWrite(pt[2*i]); fprintf(stderr,"\n");
-      fprintf(stderr,"Error at %ld\n",i);
+      fprintf(stderr,"Error at %ld\n",(unsigned long int)i);
       return FALSE;
     }
     back = IntegerOfTerm(pt[2*i+1]);
     if (IntegerOfTerm(pt2[3*back+1]) != i) {
-      fprintf(stderr,"Link error at %ld\n",i);
+      fprintf(stderr,"Link error at %ld\n",(unsigned long int)i);
       return FALSE;
     }
   }
   for (i = 1; i < qsz; i++) {
     if (Yap_compare_terms(pt2[3*((i+1)/2-1)],pt2[3*i]) < 0) {
-      fprintf(stderr,"Error at sec %ld\n",i);
+      fprintf(stderr,"Error at sec %ld\n",(unsigned long int)i);
       Yap_DebugPlWrite(pt2[3*((i+1)/2-1)]); fprintf(stderr,"\n");
       Yap_DebugPlWrite(pt2[3*i]); fprintf(stderr,"\n");
       return FALSE;
