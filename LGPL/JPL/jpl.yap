@@ -1,4 +1,4 @@
-/*  $Id: jpl.yap,v 1.7 2007-01-24 17:28:28 vsc Exp $
+/*  $Id: jpl.yap,v 1.8 2007-01-24 17:29:22 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -4273,7 +4273,7 @@ load_jpl_lib :-
 	jpl_java_home(JavaHome),
 	fetch_arch(Arch),
 	gen_jvm_lib(JavaHome,Arch,JPL,JLibs),
-	load_foreign_files(JPL, JLibs, jpl_install), write(ok),nl, !.
+	load_foreign_files(JPL, JLibs, jpl_install), !.
 
 fetch_arch(Arch) :-
 	current_prolog_flag(host_type,Name),
