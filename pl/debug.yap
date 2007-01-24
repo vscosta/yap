@@ -365,8 +365,6 @@ debugging :-
 % just fail here, don't really need to call debugger, the user knows what he
 % wants to do
 '$loop_fail'(_GoalNumber, _G, _Module, _InControl) :-
-	write(_G),nl,
-	yap_hacks:stack_dump,
 	'$continue_debugging',
 	fail.
 
