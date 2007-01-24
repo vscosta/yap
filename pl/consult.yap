@@ -50,7 +50,7 @@ load_files(Files,Opts) :-
 '$process_lf_opts'([Opt|Opts],Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,Files,Call) :-
 	'$process_lf_opt'(Opt,Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,Files,Call), !, 
 	'$process_lf_opts'(Opts,Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,Files,Call).
-'$process_lf_opts'([Opt|Opts],_,_,_,_,_,_,_,_,_,_,_,Call) :-
+'$process_lf_opts'([Opt|_],_,_,_,_,_,_,_,_,_,_,_,Call) :-
 	'$do_error'(domain_error(unimplemented_option,Opt),Call).
 
 '$process_lf_opt'(autoload(true),_,InfLevel,_,_,_,_,_,_,_,_,_,_) :-
@@ -70,7 +70,7 @@ load_files(Files,Opts) :-
 	( var(Encoding) ->
 	    '$do_error'(instantiation_error,Call)
 	;
-	    '$valid_encoding'(Enc, EncCode) ->
+	    '$valid_encoding'(Encoding, EncCode) ->
 	    true
 	;	
 	    '$do_error'(domain_error(io_mode,encoding(Encoding)),Call)
@@ -81,11 +81,11 @@ load_files(Files,Opts) :-
 '$process_lf_opt'(if(changed),_,_,_,changed,_,_,_,_,_,_,_,_).
 '$process_lf_opt'(if(true),_,_,_,true,_,_,_,_,_,_,_,_).
 '$process_lf_opt'(if(not_loaded),_,_,_,not_loaded,_,_,_,_,_,_,_,_).
-'$process_lf_opt'(imports(all),_,_,_,_,_,_,_,_,_,_,_).
+'$process_lf_opt'(imports(all),_,_,_,_,_,_,_,_,_,_,_,_).
 '$process_lf_opt'(imports(Imports),_,_,_,_,_,Imports,_,_,_,_,_,_).
 '$process_lf_opt'(qcompile(true),_,_,_,_,true,_,_,_,_,_,_,Call) :-
 	'$do_error'(domain_error(unimplemented_option,qcompile),Call).
-'$process_lf_opt'(qcompile(false),_,_,_,_,false,_,_,_,_,_,_).
+'$process_lf_opt'(qcompile(false),_,_,_,_,false,_,_,_,_,_,_,_).
 '$process_lf_opt'(silent(true),Silent,silent,_,_,_,_,_,_,_,_,_,_) :-
 	( get_value('$lf_verbose',Silent) -> true ;  Silent = informational),
 	set_value('$lf_verbose',silent).
@@ -93,7 +93,7 @@ load_files(Files,Opts) :-
 '$process_lf_opt'(silent(false),_,_,_,_,_,_,_,_,_,_,_,_).
 '$process_lf_opt'(consult(reconsult),_,_,_,_,_,_,_,_,_,reconsult,_,_).
 '$process_lf_opt'(consult(consult),_,_,_,_,_,_,_,_,_,consult,_,_).
-'$process_lf_opt'(stream(Stream),_,_,_,_,_,_,Stream,_,_,_,Files,_) :-
+'$process_lf_opt'(stream(Stream),_,_,_,_,_,_,Stream,_,_,_,Files,Call) :-
 /*	( '$stream'(Stream) -> true ;  '$do_error'(domain_error(stream,Stream),Call) ), */
 	( atom(Files) -> true ;  '$do_error'(type_error(atom,Files),Call) ).
 
@@ -116,13 +116,13 @@ load_files(Files,Opts) :-
 '$lf'([F|Fs], Mod,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,UseModule) :- !,
 	'$lf'(F,Mod,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,_),
 	'$lf'(Fs, Mod,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,Reconsult,UseModule).
-'$lf'(X, Mod, Call,InfLevel,_,Changed,CompilationMode,Imports,Stream,_,Reconsult,SkipUnixComments,UseModule) :-
+'$lf'(_, Mod, _,InfLevel,_,_,CompilationMode,Imports,Stream,_,Reconsult,SkipUnixComments,UseModule) :-
         nonvar(Stream), !,
-	'$do_lf'(X, Mod, Stream, InfLevel,CompilationMode,Imports,SkipUnixComments,Reconsult,UseModule).
-'$lf'(user, Mod, Call,InfLevel,_,Changed,CompilationMode,Imports,_,_,SkipUnixComments,Reconsult,UseModule) :- !,
-	'$do_lf'(user_input, Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,Reconsult,UseModule).
-'$lf'(user_input, Mod, Call,InfLevel,_,Changed,CompilationMode,Imports,_,_,SkipUnixComments,Reconsult,UseModule) :- !,
-	'$do_lf'(user_input, Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,Reconsult,UseModule).
+	'$do_lf'(Mod, Stream, InfLevel,CompilationMode,Imports,SkipUnixComments,Reconsult,UseModule).
+'$lf'(user, Mod, _,InfLevel,_,_,CompilationMode,Imports,_,_,SkipUnixComments,Reconsult,UseModule) :- !,
+	'$do_lf'(Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,Reconsult,UseModule).
+'$lf'(user_input, Mod, _,InfLevel,_,_,CompilationMode,Imports,_,_,SkipUnixComments,Reconsult,UseModule) :- !,
+	'$do_lf'(Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,Reconsult,UseModule).
 '$lf'(X, Mod, Call, InfLevel,_,Changed,CompilationMode,Imports,_,Enc,SkipUnixComments,Reconsult,UseModule) :-
 	'$find_in_path'(X, Y, Call),
 	'$open'(Y, '$csult', Stream, 0, Enc), !,
@@ -139,8 +139,8 @@ load_files(Files,Opts) :-
 	'$file_loaded'(Stream, Mod, Imports), !.
 '$start_lf'(_, Mod, Stream, _, _, Imports, changed, _, _, _) :-
 	'$file_unchanged'(Stream, Mod, Imports), !.
-'$start_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, _, SkipUnixComments, Reconsult, UseModule) :-
-	'$do_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, SkipUnixComments, Reconsult, UseModule).
+'$start_lf'(_, Mod, Stream, InfLevel, CompilationMode, Imports, _, SkipUnixComments, Reconsult, UseModule) :-
+	'$do_lf'(Mod, Stream, InfLevel, CompilationMode, Imports, SkipUnixComments, Reconsult, UseModule).
 
 '$close_lf'(Silent) :- 
 	nonvar(Silent), !,
@@ -169,7 +169,7 @@ consult(Fs) :-
 	'$access_yap_flags'(8, 2), % SICStus Prolog compatibility
 	!,
 	'$load_files'(Module:Fs,[],Fs).
-'$consult'(Fs, Module) :- var(V), !,
+'$consult'(Fs, Module) :-
 	'$load_files'(Module:Fs,[consult(consult)],Fs).
 
 reconsult(Fs) :-
@@ -184,7 +184,7 @@ use_module(F,Is) :-
 use_module(M,F,Is) :-
 	'$use_module'(M,F,Is).
 
-'$use_module'(U,F,Is) :- nonvar(U), U = user, !,
+'$use_module'(U,_F,Is) :- nonvar(U), U = user, !,
 	'$import_to_current_module'(user_input, user, Is).
 '$use_module'(M,F,Is) :- nonvar(M), !,
 	recorded('$module','$module'(F1,M,_),_),
@@ -199,10 +199,10 @@ use_module(M,F,Is) :-
 '$csult'([-F|L], M) :- !, '$load_files'(M:F, [],[-M:F]), '$csult'(L, M).
 '$csult'([F|L], M) :- '$consult'(F, M), '$csult'(L, M).
 
-'$do_lf'(F, ContextModule, Stream, InfLevel, _, Imports, SkipUnixComments, Reconsult, UseModule) :-
+'$do_lf'(ContextModule, Stream, InfLevel, _, Imports, SkipUnixComments, Reconsult, UseModule) :-
 	nb_getval('$system_mode', OldMode),
         ( OldMode == off -> '$enter_system_mode' ; true ),
-	'$record_loaded'(Stream, M),
+	'$record_loaded'(Stream, ContextModule),
 	'$current_module'(OldModule,ContextModule),
 	getcwd(OldD),
 	get_value('$consulting_file',OldF),
@@ -377,7 +377,7 @@ prolog_load_context(source, FileName) :-
 prolog_load_context(stream, Stream) :- 
 	'$fetch_stream_alias'(Stream,'$loop_stream').
 prolog_load_context(term_position, Position) :- 
-	'$fetch_stream_alias'(Stream,'$loop_stream').
+	'$fetch_stream_alias'(Stream,'$loop_stream'),
 	stream_position(Stream, Position).
 
 
@@ -389,11 +389,11 @@ prolog_load_context(term_position, Position) :-
 
 '$ensure_file_loaded'(F, M, Imports) :-
 	recorded('$module','$module'(F1,NM,P),_),
-	recorded('$lf_loaded','$lf_loaded'(F1,_,Age),R),
+	recorded('$lf_loaded','$lf_loaded'(F1,_,_),_),
 	'$same_file'(F1,F), !,
 	'$use_preds'(Imports,P, NM, M).
 '$ensure_file_loaded'(F, M, _) :-
-	recorded('$lf_loaded','$lf_loaded'(F1,M,Age),R),
+	recorded('$lf_loaded','$lf_loaded'(F1,M,_),_),
 	'$same_file'(F1,F), !.
 	
 

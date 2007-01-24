@@ -184,10 +184,10 @@ call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :-
 	
 
 call_cleanup(Goal, Cleanup) :-
-	call_cleanup(Goal, Catcher, Cleanup).
+	call_cleanup(Goal, _Catcher, Cleanup).
 
 call_cleanup(Goal, Catcher, Cleanup) :-
-	catch('$call_cleanup'(Goal,Cleanup,Result),
+	catch('$call_cleanup'(Goal,Cleanup,_),
 	      Exception,
 	      '$cleanup_exception'(Exception,Catcher,Cleanup)).
 
@@ -806,5 +806,5 @@ nth_instance(X,Y,Z) :-
 	'$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)).
 
 prolog_current_frame(Env) :-
-	X is $env.
+	Env is '$env'.
 

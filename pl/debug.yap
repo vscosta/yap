@@ -320,7 +320,7 @@ debugging :-
 	L1 is L+1,			/* bump it			*/
 	nb_setval('$spy_gn',L1),	/* and save it globaly		*/
         b_getval('$spy_glist',History),	/* get goal list		*/
-	b_setval('$spy_glist',[info(L,Module,G,Retry,Det)|History]),	/* and update it		*/
+	b_setval('$spy_glist',[info(L,Module,G,_Retry,_Det)|History]),	/* and update it		*/
 	'$loop_spy'(L, G, Module, InControl).	/* set creep on		*/
 
 % we are skipping, so we can just call the goal,
@@ -362,11 +362,13 @@ debugging :-
 '$debug_error'(_).
 
 
-'$loop_fail'(GoalNumber, G, Module, InControl) :-
-    '$system_catch'(('$trace'(fail, G, Module, GoalNumber,_),
-		     fail ),
-		    Module, Event,
-		    '$loop_spy_event'(Event, GoalNumber, G, Module, InControl)).
+% just fail here, don't really need to call debugger, the user knows what he
+% wants to do
+'$loop_fail'(_GoalNumber, _G, _Module, _InControl) :-
+	write(_G),nl,
+	yap_hacks:stack_dump,
+	'$continue_debugging',
+	fail.
 
 % if we are in 
 '$loop_spy2'(GoalNumber, G, Module, InControl, CP) :- 
@@ -375,7 +377,7 @@ debugging :-
 	(
 	/* call port */
 	    '$enter_goal'(GoalNumber, G, Module),
-	    '$spycall'(G, Module, InControl),
+	    '$spycall'(G, Module, InControl, Retry),
 	    (
 	      '$debugger_deterministic_goal'(G) ->
 	      Det=true
@@ -384,6 +386,7 @@ debugging :-
 	    ),
 	/* go execute the predicate	*/
 	    (
+	      Retry = false ->
 	      '$show_trace'(exit,G,Module,GoalNumber,Det),	/* output message at exit	*/
 	       /* exit port */
 	       /* get rid of deterministic computations */
@@ -400,7 +403,6 @@ debugging :-
 	        /* we get here when we want to redo a goal		*/
 		/* redo port */
 	        '$show_trace'(redo,G,Module,GoalNumber,_), /* inform user_error		*/
-	      Retry = true,
 	        '$continue_debugging'(InControl,G,Module),
 	        fail			/* to backtrack to spycalls	*/
 	     )
@@ -439,46 +441,41 @@ debugging :-
       number(StopPoint)
     ->
       StopPoint < GoalNumber
-    ;
-      % skip goals and ports (eg, l).
-      StopPoint == spy(StoPoint)
-    ->
-      \+ '$pred_being_spied'(G, Module), StopPoint < GoalNumber
     ).
 	
 
 % 
-'$spycall'(G, M, _) :-
+'$spycall'(G, M, _, _) :-
 	nb_getval('$debug_run',StopPoint),
 	StopPoint \= off,
 	!,
 	'$execute_nonstop'(G, M).
-'$spycall'(G, M, _) :-
+'$spycall'(G, M, _, _) :-
         '$system_predicate'(G,M),
          \+ '$is_metapredicate'(G,M),
 	 !,
 	'$execute_nonstop'(G, M).
-'$spycall'(G, M, InControl) :-
+'$spycall'(G, M, InControl, InRedo) :-
 	'$flags'(G,M,F,F),
 	F /\ 0x18402000 =\= 0, !, % dynamic procedure, logical semantics, user-C, or source
 	% use the interpreter
 	CP is '$last_choice_pt',
 	'$clause'(G, M, Cl),
-	'$do_spy'(Cl, M, CP, InControl).
-'$spycall'(G, M, InControl) :-
+	( '$do_spy'(Cl, M, CP, InControl) ; InRedo = true ).
+'$spycall'(G, M, InControl, InRedo) :-
 	'$undefined'(G, M), !,
 	'$enter_undefp',
 	(
 	    '$find_undefp_handler'(G,M,Goal,NM)
 	->
-	   '$spycall'(Goal, NM, InControl)
+	   '$spycall'(Goal, NM, InControl, InRedo)
        ).
-'$spycall'(G, M, InControl) :-
+'$spycall'(G, M, InControl, InRedo) :-
 	% I lost control here.
 	CP is '$last_choice_pt',
 	'$static_clause'(G,M,_,R),
 	'$continue_debugging'(InControl, G, M),
-	'$execute_clause'(G, M, R, CP).
+	( '$execute_clause'(G, M, R, CP) ; InRedo = true ).
 
 '$trace'(P,G,Module,L,Deterministic) :-
 	% at this point we are done with leap or skip
@@ -562,7 +559,6 @@ debugging :-
 	halt.
 '$action'(0'f,_,CallId,_,_,_) :- !,		% f		fail
 	'$scan_number'(0'f, CallId, GoalId),
-        nb_setval('$debug,on'),
 	throw('$fail_spy'(GoalId)).
 '$action'(0'h,_,_,_,_,_) :- !,			% h		help
 	'$action_help',
@@ -588,15 +584,15 @@ debugging :-
 	),
 	'$skipeol'(0'd),
 	fail.
-'$action'(0'l,_,CallNumber,_,_,on) :- !,		% l		leap
+'$action'(0'l,_,_,_,_,on) :- !,		% l		leap
 	'$skipeol'(0'l),
 	nb_setval('$debug_run',spy).
-'$action'(0'z,_,CallNumber,_,_,zip) :- !,		% k		zip, fast leap
+'$action'(0'z,_,_,_,_,zip) :- !,		% k		zip, fast leap
 	'$skipeol'(0'z),
 	nb_setval('$debug_run',spy).
 	% skip first call (for current goal),
 	% stop next time.
-'$action'(0'k,_,CallNumber,_,_,zip) :- !,		% k		zip, fast leap
+'$action'(0'k,_,_,_,_,zip) :- !,		% k		zip, fast leap
 	'$skipeol'(0'k),
 	nb_setval('$debug_run',spy).
 	% skip first call (for current goal),
@@ -646,7 +642,7 @@ debugging :-
 '$continue_debugging'(_,G,M) :-
 	'$system_predicate'(G,M), !,
 	'$late_creep'.
-'$continue_debugging'(_,G,M) :-
+'$continue_debugging'(_,_,_) :-
 	'nb_getval'('$debug_run',Zip),
         (Zip == nodebug ; number(Zip) ; Zip = spy(_) ), !.
 '$continue_debugging'(_,_,_) :-
@@ -676,11 +672,11 @@ debugging :-
 '$show_ancestor'(_,_,_,_,Det,HowMany,HowMany) :-
 	nonvar(Det), !.
 % look at retry
-'$show_ancestor'(GoalNumber, M, G, Retry, Det, HowMany, HowMany1) :-
+'$show_ancestor'(GoalNumber, M, G, Retry, _, HowMany, HowMany1) :-
 	nonvar(Retry), !,
 	HowMany1 is HowMany-1,
 	'$trace_msg'(redo, G, M, GoalNumber, _), nl(user_error).
-'$show_ancestor'(GoalNumber, M, G, Retry, Det, HowMany, HowMany1) :-
+'$show_ancestor'(GoalNumber, M, G, _, _, HowMany, HowMany1) :-
 	HowMany1 is HowMany-1,
 	'$trace_msg'(call, G, M, GoalNumber, _), nl(user_error).
 
@@ -831,17 +827,26 @@ debugging :-
 	format(user_error,'      [~d] ~q~n',[Level,G]).
 	
 '$debugger_deterministic_goal'(G) :-
-	yap_hacks:current_choicepoints(CPs),
-	'$debugger_skip_traces'(CPs,CPs1),
-	'$debugger_skip_loop_spy2'(CPs1,[Catch|_]),
+	yap_hacks:current_choicepoints(CPs0),
+%	$cps(CPs0),
+	'$debugger_skip_traces'(CPs0,CPs1),
+	'$debugger_skip_loop_spy2'(CPs1,CPs2),
+	'$debugger_skip_spycall'(CPs2,CPs3),
+	'$debugger_skip_loop_spy2'(CPs3,[Catch|_]),
 	yap_hacks:choicepoint(Catch,_,prolog,'$catch',3,'$catch'(_,'$loop_spy_event'(_,_,G,_,_),_),_).
 
 
 '$cps'([CP|CPs]) :-
-    yap_hacks:choicepoint(CP,_,_,_,_,_,_),
+    yap_hacks:choicepoint(CP,A,B,C,D,E,F),
+    write(A:B:C:D:E:F),nl,
     '$cps'(CPs).
 '$cps'([]).
 
+
+'$debugger_skip_spycall'([CP|CPs],CPs1) :-
+	yap_hacks:choicepoint(CP,_,prolog,'$spycall',4,(_;_),_), !,
+	'$debugger_skip_spycall'(CPs,CPs1).
+'$debugger_skip_spycall'(CPs,CPs).
 
 '$debugger_skip_traces'([CP|CPs],CPs1) :-
 	yap_hacks:choicepoint(CP,_,prolog,'$trace',4,(_;_),_), !,

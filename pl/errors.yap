@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2006-12-13 16:10:26 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-01-24 14:20:04 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.79  2006/12/13 16:10:26  vsc
+* several debugger and CLP(BN) improvements.
+*
 * Revision 1.78  2006/05/22 16:12:01  tiagosoares
 * MYDDAS: MYDDAS version boot message
 *
@@ -169,7 +172,6 @@
 	'$process_error'(Error, Level),
 	fail.
 '$LoopError'(_, _) :-
-	current_stream(_, write, S),
 	flush_all_streams,
 	fail.
 
@@ -296,7 +298,7 @@ print_message(Level, Mss) :-
 	[M,F,N]).
 '$do_print_message'(breakpoints([])) :- !,
 	format(user_error,'There are no spy-points set.',
-	[M,F,N]).
+	[]).
 '$do_print_message'(breakpoints(L)) :- !,
 	format(user_error,'Spy-points set on:', []),
 	'$print_list_of_preds'(L).
@@ -317,7 +319,7 @@ print_message(Level, Mss) :-
 	[From,Pred,To]).
 '$do_print_message'(leash([])) :- !,
 	format(user_error,'No leashing.',
-	[M,F,N]).
+	[]).
 '$do_print_message'(leash([A|B])) :- !,
 	format(user_error,'Leashing set to ~w.',
 	[[A|B]]).
@@ -378,13 +380,13 @@ print_message(Level, Mss) :-
 	'$close_stack_dump'(PEnvs, PCPs).
 
 '$preprocess_stack'([], _, []).
-'$preprocess_stack'([G|Gs],40, [overflow]) :- !.
+'$preprocess_stack'([_|_],40, [overflow]) :- !.
 '$preprocess_stack'([G|Gs],I, NGs) :-
 	'$pred_for_code'(G,Name,Arity,Mod,Clause),
 	I1 is I+1,
 	'$beautify_stack_goal'(Name,Arity,Mod,Clause,Gs,I1,NGs).
 	
-'$beautify_stack_goal'(Name,Arity,Module,0,Gs,I,NGs) :- !,
+'$beautify_stack_goal'(_,_,_,0,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs,I,NGs).
 '$beautify_stack_goal'(Name,Arity,Module,Clause,Gs,I,NGs) :-
 	functor(G,Name,Arity),
@@ -399,47 +401,47 @@ print_message(Level, Mss) :-
 '$beautify_hidden_goal'('$query',_,_,_,_,_,[]) :- !.
 '$beautify_hidden_goal'('$enter_top_level',_,_,_,_,_,[]) :- !.
 % The user should never know these exist.
-'$beautify_hidden_goal'('$csult',_,prolog,ClNo,Gs,NGs) :- !,
+'$beautify_hidden_goal'('$csult',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$use_module',2,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$use_module',2,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$ensure_loaded',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$ensure_loaded',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$continue_with_command',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$continue_with_command',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$spycall_stdpred',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$spycall_stdpred',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$spycalls',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$spycalls',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$spycall',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$spycall',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$do_spy',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$do_spy',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$spy',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$spy',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$do_creep_execute',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$do_creep_execute',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$creep_execute',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$creep_execute',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$direct_spy',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$direct_spy',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$system_catch',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$system_catch',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$execute_command',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$execute_command',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$process_directive',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$process_directive',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$catch',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$catch',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$loop',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$loop',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$consult',3,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$consult',3,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$reconsult',_,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$reconsult',_,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$undefp',1,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$undefp',1,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$use_module',2,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$use_module',2,prolog,_,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
 '$beautify_hidden_goal'('$repeat',0,prolog,ClNo,Gs,I,[cl(repeat,0,prolog,ClNo)|NGs]) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
@@ -488,7 +490,7 @@ print_message(Level, Mss) :-
 '$prepare_loc'(Info,Where,Location) :- integer(Where), !,
 	'$pred_for_code'(Where,Name,Arity,Mod,Clause),
 	'$construct_code'(Clause,Name,Arity,Mod,Info,Location).
-'$prepare_loc'(Info,Where,Info).
+'$prepare_loc'(Info,_,Info).
 
 '$print_stack'([]).
 '$print_stack'([overflow]) :- !,
@@ -499,7 +501,7 @@ print_message(Level, Mss) :-
 
 '$show_goal'(-1,Name,Arity,Mod) :- !,
 	format('~n%      ~a:~a/~d at indexing code',[Mod,Name,Arity]).
-'$show_goal'(0,Name,Arity,Mod) :- !.
+'$show_goal'(0,_,_,_) :- !.
 '$show_goal'(I,Name,Arity,Mod) :-
 	format(user_error,'~n%      ~a:~a/~d at clause ~d',[Mod,Name,Arity,I]).
 
@@ -773,7 +775,7 @@ print_message(Level, Mss) :-
 '$output_error_message'(representation_error(max_arity), Where) :-
 	format(user_error,'% REPRESENTATION ERROR- ~w: number too big~n',
 	[Where]).
-'$output_error_message'(syntax_error(G,0,Msg,[],0,0), Where) :- !,
+'$output_error_message'(syntax_error(G,0,Msg,[],0,0), _) :- !,
 	format(user_error,'% SYNTAX ERROR: ~a',[G,Msg]).
 '$output_error_message'(syntax_error(_,_,_,Term,Pos,Start), Where) :-
 	format(user_error,'% ~w ',[Where]),
@@ -885,7 +887,7 @@ print_message(Level, Mss) :-
 	format(user_error,'~n<==== HERE ====>~n', []),
 	'$dump_syntax_error_term'(10,-1,L).
 '$dump_syntax_error_term'(_,_,[]) :- !.
-'$dump_syntax_error_term'(I,J,[T-P|R]) :-
+'$dump_syntax_error_term'(I,J,[T-_P|R]) :-
 	'$dump_error_token'(T),
 	I1 is I-1,
 	J1 is J-1,

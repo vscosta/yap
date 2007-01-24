@@ -89,9 +89,9 @@ open(F,T,S,Opts) :-
 	N1 is I1\/N0,
 	N2 is I2/\N1,
 	'$process_open_opts'(L,N2,N, Aliases, Encoding).
-'$process_open_opts'([encoding(Enc)|L], N0, N, Aliases, T, EncCode) :-
-	'$valid_encoding'(Enc, EndCode),
-	'$process_open_opts'(L,N2,N, Aliases, _).
+'$process_open_opts'([encoding(Enc)|L], N0, N, Aliases, EncCode) :-
+	'$valid_encoding'(Enc, EncCode),
+	'$process_open_opts'(L, N0, N, Aliases, EncCode).
 '$process_open_opts'([eof_action(T)|L], N0, N, Aliases, Encoding) :-
 	'$value_open_opt'(T,eof_action,I1,I2),
 	N1 is I1\/N0,
@@ -232,8 +232,9 @@ open(F,T,S,Opts) :-
 
 '$check_open_encoding'(X, G) :- var(X), !,
 	'$do_error'(instantiation_error,G).
-'$check_open_encoding'(Encoding,_) :- '$valid_encoding'(Encoding,_), !.
-'$check_open_eof_action_arg'(Encoding,G) :-
+'$check_open_encoding'(Encoding,_) :-
+	'$valid_encoding'(Encoding,_), !.
+'$check_open_encoding'(Encoding,G) :-
 	'$do_error'(domain_error(io_mode,encoding(Encoding)),G).
 
 '$check_read_syntax_errors_arg'(X, G) :- var(X), !,

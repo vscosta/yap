@@ -732,7 +732,7 @@ not(G) :-    \+ '$execute'(G).
 	).
 '$call'(\+ X, _CP, _G0, M) :- !,
 	\+ '$execute'(M:X).
-'$call'(not(X), _CP, _G0, _M) :- !,
+'$call'(not(X), _CP, _G0, M) :- !,
 	\+ '$execute'(M:X).
 '$call'(!, CP, _,_) :- !,
 	'$$cut_by'(CP).
@@ -761,7 +761,7 @@ not(G) :-    \+ '$execute'(G).
 
 '$check_callable'(V,G) :- var(V), !,
 	'$do_error'(instantiation_error,G).
-'$check_callable'(M:G1,G) :- var(M), !,
+'$check_callable'(M:_G1,G) :- var(M), !,
 	'$do_error'(instantiation_error,G).
 '$check_callable'(_:G1,G) :- !,
 	'$check_callable'(G1,G).
@@ -928,14 +928,14 @@ bootstrap(F) :-
 	'$dir_separator'(D), 
 	atom_codes(A,[D]),
 	user:library_directory(Dir),
-	'$extend_path'(Dir, A, File, NFile, Goal),
+	'$extend_path'(Dir, A, File, NFile, compile(library(File))),
 	'$search_in_path'(NFile, NewFile), !.
 '$find_in_path'(S,NewFile, _) :-
 	S =.. [Name,File], !,
 	'$dir_separator'(D),
 	atom_codes(A,[D]),
 	user:file_search_path(Name, Dir),
-	'$extend_path'(Dir, A, File, NFile, Goal),
+	'$extend_path'(Dir, A, File, NFile, compile(S)),
 	'$search_in_path'(NFile, NewFile), !.
 '$find_in_path'(File,NewFile,_) :- atom(File), !,
 	'$search_in_path'(File,NewFile),!.

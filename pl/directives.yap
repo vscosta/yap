@@ -65,7 +65,7 @@
 	'$discontiguous'(D,M).
 '$exec_directive'(initialization(D), _, M) :-
 	'$initialization'(M:D).
-'$exec_directive'(encoding(Enc), _, M) :-
+'$exec_directive'(encoding(Enc), _, _) :-
 	'$current_encoding'(Enc).
 '$exec_directive'(parallel, _, _) :-
 	'$parallel'.
@@ -107,7 +107,7 @@
 	'$load_files'(M:F, [if(not_loaded)],use_module(F)).
 '$exec_directive'(use_module(F,Is), _, M) :-
 	'$load_files'(M:F, [if(not_loaded),imports(Is)],use_module(F,Is)).
-'$exec_directive'(use_module(Mod,F,Is), _, M) :-
+'$exec_directive'(use_module(Mod,F,Is), _, _) :-
 	'$use_module'(Mod,F,Is).
 '$exec_directive'(block(BlockSpec), _, _) :-
 	'$block'(BlockSpec).
