@@ -189,7 +189,7 @@ all(T,G,S) :-
 % $$set does its best to preserve space
 '$$set'(S,R) :- 
        '$$build'(S0,_,R),
-%        S0 = [_|_],
+        S0 = [_|_],
 	S = S0.
 
 '$$build'(Ns,S0,R) :- '$db_dequeue'(R,X), !,

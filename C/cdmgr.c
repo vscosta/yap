@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2007-01-24 10:01:38 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-01-25 22:11:55 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.203  2007/01/24 10:01:38  vsc
+* fix matrix mess
+*
 * Revision 1.202  2006/12/27 01:32:37  vsc
 * diverse fixes
 *
@@ -5792,11 +5795,11 @@ static Int
 p_choicepoint_info(void)
 {
   choiceptr cptr = (choiceptr)(LCL0-IntegerOfTerm(Deref(ARG1)));
-  PredEntry *pe;
+  PredEntry *pe = NULL;
   int go_on = TRUE;
   yamop *ipc = cptr->cp_ap;
   yamop *ncl = NULL;
-  Term t, taddr;
+  Term t = TermNil, taddr;
   
   taddr = MkIntegerTerm((Int)cptr);
   while (go_on) {

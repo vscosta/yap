@@ -3690,7 +3690,7 @@ index_sz(LogUpdIndex *x)
     if (x->ClFlags & DirtyMask)
       fprintf(stderr,"Dirty -- %p(%p)\n",ap,x);
     if (count > 200)
-      fprintf(stderr,"%uld/%uld/%uld -- %p(%p)\n",(unsigned long int)count,(unsigned long int)count0,(unsigned long int)dead,ap,x);
+      fprintf(stderr,"%lu/%lu/%lu -- %p(%p)\n",(unsigned long int)count,(unsigned long int)count0,(unsigned long int)dead,ap,x);
   }
   x = x->ChildIndex;
   while (x != NULL) {
