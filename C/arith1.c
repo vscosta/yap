@@ -197,7 +197,7 @@ p_uminus(Term t E_ARGS)
   case long_int_e:
     {
       Int i = IntegerOfTerm(t);
-      fprintf(stderr,"%ld,%ld\n",i,Int_MIN);
+ 
 #ifdef USE_GMP
       if (i == Int_MIN) {
 	MP_INT *new = TMP_BIG();
