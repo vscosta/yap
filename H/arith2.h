@@ -25,7 +25,8 @@ add_int(Int i, Int j E_ARGS)
   Int x = i+j;
   /* Integer overflow, we need to use big integers */
 #if USE_GMP
-  if ((i^j) >= 0 && (i^x) < 0) {
+  if (((i^j) >= 0 && (i^x) < 0 ) ||
+      j == Int_MIN) {
     MP_INT *new = TMP_BIG();
 
     mpz_init_set_si(new,i);
@@ -33,7 +34,9 @@ add_int(Int i, Int j E_ARGS)
       mpz_add_ui(new, new, j);
       RBIG(new);
     } else {
-      mpz_sub_ui(new, new, -j);
+      unsigned long u = -(j+1);
+      u++;
+      mpz_sub_ui(new, new, u);
       RBIG(new);
     }
   }
@@ -64,7 +67,7 @@ p_plus(Term t1, Term t2 E_ARGS)
     switch (BlobOfFunctor(f2)) {
     case long_int_e:
       /* two integers */
-      return(add_int(IntegerOfTerm(t1),IntegerOfTerm(t2) USE_E_ARGS));
+      return add_int(IntegerOfTerm(t1),IntegerOfTerm(t2) USE_E_ARGS);
     case double_e:
       {
 	/* integer, double */
@@ -83,7 +86,9 @@ p_plus(Term t1, Term t2 E_ARGS)
 	if (i1 > 0) {
 	  mpz_add_ui(new, new, i1);
 	} else if (i1 < 0) {
-	  mpz_sub_ui(new, new, -i1);
+	  unsigned long u1 = -(i1+1);
+	  u1++;
+	  mpz_sub_ui(new, new, u1);
 	}
 	RBIG(new);
       }
@@ -130,7 +135,9 @@ p_plus(Term t1, Term t2 E_ARGS)
 	if (i2 > 0) {
 	  mpz_add_ui(new, new, i2);
 	} else if (i2 < 0) {
-	  mpz_sub_ui(new, l1, -i2);
+	  unsigned long u2 = -(i2+1);
+	  u2++;
+	  mpz_sub_ui(new, l1, u2);
 	}
 	RBIG(new);
       }
@@ -178,7 +185,9 @@ p_plus(Term t1, Term t2 E_ARGS)
 	if (v1.Int > 0) {
 	  mpz_add_ui(new, new, v1.Int);
 	} else if (v1.Int < 0) {
-	  mpz_sub_ui(new, new, -v1.Int);
+	  unsigned long u1 = -(v1.Int+1);
+	  u1++;
+	  mpz_sub_ui(new, new, u1);
 	}
 	RBIG(new);
       }
@@ -217,7 +226,9 @@ p_plus(Term t1, Term t2 E_ARGS)
 	if (v2.Int > 0) {
 	  mpz_add_ui(new, new, v2.Int);
 	} else if (v2.Int < 0) {
-	  mpz_sub_ui(new, new, -v2.Int);
+	  unsigned long u2 = -(v2.Int+1);
+	  u2++;
+	  mpz_sub_ui(new, new, u2);
 	}
 	RBIG(new);
       }
@@ -267,7 +278,28 @@ p_minus(Term t1, Term t2 E_ARGS)
     switch (BlobOfFunctor(f2)) {
     case long_int_e:
       /* two integers */
-      return(add_int(IntegerOfTerm(t1),-IntegerOfTerm(t2) USE_E_ARGS));
+      {
+	Term sub = IntegerOfTerm(t2);
+#ifdef USE_GMP
+	if (sub == Int_MIN) {
+	  Int i1 = IntegerOfTerm(t1);
+	  MP_INT *new = TMP_BIG();
+
+	  mpz_init_set_si(new, sub);
+	  if (i1 > 0) {
+	    mpz_neg(new, new);
+	    mpz_add_ui(new, new, i1);
+	  } else {
+	    unsigned long u1 = -(i1+1);
+	    u1++;
+	    mpz_add_ui(new, new, u1);
+	    mpz_neg(new, new);
+	  }
+	  RBIG(new);
+	} else
+#endif
+	  return add_int(IntegerOfTerm(t1), -sub USE_E_ARGS);
+      }
     case double_e:
       {
 	/* integer, double */
@@ -288,7 +320,9 @@ p_minus(Term t1, Term t2 E_ARGS)
 	} else if (i1 == 0) {
 	  mpz_neg(new, new);	  
 	} else {
-	  mpz_add_ui(new, new, -i1);
+	  unsigned long u1 = -(i1+1);
+	  u1++;
+	  mpz_add_ui(new, new, u1);
 	  mpz_neg(new, new);	  
 	}
 	RBIG(new);
@@ -340,7 +374,9 @@ p_minus(Term t1, Term t2 E_ARGS)
 	if (i2 > 0) {
 	  mpz_sub_ui(new, new, i2);
 	} else if (i2 < 0) {
-	  mpz_add_ui(new, new, -i2);
+	  unsigned long u2 = -(i2+1);
+	  u2++;
+	  mpz_add_ui(new, new, u2);
 	}
 	RBIG(new);
       }
@@ -377,7 +413,24 @@ p_minus(Term t1, Term t2 E_ARGS)
     switch (bt2) {
     case long_int_e:
       /* two integers */
-      return(add_int(v1.Int,-v2.Int USE_E_ARGS));
+#ifdef USE_GMP
+      if (v2.Int == Int_MIN) {
+	MP_INT *new = TMP_BIG();
+	mpz_init_set_si(new, v2.Int);
+	if (v1.Int > 0) {
+	  mpz_neg(new, new);
+	  mpz_add_ui(new, new, v1.Int);
+	} else {
+	  if (v1.Int == Int_MIN)
+	    mpz_set_ui(new, 0);
+	  else if (v1.Int < 0)
+	    mpz_add_ui(new, new, -v1.Int);
+	  mpz_neg(new, new);
+	}
+	RBIG(new);
+      } else
+#endif
+	return(add_int(v1.Int, -v2.Int USE_E_ARGS));
     case double_e:
       {
 	/* integer, double */
@@ -394,7 +447,11 @@ p_minus(Term t1, Term t2 E_ARGS)
 	} else if (v1.Int == 0) {
 	  mpz_neg(new, new);
 	} else {
-	  mpz_add_ui(new, new, -v1.Int);
+	  unsigned long int u1;
+
+	  u1 = -(v1.Int+1);
+	  u1++;
+	  mpz_add_ui(new, new, u1);
 	  mpz_neg(new, new);
 	}
 	RBIG(new);
@@ -438,7 +495,11 @@ p_minus(Term t1, Term t2 E_ARGS)
 	if (v2.Int > 0) {
 	  mpz_sub_ui(new, new, v2.Int);
 	} else if (v2.Int < 0) {
-	  mpz_add_ui(new, new, -v2.Int);
+	  unsigned long int u2;
+
+	  u2 = -(v2.Int+1);
+	  u2++;
+	  mpz_add_ui(new, new, u2);
 	}
 	RBIG(new);
       }
@@ -505,7 +566,9 @@ times_int(Int i1, Int i2 E_ARGS) {
       mpz_mul_ui(new, new, i2);
       RBIG(new);
     } else {
-      mpz_mul_ui(new, new, -i2);
+      unsigned long int u2 = -(i2-1);
+      u2++;
+      mpz_mul_ui(new, new, u2);
       mpz_neg(new, new);
       RBIG(new);
     }
@@ -784,7 +847,9 @@ p_div(Term t1, Term t2 E_ARGS)
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else {
-	  mpz_tdiv_q_ui(new, new, -i2);
+	  unsigned long int u2 = -(i2-1);
+	  u2++;
+	  mpz_tdiv_q_ui(new, new, u2);
 	  mpz_neg(new, new);
 	  RBIG(new);
 	}
@@ -1256,7 +1321,13 @@ p_sll(Term t1, Term t2 E_ARGS)
     case long_int_e:
       /* two integers */
       if (IntegerOfTerm(t2) < 0) {
-	RINT(IntegerOfTerm(t1) >> -IntegerOfTerm(t2));
+	Int i2 = IntegerOfTerm(t2);
+	if (i2 == Int_MIN) {
+	  Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, t2, ">>/2");
+	  P = (yamop *)FAILCODE;
+	  RERROR();
+	}
+	RINT(IntegerOfTerm(t1) >> -i2);
       }
       return do_sll(IntegerOfTerm(t1),IntegerOfTerm(t2) USE_E_ARGS);
     case double_e:
@@ -1305,6 +1376,11 @@ p_sll(Term t1, Term t2 E_ARGS)
 	  MP_INT *new = TMP_BIG();
 
 	  mpz_init_set(new, l1);
+	  if (i2 == Int_MIN) {
+	    Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, t2, ">>/2");
+	    P = (yamop *)FAILCODE;
+	    RERROR();
+	  }
 	  mpz_tdiv_q_2exp(new, new, -i2);
 	  RBIG(new);
 	}
@@ -1338,6 +1414,11 @@ p_sll(Term t1, Term t2 E_ARGS)
     switch (bt2) {
     case long_int_e:
       if (v2.Int < 0) {
+	if (v2.Int == Int_MIN) {
+	  Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, MkIntegerTerm(v2.Int), ">>/2");
+	  P = (yamop *)FAILCODE;
+	  RERROR();
+	}
 	RINT(v1.Int >> -v2.Int);
       }
       return do_sll(v1.Int,v2.Int USE_E_ARGS);
@@ -1377,6 +1458,11 @@ p_sll(Term t1, Term t2 E_ARGS)
 	if (v2.Int > 0) {
 	  mpz_mul_2exp(new, new, v2.Int);
 	} else if (v2.Int < 0) {
+	  if (v2.Int == Int_MIN) {
+	    Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, MkIntegerTerm(v2.Int), ">>/2");
+	    P = (yamop *)FAILCODE;
+	    RERROR();
+	  }
 	  mpz_tdiv_q_2exp(v1.big, v1.big, -v2.Int);
 	}
 	RBIG(new);
@@ -1428,7 +1514,13 @@ p_slr(Term t1, Term t2 E_ARGS)
     case long_int_e:
       /* two integers */
       if (IntegerOfTerm(t2) < 0) {
-	return do_sll(IntegerOfTerm(t1),-IntegerOfTerm(t2) USE_E_ARGS);
+	Int i2 = IntegerOfTerm(t2);
+	if (i2 == Int_MIN) {
+	  Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, t2, ">>/2");
+	  P = (yamop *)FAILCODE;
+	  RERROR();
+	}
+	return do_sll(IntegerOfTerm(t1), -i2 USE_E_ARGS);
       }
       RINT(IntegerOfTerm(t1) >> IntegerOfTerm(t2));
     case double_e:
@@ -1467,6 +1559,11 @@ p_slr(Term t1, Term t2 E_ARGS)
 	if (i2 > 0) {
 	  mpz_tdiv_q_2exp(new, new, i2);
 	} else if (i2 < 0) {
+	  if (i2 == Int_MIN) {
+	    Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, t2, ">>/2");
+	    P = (yamop *)FAILCODE;
+	    RERROR();
+	  }
 	  mpz_mul_2exp(new, new, -i2);
 	}
 	RBIG(new);
@@ -1500,6 +1597,11 @@ p_slr(Term t1, Term t2 E_ARGS)
     switch (bt2) {
     case long_int_e:
       if (v2.Int < 0) {
+	if (v2.Int == Int_MIN) {
+	  Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, MkIntegerTerm(v2.Int), ">>/2");
+	  P = (yamop *)FAILCODE;
+	  RERROR();
+	}
 	return do_sll(v1.Int, -v2.Int USE_E_ARGS);
       }
       RINT(v1.Int >> v2.Int);
@@ -1538,6 +1640,11 @@ p_slr(Term t1, Term t2 E_ARGS)
 	if (v2.Int > 0) {
 	  mpz_tdiv_q_2exp(new, new, v2.Int);
 	} else if (v2.Int < 0) {
+	  if (v2.Int == Int_MIN) {
+	    Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, MkIntegerTerm(v2.Int), ">>/2");
+	    P = (yamop *)FAILCODE;
+	    RERROR();
+	  }
 	  mpz_mul_2exp(new, v1.big, -v2.Int);
 	}
 	RBIG(new);

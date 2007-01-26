@@ -195,7 +195,21 @@ p_uminus(Term t E_ARGS)
 
   switch (BlobOfFunctor(f)) {
   case long_int_e:
-    RINT(-IntegerOfTerm(t));
+    {
+      Int i = IntegerOfTerm(t);
+      fprintf(stderr,"%ld,%ld\n",i,Int_MIN);
+#ifdef USE_GMP
+      if (i == Int_MIN) {
+	MP_INT *new = TMP_BIG();
+
+	mpz_init_set_si(new, i);
+	mpz_neg(new, new);
+	RBIG(new);	
+      }
+      else
+#endif
+	RINT(-IntegerOfTerm(t));
+    }
   case double_e:
     RFLOAT(-FloatOfTerm(t));
 #ifdef USE_GMP
@@ -1581,7 +1595,6 @@ p_integer(Term t E_ARGS)
 #ifdef USE_GMP
     MP_INT *new = TMP_BIG();
 
-    fprintf(stderr,"dbl is %g\n",dbl);
     mpz_init_set_d(new, dbl);
     RBIG(new);
 #else
