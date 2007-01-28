@@ -146,7 +146,7 @@ thread_create(Goal, Id, Options) :-
 % vsc: ?????
 thread_defaults(Defaults) :-
 	nonvar(Defaults), !,
-	'$do_error'(type_error(variable,_Id), thread_defaults(Defaults)).
+	'$do_error'(type_error(variable, Defaults), thread_defaults(Defaults)).
 thread_defaults([stack(Stack), trail(Trail), system(System), detached(Detached)]) :-
 	recorded('$thread_defaults',[Stack, Trail, System, Detached], _).
 
@@ -298,39 +298,43 @@ current_thread(Id, Status) :-
 '$thread_id_alias'(Id, Id).
 
 
+'$mutex_id_alias'(Id, Alias) :-
+	recorded('$mutex_alias', [Id|Alias], _), !.
+'$mutex_id_alias'(Id, Id).
+
+
 mutex_create(V) :-
 	var(V), !,
 	'$new_mutex'(V),
-	recorda('$mutex',[V|V],_).
+	recorda('$mutex_alias',[V|V],_).
 mutex_create(A) :-
 	atom(A),
-	recorded('$mutex',[A|_],_), !,
+	recorded('$mutex_alias',[_|A],_), !,
 	'$do_error'(permission_error(create,mutex,A),mutex_create(A)).
 mutex_create(A) :-
 	atom(A), !,
 	'$new_mutex'(Id),
-	recorda('$mutex',[A|Id],_).
+	recorda('$mutex_alias',[Id|A],_).
 mutex_create(V) :-
 	'$do_error'(type_error(atom,V),mutex_create(V)).
 	
-mutex_destroy(V) :-
-	var(V), !,
-	'$do_error'(instantiation_error,mutex_destroy(V)).
-mutex_destroy(A) :-
-	recorded('$mutex',[A|Id],R), !,
+mutex_destroy(Mutex) :-
+	'$check_mutex_or_alias'(Mutex, mutex_destroy(Mutex)),
+	'$mutex_id_alias'(Id, Mutex),
 	'$destroy_mutex'(Id),
-	erase(R).
-mutex_destroy(A) :-
-	atom(A), !,
-	'$do_error'(existence_error(mutex,A),mutex_destroy(A)).
-mutex_destroy(V) :-
-	'$do_error'(type_error(atom,V),mutex_destroy(V)).
-	
+	'$erase_mutex_info'(Id).
+
+'$erase_mutex_info'(Id) :-
+	recorded('$mutex_alias',[Id|_],R),
+	erase(R),
+	fail.
+'$erase_mutex_info'(_).
+
 mutex_lock(V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,mutex_lock(V)).
 mutex_lock(A) :-
-	recorded('$mutex',[A|Id],_), !,
+	recorded('$mutex_alias',[Id|A],_), !,
 	'$lock_mutex'(Id).
 mutex_lock(A) :-
 	atom(A), !,
@@ -343,7 +347,7 @@ mutex_trylock(V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,mutex_trylock(V)).
 mutex_trylock(A) :-
-	recorded('$mutex',[A|Id],_), !,
+	recorded('$mutex_alias',[Id|A],_), !,
 	'$trylock_mutex'(Id).
 mutex_trylock(A) :-
 	atom(A), !,
@@ -352,28 +356,21 @@ mutex_trylock(A) :-
 mutex_trylock(V) :-
 	'$do_error'(type_error(atom,V),mutex_trylock(V)).
 	
-mutex_unlock(V) :-
-	var(V), !,
-	'$do_error'(instantiation_error,mutex_unlock(V)).
-mutex_unlock(A) :-
-	recorded('$mutex',[A|Id],_), !,
+mutex_unlock(Mutex) :-
+	'$check_mutex_or_alias'(Mutex, mutex_unlock(Mutex)),
+	'$mutex_id_alias'(Id, Mutex),
 	( '$unlock_mutex'(Id) ->
 	    true
 	;
-	    '$do_error'(permission_error(unlock,mutex,A),mutex_unlock(A))
+	    '$do_error'(permission_error(unlock,mutex,Mutex),mutex_unlock(Mutex))
 	).
-mutex_unlock(A) :-
-	atom(A), !,
-	'$do_error'(existence_error(mutex,A),mutex_unlock(A)).
-mutex_unlock(V) :-
-	'$do_error'(type_error(atom,V),mutex_unlock(V)).
 
 mutex_unlock_all :-
 	'$thread_self'(Tid),
 	'$unlock_all_thread_mutexes'(Tid).
 
 '$unlock_all_thread_mutexes'(Tid) :-
-	recorded('$mutex',[_|Id],_),
+	recorded('$mutex_alias',[Id|_],_),
 	'$mutex_info'(Id, NRefs, Tid),
 	NRefs > 0,
 	'$mutex_unlock_all'(Id),
@@ -399,10 +396,10 @@ with_mutex(M, G) :-
 	atom(M), !,
 	recorded('$with_mutex_mutex',WMId,_),
 	'$lock_mutex'(WMId),
-	(	recorded('$mutex',[M|Id],_) ->
+	(	recorded('$mutex_alias',[Id|M],_) ->
 		true
 	;	'$new_mutex'(Id),
-		recorda('$mutex',[M|Id],_)
+		recorda('$mutex_alias',[Id|M],_)
 	),
 	'$unlock_mutex'(WMId),
 	'$lock_mutex'(Id),
@@ -415,7 +412,7 @@ with_mutex(M, G) :-
 	'$do_error'(type_error(atom,M),with_mutex(M, G)).
 
 current_mutex(M, T, NRefs) :-
-	recorded('$mutex',[M|Id],_),
+	recorded('$mutex_alias',[Id|M],_),
 	'$mutex_info'(Id, NRefs, T).
 
 message_queue_create(Cond) :-
@@ -671,5 +668,26 @@ threads :-
 '$check_thread_property'(stack(_), _) :- !.
 '$check_thread_property'(trail(_), _) :- !.
 '$check_thread_property'(system(_), _) :- !.
+'$check_thread_property'(Term, Goal) :-
+	'$do_error'(domain_error(thread_property, Term), Goal).
+
+'$check_mutex_or_alias'(Term, Goal) :-
+	var(Term), !,
+	'$do_error'(instantiation_error, Goal).
+'$check_mutex_or_alias'(Term, Goal) :-
+	\+ integer(Term), \+ atom(Term), !,
+	'$do_error'(domain_error(mutex_or_alias, Term), Goal).
+'$check_mutex_or_alias'(Term, Goal) :-
+	atom(Term), \+ recorded('$mutex_alias',[_|Term],_), !,
+	'$do_error'(existence_error(mutex, Term), Goal).
+'$check_mutex_or_alias'(Term, Goal) :-
+%	integer(Term), \+ '$valid_mutex'(Term), !,
+	integer(Term), \+ recorded('$mutex_alias',[Term|_],_), !,
+	'$do_error'(existence_error(mutex, Term), Goal).
+'$check_mutex_or_alias'(_,_).
+
+'$check_mutex_property'(Term, _) :-
+	var(Term), !.
+'$check_mutex_property'(alias(_), _) :- !.
 '$check_thread_property'(Term, Goal) :-
 	'$do_error'(domain_error(thread_property, Term), Goal).
