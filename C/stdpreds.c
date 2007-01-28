@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2006-12-13 16:10:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-01-28 14:26:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.116  2006/12/13 16:10:23  vsc
+* several debugger and CLP(BN) improvements.
+*
 * Revision 1.115  2006/11/28 13:46:41  vsc
 * fix wide_char support for name/2.
 *
@@ -638,13 +641,13 @@ strtod(s, pe)
 
 static char *cur_char_ptr;
 
-static wchar_t
+static int
 get_char_from_string(int s)
 {
   if (cur_char_ptr[0] == '\0')
-    return(-1);
+    return -1;
   cur_char_ptr++;
-  return((wchar_t)(cur_char_ptr[-1]));
+  return cur_char_ptr[-1];
 }
 
     

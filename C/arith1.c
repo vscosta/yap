@@ -196,9 +196,9 @@ p_uminus(Term t E_ARGS)
   switch (BlobOfFunctor(f)) {
   case long_int_e:
     {
+ #ifdef USE_GMP
       Int i = IntegerOfTerm(t);
- 
-#ifdef USE_GMP
+      
       if (i == Int_MIN) {
 	MP_INT *new = TMP_BIG();
 

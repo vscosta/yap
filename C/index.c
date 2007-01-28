@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2007-01-08 08:27:19 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-01-28 14:26:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.181  2007/01/08 08:27:19  vsc
+* fix restore (Trevor)
+* make indexing a bit faster on IDB
+*
 * Revision 1.180  2006/12/27 01:32:37  vsc
 * diverse fixes
 *
@@ -6269,7 +6273,7 @@ remove_clause_from_index(yamop *header, LogUpdClause *cl)
     newp->opc = curp->opc;
     *prevp = newp;
   } else {
-    yamop *ocurp, *ocurp0 = curp;
+    yamop *ocurp = NULL, *ocurp0 = curp;
 
     while (curp->u.lld.d != cl) {
       ocurp = curp;

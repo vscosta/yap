@@ -599,7 +599,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
       return FALSE;
     else if (hsplit == (CELL *)omax)
       hsplit = NULL;
-    if (size+H < ASP+4096 &&
+    if (size+H < ASP-4096 &&
 	hsplit > H0) {
       /* don't need to expand stacks */
       do_grow = FALSE;
@@ -620,7 +620,8 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
     if (!Yap_ExtendWorkSpace(size)) {
       /* always fails when using malloc */
       Yap_ErrorMessage = NULL;
-      size += AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+MinHeapGap);   minimal_request = size;
+      size += AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+MinHeapGap);   
+      minimal_request = size;
       size = Yap_ExtendWorkSpaceThroughHole(size);
       if (size < 0) {
 	Yap_ErrorMessage = "Global Stack crashed against Local Stack";
@@ -717,7 +718,10 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
     fprintf(Yap_stderr, "%% %cO Total of %g sec expanding stacks \n", vb_msg1, (double)total_delay_overflow_time/1000);
   }
   Yap_PrologMode &= ~GrowStackMode;
-  return size;
+  if (hsplit)
+    return GDiff-GDiff0;
+  else
+    return GDiff-DelayDiff;
 }
 
 static void

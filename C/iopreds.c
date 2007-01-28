@@ -83,7 +83,7 @@ static char SccsId[] = "%W% %G%";
 STATIC_PROTO (Int PlIOError, (yap_error_number, Term, char *));
 STATIC_PROTO (int FilePutc, (int, int));
 STATIC_PROTO (int MemPutc, (int, int));
-STATIC_PROTO (int console_post_process_read_char, (wchar_t, StreamDesc *));
+STATIC_PROTO (int console_post_process_read_char, (int, StreamDesc *));
 STATIC_PROTO (int console_post_process_eof, (StreamDesc *));
 STATIC_PROTO (int post_process_read_char, (int, StreamDesc *));
 STATIC_PROTO (int post_process_eof, (StreamDesc *));
@@ -101,7 +101,7 @@ STATIC_PROTO (int PlGetc, (int));
 STATIC_PROTO (int DefaultGets, (int,UInt,char*));
 STATIC_PROTO (int PlGets, (int,UInt,char*));
 STATIC_PROTO (int MemGetc, (int));
-STATIC_PROTO (wchar_t ISOWGetc, (int));
+STATIC_PROTO (int ISOWGetc, (int));
 STATIC_PROTO (int ConsoleGetc, (int));
 STATIC_PROTO (int PipeGetc, (int));
 STATIC_PROTO (int ConsolePipeGetc, (int));
@@ -168,8 +168,8 @@ STATIC_PROTO (Int p_startline, (void));
 STATIC_PROTO (Int p_change_type_of_char, (void));
 STATIC_PROTO (Int p_type_of_char, (void));
 STATIC_PROTO (void CloseStream, (int));
-STATIC_PROTO (wchar_t get_wchar, (int));
-STATIC_PROTO (wchar_t put_wchar, (int,wchar_t));
+STATIC_PROTO (int get_wchar, (int));
+STATIC_PROTO (int put_wchar, (int,wchar_t));
 
 static encoding_t
 DefaultEncoding(void)
@@ -669,7 +669,7 @@ Yap_DebugGetc()
 }
 
 int 
-Yap_DebugPutc(int sno, int ch)
+Yap_DebugPutc(int sno, wchar_t ch)
 {
   if (Yap_Option['l' - 96])
     (void) putc(ch, Yap_logfile);
@@ -1075,7 +1075,7 @@ ReadlineGetc(int sno)
 int
 Yap_GetCharForSIGINT(void)
 {
-  wchar_t ch;
+  int ch;
 #if  HAVE_LIBREADLINE
   if ((Yap_PrologMode & ConsoleGetcMode) && myrl_line != (char *) NULL) {
     ch = myrl_line[0];
@@ -1205,7 +1205,7 @@ post_process_eof(StreamDesc *s)
 
 /* check if we read a newline or an EOF */
 static int
-console_post_process_read_char(wchar_t ch, StreamDesc *s)
+console_post_process_read_char(int ch, StreamDesc *s)
 {
   if (ch == '\n') {
     ++s->linecount;
@@ -1279,7 +1279,7 @@ static int
 ConsoleSocketGetc(int sno)
 {
   register StreamDesc *s = &Stream[sno];
-  register wchar_t ch;
+  register int ch;
   Int c;
   int count;
 
@@ -1349,8 +1349,8 @@ PipeGetc(int sno)
 static int
 ConsolePipeGetc(int sno)
 {
-  register StreamDesc *s = &Stream[sno];
-  register wchar_t ch;
+  StreamDesc *s = &Stream[sno];
+  int ch;
   char c;
 #if _MSC_VER || defined(__MINGW32__) 
   DWORD count;
@@ -1463,10 +1463,10 @@ MemGetc (int sno)
 }
 
 /* I dispise this code!!!!! */
-static wchar_t
+static int
 ISOWGetc (int sno)
 {
-  Int ch = Stream[sno].stream_wgetc(sno);
+  int ch = Stream[sno].stream_wgetc(sno);
   if (ch != EOF && CharConversionTable != NULL) {
 
     if (ch < NUMBER_OF_CHARS) {
@@ -1572,11 +1572,11 @@ utf8_nof(char ch)
   return 5;
 }
 
-static wchar_t
+static int
 get_wchar(int sno)
 {
-  wchar_t wch;
   int ch;
+  wchar_t wch;
   int how_many = 0;
 
   while (TRUE) {
@@ -1671,7 +1671,7 @@ get_wchar(int sno)
 #define MB_LEN_MAX 6
 #endif
 
-static wchar_t
+static int
 put_wchar(int sno, wchar_t ch)
 {
 
@@ -1714,7 +1714,8 @@ put_wchar(int sno, wchar_t ch)
 	if (ch < 0x800) {
 	  Stream[sno].stream_putc(sno, 0xC0 | ch>>6);
 	  return Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
-	} else if (ch < 0x10000) {
+	} 
+	else if (ch < 0x10000) {
 	  Stream[sno].stream_putc(sno, 0xE0 | ch>>12);
 	  Stream[sno].stream_putc(sno, 0x80 | (ch>>6 & 0x3F));
 	  return Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
@@ -1723,7 +1724,8 @@ put_wchar(int sno, wchar_t ch)
 	  Stream[sno].stream_putc(sno, 0x80 | (ch>>12 & 0x3F));
 	  Stream[sno].stream_putc(sno, 0x80 | (ch>>6 & 0x3F));
 	  return Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
-	} else {
+	}
+	else {
 	  /* should never happen */
 	  return -1;
 	}
@@ -1747,7 +1749,7 @@ Yap_PlGetchar (void)
   return(Stream[Yap_c_input_stream].stream_getc(Yap_c_input_stream));
 }
 
-wchar_t
+int
 Yap_PlGetWchar (void)
 {
   return get_wchar(Yap_c_input_stream);
@@ -3926,7 +3928,7 @@ static Int
 p_get (void)
 {				/* '$get'(Stream,-N)                     */
   int sno = CheckStream (ARG1, Input_Stream_f, "get/2");
-  wchar_t ch;
+  int ch;
   Int status;
 
   if (sno < 0)
@@ -4094,7 +4096,7 @@ typedef struct format_status {
   pads pad_entries[16], *pad_max;
 } format_info;
 
-static wchar_t
+static int
 format_putc(int sno, wchar_t ch) {
   if (FormatInfo->format_buf_size == -1)
     return EOF;
@@ -4200,7 +4202,7 @@ static void fill_pads(int nchars)
 }
 
 static int
-format_print_str (Int sno, Int size, Int has_size, Term args, wchar_t (* f_putc)(int, wchar_t))
+format_print_str (Int sno, Int size, Int has_size, Term args, int (* f_putc)(int, wchar_t))
 {
   Term arghd;
   while (!has_size || size > 0) {
@@ -4377,7 +4379,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
   char *fstr = NULL, *fptr;
   Term args;
   Term tail;
-  wchar_t (* f_putc)(int, wchar_t);
+  int (* f_putc)(int, wchar_t);
   int has_tabs;
   jmp_buf format_botch;
   volatile void *old_handler;
@@ -4979,7 +4981,7 @@ p_skip (void)
 {				/* '$skip'(Stream,N)                     */
   int sno = CheckStream (ARG1, Input_Stream_f, "skip/2");
   Int n = IntOfTerm (Deref (ARG2));
-  wchar_t ch;
+  int ch;
 
   if (sno < 0)
     return (FALSE);

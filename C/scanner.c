@@ -57,7 +57,7 @@
 
 STATIC_PROTO(int my_getch, (int (*) (int)));
 STATIC_PROTO(Term float_send, (char *));
-STATIC_PROTO(Term get_num, (wchar_t *, wchar_t *, int, wchar_t (*) (int), wchar_t (*) (int),char *,UInt));
+STATIC_PROTO(Term get_num, (int *, int *, int, int (*) (int), int (*) (int),char *,UInt));
 
 /* token table with some help from Richard O'Keefe's PD scanner */
 static char chtype0[NUMBER_OF_CHARS+1] =
@@ -232,7 +232,7 @@ read_int_overflow(const char *s, Int base, Int val)
 }
 
 static wchar_t
-read_quoted_char(int *scan_nextp, int inp_stream, wchar_t (*QuotedNxtch)(int))
+read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
 {
   int ch;
 
@@ -455,7 +455,7 @@ read_quoted_char(int *scan_nextp, int inp_stream, wchar_t (*QuotedNxtch)(int))
 /* reads a number, either integer or float */
 
 static Term
-get_num(wchar_t *chp, wchar_t *chbuffp, int inp_stream, wchar_t (*Nxtch) (int), wchar_t (*QuotedNxtch) (int), char *s, UInt max_size)
+get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*QuotedNxtch) (int), char *s, UInt max_size)
 {
   char *sp = s;
   int ch = *chp;
@@ -669,11 +669,11 @@ get_num(wchar_t *chp, wchar_t *chbuffp, int inp_stream, wchar_t (*Nxtch) (int), 
 /* given a function Nxtch scan until we  either find the number
    or end of file */
 Term
-Yap_scan_num(wchar_t (*Nxtch) (int))
+Yap_scan_num(int (*Nxtch) (int))
 {
   Term out;
   int sign = 1;
-  wchar_t ch, cherr;
+  int ch, cherr;
   char *ptr;
 
   Yap_ErrorMessage = NULL;
@@ -698,7 +698,7 @@ Yap_scan_num(wchar_t (*Nxtch) (int))
   cherr = '\0';
   if (ASP-H < 1024)
     return TermNil;
-  out = get_num(&ch, &cherr, -1, Nxtch, Nxtch, ptr, 4096);
+  out = get_num(&ch, &cherr, -1, Nxtch, Nxtch, ptr, 4096); /*  */
   PopScannerMemory(ptr, 4096);
   if (sign == -1) {
     if (IsIntegerTerm(out))
@@ -709,7 +709,7 @@ Yap_scan_num(wchar_t (*Nxtch) (int))
   Yap_clean_tokenizer(NULL, NULL, NULL);
   if (Yap_ErrorMessage != NULL || ch != -1 || cherr)
     return TermNil;
-  return(out);
+  return out;
 }
 
 
@@ -736,9 +736,10 @@ Yap_tokenizer(int inp_stream)
   TokEntry *t, *l, *p;
   enum TokenKinds kind;
   int solo_flag = TRUE;
-  wchar_t ch, *wcharp;
-  wchar_t (*Nxtch) (int) = Stream[inp_stream].stream_wgetc_for_read;
-  wchar_t (*QuotedNxtch) (int) = Stream[inp_stream].stream_wgetc;
+  int ch;
+  wchar_t *wcharp;
+  int (*Nxtch) (int) = Stream[inp_stream].stream_wgetc_for_read;
+  int (*QuotedNxtch) (int) = Stream[inp_stream].stream_wgetc;
 
   Yap_ErrorMessage = NULL;
   Yap_Error_Size = 0;
@@ -844,8 +845,8 @@ Yap_tokenizer(int inp_stream)
 
     case NU:
       {
-	wchar_t cherr;
-	wchar_t cha = ch;
+	int cherr;
+	int cha = ch;
 	char *ptr;
 
 	cherr = 0;

@@ -87,9 +87,9 @@ typedef struct stream_desc
     GetsFunc stream_gets;           /* function the stream uses for reading a sequence of characters */
     /* function the stream uses for parser. It may be different if the ISO
        character conversion is on */
-    wchar_t (* stream_wgetc_for_read)(int);
-    wchar_t (* stream_wgetc)(int);
-    wchar_t (* stream_wputc)(int,wchar_t);
+    int (* stream_wgetc_for_read)(int);
+    int (* stream_wgetc)(int);
+    int (* stream_wputc)(int,wchar_t);
     encoding_t encoding;
     int use_bom;
     mbstate_t mbstate;

@@ -273,7 +273,7 @@ Term STD_PROTO(Yap_VarNames,(VarEntry *,Term));
 /* routines in scanner.c */
 TokEntry STD_PROTO(*Yap_tokenizer,(int));
 void     STD_PROTO(Yap_clean_tokenizer,(TokEntry *, VarEntry *, VarEntry *));
-Term     STD_PROTO(Yap_scan_num,(wchar_t (*)(int)));
+Term     STD_PROTO(Yap_scan_num,(int (*)(int)));
 char	 STD_PROTO(*Yap_AllocScannerMemory,(unsigned int));
 
 /* routines in iopreds.c */
@@ -283,7 +283,7 @@ int   STD_PROTO(Yap_GetStreamFd,(int));
 void  STD_PROTO(Yap_CloseStreams,(int));
 void  STD_PROTO(Yap_CloseStream,(int));
 int   STD_PROTO(Yap_PlGetchar,(void));
-wchar_t   STD_PROTO(Yap_PlGetWchar,(void));
+int   STD_PROTO(Yap_PlGetWchar,(void));
 int   STD_PROTO(Yap_PlFGetchar,(void));
 int   STD_PROTO(Yap_GetCharForSIGINT,(void));
 int   STD_PROTO(Yap_StreamToFileNo,(Term));
@@ -319,7 +319,7 @@ extern int
 #define	To_heap_f	       16
 
 /* write.c */
-void	STD_PROTO(Yap_plwrite,(Term,wchar_t (*)(int, wchar_t),int));
+void	STD_PROTO(Yap_plwrite,(Term,int (*)(int, wchar_t),int));
 
 /* grow.c */
 int  STD_PROTO(Yap_growstack_in_parser,  (tr_fr_ptr *, TokEntry **, VarEntry **));

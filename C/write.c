@@ -42,7 +42,7 @@ typedef enum {
 
 static wtype lastw;
 
-typedef  wchar_t      (*wrf) (int, wchar_t);
+typedef  int      (*wrf) (int, wchar_t);
 
 typedef struct write_globs {
   wrf      writewch;
@@ -798,7 +798,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 }
 
 void 
-Yap_plwrite(Term t, wchar_t (*mywrite) (int, wchar_t), int flags)
+Yap_plwrite(Term t, int (*mywrite) (int, wchar_t), int flags)
      /* term to be written			 */
      /* consumer				 */
      /* write options			 */

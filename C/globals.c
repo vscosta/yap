@@ -176,14 +176,14 @@ GrowDelayArena(Term *arenap, UInt old_size, UInt size, UInt arity)
   if (size < 64) {
     size = 64;
   }
-  XREGS[arity+1] = (CELL)arenap;
+  /* just make sure we are shifted up when we expand stacks */
+  XREGS[arity+1] = arena;
   if ((howmuch = Yap_InsertInGlobal((CELL *)arena, (size-old_size)*sizeof(attvar_record)))==0) {
     Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
     return TermNil;
   }
   size = howmuch/sizeof(attvar_record)+old_size;
-  arenap = (CELL *)XREGS[arity+1];
-  arena = *arenap;
+  arena = XREGS[arity+1];
   CreateDelayArena(DelayArenaPt(arena), DelayArenaPt(arena)-size);
   return arena;
 }

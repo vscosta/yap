@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.77 2006-12-13 16:10:25 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.78 2007-01-28 14:26:37 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -188,7 +188,7 @@ int  STD_PROTO(Yap_gcl, (UInt, Int, CELL *, yamop *));
 
 /* init.c */
 #ifdef DEBUG
-int	STD_PROTO(Yap_DebugPutc,(int,int));
+int	STD_PROTO(Yap_DebugPutc,(int,wchar_t));
 void	STD_PROTO(Yap_DebugSetIFile,(char *));
 void	STD_PROTO(Yap_DebugEndline,(void));
 int	STD_PROTO(Yap_DebugGetc,(void));

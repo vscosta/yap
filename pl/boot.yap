@@ -155,8 +155,9 @@ true :- true.
 	 '$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)),
 	 fail.
  '$startup_goals' :-
-	 get_value('$init_goal',GA), GA \= [],
-	 set_value('$init_goal',[]),
+	 get_value('$init_goal',GA),
+	 GA \= [],
+ 	 set_value('$init_goal',[]),
 	 '$run_atom_goal'(GA),
 	 fail.
  '$startup_goals' :-

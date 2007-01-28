@@ -10,8 +10,12 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-01-08 08:27:19 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-01-28 14:26:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.88  2007/01/08 08:27:19  vsc
+* fix restore (Trevor)
+* make indexing a bit faster on IDB
+*
 * Revision 1.87  2006/12/13 16:10:14  vsc
 * several debugger and CLP(BN) improvements.
 *
@@ -304,7 +308,7 @@ X_API void    STD_PROTO(YAP_PruneGoal,(void));
 X_API void    STD_PROTO(YAP_InitConsult,(int, char *));
 X_API void    STD_PROTO(YAP_EndConsult,(void));
 X_API Term    STD_PROTO(YAP_Read, (int (*)(void)));
-X_API void    STD_PROTO(YAP_Write, (Term, wchar_t (*)(wchar_t), int));
+X_API void    STD_PROTO(YAP_Write, (Term, int (*)(wchar_t), int));
 X_API Term    STD_PROTO(YAP_WriteBuffer, (Term, char *, unsigned int, int));
 X_API char   *STD_PROTO(YAP_CompileClause, (Term));
 X_API void    STD_PROTO(YAP_PutValue, (Atom,Term));
@@ -354,9 +358,9 @@ static int do_yap_getc(int streamno) {
   return(do_getf());
 }
 
-static wchar_t (*do_putcf)(wchar_t);
+static int (*do_putcf)(wchar_t);
 
-static wchar_t do_yap_putc(int streamno,wchar_t ch) {
+static int do_yap_putc(int streamno,wchar_t ch) {
   do_putcf(ch);
   return(ch);
 }
@@ -1046,7 +1050,7 @@ YAP_Error(int myerrno, Term t, char *buf,...)
   Yap_Error(myerrno,t,tmpbuf);
 }
 
-static wchar_t myputc (wchar_t ch)
+static int myputc (wchar_t ch)
 {
   putc(ch,stderr);
   return ch;
@@ -1197,11 +1201,11 @@ YAP_Read(int (*mygetc)(void))
 }
 
 X_API void
-YAP_Write(Term t, wchar_t (*myputc)(wchar_t), int flags)
+YAP_Write(Term t, int (*myputc)(wchar_t), int flags)
 {
   BACKUP_MACHINE_REGS();
 
-  do_putcf = myputc;
+  do_putcf = myputc;		/*  */
   Yap_plwrite (t, do_yap_putc, flags);
 
   RECOVER_MACHINE_REGS();
