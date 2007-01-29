@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.18 2006-12-13 16:10:25 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.19 2007-01-29 10:18:15 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -140,12 +140,6 @@
 #endif
 #include <pthread.h>
 #endif
-
-#if defined(YAPOR) || defined(THREADS)
-#define MAX_WORKERS (sizeof(unsigned long) * 8)
-#else
-#define MAX_WORKERS 1
-#endif /* YAPOR */
 
 #if SIZEOF_INT_P==4
 

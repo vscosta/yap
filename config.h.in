@@ -297,3 +297,5 @@
 
 #undef GC_NO_TAGS
 
+#undef MAX_WORKERS
+

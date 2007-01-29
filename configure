@@ -698,6 +698,7 @@ INSTALLCLP
 JAVALIBPATH
 JAVAINCPATH
 LAMOBJS
+MAX_WORKERS
 M4GENABSMI
 LIBOBJS
 LTLIBOBJS'
@@ -1319,6 +1320,7 @@ Optional Packages:
  --with-heap-space=space  default heap size in Kbytes
  --with-stack-space=space default stack size in Kbytes
  --with-trail-space=space default trail size in Kbytes
+ --with-max-workers=integer maximum number of threads or parallel processes
 
 Some influential environment variables:
   CC          C compiler command
@@ -3093,6 +3095,22 @@ else
 fi
 
 
+
+# Check whether --with-max-workers was given.
+if test "${with_max_workers+set}" = set; then
+  withval=$with_max_workers; if test "$withval" = yes; then
+	  yap_cv_max_workers="(8*SIZEOF_INT_P)"
+	elif test "$withval" = no; then
+	  yap_cv_max_workers="1"
+	else
+	  yap_cv_max_workers=$withval
+	fi
+else
+  yap_cv_max_workers="(8*SIZEOF_INT_P)"
+fi
+
+
+
 if test "$tabling" = yes -o "$orparallelism" = yes -o "$threads" = yes
 then
   cat >>confdefs.h <<\_ACEOF
@@ -3108,15 +3126,15 @@ _ACEOF
 _ACEOF
 
 else
-	cat >>confdefs.h <<\_ACEOF
+  cat >>confdefs.h <<\_ACEOF
 #define MinHeapSpace (200*SIZEOF_INT_P)
 _ACEOF
 
-	cat >>confdefs.h <<\_ACEOF
+  cat >>confdefs.h <<\_ACEOF
 #define MinStackSpace (200*SIZEOF_INT_P)
 _ACEOF
 
-	cat >>confdefs.h <<\_ACEOF
+  cat >>confdefs.h <<\_ACEOF
 #define MinTrailSpace ( 32*SIZEOF_INT_P)
 _ACEOF
 
@@ -3296,6 +3314,20 @@ test -n "$target_alias" &&
 cat >>confdefs.h <<_ACEOF
 #define HOST_ALIAS "${target}"
 _ACEOF
+
+
+if test "$or-parallelism" = no -a "$threads" = no
+then
+  cat >>confdefs.h <<\_ACEOF
+#define MAX_WORKERS 1
+_ACEOF
+
+else
+eval "cat >>confdefs.h <<\_ACEOF
+#define MAX_WORKERS ($yap_cv_max_workers)
+_ACEOF
+"
+fi
 
 
 if test "$use_condor" = yes
@@ -14864,6 +14896,7 @@ EXEC_SUFFIX=""
 
 
 
+
 { echo "$as_me:$LINENO: checking for gcc threaded code" >&5
 echo $ECHO_N "checking for gcc threaded code... $ECHO_C" >&6; }
 if test "${yap_cv_threaded_code+set}" = set; then
@@ -18590,12 +18623,13 @@ for ac_last_try in false false false false false :; do
 JAVALIBPATH!$JAVALIBPATH$ac_delim
 JAVAINCPATH!$JAVAINCPATH$ac_delim
 LAMOBJS!$LAMOBJS$ac_delim
+MAX_WORKERS!$MAX_WORKERS$ac_delim
 M4GENABSMI!$M4GENABSMI$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 6; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 7; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

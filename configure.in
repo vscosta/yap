@@ -223,15 +223,27 @@ AC_ARG_WITH(trail-space,
 	fi,
 	[yap_cv_trail_space=0])
 
+AC_ARG_WITH(max-workers,
+	[ --with-max-workers[=integer] maximum number of threads or parallel processes],
+	if test "$withval" = yes; then
+	  yap_cv_max_workers="(8*SIZEOF_INT_P)"
+	elif test "$withval" = no; then
+	  yap_cv_max_workers="1"
+	else
+	  yap_cv_max_workers=$withval
+	fi,
+	[yap_cv_max_workers="(8*SIZEOF_INT_P)"])
+
+
 if test "$tabling" = yes -o "$orparallelism" = yes -o "$threads" = yes
 then
   AC_DEFINE(MinHeapSpace, (400*SIZEOF_INT_P))
   AC_DEFINE(MinStackSpace,(300*SIZEOF_INT_P))
   AC_DEFINE(MinTrailSpace,( 48*SIZEOF_INT_P))
 else
-	AC_DEFINE(MinHeapSpace, (200*SIZEOF_INT_P))
-	AC_DEFINE(MinStackSpace,(200*SIZEOF_INT_P))
-	AC_DEFINE(MinTrailSpace,( 32*SIZEOF_INT_P))
+  AC_DEFINE(MinHeapSpace, (200*SIZEOF_INT_P))
+  AC_DEFINE(MinStackSpace,(200*SIZEOF_INT_P))
+  AC_DEFINE(MinTrailSpace,( 32*SIZEOF_INT_P))
 fi
 
 eval "AC_DEFINE(DefHeapSpace,($yap_cv_heap_space))"
@@ -241,6 +253,14 @@ eval "AC_DEFINE(DefTrailSpace,($yap_cv_trail_space))"
 AC_CANONICAL_SYSTEM
 
 AC_DEFINE_UNQUOTED(HOST_ALIAS,"${target}")
+
+if test "$or-parallelism" = no -a "$threads" = no
+then
+  AC_DEFINE(MAX_WORKERS,1)
+else
+eval "AC_DEFINE(MAX_WORKERS,$yap_cv_max_workers)"
+fi
+
 
 dnl condor does not like dynamic linking on Linux, DEC, and HP-UX platforms.
 if test "$use_condor" = yes 
@@ -1013,6 +1033,7 @@ AC_SUBST(INSTALLCLP)
 AC_SUBST(JAVALIBPATH)
 AC_SUBST(JAVAINCPATH)
 AC_SUBST(LAMOBJS)
+AC_SUBST(MAX_WORKERS)
 
 
 dnl check for threaded code
