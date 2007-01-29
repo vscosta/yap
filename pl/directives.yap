@@ -644,6 +644,15 @@ yap_flag(float_format,X) :-
 yap_flag(float_format,X) :-
 	'$do_error'(type_error(atom,X),yap_flag(float_format,X)).
 
+yap_flag(max_threads,X) :-
+	var(X), !,
+	'$max_threads'(X).
+yap_flag(max_threads,X) :-
+	integer(X), X > 0, !,
+	'$do_error'(permission_error(modify,flag,max_threads),yap_flag(max_threads,X)).
+yap_flag(max_threads,X) :-
+	'$do_error'(domain_error(flag_value,max_threads+X),yap_flag(max_threads,X)).
+
 '$show_yap_flag_opts'(V,Out) :-
 	(
 	    V = answer_format ;
@@ -696,7 +705,8 @@ yap_flag(float_format,X) :-
             V = user_output ;
             V = verbose_auto_load ;
             V = version ;
-            V = write_strings
+            V = write_strings;
+	    V = max_threads
 	),
 	yap_flag(V, Out).
 
