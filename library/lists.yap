@@ -96,7 +96,7 @@ memberchk(Element, [_|Rest]) :-
 
 %   nextto(X, Y, List)
 %   is true when X and Y appear side-by-side in List.  It could be written as
-%	nextto(X, Y, List) :- append(_, [X,Y], List).
+%	nextto(X, Y, List) :- append(_, [X,Y,_], List).
 %   It may be used to enumerate successive pairs from the list.
 
 nextto(X,Y, [X,Y|_]).
