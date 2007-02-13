@@ -2162,12 +2162,17 @@ static Int p_putenv(void)
 	  "second arg to putenv/2");
     return(FALSE);
   } else s2 = RepAtom(AtomOfTerm(t2))->StrOfAE;
-  p0 = p = Yap_AllocAtomSpace(strlen(s)+strlen(s2)+3);
+  while (!(p0 = p = Yap_AllocAtomSpace(strlen(s)+strlen(s2)+3))) {
+    if (!Yap_growheap(FALSE, MinHeapGap, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      return FALSE;
+    }
+  }
   while ((*p++ = *s++) != '\0');
   p[-1] = '=';
   while ((*p++ = *s2++) != '\0');
   if (putenv(p0) == 0)
-    return(TRUE);
+    return TRUE;
 #if HAVE_STRERROR
   Yap_Error(OPERATING_SYSTEM_ERROR, TermNil,
 	"in putenv(%s)", strerror(errno), p0);
@@ -2175,11 +2180,11 @@ static Int p_putenv(void)
   Yap_Error(OPERATING_SYSTEM_ERROR, TermNil,
 	"in putenv(%s)", p0);
 #endif
-  return (FALSE);
+  return FALSE;
 #else
     Yap_Error(SYSTEM_ERROR, TermNil,
 	  "putenv not available in this configuration");
-    return (FALSE);
+    return FALSE;
 #endif
 }
 

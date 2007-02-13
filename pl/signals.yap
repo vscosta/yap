@@ -166,17 +166,18 @@ read_sig.
 
 '$protected_env' :-
 	yap_hacks:current_continuations([Env|Envs]),
-%'$envs'(Envs),
 	yap_hacks:continuation(Env,_,Addr,_),
+%'$envs'(Envs, Addr),
 	'$skim_envs'(Envs,Addr,Mod,Name,Arity),
 	\+ '$external_call_seen'(Mod,Name,Arity).
 
 
-% '$envs'([Env|Envs]) :-
-%         '$env_info'(Env,Mod0,Name0,Arity0),
-%          format(user_error,'~a:~w/~w~n',[Mod0,Name0,Arity0]),
-% 	 '$envs'(Envs).
-% '$envs'([]).
+'$envs'([Env|Envs], Addr0) :-
+        yap_hacks:cp_to_predicate(Addr0,Mod0,Name0,Arity0,ClId),
+	format(user_error,'~a:~w/~w ~d~n',[Mod0,Name0,Arity0,ClId]),
+        yap_hacks:continuation(Env,_,Addr,_),
+	 '$envs'(Envs, Addr).
+'$envs'([], _) :- format(user_error,'*****done*****~n',[]).
 
 '$skim_envs'([Env|Envs],Addr0,Mod,Name,Arity) :-
 	yap_hacks:cp_to_predicate(Addr0, Mod0, Name0, Arity0, _ClId),
@@ -192,6 +193,6 @@ read_sig.
 	 '$allowed'(Name,Arity).
 '$external_call_seen'(_,_,_).
 
- '$allowed'('$spycall',3).
+ '$allowed'('$spycall',4).
  '$allowed'('$query',2).
 
