@@ -6,7 +6,7 @@
 :- module(yap_hacks, [
 		  cut_by/1,
 		  current_choicepoints/1,
-		  choicepoint/6,
+		  choicepoint/7,
 		  current_continuations/1,
 		  continuation/4,
 		  stack_dump/0
