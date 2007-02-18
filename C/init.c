@@ -1408,10 +1408,10 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
   GcCalls = 0;
 #ifdef LOW_PROF
   ProfilerOn = FALSE;
+  FPreds = NULL;
 #endif
   ActiveSignals = 0;
   DoingUndefp = FALSE;
-  FPreds = NULL;
   DBErasedList = NULL;
   DBErasedIList = NULL;
   Yap_heap_regs->IntLUKeys = NULL;
