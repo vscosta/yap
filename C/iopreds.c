@@ -202,6 +202,7 @@ GetFreeStreamD(void)
   if (sno == MaxStreams) {
     return -1;
   }
+  Stream[sno].encoding = DefaultEncoding();
   INIT_LOCK(Stream[sno].streamlock);
   return sno;
 }
@@ -385,6 +386,7 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file)
   s->linepos = 0;
   s->linecount = 1;
   s->charcount = 0;
+  s->encoding = DefaultEncoding();
   INIT_LOCK(s->streamlock);
   unix_upd_stream_info (s);
   /* Getting streams to prompt is a mess because we need for cooperation
@@ -2459,6 +2461,7 @@ p_open_mem_read_stream (void)   /* $open_mem_read_stream(+List,-Stream) */
     ti = TailOfTerm(ti);
   }
   nbuf[nchars] = '\0';
+  fprintf(stderr,"nbuf=%s\n",nbuf);
   sno = open_buf_read_stream(nbuf, nchars);
   t = MkStream (sno);
   return (Yap_unify (ARG2, t));

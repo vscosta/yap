@@ -2148,7 +2148,7 @@ p_compile_array_refs(void)
 static Int 
 p_array_refs_compiled(void)
 {
-  return (compile_arrays);
+  return compile_arrays;
 }
 
 static Int

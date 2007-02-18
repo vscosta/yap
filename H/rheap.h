@@ -11,8 +11,12 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2007-01-08 08:27:19 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-02-18 00:26:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.72  2007/01/08 08:27:19  vsc
+* fix restore (Trevor)
+* make indexing a bit faster on IDB
+*
 * Revision 1.71  2006/11/27 17:42:03  vsc
 * support for UNICODE, and other bug fixes.
 *
@@ -896,8 +900,14 @@ RestoreBB(BlackBoardEntry *pp)
 {
   Term t = pp->Element;
   if (t) {
-    if (!IsVarTerm(t) && !IsAtomicTerm(t)) {
-      RestoreLUClause((LogUpdClause *)DBRefOfTerm(t),NULL);
+    if (!IsVarTerm(t)) {
+      if (IsAtomicTerm(t)) {
+	if (IsAtomTerm(t)) {
+	  pp->Element = AtomTermAdjust(t);
+	}
+      } else {
+	RestoreLUClause((LogUpdClause *)DBRefOfTerm(t),NULL);
+      }
     }
   }
   pp->KeyOfBB = AtomAdjust(pp->KeyOfBB);
@@ -1209,8 +1219,8 @@ RestoreEntries(PropEntry *pp)
       {
 	DBEntry *de = (DBEntry *) pp;
 	de->NextOfPE =
-	  PropAdjust(de->NextOfPE); if (HDiff)
-	  RestoreDB(de);
+	  PropAdjust(de->NextOfPE);
+	RestoreDB(de);
       }
       break;
     case BBProperty:
@@ -1218,8 +1228,7 @@ RestoreEntries(PropEntry *pp)
 	BlackBoardEntry *bb = (BlackBoardEntry *) pp;
 	bb->NextOfPE =
 	  PropAdjust(bb->NextOfPE);
-	if (HDiff)
-	  RestoreBB(bb);
+	RestoreBB(bb);
       }
       break;
     case GlobalProperty:

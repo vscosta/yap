@@ -22,12 +22,13 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 #include "absmi.h"
 #include "alloc.h"
 #include "yapio.h"
+#include "iopreds.h"
 #include "attvar.h"
 
 #ifdef DEBUG
 /* #define DEBUG_RESTORE1 1 */
 /* #define DEBUG_RESTORE2 1 */
-#define DEBUG_RESTORE3 1
+/* #define DEBUG_RESTORE3 1 */
 #define errout Yap_stderr
 #endif
 
@@ -36,7 +37,7 @@ STATIC_PROTO(void  CleanCode, (PredEntry *));
 
 static int agc_calls;
 
-static unsigned long int agc_collected;
+static YAP_ULONG_LONG agc_collected;
 
 static Int tot_agc_time = 0; /* total time spent in GC */
 
@@ -59,9 +60,9 @@ AtomResetMark(AtomEntry *ae)
   if (c & AtomMarkedBit) {
     c &= ~AtomMarkedBit;
     ae->NextOfAE = (Atom)c;
-    return (TRUE);
+    return TRUE;
   }
-  return (FALSE);
+  return FALSE;
 }
 
 static inline Atom
@@ -69,7 +70,7 @@ CleanAtomMarkedBit(Atom a)
 {
   CELL c = (CELL)a;
   c &= ~AtomMarkedBit;
-  return((Atom)c);
+  return (Atom)c;
 }
 
 static inline Functor
@@ -164,6 +165,21 @@ rehash(CELL *oldcode, int NOfE, int KindOfEntries)
 
 #include "rheap.h"
 
+static void init_reg_copies(void)
+{
+  OldASP = ASP;
+  OldLCL0 = LCL0;
+  OldTR = TR;
+  OldGlobalBase = (CELL *)Yap_GlobalBase;
+  OldH = H;
+  OldH0 = H0;
+  OldTrailBase = Yap_TrailBase;
+  OldTrailTop = Yap_TrailTop;
+  OldHeapBase = Yap_HeapBase;
+  OldHeapTop = HeapTop;
+}
+
+
 static void
 mark_hash_entry(AtomHashEntry *HashPtr)
 {
@@ -175,7 +191,7 @@ mark_hash_entry(AtomHashEntry *HashPtr)
     do {
 #ifdef DEBUG_RESTORE1			/* useful during debug */
       if (IsWideAtom(atm))
-	  fprintf(errout, "Restoring %S\n", at->WStrOfAE);
+	fprintf(errout, "Restoring %S\n", at->WStrOfAE);
       else
 	fprintf(errout, "Restoring %s\n", at->StrOfAE);
 #endif
@@ -194,8 +210,6 @@ mark_atoms(void)
 {
   AtomHashEntry *HashPtr = HashChain;
   register int    i;
-  AtomEntry      *at;
-  Atom atm;
 
   restore_codes();
   for (i = 0; i < AtomHashTableSize; ++i) {
@@ -207,23 +221,7 @@ mark_atoms(void)
     mark_hash_entry(HashPtr);
     HashPtr++;
   }
-
-  atm = INVISIBLECHAIN.Entry;
-  at = RepAtom(atm);
-  if (EndOfPAEntr(at)) {
-    return;
-  }
-  do {
-#ifdef DEBUG_RESTORE1		/* useful during debug */
-    if (IsWideAtom(atm))
-      fprintf(errout, "Restoring %S\n", at->WStrOfAE);
-    else
-      fprintf(errout, "Restoring %s\n", at->StrOfAE);
-#endif
-    RestoreEntries(RepProp(at->PropsOfAE));
-    atm = at->NextOfAE;
-    at = RepAtom(CleanAtomMarkedBit(atm));
-  } while (!EndOfPAEntr(at));
+  mark_hash_entry(&INVISIBLECHAIN);
 }
 
 static void
@@ -259,6 +257,9 @@ mark_local(void)
       if (IsAtomTerm(reg)) {
 	MarkAtomEntry(RepAtom(AtomOfTerm(reg)));
       }
+    } else if (IsApplTerm(reg)) {
+      Functor f = FunctorOfTerm(reg);
+      FuncAdjust(f);
     }
   }
 }
@@ -277,17 +278,15 @@ mark_global_cell(CELL *pt)
 #else
       return pt + 3;
 #endif
-#if USE_GMP
     case (CELL)FunctorBigInt:
       {
-	Int sz = 1+
-	  sizeof(MP_INT)+
-	  (((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
-	return pt + sz+1;
+	Int sz = 2 +
+	  (sizeof(MP_INT)+
+	   (((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t)))/sizeof(CELL);
+	return pt + sz;
       }
-#endif
     case (CELL)FunctorLongInt:
-      return pt += 3;
+      return pt + 3;
       break;
     }
   } else if (IsAtomTerm(reg)) {
@@ -313,7 +312,6 @@ mark_global(void)
 #endif
   while (pt < H) {
     pt = mark_global_cell(pt);
-    pt++;
   }
 }
 
@@ -326,17 +324,39 @@ mark_stacks(void)
 }
 
 static void
-clean_atom(AtomHashEntry *HashPtr)
+mark_streams(void)
+{
+  int i;
+
+  for (i=0; i < MaxStreams; i++) {
+    if (!(Stream[i].status & (Free_Stream_f|Socket_Stream_f|InMemory_Stream_f|Pipe_Stream_f))) {
+	/* This is a file, so it has a name */
+	AtomEntry *ae = RepAtom(Stream[i].u.file.name);
+	MarkAtomEntry(ae);
+	ae = RepAtom(AtomOfTerm(Stream[i].u.file.user_name));
+	MarkAtomEntry(ae);
+      }
+  }
+  for (i=0;i<NOfFileAliases;i++) {
+    AtomEntry *ae = RepAtom(FileAliases[i].name);
+    MarkAtomEntry(ae);
+  }
+}
+
+static void
+clean_atom_list(AtomHashEntry *HashPtr)
 {
   Atom atm = HashPtr->Entry;
   Atom *patm = &(HashPtr->Entry);
   while (atm != NIL) {
-    AtomEntry *at =  RepAtom(CleanAtomMarkedBit(atm));
-    if (AtomResetMark(at) || (AGCHook != NULL && !AGCHook(atm))) {
+    AtomEntry *at =  RepAtom(atm);
+    if (AtomResetMark(at) ||
+	at->PropsOfAE != NIL ||
+	(AGCHook != NULL && !AGCHook(atm))) {
       patm = &(at->NextOfAE);
       atm = at->NextOfAE;
-      NOfAtoms--;
     } else {
+      NOfAtoms--;
       if (IsWideAtom(atm)) {
 #ifdef DEBUG_RESTORE3
 	fprintf(errout, "Purged %p:%S\n", at, at->WStrOfAE);
@@ -344,12 +364,11 @@ clean_atom(AtomHashEntry *HashPtr)
 	agc_collected += sizeof(AtomEntry)+wcslen(at->WStrOfAE);
       } else {
 #ifdef DEBUG_RESTORE3
-	fprintf(stderr, "Purged %p:%s\n", at, at->StrOfAE);
+	fprintf(stderr, "Purged %p:%s patm=%p %p\n", at, at->StrOfAE, patm, at->NextOfAE);
 #endif
 	agc_collected += sizeof(AtomEntry)+strlen(at->StrOfAE);
       }
-      *patm = at->NextOfAE;
-      atm = at->NextOfAE;
+      *patm = atm = at->NextOfAE;
       Yap_FreeCodeSpace((char *)at);
     }
   }
@@ -363,43 +382,19 @@ clean_atoms(void)
 {
   AtomHashEntry *HashPtr = HashChain;
   register int    i;
-  Atom atm;
-  Atom *patm;
-  AtomEntry  *at;
 
+  AtomResetMark(AtomFoundVar);
+  AtomResetMark(AtomFreeTerm);
   for (i = 0; i < AtomHashTableSize; ++i) {
-    clean_atom(HashPtr);
+    clean_atom_list(HashPtr);
     HashPtr++;
   }
+  HashPtr = WideHashChain;
   for (i = 0; i < WideAtomHashTableSize; ++i) {
-    clean_atom(HashPtr);
+    clean_atom_list(HashPtr);
     HashPtr++;
   }
-  patm = &(INVISIBLECHAIN.Entry);
-  atm = INVISIBLECHAIN.Entry;
-  while (atm != NIL) {
-    at =  RepAtom(CleanAtomMarkedBit(atm));
-    if (AtomResetMark(at) || (AGCHook != NULL && !AGCHook(atm))) {
-      patm = &(atm->NextOfAE);
-      NOfAtoms--;
-      atm = at->NextOfAE;
-    } else {
-      if (IsWideAtom(atm)) {
-#ifdef DEBUG_RESTORE3
-	fprintf(errout, "Purged %p:%S\n", at, at->WStrOfAE);
-#endif
-	agc_collected += sizeof(AtomEntry)+wcslen(at->WStrOfAE);
-      } else {
-#ifdef DEBUG_RESTORE3
-	fprintf(stderr, "Purged %p:%s\n", at, at->StrOfAE);
-#endif
-	agc_collected += sizeof(AtomEntry)+strlen(at->StrOfAE);
-      }
-      *patm = at->NextOfAE;
-      atm = at->NextOfAE;
-      Yap_FreeCodeSpace((char *)at);
-    }
-  }
+  clean_atom_list(&INVISIBLECHAIN);
 }
 
 static void
@@ -414,6 +409,7 @@ atom_gc(void)
     gc_trace = 1;
   agc_calls++;
   agc_collected = 0;
+  
   if (gc_trace) {
     fprintf(Yap_stderr, "%% agc:\n");
   } else if (gc_verbose) {
@@ -422,15 +418,18 @@ atom_gc(void)
   time_start = Yap_cputime();
   /* get the number of active registers */
   YAPEnterCriticalSection();
+  init_reg_copies();
   mark_stacks();
+  mark_streams();
   mark_atoms();
   clean_atoms();
+  AGcLastCall = NOfAtoms;
   YAPLeaveCriticalSection();
   agc_time = Yap_cputime()-time_start;
   tot_agc_time += agc_time;
   tot_agc_recovered += agc_collected;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "%%   Collected %ld bytes.\n", agc_collected);
+    fprintf(Yap_stderr, "%%   Collected %lld bytes.\n", agc_collected);
     fprintf(Yap_stderr, "%%   GC %d took %g sec, total of %g sec doing GC so far.\n", agc_calls, (double)agc_time/1000, (double)tot_agc_time/1000);
   }
 }
@@ -444,7 +443,6 @@ Yap_atom_gc(void)
 static Int
 p_atom_gc(void)
 {
-  return TRUE;
 #ifndef FIXED_STACKS
   atom_gc();
 #endif  /* FIXED_STACKS */
@@ -462,9 +460,31 @@ p_inform_agc(void)
 
 }
 
+static Int
+p_agc_threshold(void)
+{
+  Term t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    return Yap_unify(ARG1, MkIntegerTerm(AGcThreshold));
+  } else if (!IsIntegerTerm(t)) {
+    Yap_Error(TYPE_ERROR_INTEGER,t,"prolog_flag/2 agc_margin");
+    return FALSE;
+  } else {
+    Int i = IntegerOfTerm(t);
+    if (i<0) {
+      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,t,"prolog_flag/2 agc_margin");
+      return FALSE;
+    } else {
+      AGcThreshold = i;
+      return TRUE;
+    }
+  }
+}
+
 void 
 Yap_init_agc(void)
 {
   Yap_InitCPred("$atom_gc", 0, p_atom_gc, HiddenPredFlag);
   Yap_InitCPred("$inform_agc", 3, p_inform_agc, HiddenPredFlag);
+  Yap_InitCPred("$agc_threshold", 1, p_agc_threshold, HiddenPredFlag|SafePredFlag);
 }

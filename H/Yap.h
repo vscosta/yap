@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.19 2007-01-29 10:18:15 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.20 2007-02-18 00:26:36 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -515,6 +515,7 @@ typedef enum
   FAST_BOOT_FLAG = 16,
   STACK_DUMP_ON_ERROR_FLAG = 17,
   INDEXING_MODE_FLAG = 18,
+  /* let this be the last one */
   TABLING_MODE_FLAG = 19
 } yap_flags;
 
@@ -555,7 +556,8 @@ typedef enum
   YAP_BREAK_SIGNAL = 0x2000,	/* received break signal */
   YAP_STACK_DUMP_SIGNAL = 0x4000,	/* received stack dump signal */
   YAP_STATISTICS_SIGNAL = 0x8000,	/* received statistics */
-  YAP_DELAY_CREEP_SIGNAL = 0x10000	/* received a creep but should not do it */
+  YAP_DELAY_CREEP_SIGNAL = 0x10000,	/* received a creep but should not do it */
+  YAP_AGC_SIGNAL = 0x20000	/* call atom garbage collector asap */
 } yap_signals;
 
 #define NUMBER_OF_YAP_FLAGS  TABLING_MODE_FLAG + 1

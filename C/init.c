@@ -268,7 +268,8 @@ OpDec(int p, char *type, Atom a, Term m)
     WRITE_UNLOCK(ae->ARWLock);
   }
   if (i <= 3) {
-    if (info->Posfix != 0) /* there is a posfix operator */ {
+    if (yap_flags[STRICT_ISO_FLAG] && 
+	info->Posfix != 0) /* there is a posfix operator */ {
       /* ISO dictates */
       WRITE_UNLOCK(info->OpRWLock);
       Yap_Error(PERMISSION_ERROR_CREATE_OPERATOR,MkAtomTerm(a),"op/3");
@@ -276,7 +277,8 @@ OpDec(int p, char *type, Atom a, Term m)
     }
     info->Infix = p;
   } else if (i <= 5) {
-    if (info->Infix != 0) /* there is an infix operator */ {
+    if (yap_flags[STRICT_ISO_FLAG] && 
+	info->Infix != 0) /* there is an infix operator */ {
       /* ISO dictates */
       WRITE_UNLOCK(info->OpRWLock);
       Yap_Error(PERMISSION_ERROR_CREATE_OPERATOR,MkAtomTerm(a),"op/3");
@@ -1041,11 +1043,11 @@ InitCodes(void)
   Yap_heap_regs->system_profiling = FALSE;
   Yap_heap_regs->system_call_counting = FALSE;
   Yap_heap_regs->system_pred_goal_expansion_all = FALSE;
-  Yap_heap_regs->system_pred_goal_expansion_func = FALSE;
   Yap_heap_regs->system_pred_goal_expansion_on = FALSE;
   Yap_heap_regs->update_mode = UPDATE_MODE_LOGICAL;
   Yap_heap_regs->compiler_compile_mode = 0; /* fast will be for native code */
   Yap_heap_regs->compiler_optimizer_on = TRUE;
+  Yap_heap_regs->compiler_compile_arrays = FALSE;
   Yap_heap_regs->maxdepth      = 0;
   Yap_heap_regs->maxlist       = 0;
   Yap_heap_regs->maxwriteargs  = 0;
@@ -1221,6 +1223,9 @@ InitCodes(void)
   Yap_heap_regs->file_aliases = NULL;
   Yap_heap_regs->foreign_code_loaded = NULL;
   Yap_heap_regs->yap_lib_dir = NULL;
+  Yap_heap_regs->agc_last_call = 0;
+  /* should be 10000 */
+  Yap_heap_regs->agc_threshold = 0;
   Yap_heap_regs->agc_hook = NULL;
   Yap_heap_regs->parser_error_style = EXCEPTION_ON_PARSER_ERROR;
   Yap_heap_regs->size_of_overflow  = 0;
@@ -1351,6 +1356,9 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
   Yap_LUIndexSpace_CP = 0;
   Yap_LUIndexSpace_EXT = 0;
   Yap_LUIndexSpace_SW = 0;
+#if USE_THREADED_CODE
+  Yap_heap_regs->op_rtable = NULL;
+#endif
 #if defined(YAPOR) || defined(TABLING)
   Yap_init_global(max_table_size, n_workers, sch_loop, delay_load);
 #endif /* YAPOR || TABLING */
@@ -1392,6 +1400,21 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
   Yap_LookupAtomWithAddress(".",&(SF_STORE->AtDot));
 #endif
   /* InitAbsmi must be done before InitCodes */
+  /* This must be done before initialising predicates */
+  Yap_heap_regs->system_pred_goal_expansion_func = FALSE;
+  for (i = 0; i <= TABLING_MODE_FLAG; i++) {
+    yap_flags[i] = 0;
+  }
+  GcCalls = 0;
+#ifdef LOW_PROF
+  ProfilerOn = FALSE;
+#endif
+  ActiveSignals = 0;
+  DoingUndefp = FALSE;
+  FPreds = NULL;
+  DBErasedList = NULL;
+  DBErasedIList = NULL;
+  Yap_heap_regs->IntLUKeys = NULL;
 #ifdef MPW
   Yap_InitAbsmi(REGS, FunctorList);
 #else

@@ -652,13 +652,13 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
   p->FunctorOfPred = (Functor)fe;
   WRITE_UNLOCK(fe->FRWLock);
 #ifdef LOW_PROF
-    if (ProfilerOn &&
-	Yap_OffLineProfiler) {
-      Yap_inform_profiler_of_clause((yamop *)&(p->OpcodeOfPred), (yamop *)(&(p->OpcodeOfPred)+1), p, 1);
-      if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
-	Yap_inform_profiler_of_clause((yamop *)&(p->cs.p_code.ExpandCode), (yamop *)(&(p->cs.p_code.ExpandCode)+1), p, 1);
-      }
+  if (ProfilerOn &&
+      Yap_OffLineProfiler) {
+    Yap_inform_profiler_of_clause((yamop *)&(p->OpcodeOfPred), (yamop *)(&(p->OpcodeOfPred)+1), p, 1);
+    if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
+      Yap_inform_profiler_of_clause((yamop *)&(p->cs.p_code.ExpandCode), (yamop *)(&(p->cs.p_code.ExpandCode)+1), p, 1);
     }
+  }
 #endif /* LOW_PROF */
   return p0;
 }

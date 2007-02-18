@@ -114,7 +114,6 @@ STATIC_PROTO(void  CleanClauses, (yamop *, yamop *,PredEntry *));
 STATIC_PROTO(void  rehash, (CELL *, int, int));
 STATIC_PROTO(void  CleanCode, (PredEntry *));
 STATIC_PROTO(void  RestoreEntries, (PropEntry *));
-STATIC_PROTO(void  RestoreInvisibleAtoms, (void));
 STATIC_PROTO(void  RestoreFreeSpace, (void));
 STATIC_PROTO(void  restore_heap, (void));
 #ifdef DEBUG_RESTORE3
@@ -1260,14 +1259,11 @@ RestoreFreeSpace(void)
 #endif
 }
 
-/* restore the atom entries which are invisible for the user */
-static void 
-RestoreInvisibleAtoms(void)
+static void
+RestoreAtomList(Atom atm)
 {
   AtomEntry      *at;
-  Atom            atm = INVISIBLECHAIN.Entry;
 
-  INVISIBLECHAIN.Entry = atm = AtomAdjust(atm);
   at = RepAtom(atm);
   if (EndOfPAEntr(at))
     return;
@@ -1284,6 +1280,7 @@ RestoreInvisibleAtoms(void)
   while (!EndOfPAEntr(at));
 }
 
+
 /*
  * This is the really tough part, to restore the whole of the heap 
  */
@@ -1293,43 +1290,18 @@ restore_heap(void)
   AtomHashEntry *HashPtr = HashChain;
   register int    i;
   for (i = 0; i < AtomHashTableSize; ++i) {
-    Atom atm = HashPtr->Entry;
-    if (atm) {
-      AtomEntry      *at;
-      HashPtr->Entry = atm = AtomAdjust(atm);
-      at =  RepAtom(atm);
-      do {
-#ifdef DEBUG_RESTORE2			/* useful during debug */
-	fprintf(errout, "Restoring %s\n", at->StrOfAE);
-#endif
-	at->PropsOfAE = PropAdjust(at->PropsOfAE);
-	RestoreEntries(RepProp(at->PropsOfAE));
-	atm = at->NextOfAE = AtomAdjust(at->NextOfAE);
-	at = RepAtom(atm);
-      } while (!EndOfPAEntr(at));
-    }
+    HashPtr->Entry = AtomAdjust(HashPtr->Entry);
+    RestoreAtomList(HashPtr->Entry);
     HashPtr++;
   }
   HashPtr = WideHashChain;
   for (i = 0; i < WideAtomHashTableSize; ++i) {
-    Atom atm = HashPtr->Entry;
-    if (atm) {
-      AtomEntry      *at;
-      HashPtr->Entry = atm = AtomAdjust(atm);
-      at =  RepAtom(atm);
-      do {
-#ifdef DEBUG_RESTORE2			/* useful during debug */
-	fprintf(errout, "Restoring %s\n", at->StrOfAE);
-#endif
-	at->PropsOfAE = PropAdjust(at->PropsOfAE);
-	RestoreEntries(RepProp(at->PropsOfAE));
-	atm = at->NextOfAE = AtomAdjust(at->NextOfAE);
-	at = RepAtom(atm);
-      } while (!EndOfPAEntr(at));
-    }
+    HashPtr->Entry = AtomAdjust(HashPtr->Entry);
+    RestoreAtomList(HashPtr->Entry);
     HashPtr++;
   }
-  RestoreInvisibleAtoms();
+  INVISIBLECHAIN.Entry = AtomAdjust(INVISIBLECHAIN.Entry);
+  RestoreAtomList(INVISIBLECHAIN.Entry);
   RestoreForeignCodeStructure();
   RestoreIOStructures();
 }

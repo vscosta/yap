@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.112 2006-12-29 01:57:50 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.113 2007-02-18 00:26:36 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -521,6 +521,8 @@ typedef struct various_codes {
 #endif /* LOW_PROF */
   struct reduction_counters call_counters;
   char *yap_lib_dir;
+  UInt      agc_last_call; /* amount of space recovered in all garbage collections */
+  UInt      agc_threshold; /* amount of space recovered in all garbage collections */
   Agc_hook  agc_hook;
   void *foreign_code_loaded;
   ADDR  foreign_code_base;
@@ -824,6 +826,8 @@ struct various_codes *Yap_heap_regs;
 #define  PredEntriesCounterOn     Yap_heap_regs->call_counters.reductions_retries_on
 #define  RetriesCounterOn         Yap_heap_regs->call_counters.retries_on
 #define  Yap_LibDir               Yap_heap_regs->yap_lib_dir
+#define  AGcLastCall              Yap_heap_regs->agc_last_call
+#define  AGcThreshold             Yap_heap_regs->agc_threshold
 #define  AGCHook                  Yap_heap_regs->agc_hook
 #define  ParserErrorStyle         Yap_heap_regs->parser_error_style
 #ifdef  COROUTINING

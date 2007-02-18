@@ -35,7 +35,7 @@
 @format
 @dircategory The YAP Prolog System
 @direntry
-* Yap: (yap).           YAP Prolog User's Manual.
+* YAP: (yap).           YAP Prolog User's Manual.
 @end direntry
 @end format
 @end ifnottex
@@ -88,12 +88,12 @@ us to include his text in this document.
 * Syntax:: The syntax of YAP
 * Loading Programs:: Loading Prolog programs
 * Modules:: Using Modules in YAP
-* Builtins:: Built In Predicates
+* Built-ins:: Built In Predicates
 * Library:: Library Predicates
 * SWI-Prolog:: SWI-Prolog emulation
 * Extensions:: Extensions to Standard YAP
 * Rational Trees:: Working with Rational Trees
-* Coroutining:: Changing the Execution of Goals
+* Co-routining:: Changing the Execution of Goals
 * Attributed Variables:: Using attributed Variables
 * CLPR:: The CLP(R) System
 * CHR:: The CHR System
@@ -106,7 +106,7 @@ us to include his text in this document.
 * Debugging:: Using the Debugger
 * Efficiency:: Efficiency Considerations
 * C-Interface:: Interfacing predicates written in C
-* YapLibrary:: Using YAP as a library in other programs
+* YAPLibrary:: Using YAP as a library in other programs
 * Compatibility:: Compatibility with other Prolog systems
 * Predicate Index:: An item for each predicate
 * Concept Index:: An item for each concept
@@ -132,7 +132,7 @@ Built In Predicates
 
 
 Subnodes of Running
-* Running Yap Interactively:: Interacting with Yap
+* Running YAP Interactively:: Interacting with YAP
 * Running Prolog Files:: Running Prolog files as scripts
 
 Subnodes of Syntax
@@ -276,29 +276,29 @@ Subnodes of C-Interface
 * Manipulating Terms:: Primitives available to the C programmer
 * Unifying Terms:: How to Unify Two Prolog Terms
 * Manipulating Strings:: From character arrays to Lists of codes and back
-* Memory Allocation:: Stealing Memory From Yap
-* Controlling Streams:: Control How Yap sees Streams
-* Calling Yap From C:: From C to Yap to C to Yap 
+* Memory Allocation:: Stealing Memory From YAP
+* Controlling Streams:: Control How YAP sees Streams
+* Calling YAP From C:: From C to YAP to C to YAP 
 * Writing C:: Writing Predicates in C
 * Loading Objects:: Loading Object Files
-* Sav&Rest:: Saving and Restoring
-* Yap4 Notes:: Changes in Foreign Predicates Interface
+* Save&Rest:: Saving and Restoring
+* YAP4 Notes:: Changes in Foreign Predicates Interface
 
 Subnodes of C-Prolog
 * Major Differences with C-Prolog:: Major Differences between YAP and C-Prolog
-* Fully C-Prolog Compatible:: Yap predicates fully compatible with
+* Fully C-Prolog Compatible:: YAP predicates fully compatible with
 C-Prolog
-* Not Strictly C-Prolog Compatible:: Yap predicates not strictly as C-Prolog
-* Not in C-Prolog:: Yap predicates not available in C-Prolog
+* Not Strictly C-Prolog Compatible:: YAP predicates not strictly as C-Prolog
+* Not in C-Prolog:: YAP predicates not available in C-Prolog
 * Not in YAP:: C-Prolog predicates not available in YAP
 
 Subnodes of SICStus Prolog
 * Major Differences with SICStus:: Major Differences between YAP and SICStus Prolog
-* Fully SICStus Compatible:: Yap predicates fully compatible with
+* Fully SICStus Compatible:: YAP predicates fully compatible with
 SICStus Prolog
-* Not Strictly SICStus Compatible:: Yap predicates not strictly as
+* Not Strictly SICStus Compatible:: YAP predicates not strictly as
 SICStus Prolog
-* Not in SICstus Prolog:: Yap predicates not available in SICStus Prolog
+* Not in SICStus Prolog:: YAP predicates not available in SICStus Prolog
 
 
 Tables
@@ -313,13 +313,13 @@ Tables
 @unnumbered Introduction
 
 This document provides User information on version @value{VERSION} of
-YAP (@emph{yet another prolog}). The YAP Prolog System is a
+YAP (@emph{Yet Another Prolog}). The YAP Prolog System is a
 high-performance Prolog compiler developed at LIACC, Universidade do
 Porto. YAP provides several important features:
 
 @itemize @bullet
- @item Speed: YAP is widely considered one of the fastest available Prolog
-systems.
+ @item Speed: YAP is widely considered one of the fastest available
+Prolog systems.
 
  @item Functionality: it supports stream I/O, sockets, modules,
 exceptions, Prolog debugger, C-interface, dynamic code, internal
@@ -360,15 +360,15 @@ license, and it is thus non-copylefted freeware.
 
 If you have a question about this software, desire to add code, found a
 bug, want to request a feature, or wonder how to get further assistance,
-please send e-mail to @email{yappers@@ncc.up.pt}.  To subscribe to the
-mailing list, send a request to @email{majordomo@@ncc.up.pt} with body
-"subscribe yappers".
+please send e-mail to @email{yap-users AT lists.sourceforge.net}.  To
+subscribe to the mailing list, visit the page
+@url{https://lists.sourceforge.net/lists/listinfo/yap-users}.
 
-Online documentation is available for YAP at:
+On-line documentation is available for YAP at:
 
-        @url{http://www.ncc.up.pt/~vsc/Yap/}
+        @url{http://www.ncc.up.pt/~vsc/YAP/}
 
-Recent versions of Yap, including both source and selected binaries,
+Recent versions of YAP, including both source and selected binaries,
 can be found from this same URL.
 
 This manual was written by V@'{@dotless{i}}tor Santos Costa,
@@ -438,7 +438,7 @@ To compile YAP it should be sufficient to:
 @item @code{../configure ...options...}. 
 
 Notice that by default @code{configure} gives you a vanilla
-configuration. For instance, in order to use coroutining and/or CLP
+configuration. For instance, in order to use co-routining and/or CLP
 you need to do
 
 @example
@@ -449,7 +449,7 @@ Please @pxref{Configuration Options} for extra options.
 @item check the Makefile for any extensions or changes you want to
 make.
 
-YAP uses @code{autoconf}. Recent versions of Yap try to follow GNU
+YAP uses @code{autoconf}. Recent versions of YAP try to follow GNU
 conventions on where to place software.
 
 @itemize @bullet
@@ -459,7 +459,7 @@ actually a script that calls the Prolog engine, stored at @code{LIBDIR}.
 @item @code{LIBDIR} is the directory where libraries are stored. YAPLIBDIR is a
 subdirectory that contains the Prolog engine and a Prolog library.
 
-@item @code{INCLUDEDIR} is used if you want to use Yap as a library.
+@item @code{INCLUDEDIR} is used if you want to use YAP as a library.
 
 @item @code{INFODIR} is where to store @code{info} files. Usually
 @code{/usr/local/info}, @code{/usr/info}, or @code{/usr/share/info}.
@@ -485,8 +485,8 @@ install} and @code{make info} on the standard directories.
 @section Tuning the Functionality of YAP 
 @cindex syntax
 
-Compiling Yap with the standard options give you a plain vanilla
-Prolog. You can tune Yap to include extra functionality by calling
+Compiling YAP with the standard options give you a plain vanilla
+Prolog. You can tune YAP to include extra functionality by calling
 @code{configure} with the appropriate options:
 
 @itemize @bullet
@@ -538,7 +538,7 @@ Next section discusses machine dependent details.
 
 The default options should give you best performance under
 @code{GCC}. Although the system is tuned for this compiler
-we have been able to compile versions of Yap under lcc in Linux,
+we have been able to compile versions of YAP under lcc in Linux,
 Sun's cc compiler, IBM's xlc, SGI's cc, and Microsoft's Visual C++
 6.0.
 
@@ -552,7 +552,7 @@ Sun's cc compiler, IBM's xlc, SGI's cc, and Microsoft's Visual C++
 @node Tuning for GCC, Compiling Under Visual C++, , Machine Options
 @section Tuning YAP for @code{GCC}.
 
-Yap has been developed to take advantage of @code{GCC} (but not to
+YAP has been developed to take advantage of @code{GCC} (but not to
 depend on it). The major advantage of @code{GCC} is threaded code and
 explicit register reservation.
 
@@ -562,7 +562,7 @@ know. Even so, a few specific options reduce portability.  The option
  @item @code{--enable-max-performance=yes} will try to support the best
 available flags for a specific architectural model. Currently, the option
 assumes a recent version of @code{GCC}.
- @item @code{--enable-debug-yap} compiles Yap so that it can be debugged
+ @item @code{--enable-debug-yap} compiles YAP so that it can be debugged
 by tools such as @code{dbx} or @code{gdb}.
 @end itemize
 
@@ -589,7 +589,7 @@ SunOS 4 machines.
 Note that versions of GCC can be tweaked to recognize different
 processors within the same instruction set, e.g. 486, Pentium, and
 PentiumPro for the x86; or Ultrasparc, and Supersparc for
-Sparc. Unfortunately, some of these tweaks do may make Yap run slower or
+Sparc. Unfortunately, some of these tweaks do may make YAP run slower or
 not at all in other machines with the same instruction set, so they
 cannot be made default.
 
@@ -641,9 +641,9 @@ You will need to install the @code{msys} and @code{mingw}
 packages. You should be able to do configure, make and make install.
 
 If you use mingw32 you may want to search the contributed packages for
-the @code{gmp} multi-precision arithmetic library. If you do setup Yap
+the @code{gmp} multi-precision arithmetic library. If you do setup YAP
 with @code{gmp} note that @code{libgmp.dll} must be in the path,
-otherwise Yap will not be able to execute.
+otherwise YAP will not be able to execute.
 
 CygWin environment is available from the URL:
 
@@ -662,22 +662,22 @@ make
 make install
 @end example
 
-By default, Yap will use the @code{--enable-cygwin=no} option to
+By default, YAP will use the @code{--enable-cygwin=no} option to
 disable the use of the cygwin dll and to enable the mingw32 subsystem
-instead. Yap thus will not need the cygwin dll. It instead accesses
+instead. YAP thus will not need the cygwin dll. It instead accesses
 the system's @code{CRTDLL.DLL} @code{C} run time library supplied with
 Win32 platforms through the mingw32 interface. Note that some older
 WIN95 systems may not have @code{CRTDLL.DLL}, in this case it should
 be sufficient to import the file from a newer WIN95 or WIN98 machine.
 
 You should check the default installation path which is set to
-@code{/Yap} in the standard Makefile. This string will usually
-be expanded into @code{c:\Yap} by Windows.
+@code{/YAP} in the standard Makefile. This string will usually
+be expanded into @code{c:\YAP} by Windows.
 
 The cygwin environment does not provide @t{gmp}. You can fetch a dll for
 the @t{gmp} library from @url{http://www.sf.net/projects/mingwrep}.
 
-It is also possible to configure Yap to be a part of the cygwin
+It is also possible to configure YAP to be a part of the cygwin
 environment. In this case you should use:
 @example
 mkdir cyg
@@ -687,8 +687,8 @@ $YAPSRC/configure --enable-coroutining \\
 make
 make install
 @end example
-Yap will then compile using the cygwin library and will be installed
-in cygwin's @code{/usr/local}. You can use Yap from a cygwin console,
+YAP will then compile using the cygwin library and will be installed
+in cygwin's @code{/usr/local}. You can use YAP from a cygwin console,
 or as a standalone application as long as it can find
 @code{cygwin1.dll} in its path.
 
@@ -697,11 +697,11 @@ or as a standalone application as long as it can find
 @node Compiling Under Visual C++, Tuning for SGI cc, Tuning for GCC, Machine Options
 @subsection  Compiling Under Visual C++
 
-Yap compiles cleanly under Microsoft's Visual C++ release 6.0. We next
-give a step-by-step tutorial on how to compile Yap manually using this
+YAP compiles cleanly under Microsoft's Visual C++ release 6.0. We next
+give a step-by-step tutorial on how to compile YAP manually using this
 environment.
 
-First, it is a good idea to build Yap as a DLL:
+First, it is a good idea to build YAP as a DLL:
 
 @enumerate
 
@@ -710,14 +710,14 @@ DLL project, initially empty.
 
 Notice that either the project is named yapdll or you must replace the
 preprocessors variable @var{YAPDLL_EXPORTS} to match your project names
-in the files @code{YapInterface.h} and @code{c_interface.c}.
+in the files @code{YAPInterface.h} and @code{c_interface.c}.
 
 @item add all .c files in the @var{$YAPSRC/C} directory and in the
-@var{$YAPSRC\OPTYap} directory to the Project's @code{Source Files} (use
+@var{$YAPSRC\OPTYAP} directory to the Project's @code{Source Files} (use
 FileView).
 
 @item add all .h files in the @var{$YAPSRC/H} directory,
-@var{$YAPSRC\include} directory and in the @var{$YAPSRC\OPTYap}
+@var{$YAPSRC\include} directory and in the @var{$YAPSRC\OPTYAP}
 subdirectory to the Project's @code{Header Files}.
 
 @item Ideally, you should now use @code{m4} to generate extra  .h from .m4 files and use
@@ -727,14 +727,14 @@ fetch these files from @var{$YAPSRC\VC\include}.
 @item You may want to go to @code{Build.Set Active Configuration} and set @code{Project
 Type} to @code{Release}
 
-@item To use Yap's own include directories you have to set the Project
+@item To use YAP's own include directories you have to set the Project
 option  @code{Project.Project Settings.C/C++.Preprocessor.Additional
 Include Directories} to include the directories @var{$YAPSRC\H},
-@var{$YAPSRC\VC\include}, @var{$YAPSRC\OPTYap} and
+@var{$YAPSRC\VC\include}, @var{$YAPSRC\OPTYAP} and
 @var{$YAPSRC\include}.  The syntax is:
 
 @example
-$YAPSRC\H, $YAPSRC\VC\include, $YAPSRC\OPTYap, $YAPSRC\include
+$YAPSRC\H, $YAPSRC\VC\include, $YAPSRC\OPTYAP, $YAPSRC\include
 @end example
 
 @item  Build: the system should generate an @code{yapdll.dll} and an @code{yapdll.lib}.
@@ -743,7 +743,7 @@ $YAPSRC\H, $YAPSRC\VC\include, $YAPSRC\OPTYap, $YAPSRC\include
 @code{yapdll.lib} should also be copied to a location where the linker can find it.
 @end enumerate
 
-Now you are ready to create a console interface for Yap:
+Now you are ready to create a console interface for YAP:
 @enumerate
 @item create a second project  say @code{wyap} with @code{File.New}. The project will be a
 WIN32 console project, initially empty.
@@ -797,10 +797,10 @@ save_program(startup).
 ^Z
 @end example
 
-That's it, you've got Yap and the saved state!
+That's it, you've got YAP and the saved state!
 @end enumerate
 
-The $YAPSRC\VC directory has the make files to build Yap4.3.17 under VC++ 6.0.
+The $YAPSRC\VC directory has the make files to build YAP4.3.17 under VC++ 6.0.
 
 @node Tuning for SGI cc, , Compiling Under Visual C++ ,Machine Options
 @subsection  Compiling Under SGI's cc
@@ -820,17 +820,17 @@ CC="cc -64" $YAP_SRC_PATH/configure --...
 @chapter Running YAP
 
 @menu
-* Running Yap Interactively:: Interacting with Yap
+* Running YAP Interactively:: Interacting with YAP
 * Running Prolog Files:: Running Prolog files as scripts
 @end menu
 
 @cindex booting
-We next describe how to invoke Yap in Unix systems.
+We next describe how to invoke YAP in Unix systems.
 
-@node Running Yap Interactively, ,Running Prolog Files,Run
-@section Running Yap Interactively
+@node Running YAP Interactively, ,Running Prolog Files,Run
+@section Running YAP Interactively
 
-Most often you will want to use Yap in interactive mode. Assuming that
+Most often you will want to use YAP in interactive mode. Assuming that
 YAP is in the user's search path, the top-level can be invoked under
 Unix with the following command:
 
@@ -910,7 +910,7 @@ YAP will try to find library files from the YAPSHAREDIR/library
 directory.
 @end itemize
 
-@node Running Prolog Files, Running Yap Interactively, , Run
+@node Running Prolog Files, Running YAP Interactively, , Run
 @section Running Prolog Files
 
 YAP can also be used to run Prolog files as scripts, at least in
@@ -920,7 +920,7 @@ Unix-like environments. A simple example is shown next:
 @cartouche
 #!/usr/local/bin/yap -L --
 #
-# Hello World script file using Yap
+# Hello World script file using YAP
 #
 # put a dot because of syntax errors .
 
@@ -930,8 +930,8 @@ Unix-like environments. A simple example is shown next:
 @end example
 
 The @code{#!}  characters specify that the script should call the binary
-file Yap. Notice that many systems will require the complete path to the
-Yap binary. The @code{-L} flag indicates that YAP should consult the
+file YAP. Notice that many systems will require the complete path to the
+YAP binary. The @code{-L} flag indicates that YAP should consult the
 current file when booting and then halt. The remaining arguments are
 then passed to YAP. Note that YAP will skip the first lines if they
 start with @code{#} (the comment sign for Unix's shell). YAP will
@@ -943,7 +943,7 @@ A slightly more sophisticated example is:
 @cartouche
 #!/usr/bin/yap -L --
 #
-# Hello World script file using Yap
+# Hello World script file using YAP
 # .
 
 :- initialization(main).
@@ -953,7 +953,7 @@ main :- write('Hello World'), nl.
 @end cartouche
 @end example
 
-The @code{initialization} directive tells Yap to execute the goal main
+The @code{initialization} directive tells YAP to execute the goal main
 after consulting the file. Source code is thus compiled and @code{main}
 executed at the end. The @code{.} is useful while debugging the script
 as a Prolog program: it guarantees that the syntax error will not
@@ -1241,7 +1241,7 @@ Examples:
 
 The first string is an empty string, the last string shows the use of
 double-quoting. The implementation of YAP represents strings as
-lists of integers. Since Yap4.3.0 there is no static limit on string
+lists of integers. Since YAP4.3.0 there is no static limit on string
 size.
 
 Escape sequences can be used to include the non-printable characters
@@ -1620,7 +1620,7 @@ Multifile declarations affect @code{reconsult/1} and @code{compile/1}:
 when a multifile predicate is reconsulted, only the clauses from the
 same file are removed.
 
-Since Yap4.3.0 multifile procedures can be static or dynamic.
+Since YAP4.3.0 multifile procedures can be static or dynamic.
 
 @item discontiguous(+@var{G}) [ISO]
 @findex discontiguous/1 (directive)
@@ -1695,7 +1695,7 @@ built-ins.
 Note that all dynamic procedures are public. The @code{source} directive
 defines all new or redefined predicates to be public.
 
-Since Yap4.3.0 multifile procedures can be static or dynamic.
+Since YAP4.3.0 multifile procedures can be static or dynamic.
 
 @end table
 
@@ -1708,7 +1708,7 @@ Since Yap4.3.0 multifile procedures can be static or dynamic.
 @snindex save/1
 @cyindex save/1
 Saves an image of the current state of YAP in file @var{F}. From
-@strong{Yap4.1.3} onwards, YAP saved states are executable
+@strong{YAP4.1.3} onwards, YAP saved states are executable
 files in the Unix ports.
 
 @item save(+@var{F},-@var{OUT})
@@ -1716,7 +1716,7 @@ files in the Unix ports.
 @snindex save/2
 @cnindex save/2
 Saves an image of the current state of YAP in file @var{F}. From
-@strong{Yap4.1.3} onwards, YAP saved states are executable
+@strong{YAP4.1.3} onwards, YAP saved states are executable
 files in the Unix ports.
 
 Unify @var{OUT} with 1 when saving the file and @var{OUT} with 0 when
@@ -1749,7 +1749,7 @@ defined, or search the default library directory.
 @end table
 
 
-@node Modules, Builtins, Loading Programs, Top
+@node Modules, Built-ins, Loading Programs, Top
 @chapter The Module System
 
 Module systems are quite important for the development of large
@@ -1991,19 +1991,19 @@ a(G) :- call(example:G)
 
 @end example
 
-@node Builtins, Library, Modules, Top
+@node Built-ins, Library, Modules, Top
 
 @chapter Built-In Predicates
 
 @menu
 
-Builtins, Debugging, Syntax, Top
+Built-ins, Debugging, Syntax, Top
 * Control:: Controlling the Execution of Prolog Programs
 * Undefined Procedures:: Handling calls to Undefined Procedures
 * Testing Terms:: Predicates on Terms
 * Comparing Terms:: Comparison of Terms
-* Arithmetic:: Arithmetic in Yap
-* I/O:: Input/Output with Yap
+* Arithmetic:: Arithmetic in YAP
+* I/O:: Input/Output with YAP
 * Database:: Modifying Prolog's Database
 * Sets:: Finding All Possible Solutions
 * Grammars:: Grammar Rules
@@ -2732,14 +2732,14 @@ the call.
 @snindex sub_atom/5
 @cnindex sub_atom/5
 True when @var{A} and @var{At_out} are atoms such that the name of
-@var{At_out} has size @var{Size} and is a substring of the name of
+@var{At_out} has size @var{Size} and is a sub-string of the name of
 @var{A}, such that @var{Bef} is the number of characters before and
 @var{After} the number of characters afterwards.
 
 Note that @var{A} must always be known, but @var{At_out} can be unbound when
 calling this built-in. If all the arguments for @code{sub_atom/5} but @var{A}
 are unbound, the built-in will backtrack through all possible
-substrings of @var{A}.
+sub-strings of @var{A}.
 
 @item numbervars(@var{T},+@var{N1},-@var{Nn})
 @findex numbervars/3
@@ -3286,7 +3286,7 @@ generator. The argument should be an integer, but floats are acceptable.
 
 @itemize @bullet
 @item 
-In contrast to previous versions of Yap, Yap4 @emph{does not} convert
+In contrast to previous versions of YAP, YAP4 @emph{does not} convert
 automatically between integers and floats.
 @item
 arguments to trigonometric functions are expressed in radians.
@@ -3315,7 +3315,7 @@ Subnodes of Input/Output
 * I/O for Streams:: Input/Output using Streams
 * C-Prolog to Terminal:: C-Prolog compatible Character I/O to terminal
 * I/O Control:: Controlling your Input/Output
-* Sockets:: Using Sockets from Yap
+* Sockets:: Using Sockets from YAP
 
 @end menu
 
@@ -3403,7 +3403,7 @@ YAP currently ignores these options.
 @findex absolute_file_name/2
 @syindex absolute_file_name/2
 @cnindex absolute_file_name/2
-Give the path a full path @var{FullPath} Yap would use to consult a file
+Give the path a full path @var{FullPath} YAP would use to consult a file
 named @var{Name}.  Unify @var{FullPath} with @code{user} if the file
 name is @code{user}.
 
@@ -3446,7 +3446,7 @@ Set stream @var{S} as the current output stream. Predicates like
 @findex stream_select/3
 @syindex stream_select/3
 @cnindex stream_select/3
-Given a list of open @var{STREAMS} openeded in read mode and a @var{TIMEOUT}
+Given a list of open @var{STREAMS} opened in read mode and a @var{TIMEOUT}
 return a list of streams who are now available for reading. 
 
 If the @var{TIMEOUT} is instantiated to @code{off},
@@ -3521,7 +3521,7 @@ The stream is readable.
 The stream is writable.
 
 @item alias(@var{A})
-ISO-Prolog primitive for stream aliases. @t{Yap} returns one of the
+ISO-Prolog primitive for stream aliases. @t{YAP} returns one of the
 existing aliases for the stream.
 
 @item position(@var{P})
@@ -4408,7 +4408,7 @@ interactive control from a pipe or a socket.
 @end table
 
 @node Sockets, , I/O Control, I/O
-@subsection Using Sockets From Yap
+@subsection Using Sockets From YAP
 
 YAP includes a SICStus Prolog compatible socket interface. This
 is a low level interface that provides direct access to the major socket
@@ -4629,7 +4629,7 @@ Subnodes of Database
 * Modifying the Database:: Asserting and Retracting
 * Looking at the Database:: Finding out what is in the Data Base
 * Database References:: Using Data Base References
-* Internal Database:: Yap's Internal Database
+* Internal Database:: YAP's Internal Database
 * BlackBoard:: Storing and Fetching Terms in the BlackBoard
 
 @end menu
@@ -5274,7 +5274,7 @@ Similar to @code{findall/3}, but appends all answers to list @var{L0}.
 @findex all/3
 @snindex all/3
 @cnindex all/3
-Similar to @code{findall(@var{T},@var{G},@var{L})} but eliminating
+Similar to @code{findall(@var{T},@var{G},@var{L})} but eliminate
 repeated elements. Thus, assuming the same clauses as in the above
 example, the reply to the query
 
@@ -5290,6 +5290,8 @@ Y = _33
 L = [2,1];
 no
 @end example
+
+Note that @code{all/3} will fail if no answers are found.
 
 @item bagof(@var{T},+@var{G},-@var{L}) [ISO]
 @findex bagof/3
@@ -5399,7 +5401,7 @@ whenever the compilation of arithmetic expressions is in progress.
 @findex goal_expansion/3
 @snindex goal_expansion/3
 @cnindex goal_expansion/3
-Yap now supports @code{goal_expansion/3}. This is an user-defined
+YAP now supports @code{goal_expansion/3}. This is an user-defined
 procedure that is called after term expansion when compiling or
 asserting goals for each sub-goal in a clause. The first argument is
 bound to the goal and the second to the module under which the goal
@@ -5627,11 +5629,11 @@ A call in the form @code{on_signal(@var{S},@var{H},@var{H})} can be used
 to retrieve a signal's current handler without changing it.
 
 It must be noted that although a signal can be received at all times,
-the handler is not executed while Yap is waiting for a query at the
+the handler is not executed while YAP is waiting for a query at the
 prompt. The signal will be, however, registered and dealt with as soon
 as the user makes a query.
 
-Please also note, that neither POSIX Operating Systems nor Yap guarantee
+Please also note, that neither POSIX Operating Systems nor YAP guarantee
 that the order of delivery and handling is going to correspond with the
 order of dispatch.
 
@@ -5698,7 +5700,7 @@ Set the current value of mutable term @var{M} to term @var{D}.
 
 @cindex profiling
 
-YAP includes two profiler. The count profiler keeps information on the
+YAP includes two profilers. The count profiler keeps information on the
 number of times a predicate was called. This information can be used to
 detect what are the most commonly called predicates in the program.  The
 count profiler can be compiled by setting YAP's flag @code{profiling}
@@ -6159,7 +6161,7 @@ memory (total)        4784124 bytes
 The example shows how much memory the system spends. Memory is divided
 into Program Space, Stack Space and Trail. In the example we have 3MB
 allocated for program spaces, with less than half being actually
-used. Yap also shows the maximum amount of heap space having been used
+used. YAP also shows the maximum amount of heap space having been used
 which was over 2MB.
 
 The stack space is divided into two stacks which grow against each
@@ -6168,7 +6170,7 @@ the other hand, the system did use a lot of global and local stack
 during the previous execution (we refer the reader to a WAM tutorial in
 order to understand what are the global and local stacks).
 
-Yap also shows information on how many memory overflows and garbage
+YAP also shows information on how many memory overflows and garbage
 collections the system executed, and statistics on total execution
 time. Cputime includes all running time, runtime excludes garbage
 collection and stack overflow time.
@@ -6232,7 +6234,7 @@ Equivalent to @code{heap}.
 @* 
 This gives the total cputime in milliseconds spent executing Prolog
 code, not including garbage collections and stack shifts. Note that
-until Yap4.1.2 the @code{runtime} statistics would return time spent on
+until YAP4.1.2 the @code{runtime} statistics would return time spent on
 garbage collection and stack shifting.
 
 @item stack_shifts
@@ -6269,7 +6271,7 @@ Set or read system properties for @var{Param}:
 @item argv
 @findex argv (yap_flag/2 option)
 @* Read-only flag. It unifies with a list of atoms that gives the
-arguments to Yap after @code{--}.
+arguments to YAP after @code{--}.
 
 @item bounded [ISO]
 @findex bounded (yap_flag/2 option)
@@ -6384,7 +6386,7 @@ process, namely, on choice-points.
 @item  host_type
 @findex host_type (yap_flag/2 option)
 @* Return @code{configure} system information, including the machine-id
-for which Yap was compiled and Operating System information. 
+for which YAP was compiled and Operating System information. 
 
 @item  index
 @findex index (yap_flag/2 option)
@@ -6396,7 +6398,7 @@ If @code{on} allow indexing (default), if @code{off} disable it.
 @*
 If @code{on} allow printing of informational messages, such as the ones
 that are printed when consulting. If @code{off} disable printing
-these messages. It is @code{on} by default except if Yap is booted with
+these messages. It is @code{on} by default except if YAP is booted with
 the @code{-L} flag.
 
 @item integer_rounding_function [ISO]
@@ -6516,7 +6518,7 @@ depends on a Prolog's platform specific features.
 @item  stack_dump_on_error
 @findex stack_dump_on_error (yap_flag/2 option)
 @*
-If @code{on} show a stack dump when Yap finds an error. The default is
+If @code{on} show a stack dump when YAP finds an error. The default is
 @code{off}.
 
 @item  syntax_errors
@@ -6546,7 +6548,7 @@ Just fail
 @item system_options
 @findex system_options (yap_flag/2 option)
 @* This read only flag tells which options were used to compile
-Yap. Currently it informs whether the system supports
+YAP. Currently it informs whether the system supports
 @code{coroutining}, @code{depth_limit}, the @code{low_level_tracer},
 @code{or-parallelism}, @code{rational_trees}, @code{tabling},
 @code{threads}, or the @code{wam_profiler}.
@@ -6653,7 +6655,7 @@ corresponding to the Unix @code{stdout} stream.
 @item version
 @findex version (yap_flag/2 option)
 @*
-Read-only flag that giving the current version of Yap.
+Read-only flag that giving the current version of YAP.
 
 @item write_strings
 @findex  write_strings (yap_flag/2 option)
@@ -6791,7 +6793,7 @@ Stream position at the stream currently being read in.
 
 @end table
 
-@node Library, SWI-Prolog, Builtins, Top
+@node Library, SWI-Prolog, Built-ins, Top
 
 @chapter Library Predicates
 
@@ -6801,7 +6803,7 @@ most files in the library are from the Edinburgh Prolog library.
 
 @menu
  
-Library, Extensions, Builtins, Top
+Library, Extensions, Built-ins, Top
 * Apply Macros:: Apply a Predicate to a list or to sub-terms.
 * Association Lists:: Binary Tree Implementation of Association Lists.
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
@@ -7831,7 +7833,7 @@ Creates a new list with the same elements as @var{Queue}.
 @cindex queue
 
 The following random number operations are included with the
-@code{use_module(library(random))} command. Since Yap-4.3.19 Yap uses
+@code{use_module(library(random))} command. Since YAP-4.3.19 YAP uses
 the O'Keefe public-domain algorithm, based on the "Applied Statistics"
 algorithm AS183.
 
@@ -8513,7 +8515,7 @@ YAP does not currently support opening a @code{charsio} stream in
 @section Calling The Operating System from YAP
 @cindex Operating System Utilities
 
-Yap now provides a library of system utilities compatible with the
+YAP now provides a library of system utilities compatible with the
 SICStus Prolog system library. This library extends and to some point
 replaces the functionality of Operating System access routines. The
 library includes Unix/Linux and Win32 @code{C} code. They
@@ -8671,7 +8673,7 @@ X = 'C:\\cygwin\\home\\administrator' ?
 @syindex host_id/1
 @cnindex host_id/1
 
-Unify @var{Id} with an identifier of the current host. Yap uses the
+Unify @var{Id} with an identifier of the current host. YAP uses the
 @code{hostid} function when available, 
 
 @item host_name(-@var{Name})
@@ -8679,7 +8681,7 @@ Unify @var{Id} with an identifier of the current host. Yap uses the
 @syindex host_name/1
 @cnindex host_name/1
 
-Unify @var{Name} with a name for the current host. Yap uses the
+Unify @var{Name} with a name for the current host. YAP uses the
 @code{hostname} function in Unix systems when available, and the
 @code{GetComputerName} function in WIN32 systems. 
 
@@ -8719,8 +8721,7 @@ Interface with @var{tmpnam}: create an unique file and unify its name
 with @var{File}.
 
 @item
-exec(+@var{Command},[+@var{InputStream},+@var{OutputStream},+@var{ErrorStream}],
--@var{Status})
+exec(+@var{Command},[+@var{InputStream},+@var{OutputStream},+@var{ErrorStream}],-@var{Status})
 @findex  exec/3
 @syindex exec/3
 @cnindex exec/3
@@ -8743,7 +8744,7 @@ that it is up to the user to close the pipe.
 @item working_directory(-@var{CurDir},?@var{NextDir})
 @findex  working_directory/2
 @syindex working_directory/2
-@cnindex working_directory/2
+@cnindex working_directory/2    @c 
 Fetch the current directory at @var{CurDir}. If @var{NextDir} is bound
 to an atom, make its value the current working directory.
 
@@ -8774,8 +8775,8 @@ The WIN32 implementation of @code{popen/3} relies on @code{exec/3}.
 @findex  shell/0
 @syindex shell/0
 @cnindex shell/0
-Start a new shell and leave Yap in background until the shell
-completes. Yap uses the shell given by the environment variable
+Start a new shell and leave YAP in background until the shell
+completes. YAP uses the shell given by the environment variable
 @code{SHELL}. In WIN32 environment YAP will use @code{COMSPEC} if
 @code{SHELL} is undefined.
 
@@ -8783,8 +8784,8 @@ completes. Yap uses the shell given by the environment variable
 @findex  shell/1
 @syindex shell/1
 @cnindex shell/1
-Execute command @var{Command} under a new shell. Yap will be in
-background until the command completes. In Unix environments Yap uses
+Execute command @var{Command} under a new shell. YAP will be in
+background until the command completes. In Unix environments YAP uses
 the shell given by the environment variable @code{SHELL} with the option
 @code{" -c "}. In WIN32 environment YAP will use @code{COMSPEC} if
 @code{SHELL} is undefined, in this case with the option @code{" /c "}.
@@ -8794,8 +8795,8 @@ the shell given by the environment variable @code{SHELL} with the option
 @syindex shell/1
 @cnindex shell/1
 Execute command @var{Command} under a new shell and unify @var{Status}
-with the exit for the command. Yap will be in background until the
-command completes. In Unix environments Yap uses the shell given by the
+with the exit for the command. YAP will be in background until the
+command completes. In Unix environments YAP uses the shell given by the
 environment variable @code{SHELL} with the option @code{" -c "}. In
 WIN32 environment YAP will use @code{COMSPEC} if @code{SHELL} is
 undefined, in this case with the option @code{" /c "}.
@@ -8815,8 +8816,8 @@ implementation uses @code{Sleep} for both cases.
 @findex  system/0
 @syindex system/0
 @cnindex system/0
-Start a new default shell and leave Yap in background until the shell
-completes. Yap uses @code{/bin/sh} in Unix systems and @code{COMSPEC} in
+Start a new default shell and leave YAP in background until the shell
+completes. YAP uses @code{/bin/sh} in Unix systems and @code{COMSPEC} in
 WIN32.
 
 @item system(+@var{Command},-@var{Res})
@@ -9759,7 +9760,7 @@ Subnodes of SWI-Prolog
 Extensions to Traditional Prolog
 
 * Rational Trees:: Working with Rational Trees
-* Coroutining:: Changing the Execution of Goals
+* Co-routining:: Changing the Execution of Goals
 * Attributed Variables:: Using attributed Variables
 * CLPR:: The CLP(R) System
 * Logtalk:: The Logtalk Object-Oriented system
@@ -9770,7 +9771,7 @@ Extensions to Traditional Prolog
 * Low Level Tracing:: Tracing at Abstract Machine Level
 @end menu
 
-@node Rational Trees, Coroutining, , Extensions
+@node Rational Trees, Co-routining, , Extensions
 @section Rational Trees
 
 Prolog unification is not a complete implementation. For efficiency
@@ -9795,8 +9796,8 @@ or to @code{assert/1} YAP does not allow directly reading
 rational trees, and you need to use @code{write_depth/2} to avoid
 entering an infinite cycle when trying to write an infinite term.
 
-@node Coroutining, Attributed Variables, Rational Trees, Extensions
-@section Coroutining
+@node Co-routining, Attributed Variables, Rational Trees, Extensions
+@section Co-routining
 
 Prolog uses a simple left-to-right flow of control. It is sometimes
 convenient to change this control so that goals will only be executed
@@ -9899,7 +9900,7 @@ suspended.
 
 @end table
 
-@node Attributed Variables, CLPR, Coroutining, Extensions
+@node Attributed Variables, CLPR, Co-routining, Extensions
 @chapter Attributed Variables
 @cindex attributed variables
 
@@ -10953,27 +10954,27 @@ Enumerates all existing mutexes.  If the mutex is held by some thread,
 @cindex parallelism
 @cindex or-parallelism
 There has been a sizeable amount of work on an or-parallel
-implementation for YAP, called @strong{YapOr}. Most of this work has
+implementation for YAP, called @strong{YAPOr}. Most of this work has
 been performed by Ricardo Rocha. In this system parallelism is exploited
 implicitly by running several alternatives in or-parallel. This option
 can be enabled from the @code{configure} script or by checking the
 system's @code{Makefile}.
 
-@strong{YapOr} is still a very experimental system, going through rapid
+@strong{YAPOr} is still a very experimental system, going through rapid
 development. The following restrictions are of note:
 
 @itemize @bullet
-@item @strong{YapOr} currently only supports the Linux/X86 and SPARC/Solaris
+@item @strong{YAPOr} currently only supports the Linux/X86 and SPARC/Solaris
 platforms. Porting to other Unix-like platforms should be straightforward.
 
-@item @strong{YapOr} does not support parallel updates to the
+@item @strong{YAPOr} does not support parallel updates to the
 data-base.
 
-@item @strong{YapOr} does not support opening or closing of streams during
+@item @strong{YAPOr} does not support opening or closing of streams during
 parallel execution.
 
 @item Garbage collection and stack shifting are not supported in
-@strong{YapOr}.  
+@strong{YAPOr}.  
 
 @item Built-ins that cause side-effects can only be executed when
 left-most in the search-tree. There are no primitives to provide
@@ -10990,25 +10991,25 @@ releases.
 @chapter Tabling
 @cindex tabling
 
-@strong{YapTab} is the tabling engine that extends Yap's execution
-model to support tabled evaluation for definite programs. YapTab was
+@strong{YAPTab} is the tabling engine that extends YAP's execution
+model to support tabled evaluation for definite programs. YAPTab was
 implemented by Ricardo Rocha and its implementation is largely based
 on the ground-breaking design of the XSB Prolog system, which
-implements the SLG-WAM. Tables are implemented using tries and YapTab
+implements the SLG-WAM. Tables are implemented using tries and YAPTab
 supports the dynamic intermixing of batched scheduling and local
 scheduling at the subgoal level. Currently, the following restrictions
 are of note:
 @itemize @bullet
-@item YapTab does not handle tabled predicates with loops through negation (undefined behaviour).
-@item YapTab does not handle tabled predicates with cuts (undefined behaviour).
-@item YapTab does not support coroutining (configure error).
-@item YapTab does not support tabling dynamic predicates (permission error).
+@item YAPTab does not handle tabled predicates with loops through negation (undefined behaviour).
+@item YAPTab does not handle tabled predicates with cuts (undefined behaviour).
+@item YAPTab does not support coroutining (configure error).
+@item YAPTab does not support tabling dynamic predicates (permission error).
 @end itemize
 
-To experiment with YapTab use @code{--enable-tabling} in the configure
+To experiment with YAPTab use @code{--enable-tabling} in the configure
 script or add @code{-DTABLING} to @code{YAP_EXTRAS} in the system's
 @code{Makefile}. We next describe the set of built-ins predicates
-designed to interact with YapTab and control tabled execution:
+designed to interact with YAPTab and control tabled execution:
 
 @table @code
 @item table +@var{P}
@@ -11328,10 +11329,10 @@ Switches on the debugger and starts tracing.
 @node Deb Interaction, , Deb Preds, Debugging
 @section Interacting with the debugger
 
-Debugging with YAP is similar to debugging with C-Prolog. Both
-systems include a procedural debugger, based in the four port model. In
-this model, execution is seen at the procedure level: each activation of
-a procedure is seen as a box with control flowing into and out of that
+Debugging with YAP is similar to debugging with C-Prolog. Both systems
+include a procedural debugger, based on Byrd's four port model. In this
+model, execution is seen at the procedure level: each activation of a
+procedure is seen as a box with control flowing into and out of that
 box.
 
  In the four port model control is caught at four key points: before 
@@ -11372,23 +11373,24 @@ invocation fails,  and control will try to redo the ancestor of this
 invocation.
 @end table
 
- To start debugging, the user will usually spy the relevant procedures,
-entering debug mode, and start execution of the program. When finding
-the first spy-point, YAP's debugger will take control and show a
-message like:
+To start debugging, the user will either call @code{trace} or spy the
+relevant procedures, entering debug mode, and start execution of the
+program. When finding the first spy-point, YAP's debugger will take
+control and show a message of the form:
 
 @example
 * (1)  call:  quicksort([1,2,3],_38) ?
 @end example
 
- The debugger message will be shown while creeping, or at spy-points, 
+ The debugger message will be shown while creeping, or at spy-points,
 and it includes four or five fields:
 
 @itemize @bullet
 @item
  The first three characters are used to point out special states of the
 debugger. If the port is exit and the first character is '?', the
-current call still has alternatives to be tried. If the second character is a @code{*}, execution is at a
+current call is non-deterministic, that is, it still has alternatives to
+be tried. If the second character is a @code{*}, execution is at a
 spy-point. If the third character is a @code{>}, execution has returned
 either from a skip, a fail or a redo command.
 @item
@@ -11398,7 +11400,9 @@ each activation found by the debugger.
 @item
  In the third field, the debugger shows the active port.
 @item
- The fourth field is the goal. The goal is written by @code{write/1}.
+ The fourth field is the goal. The goal is written by
+ @code{write_term/3} on the standard error stream, using the options
+ given by @code{debugger_print_options}.
 @end itemize
 
  If the active port is leashed, the debugger will prompt the user with a
@@ -11417,35 +11421,40 @@ leashed port.
 @item return - creep
 the same as c
 @item l - leap
-YAP will continue execution until a port of a spied predicate
-is found;
+YAP will execute until it meets a port for a spied predicate; this mode
+keeps all computation history for debugging purposes, so it is more
+expensive than standard execution. Use @t{k} or @t{z} for fast execution.
 @item k - quasi-leap
 similar to leap but faster since the computation history is
 not kept; useful when leap becomes too slow.
+@item z - zip
+same as @t{k}
 @item s - skip
 YAP will continue execution without showing any messages until
 returning to the current activation. Spy-points will be  ignored in this
-mode. This command is meaningless, and therefore illegal, in the fail
+mode. Note that this command keeps all debugging history, use @t{t} for fast execution. This command is meaningless, and therefore illegal, in the fail
 and exit ports.
 @item t - fast-skip
-similar to skip but faster since the computation history is not
-kept; useful when skip becomes too slow.
-@item q - quasi-leap
-YAP will continue execution until a port of a spied
-predicate is found or until returning to the current activation.
-@item f - fail
-forces YAP to fail the goal proceeding directly to the  fail port.
-The command is not available in the fail port.
-@item r - retry
-after this command, YAP will retry the present goal,  and so go
-back to the call port. Note that any side effects of the goal will  not
-be undone. This command is not available at the call port.
+similar to skip but faster since computation history is not
+kept; useful if skip becomes slow.
+@item f [@var{GoalId}] - fail
+If given no argument, forces YAP to fail the goal, skipping the fail
+port and backtracking to the parent. 
+ If @t{f} receives a goal number as
+the argument, the command fails all the way to the goal. If goal @var{GoalId} has completed execution, YAP fails until meeting the first active ancestor.
+@item r [@var{GoalId}] - retry
+This command forces YAP to jump back call to the port. Note that any
+side effects of the goal cannot be undone. This command is not available
+at the call port.  If @t{f} receives a goal number as the argument, the
+command retries goal @var{GoalId} instead. If goal @var{GoalId} has
+completed execution, YAP fails until meeting the first active ancestor.
+    
 @item a - abort
 execution will be aborted, and the interpreter will return to the
-top-level.
+top-level. YAP disactivates debug mode, but spypoints are not removed.
 @item n - nodebug
-stop debugging but continue execution. The command will clear all active
-spy-points, leave debugging mode and continue execution.
+stop debugging and continue execution. The command will not clear active
+spy-points.
 @item e - exit
 leave YAP.
 @item h - help
@@ -11453,8 +11462,8 @@ show the debugger commands.
 @item ! Query
 execute a query. YAP will not show the result of the query.
 @item b - break
-break active execution and launch a break level. This is  the same as !
-break.
+break active execution and launch a break level. This is  the same as @code{!
+break}.
 @item + - spy this goal
 start spying the active goal. The same as @code{! spy  G} where @var{G}
 is the active goal.
@@ -11474,6 +11483,9 @@ resets to the default of ten the debugger's maximum write depth. For
 more information about @code{write_depth/2} (@pxref{I/O Control}).
 @item A - alternatives
  show the list of backtrack points in the current execution. 
+@item g [@var{N}] 
+ show the list of ancestors in the current debugging environment. If it
+ receives @var{N}, show the first @var{N} ancestors.
 @end table
 
 The debugging information, when fast-skip @code{quasi-leap} is used, will
@@ -11643,7 +11655,7 @@ type_of_verb(eat,active).
 type_of_verb(rest,passive).
 @end example
 
-@node C-Interface,YapLibrary,Efficiency,Top
+@node C-Interface,YAPLibrary,Efficiency,Top
 @chapter C Language interface to YAP
 
 YAP provides the user with the necessary facilities for writing
@@ -11662,7 +11674,7 @@ C-code described below.
 
 @example
 @cartouche
-#include "Yap/YapInterface.h"
+#include "YAP/YAPInterface.h"
 
 static int my_process_id(void) 
 @{
@@ -11708,11 +11720,11 @@ And could be loaded, under YAP, by executing the following prolog goal
 @example
       load_foreign_files(['my_process'],[],init_my_predicates).
 @end example
-Note that since Yap4.3.3 you should not give the suffix for object
+Note that since YAP4.3.3 you should not give the suffix for object
 files. YAP will deduce the correct suffix from the operating system it
 is running under.
 
-Yap4.3.3 now supports loading WIN/NT DLLs. Currently you must compile
+YAP4.3.3 now supports loading WIN/NT DLLs. Currently you must compile
 YAP under cygwin to create a library yap.dll first. You can then use
 this dll to create your own dlls. Have a look at the code in
 library/regex to see how to create a dll under the cygwin/mingw32
@@ -11723,14 +11735,14 @@ After loading that file the following prolog goal
        my_process_id(N)
 @end example
 @noindent
-would unify N with the number of the process under which Yap is running.
+would unify N with the number of the process under which YAP is running.
 
 
 Having presented a full example, we will now examine in more detail the
 contents of the C source code file presented above.
 
 The include statement is used to make available to the C source code the
-macros for the handling of prolog terms and also some Yap public
+macros for the handling of prolog terms and also some YAP public
 definitions.
 
 The function @code{my_process_id} is the implementation, in C, of the
@@ -11742,7 +11754,7 @@ through macros, defined in the include file, with names @var{YAP_ARG1},
 @var{YAP_ARG2}, ..., @var{YAP_ARG16} or with @var{YAP_A}(@var{N})
 where @var{N} is the argument number (starting with 1).  In the present
 case the function uses just one local variable of type @code{YAP_Term}, the
-type used for holding Yap terms, where the integer returned by the
+type used for holding YAP terms, where the integer returned by the
 standard unix function @code{getpid()} is stored as an integer term (the
 conversion is done by @code{YAP_MkIntTerm(Int))}. Then it calls the
 pre-defined routine @code{YAP_Unify(YAP_Term, YAP_Term)} which in turn returns an
@@ -11760,13 +11772,13 @@ The rest of this appendix describes exhaustively how to interface C to YAP.
 * Manipulating Terms:: Primitives available to the C programmer
 * Unifying Terms:: How to Unify Two Prolog Terms
 * Manipulating Strings:: From character arrays to Lists of codes and back
-* Memory Allocation:: Stealing Memory From Yap
-* Controlling Streams:: Control How Yap sees Streams
-* Calling Yap From C:: From C to Yap to C to Yap 
+* Memory Allocation:: Stealing Memory From YAP
+* Controlling Streams:: Control How YAP sees Streams
+* Calling YAP From C:: From C to YAP to C to YAP 
 * Writing C:: Writing Predicates in C
 * Loading Objects:: Loading Object Files
-* Sav&Rest:: Saving and Restoring
-* Yap4 Notes:: Changes in Foreign Predicates Interface
+* Save&Rest:: Saving and Restoring
+* YAP4 Notes:: Changes in Foreign Predicates Interface
 @end menu
 
 @node Manipulating Terms, Unifying Terms, , C-Interface
@@ -11775,7 +11787,7 @@ The rest of this appendix describes exhaustively how to interface C to YAP.
 This section provides information about the primitives available to the C
 programmer for manipulating prolog terms.
 
-Several C typedefs are included in the header file @code{yap/YapInterface.h} to
+Several C typedefs are included in the header file @code{yap/YAPInterface.h} to
 describe, in a portable way, the C representation of prolog terms.
 The user should write is programs using this macros to ensure portability of
 code across different versions of YAP.
@@ -11879,7 +11891,7 @@ of a big int from a term.
 @end example
 @noindent
 YAP must support bignum for the configuration you are using (check the
-YAP configuration and setup). For now, Yap only supports the GNU GMP
+YAP configuration and setup). For now, YAP only supports the GNU GMP
 library, and @code{void *} will be a cast for @code{mpz_t}. Notice
 that @code{YAP_BigNumOfTerm} requires the number to be already
 initialised. As an example, we show how to print a bignum:
@@ -12046,32 +12058,32 @@ character. Syntax errors will cause returning @code{FALSE} and binding
 @node Memory Allocation, Controlling Streams, Manipulating Strings, C-Interface
 @section Memory Allocation
 
-@findex YAP_AllocSpaceFromYap (C-Interface function)
+@findex YAP_AllocSpaceFromYAP (C-Interface function)
 The next routine can be used to ask space from the Prolog data-base:
 @example
-      void      *YAP_AllocSpaceFromYap(int @var{size})
+      void      *YAP_AllocSpaceFromYAP(int @var{size})
 @end example
 @noindent
 The routine returns a pointer to a buffer allocated from the code area,
 or @code{NULL} if sufficient space was not available.
 
-@findex YAP_FreeSpaceFromYap (C-Interface function)
-The space allocated with @code{YAP_AllocSpaceFromYap} can be released
-back to Yap by using:
+@findex YAP_FreeSpaceFromYAP (C-Interface function)
+The space allocated with @code{YAP_AllocSpaceFromYAP} can be released
+back to YAP by using:
 @example
-      void      YAP_FreeSpaceFromYap(void *@var{buf})
+      void      YAP_FreeSpaceFromYAP(void *@var{buf})
 @end example
 @noindent
 The routine releases a buffer allocated from the code area. The system
 may crash if @code{buf} is not a valid pointer to a buffer in the code
 area.
 
-@node Controlling Streams, Calling Yap From C, Memory Allocation, C-Interface
-@section Controlling Yap Streams from @code{C}
+@node Controlling Streams, Calling YAP From C, Memory Allocation, C-Interface
+@section Controlling YAP Streams from @code{C}
 
 @findex YAP_StreamToFileNo (C-Interface function)
 The C-Interface also provides the C-application with a measure of
-control over the Yap Input/Output system. The first routine allows one
+control over the YAP Input/Output system. The first routine allows one
 to find a file number given a current stream:
 @example
       int      YAP_StreamToFileNo(YAP_Term @var{stream})
@@ -12080,7 +12092,7 @@ to find a file number given a current stream:
 This function gives the file descriptor for a currently available
 stream. Note that null streams and in memory streams do not have
 corresponding open streams, so the routine will return a
-negative. Moreover, Yap will not be aware of any direct operations on
+negative. Moreover, YAP will not be aware of any direct operations on
 this stream, so information on, say, current stream position, may become
 stale.
 
@@ -12090,7 +12102,7 @@ A second routine that is sometimes useful is:
       void      YAP_CloseAllOpenStreams(void)
 @end example
 @noindent
-This routine closes the Yap Input/Output system except for the first
+This routine closes the YAP Input/Output system except for the first
 three streams, that are always associated with the three standard Unix
 streams. It is most useful if you are doing @code{fork()}.
 
@@ -12109,7 +12121,7 @@ The available flags are @code{YAP_INPUT_STREAM},
 stream is supposed to be at position 0. The argument @var{name} gives
 the name by which YAP should know the new stream.
 
-@node Calling Yap From C, Writing C, Controlling Streams, C-Interface
+@node Calling YAP From C, Writing C, Controlling Streams, C-Interface
 @section From @code{C} back to Prolog
 
 @findex YAP_CallProlog (C-Interface function)
@@ -12117,7 +12129,7 @@ Newer versions of YAP allow for calling the Prolog interpreter from
 @code{C}. One must first construct a goal @code{G}, and then it is
 sufficient to perform:
 @example
-      YAP_Bool      YapCallProlog(YAP_Term @var{G})
+      YAP_Bool      YAPCallProlog(YAP_Term @var{G})
 @end example
 @noindent
 the result will be @code{FALSE}, if the goal failed, or @code{TRUE}, if
@@ -12126,7 +12138,7 @@ the values they have been unified with. Execution only proceeds until
 finding the first solution to the goal, but you can call
 @code{findall/3} or friends if you need all the solutions.
 
-@node Writing C, Loading Objects, Calling Yap From C, C-Interface
+@node Writing C, Loading Objects, Calling YAP From C, C-Interface
 @section Writing predicates in C
 
 We will distinguish two kinds of predicates:
@@ -12183,7 +12195,7 @@ of prolog terms, containing the information to be preserved on backtracking
 and a pointer variable to a structure of that type.
 
 @example
-#include "YapInterface.h"
+#include "YAPInterface.h"
 
 static int start_n100(void);
 static int continue_n100(void);
@@ -12298,7 +12310,7 @@ init_n100(void)
 @end example
 
 
-@node Loading Objects, Sav&Rest, Writing C, C-Interface
+@node Loading Objects, Save&Rest, Writing C, C-Interface
 @section Loading Object Files
 
 The primitive predicate
@@ -12323,7 +12335,7 @@ for object code (64 Kbytes in the current version). Should this size
 prove inadequate the flag @code{-c n} can be passed to YAP (in the
 command line invoking YAP) to force the allocation of @code{n} Kbytes.
 
-@node Sav&Rest, Yap4 Notes, Loading Objects, C-Interface
+@node Save&Rest, YAP4 Notes, Loading Objects, C-Interface
 @section Saving and Restoring
 
 @comment The primitive predicates @code{save} and @code{restore} will save and restore
@@ -12331,19 +12343,19 @@ command line invoking YAP) to force the allocation of @code{n} Kbytes.
 @comment any non-static data created by the C files loaded will not be saved nor
 @comment restored.
 
-Yap4 currently does not support @code{save} and @code{restore} for object code
+YAP4 currently does not support @code{save} and @code{restore} for object code
 loaded with @code{load_foreign_files}. We plan to support save and restore
-in future releases of Yap.
+in future releases of YAP.
 
-@node Yap4 Notes, , Sav&Rest, C-Interface
-@section Changes to the C-Interface in Yap4
+@node YAP4 Notes, , Save&Rest, C-Interface
+@section Changes to the C-Interface in YAP4
 
-Yap4 includes several changes over the previous @code{load_foreign_files}
+YAP4 includes several changes over the previous @code{load_foreign_files}
 interface. These changes were required to support the new binary code
 formats, such as ELF used in Solaris2 and Linux.
 @itemize @bullet
 @item All Names of YAP objects now start with @var{YAP_}. This is
-designed to avoid clashes with other code. Use @code{YapInterface.h} to
+designed to avoid clashes with other code. Use @code{YAPInterface.h} to
 take advantage of the new interface. @code{c_interface.h} is still
 available if you cannot port the code to the new interface.
 
@@ -12371,7 +12383,7 @@ arguments to the backtrackable procedure.
 
 @end itemize
 
-@node YapLibrary, Compatibility, C-Interface, Top
+@node YAPLibrary, Compatibility, C-Interface, Top
 @chapter Using YAP as a Library
 
 YAP can be used as a library to be called from other
@@ -12383,7 +12395,7 @@ make install_library
 This will install a file @code{libyap.a} in @var{LIBDIR} and the Prolog
 headers in @var{INCLUDEDIR}. The library contains all the functionality
 available in YAP, except the foreign function loader and for
-@code{Yap}'s startup routines.
+@code{YAP}'s startup routines.
 
 To actually use this library you must follow a five step process:
 
@@ -12417,7 +12429,7 @@ program contains two facts for the procedure @t{b}:
 @example
 @cartouche
 #include <stdio.h>
-#include "Yap/YapInterface.h"
+#include "YAP/YAPInterface.h"
 
 
 int
@@ -12441,16 +12453,16 @@ backtracking succeeds, the second it fails and exits.
 To compile this program it should be sufficient to do:
 
 @example
-cc -o exem -I../Yap4.3.0 test.c -lYap -lreadline -lm
+cc -o exem -I../YAP4.3.0 test.c -lYAP -lreadline -lm
 @end example
 
 You may need to adjust the libraries and library paths depending on the
-Operating System and your installation of Yap.
+Operating System and your installation of YAP.
 
-Note that Yap4.3.0 provides the first version of the interface. The
+Note that YAP4.3.0 provides the first version of the interface. The
 interface may change and improve in the future.
 
-The following C-functions are available from Yap:
+The following C-functions are available from YAP:
 
 @itemize @bullet
 @item  YAP_CompileClause(@code{YAP_Term} @var{Clause})
@@ -12641,7 +12653,7 @@ the future we plan to split this library into several smaller libraries
 
 @end itemize
 
-@node Compatibility, Operators, YapLibrary, Top
+@node Compatibility, Operators, YAPLibrary, Top
 @chapter Compatibility with Other Prolog systems
 
 YAP has been designed to be as compatible as possible with
@@ -12649,7 +12661,7 @@ other Prolog systems, and initially with C-Prolog. More recent work on
 YAP has included features initially proposed for the Quintus
 and SICStus Prolog systems.
 
-Developments since @code{Yap4.1.6} we have striven at making
+Developments since @code{YAP4.1.6} we have striven at making
 YAP compatible with the ISO-Prolog standard. 
 
 @menu
@@ -12664,10 +12676,10 @@ YAP compatible with the ISO-Prolog standard.
 @menu
 C-Prolog Compatibility
 * Major Differences with C-Prolog:: Major Differences between YAP and C-Prolog
-* Fully C-Prolog Compatible:: Yap predicates fully compatible with
+* Fully C-Prolog Compatible:: YAP predicates fully compatible with
 C-Prolog
-* Not Strictly C-Prolog Compatible:: Yap predicates not strictly as C-Prolog
-* Not in C-Prolog:: Yap predicates not available in C-Prolog
+* Not Strictly C-Prolog Compatible:: YAP predicates not strictly as C-Prolog
+* Not in C-Prolog:: YAP predicates not available in C-Prolog
 * Not in YAP:: C-Prolog predicates not available in YAP
 @end menu
 
@@ -12711,7 +12723,7 @@ or by using:
 @end example
 
 @node Fully C-Prolog Compatible, Not Strictly C-Prolog Compatible, Major Differences with C-Prolog, C-Prolog
-@subsection Yap predicates fully compatible with C-Prolog
+@subsection YAP predicates fully compatible with C-Prolog
 
 These are the Prolog built-ins that are fully compatible in both
 C-Prolog and YAP:
@@ -12719,7 +12731,7 @@ C-Prolog and YAP:
 @printindex cy
 
 @node Not Strictly C-Prolog Compatible, Not in C-Prolog, Fully C-Prolog Compatible, C-Prolog
-@subsection Yap predicates not strictly compatible with C-Prolog
+@subsection YAP predicates not strictly compatible with C-Prolog
 
 These are YAP built-ins that are also available in C-Prolog, but
 that are not fully compatible:
@@ -12727,14 +12739,14 @@ that are not fully compatible:
 @printindex ca
 
 @node Not in C-Prolog, Not in YAP, Not Strictly C-Prolog Compatible, C-Prolog
-@subsection Yap predicates not available in C-Prolog
+@subsection YAP predicates not available in C-Prolog
 
 These are YAP built-ins not available in C-Prolog.
 
 @printindex cn
 
 @node Not in YAP, , Not in C-Prolog, C-Prolog
-@subsection Yap predicates not available in C-Prolog
+@subsection YAP predicates not available in C-Prolog
 
 These are C-Prolog built-ins not available in YAP:
 
@@ -12774,11 +12786,11 @@ for maximum compatibility with SICStus Prolog.
 @menu
 SICStus Compatibility
 * Major Differences with SICStus:: Major Differences between YAP and SICStus Prolog
-* Fully SICStus Compatible:: Yap predicates fully compatible with
+* Fully SICStus Compatible:: YAP predicates fully compatible with
 SICStus Prolog
-* Not Strictly SICStus Compatible:: Yap predicates not strictly as
+* Not Strictly SICStus Compatible:: YAP predicates not strictly as
 SICStus Prolog
-* Not in SICstus Prolog:: Yap predicates not available in SICStus Prolog
+* Not in SICStus Prolog:: YAP predicates not available in SICStus Prolog
 @end menu
 
 @node Major Differences with SICStus, Fully SICStus Compatible, , SICStus Prolog
@@ -12890,23 +12902,23 @@ SICStus Prolog use:
 @end itemize
 
 @node Fully SICStus Compatible, Not Strictly SICStus Compatible, Major Differences with SICStus, SICStus Prolog
-@subsection Yap predicates fully compatible with SICStus Prolog
+@subsection YAP predicates fully compatible with SICStus Prolog
 
 These are the Prolog built-ins that are fully compatible in both SICStus
 Prolog and YAP:
 
 @printindex sy
 
-@node Not Strictly SICStus Compatible, Not in SICstus Prolog, Fully SICStus Compatible, SICStus Prolog
-@subsection Yap predicates not strictly compatible with SICStus Prolog
+@node Not Strictly SICStus Compatible, Not in SICStus Prolog, Fully SICStus Compatible, SICStus Prolog
+@subsection YAP predicates not strictly compatible with SICStus Prolog
 
 These are YAP built-ins that are also available in SICStus Prolog, but
 that are not fully compatible:
 
 @printindex sa
 
-@node Not in SICstus Prolog, , Not Strictly SICStus Compatible, SICStus Prolog
-@subsection Yap predicates not available in SICStus Prolog
+@node Not in SICStus Prolog, , Not Strictly SICStus Compatible, SICStus Prolog
+@subsection YAP predicates not available in SICStus Prolog
 
 These are YAP built-ins not available in SICStus Prolog.
 
@@ -12985,7 +12997,7 @@ Please inform the authors on other incompatibilities that may still
 exist.
 
 @node Operators, Predicate Index, Compatibility, Top
-@appendix Summary of Yap Predefined Operators
+@appendix Summary of YAP Predefined Operators
 
 
  The Prolog syntax caters for operators of three main kinds:

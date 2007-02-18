@@ -116,8 +116,10 @@ SetHeapRegs(void)
   AuxSp = PtoDelayAdjust(AuxSp);
   AuxTop = (ADDR)PtoDelayAdjust((CELL *)AuxTop);
 #endif
+#if !USE_SYSTEM_MALLOC
   if (HeapLim)
     HeapLim = DelayAddrAdjust(HeapLim);
+#endif
   /* The registers pointing to one of the stacks */
   if (ENV)
     ENV = PtoLocAdjust(ENV);
@@ -975,11 +977,47 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
   return FALSE;
 }
 
+static void
+init_new_table(AtomHashEntry *ntb, UInt nsize)
+{
+  UInt i;
+
+  for (i = 0; i < nsize; ++i) {
+    INIT_RWLOCK(ntb[i].AERWLock);
+    ntb[i].Entry = NIL;
+  }
+}
+
+static void
+cp_atom_table(AtomHashEntry *ntb, UInt nsize)
+{
+  UInt i;
+
+  for (i = 0; i < AtomHashTableSize; i++) {
+    Atom            catom;
+
+    READ_LOCK(HashChain[i].AERWLock);
+    catom = HashChain[i].Entry;
+    while (catom != NIL) {
+      AtomEntry *ap = RepAtom(catom);
+      Atom natom;
+      CELL hash;
+
+      hash = HashFunction((unsigned char *)ap->StrOfAE) % nsize;
+      natom = ap->NextOfAE;
+      ap->NextOfAE = ntb[hash].Entry;
+      ntb[hash].Entry = catom;
+      catom = natom;
+    }
+    READ_UNLOCK(HashChain[i].AERWLock);
+  }
+}
+
 static int
 growatomtable(void)
 {
   AtomHashEntry *ntb;
-  UInt nsize = 4*AtomHashTableSize-1, i;
+  UInt nsize = 4*AtomHashTableSize-1;
   UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
 
@@ -1002,28 +1040,8 @@ growatomtable(void)
     fprintf(Yap_stderr, "%%    growing the atom table to %ld entries\n", (long int)(nsize));
   }
   YAPEnterCriticalSection();
-  for (i = 0; i < nsize; ++i) {
-    INIT_RWLOCK(ntb[i].AERWLock);
-    ntb[i].Entry = NIL;
-  }
-  for (i = 0; i < AtomHashTableSize; i++) {
-    Atom            catom;
-
-    READ_LOCK(HashChain[i].AERWLock);
-    catom = HashChain[i].Entry;
-    while (catom != NIL) {
-      AtomEntry *ap = RepAtom(catom);
-      Atom natom;
-      CELL hash;
-
-      hash = HashFunction((unsigned char *)ap->StrOfAE) % nsize;
-      natom = ap->NextOfAE;
-      ap->NextOfAE = ntb[hash].Entry;
-      ntb[hash].Entry = catom;
-      catom = natom;
-    }
-    READ_UNLOCK(HashChain[i].AERWLock);
-  }
+  init_new_table(ntb, nsize);
+  cp_atom_table(ntb, nsize);
   Yap_FreeCodeSpace((char *)HashChain);
   HashChain = ntb;
   AtomHashTableSize = nsize;
@@ -1056,11 +1074,25 @@ Yap_growheap(int fix_code, UInt in_size, void *cip)
 {
   int res;
 
-  Yap_PrologMode |= GrowHeapMode;
   if (NOfAtoms > 2*AtomHashTableSize) {
+    UInt n = NOfAtoms;
+    if (AGcThreshold)
+      Yap_atom_gc();
+    /* check if we have a significant improvement from agc */
+    if (n > NOfAtoms+ NOfAtoms/10 ||
+	NOfAtoms > 2*AtomHashTableSize) {
       res  = growatomtable();
-      Yap_PrologMode &= ~GrowHeapMode;
-      return res;
+    } else {
+      LOCK(SignalLock);
+      if (ActiveSignals == YAP_CDOVF_SIGNAL) {
+	CreepFlag = CalculateStackGap();
+      }
+      ActiveSignals &= ~YAP_CDOVF_SIGNAL;
+      UNLOCK(SignalLock);
+      return TRUE;
+    }
+    Yap_PrologMode &= ~GrowHeapMode;
+    return res;
   }
   res=do_growheap(fix_code, in_size, (struct intermediates *)cip);
   Yap_PrologMode &= ~GrowHeapMode;
@@ -1423,8 +1455,8 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
 /* Used by do_goal() when we're short of stack space */
 int
 Yap_growtrail(long size, int contiguous_only)
-{
-  return do_growtrail(size, contiguous_only, FALSE, NULL, NULL, NULL);
+{ 
+ return do_growtrail(size, contiguous_only, FALSE, NULL, NULL, NULL);
 }
 
 int
@@ -1527,7 +1559,7 @@ p_growstack(void)
 
 static Int
 p_inform_stack_overflows(void)
-{
+{				/*  */
   Term tn = MkIntTerm(stack_overflows);
   Term tt = MkIntegerTerm(total_stack_overflow_time);
  

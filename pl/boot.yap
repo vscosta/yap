@@ -867,7 +867,9 @@ bootstrap(F) :-
 	  H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	  format(user_error, '~*|% ~w consulted ~w bytes in ~d msecs~n', [LC,F,H,T])
 	),
-	!.
+	!,
+	'$close'(Stream).
+
 
 
 '$loop'(Stream,Status) :-
