@@ -41,7 +41,10 @@ With the integration between object-oriented and event-driven programming, we in
 	<li>Minimize the coupling between objects. An object should only contain what is intrinsic to it. If an object observes another object, that means that it should depend only on the (public) protocol of the object observed, and not on the implementation of that same protocol.</li>
 </ul>
 <ul>
-	<li>Provide a framework for building reflexive systems in Logtalk based on the dynamic behavior of objects in complement to the reflective information of the object's contents and relations.</li>
+	<li>Provide a mechanism for building reflexive systems in Logtalk based on the dynamic behavior of objects in complement to the reflective information of the object's contents and relations.</li>
+</ul>
+<ul>
+	<li>Provide a mechanism for easily defining method pre- and post-conditions that can be toggled using the <code>events</code> compiler option. The pre- and post-conditions may be defined in the same object containing the methods or distributed between several objects acting as method monitors.</li>
 </ul>
 
 <h2>Definitions<a id="events_definitions"></a></h2>
@@ -233,7 +236,7 @@ The <code>monitoring</code> protocol declares the event handlers as public predi
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: January 15, 2007</span>
+		<span>Last updated on: February 5, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="inheritance.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="threads.html">next</a></span><br/>

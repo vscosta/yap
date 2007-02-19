@@ -1,4 +1,4 @@
-%   example adopted form:
+%   example adapted form:
 
 %   File   : Queens.Pl
 %   Author : Richard A O'Keefe

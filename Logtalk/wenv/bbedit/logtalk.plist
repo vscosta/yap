@@ -36,26 +36,28 @@
 	<dict> 
 		<key>Comment Pattern</key>
 		<string><![CDATA[(?x:
-			<# GREP (regex) pattern for comments #>
+			(?>	%			.*			$					) |
+			(?>  /\*    (?s:.*?)    (?>\*/)  )
 		)]]></string>
 	  
 		<key>Function Pattern</key>
 		<string><![CDATA[(?x:
-			<# GREP (regex) pattern for functions #>
+			:-\s(object|protocol|category)\([a-z][a-zA-Z_]+
 		)]]></string>
 	  
 		<key>String Pattern</key>
 		<string><![CDATA[(?x:
-			<# GREP (regex) pattern for strings #>
+			(?>	"			(?s: \\. | [^"] )*?		(?> " )		) |
+			(?>	'			(?s: \\. | [^'] )*?		(?> ' )		)
 		)]]></string>
-		
+<!--		
 		<key>Skip Pattern</key>
 		<string><![CDATA[(?x:
 			<# GREP (regex) pattern for anything that should be ignored when scanning functions #>
 		)]]></string>
-		
+-->		
 		<key>Identifier and Keyword Character Class</key>
-		<string><![CDATA[a-zA-Z0-9_]]></string>
+		<string><![CDATA[a-zA-Z0-9_:{}^]]></string>
 	</dict> 
 </dict>
 </plist>

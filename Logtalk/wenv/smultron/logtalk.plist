@@ -56,6 +56,8 @@
 			<string>threaded_ignore</string>
 			<string>threaded_exit</string>
 			<string>threaded_peek</string>
+			<string>threaded_wait</string>
+			<string>threaded_notify</string>
 			<string>synchronized</string>
 			<string>self</string>
 			<string>this</string>
@@ -167,7 +169,7 @@
 	<key>firstString</key>
 	<string>"</string>
 	<key>functionDefinition</key>
-	<string>((?&lt;=:-\sobject\()|(?&lt;=:-\sprotocol\()|(?&lt;=:-\scategory\())[a-z][a-zA-Z_]*</string>
+	<string>((?&lt;=:-\sobject\()|(?&lt;=:-\sprotocol\()|(?&lt;=:-\scategory\())[a-z][a-zA-Z0-9_]*</string>
 	<key>removeFromFunction</key>
 	<string></string>
 	<key>keywords</key>

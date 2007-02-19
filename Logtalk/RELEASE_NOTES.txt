@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.3
+Release 2.29.4
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,53 @@ Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.29.4 - February 19, 2007
+
+	Added a new library category, "listing", defining listing/0 and 
+	listing/1 methods for helping in debugging tasks.
+
+	Added two new experimental multi-threading predicates, threaded_wait/1 
+	and threaded_notify/1, which allows suspension of a thread's goal until  
+	a notification is received. Added two new examples, "threads/buffer" and 
+	"threads/blackboard", illustrating the use of these predicates.
+
+	Simplified and changed implementation of the threaded built-in 
+	predicates in order to ensure that the threaded/0 directive is only 
+	required on objects calling these predicates.
+
+	Only print a warning for a missing threaded/0 directive for objects.
+
+	Corrected a ordering bug on the entity initialization goal that 
+	prevented using an object initialization goal that make use of 
+	the object thread. 
+
+	Corrected a bug when asserting rules into an object's database that	
+	resulted in only the first asserted rule being visible when calling 
+	the predicate through message sending. Thanks to Parker Jones for 
+	the bug report.
+
+	Corrected a bug when compiling dynamic entities (defined in source 
+	files using the dynamic/0 directive) where declared predicates would 
+	be wrongly compiled as static instead of dynamic.
+
+	Updated the "make_xsblgt.sh" integration script again to fix an 
+	additional problem resulting from the lack of support in XSB for 
+	using environment variables in file paths.
+
+	Added minimal support for using Exuberant Ctags with Logtalk.
+
+	Added auto indent support to the jEdit text editor.
+
+	Added support for listing public predicates in the "Functions" window 
+	of the SuperEdi text editor.
+
+	Converted TextMate code snippets from the old Property List format 
+	to XML in order to provide compatibility with the "e" Windows text
+	editor.
+
+	New example: 99 bottles of beer on the wall! Sing along!
 
 
 2.29.3 - January 15, 2007

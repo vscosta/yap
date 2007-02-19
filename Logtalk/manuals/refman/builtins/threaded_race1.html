@@ -26,7 +26,7 @@
 
 <pre>threaded_race((Goal; Goals))</pre>
 <p>
-Prove a <em>disjunction</em> of goals asynchronously using a new thread. This call always succeeds. The call is equivalent to the <em>competing</em> calls of the individual goals: when one of the goals succeeds, the other ones are aborted (i.e. their threads are terminated). The result (of the first goal to succeed) is sent back to the thread of the object containing the call (<em>this</em>). The corresponding <code>threaded_exit/1</code> goal <strong>must</strong> match all the goals in the disjunction. This is useful when you have a set of different methods to solve a problem without knowing a priori which one will lead to the fastest result.
+Allows a disjunction of goals to be interpreted as a set of <em>competing</em> goals, each one running on its own thread. This call always succeeds. When one of the goals succeeds, the other ones are aborted (i.e. their threads are terminated). The result (of the first goal to succeed) is sent back to the thread of the object containing the call (<em>this</em>). The corresponding <code>threaded_exit/1</code> goal <strong>must</strong> match all the goals in the disjunction. This is useful when you have a set of different methods to solve a problem without knowing a priori which one will lead to the fastest result.
 </p>
 
 <h4>Template and modes</h4>
@@ -45,18 +45,18 @@ Prove a <em>disjunction</em> of goals asynchronously using a new thread. This ca
 <h4>Examples</h4>
 
 <dl>
-	<dt>Prove a set of competing goals asynchronously in a new thread:</dt>
+	<dt>Prove a set of competing goals asynchronously, each one in its own thread:</dt>
 		<dd><code>threaded_race((Goal; Goals)</code></dd>
-	<dt>Send a set of competing goals as an asynchronous message to <em>self</em>:</dt>
+	<dt>Prove a set of competing messages to <em>self</em> asynchronously, each one in its own thread:</dt>
 		<dd><code>threaded_race(::(Message; Messages))</code></dd>
-	<dt>Send a set of competing goals as an asynchronous message to an object:</dt>
+	<dt>Prove a set of competing messages to an object asynchronously, each one in its own thread:</dt>
 		<dd><code>threaded_race((Object::(Message; Messages))</code></dd>
 </dl>
 
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: December 11, 2006</span>
+		<span>Last updated on: February 13, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="threaded_ignore1.html">previous</a> | <a href="../../glossary.html">glossary</a> | <a href="threaded_exit1.html">next</a></span><br/>

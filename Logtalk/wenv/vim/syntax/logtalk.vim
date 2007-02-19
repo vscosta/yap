@@ -2,7 +2,7 @@
 "
 " Language:	Logtalk
 " Maintainer:	Paulo Moura <pmoura@logtalk.org>
-" Last Change:	December 14, 2006
+" Last Change:	February 13, 2007
 
 
 " Quit when a syntax file was already loaded:
@@ -87,6 +87,7 @@ syn region	logtalkDir		matchgroup=logtalkDirTag	start=":- private("		matchgroup=
 syn region	logtalkDir		matchgroup=logtalkDirTag	start=":- meta_predicate("	matchgroup=logtalkDirTag	end=")\."	contains=ALL
 syn region	logtalkDir		matchgroup=logtalkDirTag	start=":- op("			matchgroup=logtalkDirTag	end=")\."	contains=ALL
 syn region	logtalkDir		matchgroup=logtalkDirTag	start=":- synchronized("	matchgroup=logtalkDirTag	end=")\."	contains=ALL
+syn match	logtalkDirTag		":- synchronized\."
 syn region	logtalkDir		matchgroup=logtalkDirTag	start=":- uses("		matchgroup=logtalkDirTag	end=")\."	contains=ALL
 syn match	logtalkDirTag		":- threaded\."
 
@@ -117,7 +118,7 @@ syn match	logtalkBuiltIn		"\<logtalk_\(compile\|l\(ibrary_path\|oad\)\)\ze("
 
 syn match	logtalkBuiltIn		"\<\(for\|retract\)all\ze("
 
-syn match	logtalkBuiltIn		"\<threaded_\(call\|once\|ignore\|race\|exit\|peek\|discard\)\ze("
+syn match	logtalkBuiltIn		"\<threaded_\(call\|once\|ignore\|race\|exit\|peek\|wait\|notify\)\ze("
 
 
 " Logtalk built-in methods

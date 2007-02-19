@@ -36,6 +36,8 @@
 				<regex>:-\s(op)\(</regex>			
 				<regex>:-\s(calls)\(</regex>			
 				<regex>:-\s(use(s|_module))\(</regex>			
+				<regex>:-\s(synchronized)\(</regex>			
+				<regex>:-\s(synchronized)\.</regex>			
 				<regex>:-\s(threaded)\.</regex>			
 			</keywords>
 
@@ -83,7 +85,7 @@
 				<regex>\b(expand_term)\(</regex>
 				<regex>\b(term_expansion)\(</regex>
 				<regex>\b(phrase)\(</regex>
-				<regex>\b(threaded_(call|once|ignore|race|exit|peek|discard))\(</regex>
+				<regex>\b(threaded_(call|once|ignore|race|exit|peek|wait|notify))\(</regex>
 			</keywords>
 
 			<keywords id="Built-in Predicates" color="#1A1AA6" useforautocomplete="yes">

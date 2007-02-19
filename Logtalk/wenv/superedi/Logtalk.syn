@@ -1,7 +1,7 @@
 ; Superedi syntax definitions for Logtalk (http://logtalk.org/)
 ; 
 ; Author: 			Paulo Moura
-; Last changed in: 	October 16, 2006
+; Last changed in: 	February 13, 2007
 
 
 C=1
@@ -38,9 +38,10 @@ CharEsc = \
 
 
 [FunctionList]
-Object = ^\s*:-\sobject[(]{[a-z][a-zA-Z_]+}
-Interface = ^\s*:-\sprotocol[(]{[a-z][a-zA-Z_]+}
-Item = ^\s*:-\scategory[(]{[a-z][a-zA-Z_]+}
+Object = ^\s*:-\sobject[(]{[a-z][a-zA-Z0-9_]+}
+Interface = ^\s*:-\sprotocol[(]{[a-z][a-zA-Z0-9_]+}
+Item = ^\s*:-\scategory[(]{[a-z][a-zA-Z0-9_]+}
+Method = ^\s*:-\spublic[(]{[a-z][a-zA-Z0-9_]+}
 
 
 [Keywords 1]
@@ -169,6 +170,8 @@ threaded_ignore
 threaded_race
 threaded_exit
 threaded_peek
+threaded_wait
+threaded_notify
 
 ; Mode operators
 ?

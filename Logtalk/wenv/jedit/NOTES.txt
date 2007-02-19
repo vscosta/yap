@@ -1,14 +1,14 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.3
+Release 2.29.4
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-This directory contains files that provide syntax highlighting and 
-programming templates for editing Logtalk source files with the text
-editor jEdit 4.1 or later version:
+This directory contains files that provide syntax highlighting, automating 
+code indenting, and programming templates for editing Logtalk source files 
+with the text editor jEdit 4.2 or later version:
 
 	http://www.jedit.org/
 

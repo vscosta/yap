@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.3
+Release 2.29.4
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -48,6 +48,7 @@ aliases
 
 assignvars
 	example of using assignable variables in the context of parametric objects
+	in order to represent object state
 
 benchmarks
 	simple benchmarks for helping measuring performance of Logtalk message 
@@ -58,8 +59,12 @@ birds
 	bird identification expert system
 	(example adopted from the Adventure in Prolog Amzi! book)
 
+bottles
+	99 bottles of beer on the wall! Sing along!
+
 bricks
-	example of representation and handling of relations using events
+	example of representation and handling of relations using events;
+	illustrates how to use events to avoid breaking object encapsulation
 
 classvars
 	example of implementation of class variables
@@ -73,7 +78,8 @@ diamonds
 	(multi-inheritance conflicts and ambiguities)
 
 dynpred
-	example of using some of the built-in database handling methods
+	example of using some of the built-in database handling methods in 
+	order to implement dynamic object state
 
 encodings
 	very simple example of using the new, experimental encoding/1 
@@ -91,14 +97,15 @@ hello_world
 	the unavoidable "hello world" programming example
 
 hooks
-	simple example of using compiler hook predicates
+	simple example of using compiler hook objects and predicates
 
 inheritance
 	examples of public, protected, and private inheritance using both 
 	prototypes and classes/instances
 
 instmethods
-	example of instance defined methods
+	example of instance defined methods; also illustrates the use of 
+	"super calls" to call overridden method definitions
 
 lo
 	examples adopted from the Francis G. McCabe L&O system
@@ -118,7 +125,7 @@ metainterpreters
 	may be imported by "database" objects
 
 mi
-	multi-inheritance examples
+	simple multi-inheritance examples
 
 miscellaneous
 	unsorted examples
@@ -140,7 +147,9 @@ poem
 	examples adopted from the Ben Staveley-Taylor POEM system
 
 points
-	example adopted from SICStus Objects documentation
+	example adopted from SICStus Objects documentation; defines a simple 
+	class hierarchy of points illustrating how to use categories as 
+	object components
 
 polygons
 	example of representation and handling of relations using events
@@ -149,7 +158,8 @@ profiling
 	examples of using of events and monitors to implement profilers
 
 proxies
-	example of using parametric object proxies
+	example of using parametric object proxies for an efficient 
+	representation of objects with read-only state
 
 puzzles
 	several examples of logical puzzles
@@ -159,10 +169,12 @@ reflection
 
 relations
 	objects implementing predicates for dealing with relations and 
-	constrained relations between objects
+	constrained relations between objects; used by other examples
 
 roots
 	objects, protocols, and categories needed by most of the other examples;
+	illustrates how you can define object creation and abolishing methods, 
+	complete with initialization and termination options
 
 searching
 	state-space searching framework
@@ -170,8 +182,8 @@ searching
 	Intelligence" book)
 
 shapes
-	geometric shapes implemented as both a prototype hierarchy and a class 
-	hierarchy
+	simple geometric shapes implemented as both a prototype hierarchy and a 
+	class hierarchy
 
 sicstus
 	examples adopted from SICStus Objects documentation
@@ -182,6 +194,8 @@ symdiff
 
 threads
 	several simple examples of multi-threading programming
+	(requires Logtalk to be run with either YAP or SWI-Prolog)
 
 viewpoints
-	example on how to implement property and value sharing with prototypes
+	example on how to implement property sharing and value sharing with 
+	prototypes

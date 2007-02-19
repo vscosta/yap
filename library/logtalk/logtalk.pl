@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.29.3
+%  Release 2.29.4
 %
 %  Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 %
@@ -1041,6 +1041,15 @@ threaded_peek(Goal) :-
 	catch(TGoal, Error, '$lgt_runtime_error_handler'(Error)).
 
 
+threaded_wait(Message) :-
+	'$lgt_current_object_'(user, Prefix, _, _, _, _, _, _),
+	thread_get_message(Prefix, '$lgt_notification'(Message)).
+
+threaded_notify(Message) :-
+	'$lgt_current_object_'(user, Prefix, _, _, _, _, _, _),
+	thread_send_message(Prefix, '$lgt_notification'(Message)).
+
+
 
 % compiling and loading built-in predicates
 
@@ -1414,7 +1423,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_current_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 29, 3)).
+current_logtalk_flag(version, version(2, 29, 4)).
 
 
 
@@ -1918,14 +1927,16 @@ current_logtalk_flag(version, version(2, 29, 3)).
 		)
 	;	% else no definition lookup entry exists; construct and assert a dynamic one...
 		functor(Pred, Functor, Arity),
-		'$lgt_construct_predicate_functor'(Prefix, Functor, Arity, PredPrefix),
-		Pred =.. [_| Args],
+		functor(Template, Functor, Arity),
+		'$lgt_construct_predicate_functor'(Prefix, Functor, Arity, TemplatePrefix),
+		Template =.. [_| Args],
 		'$lgt_append'(Args, [Sender, This, Self], TArgs),
-		Call =.. [PredPrefix| TArgs],
-		Clause =.. [DDef, Pred, Sender, This, Self, Call],
+		Call =.. [TemplatePrefix| TArgs],
+		Clause =.. [DDef, Template, Sender, This, Self, Call],
 		assertz(Clause),
-		'$lgt_clean_lookup_caches'(Pred),
-		Update = '$lgt_update_ddef_table'(DDef, Pred, Call)
+		'$lgt_clean_lookup_caches'(Template),
+		Update = '$lgt_update_ddef_table'(DDef, Template, Call),
+		Template = Pred
 	).
 
 
@@ -5746,241 +5757,155 @@ current_logtalk_flag(version, version(2, 29, 3)).
 % multi-threading meta-predicates
 
 '$lgt_tr_body'(threaded_call(_), _, _, _) :-
-	'$lgt_compiler_flag'(report, on),
-	\+ '$lgt_pp_threaded_',
-	'$lgt_pp_entity'(object, _, _, _, _),
-	'$lgt_inc_compile_warnings_counter',
-	nl, write('  WARNING!  threaded/0 directive is missing!') , nl,
+	'$lgt_check_for_threaded_directive',
 	fail.
 
-'$lgt_tr_body'(threaded_call(Pred), MTPred, '$lgt_dbg_goal'(threaded_call(Pred), MTPred, Ctx), Ctx) :-
-	var(Pred),
+'$lgt_tr_body'(threaded_call(Goal), _, _, _) :-
+	nonvar(Goal),
+	\+ callable(Goal),
+	throw(type_error(callable, Goal)).
+
+'$lgt_tr_body'(threaded_call(Goal), MTGoal, '$lgt_dbg_goal'(threaded_call(Goal), MTGoal, Ctx), Ctx) :-
 	!,
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_body'(Pred, TPred, _, Ctx),
-	MTPred = '$lgt_mt_send_goal'(This, TPred, Sender, This, Self, []).
-
-'$lgt_tr_body'(threaded_call(Pred), _, _, _) :-
-	\+ callable(Pred),
-	throw(type_error(callable, Pred)).
-
-'$lgt_tr_body'(threaded_call(Obj::Pred), MTPred, '$lgt_dbg_goal'(threaded_call(Obj::Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_msg'(Pred, Obj, TPred, This),
-	MTPred = '$lgt_mt_send_goal'(Obj, TPred, Sender, This, Self, []).
-
-'$lgt_tr_body'(threaded_call(::Pred), MTPred, '$lgt_dbg_goal'(threaded_call(::Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_self_msg'(Pred, TPred, This, Self),
-	MTPred = '$lgt_mt_send_goal'(Self, TPred, Sender, This, Self, []).
-
-'$lgt_tr_body'(threaded_call(Pred), MTPred, '$lgt_dbg_goal'(threaded_call(Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_body'(Pred, TPred, _, Ctx),
-	MTPred = '$lgt_mt_send_goal'(This, TPred, Sender, This, Self, []).
+	'$lgt_tr_body'(Goal, TGoal, _, Ctx),
+	MTGoal = '$lgt_mt_send_goal'(This, TGoal, Sender, This, Self, []).
 
 
 '$lgt_tr_body'(threaded_race(_), _, _, _) :-
-	'$lgt_compiler_flag'(report, on),
-	\+ '$lgt_pp_threaded_',
-	'$lgt_inc_compile_warnings_counter',
-	nl, write('  WARNING!  threaded/0 directive is missing!') , nl,
+	'$lgt_check_for_threaded_directive',
 	fail.
 
-'$lgt_tr_body'(threaded_race(Pred), MTPred, '$lgt_dbg_goal'(threaded_race(Pred), MTPred, Ctx), Ctx) :-
-	var(Pred),
+'$lgt_tr_body'(threaded_race(Goal), _, _, _) :-
+	nonvar(Goal),
+	\+ callable(Goal),
+	throw(type_error(callable, Goal)).
+
+'$lgt_tr_body'(threaded_race(Obj::((Goal; Goals))), (TGoal, TGoals), (DGoal, DGoals), Ctx) :-
+	!,
+	'$lgt_tr_body'(threaded_race(Obj::Goal), TGoal, DGoal, Ctx),
+	'$lgt_tr_body'(threaded_race(Obj::Goals), TGoals, DGoals, Ctx).
+
+'$lgt_tr_body'(threaded_race(::((Goal; Goals))), (TGoal, TGoals), (DGoal, DGoals), Ctx) :-
+	!,
+	'$lgt_tr_body'(threaded_race(::Goal), TGoal, DGoal, Ctx),
+	'$lgt_tr_body'(threaded_race(::Goals), TGoals, DGoals, Ctx).
+
+'$lgt_tr_body'(threaded_race((Goal; Goals)), (TGoal, TGoals), (DGoal, DGoals), Ctx) :-
+	!,
+	'$lgt_tr_body'(threaded_race(Goal), TGoal, DGoal, Ctx),
+	'$lgt_tr_body'(threaded_race(Goals), TGoals, DGoals, Ctx).
+
+'$lgt_tr_body'(threaded_race(Goal), MTGoal, '$lgt_dbg_goal'(threaded_race(Goal), MTGoal, Ctx), Ctx) :-
 	!,
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_body'(Pred, TPred, _, Ctx),
-	MTPred = '$lgt_mt_send_goal'(This, TPred, Sender, This, Self, competing).
-
-'$lgt_tr_body'(threaded_race(Pred), _, _, _) :-
-	\+ callable(Pred),
-	throw(type_error(callable, Pred)).
-
-'$lgt_tr_body'(threaded_race(Obj::((Pred; Preds))), (TPred, TPreds), (DPred, DPreds), Ctx) :-
-	!,
-	'$lgt_tr_body'(threaded_race(Obj::Pred), TPred, DPred, Ctx),
-	'$lgt_tr_body'(threaded_race(Obj::Preds), TPreds, DPreds, Ctx).
-
-'$lgt_tr_body'(threaded_race(Obj::Pred), MTPred, '$lgt_dbg_goal'(threaded_race(Obj::Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_msg'(Pred, Obj, TPred, This),
-	MTPred = '$lgt_mt_send_goal'(Obj, TPred, Sender, This, Self, competing).
-
-'$lgt_tr_body'(threaded_race(::((Pred; Preds))), (TPred, TPreds), (DPred, DPreds), Ctx) :-
-	!,
-	'$lgt_tr_body'(threaded_race(::Pred), TPred, DPred, Ctx),
-	'$lgt_tr_body'(threaded_race(::Preds), TPreds, DPreds, Ctx).
-
-'$lgt_tr_body'(threaded_race(::Pred), MTPred, '$lgt_dbg_goal'(threaded_race(::Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_self_msg'(Pred, TPred, This, Self),
-	MTPred = '$lgt_mt_send_goal'(Self, TPred, Sender, This, Self, competing).
-
-'$lgt_tr_body'(threaded_race((Pred; Preds)), (TPred, TPreds), (DPred, DPreds), Ctx) :-
-	!,
-	'$lgt_tr_body'(threaded_race(Pred), TPred, DPred, Ctx),
-	'$lgt_tr_body'(threaded_race(Preds), TPreds, DPreds, Ctx).
-
-'$lgt_tr_body'(threaded_race(Pred), MTPred, '$lgt_dbg_goal'(threaded_race(Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_body'(Pred, TPred, _, Ctx),
-	MTPred = '$lgt_mt_send_goal'(This, TPred, Sender, This, Self, competing).
+	'$lgt_tr_body'(Goal, TGoal, _, Ctx),
+	MTGoal = '$lgt_mt_send_goal'(This, TGoal, Sender, This, Self, competing).
 
 
-'$lgt_tr_body'(threaded_once(_, _), _, _, _) :-
-	'$lgt_compiler_flag'(report, on),
-	\+ '$lgt_pp_threaded_',
-	'$lgt_inc_compile_warnings_counter',
-	nl, write('  WARNING!  threaded/0 directive is missing!') , nl,
+'$lgt_tr_body'(threaded_once(_), _, _, _) :-
+	'$lgt_check_for_threaded_directive',
 	fail.
 
-'$lgt_tr_body'(threaded_once(Pred), MTPred, '$lgt_dbg_goal'(threaded_once(Pred), MTPred, Ctx), Ctx) :-
-	var(Pred),
+'$lgt_tr_body'(threaded_once(Goal), _, _, _) :-
+	nonvar(Goal),
+	\+ callable(Goal),
+	throw(type_error(callable, Goal)).
+
+'$lgt_tr_body'(threaded_once(Goal), MTGoal, '$lgt_dbg_goal'(threaded_once(Goal), MTGoal, Ctx), Ctx) :-
 	!,
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_body'(Pred, TPred, _, Ctx),
-	MTPred = '$lgt_mt_send_goal'(This, TPred, Sender, This, Self, once).
-
-'$lgt_tr_body'(threaded_once(Pred, _), _, _, _) :-
-	\+ callable(Pred),
-	throw(type_error(callable, Pred)).
-
-'$lgt_tr_body'(threaded_once(Obj::Pred), MTPred, '$lgt_dbg_goal'(threaded_once(Obj::Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_msg'(Pred, Obj, TPred, This),
-	MTPred = '$lgt_mt_send_goal'(Obj, TPred, Sender, This, Self, once).
-
-'$lgt_tr_body'(threaded_once(::Pred), MTPred, '$lgt_dbg_goal'(threaded_once(::Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_self_msg'(Pred, TPred, This, Self),
-	MTPred = '$lgt_mt_send_goal'(Self, TPred, Sender, This, Self, once).
-
-'$lgt_tr_body'(threaded_once(Pred), MTPred, '$lgt_dbg_goal'(threaded_once(Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_body'(Pred, TPred, _, Ctx),
-	MTPred = '$lgt_mt_send_goal'(This, TPred, Sender, This, Self, once).
+	'$lgt_tr_body'(Goal, TGoal, _, Ctx),
+	MTGoal = '$lgt_mt_send_goal'(This, TGoal, Sender, This, Self, once).
 
 
-'$lgt_tr_body'(threaded_ignore(_, _), _, _, _) :-
-	'$lgt_compiler_flag'(report, on),
-	\+ '$lgt_pp_threaded_',
-	'$lgt_inc_compile_warnings_counter',
-	nl, write('  WARNING!  threaded/0 directive is missing!') , nl,
+'$lgt_tr_body'(threaded_ignore(_), _, _, _) :-
+	'$lgt_check_for_threaded_directive',
 	fail.
 
-'$lgt_tr_body'(threaded_ignore(Pred), MTPred, '$lgt_dbg_goal'(threaded_ignore(Pred), MTPred, Ctx), Ctx) :-
-	var(Pred),
+'$lgt_tr_body'(threaded_ignore(Goal), _, _, _) :-
+	nonvar(Goal),
+	\+ callable(Goal),
+	throw(type_error(callable, Goal)).
+
+'$lgt_tr_body'(threaded_ignore(Goal), MTGoal, '$lgt_dbg_goal'(threaded_ignore(Goal), MTGoal, Ctx), Ctx) :-
 	!,
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_body'(Pred, TPred, _, Ctx),
-	MTPred = '$lgt_mt_send_goal'(This, TPred, Sender, This, Self, ignore).
-
-'$lgt_tr_body'(threaded_ignore(Pred, _), _, _, _) :-
-	\+ callable(Pred),
-	throw(type_error(callable, Pred)).
-
-'$lgt_tr_body'(threaded_ignore(Obj::Pred), MTPred, '$lgt_dbg_goal'(threaded_ignore(Obj::Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_msg'(Pred, Obj, TPred, This),
-	MTPred = '$lgt_mt_send_goal'(Obj, TPred, Sender, This, Self, ignore).
-
-'$lgt_tr_body'(threaded_ignore(::Pred), MTPred, '$lgt_dbg_goal'(threaded_ignore(::Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_self_msg'(Pred, TPred, This, Self),
-	MTPred = '$lgt_mt_send_goal'(Self, TPred, Sender, This, Self, ignore).
-
-'$lgt_tr_body'(threaded_ignore(Pred), MTPred, '$lgt_dbg_goal'(threaded_ignore(Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_body'(Pred, TPred, _, Ctx),
-	MTPred = '$lgt_mt_send_goal'(This, TPred, Sender, This, Self, ignore).
+	'$lgt_tr_body'(Goal, TGoal, _, Ctx),
+	MTGoal = '$lgt_mt_send_goal'(This, TGoal, Sender, This, Self, ignore).
 
 
 '$lgt_tr_body'(threaded_exit(_), _, _, _) :-
-	'$lgt_compiler_flag'(report, on),
-	\+ '$lgt_pp_threaded_',
-	'$lgt_inc_compile_warnings_counter',
-	nl, write('  WARNING!  threaded/0 directive is missing!') , nl,
+	'$lgt_check_for_threaded_directive',
 	fail.
 
-'$lgt_tr_body'(threaded_exit(Pred), MTPred, '$lgt_dbg_goal'(threaded_exit(Pred), MTPred, Ctx), Ctx) :-
-	var(Pred),
+'$lgt_tr_body'(threaded_exit(Goal), _, _, _) :-
+	nonvar(Goal),
+	\+ callable(Goal),
+	throw(type_error(callable, Goal)).
+
+'$lgt_tr_body'(threaded_exit(Goal), MTGoal, '$lgt_dbg_goal'(threaded_exit(Goal), MTGoal, Ctx), Ctx) :-
 	!,
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_body'(Pred, TPred, _, Ctx),
-	MTPred = '$lgt_mt_get_reply'(TPred, Sender, This, Self, []).
-
-'$lgt_tr_body'(threaded_exit(Pred), _, _, _) :-
-	\+ callable(Pred),
-	throw(type_error(callable, Pred)).
-
-'$lgt_tr_body'(threaded_exit(Obj::Pred), MTPred, '$lgt_dbg_goal'(threaded_exit(Obj::Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_msg'(Pred, Obj, TPred, This),
-	MTPred = '$lgt_mt_get_reply'(TPred, Sender, This, Self, []).
-
-'$lgt_tr_body'(threaded_exit(::Pred), MTPred, '$lgt_dbg_goal'(threaded_exit(::Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_self_msg'(Pred, TPred, This, Self),
-	MTPred = '$lgt_mt_get_reply'(TPred, Sender, This, Self, []).
-
-'$lgt_tr_body'(threaded_exit(Pred), MTPred, '$lgt_dbg_goal'(threaded_exit(Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_body'(Pred, TPred, _, Ctx),
-	MTPred = '$lgt_mt_get_reply'(TPred, Sender, This, Self, []).
+	'$lgt_tr_body'(Goal, TGoal, _, Ctx),
+	MTGoal = '$lgt_mt_get_reply'(TGoal, Sender, This, Self, []).
 
 
 '$lgt_tr_body'(threaded_peek(_), _, _, _) :-
-	'$lgt_compiler_flag'(report, on),
-	\+ '$lgt_pp_threaded_',
-	'$lgt_inc_compile_warnings_counter',
-	nl, write('  WARNING!  threaded/0 directive is missing!') , nl,
+	'$lgt_check_for_threaded_directive',
 	fail.
 
-'$lgt_tr_body'(threaded_peek(Pred), MTPred, '$lgt_dbg_goal'(threaded_peek(Pred), MTPred, Ctx), Ctx) :-
-	var(Pred),
+'$lgt_tr_body'(threaded_peek(Goal), _, _, _) :-
+	nonvar(Goal),
+	\+ callable(Goal),
+	throw(type_error(callable, Goal)).
+
+'$lgt_tr_body'(threaded_peek(Goal), MTGoal, '$lgt_dbg_goal'(threaded_peek(Goal), MTGoal, Ctx), Ctx) :-
 	!,
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_body'(Pred, TPred, _, Ctx),
-	MTPred = '$lgt_mt_peek_reply'(TPred, Sender, This, Self).
+	'$lgt_tr_body'(Goal, TGoal, _, Ctx),
+	MTGoal = '$lgt_mt_peek_reply'(TGoal, Sender, This, Self).
 
-'$lgt_tr_body'(threaded_peek(Pred), _, _, _) :-
-	\+ callable(Pred),
-	throw(type_error(callable, Pred)).
 
-'$lgt_tr_body'(threaded_peek(Obj::Pred), MTPred, '$lgt_dbg_goal'(threaded_peek(Obj::Pred), MTPred, Ctx), Ctx) :-
+'$lgt_tr_body'(threaded_wait(_), _, _, _) :-
+	'$lgt_check_for_threaded_directive',
+	fail.
+
+'$lgt_tr_body'(threaded_wait(Msg), MTPred, '$lgt_dbg_goal'(threaded_wait(Msg), MTPred, Ctx), Ctx) :-
 	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_msg'(Pred, Obj, TPred, This),
-	MTPred = '$lgt_mt_peek_reply'(TPred, Sender, This, Self).
+	'$lgt_pp_entity'(Type, _, EntityPrefix, _, _),
+	'$lgt_ctx_ctx'(Ctx, Functor/Arity, _, _, _, EntityPrefix, _, _),
+	functor(Head, Functor, Arity),
+	(	'$lgt_pp_synchronized_'(Head, Mutex) ->
+		(	Type == object ->
+			MTPred = (mutex_unlock(Mutex), thread_get_message(EntityPrefix, '$lgt_notification'(Msg)), mutex_lock(Mutex))
+		;	% we're compiling a category predicate
+			'$lgt_ctx_this'(Ctx, This),
+			MTPred = ('$lgt_current_object_'(This, Prefix, _, _, _, _, _, _), mutex_unlock(Mutex), thread_get_message(Prefix, '$lgt_notification'(Msg)), mutex_lock(Mutex))
+		)
+	;	(	Type == object ->
+			MTPred = thread_get_message(EntityPrefix, '$lgt_notification'(Msg))
+		;	% we're compiling a category predicate
+			'$lgt_ctx_this'(Ctx, This),
+			MTPred = ('$lgt_current_object_'(This, Prefix, _, _, _, _, _, _), thread_get_message(Prefix, '$lgt_notification'(Msg)))
+		)
+	).
 
-'$lgt_tr_body'(threaded_peek(::Pred), MTPred, '$lgt_dbg_goal'(threaded_peek(::Pred), MTPred, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_self_msg'(Pred, TPred, This, Self),
-	MTPred = '$lgt_mt_peek_reply'(TPred, Sender, This, Self).
 
-'$lgt_tr_body'(threaded_peek(Pred), MTPred, '$lgt_dbg_goal'(threaded_peek(Pred), MTPred, Ctx), Ctx) :-
+'$lgt_tr_body'(threaded_notify(_), _, _, _) :-
+	'$lgt_check_for_threaded_directive',
+	fail.
+
+'$lgt_tr_body'(threaded_notify(Msg), MTPred, '$lgt_dbg_goal'(threaded_notify(Msg), MTPred, Ctx), Ctx) :-
 	!,
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
-	'$lgt_tr_body'(Pred, TPred, _, Ctx),
-	MTPred = '$lgt_mt_peek_reply'(TPred, Sender, This, Self).
+	'$lgt_pp_entity'(Type, _, EntityPrefix, _, _),
+	'$lgt_ctx_ctx'(Ctx, _, _, _, _, EntityPrefix, _, _),
+	(	Type == object ->
+		MTPred = thread_send_message(EntityPrefix, '$lgt_notification'(Msg))
+	;	% we're compiling a category predicate
+		'$lgt_ctx_this'(Ctx, This),
+		MTPred = ('$lgt_current_object_'(This, Prefix, _, _, _, _, _, _), thread_send_message(Prefix, '$lgt_notification'(Msg)))
+	).
 
 
 % message sending
@@ -6321,6 +6246,20 @@ current_logtalk_flag(version, version(2, 29, 3)).
 		true
 	;	assertz('$lgt_pp_calls_pred_'(Functor, Arity, MPrefix, Arity3))
 	).
+
+
+
+% '$lgt_check_for_threaded_directive'
+%
+% print a warning when the threaded/0 directive is not present on 
+% an object contaning calls to the threaded built-in predicates
+
+'$lgt_check_for_threaded_directive' :-
+	'$lgt_compiler_flag'(report, on),
+	\+ '$lgt_pp_threaded_',
+	'$lgt_pp_entity'(object, _, _, _, _),
+	'$lgt_inc_compile_warnings_counter',
+	nl, write('  WARNING!  threaded/0 directive is missing!') , nl.
 
 
 
@@ -7872,15 +7811,15 @@ current_logtalk_flag(version, version(2, 29, 3)).
 % "true" if there are local declaration clauses and the atom "fail" otherwise
 
 '$lgt_gen_local_dcl_clauses'(_) :-
-	'$lgt_pp_entity'(_, _, _, Dcl, _),
+	'$lgt_pp_entity'(_, _, _, Dcl, EntityCompilation),
 	(	'$lgt_pp_public_'(Functor, Arity), Scope = p(p(p))
 	;	'$lgt_pp_protected_'(Functor, Arity), Scope = p(p)
 	;	'$lgt_pp_private_'(Functor, Arity), Scope = p
 	),
 	functor(Pred, Functor, Arity),
-	(	'$lgt_pp_dynamic_'(Functor, Arity)->
+	(	'$lgt_pp_dynamic_'(Functor, Arity) ->
 		Compilation = (dynamic)
-	;	Compilation = static
+	;	Compilation = EntityCompilation
 	),
 	functor(Template, Functor, Arity),
 	(	'$lgt_pp_meta_predicate_'(Template) ->
@@ -9129,13 +9068,13 @@ current_logtalk_flag(version, version(2, 29, 3)).
 	'$lgt_pp_entity'(Type, Entity, Prefix, _, _),
 	findall(Clause, '$lgt_pp_rclause'(Clause), Clauses),
 	Goal1 = '$lgt_assert_runtime_clauses'(Clauses),
-	(	'$lgt_pp_fentity_init_'(Goal2) ->
-		Goal3 = (Goal1, Goal2)
-	;	Goal3 = Goal1
-	),
 	(	'$lgt_pp_threaded_' ->
-		Goal = (Goal3, '$lgt_init_object_thread'(Prefix))
-	;	Goal = Goal3 
+		Goal2 = (Goal1, '$lgt_init_object_thread'(Prefix))
+	;	Goal2 = Goal1
+	),
+	(	'$lgt_pp_fentity_init_'(Goal3) ->
+		Goal = (Goal2, Goal3)
+	;	Goal = Goal2
 	),
 	assertz('$lgt_pp_entity_init_'(Type, Entity, Goal)).
 
@@ -10202,6 +10141,8 @@ current_logtalk_flag(version, version(2, 29, 3)).
 '$lgt_lgt_built_in'(threaded_race(_)).
 '$lgt_lgt_built_in'(threaded_exit(_)).
 '$lgt_lgt_built_in'(threaded_peek(_)).
+'$lgt_lgt_built_in'(threaded_wait(_)).
+'$lgt_lgt_built_in'(threaded_notify(_)).
 
 
 

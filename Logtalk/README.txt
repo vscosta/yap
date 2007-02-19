@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.3
+Release 2.29.4
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -122,8 +122,10 @@ custom configuration files to run under this new version.
 
 10. CITATIONS
 
-If you want to cite Logtalk in your publications, please consult the file 
-"BIBLIOGRAPHY.bib" for bibliographic references in BibTeX format.
+If you find Logtalk useful, please include a citation on your publications.
+Consult the file "BIBLIOGRAPHY.bib" for bibliographic references in BibTeX 
+format (the Logtalk technical report published on 2000 or the 2003 PhD thesis 
+on Logtalk are good choices).
 
 
 11. CONTRIBUTIONS

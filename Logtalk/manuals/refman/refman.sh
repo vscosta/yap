@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.29.3
+## Release 2.29.4
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -75,6 +75,8 @@ eval $xslt_proc -o builtins/threaded_ignore1.section refman.xsl builtins/threade
 eval $xslt_proc -o builtins/threaded_race1.section refman.xsl builtins/threaded_race1.html
 eval $xslt_proc -o builtins/threaded_exit1.section refman.xsl builtins/threaded_exit1.html
 eval $xslt_proc -o builtins/threaded_peek1.section refman.xsl builtins/threaded_peek1.html
+eval $xslt_proc -o builtins/threaded_wait1.section refman.xsl builtins/threaded_wait1.html
+eval $xslt_proc -o builtins/threaded_notify1.section refman.xsl builtins/threaded_notify1.html
 eval $xslt_proc -o builtins/logtalk_compile1.section refman.xsl builtins/logtalk_compile1.html
 eval $xslt_proc -o builtins/logtalk_compile2.section refman.xsl builtins/logtalk_compile2.html
 eval $xslt_proc -o builtins/logtalk_load1.section refman.xsl builtins/logtalk_load1.html
@@ -172,6 +174,8 @@ cat -s \
 	builtins/threaded_race1.section \
 	builtins/threaded_exit1.section \
 	builtins/threaded_peek1.section \
+	builtins/threaded_wait1.section \
+	builtins/threaded_notify1.section \
 	builtins/logtalk_compile1.section \
 	builtins/logtalk_compile2.section \
 	builtins/logtalk_load1.section \

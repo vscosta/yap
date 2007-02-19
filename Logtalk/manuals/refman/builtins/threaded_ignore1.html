@@ -26,7 +26,7 @@
 
 <pre>threaded_ignore(Goal)</pre>
 <p>
-Prove <code>Goal</code> asynchronously using a new thread. Only the first solution for the goal is found. The argument can be a message sending. This call always succeeds, independently of the result (success, failure, or exception), which is simply discarded instead of being sent back to the thread of the object containing the call (<em>this</em>).
+Proves <code>Goal</code> asynchronously using a new thread. Only the first goal solution is found. The argument can be a message sending goal. This call always succeeds, independently of the result (success, failure, or exception), which is simply discarded instead of being sent back to the thread of the object containing the call (<em>this</em>).
 </p>
 
 <h4>Template and modes</h4>
@@ -47,16 +47,16 @@ Prove <code>Goal</code> asynchronously using a new thread. Only the first soluti
 <dl>
 	<dt>Prove <code>Goal</code> asynchronously in a new thread:</dt>
 		<dd><code>threaded_ignore(Goal)</code></dd>
-	<dt>Send an asynchronous message to <em>self</em>:</dt>
+	<dt>Prove <code>::Message</code> asynchronously in a new thread:</dt>
 		<dd><code>threaded_ignore(::Message)</code></dd>
-	<dt>Send an asynchronous message to an object:</dt>
+	<dt>Prove <code>Object::Message</code> asynchronously in a new thread:</dt>
 		<dd><code>threaded_ignore(Object::Message)</code></dd>
 </dl>
 
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: November 26, 2006</span>
+		<span>Last updated on: February 13, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="threaded_once1.html">previous</a> | <a href="../../glossary.html">glossary</a> | <a href="threaded_race1.html">next</a></span><br/>

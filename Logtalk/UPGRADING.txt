@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.3
+Release 2.29.4
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -150,7 +150,7 @@ events/1 is now off. Applications using event-driven programming must either
 turn this flag on or compile source files with the events(on) option. The 
 library protocol "event_handlersp" is now deprecated; new code should use 
 instead the built-in "monitoring" protocol. The new support for "threaded" 
-and "synchronized" entity properties implies implying recompilation of all 
-objects and categories.
+and "synchronized" entity properties implies recompilation of all objects 
+and categories.
 
 Logtalk 2.29.2 removes the built-in predicate threaded_discard/1.
