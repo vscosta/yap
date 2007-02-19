@@ -1,0 +1,44 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.29.4
+
+Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% start by loading the necessary library support files:
+
+| ?- logtalk_load(library(random_loader)).
+...
+
+
+% now you are ready for loading the example:
+
+| ?- logtalk_load(buffer(loader)).
+...
+
+
+% start the producer and the consumer, each one running in its own thread:
+
+| ?- threaded_ignore(producer::run(10)), threaded_ignore(consumer::run(10)).
+
+producer wrote item 0
+consumer read item 0
+producer wrote item 1
+consumer read item 1
+producer wrote item 2
+consumer read item 2
+producer wrote item 3
+consumer read item 3
+producer wrote item 4
+consumer read item 4
+producer wrote item 5
+consumer read item 5
+producer wrote item 6
+consumer read item 6
+producer wrote item 7
+consumer read item 7
+producer wrote item 8
+consumer read item 8
+producer wrote item 9
+consumer read item 9

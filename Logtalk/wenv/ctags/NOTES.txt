@@ -1,0 +1,21 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.29.4
+
+Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+This folder contains minimal support for using Exuberant Ctags 
+(http://ctags.sourceforge.net/) with Logtalk. There are two files 
+that you will need to rename and copy to your home directory:
+
+	ctags
+		Rename this file to "$HOME/.ctags" or append its contents to
+		the "$HOME/.ctags" file if it already exists
+
+	ctags.tmcodebrowser
+		Rename this file to "$HOME/.ctags.tmcodebrowser" or append its 
+		contents to "$HOME/.ctags.tmcodebrowser" if it already exists 
+		in order to use the MacOS X TextMate text editor and its 
+		TmCodeBrowser plug-in (http://www.cocoabits.com/TmCodeBrowser/)

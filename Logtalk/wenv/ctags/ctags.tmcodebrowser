@@ -1,0 +1,8 @@
+--langdef=logtalk
+--langmap=logtalk:.lgt
+--regex-logtalk=/^[ \t]*:- object\(([a-z][a-zA-Z0-9_]*)/\1/Objects/
+--regex-logtalk=/^[ \t]*:- protocol\(([a-z][a-zA-Z0-9_]*)/\1/Protocols/
+--regex-logtalk=/^[ \t]*:- category\(([a-z][a-zA-Z0-9_]*)/\1/Categories/
+--regex-logtalk=/^[ \t]*:- public\(([a-z][a-zA-Z0-9_]*)/\1/Public predicates/
+--regex-logtalk=/^[ \t]*:- protected\(([a-z][a-zA-Z0-9_]*)/\1/Protected predicates/
+--regex-logtalk=/^[ \t]*:- private\(([a-z][a-zA-Z0-9_]*)/\1/Private predicates/

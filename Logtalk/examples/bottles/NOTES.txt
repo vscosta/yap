@@ -1,0 +1,15 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.29.4
+
+Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+To load this example and for sample queries, please see the SCRIPT 
+file.
+
+This folder contains a Logtalk version of the programming problem 
+"99 bottles of beer  on the wall" , contributed to the web site:
+
+	http://99-bottles-of-beer.net/
