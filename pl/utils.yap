@@ -808,3 +808,10 @@ nth_instance(X,Y,Z) :-
 prolog_current_frame(Env) :-
 	Env is '$env'.
 
+nb_current(GlobalVariable, Val) :-
+	var(GlobalVariable), !,
+	'$nb_current'(GlobalVariable),
+	nb_getval(GlobalVariable, Val).
+nb_current(GlobalVariable, Val) :-
+	nb_getval(GlobalVariable, Val).
+

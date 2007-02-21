@@ -116,10 +116,6 @@ prolog:between(I0,I,J) :- I0 < I,
 	I1 is I0+1,
 	prolog:between(I1,I,J).
 
-prolog:nb_current(GlobalVariable,Val) :-
-	static_array_properties(GlobalVariable,1,nb_term),
-	array_element(GlobalVariable,0,Val).
-
 % SWI has a dynamic attribute scheme
 
 prolog:get_attr(Var, Mod, Att) :-

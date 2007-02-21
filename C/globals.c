@@ -1051,7 +1051,7 @@ p_nb_delete(void)
   WRITE_UNLOCK(ae->ARWLock);
   WRITE_UNLOCK(ge->GRWLock);
   Yap_FreeCodeSpace((char *)ge);
-  return FALSE;
+  return TRUE;
 }
 
 /* a non-backtrackable queue is a term of the form $array(Arena,Start,End,Size) plus an Arena. */
@@ -2142,6 +2142,41 @@ p_nb_beam_size(void)
   return Yap_unify(ARG2,qd[HEAP_SIZE]);
 }
 
+static Int 
+cont_current_nb(void)
+{
+  Int unif;
+  GlobalEntry *ge = (GlobalEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(1,1));
+
+  unif = Yap_unify(MkAtomTerm(AbsAtom(ge->AtomOfGE)), ARG1);
+  ge = ge->NextGE;
+  if (!ge) {
+    if (unif)
+      cut_succeed();
+    else
+      cut_fail();
+  } else {
+    EXTRA_CBACK_ARG(1,1) =  MkIntegerTerm((Int)ge);
+    return unif;
+  }
+}
+
+static Int 
+init_current_nb(void)
+{				/* current_atom(?Atom)		 */
+  Term t1 = Deref(ARG1);
+  if (!IsVarTerm(t1)) {
+    if (IsAtomTerm(t1))
+      cut_succeed();
+    else
+      cut_fail();
+  }
+  READ_LOCK(HashChain[0].AERWLock);
+  EXTRA_CBACK_ARG(1,1) =  MkIntegerTerm((Int)GlobalVariables);
+  return cont_current_nb();
+}
+
+
 void Yap_InitGlobals(void)
 {
   Term cm = CurrentModule;
@@ -2153,6 +2188,7 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("nb_setval", 2, p_nb_setval, 0L);
   Yap_InitCPred("nb_getval", 2, p_nb_getval, SafePredFlag);
   Yap_InitCPred("nb_delete", 1, p_nb_delete, 0L);
+  Yap_InitCPredBack("$nb_current", 1, 1, init_current_nb, cont_current_nb, SafePredFlag);
   CurrentModule = GLOBALS_MODULE;
   Yap_InitCPred("nb_queue", 1, p_nb_queue, 0L);
   Yap_InitCPred("nb_queue_close", 3, p_nb_queue_close, SafePredFlag);
