@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2007-01-28 14:26:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-02-26 10:41:40 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.117  2007/01/28 14:26:37  vsc
+* WIN32 support
+*
 * Revision 1.116  2006/12/13 16:10:23  vsc
 * several debugger and CLP(BN) improvements.
 *
@@ -3363,6 +3366,11 @@ p_set_yap_flags(void)
     if (value != 0 && value !=  1)
       return(FALSE);
     yap_flags[STACK_DUMP_ON_ERROR_FLAG] = value;
+    break;
+  case GENERATE_DEBUG_INFO_FLAG:
+    if (value != 0 && value != 1)
+      return(FALSE);
+    yap_flags[GENERATE_DEBUG_INFO_FLAG] = value;
     break;
   case INDEXING_MODE_FLAG:
     if (value < INDEX_MODE_OFF || value >  INDEX_MODE_MAX)

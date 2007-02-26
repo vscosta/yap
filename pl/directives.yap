@@ -189,16 +189,21 @@ yap_flag(syntax_errors, Option) :-
 % compatibility flag
 yap_flag(enhanced,on) :- !, set_value('$enhanced',true).
 yap_flag(enhanced,off) :- set_value('$enhanced',[]).
+
 %
 % SWI compatibility flag
 %
-yap_flag(generate_debug_info,V) :- var(V), !,
-	source_mode(OnOff,OnOff),
-	(OnOff = on -> V = true ; V = false).
-yap_flag(generate_debug_info,true) :- !.
-yap_flag(generate_debug_info,false) :- !.
 yap_flag(generate_debug_info,X) :-
-	'$do_error'(domain_error(flag_value,generate_domain_info+X),yap_flag(generate_debug_info,X)).
+	var(X), !,
+        '$access_yap_flags'(18,Options),
+	(Options =:= 0 -> X = false ; X = true ).
+yap_flag(generate_debug_info,true) :- !,
+	'$set_yap_flags'(18,1).
+yap_flag(generate_debug_info,false) :- !,
+	'$set_yap_flags'(18,0).
+yap_flag(generate_debug_info,X) :-
+	'$do_error'(domain_error(flag_value,generate_debugging_info+X),yap_flag(generate_debugging_info,X)).
+
 %
 % show state of $
 %
@@ -232,11 +237,11 @@ yap_flag(bounded,X) :-
 
 % do or do not indexation
 yap_flag(index,X) :- var(X),
-	'$access_yap_flags'(18, X1),
+	'$access_yap_flags'(19, X1),
 	'$transl_to_index_mode'(X1,X), !.
 yap_flag(index,X)  :-
 	'$transl_to_index_mode'(X1,X), !,
-	'$set_yap_flags'(18,X1).
+	'$set_yap_flags'(19,X1).
 yap_flag(index,X) :-
 	'$do_error'(domain_error(flag_value,index+X),yap_flag(index,X)).
 
@@ -254,7 +259,7 @@ yap_flag(home,X) :-
 % tabling mode
 yap_flag(tabling_mode,Options) :- 
    var(Options), !,
-   '$access_yap_flags'(19,Options).
+   '$access_yap_flags'(20,Options).
 yap_flag(tabling_mode,[]) :- !.
 yap_flag(tabling_mode,[HOption|TOption]) :- !,
    yap_flag(tabling_mode,HOption),
@@ -264,7 +269,7 @@ yap_flag(tabling_mode,(Option1,Option2)) :- !,
    yap_flag(tabling_mode,Option2).
 yap_flag(tabling_mode,Option) :-
    '$transl_to_tabling_mode'(Flag,Option),
-   '$set_yap_flags'(19,Flag).
+   '$set_yap_flags'(20,Flag).
 yap_flag(tabling_mode,Options) :-
    '$do_error'(domain_error(flag_value,tabling_mode+Options),yap_flag(tabling_mode,Options)).
 
@@ -457,6 +462,15 @@ yap_flag(redefine_warnings,X) :-
 	    '$syntax_check_multiple'(_,off)).
 yap_flag(redefine_warnings,X) :-
 	'$do_error'(domain_error(flag_value,redefine_warnings+X),yap_flag(redefine_warnings,X)).
+
+yap_flag(chr_toplevel_show_store,X) :-
+	var(X), !,
+	nb_getval('$chr_toplevel_show_store',X).
+yap_flag(chr_toplevel_show_store,X) :-
+	(X = true ; X = false), !,
+	nb_setval('$chr_toplevel_show_store',X).
+yap_flag(chr_toplevel_show_store,X) :-
+	'$do_error'(domain_error(flag_value,chr_toplevel_show_store+X),yap_flag(chr_toplevel_show_store,X)).
 
 yap_flag(single_var_warnings,X) :-
 	var(X), !,
@@ -660,6 +674,7 @@ yap_flag(max_threads,X) :-
 	    V = bounded ;
 	    V = char_conversion ;
 	    V = character_escapes ;
+            V = chr_toplevel_show_store ;
 	    V = debug ;
 	    V = debugger_print_options ;
 	    V = discontiguous_warnings ;

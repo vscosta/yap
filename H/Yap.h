@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.20 2007-02-18 00:26:36 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.21 2007-02-26 10:41:40 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -514,9 +514,11 @@ typedef enum
   HALT_AFTER_CONSULT_FLAG = 15,
   FAST_BOOT_FLAG = 16,
   STACK_DUMP_ON_ERROR_FLAG = 17,
-  INDEXING_MODE_FLAG = 18,
+  GENERATE_DEBUG_INFO_FLAG = 18,
+  INDEXING_MODE_FLAG = 19,
+  TABLING_MODE_FLAG = 20,
   /* let this be the last one */
-  TABLING_MODE_FLAG = 19
+  LAST_FLAG = 21
 } yap_flags;
 
 #define STRING_AS_CHARS		0
@@ -560,7 +562,7 @@ typedef enum
   YAP_AGC_SIGNAL = 0x20000	/* call atom garbage collector asap */
 } yap_signals;
 
-#define NUMBER_OF_YAP_FLAGS  TABLING_MODE_FLAG + 1
+#define NUMBER_OF_YAP_FLAGS  LAST_FLAG
 
 /************************  prototypes **********************************/
 

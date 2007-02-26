@@ -849,6 +849,7 @@ InitFlags(void)
 #else
   yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = TRUE;
 #endif
+  yap_flags[GENERATE_DEBUG_INFO_FLAG] = TRUE;
   /* current default */
   yap_flags[INDEXING_MODE_FLAG] = INDEX_MODE_MULTI;
   yap_flags[TABLING_MODE_FLAG] = 0;
@@ -1402,7 +1403,7 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
   /* InitAbsmi must be done before InitCodes */
   /* This must be done before initialising predicates */
   Yap_heap_regs->system_pred_goal_expansion_func = FALSE;
-  for (i = 0; i <= TABLING_MODE_FLAG; i++) {
+  for (i = 0; i <= LAST_FLAG; i++) {
     yap_flags[i] = 0;
   }
   GcCalls = 0;

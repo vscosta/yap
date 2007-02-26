@@ -213,6 +213,7 @@ use_module(M,F,Is) :-
 	'$change_alias_to_stream'('$loop_stream',Stream),
 	get_value('$consulting',Old),
 	set_value('$consulting',false),
+	'$access_yap_flags'(18,GenerateDebug),
 	'$consult_infolevel'(InfLevel),
 	recorda('$initialisation','$',_),
 	( Reconsult = reconsult ->
@@ -241,6 +242,7 @@ use_module(M,F,Is) :-
 	    true
 	),
 	'$change_alias_to_stream'('$loop_stream',OldStream),
+	'$set_yap_flags'(18,GenerateDebug),
 	set_value('$consulting',Old),
 	set_value('$consulting_file',OldF),
 	cd(OldD),
