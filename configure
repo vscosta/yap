@@ -1320,7 +1320,8 @@ Optional Packages:
  --with-heap-space=space  default heap size in Kbytes
  --with-stack-space=space default stack size in Kbytes
  --with-trail-space=space default trail size in Kbytes
- --with-max-workers=integer maximum number of threads or parallel processes
+ --with-max-workers=integer maximum number of parallel processes
+ --with-max-threads=integer maximum number of threads
 
 Some influential environment variables:
   CC          C compiler command
@@ -3096,6 +3097,21 @@ fi
 
 
 
+# Check whether --with-max-threads was given.
+if test "${with_max_threads+set}" = set; then
+  withval=$with_max_threads; if test "$withval" = yes; then
+	  yap_cv_max_threads="(8*SIZEOF_INT_P)"
+	elif test "$withval" = no; then
+	  yap_cv_max_threads="1"
+	else
+	  yap_cv_max_threads=$withval
+	fi
+else
+  yap_cv_max_threads="(8*SIZEOF_INT_P)"
+fi
+
+
+
 # Check whether --with-max-workers was given.
 if test "${with_max_workers+set}" = set; then
   withval=$with_max_workers; if test "$withval" = yes; then
@@ -3316,7 +3332,21 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
-if test "$or-parallelism" = no -a "$threads" = no
+if test "$threads" = no
+then
+  cat >>confdefs.h <<\_ACEOF
+#define MAX_THREADS 1
+_ACEOF
+
+else
+eval "cat >>confdefs.h <<\_ACEOF
+#define MAX_THREADS ($yap_cv_max_threads)
+_ACEOF
+"
+fi
+
+
+if test "$or-parallelism" = no
 then
   cat >>confdefs.h <<\_ACEOF
 #define MAX_WORKERS 1
