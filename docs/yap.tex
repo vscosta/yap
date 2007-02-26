@@ -520,13 +520,18 @@ is still experimental.
 or-parallelism supported by one of these three forms. This option is
 still highly experimental.
 
+ @item @code{--with-max-workers} allows definition of the maximum 
+number of parallel processes.
+
  @item @code{--with-gmp[=DIR]} give a path to where one can find the
 @code{GMP} library if not installed in the default path.
-
 
  @item @code{--enable-threads} allows using of the multi-threading 
 predicates provided by YAP. Depending on the operating system, the 
 option @code{--enable-pthread-locking} may also need to be used.
+
+ @item @code{--with-max-threads} allows definition of the maximum 
+number of threads.
 
 @end itemize
 
@@ -6663,6 +6668,11 @@ Read-only flag that giving the current version of YAP.
 integers that are writable character codes using the list notation. It
 is @code{on} if enables or @code{off} if disabled. The default value for
 this flag is @code{off}.
+
+@item max_threads
+@findex  max_threads (yap_flag/2 option)
+@* Read-only flag telling the maximum number of Prolog threads that can 
+be created.
 
 @end table
 
