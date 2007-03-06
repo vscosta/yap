@@ -123,10 +123,11 @@ in Fig.~\ref{fig:carc:index}. This code is typically placed before the
 code for the clauses and the \switchONconstant instruction is the
 entry point of predicate. Note that compared to vanilla WAM this
 instruction has an extra argument: the register on the value of which
-we will hash ($r_1$). Also, if the register contains an unbound
-variable instead of a constant then execution will continue with the
-next instruction. The reason for the extra argument and this small
-change in functionality will become apparent soon.
+we will hash ($r_1$). Another difference is that if this argument
+register contains an unbound variable instead of a constant then
+execution will continue with the next instruction. The reason for the
+extra argument and this small change in the behavior of
+\switchONconstant will become apparent soon.
 
 %------------------------------------------------------------------------------
 \begin{figure}[t]
@@ -448,16 +449,18 @@ requires the following extensions:
 \item Because the byte code for the clause heads does not necessarily
   have a regular structure, the abstract machine needs to be able to
   ``walk'' the byte code instructions and recover the symbols on which
-  hashing will be based. Writing such a code walking procedure is not
+  indexing will be based. Writing such a code walking procedure is not
   hard.\footnote{In many Prolog systems, a procedure with similar
   functionality often exists for the disassembler, the debugger, etc.}
 \item Indexing on an argument that contains unconstrained variables
-  for some clauses can be tricky. Without special treatment, the WAM
-  creates two choice points for this argument (one for the variables
-  and one per each group of clauses). However, this issue is
-  well-known by now. Possible solutions to it are described in a 1987
-  paper by Carlsson~\cite{Carlsson} and can be readily adapted to
-  \JITI. Alternatively, we can skip \JITI for these arguments.
+  for some clauses can be tricky. The WAM needs to group clauses in
+  this case and without special treatment creates two choice points
+  for this argument (one for the variables and one per each group of
+  clauses). However, this issue and how to deal with it is well-known
+  by now. Possible solutions to it are described in a 1987 paper by
+  Carlsson~\cite{Carlsson} and can be readily adapted to \JITI.
+  Alternatively, in a simple implementation, we can skip \JITI for
+  arguments with variables in some clauses.
 \end{enumerate}
 Before describing \JITI more formally, we remark on the following
 design decisions whose rationale may not be immediately obvious:
@@ -665,6 +668,32 @@ If the indices are needed again, they can simply be regenerated.
 
 \section{Related Work} \label{sec:related}
 %=========================================
+Some Prolog systems are influenced by the WAM design and only support
+indexing on the functor symbol of the first argument. Some others,
+like YAP~\cite{costa88}, can look inside compound terms. SICStus
+Prolog supports \emph{shallow backtracking}~\cite{Carls88}; choice
+points are fully populated only when it is certain execution will
+enter the clause body. Other systems like
+BIM-Prolog~\cite{Bart89:NACLP}, SWI-Prolog~\cite{SWI}, and
+hProlog~\cite{} that can do multi-argument indexing.
+
+Hickey and Mudambi~\cite{HicMud} proposed \emph{switching trees}.
+These trees assume mode information to organise the different clauses
+in a tree. Similar proposals were followed by Van Roy, Demoen and
+Willems~\cite{VRDW87} who perform indexing on several arguments to
+form a {\it selection tree}, and, more recently, Zhou et al.\
+introduced \emph{matching trees} in B-Prolog~\cite{ZhTaUs-small}.
+
+Long ago, Kliger and Shapiro argued that such schemes are not cost
+effective for the compilation of Prolog programs~\cite{KS88}. Firstly,
+in many cases choice points are really necessary, and a sophisticated
+indexing scheme will not help. Second, unless the mode declarations
+are known, there is a risk of doing indexing on output arguments,
+which will never be instantiated. Some of the advanced indexing
+systems we discussed claim to overcome the last difficulty by using
+global analysis, in the form of abstract interpretation, to provide
+the modes of use for the program.
+
 \begin{itemize}
 \item Indexing in Prolog systems.
 \item Trees and tries.  Unification factoring.
@@ -677,7 +706,11 @@ If the indices are needed again, they can simply be regenerated.
 
 \section{Concluding Remarks}
 %===========================
-
+\begin{itemize}
+\item Mention the non-trivial speedups in actual applications; also
+  that it is important to realize that certain applications have ad
+  hoc query patterns (e.g., ILP) are not amenable to static analyses
+\end{itemize}
 
 %==============================================================================
 \bibliographystyle{splncs}
