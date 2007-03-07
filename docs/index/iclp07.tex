@@ -98,6 +98,78 @@
 The WAM~\cite{Warren83}
 
 
+\section{State of the Art and Related Work} \label{sec:related}
+%==============================================================
+% Indexing in Prolog systems:
+Even nowadays, some Prolog systems are still influenced by the WAM
+design and only support indexing on the main functor symbol of the
+first argument. Some others, like YAP~\cite{YAP}, can look inside
+compound terms. SICStus Prolog supports \emph{shallow
+backtracking}~\cite{ShallowBacktracking@ICLP-89}; choice points are
+fully populated only when it is certain execution will enter the
+clause body. While shallow backtracking avoids some of the performance
+problems of unnecessary choice point creation, it does not offer the
+full benefits that indexing can provide. Other systems like
+BIM-Prolog~\cite{IndexingProlog@NACLP-89}, ilProlog,
+SWI-Prolog~\cite{SWI}, and XSB~\cite{XSB} allow for user-controlled
+multi-argument indexing (via an \code{:-~index} directive). Typically,
+this support comes with various implementation restrictions. For
+example, in SWI-Prolog at most four arguments can be indexed; in XSB
+the compiler does not offer multi-argument indexing support and the
+predicates need to be asserted instead; we know of no system where
+multi-argument indexing looks inside compound terms. More importantly,
+requiring users to specify arguments to index on is neither
+user-friendly nor guarantees good performance results. Our thesis is
+that it is much better if the abstract machine is able to
+automatically adapt to the runtime indexing requirements of Prolog
+applications.
+
+% Trees, tries and unification factoring:
+Recognizing the need for better indexing, researchers have proposed
+more flexible index mechanisms for Prolog. For example, Hickey and
+Mudambi proposed \emph{switching trees}~\cite{HickeyMudambi@JLP-89},
+which rely on the presence of mode information. Similar proposals were
+followed by Van Roy, Demoen and Willems who perform indexing on
+several arguments to form a \emph{selection tree}~\cite{VRDW87}, and
+by Zhou et al.\ who implemented a \emph{matching tree} oriented
+abstract machine for Prolog~\cite{TOAM@ICLP-90}. For static
+predicates, the XSB compiler offers support for \emph{unification
+factoring}~\cite{UnifFact@POPL-95}; for asserted code, XSB can
+represent databases of facts using \emph{tries}~\cite{Tries@JLP-99}
+which provide left-to-right multi-argument indexing. However, none of
+these mechanisms is used automatically; instead the user has to
+specify appropriate directives.
+
+% Comparison with static analysis techniques and Mercury:
+Long ago, Kliger and Shapiro argued that such tree-based indexing
+schemes are not cost effective for the compilation of Prolog
+programs~\cite{KligerShapiro@ICLP-88}. We disagree with their
+conclusion. On the other hand it is true that unless the modes of
+predicates are known there is a risk of doing indexing on output
+arguments, whose only effect will be an unnecessary increase in
+compilation times and, more importantly, code size. In a programming
+language like Mercury~\cite{Mercury@JLP-96} where modes are known the
+compiler can of course avoid this risk; in Mercury modes are in fact
+used to guide the compiler in generating indexing tables. However, the
+situation is different for a language Prolog. Getting accurate
+information about the set of all possible modes of predicates requires
+a global static analyzer in the compiler --- and most Prolog systems
+do not come with one --- but more importantly, it requires a lot of
+discipline from the programmer (e.g., that applications use the module
+system religiously and never bypass it). As a result, most Prolog
+systems currently do not provide the type of indexing that
+applications require. Even in systems like Ciao~\cite{Ciao@SCP-05},
+which do come with built-in static analysis and more or less force
+such a discipline to the programmer, mode information is not used for
+multi-argument index construction.
+
+\begin{itemize}
+% \item Alternative: interface with a DB system?
+\item Just-In-Time and dynamic compilation techniques (VITOR, IS THERE
+  ANYTHING FOR PROLOG?)
+\end{itemize}
+
+
 \section{Demand-Driven Indexing of Static Predicates} \label{sec:static}
 %=======================================================================
 For static predicates the compiler has complete information about all
@@ -115,7 +187,7 @@ consist only of Datalog facts. This is commonly the case for all
 extensional database predicates where indexing is most effective and
 called for. One such code example is shown in
 Fig.~\ref{fig:carc:facts}. It is a fragment of the well-known machine
-learning dataset \textit{Carcinogenesis}~\cite{SriKinMugSte97-ILP97}.
+learning dataset \textit{Carcinogenesis}~\cite{Carcinogenesis@ILP-97}.
 These clauses get compiled to the WAM code shown in
 Fig.~\ref{fig:carc:clauses}. Assuming WAM-style, first argument
 indexing, the indexing code that a Prolog compiler generates is shown
@@ -458,9 +530,9 @@ requires the following extensions:
   for this argument (one for the variables and one per each group of
   clauses). However, this issue and how to deal with it is well-known
   by now. Possible solutions to it are described in a 1987 paper by
-  Carlsson~\cite{Carlsson} and can be readily adapted to \JITI.
-  Alternatively, in a simple implementation, we can skip \JITI for
-  arguments with variables in some clauses.
+  Carlsson~\cite{FreezeIndexing@ICLP-87} and can be readily adapted to
+  \JITI. Alternatively, in a simple implementation, we can skip \JITI
+  for arguments with variables in some clauses.
 \end{enumerate}
 Before describing \JITI more formally, we remark on the following
 design decisions whose rationale may not be immediately obvious:
@@ -593,7 +665,7 @@ to a \switchSTAR WAM instruction.
 	  \end{itemize}
 	\end{itemize}
       \item[2.2.4] transform the \jitiSTAR $r, l, k$ instruction to
-	a \switchSTAR $r, l, \cal T$ instruction; and
+	a \switchSTAR $r, l, \&{\cal T}$ instruction; and
       \item[2.2.5] continue execution with this instruction.
       \end{itemize}
     \end{enumerate}
@@ -629,7 +701,7 @@ Algorithm~\ref{alg:construction} provides multi-argument indexing but
 only for the outermost symbols of arguments. For clauses with
 structured terms that require indexing in their subterms we can either
 employ a compile-time program transformation like \emph{unification
-factoring}~\cite{Dawson:1995:UFE} or modify the algorithm to consider
+factoring}~\cite{UnifFact@POPL-95} or modify the algorithm to consider
 index positions inside structure symbols. This is relatively easy to
 do but requires support from the register allocator (passing the
 subterms of structures in appropriate argument registers) and/or a new
@@ -664,44 +736,6 @@ If the indices are needed again, they can simply be regenerated.
 
 \section{Performance Evaluation} \label{sec:perf}
 %================================================
-
-
-\section{Related Work} \label{sec:related}
-%=========================================
-Some Prolog systems are influenced by the WAM design and only support
-indexing on the functor symbol of the first argument. Some others,
-like YAP~\cite{costa88}, can look inside compound terms. SICStus
-Prolog supports \emph{shallow backtracking}~\cite{Carls88}; choice
-points are fully populated only when it is certain execution will
-enter the clause body. Other systems like
-BIM-Prolog~\cite{Bart89:NACLP}, SWI-Prolog~\cite{SWI}, and
-hProlog~\cite{} that can do multi-argument indexing.
-
-Hickey and Mudambi~\cite{HicMud} proposed \emph{switching trees}.
-These trees assume mode information to organise the different clauses
-in a tree. Similar proposals were followed by Van Roy, Demoen and
-Willems~\cite{VRDW87} who perform indexing on several arguments to
-form a {\it selection tree}, and, more recently, Zhou et al.\
-introduced \emph{matching trees} in B-Prolog~\cite{ZhTaUs-small}.
-
-Long ago, Kliger and Shapiro argued that such schemes are not cost
-effective for the compilation of Prolog programs~\cite{KS88}. Firstly,
-in many cases choice points are really necessary, and a sophisticated
-indexing scheme will not help. Second, unless the mode declarations
-are known, there is a risk of doing indexing on output arguments,
-which will never be instantiated. Some of the advanced indexing
-systems we discussed claim to overcome the last difficulty by using
-global analysis, in the form of abstract interpretation, to provide
-the modes of use for the program.
-
-\begin{itemize}
-\item Indexing in Prolog systems.
-\item Trees and tries.  Unification factoring.
-\item Comparison with static analysis techniques and Mercury.
-\item Alternative: interface with a DB system?
-\item Just-In-Time and dynamic compilation techniques (VITOR, IS THERE
-  ANYTHING FOR PROLOG?)
-\end{itemize}
 
 
 \section{Concluding Remarks}
