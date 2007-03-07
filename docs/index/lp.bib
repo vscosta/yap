@@ -192,142 +192,233 @@
 @string{OSDI-2 = {Proc. of the 2nd Symp. on Operating Systems Design and Implementation (OSDI'96)}}
 @string{ICLP03 =  "Proceedings of the Nineteenth International Conference on Logic Programming"}
 
-@techreport{xsb-manual,
-AUTHOR = "Konstantinos F. Sagonas and Terrance Swift and David S. Warren and Juliana Freire and P. Rao",
-TITLE = "The {XSB} Pro\-grammer's Manual",
-INSTITUTION = "State University of New York at Stony Brook",
-NOTE = "Available at http://xsb.sourceforge.net/",
-YEAR = 1997 }
-
-@Phdthesis{BIM,
-	AUTHOR = "Mari{\"e}n, Andr\'e",
-	TITLE = "{Improving the Compilation of Prolog in the Framework of the Warren Abstract Machine}",
-     School = "Katholiek Universiteit Leuven",
-     Month = "September",
-     Year = "1993"
+@Manual{XSB,
+  author    = "Konstantinos F. Sagonas and Terrance Swift and David S. Warren
+               and Juliana Freire and Prasad Rao",
+  title     = "The {XSB} Pro\-grammer's Manual",
+organization = "State University of New York at Stony Brook",
+  year      = 1997,
+  url       = "http://xsb.sourceforge.net/"
 }
 
-@Inproceedings{ZhTaUs-small,
-	Author = "Zhou, Neng-Fa and Takagi, Toshihisa and Kazuo, Ushijima",
-	Title = "A {Matching} {Tree} {Oriented} {Abstract} {Machine} for {Prolog}",
-	Booktitle = "ICLP90",
-	Year = "1990",
-	Pages = "158--173"	}
+@InProceedings{UnifFact@POPL-95,
+  author    = "Steven Dawson and C. R. Ramakrishnan and I. V. Ramakrishnan and
+               Konstantinos Sagonas and Steven Skiena and Terrance Swift and
+               David S. Warren",
+  title     = "Unification Factoring for the Efficient Execution of
+               Logic Programs",
+  pages     = "247--258",
+  booktitle = "Conference Record of {POPL'95: 22nd ACM SIGPLAN-SIGACT}
+               Symposium on Principles of Programming Languages",
+  month     = jan,
+  year      = 1995,
+  publisher = "ACM Press"
+}
 
-@manual{SWI,
-	author = "J. Wielemaker",
-	title = "{SWI-Prolog 5.1}: Reference Manual",
-	organization = "{SWI}, University of Amsterdam",
-	address = "Roetersstraat 15, 1018 WB Amsterdam, The Netherlands",
-	year = 	"1997-2003",
-	url  = "http://www.swi-prolog.org"
-	}
+@Article{Tries@JLP-99,
+  author    = "I. V. Ramakrishnan and Prasad Rao and Konstantinos Sagonas
+               and Terrance Swift and David S. Warren",
+  title     = "Efficient Access Mechanisms for Tabled Logic Programs",
+  journal   = JLP,
+  volume    = {38},
+  number    = {1},
+  pages     = {31--54},
+  month     = jan,
+  year      = 1999
+}
 
-@Techreport{Warren83,
-     Author = "Warren, David H. D.",
-     Title = "{An Abstract Prolog Instruction Set}",
-     Institution = "SRI International",
-     Year = "1983",
-     Type = "Technical Note",
-     Number = "309"      }
+@Inproceedings{VRDW87,
+  author    = "{Van Roy}, Peter and Demoen, Bart and Willems, Yves D.",
+  title     = "Improving the Execution Speed of Compiled {Prolog}
+               with Modes, Clause Selection and Determinism",
+  pages     = "111--125",
+  booktitle = "TAPSOFT'87",
+  year      = 1987,
+  publisher = SV
+}   
+
+@InProceedings{IndexingProlog@NACLP-89,
+  author    = "Bart Demoen and Andr\'e Mari{\"e}n and Alain Callebaut",
+  title     = "Indexing in {P}rolog",
+  pages     = {1001--1012},
+  booktitle = {Proceedings of the North American Conference on
+               Logic Programming},
+  editor    = {Ewing L. Lusk and Ross A. Overbeek},
+  year      = 1989,
+  publisher = {MIT Press}
+}
+
+@Phdthesis{BIM,
+  author    = "Mari{\"e}n, Andr\'e",
+  title     = "Improving the Compilation of {P}rolog in the Framework
+               of the {W}arren {A}bstract {M}achine",
+  school    = "Katholieke Universiteit Leuven",
+  month     = sep,
+  year      = "1993" 
+}
+
+@InProceedings{TOAM@ICLP-90,
+  author    = "Zhou, Neng-Fa and Takagi, Toshihisa and Kazuo, Ushijima",
+  title     = "A Matching Tree Oriented Abstract Machine for {P}rolog",
+  pages     = "158--173",
+  booktitle = "ICLP90",
+  editor    = "Warren, David H. D. and Szeredi, P\'eter",
+  year      = 1990,
+  publisher = "MIT Press"
+}
+
+@Article{TOAM@JLP-93,
+  author    = "Neng-Fa Zhou",
+  title     = "Global Optimizations in a {P}rolog Compiler for the {TOAM}",
+  journal   = JLP,
+  volume    = 15,
+  number    = 4,
+  pages     = "275--294",
+  month     = apr,
+  year      = 1993
+}
+
+@Manual{SWI,
+  author    = "Jan Wielemaker",
+  title     = "{SWI-Prolog 5.1}: Reference Manual",
+  organization = "{SWI}, University of Amsterdam",
+  address   = "Roetersstraat 15, 1018 WB Amsterdam, The Netherlands",
+  year      = "1997--2003",
+  url       = "http://www.swi-prolog.org"
+}
+
+@Manual{YAP,
+  author    = "Santos Costa, V\'{\i}tor and Damas, Luis and Reis, Rog\'erio and
+               Azevedo, R\'uben",
+  title     = "{YAP} User's Manual",
+  year      = 2002,
+  url       = "\def\HTML{\XURL}{http://www.ncc.up.pt/\~{}vsc/Yap}"
+}
+
+@TechReport{Warren83,
+  author    = "Warren, David H. D.",
+  title     = "An Abstract {P}rolog Instruction Set",
+institution = "SRI International",
+  year      = "1983",
+  type      = "Technical Note",
+  number    = "309"
+}
 
 @Article{Chen-96,
-  author = {W. Chen and D. S. Warren},
-  title = {{Tabled Evaluation with Delaying for General Logic Programs}},
-  journal = {Journal of the ACM},
-  year = {1996},
-  volume = {43},
-  number = {1},
-  pages = {20--74},
-  month = {January},
+  author    = {W. Chen and D. S. Warren},
+  title     = "Tabled Evaluation with Delaying for General Logic Programs",
+  journal   = JACM,
+  volume    = {43},
+  number    = {1},
+  pages     = {20--74},
+  month     = jan,
+  year      = {1996}
 }
 
 @PhdThesis{anderson-phd,
-  author = 	 {L. O. Anderson},
-  title = 	 {Program Analysis and Specialization for the
-C Programming Language},
-  school = 	 {DIKU, Unversity of
-Copenhagen},
-  year = 	 1994,
-  address =	 {Copenhagen}
+  author    = "L. O. Anderson",
+  title     = "Program Analysis and Specialization for the {C}
+               Programming Language",
+  school    = "DIKU, University of Copenhagen",
+  year      = 1994,
+  address   = "Copenhagen"
 }
 
 @TechReport{Warren77b,
-	Author       ="David H. D. Warren",
-	Title        ={{Implementing Prolog - Compiling Predicate Logic Programs}},
-	Year         ={1977},
-	Number       ={39 and 40},
-	Institution  ={Department of Artificial Intelligence, University of Edinburgh}
+  author    = "David H. D. Warren",
+  title     = "Implementing {P}rolog --- {C}ompiling Predicate Logic Programs",
+  year      = 1977,
+  number    = "39 and 40",
+institution = "Department of Artificial Intelligence, University of Edinburgh"
 }
 
-@Inproceedings{Carls88,
-	AUTHOR = "Carlsson, Mats",
-	TITLE = "On the Efficiency of Optimised Shallow Backtracking in
-{Compiled} {Prolog}",
-	BOOKTITLE = ICLP89,
-	PUBLISHER = "MIT Press",
-	MONTH = "June",
-	PAGES = "3--15",
-	YEAR = "1989"
+@InProceedings{FreezeIndexing@ICLP-87,
+  author    = "Mats Carlsson",
+  title     = "Freeze, Indexing, and Other Implementation Issues in the {WAM}",
+  pages     = "40--58",
+  booktitle = ICLP87,
+  month     = may,
+  year      = 1987,
+  editor    = "Jean-Louis Lassez",
+  publisher = "MIT Press"
+}
+
+@InProceedings{ShallowBacktracking@ICLP-89,
+  author    = "Mats Carlsson",
+  title     = "On the Efficiency of Optimising Shallow Backtracking in
+               Compiled {Prolog}",
+  pages     = "3--15",
+  booktitle = ICLP89,
+  month     = jun,
+  year      = 1989,
+  publisher = "MIT Press"
+} 
+
+@ARTICLE{HickeyMudambi@JLP-89,
+  author    = "Hickey, Timothy and Mudambi, Shyam",
+  title     = "Global Compilation of {P}rolog",
+  journal   = JLP,
+  volume    = 7,
+  number    = 3,
+  pages     = "193--230",
+  month     = nov,
+  year      = 1989
 }
 
 @Article{VanRoy94,
-Author		="{Van Roy}, Peter",
-Title		="{1983-1993: The Wonder Years of Sequential Prolog Implementation}",
-Journal		=JLP,
-Publisher	= "North-Holland",
-Volume		={19/20},
-page		={385--441},
-Month		={May/July},
-Year		={1994}
+  author    = "{Van Roy}, Peter",
+  title	    = "1983-1993:
+               The Wonder Years of Sequential {P}rolog Implementation",
+  journal   = JLP,
+  publisher = "North-Holland",
+  volume    = "19/20",
+  page	    = {385--441},
+  month	    = {May/July},
+  year	    = {1994}
 }
 
-@Inproceedings{KS88,
-	AUTHOR = "Kliger, Shmuel and Shapiro, Ehud",
-	TITLE = "A {D}ecision {T}ree {C}ompilation {A}lgorithm for {FCP($|$,:,?)}",
-	MONTH = "August",
-	YEAR = "1988",
-	BOOKTITLE = ICLP88,
-	PUBLISHER = "MIT Press",
-	PAGES = "1315--1336"
+@InProceedings{KligerShapiro@ICLP-88,
+  author    = "Kliger, Shmuel and Shapiro, Ehud",
+  title     = "A Decision Tree Compilation Algorithm for {FCP($|$,:,?)}",
+  booktitle = ICLP88,
+  pages     = "1315--1336",
+  month     = aug,
+  year      = 1988,
+  publisher = "MIT Press"
 }
 
-@Article{Som96,
-Author		="Zoltan Somogyi and Fergus Henderson and Thomas Conway",
-Title		="{The execution algorithm of mercury, an efficient purely declarative logic programming language}",
-Journal		=JLP,
-Publisher	= "North-Holland",
-Volume		={1-3},
-page		={65--83},
-Month		={October},
-Year		={1996}
+@Article{Mercury@JLP-96,
+  author    = "Zoltan Somogyi and Fergus Henderson and Thomas Conway",
+  title     = "The execution algorithm of {Mercury}, an efficient
+               purely declarative logic programming language",
+  pages     = "17--64",
+  journal   = JLP,
+  volume    = "26",
+  number    = "1--3",
+  month     = oct # "/" # dec,
+  year      = 1996
 }
 
-@inproceedings{ciao-global,
-   author    = {Manuel V. Hermenegildo and German Puebla and Francisco Bueno and and P. L\'opez},
-   title     = {Program Development Using Abstract Interpretation (and The Ciao System Preprocessor)},
-   booktitle = {Proceedings of the 10th.\ International Symposium on Static Analysis (SAS'03)},
-   pages     = {127--152},
-   year      = 2003,
-   month     = {June},
-   publisher = {Springer-Verlag},
-   series    = {LNCS}
-}
-
-@inproceedings{ciao-global-small,
-   author    = {Manuel V. Hermenegildo and German Puebla and Francisco Bueno and and P. L\'opez},
-   title     = {Program Development Using Abstract Interpretation (and The Ciao System Preprocessor)},
-   booktitle = {SAS'03},
-   pages     = {127--152},
-   year      = 2003,
-   month     = {June}
-}
+@Article{Ciao@SCP-05,
+  author    = {Manuel V. Hermenegildo and
+               Germ{\'a}n Puebla and
+               Francisco Bueno and
+               Pedro L{\'o}pez-Garc\'{\i}a},
+  title     = {Integrated program debugging, verification, and optimization
+               using abstract interpretation
+               (and the {Ciao} system preprocessor).},
+  journal   = SCP,
+  volume    = {58},
+  number    = {1--2},
+  year      = 2005,
+  pages     = "115--140"
+} 
 
 @inproceedings{DBLP:conf/iclp/Demoen02,
   author    = {Bart Demoen},
   title     = {A Different Look at Garbage Collection for the WAM.},
   year      = {2002},
-  pages     = {179-193},
+  pages     = {179--193},
   ee        = {http://link.springer.de/link/service/series/0558/bibs/2401/24010179.htm},
   editor    = {Peter J. Stuckey},
   booktitle     = {Logic Programming, 18th International Conference, ICLP 2002,
@@ -339,7 +430,20 @@ Year		={1996}
   bibsource = {DBLP, http://dblp.uni-trier.de}
 }
 
-@article{DBLP:journals/cacm/Codd70,
+@InProceedings{Carcinogenesis@ILP-97,
+  author    = "Srinivasan, A. and King, R.D. and Muggleton, S. and
+               Sternberg, M.J.E.",
+  title     = "Carcinogenesis Predictions Using {ILP}", 
+  booktitle = ILP97,
+  series    = LNAI,
+  volume    = 1297,
+  editor    = "D\v{z}eroski, S. and Lavra\v{c}, N.",
+  publisher = SV,
+  pages     = "273-287",
+  year      = 1997
+}   
+
+@Article{DBLP:journals/cacm/Codd70,
   author    = {E. F. Codd},
   title     = {A Relational Model of Data for Large Shared Data Banks.},
   journal   = {Commun. ACM},
@@ -351,10 +455,9 @@ Year		={1996}
   bibsource = {DBLP, http://dblp.uni-trier.de}
 }
 
-@article{DBLP:journals/siamcomp/KilpelainenM95,
-  author    = {Pekka Kilpel{\"a}inen and
-               Heikki Mannila},
-  title     = {Ordered and Unordered Tree Inclusion.},
+@Article{DBLP:journals/siamcomp/KilpelainenM95,
+  author    = {Pekka Kilpel{\"a}inen and Heikki Mannila},
+  title     = {Ordered and Unordered Tree Inclusion},
   journal   = {SIAM J. Comput.},
   volume    = {24},
   number    = {2},
@@ -363,16 +466,16 @@ Year		={1996}
   bibsource = {DBLP, http://dblp.uni-trier.de}
 }
 
-@inproceedings{DBLP:conf/popl/FisherMW06,
+@InProceedings{DBLP:conf/popl/FisherMW06,
   author    = {Kathleen Fisher and
                Yitzhak Mandelbaum and
                David Walker},
-  title     = {The next 700 data description languages.},
+  title     = {The next 700 data description languages},
   year      = {2006},
   pages     = {2-15},
   editor    = {J. Gregory Morrisett and
                Simon L. Peyton Jones},
-  booktitle     = {Proceedings of the 33rd ACM SIGPLAN-SIGACT Symposium on
+  booktitle = {Proceedings of the 33rd ACM SIGPLAN-SIGACT Symposium on
                Principles of Programming Languages, POPL 2006, Charleston,
                South Carolina, USA, January 11-13, 2006},
   publisher = {ACM},
@@ -423,9 +526,8 @@ Year		={1996}
   booktitle = {WebDB},
   year      = {2004},
   pages     = {43-48},
-  editor    = {Sihem Amer-Yahia and
-               Luis Gravano},
-  booktitle     = {Proceedings of the Seventh International Workshop on the
+  editor    = {Sihem Amer-Yahia and Luis Gravano},
+  booktitle = {Proceedings of the Seventh International Workshop on the
                Web and Databases, WebDB 2004, June 17-18, 2004, Maison
                de la Chimie, Paris, France, Colocated with ACM SIGMOD/PODS
                2004}
