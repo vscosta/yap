@@ -97,77 +97,99 @@
 %=====================
 The WAM~\cite{Warren83}
 
+%% The slogan ``first argument indexing is all you need'' makes sense for
+%% many Prolog applications. For applications accessing large databases
+%% though is clearly false; for long time now, the database community has
+%% realized that indexing mechanisms are essential for fast query processing.
+
 
 \section{State of the Art and Related Work} \label{sec:related}
 %==============================================================
 % Indexing in Prolog systems:
-Even nowadays, some Prolog systems are still influenced by the WAM
-design and only support indexing on the main functor symbol of the
-first argument. Some others, like YAP~\cite{YAP}, can look inside
-compound terms. SICStus Prolog supports \emph{shallow
+Even nowadays, some Prolog systems are still influenced by the WAM and
+only support indexing on the main functor symbol of the first
+argument. Some others, like YAP~\cite{YAP}, can look inside compound
+terms. SICStus Prolog supports \emph{shallow
 backtracking}~\cite{ShallowBacktracking@ICLP-89}; choice points are
-fully populated only when it is certain execution will enter the
+fully populated only when it is certain that execution will enter the
 clause body. While shallow backtracking avoids some of the performance
 problems of unnecessary choice point creation, it does not offer the
 full benefits that indexing can provide. Other systems like
 BIM-Prolog~\cite{IndexingProlog@NACLP-89}, ilProlog,
 SWI-Prolog~\cite{SWI}, and XSB~\cite{XSB} allow for user-controlled
-multi-argument indexing (via an \code{:-~index} directive). Typically,
-this support comes with various implementation restrictions. For
-example, in SWI-Prolog at most four arguments can be indexed; in XSB
-the compiler does not offer multi-argument indexing support and the
-predicates need to be asserted instead; we know of no system where
-multi-argument indexing looks inside compound terms. More importantly,
-requiring users to specify arguments to index on is neither
-user-friendly nor guarantees good performance results. Our thesis is
-that it is much better if the abstract machine is able to
-automatically adapt to the runtime indexing requirements of Prolog
-applications.
+multi-argument indexing (via an \code{:-~index} directive).
+Unfortunatelly, this support comes with various implementation
+restrictions. For example, in SWI-Prolog at most four arguments can be
+indexed; in XSB the compiler does not offer multi-argument indexing
+and the predicates need to be asserted instead; we know of no system
+where multi-argument indexing looks inside compound terms. More
+importantly, requiring users to specify arguments to index on is
+neither user-friendly nor guarantees good performance results.
 
 % Trees, tries and unification factoring:
 Recognizing the need for better indexing, researchers have proposed
 more flexible index mechanisms for Prolog. For example, Hickey and
 Mudambi proposed \emph{switching trees}~\cite{HickeyMudambi@JLP-89},
 which rely on the presence of mode information. Similar proposals were
-followed by Van Roy, Demoen and Willems who perform indexing on
-several arguments to form a \emph{selection tree}~\cite{VRDW87}, and
-by Zhou et al.\ who implemented a \emph{matching tree} oriented
+put forward by Van Roy, Demoen and Willems who investigated indexing
+on several arguments in the form of a \emph{selection tree}~\cite{VRDW87}
+and by Zhou et al.\ who implemented a \emph{matching tree} oriented
 abstract machine for Prolog~\cite{TOAM@ICLP-90}. For static
 predicates, the XSB compiler offers support for \emph{unification
 factoring}~\cite{UnifFact@POPL-95}; for asserted code, XSB can
 represent databases of facts using \emph{tries}~\cite{Tries@JLP-99}
-which provide left-to-right multi-argument indexing. However, none of
-these mechanisms is used automatically; instead the user has to
-specify appropriate directives.
+which provide left-to-right multi-argument indexing. However, in XSB
+none of these mechanisms is used automatically; instead the user has
+to specify appropriate directives.
 
 % Comparison with static analysis techniques and Mercury:
 Long ago, Kliger and Shapiro argued that such tree-based indexing
 schemes are not cost effective for the compilation of Prolog
-programs~\cite{KligerShapiro@ICLP-88}. We disagree with their
-conclusion. On the other hand it is true that unless the modes of
-predicates are known there is a risk of doing indexing on output
-arguments, whose only effect will be an unnecessary increase in
-compilation times and, more importantly, code size. In a programming
-language like Mercury~\cite{Mercury@JLP-96} where modes are known the
-compiler can of course avoid this risk; in Mercury modes are in fact
-used to guide the compiler in generating indexing tables. However, the
-situation is different for a language Prolog. Getting accurate
+programs~\cite{KligerShapiro@ICLP-88}. Some of their arguments make
+sense for certain applications, but in general we disagree with their
+conclusion because they underestimate the benefits of indexing on
+large datasets. Nevertheless, it is true that unless the modes of
+predicates are known we run the risk of doing indexing on output
+arguments, whose only effect is an unnecessary increase in compilation
+times and, more importantly, in code size. In a programming language
+like Mercury~\cite{Mercury@JLP-96} where modes are known the compiler
+can of course avoid this risk; in Mercury modes are in fact used to
+guide the compiler in generating indexing tables. However, the
+situation is different for a language like Prolog. Getting accurate
 information about the set of all possible modes of predicates requires
 a global static analyzer in the compiler --- and most Prolog systems
-do not come with one --- but more importantly, it requires a lot of
+do not come with one. More importantly, it requires a lot of
 discipline from the programmer (e.g., that applications use the module
 system religiously and never bypass it). As a result, most Prolog
 systems currently do not provide the type of indexing that
 applications require. Even in systems like Ciao~\cite{Ciao@SCP-05},
 which do come with built-in static analysis and more or less force
-such a discipline to the programmer, mode information is not used for
-multi-argument index construction.
+such a discipline on the programmer, mode information is not used for
+multi-argument indexing!
 
-\begin{itemize}
-% \item Alternative: interface with a DB system?
-\item Just-In-Time and dynamic compilation techniques (VITOR, IS THERE
-  ANYTHING FOR PROLOG?)
-\end{itemize}
+% The grand finale:
+The situation is actually worse for certain types of Prolog
+applications. For example, consider applications in the area of
+inductive logic programming. These applications on the one hand have
+big demands for effective indexing since they need to efficiently
+access big datasets and on the other they are very unfit for static
+analysis since queries are often ad hoc and generated only during
+runtime as new hypotheses are formed or refined.
+%
+Our thesis is that the Prolog abstract machine should be able to adapt
+automatically to the runtime requirements of such, or even better of
+all, applications by employing increasingly agressive forms of dynamic
+compilation. As a concrete example of what this means in practice, in
+this paper we will attack the problem of providing effective indexing
+during runtime. Naturally, we will base our technique on the existing
+support for indexing that the WAM provides, but we will extend this
+support with the technique of \JITI that we describe in the next
+sections.
+
+%\begin{itemize}
+%\item Just-In-Time and dynamic compilation techniques (VITOR, IS THERE
+%  ANYTHING FOR PROLOG?)
+%\end{itemize}
 
 
 \section{Demand-Driven Indexing of Static Predicates} \label{sec:static}
