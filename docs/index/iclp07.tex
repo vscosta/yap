@@ -192,10 +192,14 @@ sections.
 %\end{itemize}
 
 
+\section{Preliminaries} \label{sec:prelims}
+%==========================================
+
+
 \section{Demand-Driven Indexing of Static Predicates} \label{sec:static}
 %=======================================================================
 For static predicates the compiler has complete information about all
-clauses and shapes of their arguments. It is both desirable and
+clauses and shapes of their head arguments. It is both desirable and
 possible to take advantage of this information at compile time and so
 we treat the case of static predicates separately.
 %
@@ -210,17 +214,17 @@ extensional database predicates where indexing is most effective and
 called for. One such code example is shown in
 Fig.~\ref{fig:carc:facts}. It is a fragment of the well-known machine
 learning dataset \textit{Carcinogenesis}~\cite{Carcinogenesis@ILP-97}.
-These clauses get compiled to the WAM code shown in
-Fig.~\ref{fig:carc:clauses}. Assuming WAM-style, first argument
-indexing, the indexing code that a Prolog compiler generates is shown
+The five clauses get compiled to the WAM code shown in
+Fig.~\ref{fig:carc:clauses}. Assuming first argument indexing as
+default, the indexing code that a Prolog compiler generates is shown
 in Fig.~\ref{fig:carc:index}. This code is typically placed before the
 code for the clauses and the \switchONconstant instruction is the
-entry point of predicate. Note that compared to vanilla WAM this
+entry point of predicate. Note that compared with vanilla WAM this
 instruction has an extra argument: the register on the value of which
-we will hash ($r_1$). Another difference is that if this argument
-register contains an unbound variable instead of a constant then
-execution will continue with the next instruction. The reason for the
-extra argument and this small change in the behavior of
+we will index ($r_1$). Another difference from the WAM is that if this
+argument register contains an unbound variable instead of a constant
+then execution will continue with the next instruction. The reason for
+the extra argument and this small change in the behavior of
 \switchONconstant will become apparent soon.
 
 %------------------------------------------------------------------------------
@@ -322,26 +326,27 @@ extra argument and this small change in the behavior of
 %------------------------------------------------------------------------------
 
 The indexing code of Fig.~\ref{fig:carc:index} incurs a small cost for
-the open call (executing the \switchONconstant instruction) but this
-cost pays off for calls where the first argument is bound. On the
-other hand, for calls where the first argument is a free variable and
-some other argument is bound, a choice point will be created, the
-\TryRetryTrust chain will be used, and execution will go through the
-code of all clauses. This is clearly inefficient, more so for larger
-data sets.
+a call where the first argument is a variable (namely, executing the
+\switchONconstant instruction) but the instruction pays off for calls
+where the first argument is bound. On the other hand, for calls where
+the first argument is a free variable and some other argument is
+bound, a choice point will be created, the \TryRetryTrust chain will
+be used, and execution will go through the code of all clauses. This
+is clearly inefficient, more so for larger data sets.
 %
 We can do much better with the relatively simple scheme shown in
 Fig.~\ref{fig:carc:jiti_single:before}. Immediately after the
-\switchONconstant instruction, we can generate \jitiONconstant (demand
-indexing) instructions, one for each remaining argument. Recall that
-the entry point of the predicate is the \switchONconstant instruction.
-The \jitiONconstant $r_i$ \instr{N A} instruction works as follows:
+\switchONconstant instruction, we can statically generate
+\jitiONconstant (demand indexing) instructions, one for each remaining
+argument. Recall that the entry point of the predicate is the
+\switchONconstant instruction. The \jitiONconstant $r_i$ \instr{N A}
+instruction works as follows:
 \begin{itemize}
 \item if the argument register $r_i$ is a free variable, then
   execution continues with the next instruction;
 \item otherwise, \JITI kicks in as follows. The abstract machine will
   scan the WAM code of the clauses and create an index table for the
-  values of the corresponding argument. It can do so, because the
+  values of the corresponding argument. It can do so because the
   instruction takes as arguments the number of clauses \instr{N} to
   index and the arity \instr{A} of the predicate. (In our example, the
   numbers 5 and 3.) For Datalog facts, this information is sufficient.
@@ -349,8 +354,9 @@ The \jitiONconstant $r_i$ \instr{N A} instruction works as follows:
   structure, the index table can be created very quickly. Upon its
   creation, the \jitiONconstant instruction will get transformed to a
   \switchONconstant. Again this is straightforward because of the two
-  instructions have similar layouts in memory. Execution will continue
-  with the \switchONconstant instruction.
+  instructions have similar layouts in memory. Execution of the
+  abstract machine will continue with the \switchONconstant
+  instruction.
 \end{itemize}
 Figure~\ref{fig:carg:jiti_single:after} shows the index table $T_2$
 which is created for our example and how the indexing code looks after
@@ -436,7 +442,7 @@ instructions take the argument register number as an argument.
 %-----------------------------------------------------------------
 The scheme of the previous section gives us only single argument
 indexing. However, all the infrastructure we need is already in place.
-We can use it to support (fixed-order) multi-argument \JITI in a
+We can use it to obtain (fixed-order) multi-argument \JITI in a
 straightforward way.
 
 Note that the compiler knows exactly the set of clauses that need to
@@ -444,14 +450,14 @@ be tried for each query with a specific symbol in the first argument.
 This information is needed in order to construct, at compile time, the
 hash table $T_1$ of Fig.~\ref{fig:carc:index}. For multi-argument
 \JITI, instead of generating for each hash bucket only \TryRetryTrust
-instructions, the compiler can prepend appropriate \JITI instructions.
-We illustrate this on our running example. The table $T_1$ contains
-four \jitiONconstant instructions: two for each of the remaining two
-arguments of hash buckets with more than one alternative. For hash
-buckets with none or only one alternative (e.g., \code{d3}'s bucket)
-there is obviously no need to resort to \JITI for the remaining
-arguments. Figure~\ref{fig:carc:jiti_multi} shows the state of the
-hash tables after the execution of queries
+instructions, the compiler can prepend appropriate demand indexing
+instructions. We illustrate this on our running example. The table
+$T_1$ contains four \jitiONconstant instructions: two for each of the
+remaining two arguments of hash buckets with more than one
+alternative. For hash buckets with none or only one alternative (e.g.,
+for \code{d3}'s bucket) there is obviously no need to resort to \JITI
+for the remaining arguments. Figure~\ref{fig:carc:jiti_multi} shows
+the state of the hash tables after the execution of queries
 \code{has\_property(C,salmonella,T)}, which creates table $T_2$, and
 \code{has\_property(d2,P,n)} which creates the $T_3$ table and
 transforms the \jitiONconstant instruction for \code{d2} and register
@@ -526,10 +532,15 @@ appropriate size will be created, such as $T_3$. To fill this table we
 need information about the clauses to index and the symbols to hash
 on. The clauses can be obtained by scanning the labels of the
 \TryRetryTrust instructions following \jitiONconstant; the symbols by
-appropriate byte code offsets (based on the argument register number)
-from these labels. Thus, multi-argument \JITI is easy to get and the
-creation of index tables can be extremely fast when indexing Datalog
-facts.
+looking at appropriate byte code offsets (based on the argument
+register number) from these labels. In our running example, the
+symbols can be obtained by looking at the second argument of the
+\getcon instruction whose argument register is $r_2$. In the loaded
+bytecode, assuming the argument register is represented in one byte,
+these symbols are found $sizeof(\getcon) + sizeof(opcode) + 1$ bytes
+away from the clause label. Thus, multi-argument \JITI is easy to get
+and the creation of index tables can be extremely fast when indexing
+Datalog facts.
 
 \subsection{Beyond Datalog and other implementation issues}
 %----------------------------------------------------------
@@ -538,8 +549,8 @@ more difficult. The scheme we have described is applicable but
 requires the following extensions:
 \begin{enumerate}
 \item Besides \jitiONconstant we also need \jitiONterm and
-  \jitiONstructure instructions, the \JITI counterparts of the WAM's
-  \switchONterm and \switchONstructure.
+  \jitiONstructure instructions. These are the \JITI counterparts of
+  the WAM's \switchONterm and \switchONstructure.
 \item Because the byte code for the clause heads does not necessarily
   have a regular structure, the abstract machine needs to be able to
   ``walk'' the byte code instructions and recover the symbols on which
@@ -547,9 +558,9 @@ requires the following extensions:
   hard.\footnote{In many Prolog systems, a procedure with similar
   functionality often exists for the disassembler, the debugger, etc.}
 \item Indexing on an argument that contains unconstrained variables
-  for some clauses can be tricky. The WAM needs to group clauses in
-  this case and without special treatment creates two choice points
-  for this argument (one for the variables and one per each group of
+  for some clauses is tricky. The WAM needs to group clauses in this
+  case and without special treatment creates two choice points for
+  this argument (one for the variables and one per each group of
   clauses). However, this issue and how to deal with it is well-known
   by now. Possible solutions to it are described in a 1987 paper by
   Carlsson~\cite{FreezeIndexing@ICLP-87} and can be readily adapted to
@@ -559,8 +570,8 @@ requires the following extensions:
 Before describing \JITI more formally, we remark on the following
 design decisions whose rationale may not be immediately obvious:
 \begin{itemize}
-\item By default, only $T_1$ is generated at compile time (as in the
-  WAM) and the additional index tables $T_2, T_3, \ldots$ are
+\item By default, only table $T_1$ is generated at compile time (as in
+  the WAM) and the additional index tables $T_2, T_3, \ldots$ are
   generated dynamically. This is because we do not want to increase
   compiled code size unnecessarily (i.e., when there is no demand for
   these indices).
@@ -577,19 +588,19 @@ design decisions whose rationale may not be immediately obvious:
   instead of piggy-backing on the pass which examines all clauses via
   the main \TryRetryTrust chain. Main reasons are: 1) in many cases
   the code walking can be selective and guided by offsets and 2) by
-  first creating the hash table and then using it we speed up the
+  first creating the index table and then using it we speed up the
   execution of the queries encountered during runtime and often avoid
   unnecessary choice point creations.
 \end{itemize}
 This is \JITI as we have implemented it.
 % in one of our Prolog systems.
 However, we note that these decisions are orthogonal to the main idea
-and under compiler control. If, for example, analysis determines that
-some argument sequences will never demand indexing we can simply avoid
-generation of \jitiSTAR instructions for them. Similarly, if we
+and are under compiler control. If, for example, analysis determines
+that some argument sequences will never demand indexing we can simply
+avoid generation of \jitiSTAR instructions for these. Similarly, if we
 determine that some argument sequences will definitely demand indexing
 we can speed up execution by generating the appropriate index tables
-at compile time instead of dynamically.
+at compile time instead of at runtime.
 
 \subsection{Demand-driven index construction and its properties}
 %---------------------------------------------------------------
@@ -695,6 +706,7 @@ to a \switchSTAR WAM instruction.
 \end{Algorithm}
 %-------------------------------------------------------------------------
 
+\paragraph*{Complexity properties.}
 Complexity-wise, dynamic index construction does not add any overhead
 to program execution. First, note that each demanded index table will
 be constructed at most once. Also, a \jitiSTAR instruction will be
@@ -702,7 +714,7 @@ encountered only in cases where execution would examine all clauses in
 the \TryRetryTrust chain.\footnote{This statement is possibly not
 valid the presence of Prolog cuts.} The construction visits these
 clauses \emph{once} and then creates the index table in time linear in
-the number of clauses as one pass over the list of $\langle c, L
+the number of clauses. One pass over the list of $\langle c, L
 \rangle$ pairs suffices. After index construction, execution will
 visit only a subset of these clauses as the index table will be
 consulted.
@@ -720,36 +732,41 @@ $O(1)$ where $n$ is the number of clauses.
 %---------------------------------------
 The observant reader has no doubt noticed that
 Algorithm~\ref{alg:construction} provides multi-argument indexing but
-only for the outermost symbols of arguments. For clauses with
+only for the main functor symbol of arguments. For clauses with
 structured terms that require indexing in their subterms we can either
-employ a compile-time program transformation like \emph{unification
-factoring}~\cite{UnifFact@POPL-95} or modify the algorithm to consider
-index positions inside structure symbols. This is relatively easy to
-do but requires support from the register allocator (passing the
-subterms of structures in appropriate argument registers) and/or a new
-set of instructions. Due to space limitations we omit further details.
+employ a program transformation like \emph{unification
+factoring}~\cite{UnifFact@POPL-95} at compile time or modify the
+algorithm to consider index positions inside structure symbols. This
+is relatively easy to do but requires support from the register
+allocator (passing the subterms of structures in appropriate argument
+registers) and/or a new set of instructions. Due to space limitations
+we omit further details.
 
 Algorithm~\ref{alg:construction} relies on a procedure that inspects
 the code of a clause and collects the symbols associated with some
-particular index position (step~2.2.2). At the cost of increased
-implementation complexity, this step can of course take into account
-other information that may exist in the body of the clause (e.g., type
-tests such as \code{var(X)}, \code{atom(X)}, aliasing constraints such
-as \code{X = Y}, numeric constraints \code{X > 0}, etc).
+particular index position (step~2.2.2). If we are satisfied with
+looking only at clause heads, this procedure only needs to understand
+the structure of \instr{get} and \instr{unify} instructions. Thus, it
+is easy to write. At the cost of increased implementation complexity,
+this step can of course take into account other information that may
+exist in the body of the clause (e.g., type tests such as
+\code{var(X)}, \code{atom(X)}, aliasing constraints such as \code{X =
+Y}, numeric constraints such as \code{X > 0}, etc).
 
-A reasonable concern for \JITI is increased memory consumption due to
-the index tables. In our experience, this does not seem to be a
-problem in practice since most applications do not have demand for
-indexing on all argument combinations. In applications where it
+A reasonable concern for \JITI is increased memory consumption during
+runtime due to the index tables. In our experience, this does not seem
+to be a problem in practice since most applications do not have demand
+for indexing on all argument combinations. In applications where it
 becomes a problem or when running in an environment where memory is
 limited, we can easily put a bound on the size of index tables, either
-globally or for each predicate. The \jitiSTAR instructions can either
-become inactive when this limit is reached, or better yet we can
-recover the space of some tables. We can employ any standard recycling
-algorithm (e.g., least recently used) and reclaim the space for some
-tables that are no longer in use. This is easy to do by reverting the
-corresponding \jitiSTAR instructions back to \switchSTAR instructions.
-If the indices are needed again, they can simply be regenerated.
+globally or for each predicate separately. The \jitiSTAR instructions
+can either become inactive when this limit is reached, or better yet
+we can recover the space of some tables. To do so, we can employ any
+standard recycling algorithm (e.g., least recently used) and reclaim
+the space for some tables that are no longer in use. This is easy to
+do by reverting the corresponding \jitiSTAR instructions back to
+\switchSTAR instructions. If the indices are needed again, they can
+simply be regenerated.
 
 
 \section{Demand-Driven Indexing of Dynamic Predicates} \label{sec:dynamic}
