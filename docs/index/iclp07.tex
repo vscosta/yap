@@ -115,16 +115,18 @@ fully populated only when it is certain that execution will enter the
 clause body. While shallow backtracking avoids some of the performance
 problems of unnecessary choice point creation, it does not offer the
 full benefits that indexing can provide. Other systems like
-BIM-Prolog~\cite{IndexingProlog@NACLP-89}, ilProlog,
-SWI-Prolog~\cite{SWI}, and XSB~\cite{XSB} allow for user-controlled
-multi-argument indexing (via an \code{:-~index} directive).
-Unfortunatelly, this support comes with various implementation
-restrictions. For example, in SWI-Prolog at most four arguments can be
-indexed; in XSB the compiler does not offer multi-argument indexing
-and the predicates need to be asserted instead; we know of no system
-where multi-argument indexing looks inside compound terms. More
-importantly, requiring users to specify arguments to index on is
-neither user-friendly nor guarantees good performance results.
+BIM-Prolog~\cite{IndexingProlog@NACLP-89}, SWI-Prolog~\cite{SWI} and
+XSB~\cite{XSB} allow for user-controlled multi-argument indexing (via
+an \code{:-~index} directive). Notably, ilProlog~\cite{ilProlog} uses
+compile-time heuristics and generates code for multi-argument indexing
+automatically. In all these systems, this support comes with various
+implementation restrictions. For example, in SWI-Prolog at most four
+arguments can be indexed; in XSB the compiler does not offer
+multi-argument indexing and the predicates need to be asserted
+instead; we know of no system where multi-argument indexing looks
+inside compound terms. More importantly, requiring users to specify
+arguments to index on is neither user-friendly nor guarantees good
+performance results.
 
 % Trees, tries and unification factoring:
 Recognizing the need for better indexing, researchers have proposed
@@ -153,8 +155,8 @@ predicates are known we run the risk of doing indexing on output
 arguments, whose only effect is an unnecessary increase in compilation
 times and, more importantly, in code size. In a programming language
 like Mercury~\cite{Mercury@JLP-96} where modes are known the compiler
-can of course avoid this risk; in Mercury modes are in fact used to
-guide the compiler in generating indexing tables. However, the
+can of course avoid this risk; indeed in Mercury modes (and types) are
+used to guide the compiler generate good indexing tables. However, the
 situation is different for a language like Prolog. Getting accurate
 information about the set of all possible modes of predicates requires
 a global static analyzer in the compiler --- and most Prolog systems
@@ -177,8 +179,8 @@ analysis since queries are often ad hoc and generated only during
 runtime as new hypotheses are formed or refined.
 %
 Our thesis is that the Prolog abstract machine should be able to adapt
-automatically to the runtime requirements of such, or even better of
-all, applications by employing increasingly agressive forms of dynamic
+automatically to the runtime requirements of such or, even better, of
+all applications by employing increasingly agressive forms of dynamic
 compilation. As a concrete example of what this means in practice, in
 this paper we will attack the problem of providing effective indexing
 during runtime. Naturally, we will base our technique on the existing
@@ -192,40 +194,57 @@ sections.
 %\end{itemize}
 
 
-\section{Preliminaries} \label{sec:prelims}
-%==========================================
+\section{Indexing in the WAM} \label{sec:prelims}
+%================================================
+To make the paper relatively self-contained we briefly review the
+indexing instructions of the WAM and their use. In the WAM, the first
+level of dispatching involves a test on the type of the argument. The
+\switchONterm instruction checks the tag of the dereferenced value in
+the first argument register and implements a four-way branch where one
+branch is for the dereferenced register being an unbound variable, one
+for being atomic, one for (non-empty) list, and one for structure. In
+any case, control goes to a (possibly empty) bucket of clauses. In the
+buckets for constants and structures the second level of dispatching
+involves the value of the register. The \switchONconstant and
+\switchONstructure instructions implement this dispatching, typically
+with a \fail instruction when the bucket is empty, with a \jump
+instruction for only one clause, with a sequential scan when the
+number of clauses is small, and with a hash lookup when the number of
+clauses exceeds a threshold. For this reason the \switchONconstant and
+\switchONstructure instructions take as arguments a hash table
+\instr{T} and the number of clauses \instr{N} the table contains (or
+equivalently, \instr{N} is the size of the hash table). In each bucket
+of this hash table and also in the bucket for the variable case of
+\switchONterm the code performs a sequential backtracking search of
+the clauses using a \TryRetryTrust chain of instructions. The \try
+instruction sets up a choice point, the \retry instructions (if any)
+update certain fields of this choice point, and the \trust instruction
+removes it.
 
+The WAM has additional indexing instructions (\instr{try\_me\_else}
+and friends) that allow indexing to be intersperced with the code of
+clauses. For simplicity we will not consider them here. This is not a
+problem since the above scheme handles all cases. Also, we will feel
+free to do some minor modifications and optimizations when this
+simplifies things.
 
-\section{Demand-Driven Indexing of Static Predicates} \label{sec:static}
-%=======================================================================
-For static predicates the compiler has complete information about all
-clauses and shapes of their head arguments. It is both desirable and
-possible to take advantage of this information at compile time and so
-we treat the case of static predicates separately.
-%
-We will do so with schemes of increasing effectiveness and
-implementation complexity.
-
-\subsection{A simple WAM extension for any argument indexing}
-%------------------------------------------------------------
-Let us initially consider the case where the predicates to index
-consist only of Datalog facts. This is commonly the case for all
-extensional database predicates where indexing is most effective and
-called for. One such code example is shown in
+We present an example. Consider the Prolog code shown in
 Fig.~\ref{fig:carc:facts}. It is a fragment of the well-known machine
 learning dataset \textit{Carcinogenesis}~\cite{Carcinogenesis@ILP-97}.
 The five clauses get compiled to the WAM code shown in
-Fig.~\ref{fig:carc:clauses}. Assuming first argument indexing as
-default, the indexing code that a Prolog compiler generates is shown
-in Fig.~\ref{fig:carc:index}. This code is typically placed before the
+Fig.~\ref{fig:carc:clauses}. With only first argument indexing, the
+indexing code that a Prolog compiler generates is shown in
+Fig.~\ref{fig:carc:index}. This code is typically placed before the
 code for the clauses and the \switchONconstant instruction is the
 entry point of predicate. Note that compared with vanilla WAM this
 instruction has an extra argument: the register on the value of which
-we will index ($r_1$). Another difference from the WAM is that if this
-argument register contains an unbound variable instead of a constant
-then execution will continue with the next instruction. The reason for
-the extra argument and this small change in the behavior of
-\switchONconstant will become apparent soon.
+we will index ($r_1$). The extra argument will allow us to go beyond
+first argument indexing. Another departure from the WAM is that if
+this argument register contains an unbound variable instead of a
+constant then execution will continue with the next instruction; in
+effect we have merged part of the functionality of \switchONterm into
+the \switchONconstant instruction. This small change in the behavior
+of \switchONconstant will allow us to get \JITI. Let's see how.
 
 %------------------------------------------------------------------------------
 \begin{figure}[t]
@@ -325,6 +344,26 @@ the extra argument and this small change in the behavior of
 \end{figure}
 %------------------------------------------------------------------------------
 
+
+\section{Demand-Driven Indexing of Static Predicates} \label{sec:static}
+%=======================================================================
+For static predicates the compiler has complete information about all
+clauses and shapes of their head arguments. It is both desirable and
+possible to take advantage of this information at compile time and so
+we treat the case of static predicates separately.
+%
+We will do so with schemes of increasing effectiveness and
+implementation complexity.
+
+\subsection{A simple WAM extension for any argument indexing}
+%------------------------------------------------------------
+Let us initially consider the case where the predicates to index
+consist only of Datalog facts. This is commonly the case for all
+extensional database predicates where indexing is most effective and
+called for.
+
+Refer to the example in Fig.~\ref{fig:carc}.
+%
 The indexing code of Fig.~\ref{fig:carc:index} incurs a small cost for
 a call where the first argument is a variable (namely, executing the
 \switchONconstant instruction) but the instruction pays off for calls
@@ -538,9 +577,9 @@ symbols can be obtained by looking at the second argument of the
 \getcon instruction whose argument register is $r_2$. In the loaded
 bytecode, assuming the argument register is represented in one byte,
 these symbols are found $sizeof(\getcon) + sizeof(opcode) + 1$ bytes
-away from the clause label. Thus, multi-argument \JITI is easy to get
-and the creation of index tables can be extremely fast when indexing
-Datalog facts.
+away from the clause label; see Fig.~\ref{fig:carc:clauses}. Thus,
+multi-argument \JITI is easy to get and the creation of index tables
+can be extremely fast when indexing Datalog facts.
 
 \subsection{Beyond Datalog and other implementation issues}
 %----------------------------------------------------------
@@ -644,7 +683,7 @@ visited and continues with a \TryRetryTrust chain pointing to the
 clauses. When the index construction is done, the instruction mutates
 to a \switchSTAR WAM instruction.
 %-------------------------------------------------------------------------
-\begin{Algorithm}
+\begin{Algorithm}[t]
   \caption{Actions of the abstract machine with \JITI}
   \label{alg:construction}
   \begin{enumerate}
@@ -733,12 +772,12 @@ $O(1)$ where $n$ is the number of clauses.
 The observant reader has no doubt noticed that
 Algorithm~\ref{alg:construction} provides multi-argument indexing but
 only for the main functor symbol of arguments. For clauses with
-structured terms that require indexing in their subterms we can either
+compound terms that require indexing in their subterms we can either
 employ a program transformation like \emph{unification
 factoring}~\cite{UnifFact@POPL-95} at compile time or modify the
-algorithm to consider index positions inside structure symbols. This
-is relatively easy to do but requires support from the register
-allocator (passing the subterms of structures in appropriate argument
+algorithm to consider index positions inside compound terms. This is
+relatively easy to do but requires support from the register allocator
+(passing the subterms of compound terms in appropriate argument
 registers) and/or a new set of instructions. Due to space limitations
 we omit further details.
 
