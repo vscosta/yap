@@ -22,7 +22,6 @@
 @String(IJMMS = {International Journal of Man-Machine Studies})
 @String(JAIR = {Journal of Artificial Intelligence Research})
 @String(JETAI = {Journal of Experimental and Theoretical Artificial Intelligence})
-@String(JLP = {Journal of Logic Programming})
 @String(KA = {Knowledge Acquisition})
 @String(ML = {Machine Learning})
 @String(NGC = {New Generation Computing})
@@ -174,7 +173,8 @@
 @string{TCOM = "IEEE Transactions on Computers"}
 @string{IBMJ = "IBM Journal of Research and Development"}
 @string{NCC  = "Proc. AFIPS NCC"}
-@string{JLP  = "The Journal of Logic Programming"}
+@string{JLP  = "Journal of Logic Programming"}
+@string{TPLP = "Theory and Practice of Logic Programming"}
 @string{NGC  = "New Generation Computing"}
 @string{ICLP87 =  "Proceedings of the Fourth International Conference on Logic Programming"}
 @string{ICLP88 =  "Proceedings of the Fifth International Conference and Symposium on Logic Programming"}
@@ -257,11 +257,25 @@ organization = "State University of New York at Stony Brook",
   year      = "1993" 
 }
 
+@Article{ilProlog,
+  author    = "Remco Tron\c{c}on and Gerda Janssens and Bart Demoen and
+               Henk Vandecasteele",
+  title     = "Fast frequent quering with lazy control flow compilation",
+  journal   = TPLP,
+  year      = 2007,
+  OPTvolume = {},
+  OPTnumber = {},
+  OPTpages  = {},
+  OPTmonth  = {},
+  note      = "To appear",
+  url       = "http://www.cs.kuleuven.ac.be/cgi-bin-dtai/publ_info.pl?id=41995"
+}
+
 @InProceedings{TOAM@ICLP-90,
   author    = "Zhou, Neng-Fa and Takagi, Toshihisa and Kazuo, Ushijima",
   title     = "A Matching Tree Oriented Abstract Machine for {P}rolog",
   pages     = "158--173",
-  booktitle = "ICLP90",
+  booktitle = ICLP90,
   editor    = "Warren, David H. D. and Szeredi, P\'eter",
   year      = 1990,
   publisher = "MIT Press"
@@ -299,7 +313,7 @@ organization = "State University of New York at Stony Brook",
   author    = "Warren, David H. D.",
   title     = "An Abstract {P}rolog Instruction Set",
 institution = "SRI International",
-  year      = "1983",
+  year      = 1983,
   type      = "Technical Note",
   number    = "309"
 }
@@ -351,6 +365,7 @@ institution = "Department of Artificial Intelligence, University of Edinburgh"
   booktitle = ICLP89,
   month     = jun,
   year      = 1989,
+  editor    = "Giorgio Levi and Maurizio Martelli",
   publisher = "MIT Press"
 } 
 
