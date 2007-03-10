@@ -1,7 +1,7 @@
 %==============================================================================
 \documentclass{llncs} 
 %------------------------------------------------------------------------------
-\usepackage{a4wide}
+%\usepackage{a4wide}
 \usepackage{float}
 \usepackage{xspace}
 \usepackage{epsfig}
@@ -921,9 +921,10 @@ applications. For the benchmarks of Sect.~\ref{sec:perf:overhead}
 and~\ref{sec:perf:speedups}, which involve both systems, we used a 2.4
 GHz P4-based laptop with 512~MB of memory running Linux and report
 times in milliseconds. For the benchmarks of Sect.~\ref{sec:perf:ILP},
-which involve YAP only, we used a 
+which involve YAP only, we used a 8-node cluster, where each node is a
+dual-core AMD 2600+ machine with 2GB of memory
 %
-VITOR PLEASE ADD
+%VITOR PLEASE ADD
 %
 and report times in seconds.
 
@@ -1145,6 +1146,418 @@ static and dynamic data, but the results for \texttt{Mesh} and
 \texttt{Mutagenesis}, where the JITI probably has little impact on
 static code, suggest a factor of two from indexing on the IDB in this
 case.
+
+
+% Our experience with the indexing algorithm described here shows a
+% significant performance improvement over the previous indexing code in
+% our system. Quite often, this has allowed us to tackle applications
+% which previously would not have been feasible. We next present some
+% results that show how useful the algorithms can be.
+
+Next, we present performance results for demand-driven indexing on a
+number of benchmarks and real-life applications. Throughout, we
+compare performance with single argument indexing. We use YAP-5.1.2
+and XXX in our comparisons.
+
+As a base reference, our first dataset is a set of well known small
+tabling benchmarks from the XSB Prolog benchmark collection. We chose
+these datasets first because they are relatively small and easy to
+understand. The benchmarks are: \texttt{cylinder}, computes which
+nodes in a cylinder are ..., the well-known \texttt{fibonacci}
+function, \texttt{first} that computes the first $k$ terminal symbols
+in a grammar, a version of the \texttt{knap-sack} problem, and path
+reachability benchmarks in two \texttt{cycle} graphs: a \texttt{chain}
+graph, and a \texttt{tree} graph. The \texttt{path} benchmarks use a
+right-recursive with base clause first (\texttt{LRB)} definition of
+\texttt{path/3}. The YAP results were obtained on an AMD-64 4600+
+machine running Ubuntu 6.10.
+
+\begin{table}[ht]
+%\vspace{-\intextsep}
+%\begin{table}[htbp] 
+%\centering
+  \centering
+  \begin {tabular}{|l|r|r||r|r|} \hline %\cline{1-3}
+    &  \multicolumn{2}{|c|}{\bf YAP}  & \multicolumn{2}{||c|}{\bf XXX} \\
+    {\bf Benchs.}  & JITI & \bf WAM   & \bf JITI  &  \bf WAM  \\
+    \hline
+    \texttt{cyl}      & 3    & 48 &  &\\
+    \texttt{9queens}      & 67    & 74 &  &\\
+    \texttt{cubes}    & 24    & 24  & &\\
+    \texttt{fib\_atoms}    & 8    & 8  & &\\
+    \texttt{fib\_list}     13      & 12    &  & &  \\
+    \texttt{first}    & 5     & 6    &    & \\
+    \texttt{ks2} &  49      & 44    & &    \\
+    \hline 
+    \texttt{cycle}              & 26        & 28      & &      \\
+    \texttt{tree}              & 25        & 31      & &      \\
+    \hline
+\end{tabular}
+\caption{Tabling Benchmarks: Time is measured in msecs in all cases.}
+\label{tab:aleph}
+\end{table}
+
+Notice that these are very fast benchmarks: we ran the results 10
+times and present the average. We then used a standard unpaired t-test
+to verify whether the results are significantly different. Our results
+do not show significant variations between JITI and WAM indexing on
+\texttt{fibonacci}, \texttt{first} and \texttt{ks2} benchmarks. Both
+\texttt{fibonaccis} are small core recursive programs, most effort is
+spent in constructing lists or manipulating atoms. The \texttt{first}
+and \texttt{ks2} manipulate small amounts of data that is well indexed
+through the first argument.
+
+The JITI brings a significant benefit in the \texttt{cyl} dataset.Most
+work in the dataset consists of calling \texttt{cyl/2} facts.
+Inspecting the program shows three different call modes for
+\texttt{cyl/2}: both arguments are unbound; the first argument is
+bound; or the \emph{only the second argument is bound}. The JITI
+improves performance in the latter case only, but this does make a
+large difference, as the WAM code has to visit all thousand clauses if
+the second argument is unbound.
+
+The graph reachability datasets because they both use the same
+program, but on different databases. The t-test does not show a
+significant difference
+
+} the database
+itself.  The JITI brings little benefits on the linear graphs if we
+call the \texttt{path/3} predicates with left or right recursion. On
+the other hand, it always improves performance when using the doubly
+recursive version, and it always improves performance on the tree
+graph.
+
+To understand why, we first consider the simplest execution pattern,
+given by the left-recursive procedure. The code for the LRF is:
+
+\begin{verbatim}
+path1(X,Y,[X,Y]) :- arc(X,Y).
+path1(X,Y,[X|P]) :- arc(X,Z), 
+                    path1(Z,Y,P), 
+                    not_member(X,P).
+\end{verbatim}
+\noindent
+Careful inspection of the program shows that \texttt{arc/3} can be
+accessed with different modes. First, given the top-level goal
+$path1(X,Y,\_)$ the two clauses for \texttt{path1/3} call
+\texttt{arc/3} with both arguments free.  Second, the recursive call
+to \texttt{path1/3} can call \texttt{arc/3} in the base clause with
+\emph{both arguments bound}. If the graph is linear, the second
+argument is functionally dependent on the first, and indexing on the
+first argument is sufficient. But, if the graph has a branching factor
+$> 1$, WAM style first argument indexing will lead to backtracking,
+whereas the JITI can perform direct lookup through the hash tables.
+This explains the performance improvement for the \texttt{tree}
+graphs.
+
+Do such improvements hold for real applications? An interesting
+application of tabled Prolog is in program analysis, often based in
+Anderson's points-to analysis~\cite{anderson-phd}. In this framework,
+imperative programs are encoded as a set of facts, and properties of
+interest are encoded rules. Program properties can be verified by
+checking the closure of the rules. Such programs therefore have
+similar properties to the \texttt{path} benchmarks, and should
+generate similar performance. Table~\ref{tab:pa} shows such
+applications. The first analyses a smallish program and the second the
+\texttt{javac} benchmark.
+
+\begin{table}[ht]
+  \centering
+  \begin {tabular}{|l|r|r||r|r|r||} \hline %\cline{1-3}
+    &  \multicolumn{2}{|c||}{\bf Time in sec.}  &
+    \multicolumn{3}{|c||}{\bf Static Space in KB.} \\
+    {\bf Benchs.}  & \bf $A_1$   & \bf JITI & \bf Clause & \multicolumn{2}{|c||}{\bf Indices} \\
+    &    &  &  & \bf $A_1$   & \bf JITI \\
+    \hline
+    \texttt{pta}    & 14  & 1.7  & 845   & 318  & 351 \\
+    \texttt{tea}    & 800 & 36.9 & 36781 & 1793 & 2848 \\
+    \hline
+\end{tabular}
+\caption{Program Analysis}
+\label{tab:pa}
+\end{table}
+
+Table~\ref{tab:pa} shows total running times, and size of static
+data-base in KB for a YAP run. The first column shows the size in
+clauses, the other two show the size of the indices when using
+single-argument indexing and the JITI.
+
+
+\begin{table}[ht]
+%\vspace{-\intextsep}
+%\begin{table}[htbp] 
+%\centering
+  \centering
+  \begin {tabular}{|l|r|r|r|r|} \hline %\cline{1-3}
+    &  \multicolumn{2}{|c|}{\bf Time in sec.}  & \bf JITI \\
+    {\bf Benchs.}  & \bf $A1$   & \bf JITI & \bf Ratio \\
+    \hline
+    \texttt{BreastCancer}      & 1450    & 88 & 16\\
+    \texttt{Carcinogenesis}    & 17,705    & 192  &92\\
+    \texttt{Choline}           & 14,766    & 1,397  & 11  \\
+    \texttt{GeneExpression}    & 193,283     & 7,483    & 26    \\
+    \texttt{IE-Protein\_Extraction} &  1,677,146      & 2,909    & 577    \\
+    \texttt{Krki}              & 0.3        & 0.3      & 1      \\
+    \texttt{Krki II}           & 1.3     & 1.3     & 1     \\
+    \texttt{Mesh}              & 4    & 3  & 1.3  \\
+    \texttt{Mutagenesis}       & 51,775  & 27,746 & 1.9\\
+    \texttt{Pyrimidines}       & 487,545     & 253,235  & 1.9    \\
+    \texttt{Susi}              & 105,091    & 307    & 342  \\
+    \texttt{Thermolysin}       & 50,279      &  5,213     & 10      \\
+    \hline
+\end{tabular}
+\caption{Machine Learning (ILP) Datasets}
+\label{tab:aleph}
+\end{table}
+
+
+
+JITI was originally motivated by applications in the area of Machine
+Learning that try to learn rules from databases (our compiler is used
+on a number of such systems). Table~\ref{tab:aleph} shows performance
+for one of the most popular such systems in some detail.  The datasets
+\texttt{Carcinogenesis}, \texttt{Choline}, \texttt{Mutagenesis},
+\texttt{Pyrimidines}, and \texttt{Thermolysin} are about predicting
+chemical properties of compounds. Most queries perform very simple
+queries in an extensional database; \texttt{Mutagenesis} includes
+several predicates defined as rules; and \texttt{Thermolysin} performs
+simple 3D distance computations.  \texttt{Krki} are chess end-games.
+\texttt{GeneExpression} processes micro-array data,
+\texttt{BreastCancer} real-life patient reports,
+\texttt{IE-Protein\_Extraction} information extraction from paper
+abstracts that mention proteins, \texttt{Susi} shopping patterns, and
+\texttt{Mesh} finite-methods mesh design. Several of these datasets
+are standard across Machine Learning literature.
+\texttt{GeneExpression} and \texttt{BreastCancer} were partly
+developed by the authors.
+
+\begin{table}[ht]
+%\vspace{-\intextsep}
+%\begin{table}[htbp] 
+%\centering
+  \centering
+  \begin {tabular}{|l|r|r|r|r|} \hline %\cline{1-3}
+    &  \multicolumn{2}{|c|}{\bf Time in sec.}  & \bf JITI \\
+    {\bf Benchs.}  & \bf $A1$   & \bf JITI & \bf Ratio \\
+    \hline
+    \texttt{BreastCancer}      & 1450    & 88 & 16\\
+    \texttt{Carcinogenesis}    & 17,705    & 192  &92\\
+    \texttt{Choline}           & 14,766    & 1,397  & 11  \\
+    \texttt{GeneExpression}    & 193,283     & 7,483    & 26    \\
+    \texttt{IE-Protein\_Extraction} &  1,677,146      & 2,909    & 577    \\
+    \texttt{Krki}              & 0.3        & 0.3      & 1      \\
+    \texttt{Krki II}           & 1.3     & 1.3     & 1     \\
+    \texttt{Mesh}              & 4    & 3  & 1.3  \\
+    \texttt{Mutagenesis}       & 51,775  & 27,746 & 1.9\\
+    \texttt{Pyrimidines}       & 487,545     & 253,235  & 1.9    \\
+    \texttt{Susi}              & 105,091    & 307    & 342  \\
+    \texttt{Thermolysin}       & 50,279      &  5,213     & 10      \\
+    \hline
+\end{tabular}
+\caption{Machine Learning (ILP) Datasets}
+\label{tab:aleph}
+\end{table}
+
+We compare times for 10 runs of the saturation/refinement cycle of the
+ILP system.  Table~\ref{tab:aleph} shows very clearly the advantages
+of JITI: speedups range up to two orders of magnitude.  Applications
+such as \texttt{BreastCancer} and \texttt{GeneExpression} manipulate
+1NF data (that is, unstructured data). The first benefit is from
+multiple-argument indexing. Multi-argument is available in other
+Prolog systems~\cite{BIM,xsb-manual,ZhTaUs-small,SWI}), but using
+it would require extra user information that would be hard to most ILP
+users: the JITI provides that for free.  Just multi-argument indexing
+does not explain everything.  \texttt{BreastCancer} results were of
+particular interest to us because the dataset was to a large extent
+developed by the authors. It consists of 40 binary relations which are
+most often used with the first argument as a key (it is almost
+propositional learning). We did not expect a huge speedup, but the
+results show the opposite: calls with both arguments bound, or with
+the second argument bound may not be very frequent, but they are
+frequent enough to justify indexing.  This would be difficult to
+predict beforehand, even to experienced Prolog programmers.
+
+\texttt{IE-Protein\_Extraction} and \texttt{Thermolysin} are example
+applications that manipulate structured data.
+\texttt{IE-Protein\_Extraction} is a large dataset, therefore indexing
+is simply critical: we could not run the application in reasonable
+time without JITI. \texttt{Thermolysin} is smaller and performs
+significant computation per query: even so, indexing is very
+important.
+
+Indexing is no magical bullet. On the flip side, \texttt{Mutagenesis}
+is an example where indexing does help, but not by much. The problem
+is that most time is spent on recursive predicates that were built to
+use the first argument. \texttt{Mutagenesis} also shows a concern with
+JITI: we generate large indices but we do not benefit very much.
+
+\begin{table*}[ht]
+  \centering
+  \begin {tabular}{|l|r|r|r|r|r||r|r|r|r|r|r|} \hline %\cline{1-3}
+    &  \multicolumn{5}{|c||}{\bf Static Code}  & \multicolumn{6}{|c|}{\bf Dynamic Code \& IDB} \\
+    &  \textbf{Clause} & \multicolumn{4}{|c||}{\bf Indexing Code}  & \textbf{Clause} & \multicolumn{5}{|c|}{\bf Indexing Code} \\
+    \textbf{Benchmarks} &   & Total & T & W & S &  & Total & T & C & W & S  \\
+    \hline
+    \texttt{BreastCancer}      & 60940 & 46887 & 46242 &
+    3126 & 125  & 630 & 14 &42 & 18& 57 &6 \\
+
+    \texttt{Carcinogenesis}    & 1801 & 2678
+    &1225 & 587 & 865  & 13512 & 942     & 291 & 91 & 457 & 102
+ \\
+
+    \texttt{Choline}  & 666 & 174
+    &67 & 48 & 58 & 3172 & 174
+    & 76 & 4 & 48 & 45
+ \\
+    \texttt{GeneExpression}    &  46726 & 22629
+    &6780 & 6473 & 9375 & 116463 & 9015
+    & 2703 & 932 & 3910 & 1469
+ \\
+
+    \texttt{IE-Protein\_Extraction}    &146033 & 129333
+    &39279 & 24322 & 65732 & 53423 & 1531
+    & 467 & 108 & 868 & 86
+ \\
+
+    \texttt{Krki}              & 678 & 117
+    &52 & 24 & 40 & 2047 & 24
+    & 10 & 2 & 10 & 1
+ \\
+
+    \texttt{Krki II}           & 1866 & 715
+    &180 & 233 & 301 & 2055 & 26
+    & 11 & 2 & 11 & 1
+ \\
+
+    \texttt{Mesh}              & 802 & 161
+    &49 & 18 & 93 & 2149 & 109
+    & 46 & 4 & 35 & 22
+ \\
+
+    \texttt{Mutagenesis}       & 1412 & 1848
+    &1045 & 291 & 510 & 4302 & 595
+    & 156 & 114 & 264 & 61
+ \\
+
+    \texttt{Pyrimidines}       & 774 & 218
+    &76 & 63 & 77 & 25840 & 12291
+    & 4847 & 43 & 3510 & 3888
+ \\
+
+    \texttt{Susi}              & 5007 & 2509
+    &855 & 578 & 1076 & 4497 & 759
+    & 324 & 58 & 256 & 120
+ \\
+
+    \texttt{Thermolysin}       & 2317 & 929
+    &429 & 184 & 315 & 116129 & 7064
+    & 3295 & 1438 & 2160 & 170
+ \\
+
+    \hline
+\end{tabular}
+\caption{Memory Performance on Machine Learning (ILP) Datasets}
+\label{tab:ilpmem}
+\end{table*}
+
+
+In general, one would wonder whether the benefits in time correspond
+to costs in space. Figure~\ref{tab:ilpmem} shows memory performance at
+a point near the end of execution. Numbers are given in KB. Because
+dynamic memory expands and contracts, we chose a point where dynamic
+memory should be at maximum usage. The first five columns show data
+usage on static predicates.  The leftmost sub-column represents the
+code used for clause; the next sub-columns represent space used in
+indices for static predicates: the first column gives total usage,
+which consists of space used in the main tree, the expanded
+wait-nodes, and hash-tables.
+
+Static data-base sizes range from 146MB to 666KB, the latter mostly in
+system libraries. The impact of indexing code varies widely: it is
+more than the original code for \texttt{Mutagenesis}, almost as much
+for \texttt{IE-Protein\_Extraction}, and in most cases it adds at
+least a third and often a half to the original data-base. It is
+interesting to check the source of the space overhead: if the source
+are hash-tables, we can expect this is because of highly-complex
+indices. If overhead is in \emph{wait-nodes}, this again suggests a
+sophisticated indexing structure. Overhead in the main tree may be
+caused by a large number of nodes, or may be caused by \texttt{try}
+nodes.
+
+One first conclusion is that \emph{wait-nodes} are costly space-wise,
+even if they are needed to achieve sensible compilation times.  On the
+other hand, whether the space is allocated to the tree or to the
+hashes varies widely. \texttt{IE-Protein\_Extraction} is an example
+where the indices seem very useful: most space was spent in the
+hash-tables, although we still are paying much for \emph{wait-nodes}.
+\texttt{BreastCancer} has very small hash-tables, because it
+attributes range over small domains, but indexing is useful (we
+believe this is because we are only interested in the first solution
+in this case).
+
+This version of the ILP system stores most dynamic data in the IDB.
+The size of reflects the search space, and is largely independent of
+the program's static data (notice that small applications such as
+\texttt{Krki} do tend to have a small search space). Aleph's author
+very carefully designed the system to work around overheads in
+accessing the data-base, so indexing should not be as important.  In
+fact, indexing has a much lower space overhead in this case,
+suggesting it is not so critical.  On the other hand, looking at the
+actual results shows that indexing is working well: most space is
+spent on hashes and the tree, little space is spent on \texttt{try}
+instructions. It is hard to separate the contributions of JITI on
+static and dynamic data, but the results for \texttt{Mesh} and
+\texttt{Mutagenesis}, where the JITI probably has little impact on
+static code, suggest a factor of two from indexing on the IDB in this
+case.
+
+Last, we discuss a natural language application, Van Noord's FSA
+toolbox. This is an implementation of a set of finite state automata
+for natural language tasks. The system includes a test suite with 150
+tasks. We selected the 10 tasks with longer-running times in the
+single argument version.
+
+\begin{table}[ht]
+  \centering
+  \begin {tabular}{|l|r|r||r|r|r||} \hline %\cline{1-3}
+    &  \multicolumn{2}{|c||}{\bf Time in msec.}  &
+    \multicolumn{3}{|c||}{\bf Dynamic Space in KB.} \\
+    {\bf Benchs.}  & \bf $A_1$   & \bf JITI & \bf Clause & \multicolumn{2}{|c||}{\bf Indices} \\
+    &    &  &  & \bf $A_1$   & \bf JITI \\
+    \hline
+    \texttt{k963}   & 1944 & 684  & 1348   & 26  & 40 \\
+    \texttt{k961}   & 1972 & 652  & 1348 & 26 & 40 \\
+    \texttt{k962}   & 1996 & 668  & 1350 & 26 & 40 \\
+    \texttt{drg3}   & 3532 & 3641 & 649 & 19 & 35 \\
+    \texttt{d2ph}   & 3612 & 3667 & 649 & 19 & 35 \\
+    \texttt{d2m}    & 3952 & 3668 & 649 & 19 & 35 \\
+    \texttt{ld1}    & 4084 & 4016 & 649 & 19 & 35 \\
+    \texttt{dg5}    & 6084 & 1352 & 3305 & 39 & 61 \\
+    \texttt{g2p}    & 25212& 14120 & 10373 & 47 & 67 \\
+    \texttt{tl3}    & 74476& 14925 & 14306 & 70 & 49 \\
+    \hline
+\end{tabular}
+\caption{Performance on a Natural Language Application}
+\label{tab:fsa}
+\end{table}
+
+FSA is very different from the two previous examples. These are
+relatively complex algorithms, and there is relatively little
+``data''. Even so, Table~\ref{tab:fsa} shows significant speedups from
+using JITI. Note that Table~\ref{tab:fsa} only shows memory
+performance on dynamic data: static data does not show very
+significant differences.  The results show two different types of
+tasks. In cases such as \texttt{tl3} or \texttt{dg5} JITI gives a
+significant speedup; in tasks such as \texttt{drg3} the difference
+does not seem to be significant, and it some cases JITI is slower.
+Analysis show that the tasks that do well are the tasks that use
+dynamic predicates. In this case, indexing is beneficial. Although
+there is an increase in total code, the indices are good: there is a
+reduction in the code for \texttt{try} instructions, and an increase
+in code for hash-tables, which indicates dynamic predicates are
+indexing well. In tasks such as \texttt{drg3} and friends, the JITI
+does not bring much benefits, whereas it spends extra time compiling
+and takes extra space.
 
 
 \section{Concluding Remarks}
