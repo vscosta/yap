@@ -7,7 +7,7 @@ if test $# -eq 1; then
 else
   testfiles="tc_l_io_chain8000.P tc_r_io_chain2000.P tc_d_io_chain400.P \
 	     tc_l_oo_chain2000.P tc_r_oo_chain2000.P  tc_d_oo_chain400.P \
-	     compress.P sg_cyl.P mutagenesis.P"
+	     compress.P sg_cyl.P pta.P mutagenesis.P"
 fi
 
 echo "========================================"
@@ -23,7 +23,7 @@ for file in $testfiles ; do
 EOF
 printf " \t"
   $XXX << EOF 2>/dev/null
-    yap_flag(index,single).
+    set_prolog_flag(index,single).
     yap_flag(tabling_mode,local).
     ['$file'].
     time.
