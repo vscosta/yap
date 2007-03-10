@@ -143,19 +143,19 @@ This paper is structured as follows. After commenting on the state of
 the art and related work concerning indexing in Prolog systems
 (Sect.~\ref{sec:related}) we briefly review indexing in the WAM
 (Sect.~\ref{sec:prelims}). We then present \JITI schemes for static
-(Sect.~\ref{sec:static}), and discuss their implementation in two
-Prolog systems and the performance benefits they bring
+(Sect.~\ref{sec:static}) and dynamic (Sect.~\ref{sec:dynamic})
+predicates, their implementation in two Prolog systems
+(Sect.~\ref{sec:impl}) and the performance benefits they bring
 (Sect.~\ref{sec:perf}). The paper ends with some concluding remarks.
 
 
 \section{State of the Art and Related Work} \label{sec:related}
 %==============================================================
 % Indexing in Prolog systems:
-% vsc: small change
 To the best of our knowledge, many Prolog systems still only support
 indexing on the main functor symbol of the first argument. Some
-others, like YAP4~\cite{YAP}, can look inside some compound terms.
-SICStus Prolog supports \emph{shallow
+others, like YAP version 4~\cite{YAP}, can look inside some compound
+terms. SICStus Prolog supports \emph{shallow
   backtracking}~\cite{ShallowBacktracking@ICLP-89}; choice points are
 fully populated only when it is certain that execution will enter the
 clause body. While shallow backtracking avoids some of the performance
@@ -194,10 +194,9 @@ to specify appropriate directives.
 Long ago, Kliger and Shapiro argued that such tree-based indexing
 schemes are not cost effective for the compilation of Prolog
 programs~\cite{KligerShapiro@ICLP-88}. Some of their arguments make
-% vsc: small change
 sense for certain applications, but, as we shall show, in general 
-they underestimate the benefits of indexing on
-tables of data. Nevertheless, it is true that unless the modes of
+they underestimate the benefits of indexing on EDB predicates.
+Nevertheless, it is true that unless the modes of
 predicates are known we run the risk of doing indexing on output
 arguments, whose only effect is an unnecessary increase in compilation
 times and, more importantly, in code size. In a programming language
@@ -265,11 +264,10 @@ removes it.
 
 The WAM has additional indexing instructions (\instr{try\_me\_else}
 and friends) that allow indexing to be interspersed with the code of
-clauses. For simplicity we will not consider them here. This is not a
-%vsc: unclear, you mean simplifies code or presentation?
-problem since the above scheme handles all cases. Also, we will feel
-free to do some minor modifications and optimizations when this
-simplifies things.
+clauses. For simplicity of presentation we will not consider them
+here. This is not a problem since the above scheme handles all cases.
+Also, we will feel free to do some minor modifications and
+optimizations when this simplifies things.
 
 We present an example. Consider the Prolog code shown in
 Fig.~\ref{fig:carc:facts}. It is a fragment of the well-known machine
@@ -827,7 +825,7 @@ we omit further details.
 Algorithm~\ref{alg:construction} relies on a procedure that inspects
 the code of a clause and collects the symbols associated with some
 particular index position (step~2.2.2). If we are satisfied with
-looking only at clause heads, this procedure only needs to understand
+looking only at clause heads, this procedure needs to understand only
 the structure of \instr{get} and \instr{unify} instructions. Thus, it
 is easy to write. At the cost of increased implementation complexity,
 this step can of course take into account other information that may
@@ -838,49 +836,84 @@ Y}, numeric constraints such as \code{X > 0}, etc).
 A reasonable concern for \JITI is increased memory consumption during
 runtime due to the index tables. In our experience, this does not seem
 to be a problem in practice since most applications do not have demand
-for indexing on all argument combinations. In applications where it
-becomes a problem or when running in an environment where memory is
-limited, we can easily put a bound on the size of index tables, either
-globally or for each predicate separately. The \jitiSTAR instructions
-can either become inactive when this limit is reached, or better yet
-we can recover the space of some tables. To do so, we can employ any
-standard recycling algorithm (e.g., least recently used) and reclaim
-the space for some tables that are no longer in use. This is easy to
-do by reverting the corresponding \jitiSTAR instructions back to
-\switchSTAR instructions. If the indices are needed again, they can
+for indexing on many argument combinations. In applications where it
+does become a problem or when running in an environment with limited
+memory, we can easily put a bound on the size of index tables, either
+globally or for each predicate separately. For example, the \jitiSTAR
+instructions can either become inactive when this limit is reached, or
+better yet we can recover the space of some tables. To do so, we can
+employ any standard recycling algorithm (e.g., least recently used)
+and reclaim the of index tables that are no longer in use. This is
+easy to do by reverting the corresponding \jitiSTAR instructions back
+to \switchSTAR instructions. If the indices are needed again, they can
 simply be regenerated.
 
+
+\section{Demand-Driven Indexing of Dynamic Predicates} \label{sec:dynamic}
+%=========================================================================
+We have so far lived in the comfortable world of static predicates,
+where the set of clauses to index is fixed and the compiler can take
+advantage of this knowledge. Dynamic code introduces several
+complications:
+\begin{itemize}
+\item We need mechanisms to update multiple indices when new clauses
+  are asserted or retracted. In particular, we need the ability to
+  expand and possibly shrink multiple code chunks after code updates.
+\item We do not know a priori which are the best index positions and
+  cannot determine whether indexing on some arguments is avoidable.
+\item Supporting the so-called logical update (LU) semantics of the
+  ISO Prolog standard becomes harder.
+\end{itemize}
+We will briefly discuss possible ways of handling these complications.
+However, we note that most Prolog systems do in fact provide indexing
+for dynamic predicates and thus already deal in some way or another
+with these issues. It's just that \JITI makes these problems harder.
+
+
+\section{Implementation in XXX and in YAP} \label{sec:impl}
+%==========================================================
+The implementation of \JITI in XXX follows a variant of the scheme
+presented in Sect.~\ref{sec:static}. The compiler uses heuristics to
+determine the best argument to index on (i.e., this argument is not
+necessarily the first) and employs \switchSTAR instructions for this
+task. It also statically generates \jitiONconstant instructions for
+other argument positions that are good candidates for \JITI.
+Currently, an argument is considered a good candidate if it has only
+constants or only structure symbols in all clauses. Thus, XXX uses
+only \jitiONconstant and \jitiONstructure instructions, never a
+\jitiONterm. Also, XXX does not perform \JITI inside structure
+symbols.\footnote{Instead, it prompts its user to request unification
+factoring for predicates that look likely to benefit from indexing
+inside compound terms. The user can then use the appropriate compiler
+directive for these predicates.} For dynamic predicates \JITI is
+employed only if they consist of Datalog facts; if a clause which is
+not a Datalog fact is asserted, all dynamically created index tables
+for the predicate are simply dropped and the \jitiONconstant
+instruction becomes a \instr{noop}.
+
+YAP implements \JITI since version 5. The current implementation
+supports static code, dynamic code, and the internal database. It
+differs from the algorithm presented in Sect.~\ref{sec:static} in that
+\emph{all indexing code is generated on demand}. Thus, YAP cannot
+assume that a \jitiSTAR instruction is followed by a \TryRetryTrust
+chain. Instead, by default YAP has to search the whole predicate for
+clauses that match the current position in the indexing code. Doing so
+for every index expansion was found to be very inefficient for larger
+relations: in such cases YAP will maintain a list of matching clauses
+at each \jitiSTAR node. Indexing dynamic predicates in YAP follows
+very much the same algorithm as static indexing: the key idea is that
+most nodes in the index tree must be allocated separately so that they
+can grow or contract independently. YAP can index arguments with
+unconstrained variables, but only for static predicates, as it would
+complicate updates.
 
 
 \section{Performance Evaluation} \label{sec:perf}
 %================================================
-
-
 Next, we evaluate \JITI on a set of benchmarks and on real life
 applications.
 
-\subsection{The systems and the benchmarking environment}
-\paragraph The current JITI implementation in YAP
-
-YAP implements \JITI since version 5. The current implementation
-supports static code, dynamic code, and the internal database. It
-differs from the algorithm presented above in that \emph{all indexing
-  code is generated on demand}. Thus, YAP cannot assume that a
-\jitiSTAR instruction is followed by a \TryRetryTrust chain. Instead,
-by default YAP has to search the whole procedure for clauses that
-match the current position in the indexing code. Doing so for every
-index expansion was found to be very inefficient for larger relations:
-in such cases YAP will maintain a list of matching clauses at each
-\jitiSTAR node. Indexing dynamic predicates in YAP follows very much
-the same algorithm as static indexing: the key idea is that most nodes
-in the index tree must be allocated separately so that they can grow
-or contract independently.  YAP can index arguments with unconstrained
-variables, but only for static predicates, as it would complicate
-updates.
-
-\paragraph The current JITI implementation in XXX 
-
-\paragraph Benchmarking environment
+\paragraph{Benchmarking environment}
 
 \subsection{JITI Overhead}
    6.2 JITI overhead (show the "bad" cases first)
@@ -888,8 +921,8 @@ updates.
        and measure the time overhead -- hopefully this is low
 \subsection{JITI Speedups}
 
-       Here I already have "compress", "mutagenesis" and "sg_cyl"
-       The "sg_cyl" has a really impressive speedup (2 orders of
+       Here I already have "compress", "mutagenesis" and "sg\_cyl"
+       The "sg\_cyl" has a really impressive speedup (2 orders of
        magnitude).  We should keep the explanation in your text.
        Then we should add "pta" and "tea" from your PLDI paper.
        If time permits, we should also add some FSA benchmarks
@@ -963,11 +996,11 @@ The \texttt{BreastCancer} and \texttt{GeneExpression} applications use
 1NF data (that is, unstructured data). The benefit here is from
 multiple-argument indexing.  \texttt{BreastCancer} is particularly
 interesting. It consists of 40 binary relations with 65k elements
-each, where the first argument is the key, like in \texttt{sg_cyl}. We
+each, where the first argument is the key, like in \texttt{sg\_cyl}. We
 know that most calls have the first argument bound, hence indexing was
 not expected to matter very much. Instead, the results show \JITI
 running time to improve by an order of magnitude. Like in
-\texttt{sg_cyl}, this suggests that relatively small numbers of badly
+\texttt{sg\_cyl}, this suggests that relatively small numbers of badly
 indexed calls can dominate running time.
 
 \texttt{IE-Protein\_Extraction} and \texttt{Thermolysin} are example
@@ -1098,6 +1131,7 @@ static and dynamic data, but the results for \texttt{Mesh} and
 \texttt{Mutagenesis}, where the JITI probably has little impact on
 static code, suggest a factor of two from indexing on the IDB in this
 case.
+
 
 \section{Concluding Remarks}
 %===========================
