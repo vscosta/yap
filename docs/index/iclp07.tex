@@ -865,9 +865,9 @@ complications:
   ISO Prolog standard becomes harder.
 \end{itemize}
 We will briefly discuss possible ways of handling these complications.
-However, we note that most Prolog systems do in fact provide indexing
-for dynamic predicates and thus already deal in some way or another
-with these issues. It's just that \JITI makes these problems harder.
+However, we note that Prolog systems typically provide indexing for
+dynamic predicates and thus already deal in some way or another with
+these issues. It's just that \JITI makes these problems harder.
 
 
 \section{Implementation in XXX and in YAP} \label{sec:impl}
@@ -889,7 +889,9 @@ directive for these predicates.} For dynamic predicates \JITI is
 employed only if they consist of Datalog facts; if a clause which is
 not a Datalog fact is asserted, all dynamically created index tables
 for the predicate are simply dropped and the \jitiONconstant
-instruction becomes a \instr{noop}.
+instruction becomes a \instr{noop}. All these are done automatically,
+but the user can disable \JITI in compiled code using an appropriate
+compiler option.
 
 YAP implements \JITI since version 5. The current implementation
 supports static code, dynamic code, and the internal database. It
@@ -903,24 +905,36 @@ relations: in such cases YAP will maintain a list of matching clauses
 at each \jitiSTAR node. Indexing dynamic predicates in YAP follows
 very much the same algorithm as static indexing: the key idea is that
 most nodes in the index tree must be allocated separately so that they
-can grow or contract independently. YAP can index arguments with
-unconstrained variables, but only for static predicates, as it would
-complicate updates.
+can grow or contract independently. YAP can index arguments where some
+clauses have unconstrained variables, but only for static predicates,
+as it would complicate updates.
+
+YAP uses the term JITI (Just-In-Time Indexing) to refer to \JITI. In
+the next section we will take the liberty to use this term as a
+convenient abbreviation.
 
 
 \section{Performance Evaluation} \label{sec:perf}
 %================================================
 Next, we evaluate \JITI on a set of benchmarks and on real life
-applications.
+applications. For the benchmarks of Sect.~\ref{sec:perf:overhead}
+and~\ref{sec:perf:speedups}, which involve both systems, we used a 2.4
+GHz P4-based laptop with 512~MB of memory running Linux and report
+times in milliseconds. For the benchmarks of Sect.~\ref{sec:perf:ILP},
+which involve YAP only, we used a 
+%
+VITOR PLEASE ADD
+%
+and report times in seconds.
 
-\paragraph{Benchmarking environment}
-
-\subsection{JITI Overhead}
+\subsection{JITI Overhead} \label{sec:perf:overhead}
+%---------------------------------------------------
    6.2 JITI overhead (show the "bad" cases first)
        present Prolog/tabled benchmarks that do NOT benefit from JITI
        and measure the time overhead -- hopefully this is low
-\subsection{JITI Speedups}
 
+\subsection{JITI Speedups} \label{sec:perf:speedups}
+%---------------------------------------------------
        Here I already have "compress", "mutagenesis" and "sg\_cyl"
        The "sg\_cyl" has a really impressive speedup (2 orders of
        magnitude).  We should keep the explanation in your text.
@@ -928,8 +942,8 @@ applications.
        If time permits, we should also add some FSA benchmarks
        (e.g. "k963", "dg5" and "tl3" from PLDI)
 
-\subsection{JITI In ILP}
-
+\subsection{JITI in ILP} \label{sec:perf:ILP}
+%--------------------------------------------
 The need for just-in-time indexing was originally motivated by ILP
 applications.  Table~\ref{tab:aleph} shows JITI performance on some
 learning tasks using the ALEPH system~\cite{}. The dataset
