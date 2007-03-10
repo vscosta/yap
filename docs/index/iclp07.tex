@@ -107,7 +107,7 @@ For example, first argument indexing is sufficient for many Prolog
 applications. However, it is clearly sub-optimal for applications
 accessing large databases; for a long time now, the database community
 has recognized that good indexing is the basis for fast query
-processing.
+processing~\cite{}.
 
 As logic programming applications grow in size, Prolog systems need to
 efficiently access larger and larger data sets and the need for any-
@@ -143,20 +143,20 @@ This paper is structured as follows. After commenting on the state of
 the art and related work concerning indexing in Prolog systems
 (Sect.~\ref{sec:related}) we briefly review indexing in the WAM
 (Sect.~\ref{sec:prelims}). We then present \JITI schemes for static
-(Sect.~\ref{sec:static}) and dynamic (Sect.~\ref{sec:dynamic})
-predicates, and discuss their implementation in two Prolog systems and
-the performance benefits they bring (Sect.~\ref{sec:perf}). The paper
-ends with some concluding remarks.
+(Sect.~\ref{sec:static}), and discuss their implementation in two
+Prolog systems and the performance benefits they bring
+(Sect.~\ref{sec:perf}). The paper ends with some concluding remarks.
 
 
 \section{State of the Art and Related Work} \label{sec:related}
 %==============================================================
 % Indexing in Prolog systems:
-Even nowadays, some Prolog systems are still influenced by the WAM and
-only support indexing on the main functor symbol of the first
-argument. Some others, like YAP~\cite{YAP}, can look inside compound
-terms. SICStus Prolog supports \emph{shallow
-backtracking}~\cite{ShallowBacktracking@ICLP-89}; choice points are
+% vsc: small change
+To the best of our knowledge, many Prolog systems still only support
+indexing on the main functor symbol of the first argument. Some
+others, like YAP4~\cite{YAP}, can look inside some compound terms.
+SICStus Prolog supports \emph{shallow
+  backtracking}~\cite{ShallowBacktracking@ICLP-89}; choice points are
 fully populated only when it is certain that execution will enter the
 clause body. While shallow backtracking avoids some of the performance
 problems of unnecessary choice point creation, it does not offer the
@@ -194,9 +194,10 @@ to specify appropriate directives.
 Long ago, Kliger and Shapiro argued that such tree-based indexing
 schemes are not cost effective for the compilation of Prolog
 programs~\cite{KligerShapiro@ICLP-88}. Some of their arguments make
-sense for certain applications, but in general we disagree with their
-conclusion because they underestimate the benefits of indexing on
-large datasets. Nevertheless, it is true that unless the modes of
+% vsc: small change
+sense for certain applications, but, as we shall show, in general 
+they underestimate the benefits of indexing on
+tables of data. Nevertheless, it is true that unless the modes of
 predicates are known we run the risk of doing indexing on output
 arguments, whose only effect is an unnecessary increase in compilation
 times and, more importantly, in code size. In a programming language
@@ -265,6 +266,7 @@ removes it.
 The WAM has additional indexing instructions (\instr{try\_me\_else}
 and friends) that allow indexing to be interspersed with the code of
 clauses. For simplicity we will not consider them here. This is not a
+%vsc: unclear, you mean simplifies code or presentation?
 problem since the above scheme handles all cases. Also, we will feel
 free to do some minor modifications and optimizations when this
 simplifies things.
@@ -849,19 +851,253 @@ do by reverting the corresponding \jitiSTAR instructions back to
 simply be regenerated.
 
 
-\section{Demand-Driven Indexing of Dynamic Predicates} \label{sec:dynamic}
-%=========================================================================
-We have so far lived in the comfortable world of static predicates,
-where the set of clauses to index is fixed beforehand and the compiler
-can take advantage of this knowledge. Dynamic code introduces several
-complications. However, note that most Prolog systems do provide
-indexing for dynamic predicates. In effect, they already deal with
-these issues.
-
 
 \section{Performance Evaluation} \label{sec:perf}
 %================================================
 
+
+Next, we evaluate \JITI on a set of benchmarks and on real life
+applications.
+
+\subsection{The systems and the benchmarking environment}
+\paragraph The current JITI implementation in YAP
+
+YAP implements \JITI since version 5. The current implementation
+supports static code, dynamic code, and the internal database. It
+differs from the algorithm presented above in that \emph{all indexing
+  code is generated on demand}. Thus, YAP cannot assume that a
+\jitiSTAR instruction is followed by a \TryRetryTrust chain. Instead,
+by default YAP has to search the whole procedure for clauses that
+match the current position in the indexing code. Doing so for every
+index expansion was found to be very inefficient for larger relations:
+in such cases YAP will maintain a list of matching clauses at each
+\jitiSTAR node. Indexing dynamic predicates in YAP follows very much
+the same algorithm as static indexing: the key idea is that most nodes
+in the index tree must be allocated separately so that they can grow
+or contract independently.  YAP can index arguments with unconstrained
+variables, but only for static predicates, as it would complicate
+updates.
+
+\paragraph The current JITI implementation in XXX 
+
+\paragraph Benchmarking environment
+
+\subsection{JITI Overhead}
+   6.2 JITI overhead (show the "bad" cases first)
+       present Prolog/tabled benchmarks that do NOT benefit from JITI
+       and measure the time overhead -- hopefully this is low
+\subsection{JITI Speedups}
+
+       Here I already have "compress", "mutagenesis" and "sg_cyl"
+       The "sg_cyl" has a really impressive speedup (2 orders of
+       magnitude).  We should keep the explanation in your text.
+       Then we should add "pta" and "tea" from your PLDI paper.
+       If time permits, we should also add some FSA benchmarks
+       (e.g. "k963", "dg5" and "tl3" from PLDI)
+
+\subsection{JITI In ILP}
+
+The need for just-in-time indexing was originally motivated by ILP
+applications.  Table~\ref{tab:aleph} shows JITI performance on some
+learning tasks using the ALEPH system~\cite{}. The dataset
+\texttt{Krki} tries to learn rules for chess end-games;
+\texttt{GeneExpression} learns rules for yeast gene activity given a
+database of genes, their interactions, plus micro-array data;
+\texttt{BreastCancer} processes real-life patient reports towards
+predicting whether an abnormality may be malignant;
+\texttt{IE-Protein\_Extraction} processes information extraction from
+paper abstracts to search proteins; \texttt{Susi} learns from shopping
+patterns; and \texttt{Mesh} learns rules for finite-methods mesh
+design. The datasets \texttt{Carcinogenesis}, \texttt{Choline},
+\texttt{Mutagenesis}, \texttt{Pyrimidines}, and \texttt{Thermolysin}
+are about predicting chemical properties of compounds. The first three
+datasets present properties of interest as boolean attributes, but
+\texttt{Thermolysin} learns from the 3D structure of a molecule.
+Several of these datasets are standard across Machine Learning
+literature.  \texttt{GeneExpression}~\cite{} and
+\texttt{BreastCancer}~\cite{} were partly developed by some of the
+authors.  Most datasets perform simple queries in an extensional
+database. The exception is \texttt{Mutagenesis} where several
+predicates are defined intensionally, requiring extensive computation.
+
+
+\begin{table}[ht]
+%\vspace{-\intextsep}
+%\begin{table}[htbp] 
+%\centering
+  \centering
+  \begin {tabular}{|l|r|r|r|r|} \hline %\cline{1-3}                             
+    &  \multicolumn{2}{|c|}{\bf Time in sec.}  & \bf \JITI \\
+    {\bf Benchs.}  & \bf $A1$   & \bf JITI & \bf Ratio \\
+    \hline
+    \texttt{BreastCancer}      & 1450    & 88 & 16\\
+    \texttt{Carcinogenesis}    & 17,705    & 192  &92\\
+    \texttt{Choline}           & 14,766    & 1,397  & 11  \\
+    \texttt{GeneExpression}    & 193,283     & 7,483    & 26    \\
+    \texttt{IE-Protein\_Extraction} &  1,677,146      & 2,909    & 577    \\
+    \texttt{Krki}              & 0.3        & 0.3      & 1      \\
+    \texttt{Krki II}           & 1.3     & 1.3     & 1     \\
+    \texttt{Mesh}              & 4    & 3  & 1.3  \\
+    \texttt{Mutagenesis}       & 51,775  & 27,746 & 1.9\\
+    \texttt{Pyrimidines}       & 487,545     & 253,235  & 1.9    \\
+    \texttt{Susi}              & 105,091    & 307    & 342  \\
+    \texttt{Thermolysin}       & 50,279      &  5,213     & 10      \\
+    \hline
+\end{tabular}
+\caption{Machine Learning (ILP) Datasets: Times are given in Seconds,
+  we give time for standard indexing with no indexing on dynamic
+  predicates versus the \JITI implementation}
+\label{tab:aleph}
+\end{table}
+
+We compare times for 10 runs of the saturation/refinement cycle of the
+ILP system.  Table~\ref{tab:aleph} shows results. The \texttt{Krki}
+datasets have small search spaces and small databases, so they
+essentially maintain performance. The \texttt{Mesh},
+\texttt{Mutagenesis}, and \texttt{Pyrimides} applications do not
+benefit much from indexing in the database, but they do benefit from
+indexing in the dynamic representation of the search space, as their
+running times halve.
+
+The \texttt{BreastCancer} and \texttt{GeneExpression} applications use
+1NF data (that is, unstructured data). The benefit here is from
+multiple-argument indexing.  \texttt{BreastCancer} is particularly
+interesting. It consists of 40 binary relations with 65k elements
+each, where the first argument is the key, like in \texttt{sg_cyl}. We
+know that most calls have the first argument bound, hence indexing was
+not expected to matter very much. Instead, the results show \JITI
+running time to improve by an order of magnitude. Like in
+\texttt{sg_cyl}, this suggests that relatively small numbers of badly
+indexed calls can dominate running time.
+
+\texttt{IE-Protein\_Extraction} and \texttt{Thermolysin} are example
+applications that manipulate structured data.
+\texttt{IE-Protein\_Extraction} is the largest dataset we considered,
+and indexing is simply critical: we could not run the application in
+reasonable time without JITI. \texttt{Thermolysin} is smaller and
+performs some computation per query: even so, indexing is very
+important.
+
+\begin{table*}[ht]
+  \centering
+  \begin {tabular}{|l|r|r|r|r|r||r|r|r|r|r|r|} \hline %\cline{1-3}
+    &  \multicolumn{5}{|c||}{\bf Static Code}  & \multicolumn{6}{|c|}{\bf Dynamic Code \& IDB} \\
+    &  \textbf{Clause} & \multicolumn{4}{|c||}{\bf Indexing Code}  & \textbf{Clause} & \multicolumn{5}{|c|}{\bf Indexing Code} \\
+    \textbf{Benchmarks} &   & Total & T & W & S &  & Total & T & C & W & S  \\
+    \hline
+    \texttt{BreastCancer}      & 60940 & 46887 & 46242 &
+    3126 & 125  & 630 & 14 &42 & 18& 57 &6 \\
+
+    \texttt{Carcinogenesis}    & 1801 & 2678
+    &1225 & 587 & 865  & 13512 & 942     & 291 & 91 & 457 & 102
+ \\
+
+    \texttt{Choline}  & 666 & 174
+    &67 & 48 & 58 & 3172 & 174
+    & 76 & 4 & 48 & 45
+ \\
+    \texttt{GeneExpression}    &  46726 & 22629
+    &6780 & 6473 & 9375 & 116463 & 9015
+    & 2703 & 932 & 3910 & 1469
+ \\
+
+    \texttt{IE-Protein\_Extraction}    &146033 & 129333
+    &39279 & 24322 & 65732 & 53423 & 1531
+    & 467 & 108 & 868 & 86
+ \\
+
+    \texttt{Krki}              & 678 & 117
+    &52 & 24 & 40 & 2047 & 24
+    & 10 & 2 & 10 & 1
+ \\
+
+    \texttt{Krki II}           & 1866 & 715
+    &180 & 233 & 301 & 2055 & 26
+    & 11 & 2 & 11 & 1
+ \\
+
+    \texttt{Mesh}              & 802 & 161
+    &49 & 18 & 93 & 2149 & 109
+    & 46 & 4 & 35 & 22
+ \\
+
+    \texttt{Mutagenesis}       & 1412 & 1848
+    &1045 & 291 & 510 & 4302 & 595
+    & 156 & 114 & 264 & 61
+ \\
+
+    \texttt{Pyrimidines}       & 774 & 218
+    &76 & 63 & 77 & 25840 & 12291
+    & 4847 & 43 & 3510 & 3888
+ \\
+
+    \texttt{Susi}              & 5007 & 2509
+    &855 & 578 & 1076 & 4497 & 759
+    & 324 & 58 & 256 & 120
+ \\
+
+    \texttt{Thermolysin}       & 2317 & 929
+    &429 & 184 & 315 & 116129 & 7064
+    & 3295 & 1438 & 2160 & 170
+ \\
+
+    \hline
+\end{tabular}
+\caption{Memory Performance on Machine Learning (ILP) Datasets: memory
+  usage is given in KB}
+\label{tab:ilpmem}
+\end{table*}
+
+
+We have seen that using the \JITI does not impose a significant
+overhead. Table~\ref{tab:ilpmem} discusses the memory cost . It
+measures memory being spend at a point near the end of execution.
+Because dynamic memory expands and contracts, we chose a point where
+memory usage should be at a maximum. The first five columns show data
+usage on static predicates.  The leftmost sub-column represents the
+code used for clauses; the next sub-columns represent space used in
+indices for static predicates: the first column gives total usage,
+which consists of space used in the main tree, the expanded
+wait-nodes, and hash-tables.
+
+Static data-base sizes range from 146MB to 666KB, the latter mostly in
+system libraries. The impact of indexing code varies widely: it is
+more than the original code for \texttt{Mutagenesis}, almost as much
+for \texttt{IE-Protein\_Extraction}, and in most cases it adds at
+least a third and often a half to the original data-base. It is
+interesting to check the source of the space overhead: if the source
+are hash-tables, we can expect this is because of highly-complex
+indices. If overhead is in \emph{wait-nodes}, this again suggests a
+sophisticated indexing structure. Overhead in the main tree may be
+caused by a large number of nodes, or may be caused by \texttt{try}
+nodes.
+
+One first conclusion is that \emph{wait-nodes} are costly space-wise,
+even if they are needed to achieve sensible compilation times.  On the
+other hand, whether the space is allocated to the tree or to the
+hashes varies widely. \texttt{IE-Protein\_Extraction} is an example
+where the indices seem very useful: most space was spent in the
+hash-tables, although we still are paying much for \emph{wait-nodes}.
+\texttt{BreastCancer} has very small hash-tables, because it
+attributes range over small domains, but indexing is useful (we
+believe this is because we are only interested in the first solution
+in this case).
+
+This version of the ILP system stores most dynamic data in the IDB.
+The size of reflects the search space, and is largely independent of
+the program's static data (notice that small applications such as
+\texttt{Krki} do tend to have a small search space). Aleph's author
+very carefully designed the system to work around overheads in
+accessing the data-base, so indexing should not be as important.  In
+fact, indexing has a much lower space overhead in this case,
+suggesting it is not so critical.  On the other hand, looking at the
+actual results shows that indexing is working well: most space is
+spent on hashes and the tree, little space is spent on \texttt{try}
+instructions. It is hard to separate the contributions of JITI on
+static and dynamic data, but the results for \texttt{Mesh} and
+\texttt{Mutagenesis}, where the JITI probably has little impact on
+static code, suggest a factor of two from indexing on the IDB in this
+case.
 
 \section{Concluding Remarks}
 %===========================
