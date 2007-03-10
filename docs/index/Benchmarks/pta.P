@@ -1,4 +1,15 @@
-%:- set_prolog_flag(index,single).
+/*
+** This is a benchmark that implements Andersen's Points To Analysis
+** using tabling.
+**
+** To bypass a problem in XXX the code has been slightly modified.
+** The original version used a right-recursive tabled predicate
+** for points_to/2; this version uses a left-recursive predicate.
+** Note that this gives significantly less answers, but it is a
+** tabled benchmark nonetheless.
+**/
+
+%% :- set_prolog_flag(index,single).
 %% :- yap_flag(tabling_mode, local).
 
 time :-
@@ -35,9 +46,12 @@ get_var(X) :- var(true,X).  % pointer variables
 :- table pointed_to_by/2.
 :- table aux2/2.
 
+%% ORIGINAL VERSION
+%% points_to --> fa.
+%% points_to --> aux1, points_to.
+%% 
 points_to --> fa.
-points_to(X,Y) :- points_to(Z,Y), aux1(X,Z).
-% points_to --> aux1, points_to.
+points_to --> points_to, aux1.
 
 aux1 --> f.
 aux1 --> aux11.
