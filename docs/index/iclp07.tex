@@ -981,7 +981,7 @@ convenient abbreviation.
 
 \section{Performance Evaluation} \label{sec:perf}
 %================================================
-We evaluate \JITI on a set of benchmarks and on applications.
+We evaluate \JITI on a set of benchmarks and logic programming applications.
 Throughout, we compare performance of JITI with first argument
 indexing. For the benchmarks of Sect.~\ref{sec:perf:ineffective}
 and~\ref{sec:perf:effective} which involve both systems, we used a
@@ -1001,17 +1001,17 @@ have no effect other than an overhead due to runtime index
 construction. We therefore wanted to measure this overhead.
 %
 As both systems support tabling, we decided to use tabling benchmarks
-because they are relatively small and easy to understand, and because
-they are a worst case for JITI in the following sense: tabling avoids
-generating repetitive queries and the benchmarks operate over EDB
-predicates of size approximately equal the size of the program.
-We used \compress, a tabled program that solves a puzzle from an ICLP
-Prolog programming competition. The other benchmarks are different
-variants of tabled left, right and doubly recursive transitive closure
-over an EDB predicate forming a chain of size shown in
-Table~\ref{tab:ineffective} in parentheses. For each variant of
-transitive closure, we issue two queries: one with mode
-\code{(in,out)} and one with mode \code{(out,out)}.
+because they are small and easy to understand, and because they are a
+worst case for JITI in the following sense: tabling avoids generating
+repetitive queries and the benchmarks operate over EDB predicates of
+size approximately equal the size of the program. We used \compress, a
+tabled program that solves a puzzle from an ICLP Prolog programming
+competition. The other benchmarks are different variants of tabled
+left, right and doubly recursive transitive closure over an EDB
+predicate forming a chain of size shown in Table~\ref{tab:ineffective}
+in parentheses. For each variant of transitive closure, we issue two
+queries: one with mode \code{(in,out)} and one with mode
+\code{(out,out)}.
 %
 For YAP, indices on the first argument are built on all benchmarks
 under JITI.\TODO{Vitor please verify this sentence}
@@ -1055,9 +1055,9 @@ columns separately.
       \cline{2-7}
       Benchmark     &   1st  &  JITI &{\bf ratio}&  1st  &  JITI &{\bf ratio}\\
       \hline
-      \sgCyl        &   2864 &    24 &$119\times$&  2390 &    28 &$85\times$\\
+      \sgCyl        &  2,864 &    24 &$119\times$& 2,390 &    28 &$85\times$\\
       \muta         & 30,057 &16,782 &$179\%$    &26,314 &21,574 &$122\%$   \\
-      \pta          &   5131 &   188 & $27\times$&  4442 &   279 &$16\times$\\
+      \pta          &  5,131 &   188 & $27\times$& 4,442 &   279 &$16\times$\\
       \tea        &1,478,813 &54,616 & $27\times$&   --- &   --- &    ---   \\
       \hline
     \end{tabular}
@@ -1068,9 +1068,9 @@ columns separately.
 \subsection{Performance of \JITI when effective} \label{sec:perf:effective}
 %--------------------------------------------------------------------------
 On the other hand, when \JITI is effective, it can significantly
-improve time performance. We use the following programs:\TODO{If time
-permits, we should also add FSA benchmarks (\bench{k963}, \bench{dg5}
-and \bench{tl3})}
+improve time performance. We use the following programs and
+applications:\TODO{If time permits, we should also add FSA benchmarks
+(\bench{k963}, \bench{dg5} and \bench{tl3})}
 \begin{description}
 \item[\sgCyl] The same generation DB benchmark on a $24 \times 24
   \times 2$ cylinder. We issue the open query.
@@ -1090,9 +1090,9 @@ and \bench{tl3})}
 
 As can be seen in Table~\ref{tab:effective}, \JITI significantly
 improves the performance of these applications. In \muta, which spends
-most of its time in recursive predicates, the speed up is~$79\%$ in
-YAP and~$22\%$ in XXX. The remaining benchmarks execute several times
-(from~$16$ up to~$119$) faster. It is important to realize that
+most of its time in recursive predicates, the speed up is only $79\%$
+in YAP and~$22\%$ in XXX. The remaining benchmarks execute several
+times (from~$16$ up to~$119$) faster. It is important to realize that
 \emph{these speedups are obtained automatically}, i.e., without any
 programmer intervention or by using any compiler directives, in all
 these applications.
@@ -1103,8 +1103,8 @@ With the open call to \texttt{same\_generation/2}, most work in this
 benchmark consists of calling \texttt{cyl/2} facts in three different
 modes: with both arguments unbound, with the first argument bound, or
 with only the second argument bound. Demand-driven indexing improves
-performance in the last case only, but this makes a big difference in
-this benchmark.
+performance in the last case only, but this improvement makes a big
+difference in this benchmark.
 
 \begin{small}
   \begin{verbatim}
@@ -1121,7 +1121,8 @@ this benchmark.
 
 \subsection{Performance of \JITI on ILP applications} \label{sec:perf:ILP}
 %-------------------------------------------------------------------------
-The need for \JITI was originally motivated by ILP applications.
+The need for \JITI was originally noticed in inductive logic
+programming applications.
 Table~\ref{tab:ilp:time} shows JITI performance on some learning tasks
 using the ALEPH system~\cite{ALEPH}. The dataset \Krki tries to
 learn rules from a small database of chess end-games;
