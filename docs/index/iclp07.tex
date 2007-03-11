@@ -48,6 +48,19 @@
 \newcommand{\pta}{\bench{pta}\xspace}
 \newcommand{\tea}{\bench{tea}\xspace}
 %------------------------------------------------------------------------------
+\newcommand{\BreastCancer}{\bench{BreastCancer}\xspace}
+\newcommand{\Carcinogenesis}{\bench{Carcinogenesis}\xspace}
+\newcommand{\Choline}{\bench{Choline}\xspace}
+\newcommand{\GeneExpression}{\bench{GeneExpression}\xspace}
+\newcommand{\IEProtein}{\bench{IE-Protein\_Extraction}\xspace}
+\newcommand{\Krki}{\bench{Krki}\xspace}
+\newcommand{\KrkiII}{\bench{Krki~II}\xspace}
+\newcommand{\Mesh}{\bench{Mesh}\xspace}
+\newcommand{\Mutagenesis}{\bench{Mutagenesis}\xspace}
+\newcommand{\Pyrimidines}{\bench{Pyrimidines}\xspace}
+\newcommand{\Susi}{\bench{Susi}\xspace}
+\newcommand{\Thermolysin}{\bench{Thermolysin}\xspace}
+%------------------------------------------------------------------------------
 \newenvironment{SmallProg}{\begin{tt}\begin{small}\begin{tabular}[b]{l}}{\end{tabular}\end{small}\end{tt}}
 \newenvironment{ScriptProg}{\begin{tt}\begin{scriptsize}\begin{tabular}[b]{l}}{\end{tabular}\end{scriptsize}\end{tt}}
 \newenvironment{FootProg}{\begin{tt}\begin{footnotesize}\begin{tabular}[c]{l}}{\end{tabular}\end{footnotesize}\end{tt}}
@@ -120,7 +133,7 @@ For example, first argument indexing is sufficient for many Prolog
 applications. However, it is clearly sub-optimal for applications
 accessing large databases; for a long time now, the database community
 has recognized that good indexing is the basis for fast query
-processing~\cite{}.
+processing.
 
 As logic programming applications grow in size, Prolog systems need to
 efficiently access larger and larger data sets and the need for any-
@@ -144,7 +157,7 @@ the method needs to cater for code updates during runtime. Where our
 schemes radically depart from current practice is that they generate
 new byte code during runtime, in effect doing a form of just-in-time
 compilation. In our experience these schemes pay off. We have
-implemented \JITI in two different Prolog systems (Yap and XXX) and
+implemented \JITI in two different Prolog systems (YAP and XXX) and
 have obtained non-trivial speedups, ranging from a few percent to
 orders of magnitude, across a wide range of applications. Given these
 results, we see very little reason for Prolog systems not to
@@ -226,14 +239,14 @@ systems currently do not provide the type of indexing that
 applications require. Even in systems like Ciao~\cite{Ciao@SCP-05},
 which do come with built-in static analysis and more or less force
 such a discipline on the programmer, mode information is not used for
-multi-argument indexing!
+multi-argument indexing.
 
 % The grand finale:
 The situation is actually worse for certain types of Prolog
 applications. For example, consider applications in the area of
 inductive logic programming. These applications on the one hand have
-big demands for effective indexing since they need to efficiently
-access big datasets and on the other they are very unfit for static
+high demands for effective indexing since they need to efficiently
+access big datasets and on the other they are unfit for static
 analysis since queries are often ad hoc and generated only during
 runtime as new hypotheses are formed or refined.
 %
@@ -241,11 +254,11 @@ Our thesis is that the Prolog abstract machine should be able to adapt
 automatically to the runtime requirements of such or, even better, of
 all applications by employing increasingly aggressive forms of dynamic
 compilation. As a concrete example of what this means in practice, in
-this paper we will attack the problem of providing effective indexing
-during runtime. Naturally, we will base our technique on the existing
-support for indexing that the WAM provides, but we will extend this
-support with the technique of \JITI that we describe in the next
-sections.
+this paper we will attack the problem of satisfying the indexing needs
+of applications during runtime. Naturally, we will base our technique
+on the existing support for indexing that the WAM provides, but we
+will extend this support with the technique of \JITI that we describe
+in the next sections.
 
 
 \section{Indexing in the WAM} \label{sec:prelims}
@@ -271,7 +284,7 @@ equivalently, \instr{N} is the size of the hash table). In each bucket
 of this hash table and also in the bucket for the variable case of
 \switchONterm the code performs a sequential backtracking search of
 the clauses using a \TryRetryTrust chain of instructions. The \try
-instruction sets up a choice point, the \retry instructions (if any)
+instruction sets up a choice point, the \retry instructions (if~any)
 update certain fields of this choice point, and the \trust instruction
 removes it.
 
@@ -529,13 +542,14 @@ heuristically decide that some arguments are most likely than others
 to be used in the \code{in} mode. Then we can simply place the
 \jitiONconstant instructions for these arguments \emph{before} the
 instructions for other arguments. This is possible since all indexing
-instructions take the argument register number as an argument.
+instructions take the argument register number as an argument; their
+order does not matter.
 
 \subsection{From any argument indexing to multi-argument indexing}
 %-----------------------------------------------------------------
 The scheme of the previous section gives us only single argument
 indexing. However, all the infrastructure we need is already in place.
-We can use it to obtain (fixed-order) multi-argument \JITI in a
+We can use it to obtain any fixed-order multi-argument \JITI in a
 straightforward way.
 
 Note that the compiler knows exactly the set of clauses that need to
@@ -650,7 +664,7 @@ requires the following extensions:
   indexing will be based. Writing such a code walking procedure is not
   hard.\footnote{In many Prolog systems, a procedure with similar
   functionality often exists for the disassembler, the debugger, etc.}
-\item Indexing on an argument that contains unconstrained variables
+\item Indexing on a position that contains unconstrained variables
   for some clauses is tricky. The WAM needs to group clauses in this
   case and without special treatment creates two choice points for
   this argument (one for the variables and one per each group of
@@ -658,7 +672,7 @@ requires the following extensions:
   by now. Possible solutions to it are described in a 1987 paper by
   Carlsson~\cite{FreezeIndexing@ICLP-87} and can be readily adapted to
   \JITI. Alternatively, in a simple implementation, we can skip \JITI
-  for arguments with variables in some clauses.
+  for positions with variables in some clauses.
 \end{enumerate}
 Before describing \JITI more formally, we remark on the following
 design decisions whose rationale may not be immediately obvious:
@@ -800,26 +814,25 @@ to a \switchSTAR WAM instruction.
 %-------------------------------------------------------------------------
 
 \paragraph*{Complexity properties.}
-Complexity-wise, dynamic index construction does not add any overhead
-to program execution. First, note that each demanded index table will
-be constructed at most once. Also, a \jitiSTAR instruction will be
+Index construction during runtime does not change the complexity of
+query execution. First, note that each demanded index table will be
+constructed at most once. Also, a \jitiSTAR instruction will be
 encountered only in cases where execution would examine all clauses in
 the \TryRetryTrust chain.\footnote{This statement is possibly not
 valid the presence of Prolog cuts.} The construction visits these
 clauses \emph{once} and then creates the index table in time linear in
-the number of clauses. One pass over the list of $\langle c, L
+the number of clauses as one pass over the list of $\langle c, L
 \rangle$ pairs suffices. After index construction, execution will
-visit only a subset of these clauses as the index table will be
-consulted.
+visit a subset of these clauses as the index table will be consulted.
 %% Finally, note that the maximum number of \jitiSTAR instructions
 %% that will be visited for each query is bounded by the maximum
 %% number of index positions (symbols) in the clause heads of the
 %% predicate.
 Thus, in cases where \JITI is not effective, execution of a query will
 at most double due to dynamic index construction. In fact, this worst
-case is extremely unlikely in practice. On the other hand, \JITI can
-change the complexity of evaluating a predicate call from $O(n)$ to
-$O(1)$ where $n$ is the number of clauses.
+case is pessimistic and extremely unlikely in practice. On the other
+hand, \JITI can change the complexity of query evaluation from $O(n)$
+to $O(1)$ where $n$ is the number of clauses.
 
 \subsection{More implementation choices}
 %---------------------------------------
@@ -857,9 +870,9 @@ instructions can either become inactive when this limit is reached, or
 better yet we can recover the space of some tables. To do so, we can
 employ any standard recycling algorithm (e.g., least recently used)
 and reclaim the of index tables that are no longer in use. This is
-easy to do by reverting the corresponding \jitiSTAR instructions back
-to \switchSTAR instructions. If the indices are needed again, they can
-simply be regenerated.
+easy to do by reverting the corresponding \switchSTAR instructions
+back to \jitiSTAR instructions. If the indices are demanded again at a
+time when memory is available, they can simply be regenerated.
 
 
 \section{Demand-Driven Indexing of Dynamic Predicates} \label{sec:dynamic}
@@ -893,9 +906,9 @@ arguments. As optimizations, we can avoid indexing for predicates with
 only one clause (these are often used to simulate global variables)
 and we can exclude arguments where some clause has a variable.
 
-Under logical update semantics calls to a dynamic goal execute in a
+Under logical update semantics calls to dynamic predicates execute in a
 ``snapshot'' of the corresponding predicate. In other words, each call
-sees the clauses that existed at the time the call was made, even if
+sees the clauses that existed at the time when the call was made, even if
 some of the clauses were later deleted or new clauses were asserted.
 If several calls are alive in the stack, several snapshots will be
 alive at the same time. The standard solution to this problem is to
@@ -903,8 +916,8 @@ use time stamps to tell which clauses are \emph{live} for which calls.
 %
 This solution complicates freeing index tables because (1) an index
 table holds references to clauses, and (2) the table may be in use,
-that is, it may be accesible from the execution stacks. A table thus
-is killed in several steps:
+that is, it may be accessible from the execution stacks. An index
+table thus is killed in several steps:
 \begin{enumerate}
 \item Detach the index table from the indexing tree.
 \item Recursively \emph{kill} every child of the current table:
@@ -920,6 +933,7 @@ is killed in several steps:
 %% the \emph{itemset-node}, so the emulator reads all the instruction's
 %% arguments before executing the instruction.
 
+
 \section{Implementation in XXX and in YAP} \label{sec:impl}
 %==========================================================
 The implementation of \JITI in XXX follows a variant of the scheme
@@ -927,7 +941,7 @@ presented in Sect.~\ref{sec:static}. The compiler uses heuristics to
 determine the best argument to index on (i.e., this argument is not
 necessarily the first) and employs \switchSTAR instructions for this
 task. It also statically generates \jitiONconstant instructions for
-other argument positions that are good candidates for \JITI.
+other arguments that are good candidates for \JITI.
 Currently, an argument is considered a good candidate if it has only
 constants or only structure symbols in all clauses. Thus, XXX uses
 only \jitiONconstant and \jitiONstructure instructions, never a
@@ -935,11 +949,11 @@ only \jitiONconstant and \jitiONstructure instructions, never a
 symbols.\footnote{Instead, it prompts its user to request unification
 factoring for predicates that look likely to benefit from indexing
 inside compound terms. The user can then use the appropriate compiler
-directive for these predicates.} For dynamic predicates \JITI is
+directive for these predicates.} For dynamic predicates, \JITI is
 employed only if they consist of Datalog facts; if a clause which is
 not a Datalog fact is asserted, all dynamically created index tables
-for the predicate are simply dropped and the \jitiONconstant
-instruction becomes a \instr{noop}. All these are done automatically,
+for the predicate are simply killed and the \jitiONconstant
+instruction becomes a \instr{noop}. All this is done automatically,
 but the user can disable \JITI in compiled code using an appropriate
 compiler option.
 
@@ -957,7 +971,8 @@ very much the same algorithm as static indexing: the key idea is that
 most nodes in the index tree must be allocated separately so that they
 can grow or contract independently. YAP can index arguments where some
 clauses have unconstrained variables, but only for static predicates,
-as it would complicate updates.
+as in dynamic code this would complicate support for logical update
+semantics.
 
 YAP uses the term JITI (Just-In-Time Indexing) to refer to \JITI. In
 the next section we will take the liberty to use this term as a
@@ -1099,63 +1114,62 @@ this benchmark.
   \end{verbatim}
 \end{small}
 
-% Our experience with the indexing algorithm described here shows a
-% significant performance improvement over the previous indexing code in
-% our system. Quite often, this has allowed us to tackle applications
-% which previously would not have been feasible. We next present some
-% results that show how useful the algorithms can be.
+%% Our experience with the indexing algorithm described here shows a
+%% significant performance improvement over the previous indexing code in
+%% our system. Quite often, this has allowed us to tackle applications
+%% which previously would not have been feasible.
 
 \subsection{Performance of \JITI on ILP applications} \label{sec:perf:ILP}
 %-------------------------------------------------------------------------
 The need for \JITI was originally motivated by ILP applications.
 Table~\ref{tab:ilp:time} shows JITI performance on some learning tasks
-using the ALEPH system~\cite{ALEPH}. The dataset \bench{Krki} tries to
+using the ALEPH system~\cite{ALEPH}. The dataset \Krki tries to
 learn rules from a small database of chess end-games;
-\bench{GeneExpression} learns rules for yeast gene activity given a
+\GeneExpression learns rules for yeast gene activity given a
 database of genes, their interactions, and micro-array gene expression
-data; \bench{BreastCancer} processes real-life patient reports towards
+data; \BreastCancer processes real-life patient reports towards
 predicting whether an abnormality may be malignant;
-\bench{IE-Protein\_Extraction} processes information extraction from
-paper abstracts to search proteins; \bench{Susi} learns from shopping
-patterns; and \bench{Mesh} learns rules for finite-methods mesh
-design. The datasets \bench{Carcinogenesis}, \bench{Choline},
-\bench{Mutagenesis}, \bench{Pyrimidines}, and \bench{Thermolysin} are
-about predicting chemical properties of compounds. The first three
+\IEProtein processes information extraction from
+paper abstracts to search proteins; \Susi learns from shopping
+patterns; and \Mesh learns rules for finite-methods mesh
+design. The datasets \Carcinogenesis, \Choline,
+\Mutagenesis, \Pyrimidines, and \Thermolysin try to
+predict chemical properties of compounds. The first three
 datasets store properties of interest as tables, but
-\bench{Thermolysin} learns from the 3D-structure of a molecule's
-conformations. Several of these datasets are standard across Machine
-Learning literature. \bench{GeneExpression}~\cite{} and
-\bench{BreastCancer}~\cite{} were partly developed by some of the
+\Thermolysin learns from the 3D-structure of a molecule's
+conformations. Several of these datasets are standard across the Machine
+Learning literature. \GeneExpression~\cite{} and
+\BreastCancer~\cite{} were partly developed by some of the
 paper's authors. Most datasets perform simple queries in an
-extensional database. The exception is \bench{Mutagenesis} where
+extensional database. The exception is \Mutagenesis where
 several predicates are defined intensionally, requiring extensive
 computation.
 
 %------------------------------------------------------------------------------
-\begin{table}[ht]
+\begin{table}[t]
   \centering
   \caption{Machine Learning (ILP) Datasets: Times are given in Seconds,
     we give time for standard indexing with no indexing on dynamic
     predicates versus the \JITI implementation}
   \label{tab:ilp:time}
   \setlength{\tabcolsep}{3pt}
-  \begin {tabular}{|l||r|r|r|} \hline %\cline{1-3}
-                                   & \multicolumn{3}{|c|}{Time (in secs)} \\
+  \begin{tabular}{|l||r|r|r|} \hline %\cline{1-3}
+                    & \multicolumn{3}{|c|}{Time (in secs)} \\
     \cline{2-4}
-    Benchmark                      &    1st    &   JITI  &{\bf ratio} \\
+    Benchmark       &    1st    &   JITI  &{\bf ratio} \\
     \hline
-    \bench{BreastCancer}           &      1450 &      88 &  16    \\
-    \bench{Carcinogenesis}         &    17,705 &     192 &  92    \\
-    \bench{Choline}                &    14,766 &   1,397 &  11    \\
-    \bench{GeneExpression}         &   193,283 &   7,483 &  26    \\
-    \bench{IE-Protein\_Extraction} & 1,677,146 &   2,909 & 577    \\
+    \BreastCancer   &      1450 &      88 &  16    \\
+    \Carcinogenesis &    17,705 &     192 &  92    \\
+    \Choline        &    14,766 &   1,397 &  11    \\
+    \GeneExpression &   193,283 &   7,483 &  26    \\
+    \IEProtein      & 1,677,146 &   2,909 & 577    \\
     \bench{Krki}                   &       0.3 &     0.3 &   1    \\
     \bench{Krki II}                &       1.3 &     1.3 &   1    \\
-    \bench{Mesh}                   &         4 &       3 &   1.3  \\
+    \Mesh           &         4 &       3 &   1.3  \\
     \bench{Mutagenesis}            &    51,775 &  27,746 &   1.9  \\
-    \bench{Pyrimidines}            &   487,545 & 253,235 &   1.9  \\
-    \bench{Susi}                   &   105,091 &     307 & 342    \\
-    \bench{Thermolysin}            &    50,279 &   5,213 &  10    \\
+    \Pyrimidines    &   487,545 & 253,235 &   1.9  \\
+    \Susi           &   105,091 &     307 & 342    \\
+    \Thermolysin    &    50,279 &   5,213 &  10    \\
     \hline
 \end{tabular}
 \end{table}
@@ -1163,30 +1177,30 @@ computation.
 
 We compare times for 10 runs of the saturation/refinement cycle of the
 ILP system. Table~\ref{tab:ilp:time} shows time results. The
-\bench{Krki} datasets have small search spaces and small databases, so
+\Krki datasets have small search spaces and small databases, so
 they achieve the same performance under both versions:
-there is no slowdown. The \bench{Mesh}, \bench{Mutagenesis}, and
-\bench{Pyrimides} applications do not benefit much from indexing in
+there is no slowdown. The \Mesh, \Mutagenesis, and
+\Pyrimidines applications do not benefit much from indexing in
 the database, but they do benefit from indexing in the dynamic
 representation of the search space, as their running times halve.
 
-The \bench{BreastCancer} and \bench{GeneExpression} applications use
-1NF data (that is, unstructured data). The benefit here is mostly from
-multiple-argument indexing.  \bench{BreastCancer} is particularly
+The \BreastCancer and \GeneExpression applications use data in 
+1NF (that is, unstructured data). The benefit here is mostly from
+multiple-argument indexing. \BreastCancer is particularly
 interesting. It consists of 40 binary relations with 65k elements
-each, where the first argument is the key, like in
-\bench{sg\_cyl}. We know that most calls have the first argument
-bound, hence indexing was not expected to matter very much. Instead,
-the results show \JITI running time to improve by an order of
-magnitude. Like in \bench{sg\_cyl}, this suggests that even a small
-percentage of badly indexed calls can come to dominate running time.
+each, where the first argument is the key, like in \sgCyl. We know
+that most calls have the first argument bound, hence indexing was not
+expected to matter very much. Instead, the results show \JITI running
+time to improve by an order of magnitude. Like \sgCyl, this
+suggests that even a small percentage of badly indexed calls can end
+up dominating runtime.
 
-\bench{IE-Protein\_Extraction} and \bench{Thermolysin} are example
+\IEProtein and \Thermolysin are example
 applications that manipulate structured data.
-\bench{IE-Protein\_Extraction} is the largest dataset we consider,
-and indexing is simply critical: it is not possible to run the
-application in reasonable time with one argument
-indexing. \bench{Thermolysin} is smaller and performs some
+\IEProtein is the largest dataset we consider,
+and indexing is absolutely critical: it is not possible to run the
+application in reasonable time with first argument
+indexing. \Thermolysin is smaller and performs some
 computation per query: even so, indexing improves performance by an
 order of magnitude.
 
@@ -1201,79 +1215,81 @@ order of magnitude.
     Benchmark   &  \textbf{Clause} & {\bf Index}  & \textbf{Clause} & {\bf Index} \\
 %    \textbf{Benchmarks} &   & Total & T & W & S &  & Total & T & C & W & S  \\
     \hline
-    \bench{BreastCancer}
-    & 60940 & 46887 
+    \BreastCancer
+    & 60,940 & 46,887 
     % & 46242 & 3126  & 125
     & 630  & 14
     % &42 & 18& 57 &6
     \\
 
-    \bench{Carcinogenesis} 
+    \Carcinogenesis
     & 1801 & 2678
     % &1225 & 587 & 865
-    & 13512 & 942
+    & 13,512 & 942
     %& 291 & 91 & 457 & 102
     \\
 
-    \bench{Choline}  & 666 & 174
+    \Choline  & 666 & 174
     % &67 & 48 & 58
     & 3172 & 174
     % & 76 & 4 & 48 & 45
- \\
-    \bench{GeneExpression}    &  46726 & 22629
-    % &6780 & 6473 & 9375
-    & 116463 & 9015
-    %& 2703 & 932 & 3910 & 1469
- \\
+    \\
 
-    \bench{IE-Protein\_Extraction}    &146033 & 129333
+    \GeneExpression
+    &  46,726 & 22,629
+    % &6780 & 6473 & 9375
+    & 116,463 & 9015
+    %& 2703 & 932 & 3910 & 1469
+    \\
+
+    \bench{IE-Protein\_Extraction}
+    & 146,033 & 129,333
     %&39279 & 24322 & 65732
-    & 53423 & 1531
+    & 53,423 & 1531
     %& 467 & 108 & 868 & 86
- \\
+    \\
 
     \bench{Krki}              & 678 & 117
     %&52 & 24 & 40
     & 2047 & 24
     %& 10 & 2 & 10 & 1
- \\
+    \\
 
     \bench{Krki II}           & 1866 & 715
     %&180 & 233    & 301
     & 2055 & 26
     %& 11 & 2 & 11 & 1
- \\
+    \\
 
     \bench{Mesh}              & 802 & 161
     %&49 & 18 & 93
     & 2149 & 109
     %& 46 & 4 & 35 & 22
- \\
-
+    \\
+    
     \bench{Mutagenesis}       & 1412 & 1848
     %&1045 & 291 & 510
     & 4302 & 595
     %& 156 & 114 & 264 & 61
- \\
-
+    \\
+    
     \bench{Pyrimidines}       & 774 & 218
     %&76 & 63 & 77
-    & 25840 & 12291
+    & 25,840 & 12,291
     %& 4847 & 43 & 3510 & 3888
- \\
+    \\
 
     \bench{Susi}              & 5007 & 2509
     %&855 & 578 & 1076
     & 4497 & 759
     %& 324 & 58 & 256 & 120
- \\
+    \\
 
     \bench{Thermolysin}       & 2317 & 929
     %&429 & 184 & 315
-    & 116129 & 7064
+    & 116,129 & 7064
     %& 3295 & 1438 & 2160 & 170
- \\
-
+    \\
     \hline
 \end{tabular}
 \end{table*}
@@ -1287,12 +1303,12 @@ usage on \emph{static} predicates. Static data-base sizes range from
 146MB (\bench{IE-Protein\_Extraction} to less than a MB
 (\bench{Choline}, \bench{Krki}, \bench{Mesh}). Indexing code can be
 more than the original code, as in \bench{Mutagenesis}, or almost as
-much, eg, \bench{IE-Protein\_Extraction}. In most cases the YAP \JITI
+much, e.g., \bench{IE-Protein\_Extraction}. In most cases the YAP \JITI
 adds at least a third and often a half to the original data-base. A
 more detailed analysis shows the source of overhead to be very
 different from dataset to dataset. In \bench{IE-Protein\_Extraction}
 the problem is that hash tables are very large. Hash tables are also
-where most space is spent in \bench{Susi}. In \bench{BreastCancer}
+where most space is spent in \bench{Susi}. In \BreastCancer
 hash tables are actually small, so most space is spent in
 \TryRetryTrust chains. \bench{Mutagenesis} is similar: even though YAP
 spends a large effort in indexing it still generates long
