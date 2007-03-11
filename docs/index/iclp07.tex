@@ -53,8 +53,8 @@
 \newcommand{\Choline}{\bench{Choline}\xspace}
 \newcommand{\GeneExpr}{\bench{GeneExpression}\xspace}
 \newcommand{\IEProtein}{\bench{IE-Protein\_Extraction}\xspace}
-\newcommand{\Krki}{\bench{Krki}\xspace}
-\newcommand{\KrkiII}{\bench{Krki~II}\xspace}
+%\newcommand{\Krki}{\bench{Krki}\xspace}
+%\newcommand{\KrkiII}{\bench{Krki~II}\xspace}
 \newcommand{\Mesh}{\bench{Mesh}\xspace}
 \newcommand{\Pyrimidines}{\bench{Pyrimidines}\xspace}
 \newcommand{\Susi}{\bench{Susi}\xspace}
@@ -1129,9 +1129,8 @@ data, so memory consumption is a reasonable concern. We evaluate
 JITI's time and space performance on some learning tasks using the
 ALEPH system~\cite{ALEPH}. We use the following datasets:
 %
-% Table~\ref{tab:ilp:time} shows JITI performance.
-The dataset \Krki tries to learn rules from a
-small database of chess end-games; \GeneExpr learns rules for
+%% \Krki which tries to learn rules from a small database of chess end-games;
+\GeneExpr which learns rules for
 yeast gene activity given a database of genes, their interactions, and
 micro-array gene expression data; \BreastCancer processes real-life
 patient reports towards predicting whether an abnormality may be
@@ -1160,17 +1159,17 @@ queries in an extensional database.
     \cline{2-4}
     Benchmark     &    1st    &   JITI  &{\bf ratio} \\
     \hline
-    \BreastCancer &     1,450 &      88 &  16 \\
-    \Carcino      &    17,705 &     192 &  92 \\
-    \Choline      &    14,766 &   1,397 &  11 \\
-    \GeneExpr     &   193,283 &   7,483 &  26 \\
-    \IEProtein    & 1,677,146 &   2,909 & 577 \\
-    \Krki         &       0.3 &     0.3 &   1 \\
-    \KrkiII       &       1.3 &     1.3 &   1 \\
-    \Mesh         &         4 &       3 & 1.3 \\
-    \Pyrimidines  &   487,545 & 253,235 & 1.9 \\
-    \Susi         &   105,091 &     307 & 342 \\
-    \Thermolysin  &    50,279 &   5,213 &  10 \\
+    \BreastCancer &     1,450 &      88 &  $16$ \\
+    \Carcino      &    17,705 &     192 &  $92$ \\
+    \Choline      &    14,766 &   1,397 &  $11$ \\
+    \GeneExpr     &   193,283 &   7,483 &  $26$ \\
+    \IEProtein    & 1,677,146 &   2,909 & $577$ \\
+%%  \Krki         &       0.3 &     0.3 &   $1$ \\
+%%  \KrkiII       &       1.3 &     1.3 &   $1$ \\
+    \Mesh         &         4 &       3 & $1.3$ \\
+    \Pyrimidines  &   487,545 & 253,235 & $1.9$ \\
+    \Susi         &   105,091 &     307 & $342$ \\
+    \Thermolysin  &    50,279 &   5,213 &  $10$ \\
     \hline
     \end{tabular}
   }
@@ -1187,8 +1186,8 @@ queries in an extensional database.
 	           666 &     174 &   3,172 &    174 \\
 	        46,726 &  22,629 & 116,463 &  9,015 \\
 	       146,033 & 129,333 &  53,423 &  1,531 \\
-	           678 &     117 &   2,047 &     24 \\
-	         1,866 &     715 &   2,055 &     26 \\
+%%	           678 &     117 &   2,047 &     24 \\
+%%	         1,866 &     715 &   2,055 &     26 \\
 	           802 &     161 &   2,149 &    109 \\
 	           774 &     218 &  25,840 & 12,291 \\
  	         5,007 &   2,509 &   4,497 &    759 \\
@@ -1200,12 +1199,14 @@ queries in an extensional database.
 %------------------------------------------------------------------------------
 
 We compare times for 10 runs of the saturation/refinement cycle of the
-ILP system. Table~\ref{tab:ilp:time} shows time results. The \Krki
-datasets have small search spaces and small databases, so they achieve
-the same performance under both versions: there is no slowdown. The
-\Mesh and \Pyrimidines applications do not benefit much from indexing
-in the database, but they do benefit from indexing in the dynamic
-representation of the search space, as their running times halve.
+ILP system. Table~\ref{tab:ilp:time} shows time results.
+%% The \Krki datasets have small search spaces and small databases, so
+%% they achieve the same performance under both versions: there is no
+%% slowdown. 
+The \Mesh and \Pyrimidines applications do not benefit much from
+indexing in the database, but they do benefit from indexing in the
+dynamic representation of the search space, as their running times
+halve.
 
 The \BreastCancer and \GeneExpr applications use data in 
 1NF (that is, unstructured data). The benefit here is mostly from
@@ -1234,7 +1235,7 @@ Because dynamic memory expands and contracts, we chose a point where
 memory usage should be at a maximum. The first two numbers show data
 usage on \emph{static} predicates. Static data-base sizes range from
 146MB (\bench{IE-Protein\_Extraction} to less than a MB
-(\bench{Choline}, \bench{Krki}, \bench{Mesh}). Indexing code can grow
+(\bench{Choline} and \bench{Mesh}). Indexing code can grow
 to be as large as than the original code, as in \Carcino, or
 almost as much, e.g., \bench{IE-Protein\_Extraction}. In most cases
 the YAP \JITI adds at least a third and often a half to the original
@@ -1250,7 +1251,7 @@ usage, but is never dominant.
 This version of ALEPH uses the internal data-base to store the IDB.
 The size of reflects the search space, and is to some extent
 independent of the program's static data, although small applications
-such as \bench{Krki} tend to have a small search space. ALEPH's
+such as \Mesh tend to have a small search space. ALEPH's
 author very carefully designed the system to work around overheads in
 accessing the database, so indexing should not be as critical. The
 low overheads suggest that \JITI is working well, as confirmed in
