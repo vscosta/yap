@@ -1122,7 +1122,7 @@ difference in this benchmark.
 \subsection{Performance of \JITI on ILP applications} \label{sec:perf:ILP}
 %-------------------------------------------------------------------------
 The need for \JITI was originally noticed in inductive logic
-programming applications.  Table~\ref{tab:ilp:time} shows JITI
+programming applications.  Table~\ref{tab:ilp:time} shows \JITI
 performance on some learning tasks using the ALEPH
 system~\cite{ALEPH}. The dataset \Krki tries to learn rules from a
 small database of chess end-games; \GeneExpression learns rules for
@@ -1132,7 +1132,7 @@ patient reports towards predicting whether an abnormality may be
 malignant; \IEProtein processes information extraction from paper
 abstracts to search proteins; \Susi learns from shopping patterns; and
 \Mesh learns rules for finite-methods mesh design. The datasets
-\Carcinogenesis, \Choline, \Mutagenesis, \Pyrimidines, and
+\Carcinogenesis, \Choline, \Pyrimidines, and
 \Thermolysin try to predict chemical properties of compounds. The
 first three datasets store properties of interest as tables, but
 \Thermolysin learns from the 3D-structure of a molecule's
@@ -1140,9 +1140,7 @@ conformations. Several of these datasets are standard across the
 Machine Learning literature. \GeneExpression~\cite{ilp-regulatory06}
 and \BreastCancer~\cite{DBLP:conf/ijcai/DavisBDPRCS05} were partly
 developed by some of the paper's authors. Most datasets perform simple
-queries in an extensional database. The exception is \Mutagenesis
-where several predicates are defined intensionally, requiring
-extensive computation.
+queries in an extensional database.
 
 %------------------------------------------------------------------------------
 \begin{table}[t]
@@ -1165,7 +1163,6 @@ extensive computation.
     \bench{Krki}                   &       0.3 &     0.3 &   1    \\
     \bench{Krki II}                &       1.3 &     1.3 &   1    \\
     \Mesh           &         4 &       3 &   1.3  \\
-    \bench{Mutagenesis}            &    51,775 &  27,746 &   1.9  \\
     \Pyrimidines    &   487,545 & 253,235 &   1.9  \\
     \Susi           &   105,091 &     307 & 342    \\
     \Thermolysin    &    50,279 &   5,213 &  10    \\
@@ -1175,12 +1172,11 @@ extensive computation.
 %------------------------------------------------------------------------------
 
 We compare times for 10 runs of the saturation/refinement cycle of the
-ILP system. Table~\ref{tab:ilp:time} shows time results. The
-\Krki datasets have small search spaces and small databases, so
-they achieve the same performance under both versions:
-there is no slowdown. The \Mesh, \Mutagenesis, and
-\Pyrimidines applications do not benefit much from indexing in
-the database, but they do benefit from indexing in the dynamic
+ILP system. Table~\ref{tab:ilp:time} shows time results. The \Krki
+datasets have small search spaces and small databases, so they achieve
+the same performance under both versions: there is no slowdown. The
+\Mesh and \Pyrimidines applications do not benefit much from indexing
+in the database, but they do benefit from indexing in the dynamic
 representation of the search space, as their running times halve.
 
 The \BreastCancer and \GeneExpression applications use data in 
@@ -1266,12 +1262,6 @@ order of magnitude.
     %& 46 & 4 & 35 & 22
     \\
     
-    \bench{Mutagenesis}       & 1412 & 1848
-    %&1045 & 291 & 510
-    & 4302 & 595
-    %& 156 & 114 & 264 & 61
-    \\
-    
     \bench{Pyrimidines}       & 774 & 218
     %&76 & 63 & 77
     & 25,840 & 12,291
@@ -1300,20 +1290,18 @@ Because dynamic memory expands and contracts, we chose a point where
 memory usage should be at a maximum. The first two numbers show data
 usage on \emph{static} predicates. Static data-base sizes range from
 146MB (\bench{IE-Protein\_Extraction} to less than a MB
-(\bench{Choline}, \bench{Krki}, \bench{Mesh}). Indexing code can be
-more than the original code, as in \bench{Mutagenesis}, or almost as
-much, e.g., \bench{IE-Protein\_Extraction}. In most cases the YAP \JITI
-adds at least a third and often a half to the original data-base. A
-more detailed analysis shows the source of overhead to be very
-different from dataset to dataset. In \bench{IE-Protein\_Extraction}
-the problem is that hash tables are very large. Hash tables are also
-where most space is spent in \bench{Susi}. In \BreastCancer
-hash tables are actually small, so most space is spent in
-\TryRetryTrust chains. \bench{Mutagenesis} is similar: even though YAP
-spends a large effort in indexing it still generates long
-\TryRetryTrust chains. Storing sets of matching clauses at \jitiSTAR
-nodes takes usually over 10\% of total memory usage, but is never
-dominant.
+(\bench{Choline}, \bench{Krki}, \bench{Mesh}). Indexing code can grow
+to be as large as than the original code, as in \Carcinogenesis, or
+almost as much, e.g., \bench{IE-Protein\_Extraction}. In most cases
+the YAP \JITI adds at least a third and often a half to the original
+data-base. A more detailed analysis shows the source of overhead to be
+very different from dataset to dataset. In
+\bench{IE-Protein\_Extraction} the problem is that hash tables are
+very large. Hash tables are also where most space is spent in
+\bench{Susi}. In \BreastCancer hash tables are actually small, so most
+space is spent in \TryRetryTrust chains. Storing sets of matching
+clauses at \jitiSTAR nodes takes usually over 10\% of total memory
+usage, but is never dominant.
 
 This version of ALEPH uses the internal data-base to store the IDB.
 The size of reflects the search space, and is to some extent
