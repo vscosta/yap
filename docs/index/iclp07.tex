@@ -1,7 +1,7 @@
 %==============================================================================
 \documentclass{llncs} 
 %------------------------------------------------------------------------------
-%\usepackage{a4wide}
+\usepackage{a4wide}
 \usepackage{float}
 \usepackage{xspace}
 \usepackage{epsfig}
@@ -34,6 +34,19 @@
 \newcommand{\proceed}{\instr{proceed}\xspace}
 \newcommand{\Cline}{\cline{2-3}}
 \newcommand{\JITI}{demand-driven indexing\xspace}
+%------------------------------------------------------------------------------
+\newcommand{\bench}[1]{\textbf{\textsf{#1}}}
+\newcommand{\tcLio}{\bench{tc\_l\_io}\xspace}
+\newcommand{\tcRio}{\bench{tc\_r\_io}\xspace}
+\newcommand{\tcDio}{\bench{tc\_d\_io}\xspace}
+\newcommand{\tcLoo}{\bench{tc\_l\_oo}\xspace}
+\newcommand{\tcRoo}{\bench{tc\_r\_oo}\xspace}
+\newcommand{\tcDoo}{\bench{tc\_d\_oo}\xspace}
+\newcommand{\compress}{\bench{compress}\xspace}
+\newcommand{\sgCyl}{\bench{sg\_cyl}\xspace}
+\newcommand{\muta}{\bench{mutagenesis}\xspace}
+\newcommand{\pta}{\bench{pta}\xspace}
+\newcommand{\tea}{\bench{tea}\xspace}
 %------------------------------------------------------------------------------
 \newenvironment{SmallProg}{\begin{tt}\begin{small}\begin{tabular}[b]{l}}{\end{tabular}\end{small}\end{tt}}
 \newenvironment{ScriptProg}{\begin{tt}\begin{scriptsize}\begin{tabular}[b]{l}}{\end{tabular}\end{scriptsize}\end{tt}}
@@ -154,8 +167,8 @@ predicates, their implementation in two Prolog systems
 % Indexing in Prolog systems:
 To the best of our knowledge, many Prolog systems still only support
 indexing on the main functor symbol of the first argument. Some
-others, like YAP version 4~\cite{YAP}, can look inside some compound
-terms. SICStus Prolog supports \emph{shallow
+others, like YAP version 4, can look inside some compound
+terms~\cite{YAP}. SICStus Prolog supports \emph{shallow
   backtracking}~\cite{ShallowBacktracking@ICLP-89}; choice points are
 fully populated only when it is certain that execution will enter the
 clause body. While shallow backtracking avoids some of the performance
@@ -279,7 +292,7 @@ Fig.~\ref{fig:carc:index}. This code is typically placed before the
 code for the clauses and the \switchONconstant instruction is the
 entry point of predicate. Note that compared with vanilla WAM this
 instruction has an extra argument: the register on the value of which
-we will index ($r_1$). The extra argument will allow us to go beyond
+we will index ($r_1$). This extra argument will allow us to go beyond
 first argument indexing. Another departure from the WAM is that if
 this argument register contains an unbound variable instead of a
 constant then execution will continue with the next instruction; in
@@ -916,261 +929,309 @@ convenient abbreviation.
 
 \section{Performance Evaluation} \label{sec:perf}
 %================================================
-Next, we evaluate \JITI on a set of benchmarks and on real life
-applications. For the benchmarks of Sect.~\ref{sec:perf:overhead}
-and~\ref{sec:perf:speedups}, which involve both systems, we used a 2.4
-GHz P4-based laptop with 512~MB of memory running Linux and report
-times in milliseconds. For the benchmarks of Sect.~\ref{sec:perf:ILP},
-which involve YAP only, we used a 8-node cluster, where each node is a
-dual-core AMD 2600+ machine with 2GB of memory
-%
-%VITOR PLEASE ADD
-%
-and report times in seconds.
+We evaluate \JITI on a set of benchmarks and on applications.
+Throughout, we compare performance of JITI with first argument
+indexing. For the benchmarks of Sect.~\ref{sec:perf:ineffective}
+and~\ref{sec:perf:effective} which involve both systems, we used a
+2.4~GHz P4-based laptop with 512~MB of memory running Linux.
+% and report times in milliseconds.
+For the benchmarks of Sect.~\ref{sec:perf:ILP} which involve
+YAP~5.1.2 only, we used a 8-node cluster, where each node is a
+dual-core AMD~2600+ machine with 2GB of memory.
+% and report times in seconds.
 
-\subsection{JITI Overhead} \label{sec:perf:overhead}
-%---------------------------------------------------
-   6.2 JITI overhead (show the "bad" cases first)
-       present Prolog/tabled benchmarks that do NOT benefit from JITI
-       and measure the time overhead -- hopefully this is low
+\subsection{Performance of \JITI when ineffective} \label{sec:perf:ineffective}
+%------------------------------------------------------------------------------
+In some programs, \JITI does not trigger\footnote{In XXX only; as
+mentioned in Sect.~\ref{sec:impl} even 1st argument indexing is
+generated on demand when JITI is used in YAP.} or might trigger but
+have no effect other than an overhead due to runtime index
+construction. We therefore wanted to measure this overhead.
+%
+As both systems support tabling, we decided to use tabling benchmarks
+because they are relatively small and easy to understand, and because
+they are a worst case for JITI in the following sense: tabling avoids
+generating repetitive queries and the benchmarks operate over EDB
+predicates of size approximately equal the size of the program.
+We used \compress, a tabled program that solves a puzzle from an ICLP
+Prolog programming competition. The other benchmarks are different
+variants of tabled left, right and doubly recursive transitive closure
+over an EDB predicate forming a chain of size shown in
+Table~\ref{tab:ineffective} in parentheses. For each variant of
+transitive closure, we issue two queries: one with mode
+\code{(in,out)} and one with mode \code{(out,out)}.
+%
+For YAP, indices on the first argument are built on all benchmarks
+under JITI.\TODO{Vitor please verify this sentence}
+%
+For XXX, \JITI triggers on no benchmark but the \jitiONconstant
+instructions are executed for the three \bench{tc\_?\_oo} benchmarks.
+%
+As can be seen in Table~\ref{tab:ineffective}, \JITI, even when
+ineffective, incurs a runtime overhead that is at the level of noise
+and goes mostly unnoticed.
+%
+We also note that our aim here is \emph{not} to compare the two
+systems, so the reader should read the \textbf{YAP} and \textbf{XXX}
+columns separately.
+%------------------------------------------------------------------------------
+\begin{table}[t]
+  \centering
+  \setlength{\tabcolsep}{3pt}
+  \caption{Performance of some benchmarks with 1st vs. \JITI (times in msecs)}
+  \subfigure[When JITI is ineffective]{
+    \label{tab:ineffective}
+    \begin{tabular}[b]{|l||r|r||r|r|} \hline
+      & \multicolumn{2}{|c||}{\bf YAP} & \multicolumn{2}{|c|}{\bf XXX} \\
+      \cline{2-5}
+      Benchmark     &   1st  &  JITI         &   1st  &  JITI          \\
+      \hline
+      \tcLio (8000) &     13 &    14         &      4 &     4          \\
+      \tcRio (2000) &   1445 &  1469         &    614 &   615          \\
+      \tcDio ( 400) &   3208 &  3260         &   2338 &  2300          \\
+      \tcLoo (2000) &   3935 &  3987         &   2026 &  2105          \\
+      \tcRoo (2000) &   2841 &  2952         &   1502 &  1512          \\
+      \tcDoo ( 400) &   3735 &  3805         &   4976 &  4978          \\
+      \compress     &   3614 &  3595         &   2875 &  2848          \\
+      \hline
+    \end{tabular}
+  }
+  \subfigure[When \JITI is effective]{
+    \label{tab:effective}
+    \begin{tabular}[b]{|l||r|r|r||r|r|r|} \hline
+      & \multicolumn{3}{|c||}{\bf YAP} & \multicolumn{3}{|c|}{\bf XXX} \\
+      \cline{2-7}
+      Benchmark     &   1st  &  JITI &{\bf ratio}&  1st  &  JITI &{\bf ratio}\\
+      \hline
+      \sgCyl        &   2864 &    24 &$119\times$&  2390 &    28 &$85\times$\\
+      \muta         & 30,057 &16,782 &$179\%$    &26,314 &21,574 &$122\%$   \\
+      \pta          &   5131 &   188 & $27\times$&  4442 &   279 &$16\times$\\
+      \tea        &1,478,813 &54,616 & $27\times$&   --- &   --- &    ---   \\
+      \hline
+    \end{tabular}
+  }
+\end{table}
+%------------------------------------------------------------------------------
 
-\subsection{JITI Speedups} \label{sec:perf:speedups}
-%---------------------------------------------------
+\subsection{Performance of \JITI when effective} \label{sec:perf:effective}
+%--------------------------------------------------------------------------
+On the other hand, when \JITI is effective, it can significantly
+improve time performance. We use the following programs:\TODO{If time
+permits, we should also add FSA benchmarks (\bench{k963}, \bench{dg5}
+and \bench{tl3})}
+\begin{description}
+\item[\sgCyl] The same generation DB benchmark on a $24 \times 24
+  \times 2$ cylinder. We issue the open query.
+\item[\muta] A computationally intensive application where most
+  predicates are defined intentionally.
+\item[\pta] A tabled logic program implementing Andersen's points-to
+  analysis~\cite{anderson-phd}. A medium-sized imperative program is
+  encoded as a set of facts (about 16,000) and properties of interest
+  are encoded using rules. Program properties can then be determined
+  by checking the closure of these rules.
+\item[\tea] Another analyzer using tabling to implement Andersen's
+  points-to analysis. The analyzed program, the \texttt{javac} SPEC
+  benchmark, is encoded in a file of 411,696 facts (62,759,581 bytes
+  in total). As its compilation exceeds the limits of the XXX compiler
+  (w/o JITI), we run this benchmark only in YAP.
+\end{description}
+
+As can be seen in Table~\ref{tab:effective}, \JITI significantly
+improves the performance of these applications. In \muta, which spends
+most of its time in recursive predicates, the speed up is~$79\%$ in
+YAP and~$22\%$ in XXX. The remaining benchmarks execute several times
+(from~$16$ up to~$119$) faster. It is important to realize that
+\emph{these speedups are obtained automatically}, i.e., without any
+programmer intervention or by using any compiler directives, in all
+these applications.
+
+We analyze the \sgCyl program which has the biggest speedup in both
+systems and is the only one whose code is small enough to be shown.
+With the open call to \texttt{same\_generation/2}, most work in this
+benchmark consists of calling \texttt{cyl/2} facts in three different
+modes: with both arguments unbound, with the first argument bound, or
+with only the second argument bound. Demand-driven indexing improves
+performance in the last case only, but this makes a big difference in
+this benchmark.
+
+\begin{small}
+  \begin{verbatim}
+    same_generation(X,X) :- cyl(X,_).
+    same_generation(X,X) :- cyl(_,X).
+    same_generation(X,Y) :- cyl(X,Z), same_generation(Z,W), cyl(Y,W).
+  \end{verbatim}
+\end{small}
+
 % Our experience with the indexing algorithm described here shows a
 % significant performance improvement over the previous indexing code in
 % our system. Quite often, this has allowed us to tackle applications
 % which previously would not have been feasible. We next present some
 % results that show how useful the algorithms can be.
 
-       Here I already have "compress", "mutagenesis" and "sg\_cyl"
-       The "sg\_cyl" has a really impressive speedup (2 orders of
-       magnitude).  We should keep the explanation in your text.
-       Then we should add "pta" and "tea" from your PLDI paper.
-       If time permits, we should also add some FSA benchmarks
-       (e.g. "k963", "dg5" and "tl3" from PLDI)
+\subsection{Performance of \JITI on ILP applications} \label{sec:perf:ILP}
+%-------------------------------------------------------------------------
+The need for \JITI was originally motivated by ILP applications.
+Table~\ref{tab:ilp:time} shows JITI performance on some learning tasks
+using the ALEPH system~\cite{ALEPH}. The dataset \bench{Krki} tries to
+learn rules from a small database of chess end-games;
+\bench{GeneExpression} learns rules for yeast gene activity given a
+database of genes, their interactions, and micro-array gene expression
+data; \bench{BreastCancer} processes real-life patient reports towards
+predicting whether an abnormality may be malignant;
+\bench{IE-Protein\_Extraction} processes information extraction from
+paper abstracts to search proteins; \bench{Susi} learns from shopping
+patterns; and \bench{Mesh} learns rules for finite-methods mesh
+design. The datasets \bench{Carcinogenesis}, \bench{Choline},
+\bench{Mutagenesis}, \bench{Pyrimidines}, and \bench{Thermolysin} are
+about predicting chemical properties of compounds. The first three
+datasets store properties of interest as tables, but
+\bench{Thermolysin} learns from the 3D-structure of a molecule's
+conformations. Several of these datasets are standard across Machine
+Learning literature. \bench{GeneExpression}~\cite{} and
+\bench{BreastCancer}~\cite{} were partly developed by some of the
+paper's authors. Most datasets perform simple queries in an
+extensional database. The exception is \bench{Mutagenesis} where
+several predicates are defined intensionally, requiring extensive
+computation.
 
-Next, we present performance results for demand-driven indexing on a
-number of benchmarks and real-life applications. Throughout, we
-compare performance with single argument indexing. We use YAP-5.1.2
-and XXX in our comparisons.
-
-As a base reference, our first dataset is a set of well known small
-tabling benchmarks from the XSB Prolog benchmark collection. We chose
-these datasets first because they are relatively small and easy to
-understand. The benchmarks are: \texttt{cylinder}, computes which
-nodes in a cylinder are ..., the well-known \texttt{fibonacci}
-function, \texttt{first} that computes the first $k$ terminal symbols
-in a grammar, a version of the \texttt{knap-sack} problem, and path
-reachability benchmarks in two \texttt{cycle} graphs: a \texttt{chain}
-graph, and a \texttt{tree} graph. The \texttt{path} benchmarks use a
-right-recursive with base clause first (\texttt{LRB)} definition of
-\texttt{path/3}. The YAP results were obtained on an AMD-64 4600+
-machine running Ubuntu 6.10.
-
+%------------------------------------------------------------------------------
 \begin{table}[ht]
-%\vspace{-\intextsep}
-%\begin{table}[htbp] 
-%\centering
   \centering
-  \begin {tabular}{|l|r|r||r|r|} \hline %\cline{1-3}
-    &  \multicolumn{2}{|c|}{\bf YAP}  & \multicolumn{2}{||c|}{\bf XXX} \\
-    {\bf Benchs.}  & JITI & \bf WAM   & \bf JITI  &  \bf WAM  \\
+  \caption{Machine Learning (ILP) Datasets: Times are given in Seconds,
+    we give time for standard indexing with no indexing on dynamic
+    predicates versus the \JITI implementation}
+  \label{tab:ilp:time}
+  \setlength{\tabcolsep}{3pt}
+  \begin {tabular}{|l||r|r|r|} \hline %\cline{1-3}
+                                   & \multicolumn{3}{|c|}{Time (in secs)} \\
+    \cline{2-4}
+    Benchmark                      &    1st    &   JITI  &{\bf ratio} \\
     \hline
-    \texttt{cyl}      & 3    & 48 &  &\\
-    \texttt{9queens}      & 67    & 74 &  &\\
-    \texttt{cubes}    & 24    & 24  & &\\
-    \texttt{fib\_atoms}    & 8    & 8  & &\\
-    \texttt{fib\_list}     13      & 12    &  & &  \\
-    \texttt{first}    & 5     & 6    &    & \\
-    \texttt{ks2} &  49      & 44    & &    \\
-    \hline 
-    \texttt{cycle}              & 26        & 28      & &      \\
-    \texttt{tree}              & 25        & 31      & &      \\
+    \bench{BreastCancer}           &      1450 &      88 &  16    \\
+    \bench{Carcinogenesis}         &    17,705 &     192 &  92    \\
+    \bench{Choline}                &    14,766 &   1,397 &  11    \\
+    \bench{GeneExpression}         &   193,283 &   7,483 &  26    \\
+    \bench{IE-Protein\_Extraction} & 1,677,146 &   2,909 & 577    \\
+    \bench{Krki}                   &       0.3 &     0.3 &   1    \\
+    \bench{Krki II}                &       1.3 &     1.3 &   1    \\
+    \bench{Mesh}                   &         4 &       3 &   1.3  \\
+    \bench{Mutagenesis}            &    51,775 &  27,746 &   1.9  \\
+    \bench{Pyrimidines}            &   487,545 & 253,235 &   1.9  \\
+    \bench{Susi}                   &   105,091 &     307 & 342    \\
+    \bench{Thermolysin}            &    50,279 &   5,213 &  10    \\
     \hline
 \end{tabular}
-\caption{Tabling Benchmarks: Time is measured in msecs in all cases.}
-\label{tab:aleph}
 \end{table}
-
-Notice that these are very fast benchmarks: we ran the results 10
-times and present the average. We then used a standard unpaired t-test
-to verify whether the results are significantly different. Our results
-do not show significant variations between JITI and WAM indexing on
-\texttt{fibonacci}, \texttt{first} and \texttt{ks2} benchmarks. Both
-\texttt{fibonaccis} are small core recursive programs, most effort is
-spent in constructing lists or manipulating atoms. The \texttt{first}
-and \texttt{ks2} manipulate small amounts of data that is well indexed
-through the first argument.
-
-The JITI brings a significant benefit in the \texttt{cyl} dataset.Most
-work in the dataset consists of calling \texttt{cyl/2} facts.
-Inspecting the program shows three different call modes for
-\texttt{cyl/2}: both arguments are unbound; the first argument is
-bound; or the \emph{only the second argument is bound}. The JITI
-improves performance in the latter case only, but this does make a
-large difference, as the WAM code has to visit all thousand clauses if
-the second argument is unbound.
-
-\subsection{JITI in ILP} \label{sec:perf:ILP}
-%--------------------------------------------
-The need for just-in-time indexing was originally motivated by ILP
-applications.  Table~\ref{tab:aleph} shows JITI performance on some
-learning tasks using the ALEPH system~\cite{}. The dataset
-\texttt{Krki} tries to learn rules from a small database of chess
-end-games; \texttt{GeneExpression} learns rules for yeast gene
-activity given a database of genes, their interactions, and
-micro-array gene expression data; \texttt{BreastCancer} processes
-real-life patient reports towards predicting whether an abnormality
-may be malignant; \texttt{IE-Protein\_Extraction} processes
-information extraction from paper abstracts to search proteins;
-\texttt{Susi} learns from shopping patterns; and \texttt{Mesh} learns
-rules for finite-methods mesh design. The datasets
-\texttt{Carcinogenesis}, \texttt{Choline}, \texttt{Mutagenesis},
-\texttt{Pyrimidines}, and \texttt{Thermolysin} are about predicting
-chemical properties of compounds. The first three datasets store
-properties of interest as tables, but \texttt{Thermolysin} learns from
-the 3D-structure of a molecule's conformations.  Several of these
-datasets are standard across Machine Learning literature.
-\texttt{GeneExpression}~\cite{} and \texttt{BreastCancer}~\cite{} were
-partly developed by some of the authors.  Most datasets perform simple
-queries in an extensional database. The exception is
-\texttt{Mutagenesis} where several predicates are defined
-intensionally, requiring extensive computation.
-
-
-\begin{table}[ht]
-%\vspace{-\intextsep}
-%\begin{table}[htbp] 
-%\centering
-  \centering
-  \begin {tabular}{|l|r|r|r|r|} \hline %\cline{1-3}                             
-    &  \multicolumn{2}{|c|}{\bf Time in sec.}  & \bf \JITI \\
-    {\bf Benchs.}  & \bf $A1$   & \bf JITI & \bf Ratio \\
-    \hline
-    \texttt{BreastCancer}      & 1450    & 88 & 16\\
-    \texttt{Carcinogenesis}    & 17,705    & 192  &92\\
-    \texttt{Choline}           & 14,766    & 1,397  & 11  \\
-    \texttt{GeneExpression}    & 193,283     & 7,483    & 26    \\
-    \texttt{IE-Protein\_Extraction} &  1,677,146      & 2,909    & 577    \\
-    \texttt{Krki}              & 0.3        & 0.3      & 1      \\
-    \texttt{Krki II}           & 1.3     & 1.3     & 1     \\
-    \texttt{Mesh}              & 4    & 3  & 1.3  \\
-    \texttt{Mutagenesis}       & 51,775  & 27,746 & 1.9\\
-    \texttt{Pyrimidines}       & 487,545     & 253,235  & 1.9    \\
-    \texttt{Susi}              & 105,091    & 307    & 342  \\
-    \texttt{Thermolysin}       & 50,279      &  5,213     & 10      \\
-    \hline
-\end{tabular}
-\caption{Machine Learning (ILP) Datasets: Times are given in Seconds,
-  we give time for standard indexing with no indexing on dynamic
-  predicates versus the \JITI implementation}
-\label{tab:aleph}
-\end{table}
+%------------------------------------------------------------------------------
 
 We compare times for 10 runs of the saturation/refinement cycle of the
-ILP system.  Table~\ref{tab:aleph} shows results. The \texttt{Krki}
-datasets have small search spaces and small databases, so they
-essentially achieve the same performance under both versions: there is
-no slowdown. The \texttt{Mesh}, \texttt{Mutagenesis}, and
-\texttt{Pyrimides} applications do not benefit much from indexing in
+ILP system. Table~\ref{tab:ilp:time} shows time results. The
+\bench{Krki} datasets have small search spaces and small databases, so
+they essentially achieve the same performance under both versions:
+there is no slowdown. The \bench{Mesh}, \bench{Mutagenesis}, and
+\bench{Pyrimides} applications do not benefit much from indexing in
 the database, but they do benefit from indexing in the dynamic
 representation of the search space, as their running times halve.
 
-The \texttt{BreastCancer} and \texttt{GeneExpression} applications use
+The \bench{BreastCancer} and \bench{GeneExpression} applications use
 1NF data (that is, unstructured data). The benefit here is mostly from
-multiple-argument indexing.  \texttt{BreastCancer} is particularly
+multiple-argument indexing.  \bench{BreastCancer} is particularly
 interesting. It consists of 40 binary relations with 65k elements
 each, where the first argument is the key, like in
-\texttt{sg\_cyl}. We know that most calls have the first argument
+\bench{sg\_cyl}. We know that most calls have the first argument
 bound, hence indexing was not expected to matter very much. Instead,
 the results show \JITI running time to improve by an order of
-magnitude. Like in \texttt{sg\_cyl}, this suggests that even a small
+magnitude. Like in \bench{sg\_cyl}, this suggests that even a small
 percentage of badly indexed calls can come to dominate running time.
 
-\texttt{IE-Protein\_Extraction} and \texttt{Thermolysin} are example
+\bench{IE-Protein\_Extraction} and \bench{Thermolysin} are example
 applications that manipulate structured data.
-\texttt{IE-Protein\_Extraction} is the largest dataset we consider,
+\bench{IE-Protein\_Extraction} is the largest dataset we consider,
 and indexing is simply critical: it is not possible to run the
 application in reasonable time with one argument
-indexing. \texttt{Thermolysin} is smaller and performs some
+indexing. \bench{Thermolysin} is smaller and performs some
 computation per query: even so, indexing improves performance by an
 order of magnitude.
 
 \begin{table*}[ht]
   \centering
+  \caption{Memory Performance on Machine Learning (ILP) Datasets: memory
+    usage is given in KB}
+  \label{tab:ilp:memory}
+  \setlength{\tabcolsep}{3pt}
   \begin {tabular}{|l|r|r||r|r|} \hline %\cline{1-3}
     &  \multicolumn{2}{|c||}{\bf Static Code}  & \multicolumn{2}{|c|}{\bf Dynamic Code} \\
-Benchmarks    &  \textbf{Clause} & {\bf Index}  & \textbf{Clause} & {\bf Index} \\
+    Benchmark   &  \textbf{Clause} & {\bf Index}  & \textbf{Clause} & {\bf Index} \\
 %    \textbf{Benchmarks} &   & Total & T & W & S &  & Total & T & C & W & S  \\
     \hline
-    \texttt{BreastCancer}
+    \bench{BreastCancer}
     & 60940 & 46887 
     % & 46242 & 3126  & 125
     & 630  & 14
     % &42 & 18& 57 &6
     \\
 
-    \texttt{Carcinogenesis} 
+    \bench{Carcinogenesis} 
     & 1801 & 2678
     % &1225 & 587 & 865
     & 13512 & 942
     %& 291 & 91 & 457 & 102
     \\
 
-    \texttt{Choline}  & 666 & 174
+    \bench{Choline}  & 666 & 174
     % &67 & 48 & 58
     & 3172 & 174
     % & 76 & 4 & 48 & 45
  \\
-    \texttt{GeneExpression}    &  46726 & 22629
+    \bench{GeneExpression}    &  46726 & 22629
     % &6780 & 6473 & 9375
     & 116463 & 9015
     %& 2703 & 932 & 3910 & 1469
  \\
 
-    \texttt{IE-Protein\_Extraction}    &146033 & 129333
+    \bench{IE-Protein\_Extraction}    &146033 & 129333
     %&39279 & 24322 & 65732
     & 53423 & 1531
     %& 467 & 108 & 868 & 86
  \\
 
-    \texttt{Krki}              & 678 & 117
+    \bench{Krki}              & 678 & 117
     %&52 & 24 & 40
     & 2047 & 24
     %& 10 & 2 & 10 & 1
  \\
 
-    \texttt{Krki II}           & 1866 & 715
+    \bench{Krki II}           & 1866 & 715
     %&180 & 233    & 301
     & 2055 & 26
     %& 11 & 2 & 11 & 1
  \\
 
-    \texttt{Mesh}              & 802 & 161
+    \bench{Mesh}              & 802 & 161
     %&49 & 18 & 93
     & 2149 & 109
     %& 46 & 4 & 35 & 22
  \\
 
-    \texttt{Mutagenesis}       & 1412 & 1848
+    \bench{Mutagenesis}       & 1412 & 1848
     %&1045 & 291 & 510
     & 4302 & 595
     %& 156 & 114 & 264 & 61
  \\
 
-    \texttt{Pyrimidines}       & 774 & 218
+    \bench{Pyrimidines}       & 774 & 218
     %&76 & 63 & 77
     & 25840 & 12291
     %& 4847 & 43 & 3510 & 3888
  \\
 
-    \texttt{Susi}              & 5007 & 2509
+    \bench{Susi}              & 5007 & 2509
     %&855 & 578 & 1076
     & 4497 & 759
     %& 324 & 58 & 256 & 120
  \\
 
-    \texttt{Thermolysin}       & 2317 & 929
+    \bench{Thermolysin}       & 2317 & 929
     %&429 & 184 & 315
     & 116129 & 7064
     %& 3295 & 1438 & 2160 & 170
@@ -1178,36 +1239,34 @@ Benchmarks    &  \textbf{Clause} & {\bf Index}  & \textbf{Clause} & {\bf Index} 
 
     \hline
 \end{tabular}
-\caption{Memory Performance on Machine Learning (ILP) Datasets: memory
-  usage is given in KB}
-\label{tab:ilpmem}
 \end{table*}
 
 
-Table~\ref{tab:ilpmem} discusses the memory cost paid in using
-\JITI. The table presents data obtained at a point near the end of
-execution.  Because dynamic memory expands and contracts, we chose a
-point where memory usage should be at a maximum. The first two numbers
-show data usage on \emph{static} predicates. Static data-base sizes
-range from 146MB (\texttt{IE-Protein\_Extraction} to less than a MB
-(\texttt{Choline}, \texttt{Krki}, \texttt{Mesh}). Indexing code can be
-more than the original code, as in \texttt{Mutagenesis}, or almost as
-much, eg, \texttt{IE-Protein\_Extraction}. In most cases the YAP \JITI
+Table~\ref{tab:ilp:memory} shows the memory cost paid for \JITI. The
+table presents data obtained at a point near the end of execution.
+Because dynamic memory expands and contracts, we chose a point where
+memory usage should be at a maximum. The first two numbers show data
+usage on \emph{static} predicates. Static data-base sizes range from
+146MB (\bench{IE-Protein\_Extraction} to less than a MB
+(\bench{Choline}, \bench{Krki}, \bench{Mesh}). Indexing code can be
+more than the original code, as in \bench{Mutagenesis}, or almost as
+much, eg, \bench{IE-Protein\_Extraction}. In most cases the YAP \JITI
 adds at least a third and often a half to the original data-base. A
 more detailed analysis shows the source of overhead to be very
-different from dataset to dataset. In \texttt{IE-Protein\_Extraction}
+different from dataset to dataset. In \bench{IE-Protein\_Extraction}
 the problem is that hash tables are very large. Hash tables are also
-where most space is spent in \texttt{Susi}. In \texttt{BreastCancer}
+where most space is spent in \bench{Susi}. In \bench{BreastCancer}
 hash tables are actually small, so most space is spent in
-\TryRetryTrust chains. \texttt{Mutagenesis} is similar: even though
-YAP spends a large effort in indexing it still generates long
+\TryRetryTrust chains. \bench{Mutagenesis} is similar: even though YAP
+spends a large effort in indexing it still generates long
 \TryRetryTrust chains. Storing sets of matching clauses at \jitiSTAR
-nodes takes usually over 10\% of total memory usage, but is never dominant.
+nodes takes usually over 10\% of total memory usage, but is never
+dominant.
 
 This version of ALEPH uses the internal data-base to store the IDB.
 The size of reflects the search space, and is to some extent
 independent of the program's static data, although small applications
-such as \texttt{Krki} do tend to have a small search space. ALEPH's
+such as \bench{Krki} do tend to have a small search space. ALEPH's
 author very carefully designed the system to work around overheads in
 accessing the data-base, so indexing should not be as critical. The
 low overheads suggest that the \JITI is working well, as confirmed in
