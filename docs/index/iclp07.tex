@@ -1122,29 +1122,27 @@ difference in this benchmark.
 \subsection{Performance of \JITI on ILP applications} \label{sec:perf:ILP}
 %-------------------------------------------------------------------------
 The need for \JITI was originally noticed in inductive logic
-programming applications.
-Table~\ref{tab:ilp:time} shows JITI performance on some learning tasks
-using the ALEPH system~\cite{ALEPH}. The dataset \Krki tries to
-learn rules from a small database of chess end-games;
-\GeneExpression learns rules for yeast gene activity given a
-database of genes, their interactions, and micro-array gene expression
-data; \BreastCancer processes real-life patient reports towards
-predicting whether an abnormality may be malignant;
-\IEProtein processes information extraction from
-paper abstracts to search proteins; \Susi learns from shopping
-patterns; and \Mesh learns rules for finite-methods mesh
-design. The datasets \Carcinogenesis, \Choline,
-\Mutagenesis, \Pyrimidines, and \Thermolysin try to
-predict chemical properties of compounds. The first three
-datasets store properties of interest as tables, but
+programming applications.  Table~\ref{tab:ilp:time} shows JITI
+performance on some learning tasks using the ALEPH
+system~\cite{ALEPH}. The dataset \Krki tries to learn rules from a
+small database of chess end-games; \GeneExpression learns rules for
+yeast gene activity given a database of genes, their interactions, and
+micro-array gene expression data; \BreastCancer processes real-life
+patient reports towards predicting whether an abnormality may be
+malignant; \IEProtein processes information extraction from paper
+abstracts to search proteins; \Susi learns from shopping patterns; and
+\Mesh learns rules for finite-methods mesh design. The datasets
+\Carcinogenesis, \Choline, \Mutagenesis, \Pyrimidines, and
+\Thermolysin try to predict chemical properties of compounds. The
+first three datasets store properties of interest as tables, but
 \Thermolysin learns from the 3D-structure of a molecule's
-conformations. Several of these datasets are standard across the Machine
-Learning literature. \GeneExpression~\cite{} and
-\BreastCancer~\cite{} were partly developed by some of the
-paper's authors. Most datasets perform simple queries in an
-extensional database. The exception is \Mutagenesis where
-several predicates are defined intensionally, requiring extensive
-computation.
+conformations. Several of these datasets are standard across the
+Machine Learning literature. \GeneExpression~\cite{ilp-regulatory06}
+and \BreastCancer~\cite{DBLP:conf/ijcai/DavisBDPRCS05} were partly
+developed by some of the paper's authors. Most datasets perform simple
+queries in an extensional database. The exception is \Mutagenesis
+where several predicates are defined intensionally, requiring
+extensive computation.
 
 %------------------------------------------------------------------------------
 \begin{table}[t]
