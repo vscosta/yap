@@ -12,21 +12,22 @@ else
 	     compress.P sg_cyl.P pta.P mutagenesis.P"
 fi
 
-echo "========================================"
-echo "        XXX            JITI    1st      " 
-echo "========================================"
+printf "========================================\n"
+printf "        XXX            1st    JITI      \n" 
+printf "========================================\n"
 for file in $testfiles ; do
   benchname=`basename $file .P`
   printf "%21s  " $benchname
-  $XXX << EOF 2>/dev/null
-    ['$file'].
-    time.
-EOF
-printf " \t"
   $XXX << EOF 2>/dev/null
     compile('$file',[jiti_off]).
     ['$file'].
     time.
 EOF
-echo
+rm *.O
+printf " \t"
+  $XXX << EOF 2>/dev/null
+    ['$file'].
+    time.
+EOF
+printf "\n"
 done

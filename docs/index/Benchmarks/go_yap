@@ -10,23 +10,23 @@ else
 	     compress.P sg_cyl.P pta.P mutagenesis.P"
 fi
 
-echo "========================================"
-echo "       Yap             JITI    1st      "
-echo "========================================"
+printf "========================================\n"
+printf "       Yap             1st    JITI      \n"
+printf "========================================\n"
 for file in $testfiles ; do
   benchname=`basename $file .P`
   printf "%21s  " $benchname
-  $XXX << EOF 2>/dev/null
-    yap_flag(tabling_mode,local).
-    ['$file'].
-    time.
-EOF
-printf " \t"
   $XXX << EOF 2>/dev/null
     set_prolog_flag(index,single).
     yap_flag(tabling_mode,local).
     ['$file'].
     time.
 EOF
-echo
+printf " \t"
+  $XXX << EOF 2>/dev/null
+    yap_flag(tabling_mode,local).
+    ['$file'].
+    time.
+EOF
+printf "\n"
 done
