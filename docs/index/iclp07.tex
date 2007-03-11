@@ -877,11 +877,48 @@ complications:
 \item Supporting the so-called logical update (LU) semantics of the
   ISO Prolog standard becomes harder.
 \end{itemize}
-We will briefly discuss possible ways of handling these complications.
+We will briefly discuss possible ways of addressing these issues.
 However, we note that Prolog systems typically provide indexing for
 dynamic predicates and thus already deal in some way or another with
-these issues. It's just that \JITI makes these problems harder.
+these issues; \JITI makes the problems more involved but not
+fundamentally different than those with only first argument indexing.
 
+The first complication suggests that we should allocate memory for
+dynamic indices in separate chunks, so that these can be expanded and
+deallocated independently. Indeed, this is what we do.
+%
+Regarding the second complication, in the absence of any other
+information, the only alternative is to generate indices for all
+arguments. As optimizations, we can avoid indexing for predicates with
+only one clause (these are often used to simulate global variables)
+and we can exclude arguments where some clause has a variable.
+
+Under logical update semantics calls to a dynamic goal execute in a
+``snapshot'' of the corresponding predicate. In other words, each call
+sees the clauses that existed at the time the call was made, even if
+some of the clauses were later deleted or new clauses were asserted.
+If several calls are alive in the stack, several snapshots will be
+alive at the same time. The standard solution to this problem is to
+use time stamps to tell which clauses are \emph{live} for which calls.
+%
+This solution complicates freeing index tables because (1) an index
+table holds references to clauses, and (2) the table may be in use,
+that is, it may be accesible from the execution stacks. A table thus
+is killed in several steps:
+\begin{enumerate}
+\item Detach the index table from the indexing tree.
+\item Recursively \emph{kill} every child of the current table:
+  if the current table is killed, so will be its children.
+\item Wait until the table is not in use, that is, it is not pointed
+  to by someone.
+\item Walk the table and release any references it may hold.
+\item Physically recover space.
+\end{enumerate}
+%% It is interesting to observe that at the end of an \emph{itemset-node}
+%% the emulator can remove references to the current index, hence freeing
+%% the code it is currently executing. This happens on the last member of
+%% the \emph{itemset-node}, so the emulator reads all the instruction's
+%% arguments before executing the instruction.
 
 \section{Implementation in XXX and in YAP} \label{sec:impl}
 %==========================================================
@@ -1127,7 +1164,7 @@ computation.
 We compare times for 10 runs of the saturation/refinement cycle of the
 ILP system. Table~\ref{tab:ilp:time} shows time results. The
 \bench{Krki} datasets have small search spaces and small databases, so
-they essentially achieve the same performance under both versions:
+they achieve the same performance under both versions:
 there is no slowdown. The \bench{Mesh}, \bench{Mutagenesis}, and
 \bench{Pyrimides} applications do not benefit much from indexing in
 the database, but they do benefit from indexing in the dynamic
