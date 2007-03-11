@@ -1219,45 +1219,29 @@ time to improve by an order of magnitude. Like \sgCyl, this
 suggests that even a small percentage of badly indexed calls can end
 up dominating runtime.
 
-\IEProtein and \Thermolysin are example
-applications that manipulate structured data.
-\IEProtein is the largest dataset we consider,
-and indexing is absolutely critical: it is not possible to run the
-application in reasonable time with first argument
-indexing. \Thermolysin is smaller and performs some
-computation per query: even so, indexing improves performance by an
-order of magnitude.
+\IEProtein and \Thermolysin are example applications that manipulate
+structured data.  \IEProtein is the largest dataset we consider, and
+indexing is absolutely critical: it is simply not possible to run the
+application in reasonable time with first argument indexing.
+\Thermolysin is smaller and performs some computation per query, but
+even so, indexing improves performance by an order of magnitude.
 
 
-Table~\ref{tab:ilp:memory} shows the memory cost paid for \JITI. The
-table presents data obtained at a point near the end of execution.
-Because dynamic memory expands and contracts, we chose a point where
-memory usage should be at a maximum. The first two numbers show data
-usage on \emph{static} predicates. Static data-base sizes range from
-146MB (\bench{IE-Protein\_Extraction} to less than a MB
-(\bench{Choline} and \bench{Mesh}). Indexing code can grow
-to be as large as than the original code, as in \Carcino, or
-almost as much, e.g., \bench{IE-Protein\_Extraction}. In most cases
-the YAP \JITI adds at least a third and often a half to the original
-data-base. A more detailed analysis shows the source of overhead to be
-very different from dataset to dataset. In
-\bench{IE-Protein\_Extraction} the problem is that hash tables are
-very large. Hash tables are also where most space is spent in
-\bench{Susi}. In \BreastCancer hash tables are actually small, so most
-space is spent in \TryRetryTrust chains. Storing sets of matching
-clauses at \jitiSTAR nodes takes usually over 10\% of total memory
-usage, but is never dominant.
-
-This version of ALEPH uses the internal data-base to store the IDB.
-The size of reflects the search space, and is to some extent
-independent of the program's static data, although small applications
-such as \Mesh tend to have a small search space. ALEPH's
-author very carefully designed the system to work around overheads in
-accessing the database, so indexing should not be as critical. The
-low overheads suggest that \JITI is working well, as confirmed in
-a more detailed analysis: most space is spent on hash tables and on
-internal nodes of tree, and relatively little space is spent on
-\TryRetryTrust chains.
+Table~\ref{tab:ilp:memory} also shows memory usage with \JITI. The
+table presents data obtained at a point near the end of execution; we
+chose a point where memory usage should be at a maximum. The second
+and third columns show data usage on \emph{static} predicates.  The
+cost varies widely, from 10\% to the worst case, \Carcino, where the
+index tree takes more room than the original program. Hash-tables
+dominate usage in \IEProtein and \Susi, whereas \TryRetryTrust chains
+dominate in \BreastCancer. In most other cases no single component
+dominates memory usage.  Memory usage for dynamic data is shown in the
+last two columns; note that dynamic data is mostly used to store the
+search space.  One can observe that there is a much lower overhead in
+this case. A more detailed analysis shows that most space is spent on
+hash tables and on internal nodes of tree, and that relatively little
+space is spent on \TryRetryTrust chains, suggesting that \JITI is
+working well.
 
 
 \section{Concluding Remarks}
