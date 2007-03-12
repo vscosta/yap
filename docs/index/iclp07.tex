@@ -1278,15 +1278,16 @@ perform code optimizations during runtime and our feeling is that LP
 implementation has been left a bit behind times. We hold that this
 should change.
 %
-Indeed, we see \JITI as only the first, albeit a very important, step
+Indeed, we see \JITI as only the first, albeit very important, step
 towards effective runtime optimization of logic programs.
 
 As presented, \JITI is a hybrid technique: index generation occurs
 during runtime but is partly guided by the compiler, because we want
-to preserve compile-time WAM-style indexing. More flexible schemes are
-possible. For example, index generation can be fully dynamic (as in
-YAP), combined with user declarations, or use static analysis to be
-even more selective or go beyond fixed-order indexing.
+to combine it with compile-time WAM-style indexing. More flexible
+schemes are of course possible. For example, index generation can be
+fully dynamic (as in YAP), combined with user declarations, or use
+static analysis to be even more selective or go beyond fixed-order
+indexing.
 %
 Finally, note that \JITI fully respects Prolog semantics. Better
 performance can be achieved in the context of one solution
