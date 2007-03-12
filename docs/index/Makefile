@@ -6,7 +6,7 @@ $(FILE).dvi: force
 	./latexmk $(FILE)
 
 $(FILE).ps: $(FILE).dvi
-	dvips -t letterSize -P cmz -o $(FILE).ps $(FILE).dvi
+	dvips -t a4 -P cmz -o $(FILE).ps $(FILE).dvi
 
 $(FILE).pdf: $(FILE).ps
 	ps2pdf14 $(FILE).ps
