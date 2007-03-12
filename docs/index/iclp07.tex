@@ -1087,7 +1087,7 @@ applications:
       Benchmark     &   1st  &  JITI &{\bf ratio}&  1st  &  JITI &{\bf ratio}\\
       \hline
       \sgCyl        &  2,864 &    24 &$119\times$& 2,390 &    28 &$85\times$\\
-      \muta         & 30,057 &16,782 &$179\%$    &26,314 &21,574 &$122\%$   \\
+      \muta         & 30,057 &16,782 &$1.79\times$    &26,314 &21,574 &$1.22\times$   \\
       \pta          &  5,131 &   188 & $27\times$& 4,442 &   279 &$16\times$\\
       \tea        &1,478,813 &54,616 & $27\times$&   --- &   --- &    ---   \\
       \hline
@@ -1226,10 +1226,10 @@ from one to more than two orders of magnitude.
 %%  \item[\Krki] tries to learn rules from a small database of chess end-games;
   \item[\GeneExpr] learns rules for yeast gene activity given a
     database of genes, their interactions, and micro-array gene
-    expression data~\cite{Regulatory@ILP-06};
+    expression data; %~\cite{Regulatory@ILP-06};
   \item[\BreastCancer] processes real-life patient reports towards
     predicting whether an abnormality may be
-    malignant~\cite{DavisBDPRCS@IJCAI-05};
+    malignant% ;~\cite{DavisBDPRCS@IJCAI-05-short};
   \item[\IEProtein] processes information extraction from paper
     abstracts to search proteins;
   \item[\Susi] learns from shopping patterns;
@@ -1248,21 +1248,21 @@ from one to more than two orders of magnitude.
 
 \paragraph*{Space performance.}
 Table~\ref{tab:ilp:memory} shows memory usage when using \JITI. The
-table presents data obtained at a point near the end of execution; a
-point where memory usage should be at or close to the maximum. These
-applications use a mixture of static and dynamic predicates and we
-show their memory usage separately. On static predicates, memory usage
-varies widely, from only 10\% to the worst case, \Carcino, where the
-index tree takes more space than the original program. Hash tables
-dominate usage in \IEProtein and \Susi, whereas \TryRetryTrust chains
-dominate in \BreastCancer. In most other cases no single component
-dominates memory usage. Memory usage for dynamic data is shown in the
-last two columns; note that dynamic data is mostly used to store the
-search space. One can observe that there is a much lower overhead in
-this case. A more detailed analysis shows that most space is occupied
-by the hash tables and by internal nodes of the tree, and that
-relatively little space is occupied by \TryRetryTrust chains,
-suggesting that \JITI is behaving well in practice.
+table presents data obtained at a point near the end of execution;
+memory usage should be at or close to the maximum. These applications
+use a mixture of static and dynamic predicates and we show their
+memory usage separately. On static predicates, memory usage varies
+widely, from only 10\% to the worst case, \Carcino, where the index
+tree takes more space than the original program. Hash tables dominate
+usage in \IEProtein and \Susi, whereas \TryRetryTrust chains dominate
+in \BreastCancer. In most other cases no single component dominates
+memory usage. Memory usage for dynamic data is shown in the last two
+columns; note that dynamic data is mostly used to store the search
+space. One can observe that there is a much lower overhead in this
+case. A more detailed analysis shows that most space is occupied by
+the hash tables and by internal nodes of the tree, and that relatively
+little space is occupied by \TryRetryTrust chains, suggesting that
+\JITI is behaving well in practice.
 
 
 \section{Concluding Remarks}
@@ -1273,14 +1273,14 @@ access large datasets efficiently, we have described a novel but also
 simple idea: \emph{indexing Prolog clauses on demand during program
 execution}.
 %
-Given the impressive speedups this idea can provide for many
+Given the impressive speedups this idea can provide for many realistic
 applications, we are a bit surprised similar techniques have not been
 explored before. In general, Prolog systems have been reluctant to
 perform code optimizations during runtime and our feeling is that LP
-implementation has been left a bit behind times. We hold that this
+implementation has been left a bit behind. We hold that this
 should change.
 %
-Indeed, we see \JITI as only the first, albeit very important, step
+Indeed, we see the \JITI as only a first, very successful, step
 towards effective runtime optimization of logic programs.
 
 As presented, \JITI is a hybrid technique: index generation occurs
@@ -1291,11 +1291,14 @@ fully dynamic (as in YAP), combined with user declarations, or use
 static analysis to be even more selective or go beyond fixed-order
 indexing.
 %
-Finally, note that \JITI fully respects Prolog semantics. Better
+Last, we observe that the \JITI fully respects Prolog semantics. Better
 performance can be achieved in the context of one solution
 computations, or in the context of tabling where order of clauses and
-solutions does not matter and repeated solutions are discarded.
-
+solutions does not matter and repeated solutions are discarded. 
+%
+Finally, the good results obtained with \JITI have motivated recent
+work on taking advantage of Just-In-Time to better compile
+clauses~\cite{yapc}.
 
 %==============================================================================
 \bibliographystyle{splncs}
