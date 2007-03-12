@@ -1061,7 +1061,7 @@ applications:
 \begin{table}[t]
   \centering
   \caption{Performance of some benchmarks with 1st vs. \JITI (times in msecs)}
-  \setlength{\tabcolsep}{3pt}
+  \setlength{\tabcolsep}{2.5pt}
   \subfigure[When JITI is ineffective]{
     \label{tab:ineffective}
     \begin{tabular}[b]{|l||r|r||r|r|} \hline
@@ -1084,12 +1084,12 @@ applications:
     \begin{tabular}[b]{|l||r|r|r||r|r|r|} \hline
       & \multicolumn{3}{|c||}{\bf YAP} & \multicolumn{3}{|c|}{\bf XXX} \\
       \cline{2-7}
-      Benchmark     &   1st  &  JITI &{\bf ratio}&  1st  &  JITI &{\bf ratio}\\
+      Benchmark &   1st  &  JITI &{\bf ratio}&  1st  &  JITI &{\bf ratio}\\
       \hline
-      \sgCyl        &  2,864 &    24 &$119\times$& 2,390 &    28 &$85\times$\\
-      \muta         & 30,057 &16,782 &$1.79\times$    &26,314 &21,574 &$1.22\times$   \\
-      \pta          &  5,131 &   188 & $27\times$& 4,442 &   279 &$16\times$\\
-      \tea        &1,478,813 &54,616 & $27\times$&   --- &   --- &    ---   \\
+      \sgCyl    &    2,864 &    24 & $119\times$& 2,390 &    28 &  $85\times$\\
+      \muta     &   30,057 &16,782 &$1.79\times$&26,314 &21,574 &$1.22\times$\\
+      \pta      &    5,131 &   188 &  $27\times$& 4,442 &   279 &  $16\times$\\
+      \tea      &1,478,813 &54,616 &  $27\times$&   --- &   --- &      ---   \\
       \hline
     \end{tabular}
   }
@@ -1180,17 +1180,17 @@ from one to more than two orders of magnitude.
     \cline{2-4}
     Benchmark     &    1st    &   JITI  &{\bf ratio} \\
     \hline
-    \BreastCancer &     1,450 &      88 &  $16$ \\
-    \Carcino      &    17,705 &     192 &  $92$ \\
-    \Choline      &    14,766 &   1,397 &  $11$ \\
-    \GeneExpr     &   193,283 &   7,483 &  $26$ \\
-    \IEProtein    & 1,677,146 &   2,909 & $577$ \\
+    \BreastCancer &     1,450 &      88 &  $16\times$ \\
+    \Carcino      &    17,705 &     192 &  $92\times$ \\
+    \Choline      &    14,766 &   1,397 &  $11\times$ \\
+    \GeneExpr     &   193,283 &   7,483 &  $26\times$ \\
+    \IEProtein    & 1,677,146 &   2,909 & $577\times$ \\
 %%  \Krki         &       0.3 &     0.3 &   $1$ \\
 %%  \KrkiII       &       1.3 &     1.3 &   $1$ \\
-    \Mesh         &         4 &       3 & $1.3$ \\
-    \Pyrimidines  &   487,545 & 253,235 & $1.9$ \\
-    \Susi         &   105,091 &     307 & $342$ \\
-    \Thermolysin  &    50,279 &   5,213 &  $10$ \\
+    \Mesh         &         4 &       3 & $1.3\times$ \\
+    \Pyrimidines  &   487,545 & 253,235 & $1.9\times$ \\
+    \Susi         &   105,091 &     307 & $342\times$ \\
+    \Thermolysin  &    50,279 &   5,213 &  $10\times$ \\
     \hline
     \end{tabular}
   }
@@ -1229,7 +1229,7 @@ from one to more than two orders of magnitude.
     expression data; %~\cite{Regulatory@ILP-06};
   \item[\BreastCancer] processes real-life patient reports towards
     predicting whether an abnormality may be
-    malignant% ;~\cite{DavisBDPRCS@IJCAI-05-short};
+    malignant; %~\cite{DavisBDPRCS@IJCAI-05-short};
   \item[\IEProtein] processes information extraction from paper
     abstracts to search proteins;
   \item[\Susi] learns from shopping patterns;
@@ -1267,21 +1267,23 @@ little space is occupied by \TryRetryTrust chains, suggesting that
 
 \section{Concluding Remarks}
 %===========================
-Motivated by the needs of LP applications in the areas of inductive
+Motivated by the needs of applications in the areas of inductive
 logic programming, program analysis, deductive databases, etc.\ to
 access large datasets efficiently, we have described a novel but also
 simple idea: \emph{indexing Prolog clauses on demand during program
 execution}.
 %
-Given the impressive speedups this idea can provide for many realistic
+Given the impressive speedups this idea can provide for many LP
 applications, we are a bit surprised similar techniques have not been
 explored before. In general, Prolog systems have been reluctant to
 perform code optimizations during runtime and our feeling is that LP
 implementation has been left a bit behind. We hold that this
 should change.
 %
-Indeed, we see the \JITI as only a first, very successful, step
-towards effective runtime optimization of logic programs.
+Indeed, we see \JITI as only a first, very successful, step towards
+effective runtime optimization of logic programs.\footnote{The good
+results obtained with JITI have motivated recent work on 
+Just-In-Time compilation of Prolog~\cite{yapc}.}
 
 As presented, \JITI is a hybrid technique: index generation occurs
 during runtime but is partly guided by the compiler, because we want
@@ -1291,14 +1293,11 @@ fully dynamic (as in YAP), combined with user declarations, or use
 static analysis to be even more selective or go beyond fixed-order
 indexing.
 %
-Last, we observe that the \JITI fully respects Prolog semantics. Better
+Last, observe that \JITI fully respects Prolog semantics. Better
 performance can be achieved in the context of one solution
 computations, or in the context of tabling where order of clauses and
-solutions does not matter and repeated solutions are discarded. 
-%
-Finally, the good results obtained with \JITI have motivated recent
-work on taking advantage of Just-In-Time to better compile
-clauses~\cite{yapc}.
+solutions does not matter and repeated solutions are discarded.
+
 
 %==============================================================================
 \bibliographystyle{splncs}
