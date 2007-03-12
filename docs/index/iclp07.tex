@@ -3,6 +3,7 @@
 %------------------------------------------------------------------------------
 \usepackage{a4wide}
 \usepackage{float}
+\usepackage{alltt}
 \usepackage{xspace}
 \usepackage{epsfig}
 \usepackage{wrapfig}
@@ -977,10 +978,9 @@ YAP uses the term JITI (Just-In-Time Indexing) to refer to \JITI. In
 the next section we will take the liberty to use this term as a
 convenient abbreviation.
 
-
 \section{Performance Evaluation} \label{sec:perf}
 %================================================
-We evaluate \JITI on a set of benchmarks and logic programming applications.
+We evaluate \JITI on a set of benchmarks and LP applications.
 Throughout, we compare performance of JITI with first argument
 indexing. For the benchmarks of Sect.~\ref{sec:perf:ineffective}
 and~\ref{sec:perf:effective} which involve both systems, we used a
@@ -1002,15 +1002,15 @@ construction. We therefore wanted to measure this overhead.
 As both systems support tabling, we decided to use tabling benchmarks
 because they are small and easy to understand, and because they are a
 worst case for JITI in the following sense: tabling avoids generating
-repetitive queries and the benchmarks operate over EDB predicates of
-size approximately equal the size of the program. We used \compress, a
-tabled program that solves a puzzle from an ICLP Prolog programming
-competition. The other benchmarks are different variants of tabled
-left, right and doubly recursive transitive closure over an EDB
-predicate forming a chain of size shown in Table~\ref{tab:ineffective}
-in parentheses. For each variant of transitive closure, we issue two
-queries: one with mode \code{(in,out)} and one with mode
-\code{(out,out)}.
+repetitive queries and the benchmarks operate over extensional
+database (EDB) predicates of size approximately equal the size of the
+program. We used \compress, a tabled program that solves a puzzle from
+an ICLP Prolog programming competition. The other benchmarks are
+different variants of tabled left, right and doubly recursive
+transitive closure over an EDB predicate forming a chain of size shown
+in Table~\ref{tab:ineffective} in parentheses. For each variant of
+transitive closure, we issue two queries: one with mode
+\code{(in,out)} and one with mode \code{(out,out)}.
 %
 For YAP, indices on the first argument and \TryRetryTrust chains are
 built on all benchmarks under \JITI.
@@ -1023,13 +1023,43 @@ ineffective, incurs a runtime overhead that is at the level of noise
 and goes mostly unnoticed.
 %
 We also note that our aim here is \emph{not} to compare the two
-systems, so the reader should read the \textbf{YAP} and \textbf{XXX}
-columns separately.
+systems, so the \textbf{YAP} and \textbf{XXX} columns should be read
+separately.
+
+\vspace*{-0.5em}
+\subsection{Performance of \JITI when effective} \label{sec:perf:effective}
+%--------------------------------------------------------------------------
+On the other hand, when \JITI is effective, it can significantly
+improve runtime performance. We use the following programs and
+applications:
+%% \TODO{For the journal version we should also add FSA benchmarks
+%%       (\bench{k963}, \bench{dg5} and \bench{tl3})}
+%------------------------------------------------------------------------------
+\begin{small}
+\begin{description}
+\item[\sgCyl] The same generation DB benchmark on a $24 \times 24
+  \times 2$ cylinder. We issue the open query.
+\item[\muta] A computationally intensive application where most
+  predicates are defined intentionally.
+\item[\pta] A tabled logic program implementing Andersen's points-to
+  analysis~\cite{anderson-phd}. A medium-sized imperative program is
+  encoded as a set of facts (about 16,000) and properties of interest
+  are encoded using rules. Program properties can then be determined
+  by checking the closure of these rules.
+\item[\tea] Another analyzer using tabling to implement Andersen's
+  points-to analysis. The analyzed program, the \texttt{javac} SPEC
+  benchmark, is encoded in a file of 411,696 facts (62,759,581 bytes
+  in total). As its compilation exceeds the limits of the XXX compiler
+  (w/o JITI), we run this benchmark only in YAP.
+\end{description}
+\end{small}
+%------------------------------------------------------------------------------
+
 %------------------------------------------------------------------------------
 \begin{table}[t]
   \centering
-  \setlength{\tabcolsep}{3pt}
   \caption{Performance of some benchmarks with 1st vs. \JITI (times in msecs)}
+  \setlength{\tabcolsep}{3pt}
   \subfigure[When JITI is ineffective]{
     \label{tab:ineffective}
     \begin{tabular}[b]{|l||r|r||r|r|} \hline
@@ -1064,30 +1094,6 @@ columns separately.
 \end{table}
 %------------------------------------------------------------------------------
 
-\subsection{Performance of \JITI when effective} \label{sec:perf:effective}
-%--------------------------------------------------------------------------
-On the other hand, when \JITI is effective, it can significantly
-improve time performance. We use the following programs and
-applications:
-%% \TODO{For the journal version we should also add FSA benchmarks
-%%       (\bench{k963}, \bench{dg5} and \bench{tl3})}
-\begin{description}
-\item[\sgCyl] The same generation DB benchmark on a $24 \times 24
-  \times 2$ cylinder. We issue the open query.
-\item[\muta] A computationally intensive application where most
-  predicates are defined intentionally.
-\item[\pta] A tabled logic program implementing Andersen's points-to
-  analysis~\cite{anderson-phd}. A medium-sized imperative program is
-  encoded as a set of facts (about 16,000) and properties of interest
-  are encoded using rules. Program properties can then be determined
-  by checking the closure of these rules.
-\item[\tea] Another analyzer using tabling to implement Andersen's
-  points-to analysis. The analyzed program, the \texttt{javac} SPEC
-  benchmark, is encoded in a file of 411,696 facts (62,759,581 bytes
-  in total). As its compilation exceeds the limits of the XXX compiler
-  (w/o JITI), we run this benchmark only in YAP.
-\end{description}
-
 As can be seen in Table~\ref{tab:effective}, \JITI significantly
 improves the performance of these applications. In \muta, which spends
 most of its time in recursive predicates, the speed up is only $79\%$
@@ -1097,7 +1103,7 @@ times (from~$16$ up to~$119$) faster. It is important to realize that
 programmer intervention or by using any compiler directives, in all
 these applications.
 
-We analyze the \sgCyl program which has the biggest speedup in both
+We analyze the \sgCyl program that has the biggest speedup in both
 systems and is the only one whose code is small enough to be shown.
 With the open call to \texttt{same\_generation/2}, most work in this
 benchmark consists of calling \texttt{cyl/2} facts in three different
@@ -1106,13 +1112,10 @@ with only the second argument bound. Demand-driven indexing improves
 performance in the last case only, but this improvement makes a big
 difference in this benchmark.
 
-\begin{small}
-  \begin{verbatim}
-    same_generation(X,X) :- cyl(X,_).
-    same_generation(X,X) :- cyl(_,X).
-    same_generation(X,Y) :- cyl(X,Z), same_generation(Z,W), cyl(Y,W).
-  \end{verbatim}
-\end{small}
+\begin{alltt}\small
+  same_generation(X,X) :- cyl(X,_).
+  same_generation(X,X) :- cyl(_,X).
+  same_generation(X,Y) :- cyl(X,Z), same_generation(Z,W), cyl(Y,W).\end{alltt}
 
 %% Our experience with the indexing algorithm described here shows a
 %% significant performance improvement over the previous indexing code in
@@ -1122,40 +1125,56 @@ difference in this benchmark.
 \subsection{Performance of \JITI on ILP applications} \label{sec:perf:ILP}
 %-------------------------------------------------------------------------
 The need for \JITI was originally noticed in inductive logic
-programming applications, which tend to issue ad hoc queries during
-runtime and their indexing requirements cannot be determined at
-compile time. On the other hand, these applications operate on lots of
-data, so memory consumption is a reasonable concern. We evaluate
+programming applications. These applications tend to issue ad hoc
+queries during execution and thus their indexing requirements cannot
+be determined at compile time. On the other hand, they operate on lots
+of data, so memory consumption is a reasonable concern. We evaluate
 JITI's time and space performance on some learning tasks using the
-ALEPH system~\cite{ALEPH}. We use the following datasets:
-%
-%% \Krki which tries to learn rules from a small database of chess end-games;
-\GeneExpr which learns rules for
-yeast gene activity given a database of genes, their interactions, and
-micro-array gene expression data; \BreastCancer processes real-life
-patient reports towards predicting whether an abnormality may be
-malignant; \IEProtein processes information extraction from paper
-abstracts to search proteins; \Susi learns from shopping patterns; and
-\Mesh learns rules for finite-methods mesh design. The datasets
-\Carcino, \Choline, \Pyrimidines, and
-\Thermolysin try to predict chemical properties of compounds. The
-first three datasets store properties of interest as tables, but
-\Thermolysin learns from the 3D-structure of a molecule's
-conformations. Several of these datasets are standard across the
-Machine Learning literature. \GeneExpr~\cite{ilp-regulatory06}
-and \BreastCancer~\cite{DBLP:conf/ijcai/DavisBDPRCS05} were partly
-developed by an author of this paper. Most datasets perform simple
-queries in an extensional database.
+Aleph system~\cite{ALEPH} and the datasets of
+Fig.~\ref{fig:ilp:datasets} which issue simple queries in an
+extentional database. Several of these datasets are standard in the
+Machine Learning literature.
+
+\paragraph*{Time performance.}
+We compare times for 10 runs of the saturation/refinement cycle of the
+ILP system; see Table~\ref{tab:ilp:time}.
+%% The \Krki datasets have small search spaces and small databases, so
+%% they achieve the same performance under both versions: there is no
+%% slowdown. 
+The \Mesh and \Pyrimidines applications are the only ones that do not
+benefit much from indexing in the database; they do benefit through
+from indexing in the dynamic representation of the search space, as
+their running times improve somewhat with \JITI.
+
+The \BreastCancer and \GeneExpr applications use data in 1NF (i.e.,
+unstructured data). The speedup here is mostly from multiple argument
+indexing. \BreastCancer is particularly interesting. It consists of 40
+binary relations with 65k elements each, where the first argument is
+the key. We know that most calls have the first argument bound, hence
+indexing was not expected to matter much. Instead, the results show
+\JITI to improve running time by more than an order of magnitude. Like in
+\sgCyl, this suggests that even a small percentage of badly indexed
+calls can end up dominating runtime.
+
+\IEProtein and \Thermolysin are example applications that manipulate
+structured data. \IEProtein is the largest dataset we consider, and
+indexing is absolutely critical. The speedup is not just impressive;
+it is simply not possible to run the application in reasonable time
+with only first argument indexing. \Thermolysin is smaller and
+performs some computation per query, but even so, \JITI improves its
+performance by an order of magnitude. The remaining benchmarks improve
+from one to more than two orders of magnitude.
 
 %------------------------------------------------------------------------------
 \begin{table}[t]
   \centering
-  \caption{Time and space performance on Machine Learning (ILP) Datasets}
+  \caption{Time and space performance of JITI
+    on Inductive Logic Programming datasets}
   \label{tab:ilp}
   \setlength{\tabcolsep}{3pt}
   \subfigure[Time (in seconds)]{\label{tab:ilp:time}
     \begin{tabular}{|l||r|r|r||} \hline
-                  & \multicolumn{3}{|c||}{Time (in secs)} \\
+                  & \multicolumn{3}{|c||}{Time} \\
     \cline{2-4}
     Benchmark     &    1st    &   JITI  &{\bf ratio} \\
     \hline
@@ -1198,59 +1217,82 @@ queries in an extensional database.
 \end{table}
 %------------------------------------------------------------------------------
 
-We compare times for 10 runs of the saturation/refinement cycle of the
-ILP system. Table~\ref{tab:ilp:time} shows time results.
-%% The \Krki datasets have small search spaces and small databases, so
-%% they achieve the same performance under both versions: there is no
-%% slowdown. 
-The \Mesh and \Pyrimidines applications do not benefit much from
-indexing in the database, but they do benefit from indexing in the
-dynamic representation of the search space, as their running times
-halve.
+%------------------------------------------------------------------------------
+\begin{figure}
+  \hrule \ \\[-2em]
+  \begin{description}
+%%  \item[\Krki] tries to learn rules from a small database of chess end-games;
+  \item[\GeneExpr] learns rules for yeast gene activity given a
+    database of genes, their interactions, and micro-array gene
+    expression data~\cite{Regulatory@ILP-06};
+  \item[\BreastCancer] processes real-life patient reports towards
+    predicting whether an abnormality may be
+    malignant~\cite{DavisBDPRCS@IJCAI-05};
+  \item[\IEProtein] processes information extraction from paper
+    abstracts to search proteins;
+  \item[\Susi] learns from shopping patterns;
+  \item[\Mesh] learns rules for finite-methods mesh design;
+  \item[\Carcino, \Choline, \Pyrimidines] try to predict chemical
+    properties of compounds and store them as tables;
+  \item[\Thermolysin] also manipulates chemical compounds but learns
+    from the 3D-structure of a molecule's conformations.
+  \end{description}
+  \hrule
+  \caption{Description of the ILP datasets used in the performance
+    comparison of Table~\ref{tab:ilp}}
+  \label{fig:ilp:datasets}
+\end{figure}
+%------------------------------------------------------------------------------
 
-The \BreastCancer and \GeneExpr applications use data in 
-1NF (that is, unstructured data). The benefit here is mostly from
-multiple-argument indexing. \BreastCancer is particularly
-interesting. It consists of 40 binary relations with 65k elements
-each, where the first argument is the key, like in \sgCyl. We know
-that most calls have the first argument bound, hence indexing was not
-expected to matter very much. Instead, the results show \JITI running
-time to improve by an order of magnitude. Like \sgCyl, this
-suggests that even a small percentage of badly indexed calls can end
-up dominating runtime.
-
-\IEProtein and \Thermolysin are example applications that manipulate
-structured data.  \IEProtein is the largest dataset we consider, and
-indexing is absolutely critical: it is simply not possible to run the
-application in reasonable time with first argument indexing.
-\Thermolysin is smaller and performs some computation per query, but
-even so, indexing improves performance by an order of magnitude.
-
-
-Table~\ref{tab:ilp:memory} also shows memory usage with \JITI. The
-table presents data obtained at a point near the end of execution; we
-chose a point where memory usage should be at a maximum. The second
-and third columns show data usage on \emph{static} predicates.  The
-cost varies widely, from 10\% to the worst case, \Carcino, where the
-index tree takes more room than the original program. Hash-tables
+\paragraph*{Space performance.}
+Table~\ref{tab:ilp:memory} shows memory usage when using \JITI. The
+table presents data obtained at a point near the end of execution; a
+point where memory usage should be at or close to the maximum. These
+applications use a mixture of static and dynamic predicates and we
+show their memory usage separately. On static predicates, memory usage
+varies widely, from only 10\% to the worst case, \Carcino, where the
+index tree takes more space than the original program. Hash tables
 dominate usage in \IEProtein and \Susi, whereas \TryRetryTrust chains
 dominate in \BreastCancer. In most other cases no single component
-dominates memory usage.  Memory usage for dynamic data is shown in the
+dominates memory usage. Memory usage for dynamic data is shown in the
 last two columns; note that dynamic data is mostly used to store the
-search space.  One can observe that there is a much lower overhead in
-this case. A more detailed analysis shows that most space is spent on
-hash tables and on internal nodes of tree, and that relatively little
-space is spent on \TryRetryTrust chains, suggesting that \JITI is
-working well.
+search space. One can observe that there is a much lower overhead in
+this case. A more detailed analysis shows that most space is occupied
+by the hash tables and by internal nodes of the tree, and that
+relatively little space is occupied by \TryRetryTrust chains,
+suggesting that \JITI is behaving well in practice.
 
 
 \section{Concluding Remarks}
 %===========================
-\begin{itemize}
-\item Mention the non-trivial speedups in actual applications; also
-  that it is important to realize that certain applications have ad
-  hoc query patterns (e.g., ILP) are not amenable to static analyses
-\end{itemize}
+Motivated by the needs of LP applications in the areas of inductive
+logic programming, program analysis, deductive databases, etc.\ to
+access large datasets efficiently, we have described a novel but also
+simple idea: \emph{indexing Prolog clauses on demand during program
+execution}.
+%
+Given the impressive speedups this idea can provide for many
+applications, we are a bit surprised similar techniques have not been
+explored before. In general, Prolog systems have been reluctant to
+perform code optimizations during runtime and our feeling is that LP
+implementation has been left a bit behind times. We hold that this
+should change.
+%
+Indeed, we see \JITI as only the first, albeit a very important, step
+towards effective runtime optimization of logic programs.
+
+As presented, \JITI is a hybrid technique: index generation occurs
+during runtime but is partly guided by the compiler, because we want
+to preserve compile-time WAM-style indexing. More flexible schemes are
+possible. For example, index generation can be fully dynamic (as in
+YAP), combined with user declarations, or use static analysis to be
+even more selective or go beyond fixed-order indexing.
+%
+Finally, note that \JITI fully respects Prolog semantics. Better
+performance can be achieved in the context of one solution
+computations, or in the context of tabling where order of clauses and
+solutions does not matter and repeated solutions are discarded.
+
 
 %==============================================================================
 \bibliographystyle{splncs}
