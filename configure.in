@@ -270,6 +270,9 @@ then
   dnl no readline with condor.
   yap_cv_readline="no"
   AC_DEFINE(SUPPORT_CONDOR, 1)
+  STATIC_MODE=""
+else
+  STATIC_MODE="# "
 fi
 
 dnl Compilation Flags
@@ -1034,6 +1037,7 @@ AC_SUBST(JAVALIBPATH)
 AC_SUBST(JAVAINCPATH)
 AC_SUBST(LAMOBJS)
 AC_SUBST(MAX_WORKERS)
+AC_SUBST(STATIC_MODE)
 
 
 dnl check for threaded code

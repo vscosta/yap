@@ -233,7 +233,10 @@ OR_OBJECTS = \
 BEAM_OBJECTS = \
 	eamamasm.o eam_showcode.o eamindex.o eam_am.o 
 
-LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS)
+STATIC_OBJECTS = \
+	@STATIC_MODE@sys.o random.o yap2swi.o regexp.o  @NO_BUILTIN_REGEXP@ regcomp.o regerror.o regfree.o regexec.o
+
+LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS)
 
 OBJECTS = yap.o $(LIB_OBJECTS)
 
@@ -504,6 +507,30 @@ eamamasm.o:  $(srcdir)/BEAM/eamamasm.c
 
 eamindex.o:  $(srcdir)/BEAM/eamindex.c
 	$(CC) -c $(CFLAGS) $(srcdir)/BEAM/eamindex.c -o $@
+
+sys.o: $(srcdir)/library/system/sys.c 
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/library/system/sys.c  -o $@
+
+yap2swi.o: $(srcdir)/library/yap2swi/yap2swi.c 
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)/library/yap2swi  $(srcdir)/library/yap2swi/yap2swi.c  -o $@
+
+random.o: $(srcdir)/library/random/random.c 
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $(srcdir)/library/random/random.c  -o $@
+
+regexp.o: $(srcdir)/library/regex/regexp.c  @NO_BUILTIN_REGEXP@ $(srcdir)/library/regex/regex2.h  $(srcdir)/library/regex/engine.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regexp.c -o regexp.o
+
+regcomp.o: $(srcdir)/library/regex/regcomp.c $(srcdir)/library/regex/regex2.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regcomp.c -o regcomp.o
+
+regerror.o: $(srcdir)/library/regex/regerror.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regerror.c -o regerror.o
+
+regfree.o: $(srcdir)/library/regex/regfree.c $(srcdir)/library/regex/regex2.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regfree.c -o regfree.o
+
+regexec.o: $(srcdir)/library/regex/regexec.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regexec.c -o regexec.o
 
 
 ## CPP'ed files (for macro debugging)
