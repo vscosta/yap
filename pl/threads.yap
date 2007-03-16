@@ -415,6 +415,20 @@ current_mutex(M, T, NRefs) :-
 	recorded('$mutex_alias',[Id|M],_),
 	'$mutex_info'(Id, NRefs, T).
 
+mutex_property(Mutex, Prop) :-
+	(	nonvar(Mutex) ->
+		'$check_mutex_or_alias'(Mutex, mutex_property(Mutex, Prop))
+	;	recorded('$mutex_alias', [_|Mutex], _)
+	),
+	'$check_mutex_property'(Prop, mutex_property(Mutex, Prop)),
+	'$mutex_id_alias'(Id, Mutex),
+	'$mutex_property'(Id, Prop).
+
+'$mutex_property'(Id, alias(Alias)) :-
+	recorded('$mutex_alias', [Id|Alias], _).
+'$mutex_property'(Id, locked(Thread, Count)) :-
+	'$mutex_info'(Id, Count, Thread).
+
 message_queue_create(Cond) :-
 	var(Cond), !,
 	mutex_create(Mutex),
@@ -689,5 +703,6 @@ threads :-
 '$check_mutex_property'(Term, _) :-
 	var(Term), !.
 '$check_mutex_property'(alias(_), _) :- !.
-'$check_thread_property'(Term, Goal) :-
-	'$do_error'(domain_error(thread_property, Term), Goal).
+'$check_mutex_property'(locked(_, _), _) :- !.
+'$check_mutex_property'(Term, Goal) :-
+	'$do_error'(domain_error(mutex_property, Term), Goal).
