@@ -467,12 +467,12 @@ p_unlock_mutex(void)
 }
 
 static Int
-p_info_mutex(void)
+p_mutex_info(void)
 {
   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
   return Yap_unify(ARG2, MkIntegerTerm(mut->owners)) &&
-    Yap_unify(ARG2, MkIntegerTerm(mut->tid_own));
+    Yap_unify(ARG3, MkIntegerTerm(mut->tid_own));
   return TRUE;
 }
 
@@ -605,7 +605,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$lock_mutex", 1, p_lock_mutex, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$trylock_mutex", 1, p_trylock_mutex, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$unlock_mutex", 1, p_unlock_mutex, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$info_mutex", 2, p_info_mutex, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$mutex_info", 3, p_mutex_info, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$cond_create", 1, p_cond_create, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$cond_destroy", 1, p_cond_destroy, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$cond_signal", 1, p_cond_signal, SafePredFlag|HiddenPredFlag);
