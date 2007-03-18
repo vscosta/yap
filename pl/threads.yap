@@ -303,6 +303,50 @@ current_thread(Id, Status) :-
 '$mutex_id_alias'(Id, Id).
 
 
+mutex_create(Mutex) :-
+	(	atom(Mutex) ->
+		mutex_create(_, [alias(Mutex)])
+	;	mutex_create(Mutex, [])
+	).
+
+mutex_create(Id, Options) :-
+	nonvar(Id), !,
+	'$do_error'(type_error(variable, Id), mutex_create(Id, Options)).
+mutex_create(Id, Options) :-
+	Goal = mutex_create(Id, Options),
+	'$mutex_options'(Options, Alias, Goal),
+	(	atom(Alias) ->
+		(	recorded('$mutex_alias',[_| Alias], _) ->
+			'$do_error'(permission_error(create, mutex, Alias), Goal)
+		;	'$new_mutex'(Id),
+			recorda('$mutex_alias', [Id| Alias], _)
+		)
+	;	'$new_mutex'(Id),
+		recorda('$mutex_alias', [Id| Id], _)
+	).	
+
+'$mutex_options'(Var, _, Goal) :-
+	var(Var), !,
+	'$do_error'(instantiation_error, Goal).
+'$mutex_options'([], _, _) :- !.
+'$mutex_options'([Option| Options], Alias, Goal) :- !,
+	'$mutex_option'(Option, Alias, Goal),
+	'$mutex_options'(Options, Alias, Goal).
+'$mutex_options'(Options, _, Goal) :-
+	'$do_error'(type_error(list, Options), Goal).
+
+'$mutex_option'(Var, _, Goal) :-
+	var(Var), !,
+	'$do_error'(instantiation_error, Goal).
+'$mutex_option'(alias(Alias), Alias, Goal) :- !,
+	(	atom(Alias) ->
+		true
+	;	'$do_error'(type_error(atom, Alias), Goal)
+	).
+'$mutex_option'(Option, _, Goal) :-
+	'$do_error'(domain_error(mutex_option, Option), Goal).
+
+/*
 mutex_create(V) :-
 	var(V), !,
 	'$new_mutex'(V),
@@ -317,6 +361,7 @@ mutex_create(A) :-
 	recorda('$mutex_alias',[Id|A],_).
 mutex_create(V) :-
 	'$do_error'(type_error(atom,V),mutex_create(V)).
+*/
 	
 mutex_destroy(Mutex) :-
 	'$check_mutex_or_alias'(Mutex, mutex_destroy(Mutex)),
@@ -425,9 +470,11 @@ mutex_property(Mutex, Prop) :-
 	'$mutex_property'(Id, Prop).
 
 '$mutex_property'(Id, alias(Alias)) :-
-	recorded('$mutex_alias', [Id|Alias], _).
+	recorded('$mutex_alias', [Id|Alias], _),
+	Id \= Alias.
 '$mutex_property'(Id, locked(Thread, Count)) :-
 	'$mutex_info'(Id, Count, HoldingThread),
+	Count > 0,
 	'$thread_id_alias'(HoldingThread, Alias),
 	once((Thread = Alias; Thread = HoldingThread)).
 
