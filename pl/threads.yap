@@ -427,7 +427,9 @@ mutex_property(Mutex, Prop) :-
 '$mutex_property'(Id, alias(Alias)) :-
 	recorded('$mutex_alias', [Id|Alias], _).
 '$mutex_property'(Id, locked(Thread, Count)) :-
-	'$mutex_info'(Id, Count, Thread).
+	'$mutex_info'(Id, Count, HoldingThread),
+	'$thread_id_alias'(HoldingThread, Alias),
+	once((Thread = Alias; Thread = HoldingThread)).
 
 message_queue_create(Cond) :-
 	var(Cond), !,
