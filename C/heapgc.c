@@ -3772,7 +3772,6 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
       (ASP-H0)*sizeof(CELL) > gc_lim &&
       H-H0 > (LCL0-ASP)/2) {
     effectiveness = do_gc(predarity, current_env, nextop);
-    Yap_atom_gc();
     if (effectiveness < 0)
       return FALSE;
     if (effectiveness > 90) {

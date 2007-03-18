@@ -227,18 +227,20 @@ mark_atoms(void)
 static void
 mark_trail(void)
 {
-  register CELL *pt;
+  register tr_fr_ptr pt;
 
-  pt = (CELL *)TR;
+  pt = TR;
   /* moving the trail is simple */
-  while (pt != (CELL *)Yap_TrailBase) {
-    register CELL reg = pt[-1];
-    pt--;
+  while (pt != (tr_fr_ptr)Yap_TrailBase) {
+    CELL reg = TrailTerm(pt-1);
+
     if (!IsVarTerm(reg)) {
       if (IsAtomTerm(reg)) {
 	MarkAtomEntry(RepAtom(AtomOfTerm(reg)));
       }
     }
+
+    pt--;
   }
 }
 
@@ -254,12 +256,16 @@ mark_local(void)
     CELL reg = *--pt;
 
     if (!IsVarTerm(reg)) {
-      if (IsAtomTerm(reg)) {
+      if (IsAtomTerm(reg)
+#if TABLING
+	  /* assume we cannot have atoms on first page,
+	     so this must be an arity
+	  */
+	  && reg > Yap_page_size
+#endif
+	  ) {
 	MarkAtomEntry(RepAtom(AtomOfTerm(reg)));
       }
-    } else if (IsApplTerm(reg)) {
-      Functor f = FunctorOfTerm(reg);
-      FuncAdjust(f);
     }
   }
 }
