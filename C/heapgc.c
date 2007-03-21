@@ -139,10 +139,25 @@ static rb_red_blk_node *db_root, *db_nil;
 /* support for hybrid garbage collection scheme */
 
 static void
-gc_growtrail(int committed)
+gc_growtrail(int committed, tr_fr_ptr begsTR, cont *old_cont_top0)
 {
-  if (!Yap_growtrail(64 * 1024L, TRUE)) {
-    TR = OldTR;
+  UInt sz = Yap_TrailTop-(ADDR)OldTR;
+  /* ask for double the size */
+  sz = 2*sz;
+  
+  if (!Yap_growtrail(sz, TRUE)) {
+#ifdef EASY_SHUNTING
+    if (begsTR) {
+      sTR = (tr_fr_ptr)old_cont_top0;
+      while (begsTR != NULL) {
+	tr_fr_ptr newsTR = (tr_fr_ptr)TrailTerm(begsTR);
+	TrailTerm(sTR) = TrailTerm(begsTR+1);
+	TrailTerm(sTR+1) = TrailTerm(begsTR+2);
+	begsTR = newsTR;
+	sTR += 2;
+      } 
+    }
+#endif
     /* could not find more trail */
     save_machine_regs();
     longjmp(Yap_gc_restore, 2);
@@ -155,7 +170,7 @@ PUSH_CONTINUATION(CELL *v, int nof) {
   x = cont_top;
   x++;
   if ((ADDR)x > Yap_TrailTop-1024) {
-    gc_growtrail(TRUE);
+    gc_growtrail(TRUE, NULL, NULL);
   }
   x->v = v;
   x->nof = nof;
@@ -318,7 +333,7 @@ GC_ALLOC_NEW_MASPACE(void)
 {
   gc_ma_hash_entry *new = gc_ma_h_top;
   if ((char *)gc_ma_h_top > Yap_TrailTop-1024)
-    gc_growtrail(FALSE);
+    gc_growtrail(FALSE, NULL, NULL);
   gc_ma_h_top++;
   cont_top = (cont *)gc_ma_h_top;
 #ifdef EASY_SHUNTING
@@ -563,7 +578,7 @@ RBMalloc(UInt size)
 
   db_vec += size; 
   if ((ADDR)db_vec > Yap_TrailTop-1024) {
-    gc_growtrail(FALSE);
+    gc_growtrail(FALSE, NULL, NULL);
   }
   return (rb_red_blk_node *)new;
 }
@@ -1618,7 +1633,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
           CELL *cptr = (CELL *)trail_cell;
 
 	  if ((ADDR)nsTR > Yap_TrailTop-1024) {
-	    gc_growtrail(TRUE);
+	    gc_growtrail(TRUE, begsTR, old_cont_top0);
 	  }
 	  TrailTerm(nsTR) = (CELL)NULL;
 	  TrailTerm(nsTR+1) = *hp;
@@ -3508,23 +3523,12 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   Int           effectiveness, tot;
   int           gc_trace;
   UInt		gc_phase;
+  UInt		alloc_sz;
 
   heap_cells = H-H0;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;
   gc_trace = FALSE;
-#if COROUTINING
-  max = (CELL *)DelayTop();
-  while (max - (CELL*)Yap_GlobalBase < 1024+(2*NUM_OF_ATTS)) {
-    if (!Yap_growglobal(&current_env)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return -1;
-    }
-    max = (CELL *)DelayTop();
-  }
-#else
-  max = NULL;
-#endif
 #ifdef INSTRUMENT_GC
   {
     int i;
@@ -3574,36 +3578,35 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   }
 #endif
   time_start = Yap_cputime();
-  total_marked = 0;
-  total_oldies = 0;
-#ifdef COROUTING
-  total_smarked = 0;
-#endif
-  discard_trail_entries = 0;
-  {
-    UInt alloc_sz = (CELL *)Yap_TrailTop-(CELL*)Yap_GlobalBase;
-    Yap_bp = Yap_PreAllocCodeSpace();
-    while (Yap_bp+alloc_sz > (char *)AuxSp) {
-      /* not enough space */
-      *--ASP = (CELL)current_env;
-      Yap_bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz, NULL);
-      if (!Yap_bp)
-	return -1;
-      current_env = (CELL *)*ASP;
-      ASP++;
 #if COROUTINING
-      max = (CELL *)DelayTop();
-#endif
+  max = (CELL *)DelayTop();
+  while (max - (CELL*)Yap_GlobalBase < 1024+(2*NUM_OF_ATTS)) {
+    if (!Yap_growglobal(&current_env)) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      return -1;
     }
-    memset((void *)Yap_bp, 0, alloc_sz);
+    max = (CELL *)DelayTop();
   }
+#else
+  max = NULL;
+#endif
   if (setjmp(Yap_gc_restore) == 2) {
+    UInt sz;
+
     /* we cannot recover, fail system */
     restore_machine_regs();    
-    *--ASP = (CELL)current_env;
+    sz = Yap_TrailTop-(ADDR)OldTR;
+    fprintf(stderr,"sz=%d\n",sz);
+    /* ask for double the size */
+    sz = 2*sz;
     TR = OldTR;
+  
+    *--ASP = (CELL)current_env;
+#ifdef EASY_SHUNTING
+    set_conditionals(sTR);
+#endif
     if (
-	!Yap_growtrail(64 * 1024L, FALSE)
+	!Yap_growtrail(sz, FALSE)
 	) {
       Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"out of %lB during gc", 64*1024L);
       return -1;
@@ -3617,15 +3620,37 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
       current_env = (CELL *)*ASP;
       ASP++;
 #if COROUTINING
-      max = (CELL *)DelayTop();
+    max = (CELL *)DelayTop();
 #endif
     }
   }
+  total_marked = 0;
+  total_oldies = 0;
+#ifdef COROUTING
+  total_smarked = 0;
+#endif
+  discard_trail_entries = 0;
+  alloc_sz = (CELL *)Yap_TrailTop-(CELL*)Yap_GlobalBase;
+  Yap_bp = Yap_PreAllocCodeSpace();
+  while (Yap_bp+alloc_sz > (char *)AuxSp) {
+    /* not enough space */
+    *--ASP = (CELL)current_env;
+    Yap_bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz, NULL);
+    if (!Yap_bp)
+      return -1;
+    current_env = (CELL *)*ASP;
+    ASP++;
+#if COROUTINING
+    max = (CELL *)DelayTop();
+#endif
+  }
+  memset((void *)Yap_bp, 0, alloc_sz);
 #ifdef HYBRID_SCHEME
   iptop = (CELL_PTR *)H;
 #endif
   /* get the number of active registers */
   HGEN = H0+IntegerOfTerm(Yap_ReadTimedVar(GcGeneration));
+
   gc_phase = (UInt)IntegerOfTerm(Yap_ReadTimedVar(GcPhase));
   /* old HGEN are not very reliable, but still may have data to recover */
   if (gc_phase != GcCurrentPhase) {
@@ -3634,6 +3659,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   /*  fprintf(stderr,"HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(GcGeneration)), HGEN, H,H0);*/
   OldTR = (tr_fr_ptr)(old_TR = TR);
   push_registers(predarity, nextop);
+  /* make sure we clean bits after a reset */
   marking_phase(old_TR, current_env, nextop, max);
   if (total_oldies > ((HGEN-H0)*8)/10) {
     total_marked -= total_oldies;
@@ -3767,10 +3793,11 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   if (gc_margin < gc_lim)
     gc_margin = gc_lim;
   GcCalls++;
+  HGEN = H0+IntegerOfTerm(Yap_ReadTimedVar(GcGeneration));
   if (gc_on && !(Yap_PrologMode & InErrorMode) &&
       /* make sure there is a point in collecting the heap */
       (ASP-H0)*sizeof(CELL) > gc_lim &&
-      H-H0 > (LCL0-ASP)/2) {
+      H-HGEN > (LCL0-ASP)/2) {
     effectiveness = do_gc(predarity, current_env, nextop);
     if (effectiveness < 0)
       return FALSE;

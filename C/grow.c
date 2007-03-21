@@ -1399,8 +1399,13 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
     return FALSE;
 #endif
   /* at least 64K for trail */
+  if (!size)
+    size = ((ADDR)TR-Yap_TrailBase);
+  size *= 2;
   if (size < 64*1024)
     size = 64*1024;
+  if (size > 2048*1024)
+    size = 2048*1024;
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
   trail_overflows++;

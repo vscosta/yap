@@ -16,6 +16,9 @@
 
 <h2>Yap-5.1.2:</h2>
 <ul>
+<li> FIXED: memory expansion in deallocate would lose cut pointer.</li>
+<li> FIXED: make growtrail do more than grow chunks of 64KB.</li>
+<li> FIXED: growtrail was broken if called while doing variable shunting.</li>
 <li> FIXED: by default,allow defining infix+prefix/posfix instead of
 using standard ISO.</li>
 <li> FIXED: nb_current was unimplemented (obs from Pablo Beltran).</li>

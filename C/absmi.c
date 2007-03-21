@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2007-01-24 09:57:25 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-03-21 18:32:49 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.219  2007/01/24 09:57:25  vsc
+* fix glist_void_varx
+*
 * Revision 1.218  2006/12/31 01:50:34  vsc
 * fix some bugs in call_cleanup: the result of action should not matter,
 * and !,fail would not wakeup the delayed goal.
@@ -731,7 +734,7 @@ Yap_absmi(int inp)
 	ASP = YREG+E_CB;
       }
       saveregs();
-      if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L, FALSE)) {
+      if(!Yap_growtrail (0, FALSE)) {
 	Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
 	setregs();
 	FAIL();
@@ -2747,32 +2750,38 @@ Yap_absmi(int inp)
 	 so I don't need to redo it.
        */ 
     NoStackDeallocate:
-      if (ActiveSignals & YAP_CREEP_SIGNAL) {
-	GONext();
-      }
-      ASP = YREG;
-      /* cut_e */
-      if (SREG <= ASP) {
-	ASP = SREG-EnvSizeInCells;
-      }
-      if (ActiveSignals & YAP_CDOVF_SIGNAL) {
-	goto noheapleft;
-      }
-      if (ActiveSignals) {
-	if (Yap_op_from_opcode(PREG->opc) == _cut_e) {
-	  /* followed by a cut */
-	  ARG1 = MkIntegerTerm(LCL0-(CELL *)SREG[E_CB]);
-	  SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorCutBy,1));
-	} else {
-	  SREG = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomTrue,0));
+      {
+	CELL cut_b = LCL0-(CELL *)(SREG[E_CB]);
+
+	if (ActiveSignals & YAP_CREEP_SIGNAL) {
+	  GONext();
 	}
-	goto creep;
+	ASP = YREG;
+	/* cut_e */
+	if (SREG <= ASP) {
+	  ASP = SREG-EnvSizeInCells;
+	}
+	if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+	  goto noheapleft;
+	}
+	if (ActiveSignals) {
+	  if (Yap_op_from_opcode(PREG->opc) == _cut_e) {
+	    /* followed by a cut */
+	    ARG1 = MkIntegerTerm(LCL0-(CELL *)SREG[E_CB]);
+	    SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorCutBy,1));
+	  } else {
+	    SREG = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomTrue,0));
+	  }
+	  goto creep;
+	}
+	saveregs();
+	if (!Yap_gc(0, ENV, CPREG)) {
+	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	}
+	setregs();
+	SREG = ASP;
+	SREG[E_CB] = (CELL)(LCL0-cut_b);
       }
-      saveregs();
-      if (!Yap_gc(0, ENV, CPREG)) {
-	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
-      }
-      setregs();
       JMPNext();
 
 #ifdef COROUTINING
@@ -13537,7 +13546,7 @@ Yap_absmi(int inp)
 	  S = SREG;
 #endif
 	  saveregs_and_ycache();
-	  if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L, FALSE)) {
+	  if(!Yap_growtrail (0, FALSE)) {
 	    Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
 	    setregs_and_ycache();
 	    FAIL();

@@ -411,6 +411,7 @@ atom_gc(void)
   
 
   UInt		time_start, agc_time;
+  return;
   if (Yap_GetValue(AtomGcTrace) != TermNil)
     gc_trace = 1;
   agc_calls++;
