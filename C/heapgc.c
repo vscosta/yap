@@ -51,6 +51,7 @@ STATIC_PROTO(void compact_heap, (void));
 STATIC_PROTO(void update_relocation_chain, (CELL *, CELL *));
 STATIC_PROTO(int  is_gc_verbose, (void));
 STATIC_PROTO(int  is_gc_very_verbose, (void));
+STATIC_PROTO(void  set_conditionals, (tr_fr_ptr));
 
 #include "heapgc.h"
 
@@ -156,6 +157,7 @@ gc_growtrail(int committed, tr_fr_ptr begsTR, cont *old_cont_top0)
 	begsTR = newsTR;
 	sTR += 2;
       } 
+      set_conditionals(sTR);
     }
 #endif
     /* could not find more trail */
@@ -3602,13 +3604,10 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     TR = OldTR;
   
     *--ASP = (CELL)current_env;
-#ifdef EASY_SHUNTING
-    set_conditionals(sTR);
-#endif
     if (
 	!Yap_growtrail(sz, FALSE)
 	) {
-      Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"out of %lB during gc", 64*1024L);
+      Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"out of %lB during gc", sz);
       return -1;
     } else {
       total_marked = 0;

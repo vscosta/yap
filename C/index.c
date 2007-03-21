@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2007-01-28 14:26:36 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-03-21 23:23:46 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.182  2007/01/28 14:26:36  vsc
+* WIN32 support
+*
 * Revision 1.181  2007/01/08 08:27:19  vsc
 * fix restore (Trevor)
 * make indexing a bit faster on IDB
@@ -7797,6 +7800,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	return (LogUpdClause *)static_clause(ipc->u.l.l, ap);
       break;
     case _try_clause:
+#if TABLING
+    case _table_try:
+#endif
       if (b0 == NULL)
 	store_clause_choice_point(Terms[0], Terms[1], Terms[2], NEXTOP(ipc,ld), ap, ap_pc, cp_pc);
       else {
@@ -7823,6 +7829,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       else
 	return (LogUpdClause *)static_clause(ipc->u.l.l, ap);
     case _try_me:
+#if TABLING
+    case _table_try_me:
+#endif
       if (b0 == NULL)
 	store_clause_choice_point(Terms[0], Terms[1], Terms[2], ipc->u.ld.d, ap, ap_pc, cp_pc);
       else {
@@ -7837,6 +7846,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       ipc = NEXTOP(ipc,p);
       break;
     case _retry:
+#if TABLING
+    case _table_retry:
+#endif
       update_clause_choice_point(NEXTOP(ipc,ld),ap_pc);
       if (lu_pred)
 	return lu_clause(ipc->u.ld.d);
@@ -7855,6 +7867,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       ipc = NEXTOP(ipc,ld);
       break;
     case _trust:
+#if TABLING
+    case _table_trust:
+#endif
 #ifdef CUT_C
       {
 	while (POP_CHOICE_POINT(B->cp_b))
@@ -7881,6 +7896,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _profiled_trust_me:
     case _trust_me:
     case _count_trust_me:
+#if TABLING
+    case _table_trust_me:
+#endif
       b0 = B;
 #ifdef CUT_C
       {
