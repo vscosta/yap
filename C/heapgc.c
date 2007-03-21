@@ -157,8 +157,8 @@ gc_growtrail(int committed, tr_fr_ptr begsTR, cont *old_cont_top0)
 	begsTR = newsTR;
 	sTR += 2;
       } 
-      set_conditionals(sTR);
     }
+    set_conditionals(sTR);
 #endif
     /* could not find more trail */
     save_machine_regs();
@@ -3366,6 +3366,7 @@ set_conditionals(tr_fr_ptr str) {
     cptr = (CELL *)TrailTerm(str+1);
     *cptr = TrailTerm(str);
   } 
+  sTR = sTR0 = NULL;
 }
 #endif
 
@@ -3598,7 +3599,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     /* we cannot recover, fail system */
     restore_machine_regs();    
     sz = Yap_TrailTop-(ADDR)OldTR;
-    fprintf(stderr,"sz=%d\n",sz);
     /* ask for double the size */
     sz = 2*sz;
     TR = OldTR;
@@ -3623,6 +3623,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif
     }
   }
+#if EASY_SHUNTING
+  sTR0 = sTR = NULL;
+#endif
   total_marked = 0;
   total_oldies = 0;
 #ifdef COROUTING
