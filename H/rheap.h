@@ -11,8 +11,12 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2007-02-18 00:26:36 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-03-22 11:12:21 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.73  2007/02/18 00:26:36  vsc
+* fix atom garbage collector (although it is still off by default)
+* make valgrind feel better
+*
 * Revision 1.72  2007/01/08 08:27:19  vsc
 * fix restore (Trevor)
 * make indexing a bit faster on IDB
@@ -773,6 +777,7 @@ restore_codes(void)
     Yap_heap_regs->wl.global_delay_arena =
       GlobalAdjust(Yap_heap_regs->wl.global_delay_arena);
   }
+  Yap_heap_regs->wl.allow_restart = FALSE;
 #endif
 #endif
   if (Yap_heap_regs->last_wtime != NULL)

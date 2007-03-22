@@ -986,6 +986,7 @@ InitCodes(void)
       Yap_heap_regs->wl[i].global_variables = NULL;
       Yap_heap_regs->wl[i].global_arena = 0L;
       Yap_heap_regs->wl[i].global_delay_arena = 0L;
+      Yap_heap_regs->wl[i].allow_restart = FALSE;
       Yap_heap_regs->wl[i].consultlow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
       if (Yap_heap_regs->wl[i].consultlow == NULL) {
 	Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
@@ -1001,6 +1002,7 @@ InitCodes(void)
   Yap_heap_regs->wl.static_arrays = NULL;
   Yap_heap_regs->wl.global_variables = NULL;
   Yap_heap_regs->wl.global_arena = 0L;
+  Yap_heap_regs->wl.allow_restart = FALSE;
   Yap_heap_regs->wl.global_delay_arena = 0L;
   Yap_heap_regs->wl.consultlow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
   if (Yap_heap_regs->wl.consultlow == NULL) {

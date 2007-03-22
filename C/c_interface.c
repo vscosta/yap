@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-01-28 14:26:36 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-03-22 11:12:20 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.89  2007/01/28 14:26:36  vsc
+* WIN32 support
+*
 * Revision 1.88  2007/01/08 08:27:19  vsc
 * fix restore (Trevor)
 * make indexing a bit faster on IDB
@@ -1063,6 +1066,7 @@ YAP_RunGoal(Term t)
   yamop *old_CP = CP;
   BACKUP_MACHINE_REGS();
 
+  Yap_AllowRestart = FALSE;
   Yap_PrologMode = UserMode;
   out = Yap_RunTopGoal(t);
   Yap_PrologMode = UserCCallMode;
@@ -1070,11 +1074,13 @@ YAP_RunGoal(Term t)
     P = (yamop *)ENV[E_CP];
     ENV = (CELL *)ENV[E_E];
     CP = old_CP;
+    Yap_AllowRestart = TRUE;
   } else {
     if (B != NULL) /* restore might have destroyed B */
       B = B->cp_b;
+    Yap_AllowRestart = FALSE;
   }
-
+  
   RECOVER_MACHINE_REGS();
   return(out);
 }
@@ -1084,17 +1090,22 @@ YAP_RestartGoal(void)
 {
   int out;
   BACKUP_MACHINE_REGS();
-
-  P = (yamop *)FAILCODE;
-  do_putcf = myputc;
-  Yap_PrologMode = UserMode;
-  out = Yap_exec_absmi(TRUE);
-  Yap_PrologMode = UserCCallMode;
-  if (out == FALSE) {
-    /* cleanup */
-    Yap_trust_last();
+  
+  if (Yap_AllowRestart) {
+    fprintf(stderr,"Allow restart\n");
+    P = (yamop *)FAILCODE;
+    do_putcf = myputc;
+    Yap_PrologMode = UserMode;
+    out = Yap_exec_absmi(TRUE);
+    Yap_PrologMode = UserCCallMode;
+    if (out == FALSE) {
+      /* cleanup */
+      Yap_trust_last();
+      Yap_AllowRestart = FALSE;
+    }
+  } else { 
+    out = FALSE;
   }
-
   RECOVER_MACHINE_REGS();
   return(out);
 }

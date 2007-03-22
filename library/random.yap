@@ -120,4 +120,3 @@ getrand(rand(X,Y,Z)) :-
 
 
 
-

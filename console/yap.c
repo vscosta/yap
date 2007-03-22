@@ -676,7 +676,7 @@ exec_top_level(int BootMode, YAP_init_args *iap)
       YAP_PutValue(livegoal, YAP_MkAtomTerm (YAP_FullLookupAtom("$true")));
       
     }
-      /* the top-level is now ready */
+  /* the top-level is now ready */
 
   /* read it before case someone, that is, Ashwin, hides
      the atom false away ;-).
