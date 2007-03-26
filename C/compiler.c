@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2006-11-06 18:35:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-03-26 15:18:43 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.82  2006/11/06 18:35:03  vsc
+* 1estranha
+*
 * Revision 1.81  2006/10/11 15:08:03  vsc
 * fix bb entries
 * comment development code for timestamp overflow.
@@ -3225,7 +3228,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
 #endif
 
   /* phase 3: assemble code                                                */
-  acode = Yap_assemble(ASSEMBLING_CLAUSE, src, cglobs.cint.CurrentPred, (cglobs.is_a_fact && !cglobs.hasdbrefs), &cglobs.cint);
+  acode = Yap_assemble(ASSEMBLING_CLAUSE, src, cglobs.cint.CurrentPred, (cglobs.is_a_fact && !cglobs.hasdbrefs && !(cglobs.cint.CurrentPred->PredFlags & TabledPredFlag)), &cglobs.cint);
   /* check first if there was space for us */
   if (acode == NULL) {
     return NULL;

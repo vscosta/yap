@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2007-01-25 22:11:55 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-03-26 15:18:43 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.204  2007/01/25 22:11:55  vsc
+* all/3 should fail on no solutions.
+* get rid of annoying gcc complaints.
+*
 * Revision 1.203  2007/01/24 10:01:38  vsc
 * fix matrix mess
 *
@@ -1970,7 +1974,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
     } else {
       StaticClause     *clp = ClauseCodeToStaticClause(cp);
       clp->ClFlags |= StaticMask;
-      if (is_fact(t)) {
+      if (is_fact(t) && !(p->PredFlags & TabledPredFlag)) {
 	clp->ClFlags |= FactMask;
 	clp->usc.ClPred = p;
       }
@@ -5364,9 +5368,15 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
       }
     }
     rtn = Yap_MkStaticRefTerm(cl);
-    return(Yap_unify(th, ArgOfTerm(1,t)) &&
-	   Yap_unify(tb, ArgOfTerm(2,t)) &&
-	   Yap_unify(tr, rtn));
+    if (!IsApplTerm(t) || FunctorOfTerm(t) != FunctorAssert) {
+      return(Yap_unify(th, t) &&
+	     Yap_unify(tb, MkAtomTerm(AtomTrue)) &&
+	     Yap_unify(tr, rtn));
+    } else {
+      return(Yap_unify(th, ArgOfTerm(1,t)) &&
+	     Yap_unify(tb, ArgOfTerm(2,t)) &&
+	     Yap_unify(tr, rtn));
+    }
   }
 }
 

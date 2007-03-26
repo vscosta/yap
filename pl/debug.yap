@@ -453,6 +453,11 @@ debugging :-
          \+ '$is_metapredicate'(G,M),
 	 !,
 	'$execute_nonstop'(G, M).
+'$spycall'(G, M, InControl, _) :-
+        '$tabled_predicate'(G,M),
+	 !,
+	'$continue_debugging'(InControl, G, M),
+	'$execute_nonstop'(G, M).
 '$spycall'(G, M, InControl, InRedo) :-
 	'$flags'(G,M,F,F),
 	F /\ 0x18402000 =\= 0, !, % dynamic procedure, logical semantics, user-C, or source
@@ -474,6 +479,10 @@ debugging :-
 	'$static_clause'(G,M,_,R),
 	'$continue_debugging'(InControl, G, M),
 	( '$execute_clause'(G, M, R, CP) ; InRedo = true ).
+
+'$tabled_predicate'(G,M) :-
+	'$flags'(G,M,F,F),
+	F /\ 0x00000040 =\= 0.
 
 '$trace'(P,G,Module,L,Deterministic) :-
 	% at this point we are done with leap or skip
