@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2007-03-26 15:18:43 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-03-27 13:48:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.83  2007/03/26 15:18:43  vsc
+* debugging and clause/3 over tabled predicates would kill YAP.
+*
 * Revision 1.82  2006/11/06 18:35:03  vsc
 * 1estranha
 *
@@ -210,7 +213,7 @@ STATIC_PROTO(void c_arg, (Int, Term, unsigned int, unsigned int, compiler_struct
 STATIC_PROTO(void c_args, (Term, unsigned int, compiler_struct *));
 STATIC_PROTO(void c_eq, (Term, Term, compiler_struct *));
 STATIC_PROTO(void c_test, (Int, Term, compiler_struct *));
-STATIC_PROTO(void c_bifun, (Int, Term, Term, Term, int, compiler_struct *));
+STATIC_PROTO(void c_bifun, (Int, Term, Term, Term, Term, int, compiler_struct *));
 STATIC_PROTO(void c_goal, (Term, int, compiler_struct *));
 STATIC_PROTO(void c_body, (Term, int, compiler_struct *));
 STATIC_PROTO(void c_head, (Term, compiler_struct *));
@@ -840,7 +843,7 @@ bip_cons	   Op,Xk,Ri,C
 
  */
 static void
-c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
+c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, int mod, compiler_struct *cglobs)
 {
   /* compile Z = X Op Y  arithmetic function */
   /* first we fetch the arguments */
@@ -990,7 +993,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
 	    RESET_VARIABLE(H+1);
 	    H += 2;
 	    c_eq(AbsPair(H-2),t3, cglobs);
-	  } else if (i2 < 16) {
+	  } else if (i2 < 256) {
 	    *H++ = (CELL)Yap_MkFunctor(AtomOfTerm(t1),i2);
 	    for (i=0; i < i2; i++) {
 	      if (H >= (CELL *)cglobs->cint.freep0) {
@@ -1002,6 +1005,20 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
 	      H++;	    
 	    }
 	    c_eq(AbsAppl(hi),t3, cglobs);
+	  } else {
+	    /* compile as default */
+	    Functor f = FunctorOfTerm(Goal);
+	    Prop p0 = PredPropByFunc(f, mod);
+
+	    if (profiling)
+	      Yap_emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero, &cglobs->cint);
+	    else if (call_counting)
+	      Yap_emit(count_call_op, (CELL)RepPredProp(p0), Zero, &cglobs->cint);
+	    c_args(Goal, 0, cglobs);
+	    Yap_emit(safe_call_op, (CELL)p0 , Zero, &cglobs->cint);
+	    Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
+	    Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
+	    return;
 	  }
 	}
       } else if (Op == _arg) {
@@ -1207,7 +1224,7 @@ c_functor(Term Goal, int mod, compiler_struct *cglobs)
   Term t3 = ArgOfTerm(3, Goal);
 
   if (IsVarTerm(t1) && IsNewVar(t1)) {
-    c_bifun(_functor, t2, t3, t1, mod, cglobs);
+    c_bifun(_functor, t2, t3, t1, Goal, mod, cglobs);
   } else if (IsNonVarTerm(t1)) {
     /* just split the structure */
     if (IsAtomicTerm(t1)) {
@@ -1656,6 +1673,7 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 		  ArgOfTerm(1, Goal),
 		  ArgOfTerm(2, Goal),
 		  ArgOfTerm(3, Goal),
+		  Goal,
 		  mod,
 		  cglobs);
 	}

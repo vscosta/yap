@@ -117,7 +117,6 @@ static char *def_value[MAXDEFS];
 static int  def_c=0;
 /* End preprocessor code */
 
-
 #if USE_MYPUTC
 static void
 myputc (int ch)

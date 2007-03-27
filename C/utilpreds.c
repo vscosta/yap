@@ -223,6 +223,12 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	  to_visit = bp[0];
 	  HB = HLow;
 	  ptf++;
+	  if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+	    /* Trail overflow */
+	    if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
+	      goto trail_overflow;
+	    }
+	  }
 	  Bind_Global(ptd0, ptf[-1]);
 	}
       } else {
@@ -276,6 +282,30 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
   reset_trail(TR0);
   return -1;
 
+trail_overflow:
+  /* oops, we're in trouble */
+  H = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    ptf = to_visit[2];
+    *pt0 = (CELL)to_visit[3];
+  }
+#endif
+  {
+    tr_fr_ptr oTR =  TR;
+    reset_trail(TR0);
+    if (!Yap_growtrail((oTR-TR0)*sizeof(tr_fr_ptr *), FALSE)) {
+      return -4;
+    }
+    return -2;
+  }
+
  heap_overflow:
   /* oops, we're in trouble */
   H = HLow;
@@ -292,7 +322,32 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
   }
 #endif
   reset_trail(TR0);
-  return -2;
+  return -3;
+}
+
+
+static Term
+handle_cp_overflow(int res, UInt arity, Term t)
+{
+  XREGS[arity+1] = t;
+  switch(res) {
+  case -1:
+    if (!Yap_gcl((ASP-H)*sizeof(CELL), arity+1, ENV, P)) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      return 0L;
+    }
+    return Deref(XREGS[arity+1]);
+  case -2:
+    return Deref(XREGS[arity+1]);
+  case -3:
+    if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
+      Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
+      return 0L;
+    }
+    return Deref(XREGS[arity+1]);
+  default:
+    return 0L;
+  }
 }
 
 static Term
@@ -310,23 +365,10 @@ CopyTerm(Term inp, UInt arity) {
       Hi = H+1;
       H += 2;
       if ((res = copy_complex_term(Hi-2, Hi-1, Hi, Hi)) < 0) {
-	XREGS[arity+1] = t;
 	H = Hi-1;
-	if (res == -1) { /* handle overflow */
-	  if (!Yap_gcl((ASP-H)*sizeof(CELL), arity+1, ENV, P)) {
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	    return FALSE;
-	  }
-	  t = Deref(XREGS[arity+1]);
-	  goto restart_attached;
-	} else { /* handle overflow */
-	  if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
-	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
-	    return FALSE;
-	  }
-	  t = Deref(XREGS[arity+1]);
-	  goto restart_attached;
-	}
+	if ((t = handle_cp_overflow(res,arity,t))== 0L)
+	  return FALSE;
+	goto restart_attached;
       }
       return Hi[0];
     }
@@ -348,22 +390,9 @@ CopyTerm(Term inp, UInt arity) {
       int res;
       if ((res = copy_complex_term(ap-1, ap+1, Hi, Hi)) < 0) {
 	H = Hi;
-	XREGS[arity+1] = t;
-	if (res == -1) { /* handle overflow */
-	  if (!Yap_gcl((ASP-H)*sizeof(CELL), arity+1, ENV, P)) {
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	    return FALSE;
-	  }
-	  t = Deref(XREGS[arity+1]);
-	  goto restart_list;
-	} else { /* handle overflow */
-	  if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
-	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
-	    return FALSE;
-	  }
-	  t = Deref(XREGS[arity+1]);
-	  goto restart_list;
-	}
+	if ((t = handle_cp_overflow(res,arity,t))== 0L)
+	  return FALSE;
+	goto restart_list;
       }
     }
     return tf;
@@ -381,34 +410,18 @@ CopyTerm(Term inp, UInt arity) {
     H[0] = (CELL)f;
     H += 1+ArityOfFunctor(f);
     if (H > ASP-128) {
-      H -= 1+ArityOfFunctor(f);
-      if (!Yap_gcl((ASP-H)*sizeof(CELL),arity+1, ENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      H = HB0;
+      if ((t = handle_cp_overflow(-1,arity,t))== 0L)
 	return FALSE;
-      }
-      t = Deref(XREGS[arity+1]);
       goto restart_appl;
     } else {
       int res;
 
       if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0)) < 0) {
 	H = HB0;
-	XREGS[arity+1] = t;
-	if (res == -1) {
-	  if (!Yap_gcl((ASP-H)*sizeof(CELL),arity+1, ENV, P)) {
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	    return FALSE;
-	  }
-	  t = Deref(XREGS[arity+1]);
-	  goto restart_appl;
-	} else { /* handle overflow */
-	  if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
-	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
-	    return FALSE;
-	  }
-	  t = Deref(XREGS[arity+1]);
-	  goto restart_appl;
-	}
+	if ((t = handle_cp_overflow(res,arity,t))== 0L)
+	  return FALSE;
+	goto restart_appl;
       }
     }
     return tf;
@@ -553,6 +566,12 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
     } else {
       /* first time we met this term */
       RESET_VARIABLE(ptf);
+      if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+	/* Trail overflow */
+	if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
+	  goto trail_overflow;
+	}
+      }
       Bind_Global(ptd0, (CELL)ptf);
       ptf++;
     }
@@ -598,6 +617,30 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
   clean_tr(TR0);
   return(-1);
 
+trail_overflow:
+  /* oops, we're in trouble */
+  H = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    ptf = to_visit[2];
+    *pt0 = (CELL)to_visit[3];
+  }
+#endif
+  {
+    tr_fr_ptr oTR =  TR;
+    reset_trail(TR0);
+    if (!Yap_growtrail((oTR-TR0)*sizeof(tr_fr_ptr *), FALSE)) {
+      return -4;
+    }
+    return -2;
+  }
+
  heap_overflow:
   /* oops, we're in trouble */
   H = HLow;
@@ -614,7 +657,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
   }
 #endif
   clean_tr(TR0);
-  return(-2);
+  return(-3);
 }
 
 static Term
@@ -638,21 +681,9 @@ CopyTermNoDelays(Term inp) {
     res = copy_complex_term_no_delays(ap-1, ap+1, H-2, H-2);
     if (res) {
       H = Hi;
-      if (res == -1) { /* handle overflow */
-	if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, P)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return(FALSE);
-	}
-	t = Deref(ARG1);
-	goto restart_list;
-      } else { /* handle overflow */
-	if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
-	  Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
-	  return(FALSE);
-	}
-	t = Deref(ARG1);
-	goto restart_list;
-      }
+      if ((t = handle_cp_overflow(res,2,t))== 0L)
+	return FALSE;
+      goto restart_list;
     }
     return(tf);
   } else {
@@ -671,21 +702,9 @@ CopyTermNoDelays(Term inp) {
     res = copy_complex_term_no_delays(ap, ap+ArityOfFunctor(f), HB0+1, HB0);
     if (res) {
       H = HB0;
-      if (res == -1) {
-	if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, P)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return(FALSE);
-	}
-	t = Deref(ARG1);
-	goto restart_appl;
-      } else { /* handle overflow */
-	if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
-	  Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
-	  return(FALSE);
-	}
-	t = Deref(ARG1);
-	goto restart_appl;
-      }
+      if ((t = handle_cp_overflow(res,2,t))== 0L)
+	return FALSE;
+      goto restart_appl;
     }
     return(tf);
   }
@@ -781,6 +800,12 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
     H += 2;
     H[-2] = (CELL)ptd0;
     /* next make sure noone will see this as a variable again */ 
+    if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+      /* Trail overflow */
+      if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
+	goto trail_overflow;
+      }
+    }
     TrailTerm(TR++) = (CELL)ptd0;
   }
   /* Do we still have compound terms to visit */
@@ -813,13 +838,59 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
   } else {
     return(inp);
   }
- global_overflow:
+
+ trail_overflow:
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    *pt0 = (CELL)to_visit[2];
+  }
+#endif
+  Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;
+  Yap_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
   clean_tr(TR0);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   H = InitialH;
+  return 0L;
+  
+ global_overflow:
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    *pt0 = (CELL)to_visit[2];
+  }
+#endif
+  clean_tr(TR0);
+  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
+  H = InitialH;
+  Yap_Error_TYPE = OUT_OF_STACK_ERROR;
   Yap_Error_Size = (ASP-H)*sizeof(CELL);
   return 0L;
   
+}
+
+static int
+expand_vts(void)
+{
+  UInt expand = Yap_Error_Size;
+  yap_error_number yap_errno = Yap_Error_TYPE;
+  
+  Yap_Error_Size = 0;
+  Yap_Error_TYPE = YAP_NO_ERROR;
+  if (yap_errno == OUT_OF_TRAIL_ERROR) {
+    /* Trail overflow */
+    if (!Yap_growtrail(expand, FALSE)) {
+      return FALSE;
+    }
+  } else {
+    if (!Yap_gcl(expand, 3, ENV, P)) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_variables");
+      return FALSE;
+    }
+  }
+  return TRUE;
 }
  
 static Int 
@@ -849,10 +920,8 @@ p_variables_in_term(void)	/* variables in term t		 */
 				 ArityOfFunctor(f), ARG2);
     }
     if (out == 0L) {
-      if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_variables");
+      if (!expand_vts())
 	return FALSE;
-      }
     }
   } while (out == 0L);
   return(Yap_unify(ARG3,out));
@@ -880,10 +949,8 @@ p_term_variables(void)	/* variables in term t		 */
 				 ArityOfFunctor(f), TermNil);
     }
     if (out == 0L) {
-      if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_variables");
+      if (!expand_vts())
 	return FALSE;
-      }
     }
   } while (out == 0L);
   return Yap_unify(ARG2,out);
@@ -911,10 +978,8 @@ p_term_variables3(void)	/* variables in term t		 */
 				 ArityOfFunctor(f), ARG3);
     }
     if (out == 0L) {
-      if (!Yap_gcl((ASP-H)*sizeof(CELL), 3, ENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_variables");
+      if (!expand_vts())
 	return FALSE;
-      }
     }
   } while (out == 0L);
 
@@ -1035,6 +1100,13 @@ static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt
   }
 
  aux_overflow:
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    *pt0 = (CELL)to_visit[2];
+  }
+#endif
   clean_tr(TR0);
   if (H != InitialH) {
     /* close the list */
@@ -1178,7 +1250,6 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end)
   while (to_visit > to_visit0) {
     to_visit -= 3;
     pt0 = to_visit[0];
-    pt0_end = to_visit[1];
     *pt0 = (CELL)to_visit[2];
   }
 #endif
