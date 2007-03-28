@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.29.4
+## Release 2.29.5
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -45,7 +45,7 @@ echo ":- ensure_loaded('\$LOGTALKUSER/configs/k.config')." > logtalk_plc.pl
 echo ":- ensure_loaded('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalk_plc.pl
 echo ":- ensure_loaded('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_plc.pl
 echo "#/bin/sh" > plclgt
-echo "\$PLC/plc -h 2048k -l 1024k -g 2048k -e \"(consult('\\\$LOGTALKHOME/bin/logtalk_plc.pl'), '\\\$root').\"" >> plclgt
+echo "\$PLC/plc -h 2048k -l 1024k -g 2048k -e \"(consult('\\\$LOGTALKHOME/bin/logtalk_plc.pl'), '\\\$root').\" \"\$@\"" >> plclgt
 chmod a+x plclgt
 ln -sf $LOGTALKHOME/bin/plclgt $prefix/bin/plclgt
 echo "Done. A link to the script was been created in $prefix/bin."

@@ -1,5 +1,5 @@
 
-/*	Logtalk meta-predicates accept not only goals but also closures
+/*	Logtalk meta-predicates accept both goals and closures
 	as meta-arguments as illustrated in this example
 */
 

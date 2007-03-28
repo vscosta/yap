@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.4
+Release 2.29.5
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -33,14 +33,27 @@ Yes
 Happy birthday from paul!
 Thanks! Here, have a slice of cake, paul.
 Thanks for the cake nathalie!
+Say goodbye to your 32's!
 
 Yes
 
 
-% tell Paul to ask Nathalie her age:
+% ask Nathalie her age:
 
-| ?- paul::ask_age(nathalie, Age).
+| ?- nathalie::age(Age).
 
 Age = 33
+
+Yes
+
+
+% a year goes by...
+
+| ?- nathalie::birthday.
+
+Happy birthday from paul!
+Thanks! Here, have a slice of cake, paul.
+Thanks for the cake nathalie!
+Say goodbye to your 33's!
 
 Yes

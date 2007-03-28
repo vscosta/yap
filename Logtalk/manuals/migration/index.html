@@ -75,7 +75,7 @@ Logtalk supports the use of the <a title="Consult user manual" href="../userman/
 When compiling modules as objects, you probably don't need event support turned on. Thus, you may want to use the compiler option <code>events(off)</code> with the Logtalk compiling and loading built-in methods for a small performance gain for the compiled code.
 </p>
 
-<h3>Current limitations and workarounds<a id="converting"></a></h3>
+<h3>Current limitations and workarounds<a id="limitations"></a></h3>
 
 <p>
 Note that <code>use_module/1</code> directives are not currently supported. Therefore, this directives must be converted into <code>use_module/2</code> directives by finding which predicates exported by the specified module are imported into the module containing the directive. Automating the conversion would imply loading the module without re-interpreting it as an object, which might not be what the user intended. Nevertheless, finding the names of the imported predicates is easy. First, comment out the <code>use_module/1</code> directives and compile the file (making sure that the compiler flag <code>misspelt</code> is set to <code>warning</code>). Logtalk will print a warning with a list of predicates that are called but never defined. Second, use these list to replace the <code>use_module/1</code> directives by <code>use_module/2</code> directives. You should then be able to compile the modified Prolog module as an object.
@@ -107,7 +107,7 @@ This Logtalk feature can be used to allow compilation of legacy Prolog code with
 </p>
 
 
-<h2>Calling Prolog module predicates using message sending<a id="converting"></a></h2>
+<h2>Calling Prolog module predicates using message sending<a id="calling"></a></h2>
 
 <p>
 Logtalk allows you to send a message to a module in order to call one of its predicates. This is usually not advised as it implies a performance penalty when compared to just using the <code>Module:Call</code> notation (encapsulating the call between curly brackets when sending the message from inside an object). Note that this only works if there is no object with the same name as the module you are targeting.
@@ -119,7 +119,7 @@ This feature is needed to properly support compilation of modules containing <co
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: October 26, 2006</span>
+		<span>Last updated on: March 5, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="../glossary.html">glossary</a></span><br/>

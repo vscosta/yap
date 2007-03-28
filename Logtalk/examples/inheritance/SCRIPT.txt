@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.4
+Release 2.29.5
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -19,7 +19,6 @@ Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 public/0 - public
 protected/0 - protected
 private/0 - private
-interface/0 - public
 
 yes
 
@@ -28,7 +27,6 @@ yes
 
 | ?- prototype1::interface.
 
-interface/0 - public
 public/0 - public
 protected/0 - protected
 
@@ -39,7 +37,6 @@ yes
 
 | ?- prototype2::interface.
 
-interface/0 - public
 public/0 - protected
 protected/0 - protected
 
@@ -50,7 +47,6 @@ yes
 
 | ?- prototype3::interface.
 
-interface/0 - public
 public/0 - private
 protected/0 - private
 
@@ -61,7 +57,6 @@ yes
 
 | ?- descendant1::interface.
 
-interface/0 - public
 public/0 - public
 protected/0 - protected
 
@@ -72,7 +67,6 @@ yes
 
 | ?- descendant2::interface.
 
-interface/0 - public
 public/0 - protected
 protected/0 - protected
 
@@ -82,8 +76,6 @@ yes
 % descendant3 extends public::prototype3
 
 | ?- descendant3::interface.
-
-interface/0 - public
 
 yes
 
@@ -95,7 +87,6 @@ yes
 public/0 - public
 protected/0 - protected
 private/0 - private
-interface/0 - public
 
 yes
 
@@ -104,7 +95,6 @@ yes
 
 | ?- instance1::interface.
 
-interface/0 - public
 public/0 - public
 protected/0 - protected
 
@@ -115,7 +105,6 @@ yes
 
 | ?- instance2::interface.
 
-interface/0 - public
 public/0 - protected
 protected/0 - protected
 
@@ -126,7 +115,6 @@ yes
 
 | ?- instance3::interface.
 
-interface/0 - public
 public/0 - private
 protected/0 - private
 

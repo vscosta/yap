@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.4
+Release 2.29.5
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -17,7 +17,7 @@ loading predicates. For example:
 	| ?- logtalk_load(library(random_loader)).
 
 Currently, there are eight groups of entities defined, each one with 
-a loader and a notes file:
+its own loader and notes files:
 
 	dates
 		dates_loader.lgt
@@ -73,4 +73,4 @@ See the xml sub-directory for instructions on how to browse the .xml files
 for on-line reading or how to convert the files to a print-ready format such 
 as PDF.
 
-All source files are formatted using four-spaces tabs.
+All source files are formatted using four-space tabs.

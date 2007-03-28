@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.29.3
+## Release 2.29.5
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -17,8 +17,8 @@ cd /usr/local/logtalk
 scripts/cleandist.sh
 
 cd ..
-tar -czf lgt2293.tgz lgt2293
-mv lgt2293.tgz /usr/src/redhat/SOURCES
+tar -czf lgt2295.tgz lgt2295
+mv lgt2295.tgz /usr/src/redhat/SOURCES
 
 cd "$dir"
 rpmbuild -ba --target=noarch-*-linux logtalk.spec

@@ -42,8 +42,8 @@
 		chalk::pick_up,
 		self(Self),
 		write(Self), write(' is writing...'), nl,
-		random::random(1, 5, Random),	% simulate a variable time
-		thread_sleep(Random),			% spending on writing
+		random::random(1, 5, Random),	% simulate a variable amount
+		thread_sleep(Random),			% of time spending on writing
 		chalk::release,
 		eraser::release,
 		N2 is N - 1,

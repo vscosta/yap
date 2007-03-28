@@ -1,25 +1,12 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.4
+Release 2.29.5
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-% start by loading the necessary library and support example files (if not 
-% already loaded):
-
-| ?- logtalk_load(library(all_loader)).
-...
-
-| ?- logtalk_load(roots(loader)).
-...
-
-| ?- logtalk_load(relations(loader)).
-...
-
-
-% now you are ready for loading the example:
+% start by loading the example and the required library files:
 
 | ?- logtalk_load(bricks(loader)).
 ...
@@ -27,16 +14,7 @@ Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 
 % create four bricks, all standing on the "ground" (use your imagination... ;-)
 
-| ?- brick::new(a, [position-(8, 1)]).
-yes
-
-| ?- brick::new(b, [position-(6, 1)]).
-yes
-
-| ?- brick::new(c, [position-(4, 1)]).
-yes
-
-| ?- brick::new(d, [position-(2, 1)]).
+| ?- brick::(new(a, [position-(8, 1)]), new(b, [position-(6, 1)]), new(c, [position-(4, 1)]), new(d, [position-(2, 1)])).
 yes
 
 % set up ascii stack monitor so we can watch the bricks moving
@@ -47,20 +25,14 @@ yes
 
 % make the stack
 
-| ?- brick_stack::add_tuple([c,d]).
+| ?- brick_stack::(add_tuple([c,d]), add_tuple([b,c]), add_tuple([a,b])).
 |.c......
 |.d...b.a
 ---------
-yes
-
-| ?- brick_stack::add_tuple([b,c]).
 |.b......
 |.c......
 |.d.....a
 ---------
-yes
-
-| ?- brick_stack::add_tuple([a,b]).
 |.a
 |.b
 |.c

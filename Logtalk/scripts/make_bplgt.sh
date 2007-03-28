@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.29.4
+## Release 2.29.5
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -52,7 +52,7 @@ echo ":- compile('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_bp.pl
 echo ":- load('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_bp.pl
 
 echo "#/bin/sh" > bplgt
-echo "bp -g  \"consult('\\\$LOGTALKHOME/bin/logtalk_bp.pl'), \\\$bp_top_level\"" >> bplgt
+echo "bp -g  \"consult('\\\$LOGTALKHOME/bin/logtalk_bp.pl'), \\\$bp_top_level\" \"\$@\"" >> bplgt
 chmod a+x bplgt
 ln -sf $LOGTALKHOME/bin/bplgt $prefix/bin/bplgt
 echo "Done. A link to the script was been created in $prefix/bin."

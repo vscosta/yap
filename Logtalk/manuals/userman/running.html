@@ -160,20 +160,27 @@ yes</pre>
 			<dd>Controls the compilation of source files in debug mode (the Logtalk built-in debugger can only be used with files compiled in this mode). Possible option values are <code>on</code> and <code>off</code> (the usual default).</dd>
 	</dl>
 	<dl>
+		<dt><code>reload(Option)</code></dt>
+			<dd>Defines the reloading behavior for source files. Possible option values are <code>skip</code> (skip loading of already loaded files) and <code>always</code> (always reload files; the usual default). This option must not be used when recompiling source files in debug mode (see <code>debug/1</code> option above).</dd>
+	</dl>
+	<dl>
 		<dt><code>smart_compilation(Option)</code></dt>
-			<dd>Controls the use of smart compilation of source files to avoid recompiling files that are unchanged since the last time they are compiled. Possible option values are <code>on</code> and <code>off</code> (the usual default). This option is only supported in some Prolog compilers. It must not be used when compiling source files in debug mode (see <code>debug/1</code> option below).</dd>
+			<dd>Controls the use of smart compilation of source files to avoid recompiling files that are unchanged since the last time they are compiled. Possible option values are <code>on</code> and <code>off</code> (the usual default). This option is only supported in some Prolog compilers. It must not be used when recompiling source files in debug mode (see <code>debug/1</code> option above).</dd>
 	</dl>
 	<dl>
 		<dt><code>events(Option)</code></dt>
-			<dd>Allows Logtalk event-driven programming support to be turned off when not needed in order to improve message sending performance. Possible option values are <code>on</code> (the usual default) and <code>off</code>. Objects (and categories) compiled with this option set to <code>off</code> use optimized code for message-sending that does not trigger events. As such, this option can be used on a per-object (or per-category) basis. Note that turning off this option is of no consequence for objects and categories already compiled and loaded.</dd>
+			<dd>Allows Logtalk event-driven programming support to be turned off when not needed in order to improve message sending performance. Possible option values are <code>on</code> and <code>off</code> (the usual default). Objects (and categories) compiled with this option set to <code>off</code> use optimized code for message-sending that does not trigger events. As such, this option can be used on a per-object (or per-category) basis. Note that turning on this option is of no consequence for objects and categories already compiled and loaded.</dd>
 	</dl>
 	<dl>
 		<dt><code>hook(Object::Functor)</code></dt>
 			<dd>Allows the definition of a compiler hook that is called for each term read form a source file. This option specifies both an object (which can be the pseudo-object <code>user</code>) and the functor of a public predicate with two arguments, the first one receiving the term read form the source file and the second one returning a list of terms corresponding to the expansion of the first argument.</dd>
 	</dl>
 
-<h3>Smart compilation of source files<a id="running_smart"></a></h3>
+<h3>Reloading and smart compilation of source files<a id="running_smart"></a></h3>
 
+<p>
+When using library entities and stable code, you can avoid reloading the corresponding source files (and, therefore, recompiling them) by setting the compiler option <code>reload</code> to <code>skip</code>.
+</p>
 <p>
 If the Prolog compiler that you are using supports retrieving  of file modification dates, then you can turn on smart compilation of source files to avoid recompiling files that have not been modified since last compilation.
 </p>
@@ -392,12 +399,14 @@ The debugger pauses at leashed posts when tracing or when finding a spy point fo
 	<dt><code>l</code> &mdash; leap</dt>
 		<dd>continues execution until the next spy point is found</dd>
 	<dt><code>s</code> &mdash; skip</dt>
-		<dd>skips debugging for the current goal; only valid at call and redo ports</dd>
+		<dd>skips debugging for the current goal; only meaningful at call and redo ports</dd>
+	<dt><code>i</code> &mdash; ignore</dt>
+		<dd>ignores goal, assumes that it succeeded</dd>
 	<dt><code>f</code> &mdash; fail</dt>
 		<dd>forces backtracking</dd>
 	<dt><code>n</code> &mdash; nodebug</dt>
 		<dd>turns off debugging</dd>
-	<dt><code>@</code> &mdash; command</dt>
+	<dt><code>@</code> &mdash; command; <code>!</code> can be used in alternative</dt>
 		<dd>reads and executes a query</dd>
 	<dt><code>b</code> &mdash; break</dt>
 		<dd>suspends execution and starts new interpreter; type <code>end_of_file</code> to terminate</dd>
@@ -424,7 +433,7 @@ The debugger pauses at leashed posts when tracing or when finding a spy point fo
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: December 11, 2006</span>
+		<span>Last updated on: March 15, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="installing.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="programming.html">next</a></span><br/>

@@ -1,48 +1,68 @@
 
-:- object(primes).
+:- object(primes(_Threads)).
 
 	:- info([
-		version is 1.1,
+		version is 1.2,
 		author is 'Paulo Moura',
-		date is 2006/11/26,
-		comment is 'Simple example for comparing single and multi-threading calculation of prime numbers.']).
+		date is 2007/3/24,
+		comment is 'Simple example for comparing single and multi-threading calculation of prime numbers.',
+		parameters is ['Threads'- 'Number of threads to use. Valid values are 1, 2, and 4.']]).
 
 	:- threaded.
 
-	:- public(st_prime_numbers/3).
-	:- mode(st_prime_numbers(+integer, +integer, -list), one).
-	:- info(st_prime_numbers/3, [
-		comment is 'Returns all prime numbers in the given interval using a single calculation thread.',
+	:- public(primes/3).
+	:- mode(primes(+integer, +integer, -list), one).
+	:- info(primes/3, [
+		comment is 'Returns a list of all prime numbers in the given interval.',
 		argnames is ['Inf', 'Sup', 'Primes']]).
 
-	:- public(mt_prime_numbers/3).
-	:- mode(mt_prime_numbers(+integer, +integer, -list), one).
-	:- info(mt_prime_numbers/3, [
-		comment is 'Returns all prime numbers in the given interval using two calculation threads.',
-		argnames is ['Inf', 'Sup', 'Primes']]).
 
-	st_prime_numbers(N, M, Primes) :-
+	primes(N, M, Primes) :-
+		parameter(1, Threads),
+		primes(Threads, N, M, Primes).
+
+	primes(1, N, M, Primes) :-
+		st_primes(N, M, Primes).
+	primes(2, N, M, Primes) :-
+		mt_primes_2(N, M, Primes).
+	primes(4, N, M, Primes) :-
+		mt_primes_4(N, M, Primes).
+
+	st_primes(N, M, Primes) :-
 		M > N,
 		prime_numbers(N, M, [], Primes).
 
-	mt_prime_numbers(N, M, Primes) :-
+	mt_primes_2(N, M, Primes) :-
 		M > N,
 		N1 is N + (M - N) // 2,
 		N2 is N1 + 1,
-		threaded_call(prime_numbers(N, N1, [], Acc)),
-		threaded_call(prime_numbers(N2, M, Acc, Primes)),
-		threaded_exit(prime_numbers(N, N1, [], Acc)),
-		threaded_exit(prime_numbers(N2, M, Acc, Primes)).
+		threaded((
+			prime_numbers(N2, M, [], Acc),
+			prime_numbers(N, N1, Acc, Primes))).
+
+	mt_primes_4(N, M, Primes) :-
+		M > N,
+		N3 is N + (M - N) // 2,
+		N4 is N3 + 1,
+		N1 is N + (N3 - N) // 2,
+		N2 is N1 + 1,
+		N5 is N4 + (M - N4) // 2,
+		N6 is N5 + 1,
+		threaded((
+			prime_numbers(N6, M, [], Acc1),
+			prime_numbers(N4, N5, Acc1, Acc2),
+			prime_numbers(N2, N3, Acc2, Acc3),
+			prime_numbers(N, N1, Acc3, Primes))).
 
 	prime_numbers(N, M, Primes, Primes) :-
 		N > M,
 		!.
 	prime_numbers(N, M, Acc, Primes) :-
 		(	is_prime(N) ->
-			Acc2 = [N| Acc]
-		;	Acc2 = Acc),
+			Primes = [N| Primes2]
+		;	Primes = Primes2),
 	    N2 is N + 1,
-		prime_numbers(N2, M, Acc2, Primes).
+		prime_numbers(N2, M, Acc, Primes2).
 
 	is_prime(2) :- !.
 	is_prime(Prime):-

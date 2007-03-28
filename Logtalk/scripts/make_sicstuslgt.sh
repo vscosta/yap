@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.29.4
+## Release 2.29.5
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -52,7 +52,7 @@ fi
 echo ":- compile('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_sicstus.pl
 
 echo "#/bin/sh" > sicstuslgt
-echo "sicstus -l \$LOGTALKHOME/bin/logtalk_sicstus.pl" >> sicstuslgt
+echo "sicstus -l \"\$LOGTALKHOME/bin/logtalk_sicstus.pl\" \"\$@\"" >> sicstuslgt
 chmod a+x sicstuslgt
 ln -sf $LOGTALKHOME/bin/sicstuslgt $prefix/bin/sicstuslgt
 echo "Done. A link to the script was been created in $prefix/bin."

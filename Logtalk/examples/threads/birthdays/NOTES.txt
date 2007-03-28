@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.4
+Release 2.29.5
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -9,4 +9,5 @@ Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 To load this example and for sample queries, please see the SCRIPT file.
 
 This folder contains a simple multi-threading example with agents and 
-their birthdays.
+their birthdays, illustrating the use of the built-in predicates 
+threaded_ignore/1, threaded_once/1, and threaded_exit/1.

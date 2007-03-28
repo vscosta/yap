@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.4
+Release 2.29.5
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -9,20 +9,20 @@ Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 This folder contains several examples of Logtalk programs. A brief 
 description of each example is included below.
 
-Each example folder contains a NOTES file and a loader helper file which 
-may be used to load all the example entities. In addition, most examples 
-contain a SCRIPT file with instructions on how to load the example and 
-sample queries for your to try.
+Each example folder contains a "NOTES.txt" file and a loader helper 
+file that may be used to load all the example entities. In addition, 
+most examples contain a "SCRIPT.txt" file with instructions on how to 
+load the example and sample queries for your to try.
 
-Most of these examples need objects, protocols, and categories which are 
-defined in the Logtalk standard library or in other examples. See the NOTES 
-files inside the library folder, plus the NOTES and SCRIPT files inside each 
-example folder.
+Most of these examples need objects, protocols, and categories that 
+are defined in the Logtalk standard library or in other examples. See 
+the "NOTES.txt" files inside the library folder, plus the "NOTES.txt" 
+and "SCRIPT.txt" files inside each example folder.
 
 Some examples may redefine objects already loaded from other examples.
 You may want to restart Logtalk after trying each example.
 
-Some of the examples code have been adopted from public available Prolog 
+Some of the examples have been adopted from public available Prolog 
 code or from known Prolog text books and are copyrighted by the respective 
 authors.
 
@@ -33,27 +33,28 @@ solutions for deployment code.
 
 All examples are formatted using four spaces tabs.
 
-By default, compiling an example generates a .xml documenting file for each 
-compiled entity (object, category, or protocol). See the "xml" folder for 
-instructions on how to browse the .xml files for on-line reading or how to 
-convert the files to a print-ready format such as PDF.
+By default, compiling an example generates a XML documenting file for 
+each compiled entity (object, category, or protocol). See the "xml" 
+folder for instructions on how to browse the XML files for on-line 
+reading or how to convert the files to a print-ready format such as PDF.
 
 
 Here is a short description of each included example:
 
 aliases
-	example of using the alias/3 predicate directive to provide alternative 
-	names to inherited predicates in order to improve readability or to solve 
-	multi-inheritance conflicts
+	example of using the alias/3 predicate directive to provide 
+	alternative names to inherited predicates in order to improve 
+	readability or to solve multi-inheritance conflicts
 
 assignvars
-	example of using assignable variables in the context of parametric objects
-	in order to represent object state
+	example of using assignable variables in the context of parametric 
+	objects in order to represent object state
 
 benchmarks
-	simple benchmarks for helping measuring performance of Logtalk message 
-	sending between Prolog compilers and for comparing performance of message 
-	sending calls with predicate calls in plain Prolog
+	simple benchmarks for helping measuring performance of Logtalk 
+	message sending between Prolog compilers and for comparing 
+	performance of message sending calls with predicate calls in 
+	plain Prolog
 
 birds
 	bird identification expert system
@@ -78,16 +79,16 @@ diamonds
 	(multi-inheritance conflicts and ambiguities)
 
 dynpred
-	example of using some of the built-in database handling methods in 
-	order to implement dynamic object state
+	example of using some of the built-in database handling methods 
+	in order to implement dynamic object state
 
 encodings
 	very simple example of using the new, experimental encoding/1 
 	directive (requires Logtalk to be run with the SWI-Prolog compiler)
 
 engines
-	example of category composition (importation of categories by other 
-	categories) using car engines
+	example of category composition (importation of categories by 
+	other categories) using car engines
 
 errors
 	example showing the Logtalk compiler warning and error reporting
@@ -121,8 +122,8 @@ metapredicates
 	example of using meta-predicates in Logtalk objects
 
 metainterpreters
-	some examples of simple meta-interpreters defined as categories which 
-	may be imported by "database" objects
+	some examples of simple meta-interpreters defined as categories 
+	that can be imported by "database" objects
 
 mi
 	simple multi-inheritance examples
@@ -134,8 +135,8 @@ modules
 	simple example of compiling Prolog module files as objects
 
 msglog
-	example of using events and monitors for recording, replaying, and 
-	printing user messages
+	example of using events and monitors for recording, replaying, 
+	and printing user messages
 
 operators
 	example of using operators local to objects and categories
@@ -147,9 +148,9 @@ poem
 	examples adopted from the Ben Staveley-Taylor POEM system
 
 points
-	example adopted from SICStus Objects documentation; defines a simple 
-	class hierarchy of points illustrating how to use categories as 
-	object components
+	example adopted from SICStus Objects documentation; defines 
+	a simple class hierarchy of points illustrating how to use 
+	categories as object components
 
 polygons
 	example of representation and handling of relations using events
@@ -172,30 +173,31 @@ relations
 	constrained relations between objects; used by other examples
 
 roots
-	objects, protocols, and categories needed by most of the other examples;
-	illustrates how you can define object creation and abolishing methods, 
-	complete with initialization and termination options
+	objects, protocols, and categories needed by most of the other 
+	examples; illustrates how you can define object creation and 
+	abolishing methods, complete with initialization and termination 
+	options
 
 searching
 	state-space searching framework
-	(example adopted from Ivan Bratko's "Prolog Programming for Artificial 
-	Intelligence" book)
+	(example adopted from Ivan Bratko's "Prolog Programming for 
+	Artificial Intelligence" book)
 
 shapes
-	simple geometric shapes implemented as both a prototype hierarchy and a 
-	class hierarchy
+	simple geometric shapes implemented as both a prototype hierarchy 
+	and a class hierarchy
 
 sicstus
 	examples adopted from SICStus Objects documentation
 
 symdiff
-	example of using parametric objects to implement symbolic expression 
-	differentiation and simplification
+	example of using parametric objects to implement symbolic 
+	expression differentiation and simplification
 
 threads
 	several simple examples of multi-threading programming
 	(requires Logtalk to be run with either YAP or SWI-Prolog)
 
 viewpoints
-	example on how to implement property sharing and value sharing with 
-	prototypes
+	example on how to implement property sharing and value sharing 
+	with prototypes

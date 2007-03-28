@@ -3,9 +3,9 @@
 	implements(randomp)).
 
 	:- info([
-		version is 1.2,
+		version is 1.3,
 		author is 'Paulo Moura',
-		date is 2007/1/3,
+		date is 2007/3/24,
 		comment is 'Random number generator predicates.']).
 
 	:- synchronized.	% make all object predicates multi-threading aware
@@ -54,7 +54,7 @@
 		Upper >= Lower,
 		!,
 		::retract(seed_(A0, A1, A2)),
-		randseq(Length, Lower, Upper, (A0, A1, A2), (B0, B1, B2), [], List),
+		randseq(Length, Lower, Upper, (A0, A1, A2), (B0, B1, B2), List),
 		::asserta(seed_(B0, B1, B2)),
 		map_truncate(List, Sequence).
 
@@ -65,16 +65,16 @@
 		float(Upper),
 		Upper >= Lower,
 		::retract(seed_(A0, A1, A2)),
-		randseq(Length, Lower, Upper, (A0, A1, A2), (B0, B1, B2), [], Sequence),
+		randseq(Length, Lower, Upper, (A0, A1, A2), (B0, B1, B2), Sequence),
 		::asserta(seed_(B0, B1, B2)).
 
-	randseq(0, _, _, Seed, Seed, List, List) :-
+	randseq(0, _, _, Seed, Seed, []) :-
 		!.
-	randseq(N, Lower, Upper, (A0, A1, A2), (C0, C1, C2), Acc, List) :-
+	randseq(N, Lower, Upper, (A0, A1, A2), (C0, C1, C2),  [Random| List]) :-
 		N2 is N - 1,
 		random(A0, A1, A2, B0, B1, B2, R),
 		Random is R * (Upper-Lower)+Lower,
-		randseq(N2, Lower, Upper, (B0, B1, B2), (C0, C1, C2), [Random| Acc], List).
+		randseq(N2, Lower, Upper, (B0, B1, B2), (C0, C1, C2), List).
 
 	map_truncate([], []).
 	map_truncate([Float| Floats], [Integer| Integers]) :-
@@ -108,15 +108,15 @@
 		N2 is N - 1,
 		random(A0, A1, A2, B0, B1, B2, Float),
 		Float2 is Float * (Upper-Lower)+Lower,
-		(integer(Lower) ->
+		(	integer(Lower) ->
 			Random is truncate(Float2)
-			;
-			Random is Float2),
-		(not_member(Acc, Random) ->
+		;	Random is Float2
+		),
+		(	not_member(Acc, Random) ->
 			add_ordered(Acc, Random, Acc2),
 			randset(N2, Lower, Upper, (B0, B1, B2), (C0, C1, C2), Acc2, List)
-			;
-			randset(N, Lower, Upper, (B0, B1, B2), (C0, C1, C2), Acc, List)).
+		;	randset(N, Lower, Upper, (B0, B1, B2), (C0, C1, C2), Acc, List)
+		).
 
 	not_member([], _).
 	not_member([H| T], R) :-

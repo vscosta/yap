@@ -313,7 +313,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(threaded_(call|once|ignore|race|exit|peek|wait|notify))(?=[(])</string>
+			<string>\b(threaded(_(call|once|ignore|race|exit|peek|wait|notify))?)(?=[(])</string>
 			<key>name</key>
 			<string>support.function.multi-threading.logtalk</string>
 		</dict>

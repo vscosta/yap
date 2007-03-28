@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.4
+Release 2.29.5
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -154,3 +154,7 @@ and "synchronized" entity properties implies recompilation of all objects
 and categories.
 
 Logtalk 2.29.2 removes the built-in predicate threaded_discard/1.
+
+Logtalk 2.29.5 adds a new compiler option, "reload", whose default value is 
+defined in the config files. This makes previous config files incompatible 
+with this new Logtalk version.

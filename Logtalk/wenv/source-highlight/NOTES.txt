@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.4
+Release 2.29.5
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -36,7 +36,7 @@ Usage example for a "foo.lgt" Logtalk source file:
 
 	% source-highlight --out-format xhtml --input foo.lgt --output foo.html
 
-Usually, Logtalk files are formatted using four-spaces tabs. You may want to 
+Usually, Logtalk files are formatted using four-space tabs. You may want to 
 use the "--tab=4"option to keep you source code formatting choices.
 
 You may also use the "logtalk.lang" file with plain Prolog files by using 

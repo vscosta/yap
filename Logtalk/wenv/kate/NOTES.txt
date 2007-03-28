@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.4
+Release 2.29.5
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -20,7 +20,7 @@ or:
     ~/.kde/share/apps/katepart/syntax/
 
 and restart Kate and KWrite. Logtalk source files (including the programming 
-examples) are usually formatted using four-spaces tabs; you may set the tab 
+examples) are usually formatted using four-space tabs; you may set the tab 
 width on the editor preference panel.
 
 

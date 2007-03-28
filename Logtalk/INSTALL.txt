@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.4
+Release 2.29.5
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -9,9 +9,9 @@ Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 The recommended way of installing Logtalk is to use, whenever possible, one 
 of the provided installers. This file contains detailed instructions for 
 manual installation and configuration of Logtalk. You should also consult 
-the "scripts/NOTES" file for a description of a set of shell scripts that 
-might be used for Logtalk installation on some operating-systems and for 
-easy Logtalk integration with popular Prolog compilers.
+the "scripts/NOTES.txt" file for a description of a set of shell scripts 
+that might be used for Logtalk installation on some operating-systems and 
+for easy Logtalk integration with popular Prolog compilers.
 
 Note that the broad compatibility of Logtalk, both with Prolog compilers and 
 operating-systems, together with all the possible user scenarios, means that 
@@ -48,7 +48,7 @@ for some reason, not feasible or desired).
 
 The "scripts" sub-directory contains shell scripts for easy installation of 
 Logtalk on MacOS X, Windows, Linux, and Unix-like (POSIX) operating systems 
-(see the "scripts/NOTES" file for details).
+(see the "scripts/NOTES.txt" file for details).
 
 >> POSIX systems installation (starting from the Logtalk directory):
 
@@ -119,7 +119,7 @@ Each user must make a local copy of the Logtalk user-modifiable files to its
 home directory. This setup allows each user to easily and independently 
 customize Logtalk to its needs. These copies can be easily made by instructing
 end-users to simply run the shell scripts "cplgtdirs.*" (which are described 
-in the "scripts/NOTES" file).
+in the "scripts/NOTES.txt" file).
 
 >> POSIX systems:
 
@@ -144,8 +144,8 @@ directives for loading other files, such as the Logtalk configuration file
 and the Logtalk compiler. The "$LOGTALKHOME/scripts" sub-directory contains 
 several scripts (named "make_*lgt.*") for automating the creation of these 
 initialization files for some Prolog compilers. In addition, be sure to read 
-the "configs/NOTES" file notes on the Prolog compilers that you intend to use.
-There are also "makeall_lgt.*" scripts that try to run all the individual
+the "configs/NOTES.txt" file notes on the Prolog compilers that you intend to 
+use. There are also "makeall_lgt.*" scripts that try to run all the individual
 "make_*lgt.*" scripts:
 
 >> POSIX systems:
@@ -160,7 +160,7 @@ There are also "makeall_lgt.*" scripts that try to run all the individual
 
 This assumes that your favorite Prolog compilers are supported by the 
 "make_*lgt.*" scripts. If that is not the case, don't worry: just follow 
-the steps described in the "QUICK_START" file.
+the steps described in the "QUICK_START.txt" file.
 
 
 5. CUSTOMIZING LOGTALK

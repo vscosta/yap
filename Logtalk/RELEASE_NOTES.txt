@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.4
+Release 2.29.5
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,73 @@ Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.29.5 - March 28, 2007
+
+	Added a new built-in predicate, "threaded/1", for proving each goal in 
+	a conjunction in its own thread, simplifying common multi-threading 
+	tasks that previously required sequences of calls to the built-in 
+	predicates threaded_call/1 and threaded_exit/1.
+
+	Simplified and optimized the implementation of Logtalk multi-threading 
+	support.
+
+	Simplified implementation of the database built-in methods. Simplified 
+	caching of dynamic predicate lookups. Improved performance of the 
+	built-in methods retract/1 and retractall/1.
+
+	Simplified the code generated when compiling entities in debugging mode.
+
+	Corrected a bug in the built-in debugger when processing actions at a 
+	port that implies reading a port action again (e.g. print exception term,
+	print debugging status, and help options). Allow the debugger command 
+	"skip" to work as the command "creep" in ports other than "call" and 
+	"redo". Added a new debugger command, "ignore". Suspend debugging when 
+	using the "break" debugger command.
+
+	Generate a compilation error instead of just printing a warning when 
+	compiling calls to the multi-threading built-in predicates within an 
+	object with no threaded/0 directive present.
+
+	Corrected a bug when compiling entities containing synchronization 
+	directives on single-threaded Prolog configurations.
+
+	Improving reporting of working directory when loading or compiling source 
+	files by expanding any environment variables occurring in the path.
+
+	Added a new compiler option, "reload", for defining the Logtalk behavior 
+	when reloading source files. Valid values are "always" (default value; 
+	defined in the config files) and "skip".
+
+	Updated the programming examples to use the new "reload" compiler option 
+	when loading library entities. Simplified loading of example source files 
+	(by updating the utility loader files to automatically load all required 
+	library files).
+
+	Updated GNU Prolog config file to take advantage of some built-in list 
+	predicates (requires version 1.2.14 or later); changed the compiler flag 
+	"underscore_vars" value to "dont_care" to avoid spurious warnings with 
+	some examples.
+
+	Added a config file for B-Prolog 7.0b1.
+
+	Updated the POSIX integration shell scripts to pass along any command 
+	line options to the corresponding Prolog compiler and to prevent some 
+	problems with paths containing spaces.
+
+	Much improved syntax coloring and code completion support for the jEdit 
+	text editor.
+
+	Updated the "threads/primes" example to use the new "threaded/1" built-in 
+	predicate. Updated the "threads/birthdays" example to better illustrate 
+	the use of the built-in multi-threading predicates. Added a new 
+	multi-threading example, "msort", implementing single-threaded and 
+	multi-threaded versions of the merge sort algorithm.
+
+	Expanded the "operators" example to illustrate a simple solution for 
+	making operators local to source files (but global to all entities 
+	defined within the source files).
 
 
 2.29.4 - February 19, 2007

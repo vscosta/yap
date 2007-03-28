@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.29.4
+## Release 2.29.5
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -47,7 +47,7 @@ echo ":- reconsult('~/logtalk/libpaths/libpaths_no_env_var.pl')." >> logtalk_xsb
 echo ":- path_sysop(chdir, '~')." >> logtalk_xsb.pl
 echo "#/bin/sh" > xsblgt
 echo "cd \$LOGTALKHOME" >> xsblgt
-echo "xsb -l -e \"reconsult('bin/logtalk_xsb.pl').\"" >> xsblgt
+echo "xsb -l -e \"reconsult('bin/logtalk_xsb.pl').\" \"\$@\"" >> xsblgt
 chmod a+x xsblgt
 ln -sf $LOGTALKHOME/bin/xsblgt $prefix/bin/xsblgt
 echo "Done. A link to the script was been created in $prefix/bin."

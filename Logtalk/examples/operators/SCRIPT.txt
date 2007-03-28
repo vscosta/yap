@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.4
+Release 2.29.5
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -32,7 +32,7 @@ J = 4 ;
 I = 3
 J = 6 
 
-Yes
+yes
 
 
 % operators also affect inputing of terms, enabling this example to work:
@@ -48,8 +48,50 @@ J = 6 ;
 I = 3
 J = 9 
 
-Yes
+yes
 
 
 % check the file "previous.txt" generated from the file "next.txt" by the object "reverse"
 % by opening the files on a text editor
+
+
+% the "edge" operator on the "local.lgt" source file is not globally visible:
+
+| ?- graph1::(N1 edge N2).
+uncaught exception: error(syntax_error('user_input:10 (char:13) ) or operator expected'),read_term/3)
+
+
+% you must use instead functor notation:
+
+| ?- graph1::edge(N1, N2).
+
+N1 = a
+N2 = b ;
+
+N1 = a
+N2 = c ;
+
+N1 = b
+N2 = d ;
+
+N1 = c
+N2 = d
+
+yes
+
+
+| ?- graph1::path(a, d, Path).
+
+Path = [a, b, d] ;
+
+Path = [a, c, d] 
+
+yes
+
+
+% confirm that the "edge" operator have not became global:
+
+| ?- current_op(P, T, edge).
+
+no
+

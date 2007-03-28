@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.29.4
+## Release 2.29.5
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -53,7 +53,7 @@ echo ":- op(200, fy, ?)." >> logtalk_ciao.pl
 echo ":- op(200, fy, @)." >> logtalk_ciao.pl
 echo ":- op(200, fy, -)." >> logtalk_ciao.pl
 echo "#/bin/sh" > ciaolgt
-echo "ciaosh -l \$LOGTALKHOME/bin/logtalk_ciao.pl" >> ciaolgt
+echo "ciaosh -l \"\$LOGTALKHOME/bin/logtalk_ciao.pl\" \"\$@\"" >> ciaolgt
 chmod a+x ciaolgt
 ln -sf $LOGTALKHOME/bin/ciaolgt $prefix/bin/ciaolgt
 echo "Done. A link to the script was been created in $prefix/bin."

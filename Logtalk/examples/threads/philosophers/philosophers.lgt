@@ -4,8 +4,10 @@
 	:- info([
 		version is 1.2,
 		author is 'Paulo Moura',
-		date is 2006/12/31,
+		date is 2007/3/19,
 		comment is 'Dining philosophers problem: chopstick representation.']).
+
+	:- synchronized.
 
 	:- public(pick_up/0).
 	:- mode(pick_up, zero_or_one).
@@ -23,9 +25,8 @@
 	:- info(available/0, [
 		comment is 'Chopstick state (either available or in use).']).
 
-	% chopstick actions (picking up and putting down) are synchronized using the same mutext
+	% chopstick actions (picking up and putting down) are synchronized using the same mutex
 	% such that a chopstick can only be handled by a single philosopher at a time:
-	:- synchronized([pick_up/0, put_down/0]).
 
 	pick_up :-
 		::available,

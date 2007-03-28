@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.29.4
+## Release 2.29.5
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -69,6 +69,7 @@ eval $xslt_proc -o builtins/specializes_class2_3.section refman.xsl builtins/spe
 eval $xslt_proc -o builtins/abolish_events5.section refman.xsl builtins/abolish_events5.html
 eval $xslt_proc -o builtins/current_event5.section refman.xsl builtins/current_event5.html
 eval $xslt_proc -o builtins/define_events5.section refman.xsl builtins/define_events5.html
+eval $xslt_proc -o builtins/threaded1.section refman.xsl builtins/threaded1.html
 eval $xslt_proc -o builtins/threaded_call1.section refman.xsl builtins/threaded_call1.html
 eval $xslt_proc -o builtins/threaded_once1.section refman.xsl builtins/threaded_once1.html
 eval $xslt_proc -o builtins/threaded_ignore1.section refman.xsl builtins/threaded_ignore1.html
@@ -168,6 +169,7 @@ cat -s \
 	builtins/abolish_events5.section \
 	builtins/current_event5.section \
 	builtins/define_events5.section \
+	builtins/threaded1.section \
 	builtins/threaded_call1.section \
 	builtins/threaded_once1.section \
 	builtins/threaded_ignore1.section \

@@ -1,14 +1,14 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.4
+Release 2.29.5
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-This directory contains files that provide syntax highlighting, automating 
-code indenting, and programming templates for editing Logtalk source files 
-with the text editor jEdit 4.2 or later version:
+This directory contains files that provide syntax highlighting, automatic
+code indenting, code completion, and programming templates for editing 
+Logtalk source files with the text editor jEdit 4.3 or later version:
 
 	http://www.jedit.org/
 
@@ -23,17 +23,18 @@ To install:
 	
 	<MODE NAME="logtalk" FILE="logtalk.xml" FILE_NAME_GLOB="*.{lgt,config}" />
 
-3.	Install (or update if necessary) the jEdit plug-in Templates 3.0.1
+3.	Install (or update if necessary) the jEdit plug-in Templates 4.0.0
 	or later version.
 
 4.	Copy the contents of the subdirectory templates to the templates 
 	directory set in the plug-in preferences.
 
+5.	Install the jEdit plug-in CodeBrowser 1.4.2 or later version and the 
+	Logtalk support for Exuberant C Tags foiund on "wenv/ctags" directory.
 
 Notes:
 
-You should be able to use jEdit code folding indent mode with Logtalk 
-source files.
+You can use the jEdit code folding indent mode with Logtalk source files.
 
 You can customize the templates for objects, categories, and protocols 
 to use your name by default by changing the line that reads:

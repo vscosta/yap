@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.29.4
+%  Release 2.29.5
 %
 %  Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 %
@@ -65,6 +65,11 @@
 :- dynamic('$lgt_extends_object_'/3).		% '$lgt_extends_object_'(Prototype, Parent, Scope)
 
 
+% table of loaded files
+
+:- dynamic('$lgt_loaded_file_'/2).			% '$lgt_loaded_file_'(File, Directory)
+
+
 % debugger status and tables
 
 :- dynamic('$lgt_debugging_'/1).			% '$lgt_debugging_'(Entity)
@@ -91,7 +96,7 @@
 
 % lookup cache for asserting and retracting dynamic facts
 
-:- dynamic('$lgt_db_lookup_cache_'/6).		% '$lgt_db_lookup_cache_'(Obj, Pred, Sender, Scope, Call, UpdateGoal)
+:- dynamic('$lgt_db_lookup_cache_'/5).		% '$lgt_db_lookup_cache_'(Obj, Pred, Sender, Call, UpdateGoal)
 
 
 % table of library paths
@@ -205,7 +210,8 @@ Obj::Pred :-
 	'$lgt_tr_msg'(Pred, Obj, Call, user),						% compile the message
 	(	'$lgt_dbg_debugging_', '$lgt_debugging_'(Obj) ->		% check if we're debugging the target object
 		'$lgt_ctx_ctx'(Ctx, _, user, user, Obj, '$lgt_bio_user_0_', [], _),
-		catch('$lgt_dbg_goal'(Obj::Pred, Call, Ctx), Error, '$lgt_runtime_error_handler'(Error))
+		'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
+		catch('$lgt_dbg_goal'(Obj::Pred, Call, DbgCtx), Error, '$lgt_runtime_error_handler'(Error))
 	;	catch(Call, Error, '$lgt_runtime_error_handler'(Error))
 	).
 
@@ -971,6 +977,63 @@ abolish_events(after, Obj, Msg, Sender, Monitor) :-
 
 % built-in multi-threading meta-predicates
 
+threaded(Goals) :-
+	var(Goals),
+	throw(error(instantiation_error, threaded(Goals))).
+
+threaded(Goals) :-
+	\+ '$lgt_compiler_flag'(threads, on),
+	throw(resource_error(threads, threaded(Goals))).
+
+threaded(Goals) :-
+	'$lgt_ctx_ctx'(Ctx, _, user, user, user, '$lgt_bio_user_0_', [], _),
+	'$threaded_calls'(Goals, TCalls, threaded(Goals), Ctx),
+	'$threaded_exits'(Goals, TExits, threaded(Goals), Ctx),
+	catch((TCalls, TExits), Error, '$lgt_runtime_error_handler'(Error)).
+
+
+'$threaded_calls'(Goal, _, Call, _) :-
+	\+ callable(Goal),
+	throw(error(type_error(callable, Goal), Call)).
+
+'$threaded_calls'((Obj::(Goal, Goals)), (TGoal, TGoals), (DGoal, DGoals), Ctx) :-
+	!,
+	'$threaded_calls'(Obj::Goal, TGoal, DGoal, Ctx),
+	'$threaded_calls'(Obj::Goals, TGoals, DGoals, Ctx).
+
+'$threaded_calls'(::(Goal, Goals), (TGoal, TGoals), (DGoal, DGoals), Ctx) :-
+	!,
+	'$threaded_calls'(::Goal, TGoal, DGoal, Ctx),
+	'$threaded_calls'(::Goals, TGoals, DGoals, Ctx).
+
+'$threaded_calls'((Goal, Goals), (TGoal, TGoals), Call, Ctx) :-
+	!,
+	'$threaded_calls'(Goal, TGoal, Call, Ctx),
+	'$threaded_calls'(Goals, TGoals, Call, Ctx).
+
+'$threaded_calls'(Goal, TGoal, Call, Ctx) :-
+	catch('$lgt_tr_body'(threaded_call(Goal), TGoal, _, Ctx), error(Error, _), throw(Error, Call)).
+
+
+'$threaded_exits'((Obj::(Goal, Goals)), (TGoal, TGoals), (DGoal, DGoals), Ctx) :-
+	!,
+	'$threaded_exits'(Obj::Goal, TGoal, DGoal, Ctx),
+	'$threaded_exits'(Obj::Goals, TGoals, DGoals, Ctx).
+
+'$threaded_exits'(::(Goal, Goals), (TGoal, TGoals), (DGoal, DGoals), Ctx) :-
+	!,
+	'$threaded_exits'(::Goal, TGoal, DGoal, Ctx),
+	'$threaded_exits'(::Goals, TGoals, DGoals, Ctx).
+
+'$threaded_exits'((Goal, Goals), (TGoal, TGoals), Call, Ctx) :-
+	!,
+	'$threaded_exits'(Goal, TGoal, Call, Ctx),
+	'$threaded_exits'(Goals, TGoals, Call, Ctx).
+
+'$threaded_exits'(Goal, TGoal, Call, Ctx) :-
+	catch('$lgt_tr_body'(threaded_exit(Goal), TGoal, _, Ctx), error(Error, _), throw(Error, Call)).
+
+
 threaded_call(Goal) :-
 	var(Goal),
 	throw(error(instantiation_error, threaded_call(Goal))).	
@@ -1301,9 +1364,11 @@ logtalk_compile(Files, Flags) :-
 	retractall('$lgt_pp_compiler_flag_'(_, _)),							% retract old flag values
 	retractall('$lgt_pp_hook_goal_'(_, _)),								% and any old hook goal
 	'$lgt_assert_compiler_flags'(Flags),
-	(	'$lgt_pp_compiler_flag_'(debug, on) ->							% debug flag on implies that
-		retractall('$lgt_pp_compiler_flag_'(smart_compilation, _)),		% the smart_compilation flag
-		asserta('$lgt_pp_compiler_flag_'(smart_compilation, off))		% must be off
+	(	'$lgt_pp_compiler_flag_'(debug, on) ->							% debug flag on requires the
+		retractall('$lgt_pp_compiler_flag_'(smart_compilation, _)),		% smart_compilation flag to 
+		asserta('$lgt_pp_compiler_flag_'(smart_compilation, off)),		% be off and 
+		retractall('$lgt_pp_compiler_flag_'(reload, _)),				% the reload flag to be set
+		asserta('$lgt_pp_compiler_flag_'(reload, always))				% to always
 	;	true),
 	(	'$lgt_pp_compiler_flag_'(hook, Obj::Functor) ->					% pre-compile hook in order 
 		Call =.. [Functor, Term, Terms],								% to speed up entity compilation
@@ -1423,7 +1488,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_current_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 29, 4)).
+current_logtalk_flag(version, version(2, 29, 5)).
 
 
 
@@ -1700,8 +1765,8 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	var(Clause),
 	throw(error(instantiation_error, Obj::asserta(Clause), Sender)).
 
-'$lgt_asserta'(Obj, Clause, Sender, Scope, _) :-
-	'$lgt_db_lookup_cache_'(Obj, Clause, Sender, Scope, Call, _),
+'$lgt_asserta'(Obj, Clause, Sender, _, _) :-
+	'$lgt_db_lookup_cache_'(Obj, Clause, Sender, Call, _),
 	!,
 	asserta(Call).
 
@@ -1736,12 +1801,13 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	'$lgt_assert_pred_dcl'(Dcl, DDcl, Head, Scope, Type, Meta, SCtn, DclScope),
 	(	Type == (dynamic) ->
 		(	(\+ \+ Scope = TestScope; Sender = SCtn) ->
-			'$lgt_assert_pred_call'(Obj, Def, DDef, Prefix, Head, Sender2, This, Self, Call, _),
+			'$lgt_assert_pred_def'(Obj, Def, DDef, Prefix, Head, Sender2, This, Self, Call, _),
 			'$lgt_pred_meta_vars'(Head, Meta, MetaVars),
 			'$lgt_ctx_ctx'(Ctx, _, Sender2, This, Self, Prefix, MetaVars, _),
 			'$lgt_tr_body'(Body, TBody, DBody, Ctx),
 			(	'$lgt_debugging_'(Obj) ->
-				asserta((Call :- ('$lgt_nop'(Body), '$lgt_dbg_head'(Head, Ctx), DBody)))
+				'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
+				asserta((Call :- ('$lgt_nop'(Body), '$lgt_dbg_head'(Head, DbgCtx), DBody)))
 			;	asserta((Call :- ('$lgt_nop'(Body), TBody)))
 			)
 		;	% predicate is not within the scope of the sender:
@@ -1758,8 +1824,8 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	throw(error(existence_error(object, Obj), Obj::asserta((Head:-Body)), Sender)).
 
 
-'$lgt_asserta_fact_chk'(Obj, Head, Sender, Scope, _) :-
-	'$lgt_db_lookup_cache_'(Obj, Head, Sender, Scope, Call, _),
+'$lgt_asserta_fact_chk'(Obj, Head, Sender, _, _) :-
+	'$lgt_db_lookup_cache_'(Obj, Head, Sender, Call, _),
 	!,
 	asserta(Call).
 
@@ -1770,18 +1836,13 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	'$lgt_assert_pred_dcl'(Dcl, DDcl, Head, Scope, Type, _, SCtn, DclScope),
 	(	Type == (dynamic) ->
 		(	(\+ \+ Scope = TestScope; Sender = SCtn)  ->
+			'$lgt_assert_pred_def'(Obj, Def, DDef, Prefix, Head, Sender2, This, Self, Call, Update),
 			(	'$lgt_debugging_'(Obj) ->
-				'$lgt_assert_pred_call'(Obj, Def, DDef, Prefix, Head, Sender2, This, Self, Call, _),
 				'$lgt_ctx_ctx'(Ctx, _, Sender2, This, Self, Prefix, [], _),
-				asserta((Call :- '$lgt_dbg_fact'(Head, Ctx)))
-			;	% not debugging, generate predicate template for caching:
-				functor(Head, HFunctor, HArity), functor(GHead, HFunctor, HArity),
-				functor(Obj, OFunctor, OArity), functor(GObj, OFunctor, OArity),
-				functor(Sender, SFunctor, SArity), functor(GSender, SFunctor, SArity),
-				'$lgt_assert_pred_call'(Obj, Def, DDef, Prefix, GHead, Sender2, This, Self, GCall, Update),
-				asserta('$lgt_db_lookup_cache_'(GObj, GHead, GSender, Scope, GCall, Update)),
-				(GObj, GHead, GSender) = (Obj, Head, Sender),
-				asserta(GCall)
+				'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
+				asserta((Call :- '$lgt_dbg_fact'(Head, DbgCtx)))
+			;	'$lgt_add_db_lookup_cache_entry'(Obj, Head, Sender, Call, DDef, Update),
+				asserta(Call)
 			)
 		;	% predicate is not within the scope of the sender:
 			(	Scope == p ->
@@ -1804,8 +1865,8 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	var(Clause),
 	throw(error(instantiation_error, Obj::assertz(Clause), Sender)).
 
-'$lgt_assertz'(Obj, Clause, Sender, Scope, _) :-
-	'$lgt_db_lookup_cache_'(Obj, Clause, Sender, Scope, Call, _),
+'$lgt_assertz'(Obj, Clause, Sender, _, _) :-
+	'$lgt_db_lookup_cache_'(Obj, Clause, Sender, Call, _),
 	!,
 	assertz(Call).
 
@@ -1840,12 +1901,13 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	'$lgt_assert_pred_dcl'(Dcl, DDcl, Head, Scope, Type, Meta, SCtn, DclScope),
 	(	Type == (dynamic) ->
 		(	(\+ \+ Scope = TestScope; Sender = SCtn)  ->
-			'$lgt_assert_pred_call'(Obj, Def, DDef, Prefix, Head, Sender2, This, Self, Call, _),
+			'$lgt_assert_pred_def'(Obj, Def, DDef, Prefix, Head, Sender2, This, Self, Call, _),
 			'$lgt_pred_meta_vars'(Head, Meta, MetaVars),
 			'$lgt_ctx_ctx'(Ctx, _, Sender2, This, Self, Prefix, MetaVars, _),
 			'$lgt_tr_body'(Body, TBody, DBody, Ctx),
 			(	'$lgt_debugging_'(Obj) ->
-				assertz((Call :- ('$lgt_nop'(Body), '$lgt_dbg_head'(Head, Ctx), DBody)))
+				'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
+				assertz((Call :- ('$lgt_nop'(Body), '$lgt_dbg_head'(Head, DbgCtx), DBody)))
 			;	assertz((Call :- ('$lgt_nop'(Body), TBody)))
 			)
 		;	% predicate is not within the scope of the sender:
@@ -1862,8 +1924,8 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	throw(error(existence_error(object, Obj), Obj::assertz((Head:-Body)), Sender)).
 
 
-'$lgt_assertz_fact_chk'(Obj, Head, Sender, Scope, _) :-
-	'$lgt_db_lookup_cache_'(Obj, Head, Sender, Scope, Call, _),
+'$lgt_assertz_fact_chk'(Obj, Head, Sender, _, _) :-
+	'$lgt_db_lookup_cache_'(Obj, Head, Sender, Call, _),
 	!,
 	assertz(Call).
 
@@ -1874,18 +1936,13 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	'$lgt_assert_pred_dcl'(Dcl, DDcl, Head, Scope, Type, _, SCtn, DclScope),
 	(	Type == (dynamic) ->
 		(	(\+ \+ Scope = TestScope; Sender = SCtn)  ->
+			'$lgt_assert_pred_def'(Obj, Def, DDef, Prefix, Head, Sender2, This, Self, Call, Update),
 			(	'$lgt_debugging_'(Obj) ->
-				'$lgt_assert_pred_call'(Obj, Def, DDef, Prefix, Head, Sender2, This, Self, Call, _),
 				'$lgt_ctx_ctx'(Ctx, _, Sender2, This, Self, Prefix, [], _),
-				assertz((Call :- '$lgt_dbg_fact'(Head, Ctx)))
-			;	% not debugging, generate predicate template for caching:
-				functor(Head, HFunctor, HArity), functor(GHead, HFunctor, HArity),
-				functor(Obj, OFunctor, OArity), functor(GObj, OFunctor, OArity),
-				functor(Sender, SFunctor, SArity), functor(GSender, SFunctor, SArity),
-				'$lgt_assert_pred_call'(Obj, Def, DDef, Prefix, GHead, Sender2, This, Self, GCall, Update),
-				asserta('$lgt_db_lookup_cache_'(GObj, GHead, GSender, Scope, GCall, Update)),
-				(GObj, GHead, GSender) = (Obj, Head, Sender),
-				assertz(GCall)
+				'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
+				assertz((Call :- '$lgt_dbg_fact'(Head, DbgCtx)))
+			;	'$lgt_add_db_lookup_cache_entry'(Obj, Head, Sender, Call, DDef, Update),
+				assertz(Call)
 			)
 		;	% predicate is not within the scope of the sender:
 			(	Scope == p ->
@@ -1916,27 +1973,27 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 % get or set (if doesn't exist) the compiled call for an asserted predicate
 
-'$lgt_assert_pred_call'(Obj, Def, DDef, Prefix, Pred, Sender, This, Self, Call, Update) :-
+'$lgt_assert_pred_def'(Obj, Def, DDef, EntityPrefix, Head, Sender, This, Self, Call, NeedsUpdate) :-
 	(	% if a definition lookup entry alread exists on the object...
-		call_with_args(Def, Pred, Sender, This, Self, Call, Obj) ->	
+		call_with_args(Def, Head, Sender, This, Self, Call, Obj) ->	
 		(	% then check if it's a dynamic one that implies an update goal...
-			call_with_args(DDef, Pred, Sender, This, Self, Call) ->
-			Update = '$lgt_update_ddef_table'(DDef, Pred, Call)
+			call_with_args(DDef, Head, Sender, This, Self, Call) ->
+			NeedsUpdate = true
 		;	% or a static one...
-			Update = true
+			NeedsUpdate = false
 		)
 	;	% else no definition lookup entry exists; construct and assert a dynamic one...
-		functor(Pred, Functor, Arity),
-		functor(Template, Functor, Arity),
-		'$lgt_construct_predicate_functor'(Prefix, Functor, Arity, TemplatePrefix),
-		Template =.. [_| Args],
-		'$lgt_append'(Args, [Sender, This, Self], TArgs),
-		Call =.. [TemplatePrefix| TArgs],
-		Clause =.. [DDef, Template, Sender, This, Self, Call],
+		functor(Head, Functor, Arity),
+		functor(GHead, Functor, Arity),
+		'$lgt_construct_predicate_functor'(EntityPrefix, Functor, Arity, PredPrefix),
+		GHead =.. [_| Args],
+		'$lgt_append'(Args, [GSender, GThis, GSelf], TArgs),
+		GCall =.. [PredPrefix| TArgs],
+		Clause =.. [DDef, GHead, GSender, GThis, GSelf, GCall],
 		assertz(Clause),
-		'$lgt_clean_lookup_caches'(Template),
-		Update = '$lgt_update_ddef_table'(DDef, Template, Call),
-		Template = Pred
+		'$lgt_clean_lookup_caches'(GHead),
+		NeedsUpdate = true,
+		(GHead, GSender, GThis, GSelf, GCall) = (Head, Sender, This, Self, Call)
 	).
 
 
@@ -1960,8 +2017,8 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	'$lgt_clause_chk'(Obj, Head, Body, Sender, Scope).
 
 
-'$lgt_clause_chk'(Obj, Head, Body, Sender, Scope) :-
-	'$lgt_db_lookup_cache_'(Obj, Head, Sender, Scope, Call, _),	
+'$lgt_clause_chk'(Obj, Head, Body, Sender, _) :-
+	'$lgt_db_lookup_cache_'(Obj, Head, Sender, Call, _),	
 	!,
 	clause(Call, TBody),
 	(	TBody = ('$lgt_nop'(Body), _) ->
@@ -2063,38 +2120,31 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	throw(error(existence_error(object, Obj), Obj::retract((Head:-Body)), Sender)).
 
 
-'$lgt_retract_fact_chk'(Obj, Head, Sender, Scope) :-
-	'$lgt_db_lookup_cache_'(Obj, Head, Sender, Scope, Call, Update),
+'$lgt_retract_fact_chk'(Obj, Head, Sender, _) :-
+	'$lgt_db_lookup_cache_'(Obj, Head, Sender, Call, Update),
 	!,
 	retract(Call),
-	call(Update).
+	once(Update).
 
 '$lgt_retract_fact_chk'(Obj, Head, Sender, Scope) :-
 	'$lgt_current_object_'(Obj, Prefix, _, _, _, _, _, _),
 	!,
 	call_with_args(Prefix, Dcl, Def, _, _, _, _, DDef, _),
-	functor(Head, HFunctor, HArity), functor(GHead, HFunctor, HArity),
-	functor(Obj, OFunctor, OArity), functor(GObj, OFunctor, OArity),
-	functor(Sender, SFunctor, SArity), functor(GSender, SFunctor, SArity),
 	(	call_with_args(Dcl, Head, PScope, Type, _, _, _, SCtn, _) ->
 		(	Type == (dynamic) ->
 			(	(\+ \+ PScope = Scope; Sender = SCtn) ->
-				(	call_with_args(DDef, GHead, _, _, _, GCall) ->
+				(	call_with_args(DDef, Head, _, _, _, Call) ->
 					(	'$lgt_debugging_'(Obj) ->
-						(GObj, GHead, GSender) = (Obj, Head, Sender),
-						retract((GCall :- '$lgt_dbg_fact'(_, _)))
-					;	asserta('$lgt_db_lookup_cache_'(GObj, GHead, GSender, Scope, GCall, '$lgt_update_ddef_table'(DDef, GHead, GCall))),
-						(GObj, GHead, GSender) = (Obj, Head, Sender),
-						retract(GCall)
+						retract((Call :- '$lgt_dbg_fact'(_, _)))
+					;	'$lgt_add_db_lookup_cache_entry'(Obj, Head, Sender, Call, DDef, true),
+						retract(Call)
 					),
-					'$lgt_update_ddef_table'(DDef, GHead, GCall)	
-				;	call_with_args(Def, GHead, _, _, _, GCall) ->
+					'$lgt_update_ddef_table'(DDef, Head, Call)
+				;	call_with_args(Def, Head, _, _, _, Call) ->
 					(	'$lgt_debugging_'(Obj) ->
-						(GObj, GHead, GSender) = (Obj, Head, Sender),
-						retract((GCall :- '$lgt_dbg_fact'(_, _)))
-					;	asserta('$lgt_db_lookup_cache_'(GObj, GHead, GSender, Scope, GCall, true)),
-						(GObj, GHead, GSender) = (Obj, Head, Sender),
-						retract(GCall)
+						retract((Call :- '$lgt_dbg_fact'(_, _)))
+					;	'$lgt_add_db_lookup_cache_entry'(Obj, Head, Sender, Call),
+						retract(Call)
 					)
 				)
 			;	% predicate is not within the scope of the sender:
@@ -2107,13 +2157,11 @@ current_logtalk_flag(version, version(2, 29, 4)).
 			throw(error(permission_error(modify, static_predicate, Head), Obj::retract(Head), Sender))
 		)
 	;	% local dynamic predicate with no scope declaration:
-		(	GObj = GSender, call_with_args(DDef, GHead, _, _, _, GCall) ->
+		(	call_with_args(DDef, Head, _, _, _, Call) ->
 			(	'$lgt_debugging_'(Obj) ->
-				(GObj, GHead, GSender) = (Obj, Head, Sender),
-				retract((GCall :- '$lgt_dbg_fact'(_, _)))
-			;	asserta('$lgt_db_lookup_cache_'(GObj, GHead, GSender, Scope, GCall, true)),
-				(GObj, GHead, GSender) = (Obj, Head, Sender),
-				retract(GCall)
+				retract((Call :- '$lgt_dbg_fact'(_, _)))
+			;	'$lgt_add_db_lookup_cache_entry'(Obj, Head, Sender, Call),
+				retract(Call)
 			)
 		;	throw(error(existence_error(predicate_declaration, Head), Obj::retract(Head), Sender))
 		)
@@ -2138,30 +2186,25 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	'$lgt_retractall_chk'(Obj, Head, Sender, Scope).
 
 
-'$lgt_retractall_chk'(Obj, Head, Sender, Scope) :-
-	'$lgt_db_lookup_cache_'(Obj, Head, Sender, Scope, Call, Update),
+'$lgt_retractall_chk'(Obj, Head, Sender, _) :-
+	'$lgt_db_lookup_cache_'(Obj, Head, Sender, Call, Update),
 	!,
 	retractall(Call),
-	call(Update).
+	once(Update).
 
 '$lgt_retractall_chk'(Obj, Head, Sender, Scope) :-
 	'$lgt_current_object_'(Obj, Prefix, _, _, _, _, _, _),
 	!,
 	call_with_args(Prefix, Dcl, Def, _, _, _, _, DDef, _),
-	functor(Head, HFunctor, HArity), functor(GHead, HFunctor, HArity),
-	functor(Obj, OFunctor, OArity), functor(GObj, OFunctor, OArity),
-	functor(Sender, SFunctor, SArity), functor(GSender, SFunctor, SArity),
-	(	call_with_args(Dcl, GHead, PScope, Type, _, _, _, SCtn, _) ->
+	(	call_with_args(Dcl, Head, PScope, Type, _, _, _, SCtn, _) ->
 		(	Type == (dynamic) ->
 			(	(\+ \+ PScope = Scope; Sender = SCtn) ->
-				(	call_with_args(DDef, GHead, _, _, _, GCall) ->
-					(GObj, GHead, GSender) = (Obj, Head, Sender),
-					retractall(GCall),
-					'$lgt_update_ddef_table'(DDef, GHead, GCall)
-				;	call_with_args(Def, GHead, _, _, _, GCall) ->
-					asserta('$lgt_db_lookup_cache_'(GObj, GHead, GSender, Scope, GCall, true)),
-					(GObj, GHead, GSender) = (Obj, Head, Sender),
-					retractall(GCall)
+				(	call_with_args(DDef, Head, _, _, _, Call) ->
+					retractall(Call),
+					'$lgt_update_ddef_table'(DDef, Head, Call)
+				;	call_with_args(Def, Head, _, _, _, Call) ->
+					'$lgt_add_db_lookup_cache_entry'(Obj, Head, Sender, Call),
+					retractall(Call)
 				;	true
 				)
 			;	% predicate is not within the scope of the sender:
@@ -2174,11 +2217,10 @@ current_logtalk_flag(version, version(2, 29, 4)).
 			throw(error(permission_error(modify, static_predicate, Head), Obj::retractall(Head), Sender))
 		)
 	;	% local dynamic predicate with no scope declaration:
-		(	GObj = GSender,
-			call_with_args(DDef, GHead, _, _, _, GCall) ->
-			asserta('$lgt_db_lookup_cache_'(GObj, GHead, GSender, Scope, GCall, true)),
-			(GObj, GHead, GSender) = (Obj, Head, Sender),
-			retractall(GCall)
+		(	Obj = Sender,
+			call_with_args(DDef, Head, _, _, _, Call) ->
+			'$lgt_add_db_lookup_cache_entry'(Obj, Head, Sender, Call),
+			retractall(Call)
 		;	throw(error(existence_error(predicate_declaration, Head), Obj::retractall(Head), Sender))
 		)
 	).
@@ -2194,6 +2236,59 @@ current_logtalk_flag(version, version(2, 29, 4)).
 % clause/2 to store the original clause body
 
 '$lgt_nop'(_).
+
+
+
+% '$lgt_add_db_lookup_cache_entry'(@object_identifier, @callable, @object_identifier, @callable)
+%
+% adds a new database lookup cache entry (when an update goal is not needed)
+
+'$lgt_add_db_lookup_cache_entry'(Obj, Head, Sender, Call) :-
+	functor(Obj, OFunctor, OArity),
+	functor(GObj, OFunctor, OArity),
+	functor(Head, HFunctor, HArity),
+	functor(GHead, HFunctor, HArity),
+	functor(Sender, SFunctor, SArity),
+	functor(GSender, SFunctor, SArity),
+	functor(Call, CFunctor, CArity),
+	functor(GCall, CFunctor, CArity),
+	GHead =.. [_| Args],
+	GCall =.. [_| ExtArgs],
+	'$lgt_unify_args'(Args, ExtArgs), 
+	asserta('$lgt_db_lookup_cache_'(GObj, GHead, GSender, GCall, true)).
+
+
+
+% '$lgt_add_db_lookup_cache_entry'(@object_identifier, @callable, @object_identifier, @callable, +atom, -atom)
+%
+% adds a new database lookup cache entry
+
+'$lgt_add_db_lookup_cache_entry'(Obj, Head, Sender, Call, DDef, NeedsUpdate) :-
+	functor(Obj, OFunctor, OArity),
+	functor(GObj, OFunctor, OArity),
+	functor(Head, HFunctor, HArity),
+	functor(GHead, HFunctor, HArity),
+	functor(Sender, SFunctor, SArity),
+	functor(GSender, SFunctor, SArity),
+	functor(Call, CFunctor, CArity),
+	functor(GCall, CFunctor, CArity),
+	GHead =.. [_| Args],
+	GCall =.. [_| ExtArgs],
+	'$lgt_unify_args'(Args, ExtArgs),
+	(	NeedsUpdate == true ->
+		functor(UHead, HFunctor, HArity),
+		functor(UCall, CFunctor, CArity),
+		UClause =.. [DDef, UHead, _, _, _, _],
+		asserta('$lgt_db_lookup_cache_'(GObj, GHead, GSender, GCall, '$lgt_update_ddef_table_opt'(UHead, UCall, UClause)))
+	;	asserta('$lgt_db_lookup_cache_'(GObj, GHead, GSender, GCall, true))
+	).
+
+
+
+'$lgt_unify_args'([], _).
+
+'$lgt_unify_args'([Arg| Args], [Arg| ExtArgs]) :-
+	'$lgt_unify_args'(Args, ExtArgs).
 
 
 
@@ -2898,6 +2993,25 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	).
 
 
+'$lgt_dbg_suspend'(Tracing) :-
+	(	'$lgt_dbg_tracing_' ->
+		Tracing = true
+	;	Tracing = false
+	),
+	retractall('$lgt_dbg_debugging_'),
+	retractall('$lgt_dbg_tracing_').
+
+
+'$lgt_dbg_resume'(Tracing) :-
+	(	Tracing == true ->
+		retractall('$lgt_dbg_tracing_'),
+		assertz('$lgt_dbg_tracing_')
+	;	true
+	),
+	retractall('$lgt_dbg_debugging_'),
+	assertz('$lgt_dbg_debugging_').
+
+
 '$lgt_dbg_trace' :-
 	(	'$lgt_dbg_tracing_' ->
 		write('Debugger is on: tracing everything for all objects compiled in debug mode.'), nl
@@ -3100,11 +3214,11 @@ current_logtalk_flag(version, version(2, 29, 4)).
 '$lgt_dbg_leash_shortand_ports'(full, [fact, rule, call, exit, redo, fail, exception]).
 
 
-'$lgt_dbg_leashing'(Port, Goal, Ctx, Code) :-
+'$lgt_dbg_leashing'(Port, Goal, DbgCtx, Code) :-
 	'$lgt_dbg_leashing_'(Port),
 	(	'$lgt_dbg_tracing_' ->
 		Code = ' '
-	;	'$lgt_dbg_spying'(Port, Goal, Ctx, Code)
+	;	'$lgt_dbg_spying'(Port, Goal, DbgCtx, Code)
 	).
 
 
@@ -3113,59 +3227,62 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	\+ \+ '$lgt_dbg_spying_'(Functor, Arity),
 	!.
 	
-'$lgt_dbg_spying'(_, Goal, Ctx, '*') :-
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
+'$lgt_dbg_spying'(_, Goal, DbgCtx, '*') :-
+	'$lgt_dbg_ctx'(DbgCtx, Sender, This, Self),
 	\+ \+ '$lgt_dbg_spying_'(Sender, This, Self, Goal).
 
 
-'$lgt_dbg_fact'(Fact, Ctx) :-
+'$lgt_dbg_fact'(Fact, DbgCtx) :-
 	'$lgt_dbg_debugging_',
 	\+ '$lgt_dbg_skipping_',
 	!,
-	'$lgt_dbg_port'(fact, Fact, _, Ctx, Action),
+	'$lgt_dbg_port'(fact, Fact, _, DbgCtx, Action),
 	call(Action).
 
 '$lgt_dbg_fact'(_, _).
 
 
-'$lgt_dbg_head'(Head, Ctx) :-
+'$lgt_dbg_head'(Head, DbgCtx) :-
 	'$lgt_dbg_debugging_',
 	\+ '$lgt_dbg_skipping_',
 	!,
-	'$lgt_dbg_port'(rule, Head, _, Ctx, Action),
+	'$lgt_dbg_port'(rule, Head, _, DbgCtx, Action),
 	call(Action).
 
 '$lgt_dbg_head'(_, _).
 
 
-'$lgt_dbg_goal'(Goal, TGoal, Ctx) :-
+'$lgt_dbg_goal'(Goal, TGoal, DbgCtx) :-
 	'$lgt_dbg_debugging_',
 	\+ '$lgt_dbg_skipping_',
 	!,
-	(	'$lgt_dbg_port'(call, Goal, _, Ctx, CAction),
+	(	'$lgt_dbg_port'(call, Goal, _, DbgCtx, CAction),
 		(	CAction = skip ->
 			retractall('$lgt_dbg_skipping_'),
 			assertz('$lgt_dbg_skipping_'),
 			CAction2 = true
 		;	CAction2 = CAction
 		),
-		call(CAction2),
-		catch(
-			call(TGoal),
-			Error,
-			('$lgt_dbg_port'(exception, Goal, Error, Ctx, TAction),
-			 (TAction = fail -> fail; throw(Error)))),
-		(	'$lgt_dbg_port'(exit, Goal, _, Ctx, EAction),
-			call(EAction)
-		;	'$lgt_dbg_port'(redo, Goal, _, Ctx, RAction),
-			(RAction = skip ->
-			 retractall('$lgt_dbg_skipping_'),
-			 assertz('$lgt_dbg_skipping_')),
-			fail
+		(	CAction2 = ignore ->
+			true
+		;	call(CAction2),
+			catch(
+				call(TGoal),
+				Error,
+				('$lgt_dbg_port'(exception, Goal, Error, DbgCtx, TAction), (TAction = fail -> fail; throw(Error)))),
+			(	'$lgt_dbg_port'(exit, Goal, _, DbgCtx, EAction),
+				call(EAction)
+			;	'$lgt_dbg_port'(redo, Goal, _, DbgCtx, RAction),
+				(	RAction = skip ->
+				 	retractall('$lgt_dbg_skipping_'),
+				 	assertz('$lgt_dbg_skipping_')
+				),
+				RAction = ignore
+			)
+			;
+			retractall('$lgt_dbg_skipping_'),
+			'$lgt_dbg_port'(fail, Goal, _, DbgCtx, _), fail
 		)
-		;
-		retractall('$lgt_dbg_skipping_'),
-		'$lgt_dbg_port'(fail, Goal, _, Ctx, _), fail
 	),
 	retractall('$lgt_dbg_skipping_').
 
@@ -3176,16 +3293,16 @@ current_logtalk_flag(version, version(2, 29, 4)).
 '$lgt_dbg_port'(exception, _, error(logtalk_debugger_aborted), _, true) :-
 	!.
 
-'$lgt_dbg_port'(Port, Goal, Error, Ctx, Action) :-
+'$lgt_dbg_port'(Port, Goal, Error, DbgCtx, Action) :-
 	'$lgt_dbg_debugging_',
 	!,
-	(	'$lgt_dbg_leashing'(Port, Goal, Ctx, Code) ->
+	(	'$lgt_dbg_leashing'(Port, Goal, DbgCtx, Code) ->
 		repeat,
 			write(Code), '$lgt_dbg_write_port_name'(Port), writeq(Goal), write(' ? '),
 			catch('$lgt_read_single_char'(Option), _, fail),
-		'$lgt_dbg_valid_port_option'(Option, Port, Code),
-		!,
-		'$lgt_dbg_do_port_option'(Option, Goal, Error, Ctx, Action)
+		once('$lgt_dbg_valid_port_option'(Option, Port, Code)),
+		'$lgt_dbg_do_port_option'(Option, Port, Goal, Error, DbgCtx, Action),
+		!
 	;	(	'$lgt_dbg_tracing_' ->
 			write(' '), '$lgt_dbg_write_port_name'(Port), writeq(Goal), nl
 		;	true
@@ -3215,10 +3332,13 @@ current_logtalk_flag(version, version(2, 29, 4)).
 '$lgt_dbg_valid_port_option'(' ', _, _).
 '$lgt_dbg_valid_port_option'(c, _, _).
 '$lgt_dbg_valid_port_option'(l, _, _).
-'$lgt_dbg_valid_port_option'(s, call, _).
-'$lgt_dbg_valid_port_option'(s, redo, _).
-'$lgt_dbg_valid_port_option'(f, _, _).
+'$lgt_dbg_valid_port_option'(s, _, _).
+'$lgt_dbg_valid_port_option'(i, call, _).
+'$lgt_dbg_valid_port_option'(i, redo, _).
+'$lgt_dbg_valid_port_option'(f, call, _).
+'$lgt_dbg_valid_port_option'(f, redo, _).
 '$lgt_dbg_valid_port_option'(n, _, _).
+'$lgt_dbg_valid_port_option'(!, _, _).
 '$lgt_dbg_valid_port_option'(@, _, _).
 '$lgt_dbg_valid_port_option'(b, _, _).
 '$lgt_dbg_valid_port_option'(a, _, _).
@@ -3233,23 +3353,27 @@ current_logtalk_flag(version, version(2, 29, 4)).
 '$lgt_dbg_valid_port_option'(e, exception, _).
 
 
-'$lgt_dbg_do_port_option'(' ', _, _, _, true).
-'$lgt_dbg_do_port_option'(c, _, _, _, true).
+'$lgt_dbg_do_port_option'(' ', _, _, _, _, true).
+'$lgt_dbg_do_port_option'(c, _, _, _, _, true).
 
-'$lgt_dbg_do_port_option'(l, _, _, _, true) :-
+'$lgt_dbg_do_port_option'(l, _, _, _, _, true) :-
 	retractall('$lgt_dbg_tracing_').
 
-'$lgt_dbg_do_port_option'(s, _, _, _, skip).
+'$lgt_dbg_do_port_option'(s, Port, _, _, _, Action) :-
+	'$lgt_dbg_do_port_option_skip'(Port, Action).
 
-'$lgt_dbg_do_port_option'(f, _, _, _, fail).
+'$lgt_dbg_do_port_option'(i, _, _, _, _, ignore).
 
-'$lgt_dbg_do_port_option'(n, _, _, _, true) :-
+'$lgt_dbg_do_port_option'(f, _, _, _, _, fail).
+
+'$lgt_dbg_do_port_option'(n, _, _, _, _, true) :-
 	'$lgt_dbg_nodebug'.
 
-'$lgt_dbg_do_port_option'(=, _, _, _, true) :-
-	'$lgt_dbg_debugging'.
+'$lgt_dbg_do_port_option'(=, _, _, _, _, _) :-
+	'$lgt_dbg_debugging',
+	fail.
 
-'$lgt_dbg_do_port_option'(+, Goal, _, _, _) :-
+'$lgt_dbg_do_port_option'(+, _, Goal, _, _, _) :-
 	(	Goal = (_ :: Pred) ->
 		functor(Pred, Functor, Arity)
 	;	functor(Goal, Functor, Arity)
@@ -3257,59 +3381,67 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	'$lgt_dbg_spy'(Functor/Arity),
 	fail.
 
-'$lgt_dbg_do_port_option'(-, Goal, _, _, true) :-
+'$lgt_dbg_do_port_option'(-, _, Goal, _, _, true) :-
 	(	Goal = (_ :: Pred) ->
 		functor(Pred, Functor, Arity)
 	;	functor(Goal, Functor, Arity)
 	),
 	'$lgt_dbg_nospy'(Functor/Arity).
 
-'$lgt_dbg_do_port_option'(*, Goal, _, _, true) :-
+'$lgt_dbg_do_port_option'(*, _, Goal, _, _, _) :-
 	functor(Goal, Functor, Arity),
 	functor(CGoal, Functor, Arity),
 	write('    Enter a context spy point term formatted as (Sender, This, Self, Goal): '),
 	read(Spypoint),
 	Spypoint = (Sender, This, Self, CGoal),
-	'$lgt_dbg_spy'(Sender, This, Self, CGoal).
-
-'$lgt_dbg_do_port_option'(@, _, _, _, _) :-
-	write('    ?- '),
-	read(Goal),
-	Goal ->
+	'$lgt_dbg_spy'(Sender, This, Self, CGoal),
 	fail.
 
-'$lgt_dbg_do_port_option'(b, _, _, _, _) :-
+'$lgt_dbg_do_port_option'(!, Port, Goal, Error, DbgCtx, Action) :-
+	'$lgt_dbg_do_port_option'(@, Port, Goal, Error, DbgCtx, Action).
+
+'$lgt_dbg_do_port_option'(@, _, _, _, _, _) :-
+	write('    ?- '),
+	read(Goal),
+	call(Goal) ->
+	fail.
+
+'$lgt_dbg_do_port_option'(b, _, _, _, _, _) :-
 	(	'$lgt_compiler_flag'(supports_break_predicate, true) ->
-		break
+		'$lgt_dbg_suspend'(Tracing),
+		break,
+		'$lgt_dbg_resume'(Tracing)
 	;	write('    break no supportd on this Prolog compiler.'), nl
 	),
 	fail.
 
-'$lgt_dbg_do_port_option'(a, _, _, _, _) :-
+'$lgt_dbg_do_port_option'(a, _, _, _, _, _) :-
 	throw(error(logtalk_debugger_aborted)).
 
-'$lgt_dbg_do_port_option'(d, Goal, _, _, _) :-
+'$lgt_dbg_do_port_option'(d, _, Goal, _, _, _) :-
 	write('    Current goal: '), write_term(Goal, [ignore_ops(true)]), nl,
 	fail.
 
-'$lgt_dbg_do_port_option'(x, _, _, Ctx, _) :-
-	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
+'$lgt_dbg_do_port_option'(x, _, _, _, DbgCtx, _) :-
+	'$lgt_dbg_ctx'(DbgCtx, Sender, This, Self),
 	write('    Sender: '), writeq(Sender), nl,
 	write('    This:   '), writeq(This), nl,
 	write('    Self:   '), writeq(Self), nl,
 	fail.
 
-'$lgt_dbg_do_port_option'(e, _, Error, _, _) :-
+'$lgt_dbg_do_port_option'(e, _, _, Error, _, _) :-
 	write('    Exception term: '), writeq(Error), nl,
 	fail.
 
-'$lgt_dbg_do_port_option'(h, _, _, _, _) :-
+'$lgt_dbg_do_port_option'(h, _, _, _, _, _) :-
 	write('    Available options are:'), nl,
-	write('        c - creep (go on; you may use the spacebar in alternative)'), nl,
+	write('        c - creep (go on; you may use also the spacebar)'), nl,
 	write('        l - leep (continues execution until the next spy point is found)'), nl,
-	write('        s - skip (skips debugging for the current goal; only valid at call and redo ports)'), nl,
+	write('        s - skip (skips debugging for the current goal; only meaningful at call and redo ports)'), nl,
+	write('        i - ignore (ignores goal, assumes that it succeeded)'), nl,
 	write('        f - fail (forces backtracking)'), nl,
 	write('        n - nodebug (turns off debugging)'), nl,
+	write('        ! - command (reads and executes a query)'), nl,
 	write('        @ - command (reads and executes a query)'), nl,
 	write('        b - break (suspends execution and starts new interpreter; type end_of_file to terminate)'), nl,
 	write('        a - abort (returns to top level interpreter)'), nl,
@@ -3321,10 +3453,21 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	write('        + - add (adds a predicate spy point for current goal)'), nl,
 	write('        - - remove (removes a predicate spy point for current goal)'), nl,
 	write('        h - help (prints this list of options)'), nl,
+	write('        ? - help (prints this list of options)'), nl,
 	fail.
 
-'$lgt_dbg_do_port_option'(?, Goal, Error, Ctx, Action) :-
-	'$lgt_dbg_do_port_option'(h, Goal, Error, Ctx, Action).
+'$lgt_dbg_do_port_option'(?, Port, Goal, Error, DbgCtx, Action) :-
+	'$lgt_dbg_do_port_option'(h, Port, Goal, Error, DbgCtx, Action).
+
+
+
+'$lgt_dbg_do_port_option_skip'(exit, true).
+'$lgt_dbg_do_port_option_skip'(fail, true).
+'$lgt_dbg_do_port_option_skip'(fact, true).
+'$lgt_dbg_do_port_option_skip'(rule, true).
+'$lgt_dbg_do_port_option_skip'(exception, true).
+'$lgt_dbg_do_port_option_skip'(call, skip).
+'$lgt_dbg_do_port_option_skip'(redo, skip).
 
 
 
@@ -3391,16 +3534,33 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	'$lgt_expand_library_path'(Library, Path),
 	'$lgt_current_directory'(Current),
 	'$lgt_change_directory'(Path),
-	'$lgt_report_working_directory'(Path),
-	'$lgt_load_file'(File),
-	'$lgt_change_directory'(Current).
+	'$lgt_current_directory'(ExpandedPath),
+	(	Current \== ExpandedPath ->
+		'$lgt_report_working_directory'(ExpandedPath),
+		'$lgt_load_file'(File),
+		'$lgt_change_directory'(Current),
+		'$lgt_report_working_directory'(Current)
+	;	'$lgt_load_file'(File)
+	).
 
 '$lgt_load_file'(File) :-
-	'$lgt_report_loading_file'(File),
-	'$lgt_compile_file'(File),
-	'$lgt_file_name'(prolog, File, PFile),
-	'$lgt_load_prolog_code'(PFile),
-	'$lgt_report_loaded_file'(File).
+	'$lgt_current_directory'(Directory),
+	(	'$lgt_loaded_file_'(File, Directory) ->
+		(	'$lgt_compiler_flag'(reload, skip) ->
+			'$lgt_report_skiping_file'(File)
+		;	'$lgt_report_reloading_file'(File),
+			'$lgt_compile_file'(File),
+			'$lgt_file_name'(prolog, File, PFile),
+			'$lgt_load_prolog_code'(PFile),
+			'$lgt_report_reloaded_file'(File)
+		)
+	;	'$lgt_report_loading_file'(File),
+		'$lgt_compile_file'(File),
+		'$lgt_file_name'(prolog, File, PFile),
+		'$lgt_load_prolog_code'(PFile),
+		'$lgt_report_loaded_file'(File),
+		assertz('$lgt_loaded_file_'(File, Directory))
+	).
 
 
 
@@ -3563,7 +3723,7 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 % '$lgt_report_loading_file'(+atom)
 %
-% prints a message that an entity is being compiled
+% prints a message that a file is being loaded
 
 '$lgt_report_loading_file'(File) :-
 	(	'$lgt_compiler_flag'(report, on) ->
@@ -3571,6 +3731,27 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	;	true
 	).
 
+
+% '$lgt_report_reloading_file'(+atom)
+%
+% prints a message that a file is being reloaded
+
+'$lgt_report_reloading_file'(File) :-
+	(	'$lgt_compiler_flag'(report, on) ->
+		write('<<< reloading source file '), writeq(File), write('... '), nl
+	;	true
+	).
+
+
+% '$lgt_report_skiping_file'(+atom)
+%
+% prints a message that loading a file is being skiped
+
+'$lgt_report_skiping_file'(File) :-
+	(	'$lgt_compiler_flag'(report, on) ->
+		write('<<< skiping loading of source file '), writeq(File), write(' (already loaded) '), nl
+	;	true
+	).
 
 
 % '$lgt_report_loaded_file'(+entity_identifier)
@@ -3580,6 +3761,17 @@ current_logtalk_flag(version, version(2, 29, 4)).
 '$lgt_report_loaded_file'(File) :-
 	(	'$lgt_compiler_flag'(report, on) ->
 		write('<<< '), writeq(File), write(' source file loaded'), nl
+	;	true
+	).
+
+
+% '$lgt_report_reloaded_file'(+entity_identifier)
+%
+% prints a message that a source file finished reloading
+
+'$lgt_report_reloaded_file'(File) :-
+	(	'$lgt_compiler_flag'(report, on) ->
+		write('<<< '), writeq(File), write(' source file reloaded'), nl
 	;	true
 	).
 
@@ -3614,9 +3806,14 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	'$lgt_expand_library_path'(Library, Path),
 	'$lgt_current_directory'(Current),
 	'$lgt_change_directory'(Path),
-	'$lgt_report_working_directory'(Path),
-	'$lgt_compile_file'(File),
-	'$lgt_change_directory'(Current).
+	'$lgt_current_directory'(ExpandedPath),
+	(	Current \== ExpandedPath ->
+		'$lgt_report_working_directory'(ExpandedPath),
+		'$lgt_compile_file'(File),
+		'$lgt_change_directory'(Current),
+		'$lgt_report_working_directory'(Current)
+	;	'$lgt_compile_file'(File)
+	).
 
 '$lgt_compile_file'(File) :-
 	'$lgt_compiler_flag'(smart_compilation, on),
@@ -4082,7 +4279,7 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	retractall('$lgt_obj_lookup_cache_'(_, _, _, _)),
 	retractall('$lgt_self_lookup_cache_'(_, _, _, _)),
 	retractall('$lgt_super_lookup_cache_'(_, _, _, _, _)),
-	retractall('$lgt_db_lookup_cache_'(_, _, _, _, _, _)).
+	retractall('$lgt_db_lookup_cache_'(_, _, _, _, _)).
 
 
 
@@ -4094,7 +4291,7 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	retractall('$lgt_obj_lookup_cache_'(_, Pred, _, _)),
 	retractall('$lgt_self_lookup_cache_'(_, Pred, _, _)),
 	retractall('$lgt_super_lookup_cache_'(_, Pred, _, _, _)),
-	retractall('$lgt_db_lookup_cache_'(_, Pred, _, _, _, _)).
+	retractall('$lgt_db_lookup_cache_'(_, Pred, _, _, _)).
 
 
 
@@ -4495,7 +4692,7 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 '$lgt_tr_directive'(threaded, [], _, _) :-
 	\+ '$lgt_compiler_flag'(threads, on),
-	throw(domain_error(threads, threaded/0)).
+	throw(resource_error(threads, threaded/0)).
 
 '$lgt_tr_directive'(threaded, [], _, _) :-
 	!,
@@ -4511,10 +4708,13 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 '$lgt_tr_directive'(synchronized, [], _, _) :-
 	!,
-	'$lgt_pp_entity'(_, _, Prefix, _, _),
-	atom_concat(Prefix, 'mutex_', Mutex),
-	assertz('$lgt_pp_synchronized_'),
-	assertz('$lgt_pp_synchronized_'(_, Mutex)).
+	(	'$lgt_default_flag'(threads, on) ->
+		'$lgt_pp_entity'(_, _, Prefix, _, _),
+		atom_concat(Prefix, 'mutex_', Mutex),
+		assertz('$lgt_pp_synchronized_'),
+		assertz('$lgt_pp_synchronized_'(_, Mutex))
+	;	true
+	).
 
 
 % dynamic entity directive
@@ -4625,14 +4825,17 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 
 '$lgt_tr_directive'(synchronized, Preds, Input, _) :-
-	(	'$lgt_pp_synchronized_' ->
-		'$lgt_pp_entity'(Type, _, _, _, _),
-		'$lgt_inc_compile_warnings_counter',
-		nl, write('  WARNING!  Ignoring synchronized predicate directive: '),
-		write(Type), write(' already declared as synchronized!'),
-		nl, '$lgt_report_compiler_error_line_number'(Input)
-	;	'$lgt_flatten_list'(Preds, Preds2),
-		'$lgt_tr_synchronized_directive'(Preds2)
+	(	'$lgt_default_flag'(threads, on) ->
+		(	'$lgt_pp_synchronized_' ->
+			'$lgt_pp_entity'(Type, _, _, _, _),
+			'$lgt_inc_compile_warnings_counter',
+			nl, write('  WARNING!  Ignoring synchronized predicate directive: '),
+			write(Type), write(' already declared as synchronized!'),
+			nl, '$lgt_report_compiler_error_line_number'(Input)
+		;	'$lgt_flatten_list'(Preds, Preds2),
+			'$lgt_tr_synchronized_directive'(Preds2)
+		)
+	;	true
 	).
 
 
@@ -5453,7 +5656,7 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	\+ callable(Body),
 	throw(type_error(callable, Body)).
 
-'$lgt_tr_clause'((Head:-Body), TClause, (THead:-'$lgt_dbg_head'(Head, Ctx),DBody), Ctx, Input) :-
+'$lgt_tr_clause'((Head:-Body), TClause, (THead:-'$lgt_dbg_head'(Head, DbgCtx),DBody), Ctx, Input) :-
 	functor(Head, Functor, Arity),
 	'$lgt_pp_dynamic_'(Functor, Arity),
 	!,
@@ -5462,9 +5665,10 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	'$lgt_tr_head'(Head, THead, Ctx, Input),
 	'$lgt_tr_body'(Body, TBody, DBody, Ctx),
 	'$lgt_simplify_body'(TBody, SBody),
-	TClause = (THead:-'$lgt_nop'(Body), SBody).
+	TClause = (THead:-'$lgt_nop'(Body), SBody),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
-'$lgt_tr_clause'((Head:-Body), TClause, (THead:-'$lgt_dbg_head'(Head, Ctx),DBody), Ctx, Input) :-
+'$lgt_tr_clause'((Head:-Body), TClause, (THead:-'$lgt_dbg_head'(Head, DbgCtx),DBody), Ctx, Input) :-
 	!,
 	'$lgt_pred_meta_vars'(Head, MetaVars),
 	'$lgt_ctx_meta_vars'(Ctx, MetaVars),
@@ -5474,14 +5678,16 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	(	SBody == true ->
 		TClause = THead
 	;	TClause = (THead:-SBody)
-	).
+	),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 '$lgt_tr_clause'(Fact, _, _, _, _) :-
 	\+ callable(Fact),
 	throw(type_error(callable, Fact)).
 
-'$lgt_tr_clause'(Fact, TFact, (TFact:-'$lgt_dbg_fact'(Fact, Ctx)), Ctx, Input) :-
-	'$lgt_tr_head'(Fact, TFact, Ctx, Input).
+'$lgt_tr_clause'(Fact, TFact, (TFact:-'$lgt_dbg_fact'(Fact, DbgCtx)), Ctx, Input) :-
+	'$lgt_tr_head'(Fact, TFact, Ctx, Input),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 
 
@@ -5622,10 +5828,11 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 % meta-calls
 
-'$lgt_tr_body'(Pred, TPred, '$lgt_dbg_goal'(Pred, TPred, Ctx), Ctx) :-
+'$lgt_tr_body'(Pred, TPred, '$lgt_dbg_goal'(Pred, TPred, DbgCtx), Ctx) :-
 	var(Pred),
 	!,
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, MetaVars, MetaCallCtx),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	(	'$lgt_member_var'(Pred, MetaVars) ->
 		TPred = '$lgt_metacall_in_object'(Pred, MetaCallCtx, Sender, This, Self)
 	;	TPred = '$lgt_metacall_in_object'(Pred, local, Sender, This, Self)
@@ -5642,8 +5849,9 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	\+ callable(Pred),
 	throw(type_error(callable, Pred)).
 
-'$lgt_tr_body'({Pred}, Pred, '$lgt_dbg_goal'({Pred}, Pred, Ctx), Ctx) :-
-	!.
+'$lgt_tr_body'({Pred}, Pred, '$lgt_dbg_goal'({Pred}, Pred, DbgCtx), Ctx) :-
+	!,
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 
 % bagof/3 and setof/3 existential quantifiers
@@ -5674,17 +5882,21 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	!,
 	'$lgt_tr_body'(Pred, TPred, DPred, Ctx).
 
-'$lgt_tr_body'(!, !, ('$lgt_dbg_goal'(!, true, Ctx), !), Ctx) :-
-	!.
+'$lgt_tr_body'(!, !, ('$lgt_dbg_goal'(!, true, DbgCtx), !), Ctx) :-
+	!,
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
-'$lgt_tr_body'(true, true, '$lgt_dbg_goal'(true, true, Ctx), Ctx) :-
-	!.
+'$lgt_tr_body'(true, true, '$lgt_dbg_goal'(true, true, DbgCtx), Ctx) :-
+	!,
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
-'$lgt_tr_body'(fail, fail, '$lgt_dbg_goal'(fail, fail, Ctx), Ctx) :-
-	!.
+'$lgt_tr_body'(fail, fail, '$lgt_dbg_goal'(fail, fail, DbgCtx), Ctx) :-
+	!,
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
-'$lgt_tr_body'(repeat, repeat, '$lgt_dbg_goal'(repeat, repeat, Ctx), Ctx) :-
-	!.
+'$lgt_tr_body'(repeat, repeat, '$lgt_dbg_goal'(repeat, repeat, DbgCtx), Ctx) :-
+	!,
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 '$lgt_tr_body'(call(Pred), TPred, DPred, Ctx) :-
 	!,
@@ -5719,45 +5931,69 @@ current_logtalk_flag(version, version(2, 29, 4)).
 		TPred = '$lgt_metacall_in_object'(Closure, Args, MetaCallCtx, Sender, This, Self)
 	;	TPred = '$lgt_metacall_in_object'(Closure, Args, local, Sender, This, Self)
 	),
-	DPred = '$lgt_dbg_goal'(CallN, TPred, Ctx).
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
+	DPred = '$lgt_dbg_goal'(CallN, TPred, DbgCtx).
 
 '$lgt_tr_body'(once(Pred), once(TPred), once(DPred), Ctx) :-
 	!,
 	'$lgt_tr_body'(Pred, TPred, DPred, Ctx).
 
-'$lgt_tr_body'(catch(Goal, Catcher, Recovery), catch(TGoal, Catcher, TRecovery), '$lgt_dbg_goal'(catch(Goal, Catcher, Recovery), catch(DGoal, Catcher, DRecovery), Ctx), Ctx) :-
+'$lgt_tr_body'(catch(Goal, Catcher, Recovery), catch(TGoal, Catcher, TRecovery), '$lgt_dbg_goal'(catch(Goal, Catcher, Recovery), catch(DGoal, Catcher, DRecovery), DbgCtx), Ctx) :-
 	!,
 	'$lgt_tr_body'(Goal, TGoal, DGoal, Ctx),
-	'$lgt_tr_body'(Recovery, TRecovery, DRecovery, Ctx).
+	'$lgt_tr_body'(Recovery, TRecovery, DRecovery, Ctx),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
-'$lgt_tr_body'(throw(Error), throw(Error), '$lgt_dbg_goal'(throw(Error), throw(Error), Ctx), Ctx) :-
-	!.
+'$lgt_tr_body'(throw(Error), throw(Error), '$lgt_dbg_goal'(throw(Error), throw(Error), DbgCtx), Ctx) :-
+	!,
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 
 % built-in meta-predicates
 
-'$lgt_tr_body'(bagof(Term, Pred, List), bagof(Term, TPred, List), '$lgt_dbg_goal'(bagof(Term, Pred, List), bagof(Term, DPred, List), Ctx), Ctx) :-
+'$lgt_tr_body'(bagof(Term, Pred, List), bagof(Term, TPred, List), '$lgt_dbg_goal'(bagof(Term, Pred, List), bagof(Term, DPred, List), DbgCtx), Ctx) :-
 	!,
-	'$lgt_tr_body'(Pred, TPred, DPred, Ctx).
+	'$lgt_tr_body'(Pred, TPred, DPred, Ctx),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
-'$lgt_tr_body'(findall(Term, Pred, List), findall(Term, TPred, List), '$lgt_dbg_goal'(findall(Term, Pred, List), findall(Term, DPred, List), Ctx), Ctx) :-
+'$lgt_tr_body'(findall(Term, Pred, List), findall(Term, TPred, List), '$lgt_dbg_goal'(findall(Term, Pred, List), findall(Term, DPred, List), DbgCtx), Ctx) :-
 	!,
-	'$lgt_tr_body'(Pred, TPred, DPred, Ctx).
+	'$lgt_tr_body'(Pred, TPred, DPred, Ctx),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
-'$lgt_tr_body'(forall(Gen, Test), forall(TGen, TTest), '$lgt_dbg_goal'(forall(Gen, Test), forall(DGen, DTest), Ctx), Ctx) :-
+'$lgt_tr_body'(forall(Gen, Test), forall(TGen, TTest), '$lgt_dbg_goal'(forall(Gen, Test), forall(DGen, DTest), DbgCtx), Ctx) :-
 	!,
 	'$lgt_tr_body'(Gen, TGen, DGen, Ctx),
-	'$lgt_tr_body'(Test, TTest, DTest, Ctx).
+	'$lgt_tr_body'(Test, TTest, DTest, Ctx),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
-'$lgt_tr_body'(setof(Term, Pred, List), setof(Term, TPred, List), '$lgt_dbg_goal'(setof(Term, Pred, List), setof(Term, DPred, List), Ctx), Ctx) :-
+'$lgt_tr_body'(setof(Term, Pred, List), setof(Term, TPred, List), '$lgt_dbg_goal'(setof(Term, Pred, List), setof(Term, DPred, List), DbgCtx), Ctx) :-
 	!,
-	'$lgt_tr_body'(Pred, TPred, DPred, Ctx).
+	'$lgt_tr_body'(Pred, TPred, DPred, Ctx),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 
 % multi-threading meta-predicates
 
-'$lgt_tr_body'(threaded_call(_), _, _, _) :-
-	'$lgt_check_for_threaded_directive',
+
+'$lgt_tr_body'(threaded(Goals), _, _, _) :-
+	'$lgt_check_for_threaded_directive'(threaded(Goals)),
+	fail.
+
+'$lgt_tr_body'(threaded(Goals), _, _, _) :-
+	nonvar(Goals),
+	\+ callable(Goals),
+	throw(type_error(callable, Goals)).
+
+'$lgt_tr_body'(threaded(Goals), (TCalls, TExits), '$lgt_dbg_goal'(threaded(Goals), (TCalls, TExits), DbgCtx), Ctx) :-
+	!,
+	'$threaded_calls'(Goals, TCalls, threaded(Goals), Ctx),
+	'$threaded_exits'(Goals, TExits, threaded(Goals), Ctx),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
+
+
+'$lgt_tr_body'(threaded_call(Goal), _, _, _) :-
+	'$lgt_check_for_threaded_directive'(threaded_call(Goal)),
 	fail.
 
 '$lgt_tr_body'(threaded_call(Goal), _, _, _) :-
@@ -5765,15 +6001,16 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	\+ callable(Goal),
 	throw(type_error(callable, Goal)).
 
-'$lgt_tr_body'(threaded_call(Goal), MTGoal, '$lgt_dbg_goal'(threaded_call(Goal), MTGoal, Ctx), Ctx) :-
+'$lgt_tr_body'(threaded_call(Goal), MTGoal, '$lgt_dbg_goal'(threaded_call(Goal), MTGoal, DbgCtx), Ctx) :-
 	!,
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
 	'$lgt_tr_body'(Goal, TGoal, _, Ctx),
-	MTGoal = '$lgt_mt_send_goal'(This, TGoal, Sender, This, Self, []).
+	MTGoal = '$lgt_mt_send_goal'(TGoal, Sender, This, Self, []),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 
-'$lgt_tr_body'(threaded_race(_), _, _, _) :-
-	'$lgt_check_for_threaded_directive',
+'$lgt_tr_body'(threaded_race(Goal), _, _, _) :-
+	'$lgt_check_for_threaded_directive'(threaded_race(Goal)),
 	fail.
 
 '$lgt_tr_body'(threaded_race(Goal), _, _, _) :-
@@ -5796,15 +6033,16 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	'$lgt_tr_body'(threaded_race(Goal), TGoal, DGoal, Ctx),
 	'$lgt_tr_body'(threaded_race(Goals), TGoals, DGoals, Ctx).
 
-'$lgt_tr_body'(threaded_race(Goal), MTGoal, '$lgt_dbg_goal'(threaded_race(Goal), MTGoal, Ctx), Ctx) :-
+'$lgt_tr_body'(threaded_race(Goal), MTGoal, '$lgt_dbg_goal'(threaded_race(Goal), MTGoal, DbgCtx), Ctx) :-
 	!,
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
 	'$lgt_tr_body'(Goal, TGoal, _, Ctx),
-	MTGoal = '$lgt_mt_send_goal'(This, TGoal, Sender, This, Self, competing).
+	MTGoal = '$lgt_mt_send_goal'(TGoal, Sender, This, Self, competing),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 
-'$lgt_tr_body'(threaded_once(_), _, _, _) :-
-	'$lgt_check_for_threaded_directive',
+'$lgt_tr_body'(threaded_once(Goal), _, _, _) :-
+	'$lgt_check_for_threaded_directive'(threaded_once(Goal)),
 	fail.
 
 '$lgt_tr_body'(threaded_once(Goal), _, _, _) :-
@@ -5812,15 +6050,16 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	\+ callable(Goal),
 	throw(type_error(callable, Goal)).
 
-'$lgt_tr_body'(threaded_once(Goal), MTGoal, '$lgt_dbg_goal'(threaded_once(Goal), MTGoal, Ctx), Ctx) :-
+'$lgt_tr_body'(threaded_once(Goal), MTGoal, '$lgt_dbg_goal'(threaded_once(Goal), MTGoal, DbgCtx), Ctx) :-
 	!,
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
 	'$lgt_tr_body'(Goal, TGoal, _, Ctx),
-	MTGoal = '$lgt_mt_send_goal'(This, TGoal, Sender, This, Self, once).
+	MTGoal = '$lgt_mt_send_goal'(TGoal, Sender, This, Self, once),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 
-'$lgt_tr_body'(threaded_ignore(_), _, _, _) :-
-	'$lgt_check_for_threaded_directive',
+'$lgt_tr_body'(threaded_ignore(Goal), _, _, _) :-
+	'$lgt_check_for_threaded_directive'(threaded_ignore(Goal)),
 	fail.
 
 '$lgt_tr_body'(threaded_ignore(Goal), _, _, _) :-
@@ -5828,15 +6067,16 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	\+ callable(Goal),
 	throw(type_error(callable, Goal)).
 
-'$lgt_tr_body'(threaded_ignore(Goal), MTGoal, '$lgt_dbg_goal'(threaded_ignore(Goal), MTGoal, Ctx), Ctx) :-
+'$lgt_tr_body'(threaded_ignore(Goal), MTGoal, '$lgt_dbg_goal'(threaded_ignore(Goal), MTGoal, DbgCtx), Ctx) :-
 	!,
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
 	'$lgt_tr_body'(Goal, TGoal, _, Ctx),
-	MTGoal = '$lgt_mt_send_goal'(This, TGoal, Sender, This, Self, ignore).
+	MTGoal = '$lgt_mt_send_goal'(TGoal, Sender, This, Self, ignore),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 
-'$lgt_tr_body'(threaded_exit(_), _, _, _) :-
-	'$lgt_check_for_threaded_directive',
+'$lgt_tr_body'(threaded_exit(Goal), _, _, _) :-
+	'$lgt_check_for_threaded_directive'(threaded_exit(Goal)),
 	fail.
 
 '$lgt_tr_body'(threaded_exit(Goal), _, _, _) :-
@@ -5844,15 +6084,16 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	\+ callable(Goal),
 	throw(type_error(callable, Goal)).
 
-'$lgt_tr_body'(threaded_exit(Goal), MTGoal, '$lgt_dbg_goal'(threaded_exit(Goal), MTGoal, Ctx), Ctx) :-
+'$lgt_tr_body'(threaded_exit(Goal), MTGoal, '$lgt_dbg_goal'(threaded_exit(Goal), MTGoal, DbgCtx), Ctx) :-
 	!,
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
 	'$lgt_tr_body'(Goal, TGoal, _, Ctx),
-	MTGoal = '$lgt_mt_get_reply'(TGoal, Sender, This, Self, []).
+	MTGoal = '$lgt_mt_get_reply'(TGoal, Sender, This, Self, []),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 
-'$lgt_tr_body'(threaded_peek(_), _, _, _) :-
-	'$lgt_check_for_threaded_directive',
+'$lgt_tr_body'(threaded_peek(Goal), _, _, _) :-
+	'$lgt_check_for_threaded_directive'(threaded_peek(Goal)),
 	fail.
 
 '$lgt_tr_body'(threaded_peek(Goal), _, _, _) :-
@@ -5860,21 +6101,23 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	\+ callable(Goal),
 	throw(type_error(callable, Goal)).
 
-'$lgt_tr_body'(threaded_peek(Goal), MTGoal, '$lgt_dbg_goal'(threaded_peek(Goal), MTGoal, Ctx), Ctx) :-
+'$lgt_tr_body'(threaded_peek(Goal), MTGoal, '$lgt_dbg_goal'(threaded_peek(Goal), MTGoal, DbgCtx), Ctx) :-
 	!,
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, _, _, _),
 	'$lgt_tr_body'(Goal, TGoal, _, Ctx),
-	MTGoal = '$lgt_mt_peek_reply'(TGoal, Sender, This, Self).
+	MTGoal = '$lgt_mt_peek_reply'(TGoal, Sender, This, Self),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 
-'$lgt_tr_body'(threaded_wait(_), _, _, _) :-
-	'$lgt_check_for_threaded_directive',
+'$lgt_tr_body'(threaded_wait(Msg), _, _, _) :-
+	'$lgt_check_for_threaded_directive'(threaded_wait(Msg)),
 	fail.
 
-'$lgt_tr_body'(threaded_wait(Msg), MTPred, '$lgt_dbg_goal'(threaded_wait(Msg), MTPred, Ctx), Ctx) :-
+'$lgt_tr_body'(threaded_wait(Msg), MTPred, '$lgt_dbg_goal'(threaded_wait(Msg), MTPred, DbgCtx), Ctx) :-
 	!,
 	'$lgt_pp_entity'(Type, _, EntityPrefix, _, _),
 	'$lgt_ctx_ctx'(Ctx, Functor/Arity, _, _, _, EntityPrefix, _, _),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	functor(Head, Functor, Arity),
 	(	'$lgt_pp_synchronized_'(Head, Mutex) ->
 		(	Type == object ->
@@ -5892,14 +6135,15 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	).
 
 
-'$lgt_tr_body'(threaded_notify(_), _, _, _) :-
-	'$lgt_check_for_threaded_directive',
+'$lgt_tr_body'(threaded_notify(Msg), _, _, _) :-
+	'$lgt_check_for_threaded_directive'(threaded_notify(Msg)),
 	fail.
 
-'$lgt_tr_body'(threaded_notify(Msg), MTPred, '$lgt_dbg_goal'(threaded_notify(Msg), MTPred, Ctx), Ctx) :-
+'$lgt_tr_body'(threaded_notify(Msg), MTPred, '$lgt_dbg_goal'(threaded_notify(Msg), MTPred, DbgCtx), Ctx) :-
 	!,
 	'$lgt_pp_entity'(Type, _, EntityPrefix, _, _),
 	'$lgt_ctx_ctx'(Ctx, _, _, _, _, EntityPrefix, _, _),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	(	Type == object ->
 		MTPred = thread_send_message(EntityPrefix, '$lgt_notification'(Msg))
 	;	% we're compiling a category predicate
@@ -5910,31 +6154,36 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 % message sending
 
-'$lgt_tr_body'(Obj::Pred, TPred, '$lgt_dbg_goal'(Obj::Pred, TPred, Ctx), Ctx) :-
+'$lgt_tr_body'(Obj::Pred, TPred, '$lgt_dbg_goal'(Obj::Pred, TPred, DbgCtx), Ctx) :-
 	!,
 	'$lgt_ctx_this'(Ctx, This),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	'$lgt_tr_msg'(Pred, Obj, TPred, This).
 
-'$lgt_tr_body'(::Pred, TPred, '$lgt_dbg_goal'(::Pred, TPred, Ctx), Ctx) :-
+'$lgt_tr_body'(::Pred, TPred, '$lgt_dbg_goal'(::Pred, TPred, DbgCtx), Ctx) :-
 	!,
 	'$lgt_ctx_this'(Ctx, This),
 	'$lgt_ctx_self'(Ctx, Self),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	'$lgt_tr_self_msg'(Pred, TPred, This, Self).
 
-'$lgt_tr_body'(^^Pred, TPred, '$lgt_dbg_goal'(^^Pred, TPred, Ctx), Ctx) :-
+'$lgt_tr_body'(^^Pred, TPred, '$lgt_dbg_goal'(^^Pred, TPred, DbgCtx), Ctx) :-
 	!,
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	'$lgt_tr_super_call'(Pred, TPred, Ctx).
 
 
 % "reflection" built-in predicates
 
-'$lgt_tr_body'(current_predicate(Pred), '$lgt_current_predicate'(This, Pred, This, p(_)), '$lgt_dbg_goal'(current_predicate(Pred), '$lgt_current_predicate'(This, Pred, This, p(_)), Ctx), Ctx) :-
+'$lgt_tr_body'(current_predicate(Pred), '$lgt_current_predicate'(This, Pred, This, p(_)), '$lgt_dbg_goal'(current_predicate(Pred), '$lgt_current_predicate'(This, Pred, This, p(_)), DbgCtx), Ctx) :-
 	!,
-	'$lgt_ctx_this'(Ctx, This).
+	'$lgt_ctx_this'(Ctx, This),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
-'$lgt_tr_body'(predicate_property(Pred, Prop), '$lgt_predicate_property'(This, Pred, Prop, This, p(_)), '$lgt_dbg_goal'(predicate_property(Pred, Prop), '$lgt_predicate_property'(This, Pred, Prop, This, p(_)), Ctx), Ctx) :-
+'$lgt_tr_body'(predicate_property(Pred, Prop), '$lgt_predicate_property'(This, Pred, Prop, This, p(_)), '$lgt_dbg_goal'(predicate_property(Pred, Prop), '$lgt_predicate_property'(This, Pred, Prop, This, p(_)), DbgCtx), Ctx) :-
 	!,
-	'$lgt_ctx_this'(Ctx, This).
+	'$lgt_ctx_this'(Ctx, This),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 
 % database handling built-in predicates
@@ -5947,7 +6196,8 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	;	'$lgt_compiler_db_pred_ind_chk'(Pred),
 		TCond = '$lgt_abolish_chk'(This, Pred, This, p(_))
 	),
-	DCond = '$lgt_dbg_goal'(abolish(Pred), TCond, Ctx).
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
+	DCond = '$lgt_dbg_goal'(abolish(Pred), TCond, DbgCtx).
 
 '$lgt_tr_body'(asserta(Pred), TCond, DCond, Ctx) :-
 	!,
@@ -5963,7 +6213,8 @@ current_logtalk_flag(version, version(2, 29, 4)).
 			)
 		)
 	),
-	DCond = '$lgt_dbg_goal'(asserta(Pred), TCond, Ctx).
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
+	DCond = '$lgt_dbg_goal'(asserta(Pred), TCond, DbgCtx).
 
 '$lgt_tr_body'(assertz(Pred), TCond, DCond, Ctx) :-
 	!,
@@ -5979,7 +6230,8 @@ current_logtalk_flag(version, version(2, 29, 4)).
 			)
 		)
 	),
-	DCond = '$lgt_dbg_goal'(assertz(Pred), TCond, Ctx).
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
+	DCond = '$lgt_dbg_goal'(assertz(Pred), TCond, DbgCtx).
 
 '$lgt_tr_body'(clause(Head, Body), TCond, DCond, Ctx) :-
 	!,
@@ -5992,7 +6244,8 @@ current_logtalk_flag(version, version(2, 29, 4)).
 			TCond = '$lgt_clause_chk'(This, Head, Body, This, p(_))
 		)
 	),
-	DCond = '$lgt_dbg_goal'(clause(Head, Body), TCond, Ctx).
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
+	DCond = '$lgt_dbg_goal'(clause(Head, Body), TCond, DbgCtx).
 
 '$lgt_tr_body'(retract(Pred), TCond, DCond, Ctx) :-
 	!,
@@ -6008,7 +6261,8 @@ current_logtalk_flag(version, version(2, 29, 4)).
 			)
 		)
 	),
-	DCond = '$lgt_dbg_goal'(retract(Pred), TCond, Ctx).
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
+	DCond = '$lgt_dbg_goal'(retract(Pred), TCond, DbgCtx).
 
 '$lgt_tr_body'(retractall(Pred), TCond, DCond, Ctx) :-
 	!,
@@ -6021,55 +6275,65 @@ current_logtalk_flag(version, version(2, 29, 4)).
 			TCond = '$lgt_retractall_chk'(This, Pred, This, p(_))
 		)
 	),
-	DCond = '$lgt_dbg_goal'(retractall(Pred), TCond, Ctx).
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
+	DCond = '$lgt_dbg_goal'(retractall(Pred), TCond, DbgCtx).
 
 
 % DCG predicates
 
-'$lgt_tr_body'(expand_term(Term, Clause), '$lgt_expand_term'(This, Term, Clause, This, p(_)), '$lgt_dbg_goal'(expand_term(Term, Clause), '$lgt_expand_term'(This, Term, Clause, This, p(_)), Ctx), Ctx) :-
+'$lgt_tr_body'(expand_term(Term, Clause), '$lgt_expand_term'(This, Term, Clause, This, p(_)), '$lgt_dbg_goal'(expand_term(Term, Clause), '$lgt_expand_term'(This, Term, Clause, This, p(_)), DbgCtx), Ctx) :-
 	!,
-	'$lgt_ctx_this'(Ctx, This).
+	'$lgt_ctx_this'(Ctx, This),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
-'$lgt_tr_body'(phrase(GRBody, Input), '$lgt_phrase'(This, GRBody, Input, This, _), '$lgt_dbg_goal'(phrase(GRBody, Input), '$lgt_phrase'(This, GRBody, Input, This, _), Ctx), Ctx) :-
+'$lgt_tr_body'(phrase(GRBody, Input), '$lgt_phrase'(This, GRBody, Input, This, _), '$lgt_dbg_goal'(phrase(GRBody, Input), '$lgt_phrase'(This, GRBody, Input, This, _), DbgCtx), Ctx) :-
 	var(GRBody),
 	!,
-	'$lgt_ctx_this'(Ctx, This).
+	'$lgt_ctx_this'(Ctx, This),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
-'$lgt_tr_body'(phrase(GRBody, Input), TPred, '$lgt_dbg_goal'(phrase(GRBody, Input), TPred, Ctx), Ctx) :-
+'$lgt_tr_body'(phrase(GRBody, Input), TPred, '$lgt_dbg_goal'(phrase(GRBody, Input), TPred, DbgCtx), Ctx) :-
 	!,
 	'$lgt_dcg_body'(GRBody, S0, S, Pred),
 	'$lgt_tr_body'(Pred, Pred2, _, Ctx),
-	TPred = (Input = S0, [] = S, Pred2).
+	TPred = (Input = S0, [] = S, Pred2),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
-'$lgt_tr_body'(phrase(GRBody, Input, Rest), '$lgt_phrase'(This, GRBody, Input, Rest, This, _), '$lgt_dbg_goal'(phrase(GRBody, Input, Rest), '$lgt_phrase'(This, GRBody, Input, Rest, This, _), Ctx), Ctx) :-
+'$lgt_tr_body'(phrase(GRBody, Input, Rest), '$lgt_phrase'(This, GRBody, Input, Rest, This, _), '$lgt_dbg_goal'(phrase(GRBody, Input, Rest), '$lgt_phrase'(This, GRBody, Input, Rest, This, _), DbgCtx), Ctx) :-
 	var(GRBody),
 	!,
-	'$lgt_ctx_this'(Ctx, This).
+	'$lgt_ctx_this'(Ctx, This),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
-'$lgt_tr_body'(phrase(GRBody, Input, Rest), TPred, '$lgt_dbg_goal'(phrase(GRBody, Input, Rest), TPred, Ctx), Ctx) :-
+'$lgt_tr_body'(phrase(GRBody, Input, Rest), TPred, '$lgt_dbg_goal'(phrase(GRBody, Input, Rest), TPred, DbgCtx), Ctx) :-
 	!,
 	'$lgt_dcg_body'(GRBody, S0, S, Pred),
 	'$lgt_tr_body'(Pred, Pred2, _, Ctx),
-	TPred = (Input = S0, Rest = S, Pred2).
+	TPred = (Input = S0, Rest = S, Pred2),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 
 % inline methods (usually translated to a single unification with the corresponding context argument)
 
-'$lgt_tr_body'(sender(Sender), true, '$lgt_dbg_goal'(sender(Temp), Sender=Temp, Ctx), Ctx) :-
+'$lgt_tr_body'(sender(Sender), true, '$lgt_dbg_goal'(sender(Temp), Sender=Temp, DbgCtx), Ctx) :-
 	!,
-	'$lgt_ctx_sender'(Ctx, Sender).
+	'$lgt_ctx_sender'(Ctx, Sender),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
-'$lgt_tr_body'(this(This), true, '$lgt_dbg_goal'(this(Temp), This=Temp, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_this'(Ctx, This).
-
-'$lgt_tr_body'(self(Self), true, '$lgt_dbg_goal'(self(Temp), Self=Temp, Ctx), Ctx) :-
-	!,
-	'$lgt_ctx_self'(Ctx, Self).
-
-'$lgt_tr_body'(parameter(Arg, Value), TPred, '$lgt_dbg_goal'(parameter(Arg, Temp), DPred, Ctx), Ctx) :-
+'$lgt_tr_body'(this(This), true, '$lgt_dbg_goal'(this(Temp), This=Temp, DbgCtx), Ctx) :-
 	!,
 	'$lgt_ctx_this'(Ctx, This),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
+
+'$lgt_tr_body'(self(Self), true, '$lgt_dbg_goal'(self(Temp), Self=Temp, DbgCtx), Ctx) :-
+	!,
+	'$lgt_ctx_self'(Ctx, Self),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
+
+'$lgt_tr_body'(parameter(Arg, Value), TPred, '$lgt_dbg_goal'(parameter(Arg, Temp), DPred, DbgCtx), Ctx) :-
+	!,
+	'$lgt_ctx_this'(Ctx, This),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	(	(var(This); var(Arg)) ->		% when using parameter/2 in categories
 		TPred = arg(Arg, This, Value),	% or when the first argument will only 
 		DPred = (TPred, Temp=Value)		% be instantiated at runtime
@@ -6085,49 +6349,59 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 % term input predicates that need to be operator aware
 
-'$lgt_tr_body'(read_term(Stream, Term, Options), '$lgt_iso_read_term'(Stream, Term, Options, Ops), '$lgt_dbg_goal'(read_term(Stream, Term, Options), '$lgt_iso_read_term'(Stream, Term, Options, Ops), Ctx), Ctx) :-
+'$lgt_tr_body'(read_term(Stream, Term, Options), '$lgt_iso_read_term'(Stream, Term, Options, Ops), '$lgt_dbg_goal'(read_term(Stream, Term, Options), '$lgt_iso_read_term'(Stream, Term, Options, Ops), DbgCtx), Ctx) :-
 	bagof(op(Pr, Spec, Op), '$lgt_pp_entity_op_'(Pr, Spec, Op), Ops),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	!.
 
-'$lgt_tr_body'(read_term(Term, Options), '$lgt_iso_read_term'(Term, Options, Ops), '$lgt_dbg_goal'(read_term(Term, Options), '$lgt_iso_read_term'(Term, Options, Ops), Ctx), Ctx) :-
+'$lgt_tr_body'(read_term(Term, Options), '$lgt_iso_read_term'(Term, Options, Ops), '$lgt_dbg_goal'(read_term(Term, Options), '$lgt_iso_read_term'(Term, Options, Ops), DbgCtx), Ctx) :-
 	bagof(op(Pr, Spec, Op), '$lgt_pp_entity_op_'(Pr, Spec, Op), Ops),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	!.
 
-'$lgt_tr_body'(read(Stream, Term), '$lgt_iso_read'(Stream, Term, Ops), '$lgt_dbg_goal'(read(Stream, Term), '$lgt_iso_read'(Stream, Term, Ops), Ctx), Ctx) :-
+'$lgt_tr_body'(read(Stream, Term), '$lgt_iso_read'(Stream, Term, Ops), '$lgt_dbg_goal'(read(Stream, Term), '$lgt_iso_read'(Stream, Term, Ops), DbgCtx), Ctx) :-
 	bagof(op(Pr, Spec, Op), '$lgt_pp_entity_op_'(Pr, Spec, Op), Ops),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	!.
 
-'$lgt_tr_body'(read(Term), '$lgt_iso_read'(Term, Ops), '$lgt_dbg_goal'(read(Term), '$lgt_iso_read'(Term, Ops), Ctx), Ctx) :-
+'$lgt_tr_body'(read(Term), '$lgt_iso_read'(Term, Ops), '$lgt_dbg_goal'(read(Term), '$lgt_iso_read'(Term, Ops), DbgCtx), Ctx) :-
 	bagof(op(Pr, Spec, Op), '$lgt_pp_entity_op_'(Pr, Spec, Op), Ops),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	!.
 
 
 % term output predicates that need to be operator aware
 
-'$lgt_tr_body'(write_term(Stream, Term, Options), '$lgt_iso_write_term'(Stream, Term, Options, Ops), '$lgt_dbg_goal'(write_term(Stream, Term, Options), '$lgt_iso_write_term'(Stream, Term, Options, Ops), Ctx), Ctx) :-
+'$lgt_tr_body'(write_term(Stream, Term, Options), '$lgt_iso_write_term'(Stream, Term, Options, Ops), '$lgt_dbg_goal'(write_term(Stream, Term, Options), '$lgt_iso_write_term'(Stream, Term, Options, Ops), DbgCtx), Ctx) :-
 	('$lgt_member'(ignore_ops(Value), Options) -> Value \== true; true),
 	bagof(op(Pr, Spec, Op), '$lgt_pp_entity_op_'(Pr, Spec, Op), Ops),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	!.
 
-'$lgt_tr_body'(write_term(Term, Options), '$lgt_iso_write_term'(Term, Options, Ops), '$lgt_dbg_goal'(write_term(Term, Options), '$lgt_iso_write_term'(Term, Options, Ops), Ctx), Ctx) :-
+'$lgt_tr_body'(write_term(Term, Options), '$lgt_iso_write_term'(Term, Options, Ops), '$lgt_dbg_goal'(write_term(Term, Options), '$lgt_iso_write_term'(Term, Options, Ops), DbgCtx), Ctx) :-
 	('$lgt_member'(ignore_ops(Value), Options) -> Value \== true; true),
 	bagof(op(Pr, Spec, Op), '$lgt_pp_entity_op_'(Pr, Spec, Op), Ops),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	!.
 
-'$lgt_tr_body'(write(Stream, Term), '$lgt_iso_write'(Stream, Term, Ops), '$lgt_dbg_goal'(write(Stream, Term), '$lgt_iso_write'(Stream, Term, Ops), Ctx), Ctx) :-
+'$lgt_tr_body'(write(Stream, Term), '$lgt_iso_write'(Stream, Term, Ops), '$lgt_dbg_goal'(write(Stream, Term), '$lgt_iso_write'(Stream, Term, Ops), DbgCtx), Ctx) :-
 	bagof(op(Pr, Spec, Op), '$lgt_pp_entity_op_'(Pr, Spec, Op), Ops),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	!.
 
-'$lgt_tr_body'(write(Term), '$lgt_iso_write'(Term, Ops), '$lgt_dbg_goal'(write(Term), '$lgt_iso_write'(Term, Ops), Ctx), Ctx) :-
+'$lgt_tr_body'(write(Term), '$lgt_iso_write'(Term, Ops), '$lgt_dbg_goal'(write(Term), '$lgt_iso_write'(Term, Ops), DbgCtx), Ctx) :-
 	bagof(op(Pr, Spec, Op), '$lgt_pp_entity_op_'(Pr, Spec, Op), Ops),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	!.
 
-'$lgt_tr_body'(writeq(Stream, Term), '$lgt_iso_writeq'(Stream, Term, Ops), '$lgt_dbg_goal'(writeq(Stream, Term), '$lgt_iso_writeq'(Stream, Term, Ops), Ctx), Ctx) :-
+'$lgt_tr_body'(writeq(Stream, Term), '$lgt_iso_writeq'(Stream, Term, Ops), '$lgt_dbg_goal'(writeq(Stream, Term), '$lgt_iso_writeq'(Stream, Term, Ops), DbgCtx), Ctx) :-
 	bagof(op(Pr, Spec, Op), '$lgt_pp_entity_op_'(Pr, Spec, Op), Ops),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	!.
 
-'$lgt_tr_body'(writeq(Term), '$lgt_iso_writeq'(Term, Ops), '$lgt_dbg_goal'(writeq(Term), '$lgt_iso_writeq'(Term, Ops), Ctx), Ctx) :-
+'$lgt_tr_body'(writeq(Term), '$lgt_iso_writeq'(Term, Ops), '$lgt_dbg_goal'(writeq(Term), '$lgt_iso_writeq'(Term, Ops), DbgCtx), Ctx) :-
 	bagof(op(Pr, Spec, Op), '$lgt_pp_entity_op_'(Pr, Spec, Op), Ops),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	!.
 
 
@@ -6152,7 +6426,7 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	assertz('$lgt_non_portable_call_'(Functor, Arity)),
 	fail.
 
-'$lgt_tr_body'(Pred, TPred, '$lgt_dbg_goal'(Pred, DPred, Ctx), Ctx) :-
+'$lgt_tr_body'(Pred, TPred, '$lgt_dbg_goal'(Pred, DPred, DbgCtx), Ctx) :-
 	'$lgt_pl_built_in'(Pred),
 	functor(Pred, Functor, Arity),
 	\+ '$lgt_pp_public_'(Functor, Arity),		% not a
@@ -6167,16 +6441,18 @@ current_logtalk_flag(version, version(2, 29, 4)).
 		throw(domain_error(closure, Meta))
 	;	'$lgt_tr_meta_args'(Args, MArgs, Ctx, TArgs, DArgs),
 		TPred =.. [Functor| TArgs],
-		DPred =.. [Functor| DArgs]
+		DPred =.. [Functor| DArgs],
+		'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx)
 	).
 
-'$lgt_tr_body'(Pred, '$lgt_call_built_in'(Pred, Ctx), '$lgt_dbg_goal'(Pred, '$lgt_call_built_in'(Pred, Ctx), Ctx), Ctx) :-
+'$lgt_tr_body'(Pred, '$lgt_call_built_in'(Pred, Ctx), '$lgt_dbg_goal'(Pred, '$lgt_call_built_in'(Pred, Ctx), DbgCtx), Ctx) :-
 	'$lgt_built_in'(Pred),
 	functor(Pred, Functor, Arity),
 	\+ '$lgt_pp_public_'(Functor, Arity),		% not a
 	\+ '$lgt_pp_protected_'(Functor, Arity),	% redefined
 	\+ '$lgt_pp_private_'(Functor, Arity),		% built-in
-	!.
+	!,
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx).
 
 
 % invalid goal
@@ -6188,7 +6464,7 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 % goal is a call to a user meta-predicate
 
-'$lgt_tr_body'(Pred, TPred, '$lgt_dbg_goal'(Pred, DPred, Ctx), Ctx) :-
+'$lgt_tr_body'(Pred, TPred, '$lgt_dbg_goal'(Pred, DPred, DbgCtx), Ctx) :-
 	functor(Pred, Functor, Arity),
 	functor(Meta, Functor, Arity),
 	'$lgt_pp_meta_predicate_'(Meta),
@@ -6196,13 +6472,14 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	Pred =.. [_| Args],
 	Meta =.. [_| MArgs],
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, EntityPrefix, MetaVars, _),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	'$lgt_construct_predicate_functor'(EntityPrefix, Functor, Arity, PredPrefix),
 	(	'$lgt_pp_synchronized_'(Pred, _) ->
 		atom_concat(PredPrefix, '_sync', MPrefix)
 	;	MPrefix = PredPrefix
 	),
 	(	MetaVars == [] ->
-		% we're not compiling a clause to a meta-predicate, thus we have a local
+		% we're not compiling a clause to a meta-predicate, thus we have a local call
 		% to a meta-predicate
 		(	'$lgt_member'(MArg, MArgs), integer(MArg) ->
 			% we're compiling a call to a meta-predicate that expects a closure...
@@ -6230,10 +6507,11 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 % goal is a call to a user predicate
 
-'$lgt_tr_body'(Pred, TPred, '$lgt_dbg_goal'(Pred, TPred, Ctx), Ctx) :-
+'$lgt_tr_body'(Pred, TPred, '$lgt_dbg_goal'(Pred, TPred, DbgCtx), Ctx) :-
 	Pred =.. [Functor| Args],
 	functor(Pred, Functor, Arity),
 	'$lgt_ctx_ctx'(Ctx, _, Sender, This, Self, EntityPrefix, _, _),
+	'$lgt_ctx_dbg_ctx'(Ctx, DbgCtx),
 	'$lgt_construct_predicate_functor'(EntityPrefix, Functor, Arity, PredPrefix),
 	(	'$lgt_pp_synchronized_'(Pred, _) ->
 		atom_concat(PredPrefix, '_sync', MPrefix)
@@ -6249,17 +6527,15 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 
 
-% '$lgt_check_for_threaded_directive'
+% '$lgt_check_for_threaded_directive'(+predicate_indicator)
 %
-% print a warning when the threaded/0 directive is not present on 
+% throw an error when the threaded/0 directive is not present on 
 % an object contaning calls to the threaded built-in predicates
 
-'$lgt_check_for_threaded_directive' :-
-	'$lgt_compiler_flag'(report, on),
+'$lgt_check_for_threaded_directive'(Call) :-
 	\+ '$lgt_pp_threaded_',
 	'$lgt_pp_entity'(object, _, _, _, _),
-	'$lgt_inc_compile_warnings_counter',
-	nl, write('  WARNING!  threaded/0 directive is missing!') , nl.
+	throw(resource_error(threads, Call)).
 
 
 
@@ -7635,6 +7911,22 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 
 
+% '$lgt_update_ddef_table_opt'(+callable, +callable, +callable)
+%
+% retracts a dynamic "ddef clause" (used to translate a predicate call)
+% if there are no more clauses for the predicate otherwise does nothing
+%
+% this is needed in order to allow definitions in ancestors to be found
+
+'$lgt_update_ddef_table_opt'(Head, Call, Clause) :-
+	(	clause(Call, _) ->
+		true
+	;	retractall(Clause),
+		'$lgt_clean_lookup_caches'(Head)
+	).
+
+
+
 % '$lgt_assert_ddcl_clause'(+atom, +term, +term)
 %
 % asserts a dynamic predicate declaration
@@ -8593,7 +8885,7 @@ current_logtalk_flag(version, version(2, 29, 4)).
 % '$lgt_fix_synchronized_preds'
 %
 % add mutex wrappers for calling synchronized predicates;
-% for Prolog compilers that do not support multi-threading
+% for Prolog compilers that do not support multi-threading,
 % synchronized predicates are compiled as normal predicates
 
 '$lgt_fix_synchronized_preds' :-
@@ -8714,7 +9006,7 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	!,
 	'$lgt_fix_pred_calls'(Pred, TPred).
 
-'$lgt_fix_pred_calls'('$lgt_dbg_goal'(OPred, Pred, Ctx), '$lgt_dbg_goal'(OPred, TPred, Ctx)) :-
+'$lgt_fix_pred_calls'('$lgt_dbg_goal'(OPred, Pred, DbgCtx), '$lgt_dbg_goal'(OPred, TPred, DbgCtx)) :-
 	!,
 	'$lgt_fix_pred_calls'(Pred, TPred).
 
@@ -9565,6 +9857,19 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 
 
+% utility predicates used during debugging of Logtalk entities to store 
+% and access context information which is represented by a compound term
+
+'$lgt_dbg_ctx'(ctx(Sender, This, Self), Sender, This, Self).
+
+
+
+% construct debug context
+
+'$lgt_ctx_dbg_ctx'(ctx(_, Sender, This, Self, _, _, _), ctx(Sender, This, Self)).
+
+
+
 % '$lgt_flatten_list'(+list, -list)
 %
 % flattens a list of terms
@@ -9866,6 +10171,7 @@ current_logtalk_flag(version, version(2, 29, 4)).
 '$lgt_valid_flag'(portability).
 '$lgt_valid_flag'(report).
 '$lgt_valid_flag'(smart_compilation).
+'$lgt_valid_flag'(reload).
 '$lgt_valid_flag'(startup_message).
 '$lgt_valid_flag'(version).
 '$lgt_valid_flag'(underscore_vars).
@@ -9931,6 +10237,9 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 '$lgt_valid_flag_value'(smart_compilation, on) :- !.
 '$lgt_valid_flag_value'(smart_compilation, off) :- !.
+
+'$lgt_valid_flag_value'(reload, always) :- !.
+'$lgt_valid_flag_value'(reload, skip) :- !.
 
 '$lgt_valid_flag_value'(underscore_vars, dont_care) :- !.
 '$lgt_valid_flag_value'(underscore_vars, singletons) :- !.
@@ -10058,10 +10367,10 @@ current_logtalk_flag(version, version(2, 29, 4)).
 % default encoding is UTF-8
 
 '$lgt_xml_encoding'(XMLEncoding) :-
-	'$lgt_pp_directive_'(encoding(Encoding)) ->
+	(	'$lgt_pp_directive_'(encoding(Encoding)) ->
 		'$lgt_xml_encoding_table'(Encoding, XMLEncoding)
-		;
-		XMLEncoding = 'utf-8'.
+	;	XMLEncoding = 'utf-8'
+	).
 
 
 
@@ -10135,6 +10444,7 @@ current_logtalk_flag(version, version(2, 29, 4)).
 '$lgt_lgt_built_in'(current_logtalk_flag(_, _)).
 '$lgt_lgt_built_in'(set_logtalk_flag(_, _)).
 
+'$lgt_lgt_built_in'(threaded(_)).
 '$lgt_lgt_built_in'(threaded_call(_)).
 '$lgt_lgt_built_in'(threaded_once(_)).
 '$lgt_lgt_built_in'(threaded_ignore(_)).
@@ -11386,59 +11696,59 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 '$lgt_mt_obj_dispatcher'(Thread) :-
 	repeat,
-		thread_get_message(Thread, '$lgt_goal'(Goal, Sender, This, Self, Option, Return)),
+		thread_get_message('$lgt_goal'(Goal, This, Self, Option)),
 		(	Option == competing ->	% goal is one of a set of competing goals performing the same task
-			thread_create('$lgt_mt_competing_goal'(Goal, Sender, This, Self, Return), CompetingId, [detached(true)]),
-			thread_send_message(Return, '$lgt_competing_id'(Goal, Sender, This, Self, CompetingId))
+			thread_create('$lgt_mt_competing_goal'(Goal, This, Self, Thread), CompetingId, [detached(true)]),
+			thread_send_message(Thread, '$lgt_competing_id'(Goal, This, Self, CompetingId))
 		;	Option == ignore ->		% don't bother reporting goal success, failure, or exception
 			thread_create(catch(Goal, _, true), _, [detached(true)])
 		;	Option == once ->		% make thread goal deterministic
-			thread_create('$lgt_mt_det_goal'(Goal, Sender, This, Self, Return), DetId, [detached(true)]),
-			thread_send_message(Return, '$lgt_det_id'(Goal, Sender, This, Self, DetId))
-		;	thread_create('$lgt_mt_non_det_goal'(Goal, Sender, This, Self, Return), NondetId, [detached(false)]),
-			thread_send_message(Return, '$lgt_non_det_id'(Goal, Sender, This, Self, NondetId))
+			thread_create('$lgt_mt_det_goal'(Goal, This, Self, Thread), DetId, [detached(true)]),
+			thread_send_message(Thread, '$lgt_det_id'(Goal, This, Self, DetId))
+		;	thread_create('$lgt_mt_non_det_goal'(Goal, This, Self, Thread), NondetId, [detached(false)]),
+			thread_send_message(Thread, '$lgt_non_det_id'(Goal, This, Self, NondetId))
 		),
 	fail.
 
 
 
-% '$lgt_mt_competing_goal'(+callable, +object_identifier, +object_identifier, +object_identifier, +atom)
+% '$lgt_mt_competing_goal'(+callable, +object_identifier, +object_identifier, +atom)
 %
 % processes a deterministic message received by an object's thread queue;
 % competing goals may be killed before completion
 
-'$lgt_mt_competing_goal'(Goal, Sender, This, Self, Return) :-
+'$lgt_mt_competing_goal'(Goal, This, Self, Return) :-
 	(	catch(Goal, _, fail) ->
-		thread_send_message(Return, '$lgt_reply'(Goal, Sender, This, Self, success))
+		thread_send_message(Return, '$lgt_reply'(Goal, This, Self, success))
 	;	true
 	).
 
 
 
-% '$lgt_mt_det_goal'(+callable, +object_identifier, +object_identifier, +object_identifier, +atom)
+% '$lgt_mt_det_goal'(+callable, +object_identifier, +object_identifier, +atom)
 %
 % processes a deterministic message received by an object's thread queue
 
-'$lgt_mt_det_goal'(Goal, Sender, This, Self, Return) :-
-	(	catch(Goal, Error, (thread_send_message(Return, '$lgt_reply'(Goal, Sender, This, Self, Error)), Flag = error)),
+'$lgt_mt_det_goal'(Goal, This, Self, Return) :-
+	(	catch(Goal, Error, (thread_send_message(Return, '$lgt_reply'(Goal, This, Self, Error)), Flag = error)),
 		(	var(Flag) ->
-			thread_send_message(Return, '$lgt_reply'(Goal, Sender, This, Self, success))
+			thread_send_message(Return, '$lgt_reply'(Goal, This, Self, success))
 		;	true
 		)
-	;	thread_send_message(Return, '$lgt_reply'(Goal, Sender, This, Self, failure))
+	;	thread_send_message(Return, '$lgt_reply'(Goal, This, Self, failure))
 	),
 	thread_exit(true).
 
 
 
-% '$lgt_mt_non_det_goal'(+callable, +object_identifier, +object_identifier, +object_identifier, +atom)
+% '$lgt_mt_non_det_goal'(+callable, +object_identifier, +object_identifier, +atom)
 %
 % processes a non-deterministic message received by an object's thread queue
 
-'$lgt_mt_non_det_goal'(Goal, Sender, This, Self, Return) :-
-	(	catch(Goal, Error, (thread_send_message(Return, '$lgt_reply'(Goal, Sender, This, Self, Error)), Flag = error)),
+'$lgt_mt_non_det_goal'(Goal, This, Self, Return) :-
+	(	catch(Goal, Error, (thread_send_message(Return, '$lgt_reply'(Goal, This, Self, Error)), Flag = error)),
 		var(Flag),
-		thread_send_message(Return, '$lgt_reply'(Goal, Sender, This, Self, success)),
+		thread_send_message(Return, '$lgt_reply'(Goal, This, Self, success)),
 		thread_get_message(Message),
 		(	Message == '$lgt_next' ->
 			fail				% backtrack to the catch(Goal, ...) to try to find an alternative solution
@@ -11447,7 +11757,7 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	;	nonvar(Flag),
 		!,
 		true
-	;	thread_send_message(Return, '$lgt_reply'(Goal, Sender, This, Self, failure))
+	;	thread_send_message(Return, '$lgt_reply'(Goal, This, Self, failure))
 	).
 
 
@@ -11456,14 +11766,11 @@ current_logtalk_flag(version, version(2, 29, 4)).
 %
 % send a goal to an object dispatcher thread
 
-'$lgt_mt_send_goal'(Obj, Goal, Sender, This, Self, Options) :-
-	(	'$lgt_current_object_'(Obj, ObjPrefix, _, _, _, _, _, _) ->
-		(	current_thread(ObjPrefix, running) ->
-			'$lgt_current_object_'(This, ThisPrefix, _, _, _, _, _, _),
-			thread_send_message(ObjPrefix, '$lgt_goal'(Goal, Sender, This, Self, Options, ThisPrefix))
-		;	throw(error(existence_error(object_thread, Obj), Goal, Sender))
-		)
-	;	throw(error(existence_error(object, Obj), Goal, Sender))
+'$lgt_mt_send_goal'(Goal, Sender, This, Self, Options) :-
+	'$lgt_current_object_'(This, Thread, _, _, _, _, _, _), !,
+	(	current_thread(Thread, running) ->
+		thread_send_message(Thread, '$lgt_goal'(Goal, This, Self, Options))
+	;	throw(error(existence_error(object_thread, This), Goal, Sender))
 	).
 
 
@@ -11473,12 +11780,10 @@ current_logtalk_flag(version, version(2, 29, 4)).
 % peek a reply to a goal sent to the senders object dispatcher thread
 
 '$lgt_mt_peek_reply'(Goal, Sender, This, Self) :-
-	(	'$lgt_current_object_'(This, Thread, _, _, _, _, _, _) ->
-		(	current_thread(Thread, running) ->
-			thread_peek_message(Thread, '$lgt_reply'(Goal, Sender, This, Self, _))
-		;	throw(error(existence_error(object_thread, Sender), Goal, Sender))
-		)
-	;	throw(error(existence_error(object, Sender), Goal, Sender))
+	'$lgt_current_object_'(This, Thread, _, _, _, _, _, _), !,
+	(	current_thread(Thread, running) ->
+		thread_peek_message(Thread, '$lgt_reply'(Goal, This, Self, _))
+	;	throw(error(existence_error(object_thread, This), Goal, Sender))
 	).
 
 
@@ -11488,47 +11793,45 @@ current_logtalk_flag(version, version(2, 29, 4)).
 % get a reply to a goal sent to the senders object dispatcher thread
 
 '$lgt_mt_get_reply'(Goal, Sender, This, Self, Options) :-
-	(	'$lgt_current_object_'(This, ThisPrefix, _, _, _, _, _, _) ->
-		(	current_thread(ThisPrefix, running) ->
-			call_cleanup(
-				'$lgt_mt_get_reply'(ThisPrefix, Goal, Sender, This, Self, Options),
-				(	thread_peek_message(ThisPrefix, '$lgt_non_det_id'(Goal, Sender, This, Self, Id)) ->
-					thread_get_message(ThisPrefix, '$lgt_non_det_id'(Goal, Sender, This, Self, Id)),
-					(	current_thread(Id, running) ->							% if the thread is still running, it's suspended waiting
-						catch(thread_send_message(Id, '$lgt_exit'), _, true)	% for a request to an alternative proof; tell it to exit
-					;	true
-					),
-					thread_join(Id, _)
+	'$lgt_current_object_'(This, Thread, _, _, _, _, _, _), !,
+	(	current_thread(Thread, running) ->
+		call_cleanup(
+			'$lgt_mt_get_reply_aux'(Thread, Goal, This, Self, Options),
+			(	thread_peek_message(Thread, '$lgt_non_det_id'(Goal, This, Self, Id)) ->
+				thread_get_message(Thread, '$lgt_non_det_id'(Goal, This, Self, Id)),
+				(	current_thread(Id, running) ->							% if the thread is still running, it's suspended waiting
+					catch(thread_send_message(Id, '$lgt_exit'), _, true)	% for a request to an alternative proof; tell it to exit
 				;	true
-				)
+				),
+				thread_join(Id, _)
+			;	true
 			)
-		;	throw(error(existence_error(object_thread, Sender), Goal, Sender))
 		)
-	;	throw(error(existence_error(object, Sender), Goal, Sender))
+	;	throw(error(existence_error(object_thread, This), Goal, Sender))
 	).
 
 
-'$lgt_mt_get_reply'(Thread, Goal, Sender, This, Self, _) :-
-	copy_term((Goal, Sender, This, Self), (RGoal, RSender, RThis, RSelf)),
+'$lgt_mt_get_reply_aux'(Thread, Goal, This, Self, _) :-
+	copy_term((Goal, This, Self), (RGoal, RThis, RSelf)),
 	% we MUST get the reply before finding out if we're dealing with either det or non-det goals;
 	% this ensures that the '$lgt_competing_id'/5 or '$lgt_non_det_id'/5 messages are already available
-	thread_get_message(Thread, '$lgt_reply'(RGoal, RSender, RThis, RSelf, Result)),
-	(	thread_peek_message(Thread, '$lgt_det_id'(RGoal, RSender, RThis, RSelf, _)) ->
-		'$lgt_mt_det_reply'(Thread, Goal, Sender, This, Self, RGoal, RSender, RThis, RSelf, Result)
-	;	thread_peek_message(Thread, '$lgt_non_det_id'(RGoal, RSender, RThis, RSelf, Id)),
-		'$lgt_mt_non_det_reply'(Thread, Goal, Sender, This, Self, Id, RGoal, RSender, RThis, RSelf, Result)
-	;	thread_peek_message(Thread, '$lgt_competing_id'(RGoal, RSender, RThis, RSelf, _)),
-		'$lgt_mt_competing_reply'(Thread, Goal, Sender, This, Self, RGoal, RSender, RThis, RSelf, Result)
+	thread_get_message(Thread, '$lgt_reply'(RGoal, RThis, RSelf, Result)),
+	(	thread_peek_message(Thread, '$lgt_det_id'(RGoal, RThis, RSelf, _)) ->
+		'$lgt_mt_det_reply'(Thread, Goal, This, Self, RGoal, RThis, RSelf, Result)
+	;	thread_peek_message(Thread, '$lgt_non_det_id'(RGoal, RThis, RSelf, Id)),
+		'$lgt_mt_non_det_reply'(Thread, Goal, This, Self, Id, RGoal, RThis, RSelf, Result)
+	;	thread_peek_message(Thread, '$lgt_competing_id'(RGoal, RThis, RSelf, _)),
+		'$lgt_mt_competing_reply'(Thread, Goal, This, Self, RGoal, RThis, RSelf, Result)
 	).
 
 
 % return the solution found after killing all the competing threads and removing any other matching replies:
 
-'$lgt_mt_competing_reply'(Thread, Goal, Sender, This, Self, RGoal, RSender, RThis, RSelf, Result) :-
-	'$lgt_mt_kill_competing_threads'(Thread, Goal, Sender, This, Self),
-	'$lgt_mt_discard_matching_replies'(Thread, Goal, Sender, This, Self),
+'$lgt_mt_competing_reply'(Thread, Goal, This, Self, RGoal, RThis, RSelf, Result) :-
+	'$lgt_mt_kill_competing_threads'(Thread, Goal, This, Self),
+	'$lgt_mt_discard_matching_replies'(Thread, Goal, This, Self),
 	(	Result == success ->
-		(Goal, Sender, This, Self) = (RGoal, RSender, RThis, RSelf)
+		(Goal, This, Self) = (RGoal, RThis, RSelf)
 	;	Result == failure ->
 		fail
 	;	throw(Result)
@@ -11537,7 +11840,7 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 % return the solution found:
 
-'$lgt_mt_det_reply'(_, Goal, Sender, This, Self, Goal, Sender, This, Self, Result) :-
+'$lgt_mt_det_reply'(_, Goal, This, Self, Goal, This, Self, Result) :-
 	(	Result == success ->
 		true
 	;	Result == failure ->
@@ -11548,7 +11851,7 @@ current_logtalk_flag(version, version(2, 29, 4)).
 
 % return current solution; on backtracking, ask working thread for and get from it the next solution:
 
-'$lgt_mt_non_det_reply'(_, Goal, Sender, This, Self, _, Goal, Sender, This, Self, Result) :-
+'$lgt_mt_non_det_reply'(_, Goal, This, Self, _, Goal, This, Self, Result) :-
 	(	Result == success ->
 		true
 	;	Result == failure ->
@@ -11557,38 +11860,38 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	;	throw(Result)
 	).
 
-'$lgt_mt_non_det_reply'(Thread, Goal, Sender, This, Self, Id, _, _, _, _, _) :-
+'$lgt_mt_non_det_reply'(Thread, Goal, This, Self, Id, _, _, _, _) :-
 	catch(thread_send_message(Id, '$lgt_next'), _, fail),
-	thread_get_message(Thread, '$lgt_reply'(RGoal, RSender, RThis, RSelf, Result)),
-	'$lgt_mt_non_det_reply'(Thread, Goal, Sender, This, Self, Id, RGoal, RSender, RThis, RSelf, Result).
+	thread_get_message(Thread, '$lgt_reply'(RGoal, RThis, RSelf, Result)),
+	'$lgt_mt_non_det_reply'(Thread, Goal, This, Self, Id, RGoal, RThis, RSelf, Result).
 
 
 
 % discard any matching replies that might be waiting on the thread's queue:
 
-'$lgt_mt_discard_matching_replies'(Thread, Goal, Sender, This, Self) :-
+'$lgt_mt_discard_matching_replies'(Thread, Goal, This, Self) :-
 	\+ \+ (
-		thread_peek_message(Thread, '$lgt_reply'(Goal, Sender, This, Self, _)),
-		thread_get_message(Thread, '$lgt_reply'(Goal, Sender, This, Self, _))),
+		thread_peek_message(Thread, '$lgt_reply'(Goal, This, Self, _)),
+		thread_get_message(Thread, '$lgt_reply'(Goal, This, Self, _))),
 	!,
-	'$lgt_mt_discard_matching_replies'(Thread, Goal, Sender, This, Self).
+	'$lgt_mt_discard_matching_replies'(Thread, Goal, This, Self).
 
-'$lgt_mt_discard_matching_replies'(_, _, _, _, _).
+'$lgt_mt_discard_matching_replies'(_, _, _, _).
 
 
 
 % kill any threads that might still be running competing goals:
 
-'$lgt_mt_kill_competing_threads'(Thread, Goal, Sender, This, Self) :-
+'$lgt_mt_kill_competing_threads'(Thread, Goal, This, Self) :-
 	\+ \+ (
-		thread_peek_message(Thread, '$lgt_competing_id'(Goal, Sender, This, Self, Id)),
-		thread_get_message(Thread, '$lgt_competing_id'(Goal, Sender, This, Self, Id)),
+		thread_peek_message(Thread, '$lgt_competing_id'(Goal, This, Self, Id)),
+		thread_get_message(Thread, '$lgt_competing_id'(Goal, This, Self, Id)),
 		catch(thread_signal(Id, thread_exit(true)), _, true)
 		),
 	!,
-	'$lgt_mt_kill_competing_threads'(Thread, Goal, Sender, This, Self).
+	'$lgt_mt_kill_competing_threads'(Thread, Goal, This, Self).
 
-'$lgt_mt_kill_competing_threads'(_, _, _, _, _).
+'$lgt_mt_kill_competing_threads'(_, _, _, _).
 
 
 
@@ -11642,7 +11945,8 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	'$lgt_default_flag'(report, Report), write('  report: '), write(Report),
 	'$lgt_default_flag'(code_prefix, Code), write(', code_prefix: '), writeq(Code),
 	'$lgt_default_flag'(debug, Debug), write(', debug: '), writeq(Debug),
-	'$lgt_default_flag'(smart_compilation, Smart), write(', smart_compilation: '), write(Smart), nl,
+	'$lgt_default_flag'(smart_compilation, Smart), write(', smart_compilation: '), write(Smart),
+	'$lgt_default_flag'(reload, Reload), write(', reload: '), write(Reload), nl,
 	'$lgt_default_flag'(events, Events), write('  events: '), write(Events),
 	(	'$lgt_default_flag'(hook, Hook) -> true
 	;	Hook = '(none defined)'
@@ -11687,6 +11991,8 @@ current_logtalk_flag(version, version(2, 29, 4)).
 	write('  Compiled code functors prefix (code_prefix):               '), writeq(Code), nl,
 	'$lgt_default_flag'(debug, Debug),
 	write('  Compile entities in debug mode (debug):                    '), writeq(Debug), nl,
+	'$lgt_default_flag'(reload, Reload),
+	write('  Reloading of already loaded source files (reload):         '), write(Reload), nl,
 	'$lgt_default_flag'(smart_compilation, Smart),
 	write('  Smart compilation (smart_compilation):                     '), write(Smart), nl,
 	'$lgt_default_flag'(events, Events),

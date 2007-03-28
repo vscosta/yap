@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.29.4
+## Release 2.29.5
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -52,7 +52,7 @@ echo ":- compile('\$LOGTALKHOME/bin/logtalk_comp_eclipse.pl')." >> logtalk_eclip
 echo ":- compile('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_eclipse.pl
 
 echo "#/bin/sh" > eclipselgt
-echo "eclipse -b \$LOGTALKHOME/bin/logtalk_eclipse.pl" >> eclipselgt
+echo "eclipse -b \"\$LOGTALKHOME/bin/logtalk_eclipse.pl\" \"\$@\"" >> eclipselgt
 chmod a+x eclipselgt
 ln -sf $LOGTALKHOME/bin/eclipselgt $prefix/bin/eclipselgt
 

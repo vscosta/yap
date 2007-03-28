@@ -3,9 +3,9 @@
 	implements(monitoring)).
 
 	:- info([
-		version is 1.2,
+		version is 1.3,
 		author is 'Paulo Moura and Peter Robinson',
-		date is 2006/12/27,
+		date is 2007/3/24,
 		comment is 'Simple multi-threading example with agents and their birthdays.']).
 
 	:- threaded.
@@ -21,12 +21,6 @@
 	:- mode(age(?integer), zero_or_one).
 	:- info(age/1, [
 		comment is 'Agent age.']).
-
-	:- public(ask_age/2).
-	:- mode(ask_age(+atom, ?integer), zero_or_one).
-	:- info(ask_age/2, [
-		comment is 'Ask a friend his/her age.',
-		argnames is ['Name', 'Age']]).
 
 	:- public(gender/1).
 	:- dynamic(gender/1).
@@ -62,11 +56,6 @@
 		this(This),
 		create_object(Name, [extends(This)], [threaded], [age(Age), gender(Gender)]).
 
-	% ask a friend's age using an asynchronous message:
-	ask_age(Friend, Age) :-
-		threaded_call(Friend::age(Age)),
-		threaded_exit(Friend::age(Age)).
-
 	% getting older:
 	birthday :-
 		::retract(age(Old)),
@@ -79,16 +68,20 @@
 		self(Self),
 		write('Happy birthday from '), write(From), write('!'), nl,
 		write('Thanks! Here, have a slice of cake, '), write(From), write('.'), nl,
-		threaded_ignore(From::cake_slice(Self)).
+		threaded_ignore(From::cake_slice(Self)).	% we don't care what happens with the cake slice
 
 	% be nice, give thanks for the cake offer:
 	cake_slice(From) :-
-		write('Thanks for the cake '), write(From), write('!'), nl.
+		write('Thanks for the cake '), write(From), write('!'), nl,
+		threaded_exit(From::age(Age)),				% retrieve our friend's (old) age
+		write('Say goodbye to your '), write(Age), write('''s'), write('!'), nl,
+		threaded_once(From::age(_)).				% get (new) age for the next anniversary!
 
-	% whatch out for our new friend anniversary:
+	% watch out for our new friend anniversary and find out his/her age:
 	new_friend(Friend) :-
 		self(Self),
-		define_events(after, Friend, birthday, _, Self).
+		define_events(after, Friend, birthday, _, Self),
+		threaded_once(Friend::age(_)).
 
 	% congratule a friend for his/her birthday:
 	after(Friend, birthday, _) :-

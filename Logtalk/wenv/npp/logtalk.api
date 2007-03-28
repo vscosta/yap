@@ -11,10 +11,7 @@ assertz
 atom
 atomic
 atom_chars
-atom_chars
 atom_codes
-atom_codes
-atom_concat
 atom_concat
 atom_length
 at_end_of_stream
@@ -84,8 +81,6 @@ nl
 nonvar
 number
 number_chars
-number_chars
-number_codes
 number_codes
 object
 object_property

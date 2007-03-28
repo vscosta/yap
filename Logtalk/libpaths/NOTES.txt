@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.29.4
+Release 2.29.5
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -14,30 +14,30 @@ In order to easily compile and load library and example source files using
 the notation <library>(<entity>), you will need to load the "libpaths.pl" 
 into your Prolog compiler after loading the Logtalk compiler/runtime.
 
-You might need to edit the "libpaths.pl" file in order to adapt it to reflect 
-your Logtalk installation and your Prolog compiler and operating-system 
+You might need to edit the "libpaths.pl" file in order to adapt it to 
+reflect your Logtalk installation, Prolog compiler, and operating-system 
 requirements (for example, some Prolog compilers do not accept or expand 
 environment variables occurring on paths).
 
-As defined, the provided "libpaths.pl" file is already compatible with some 
-of the most popular Prolog compilers, running on both MacOS X, Linux, Windows, 
-Unix, and Unix-like operating-systems.
+As defined, the provided "libpaths.pl" file is already compatible with 
+some of the most popular Prolog compilers, running on both MacOS X, Linux, 
+Windows, Unix, and Unix-like operating-systems.
 
 The Prolog integration scripts found on the "scripts" directory generate 
 scripts and shortcuts that automatically load the copy of the "libpaths.pl" 
 file from the Logtalk end-user directory created by the "scripts/cplgtdirs.*" 
-scripts. See the "INSTALL" and the "scripts/NOTES" files for more details. 
-Note that a few Prolog compilers do not support the <library>(<entity>) 
-notation. See the "configs/NOTES" file for details.
+scripts. See the "INSTALL.txt" and "scripts/NOTES.txt" files for more details.
+Note that some Prolog compilers do not support the <library>(<entity>) 
+notation. See the "configs/NOTES.txt" file for details.
 
-The somehow contrived code found on the "libpaths.pl" file is needed to ensure 
-compatibility with both the ISO Prolog standard and with most Prolog compilers.
-The code could be greatly simplified by using a multifile predicate directive 
-for the library path dynamic predicate. Unfortunately, not all Prolog compilers
-support multifile predicates.
+The somehow contrived code found on the "libpaths.pl" file is needed 
+to ensure compatibility with both the ISO Prolog standard and with most 
+Prolog compilers. The code could be greatly simplified by using a multifile 
+predicate directive for the library path dynamic predicate. Unfortunately, 
+not all Prolog compilers support multifile predicates.
 
 Prolog compilers that are expected to be compatible with the provided 
-"libpaths.pl" file as is, across operating systems:
+"libpaths.pl" file as is, across operating-systems:
 
 	* B-Prolog
 	* CIAO
@@ -49,8 +49,8 @@ Prolog compilers that are expected to be compatible with the provided
 	* SWI-Prolog
 	* YAP
 
-Prolog compilers that imply editing the provided "libpaths.pl" file due to 
-the lack of support for expanding environment variables on paths:
+Prolog compilers that imply editing the provided "libpaths.pl" file due 
+to the lack of support for expanding environment variables on paths:
 
 	* Amzi! Prolog
 	* IF/Prolog

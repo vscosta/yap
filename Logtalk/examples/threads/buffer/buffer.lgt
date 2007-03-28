@@ -38,8 +38,8 @@
 	run(N, N) :- !.
 	run(M, N) :-
 		M < N,
-		random::random(1, 5, Random),	% simulate a variable time to 
-		thread_sleep(Random),			% produce a new item
+		random::random(1, 5, Random),	% simulate a variable amount of 
+		thread_sleep(Random),			% time to produce a new item
 		buffer::put(M),
 		M2 is M + 1,
 		run(M2, N).
@@ -57,8 +57,8 @@
 	run(N, N) :- !.
 	run(M, N) :-
 		M < N,
-		random::random(1, 5, Random),	% simulate a variable time
-		thread_sleep(Random),			% to consume an item
+		random::random(1, 5, Random),	% simulate a variable amount of
+		thread_sleep(Random),			% time to consume an item
 		buffer::get(M),
 		M2 is M + 1,
 		run(M2, N).
