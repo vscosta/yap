@@ -1,0 +1,32 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.29.5
+
+Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+To load this example and for sample queries, please see the SCRIPT file.
+
+This folder contains a simple single-threaded and multi-threaded versions 
+of the merge sort algorithm.  Depending on the size of the lists that are 
+ordered, the single-threaded version is often faster due not only to the 
+overhead of thread creation on the multi-threaded version but also because 
+the merge of the sorted sub-lists, where the bulk of the sorting work is 
+performed, does not take advantage of multi-threading.
+
+This example uses a simple implementation of the merge sort algorithm,
+intended only to illustrate Logtalk multi-threading features. For any 
+other purpose, you may find the following paper a worthwhile reading:
+
+@incollection{ apt93modular,
+    author = "Krzysztof R. Apt and Dino Pedreschi",
+    title = "Modular Termination Proofs for Logic and Pure Prolog Programs.",
+    booktitle = "116",
+    month = "31",
+    publisher = "Centrum voor Wiskunde en Informatica (CWI)",
+    address = "ISSN 0169-118X",
+    pages = "35",
+    year = "1993",
+    url = "citeseer.ist.psu.edu/apt93modular.html" }
+

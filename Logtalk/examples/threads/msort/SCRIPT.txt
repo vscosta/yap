@@ -1,0 +1,50 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.29.5
+
+Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% start by loading the example and the required library files:
+
+| ?- logtalk_load(msort(loader)).
+...
+
+
+% NOTE: the example queries below use a SWI-Prolog proprietary predicate 
+% time/1 in order to get accurate goal times. For other Prolog compilers, 
+% replace the time/1 call by any appropriate timing calls (e.g. cputime/0).
+
+
+% generate a big list of random floats and then sort it using a single thread:
+
+?- generator::list(75000, List), time(msort(1)::msort(List, Sorted)).
+% 4,864,942 inferences, 3.25 CPU in 3.42 seconds (95% CPU, 1496905 Lips)
+
+List = [0.0923009, 0.443585, 0.72304, 0.945816, 0.501491, 0.311327, 0.597448, 0.915656, 0.666957|...],
+Sorted = [1.39358e-06, 3.65916e-05, 4.01297e-05, 4.06822e-05, 5.07434e-05, 5.89827e-05, 6.09007e-05, 0.00010463, 0.000105771|...] 
+
+Yes
+
+
+% generate a big list of random floats and then sort it using two threads:
+
+?- generator::list(75000, List), time(msort(2)::msort(List, Sorted)).
+% 300,072 inferences, 1.77 CPU in 1.15 seconds (153% CPU, 169532 Lips)
+
+List = [0.0796181, 0.891391, 0.117642, 0.497486, 0.559702, 0.225095, 0.974507, 0.890696, 0.342357|...],
+Sorted = [2.99566e-07, 5.43309e-06, 1.05778e-05, 3.20893e-05, 4.16823e-05, 4.74887e-05, 7.47632e-05, 0.00010165, 0.000111517|...] 
+
+Yes
+
+
+% generate a big list of random floats and then sort it using four threads:
+
+?- generator::list(75000, List), time(msort(4)::msort(List, Sorted)).
+% 375,166 inferences, 1.65 CPU in 0.86 seconds (191% CPU, 227373 Lips)
+
+List = [0.720675, 0.0274524, 0.430037, 0.335113, 0.381095, 0.448501, 0.176328, 0.447618, 0.353423|...],
+Sorted = [7.91942e-06, 1.90435e-05, 2.04143e-05, 4.50762e-05, 6.8435e-05, 6.99459e-05, 8.55454e-05, 9.07958e-05, 0.000101131|...] 
+
+Yes
