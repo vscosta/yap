@@ -634,7 +634,7 @@ typedef CELL label;
 	save_pc();                     \
         save_y()
 
-#if BF_FREE
+#if BP_FREE
 /* if we are using BP as a local register, we must save it whenever we leave absmi.c */
 #define always_save_pc()          save_pc()
 #define always_set_pc()           set_pc()

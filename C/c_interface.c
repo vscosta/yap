@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-03-22 11:12:20 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-03-30 16:47:22 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.90  2007/03/22 11:12:20  vsc
+* make sure that YAP_Restart does not restart a failed goal.
+*
 * Revision 1.89  2007/01/28 14:26:36  vsc
 * WIN32 support
 *
@@ -513,6 +516,7 @@ X_API void *
 YAP_BlobOfTerm(Term t)
 {
   MP_INT *src;
+
   if (IsVarTerm(t))
     return NULL;
   if (!IsBigIntTerm(t))

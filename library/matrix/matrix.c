@@ -136,7 +136,7 @@ new_int_matrix(int ndims, int dims[], long int data[])
 static YAP_Term
 new_float_matrix(int ndims, int dims[], double data[])
 {
-  unsigned int sz;
+   unsigned int sz;
   unsigned int i, nelems=1;
   YAP_Term blob;
   int *mat;
@@ -145,7 +145,7 @@ new_float_matrix(int ndims, int dims[], double data[])
   for (i=0;i< ndims;i++) {
     nelems *= dims[i];
   }
-  sz = ((MAT_DIMS+1)*sizeof(int)+ndims*sizeof(int)+(nelems+1)*sizeof(double))/sizeof(YAP_CELL);
+  sz = ((MAT_DIMS+1)*sizeof(int)+ndims*sizeof(int)+(nelems+1)*sizeof(double)+(sizeof(YAP_CELL)-1))/sizeof(YAP_CELL);
   blob = YAP_MkBlobTerm(sz);
   if (blob == YAP_TermNil())
     return FALSE;
@@ -322,7 +322,6 @@ new_floats_matrix(void)
   int ndims = YAP_IntOfTerm(YAP_ARG1);
   YAP_Term tl = YAP_ARG2, out;
   int dims[MAX_DIMS];
-  
   if (!scan_dims(ndims, tl, dims))
     return FALSE;
   out = new_float_matrix(ndims, dims, NULL);

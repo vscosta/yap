@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h,v 1.12 2006-09-28 16:15:54 vsc Exp $	 *
+* version:      $Id: TermExt.h,v 1.13 2007-03-30 16:47:22 vsc Exp $	 *
 *************************************************************************/
 
 #ifdef USE_SYSTEM_MALLOC
@@ -270,16 +270,11 @@ IsLongIntTerm (Term t)
 typedef UInt mp_limb_t;
 
 typedef struct {
-  int _mp_size, _mp_alloc;
+  Int _mp_size, _mp_alloc;
   mp_limb_t *_mp_d;
 } MP_INT;
 
 #endif
-
-#ifdef USE_GMP
-
-Term STD_PROTO (Yap_MkBigIntTerm, (MP_INT *));
-MP_INT *STD_PROTO (Yap_BigIntOfTerm, (Term));
 
 inline EXTERN int IsBigIntTerm (Term);
 
@@ -288,6 +283,11 @@ IsBigIntTerm (Term t)
 {
   return (int) (IsApplTerm (t) && FunctorOfTerm (t) == FunctorBigInt);
 }
+
+#ifdef USE_GMP
+
+Term STD_PROTO (Yap_MkBigIntTerm, (MP_INT *));
+MP_INT *STD_PROTO (Yap_BigIntOfTerm, (Term));
 
 inline EXTERN void MPZ_SET (mpz_t, MP_INT *);
 
@@ -323,16 +323,6 @@ Yap_SizeOfBigInt (Term t)
 
 
 #else
-
-
-inline EXTERN int IsBigIntTerm (Term);
-
-inline EXTERN int
-IsBigIntTerm (Term t)
-{
-  return (int) (FALSE);
-}
-
 
 
 
