@@ -26,6 +26,7 @@
 
 :- dynamic existing_attribute/4.
 :- dynamic modules_with_attributes/1.
+:- dynamic attributed_module/3.
 
 modules_with_attributes([prolog]).
 

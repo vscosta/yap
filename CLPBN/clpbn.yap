@@ -239,6 +239,8 @@ fresh_attvar(Var, NVar) :-
 bind_clpbns(Key, Domain, Table, Parents, Key1, Domain1, Table1, Parents1) :- 
 	Key == Key1, !,
 	( Domain == Domain1, Table == Table1, Parents == Parents1 -> true ; throw(error(domain_error(bayesian_domain),bind_clpbns(var(Key, Domain, Table, Parents),var(Key1, Domain1, Table1, Parents1))))).
+bind_clpbns(Key, _, _, _, Key1, _, _, _) :-
+	Key\=Key1, !, fail.
 bind_clpbns(_, _, _, _, _, _, _, _) :-
 	format(user_error, 'unification of two bayesian vars not supported~n', []).
 
