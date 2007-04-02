@@ -91,7 +91,11 @@ open(F,T,S,Opts) :-
 	'$process_open_opts'(L,N2,N, Aliases, Encoding).
 '$process_open_opts'([encoding(Enc)|L], N0, N, Aliases, EncCode) :-
 	'$valid_encoding'(Enc, EncCode),
-	'$process_open_opts'(L, N0, N, Aliases, EncCode).
+	'$process_open_opts'(L, N0, N, Aliases, _).
+'$process_open_opts'([bom(BOM)|L], N0, N, Aliases, EncCode) :-
+	'$valid_bom'(BOM, Flag),
+	NI is N0 \/ Flag,
+	'$process_open_opts'(L, NI, N, Aliases, EncCode).
 '$process_open_opts'([eof_action(T)|L], N0, N, Aliases, Encoding) :-
 	'$value_open_opt'(T,eof_action,I1,I2),
 	N1 is I1\/N0,
@@ -108,6 +112,11 @@ open(F,T,S,Opts) :-
 '$value_open_opt'(error,_,16, X) :- X is 128-32-64.
 '$value_open_opt'(eof_code,_,32, X) :- X is 128-16-64.
 '$value_open_opt'(reset,64, X) :- X is 128-32-16.
+%128 -> use bom
+%256 -> do not use bom
+
+'$valid_bom'(true, 128).
+'$valid_bom'(false, 256).
 
 /* check whether a list of options is valid */
 '$check_io_opts'(V,G) :- var(V), !,
@@ -148,6 +157,8 @@ open(F,T,S,Opts) :-
 	'$check_open_eof_action_arg'(T, G).
 '$check_opt_open'(encoding(T), G) :- !,
 	'$check_open_encoding'(T, G).
+'$check_opt_open'(bom(T), G) :- !,
+	'$check_open_bom_arg'(T, G).
 '$check_opt_open'(A, G) :-
 	'$do_error'(domain_error(stream_option,A),G).
 
@@ -171,6 +182,7 @@ open(F,T,S,Opts) :-
 '$check_opt_sp'(eof_action(_), _) :- !.
 '$check_opt_sp'(reposition(_), _) :- !.
 '$check_opt_sp'(type(_), _) :- !.
+'$check_opt_sp'(bom(_), _) :- !.
 '$check_opt_sp'(A, G) :-
 	'$do_error'(domain_error(stream_property,A),G).
 
@@ -210,6 +222,13 @@ open(F,T,S,Opts) :-
 '$check_open_reposition_arg'(false,_) :- !.
 '$check_open_reposition_arg'(X,G) :-
 	'$do_error'(domain_error(io_mode,reposition(X)),G).
+
+'$check_open_bom_arg'(X, G) :- var(X), !,
+	'$do_error'(instantiation_error,G).
+'$check_open_bom_arg'(true,_) :- !.
+'$check_open_bom_arg'(false,_) :- !.
+'$check_open_bom_arg'(X,G) :-
+	'$do_error'(domain_error(io_mode,bom(X)),G).
 
 '$check_open_alias_arg'(X, G) :- var(X), !,
 	'$do_error'(instantiation_error,G).
@@ -816,6 +835,7 @@ stream_property(Stream, Props) :-
 %'$generate_prop'(reposition(_R)).
 '$generate_prop'(type(_T)).
 '$generate_prop'(alias(_A)).
+'$generate_prop'(bom(_B)).
 
 '$stream_property'(Stream, Props) :-
 	var(Props), !,
@@ -843,7 +863,10 @@ stream_property(Stream, Props) :-
 '$process_stream_properties'([output|Props], Stream, F, write) :-
 	'$process_stream_properties'(Props, Stream, F, write).
 '$process_stream_properties'([position(P)|Props], Stream, F, Mode) :-
-	'$show_stream_position'(Stream, P),
+	'$show_stream_bom'(Stream, P),
+	'$process_stream_properties'(Props, Stream, F, Mode).
+'$process_stream_properties'([bom(B)|Props], Stream, F, Mode) :-
+	'$show_stream_bom'(Stream, B),
 	'$process_stream_properties'(Props, Stream, F, Mode).
 '$process_stream_properties'([end_of_stream(P)|Props], Stream, F, Mode) :-
 	'$show_stream_eof'(Stream, P),
@@ -879,6 +902,10 @@ stream_property(Stream, Props) :-
 '$show_stream_reposition'(Fl, true) :-
 	Fl /\ 0x2000 =:= 0x2000, !.
 '$show_stream_reposition'(_, false).
+
+'$show_stream_bom'(Fl, true) :-
+	'$has_bom'(Fl), !.
+'$show_stream_bom'(_, false).
 
 '$show_stream_type'(Fl, binary) :-
 	Fl /\ 0x0100 =:= 0x0100, !.

@@ -78,7 +78,7 @@ typedef struct stream_desc
     } u;
     Int charcount, linecount, linepos;
     Int status;
-    wchar_t och;
+    int och;
 #if defined(YAPOR) || defined(THREADS)
     lockvar  streamlock;        /* protect stream access */
 #endif
@@ -91,7 +91,6 @@ typedef struct stream_desc
     int (* stream_wgetc)(int);
     int (* stream_wputc)(int,wchar_t);
     encoding_t encoding;
-    int use_bom;
     mbstate_t mbstate;
   }
 StreamDesc;
@@ -123,6 +122,7 @@ StreamDesc;
 #define Pipe_Stream_f		0x040000
 #define Popen_Stream_f		0x080000
 #define User_Stream_f		0x100000
+#define HAS_BOM_f		0x200000
 
 #define StdInStream	0
 #define StdOutStream	1
