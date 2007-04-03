@@ -1741,6 +1741,40 @@ get_wchar(int sno)
 #endif
 
 static int
+handle_write_encoding_error(int sno, wchar_t ch)
+{
+  if (Stream[sno].status & RepError_Xml_f) {
+    /* use HTML/XML encoding in ASCII */
+    int i = ch, digits = 1;
+    Stream[sno].stream_putc(sno, '&');
+    Stream[sno].stream_putc(sno, '#');
+    while (digits < i)
+      digits *= 10;
+    if (digits > i)
+      digits /= 10;
+    while (i) {
+      Stream[sno].stream_putc(sno, i/digits);
+      i %= 10;
+      digits /= 10;
+    }
+    Stream[sno].stream_putc(sno, ';');
+    return ch;
+  } else if (Stream[sno].status & RepError_Prolog_f) {
+    /* write quoted */
+    Stream[sno].stream_putc(sno, '\\');
+    Stream[sno].stream_putc(sno, 'u');
+    Stream[sno].stream_putc(sno, ch>>24);
+    Stream[sno].stream_putc(sno, 256&(ch>>16));
+    Stream[sno].stream_putc(sno, 256&(ch>>8));
+    Stream[sno].stream_putc(sno, 256&ch);
+    return ch;
+  } else {
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER, MkIntegerTerm(ch),"charater %ld cannot be encoded in stream %d",(unsigned long int)ch,sno);
+    return -1;
+  }
+}
+
+static int
 put_wchar(int sno, wchar_t ch)
 {
 
@@ -1750,12 +1784,12 @@ put_wchar(int sno, wchar_t ch)
     return Stream[sno].stream_putc(sno, ch);
   case ENC_ISO_LATIN1:
     if (ch >= 0xff) {
-      /* error */
+      return handle_write_encoding_error(sno,ch);
     }
     return Stream[sno].stream_putc(sno, ch);
   case ENC_ISO_ASCII:
     if (ch >= 0x80) {
-      /* error */
+      return handle_write_encoding_error(sno,ch);
     }
     return Stream[sno].stream_putc(sno, ch);
   case ENC_ISO_ANSI:
@@ -2263,6 +2297,12 @@ p_open (void)
     }
     if (opts & 256) {
       avoid_bom = TRUE;
+    }
+    if (opts & 512) {
+      st->status |= RepError_Prolog_f;
+    }
+    if (opts & 1024) {
+      st->status |= RepError_Xml_f;
     }
   }
   st->stream_wgetc = get_wchar;
@@ -3308,10 +3348,43 @@ p_set_output (void)
 static Int
 p_has_bom (void)
 {				/* '$set_output'(+Stream,-ErrorMessage)  */
-  Int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "has?bom/1");
+  Int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "has_bom/1");
   if (sno < 0)
     return (FALSE);
   return ((Stream[sno].status & HAS_BOM_f));
+}
+
+static Int
+p_representation_error (void)
+{				/* '$set_output'(+Stream,-ErrorMessage)  */
+  Int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "representation_errors/1");
+  if (sno < 0)
+    return (FALSE);
+  Term t = Deref(ARG2);
+
+  if (IsVarTerm(t)) {
+    if (Stream[sno].status & RepError_Prolog_f) {
+      return Yap_unify(ARG2, MkIntegerTerm(512));
+    }
+    if (Stream[sno].status & RepError_Xml_f) {
+      return Yap_unify(ARG2, MkIntegerTerm(1024));
+    }
+    return Yap_unify(ARG2, MkIntegerTerm(0));    
+  } else {
+    Int i = IntegerOfTerm(t);
+    switch (i) {
+    case 512:
+      Stream[sno].status &= ~RepError_Xml_f;
+      Stream[sno].status |= RepError_Prolog_f;
+      break;
+    case 1024:
+      Stream[sno].status &= ~RepError_Prolog_f;
+      Stream[sno].status |= RepError_Xml_f;
+    default:
+      Stream[sno].status &= ~(RepError_Prolog_f|RepError_Xml_f);
+    }
+  }
+  return TRUE;
 }
 
 static Int
@@ -5698,11 +5771,15 @@ p_get_default_encoding(void)
 }
 
 static Int
-p_set_encoding (void)
-{				/* '$set_encoding'(Stream,N)                      */
+p_encoding (void)
+{				/* '$encoding'(Stream,N)                      */
   int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "encoding/2");
+  Term t = Deref(ARG2);
   if (sno < 0)
     return FALSE;
+  if (IsVarTerm(t)) {
+    return Yap_unify(ARG2, MkIntegerTerm(Stream[sno].encoding));
+  }
   Stream[sno].encoding = IntegerOfTerm(Deref(ARG2));
   UNLOCK(Stream[sno].streamlock);
   return TRUE;
@@ -5829,6 +5906,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$peek", 2, p_peek, SafePredFlag|SyncPredFlag),
   Yap_InitCPred ("$peek_byte", 2, p_peek_byte, SafePredFlag|SyncPredFlag),
   Yap_InitCPred ("$has_bom", 1, p_has_bom, SafePredFlag);
+  Yap_InitCPred ("$stream_representation_error", 2, p_representation_error, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("current_input", 1, p_current_input, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("current_output", 1, p_current_output, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("prompt", 1, p_setprompt, SafePredFlag|SyncPredFlag);
@@ -5849,7 +5927,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$fetch_stream_alias", 2, p_fetch_stream_alias, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$stream", 1, p_stream, SafePredFlag|TestPredFlag);
   Yap_InitCPred ("$get_default_encoding", 1, p_get_default_encoding, SafePredFlag|TestPredFlag);
-  Yap_InitCPred ("$set_encoding", 2, p_set_encoding, SafePredFlag|TestPredFlag),
+  Yap_InitCPred ("$encoding", 2, p_encoding, SafePredFlag|SyncPredFlag),
 #if HAVE_SELECT
   Yap_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif

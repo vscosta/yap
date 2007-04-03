@@ -524,16 +524,16 @@ remove_from_path(New) :- '$check_path'(New,Path),
 '$valid_encoding'(iso_latin_1, 1).
 % UTF-8: default 8 bits but 80 extends to 16bits
 '$valid_encoding'(utf8, 8).
-% UNICODE: 16 bits throughout, the way Gates does it!
+% UNICODE: 16 bits throughout, the way it was supposed to be!
 '$valid_encoding'(unicode_be, 16).
 '$valid_encoding'(unicode_le, 32).
 % whatever the system tell us to do.
 '$valid_encoding'(text, 4).
 
 '$default_encoding'(DefCode) :- nonvar(DefCode), !,
-	'$set_encoding'('$stream'(0),DefCode),
-	'$set_encoding'('$stream'(1),DefCode),
-	'$set_encoding'('$stream'(2),DefCode),
+	'$encoding'('$stream'(0),DefCode),
+	'$encoding'('$stream'(1),DefCode),
+	'$encoding'('$stream'(2),DefCode),
 	set_value('$default_encoding',DefCode).
 '$default_encoding'(DefCode) :-
 	get_value('$default_encoding',DefCode0),

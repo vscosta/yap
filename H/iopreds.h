@@ -123,6 +123,8 @@ StreamDesc;
 #define Popen_Stream_f		0x080000
 #define User_Stream_f		0x100000
 #define HAS_BOM_f		0x200000
+#define RepError_Prolog_f	0x400000
+#define RepError_Xml_f		0x800000
 
 #define StdInStream	0
 #define StdOutStream	1

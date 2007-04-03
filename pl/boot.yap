@@ -45,6 +45,9 @@ true :- true.
 	;
 	  true
 	),
+	'$stream_representation_error'(user_input, 512),
+	'$stream_representation_error'(user_output, 512),
+	'$stream_representation_error'(user_error, 512),
 	'$allocate_default_arena'(1024, 64),
 	'$enter_system_mode',
 	set_value(fileerrors,1),
