@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.21 2007-02-26 10:41:40 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.22 2007-04-10 22:13:20 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -1167,7 +1167,7 @@ extern int Yap_PrologShouldHandleInterrupts;
 
 /******************* number of modules ****************************/
 
-#define MaxModules	256
+#define DefaultMaxModules	256
 
 #if YAPOR
 #define YAPEnterCriticalSection()                                        \

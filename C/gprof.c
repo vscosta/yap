@@ -11,8 +11,11 @@
 * File:		gprof.c							 *
 * comments:	Interrupt Driven Profiler				 *
 *									 *
-* Last rev:     $Date: 2006-08-22 16:12:45 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-04-10 22:13:20 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.7  2006/08/22 16:12:45  vsc
+* global variables
+*
 * Revision 1.6  2006/08/07 18:51:44  vsc
 * fix garbage collector not to try to garbage collect when we ask for large
 * chunks of stack in a single go.
@@ -1270,7 +1273,7 @@ static Int getpredinfo(void)
   if (!pp)
     return FALSE;
   if (pp->ModuleOfPred == PROLOG_MODULE)
-    mod = ModuleName[0];
+    mod = TermProlog;
   else
     mod = pp->ModuleOfPred;
   if (pp->ModuleOfPred == IDB_MODULE) {

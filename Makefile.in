@@ -27,7 +27,7 @@ INCLUDEDIR=$(ROOTDIR)/include/Yap
 #
 INFODIR=$(SHAREDIR)/info
 
-#3
+#
 # Add this flag to YAP_EXTRAS if you need the extension:
 #	-DRATIONAL_TREES: allow unification and builtins over rational trees
 #       -DCOROUTINING: implement extra control primitives

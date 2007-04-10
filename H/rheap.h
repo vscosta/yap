@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2007-03-22 11:12:21 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-04-10 22:13:21 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.74  2007/03/22 11:12:21  vsc
+* make sure that YAP_Restart does not restart a failed goal.
+*
 * Revision 1.73  2007/02/18 00:26:36  vsc
 * fix atom garbage collector (although it is still off by default)
 * make valgrind feel better
@@ -462,6 +465,10 @@ restore_codes(void)
     Yap_heap_regs->atprompt =
       AtomAdjust(Yap_heap_regs->atprompt);
   }
+  if (Yap_heap_regs->current_modules) {
+    Yap_heap_regs->current_modules = (struct mod_entry *)
+      AddrAdjust((ADDR)Yap_heap_regs->current_modules);
+  }
   if (Yap_heap_regs->char_conversion_table) {
     Yap_heap_regs->char_conversion_table = (char *)
       AddrAdjust((ADDR)Yap_heap_regs->char_conversion_table);
@@ -543,17 +550,6 @@ restore_codes(void)
 	  Prop p0 = Yap_heap_regs->IntBBKeys[i] = PropAdjust(Yap_heap_regs->IntBBKeys[i]);
 	  RestoreEntries(RepProp(p0));
 	}
-      }
-    }
-  }
-  {
-    /* adjust atoms in atom table */
-    unsigned int i = 0;
-
-    for (i = 0; i < Yap_heap_regs->no_of_modules; i++) {
-      Yap_heap_regs->module_name[i] = AtomTermAdjust(Yap_heap_regs->module_name[i]);
-      if (Yap_heap_regs->module_pred[i]) {
-	Yap_heap_regs->module_pred[i] = PtoPredAdjust(Yap_heap_regs->module_pred[i]);
       }
     }
   }
@@ -1275,8 +1271,20 @@ RestoreEntries(PropEntry *pp)
 	 opp->OpModule = AtomTermAdjust(opp->OpModule);
 	}
       }
-    case ExpProperty:
     case ModProperty:
+      {
+	ModEntry *me = (ModEntry *)pp;
+	me->NextOfPE =
+	  PropAdjust(me->NextOfPE);
+	me->PredForME =
+	  PtoPredAdjust(me->PredForME);
+	me->AtomOfME =
+	  AtomAdjust(me->AtomOfME);
+	me->NextME = (struct mod_entry *)
+	  AddrAdjust((ADDR)me->NextME);
+      }
+      break;      
+    case ExpProperty:
       pp->NextOfPE =
 	PropAdjust(pp->NextOfPE);
       break;

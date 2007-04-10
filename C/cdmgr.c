@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2007-03-26 15:18:43 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-04-10 22:13:20 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.205  2007/03/26 15:18:43  vsc
+* debugging and clause/3 over tabled predicates would kill YAP.
+*
 * Revision 1.204  2007/01/25 22:11:55  vsc
 * all/3 should fail on no solutions.
 * get rid of annoying gcc complaints.
@@ -3637,23 +3640,21 @@ code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
 static Int
 PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule) {
   Int found = 0;
-  Int i_table;
+  ModEntry *me = CurrentModules;
 
   /* should we allow the user to see hidden predicates? */
-  for (i_table = 0; i_table < NoOfModules; i_table++) {
+  while (me) {
 
     PredEntry *pp;
-    pp = ModulePred[i_table];
+    pp = me->PredForME;
     while (pp != NULL) {
       if ((found = code_in_pred(pp,  pat, parity, codeptr)) != 0) {
-	if (i_table)
-	  *pmodule = ModuleName[i_table];
-	else
-	  *pmodule = TermProlog;
-	return(found);
+	*pmodule = MkAtomTerm(me->AtomOfME);
+	return found;
       }
       pp = pp->NextPredOfModule;
     }
+    me = me->NextME;
   }
   return(0);
 }
@@ -3669,7 +3670,7 @@ Yap_PredForCode(yamop *codeptr, find_pred_type where_from, Atom *pat, UInt *pari
     if (p) {
       Int out;
       if (p->ModuleOfPred == PROLOG_MODULE)
-	*pmodule = ModuleName[0];
+	*pmodule = TermProlog;
       else
 	*pmodule = p->ModuleOfPred;
       out = find_code_in_clause(p, codeptr, NULL, NULL); 
@@ -3684,7 +3685,7 @@ Yap_PredForCode(yamop *codeptr, find_pred_type where_from, Atom *pat, UInt *pari
   }
   clause_was_found(p, pat, parity);
   if (p->ModuleOfPred == PROLOG_MODULE)
-    *pmodule = ModuleName[0];
+    *pmodule = TermProlog;
   else
     *pmodule = p->ModuleOfPred;
   return -1;
@@ -5532,10 +5533,11 @@ add_code_in_pred(PredEntry *pp) {
 
 void
 Yap_dump_code_area_for_profiler(void) {
-  Int i_table;
+  ModEntry *me = CurrentModules;
 
-  for (i_table = NoOfModules-1; i_table >= 0; --i_table) {
-    PredEntry *pp = ModulePred[i_table];
+  while (me) {
+    PredEntry *pp = me->PredForME;
+
     while (pp != NULL) {
       /*      if (pp->ArityOfPE) {
 	fprintf(stderr,"%s/%d %p\n",
@@ -5550,6 +5552,7 @@ Yap_dump_code_area_for_profiler(void) {
       add_code_in_pred(pp);
       pp = pp->NextPredOfModule;
     }
+    me = me->NextME;
   }
   Yap_inform_profiler_of_clause(COMMA_CODE, FAILCODE, RepPredProp(Yap_GetPredPropByFunc(FunctorComma,0)),0);
   Yap_inform_profiler_of_clause(FAILCODE, FAILCODE+1, RepPredProp(Yap_GetPredPropByAtom(AtomFail,0)),0);

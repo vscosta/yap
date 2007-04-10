@@ -621,12 +621,15 @@ InitReverseLookupOpcode(void)
   op_numbers i;
   /* 2 K should be OK */
   int hash_size_mask = OP_HASH_SIZE-1;
+  UInt sz = OP_HASH_SIZE*sizeof(struct opcode_tab_entry);
 
-  if (OP_RTABLE == NULL)
-    OP_RTABLE = (opentry *)Yap_AllocCodeSpace(OP_HASH_SIZE*sizeof(struct opcode_tab_entry));
-  if (OP_RTABLE == NULL) {
-    Yap_Error(INTERNAL_ERROR, TermNil,
-	  "Couldn't obtain space for the reverse translation opcode table");
+  while (OP_RTABLE == NULL) {
+    if ((OP_RTABLE = (opentry *)Yap_AllocCodeSpace(sz)) == NULL) {
+      if (!Yap_growheap(FALSE, sz, NULL)) {
+	Yap_Error(INTERNAL_ERROR, TermNil,
+		  "Couldn't obtain space for the reverse translation opcode table");
+      }
+    }
   }
   opeptr = OP_RTABLE;
   /* clear up table */

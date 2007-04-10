@@ -342,11 +342,13 @@ IsWideAtom (Atom at)
 
 
 /*	Module property 						*/
-typedef struct
+typedef struct mod_entry
 {
-  Prop NextOfPE;		/* used to chain properties             */
-  PropFlags KindOfPE;		/* kind of property                     */
-  SMALLUNSGN IndexOfMod;	/* index in module table                */
+  Prop NextOfPE;		 /* used to chain properties            */
+  PropFlags KindOfPE;		 /* kind of property                    */
+  struct pred_entry *PredForME;  /* index in module table               */
+  Atom   AtomOfME;		 /* module's name	                */
+  struct  mod_entry *NextME;   /* next module                         */
 } ModEntry;
 
 #if USE_OFFSETS_IN_PROPS
@@ -793,20 +795,20 @@ IsPredProperty (int flags)
 /* There are several flags for code and data base entries */
 typedef enum
 {
-  MegaMask = 0x200000,		/* informs this is a mega clause */
-  FactMask = 0x100000,		/* informs this is a fact */
-  SwitchRootMask = 0x80000,	/* informs this is the root for the index tree */
-  SwitchTableMask = 0x40000,	/* informs this is a switch table */
-  HasBlobsMask = 0x20000,	/* informs this has blobs which may be in use */
-  ProfFoundMask = 0x10000,	/* informs this clause is being counted by profiler */
-  DynamicMask = 0x8000,		/* informs this is a dynamic predicate */
-  InUseMask = 0x4000,		/* informs this block is being used */
-  ErasedMask = 0x2000,		/* informs this block has been erased */
-  IndexMask = 0x1000,		/* informs this is indexing code */
-  DBClMask = 0x0800,		/* informs this is a data base structure */
-  LogUpdRuleMask = 0x0400,	/* informs the code is for a log upd rule with env */
-  LogUpdMask = 0x0200,		/* informs this is a logic update index. */
-  StaticMask = 0x0100,		/* dealing with static predicates */
+  MegaMask = 0x200000,		/* mega clause */
+  FactMask = 0x100000,		/* a fact */
+  SwitchRootMask = 0x80000,	/* root for the index tree */
+  SwitchTableMask = 0x40000,	/* switch table */
+  HasBlobsMask = 0x20000,	/* blobs which may be in use */
+  ProfFoundMask = 0x10000,	/* clause is being counted by profiler */
+  DynamicMask = 0x8000,		/* dynamic predicate */
+  InUseMask = 0x4000,		/* this block is being used */
+  ErasedMask = 0x2000,		/* this block has been erased */
+  IndexMask = 0x1000,		/* indexing code */
+  DBClMask = 0x0800,		/* data base structure */
+  LogUpdRuleMask = 0x0400,	/* code is for a log upd rule with env */
+  LogUpdMask = 0x0200,		/* logic update index. */
+  StaticMask = 0x0100,		/* static predicates */
   DirtyMask = 0x0080		/* LUIndices  */
 /* other flags belong to DB */
 } dbentry_flags;

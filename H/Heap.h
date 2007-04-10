@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.114 2007-03-22 11:12:21 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.115 2007-04-10 22:13:20 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -341,12 +341,9 @@ typedef struct various_codes {
 #ifdef LOW_LEVEL_TRACER
   lockvar  low_level_trace_lock;
 #endif
-  lockvar  modules_lock;
 #endif
   unsigned int size_of_overflow;
-  Term  module_name[MaxModules];
-  struct pred_entry *module_pred[MaxModules];
-  SMALLUNSGN   no_of_modules;
+  struct mod_entry *current_modules;
   struct operator_entry *op_list;
   struct static_clause *dead_static_clauses;
   struct static_mega_clause *dead_mega_clauses;
@@ -654,9 +651,7 @@ struct various_codes *Yap_heap_regs;
 #define  INT_BB_KEYS              Yap_heap_regs->IntBBKeys
 #define  CharConversionTable      Yap_heap_regs->char_conversion_table
 #define  CharConversionTable2     Yap_heap_regs->char_conversion_table2
-#define  ModuleName               Yap_heap_regs->module_name
-#define  ModulePred               Yap_heap_regs->module_pred
-#define  NoOfModules              Yap_heap_regs->no_of_modules
+#define  CurrentModules		  Yap_heap_regs->current_modules
 #define  OpList                   Yap_heap_regs->op_list
 #define  AtomAbol                 Yap_heap_regs->atom_abol
 #define  AtomAlarm                Yap_heap_regs->atom_alarm

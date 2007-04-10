@@ -3728,6 +3728,8 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 static int
 is_gc_verbose(void)
 {
+  if (Yap_PrologMode == BootMode)
+    return FALSE;
 #ifdef INSTRUMENT_GC
   /* always give info when we are debugging gc */
   return(TRUE);
@@ -3746,7 +3748,9 @@ Yap_is_gc_verbose(void)
 static int
 is_gc_very_verbose(void)
 {
-  return(Yap_GetValue(AtomGcVeryVerbose) != TermNil);
+  if (Yap_PrologMode == BootMode)
+    return FALSE;
+  return Yap_GetValue(AtomGcVeryVerbose) != TermNil;
 }
 
 Int

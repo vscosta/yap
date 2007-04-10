@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2007-03-21 18:32:49 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-04-10 22:13:20 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.220  2007/03/21 18:32:49  vsc
+* fix memory expansion bugs.
+*
 * Revision 1.219  2007/01/24 09:57:25  vsc
 * fix glist_void_varx
 *
@@ -708,38 +711,50 @@ Yap_absmi(int inp)
 #endif /* USE_THREADED_CODE */
 
     noheapleft:
-      saveregs();
-      if (!Yap_growheap(FALSE, 0, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+      {
+	CELL cut_b = LCL0-(CELL *)(SREG[E_CB]);
+
+	saveregs();
+	if (!Yap_growheap(FALSE, 0, NULL)) {
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+	  setregs();
+	  FAIL();
+	}
 	setregs();
-	FAIL();
+	CACHE_A1();
+	SREG = ASP;
+	SREG[E_CB] = (CELL)(LCL0-cut_b);
       }
-      setregs();
-      CACHE_A1();
       goto reset_absmi;
 
 #if !OS_HANDLES_TR_OVERFLOW
     notrailleft:
       /* if we are within indexing code, the system may have to
        * update a S */
+      {
+	CELL cut_b = LCL0-(CELL *)(SREG[E_CB]);
+
 #if SHADOW_S
-      S = SREG;
+	S = SREG;
 #endif
-      /* YREG =was pointing to where we were going to build the
-       * next choice-point. The stack shifter will need to know this
-       * to move the local stack */
-      if (YREG > (CELL *) PROTECT_FROZEN_B(B)) {
-	ASP = (CELL *) PROTECT_FROZEN_B(B);
-      } else {
-	ASP = YREG+E_CB;
-      }
-      saveregs();
-      if(!Yap_growtrail (0, FALSE)) {
-	Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
+	/* YREG =was pointing to where we were going to build the
+	 * next choice-point. The stack shifter will need to know this
+	 * to move the local stack */
+	if (YREG > (CELL *) PROTECT_FROZEN_B(B)) {
+	  ASP = (CELL *) PROTECT_FROZEN_B(B);
+	} else {
+	  ASP = YREG+E_CB;
+	}
+	saveregs();
+	if(!Yap_growtrail (0, FALSE)) {
+	  Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
+	  setregs();
+	  FAIL();
+	}
 	setregs();
-	FAIL();
+	SREG = ASP;
+	SREG[E_CB] = (CELL)(LCL0-cut_b);
       }
-      setregs();
       goto reset_absmi;
 
 #endif /* OS_HANDLES_TR_OVERFLOW */

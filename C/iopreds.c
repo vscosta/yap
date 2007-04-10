@@ -2312,7 +2312,7 @@ p_open (void)
     st->stream_wgetc_for_read = st->stream_wgetc;
   t = MkStream (sno);
   if (open_mode == AtomWrite ) {
-    if (!avoid_bom && !write_bom(sno,st))
+    if (needs_bom && !write_bom(sno,st))
       return FALSE;
   } else if (open_mode == AtomRead &&
 	     !avoid_bom &&

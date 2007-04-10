@@ -25,6 +25,60 @@ static char     SccsId[] = "%W% %G%";
 STATIC_PROTO(Int p_current_module, (void));
 STATIC_PROTO(Int p_current_module1, (void));
 
+
+inline static ModEntry *
+FetchModuleEntry(Atom at)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+  AtomEntry *ae = RepAtom(at);
+
+  WRITE_LOCK(ae->ARWLock);
+  p0 = ae->PropsOfAE;
+  while (p0) {
+    ModEntry *me = RepModProp(p0);
+    if ( me->KindOfPE == ModProperty
+	 ) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return me;
+    }
+    p0 = me->NextOfPE;
+  }
+  return NULL;
+}
+
+inline static ModEntry *
+GetModuleEntry(Atom at)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+  AtomEntry *ae = RepAtom(at);
+  ModEntry *new;
+
+  WRITE_LOCK(ae->ARWLock);
+  p0 = ae->PropsOfAE;
+  while (p0) {
+    ModEntry *me = RepModProp(p0);
+    if ( me->KindOfPE == ModProperty
+	 ) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return me;
+    }
+    p0 = me->NextOfPE;
+  }
+  new = (ModEntry *) Yap_AllocAtomSpace(sizeof(*new));
+  INIT_RWLOCK(new->GRWLock);
+  new->KindOfPE = ModProperty;
+  new->NextME = CurrentModules;
+  CurrentModules = new;
+  new->AtomOfME = ae;
+  new->NextOfPE = ae->PropsOfAE;
+  ae->PropsOfAE = AbsModProp(new);
+  WRITE_UNLOCK(ae->ARWLock);
+  return new;
+}
+
+
 #define ByteAdr(X) ((char *) &(X))
 Term 
 Yap_Module_Name(PredEntry *ap)
@@ -46,47 +100,44 @@ Yap_Module_Name(PredEntry *ap)
   return TermProlog;
 }
 
-static int 
+static ModEntry * 
 LookupModule(Term a)
 {
-  unsigned int             i;
+  Atom at;
 
   /* prolog module */
   if (a == 0)
-    return 0;
-  LOCK(ModulesLock);
-  for (i = 0; i < NoOfModules; ++i) {
-    if (ModuleName[i] == a) {       
-      UNLOCK(ModulesLock);
-      return i;
-    }
-  }
-  ModuleName[i = NoOfModules++] = a;
-  UNLOCK(ModulesLock);
-  if (NoOfModules == MaxModules) {
-    Yap_Error(SYSTEM_ERROR,a,"number of modules overflowed");
-  }
-  return (i);
+    return GetModuleEntry(AtomOfTerm(TermProlog));
+  at = AtomOfTerm(a);
+  return GetModuleEntry(at);
 }
 
 Term
 Yap_Module(Term tmod)
 {
-  return ModuleName[LookupModule(tmod)];
+  LookupModule(tmod);
+  return tmod;
 }
 
 struct pred_entry *
 Yap_ModulePred(Term mod)
 {
-  return ModulePred[LookupModule(mod)];
+  ModEntry *me;
+  if (!(me = LookupModule(mod)))
+    return NULL;
+  return me->PredForME;
 }
 
 void
 Yap_NewModulePred(Term mod, struct pred_entry *ap)
 {
-  Term imod =  LookupModule(mod);
-  ap->NextPredOfModule = ModulePred[imod];
-  ModulePred[imod] = ap;
+  ModEntry *me;
+
+  if (!(me = LookupModule(mod)))
+    return;
+  /* LOCK THIS */
+  ap->NextPredOfModule = me->PredForME;
+  me->PredForME = ap;
 }
 
 static Int 
@@ -133,24 +184,31 @@ p_change_module(void)
 static Int 
 cont_current_module(void)
 {
-  Int  imod = IntOfTerm(EXTRA_CBACK_ARG(1,1));
-  Term t = ModuleName[imod];
+  ModEntry  *imod = (ModEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(1,1)), *next;
+  Term t = MkAtomTerm(imod->AtomOfME);
+  next = imod->NextME;
 
-  LOCK(ModulesLock);
-  if (imod == NoOfModules) {
-    UNLOCK(ModulesLock);
-    cut_fail();
-  }
-  UNLOCK(ModulesLock);
-  EXTRA_CBACK_ARG(1,1) = MkIntTerm(imod+1);
-  return(Yap_unify(ARG1,t));
+  /* ARG1 is unbound */
+  Yap_unify(ARG1,t);
+  if (!next)
+    cut_succeed();
+  EXTRA_CBACK_ARG(1,1) = MkIntegerTerm((Int)next);
+  return TRUE;
 }
 
 static Int 
 init_current_module(void)
 {				/* current_module(?ModuleName)		 */
-  EXTRA_CBACK_ARG(1,1) = MkIntTerm(0);
-  return (cont_current_module());
+  Term t = Deref(ARG1);
+  if (!IsVarTerm(t)) {
+    if (!IsAtomTerm(t)) {
+      Yap_Error(TYPE_ERROR_ATOM,t,"module name must be an atom");
+      return FALSE;
+    }
+    return (FetchModuleEntry(AtomOfTerm(t)) != NULL);
+  }
+  EXTRA_CBACK_ARG(1,1) = MkIntegerTerm((Int)CurrentModules);
+  return cont_current_module();
 }
 
 void 
@@ -167,26 +225,15 @@ Yap_InitModulesC(void)
 void 
 Yap_InitModules(void)
 {
-  ModuleName[PROLOG_MODULE] =
-    TermProlog;
-  ModuleName[1] = 
-    USER_MODULE;
-  ModuleName[2] =
-    IDB_MODULE;
-  ModuleName[3] =
-    ATTRIBUTES_MODULE;
-  ModuleName[4] =
-    CHARSIO_MODULE;
-  ModuleName[5] =
-    TERMS_MODULE;
-  ModuleName[6] =
-    SYSTEM_MODULE;
-  ModuleName[7] =
-    READUTIL_MODULE;
-  ModuleName[8] =
-    HACKS_MODULE;
-  ModuleName[9] =
-    GLOBALS_MODULE;
-  NoOfModules = 10;
+  LookupModule(MkAtomTerm(Yap_LookupAtom("prolog")));
+  LookupModule(USER_MODULE);
+  LookupModule(IDB_MODULE);
+  LookupModule(ATTRIBUTES_MODULE);
+  LookupModule(CHARSIO_MODULE);
+  LookupModule(TERMS_MODULE);
+  LookupModule(SYSTEM_MODULE);
+  LookupModule(READUTIL_MODULE);
+  LookupModule(HACKS_MODULE);
+  LookupModule(GLOBALS_MODULE);
   CurrentModule = PROLOG_MODULE;
 }
