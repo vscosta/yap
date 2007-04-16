@@ -544,7 +544,6 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
   p_code->opc = Yap_opcode(_Ystop);
   p_code->u.l.l = cl->ClCode;
   pe->OpcodeOfPred = pe->CodeOfPred->opc;
-  pe->ModuleOfPred = CurrentModule;
 }
 
 void 
