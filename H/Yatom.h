@@ -348,6 +348,9 @@ typedef struct mod_entry
   PropFlags KindOfPE;		 /* kind of property                    */
   struct pred_entry *PredForME;  /* index in module table               */
   Atom   AtomOfME;		 /* module's name	                */
+#if defined(YAPOR) || defined(THREADS)
+  rwlock_t ModRWLock;		/* a read-write lock to protect the entry */
+#endif
   struct  mod_entry *NextME;   /* next module                         */
 } ModEntry;
 

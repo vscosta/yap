@@ -3356,7 +3356,7 @@ p_has_bom (void)
 
 static Int
 p_representation_error (void)
-{				/* '$set_output'(+Stream,-ErrorMessage)  */
+{				/* '$representation_error'(+Stream,-ErrorMessage)  */
   Int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "representation_errors/1");
   if (sno < 0)
     return (FALSE);
@@ -3384,6 +3384,7 @@ p_representation_error (void)
       Stream[sno].status &= ~(RepError_Prolog_f|RepError_Xml_f);
     }
   }
+  UNLOCK(Stream[sno].streamlock);
   return TRUE;
 }
 

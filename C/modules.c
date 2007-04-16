@@ -67,7 +67,7 @@ GetModuleEntry(Atom at)
     p0 = me->NextOfPE;
   }
   new = (ModEntry *) Yap_AllocAtomSpace(sizeof(*new));
-  INIT_RWLOCK(new->GRWLock);
+  INIT_RWLOCK(new->ModRWLock);
   new->KindOfPE = ModProperty;
   new->NextME = CurrentModules;
   CurrentModules = new;

@@ -973,7 +973,6 @@ InitCodes(void)
   INIT_LOCK(Yap_heap_regs->dead_mega_clauses_lock);
   INIT_LOCK(Yap_heap_regs->dead_static_indices_lock);
   INIT_LOCK(Yap_heap_regs->op_list_lock);
-  INIT_LOCK(Yap_heap_regs->modules_lock);
   Yap_heap_regs->heap_top_owner = -1;
   {
     int i;
