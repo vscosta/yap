@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-03-30 16:47:22 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-04-18 23:01:16 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.91  2007/03/30 16:47:22  vsc
+* fix gmpless blob handling
+*
 * Revision 1.90  2007/03/22 11:12:20  vsc
 * make sure that YAP_Restart does not restart a failed goal.
 *
@@ -1645,7 +1648,12 @@ YAP_CurrentModule(void)
 X_API Term
 YAP_CreateModule(Atom at)
 {
-  return Yap_Module(MkAtomTerm(at));
+  Term t;
+  WRITE_LOCK(RepAtom(at)->ARWLock);  
+  t = Yap_Module(MkAtomTerm(at));
+  WRITE_UNLOCK(RepAtom(at)->ARWLock);  
+  return t;
+
 } 
 
 X_API int

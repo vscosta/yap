@@ -33,17 +33,18 @@ FetchModuleEntry(Atom at)
   Prop p0;
   AtomEntry *ae = RepAtom(at);
 
-  WRITE_LOCK(ae->ARWLock);
+  READ_LOCK(ae->ARWLock);
   p0 = ae->PropsOfAE;
   while (p0) {
     ModEntry *me = RepModProp(p0);
     if ( me->KindOfPE == ModProperty
 	 ) {
-      WRITE_UNLOCK(ae->ARWLock);
+      READ_UNLOCK(ae->ARWLock);
       return me;
     }
     p0 = me->NextOfPE;
   }
+  READ_UNLOCK(ae->ARWLock);
   return NULL;
 }
 
@@ -55,13 +56,11 @@ GetModuleEntry(Atom at)
   AtomEntry *ae = RepAtom(at);
   ModEntry *new;
 
-  WRITE_LOCK(ae->ARWLock);
   p0 = ae->PropsOfAE;
   while (p0) {
     ModEntry *me = RepModProp(p0);
     if ( me->KindOfPE == ModProperty
 	 ) {
-      WRITE_UNLOCK(ae->ARWLock);
       return me;
     }
     p0 = me->NextOfPE;
@@ -75,7 +74,6 @@ GetModuleEntry(Atom at)
   new->AtomOfME = ae;
   new->NextOfPE = ae->PropsOfAE;
   ae->PropsOfAE = AbsModProp(new);
-  WRITE_UNLOCK(ae->ARWLock);
   return new;
 }
 
@@ -105,12 +103,14 @@ static ModEntry *
 LookupModule(Term a)
 {
   Atom at;
+  ModEntry *me;
 
   /* prolog module */
   if (a == 0)
     return GetModuleEntry(AtomOfTerm(TermProlog));
   at = AtomOfTerm(a);
-  return GetModuleEntry(at);
+  me = GetModuleEntry(at);
+  return me;
 }
 
 Term
@@ -136,9 +136,10 @@ Yap_NewModulePred(Term mod, struct pred_entry *ap)
 
   if (!(me = LookupModule(mod)))
     return;
-  /* LOCK THIS */
+  WRITE_LOCK(me->ModRWLock);
   ap->NextPredOfModule = me->PredForME;
   me->PredForME = ap;
+  WRITE_UNLOCK(me->ModRWLock);
 }
 
 static Int 
@@ -162,7 +163,7 @@ p_current_module(void)
     CurrentModule = t;
     LookupModule(CurrentModule);
   }
-  return (TRUE);
+  return TRUE;
 }
 
 static Int

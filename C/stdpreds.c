@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2007-02-26 10:41:40 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-04-18 23:01:16 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.118  2007/02/26 10:41:40  vsc
+* fix prolog_flags for chr.
+*
 * Revision 1.117  2007/01/28 14:26:37  vsc
 * WIN32 support
 *
@@ -2480,9 +2483,9 @@ cont_current_predicate(void)
   Term name;
 
   while (pp != NULL) {
-    if (pp->PredFlags & HiddenPredFlag)
+    if (pp->PredFlags & HiddenPredFlag) {
       pp = pp->NextPredOfModule;
-    else
+    } else
       break;
   }
   if (pp == NULL)
