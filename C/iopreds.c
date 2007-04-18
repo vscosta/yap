@@ -3804,15 +3804,19 @@ static Int
 	int res;
 
 	if (!strcmp(Yap_ErrorMessage,"Stack Overflow") ||
-	    !strcmp(Yap_ErrorMessage,"Trail Overflow")) {
+	    !strcmp(Yap_ErrorMessage,"Trail Overflow") ||
+	    !strcmp(Yap_ErrorMessage,"Heap Overflow")) {
 	  /* ignore term we just built */
 	  tr_fr_ptr old_TR = TR;
+
 
 	  H = old_H;
 	  TR = (tr_fr_ptr)ScannerStack;
 	  
 	  if (!strcmp(Yap_ErrorMessage,"Stack Overflow"))
 	    res = Yap_growstack_in_parser(&old_TR, &tokstart, &Yap_VarTable);
+	  else if (!strcmp(Yap_ErrorMessage,"Heap Overflow"))
+	    res = Yap_growheap_in_parser(&old_TR, &tokstart, &Yap_VarTable);
 	  else
 	    res = Yap_growtrail_in_parser(&old_TR, &tokstart, &Yap_VarTable);
 	  if (res) {

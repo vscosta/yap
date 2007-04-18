@@ -310,6 +310,7 @@ ParseArgs(Atom a, JMPBUFF *FailBuff)
 {
   int nargs = 0;
   Term *p, t;
+  Functor func;
 #ifdef SFUNC
   SFEntry *pe = (SFEntry *) Yap_GetAProp(a, SFProperty);
 #endif
@@ -340,6 +341,11 @@ ParseArgs(Atom a, JMPBUFF *FailBuff)
     Yap_ErrorMessage = "Stack Overflow";
     FAIL;
   }  
+  func = Yap_MkFunctor(a, nargs);
+  if (func == NULL) {
+    Yap_ErrorMessage = "Heap Overflow";
+    FAIL;
+  }
 #ifdef SFUNC
   if (pe)
     t = MkSFTerm(Yap_MkFunctor(a, SFArity), nargs, p, pe->NilValue);
@@ -349,7 +355,7 @@ ParseArgs(Atom a, JMPBUFF *FailBuff)
   if (a == AtomDBRef && nargs == 2) 
     t = MkDBRefTerm((DBRef)IntegerOfTerm(p[0]));
   else
-    t = Yap_MkApplTerm(Yap_MkFunctor(a, nargs), nargs, p);
+    t = Yap_MkApplTerm(func, nargs, p);
 #endif
   if (H > ASP-4096) {
     Yap_ErrorMessage = "Stack Overflow";
@@ -485,6 +491,10 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	TRY(
 	  /* build appl on the heap */
 	  func = Yap_MkFunctor((Atom) t, 1);
+	  if (func == NULL) {
+	    Yap_ErrorMessage = "Heap Overflow";
+	    FAIL;
+	  }	  
 	  t = ParseTerm(oprprio, FailBuff);
 	  t = Yap_MkApplTerm(func, 1, &t);
 	  /* check for possible overflow against local stack */
@@ -517,9 +527,14 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	t = MkAtomTerm(AtomNil);
       else if (yap_flags[YAP_DOUBLE_QUOTES_FLAG] == STRING_AS_CHARS)
 	t = Yap_StringToListOfAtoms(p);
-      else if (yap_flags[YAP_DOUBLE_QUOTES_FLAG] == STRING_AS_ATOM)
-	t = MkAtomTerm(Yap_LookupAtom(p));
-      else
+      else if (yap_flags[YAP_DOUBLE_QUOTES_FLAG] == STRING_AS_ATOM) {
+	Atom at = Yap_LookupAtom(p);
+	if (at == NIL) {
+	  Yap_ErrorMessage = "Heap Overflow";
+	  FAIL;	  
+	}
+	t = MkAtomTerm(at);
+      } else
 	t = Yap_StringToList(p);
       NextToken;
     }
@@ -602,6 +617,10 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	Volatile int oldprio = curprio;
 	TRY3(
 	     func = Yap_MkFunctor((Atom) Yap_tokptr->TokInfo, 2);
+	     if (func == NULL) {
+	       Yap_ErrorMessage = "Heap Overflow";
+	       FAIL;
+	     }
 	     NextToken;
 	     {
 	       Term args[2];
@@ -625,7 +644,12 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
       if (IsPosfixOp(opinfo, &opprio, &oplprio)
 	  && opprio <= prio && oplprio >= curprio) {
 	/* parse as posfix operator */
-	t = Yap_MkApplTerm(Yap_MkFunctor((Atom) Yap_tokptr->TokInfo, 1), 1, &t);
+	Functor fun = Yap_MkFunctor((Atom) Yap_tokptr->TokInfo, 1);
+	if (func == NULL) {
+	  Yap_ErrorMessage = "Heap Overflow";
+	  FAIL;
+	}
+	t = Yap_MkApplTerm(func, 1, &t);
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
 	  Yap_ErrorMessage = "Stack Overflow";

@@ -64,6 +64,8 @@ InlinedUnlockedMkFunctor(AtomEntry *ae, unsigned int arity)
     return ((Functor) RepProp(p0));
   }
   p = (FunctorEntry *) Yap_AllocAtomSpace(sizeof(*p));
+  if (!p)
+    return NULL;
   p->KindOfPE = FunctorProperty;
   p->NameOfFE = AbsAtom(ae);
   p->ArityOfFE = arity;

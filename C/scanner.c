@@ -1075,6 +1075,15 @@ Yap_tokenizer(int inp_stream)
 	  t->TokInfo = Unsigned(Yap_LookupWideAtom((wchar_t *)TokImage));
 	} else {
 	  t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
+	  if (t->TokInfo == (CELL)NIL) {
+	    Yap_Error_TYPE = OUT_OF_HEAP_ERROR;	  
+	    Yap_ErrorMessage = "Code Space Overflow";
+	    if (p)
+	      t->Tok = Ord(kind = eot_tok);
+	    /* serious error now */
+	    UNLOCK(Stream[inp_stream].streamlock);
+	    return l;
+	  }
 	}
 	Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	t->Tok = Ord(kind = Name_tok);
@@ -1113,6 +1122,15 @@ Yap_tokenizer(int inp_stream)
 	  *charp++ = ch;
 	*charp = '\0';
 	t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
+	if (t->TokInfo == (CELL)NIL) {
+	  Yap_Error_TYPE = OUT_OF_HEAP_ERROR;	  
+	  Yap_ErrorMessage = "Code Space Overflow";
+	  if (p)
+	    t->Tok = Ord(kind = eot_tok);
+	  /* serious error now */
+	  UNLOCK(Stream[inp_stream].streamlock);
+	  return l;
+	}
 	Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	t->Tok = Ord(kind = Name_tok);
 	if (ch == '(')

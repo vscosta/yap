@@ -70,7 +70,7 @@ STATIC_PROTO(void AdjustTrail, (int));
 STATIC_PROTO(void AdjustLocal, (void));
 STATIC_PROTO(void AdjustGlobal, (void));
 STATIC_PROTO(void AdjustGrowStack, (void));
-STATIC_PROTO(int  static_growheap, (long,int,struct intermediates *));
+STATIC_PROTO(int  static_growheap, (long,int,struct intermediates *,tr_fr_ptr *, TokEntry **, VarEntry **));
 STATIC_PROTO(void cpcellsd, (CELL *, CELL *, CELL));
 STATIC_PROTO(CELL AdjustAppl, (CELL));
 STATIC_PROTO(CELL AdjustPair, (CELL));
@@ -508,6 +508,86 @@ AdjustRegs(int n)
   }
 }
 
+static void
+AdjustVarTable(VarEntry *ves)
+{
+  ves->VarAdr = TermNil;
+  if (ves->VarRight != NULL) {
+    if (IsOldVarTableTrailPtr(ves->VarRight)) {
+      ves->VarRight = (VarEntry *)TrailAddrAdjust((ADDR)(ves->VarRight));
+    }
+    AdjustVarTable(ves->VarRight);
+  }
+  if (ves->VarLeft != NULL) {
+    if (IsOldVarTableTrailPtr(ves->VarLeft)) {
+      ves->VarLeft = (VarEntry *)TrailAddrAdjust((ADDR)(ves->VarLeft));
+    }
+    AdjustVarTable(ves->VarLeft);
+  }
+}
+
+/*
+  If we have to shift while we are scanning we need to adjust all
+  pointers created by the scanner (Tokens and Variables)
+*/
+static void
+AdjustScannerStacks(TokEntry **tksp, VarEntry **vep)
+{
+  TokEntry *tks = *tksp;
+  VarEntry *ves = *vep;
+
+  if (tks != NULL) {
+    if (IsOldTokenTrailPtr(tks)) {
+      tks = *tksp = TokEntryAdjust(tks);
+    }
+  }
+  while (tks != NULL) {
+    TokEntry *tktmp;
+
+    switch (tks->Tok) {
+    case Var_tok:
+    case String_tok:
+      if (IsOldTrail(tks->TokInfo))
+	tks->TokInfo = TrailAdjust(tks->TokInfo);
+      break;
+    case Name_tok:
+      tks->TokInfo = (Term)AtomAdjust((Atom)(tks->TokInfo));
+      break;
+    default:
+      break;
+    }
+    tktmp = tks->TokNext;
+    if (tktmp != NULL) {
+      if (IsOldTokenTrailPtr(tktmp)) {
+	tktmp = TokEntryAdjust(tktmp);
+	tks->TokNext = tktmp;
+      }
+    }
+    tks = tktmp;
+  }
+  if (ves != NULL) {
+    if (IsOldVarTableTrailPtr(ves))
+      ves = *vep = (VarEntry *)TrailAddrAdjust((ADDR)ves);
+    AdjustVarTable(ves);
+  }
+  ves = Yap_AnonVarTable;
+  if (ves != NULL) {
+    if (IsOldVarTableTrailPtr(ves))
+      ves = Yap_AnonVarTable = VarEntryAdjust(ves);
+  }
+  while (ves != NULL) {
+    VarEntry *vetmp = ves->VarLeft;
+    if (vetmp != NULL) {
+      if (IsOldVarTableTrailPtr(vetmp)) {
+	vetmp = VarEntryAdjust(vetmp);
+      }
+      ves->VarLeft = vetmp;
+    }
+    ves->VarAdr = TermNil;
+    ves = vetmp;
+  }
+}
+
 void
 Yap_AdjustRegs(int n)
 {
@@ -516,7 +596,7 @@ Yap_AdjustRegs(int n)
 
 /* Used by do_goal() when we're short of heap space */
 static int
-static_growheap(long size, int fix_code, struct intermediates *cip)
+static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 {
   UInt start_growth_time, growth_time;
   int gc_verbose;
@@ -565,7 +645,18 @@ static_growheap(long size, int fix_code, struct intermediates *cip)
   } else {
     MoveGlobal();
   }
-  AdjustStacksAndTrail();
+  if (old_trp) {
+    tr_fr_ptr nTR;
+
+    AdjustScannerStacks(tksp, vep);
+    nTR = TR;
+    *old_trp = PtoTRAdjust(*old_trp);
+    TR = *old_trp;
+    AdjustStacksAndTrail();
+    TR = nTR;
+  } else {
+    AdjustStacksAndTrail();
+  }
   AdjustRegs(MaxTemps);
   YAPLeaveCriticalSection();
   ASP += 256;
@@ -925,7 +1016,7 @@ fix_tabling_info(void)
 #endif /* TABLING */
 
 static int
-do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
+do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 {
   unsigned long size = sizeof(CELL) * 16 * 1024L;
   int shift_factor = (heap_overflows > 8 ? 8 : heap_overflows);
@@ -940,7 +1031,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
 #endif
   if (SizeOfOverflow > sz)
     sz = AdjustPageSize(SizeOfOverflow);
-  while(sz >= sizeof(CELL) * 16 * 1024L && !static_growheap(sz, fix_code, cip)) {
+  while(sz >= sizeof(CELL) * 16 * 1024L && !static_growheap(sz, fix_code, cip, old_trp, tksp, vep)) {
     size = size/2;
     sz =  size << shift_factor;
     if (sz < in_size) {
@@ -1030,7 +1121,7 @@ growatomtable(void)
   while ((ntb = (AtomHashEntry *)Yap_AllocCodeSpace(nsize*sizeof(AtomHashEntry))) == NULL) {
     /* leave for next time */
 #if !USE_SYSTEM_MALLOC
-    if (!do_growheap(FALSE, nsize*sizeof(AtomHashEntry), NULL))
+    if (!do_growheap(FALSE, nsize*sizeof(AtomHashEntry), NULL, NULL, NULL, NULL))
 #endif
       return FALSE;
   }
@@ -1059,7 +1150,7 @@ growatomtable(void)
     /* make sure there is no heap overflow */
     int res;
     YAPEnterCriticalSection();
-    res = do_growheap(FALSE, 0, NULL);
+    res = do_growheap(FALSE, 0, NULL, NULL, NULL, NULL);
     YAPLeaveCriticalSection();
     return res;
   } else {
@@ -1094,7 +1185,17 @@ Yap_growheap(int fix_code, UInt in_size, void *cip)
     Yap_PrologMode &= ~GrowHeapMode;
     return res;
   }
-  res=do_growheap(fix_code, in_size, (struct intermediates *)cip);
+  res=do_growheap(fix_code, in_size, (struct intermediates *)cip, NULL, NULL, NULL);
+  Yap_PrologMode &= ~GrowHeapMode;
+  return res;
+}
+
+int
+Yap_growheap_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
+{
+  int res;
+
+  res=do_growheap(FALSE, 0L, NULL, old_trp, tksp, vep);
   Yap_PrologMode &= ~GrowHeapMode;
   return res;
 }
@@ -1140,86 +1241,6 @@ Yap_growstack(long size)
   res=growstack(size);
   Yap_PrologMode &= ~GrowStackMode;
   return res;
-}
-
-static void
-AdjustVarTable(VarEntry *ves)
-{
-  ves->VarAdr = TermNil;
-  if (ves->VarRight != NULL) {
-    if (IsOldVarTableTrailPtr(ves->VarRight)) {
-      ves->VarRight = (VarEntry *)TrailAddrAdjust((ADDR)(ves->VarRight));
-    }
-    AdjustVarTable(ves->VarRight);
-  }
-  if (ves->VarLeft != NULL) {
-    if (IsOldVarTableTrailPtr(ves->VarLeft)) {
-      ves->VarLeft = (VarEntry *)TrailAddrAdjust((ADDR)(ves->VarLeft));
-    }
-    AdjustVarTable(ves->VarLeft);
-  }
-}
-
-/*
-  If we have to shift while we are scanning we need to adjust all
-  pointers created by the scanner (Tokens and Variables)
-*/
-static void
-AdjustScannerStacks(TokEntry **tksp, VarEntry **vep)
-{
-  TokEntry *tks = *tksp;
-  VarEntry *ves = *vep;
-
-  if (tks != NULL) {
-    if (IsOldTokenTrailPtr(tks)) {
-      tks = *tksp = TokEntryAdjust(tks);
-    }
-  }
-  while (tks != NULL) {
-    TokEntry *tktmp;
-
-    switch (tks->Tok) {
-    case Var_tok:
-    case String_tok:
-      if (IsOldTrail(tks->TokInfo))
-	tks->TokInfo = TrailAdjust(tks->TokInfo);
-      break;
-    case Name_tok:
-      tks->TokInfo = (Term)AtomAdjust((Atom)(tks->TokInfo));
-      break;
-    default:
-      break;
-    }
-    tktmp = tks->TokNext;
-    if (tktmp != NULL) {
-      if (IsOldTokenTrailPtr(tktmp)) {
-	tktmp = TokEntryAdjust(tktmp);
-	tks->TokNext = tktmp;
-      }
-    }
-    tks = tktmp;
-  }
-  if (ves != NULL) {
-    if (IsOldVarTableTrailPtr(ves))
-      ves = *vep = (VarEntry *)TrailAddrAdjust((ADDR)ves);
-    AdjustVarTable(ves);
-  }
-  ves = Yap_AnonVarTable;
-  if (ves != NULL) {
-    if (IsOldVarTableTrailPtr(ves))
-      ves = Yap_AnonVarTable = VarEntryAdjust(ves);
-  }
-  while (ves != NULL) {
-    VarEntry *vetmp = ves->VarLeft;
-    if (vetmp != NULL) {
-      if (IsOldVarTableTrailPtr(vetmp)) {
-	vetmp = VarEntryAdjust(vetmp);
-      }
-      ves->VarLeft = vetmp;
-    }
-    ves->VarAdr = TermNil;
-    ves = vetmp;
-  }
 }
 
 static int
@@ -1529,7 +1550,7 @@ p_growheap(void)
   if (diff < 0) {
     Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t1, "grow_heap/1");
   }
-  return(static_growheap(diff, FALSE, NULL));
+  return(static_growheap(diff, FALSE, NULL, NULL, NULL, NULL));
 }
 
 static Int
