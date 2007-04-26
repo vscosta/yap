@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.C
-  version:     $Id: tab.tries.c,v 1.21 2007-04-26 14:11:08 ricroc Exp $   
+  version:     $Id: tab.tries.c,v 1.22 2007-04-26 19:02:46 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -1114,12 +1114,35 @@ int traverse_table(tab_ent_ptr tab_ent, Atom pred_atom, int show_table) {
   TrStat_ans_max_depth = -1;
   TrStat_ans_min_depth = -1;
   if (sg_node) {
-    char str[STR_ARRAY_SIZE];
-    int str_index = sprintf(str, "  ?- %s(", AtomName(pred_atom));
-    int arity[ARITY_ARRAY_SIZE];
-    arity[0] = 1;
-    arity[1] = TabEnt_arity(tab_ent);
-    return traverse_subgoal_trie(sg_node, str, str_index, arity, 1, TRAVERSE_NORMAL);
+    if (TabEnt_arity(tab_ent)) {
+      char str[STR_ARRAY_SIZE];
+      int str_index = sprintf(str, "  ?- %s(", AtomName(pred_atom));
+      int arity[ARITY_ARRAY_SIZE];
+      arity[0] = 1;
+      arity[1] = TabEnt_arity(tab_ent);
+      return traverse_subgoal_trie(sg_node, str, str_index, arity, 1, TRAVERSE_NORMAL);
+    } else {
+      sg_fr_ptr sg_fr = (sg_fr_ptr) sg_node;
+      TrStat_subgoals++;
+      TrStat_sg_linear_nodes = TrStat_sg_min_depth = TrStat_sg_max_depth = 0;
+      SHOW_TABLE("  ?- %s.\n", AtomName(pred_atom));
+      TrStat_ans_nodes++;
+      TrStat_ans_max_depth = TrStat_ans_min_depth = 0;
+      if (SgFr_first_answer(sg_fr) == NULL) {
+	if (SgFr_state(sg_fr) < complete) {
+	  TrStat_sg_incomplete++;
+	  SHOW_TABLE("    ---> INCOMPLETE\n");
+	} else {
+	  TrStat_answers_no++;
+	  SHOW_TABLE("    NO\n");
+	}
+      } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+	TrStat_answers_yes++;
+	TrStat_answers++;
+	SHOW_TABLE("    TRUE\n");
+      }
+    }
+    return TRUE;
   }
   SHOW_TABLE("  empty\n");
   return TRUE;
@@ -1470,19 +1493,19 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
     } else if (depth > TrStat_sg_max_depth) {
       TrStat_sg_max_depth = depth;
     }
-    if (SgFr_state(sg_fr) < complete) {
-      TrStat_sg_incomplete++;
-      SHOW_TABLE("%s. ---> INCOMPLETE\n", str);
-    } else {
-      SHOW_TABLE("%s.\n", str);
-    }
+    SHOW_TABLE("%s.\n", str);
     TrStat_ans_nodes++;
     if (SgFr_first_answer(sg_fr) == NULL) {
       if (TrStat_ans_max_depth < 0)
 	TrStat_ans_max_depth = 0;
       TrStat_ans_min_depth = 0;
-      TrStat_answers_no++;
-      SHOW_TABLE("    NO ANSWERS\n");
+      if (SgFr_state(sg_fr) < complete) {
+	TrStat_sg_incomplete++;
+	SHOW_TABLE("    ---> INCOMPLETE\n");
+      } else {
+	TrStat_answers_no++;
+	SHOW_TABLE("    NO\n");
+      }
     } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
       if (TrStat_ans_max_depth < 0)
 	TrStat_ans_max_depth = 0;
@@ -1496,6 +1519,10 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
       answer_arity[0] = 0;
       if (! traverse_answer_trie(TrNode_child(SgFr_answer_trie(sg_fr)), answer_str, 0, answer_arity, 0, 1, TRAVERSE_NORMAL))
 	return FALSE;
+      if (SgFr_state(sg_fr) < complete) {
+	TrStat_sg_incomplete++;
+	SHOW_TABLE("    ---> INCOMPLETE\n");
+      }
     }
   }
 
