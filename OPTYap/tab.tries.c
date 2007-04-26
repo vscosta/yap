@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.C
-  version:     $Id: tab.tries.c,v 1.20 2006-05-02 08:01:27 ricroc Exp $   
+  version:     $Id: tab.tries.c,v 1.21 2007-04-26 14:11:08 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -725,9 +725,9 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 	if (f == FunctorDouble) {
 	  volatile Float dbl = FloatOfTerm(t);
 	  volatile Term *t_dbl = (Term *)((void *) &dbl);
-#if SIZEOF_DOUBLE == 2 * SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
 	  current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, *(t_dbl + 1));
-#endif /* SIZEOF_DOUBLE x SIZEOF_LONG_INT */
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
 	  current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, *t_dbl);
 	} else if (f == FunctorLongInt) {
 	  Int li = LongIntOfTerm(t);
@@ -828,9 +828,9 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  volatile Float dbl = FloatOfTerm(t);
 	  volatile Term *t_dbl = (Term *)((void *) &dbl);
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_null);
-#if SIZEOF_DOUBLE == 2 * SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, *(t_dbl + 1), _trie_retry_extension);
-#endif /* SIZEOF_DOUBLE x SIZEOF_LONG_INT */
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, *t_dbl, _trie_retry_extension);
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_float);
 	} else if (f == FunctorLongInt) {
@@ -907,11 +907,11 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
 	t = TrNode_entry(ans_node);
 	ans_node = TrNode_parent(ans_node);
 	*t_dbl = t;
-#if SIZEOF_DOUBLE == 2 * SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
 	t = TrNode_entry(ans_node);
 	ans_node = TrNode_parent(ans_node);
 	*(t_dbl + 1) = t;
-#endif /* SIZEOF_DOUBLE x SIZEOF_LONG_INT */
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
 	ans_node = TrNode_parent(ans_node);
 	t = MkFloatTerm(dbl);
 	STACK_PUSH_UP(t, stack_terms);
@@ -1276,7 +1276,7 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
   }
 
   /* test the node type */
-#if SIZEOF_DOUBLE == 2 * SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
   if (mode == TRAVERSE_FLOAT) {
     arity[0]++;
     arity[arity[0]] = (int) t;
@@ -1287,10 +1287,12 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
     *t_dbl = t;
     *(t_dbl + 1) = (Term) arity[arity[0]];
     arity[0]--;
-#else /* SIZEOF_DOUBLE == SIZEOF_LONG_INT */
+#else /* SIZEOF_DOUBLE == SIZEOF_INT_P */
   if (mode == TRAVERSE_FLOAT) {
-    Float dbl = (Float) t;
-#endif /* SIZEOF_DOUBLE x SIZEOF_LONG_INT */
+    volatile Float dbl;
+    volatile Term *t_dbl = (Term *)((void *) &dbl);
+    *t_dbl = t;
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
     str_index += sprintf(& str[str_index], "%.15g", dbl);
     while (arity[0]) {
       if (arity[arity[0]] > 0) {
@@ -1316,7 +1318,11 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
     mode = TRAVERSE_NORMAL;
   } else if (mode == TRAVERSE_LONG) {
     Int li = (Int) t;
+#if SHORT_INTS
+    str_index += sprintf(& str[str_index], "%ld", li);
+#else
     str_index += sprintf(& str[str_index], "%d", li);
+#endif /* SHORT_INTS */
     while (arity[0]) {
       if (arity[arity[0]] > 0) {
 	arity[arity[0]]--;
@@ -1340,8 +1346,12 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
     }
     mode = TRAVERSE_NORMAL;
   } else if (IsVarTerm(t)) {
+#if SHORT_INTS
+    str_index += sprintf(& str[str_index], "VAR%ld", VarIndexOfTableTerm(t));
+#else
     str_index += sprintf(& str[str_index], "VAR%d", VarIndexOfTableTerm(t));
-    while (arity[0]) {
+#endif /* SHORT_INTS */
+   while (arity[0]) {
       if (arity[arity[0]] > 0) {
 	arity[arity[0]]--;
 	if (arity[arity[0]] == 0) {
@@ -1363,7 +1373,11 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
       }
     }
   } else if (IsIntTerm(t)) {
+#if SHORT_INTS
+    str_index += sprintf(& str[str_index], "%ld", IntOfTerm(t));
+#else
     str_index += sprintf(& str[str_index], "%d", IntOfTerm(t));
+#endif /* SHORT_INTS */
     while (arity[0]) {
       if (arity[arity[0]] > 0) {
 	arity[arity[0]]--;
@@ -1536,7 +1550,7 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
 
   /* test the node type */
   if (mode == TRAVERSE_FLOAT) {
-#if SIZEOF_DOUBLE == 2 * SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
     arity[0]++;
     arity[arity[0]] = (int) t;
     mode = TRAVERSE_FLOAT2;
@@ -1546,9 +1560,11 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
     *t_dbl = t;
     *(t_dbl + 1) = (Term) arity[arity[0]];
     arity[0]--;
-#else /* SIZEOF_DOUBLE == SIZEOF_LONG_INT */
-    Float dbl = (Float) t;
-#endif /* SIZEOF_DOUBLE x SIZEOF_LONG_INT */
+#else /* SIZEOF_DOUBLE == SIZEOF_INT_P */
+    volatile Float dbl;
+    volatile Term *t_dbl = (Term *)((void *) &dbl);
+    *t_dbl = t;
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
     str_index += sprintf(& str[str_index], "%.15g", dbl);
     while (arity[0]) {
       if (arity[arity[0]] > 0) {
@@ -1576,7 +1592,11 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
     mode = TRAVERSE_NORMAL;
   } else if (mode == TRAVERSE_LONG) {
     Int li = (Int) t;
+#if SHORT_INTS
+    str_index += sprintf(& str[str_index], "%ld", li);
+#else
     str_index += sprintf(& str[str_index], "%d", li);
+#endif /* SHORT_INTS */
     while (arity[0]) {
       if (arity[arity[0]] > 0) {
 	arity[arity[0]]--;
@@ -1602,7 +1622,11 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
   } else if (mode == TRAVERSE_LONG_END) {
     mode = TRAVERSE_NORMAL;
   } else if (IsVarTerm(t)) {
+#if SHORT_INTS
+    str_index += sprintf(& str[str_index], "ANSVAR%ld", VarIndexOfTableTerm(t));
+#else
     str_index += sprintf(& str[str_index], "ANSVAR%d", VarIndexOfTableTerm(t));
+#endif /* SHORT_INTS */
     while (arity[0]) {
       if (arity[arity[0]] > 0) {
 	arity[arity[0]]--;
@@ -1625,7 +1649,11 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
       }
     }
   } else if (IsIntTerm(t)) {
+#if SHORT_INTS
+    str_index += sprintf(& str[str_index], "%ld", IntOfTerm(t));
+#else
     str_index += sprintf(& str[str_index], "%d", IntOfTerm(t));
+#endif /* SHORT_INTS */
     while (arity[0]) {
       if (arity[arity[0]] > 0) {
 	arity[arity[0]]--;

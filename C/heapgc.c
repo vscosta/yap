@@ -51,7 +51,9 @@ STATIC_PROTO(void compact_heap, (void));
 STATIC_PROTO(void update_relocation_chain, (CELL *, CELL *));
 STATIC_PROTO(int  is_gc_verbose, (void));
 STATIC_PROTO(int  is_gc_very_verbose, (void));
+#ifdef EASY_SHUNTING
 STATIC_PROTO(void  set_conditionals, (tr_fr_ptr));
+#endif /* EASY_SHUNTING */
 
 #include "heapgc.h"
 

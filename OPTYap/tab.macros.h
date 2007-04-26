@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.macros.h
-  version:     $Id: tab.macros.h,v 1.19 2005-08-05 14:55:03 vsc Exp $   
+  version:     $Id: tab.macros.h,v 1.20 2007-04-26 14:11:08 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -65,11 +65,9 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #define LOAD_CP(CP)            ((struct loader_choicept *)(CP))
 #define IS_BATCHED_GEN_CP(CP)  (GEN_CP(CP)->cp_dep_fr == NULL)
 
-
-#define TAG_AS_ANSWER_LEAF_NODE(NODE)  TrNode_parent(NODE) = (ans_node_ptr)((unsigned int)TrNode_parent(NODE) | 0x1)
-#define UNTAG_ANSWER_LEAF_NODE(NODE)   ((ans_node_ptr)((unsigned int)NODE & 0xfffffffe))
-#define IS_ANSWER_LEAF_NODE(NODE)      ((unsigned int)TrNode_parent(NODE) & 0x1)
-
+#define TAG_AS_ANSWER_LEAF_NODE(NODE)  TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int)TrNode_parent(NODE) | 0x1)
+#define UNTAG_ANSWER_LEAF_NODE(NODE)   ((ans_node_ptr)((unsigned long int)NODE & ~(0x1)))
+#define IS_ANSWER_LEAF_NODE(NODE)      ((unsigned long int)TrNode_parent(NODE) & 0x1)
 
 #define STACK_NOT_EMPTY(STACK, STACK_BASE)  STACK != STACK_BASE
 #define STACK_PUSH_UP(ITEM, STACK)          *--STACK = (CELL)(ITEM)
@@ -106,8 +104,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
         ((CELL) TERM) >= GLOBAL_table_var_enumerator(0) &&                 \
         ((CELL) TERM) <= GLOBAL_table_var_enumerator(MAX_TABLE_VARS - 1)
 
-
-#define HASH_TABLE_LOCK(NODE)  ((((unsigned int)NODE) >> 5) & (TABLE_LOCK_BUCKETS - 1))
+#define HASH_TABLE_LOCK(NODE)  ((((unsigned long int)NODE) >> 5) & (TABLE_LOCK_BUCKETS - 1))
 #define LOCK_TABLE(NODE)         LOCK(GLOBAL_table_lock(HASH_TABLE_LOCK(NODE)))
 #define UNLOCK_TABLE(NODE)     UNLOCK(GLOBAL_table_lock(HASH_TABLE_LOCK(NODE)))
 
@@ -257,8 +254,9 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
         DepFr_leader_cp(DEP_FR) = NORM_CP(LEADER_CP);                                                  \
         DepFr_cons_cp(DEP_FR) = NORM_CP(CONS_CP);                                                      \
         /* start with TrNode_child(DepFr_last_answer(DEP_FR)) pointing to SgFr_first_answer(SG_FR) */  \
-        DepFr_last_answer(DEP_FR) = (ans_node_ptr)((int)(SG_FR) +                                      \
-          (int)(&SgFr_first_answer((sg_fr_ptr)DEP_FR)) - (int)(&TrNode_child((ans_node_ptr)DEP_FR)));  \
+        DepFr_last_answer(DEP_FR) = (ans_node_ptr)((unsigned long int)(SG_FR) +                        \
+                                    (unsigned long int)(&SgFr_first_answer((sg_fr_ptr)DEP_FR)) -       \
+                                    (unsigned long int)(&TrNode_child((ans_node_ptr)DEP_FR)));         \
         DepFr_next(DEP_FR) = NEXT
 
 

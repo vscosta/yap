@@ -201,13 +201,6 @@ mark_attvar(CELL *orig)
   Yap_mark_external_reference(&(attv->Atts));
 }
 
-#if FROZEN_STACKS
-static Term
-CurrentTime(void) {
-  return(MkIntegerTerm(TR-(tr_fr_ptr)Yap_TrailBase));
-}
-#endif
-
 static Term
 BuildAttTerm(Functor mfun, UInt ar)
 {

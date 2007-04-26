@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.init.c  
-  version:     $Id: opt.init.c,v 1.14 2005-11-16 01:55:03 vsc Exp $   
+  version:     $Id: opt.init.c,v 1.15 2007-04-26 14:11:08 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -56,36 +56,6 @@ ma_h_inner_struct *Yap_ma_h_top;
         Pg_free_pg(PG) = NULL
 
 
-
-#if YAP_MEMORY_ALLOC_SCHEME
-char *
-Yap_get_yap_space(int sz)
-{
-  char *ptr = Yap_AllocCodeSpace(sz+sizeof(CELL));
-  if (ptr) {
-    *ptr = 'y';
-    return ptr+sizeof(CELL);
-  }
-  ptr = (char *)malloc(sz+sizeof(CELL));
-  if (ptr) {
-    *ptr = 'm';
-    return ptr+sizeof(CELL);
-  }
-  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "Yap_AllocCodeSpace error (ALLOC_STRUCT), when allocating %d B", sz);
-  return NULL;
-}
-
-void
-Yap_free_yap_space(char *ptr)
-{
-  ptr -= sizeof(CELL);
-  if (ptr[0] == 'y') {
-    Yap_FreeCodeSpace(ptr);
-  } else {
-    free((void *)ptr);
-  }
-}
-#endif
 
 /* -------------------------- **
 **      Global functions      **
@@ -177,8 +147,7 @@ void Yap_init_global(int max_table_size, int n_workers, int sch_loop, int delay_
   GLOBAL_check_sg_fr = NULL;
 #endif /* LIMIT_TABLING */
   for (i = 0; i < MAX_TABLE_VARS; i++) {
-    CELL *pt = ADDR_GLOBAL_table_var_enumerator(i);
-
+    CELL *pt = GLOBAL_table_var_enumerator_addr(i);
     RESET_VARIABLE(pt);
   }
 #ifdef TABLE_LOCK_AT_WRITE_LEVEL
@@ -295,4 +264,3 @@ void init_workers(void) {
 }
 #endif /* YAPOR */
 #endif /* YAPOR || TABLING */
-

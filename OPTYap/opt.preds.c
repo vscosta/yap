@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.preds.c
-  version:     $Id: opt.preds.c,v 1.26 2006-04-29 15:52:22 ricroc Exp $   
+  version:     $Id: opt.preds.c,v 1.27 2007-04-26 14:11:08 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -63,14 +63,14 @@ static int p_or_statistics(void);
 #endif /* YAPOR */
 
 #ifdef TABLING
-static int p_table(void);
-static int p_tabling_mode(void);
-static int p_abolish_table(void);
-static int p_abolish_all_tables(void);
-static int p_show_tabled_predicates(void);
-static int p_show_table(void);
-static int p_table_statistics(void);
-static int p_tabling_statistics(void);
+static Int p_table(void);
+static Int p_tabling_mode(void);
+static Int p_abolish_table(void);
+static Int p_abolish_all_tables(void);
+static Int p_show_tabled_predicates(void);
+static Int p_show_table(void);
+static Int p_table_statistics(void);
+static Int p_tabling_statistics(void);
 #endif /* TABLING */
 
 #if defined(YAPOR) && defined(TABLING)
@@ -523,7 +523,7 @@ int p_or_statistics(void) {
 
 #ifdef TABLING
 static
-int p_table(void) {
+Int p_table(void) {
   Term mod, t;
   PredEntry *pe;
   tab_ent_ptr tab_ent;
@@ -559,7 +559,7 @@ int p_table(void) {
 
 
 static
-int p_tabling_mode(void) {
+Int p_tabling_mode(void) {
   Term mod, t, val;
   tab_ent_ptr tab_ent;
 
@@ -635,7 +635,7 @@ int p_tabling_mode(void) {
 
 
 static
-int p_abolish_table(void) {
+Int p_abolish_table(void) {
   Term mod, t;
   tab_ent_ptr tab_ent;
   sg_hash_ptr hash;
@@ -662,7 +662,7 @@ int p_abolish_table(void) {
 
 
 static
-int p_abolish_all_tables(void) {
+Int p_abolish_all_tables(void) {
   tab_ent_ptr tab_ent;
   sg_hash_ptr hash;
   sg_node_ptr sg_node;
@@ -684,32 +684,37 @@ int p_abolish_all_tables(void) {
 
 
 static
-int p_show_tabled_predicates(void) {
+Int p_show_tabled_predicates(void) {
   tab_ent_ptr tab_ent;
   PredEntry *pred;
   char *name;
   Int arity;
 
-  fprintf(Yap_stderr,"Tabled predicates\n");
+  fprintf(Yap_stderr, "Tabled predicates\n");
   tab_ent = GLOBAL_root_tab_ent;
   if (tab_ent == NULL)
-    fprintf(Yap_stderr,"  none\n");
-  else while(tab_ent) {
-    pred = TabEnt_pe(tab_ent);
-    arity = pred->ArityOfPE;
-    if (arity == 0)
-      name = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
-    else
-      name = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
-    fprintf(Yap_stderr,"  %s/%d\n", name, arity);
-    tab_ent = TabEnt_next(tab_ent);
-  }
+    fprintf(Yap_stderr, "  none\n");
+  else 
+    while(tab_ent) {
+      pred = TabEnt_pe(tab_ent);
+      arity = pred->ArityOfPE;
+      if (arity == 0)
+	name = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
+      else
+	name = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
+#if SHORT_INTS
+      fprintf(Yap_stderr, "  %s/%ld\n", name, arity);
+#else
+      fprintf(Yap_stderr, "  %s/%d\n", name, arity);
+#endif /* SHORT_INTS */
+      tab_ent = TabEnt_next(tab_ent);
+    }
   return (TRUE);
 }
 
 
 static
-int p_show_table(void) {
+Int p_show_table(void) {
   Term mod, t;
   tab_ent_ptr tab_ent;
   Atom at;
@@ -731,7 +736,7 @@ int p_show_table(void) {
 
 
 static
-int p_table_statistics(void) {
+Int p_table_statistics(void) {
   Term mod, t;
   tab_ent_ptr tab_ent;
   Atom at;
@@ -754,7 +759,7 @@ int p_table_statistics(void) {
 
 
 static
-int p_tabling_statistics(void) {
+Int p_tabling_statistics(void) {
 #ifdef SHM_MEMORY_ALLOC_SCHEME
   long pages_in_use = 0, bytes_in_use = 0;
 

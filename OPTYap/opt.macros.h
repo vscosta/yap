@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.macros.h 
-  version:     $Id: opt.macros.h,v 1.11 2005-11-16 01:55:03 vsc Exp $   
+  version:     $Id: opt.macros.h,v 1.12 2007-04-26 14:11:08 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -16,6 +16,8 @@
 #include <sys/shm.h>
 
 #define SHMMAX 0x2000000  /* 32 Mbytes: works fine with linux */
+/* #define SHMMAX  0x400000 - 4 Mbytes: shmget limit for Mac (?) */
+/* #define SHMMAX  0x800000 - 8 Mbytes: shmget limit for Solaris (?) */
 
 
 
@@ -43,7 +45,7 @@ extern int Yap_page_size;
 #define ADJUST_SIZE(SIZE)          ((SIZE + ALIGN) & ALIGNMASK)
 #define ADJUST_SIZE_TO_PAGE(SIZE)  ((SIZE) - (SIZE) % Yap_page_size + Yap_page_size)
 #define STRUCT_SIZE(STR_TYPE)      ADJUST_SIZE(sizeof(STR_TYPE))
-#define PAGE_HEADER(STR)           (pg_hd_ptr)((unsigned int)STR - (unsigned int)STR % Yap_page_size)
+#define PAGE_HEADER(STR)           (pg_hd_ptr)((unsigned long int)STR - (unsigned long int)STR % Yap_page_size)
 #define STRUCT_NEXT(STR)           ((STR)->next)
 
 
@@ -61,19 +63,35 @@ extern int Yap_page_size;
         UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                     \
         free(STR)
 #elif YAP_MEMORY_ALLOC_SCHEME  /* ---------------------------------------------------- */
-
-
-char *STD_PROTO(Yap_get_yap_space, (int));
-void  STD_PROTO(Yap_free_yap_space, (char *));
-	
 #define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)                                          \
-        UPDATE_STATS(Pg_str_in_use(STR_PAGES), 1);                                      \
-        STR = (STR_TYPE *)Yap_get_yap_space(sizeof(STR_TYPE))
+        { char *ptr = Yap_AllocCodeSpace(sizeof(STR_TYPE) + sizeof(CELL));              \
+          if (ptr) {                                                                    \
+            *ptr = 'y';                                                                 \
+            ptr += sizeof(CELL);                                                        \
+            STR = (STR_TYPE *)ptr;                                                      \
+          } else {                                                                      \
+            ptr = (char *)malloc(sizeof(STR_TYPE) + sizeof(CELL));                      \
+            if (ptr) {                                                                  \
+              *ptr = 'm';                                                               \
+              ptr += sizeof(CELL);                                                      \
+              STR = (STR_TYPE *)ptr;                                                    \
+            } else {                                                                    \
+              Yap_Error(FATAL_ERROR, TermNil, "malloc error (ALLOC_STRUCT)");           \
+              STR = NULL;                                                               \
+	    }                                                                           \
+          }                                                                             \
+          UPDATE_STATS(Pg_str_in_use(STR_PAGES), 1);                                    \
+        }
 #define ALLOC_NEXT_FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                                \
         ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)
 #define FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                                           \
-        UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                     \
-        Yap_free_yap_space((char *)(STR))
+        { char *ptr = (char *)(STR) - sizeof(CELL);                                     \
+          if (ptr[0] == 'y') {                                                          \
+            Yap_FreeCodeSpace(ptr);                                                     \
+          } else                                                                        \
+            free(ptr);                                                                  \
+          UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                   \
+        }
 #elif SHM_MEMORY_ALLOC_SCHEME  /* ---------------------------------------------------- */
 #ifdef LIMIT_TABLING
 #define INIT_PAGE(PG_HD, STR_PAGES, STR_TYPE)                                           \

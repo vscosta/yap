@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.insts.i
-  version:     $Id: tab.insts.i,v 1.23 2006-05-02 08:01:27 ricroc Exp $   
+  version:     $Id: tab.insts.i,v 1.24 2007-04-26 14:11:08 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -351,9 +351,9 @@
       GONext();
     }
 #else
-  PREG = PREG->u.ld.d;
-  PREFETCH_OP(PREG);
-  GONext();    
+    PREG = PREG->u.ld.d;
+    PREFETCH_OP(PREG);
+    GONext();    
 #endif /* INCOMPLETE_TABLING */
   ENDPBOp();
 

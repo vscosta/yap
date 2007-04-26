@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.insts.i
-  version:     $Id: tab.tries.insts.i,v 1.11 2006-01-17 14:10:41 vsc Exp $   
+  version:     $Id: tab.tries.insts.i,v 1.12 2007-04-26 14:11:08 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -982,15 +982,15 @@
     int i;
     Term t;
     volatile Float dbl;
-#if SIZEOF_DOUBLE == 2 * SIZEOF_LONG_INT
     volatile Term *t_dbl = (Term *)((void *) &dbl);
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
     *t_dbl = *++aux_ptr;
     *(t_dbl + 1) = *++aux_ptr;
     heap_arity -= 3;
-#else /* SIZEOF_DOUBLE == SIZEOF_LONG_INT */
-    dbl = (Float) *++aux_ptr;
+#else /* SIZEOF_DOUBLE == SIZEOF_INT_P */
+    *t_dbl = *++aux_ptr;
     heap_arity -= 2;
-#endif /* SIZEOF_DOUBLE x SIZEOF_LONG_INT */
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
     t = MkFloatTerm(dbl);
     no_cp_trie_float_longint_instr();
   ENDPBOp();
