@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2007-04-10 22:13:20 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-05-01 21:18:19 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.221  2007/04/10 22:13:20  vsc
+* fix max modules limitation
+*
 * Revision 1.220  2007/03/21 18:32:49  vsc
 * fix memory expansion bugs.
 *
@@ -11539,8 +11542,8 @@ Yap_absmi(int inp)
 	  GONext();
 	}
 	ENDD(d2);
-	PREG = NEXTOP(PREG, l);
 	always_set_pc();
+	PREG = NEXTOP(PREG, l);
 	GONext();
       }
       PREG = PREG->u.l.l;
