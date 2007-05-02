@@ -644,7 +644,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
       if (IsPosfixOp(opinfo, &opprio, &oplprio)
 	  && opprio <= prio && oplprio >= curprio) {
 	/* parse as posfix operator */
-	Functor fun = Yap_MkFunctor((Atom) Yap_tokptr->TokInfo, 1);
+	Functor func = Yap_MkFunctor((Atom) Yap_tokptr->TokInfo, 1);
 	if (func == NULL) {
 	  Yap_ErrorMessage = "Heap Overflow";
 	  FAIL;

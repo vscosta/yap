@@ -1092,6 +1092,7 @@ open_query execution;
 
 X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
 {
+  YAP_Atom yname;
   atom_t name;
   unsigned long int  arity;
   YAP_Module  m;
@@ -1103,7 +1104,8 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
   }
   execution.open=1;
   execution.state=0;
-  YAP_PredicateInfo(p, (YAP_Atom *)&name, &arity, &m);
+  YAP_PredicateInfo(p, &yname, &arity, &m);
+  name = (atom_t)yname;
   t[0] = YAP_ModuleName(m);
   if (arity == 0) {
     t[1] = YAP_MkAtomTerm((YAP_Atom)name);
