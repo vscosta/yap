@@ -8,8 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.29 2006-10-10 14:08:17 vsc Exp $									 *
+* $Id: sys.c,v 1.30 2007-05-02 11:16:43 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.29  2006/10/10 14:08:17  vsc
+* mods:		small fixes on threaded implementation.
+* mods:		
 * mods:		Revision 1.28  2006/05/25 16:28:28  vsc
 * mods:		include thread_sleep functionality.
 * mods:		
@@ -261,7 +264,7 @@ list_directory(void)
 #if HAVE_STRNCAT
   strncat(bs, "/*", BUF_SIZE);
 #else
-  strncat(bs, "/*");
+  strcat(bs, "/*");
 #endif
   if ((hFile = _findfirst(bs, &c_file)) == -1L) {
     return(YAP_Unify(YAP_ARG2,tf));
@@ -587,7 +590,7 @@ execute_command(void)
   StartupInfo.hStdError = errf;
   /* got stdin, stdout and error as I like it */
   if (CreateProcess(NULL,
-		    YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1)),
+		    (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1)),
 		    NULL,
 		    NULL,
 		    TRUE,
@@ -707,7 +710,7 @@ do_system(void)
   }
   return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(sys));
 #else
-  YAP_Error(0,0L,"system not available in this configuration");
+  YAP_Error(0,0L,"system not available in this configuration, trying %s", command);
   return FALSE;
 #endif
 }
@@ -976,11 +979,9 @@ static int
 error_message(void)
 {
 #if HAVE_STRERROR
-  return(YAP_Unify(YAP_ARG2,YAP_MkAtomTerm(YAP_LookupAtom(strerror(YAP_IntOfTerm(YAP_ARG1))))));
+  return YAP_Unify(YAP_ARG2,YAP_MkAtomTerm(YAP_LookupAtom(strerror(YAP_IntOfTerm(YAP_ARG1)))));
 #else
-#if HAVE_STRERROR
-  return(YAP_Unify(YAP_ARG2,YAP_ARG1));
-#endif
+  return YAP_Unify(YAP_ARG2,YAP_ARG1);
 #endif
 }
 
