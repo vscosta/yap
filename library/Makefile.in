@@ -52,6 +52,7 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/system.yap \
 	$(srcdir)/terms.yap \
 	$(srcdir)/tries.yap \
+	$(srcdir)/itries.yap \
 	$(srcdir)/timeout.yap \
 	$(srcdir)/trees.yap \
 	$(srcdir)/ugraphs.yap \
