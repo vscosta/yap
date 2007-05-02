@@ -67,13 +67,19 @@ typedef struct {
 /* switch_on_cons */
 typedef struct {
   Term  Tag;
-  UInt  Label;
+  union {
+    UInt  Label;
+    yamop *labp;
+  } u;
 } AtomSwiEntry;
 
 /* switch_on_func */
 typedef struct {
   Functor  Tag;
-  UInt  Label;
+  union {
+    UInt  Label;
+    yamop *labp;
+  } u;
 } FuncSwiEntry;
 
 /* switch_on_type */

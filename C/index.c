@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2007-03-26 15:18:43 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-05-02 11:01:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.184  2007/03/26 15:18:43  vsc
+* debugging and clause/3 over tabled predicates would kill YAP.
+*
 * Revision 1.183  2007/03/21 23:23:46  vsc
 * fix excessive trail cleaning in gc tr overflow.
 *
@@ -514,7 +517,7 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
 	int cases = cpc->rnd1, i;
 
 	for (i = 0; i < cases; i++) {
-	  sz = cleanup_sw_on_clauses(target[i].Label, sz, ecls);
+	  sz = cleanup_sw_on_clauses(target[i].u.Label, sz, ecls);
 	}
 	if (log_upd_pred) {
 	  LogUpdIndex *lcl = ClauseCodeToLogUpdIndex(cpc->rnd2);
@@ -536,7 +539,7 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
 	int cases = cpc->rnd1, i;
 	
 	for (i = 0; i < cases; i++) {
-	  sz = cleanup_sw_on_clauses(target[i].Label, sz, ecls);
+	  sz = cleanup_sw_on_clauses(target[i].u.Label, sz, ecls);
 	}
 	if (log_upd_pred) {
 	  LogUpdIndex *lcl = ClauseCodeToLogUpdIndex(cpc->rnd2);
@@ -3542,7 +3545,7 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint)
 }
 
 static AtomSwiEntry *
-emit_cswitch(int n, UInt fail_l, struct intermediates *cint)
+emit_cswitch(int n, yamop *fail_l, struct intermediates *cint)
 {
   compiler_vm_op op;
   AtomSwiEntry *target;
@@ -3556,7 +3559,7 @@ emit_cswitch(int n, UInt fail_l, struct intermediates *cint)
     target = (AtomSwiEntry *)emit_switch_space(n, sizeof(AtomSwiEntry), cint);
     for (i=0; i<n; i++) {
       target[i].Tag = Zero;
-      target[i].Label = fail_l;
+      target[i].u.labp = fail_l;
     }
     Yap_emit(op, Unsigned(n), (CELL)target, cint);
   } else {
@@ -3566,10 +3569,10 @@ emit_cswitch(int n, UInt fail_l, struct intermediates *cint)
     target = (AtomSwiEntry *)emit_switch_space(n+1, sizeof(AtomSwiEntry), cint);
 
     for (i=0; i<n; i++) {
-      target[i].Label = fail_l;
+      target[i].u.labp = fail_l;
     }
     target[n].Tag = Zero;
-    target[n].Label = fail_l;
+    target[n].u.labp = fail_l;
     Yap_emit(op, Unsigned(n), (CELL)target, cint);
   }
   return target;
@@ -3609,7 +3612,7 @@ fetch_centry(AtomSwiEntry *cebase, Term wt, int i, int n)
 }
 
 static FuncSwiEntry *
-emit_fswitch(int n, UInt fail_l, struct intermediates *cint)
+emit_fswitch(int n, yamop *fail_l, struct intermediates *cint)
 {
   compiler_vm_op op;
   FuncSwiEntry *target;
@@ -3623,7 +3626,7 @@ emit_fswitch(int n, UInt fail_l, struct intermediates *cint)
     target = (FuncSwiEntry *)emit_switch_space(n, sizeof(FuncSwiEntry), cint);
     for (i=0; i<n; i++) {
       target[i].Tag = NULL;
-      target[i].Label = fail_l;
+      target[i].u.labp = fail_l;
     }
     Yap_emit(op, Unsigned(n), (CELL)target, cint);
   } else {
@@ -3632,10 +3635,10 @@ emit_fswitch(int n, UInt fail_l, struct intermediates *cint)
     op = if_f_op;
     target = (FuncSwiEntry *)emit_switch_space(n+1, sizeof(FuncSwiEntry), cint);
     for (i=0; i<n; i++) {
-      target[i].Label = fail_l;
+      target[i].u.labp = fail_l;
     }
     target[n].Tag = NULL;
-    target[n].Label = fail_l;
+    target[n].u.labp = fail_l;
     Yap_emit(op, Unsigned(n), (CELL)target, cint);
   }
   return target;
@@ -3952,7 +3955,7 @@ do_consts(GroupDef *grp, Term t, struct intermediates *cint, int compound_term, 
   n = count_consts(grp);
   lbl = new_label(cint);
   Yap_emit(label_op, lbl, Zero, cint);
-  cs = emit_cswitch(n, (UInt)FAILCODE, cint);
+  cs = emit_cswitch(n, FAILCODE, cint);
   for (i = 0; i < n; i++) {
     AtomSwiEntry *ics;
     ClauseDef *max = min;
@@ -3965,24 +3968,24 @@ do_consts(GroupDef *grp, Term t, struct intermediates *cint, int compound_term, 
       if (sreg != NULL) {
 	if (ap->PredFlags & LogUpdatePredFlag && max > min) {
 	  if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
-	    ics->Label = do_index(min, max, cint, ap->ArityOfPE+1, nxtlbl, first, clleft, top);
+	    ics->u.Label = do_index(min, max, cint, ap->ArityOfPE+1, nxtlbl, first, clleft, top);
 	  } else {
-	    ics->Label = suspend_indexing(min, max, ap, cint);
+	    ics->u.Label = suspend_indexing(min, max, ap, cint);
 	  }
 	} else {
-	    ics->Label = do_compound_index(min, max, sreg, cint, compound_term, arity, argno, nxtlbl, first, last_arg, clleft, top, TRUE);
+	    ics->u.Label = do_compound_index(min, max, sreg, cint, compound_term, arity, argno, nxtlbl, first, last_arg, clleft, top, TRUE);
 	}
       } else if (ap->PredFlags & LogUpdatePredFlag) {
 	if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
-	  ics->Label = do_index(min, max, cint, ap->ArityOfPE+1, nxtlbl, first, clleft, top);
+	  ics->u.Label = do_index(min, max, cint, ap->ArityOfPE+1, nxtlbl, first, clleft, top);
 	} else {
-	  ics->Label = suspend_indexing(min, max, cint->CurrentPred, cint);
+	  ics->u.Label = suspend_indexing(min, max, cint->CurrentPred, cint);
 	}
       } else {
-	ics->Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
+	ics->u.Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
       }
     } else {
-      ics->Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
+      ics->u.Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
     }
     grp->FirstClause = min = max+1;
   }
@@ -4000,7 +4003,7 @@ do_blobs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
   PredEntry *ap = cint->CurrentPred;
 
   n = count_blobs(grp);
-  cs = emit_cswitch(n, nxtlbl, cint);
+  cs = emit_cswitch(n, (yamop *)nxtlbl, cint);
   for (i = 0; i < n; i++) {
     AtomSwiEntry *ics;
     ClauseDef *max = min;
@@ -4012,12 +4015,12 @@ do_blobs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
     if (min != max &&
 	(ap->PredFlags & LogUpdatePredFlag)) {
       if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
-	ics->Label = do_index(min, max, cint, ap->ArityOfPE+1, nxtlbl, first, clleft, top);
+	ics->u.Label = do_index(min, max, cint, ap->ArityOfPE+1, nxtlbl, first, clleft, top);
       } else {
-	ics->Label = suspend_indexing(min, max, ap, cint);
+	ics->u.Label = suspend_indexing(min, max, ap, cint);
       }
     } else {
-      ics->Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
+      ics->u.Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
     }
     grp->FirstClause = min = max+1;
   }
@@ -4039,7 +4042,7 @@ do_funcs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
   lbl = new_label(cint);
   Yap_emit(label_op, lbl, Zero, cint);
   /* generate a switch */
-  fs = emit_fswitch(n, (UInt)FAILCODE, cint);
+  fs = emit_fswitch(n, FAILCODE, cint);
   for (i = 0; i < n ; i++) {
     Functor f = (Functor)RepAppl(min->Tag);
     FuncSwiEntry *ifs;
@@ -4052,14 +4055,14 @@ do_funcs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
     /* delay non-trivial indexing  
        if (min != max &&
        !IsExtensionFunctor(f)) {
-       ifs->Label = suspend_indexing(min, max, ap, cint);
+       ifs->u.Label = suspend_indexing(min, max, ap, cint);
        } else 
     */
     if (IsExtensionFunctor(f)) {
       if (f == FunctorDBRef) 
-	ifs->Label = do_dbref_index(min, max, t, cint, argno, nxtlbl, first, clleft, top);
+	ifs->u.Label = do_dbref_index(min, max, t, cint, argno, nxtlbl, first, clleft, top);
       else
-	ifs->Label = do_blob_index(min, max, t, cint, argno, nxtlbl, first, clleft, top);
+	ifs->u.Label = do_blob_index(min, max, t, cint, argno, nxtlbl, first, clleft, top);
 	
     } else {
       CELL *sreg;
@@ -4069,7 +4072,7 @@ do_funcs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
       } else {
 	sreg = NULL;
       }
-      ifs->Label = do_compound_index(min, max, sreg, cint, 0, ArityOfFunctor(f), argno, nxtlbl, first, last_arg, clleft, top, TRUE);
+      ifs->u.Label = do_compound_index(min, max, sreg, cint, 0, ArityOfFunctor(f), argno, nxtlbl, first, last_arg, clleft, top, TRUE);
     }
     grp->FirstClause = min = max+1;
   }
@@ -5512,9 +5515,9 @@ expand_index(struct intermediates *cint) {
 	} else {
 	  fe = lookup_f(f,ipc->u.sssl.l,ipc->u.sssl.s);
 	}
-	newpc = (yamop *)(fe->Label);
+	newpc = fe->u.labp;
 
-	labp = (yamop **)&(fe->Label);
+	labp = &(fe->u.labp);
 	if (newpc == e_code) {
 	  /* we found it */
 	  parentcl = code_to_indexcl(ipc->u.sssl.l,is_lu);
@@ -5538,14 +5541,14 @@ expand_index(struct intermediates *cint) {
 	  ae = lookup_c(t,ipc->u.sssl.l,ipc->u.sssl.s);
 	}
 
-	labp = (yamop **)(&(ae->Label));
-	if (ae->Label == (CELL)e_code) {
+	labp = &(ae->u.labp);
+	if (ae->u.labp == e_code) {
 	  /* we found it */
 	  parentcl = code_to_indexcl(ipc->u.sssl.l,is_lu);
 	  ipc = NULL;
 	} else {
 	  ClausePointer npar = code_to_indexcl(ipc->u.sssl.l,is_lu);
-	  ipc = (yamop *)(ae->Label);
+	  ipc = ae->u.labp;
 	  parentcl = index_jmp(npar, parentcl, ipc, is_lu, e_code);
 	}
       }
@@ -6113,10 +6116,10 @@ expand_ctable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Term at)
     n = 1;
     for (i = 0; i < pc->u.sssl.s; i++,tmp++) {
       if (tmp->Tag != Zero) n++;
-      else fail_l = tmp->Label;
+      else fail_l = tmp->u.Label;
     }
   } else {
-    fail_l = old_ae[n].Label;
+    fail_l = old_ae[n].u.Label;
     n++;
   }
   if (n > MIN_HASH_ENTRIES) {
@@ -6132,14 +6135,14 @@ expand_ctable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Term at)
     pc->u.sssl.s = cases;
     for (i=0; i<cases; i++) {
       target[i].Tag = Zero;
-      target[i].Label = fail_l;
+      target[i].u.Label = fail_l;
     }
   } else {
     pc->opc = Yap_opcode(_if_cons);
     pc->u.sssl.s = n;
     target = (AtomSwiEntry *)emit_switch_space(n+1, sizeof(AtomSwiEntry), cint);
     target[n].Tag = Zero;
-    target[n].Label = fail_l;
+    target[n].u.Label = fail_l;
   }
   for (i = 0; i < i0; i++,old_ae++) {
     Term tag = old_ae->Tag;
@@ -6147,7 +6150,7 @@ expand_ctable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Term at)
     if (tag != Zero) {
       AtomSwiEntry *ics = fetch_centry(target, tag, i, n);
       ics->Tag = tag;
-      ics->Label = old_ae->Label;    
+      ics->u.Label = old_ae->u.Label;    
     }
   }
   /* support for threads */
@@ -6172,10 +6175,10 @@ expand_ftable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Functor f
     n = 1;
     for (i = 0; i < pc->u.sssl.s; i++,tmp++) {
       if (tmp->Tag != Zero) n++;
-      else fail_l = tmp->Label;
+      else fail_l = tmp->u.Label;
     }
   } else {
-    fail_l = old_fe[n].Label;
+    fail_l = old_fe[n].u.Label;
     n++;
   }
   if (n > MIN_HASH_ENTRIES) {
@@ -6194,7 +6197,7 @@ expand_ftable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Functor f
     target = (FuncSwiEntry *)emit_switch_space(cases, sizeof(FuncSwiEntry), cint);
     for (i=0; i<cases; i++) {
       target[i].Tag = NULL;
-      target[i].Label = fail_l;
+      target[i].u.Label = fail_l;
     }
   } else {
     pc->opc = Yap_opcode(_if_func);
@@ -6203,7 +6206,7 @@ expand_ftable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Functor f
     pc->u.sssl.w = 0;
     target = (FuncSwiEntry *)emit_switch_space(n+1, sizeof(FuncSwiEntry), cint);
     target[n].Tag = Zero;
-    target[n].Label = fail_l;
+    target[n].u.Label = fail_l;
   }
   for (i = 0; i < i0; i++,old_fe++) {
     Functor f = old_fe->Tag;
@@ -6211,7 +6214,7 @@ expand_ftable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Functor f
     if (f != NULL) {
       FuncSwiEntry *ifs = fetch_fentry(target, f, i, n);
       ifs->Tag = old_fe->Tag;
-      ifs->Label = old_fe->Label;    
+      ifs->u.Label = old_fe->u.Label;    
     }
   }
   replace_index_block(blk, pc->u.sssl.l, (yamop *)target, ap);
@@ -7042,7 +7045,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	if (!IsExtensionFunctor(f)) {
 	  current_arity = ArityOfFunctor(f);
 	}
-	newpc = (yamop *)(fe->Label);
+	newpc = fe->u.labp;
 
 	if (newpc == (yamop *)&(ap->cs.p_code.ExpandCode)) {
 	  /* we found it */
@@ -7061,12 +7064,12 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	    fe->Tag = f;
 	    ipc->u.sssl.e++;
 	  }
-	  fe->Label = (UInt)cls->CurrentCode;
+	  fe->u.labp = cls->CurrentCode;
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
-	  yamop *newpc = (yamop *)(fe->Label);
+	  yamop *newpc = fe->u.labp;
 	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap);
-	  sp = cross_block(sp, (yamop **)&(fe->Label), ap);
+	  sp = cross_block(sp, &(fe->u.labp), ap);
 	  ipc = newpc;
 	}
       }
@@ -7099,7 +7102,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	} else {
 	  ae = lookup_c(at, ipc->u.sssl.l, ipc->u.sssl.s);
 	}
-	newpc = (yamop *)(ae->Label);
+	newpc = ae->u.labp;
 
 	if (newpc == (yamop *)&(ap->cs.p_code.ExpandCode)) {
 	  /* nothing more to do */
@@ -7113,13 +7116,13 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	    ae->Tag = at;
 	    ipc->u.sssl.e++;
 	  }
-	  ae->Label = (UInt)cls->CurrentCode;
+	  ae->u.labp = cls->CurrentCode;
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
-	  yamop *newpc = (yamop *)(ae->Label);
+	  yamop *newpc = ae->u.labp;
 
 	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap);
-	  sp = cross_block(sp, (yamop **)&(ae->Label), ap);
+	  sp = cross_block(sp, &(ae->u.labp), ap);
 	  ipc = newpc;
 	}
       }
@@ -7238,7 +7241,7 @@ contract_ftable(yamop *ipc, ClauseUnion *blk, PredEntry *ap, Functor f) {
     fep = (FuncSwiEntry *)(ipc->u.sssl.l);
     while (fep->Tag != f) fep++;
   }
-  fep->Label = (CELL)FAILCODE;
+  fep->u.labp = FAILCODE;
 }
 
 static void
@@ -7252,7 +7255,7 @@ contract_ctable(yamop *ipc, ClauseUnion *blk, PredEntry *ap, Term at) {
     cep = (AtomSwiEntry *)(ipc->u.sssl.l);
     while (cep->Tag != at) cep++;
   }
-  cep->Label = (CELL)FAILCODE;
+  cep->u.labp = FAILCODE;
 }
 
 static void
@@ -7530,21 +7533,21 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	if (!IsExtensionFunctor(f)) {
 	  current_arity = ArityOfFunctor(f);
 	}
-	newpc = (yamop *)(fe->Label);
+	newpc = fe->u.labp;
 
 	if (newpc == (yamop *)&(ap->cs.p_code.ExpandCode)) {
 	  /* we found it */
 	  ipc = pop_path(&sp, cls, ap);
 	} else if (newpc == FAILCODE) {
 	  ipc = pop_path(&sp, cls, ap);
-	} else if (IN_BETWEEN(bg,fe->Label,lt)) {
+	} else if (IN_BETWEEN(bg,fe->u.Label,lt)) {
 	  /* oops, nothing there */
 	  contract_ftable(ipc, current_block(sp), ap, f);
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
-	  yamop *newpc = (yamop *)(fe->Label);
+	  yamop *newpc = fe->u.labp;
 	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap);
-	  sp = cross_block(sp, (yamop **)&(fe->Label), ap);
+	  sp = cross_block(sp, &(fe->u.labp), ap);
 	  ipc = newpc;
 	}
       }
@@ -7577,22 +7580,22 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	} else {
 	  ae = lookup_c(at, ipc->u.sssl.l, ipc->u.sssl.s);
 	}
-	newpc = (yamop *)(ae->Label);
+	newpc = ae->u.labp;
 
 	if (newpc == (yamop *)&(ap->cs.p_code.ExpandCode)) {
 	  /* we found it */
 	  ipc = pop_path(&sp, cls, ap);
 	} else if (newpc == FAILCODE) {
 	  ipc = pop_path(&sp, cls, ap);
-	} else if (IN_BETWEEN(bg,ae->Label,lt)) {
+	} else if (IN_BETWEEN(bg,ae->u.Label,lt)) {
 	  /* oops, nothing there */
 	  contract_ctable(ipc, current_block(sp), ap, at);
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
-	  yamop *newpc = (yamop *)(ae->Label);
+	  yamop *newpc = ae->u.labp;
 
 	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap);
-	  sp = cross_block(sp, (yamop **)&(ae->Label), ap);
+	  sp = cross_block(sp, &(ae->u.labp), ap);
 	  ipc = newpc;
 	}
       }
@@ -8190,8 +8193,8 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	} else {
 	  fe = lookup_f(f, ipc->u.sssl.l, ipc->u.sssl.s);
 	}
-	jlbl = (yamop **)(&fe->Label);
-	ipc = (yamop *)(fe->Label);
+	jlbl = &(fe->u.labp);
+	ipc = fe->u.labp;
       }
       break;
     case _index_dbref:
@@ -8217,8 +8220,8 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	} else {
 	  ae = lookup_c(t, ipc->u.sssl.l, ipc->u.sssl.s);
 	}
-	jlbl = (yamop **)(&ae->Label);
-	ipc = (yamop *)(ae->Label);
+	jlbl = &(ae->u.labp);
+	ipc = ae->u.labp;
       }
       break;
     case _expand_index:
