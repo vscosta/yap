@@ -1,30 +1,33 @@
-/*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		tries.yap						 *
-* Last rev:								 *
-* mods:									 *
-* comments:	Tries manipulation routines	 			 *
-*									 *
-*************************************************************************/
+/****************************************
+  File:     tries.yap
+  Author:   Ricardo Rocha
+  Comments: Tries module for Yap Prolog
+  version:  $ID$
+****************************************/
 
 :- module(tries, [
+		  trie_open/1,
+		  trie_close/1,
+		  trie_close_all/0,
+		  trie_mode/1,
+		  trie_put_entry/3,
+		  trie_check_entry/3,
+		  trie_get_entry/2,
+		  trie_remove_entry/1,
+		  trie_remove_subtree/1,
+		  trie_save/2,
+		  trie_load/2,
+		  trie_stats/4,
+		  trie_max_stats/4,
+		  trie_usage/4,
+		  trie_print/1,
 		  open_trie/1,
 		  close_trie/1,
 		  close_all_tries/0,
-		  put_trie_entry/3,
-		  get_trie_entry/2,
+		  put_trie_entry/4,
+		  get_trie_entry/3,
 		  remove_trie_entry/1,
-		  trie_statistics/0,
 		  print_trie/1
           ]).
 
-:- load_foreign_files([yap_tries], [], init_tries).
-
+:- load_foreign_files([tries], [], init_tries).

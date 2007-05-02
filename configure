@@ -15607,7 +15607,7 @@ mkdir -p  library/mpi
 mkdir -p  library/random
 mkdir -p  library/regex
 mkdir -p  library/system
-mkdir -p  library/Tries
+mkdir -p  library/tries
 mkdir -p  library/lammpi
 mkdir -p  library/yap2swi
 mkdir -p  CHR
@@ -15623,7 +15623,7 @@ mkdir -p  LGPL/clp
 mkdir -p  LGPL/clpr
 mkdir -p  LGPL/chr
 
-                                                                                                                                                                                                        ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/lammpi/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap"
+                                                                                                                                                                                                        ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/lammpi/Makefile library/tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -16164,7 +16164,7 @@ do
   "LGPL/clp/Makefile" ) CONFIG_FILES="$CONFIG_FILES LGPL/clp/Makefile" ;;
   "LGPL/clpr/Makefile" ) CONFIG_FILES="$CONFIG_FILES LGPL/clpr/Makefile" ;;
   "library/lammpi/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/lammpi/Makefile" ;;
-  "library/Tries/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/Tries/Makefile" ;;
+  "library/tries/Makefile" ) CONFIG_FILES="$CONFIG_FILES library/tries/Makefile" ;;
   "LGPL/JPL/Makefile" ) CONFIG_FILES="$CONFIG_FILES LGPL/JPL/Makefile" ;;
   "LGPL/JPL/src/Makefile" ) CONFIG_FILES="$CONFIG_FILES LGPL/JPL/src/Makefile" ;;
   "LGPL/JPL/java/Makefile" ) CONFIG_FILES="$CONFIG_FILES LGPL/JPL/java/Makefile" ;;

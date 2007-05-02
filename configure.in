@@ -1312,7 +1312,7 @@ mkdir -p  library/mpi
 mkdir -p  library/random
 mkdir -p  library/regex
 mkdir -p  library/system
-mkdir -p  library/Tries
+mkdir -p  library/tries
 mkdir -p  library/lammpi
 mkdir -p  library/yap2swi
 mkdir -p  CHR
@@ -1328,7 +1328,7 @@ mkdir -p  LGPL/clp
 mkdir -p  LGPL/clpr
 mkdir -p  LGPL/chr
 
-AC_OUTPUT(Makefile library/matrix/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/lammpi/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap)
+AC_OUTPUT(Makefile library/matrix/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/lammpi/Makefile library/tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap)
 
 make depend
 
