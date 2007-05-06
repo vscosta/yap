@@ -672,7 +672,7 @@ make
 make install
 @end example
 
-By default, YAP will use the @code{--enable-cygwin=no} option to
+By default, YAP will use the @code{-mno-cygwin} option to
 disable the use of the cygwin dll and to enable the mingw32 subsystem
 instead. YAP thus will not need the cygwin dll. It instead accesses
 the system's @code{CRTDLL.DLL} @code{C} run time library supplied with
@@ -684,15 +684,15 @@ You should check the default installation path which is set to
 @code{/YAP} in the standard Makefile. This string will usually
 be expanded into @code{c:\YAP} by Windows.
 
-The cygwin environment does not provide @t{gmp}. You can fetch a dll for
-the @t{gmp} library from @url{http://www.sf.net/projects/mingwrep}.
+The cygwin environment does not provide @t{gmp} on the MINGW
+subsystem. You can fetch a dll for the @t{gmp} library from
+@url{http://www.sf.net/projects/mingwrep}.
 
 It is also possible to configure YAP to be a part of the cygwin
 environment. In this case you should use:
 @example
 mkdir cyg
-$YAPSRC/configure --enable-coroutining \\
-                  --enable-max-performance \\
+$YAPSRC/configure --enable-max-performance \\
                   --enable-cygwin=yes
 make
 make install
@@ -700,7 +700,9 @@ make install
 YAP will then compile using the cygwin library and will be installed
 in cygwin's @code{/usr/local}. You can use YAP from a cygwin console,
 or as a standalone application as long as it can find
-@code{cygwin1.dll} in its path.
+@code{cygwin1.dll} in its path. Note that you may use to use
+@code{--enable-depth-limit} for Aleph compatibility, and that you may
+want to be sure that GMP is installed.
 
 @end table
 
@@ -11903,6 +11905,20 @@ system. Under Linux (i386 and Alpha) you should use:
       ld -shared -o my_process.so my_process.o
 @end example
 @noindent
+Under WIN32 in a MINGW/CYGWIN environment, using the standard
+installation path you should use:
+@example
+      gcc -mno-cygwin  -I "c:/Yap/include" -c my_process.c
+      gcc -mno-cygwin "c:/Yap/bin/yap.dll" --shared -o my_process.dll my_process.o
+@end example
+@noindent
+Under WIN32 in a pure CYGWIN environment, using the standard
+installation path, you should use:
+@example
+      gcc -I/usr/local -c my_process.c
+      gcc -shared -o my_process.dll my_process.o /usr/local/bin/yap.dll
+@end example
+@noindent
 Under Solaris2 it is sufficient to use:
 @example
       gcc  -fPIC -c my_process.c
@@ -11929,12 +11945,6 @@ And could be loaded, under YAP, by executing the following prolog goal
 Note that since YAP4.3.3 you should not give the suffix for object
 files. YAP will deduce the correct suffix from the operating system it
 is running under.
-
-YAP4.3.3 now supports loading WIN/NT DLLs. Currently you must compile
-YAP under cygwin to create a library yap.dll first. You can then use
-this dll to create your own dlls. Have a look at the code in
-library/regex to see how to create a dll under the cygwin/mingw32
-environment.
 
 After loading that file the following prolog goal 
 @example
