@@ -8,8 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.30 2007-05-02 11:16:43 vsc Exp $									 *
+* $Id: sys.c,v 1.31 2007-05-07 11:21:29 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.30  2007/05/02 11:16:43  vsc
+* mods:		small fixes to sys.c
+* mods:		
 * mods:		Revision 1.29  2006/10/10 14:08:17  vsc
 * mods:		small fixes on threaded implementation.
 * mods:		
@@ -186,6 +189,7 @@ sysmktime(void)
   loc.tm_hour = YAP_IntOfTerm(YAP_ARG4);
   loc.tm_min = YAP_IntOfTerm(YAP_ARG5);
   loc.tm_sec = YAP_IntOfTerm(YAP_ARG6);
+  loc.tm_isdst = -1;
 
   if ((tim = mktime(&loc)) < 0) {
     return YAP_Unify(YAP_ARG8, YAP_MkIntTerm(errno));
