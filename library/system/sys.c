@@ -8,8 +8,12 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.31 2007-05-07 11:21:29 vsc Exp $									 *
+* $Id: sys.c,v 1.32 2007-05-07 12:11:39 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.31  2007/05/07 11:21:29  vsc
+* mods:		mktime needs to know if daylight time savings are on
+* mods:		(obs from Bernd Gutmann).
+* mods:		
 * mods:		Revision 1.30  2007/05/02 11:16:43  vsc
 * mods:		small fixes to sys.c
 * mods:		
@@ -189,7 +193,7 @@ sysmktime(void)
   loc.tm_hour = YAP_IntOfTerm(YAP_ARG4);
   loc.tm_min = YAP_IntOfTerm(YAP_ARG5);
   loc.tm_sec = YAP_IntOfTerm(YAP_ARG6);
-  loc.tm_isdst = -1;
+  loc.tm_isdst = daylight;
 
   if ((tim = mktime(&loc)) < 0) {
     return YAP_Unify(YAP_ARG8, YAP_MkIntTerm(errno));
@@ -992,6 +996,9 @@ error_message(void)
 void
 init_sys(void)
 {
+#if HAVE_MKTIME
+  tzset();
+#endif
   YAP_UserCPredicate("datime", datime, 2);
   YAP_UserCPredicate("mktime", sysmktime, 8);
   YAP_UserCPredicate("list_directory", list_directory, 3);
