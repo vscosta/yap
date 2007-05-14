@@ -12794,7 +12794,15 @@ needed and can be given back to the system.
 
 @item  @code{int} YAP_RestartGoal(@code{void})
 @findex YAP_RestartGoal/0
-Look for the next solution to the current query by forcing YAP to backtrack.
+Look for the next solution to the current query by forcing YAP to
+backtrack to the latest goal. Notice that slots allocated since the last
+@code{YAP_RunGoal} will become invalid.
+
+@item  @code{int} YAP_ShutdownGoal(@code{void})
+@findex YAP_ShutdownGoal/0
+Clean up the current goal. All it space should be recovered and any
+pointers to the goal will become invalid. Also notice that slots
+allocated since the goal was started will be invalid.
 
 @item  @code{int} YAP_Reset(@code{void})
 @findex YAP_Reset/0
@@ -12810,6 +12818,12 @@ space pointed to by @var{tp}
 @item  @code{void} YAP_ClearExceptions(@code{void})
 @findex YAP_ClearExceptions/0
 Reset any exceptions left over by the system.
+
+@item  @code{YAP_Term} YAP_Write(@code{YAP_Term} @var{t})}
+@findex  YAP_CopyTerm/1
+Copy a Term @var{t} and all associated constraints. May call the garbage
+collector and returns @code{0L} on error (such as no space being
+available).
 
 @item  @code{void} YAP_Write(@code{YAP_Term} @var{t}, @code{void (*)(int)}
 @var{PutC}, @code{int} @var{flags})

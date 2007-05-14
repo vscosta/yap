@@ -10,8 +10,12 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-04-18 23:01:16 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-05-14 16:44:11 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.92  2007/04/18 23:01:16  vsc
+* fix deadlock when trying to create a module with the same name as a
+* predicate (for now, just don't lock modules). obs Paulo Moura.
+*
 * Revision 1.91  2007/03/30 16:47:22  vsc
 * fix gmpless blob handling
 *
@@ -310,6 +314,7 @@ X_API Term    STD_PROTO(YAP_BufferToAtomList, (char *));
 X_API void    STD_PROTO(YAP_Error,(int, Term, char *, ...));
 X_API Term    STD_PROTO(YAP_RunGoal,(Term));
 X_API int     STD_PROTO(YAP_RestartGoal,(void));
+X_API int     STD_PROTO(YAP_ShutdownGoal,(void));
 X_API int     STD_PROTO(YAP_GoalHasException,(Term *));
 X_API void    STD_PROTO(YAP_ClearExceptions,(void));
 X_API int     STD_PROTO(YAP_ContinueGoal,(void));
@@ -318,18 +323,19 @@ X_API void    STD_PROTO(YAP_InitConsult,(int, char *));
 X_API void    STD_PROTO(YAP_EndConsult,(void));
 X_API Term    STD_PROTO(YAP_Read, (int (*)(void)));
 X_API void    STD_PROTO(YAP_Write, (Term, int (*)(wchar_t), int));
+X_API Term    STD_PROTO(YAP_CopyTerm, (Term));
 X_API Term    STD_PROTO(YAP_WriteBuffer, (Term, char *, unsigned int, int));
 X_API char   *STD_PROTO(YAP_CompileClause, (Term));
 X_API void    STD_PROTO(YAP_PutValue, (Atom,Term));
 X_API Term    STD_PROTO(YAP_GetValue, (Atom));
 X_API int     STD_PROTO(YAP_CompareTerms, (Term,Term));
-X_API int     STD_PROTO(YAP_Reset, (void));
 X_API void    STD_PROTO(YAP_Exit, (int));
 X_API void    STD_PROTO(YAP_InitSocks, (char *, long));
 X_API void    STD_PROTO(YAP_SetOutputMessage, (void));
 X_API int     STD_PROTO(YAP_StreamToFileNo, (Term));
 X_API void    STD_PROTO(YAP_CloseAllOpenStreams,(void));
 X_API Term    STD_PROTO(YAP_OpenStream,(void *, char *, Term, int));
+X_API long    STD_PROTO(YAP_CurrentSlot,(void));
 X_API long    STD_PROTO(YAP_NewSlots,(int));
 X_API long    STD_PROTO(YAP_InitSlot,(Term));
 X_API Term    STD_PROTO(YAP_GetFromSlot,(long));
@@ -778,6 +784,12 @@ YAP_Unify(Term t1, Term t2)
 }
 
 X_API long
+YAP_CurrentSlot(void)
+{
+  return Yap_CurrentSlot();
+}
+
+X_API long
 YAP_NewSlots(int n)
 {
   return Yap_NewSlots(n);
@@ -1099,7 +1111,6 @@ YAP_RestartGoal(void)
   BACKUP_MACHINE_REGS();
   
   if (Yap_AllowRestart) {
-    fprintf(stderr,"Allow restart\n");
     P = (yamop *)FAILCODE;
     do_putcf = myputc;
     Yap_PrologMode = UserMode;
@@ -1115,6 +1126,44 @@ YAP_RestartGoal(void)
   }
   RECOVER_MACHINE_REGS();
   return(out);
+}
+
+X_API int
+YAP_ShutdownGoal(void)
+{
+  BACKUP_MACHINE_REGS();
+  
+  if (Yap_AllowRestart) {
+    choiceptr cut_pt;
+    yamop *my_p = P;
+
+    cut_pt = B;
+    while (cut_pt-> cp_ap != NOCODE) {
+      cut_pt = cut_pt->cp_b;
+    }
+#ifdef YAPOR
+    CUT_prune_to(cut_pt);
+#endif
+    /* just force backtrack */
+    B = cut_pt;
+    P = FAILCODE;
+    Yap_exec_absmi(TRUE);
+    /* recover stack space */
+    H = cut_pt->cp_h;
+    TR = cut_pt->cp_tr;
+    ENV = cut_pt->cp_env;
+    ASP = (CELL *)(cut_pt+1);
+    ASP += EnvSizeInCells;
+    P = my_p;
+    ENV = (CELL *)ASP[E_E];
+    B = (choiceptr)ASP[E_CB];
+#ifdef  DEPTH_LIMIT
+    DEPTH = ASP[E_DEPTH];
+#endif
+    Yap_AllowRestart = FALSE;
+  }
+  RECOVER_MACHINE_REGS();
+  return TRUE;
 }
 
 X_API int
@@ -1227,6 +1276,20 @@ YAP_Write(Term t, int (*myputc)(wchar_t), int flags)
   Yap_plwrite (t, do_yap_putc, flags);
 
   RECOVER_MACHINE_REGS();
+}
+
+
+X_API Term
+YAP_CopyTerm(Term t)
+{
+  Term tn;
+  BACKUP_MACHINE_REGS();
+
+  tn = Yap_CopyTerm(t);
+
+  RECOVER_MACHINE_REGS();
+
+  return tn;
 }
 
 X_API Term

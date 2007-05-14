@@ -366,7 +366,7 @@ do_execute_n(Term t, Term mod, unsigned int n)
   for (i = arity-n+1; i <= arity; i++,j++) {
     XREGS[i] = H[j];
   }
-  return (CallPredicate(pen, B, pen->CodeOfPred));
+  return CallPredicate(pen, B, pen->CodeOfPred);
 }
 
 static Int
@@ -392,14 +392,20 @@ EnterCreepMode(Term t, Term mod) {
   CreepFlag = CalculateStackGap();
   UNLOCK(SignalLock);
   P_before_spy = P;
-  return (CallPredicate(PredCreep, B, PredCreep->CodeOfPred));
+  return CallPredicate(PredCreep, B, PredCreep->CodeOfPred);
 }
 
 static Int
 p_execute(void)
 {				/* '$execute'(Goal)	 */
   Term            t = Deref(ARG1);
-  return(do_execute(t, CurrentModule));
+  return do_execute(t, CurrentModule);
+}
+
+static int
+Yap_Execute(Term t)
+{				/* '$execute'(Goal)	 */
+  return do_execute(t, CurrentModule);
 }
 
 static void
@@ -423,7 +429,7 @@ p_execute2(void)
 {				/* '$execute'(Goal)	 */
   Term       t = Deref(ARG1);
   heap_store(Deref(ARG2));
-  return(do_execute_n(t, CurrentModule, 1));
+  return do_execute_n(t, CurrentModule, 1);
 }
 
 static Int
@@ -432,7 +438,7 @@ p_execute3(void)
   Term            t = Deref(ARG1);
   heap_store(Deref(ARG2));
   heap_store(Deref(ARG3));
-  return(do_execute_n(t, CurrentModule, 2));
+  return do_execute_n(t, CurrentModule, 2);
 }
 
 static Int
@@ -442,7 +448,7 @@ p_execute4(void)
   heap_store(Deref(ARG2));
   heap_store(Deref(ARG3));
   heap_store(Deref(ARG4));
-  return(do_execute_n(t, CurrentModule, 3));
+  return do_execute_n(t, CurrentModule, 3);
 }
 
 static Int
@@ -453,7 +459,7 @@ p_execute5(void)
   heap_store(Deref(ARG3));
   heap_store(Deref(ARG4));
   heap_store(Deref(ARG5));
-  return(do_execute_n(t, CurrentModule, 4));
+  return do_execute_n(t, CurrentModule, 4);
 }
 
 static Int
@@ -465,7 +471,7 @@ p_execute6(void)
   heap_store(Deref(ARG4));
   heap_store(Deref(ARG5));
   heap_store(Deref(ARG6));
-  return(do_execute_n(t, CurrentModule, 5));
+  return do_execute_n(t, CurrentModule, 5);
 }
 
 static Int
@@ -478,7 +484,7 @@ p_execute7(void)
   heap_store(Deref(ARG5));
   heap_store(Deref(ARG6));
   heap_store(Deref(ARG7));
-  return(do_execute_n(t, CurrentModule, 6));
+  return do_execute_n(t, CurrentModule, 6);
 }
 
 static Int
@@ -492,7 +498,7 @@ p_execute8(void)
   heap_store(Deref(ARG6));
   heap_store(Deref(ARG7));
   heap_store(Deref(ARG8));
-  return(do_execute_n(t, CurrentModule, 7));
+  return do_execute_n(t, CurrentModule, 7);
 }
 
 static Int
@@ -507,7 +513,7 @@ p_execute9(void)
   heap_store(Deref(ARG7));
   heap_store(Deref(ARG8));
   heap_store(Deref(ARG9));
-  return(do_execute_n(t, CurrentModule, 8));
+  return do_execute_n(t, CurrentModule, 8);
 }
 
 static Int
@@ -1966,11 +1972,13 @@ Yap_InitYaamRegs(void)
   EX = 0L;
   /* for slots to work */
   Yap_StartSlots();
+  GlobalArena = TermNil;
 #if COROUTINING
   h0var = MkVarTerm();
   DelayedVars = Yap_NewTimedVar(h0var);
   WokenGoals = Yap_NewTimedVar(TermNil);
   AttsMutableList = Yap_NewTimedVar(h0var);
+  GlobalDelayArena = TermNil;
 #endif
   GcGeneration = Yap_NewTimedVar(MkIntTerm(0));
   GcCurrentPhase = 0L;

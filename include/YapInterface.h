@@ -222,6 +222,9 @@ extern X_API YAP_Term PROTO(YAP_RunGoal,(YAP_Term));
 /*  int YAP_RestartGoal(void) */
 extern X_API YAP_Bool PROTO(YAP_RestartGoal,(void));
 
+/*  int YAP_ShutdownGoal(void) */
+extern X_API YAP_Bool PROTO(YAP_ShutdownGoal,(void));
+
 /*  int YAP_ContinueGoal(void) */
 extern X_API YAP_Bool PROTO(YAP_ContinueGoal,(void));
 
@@ -248,6 +251,9 @@ extern X_API void PROTO(YAP_Write,(YAP_Term,void (*)(int),int));
 
 /*  void YAP_WriteBuffer(YAP_Term,char *,unsgined int,int) */
 extern X_API void PROTO(YAP_WriteBuffer,(YAP_Term,char *,unsigned int,int));
+
+/*  void YAP_Term(YAP_Term) */
+extern X_API YAP_Term PROTO(YAP_CopyTerm,(YAP_Term));
 
 /*  char *YAP_CompileClause(YAP_Term) */
 extern X_API char *PROTO(YAP_CompileClause,(YAP_Term));
@@ -320,6 +326,9 @@ extern X_API YAP_Term PROTO(YAP_OpenStream,(void *, CONST char *, YAP_Term, int)
 
 /*  YAP_Term  *YAP_NewSlots()  */
 extern X_API long PROTO(YAP_NewSlots,(int));
+
+/*  long  YAP_CurrentSlot()  */
+extern X_API long PROTO(YAP_CurrentSlot,(void));
 
 /*  YAP_Term  *YAP_InitSlot()  */
 extern X_API long PROTO(YAP_InitSlot,(YAP_Term));

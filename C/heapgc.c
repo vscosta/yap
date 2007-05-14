@@ -1449,8 +1449,9 @@ mark_regs(tr_fr_ptr old_TR)
 	
   /* first, whatever we dumped on the trail. Easier just to do
      the registers separately?  */
-  for (trail_ptr = old_TR; trail_ptr < TR; trail_ptr++)
+  for (trail_ptr = old_TR; trail_ptr < TR; trail_ptr++) {
     mark_external_reference(&TrailTerm(trail_ptr));
+  }
 }
 
 #ifdef COROUTINING
