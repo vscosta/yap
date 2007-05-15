@@ -222,8 +222,8 @@ extern X_API YAP_Term PROTO(YAP_RunGoal,(YAP_Term));
 /*  int YAP_RestartGoal(void) */
 extern X_API YAP_Bool PROTO(YAP_RestartGoal,(void));
 
-/*  int YAP_ShutdownGoal(void) */
-extern X_API YAP_Bool PROTO(YAP_ShutdownGoal,(void));
+/*  int YAP_ShutdownGoal(int) */
+extern X_API YAP_Bool PROTO(YAP_ShutdownGoal,(int));
 
 /*  int YAP_ContinueGoal(void) */
 extern X_API YAP_Bool PROTO(YAP_ContinueGoal,(void));

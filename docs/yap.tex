@@ -12798,11 +12798,12 @@ Look for the next solution to the current query by forcing YAP to
 backtrack to the latest goal. Notice that slots allocated since the last
 @code{YAP_RunGoal} will become invalid.
 
-@item  @code{int} YAP_ShutdownGoal(@code{void})
+@item  @code{int} YAP_ShutdownGoal(@code{int backtrack})
 @findex YAP_ShutdownGoal/0
-Clean up the current goal. All it space should be recovered and any
-pointers to the goal will become invalid. Also notice that slots
-allocated since the goal was started will be invalid.
+Clean up the current goal. If
+@code{backtrack} is true, stack space will be recovered and bindings
+will be undone. In both cases, any slots allocated since the goal was
+created will become invalid.
 
 @item  @code{int} YAP_Reset(@code{void})
 @findex YAP_Reset/0

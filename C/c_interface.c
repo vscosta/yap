@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-05-14 16:44:11 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-05-15 11:33:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.93  2007/05/14 16:44:11  vsc
+* improve external interface
+*
 * Revision 1.92  2007/04/18 23:01:16  vsc
 * fix deadlock when trying to create a module with the same name as a
 * predicate (for now, just don't lock modules). obs Paulo Moura.
@@ -314,7 +317,7 @@ X_API Term    STD_PROTO(YAP_BufferToAtomList, (char *));
 X_API void    STD_PROTO(YAP_Error,(int, Term, char *, ...));
 X_API Term    STD_PROTO(YAP_RunGoal,(Term));
 X_API int     STD_PROTO(YAP_RestartGoal,(void));
-X_API int     STD_PROTO(YAP_ShutdownGoal,(void));
+X_API int     STD_PROTO(YAP_ShutdownGoal,(int));
 X_API int     STD_PROTO(YAP_GoalHasException,(Term *));
 X_API void    STD_PROTO(YAP_ClearExceptions,(void));
 X_API int     STD_PROTO(YAP_ContinueGoal,(void));
@@ -1129,7 +1132,7 @@ YAP_RestartGoal(void)
 }
 
 X_API int
-YAP_ShutdownGoal(void)
+YAP_ShutdownGoal(int backtrack)
 {
   BACKUP_MACHINE_REGS();
   
@@ -1146,11 +1149,14 @@ YAP_ShutdownGoal(void)
 #endif
     /* just force backtrack */
     B = cut_pt;
-    P = FAILCODE;
-    Yap_exec_absmi(TRUE);
-    /* recover stack space */
-    H = cut_pt->cp_h;
-    TR = cut_pt->cp_tr;
+    if (backtrack) {
+      P = FAILCODE;
+      Yap_exec_absmi(TRUE);
+      /* recover stack space */
+      H = cut_pt->cp_h;
+      TR = cut_pt->cp_tr;
+    }
+    /* we can always recover the stack */
     ENV = cut_pt->cp_env;
     ASP = (CELL *)(cut_pt+1);
     ASP += EnvSizeInCells;

@@ -335,7 +335,7 @@ max_list([H|L],Max0,Max) :-
 	).
 
 min_list([H|L],Max) :-
-	max_list(L,H,Max).
+	min_list(L,H,Max).
 
 min_list([],Max,Max).
 min_list([H|L],Max0,Max) :-

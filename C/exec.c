@@ -402,12 +402,6 @@ p_execute(void)
   return do_execute(t, CurrentModule);
 }
 
-static int
-Yap_Execute(Term t)
-{				/* '$execute'(Goal)	 */
-  return do_execute(t, CurrentModule);
-}
-
 static void
 heap_store(Term t)
 {
