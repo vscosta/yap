@@ -15,6 +15,7 @@
 *									 *
 *************************************************************************/
 
+#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
 
 /* Initialize MYDDAS GLOBAL STRUCTURES */
 :- c_db_initialize_myddas.
@@ -92,7 +93,9 @@
 		  db_call_procedure/4,
 		  db_call_procedure/3,
 		  db_my_sql_mode/1,
-		  db_my_sql_mode/2
+		  db_my_sql_mode/2,
+		  db_sql_mode/1,
+		  db_sql_mode/2
 #endif
 		 ]).
 
@@ -134,8 +137,10 @@
 			    db_call_procedure/4,
 			    db_call_procedure/3,
 			    db_my_sql_mode/1,
-			    db_my_sql_mode/2
-			    ]).
+			    db_my_sql_mode/2,
+			    db_sql_mode/1,
+			    db_sql_mode/2
+			   ]).
 #endif /* MYDDAS_MYSQL */
 
 :- use_module(myddas_util_predicates,[
@@ -568,4 +573,4 @@ db_multi_queries_number(Connection,Number) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-	
+#endif /*MYDDAS_MYSQL || MYDDAS_ODBC*/	

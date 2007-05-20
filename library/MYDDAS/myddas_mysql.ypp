@@ -33,7 +33,9 @@
 			db_call_procedure/4,
 			db_call_procedure/3,
 			db_my_sql_mode/1,
-			db_my_sql_mode/2
+			db_my_sql_mode/2,
+			db_sql_mode/1,
+			db_sql_mode/2
 		       ]).
 
 :- use_module(myddas,[
@@ -218,6 +220,11 @@ db_call_procedure(Connection,Procedure,Args,LA) :-
 % db_my_sql_mode/1
 % db_my_sql_mode/2
 % Possible values : traditional,ansi,strict_trans_tables or '' (empty)
+db_sql_mode(SQLMode):-
+	db_my_sql_mode(SQLMode).
+db_sql_mode(Connection,SQLMode):-
+	db_my_sql_mode(Connection,SQLMode).
+
 db_my_sql_mode(SQLMode):-
 	db_my_sql_mode(myddas,SQLMode).
 db_my_sql_mode(Connection,SQLMode):-

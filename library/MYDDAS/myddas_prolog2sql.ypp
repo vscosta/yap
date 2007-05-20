@@ -89,7 +89,7 @@ translate(ProjectionTerm,DatabaseGoal,SQLQueryTermOpt):-
 
    % --- optimize sql ------------------------------------------------------------------
    optimize_sql(SQLQueryTerm,SQLQueryTermOpt).
-   
+
 % --- disjunction(Goal,Disjunction) ----------------------------------------------------
 %
 % turns original goal into disjunctive normalized form by computing all conjunctions
