@@ -2678,7 +2678,6 @@ p_open_mem_read_stream (void)   /* $open_mem_read_stream(+List,-Stream) */
     ti = TailOfTerm(ti);
   }
   nbuf[nchars] = '\0';
-  fprintf(stderr,"nbuf=%s\n",nbuf);
   sno = open_buf_read_stream(nbuf, nchars);
   t = MkStream (sno);
   return (Yap_unify (ARG2, t));
