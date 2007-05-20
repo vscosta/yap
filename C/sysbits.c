@@ -2230,7 +2230,7 @@ DoTimerThread(LPVOID targ)
   HANDLE htimer;
   LARGE_INTEGER liDueTime;
 
-  htimer = CreateWaitableTimer(NULL,FALSE,NULL);
+  htimer = CreateWaitableTimer(NULL, FALSE, NULL);
   liDueTime.QuadPart =  -10000000;
   liDueTime.QuadPart *=  time;
   /* Copy the relative time into a LARGE_INTEGER. */
@@ -2254,12 +2254,21 @@ static Int
 p_alarm(void)
 {
   Term t = Deref(ARG1);
+  Term t2 = Deref(ARG2);
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "alarm/2");
     return(FALSE);
   }
   if (!IsIntegerTerm(t)) {
     Yap_Error(TYPE_ERROR_INTEGER, t, "alarm/2");
+    return(FALSE);
+  }
+  if (IsVarTerm(t2)) {
+    Yap_Error(INSTANTIATION_ERROR, t2, "alarm/2");
+    return(FALSE);
+  }
+  if (!IsIntegerTerm(t2)) {
+    Yap_Error(TYPE_ERROR_INTEGER, t2, "alarm/2");
     return(FALSE);
   }
 #if _MSC_VER || defined(__MINGW32__)
@@ -2285,7 +2294,26 @@ p_alarm(void)
       }
     }
     tout = MkIntegerTerm(0);
-    return(Yap_unify(ARG2,tout));
+    return Yap_unify(ARG3,tout) && Yap_unify(ARG4,MkIntTerm(0));
+  }
+#elif HAVE_SETITIMER
+  {
+    struct itimerval new, old;
+
+    new.it_interval.tv_sec = 0;
+    new.it_interval.tv_usec = 0;
+    new.it_value.tv_sec = IntegerOfTerm(ARG1);
+    new.it_value.tv_usec = IntegerOfTerm(ARG2);
+    if (setitimer(ITIMER_REAL, &new, &old) < 0) {
+#if HAVE_STRERROR
+      Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "setitimer: %s", strerror(errno));
+#else
+      Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "setitimer %d", errno);
+#endif
+      return FALSE;
+    }
+    return Yap_unify(ARG3,MkIntegerTerm(old.it_value.tv_sec)) &&
+      Yap_unify(ARG4,MkIntegerTerm(old.it_value.tv_usec));
   }
 #elif HAVE_ALARM
   {
@@ -2294,7 +2322,7 @@ p_alarm(void)
 
     left = alarm(IntegerOfTerm(t));
     tout = MkIntegerTerm(left);
-    return Yap_unify(ARG2,tout);
+    return Yap_unify(ARG3,tout) && Yap_unify(ARG4,MkIntTerm(0)) ;
   }
 #else
   /* not actually trying to set the alarm */
@@ -2302,7 +2330,7 @@ p_alarm(void)
     return TRUE;
   Yap_Error(SYSTEM_ERROR, TermNil,
 	"alarm not available in this configuration");
-  return(FALSE);
+  return FALSE;
 #endif
 }
 
@@ -2572,7 +2600,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("getcwd", 1, p_getcwd, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$alarm", 2, p_alarm, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$alarm", 4, p_alarm, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$file_age", 2, p_file_age, SafePredFlag|SyncPredFlag|HiddenPredFlag);

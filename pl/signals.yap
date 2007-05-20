@@ -150,8 +150,12 @@ on_signal(Signal,OldAction,Action) :-
 
 
 alarm(Interval, Goal, Left) :-
+	integer(Interval), !,
 	on_signal(sig_alarm, _, Goal),
-	'$alarm'(Interval, Left).
+	'$alarm'(Interval, 0, Left, _).
+alarm(Interval.USecs, Goal, Left.LUSecs) :-
+	on_signal(sig_alarm, _, Goal),
+	'$alarm'(Interval, USecs, Left, LUSecs).
 
 raise_exception(Ball) :- throw(Ball).
 

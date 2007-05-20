@@ -102,7 +102,7 @@ true :- true.
 
  % reset alarms when entering top-level.
  '$enter_top_level' :-
-	 '$alarm'(0, _),
+	 '$alarm'(0, 0, _, _),
 	 fail.
  '$enter_top_level' :-
 	 '$clean_up_dead_clauses',

@@ -5733,11 +5733,11 @@ Execute a new shell.
 @findex alarm/3
 @snindex alarm/3
 @cnindex alarm/3
-Arranges for YAP to be interrupted in @var{Seconds}
-seconds. When interrupted, YAP will execute @var{Callable} and
-then return to the previous execution. If @var{Seconds} is @code{0}, no
-new alarm is scheduled. In any event, any previously set alarm is
-canceled.
+Arranges for YAP to be interrupted in @var{Seconds} seconds, or in
+@var{Seconds.MicroSeconds}. When interrupted, YAP will execute
+@var{Callable} and then return to the previous execution. If
+@var{Seconds} is @code{0}, no new alarm is scheduled. In any event,
+any previously set alarm is canceled.
 
 The variable @var{OldAlarm} unifies with the number of seconds remaining
 until any previously scheduled alarm was due to be delivered, or with

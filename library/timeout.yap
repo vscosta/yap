@@ -26,8 +26,9 @@
 %
 time_out(Goal, Time, Result) :-
 	T is Time//1000,
+	UT is (Time mod 1000)*1000,
 	% enable alarm
-	alarm(T,throw(time_out),_),
+	alarm(T.UT,throw(time_out),_),
 	% launch goal and wait for signal
 	( catch(Goal, time_out, Result = time_out)
         % make sure to disable alarm
