@@ -2,24 +2,9 @@
 :- module(bnt, [dump_as_bnt/2,
 		check_if_bnt_done/1]).
 
-:- use_module(library(terms), [term_variables/2
-		    ]).
-
-:- use_module(library(ordsets), [ord_subtract/3,
-				 ord_add_element/3
-		    ]).
-
-:- use_module(library(lists), [reverse/2
-		    ]).
-
-:- use_module(library(atts)).
-
-:- use_module(library(heaps), [empty_heap/1,
-			       add_to_heap/4,
-			       heap_to_list/2
-			      ]).
-
-:- use_module(library(system), [exec/3
+:- use_module(library(matlab), [start_matlab/2,
+				close_matlab/1,
+				eval_string/2
 			      ]).
 
 :- attribute topord/1, map/1.
@@ -28,10 +13,20 @@ check_if_bnt_done(Var) :-
 	get_atts(Var, [map(_)]).
 
 dump_as_bnt(GVars, [_|_]) :-
-	exec('matlab -nojvm -nosplash',[pipe(CommandStream),pipe(Answer),pipe(Answer)],_),
-	wait_for_matlab_prompt(Answer),
+	start_matlab(´-nojvm -nosplash',MatEnv),
 	get_value(clpbn_key, Key),
-	send_command(CommandStream, Answer, 'cd /u/vitor/sw/BNT;~n', []),
+	eval_string(MatEnv, 'cd /u/vitor/sw/BNT'),
+	eval_string(MatEnv, 'add_BNT_to_path'),
+	extract_graph(GVars, Graph),
+	dgraph_top_sort(Graph, SortedGraph),
+	number_graph(SortedGraph),
+	zeros(MatEnv, GLength, GLength, dag),
+	build_dag(SortedGraph),
+	dump_cpts(SortedGraph).
+
+
+
+
 %	send_command(CommandStream, Answer, 'cd /home/vitor/Yap/CLPBN/BNT;~n', []),
 	send_command(CommandStream, Answer, 'add_BNT_to_path;~n', []),
 	send_command(CommandStream, Answer, '~w = ~w;~n', ['$VAR'(Key), Key]),

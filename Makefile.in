@@ -556,6 +556,7 @@ all: startup
 	@INSTALL_DLLS@ (cd library/tries; make)
 	@INSTALL_DLLS@ (cd library/lammpi; make)
 	@INSTALL_DLLS@ (cd library/matrix; make)
+	@INSTALL_MATLAB@ (cd library/matlab; make)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; make)
 
 startup: yap@EXEC_SUFFIX@ $(PL_SOURCES)
@@ -593,6 +594,7 @@ install_unix: startup libYap.a
 	@INSTALL_DLLS@ (cd library/tries; make install)
 	@INSTALL_DLLS@ (cd library/lammpi; make install)
 	@INSTALL_DLLS@ (cd library/matrix; make install)
+	@INSTALL_MATLAB@ (cd library/matlab; make install)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; make install)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
@@ -617,7 +619,8 @@ install_win32: startup
 	(cd library/regex; make install)
 	(cd library/system; make install)
 	(cd library/yap2swi; make install)
-	@#  (cd library/tries; make install)
+	@INSTALL_MATLAB@ (cd library/matlab; make install)
+	(cd library/tries; make install)
 
 install_library: @YAPLIB@
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
@@ -658,6 +661,7 @@ clean: clean_docs
 	@INSTALL_DLLS@ (cd library/yap2swi; make clean)
 	@INSTALL_DLLS@ (cd library/tries; make clean)
 	@INSTALL_DLLS@ (cd library/lammpi; make clean)
+	@INSTALL_MATLAB@ (cd library/matlab; make clean)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; make clean)
 
 

@@ -150,6 +150,18 @@ AC_ARG_WITH(readline,
 	fi,
 	[yap_cv_readline=yes])
 
+AC_ARG_WITH(matlab,
+	[ --with-matlab[=DIR]      use MATLAB package in DIR],
+	if test "$withval" = yes; then
+		yap_cv_matlab=yes
+	elif test "$withval" = no; then
+		yap_cv_matlab=no
+	else
+		yap_cv_matlab=$with_matlab
+		MATLAB_INCLUDE="-I${yap_cv_matlab}/extern/include"
+	fi,
+	[yap_cv_matlab=no])
+
 AC_ARG_WITH(mpi,
 	[ --with-mpi[=DIR]           use MPI library in DIR],
 	if test "$withval" = yes; then
@@ -261,6 +273,28 @@ else
 eval "AC_DEFINE(MAX_WORKERS,$yap_cv_max_workers)"
 fi
 
+
+dnl condor does not like dynamic linking on Linux, DEC, and HP-UX platforms.
+if test "$yap_cv_matlab" = no 
+then
+  INSTALL_MATLAB="# "
+elif test "$yap_cv_matlab" = yes 
+then
+  INSTALL_MATLAB=""
+else
+  case "$target_cpu" in
+  i*86*)
+     LDFLAGS="$LDFLAGS -L${yap_cv_matlab}/bin/glnx86"
+  ;;
+  x86*)
+     LDFLAGS="$LDFLAGS -L${yap_cv_matlab}/bin/glnxa64"
+  ;;
+  sparc*)
+     LDFLAGS="$LDFLAGS -L${yap_cv_matlab}/bin/sol2"
+  ;;
+  esac
+  INSTALL_MATLAB=""
+fi
 
 dnl condor does not like dynamic linking on Linux, DEC, and HP-UX platforms.
 if test "$use_condor" = yes 
@@ -1039,6 +1073,8 @@ AC_SUBST(LAMOBJS)
 AC_SUBST(MAX_WORKERS)
 AC_SUBST(STATIC_MODE)
 
+AC_SUBST(INSTALL_MATLAB)
+AC_SUBST(MATLAB_INCLUDE)
 
 dnl check for threaded code
 AC_MSG_CHECKING(for gcc threaded code)
@@ -1309,6 +1345,7 @@ AC_DEFINE(USE_DL_MALLOC,1)
 fi
 
 mkdir -p  library/matrix
+mkdir -p  library/matlab
 mkdir -p  library/mpi
 mkdir -p  library/random
 mkdir -p  library/regex
@@ -1329,7 +1366,7 @@ mkdir -p  LGPL/clp
 mkdir -p  LGPL/clpr
 mkdir -p  LGPL/chr
 
-AC_OUTPUT(Makefile library/matrix/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/lammpi/Makefile library/tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap)
+AC_OUTPUT(Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/lammpi/Makefile library/tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap)
 
 make depend
 

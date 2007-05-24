@@ -1,0 +1,58 @@
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+prefix = @prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=$(EROOTDIR)/lib/Yap
+#
+#
+CC=@CC@
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include @MATLAB_INCLUDE@
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SHLIB_CFLAGS=@SHLIB_CFLAGS@
+SHLIB_SUFFIX=@SHLIB_SUFFIX@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+
+OBJS=matlab.o
+SOBJS=matlab@SHLIB_SUFFIX@
+
+#in some systems we just create a single object, in others we need to
+# create a libray
+
+all: $(SOBJS) 
+
+matlab.o: $(srcdir)/matlab.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/matlab.c -o matlab.o
+
+@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
+
+@DO_SECOND_LD@matlab@SHLIB_SUFFIX@: matlab.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o matlab@SHLIB_SUFFIX@ matlab.o
+
+install: all
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
+
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+
