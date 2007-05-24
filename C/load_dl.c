@@ -44,8 +44,31 @@ LoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
 
+  while (libs) {
+
+    if (!Yap_TrueFileName(libs->s, Yap_FileNameBuf, TRUE)) {
+      /* use LD_LIBRARY_PATH */
+      strncpy(Yap_FileNameBuf, libs->s, YAP_FILENAME_MAX);
+    }
+
+#ifdef __osf__
+    if((libs->handle=dlopen(Yap_FileNameBuf,RTLD_LAZY)) == NULL)
+#else
+    if((libs->handle=dlopen(Yap_FileNameBuf,RTLD_LAZY|RTLD_GLOBAL)) == NULL)
+#endif
+    {
+      strcpy(Yap_ErrorSay,dlerror());
+    fprintf(stderr,"f=%s\n",Yap_ErrorSay);
+      return LOAD_FAILLED;
+    }
+    libs = libs->next;
+  }
+
   while (ofiles) {
     void *handle;
+
+  /* load libraries first so that their symbols are available to
+     other routines */
 
     /* dlopen wants to follow the LD_CONFIG_PATH */
     if (!Yap_TrueFileName(ofiles->s, Yap_FileNameBuf, TRUE)) {
@@ -76,29 +99,6 @@ LoadForeign(StringList ofiles, StringList libs,
     return LOAD_FAILLED;
   }
 
-  /* load libraries first so that their symbols are available to
-     other routines */
-  while (libs) {
-
-    if (libs->s[0] == '-') {
-      strcpy(Yap_FileNameBuf,"lib");
-      strcat(Yap_FileNameBuf,libs->s+2);
-      strcat(Yap_FileNameBuf,".so");
-    } else {
-      strcpy(Yap_FileNameBuf,libs->s);
-    }
-
-#ifdef __osf__
-    if((libs->handle=dlopen(Yap_FileNameBuf,RTLD_LAZY)) == NULL)
-#else
-    if((libs->handle=dlopen(Yap_FileNameBuf,RTLD_LAZY|RTLD_GLOBAL)) == NULL)
-#endif
-    {
-      strcpy(Yap_ErrorSay,dlerror());
-      return LOAD_FAILLED;
-    }
-    libs = libs->next;
-  }
   return LOAD_SUCCEEDED;
 }
 

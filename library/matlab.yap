@@ -28,7 +28,7 @@
 
 :- ensure_loaded(library(lists)).
 
-:- load_foreign_files([matlab], ['/s/pkg/matlab/7r14sp3/bin/glnx86/libeng.so','/s/pkg/matlab/7r14sp3/bin/glnx86/libmx.so','/s/pkg/matlab/7r14sp3/bin/glnx86/libut.so'], init_matlab).
+:- load_foreign_files([matlab], ['eng','mx','ut'], init_matlab).
 
 matlab_eval_sequence(S) :-
 	atomic_concat(S,S1),
