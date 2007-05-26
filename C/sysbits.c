@@ -39,7 +39,7 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_WINDOWS_H
 #include <windows.h>
 #endif
-#if HAVE_SYS_TIME_H && !defined(__MINGW32__) && !_MSC_VER
+#if HAVE_SYS_TIME_H && !_MSC_VER
 #include <sys/time.h>
 #endif
 #if HAVE_UNISTD_H
@@ -399,6 +399,18 @@ InitTime (void)
   }
 }
 
+#ifdef __GNUC__
+static unsigned long long int 
+sub_utime(FILETIME t1, FILETIME t2)
+{
+  ULARGE_INTEGER u[2];
+  memcpy((void *)u,(void *)&t1,sizeof(FILETIME));
+  memcpy((void *)(u+1),(void *)&t2,sizeof(FILETIME));
+  return 
+    u[0].QuadPart - u[1].QuadPart;
+}
+#endif
+
 UInt
 Yap_cputime (void)
 {
@@ -411,8 +423,7 @@ Yap_cputime (void)
   } else {
 #ifdef __GNUC__
     unsigned long long int t =
-      *(unsigned long long int *)&UserTime - 
-      *(unsigned long long int *)&StartOfTimes;
+      sub_utime(UserTime,StartOfTimes);
     do_div(t,10000);
     return((Int)t);
 #endif
@@ -436,11 +447,9 @@ void Yap_cputime_interval(Int *now,Int *interval)
   } else {
 #ifdef __GNUC__
     unsigned long long int t1 =
-      *(unsigned long long int *)&UserTime -
-      *(unsigned long long int *)&StartOfTimes;
+      sub_utime(UserTime, StartOfTimes);
     unsigned long long int t2 =
-      *(unsigned long long int *)&UserTime -
-      *(unsigned long long int *)&last_time;
+      sub_utime(UserTime, last_time);
     do_div(t1,10000);
     *now = (Int)t1;
     do_div(t2,10000);
@@ -2226,13 +2235,15 @@ static Int p_file_age(void)
 static DWORD WINAPI
 DoTimerThread(LPVOID targ)
 {
-  Int time = *(Int *)targ;
+  Int *time = (Int *)targ;
   HANDLE htimer;
   LARGE_INTEGER liDueTime;
 
   htimer = CreateWaitableTimer(NULL, FALSE, NULL);
   liDueTime.QuadPart =  -10000000;
-  liDueTime.QuadPart *=  time;
+  liDueTime.QuadPart *=  time[0];
+  /* add time in usecs */
+  liDueTime.QuadPart -=  time[1]*10;
   /* Copy the relative time into a LARGE_INTEGER. */
   if (SetWaitableTimer(htimer, &liDueTime,0,NULL,NULL,0) == 0) {
     return(FALSE);
@@ -2274,9 +2285,12 @@ p_alarm(void)
 #if _MSC_VER || defined(__MINGW32__)
   {
     Term tout;
-    Int time = IntegerOfTerm(t);
+    Int time[2];
+
+    time[0] = IntegerOfTerm(t);
+    time[1] = IntegerOfTerm(t2);
     
-    if (time != 0) {
+    if (time[0] != 0 && time[1] != 0) {
       DWORD dwThreadId; 
       HANDLE hThread; 
 
@@ -2284,7 +2298,7 @@ p_alarm(void)
 			     NULL,     /* no security attributes */
 			     0,        /* use default stack size */ 
 			     DoTimerThread, /* thread function */
-			     (LPVOID)&time,  /* argument to thread function */
+			     (LPVOID)time,  /* argument to thread function */
 			     0,        /* use default creation flags  */
 			     &dwThreadId);  /* returns the thread identifier */
  
