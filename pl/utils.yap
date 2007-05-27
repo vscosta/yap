@@ -191,8 +191,11 @@ call_cleanup(Goal, Catcher, Cleanup) :-
 	      Exception,
 	      '$cleanup_exception'(Exception,Catcher,Cleanup)).
 
-'$cleanup_exception'(Exception, exception(Exception), Cleanup) :-
-	'$clean_call'(Cleanup).
+'$cleanup_exception'(Exception, exception(Exception), Cleanup) :- !,
+	'$clean_call'(Cleanup),
+	throw(Exception).
+'$cleanup_exception'(Exception, _, _) :-
+	throw(Exception).
 
 '$call_cleanup'(Goal, Cleanup, Result) :-
 	'$freeze_goal'(Result, '$clean_call'(Cleanup)),
