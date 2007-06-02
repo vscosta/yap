@@ -20,7 +20,8 @@
 
 :- use_module(library(terms),[term_variables/2,
 			      term_variables/3,
-			      term_hash/2]).
+			      term_hash/2,
+			      variant/2]).
 
 :- multifile
    prolog:message/3.
@@ -238,3 +239,7 @@ prolog:intersection([_|T], L, R) :-
 	prolog:intersection(T, L, R).
 
 
+:- op(700, xfx, '=@=').
+
+prolog:(Term1 =@= Term2) :-
+	variant(Term1, Term2), !.
