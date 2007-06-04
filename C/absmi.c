@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2007-05-01 21:18:19 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-06-04 12:28:01 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.222  2007/05/01 21:18:19  vsc
+* fix bug in saving P at p_eq (obs from Frabrizio Riguzzi)
+*
 * Revision 1.221  2007/04/10 22:13:20  vsc
 * fix max modules limitation
 *
@@ -769,7 +772,6 @@ Yap_absmi(int inp)
       else {
 	ASP = YREG;
       }
-      Yap_StartSlots();
       saveregs();
 #if PUSH_REGS
       restore_absmi_regs(old_regs);
@@ -787,7 +789,6 @@ Yap_absmi(int inp)
       else {
 	ASP = YREG;
       }
-      Yap_StartSlots();
       saveregs();
 #if PUSH_REGS
       restore_absmi_regs(old_regs);

@@ -138,3 +138,11 @@ typedef struct {
   int		   (*cancel)(int);
 } YAP_thread_attr;
 
+typedef struct YAP_pred_entry *YAP_PredEntryPtr;
+
+/* this should be opaque to the user */ 
+typedef struct {
+  unsigned long  b;
+  struct yami *p;
+} YAP_dogoalinfo;
+

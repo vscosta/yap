@@ -116,8 +116,14 @@ Eval(Term t, E_ARGS)
     ExpEntry *p;
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 0)))) {
+      Term ti[2], terror;
+      
       /* error */
-      Yap_Error(TYPE_ERROR_EVALUABLE, t,
+      ti[0] = t;
+      ti[1] = MkIntegerTerm(0);
+      /* error */
+      terror = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("/"),2), 2, ti);
+      Yap_Error(TYPE_ERROR_EVALUABLE, terror,
 	    "atom %s for arithmetic expression",
 	    RepAtom(name)->StrOfAE);
       P = (yamop *)FAILCODE;
@@ -184,10 +190,16 @@ Yap_Eval(Term t, E_ARGS)
     ExpEntry *p;
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 0)))) {
+      Term ti[2], terror;
+      
       /* error */
-      Yap_Error(TYPE_ERROR_EVALUABLE, t,
-	    "atom %s for arithmetic expression",
-	    RepAtom(name)->StrOfAE);
+      ti[0] = t;
+      ti[1] = MkIntegerTerm(0);
+      /* error */
+      terror = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("/"),2), 2, ti);
+      Yap_Error(TYPE_ERROR_EVALUABLE, terror,
+	      "atom %s for arithmetic expression",
+	      RepAtom(name)->StrOfAE);
       P = (yamop *)FAILCODE;
       RERROR();
     }

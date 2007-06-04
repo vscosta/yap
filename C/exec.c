@@ -1384,7 +1384,7 @@ p_pred_goal_expansion_on(void) {
 static int
 exec_absmi(int top)
 {
-  int lval;
+  int lval, out;
   if (top && (lval = sigsetjmp (Yap_RestartEnv, 1)) != 0) {
     switch(lval) {
     case 1:
@@ -1427,15 +1427,15 @@ exec_absmi(int top)
   } else {
     Yap_PrologMode = UserMode;
   }
-  return(Yap_absmi(0));
+  out = Yap_absmi(0);
+  Yap_StartSlots();
+  return out;
 }
 
-static Term
-do_goal(Term t, yamop *CodeAdr, int arity, CELL *pt, int top)
-{
-  choiceptr saved_b = B;
-  Term out = 0L;
 
+static  void
+init_stack(int arity, CELL *pt, int top, choiceptr saved_b)
+{
   /* create an initial pseudo environment so that when garbage
      collection is going up in the environment chain it doesn't get
      confused */
@@ -1481,8 +1481,19 @@ do_goal(Term t, yamop *CodeAdr, int arity, CELL *pt, int top)
   WPP = NULL;
 #endif
   YENV[E_CB] = Unsigned (B);
-  P = (yamop *) CodeAdr;
   CP = YESCODE;
+
+}
+
+static Term
+do_goal(Term t, yamop *CodeAdr, int arity, CELL *pt, int top)
+{
+  choiceptr saved_b = B;
+  Term out = 0L;
+
+  init_stack(arity, pt, top, saved_b);
+  P = (yamop *) CodeAdr;
+  S = CellPtr (RepPredProp (PredPropByFunc (Yap_MkFunctor(AtomCall, 1),0)));	/* A1 mishaps */
   S = CellPtr (RepPredProp (PredPropByFunc (Yap_MkFunctor(AtomCall, 1),0)));	/* A1 mishaps */
 
   out = exec_absmi(top);
@@ -1974,6 +1985,7 @@ Yap_InitYaamRegs(void)
   CreepFlag = CalculateStackGap();
   UNLOCK(SignalLock);
   EX = 0L;
+  init_stack(0, NULL, TRUE, NULL);
   /* for slots to work */
   Yap_StartSlots();
   GlobalArena = TermNil;

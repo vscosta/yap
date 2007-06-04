@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-05-15 11:33:51 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-06-04 12:28:01 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.94  2007/05/15 11:33:51  vsc
+* fix min list
+*
 * Revision 1.93  2007/05/14 16:44:11  vsc
 * improve external interface
 *
@@ -298,6 +301,7 @@ X_API Term    STD_PROTO(YAP_MkApplTerm,(Functor,unsigned long int,Term *));
 X_API Term    STD_PROTO(YAP_MkNewApplTerm,(Functor,unsigned long int));
 X_API Functor STD_PROTO(YAP_FunctorOfTerm,(Term));
 X_API Term    STD_PROTO(YAP_ArgOfTerm,(Int,Term));
+X_API Term   *STD_PROTO(YAP_ArgsOfTerm,(Term));
 X_API Functor STD_PROTO(YAP_MkFunctor,(Atom,Int));
 X_API Atom    STD_PROTO(YAP_NameOfFunctor,(Functor));
 X_API Int     STD_PROTO(YAP_ArityOfFunctor,(Functor));
@@ -307,6 +311,8 @@ X_API Int     STD_PROTO(YAP_Unify,(Term,Term));
 X_API int     STD_PROTO(YAP_Reset,(void));
 X_API Int     STD_PROTO(YAP_Init,(YAP_init_args *));
 X_API Int     STD_PROTO(YAP_FastInit,(char *));
+X_API PredEntry *STD_PROTO(YAP_FunctorToPred,(Functor));
+X_API PredEntry *STD_PROTO(YAP_AtomToPred,(Atom));
 X_API Int     STD_PROTO(YAP_CallProlog,(Term));
 X_API void   *STD_PROTO(YAP_AllocSpaceFromYap,(unsigned int));
 X_API void    STD_PROTO(YAP_FreeSpaceFromYap,(void *));
@@ -318,6 +324,9 @@ X_API void    STD_PROTO(YAP_Error,(int, Term, char *, ...));
 X_API Term    STD_PROTO(YAP_RunGoal,(Term));
 X_API int     STD_PROTO(YAP_RestartGoal,(void));
 X_API int     STD_PROTO(YAP_ShutdownGoal,(int));
+X_API int     STD_PROTO(YAP_EnterGoal,(PredEntry *, Term *, YAP_dogoalinfo *));
+X_API int     STD_PROTO(YAP_RetryGoal,(YAP_dogoalinfo *));
+X_API int     STD_PROTO(YAP_LeaveGoal,(int, YAP_dogoalinfo *));
 X_API int     STD_PROTO(YAP_GoalHasException,(Term *));
 X_API void    STD_PROTO(YAP_ClearExceptions,(void));
 X_API int     STD_PROTO(YAP_ContinueGoal,(void));
@@ -699,7 +708,15 @@ YAP_ArgOfTerm(Int n, Term t)
   return (ArgOfTerm(n, t));
 }
 
-
+X_API Term *
+YAP_ArgsOfTerm(Term t)
+{
+  if (IsApplTerm(t))
+    return RepAppl(t)+1;
+  else if (IsPairTerm(t))
+    return RepPair(t);
+  return NULL;
+}
 
 X_API Functor 
 YAP_MkFunctor(Atom a, Int n)
@@ -1023,6 +1040,22 @@ YAP_BufferToString(char *s)
   return t;
 }
 
+static int
+dogc(void)
+{
+  UInt arity;
+
+  if (P && PREVOP(P,sla)->opc == Yap_opcode(_call_usercpred)) {
+    arity = PREVOP(P,sla)->u.sla.sla_u.p->ArityOfPE;
+  } else {
+    arity = 0;
+  }
+  if (!Yap_gc(arity, ENV, CP)) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
 /* copy a string to a buffer */
 X_API Term
 YAP_ReadBuffer(char *s, Term *tp)
@@ -1030,8 +1063,10 @@ YAP_ReadBuffer(char *s, Term *tp)
   Term t; 
   BACKUP_H();
 
-  t = Yap_StringToTerm(s,tp);
-
+  while ((t = Yap_StringToTerm(s,tp)) == 0L) {
+    if (!dogc())
+      return FALSE;
+  }
   RECOVER_H();
   return t;
 }
@@ -1079,6 +1114,136 @@ static int myputc (wchar_t ch)
 {
   putc(ch,stderr);
   return ch;
+}
+
+X_API PredEntry *
+YAP_FunctorToPred(Functor func)
+{
+  return RepPredProp(PredPropByFunc(func, CurrentModule));
+}
+
+X_API PredEntry *
+YAP_AtomToPred(Atom at)
+{
+  return RepPredProp(PredPropByAtom(at, CurrentModule));  
+}
+
+
+static int
+run_emulator(YAP_dogoalinfo *dgi)
+{
+  choiceptr myB;
+  int out;
+
+  Yap_PrologMode = UserMode;
+  out = Yap_absmi(0);
+  Yap_PrologMode = UserCCallMode;
+  myB = (choiceptr)(LCL0-dgi->b);
+  CP = myB->cp_cp;
+  if (!out ) {
+    /* recover stack */
+    /* on failed computations */
+    TR = B->cp_tr;
+    H = B->cp_h;
+#ifdef DEPTH_LIMIT
+    DEPTH = B->cp_depth = DEPTH;
+#endif /* DEPTH_LIMIT */
+    YENV = ENV = B->cp_env;
+    ASP = (CELL *)(B+1);
+    B = B->cp_b;
+    HB = B->cp_h;
+  }
+  P = dgi->p;
+  RECOVER_MACHINE_REGS();
+  return out;
+}
+
+X_API int
+YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
+{
+  UInt i;
+  choiceptr myB;
+
+  BACKUP_MACHINE_REGS();
+  dgi->p = P;
+  ptr--;
+  i = pe->ArityOfPE;
+  while (i>0) {
+    XREGS[i] = ptr[i];
+    i--;
+  }
+  P = pe->CodeOfPred;
+  /* create a choice-point to be tag new goal */
+  myB = (choiceptr)ASP;
+  myB--;
+  dgi->b = LCL0-(CELL *)myB;
+  myB->cp_tr = TR;
+  myB->cp_h = HB = H;
+  myB->cp_b = B;
+#ifdef DEPTH_LIMIT
+  myB->cp_depth = DEPTH;
+#endif /* DEPTH_LIMIT */
+  myB->cp_cp = CP;
+  myB->cp_ap = NOCODE;
+  myB->cp_env = ENV;
+  CP = YESCODE;
+  B = myB;
+  HB = H;
+#if defined(YAPOR) || defined(THREADS)
+  WPP = NULL;
+#endif
+  YENV[E_CB] = Unsigned (B);
+  ASP = YENV = (CELL *)B;
+  return run_emulator(dgi);
+}
+
+X_API int
+YAP_RetryGoal(YAP_dogoalinfo *dgi)
+{
+  choiceptr myB;
+
+  BACKUP_MACHINE_REGS();
+  myB = (choiceptr)(LCL0-dgi->b);
+  CP = myB->cp_cp;
+  /* sanity check */
+  if (B >= myB) {
+    return FALSE;
+  }
+  P = FAILCODE;
+  return run_emulator(dgi);
+}
+
+X_API int
+YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
+{
+  choiceptr myB;
+
+  myB = (choiceptr)(LCL0-dgi->b);
+  if (B >  myB) {
+    return FALSE;
+  }
+#ifdef YAPOR
+  CUT_prune_to(myB);
+#endif
+  B = myB;
+  if (backtrack) {
+    P = FAILCODE;
+    Yap_exec_absmi(TRUE);
+    /* recover stack space */
+    H = B->cp_h;
+    TR = B->cp_tr;
+#ifdef DEPTH_LIMIT
+    DEPTH = B->cp_depth;
+#endif /* DEPTH_LIMIT */
+    YENV = ENV = B->cp_env;
+  }
+  /* recover local stack */
+  ASP = (CELL *)(B+1);
+  B = B->cp_b;
+  HB = B->cp_h;
+  P = dgi->p;
+  RECOVER_MACHINE_REGS();
+  return TRUE;
 }
 
 X_API Term

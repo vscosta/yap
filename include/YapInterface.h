@@ -166,6 +166,9 @@ extern X_API YAP_Functor PROTO(YAP_FunctorOfTerm,(YAP_Term));
 /*    YAP_Term     ArgOfTerm(unsigned int argno,YAP_Term t) */
 extern X_API YAP_Term PROTO(YAP_ArgOfTerm,(unsigned int,YAP_Term));
 
+/*    YAP_Term    *ArgsOfTerm(YAP_Term t) */
+extern X_API YAP_Term *PROTO(YAP_ArgsOfTerm,(YAP_Term));
+
 /*    YAP_Functor  MkFunctor(YAP_Atom a,int arity) */
 extern X_API YAP_Functor PROTO(YAP_MkFunctor,(YAP_Atom,unsigned int));
 
@@ -228,8 +231,24 @@ extern X_API YAP_Bool PROTO(YAP_ShutdownGoal,(int));
 /*  int YAP_ContinueGoal(void) */
 extern X_API YAP_Bool PROTO(YAP_ContinueGoal,(void));
 
+
 /*  void YAP_PruneGoal(void) */
 extern X_API void PROTO(YAP_PruneGoal,(void));
+
+/*  int YAP_FunctorToPred(struct pred_entry *, YAP_Term *) */
+extern X_API YAP_PredEntryPtr PROTO(YAP_FunctorToPred,(YAP_Functor));
+
+/*  int YAP_AtomToPred(struct pred_entry *, YAP_Term *) */
+extern X_API YAP_PredEntryPtr PROTO(YAP_AtomToPred,(YAP_Atom));
+
+/*  int YAP_EnterGoal(void) */
+extern X_API YAP_Bool PROTO(YAP_EnterGoal,(YAP_PredEntryPtr, YAP_Term *, YAP_dogoalinfo *));
+
+/*  int YAP_RetryGoal(void) */
+extern X_API YAP_Bool PROTO(YAP_RetryGoal,(YAP_dogoalinfo *));
+
+/*  int YAP_LeaveGoal(void) */
+extern X_API YAP_Bool PROTO(YAP_LeaveGoal,(int, YAP_dogoalinfo *));
 
 /*  int YAP_GoalHasException(YAP_Term *) */
 extern X_API YAP_Bool PROTO(YAP_GoalHasException,(YAP_Term *));

@@ -12179,6 +12179,7 @@ fetch the head or the tail.
 @findex YAP_MkApplTerm (C-Interface function)
 @findex YAP_MkNewApplTerm (C-Interface function)
 @findex YAP_ArgOfTerm (C-Interface function)
+@findex YAP_ArgsOfTerm (C-Interface function)
 @findex YAP_FunctorOfTerm (C-Interface function)
 A @i{compound} term consists of a @i{functor} and a sequence of terms with
 length equal to the @i{arity} of the functor. A functor, described in C by
@@ -12189,6 +12190,7 @@ functors
       YAP_Term     YAP_MkApplTerm(YAP_Functor @var{f}, unsigned long int @var{n}, YAP_Term[] @var{args})
       YAP_Term     YAP_MkNewApplTerm(YAP_Functor @var{f}, int @var{n})
       YAP_Term     YAP_ArgOfTerm(int argno,YAP_Term @var{ts})
+      YAP_Term    *YAP_ArgsOfTerm(YAP_Term @var{ts})
       YAP_Functor  YAP_FunctorOfTerm(YAP_Term @var{ts})
 @end example
 @noindent
@@ -12198,7 +12200,8 @@ terms with @var{n} equal to the arity of the
 functor. @code{YAP_MkNewApplTerm} builds up a compound term whose
 arguments are unbound variables. @code{YAP_ArgOfTerm} gives an argument
 to a compound term. @code{argno} should be greater or equal to 1 and
-less or equal to the arity of the functor.
+less or equal to the arity of the functor.  @code{YAP_ArgsOfTerm}
+returns a pinter to an array of arguments.
 
 YAP allows one to manipulate the functors of compound term. The function
 @code{YAP_FunctorOfTerm} allows one to obtain a variable of type
@@ -12819,6 +12822,54 @@ space pointed to by @var{tp}
 @item  @code{void} YAP_ClearExceptions(@code{void})
 @findex YAP_ClearExceptions/0
 Reset any exceptions left over by the system.
+
+@item  @code{YAP_PredEntryPtr} YAP_FunctorToPred(@code{YAP_Functor} @var{f},
+@findex YAP_FunctorToPred/1
+Return the predicate whose main functor is @var{f}.
+
+@item  @code{YAP_PredEntryPtr} YAP_AtomToPred(@code{YAP_Atom} @var{at},
+@findex YAP_AtomToPred/1
+Return the arity 0 predicate whose name is @var{at}.
+
+@item  @code{YAP_Bool} YAP_EnterGoal(@code{YAP_PredEntryPtr} @var{pe},
+@code{YAP_Term *} @var{array}, @code{YAP_dogoalinfo *} @var{infop})
+@findex YAP_EnterGoal/3
+Execute a  query for predicate @var{pe}. The query is given as an
+array of terms @var{Array}. @var{infop} is the address of a goal
+handle that can be used to backtrack and to recover space. Succeeds if
+a solution was found.
+
+Notice that you cannot create new slots if an YAP_EnterGoal goal is open.
+
+@item  @code{YAP_Bool} YAP_RetryGoal(@code{YAP_dogoalinfo *} @var{infop})
+@findex YAP_RetryGoal/1
+Backtrack to a query created by @code{YAP_EnterGoal}. The query is
+given by the handle @var{infop}. Returns whether a new solution could
+be be found.
+
+@item  @code{YAP_Bool} YAP_LeaveGoal(@code{YAP_Bool} @var{backtrack},
+@code{YAP_dogoalinfo *} @var{infop})
+@findex YAP_LeaveGoal/2
+Exit a query query created by @code{YAP_EnterGoal}. If
+@code{backtrack} is @code{TRUE}, variable bindings are undone and Heap
+space is recovered.  Otherwise, stack space is recovered.
+
+Next, follows an example of how to use @code{YAP_EnterGoal}:
+@example
+void
+runall(YAP_Term g)
+@{
+    YAP_dogoalinfo goalInfo;
+    YAP_Term *goalArgs = YAP_ArraysOfTerm(g);
+    YAP_Functor *goalFunctor = YAP_FunctorOfTerm(g);
+    YAP_PredEntryPtr goalPred = YAP_FunctorToGoal(goalFunctor);
+    
+    result = YAP_EnterGoal( goalPred, goalArgs, &goalInfo );
+    while (result)
+       result = YAP_RetryGoal( &goalInfo );
+    YAP_LeaveGoal(TRUE, &goalInfo);
+@}
+@end example
 
 @item  @code{YAP_Term} YAP_Write(@code{YAP_Term} @var{t})
 @findex  YAP_CopyTerm/1
