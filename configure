@@ -865,9 +865,9 @@ Optional Features:
  --enable-condor            allow Yap to be used from condor
  --enable-april             compile Yap to support April ILP system
  --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
- --enable-myddas         enable the MYDDAS library
- --enable-myddas-stats     enable the MYDDAS library statistics support
- --enable-myddas-top-level enable the MYDDAS top-level support to MySQL
+ --enable-myddas[=DIR]      enable the MYDDAS library
+ --enable-myddas-stats      enable the MYDDAS library statistics support
+ --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -2434,13 +2434,13 @@ fi;
 if test "${enable_myddas+set}" = set; then
   enableval="$enable_myddas"
   if test "$enableval" = yes; then
-		yap_cv_myddas=yes
+		yap_cv_myddas=/usr/
 	elif test "$enableval" = no; then
 		yap_cv_myddas=no
 	else
 		yap_cv_myddas=$enable_myddas
-		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib"
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include"
+		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
 	fi
 else
   yap_cv_myddas=no
@@ -4359,8 +4359,8 @@ fi
 echo "${ECHO_T}$yap_mysql" >&6
 	if test "$yap_mysql" = yes
 	then
-		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
-		LIBS="$LIBS -L/usr/lib/mysql -lmysqlclient -lz -lcrypt -lnsl -lm -lc -lnss_files -lnss_dns -lresolv "
+                YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
+		LIBS="$LIBS -L${yap_cv_myddas}/lib/mysql -lmysqlclient -lz -lcrypt -lnsl -lm -lc -lnss_files -lnss_dns -lresolv "
 	fi
 
 		echo "$as_me:$LINENO: checking for main in -lodbc" >&5

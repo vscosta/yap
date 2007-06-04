@@ -92,20 +92,20 @@ AC_ARG_WITH(gmp,
 	[yap_cv_gmp=yes])
 
 AC_ARG_ENABLE(myddas,
-	[ --enable-myddas         enable the MYDDAS library],
+	[ --enable-myddas[[=DIR]]      enable the MYDDAS library],
 	if test "$enableval" = yes; then
-		yap_cv_myddas=yes
+		yap_cv_myddas=/usr/
 	elif test "$enableval" = no; then
 		yap_cv_myddas=no
 	else
 		yap_cv_myddas=$enable_myddas
-		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib"
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include"
+		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
 	fi,
 	[yap_cv_myddas=no])
 
 AC_ARG_ENABLE(myddas-stats,
-	[ --enable-myddas-stats     enable the MYDDAS library statistics support],
+	[ --enable-myddas-stats      enable the MYDDAS library statistics support],
 	if test "$yap_cv_myddas" = no; then
 		myddasstats=no
 	else
@@ -113,7 +113,7 @@ AC_ARG_ENABLE(myddas-stats,
 	fi, myddasstats=no)
 
 AC_ARG_ENABLE(myddas-top-level,
-	[ --enable-myddas-top-level enable the MYDDAS top-level support to MySQL],
+	[ --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL],
 	if test "$yap_cv_myddas" = no; then
 	   	myddastoplevel=no
 	else
@@ -480,8 +480,8 @@ then
 	AC_MSG_RESULT($yap_mysql)
 	if test "$yap_mysql" = yes 
 	then
-		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
-		LIBS="$LIBS -L/usr/lib/mysql -lmysqlclient -lz -lcrypt -lnsl -lm -lc -lnss_files -lnss_dns -lresolv "
+                YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
+		LIBS="$LIBS -L${yap_cv_myddas}/lib/mysql -lmysqlclient -lz -lcrypt -lnsl -lm -lc -lnss_files -lnss_dns -lresolv "
 	fi
 	
 	dnl check for odbc
