@@ -133,7 +133,7 @@ features that drastically depart from WAM's basic characteristics.
 %
 For example, first argument indexing is sufficient for many Prolog
 applications. However, it is clearly sub-optimal for applications
-accessing large databases; for a long time now, the database community
+accessing large data sets; for a long time now, the database community
 has recognized that good indexing is the basis for fast query
 processing.
 
@@ -293,12 +293,12 @@ removes it.
 The WAM has additional indexing instructions (\instr{try\_me\_else}
 and friends) that allow indexing to be interspersed with the code of
 clauses. For simplicity of presentation we will not consider them
-here. This is not a problem since the above scheme handles all cases.
+here. This is not a problem since the above scheme handles all programs.
 Also, we will feel free to do some minor modifications and
 optimizations when this simplifies things.
 
 We present an example. Consider the Prolog code shown in
-Fig.~\ref{fig:carc:facts}. It is a fragment of the well-known machine
+Fig.~\ref{fig:carc:facts}. It is a fragment of the machine
 learning dataset \textit{Carcinogenesis}~\cite{Carcinogenesis@ILP-97}.
 The five clauses get compiled to the WAM code shown in
 Fig.~\ref{fig:carc:clauses}. The first argument indexing indexing code
@@ -807,7 +807,7 @@ to a \switchSTAR WAM instruction.
 	  \end{itemize}
 	\end{itemize}
       \item[2.2.4] transform the \jitiSTAR $r, l, k$ instruction to
-	a \switchSTAR $r, l, \&{\cal T}$ instruction; and
+	a \switchSTAR $r, l, {\cal T}$ instruction; and
       \item[2.2.5] continue execution with this instruction.
       \end{itemize}
     \end{enumerate}
@@ -821,7 +821,7 @@ query execution. First, note that each demanded index table will be
 constructed at most once. Also, a \jitiSTAR instruction will be
 encountered only in cases where execution would examine all clauses in
 the \TryRetryTrust chain.\footnote{This statement is possibly not
-valid the presence of Prolog cuts.} The construction visits these
+valid in the presence of Prolog cuts.} The construction visits these
 clauses \emph{once} and then creates the index table in time linear in
 the number of clauses as one pass over the list of $\langle c, L
 \rangle$ pairs suffices. After index construction, execution will
@@ -1003,7 +1003,7 @@ construction. We therefore wanted to measure this overhead.
 %
 As both systems support tabling, we decided to use tabling benchmarks
 because they are small and easy to understand, and because they are a
-worst case for JITI in the following sense: tabling avoids generating
+bad case for JITI in the following sense: tabling avoids generating
 repetitive queries and the benchmarks operate over extensional
 database (EDB) predicates of size approximately equal the size of the
 program. We used \compress, a tabled program that solves a puzzle from
@@ -1298,6 +1298,15 @@ performance can be achieved in the context of one solution
 computations, or in the context of tabling where order of clauses and
 solutions does not matter and repeated solutions are discarded.
 
+\paragraph{Acknowledgments}
+
+This work is dedicated to the memory of our friend and colleague
+Ricardo Lopes. We miss you! V\'{\i}tor Santos Costa was partially
+supported by CNPq and would like to acknowledge support received while
+visiting at UW-Madison and the support of the YAP user community.
+This work has been partially supported by MYDDAS (POSC/EIA/59154/2004)
+and by funds granted to LIACC through the Programa de Financiamento
+Plurianual, Fundação para a Ciência e Tecnologia and Programa POSC.
 
 %==============================================================================
 \bibliographystyle{splncs}
