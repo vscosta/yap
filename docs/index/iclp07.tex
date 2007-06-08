@@ -252,7 +252,7 @@ access big datasets and on the other they are unfit for static
 analysis since queries are often ad hoc and generated only during
 runtime as new hypotheses are formed or refined.
 %
-Our thesis is that the Prolog abstract machine should be able to adapt
+Our thesis is that the abstract machine should be able to adapt
 automatically to the runtime requirements of such or, even better, of
 all applications by employing increasingly aggressive forms of dynamic
 compilation. As a concrete example of what this means in practice, in
@@ -284,10 +284,10 @@ clauses exceeds a threshold. For this reason the \switchONconstant and
 \instr{T} and the number of clauses \instr{N} the table contains (or
 equivalently, \instr{N} is the size of the hash table). In each bucket
 of this hash table and also in the bucket for the variable case of
-\switchONterm the code performs a sequential backtracking search of
-the clauses using a \TryRetryTrust chain of instructions. The \try
-instruction sets up a choice point, the \retry instructions (if~any)
-update certain fields of this choice point, and the \trust instruction
+\switchONterm the code sequentially backtracks through the clauses
+using a \TryRetryTrust chain of instructions. The \try instruction
+sets up a choice point, the \retry instructions (if~any) update
+certain fields of this choice point, and the \trust instruction
 removes it.
 
 The WAM has additional indexing instructions (\instr{try\_me\_else}
@@ -307,7 +307,7 @@ Fig.~\ref{fig:carc:index}. This code is typically placed before the
 code for the clauses and the \switchONconstant instruction is the
 entry point of predicate. Note that compared with vanilla WAM this
 instruction has an extra argument: the register on the value of which
-we will index ($r_1$). This extra argument will allow us to go beyond
+we index ($r_1$). This extra argument will allow us to go beyond
 first argument indexing. Another departure from the WAM is that if
 this argument register contains an unbound variable instead of a
 constant then execution will continue with the next instruction; in
@@ -452,18 +452,18 @@ instruction works as follows:
 \begin{itemize}
 \item if the argument register $r_i$ is a free variable, then
   execution continues with the next instruction;
-\item otherwise, \JITI kicks in as follows. The abstract machine will
-  scan the WAM code of the clauses and create an index table for the
+\item otherwise, \JITI kicks in as follows. The abstract machine
+  scans the WAM code of the clauses and creates an index table for the
   values of the corresponding argument. It can do so because the
   instruction takes as arguments the number of clauses \instr{N} to
   index and the arity \instr{A} of the predicate. (In our example, the
   numbers 5 and 3.) For Datalog facts, this information is sufficient.
-  Also, because the WAM byte code for the clauses has a very regular
+  Because the WAM byte code for the clauses has a very regular
   structure, the index table can be created very quickly. Upon its
-  creation, the \jitiONconstant instruction will get transformed to a
+  creation, the \jitiONconstant instruction gets transformed to a
   \switchONconstant. Again this is straightforward because of the two
   instructions have similar layouts in memory. Execution of the
-  abstract machine will continue with the \switchONconstant
+  abstract machine then continues with the \switchONconstant
   instruction.
 \end{itemize}
 Figure~\ref{fig:carg:jiti_single:after} shows the index table $T_2$
@@ -523,7 +523,7 @@ argument has been created.
 The main advantage of this scheme is its simplicity. The compiled code
 (Fig.~\ref{fig:carc:jiti_single:before}) is not significantly bigger
 than the code which a WAM-based compiler would generate
-(Fig.~\ref{fig:carc:index}) and, even if \JITI turns out unnecessary
+(Fig.~\ref{fig:carc:index}) and, if \JITI turns out unnecessary
 during runtime (e.g. execution encounters only open calls or with only
 the first argument bound), the extra overhead is minimal: the
 execution of some \jitiONconstant instructions for the open call only.
@@ -729,7 +729,7 @@ We describe the process of demand-driven index construction.
 Let $p/k$ be a predicate with $n$ clauses.
 %
 At a high level, its indices form a tree whose root is the entry point
-of the predicate. For simplicity, we assume that the root node of the
+of the predicate. For simplicity, assume that the root node of the
 tree and the interior nodes corresponding to the index table for the
 first argument have been constructed at compile time. Leaves of this
 tree are the nodes containing the code for the clauses of the
@@ -746,12 +746,12 @@ instruction and the $T$ instructions are either a sequence of
 \TryRetryTrust instructions (if $l > 1$) or a \jump instruction (if
 \mbox{$l = 1$}). Step~2.2 dynamically constructs an index table $\cal
 T$ whose buckets are the newly created interior nodes in the tree.
-Each bucket associated with a single clause contains a \jump
-instruction to the label of that clause. Each bucket associated with
-many clauses starts with the $I$ instructions which are yet to be
-visited and continues with a \TryRetryTrust chain pointing to the
-clauses. When the index construction is done, the instruction mutates
-to a \switchSTAR WAM instruction.
+Each bucket associated with a single clause contains a \jump to the
+label of that clause. Each bucket associated with many clauses starts
+with the $I$ instructions which are yet to be visited and continues
+with a \TryRetryTrust chain pointing to the clauses. When the index
+construction is done, the instruction mutates to a \switchSTAR WAM
+instruction.
 %-------------------------------------------------------------------------
 \begin{Algorithm}[t]
   \caption{Actions of the abstract machine with \JITI}
@@ -862,19 +862,20 @@ exist in the body of the clause (e.g., type tests such as
 Y}, numeric constraints such as \code{X > 0}, etc).
 
 A reasonable concern for \JITI is increased memory consumption during
-runtime due to the index tables. In our experience, this does not seem
-to be a problem in practice since most applications do not have demand
-for indexing on many argument combinations. In applications where it
-does become a problem or when running in an environment with limited
-memory, we can easily put a bound on the size of index tables, either
-globally or for each predicate separately. For example, the \jitiSTAR
-instructions can either become inactive when this limit is reached, or
-better yet we can recover the space of some tables. To do so, we can
-employ any standard recycling algorithm (e.g., least recently used)
-and reclaim the of index tables that are no longer in use. This is
-easy to do by reverting the corresponding \switchSTAR instructions
-back to \jitiSTAR instructions. If the indices are demanded again at a
-time when memory is available, they can simply be regenerated.
+runtime due to the creation of index tables. In our experience, this
+does not seem to be a problem in practice since most applications do
+not have demand for indexing on many argument combinations. In
+applications where it does become a problem or when running in an
+environment with limited memory, we can easily put a bound on the size
+of index tables, either globally or for each predicate separately. For
+example, the \jitiSTAR instructions can either become inactive when
+this limit is reached, or better yet we can recover the space of some
+tables. To do so, we can employ any standard recycling algorithm
+(e.g., least recently used) and reclaim the memory of index tables
+that are no longer in use. This is easy to do by reverting the
+corresponding \switchSTAR instructions back to \jitiSTAR instructions.
+If the indices are demanded again at a time when memory is available,
+they can simply be regenerated.
 
 
 \section{Demand-Driven Indexing of Dynamic Predicates} \label{sec:dynamic}
@@ -916,14 +917,14 @@ If several calls are alive in the stack, several snapshots will be
 alive at the same time. The standard solution to this problem is to
 use time stamps to tell which clauses are \emph{live} for which calls.
 %
-This solution complicates freeing index tables because (1) an index
+This solution complicates freeing index tables because: (1) an index
 table holds references to clauses, and (2) the table may be in use,
 that is, it may be accessible from the execution stacks. An index
 table thus is killed in several steps:
 \begin{enumerate}
 \item Detach the index table from the indexing tree.
 \item Recursively \emph{kill} every child of the current table:
-  if the current table is killed, so will be its children.
+  if the current table is killed, so are its children.
 \item Wait until the table is not in use, that is, it is not pointed
   to by someone.
 \item Walk the table and release any references it may hold.
@@ -954,7 +955,7 @@ inside compound terms. The user can then use the appropriate compiler
 directive for these predicates.} For dynamic predicates, \JITI is
 employed only if they consist of Datalog facts; if a clause which is
 not a Datalog fact is asserted, all dynamically created index tables
-for the predicate are simply killed and the \jitiONconstant
+for the predicate are simply removed and the \jitiONconstant
 instruction becomes a \instr{noop}. All this is done automatically,
 but the user can disable \JITI in compiled code using an appropriate
 compiler option.
@@ -971,7 +972,7 @@ relations: in such cases YAP will maintain a list of matching clauses
 at each \jitiSTAR node. Indexing dynamic predicates in YAP follows
 very much the same algorithm as static indexing: the key idea is that
 most nodes in the index tree must be allocated separately so that they
-can grow or contract independently. YAP can index arguments where some
+can grow or shrink independently. YAP can index arguments where some
 clauses have unconstrained variables, but only for static predicates,
 as in dynamic code this would complicate support for logical update
 semantics.
@@ -982,7 +983,7 @@ convenient abbreviation.
 
 \section{Performance Evaluation} \label{sec:perf}
 %================================================
-We evaluate \JITI on a set of benchmarks and LP applications.
+We evaluate \JITI on a set of benchmarks and applications.
 Throughout, we compare performance of JITI with first argument
 indexing. For the benchmarks of Sect.~\ref{sec:perf:ineffective}
 and~\ref{sec:perf:effective} which involve both systems, we used a
@@ -1005,9 +1006,9 @@ As both systems support tabling, we decided to use tabling benchmarks
 because they are small and easy to understand, and because they are a
 bad case for JITI in the following sense: tabling avoids generating
 repetitive queries and the benchmarks operate over extensional
-database (EDB) predicates of size approximately equal the size of the
-program. We used \compress, a tabled program that solves a puzzle from
-an ICLP Prolog programming competition. The other benchmarks are
+database (EDB) predicates of size approximately equal to the size of
+the program. We used \compress, a tabled program that solves a puzzle
+from an ICLP Prolog programming competition. The other benchmarks are
 different variants of tabled left, right and doubly recursive
 transitive closure over an EDB predicate forming a chain of size shown
 in Table~\ref{tab:ineffective} in parentheses. For each variant of
@@ -1253,7 +1254,7 @@ memory usage should be at or close to the maximum. These applications
 use a mixture of static and dynamic predicates and we show their
 memory usage separately. On static predicates, memory usage varies
 widely, from only 10\% to the worst case, \Carcino, where the index
-tree takes more space than the original program. Hash tables dominate
+tables take more space than the original program. Hash tables dominate
 usage in \IEProtein and \Susi, whereas \TryRetryTrust chains dominate
 in \BreastCancer. In most other cases no single component dominates
 memory usage. Memory usage for dynamic data is shown in the last two
@@ -1289,8 +1290,8 @@ As presented, \JITI is a hybrid technique: index generation occurs
 during runtime but is partly guided by the compiler, because we want
 to combine it with compile-time WAM-style indexing. More flexible
 schemes are of course possible. For example, index generation can be
-fully dynamic (as in YAP), combined with user declarations, or use
-static analysis to be even more selective or go beyond fixed-order
+fully dynamic (as in YAP), combined with user declarations, or driven
+by static analysis to be even more selective or go beyond fixed-order
 indexing.
 %
 Last, observe that \JITI fully respects Prolog semantics. Better
