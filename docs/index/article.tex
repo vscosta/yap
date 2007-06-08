@@ -1,6 +1,7 @@
 %==============================================================================
 \documentclass{llncs} 
 %------------------------------------------------------------------------------
+\usepackage[latin1]{inputenc}
 \usepackage{a4wide}
 \usepackage{float}
 \usepackage{alltt}
@@ -301,11 +302,11 @@ We present an example. Consider the Prolog code shown in
 Fig.~\ref{fig:carc:facts}. It is a fragment of the machine
 learning dataset \textit{Carcinogenesis}~\cite{Carcinogenesis@ILP-97}.
 The five clauses get compiled to the WAM code shown in
-Fig.~\ref{fig:carc:clauses}. The first argument indexing indexing code
+Fig.~\ref{fig:carc:clauses}. The first argument indexing code
 that a Prolog compiler generates is shown in
 Fig.~\ref{fig:carc:index}. This code is typically placed before the
 code for the clauses and the \switchONconstant instruction is the
-entry point of predicate. Note that compared with vanilla WAM this
+entry point of the predicate. Note that compared with vanilla WAM this
 instruction has an extra argument: the register on the value of which
 we index ($r_1$). This extra argument will allow us to go beyond
 first argument indexing. Another departure from the WAM is that if
@@ -758,7 +759,7 @@ instruction.
   \label{alg:construction}
   \begin{enumerate}
   \item if the current instruction $I$ is a \switchSTAR, \try, \retry,
-    \trust or \jump, the action is an in the WAM;
+    \trust or \jump, the action is as in the WAM;
   \item if the current instruction $I$ is a \jitiSTAR with arguments $r,
     l$, and $k$ where $r$ is a register then
     \begin{enumerate}
@@ -926,7 +927,7 @@ table thus is killed in several steps:
 \item Recursively \emph{kill} every child of the current table:
   if the current table is killed, so are its children.
 \item Wait until the table is not in use, that is, it is not pointed
-  to by someone.
+  to by anywhere.
 \item Walk the table and release any references it may hold.
 \item Physically recover space.
 \end{enumerate}
