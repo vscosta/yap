@@ -116,8 +116,8 @@
   percent up to orders of magnitude. Given these results, we see very
   little reason for Prolog systems not to incorporate some form of
   dynamic indexing based on actual demand. In fact, we see
-  demand-driven indexing as the first step towards effective runtime
-  optimization of Prolog programs.
+  demand-driven indexing as only the first step towards effective
+  runtime optimization of Prolog programs.
 \end{abstract}
 
 
@@ -167,8 +167,8 @@ incorporate some form of indexing based on actual demand from queries.
 In fact, we see \JITI as only the first step towards effective runtime
 optimization of Prolog programs.
 
-\Paragraph{Organization}
-%-----------------------
+\Paragraph{Organization.}
+%------------------------
 After commenting on the state of the art and related work concerning
 indexing in Prolog systems (Sect.~\ref{sec:related}) we briefly review
 indexing in the WAM (Sect.~\ref{sec:prelims}). We then present \JITI
@@ -205,7 +205,7 @@ user-friendly nor guarantees good performance results.
 
 % Trees, tries and unification factoring:
 Recognizing the need for better indexing, researchers have proposed
-more flexible index mechanisms for Prolog. For example, Hickey and
+more flexible indexing mechanisms for Prolog. For example, Hickey and
 Mudambi proposed \emph{switching trees}~\cite{HickeyMudambi@JLP-89},
 which rely on the presence of mode information. Similar proposals were
 put forward by Van Roy, Demoen and Willems who investigated indexing
@@ -240,7 +240,7 @@ discipline from the programmer (e.g., that applications use the module
 system religiously and never bypass it). As a result, most Prolog
 systems currently do not provide the type of indexing that
 applications require. Even in systems like Ciao~\cite{Ciao@SCP-05},
-which do come with built-in static analysis and more or less force
+which do come with a built-in static analyzer and more or less force
 such a discipline on the programmer, mode information is not used for
 multi-argument indexing.
 
@@ -279,8 +279,8 @@ value of the register. The \switchONconstant and \switchONstructure
 instructions implement this dispatching: typically with a \fail
 instruction when the bucket is empty, with a \jump instruction for
 only one clause, with a sequential scan when the number of clauses is
-small, and with a hash lookup when the number of clauses exceeds a
-threshold. For this reason the \switchONconstant and
+small, and with a hash table lookup when the number of clauses exceeds
+a threshold. For this reason the \switchONconstant and
 \switchONstructure instructions take as arguments the hash table
 \instr{T} and the number of clauses \instr{N} the table contains. In
 each bucket of this hash table and also in the bucket for the variable
@@ -546,9 +546,9 @@ atom \code{p} throughout.} Then we can avoid generating
 \jitiONconstant instructions for them. Also, suppose we know that some
 arguments are most likely than others to be used in the \code{in}
 mode. Then we can simply place the \jitiONconstant instructions for
-them \emph{before} the instructions for other arguments. This is
-possible since all indexing instructions take the argument register
-number as an argument; their order does not matter.
+them before the instructions for other arguments. This is possible
+since all indexing instructions take the argument register number as
+an argument; their order does not matter.
 
 \subsection{From any argument indexing to multi-argument indexing}
 %-----------------------------------------------------------------
@@ -746,16 +746,16 @@ Each non-leaf node contains a sequence of byte code instructions with
 groups of the form \mbox{$\langle I_1, \ldots, I_m, T_1, \ldots, T_l
 \rangle, 0 \leq m \leq k, 1 \leq l \leq n$} where each of the $I$
 instructions, if any, is either a \switchSTAR or a \jitiSTAR
-instruction and the $T$ instructions are either a sequence of
-\TryRetryTrust instructions (if $l > 1$) or a \jump instruction (if
-\mbox{$l = 1$}). Step~2.2 dynamically constructs an index table $\cal
-T$ whose buckets are the newly created interior nodes in the tree.
-Each bucket associated with a single clause contains a \jump to the
-label of that clause. Each bucket associated with many clauses starts
-with the $I$ instructions which are yet to be visited and continues
-with a \TryRetryTrust chain pointing to the clauses. When the index
-construction is done, the instruction mutates to a \switchSTAR WAM
-instruction.
+instruction and each of the $T$ instructions either forms a sequence
+of \TryRetryTrust instructions (if $l > 1$) or is a \jump instruction
+(if \mbox{$l = 1$}). Step~2.2 dynamically constructs an index table
+$\cal T$ whose buckets are the newly created interior nodes in the
+tree. Each bucket associated with a single clause contains a \jump to
+the label of that clause. Each bucket associated with many clauses
+starts with the $I$ instructions which are yet to be visited and
+continues with a \TryRetryTrust chain pointing to the clauses. When
+the index construction is done, the instruction mutates to a
+\switchSTAR WAM instruction.
 %-------------------------------------------------------------------------
 \begin{Algorithm}[t]
   \caption{Actions of the abstract machine with \JITI}
@@ -863,7 +863,7 @@ is easy to write. At the cost of increased implementation complexity,
 this step can of course take into account other information that may
 exist in the body of the clause (e.g., type tests such as
 \code{var(X)}, \code{atom(X)}, aliasing constraints such as \code{X =
-Y}, numeric constraints such as \code{X > 0}, etc).
+Y}, numeric constraints such as \code{X > 0}, etc.).
 
 A reasonable concern for \JITI is increased memory consumption. In our
 experience, this does not seem to be a problem in practice since most
@@ -875,10 +875,10 @@ predicate separately. For example, the \jitiSTAR instructions can
 either become inactive when this limit is reached, or better yet we
 can recover the space of some tables. To do so, we can employ any
 standard recycling algorithm (e.g., LRU) and reclaim the memory of
-index tables no longer in use. This is easy to do by reverting the
-corresponding \switchSTAR instructions back to \jitiSTAR instructions.
-If the indices are demanded again at a time when memory is available,
-they can simply be regenerated.
+index tables that are no longer in use. This is easy to do by
+reverting the corresponding \switchSTAR instructions back to \jitiSTAR
+instructions. If the indices are demanded again at a time when memory
+is available, they can simply be regenerated.
 
 
 \section{Demand-Driven Indexing of Dynamic Predicates} \label{sec:dynamic}
@@ -915,7 +915,7 @@ variable.
 Under LU semantics, calls to dynamic predicates execute in a
 ``snapshot'' of the corresponding predicate. Each call sees the
 clauses that existed at the time when the call was made, even if some
-of the clauses were later deleted or new clauses were asserted. If
+of the clauses were later retracted or new clauses were asserted. If
 several calls are alive in the stack, several snapshots will be alive
 at the same time. The standard solution to this problem is to use time
 stamps to tell which clauses are \emph{live} for which calls.
@@ -929,7 +929,7 @@ table thus is killed in several steps:
 \item Recursively \emph{kill} every child of the current table; if a
   table is killed so are its children.
 \item Wait until the table is not in use, that is, it is not pointed
-  to by anywhere.
+  to from anywhere.
 \item Walk the table and release any references it may hold.
 \item Physically recover space.
 \end{enumerate}
