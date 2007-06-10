@@ -89,7 +89,7 @@
 \authorrunning{V. Santos Costa, K. Sagonas and R. Lopes}
 
 \institute{
-  University of Porto, Portugal
+  LIACC- DCC/FCUP, University of Porto, Portugal
   \and
   National Technical University of Athens, Greece
 }
@@ -183,13 +183,13 @@ predicates, their implementation in two Prolog systems
 % Indexing in Prolog systems:
 To the best of our knowledge, many Prolog systems still only support
 indexing on the main functor symbol of the first argument. Some
-others, like YAP version 4, can look inside some compound
+others, such as YAP version 4, can look inside some compound
 terms~\cite{YAP}. SICStus Prolog supports \emph{shallow
   backtracking}~\cite{ShallowBacktracking@ICLP-89}; choice points are
 fully populated only when it is certain that execution will enter the
 clause body. While shallow backtracking avoids some of the performance
 problems of unnecessary choice point creation, it does not offer the
-full benefits that indexing can provide. Other systems like
+full benefits that indexing can provide. Other systems such as
 BIM-Prolog~\cite{IndexingProlog@NACLP-89}, SWI-Prolog~\cite{SWI} and
 XSB~\cite{XSB} allow for user-controlled multi-argument indexing (via
 an \code{:-~index} directive). Notably, ilProlog~\cite{ilProlog} uses
@@ -229,17 +229,17 @@ Nevertheless, it is true that unless the modes of
 predicates are known we run the risk of doing indexing on output
 arguments, whose only effect is an unnecessary increase in compilation
 times and, more importantly, in code size. In a programming language
-like Mercury~\cite{Mercury@JLP-96} where modes are known the compiler
+such as Mercury~\cite{Mercury@JLP-96} where modes are known the compiler
 can of course avoid this risk; indeed in Mercury modes (and types) are
 used to guide the compiler generate good indexing tables. However, the
-situation is different for a language like Prolog. Getting accurate
+situation is different for a language such as Prolog. Getting accurate
 information about the set of all possible modes of predicates requires
 a global static analyzer in the compiler --- and most Prolog systems
 do not come with one. More importantly, it requires a lot of
 discipline from the programmer (e.g., that applications use the module
 system religiously and never bypass it). As a result, most Prolog
 systems currently do not provide the type of indexing that
-applications require. Even in systems like Ciao~\cite{Ciao@SCP-05},
+applications require. Even in systems such as Ciao~\cite{Ciao@SCP-05},
 which do come with built-in static analysis and more or less force
 such a discipline on the programmer, mode information is not used for
 multi-argument indexing.
@@ -843,7 +843,7 @@ The observant reader has no doubt noticed that
 Algorithm~\ref{alg:construction} provides multi-argument indexing but
 only for the main functor symbol of arguments. For clauses with
 compound terms that require indexing in their sub-terms we can either
-employ a program transformation like \emph{unification
+employ a program transformation such as \emph{unification
 factoring}~\cite{UnifFact@POPL-95} at compile time or modify the
 algorithm to consider index positions inside compound terms. This is
 relatively easy to do but requires support from the register allocator
@@ -1237,7 +1237,8 @@ from one to more than two orders of magnitude.
   \item[\Susi] learns from shopping patterns;
   \item[\Mesh] learns rules for finite-methods mesh design;
   \item[\Carcino, \Choline, \Pyrimidines] try to predict chemical
-    properties of compounds and store them as tables;
+    properties of compounds and store them as tables, given their
+    chemical composition and major proprerties;
   \item[\Thermolysin] also manipulates chemical compounds but learns
     from the 3D-structure of a molecule's conformations.
   \end{description}
