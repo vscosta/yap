@@ -1,13 +1,13 @@
 #!/bin/bash
 
-## =================================================================
-## Logtalk - Object oriented extension to Prolog
-## Release 2.29.5
+## ================================================================
+## Logtalk - Open source object-oriented logic programming language
+## Release 2.30.1
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
-## =================================================================
+## ================================================================
 
-css2xslfo=/Applications/XML/CSSToXSLFO/css2xslfo1_4.jar
+css2xslfo=/Applications/XML/CSSToXSLFO/css2xslfo1_4_2.jar
 
 xslt_proc=xsltproc
 # xslt_proc=xalan

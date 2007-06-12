@@ -19,14 +19,13 @@
 <div class="bottom-right"><span class="page"/></div>
 <div class="navtop"><a href="../../index.html">contents</a> &gt; <a href="../index.html">reference manual</a> &gt; <a href="../index.html#builtins">built-in predicates</a></div>
 
-<h2 class="codenp">threaded_race/1<span id="builtins_threaded_race1"/></h2>
-
+<h2 id="builtins_threaded_race1" class="codenp">threaded_race/1</h2>
 
 <h4>Description</h4>
 
 <pre>threaded_race((Goal; Goals))</pre>
 <p>
-Allows a disjunction of goals to be interpreted as a set of <em>competing</em> goals, each one running on its own thread. This call always succeeds. When one of the goals succeeds, the other ones are aborted (i.e. their threads are terminated). The result (of the first goal to succeed) is sent back to the thread of the object containing the call (<em>this</em>). The corresponding <code>threaded_exit/1</code> goal <strong>must</strong> match all the goals in the disjunction. This is useful when you have a set of different methods to solve a problem without knowing a priori which one will lead to the fastest result.
+Allows a disjunction of goals to be interpreted as a set of <em>competing</em> goals, each one running on its own thread. This call always succeeds. When one of the goals succeeds, the other ones are aborted (i.e. their threads are terminated). The result (of the first goal to succeed) is sent back to the message queue of the object containing the call (<em>this</em>). The corresponding <code>threaded_exit/1</code> goal <strong>must</strong> match all the goals in the disjunction. This is useful when you have a set of different methods to solve a problem without knowing a priori which one will lead to the fastest result.
 </p>
 
 <h4>Template and modes</h4>
@@ -56,7 +55,7 @@ Allows a disjunction of goals to be interpreted as a set of <em>competing</em> g
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: February 13, 2007</span>
+		<span>Last updated on: May 26, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="threaded_ignore1.html">previous</a> | <a href="../../glossary.html">glossary</a> | <a href="threaded_exit1.html">next</a></span><br/>

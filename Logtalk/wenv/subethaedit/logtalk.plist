@@ -136,6 +136,23 @@
 
 		<dict>
 			<key>Name</key>
+			<string>Category predicate direct call</string>
+			<key>Color</key>
+			<array>
+				<real>0.000</real>
+				<real>0.000</real>
+				<real>1.000</real>
+			</array>
+			<key>Multiline</key>
+			<false/>
+			<key>Regular Expressions</key>
+			<array>
+				<string>:</string>
+			</array>
+		</dict>
+
+		<dict>
+			<key>Name</key>
 			<string>External Call</string>
 			<key>Color</key>
 			<array>

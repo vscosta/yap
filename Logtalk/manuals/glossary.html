@@ -23,170 +23,170 @@
 
 <dl>
 
-<dt class="glossary"><strong>ancestor</strong><a id="ancestor"></a></dt>
+<dt id="ancestor" class="glossary"><strong>ancestor</strong></dt>
 <dd>A class or parent that contributes (via inheritance) to the definition of an object. For class-based hierarchies, the ancestors of an object are its class(es) and all the superclasses of its class(es). For prototype-based hierarchies, the ancestors of an object are its parent(s) and the ancestors of its parent(s).</dd>
 
-<dt class="glossary"><strong>category</strong><a id="category"></a></dt>
+<dt id="category" class="glossary"><strong>category</strong></dt>
 <dd>A set of predicates directives and clauses that can be imported by any object.</dd>
 
-<dt class="glossary"><strong>class</strong><a id="class"></a></dt>
+<dt id="class" class="glossary"><strong>class</strong></dt>
 <dd>An object that defines the common predicates of a set of objects (its instances).</dd>
 
 <dd><dl>
 
-<dt class="glossary"><strong>abstract class</strong><a id="abstractclass"></a></dt>
+<dt id="abstractclass" class="glossary"><strong>abstract class</strong></dt>
 <dd>A class that cannot be instantiated. Usually used to store common predicates that are inherited by other classes.</dd>
 
-<dt class="glossary"><strong>metaclass</strong><a id="metaclass"></a></dt>
+<dt id="metaclass" class="glossary"><strong>metaclass</strong></dt>
 <dd>The class of a class, when we see it as an object. Metaclass instances are themselves classes. In a reflexive system any metaclass is also an object.</dd>
 
-<dt class="glossary"><strong>subclass</strong><a id="subclass"></a></dt>
+<dt id="subclass" class="glossary"><strong>subclass</strong></dt>
 <dd>A class that is a specialization, direct or indirectly, of another class.</dd>
 
-<dt class="glossary"><strong>superclass</strong><a id="superclass"></a></dt>
+<dt id="superclass" class="glossary"><strong>superclass</strong></dt>
 <dd>A class from which another class is a specialization (directly or indirectly via another class).</dd>
 
 </dl></dd>
 
-<dt class="glossary"><strong>directive</strong><a id="directive"></a></dt>
-<dd>A Prolog term that affects the interpretation of Prolog code. Directives are represented using the <code>:-/1</code> prefix operator.</dd>
+<dt id="directive" class="glossary"><strong>directive</strong></dt>
+<dd>A Prolog/Logtalk term that affects the interpretation of Prolog/Logtalk code. Directives are represented using the <code>:-/1</code> prefix operator.</dd>
 
 <dd><dl>
 
-<dt class="glossary"><strong>entity directive</strong><a id="entity_directive"></a></dt>
+<dt id="entity_directive" class="glossary"><strong>entity directive</strong></dt>
 <dd>A directive that affects how Logtalk entities (objects, protocols, or categories) are used or compiled.</dd>
 
-<dt class="glossary"><strong>predicate directive</strong><a id="predicate_directive"></a></dt>
+<dt id="predicate_directive" class="glossary"><strong>predicate directive</strong></dt>
 <dd>A directive that affects how predicates are called or compiled.</dd>
 
-<dt class="glossary"><strong>source file directive</strong><a id="source_file_directive"></a></dt>
+<dt id="source_file_directive" class="glossary"><strong>source file directive</strong></dt>
 <dd>A directive that affects how a source file is compiled.</dd>
 
 </dl></dd>
 
-<dt class="glossary"><strong>encapsulation</strong><a id="encapsulation"></a></dt>
+<dt id="encapsulation" class="glossary"><strong>encapsulation</strong></dt>
 <dd>The hiding of an object implementation. This promotes software reuse by isolating users from implementation details.</dd>
 
-<dt class="glossary"><strong>entity</strong><a id="entity"></a></dt>
+<dt id="entity" class="glossary"><strong>entity</strong></dt>
 <dd>Generic name for Logtalk compilation units: objects, categories, and protocols.</dd>
 
-<dt class="glossary"><strong>event</strong><a id="event"></a></dt>
+<dt id="event" class="glossary"><strong>event</strong></dt>
 <dd>The sending of a message to an object. An event can be expressed as an ordered tuple: <code>(Event, Object, Message, Sender)</code>. Logtalk distinguish between the sending of a message - <code>before</code> event - and the return of control to the sender - <code>after</code> event.</dd>
 
-<dt class="glossary"><strong>grammar rule</strong><a id="grammar_rule"></a></dt>
+<dt id="grammar_rule" class="glossary"><strong>grammar rule</strong></dt>
 <dd>An alternative notation for predicates used to parse or generate sentences on some language. This notation hides the arguments used to pass the lists of tokens being processed, thus simplifying the representation of grammars. Grammar rules are represented using the infix operator <code>--&gt;/2</code> instead of the operator used on predicate clauses (<code>:-/2</code>).</dd>
 
 <dd><dl>
 
-<dt class="glossary"><strong>grammar rule non-terminal</strong><a id="non_terminal"></a></dt>
+<dt id="non_terminal" class="glossary"><strong>grammar rule non-terminal</strong></dt>
 <dd>A syntactic category of words of phrases. A non-terminal is identified by its name and number of arguments using the notation <code>&lt;name&gt;//&lt;nargs&gt;</code>.</dd>
 
-<dt class="glossary"><strong>grammar rule terminal</strong><a id="terminal"></a></dt>
+<dt id="terminal" class="glossary"><strong>grammar rule terminal</strong></dt>
 <dd>A word or a basic symbol of a language.</dd>
 
 </dl></dd>
 
-<dt class="glossary"><strong>identity</strong><a id="identity"></a></dt>
-<dd>Property of an entity that distinguish it from every other entity. In Logtalk an entity identity can be an atom or a compound term. All Logtalk entities (objects, protocols, and categories) share the same name space.</dd>
+<dt id="identity" class="glossary"><strong>identity</strong></dt>
+<dd>Property of an entity that distinguishes it from every other entity. In Logtalk, an object identity can be an atom or a compound term. Category and protocol identities must be atoms. All Logtalk entities (objects, protocols, and categories) share the same name space.</dd>
 
-<dt class="glossary"><strong>inheritance</strong><a id="inheritance"></a></dt>
+<dt id="inheritance" class="glossary"><strong>inheritance</strong></dt>
 <dd>An object inherits predicate directives and clauses from other objects that it extends or specializes. If an object extends other object then we have a prototype-based inheritance. If an object specializes or instantiates another object we have a class-based inheritance.</dd>
 
 <dd><dl>
 
-<dt class="glossary"><strong>private inheritance</strong><a id="private_inheritance"></a></dt>
+<dt id="private_inheritance" class="glossary"><strong>private inheritance</strong></dt>
 <dd>All public and protected predicates are inherited as private predicates.</dd>
 
-<dt class="glossary"><strong>protected inheritance</strong><a id="protected_inheritance"></a></dt>
+<dt id="protected_inheritance" class="glossary"><strong>protected inheritance</strong></dt>
 <dd>All public predicates are inherited as protected. No change for protected or private predicates.</dd>
 
-<dt class="glossary"><strong>public inheritance</strong><a id="public_inheritance"></a></dt>
+<dt id="public_inheritance" class="glossary"><strong>public inheritance</strong></dt>
 <dd>All inherited predicates maintain the declared scope.</dd>
 
 </dl></dd>
 
-<dt class="glossary"><strong>instance</strong><a id="instance"></a></dt>
+<dt id="instance" class="glossary"><strong>instance</strong></dt>
 <dd>The same as object. This term is used when we want to emphasize that an object characteristics are defined by another object (its class).</dd>
 
-<dt class="glossary"><strong>instantiation</strong><a id="instantiation"></a></dt>
-<dd>The process of creating a new class instance. In Logtalk does not necessarily implies dynamic creation of an object at runtime; an instance may also be defined as a static object in a source file.</dd>
+<dt id="instantiation" class="glossary"><strong>instantiation</strong></dt>
+<dd>The process of creating a new class instance. In Logtalk, this does not necessarily implies dynamic creation of an object at runtime; an instance may also be defined as a static object in a source file.</dd>
 
-<dt class="glossary"><strong>library</strong><a id="library"></a></dt>
+<dt id="library" class="glossary"><strong>library</strong></dt>
 <dd>A directory containing source files. The directory name is used as the library name.</dd>
 
-<dt class="glossary"><strong>message</strong><a id="message"></a></dt>
+<dt id="message" class="glossary"><strong>message</strong></dt>
 <dd>A request for a service, sent to an object. In more logical terms, a message can be seen as a request for proof construction using an object's predicates.</dd>
 
-<dt class="glossary"><strong>metainterpreter</strong><a id="metainterpreter"></a></dt>
+<dt id="metainterpreter" class="glossary"><strong>metainterpreter</strong></dt>
 <dd>A program capable of running other programs written in the same language.</dd>
 
-<dt class="glossary"><strong>method</strong><a id="method"></a></dt>
+<dt id="method" class="glossary"><strong>method</strong></dt>
 <dd>Set of predicate clauses used to answer a message sent to an object. Logtalk uses dynamic binding to find which method to run to answer a message.</dd>
 
-<dt class="glossary"><strong>monitor</strong><a id="monitor"></a></dt>
+<dt id="monitor" class="glossary"><strong>monitor</strong></dt>
 <dd>Any object that is notified when a spied event occurs. The spied events can be set by the monitor itself or by any other object.</dd>
 
-<dt class="glossary"><strong>object</strong><a id="object"></a></dt>
-<dd>An entity characterized by an identity and a set of predicate directives and clauses. In Logtalk objects can be either static or dynamic, like any other Prolog code.</dd>
+<dt id="object" class="glossary"><strong>object</strong></dt>
+<dd>An entity characterized by an identity and a set of predicate directives and clauses. Logtalk objects can be either static or dynamic. Logtalk objects can play the role of classes, instances, or prototypes.</dd>
 
 <dd><dl>
 
-<dt class="glossary"><strong>parametric object</strong><a id="parametric"></a></dt>
+<dt id="parametric" class="glossary"><strong>parametric object</strong></dt>
 <dd>An object whose name is a compound term containing free variables that can be used to parameterize the object predicates.</dd>
 
-<dt class="glossary"><strong>parametric object proxy</strong><a id="parametric_proxy"></a></dt>
-<dd>A compond term with the same functor and usually the same number of arguments as the identifier of a parametric object.</dd>
+<dt id="parametric_proxy" class="glossary"><strong>parametric object proxy</strong></dt>
+<dd>A compound term with the same functor and usually with the same number of arguments as the identifier of a parametric object.</dd>
 
 </dl></dd>
 
 
-<dt class="glossary"><strong>parent</strong><a id="parent"></a></dt>
-<dd>An object that is extended by another object.</dd>
+<dt id="parent" class="glossary"><strong>parent</strong></dt>
+<dd>A prototype that is extended by another prototype.</dd>
 
-<dt class="glossary"><strong>predicate</strong><a id="predicate"></a></dt>
+<dt id="predicate" class="glossary"><strong>predicate</strong></dt>
 <dd>Predicates describe what is true about the application domain. A predicate is identified by its name and number of arguments using the notation <code>&lt;name&gt;/&lt;nargs&gt;</code>.</dd>
 
 <dd><dl>
 
-<dt class="glossary"><strong>local predicate</strong><a id="local_predicate"></a></dt>
-<dd>A predicate that is defined in an object (or in a category) but that is not listed in a scope directive. These predicates behave like private predicates but are invisible to the reflection methods.</dd>
+<dt id="local_predicate" class="glossary"><strong>local predicate</strong></dt>
+<dd>A predicate that is defined in an object (or in a category) but that is not listed in a scope directive. These predicates behave like private predicates but are invisible to the reflection built-in methods. Local predicates are usually auxiliary predicates, only relevant to the entity where they are defined.</dd>
 
-<dt class="glossary"><strong>meta-predicate</strong><a id="meta-predicate"></a></dt>
+<dt id="meta-predicate" class="glossary"><strong>meta-predicate</strong></dt>
 <dd>A predicate where one of its arguments will be called as a goal. For instance, <code>findall/3</code> and <code>call/1</code> are Prolog built-ins meta-predicates.</dd>
 
-<dt class="glossary"><strong>private predicate</strong><a id="private_predicate"></a></dt>
+<dt id="private_predicate" class="glossary"><strong>private predicate</strong></dt>
 <dd>A predicate that can only be called from the object that contains the scope directive.</dd>
 
-<dt class="glossary"><strong>protected predicate</strong><a id="protected_predicate"></a></dt>
+<dt id="protected_predicate" class="glossary"><strong>protected predicate</strong></dt>
 <dd>A predicate that can only be called from the object containing the scope directive or from an object that inherits the predicate.</dd>
 
-<dt class="glossary"><strong>public predicate</strong><a id="public_predicate"></a></dt>
+<dt id="public_predicate" class="glossary"><strong>public predicate</strong></dt>
 <dd>A predicate that can be called from any object.</dd>
 
-<dt class="glossary"><strong>visible predicate</strong><a id="visible_predicate"></a></dt>
-<dd>A predicate that is declared for an object, a built-in method, or a Prolog or Logtalk built-in predicate.</dd>
+<dt id="visible_predicate" class="glossary"><strong>visible predicate</strong></dt>
+<dd>A predicate that is declared for an object, a built-in method, or a Prolog/Logtalk built-in predicate.</dd>
 
 </dl></dd>
 
-<dt class="glossary"><strong>profiler</strong><a id="profiler"></a></dt>
+<dt id="profiler" class="glossary"><strong>profiler</strong></dt>
 <dd>A program that collects data about other program performance.</dd>
 
-<dt class="glossary"><strong>protocol</strong><a id="protocol"></a></dt>
+<dt id="protocol" class="glossary"><strong>protocol</strong></dt>
 <dd>A set of predicates directives that can be implemented by an object or a category (or extended by another protocol).</dd>
 
-<dt class="glossary"><strong>prototype</strong><a id="prototype"></a></dt>
+<dt id="prototype" class="glossary"><strong>prototype</strong></dt>
 <dd>A self-describing object that may extend or be extended by other objects.</dd>
 
-<dt class="glossary"><strong>self</strong><a id="self"></a></dt>
+<dt id="self" class="glossary"><strong>self</strong></dt>
 <dd>The original object that received the message under processing.</dd>
 
-<dt class="glossary"><strong>sender</strong><a id="sender"></a></dt>
+<dt id="sender" class="glossary"><strong>sender</strong></dt>
 <dd>An object that sends a message to other object.</dd>
 
-<dt class="glossary"><strong>specialization</strong><a id="specialization"></a></dt>
+<dt id="specialization" class="glossary"><strong>specialization</strong></dt>
 <dd>A class is specialized by constructing a new class that inherit its predicates and possibly add new ones.</dd>
 
-<dt class="glossary"><strong>this</strong><a id="this"></a></dt>
+<dt id="this" class="glossary"><strong>this</strong></dt>
 <dd>The object that contains the predicate clause under execution.</dd>
 
 </dl>
@@ -194,7 +194,7 @@
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: October 26, 2006</span>
+		<span>Last updated on: April 14, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span>&nbsp;</span><br/>

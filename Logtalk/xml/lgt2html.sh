@@ -1,11 +1,61 @@
 #!/bin/bash
 
-## =================================================================
-## Logtalk - Object oriented extension to Prolog
-## Release 2.29.5
+## ================================================================
+## Logtalk - Open source object-oriented logic programming language
+## Release 2.30.1
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
-## =================================================================
+## ================================================================
+
+if ! [ "$LOGTALKHOME" ]; then
+	echo "The environment variable LOGTALKHOME should be defined first, pointing"
+	echo "to your Logtalk installation directory!"
+	echo "Trying the default locations for the Logtalk installation..."
+	if [ -d "/usr/local/share/logtalk" ]; then
+		LOGTALKHOME=/usr/local/share/logtalk
+		echo "... using Logtalk installation found at /usr/local/share/logtalk"
+	elif [ -d "/usr/share/logtalk" ]; then
+		LOGTALKHOME=/usr/share/logtalk
+		echo "... using Logtalk installation found at /usr/share/logtalk"
+	elif [ -d "/opt/local/share/logtalk" ]; then
+		LOGTALKHOME=/opt/local/share/logtalk
+		echo "... using Logtalk installation found at /opt/local/share/logtalk"
+	elif [ -d "/opt/share/logtalk" ]; then
+		LOGTALKHOME=/opt/share/logtalk
+		echo "... using Logtalk installation found at /opt/share/logtalk"
+	else
+		echo "... unable to locate Logtalk installation directory!"
+		echo
+		exit 1
+	fi
+	echo
+elif ! [ -d "$LOGTALKHOME" ]; then
+	echo "The environment variable LOGTALKHOME points to a non-existing directory!"
+	echo "Its current value is: $LOGTALKHOME"
+	echo "The variable must be set to your Logtalk installation directory!"
+	echo
+	exit 1
+fi
+export LOGTALKHOME
+
+if ! [ "$LOGTALKUSER" ]; then
+	echo "The environment variable LOGTALKUSER should be defined first, pointing"
+	echo "to your Logtalk user directory!"
+	echo "Trying the default location for the Logtalk user directory..."
+	export LOGTALKUSER=$HOME/logtalk
+	if [ -d "$LOGTALKUSER" ]; then		
+		echo "... using Logtalk user directory found at $LOGTALKUSER"
+	else
+		echo "... Logtalk user directory not found at default location. Creating a"
+		echo "new Logtalk user directory by running the \"cplgtdirs\" shell script:"
+		cplgtdirs
+	fi
+elif ! [ -d "$LOGTALKUSER" ]; then
+	echo "Cannot find \$LOGTALKUSER directory! Creating a new Logtalk user directory"
+	echo "by running the \"cplgtdirs\" shell script:"
+	cplgtdirs
+fi
+echo
 
 html_xslt="$LOGTALKUSER/xml/lgthtml.xsl"
 xhtml_xslt="$LOGTALKUSER/xml/lgtxhtml.xsl"
@@ -90,122 +140,110 @@ create_index_file()
 	echo "</html>" >> "$index_file"
 }
 
-if ! [ "$LOGTALKHOME" ]
-then
-	echo "Error! The environment variable LOGTALKHOME must be defined first!"
-	exit 1
-elif ! [ "$LOGTALKUSER" ]
-then
-	echo "Error! The environment variable LOGTALKUSER must be defined first!"
-	exit 1
-else
+while getopts "f:d:i:t:p:h" Option
+do
+	case $Option in
+		f) f_arg="$OPTARG";;
+		d) d_arg="$OPTARG";;
+		i) i_arg="$OPTARG";;
+		t) t_arg="$OPTARG";;
+		p) p_arg="$OPTARG";;
+		h) usage_help;;
+		*) usage_help;;
+	esac
+done
 
-	while getopts "f:d:i:t:p:h" Option
-	do
-		case $Option in
-			f) f_arg="$OPTARG";;
-			d) d_arg="$OPTARG";;
-			i) i_arg="$OPTARG";;
-			t) t_arg="$OPTARG";;
-			p) p_arg="$OPTARG";;
-			h) usage_help;;
-			*) usage_help;;
+if [[ "$f_arg" != "" && "$f_arg" != "xhtml" && "$f_arg" != "html" ]]
+then
+	echo "Error! Unsupported output format: $f_arg"
+	usage_help
+	exit 1
+elif [ "$f_arg" != "" ]
+then
+	format=$f_arg
+fi
+
+if [[ "$d_arg" != "" && ! -d "$d_arg" ]]
+then
+	echo "Error! directory does not exists: $d_arg"
+	usage_help
+	exit 1
+elif [ "$d_arg" != "" ]
+then
+	directory=$d_arg
+fi
+
+if [[ "$i_arg" != "" ]]
+then
+	index_file=$i_arg
+fi
+
+if [[ "$t_arg" != "" ]]
+then
+	index_title=$t_arg
+fi
+
+if [[ "$p_arg" != "" && "$p_arg" != "xsltproc" && "$p_arg" != "xalan" && "$p_arg" != "sabcmd" ]]
+then
+	echo "Error! Unsupported XSLT processor: $p_arg"
+	usage_help
+	exit 1
+elif [ "$p_arg" != "" ]
+then
+	processor=$p_arg
+fi
+
+if [ "$format" = "xhtml" ]
+then
+	xslt=$xhtml_xslt
+else
+	xslt=$html_xslt
+fi
+
+if ! [[ -a "./logtalk.dtd" ]]
+then
+	cp "$LOGTALKHOME"/xml/logtalk.dtd .
+fi
+
+if ! [[ -a "./custom.ent" ]]
+then
+	cp "$LOGTALKUSER"/xml/custom.ent .
+fi
+
+if ! [[ -a "./logtalk.xsd" ]]
+then
+	cp "$LOGTALKHOME"/xml/logtalk.xsd .
+fi
+
+if ! [[ -a "$directory/logtalk.css" ]]
+then
+	cp "$LOGTALKUSER"/xml/logtalk.css "$directory"
+fi
+
+if [[ `(ls *.xml | wc -l) 2> /dev/null` -gt 0 ]]
+then
+	echo
+	echo "converting XML files..."
+	for file in *.xml; do
+		echo "  converting $file"
+		name="`expr "$file" : '\(.*\)\.[^./]*$' \| "$file"`"
+		case "$processor" in
+			xsltproc)	eval xsltproc -o \"$directory\"/\"$name.html\" \"$xslt\" \"$file\";;
+			xalan)		eval xalan -o \"$directory\"/\"$name.html\" \"$file\" \"$xslt\";;
+			sabcmd)		eval sabcmd \"$xslt\" \"$file\" \"$directory\"/\"$name.html\";;
 		esac
 	done
-
-	if [[ "$f_arg" != "" && "$f_arg" != "xhtml" && "$f_arg" != "html" ]]
-	then
-		echo "Error! Unsupported output format: $f_arg"
-		usage_help
-		exit 1
-	elif [ "$f_arg" != "" ]
-	then
-		format=$f_arg
-	fi
-
-	if [[ "$d_arg" != "" && ! -d "$d_arg" ]]
-	then
-		echo "Error! directory does not exists: $d_arg"
-		usage_help
-		exit 1
-	elif [ "$d_arg" != "" ]
-	then
-		directory=$d_arg
-	fi
-
-	if [[ "$i_arg" != "" ]]
-	then
-		index_file=$i_arg
-	fi
-
-	if [[ "$t_arg" != "" ]]
-	then
-		index_title=$t_arg
-	fi
-
-	if [[ "$p_arg" != "" && "$p_arg" != "xsltproc" && "$p_arg" != "xalan" && "$p_arg" != "sabcmd" ]]
-	then
-		echo "Error! Unsupported XSLT processor: $p_arg"
-		usage_help
-		exit 1
-	elif [ "$p_arg" != "" ]
-	then
-		processor=$p_arg
-	fi
-
-	if [ "$format" = "xhtml" ]
-	then
-		xslt=$xhtml_xslt
-	else
-		xslt=$html_xslt
-	fi
-
-	if ! [[ -a "./logtalk.dtd" ]]
-	then
-		cp "$LOGTALKHOME"/xml/logtalk.dtd .
-	fi
-
-	if ! [[ -a "./custom.ent" ]]
-	then
-		cp "$LOGTALKUSER"/xml/custom.ent .
-	fi
-
-	if ! [[ -a "./logtalk.xsd" ]]
-	then
-		cp "$LOGTALKHOME"/xml/logtalk.xsd .
-	fi
-
-	if ! [[ -a "$directory/logtalk.css" ]]
-	then
-		cp "$LOGTALKUSER"/xml/logtalk.css "$directory"
-	fi
-
-	if [[ `(ls *.xml | wc -l) 2> /dev/null` -gt 0 ]]
-	then
-		echo
-		echo "converting XML files..."
-		for file in *.xml; do
-			echo "  converting $file"
-			name="`expr "$file" : '\(.*\)\.[^./]*$' \| "$file"`"
-			case "$processor" in
-				xsltproc)	eval xsltproc -o \"$directory\"/\"$name.html\" \"$xslt\" \"$file\";;
-				xalan)		eval xalan -o \"$directory\"/\"$name.html\" \"$file\" \"$xslt\";;
-				sabcmd)		eval sabcmd \"$xslt\" \"$file\" \"$directory\"/\"$name.html\";;
-			esac
-		done
-		echo "conversion done"
-		echo
-		echo "generating index file..."
-		index_file="$directory/$index_file"
-		create_index_file
-		echo "index file generated"
-		echo
-	else
-		echo
-		echo "No XML files exist in the current directory!"
-		echo
-	fi
-
-	exit 0
-
+	echo "conversion done"
+	echo
+	echo "generating index file..."
+	index_file="$directory/$index_file"
+	create_index_file
+	echo "index file generated"
+	echo
+else
+	echo
+	echo "No XML files exist in the current directory!"
+	echo
 fi
+
+exit 0

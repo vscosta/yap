@@ -19,49 +19,49 @@
 <div class="bottom-right"><span class="page"/></div>
 <div class="navtop"><a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a></div>
 
-<h1>Inheritance<span id="inheritance_inheritance"/></h1>
+<h1 id="inheritance_inheritance">Inheritance</h1>
 
 <p>
 The inheritance mechanisms found on object-oriented programming languages allow us the specialization of previously defined objects, avoiding the unnecessary repetition of code. In the context of logic programming, we can interpret inheritance as a form of theory extension: an object will virtually contain, besides its own predicates, all the predicates inherited from other objects that are not redefined by itself.
 </p>
 
-<h2>Protocol inheritance<a id="inheritance_protocol"></a></h2>
+<h2 id="inheritance_protocol">Protocol inheritance</h2>
 
 <p>
 Protocol inheritance refers to the inheritance of predicate declarations (scope directives). These can be contained in objects, in protocols, or in categories. Logtalk supports single and multi-inheritance of protocols: an object or a category may implement several protocols and a protocol may extend several protocols. 
 </p>
 
-<h3>Search order for prototype hierarchies<a id="inheritance_protocol_prototype"></a></h3>
+<h3 id="inheritance_protocol_prototype">Search order for prototype hierarchies</h3>
 
 <p>
 The search order for predicate declarations is first the object, second the implemented protocols (and the protocols that these may extend), third the imported categories (and the protocols that they may implement), and last the objects that the object extends. This search is performed in a depth-first way. When an object inherits two different declarations for the same predicate, by default only the first one will be considered.
 </p>
 
-<h3>Search order for class hierarchies<a id="inheritance_protocol_class"></a></h3>
+<h3 id="inheritance_protocol_class">Search order for class hierarchies</h3>
 
 <p>
 The search order for predicate declarations starts in the object classes. Following the classes declaration order, the search starts in the classes implemented protocols (and the protocols that these may extend), third the classes imported categories (and the protocols that they may implement), and last the superclasses of the object classes. This search is performed in a depth-first way. If the object inherits two different declarations for the same predicate, by default only the first one will be considered.
 </p>
 
-<h2>Implementation inheritance<a id="inheritance_implementation"></a></h2>
+<h2 id="inheritance_implementation">Implementation inheritance</h2>
 
 <p>
 Implementation inheritance refers to the inheritance of predicate definitions. These can be contained in objects or in categories. Logtalk supports multi-inheritance of implementation: an object may import several categories or extend, specialize, or instantiate several objects. 
 </p>
 
-<h3>Search order for prototype hierarchies<a id="inheritance_implementation_prototype"></a></h3>
+<h3 id="inheritance_implementation_prototype">Search order for prototype hierarchies</h3>
 
 <p>
 The search order for predicate definitions is similar to the search for predicate declarations except that implemented protocols are ignored (they can only contain predicate directives).
 </p>
 
-<h3>Search order for class hierarchies<a id="inheritance_implementation_class"></a></h3>
+<h3 id="inheritance_implementation_class">Search order for class hierarchies</h3>
 
 <p>
 The search order for predicate definitions is similar to the search for predicate declarations except that implemented protocols are ignored (they can only contain predicate directives).
 </p>
 
-<h3>Inheritance versus predicate redefinition<a id="inheritance_implementation_redefinition"></a></h3>
+<h3 id="inheritance_implementation_redefinition">Inheritance versus predicate redefinition</h3>
 
 <p>
 When we define a predicate that is already inherited from other object, the inherited definitions are hidden by the new definitions. This is called overriding inheritance: a local definition overrides any inherited ones. For example, assume that we have the following two objects:
@@ -103,7 +103,7 @@ yes</pre>
 However, we can explicitly program other behaviors. Let us see a few examples.
 </p>
 
-<h4>Specialization inheritance<a id="inheritance_specialization"></a></h4>
+<h4 id="inheritance_specialization">Specialization inheritance</h4>
 
 <p>
 Specialization of inherited definitions: the new definition uses the inherited definitions, adding to this new code. This is accomplished by calling the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> operator in the new definition.
@@ -135,7 +135,7 @@ root init
 
 yes</pre>
 
-<h4>Union inheritance<a id="inheritance_union"></a></h4>
+<h4 id="inheritance_union">Union inheritance</h4>
 
 <p>
 Union of the new with the inherited definitions: all the definitions are taken into account, the calling order being defined by the inheritance mechanisms. This can be accomplished by writing a clause that just calls, using the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> operator, the inherited definitions. The relative position of this clause among the other definition clauses sets the calling order for the local and inherited definitions.
@@ -168,7 +168,7 @@ Foo = 2 ;
 
 no</pre>
 
-<h4>Selective inheritance<a id="inheritance_selective"></a></h4>
+<h4 id="inheritance_selective">Selective inheritance</h4>
 
 <p>
 Hiding some of the inherited definitions, or differential inheritance: this form of inheritance is normally used in the representation of exceptions to generic definitions. Here we will need to use the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> operator to test and possibly reject some of the inherited definitions.
@@ -201,7 +201,7 @@ Mode = walks ;
 
 no</pre>
 
-<h2>Public, protected, and private inheritance<a id="inheritance_types"></a></h2>
+<h2 id="inheritance_types">Public, protected, and private inheritance</h2>
 
 <p>
 To make all public predicates declared via implemented protocols, importeds categories, or inherited objects protected or to make all public and protected predicates private we prefix the entity's name with the corresponding keyword. For instance:
@@ -235,7 +235,7 @@ This is the same as:
 This way we ensure backward compatibility with older Logtalk versions and a simplified syntax when protected or private inheritance are not used.
 </p>
 
-<h2>Composition versus multiple inheritance<a id="inheritance_composition"></a></h2>
+<h2 id="inheritance_composition">Composition versus multiple inheritance</h2>
 
 <p>
 It is not possible to discuss inheritance mechanisms without referring to the long and probably endless debate on single versus multiple inheritance. The single inheritance mechanism can be implemented in an very efficient way, but it imposes several limitations on reusing, even if the multiple characteristics we intend to inherit are orthogonal. On the other hand, the multiple inheritance mechanisms are attractive in their apparent capability of modeling complex situations. However, they include a potential for conflict between inherited definitions whose variety does not allow a single and satisfactory solution for all the cases.

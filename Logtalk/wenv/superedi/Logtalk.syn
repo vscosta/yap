@@ -56,6 +56,11 @@ Method = ^\s*:-\spublic[(]{[a-z][a-zA-Z0-9_]+}
 ::
 
 
+; Logtalk category predicate direct call operator
+
+:
+
+
 ; Logtalk external call
 {
 }

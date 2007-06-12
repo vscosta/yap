@@ -1,11 +1,61 @@
 #!/bin/bash
 
-## =================================================================
-## Logtalk - Object oriented extension to Prolog
-## Release 2.29.5
+## ================================================================
+## Logtalk - Open source object-oriented logic programming language
+## Release 2.30.1
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
-## =================================================================
+## ================================================================
+
+if ! [ "$LOGTALKHOME" ]; then
+	echo "The environment variable LOGTALKHOME should be defined first, pointing"
+	echo "to your Logtalk installation directory!"
+	echo "Trying the default locations for the Logtalk installation..."
+	if [ -d "/usr/local/share/logtalk" ]; then
+		LOGTALKHOME=/usr/local/share/logtalk
+		echo "... using Logtalk installation found at /usr/local/share/logtalk"
+	elif [ -d "/usr/share/logtalk" ]; then
+		LOGTALKHOME=/usr/share/logtalk
+		echo "... using Logtalk installation found at /usr/share/logtalk"
+	elif [ -d "/opt/local/share/logtalk" ]; then
+		LOGTALKHOME=/opt/local/share/logtalk
+		echo "... using Logtalk installation found at /opt/local/share/logtalk"
+	elif [ -d "/opt/share/logtalk" ]; then
+		LOGTALKHOME=/opt/share/logtalk
+		echo "... using Logtalk installation found at /opt/share/logtalk"
+	else
+		echo "... unable to locate Logtalk installation directory!"
+		echo
+		exit 1
+	fi
+	echo
+elif ! [ -d "$LOGTALKHOME" ]; then
+	echo "The environment variable LOGTALKHOME points to a non-existing directory!"
+	echo "Its current value is: $LOGTALKHOME"
+	echo "The variable must be set to your Logtalk installation directory!"
+	echo
+	exit 1
+fi
+export LOGTALKHOME
+
+if ! [ "$LOGTALKUSER" ]; then
+	echo "The environment variable LOGTALKUSER should be defined first, pointing"
+	echo "to your Logtalk user directory!"
+	echo "Trying the default location for the Logtalk user directory..."
+	export LOGTALKUSER=$HOME/logtalk
+	if [ -d "$LOGTALKUSER" ]; then		
+		echo "... using Logtalk user directory found at $LOGTALKUSER"
+	else
+		echo "... Logtalk user directory not found at default location. Creating a"
+		echo "new Logtalk user directory by running the \"cplgtdirs\" shell script:"
+		cplgtdirs
+	fi
+elif ! [ -d "$LOGTALKUSER" ]; then
+	echo "Cannot find \$LOGTALKUSER directory! Creating a new Logtalk user directory"
+	echo "by running the \"cplgtdirs\" shell script:"
+	cplgtdirs
+fi
+echo
 
 format=xhtml
 index_file=index.html
@@ -78,86 +128,73 @@ create_index_file()
 	echo "</html>" >> "$index_file"
 }
 
+while getopts "f:i:t:h" Option
+do
+	case $Option in
+		f) f_arg="$OPTARG";;
+		i) i_arg="$OPTARG";;
+		t) t_arg="$OPTARG";;
+		h) usage_help;;
+		*) usage_help;;
+	esac
+done
 
-if ! [ "$LOGTALKHOME" ]
+if [[ "$f_arg" != "" && "$f_arg" != "xhtml" && "$f_arg" != "html" ]]
 then
-	echo "Error! The environment variable LOGTALKHOME must be defined first!"
+	echo "Error! Unsupported output format: $f_arg"
+	usage_help
 	exit 1
-elif ! [ "$LOGTALKUSER" ]
+elif [ "$f_arg" != "" ]
 then
-	echo "Error! The environment variable LOGTALKUSER must be defined first!"
-	exit 1
-else
-
-	while getopts "f:i:t:h" Option
-	do
-		case $Option in
-			f) f_arg="$OPTARG";;
-			i) i_arg="$OPTARG";;
-			t) t_arg="$OPTARG";;
-			h) usage_help;;
-			*) usage_help;;
-		esac
-	done
-
-	if [[ "$f_arg" != "" && "$f_arg" != "xhtml" && "$f_arg" != "html" ]]
-	then
-		echo "Error! Unsupported output format: $f_arg"
-		usage_help
-		exit 1
-	elif [ "$f_arg" != "" ]
-	then
-		format=$f_arg
-	fi
-
-	if [[ "$i_arg" != "" ]]
-	then
-		index_file=$i_arg
-	fi
-
-	if [[ "$t_arg" != "" ]]
-	then
-		index_title=$t_arg
-	fi
-
-	if ! [[ -a "./logtalk.dtd" ]]
-	then
-		cp "$LOGTALKHOME"/xml/logtalk.dtd .
-	fi
-
-	if ! [[ -a "./custom.ent" ]]
-	then
-		cp "$LOGTALKUSER"/xml/custom.ent .
-	fi
-	
-	if ! [[ -a "./logtalk.xsd" ]]
-	then
-		cp "$LOGTALKHOME"/xml/logtalk.xsd .
-	fi
-
-	if ! [[ -a "./logtalk.css" ]]
-	then
-		cp "$LOGTALKUSER"/xml/logtalk.css .
-	fi
-
-	if ! [[ -a "./lgtxml.xsl" ]]
-	then
-		cp "$LOGTALKUSER"/xml/lgtxml.xsl .
-	fi
-
-	if [[ `(ls *.xml | wc -l) 2> /dev/null` -gt 0 ]]
-	then
-		echo
-		echo "generating index file..."
-		create_index_file
-		echo "index file generated"
-		echo
-	else
-		echo
-		echo "No XML files exist in the current directory!"
-		echo
-	fi
-
-	exit 0
-
+	format=$f_arg
 fi
+
+if [[ "$i_arg" != "" ]]
+then
+	index_file=$i_arg
+fi
+
+if [[ "$t_arg" != "" ]]
+then
+	index_title=$t_arg
+fi
+
+if ! [[ -a "./logtalk.dtd" ]]
+then
+	cp "$LOGTALKHOME"/xml/logtalk.dtd .
+fi
+
+if ! [[ -a "./custom.ent" ]]
+then
+	cp "$LOGTALKUSER"/xml/custom.ent .
+fi
+
+if ! [[ -a "./logtalk.xsd" ]]
+then
+	cp "$LOGTALKHOME"/xml/logtalk.xsd .
+fi
+
+if ! [[ -a "./logtalk.css" ]]
+then
+	cp "$LOGTALKUSER"/xml/logtalk.css .
+fi
+
+if ! [[ -a "./lgtxml.xsl" ]]
+then
+	cp "$LOGTALKUSER"/xml/lgtxml.xsl .
+fi
+
+if [[ `(ls *.xml | wc -l) 2> /dev/null` -gt 0 ]]
+then
+	echo
+	echo "generating index file..."
+	create_index_file
+	echo "index file generated"
+	echo
+else
+	echo
+	echo "No XML files exist in the current directory!"
+	echo
+fi
+
+exit 0

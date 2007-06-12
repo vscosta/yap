@@ -19,14 +19,13 @@
 <div class="bottom-right"><span class="page"/></div>
 <div class="navtop"><a href="../../index.html">contents</a> &gt; <a href="../index.html">reference manual</a> &gt; <a href="../index.html#constructs">control constructs</a></div>
 
-<h2 class="codenp">{}/1<span id="control_external1"/></h2>
-
+<h2 id="control_external1" class="codenp">{}/1</h2>
 
 <h4>Description</h4>
 
 <pre>{Goal}</pre>
 <p>
-	Calls external Prolog code. Can be used to bypass the Logtalk preprocessor/compiler.
+Calls external Prolog code. Can be used to bypass the Logtalk compiler. The argument is called within the context of the pseudo-object <em>user</em>.
 </p>
 
 <h4>Template and modes</h4>
@@ -35,11 +34,12 @@
 
 <h4>Errors</h4>
 
-<blockquote>
-<p>
-	(none)
-</p>
-</blockquote>
+<dl>
+	<dt>Goal is a variable:</dt>
+		<dd><code>instantiation_error</code></dd>
+	<dt>Goal is neither a variable nor a callable term:</dt>
+		<dd><code>type_error(callable, Goal)</code></dd>
+</dl>
 
 <h4>Examples</h4>
 
@@ -49,7 +49,7 @@
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: October 26, 2006</span>
+		<span>Last updated on: June 5, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="../index.html#constructs">previous</a> | <a href="../../glossary.html">glossary</a> | <a href="../index.html#constructs">next</a></span><br/>

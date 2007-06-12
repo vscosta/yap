@@ -52,6 +52,10 @@
 				<regex>(\^\^)</regex>
 			</keywords>
 
+			<keywords id="Category predicate direct call" color="#0000ff" useforautocomplete="no">
+				<regex>(:)</regex>			
+			</keywords>
+
 			<keywords id="External Call" color="#0000ff" useforautocomplete="no">
 				<regex>(\{)</regex>			
 				<regex>(\})</regex>

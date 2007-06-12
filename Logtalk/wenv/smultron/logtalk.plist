@@ -176,6 +176,7 @@
 	<array>
 		<string>::</string>
         <string>^^</string>
+		<string>&lt;&lt;</string>
 	</array>
 	<key>keywordsCaseSensitive</key>
 	<true/>

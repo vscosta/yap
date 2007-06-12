@@ -3,86 +3,67 @@
 	implements(characterp),
 	extends(atom)).
 
-
 	:- info([
 		version is 1.0,
 		author is 'Paulo Moura',
 		date is 2000/7/24,
 		comment is 'Character predicates.']).
 
-
 	is_alpha('_').
-
 	is_alpha(Char) :-
 		is_letter(Char).
 
-
 	is_letter(Char) :-
 		is_lower_case(Char).
-
 	is_letter(Char) :-
 		is_upper_case(Char).
 
-
 	is_alphanumeric(Char) :-
 		is_alpha(Char).
-
 	is_alphanumeric(Char) :-
 		is_dec_digit(Char).
 
-
 	is_bin_digit(0).
 	is_bin_digit(1).
-
 
 	is_octal_digit(Digit) :-
 		Digit @>= 0,
 		Digit @=< 7.
 
-
 	is_dec_digit(Digit) :-
 		Digit @>= 0,
 		Digit @=< 9.
 
-
 	is_hex_digit(Digit) :-
 		Digit @>= 0,
 		Digit @=< 9.
-
 	is_hex_digit(Digit) :-
 		Digit @>= 'A',
 		Digit @=< 'F'.
-
 	is_hex_digit(Digit) :-
 		Digit @>= a,
 		Digit @=< f.
-
 
 	is_lower_case(Char) :-
 		Char @>= a,
 		Char @=< z.
 
-
 	is_upper_case(Char) :-
 		Char @>= 'A',
 		Char @=< 'Z'.
-
 
 	is_vowel(a).
 	is_vowel(e).
 	is_vowel(i).
 	is_vowel(o).
 	is_vowel(u).
-
 	is_vowel('A').
 	is_vowel('E').
 	is_vowel('I').
 	is_vowel('O').
 	is_vowel('U').
 
-
 	is_layout(' ').
-
 
 	lower_upper(a, 'A').
 	lower_upper(b, 'B').
@@ -110,15 +91,12 @@
 	lower_upper(x, 'X').
 	lower_upper(y, 'Y').
 	lower_upper(z, 'Z').
-
 	lower_upper(Char, Char) :-
 		\+ (Char @>= a, Char @=< z),
 		\+ (Char @>= 'A', Char @=< 'Z').
 
-
 	valid(Character) :-
 		atom(Character),
 		atom_length(Character, 1).
-
 
 :- end_object.

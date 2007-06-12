@@ -4,8 +4,8 @@
 
 ;; Author: Paulo Moura
 ;; Creation date: November 15, 2003
-;; Last modification date: March 24, 2007
-;; Version: 0.96
+;; Last modification date: June 10, 2007
+;; Version: 0.97
 
 ;; Installation:
 ;;
@@ -27,7 +27,7 @@
 
 ;; setup 
 
-(defvar logtalk-mode-version "0.96"
+(defvar logtalk-mode-version "0.97"
 	"Logtalk mode version number")
 
 (defvar logtalk-mode-hook nil)
@@ -228,6 +228,10 @@
 		;; message sending operators:
 		;;
 		("::\\|\\^\\^\\|[{}]" . 'logtalk-message-operator-face)
+		;;
+		;; category predicate direct call:
+		;;
+		(":" . 'logtalk-message-operator-face)
 		;;
 		;; mode operators:
 		;;

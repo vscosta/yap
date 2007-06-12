@@ -1,24 +1,21 @@
 #!/bin/sh
 
-## =================================================================
-## Logtalk - Object oriented extension to Prolog
-## Release 2.29.5
+## ================================================================
+## Logtalk - Open source object-oriented logic programming language
+## Release 2.30.1
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
-## =================================================================
+## ================================================================
 
 dir="$PWD"
 cd ..
 
-LOGTALKHOME=/usr/local/logtalk ./lgt_uninstall.sh
-./lgt_install.sh
+LOGTALKHOME=/usr/local/share/logtalk ./uninstall.sh
+./install.sh
 
-cd /usr/local/logtalk
-scripts/cleandist.sh
-
-cd ..
-tar -czf lgt2295.tgz lgt2295
-mv lgt2295.tgz /usr/src/redhat/SOURCES
+cd /usr/local/share
+tar -cjf lgt2301.tar.bz2 lgt2301
+mv lgt2301.tar.bz2 /usr/src/redhat/SOURCES
 
 cd "$dir"
 rpmbuild -ba --target=noarch-*-linux logtalk.spec

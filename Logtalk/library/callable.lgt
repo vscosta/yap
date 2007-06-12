@@ -2,16 +2,16 @@
 :- object(callable,
 	extends(term)).
 
-
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2007/4/29,
 		comment is 'Callable term type predicates.']).
 
-
 	valid(Callable) :-
-		once((atom(Callable); compound(Callable))).
-
+		(	atom(Callable) ->
+			true
+		;	compound(Callable)
+		).
 
 :- end_object.

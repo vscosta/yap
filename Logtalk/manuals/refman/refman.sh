@@ -1,13 +1,13 @@
 #!/bin/bash
 
-## =================================================================
-## Logtalk - Object oriented extension to Prolog
-## Release 2.29.5
+## ================================================================
+## Logtalk - Open source object-oriented logic programming language
+## Release 2.30.1
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
-## =================================================================
+## ================================================================
 
-css2xslfo=/Applications/XML/CSSToXSLFO/css2xslfo1_4.jar
+css2xslfo=/Applications/XML/CSSToXSLFO/css2xslfo1_4_2.jar
 
 xslt_proc=xsltproc
 # xslt_proc=xalan
@@ -114,6 +114,8 @@ eval $xslt_proc -o control/to_object2.section refman.xsl control/to_object2.html
 eval $xslt_proc -o control/to_self1.section refman.xsl control/to_self1.html
 eval $xslt_proc -o control/to_super1.section refman.xsl control/to_super1.html
 eval $xslt_proc -o control/external1.section refman.xsl control/external1.html
+eval $xslt_proc -o control/context2.section refman.xsl control/context2.html
+eval $xslt_proc -o control/direct1.section refman.xsl control/direct1.html
 
 cat -s \
 	refman.header \
@@ -216,6 +218,8 @@ cat -s \
 	control/to_self1.section \
 	control/to_super1.section \
 	control/external1.section \
+	control/context2.section \
+	control/direct1.section \
 	refman.footer \
 	> refman.html
 

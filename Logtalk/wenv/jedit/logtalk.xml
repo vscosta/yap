@@ -5,9 +5,9 @@
 <!--	jEdit 4.3 Logtalk syntax file
 
 	written by		Paulo Moura
-	version			1.9
+	version			1.10
 	created on		2 May 2002
-	last revised	25 March 2007
+	last revised	10 June 2007
 
 	To install, copy this file to the "modes" subdirectory in jEdit 
 	directory installation.   Next, check the "catalog" file in the 
@@ -158,6 +158,9 @@
 		<!-- Logtalk message sending operators -->
 		<SEQ TYPE="OPERATOR">::</SEQ>
 		<SEQ TYPE="OPERATOR">^^</SEQ>
+
+		<!-- Other Logtalk control construct operators -->
+		<SEQ TYPE="OPERATOR">:</SEQ>
 
 		<!-- Control constructs -->
 		<SEQ TYPE="OPERATOR">!</SEQ>

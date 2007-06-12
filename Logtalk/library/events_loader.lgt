@@ -4,4 +4,4 @@
 		event_handlersp,
 		event_registryp, event_registry,
 		before_event_registry, after_event_registry,
-		monitorp, monitor])).
+		monitorp, monitor], [events(on), reload(skip)])).

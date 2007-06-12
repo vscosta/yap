@@ -56,6 +56,11 @@ CharEsc = \
 ::
 
 
+; Logtalk category predicate direct call operator
+
+:
+
+
 ; Logtalk external call
 {
 }

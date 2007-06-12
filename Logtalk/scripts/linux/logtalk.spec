@@ -1,73 +1,132 @@
 Name: logtalk
-Summary: Logtalk - Open source object-oriented extension to Prolog
-Version: 2.29.5
+Summary: Logtalk - Open source object-oriented logic programming language
+Version: 2.30.1
 Release: 1
 License: Artistic License 2.0
 Group: Development/Languages
 Packager: Paulo Moura <pmoura@logtalk.org>
-Source: http://logtalk.org/files/lgt2295.tgz
+Source: http://logtalk.org/files/lgt2301.tar.bz2
 BuildArchitectures: noarch
 URL: http://logtalk.org/
 Prefix: /usr/local
 AutoReqProv: no
 %description
-Logtalk is an open source object-oriented extension to the Prolog programming language. Integrating logic programming with object-oriented and event-driven programming, it is compatible with most Prolog compilers. It supports both prototypes and classes. In addition, it supports component-based programming through category-based composition.
+Logtalk is an open source object-oriented logic programming language that can use most Prolog implementations as a back-end compiler. As a multi-paradigm language, Logtalk includes support for both prototypes and classes, protocols, component-based programming through category-based composition, event-driven programming, and multi-threading programming.
+
 %prep
-%setup -n lgt2295
+
+%setup -n lgt2301
+
 %build
+
 %install
-rm -rf /usr/local/lgt2295
-rm -f /usr/local/logtalk
-mkdir /usr/local/lgt2295
-cp -R * /usr/local/lgt2295
-cd /usr/local
-chmod -R go-w,a+r lgt2295
-chmod a+x lgt2295
-chmod a+x lgt2295/scripts/*.sh
-chmod a-x lgt2295/scripts/*.js
-chmod a+x lgt2295/scripts/linux/*.sh
-chmod a+x lgt2295/scripts/macosx/postflight
-chmod a+x lgt2295/xml/*.sh
-chmod a-x lgt2295/xml/*.js
-ln -sf lgt2295 logtalk
+mkdir -p /usr/local/share
+rm -rf /usr/local/share/lgt2301
+rm -f /usr/local/share/logtalk
+mkdir /usr/local/share/lgt2301
+cp -R * /usr/local/share/lgt2301
+cd /usr/local/share
+find lgt2301 -type f -print0 | xargs -0 chmod 644
+find lgt2301 -type d -print0 | xargs -0 chmod 755
+chmod a+x lgt2301/integration/*.sh
+chmod a+x lgt2301/scripts/*.sh
+chmod a-x lgt2301/scripts/*.js
+chmod a+x lgt2301/scripts/linux/*.sh
+chmod a+x lgt2301/scripts/macosx/postflight
+chmod a+x lgt2301/xml/*.sh
+chmod a-x lgt2301/xml/*.js
+ln -sf lgt2301 logtalk
+cd ..
+mkdir -p bin 
 cd bin
-ln -sf ../logtalk/scripts/cplgtdirs.sh cplgtdirs
-ln -sf ../logtalk/xml/lgt2pdf.sh lgt2pdf
-ln -sf ../logtalk/xml/lgt2html.sh lgt2html
-ln -sf ../logtalk/xml/lgt2xml.sh lgt2xml
+ln -sf ../share/logtalk/integration/bplgt.sh bplgt
+ln -sf ../share/logtalk/integration/ciaolgt.sh ciaolgt
+ln -sf ../share/logtalk/integration/cxlgt.sh cxlgt
+ln -sf ../share/logtalk/integration/eclipselgt.sh eclipselgt
+ln -sf ../share/logtalk/integration/gplgt.sh gplgt
+ln -sf ../share/logtalk/integration/plclgt.sh plclgt
+ln -sf ../share/logtalk/integration/sicstuslgt.sh sicstuslgt
+ln -sf ../share/logtalk/integration/swilgt.sh swilgt
+ln -sf ../share/logtalk/integration/xsblgt.sh xsblgt
+ln -sf ../share/logtalk/integration/yaplgt.sh yaplgt
+ln -sf ../share/logtalk/scripts/cplgtdirs.sh cplgtdirs
+ln -sf ../share/logtalk/xml/lgt2pdf.sh lgt2pdf
+ln -sf ../share/logtalk/xml/lgt2html.sh lgt2html
+ln -sf ../share/logtalk/xml/lgt2xml.sh lgt2xml
 %clean
 %files
-%defattr(-,root,users)
-%doc /usr/local/lgt2295/BIBLIOGRAPHY.bib
-%doc /usr/local/lgt2295/CUSTOMIZE.txt
-%doc /usr/local/lgt2295/INSTALL.txt
-%doc /usr/local/lgt2295/LICENSE.txt
-%doc /usr/local/lgt2295/QUICK_START.txt
-%doc /usr/local/lgt2295/README.txt
-%doc /usr/local/lgt2295/RELEASE_NOTES.txt
-%doc /usr/local/lgt2295/UPGRADING.txt
-/usr/local/lgt2295/compiler
-/usr/local/lgt2295/configs
-/usr/local/lgt2295/contributions
-/usr/local/lgt2295/examples
-/usr/local/lgt2295/libpaths
-/usr/local/lgt2295/library
-%docdir /usr/local/lgt2295/manuals
-/usr/local/lgt2295/manuals
-/usr/local/lgt2295/scripts
-/usr/local/lgt2295/wenv
-/usr/local/lgt2295/xml
-/usr/local/logtalk
+%defattr(-,root,root)
+%doc /usr/local/share/lgt2301/BIBLIOGRAPHY.bib
+%doc /usr/local/share/lgt2301/CUSTOMIZE.txt
+%doc /usr/local/share/lgt2301/INSTALL.txt
+%doc /usr/local/share/lgt2301/LICENSE.txt
+%doc /usr/local/share/lgt2301/QUICK_START.txt
+%doc /usr/local/share/lgt2301/README.txt
+%doc /usr/local/share/lgt2301/RELEASE_NOTES.txt
+%doc /usr/local/share/lgt2301/UPGRADING.txt
+/usr/local/share/lgt2301/compiler
+/usr/local/share/lgt2301/configs
+/usr/local/share/lgt2301/contributions
+/usr/local/share/lgt2301/examples
+/usr/local/share/lgt2301/integration
+/usr/local/share/lgt2301/libpaths
+/usr/local/share/lgt2301/library
+%docdir /usr/local/share/lgt2301/manuals
+/usr/local/share/lgt2301/manuals
+/usr/local/share/lgt2301/scripts
+/usr/local/share/lgt2301/wenv
+/usr/local/share/lgt2301/xml
+/usr/local/share/logtalk
 /usr/local/bin/cplgtdirs
 /usr/local/bin/lgt2pdf
 /usr/local/bin/lgt2html
 /usr/local/bin/lgt2xml
+/usr/local/bin/bplgt
+/usr/local/bin/ciaolgt
+/usr/local/bin/cxlgt
+/usr/local/bin/eclipselgt
+/usr/local/bin/gplgt
+/usr/local/bin/plclgt
+/usr/local/bin/sicstuslgt
+/usr/local/bin/swilgt
+/usr/local/bin/xsblgt
+/usr/local/bin/yaplgt
+
 %post
+echo
+echo "Installed Logtalk on \"$RPM_INSTALL_PREFIX/share\"."
+echo
+echo "Links to the \"cplgtdirs\", \"lgt2pdf\", \"lgt2html\", and \"lgt2xml\" scripts"
+echo "have been created on \"$RPM_INSTALL_PREFIX/bin\"; you may need to add this directory"
+echo "to your execution path."
+echo
+echo "The following integration scripts are installed for running Logtalk"
+echo "with selected back-end Prolog compilers:"
+echo
+echo "  B-Prolog:       bplgt       (first run must use sudo)"
+echo "  CIAO:           ciaolgt     (first run must use sudo)"
+echo "  CxProlog:       cxlgt"
+echo "  ECLiPSe:        eclipselgt"
+echo "  GNU Prolog:     gplgt"
+echo "  K-Prolog:       plclgt"
+echo "  SICStus Prolog: sicstuslgt"
+echo "  SWI-Prolog:     swilgt"
+echo "  XSB:            xsblgt      (first run must use sudo)"
+echo "  YAP:            yaplgt"
+echo
+echo "The Prolog integration scripts can be found on \"$RPM_INSTALL_PREFIX/bin\"."
+echo "Make sure that the Prolog compilers are properly installed and available"
+echo "on your execution path."
+echo
+echo "If you get an unexpected failure when using one of the Prolog integration"
+echo "scripts, consult the \"$RPM_INSTALL_PREFIX/share/logtalk/configs/NOTES.txt\" file"
+echo "for compatibility notes."
+echo
 mkdir -p /etc/profile.d
 echo "# Logtalk environment setup" > /etc/profile.d/logtalk.sh
 echo "" >> /etc/profile.d/logtalk.sh
 echo "# Logtalk installation directory:" >> /etc/profile.d/logtalk.sh
-echo "export LOGTALKHOME=$RPM_INSTALL_PREFIX/logtalk" >> /etc/profile.d/logtalk.sh
+echo "export LOGTALKHOME=$RPM_INSTALL_PREFIX/share/logtalk" >> /etc/profile.d/logtalk.sh
 echo "" >> /etc/profile.d/logtalk.sh
 echo "# Default location for Logtalk end-user files:" >> /etc/profile.d/logtalk.sh
 echo "export LOGTALKUSER=\$HOME/logtalk" >> /etc/profile.d/logtalk.sh
@@ -75,25 +134,28 @@ chmod a+x /etc/profile.d/logtalk.sh
 echo "# Logtalk environment setup" > /etc/profile.d/logtalk.csh
 echo "" >> /etc/profile.d/logtalk.csh
 echo "# Logtalk installation directory:" >> /etc/profile.d/logtalk.csh
-echo "setenv LOGTALKHOME $RPM_INSTALL_PREFIX/logtalk" >> /etc/profile.d/logtalk.csh
+echo "setenv LOGTALKHOME $RPM_INSTALL_PREFIX/share/logtalk" >> /etc/profile.d/logtalk.csh
 echo "" >> /etc/profile.d/logtalk.csh
 echo "# Default location for Logtalk end-user files:" >> /etc/profile.d/logtalk.csh
 echo "setenv LOGTALKUSER \$HOME/logtalk" >> /etc/profile.d/logtalk.csh
 chmod a+x /etc/profile.d/logtalk.csh
-eval export LOGTALKHOME=$RPM_INSTALL_PREFIX/logtalk; cd $LOGTALKHOME/scripts; ./makeall_lgt.sh $RPM_INSTALL_PREFIX
-echo ""
 echo "Defined the following environment variables for all users:"
-echo ""
-echo "  Logtalk installation directory: LOGTALKHOME = $RPM_INSTALL_PREFIX/logtalk"
+echo
+echo "  Logtalk installation directory: LOGTALKHOME = $RPM_INSTALL_PREFIX/share/logtalk"
 echo "  Default Logtalk user files directory: LOGTALKUSER = \$HOME/logtalk"
-echo ""
+echo
 echo "You may need to logout and login again or start a new shell in order to"
 echo "use the new environment variables."
-echo ""
-echo "You may change the default value of the LOGTALKUSER environment variable"
-echo "in your shell configuration files if you already use, or want to use, a "
-echo "different location for the Logtalk user files directory."
-echo ""
+echo
+echo "Users may change the default value of the LOGTALKUSER environment variable"
+echo "in their shell configuration files if they already use, or want to use, a "
+echo "different location for the Logtalk user files directory. This directory "
+echo "is created by running the \"cplgtdirs\" shell script, which must be run "
+echo "once by each user before using the integration scripts."
+echo
+echo "Logtalk basic installation completed."
+echo
+
 %postun
-rm -f /etc/profile.d/logtalk.sh
-rm -f /etc/profile.d/logtalk.csh
+rm -f /etc/profile.d/logtalk.sh 2> /dev/null
+rm -f /etc/profile.d/logtalk.csh 2> /dev/null

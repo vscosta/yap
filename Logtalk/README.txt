@@ -1,9 +1,9 @@
-=================================================================
-Logtalk - Object oriented extension to Prolog
-Release 2.29.5
+================================================================
+Logtalk - Open source object-oriented logic programming language
+Release 2.30.1
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
-=================================================================
+================================================================
 
 
 CONTENTS
@@ -43,7 +43,8 @@ about Logtalk.
 3. REGISTRATION
 
 To register as a Logtalk user either use the registration form found at 
-the Logtalk web site or send an email message to:
+the Logtalk web site, http://logtalk.org/regform.html, or send an email 
+message to:
 
 	registration@logtalk.org
 
@@ -56,25 +57,7 @@ platforms (mac, pc, unix,...) (optional)
 
 4. SUPPORT
 
-Logtalk support is available for registered users via email to 
-support@logtalk.org.
-
-At the URL http://logtalk.org/bugs.html you can find a list of known 
-problems and download bug fixes. The latest news about Logtalk are
-available at the URL http://logtalk.org/news.html.
-
-There is also a mailing list, "logtalk", used to announce new releases and
-bug fixes and for discussion between registered Logtalk users, that you 
-may subscribe. For instructions on how to subscribe, please visit the web 
-page:
-
-	http://lserv.ci.uc.pt/mailman/listinfo/logtalk
- 
-or send an email message to:
-
-    logtalk-request@lserv.ci.uc.pt
-
-with just the word "help" in the subject or in the message body.
+For support options, please consult the page http://logtalk.org/support.html.
 
 
 5. INSTALLATION

@@ -19,19 +19,18 @@
 <div class="bottom-right"><span class="page"/></div>
 <div class="navtop"><a href="../../index.html">contents</a> &gt; <a href="../index.html">reference manual</a> &gt; <a href="../index.html#builtins">built-in predicates</a></div>
 
-<h2 class="codenp">threaded_call/1<span id="builtins_threaded_call1"/></h2>
-
+<h2 id="builtins_threaded_call1" class="codenp">threaded_call/1</h2>
 
 <h4>Description</h4>
 
 <pre>threaded_call(Goal)</pre>
 <p>
-Proves <code>Goal</code> asynchronously using a new thread. The argument can be a message sending goal. This call always succeeds. The result (success, failure, or exception) is sent back to the thread of the object containing the call (<em>this</em>).
+Proves <code>Goal</code> asynchronously using a new thread. The argument can be a message sending goal. This call always succeeds. The result (success, failure, or exception) is sent back to the message queue of the object containing the call (<em>this</em>).
 </p>
 
 <h4>Template and modes</h4>
 
-<pre>threaded_call(+callable)</pre>
+<pre>threaded_call(@callable)</pre>
 
 <h4>Errors</h4>
 
@@ -56,7 +55,7 @@ Proves <code>Goal</code> asynchronously using a new thread. The argument can be 
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: February 13, 2007</span>
+		<span>Last updated on: May 26, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="../index.html#builtins">previous</a> | <a href="../../glossary.html">glossary</a> | <a href="threaded_once1.html">next</a></span><br/>

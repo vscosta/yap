@@ -1,9 +1,9 @@
-// =================================================================
-// Logtalk - Object oriented extension to Prolog
-// Release 2.29.5
+// ================================================================
+// Logtalk - Open source object-oriented logic programming language
+// Release 2.30.1
 //
 // Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
-// =================================================================
+// ================================================================
 
 if (ScriptEngineMajorVersion() < 5 || ScriptEngineMajorVersion() == 5 && ScriptEngineMinorVersion() < 6) {
 	WScript.Echo('Error! WSH 5.6 or later version needed for running this script.');
@@ -80,6 +80,7 @@ FSObject.CreateFolder(logtalk_user);
 WScript.Echo("Copying Logtalk files and directories...");
 FSObject.CopyFolder(logtalk_home + "\\configs", logtalk_user + "\\configs");
 FSObject.CopyFile(logtalk_user + "\\configs\\xsb.config", logtalk_user + "\\configs\\xsb.pl");
+FSObject.CopyFile(logtalk_user + "\\configs\\xsbcvs.config", logtalk_user + "\\configs\\xsbcvs.pl");
 FSObject.CopyFolder(logtalk_home + "\\contributions", logtalk_user + "\\contributions");
 FSObject.CopyFolder(logtalk_home + "\\examples", logtalk_user + "\\examples");
 FSObject.CopyFolder(logtalk_home + "\\libpaths", logtalk_user + "\\libpaths");
@@ -121,6 +122,11 @@ link.Description = "Shortcut to Logtalk DTD";
 link.TargetPath = logtalk_home + "\\xml\\logtalk.dtd";
 link.Save();
 
+link = WshShell.CreateShortcut(logtalk_user + "\\xml\\logtalk.rng.lnk");
+link.Description = "Shortcut to Logtalk RELAX NG Schema";
+link.TargetPath = logtalk_home + "\\xml\\logtalk.rng";
+link.Save();
+
 link = WshShell.CreateShortcut(logtalk_user + "\\xml\\logtalk.xsd.lnk");
 link.Description = "Shortcut to Logtalk XML Schema";
 link.TargetPath = logtalk_home + "\\xml\\logtalk.xsd";
@@ -139,6 +145,8 @@ WScript.Echo("You may want to customize the default Logtalk compiler flags by ed
 WScript.Echo("the configuration file for your Prolog compiler found in the directory:");
 WScript.Echo("");
 WScript.Echo("  " + logtalk_user + "\\configs");
+WScript.Echo("");
+WScript.Echo("See the \%LOGTALKUSER\%\\CUSTOMIZE.txt file for details.");
 WScript.Echo("");
 
 WScript.Quit(0);

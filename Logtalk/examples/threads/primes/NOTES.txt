@@ -1,18 +1,18 @@
-=================================================================
-Logtalk - Object oriented extension to Prolog
-Release 2.29.5
+================================================================
+Logtalk - Open source object-oriented logic programming language
+Release 2.30.1
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
-=================================================================
+================================================================
 
 
 To load this example and for sample queries, please see the SCRIPT file.
 
-This folder contains a simple multi-threading example with calculating 
-prime numbers in a given interval. Try to run the example in single and
-multi-processor (or multi-core) computers and compare the results. Most 
-Prolog compilers allows you to measure the time taken for proving a goal 
-using proprietary predicates.
+This folder contains a simple example of calculating prime numbers in a 
+given interval using multiple threads. Try to run the example in single 
+and multi-processor (or multi-core) computers and compare the results. 
+Most Prolog compilers allows you to measure the time taken for proving 
+a goal using proprietary predicates.
 
 Note that this example is only meant to illustrate how to use Logtalk 
 multi-threading predicates, not to taken as the efficient solution for 

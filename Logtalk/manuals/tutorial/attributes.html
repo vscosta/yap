@@ -33,7 +33,7 @@ In this example, we will illustrate the use of:
 by defining a category that implements a set of predicates for handling dynamic object attributes.
 </p>
 
-<h2>Defining a category<a id="category"></a></h2>
+<h2 id="category">Defining a category</h2>
 
 <p>
 We want to define a set of predicates to handle dynamic object attributes. We need public predicates to set, get, and delete attributes, and a private dynamic predicate to store the attributes values. Let us name these predicates <code>set_attribute/2</code> and <code>get_attribute/2</code>, for getting and setting an attribute value, <code>del_attribute/2</code> and <code>del_attributes/2</code>, for deleting attributes, and <code>attribute_/2</code>, for storing the attributes values.
@@ -92,7 +92,7 @@ We have two new directives, <a title="Consult reference manual" href="../refman/
 Any protocol can be implemented by either an object, a category, or both.
 </p>
 
-<h2>Importing the category<a id="importing"></a></h2>
+<h2 id="importing">Importing the category</h2>
 
 <p>
 We reuse a category's predicates by importing them into an object:
@@ -120,7 +120,7 @@ Attribute = name, Value = paulo ;
 Attribute = gender, Value = male ;
 no</pre>
 
-<h2>Summary<a id="summary"></a></h2>
+<h2 id="summary">Summary</h2>
 
 <ul>
 	<li>Categories are similar to objects: we just write our predicate directives and definitions bracketed by opening and ending category directives.</li>

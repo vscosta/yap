@@ -15,13 +15,11 @@ version 2.1 (http://opensource.org/licenses/osl-2.1.php).
 
 :- category(assignvars).
 
-
 	:- info([
 		version is 1.0,
 		author is 'Nobukuni Kino and Paulo Moura',
 		date is 2005/1/7,
 		comment is 'Assignable variables (supporting logical, backtracable assignement of non-variable terms).']).
-
 
 	:- public(assignable/1).
 	:- mode(assignable(-assignvar), one).
@@ -56,34 +54,27 @@ version 2.1 (http://opensource.org/licenses/osl-2.1.php).
 		exceptions is [
 			'Variable is not instantiated' - instantiation_error]]).
 
-
 	:-op(100, xfx, <=).
 	:-op(100, xfx, =>).
-
 
 	assignable(Assig) :-
 		nonvar(Assig),
 		self(Self),
 		sender(Sender),
 		throw(error(type_error(variable, Assig), Self::assignable(Assig), Sender)).
-
 	assignable([_| _]).
-
 
 	assignable(Assig, Init) :-
 		nonvar(Assig),
 		self(Self),
 		sender(Sender),
 		throw(error(type_error(variable, Assig), Self::assignable(Assig, Init), Sender)).
-
 	assignable(Assig, Init) :-
 		var(Init),
 		self(Self),
 		sender(Sender),
 		throw(error(instantiation_error, Self::assignable(Assig, Init), Sender)).
-
 	assignable([_, Init| _], Init).
-
 
 	Assig <= Value :-
 		var(Value),
@@ -97,7 +88,6 @@ version 2.1 (http://opensource.org/licenses/osl-2.1.php).
 			;
 			Tail = [Value| _].
 
-
 	Assig => Value :-
 		var(Assig),
 		self(Self),
@@ -109,6 +99,5 @@ version 2.1 (http://opensource.org/licenses/osl-2.1.php).
 			Tail => Value
 			;
 			Current = Value.
-
 
 :- end_category.

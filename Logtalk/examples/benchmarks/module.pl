@@ -6,11 +6,11 @@
 
 
 mod_length(List, Length) :-
-	integer(Length) ->
+	(	integer(Length) ->
 		Length >= 0,
 		mod_make_list(Length, List)
-		;
-		mod_length(List, 0, Length).
+	;	mod_length(List, 0, Length)
+	).
 
 
 mod_make_list(0, []):-

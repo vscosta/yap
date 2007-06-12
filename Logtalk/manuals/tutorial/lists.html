@@ -32,7 +32,7 @@ In this example, we will illustrate the use of:
 by using common list utility predicates.
 </p>
 
-<h2>Defining a list object<a id="object"></a></h2>
+<h2 id="object">Defining a list object</h2>
 
 <p>
 We will start by defining an object, <code>list</code>, containing predicate definitions for some common list predicates like <code>append/3</code>, <code>length/2</code> and <code>member/2</code>:
@@ -100,7 +100,7 @@ uncaught exception:
 The error term describes the type of error, the message that caused the exception, and the sender of the message (in this case, the pseudo-object <code>user</code>  because we are sending the message from the top-level interpreter).
 </p>
 
-<h2>Defining a list protocol<a id="protocol"></a></h2>
+<h2 id="protocol">Defining a list protocol</h2>
 
 <p>
 As we saw in the above example, a Logtalk object may contain predicate directives and predicate definitions (clauses). The set of predicate directives defines what we call the object's <em>protocol</em> or interface. An interface may have several implementations. For instance, we may want to define a new object that implements the list predicates using difference lists. However, we do not want to repeat the predicate directives in the new object. Therefore, what we need is to split the object's protocol from the object's implementation by defining a new Logtalk entity known as a protocol. Logtalk protocols are compilations units, at the same level as objects and categories. That said, let us define a <code>listp</code> protocol:
@@ -151,7 +151,7 @@ The protocol declared in <code>listp</code> may now be alternatively implemented
 
 :- end_object.</pre>
 
-<h2>Summary<a id="summary"></a></h2>
+<h2 id="summary">Summary</h2>
 
 <ul>
 	<li>It is easy to define a simple object: just put your Prolog code inside starting and ending object directives and add the necessary scope directives. The object will be self-defining and ready to use.</li>

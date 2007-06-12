@@ -38,6 +38,7 @@ syn region	logtalkAtom		start=+'+	skip=+\\'+	end=+'+
 " Logtalk message sending operators
 
 syn match	logtalkOperator		"::"
+syn match	logtalkOperator		":"
 syn match	logtalkOperator		"\^\^"
 
 

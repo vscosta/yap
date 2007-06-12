@@ -1,8 +1,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Logtalk - Object oriented extension to Prolog
-%  Release 2.29.5
+%  Logtalk - Open source object-oriented logic programming language
+%  Release 2.30.1
 %
 %  Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 %
@@ -46,7 +46,6 @@
 	 assertz(logtalk_library_path(miscellaneous, examples('miscellaneous/'))),
 	 assertz(logtalk_library_path(modules, examples('modules/'))),
 	 assertz(logtalk_library_path(msglog, examples('msglog/'))),
-	 assertz(logtalk_library_path(msort, threads('msort/'))),
 	 assertz(logtalk_library_path(nondet, threads('nondet/'))),
 	 assertz(logtalk_library_path(operators, examples('operators/'))),
 	 assertz(logtalk_library_path(parametric, examples('parametric/'))),
@@ -65,7 +64,9 @@
 	 assertz(logtalk_library_path(shapes_ch, examples('shapes/ch/'))),
 	 assertz(logtalk_library_path(shapes_ph, examples('shapes/ph/'))),
 	 assertz(logtalk_library_path(sicstus, examples('sicstus/'))),
+	 assertz(logtalk_library_path(sorting, threads('sorting/'))),
 	 assertz(logtalk_library_path(sync, threads('sync/'))),
 	 assertz(logtalk_library_path(symdiff, examples('symdiff/'))),
+	 assertz(logtalk_library_path(tabling, examples('tabling/'))),
 	 assertz(logtalk_library_path(threads, examples('threads/'))),
 	 assertz(logtalk_library_path(viewpoints, examples('viewpoints/'))))).

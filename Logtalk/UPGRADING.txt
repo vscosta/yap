@@ -1,9 +1,9 @@
-=================================================================
-Logtalk - Object oriented extension to Prolog
-Release 2.29.5
+================================================================
+Logtalk - Open source object-oriented logic programming language
+Release 2.30.1
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
-=================================================================
+================================================================
 
 
 Upgrading from Logtalk 1.x
@@ -158,3 +158,9 @@ Logtalk 2.29.2 removes the built-in predicate threaded_discard/1.
 Logtalk 2.29.5 adds a new compiler option, "reload", whose default value is 
 defined in the config files. This makes previous config files incompatible 
 with this new Logtalk version.
+
+Logtalk 2.30.0 adds two new compiler options, "xmldir" and "tmpdir", allowing 
+a per-project definition of directories for storing XML documenting files and 
+for storing intermediate compilation files (e.g. Prolog files). Removed from 
+the config files the predicate '$lgt_alt_directory'/2. Older config files are 
+incompatible with this new Logtalk version.

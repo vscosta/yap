@@ -1,9 +1,9 @@
-=================================================================
-Logtalk - Object oriented extension to Prolog
-Release 2.29.5
+================================================================
+Logtalk - Open source object-oriented logic programming language
+Release 2.30.1
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
-=================================================================
+================================================================
 
 
 To load this example and for sample queries, please see the SCRIPT file.
@@ -13,10 +13,20 @@ sending performance with direct predicates calls in plain Prolog.
 These benchmarks may also be used for comparing Logtalk message sending 
 performance across Prolog compilers.
 
-This example is made of five source files:
+This example is made of four loader files and five source files:
 
-	benchmark.lgt
-		contains the benchmark predicates
+	loader_events.lgt
+		loads all source files with event support turned on
+	loader_no_events.lgt
+		loads all source files with event support turned off
+	loader_static_binding.lgt
+		loads all source files with event support turned off and using
+		static binding
+	loader.lgt
+		the same as the loader_static_binding.lgt file
+
+	benchmarks.lgt
+		contains the benchmark goals and testing predicates
 	plain.lgt
 		contains a definition for a list length predicate and a predicate 
 		for testing performance of the built-in predicates assertz/1 and 
@@ -24,37 +34,50 @@ This example is made of five source files:
 	module.pl (not loaded by default; see below)
 		contains the same definition of a list length predicate 
 		encapsulated in a module
-	object.lgt
-		contains the same definition of a list length predicate 
-		encapsulated in an object
+	objects.lgt
+		contains an object encapsulating the same definition of a list   
+		length predicate, plus two descendant objects to simulate a small 
+		hierarchy (used for testing calls to imported category predicates)
 	database.lgt
 		contains predicates for testing the performance of the built-in 
 		database methods assertz/1 and retract/1
+	category.lgt
+		contains a single predicate used when comparing performance of
+		calls to imported category predicates using direct calls and using 
+		messages to "self"
 
 You may have noticed above that the benchmark predicates and the predicates 
 for plain Prolog testing are both encapsulated in Logtalk source files. The 
 Logtalk compiler just copies the plain Prolog code to the generated Prolog 
-files. The reason for using the .lgt extension for these files is just to 
-make it possible to load all the example code using a single call to the 
-logtalk_load/1 predicate.
+files. The reason for using the .lgt extension for these files is simply to 
+make it possible to load all the example code using calls to the predicates 
+logtalk_load/1-2.
 
-By default, the benchmark tests on the SCRIPT file use a list of 30 elements 
-as an argument to the list length predicates. Increasing the list length 
-leads to decreasing performance differences between plain Prolog and Logtalk
-as the list length computation time far outweighs the overhead of the message 
-sending mechanism. Likewise, decreasing the list length leads to increasing 
-performance differences between plain Prolog and Logtalk (up to the point you 
-will be measuring the Logtalk message sending mechanism overhead compared to 
-plain Prolog predicate calls). In real-life applications, only testing can 
-give you a balanced view on the trade-offs between plain Prolog performance 
-and Logtalk programming features.
+By default, the benchmark tests on the SCRIPT file use a list of 20 elements 
+as an argument to the list length predicates. When dynamic binding is used, 
+increasing the list length leads to decreasing performance differences between 
+plain Prolog and Logtalk as the list length computation time far outweighs the
+overhead of the message sending mechanism. Likewise, decreasing the list 
+length leads to increasing performance differences between plain Prolog and 
+Logtalk (up to the point you will be measuring the Logtalk message sending 
+mechanism overhead compared to plain Prolog predicate calls). In real-life 
+applications, only testing can give you a balanced view on the trade-offs 
+between plain Prolog performance and Logtalk programming features.
 
-By default, the loader.lgt file used to load the example code does not load 
-the module.pl file. Edit this file if your Prolog compiler supports a module 
+By default, the loader files used to load the example code do not load the 
+module.pl file. Edit these files if your Prolog compiler supports a module
 system and you want to run some comparative performance tests between plain 
 Prolog, Prolog modules, and Logtalk objects. Note that you may need to edit 
 the code on the module.pl file to make any necessary compatibility changes 
 for your Prolog compiler module system. For most Prolog module systems, the 
 performance of module calls is close or even identical to the performance of 
-plain Prolog calls, specially when using imported predicates as opposed to 
-using explicit module qualification.
+plain Prolog calls when using imported predicates and implicit qualification.
+When using explicit module qualification, performance can be significantly 
+worse.
+
+When static binding is used, messages to objects are, whenever possible, 
+translated to direct predicate calls. Thus performance should be about the 
+same as in plain Prolog predicate calls. However, due to the overhead of 
+three extra arguments per object predicate (used for passing the execution 
+context), the performance of Logtalk optimized calls might be slightly 
+worse than the equivalent plain Prolog predicate calls.

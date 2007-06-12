@@ -57,6 +57,7 @@
 	<dt><a href="features.html#features_inheritance">Private, protected, and public inheritance</a><span class="leader"></span><span class="page-ref"><span class="features_inheritance"></span></span></dt>
 	<dt><a href="features.html#features_predicates">Private, protected, and public object predicates</a><span class="leader"></span><span class="page-ref"><span class="features_predicates"></span></span></dt>
 	<dt><a href="features.html#features_parametric">Parametric objects</a><span class="leader"></span><span class="page-ref"><span class="features_parametric"></span></span></dt>
+	<dt><a href="features.html#features_threading">High level multi-threading programming support</a><span class="leader"></span><span class="page-ref"><span class="features_threading"></span></span></dt>
 	<dt><a href="features.html#features_learning">Smooth learning curve</a><span class="leader"></span><span class="page-ref"><span class="features_learning"></span></span></dt>
 	<dt><a href="features.html#features_compatibility">Compatibility with most Prologs and the ISO standard</a><span class="leader"></span><span class="page-ref"><span class="features_compatibility"></span></span></dt>
 	<dt><a href="features.html#features_performance">Performance</a><span class="leader"></span><span class="page-ref"><span class="features_performance"></span></span></dt>
@@ -85,6 +86,8 @@
 
 <dl class="toc-entries">
 	<dt><a href="objects.html#objects_kind">Objects, prototypes, classes, and instances</a><span class="leader"></span><span class="page-ref"><span class="objects_kind"></span></span></dt>
+		<dd><a href="objects.html#objects_prototypes">Prototypes</a><span class="leader"></span><span class="page-ref"><span class="objects_prototypes"></span></span></dd>
+		<dd><a href="objects.html#objects_classes">Classes</a><span class="leader"></span><span class="page-ref"><span class="objects_classes"></span></span></dd>
 	<dt><a href="objects.html#objects_defining">Defining a new object</a><span class="leader"></span><span class="page-ref"><span class="objects_defining"></span></span></dt>
 	<dt><a href="objects.html#objects_parametric">Parametric objects</a><span class="leader"></span><span class="page-ref"><span class="objects_parametric"></span></span></dt>
 	<dt><a href="objects.html#objects_finding">Finding defined objects</a><span class="leader"></span><span class="page-ref"><span class="objects_finding"></span></span></dt>
@@ -136,6 +139,7 @@
 	<dt><a href="categories.html#categories_relationships">Category relationships</a><span class="leader"></span><span class="page-ref"><span class="categories_relationships"></span></span></dt>
 	<dt><a href="categories.html#categories_properties">Category properties</a><span class="leader"></span><span class="page-ref"><span class="categories_properties"></span></span></dt>
 	<dt><a href="categories.html#categories_importing">Importing categories</a><span class="leader"></span><span class="page-ref"><span class="categories_importing"></span></span></dt>
+	<dt><a href="categories.html#categories_predicates">Using category predicates</a><span class="leader"></span><span class="page-ref"><span class="categories_predicates"></span></span></dt>
 </dl>
 
 <h2><a id="predicates" href="predicates.html">Predicates</a></h2>
@@ -206,7 +210,7 @@
 
 <dl class="toc-entries">
 	<dt><a href="threads.html#threads_enabling">Enabling multi-threading support</a><span class="leader"></span><span class="page-ref"><span class="threads_enabling"></span></span></dt>
-	<dt><a href="threads.html#threads_directive">Object threads</a><span class="leader"></span><span class="page-ref"><span class="threads_directive"></span></span></dt>
+	<dt><a href="threads.html#threads_directive">Object message queues</a><span class="leader"></span><span class="page-ref"><span class="threads_directive"></span></span></dt>
 	<dt><a href="threads.html#threads_builtins">Multi-threading built-in predicates</a><span class="leader"></span><span class="page-ref"><span class="threads_builtins"></span></span></dt>
 		<dd><a href="threads.html#threads_threaded">Proving goals concurrently using threads</a><span class="leader"></span><span class="page-ref"><span class="threads_threaded"></span></span></dd>
 		<dd><a href="threads.html#threads_call">Proving goals asynchronously using threads</a><span class="leader"></span><span class="page-ref"><span class="threads_call"></span></span></dd>
@@ -277,6 +281,7 @@
 		<dd><a href="running.html#running_trace">Tracing program execution</a><span class="leader"></span><span class="page-ref"><span class="running_trace"></span></span></dd>
 		<dd><a href="running.html#running_debug">Debugging using spy points</a><span class="leader"></span><span class="page-ref"><span class="running_debug"></span></span></dd>
 		<dd><a href="running.html#running_commands">Debugging commands</a><span class="leader"></span><span class="page-ref"><span class="running_commands"></span></span></dd>
+		<dd><a href="running.html#running_context">Context-switching calls</a><span class="leader"></span><span class="page-ref"><span class="running_context"></span></span></dd>
 </dl>
 
 <h2><a id="programming" href="programming.html">Programming in Logtalk</a></h2>
@@ -295,7 +300,7 @@
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>
-		<span>Last updated on: March 24, 2007</span>
+		<span>Last updated on: June 8, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="../glossary.html">glossary</a></span><br/>

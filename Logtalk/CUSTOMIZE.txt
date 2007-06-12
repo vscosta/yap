@@ -1,9 +1,9 @@
-=================================================================
-Logtalk - Object oriented extension to Prolog
-Release 2.29.5
+================================================================
+Logtalk - Open source object-oriented logic programming language
+Release 2.30.1
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
-=================================================================
+================================================================
 
 
 This file contains detailed instructions for customizing your Logtalk 
@@ -31,14 +31,14 @@ operating-system requirements. For details, see the "libpaths/NOTES.txt" file.
 
 Logtalk interfaces with a specific Prolog compiler via a configuration file 
 that can be found on the "configs" folder inside your Logtalk user folder.
-These configuration files can be customized by changing the values of the 
-default flags that are used by Logtalk when compiling source files. For a 
-full description of these default flags, consult the "Running and debugging 
-Logtalk programs" section of the User Manual. Some of the default flags that 
-you may want to change include: "smart_compilation", "startup_message", 
-"portability", "underscore_vars", "altdirs", and the set of documentation-
-related flags ("xmldocs", "xslfile", "xmlspec", and "xmlsref"). Be sure to 
-read the "configs/NOTES.txt" file for Prolog specific notes; some Prolog 
+These configuration files can be customized by changing the default values 
+of the flags that are used by Logtalk when compiling source files. For a 
+full description of these flags, consult the "Running and debugging Logtalk 
+programs" section of the User Manual. Some of the default flags that you may 
+want to change include: "smart_compilation", "startup_message", "altdirs", 
+"tmpdir", "portability", "underscore_vars", and the documentation-related 
+flags ("xmldocs", "xmldir", "xslfile", "xmlspec", and "xmlsref"). Be sure 
+to read the "configs/NOTES.txt" file for Prolog specific notes; some Prolog 
 compilers do not support the whole range of compilation flag values.  
 
 

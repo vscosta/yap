@@ -19,14 +19,13 @@
 <div class="bottom-right"><span class="page"/></div>
 <div class="navtop"><a href="../../index.html">contents</a> &gt; <a href="../index.html">reference manual</a> &gt; <a href="../index.html#builtins">built-in predicates</a></div>
 
-<h2 class="codenp">threaded_wait/1<span id="builtins_threaded_wait1"/></h2>
-
+<h2 id="builtins_threaded_wait1" class="codenp">threaded_wait/1</h2>
 
 <h4>Description</h4>
 
 <pre>threaded_wait(Term)</pre>
 <p>
-Suspends the thread making the call until a notification is received that unifies with <code>Term</code>. The call must be made within the same object (<em>this</em>) containing the calls to the <code>threaded_notify/1</code> predicate that will eventually  send the notification.
+Suspends the thread making the call until a notification is received that unifies with <code>Term</code>. The call must be made within the same object (<em>this</em>) containing the calls to the <code>threaded_notify/1</code> predicate that will eventually send the notification.
 </p>
 
 <h4>Template and modes</h4>

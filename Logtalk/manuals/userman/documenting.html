@@ -19,7 +19,7 @@
 <div class="bottom-right"><span class="page"/></div>
 <div class="navtop"><a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a></div>
 
-<h1>Documenting Logtalk programs<span id="documenting_documenting"/></h1>
+<h1 id="documenting_documenting">Documenting Logtalk programs</h1>
 
 <p>
 Logtalk automatically generates a documentation file for each compiled entity (object, protocol, or category) in <a href="http://www.w3.org/XML/">XML</a> format. Contents of the XML file include the entity name, type, and compilation mode (static or dynamic), the entity relations with other entities, and a description of any declared predicates (name, compilation mode, scope, ...).
@@ -28,13 +28,13 @@ Logtalk automatically generates a documentation file for each compiled entity (o
 The XML documentation files can be enriched with arbitrary user-defined information, either about an entity or about its predicates, by using the two directives described below.
 </p>
 
-<h2>Documenting directives<a id="documenting_directives"></a></h2>
+<h2 id="documenting_directives">Documenting directives</h2>
 
 <p>
 Logtalk supports two documentation directives for providing arbitrary user-defined information about an entity or a predicate. These two directives complement other Logtalk directives that also provide important documentation information like <a title="Consult reference manual" href="../refman/directives/uses1.html"><code>uses/1</code></a>, <a title="Consult reference manual" href="../refman/directives/calls1.html"><code>calls/1</code></a>, or <a title="Consult reference manual" href="../refman/directives/mode2.html"><code>mode/2</code></a>.
 </p>
 
-<h3>Entity directives<a id="documenting_entity"></a></h3>
+<h3 id="documenting_entity">Entity directives</h3>
 
 <p>
 Arbitrary user-defined entity information can be represented using the <a title="Consult reference manual" href="../refman/directives/info1.html"><code>info/1</code></a> directive:
@@ -79,7 +79,7 @@ For example:
 Use only the keywords that make sense for your application and remember that you are free to invent your own keywords.
 </p>
 
-<h3>Predicate directives<a id="documenting_predicate"></a></h3>
+<h3 id="documenting_predicate">Predicate directives</h3>
 
 <p>
 Arbitrary user-defined predicate information can be represented using the
@@ -119,7 +119,7 @@ For example:
 Use only the keywords that make sense for your application and remember that you are free to invent your own keywords.
 </p>
 
-<h2>Processing and viewing documenting files<a id="documenting_processing"></a></h2>
+<h2 id="documenting_processing">Processing and viewing documenting files</h2>
 
 <p>
 The XML documenting files are (by default) automatically generated when you compile a Logtalk entity. For example, assuming the default filename extensions, compiling a <code>trace</code> object and a <code>sort(_)</code> parametric object contained in a source file will result in <code>trace_0.xml</code> and <code>sort_1.xml</code> XML files.

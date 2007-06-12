@@ -28,7 +28,7 @@ When compiling an object, Logtalk distinguishes prototypes from instance or clas
 In this example, we are going to define the basis for a reflective class-based system, based on an extension of the ideas presented in <a href="../bibliography.html#Cointe87">[Cointe 87]</a>. This extension provides, along with root objects for the instantiation and specialization hierarchies, explicit support for abstract classes <a href="../bibliography.html#Moura94">[Moura 94]</a>.
 </p>
 
-<h2>Defining the base classes<a id="classes"></a></h2>
+<h2 id="classes">Defining the base classes</h2>
 
 <p>
 We will start by defining three classes: <code>object</code>, <code>abstract_class</code>, and <code>class</code>. The class <code>object</code> will contain all predicates common to all objects. It will be the root of the inheritance graph:
@@ -63,7 +63,7 @@ The class <code>class</code> specializes <code>abstract_class</code> by adding p
 Note that all three objects are instances of class <code>class</code>. The instantiation and specialization relationships are chosen so that each object may use the predicates defined in itself and in the other two objects, with no danger of method lookup endless loops.
 </p>
 
-<h2>Summary<a id="summary"></a></h2>
+<h2 id="summary">Summary</h2>
 
 <ul>
 	<li>An object that does not instantiate or specialize other objects is always compiled as a prototype.</li>

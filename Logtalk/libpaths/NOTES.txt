@@ -1,9 +1,9 @@
-=================================================================
-Logtalk - Object oriented extension to Prolog
-Release 2.29.5
+================================================================
+Logtalk - Open source object-oriented logic programming language
+Release 2.30.1
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
-=================================================================
+================================================================
 
 This folder contains a Prolog file, "libpaths.pl", which, when loaded, 
 defines the library paths for the Logtalk standard library and for all 
@@ -23,15 +23,15 @@ As defined, the provided "libpaths.pl" file is already compatible with
 some of the most popular Prolog compilers, running on both MacOS X, Linux, 
 Windows, Unix, and Unix-like operating-systems.
 
-The Prolog integration scripts found on the "scripts" directory generate 
-scripts and shortcuts that automatically load the copy of the "libpaths.pl" 
-file from the Logtalk end-user directory created by the "scripts/cplgtdirs.*" 
-scripts. See the "INSTALL.txt" and "scripts/NOTES.txt" files for more details.
-Note that some Prolog compilers do not support the <library>(<entity>) 
-notation. See the "configs/NOTES.txt" file for details.
+The Prolog integration scripts, found on the "integration" directory,
+automatically load the copy of the "libpaths.pl" file from the Logtalk 
+end-user directory created by the "scripts/cplgtdirs.*" scripts. See the 
+"INSTALL.txt" and "scripts/NOTES.txt" files for more details. Note that 
+some Prolog compilers do not support the <library>(<entity>) notation. 
+See the "configs/NOTES.txt" file for details.
 
-The somehow contrived code found on the "libpaths.pl" file is needed 
-to ensure compatibility with both the ISO Prolog standard and with most 
+The somehow contrived code found on the "libpaths.pl" file is needed to 
+ensure compatibility with both the ISO Prolog standard and with most 
 Prolog compilers. The code could be greatly simplified by using a multifile 
 predicate directive for the library path dynamic predicate. Unfortunately, 
 not all Prolog compilers support multifile predicates.
@@ -41,6 +41,7 @@ Prolog compilers that are expected to be compatible with the provided
 
 	* B-Prolog
 	* CIAO
+	* CxProlog
 	* ECLiPSe
 	* GNU-Prolog
 	* K-Prolog

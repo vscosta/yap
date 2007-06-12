@@ -1,9 +1,12 @@
-=================================================================
-Logtalk - Object oriented extension to Prolog
-Release 2.29.5
+================================================================
+Logtalk - Open source object-oriented logic programming language
+Release 2.30.1
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
-=================================================================
+================================================================
 
 
-This directory contains files used when building Windows installers.
+This directory contains files used when building Windows 2000/XP GUI 
+installers using Inno Setup 5.1.11 (or a later version):
+
+	http://www.jrsoftware.org/isinfo.php

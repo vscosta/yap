@@ -19,7 +19,7 @@
 <div class="bottom-right"><span class="page"/></div>
 <div class="navtop"><a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a></div>
 
-<h1>Message sending<span id="messages_messages"/></h1>
+<h1 id="messages_messages">Message sending</h1>
 
 <p>
 Messages allows us to call object predicates. Logtalk uses the same nomenclature found in other object-oriented programming languages such as Smalltalk. Therefore, the terms <em>predicate</em> and <em>method</em> are often used interchangeably when refering to predicates defined inside objects and categories. A message must always match a predicate within the scope of the sender object.
@@ -28,7 +28,7 @@ Messages allows us to call object predicates. Logtalk uses the same nomenclature
 Note that message sending is only the same as calling an object's predicate if the object does not inherit (or import) predicate definitions from other objects (or categories). Otherwise, the predicate definition that will be executed may depend on the relationships of the object with other Logtalk entities.
 </p>
 
-<h2>Operators used in message sending<a id="messages_operators"></a></h2>
+<h2 id="messages_operators">Operators used in message sending</h2>
 
 <p>
 Logtalk uses the following three operators for message sending:
@@ -37,10 +37,10 @@ Logtalk uses the following three operators for message sending:
 :- op(600,  fx, ::).
 :- op(600,  fx, ^^).</pre>
 <p>
-It is assumed that these operators remain active (once the Logtalk preprocessor and runtime files are loaded) until the end of the Prolog session (this is the usual behavior of most Prolog compilers). Note that these operator definitions are compatible with the pre-defined operators in the Prolog ISO standard.
+It is assumed that these operators remain active (once the Logtalk compiler and runtime files are loaded) until the end of the Prolog session (this is the usual behavior of most Prolog compilers). Note that these operator definitions are compatible with the pre-defined operators in the Prolog ISO standard.
 </p>
 
-<h2>Sending a message to an object<a id="messages_sending"></a></h2>
+<h2 id="messages_sending">Sending a message to an object</h2>
 
 <p>
 Sending a message to an object is accomplished by using the <a title="Consult reference manual" href="../refman/control/to_object2.html"><code>::/2</code></a> infix  operator:
@@ -50,7 +50,7 @@ Sending a message to an object is accomplished by using the <a title="Consult re
 The message must match a public predicate declared for the receiving object or a Logtalk/Prolog built-in predicate, otherwise an exception will be thrown (see the Reference Manual for details). The Logtalk and Prolog built-in predicates are implicitly declared as object public predicates (unless redefined inside an object). Care should be taken when using Prolog built-in predicates as messages as different Prolog compilers provide different sets of built-in predicates. In particular, using a Prolog built-in meta-predicate as a message only provides meaningful results when the predicate is overloaded as a Logtalk built-in method; Prolog built-in (meta-)predicates are usually not Logtalk aware.
 </p>
 
-<h2>Broadcasting<a id="messages_broadcasting"></a></h2>
+<h2 id="messages_broadcasting">Broadcasting</h2>
 
 <p>
 In the Logtalk context, broadcasting is interpreted as the sending of the same message to a group of objects or the sending of several messages to the same object. Both needs can be achieved by using the message sending method described above. However, for convenience, Logtalk implements an extended syntax for message sending that makes programming easier in these situations.
@@ -106,7 +106,7 @@ or:
 The message must match a public or protected predicate declared for the receiving object, a private predicate within the scope of the <em>sender</em>, or a Logtalk/Prolog built-in predicate otherwise an error will be thrown (see the Reference Manual for details). If the message is sent from inside a category or if we are using private inheritance, then the message may also match a private predicate.
 </p>
 
-<h2>Calling an overridden predicate definition<a id="messages_super"></a></h2>
+<h2 id="messages_super">Calling an overridden predicate definition</h2>
 
 <p>
 When redefining a predicate, sometimes we need to call the inherited definition in the new code. This functionality, introduced by the Smalltalk language through the <code>super</code> primitive, is available in Logtalk through the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> prefix operator:
@@ -120,10 +120,10 @@ Most of the time we will use this operator by instantiating the pattern:
     ^^Predicate,    % call inherited definition
     ... .           % do something more</pre>
 
-<h2>Message sending and event generation<a id="messages_events"></a></h2>
+<h2 id="messages_events">Message sending and event generation</h2>
 
 <p>
-Every message sent using <a title="Consult reference manual" href="../refman/control/to_object2.html"><code>::/2</code></a> operator generates two events, one before and one after the message execution. Messages that are sent using the <a title="Consult reference manual" href="../refman/control/to_self1.html"><code>::/1</code></a> (message to <em>self</em>) operator or the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> super mechanism described above do not generate any events. The rational behind this distinction is that messages to <em>self</em> and <em>super</em> calls are only used internally in the definition of methods or to execute additional messages with the same target object (represented by <em>self</em>). In other words, events are only generated when using an object's public interface; they can not be used to break object encapsulation.
+Every message sent using <a title="Consult reference manual" href="../refman/control/to_object2.html"><code>::/2</code></a> operator generates two events, one before and one after the message execution. Messages that are sent using the <a title="Consult reference manual" href="../refman/control/to_self1.html"><code>::/1</code></a> (message to <em>self</em>) operator or the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> super mechanism described above do not generate any events. The rational behind this distinction is that messages to <em>self</em> and <em>super</em> calls are only used internally in the definition of methods or to execute additional messages with the same target object (represented by <em>self</em>). In other words, events are only generated when using an object's public interface; they cannot be used to break object encapsulation.
 </p>
 <p>
 If we need to generate events for a public message sent to <em>self</em>, then we just need to write something like:
@@ -145,19 +145,19 @@ If we also need the sender of the message to be other than the object containing
 When events are not used, is possible to turn off event generation on a per object basis by using the <a title="Consult user manual" href="running.html#running_flags"><code>events/1</code></a> compiler option. See the session on <a href="events.html">event-driven programming</a> for more details.
 </p>
 
-<h2>Message sending performance<a id="messages_performance"></a></h2>
+<h2 id="messages_performance">Message sending performance</h2>
 
 <p>
-Logtalk implements dynamic binding, coupled with a caching mechanism that avoids repeated lookups of predicate declarations and predicate definitions for the same messages. This is a solution common to other programming languages supporting dynamic binding. Message lookups are automatically cached the first time a message is sent. Cache entries are automatically removed when loading entities or using Logtalk dynamic features which invalidate the cached lookups.
+Logtalk supports both static binding and dynamic binding. Static binding is used whenever messages are sent (using <code>::/2</code>) to objects loaded using the <code>reload(skip)</code> compiler flag. When that is not the case (or when using <code>::/1</code>), Logtalk uses dynamic binding coupled with a caching mechanism that avoids repeated lookups of predicate declarations and predicate definitions. This is a solution common to other programming languages supporting dynamic binding. Message lookups are automatically cached the first time a message is sent. Cache entries are automatically removed when loading entities or using Logtalk dynamic features that invalidate the cached lookups.
 </p>
 <p>
-When discussing Logtalk message sending performance, two distinct cases should be considered: messages sent by the user from the top-level interpreter and messages sent from compiled objects. In addition, the message declaration and definition lookups may, or may not be already cached by the runtime engine. In what follows, we will assume that the message lookups are already cached.
+Whenever static binding is used, message sending performance is the same as a predicate call in plain Prolog. When discussing Logtalk dynamic binding performance, two distinct cases should be considered: messages sent by the user from the top-level interpreter and messages sent from compiled objects. In addition, the message declaration and definition lookups may, or may not be already cached by the runtime engine. In what follows, we will assume that the message lookups are already cached.
 </p>
 
-<h3>Translating message processing to predicate calls<a id="messages_inferences"></a></h3>
+<h3 id="messages_inferences">Translating message processing to predicate calls</h3>
 
 <p>
-In order to better understand the performance tradeoffs of using Logtalk when compared to plain Prolog or to Prolog module systems, is useful to translate message processing in terms of predicate calls. However, in doing this, we should keep in mind that the number of predicate calls is not necessarily proportional to the time taken to execute them.
+In order to better understand the performance tradeoffs of using Logtalk dynamic binding when compared to plain Prolog or to Prolog module systems, is useful to translate message processing in terms of predicate calls. However, in doing this, we should keep in mind that the number of predicate calls is not necessarily proportional to the time taken to execute them.
 </p>
 <p>
 A message sent from a compiled object to another object translates to six predicate calls:
@@ -187,7 +187,7 @@ When a message is sent by the user from the top-level interpreter, Logtalk needs
 When a message is not cached, the number of predicate calls depends on the number of steps needed for the Logtalk runtime engine to lookup the corresponding predicate scope declaration (to check if the message is valid) and then to lookup a predicate definition for answering the message.
 </p>
 
-<h3>Processing time<a id="messages_cputime"></a></h3>
+<h3 id="messages_cputime">Processing time</h3>
 
 <p>
 Not all predicate calls take the same time. Moreover, the time taken to process a specific predicate call depends on the Prolog compiler implementation details. As such, the only valid performance measure is the time taken for processing a message.
@@ -235,7 +235,7 @@ It should be stressed that message sending is only one of the factors affecting 
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: January 21, 2007</span>
+		<span>Last updated on: April 14, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="nomenclature.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="objects.html">next</a></span><br/>

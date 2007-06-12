@@ -1,14 +1,14 @@
 #!/bin/bash
 
-## =================================================================
-## Logtalk - Object oriented extension to Prolog
-## Release 2.29.5
+## ================================================================
+## Logtalk - Open source object-oriented logic programming language
+## Release 2.30.1
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
-## =================================================================
+## ================================================================
 
 echo ""
-echo "Checking the LOGTALKHOME environment variable definition..."
+echo "Checking for the Logtalk environment variable definitions..."
 echo ""
 
 if grep "LOGTALKHOME=/opt/local/share/logtalk" /etc/profile >/dev/null 2>&1; then
@@ -31,6 +31,10 @@ else
 	echo "setenv LOGTALKHOME /opt/local/share/logtalk" >> /etc/csh.cshrc
 	echo 'setenv LOGTALKUSER $HOME/logtalk' >> /etc/csh.cshrc
 fi
+
+echo ""
+echo "Creating a link to the Logtalk installation folder in the /Applications folder..."
+ln -sf /opt/local/share/logtalk /Applications/Logtalk
 
 echo ""
 echo "You have succesfully installed Logtalk!"

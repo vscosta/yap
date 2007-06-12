@@ -19,14 +19,13 @@
 <div class="bottom-right"><span class="page"/></div>
 <div class="navtop"><a href="../../index.html">contents</a> &gt; <a href="../index.html">reference manual</a> &gt; <a href="../index.html#builtins">built-in predicates</a></div>
 
-<h2 class="codenp">threaded/1<span id="builtins_threaded1"/></h2>
-
+<h2 id="builtins_threaded1" class="codenp">threaded/1</h2>
 
 <h4>Description</h4>
 
 <pre>threaded(Conjunction)</pre>
 <p>
-Proves each goal in a conjunction of goals in its own thread. The argument can also be a conjunction of messages, either to <em>self</em> or to an explicit object. A call to this predicate blocks until all individual threads terminate. This predicate is transparent to cuts and exceptions.
+Proves each goal in a conjunction of goals in its own thread. The argument can also be a conjunction of messages, either to <em>self</em> or to an explicit object. A call to this predicate blocks until all individual threads terminate. This predicate is deterministic and opaque to cuts, similar to <code>once/1</code>.
 </p>
 
 <h4>Template and modes</h4>
@@ -55,12 +54,14 @@ Proves each goal in a conjunction of goals in its own thread. The argument can a
 		<dd><code>threaded(::(Message, Messages))</code></dd>
 	<dt>Prove a conjunction of messages to an object, each one in its own thread:</dt>
 		<dd><code>threaded(Object::(Message, Messages))</code></dd>
+	<dt>Prove a conjunction of objects receiving the same message, each one in its own thread:</dt>
+		<dd><code>threaded((Object, Objects)::Message)</code></dd>
 </dl>
 
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: March 24, 2007</span>
+		<span>Last updated on: May 8, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="../index.html#builtins">previous</a> | <a href="../../glossary.html">glossary</a> | <a href="threaded_once1.html">next</a></span><br/>
