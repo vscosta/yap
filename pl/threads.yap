@@ -18,6 +18,7 @@
 :- meta_predicate
 	thread_create(:,-,+),
 	thread_create(:,-),
+	thread_create(:),
 	thread_at_exit(:),
 	thread_signal(+,:),
 	with_mutex(+,:).
@@ -56,6 +57,16 @@
 	    recorda('$thread_exit_status', [Id0|exception(Exception)], _)
 	),
 	'$run_at_thread_exit'(Id0).
+
+thread_create(Goal) :-
+	G0 = thread_create(Goal),
+	'$check_callable'(Goal, G0),
+	'$thread_options'([detached(true)], [], Stack, Trail, System, Detached, G0),
+	'$thread_new_tid'(Id),
+	'$erase_thread_info'(Id),
+	'$record_thread_info'(Id, [Stack, Trail, System], true),
+	'$create_mq'(Id),	
+	'$create_thread'(Goal, Stack, Trail, System, Detached, Id).
 
 thread_create(Goal, Id) :-
 	G0 = thread_create(Goal, Id),
