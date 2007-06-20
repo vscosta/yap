@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2007-05-02 11:01:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-06-20 13:48:45 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.185  2007/05/02 11:01:37  vsc
+* get rid of type punning warnings.
+*
 * Revision 1.184  2007/03/26 15:18:43  vsc
 * debugging and clause/3 over tabled predicates would kill YAP.
 *
@@ -8104,13 +8107,14 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       } else if (IsPairTerm(t)) {
 	jlbl = &(ipc->u.llll.l1);
 	ipc = ipc->u.llll.l1;
-	s_reg = RepPair(t);
+	S = s_reg = RepPair(t);
       } else if (IsAtomOrIntTerm(t)) {
 	jlbl = &(ipc->u.llll.l2);
 	ipc = ipc->u.llll.l2;
       } else {
 	jlbl = &(ipc->u.llll.l3);
 	ipc = ipc->u.llll.l3;
+	S = RepAppl(t);
       }
       break;
     case _switch_list_nl:
@@ -8121,13 +8125,14 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       } else if (IsPairTerm(t)) {
 	jlbl = &(ipc->u.ollll.l1);
 	ipc = ipc->u.ollll.l1;
-	s_reg = RepPair(t);
+	S = s_reg = RepPair(t);
       } else if (t == TermNil) {
 	jlbl = &(ipc->u.ollll.l2);
 	ipc = ipc->u.ollll.l2;
       } else {
 	jlbl = &(ipc->u.ollll.l3);
 	ipc = ipc->u.ollll.l3;
+	S = RepAppl(t);
       }
       break;
     case _switch_on_arg_type:
@@ -8138,13 +8143,14 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       } else if (IsPairTerm(t)) {
 	jlbl = &(ipc->u.xllll.l1);
 	ipc = ipc->u.xllll.l1;
-	s_reg = RepPair(t);
+	S = s_reg = RepPair(t);
       } else if (IsAtomOrIntTerm(t)) {
 	jlbl = &(ipc->u.xllll.l1);
 	ipc = ipc->u.xllll.l2;
       } else {
 	jlbl = &(ipc->u.xllll.l3);
 	ipc = ipc->u.xllll.l3;
+	S = RepAppl(t);
       }
       break;
     case _switch_on_sub_arg_type:
@@ -8155,13 +8161,14 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       } else if (IsPairTerm(t)) {
 	jlbl = &(ipc->u.sllll.l1);
 	ipc = ipc->u.sllll.l1;
-	s_reg = RepPair(t);
+	S = s_reg = RepPair(t);
       } else if (IsAtomOrIntTerm(t)) {
 	jlbl = &(ipc->u.sllll.l2);
 	ipc = ipc->u.sllll.l2;
       } else {
 	jlbl = &(ipc->u.sllll.l3);
 	ipc = ipc->u.sllll.l3;
+	S = RepAppl(t);
       }
       break;
     case _if_not_then:
@@ -8188,6 +8195,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	s_reg = RepAppl(t);
 	f = (Functor)s_reg[0];
 	s_reg++;
+	S = s_reg;
 	if (op == _switch_on_func) {
 	  fe = lookup_f_hash(f, ipc->u.sssl.l, ipc->u.sssl.s);
 	} else {

@@ -62,7 +62,7 @@ check_opts([A|L],I0,IF,G) :- !,
 check_opts(Opts,_,_,G) :-
 	throw(error(type_error(variable,Opts),G)).
 
-process_opt(V,I,G) :- var(V), !,
+process_opt(V,_,G) :- var(V), !,
 	throw(error(instantiation_error,G)).
 process_opt(nocase,1,_) :- !.
 process_opt(indices,2,_) :- !.
