@@ -20,6 +20,7 @@
 '$creep'(G) :-
 	% get the first signal from the mask
 	'$first_signal'(Sig), !,
+	format('~w~n',[G]),
 	% process it
 	'$do_signal'(Sig, G).
 '$creep'([M|G]) :-
@@ -32,6 +33,7 @@
 	'$continue_signals',
 	'$wake_up_goal'(G, LG).
 '$do_signal'(sig_creep, [M|G]) :-
+	format('~w~n',[G]),
         '$start_creep'([M|G]).
 '$do_signal'(sig_delay_creep, [M|G]) :-
 	'$execute'(M:G),

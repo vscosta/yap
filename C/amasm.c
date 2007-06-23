@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2006-12-27 01:32:37 $							 *
+* Last rev:     $Date: 2007-06-23 17:31:50 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.94  2006/12/27 01:32:37  vsc
+* diverse fixes
+*
 * Revision 1.93  2006/12/13 16:10:14  vsc
 * several debugger and CLP(BN) improvements.
 *
@@ -2856,9 +2859,11 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_rc(_get_atom, code_p, pass_no, cip);
       break;
     case get_float_op:
+      *clause_has_blobsp = TRUE;
       code_p = a_rd(_get_float, code_p, pass_no, cip->cpc);
       break;
     case get_longint_op:
+      *clause_has_blobsp = TRUE;
       code_p = a_ri(_get_longint, code_p, pass_no, cip->cpc);
       break;
     case get_bigint_op:
@@ -2869,9 +2874,11 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_rc(_put_atom, code_p, pass_no, cip);
       break;
     case put_float_op:
+      *clause_has_blobsp = TRUE;
       code_p = a_rd(_put_float, code_p, pass_no, cip->cpc);
       break;
     case put_longint_op:
+      *clause_has_blobsp = TRUE;
       code_p = a_ri(_put_longint, code_p, pass_no, cip->cpc);
       break;
     case put_bigint_op:
@@ -2924,9 +2931,11 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_ucons(&do_not_optimise_uatom, unify_atom_op, code_p, pass_no, cip);
       break;
     case unify_float_op:
+      *clause_has_blobsp = TRUE;
       code_p = a_ud(_unify_float, _unify_float_write, code_p, pass_no, cip->cpc);
       break;
     case unify_longint_op:
+      *clause_has_blobsp = TRUE;
       code_p = a_ui(_unify_longint, _unify_longint_write, code_p, pass_no, cip->cpc);
       break;
     case unify_bigint_op:
@@ -2937,9 +2946,11 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_uc(cip->cpc->rnd1, _unify_l_atom, _unify_l_atom_write, code_p, pass_no);
       break;
     case unify_last_float_op:
+      *clause_has_blobsp = TRUE;
       code_p = a_ud(_unify_l_float, _unify_l_float_write, code_p, pass_no, cip->cpc);
       break;
     case unify_last_longint_op:
+      *clause_has_blobsp = TRUE;
       code_p = a_ui(_unify_l_longint, _unify_l_longint_write, code_p, pass_no, cip->cpc);
       break;
     case unify_last_bigint_op:
@@ -2950,9 +2961,11 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_ucons(&do_not_optimise_uatom, write_atom_op, code_p, pass_no, cip);
       break;
     case write_float_op:
+      *clause_has_blobsp = TRUE;
       code_p = a_wd(_write_float, code_p, pass_no, cip->cpc);
       break;
     case write_longint_op:
+      *clause_has_blobsp = TRUE;
       code_p = a_wi(_write_longint, code_p, pass_no, cip->cpc);
       break;
     case write_bigint_op:
