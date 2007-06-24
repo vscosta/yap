@@ -1,6 +1,6 @@
 ================================================================
 Logtalk - Open source object-oriented logic programming language
-Release 2.30.1
+Release 2.30.2
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ================================================================
@@ -70,4 +70,19 @@ Y = 0
 NR = rectangle(2, 1, 3, 4)
 X2 = 3
 Y2 = 4 
+yes
+
+
+% some queries with parametric objects that define "setter"
+% methods that return updated object identifiers:
+
+| ?- person(sally, 20)::grow_older(NewId).
+
+NewId = person(sally, 21) 
+yes
+
+
+| ?- employee(sally, 21, 1200)::give_raise(250, NewId).
+
+NewId = employee(sally, 21, 1450) 
 yes

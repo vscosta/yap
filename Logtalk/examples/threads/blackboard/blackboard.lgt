@@ -1,6 +1,6 @@
 
 :- category(using).					% we can call the threaded_wait/1 and threaded_notify/1 predicates from category 
-									% predicates; the importing object threads are used for exchanging notifications
+									% predicates; the importing object message queues are used for exchanging notifications
 	:- public([pick_up/0, release/0]).
 
 	pick_up :-
@@ -15,7 +15,7 @@
 :- object(chalk,
 	imports(using)).
 
-	:- threaded.					% the chalk's thread is used for exchanging notifications
+	:- threaded.					% the chalk's message queue is used for exchanging notifications
 	:- initialization(::release).	% make the chalk initially available
 
 :- end_object.
@@ -24,7 +24,7 @@
 :- object(eraser,
 	imports(using)).
 
-	:- threaded.					% the eraser's thread is used for exchanging notifications
+	:- threaded.					% the eraser's message queue is used for exchanging notifications
 	:- initialization(::release).	% make the eraser initially available
 
 :- end_object.

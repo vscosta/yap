@@ -1,6 +1,6 @@
 ================================================================
 Logtalk - Open source object-oriented logic programming language
-Release 2.30.1
+Release 2.30.2
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ================================================================
@@ -8,6 +8,31 @@ Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.30.2 - June 24, 2007
+
+	Updated the Logtalk compiler to throw a compilation error when duplicated 
+	or conflicting predicate scope directives are found.
+
+	Updated the Logtalk compiler to correct a cosmetic glitch when reporting 
+	compilation errors.
+
+	Updated the Logtalk compiler to check for mismatches between the argument 
+	of this/1 calls and the parametric object identifier.
+
+	Corrected a bug in the implementation of the multi-threading built-in 
+	predicate threaded_ignore/1.
+
+	Revamped the "threads/buffer" example to support setting the buffer 
+	maximum number of items.
+
+	Added a new DCG example, "dcgs/morse.lgt", for parsing messages in Morse 
+	code.
+
+	Extended the "parametric" example to illustrate a solution for dealing 
+	with inheritance when defining "setter" predicates/methods that return 
+	updated object identifiers.
 
 
 2.30.1 - June 12, 2007

@@ -25,7 +25,7 @@
 
 <pre>threaded_call(Goal)</pre>
 <p>
-Proves <code>Goal</code> asynchronously using a new thread. The argument can be a message sending goal. This call always succeeds. The result (success, failure, or exception) is sent back to the message queue of the object containing the call (<em>this</em>).
+Proves <code>Goal</code> asynchronously using a new thread. The argument can be a message sending goal. Calls to this predicate always succeeds and return immediately. The results (success, failure, or exception) are sent back to the message queue of the object containing the call (<em>this</em>); they can be retrieved by calling the <a title="Consult reference manual" href="threaded_exit1.html"><code>threaded_exit/1</code></a> predicate.
 </p>
 
 <h4>Template and modes</h4>
@@ -55,7 +55,7 @@ Proves <code>Goal</code> asynchronously using a new thread. The argument can be 
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: May 26, 2007</span>
+		<span>Last updated on: June 19, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="../index.html#builtins">previous</a> | <a href="../../glossary.html">glossary</a> | <a href="threaded_once1.html">next</a></span><br/>

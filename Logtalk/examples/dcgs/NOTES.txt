@@ -1,6 +1,6 @@
 ================================================================
 Logtalk - Open source object-oriented logic programming language
-Release 2.30.1
+Release 2.30.2
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ================================================================
@@ -35,6 +35,17 @@ objects and categories:
 	bypass
 		using the {} DCG construct together with the {} Logtalk control 
 		construct
+	tokenizer
+		natural language tokenizer example
+	macaddr
+		validator for MAC addresses
+	morse
+		decoder for Morse code messages; illustrate how to use scope 
+		directives to declare grammar rule non-terminals
+
+This folder contains an example ("tokenizer") adopted with permission from 
+a Michael A. Covington example (http://www.ai.uga.edu/~mc/). See the file 
+"tokenizer.lgt" for more details.
 
 This folder contains two examples of DCGs ("bom" and "faa") adopted with 
 permission from the Amzi! Prolog documentation. The documentation is 

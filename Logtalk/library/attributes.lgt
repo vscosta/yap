@@ -10,13 +10,13 @@
 	:- public(attribute/2).
 	:- mode(attribute(?nonvar, ?nonvar), zero_or_more).
 	:- info(attribute/2,
-		[comment is 'Returns, by backtracking, all pairs of atribute-values.',
+		[comment is 'Returns, by backtracking, all pairs of attribute-values.',
 		 argnames is ['Attribute', 'Value']]).
 
 	:- public(attributes/1).
 	:- mode(attributes(-list), one).
 	:- info(attributes/1,
-		[comment is 'List of all pairs of atribute-values.',
+		[comment is 'List of all pairs of attribute-values.',
 		 argnames is ['Attributes']]).
 
 	:- private(attribute_/2).

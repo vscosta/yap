@@ -201,7 +201,7 @@
 
 
 /*	The following parametric object illustrates a solution for implementing 
-	modifiable object state. The idea is to represent object state by using 
+	backtracable object state. The idea is to represent object state by using 
 	object parameters, defining "setter" predicates/methods that return the 
 	updated object identifier.
 */
@@ -274,5 +274,76 @@
 		this(rectangle(_, _, X, Y)).
 
 */
+
+:- end_object.
+
+
+
+/*	The following parametric objects show a solution for dealing with inheritance when
+	defining "setter" predicates/methods that return updated object identifiers.
+*/
+
+:- object(person(_Name, _Age)).
+
+	:- info([
+		version is 1.0,
+		author is 'Paulo Moura',
+		date is 2007/6/19,
+		comment is 'A simple representation for people using parametric objects.',
+		parnames is ['Name', 'Age']]).
+
+	:- public(grow_older/1).
+	:- mode(grow_older(-object_identifier), one).
+	:- info(grow_older/1,
+		[comment is 'Increments the person''s age, returning the updated object identifier.',
+		 argnames is ['NewId']]).
+
+	grow_older(NewId) :-
+		::age(OldAge, NewAge, NewId),
+		NewAge is OldAge + 1.
+
+	:- protected(age/3).
+	:- mode(age(?integer, ?integer, -object_identifier), zero_or_one).
+	:- info(age/3,
+		[comment is 'Rectangle area.',
+		 argnames is ['OldAge', 'NewAge', 'NewId']]).
+
+	age(OldAge, NewAge, person(Name, NewAge)) :-	% this rule is compiled into a fact due to
+		this(person(Name, OldAge)).					% compilation of the this/1 call inline
+
+:- end_object.
+
+
+:- object(employee(Name, Age, _Salary),
+	extends(person(Name, Age))).
+
+	:- info([
+		version is 1.0,
+		author is 'Paulo Moura',
+		date is 2007/6/19,
+		comment is 'A simple representation for employees using parametric objects.',
+		parnames is ['Name', 'Age', 'Salary']]).
+
+	:- public(give_raise/2).
+	:- mode(give_raise(+integer, -object_identifier), one).
+	:- info(give_raise/2,
+		[comment is 'Gives a raise to the employee, returning the updated object identifier.',
+		 argnames is ['Amount', 'NewId']]).
+
+	give_raise(Amount, NewId) :-
+		::salary(OldSalary, NewSalary, NewId),
+		NewSalary is OldSalary + Amount.
+
+	:- protected(salary/3).
+	:- mode(salary(?integer, ?integer, -object_identifier), zero_or_one).
+	:- info(salary/3,
+		[comment is 'Rectangle area.',
+		 argnames is ['OldSalary', 'NewSalary', 'NewId']]).
+
+	salary(OldSalary, NewSalary, employee(Name, Age, NewSalary)) :-
+		this(employee(Name, Age, OldSalary)).
+
+	age(OldAge, NewAge, employee(Salary, Name, NewAge)) :-
+		this(employee(Salary, Name, OldAge)).
 
 :- end_object.

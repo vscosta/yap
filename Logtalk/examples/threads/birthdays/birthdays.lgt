@@ -51,7 +51,7 @@
 		comment is 'New friend, watch out for his/her birthday.',
 		argnames is ['Name']]).
 
-	% new agents are created as threaded objects:
+	% new agents are created as multi-threading enabled objects:
 	new(Name, Age, Gender) :-
 		this(This),
 		create_object(Name, [extends(This)], [threaded], [age(Age), gender(Gender)]).
@@ -70,7 +70,7 @@
 		write('Thanks! Here, have a slice of cake, '), write(From), write('.'), nl,
 		threaded_ignore(From::cake_slice(Self)).	% we don't care what happens with the cake slice
 
-	% be nice, give thanks for the cake offer:
+	% be nice, give thanks when someone offer us a slice of cake:
 	cake_slice(From) :-
 		write('Thanks for the cake '), write(From), write('!'), nl,
 		threaded_exit(From::age(Age)),				% retrieve our friend's (old) age

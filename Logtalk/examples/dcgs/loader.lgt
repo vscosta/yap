@@ -7,6 +7,7 @@
 		parsetree,
 		sentences,
 		tokenizer,
+		morse,
 		macaddr,
 		url,
 		xml,

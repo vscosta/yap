@@ -8,7 +8,6 @@
 		comment is 'Example of using DCG rules to decrypt a enigma where words are made of numbers corresponding to the characters on a cellphone keypad.']).
 
 	:- public(solve/2).
-	:- public(solve/2).
 	:- mode(solve(+string, -list(atom)), zero_or_one).
 	:- info(solve/2, [
 		comment is 'Solves a cellphone enigma against a dictionary of words.',
