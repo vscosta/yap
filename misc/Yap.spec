@@ -3,7 +3,7 @@
 
 Name: Yap
 Summary: Prolog Compiler
-Version: 5.1.2
+Version: 5.1.3
 Packager: Vitor Santos Costa <vitor@cos.ufrj.br>
 Release: 1
 Source: http://www.ncc.up.pt/~vsc/Yap/%{name}-%{version}.tar.gz
@@ -28,7 +28,7 @@ Prolog.
 %setup -q
 
 %build
-./configure --prefix=/usr --enable-max-performance
+./configure --prefix=/usr --enable-max-performance --enable-depth-limit
 make
 
 %install

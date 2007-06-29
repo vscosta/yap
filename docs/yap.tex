@@ -8,9 +8,9 @@
 @c @setchapternewpage odd
 @c %**end of header
 
-@set VERSION 5.1.2
-@set EDITION 4.2.4
-@set UPDATED December 2004
+@set VERSION 5.1.3
+@set EDITION 4.2.5
+@set UPDATED June 2007
 
 @c Index for C-Prolog compatible predicate
 @defindex cy
@@ -191,6 +191,7 @@ Subnodes of Library
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
 * Lists:: List Manipulation
+* MATLAB:: Matlab Interface
 * Non-Backtrackable Data Structures:: Queues, Heaps, and Beams.
 * Ordered Sets:: Ordered Set Manipulation
 * Pseudo Random:: Pseudo Random Numbers
@@ -7018,6 +7019,7 @@ Library, Extensions, Built-ins, Top
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
 * Lists:: List Manipulation
+* MATLAB:: Matlab Interface
 * Non-Backtrackable Data Structures:: Queues, Heaps, and Beams.
 * Ordered Sets:: Ordered Set Manipulation
 * Pseudo Random:: Pseudo Random Numbers
@@ -7426,7 +7428,7 @@ Returns the smallest (Key1) and second smallest (Key2) pairs in the
 heap, without deleting them.
 @end table
 
-@node Lists, Non-Backtrackable Data Structures, Heaps, Library
+@node Lists, MATLAB, Heaps, Library
 @section List Manipulation
 @cindex list manipulation
 
@@ -7621,7 +7623,188 @@ True when @var{Numbers} is a list of numbers, and @var{Min} is the minimum.
 
 @end table
 
-@node Non-Backtrackable Data Structures, Ordered Sets, Lists, Library
+@node MATLAB, Non-Backtrackable Data Structures, Lists, Library
+@section MATLAB Package Interface
+@cindex Matlab Interface
+
+The MathWorks MATLAB is a widely used package for array
+processing. YAP now includes a straightforward interface to MATLAB. To
+actually use it, you need to install YAP calling @code{configure} with
+the @code{--with-matlab=DIR} option, and you need to call
+@code{use_module(library(lists))} command.
+
+@table @code
+
+@item start_matlab(+@var{Options})
+@findex start_matlab/1
+@snindex start_matlab/1
+@cnindex start_matlab/1
+Start a matlab session. The argument @var{Options} may either be the
+empty string/atom or the command to call matlab. The command may fail.
+
+@item close_matlab
+@findex close_matlab/0
+@snindex close_matlab/0
+@cnindex close_matlab/0
+Stop the current matlab session.
+
+@item matlab_on
+@findex matlab_on/0
+@snindex matlab_on/0
+@cnindex matlab_on/0
+Holds if a matlab session is on.
+
+@item matlab_eval_string(+@var{Command})
+@findex matlab_eval_string/1
+@snindex matlab_eval_string/1
+@cnindex matlab_eval_string/1
+Holds if matlab evaluated successfully the command @var{Command}.
+
+@item matlab_eval_string(+@var{Command}, -@var{Answer})
+@findex matlab_eval_string/2
+@snindex matlab_eval_string/2
+@cnindex matlab_eval_string/2
+MATLAB will evaluate the command @var{Command} and unify @var{Answer}
+with a string reporting the result.
+
+
+@item matlab_cells(+@var{Size}, ?@var{Array})
+@findex matlab_cells/2
+@snindex matlab_cells/2
+@cnindex matlab_cells/2
+MATLAB will create an empty vector of cells of size @var{Size}, and if
+@var{Array} is bound to an atom, store the array in the matlab
+variable with name @var{Array}. Corresponds to the MATLAB command @code{cells}.
+
+
+@item matlab_cells(+@var{SizeX}, +@var{SizeY}, ?@var{Array})
+@findex matlab_cells/3
+@snindex matlab_cells/3
+@cnindex matlab_cells/3
+MATLAB will create an empty array of cells of size @var{SizeX} and
+@var{SizeY}, and if @var{Array} is bound to an atom, store the array
+in the matlab variable with name @var{Array}.  Corresponds to the
+MATLAB command @code{cells}.
+
+@item matlab_initialized_cells(+@var{SizeX}, +@var{SizeY}, +@var{List}, ?@var{Array})
+@findex matlab_initialized_cells/4
+@snindex matlab_initialized_cells/4
+@cnindex matlab_initialized_cells/4
+MATLAB will create an array of cells of size @var{SizeX} and
+@var{SizeY}, initialized from the list @var{List}, and if @var{Array}
+is bound to an atom, store the array in the matlab variable with name
+@var{Array}.
+
+@item matlab_matrix(+@var{SizeX}, +@var{SizeY}, +@var{List}, ?@var{Array})
+@findex matlab_matrix/4
+@snindex matlab_matrix/4
+@cnindex matlab_matrix/4
+MATLAB will create an array of floats of size @var{SizeX} and @var{SizeY},
+initialized from the list @var{List}, and if @var{Array} is bound to
+an atom, store the array in the matlab variable with name @var{Array}.
+
+@item matlab_set(+@var{MatVar}, +@var{X}, +@var{Y}, +@var{Value})
+@findex matlab_set/4
+@snindex matlab_set/4
+@cnindex matlab_set/4
+Call MATLAB to set element @var{MatVar}(@var{X}, @var{Y}) to
+@var{Value}. Notice that this command uses the MATLAB array access
+convention.
+
+@item matlab_get_variable(+@var{MatVar}, -@var{List})
+@findex matlab_get_variable/2
+@snindex matlab_get_variable/2
+@cnindex matlab_get_variable/2
+Unify MATLAB variable @var{MatVar} with the List @var{List}.
+
+@item matlab_item(+@var{MatVar}, +@var{X}, ?@var{Val})
+@findex matlab_item/3
+@snindex matlab_item/3
+@cnindex matlab_item/3
+Read or set MATLAB @var{MatVar}(@var{X}) from/to @var{Val}. Use
+@code{C} notation for matrix access (ie, starting from 0).
+
+@item matlab_item(+@var{MatVar}, +@var{X}, +@var{Y}, ?@var{Val})
+@findex matlab_item/4
+@snindex matlab_item/4
+@cnindex matlab_item/4
+Read or set MATLAB @var{MatVar}(@var{X},@var{Y}) from/to @var{Val}. Use
+@code{C} notation for matrix access (ie, starting from 0).
+
+@item matlab_item1(+@var{MatVar}, +@var{X}, ?@var{Val})
+@findex matlab_item/3
+@snindex matlab_item/3
+@cnindex matlab_item/3
+Read or set MATLAB @var{MatVar}(@var{X}) from/to @var{Val}. Use
+MATLAB notation for matrix access (ie, starting from 1).
+
+@item matlab_item1(+@var{MatVar}, +@var{X}, +@var{Y}, ?@var{Val})
+@findex matlab_item/4
+@snindex matlab_item/4
+@cnindex matlab_item/4
+Read or set MATLAB @var{MatVar}(@var{X},@var{Y}) from/to @var{Val}. Use
+MATLAB notation for matrix access (ie, starting from 1).
+
+@item matlab_sequence(+@var{Min}, +@var{Max}, ?@var{Array})
+@findex matlab_sequence/3
+@snindex matlab_sequence/3
+@cnindex matlab_sequence/3
+MATLAB will create a sequence going from @var{Min} to @var{Max}, and
+if @var{Array} is bound to an atom, store the sequence in the matlab
+variable with name @var{Array}.
+
+@item matlab_vector(+@var{Size}, +@var{List}, ?@var{Array})
+@findex matlab_vector/4
+@snindex matlab_vector/4
+@cnindex matlab_vector/4
+MATLAB will create a vector of floats of size @var{Size}, initialized
+from the list @var{List}, and if @var{Array} is bound to an atom,
+store the array in the matlab variable with name @var{Array}.
+
+@item matlab_zeros(+@var{Size}, ?@var{Array})
+@findex matlab_zeros/2
+@snindex matlab_zeros/2
+@cnindex matlab_zeros/2
+MATLAB will create a vector of zeros of size @var{Size}, and if
+@var{Array} is bound to an atom, store the array in the matlab
+variable with name @var{Array}. Corresponds to the MATLAB command
+@code{zeros}.
+
+@item matlab_zeros(+@var{SizeX}, +@var{SizeY}, ?@var{Array})
+@findex matlab_zeros/3
+@snindex matlab_zeros/3
+@cnindex matlab_zeros/3
+MATLAB will create an array of zeros of size @var{SizeX} and
+@var{SizeY}, and if @var{Array} is bound to an atom, store the array
+in the matlab variable with name @var{Array}.  Corresponds to the
+MATLAB command @code{zeros}.
+
+
+@item matlab_zeros(+@var{SizeX}, +@var{SizeY}, +@var{SizeZ}, ?@var{Array})
+@findex matlab_zeros/4
+@snindex matlab_zeros/4
+@cnindex matlab_zeros/4
+MATLAB will create an array of zeros of size @var{SizeX}, @var{SizeY},
+and @var{SizeZ}. If @var{Array} is bound to an atom, store the array
+in the matlab variable with name @var{Array}.  Corresponds to the
+MATLAB command @code{zeros}.
+
+
+@item matlab_zeros(+@var{SizeX}, +@var{SizeY}, +@var{SizeZ}, ?@var{Array})
+@findex matlab_zeros/4
+@snindex matlab_zeros/4
+@cnindex matlab_zeros/4
+MATLAB will create an array of zeros of size @var{SizeX}, @var{SizeY},
+and @var{SizeZ}. If @var{Array} is bound to an atom, store the array
+in the matlab variable with name @var{Array}.  Corresponds to the
+MATLAB command @code{zeros}.
+
+
+
+
+@end table
+
+@node Non-Backtrackable Data Structures, Ordered Sets, MATLAB, Library
 @section Non-Backtrackable Data Structures
 
 The following routines implement well-known data-structures using global

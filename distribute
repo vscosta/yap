@@ -64,18 +64,25 @@ cd ../../../console
 splat
 cd ../docs
 splat
-if test "$1" = "--small"; then
-  make realclean
-else
-  make html
-  make pdf
-  make clean
-fi
 cd ../include
 splat
 cd ../library
 splat
 cd regex
+splat
+cd ../system
+splat
+cd ../lammpi
+splat
+cd ../Tries
+splat
+cd ../mpi
+splat
+cd examples
+splat
+cd ../../tries
+splat
+cd ../matlab
 splat
 cd ../yap2swi
 splat
@@ -107,9 +114,11 @@ cd clpbn
 splat
 cd examples
 splat
-cd ../../../..
+cd ../../learning
+splat
+cd ../../..
 if test "$1" = "--small"; then
-  tar cvzf  "$version"-small.tar.gz --exclude=CVS  "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,misc,pl,LGPL/README,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,LGPL/JPL/jpl.yap,LGPL/JPL/jpl_paths.yap.in,LGPL/JPL/Makefile.in,LGPL/JPL/java,LGPL/JPL/src,build-distr,OPTYap,BEAM,MYDDAS,LGPL/clpr,LGPL/chr,LGPL/clp,CLPBN} # --exclude=CLPQR/clpqr/examples  --exclude=CHR/chr/examples
+  tar cvzf  "$version"-small.tar.gz --exclude=CVS  "$version"/{Artistic,COPYING,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs/*.tex,include,library,misc,pl,LGPL/README,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,LGPL/JPL/jpl.yap,LGPL/JPL/jpl_paths.yap.in,LGPL/JPL/Makefile.in,LGPL/JPL/java,LGPL/JPL/src,build-distr,OPTYap,BEAM,MYDDAS,LGPL/clpr,LGPL/chr,LGPL/clp,CLPBN}  --exclude=CLPBN/clpbn/backup  --exclude=CLPBN/clpbn/devel --exclude=CLPBN/test
 else
-  tar cvzf "$version".tar.gz --exclude=CVS  "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,misc,pl,LGPL/README,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,LGPL/JPL/jpl.yap,LGPL/JPL/jpl_paths.yap.in,LGPL/JPL/Makefile.in,LGPL/JPL/java,LGPL/JPL/src,build-distr,build-distr,OPTYap,BEAM,MYDDAS,LGPL/clpr,LGPL/chr,LGPL/clp,CLPBN,Logtalk}
+  tar cvzf "$version".tar.gz --exclude=CVS  "$version"/{Artistic,COPYING,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,misc,pl,LGPL/README,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,LGPL/JPL/jpl.yap,LGPL/JPL/jpl_paths.yap.in,LGPL/JPL/Makefile.in,LGPL/JPL/java,LGPL/JPL/src,build-distr,build-distr,OPTYap,BEAM,MYDDAS,LGPL/clpr,LGPL/chr,LGPL/clp,CLPBN,Logtalk}  --exclude=CLPBN/clpbn/backup  --exclude=CLPBN/clpbn/devel  --exclude=docs/index  --exclude=CLPBN/test
 fi
