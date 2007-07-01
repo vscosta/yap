@@ -2013,9 +2013,8 @@ p_add_to_array_element(void)
 	return(FALSE);
       }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
-      t3 = MkIntegerTerm(IntegerOfTerm(t3)+1);
-      MaBind(ptr, t3);
-      return(Yap_unify(ARG4,t3));
+      MaBind(ptr, ta);
+      return(Yap_unify(ARG4,ta));
 #else
       Yap_Error(SYSTEM_ERROR,t2,"add_to_array_element");
       return(FALSE);

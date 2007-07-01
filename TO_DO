@@ -1,3 +1,25 @@
+For 6.0
+o Rogério Salvini's report
+o Fix many modules
+o Fix meta-commas
+o Fix CLPBN/matlab
+o Document CLPBN
+o Fix meta-call conjunction
+o exo-emulation.
+o EMACS interface.
+o Upgrade JPL
+o Upgrade ciao packages
+o install SWIPL xml processing
+o talk to Fabrizio
+o upgrade save/restore
+o exec_c
+o R Interface
+
+5.1.3
+o document MATLAB interface
+
+
+
 BEFORE 4.4:
 - mixed attributes and delays.
 - write infinite terms

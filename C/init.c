@@ -1225,8 +1225,7 @@ InitCodes(void)
   Yap_heap_regs->foreign_code_loaded = NULL;
   Yap_heap_regs->yap_lib_dir = NULL;
   Yap_heap_regs->agc_last_call = 0;
-  /* should be 10000 */
-  Yap_heap_regs->agc_threshold = 0;
+  Yap_heap_regs->agc_threshold = 10000;
   Yap_heap_regs->agc_hook = NULL;
   Yap_heap_regs->parser_error_style = EXCEPTION_ON_PARSER_ERROR;
   Yap_heap_regs->size_of_overflow  = 0;
