@@ -1726,7 +1726,7 @@ init_matrix(void)
   YAP_UserCPredicate("matrix_min", matrix_min, 2);
   YAP_UserCPredicate("matrix_minarg", matrix_minarg, 2);
   YAP_UserCPredicate("matrix_sum", matrix_sum, 2);
-  YAP_UserCPredicate("matrix_sum_to_all", matrix_sum, 2);
+  YAP_UserCPredicate("matrix_add_to_all", matrix_sum, 2);
   YAP_UserCPredicate("do_matrix_op", matrix_op, 4);
   YAP_UserCPredicate("do_matrix_agg_lines", matrix_agg_lines, 3);
   YAP_UserCPredicate("do_matrix_agg_cols", matrix_agg_cols, 3);

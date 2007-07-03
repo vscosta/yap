@@ -61,7 +61,7 @@ typedef enum {
 	    matrix_min/2,
 	    matrix_minarg/2,
 	    matrix_sum/2,
-	    matrix_sum_to_all/2,
+	    matrix_add_to_all/2,
 	    matrix_agg_lines/3,
 	    matrix_agg_cols/3,
 	    matrix_op/4,

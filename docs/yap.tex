@@ -191,6 +191,7 @@ Subnodes of Library
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
 * Lists:: List Manipulation
+* matrix:: Matrix Objects
 * MATLAB:: Matlab Interface
 * Non-Backtrackable Data Structures:: Queues, Heaps, and Beams.
 * Ordered Sets:: Ordered Set Manipulation
@@ -7019,6 +7020,7 @@ Library, Extensions, Built-ins, Top
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
 * Lists:: List Manipulation
+* matrix:: Matrix Objects
 * MATLAB:: Matlab Interface
 * Non-Backtrackable Data Structures:: Queues, Heaps, and Beams.
 * Ordered Sets:: Ordered Set Manipulation
@@ -7428,7 +7430,7 @@ Returns the smallest (Key1) and second smallest (Key2) pairs in the
 heap, without deleting them.
 @end table
 
-@node Lists, MATLAB, Heaps, Library
+@node Lists, matrix, Heaps, Library
 @section List Manipulation
 @cindex list manipulation
 
@@ -7623,7 +7625,266 @@ True when @var{Numbers} is a list of numbers, and @var{Min} is the minimum.
 
 @end table
 
-@node MATLAB, Non-Backtrackable Data Structures, Lists, Library
+@node matrix, MATLAB, Lists, Library
+@section MATLAB Package Interface
+@cindex Matlab Interface
+
+This package provides a fast implementation of multi-dimensional
+matrices of integers and floats. In contrast to dynamic arrays, these
+matrices are multi-dimensional and compact. In contrast to static
+arrays. these arrays are allocated in the stack. Matrices are available
+by loading the library @code{library(matrix)}.
+
+Notice that the functionality in this library is only partial. Please
+contact the YAP maintainers if you need for extra functionality.
+
+@table @code
+
+@item matrix_new(+@var{Type},+@var{Dims},-@var{Matrix})
+@findex matrix_new/3
+@snindex matrix_new/3
+@cnindex matrix_new/3
+
+Create a new matrix @var{Matrix} of type @var{Type}, which may be one of
+@code{ints} or @code{floats}, and with a list of dimensions @var{Dims}.
+The matrix will be initialised to zeros.
+
+@example
+?- matrix_new(ints,[2,3],Matrix).
+
+Matrix = 0
+@end example
+Notice that currently YAP will always write a matrix as @code{0}.
+
+@item matrix_new(+@var{Type},+@var{Dims},+@var{List},-@var{Matrix})
+@findex matrix_new/4
+@snindex matrix_new/4
+@cnindex matrix_new/4
+
+Create a new matrix @var{Matrix} of type @var{Type}, which may be one of
+@code{ints} or @code{floats}, with dimensions @var{Dims}, and
+initialised from list @var{List}.
+
+@item matrix_new_set(?@var{Dims},+@var{OldMatrix},+@var{Value},-@var{NewMatrix})
+@findex matrix_new_set/4
+@snindex matrix_new_set/4
+@cnindex matrix_new_set/4
+
+Create a new matrix @var{NewMatrix} of type @var{Type}, with dimensions
+@var{Dims}. The elements of @var{NewMatrix} are set to @var{Value}.
+
+@item matrix_dims(+@var{Matrix},-@var{Dims})
+@findex matrix_dims/2
+@snindex matrix_dims/2
+@cnindex matrix_dims/2
+
+Unify @var{Dims} with a list of dimensions for @var{Matrix}.
+
+@item matrix_ndims(+@var{Matrix},-@var{Dims})
+@findex matrix_ndims/2
+@snindex matrix_ndims/2
+@cnindex matrix_ndims/2
+
+Unify @var{NDims} with the number of dimensions for @var{Matrix}.
+
+@item matrix_size(+@var{Matrix},-@var{NElems})
+@findex matrix_size/2
+@snindex matrix_size/2
+@cnindex matrix_size/2
+
+Unify @var{NElems} with the number of elements for @var{Matrix}.
+
+@item matrix_type(+@var{Matrix},-@var{Type})
+@findex matrix_type/2
+@snindex matrix_type/2
+@cnindex matrix_type/2
+
+Unify @var{NElems} with the type of the elements in @var{Matrix}.
+
+@item matrix_to_list(+@var{Matrix},-@var{Elems})
+@findex matrix_to_list/2
+@snindex matrix_to_list/2
+@cnindex matrix_to_list/2
+
+Unify @var{Elems} with the list including all the elements in @var{Matrix}.
+
+@item matrix_get(+@var{Matrix},+@var{Position},-@var{Elem})
+@findex matrix_get/3
+@snindex matrix_get/3
+@cnindex matrix_get/3
+
+Unify @var{Elem} with the element of @var{Matrix} at position
+@var{Position}.
+
+@item matrix_set(+@var{Matrix},+@var{Position},+@var{Elem})
+@findex matrix_set/3
+@snindex matrix_set/3
+@cnindex matrix_set/3
+
+Set the element of @var{Matrix} at position
+@var{Position} to  @var{Elem}.
+
+@item matrix_set_all(+@var{Matrix},+@var{Elem})
+@findex matrix_set_all/2
+@snindex matrix_set_all/2
+@cnindex matrix_set_all/2
+
+Set all element of @var{Matrix} to @var{Elem}.
+
+@item matrix_add(+@var{Matrix},+@var{Position},+@var{Operand})
+@findex matrix_add/3
+@snindex matrix_add/3
+@cnindex matrix_add/3
+
+Add @var{Operand} to the element of @var{Matrix} at position
+@var{Position}.
+
+@item matrix_inc(+@var{Matrix},+@var{Position})
+@findex matrix_inc/2
+@snindex matrix_inc/2
+@cnindex matrix_inc/2
+
+Increment the element of @var{Matrix} at position @var{Position}.
+
+@item matrix_inc(+@var{Matrix},+@var{Position},-@var{Element})
+@findex matrix_inc/3
+@snindex matrix_inc/3
+@cnindex matrix_inc/3
+
+Increment the element of @var{Matrix} at position @var{Position} and
+unify with @var{Element}.
+
+@item matrix_dec(+@var{Matrix},+@var{Position})
+@findex matrix_dec/2
+@snindex matrix_dec/2
+@cnindex matrix_dec/2
+
+Decrement the element of @var{Matrix} at position @var{Position}.
+
+@item matrix_dec(+@var{Matrix},+@var{Position},-@var{Element})
+@findex matrix_dec/3
+@snindex matrix_dec/3
+@cnindex matrix_dec/3
+
+Decrement the element of @var{Matrix} at position @var{Position} and
+unify with @var{Element}.
+
+@item matrix_arg_to_offset(+@var{Matrix},+@var{Position},-@var{Offset})
+@findex matrix_arg_to_offset/3
+@snindex matrix_arg_to_offset/3
+@cnindex matrix_arg_to_offset/3
+
+Given matrix @var{Matrix} return what is the numerical @var{Offset} of
+the element at @var{Position}.
+
+@item matrix_offset_to_arg(+@var{Matrix},-@var{Offset},+@var{Position})
+@findex matrix_offset_to_arg/3
+@snindex matrix_offset_to_arg/3
+@cnindex matrix_offset_to_arg/3
+
+Given a position @var{Position } for matrix @var{Matrix} return the
+corresponding numerical @var{Offset} from the beginning of the matrix.
+
+@item matrix_max(+@var{Matrix},+@var{Max})
+@findex matrix_max/2
+@snindex matrix_max/2
+@cnindex matrix_max/2
+
+Unify @var{Max} with the maximum in matrix  @var{Matrix}.
+
+@item matrix_maxarg(+@var{Matrix},+@var{Maxarg})
+@findex matrix_maxarg/2
+@snindex matrix_maxarg/2
+@cnindex matrix_maxarg/2
+
+Unify @var{Max} with the position of the maximum in matrix  @var{Matrix}.
+
+@item matrix_min(+@var{Matrix},+@var{Min})
+@findex matrix_min/2
+@snindex matrix_min/2
+@cnindex matrix_min/2
+
+Unify @var{Min} with the minimum in matrix  @var{Matrix}.
+
+@item matrix_minarg(+@var{Matrix},+@var{Minarg})
+@findex matrix_minarg/2
+@snindex matrix_minarg/2
+@cnindex matrix_minarg/2
+
+Unify @var{Min} with the position of the minimum in matrix  @var{Matrix}.
+
+@item matrix_sum(+@var{Matrix},+@var{Sum})
+@findex matrix_sum/2
+@snindex matrix_sum/2
+@cnindex matrix_sum/2
+
+Unify @var{Sum} with the sum of all elements in matrix  @var{Matrix}.
+
+@c @item matrix_add_to_all(+@var{Matrix},+@var{Element})
+@c @findex matrix_add_to_all/2
+@c @snindex matrix_add_to_all/2
+@c @cnindex matrix_add_to_all/2
+
+@c Add @var{Element} to all elements of matrix  @var{Matrix}.
+
+@item matrix_agg_lines(+@var{Matrix},+@var{Aggregate})
+@findex matrix_agg_lines/2
+@snindex matrix_agg_lines/2
+@cnindex matrix_agg_lines/2
+
+If @var{Matrix} is a n-dimensional matrix, unify @var{Aggregate} with
+the n-1 dimensional matrix where each element is obtained by adding all
+Matrix elements with same last n-1 index.
+
+@item matrix_agg_cols(+@var{Matrix},+@var{Aggregate})
+@findex matrix_agg_cols/2
+@snindex matrix_agg_cols/2
+@cnindex matrix_agg_cols/2
+
+If @var{Matrix} is a n-dimensional matrix, unify @var{Aggregate} with
+the one dimensional matrix where each element is obtained by adding all
+Matrix elements with same  first index.
+
+@item matrix_op(+@var{Matrix1},+@var{Matrix2},+@var{Op},-@var{Result})
+@findex matrix_op/4
+@snindex matrix_op/4
+@cnindex matrix_op/4
+
+@var{Result} is the result of applying @var{Op} to matrix @var{Matrix1}
+and @var{Matrix2}. Currently, only addition (@code{+}) is supported.
+
+@item matrix_op_to_all(+@var{Matrix1},+@var{Op},+@var{Operand},-@var{Result})
+@findex matrix_op/4
+@snindex matrix_op/4
+@cnindex matrix_op/4
+
+@var{Result} is the result of applying @var{Op} to all elements of
+@var{Matrix1}, with @var{Operand} as the second argument. Currently,
+only addition (@code{+}), multiplication (@code{+}), and division
+(@code{/}) are supported.
+
+@item matrix_op_to_lines(+@var{Matrix1},+@var{Lines},+@var{Op},-@var{Result})
+@findex matrix_op_to_lines/4
+@snindex matrix_op_to_lines/4
+@cnindex matrix_op_to_lines/4
+
+@var{Result} is the result of applying @var{Op} to all elements of
+@var{Matrix1}, with the corresponding element in @var{Lines} as the
+second argument. Currently, only division (@code{/}) is supported.
+
+@item matrix_op_to_cols(+@var{Matrix1},+@var{Cols},+@var{Op},-@var{Result})
+@findex matrix_op_to_cols/4
+@snindex matrix_op_to_cols/4
+@cnindex matrix_op_to_cols/4
+
+@var{Result} is the result of applying @var{Op} to all elements of
+@var{Matrix1}, with the corresponding element in @var{Cols} as the
+second argument. Currently, only addition (@code{+}) is
+supported. Notice that @var{Cols} will have n-1 dimensions.
+
+@end table
+
+@node MATLAB, Non-Backtrackable Data Structures, matrix, Library
 @section MATLAB Package Interface
 @cindex Matlab Interface
 
