@@ -85,7 +85,8 @@ all_vertices_in_edges([V1-V2|Edges],[V1,V2|Vertices]) :-
 	all_vertices_in_edges(Edges,Vertices).	 
 
 edges2graphl([], [], []).
-edges2graphl([V|Vertices], [V-V1|SortedEdges], [V-[V1|Children]|GraphL]) :- !,
+edges2graphl([V|Vertices], [VV-V1|SortedEdges], [V-[V1|Children]|GraphL]) :-
+	V == VV, !,
 	get_extra_children(SortedEdges,V,Children,RemEdges),
 	edges2graphl(Vertices, RemEdges, GraphL).
 edges2graphl([V|Vertices], SortedEdges, [V-[]|GraphL]) :-
@@ -101,7 +102,7 @@ dgraph_add_edges([V|Vs],Es) --> !,
 	dgraph_update_vertex(V,[]),
 	dgraph_add_edges(Vs,Es).
 
-get_extra_children([V-C|Es],V,[C|Children],REs) :- !,
+get_extra_children([V-C|Es],VV,[C|Children],REs) :- V == VV, !,
 	get_extra_children(Es,V,Children,REs).
 get_extra_children(Es,_,[],Es).
 
@@ -318,14 +319,14 @@ dup([_|AllVs], [_|Q]) :-
 	dup(AllVs, Q).
 
 start_queue([], [], RQ, RQ).
-start_queue([V|AllVs], [V-e(S,B,S,E)|InvertedEdges], Q, RQ) :- !,
-	link_edges(InvertedEdges, V, B, S, E, RemainingEdges),
+start_queue([V|AllVs], [VV-e(S,B,S,E)|InvertedEdges], Q, RQ) :- V == VV, !,
+	link_edges(InvertedEdges, VV, B, S, E, RemainingEdges),
 	start_queue(AllVs, RemainingEdges, Q, RQ).
 start_queue([V|AllVs], InvertedEdges, [V|Q], RQ) :-
 	start_queue(AllVs, InvertedEdges, Q, RQ).
 
-link_edges([V-e(A,B,S,E)|InvertedEdges], V, A, S, E, RemEdges) :- !,
-	link_edges(InvertedEdges, V, B, S, E, RemEdges).
+link_edges([V-e(A,B,S,E)|InvertedEdges], VV, A, S, E, RemEdges) :- V == VV, !,
+	link_edges(InvertedEdges, VV, B, S, E, RemEdges).
 link_edges(RemEdges, _, A, _, A, RemEdges).
 
 continue_queue([], _, []).

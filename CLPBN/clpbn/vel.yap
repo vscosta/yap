@@ -17,7 +17,7 @@
 :- module(vel, [vel/3,
 		check_if_vel_done/1]).
 
-:- attribute size/1, posterior/4, all_diffs/1.
+:- attribute size/1, all_diffs/1.
 
 :- use_module(library(ordsets), [ord_union/3]).
 
@@ -29,6 +29,9 @@
 	clpbn_not_var_member/2,
 	check_for_hidden_vars/3]).
 
+:- use_module(library('clpbn/display'), [
+	clpbn_bind_vals/3]).
+
 :- use_module(library('clpbn/discrete_utils'), [
 	project_from_CPT/3,
 	reorder_CPT/5,
@@ -36,8 +39,7 @@
 
 :- use_module(library(lists),
 	      [
-	       append/3,
-	       member/2
+	       append/3
 	      ]).
 
 check_if_vel_done(Var) :-
@@ -59,7 +61,7 @@ do_vel(LVs,Vs0,AllDiffs) :-
 	process(LVi, LVs, tab(Dist,_,_)),
 	Dist =.. [_|Ps0],
 	normalise(Ps0,Ps),
-	bind_vals(LVs,Ps,AllDiffs).
+	clpbn_bind_vals(LVs,Ps,AllDiffs).
 
 %
 % some variables might already have evidence in the data-base.
@@ -67,7 +69,7 @@ do_vel(LVs,Vs0,AllDiffs) :-
 get_rid_of_ev_vars([],[]).
 get_rid_of_ev_vars([V|LVs0],LVs) :-
 	clpbn:get_atts(V, [evidence(Ev)]), !,
-	put_atts(V, [posterior([],Ev,[],[])]), !,
+	clpbn_display:put_atts(V, [posterior([],Ev,[],[])]), !,
 	get_rid_of_ev_vars(LVs0,LVs).
 get_rid_of_ev_vars([V|LVs0],[V|LVs]) :-
 	get_rid_of_ev_vars(LVs0,LVs).
@@ -252,32 +254,6 @@ update_tables([tab(Tab0,Vs,Sz)|Tabs],[tab(Tab0,Vs,Sz)|NTabs],Table,V) :-
 update_tables([_|Tabs],NTabs,Table,V) :-
 	update_tables(Tabs,NTabs,Table,V).
 
-bind_vals([],_,_) :- !.
-% simple case, we want a distribution on a single variable.
-%bind_vals([V],Ps) :- !,
-%	clpbn:get_atts(V, [dist(Vals,_,_)]),
-%	put_atts(V, posterior([V], Vals, Ps)).
-% complex case, we want a joint distribution, do it on a leader.
-% should split on cliques ?
-bind_vals(Vs,Ps,AllDiffs) :-
-	get_all_combs(Vs, Vals),
-	Vs = [V|_],
-	put_atts(V, posterior(Vs, Vals, Ps, AllDiffs)).
-
-get_all_combs(Vs, Vals) :-
-	get_all_doms(Vs,Ds),
-	findall(L,ms(Ds,L),Vals).
-
-get_all_doms([], []).
-get_all_doms([V|Vs], [D|Ds]) :-
-	clpbn:get_atts(V, [dist(D,_,_)]),
-	get_all_doms(Vs, Ds).
-
-ms([], []).
-ms([H|L], [El|Els]) :-
-	member(El,H),
-	ms(L, Els).
-
 normalise(Ps0,Ps) :-
 	add_all(Ps0,0.0,Sum),
 	divide_by_sum(Ps0,Sum,Ps).
@@ -291,31 +267,6 @@ divide_by_sum([],_,[]).
 divide_by_sum([P|Ps0],Sum,[PN|Ps]) :-
 	PN is P/Sum,
 	divide_by_sum(Ps0,Sum,Ps).
-
-
-%
-% what is actually output
-%
-attribute_goal(V, G) :-
-	get_atts(V, [posterior(Vs,Vals,Ps,AllDiffs)]),
-	massage_out(Vs, Vals, Ps, G, AllDiffs, V).
-
-massage_out([], Ev, _, V=Ev, _, V) :- !.
-massage_out(Vs, [D], [P], p(CEqs)=P, AllDiffs, _) :- !,
-	gen_eqs(Vs,D,Eqs),
-	add_alldiffs(AllDiffs,Eqs,CEqs).
-massage_out(Vs, [D|Ds], [P|Ps], (p(CEqs)=P,G) , AllDiffs, V) :-
-	gen_eqs(Vs,D,Eqs),
-	add_alldiffs(AllDiffs,Eqs,CEqs),
-	massage_out(Vs, Ds, Ps, G, AllDiffs, V).
-
-gen_eqs([V], [D], (V=D)) :- !.
-gen_eqs([V], D, (V=D)) :- !.
-gen_eqs([V|Vs], [D|Ds], ((V=D),Eqs)) :-
-	gen_eqs(Vs,Ds,Eqs).
-
-add_alldiffs([],Eqs,Eqs).
-add_alldiffs(AllDiffs,Eqs,(Eqs/alldiff(AllDiffs))).
 
 
 vel_get_dist_size(V,Sz) :-

@@ -25,12 +25,12 @@
 :- attribute key/1, dist/3, evidence/1, starter/0.
 
 
-:- use_module('clpbn/bnt', [dump_as_bnt/2,
-		    check_if_bnt_done/1
-		    ]).
-
 :- use_module('clpbn/vel', [vel/3,
 		    check_if_vel_done/1
+		    ]).
+
+:- use_module('clpbn/bnt', [do_bnt/3,
+		    check_if_bnt_done/1
 		    ]).
 
 :- use_module('clpbn/gibbs', [gibbs/3,
@@ -70,6 +70,12 @@ clpbn_flag(output,Before,After) :-
 clpbn_flag(solver,Before,After) :-
 	retract(solver(Before)),
 	assert(solver(After)).
+clpbn_flag(bnt_solver,Before,After) :-
+	retract(bnt:bnt_solver(Before)),
+	assert(bnt:bnt_solver(After)).
+clpbn_flag(bnt_path,Before,After) :-
+	retract(bnt:bnt_path(Before)),
+	assert(bnt:bnt_path(After)).
 
 {Var = Key with Dist} :-
 	put_atts(El,[key(Key),dist(Domain,Table,Parents)]),
@@ -143,8 +149,8 @@ write_out(vel, GVars, AVars, DiffVars) :-
 	vel(GVars, AVars, DiffVars).
 write_out(gibbs, GVars, AVars, DiffVars) :-
 	gibbs(GVars, AVars, DiffVars).
-write_out(bnt, GVars, AVars, _) :-
-	dump_as_bnt(GVars, AVars).
+write_out(bnt, GVars, AVars, DiffVars) :-
+	do_bnt(GVars, AVars, DiffVars).
 write_out(graphs, _, AVars, _) :-
 	clpbn2graph(AVars).
 

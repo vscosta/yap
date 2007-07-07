@@ -19,7 +19,8 @@
 	   matlab_item/4,
 	   matlab_item1/3,
 	   matlab_item1/4,
-	   matlab_sequence/3]).
+	   matlab_sequence/3,
+	   matlab_call/2]).
 
 :- ensure_loaded(library(lists)).
 
@@ -74,12 +75,14 @@ build_outputs([Out|Outs],[Out,' '|L],L0) :-
 	build_outputs(Outs,L,L0).
 
 build_args([],L,L).	
-build_args([Arg],Lf,L0) :-
+build_args([Arg],Lf,L0) :- !,
 	build_arg(Arg,Lf,[')'|L0]).
 build_args([Arg|Args],L,L0) :-
 	build_arg(Arg,L,[', '|L1]),
 	build_args(Args,L1,L0).
 
+build_arg(V,_,_) :- var(V), !,
+	throw(error(instantiation_error)).
 build_arg(Arg,[Arg|L],L) :- atomic(Arg), !.
 build_arg(\S0,['\'',S0,'\''|L],L) :-
 	atom(S0), !.
@@ -96,7 +99,8 @@ build_arg(F,[N,'{'|L],L0) :- %N({A}) = N{A}
 	F=..[N,{A}], !,
 	build_arg(A,L,['}'|L0]).
 build_arg(F,[N,'('|L],L0) :-
-	build_args(A,L,L0).
+	F=..[N|As],
+	build_args(As,L,L0).
 
 build_arglist([A],L,L0) :- !,
 	build_arg(A,L,[' ]'|L0]).
