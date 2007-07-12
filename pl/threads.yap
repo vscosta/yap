@@ -68,7 +68,7 @@ thread_create(Goal) :-
 	'$create_mq'(Id),	
 	'$create_thread'(Goal, Stack, Trail, System, Detached, Id).
 
-thread_create(Goal, Id) :-
+thread_create(Goal, OutId) :-
 	G0 = thread_create(Goal, Id),
 	'$check_callable'(Goal, G0),
 	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
@@ -77,9 +77,10 @@ thread_create(Goal, Id) :-
 	'$erase_thread_info'(Id),
 	'$record_thread_info'(Id, [Stack, Trail, System], Detached),
 	'$create_mq'(Id),	
-	'$create_thread'(Goal, Stack, Trail, System, Detached, Id).
+	'$create_thread'(Goal, Stack, Trail, System, Detached, Id),
+	OutId = Id.
 
-thread_create(Goal, Id, Options) :-
+thread_create(Goal, OutId, Options) :-
 	G0 = thread_create(Goal, Id, Options),
 	'$check_callable'(Goal,G0),
 	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
@@ -91,7 +92,8 @@ thread_create(Goal, Id, Options) :-
 	;	'$record_thread_info'(Id, Alias, [Stack, Trail, System], Detached, G0)
 	),
 	'$create_mq'(Id),	
-	'$create_thread'(Goal, Stack, Trail, System, Detached, Id).
+	'$create_thread'(Goal, Stack, Trail, System, Detached, Id),
+	OutId = Id.
 
 '$erase_thread_info'(Id) :-
 	recorded('$thread_exit_status', [Id|_], R),
