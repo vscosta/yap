@@ -69,7 +69,8 @@ emission(Vals,CPT,Ev,V) :-
 
 cvt_vals(aminoacids,[a,  c,  d,  e,  f,  g,  h,  i,  k,  l,  m,  n,  p,  q,  r,  s,  t,  v,  w,  y]).
 cvt_vals(bool,[t,f]).
-cvt_vals(bases,[a,c,g,t]).
+cvt_vals(dna,[a,c,g,t]).
+cvt_vals(rna,[a,c,g,u]).
 cvt_vals([A|B],[A|B]).
 
 % first, try standard representation

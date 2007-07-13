@@ -10,6 +10,8 @@
 
 :- use_module(library(lists), [last/2]).
 
+:- use_module(dists, [get_dist_domain_size/2]).
+
 cpt_average(Vars, Key, Els0, CPT) :-
 	check_domain(Els0, Els),
 	length(Els, SDomain),
@@ -162,7 +164,7 @@ generate_indices([_|Ls],[I|Inds],I,Av) :-
 combine_all([], [[]]).
 combine_all([V|LV], Cs) :-
 	combine_all(LV, Cs0),
-	get_dist_size(V,Sz),
+	get_vdist_size(V,Sz),
 	generate_indices(0, Sz, Vals),
 	add_vals(Vals, Cs0, Cs).
 
@@ -291,7 +293,7 @@ sm([V|_], V, _) :- !.
 sm([_|Vs], C, El) :-
 	sm(Vs, C, El).
 
-get_dist_size(V, Sz) :-
-	clpbn:get_atts(V, [dist(Vals,_,_)]),
-	length(Vals, Sz).
+get_vdist_size(V, Sz) :-
+	clpbn:get_atts(V, [dist(Dist,_)]),
+	get_dist_domain_size(Dist, Sz),
 

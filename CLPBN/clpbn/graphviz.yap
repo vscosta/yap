@@ -18,7 +18,7 @@ output_var(Stream, V) :-
 	format(Stream, ' [ shape=box, style=filled, fillcolor=red, fontsize=18.0  ]~n',[]),
 	fail.
 output_var(Stream, V) :-
-	clpbn:get_atts(V,[key(Key),dist(_,_,Parents)]),
+	clpbn:get_atts(V,[key(Key),dist(_,Parents)]),
 	Parents = [_|_], !,
 	format(Stream, '	',[]),
 	output_parents(Stream, Parents),

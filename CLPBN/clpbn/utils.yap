@@ -17,7 +17,7 @@ check_for_hidden_vars([V|Vs], AllVs0, [V|NVs]) :-
 
 check_for_extra_variables(V,AllVs0, AllVs, Vs, IVs) :-
 	var(V),
-	clpbn:get_atts(V, [dist(_,_,[V1|LV])]), !,
+	clpbn:get_atts(V, [dist(_,[V1|LV])]), !,
 	add_old_variables([V1|LV], AllVs0, AllVs, Vs, IVs).
 check_for_extra_variables(_,AllVs, AllVs, Vs, Vs).
 
@@ -75,17 +75,17 @@ sort_vars_by_key_and_parents(AVars, SortedAVars, UnifiableVars) :-
 
 get_keys_and_parents([], []).
 get_keys_and_parents([V|AVars], [K-V|KeysVarsF]) :-
-	clpbn:get_atts(V, [key(K),dist(D,T,Parents)]), !,
-	add_parents(Parents,V,D,T,KeysVarsF,KeysVars0),
+	clpbn:get_atts(V, [key(K),dist(Id,Parents)]), !,
+	add_parents(Parents,V,Id,KeysVarsF,KeysVars0),
 	get_keys_and_parents(AVars, KeysVars0).
 get_keys_and_parents([_|AVars], KeysVars) :-  % may be non-CLPBN vars.
 	get_keys_and_parents(AVars, KeysVars).
 
-add_parents(Parents,_,_,_,KeyVars,KeyVars) :-
+add_parents(Parents,_,_,KeyVars,KeyVars) :-
 	all_vars(Parents), !.
-add_parents(Parents,V,D,T,KeyVarsF,KeyVars0) :-
+add_parents(Parents,V,Id,KeyVarsF,KeyVars0) :-
 	transform_parents(Parents,NParents,KeyVarsF,KeyVars0),
-	clpbn:put_atts(V, [dist(D,T,NParents)]).
+	clpbn:put_atts(V, [dist(Id,NParents)]).
 
 
 all_vars([]).

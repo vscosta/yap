@@ -22,7 +22,7 @@
 :- dynamic
 	user:term_expansion/2.
 
-:- attribute key/1, dist/3, evidence/1, starter/0.
+:- attribute key/1, dist/2, evidence/1, starter/0.
 
 
 :- use_module('clpbn/vel', [vel/3,
@@ -39,6 +39,11 @@
 
 :- use_module('clpbn/graphs', [
 		    clpbn2graph/1
+		    ]).
+
+:- use_module('clpbn/dists', [
+		    dist/3,
+		    get_dist/4
 		    ]).
 
 :- use_module('clpbn/evidence', [
@@ -78,25 +83,9 @@ clpbn_flag(bnt_path,Before,After) :-
 	assert(bnt:bnt_path(After)).
 
 {Var = Key with Dist} :-
-	put_atts(El,[key(Key),dist(Domain,Table,Parents)]),
-	extract_dist(Dist, Table, Parents, Domain),
+	put_atts(El,[key(Key),dist(DistInfo,Parents)]),
+	dist(Dist, DistInfo, Parents),
 	add_evidence(Var,El).
-
-extract_dist(V, Tab, Inps, Domain) :- var(V), !,
-	V = p(Domain, Tab, Inps).
-extract_dist(p(Domain, trans(L), Parents), Tab, Inps, Domain) :- !,
-	compress_hmm_table(L, Parents, Tab, Inps).
-extract_dist(p(Domain, Tab, Inps), Tab, Inps, Domain).
-extract_dist(p(Domain, Tab), Tab, [], Domain).
-
-compress_hmm_table(L, Parents, trans(Tab), Inps) :-
-	get_rid_of_nuls(L,Parents,Tab,Inps).
-
-get_rid_of_nuls([], [], [], []).
-get_rid_of_nuls([*|L],[_|Parents],NL,NParents) :- !,
-	get_rid_of_nuls(L,Parents,NL,NParents).
-get_rid_of_nuls([Prob|L],[P|Parents],[Prob|NL],[P|NParents]) :-
-	get_rid_of_nuls(L,Parents,NL,NParents).
 
 check_constraint(Constraint, _, _, Constraint) :- var(Constraint), !.
 check_constraint((A->D), _, _, (A->D)) :- var(A), !.
@@ -155,8 +144,9 @@ write_out(graphs, _, AVars, _) :-
 	clpbn2graph(AVars).
 
 get_bnode(Var, Goal) :-
-	get_atts(Var, [key(Key),dist(A,B,C)]),
-	(C = [] -> X = tab(A,B) ; X = tab(A,B,C)),
+	get_atts(Var, [key(Key),dist(Dist,Parents)]),
+	get_dist(Dist,_,Domain,CPT),
+	(Parents = [] -> X = tab(Domain,CPT) ; X = tab(Domain,CPT,Parents)),
 	dist_goal(X, Key, Goal0),
 	include_evidence(Var, Goal0, Key, Goali),
 	include_starter(Var, Goali, Key, Goal).
@@ -204,16 +194,16 @@ process_var(V, _) :- throw(error(instantiation_error,clpbn(attribute_goal(V)))).
 % unify a CLPBN variable with something. 
 %
 verify_attributes(Var, T, Goals) :-
-	get_atts(Var, [key(Key),dist(Domain,Table,Parents)]), !,
+	get_atts(Var, [key(Key),dist(Dist,Parents)]), !,
 	/* oops, someone trying to bind a clpbn constrained variable */
 	Goals = [],
-	bind_clpbn(T, Var, Key, Domain, Table, Parents).
+	bind_clpbn(T, Var, Key, Dist, Parents).
 verify_attributes(_, _, []).
 
 
-bind_clpbn(T, Var, Key, Domain, Table, Parents) :- var(T),
-	get_atts(T, [key(Key1),dist(Doman1,Table1,Parents1)]), !,
-	bind_clpbns(Key, Domain, Table, Parents, Key1, Doman1, Table1, Parents1),
+bind_clpbn(T, Var, Key, Dist, Parents) :- var(T),
+	get_atts(T, [key(Key1),dist(Dist1,Parents1)]), !,
+	bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1),
 	(
 	  get_atts(T, [evidence(Ev1)]) ->
 	    bind_evidence_from_extra_var(Ev1,Var)
@@ -241,10 +231,12 @@ fresh_attvar(Var, NVar) :-
 	put_atts(NVar, LAtts).
 
 % I will now allow two CLPBN variables to be bound together.
-%bind_clpbns(Key, Domain, Table, Parents, Key, Domain, Table, Parents).
-bind_clpbns(Key, Domain, Table, Parents, Key1, Domain1, Table1, Parents1) :- 
+%bind_clpbns(Key, Dist, Parents, Key, Dist, Parents).
+bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1) :- 
 	Key == Key1, !,
-	( Domain == Domain1, Table == Table1, Parents == Parents1 -> true ; throw(error(domain_error(bayesian_domain),bind_clpbns(var(Key, Domain, Table, Parents),var(Key1, Domain1, Table1, Parents1))))).
+	get_dist(Dist,Type,Domain,Table),
+	get_dist(Dist1,Type1,Domain1,Table1),
+	( Dist == Dist1, Parents == Parents1 -> true ; throw(error(domain_error(bayesian_domain),bind_clpbns(var(Key, Type, Domain, Table, Parents),var(Key1, Type1, Domain1, Table1, Parents1))))).
 bind_clpbns(Key, _, _, _, Key1, _, _, _) :-
 	Key\=Key1, !, fail.
 bind_clpbns(_, _, _, _, _, _, _, _) :-

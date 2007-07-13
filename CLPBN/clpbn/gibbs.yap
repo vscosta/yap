@@ -31,6 +31,10 @@
 :- use_module(library('clpbn/utils'), [
 	check_for_hidden_vars/3]).
 
+:- use_module(library('clpbn/dists'), [
+	get_dist/4,
+	get_dist_domain_size/2]).
+
 :- use_module(library('clpbn/topsort'), [
 	topsort/2]).
 
@@ -76,7 +80,8 @@ gen_keys([V|Vs], I0, If, Keys0, Keys) :-
 graph_representation([],_,_,_,[]).
 graph_representation([V|Vs], Graph, I0, Keys, TGraph) :-
 	clpbn:get_atts(V,[evidence(_)]), !,
-	clpbn:get_atts(V, [dist(Vals,Table,Parents)]),
+	clpbn:get_atts(V, [dist(Id,Parents)]),
+	get_dist(Id, _, Vals, Table),
 	get_sizes(Parents, Szs),
 	length(Vals,Sz),
 	project_evidence_out([V|Parents],[V|Parents],Table,[Sz|Szs],Variables,NewTable),
@@ -85,7 +90,8 @@ graph_representation([V|Vs], Graph, I0, Keys, TGraph) :-
 	graph_representation(Vs, Graph, I0, Keys, TGraph).
 graph_representation([V|Vs], Graph, I0, Keys, [I-IParents|TGraph]) :-
 	I is I0+1,
-	clpbn:get_atts(V, [dist(Vals,Table,Parents)]),
+	clpbn:get_atts(V, [dist(Id,Parents)]),
+	get_dist(Id, _, Vals, Table),
 	get_sizes(Parents, Szs),
 	length(Vals,Sz),
 	project_evidence_out([V|Parents],[V|Parents],Table,[Sz|Szs],Variables,NewTable),
@@ -106,8 +112,8 @@ write_pars([V|Parents]) :-
 
 get_sizes([], []).
 get_sizes([V|Parents], [Sz|Szs]) :-
-	clpbn:get_atts(V, [dist(Vals,_,_)]),
-	length(Vals,Sz),
+	clpbn:get_atts(V, [dist(Id,_)]),
+	get_dist_domain_size(Id, Sz),
 	get_sizes(Parents, Szs).
 
 parent_indices([], _, []).

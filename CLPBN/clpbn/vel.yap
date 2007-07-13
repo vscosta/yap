@@ -25,6 +25,10 @@
 
 :- use_module(library('clpbn/graphviz'), [clpbn2gviz/4]).
 
+:- use_module(library('clpbn/dists'), [
+	get_dist_domain_size/2,
+	get_dist/4]).
+
 :- use_module(library('clpbn/utils'), [
 	clpbn_not_var_member/2,
 	check_for_hidden_vars/3]).
@@ -34,8 +38,7 @@
 
 :- use_module(library('clpbn/discrete_utils'), [
 	project_from_CPT/3,
-	reorder_CPT/5,
-	get_dist_size/2]).
+	reorder_CPT/5]).
 
 :- use_module(library(lists),
 	      [
@@ -89,7 +92,8 @@ find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Parents,Size
 	find_all_clpbn_vars(Vs, LV, ProcessedVars0, Tables).
 
 var_with_deps(V, Table, Deps, Sizes, Ev, Vals) :-
-	clpbn:get_atts(V, [dist(Vals,OTable,Parents)]),
+	clpbn:get_atts(V, [dist(Id,Parents)]),
+	get_dist(Id,_,Vals,OTable),
 	( clpbn:get_atts(V, [evidence(Ev)]) -> true ; true),
 	reorder_CPT([V|Parents],OTable,Deps0,Table0,Sizes0),
 	simplify_evidence(Deps0, Table0, Deps0, Sizes0, Table, Deps, Sizes).
@@ -272,6 +276,7 @@ divide_by_sum([P|Ps0],Sum,[PN|Ps]) :-
 vel_get_dist_size(V,Sz) :-
 	get_atts(V, [size(Sz)]), !.
 vel_get_dist_size(V,Sz) :-
-	get_dist_size(V,Sz), !,
+	clpbn:get_atts(V,dist(Id,_)), !,
+	get_dist_domain_size(Id,Sz),
 	put_atts(V, [size(Sz)]).
 

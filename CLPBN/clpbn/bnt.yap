@@ -5,6 +5,11 @@
 :- use_module(library('clpbn/display'), [
 	clpbn_bind_vals/3]).
 
+:- use_module(library('clpbn/dists'), [
+	get_dist_domain_size/2,
+	get_dist_domain/2,
+	get_dist_params/2]).
+
 :- use_module(library(matlab), [start_matlab/1,
 				close_matlab/0,
 				matlab_on/0,
@@ -100,7 +105,7 @@ extract_graph(AllVars, Graph) :-
 	
 get_edges([],[]).
 get_edges([V|AllVars],Edges) :-
-	clpbn:get_atts(V, [dist(_,_,Parents)]),
+	clpbn:get_atts(V, [dist(_,Parents)]),
 	add_parent_child(Parents,V,Edges,Edges0),
 	get_edges(AllVars,Edges0).
 
@@ -127,7 +132,7 @@ build_dag(SortedVertices, Size) :-
 
 get_numbered_edges([], []).
 get_numbered_edges([V|SortedVertices], Edges) :-
-	clpbn:get_atts(V, [dist(_,_,Ps)]),
+	clpbn:get_atts(V, [dist(_,Ps)]),
 	v2number(V,N),
 	add_numbered_edges(Ps, N, Edges, Edges0),
 	get_numbered_edges(SortedVertices, Edges0).
@@ -166,13 +171,14 @@ mksizes(SortedVertices, Size) :-
 
 get_szs([],[]).
 get_szs([V|SortedVertices],[LD|Sizes]) :-
-	clpbn:get_atts(V, [dist(Dom,_,_)]),
-	length(Dom,LD),
+	clpbn:get_atts(V, [dist(Id,_)]),
+	get_dist_domain_size(Id,LD),
 	get_szs(SortedVertices,Sizes).
 
 dump_cpts([], []).
 dump_cpts([V|SortedGraph], [I|Is]) :-
-	clpbn:get_atts(V, [dist(_,CPT,_)]),
+	clpbn:get_atts(V, [dist(Id,_)]),
+	get_dist_params(Id,CPT),
 	mkcpt(bnet,I,CPT),
 	dump_cpts(SortedGraph, Is).
 
@@ -207,7 +213,8 @@ add_evidence(Graph, Size, Is) :-
 
 mk_evidence([], [], []).
 mk_evidence([V|L], [I|Is], [ar(1,I,Val)|LN]) :-
-	clpbn:get_atts(V, [evidence(Ev),dist(Domain,_,_)]), !,
+	clpbn:get_atts(V, [evidence(Ev),dist(Id,_)]), !,
+	get_dist_domain(Id, Domain),
 	evidence_val(Ev,1,Domain,Val),
 	mk_evidence(L, Is, LN).
 mk_evidence([_|L], [_|Is], LN) :-

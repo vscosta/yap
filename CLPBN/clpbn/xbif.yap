@@ -4,6 +4,9 @@
 
 :- module(xbif, [clpbn2xbif/3]).
 
+:- use_module(library('clpbn/dists'), [
+	get_dist_domain/2]).
+
 clpbn2xbif(Stream, Name, Network) :-
 	format(Stream, '<?xml version="1.0" encoding="US-ASCII"?>
 
@@ -48,7 +51,8 @@ output_vars(Stream, [V|Vs]) :-
 	output_vars(Stream, Vs).
 
 output_var(Stream, V) :-
-	clpbn:get_atts(V,[key(Key),dist(Domain,_,_)]),
+	clpbn:get_atts(V,[key(Key),dist(Id,_)]),
+	get_dist_domain(Id, Domain),
 	format(Stream, '<VARIABLE TYPE="nature">
 	<NAME>',[]),
 	output_key(Stream,Key),

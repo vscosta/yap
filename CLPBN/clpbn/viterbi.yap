@@ -8,7 +8,11 @@
 
 :- use_module(library(clpbn), []).
 
+:- use_module(library('clpbn/dists'), [
+	get_dist_params/2]).
+
 :- attribute prob/1, emission/1, backp/1, ancestors/1.
+
 
 viterbi(Start,End,Trace,Ticks,Slices) :-
 	attributes:all_attvars(Vars0),
@@ -47,16 +51,16 @@ get_keys([_|AVars], Trees) :-  % may be non-CLPBN vars.
 
 get_parents([], _).
 get_parents([V|AVars], Trees) :-
-	clpbn:get_atts(V, [dist(D,T,Parents)]), !,
+	clpbn:get_atts(V, [dist(Id,Parents)]), !,
 %clpbn:get_atts(V, [key(K)]), format('~w (~w): ~w~n',[V,K,Parents]),
-	add_parents(Parents,V,D,T,Trees),
+	add_parents(Parents,V,Id,Trees),
 	get_parents(AVars, Trees).
 get_parents([_|AVars], Trees) :-  % may be non-CLPBN vars.
 	get_parents(AVars, Trees).
 
-add_parents(Parents,V,D,T,Trees) :-
+add_parents(Parents,V,Id,Trees) :-
 	transform_parents(Parents,NParents,Copy,Trees),
-	( var(Copy) -> true ; clpbn:put_atts(V, [dist(D,T,NParents)]) ).
+	( var(Copy) -> true ; clpbn:put_atts(V, [dist(Id,NParents)]) ).
 
 transform_parents([],[],_,_).
 transform_parents([P|Parents0],[P|NParents],Copy,Trees) :-
@@ -99,10 +103,11 @@ init_viterbi(V) :-
 
 viterbi_alg(L0, Lf) :- L0 == Lf, !.
 viterbi_alg([V|Vs], Rs) :-
-%format('<< ~w~n',[V]),
+% format('<< ~w~n',[V]),
 	% get the current status
 	get_atts(V,[prob(P0)]), !,
-	clpbn:get_atts(V,[dist(_,trans(Probs),States)]),
+	clpbn:get_atts(V,[dist(Id,States)]),
+	get_dist_params(Id,Probs),
 	% adjust to consider emission probabilities
 	adjust_for_emission(V, P0, Pf),
 	propagate(Probs,States,Pf,V,Rs,NRs),

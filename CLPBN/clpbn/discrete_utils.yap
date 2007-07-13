@@ -3,6 +3,8 @@
 			   reorder_CPT/5,
 			   get_dist_size/2]).
 
+:- use_module(dists, [get_dist_domain_size/2,
+		      get_dist_domain/2]).
 %
 % remove columns from a table
 %
@@ -15,7 +17,8 @@ project_from_CPT(V,tab(Table,Deps,Szs),tab(NewTable,NDeps,NSzs)) :-
 	NewTable =.. [t|NTabl].
 
 propagate_evidence(V, Evs) :-
-	clpbn:get_atts(V, [evidence(Ev),dist(Out,_,_)]), !,
+	clpbn:get_atts(V, [evidence(Ev),dist(Id,_)]), !,
+	get_dist_domain(Id, Out),
 	generate_szs_with_evidence(Out,Ev,Evs,Found),
 	(var(Found) -> 
 	    clpbn:get_atts(V, [key(K)]),
@@ -135,10 +138,8 @@ convert_factor([F0|F0s], [F|Fs], I, OUT) :-
 
 get_sizes([], []).
 get_sizes([V|Deps], [Sz|Sizes]) :-
-	get_dist_size(V,Sz),
+	clpbn:get_atts(V, [dist(Id,_)]),
+	get_dist_domain_size(Id,Sz),
 	get_sizes(Deps, Sizes).
 
-get_dist_size(V,Sz) :-
-	clpbn:get_atts(V, [dist(Vals,_,_)]),
-	length(Vals,Sz).
 
