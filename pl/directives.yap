@@ -492,6 +492,8 @@ yap_flag(single_var_warnings,X) :-
 yap_flag(system_options,X) :-
 	'$system_options'(X).
 
+'$system_options'(big_numbers) :-
+	'$has_bignums'.
 '$system_options'(coroutining) :-
 	'$yap_has_coroutining'.
 '$system_options'(depth_limit) :-
@@ -502,6 +504,8 @@ yap_flag(system_options,X) :-
 	\+ '$undefined'('$yapor_on', prolog).
 '$system_options'(rational_trees) :-
 	'$yap_has_rational_trees'.
+'$system_options'(readline) :-
+	'$has_readline'.
 '$system_options'(tabling) :-
 	\+ '$undefined'('$do_table'(_,_), prolog).
 '$system_options'(threads) :-

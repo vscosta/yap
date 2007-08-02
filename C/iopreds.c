@@ -1080,6 +1080,16 @@ ReadlineGetc(int sno)
 
 #endif /* HAVE_LIBREADLINE */
 
+static Int
+p_has_readline(void)
+{
+#if HAVE_LIBREADLINE
+  return TRUE;
+#else
+  return FALSE;
+#endif
+}
+
 
 int
 Yap_GetCharForSIGINT(void)
@@ -5937,6 +5947,7 @@ Yap_InitIOPreds(void)
 #endif
   Yap_InitCPred ("$same_file", 2, p_same_file, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$has_readline", 0, p_has_readline, SafePredFlag|HiddenPredFlag);
 
   Yap_InitReadUtil ();
 #if USE_SOCKET

@@ -100,12 +100,23 @@ p_is_bignum(void)
   Term t = Deref(ARG1);
   return(IsNonVarTerm(t) && IsApplTerm(t) && FunctorOfTerm(t) == FunctorBigInt);
 #else
-  return(FALSE);
+  return FALSE;
+#endif
+}
+
+static Int 
+p_has_bignums(void)
+{
+#ifdef USE_GMP
+  return TRUE;
+#else
+  return FALSE;
 #endif
 }
 
 void
 Yap_InitBigNums(void)
 {
+  Yap_InitCPred("$has_bignums", 0, p_has_bignums, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag|HiddenPredFlag);
 }
