@@ -295,5 +295,6 @@ sm([_|Vs], C, El) :-
 
 get_vdist_size(V, Sz) :-
 	clpbn:get_atts(V, [dist(Dist,_)]),
-	get_dist_domain_size(Dist, Sz),
+	get_dist_domain_size(Dist, Sz).
+
 

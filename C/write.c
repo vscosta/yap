@@ -333,6 +333,7 @@ write_var(CELL *t,  struct write_globs *wglb)
   /* make sure we don't get no creepy spaces where they shouldn't be */
   lastw = separator;
   if (CellPtr(t) < H0) {
+    Int vcount = (H0-t)/(sizeof(attvar_record)/sizeof(CELL));
 #if COROUTINING
 #if DEBUG
     if (Yap_Portray_delays) {
@@ -365,7 +366,7 @@ write_var(CELL *t,  struct write_globs *wglb)
     }
 #endif
     wrputc('D', wglb->writewch);
-    wrputn((Int) ((attvar_record *)H0-(attvar_record *)t),wglb->writewch);
+    wrputn(vcount,wglb->writewch);
 #endif
   } else {
     wrputn(((Int) (t- H0)),wglb->writewch);

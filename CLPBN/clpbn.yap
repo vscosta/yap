@@ -81,6 +81,9 @@ clpbn_flag(bnt_solver,Before,After) :-
 clpbn_flag(bnt_path,Before,After) :-
 	retract(bnt:bnt_path(Before)),
 	assert(bnt:bnt_path(After)).
+clpbn_flag(bnt_model,Before,After) :-
+	retract(bnt:bnt_model(Before)),
+	assert(bnt:bnt_model(After)).
 
 {Var = Key with Dist} :-
 	put_atts(El,[key(Key),dist(DistInfo,Parents)]),
@@ -121,11 +124,14 @@ project_attributes(GVars, AVars) :-
 	AVars = [_|_],
 	solver(Solver),
 	( GVars = [_|_] ; Solver = graphs), !,
-	sort_vars_by_key(AVars,SortedAVars,DiffVars),
+	clpbn_vars(AVars, DiffVars, AllVars),
 	get_clpbn_vars(GVars,CLPBNGVars),
-	incorporate_evidence(SortedAVars, AllVars),
 	write_out(Solver,CLPBNGVars, AllVars, DiffVars).
 project_attributes(_, _).
+
+clpbn_vars(AVars, DiffVars, AllVars) :-
+	sort_vars_by_key(AVars,SortedAVars,DiffVars),
+	incorporate_evidence(SortedAVars, AllVars).
 
 get_clpbn_vars([],[]).
 get_clpbn_vars([V|GVars],[V|CLPBNGVars]) :-
@@ -236,11 +242,23 @@ bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1) :-
 	Key == Key1, !,
 	get_dist(Dist,Type,Domain,Table),
 	get_dist(Dist1,Type1,Domain1,Table1),
-	( Dist == Dist1, Parents == Parents1 -> true ; throw(error(domain_error(bayesian_domain),bind_clpbns(var(Key, Type, Domain, Table, Parents),var(Key1, Type1, Domain1, Table1, Parents1))))).
+	( Dist == Dist1, same_parents(Parents,Parents1) -> true ; throw(error(domain_error(bayesian_domain),bind_clpbns(var(Key, Type, Domain, Table, Parents),var(Key1, Type1, Domain1, Table1, Parents1))))).
 bind_clpbns(Key, _, _, _, Key1, _, _, _) :-
 	Key\=Key1, !, fail.
 bind_clpbns(_, _, _, _, _, _, _, _) :-
 	format(user_error, 'unification of two bayesian vars not supported~n', []).
+
+same_parents([],[]).
+same_parents([P|Parents],[P1|Parents1]) :-
+	same_node(P,P1),
+	same_parents(Parents,Parents1).
+
+same_node(P,P1) :- P == P1, !.
+same_node(P,P1) :-
+	get_atts( P,[key(K)]),
+	get_atts(P1,[key(K)]),
+	P = P1.
+
 
 bind_evidence_from_extra_var(Ev1,Var) :-
 	get_atts(Var, [evidence(Ev0)]),!,Ev0 = Ev1.

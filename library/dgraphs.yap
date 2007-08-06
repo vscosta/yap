@@ -27,6 +27,7 @@
 	    dgraph_transitive_closure/2,
 	    dgraph_symmetric_closure/2,
 	    dgraph_top_sort/2,
+	    dgraph_top_sort/3,
 	    dgraph_min_path/5,
 	    dgraph_max_path/5,
 	    dgraph_min_paths/3,
@@ -87,14 +88,14 @@ all_vertices_in_edges([V1-V2|Edges],[V1,V2|Vertices]) :-
 edges2graphl([], [], []).
 edges2graphl([V|Vertices], [VV-V1|SortedEdges], [V-[V1|Children]|GraphL]) :-
 	V == VV, !,
-	get_extra_children(SortedEdges,V,Children,RemEdges),
+	get_extra_children(SortedEdges,VV,Children,RemEdges),
 	edges2graphl(Vertices, RemEdges, GraphL).
 edges2graphl([V|Vertices], SortedEdges, [V-[]|GraphL]) :-
 	edges2graphl(Vertices, SortedEdges, GraphL).
 
 
 dgraph_add_edges([],[]) --> [].
-dgraph_add_edges([V|Vs],[V-V1|Es]) --> !,
+dgraph_add_edges([V|Vs],[V0-V1|Es]) --> { V == V0 }, !,
 	{ get_extra_children(Es,V,Children,REs) },
 	dgraph_update_vertex(V,[V1|Children]),
 	dgraph_add_edges(Vs,REs).
@@ -103,7 +104,7 @@ dgraph_add_edges([V|Vs],Es) --> !,
 	dgraph_add_edges(Vs,Es).
 
 get_extra_children([V-C|Es],VV,[C|Children],REs) :- V == VV, !,
-	get_extra_children(Es,V,Children,REs).
+	get_extra_children(Es,VV,Children,REs).
 get_extra_children(Es,_,[],Es).
 
 dgraph_update_vertex(V,Children, Vs0, Vs) :-
@@ -291,7 +292,10 @@ invert_edges([], []).
 invert_edges([V1-V2|Edges], [V2-V1|InvertedEdges]) :-
 	invert_edges(Edges, InvertedEdges).
 
-dgraph_top_sort(G,Q) :-
+dgraph_top_sort(G, Q) :-
+	dgraph_top_sort(G, Q, []).
+
+dgraph_top_sort(G, Q, RQ0) :-
 	% O(E)
 	rb_visit(G, Vs),
 	% O(E)
@@ -303,7 +307,7 @@ dgraph_top_sort(G,Q) :-
 	% O(E)
 	dgraph_vertices(G, AllVs),
 	start_queue(AllVs, InvertedEdges, Q, RQ),
-	continue_queue(Q, LinkedG, RQ).
+	continue_queue(Q, LinkedG, RQ, RQ0).
 
 invert_and_link([], [], [], [], []).
 invert_and_link([V-Vs|Edges], [V-NVs|ExtraEdges], UnsortedInvertedEdges, [V|AllVs],[_|Q]) :-
@@ -329,12 +333,12 @@ link_edges([V-e(A,B,S,E)|InvertedEdges], VV, A, S, E, RemEdges) :- V == VV, !,
 	link_edges(InvertedEdges, VV, B, S, E, RemEdges).
 link_edges(RemEdges, _, A, _, A, RemEdges).
 
-continue_queue([], _, []).
-continue_queue([V|Q], LinkedG, RQ) :-
+continue_queue([], _, RQ0, RQ0).
+continue_queue([V|Q], LinkedG, RQ, RQ0) :-
 	rb_lookup(V, Links, LinkedG),
-	close_links(Links, RQ, RQ0),
+	close_links(Links, RQ, RQI),
 	% not clear whether I should deleted V from LinkedG
-	continue_queue(Q, LinkedG, RQ0).
+	continue_queue(Q, LinkedG, RQI, RQ0).
 
 close_links([], RQ, RQ).
 close_links([l(V,A,A,S,E)|Links], RQ, RQ0) :-

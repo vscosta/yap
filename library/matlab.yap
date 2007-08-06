@@ -12,6 +12,7 @@
 	   matlab_zeros/3,
 	   matlab_zeros/4,
 	   matlab_matrix/4,
+	   matlab_vector/2,
 	   matlab_vector/3,
 	   matlab_set/4,
 	   matlab_get_variable/2,

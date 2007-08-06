@@ -46,10 +46,10 @@ build_sats_table(LSats, Key, Table) :-
 */
 
 build_rating_table(LSats, Key, Table) :-
-	cpt_average(LSats, Key, [h,m,l], 0.95, Table).
+	cpt_average(LSats, Key, [h,m,l], 1.00, Table).
 
 build_grades_table(LGrades, Key, Table) :-
-	cpt_average(LGrades, Key, [a,b,c,d], 0.95, Table).
+	cpt_average(LGrades, Key, [a,b,c,d], 1.00, Table).
 
 /*
 build_grades_table(LGrades, Key, Table) :-

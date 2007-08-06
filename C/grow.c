@@ -698,12 +698,11 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
       do_grow = FALSE;
     }
   }
+  size0 = size;
   if (size < ((char *)H0-omax)/8)
     size = ((char *)H0-omax)/8;
   if (do_grow) {
-    size0 = size = AdjustPageSize(size);
-  } else {
-    size0 = size;
+    size = AdjustPageSize(size);
   }
   /* adjust to a multiple of 256) */
   Yap_ErrorMessage = NULL;

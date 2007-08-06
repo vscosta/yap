@@ -5,6 +5,7 @@
 :- module(clpbn_dist,[
 	dist/1,
 	dist/3,
+        dists/1,
 	get_dist/4,
 	get_dist_domain/2,
 	get_dist_params/2,
@@ -66,6 +67,7 @@ new_id(Id) :-
 	Id1 is Id+1,
 	assert(id(Id1)).
 
+dists(X) :- id(X1), X is X1-1.
 
 dist(V, Id, Parents) :-
 	var(V), !,

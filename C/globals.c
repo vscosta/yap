@@ -1151,9 +1151,9 @@ RecoverDelayArena(Term delay_arena)
 {
   attvar_record *pt = DelayArenaPt(delay_arena),
     *max = DelayTop();
-  
-  if (max == pt-DelayArenaSz(delay_arena))
+  if (max == pt-DelayArenaSz(delay_arena)) {
       SetDelayTop(pt);
+  }
 }
 #endif
 
