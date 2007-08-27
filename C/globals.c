@@ -1241,7 +1241,7 @@ p_nb_queue_enqueue(void)
       gsiz = 1024;
     }
     ARG3 = to;
-    fprintf(stderr,"growing %ld cells\n",(unsigned long int)gsiz);
+    /*    fprintf(stderr,"growing %ld cells\n",(unsigned long int)gsiz);*/
     if (!GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3)) {
       Yap_Error(OUT_OF_STACK_ERROR, arena, Yap_ErrorMessage);
       return 0L;
