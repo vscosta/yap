@@ -18,6 +18,9 @@
 #if HAVE_TIME_H
 #include <time.h>
 #endif
+#if USE_GMP
+#include <gmp.h>
+#endif
 
 #if defined(_MSC_VER) && defined(YAP_EXPORTS)
 #define X_API __declspec(dllexport)

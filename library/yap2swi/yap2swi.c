@@ -356,6 +356,7 @@ X_API int PL_get_long(term_t ts, long *i)
   return 1;
 }
 
+
 X_API int PL_get_int64(term_t ts, int64_t *i)
 {
   YAP_Term t = YAP_GetFromSlot(ts);
@@ -367,14 +368,14 @@ X_API int PL_get_int64(term_t ts, int64_t *i)
 	return 1;
       }
 #if USE_GMP
-    } else if (YAP_IsBigIntTerm(t)) {
-      MP_INT *g;
+    } else if (YAP_IsBigNumTerm(t)) {
+      MP_INT g;
       char s[64];
-      YAP_BigNumOfTerm(t, (void *)g);
-      if (mpz_sizeinbase(g,2) > 64) {
+      YAP_BigNumOfTerm(t, (void *)&g);
+      if (mpz_sizeinbase(&g,2) > 64) {
 	return 0;
       }
-      mpz_get_str (s, 10, g);
+      mpz_get_str (s, 10, &g);
       sscanf(s, "%lld", (long long int *)i);
       return 1;
 #endif
@@ -384,6 +385,7 @@ X_API int PL_get_int64(term_t ts, int64_t *i)
   *i = YAP_IntOfTerm(t);
   return 1;
 }
+
 
 X_API int PL_get_list(term_t ts, term_t h, term_t tl)
 {
@@ -639,13 +641,13 @@ X_API void PL_put_integer(term_t t, long n)
 
 X_API void PL_put_int64(term_t t, int64_t n)
 {
-#if HAVE_GMP
+#if USE_GMP
   char s[64];
-  MP_INT *rop;
+  MP_INT rop;
 
   sprintf(s, "%lld", (long long int)n);
-  mpz_init_set_str (rop, s, 10);
-  YAP_PutInSlot(t,YAP_MkBigIntTerm((void *)rop));
+  mpz_init_set_str (&rop, s, 10);
+  YAP_PutInSlot(t,YAP_MkBigNumTerm((void *)&rop));
 #endif
 }
 
@@ -744,14 +746,14 @@ X_API int PL_unify_integer(term_t t, long n)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_int64(term_t t, int64_t n)
 {	
-#if HAVE_GMP
+#if USE_GMP
   YAP_Term iterm;
   char s[64];
-  MP_INT *rop;
+  MP_INT rop;
 
   sprintf(s, "%lld", (long long int)n);
-  mpz_init_set_str (rop, s, 10);
-  iterm = YAP_MkBigIntTerm((void *)rop);
+  mpz_init_set_str (&rop, s, 10);
+  iterm = YAP_MkBigNumTerm((void *)&rop);
   return YAP_Unify(YAP_GetFromSlot(t),iterm);
 #else
   return FALSE;
