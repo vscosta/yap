@@ -32,6 +32,8 @@
 #include <stdarg.h>
 #endif
 
+#include <wchar.h>
+
 /*
    __BEGIN_DECLS should be used at the beginning of the C declarations,
    so that C++ compilers don't mangle their names.  __END_DECLS is used
@@ -133,11 +135,23 @@ extern X_API YAP_Atom PROTO(YAP_AtomOfTerm,(YAP_Term));
 /*    YAP_Atom  LookupAtom(const char *) */
 extern X_API YAP_Atom PROTO(YAP_LookupAtom,(CONST char *));
 
+/*    YAP_Atom  LookupWideAtom(const wchar_t *) */
+extern X_API YAP_Atom PROTO(YAP_LookupWideAtom,(CONST wchar_t *));
+
 /*    YAP_Atom  FullLookupAtom(const char *) */
 extern X_API YAP_Atom PROTO(YAP_FullLookupAtom,(CONST char *));
 
+/*    int  AtomNameLength(Atom) */
+extern X_API int PROTO(YAP_AtomNameLength,(YAP_Atom));
+
+/*    const char* IsWideAtom(YAP_Atom) */
+extern X_API int *PROTO(YAP_IsWideAtom,(YAP_Atom));
+
 /*    const char* AtomName(YAP_Atom) */
 extern X_API CONST char *PROTO(YAP_AtomName,(YAP_Atom));
+
+/*    const wchar_t* AtomWideName(YAP_Atom) */
+extern X_API CONST wchar_t *PROTO(YAP_WideAtomName,(YAP_Atom));
 
 /*    YAP_Term  MkPairTerm(YAP_Term Head, YAP_Term Tail) */
 extern X_API YAP_Term PROTO(YAP_MkPairTerm,(YAP_Term,YAP_Term));

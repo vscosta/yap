@@ -18,8 +18,9 @@
 
 #define BUF_SIZE 256
 #define TMP_BUF_SIZE 2*BUF_SIZE
+#define BUF_RINGS 16
 
-char buffers[TMP_BUF_SIZE+BUF_SIZE*4];
+char buffers[TMP_BUF_SIZE+BUF_SIZE*BUF_RINGS];
 static int buf_index = 0;
 
 static char *
@@ -27,7 +28,7 @@ alloc_ring_buf(void)
 {
   int ret = buf_index;
   buf_index++;
-  if (buf_index == 4)
+  if (buf_index == BUF_RINGS)
     buf_index = 0;
   return buffers+(TMP_BUF_SIZE+ret*BUF_SIZE);
 }
@@ -130,7 +131,7 @@ X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
   term-types should converted and the second how the argument is
   stored. Below is a specification of these constants. BUF_RING
   implies, if the data is not static (as from an atom), the data is
-  copied to the next buffer from a ring of four (4) buffers. This is a
+  copied to the next buffer from a ring of sixteen (16) buffers. This is a
   convenient way of converting multiple arguments passed to a foreign
   predicate to C-strings. If BUF_MALLOC is used, the data must be
   freed using free() when not needed any longer.
@@ -204,9 +205,14 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
   }
   *sp = tmp;
   if (YAP_IsAtomTerm(t)) {
+    YAP_Atom at = YAP_AtomOfTerm(t);
     if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_ALL)))
       return 0;
-    *sp = (char *)YAP_AtomName(YAP_AtomOfTerm(t));
+    if (YAP_IsWideAtom(at))
+      /* will this always work? */
+      snprintf(*sp,BUF_SIZE,"%ls",YAP_WideAtomName(at));
+    else
+      *sp = (char *)YAP_AtomName(YAP_AtomOfTerm(t));
     return 1;
   } else if (YAP_IsIntTerm(t)) {
     if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_ALL)))
@@ -228,7 +234,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     *bf = '\0';
   }
   if (flags & BUF_MALLOC) {
-    char *nbf = malloc(strlen(tmp));
+    char *nbf = YAP_AllocSpaceFromYap(strlen(tmp)+1);
     if (nbf == NULL)
       return 0;
     strncpy(nbf,tmp,BUF_SIZE);
@@ -236,6 +242,57 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
   }
   return 1;
 }
+
+X_API int PL_get_nchars(term_t l, size_t *len, char **sp, unsigned flags)
+{
+  int out = PL_get_chars(l, sp, flags);
+  if (!out) return out;
+  *len = strlen(*sp);
+  return out;
+}
+
+
+/* same as get_chars, but works on buffers of wide chars */
+X_API int PL_get_wchars(term_t l, size_t *len, wchar_t **wsp, unsigned flags)
+{
+  if (YAP_IsAtomTerm(l)) {
+    YAP_Atom at = YAP_AtomOfTerm(l);
+
+    if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_ALL)))
+      return 0;
+    if (YAP_IsWideAtom(at))
+      /* will this always work? */
+      *wsp = (wchar_t *)YAP_WideAtomName(at);
+  } else {
+    char *sp;
+    int res = PL_get_chars(l, &sp, ((flags & ~(BUF_MALLOC|BUF_DISCARDABLE))|BUF_RING));
+    size_t sz;
+
+    if (!res)
+      return FALSE;
+    sz = wcstombs(sp,NULL,BUF_SIZE);
+    if (flags & BUF_MALLOC) {
+      wchar_t *nbf = (wchar_t *)YAP_AllocSpaceFromYap(sz+1);
+      if (nbf == NULL)
+	return 0;
+      *wsp = nbf;
+    } else if (flags & BUF_DISCARDABLE) {
+      wchar_t *buf = (wchar_t *)buffers;
+
+      if (wcstombs(sp,buf,BUF_SIZE) == -1)
+	return 0;
+      *wsp = buf;
+    } else {
+      wchar_t *tmp = (wchar_t *)alloc_ring_buf();
+      if (wcstombs(sp, tmp, BUF_SIZE) == -1)
+	return 0;
+      *wsp = tmp;
+    }
+    return res;
+  }
+  return 0;
+}
+
 
 /* SWI: int PL_get_functor(term_t t, functor_t *f)
    YAP: YAP_Functor YAP_FunctorOfTerm(Term) */
@@ -292,6 +349,35 @@ X_API int PL_get_long(term_t ts, long *i)
 	*i = (long)dbl;
 	return 1;
       }
+    }
+    return 0;
+  }
+  *i = YAP_IntOfTerm(t);
+  return 1;
+}
+
+X_API int PL_get_int64(term_t ts, int64_t *i)
+{
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if (!YAP_IsIntTerm(t) ) {
+    if (YAP_IsFloatTerm(t)) {
+      double dbl = YAP_FloatOfTerm(t);
+      if (dbl - (int64_t)dbl == 0.0) {
+	*i = (int64_t)dbl;
+	return 1;
+      }
+#if USE_GMP
+    } else if (YAP_IsBigIntTerm(t)) {
+      MP_INT *g;
+      char s[64];
+      YAP_BigNumOfTerm(t, (void *)g);
+      if (mpz_sizeinbase(g,2) > 64) {
+	return 0;
+      }
+      mpz_get_str (s, 10, g);
+      sscanf(s, "%lld", (long long int *)i);
+      return 1;
+#endif
     }
     return 0;
   }
@@ -419,6 +505,25 @@ X_API atom_t PL_new_atom(const char *c)
   return (atom_t)YAP_LookupAtom((char *)c);
 }
 
+X_API atom_t PL_new_atom_wchars(int len, const wchar_t *c)
+{
+  return (atom_t)YAP_LookupWideAtom((wchar_t *)c);
+}
+
+X_API char *PL_atom_nchars(atom_t name, size_t *sp)
+{
+  *sp = YAP_AtomNameLength((YAP_Atom)name);
+  return (char *)YAP_AtomName((YAP_Atom)name);
+}
+
+X_API wchar_t *PL_atom_wchars(atom_t name, size_t *sp)
+{
+  if (!YAP_IsWideAtom((YAP_Atom)name))
+    return NULL;
+  *sp = YAP_AtomNameLength((YAP_Atom)name);
+  return (wchar_t *)YAP_WideAtomName((YAP_Atom)name);
+}
+
 X_API functor_t PL_new_functor(atom_t name, int arity)
 {
   functor_t f;
@@ -532,6 +637,18 @@ X_API void PL_put_integer(term_t t, long n)
   YAP_PutInSlot(t,YAP_MkIntTerm(n));
 }
 
+X_API void PL_put_int64(term_t t, int64_t n)
+{
+#if HAVE_GMP
+  char s[64];
+  MP_INT *rop;
+
+  sprintf(s, "%lld", (long long int)n);
+  mpz_init_set_str (rop, s, 10);
+  YAP_PutInSlot(t,YAP_MkBigIntTerm((void *)rop));
+#endif
+}
+
 X_API void PL_put_list(term_t t)
 {
   YAP_PutInSlot(t,YAP_MkNewPairTerm());
@@ -621,6 +738,24 @@ X_API int PL_unify_integer(term_t t, long n)
 {	
   YAP_Term iterm = YAP_MkIntTerm(n);
   return YAP_Unify(YAP_GetFromSlot(t),iterm);
+}
+
+/* SWI: int PL_unify_integer(term_t ?t, long n)
+   YAP long int  unify(YAP_Term* a, Term* b) */
+X_API int PL_unify_int64(term_t t, int64_t n)
+{	
+#if HAVE_GMP
+  YAP_Term iterm;
+  char s[64];
+  MP_INT *rop;
+
+  sprintf(s, "%lld", (long long int)n);
+  mpz_init_set_str (rop, s, 10);
+  iterm = YAP_MkBigIntTerm((void *)rop);
+  return YAP_Unify(YAP_GetFromSlot(t),iterm);
+#else
+  return FALSE;
+#endif
 }
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
@@ -1053,6 +1188,13 @@ X_API int
 PL_is_initialised(int *argc, char ***argv)
 {
   return TRUE;
+}
+
+X_API atom_t PL_module_name(module_t m)
+{
+  YAP_Atom at = YAP_AtomOfTerm((YAP_Term)m);
+  YAP_CreateModule(at);
+  return (atom_t)at;
 }
 
 X_API predicate_t PL_pred(functor_t f, module_t m)

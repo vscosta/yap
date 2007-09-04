@@ -34,6 +34,12 @@ typedef struct  open_query_struct *qid_t;
 typedef long    functor_t;
 typedef int     (*PL_agc_hook_t)(atom_t);
 typedef unsigned long	foreign_t;	/* return type of foreign functions */
+#ifdef WIN32
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
+#else
+#include <inttypes.h>			/* more portable than stdint.h */
+#endif
 
 typedef void *function_t;
 
@@ -126,7 +132,8 @@ typedef void *PL_engine_t;
 typedef void install_t;
 
 extern X_API PL_agc_hook_t PL_agc_hook(PL_agc_hook_t);
-extern X_API char* PL_atom_chars(atom_t);
+extern X_API void   PL_free(void *);
+extern X_API char*  PL_atom_chars(atom_t);
 extern X_API term_t PL_copy_term_ref(term_t);
 extern X_API term_t PL_new_term_ref(void);
 extern X_API term_t PL_new_term_refs(int);
@@ -136,14 +143,18 @@ extern X_API int PL_get_arg(int, term_t, term_t);
 extern X_API int PL_get_atom(term_t, atom_t *);
 extern X_API int PL_get_atom_chars(term_t, char **);
 extern X_API int PL_get_chars(term_t, char **, unsigned);
+extern X_API int PL_get_nchars(term_t, size_t *, char **, unsigned);
+extern X_API int PL_get_wchars(term_t, size_t *, wchar_t **, unsigned);
 extern X_API int PL_get_functor(term_t, functor_t *);
 extern X_API int PL_get_float(term_t, double *);
 extern X_API int PL_get_head(term_t, term_t);
+extern X_API int PL_get_int64(term_t, int64_t *);
 extern X_API int PL_get_integer(term_t, int *);
 extern X_API int PL_get_list(term_t, term_t, term_t);
 extern X_API int PL_get_long(term_t, long *);
 extern X_API int PL_get_list_chars(term_t, char **, unsigned);
 extern X_API int PL_get_module(term_t, module_t *);
+extern X_API atom_t PL_module_name(module_t);
 extern X_API module_t PL_new_module(atom_t);
 extern X_API int PL_get_name_arity(term_t, atom_t *, int *);
 extern X_API int PL_get_nil(term_t);
@@ -153,6 +164,9 @@ extern X_API int PL_get_tail(term_t, term_t);
 /* end PL_get_* functions  =============================*/
 /* begin PL_new_* functions =============================*/
 extern X_API atom_t PL_new_atom(const char *);
+extern X_API atom_t PL_new_atom_wchars(int, const wchar_t *);
+extern X_API char *PL_atom_nchars(atom_t, size_t *);
+extern X_API wchar_t *PL_atom_wchars(atom_t, size_t *);
 extern X_API functor_t PL_new_functor(atom_t, int);
 extern X_API atom_t PL_functor_name(functor_t);
 extern X_API int PL_functor_arity(functor_t);
@@ -165,6 +179,7 @@ extern X_API void PL_put_atom(term_t, atom_t);
 extern X_API void PL_put_atom_chars(term_t, const char *);
 extern X_API void PL_put_float(term_t, double);
 extern X_API void PL_put_functor(term_t, functor_t t);
+extern X_API void PL_put_int64(term_t, int64_t);
 extern X_API void PL_put_integer(term_t, long);
 extern X_API void PL_put_list(term_t);
 extern X_API void PL_put_list_chars(term_t, const char *);
@@ -180,6 +195,7 @@ extern X_API int PL_unify(term_t, term_t);
 extern X_API int PL_unify_atom(term_t, atom_t);
 extern X_API int PL_unify_atom_chars(term_t, const char *);
 extern X_API int PL_unify_float(term_t, double);
+extern X_API int PL_unify_int64(term_t, int64_t);
 extern X_API int PL_unify_integer(term_t, long);
 extern X_API int PL_unify_list(term_t, term_t, term_t);
 extern X_API int PL_unify_list_chars(term_t, const char *);

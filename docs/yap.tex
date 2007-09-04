@@ -12609,6 +12609,33 @@ atom had been "hidden": this is useful for system maintenance from C
 code. The functor @code{YAP_AtomName} returns a pointer to the string
 for the atom.
 
+@noindent
+@findex YAP_IsWideAtom (C-Interface function)
+@findex YAP_LookupWideAtom (C-Interface function)
+@findex YAP_WideAtomName (C-Interface function)
+The following primitives handle constructing atoms from strings with
+wide characters, and vice-versa:
+@example
+      YAP_Atom  YAP_LookupWideAtom(wchar_t * @var{s})
+      wchar_t  *YAP_WideAtomName(YAP_Atom @var{t})
+@end example
+
+@noindent
+@findex YAP_IsIsWideAtom (C-Interface function)
+The following primitive tells whether an atom needs wide atoms in its
+representation:
+@example
+      int  YAP_IsWideAtom(YAP_Atom @var{t})
+@end example
+
+@noindent
+@findex YAP_AtomNameLength (C-Interface function)
+The following primitive can be used to obtain the size of an atom in a
+representation-independent way: 
+@example
+      int      YAP_AtomNameLength(YAP_Atom @var{t})
+@end example
+
 @findex YAP_MkPairTerm (C-Interface function)
 @findex YAP_MkNewPairTerm (C-Interface function)
 @findex YAP_HeadOfTerm (C-Interface function)

@@ -10,8 +10,12 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-06-04 12:28:01 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-09-04 10:34:54 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.95  2007/06/04 12:28:01  vsc
+* interface speedups
+* bad error message in X is foo>>2.
+*
 * Revision 1.94  2007/05/15 11:33:51  vsc
 * fix min list
 *
@@ -241,6 +245,9 @@
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif
+#if HAVE_STRING_H
+#include <string.h>
+#endif
 #if _MSC_VER || defined(__MINGW32__) 
 #include <windows.h>
 #endif
@@ -291,8 +298,12 @@ X_API flt     STD_PROTO(YAP_FloatOfTerm,(Term));
 X_API Term    STD_PROTO(YAP_MkAtomTerm,(Atom));
 X_API Atom    STD_PROTO(YAP_AtomOfTerm,(Term));
 X_API Atom    STD_PROTO(YAP_LookupAtom,(char *));
+X_API Atom    STD_PROTO(YAP_LookupWideAtom,(wchar_t *));
+X_API int     STD_PROTO(YAP_AtomNameLength,(Atom));
 X_API Atom    STD_PROTO(YAP_FullLookupAtom,(char *));
+X_API int     STD_PROTO(YAP_IsWideAtom,(Atom));
 X_API char   *STD_PROTO(YAP_AtomName,(Atom));
+X_API wchar_t *STD_PROTO(YAP_WideAtomName,(Atom));
 X_API Term    STD_PROTO(YAP_MkPairTerm,(Term,Term));
 X_API Term    STD_PROTO(YAP_MkNewPairTerm,(void));
 X_API Term    STD_PROTO(YAP_HeadOfTerm,(Term));
@@ -580,6 +591,12 @@ YAP_AtomOfTerm(Term t)
 }
 
 
+X_API int
+YAP_IsWideAtom(Atom a)
+{
+  return IsWideAtom(a);
+}
+
 X_API char           *
 YAP_AtomName(Atom a)
 {
@@ -589,6 +606,12 @@ YAP_AtomName(Atom a)
   return(o);
 }
 
+X_API wchar_t           *
+YAP_WideAtomName(Atom a)
+{
+  return RepAtom(a)->WStrOfAE;
+}
+
 X_API Atom
 YAP_LookupAtom(char *c)
 {
@@ -596,6 +619,23 @@ YAP_LookupAtom(char *c)
 
   while (TRUE) {
     a = Yap_LookupAtom(c);
+    if (a == NIL || (ActiveSignals & YAP_CDOVF_SIGNAL)) {
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+      }
+    } else {
+      return a;
+    }
+  }
+}
+
+X_API Atom
+YAP_LookupWideAtom(wchar_t *c)
+{
+  Atom a;
+
+  while (TRUE) {
+    a = Yap_LookupWideAtom(c);
     if (a == NIL || (ActiveSignals & YAP_CDOVF_SIGNAL)) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
@@ -620,6 +660,20 @@ YAP_FullLookupAtom(char *c)
     } else {
       return at;
     }
+  }
+}
+
+X_API int
+YAP_AtomNameLength(Atom at)
+{
+  if (IsWideAtom(at)) {
+    wchar_t *c = RepAtom(at)->WStrOfAE;
+
+    return wcslen(c);
+  } else {
+    char *c = RepAtom(at)->StrOfAE;
+
+    return strlen(c);
   }
 }
 
