@@ -1462,7 +1462,7 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b)
   B = (choiceptr)ASP;
   B--;
 #ifdef TABLING
-  if (top) {
+  if (top && GLOBAL_root_dep_fr) {
     DepFr_cons_cp(GLOBAL_root_dep_fr) = B;
   }
 #endif /* TABLING */
