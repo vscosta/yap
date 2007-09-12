@@ -218,7 +218,9 @@ ENGINE_OBJECTS = \
 	modules.o other.o   \
 	parser.o readutil.o save.o scanner.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
-	unify.o userpreds.o utilpreds.o write.o ypsocks.o ypstdio.o @MPI_OBJS@
+	unify.o userpreds.o utilpreds.o \
+	write.o \
+	yap2swi.o ypsocks.o ypstdio.o @MPI_OBJS@
 
 C_INTERFACE_OBJECTS = \
 	load_foreign.o load_dl.o load_dld.o load_dyld.o \
@@ -234,7 +236,7 @@ BEAM_OBJECTS = \
 	eamamasm.o eam_showcode.o eamindex.o eam_am.o 
 
 STATIC_OBJECTS = \
-	@STATIC_MODE@sys.o random.o yap2swi.o regexp.o  @NO_BUILTIN_REGEXP@ regcomp.o regerror.o regfree.o regexec.o
+	@STATIC_MODE@sys.o random.o regexp.o  @NO_BUILTIN_REGEXP@ regcomp.o regerror.o regfree.o regexec.o
 
 LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS)
 

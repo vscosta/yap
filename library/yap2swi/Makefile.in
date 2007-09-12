@@ -39,7 +39,9 @@ SOBJS=yap2swi@SHLIB_SUFFIX@
 #in some systems we just create a single object, in others we need to
 # create a libray
 
-all: $(SOBJS) 
+# compile yap2swi as part of the main YAP
+
+all:
 
 yap2swi.o: $(srcdir)/yap2swi.c $(srcdir)/yap2swi.h
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/yap2swi.c -o yap2swi.o
@@ -48,9 +50,9 @@ yap2swi.o: $(srcdir)/yap2swi.c $(srcdir)/yap2swi.h
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
 
 @DO_SECOND_LD@yap2swi@SHLIB_SUFFIX@: yap2swi.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o yap2swi@SHLIB_SUFFIX@ yap2swi.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o yap2swi@SHLIB_SUFFIX@ yap2swi.o @
 
-install: all
+install: 
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
 
 clean:
