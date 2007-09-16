@@ -1831,8 +1831,8 @@ file_search_path(system,A) :-
    prolog_flag(host_type,A).
 @end example
 
-Thus, [library(A)] will search for a file using
-@var{library_directory}/1 to obtain the prefix.
+Thus, @code{[library(A)]} will search for a file using
+@code{library_directory/1} to obtain the prefix.
 
 @item library_directory(+@var{D})
 @findex library_directory/1
@@ -3532,10 +3532,10 @@ files, except terminal files and sockets.
 
 @item eof_action(+@var{Action})
 Specify the action to take if attempting to input characters from a
-stream where we have previously found an @code{end-of-file}. The possible
+stream where we have previously found an @code{end_of_file}. The possible
 actions are @code{error}, that raises an error, @code{reset}, that tries to
 reset the stream and is used for @code{tty} type files, and @code{eof_code},
-which generates a new @code{end-of-file} (default for non-tty files).
+which generates a new @code{end_of_file} (default for non-tty files).
 
 @item alias(+@var{Name})
 Specify an alias to the stream. The alias @t{Name} must be an atom. The
@@ -11204,7 +11204,7 @@ These predicates are provided for diagnosis and monitoring tasks.
 @snindex current_thread/2
 @cnindex current_thread/2
 Enumerates identifiers and status of all currently known threads.
-Calling current_thread/2 does not influence any thread.  See also
+Calling @code{current_thread/2} does not influence any thread.  See also
 @code{thread_join/2}.  For threads that have an alias-name, this name is
 returned in @var{Id} instead of the numerical thread identifier.
 @var{Status} is one of:
@@ -11301,7 +11301,7 @@ starting a rush for the available messages in the queue.  This behaviour
 can seriously harm performance with many threads waiting on the same
 queue as all-but-the-winner perform a useless scan of the queue. If
 there is only one waiting thread or all waiting threads wait with an
-unbound variable an arbitrary thread is restarted to scan the queue.%
+unbound variable an arbitrary thread is restarted to scan the queue.
 @comment	\footnote{See the documentation for the POSIX thread functions
 @comment		  pthread_cond_signal() v.s.\ pthread_cond_broadcastt()
 @comment		  for background information.}
@@ -11339,31 +11339,40 @@ with @var{Term} until one unifies or the end of the queue has been
 reached.  In the first case the call succeeds (possibly instantiating
 @var{Term}.  If no term from the queue unifies this call fails.
 
-@item thread_message_queue_create(?@var{Queue})
-@findex thread_message_queue_create/1
-@snindex thread_message_queue_create/1
-@cnindex thread_message_queue_create/1
+@item message_queue_create(?@var{Queue})
+@findex message_queue_create/1
+@snindex message_queue_create/1
+@cnindex message_queue_create/1
 If @var{Queue} is an atom, create a named queue.  To avoid ambiguity
 on @code{thread_send_message/2}, the name of a queue may not be in use
 as a thread-name.  If @var{Queue} is unbound an anonymous queue is
 created and @var{Queue} is unified to its identifier.
 
-@item thread_message_queue_destroy(+@var{Queue})
-@findex thread_message_queue_destroy/1
-@snindex thread_message_queue_destroy/1
-@cnindex thread_message_queue_destroy/1
-Destroy a message queue created with message_queue_create/1.  It is
+@item message_queue_destroy(+@var{Queue})
+@findex message_queue_destroy/1
+@snindex message_queue_destroy/1
+@cnindex message_queue_destroy/1
+Destroy a message queue created with @code{message_queue_create/1}.  It is
 @emph{not} allows to destroy the queue of a thread.  Neither is it
 allowed to destroy a queue other threads are waiting for or, for
-anynymous message queues, may try to wait for later.%
+anynymous message queues, may try to wait for later.
 
 @item thread_get_message(+@var{Queue}, +@var{Term})
 @findex thread_get_message/2
 @snindex thread_get_message/2
 @cnindex thread_get_message/2
-As thread_get_message/1, operating on a given queue. It is allowed to
+As @code{thread_get_message/1}, operating on a given queue. It is allowed to
 peek into another thread's message queue, an operation that can be used
 to check whether a thread has swallowed a message sent to it.
+
+@item thread_peek_message(+@var{Queue}, +@var{Term})
+@findex thread_peek_message/2
+@snindex thread_peek_message/2
+@cnindex thread_peek_message/2
+As @code{thread_peek_message/1}, operating on a given queue. It is allowed to
+peek into another thread's message queue, an operation that can be used
+to check whether a thread has swallowed a message sent to it.
+
 @end table
 
 
@@ -11409,7 +11418,7 @@ goal as an @emph{interrupt}.  Signalling threads is safe as these
 interrupts are only checked at safe points in the virtual machine.
 Nevertheless, signalling in multi-threaded environments should be
 handled with care as the receiving thread may hold a @emph{mutex}
-(see with_mutex).  Signalling probably only makes sense to start
+(see @code{with_mutex/2}).  Signalling probably only makes sense to start
 debugging threads and to cancel no-longer-needed threads with @code{throw/1},
 where the receiving thread should be designed carefully do handle
 exceptions at any point.
@@ -11468,8 +11477,8 @@ etc, during execution of the program.  Unlike normal shared dynamic
 data however each thread has its own clause-list for the predicate.
 As a thread starts, this clause list is empty.  If there are still
 clauses as the thread terminates these are automatically reclaimed by
-the system.  The thread_local property implies
-the property dynamic.
+the system.  The @code{thread_local} property implies
+the property @code{dynamic}.
 
 Thread-local dynamic predicates are intended for maintaining
 thread-specific state or intermediate results of a computation.
@@ -11551,7 +11560,7 @@ successfully unlocked.  See also @code{mutex_create/2}.
 
 Although described in the thread-section, this predicate is also
 available in the single-threaded version, where it behaves simply as
-once/1.
+@code{once/1}.
 
 @item mutex_lock(+@var{MutexId})
 @findex mutex_lock/1
