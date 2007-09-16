@@ -208,6 +208,7 @@ Subnodes of Library
 * Cleanup:: Call With registered Cleanup Calls
 * Timeout:: Call With Timeout
 * Trees:: Updatable Binary Trees
+* Tries:: Trie Data Structure
 * UGraphs:: Unweighted Graphs
 * DGraphs:: Directed Graphs Implemented With Red-Black Trees
 * UnDGraphs:: Undirected Graphs Using DGraphs
@@ -7017,8 +7018,11 @@ Library, Extensions, Built-ins, Top
 * Apply Macros:: Apply a Predicate to a list or to sub-terms.
 * Association Lists:: Binary Tree Implementation of Association Lists.
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
+* Cleanup:: Call With registered Cleanup Calls
+* DGraphs:: Directed Graphs Implemented With Red-Black Trees
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
+* LAM:: LAM MPI
 * Lists:: List Manipulation
 * matrix:: Matrix Objects
 * MATLAB:: Matlab Interface
@@ -7034,13 +7038,11 @@ Library, Extensions, Built-ins, Top
 * String I/O:: Writing To and Reading From Strings
 * System:: System Utilities
 * Terms:: Utilities on Terms
-* Cleanup:: Call With registered Cleanup Calls
 * Timeout:: Call With Timeout
 * Trees:: Updatable Binary Trees
+* Tries:: Trie Data Structure
 * UGraphs:: Unweighted Graphs
-* DGraphs:: Directed Graphs Implemented With Red-Black Trees
 * UnDGraphs:: Undirected Graphs Using DGraphs
-* LAM:: LAM MPI
 
 
 @end menu
@@ -9488,7 +9490,7 @@ Wait until process @var{PID} terminates, and return its exits @var{Status}.
 @end table
 
 
-@node Terms, Cleanup, System, Library
+@node Terms, Tries, System, Library
 @section Utilities On Terms
 @cindex utilities on terms
 
@@ -9573,7 +9575,136 @@ term @var{Term}.
 
 @end table
 
-@node Cleanup, Timeout, Terms, Library
+@node Tries, Cleanup, Terms, Library
+@section Trie DataStructure
+@cindex tries
+
+The next routines provide a set of utilities to create and manipulate
+prefix trees of Prolog terms. Tries were originally proposed to
+implement tabling in Logic Programming, but can be used for other
+purposes. The tries will be stored in the Prolog database and can seen
+as alternative to @code{assert} and @code{record} family of
+primitives. Most of these utilities have been implemented in @code{C}
+for efficiency. They are available through the
+@code{use_module(library(tries))} command.
+
+@table @code
+@item trie_open(-@var{Id})
+@findex trie_open/1
+@snindex trie_open/1
+@cnindex trie_open/2
+
+Open a new trie with identifier @var{Id}.
+
+@item trie_close(+@var{Id})
+@findex trie_close/1
+@snindex trie_close/1
+@cnindex trie_close/2
+
+Close trie with identifier @var{Id}.
+
+@item trie_close_all
+@findex trie_close_all/0
+@snindex trie_close_all/0
+@cnindex trie_close_all/0
+
+Close all available tries.
+
+@item trie_mode(?@var{Mode})
+@findex trie_mode/1
+@snindex trie_mode/1
+@cnindex trie_mode/1
+
+Unify @var{Mode} with trie operation mode. Allowed values are either
+@code{std} (default) or @code{rev}.
+
+@item trie_put_entry(+@var{Trie},+@var{Term},-@var{Ref})
+@findex trie_put_entry/3
+@snindex trie_put_entry/3
+@cnindex trie_put_entry/3
+
+Add term @var{Term} to trie @var{Trie}. The handle @var{Ref} gives
+a reference to the term.
+
+@item trie_check_entry(+@var{Trie},+@var{Term},-@var{Ref})
+@findex trie_check_entry/3
+@snindex trie_check_entry/3
+@cnindex trie_check_entry/3
+
+Succeeds if a variant of term @var{Term} is in trie @var{Trie}. An handle
+ @var{Ref} gives a reference to the term.
+
+@item trie_get_entry(+@var{Ref},-@var{Term})
+@findex trie_get_entry/2
+@snindex trie_get_entry/2
+@cnindex trie_get_entry/2
+Unify @var{Term} with the entry for handle @var{Ref}.
+
+@item trie_remove_entry(+@var{Ref})
+@findex trie_remove_entry/1
+@snindex trie_remove_entry/1
+@cnindex trie_remove_entry/1
+
+Remove entry for handle @var{Ref}.
+
+@item trie_remove_subtree(+@var{Ref})
+@findex trie_remove_subtree/1
+@snindex trie_remove_subtree/1
+@cnindex trie_remove_subtree/1
+
+Remove subtree rooted at handle @var{Ref}.
+
+@item trie_save(+@var{Trie},+@var{FileName})
+@findex trie_save/2
+@snindex trie_save/2
+@cnindex trie_save/2
+Dump trie @var{Trie} into file @var{FileName}.
+
+
+@item trie_load(+@var{Trie},+@var{FileName})
+@findex trie_load/2
+@snindex trie_load/2
+@cnindex trie_load/2
+Load trie @var{Trie} from the contents of file @var{FileName}.
+
+@item trie_stats(-@var{Memory},-@var{Tries},-@var{Entries},-@var{Nodes})
+@findex trie_stats/4
+@snindex trie_stats/4
+@cnindex trie_stats/4
+Give generic statistics on tries, including the amount of memory,
+@var{Memory}, the number of tries, @var{Tries}, the number of entries,
+@var{Entries}, and the total number of nodes, @var{Nodes}.
+
+@item trie_max_stats(-@var{Memory},-@var{Tries},-@var{Entries},-@var{Nodes})
+@findex trie_max_stats/4
+@snindex trie_max_stats/4
+@cnindex trie_max_stats/4
+Give maximal statistics on tries, including the amount of memory,
+@var{Memory}, the number of tries, @var{Tries}, the number of entries,
+@var{Entries}, and the total number of nodes, @var{Nodes}.
+
+
+@item trie_usage(+@var{Trie},-@var{Entries},-@var{Nodes},-@var{VirtualNodes})
+@findex trie_usage/4
+@snindex trie_usage/4
+@cnindex trie_usage/4
+Give statistics on trie @var{Trie}, the number of entries,
+@var{Entries}, and the total number of nodes, @var{Nodes}, and the
+number of @var{VirtualNodes}.
+
+@item trie_print(+@var{Trie})
+@findex trie_print/1
+@snindex trie_print/1
+@cnindex trie_print/1
+Print trie @var{Trie} on standard output.
+
+
+
+
+@end table
+
+
+@node Cleanup, Timeout, Tries, Library
 @section Call Cleanup
 @cindex cleanup
 
