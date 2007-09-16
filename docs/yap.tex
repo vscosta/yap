@@ -11330,6 +11330,36 @@ These predicates are provided for diagnosis and monitoring tasks.
 
 
 @table @code
+@item thread_property(+@var{Id}, -@var{Property})
+@findex thread_property/2
+@snindex thread_property/2
+@cnindex thread_property/2
+Enumerates the properties of the specified thread.
+Calling @code{thread_property/2} does not influence any thread.  See also
+@code{thread_join/2}.  For threads that have an alias-name, this name can
+be used in @var{Id} instead of the numerical thread identifier.
+@var{Property} is one of:
+
+@table @code
+    @item status(@var{Status})
+The thread status of a thread (see below).
+
+    @item alias(@var{Alias})
+The thread alias, if it exists.
+
+    @item detached(@var{Boolean})
+The detached state of the thread.
+
+    @item stack(@var{Size})
+The thread stack data-area size.
+
+    @item trail(@var{Size})
+The thread trail data-area size.
+
+    @item system(@var{Size})
+The thread system data-area size.
+@end table
+
 @item current_thread(+@var{Id}, -@var{Status})
 @findex current_thread/2
 @snindex current_thread/2
