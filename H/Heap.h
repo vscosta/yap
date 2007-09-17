@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.115 2007-04-10 22:13:20 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.116 2007-09-17 22:17:49 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -168,6 +168,7 @@ typedef struct worker_local_struct {
   struct global_entry *global_variables;
   int allow_restart;
   Term global_arena;
+  UInt global_arena_overflows; 
   Term global_delay_arena;
   yamop trust_lu_code[3];
 } worker_local;
@@ -915,6 +916,7 @@ struct various_codes *Yap_heap_regs;
 #define  StaticArrays             Yap_heap_regs->WL.static_arrays
 #define  GlobalVariables          Yap_heap_regs->WL.global_variables
 #define  GlobalArena              Yap_heap_regs->WL.global_arena
+#define  GlobalArenaOverflows     Yap_heap_regs->WL.global_arena_overflows
 #define  Yap_AllowRestart         Yap_heap_regs->WL.allow_restart
 #define  GlobalDelayArena         Yap_heap_regs->WL.global_delay_arena
 #define  profiling                Yap_heap_regs->compiler_profiling

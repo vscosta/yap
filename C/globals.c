@@ -379,7 +379,7 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res, Term *att_arenap)
 #endif
 
 static int
-copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *HLow, Term *att_arenap)
+copy_complex_term(register CELL *pt0, register CELL *pt0_end, Term arena, CELL *ptf, CELL *HLow, Term *att_arenap)
 {
 
   CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
@@ -402,7 +402,8 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
     {
       if (IsPairTerm(d0)) {
 	CELL *ap2 = RepPair(d0);
-	if (ap2 >= HB && ap2 < H) {
+	if ((arena == GlobalArena && ap2 < H) ||
+	    (ap2 >= HB && ap2 < H)) {
 	  /* If this is newer than the current term, just reuse */
 	  *ptf++ = d0;
 	  continue;
@@ -443,7 +444,8 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	register CELL *ap2;
 	/* store the terms to visit */
 	ap2 = RepAppl(d0);
-	if (ap2 >= HB && ap2 < H) {
+	if ((arena == GlobalArena && ap2 < H) ||
+	    (ap2 >= HB && ap2 < H)) {
 	  /* If this is newer than the current term, just reuse */
 	  *ptf++ = d0;
 	  continue;
@@ -688,7 +690,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 }
 
 static Term
-CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap, Int min_grow)
+CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap, UInt min_grow)
 {
   UInt old_size = ArenaSz(arena);
   CELL *oldH = H;
@@ -714,7 +716,7 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
       *H = t;
       Hi = H+1;
       H += 2;
-      if ((res = copy_complex_term(Hi-2, Hi-1, Hi, Hi, att_arenap)) < 0) 
+      if ((res = copy_complex_term(Hi-2, Hi-1, arena, Hi, Hi, att_arenap)) < 0) 
 	goto error_handler;
       CloseArena(oldH, oldHB, oldASP, newarena, old_size);
       return Hi[0];
@@ -740,7 +742,7 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
     Hi = H;
     tf = AbsPair(H);
     H += 2;
-    if ((res = copy_complex_term(ap-1, ap+1, Hi, Hi, att_arenap)) < 0) {
+    if ((res = copy_complex_term(ap-1, ap+1, arena, Hi, Hi, att_arenap)) < 0) {
 	goto error_handler;
     }
     CloseArena(oldH, oldHB, oldASP, newarena, old_size);
@@ -807,7 +809,7 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
 	res = -1;
 	goto error_handler;
       } 
-      if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0, att_arenap)) < 0) {
+      if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), arena, HB0+1, HB0, att_arenap)) < 0) {
 	goto error_handler;
       }
     }
@@ -832,7 +834,210 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
     HB = oldHB;
     switch (res) {
     case -1:
+      if (arena == GlobalArena)
+	GlobalArenaOverflows++;
       /* handle arena overflow */
+      /* first, take care of useless stuff */
+      /*
+      if (!Yap_gc(arity+4, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	return 0L;
+      }
+      arena = XREGS[arity+2];
+      newarena = (Term *)XREGS[arity+3];
+      old_top = ArenaLimit(*newarena);
+      */
+      if (!GrowArena(arena, old_top, old_size, min_grow, arity+4)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return 0L;
+      }
+      break;
+#if COROUTINING
+    case -3:
+      /* handle delay arena overflow */
+      old_size = DelayArenaSz(*att_arenap);
+      
+      if (!GrowDelayArena(att_arenap, old_size, 0L, arity+4)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return 0L;
+      }
+      break;
+#endif
+    case -4:
+      /* handle trail overflow */
+      if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L, FALSE)) {
+	Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, Yap_ErrorMessage);
+	return 0L;
+      }
+      break;
+    default: /* temporary space overflow */
+      if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
+	Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
+	return 0L;
+      }
+    }
+  }
+  oldH = H;
+  oldHB = HB;
+  oldASP = ASP;
+  att_arenap = (Term *)XREGS[arity+4];
+  newarena = (CELL *)XREGS[arity+3];
+  arena = Deref(XREGS[arity+2]);
+  t = XREGS[arity+1];
+  old_size = ArenaSz(arena);
+  goto restart;
+}
+
+static Term
+AddTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap, UInt min_grow)
+{
+  UInt old_size = ArenaSz(arena);
+  CELL *oldH = H;
+  CELL *oldHB = HB;
+  CELL *oldASP = ASP;
+  int res;
+#if COROUTINING
+  Term old_delay_arena;
+#endif
+
+ restart:
+#if COROUTINING
+  old_delay_arena = *att_arenap;
+#endif
+  t = Deref(t);
+  if (IsVarTerm(t)) {
+    ASP = ArenaLimit(arena);
+    H = HB = ArenaPt(arena);
+#if COROUTINING
+    if (IsAttachedTerm(t)) {
+      return 0;
+    }
+#endif
+    Term tn = MkVarTerm();
+    if (H > ASP - 128) {
+      res = -1;
+      goto error_handler;
+    }
+    CloseArena(oldH, oldHB, oldASP, newarena, old_size);
+    return tn;
+  } else if (IsAtomOrIntTerm(t)) {
+    return t;
+  } else if (IsPairTerm(t)) {
+    Term tf;
+    CELL *ap;
+    CELL *Hi;
+
+    H = HB = ArenaPt(arena);
+    ASP = ArenaLimit(arena);
+    ap = RepPair(t);
+    if (H > ASP - (128+2)) {
+      res = -1;
+      goto error_handler;
+    }
+    Hi = H;
+    tf = AbsPair(H);
+    H[0] = ap[0];
+    H[1] = ap[1];
+    H += 2;
+    CloseArena(oldH, oldHB, oldASP, newarena, old_size);
+    return tf;
+  } else {
+    Functor f;
+    Term tf;
+    CELL *HB0;
+    CELL *ap;
+
+    H = HB = ArenaPt(arena);
+    ASP = ArenaLimit(arena);
+    f = FunctorOfTerm(t);
+    HB0 = H;
+    ap = RepAppl(t);
+    tf = AbsAppl(H);
+    H[0] = (CELL)f;
+    if (IsExtensionFunctor(f)) {
+      switch((CELL)f) {
+      case (CELL)FunctorDBRef:
+	CloseArena(oldH, oldHB, oldASP, newarena, old_size);
+	return t;
+      case (CELL)FunctorLongInt:
+	if (H > ASP - (128+3)) {
+	  res = -1;
+	  goto error_handler;
+	}
+	H[1] = ap[1];
+	H[2] = EndSpecials;
+	H += 3;
+	break;
+      case (CELL)FunctorDouble:
+	if (H > ASP - (128+(2+SIZEOF_DOUBLE/sizeof(CELL)))) {
+	  res = -1;
+	  goto error_handler;
+	}
+	H[1] = ap[1];
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+	H[2] = ap[2];
+	H[3] = EndSpecials;
+	H += 4;
+#else
+	H[2] = EndSpecials;
+	H += 3;
+#endif
+	break;
+      default:
+	{
+	  UInt sz = ArenaSz(t), i;
+
+	  if (H > ASP - (128+sz)) {
+	    res = -1;
+	    goto error_handler;
+	  }
+	  for (i = 1; i < sz; i++) {
+	    H[i] = ap[i];
+	  }
+	  H += sz;
+	}
+      }
+    } else {
+      UInt i;
+
+      if (H+(1+ArityOfFunctor(f)) > ASP-128) {
+	res = -1;
+	goto error_handler;
+      }
+      for (i=0; i<=ArityOfFunctor(f);i++)
+	*H++ = *ap++;
+    }
+    CloseArena(oldH, oldHB, oldASP, newarena, old_size);
+    return tf;
+  }
+ error_handler:
+  H = HB;
+  CloseArena(oldH, oldHB, oldASP, newarena, old_size);
+#if COROUTINING
+  if (old_delay_arena != MkIntTerm(0))
+    ResetDelayArena(old_delay_arena, att_arenap);
+#endif
+  XREGS[arity+1] = t;
+  XREGS[arity+2] = arena;
+  XREGS[arity+3] = (CELL)newarena;
+  XREGS[arity+4] = (CELL)att_arenap;
+  {
+    CELL *old_top = ArenaLimit(*newarena);
+    ASP = oldASP;
+    H = oldH;
+    HB = oldHB;
+    switch (res) {
+    case -1:
+      if (arena == GlobalArena)
+	GlobalArenaOverflows++;
+      /* handle arena overflow */
+      /* first, take care of useless stuff */
+      if (!Yap_gc(arity+4, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	return 0L;
+      }
+      arena = XREGS[arity+2];
+      old_top = ArenaLimit(*newarena);
       if (!GrowArena(arena, old_top, old_size, min_grow, arity+4)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return 0L;
@@ -937,7 +1142,55 @@ GetGlobalEntry(Atom at)
   return new;
 }
 
+static UInt
+garena_overflow_size(CELL *arena)
+{
+  UInt dup = ((CELL *)arena-H0)*sizeof(CELL);
+  if (dup < 64*1024*GlobalArenaOverflows)
+    dup = 64*1024*GlobalArenaOverflows;
+  if (dup > 16*1024*1024)
+    return 16*1024*1024;
+  return dup;
+}
 
+static Int
+p_nb_copyterm(void)
+{
+  Term to = CopyTermToArena(ARG1, GlobalArena, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  if (to == 0L)
+    return FALSE;
+  return Yap_unify(ARG2,to);
+}
+
+static Int
+p_nb_maketerm(void)
+{
+  Term to = Deref(ARG1);
+  to = AddTermToArena(ARG1, GlobalArena, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  if (to == 0L)
+    return FALSE;
+  return Yap_unify(ARG2,to);
+}
+
+static Int
+p_nb_linkval(void)
+{
+  Term t = Deref(ARG1), to;
+  GlobalEntry *ge;
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"nb_setval");
+    return (TermNil);
+  } else if (!IsAtomTerm(t)) {
+      Yap_Error(TYPE_ERROR_ATOM,t,"nb_setval");
+      return (FALSE);
+  }
+  ge = GetGlobalEntry(AtomOfTerm(t));
+  to = Deref(ARG2);
+  WRITE_LOCK(ge->GRWLock);
+  ge->global=to;
+  WRITE_UNLOCK(ge->GRWLock);
+  return TRUE;
+}
 
 static Int
 p_nb_setval(void)
@@ -952,7 +1205,7 @@ p_nb_setval(void)
       return (FALSE);
   }
   ge = GetGlobalEntry(AtomOfTerm(t));
-  to = CopyTermToArena(ARG2, GlobalArena, 2, &GlobalArena, &GlobalDelayArena, 0);
+  to = CopyTermToArena(ARG2, GlobalArena, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
     return FALSE;
   WRITE_LOCK(ge->GRWLock);
@@ -2185,7 +2438,10 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("arena_size", 1, p_default_arena_size, 0);
   Yap_InitCPred("b_setval", 2, p_b_setval, SafePredFlag);
   Yap_InitCPred("b_getval", 2, p_nb_getval, SafePredFlag);
+  Yap_InitCPred("nb_copy_term", 2, p_nb_copyterm, 0L);
+  Yap_InitCPred("nb_make_term", 2, p_nb_maketerm, 0L);
   Yap_InitCPred("nb_setval", 2, p_nb_setval, 0L);
+  Yap_InitCPred("nb_linkval", 2, p_nb_linkval, 0L);
   Yap_InitCPred("nb_getval", 2, p_nb_getval, SafePredFlag);
   Yap_InitCPred("nb_delete", 1, p_nb_delete, 0L);
   Yap_InitCPredBack("$nb_current", 1, 1, init_current_nb, cont_current_nb, SafePredFlag);
