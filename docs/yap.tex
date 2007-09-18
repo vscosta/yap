@@ -11330,7 +11330,7 @@ These predicates are provided for diagnosis and monitoring tasks.
 
 
 @table @code
-@item thread_property(+@var{Id}, -@var{Property})
+@item thread_property(?@var{Id}, ?@var{Property})
 @findex thread_property/2
 @snindex thread_property/2
 @cnindex thread_property/2
@@ -11445,6 +11445,16 @@ by the thread. Additional queues are created using
 @code{message_queue_create/2}.
 
 @table @code
+
+@item thread_send_message(+@var{Term})
+@findex thread_send_message/1
+@snindex thread_send_message/1
+@cnindex thread_send_message/1
+Places @var{Term} in the message-queue of the thread running the goal. 
+Any term can be placed in a message queue, but note that the term is 
+copied to the receiving thread and variable-bindings are thus lost. 
+This call returns immediately.
+
 @item thread_send_message(+@var{QueueOrThreadId}, +@var{Term})
 @findex thread_send_message/2
 @snindex thread_send_message/2
@@ -11491,15 +11501,6 @@ in its queue and continues execution using @var{A} is @code{gnat}.
 
 See also @code{thread_peek_message/1}.
 
-@item thread_peek_message(?@var{Term})
-@findex thread_peek_message/1
-@snindex thread_peek_message/1
-@cnindex thread_peek_message/1
-Examines the thread message-queue and compares the queued terms
-with @var{Term} until one unifies or the end of the queue has been
-reached.  In the first case the call succeeds (possibly instantiating
-@var{Term}.  If no term from the queue unifies this call fails.
-
 @item message_queue_create(?@var{Queue})
 @findex message_queue_create/1
 @snindex message_queue_create/1
@@ -11518,7 +11519,7 @@ Destroy a message queue created with @code{message_queue_create/1}.  It is
 allowed to destroy a queue other threads are waiting for or, for
 anynymous message queues, may try to wait for later.
 
-@item thread_get_message(+@var{Queue}, +@var{Term})
+@item thread_get_message(+@var{Queue}, ?@var{Term})
 @findex thread_get_message/2
 @snindex thread_get_message/2
 @cnindex thread_get_message/2
@@ -11526,7 +11527,16 @@ As @code{thread_get_message/1}, operating on a given queue. It is allowed to
 peek into another thread's message queue, an operation that can be used
 to check whether a thread has swallowed a message sent to it.
 
-@item thread_peek_message(+@var{Queue}, +@var{Term})
+@item thread_peek_message(?@var{Term})
+@findex thread_peek_message/1
+@snindex thread_peek_message/1
+@cnindex thread_peek_message/1
+Examines the thread message-queue and compares the queued terms
+with @var{Term} until one unifies or the end of the queue has been
+reached.  In the first case the call succeeds (possibly instantiating
+@var{Term}.  If no term from the queue unifies this call fails.
+
+@item thread_peek_message(+@var{Queue}, ?@var{Term})
 @findex thread_peek_message/2
 @snindex thread_peek_message/2
 @cnindex thread_peek_message/2
