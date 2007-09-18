@@ -542,6 +542,10 @@ message_queue_destroy(Name) :-
 	fail.
 '$clean_mqueue'(_).
 
+thread_send_message(Term) :-
+	'$thread_self'(Id),
+	thread_send_message(Id, Term).
+
 thread_send_message(Queue, Term) :- var(Queue), !,
 	'$do_error'(instantiation_error,thread_send_message(Queue,Term)).
 thread_send_message(Queue, Term) :-
