@@ -346,11 +346,11 @@ clean_dirty_tr(tr_fr_ptr TR0) {
 #if COROUTINING
 
 static int
-CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res, Term *att_arenap)
+CopyAttVar(CELL *orig, struct cp_frame **to_visit_ptr, CELL *res, Term *att_arenap)
 {
   register attvar_record *attv = (attvar_record *)orig;
   register attvar_record *newv;
-  CELL **to_visit = *to_visit_ptr;
+  struct cp_frame *to_visit = *to_visit_ptr;
   CELL *vt;
 
   /* add a new attributed variable */
@@ -361,17 +361,19 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res, Term *att_arenap)
   RESET_VARIABLE(&(newv->Value));
   RESET_VARIABLE(&(newv->Done));
   vt = &(attv->Atts);
-  to_visit[0] = vt-1;
-  to_visit[1] = vt;
+  to_visit->start_cp = vt-1;
+  to_visit->end_cp = vt;
   if (IsVarTerm(attv->Atts)) {
     newv->Atts = (CELL)H;
-    to_visit[2] = H;
+    to_visit->to = H;
     H++;
   } else {
-    to_visit[2] = &(newv->Atts);
+    to_visit->to = &(newv->Atts);
   }
-  to_visit[3] = (CELL *)vt[-1];
-  *to_visit_ptr = to_visit+4;
+  to_visit->oldv = vt[-1];
+  /* you're coming from a variable */
+  to_visit->ground = FALSE;
+  *to_visit_ptr = to_visit+1;
   *res = (CELL)&(newv->Done);
   *att_arenap = (CELL)(newv);
   return TRUE;
@@ -379,15 +381,17 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res, Term *att_arenap)
 #endif
 
 static int
-copy_complex_term(register CELL *pt0, register CELL *pt0_end, Term arena, CELL *ptf, CELL *HLow, Term *att_arenap)
+copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, CELL *ptf, CELL *HLow, Term *att_arenap)
 {
 
-  CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
+  struct cp_frame *to_visit0, *to_visit = (struct cp_frame *)Yap_PreAllocCodeSpace();
   CELL *HB0 = HB;
   tr_fr_ptr TR0 = TR;
 #ifdef COROUTINING
   CELL *dvars = NULL;
 #endif
+  int ground = TRUE;
+
   HB = HLow;
   to_visit0 = to_visit;
  loop:
@@ -402,7 +406,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, Term arena, CELL *
     {
       if (IsPairTerm(d0)) {
 	CELL *ap2 = RepPair(d0);
-	if ((arena == GlobalArena && ap2 < H) ||
+	if ((share && ap2 < HB) ||
 	    (ap2 >= HB && ap2 < H)) {
 	  /* If this is newer than the current term, just reuse */
 	  *ptf++ = d0;
@@ -411,27 +415,30 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, Term arena, CELL *
 	*ptf = AbsPair(H);
 	ptf++;
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)AuxSp) {
+	if (to_visit+1 >= (struct cp_frame *)AuxSp) {
 	  goto heap_overflow;
 	}
-	to_visit[0] = pt0;
-	to_visit[1] = pt0_end;
-	to_visit[2] = ptf;
-	to_visit[3] = (CELL *)*pt0;
+	to_visit->start_cp = pt0;
+	to_visit->end_cp = pt0_end;
+	to_visit->to = ptf;
+	to_visit->oldv = *pt0;
+	to_visit->ground = ground;
 	/* fool the system into thinking we had a variable there */
 	*pt0 = AbsPair(H);
-	to_visit += 4;
+	to_visit ++;
 #else
 	if (pt0 < pt0_end) {
-	  if (to_visit + 3 >= (CELL **)AuxSp) {
+	  if (to_visit + 1 >= (CELL **)AuxSp) {
 	    goto heap_overflow;
 	  }
-	  to_visit[0] = pt0;
-	  to_visit[1] = pt0_end;
-	  to_visit[2] = ptf;
-	  to_visit += 3;
+	  to_visit->start_cp = pt0;
+	  to_visit->end_cp = pt0_end;
+	  to_visit->to = ptf;
+	  to_visit->ground = ground;
+	  to_visit ++;
 	}
 #endif
+	ground = TRUE;
 	pt0 = ap2 - 1;
 	pt0_end = ap2 + 1;
 	ptf = H;
@@ -444,7 +451,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, Term arena, CELL *
 	register CELL *ap2;
 	/* store the terms to visit */
 	ap2 = RepAppl(d0);
-	if ((arena == GlobalArena && ap2 < H) ||
+	if ((share && ap2 < HB) ||
 	    (ap2 >= HB && ap2 < H)) {
 	  /* If this is newer than the current term, just reuse */
 	  *ptf++ = d0;
@@ -505,27 +512,30 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, Term arena, CELL *
 	ptf++;
 	/* store the terms to visit */
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)AuxSp) {
+	if (to_visit+1 >= (struct cp_frame *)AuxSp) {
 	  goto heap_overflow;
 	}
-	to_visit[0] = pt0;
-	to_visit[1] = pt0_end;
-	to_visit[2] = ptf;
-	to_visit[3] = (CELL *)*pt0;
+	to_visit->start_cp = pt0;
+	to_visit->end_cp = pt0_end;
+	to_visit->to = ptf;
+	to_visit->oldv = *pt0;
+	to_visit->ground = ground;
 	/* fool the system into thinking we had a variable there */
 	*pt0 = AbsAppl(H);
-	to_visit += 4;
+	to_visit ++;
 #else
 	if (pt0 < pt0_end) {
-	  if (to_visit + 3 >= (CELL **)AuxSp) {
+	  if (to_visit ++ >= (CELL **)AuxSp) {
 	    goto heap_overflow;
 	  }
-	  to_visit[0] = pt0;
-	  to_visit[1] = pt0_end;
-	  to_visit[2] = ptf;
-	  to_visit += 3;
+	  to_visit->start_cp = pt0;
+	  to_visit->end_cp = pt0_end;
+	  to_visit->to = ptf;
+	  to_visit->ground = ground;
+	  to_visit ++;
 	}
 #endif
+	ground = (f != FunctorMutable);
 	d0 = ArityOfFunctor(f);
 	pt0 = ap2;
 	pt0_end = ap2 + d0;
@@ -544,14 +554,17 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, Term arena, CELL *
     }
 
     derefa_body(d0, ptd0, copy_term_unk, copy_term_nvar);
-    if (ptd0 >= HLow && ptd0 < H) { 
+    ground = FALSE;
+    /* don't need to copy variables if we want to share the global term */
+    if ((share && ptd0 < HB && ptd0 > H0) ||
+	(ptd0 >= HLow && ptd0 < H)) { 
       /* we have already found this cell */
       *ptf++ = (CELL) ptd0;
     } else {
 #if COROUTINING
       if (IsAttachedTerm((CELL)ptd0)) {
 	/* if unbound, call the standard copy term routine */
-	CELL **bp[1];
+	struct cp_frame *bp[1];
 
 	if (dvars == NULL) {
 	  dvars = (CELL *)DelayArenaPt(*att_arenap);
@@ -593,18 +606,14 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, Term arena, CELL *
   }
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
+    to_visit --;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
 #ifdef RATIONAL_TREES
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
-#else
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
+    *pt0 = to_visit->oldv;
 #endif
+    ground = (ground && to_visit->ground);
     goto loop;
   }
 
@@ -621,11 +630,11 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, Term arena, CELL *
   HB = HB0;
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
+    to_visit --;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    *pt0 = to_visit->oldv;
   }
 #endif
   reset_trail(TR0);
@@ -639,11 +648,11 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, Term arena, CELL *
   HB = HB0;
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
+    to_visit--;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    *pt0 = to_visit->oldv;
   }
 #endif
   reset_trail(TR0);
@@ -659,11 +668,11 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, Term arena, CELL *
   HB = HB0;
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
+    to_visit--;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    *pt0 = to_visit->oldv;
   }
 #endif
   reset_trail(TR0);
@@ -678,11 +687,11 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, Term arena, CELL *
   HB = HB0;
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
+    to_visit--;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    *pt0 = to_visit->oldv;
   }
 #endif
   reset_trail(TR0);
@@ -690,7 +699,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, Term arena, CELL *
 }
 
 static Term
-CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap, UInt min_grow)
+CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term *att_arenap, UInt min_grow)
 {
   UInt old_size = ArenaSz(arena);
   CELL *oldH = H;
@@ -700,6 +709,7 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
 #if COROUTINING
   Term old_delay_arena;
 #endif
+  Term tn;
 
  restart:
 #if COROUTINING
@@ -716,13 +726,17 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
       *H = t;
       Hi = H+1;
       H += 2;
-      if ((res = copy_complex_term(Hi-2, Hi-1, arena, Hi, Hi, att_arenap)) < 0) 
+      if ((res = copy_complex_term(Hi-2, Hi-1, share, Hi, Hi, att_arenap)) < 0) 
 	goto error_handler;
       CloseArena(oldH, oldHB, oldASP, newarena, old_size);
       return Hi[0];
     }
 #endif
-    Term tn = MkVarTerm();
+    if (share && VarOfTerm(t) > ArenaPt(arena)) {
+      CloseArena(oldH, oldHB, oldASP, newarena, old_size);
+      return t;
+    }
+    tn = MkVarTerm();
     if (H > ASP - 128) {
       res = -1;
       goto error_handler;
@@ -736,13 +750,16 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
     CELL *ap;
     CELL *Hi;
 
+    if (share && ArenaPt(arena) > RepPair(t)) {
+      return t;
+    }
     H = HB = ArenaPt(arena);
     ASP = ArenaLimit(arena);
     ap = RepPair(t);
     Hi = H;
     tf = AbsPair(H);
     H += 2;
-    if ((res = copy_complex_term(ap-1, ap+1, arena, Hi, Hi, att_arenap)) < 0) {
+    if ((res = copy_complex_term(ap-1, ap+1, share, Hi, Hi, att_arenap)) < 0) {
 	goto error_handler;
     }
     CloseArena(oldH, oldHB, oldASP, newarena, old_size);
@@ -753,6 +770,9 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
     CELL *HB0;
     CELL *ap;
 
+    if (share && ArenaPt(arena) > RepAppl(t)) {
+      return t;
+    }
     H = HB = ArenaPt(arena);
     ASP = ArenaLimit(arena);
     f = FunctorOfTerm(t);
@@ -809,7 +829,7 @@ CopyTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap
 	res = -1;
 	goto error_handler;
       } 
-      if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), arena, HB0+1, HB0, att_arenap)) < 0) {
+      if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), share, HB0+1, HB0, att_arenap)) < 0) {
 	goto error_handler;
       }
     }
@@ -1156,7 +1176,7 @@ garena_overflow_size(CELL *arena)
 static Int
 p_nb_copyterm(void)
 {
-  Term to = CopyTermToArena(ARG1, GlobalArena, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  Term to = CopyTermToArena(ARG1, GlobalArena, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
     return FALSE;
   return Yap_unify(ARG2,to);
@@ -1205,7 +1225,29 @@ p_nb_setval(void)
       return (FALSE);
   }
   ge = GetGlobalEntry(AtomOfTerm(t));
-  to = CopyTermToArena(ARG2, GlobalArena, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  to = CopyTermToArena(ARG2, GlobalArena, FALSE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  if (to == 0L)
+    return FALSE;
+  WRITE_LOCK(ge->GRWLock);
+  ge->global=to;
+  WRITE_UNLOCK(ge->GRWLock);
+  return TRUE;
+}
+
+static Int
+p_nb_set_shared_val(void)
+{
+  Term t = Deref(ARG1), to;
+  GlobalEntry *ge;
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"nb_setval");
+    return (TermNil);
+  } else if (!IsAtomTerm(t)) {
+      Yap_Error(TYPE_ERROR_ATOM,t,"nb_setval");
+      return (FALSE);
+  }
+  ge = GetGlobalEntry(AtomOfTerm(t));
+  to = CopyTermToArena(ARG2, GlobalArena, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
     return FALSE;
   WRITE_LOCK(ge->GRWLock);
@@ -1473,7 +1515,7 @@ p_nb_queue_enqueue(void)
   } else {
     min_size = 0L;
   }
-  to = CopyTermToArena(ARG2, arena, 2, qd+QUEUE_ARENA, qd+QUEUE_DELAY_ARENA, min_size);
+  to = CopyTermToArena(ARG2, arena, FALSE, 2, qd+QUEUE_ARENA, qd+QUEUE_DELAY_ARENA, min_size);
   if (to == 0L)
     return FALSE;
   qd = GetQueue(ARG1,"enqueue");
@@ -1803,9 +1845,9 @@ p_nb_heap_add_to_heap(void)
   arena = qd[HEAP_ARENA];
   if (arena == 0L)
     return FALSE;
-  key = CopyTermToArena(ARG2, arena, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
+  key = CopyTermToArena(ARG2, arena, FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
   arena = qd[HEAP_ARENA];
-  to = CopyTermToArena(ARG3, arena, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
+  to = CopyTermToArena(ARG3, arena, FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
   if (key == 0 || to == 0L)
     return FALSE;
   qd = GetHeap(ARG1,"add_to_heap");
@@ -2204,9 +2246,9 @@ p_nb_beam_add_to_beam(void)
   arena = qd[HEAP_ARENA];
   if (arena == 0L)
     return FALSE;
-  key = CopyTermToArena(ARG2, qd[HEAP_ARENA], 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
+  key = CopyTermToArena(ARG2, qd[HEAP_ARENA], FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
   arena = qd[HEAP_ARENA];
-  to = CopyTermToArena(ARG3, arena, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
+  to = CopyTermToArena(ARG3, arena, FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
   if (key == 0 || to == 0L)
     return FALSE;
   qd = GetHeap(ARG1,"add_to_beam");
@@ -2441,6 +2483,7 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("nb_copy_term", 2, p_nb_copyterm, 0L);
   Yap_InitCPred("nb_make_term", 2, p_nb_maketerm, 0L);
   Yap_InitCPred("nb_setval", 2, p_nb_setval, 0L);
+  Yap_InitCPred("nb_set_shared_val", 2, p_nb_set_shared_val, 0L);
   Yap_InitCPred("nb_linkval", 2, p_nb_linkval, 0L);
   Yap_InitCPred("nb_getval", 2, p_nb_getval, SafePredFlag);
   Yap_InitCPred("nb_delete", 1, p_nb_delete, 0L);
