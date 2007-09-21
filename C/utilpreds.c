@@ -31,7 +31,7 @@ typedef struct {
 }              *vcell;
 
 
-STATIC_PROTO(int   copy_complex_term, (CELL *, CELL *, CELL *, CELL *));
+STATIC_PROTO(int   copy_complex_term, (CELL *, CELL *, int, int, CELL *, CELL *));
 STATIC_PROTO(CELL  vars_in_complex_term, (CELL *, CELL *, Term));
 STATIC_PROTO(Int   p_non_singletons_in_term, (void));
 STATIC_PROTO(CELL  non_singletons_in_complex_term, (CELL *, CELL *));
@@ -76,16 +76,19 @@ clean_dirty_tr(tr_fr_ptr TR0) {
   }
 }
 
+
 static int
-copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *HLow)
+copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, CELL *HLow)
 {
 
-  CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
+  struct cp_frame *to_visit0, *to_visit = (struct cp_frame *)Yap_PreAllocCodeSpace();
   CELL *HB0 = HB;
   tr_fr_ptr TR0 = TR;
+  int ground = TRUE;
 #ifdef COROUTINING
   CELL *dvars = NULL;
 #endif
+
   HB = HLow;
   to_visit0 = to_visit;
  loop:
@@ -108,27 +111,30 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	*ptf = AbsPair(H);
 	ptf++;
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)AuxSp) {
+	if (to_visit+1 >= (struct cp_frame *)AuxSp) {
 	  goto heap_overflow;
 	}
-	to_visit[0] = pt0;
-	to_visit[1] = pt0_end;
-	to_visit[2] = ptf;
-	to_visit[3] = (CELL *)*pt0;
+	to_visit->start_cp = pt0;
+	to_visit->end_cp = pt0_end;
+	to_visit->to = ptf;
+	to_visit->oldv = *pt0;
+	to_visit->ground = ground;
 	/* fool the system into thinking we had a variable there */
 	*pt0 = AbsPair(H);
-	to_visit += 4;
+	to_visit ++;
 #else
 	if (pt0 < pt0_end) {
-	  if (to_visit + 3 >= (CELL **)AuxSp) {
+	  if (to_visit+1 >= (struct cp_frame *)AuxSp) {
 	    goto heap_overflow;
 	  }
-	  to_visit[0] = pt0;
-	  to_visit[1] = pt0_end;
-	  to_visit[2] = ptf;
-	  to_visit += 3;
+	  to_visit->start_cp = pt0;
+	  to_visit->end_cp = pt0_end;
+	  to_visit->to = ptf;
+	  to_visit->ground = ground;
+	  to_visit ++;
 	}
 #endif
+	ground = TRUE;
 	pt0 = ap2 - 1;
 	pt0_end = ap2 + 1;
 	ptf = H;
@@ -158,27 +164,30 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	ptf++;
 	/* store the terms to visit */
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)AuxSp) {
+	if (to_visit+1 >= (struct cp_frame *)AuxSp) {
 	  goto heap_overflow;
 	}
-	to_visit[0] = pt0;
-	to_visit[1] = pt0_end;
-	to_visit[2] = ptf;
-	to_visit[3] = (CELL *)*pt0;
+	to_visit->start_cp = pt0;
+	to_visit->end_cp = pt0_end;
+	to_visit->to = ptf;
+	to_visit->oldv = *pt0;
+	to_visit->ground = ground;
 	/* fool the system into thinking we had a variable there */
 	*pt0 = AbsAppl(H);
-	to_visit += 4;
+	to_visit ++;
 #else
 	if (pt0 < pt0_end) {
-	  if (to_visit + 3 >= (CELL **)AuxSp) {
+	  if (to_visit+1 >= (struct cp_frame *)AuxSp) {
 	    goto heap_overflow;
 	  }
-	  to_visit[0] = pt0;
-	  to_visit[1] = pt0_end;
-	  to_visit[2] = ptf;
-	  to_visit += 3;
+	  to_visit->start_cp = pt0;
+	  to_visit->end_cp = pt0_end;
+	  to_visit->to = ptf;
+	  to_visit->ground = ground;
+	  to_visit ++;
 	}
 #endif
+	ground = (f != FunctorMutable);
 	d0 = ArityOfFunctor(f);
 	pt0 = ap2;
 	pt0_end = ap2 + d0;
@@ -197,6 +206,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
     }
 
     derefa_body(d0, ptd0, copy_term_unk, copy_term_nvar);
+    ground = FALSE;
     if (ptd0 >= HLow && ptd0 < H) { 
       /* we have already found this cell */
       *ptf++ = (CELL) ptd0;
@@ -204,7 +214,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 #if COROUTINING
       if (IsAttachedTerm((CELL)ptd0)) {
 	/* if unbound, call the standard copy term routine */
-	CELL **bp[1];
+	struct cp_frame *bp[1];
 
 	if (dvars == NULL) {
 	  dvars = (CELL *)DelayTop();
@@ -244,25 +254,32 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
   }
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
+    to_visit --;
+    if (ground && share) {
+      CELL old = to_visit->oldv;
+      CELL *newp = to_visit->to-1;
+      CELL new = *newp;
+
+      *newp = old;
+      if (IsApplTerm(new))
+	H = RepAppl(new);
+      else
+	H = RepPair(new);
+    }
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
 #ifdef RATIONAL_TREES
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
-#else
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
+    *pt0 = to_visit->oldv;
 #endif
+    ground = (ground && to_visit->ground);
     goto loop;
   }
 
   /* restore our nice, friendly, term to its original state */
   HB = HB0;
   clean_dirty_tr(TR0);
-  return 0;
+  return ground;
 
  overflow:
   /* oops, we're in trouble */
@@ -272,11 +289,11 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
   HB = HB0;
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
+    to_visit --;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    *pt0 = to_visit->oldv;
   }
 #endif
   reset_trail(TR0);
@@ -290,11 +307,11 @@ trail_overflow:
   HB = HB0;
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
+    to_visit --;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    *pt0 = to_visit->oldv;
   }
 #endif
   {
@@ -314,11 +331,11 @@ trail_overflow:
   HB = HB0;
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
+    to_visit --;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    *pt0 = to_visit->oldv;
   }
 #endif
   reset_trail(TR0);
@@ -351,12 +368,12 @@ handle_cp_overflow(int res, UInt arity, Term t)
 }
 
 static Term
-CopyTerm(Term inp, UInt arity) {
+CopyTerm(Term inp, UInt arity, int share, int newattvs) {
   Term t = Deref(inp);
 
   if (IsVarTerm(t)) {
 #if COROUTINING
-    if (IsAttachedTerm(t)) {
+    if (newattvs && IsAttachedTerm(t)) {
       CELL *Hi;
       int res;
     restart_attached:
@@ -364,7 +381,7 @@ CopyTerm(Term inp, UInt arity) {
       *H = t;
       Hi = H+1;
       H += 2;
-      if ((res = copy_complex_term(Hi-2, Hi-1, Hi, Hi)) < 0) {
+      if ((res = copy_complex_term(Hi-2, Hi-1, share, newattvs, Hi, Hi)) < 0) {
 	H = Hi-1;
 	if ((t = handle_cp_overflow(res,arity,t))== 0L)
 	  return FALSE;
@@ -388,11 +405,14 @@ CopyTerm(Term inp, UInt arity) {
     H += 2;
     {
       int res;
-      if ((res = copy_complex_term(ap-1, ap+1, Hi, Hi)) < 0) {
+      if ((res = copy_complex_term(ap-1, ap+1, share, newattvs, Hi, Hi)) < 0) {
 	H = Hi;
 	if ((t = handle_cp_overflow(res,arity,t))== 0L)
 	  return FALSE;
 	goto restart_list;
+      } else if (res && share && FunctorOfTerm(t) != FunctorMutable) {
+	H = Hi;
+	return t;
       }
     }
     return tf;
@@ -417,11 +437,14 @@ CopyTerm(Term inp, UInt arity) {
     } else {
       int res;
 
-      if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0)) < 0) {
+      if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), share, newattvs, HB0+1, HB0)) < 0) {
 	H = HB0;
 	if ((t = handle_cp_overflow(res,arity,t))== 0L)
 	  return FALSE;
 	goto restart_appl;
+      } else if (res && share) {
+	H = HB0;
+	return t;
       }
     }
     return tf;
@@ -430,290 +453,33 @@ CopyTerm(Term inp, UInt arity) {
  
 Term
 Yap_CopyTerm(Term inp) {
-  return CopyTerm(inp, 0);
+  return CopyTerm(inp, 0, TRUE, TRUE);
 }
 
 static Int 
 p_copy_term(void)		/* copy term t to a new instance  */
 {
-  Term t = CopyTerm(ARG1, 2); 
+  Term t = CopyTerm(ARG1, 2, TRUE, TRUE); 
   if (t == 0L)
     return FALSE;
   /* be careful, there may be a stack shift here */
   return Yap_unify(ARG2,t);
 }
 
-static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *HLow)
+static Int 
+p_duplicate_term(void)		/* copy term t to a new instance  */
 {
-
-  CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
-  tr_fr_ptr TR0 = TR;
-  CELL *HB0 = HB;
-  HB = HLow;
-
-  to_visit0 = to_visit;
- loop:
-  while (pt0 < pt0_end) {
-    register CELL d0;
-    register CELL *ptd0;
-    ++ pt0;
-    ptd0 = pt0;
-    d0 = *ptd0;
-    deref_head(d0, copy_term_unk);
-  copy_term_nvar:
-    {
-      if (IsPairTerm(d0)) {
-	CELL *ap2 = RepPair(d0);
-	if (ap2 >= HB && ap2 < H) {
-	  /* If this is newer than the current term, just reuse */
-	  *ptf++ = d0;
-	  continue;
-	} 
-	*ptf = AbsPair(H);
-	ptf++;
-#ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)AuxSp) {
-	  goto heap_overflow;
-	}
-	to_visit[0] = pt0;
-	to_visit[1] = pt0_end;
-	to_visit[2] = ptf;
-	to_visit[3] = (CELL *)*pt0;
-	/* fool the system into thinking we had a variable there */
-	*pt0 = AbsPair(H);
-	to_visit += 4;
-#else
-	if (pt0 < pt0_end) {
-	  if (to_visit + 3 >= (CELL **)AuxSp) {
-	    goto heap_overflow;
-	  }
-	  to_visit[0] = pt0;
-	  to_visit[1] = pt0_end;
-	  to_visit[2] = ptf;
-	  to_visit += 3;
-	}
-#endif
-	pt0 = ap2 - 1;
-	pt0_end = ap2 + 1;
-	ptf = H;
-	H += 2;
-	if (H > ENV - 2048) {
-	  goto overflow;
-	}
-      } else if (IsApplTerm(d0)) {
-	register Functor f;
-	register CELL *ap2;
-	/* store the terms to visit */
-	ap2 = RepAppl(d0);
-	if (ap2 >= HB && ap2 < H) {
-	  /* If this is newer than the current term, just reuse */
-	  *ptf++ = d0;
-	  continue;
-	} 
-	f = (Functor)(*ap2);
-
-	if (IsExtensionFunctor(f)) {
-	  *ptf++ = d0;  /* you can just copy other extensions. */
-	  continue;
-	}
-	*ptf = AbsAppl(H);
-	ptf++;
-	/* store the terms to visit */
-#ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)AuxSp) {
-	  goto heap_overflow;
-	}
-	to_visit[0] = pt0;
-	to_visit[1] = pt0_end;
-	to_visit[2] = ptf;
-	to_visit[3] = (CELL *)*pt0;
-	/* fool the system into thinking we had a variable there */
-	*pt0 = AbsAppl(H);
-	to_visit += 4;
-#else
-	if (to_visit + 3 >= (CELL **)AuxSp) {
-	  goto heap_overflow;
-	}
-	if (pt0 < pt0_end) {
-	  to_visit[0] = pt0;
-	  to_visit[1] = pt0_end;
-	  to_visit[2] = ptf;
-	  to_visit += 3;
-	}
-#endif
-	d0 = ArityOfFunctor(f);
-	pt0 = ap2;
-	pt0_end = ap2 + d0;
-	/* store the functor for the new term */
-	H[0] = (CELL)f;
-	ptf = H+1;
-	H += 1+d0;
-	if (H > ENV - 2048) {
-	  goto overflow;
-	}
-      } else {
-	/* just copy atoms or integers */
-	*ptf++ = d0;
-      }
-      continue;
-    }
-    
-
-    derefa_body(d0, ptd0, copy_term_unk, copy_term_nvar);
-    if (ptd0 >= HLow && ptd0 < H) { 
-      /* we have already found this cell */
-      *ptf++ = (CELL) ptd0;
-    } else {
-      /* first time we met this term */
-      RESET_VARIABLE(ptf);
-      if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
-	/* Trail overflow */
-	if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
-	  goto trail_overflow;
-	}
-      }
-      Bind_Global(ptd0, (CELL)ptf);
-      ptf++;
-    }
-  }
-  /* Do we still have compound terms to visit */
-  if (to_visit > to_visit0) {
-#ifdef RATIONAL_TREES
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
-#else
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
-#endif
-    goto loop;
-  }
-
-  /* we've done it */
-  /* restore our nice, friendly, term to its original state */
-  HB = HB0;
-  clean_tr(TR0);
-  return(0); 
-
- overflow:
-  /* oops, we're in trouble */
-  H = HLow;
-  /* we've done it */
-  /* restore our nice, friendly, term to its original state */
-  HB = HB0;
-#ifdef RATIONAL_TREES
-  while (to_visit > to_visit0) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
-  }
-#endif
-  clean_tr(TR0);
-  return(-1);
-
-trail_overflow:
-  /* oops, we're in trouble */
-  H = HLow;
-  /* we've done it */
-  /* restore our nice, friendly, term to its original state */
-  HB = HB0;
-#ifdef RATIONAL_TREES
-  while (to_visit > to_visit0) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
-  }
-#endif
-  {
-    tr_fr_ptr oTR =  TR;
-    reset_trail(TR0);
-    if (!Yap_growtrail((oTR-TR0)*sizeof(tr_fr_ptr *), FALSE)) {
-      return -4;
-    }
-    return -2;
-  }
-
- heap_overflow:
-  /* oops, we're in trouble */
-  H = HLow;
-  /* we've done it */
-  /* restore our nice, friendly, term to its original state */
-  HB = HB0;
-#ifdef RATIONAL_TREES
-  while (to_visit > to_visit0) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    ptf = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
-  }
-#endif
-  clean_tr(TR0);
-  return(-3);
+  Term t = CopyTerm(ARG1, 2, FALSE, TRUE); 
+  if (t == 0L)
+    return FALSE;
+  /* be careful, there may be a stack shift here */
+  return Yap_unify(ARG2,t);
 }
 
-static Term
-CopyTermNoDelays(Term inp) {
-  Term t = Deref(inp);
-  int res;
-
-  if (IsVarTerm(t)) {
-    return(MkVarTerm());
-  } else if (IsPrimitiveTerm(t)) {
-    return(t);
-  } else if (IsPairTerm(t)) {
-    Term tf;
-    CELL *ap, *Hi;
-
-  restart_list:
-    Hi = H;
-    ap = RepPair(t);
-    tf = AbsPair(H);
-    H += 2;
-    res = copy_complex_term_no_delays(ap-1, ap+1, H-2, H-2);
-    if (res) {
-      H = Hi;
-      if ((t = handle_cp_overflow(res,2,t))== 0L)
-	return FALSE;
-      goto restart_list;
-    }
-    return(tf);
-  } else {
-    Functor f;
-    Term tf;
-    CELL *HB0;
-    CELL *ap;
-
-  restart_appl:
-    f = FunctorOfTerm(t);
-    HB0 = H;
-    ap = RepAppl(t);
-    tf = AbsAppl(H);
-    H[0] = (CELL)f;
-    H += 1+ArityOfFunctor(f);
-    res = copy_complex_term_no_delays(ap, ap+ArityOfFunctor(f), HB0+1, HB0);
-    if (res) {
-      H = HB0;
-      if ((t = handle_cp_overflow(res,2,t))== 0L)
-	return FALSE;
-      goto restart_appl;
-    }
-    return(tf);
-  }
-}
- 
 static Int 
 p_copy_term_no_delays(void)		/* copy term t to a new instance  */
 {
-  Term t = CopyTermNoDelays(ARG1);
+  Term t = CopyTerm(ARG1, 2, TRUE, FALSE);
   if (t == 0L) {
     return FALSE;
   }
@@ -2056,6 +1822,7 @@ void Yap_InitUtilCPreds(void)
 {
   Term cm = CurrentModule;
   Yap_InitCPred("copy_term", 2, p_copy_term, 0);
+  Yap_InitCPred("duplicate_term", 2, p_duplicate_term, 0);
   Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
   Yap_InitCPred("ground", 1, p_ground, SafePredFlag);
   Yap_InitCPred("$variables_in_term", 3, p_variables_in_term, HiddenPredFlag);

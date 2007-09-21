@@ -3004,8 +3004,28 @@ bindings @code{A = b} and @code{Z = f(Z)}.
 @cnindex copy_term/2
 Term @var{TF} is a variant of the original term @var{TI}, such that for
 each variable @var{V} in the term @var{TI} there is a new variable @var{V'}
-in term @var{TF}.
+in term @var{TF}. Notice that:
 
+@itemize @bullet
+@item suspended goals and attributes for attributed variables in
+  @var{TI} are also duplicated;
+@item ground terms are shared between the new and the old term.
+@end itemize
+
+If you do not want any sharing to occur please use
+@code{duplicate_term/2}.
+
+@item duplicate_term(?@var{TI},-@var{TF}) [ISO]
+@findex duplicate_term/2
+@syindex duplicate_term/2
+@cnindex duplicate_term/2
+Term @var{TF} is a variant of the original term @var{TI}, such that
+for each variable @var{V} in the term @var{TI} there is a new variable
+@var{V'} in term @var{TF}, and the two terms do not share any
+structure. All suspended goals and attributes for attributed variables
+in @var{TI} are also duplicated.
+
+Also refer to @code{copy_term/2}.
 @end table
 
 @node Comparing Terms, Arithmetic, Testing Terms, Top
@@ -9705,6 +9725,7 @@ Print trie @var{Trie} on standard output.
 
 
 @node Cleanup, Timeout, Tries, Library
+>>>>>>> 1.211
 @section Call Cleanup
 @cindex cleanup
 

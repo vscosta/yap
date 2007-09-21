@@ -68,11 +68,11 @@ AddFailToQueue(void)
 }
 
 static int
-CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
+CopyAttVar(CELL *orig, struct cp_frame **to_visit_ptr, CELL *res)
 {
   register attvar_record *attv = (attvar_record *)orig;
   register attvar_record *newv;
-  CELL **to_visit = *to_visit_ptr;
+  struct cp_frame *to_visit = *to_visit_ptr;
   CELL *vt;
 
   /* add a new attributed variable */
@@ -83,17 +83,19 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
   RESET_VARIABLE(&(newv->Value));
   RESET_VARIABLE(&(newv->Done));
   vt = &(attv->Atts);
-  to_visit[0] = vt-1;
-  to_visit[1] = vt;
+  to_visit->start_cp = vt-1;
+  to_visit->end_cp = vt;
   if (IsVarTerm(attv->Atts)) {
     newv->Atts = (CELL)H;
-    to_visit[2] = H;
+    to_visit->to = H;
     H++;
   } else {
-    to_visit[2] = &(newv->Atts);
+    to_visit->to = &(newv->Atts);
   }
-  to_visit[3] = (CELL *)vt[-1];
-  *to_visit_ptr = to_visit+4;
+  to_visit->oldv = vt[-1];
+  /* you're coming from a variable */
+  to_visit->ground = FALSE;
+  *to_visit_ptr = to_visit+1;
   *res = (CELL)&(newv->Done);
   SetDelayTop(newv);
   return TRUE;

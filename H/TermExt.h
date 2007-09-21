@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h,v 1.13 2007-03-30 16:47:22 vsc Exp $	 *
+* version:      $Id: TermExt.h,v 1.14 2007-09-21 13:52:52 vsc Exp $	 *
 *************************************************************************/
 
 #ifdef USE_SYSTEM_MALLOC
@@ -62,9 +62,19 @@ inline EXTERN blob_type BlobOfFunctor (Functor f);
 inline EXTERN blob_type
 BlobOfFunctor (Functor f)
 {
-  return (blob_type) ((CELL) f);
+  return (blob_type) (f);
 }
 
+typedef struct cp_frame {
+  CELL *original_cp;
+  CELL *start_cp;
+  CELL *end_cp;
+  CELL *to;
+#ifdef RATIONAL_TREES
+  CELL oldv;
+  int ground;
+#endif
+} copy_frame;
 
 
 #ifdef COROUTINING
@@ -75,7 +85,7 @@ typedef struct
      in some  predefined context */
   void (*bind_op) (Term *, Term);
   /* what to do if someone wants to copy our constraint */
-  int (*copy_term_op) (CELL *, CELL ***, CELL *);
+  int (*copy_term_op) (CELL *, struct cp_frame **, CELL *);
   /* copy the constraint into a term and back */
     Term (*to_term_op) (CELL *);
   int (*term_to_op) (Term, Term);
