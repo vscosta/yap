@@ -5867,7 +5867,7 @@ order of dispatch.
 
 @end table
 
-@node Term Modification, Profiling, OS, Top
+@node Term Modification, Global Variables, OS, Top
 @section Term Modification
 
 @cindex updating terms
@@ -5923,14 +5923,14 @@ Unify the current value of mutable term @var{M} with term @var{D}.
 Set the current value of mutable term @var{M} to term @var{D}.
 @end table
 
-@node Global Variables, Profiling, Profiling, Term Modification, Top
+@node Global Variables, Profiling, Term Modification, Top
 @section Global Variables
 
 @cindex global variables
 
 Global variables are associations between names (atoms) and
 terms. They differ in various ways from storing information using
-@node{assert/1} or @node{recorda/3}.
+@code{assert/1} or @code{recorda/3}.
 
 @itemize @bullet
 @item The value lives on the Prolog (global) stack. This implies that
@@ -6052,6 +6052,55 @@ B = t(_B,a(_C)) ?
 A = a(_A),
 B = t(C,a(_A)) ?
 @end example
+
+@item nb_setarg(+@{Arg], +@var{Term}, +@var{Value})
+@findex nb_setarg/3
+@snindex nb_setarg/3
+@cnindex nb_setarg/3
+
+Assigns the @var{Arg}-th argument of the compound term @var{Term} with
+the given @var{Value} as setarg/3, but on backtracking the assignment
+is not reversed. If @var{Term} is not atomic, it is duplicated using
+duplicate_term/2. This predicate uses the same technique as
+@code{nb_setval/2}. We therefore refer to the description of
+@code{nb_setval/2} for details on non-backtrackable assignment of
+terms. This predicate is compatible to GNU-Prolog
+@code{setarg(A,T,V,false)}, removing the type-restriction on
+@var{Value}. See also @code{nb_linkarg/3}. Below is an example for
+counting the number of solutions of a goal. Note that this
+implementation is thread-safe, reentrant and capable of handling
+exceptions. Realising these features with a traditional implementation
+based on assert/retract or flag/3 is much more complicated.
+
+@example
+    succeeds_n_times(Goal, Times) :-
+            Counter = counter(0),
+            (   Goal,
+                arg(1, Counter, N0),
+                N is N0 + 1,
+                nb_setarg(1, Counter, N),
+                fail
+            ;   arg(1, Counter, Times)
+            ).
+@end example
+
+@item nb_set_shared_arg(+@var{Arg}, +@var{Term}, +@var{Value}) 
+@findex nb_set_shared_arg/3
+@snindex nb_set_shared_arg/3
+@cnindex nb_set_shared_arg/3
+
+As @code{nb_setarg/3}, but like @code{nb_linkval/2} it does not
+duplicate the global sub-terms in @var{Value}. Use with extreme care
+and consult the documentation of @code{nb_linkval/2} before use.
+
+@item nb_linkarg(+@var{Arg}, +@var{Term}, +@var{Value}) 
+@findex nb_linkarg/3
+@snindex nb_lnkarg/3
+@cnindex nb_linkarg/3
+
+As @code{nb_setarg/3}, but like @code{nb_linkval/2} it does not
+duplicate @var{Value}. Use with extreme care and consult the
+documentation of @code{nb_linkval/2} before use.
 
 
 @item nb_current(?@var{Name}, ?@var{Value}) 

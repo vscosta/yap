@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2007-06-20 13:48:45 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-09-22 08:38:05 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.186  2007/06/20 13:48:45  vsc
+* fix bug in index emulator
+*
 * Revision 1.185  2007/05/02 11:01:37  vsc
 * get rid of type punning warnings.
 *
@@ -3338,7 +3341,7 @@ valid_instructions(yamop *end, yamop *cl)
 }
 
 static UInt
-groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp)
+groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp, struct intermediates *cint)
 {
   UInt groups = 0;
 
@@ -3392,6 +3395,21 @@ groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp)
     }
     groups++;
     grp++;
+    while (grp+16 > (GroupDef *)Yap_TrailTop) {
+      UInt sz = (groups+16)*sizeof(GroupDef);
+#if USE_SYSTEM_MALLOC
+      Yap_Error_Size = sz;
+      /* grow stack */
+      save_machine_regs();
+      longjmp(cint->CompilerBotch,4);
+#else
+      if (!Yap_growtrail(sz, TRUE)) {
+	save_machine_regs();
+	longjmp(cint->CompilerBotch,4);
+	return 0;
+      }
+#endif
+    }
   }
   return groups;
 }
@@ -4365,7 +4383,7 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
   } else {
     found_pvar = cls_info(min, max, argno);
   }
-  ngroups = groups_in(min, max, group);
+  ngroups = groups_in(min, max, group, cint);
   if (IsVarTerm(t)) {
     lablx = new_label(cint);
     Yap_emit(label_op, lablx, Zero, cint);
@@ -4390,7 +4408,7 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
       } else {
 	found_pvar = cls_info(min, max, argno);
       }
-      ngroups = groups_in(min, max, group);
+      ngroups = groups_in(min, max, group, cint);
     } 
     labl0 = labl = new_label(cint);
   } else {
@@ -4527,7 +4545,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
       cl++;
     }
     group = (GroupDef *)top;
-    ngroups = groups_in(min, max, group);    
+    ngroups = groups_in(min, max, group, cint);    
     if (ngroups == 1 && group->VarClauses == 0) {
       /* ok, we are doing a sub-argument */
       /* process group */
@@ -4566,7 +4584,7 @@ do_dbref_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cin
     cl->Tag = cl->u.t_ptr;
     cl++;
   }
-  ngroups = groups_in(min, max, group);
+  ngroups = groups_in(min, max, group, cint);
   if (ngroups > 1 || group->VarClauses) {
     return do_index(min, max, cint, argno+1, fail_l, first, clleft, top);
   } else {
@@ -4603,7 +4621,7 @@ do_blob_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cint
     }
     cl++;
   }
-  ngroups = groups_in(min, max, group);
+  ngroups = groups_in(min, max, group, cint);
   if (ngroups > 1 || group->VarClauses) {
     return do_index(min, max, cint, argno+1, fail_l, first, clleft, top);
   } else {

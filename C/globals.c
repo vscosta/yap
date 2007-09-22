@@ -908,197 +908,6 @@ CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term 
   goto restart;
 }
 
-static Term
-AddTermToArena(Term t, Term arena, UInt arity, Term *newarena, Term *att_arenap, UInt min_grow)
-{
-  UInt old_size = ArenaSz(arena);
-  CELL *oldH = H;
-  CELL *oldHB = HB;
-  CELL *oldASP = ASP;
-  int res;
-#if COROUTINING
-  Term old_delay_arena;
-#endif
-
- restart:
-#if COROUTINING
-  old_delay_arena = *att_arenap;
-#endif
-  t = Deref(t);
-  if (IsVarTerm(t)) {
-    ASP = ArenaLimit(arena);
-    H = HB = ArenaPt(arena);
-#if COROUTINING
-    if (IsAttachedTerm(t)) {
-      return 0;
-    }
-#endif
-    Term tn = MkVarTerm();
-    if (H > ASP - 128) {
-      res = -1;
-      goto error_handler;
-    }
-    CloseArena(oldH, oldHB, oldASP, newarena, old_size);
-    return tn;
-  } else if (IsAtomOrIntTerm(t)) {
-    return t;
-  } else if (IsPairTerm(t)) {
-    Term tf;
-    CELL *ap;
-    CELL *Hi;
-
-    H = HB = ArenaPt(arena);
-    ASP = ArenaLimit(arena);
-    ap = RepPair(t);
-    if (H > ASP - (128+2)) {
-      res = -1;
-      goto error_handler;
-    }
-    Hi = H;
-    tf = AbsPair(H);
-    H[0] = ap[0];
-    H[1] = ap[1];
-    H += 2;
-    CloseArena(oldH, oldHB, oldASP, newarena, old_size);
-    return tf;
-  } else {
-    Functor f;
-    Term tf;
-    CELL *HB0;
-    CELL *ap;
-
-    H = HB = ArenaPt(arena);
-    ASP = ArenaLimit(arena);
-    f = FunctorOfTerm(t);
-    HB0 = H;
-    ap = RepAppl(t);
-    tf = AbsAppl(H);
-    H[0] = (CELL)f;
-    if (IsExtensionFunctor(f)) {
-      switch((CELL)f) {
-      case (CELL)FunctorDBRef:
-	CloseArena(oldH, oldHB, oldASP, newarena, old_size);
-	return t;
-      case (CELL)FunctorLongInt:
-	if (H > ASP - (128+3)) {
-	  res = -1;
-	  goto error_handler;
-	}
-	H[1] = ap[1];
-	H[2] = EndSpecials;
-	H += 3;
-	break;
-      case (CELL)FunctorDouble:
-	if (H > ASP - (128+(2+SIZEOF_DOUBLE/sizeof(CELL)))) {
-	  res = -1;
-	  goto error_handler;
-	}
-	H[1] = ap[1];
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-	H[2] = ap[2];
-	H[3] = EndSpecials;
-	H += 4;
-#else
-	H[2] = EndSpecials;
-	H += 3;
-#endif
-	break;
-      default:
-	{
-	  UInt sz = ArenaSz(t), i;
-
-	  if (H > ASP - (128+sz)) {
-	    res = -1;
-	    goto error_handler;
-	  }
-	  for (i = 1; i < sz; i++) {
-	    H[i] = ap[i];
-	  }
-	  H += sz;
-	}
-      }
-    } else {
-      UInt i;
-
-      if (H+(1+ArityOfFunctor(f)) > ASP-128) {
-	res = -1;
-	goto error_handler;
-      }
-      for (i=0; i<=ArityOfFunctor(f);i++)
-	*H++ = *ap++;
-    }
-    CloseArena(oldH, oldHB, oldASP, newarena, old_size);
-    return tf;
-  }
- error_handler:
-  H = HB;
-  CloseArena(oldH, oldHB, oldASP, newarena, old_size);
-#if COROUTINING
-  if (old_delay_arena != MkIntTerm(0))
-    ResetDelayArena(old_delay_arena, att_arenap);
-#endif
-  XREGS[arity+1] = t;
-  XREGS[arity+2] = arena;
-  XREGS[arity+3] = (CELL)newarena;
-  XREGS[arity+4] = (CELL)att_arenap;
-  {
-    CELL *old_top = ArenaLimit(*newarena);
-    ASP = oldASP;
-    H = oldH;
-    HB = oldHB;
-    switch (res) {
-    case -1:
-      if (arena == GlobalArena)
-	GlobalArenaOverflows++;
-      /* handle arena overflow */
-      /* first, take care of useless stuff */
-      if (!Yap_gc(arity+4, ENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
-	return 0L;
-      }
-      arena = XREGS[arity+2];
-      old_top = ArenaLimit(*newarena);
-      if (!GrowArena(arena, old_top, old_size, min_grow, arity+4)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return 0L;
-      }
-      break;
-#if COROUTINING
-    case -3:
-      /* handle delay arena overflow */
-      old_size = DelayArenaSz(*att_arenap);
-      
-      if (!GrowDelayArena(att_arenap, old_size, 0L, arity+4)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return 0L;
-      }
-      break;
-#endif
-    case -4:
-      /* handle trail overflow */
-      if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L, FALSE)) {
-	Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, Yap_ErrorMessage);
-	return 0L;
-      }
-      break;
-    default: /* temporary space overflow */
-      if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
-	Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
-	return 0L;
-      }
-    }
-  }
-  oldH = H;
-  oldHB = HB;
-  oldASP = ASP;
-  att_arenap = (Term *)XREGS[arity+4];
-  newarena = (CELL *)XREGS[arity+3];
-  arena = Deref(XREGS[arity+2]);
-  t = XREGS[arity+1];
-  old_size = ArenaSz(arena);
-  goto restart;
-}
-
 inline static GlobalEntry *
 FindGlobalEntry(Atom at)
 /* get predicate entry for ap/arity; create it if neccessary.              */
@@ -1174,22 +983,119 @@ garena_overflow_size(CELL *arena)
 }
 
 static Int
-p_nb_copyterm(void)
+p_nb_setarg(void)
 {
-  Term to = CopyTermToArena(ARG1, GlobalArena, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  Term wheret = Deref(ARG1);
+  Term dest = Deref(ARG2);
+  Term to;
+  UInt arity, pos;
+  CELL *destp;
+
+  if (IsVarTerm(wheret)) {
+    Yap_Error(INSTANTIATION_ERROR,wheret,"nb_setarg");
+    return FALSE; 
+  }
+  if (!IsIntegerTerm(wheret)) {
+    Yap_Error(TYPE_ERROR_INTEGER,wheret,"nb_setarg");
+    return FALSE; 
+  }
+  pos = IntegerOfTerm(wheret);
+  if (IsVarTerm(dest)) {
+    Yap_Error(INSTANTIATION_ERROR,dest,"nb_setarg");
+    return FALSE; 
+  } else if (IsPrimitiveTerm(dest)) {
+    arity = 0;
+    destp = NULL;
+  } else if (IsPairTerm(dest)) {
+    arity = 2;
+    destp = RepPair(dest)-1;
+  } else {
+    arity = ArityOfFunctor(FunctorOfTerm(dest));
+    destp = RepAppl(dest);
+  }
+  if (pos < 1 || pos > arity)
+    return FALSE;
+  to = CopyTermToArena(ARG3, GlobalArena, FALSE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
     return FALSE;
-  return Yap_unify(ARG2,to);
+  destp[pos] = to;
+  return TRUE;
 }
 
 static Int
-p_nb_maketerm(void)
+p_nb_set_shared_arg(void)
 {
-  Term to = Deref(ARG1);
-  to = AddTermToArena(ARG1, GlobalArena, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  Term wheret = Deref(ARG1);
+  Term dest = Deref(ARG2);
+  Term to;
+  UInt arity, pos;
+  CELL *destp;
+
+  if (IsVarTerm(wheret)) {
+    Yap_Error(INSTANTIATION_ERROR,wheret,"nb_setarg");
+    return FALSE; 
+  }
+  if (!IsIntegerTerm(wheret)) {
+    Yap_Error(TYPE_ERROR_INTEGER,wheret,"nb_setarg");
+    return FALSE; 
+  }
+  pos = IntegerOfTerm(wheret);
+  if (IsVarTerm(dest)) {
+    Yap_Error(INSTANTIATION_ERROR,dest,"nb_setarg");
+    return FALSE; 
+  } else if (IsPrimitiveTerm(dest)) {
+    arity = 0;
+    destp = NULL;
+  } else if (IsPairTerm(dest)) {
+    arity = 2;
+    destp = RepPair(dest)-1;
+  } else {
+    arity = ArityOfFunctor(FunctorOfTerm(dest));
+    destp = RepAppl(dest);
+  }
+  if (pos < 1 || pos > arity)
+    return FALSE;
+  to = CopyTermToArena(ARG3, GlobalArena, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
     return FALSE;
-  return Yap_unify(ARG2,to);
+  destp[pos] = to;
+  return TRUE;
+}
+
+static Int
+p_nb_linkarg(void)
+{
+  Term wheret = Deref(ARG1);
+  Term dest = Deref(ARG2);
+  UInt arity, pos;
+  CELL *destp;
+
+  if (IsVarTerm(wheret)) {
+    Yap_Error(INSTANTIATION_ERROR,wheret,"nb_setarg");
+    return FALSE; 
+  }
+  if (!IsIntegerTerm(wheret)) {
+    Yap_Error(TYPE_ERROR_INTEGER,wheret,"nb_setarg");
+    return FALSE; 
+  }
+  pos = IntegerOfTerm(wheret);
+  if (IsVarTerm(dest)) {
+    Yap_Error(INSTANTIATION_ERROR,dest,"nb_setarg");
+    return FALSE; 
+  } else if (IsPrimitiveTerm(dest)) {
+    arity = 0;
+    destp = NULL;
+  } else if (IsPairTerm(dest)) {
+    arity = 2;
+    destp = RepPair(dest)-1;
+  } else {
+    arity = ArityOfFunctor(FunctorOfTerm(dest));
+    destp = RepAppl(dest);
+  }
+  if (pos < 1 || pos > arity)
+    return FALSE;
+  destp[pos] = Deref(ARG3);
+  return TRUE;
 }
 
 static Int
@@ -2480,12 +2386,13 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("arena_size", 1, p_default_arena_size, 0);
   Yap_InitCPred("b_setval", 2, p_b_setval, SafePredFlag);
   Yap_InitCPred("b_getval", 2, p_nb_getval, SafePredFlag);
-  Yap_InitCPred("nb_copy_term", 2, p_nb_copyterm, 0L);
-  Yap_InitCPred("nb_make_term", 2, p_nb_maketerm, 0L);
   Yap_InitCPred("nb_setval", 2, p_nb_setval, 0L);
   Yap_InitCPred("nb_set_shared_val", 2, p_nb_set_shared_val, 0L);
   Yap_InitCPred("nb_linkval", 2, p_nb_linkval, 0L);
   Yap_InitCPred("nb_getval", 2, p_nb_getval, SafePredFlag);
+  Yap_InitCPred("nb_setarg", 3, p_nb_setarg, 0L);
+  Yap_InitCPred("nb_set_shared_arg", 3, p_nb_set_shared_arg, 0L);
+  Yap_InitCPred("nb_linkarg", 3, p_nb_linkarg, 0L);
   Yap_InitCPred("nb_delete", 1, p_nb_delete, 0L);
   Yap_InitCPredBack("$nb_current", 1, 1, init_current_nb, cont_current_nb, SafePredFlag);
   CurrentModule = GLOBALS_MODULE;
