@@ -303,6 +303,16 @@ GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity)
     }
     size = size/sizeof(CELL);
     arena = XREGS[arity+1];
+#if 0
+    /* try to recover some room  */
+    if (arena == GlobalArena) {
+      if (!Yap_gc(arity+1, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	return FALSE;
+      }
+    }
+    arena = XREGS[arity+1];
+#endif
   }
   CreateNewArena(ArenaPt(arena), size+old_size);
   return TRUE;
@@ -856,17 +866,6 @@ CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term 
     case -1:
       if (arena == GlobalArena)
 	GlobalArenaOverflows++;
-      /* handle arena overflow */
-      /* first, take care of useless stuff */
-      /*
-      if (!Yap_gc(arity+4, ENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
-	return 0L;
-      }
-      arena = XREGS[arity+2];
-      newarena = (Term *)XREGS[arity+3];
-      old_top = ArenaLimit(*newarena);
-      */
       if (!GrowArena(arena, old_top, old_size, min_grow, arity+4)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return 0L;

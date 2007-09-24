@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2007-06-04 12:28:01 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-09-24 09:02:31 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.223  2007/06/04 12:28:01  vsc
+* interface speedups
+* bad error message in X is foo>>2.
+*
 * Revision 1.222  2007/05/01 21:18:19  vsc
 * fix bug in saving P at p_eq (obs from Frabrizio Riguzzi)
 *
@@ -1468,7 +1472,8 @@ Yap_absmi(int inp)
 
       /* enter logical pred               */
       BOp(alloc_for_logical_pred, EC);
-      /* say that an environment is using this clause */
+      check_trail(TR); 
+     /* say that an environment is using this clause */
       /* we have our own copy for the clause */
 #if defined(YAPOR) || defined(THREADS)
       {
@@ -8093,6 +8098,7 @@ Yap_absmi(int inp)
 
       /* enter logical pred               */
       BOp(enter_lu_pred, Ill);
+      check_trail(TR);
       /* mark the indexing code */
       {
 	LogUpdIndex *cl = PREG->u.Ill.I;
