@@ -66,7 +66,7 @@
 '$exec_directive'(initialization(D), _, M) :-
 	'$initialization'(M:D).
 '$exec_directive'(encoding(Enc), _, _) :-
-	'$current_encoding'(Enc).
+        '$set_encoding'(Enc).
 '$exec_directive'(parallel, _, _) :-
 	'$parallel'.
 '$exec_directive'(sequential, _, _) :-

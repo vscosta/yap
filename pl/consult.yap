@@ -544,6 +544,19 @@ remove_from_path(New) :- '$check_path'(New,Path),
 	).
 
 
+'$set_encoding'(V) :- var(V), !,
+	'$do_error'(instantiation_error, encoding(V)).
+'$set_encoding'(EncAtom) :-
+	'$valid_encoding'(EncAtom, Enc), !,
+	'$fetch_stream_alias'(Stream,'$loop_stream'),
+	'$encoding'(Stream, Enc).
+'$set_encoding'(EncAtom) :-
+	atom(EncAtom), !,
+        '$do_error'(domain_error(encoding,EncAtom),encoding(EncAtom)).
+'$set_encoding'(EncAtom) :-
+	'$do_error'(type_error(atom,V),encoding(EncAtom)).
+
+
 absolute_file_name(V,Out) :- var(V), !,
 	'$do_error'(instantiation_error, absolute_file_name(V, Out)).
 absolute_file_name(user,user) :- !.

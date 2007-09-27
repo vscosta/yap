@@ -1045,4 +1045,3 @@ current_stream(File, Opts, Stream) :-
 
 write_depth(T,L) :- write_depth(T,L,_).
 
-

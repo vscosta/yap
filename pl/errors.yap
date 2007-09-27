@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2007-09-27 15:25:34 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-09-27 23:02:00 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.81  2007/09/27 15:25:34  vsc
+* upgrade JPL
+*
 * Revision 1.80  2007/01/24 14:20:04  vsc
 * Fix typos across code
 * Change debugger to backtrack more alike byrd model
@@ -542,6 +545,9 @@ print_message(Level, Mss) :-
 	[Where,Opt]).
 '$output_error_message'(domain_error(delete_file_option,Opt), Where) :-
 	format(user_error,'% DOMAIN ERROR- ~w: invalid list of options ~w~n',
+	[Where,Opt]).
+'$output_error_message'(domain_error(encoding,Opt), Where) :-
+	format(user_error,'% DOMAIN ERROR- ~w: invalid encoding ~w~n',
 	[Where,Opt]).
 '$output_error_message'(domain_error(operator_specifier,Op), Where) :-
 	format(user_error,'% DOMAIN ERROR- ~w: invalid operator specifier ~w~n',
