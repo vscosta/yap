@@ -2143,6 +2143,25 @@ check_bom(int sno, StreamDesc *st)
   }
 }
 
+static Int
+p_access(char *file_name)
+{
+#if HAVE_STAT
+#if _MSC_VER || defined(__MINGW32__) 
+  struct _stat ss;
+  if (_stat(file_name, &ss) != 0) {
+#else
+  struct stat ss;
+  if (stat(file_name, &ss) != 0) {
+#endif
+    /* ignore errors while checking a file */
+    return FALSE;
+  }
+  return TRUE;
+#else
+  return FALSE;
+#endif
+}
 
 static Int
 p_open (void)
@@ -5885,6 +5904,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$get0", 2, p_get0, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get0_line_codes", 2, p_get0_line_codes, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get_byte", 2, p_get_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$access", 1, p_access, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$open", 5, p_open, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$open_null_stream", 1, p_open_null_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);

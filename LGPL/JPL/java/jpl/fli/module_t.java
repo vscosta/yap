@@ -2,8 +2,8 @@
 //*****************************************************************************/
 // Project: jpl
 //
-// File:    $Id: module_t.java,v 1.1 2004-08-27 20:27:56 vsc Exp $
-// Date:    $Date: 2004-08-27 20:27:56 $
+// File:    $Id: module_t.java,v 1.2 2007-09-27 15:25:32 vsc Exp $
+// Date:    $Date: 2007-09-27 15:25:32 $
 // Author:  Fred Dushin <fadushin@syr.edu>
 //          
 //
@@ -48,7 +48,7 @@ package jpl.fli;
  * GNU Library Public License for more details.<p>
  * </i><hr>
  * @author  Fred Dushin <fadushin@syr.edu>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 // Implementation notes:  
 // 

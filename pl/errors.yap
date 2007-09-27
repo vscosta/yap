@@ -11,8 +11,13 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2007-01-24 14:20:04 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-09-27 15:25:34 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.80  2007/01/24 14:20:04  vsc
+* Fix typos across code
+* Change debugger to backtrack more alike byrd model
+* Fix typo in debugger option f
+*
 * Revision 1.79  2006/12/13 16:10:26  vsc
 * several debugger and CLP(BN) improvements.
 *
@@ -631,14 +636,17 @@ print_message(Level, Mss) :-
 '$output_error_message'(existence_error(array,F), W) :-
 	format(user_error,'% EXISTENCE ERROR- ~w could not open array ~w~n',
 	[W,F]).
-'$output_error_message'(existence_error(mutex,F), W) :-
-	format(user_error,'% EXISTENCE ERROR- ~w could not open mutex ~w~n',
+'$output_error_message'(existence_error(file,F), W) :-
+	format(user_error,'% EXISTENCE ERROR- ~w could not open file ~w~n',
 	[W,F]).
 '$output_error_message'(existence_error(library,F), W) :-
 	format(user_error,'% EXISTENCE ERROR- ~w could not open library ~w~n',
 	[W,F]).
 '$output_error_message'(existence_error(message_queue,F), W) :-
 	format(user_error,'% EXISTENCE ERROR- ~w could not open message queue ~w~n',
+	[W,F]).
+'$output_error_message'(existence_error(mutex,F), W) :-
+	format(user_error,'% EXISTENCE ERROR- ~w could not open mutex ~w~n',
 	[W,F]).
 '$output_error_message'(existence_error(procedure,P), context(Call,Parent)) :-
 	format(user_error,'% EXISTENCE ERROR- procedure ~w is undefined, called from context  ~w~n%                  Goal was ~w~n',

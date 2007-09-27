@@ -917,52 +917,17 @@ bootstrap(F) :-
 
 % Path predicates
 
+access_file(F,Mode) :-
+	'$exists'(F,Mode).
+
+'$exists'(_,none) :- !.
+'$exists'(F,exists) :-
+	'$access'(F), !.
 '$exists'(F,Mode) :-
 	get_value(fileerrors,V),
 	set_value(fileerrors,0),
 	( '$open'(F,Mode,S,0,1) -> '$close'(S), set_value(fileerrors,V) ; set_value(fileerrors,V), fail).
 
-
-% This sequence must be followed:
-% user and user_input are special;
-% library(F) must check library_directories
-% T(F) must check file_search_path
-% all must try search in path
-'$find_in_path'(user,user_input, _) :- !.
-'$find_in_path'(user_input,user_input, _) :- !.
-'$find_in_path'(library(File),NewFile, _) :-
-	'$dir_separator'(D), 
-	atom_codes(A,[D]),
-	user:library_directory(Dir),
-	'$extend_path'(Dir, A, File, NFile, compile(library(File))),
-	'$search_in_path'(NFile, NewFile), !.
-'$find_in_path'(S,NewFile, _) :-
-	S =.. [Name,File], !,
-	'$dir_separator'(D),
-	atom_codes(A,[D]),
-	user:file_search_path(Name, Dir),
-	'$extend_path'(Dir, A, File, NFile, compile(S)),
-	'$search_in_path'(NFile, NewFile), !.
-'$find_in_path'(File,NewFile,_) :- atom(File), !,
-	'$search_in_path'(File,NewFile),!.
-'$find_in_path'(File,_,Call) :-
-	'$do_error'(domain_error(source_sink,File),Call).
-
-'$search_in_path'(New,New) :-
-	'$exists'(New,'$csult'), !.
-'$search_in_path'(File,New) :-
-	recorded('$path',Path,_),
-	atom_concat([Path,File],New),
-	'$exists'(New,'$csult').
-
-'$extend_path'(Dir, A, File, NFile, _) :-
-	atom(Dir), !,
-	atom_concat([Dir,A,File],NFile).
-'$extend_path'(Name, A, File, NFile, Goal) :-
-	nonvar(Name),
-	Name =.. [_,_],
-	'$find_in_path'(Name, Path, Goal),
-	'$extend_path'(Path, A, File, NFile, Goal).
 
 % term expansion
 %

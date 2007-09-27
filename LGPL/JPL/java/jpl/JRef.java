@@ -2,8 +2,8 @@
 //*****************************************************************************/
 // Project: jpl
 //
-// File:    $Id: JRef.java,v 1.1 2004-08-27 20:27:56 vsc Exp $
-// Date:    $Date: 2004-08-27 20:27:56 $
+// File:    $Id: JRef.java,v 1.2 2007-09-27 15:25:32 vsc Exp $
+// Date:    $Date: 2007-09-27 15:25:32 $
 // Author:  Fred Dushin <fadushin@syr.edu>
 //          
 //
@@ -28,8 +28,6 @@
 package jpl;
 
 import java.util.Map;
-
-import jpl.fli.ObjectHolder;
 import jpl.fli.Prolog;
 import jpl.fli.term_t;
 
@@ -57,9 +55,11 @@ import jpl.fli.term_t;
  * GNU Library Public License for more details.<p>
  * </i><hr>
  * @author  Fred Dushin <fadushin@syr.edu>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @see jpl.Term
  * @see jpl.Compound
+ * 
+ *  @deprecated
  */
 public class JRef extends Term {
 
@@ -175,26 +175,6 @@ public class JRef extends Term {
 	protected final void put(Map varnames_to_vars, term_t term) {
 
 		Prolog.put_jref(term, ref);
-	}
-
-	//==================================================================/
-	//  Converting Prolog terms to JPL Terms
-	//==================================================================/
-
-	/**
-	 * Converts a term_t to a JRef.  Assuming the Prolog term is a
-	 * ref, we just create a new JRef using the term_t's value.
-	 * NB This conversion is only invoked if "JPL-aware" term import is specified.
-	 *
-	 * @param   vars_to_Vars  A Map from Prolog variables to JPL Variables.
-	 * @param   term          The term (a ref) to convert
-	 * @return                A new JRef instance
-	 */
-	protected static Term getTerm(Map vars_to_Vars, term_t term) {
-		ObjectHolder obj = new ObjectHolder();
-
-		Prolog.get_jref(term, obj); // assume it succeeds...
-		return new jpl.JRef(obj.value);
 	}
 
 	//==================================================================/

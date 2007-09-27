@@ -2598,6 +2598,42 @@ p_continue_signals(void)
   return TRUE;
 }
 
+static Int
+p_unix(void)
+{
+#ifdef unix
+  return TRUE;
+#else
+#ifdef __unix__
+  return TRUE;
+#else
+  return FALSE;
+#endif
+#endif
+}
+
+static Int
+p_win32(void)
+{
+#ifdef _WIN32
+  return TRUE;
+#else
+#ifdef __CYGWIN__
+  return TRUE;
+#else
+  return FALSE;
+#endif
+#endif
+}
+
+static Int
+p_ld_path(void)
+{
+  return Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom("LD_LIBRARY_PATH")));
+}
+
+
+
 void
 Yap_InitSysPreds(void)
 {
@@ -2624,6 +2660,9 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$continue_signals", 0, p_continue_signals, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("file_directory_name", 2, p_file_directory_name, SafePredFlag);
   Yap_InitCPred ("$env_separator", 1, p_env_separator, SafePredFlag);
+  Yap_InitCPred ("$unix", 0, p_unix, SafePredFlag);
+  Yap_InitCPred ("$win32", 0, p_win32, SafePredFlag);
+  Yap_InitCPred ("$ld_path", 1, p_ld_path, SafePredFlag);
   CurrentModule = SYSTEM_MODULE;
   Yap_InitCPred ("true_file_name", 2, p_true_file_name, SyncPredFlag);
   CurrentModule = cm;

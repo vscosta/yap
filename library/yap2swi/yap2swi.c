@@ -509,7 +509,28 @@ X_API atom_t PL_new_atom(const char *c)
 
 X_API atom_t PL_new_atom_wchars(int len, const wchar_t *c)
 {
-  return (atom_t)YAP_LookupWideAtom((wchar_t *)c);
+  atom_t at;
+  int i;
+
+  for (i=0;i<len;i++) {
+    if (c[i] > 255) break;
+  }
+  if (i!=len) {
+    wchar_t *nbf = (wchar_t *)YAP_AllocSpaceFromYap((len+1)*sizeof(wchar_t));
+    for (i=0;i<len;i++)
+      nbf[i] = c[i];
+    nbf[len]='\0';
+    at = (atom_t)YAP_LookupWideAtom(nbf);
+    YAP_FreeSpaceFromYap(nbf);
+  } else {
+    char *nbf = (char *)YAP_AllocSpaceFromYap((len+1)*sizeof(char));
+    for (i=0;i<len;i++)
+      nbf[i] = c[i];
+    nbf[len]='\0';
+    at = (atom_t)YAP_LookupAtom(nbf);
+    YAP_FreeSpaceFromYap(nbf);
+  }
+  return at;
 }
 
 X_API char *PL_atom_nchars(atom_t name, size_t *sp)
@@ -951,7 +972,7 @@ X_API int PL_unify_term(term_t l,...)
   }
   va_end (ap);
   ptr = (arg_types *)buffers;
-  return YAP_Unify(YAP_GetFromSlot(l),get_term(&ptr));
+    return YAP_Unify(YAP_GetFromSlot(l),get_term(&ptr));
 }
 
 /* end PL_unify_* functions =============================*/

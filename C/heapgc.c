@@ -3040,8 +3040,13 @@ compact_heap(void)
   }
 #endif
   next_hb = set_next_hb(gc_B);
-  dest = (CELL_PTR) H0 + total_marked - 1;
+  dest = H0 + total_marked - 1;
 
+  gc_B = update_B_H(gc_B, H, dest+1, dest+2
+#ifdef TABLING
+		    , &depfr
+#endif
+		    );
   for (current = H - 1; current >= start_from; current--) {
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(*current);
@@ -3219,6 +3224,11 @@ icompact_heap(void)
 #endif
   next_hb = set_next_hb(gc_B);
   dest = (CELL_PTR) H0 + total_marked - 1;
+  gc_B = update_B_H(gc_B, H, dest+1, dest+2
+#ifdef TABLING
+		    , &depfr
+#endif
+		    );
   for (iptr = iptop - 1; iptr >= ibase; iptr--) {
     CELL ccell;
     CELL_PTR        current;
@@ -3658,9 +3668,13 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 
   gc_phase = (UInt)IntegerOfTerm(Yap_ReadTimedVar(GcPhase));
   /* old HGEN are not very reliable, but still may have data to recover */
+#ifdef FIX
   if (gc_phase != GcCurrentPhase) {
     HGEN = H0;
   }
+#else
+  HGEN = H0;
+#endif
   /*  fprintf(stderr,"HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(GcGeneration)), HGEN, H,H0);*/
   OldTR = (tr_fr_ptr)(old_TR = TR);
   push_registers(predarity, nextop);
@@ -3710,8 +3724,10 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   pop_registers(predarity, nextop);
   TR = new_TR;
   /*  fprintf(Yap_stderr,"NEW HGEN %ld (%ld)\n", H-H0, HGEN-H0);*/
+#ifdef FIX
   Yap_UpdateTimedVar(GcGeneration, MkIntegerTerm(H-H0));
   Yap_UpdateTimedVar(GcPhase, MkIntegerTerm(GcCurrentPhase));
+#endif
   c_time = Yap_cputime();
   if (gc_verbose) {
     fprintf(Yap_stderr, "%%   Compress: took %g sec\n", (double)(c_time-time_start)/1000);

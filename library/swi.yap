@@ -60,6 +60,13 @@ prolog:volatile((G1,G2)) :-
 prolog:volatile(P) :-
 	do_volatile(P,_).
 
+prolog:load_foreign_library(P,Command) :-
+	absolute_file_name(P,[file_type(executable),solutions(first),file_errors(fail)],Lib),
+	load_foreign_files([Lib],[],Command).
+
+prolog:load_foreign_library(P) :-
+	prolog:load_foreign_library(P,install).
+
 do_volatile(_,_).
 
 :- meta_predicate prolog:forall(+,:).
@@ -67,14 +74,6 @@ do_volatile(_,_).
 :- load_foreign_files([yap2swi], [], swi_install).
 
 :- use_module(library(lists)).
-
-prolog:absolute_file_name(jar(File), _Opts, Path) :- !,
-	absolute_file_name(library(File), Path).
-prolog:absolute_file_name(library(File), _Opts, Path) :- !,
-	absolute_file_name(library(File), Path).
-prolog:absolute_file_name(File, _Opts, Path) :-
-	absolute_file_name(File, Path).
-
 
 prolog:term_to_atom(Term,Atom) :-
 	nonvar(Atom), !,
@@ -84,12 +83,24 @@ prolog:term_to_atom(Term,Atom) :-
 	write_to_chars(Term,S),
 	atom_codes(Atom,S).
 
+prolog:concat_atom([A|List], Separator, New) :- var(List), !,
+	atom_codes(Separator,[C]),
+	atom_codes(New, NewChars),
+	split_atom_by_chars(NewChars,C,L,L,A,List).
 prolog:concat_atom(List, Separator, New) :-
 	add_separator_to_list(List, Separator, NewList),
 	atomic_concat(NewList, New).
 
 prolog:concat_atom(List, New) :-
 	atomic_concat(List, New).
+
+split_atom_by_chars([],_,[],L,A,[]):-
+	atom_codes(A,L).
+split_atom_by_chars([C|NewChars],C,[],L,A,[NA|Atoms]) :- !,
+	atom_codes(A,L),
+	split_atom_by_chars(NewChars,C,NL,NL,NA,Atoms).
+split_atom_by_chars([C1|NewChars],C,[C1|LF],LAtom,Atom,Atoms) :-
+	split_atom_by_chars(NewChars,C,LF,LAtom,Atom,Atoms).
 
 add_separator_to_list([], _, []).
 add_separator_to_list([T], _, [T]) :- !.
@@ -100,6 +111,8 @@ add_separator_to_list([H|T], Separator, [H,Separator|NT]) :-
 prolog:setenv(X,Y) :- unix(putenv(X,Y)).
 
 prolog:nth1(I,L,A) :- nth(I,L,A).
+
+prolog:prolog_to_os_filename(X,X).
 
 prolog:forall(X,Y) :- 
 	catch(do_forall(X,Y), fail_forall, fail).

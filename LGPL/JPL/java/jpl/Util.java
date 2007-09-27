@@ -2,8 +2,8 @@
 //*****************************************************************************/
 // Project: jpl
 //
-// File:    $Id: Util.java,v 1.1 2004-08-27 20:27:56 vsc Exp $
-// Date:    $Date: 2004-08-27 20:27:56 $
+// File:    $Id: Util.java,v 1.2 2007-09-27 15:25:32 vsc Exp $
+// Date:    $Date: 2007-09-27 15:25:32 $
 // Author:  Fred Dushin <fadushin@syr.edu>
 //          
 //
@@ -51,7 +51,7 @@ import java.util.Map;
  * GNU Library Public License for more details.<p>
  * </i><hr>
  * @author  Fred Dushin <fadushin@syr.edu>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public final class Util {
 	//------------------------------------------------------------------/
@@ -168,5 +168,114 @@ public final class Util {
 			return null;
 		}
 	}
+	//
+	// textParamsToTerm
+	/**
+	 * Converts a Prolog source text to a corresponding JPL Term (in which each Variable has the appropriate name from the source text), replacing successive occurrences of ? in the text by the
+	 * corresponding element of Term[] params. (New in JPL 3.0.4)
+	 * 
+	 * Throws PrologException containing error(syntax_error(_),_) if text is invalid.
+	 * 
+	 * @param text
+	 *            A Prolog source text denoting a term
+	 * @return Term a JPL Term equivalent to the given source text
+	 */
+	public static Term textParamsToTerm(String text, Term[] params) {
+		return Util.textToTerm(text).putParams(params);
+	}
+	//
+	/**
+	 * Converts an array of String to a corresponding JPL list
+	 * 
+	 * @param a
+	 *            An array of String objects
+	 * @return Term a JPL list corresponding to the given String array
+	 */
+	public static Term stringArrayToList(String[] a) {
+		Term list = new Atom("[]");
+		for (int i = a.length - 1; i >= 0; i--) {
+			list = new Compound(".", new Term[]{new Atom(a[i]), list});
+		}
+		return list;
+	}
+	//
+	/**
+	 * Converts an array of int to a corresponding JPL list
+	 * 
+	 * @param a
+	 *            An array of int values
+	 * @return Term a JPL list corresponding to the given int array
+	 */
+	public static Term intArrayToList(int[] a) {
+		Term list = new Atom("[]");
+		for (int i = a.length - 1; i >= 0; i--) {
+			list = new Compound(".", new Term[]{new jpl.Integer(a[i]), list});
+		}
+		return list;
+	}
+	//
+	/**
+	 * Converts an array of arrays of int to a corresponding JPL list of lists
+	 * 
+	 * @param a
+	 *            An array of arrays of int values
+	 * @return Term a JPL list of lists corresponding to the given int array of arrays
+	 */
+	public static Term intArrayArrayToList(int[][] a) {
+		Term list = new Atom("[]");
+		for (int i = a.length - 1; i >= 0; i--) {
+			list = new Compound(".", new Term[]{intArrayToList(a[i]), list});
+		}
+		return list;
+	}
+	public static int listToLength(Term t) {
+		int length = 0;
+		Term head = t;
+		while (head.hasFunctor(".", 2)) {
+			length++;
+			head = head.arg(2);
+		}
+		return (head.hasFunctor("[]", 0) ? length : -1);
+	}
+	/** converts a proper list to an array of terms, else throws an exception
+	 * 
+	 * @throws JPLException
+	 * @return an array of terms whose successive elements are the corresponding members of the list (if it is a list)
+	 */
+	public static Term[] listToTermArray(Term t) {
+		try {
+			int len = t.listLength();
+			Term[] ts = new Term[len];
 
+			for (int i = 0; i < len; i++) {
+				ts[i] = t.arg(1);
+				t = t.arg(2);
+			}
+			return ts;
+		} catch (JPLException e) {
+			throw new JPLException("Util.listToTermArray: term is not a proper list");
+		}
+	}
+
+	public static String[] atomListToStringArray( Term t){
+		int n = listToLength(t);
+		String[] a;
+		if ( n<0){
+			return null;
+		} else {
+			a = new String[n];
+		}
+		int i = 0;
+		Term head = t;
+		while ( head.hasFunctor(".", 2)){
+			Term x = head.arg(1);
+			if ( x.isAtom()){
+				a[i++]=x.name();
+			} else {
+				return null;
+			}
+			head = head.arg(2);
+		}
+		return (head.hasFunctor("[]", 0) ? a : null );
+	}
 }

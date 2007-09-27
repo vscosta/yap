@@ -193,15 +193,17 @@ yap_flag(enhanced,off) :- set_value('$enhanced',[]).
 %
 % SWI compatibility flag
 %
-yap_flag(generate_debug_info,X) :-
+yap_flag(generate_debugging_info,X) :-
 	var(X), !,
         '$access_yap_flags'(18,Options),
 	(Options =:= 0 -> X = false ; X = true ).
-yap_flag(generate_debug_info,true) :- !,
-	'$set_yap_flags'(18,1).
-yap_flag(generate_debug_info,false) :- !,
-	'$set_yap_flags'(18,0).
-yap_flag(generate_debug_info,X) :-
+yap_flag(generate_debugging_info,true) :- !,
+	'$set_yap_flags'(18,1),
+	source.
+yap_flag(generate_debugging_info,false) :- !,
+	'$set_yap_flags'(18,0),
+	no_source.
+yap_flag(generate_debugging_info,X) :-
 	'$do_error'(domain_error(flag_value,generate_debugging_info+X),yap_flag(generate_debugging_info,X)).
 
 %
@@ -557,6 +559,17 @@ yap_flag(toplevel_hook,X) :-
 yap_flag(toplevel_hook,G) :- !,
 	'$set_toplevel_hook'(G).
 
+yap_flag(unix,true) :-
+	'$unix', !.
+yap_flag(unix,false).
+
+yap_flag(windows,true) :-
+	'$win32', !.
+yap_flag(windows,false).
+
+yap_flag(shared_object_search_path,P) :-
+	'$ld_path'(P).
+
 yap_flag(typein_module,X) :-
 	var(X), !,
 	'$current_module'(X).
@@ -691,7 +704,7 @@ yap_flag(max_threads,X) :-
 	    V = gc    ;
 	    V = gc_margin    ;
 	    V = gc_trace     ;
-	    V = generate_debug_info     ;
+	    V = generate_debugging_info     ;
 %	    V = hide  ;
 	    V = home  ;
 	    V = host_type  ;
@@ -703,11 +716,13 @@ yap_flag(max_threads,X) :-
 	    V = max_arity ;
 	    V = max_integer ;
 	    V = max_tagged_integer ;
+	    V = max_threads ;
 	    V = min_integer ;
 	    V = min_tagged_integer ;
             V = n_of_integer_keys_in_db ;
 	    V = profiling ;
 	    V = redefine_warnings ;
+	    V = shared_object_search_path ;
 	    V = single_var_warnings ;
 	    V = stack_dump_on_error ;
 	    V = strict_iso ;
@@ -717,6 +732,7 @@ yap_flag(max_threads,X) :-
 	    V = toplevel_hook ;
 	    V = toplevel_print_options ;
 	    V = typein_module ;
+	    V = unix ;
 	    V = unknown ;
 	    V = update_semantics ;
             V = user_error ;
@@ -724,8 +740,8 @@ yap_flag(max_threads,X) :-
             V = user_output ;
             V = verbose_auto_load ;
             V = version ;
-            V = write_strings;
-	    V = max_threads
+	    V = windows ;
+            V = write_strings
 	),
 	yap_flag(V, Out).
 

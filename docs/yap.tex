@@ -3609,6 +3609,66 @@ Closes the stream @var{S}, following options @var{O}.
 The only valid options are @code{force(true)} and @code{force(false)}.
 YAP currently ignores these options.
 
+@item absolute_file_name(+@var{Name},+@var{Options}, -@var{FullPath})
+@item absolute_file_name(+@var{Name}, -@var{FullPath},+@var{Options})
+@findex absolute_file_name/3
+@syindex absolute_file_name/3
+@cnindex absolute_file_name/3
+
+Converts the given file specification into an absolute path.
+@var{Option} is a list of options to guide the conversion:
+
+@table @code
+    @item extensions(+@var{ListOfExtensions})
+List of file-extensions to try.  Default is @samp{''}.  For each
+extension, @code{absolute_file_name/3} will first add the extension and then
+verify the conditions imposed by the other options.  If the condition
+fails, the next extension of the list is tried.  Extensions may be
+specified both as @code{.ext} or plain @code{ext}.
+
+    @item relative_to(+@var{FileOrDir})
+Resolve the path relative to the given directory or directory the
+holding the given file.  Without this option, paths are resolved
+relative to the working directory (see working_directory/2) or,
+if @var{Spec} is atomic and absolute_file_name/[2,3] is executed
+in a directive, it uses the current source-file as reference.
+
+    @item access(+@var{Mode})
+Imposes the condition access_file(@var{File}, @var{Mode}).  @var{Mode}
+is on of @code{read}, @code{write}, @code{append}, @code{exist} or @code{none}.  See also access_file/2.
+
+    @item file_type(+@var{Type})
+Defines extensions. Current mapping: @code{txt} implies @code{['']},
+@code{prolog} implies @code{['.pl', '']}, @code{executable} implies
+@code{['.so', '']}, @code{qlf} implies @code{['.qlf', '']} and
+@code{directory} implies @code{['']}.  The file-type @code{source}
+is an alias for @code{prolog} for compatibility to SICStus Prolog.
+See also prolog_file_type/2.
+
+    @item file_errors(@code{fail}/@code{error})
+If @code{error} (default), throw and @code{existence_error} exception
+if the file cannot be found.  If @code{fail}, stay silent.
+
+    @item solutions(@code{first}/@code{all})
+If @code{first} (default), the predicates leaves no choice-point.
+Otherwise a choice-point will be left and backtracking may yield
+more solutions.
+
+@c     @item expand(@code{true}/@code{false})
+@c If @code{true} (default is @code{false}) and @var{Spec} is atomic,
+@c call @code{expand_file_name/2} followed by @code{member/2} on @var{Spec} before
+@c proceeding.  This is a SWI-Prolog extension.
+@end table
+
+@c The Prolog flag @code{verbose_file_search} can be set to @code{true}
+@c to help debugging Prolog's search for files.
+
+Compatibility considerations to common argument-order in ISO as well
+as SICStus @code{absolute_file_name/3} forced us to be flexible here.
+If the last argument is a list and the 2nd not, the arguments are
+swapped, making the call @code{absolute_file_name}(+@var{Spec}, -@var{Path},
++@var{Options}) valid as well.
+
 @item absolute_file_name(+@var{Name},-@var{FullPath})
 @findex absolute_file_name/2
 @syindex absolute_file_name/2
@@ -6815,6 +6875,13 @@ collection and stack shifts. Last, if @code{very_verbose} give detailed
 information on data-structures found during the garbage collection
 process, namely, on choice-points.
 
+@item  generate_debugging_info
+@findex generate_debugging_info (yap_flag/2 option)
+@* If @code{true} (default) generate debugging information for
+procedures, including source mode. If @code{false} predicates no
+information is generated, although debugging is still possible, and
+source mode is disabled.
+
 @item  host_type
 @findex host_type (yap_flag/2 option)
 @* Return @code{configure} system information, including the machine-id
@@ -6913,6 +6980,11 @@ in several different files are @code{on} or
 @code{off}. If @var{Value} is bound to @code{on} enable these warnings,
 and if it is bound to @code{off} disable them. The default for YAP is
 @code{off}, unless we are in @code{sicstus} or @code{iso} mode.
+
+@item shared_object_search_path
+@findex shared_object_search_path (yap_flag/2 option)
+Name of the environment variable used by the system to search for shared
+objects.
 
 @item single_var_warnings
 @findex single_var_warnings (yap_flag/2 option)
@@ -7016,6 +7088,12 @@ If bound, set the current working or type-in module to the argument,
 which must be an atom. If unbound, unify the argument with the current
 working module.
 
+@item  unix
+@findex unix (yap_flag/2 option)
+@* Read-only boolean flag that unifies with tr @code{true} if YAP is
+running on an Unix system.  Defined if the C-compiler used to compile
+this version of YAP either defines @code{__unix__} or @code{unix}.
+
 @item unknown [ISO]
 @findex unknown (yap_flag/2 option)
 @*
@@ -7088,6 +7166,12 @@ corresponding to the Unix @code{stdout} stream.
 @findex version (yap_flag/2 option)
 @*
 Read-only flag that giving the current version of YAP.
+
+@item  windows
+@findex windoes (yap_flag/2 option)
+@* 
+Read-only boolean flag that unifies with tr @code{true} if YAP is
+running on an Windows machine.
 
 @item write_strings
 @findex  write_strings (yap_flag/2 option)

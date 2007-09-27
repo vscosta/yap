@@ -91,7 +91,6 @@ CreateNewArena(CELL *ptr, UInt size)
     dst->_mp_size = 0L;
     dst->_mp_alloc = arena2big_sz(size);
     ptr[size-1] = EndSpecials;
-
     return t;
 }
 
@@ -263,6 +262,16 @@ p_allocate_default_arena(void)
 #endif
   return TRUE;
 }
+static void
+adjust_cps(UInt size)
+{
+  /* adjust possible back pointers in choice-point stack */
+  choiceptr b_ptr = B;
+  while (b_ptr->cp_h == H) {
+    b_ptr->cp_h += size;
+    b_ptr = b_ptr->cp_b;
+  }
+}
 
 
 static int
@@ -279,22 +288,16 @@ GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity)
     size = 4096;
   }
   if (pt == H) {
-    choiceptr b_ptr;
     if (H+size > ASP-1024) {
 
       XREGS[arity+1] = arena;
       if (!Yap_gcl(size*sizeof(CELL), arity+1, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return FALSE;
+	return FALSE;
       }
       arena = XREGS[arity+1];
     }
-    /* adjust possible back pointers in choice-point stack */
-    b_ptr = B;
-    while (b_ptr->cp_h == H) {
-      b_ptr->cp_h += size;
-      b_ptr = b_ptr->cp_b;
-    }
+    adjust_cps(size);
     H += size;
   } else {
     XREGS[arity+1] = arena;

@@ -99,8 +99,14 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- dynamic user:library_directory/1.
 
-user:library_directory(D) :-
-	prolog:'$system_library_directories'(D).
+:-  (
+     prolog:'$system_library_directories'(D),
+     write(D),nl,
+     assert(user:library_directory(D)),
+     fail
+    ;
+     true
+    ).
 
 %
 % cleanup ensure loaded and recover some data-base space.
@@ -135,8 +141,12 @@ user:library_directory(D) :-
 :- dynamic file_search_path/2.
 
 file_search_path(library, Dir) :-
-     library_directory(Dir).
+	library_directory(Dir).
+file_search_path(swi, Home) :-
+	current_prolog_flag(home, Home).
+file_search_path(yap, Home) :-
+        current_prolog_flag(home, Home).
 file_search_path(system, Dir) :-
-     prolog_flag(host_type, Dir).
-
+	prolog_flag(host_type, Dir).
+file_search_path(foreign, yap('lib/Yap')).
 

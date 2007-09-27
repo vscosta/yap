@@ -2,9 +2,10 @@
 //*****************************************************************************/
 // Project: jpl
 //
-// File:    $Id: Atom.java,v 1.1 2004-08-27 20:27:56 vsc Exp $
-// Date:    $Date: 2004-08-27 20:27:56 $
+// File:    $Id: Atom.java,v 1.2 2007-09-27 15:25:32 vsc Exp $
+// Date:    $Date: 2007-09-27 15:25:32 $
 // Author:  Fred Dushin <fadushin@syr.edu>
+// Author:  Paul Singleton <paul@jbgb.com>
 //          
 //
 // Description:
@@ -57,7 +58,7 @@ import jpl.fli.term_t;
  * GNU Library Public License for more details.<p>
  * </i><hr>
  * @author  Fred Dushin <fadushin@syr.edu>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @see jpl.Term
  * @see jpl.Compound
  */
@@ -88,6 +89,14 @@ public class Atom extends Compound {
 		return Prolog.ATOM;
 	}
 	
+	/**
+	 * returns the name of the type of this term, as "Atom"
+	 * 
+	 * @return the name of the type of this term, as "Atom"
+	 */
+	public String typeName() { // overrides same in jpl.Term
+		return "Atom";
+	}
 	//==================================================================/
 	//  Methods (deprecated)
 	//==================================================================/
@@ -113,15 +122,15 @@ public class Atom extends Compound {
 	//==================================================================/
 
 	/**
-	 * Converts a Prolog term to a JPL Atom.  This is only called from Term.getTerm(),
-	 * and we can assume the term_t refers to a Prolog atom,
-	 * so we just create a new Atom object with the atom's name.
+	 * Converts a Prolog term (as a term_t), which is known to be an atom, to a new jpl.Atom.
+	 * This is only called from Term.getTerm(),
+	 * and just creates a new Atom object initialised with the atom's name.
 	 *
 	 * @param   vars_to_Vars  A Map from Prolog variables to JPL Variables.
 	 * @param   term          The Prolog term to be converted
 	 * @return                A new Atom instance
 	 */
-	protected static Term getTerm(Map vars_to_Vars, term_t term) {
+	protected static Term getTerm1(Map vars_to_Vars, term_t term) {
 		StringHolder holder = new StringHolder();
 		Prolog.get_atom_chars(term, holder); // ignore return val; assume success...
 
@@ -129,8 +138,8 @@ public class Atom extends Compound {
 	}
 
 	/**
-	 * Converts a term_t to an Atom, knowing that it refers to a SWI-Prolog string,
-	 * so we just create a new Atom object initialised with the string's value.
+	 * Converts a Prolog term (as a term_t), which is known to be a SWI-Prolog string, to a new jpl.Atom,
+	 * by creating a new Atom object initialised with the string's value.
 	 * JPL users should avoid SWI-Prolog's non-ISO strings, but in some obscure
 	 * circumstances they are returned unavoidably, so we have to handle them
 	 * (and this is how).
@@ -142,7 +151,6 @@ public class Atom extends Compound {
 	protected static Term getString(Map vars_to_Vars, term_t term) {
 		StringHolder holder = new StringHolder();
 		Prolog.get_string_chars(term, holder); // ignore return val; assume success...
-		// System.err.println("Warning: Prolog returns a string: \"" + holder.value + "\"");
 		return new Atom(holder.value);
 	}
 

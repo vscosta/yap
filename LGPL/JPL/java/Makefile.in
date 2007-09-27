@@ -37,17 +37,16 @@ CWD=$(PWD)
 #
 JAVAC=@JAVAC@
 JAR=@JAR@
-JPL=jpl.jar
+JPLJAR=jpl.jar
+TESTJAR=jpltest.jar
 
 CLS=	jpl/Atom.java \
 	jpl/Compound.java \
 	jpl/Float.java \
 	jpl/Integer.java \
-	jpl/JBoolean.java \
+	jpl/JRef.java \
 	jpl/JPLException.java \
 	jpl/JPL.java \
-	jpl/JRef.java \
-	jpl/JVoid.java \
 	jpl/PrologException.java \
 	jpl/Query.java \
 	jpl/Term.java \
@@ -62,6 +61,7 @@ FLI=	jpl/fli/atom_t.java \
 	jpl/fli/fid_t.java \
 	jpl/fli/functor_t.java \
 	jpl/fli/IntHolder.java \
+	jpl/fli/Int64Holder.java \
 	jpl/fli/LongHolder.java \
 	jpl/fli/module_t.java \
 	jpl/fli/ObjectHolder.java \
@@ -72,26 +72,48 @@ FLI=	jpl/fli/atom_t.java \
 	jpl/fli/StringHolder.java \
 	jpl/fli/term_t.java
 
+TEST=	jpl/test/Family.java \
+	jpl/test/FetchBigTree.java \
+	jpl/test/FetchLongList.java \
+	jpl/test/Ga2.java \
+	jpl/test/Ga.java \
+	jpl/test/Garbo.java \
+	jpl/test/Masstest.java \
+	jpl/test/MaxObjects.java \
+	jpl/test/ShadowA.java \
+	jpl/test/ShadowB.java \
+	jpl/test/SyntaxError.java \
+	jpl/test/Test.java \
+	jpl/test/TestJUnit.java \
+	jpl/test/TestOLD.java
 
 JAVA=$(CLS) $(FLI)
 CLASSES=$(JAVA:.java=.class)
 
-all:	$(JPL)
+TESTCLASSES=$(TEST:.java=.class)
+
+all:	$(JPLJAR)
 
 $(JAVA):
 	for f in $(CLS); do  cp $(srcdir)/$$f jpl ; done
 	for f in $(FLI); do  cp $(srcdir)/$$f jpl/fli ; done
+	for f in $(TEST); do  cp $(srcdir)/$$f jpl/test ; done
 
-$(JPL):	$(JAVA)
+$(JPLJAR): $(JAVA)
 	$(JAVAC) $(JAVA)
-	$(JAR) cf $(JPL) $(CLASSES)
+	$(JAR) cf $(JPLJAR) $(CLASSES)
+
+$(TESTJAR):	$(JAVA)	$(TEST)
+	$(JAVAC)  -classpath $(JPLJAR):$(JUNIT) $(TEST)
+	$(JAR) cf $(JPL) $(TESTCLASSES)
 
 clean::
 	rm -f *~ $(CLASSES)
 
 distclean: clean
 	rm -r $(JPL)
-install: $(JPL)
+
+install: $(JPLJAR)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
-	$(INSTALL_DATA) $(JPL) $(DESTDIR)$(SHAREDIR)/Yap
+	$(INSTALL_DATA) $(JPLJAR) $(DESTDIR)$(SHAREDIR)/Yap
 

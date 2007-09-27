@@ -19,7 +19,7 @@
 % SWI options
 % autoload(true,false)
 % derived_from(File) -> make
-% encoding(Enconding)
+% encoding(Encoding)
 % expand({true,false)
 % if(changed,true,not_loaded)
 % imports(all,List)
@@ -544,6 +544,208 @@ remove_from_path(New) :- '$check_path'(New,Path),
 	).
 
 
+absolute_file_name(V,Out) :- var(V), !,
+	'$do_error'(instantiation_error, absolute_file_name(V, Out)).
+absolute_file_name(user,user) :- !.
+absolute_file_name(File0,File) :-
+	'$absolute_file_name'(File0,[access(read),file_type(source),file_errors(fail),solutions(first)],File,absolute_file_name(File0,File)).
+
+'$find_in_path'(F0,F,G) :-
+	'$absolute_file_name'(F0,[access(read),file_type(source),file_errors(fail),solutions(first)],F,G).
+
+absolute_file_name(File,TrueFileName,Opts) :-
+	var(TrueFileName), !,
+	absolute_file_name(File,Opts,TrueFileName).
+absolute_file_name(File,Opts,TrueFileName) :-
+	'$absolute_file_name'(File,Opts,TrueFileName,absolute_file_name(File,Opts,TrueFileName)).
+	
+'$absolute_file_name'(File,Opts,TrueFileName,G) :- var(File), !,
+	'$do_error'(instantiation_error, G).
+'$absolute_file_name'(File,Opts,TrueFileName, G) :-
+	'$process_fn_opts'(Opts,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G),
+	FoundOne = a(false),
+	(
+	 '$find_in_path'(File,opts(Extensions,RelTo,Type,Access,FErrors,Expand,Debug),TrueFileName,G),
+	  (Solutions = first -> ! ; true),
+	   nb_setarg(1, FoundOne, true)
+	;
+
+	    FErrors = error, FoundOne = a(false) ->
+	   '$do_error'(existence_error(file,File),G)
+	 ).
+	 
+
+'$process_fn_opts'(V,_,_,_,_,_,_,_,_,G) :- var(V), !,
+	'$do_error'(instantiation_error, G).
+'$process_fn_opts'([],[],CWD,source,read,error,first,false,false,_) :- !,
+	getcwd(CWD).
+'$process_fn_opts'([Opt|Opts],Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
+	'$process_fn_opt'(Opt,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions0,RelTo0,Type0,Access0,FErrors0,Solutions0,Expand0,Debug0,G),
+	'$process_fn_opts'(Opts,Extensions0,RelTo0,Type0,Access0,FErrors0,Solutions0,Expand0,Debug0,G).
+'$process_fn_opts'(Opts,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
+	'$do_error'(type_error(list,T),G).
+
+'$process_fn_opt'(Opt,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- var(Opt), !,
+	'$do_error'(instantiation_error, G).
+'$process_fn_opt'(extensions(Extensions),Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,_,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
+	'$check_fn_extensions'(L,G).
+'$process_fn_opt'(relative_to(RelTo),Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,_,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
+	'$check_atom'(RelTo,G).
+'$process_fn_opt'(access(Access),Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,RelTo,Type,_,FErrors,Solutions,Expand,Debug,G) :- !,
+	'$check_atom'(Access,G).
+'$process_fn_opt'(file_type(Type),Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,RelTo,_,Access,FErrors,Solutions,Expand,Debug,G) :- !,
+	'$check_fn_type'(Type,G).
+'$process_fn_opt'(file_errors(FErrors),Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,RelTo,Type,Access,_,Solutions,Expand,Debug,G) :- !,
+	'$check_fn_errors'(FErrors,G).
+'$process_fn_opt'(solutions(Solutions),Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,RelTo,Type,Access,FErrors,_,Expand,Debug,G) :- !,
+	'$check_fn_solutions'(Solutions,G).
+'$process_fn_opt'(expand(Expand),Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,RelTo,Type,Access,FErrors,Solutions,_,Debug,G) :- !,
+	'$check_true_false'(Expand,G).
+'$process_fn_opt'(verbose_file_search(Debug),Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,_,G) :- !,
+	'$check_true_false'(Debug,G).
+'$process_fn_opt'(Opt,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
+	'$do_error'(domain_error(file_name_option,T),G).	
+
+'$check_fn_extensions'(V,G) :- var(V), !,
+	'$do_error'(instantiation_error, G).
+'$check_fn_extensions'([],_) :- !.
+'$check_fn_extensions'([A|L],G) :- !,
+	'$check_atom'(A,G),
+	'$check_fn_extensions'(L,G).
+'$check_fn_extensions'(T,G) :- !,
+	'$do_error'(type_error(list,T),G).
+
+'$check_atom'(V,G) :- var(V), !,
+	'$do_error'(instantiation_error, G).
+'$check_atom'(A,G) :- atom(A), !.
+'$check_atom'(T,G) :- !,
+	'$do_error'(type_error(atom,T),G).
+	
+'$check_fn_type'(V,G) :- var(V), !,
+	'$do_error'(instantiation_error, G).
+'$check_fn_type'(txt,_) :- !.
+'$check_fn_type'(prolog,_) :- !.
+'$check_fn_type'(source,_) :- !.
+'$check_fn_type'(executable,_) :- !.
+'$check_fn_type'(qlf,_) :- !.
+'$check_fn_type'(directory,_) :- !.
+'$check_fn_type'(T,G) :- atom(T), !,
+	'$do_error'(domain_error(file_type,T),G).
+'$check_fn_type'(T,G) :- !,
+	'$do_error'(type_error(atom,T),G).
+	
+'$check_fn_errors'(V,G) :- var(V), !,
+	'$do_error'(instantiation_error, G).
+'$check_fn_errors'(fail,_) :- !.
+'$check_fn_errors'(error,_) :- !.
+'$check_fn_errors'(T,G) :- atom(T), !,
+	'$do_error'(domain_error(file_errors,T),G).
+'$check_fn_errors'(T,G) :- !,
+	'$do_error'(type_error(atom,T),G).
+	
+'$check_fn_solutions'(V,G) :- var(V), !,
+	'$do_error'(instantiation_error, G).
+'$check_fn_solutions'(first,_) :- !.
+'$check_fn_solutions'(all,_) :- !.
+'$check_fn_solutions'(T,G) :- atom(T), !,
+	'$do_error'(domain_error(solutions,T),G).
+'$check_fn_solutions'(T,G) :- !,
+	'$do_error'(type_error(atom,T),G).
+	
+'$check_true_false'(V,G) :- var(V), !,
+	'$do_error'(instantiation_error, G).
+'$check_true_false'(true,_) :- !.
+'$check_true_false'(false,_) :- !.
+'$check_true_false'(T,G) :- atom(T), !,
+	'$do_error'(domain_error(boolean,T),G).
+'$check_true_false'(T,G) :- !,
+	'$do_error'(type_error(atom,T),G).
+	
+% This sequence must be followed:
+% user and user_input are special;
+% library(F) must check library_directories
+% T(F) must check file_search_path
+% all must try search in path
+'$find_in_path'(user,_,user_input, _) :- !.
+'$find_in_path'(user_input,_,user_input, _) :- !.
+'$find_in_path'(library(File),Opts,NewFile, Call) :- !,
+	'$dir_separator'(D),
+	atom_codes(A,[D]),
+	'$extend_path_directory'(Name, A, File, Opts, NewFile, Call).
+'$find_in_path'(S, Opts, NewFile, Call) :-
+	S =.. [Name,File], !,
+	'$dir_separator'(D),
+	atom_codes(A,[D]),
+	'$extend_path_directory'(Name, A, File, Opts, NewFile, Call).
+'$find_in_path'(File,Opts,NewFile,_) :-
+	atom(File), !,
+	'$add_path'(File,PFile),
+	'$get_abs_file'(PFile,Opts,AbsFile),
+	'$search_in_path'(AbsFile,Opts,NewFile).
+'$find_in_path'(File,_,_,Call) :-
+	'$do_error'(domain_error(source_sink,File),Call).
+
+'$get_abs_file'(File,opts(_,D0,_,_,_,_,_),AbsFile) :-
+	'$dir_separator'(D),
+	atom_codes(A,[D]),
+	atom_concat([D0,A,File],File1),
+	system:true_file_name(File1,AbsFile).
+
+'$search_in_path'(File,opts(Extensions,_,_,Access,_,_,_),F) :-
+	'$add_extensions'(Extensions,File,F),
+	access_file(F,Access).
+'$search_in_path'(File,opts(_,_,Type,Access,_,_,_),F) :-
+	'$add_type_extensions'(Type,File,F),
+	access_file(F,Access).
+
+'$add_extensions'([Ext|_],File,F) :-
+	'$mk_sure_true_ext'(Ext,NExt),
+	atom_concat([File,NExt],F).
+'$add_extensions'([_|Extensions],File,F) :-
+	'$add_extensions'(Extensions,File,F).
+
+'$mk_sure_true_ext'(Ext,NExt) :-
+	atom_codes(Ext,[C|L]),
+	C \= 0'.,
+	!,
+	atom_codes(NExt,[0'.,C|L]).
+'$mk_sure_true_ext'(Ext,Ext).
+
+'$add_type_extensions'(Type,File,F) :-
+	'$type_extension'(Type,Ext),
+	atom_concat([File,Ext],F).
+
+'$type_extension'(txt,'').
+'$type_extension'(prolog,'.yap').
+'$type_extension'(prolog,'.pl').
+'$type_extension'(prolog,'').
+'$type_extension'(source,'.yap').
+'$type_extension'(source,'.pl').
+'$type_extension'(source,'').
+'$type_extension'(executable,'.so').
+'$type_extension'(executable,'').
+'$type_extension'(qlf,'.qlf').
+'$type_extension'(qlf,'').
+'$type_extension'(directory,'').
+
+'$add_path'(File,File).
+'$add_path'(File,PFile) :-
+	recorded('$path',Path,_),
+	atom_concat([Path,File],PFile).
+
+'$extend_path_directory'(Name, D, File, Opts, NewFile, Call) :-
+	user:file_search_path(Name, Dir),	
+	'$extend_pathd'(Dir, D, File, Opts, NewFile, Call).
 
 
+'$extend_pathd'(Dir, A, File, Opts, NFile, Call) :-
+	atom(Dir), !,
+	atom_concat([Dir,A,File],NFile),
+	'$search_in_path'(NFile, Opts, NewFile), !.
+'$extend_pathd'(Name, A, File, Opts, OFile, Goal) :-
+	nonvar(Name),
+	Name =.. [N,P0],
+	atom_concat([P0,A,File],NFile),
+	NewName =.. [N,NFile],
+	'$find_in_path'(NewName, Opts, OFile, Goal).
 
