@@ -577,8 +577,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 
 '$process_fn_opts'(V,_,_,_,_,_,_,_,_,G) :- var(V), !,
 	'$do_error'(instantiation_error, G).
-'$process_fn_opts'([],[],CWD,source,read,error,first,false,false,_) :- !,
-	getcwd(CWD).
+'$process_fn_opts'([],[],_,source,read,error,first,false,false,_) :- !.
 '$process_fn_opts'([Opt|Opts],Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
 	'$process_fn_opt'(Opt,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions0,RelTo0,Type0,Access0,FErrors0,Solutions0,Expand0,Debug0,G),
 	'$process_fn_opts'(Opts,Extensions0,RelTo0,Type0,Access0,FErrors0,Solutions0,Expand0,Debug0,G).
@@ -686,10 +685,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$do_error'(domain_error(source_sink,File),Call).
 
 '$get_abs_file'(File,opts(_,D0,_,_,_,_,_),AbsFile) :-
-	'$dir_separator'(D),
-	atom_codes(A,[D]),
-	atom_concat([D0,A,File],File1),
-	system:true_file_name(File1,AbsFile).
+	system:true_file_name(File,D0,AbsFile).
 
 '$search_in_path'(File,opts(Extensions,_,_,Access,_,_,_),F) :-
 	'$add_extensions'(Extensions,File,F),

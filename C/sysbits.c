@@ -1589,7 +1589,7 @@ Yap_volume_header(char *file)
 }
 
 static int
-TrueFileName (char *source, char *result, int in_lib)
+TrueFileName (char *source, char *root, char *result, int in_lib)
 {
   register int ch;
   register char *res0 = result, *work;
@@ -1686,9 +1686,16 @@ TrueFileName (char *source, char *result, int in_lib)
     }
   *res0 = '\0';
   /* step 3: get the full file name */
-  if (!dir_separator(result[0]) && !volume_header(result))
-    {
-
+  if (!dir_separator(result[0]) && !volume_header(result)) {
+    if (root) {
+      strncpy(ares1, root, YAP_FILENAME_MAX);
+#if _MSC_VER || defined(__MINGW32__)
+      strncat (ares1, "\\", YAP_FILENAME_MAX);
+#else
+      strncat (ares1, "/", YAP_FILENAME_MAX);
+#endif
+      strncat (ares1, result, YAP_FILENAME_MAX);
+    } else {
 #if __simplescalar__
       /* does not implement getcwd */
       strncpy(ares1,yap_pwd,YAP_FILENAME_MAX);
@@ -1708,7 +1715,7 @@ TrueFileName (char *source, char *result, int in_lib)
       if (in_lib) {
 	int tmpf;
 	if ((tmpf = open(ares1, O_RDONLY)) < 0) {
-	  /* not in current directory, let us try the library */
+	    /* not in current directory, let us try the library */
 	  if  (Yap_LibDir != NULL) {
 	    strncpy(Yap_FileNameBuf, Yap_LibDir, YAP_FILENAME_MAX);
 #if HAVE_GETENV
@@ -1746,6 +1753,7 @@ TrueFileName (char *source, char *result, int in_lib)
 	strncpy (result, ares1, YAP_FILENAME_MAX);
       }
     }
+  }
   /* step 4: simplifying the file name */
   work = result;
   while (*work != '\0')
@@ -1792,7 +1800,7 @@ TrueFileName (char *source, char *result, int in_lib)
 int
 Yap_TrueFileName (char *source, char *result, int in_lib)
 {
-  return TrueFileName (source, result, in_lib);
+  return TrueFileName (source, NULL, result, in_lib);
 }
 
 static Int
@@ -1808,8 +1816,33 @@ p_true_file_name (void)
     Yap_Error(TYPE_ERROR_ATOM,t,"argument to true_file_name");
     return FALSE;
   }
-  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, Yap_FileNameBuf, FALSE);
+  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, Yap_FileNameBuf, FALSE);
   return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
+}
+
+static Int
+p_true_file_name3 (void)
+{
+  Term t = Deref(ARG1), t2 = Deref(ARG2);
+  char *root = NULL;
+  
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"argument to true_file_name unbound");
+    return FALSE;
+  }
+  if (!IsAtomTerm(t)) {
+    Yap_Error(TYPE_ERROR_ATOM,t,"argument to true_file_name");
+    return FALSE;
+  }
+  if (!IsVarTerm(t2)) {
+    if (!IsAtomTerm(t)) {
+      Yap_Error(TYPE_ERROR_ATOM,t2,"argument to true_file_name");
+      return FALSE;
+    }
+    root = RepAtom(AtomOfTerm(t2))->StrOfAE;
+  }
+  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, root, Yap_FileNameBuf, FALSE);
+  return Yap_unify(ARG3, MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
 }
 
 
@@ -2001,8 +2034,8 @@ p_mv (void)
   } else if (!IsAtomTerm(t2)) {
     Yap_Error(TYPE_ERROR_ATOM, t2, "second argument to rename/2 not atom");
   }
-  TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE, oldname, FALSE);
-  TrueFileName (RepAtom(AtomOfTerm(t2))->StrOfAE, newname, FALSE);
+  TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE, NULL, oldname, FALSE);
+  TrueFileName (RepAtom(AtomOfTerm(t2))->StrOfAE, NULL, newname, FALSE);
   if ((r = link (oldname, newname)) == 0 && (r = unlink (oldname)) != 0)
     unlink (newname);
   if (r != 0) {
@@ -2036,7 +2069,7 @@ p_file_directory_name (void)
     Yap_Error(TYPE_ERROR_ATOM, t1,  "first arg of file_directory_name/2");
     return FALSE;
   }
-  TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE,  Yap_FileNameBuf, FALSE);
+  TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE,  NULL, Yap_FileNameBuf, FALSE);
   chp = Yap_FileNameBuf+strlen(Yap_FileNameBuf);
   while (!dir_separator(*--chp) && chp != Yap_FileNameBuf);
   if (chp == Yap_FileNameBuf) {
@@ -2056,7 +2089,7 @@ p_cd (void)
     Yap_Error(INSTANTIATION_ERROR,t1,"argument to cd/1 is not valid");
     return FALSE;
   } else if (IsAtomTerm(t1)) {
-    TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE, Yap_FileNameBuf2, FALSE);
+    TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE, NULL, Yap_FileNameBuf2, FALSE);
   } else {
     if (t1 == TermNil)
       return TRUE;
@@ -2064,7 +2097,7 @@ p_cd (void)
       Yap_Error(TYPE_ERROR_ATOM,t1,"argument to cd/1 is not valid");
       return FALSE;
     }
-    TrueFileName (Yap_FileNameBuf, Yap_FileNameBuf2, FALSE);
+    TrueFileName (Yap_FileNameBuf, NULL, Yap_FileNameBuf2, FALSE);
   }
 #if HAVE_CHDIR
 #if  __simplescalar__
@@ -2665,6 +2698,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$ld_path", 1, p_ld_path, SafePredFlag);
   CurrentModule = SYSTEM_MODULE;
   Yap_InitCPred ("true_file_name", 2, p_true_file_name, SyncPredFlag);
+  Yap_InitCPred ("true_file_name", 3, p_true_file_name3, SyncPredFlag);
   CurrentModule = cm;
 }
 

@@ -2143,24 +2143,38 @@ check_bom(int sno, StreamDesc *st)
   }
 }
 
-static Int
-p_access(char *file_name)
-{
-#if HAVE_STAT
 #if _MSC_VER || defined(__MINGW32__) 
-  struct _stat ss;
-  if (_stat(file_name, &ss) != 0) {
+#define SYSTEM_STAT _stat
 #else
-  struct stat ss;
-  if (stat(file_name, &ss) != 0) {
+#define SYSTEM_STAT stat
 #endif
-    /* ignore errors while checking a file */
+
+static Int
+p_access(void)
+{
+  Term tname = Deref(ARG1);
+  char *file_name;
+
+  if (IsVarTerm(tname)) {
+    Yap_Error(INSTANTIATION_ERROR, tname, "access");
     return FALSE;
-  }
-  return TRUE;
+  } else if (!IsAtomTerm (tname)) {
+    Yap_Error(TYPE_ERROR_ATOM, tname, "access");
+    return FALSE;
+  } else {
+#if HAVE_STAT
+    struct SYSTEM_STAT ss;
+
+    file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
+    if (SYSTEM_STAT(file_name, &ss) != 0) {
+    /* ignore errors while checking a file */
+      return FALSE;
+    }
+    return TRUE;
 #else
-  return FALSE;
+    return FALSE;
 #endif
+  }
 }
 
 static Int
