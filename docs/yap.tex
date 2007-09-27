@@ -1440,9 +1440,9 @@ environment variable @env{LANG} ends in "UTF-8", this encoding is
 assumed. Otherwise the default is @code{text} and the translation is
 left to the wide-character functions of the C-library (note that the
 Prolog native UTF-8 mode is considerably faster than the generic
-mbrtowc() one).  The encoding can be specified explicitly in
+@code{mbrtowc()} one).  The encoding can be specified explicitly in
 @code{load_files/2} for loading Prolog source with an alternative
-encoding, @code{open/4} when opening files or using set_stream/2 on
+encoding, @code{open/4} when opening files or using @code{set_stream/2} on
 any open stream (not yet implemented). For Prolog source files we also
 provide the @code{encoding/1} directive that can be used to switch
 between encodings that are compatible to US-ASCII (@code{ascii},
