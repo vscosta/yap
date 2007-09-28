@@ -921,8 +921,8 @@ access_file(F,Mode) :-
 	'$exists'(F,Mode).
 
 '$exists'(_,none) :- !.
-'$exists'(F,exists) :-
-	'$access'(F), !.
+'$exists'(F,exist) :- !,
+	'$access'(F).
 '$exists'(F,Mode) :-
 	get_value(fileerrors,V),
 	set_value(fileerrors,0),

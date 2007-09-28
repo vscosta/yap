@@ -561,7 +561,7 @@ absolute_file_name(V,Out) :- var(V), !,
 	'$do_error'(instantiation_error, absolute_file_name(V, Out)).
 absolute_file_name(user,user) :- !.
 absolute_file_name(File0,File) :-
-	'$absolute_file_name'(File0,[access(read),file_type(source),file_errors(fail),solutions(first)],File,absolute_file_name(File0,File)).
+	'$absolute_file_name'(File0,[access(exist),file_type(source),file_errors(fail),solutions(first)],File,absolute_file_name(File0,File)).
 
 '$find_in_path'(F0,F,G) :-
 	'$absolute_file_name'(F0,[access(read),file_type(source),file_errors(fail),solutions(first)],F,G).
