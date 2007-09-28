@@ -116,6 +116,7 @@ AtomAdjust(Atom a)
 #define CharP(X) ((char *)(X))
 
 #define AddrAdjust(P) (P)
+#define PredEntryAdjust(P) (P)
 #define AtomEntryAdjust(P) (P)
 #define GlobalEntryAdjust(P) (P)
 #define BlobTermAdjust(P) (P)
@@ -202,6 +203,25 @@ mark_hash_entry(AtomHashEntry *HashPtr)
   }
 }
 
+
+static void
+mark_hash_preds(void)
+{
+  UInt i;
+
+  for (i = 0; i < PredHashTableSize; i++) {
+    PredEntry *p = PredHash[i];
+
+    while (p) {
+      Prop nextp = p->NextOfPE = PropAdjust(p->NextOfPE);
+      CleanCode(p);
+      p = RepPredProp(nextp);
+    }
+  }
+}
+
+
+
 /*
  * This is the really tough part, to restore the whole of the heap 
  */
@@ -222,6 +242,7 @@ mark_atoms(void)
     HashPtr++;
   }
   mark_hash_entry(&INVISIBLECHAIN);
+  mark_hash_preds();
 }
 
 static void

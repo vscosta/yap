@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2007-04-10 22:13:21 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-09-28 23:18:17 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.75  2007/04/10 22:13:21  vsc
+* fix max modules limitation
+*
 * Revision 1.74  2007/03/22 11:12:21  vsc
 * make sure that YAP_Restart does not restart a failed goal.
 *
@@ -1152,9 +1155,10 @@ RestoreEntries(PropEntry *pp)
 	  AtomAdjust(fe->NameOfFE);
 	p0 = fe->PropsOfFE =
 	  PropAdjust(fe->PropsOfFE);
-	while (!EndOfPAEntr(p0)) {
+	if (!EndOfPAEntr(p0)) {
+	  /* at most one property */
 	  CleanCode(RepPredProp(p0));
-	  p0 = RepPredProp(p0)->NextOfPE =
+	  RepPredProp(p0)->NextOfPE =
 	    PropAdjust(RepPredProp(p0)->NextOfPE);
 	}
       }

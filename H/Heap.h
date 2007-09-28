@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.116 2007-09-17 22:17:49 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.117 2007-09-28 23:18:17 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -527,6 +527,11 @@ typedef struct various_codes {
   ADDR  foreign_code_base;
   ADDR  foreign_code_top;
   ADDR  foreign_code_max;
+  struct pred_entry **pred_hash;
+#if defined(YAPOR) || defined(THREADS)
+  rwlock_t pred_hash_rw_lock;
+#endif
+  UInt  preds_in_hash_table, pred_hash_table_size;
   int parser_error_style;
   int   compiler_profiling;
   int   compiler_call_counting;
@@ -929,6 +934,12 @@ struct various_codes *Yap_heap_regs;
 #define  ForeignCodeTop           Yap_heap_regs->foreign_code_top;
 #define  ForeignCodeMax           Yap_heap_regs->foreign_code_max;
 #define  ForeignCodeLoaded        Yap_heap_regs->foreign_code_loaded
+#define  PredHash                 Yap_heap_regs->pred_hash
+#define  PredHashRWLock           Yap_heap_regs->pred_hash_rw_lock
+#define  PredsInHashTable         Yap_heap_regs->preds_in_hash_table
+#define  PredHashTableSize        Yap_heap_regs->pred_hash_table_size
+#define  PredHashInitialSize      1039L
+#define  PredHashIncrement        7919L
 #define  ParserErrorStyle         Yap_heap_regs->parser_error_style
 #define  DeadStaticClauses        Yap_heap_regs->dead_static_clauses
 #define  DeadMegaClauses          Yap_heap_regs->dead_mega_clauses

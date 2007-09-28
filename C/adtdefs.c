@@ -30,7 +30,6 @@ ADDR    STD_PROTO(Yap_PreAllocCodeSpace, (void));
 Prop	STD_PROTO(PredPropByFunc,(Functor, Term));
 Prop	STD_PROTO(PredPropByAtom,(Atom, Term));
 #include "Yatom.h"
-#include "Heap.h"
 #include "yapio.h"
 #include <stdio.h>
 #include <wchar.h>
@@ -486,31 +485,6 @@ Yap_GetPredPropByAtomInThisModule(Atom at, Term cur_mod)
 }
 
 
-static inline Prop
-GetPredPropByFuncHavingLock(Functor f, Term cur_mod)
-/* get predicate entry for ap/arity; create it if neccessary.              */
-{
-  Prop p0;
-  FunctorEntry *fe = (FunctorEntry *)f;
-
-  p0 = fe->PropsOfFE;
-  while (p0) {
-    PredEntry *p = RepPredProp(p0);
-    if (/* p->KindOfPE != 0 || only props */
-	(p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
-#if THREADS
-      /* Thread Local Predicates */
-      if (p->PredFlags & ThreadLocalPredFlag) {
-	return AbsPredProp(Yap_GetThreadPred(p));
-      }
-#endif
-      return (p0);
-    }
-    p0 = p->NextOfPE;
-  }
-  return(NIL);
-}
-
 Prop
 Yap_GetPredPropByFunc(Functor f, Term cur_mod)
      /* get predicate entry for ap/arity;               */
@@ -523,30 +497,6 @@ Yap_GetPredPropByFunc(Functor f, Term cur_mod)
   return (p0);
 }
 
-static inline Prop
-GetPredPropByFuncHavingLockInThisModule(Functor f, Term cur_mod)
-/* get predicate entry for ap/arity; create it if neccessary.              */
-{
-  Prop p0;
-  FunctorEntry *fe = (FunctorEntry *)f;
-
-  p0 = fe->PropsOfFE;
-  while (p0) {
-    PredEntry *p = RepPredProp(p0);
-    if (p->ModuleOfPred == cur_mod) {
-#if THREADS
-      /* Thread Local Predicates */
-      if (p->PredFlags & ThreadLocalPredFlag) {
-	return AbsPredProp(Yap_GetThreadPred(p));
-      }
-#endif
-      return (p0);
-    }
-    p0 = p->NextOfPE;
-  }
-  return(NIL);
-}
-
 Prop
 Yap_GetPredPropByFuncInThisModule(Functor f, Term cur_mod)
      /* get predicate entry for ap/arity;               */
@@ -554,7 +504,7 @@ Yap_GetPredPropByFuncInThisModule(Functor f, Term cur_mod)
   Prop p0;
 
   READ_LOCK(f->FRWLock);
-  p0 = GetPredPropByFuncHavingLockInThisModule(f, cur_mod);
+  p0 = GetPredPropByFuncHavingLock(f, cur_mod);
   READ_UNLOCK(f->FRWLock);
   return (p0);
 }
@@ -607,11 +557,40 @@ Yap_GetExpPropHavingLock(AtomEntry *ae, unsigned int arity)
   return (p0);
 }
 
+static void
+ExpandPredHash(void)
+{
+  UInt new_size = PredHashTableSize+PredHashIncrement;
+  PredEntry **oldp = PredHash;
+  PredEntry **np = (PredEntry **) Yap_AllocAtomSpace(sizeof(PredEntry **)*new_size);
+  UInt i;
+
+  if (!np) {
+    Yap_Error(FATAL_ERROR,TermNil,"Could not allocate space for pred table");
+  }
+  for (i = 0; i < new_size; i++) {
+    np[i] = NULL;
+  }
+  for (i = 0; i < PredHashTableSize; i++) {
+    PredEntry *p = PredHash[i];
+
+    while (p) {
+      Prop nextp = p->NextOfPE;
+      UInt hsh = PRED_HASH(p->FunctorOfPred, p->ModuleOfPred, new_size);
+      p->NextOfPE = AbsPredProp(np[hsh]);
+      np[hsh] = p;
+      p = RepPredProp(nextp);
+    }
+  }
+  PredHashTableSize = new_size;
+  PredHash = np;
+  Yap_FreeAtomSpace((ADDR)oldp);
+}
+
 /* fe is supposed to be locked */
 Prop
 Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
 {
-  Prop p0;
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
   INIT_RWLOCK(p->PRWLock);
@@ -643,15 +622,39 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
   p->beamTable = NULL;
 #endif  /* BEAM */
   /* careful that they don't cross MkFunctor */
-  p->NextOfPE = fe->PropsOfFE;
   if (PRED_GOAL_EXPANSION_FUNC) {
     if (fe->PropsOfFE &&
 	(RepPredProp(fe->PropsOfFE)->PredFlags & GoalExPredFlag)) {
       p->PredFlags |= GoalExPredFlag;
     }
   }
-  fe->PropsOfFE = p0 = AbsPredProp(p);
-  p->FunctorOfPred = (Functor)fe;
+  p->FunctorOfPred = fe;
+  if (fe->PropsOfFE) {
+    UInt hsh = PRED_HASH(fe, cur_mod, PredHashTableSize);
+
+    WRITE_LOCK(PredHashRWLock);
+    if (p->ModuleOfPred == 0L) {
+      PredEntry *pe = RepPredProp(fe->PropsOfFE);
+
+      hsh = PRED_HASH(fe, pe->ModuleOfPred, PredHashTableSize);
+      /* should be the first one */
+      pe->NextOfPE = AbsPredProp(PredHash[hsh]);
+      PredHash[hsh] = pe;
+      fe->PropsOfFE = AbsPredProp(p);
+    } else {
+      p->NextOfPE = AbsPredProp(PredHash[hsh]);
+      PredHash[hsh] = p;
+    }
+    PredsInHashTable++;
+    if (10*PredsInHashTable > 6*PredHashTableSize)
+      ExpandPredHash();
+    WRITE_UNLOCK(PredHashRWLock);
+    /* make sure that we have something here */
+    RepPredProp(fe->PropsOfFE)->NextOfPE = fe->PropsOfFE;
+  } else {
+    fe->PropsOfFE = AbsPredProp(p);
+    p->NextOfPE = NIL;
+  }
   WRITE_UNLOCK(fe->FRWLock);
 #ifdef LOW_PROF
   if (ProfilerOn &&
@@ -662,7 +665,7 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
     }
   }
 #endif /* LOW_PROF */
-  return p0;
+  return AbsPredProp(p);
 }
 
 #if THREADS
@@ -785,21 +788,32 @@ Prop
 Yap_PredPropByFunctorNonThreadLocal(Functor f, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
-  Prop p0;
-  FunctorEntry *fe = (FunctorEntry *)f;
+  PredEntry *p;
 
-  WRITE_LOCK(fe->FRWLock);
-  p0 = fe->PropsOfFE;
-  while (p0) {
-    PredEntry *p = RepPredProp(p0);
-    if (/* p->KindOfPE != 0 || only props */
-	(p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
-      WRITE_UNLOCK(fe->FRWLock);
-      return (p0);
-    }
-    p0 = p->NextOfPE;
+  WRITE_LOCK(f->FRWLock);
+  if (!(p = RepPredProp(f->PropsOfFE))) 
+    return Yap_NewPredPropByFunctor(f,cur_mod);
+
+  if ((p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
+    return AbsPredProp(p);
   }
-  return Yap_NewPredPropByFunctor(fe,cur_mod);
+  if (p->NextOfPE) {
+    UInt hash = PRED_HASH(f,cur_mod,PredHashTableSize);
+    READ_LOCK(PredHashRWLock);
+    p = PredHash[hash];
+    
+    while (p) {
+      if (p->FunctorOfPred == f &&
+	  p->ModuleOfPred == cur_mod)
+	{
+	  READ_UNLOCK(PredHashRWLock);
+	  return AbsPredProp(p);
+	}
+      p = RepPredProp(p->NextOfPE);
+    }
+    READ_UNLOCK(PredHashRWLock);
+  }
+  return Yap_NewPredPropByFunctor(f,cur_mod);
 }
 
 Prop

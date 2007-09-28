@@ -1382,8 +1382,17 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
     INIT_RWLOCK(WideHashChain[i].AERWLock);
     WideHashChain[i].Entry = NIL;
   }
+  PredHash = (PredEntry **)Yap_AllocAtomSpace(sizeof(PredEntry **) * PredHashInitialSize);
+  PredHashTableSize = PredHashInitialSize;
+  if (PredHash == NULL) {
+    Yap_Error(FATAL_ERROR,MkIntTerm(0),"allocating initial predicate hash table");
+  }
+  for (i = 0; i < PredHashTableSize; ++i) {
+    PredHash[i] = NULL;
+  }
   NOfAtoms = 0;
   NOfWideAtoms = 0;
+  PredsInHashTable = 0;
 #if THREADS
   SF_STORE->AtFoundVar = Yap_LookupAtom(".");
   Yap_ReleaseAtom(AtomFoundVar);

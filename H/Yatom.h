@@ -1295,34 +1295,82 @@ Prop STD_PROTO (Yap_GetAPropHavingLock, (AtomEntry *, PropFlags));
 EXTERN inline PredEntry *STD_PROTO (Yap_GetThreadPred, (PredEntry *));
 #endif
 
-EXTERN inline Prop
-PredPropByFunc (Functor f, Term cur_mod)
-/* get predicate entry for ap/arity; create it if neccessary.              */
+typedef enum
 {
-  Prop p0;
-  FunctorEntry *fe = (FunctorEntry *) f;
+  PROLOG_MODULE = 0,
+  USER_MODULE = 1,
+  IDB_MODULE = 2,
+  ATTRIBUTES_MODULE = 3,
+  CHARSIO_MODULE = 4,
+  TERMS_MODULE = 5
+} default_modules;
 
-  WRITE_LOCK (fe->FRWLock);
-  p0 = fe->PropsOfFE;
-  while (p0)
-    {
-      PredEntry *p = RepPredProp (p0);
-      if (			/* p->KindOfPE != 0 || only props */
-	   (p->ModuleOfPred == cur_mod || !(p->ModuleOfPred)))
+#include "Heap.h"
+
+EXTERN inline UInt STD_PROTO(PRED_HASH, (FunctorEntry *, Term, UInt));
+
+EXTERN inline UInt
+PRED_HASH(FunctorEntry *fe, Term cur_mod, UInt size)
+{
+  return ((CELL)fe+cur_mod) % size;
+}
+
+EXTERN inline Prop STD_PROTO(GetPredPropByFuncHavingLock, (FunctorEntry *, Term));
+
+EXTERN inline Prop
+GetPredPropByFuncHavingLock (FunctorEntry *fe, Term cur_mod)
+{
+  PredEntry *p;
+
+  if (!(p = RepPredProp(fe->PropsOfFE))) 
+    return NIL;
+
+  if ((p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
+#if THREADS
+    /* Thread Local Predicates */
+    if (p->PredFlags & ThreadLocalPredFlag) {
+      return AbsPredProp (Yap_GetThreadPred (p));
+    }
+#endif
+    return AbsPredProp(p);
+  }
+  if (p->NextOfPE) {
+    UInt hash = PRED_HASH(fe,cur_mod,PredHashTableSize);
+    READ_LOCK(PredHashRWLock);
+    p = PredHash[hash];
+    
+    while (p) {
+      if (p->FunctorOfPred == fe &&
+	  p->ModuleOfPred == cur_mod)
 	{
 #if THREADS
 	  /* Thread Local Predicates */
-	  if (p->PredFlags & ThreadLocalPredFlag)
-	    {
-	      WRITE_UNLOCK (fe->FRWLock);
-	      return AbsPredProp (Yap_GetThreadPred (p));
-	    }
+	  if (p->PredFlags & ThreadLocalPredFlag) {
+	    return AbsPredProp (Yap_GetThreadPred (p));
+	  }
 #endif
-	  WRITE_UNLOCK (fe->FRWLock);
-	  return (p0);
+	  READ_UNLOCK(PredHashRWLock);
+	  return AbsPredProp(p);
 	}
-      p0 = p->NextOfPE;
+      p = RepPredProp(p->NextOfPE);
     }
+    READ_UNLOCK(PredHashRWLock);
+  }
+  return NIL;
+}
+
+EXTERN inline Prop
+PredPropByFunc (Functor fe, Term cur_mod)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+
+  WRITE_LOCK (fe->FRWLock);
+  p0 = GetPredPropByFuncHavingLock(fe, cur_mod);
+  if (p0) {
+    WRITE_UNLOCK (fe->FRWLock);
+    return p0;
+  }
   return Yap_NewPredPropByFunctor (fe, cur_mod);
 }
 
@@ -1357,12 +1405,3 @@ PredPropByAtom (Atom at, Term cur_mod)
   return Yap_NewPredPropByAtom (ae, cur_mod);
 }
 
-typedef enum
-{
-  PROLOG_MODULE = 0,
-  USER_MODULE = 1,
-  IDB_MODULE = 2,
-  ATTRIBUTES_MODULE = 3,
-  CHARSIO_MODULE = 4,
-  TERMS_MODULE = 5
-} default_modules;

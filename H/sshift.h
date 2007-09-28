@@ -299,6 +299,15 @@ PropAdjust (Prop p)
 
 #endif
 
+inline EXTERN PredEntry *PredEntryAdjust (PredEntry *);
+
+inline EXTERN PredEntry *
+PredEntryAdjust (PredEntry *p)
+{
+  return (PredEntry *) ((p == NULL ? (p) : (PredEntry *) (CharP (p) + HDiff)));
+}
+
+
 inline EXTERN Term AtomTermAdjust (Term);
 
 inline EXTERN Term

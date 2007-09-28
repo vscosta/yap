@@ -1281,6 +1281,41 @@ RestoreAtomList(Atom atm)
 }
 
 
+static void
+RestoreHashPreds(void)
+{
+  UInt new_size = PredHashTableSize;
+  PredEntry **oldp = (PredEntry **)AddrAdjust((ADDR)PredHash);
+  PredEntry **np = (PredEntry **) Yap_AllocAtomSpace(sizeof(PredEntry **)*new_size);
+  UInt i;
+
+  if (!np) {
+    Yap_Error(FATAL_ERROR,TermNil,"Could not allocate space for pred table");
+  }
+  for (i = 0; i < new_size; i++) {
+    np[i] = NULL;
+  }
+  for (i = 0; i < PredHashTableSize; i++) {
+    PredEntry *p = PredHash[i];
+
+    p = PredEntryAdjust(p);
+    while (p) {
+      Prop nextp = p->NextOfPE = PropAdjust(p->NextOfPE);
+      UInt hsh;
+      
+      CleanCode(p);
+      hsh = PRED_HASH(p->FunctorOfPred, p->ModuleOfPred, new_size);
+      p->NextOfPE = AbsPredProp(np[hsh]);
+      np[hsh] = p;
+      p = RepPredProp(nextp);
+    }
+  }
+  PredHashTableSize = new_size;
+  PredHash = np;
+  Yap_FreeAtomSpace((ADDR)oldp);
+}
+
+
 /*
  * This is the really tough part, to restore the whole of the heap 
  */
@@ -1302,6 +1337,7 @@ restore_heap(void)
   }
   INVISIBLECHAIN.Entry = AtomAdjust(INVISIBLECHAIN.Entry);
   RestoreAtomList(INVISIBLECHAIN.Entry);
+  RestoreHashPreds();
   RestoreForeignCodeStructure();
   RestoreIOStructures();
 }
