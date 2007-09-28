@@ -417,6 +417,17 @@ GC_NEW_MAHASH(gc_ma_hash_entry *top) {
 
 /* find all accessible objects on the heap and squeeze out all the rest */
 
+static void
+check_pr_trail(tr_fr_ptr trp)
+{
+  if ((tr_fr_ptr)Yap_TrailTop-TR < 1024) {
+    if (!Yap_growtrail(0, TRUE) || TRUE) {
+      /* could not find more trail */
+      save_machine_regs();
+      longjmp(Yap_gc_restore, 2);
+    }
+  }
+}
 
 /* push the active registers onto the trail for inclusion during gc */
 
@@ -432,10 +443,12 @@ push_registers(Int num_regs, yamop *nextop)
   TrailTerm(TR++) = GlobalArena;
   TrailTerm(TR++) = GlobalDelayArena;
   while (al) {
+    check_pr_trail(TR);
     TrailTerm(TR++) = al->ValueOfVE;
     al = al->NextAE;
   }
   while (gl) {
+    check_pr_trail(TR);
     TrailTerm(TR++) = gl->global;
     gl = gl->NextGE;
   }
@@ -445,12 +458,14 @@ push_registers(Int num_regs, yamop *nextop)
       for (i=0; i < arity; i++) {
 	Term tlive  = sal->ValueOfVE.lterms[i].tlive;
 	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
+	  check_pr_trail(TR);
 	  TrailTerm(TR++) = tlive;
 	}
       }
     }
     sal = sal->NextAE;
   }
+  check_pr_trail(TR);
   TrailTerm(TR) = GcGeneration;
   TR++;
   TrailTerm(TR) = GcPhase;
@@ -461,8 +476,10 @@ push_registers(Int num_regs, yamop *nextop)
   TrailTerm(TR+2) = DelayedVars;
   TR += 3;
 #endif
-  for (i = 1; i <= num_regs; i++)
+  for (i = 1; i <= num_regs; i++) {
+    check_pr_trail(TR);
     TrailTerm(TR++) = (CELL) XREGS[i];
+  }
   /* push any live registers we might have hanging around */
   if (nextop->opc == Yap_opcode(_move_back) ||
       nextop->opc == Yap_opcode(_skip)) {
@@ -478,6 +495,7 @@ push_registers(Int num_regs, yamop *nextop)
 	  lab++;
 	}
 	if (curr & 1) {
+	  check_pr_trail(TR);
 	  TrailTerm(TR++) = XREGS[i];
 	}
 	curr >>= 1;
@@ -3668,13 +3686,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 
   gc_phase = (UInt)IntegerOfTerm(Yap_ReadTimedVar(GcPhase));
   /* old HGEN are not very reliable, but still may have data to recover */
-#ifdef FIX
   if (gc_phase != GcCurrentPhase) {
     HGEN = H0;
   }
-#else
-  HGEN = H0;
-#endif
   /*  fprintf(stderr,"HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVar(GcGeneration)), HGEN, H,H0);*/
   OldTR = (tr_fr_ptr)(old_TR = TR);
   push_registers(predarity, nextop);
@@ -3724,10 +3738,8 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   pop_registers(predarity, nextop);
   TR = new_TR;
   /*  fprintf(Yap_stderr,"NEW HGEN %ld (%ld)\n", H-H0, HGEN-H0);*/
-#ifdef FIX
   Yap_UpdateTimedVar(GcGeneration, MkIntegerTerm(H-H0));
   Yap_UpdateTimedVar(GcPhase, MkIntegerTerm(GcCurrentPhase));
-#endif
   c_time = Yap_cputime();
   if (gc_verbose) {
     fprintf(Yap_stderr, "%%   Compress: took %g sec\n", (double)(c_time-time_start)/1000);

@@ -296,26 +296,28 @@ GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity)
 	return FALSE;
       }
       arena = XREGS[arity+1];
+      /* we don't know if the GC added junk on top of the global */
+      pt = ArenaLimit(arena);
+      return GrowArena(arena, pt, old_size, size, arity);
     }
     adjust_cps(size);
     H += size;
   } else {
     XREGS[arity+1] = arena;
-    if ((size=Yap_InsertInGlobal(pt, size*sizeof(CELL)))==0) {
-      return FALSE;
-    }
-    size = size/sizeof(CELL);
-    arena = XREGS[arity+1];
-#if 0
     /* try to recover some room  */
-    if (arena == GlobalArena) {
-      if (!Yap_gc(arity+1, ENV, P)) {
+    if (arena == GlobalArena && 10*(pt-H0) > 8*(H-H0)) {
+      if (!Yap_gcl(size*sizeof(CELL), arity+1, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	return FALSE;
       }
     }
     arena = XREGS[arity+1];
-#endif
+    pt = ArenaLimit(arena);
+    if ((size=Yap_InsertInGlobal(pt, size*sizeof(CELL)))==0) {
+      return FALSE;
+    }
+    size = size/sizeof(CELL);
+    arena = XREGS[arity+1];
   }
   CreateNewArena(ArenaPt(arena), size+old_size);
   return TRUE;
