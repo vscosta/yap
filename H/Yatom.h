@@ -1346,6 +1346,7 @@ GetPredPropByFuncHavingLock (FunctorEntry *fe, Term cur_mod)
 #if THREADS
 	  /* Thread Local Predicates */
 	  if (p->PredFlags & ThreadLocalPredFlag) {
+	    READ_UNLOCK(PredHashRWLock);
 	    return AbsPredProp (Yap_GetThreadPred (p));
 	  }
 #endif

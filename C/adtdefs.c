@@ -795,6 +795,7 @@ Yap_PredPropByFunctorNonThreadLocal(Functor f, Term cur_mod)
     return Yap_NewPredPropByFunctor(f,cur_mod);
 
   if ((p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
+    WRITE_UNLOCK(f->FRWLock);
     return AbsPredProp(p);
   }
   if (p->NextOfPE) {
@@ -807,6 +808,7 @@ Yap_PredPropByFunctorNonThreadLocal(Functor f, Term cur_mod)
 	  p->ModuleOfPred == cur_mod)
 	{
 	  READ_UNLOCK(PredHashRWLock);
+	  WRITE_UNLOCK(f->FRWLock);
 	  return AbsPredProp(p);
 	}
       p = RepPredProp(p->NextOfPE);
