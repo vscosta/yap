@@ -984,7 +984,7 @@ Yap_tokenizer(int inp_stream)
 	  Yap_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	  break;
 	}
-	if (ch > MAX_ISO_LATIN1){
+	if (!wcharp && ch > MAX_ISO_LATIN1){
 	  /* does not fit in ISO-LATIN */
 	  wcharp = ch_to_wide(TokImage, charp);
 	}
@@ -1019,7 +1019,7 @@ Yap_tokenizer(int inp_stream)
 	  if (scan_next) {
 	    ch = QuotedNxtch(inp_stream);
 	  }
-	} else if (chtype[ch] == EF) {
+	} else if (chtype[ch] == EF && ch <= MAX_ISO_LATIN1) {
 	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  t->Tok = Ord(kind = eot_tok);
 	  break;
@@ -1042,10 +1042,11 @@ Yap_tokenizer(int inp_stream)
 	  return l;
 	}
       }
-      if (wcharp) 
-	*wcharp++ = '\0';
-      else
+      if (wcharp) {
+	*wcharp = '\0';
+      }  else  {
 	*charp = '\0';
+      }
       if (quote == '"') {
 	if (wcharp) {
 	  mp = AllocScannerMemory(sizeof(wchar_t)*(len+1));

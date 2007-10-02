@@ -55,10 +55,10 @@ STATIC_PROTO(void wrputn, (Int, wrf));
 STATIC_PROTO(void wrputs, (char *, wrf));
 STATIC_PROTO(void wrputf, (Float, wrf));
 STATIC_PROTO(void wrputref, (CODEADDR, int, wrf));
-STATIC_PROTO(int legalAtom, (char *));
+STATIC_PROTO(int legalAtom, (unsigned char *));
 STATIC_PROTO(int LeftOpToProtect, (Atom, int));
 STATIC_PROTO(int RightOpToProtect, (Atom, int));
-STATIC_PROTO(wtype AtomIsSymbols, (char *));
+STATIC_PROTO(wtype AtomIsSymbols, (unsigned char *));
 STATIC_PROTO(void putAtom, (Atom, int, wrf));
 STATIC_PROTO(void writeTerm, (Term, int, int, int, struct write_globs *));
 
@@ -97,8 +97,9 @@ wrputn(Int n, wrf writewch)	/* writes an integer	 */
 static void 
 wrputs(char *s, wrf writewch)		/* writes a string	 */
 {
-  while (*s)
+  while (*s) {
     wrputc(*s++, writewch);
+  }
 }
 
 static void 
@@ -162,10 +163,11 @@ wrputref(CODEADDR ref, int Quote_illegal, wrf writewch)			/* writes a data base 
 }
 
 static int 
-legalAtom(char *s)			/* Is this a legal atom ? */
+legalAtom(unsigned char *s)			/* Is this a legal atom ? */
 	                  
 {
-  register int ch = *s;
+  wchar_t ch = *s;
+
   if (ch == '\0')
     return(FALSE);
   if (Yap_chtype[ch] != LC) {
@@ -205,7 +207,7 @@ static int RightOpToProtect(Atom at, int p)
 }
 
 static wtype 
-AtomIsSymbols(char *s)		/* Is this atom just formed by symbols ? */
+AtomIsSymbols(unsigned char *s)		/* Is this atom just formed by symbols ? */
 {
   int ch;
   if (Yap_chtype[(int)s[0]] == SL && s[1] == '\0')
@@ -221,7 +223,7 @@ static void
 putAtom(Atom atom, int Quote_illegal, wrf writewch)			/* writes an atom	 */
 	                     
 {
-  char           *s = RepAtom(atom)->StrOfAE;
+  unsigned char           *s = (unsigned char *)RepAtom(atom)->StrOfAE;
   wtype          atom_or_symbol = AtomIsSymbols(s);
 
   /* #define CRYPT_FOR_STEVE 1*/
@@ -258,7 +260,7 @@ putAtom(Atom atom, int Quote_illegal, wrf writewch)			/* writes an atom	 */
   if (!legalAtom(s) && Quote_illegal) {
     wrputc('\'', writewch);
     while (*s) {
-      int ch = *s++;
+      wchar_t ch = *s++;
       wrputc(ch, writewch);
       if (ch == '\\' && yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES)
 	wrputc('\\', writewch);	/* be careful about backslashes */
@@ -267,7 +269,7 @@ putAtom(Atom atom, int Quote_illegal, wrf writewch)			/* writes an atom	 */
     }
     wrputc('\'', writewch);
   } else {
-    wrputs(s, writewch);
+    wrputs((char *)s, writewch);
   }
 }
 
