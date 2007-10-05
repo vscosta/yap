@@ -17,6 +17,10 @@
 
 <h2>Yap-5.1.3:</h2>
 <ul>
+<li> FIXED: fix YAP_LeaveGoal() (obs from Trevor Walker).</li>
+<li> FIXED: gc generation should not be an integer: otherwise it can
+  be misled by global growth.</li>
+<li> FIXED: sub_atom 0 should work.</li>
 <li> FIXED: have has table of preds with repeated functors (obs from
   Bernd Gutmann).</li>
 <li> FIXED: major bugs in encoding support (obs from

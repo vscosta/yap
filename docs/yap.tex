@@ -9684,15 +9684,14 @@ process. An interface to the @t{getpid} function.
 Interface with @var{tmpnam}: create an unique file and unify its name
 with @var{File}.
 
-@item
-exec(+@var{Command},[+@var{InputStream},+@var{OutputStream},+@var{ErrorStream}],-@var{Status})
+@item exec(+@var{Command},[+@var{InputStream},+@var{OutputStream},+@var{ErrorStream}],-@var{PID})
 @findex  exec/3
 @syindex exec/3
 @cnindex exec/3
 Execute command @var{Command} with its streams connected to
-@var{InputStream}, @var{OutputStream}, and @var{ErrorStream}. The result
-for the command is returned in @var{Status}. The command is executed by
-the default shell @code{bin/sh -c} in Unix.
+@var{InputStream}, @var{OutputStream}, and @var{ErrorStream}. The
+process that executes the command is returned as @var{PID}. The
+command is executed by the default shell @code{bin/sh -c} in Unix.
 
 The following example demonstrates the use of @code{exec/3} to send a
 command and process its output:

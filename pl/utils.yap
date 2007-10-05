@@ -713,7 +713,7 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 	Size is Size0+1.
 	
 '$sub_atom_needs_int'(V,_) :- var(V), !.
-'$sub_atom_needs_int'(I,_) :- integer(I), I > 0, !.
+'$sub_atom_needs_int'(I,_) :- integer(I), I >= 0, !.
 '$sub_atom_needs_int'(I,ErrorTerm) :- integer(I), !,
 	'$do_error'(domain_error(not_less_than_zero,I),ErrorTerm).
 '$sub_atom_needs_int'(I,ErrorTerm) :-

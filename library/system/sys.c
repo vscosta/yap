@@ -8,8 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.32 2007-05-07 12:11:39 vsc Exp $									 *
+* $Id: sys.c,v 1.33 2007-10-05 18:24:30 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.32  2007/05/07 12:11:39  vsc
+* mods:		fix mktime fix
+* mods:		
 * mods:		Revision 1.31  2007/05/07 11:21:29  vsc
 * mods:		mktime needs to know if daylight time savings are on
 * mods:		(obs from Bernd Gutmann).
@@ -750,7 +753,7 @@ do_shell(void)
   strcpy(buf, YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1)));
   strcpy(buf, YAP_AtomName(YAP_AtomOfTerm(YAP_ARG2)));
   strcpy(buf, " ");
-  strcpy(bug, YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3)));
+  strcpy(buf, YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3)));
 #endif
   sys = system(buf);
   YAP_FreeSpaceFromYap(buf);

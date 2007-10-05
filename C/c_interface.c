@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-09-04 10:34:54 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-10-05 18:24:30 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.96  2007/09/04 10:34:54  vsc
+* Improve SWI interface emulation.
+*
 * Revision 1.95  2007/06/04 12:28:01  vsc
 * interface speedups
 * bad error message in X is foo>>2.
@@ -1273,7 +1276,7 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
   choiceptr myB;
 
   myB = (choiceptr)(LCL0-dgi->b);
-  if (B >  myB) {
+  if (B >= myB) {
     return FALSE;
   }
 #ifdef YAPOR

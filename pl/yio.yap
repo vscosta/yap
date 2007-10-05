@@ -874,6 +874,8 @@ stream_property(Stream, Props) :-
 '$check_stream_props'(Prop, [Prop]).
 
 
+%
+
 '$process_stream_properties'([], _, _, _).
 '$process_stream_properties'([file_name(F)|Props], Stream, F, Mode) :-
 	'$process_stream_properties'(Props, Stream, F, Mode).

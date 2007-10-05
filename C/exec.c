@@ -1989,14 +1989,14 @@ Yap_InitYaamRegs(void)
   /* for slots to work */
   Yap_StartSlots();
   GlobalArena = TermNil;
-#if COROUTINING
   h0var = MkVarTerm();
+#if COROUTINING
   DelayedVars = Yap_NewTimedVar(h0var);
   WokenGoals = Yap_NewTimedVar(TermNil);
   AttsMutableList = Yap_NewTimedVar(h0var);
   GlobalDelayArena = TermNil;
 #endif
-  GcGeneration = Yap_NewTimedVar(MkIntTerm(0));
+  GcGeneration = Yap_NewTimedVar(h0var);
   GcCurrentPhase = 0L;
   GcPhase = Yap_NewTimedVar(MkIntTerm(GcCurrentPhase));
 #if defined(YAPOR) || defined(THREADS)

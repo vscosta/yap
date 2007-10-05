@@ -3065,6 +3065,8 @@ compact_heap(void)
 		    , &depfr
 #endif
 		    );
+  if (GcCalls==355)
+    fprintf(stderr,"Start=%p,%p %d\n",H-1,H0,H-H0);
   for (current = H - 1; current >= start_from; current--) {
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(*current);
@@ -3491,6 +3493,10 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
       total_marked += total_oldies;
     }
   } else {
+    if (GcCalls==355) {
+      fprintf(stderr,"Start=%p,%pn %ld, %ld\n",H0,HGEN, total_oldies, total_marked);
+      
+    }
     if (HGEN != H0) {
       CurrentH0 = H0;
       H0 = HGEN;
@@ -3682,7 +3688,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   iptop = (CELL_PTR *)H;
 #endif
   /* get the number of active registers */
-  HGEN = H0+IntegerOfTerm(Yap_ReadTimedVar(GcGeneration));
+  HGEN = VarOfTerm(Yap_ReadTimedVar(GcGeneration));
 
   gc_phase = (UInt)IntegerOfTerm(Yap_ReadTimedVar(GcPhase));
   /* old HGEN are not very reliable, but still may have data to recover */
@@ -3738,7 +3744,10 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   pop_registers(predarity, nextop);
   TR = new_TR;
   /*  fprintf(Yap_stderr,"NEW HGEN %ld (%ld)\n", H-H0, HGEN-H0);*/
-  Yap_UpdateTimedVar(GcGeneration, MkIntegerTerm(H-H0));
+  {
+    Term t = MkVarTerm();
+    Yap_UpdateTimedVar(GcGeneration, t);
+  }
   Yap_UpdateTimedVar(GcPhase, MkIntegerTerm(GcCurrentPhase));
   c_time = Yap_cputime();
   if (gc_verbose) {
@@ -3830,7 +3839,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   if (gc_margin < gc_lim)
     gc_margin = gc_lim;
   GcCalls++;
-  HGEN = H0+IntegerOfTerm(Yap_ReadTimedVar(GcGeneration));
+  HGEN = VarOfTerm(Yap_ReadTimedVar(GcGeneration));
   if (gc_on && !(Yap_PrologMode & InErrorMode) &&
       /* make sure there is a point in collecting the heap */
       (ASP-H0)*sizeof(CELL) > gc_lim &&
