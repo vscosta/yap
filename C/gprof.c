@@ -11,8 +11,11 @@
 * File:		gprof.c							 *
 * comments:	Interrupt Driven Profiler				 *
 *									 *
-* Last rev:     $Date: 2007-04-10 22:13:20 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-10-08 23:02:15 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.8  2007/04/10 22:13:20  vsc
+* fix max modules limitation
+*
 * Revision 1.7  2006/08/22 16:12:45  vsc
 * global variables
 *
@@ -383,8 +386,11 @@ RBExactQuery(yamop* q) {
 
 static rb_red_blk_node*
 RBLookup(yamop *entry) {
-  rb_red_blk_node *current = ProfilerRoot->left;
+  rb_red_blk_node *current;
 
+  if (!ProfilerRoot)
+    return NULL;
+  current = ProfilerRoot->left;
   while (current != ProfilerNil) {
     if (current->key <= entry && current->lim >= entry) {
       return current;
@@ -994,7 +1000,6 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
     return;
   }
   ProfOn = TRUE;
-
   if ((node = RBLookup((yamop *)current_p))) {
     node->pcs++;
     if (Yap_OffLineProfiler) fprintf(FProf,"%p\n", node->pe);
@@ -1141,11 +1146,9 @@ profglobs(void) {
     Yap_unify(ARG6,MkIntegerTerm(ProfOns)) ;
 }
 
-static Int profinit(void)
+static Int
+do_profinit(void)
 {
-  if (ProfilerOn!=0) return (FALSE);
-  
-
   if (Yap_OffLineProfiler) {
     FPreds=fopen(profile_names(PROFPREDS_FILE),"w+"); 
     if (FPreds == NULL) return FALSE;
@@ -1153,7 +1156,7 @@ static Int profinit(void)
     if (FProf==NULL) { fclose(FPreds); return FALSE; }
 
     Yap_dump_code_area_for_profiler();
-    //  } else {
+  } else {
     if (ProfilerRoot) 
       reset_tree();
     while (!(ProfilerRoot = RBTreeCreate())) {
@@ -1163,6 +1166,16 @@ static Int profinit(void)
       }    
     }
   }
+  return TRUE;
+}
+
+static Int profinit(void)
+{
+  if (ProfilerOn!=0) return (FALSE);
+  
+  if (!do_profinit())
+    return FALSE;
+
   ProfilerOn = -1; /* Inited but not yet started */
   return(TRUE);
 }
@@ -1207,8 +1220,14 @@ static Int start_profilers(int msec)
   struct itimerval t;
   struct sigaction sa;
   
-  if (ProfilerOn!=-1) return (FALSE); /* have to go through profinit */
-
+  if (ProfilerOn!=-1) {
+    if (Yap_OffLineProfiler) {
+      return FALSE; /* have to go through profinit */
+    } else {
+      if (!do_profinit())
+	return FALSE;
+    }
+  }
   sa.sa_sigaction=prof_alrm;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags=SA_SIGINFO;
@@ -1222,7 +1241,7 @@ static Int start_profilers(int msec)
   setitimer(ITIMER_PROF,&t,NULL);
 
   ProfilerOn = msec;
-  return(TRUE);
+  return TRUE;
 }
 
 

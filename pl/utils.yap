@@ -591,6 +591,10 @@ atomic_concat(X,Y,At) :-
 	'$atom_contact_split'(At,Len2,Len,X,Y).
 
 sub_atom(At, Bef, Size, After, SubAt) :-
+	% extract something from an atom
+	atom(At), integer(Bef), integer(Size), !,
+	'$sub_atom_extract'(At, Bef, Size, After, SubAt).
+sub_atom(At, Bef, Size, After, SubAt) :-
 	atom(At), !,
 	atom_codes(At, Atl),
 	'$sub_atom2'(Bef, Atl, Size, After, SubAt, sub_atom(At, Bef, Size, After, SubAt)).

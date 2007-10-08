@@ -2879,6 +2879,16 @@ The predicate holds when at least one of the arguments is ground
 will be unified with a number and @var{L} with the list of the ASCII
 codes for the characters of the external representation of @var{A}.
 
+@item atom_number(?@var{Atom},?@var{Number}) [ISO]
+@findex atom_number/2
+@syindex atom_number/2
+@cnindex atom_number/2
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). If the argument
+@var{Atom} is an atom, @var{Number} must be the number corresponding
+to the characters in @var{Atom}, otherwise the characters in
+@var{Atom} must encode a number @var{Number}.
+
 @item number_atom(?@var{I},?@var{L})
 @findex number_atom/2
 @snindex number_atom/2
@@ -6289,7 +6299,8 @@ The following procedures are available:
 @findex profinit/0
 @snindex profinit/0
 @cnindex profinit/0
-Initialise the data-structures for the profiler.
+Initialise the data-structures for the profiler. Unnecessary for
+dynamic profiler.
 
 @item profon
 @findex profon/0

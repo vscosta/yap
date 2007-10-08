@@ -492,8 +492,9 @@ debugging :-
 	repeat,
 	'$trace_msg'(P,G,Module,L,Deterministic),
 	( 
-	  '$unleashed'(P),
-	  '$action'(10,P,L,G,Module,Debug)
+	  '$unleashed'(P) ->
+	  '$action'(10,P,L,G,Module,Debug),
+	  put_code(user_error, 10)
 	  ;
 	  write(user_error,' ? '), get0(user_input,C),
 	  '$action'(C,P,L,G,Module,Debug)

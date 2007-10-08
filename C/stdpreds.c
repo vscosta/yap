@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2007-04-18 23:01:16 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-10-08 23:02:15 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.119  2007/04/18 23:01:16  vsc
+* fix deadlock when trying to create a module with the same name as a
+* predicate (for now, just don't lock modules). obs Paulo Moura.
+*
 * Revision 1.118  2007/02/26 10:41:40  vsc
 * fix prolog_flags for chr.
 *
@@ -2122,6 +2126,74 @@ p_number_codes(void)
 }
 
 static Int 
+p_atom_number(void)
+{
+  Term   t = Deref(ARG1), t2 = Deref(ARG2);
+  Term NewT;
+
+  if (IsVarTerm(t)) {
+    char   *String; /* alloc temp space on Trail */
+    char  *s;
+    if (IsVarTerm(t2)) {
+      Yap_Error(INSTANTIATION_ERROR, t2, "atom_number/2");
+      return FALSE;
+    }
+    String = Yap_PreAllocCodeSpace();
+    if (String+1024 > (char *)AuxSp) {
+      s = String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+      if (String + 1024 > (char *)AuxSp) {
+	/* crash in flames */
+	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in number_codes/2");
+	return FALSE;
+      }
+    }
+    if (IsIntTerm(t2)) {
+#if SHORT_INTS
+      sprintf(String, "%ld", IntOfTerm(t2));
+#else
+      sprintf(String, "%d", IntOfTerm(t2));
+#endif
+    } else if (IsFloatTerm(t2)) {
+      sprintf(String, "%g", FloatOfTerm(t2));
+    } else if (IsLongIntTerm(t2)) {
+#if SHORT_INTS
+      sprintf(String, "%ld", LongIntOfTerm(t2));
+#else
+      sprintf(String, "%d", LongIntOfTerm(t2));
+#endif
+#if USE_GMP
+    } else if (IsBigIntTerm(t2)) {
+      mpz_get_str(String, 10, Yap_BigIntOfTerm(t2));
+#endif
+    } else {
+      Yap_Error(TYPE_ERROR_NUMBER, t2, "atom_number/2");
+      return FALSE;
+    }
+    NewT = MkAtomTerm(Yap_LookupAtom(String));
+    return Yap_unify(NewT, ARG1);
+  } else {
+    Atom at;
+    char *s;
+    
+    if (!IsAtomTerm(t)) {
+      Yap_Error(TYPE_ERROR_ATOM, t, "atom_number/2");
+      return FALSE;
+    }
+    at = AtomOfTerm(t);
+    if (IsWideAtom(at)) {
+      Yap_Error(SYNTAX_ERROR, gen_syntax_error("number_codes"), "while scanning %S", RepAtom(at)->WStrOfAE);
+      return FALSE;
+    }
+    s = RepAtom(at)->StrOfAE; /* alloc temp space on Trail */
+    if ((NewT = get_num(s)) == TermNil) {
+      Yap_Error(SYNTAX_ERROR, gen_syntax_error("atom_number"), "while scanning %s", s);
+      return FALSE;
+    }
+    return Yap_unify(ARG2, NewT);
+  }
+}
+
+static Int 
 p_univ(void)
 {				/* A =.. L			 */
   unsigned int    arity;
@@ -2275,6 +2347,78 @@ p_univ(void)
   twork = MkPairTerm(MkAtomTerm(at), twork);
   return (Yap_unify(ARG2, twork));
 }
+
+/* $sub_atom_extract(A,Bef,Size,After,SubAt).*/
+static Int
+p_sub_atom_extract(void)
+{
+  Atom at = AtomOfTerm(Deref(ARG1)), nat;
+  Int start = IntegerOfTerm(Deref(ARG2));
+  Int len = IntegerOfTerm(Deref(ARG3));
+  Int leftover;
+
+  if (start < 0)
+    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,ARG2,"sub_atom/5");
+  if (len < 0)
+    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,ARG3,"sub_atom/5");
+ start:
+  if (IsWideAtom(at)) {
+    wchar_t *s = RepAtom(at)->WStrOfAE;
+    int max = wcslen(s);
+    Int i;
+
+    leftover = max-(start+len);
+    if (leftover < 0)
+      return FALSE;
+    for (i=0;i<len;i++) {
+      if ((s+start)[i] > 255) break;
+    }
+    if (i == len) {
+      char *String = Yap_PreAllocCodeSpace();
+      if (String + (len+1024) >= (char *)AuxSp) 
+	goto expand_auxsp;
+      for (i=0;i<len;i++) {
+	String[i] = (s+start)[i];
+      }
+      String[len] = '\0';
+      nat = Yap_LookupAtom(String);    
+    } else {
+      wchar_t *String = (wchar_t *)Yap_PreAllocCodeSpace();
+      if (String + (len+1024) >= (wchar_t *)AuxSp) 
+	goto expand_auxsp;
+      wcsncpy(String, s+start, len);
+      String[len] = '\0';
+      nat = Yap_LookupWideAtom(String);    
+    }
+  } else {
+    char *s = RepAtom(at)->StrOfAE, *String;
+    int max = strlen(s);
+
+    leftover = max-(start+len);
+    if (leftover < 0)
+      return FALSE;
+    String = Yap_PreAllocCodeSpace();
+    if (String + (len+1024) >= (char *)AuxSp) 
+      goto expand_auxsp;
+    strncpy(String, s+start, len);
+    String[len] = '\0';
+    nat = Yap_LookupAtom(String);
+  }
+  return Yap_unify(ARG5,MkAtomTerm(nat)) &&
+    Yap_unify(ARG4,MkIntegerTerm(leftover));
+
+ expand_auxsp:
+  {
+    char *String = Yap_ExpandPreAllocCodeSpace(len,NULL);
+    if (String + 1024 > (char *)AuxSp) {
+      /* crash in flames */
+      Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in sub_atom/5");
+      return FALSE;
+    }
+  }
+  goto start;
+}
+
 
 static Int 
 p_abort(void)
@@ -3654,9 +3798,11 @@ Yap_InitCPreds(void)
   Yap_InitCPred("atom_codes", 2, p_atom_codes, 0);
   Yap_InitCPred("atom_length", 2, p_atom_length, SafePredFlag);
   Yap_InitCPred("$atom_split", 4, p_atom_split, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$sub_atom_extract", 5, p_sub_atom_extract, HiddenPredFlag);
   Yap_InitCPred("number_chars", 2, p_number_chars, 0);
   Yap_InitCPred("number_atom", 2, p_number_atom, 0);
   Yap_InitCPred("number_codes", 2, p_number_codes, 0);
+  Yap_InitCPred("atom_number", 2, p_atom_number, 0);
   Yap_InitCPred("atom_concat", 2, p_atom_concat, 0);
   Yap_InitCPred("atomic_concat", 2, p_atomic_concat, 0);
   Yap_InitCPred("=..", 2, p_univ, 0);
