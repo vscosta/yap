@@ -619,14 +619,6 @@ then
   CC=${OLD_CC}
 fi
 
-# LAM
-OLD_CC=${CC}	
-CC=${LAM_MPI_CC}
-AC_CHECK_LIB([lam], [main],
-	LAMOBJS=yap_mpi@SHLIB_SUFFIX@,
-	LAMOBJS=no)
-CC=${OLD_CC}
-
 AC_PROG_CPP
 
 if test "$cross_compiling" = "yes"
@@ -944,6 +936,14 @@ if test "$tabling" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
 fi
+
+# LAM
+OLD_CC=${CC}	
+CC=${LAM_MPI_CC}
+AC_CHECK_LIB([lam], [main],
+	LAMOBJS=yap_mpi"$SHLIB_SUFFIX",
+	LAMOBJS=no)
+CC=${OLD_CC}
 
 dnl Checks for header files.
 AC_HEADER_STDC
