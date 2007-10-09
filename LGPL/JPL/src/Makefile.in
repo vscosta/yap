@@ -23,7 +23,7 @@ LIBDIR=$(EROOTDIR)/lib/Yap
 #
 #
 CC=@CC@
-CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../../.. -I$(srcdir)/../../../include $(JVM_INC) -DIN_YAP=1 -DJAVA_HOME=\"$(JAVA_HOME)\"
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../../.. -I$(srcdir)/../../../include $(JVM_INC) -DJAVA_HOME=\"$(JAVA_HOME)\"
 #
 #
 # You shouldn't need to change what follows.

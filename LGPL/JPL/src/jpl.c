@@ -1,4 +1,4 @@
-/*	$Id: jpl.c,v 1.13 2007-09-27 15:25:33 vsc Exp $
+/*	$Id: jpl.c,v 1.14 2007-10-09 11:43:43 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -1910,7 +1910,7 @@ jni_ensure_jvm_plc(void)
 
 
 
-#if IN_YAP
+#if __YAP_PROLOG__
 #include "hacks.c"
 #endif
 

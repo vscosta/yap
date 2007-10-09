@@ -26,6 +26,8 @@
 
 #define _yap_c_interface_h 1
 
+#define __YAP_PROLOG__ 1
+
 #include "yap_structs.h"
 
 #if HAVE_STDARG_H

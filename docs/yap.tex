@@ -6822,6 +6822,11 @@ it is bound to @code{off} disable debugging.
 If bound, set the argument to the @code{write_term/3} options the
 debugger uses to write terms. If unbound, show the current options.
 
+@item dialect
+@findex dialect (yap_flag/2 option)
+@*
+Read-only flag that always returns @code{yap}.
+
 @item discontiguous_warnings
 @findex discontiguous_warnings (yap_flag/2 option)
 @*
@@ -7175,8 +7180,15 @@ corresponding to the Unix @code{stdout} stream.
 
 @item version
 @findex version (yap_flag/2 option)
-@*
-Read-only flag that giving the current version of YAP.
+@* Read-only flag that returns an atom with the current version of
+YAP.
+
+@item version_data
+@findex version_data (yap_flag/2 option)
+@* Read-only flag that reads a term of the form
+@code{yap}(@var{Major},@var{Minor},@var{Patch},@var{Undefined}), where
+@var{Major} is the major version, @var{Minor} is the minor version,
+and @var{Patch} is the patch number.
 
 @item  windows
 @findex windoes (yap_flag/2 option)

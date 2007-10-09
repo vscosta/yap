@@ -315,6 +315,27 @@ yap_flag(version,X) :-
 yap_flag(version,X) :-
 	'$do_error'(permission_error(modify,flag,version),yap_flag(version,X)).
 
+yap_flag(version_data,X) :-
+	var(X), !,
+	'$get_version_codes(Major,Minor,Patch),
+	X = yap(Major, Minor, Patch, _).
+yap_flag(version_data,X) :-
+	'$do_error'(permission_error(modify,flag,version),yap_flag(version_data,X)).
+
+'$get_version_codes(Major,Minor,Patch) :-
+	get_value('$version_name',X),
+	atom_codes(X,[0'Y,0'a,0'p,0'-|VersionTag]),
+	'$fetch_num_code'(VersionTag,0,Major,L1),
+	'$fetch_num_code'(L1,0,Minor,L2),
+	'$fetch_num_code'(L2,0,Patch,[]).
+
+'$fetch_num_code'([],Code,Code,[]).
+'$fetch_num_code'([C|Cs],Code0,CodeF,L) :-
+        C >= 0'0, C =< 0'9, !,
+	CodeI is Code0*10+(C-0'0),
+	'$fetch_num_code'(Cs,CodeI,CodeF,L).
+'$fetch_num_code'([_|Cs],Code,Code,Cs).
+
 yap_flag(max_integer,X) :-
 	var(X), !,
 	'$access_yap_flags'(0, 1),
@@ -684,6 +705,8 @@ yap_flag(max_threads,X) :-
 yap_flag(max_threads,X) :-
 	'$do_error'(domain_error(flag_value,max_threads+X),yap_flag(max_threads,X)).
 
+yap_flag(dialect,yap).
+
 '$show_yap_flag_opts'(V,Out) :-
 	(
 	    V = answer_format ;
@@ -694,6 +717,7 @@ yap_flag(max_threads,X) :-
             V = chr_toplevel_show_store ;
 	    V = debug ;
 	    V = debugger_print_options ;
+	    V = dialect ;
 	    V = discontiguous_warnings ;
 	    V = dollar_as_lower_case ;
 	    V = double_quotes ;
@@ -740,6 +764,7 @@ yap_flag(max_threads,X) :-
             V = user_output ;
             V = verbose_auto_load ;
             V = version ;
+            V = version_data ;
 	    V = windows ;
             V = write_strings
 	),
