@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2007-10-08 23:02:15 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-10-10 09:44:24 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.120  2007/10/08 23:02:15  vsc
+* minor fixes
+*
 * Revision 1.119  2007/04/18 23:01:16  vsc
 * fix deadlock when trying to create a module with the same name as a
 * predicate (for now, just don't lock modules). obs Paulo Moura.
@@ -3944,9 +3947,14 @@ Yap_InitCPreds(void)
   init_sys();
   init_random();
   //  init_tries();
-  swi_install();
   init_regexp();
 #endif
+  {
+    Term cm = CurrentModule;
+    CurrentModule = SWI_MODULE;
+    swi_install();
+    CurrentModule = cm;
+  }
 }
 
 

@@ -291,7 +291,9 @@ true :- true.
  '$execute_command'(end_of_file,_,_,_) :- !.
  '$execute_command'((:-G),_,Option,_) :- !,
 	 '$current_module'(M),
-	 '$process_directive'(G, Option, M),
+	 % allow user expansion
+	 '$precompile_term'((:- G), _, (:- G1), M),
+	 '$process_directive'(G1, Option, M),
 	 fail.
  '$execute_command'((?-G),V,_,Source) :- !,
 	 '$execute_command'(G,V,top,Source).

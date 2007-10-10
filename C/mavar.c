@@ -32,11 +32,19 @@ STD_PROTO(static Int p_is_mutable, (void));
 static Int
 p_setarg(void)
 {
-  CELL ti = Deref(ARG1), ts = Deref(ARG2);
+  CELL ti = Deref(ARG1), ts = Deref(ARG2), t3 = Deref(ARG3);
   Int i;
+
+  if (IsVarTerm(t3) &&
+      VarOfTerm(t3) > H &&VarOfTerm(t3) < ASP) {
+    /* local variable */
+    Term tn = MkVarTerm();
+    Bind_Local(VarOfTerm(t3), tn);
+    t3 = tn;
+  }
   if (IsVarTerm(ti)) {
     Yap_Error(INSTANTIATION_ERROR,ti,"setarg/3");
-    return(FALSE);
+    return FALSE;
   } else {
     if (IsIntTerm(ti))
       i = IntOfTerm(ti);
@@ -46,7 +54,7 @@ p_setarg(void)
 	i = v.Int;
       } else {
 	Yap_Error(TYPE_ERROR_INTEGER,ti,"setarg/3");
-	return(FALSE);
+	return FALSE;
       }
     }
   }
@@ -56,34 +64,34 @@ p_setarg(void)
     CELL *pt;
     if (IsExtensionFunctor(FunctorOfTerm(ts))) {
       Yap_Error(TYPE_ERROR_COMPOUND,ts,"setarg/3");
-      return(FALSE);
+      return FALSE;
     }
     if (i < 1 || i > (Int)ArityOfFunctor(FunctorOfTerm(ts))) {
       if (i<0)
 	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,ts,"setarg/3");
-      return(FALSE);
+      return FALSE;
       if (i==0)
 	Yap_Error(DOMAIN_ERROR_NOT_ZERO,ts,"setarg/3");
-      return(FALSE);
+      return FALSE;
     }
     pt = RepAppl(ts)+i;
     /* the evil deed is to be done now */
-    MaBind(pt, Deref(ARG3));
+    MaBind(pt, t3);
   } else if(IsPairTerm(ts)) {
     CELL *pt;
     if (i < 1 || i > 2) {
       if (i<0)
 	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,ts,"setarg/3");
-      return(FALSE);
+      return FALSE;
     }
     pt = RepPair(ts)+i-1;
     /* the evil deed is to be done now */
-    MaBind(pt, Deref(ARG3));    
+    MaBind(pt, t3);    
   } else {
     Yap_Error(TYPE_ERROR_COMPOUND,ts,"setarg/3");
-    return(FALSE);
+    return FALSE;
   }
-  return(TRUE);
+  return TRUE;
 }
 
 

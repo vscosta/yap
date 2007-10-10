@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2007-09-28 23:18:17 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-10-10 09:44:24 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.76  2007/09/28 23:18:17  vsc
+* handle learning from interpretations.
+*
 * Revision 1.75  2007/04/10 22:13:21  vsc
 * fix max modules limitation
 *
@@ -690,6 +693,7 @@ restore_codes(void)
   Yap_heap_regs->system_module = AtomTermAdjust(Yap_heap_regs->system_module);
   Yap_heap_regs->readutil_module = AtomTermAdjust(Yap_heap_regs->readutil_module);
   Yap_heap_regs->globals_module = AtomTermAdjust(Yap_heap_regs->globals_module);
+  Yap_heap_regs->swi_module = AtomTermAdjust(Yap_heap_regs->swi_module);
   if (Yap_heap_regs->file_aliases != NULL) {
     Yap_heap_regs->yap_streams =
       (struct stream_desc *)AddrAdjust((ADDR)Yap_heap_regs->yap_streams);

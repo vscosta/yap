@@ -747,10 +747,10 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$extend_pathd'(Dir, D, File, Opts, NewFile, Call).
 
 
-'$extend_pathd'(Dir, A, File, Opts, NFile, Call) :-
+'$extend_pathd'(Dir, A, File, Opts, NewFile, Call) :-
 	atom(Dir), !,
 	atom_concat([Dir,A,File],NFile),
-	'$search_in_path'(NFile, Opts, NewFile), !.
+	'$find_in_path'(NFile, Opts, NewFile, Goal), !.
 '$extend_pathd'(Name, A, File, Opts, OFile, Goal) :-
 	nonvar(Name),
 	Name =.. [N,P0],
