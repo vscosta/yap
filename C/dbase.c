@@ -2630,9 +2630,9 @@ new_lu_int_key(Int key)
       return NULL;
     }
   }
-  fe = Yap_MkFunctor(Yap_FullLookupAtom("$integer"),3);
+  fe = (Functor)Yap_FullLookupAtom("$integer");
   WRITE_LOCK(fe->FRWLock);
-  p0 = Yap_NewPredPropByFunctor(fe,IDB_MODULE);
+  p0 = Yap_NewPredPropByAtom(fe,IDB_MODULE);
   p = RepPredProp(p0);
   p->NextOfPE = INT_LU_KEYS[hash_key];
   p->src.IndxId = key;
