@@ -2631,7 +2631,7 @@ new_lu_int_key(Int key)
     }
   }
   ae = Yap_FullLookupAtom("$integer");
-  WRITE_LOCK(fe->FRWLock);
+  WRITE_LOCK(ae->ARWLock);
   p0 = Yap_NewPredPropByAtom(ae,IDB_MODULE);
   p = RepPredProp(p0);
   p->NextOfPE = INT_LU_KEYS[hash_key];
