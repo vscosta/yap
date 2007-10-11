@@ -3065,8 +3065,6 @@ compact_heap(void)
 		    , &depfr
 #endif
 		    );
-  if (GcCalls==355)
-    fprintf(stderr,"Start=%p,%p %d\n",H-1,H0,H-H0);
   for (current = H - 1; current >= start_from; current--) {
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(*current);

@@ -2619,7 +2619,7 @@ new_lu_int_key(Int key)
   UInt hash_key = (CELL)key % INT_KEYS_SIZE;
   PredEntry *p;
   Prop p0;
-  Functor fe;
+  Atom ae;
   
   if (INT_LU_KEYS == NULL) {
     init_int_lu_keys();
@@ -2630,9 +2630,9 @@ new_lu_int_key(Int key)
       return NULL;
     }
   }
-  fe = (Functor)Yap_FullLookupAtom("$integer");
+  ae = Yap_FullLookupAtom("$integer");
   WRITE_LOCK(fe->FRWLock);
-  p0 = Yap_NewPredPropByAtom(fe,IDB_MODULE);
+  p0 = Yap_NewPredPropByAtom(ae,IDB_MODULE);
   p = RepPredProp(p0);
   p->NextOfPE = INT_LU_KEYS[hash_key];
   p->src.IndxId = key;

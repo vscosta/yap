@@ -212,7 +212,7 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
       *ptf++ = (CELL) ptd0;
     } else {
 #if COROUTINING
-      if (IsAttachedTerm((CELL)ptd0)) {
+      if (newattvs && IsAttachedTerm((CELL)ptd0)) {
 	/* if unbound, call the standard copy term routine */
 	struct cp_frame *bp[1];
 
