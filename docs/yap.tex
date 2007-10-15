@@ -13843,7 +13843,8 @@ be be found.
 @findex YAP_LeaveGoal/2
 Exit a query query created by @code{YAP_EnterGoal}. If
 @code{backtrack} is @code{TRUE}, variable bindings are undone and Heap
-space is recovered.  Otherwise, stack space is recovered.
+space is recovered.  Otherwise, only stack space is recovered, ie,
+@code{LeaveGoal} executes a cut.
 
 Next, follows an example of how to use @code{YAP_EnterGoal}:
 @example

@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-10-05 18:24:30 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-10-15 23:48:46 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.97  2007/10/05 18:24:30  vsc
+* fix garbage collector and fix LeaveGoal
+*
 * Revision 1.96  2007/09/04 10:34:54  vsc
 * Improve SWI interface emulation.
 *
@@ -1220,6 +1223,7 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
 {
   UInt i;
   choiceptr myB;
+  int out;
 
   BACKUP_MACHINE_REGS();
   dgi->p = P;
@@ -1249,9 +1253,12 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
 #if defined(YAPOR) || defined(THREADS)
   WPP = NULL;
 #endif
-  YENV[E_CB] = Unsigned (B);
   ASP = YENV = (CELL *)B;
-  return run_emulator(dgi);
+  YENV[E_CB] = Unsigned (B);
+  fprintf(stderr,"%p--%p\n",B,myB);
+  out = run_emulator(dgi);
+  RECOVER_MACHINE_REGS();
+  return out;
 }
 
 X_API int
