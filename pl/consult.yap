@@ -343,7 +343,7 @@ use_module(M,F,Is) :-
 
 '$do_startup_reconsult'(X) :-
 	( '$access_yap_flags'(15, 0) ->
-	  '$system_catch'(load_files(X, []),Module,Error,'$Error'(Error))
+	  '$system_catch'(load_files(X, [silent(true)]),Module,Error,'$Error'(Error))
 	;
 	  set_value('$verbose',off),
 	  '$system_catch'(load_files(X, [silent(true),skip_unix_comments]),Module,_,fail)

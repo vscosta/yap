@@ -1,9 +1,9 @@
-/*  $Id: chr_compiler_options.pl,v 1.1 2005-10-28 17:41:30 vsc Exp $
+/*  $Id: chr_compiler_options.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
     Author:        Tom Schrijvers
-    E-mail:        Tom.Schrijvers@cs.kuleuven.ac.be
+    E-mail:        Tom.Schrijvers@cs.kuleuven.be
     WWW:           http://www.swi-prolog.org
     Copyright (C): 2005-2006, K.U. Leuven
 
@@ -34,22 +34,29 @@
 	, chr_pp_flag/2
 	]).
 	
+%% SICStus begin
+%% :- use_module(hprolog, [nb_setval/2,nb_getval/2]).
+%% local_current_prolog_flag(_,_) :- fail.
+%% SICStus end
+
+%% SWI begin
+local_current_prolog_flag(X,Y) :- current_prolog_flag(X,Y).
+%% SWI end
+
+
+:- use_module(chr_compiler_errors).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Global Options
 %
 
-handle_option(Var,Value) :- 
-	var(Var), !,
-	format('CHR compiler ERROR: ~w.\n',[option(Var,Value)]),
-	format('    `--> First argument should be an atom, not a variable.\n',[]),
-	fail.
+handle_option(Name,Value) :- 
+	var(Name), !,
+	chr_error(syntax((:- chr_option(Name,Value))),'First argument should be an atom, not a variable.\n',[]).
 
 handle_option(Name,Value) :- 
 	var(Value), !,
-	format('CHR compiler ERROR: ~w.\n',[option(Name,Value)]),
-	format('    `--> Second argument should be a nonvariable.\n',[]),
-	fail.
+	chr_error(syntax((:- chr_option(Name,Value))),'Second argument cannot be a variable.\n',[]).
 
 handle_option(Name,Value) :-
 	option_definition(Name,Value,Flags),
@@ -58,30 +65,28 @@ handle_option(Name,Value) :-
 
 handle_option(Name,Value) :- 
 	\+ option_definition(Name,_,_), !,
-	setof(N,_V ^ _F ^ (option_definition(N,_V,_F)),Ns),
-	format('CHR compiler WARNING: ~w.\n',[option(Name,Value)]),
-	format('    `--> Invalid option name ~w: should be one of ~w.\n',[Name,Ns]).
+	chr_error(syntax((:- chr_option(Name,Value))),'Invalid option name ~w: consult the manual for valid options.\n',[Name]).
 
 handle_option(Name,Value) :- 
-	findall(V,option_definition(Name,V,_),Vs), 
-	format('CHR compiler ERROR: ~w.\n',[option(Name,Value)]),
-	format('    `--> Invalid value ~w: should be one of ~w.\n',[Value,Vs]),
-	fail.
+	chr_error(syntax((:- chr_option(Name,Value))),'Invalid option value ~w: consult the manual for valid option values.\n',[Value]).
 
 option_definition(optimize,experimental,Flags) :-
 	Flags = [ functional_dependency_analysis  - on,
-                  check_unnecessary_active - off,
+                  check_unnecessary_active - full,
 		  reorder_heads		   - on,
-		  set_semantics_rule	   - off,
+		  set_semantics_rule	   - on,
 		  storage_analysis	   - on,
 		  guard_via_reschedule     - on,
 		  guard_simplification	   - on,
 		  check_impossible_rules   - on,
 		  occurrence_subsumption   - on,
-		  observation		   - on,
+		  observation_analysis	   - on,
 		  ai_observation_analysis  - on,
 		  late_allocation	   - on,
-		  reduced_indexing	   - on
+		  reduced_indexing	   - on,
+		  term_indexing		   - on,
+                  inline_insertremove      - on,
+		  mixed_stores		   - on
 		].
 option_definition(optimize,full,Flags) :-
 	Flags = [ functional_dependency_analysis  - on,
@@ -93,26 +98,12 @@ option_definition(optimize,full,Flags) :-
 		  guard_simplification	   - on,
 		  check_impossible_rules   - on,
 		  occurrence_subsumption   - on,
-		  observation		   - on,
+		  observation_analysis	   - on,
 		  ai_observation_analysis  - on,
 		  late_allocation	   - on,
-		  reduced_indexing	   - on
-		].
-
-option_definition(optimize,sicstus,Flags) :-
-	Flags = [ functional_dependency_analysis  - off,
-                  check_unnecessary_active - simplification,
-		  reorder_heads		   - off,
-		  set_semantics_rule	   - off,
-		  storage_analysis	   - off,
-		  guard_via_reschedule     - off,
-		  guard_simplification	   - off,
-		  check_impossible_rules   - off,
-		  occurrence_subsumption   - off,
-		  observation		   - off,
-		  ai_observation_analysis	   - off,
-		  late_allocation	   - off,
-		  reduced_indexing	   - off
+		  reduced_indexing	   - on,
+                  inline_insertremove      - on,
+		  mixed_stores		   - off
 		].
 
 option_definition(optimize,off,Flags) :-
@@ -125,8 +116,8 @@ option_definition(optimize,off,Flags) :-
 		  guard_simplification	   - off,
 		  check_impossible_rules   - off,
 		  occurrence_subsumption   - off,
-		  observation		   - off,
-		  ai_observation_analysis	   - off,
+		  observation_analysis     - off,
+		  ai_observation_analysis  - off,
 		  late_allocation	   - off,
 		  reduced_indexing	   - off
 		].
@@ -183,6 +174,11 @@ option_definition(late_allocation,on,Flags) :-
 option_definition(late_allocation,off,Flags) :-
 	Flags = [ late_allocation - off ].
 
+option_definition(inline_insertremove,on,Flags) :-
+	Flags = [ inline_insertremove - on ].
+option_definition(inline_insertremove,off,Flags) :-
+	Flags = [ inline_insertremove - off ].
+
 option_definition(type_definition,TypeDef,[]) :-
 	( nonvar(TypeDef) ->
 	TypeDef = type(T,D),
@@ -205,9 +201,16 @@ option_definition(store,FA-Store,[]) :-
 	chr_translate:store_type(FA,Store).
 
 option_definition(debug,off,Flags) :-
-	Flags = [ debugable - off ].
+        option_definition(optimize,full,Flags2),
+        Flags = [ debugable - off | Flags2].
 option_definition(debug,on,Flags) :-
-	Flags = [ debugable - on ].
+	( local_current_prolog_flag(generate_debug_info,false) ->
+		% TODO: should not be allowed when nodebug flag is set in SWI-Prolog
+		chr_warning(any,':- chr_option(debug,on) inconsistent with current_prolog_flag(generate_debug_info,off\n\tCHR option is ignored!\n)',[]),
+		Flags = []
+	;
+       		Flags = [ debugable - on ]
+	).
 
 option_definition(store_counter,off,[]).
 option_definition(store_counter,on,[store_counter-on]).
@@ -235,8 +238,47 @@ option_definition(observation,ai,Flags) :-
 			ai_observation_analysis - on
 		].
 
+option_definition(store_in_guards, on, [store_in_guards - on]).
+option_definition(store_in_guards, off, [store_in_guards - off]).
+
 option_definition(solver_events,NMod,Flags) :-
 	Flags =	[solver_events - NMod].
+
+option_definition(toplevel_show_store,on,Flags) :-
+	Flags = [toplevel_show_store - on].
+
+option_definition(toplevel_show_store,off,Flags) :-
+	Flags = [toplevel_show_store - off].
+
+option_definition(term_indexing,on,Flags) :-
+	Flags = [term_indexing - on].
+option_definition(term_indexing,off,Flags) :-
+	Flags = [term_indexing - off].
+
+option_definition(verbosity,on,Flags) :-
+	Flags = [verbosity - on].
+option_definition(verbosity,off,Flags) :-
+	Flags = [verbosity - off].
+
+option_definition(ht_removal,on,Flags) :-
+	Flags = [ht_removal - on].
+option_definition(ht_removal,off,Flags) :-
+	Flags = [ht_removal - off].
+
+option_definition(mixed_stores,on,Flags) :-
+	Flags = [mixed_stores - on].
+option_definition(mixed_stores,off,Flags) :-
+	Flags = [mixed_stores - off].	
+
+option_definition(line_numbers,on,Flags) :-
+	Flags = [line_numbers - on].
+option_definition(line_numbers,off,Flags) :-
+	Flags = [line_numbers - off].
+
+option_definition(dynattr,on,Flags) :-
+	Flags = [dynattr - on].
+option_definition(dynattr,off,Flags) :-
+	Flags = [dynattr - off].
 
 init_chr_pp_flags :-
 	chr_pp_flag_definition(Name,[DefaultValue|_]),
@@ -264,6 +306,7 @@ chr_pp_flag_definition(debugable,[on,off]).
 chr_pp_flag_definition(reduced_indexing,[off,on]).
 chr_pp_flag_definition(observation_analysis,[off,on]).
 chr_pp_flag_definition(ai_observation_analysis,[off,on]).
+chr_pp_flag_definition(store_in_guards,[off,on]).
 chr_pp_flag_definition(late_allocation,[off,on]).
 chr_pp_flag_definition(store_counter,[off,on]).
 chr_pp_flag_definition(guard_simplification,[off,on]).
@@ -271,7 +314,15 @@ chr_pp_flag_definition(check_impossible_rules,[off,on]).
 chr_pp_flag_definition(occurrence_subsumption,[off,on]).
 chr_pp_flag_definition(observation,[off,on]).
 chr_pp_flag_definition(show,[off,on]).
+chr_pp_flag_definition(inline_insertremove,[on,off]).
 chr_pp_flag_definition(solver_events,[none,_]).
+chr_pp_flag_definition(toplevel_show_store,[on,off]).
+chr_pp_flag_definition(term_indexing,[off,on]).
+chr_pp_flag_definition(verbosity,[on,off]).
+chr_pp_flag_definition(ht_removal,[off,on]).
+chr_pp_flag_definition(mixed_stores,[off,on]).
+chr_pp_flag_definition(line_numbers,[off,on]).
+chr_pp_flag_definition(dynattr,[off,on]).
 
 chr_pp_flag(Name,Value) :-
 	atom_concat('$chr_pp_',Name,GlobalVar),
@@ -281,4 +332,16 @@ chr_pp_flag(Name,Value) :-
 	;
 		V = Value
 	).
+	
+
+% TODO: add whatever goes wrong with (debug,on), (optimize,full) combo here!
+% trivial example of what does go wrong:
+%	b <=> true.
+% !!!
+sanity_check :-
+	chr_pp_flag(store_in_guards, on),
+	chr_pp_flag(ai_observation_analysis, on),
+	chr_warning(any, 'ai_observation_analysis should be turned off when using store_in_guards\n', []),
+	fail.
+sanity_check.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

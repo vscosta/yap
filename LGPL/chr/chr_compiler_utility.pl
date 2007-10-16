@@ -1,9 +1,9 @@
-/*  $Id: chr_compiler_utility.pl,v 1.1 2005-10-28 17:41:30 vsc Exp $
+/*  $Id: chr_compiler_utility.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
     Author:        Tom Schrijvers
-    E-mail:        Tom.Schrijvers@cs.kuleuven.ac.be
+    E-mail:        Tom.Schrijvers@cs.kuleuven.be
     WWW:           http://www.swi-prolog.org
     Copyright (C): 2005-2006, K.U. Leuven
 
@@ -40,19 +40,28 @@
 	, variable_replacement/3
 	, variable_replacement/4
 	, identical_rules/2
+	, identical_guarded_rules/2
 	, copy_with_variable_replacement/3
 	, my_term_copy/3
 	, my_term_copy/4
 	, atom_concat_list/2
+%vsc	, atomic_concat/3
 	, init/2
 	, member2/3
 	, select2/6
 	, set_elems/2
 	, instrument_goal/4
+	, sort_by_key/3
 	]).
 
 :- use_module(pairlist).
 :- use_module(library(lists), [permutation/2]).
+
+%% SICStus begin
+%% use_module(library(terms),[term_variables/2]).
+%% SICStus end
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 is_variant(A,B) :-
 	copy_term_nat(A,AC),
@@ -75,12 +84,19 @@ is_variant2([X|Xs]) :-
 	is_variant2(Xs).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-time(Phase,Goal) :-
-	statistics(runtime,[T1|_]),
-	call(Goal),
-	statistics(runtime,[T2|_]),
-	T is T2 - T1,
-	format('    ~w:\t\t~w ms\n',[Phase,T]).
+% time(Phase,Goal) :-
+% 	statistics(runtime,[T1|_]),
+% 	call(Goal),
+% 	statistics(runtime,[T2|_]),
+% 	T is T2 - T1,
+% 	format('    ~w ~46t ~D~80| ms\n',[Phase,T]),
+% 	deterministic(Det),
+% 	( Det == true ->
+% 		true
+% 	;
+% 		format('\t\tNOT DETERMINISTIC!\n',[])
+% 	).
+time(_,Goal) :- call(Goal).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 replicate(N,E,L) :-
@@ -101,9 +117,10 @@ pair_all_with([X|Xs],Y,[X-Y|Rest]) :-
 conj2list(Conj,L) :-				%% transform conjunctions to list
   conj2list(Conj,L,[]).
 
-conj2list(Conj,L,T) :-
-  Conj = (true,G2), !,
-  conj2list(G2,L,T).
+conj2list(Var,L,T) :-
+	var(Var), !,
+	L = [Var|T].
+conj2list(true,L,L) :- !.
 conj2list(Conj,L,T) :-
   Conj = (G1,G2), !,
   conj2list(G1,L,T1),
@@ -143,6 +160,13 @@ list2disj([G|Gs],C) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % check wether two rules are identical
+
+identical_guarded_rules(rule(H11,H21,G1,_),rule(H12,H22,G2,_)) :-
+   G1 == G2,
+   permutation(H11,P1),
+   P1 == H12,
+   permutation(H21,P2),
+   P2 == H22.
 
 identical_rules(rule(H11,H21,G1,B1),rule(H12,H22,G2,B2)) :-
    G1 == G2,
@@ -184,7 +208,7 @@ copy_with_variable_replacement_l([X|Xs],[Y|Ys],L) :-
    copy_with_variable_replacement(X,Y,L),
    copy_with_variable_replacement_l(Xs,Ys,L).
    
-%% build variable replacement list
+% build variable replacement list
 
 variable_replacement(X,Y,L) :-
    variable_replacement(X,Y,[],L).
@@ -234,7 +258,25 @@ my_term_copy_list([X|Xs],Dict1,Dict3,[Y|Ys]) :-
 atom_concat_list([X],X) :- ! .
 atom_concat_list([X|Xs],A) :-
 	atom_concat_list(Xs,B),
-	atom_concat(X,B,A).
+	atomic_concat(X,B,A).
+
+/* vsc
+atomic_concat(A,B,C) :-
+	make_atom(A,AA),
+	make_atom(B,BB),
+	atom_concat(AA,BB,C).
+*/
+make_atom(A,AA) :-
+	(
+	  atom(A) ->
+	  AA = A
+	;
+	  number(A) ->
+	  number_codes(A,AL),
+	  atom_codes(AA,AL)
+	).
+
+	    
 
 set_elems([],_).
 set_elems([X|Xs],X) :-
@@ -254,3 +296,8 @@ select2(X, Y, [X1|Xs], [Y1|Ys], [X1|NXs], [Y1|NYs]) :-
 	select2(X, Y, Xs, Ys, NXs, NYs).
 
 instrument_goal(Goal,Pre,Post,(Pre,Goal,Post)).
+
+sort_by_key(List,Keys,SortedList) :-
+	pairup(Keys,List,Pairs),
+	sort(Pairs,SortedPairs),
+	once(pairup(_,SortedList,SortedPairs)).	

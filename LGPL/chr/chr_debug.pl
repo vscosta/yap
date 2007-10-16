@@ -1,4 +1,4 @@
-/*  $Id: chr_debug.pl,v 1.1 2005-10-28 17:41:30 vsc Exp $
+/*  $Id: chr_debug.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -46,7 +46,10 @@
 chr_show_store(Mod) :-
 	(
 		Mod:'$enumerate_suspensions'(Susp),
-		arg(6,Susp,C),
+%		arg(6,Susp,C),
+		Susp =.. [_,_,_,_,_,_,F|Arg],
+		functor(F,Fun,_),
+		C =.. [Fun|Arg],
 		print(C),nl, % allows use of portray to control printing
 		fail
 	;

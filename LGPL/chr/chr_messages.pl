@@ -1,9 +1,9 @@
-/*  $Id: chr_messages.pl,v 1.1 2005-10-28 17:41:30 vsc Exp $
+/*  $Id: chr_messages.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
     Author:        Jan Wielemaker and Tom Schrijvers
-    E-mail:        Tom.Schrijvers@cs.kuleuven.ac.be
+    E-mail:        Tom.Schrijvers@cs.kuleuven.be
     WWW:           http://www.swi-prolog.org
     Copyright (C): 2003-2004, K.U. Leuven
 
@@ -137,7 +137,7 @@ depth(Depth) -->
 	[ '~t(~D)~10| '-[Depth] ].
 
 head(Susp) -->
-	{ Susp =.. [_,ID,_,_,_,_,Goal|_Args]
+	{ Susp =.. [_,ID,_,_,_,_|GoalArgs], Goal =.. GoalArgs
 	},
 	[ '~w # <~w>'-[Goal, ID] ].
 
@@ -164,7 +164,7 @@ rule_head(H1, []) --> !,
 	heads(H1),
 	[ ' <=> ' ].
 rule_head(H1, H2) -->
-	heads(H1), [ ' \\ ' ], heads(H2).
+	heads(H2), [ ' \\ ' ], heads(H1), [' <=> '].
 
 
 rule_body(true, B) --> !,

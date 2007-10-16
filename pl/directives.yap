@@ -193,18 +193,18 @@ yap_flag(enhanced,off) :- set_value('$enhanced',[]).
 %
 % SWI compatibility flag
 %
-yap_flag(generate_debugging_info,X) :-
+yap_flag(generate_debug_info,X) :-
 	var(X), !,
         '$access_yap_flags'(18,Options),
 	(Options =:= 0 -> X = false ; X = true ).
-yap_flag(generate_debugging_info,true) :- !,
+yap_flag(generate_debug_info,true) :- !,
 	'$set_yap_flags'(18,1),
 	source.
-yap_flag(generate_debugging_info,false) :- !,
+yap_flag(generate_debug_info,false) :- !,
 	'$set_yap_flags'(18,0),
 	no_source.
-yap_flag(generate_debugging_info,X) :-
-	'$do_error'(domain_error(flag_value,generate_debugging_info+X),yap_flag(generate_debugging_info,X)).
+yap_flag(generate_debug_info,X) :-
+	'$do_error'(domain_error(flag_value,generate_debug_info+X),yap_flag(generate_debug_info,X)).
 
 %
 % show state of $
@@ -728,7 +728,7 @@ yap_flag(dialect,yap).
 	    V = gc    ;
 	    V = gc_margin    ;
 	    V = gc_trace     ;
-	    V = generate_debugging_info     ;
+	    V = generate_debug_info     ;
 %	    V = hide  ;
 	    V = home  ;
 	    V = host_type  ;

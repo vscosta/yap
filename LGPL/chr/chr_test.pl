@@ -1,25 +1,43 @@
-/*  $Id: chr_test.pl,v 1.1 2005-10-28 17:41:30 vsc Exp $
+/*  $Id: chr_test.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
 
-    E-mail: jan@swi.psy.uva.nl
+    Part of CHR (Constraint Handling Rules)
 
-    Copyright (C) 1996 University of Amsterdam. All rights reserved.
+    Author:        Jan Wielemaker
+    E-mail:        wielemak@science.uva.nl
+    WWW:           http://www.swi-prolog.org
+    Copyright (C): 2005,2006, University of Amsterdam
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+    As a special exception, if you link this library with other files,
+    compiled with a Free Software compiler, to produce an executable, this
+    library does not by itself cause the resulting executable to be covered
+    by the GNU General Public License. This exception does not however
+    invalidate any other reasons why the executable file might be covered by
+    the GNU General Public License.
 */
 
 :- asserta(user:file_search_path(chr, '.')).
 :- asserta(user:file_search_path(library, '.')).
-:- use_module(chr).			% == library(chr)
+:- use_module(library(chr)).
+%%  :- use_module(chr).			% == library(chr)
 
 :- set_prolog_flag(optimise, true).
 %:- set_prolog_flag(trace_gc, true).
 
 :- format('CHR test suite.  To run all tests run ?- test.~n~n', []).
-
-% Required to get this always running regardless of user LANG setting.
-% Without this the tests won't run on machines with -for example- LANG=ja
-% according to NIDE Naoyuki, nide@ics.nara-wu.ac.jp.  Thanks!
-
-:- getenv('LANG', _) -> setenv('LANG', 'C'); true.
-	
 
 		 /*******************************
 		 *	      SCRIPTS		*
@@ -50,6 +68,7 @@ follow_links(File, File).
 run_test_script(Script) :-
 	file_base_name(Script, Base),
 	file_name_extension(Pred, _, Base),
+	format(' ~w~n',[Script]),
 	load_files(Script, []), %[silent(true)]),
 	Pred.
 

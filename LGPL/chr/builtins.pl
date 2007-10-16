@@ -1,17 +1,17 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author:	Tom Schrijvers
-% Email:	Tom.Schrijvers@cs.kuleuven.ac.be
+% Email:	Tom.Schrijvers@cs.kuleuven.be
 % Copyright:	K.U.Leuven 2004
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- module(builtins,
 	[
 		negate_b/2,
 		entails_b/2,
-		binds_b/2
+		binds_b/2,
+		builtin_binds_b/2
 	]).
 
 :- use_module(hprolog).
-%:- use_module(library(lists)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 negate_b(A,B) :- once(negate(A,B)).
@@ -79,6 +79,43 @@ entails_(number(X),nonvar(X)).
 entails_(atom(X),nonvar(X)).
 entails_(fail,true).
 
+builtin_binds_b(G,Vars) :-
+	builtin_binds_(G,L,[]),
+	sort(L,Vars).
+
+builtin_binds_(var(_),L,L).
+builtin_binds_(nonvar(_),L,L).
+builtin_binds_(ground(_),L,L).
+builtin_binds_(compound(_),L,L).
+builtin_binds_(number(_),L,L).
+builtin_binds_(atom(_),L,L).
+builtin_binds_(atomic(_),L,L).
+builtin_binds_(integer(_),L,L).
+builtin_binds_(float(_),L,L).
+
+builtin_binds_(_ > _ ,L,L).
+builtin_binds_(_ < _ ,L,L).
+builtin_binds_(_ =< _,L,L).
+builtin_binds_(_ >= _,L,L).
+builtin_binds_(_ =:= _,L,L).
+builtin_binds_(_ =\= _,L,L).
+builtin_binds_(_ == _,L,L).
+builtin_binds_(_ \== _,L,L).
+builtin_binds_(true,L,L).
+
+builtin_binds_(X is _,[X|L],L).
+builtin_binds_((G1,G2),L,T) :-
+	builtin_binds_(G1,L,R),
+	builtin_binds_(G2,R,T).
+builtin_binds_((G1;G2),L,T) :-
+	builtin_binds_(G1,L,R),
+	builtin_binds_(G2,R,T).
+builtin_binds_((G1->G2),L,T) :-
+	builtin_binds_(G1,L,R),
+	builtin_binds_(G2,R,T).
+
+builtin_binds_(\+ G,L,T) :-
+	builtin_binds_(G,L,T).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 binds_b(G,Vars) :-
 	binds_(G,L,[]),

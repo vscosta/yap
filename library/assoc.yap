@@ -49,12 +49,13 @@
 	rb_del_max/4
     ]).
 
-empty_assoc(T) :-
-	rb_empty(T).
+empty_assoc(t).
 
+assoc_to_list(t, L) :- !, L = [].
 assoc_to_list(T, L) :-
 	rb_visit(T, L).
 
+is_assoc(t) :- !.
 is_assoc(T) :-
 	is_rbtree(T).
 
@@ -64,7 +65,7 @@ min_assoc(T,K,V) :-
 max_assoc(T,K,V) :-
 	rb_max(T,K,V).
 
-gen_assoc(K,T,V) :-
+gen_assoc(T,K,V) :-
 	rb_in(K,V,T).
 
 get_assoc(K,T,V) :-
@@ -85,12 +86,14 @@ list_to_assoc(L, T) :-
 ord_list_to_assoc(L, T) :-
 	ord_list_to_rbtree(L, T).
 
+map_assoc(t, _) :- !.
 map_assoc(P, T) :-
 	yap_flag(typein_module, M0),
 	extract_mod(P, M0, M, G),
 	functor(G, Name, 1),
 	rb_map(T, M:Name).
 
+map_assoc(t, T, T) :- !.
 map_assoc(P, T, NT) :-
 	yap_flag(typein_module, M0),
 	extract_mod(P, M0, M, G),
@@ -105,6 +108,8 @@ extract_mod(G, M, M, G ).
 
 put_assoc(K, T, V, NT) :-
 	rb_update(T, K, V, NT), !.
+put_assoc(K, t, V, NT) :- !,
+	rbtrees:rb_new(K,V,NT).
 put_assoc(K, T, V, NT) :-
 	rb_insert(T, K, V, NT).
 

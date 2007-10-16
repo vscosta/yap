@@ -1,9 +1,9 @@
-/*  $Id: find.pl,v 1.1 2005-10-28 17:41:30 vsc Exp $
+/*  $Id: find.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
     Author:        Bart Demoen, Tom Schrijvers
-    E-mail:        Tom.Schrijvers@cs.kuleuven.ac.be
+    E-mail:        Tom.Schrijvers@cs.kuleuven.be
     WWW:           http://www.swi-prolog.org
     Copyright (C): 2003-2004, K.U. Leuven
 
@@ -46,7 +46,8 @@
 
 find_with_var_identity(Template, IdVars, Goal, Answers) :-
         Key = foo(IdVars),
-        findall(Key - Template, Goal, As),
+	copy_term_nat(Template-Key-Goal,TemplateC-KeyC-GoalC),
+        findall(KeyC - TemplateC, GoalC, As),
         smash(As,Key,Answers).
 
 smash([],_,[]).

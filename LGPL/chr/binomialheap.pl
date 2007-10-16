@@ -6,7 +6,7 @@
 %	University of Glasgow
 %
 % Author:	Tom Schrijvers
-% Email:	Tom.Schrijvers@cs.kuleuven.ac.be
+% Email:	Tom.Schrijvers@cs.kuleuven.be
 % Copyright:	K.U.Leuven 2004
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -19,7 +19,7 @@
 		find_min_q/2
 	]).	
 
-:- use_module(library(lists)).
+:- use_module(library(lists),[reverse/2]).
 
 % data Tree a = Node a [Tree a]
 % type BinQueue a = [Maybe (Tree a)]
@@ -81,7 +81,6 @@ least(one(node(X,Xs)),one(node(Y,Ys)),T) :-
 	;
 		T = one(node(Y,Ys))
 	).		
-
 
 remove_tree([],_,[]).
 remove_tree([T|Ts],I,[NT|NTs]) :-

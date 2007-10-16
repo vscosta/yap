@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author:	Tom Schrijvers
-% Email:	Tom.Schrijvers@cs.kuleuven.ac.be
+% Email:	Tom.Schrijvers@cs.kuleuven.be
 % Copyright:	K.U.Leuven 2004
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%   ____          _         ____ _                  _             
@@ -20,7 +20,7 @@
 		clean_clauses/2
 	]).
 
-:- use_module(hprolog, [memberchk_eq/2]).
+:- use_module(hprolog).
 
 clean_clauses([],[]).
 clean_clauses([C|Cs],[NC|NCs]) :-
@@ -36,6 +36,9 @@ clean_clause(Clause,NClause) :-
 		;
 			NClause = (NHead :- NBody)
 		)
+	; Clause = '$source_location'(File,Line) : ActualClause ->
+		NClause = '$source_location'(File,Line) :  NActualClause,
+		clean_clause(ActualClause,NActualClause)
 	;
 		NClause = Clause
 	).
@@ -143,9 +146,10 @@ move_unification_into_head_([G|Gs],Head,NHead,NBody) :-
 conj2list(Conj,L) :-				%% transform conjunctions to list
   conj2list(Conj,L,[]).
 
-conj2list(Conj,L,T) :-
-  Conj = (true,G2), !,
-  conj2list(G2,L,T).
+conj2list(G,L,T) :-
+	var(G), !,
+	L = [G|T].
+conj2list(true,L,L) :- !.
 conj2list(Conj,L,T) :-
   Conj = (G1,G2), !,
   conj2list(G1,L,T1),

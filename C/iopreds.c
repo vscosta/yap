@@ -4115,7 +4115,7 @@ p_show_stream_flags(void)
 static Int
 p_show_stream_position (void)
 {				/* '$show_stream_position'(+Stream,Pos) */
-  Term sargs[3], tout;
+  Term sargs[5], tout;
   int sno =
     CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f, "stream_position/2");
   if (sno < 0)
@@ -4132,8 +4132,9 @@ p_show_stream_position (void)
   }
   sargs[1] = MkIntTerm (Stream[sno].linecount);
   sargs[2] = MkIntTerm (Stream[sno].linepos);
+  sargs[3] = sargs[4] = MkIntTerm (0);
   UNLOCK(Stream[sno].streamlock);
-  tout = Yap_MkApplTerm (FunctorStreamPos, 3, sargs);
+  tout = Yap_MkApplTerm (FunctorStreamPos, 5, sargs);
   return (Yap_unify (ARG2, tout));
 }
 

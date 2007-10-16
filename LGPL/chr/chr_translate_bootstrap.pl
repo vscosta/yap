@@ -1,9 +1,9 @@
-/*  $Id: chr_translate_bootstrap.pl,v 1.3 2006-01-08 23:04:41 vsc Exp $
+/*  $Id: chr_translate_bootstrap.pl,v 1.4 2007-10-16 23:17:03 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
     Author:        Tom Schrijvers
-    E-mail:        Tom.Schrijvers@cs.kuleuven.ac.be
+    E-mail:        Tom.Schrijvers@cs.kuleuven.be
     WWW:           http://www.swi-prolog.org
     Copyright (C): 2003-2004, K.U. Leuven
 
@@ -40,7 +40,7 @@
 %%
 %% hProlog CHR compiler:
 %%
-%%	* by Tom Schrijvers, K.U. Leuven, Tom.Schrijvers@cs.kuleuven.ac.be
+%%	* by Tom Schrijvers, K.U. Leuven, Tom.Schrijvers@cs.kuleuven.be
 %%
 %%	* based on the SICStus CHR compilation by Christian Holzbaur
 %%
@@ -121,11 +121,12 @@
 :- module(chr_translate,
 	  [ chr_translate/2		% +Decls, -TranslatedDecls
 	  ]).
-:- use_module(library(lists)).
-:- use_module(hprolog).
-:- use_module(library(assoc)).
-:- use_module(pairlist).
+%% SWI begin
+:- use_module(library(lists),[member/2,append/3,permutation/2,reverse/2]).
 :- use_module(library(ordsets)).
+%% SWI end
+:- use_module(hprolog).
+:- use_module(pairlist).
 :- include(chr_op).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -146,14 +147,14 @@ chr_translate(Declarations,NewDeclarations) :-
 		generate_attach_increment(Decls,Mod,AttachIncrementClauses),
 		generate_attr_unify_hook(Decls,Mod,AttrUnifyHookClauses),
 		constraints_code(Decls,NRules,Mod,ConstraintClauses),
-		append_lists([ OtherClauses,
-			       AttachAConstraintClauses,
-			       DettachAConstraintClauses,
-			       AttachIncrementClauses,
-			       AttrUnifyHookClauses,
-			       ConstraintClauses
-			     ],
-			     NewDeclarations)
+		append([ OtherClauses,
+			 AttachAConstraintClauses,
+			 DettachAConstraintClauses,
+			 AttachIncrementClauses,
+			 AttrUnifyHookClauses,
+			 ConstraintClauses
+		       ],
+		       NewDeclarations)
 	).
 
 
@@ -189,7 +190,7 @@ partition_clauses([C|Cs],Ds,Rs,OCs,Mod) :-
       Ds = RDs,
       Rs = RRs,
       OCs = ROCs
-  ;   C = option(OptionName,OptionValue) ->
+  ;   C = (:- chr_option(OptionName,OptionValue)) ->
       handle_option(OptionName,OptionValue),
       Ds = RDs,
       Rs = RRs,
@@ -201,12 +202,8 @@ partition_clauses([C|Cs],Ds,Rs,OCs,Mod) :-
   partition_clauses(Cs,RDs,RRs,ROCs,Mod).
 
 is_declaration(D, Constraints) :-		%% constraint declaration
-  ( D = (:- Decl) ->
-	true
-  ;
-	D = Decl
-  ),
-  Decl =.. [constraints,Cs],
+  D = (:- Decl),
+  ( Decl =.. [chr_constraint,Cs] ; Decl =.. [chr_constraint,Cs]),
   conj2list(Cs,Constraints).
 
 %% Data Declaration
@@ -355,7 +352,7 @@ check_pragma(passive(ID), PragmaRule, N) :-
 check_pragma(Pragma, PragmaRule, N) :-
 	Pragma = unique(_,_),
 	!,
-	format('CHR compiler WARNING: undocument pragma ~w in ~@.\n',[Pragma,format_rule(PragmaRule,N)]),
+	format('CHR compiler WARNING: undocumented pragma ~w in ~@.\n',[Pragma,format_rule(PragmaRule,N)]),
 	format('    `--> Only use this pragma if you know what you are doing.\n',[]).
 
 check_pragma(Pragma, PragmaRule, N) :-
@@ -540,11 +537,11 @@ generate_attach_a_constraint_t_p(Total,Position,CFct / CAty ,Mod,Clause) :-
 	or_pattern(Position,Pattern),
 	make_attr(Total,Mask,SuspsList,Attr),
 	nth(Position,SuspsList,Susps),
-	substitute(Susps,SuspsList,[Susp|Susps],SuspsList1),
+	substitute_eq(Susps,SuspsList,[Susp|Susps],SuspsList1),
 	make_attr(Total,Mask,SuspsList1,NewAttr1),
-	substitute(Susps,SuspsList,[Susp],SuspsList2),
+	substitute_eq(Susps,SuspsList,[Susp],SuspsList2),
 	make_attr(Total,NewMask,SuspsList2,NewAttr2),
-	copy_term(SuspsList,SuspsList3),
+	copy_term_nat(SuspsList,SuspsList3),
 	nth(Position,SuspsList3,[Susp]),
 	chr_delete(SuspsList3,[Susp],RestSuspsList),
 	set_elems(RestSuspsList,[]),
@@ -622,9 +619,9 @@ generate_detach_a_constraint_t_p(Total,Position,CFct / CAty ,Mod,Clause) :-
 	and_pattern(Position,DelPattern),
 	make_attr(Total,Mask,SuspsList,Attr),
 	nth(Position,SuspsList,Susps),
-	substitute(Susps,SuspsList,[],SuspsList1),
+	substitute_eq(Susps,SuspsList,[],SuspsList1),
 	make_attr(Total,NewMask,SuspsList1,Attr1),
-	substitute(Susps,SuspsList,NewSusps,SuspsList2),
+	substitute_eq(Susps,SuspsList,NewSusps,SuspsList2),
 	make_attr(Total,Mask,SuspsList2,Attr2),
 	Body =
 	(
@@ -1101,7 +1098,7 @@ unique_analyse_optimise_main([PRule|PRules],N,PatternList,[NPRule|NPRules]) :-
 	Ids = ids(Ids1,Ids2),
 	apply_unique_patterns_to_constraints(H1,Ids1,NPatternList,MorePragmas1),
 	apply_unique_patterns_to_constraints(H2,Ids2,NPatternList,MorePragmas2),
-	append_lists([MorePragmas1,MorePragmas2,Pragmas],NPragmas),
+	append([MorePragmas1,MorePragmas2,Pragmas],NPragmas),
 	NPRule = pragma(Rule,Ids,NPragmas,Name),
 	N1 is N + 1,
 	unique_analyse_optimise_main(PRules,N1,NPatternList,NPRules).
@@ -1140,9 +1137,9 @@ apply_unique_pattern(Constraint,Id,Pattern,Pragma) :-
 %	variables from Term2 and their corresponding values in Term1.
 
 subsumes(Term1,Term2,Unifier) :-
-	empty_assoc(S0),
+	empty_ds(S0),
 	subsumes_aux(Term1,Term2,S0,S),
-	assoc_to_list(S,L),
+	ds_to_list(S,L),
 	build_unifier(L,Unifier).
 
 subsumes_aux(Term1, Term2, S0, S) :-
@@ -1153,10 +1150,10 @@ subsumes_aux(Term1, Term2, S0, S) :-
         ;   Term1 == Term2
 	->  S = S0
 	;   var(Term2),
-	    get_assoc(Term1,S0,V)
+	    get_ds(Term1,S0,V)
 	->  V == Term2, S = S0
 	;   var(Term2),
-	    put_assoc(Term1, S0, Term2, S)
+	    put_ds(Term1, S0, Term2, S)
         ).
 
 subsumes_aux(0, _, _, S, S) :- ! .
@@ -1182,8 +1179,8 @@ discover_unique_pattern(PragmaRule,RuleNb,Pattern) :-
 	term_variables(C1,Vs),
 	select_pragma_unique_variables(List,Vs,Key),
 	Pattern0 = unique(C1,Key),
-	copy_term(Pattern0,Pattern),
-	( prolog_flag(verbose,V), V == yes ->
+	copy_term_nat(Pattern0,Pattern),
+	( verbosity_on ->
 		format('Found unique pattern ~w in rule ~d~@\n', 
 			[Pattern,RuleNb,(Name=yes(N) -> write(": "),write(N) ; true)])
 	;
@@ -1428,7 +1425,7 @@ rest_heads_retrieval_and_matching_n([H|Hs],[ID|IDs],Pragmas,PrevHs,PrevSusps,Act
 		nth(Pos,SuspsList,VarSusps)
 	),
 	different_from_other_susps(H,Susp,PrevHs,PrevSusps,DiffSuspGoals),
-	create_get_mutable(active,State,GetMutable),
+	create_get_mutable_ref(active,State,GetMutable),
 	Goal1 = 
 	(
 		'chr sbag_member'(Susp,VarSusps),
@@ -1495,7 +1492,7 @@ common_variables(T,Ts,Vs) :-
 gen_get_mod_constraints(Mod,L,Goal,Susps) :-
    (   L == [] ->
        Goal = 
-       (   'chr global_term_ref_1'(Global),
+       (   'chr default_store'(Global),
            get_attr(Global,Mod,TSusps),
 	   TSusps = Susps
        )
@@ -1768,7 +1765,7 @@ simpagation_head2_worker_body(Head2,Head1,ID1,RestHeads1,IDs1,RestHeads2,IDs2,Ru
    head_arg_matches(Head1Pairs,VarDict1,FirstMatching,VarDict2),
 
    OtherSuspension =.. [suspension,_,OtherState,_,_,_,_|OtherVars],
-   create_get_mutable(active,OtherState,GetMutable),
+   create_get_mutable_ref(active,OtherState,GetMutable),
    IteratorSuspTest =
       (   OtherSusp = OtherSuspension,
           GetMutable
@@ -1842,8 +1839,8 @@ simpagation_head2_worker_body(Head2,Head1,ID1,RestHeads1,IDs1,RestHeads2,IDs2,Ru
 gen_state_cond_call(Susp,N,Call,Generation,ConditionalCall) :-
    length(Args,N),
    Suspension =.. [suspension,_,State,_,NewGeneration,_,_|Args],
-   create_get_mutable(active,State,GetState),
-   create_get_mutable(Generation,NewGeneration,GetGeneration),
+   create_get_mutable_ref(active,State,GetState),
+   create_get_mutable_ref(Generation,NewGeneration,GetGeneration),
    ConditionalCall =
       (   Susp = Suspension,
 	  GetState,
@@ -1988,7 +1985,7 @@ propagation_body(CurrentHead,PreHeads,Rule,RuleNb,RestHeadNb,F/A,Mod,Id,L,T) :-
    functor(CurrentHead,_OtherF,OtherA),
    gen_vars(OtherA,OtherVars),
    Suspension =.. [suspension,_,State,_,_,_,_|OtherVars],
-   create_get_mutable(active,State,GetMutable),
+   create_get_mutable_ref(active,State,GetMutable),
    CurrentSuspTest = (
       OtherSusp = Suspension,
       GetMutable
@@ -2111,7 +2108,7 @@ propagation_accumulator([NextHead|RestHeads],[CurrentHead|PreHeads],Rule,F/A,N,C
 	OtherSuspension =.. [suspension,_,State,_,_,_,_|OtherVars],
 
 	different_from_other_susps(CurrentHead,OtherSusp,PreHeads,PreSusps,DiffSuspGoals),
-	create_get_mutable(active,State,GetMutable),
+	create_get_mutable_ref(active,State,GetMutable),
 	CurrentSuspTest = (
 	   OtherSusp = OtherSuspension,
 	   GetMutable,
@@ -2281,14 +2278,15 @@ order_score_vars([V|Vs],KnownVars,RestVars,Score,NScore) :-
 %% |___|_| |_|_|_|_| |_|_|_| |_|\__, |
 %%                              |___/ 
 
-create_get_mutable(V,M,GM) :-
-	GM = (M = mutable(V)).
-	% GM = 'chr get_mutable'(V,M)
-	%( ground(V) ->
-	%	GM = (M == mutable(V))
-	%;
-	%	GM = (M = mutable(V))
-	%).
+%% SWI begin
+create_get_mutable_ref(V,M,GM) :- GM = (M = mutable(V)).
+%% SWI end
+
+%% SICStus begin
+%% create_get_mutable_ref(V,M,GM) :- GM = (get_mutable(V,M)).
+%% SICStus end
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -2415,14 +2413,14 @@ build_head(F,A,Id,Args,Head) :-
 
 buildName(Fct,Aty,List,Result) :-
    atom_concat(Fct, (/) ,FctSlash),
-   atom_concat(FctSlash,Aty,FctSlashAty),
+   atomic_concat(FctSlash,Aty,FctSlashAty),
    buildName_(List,FctSlashAty,Result).
 
 buildName_([],Name,Name).
 buildName_([N|Ns],Name,Result) :-
   buildName_(Ns,Name,Name1),
   atom_concat(Name1,'__',NameDash),    % '_' is a char :-(
-  atom_concat(NameDash,N,Result).
+  atomic_concat(NameDash,N,Result).
 
 vars_susp(A,Vars,Susp,VarsSusp) :-
    length(Vars,A),
@@ -2463,7 +2461,23 @@ list2conj([G|Gs],C) :-
 atom_concat_list([X],X) :- ! .
 atom_concat_list([X|Xs],A) :-
 	atom_concat_list(Xs,B),
-	atom_concat(X,B,A).
+	atomic_concat(X,B,A).
+
+atomic_concat(A,B,C) :-
+	make_atom(A,AA),
+	make_atom(B,BB),
+	atom_concat(AA,BB,C).
+
+make_atom(A,AA) :-
+	(
+	  atom(A) ->
+	  AA = A
+	;
+	  number(A) ->
+	  number_codes(A,AL),
+	  atom_codes(AA,AL)
+	).
+
 
 set_elems([],_).
 set_elems([X|Xs],X) :-
@@ -2486,3 +2500,10 @@ default(X,Def) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% SWI begin
+verbosity_on :- prolog_flag(verbose,V), V == yes.
+%% SWI end
+
+%% SICStus begin
+%% verbosity_on.  % at the moment
+%% SICStus end

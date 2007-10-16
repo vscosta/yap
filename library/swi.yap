@@ -35,6 +35,10 @@
 :- dynamic
    user:file_search_path/2.
 
+prolog:is_list(L) :- var(L), !, fail.
+prolog:is_list([]).
+prolog:is_list([_|List]) :- prolog:is_list(List).
+
 user:file_search_path(swi, Home) :-
         current_prolog_flag(home, Home).
 user:file_search_path(foreign, swi(ArchLib)) :-
@@ -43,6 +47,19 @@ user:file_search_path(foreign, swi(ArchLib)) :-
 user:file_search_path(foreign, swi(lib)).
 
 :- meta_predicate prolog:predsort(:,+,-).
+
+prolog:plus(X, Y, Z) :-
+       integer(X),
+       integer(Y), !,
+       Z is X + Y.
+prolog:plus(X, Y, Z) :-
+       integer(X),
+       integer(Z), !,
+       Y is Z - X.
+prolog:plus(X, Y, Z) :-
+       integer(Y),
+       integer(Z), !,
+       X is Z - Y.
 
 %%	predsort(:Compare, +List, -Sorted) is det.
 %

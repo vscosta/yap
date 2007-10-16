@@ -1,10 +1,10 @@
-/*  $Id: chr_runtime.pl,v 1.1 2005-10-28 17:41:30 vsc Exp $
+/*  $Id: chr_runtime.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
     Author:        Christian Holzbaur and Tom Schrijvers
     E-mail:        christian@ai.univie.ac.at
-		   Tom.Schrijvers@cs.kuleuven.ac.be
+		   Tom.Schrijvers@cs.kuleuven.be
     WWW:           http://www.swi-prolog.org
     Copyright (C): 2003-2004, K.U. Leuven
 
@@ -56,7 +56,7 @@
 %%          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 
 %%	
-%%	* modified by Tom Schrijvers, K.U.Leuven, Tom.Schrijvers@cs.kuleuven.ac.be
+%%	* modified by Tom Schrijvers, K.U.Leuven, Tom.Schrijvers@cs.kuleuven.be
 %%		- ported to hProlog
 %%		- modified for eager suspension removal
 %%
@@ -66,7 +66,6 @@
 %% SWI-Prolog changes
 %% 
 %% 	* Added initialization directives for saved-states
-%%	* Renamed merge/3 --> sbag_merge/3 (name conflict)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- module(chr_runtime,
@@ -85,19 +84,23 @@
 	    'chr allocate_constraint'/4,
 	    'chr activate_constraint'/3,
 
-	    'chr global_term_ref_1'/1,
+	    'chr default_store'/1,
 
 	    'chr via_1'/2,
 	    'chr via_2'/3,
 	    'chr via'/2,
+	    'chr newvia_1'/2,
+	    'chr newvia_2'/3,
+	    'chr newvia'/2,
 
 	    'chr lock'/1,
 	    'chr unlock'/1,
 	    'chr not_locked'/1,
-            'chr none_locked'/1,
+	    'chr none_locked'/1,
 
 	    'chr update_mutable'/2,
 	    'chr get_mutable'/2,
+	    'chr create_mutable'/2,
 
 	    'chr novel_production'/2,
 	    'chr extend_history'/2,
@@ -109,45 +112,129 @@
 	    'chr debug command'/2,	% Char, Command
 
 	    'chr chr_indexed_variables'/2,
+	
+	    'chr all_suspensions'/3,
+	    'chr new_merge_attributes'/3,
+	    'chr normalize_attr'/2,
+
+	    'chr select'/3,
+
+	    chr_show_store/1,	% +Module
+	    find_chr_constraint/1,
 
 	    chr_trace/0,
 	    chr_notrace/0,
 	    chr_leash/1
 	  ]).
+
+%% SWI begin
 :- set_prolog_flag(generate_debug_info, false).
+%% SWI end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                                                        
-:- use_module(library(assoc)).
 :- use_module(hprolog).
-%:- use_module(library(lists)).
 :- include(chr_op).
+
+%% SICStus begin
+%% :- use_module(hpattvars).
+%% :- use_module(b_globval).
+%% SICStus end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %   I N I T I A L I S A T I O N
 
+%% SWI begin
+:- dynamic user:exception/3.
+:- multifile user:exception/3.
+
+user:exception(undefined_global_variable, Name, retry) :-
+	chr_runtime_global_variable(Name),
+	chr_init.
+
+chr_runtime_global_variable(chr_id).
+chr_runtime_global_variable(chr_global).
+chr_runtime_global_variable(chr_debug).
+chr_runtime_global_variable(chr_debug_history).
+
 chr_init :-
-	nb_setval(id,0),
+	nb_setval(chr_id,0),
 	nb_setval(chr_global,_),
-	nb_setval(chr_debug,mutable(off)),
-	nb_setval(chr_debug_history,mutable([],0)).
+	nb_setval(chr_debug,mutable(off)),          % XXX
+	nb_setval(chr_debug_history,mutable([],0)). % XXX
+%% SWI end
+
+%% SICStus begin
+%% chr_init :-
+%% 	        nb_setval(chr_id,0).
+%% SICStus end
 
 :- initialization chr_init.
 
-show_store(Mod) :-
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Contents of former chr_debug.pl
+%   
+%	chr_show_store(+Module)
+%	
+%	Prints all suspended constraints of module   Mod to the standard
+%	output.
+
+chr_show_store(Mod) :-
 	(
-		Mod:'$enumerate_suspensions'(Susp),
-		arg(6,Susp,C),
-		writeln(C),
+		Mod:'$enumerate_constraints'(Constraint),
+		print(Constraint),nl, % allows use of portray to control printing
 		fail
 	;
 		true
 	).
 
+find_chr_constraint(Constraint) :-
+	chr:'$chr_module'(Mod),
+	Mod:'$enumerate_constraints'(Constraint).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-'chr merge_attributes'( As, Bs, Cs) :-
-	sbag_union(As,Bs,Cs).
+% Inlining of some goals is good for performance
+% That's the reason for the next section
+% There must be correspondence with the predicates as implemented in chr_mutable.pl
+% so that       user:goal_expansion(G,G). also works (but do not add such a rule)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% SWI begin
+:- multifile user:goal_expansion/2.
+:- dynamic   user:goal_expansion/2.
+
+user:goal_expansion('chr get_mutable'(Val,Var),    Var=mutable(Val)).
+user:goal_expansion('chr update_mutable'(Val,Var), setarg(1,Var,Val)).
+user:goal_expansion('chr create_mutable'(Val,Var), Var=mutable(Val)).
+user:goal_expansion('chr default_store'(X),        nb_getval(chr_global,X)).
+%% SWI end
+
+% goal_expansion seems too different in SICStus 4 for me to cater for in a
+% decent way at this moment - so I stick with the old way to do this
+% so that it doesn't get lost, the code from Mats for SICStus 4 is included in comments
+
+
+%% Mats begin
+%% goal_expansion('chr get_mutable'(Val,Var),    Lay, _M, get_mutable(Val,Var), Lay).
+%% goal_expansion('chr update_mutable'(Val,Var), Lay, _M, update_mutable(Val,Var), Lay).
+%% goal_expansion('chr create_mutable'(Val,Var), Lay, _M, create_mutable(Val,Var), Lay).
+%% goal_expansion('chr default_store'(A),        Lay, _M, global_term_ref_1(A), Lay).
+%% Mats begin
+
+
+%% SICStus begin
+%% :- multifile user:goal_expansion/2.
+%% :- dynamic   user:goal_expansion/2.
+%% 
+%% user:goal_expansion('chr get_mutable'(Val,Var),    get_mutable(Val,Var)).
+%% user:goal_expansion('chr update_mutable'(Val,Var), update_mutable(Val,Var)).
+%% user:goal_expansion('chr create_mutable'(Val,Var), create_mutable(Val,Var)).
+%% user:goal_expansion('chr default_store'(A),        global_term_ref_1(A)).
+%% SICStus end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 'chr run_suspensions'( Slots) :-
@@ -160,19 +247,19 @@ show_store(Mod) :-
 
 run_suspensions([]).
 run_suspensions([S|Next] ) :-
-	arg( 2, S, Mref),
-	Mref = mutable(Status), % get_mutable( Status, Mref), % XXX Inlined
+	arg( 2, S, Mref), % ARGXXX
+	'chr get_mutable'( Status, Mref),
 	( Status==active ->
-	    update_mutable( triggered, Mref),
-	    arg( 4, S, Gref),
-	    Gref = mutable(Gen), % get_mutable( Gen, Gref), % XXX Inlined
+	    'chr update_mutable'( triggered, Mref),
+	    arg( 4, S, Gref), % ARGXXX
+	    'chr get_mutable'( Gen, Gref),
 	    Generation is Gen+1,
-	    update_mutable( Generation, Gref),
-	    arg( 3, S, Goal),
+	    'chr update_mutable'( Generation, Gref),
+	    arg( 3, S, Goal), % ARGXXX
 	    call( Goal),
-	    					% get_mutable( Post, Mref), % XXX Inlined
-	    ( Mref = mutable(triggered) ->	% Post==triggered ->
-		update_mutable( removed, Mref)
+	    'chr get_mutable'( Post, Mref),
+	    ( Post==triggered ->
+		'chr update_mutable'( active, Mref)	% catching constraints that did not do anything
 	    ;
 		true
 	    )
@@ -191,15 +278,15 @@ run_suspensions([S|Next] ) :-
 
 run_suspensions_d([]).
 run_suspensions_d([S|Next] ) :-
-	arg( 2, S, Mref),
-	Mref = mutable(Status), % get_mutable( Status, Mref), % XXX Inlined
+	arg( 2, S, Mref), % ARGXXX
+	'chr get_mutable'( Status, Mref),
 	( Status==active ->
-	    update_mutable( triggered, Mref),
-	    arg( 4, S, Gref),
-	    Gref = mutable(Gen), % get_mutable( Gen, Gref), % XXX Inlined
+	    'chr update_mutable'( triggered, Mref),
+	    arg( 4, S, Gref), % ARGXXX
+	    'chr get_mutable'( Gen, Gref),
 	    Generation is Gen+1,
-	    update_mutable( Generation, Gref),
-	    arg( 3, S, Goal),
+	    'chr update_mutable'( Generation, Gref),
+	    arg( 3, S, Goal), % ARGXXX
 	    ( 
 		'chr debug_event'(wake(S)),
 	        call( Goal)
@@ -213,9 +300,9 @@ run_suspensions_d([S|Next] ) :-
 		'chr debug_event'(redo(S)),
 		fail
 	    ),	
-	    					% get_mutable( Post, Mref), % XXX Inlined
-	    ( Mref = mutable(triggered) ->	% Post==triggered ->
-		update_mutable( removed, Mref)
+	    'chr get_mutable'( Post, Mref),
+	    ( Post==triggered ->
+		'chr update_mutable'( active, Mref)   % catching constraints that did not do anything
 	    ;
 		true
 	    )
@@ -227,16 +314,7 @@ run_suspensions_d([S|Next] ) :-
 locked:attr_unify_hook(_,_) :- fail.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-'chr lock'(T) :- 
-	lock(T).
-
-'chr unlock'(T) :-
-	unlock(T).
-
-'chr not_locked'(T) :-
-	not_locked(T).
-
-lock(T) :-
+'chr lock'(T) :-
 	( var(T)
 	-> put_attr(T, locked, x)
         ;  term_variables(T,L),
@@ -246,7 +324,7 @@ lock(T) :-
 lockv([]).
 lockv([T|R]) :- put_attr( T, locked, x), lockv(R).
 
-unlock(T) :-
+'chr unlock'(T) :-
 	( var(T)
 	-> del_attr(T, locked)
 	;  term_variables(T,L),
@@ -258,10 +336,13 @@ unlockv([T|R]) :- del_attr( T, locked), unlockv(R).
 
 'chr none_locked'( []).
 'chr none_locked'( [V|Vs]) :-
-	not_locked( V),
-	'chr none_locked'( Vs).
+	( get_attr(V, locked, _) ->
+		fail
+	;
+		'chr none_locked'(Vs)
+	).
 
-not_locked( V) :- 
+'chr not_locked'(V) :-
 	( var( V) ->
   		( get_attr( V, locked, _) ->
 			fail
@@ -277,9 +358,9 @@ not_locked( V) :-
 % Eager removal from all chains.
 %
 'chr remove_constraint_internal'( Susp, Agenda) :-
-	arg( 2, Susp, Mref),
-	Mref = mutable(State), % get_mutable( State, Mref), % XXX Inlined
-	update_mutable( removed, Mref),		% mark in any case
+	arg( 2, Susp, Mref), % ARGXXX
+	'chr get_mutable'( State, Mref), 
+	'chr update_mutable'( removed, Mref),		% mark in any case
 	( compound(State) ->			% passive/1
 	    Agenda = []
 	; State==removed ->
@@ -289,24 +370,48 @@ not_locked( V) :-
 	;
             Susp =.. [_,_,_,_,_,_,_|Args],
 	    term_variables( Args, Vars),
-	    global_term_ref_1( Global),
+	    'chr default_store'( Global),
 	    Agenda = [Global|Vars]
 	).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'chr newvia_1'(X,V) :-
+	( var(X) ->
+		X = V
+	; 
+		nonground(X,V)
+	).
+
+'chr newvia_2'(X,Y,V) :- 
+	( var(X) -> 
+		X = V
+	; var(Y) ->
+		Y = V
+	; compound(X), nonground(X,V) ->
+		true
+	; 
+		compound(Y), nonground(Y,V)
+	).
+
+%
+% The second arg is a witness.
+% The formulation with term_variables/2 is
+% cycle safe, but it finds a list of all vars.
+% We need only one, and no list in particular.
+%
+'chr newvia'(L,V) :- nonground(L,V).
+%~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
+
 'chr via_1'(X,V) :-
 	( var(X) ->
 		X = V
 	; atomic(X) ->
-		global_term_ref_1(V)
+		'chr default_store'(V)
 	; nonground(X,V) ->
 		true
 	;
-		global_term_ref_1(V)
+		'chr default_store'(V)
 	).
-% 'chr via_1'( X, V) :- var(X), !, X=V.
-% 'chr via_1'( T, V) :- compound(T), nonground( T, V), ! .
-% 'chr via_1'( _, V) :- global_term_ref_1( V).
 
 'chr via_2'(X,Y,V) :- 
 	( var(X) -> 
@@ -318,13 +423,8 @@ not_locked( V) :-
 	; compound(Y), nonground(Y,V) ->
 		true
 	;
-		global_term_ref_1(V)
+		'chr default_store'(V)
 	).
-% 'chr via_2'( X, _, V) :- var(X), !, X=V.
-% 'chr via_2'( _, Y, V) :- var(Y), !, Y=V.
-% 'chr via_2'( T, _, V) :- compound(T), nonground( T, V), ! .
-% 'chr via_2'( _, T, V) :- compound(T), nonground( T, V), ! .
-% 'chr via_2'( _, _, V) :- global_term_ref_1( V).
 
 %
 % The second arg is a witness.
@@ -336,7 +436,7 @@ not_locked( V) :-
 	( nonground(L,V) ->
 		true
 	;
-		global_term_ref_1(V)
+		'chr default_store'(V)
 	).
 
 nonground( Term, V) :-
@@ -345,9 +445,9 @@ nonground( Term, V) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 'chr novel_production'( Self, Tuple) :-
-	arg( 5, Self, Ref),
-	Ref = mutable(History), % get_mutable( History, Ref), % XXX Inlined
-	( get_assoc( Tuple, History, _) ->
+	arg( 5, Self, Ref), % ARGXXX
+	'chr get_mutable'( History, Ref),
+	( get_ds( Tuple, History, _) ->
 	    fail
 	;
 	    true
@@ -358,26 +458,26 @@ nonground( Term, V) :-
 % goes in between the two calls.
 %
 'chr extend_history'( Self, Tuple) :-
-	arg( 5, Self, Ref),
-	Ref = mutable(History), % get_mutable( History, Ref), % XXX Inlined
-	put_assoc( Tuple, History, x, NewHistory),
-	update_mutable( NewHistory, Ref).
+	arg( 5, Self, Ref), % ARGXXX
+	'chr get_mutable'( History, Ref),
+	put_ds( Tuple, History, x, NewHistory),
+	'chr update_mutable'( NewHistory, Ref).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 constraint_generation( Susp, State, Generation) :-
-	arg( 2, Susp, Mref),
-	Mref = mutable(State), % get_mutable( State, Mref), % XXX Inlined
-	arg( 4, Susp, Gref),
-	Gref = mutable(Generation). % get_mutable( Generation, Gref). 	% not incremented meanwhile % XXX Inlined
+	arg( 2, Susp, Mref), % ARGXXX
+	'chr get_mutable'( State, Mref),
+	arg( 4, Susp, Gref), % ARGXXX
+	'chr get_mutable'( Generation, Gref). 	% not incremented meanwhile 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 'chr allocate_constraint'( Closure, Self, F, Args) :-
-	'chr empty_history'( History),
-	create_mutable( passive(Args), Mref),
-	create_mutable( 0, Gref),
-	create_mutable( History, Href),
-	'chr gen_id'( Id),
-	Self =.. [suspension,Id,Mref,Closure,Gref,Href,F|Args].
+	Self =.. [suspension,Id,Mref,Closure,Gref,Href,F|Args], % SUSPXXX
+	'chr create_mutable'(0, Gref),
+	'chr empty_history'(History),
+	'chr create_mutable'(History, Href),
+	'chr create_mutable'(passive(Args), Mref),
+	'chr gen_id'( Id).
 
 %
 % 'chr activate_constraint'( -, +, -).
@@ -385,89 +485,85 @@ constraint_generation( Susp, State, Generation) :-
 % The transition gc->active should be rare
 %
 'chr activate_constraint'( Vars, Susp, Generation) :-
-	arg( 2, Susp, Mref),
-	Mref = mutable(State), % get_mutable( State, Mref),  % XXX Inlined
-	update_mutable( active, Mref),
+	arg( 2, Susp, Mref), % ARGXXX
+	'chr get_mutable'( State, Mref),
+	'chr update_mutable'( active, Mref),
 	( nonvar(Generation) ->			% aih
 	    true
 	;
-	    arg( 4, Susp, Gref),
-	    Gref = mutable(Gen), % get_mutable( Gen, Gref), % XXX Inlined
+	    arg( 4, Susp, Gref), % ARGXXX
+	    'chr get_mutable'( Gen, Gref),
 	    Generation is Gen+1,
-	    update_mutable( Generation, Gref)
+	    'chr update_mutable'( Generation, Gref)
 	),
 	( compound(State) ->			% passive/1
 	    term_variables( State, Vs),
 	    'chr none_locked'( Vs),
-	    global_term_ref_1( Global),
-	    Vars = [Global|Vs]
-	; State==removed ->			% the price for eager removal ...
+	    Vars = [Global|Vs],
+	    'chr default_store'(Global)
+	; State == removed ->			% the price for eager removal ...
 	    Susp =.. [_,_,_,_,_,_,_|Args],
 	    term_variables( Args, Vs),
-	    global_term_ref_1( Global),
-	    Vars = [Global|Vs]
+	    Vars = [Global|Vs],
+	    'chr default_store'(Global)
 	;
 	    Vars = []
 	).
 
-'chr insert_constraint_internal'( [Global|Vars], Self, Closure, F, Args) :-
-	term_variables( Args, Vars),
-	'chr none_locked'( Vars),
-	global_term_ref_1( Global),
-	'chr empty_history'( History),
-	create_mutable( active, Mref),
-	create_mutable( 0, Gref),
-	create_mutable( History, Href),
-	'chr gen_id'( Id),
-	Self =.. [suspension,Id,Mref,Closure,Gref,Href,F|Args].
+'chr insert_constraint_internal'([Global|Vars], Self, Closure, F, Args) :-
+	'chr default_store'(Global),
+	term_variables(Args,Vars),
+	'chr none_locked'(Vars),
+	Self =.. [suspension,Id,Mref,Closure,Gref,Href,F|Args], % SUSPXXX
+	'chr create_mutable'(active, Mref),
+	'chr create_mutable'(0, Gref),
+	'chr empty_history'(History),
+	'chr create_mutable'(History, Href),
+	'chr gen_id'(Id).
 
-insert_constraint_internal( [Global|Vars], Self, Term, Closure, F, Args) :-
+insert_constraint_internal([Global|Vars], Self, Term, Closure, F, Args) :-
+	'chr default_store'(Global),
 	term_variables( Term, Vars),
 	'chr none_locked'( Vars),
-	global_term_ref_1( Global),
 	'chr empty_history'( History),
-	create_mutable( active, Mref),
-	create_mutable( 0, Gref),
-	create_mutable( History, Href),
+	'chr create_mutable'( active, Mref),
+	'chr create_mutable'( 0, Gref),
+	'chr create_mutable'( History, Href),
 	'chr gen_id'( Id),
-	Self =.. [suspension,Id,Mref,Closure,Gref,Href,F|Args].
+	Self =.. [suspension,Id,Mref,Closure,Gref,Href,F|Args]. % SUSPXXX
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-change_state( Susp, State) :-
-	arg( 2, Susp, Mref),
-	update_mutable( State, Mref).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-'chr empty_history'( E) :- empty_assoc( E).
+'chr empty_history'( E) :- empty_ds( E).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 'chr gen_id'( Id) :-
-	incval( id, Id).
-
-incval(id,Id) :-
-	nb_getval(id,Id),
+	nb_getval(chr_id,Id),
 	NextId is Id + 1,
-	nb_setval(id,NextId).
+	nb_setval(chr_id,NextId).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-create_mutable(V,mutable(V)).
- 
-'chr get_mutable'(V, mutable(V)).  
- 
-'chr update_mutable'(V,M) :-
-	setarg(1,M,V).
 
-get_mutable(V, mutable(V)).  
+%% SWI begin
+'chr create_mutable'(V,mutable(V)).
+'chr get_mutable'(V,mutable(V)).  
+'chr update_mutable'(V,M) :- setarg(1,M,V).
+%% SWI end
 
-update_mutable(V,M) :-
-	setarg(1,M,V).
- 
+%% SICStus begin
+%% 'chr create_mutable'(Val, Mut) :- create_mutable(Val, Mut).
+%% 'chr get_mutable'(Val, Mut) :- get_mutable(Val, Mut).
+%% 'chr update_mutable'(Val, Mut) :- update_mutable(Val, Mut).
+%% SICStus end
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-'chr global_term_ref_1'(X) :-
-	global_term_ref_1(X).
+%% SWI begin
+'chr default_store'(X) :- nb_getval(chr_global,X).
+%% SWI end
 
-global_term_ref_1(X) :-
-	nb_getval(chr_global,X).
+%% SICStus begin
+%% 'chr default_store'(A) :- global_term_ref_1(A).
+%% SICStus end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -475,10 +571,10 @@ global_term_ref_1(X) :-
       sbag_member( Element, Tail, Head).
 
 % auxiliary to avoid choicepoint for last element
-
-sbag_member( E, _,	     E).
-sbag_member( E, [Head|Tail], _) :-
-	sbag_member( E, Tail, Head).
+        % does it really avoid the choicepoint? -jon
+ sbag_member( E, _,	     E).
+ sbag_member( E, [Head|Tail], _) :-
+ 	sbag_member( E, Tail, Head).
  
 'chr sbag_del_element'( [],	  _,	[]).
 'chr sbag_del_element'( [X|Xs], Elem, Set2) :-
@@ -489,27 +585,76 @@ sbag_member( E, [Head|Tail], _) :-
 	    'chr sbag_del_element'( Xs, Elem, Xss)
 	).
 
-sbag_union( A, B, C) :-
-	sbag_merge( A, B, C).
-
-sbag_merge([],Ys,Ys).
-sbag_merge([X | Xs],YL,R) :-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'chr merge_attributes'([],Ys,Ys).
+'chr merge_attributes'([X | Xs],YL,R) :-
   ( YL = [Y | Ys] ->
-      arg(1,X,XId),
-      arg(1,Y,YId),	
+      arg(1,X,XId), % ARGXXX
+      arg(1,Y,YId),	 % ARGXXX
        ( XId < YId ->
            R = [X | T],
-           sbag_merge(Xs,YL,T)
+           'chr merge_attributes'(Xs,YL,T)
        ; XId > YId ->
            R = [Y | T],
-           sbag_merge([X|Xs],Ys,T)
+           'chr merge_attributes'([X|Xs],Ys,T)
        ;
            R = [X | T],
-           sbag_merge(Xs,Ys,T)
+           'chr merge_attributes'(Xs,Ys,T)
        )    
   ;
        R = [X | Xs]
   ).
+
+'chr new_merge_attributes'([],A2,A) :-
+	A = A2.
+'chr new_merge_attributes'([E1|AT1],A2,A) :-
+	( A2 = [E2|AT2] ->
+		'chr new_merge_attributes'(E1,E2,AT1,AT2,A)
+	;
+		A = [E1|AT1]
+	).
+		
+'chr new_merge_attributes'(Pos1-L1,Pos2-L2,AT1,AT2,A) :-
+	( Pos1 < Pos2 ->
+		A = [Pos1-L1|AT],
+		'chr new_merge_attributes'(AT1,[Pos2-L2|AT2],AT)
+	; Pos1 > Pos2 ->
+		A = [Pos2-L2|AT],
+		'chr new_merge_attributes'([Pos1-L1|AT1],AT2,AT)
+	;
+		'chr merge_attributes'(L1,L2,L),
+		A = [Pos1-L|AT],
+		'chr new_merge_attributes'(AT1,AT2,AT)
+	).
+
+'chr all_suspensions'([],_,_).
+'chr all_suspensions'([Susps|SuspsList],Pos,Attr) :-
+	all_suspensions(Attr,Susps,SuspsList,Pos).
+
+all_suspensions([],[],SuspsList,Pos) :-
+	all_suspensions([],[],SuspsList,Pos). % all empty lists
+all_suspensions([APos-ASusps|RAttr],Susps,SuspsList,Pos) :-
+	NPos is Pos + 1,
+	( Pos == APos ->
+		Susps = ASusps,
+		'chr all_suspensions'(SuspsList,NPos,RAttr)
+	;
+		Susps = [],
+		'chr all_suspensions'(SuspsList,NPos,[APos-ASusps|RAttr])
+	).
+
+'chr normalize_attr'([],[]).
+'chr normalize_attr'([Pos-L|R],[Pos-NL|NR]) :-
+	sort(L,NL),
+	'chr normalize_attr'(R,NR).			
+
+'chr select'([E|T],F,R) :-
+	( E = F ->
+		R = T
+	;
+		R = [E|NR],
+		'chr select'(T,F,NR)
+	).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -518,7 +663,7 @@ sbag_merge([X | Xs],YL,R) :-
 	chr:debug_interact/3.		% +Event, +Depth, -Command
 
 'chr debug_event'(Event) :-
-	nb_getval(chr_debug,mutable(State)),
+	nb_getval(chr_debug,mutable(State)),  % XXX
 	( State == off ->
 		true
 	; chr:debug_event(State, Event) ->
@@ -559,10 +704,17 @@ valid_ports([H|T], Valid) :-
 	),
 	valid_ports(T, Valid).
 
+user:exception(undefined_global_variable, Name, retry) :-
+	chr_runtime_debug_global_variable(Name),
+	chr_debug_init.
 
-:- initialization
+chr_runtime_debug_global_variable(chr_leash).
+
+chr_debug_init :-
    leashed_ports(default, Ports),
    nb_setval(chr_leash, mutable(Ports)).
+
+:- initialization chr_debug_init.
 
 %	debug_event(+State, +Event)
 

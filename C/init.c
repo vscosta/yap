@@ -1207,7 +1207,7 @@ InitCodes(void)
   Yap_heap_regs->functor_creep = Yap_MkFunctor(AtomCreep, 1);
   Yap_heap_regs->functor_static_clause = Yap_MkFunctor (Yap_FullLookupAtom("$static_clause"), 1);
   Yap_heap_regs->functor_stream = Yap_MkFunctor (AtomStream, 1);
-  Yap_heap_regs->functor_stream_pos = Yap_MkFunctor (AtomStreamPos, 3);
+  Yap_heap_regs->functor_stream_pos = Yap_MkFunctor (AtomStreamPos, 5);
   Yap_heap_regs->functor_stream_eOS = Yap_MkFunctor (Yap_LookupAtom("end_of_stream"), 1);
   Yap_heap_regs->functor_thread_run = Yap_MkFunctor (Yap_FullLookupAtom("$top_thread_goal"), 2);
   Yap_heap_regs->functor_change_module = Yap_MkFunctor (Yap_FullLookupAtom("$change_module"), 1);

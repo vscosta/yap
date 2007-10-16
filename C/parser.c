@@ -611,7 +611,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
     if (Yap_tokptr->Tok == Ord(Name_tok)
 	&& (opinfo = Yap_GetOpProp((Atom)(Yap_tokptr->TokInfo)))) {
       OpEntry *save_opinfo = opinfo;
-      if (IsInfixOp(opinfo, &opprio, &oplprio, &oprprio)
+      if (IsInfixOp(opinfo, &opprio, &oplprio, &oprprio) 
 	  && opprio <= prio && oplprio >= curprio) {
 	/* try parsing as infix operator */
 	Volatile int oldprio = curprio;

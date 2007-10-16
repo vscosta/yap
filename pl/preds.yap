@@ -634,6 +634,11 @@ abolish(X) :-
 	erase(Ref),
 	fail.
 '$abolishd'(T, M) :-
+	functor(T,N,A),
+	recorded('$import','$import'(_,M,N,A),R),	
+	erase(R),
+	fail.
+'$abolishd'(T, M) :-
 	'$purge_clauses'(T,M), fail.
 '$abolishd'(T, M) :- '$kill_dynamic'(T,M), fail.
 '$abolishd'(_, _).
@@ -658,6 +663,11 @@ abolish(X) :-
 	recorded('$mf','$mf_clause'(_,Name,Arity,M,Ref),R),
 	erase(R),
 	erase(Ref),
+	fail.
+'$abolishs'(T, M) :-
+	functor(T,N,A),
+	recorded('$import','$import'(_,M,N,A),R),
+	erase(R),
 	fail.
 '$abolishs'(G, M) :-
 	'$purge_clauses'(G, M), fail.

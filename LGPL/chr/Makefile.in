@@ -37,10 +37,12 @@ INSTALL_DATA=@INSTALL_DATA@
 
 
 LIBPL=		$(srcdir)/chr_runtime.pl $(srcdir)/chr_op.pl chr_translate.pl $(srcdir)/chr_debug.pl \
-		$(srcdir)/chr_messages.pl $(srcdir)/hprolog.yap $(srcdir)/pairlist.pl $(srcdir)/clean_code.pl \
+		$(srcdir)/chr_messages.pl $(srcdir)/hprolog.pl $(srcdir)/pairlist.pl $(srcdir)/clean_code.pl \
 		$(srcdir)/find.pl $(srcdir)/a_star.pl $(srcdir)/binomialheap.pl $(srcdir)/builtins.pl \
 		$(srcdir)/chr_hashtable_store.pl $(srcdir)/listmap.pl guard_entailment.pl \
-		$(srcdir)/chr_compiler_options.pl $(srcdir)/chr_compiler_utility.pl
+		$(srcdir)/chr_compiler_errors.pl \
+		$(srcdir)/chr_compiler_options.pl $(srcdir)/chr_compiler_utility.pl \
+		$(srcdir)/chr_integertable_store.pl
 CHRPL=		$(srcdir)/chr_swi.pl
 CHRYAP=		$(srcdir)/chr.yap
 EXAMPLES=	$(srcdir)/Benchmarks/chrfreeze.chr $(srcdir)/Benchmarks/fib.chr $(srcdir)/Benchmarks/gcd.chr $(srcdir)/Benchmarks/primes.chr \

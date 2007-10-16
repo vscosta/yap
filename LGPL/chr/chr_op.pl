@@ -1,9 +1,9 @@
-/*  $Id: chr_op.pl,v 1.1 2005-10-28 17:41:30 vsc Exp $
+/*  $Id: chr_op.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
     Author:        Tom Schrijvers
-    E-mail:        Tom.Schrijvers@cs.kuleuven.ac.be
+    E-mail:        Tom.Schrijvers@cs.kuleuven.be
     WWW:           http://www.swi-prolog.org
     Copyright (C): 2003-2004, K.U. Leuven
 
@@ -33,10 +33,10 @@
 %%
 %% Operator Priorities
 
-:- op( 700, xfx, ::).
 :- op(1180, xfx, ==>).
 :- op(1180, xfx, <=>).
 :- op(1150, fx, constraints).
+:- op(1150, fx, chr_constraint).
 :- op(1150, fx, handler).
 :- op(1150, fx, rules).
 :- op(1100, xfx, \).
