@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-10-15 23:48:46 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-10-16 18:57:17 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.98  2007/10/15 23:48:46  vsc
+* unset var
+*
 * Revision 1.97  2007/10/05 18:24:30  vsc
 * fix garbage collector and fix LeaveGoal
 *
@@ -1255,7 +1258,6 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
 #endif
   ASP = YENV = (CELL *)B;
   YENV[E_CB] = Unsigned (B);
-  fprintf(stderr,"%p--%p\n",B,myB);
   out = run_emulator(dgi);
   RECOVER_MACHINE_REGS();
   return out;
