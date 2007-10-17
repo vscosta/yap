@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2007-09-24 09:02:31 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-10-17 09:18:26 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.224  2007/09/24 09:02:31  vsc
+* minor bug fixes
+*
 * Revision 1.223  2007/06/04 12:28:01  vsc
 * interface speedups
 * bad error message in X is foo>>2.
@@ -742,12 +745,12 @@ Yap_absmi(int inp)
       /* if we are within indexing code, the system may have to
        * update a S */
       {
-	CELL cut_b = LCL0-(CELL *)(SREG[E_CB]);
+	CELL cut_b;
 
 #if SHADOW_S
 	S = SREG;
 #endif
-	/* YREG =was pointing to where we were going to build the
+	/* YREG was pointing to where we were going to build the
 	 * next choice-point. The stack shifter will need to know this
 	 * to move the local stack */
 	if (YREG > (CELL *) PROTECT_FROZEN_B(B)) {
@@ -755,6 +758,7 @@ Yap_absmi(int inp)
 	} else {
 	  ASP = YREG+E_CB;
 	}
+	cut_b = LCL0-(CELL *)(ASP[E_CB]);
 	saveregs();
 	if(!Yap_growtrail (0, FALSE)) {
 	  Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
@@ -1473,7 +1477,7 @@ Yap_absmi(int inp)
       /* enter logical pred               */
       BOp(alloc_for_logical_pred, EC);
       check_trail(TR); 
-     /* say that an environment is using this clause */
+      /* say that an environment is using this clause */
       /* we have our own copy for the clause */
 #if defined(YAPOR) || defined(THREADS)
       {

@@ -662,10 +662,15 @@ Macros to check the limits of stacks
 
 #define check_trail(x)
 
+#define check_trail_in_indexing(x)
+
 #else
 
 #define check_trail(x) if (Unsigned(Yap_TrailTop) - Unsigned(x) < MinTrailGap) \
 			goto notrailleft
+
+#define check_trail_in_indexing(x) if (Unsigned(Yap_TrailTop) - Unsigned(x) < MinTrailGap) \
+			goto notrailleft_from_index
 
 #endif
 
