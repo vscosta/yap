@@ -292,10 +292,8 @@ true :- true.
  '$execute_command'((:-G),_,Option,_) :- !,
 	 '$current_module'(M),
 	 % allow user expansion
-(G=constraints(_)->start_low_level_trace; true),
 	 expand_term((:- G), O),
          O = (:- G1),
-stop_low_level_trace,
 	 '$process_directive'(G1, Option, M),
 	 fail.
  '$execute_command'((?-G),V,_,Source) :- !,
