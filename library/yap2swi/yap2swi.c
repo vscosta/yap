@@ -1508,8 +1508,10 @@ SWI_ctime(void)
 #endif
 }
 
+void Yap_swi_install(void);
+
 void
-swi_install(void)
+Yap_swi_install(void)
 {
   YAP_UserCPredicate("ctime", SWI_ctime, 2);
 }

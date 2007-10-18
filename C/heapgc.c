@@ -51,6 +51,7 @@ STATIC_PROTO(void compact_heap, (void));
 STATIC_PROTO(void update_relocation_chain, (CELL *, CELL *));
 STATIC_PROTO(int  is_gc_verbose, (void));
 STATIC_PROTO(int  is_gc_very_verbose, (void));
+STATIC_PROTO(void  LeaveGCMode, (void));
 #ifdef EASY_SHUNTING
 STATIC_PROTO(void  set_conditionals, (tr_fr_ptr));
 #endif /* EASY_SHUNTING */
@@ -3855,7 +3856,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   /* expand the stack if effectiveness is less than 20 % */
   if (ASP - H < gc_margin/sizeof(CELL) ||
       effectiveness < 20) {
-    Yap_PrologMode &= ~GCMode;
+    LeaveGCMode();
     return Yap_growstack(gc_margin);
   }
   /*
@@ -3865,12 +3866,34 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   return TRUE;
 }
 
+static void
+LeaveGCMode()
+{
+  if (Yap_PrologMode & GCMode)
+    Yap_PrologMode &= ~GCMode;
+  if (Yap_PrologMode & AbortMode) {
+    Yap_PrologMode &= ~AbortMode;
+      Yap_Error(PURE_ABORT, TermNil, "");
+      /* in case someone mangles the P register */
+      save_machine_regs();
+#if  _MSC_VER || defined(__MINGW32__)
+      /* don't even think about trying this */
+#else
+#if PUSH_REGS
+      restore_absmi_regs(&Yap_standard_regs);
+#endif
+      siglongjmp (Yap_RestartEnv, 1);
+#endif
+  }
+}
+
 int 
 Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
 {
   int res;
   Yap_PrologMode |= GCMode;
   res=call_gc(4096, predarity, current_env, nextop);
+  LeaveGCMode();
   if (Yap_PrologMode & GCMode)
     Yap_PrologMode &= ~GCMode;
   return res;
@@ -3879,14 +3902,22 @@ Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
 int 
 Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 {
-  return call_gc(gc_lim+CalculateStackGap()*sizeof(CELL), predarity, current_env, nextop);
+  int res;
+  Yap_PrologMode |= GCMode;
+  res = call_gc(gc_lim+CalculateStackGap()*sizeof(CELL), predarity, current_env, nextop);
+  LeaveGCMode();
+  return res;
 }
 
 
 static Int
 p_gc(void)
 {
-  return do_gc(0, ENV, P) >= 0;
+  int res;
+  Yap_PrologMode |= GCMode;
+  res = do_gc(0, ENV, P) >= 0;
+  LeaveGCMode();
+  return res;
 }
 
 void 

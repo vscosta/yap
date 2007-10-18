@@ -11,8 +11,13 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2007-10-10 09:44:24 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-10-18 08:24:16 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.121  2007/10/10 09:44:24  vsc
+* some more fixes to make YAP swi compatible
+* fix absolute_file_name (again)
+* fix setarg
+*
 * Revision 1.120  2007/10/08 23:02:15  vsc
 * minor fixes
 *
@@ -3952,7 +3957,7 @@ Yap_InitCPreds(void)
   {
     Term cm = CurrentModule;
     CurrentModule = SWI_MODULE;
-    swi_install();
+    Yap_swi_install();
     CurrentModule = cm;
   }
 }

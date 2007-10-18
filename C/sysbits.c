@@ -1314,7 +1314,7 @@ InteractSIGINT(int ch) {
   switch (ch) {
   case 'a':
     /* abort computation */
-    if (Yap_PrologMode & ConsoleGetcMode) {
+    if (Yap_PrologMode & (GCMode|ConsoleGetcMode|GrowStackMode|GrowHeapMode)) {
       Yap_PrologMode |= AbortMode;
     } else {
       Yap_Error(PURE_ABORT, TermNil, "");

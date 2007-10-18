@@ -15,8 +15,7 @@
 *									 *
 *************************************************************************/
 
-#include "Yap.h"
-#include "Yatom.h"
+#include "absmi.h"
 #include "Heap.h"
 #include "yapio.h"
 #include "alloc.h"
@@ -76,6 +75,27 @@ STATIC_PROTO(CELL AdjustAppl, (CELL));
 STATIC_PROTO(CELL AdjustPair, (CELL));
 STATIC_PROTO(void AdjustStacksAndTrail, (void));
 STATIC_PROTO(void AdjustRegs, (int));
+
+static void
+LeaveGrowMode(prolog_exec_mode grow_mode)
+{
+  Yap_PrologMode &= ~grow_mode;
+  if (Yap_PrologMode & AbortMode) {
+    Yap_PrologMode &= ~AbortMode;
+      Yap_Error(PURE_ABORT, TermNil, "");
+      /* in case someone mangles the P register */
+      save_machine_regs();
+#if  _MSC_VER || defined(__MINGW32__)
+      /* don't even think about trying this */
+#else
+#if PUSH_REGS
+      restore_absmi_regs(&Yap_standard_regs);
+#endif
+      siglongjmp (Yap_RestartEnv, 1);
+#endif
+  }
+}
+
 
 static void
 cpcellsd(register CELL *Dest, register CELL *Org, CELL NOf)
@@ -717,7 +737,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
       size = Yap_ExtendWorkSpaceThroughHole(size);
       if (size < 0) {
 	Yap_ErrorMessage = "Global Stack crashed against Local Stack";
-	Yap_PrologMode &= ~GrowStackMode;
+	LeaveGrowMode(GrowStackMode);
 	return 0;
       }
     }
@@ -809,7 +829,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
     fprintf(Yap_stderr, "%% %cO   took %g sec\n", vb_msg1, (double)growth_time/1000);
     fprintf(Yap_stderr, "%% %cO Total of %g sec expanding stacks \n", vb_msg1, (double)total_delay_overflow_time/1000);
   }
-  Yap_PrologMode &= ~GrowStackMode;
+  LeaveGrowMode(GrowStackMode);
   if (hsplit)
     return GDiff-GDiff0;
   else
@@ -1181,11 +1201,11 @@ Yap_growheap(int fix_code, UInt in_size, void *cip)
       UNLOCK(SignalLock);
       return TRUE;
     }
-    Yap_PrologMode &= ~GrowHeapMode;
+    LeaveGrowMode(GrowHeapMode);
     return res;
   }
   res=do_growheap(fix_code, in_size, (struct intermediates *)cip, NULL, NULL, NULL);
-  Yap_PrologMode &= ~GrowHeapMode;
+  LeaveGrowMode(GrowHeapMode);
   return res;
 }
 
@@ -1195,7 +1215,7 @@ Yap_growheap_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   int res;
 
   res=do_growheap(FALSE, 0L, NULL, old_trp, tksp, vep);
-  Yap_PrologMode &= ~GrowHeapMode;
+  LeaveGrowMode(GrowHeapMode);
   return res;
 }
 
@@ -1238,7 +1258,7 @@ Yap_growstack(long size)
 
   Yap_PrologMode |= GrowStackMode;
   res=growstack(size);
-  Yap_PrologMode &= ~GrowStackMode;
+  LeaveGrowMode(GrowStackMode);
   return res;
 }
 
@@ -1396,7 +1416,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
     fprintf(Yap_stderr, "%% Growing the stacks %ld bytes\n", (unsigned long int)size);
   }
   if (!execute_growstack(size, FALSE, TRUE, old_trp, tksp, vep)) {
-    Yap_PrologMode &= ~GrowStackMode;
+    LeaveGrowMode(GrowStackMode);
     return FALSE;
   }
   growth_time = Yap_cputime()-start_growth_time;
@@ -1405,7 +1425,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
     fprintf(Yap_stderr, "%%   took %g sec\n", (double)growth_time/1000);
     fprintf(Yap_stderr, "%% Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
   }
-  Yap_PrologMode &= ~GrowStackMode;
+  LeaveGrowMode(GrowStackMode);
   return TRUE;
 }
 

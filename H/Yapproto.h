@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.79 2007-05-14 16:44:12 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.80 2007-10-18 08:24:16 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -402,6 +402,9 @@ void    STD_PROTO(Yap_InitBackMYDDAS_SharedPreds,(void));
 #if defined MYDDAS_TOP_LEVEL && defined MYDDAS_MYSQL //&& defined HAVE_LIBREADLINE
 void    STD_PROTO(Yap_InitMYDDAS_TopLevelPreds,(void));
 #endif
+
+/* yap2swi.c */
+void	STD_PROTO(Yap_swi_install,(void));
 
 /* ypsocks.c */
 void	STD_PROTO(Yap_InitSockets,(void));

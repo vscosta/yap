@@ -1211,6 +1211,10 @@ p_nb_getval(void)
     return FALSE;
   READ_LOCK(ge->GRWLock);
   to = ge->global;
+  if (IsVarTerm(to) && IsUnboundVar(VarOfTerm(to))) {
+    READ_UNLOCK(ge->GRWLock);
+    return FALSE;
+  }
   READ_UNLOCK(ge->GRWLock);
   return Yap_unify(ARG2, to);
 }
