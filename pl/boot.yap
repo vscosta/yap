@@ -56,6 +56,8 @@ true :- true.
 	('$exit_undefp' -> true ; true),
 	prompt('  ?- '),
 	nb_setval('$break',0),
+	nb_setval('$if_level',0),
+	nb_setval('$endif',off),
 	% '$set_read_error_handler'(error), let the user do that
 	nb_setval('$debug',off),
 	nb_setval('$trace',off),
@@ -80,121 +82,121 @@ true :- true.
 	'$startup_reconsult',
 	'$startup_goals'.
 
- % Start file for yap
+% Start file for yap
 
- /*		I/O predicates						*/
+/*		I/O predicates						*/
 
- /* meaning of flags for '$write' is
+/* meaning of flags for '$write' is
 	  1	quote illegal atoms
 	  2	ignore operator declarations
 	  4	output '$VAR'(N) terms as A, B, C, ...
 	  8	use portray(_)
- */
+*/
 
- /* main execution loop							*/
- '$read_vars'(Stream,T,Mod,Pos,V) :-
-	 '$read'(true,T,Mod,V,Pos,Err,Stream),
-	 (nonvar(Err) ->
-	     '$print_message'(error,Err), fail
-	     ;
-	     true
-	 ).
+/* main execution loop							*/
+'$read_vars'(Stream,T,Mod,Pos,V) :-
+	'$read'(true,T,Mod,V,Pos,Err,Stream),
+	(nonvar(Err) ->
+	 '$print_message'(error,Err), fail
+	;
+	 true
+	).
 
- % reset alarms when entering top-level.
- '$enter_top_level' :-
-	 '$alarm'(0, 0, _, _),
-	 fail.
- '$enter_top_level' :-
-	 '$clean_up_dead_clauses',
-	 fail.
- '$enter_top_level' :-
-	 recorded('$restore_goal',G,R),
-	 erase(R),
-	 prompt(_,'   | '),
-	 '$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
-	 fail.
- '$enter_top_level' :-
-	 nb_getval('$break',BreakLevel),
-	 (
-	   nb_getval('$trace',on)
-	 ->
-	   TraceDebug = trace
-	 ;
-	   nb_getval('$debug', on)
-	 ->
-	   TraceDebug = debug
-	 ;
-	   true
-	 ),
-	 '$print_message'(informational,prompt(BreakLevel,TraceDebug)),
-	 fail.
- '$enter_top_level' :-
-	 get_value('$top_level_goal',GA), GA \= [], !,
-	 set_value('$top_level_goal',[]),
-	 '$run_atom_goal'(GA),
-	 set_value('$live','$false').
- '$enter_top_level' :-
-	 prompt(_,'   ?- '),
-	 prompt('   | '),
-	 '$run_toplevel_hooks',
-	 '$read_vars'(user_input,Command,_,_,Varnames),
-	 nb_setval('$spy_gn',1),
-	 % stop at spy-points if debugging is on.
-	 nb_setval('$debug_run',off),
-	 nb_setval('$debug_zip',off),
-	 prompt(_,'   |: '),
-	 '$command'((?-Command),Varnames,top),
-	 '$sync_mmapped_arrays',
-	 set_value('$live','$false').
+% reset alarms when entering top-level.
+'$enter_top_level' :-
+	'$alarm'(0, 0, _, _),
+	fail.
+'$enter_top_level' :-
+	'$clean_up_dead_clauses',
+	fail.
+'$enter_top_level' :-
+	recorded('$restore_goal',G,R),
+	erase(R),
+	prompt(_,'   | '),
+	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
+	fail.
+'$enter_top_level' :-
+	nb_getval('$break',BreakLevel),
+	(
+	 nb_getval('$trace',on)
+	->
+	 TraceDebug = trace
+	;
+	 nb_getval('$debug', on)
+	->
+	 TraceDebug = debug
+	;
+	 true
+	),
+	'$print_message'(informational,prompt(BreakLevel,TraceDebug)),
+	fail.
+'$enter_top_level' :-
+	get_value('$top_level_goal',GA), GA \= [], !,
+	set_value('$top_level_goal',[]),
+	'$run_atom_goal'(GA),
+	set_value('$live','$false').
+'$enter_top_level' :-
+	prompt(_,'   ?- '),
+	prompt('   | '),
+	'$run_toplevel_hooks',
+	'$read_vars'(user_input,Command,_,_,Varnames),
+	nb_setval('$spy_gn',1),
+		% stop at spy-points if debugging is on.
+	nb_setval('$debug_run',off),
+	nb_setval('$debug_zip',off),
+	prompt(_,'   |: '),
+	'$command'((?-Command),Varnames,top),
+	'$sync_mmapped_arrays',
+	set_value('$live','$false').
 
- '$startup_goals' :-
-	 get_value('$extend_file_search_path',P), P \= [],
-	 set_value('$extend_file_search_path',[]),
-	 '$extend_file_search_path'(P),
-	 fail.
- '$startup_goals' :-
-	 recorded('$startup_goal',G,_),
-	 '$current_module'(Module),
-	 '$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)),
-	 fail.
- '$startup_goals' :-
-	 get_value('$init_goal',GA),
-	 GA \= [],
- 	 set_value('$init_goal',[]),
-	 '$run_atom_goal'(GA),
-	 fail.
- '$startup_goals' :-
-	 get_value('$myddas_goal',GA), GA \= [],
-	 set_value('$myddas_goal',[]),
-	 get_value('$myddas_user',User), User \= [],
-	 set_value('$myddas_user',[]),
-	 get_value('$myddas_db',Db), Db \= [],
-	 set_value('$myddas_db',[]),
-	 get_value('$myddas_host',HostT),
-	 ( HostT \= [] ->
-	     Host = HostT,
-	     set_value('$myddas_host',[])
-	 ;
-	     Host = localhost
-	 ),
-	 get_value('$myddas_pass',PassT),
-	 ( PassT \= [] ->
-	     Pass = PassT,
-	     set_value('$myddas_pass',[])
-	 ;
-	     Pass = ''
-	 ),
-	 use_module(library(myddas)),
-	 call(db_open(mysql,myddas,Host/Db,User,Pass)),
-	 '$myddas_import_all',
-	 fail.
- '$startup_goals'.
+'$startup_goals' :-
+	get_value('$extend_file_search_path',P), P \= [],
+	set_value('$extend_file_search_path',[]),
+	'$extend_file_search_path'(P),
+	fail.
+'$startup_goals' :-
+	recorded('$startup_goal',G,_),
+	'$current_module'(Module),
+	'$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)),
+	fail.
+'$startup_goals' :-
+	get_value('$init_goal',GA),
+	GA \= [],
+	set_value('$init_goal',[]),
+	'$run_atom_goal'(GA),
+	fail.
+'$startup_goals' :-
+	get_value('$myddas_goal',GA), GA \= [],
+	set_value('$myddas_goal',[]),
+	get_value('$myddas_user',User), User \= [],
+	set_value('$myddas_user',[]),
+	get_value('$myddas_db',Db), Db \= [],
+	set_value('$myddas_db',[]),
+	get_value('$myddas_host',HostT),
+	( HostT \= [] ->
+	  Host = HostT,
+	  set_value('$myddas_host',[])
+	;
+	  Host = localhost
+	),
+	get_value('$myddas_pass',PassT),
+	( PassT \= [] ->
+	  Pass = PassT,
+	  set_value('$myddas_pass',[])
+	;
+	  Pass = ''
+	),
+	use_module(library(myddas)),
+	call(db_open(mysql,myddas,Host/Db,User,Pass)),
+	'$myddas_import_all',
+	fail.
+'$startup_goals'.
 
- '$startup_reconsult' :-
-	 get_value('$consult_on_boot',X), X \= [], !,
-	 set_value('$consult_on_boot',[]),
-	 '$do_startup_reconsult'(X).
- '$startup_reconsult'.
+'$startup_reconsult' :-
+	get_value('$consult_on_boot',X), X \= [], !,
+	set_value('$consult_on_boot',[]),
+	'$do_startup_reconsult'(X).
+'$startup_reconsult'.
 
  %
  % MYDDAS: Import all the tables from one database
@@ -241,26 +243,29 @@ true :- true.
  '$repeat'.
  '$repeat' :- '$repeat'.
 
- '$start_corouts' :- recorded('$corout','$corout'(Name,_,_),R), Name \= main, finish_corout(R),
-		 fail.
- '$start_corouts' :- 
-		 eraseall('$corout'),
-		 eraseall('$result'),
-		 eraseall('$actual'),
-		 fail.
- '$start_corouts' :- recorda('$actual',main,_),
-	 recordz('$corout','$corout'(main,main,'$corout'([],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[])),_Ref),
-	 recorda('$result',going,_).
+'$start_corouts' :-
+	recorded('$corout','$corout'(Name,_,_),R),
+	Name \= main,
+	finish_corout(R),
+	fail.
+'$start_corouts' :- 
+	eraseall('$corout'),
+	eraseall('$result'),
+	eraseall('$actual'),
+	fail.
+'$start_corouts' :- recorda('$actual',main,_),
+	recordz('$corout','$corout'(main,main,'$corout'([],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[])),_Ref),
+	recorda('$result',going,_).
 
- '$command'(C,VL,Con) :-
-	 '$access_yap_flags'(9,1), !,
+'$command'(C,VL,Con) :-
+	'$access_yap_flags'(9,1), !,
 	 '$execute_command'(C,VL,Con,C).
- '$command'(C,VL,Con) :-
-	 ( (Con = top ; var(C) ; C = [_|_])  ->  
-	 '$execute_command'(C,VL,Con,C), ! ;
-	 expand_term(C, EC),
-	 '$execute_commands'(EC,VL,Con,C)
-	 ).
+'$command'(C,VL,Con) :-
+	( (Con = top ; var(C) ; C = [_|_])  ->  
+	  '$execute_command'(C,VL,Con,C), ! ;
+	  expand_term(C, EC),
+	  '$execute_commands'(EC,VL,Con,C)
+	).
 
  %
  % Hack in case expand_term has created a list of commands.
@@ -289,6 +294,11 @@ true :- true.
  '$execute_command'(R,_,top,Source) :- db_reference(R), !,
 	 '$do_error'(type_error(callable,R),meta_call(Source)).
  '$execute_command'(end_of_file,_,_,_) :- !.
+ '$execute_command'(Command,_,_,_) :-
+	 nb_getval('$if_skip_mode',skip),
+	 \+ '$if_directive'(Command),
+	 !,
+	 fail.
  '$execute_command'((:-G),_,Option,_) :- !,
 	 '$current_module'(M),
 	 % allow user expansion

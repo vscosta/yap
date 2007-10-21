@@ -160,6 +160,7 @@ Subnodes of Encoding
 Subnodes of Loading Programs
 * Compiling:: Program Loading and Updating
 * Setting the Compiler:: Changing the compiler's parameters
+* Conditional Compilation:: Compiling program fragments
 * Saving:: Saving and Restoring Programs
 
 Subnodes of Modules
@@ -1535,6 +1536,7 @@ writing, writing a BOM can be requested using the option
 Loading Programs
 * Compiling:: Program Loading and Updating
 * Setting the Compiler:: Changing the compiler's parameters
+* Conditional Compilation:: Compiling program fragments
 * Saving:: Saving and Restoring Programs
 
 @end menu
@@ -1616,7 +1618,7 @@ files specified by @var{F} into the file being currently consulted.
 
 @end table
 
-@node Setting the Compiler, Saving, Compiling, Loading Programs
+@node Setting the Compiler, Conditional Compilation, Compiling, Loading Programs
 @section Changing the Compiler's Behavior
 
 This section presents a set of built-ins predicates designed to set the 
@@ -1869,7 +1871,85 @@ Since YAP4.3.0 multifile procedures can be static or dynamic.
 
 @end table
 
-@node Saving, , Setting the Compiler, Loading Programs
+@node Conditional Compilation, Saving, Setting the Compiler, Loading Programs
+
+@section Conditional Compilation 
+
+@c \index{if, directive}%
+Conditional compilation builds on the same principle as
+@code{term_expansion/2}, @code{goal_expansion/2} and the expansion of
+grammar rules to compile sections of the source-code
+conditionally. One of the reasons for introducing conditional
+compilation is to simplify writing portable code.
+@c  See \secref{dialect}
+@c for more information. Here is a simple example:
+
+@c @table code
+@c :- if(\+source_exports(library(lists), suffix/2)).
+
+@c suffix(Suffix, List) :-
+@c 	append(_, Suffix, List).
+
+@c :- endif.
+@c \end{code}
+
+Note that these directives can only be appear as separate terms in the
+input.  Typical usage scenarios include:
+
+@itemize @bullet
+    @item Load different libraries on different dialects
+    @item Define a predicate if it is missing as a system predicate
+    @item Realise totally different implementations for a particular
+    part of the code due to different capabilities.
+    @item Realise different configuration options for your software.
+@end itemize
+
+
+@table @code
+@item if(+@var{Goal})
+@findex if/1 directive
+@snindex if/1
+@cnindex if/1
+Compile subsequent code only if @var{Goal} succeeds.  For enhanced
+portability, @var{Goal} is processed by @code{expand_goal/2} before execution.
+If an error occurs, the error is printed and processing proceeds as if
+@var{Goal} has failed.
+
+@item else
+@findex else/0 directive
+@snindex else/0
+@cnindex else/0
+Start `else' branch.
+
+@item endif
+@findex endif/0 directive
+@snindex endif/0
+@cnindex endif/0
+End of conditional compilation.
+
+@item elif(+@var{Goal})
+@findex elif/1 directive
+@snindex elif/1
+@cnindex elif/1
+Equivalent to @code{:- else. :-if(Goal) ... :- endif.}  In a sequence
+as below, the section below the first matching elif is processed, If
+no test succeeds the else branch is processed.
+
+@example
+:- if(test1).
+section_1.
+:- elif(test2).
+section_2.
+:- elif(test3).
+section_3.
+:- else.
+section_else.
+:- endif.
+@end example
+
+@end table
+
+@node Saving, , Conditional Compilation, Loading Programs
 @section Saving and Loading Prolog States
 
 @table @code

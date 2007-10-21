@@ -200,6 +200,8 @@ use_module(M,F,Is) :-
 '$csult'([F|L], M) :- '$consult'(F, M), '$csult'(L, M).
 
 '$do_lf'(ContextModule, Stream, InfLevel, _, Imports, SkipUnixComments, Reconsult, UseModule) :-
+	nb_getval('$if_level',OldIncludeLevel),
+	nb_setval('$if_level',0),
 	nb_getval('$system_mode', OldMode),
         ( OldMode == off -> '$enter_system_mode' ; true ),
 	'$record_loaded'(Stream, ContextModule),
@@ -246,6 +248,11 @@ use_module(M,F,Is) :-
 	set_value('$consulting',Old),
 	set_value('$consulting_file',OldF),
 	cd(OldD),
+	nb_setval('$if_level',OldIncludeLevel),
+	% surely, we were in run mode or we would not have included the file!
+	nb_setval('$if_skip_mode',run),
+	% back to include mode!
+	nb_setval('$if_level',OldIncludeLevel),
 	'$current_module'(Mod,OldModule),
 	'$bind_module'(Mod, UseModule),
 	'$import_to_current_module'(File, ContextModule, Imports),
@@ -757,4 +764,99 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	atom_concat([P0,A,File],NFile),
 	NewName =.. [N,NFile],
 	'$find_in_path'(NewName, Opts, OFile, Goal).
+
+%
+% This is complicated because of embedded ifs.
+%
+'$if'(_,top) :- !, fail.
+'$if'(Goal,_) :-
+	nb_getval('$if_level',Level0),
+	Level is Level0 + 1,
+	nb_setval('$if_level',Level),
+	nb_getval('$endif',OldEndif),
+	nb_getval('$if_skip_mode',Mode),
+	nb_setval('$endif',elif(Level,OldEndif,Mode)),
+	fail.
+% we are in skip mode, ignore....
+'$if'(Goal,_) :-
+	nb_getval('$endif',elif(Level, OldEndif, skip)), !,
+	nb_setval('$endif',endif(Level, OldEndif, skip)).	
+% we are in non skip mode, check....
+'$if'(Goal,_) :-
+	('$if_call'(Goal)
+	    ->
+	 % we will execute this branch, and later enter skip
+	 nb_getval('$endif',elif(Level,OldEndif,Mode)),
+	 nb_setval('$endif',endif(Level,OldEndif,Mode))
+	;
+	 % we are now in skip, but can start an elif.
+	 nb_setval('$if_skip_mode',skip)
+	).
+
+'$else'(top) :- !, fail.
+'$else'(_) :-
+	nb_getval('$if_level',0), !,
+	'$do_error'(context_error(no_if),(:- else)).
+% we have done an if, so just skip
+'$else'(_) :-
+	nb_getval('$endif',endif(_,_,_)), !,
+	nb_setval('$if_skip_mode',skip).
+% we can try the elif
+'$else'(_) :-
+	nb_getval('$if_level',Level),
+	nb_getval('$endif',elif(Level,OldEndif,Mode)),
+	nb_setval('$endif',endif(Level,OldEndif,Mode)),
+	nb_setval('$if_skip_mode',run).
+
+'$elif'(_,top) :- !, fail.
+'$elif'(Goal,_) :-
+	nb_getval('$if_level',0),
+	'$do_error'(context_error(no_if),(:- elif(Goal))).
+% we have done an if, so just skip
+'$elif'(_,_) :-
+	 nb_getval('$endif',endif(_,_,_)), !,
+	 nb_setval('$if_skip_mode',skip).
+% we can try the elif
+'$elif'(Goal,_) :-
+	nb_getval('$if_level',Level),
+	nb_getval('$endif',elif(Level,OldEndif,Mode)),
+	('$if_call'(Goal)
+	    ->
+% we will not skip, and we will not run any more branches.
+	 nb_setval('$endif',endif(Level,OldEndif,Mode)),
+	 nb_setval('$if_skip_mode',run)
+	;
+% we will (keep) on skipping
+	 nb_setval('$if_skip_mode',skip)
+	).
+'$elif'(_,_).
+
+'$endif'(top) :- !, fail.
+'$endif'(_) :-
+% unmmatched endif.
+	nb_getval('$if_level',0),
+	'$do_error'(context_error(no_if),(:- endif)).
+'$endif'(_) :-
+% back to where you belong.
+	nb_getval('$if_level',Level),
+	nb_getval('$endif',Endif),
+	Level0 is Level-1,
+	nb_setval('$if_level',Level0),
+	arg(2,Endif,OldEndif),
+	arg(3,Endif,OldMode),
+	nb_setval('$endif',OldEndif),
+	nb_setval('$if_skip_mode',OldMode).
+
+
+'$if_call'(G) :-
+	catch('$eval_if'(G), E, (print_message(error, E), fail)).
+
+'$eval_if'(Goal) :-
+	expand_term(Goal,TrueGoal),
+	once(TrueGoal).
+
+'$if_directive'((:- if(_))).
+'$if_directive'((:- else)).
+'$if_directive'((:- elif(_))).
+'$if_directive'((:- endif)).
 

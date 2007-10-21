@@ -3492,10 +3492,6 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
       total_marked += total_oldies;
     }
   } else {
-    if (GcCalls==355) {
-      fprintf(stderr,"Start=%p,%pn %ld, %ld\n",H0,HGEN, total_oldies, total_marked);
-      
-    }
     if (HGEN != H0) {
       CurrentH0 = H0;
       H0 = HGEN;

@@ -50,6 +50,10 @@
 '$directive'(thread_local(_)).
 '$directive'(uncutable(_)).
 '$directive'(encoding(_)).
+'$directive'(if(_)).
+'$directive'(else).
+'$directive'(elif(_)).
+'$directive'(endif).
 
 '$exec_directives'((G1,G2), Mode, M) :- !,
 	'$exec_directives'(G1, Mode, M),
@@ -117,6 +121,14 @@
 	'$table'(PredSpec, M).
 '$exec_directive'(uncutable(PredSpec), _, M) :-
 	'$uncutable'(PredSpec, M).
+'$exec_directive'(if(Goal), Context, M) :-
+	'$if'(M:Goal, Context).
+'$exec_directive'(else, Context, _) :-
+	'$else'(Context).
+'$exec_directive'(elif(Goal), Context, M) :-
+	'$elif'(M:Goal, Context).
+'$exec_directive'(endif, Context, _) :-
+	'$endif'(Context).
 
 
 yap_flag(V,Out) :-
