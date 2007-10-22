@@ -485,11 +485,49 @@ mutex_property(Mutex, Prop) :-
 '$mutex_property'(Id, alias(Alias)) :-
 	recorded('$mutex_alias', [Id|Alias], _),
 	Id \= Alias.
-'$mutex_property'(Id, locked(Thread, Count)) :-
+'$mutex_property'(Id, status(Status)) :-
 	'$mutex_info'(Id, Count, HoldingThread),
-	Count > 0,
-	'$thread_id_alias'(HoldingThread, Alias),
-	once((Thread = Alias; Thread = HoldingThread)).
+	(	Count =:= 0 ->
+		Status = unlocked
+	;	% Count > 0,
+		'$thread_id_alias'(HoldingThread, Alias),
+		once((Thread = Alias; Thread = HoldingThread)),
+		Status = locked(Thread, Count)
+	).
+/*
+message_queue_create(Id, Options) :-
+	nonvar(Id), !,
+	'$do_error'(type_error(variable, Id), message_queue_create(Id, Options)).
+message_queue_create(Id, Options) :-
+	var(Options), !,
+	'$do_error'(instantiation_error, message_queue_create(Id, Options)).
+	message_queue_create(Cond).
+message_queue_create(Id, [alias(Alias)]) :-
+	var(Alias), !,
+	'$do_error'(instantiation_error, message_queue_create(Id, Options)).
+message_queue_create(Id, [alias(Alias)]) :-
+	atom(Alias),
+	(	recorded('$thread_alias', [_,Alias], _),
+	;	recorded('$queue', q(Alias,_,_,_), _)
+	), !,
+	'$do_error'(permission_error(create,queue,Alias), message_queue_create(Id, [alias(Alias)])).
+message_queue_create(Id, [alias(Alias)]) :-
+	mutex_create(Mutex),
+	'$cond_create'(Id),
+	'$mq_iname'(Id, CName),
+	recorda('$queue',q(Alias,Mutex,Id,CName), _).
+
+
+
+message_queue_create(Id) :-
+	(	var(Id) ->
+		message_queue_create(Id, [])
+	;	atom(Id) ->
+		message_queue_create(_, [alias(Id)])
+	).
+*/
+message_queue_create(_, [alias(Alias)]) :-	% TEMPORARY FIX
+	message_queue_create(Alias).
 
 message_queue_create(Cond) :-
 	var(Cond), !,
@@ -769,6 +807,14 @@ threads :-
 '$check_mutex_property'(Term, _) :-
 	var(Term), !.
 '$check_mutex_property'(alias(_), _) :- !.
-'$check_mutex_property'(locked(_, _), _) :- !.
+'$check_mutex_property'(status(Status), Goal) :- !,
+	(	var(Status) ->
+		true
+	;	Status = unlocked ->
+		true
+	;	Status = locked(_, _) ->
+		true
+	;	'$do_error'(domain_error(mutex_property, status(Status)), Goal)
+	).
 '$check_mutex_property'(Term, Goal) :-
 	'$do_error'(domain_error(mutex_property, Term), Goal).
