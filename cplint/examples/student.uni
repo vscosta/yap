@@ -1,0 +1,4 @@
+universe(['S'],[jane_doe]).
+universe(['P'],[gump]).
+universe(['Reg'],[5639,5640]).
+universe(['C'],[phil101]).

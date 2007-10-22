@@ -1,0 +1,19 @@
+This directory contains the code of the LPAD anc CP-logic interpreter cplint
+
+COMPILATION:
+This package requires CUDD, GLU (a subpackage of VIS) and GLIB.
+You can download CUDD from http://vlsi.colorado.edu/~fabio/
+You can download GLU from http://vlsi.colorado.edu/~vis/getting_VIS_2.1.html
+You can download GLIB from http://www.gtk.org/. This is a standard Linux package 
+so it is easy to install using the package management software of your Linux 
+distribution
+
+FEEDBACK:
+
+Send feedback to:
+
+Fabrizio Riguzzi
+University of Ferrara 
+Dept. of Engineering
+fabrizio.riguzzi@unife.it
+http://www.ing.unife.it/Docenti/FabrizioRiguzzi/

@@ -1,0 +1,3 @@
+universe(['Stu'],[s0]).
+universe(['Key'],[r0,r1]).
+universe(['Cou'],[c16,c10]).
