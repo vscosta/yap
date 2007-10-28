@@ -74,10 +74,10 @@ typedef enum {
 
 matrix_new(ints,Dims,Matrix) :-
 	length(Dims,NDims),
-	new_ints_matrix(NDims, Dims, [], Matrix).
+	new_ints_matrix_set(NDims, Dims, 0, Matrix).
 matrix_new(floats,Dims,Matrix) :-
 	length(Dims,NDims),
-	new_float_matrix(NDims, Dims, [], Matrix).
+	new_float_matrix_set(NDims, Dims, 0.0, Matrix).
 
 
 matrix_new(ints,Dims,Data,Matrix) :-

@@ -418,16 +418,21 @@ AllAttVars(attvar_record *attv) {
       return 0L;
     }
     if (IsVarTerm(attv->Done) && IsUnboundVar(&attv->Done)) {
-      if (IsVarTerm(attv->Atts) && VarOfTerm(attv->Atts) < (CELL *)attv) {
-	/* skip call residue(s) */
-	attv = (attvar_record *)(attv->Atts);
-      } else {
-	if (H != h0) {
-	  H[-1] = AbsPair(H);
+      if (IsVarTerm(attv->Atts)) {
+	if (VarOfTerm(attv->Atts) < (CELL *)attv) {
+	  /* skip call residue(s) */
+	  attv = (attvar_record *)(attv->Atts);
+	  continue;
+	} else if (IsUnboundVar(&attv->Atts)) {
+	  /* ignore arena */
+	  continue;
 	}
-	H[0] = (CELL)attv;
-	H += 2;
       }
+      if (H != h0) {
+	H[-1] = AbsPair(H);
+      }
+      H[0] = (CELL)attv;
+      H += 2;
     }
   }
   if (H != h0) {

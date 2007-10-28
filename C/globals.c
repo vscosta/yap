@@ -912,6 +912,64 @@ CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term 
   goto restart;
 }
 
+static Term
+CreateTermInArena(Term arena, Atom Na, UInt Nar, UInt arity, Term *newarena, Term init)
+{
+  UInt old_size = ArenaSz(arena);
+  CELL *oldH = H;
+  CELL *oldHB = HB;
+  CELL *oldASP = ASP;
+  Term tf;
+  CELL *HB0;
+  Functor f = Yap_MkFunctor(Na, Nar);
+  UInt i;
+
+ restart:
+  H = HB = ArenaPt(arena);
+  ASP = ArenaLimit(arena);
+  HB0 = H;
+  tf = AbsAppl(H);
+  H[0] = (CELL)f;
+  H += 1+ArityOfFunctor(f);
+  if (H > ASP-128) {
+    /* overflow */
+    H = HB;
+    CloseArena(oldH, oldHB, oldASP, newarena, old_size);
+    XREGS[arity+1] = arena;
+    XREGS[arity+2] = (CELL)newarena;
+    {
+      CELL *old_top = ArenaLimit(*newarena);
+      ASP = oldASP;
+      H = oldH;
+      HB = oldHB;
+      if (arena == GlobalArena)
+	GlobalArenaOverflows++;
+      if (!GrowArena(arena, old_top, old_size, Nar*sizeof(CELL), arity+2)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "while creating large global term");
+	return 0L;
+      }
+    }
+    oldH = H;
+    oldHB = HB;
+    oldASP = ASP;
+    newarena = (CELL *)XREGS[arity+2];
+    arena = Deref(XREGS[arity+1]);
+    old_size = ArenaSz(arena);
+    goto restart;
+  } 
+  if (init == 0L) {
+    for (i=1; i<=Nar; i++) {
+      RESET_VARIABLE(HB0+i);
+    }
+  } else {
+    for (i=1; i<=Nar; i++) {
+      HB0[i] = init;
+    }
+  }
+  CloseArena(oldH, oldHB, oldASP, newarena, old_size);
+  return tf;
+}
+
 inline static GlobalEntry *
 FindGlobalEntry(Atom at)
 /* get predicate entry for ap/arity; create it if neccessary.              */
@@ -1108,10 +1166,10 @@ p_nb_linkval(void)
   Term t = Deref(ARG1), to;
   GlobalEntry *ge;
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR,t,"nb_setval");
+    Yap_Error(INSTANTIATION_ERROR,t,"nb_linkval");
     return (TermNil);
   } else if (!IsAtomTerm(t)) {
-      Yap_Error(TYPE_ERROR_ATOM,t,"nb_setval");
+      Yap_Error(TYPE_ERROR_ATOM,t,"nb_linkval");
       return (FALSE);
   }
   ge = GetGlobalEntry(AtomOfTerm(t));
@@ -1261,6 +1319,98 @@ p_nb_delete(void)
   WRITE_UNLOCK(ae->ARWLock);
   WRITE_UNLOCK(ge->GRWLock);
   Yap_FreeCodeSpace((char *)ge);
+  return TRUE;
+}
+
+static Int
+p_nb_create(void)
+{
+  Term t = Deref(ARG1);
+  Term tname = Deref(ARG2);
+  Term tarity = Deref(ARG3);
+  Term to;
+  GlobalEntry *ge;
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"nb_create");
+    return FALSE;
+  } else if (!IsAtomTerm(t)) {
+    Yap_Error(TYPE_ERROR_ATOM,t,"nb_create");
+    return FALSE;
+  }
+  ge = GetGlobalEntry(AtomOfTerm(t));
+  if (!ge)
+    return FALSE;
+  if (IsVarTerm(tarity)) {
+    Yap_Error(INSTANTIATION_ERROR,tarity,"nb_create");
+    return FALSE;
+  } else if (!IsIntegerTerm(tarity)) {
+    Yap_Error(TYPE_ERROR_INTEGER,tarity,"nb_create");
+    return FALSE;
+  }
+  if (IsVarTerm(tname)) {
+    Yap_Error(INSTANTIATION_ERROR,tname,"nb_create");
+    return FALSE;
+  } else if (!IsAtomTerm(tname)) {
+    Yap_Error(TYPE_ERROR_ATOM,tname,"nb_create");
+    return FALSE;
+  }
+  to = CreateTermInArena(GlobalArena, AtomOfTerm(tname), IntegerOfTerm(tarity),  3, &GlobalArena, 0L);
+  if (!to)
+    return FALSE;
+  WRITE_LOCK(ge->GRWLock);
+  ge->global=to;
+  WRITE_UNLOCK(ge->GRWLock);
+  return TRUE;
+}
+
+static Int
+p_nb_create2(void)
+{
+  Term t = Deref(ARG1);
+  Term tname = Deref(ARG2);
+  Term tarity = Deref(ARG3);
+  Term tinit = Deref(ARG4);
+  Term to;
+  GlobalEntry *ge;
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"nb_create");
+    return FALSE;
+  } else if (!IsAtomTerm(t)) {
+    Yap_Error(TYPE_ERROR_ATOM,t,"nb_create");
+    return FALSE;
+  }
+  ge = GetGlobalEntry(AtomOfTerm(t));
+  if (!ge)
+    return FALSE;
+  if (IsVarTerm(tarity)) {
+    Yap_Error(INSTANTIATION_ERROR,tarity,"nb_create");
+    return FALSE;
+  } else if (!IsIntegerTerm(tarity)) {
+    Yap_Error(TYPE_ERROR_INTEGER,tarity,"nb_create");
+    return FALSE;
+  }
+  if (IsVarTerm(tname)) {
+    Yap_Error(INSTANTIATION_ERROR,tname,"nb_create");
+    return FALSE;
+  } else if (!IsAtomTerm(tname)) {
+    Yap_Error(TYPE_ERROR_ATOM,tname,"nb_create");
+    return FALSE;
+  }
+  if (IsVarTerm(tinit)) {
+    Yap_Error(INSTANTIATION_ERROR,tname,"nb_create");
+    return FALSE;
+  } else if (!IsAtomTerm(tinit)) {
+    Yap_Error(TYPE_ERROR_ATOM,tname,"nb_create");
+    return FALSE;
+  }
+  to = CreateTermInArena(GlobalArena, AtomOfTerm(tname), IntegerOfTerm(tarity), 4, &GlobalArena, tinit);
+  if (!to)
+    return FALSE;
+  WRITE_LOCK(ge->GRWLock);
+  ge->global=to;
+  WRITE_UNLOCK(ge->GRWLock);
   return TRUE;
 }
 
@@ -2403,6 +2553,8 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("nb_set_shared_arg", 3, p_nb_set_shared_arg, 0L);
   Yap_InitCPred("nb_linkarg", 3, p_nb_linkarg, 0L);
   Yap_InitCPred("nb_delete", 1, p_nb_delete, 0L);
+  Yap_InitCPred("nb_create", 3, p_nb_create, 0L);
+  Yap_InitCPred("nb_create", 4, p_nb_create2, 0L);
   Yap_InitCPredBack("$nb_current", 1, 1, init_current_nb, cont_current_nb, SafePredFlag);
   CurrentModule = GLOBALS_MODULE;
   Yap_InitCPred("nb_queue", 1, p_nb_queue, 0L);

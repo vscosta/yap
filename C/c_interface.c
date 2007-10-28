@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-10-16 18:57:17 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-10-28 00:54:09 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.99  2007/10/16 18:57:17  vsc
+* get rid of debug statement.
+*
 * Revision 1.98  2007/10/15 23:48:46  vsc
 * unset var
 *
@@ -412,6 +415,38 @@ static int do_yap_putc(int streamno,wchar_t ch) {
   return(ch);
 }
 
+static int
+dogc(void)
+{
+  UInt arity;
+
+  if (P && PREVOP(P,sla)->opc == Yap_opcode(_call_usercpred)) {
+    arity = PREVOP(P,sla)->u.sla.sla_u.p->ArityOfPE;
+  } else {
+    arity = 0;
+  }
+  if (!Yap_gc(arity, ENV, CP)) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+static int
+doexpand(UInt sz)
+{
+  UInt arity;
+
+  if (P && PREVOP(P,sla)->opc == Yap_opcode(_call_usercpred)) {
+    arity = PREVOP(P,sla)->u.sla.sla_u.p->ArityOfPE;
+  } else {
+    arity = 0;
+  }
+  if (!Yap_gcl(sz, arity, ENV, CP)) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
 X_API Term
 YAP_A(int i)
 {
@@ -539,8 +574,10 @@ YAP_MkBlobTerm(unsigned int sz)
   BACKUP_H();
 
   I = AbsAppl(H);
-  if (H+(sz+sizeof(MP_INT)/sizeof(CELL)+2) > ASP-1024)
-    return TermNil;
+  while (H+(sz+sizeof(MP_INT)/sizeof(CELL)+2) > ASP-1024) {
+    if (!doexpand((sz+sizeof(MP_INT)/sizeof(CELL)+2)*sizeof(CELL)))
+      return TermNil;
+  }
   H[0] = (CELL)FunctorBigInt;
   dst = (MP_INT *)(H+1);
   dst->_mp_size = 0L;
@@ -1101,22 +1138,6 @@ YAP_BufferToString(char *s)
 
   RECOVER_H();
   return t;
-}
-
-static int
-dogc(void)
-{
-  UInt arity;
-
-  if (P && PREVOP(P,sla)->opc == Yap_opcode(_call_usercpred)) {
-    arity = PREVOP(P,sla)->u.sla.sla_u.p->ArityOfPE;
-  } else {
-    arity = 0;
-  }
-  if (!Yap_gc(arity, ENV, CP)) {
-    return FALSE;
-  }
-  return TRUE;
 }
 
 /* copy a string to a buffer */

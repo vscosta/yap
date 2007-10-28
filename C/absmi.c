@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2007-10-17 09:18:26 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-10-28 00:54:09 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.225  2007/10/17 09:18:26  vsc
+* growtrail assumed SREG meant ASP?
+*
 * Revision 1.224  2007/09/24 09:02:31  vsc
 * minor bug fixes
 *
@@ -7355,6 +7358,9 @@ Yap_absmi(int inp)
       saveregs();
       d0 = (f)();
       setregs();
+#if SHADOW_S
+      SREG = Yap_REGS.S_;
+#endif
       if (!d0) {
 	FAIL();
       }

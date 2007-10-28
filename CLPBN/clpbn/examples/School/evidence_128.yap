@@ -7,6 +7,7 @@ professor_popularity(p5,l) :- {}.
 professor_popularity(p45,h) :- {}.
 professor_popularity(p15,m) :- {}.
 
+:- start_low_level_trace.
 course_rating(c0, h) :- {}.
 course_rating(c1, m) :- {}.
 course_rating(c2, l) :- {}.

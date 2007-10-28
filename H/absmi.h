@@ -87,6 +87,7 @@ register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 #define SHADOW_P       1
 #define SHADOW_REGS    1
 #define SHADOW_S       1
+#define S_IN_MEM       1
 #define      Y_IN_MEM  1
 #define     TR_IN_MEM  1
 #endif /* __x86_64__ */
@@ -628,10 +629,10 @@ typedef CELL label;
 	set_pc();                     \
         set_y()
 
-#define saveregs()                     \
-	save_hb();                     \
-	save_cp();                     \
-	save_pc();                     \
+#define saveregs()                    \
+	save_hb();                    \
+	save_cp();                    \
+	save_pc();                    \
         save_y()
 
 #if BP_FREE
