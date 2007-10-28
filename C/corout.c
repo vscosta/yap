@@ -374,6 +374,9 @@ static int non_ground_complex(register CELL *pt0,
       goto var_found;
     }
     if (IsPairTerm(d0)) {
+      if (to_visit + 1024 >= (CELL **)AuxSp) {
+	goto aux_overflow;
+      }
 #ifdef RATIONAL_TREES
       to_visit[0] = pt0;
       to_visit[1] = pt0_end;
@@ -401,6 +404,9 @@ static int non_ground_complex(register CELL *pt0,
 
       if (IsExtensionFunctor(f)) {
 	continue;
+      }
+      if (to_visit + 1024 >= (CELL **)AuxSp) {
+	goto aux_overflow;
       }
 #ifdef RATIONAL_TREES
       to_visit[0] = pt0;
@@ -440,7 +446,7 @@ static int non_ground_complex(register CELL *pt0,
 
   /* the term is ground */
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit);
-  return(FALSE);
+  return FALSE;
 
  var_found:
   /* the term is non-ground */
@@ -454,31 +460,57 @@ static int non_ground_complex(register CELL *pt0,
   }
 #endif
   /* the system will take care of TR for me, no need to worry here! */
-  return(TRUE);
+  return TRUE;
+
+ aux_overflow:
+  /* unwind stack */
+  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit);
+#ifdef RATIONAL_TREES
+  while (to_visit > (CELL **)to_visit_base) {
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    *pt0 = (CELL)to_visit[2];
+  }
+#endif
+  return -1;
 }
 
 static int
 non_ground(Term t, Term *Var)
 {
-  t = Deref(t);
-  if (IsVarTerm(t)) {
-    /* we found a variable */
-    *Var = t;
-    return(TRUE);
-  }
-  if (IsPrimitiveTerm(t)) {
-    return(FALSE);
-  } else if (IsPairTerm(t)) {
-    return(non_ground_complex(RepPair(t)-1, RepPair(t)+1, Var));
-  } else {
-    Functor f = FunctorOfTerm(t);
-    if (IsExtensionFunctor(f)) {
-      return(FALSE);
+  int out = -1;
+  while (out < 0) {
+    t = Deref(t);
+    if (IsVarTerm(t)) {
+      /* we found a variable */
+      *Var = t;
+      return TRUE;
     }
-    return(non_ground_complex(RepAppl(t),
-			  RepAppl(t)+ArityOfFunctor(FunctorOfTerm(t)),
-			      Var));
+    if (IsPrimitiveTerm(t)) {
+      return FALSE;
+    } else if (IsPairTerm(t)) {
+      out = non_ground_complex(RepPair(t)-1, RepPair(t)+1, Var);
+      if (out >= 0)
+	return out;
+    } else {
+      Functor f = FunctorOfTerm(t);
+      if (IsExtensionFunctor(f)) {
+	return FALSE;
+      }
+      out = non_ground_complex(RepAppl(t),
+			       RepAppl(t)+ArityOfFunctor(FunctorOfTerm(t)),
+			       Var);
+      if (out >= 0)
+	return out;
+    }
+    extern int Yap_do_low_level_trace;
+    Yap_do_low_level_trace=1;
+    if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
+      Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in ground");
+      return FALSE;
+    }      
   }
+  return FALSE;
 }
 
 #endif

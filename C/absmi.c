@@ -10,8 +10,13 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2007-10-28 00:54:09 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-10-28 11:23:39 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.226  2007/10/28 00:54:09  vsc
+* new version of viterbi implementation
+* fix all:atvars reporting bad info
+* fix bad S info in x86_64
+*
 * Revision 1.225  2007/10/17 09:18:26  vsc
 * growtrail assumed SREG meant ASP?
 *
@@ -2655,8 +2660,14 @@ Yap_absmi(int inp)
 
       BOp(call, sla);
 #ifdef LOW_LEVEL_TRACER
-      if (Yap_do_low_level_trace)
+      if (Yap_do_low_level_trace) {
+	extern long long int vsc_count;
+
+	if (vsc_count == 165491LL) {
+	  fprintf(stderr,"%p:%p\n",PREG,PREG->u.sla.sla_u.p);
+	}
 	low_level_trace(enter_pred,PREG->u.sla.sla_u.p,XREGS+1);
+      }
 #endif	/* LOW_LEVEL_TRACER */
       CACHE_Y_AS_ENV(YREG);
       {

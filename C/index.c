@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2007-09-22 08:38:05 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-10-28 11:23:40 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.187  2007/09/22 08:38:05  vsc
+* nb_ extra stuff plus an indexing overflow fix.
+*
 * Revision 1.186  2007/06/20 13:48:45  vsc
 * fix bug in index emulator
 *
@@ -6494,8 +6497,9 @@ static_clause(yamop *ipc, PredEntry *ap)
     ipc = PREVOP(ipc, ld); 
   p = (CELL *)ipc;
   while ((c = ClauseCodeToStaticClause(p))) {
-    UInt fls = c->ClFlags & ~HasBlobsMask;
-    if ((fls & StaticMask) == StaticMask) {
+    UInt fls = c->ClFlags;
+    if ((fls & StaticMask) == StaticMask &&
+	!(fls & (MegaMask|SwitchRootMask|SwitchTableMask|DynamicMask|IndexMask|DBClMask|LogUpdMask|LogUpdRuleMask|DirtyMask))) {
       if (ap->PredFlags & SourcePredFlag) {
 	if ((char *)c->usc.ClSource < (char *)c+c->ClSize &&
 	    valid_instructions(ipc, c->ClCode))
