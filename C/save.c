@@ -1428,7 +1428,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
 {
   int mode = FAIL_RESTORE;
 
-  Yap_ErrorMessage = NULL;
+  //  Yap_ErrorMessage = NULL;
   if (inpf == NULL)
     inpf = StartUpFile;
 #if __simplescalar__

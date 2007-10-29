@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2007-04-10 22:13:20 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-10-29 22:48:54 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.206  2007/04/10 22:13:20  vsc
+* fix max modules limitation
+*
 * Revision 1.205  2007/03/26 15:18:43  vsc
 * debugging and clause/3 over tabled predicates would kill YAP.
 *
@@ -2201,9 +2204,9 @@ p_in_this_f_before(void)
     if (fp->p == p0)
       break;
   if (fp != ConsultBase)
-    return (TRUE);
+    return TRUE;
   else
-    return (FALSE);
+    return FALSE;
 }
 
 static Int 

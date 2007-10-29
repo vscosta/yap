@@ -503,8 +503,6 @@ non_ground(Term t, Term *Var)
       if (out >= 0)
 	return out;
     }
-    extern int Yap_do_low_level_trace;
-    Yap_do_low_level_trace=1;
     if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
       Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in ground");
       return FALSE;
