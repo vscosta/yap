@@ -492,6 +492,7 @@ Yap_GetPredPropByFunc(Functor f, Term cur_mod)
   Prop p0;
 
   READ_LOCK(f->FRWLock);
+
   p0 = GetPredPropByFuncHavingLock(f, cur_mod);
   READ_UNLOCK(f->FRWLock);
   return (p0);
@@ -646,8 +647,9 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
       PredHash[hsh] = p;
     }
     PredsInHashTable++;
-    if (10*PredsInHashTable > 6*PredHashTableSize)
+    if (10*PredsInHashTable > 6*PredHashTableSize) {
       ExpandPredHash();
+    }
     WRITE_UNLOCK(PredHashRWLock);
     /* make sure that we have something here */
     RepPredProp(fe->PropsOfFE)->NextOfPE = fe->PropsOfFE;

@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2007-10-29 22:48:54 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-01 10:01:35 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.207  2007/10/29 22:48:54  vsc
+* small fixes
+*
 * Revision 1.206  2007/04/10 22:13:20  vsc
 * fix max modules limitation
 *
@@ -2193,9 +2196,9 @@ p_in_this_f_before(void)
   if (IsVarTerm(mod = Deref(ARG3)) || !IsAtomTerm(mod))
     return FALSE;
   if (arity)
-    p0 = PredPropByFunc(Yap_MkFunctor(at, arity),CurrentModule);
+    p0 = PredPropByFunc(Yap_MkFunctor(at, arity), mod);
   else
-    p0 = PredPropByAtom(at, CurrentModule);
+    p0 = PredPropByAtom(at, mod);
   if (ConsultSp == ConsultBase || (fp = ConsultSp)->p == p0)
     return (FALSE);
   else

@@ -149,4 +149,3 @@ file_search_path(system, Dir) :-
 	prolog_flag(host_type, Dir).
 file_search_path(foreign, yap('lib/Yap')).
 
-:- start_low_level_trace.

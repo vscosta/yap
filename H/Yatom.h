@@ -1322,9 +1322,9 @@ GetPredPropByFuncHavingLock (FunctorEntry *fe, Term cur_mod)
 {
   PredEntry *p;
 
-  if (!(p = RepPredProp(fe->PropsOfFE))) 
+  if (!(p = RepPredProp(fe->PropsOfFE))) {
     return NIL;
-
+  }
   if ((p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
 #if THREADS
     /* Thread Local Predicates */

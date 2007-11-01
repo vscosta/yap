@@ -1391,6 +1391,7 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
   for (i = 0; i < PredHashTableSize; ++i) {
     PredHash[i] = NULL;
   }
+  INIT_RWLOCK(PredHashRWLock);
   NOfAtoms = 0;
   NOfWideAtoms = 0;
   PredsInHashTable = 0;
