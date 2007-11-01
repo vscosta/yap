@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-10-29 22:48:54 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-11-01 20:50:31 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.101  2007/10/29 22:48:54  vsc
+* small fixes
+*
 * Revision 1.100  2007/10/28 00:54:09  vsc
 * new version of viterbi implementation
 * fix all:atvars reporting bad info
@@ -1311,13 +1314,18 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
   choiceptr myB;
 
   myB = (choiceptr)(LCL0-dgi->b);
-  if (B >= myB) {
+  if (B > myB) {
+    /* someone cut us */
     return FALSE;
   }
+  /* prune away choicepoints */
+  if (B != myB) {
 #ifdef YAPOR
-  CUT_prune_to(myB);
+    CUT_prune_to(myB);
 #endif
-  B = myB;
+    B = myB;
+  }
+  /* if backtracking asked for, recover space and bindings */
   if (backtrack) {
     P = FAILCODE;
     Yap_exec_absmi(TRUE);
