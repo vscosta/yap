@@ -1,0 +1,22 @@
+================================================================
+Logtalk - Open source object-oriented logic programming language
+Release 2.30.7
+
+Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
+================================================================
+
+
+% start by loading the loading the example:
+
+| ?- logtalk_load(barriers(loader)).
+...
+
+
+% run example:
+
+| ?- beatles::sing_along.
+
+hello(1)hello(4)hello(2)hello(3)
+goodbye(2)goodbye(1)goodbye(3)goodbye(4)
+
+Yes

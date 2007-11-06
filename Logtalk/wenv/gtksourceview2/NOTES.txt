@@ -1,0 +1,26 @@
+================================================================
+Logtalk - Open source object-oriented logic programming language
+Release 2.30.7
+
+Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
+================================================================
+
+
+This directory contains files that provide syntax highlighting for 
+GtkSourceView 2.x, which is a text widget used in text editors and 
+IDEs such as recent versions of Gnome's Gedit and MonoDevelop:
+
+	http://gtksourceview.sourceforge.net/
+
+To install, copy the file "logtalk.lang" to the following system-wide
+directory:
+	
+	${prefix}/share/gtksourceview-2.0/language-specs/
+
+The ${prefix} can be e.g. "/usr", "/usr/local", or "/opt", depending 
+on your system configuration.
+
+Alternatively, you can copy the "logtalk.lang" file to the following 
+location on your home directory:
+
+	~./gnome2/gtksourceview-2.0/language-specs/

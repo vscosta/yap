@@ -1,0 +1,54 @@
+================================================================
+Logtalk - Open source object-oriented logic programming language
+Release 2.30.7
+
+Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
+================================================================
+
+
+% load the example:
+
+| ?- logtalk_load(tak(loader)).
+...
+
+
+% single-threaded version:
+
+| ?- time(tak::tak_st(18, 12, 6, R)).
+
+% 254,474 inferences, 1.44 CPU in 1.47 seconds (98% CPU, 176718 Lips)
+
+R = 7 
+
+Yes
+
+
+% multi-threaded version:
+
+| ?- time(tak::tak_mt(18, 12, 6, R)).
+
+% 202 inferences, 1.45 CPU in 0.77 seconds (188% CPU, 139 Lips)
+
+R = 7 
+
+Yes
+
+
+% single-threaded version:
+
+| ?- time(tak::tak_st(21, 14, 7, R)).
+% 1,583,066 inferences, 12.40 CPU in 12.53 seconds (99% CPU, 127667 Lips)
+
+R = 14 
+
+Yes
+
+
+% multi-threaded version:
+
+| ?- time(tak::tak_mt(21, 14, 7, R)).
+% 122 inferences, 11.98 CPU in 7.74 seconds (155% CPU, 10 Lips)
+
+R = 14 
+
+Yes
