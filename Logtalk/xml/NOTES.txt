@@ -1,6 +1,6 @@
 ================================================================
 Logtalk - Open source object-oriented logic programming language
-Release 2.30.2
+Release 2.30.7
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ================================================================
@@ -42,10 +42,10 @@ As Logtalk uses a single namespace for all objects, categories, and protocols,
 you may want to define an alternate, global compilation directory to store all 
 the XML documenting files, thus ensuring proper working of links to other 
 entities in the generated (X)HTML files. This can be easily accomplished by 
-using the predicate '$lgt_alt_directory'/2, which is defined on the config 
-files, and by setting the altdirs/1 compiler flag to "on". For example:
+using the predicate '$lgt_default_flag'/2, which is defined on the config 
+files. For example:
 
-	'$lgt_alt_directory'(xml, '%LOGTALKUSER/xmldocs/').
+	'$lgt_default_flag'(xmldir, 'xml_docs/').
 	...
 	'$lgt_default_flag'(altdirs, on).
 	...

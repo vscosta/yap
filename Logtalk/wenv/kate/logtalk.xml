@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
 
-<language name="Logtalk" version="1.92" kateversion="2.4" section="Sources" extensions="*.lgt;*.config" mimetype="text/x-logtalk" author="Paulo Moura (pmoura@logtalk.org)" license="Artistic License 2.0">
+<language name="Logtalk" version="1.95" kateversion="2.4" section="Sources" extensions="*.lgt;*.config" mimetype="text/x-logtalk" author="Paulo Moura (pmoura@logtalk.org)" license="Artistic License 2.0">
 
 	<highlighting>
 
@@ -23,9 +23,8 @@
 				<RegExpr String = "\b(object|protocol|category)_property(?=[(])" attribute = "Built-in" context = "#stay" />
 				<!-- Entity relations -->
 				<RegExpr String = "\bextends_(object|protocol)(?=[(])" attribute = "Built-in" context = "#stay" />
-				<RegExpr String = "\bimplements_protocol(?=[(])" attribute = "Built-in" context = "#stay" />
-				<RegExpr String = "\b(instantiates|specializes)_class(?=[(])" attribute = "Built-in" context = "#stay" />
-				<RegExpr String = "\bimports_category(?=[(])" attribute = "Built-in" context = "#stay" />
+				<RegExpr String = "\bimp(lements_protocol|orts_category)(?=[(])" attribute = "Built-in" context = "#stay" />
+				<RegExpr String = "\b(instantiat|specializ)es_class(?=[(])" attribute = "Built-in" context = "#stay" />
 				<!-- Events -->
 				<RegExpr String = "\b(current_event|(abolish|define)_events)(?=[(])" attribute = "Built-in" context = "#stay" />
 				<!-- Flags -->
@@ -41,7 +40,7 @@
 				<!-- All solutions -->
 				<RegExpr String = "\b((bag|set)of|f(ind|or)all)(?=[(])" attribute = "Built-in" context = "#stay" />
 				<!-- Multi-threading meta-predicates -->
-				<RegExpr String = "\bthreaded(_(call|once|ignore|race|exit|peek|wait|notify))?(?=[(])" attribute = "Built-in" context = "#stay" />
+				<RegExpr String = "\bthreaded(_(call|once|ignore|exit|peek|wait|notify))?(?=[(])" attribute = "Built-in" context = "#stay" />
 				<!-- Term unification -->
 				<RegExpr String = "\bunify_with_occurs_check(?=[(])" attribute = "Built-in" context = "#stay" />
 				<!-- Term creation and decomposition -->
@@ -55,7 +54,7 @@
 				<!-- Term testing -->
 				<RegExpr String = "\b(var|atom(ic)?|integer|float|compound|n(onvar|umber))(?=[(])" attribute = "Built-in" context = "#stay" />
 				<!-- Stream selection and control -->
-				<RegExpr String = "\b(current|set)_(in|out)put(?=[(])" attribute = "Built-in" context = "#stay" />
+				<RegExpr String = "\b(curren|se)t_(in|out)put(?=[(])" attribute = "Built-in" context = "#stay" />
 				<RegExpr String = "\b(open|close)(?=[(])" attribute = "Built-in" context = "#stay" />
 				<RegExpr String = "\bflush_output(?=[(])" attribute = "Built-in" context = "#stay" />
 				<RegExpr String = "\bflush_output\b" attribute = "Built-in" context = "#stay" />
@@ -71,9 +70,9 @@
 				<!-- Atomic term processing -->
 				<RegExpr String = "\batom_(length|c(hars|o(ncat|des)))(?=[(])" attribute = "Built-in" context = "#stay" />
 				<RegExpr String = "\b(char_code|sub_atom)(?=[(])" attribute = "Built-in" context = "#stay" />
-				<RegExpr String = "\bnumber_c(hars|odes)(?=[(])" attribute = "Built-in" context = "#stay" />
+				<RegExpr String = "\bnumber_c(har|ode)s(?=[(])" attribute = "Built-in" context = "#stay" />
 				<!-- Implementation defined hooks functions -->
-				<RegExpr String = "\b(set|current)_prolog_flag(?=[(])" attribute = "Built-in" context = "#stay" />
+				<RegExpr String = "\b(se|curren)t_prolog_flag(?=[(])" attribute = "Built-in" context = "#stay" />
 				<RegExpr String = "\bhalt\b" attribute = "Built-in" context = "#stay" />
 				<RegExpr String = "\bhalt(?=[(])" attribute = "Built-in" context = "#stay" />
 				<!-- Variables -->
@@ -160,7 +159,7 @@
 				<RegExpr String = "\be(ncoding|xport)(?=[(])" attribute = "Directive" context = "#pop" />
 			   	<RegExpr String = "\bin(fo|itialization)(?=[(])" attribute = "Directive" context = "#pop" />
 				<RegExpr String = "\b(dynamic|synchronized|threaded)[.]" attribute = "Directive" context = "#pop" />
-				<RegExpr String = "\b(a(lias|tomic)|d(ynamic|iscontiguous)|m(eta_predicate|ode|ultifile)|synchronized)(?=[(])" attribute = "Directive" context = "#pop" />
+				<RegExpr String = "\b(alias|d(ynamic|iscontiguous)|m(eta_predicate|ode|ultifile)|synchronized)(?=[(])" attribute = "Directive" context = "#pop" />
 				<RegExpr String = "\bop(?=[(])" attribute = "Directive" context = "#pop" />
 				<RegExpr String = "\b(calls|use(s|_module))(?=[(])" attribute = "Directive" context = "#pop" />
 			</context>

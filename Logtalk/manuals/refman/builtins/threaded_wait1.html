@@ -23,14 +23,16 @@
 
 <h4>Description</h4>
 
-<pre>threaded_wait(Term)</pre>
+<pre>threaded_wait(Term)
+threaded_wait([Term| Terms])</pre>
 <p>
-Suspends the thread making the call until a notification is received that unifies with <code>Term</code>. The call must be made within the same object (<em>this</em>) containing the calls to the <code>threaded_notify/1</code> predicate that will eventually send the notification.
+Suspends the thread making the call until a notification is received that unifies with <code>Term</code>. The call must be made within the same object (<em>this</em>) containing the calls to the <code>threaded_notify/1</code> predicate that will eventually send the notification. The argument may also be a list of notifications, <code>[Term| Terms]</code>. In this case, the thread making the call will suspend until all notifications in the list are received.
 </p>
 
 <h4>Template and modes</h4>
 
-<pre>threaded_wait(?term)</pre>
+<pre>threaded_wait(?term)
+threaded_wait(+list(term))</pre>
 
 <h4>Errors</h4>
 
@@ -43,17 +45,17 @@ Suspends the thread making the call until a notification is received that unifie
 <h4>Examples</h4>
 
 <dl>
-	<dt>Wait until the <code>data_avaialble</code> notification is received:</dt>
-		<dd><code>threaded_wait(data_avaialble)</code></dd>
+	<dt>Wait until the <code>data_available</code> notification is received:</dt>
+		<dd><code>threaded_wait(data_available)</code></dd>
 </dl>
 
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: February 13, 2007</span>
+		<span>Last updated on: October 24, 2007</span>
 	</div>
 	<div class="navbottom">
-		<span><a href="threaded_peek1.html">previous</a> | <a href="../../glossary.html">glossary</a> | <a href="threaded_notify1.html">next</a></span><br/>
+		<span><a href="threaded_peek1_2.html">previous</a> | <a href="../../glossary.html">glossary</a> | <a href="threaded_notify1.html">next</a></span><br/>
 		<span><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>
 	</div>
 </div>

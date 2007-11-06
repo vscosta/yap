@@ -1,6 +1,6 @@
 ================================================================
 Logtalk - Open source object-oriented logic programming language
-Release 2.30.2
+Release 2.30.7
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ================================================================
@@ -196,6 +196,9 @@ symdiff
 
 tabling
 	simple example of using tabling directives within objects
+
+testing
+	some examples of writing unit tests
 
 threads
 	several simple examples of multi-threading programming

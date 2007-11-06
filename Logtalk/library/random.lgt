@@ -3,12 +3,12 @@
 	implements(randomp)).
 
 	:- info([
-		version is 1.3,
+		version is 1.4,
 		author is 'Paulo Moura',
-		date is 2007/3/24,
+		date is 2007/10/13,
 		comment is 'Random number generator predicates.']).
 
-	:- synchronized.	% make all object predicates multi-threading aware
+	:- synchronized([random/1, randseq/4, randset/4, reset_seed/0, set_seed/1]).
 
 	:- initialization(::reset_seed).
 

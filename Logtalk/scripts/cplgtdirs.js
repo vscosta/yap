@@ -1,6 +1,6 @@
 // ================================================================
 // Logtalk - Open source object-oriented logic programming language
-// Release 2.30.2
+// Release 2.30.7
 //
 // Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 // ================================================================
@@ -64,7 +64,7 @@ if (FSObject.FolderExists(logtalk_user)) {
 	if (mins < 10)
         mins = "0" + mins;
 	var secs = today.getSeconds();
-	date = year + "-" + month + "-" + day + " " + hours + "-" + mins + "-" + secs;
+	date = year + "-" + month + "-" + day + "-" + hours + mins + secs;
 	FSObject.MoveFolder(logtalk_user, logtalk_user + " backup " + date);
 	WScript.Echo("Created a backup of the existing " + logtalk_user + " directory.");
 	WScript.Echo("");
@@ -79,8 +79,6 @@ FSObject.CreateFolder(logtalk_user);
 
 WScript.Echo("Copying Logtalk files and directories...");
 FSObject.CopyFolder(logtalk_home + "\\configs", logtalk_user + "\\configs");
-FSObject.CopyFile(logtalk_user + "\\configs\\xsb.config", logtalk_user + "\\configs\\xsb.pl");
-FSObject.CopyFile(logtalk_user + "\\configs\\xsbcvs.config", logtalk_user + "\\configs\\xsbcvs.pl");
 FSObject.CopyFolder(logtalk_home + "\\contributions", logtalk_user + "\\contributions");
 FSObject.CopyFolder(logtalk_home + "\\examples", logtalk_user + "\\examples");
 FSObject.CopyFolder(logtalk_home + "\\libpaths", logtalk_user + "\\libpaths");

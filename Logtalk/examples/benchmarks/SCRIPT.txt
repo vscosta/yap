@@ -1,6 +1,6 @@
 ================================================================
 Logtalk - Open source object-oriented logic programming language
-Release 2.30.2
+Release 2.30.7
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ================================================================
@@ -37,6 +37,15 @@ Id = s1 ? ;
 
 Goal = object::length([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19],_)
 Id = s2 ? ;
+
+Goal = leaf::obj_local
+Id = c1 ? ;
+
+Goal = leaf::ctg_direct
+Id = c2 ? ;
+
+Goal = leaf::ctg_self
+Id = c3 ? ;
 
 Goal = create_object(xpto,[],[],[]),abolish_object(xpto)
 Id = d1 ? ;

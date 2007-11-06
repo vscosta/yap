@@ -313,13 +313,13 @@ It is also possible to call category predicates such that the predicate declarat
 
 :- end_object.</pre>
 <p>
-This alternative should only be used when the user knows a priori that the category predicates will not be specialized or redefined by descendant objects of the object importing the category. Its advantage is that, whenever possible, the Logtalk compiler will optimize the calls by using static binding. However, when static binding is not possible due to the lack of sufficient information at compilation time, the performance may be worse than calling the category predicate using a message to <em>self</em> due to the lack of a caching mechanism.
+This alternative should only be used when the user knows a priori that the category predicates will not be specialized or redefined by descendant objects of the object importing the category. Its advantage is that, whenever possible, the Logtalk compiler will optimize the calls by using static binding (implies separate loading of the categories using the <code>reload(skip)</code> compiler flag). However, when static binding is not possible due to the lack of sufficient information at compilation time, the performance may be worse than calling the category predicate using a message to <em>self</em> due to the lack of a caching mechanism.
 </p>
 
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: June 8, 2007</span>
+		<span>Last updated on: September 15, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="protocols.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="predicates.html">next</a></span><br/>

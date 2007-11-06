@@ -9,6 +9,16 @@
 
 	:- public(ctg_pred/0).
 
-	ctg_pred.
+	ctg_pred :-
+		{generate_list(20, List)},
+		length(List, _).
+
+	length(List, Length) :-
+		length(List, 0, Length).
+
+	length([], Length, Length).
+	length([_| Tail], Acc, Length) :-
+		Acc2 is Acc + 1,
+		length(Tail, Acc2, Length).
 
 :- end_category.

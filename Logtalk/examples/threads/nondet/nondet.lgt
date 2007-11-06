@@ -1,8 +1,6 @@
 
 :- object(lists).
 
-	:- threaded.
-
 	:- public(member/2).
 
 	member(H, [H| _]).

@@ -23,14 +23,16 @@
 
 <h4>Description</h4>
 
-<pre>threaded_notify(Term)</pre>
+<pre>threaded_notify(Term)
+threaded_notify([Term| Terms])</pre>
 <p>
-Sends <code>Term</code> as a notification to any thread suspended waiting for it to proceed. The call must be made within the same object (<em>this</em>) containing the calls to the <code>threaded_wait/1</code> predicate waiting for the notification.
+Sends <code>Term</code> as a notification to any thread suspended waiting for it in order to proceed. The call must be made within the same object (<em>this</em>) containing the calls to the <code>threaded_wait/1</code> predicate waiting for the notification. The argument may also be a list of notifications, <code>[Term| Terms]</code>. In this case, all notifications in the list will be sent to any threads suspended waiting for them in order to proceed.
 </p>
 
 <h4>Template and modes</h4>
 
-<pre>threaded_notify(@term)</pre>
+<pre>threaded_notify(@term)
+threaded_notify(@list(term))</pre>
 
 <h4>Errors</h4>
 
@@ -43,14 +45,14 @@ Sends <code>Term</code> as a notification to any thread suspended waiting for it
 <h4>Examples</h4>
 
 <dl>
-	<dt>Send the notification <code>data_avaialble</code>:</dt>
-		<dd><code>threaded_notify(data_avaialble)</code></dd>
+	<dt>Send the notification <code>data_available</code>:</dt>
+		<dd><code>threaded_notify(data_available)</code></dd>
 </dl>
 
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: February 13, 2007</span>
+		<span>Last updated on: October 24, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="threaded_wait1.html">previous</a> | <a href="../../glossary.html">glossary</a> | <a href="../index.html#builtins">next</a></span><br/>

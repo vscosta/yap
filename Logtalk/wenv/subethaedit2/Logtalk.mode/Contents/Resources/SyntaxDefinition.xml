@@ -23,7 +23,7 @@
 				<regex>:-\s(protocol)\(</regex>			
 				<regex>:-\s(category)\(</regex>			
 				<regex>:-\s(end_(object|protocol|category))\.</regex>			
-				<regex>:-\s(a(lias|tomic))\(</regex>			
+				<regex>:-\s(alias)\(</regex>			
 				<regex>:-\s(e(ncoding|xport))\(</regex>			
 				<regex>:-\s(initialization)\(</regex>			
 				<regex>:-\s(info)\(</regex>			
@@ -78,8 +78,7 @@
 				<regex>\b(this)\(</regex>
 				<regex>\b(current_predicate)\(</regex>
 				<regex>\b(predicate_property)\(</regex>
-				<regex>\b(abolish)\(</regex>
-				<regex>\b(assert(a|z))\(</regex>
+				<regex>\b(a(bolish|ssert(a|z)))\(</regex>
 				<regex>\b(clause)\(</regex>
 				<regex>\b(retract(all)?)\(</regex>
 				<regex>\b((bag|set)of)\(</regex>
@@ -89,7 +88,6 @@
 				<regex>\b(expand_term)\(</regex>
 				<regex>\b(term_expansion)\(</regex>
 				<regex>\b(phrase)\(</regex>
-				<regex>\b(threaded(_(call|once|ignore|race|exit|peek|wait|notify))?)\(</regex>
 			</keywords>
 
 			<keywords id="Built-in Predicates" color="#1A1AA6" useforautocomplete="yes">
@@ -98,14 +96,14 @@
 				<regex>\b((object|protocol|category)_property)\(</regex>
 				<regex>\b(abolish_(object|protocol|category|events))\(</regex>
 				<regex>\b(extends_(object|protocol))\(</regex>
-				<regex>\b(implements_protocol)\(</regex>
-				<regex>\b((instantiates|specializes)_class)\(</regex>
-				<regex>\b(imports_category)\(</regex>
+				<regex>\b(impl(ements_protocol|orts_category))\(</regex>
+				<regex>\b((instantiat|specializ)es_class)\(</regex>
 				<regex>\b(define_events)\(</regex>
-				<regex>\b((set|current)_logtalk_flag)\(</regex>
+				<regex>\b((se|curren)t_logtalk_flag)\(</regex>
 				<regex>\b(logtalk_(compile|l(ibrary_path|oad)))\(</regex>
 				<regex>\b(forall)\(</regex>
 				<!-- <regex>\b(retractall)\(</regex> -->
+				<regex>\b(threaded(_(call|once|ignore|exit|peek|wait|notify))?)\(</regex>
 			</keywords>
 
 			<keywords id="Other Built-in Predicates" color="#1A1AA6" useforautocomplete="yes">
@@ -173,8 +171,7 @@
 				<regex>(\\/)</regex>
 				<regex>(\\)</regex>
 				<!-- Stream selection and control -->
-				<regex>\b(current_(input|output))\(</regex>
-				<regex>\b(set_(input|output))\(</regex>
+				<regex>\b((curren|se)t_(in|out)put)\(</regex>
 				<regex>\b(open)\(</regex>
 				<regex>\b(close)\(</regex>
 				<regex>\b(flush_output)\(</regex>
@@ -184,9 +181,7 @@
 				<regex>\b(flush_output)[^[(A-Za-z_]]</regex>
 				<regex>\b(at_end_of_stream)[^[(A-Za-z_]]</regex>
 				<!-- Character input/output -->
-				<regex>\b(get_(char|code))\(</regex>
-				<regex>\b(peek_(char|code))\(</regex>
-				<regex>\b(put_(char|code))\(</regex>
+				<regex>\b((get|p(eek|ut))_c(har|ode))\(</regex>
 				<regex>\b(nl)\(</regex>
 				<regex>\b(nl)\b</regex>
 				<!-- Byte input/output -->
@@ -202,12 +197,12 @@
 				<regex>\b(once)\(</regex>
 				<regex>\b(repeat)[^[(A-Za-z_]]</regex>
 				<!-- Atomic term processing -->
-				<regex>\b(atom_(length|concat|chars|codes))\(</regex>
+				<regex>\b(atom_(length|c(hars|o(ncat|des))))\(</regex>
 				<regex>\b(sub_atom)\(</regex>
 				<regex>\b(char_code)\(</regex>
-				<regex>\b(number_(chars|codes))\(</regex>
+				<regex>\b(number_c(har|ode)s)\(</regex>
 				<!-- Implementation defined hooks functions -->
-				<regex>\b((set|current)_prolog_flag)\(</regex>
+				<regex>\b((se|curren)t_prolog_flag)\(</regex>
 				<regex>\b(halt)\(</regex>
 				<regex>\b(halt)[^[(A-Za-z_]]</regex>
 			</keywords>

@@ -2,7 +2,7 @@
 
 ## ================================================================
 ## Logtalk - Open source object-oriented logic programming language
-## Release 2.30.2
+## Release 2.30.7
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ## ================================================================
@@ -55,7 +55,7 @@ fi
 
 if [ -d "$LOGTALKUSER" ]
 then
-	date=`eval date \"+%Y-%m-%d %H-%M-%S\"`
+	date=`eval date \"+%Y-%m-%d-%H%M%S\"`
 	mv $LOGTALKUSER "$LOGTALKUSER backup $date"
 	echo "Created a backup of the existing \"$LOGTALKUSER\" directory."
 	echo
@@ -69,8 +69,6 @@ mkdir -p "$LOGTALKUSER"/libpaths
 mkdir -p "$LOGTALKUSER"/library
 mkdir -p "$LOGTALKUSER"/xml
 cp -RL "$LOGTALKHOME"/configs "$LOGTALKUSER"/
-ln -sf xsb.config "$LOGTALKUSER"/configs/xsb.pl
-ln -sf xsbcvs.config "$LOGTALKUSER"/configs/xsbcvs.pl
 cp -RL "$LOGTALKHOME"/contributions "$LOGTALKUSER"/
 cp -RL "$LOGTALKHOME"/examples "$LOGTALKUSER"/
 cp -RL "$LOGTALKHOME"/libpaths "$LOGTALKUSER"/

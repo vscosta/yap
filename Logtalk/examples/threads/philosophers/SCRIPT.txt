@@ -1,6 +1,6 @@
 ================================================================
 Logtalk - Open source object-oriented logic programming language
-Release 2.30.2
+Release 2.30.7
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ================================================================
@@ -106,3 +106,7 @@ Philosopher p4 eating for 3 seconds with chopsticks cs4 and cs3.
 p4 terminated.
 p2 terminated.
 
+
+% same problem as above but using a parametric object for representing the philosophers:
+
+| ?- threaded_ignore(philosopher(p1,cs1,cs2)::run(5, 5)), threaded_ignore(philosopher(p2,cs2,cs3)::run(5, 5)), threaded_ignore(philosopher(p3,cs3,cs4)::run(5, 5)), threaded_ignore(philosopher(p4,cs4,cs5)::run(5, 5)), threaded_ignore(philosopher(p5,cs1,cs5)::run(5, 5)).

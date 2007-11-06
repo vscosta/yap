@@ -2,8 +2,8 @@
 :- object(translator).
 
 	:- info([
-		version is 1.0,
-		date is 2004/6/8,
+		version is 1.1,
+		date is 2007/10/13,
 		author is 'Paulo Moura',
 		comment is 'Translator of logic propositions to clauses in conjunctive normal form.',
 		source is 'Code partially based on an example found on the Clocksin and Mellish Prolog book.']).
@@ -20,6 +20,7 @@
 		comment is 'Translates a proposition to a list of clauses, printing the result of each translation step.',
 		argnames is ['Propostion', 'Clauses']]).
 
+	:- private(gensym_counter_/1).
 	:- dynamic(gensym_counter_/1).
 
 

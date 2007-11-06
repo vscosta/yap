@@ -193,7 +193,7 @@ Both solutions are equally efficient because the runtime cost of the methods <co
 When storing a parametric object in its own source file, the convention is to name the file after the object, with the object arity appended. For instance, when defining an object named <code>sort(Type)</code>, we may save it in a <code>sort_1.lgt</code> text file. This way it is easy to avoid file name clashes when saving Logtalk entities that have the same functor but different arity.
 </p>
 <p>
-Compound terms with the same functor and (usually) the same number of arguments as a parametric object identifier may act as <em>proxies</em> to a parametric object. Proxies may be stored on the database as Prolog facts and be used to represent different instantiations of a parametric object parameters.
+Compound terms with the same functor and (usually) the same number of arguments as a parametric object identifier may act as <em>proxies</em> to a parametric object. Proxies may be stored on the database as Prolog facts and be used to represent different instantiations of a parametric object identifier.
 </p>
 
 <h2 id="objects_finding">Finding defined objects</h2>
@@ -296,6 +296,16 @@ The initialization goal can also be a message to <i>self</i> in order to call an
 Note, however, that descendant objects do not inherit initialization directives. In this context, <i>self</i> denotes the object that contains the directive. Also note that by initialization we do not necessarily mean setting an object dynamic state.
 </p>
  
+<h3 id="objects_synchronized">Synchronized objects</h3>
+
+<p>
+When doing multi-threading programming, is possible to synchronize all the predicates of an object using the <a title="Consult reference manual" href="../refman/directives/synchronized0.html"><code>synchronized/0</code></a> directive in the object source code:
+</p>
+<pre>:- synchronized.</pre>
+<p>
+This directive results in using internally the same mutex for synchronizing the execution of all defined object predicates.
+</p>
+
 <h3 id="objects_dynamic">Dynamic objects</h3>
 
 <p>

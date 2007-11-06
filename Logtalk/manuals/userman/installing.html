@@ -6,7 +6,7 @@
 
 <head>
 	<meta http-equiv="content-type" content="application/xml+xhtml; charset=utf-8" />
-	<title>Logtalk user manual: installing Logtalk</title>
+	<title>Logtalk user manual: installing</title>
 	<link rel="stylesheet" href="../screen.css" type="text/css" media="screen"/>
 	<link rel="stylesheet" href="../print.css" type="text/css" media="print"/>
 </head>
@@ -177,16 +177,20 @@ The configuration files specifies default values for all the Logtalk compiler fl
 		<dd>Allows the use of alternative directories for storing the Prolog files and the XML documenting files resulting from entity compilation. This flag can only be set for Prolog compilers providing the necessary operating-system access predicates for implementing this feature (specifically, a built-in predicate for creating new directories). Possible option values are <code>on</code> and <code>off</code> (the usual default). The names of the alternative directories are specified using the compiler flags <code>tmpdir</code> and <code>xmldir</code>, which are also defined in the configuration files. Make sure the directory names are valid for your operating system before setting this flag on.</dd>
 </dl>
 <dl>
-	<dt><code>supports_break_predicate</code></dt>
+	<dt><code>break_predicate</code></dt>
 		<dd>Informs Logtalk if the Prolog compiler supports a <code>break/0</code> predicate (which can be used by the Logtalk built-in debugger). Possible flag values are <code>true</code> and <code>false</code>.</dd>
 </dl>
 <dl>
-	<dt><code>supports_encoding_dir</code></dt>
-		<dd>Informs Logtalk if the Prolog compiler supports the <a title="Consult reference manual" href="../refman/directives/encoding1.html"><code>encoding/1</code></a> directive. This directive is used for declaring the text encoding of source files. Possible flag values are <code>true</code> and <code>false</code>.</dd>
+	<dt><code>encoding_directive</code></dt>
+		<dd>Informs Logtalk if the Prolog compiler supports the <a title="Consult reference manual" href="../refman/directives/encoding1.html"><code>encoding/1</code></a> directive. This directive is used for declaring the text encoding of source files. Possible flag values are <code>unsupported</code>, <code>full</code> (used in both Logtalk source files and compiler generated Prolog files), and <code>source</code> (used only in Logtalk source files).</dd>
 </dl>
 <dl>
 	<dt><code>threads</code></dt>
 		<dd>Informs Logtalk if the Prolog compiler provides suitable multi-threading programming support. Possible flag values are <code>unsupported</code>, <code>on</code>, and <code>off</code>. The default flag vale for compatible Prolog compilers is <code>off</code>, i.e. multi-threading programming support is disabled by default.</dd>
+</dl>
+<dl>
+	<dt><code>context_switching_calls</code></dt>
+		<dd>Allows context switching calls (<code>&lt;&lt;/2</code>) to be either allowed or forbidden. Possible flag values are <code>allow</code> and <code>forbid</code>. The default flag vale is <code>allow</code>.</dd>
 </dl>
 
 <h3 id="installing_runtime">Logtalk compiler and runtime</h3>
@@ -216,7 +220,7 @@ Logtalk source files are text files containing entity definitions (objects, cate
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: April 14, 2007</span>
+		<span>Last updated on: October 24, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="documenting.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="running.html">next</a></span><br/>

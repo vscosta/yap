@@ -1,6 +1,6 @@
 ================================================================
 Logtalk - Open source object-oriented logic programming language
-Release 2.30.2
+Release 2.30.7
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ================================================================
@@ -20,7 +20,7 @@ requirements (for example, some Prolog compilers do not accept or expand
 environment variables occurring on paths).
 
 As defined, the provided "libpaths.pl" file is already compatible with 
-some of the most popular Prolog compilers, running on both MacOS X, Linux, 
+some of the most popular Prolog compilers, running on MacOS X, Linux, 
 Windows, Unix, and Unix-like operating-systems.
 
 The Prolog integration scripts, found on the "integration" directory,
@@ -49,6 +49,7 @@ Prolog compilers that are expected to be compatible with the provided
 	* SICStus Prolog
 	* SWI-Prolog
 	* YAP
+	* XSB
 
 Prolog compilers that imply editing the provided "libpaths.pl" file due 
 to the lack of support for expanding environment variables on paths:
@@ -56,6 +57,5 @@ to the lack of support for expanding environment variables on paths:
 	* Amzi! Prolog
 	* IF/Prolog
 	* JIProlog
-	* XSB
 
 Feedback on other Prolog compilers is most appreciated.

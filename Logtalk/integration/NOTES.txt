@@ -1,6 +1,6 @@
 ================================================================
 Logtalk - Open source object-oriented logic programming language
-Release 2.30.2
+Release 2.30.7
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ================================================================
@@ -19,9 +19,11 @@ system path):
 	eclipselgt	ECLiPSe integration script
 	gplgt		GNU Prolog integration script
 	plclgt		K-Prolog integration script
+	qplgt		Qu-Prolog integration script
 	sicstuslgt	SICStus Prolog integration script
 	swilgt		SWI-Prolog integration script
-	xsblgt		XSB integration script
+	xsblgt		XSB integration script (single-threaded)
+	xsbmtlgt	XSB integration script (multi-threaded)
 	yaplgt		YAP integration script
 
 On Windows systems, the Logtalk installer makes the Prolog integration 
@@ -33,8 +35,12 @@ once as root or using sudo; in Windows systems run them once from an
 administrative account).
 
 The GNU Prolog integration script provides adequate performance for 
-development. For production environments, improved performance can be 
+development. For production environments, improved performance may be 
 achieved by generating a new GNU-Prolog top-level that includes Logtalk.
+
+The SWI-Prolog integration script assumes XPCE is installed. If that's 
+not the case, comment out the loading of the file "xpcehook.pl" on the 
+"integration/logtalk_swi.pl" file.
 
 Other Prolog compilers require manual steps for integration with Logtalk.
 See the "configs/NOTES.txt" file for details.
@@ -59,4 +65,4 @@ using SWI-Prolog as the back-end compiler):
 
 However, keep in mind that the integration scripts already use the back-end 
 Prolog command-line option that allows a initialization file to be loaded 
-in order to bootstrap Logtalk. See the scripts/shortcut files for details.
+in order to bootstrap Logtalk. See the scripts files for details.

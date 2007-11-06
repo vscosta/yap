@@ -34,7 +34,7 @@ synchronized([Functor1//Arity1, Functor2//Arity2, ...])</pre>
 Declares synchronized predicates and synchronized grammar rule non-terminals. A synchronized predicate (or synchronized non-terminal) is protected by a mutex in order to allow for thread synchronization when proving a call to the predicate (or non-terminal). All predicates declared in the same synchronized directive share the same mutex. In order to use a separate mutex for each predicate (so that they are independently synchronized), a per-predicate synchronized directive must be used.
 </p>
 <p>
-Synchronized predicates are silently compiled as normal predicates on Prolog compilers that don't support multi-threading programming.
+Synchronized predicates are silently compiled as normal predicates when using back-end Prolog compilers that don't support multi-threading programming.
 </p>
 
 <h4>Template and modes</h4>

@@ -13,4 +13,5 @@
 		queuep, queue,
 		dictionaryp, bintree,
 		setp, set, set1,
-		comparingp], [reload(skip)])).
+		comparingp],
+		[reload(skip)])).	% allow for static binding

@@ -3,4 +3,5 @@
 	logtalk_load([
 		hierarchyp,
 		proto_hierarchyp, proto_hierarchy,
-		class_hierarchyp, class_hierarchy], [reload(skip)])).
+		class_hierarchyp, class_hierarchy],
+		[reload(skip)])).	% allow for static binding

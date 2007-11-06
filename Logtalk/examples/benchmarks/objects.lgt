@@ -19,7 +19,6 @@
 		length(Tail, Acc2, Length).
 
 	:- public(ctg_self/0).
-
 	% call an imported category predicate by sending a message to self;
 	% performance will depend on the distance between "self" and "this"
 	% (always uses dynamic binding)
@@ -27,11 +26,17 @@
 		::ctg_pred.
 
 	:- public(ctg_direct/0).
-
 	% call an imported category predicate directly by using the :/1 control construct;
 	% (static binding may be used, depending on how the category is compiled)
 	ctg_direct :-
 		:ctg_pred.
+
+	:- public(obj_local/0).
+	% call a local object predicate directly; used for comparing performance with 
+	% calls to category predicates using the ::/1 and :/1 control constructs
+	obj_local :-
+		{generate_list(20, List)},
+		length(List, _).
 
 :- end_object.
 

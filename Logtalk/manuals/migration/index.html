@@ -84,7 +84,7 @@ An alternative to convert Prolog modules into objects is to just compile the mod
 		<dd>Module meta-predicates become object meta-predicates. Only predicate arguments marked as <code>:</code> are interpreted as meta-arguments. However, note that Prolog module meta-predicates and Logtalk meta-predicates don't share the same exact semantics; check results carefully.</dd>
 </dl>
 <p>
-Logtalk supports the use of the <a title="Consult user manual" href="../userman/programming.html#libraries"><em>library(name)</em> notation</a> on the <code>module/1-2</code> and <code>use_module/2</code> directives (assuming there is an entry for the library on the <a title="Consult reference manual" href="../refman/builtins/logtalk_library_path2.html"><code>logtalk_library_path/2</code></a> table).
+Logtalk supports the use of the <a title="Consult user manual" href="../userman/programming.html#programming_libraries"><em>library(name)</em> notation</a> on the <code>module/1-2</code> and <code>use_module/2</code> directives (assuming there is an entry for the library on the <a title="Consult reference manual" href="../refman/builtins/logtalk_library_path2.html"><code>logtalk_library_path/2</code></a> table).
 </p>
 <p>
 When compiling modules as objects, you probably don't need event support turned on. Thus, you may want to use the compiler option <code>events(off)</code> with the Logtalk compiling and loading built-in methods for a small performance gain for the compiled code.

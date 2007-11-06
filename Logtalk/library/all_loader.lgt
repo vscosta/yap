@@ -8,4 +8,5 @@
 		library(hierarchies_loader),
 		library(metapredicates_loader),
 		library(random_loader),
-		library(types_loader)], [reload(skip)])).
+		library(types_loader)],
+		[reload(skip)])).	% allow for static binding

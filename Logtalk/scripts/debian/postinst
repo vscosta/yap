@@ -2,7 +2,7 @@
 
 ## ================================================================
 ## Logtalk - Open source object-oriented logic programming language
-## Release 2.30.2
+## Release 2.30.7
 ##
 ## Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ## ================================================================
@@ -42,9 +42,11 @@ echo "  CxProlog:       cxlgt"
 echo "  ECLiPSe:        eclipselgt"
 echo "  GNU Prolog:     gplgt"
 echo "  K-Prolog:       plclgt"
+echo "  Qu-Prolog:      qplgt"
 echo "  SICStus Prolog: sicstuslgt"
 echo "  SWI-Prolog:     swilgt"
 echo "  XSB:            xsblgt      (first run must use sudo)"
+echo "  XSB (MT):       xsbmtlgt    (first run must use sudo)"
 echo "  YAP:            yaplgt"
 echo
 echo "The Prolog integration scripts can be found on \"/usr/bin\"."

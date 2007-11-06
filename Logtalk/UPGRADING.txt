@@ -1,6 +1,6 @@
 ================================================================
 Logtalk - Open source object-oriented logic programming language
-Release 2.30.2
+Release 2.30.7
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ================================================================
@@ -66,7 +66,7 @@ Logtalk version 2.15.3 changes the format of the runtime entity tables,
 implying recompilation of all objects, protocols, and categories.
 
 Logtalk version 2.15.6 renamed the compiler flag "named_anonymous_vars" to 
-"underscore_vars" and changed the possible option values form "on/off" to 
+"underscore_variables" and changed the possible option values form "on/off" to 
 "dont_care/singletons".
 
 Logtalk 2.16.0 improves support for the declaration and use of operators 
@@ -164,3 +164,12 @@ a per-project definition of directories for storing XML documenting files and
 for storing intermediate compilation files (e.g. Prolog files). Removed from 
 the config files the predicate '$lgt_alt_directory'/2. Older config files are 
 incompatible with this new Logtalk version.
+
+Logtalk 2.30.6 renamed the compiler flags "supports_break_predicate", 
+"supports_encoding_dir", and "underscore_vars" to, respectively, 
+"break_predicate", "encoding_directive", and "underscore_variables". Changed 
+the possible values of the "encoding_directive" compiler option (see manual).
+Older config files are not compatible with this new Logtalk version.
+
+Logtalk 2.30.7 adds a new compiler flag "context_switching_calls".
+Older config files are not compatible with this new Logtalk version.

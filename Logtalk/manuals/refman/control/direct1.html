@@ -25,7 +25,7 @@
 
 <pre>:Goal</pre>
 <p>
-Calls an imported category predicate without using the message sending mechanisms. The category predicate is called with the same execution context (<em>sender</em>, <em>this</em>, and <em>self</em>) as the predicate whose body contains the call. The lookup for both the predicate declaration and the predicate definition begins in <em>this</em>. For the predicate definition, the lookup is restricted to the imported categories. As a consequence, any redeclaration or redefinition of the predicate in a descendant of the object containing the call will be ignored.
+Calls an imported category predicate without using the message sending mechanisms. The category predicate is called with the same execution context (<em>sender</em>, <em>this</em>, and <em>self</em>) as the predicate whose body contains the call. The lookup for both the predicate declaration and the predicate definition begins in <em>this</em> instead of <em>self</em>. Furthermore, the lookup of the predicate definition is restricted to the imported categories. As a consequence, any redeclaration or redefinition of the predicate in a descendant of the object containing the call will be ignored.
 </p>
 
 <h4>Template and modes</h4>
@@ -58,7 +58,7 @@ Calls an imported category predicate without using the message sending mechanism
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: June 8, 2007</span>
+		<span>Last updated on: August 27, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="../index.html#constructs">previous</a> | <a href="../../glossary.html">glossary</a> | <a href="../index.html#constructs">next</a></span><br/>

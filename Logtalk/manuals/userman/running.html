@@ -6,7 +6,7 @@
 
 <head>
 	<meta http-equiv="content-type" content="application/xml+xhtml; charset=utf-8" />
-	<title>Logtalk user manual: running and debugging Logtalk programs</title>
+	<title>Logtalk user manual: running and debugging programs</title>
 	<link rel="stylesheet" href="../screen.css" type="text/css" media="screen"/>
 	<link rel="stylesheet" href="../print.css" type="text/css" media="print"/>
 </head>
@@ -14,12 +14,12 @@
 <body>
 
 <div class="top-left">Logtalk user manual</div> 
-<div class="top-right">Running and debugging Logtalk programs</div>
+<div class="top-right">Running and debugging programs</div>
 <div class="bottom-left"><span class="page"/></div> 
 <div class="bottom-right"><span class="page"/></div>
 <div class="navtop"><a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a></div>
 
-<h1 id="running_running">Running and debugging Logtalk programs</h1>
+<h1 id="running_running">Running and debugging programs</h1>
 
 <h2 id="running_session">Running a Logtalk session</h2>
 
@@ -125,7 +125,7 @@ yes</pre>
 			<dd>Controls the singleton variable warnings. Possible option values are <code>warning</code> (the usual default) and <code>silent</code> (not recommended).</dd>
 	</dl>
 	<dl>
-		<dt><code>underscore_vars(Option)</code></dt>
+		<dt><code>underscore_variables(Option)</code></dt>
 			<dd>Controls the interpretation of variables that start with an underscore (excluding the anonymous variable) that occur once in a term as either don't care variables or singleton variables. Possible option values are <code>dont_care</code> and <code>singletons</code> (the usual default). Note that, depending on your Prolog compiler, the <code>read_term/3</code> built-in predicate may report variables that start with an underscore as singleton variables. There is no standard behavior, hence this option.</dd>
 	</dl>
 

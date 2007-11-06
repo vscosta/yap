@@ -1,11 +1,11 @@
 Name: logtalk
 Summary: Logtalk - Open source object-oriented logic programming language
-Version: 2.30.2
+Version: 2.30.7
 Release: 1
 License: Artistic License 2.0
 Group: Development/Languages
 Packager: Paulo Moura <pmoura@logtalk.org>
-Source: http://logtalk.org/files/lgt2302.tar.bz2
+Source: http://logtalk.org/files/lgt2307.tar.bz2
 BuildArchitectures: noarch
 URL: http://logtalk.org/
 Prefix: /usr/local
@@ -15,27 +15,21 @@ Logtalk is an open source object-oriented logic programming language that can us
 
 %prep
 
-%setup -n lgt2302
+%setup -n lgt2307
 
 %build
 
 %install
 mkdir -p /usr/local/share
-rm -rf /usr/local/share/lgt2302
+rm -rf /usr/local/share/lgt2307
 rm -f /usr/local/share/logtalk
-mkdir /usr/local/share/lgt2302
-cp -R * /usr/local/share/lgt2302
-cd /usr/local/share
-find lgt2302 -type f -print0 | xargs -0 chmod 644
-find lgt2302 -type d -print0 | xargs -0 chmod 755
-chmod a+x lgt2302/integration/*.sh
-chmod a+x lgt2302/scripts/*.sh
-chmod a-x lgt2302/scripts/*.js
-chmod a+x lgt2302/scripts/linux/*.sh
-chmod a+x lgt2302/scripts/macosx/postflight
-chmod a+x lgt2302/xml/*.sh
-chmod a-x lgt2302/xml/*.js
-ln -sf lgt2302 logtalk
+mkdir /usr/local/share/lgt2307
+cp -R * /usr/local/share/lgt2307
+cd /usr/local/share/lgt2307
+chmod a+x scripts/cleandist.sh
+scripts/cleandist.sh
+cd ..
+ln -sf lgt2307 logtalk
 cd ..
 mkdir -p bin 
 cd bin
@@ -45,37 +39,61 @@ ln -sf ../share/logtalk/integration/cxlgt.sh cxlgt
 ln -sf ../share/logtalk/integration/eclipselgt.sh eclipselgt
 ln -sf ../share/logtalk/integration/gplgt.sh gplgt
 ln -sf ../share/logtalk/integration/plclgt.sh plclgt
+ln -sf ../share/logtalk/integration/qplgt.sh qplgt
 ln -sf ../share/logtalk/integration/sicstuslgt.sh sicstuslgt
 ln -sf ../share/logtalk/integration/swilgt.sh swilgt
 ln -sf ../share/logtalk/integration/xsblgt.sh xsblgt
+ln -sf ../share/logtalk/integration/xsbmtlgt.sh xsbmtlgt
 ln -sf ../share/logtalk/integration/yaplgt.sh yaplgt
 ln -sf ../share/logtalk/scripts/cplgtdirs.sh cplgtdirs
 ln -sf ../share/logtalk/xml/lgt2pdf.sh lgt2pdf
 ln -sf ../share/logtalk/xml/lgt2html.sh lgt2html
 ln -sf ../share/logtalk/xml/lgt2xml.sh lgt2xml
+
 %clean
+cd /usr/local/share
+rm -rf lgt2307
+rm -f logtalk
+cd ../bin
+rm -f bplgt
+rm -f ciaolgt
+rm -f cplgtdirs
+rm -f cxlgt
+rm -f eclipselgt
+rm -f gplgt
+rm -f lgt2html
+rm -f lgt2pdf
+rm -f lgt2xml
+rm -f plclgt
+rm -f qplgt
+rm -f sicstuslgt
+rm -f swilgt
+rm -f xsblgt
+rm -f xsbmtlgt
+rm -f yaplgt
+
 %files
 %defattr(-,root,root)
-%doc /usr/local/share/lgt2302/BIBLIOGRAPHY.bib
-%doc /usr/local/share/lgt2302/CUSTOMIZE.txt
-%doc /usr/local/share/lgt2302/INSTALL.txt
-%doc /usr/local/share/lgt2302/LICENSE.txt
-%doc /usr/local/share/lgt2302/QUICK_START.txt
-%doc /usr/local/share/lgt2302/README.txt
-%doc /usr/local/share/lgt2302/RELEASE_NOTES.txt
-%doc /usr/local/share/lgt2302/UPGRADING.txt
-/usr/local/share/lgt2302/compiler
-/usr/local/share/lgt2302/configs
-/usr/local/share/lgt2302/contributions
-/usr/local/share/lgt2302/examples
-/usr/local/share/lgt2302/integration
-/usr/local/share/lgt2302/libpaths
-/usr/local/share/lgt2302/library
-%docdir /usr/local/share/lgt2302/manuals
-/usr/local/share/lgt2302/manuals
-/usr/local/share/lgt2302/scripts
-/usr/local/share/lgt2302/wenv
-/usr/local/share/lgt2302/xml
+%doc /usr/local/share/lgt2307/BIBLIOGRAPHY.bib
+%doc /usr/local/share/lgt2307/CUSTOMIZE.txt
+%doc /usr/local/share/lgt2307/INSTALL.txt
+%doc /usr/local/share/lgt2307/LICENSE.txt
+%doc /usr/local/share/lgt2307/QUICK_START.txt
+%doc /usr/local/share/lgt2307/README.txt
+%doc /usr/local/share/lgt2307/RELEASE_NOTES.txt
+%doc /usr/local/share/lgt2307/UPGRADING.txt
+/usr/local/share/lgt2307/compiler
+/usr/local/share/lgt2307/configs
+/usr/local/share/lgt2307/contributions
+/usr/local/share/lgt2307/examples
+/usr/local/share/lgt2307/integration
+/usr/local/share/lgt2307/libpaths
+/usr/local/share/lgt2307/library
+%docdir /usr/local/share/lgt2307/manuals
+/usr/local/share/lgt2307/manuals
+/usr/local/share/lgt2307/scripts
+/usr/local/share/lgt2307/wenv
+/usr/local/share/lgt2307/xml
 /usr/local/share/logtalk
 /usr/local/bin/cplgtdirs
 /usr/local/bin/lgt2pdf
@@ -87,9 +105,11 @@ ln -sf ../share/logtalk/xml/lgt2xml.sh lgt2xml
 /usr/local/bin/eclipselgt
 /usr/local/bin/gplgt
 /usr/local/bin/plclgt
+/usr/local/bin/qplgt
 /usr/local/bin/sicstuslgt
 /usr/local/bin/swilgt
 /usr/local/bin/xsblgt
+/usr/local/bin/xsbmtlgt
 /usr/local/bin/yaplgt
 
 %post
@@ -109,9 +129,11 @@ echo "  CxProlog:       cxlgt"
 echo "  ECLiPSe:        eclipselgt"
 echo "  GNU Prolog:     gplgt"
 echo "  K-Prolog:       plclgt"
+echo "  Qu-Prolog:      qplgt"
 echo "  SICStus Prolog: sicstuslgt"
 echo "  SWI-Prolog:     swilgt"
 echo "  XSB:            xsblgt      (first run must use sudo)"
+echo "  XSB (MT):       xsbmtlgt    (first run must use sudo)"
 echo "  YAP:            yaplgt"
 echo
 echo "The Prolog integration scripts can be found on \"$RPM_INSTALL_PREFIX/bin\"."

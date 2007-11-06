@@ -32,7 +32,7 @@
 
 	% run all benchmarks the default number of times:
 	run :-
-		run(1000000).
+		run(100000).
 
 	% run all benchmark tests N times:
 	run(N) :-
@@ -77,8 +77,9 @@
 		{generate_list(20, List)}.
 
 	% some benchmark tests for category predicate calls:
-	benchmark(c1, leaf::ctg_direct).
-	benchmark(c2, leaf::ctg_self).
+	benchmark(c1, leaf::obj_local).
+	benchmark(c2, leaf::ctg_direct).
+	benchmark(c3, leaf::ctg_self).
 
 	% some benchmark tests for dynamic code:
 	benchmark(d1, (create_object(xpto, [], [], []), abolish_object(xpto))).
@@ -111,15 +112,21 @@
 
 	do_benchmark(c1, N) :-
 		{my_repeat(N)},
-			leaf::ctg_direct,
+			leaf::obj_local,
 		fail.
 	do_benchmark(c1, _).
 
 	do_benchmark(c2, N) :-
 		{my_repeat(N)},
-			leaf::ctg_self,
+			leaf::ctg_direct,
 		fail.
 	do_benchmark(c2, _).
+
+	do_benchmark(c3, N) :-
+		{my_repeat(N)},
+			leaf::ctg_self,
+		fail.
+	do_benchmark(c3, _).
 
 	do_benchmark(d1, N) :-
 		{my_repeat(N)},

@@ -34,7 +34,7 @@
 	partition([], _, [], []).
 	partition([X| L1], P, Small, Large) :-
 		parameter(1, Type),
-		(	Type::(X < P) ->
+		(	(Type::(X < P)) ->
 			Small = [X| Small1], Large = Large1
 		;	Small = Small1, Large = [X| Large1]
 		),

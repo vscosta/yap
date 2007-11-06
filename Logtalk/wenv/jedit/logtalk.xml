@@ -5,9 +5,9 @@
 <!--	jEdit 4.3 Logtalk syntax file
 
 	written by		Paulo Moura
-	version			1.10
+	version			1.13
 	created on		2 May 2002
-	last revised	10 June 2007
+	last revised	22 September 2007
 
 	To install, copy this file to the "modes" subdirectory in jEdit 
 	directory installation.   Next, check the "catalog" file in the 
@@ -47,7 +47,7 @@
 		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD1">^\s*:-\se(ncoding|xport)(?=[(])</SEQ_REGEXP>
 		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD1">^\s*:-\sin(fo|itialization)(?=[(])</SEQ_REGEXP>
 		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD1">^\s*:-\s(dynamic|synchronized|threaded)(?=[.])</SEQ_REGEXP>
-		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD1">^\s*:-\s(a(lias|tomic)|d(ynamic|iscontiguous)|m(eta_predicate|ode|ultifile)|synchronized)(?=[(])</SEQ_REGEXP>
+		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD1">^\s*:-\s(alias|d(ynamic|iscontiguous)|m(eta_predicate|ode|ultifile)|synchronized)(?=[(])</SEQ_REGEXP>
 		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD1">^\s*:-\sop(?=[(])</SEQ_REGEXP>
 		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD1">^\s*:-\s(calls|use(s|_module))(?=[(])</SEQ_REGEXP>
 		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD1">(extends|i(nstantiates|mp(lements|orts))|specializes)(?=[(])</SEQ_REGEXP>
@@ -65,9 +65,8 @@
 		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD2">\b(object|protocol|category)_property(?=[(])</SEQ_REGEXP>
 		<!-- Entity relations -->
 		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD2">\bextends_(object|protocol)(?=[(])</SEQ_REGEXP>
-		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD2">\bimplements_protocol(?=[(])</SEQ_REGEXP>
-		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD2">\b(instantiates|specializes)_class(?=[(])</SEQ_REGEXP>
-		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD2">\bimports_category(?=[(])</SEQ_REGEXP>
+		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD2">\bimp(lements_protocol|orts_category)(?=[(])</SEQ_REGEXP>
+		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD2">\b(instantiat|specializ)es_class(?=[(])</SEQ_REGEXP>
 		<!-- Events -->
 		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD2">\b(current_event|(abolish|define)_events)(?=[(])</SEQ_REGEXP>
 		<!-- Flags -->
@@ -83,7 +82,7 @@
 		<!-- All solutions -->
 		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD2">\b((bag|set)of|f(ind|or)all)(?=[(])</SEQ_REGEXP>
 		<!-- Multi-threading meta-predicates -->
-		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD2">\bthreaded(_(call|once|ignore|race|exit|peek|wait|notify))?(?=[(])</SEQ_REGEXP>
+		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD2">\bthreaded(_(call|once|ignore|exit|peek|wait|notify))?(?=[(])</SEQ_REGEXP>
 		<!-- Term unification -->
 		<SEQ_REGEXP AT_WORD_START="TRUE" TYPE="KEYWORD2">\bunify_with_occurs_check(?=[(])</SEQ_REGEXP>
 		<!-- Term creation and decomposition -->
@@ -160,7 +159,7 @@
 		<SEQ TYPE="OPERATOR">^^</SEQ>
 
 		<!-- Other Logtalk control construct operators -->
-		<SEQ TYPE="OPERATOR">:</SEQ>
+		<SEQ_REGEXP TYPE="OPERATOR">:(?![:-])</SEQ_REGEXP>
 
 		<!-- Control constructs -->
 		<SEQ TYPE="OPERATOR">!</SEQ>
@@ -354,7 +353,6 @@
 			<NULL>threaded_call</NULL>
 			<NULL>threaded_once</NULL>
 			<NULL>threaded_ignore</NULL>
-			<NULL>threaded_race</NULL>
 			<NULL>threaded_exit</NULL>
 			<NULL>threaded_peek</NULL>
 			<NULL>threaded_wait</NULL>

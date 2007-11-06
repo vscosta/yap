@@ -54,7 +54,6 @@ set_logtalk_flag
 threaded_call
 threaded_once
 threaded_ignore
-threaded_race
 threaded_exit
 threaded_peek
 threaded_wait

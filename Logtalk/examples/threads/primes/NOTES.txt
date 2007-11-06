@@ -1,6 +1,6 @@
 ================================================================
 Logtalk - Open source object-oriented logic programming language
-Release 2.30.2
+Release 2.30.7
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ================================================================
@@ -17,3 +17,7 @@ a goal using proprietary predicates.
 Note that this example is only meant to illustrate how to use Logtalk 
 multi-threading predicates, not to taken as the efficient solution for 
 finding primes numbers on a given interval (with or without threads).
+
+You probably want to play with the list size in order to find out when the 
+list is big enough to make the use of multi-threading worth performance-wise 
+(i.e. to compensate the overhead of thread creation and management).

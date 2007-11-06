@@ -6,7 +6,7 @@
 
 <head>
 	<meta http-equiv="content-type" content="application/xml+xhtml; charset=utf-8" />
-	<title>Logtalk user manual: programming in Logtalk</title>
+	<title>Logtalk user manual: programming</title>
 	<link rel="stylesheet" href="../screen.css" type="text/css" media="screen"/>
 	<link rel="stylesheet" href="../print.css" type="text/css" media="print"/>
 </head>
@@ -57,7 +57,7 @@ Another example of directives that are often used in a loader file would be <cod
 <pre>:- initialization(
     logtalk_load(
         [source1, source2, source3],
-        [underscore_vars(dont_care), portability(warning), xmlspec(xsd)])). </pre>
+        [underscore_variables(dont_care), portability(warning), xmlspec(xsd)])). </pre>
 <p>
 To take the best advantage of loader files, assert a clause to the dynamic predicate <code>logtalk_library_path/2</code> for the directory containing your source files, as explained in the next section.
 </p>

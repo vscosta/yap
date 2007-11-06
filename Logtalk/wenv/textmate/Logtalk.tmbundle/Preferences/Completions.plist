@@ -66,7 +66,6 @@
 			<string>threaded_call</string>
 			<string>threaded_once</string>
 			<string>threaded_ignore</string>
-			<string>threaded_race</string>
 			<string>threaded_exit</string>
 			<string>threaded_peek</string>
 			<string>threaded_wait</string>

@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Open source object-oriented logic programming language
-%  Release 2.30.2
+%  Release 2.30.7
 %
 %  Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 %
@@ -15,6 +15,7 @@
 	 assertz(logtalk_library_path(library, lgtuser('library/'))),
 	 assertz(logtalk_library_path(aliases, examples('aliases/'))),
 	 assertz(logtalk_library_path(assignvars, examples('assignvars/'))),
+	 assertz(logtalk_library_path(barriers, threads('barriers/'))),
 	 assertz(logtalk_library_path(benchmarks, examples('benchmarks/'))),
 	 assertz(logtalk_library_path(birds, examples('birds/'))),
 	 assertz(logtalk_library_path(birthdays, threads('birthdays/'))),
@@ -68,5 +69,7 @@
 	 assertz(logtalk_library_path(sync, threads('sync/'))),
 	 assertz(logtalk_library_path(symdiff, examples('symdiff/'))),
 	 assertz(logtalk_library_path(tabling, examples('tabling/'))),
+	 assertz(logtalk_library_path(tak, threads('tak/'))),
+	 assertz(logtalk_library_path(testing, examples('testing/'))),
 	 assertz(logtalk_library_path(threads, examples('threads/'))),
 	 assertz(logtalk_library_path(viewpoints, examples('viewpoints/'))))).

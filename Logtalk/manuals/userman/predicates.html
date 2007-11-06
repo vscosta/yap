@@ -616,6 +616,9 @@ Possible predicate properties values are:
 The properties <code>declared_in/1</code> and <code>defined_in/1</code> do not apply to built-in methods and Logtalk or Prolog built-in predicates. Note that if a predicate is declared in a category imported by the object, it will be the category name &mdash; not the object name &mdash; that will be returned by the property <code>declared_in/1</code>. The same goes for protocol declared predicates.
 </p>
 <p>
+The predicate property <code>defined_in(Entity)</code> implies that definitions for the predicate are looked up in <code>Entity</code>. This does not necessarily implies that clauses for the predicate exist in <code>Entity</code>; the predicate can simply be false (closed world assumption).
+</p>
+<p>
 The property <code>non_terminal/1</code> only applies to predicates that result from the compilation of grammar rule non-terminals. 
 </p>
 <p>
@@ -672,7 +675,7 @@ Currently, there is no clean workaround for calling non-standard, Prolog built-i
 <div class="footer">
 	<div class="copyright">
 		<span>Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://logtalk.org">Logtalk.org</a></span><br/>	
-		<span>Last updated on: April 14, 2007</span>
+		<span>Last updated on: September 15, 2007</span>
 	</div>
 	<div class="navbottom">
 		<span><a href="categories.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="inheritance.html">next</a></span><br/>

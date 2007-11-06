@@ -2,21 +2,19 @@
 :- object(buffer(_MaxCapacity)).
 
 	:- info([
-		version is 2.0,
+		version is 2.1,
 		author is 'Paulo Moura',
-		date is 2007/6/20,
+		date is 2007/9/16,
 		comment is 'Producer-consumer problem with a bounded buffer.']).
 
 	:- threaded.
 
 	:- public(put/1).
-	:- dynamic(put/1).
 	:- mode(put(?integer), one).
 	:- info(put/1, [
 		comment is 'Put an item in the buffer.']).
 
 	:- public(get/1).
-	:- dynamic(get/1).
 	:- mode(get(?integer), one).
 	:- info(get/1, [
 		comment is 'Get an item from the buffer.']).
@@ -28,6 +26,26 @@
 	:- dynamic(size_/1).
 
 	size_(0).
+
+	:- synchronized([put_item/1, get_item/1]).
+
+	put_item(Item) :-
+		parameter(1, MaxCapacity),
+		assertz(item_(Item)),
+		retract(size_(N)),
+		N2 is N + 1,
+		assertz(size_(N2)),
+		write(' produced item '), write(Item),
+		write(' ('), write(N2), write('/'), write(MaxCapacity), write(' items in the buffer'), write(')'), nl.
+
+	get_item(Item) :-
+		parameter(1, MaxCapacity),
+		retract(item_(Item)),
+		retract(size_(N)),
+		N2 is N - 1,
+		assertz(size_(N2)),
+		write(' consumed item '), write(Item),
+		write(' ('), write(N2), write('/'), write(MaxCapacity), write(' items in the buffer'), write(')'), nl.
 
 	put(Item) :-
 		parameter(1, MaxCapacity),
@@ -54,24 +72,6 @@
 			;	true
 			)
 		).
-
-	:- synchronized([put_item/1, get_item/1]).
-
-	put_item(Item) :-
-		assertz(item_(Item)),
-		retract(size_(N)),
-		N2 is N + 1,
-		assertz(size_(N2)),
-		sender(Sender),
-		writeq(Sender), write(' stored item '), write(Item), nl.
-
-	get_item(Item) :-
-		retract(item_(Item)),
-		retract(size_(N)),
-		N2 is N - 1,
-		assertz(size_(N2)),
-		sender(Sender),
-		writeq(Sender), write(' consumed item '), write(Item), nl.
 
 :- end_object.
 
