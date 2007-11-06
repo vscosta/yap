@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.80 2007-10-18 08:24:16 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.81 2007-11-06 17:02:12 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -325,6 +325,7 @@ void	STD_PROTO(Yap_InitUserBacks,(void));
 
 /* utilpreds.c */
 Term	STD_PROTO(Yap_CopyTerm,(Term));
+int	STD_PROTO(Yap_SizeGroundTerm,(Term, int));
 void	STD_PROTO(Yap_InitUtilCPreds,(void));
 
 /* yap.c */

@@ -11,8 +11,12 @@
 * File:		computils.c						 *
 * comments:	some useful routines for YAP's compiler			 *
 *									 *
-* Last rev:     $Date: 2006-09-20 20:03:51 $							 *
+* Last rev:     $Date: 2007-11-06 17:02:12 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.30  2006/09/20 20:03:51  vsc
+* improve indexing on floats
+* fix sending large lists to DB
+*
 * Revision 1.29  2005/12/05 17:16:10  vsc
 * write_depth/3
 * overflow handlings and garbage collection
@@ -89,7 +93,7 @@ AllocCMem (int size, struct intermediates *cip)
   if (ASP <= CellPtr (cip->freep) + 256) {
     Yap_Error_Size = 256+((char *)cip->freep - (char *)H);
     save_machine_regs();
-    longjmp(cip->CompilerBotch,3);
+    longjmp(cip->CompilerBotch, OUT_OF_STACK_BOTCH);
   }
   return (p);
 }
@@ -563,6 +567,8 @@ static char *opformat[] =
   "put_num\t\t%n,%r",
   "get_float\t\t%w,%r",
   "put_float\t\t%w,%r",
+  "get_dbterm\t%w,%r",
+  "put_dbterm\t%w,%r",
   "align_float",
   "get_longint\t\t%w,%r",
   "put_longint\t\t%w,%r",
@@ -583,6 +589,8 @@ static char *opformat[] =
   "write_num\t%n",
   "unify_float\t%w",
   "write_float\t%w",
+  "unify_dbterm\t%w",
+  "write_dbterm\t%w",
   "unify_longint\t%w",
   "write_longint\t%w",
   "unify_bigint\t%l",
@@ -649,7 +657,8 @@ static char *opformat[] =
   "unify_last_local\t%v",
   "unify_last_atom\t%a",
   "unify_last_num\t%n",
-  "unify_last_float\t%w",
+  "unify_last_float\t%w", 
+  "unify_last_dbterm\t%w",
   "unify_last_longint\t%w",
   "unify_last_bigint\t%l",
   "pvar_bitmap\t%l,%b",

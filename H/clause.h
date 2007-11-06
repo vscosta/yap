@@ -158,6 +158,14 @@ typedef union clause_ptr {
   struct static_index *si;
 } ClausePointer;
 
+typedef struct dbterm_list {
+  /* a list of dbterms associated with a clause */
+  DBTerm *dbterms;
+  yamop *clause_code;
+  PredEntry *p;
+  struct dbterm_list *next_dbl;
+} DBTermList;
+
 #define ClauseCodeToDynamicClause(p)    ((DynamicClause *)((CODEADDR)(p)-(CELL)(((DynamicClause *)NULL)->ClCode)))
 #define ClauseCodeToStaticClause(p)    ((StaticClause *)((CODEADDR)(p)-(CELL)(((StaticClause *)NULL)->ClCode)))
 #define ClauseCodeToLogUpdClause(p)    ((LogUpdClause *)((CODEADDR)(p)-(CELL)(((LogUpdClause *)NULL)->ClCode)))

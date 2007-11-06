@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2007-11-01 10:01:35 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-06 17:02:11 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.208  2007/11/01 10:01:35  vsc
+* fix uninitalised lock and reconsult test.
+*
 * Revision 1.207  2007/10/29 22:48:54  vsc
 * small fixes
 *
@@ -617,6 +620,11 @@ static Term BlobTermAdjust(Term t)
 #else
   return t+ClDiff;
 #endif
+}
+
+static void
+RestoreDBTerm(DBTerm *dbr)
+{
 }
 
 #include "rclause.h"
@@ -4048,6 +4056,7 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _get_atom:
     case _put_atom:
     case _get_bigint:
+    case _get_dbterm:
       pc = NEXTOP(pc,xc);
       break;
       /* instructions type cc */
@@ -4164,6 +4173,8 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _unify_l_atom:
     case _unify_bigint:
     case _unify_l_bigint:
+    case _unify_dbterm:
+    case _unify_l_dbterm:
       pc = NEXTOP(pc,oc);
       break;
       /* instructions type osc */

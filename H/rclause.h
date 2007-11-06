@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2006-11-27 17:42:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-06 17:02:12 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.18  2006/11/27 17:42:03  vsc
+* support for UNICODE, and other bug fixes.
+*
 * Revision 1.17  2006/10/10 14:08:17  vsc
 * small fixes on threaded implementation.
 *
@@ -464,6 +467,7 @@ restore_opcodes(yamop *pc)
     case _get_atom:
     case _put_atom:
     case _get_bigint:
+    case _get_dbterm:
       pc->u.xc.x = XAdjust(pc->u.xc.x);
       {
 	Term t = pc->u.xc.c;
@@ -474,7 +478,6 @@ restore_opcodes(yamop *pc)
       }
       pc = NEXTOP(pc,xc);
       break;
-      /* instructions type cc */
     case _get_2atoms:
       {
 	Term t = pc->u.cc.c1;
@@ -744,6 +747,8 @@ restore_opcodes(yamop *pc)
     case _unify_l_atom:
     case _unify_bigint:
     case _unify_l_bigint:
+    case _unify_dbterm:
+    case _unify_l_dbterm:
       pc->u.oc.opcw = Yap_opcode(Yap_op_from_opcode(pc->u.oc.opcw));
       {
 	Term t = pc->u.oc.c;

@@ -1258,7 +1258,7 @@ CreateDBWithDBRef(Term Tm, DBProp p, struct db_globs *dbg)
   ppt->Contents[1] = (CELL)dbr;
   ppt->DBRefs = (DBRef *)(ppt->Contents+2);
 #ifdef COROUTINING
-  ppt->attachments = 0L;
+  ppt->ag.attachments = 0L;
 #endif
   return pp;
 }
@@ -1278,7 +1278,7 @@ CreateDBTermForAtom(Term Tm, UInt extra_size, struct db_globs *dbg) {
   ppt->NOfCells = 0;
   ppt->DBRefs = NULL;
 #ifdef COROUTINING
-  ppt->attachments = 0;
+  ppt->ag.attachments = 0;
 #endif
   ppt->DBRefs = NULL;
   ppt->Entry = Tm;
@@ -1301,7 +1301,7 @@ CreateDBTermForVar(UInt extra_size, struct db_globs *dbg)
   ppt->NOfCells = 0;
   ppt->DBRefs = NULL;
 #ifdef COROUTINING
-  ppt->attachments = 0;
+  ppt->ag.attachments = 0;
 #endif
   ppt->DBRefs = NULL;
   ppt->Entry = (CELL)(&(ppt->Entry));
@@ -1331,7 +1331,7 @@ CreateDBRefForAtom(Term Tm, DBProp p, int InFlag, struct db_globs *dbg) {
   pp->DBT.DBRefs = NULL;
   pp->DBT.NOfCells = 0;
 #ifdef COROUTINING
-  pp->DBT.attachments = 0;
+  pp->DBT.ag.attachments = 0;
 #endif
   return(pp);
 }
@@ -1355,7 +1355,7 @@ CreateDBRefForVar(Term Tm, DBProp p, int InFlag, struct db_globs *dbg) {
   pp->DBT.NOfCells = 0;
   pp->DBT.DBRefs = NULL;
 #ifdef COROUTINING
-  pp->DBT.attachments = 0;
+  pp->DBT.ag.attachments = 0;
 #endif
   INIT_LOCK(pp->lock);
   INIT_DBREF_COUNT(pp);
@@ -1582,7 +1582,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 
       ppt->NOfCells = NOfCells;
 #ifdef COROUTINING
-      ppt->attachments = attachments;
+      ppt->ag.attachments = attachments;
 #endif
       if (pp0 != pp) {
 	nar = ppt->Contents;
@@ -1617,14 +1617,14 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
       ppt->Entry = AdjustIDBPtr(tt,(CELL)ppt-(CELL)ppt0);
 #ifdef COROUTINING
       if (attachments)
-	ppt->attachments = AdjustIDBPtr(attachments,(CELL)ppt-(CELL)ppt0);
+	ppt->ag.attachments = AdjustIDBPtr(attachments,(CELL)ppt-(CELL)ppt0);
       else
-	ppt->attachments = 0L;
+	ppt->ag.attachments = 0L;
 #endif
      } else {
       ppt->Entry = tt;
 #ifdef COROUTINING
-      ppt->attachments = attachments;
+      ppt->ag.attachments = attachments;
 #endif
     }
     if (flag & DBWithRefs) {
@@ -2440,7 +2440,7 @@ GetDBTerm(DBTerm *DBSP)
 
   if (IsVarTerm(t) 
 #if COROUTINING
-      && !DBSP->attachments
+      && !DBSP->ag.attachments
 #endif
       ) {
     return MkVarTerm();
@@ -2475,8 +2475,8 @@ GetDBTerm(DBTerm *DBSP)
       linkblk(lp, HOld-1, (CELL)HOld-(CELL)(DBSP->Contents));
     }
 #ifdef COROUTINING
-    if (DBSP->attachments != 0L)  {
-      if (!copy_attachments((CELL *)AdjustIDBPtr(DBSP->attachments,(CELL)HOld-(CELL)(DBSP->Contents)))) {
+    if (DBSP->ag.attachments != 0L)  {
+      if (!copy_attachments((CELL *)AdjustIDBPtr(DBSP->ag.attachments,(CELL)HOld-(CELL)(DBSP->Contents)))) {
 	H = HOld;
 	Yap_Error_TYPE = OUT_OF_ATTVARS_ERROR;
 	Yap_Error_Size = 0;
@@ -4949,16 +4949,18 @@ StoreTermInDB(Term t, int nargs)
 			  InQueue, &needs_vars, 0, &dbg)) == NULL) {
     if (Yap_Error_TYPE == YAP_NO_ERROR) {
       break;
+    } else if (nargs == -1) {
+      return NULL;
     } else {
       XREGS[nargs+1] = t;
       if (recover_from_record_error(nargs+1)) {	
 	t = Deref(XREGS[nargs+1]);
       } else {
-	return FALSE;
+	return NULL;
       }
     }
   }
-  return(x);
+  return x;
 }
 
 DBTerm *

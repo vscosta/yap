@@ -798,6 +798,7 @@ IsPredProperty (int flags)
 /* There are several flags for code and data base entries */
 typedef enum
 {
+  HasDBTMask = 0x400000,	/* includes a pointer to a DBTerm */
   MegaMask = 0x200000,		/* mega clause */
   FactMask = 0x100000,		/* a fact */
   SwitchRootMask = 0x80000,	/* root for the index tree */
@@ -821,13 +822,28 @@ typedef enum
 typedef struct DB_TERM
 {
 #ifdef COROUTINING
-  CELL attachments;		/* attached terms */
+  union {
+    CELL attachments;		/* attached terms */
+    struct DB_TERM *NextDBT;
+  } ag;
 #endif
   struct DB_STRUCT **DBRefs;	/* pointer to other references     */
   CELL NOfCells;		/* Size of Term                         */
   CELL Entry;			/* entry point                          */
   Term Contents[MIN_ARRAY];	/* stored term                      */
 } DBTerm;
+
+inline EXTERN DBTerm *TermToDBTerm(Term);
+
+inline EXTERN DBTerm *TermToDBTerm(Term X)
+{
+  if (IsPairTerm(X)) {
+    return(DBTerm *)((char *)RepPair(X) - (CELL) &(((DBTerm *) NULL)->Contents));
+  } else {
+    return(DBTerm *)((char *)RepAppl(X) - (CELL) &(((DBTerm *) NULL)->Contents));
+  }
+}
+
 
 /* The ordering of the first 3 fields should be compatible with lu_clauses */
 typedef struct DB_STRUCT

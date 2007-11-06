@@ -19,14 +19,14 @@
 % SWI options
 % autoload(true,false)
 % derived_from(File) -> make
-% encoding(Encoding)
+% encoding(Encoding) => implemented
 % expand({true,false)
-% if(changed,true,not_loaded)
-% imports(all,List)
+% if(changed,true,not_loaded) => implemented
+% imports(all,List) => implemented
 % qcompile(true,false)
 % silent(true,false)  => implemented
 % stream(Stream)  => implemented
-% consult(consult,reconsult) 
+% consult(consult,reconsult) => implemented
 %
 load_files(Files,Opts) :-
 	'$load_files'(Files,Opts,load_files(Files,Opts)).

@@ -11,8 +11,13 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2007-10-10 09:44:24 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-06 17:02:12 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.77  2007/10/10 09:44:24  vsc
+* some more fixes to make YAP swi compatible
+* fix absolute_file_name (again)
+* fix setarg
+*
 * Revision 1.76  2007/09/28 23:18:17  vsc
 * handle learning from interpretations.
 *
@@ -188,8 +193,6 @@ do_clean_susp_clauses(yamop *ipc) {
 
 #include "rclause.h"
 
-/* Restoring the heap */
-
 /* adjusts terms stored in the data base, when they have no variables */
 static Term 
 AdjustDBTerm(Term trm, Term *p_base)
@@ -232,12 +235,16 @@ AdjustDBTerm(Term trm, Term *p_base)
 }
 
 static void
-RestoreDBTerm(DBTerm *dbr)
+RestoreDBTerm(DBTerm *dbr, int attachments)
 {
+  if (attachments) {
 #ifdef COROUTINING
-  if (dbr->attachments)
-    dbr->attachments = AdjustDBTerm(dbr->attachments, dbr->Contents);
+    if (dbr->ag.attachments)
+      dbr->ag.attachments = AdjustDBTerm(dbr->ag.attachments, dbr->Contents);
 #endif
+  } else {
+    dbr->ag.NextDBT = DBTermAdjust(dbr->ag.NextDBT);
+  }    
   if (dbr->DBRefs !=  NULL) {
     DBRef          *cp;
     DBRef            tm;
@@ -249,6 +256,8 @@ RestoreDBTerm(DBTerm *dbr)
   }
   dbr->Entry = AdjustDBTerm(dbr->Entry, dbr->Contents);
 }
+
+/* Restoring the heap */
 
 /* Restores a prolog clause, in its compiled form */
 static void 
@@ -313,7 +322,7 @@ RestoreLUClause(LogUpdClause *cl, PredEntry *pp)
   }
   if (cl->ClSource) {
     cl->ClSource = DBTermAdjust(cl->ClSource);
-    RestoreDBTerm(cl->ClSource);
+    RestoreDBTerm(cl->ClSource, TRUE);
   }
   if (cl->ClPrev) {
     cl->ClPrev = PtoLUCAdjust(cl->ClPrev);
@@ -323,6 +332,20 @@ RestoreLUClause(LogUpdClause *cl, PredEntry *pp)
   }
   cl->ClPred = PtoPredAdjust(cl->ClPred);
   restore_opcodes(cl->ClCode);
+}
+
+static void
+RestoreDBTermEntry(struct dbterm_list *dbl) {
+  DBTerm *dbt;
+
+  dbl->dbterms = DBTermAdjust(dbl->dbterms);
+  dbl->clause_code = PtoOpAdjust(dbl->clause_code);
+  dbl->next_dbl = PtoDBTLAdjust(dbl->next_dbl);
+  dbl->p = PredEntryAdjust(dbl->p);
+  while (dbt) {
+    RestoreDBTerm(dbt, FALSE);
+    dbt = dbt->ag.NextDBT;
+  }
 }
 
 static void 
@@ -501,6 +524,14 @@ restore_codes(void)
     while (mc) {
       RestoreMegaClause(mc);
       mc = mc->ClNext;
+    }
+  }
+  if (Yap_heap_regs->dbterms_list) {
+    struct dbterm_list *dbl = PtoDBTLAdjust(Yap_heap_regs->dbterms_list);
+    Yap_heap_regs->dbterms_list = dbl;
+    while (dbl) {
+      RestoreDBTermEntry(dbl);
+      dbl = dbl->next_dbl;
     }
   }
   if (Yap_heap_regs->dead_static_indices) {
@@ -705,23 +736,23 @@ restore_codes(void)
   Yap_heap_regs->yap_lib_dir =
     (char *)AddrAdjust((ADDR)Yap_heap_regs->yap_lib_dir);
   Yap_heap_regs->pred_goal_expansion =
-    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_goal_expansion);
+    PredEntryAdjust(Yap_heap_regs->pred_goal_expansion);
   Yap_heap_regs->pred_meta_call =
-    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_meta_call);
+    PredEntryAdjust(Yap_heap_regs->pred_meta_call);
   Yap_heap_regs->pred_dollar_catch =
-    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_dollar_catch);
+    PredEntryAdjust(Yap_heap_regs->pred_dollar_catch);
   Yap_heap_regs->pred_recorded_with_key =
-    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_recorded_with_key);
+    PredEntryAdjust(Yap_heap_regs->pred_recorded_with_key);
   Yap_heap_regs->pred_log_upd_clause =
-    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_log_upd_clause);
+    PredEntryAdjust(Yap_heap_regs->pred_log_upd_clause);
   Yap_heap_regs->pred_log_upd_clause0 =
-    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_log_upd_clause0);
+    PredEntryAdjust(Yap_heap_regs->pred_log_upd_clause0);
   Yap_heap_regs->pred_static_clause =
-    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_static_clause);
+    PredEntryAdjust(Yap_heap_regs->pred_static_clause);
   Yap_heap_regs->pred_throw =
-    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_throw);
+    PredEntryAdjust(Yap_heap_regs->pred_throw);
   Yap_heap_regs->pred_handle_throw =
-    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_handle_throw);
+    PredEntryAdjust(Yap_heap_regs->pred_handle_throw);
 #if DEBUG
   if (Yap_heap_regs->db_erased_list) {
     Yap_heap_regs->db_erased_list = 
@@ -816,7 +847,7 @@ RestoreDBEntry(DBRef dbr)
   else
     fprintf(stderr, " a var\n");
 #endif
-  RestoreDBTerm(&(dbr->DBT));
+  RestoreDBTerm(&(dbr->DBT), TRUE);
   if (dbr->Parent) {
     dbr->Parent = (DBProp)AddrAdjust((ADDR)(dbr->Parent));
   }
@@ -1029,7 +1060,7 @@ restore_static_array(StaticArrayEntry *ae)
 	  } else {
 	    DBTerm *db = (DBTerm *)RepAppl(reg);
 	    db = DBTermAdjust(db);
-	    RestoreDBTerm(db);
+	    RestoreDBTerm(db, TRUE);
 	    base->tstore = AbsAppl((CELL *)db);
 	  }
 	}
@@ -1048,7 +1079,7 @@ restore_static_array(StaticArrayEntry *ae)
 	    base++;
 	  } else {
 	    *base++ = reg = DBTermAdjust(reg);
-	    RestoreDBTerm(reg);
+	    RestoreDBTerm(reg, TRUE);
 	  }
 	}
       }

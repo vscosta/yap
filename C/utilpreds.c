@@ -1044,7 +1044,7 @@ p_ground(void)			/* ground(+T)		 */
       Functor fun = FunctorOfTerm(t);
       
       if (IsExtensionFunctor(fun))
-	return(TRUE);
+	return TRUE;
       else if ((out = ground_complex_term(RepAppl(t),
 					     RepAppl(t)+
 					     ArityOfFunctor(fun))) >= 0) {
@@ -1058,6 +1058,174 @@ p_ground(void)			/* ground(+T)		 */
       }      
     }
   }
+}
+
+static int
+SizeOfExtension(Term t)
+{
+  Functor f = FunctorOfTerm(t);
+  if (f== FunctorDouble) {
+    return 2 + sizeof(Float)/sizeof(CELL);
+  }
+  if (f== FunctorLongInt) {
+    return 2 + sizeof(Float)/sizeof(CELL);
+  }
+  if (f== FunctorDBRef) {
+    return 0;
+  }
+  if (f== FunctorBigInt) {
+    CELL *pt = RepAppl(t)+1;
+    return 2+sizeof(MP_INT)+(((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
+  }
+  return 0;
+}
+
+
+static Int sz_ground_complex_term(register CELL *pt0, register CELL *pt0_end, int ground)
+{
+
+  register CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
+  Int sz = 0;
+
+  to_visit0 = to_visit;
+ loop:
+  while (pt0 < pt0_end) {
+    register CELL d0;
+    register CELL *ptd0;
+
+    ++pt0;
+    ptd0 = pt0;
+    d0 = *ptd0;
+    deref_head(d0, vars_in_term_unk);
+  vars_in_term_nvar:
+    {
+      if (IsPairTerm(d0)) {
+	sz += 2;
+	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	  goto aux_overflow;
+	}
+#ifdef RATIONAL_TREES
+	to_visit[0] = pt0;
+	to_visit[1] = pt0_end;
+	to_visit[2] = (CELL *)*pt0;
+	to_visit += 3;
+	*pt0 = TermNil;
+#else
+	if (pt0 < pt0_end) {
+	  to_visit[0] = pt0;
+	  to_visit[1] = pt0_end;
+	  to_visit += 2;
+	}
+#endif
+	pt0 = RepPair(d0) - 1;
+	pt0_end = RepPair(d0) + 1;
+      } else if (IsApplTerm(d0)) {
+	register Functor f;
+	register CELL *ap2;
+	/* store the terms to visit */
+	ap2 = RepAppl(d0);
+	f = (Functor)(*ap2);
+
+	if (IsExtensionFunctor(f)) {
+	  sz += SizeOfExtension(d0);
+	  continue;
+	}
+	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	  goto aux_overflow;
+	}
+#ifdef RATIONAL_TREES
+	to_visit[0] = pt0;
+	to_visit[1] = pt0_end;
+	to_visit[2] = (CELL *)*pt0;
+	to_visit += 3;
+	*pt0 = TermNil;
+#else
+	/* store the terms to visit */
+	if (pt0 < pt0_end) {
+	  to_visit[0] = pt0;
+	  to_visit[1] = pt0_end;
+	  to_visit += 2;
+	}
+#endif
+	d0 = ArityOfFunctor(f);
+	sz += (1+d0);
+	pt0 = ap2;
+	pt0_end = ap2 + d0;
+      }
+      continue;
+    }
+    
+
+    derefa_body(d0, ptd0, vars_in_term_unk, vars_in_term_nvar);
+    if (!ground)
+      continue;
+#ifdef RATIONAL_TREES
+    while (to_visit > to_visit0) {
+      to_visit -= 3;
+      pt0 = to_visit[0];
+      pt0_end = to_visit[1];
+      *pt0 = (CELL)to_visit[2];
+    }
+#endif
+    return 0;
+  }
+  /* Do we still have compound terms to visit */
+  if (to_visit > to_visit0) {
+#ifdef RATIONAL_TREES
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    *pt0 = (CELL)to_visit[2];
+#else
+    to_visit -= 2;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+#endif
+    goto loop;
+  }
+  return sz;
+
+ aux_overflow:
+  /* unwind stack */
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    *pt0 = (CELL)to_visit[2];
+  }
+#endif
+  return -1;
+}
+
+int
+Yap_SizeGroundTerm(Term t, int ground)
+{
+  if (IsVarTerm(t)) {
+    if (!ground)
+      return 1;
+    return 0;
+  }  else if (IsPrimitiveTerm(t)) {
+    return 1;
+  } else if (IsPairTerm(t)) {
+    int sz = sz_ground_complex_term(RepPair(t)-1, RepPair(t)+1, ground);
+    if (sz <= 0)
+      return sz;
+    return sz+2;
+} else {
+  int sz = 0;
+  Functor fun = FunctorOfTerm(t);
+      
+  if (IsExtensionFunctor(fun))
+    return 1+ SizeOfExtension(t);
+  
+   sz = sz_ground_complex_term(RepAppl(t),
+			    RepAppl(t)+
+			    ArityOfFunctor(fun),
+			    ground);
+   if (sz <= 0)
+     return sz;
+   return 1+ArityOfFunctor(fun)+sz;
+  }  
 }
 
 static Int var_in_complex_term(register CELL *pt0,

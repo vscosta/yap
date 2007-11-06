@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2007-10-18 08:24:16 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-06 17:02:12 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.122  2007/10/18 08:24:16  vsc
+* fix global variables
+*
 * Revision 1.121  2007/10/10 09:44:24  vsc
 * some more fixes to make YAP swi compatible
 * fix absolute_file_name (again)
@@ -2884,10 +2887,24 @@ p_flags(void)
   if (IsVarTerm(t1))
     return (FALSE);
   if (IsAtomTerm(t1)) {
-    pe = RepPredProp(PredPropByAtom(AtomOfTerm(t1), mod));
+    while ((pe = RepPredProp(PredPropByAtom(AtomOfTerm(t1), mod)))== NULL) {
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
+	return FALSE;
+      }
+      t1 = Deref(ARG1);
+      mod = Deref(ARG2);
+    }
   } else if (IsApplTerm(t1)) {
     Functor         funt = FunctorOfTerm(t1);
-    pe = RepPredProp(PredPropByFunc(funt, mod));
+    while ((pe = RepPredProp(PredPropByFunc(funt, mod)))== NULL) {
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
+	return FALSE;
+      }
+      t1 = Deref(ARG1);
+      mod = Deref(ARG2);
+    }
   } else
     return (FALSE);
   if (EndOfPAEntr(pe))
@@ -3858,7 +3875,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$debug", 1, p_debug, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #endif
   /* Accessing and changing the flags for a predicate */
-  Yap_InitCPred("$flags", 4, p_flags, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$flags", 4, p_flags, SyncPredFlag|HiddenPredFlag);
   /* hiding and unhiding some predicates */
   Yap_InitCPred("hide", 1, p_hide, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("unhide", 1, p_unhide, SafePredFlag|SyncPredFlag);

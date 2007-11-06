@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2006-10-10 14:08:17 $							 *
+* Last rev:     $Date: 2007-11-06 17:02:12 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.40  2006/10/10 14:08:17  vsc
+* small fixes on threaded implementation.
+*
 * Revision 1.39  2006/09/20 20:03:51  vsc
 * improve indexing on floats
 * fix sending large lists to DB
@@ -182,6 +185,7 @@
     OPCODE(get_float               ,xd),		
     OPCODE(get_longint             ,xi),		
     OPCODE(get_bigint              ,xc),		
+    OPCODE(get_dbterm              ,xc),		
     OPCODE(get_list                ,x),		
     OPCODE(get_struct              ,xf),		
     OPCODE(unify_x_var             ,ox),	
@@ -192,6 +196,7 @@
     OPCODE(unify_float             ,od),		
     OPCODE(unify_longint           ,oc),		
     OPCODE(unify_bigint            ,oc),		
+    OPCODE(unify_dbterm            ,oc),		
     OPCODE(unify_list              ,o),		
     OPCODE(unify_struct            ,of),	
     OPCODE(put_x_var               ,xx),		
@@ -318,6 +323,7 @@
     OPCODE(unify_l_float           ,od),	
     OPCODE(unify_l_longint         ,oi),	
     OPCODE(unify_l_bigint          ,oc),	
+    OPCODE(unify_l_dbterm          ,oc),	
     OPCODE(unify_l_void            ,o),	
     OPCODE(unify_l_n_voids         ,os),	
     OPCODE(unify_l_x_loc           ,ox),	

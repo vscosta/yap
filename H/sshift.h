@@ -568,6 +568,15 @@ PtoStCAdjust (struct static_clause *ptr)
 }
 
 
+inline EXTERN struct dbterm_list *PtoDBTLAdjust (struct dbterm_list *);
+
+inline EXTERN struct dbterm_list *
+PtoDBTLAdjust (struct dbterm_list * addr)
+{
+  return (struct dbterm_list *) ((ADDR) (CharP (addr) + HDiff));
+}
+
+
 #if PRECOMPUTE_REGADDRESS
 
 inline EXTERN wamreg XAdjust (wamreg);

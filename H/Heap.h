@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.118 2007-10-10 09:44:24 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.119 2007-11-06 17:02:12 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -338,6 +338,7 @@ typedef struct various_codes {
   lockvar  dead_static_clauses_lock;        /* protect DeadStaticClauses */
   lockvar  dead_mega_clauses_lock;        /* protect DeadMegaClauses */
   lockvar  dead_static_indices_lock;        /* protect DeadStaticIndices */
+  lockvar  dbterms_list_lock;        /* protect DBTermList */
   int      heap_top_owner;
 #ifdef LOW_LEVEL_TRACER
   lockvar  low_level_trace_lock;
@@ -349,6 +350,7 @@ typedef struct various_codes {
   struct static_clause *dead_static_clauses;
   struct static_mega_clause *dead_mega_clauses;
   struct static_index *dead_static_indices;
+  struct dbterm_list *dbterms_list;
   Atom
     atom_abol,
     atom_alarm,
@@ -945,6 +947,7 @@ struct various_codes *Yap_heap_regs;
 #define  ParserErrorStyle         Yap_heap_regs->parser_error_style
 #define  DeadStaticClauses        Yap_heap_regs->dead_static_clauses
 #define  DeadMegaClauses          Yap_heap_regs->dead_mega_clauses
+#define  DBTermsList              Yap_heap_regs->dbterms_list
 #define  DeadStaticIndices        Yap_heap_regs->dead_static_indices
 #define  SizeOfOverflow           Yap_heap_regs->size_of_overflow
 #define  LastWtimePtr             Yap_heap_regs->last_wtime
@@ -959,6 +962,7 @@ struct various_codes *Yap_heap_regs;
 #define  ThreadsTotalTime         Yap_heap_regs->threads_total_time
 #define  DeadStaticClausesLock    Yap_heap_regs->dead_static_clauses_lock
 #define  DeadMegaClausesLock      Yap_heap_regs->dead_mega_clauses_lock
+#define  DBTermsListLock          Yap_heap_regs->dbterms_list_lock
 #define  DeadStaticIndicesLock    Yap_heap_regs->dead_static_indices_lock
 #define  ModulesLock		  Yap_heap_regs->modules_lock
 #endif

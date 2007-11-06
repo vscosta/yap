@@ -30,6 +30,8 @@ typedef enum compiler_op {
   put_num_op,
   get_float_op,
   put_float_op,
+  get_dbterm_op,
+  put_dbterm_op,
   align_float_op,
   get_longint_op,
   put_longint_op,
@@ -50,6 +52,8 @@ typedef enum compiler_op {
   write_num_op,
   unify_float_op,
   write_float_op,
+  unify_dbterm_op,
+  write_dbterm_op,
   unify_longint_op,
   write_longint_op,
   unify_bigint_op,
@@ -117,6 +121,7 @@ typedef enum compiler_op {
   unify_last_atom_op,
   unify_last_num_op,
   unify_last_float_op,
+  unify_last_dbterm_op,
   unify_last_longint_op,
   unify_last_bigint_op,
   mark_initialised_pvars_op,
@@ -231,6 +236,13 @@ typedef struct CEXPENTRY {
 	 struct CEXPENTRY *NextCE;
        } CExpEntry;
 
+#define COMPILER_ERR_BOTCH 1
+#define OUT_OF_HEAP_BOTCH  2
+#define OUT_OF_STACK_BOTCH 3
+#define OUT_OF_TEMPS_BOTCH 4
+#define OUT_OF_AUX_BOTCH   5
+#define OUT_OF_TRAIL_BOTCH 6  
+
 
 typedef struct intermediates {
   char *freep;
@@ -239,6 +251,7 @@ typedef struct intermediates {
   struct PSEUDO *CodeStart;
   struct PSEUDO *icpc;
   struct PSEUDO *BlobsStart;
+  struct dbterm_list *dbterml;
   int  *label_offset;
   Int  *uses;
   Term *contents;

@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2007-06-23 17:31:50 $							 *
+* Last rev:     $Date: 2007-11-06 17:02:09 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.95  2007/06/23 17:31:50  vsc
+* pin cluses with floats.
+*
 * Revision 1.94  2006/12/27 01:32:37  vsc
 * diverse fixes
 *
@@ -237,7 +240,7 @@ STATIC_PROTO(yamop *a_xigl, (op_numbers, yamop *, int, struct PSEUDO *));
 STATIC_PROTO(yamop *a_ucons, (int *, compiler_vm_op, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_uvar, (yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_wvar, (yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *do_pass, (int, yamop **, int, int *, struct intermediates *, UInt));
+STATIC_PROTO(yamop *do_pass, (int, yamop **, int, int *, int *,struct intermediates *, UInt));
 #ifdef DEBUG_OPCODES
 STATIC_PROTO(void DumpOpCodes, (void));
 #endif
@@ -437,6 +440,14 @@ add_clref(CELL clause_code, int pass_no)
     LogUpdClause *cl = ClauseCodeToLogUpdClause(clause_code);
     cl->ClRefCount++;
   }
+}
+
+static void
+add_to_dbtermsl(struct intermediates *cip, Term t)
+{
+  DBTerm *dbt = TermToDBTerm(t);
+  dbt->ag.NextDBT = cip->dbterml->dbterms;
+  cip->dbterml->dbterms = dbt;
 }
 
 static yamop *
@@ -810,6 +821,19 @@ a_blob(CELL rnd1, op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int 
 }
 
 inline static yamop *
+a_wdbt(CELL rnd1, op_numbers opcode, int *clause_has_dbtermp, yamop *code_p, int pass_no, struct intermediates *cip)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.c.c = rnd1;
+    add_to_dbtermsl(cip, cip->cpc->rnd1);
+  }
+  *clause_has_dbtermp = TRUE;
+  GONEXT(c);
+  return code_p;
+}
+
+inline static yamop *
 a_ublob(CELL rnd1, op_numbers opcode, op_numbers opcode_w, int *clause_has_blobsp, yamop *code_p, int pass_no, struct intermediates *cip)
 {
   if (pass_no) {
@@ -820,6 +844,20 @@ a_ublob(CELL rnd1, op_numbers opcode, op_numbers opcode_w, int *clause_has_blobs
       
   }
   *clause_has_blobsp = TRUE;
+  GONEXT(oc);
+  return code_p;
+}
+
+inline static yamop *
+a_udbt(CELL rnd1, op_numbers opcode, op_numbers opcode_w, int *clause_has_dbtermp, yamop *code_p, int pass_no, struct intermediates *cip)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.oc.opcw = emit_op(opcode_w);
+    code_p->u.oc.c = cip->cpc->rnd1;
+    add_to_dbtermsl(cip, cip->cpc->rnd1);
+  }
+  *clause_has_dbtermp = TRUE;
   GONEXT(oc);
   return code_p;
 }
@@ -1046,6 +1084,20 @@ a_rb(op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int pass_no, stru
     code_p->u.xc.c = AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]));
   }
   *clause_has_blobsp = TRUE;
+  GONEXT(xc);
+  return code_p;
+}
+
+inline static yamop *
+a_dbt(op_numbers opcode, int *clause_has_dbtermp, yamop *code_p, int pass_no, struct intermediates *cip)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.xc.x = emit_x(cip->cpc->rnd2);
+    code_p->u.xc.c = cip->cpc->rnd1;
+    add_to_dbtermsl(cip, cip->cpc->rnd1);
+  }
+  *clause_has_dbtermp = TRUE;
   GONEXT(xc);
   return code_p;
 }
@@ -2631,7 +2683,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 #endif /* YAPOR */
 
 static yamop *
-do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp, struct intermediates *cip, UInt size)
+do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp, int *clause_has_dbtermp, struct intermediates *cip, UInt size)
 {
 #ifdef YAPOR
 #define EITHER_INST 50
@@ -2687,6 +2739,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	if (*clause_has_blobsp) {
 	  cl_u->luc.ClFlags |= HasBlobsMask;
 	}
+	if (*clause_has_dbtermp) {
+	  cl_u->luc.ClFlags |= HasDBTMask;
+	}
 	cl_u->luc.ClExt = NULL;
 	cl_u->luc.ClPrev = cl_u->luc.ClNext = NULL;
 #if defined(YAPOR) || defined(THREADS)
@@ -2700,6 +2755,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->ic.ClFlags = DynamicMask;
 	if (*clause_has_blobsp) {
 	  cl_u->ic.ClFlags |= HasBlobsMask;
+	}
+	if (*clause_has_dbtermp) {
+	  cl_u->ic.ClFlags |= HasDBTMask;
 	}
 	cl_u->ic.ClSize = size;
 	cl_u->ic.ClRefCount = 0;
@@ -2718,6 +2776,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->sc.usc.ClPred = cip->CurrentPred;
 	if (*clause_has_blobsp) {
 	  cl_u->sc.ClFlags |= HasBlobsMask;
+	}
+	if (*clause_has_dbtermp) {
+	  cl_u->sc.ClFlags |= HasDBTMask;
 	}
       }
       code_p = cl_u->sc.ClCode;
@@ -2869,6 +2930,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case get_bigint_op:
       code_p = a_rb(_get_bigint, clause_has_blobsp, code_p, pass_no, cip);
       break;
+    case get_dbterm_op:
+      code_p = a_dbt(_get_dbterm, clause_has_dbtermp, code_p, pass_no, cip);
+      break;
     case put_num_op:
     case put_atom_op:
       code_p = a_rc(_put_atom, code_p, pass_no, cip);
@@ -2883,6 +2947,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case put_bigint_op:
       code_p = a_rb(_put_atom, clause_has_blobsp, code_p, pass_no, cip);
+      break;
+    case put_dbterm_op:
+      code_p = a_dbt(_put_atom, clause_has_dbtermp, code_p, pass_no, cip);
       break;
     case get_list_op:
       code_p = a_glist(&do_not_optimise_uatom, code_p, pass_no, cip);
@@ -2941,6 +3008,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case unify_bigint_op:
       code_p = a_ublob(cip->cpc->rnd1, _unify_bigint, _unify_atom_write, clause_has_blobsp, code_p, pass_no, cip);
       break;
+    case unify_dbterm_op:
+      code_p = a_udbt(cip->cpc->rnd1, _unify_dbterm, _unify_atom_write, clause_has_dbtermp, code_p, pass_no, cip);
+      break;
     case unify_last_num_op:
     case unify_last_atom_op:
       code_p = a_uc(cip->cpc->rnd1, _unify_l_atom, _unify_l_atom_write, code_p, pass_no);
@@ -2956,6 +3026,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case unify_last_bigint_op:
       code_p = a_ublob(cip->cpc->rnd1, _unify_l_bigint, _unify_l_atom_write, clause_has_blobsp, code_p, pass_no, cip);
       break;
+    case unify_last_dbterm_op:
+      code_p = a_udbt(cip->cpc->rnd1, _unify_l_dbterm, _unify_l_atom_write, clause_has_dbtermp, code_p, pass_no, cip);
+      break;
     case write_num_op:
     case write_atom_op:
       code_p = a_ucons(&do_not_optimise_uatom, write_atom_op, code_p, pass_no, cip);
@@ -2970,6 +3043,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case write_bigint_op:
       code_p = a_blob(cip->cpc->rnd1, _write_atom, clause_has_blobsp, code_p, pass_no, cip);
+      break;
+    case write_dbterm_op:
+      code_p = a_wdbt(cip->cpc->rnd1, _write_atom, clause_has_dbtermp, code_p, pass_no, cip);
       break;
     case unify_list_op:
       code_p = a_ue(_unify_list, _unify_list_write, code_p, pass_no);
@@ -3026,7 +3102,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case cutexit_op:
       code_p = a_cut(&clinfo, code_p, pass_no, cip);
      if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
-	  *clause_has_blobsp &&
+	 (*clause_has_blobsp  || *clause_has_dbtermp) &&
 	  !clinfo.alloc_found)
 	code_p = a_cle(_alloc_for_logical_pred, code_p, pass_no, cip);
 #if THREADS
@@ -3129,7 +3205,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case procceed_op:
       if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
-	  *clause_has_blobsp &&
+	  (*clause_has_blobsp || *clause_has_dbtermp) &&
 	  !clinfo.alloc_found)
 	code_p = a_cle(_alloc_for_logical_pred, code_p, pass_no, cip);
 #if THREADS
@@ -3425,6 +3501,23 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep)
   return x;
 }
 
+static DBTermList *
+init_dbterms_list(yamop *code_p, PredEntry *ap)
+{
+  DBTermList *new;
+  if ((new = (DBTermList *)Yap_AllocCodeSpace(sizeof(DBTermList))) == NULL) {
+    return NULL;
+  }
+  new->dbterms = NULL;
+  new->clause_code = code_p;
+  new->p = ap;
+  LOCK(DBTermsListLock);
+  new->next_dbl = DBTermsList;
+  DBTermsList = new;
+  UNLOCK(DBTermsListLock);
+  return new;
+}
+
 
 yamop *
 Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates *cip)
@@ -3438,10 +3531,14 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
   yamop *entry_code;
   yamop *code_p;
   int clause_has_blobs = FALSE;
+  int clause_has_dbterm = FALSE;
 
   cip->label_offset = (int *)cip->freep;
   cip->code_addr = NULL;
-  code_p = do_pass(0, &entry_code, mode, &clause_has_blobs, cip, size);
+  code_p = do_pass(0, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size);
+  if (clause_has_dbterm) {
+    cip->dbterml = init_dbterms_list(code_p, ap);
+  }
   if (ap->PredFlags & DynamicPredFlag) {
     size =
       (CELL)NEXTOP(NEXTOP(NEXTOP((yamop *)(((DynamicClause *)NULL)->ClCode),ld),sla),e);
@@ -3475,7 +3572,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     }
     cl = (StaticClause *)((CODEADDR)x-(UInt)size);
     cip->code_addr = (yamop *)cl;
-    code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, cip, size);
+    code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size);
     /* make sure we copy after second pass */
     cl->usc.ClSource = x;
     cl->ClSize = osize;
@@ -3502,7 +3599,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
 	Yap_IndexSpace_Tree += size;
     }
   }
-  code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, cip, size);
+  code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size);
   ProfEnd=code_p;
 #ifdef LOW_PROF
   if (ProfilerOn &&

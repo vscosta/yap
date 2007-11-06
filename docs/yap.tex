@@ -1,4 +1,4 @@
-\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
+a\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
 
 @c %**start of header
 @setfilename yap.info
@@ -1593,6 +1593,64 @@ will consult @code{file1} @code{file4} and reconsult @code{file2} and
 @cnindex compile/1
 @noindent
 In YAP, the same as @code{reconsult/1}.
+
+@item load_files(@var{+Files}, @var{+Options})
+@findex load_files/2
+@syindex load_files/2
+@cnindex load_files/2
+@noindent
+General implementation of @code{consult}. Execution is controlled by the
+following flags:
+
+@table @code
+@item autoload(+@var{Autoload})
+SWI-compatible option where if @var{Autoload} is @code{true} predicates
+are loaded on first call. Currently
+not supported.
+@item derived_from(+@var{File})
+      SWI-compatible option to control make. Currently
+      not supported.
+@item encoding(+@var{Encoding})
+Character encoding used in consulting files. Please @pxref{Encoding} for
+supported encodings.
+
+@item expand(+@var{Bool})
+      Not yet implemented. In SWI-Prolog, if @code{true}, run the
+    filenames through @code{expand_file_name/2} and load the returned
+    files. Default is false, except for @code{consult/1} which is
+    intended for interactive use.
+
+@item if(+@var{Condition})
+    Load the file only if the specified @var{Condition} is
+    satisfied. The value @code{true} the file unconditionally,
+    @code{changed} loads the file if it was not loaded before, or has
+    been modified since it was loaded the last time, @code{not_loaded}
+    loads the file if it was not loaded before.
+
+@item imports(+@var{ListOrAll})
+    If @code{all} and the file is a module file, import all public
+    predicates. Otherwise import only the named predicates. Each
+    predicate is referred to as @code{<name>/<arity>}. This option has
+    no effect if the file is not a module file.
+
+@item must_be_module(+@var{Bool})
+    If true, raise an error if the file is not a module file. Used by
+    @code{use_module/[1,2]}.
+
+@c qcompile(Bool)
+@c     If this call appears in a directive of a file that is compiled into Quick Load Format using qcompile/1 and this flag is true, the contents of the argument files are included in the .qlf file instead of the loading directive.
+
+@item silent(+@var{Bool})
+    If true, load the file without printing a message. The specified value is the default for all files loaded as a result of loading the specified files.
+
+@item stream(+@var{Input})
+    This SWI-Prolog extension compiles the data from the stream
+    @var{Input}. If this option is used, @var{Files} must be a single
+    atom which is used to identify the source-location of the loaded
+    clauses as well as remove all clauses if the data is re-consulted.
+
+    This option is added to allow compiling from non-file locations such as databases, the web, the user (see consult/1) or other servers. 
+@end table
 
 @item ensure_loaded(@var{+F}) [ISO]
 @findex ensure_loaded/1

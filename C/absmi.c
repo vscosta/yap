@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2007-10-28 11:23:39 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-06 17:02:08 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.227  2007/10/28 11:23:39  vsc
+* fix overflow
+*
 * Revision 1.226  2007/10/28 00:54:09  vsc
 * new version of viterbi implementation
 * fix all:atvars reporting bad info
@@ -4311,6 +4314,42 @@ Yap_absmi(int inp)
       FAIL();
 #endif
       ENDOp();
+
+
+      Op(get_dbterm, xc);
+      BEGD(d0);
+      d0 = XREG(PREG->u.xc.x);
+      deref_head(d0, gdbterm_unk);
+
+    gdbterm_nonvar:
+      BEGD(d1);
+      /* we have met a preexisting dbterm */
+      d1 = XREG(PREG->u.xc.c);
+      PREG = NEXTOP(PREG, xc);      
+      UnifyBound(d0,d1);
+      ENDD(d1);
+
+      BEGP(pt0);
+      deref_body(d0, pt0, gdbterm_unk, gdbterm_nonvar);
+      /* Enter Write mode */
+      /* set d1 to be the new structure we are going to create */
+      START_PREFETCH(xc);
+      BEGD(d1);
+      d1 = PREG->u.xc.c;
+      PREG = NEXTOP(PREG, xc);
+      BIND(pt0, d1, bind_gdbterm);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+    bind_gdbterm:
+#endif
+      GONext();
+      ENDD(d1);
+      END_PREFETCH();
+      ENDP(pt0);
+
+      ENDD(d0);
+      ENDOp();
 
 /************************************************************************\
 *    Optimised Get List Instructions					*
@@ -6340,7 +6379,7 @@ Yap_absmi(int inp)
 
       derefa_body(d0, pt0, ubigint_unk, ubigint_nonvar);
       BEGD(d1);
-      d1 = AbsAppl(PREG->u.oi.i);
+      d1 = PREG->u.oc.c;
       PREG = NEXTOP(PREG, oi);
       BIND_GLOBAL(pt0, d1, bind_ubigint);
 #ifdef COROUTINING
@@ -6400,6 +6439,66 @@ Yap_absmi(int inp)
 #else
       FAIL();
 #endif
+      ENDOp();
+
+      Op(unify_dbterm, oc);
+      BEGD(d0);
+      BEGP(pt0);
+      pt0 = SREG++;
+      d0 = *pt0;
+      deref_head(d0, udbterm_unk);
+    udbterm_nonvar:
+      BEGD(d1);
+      /* we have met a preexisting dbterm */
+      d1 = XREG(PREG->u.oc.c);
+      PREG = NEXTOP(PREG, oc);
+      UnifyBound(d0,d1);
+      ENDD(d1);
+
+      derefa_body(d0, pt0, udbterm_unk, udbterm_nonvar);
+      BEGD(d1);
+      d1 = AbsAppl(PREG->u.oi.i);
+      PREG = NEXTOP(PREG, oi);
+      BIND_GLOBAL(pt0, d1, bind_udbterm);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+  bind_udbterm:
+#endif
+      GONext();
+      ENDD(d1);
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(unify_l_dbterm, oc);
+      BEGD(d0);
+      CACHE_S();
+      READ_IN_S();
+      d0 = *S_SREG;
+      deref_head(d0, uldbterm_unk);
+    uldbterm_nonvar:
+      BEGD(d1);
+      /* we have met a preexisting dbterm */
+      d1 = XREG(PREG->u.oc.c);
+      PREG = NEXTOP(PREG, oc);
+      UnifyBound(d0,d1);
+      ENDD(d1);
+
+      derefa_body(d0, S_SREG, uldbterm_unk, uldbterm_nonvar);
+      BEGD(d1);
+      d1 = PREG->u.oc.c;
+      PREG = NEXTOP(PREG, oc);
+      BIND_GLOBAL(S_SREG, d1, bind_uldbterm);
+#ifdef COROUTINING
+      DO_TRAIL(S_SREG, d1);
+      if (S_SREG < H0) Yap_WakeUp(S_SREG);
+  bind_uldbterm:
+#endif
+      GONext();
+      ENDD(d1);
+      ENDCACHE_S();
+      ENDD(d0);
       ENDOp();
 
       OpW(unify_list_write, o);

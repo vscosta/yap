@@ -891,6 +891,8 @@ fix_compiler_instructions(PInstr *pcpc)
     case align_float_op:
     case get_bigint_op:
     case put_bigint_op:
+    case get_dbterm_op:
+    case put_dbterm_op:
     case get_list_op:
     case put_list_op:
     case get_struct_op:
@@ -906,7 +908,10 @@ fix_compiler_instructions(PInstr *pcpc)
     case write_longint_op:
     case unify_bigint_op:
     case unify_last_bigint_op:
+    case unify_dbterm_op:
+    case unify_last_dbterm_op:
     case write_bigint_op:
+    case write_dbterm_op:
     case unify_list_op:
     case write_list_op:
     case unify_struct_op:

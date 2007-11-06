@@ -558,7 +558,7 @@ Yap_GetExpPropHavingLock(AtomEntry *ae, unsigned int arity)
   return (p0);
 }
 
-static void
+static int
 ExpandPredHash(void)
 {
   UInt new_size = PredHashTableSize+PredHashIncrement;
@@ -567,7 +567,7 @@ ExpandPredHash(void)
   UInt i;
 
   if (!np) {
-    Yap_Error(FATAL_ERROR,TermNil,"Could not allocate space for pred table");
+    return FALSE;
   }
   for (i = 0; i < new_size; i++) {
     np[i] = NULL;
@@ -586,6 +586,7 @@ ExpandPredHash(void)
   PredHashTableSize = new_size;
   PredHash = np;
   Yap_FreeAtomSpace((ADDR)oldp);
+  return TRUE;
 }
 
 /* fe is supposed to be locked */
@@ -594,6 +595,44 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
 {
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
+  if (p == NULL) {
+    WRITE_UNLOCK(fe->FRWLock);
+    return NULL;
+  }
+  if (fe->PropsOfFE) {
+    UInt hsh = PRED_HASH(fe, cur_mod, PredHashTableSize);
+
+    WRITE_LOCK(PredHashRWLock);
+    if (10*(PredsInHashTable+1) > 6*PredHashTableSize) {
+      if (!ExpandPredHash()) {
+	Yap_FreeCodeSpace((ADDR)p);
+	WRITE_UNLOCK(PredHashRWLock);
+	WRITE_UNLOCK(fe->FRWLock);
+	return NULL;
+      }
+      /* retry hashing */
+      hsh = PRED_HASH(fe, cur_mod, PredHashTableSize);
+    }
+    PredsInHashTable++;
+    if (p->ModuleOfPred == 0L) {
+      PredEntry *pe = RepPredProp(fe->PropsOfFE);
+
+      hsh = PRED_HASH(fe, pe->ModuleOfPred, PredHashTableSize);
+      /* should be the first one */
+      pe->NextOfPE = AbsPredProp(PredHash[hsh]);
+      PredHash[hsh] = pe;
+      fe->PropsOfFE = AbsPredProp(p);
+    } else {
+      p->NextOfPE = AbsPredProp(PredHash[hsh]);
+      PredHash[hsh] = p;
+    }
+    WRITE_UNLOCK(PredHashRWLock);
+    /* make sure that we have something here */
+    RepPredProp(fe->PropsOfFE)->NextOfPE = fe->PropsOfFE;
+  } else {
+    fe->PropsOfFE = AbsPredProp(p);
+    p->NextOfPE = NIL;
+  }
   INIT_RWLOCK(p->PRWLock);
   INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
@@ -630,33 +669,6 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
     }
   }
   p->FunctorOfPred = fe;
-  if (fe->PropsOfFE) {
-    UInt hsh = PRED_HASH(fe, cur_mod, PredHashTableSize);
-
-    WRITE_LOCK(PredHashRWLock);
-    if (p->ModuleOfPred == 0L) {
-      PredEntry *pe = RepPredProp(fe->PropsOfFE);
-
-      hsh = PRED_HASH(fe, pe->ModuleOfPred, PredHashTableSize);
-      /* should be the first one */
-      pe->NextOfPE = AbsPredProp(PredHash[hsh]);
-      PredHash[hsh] = pe;
-      fe->PropsOfFE = AbsPredProp(p);
-    } else {
-      p->NextOfPE = AbsPredProp(PredHash[hsh]);
-      PredHash[hsh] = p;
-    }
-    PredsInHashTable++;
-    if (10*PredsInHashTable > 6*PredHashTableSize) {
-      ExpandPredHash();
-    }
-    WRITE_UNLOCK(PredHashRWLock);
-    /* make sure that we have something here */
-    RepPredProp(fe->PropsOfFE)->NextOfPE = fe->PropsOfFE;
-  } else {
-    fe->PropsOfFE = AbsPredProp(p);
-    p->NextOfPE = NIL;
-  }
   WRITE_UNLOCK(fe->FRWLock);
 #ifdef LOW_PROF
   if (ProfilerOn &&

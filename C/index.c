@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2007-10-28 11:23:40 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-06 17:02:12 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.188  2007/10/28 11:23:40  vsc
+* fix overflow
+*
 * Revision 1.187  2007/09/22 08:38:05  vsc
 * nb_ extra stuff plus an indexing overflow fix.
 *
@@ -1093,6 +1096,7 @@ has_cut(yamop *pc)
     case _get_atom:
     case _put_atom:
     case _get_bigint:
+    case _get_dbterm:
       pc = NEXTOP(pc,xc);
       break;
       /* instructions type cc */
@@ -1218,6 +1222,8 @@ has_cut(yamop *pc)
     case _unify_l_atom:
     case _unify_bigint:
     case _unify_l_bigint:
+    case _unify_dbterm:
+    case _unify_l_dbterm:
       pc = NEXTOP(pc,oc);
       break;
       /* instructions type osc */
@@ -1947,6 +1953,9 @@ add_info(ClauseDef *clause, UInt regno)
       }
       break;
      */
+    case _get_dbterm:
+      clause->Tag = (CELL)NULL;
+      return;
     case _copy_idb_term:
     case _unify_idb_term:
       if (regno == 2) {
@@ -2178,6 +2187,10 @@ add_info(ClauseDef *clause, UInt regno)
       break;      
     case _unify_bigint:
     case _unify_l_bigint:
+      cl = NEXTOP(cl,oc);
+      break;      
+    case _unify_dbterm:
+    case _unify_l_dbterm:
       cl = NEXTOP(cl,oc);
       break;      
     case _unify_n_atoms_write:
@@ -2817,6 +2830,10 @@ add_head_info(ClauseDef *clause, UInt regno)
     case _unify_l_bigint:
       cl = NEXTOP(cl,oc);
       break;      
+    case _unify_dbterm:
+    case _unify_l_dbterm:
+      cl = NEXTOP(cl,oc);
+      break;      
     case _unify_n_atoms_write:
     case _unify_n_atoms:
       cl = NEXTOP(cl,osc);
@@ -2827,6 +2844,9 @@ add_head_info(ClauseDef *clause, UInt regno)
     case _unify_l_struc:
       cl = NEXTOP(cl,of);
       break;      
+    case _get_dbterm:
+      clause->Tag = (CELL)NULL;
+      return;
     case _unify_idb_term:
     case _copy_idb_term:
       if (regno != 2) {
@@ -3100,6 +3120,10 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
       }
       argno--;
       break;
+    case _unify_dbterm:
+    case _unify_l_dbterm:
+     clause->Tag = (CELL)NULL;
+     return;
     case _unify_n_atoms:
       if (argno <= cl->u.osc.s) {
 	clause->Tag = cl->u.osc.c;
@@ -3133,8 +3157,11 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
       cl = NEXTOP(cl,os);
       break;
 #endif   
+    case _get_dbterm:
     case _unify_idb_term:
     case _copy_idb_term:
+     clause->Tag = (CELL)NULL;
+     return;
       {
 	Term t = clause->u.c_sreg[argno];
 
