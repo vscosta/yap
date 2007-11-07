@@ -1328,7 +1328,7 @@ EXTERN inline UInt STD_PROTO(PRED_HASH, (FunctorEntry *, Term, UInt));
 EXTERN inline UInt
 PRED_HASH(FunctorEntry *fe, Term cur_mod, UInt size)
 {
-  return ((CELL)fe+cur_mod) % size;
+  return (((CELL)fe+cur_mod)>>2) % size;
 }
 
 EXTERN inline Prop STD_PROTO(GetPredPropByFuncHavingLock, (FunctorEntry *, Term));

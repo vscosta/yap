@@ -162,6 +162,9 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   sc = Yap_heap_regs;
   vsc_count++;
 #ifdef COMMENTED
+  if (vsc_count == 40650191LL)
+    jmp_deb(1);
+  return;
   if (vsc_count > 1388060LL && vsc_count < 1388070LL) {
     if (vsc_count==1388061LL)
       jmp_deb(1);

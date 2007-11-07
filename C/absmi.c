@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2007-11-06 17:02:08 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-07 09:25:27 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.228  2007/11/06 17:02:08  vsc
+* compile ground terms away.
+*
 * Revision 1.227  2007/10/28 11:23:39  vsc
 * fix overflow
 *
@@ -13226,6 +13229,209 @@ Yap_absmi(int inp)
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
+
+      BOp(p_execute2, sla);
+      { 
+	PredEntry *pen;
+	Term mod = ARG2;
+
+	deref_head(mod, execute2_unk0);
+    execute2_nvar0:
+	if (!IsAtomTerm(mod)) {
+	  saveregs();
+	  Yap_Error(TYPE_ERROR_ATOM, mod, "call/2");
+	  setregs();
+	}
+	CACHE_Y_AS_ENV(YREG);
+	/* Try to preserve the environment */
+	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+#ifdef FROZEN_STACKS
+	{ 
+	  choiceptr top_b = PROTECT_FROZEN_B(B);
+#ifdef SBA
+	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
+#else
+	  if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
+#endif /* SBA */
+	}
+#else
+	if (ENV_YREG > (CELL *) B) {
+	  ENV_YREG = (CELL *) B;
+	}
+#endif /* FROZEN_STACKS */
+	BEGD(d0);
+	d0 = ARG1;
+      restart_execute2:
+	deref_head(d0, execute2_unk);
+      execute2_nvar:
+	if (IsApplTerm(d0)) {
+	  Functor f = FunctorOfTerm(d0);
+	  if (IsExtensionFunctor(f)) {
+	    goto execute2_metacall;
+	  }
+	  pen = RepPredProp(PredPropByFunc(f, mod));
+	  if (pen->PredFlags & (MetaPredFlag|GoalExPredFlag)) {
+	    if (f == FunctorModule) {
+	      Term tmod = ArgOfTerm(1,d0);
+	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+		d0 = ArgOfTerm(2,d0);
+		mod = tmod;
+		goto execute2_nvar;
+	      }
+	    } else if (f == FunctorComma) {
+	      SREG = RepAppl(d0);
+	      BEGD(d1);
+	      d1 = SREG[2];
+	      /* create an to execute2 the call */
+	      deref_head(d1, execute2_comma_unk);
+	    execute2_comma_nvar:
+	      if (IsAtomTerm(d1)) {
+		ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
+		ENV_YREG[-EnvSizeInCells-3]  = mod;
+	      } else if (IsApplTerm(d1)) {
+		Functor f = FunctorOfTerm(d1);
+		if (IsExtensionFunctor(f)) {
+		  goto execute2_metacall;
+		} else {
+		  if (f == FunctorModule) goto execute2_metacall;
+		  ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
+		  ENV_YREG[-EnvSizeInCells-3]  = mod;
+		}
+	      } else {
+		goto execute2_metacall;
+	      }
+	      ENV_YREG[E_CP] = (CELL)NEXTOP(PREG,sla);
+	      ENV_YREG[E_CB] = (CELL)B;
+	      ENV_YREG[E_E]  = (CELL)ENV;
+#ifdef DEPTH_LIMIT
+	      ENV_YREG[E_DEPTH] = DEPTH;
+#endif	/* DEPTH_LIMIT */
+	      ENV_YREG[-EnvSizeInCells-1]  = d1;
+	      ENV = ENV_YREG;
+	      ENV_YREG -= EnvSizeInCells+3;
+	      PREG = COMMA_CODE;
+	      /* for profiler */
+	      save_pc();
+	      d0 = SREG[1];
+	      goto restart_execute2;
+
+	      BEGP(pt1);
+	      deref_body(d1, pt1, execute2_comma_unk, execute2_comma_nvar);
+	      goto execute2_metacall;
+	      ENDP(pt1);
+	      ENDD(d1);
+	    } else if (mod != CurrentModule) {
+		goto execute2_metacall;
+	    }
+	  }
+	  if (PRED_GOAL_EXPANSION_ALL) {
+	    goto execute2_metacall;
+	  }
+
+	  BEGP(pt1);
+	  pt1 = RepAppl(d0);
+	  BEGD(d2);
+	  for (d2 = ArityOfFunctor(f); d2; d2--) {
+#if SBA
+	    BEGD(d1);
+	    d1 = pt1[d2];
+	    if (d1 == 0) {
+	      XREGS[d2] = (CELL)(pt1+d2);
+	    } else {
+	      XREGS[d2] = d1;
+	    }
+#else
+	    XREGS[d2] = pt1[d2];
+#endif
+	  }
+	  ENDD(d2);
+	  ENDP(pt1);
+	  CACHE_A1();
+	} else if (IsAtomTerm(d0)) {
+	  if (PRED_GOAL_EXPANSION_ALL) {
+	    goto execute2_metacall;
+	  } else {
+	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
+	  }
+	} else {
+	  goto execute2_metacall;
+	}
+
+      execute2_end:
+	/* code copied from call */
+#ifndef NO_CHECKING
+	check_stack(NoStackPExecute2, H);
+#endif
+	CPREG = NEXTOP(PREG, sla);
+	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
+	PREG = pen->CodeOfPred;
+	/* for profiler */
+	save_pc();
+#ifdef DEPTH_LIMIT
+	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
+	  if (pen->ModuleOfPred) {
+	    if (DEPTH == MkIntTerm(0))
+	      FAIL();
+	    else DEPTH = RESET_DEPTH();
+	  }
+	} else if (pen->ModuleOfPred)
+	  DEPTH -= MkIntConstant(2);
+#endif	/* DEPTH_LIMIT */
+#ifdef LOW_LEVEL_TRACER
+	if (Yap_do_low_level_trace)
+	  low_level_trace(enter_pred,pen,XREGS+1);
+#endif	/* LOW_LEVEL_TRACER */
+	WRITEBACK_Y_AS_ENV();
+	/* setup GB */
+	ENV_YREG[E_CB] = (CELL) B;
+#ifdef YAPOR
+	SCH_check_requests();
+#endif	/* YAPOR */
+	CACHE_A1();
+	ALWAYS_GONext();
+	ALWAYS_END_PREFETCH();
+
+	BEGP(pt1);
+	deref_body(d0, pt1, execute2_unk, execute2_nvar);
+       execute2_metacall:
+	ARG1 = ARG3 = d0;
+	pen = PredMetaCall;
+	ARG2 = Yap_cp_as_integer(B);
+	if (mod)
+	  ARG4 = mod;
+	else
+	  ARG4 = TermProlog;
+	goto execute2_end;
+	ENDP(pt1);
+
+	ENDD(d0);
+      NoStackPExecute2:
+	SREG = (CELL *) pen;
+	ASP = ENV_YREG;
+	/* setup GB */
+	WRITEBACK_Y_AS_ENV();
+	YREG[E_CB] = (CELL) B;
+	if (ActiveSignals) {
+	  goto creep_pe;
+	}
+	saveregs_and_ycache();
+	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sla))) {
+	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	}
+	setregs_and_ycache();
+	goto execute2_end;
+	ENDCACHE_Y_AS_ENV();
+
+	BEGP(pt1);
+	deref_body(mod, pt1, execute2_unk0, execute2_nvar0);
+	saveregs();
+	Yap_Error(INSTANTIATION_ERROR, mod, "call/2");
+	setregs();
+	ENDP(pt1);
+	/* Oops, second argument was unbound too */
+	FAIL();
+      }
+      ENDBOp();
 
       BOp(p_execute, sla);
       { 

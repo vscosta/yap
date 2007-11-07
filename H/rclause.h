@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2007-11-06 17:02:12 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-07 09:25:27 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.19  2007/11/06 17:02:12  vsc
+* compile ground terms away.
+*
 * Revision 1.18  2006/11/27 17:42:03  vsc
 * support for UNICODE, and other bug fixes.
 *
@@ -380,6 +383,7 @@ restore_opcodes(yamop *pc)
       /* instructions type sla */      
     case _p_execute_tail:
     case _p_execute:
+    case _p_execute2:
       pc->u.sla.sla_u.p = PtoPredAdjust(pc->u.sla.sla_u.p);
       if (pc->u.sla.sla_u.mod != 0) {
 	pc->u.sla.sla_u.mod = AtomTermAdjust(pc->u.sla.sla_u.mod);

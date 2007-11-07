@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2007-11-06 17:02:12 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-07 09:25:27 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.189  2007/11/06 17:02:12  vsc
+* compile ground terms away.
+*
 * Revision 1.188  2007/10/28 11:23:40  vsc
 * fix overflow
 *
@@ -1044,6 +1047,7 @@ has_cut(yamop *pc)
       break;
       /* instructions type sla */
     case _p_execute:
+    case _p_execute2:
     case _fcall:
     case _call:
 #ifdef YAPOR
@@ -1721,6 +1725,7 @@ add_info(ClauseDef *clause, UInt regno)
       clause->Tag = (CELL)NULL;
       return;
     case _p_execute:
+    case _p_execute2:
     case _fcall:
     case _call:
 #ifdef YAPOR

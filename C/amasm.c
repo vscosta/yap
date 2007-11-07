@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2007-11-06 17:02:09 $							 *
+* Last rev:     $Date: 2007-11-07 09:25:27 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.96  2007/11/06 17:02:09  vsc
+* compile ground terms away.
+*
 * Revision 1.95  2007/06/23 17:31:50  vsc
 * pin cluses with floats.
 *
@@ -1229,6 +1232,8 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
 	} else {
 	  if (RepPredProp(fe)->FunctorOfPred == FunctorExecuteInMod) {
 	    code_p->opc = emit_op(_p_execute);
+	  } else if (RepPredProp(fe)->FunctorOfPred == FunctorExecute2InMod) {
+	    code_p->opc = emit_op(_p_execute2);
 	  } else {
 	    code_p->opc = emit_op(_call_cpred);
 	  }

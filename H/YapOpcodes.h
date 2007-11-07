@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2007-11-06 17:02:12 $							 *
+* Last rev:     $Date: 2007-11-07 09:25:27 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.41  2007/11/06 17:02:12  vsc
+* compile ground terms away.
+*
 * Revision 1.40  2006/10/10 14:08:17  vsc
 * small fixes on threaded implementation.
 *
@@ -481,6 +484,7 @@
     OPCODE(p_func2f_yx             ,yxx),
     OPCODE(p_func2f_yy             ,yyx),
     OPCODE(p_execute               ,sla),
+    OPCODE(p_execute2              ,sla),
     OPCODE(p_execute_tail          ,e)
 
 

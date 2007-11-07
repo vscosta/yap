@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2007-11-06 17:02:11 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-07 09:25:27 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.209  2007/11/06 17:02:11  vsc
+* compile ground terms away.
+*
 * Revision 1.208  2007/11/01 10:01:35  vsc
 * fix uninitalised lock and reconsult test.
 *
@@ -3998,6 +4001,7 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
       /* instructions type sla */      
     case _p_execute_tail:
     case _p_execute:
+    case _p_execute2:
       clause_code = TRUE;
       pp = RepPredProp(Yap_GetPredPropByFunc(FunctorCall, CurrentModule));
       *startp = (CODEADDR)&(pp->OpcodeOfPred);
@@ -4706,6 +4710,51 @@ p_system_pred(void)
  restart_system_pred:
   if (IsVarTerm(t1))
     return FALSE;
+  if (IsAtomTerm(t1)) {
+    pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t1), mod));
+  } else if (IsApplTerm(t1)) {
+    Functor         funt = FunctorOfTerm(t1);
+    if (IsExtensionFunctor(funt)) {
+      return FALSE;
+    } 
+    if (funt == FunctorModule) {
+      Term nmod = ArgOfTerm(1, t1);
+      if (IsVarTerm(nmod)) {
+	Yap_Error(INSTANTIATION_ERROR,ARG1,"system_predicate/1");
+	return FALSE;
+      } 
+      if (!IsAtomTerm(nmod)) {
+	Yap_Error(TYPE_ERROR_ATOM,ARG1,"system_predicate/1");
+	return FALSE;
+      }
+      t1 = ArgOfTerm(2, t1);
+      goto restart_system_pred;
+    }
+    pe = RepPredProp(Yap_GetPredPropByFunc(funt, mod));
+  } else if (IsPairTerm(t1)) {
+    return TRUE;
+  } else
+    return FALSE;
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  return(!pe->ModuleOfPred || /* any predicate in prolog module */
+	 /* any C-pred */
+	 pe->PredFlags & (UserCPredFlag|CPredFlag|BinaryTestPredFlag|AsmPredFlag|TestPredFlag) ||
+	 /* any weird user built-in */
+	 pe->OpcodeOfPred == Yap_opcode(_try_userc));
+}
+
+static Int			/* $system_predicate(P) */
+p_all_system_pred(void)
+{
+  PredEntry      *pe;
+
+  Term t1 = Deref(ARG1);
+  Term mod = Deref(ARG2);
+
+ restart_system_pred:
+  if (IsVarTerm(t1))
+    return TRUE;
   if (IsAtomTerm(t1)) {
     pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t1), mod));
   } else if (IsApplTerm(t1)) {
@@ -6021,6 +6070,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$parent_pred", 3, p_parent_pred, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$system_predicate", 2, p_system_pred, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$all_system_predicate", 2, p_all_system_pred, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$hide_predicate", 2, p_hide_predicate, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$hidden_predicate", 2, p_hidden_predicate, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$pred_for_code", 5, p_pred_for_code, SyncPredFlag|HiddenPredFlag);

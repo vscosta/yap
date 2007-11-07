@@ -1180,6 +1180,7 @@ InitCodes(void)
   Yap_heap_regs->functor_csult = Yap_MkFunctor(AtomCsult, 1);
   Yap_heap_regs->functor_eq = Yap_MkFunctor(AtomEq, 2);
   Yap_heap_regs->functor_execute_in_mod = Yap_MkFunctor(Yap_FullLookupAtom("$execute_in_mod"), 2);
+  Yap_heap_regs->functor_execute2_in_mod = Yap_MkFunctor(Yap_FullLookupAtom("$execute_wo_mod"), 2);
   Yap_heap_regs->functor_execute_within = Yap_MkFunctor(Yap_FullLookupAtom("$execute_within"), 1);
   Yap_heap_regs->functor_g_atom = Yap_MkFunctor(Yap_LookupAtom("atom"), 1);
   Yap_heap_regs->functor_g_atomic = Yap_MkFunctor(Yap_LookupAtom("atomic"), 1);

@@ -2039,6 +2039,7 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$execute", 11, p_execute11, HiddenPredFlag);
   Yap_InitCPred("$execute", 12, p_execute12, HiddenPredFlag);
   Yap_InitCPred("$execute_in_mod", 2, p_execute_in_mod, HiddenPredFlag);
+  Yap_InitCPred("$execute_wo_mod", 2, p_execute_in_mod, HiddenPredFlag);
   Yap_InitCPred("$call_with_args", 2, p_execute_0, HiddenPredFlag);
   Yap_InitCPred("$call_with_args", 3, p_execute_1, HiddenPredFlag);
   Yap_InitCPred("$call_with_args", 4, p_execute_2, HiddenPredFlag);

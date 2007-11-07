@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2007-11-06 17:02:12 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-07 09:25:27 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.78  2007/11/06 17:02:12  vsc
+* compile ground terms away.
+*
 * Revision 1.77  2007/10/10 09:44:24  vsc
 * some more fixes to make YAP swi compatible
 * fix absolute_file_name (again)
@@ -678,6 +681,7 @@ restore_codes(void)
   Yap_heap_regs->functor_csult = FuncAdjust(Yap_heap_regs->functor_csult);
   Yap_heap_regs->functor_eq = FuncAdjust(Yap_heap_regs->functor_eq);
   Yap_heap_regs->functor_execute_in_mod = FuncAdjust(Yap_heap_regs->functor_execute_in_mod);
+  Yap_heap_regs->functor_execute2_in_mod = FuncAdjust(Yap_heap_regs->functor_execute2_in_mod);
   Yap_heap_regs->functor_execute_within = FuncAdjust(Yap_heap_regs->functor_execute_within);
   Yap_heap_regs->functor_g_atom = FuncAdjust(Yap_heap_regs->functor_g_atom);
   Yap_heap_regs->functor_g_atomic = FuncAdjust(Yap_heap_regs->functor_g_atomic);

@@ -257,7 +257,7 @@ module(N) :-
 '$module_expansion'(false,false,false,_,_,_,_) :- !.
 % if I don't know what the module is, I cannot do anything to the goal,
 % so I just put a call for later on.
-'$module_expansion'(M:G,call(M:G),call(M:G),_,_,_,_) :- var(M), !.
+'$module_expansion'(M:G,call(M:G),'$execute_wo_mod'(G,M),_,_,_,_) :- var(M), !.
 '$module_expansion'(M:G,G1,GO,_,_,TM,HVars) :-
 	'$module_expansion'(G,G1,GO,M,M,TM,HVars).
 % if M1 is given explicitly process G within M1's context.
@@ -308,7 +308,7 @@ module(N) :-
 	user:goal_expansion(G,M,GI), !,
 	'$module_expansion'(GI,G1,G2,M,CM,TM,HVars).
 '$complete_goal_expansion'(G, M, CM, TM, G1, G2, HVars) :-
-	'$system_predicate'(G,M), !,
+	'$all_system_predicate'(G,M), !,
 	'$c_built_in'(G,M,Gi),
 	(Gi \== G ->
 	   '$module_expansion'(Gi,_,G2,M,CM,TM,HVars),
