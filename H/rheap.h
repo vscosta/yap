@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2007-11-07 09:25:27 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-07 09:35:53 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.79  2007/11/07 09:25:27  vsc
+* speedup meta-calls
+*
 * Revision 1.78  2007/11/06 17:02:12  vsc
 * compile ground terms away.
 *
@@ -341,7 +344,7 @@ static void
 RestoreDBTermEntry(struct dbterm_list *dbl) {
   DBTerm *dbt;
 
-  dbl->dbterms = DBTermAdjust(dbl->dbterms);
+  dbt = dbl->dbterms = DBTermAdjust(dbl->dbterms);
   dbl->clause_code = PtoOpAdjust(dbl->clause_code);
   dbl->next_dbl = PtoDBTLAdjust(dbl->next_dbl);
   dbl->p = PredEntryAdjust(dbl->p);

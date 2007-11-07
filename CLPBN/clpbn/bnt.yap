@@ -59,7 +59,7 @@ G <-- Y :-
 bnt_solver(jtree).
 % likelihood_weighting
 
-bnt_path('/u/vitor/Yap/CLPBN/FullBNT-1.0.3/BNT').
+bnt_path('$HOME/Yap/CLPBN/FullBNT-1.0.4/BNT').
 
 %
 % What BNT are we using:
@@ -113,7 +113,7 @@ init_matlab :-
 	bnt_path(Path),
 	atom_concat('cd ', Path, Command),
 	matlab_eval_string(Command),
-	matlab_eval_string('add_BNT_to_path',_),
+	matlab_eval_string('addpath(genpathKPM(pwd))',_),
 	assert(bnt(on)).
 
 start_matlab :-

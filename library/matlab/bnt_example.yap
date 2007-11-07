@@ -1,7 +1,8 @@
 /*
-add_BNT_to_path
+cd ~/Yap/CLPBN/FullBNT-1.0.4
+addpath(genpathKPM(pwd))
 N = 4; 
-dag = zeros(N,N);
+dag = false(N,N);
 C = 1; S = 2; R = 3; W = 4;
 dag(C,[R S]) = 1;
 dag(R,W) = 1;
