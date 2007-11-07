@@ -684,6 +684,11 @@ INSTALL_INFO
 CPP
 GREP
 EGREP
+CPLINT_LIBS
+CPLINT_CFLAGS
+CPLINT_LDFLAGS
+CPLINT_SHLIB_LD
+ENABLE_CPLINT
 M4
 M4GENHDRS
 INSTALL_DLLS
@@ -1323,6 +1328,7 @@ Optional Features:
  --enable-condor            allow Yap to be used from condor
  --enable-april             compile Yap to support April ILP system
  --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
+ --enable-cplint=DIR          enable the cplint library using the glu library in DIR/lib
  --enable-myddas[=DIR]      enable the MYDDAS library
  --enable-myddas-stats      enable the MYDDAS library statistics support
  --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL
@@ -2842,6 +2848,14 @@ if test "${enable_dlcompat+set}" = set; then
   enableval=$enable_dlcompat; use_dlcompat="$enableval"
 else
   use_dlcompat=no
+fi
+
+
+# Check whether --enable-cplint was given.
+if test "${enable_cplint+set}" = set; then
+  enableval=$enable_cplint; yap_cv_cplint=$enableval
+else
+  yap_cv_cplint=no
 fi
 
 
@@ -7184,6 +7198,296 @@ if test "$tabling" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
 fi
+if test ! "$yap_cv_cplint" = "no"
+  then
+	GLIBS=`glib-config --libs glib`
+	GFLAGS=`glib-config --cflags glib`
+	CPLINT_LIBS+=$GLIBS
+	CPLINT_CFLAGS=" $GFLAGS "
+	CPLINT_LDFLAGS=" `echo $GLIBS | awk '{print $1}'` -L/usrl/local/lib/"
+		LDFLAGS+=" `echo $GLIBS | awk '{print $1}'` -L/usrl/local/lib/"
+	if test ! "$yap_cv_cplint" = "yes"
+	then
+		LDFLAGS+=" -L${yap_cv_cplint}/lib"
+		CPLINT_LDFLAGS+=" -L${yap_cv_cplint}/lib"
+		CPLINT_CFLAGS+=" -I${yap_cv_cplint}/include"
+	fi
+	{ echo "$as_me:$LINENO: checking for library containing g_hash_table_new" >&5
+echo $ECHO_N "checking for library containing g_hash_table_new... $ECHO_C" >&6; }
+if test "${ac_cv_search_g_hash_table_new+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char g_hash_table_new ();
+int
+main ()
+{
+return g_hash_table_new ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' glib; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_search_g_hash_table_new=$ac_res
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext
+  if test "${ac_cv_search_g_hash_table_new+set}" = set; then
+  break
+fi
+done
+if test "${ac_cv_search_g_hash_table_new+set}" = set; then
+  :
+else
+  ac_cv_search_g_hash_table_new=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_search_g_hash_table_new" >&5
+echo "${ECHO_T}$ac_cv_search_g_hash_table_new" >&6; }
+ac_res=$ac_cv_search_g_hash_table_new
+if test "$ac_res" != no; then
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+  CPLINT_LIBS="-lglib "
+else
+  { { echo "$as_me:$LINENO: error: This package needs glib." >&5
+echo "$as_me: error: This package needs glib." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+	{ echo "$as_me:$LINENO: checking for library containing array_do_alloc" >&5
+echo $ECHO_N "checking for library containing array_do_alloc... $ECHO_C" >&6; }
+if test "${ac_cv_search_array_do_alloc+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char array_do_alloc ();
+int
+main ()
+{
+return array_do_alloc ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' glu; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_search_array_do_alloc=$ac_res
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext
+  if test "${ac_cv_search_array_do_alloc+set}" = set; then
+  break
+fi
+done
+if test "${ac_cv_search_array_do_alloc+set}" = set; then
+  :
+else
+  ac_cv_search_array_do_alloc=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_search_array_do_alloc" >&5
+echo "${ECHO_T}$ac_cv_search_array_do_alloc" >&6; }
+ac_res=$ac_cv_search_array_do_alloc
+if test "$ac_res" != no; then
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+  CPLINT_LIBS="-lglu "$CPLINT_LIBS
+else
+  { { echo "$as_me:$LINENO: error: This package needs glu." >&5
+echo "$as_me: error: This package needs glu." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+	{ echo "$as_me:$LINENO: checking for library containing Cudd_Init" >&5
+echo $ECHO_N "checking for library containing Cudd_Init... $ECHO_C" >&6; }
+if test "${ac_cv_search_Cudd_Init+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char Cudd_Init ();
+int
+main ()
+{
+return Cudd_Init ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' cu; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib -lglu -lm $ac_func_search_save_LIBS"
+  fi
+  rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_search_Cudd_Init=$ac_res
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext
+  if test "${ac_cv_search_Cudd_Init+set}" = set; then
+  break
+fi
+done
+if test "${ac_cv_search_Cudd_Init+set}" = set; then
+  :
+else
+  ac_cv_search_Cudd_Init=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_search_Cudd_Init" >&5
+echo "${ECHO_T}$ac_cv_search_Cudd_Init" >&6; }
+ac_res=$ac_cv_search_Cudd_Init
+if test "$ac_res" != no; then
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+  CPLINT_LIBS="-lcu "$CPLINT_LIBS
+else
+  { { echo "$as_me:$LINENO: error: This package needs glu." >&5
+echo "$as_me: error: This package needs glu." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+	ENABLE_CPLINT=""
+	if test "$target_os" = "cygwin" -o "$target_os" = "mingw32"
+	then
+		CPLINT_SHLIB_LD="gcc -shared ../yap.dll"
+	else
+		CPLINT_SHLIB_LD=$SHLIB_LD
+	fi
+
+
+
+
+else
+	ENABLE_CPLINT="#"
+fi
+
 
 # LAM
 OLD_CC=${CC}
@@ -15835,8 +16139,9 @@ mkdir -p  LGPL/JPL/src
 mkdir -p  LGPL/clp
 mkdir -p  LGPL/clpr
 mkdir -p  LGPL/chr
+mkdir -p  cplint
 
-ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/lammpi/Makefile library/tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap"
+ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile LGPL/clpr/Makefile library/lammpi/Makefile library/tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap cplint/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -16413,6 +16718,7 @@ do
     "LGPL/JPL/src/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/JPL/src/Makefile" ;;
     "LGPL/JPL/java/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/JPL/java/Makefile" ;;
     "LGPL/JPL/jpl_paths.yap") CONFIG_FILES="$CONFIG_FILES LGPL/JPL/jpl_paths.yap" ;;
+    "cplint/Makefile") CONFIG_FILES="$CONFIG_FILES cplint/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -16545,6 +16851,11 @@ INSTALL_INFO!$INSTALL_INFO$ac_delim
 CPP!$CPP$ac_delim
 GREP!$GREP$ac_delim
 EGREP!$EGREP$ac_delim
+CPLINT_LIBS!$CPLINT_LIBS$ac_delim
+CPLINT_CFLAGS!$CPLINT_CFLAGS$ac_delim
+CPLINT_LDFLAGS!$CPLINT_LDFLAGS$ac_delim
+CPLINT_SHLIB_LD!$CPLINT_SHLIB_LD$ac_delim
+ENABLE_CPLINT!$ENABLE_CPLINT$ac_delim
 M4!$M4$ac_delim
 M4GENHDRS!$M4GENHDRS$ac_delim
 INSTALL_DLLS!$INSTALL_DLLS$ac_delim
@@ -16566,11 +16877,6 @@ JAR!$JAR$ac_delim
 IN_UNIX!$IN_UNIX$ac_delim
 YAPMPILIB!$YAPMPILIB$ac_delim
 LAM_MPI_CC!$LAM_MPI_CC$ac_delim
-MPI_OBJS!$MPI_OBJS$ac_delim
-MPI_LIBS!$MPI_LIBS$ac_delim
-INSTALL_COMMAND!$INSTALL_COMMAND$ac_delim
-CROSS_SIMULATOR!$CROSS_SIMULATOR$ac_delim
-INSTALLCLP!$INSTALLCLP$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -16612,6 +16918,11 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+MPI_OBJS!$MPI_OBJS$ac_delim
+MPI_LIBS!$MPI_LIBS$ac_delim
+INSTALL_COMMAND!$INSTALL_COMMAND$ac_delim
+CROSS_SIMULATOR!$CROSS_SIMULATOR$ac_delim
+INSTALLCLP!$INSTALLCLP$ac_delim
 JAVALIBPATH!$JAVALIBPATH$ac_delim
 JAVAINCPATH!$JAVAINCPATH$ac_delim
 LAMOBJS!$LAMOBJS$ac_delim
@@ -16624,7 +16935,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 10; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 15; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

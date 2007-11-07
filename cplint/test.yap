@@ -8,9 +8,8 @@ use
 to execute the test
 
 */
-%:-use_module(library(cplint)).
+:-use_module(library(cplint)).
 
-:-compile(cplint).
 
 epsilon(0.000001).
 
@@ -34,8 +33,10 @@ test_files([]).
 
 test_files([H|T]):-
 	format("~a~n",[H]),
-	atom_concat('examples/',H,HN),
-	p(HN),
+	library_directory(LD),
+	atom_concat(LD,'/cplint/examples/',ExDir),
+	atom_concat(ExDir,H,NH),
+	p(NH),
 	findall(A,test(A,H),L),
 	test_all(H,L),
 	test_files(T).
@@ -43,7 +44,9 @@ test_files([H|T]):-
 test_all(_F,[]).
 
 test_all(F,[H|T]):-
-	format("~a ~p.~n",[F,H]),
+	copy_term(H,NH),
+	NH=(Query,close_to('P',Prob)),
+	format("~a ~p.~n",[F,NH]),
 	call(H),
 	test_all(F,T).
 
@@ -175,3 +178,7 @@ test((s([course_difficulty(c0,m)],P),close_to(P,0.5)),school).
 
 test((s([student_ranking(s0,h)],P),close_to(P,0.6646250000000005)),school_simple).
 test((s([student_ranking(s0,l)],P),close_to(P,0.33537499999999987)),school_simple).
+
+:-t.
+
+:-halt.

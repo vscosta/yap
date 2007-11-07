@@ -559,6 +559,7 @@ all: startup
 	@INSTALL_DLLS@ (cd library/matrix; make)
 	@INSTALL_MATLAB@ (cd library/matlab; make)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; make)
+	@ENABLE_CPLINT@ (cd cplint; make)
 
 startup: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup
@@ -573,7 +574,7 @@ libYap.a: $(LIB_OBJECTS)
 	$(RANLIB) libYap.a
 
 @DYNYAPLIB@: $(LIB_OBJECTS)
-	@DYNLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS)
+	@DYNLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLGS)
 
 install: install_bin install_data
 
@@ -598,6 +599,8 @@ install_unix: startup libYap.a
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; make install)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
+	@ENABLE_CPLINT@ (cd cplint; make install)
+
 
 install_win32: startup
 	mkdir -p $(DESTDIR)$(BINDIR)
@@ -620,6 +623,7 @@ install_win32: startup
 	(cd library/system; make install)
 	@INSTALL_MATLAB@ (cd library/matlab; make install)
 	(cd library/tries; make install)
+	@ENABLE_CPLINT@ (cd cplint; make install)
 
 install_library: @YAPLIB@
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
@@ -661,6 +665,8 @@ clean: clean_docs
 	@INSTALL_DLLS@ (cd library/lammpi; make clean)
 	@INSTALL_MATLAB@ (cd library/matlab; make clean)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; make clean)
+	@ENABLE_CPLINT@ (cd cplint; make clean)
+
 
 
 realclean: clean realclean_docs
@@ -682,7 +688,7 @@ yap.dll:  libYap.a
 	-Wl,--export-all-symbols \
 	-Wl,--enable-auto-import \
 	-Wl,--whole-archive libYap.a \
-	-Wl,--no-whole-archive $(LIBS)
+	-Wl,--no-whole-archive $(LIBS) $(LDFLAGS)
 
 install_info:
 	make info; \
@@ -737,7 +743,8 @@ clean_docs:
 realclean_docs: clean_docs
 	rm -f yap.ps yap.html yap_toc.html yap.pdf yap.info*
 
-
+installcheck:
+	@ENABLE_CPLINT@ (cd cplint; make installcheck)
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
