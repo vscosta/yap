@@ -105,6 +105,7 @@ cplint_Prob.o: $(srcdir)/cplint_Prob.c  $(srcdir)/cplint.h
 install: all 
 	mkdir -p $(DESTDIR)$(SHAREDIR)/cplint
 	mkdir -p $(DESTDIR)$(SHAREDIR)/cplint/examples
+	mkdir -p $(DESTDIR)$(SHAREDIR)/cplint/doc
 	for h in $(CPLINT_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	for h in $(CPLINT_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/cplint/examples; done
 	for h in $(CPLINT_DOCS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/cplint/doc; done
