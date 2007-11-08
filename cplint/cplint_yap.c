@@ -3,38 +3,9 @@
 	
 Copyright (c) 2007, Fabrizio Riguzzi
 
-For the use of cudd:
-Copyright (c) 1995-2004, Regents of the University of Colorado
+This package uses the library cudd, see http://vlsi.colorado.edu/~fabio/CUDD/
+for the relative license.
 
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-
-Redistributions of source code must retain the above copyright
-notice, this list of conditions and the following disclaimer.
-
-Redistributions in binary form must reproduce the above copyright
-notice, this list of conditions and the following disclaimer in the
-documentation and/or other materials provided with the distribution.
-
-Neither the name of the University of Colorado nor the names of its
-contributors may be used to endorse or promote products derived from
-this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
 
 	This file contains the functions for interfacing Yap and C
 	The arguments of the predicate compute_prob are parsed and translated into C data 
@@ -51,6 +22,7 @@ unsigned long dividend;
 
 FILE *open_file (char *filename, const char *mode);
 void reverse(char s[]);
+static int compute_prob(void);
 
 void createVars(array_t * vars, YAP_Term t,DdManager * mgr, array_t * bVar2mVar, char inames[1000][20])
 /* adds the boolean variables to the BDD and returns
@@ -106,7 +78,7 @@ each factor is a couple (index of variable, index of value) obtained from a prol
 two integers
 */
 {
-     	YAP_Term  termTerm,factorTerm,tail;
+     	YAP_Term  termTerm,factorTerm;
 	factor f;	
 	int i,j;
 	array_t * term;
@@ -137,13 +109,10 @@ static int compute_prob(void)
 */
 {
 	YAP_Term out,arg1,arg2,arg3,arg4;
-	array_t * variables,* expression, * term, * bVar2mVar;
+	array_t * variables,* expression, * bVar2mVar;
 	DdNode * function, * add;
 	DdManager * mgr;
-	factor f;
-	variable v;
-	double p;
-	int var,val,nBVar,i,j,intBits;
+	int nBVar,i,j,intBits;
         FILE * file;
         DdNode * array[1];
         char * onames[1];
@@ -151,7 +120,6 @@ static int compute_prob(void)
 	char * names[1000];
 	GHashTable  * nodes; /* hash table that associates nodes with their probability if already 
 				computed, it is defined in glib */
-	Cudd_ReorderingType * method;
 
 	arg1=YAP_ARG1;
 	arg2=YAP_ARG2;
