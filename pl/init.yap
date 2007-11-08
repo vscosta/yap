@@ -42,7 +42,6 @@ otherwise.
 :- bootstrap('errors.yap').
 :- bootstrap('consult.yap').
 
-
 :- [	 'utils.yap',
 	 'arith.yap',
 	 'directives.yap'].

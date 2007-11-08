@@ -1650,6 +1650,11 @@ supported encodings.
     clauses as well as remove all clauses if the data is re-consulted.
 
     This option is added to allow compiling from non-file locations such as databases, the web, the user (see consult/1) or other servers. 
+
+@item compilation_mode(+@var{Mode})
+    This extension controls how procedures are compiled. If @var{Mode}
+    is @code{compile} clauses are compiled and no source code is stored;
+    is @code{assert_all} clauses are asserted into the data-base.
 @end table
 
 @item ensure_loaded(@var{+F}) [ISO]

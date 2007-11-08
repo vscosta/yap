@@ -388,8 +388,19 @@ true :- true.
 	 '$head_and_body'(G,H,_), 
 	 '$flags'(H, Mod, Fl, Fl),
 	 is(NFl, /\, Fl, 0x00002000),
-	 ( NFl \= 0 -> '$assertz_dynamic'(L,G,G0,Mod) ;
-	     '$compile'(G, L, G0, Mod) ).
+	 (
+	  NFl \= 0
+	 ->
+	  '$assertz_dynamic'(L,G,G0,Mod)
+	 ;
+	  nb_getval('$assert_all',on)
+	 ->
+	  functor(G,N,A),
+	  '$dynamic'(N/A,Mod),
+	  '$assertz_dynamic'(L,G,G0,Mod)
+	 ;
+	  '$compile'(G, L, G0, Mod)
+	 ).
 
  '$check_if_reconsulted'(N,A) :-
 	 recorded('$reconsulted',X,_),
