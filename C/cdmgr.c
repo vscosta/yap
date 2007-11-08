@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2007-11-07 09:25:27 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-08 09:53:01 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.210  2007/11/07 09:25:27  vsc
+* speedup meta-calls
+*
 * Revision 1.209  2007/11/06 17:02:11  vsc
 * compile ground terms away.
 *
@@ -623,11 +626,6 @@ static Term BlobTermAdjust(Term t)
 #else
   return t+ClDiff;
 #endif
-}
-
-static void
-RestoreDBTerm(DBTerm *dbr)
-{
 }
 
 #include "rclause.h"

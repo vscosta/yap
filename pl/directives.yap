@@ -542,7 +542,7 @@ yap_flag(system_options,X) :-
 '$system_options'(readline) :-
 	'$has_readline'.
 '$system_options'(tabling) :-
-	\+ '$undefined'('$do_table'(_,_), prolog).
+	\+ '$undefined'('$c_table'(_,_), prolog).
 '$system_options'(threads) :-
 	\+ '$no_threads'.
 '$system_options'(wam_profiler) :-
