@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2007-11-07 09:25:27 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-08 15:52:15 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.190  2007/11/07 09:25:27  vsc
+* speedup meta-calls
+*
 * Revision 1.189  2007/11/06 17:02:12  vsc
 * compile ground terms away.
 *
@@ -2850,7 +2853,7 @@ add_head_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,of);
       break;      
     case _get_dbterm:
-      clause->Tag = (CELL)NULL;
+      cl = NEXTOP(cl,xc);
       return;
     case _unify_idb_term:
     case _copy_idb_term:
@@ -3125,10 +3128,6 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
       }
       argno--;
       break;
-    case _unify_dbterm:
-    case _unify_l_dbterm:
-     clause->Tag = (CELL)NULL;
-     return;
     case _unify_n_atoms:
       if (argno <= cl->u.osc.s) {
 	clause->Tag = cl->u.osc.c;
@@ -3163,10 +3162,14 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
       break;
 #endif   
     case _get_dbterm:
+      cl = NEXTOP(cl,xc);
+      break;      
+    case _unify_dbterm:
+    case _unify_l_dbterm:
+      cl = NEXTOP(cl,oc);
+      break;      
     case _unify_idb_term:
     case _copy_idb_term:
-     clause->Tag = (CELL)NULL;
-     return;
       {
 	Term t = clause->u.c_sreg[argno];
 

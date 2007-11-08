@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2007-11-07 09:25:27 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-08 15:52:15 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.229  2007/11/07 09:25:27  vsc
+* speedup meta-calls
+*
 * Revision 1.228  2007/11/06 17:02:08  vsc
 * compile ground terms away.
 *
@@ -4327,7 +4330,7 @@ Yap_absmi(int inp)
     gdbterm_nonvar:
       BEGD(d1);
       /* we have met a preexisting dbterm */
-      d1 = XREG(PREG->u.xc.c);
+      d1 = PREG->u.xc.c;
       PREG = NEXTOP(PREG, xc);      
       UnifyBound(d0,d1);
       ENDD(d1);
@@ -6453,7 +6456,7 @@ Yap_absmi(int inp)
     udbterm_nonvar:
       BEGD(d1);
       /* we have met a preexisting dbterm */
-      d1 = XREG(PREG->u.oc.c);
+      d1 = PREG->u.oc.c;
       PREG = NEXTOP(PREG, oc);
       UnifyBound(d0,d1);
       ENDD(d1);
@@ -6483,7 +6486,7 @@ Yap_absmi(int inp)
     uldbterm_nonvar:
       BEGD(d1);
       /* we have met a preexisting dbterm */
-      d1 = XREG(PREG->u.oc.c);
+      d1 = PREG->u.oc.c;
       PREG = NEXTOP(PREG, oc);
       UnifyBound(d0,d1);
       ENDD(d1);

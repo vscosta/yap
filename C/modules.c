@@ -207,7 +207,9 @@ init_current_module(void)
       Yap_Error(TYPE_ERROR_ATOM,t,"module name must be an atom");
       return FALSE;
     }
-    return (FetchModuleEntry(AtomOfTerm(t)) != NULL);
+    if (FetchModuleEntry(AtomOfTerm(t)) != NULL)
+      cut_succeed();
+    cut_fail();
   }
   EXTRA_CBACK_ARG(1,1) = MkIntegerTerm((Int)CurrentModules);
   return cont_current_module();
