@@ -1328,7 +1328,7 @@ Optional Features:
  --enable-condor            allow Yap to be used from condor
  --enable-april             compile Yap to support April ILP system
  --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
- --enable-cplint=DIR          enable the cplint library using the glu library in DIR/lib
+ --enable-cplint=DIR       enable the cplint library using the glu library in DIR/lib
  --enable-myddas[=DIR]      enable the MYDDAS library
  --enable-myddas-stats      enable the MYDDAS library statistics support
  --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL
