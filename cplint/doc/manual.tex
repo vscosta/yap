@@ -1,19 +1,17 @@
-% preambolo per doppia compilazione HTML/PDF
-%\ifx\pdfoutput\undefined % compilazione htlatex
+% preamble for double compilation HTML/PDF
+%\ifx\pdfoutput\undefined     % htlatex compilation
 \documentclass{article}
 \usepackage{graphicx}
 \DeclareGraphicsExtensions{.png, .gif, .jpg}
 \newcommand{\href}[2]{\Link[#1]{}{} #2 \EndLink}
 \newcommand{\hypertarget}[2]{\Link[]{}{#1} #2 \EndLink}
 \newcommand{\hyperlink}[2]{\Link[]{#1}{} #2 \EndLink}
-%\else % compilazione pdflatex
+%\else % pdflatex compilation
 %\documentclass[a4paper,12pt]{article}
 %\usepackage[pdftex]{graphicx}
 %\DeclareGraphicsExtensions{.pdf,.png,.jpg}
 %\RequirePackage[hyperindex]{hyperref}
 %\fi
-
-%\documentclass{article}
 
 
 \begin{document}
@@ -28,6 +26,7 @@ fabrizio.riguzzi@unife.it}
 
 \section{Introduction}
 
+
 \texttt{cplint} is an interpreter for LPADs \cite{VenVer03-TR,VenVer04-ICLP04-IC} and CP-logic programs \cite{VenDenBru-JELIA06,CP-logic-unp}. It is described in \cite{Rig-AIIA07-IC} and \cite{Rig-RCRA07-IC}. It is an adaptation of the interpreter for ProbLog \cite{DBLP:conf/ijcai/RaedtKT07}.
 
 It was proved correct \cite{Rig-RCRA07-IC} for range restricted acyclic programs \cite{DBLP:journals/ngc/AptB91} without function symbols.
@@ -40,11 +39,42 @@ These extensions are work in progress: they have been implemented but there is n
 %For program with function symbols, the semantics of LPADs and CP-logic are not defined. However, the interpreter accepts programs with function symbols and, if it does not go into a loop, it returns an answer. What is the meaning of this answer is subject of current study. 
 
 \section{Installation}
-\texttt{cplint} is distributed to be run an a Linux machine. It has been tested under Debian 4.0 and Suse 10.2. Please contact the author for versions for Windows. Please contact the author also for the complete source code.
-Download and install Yap Prolog version 5.1.2 from \href{http://www.ncc.up.pt/\%7Evsc/Yap/}{http://www.ncc.up.pt/\%7Evsc/Yap/}. 
-Make sure libglib1.2 is installed in your machine. It is a standard Linux package so, if it is not installed,  you can use your package manager to install it.
-Download \texttt{cplint.zip} from \href{http://www.ing.unife.it/software/cplint/cplint.zip}{http://www.ing.unife.it/software/cplint/cplint.zip} and uncompress it. 
-By downloading \texttt{cplint.zip} you agree to the BSD-style license reported in section \ref{license}.
+\texttt{cplint} is distributed in source code in the CVS version of Yap. Download it by following the instruction in \href{http://www.ncc.up.pt/\%7Evsc/Yap/downloads.html}{http://www.ncc.up.pt/\%7Evsc/Yap/downloads.html}.
+
+\texttt{cplint} requires glu (a subpackage of VIS) and GLIB.
+You can download glu from \href{http://vlsi.colorado.edu/\%7Evis/getting_VIS_2.1.html}{http://vlsi.colorado.edu/\%7Evis/getting\_VIS\_2.1.html}
+You can download GLIB from \href{http://www.gtk.org/}{http://www.gtk.org/}. This is a standard GNU package 
+so it is easy to install it using the package management software of your Linux or Cygwin 
+distribution.
+
+Install glu:
+\begin{enumerate}
+\item downlad \texttt{glu-2.1.tar.gz}
+\item decompress it
+\item \texttt{cd glu-2.1}
+\item \texttt{mkdir arch}
+\item \texttt{cd arch}
+\item \texttt{../configure}
+\item \texttt{make}
+	\item \texttt{su}
+	\item \texttt{make install}
+\end{enumerate}
+This will install glu into \texttt{/usr/local}, if you want to install to a different \texttt{DIR}
+use \texttt{../configure --prefix DIR}
+
+Install Yap together with \texttt{cplint}:
+when compiling Yap following the instuction of the \texttt{INSTALL} file in the root of the Yap folder, use
+\begin{verbatim}
+configure --enable-cplint
+\end{verbatim}
+Under Windows, you have to use Cygwin (glu does not compile under MinGW), so\\
+\begin{verbatim}
+configure --enable-cplint --enable-cygwin
+\end{verbatim}
+If you installed glu in \texttt{DIR}, use \texttt{--enable-cplint=DIR}
+
+After having performed \texttt{make install} you can do \texttt{make installcheck} that will execute a test of \texttt{cplint}. If no error is reported you have a working installation of \texttt{cplint}.
+
 
 \section{Syntax}
 
@@ -89,20 +119,21 @@ The first clause states that if we toss a coin that is not biased it has equal p
 
 \section{Commands}
 The program must be stored in a text file with extension \texttt{.cpl}. Suppose you have stored the example above in file \texttt{coin.cpl}. 
-Suppose also that \texttt{coin.cpl} is in the directory \texttt{cplint} that you obtained when you uncompressed \texttt{cplint.zip}. In order to answer queries from this program, you run \texttt{yap} from directory \texttt{cplint} and then load the interpreter with the command
+In order to answer queries from this program, you have to run \texttt{yap},
+load \texttt{cplint} by issuing the command
 \begin{verbatim}
-compile(cplint).
+use_module(library(cplint)).
 \end{verbatim}
-If \texttt{coin.cpl} is not in directory \texttt{cplint} then you must use the command
-\begin{verbatim}
-compile('path_to_cplint/cplint.pl').
-\end{verbatim}
-from the directory where \texttt{coin.cpl} is.
-In this case \verb|path_to_cplint| is the path to \texttt{cplint.pl}.
+at the command prompt.
 Then you must parse the source file \texttt{coin.cpl}  with the command
 \begin{verbatim}
 p(coin).
 \end{verbatim}
+if \texttt{coin.cpl} is in the current directory, or 
+\begin{verbatim}
+p('path_to_coin/coin').
+\end{verbatim}
+if \texttt{coin.cpl} is in a different directory.
 At this point you can pose query to the program. You have to use the predicate \texttt{s/2} (for solve) that takes as its first argument a conjunction of goals in the form of a list and returns the computed probability as its second argument. For example, the probability of the conjunction \texttt{head(coin), biased(coin)} can be asked with the query
 \begin{verbatim}
 s([head(coin),biased(coin)],P).
@@ -294,13 +325,13 @@ dotty cpl.dot &
 \end{itemize}
 
 
-\section{Content of the Directory}
+\section{Additional Files}
+In the directory where Yap keeps the library files (usually \texttt{/usr/local/share/Yap}) you can find the directory \texttt{cplint} that contains additional files.
+\texttt{cplint} contains
 \begin{itemize}
-\item \texttt{cplint.pl}: Prolog code of the interpreter.
-\item \verb|cplint.so|: dynamic library that includes  CUDD. It is called by \texttt{cplint.pl}.
 \item \texttt{semantics.pl}: Prolog program for computing the probability according to the semantics.
 \item \texttt{test.pl}: Prolog program for testing the system. 
-\item Examples:
+\item Subdirectory \texttt{examples}:
 \begin{itemize}
 \item \texttt{alarm.cpl}: representation of the Bayesian network in Figure 2 of
  \cite{VenVer04-ICLP04-IC}.
@@ -321,36 +352,19 @@ source distribution of Yap in the \texttt{CLPBN} directory.
 \item \verb|student.cpl|: student example from Figure 1.3 of \cite{GetFri01-BC}.
 \end{itemize}
 The files \texttt{*.uni} that are present for some of the examples are used  by \texttt{semantics.pl}. Some of the example files contain in an initial comment some queries together with their result.
-\item \verb|doc|: directory that contains this manual in pdf and html
+\item Subdirectory \texttt{doc}: contains this manual in latex 
 \end{itemize}
 \section{License}
 \label{license}
 
-Copyright (c) 2007, Fabrizio Riguzzi
 
-All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-\begin{itemize}
-\item Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-\item Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-\item Neither the name of the University of Ferrara nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-\end{itemize}
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+\texttt{cplint}, as Yap, follows the Artistic License 2.0 that you can find in Yap CVS root dir. The copyright is by Fabrizio Riguzzi.
+
 
 \vspace{3mm}
 
-The program uses the library \href{http://vlsi.colorado.edu/\%7Efabio/}{CUDD} for manipulating BDDs.
+The program uses the library \href{http://vlsi.colorado.edu/\%7Efabio/}{CUDD} for manipulating BDDs that is included in glu.
 For the use of CUDD, the following license must be accepted:
 
 \vspace{3mm}
