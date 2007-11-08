@@ -85,7 +85,13 @@ CPLINT_EXAMPLES= \
 
 CPLINT_DOCS=\
 	$(CPLINT_DOCDIR)/bib.bib \
-	$(CPLINT_DOCDIR)/manual.tex
+	$(CPLINT_DOCDIR)/manual.tex \
+	$(CPLINT_DOCDIR)/manual.pdf \
+	$(CPLINT_DOCDIR)/manual.html \
+	$(CPLINT_DOCDIR)/manual.css \
+	$(CPLINT_DOCDIR)/manual0x.png \
+	$(CPLINT_DOCDIR)/opqr0a4e.png \
+	$(CPLINT_DOCDIR)/opqr0a42.png
 	
 
 all: $(SOBJS)

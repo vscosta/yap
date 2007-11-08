@@ -1,16 +1,16 @@
 % preamble for double compilation HTML/PDF
-%\ifx\pdfoutput\undefined     % htlatex compilation
-\documentclass{article}
-\usepackage{graphicx}
-\DeclareGraphicsExtensions{.png, .gif, .jpg}
-\newcommand{\href}[2]{\Link[#1]{}{} #2 \EndLink}
-\newcommand{\hypertarget}[2]{\Link[]{}{#1} #2 \EndLink}
-\newcommand{\hyperlink}[2]{\Link[]{#1}{} #2 \EndLink}
-%\else % pdflatex compilation
-%\documentclass[a4paper,12pt]{article}
-%\usepackage[pdftex]{graphicx}
-%\DeclareGraphicsExtensions{.pdf,.png,.jpg}
-%\RequirePackage[hyperindex]{hyperref}
+%%\ifx\pdfoutput\undefined     % htlatex compilation
+%\documentclass{article}
+%\usepackage{graphicx}
+%\DeclareGraphicsExtensions{.png, .gif, .jpg}
+%\newcommand{\href}[2]{\Link[#1]{}{} #2 \EndLink}
+%\newcommand{\hypertarget}[2]{\Link[]{}{#1} #2 \EndLink}
+%\newcommand{\hyperlink}[2]{\Link[]{#1}{} #2 \EndLink}
+%%\else % pdflatex compilation
+\documentclass[a4paper,12pt]{article}
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+\RequirePackage[hyperindex]{hyperref}
 %\fi
 
 
@@ -352,7 +352,7 @@ source distribution of Yap in the \texttt{CLPBN} directory.
 \item \verb|student.cpl|: student example from Figure 1.3 of \cite{GetFri01-BC}.
 \end{itemize}
 The files \texttt{*.uni} that are present for some of the examples are used  by \texttt{semantics.pl}. Some of the example files contain in an initial comment some queries together with their result.
-\item Subdirectory \texttt{doc}: contains this manual in latex 
+\item Subdirectory \texttt{doc}: contains this manual in latex, html and pdf.
 \end{itemize}
 \section{License}
 \label{license}
