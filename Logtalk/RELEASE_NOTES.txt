@@ -1,6 +1,6 @@
 ================================================================
 Logtalk - Open source object-oriented logic programming language
-Release 2.30.7
+Release 2.30.8
 
 Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 ================================================================
@@ -8,6 +8,12 @@ Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.30.8 - November 9, 2007
+
+	Fixed bug in the compilation of synchronized predicates that breaks 
+	Logtalk on single-threaded Prolog compilers.
 
 
 2.30.7 - November 5, 2007

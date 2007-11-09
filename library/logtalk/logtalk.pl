@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Open source object-oriented logic programming language
-%  Release 2.30.7
+%  Release 2.30.8
 %
 %  Copyright (c) 1998-2007 Paulo Moura.  All Rights Reserved.
 %
@@ -1695,7 +1695,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_current_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 30, 7)).
+current_logtalk_flag(version, version(2, 30, 8)).
 
 
 
@@ -9611,7 +9611,15 @@ current_logtalk_flag(version, version(2, 30, 7)).
 
 '$lgt_fix_synchronized_preds' :-
 	\+ '$lgt_default_flag'(threads, on),
-	!.
+	!,
+	(	retract('$lgt_pp_def_'(Def)),
+		assertz('$lgt_pp_fdef_'(Def)),
+		fail
+	;	retract('$lgt_pp_ddef_'(DDef)),
+		assertz('$lgt_pp_fddef_'(DDef)),
+		fail
+	;	true
+	).
 
 '$lgt_fix_synchronized_preds' :-
 	(	'$lgt_pp_object_'(_, _, _, _, _, _, _, _, _, _, _) ->
