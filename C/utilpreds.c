@@ -245,6 +245,12 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 #endif
 	/* first time we met this term */
 	RESET_VARIABLE(ptf);
+	if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+	  /* Trail overflow */
+	  if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
+	    goto trail_overflow;
+	  }
+	}
 	Bind_Global(ptd0, (CELL)ptf);
 	ptf++;
 #ifdef COROUTINING
@@ -339,6 +345,7 @@ trail_overflow:
   }
 #endif
   reset_trail(TR0);
+  Yap_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
   return -3;
 }
 
@@ -357,9 +364,15 @@ handle_cp_overflow(int res, UInt arity, Term t)
   case -2:
     return Deref(XREGS[arity+1]);
   case -3:
-    if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
-      Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
-      return 0L;
+    {
+      UInt size = Yap_Error_Size;
+      Yap_Error_Size = 0L;
+      if (size > 4*1024*1024)
+	size = 4*1024*1024;
+      if (!Yap_ExpandPreAllocCodeSpace(size,NULL)) {
+	Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
+	return 0L;
+      }
     }
     return Deref(XREGS[arity+1]);
   default:
