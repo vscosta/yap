@@ -521,6 +521,9 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
   vars_in_term_nvar:
     {
       if (IsPairTerm(d0)) {
+	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	  goto aux_overflow;
+	}
 #ifdef RATIONAL_TREES
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
@@ -547,6 +550,9 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
 	  continue;
 	}
 	/* store the terms to visit */
+	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	  goto aux_overflow;
+	}
 #ifdef RATIONAL_TREES
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
@@ -633,6 +639,21 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
   H = InitialH;
   return 0L;
   
+ aux_overflow:
+  Yap_Error_Size = (to_visit-to_visit0)*sizeof(CELL **);
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    *pt0 = (CELL)to_visit[2];
+  }
+#endif
+  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+  clean_tr(TR0);
+  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
+  H = InitialH;
+  return 0L;
+  
  global_overflow:
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
@@ -661,6 +682,13 @@ expand_vts(void)
   if (yap_errno == OUT_OF_TRAIL_ERROR) {
     /* Trail overflow */
     if (!Yap_growtrail(expand, FALSE)) {
+      return FALSE;
+    }
+  } else if (yap_errno == OUT_OF_AUXSPACE_ERROR) {
+    /* Aux space overflow */
+    if (expand > 4*1024*1024)
+      expand = 4*1024*1024;
+    if (!Yap_ExpandPreAllocCodeSpace(expand, NULL)) {
       return FALSE;
     }
   } else {

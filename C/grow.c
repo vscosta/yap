@@ -1518,7 +1518,7 @@ Yap_growtrail_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 CELL **
 Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
 {
-#if USE_SYSTEM_MALLOC || USE_DL_MALLOC
+#if USE_SYSTEM_MALLOC
   CELL **to_visit_max = *to_visit_maxp;
   Int sz1 = (CELL)to_visit_max-(CELL)to_visit;
   Int sz0 = AuxTop - (ADDR)to_visit_maxp, sz, dsz;
