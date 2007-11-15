@@ -1,0 +1,90 @@
+\begin{thebibliography}{10}
+
+\bibitem{DBLP:journals/ngc/AptB91}
+K.~R. Apt and M.~Bezem.
+\newblock Acyclic programs.
+\newblock {\em New Generation Comput.}, 9(3/4):335--364, 1991.
+
+\bibitem{Blo04-ILP04WIP-IC}
+H.~Blockeel.
+\newblock Probabilistic logical models for mendel's experiments: An exercise.
+\newblock In {\em Inductive Logic Programming ({ILP} 2004), Work in Progress
+  Track}, 2004.
+
+\bibitem{DBLP:journals/jacm/ChenW96}
+Weidong Chen and David~Scott Warren.
+\newblock Tabled evaluation with delaying for general logic programs.
+\newblock {\em J. ACM}, 43(1):20--74, 1996.
+
+\bibitem{DBLP:conf/ijcai/RaedtKT07}
+L.~De~Raedt, A.~Kimmig, and H.~Toivonen.
+\newblock Problog: A probabilistic prolog and its application in link
+  discovery.
+\newblock In {\em Proceedings of the 20th International Joint Conference on
+  Artificial Intelligence}, pages 2462--2467, 2007.
+
+\bibitem{GetFri01-BC}
+L.~Getoor, N.~Friedman, D.~Koller, and A.~Pfeffer.
+\newblock Learning probabilistic relational models.
+\newblock In Saso Dzeroski and Nada Lavrac, editors, {\em Relational Data
+  Mining}. Springer-Verlag, Berlin, 2001.
+
+\bibitem{Getoor+al:JMLR02}
+L.~Getoor, N.~Friedman, D.~Koller, and B.~Taskar.
+\newblock Learning probabilistic models of relational structure.
+\newblock {\em Journal of Machine Learning Research}, 3:679--707, December
+  2002.
+
+\bibitem{Rig-AIIA07-IC}
+Fabrizio Riguzzi.
+\newblock A top down interpreter for lpad and cp-logic.
+\newblock In {\em 10th Congress of the Italian Association for Artificial
+  Intelligence}. Springer, 2007.
+\newblock
+  \href{http://www.ing.unife.it/docenti/FabrizioRiguzzi/Papers/Rig-AIIA07.pdf}%
+{http://www.ing.unife.it/docenti/FabrizioRiguzzi/Papers/Rig-AIIA07.pdf}.
+
+\bibitem{Rig-RCRA07-IC}
+Fabrizio Riguzzi.
+\newblock A top down interpreter for lpad and cp-logic.
+\newblock In {\em The 14th RCRA workshop Experimental Evaluation of Algorithms
+  for Solving Problems with Combinatorial Explosion}, 2007.
+\newblock
+  \href{http://pst.istc.cnr.it/RCRA07/articoli/P19-riguzzi-RCRA07.pdf}{http://%
+pst.istc.cnr.it/RCRA07/articoli/P19-riguzzi-RCRA07.pdf}.
+
+\bibitem{SanPagQaz03-UAI-IC}
+V.~Santos~Costa, D.~Page, M.~Qazi, and J.~Cussens.
+\newblock {CLP(BN)}: Constraint logic programming for probabilistic knowledge.
+\newblock In {\em Uncertainty in Artificial Intelligence ({UAI} 2003)}, 2003.
+
+\bibitem{VenDenBru-JELIA06}
+J.~Vennekens, M.~Denecker, and M.~Bruynooghe.
+\newblock Representing causal information about a probabilistic process.
+\newblock In {\em 10th European Conference on Logics in Artificial
+  Intelligence, JELIA 2006}, LNAI. Springer, September 2006.
+
+\bibitem{VenVer03-TR}
+J.~Vennekens and S.~Verbaeten.
+\newblock Logic programs with annotated disjunctions.
+\newblock Technical Report CW386, K. U. Leuven, 2003.
+\newblock
+  \href{http://www.cs.kuleuven.ac.be/~joost/techrep.ps}{http://www.cs.kuleuven%
+.ac.be/$\sim$joost/techrep.ps}.
+
+\bibitem{VenVer04-ICLP04-IC}
+J.~Vennekens, S.~Verbaeten, and M.~Bruynooghe.
+\newblock Logic programs with annotated disjunctions.
+\newblock In {\em The 20th International Conference on Logic Programming
+  ({ICLP} 2004)}, 2004.
+\newblock
+  \href{http://www.cs.kuleuven.ac.be/~joost/}{http://www.cs.kuleuven.ac.be/$\sim$joost/}.
+
+\bibitem{CP-logic-unp}
+Joost Vennekens, Marc Denecker, and Maurice Bruynooge.
+\newblock Extending the role of causality in probabilistic modeling.
+\newblock
+  \href{http://www.cs.kuleuven.ac.be/~joost/cplogic.pdf}{http://www.cs.kuleuve%
+n.ac.be/$\sim$joost/cplogic.pdf}, 2006.
+
+\end{thebibliography}
