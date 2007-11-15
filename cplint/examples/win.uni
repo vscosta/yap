@@ -1,0 +1,6 @@
+
+mode(win(player)).
+
+
+type(player,[white,black]).
+
