@@ -39,7 +39,7 @@ CPLINT_LIBS=@CPLINT_LIBS@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #
-OBS=cplint_yap.o cplint_Prob.o
+OBJS=cplint_yap.o cplint_Prob.o
 SOBJS=cplint@SHLIB_SUFFIX@
 
 
@@ -53,15 +53,29 @@ CPLINT_DOCDIR = $(srcdir)/doc
 
 
 CPLINT_PROGRAMS= \
-	$(CPLINT_SRCDIR)/cplint.yap 
+	$(CPLINT_SRCDIR)/lpadsld.pl \
+	$(CPLINT_SRCDIR)/lpad.pl \
+	$(CPLINT_SRCDIR)/cpl.pl 
 
-CPLINT_HELPER_PROGRAMS= \
-	$(CPLINT_SRCDIR)/test.yap \
-	$(CPLINT_SRCDIR)/semantics.yap
+CPLINT_SEMANTICS_PROGRAMS= \
+	$(CPLINT_SRCDIR)/semlpadsld.pl \
+	$(CPLINT_SRCDIR)/semlpad.pl \
+	$(CPLINT_SRCDIR)/semcpl.pl \
+	$(CPLINT_SRCDIR)/slg.pl 
+	
+CPLINT_TEST_PROGRAMS= \
+	$(CPLINT_SRCDIR)/testlpadsld_gbtrue.pl \
+	$(CPLINT_SRCDIR)/testlpadsld_gbfalse.pl \
+	$(CPLINT_SRCDIR)/testlpad.pl \
+	$(CPLINT_SRCDIR)/testcpl.pl \
+	$(CPLINT_SRCDIR)/testsemcpl.pl 
+	
 CPLINT_EXAMPLES= \
 	$(CPLINT_EXDIR)/dice.cpl \
 	$(CPLINT_EXDIR)/dice.uni \
 	$(CPLINT_EXDIR)/mendel.cpl \
+	$(CPLINT_EXDIR)/mendels.cpl \
+	$(CPLINT_EXDIR)/mendels.uni \
 	$(CPLINT_EXDIR)/alarm.cpl \
 	$(CPLINT_EXDIR)/coin.cpl \
 	$(CPLINT_EXDIR)/coin.uni \
@@ -69,9 +83,12 @@ CPLINT_EXAMPLES= \
 	$(CPLINT_EXDIR)/coin2.uni \
 	$(CPLINT_EXDIR)/student.cpl \
 	$(CPLINT_EXDIR)/student.uni \
-	$(CPLINT_EXDIR)/esapprox.cpl \
-	$(CPLINT_EXDIR)/esrange.cpl \
-	$(CPLINT_EXDIR)/es.cpl \
+	$(CPLINT_EXDIR)/exapprox.cpl \
+	$(CPLINT_EXDIR)/exapprox.uni \
+	$(CPLINT_EXDIR)/exrange.cpl \
+	$(CPLINT_EXDIR)/exrange.uni \
+	$(CPLINT_EXDIR)/ex.cpl \
+	$(CPLINT_EXDIR)/ex.uni \
 	$(CPLINT_EXDIR)/school_simple.cpl \
 	$(CPLINT_EXDIR)/school_simple.uni \
 	$(CPLINT_EXDIR)/school.cpl \
@@ -81,7 +98,19 @@ CPLINT_EXAMPLES= \
 	$(CPLINT_EXDIR)/threesideddice.cpl \
 	$(CPLINT_EXDIR)/threesideddice.uni \
 	$(CPLINT_EXDIR)/twosideddice.cpl \
-	$(CPLINT_EXDIR)/female.cpl
+	$(CPLINT_EXDIR)/female.cpl \
+	$(CPLINT_EXDIR)/hiv.cpl \
+	$(CPLINT_EXDIR)/hiv.uni \
+	$(CPLINT_EXDIR)/invalid.cpl \
+	$(CPLINT_EXDIR)/invalid.uni \
+	$(CPLINT_EXDIR)/light.cpl \
+	$(CPLINT_EXDIR)/light.uni \
+	$(CPLINT_EXDIR)/throws.cpl \
+	$(CPLINT_EXDIR)/throws.uni \
+	$(CPLINT_EXDIR)/trigger.cpl \
+	$(CPLINT_EXDIR)/trigger.uni \
+	$(CPLINT_EXDIR)/win.cpl \
+	$(CPLINT_EXDIR)/win.uni
 
 CPLINT_DOCS=\
 	$(CPLINT_DOCDIR)/bib.bib \
@@ -105,6 +134,8 @@ cplint_Prob.o: $(srcdir)/cplint_Prob.c  $(srcdir)/cplint.h
 @DO_SECOND_LD@cplint@SHLIB_SUFFIX@: cplint_yap.o cplint_Prob.o
 @DO_SECOND_LD@	@CPLINT_SHLIB_LD@ -o cplint@SHLIB_SUFFIX@ $(CPLINT_LDFLAGS) cplint_yap.o cplint_Prob.o $(CPLINT_LIBS) 
 
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
 install: all 
 	mkdir -p $(DESTDIR)$(SHAREDIR)/cplint
@@ -113,9 +144,10 @@ install: all
 	for h in $(CPLINT_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	for h in $(CPLINT_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/cplint/examples; done
 	for h in $(CPLINT_DOCS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/cplint/doc; done
-	for h in $(CPLINT_HELPER_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/cplint; done
+	for h in $(CPLINT_TEST_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/cplint; done
+	for h in $(CPLINT_SEMANTICS_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
 
 installcheck: 
-	yap -l $(DESTDIR)$(SHAREDIR)/cplint/test.yap
+	for h in ${CPLINT_TEST_PROGRAMS}; do echo "t. halt." | yap -l $$h; done
 	
