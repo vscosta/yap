@@ -49,9 +49,9 @@ It is also able to deal with extensions of LPADs and CP-logic: the clause bodies
 The modules for answering queries using the definition of the semantics of LPADs and CP-logic are \texttt{semlpadsld.pl}, \texttt{semlpad.pl} and
 \texttt{semcpl.pl}:
 \begin{itemize}
-\item semlpadsld.pl: given an LPAD $P$, it generates all the instances of $P$. The probability of a query $Q$ is computed by identifying all the instances where $Q$ is derivable by SLDNF resolution.
-\item semlpad.pl: given an LPAD $P$, it generates all  the instances of $P$. The probability of a query $Q$ is computed by identifying all the instances where $Q$ is derivable by SLG resolution.
-\item semlcpl.pl: given an LPAD $P$,  it builds an execution model of $P$, i.e., a probabilistic process that satisfy the principles of universal causation, sufficient causation, independent causation, no deus ex machina events and temporal precedence. It uses the definition of the semantics given in \cite{CP-logic-unp}.
+\item \texttt{semlpadsld.pl}: given an LPAD $P$, it generates all the instances of $P$. The probability of a query $Q$ is computed by identifying all the instances where $Q$ is derivable by SLDNF resolution.
+\item \texttt{semlpad.pl}: given an LPAD $P$, it generates all  the instances of $P$. The probability of a query $Q$ is computed by identifying all the instances where $Q$ is derivable by SLG resolution.
+\item \texttt{semlcpl.pl}: given an LPAD $P$,  it builds an execution model of $P$, i.e., a probabilistic process that satisfy the principles of universal causation, sufficient causation, independent causation, no deus ex machina events and temporal precedence. It uses the definition of the semantics given in \cite{CP-logic-unp}.
 \end{itemize}
 %For program with function symbols, the semantics of LPADs and CP-logic are not defined. However, the interpreter accepts programs with function symbols and, if it does not go into a loop, it returns an answer. What is the meaning of this answer is subject of current study. 
 
