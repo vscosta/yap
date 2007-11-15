@@ -1,9 +1,8 @@
 /*
-	LPAD and CP-Logic interpreter test program
-	
-Copyright (c) 2007, Fabrizio Riguzzi
+	LPAD and CP-Logic reasoning suite
+	Copyright (c) 2007, Fabrizio Riguzzi
 
-Test file for lpadsld.pl
+Test file for lpadsld.pl, case where the body is grounded
 
 Use
 :-t.
