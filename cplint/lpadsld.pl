@@ -1,8 +1,8 @@
 /*
-	LPAD and CP-Logic interpreter
-	
-Copyright (c) 2007, Fabrizio Riguzzi
-
+	LPAD and CP-Logic reasoning suite
+	File lpadsld.pl
+	Goal oriented interpreter for LPADs based on SLDNF
+	Copyright (c) 2007, Fabrizio Riguzzi
 */
 
 :-dynamic rule/4,def_rule/2,setting/2.
