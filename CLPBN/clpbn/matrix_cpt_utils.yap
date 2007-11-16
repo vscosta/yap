@@ -50,7 +50,6 @@ vnth([V1|Deps], N0, V, N, [V1|NDeps]) :-
 reorder_CPT(Vs0,T0,Vs,TF,Sizes) :-
 	var(Vs), !,
 	order_vec(Vs0,Vs,Map),
-	matrix_to_list(T0,_),
 	matrix_shuffle(T0,Map,TF),
 	matrix_dims(TF, Sizes).
 reorder_CPT(Vs0,T0,Vs,TF,Sizes) :-
