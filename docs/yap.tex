@@ -8360,6 +8360,43 @@ second argument. Currently, only division (@code{/}) is supported.
 second argument. Currently, only addition (@code{+}) is
 supported. Notice that @var{Cols} will have n-1 dimensions.
 
+@item matrix_shuffle(+@var{Matrix},+@var{NewOrder},-@var{Shuffle})
+@findex matrix_shuffle/3
+@snindex matrix_shuffle/3
+@cnindex matrix_shuffle/3
+
+Shuffle the dimensions of matrix @var{Matrix} according to
+@var{NewOrder}. The list @var{NewOrder} must have all the dimensions of
+@var{Matrix}, starting from 0.
+
+@item matrix_transpose(+@var{Matrix},-@var{Transpose})
+@findex matrix_reorder/3
+@snindex matrix_reorder/3
+@cnindex matrix_reorder/3
+
+Transpose matrix @var{Matrix} to  @var{Transpose}. Equivalent to:
+@example
+matrix_transpose(Matrix,Transpose) :-
+        matrix_shuffle(Matrix,[1,0],Transpose).
+@end example
+
+@item matrix_expand(+@var{Matrix},+@var{NewDimensions},-@var{New})
+@findex matrix_expand/3
+@snindex matrix_expand/3
+@cnindex matrix_expand/3
+
+Expand @var{Matrix} to occupy new dimensions. The elements in
+@var{NewDimensions} are either 0, for an existing dimension, or a
+positive integer with the size of the new dimension.
+
+@item matrix_select(+@var{Matrix},+@var{Dimension},+@var{Index},-@var{New})
+@findex matrix_select/3
+@snindex matrix_select/3
+@cnindex matrix_select/3
+
+Select from @var{Matrix} the elements who have @var{Index} at
+@var{Dimension}.
+
 @end table
 
 @node MATLAB, Non-Backtrackable Data Structures, matrix, Library

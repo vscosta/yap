@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-11-01 20:50:31 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-11-16 14:58:40 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.102  2007/11/01 20:50:31  vsc
+* fix YAP_LeaveGoal (again)
+*
 * Revision 1.101  2007/10/29 22:48:54  vsc
 * small fixes
 *
@@ -581,11 +584,11 @@ YAP_MkBlobTerm(unsigned int sz)
   MP_INT *dst;
   BACKUP_H();
 
-  I = AbsAppl(H);
   while (H+(sz+sizeof(MP_INT)/sizeof(CELL)+2) > ASP-1024) {
     if (!doexpand((sz+sizeof(MP_INT)/sizeof(CELL)+2)*sizeof(CELL)))
       return TermNil;
   }
+  I = AbsAppl(H);
   H[0] = (CELL)FunctorBigInt;
   dst = (MP_INT *)(H+1);
   dst->_mp_size = 0L;
@@ -749,7 +752,10 @@ YAP_MkPairTerm(Term t1, Term t2)
   Term t; 
   BACKUP_H();
 
-  t = MkPairTerm(t1, t2);
+  if (H > ASP-1024)
+    t = TermNil;
+  else
+    t = MkPairTerm(t1, t2);
   
   RECOVER_H();
   return t;
@@ -761,7 +767,10 @@ YAP_MkNewPairTerm()
   Term t; 
   BACKUP_H();
 
-  t = Yap_MkNewPairTerm();
+  if (H > ASP-1024)
+    t = TermNil;
+  else
+    t = Yap_MkNewPairTerm();
   
   RECOVER_H();
   return t;
@@ -785,7 +794,10 @@ YAP_MkApplTerm(Functor f,unsigned long int arity, Term args[])
   Term t; 
   BACKUP_H();
 
-  t = Yap_MkApplTerm(f, arity, args);
+  if (H+arity > ASP-1024)
+    t = TermNil;
+  else
+    t = Yap_MkApplTerm(f, arity, args);
 
   RECOVER_H();
   return t;
@@ -797,7 +809,10 @@ YAP_MkNewApplTerm(Functor f,unsigned long int arity)
   Term t; 
   BACKUP_H();
 
-  t = Yap_MkNewApplTerm(f, arity);
+  if (H+arity > ASP-1024)
+    t = TermNil;
+  else
+    t = Yap_MkNewApplTerm(f, arity);
 
   RECOVER_H();
   return t;

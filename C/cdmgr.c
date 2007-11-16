@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2007-11-08 09:53:01 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-16 14:58:40 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.211  2007/11/08 09:53:01  vsc
+* YAP would always say the system has tabling!
+*
 * Revision 1.210  2007/11/07 09:25:27  vsc
 * speedup meta-calls
 *
@@ -1851,6 +1854,26 @@ is_fact(Term t)
   return FALSE;
 }
 
+static void
+mark_preds_with_this_func(Functor f, Prop p0)
+{
+  PredEntry *pe = RepPredProp(p0);
+  UInt i;
+
+  pe->PredFlags |= GoalExPredFlag;
+  for (i = 0; i < PredHashTableSize; i++) {
+    PredEntry *p = PredHash[i];
+
+    while (p) {
+      Prop nextp = p->NextOfPE;
+      if (p->FunctorOfPred == f)
+	p->PredFlags |= GoalExPredFlag;	    
+      p = RepPredProp(nextp);
+    }
+  }
+}
+
+
 static int
 addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
 /*
@@ -1941,18 +1964,16 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
 	} else if (IsApplTerm(tg)) {
 	  FunctorEntry *fe = (FunctorEntry *)FunctorOfTerm(tg);
 	  Prop p0;
-	  int found = FALSE;
 
 	  p0 = fe->PropsOfFE;
-	  while (p0) {
-	    PredEntry *pe = RepPredProp(p0);
-
-	    pe->PredFlags |= GoalExPredFlag;
-	    p0 = pe->NextOfPE;
-	    found = TRUE;
-	  }
-	  if (!found) {
-	    PredEntry *npe = RepPredProp(PredPropByFunc(fe,IDB_MODULE));
+	  if (p0) {
+	    mark_preds_with_this_func(FunctorOfTerm(tg), p0);
+	  } else {
+	    Term mod = CurrentModule;
+	    PredEntry *npe;
+	    if (CurrentModule == PROLOG_MODULE)
+	      mod = IDB_MODULE;
+	    npe = RepPredProp(PredPropByFunc(fe,mod));
 	    npe->PredFlags |= GoalExPredFlag;	    
 	  }
 	}

@@ -112,8 +112,12 @@ new_int_matrix(int ndims, int dims[], long int data[])
   YAP_Term blob;
   int *mat;
   long int *bdata;
+  int idims[MAX_DIMS];
 
+  /* in case we don't have enough room and need to shift the stack, we can't
+     really afford to keep a pointer to the global */
   for (i=0;i< ndims;i++) {
+    idims[i] = dims[i];
     nelems *= dims[i];
   }
   sz = ((MAT_DIMS+1)*sizeof(int)+ndims*sizeof(int)+nelems*sizeof(long int))/sizeof(YAP_CELL);
@@ -125,7 +129,7 @@ new_int_matrix(int ndims, int dims[], long int data[])
   mat[MAT_NDIMS] = ndims;
   mat[MAT_SIZE] = nelems;
   for (i=0;i< ndims;i++) {
-    mat[MAT_DIMS+i] = dims[i];
+    mat[MAT_DIMS+i] = idims[i];
   }
   bdata = matrix_long_data(mat,ndims);
   if (data)
@@ -141,8 +145,12 @@ new_float_matrix(int ndims, int dims[], double data[])
   YAP_Term blob;
   int *mat;
   double *bdata;
+  int idims[MAX_DIMS];
 
+  /* in case we don't have enough room and need to shift the stack, we can't
+     really afford to keep a pointer to the global */
   for (i=0;i< ndims;i++) {
+    idims[i] = dims[i];
     nelems *= dims[i];
   }
   sz = ((MAT_DIMS+1)*sizeof(int)+ndims*sizeof(int)+(nelems+1)*sizeof(double)+(sizeof(YAP_CELL)-1))/sizeof(YAP_CELL);
@@ -154,7 +162,7 @@ new_float_matrix(int ndims, int dims[], double data[])
   mat[MAT_NDIMS] = ndims;
   mat[MAT_SIZE] = nelems;
   for (i=0;i< ndims;i++) {
-    mat[MAT_DIMS+i] = dims[i];
+    mat[MAT_DIMS+i] = idims[i];
   }
   bdata = matrix_double_data(mat,ndims);
   if (data)
@@ -1360,6 +1368,76 @@ matrix_double_add_data(double *nmat, int siz, double mat1[], double mat2[])
   }
 }
 
+static void
+matrix_long_sub_data(long int *nmat, int siz, long int mat1[], long int mat2[])
+{
+  int i;
+
+  for (i=0; i< siz; i++) {
+    nmat[i] = mat1[i]-mat2[i];
+  }
+}
+
+static void
+matrix_long_double_sub_data(double *nmat, int siz, long int mat1[], double mat2[])
+{
+  int i;
+
+  for (i=0; i< siz; i++) {
+    nmat[i] = mat1[i]-mat2[i];
+  }
+}
+
+static void
+matrix_long_double_rsub_data(double *nmat, int siz, double mat1[], long int mat2[])
+{
+  int i;
+
+  for (i=0; i< siz; i++) {
+    nmat[i] = mat2[i]-mat1[i];
+  }
+}
+
+static void
+matrix_double_sub_data(double *nmat, int siz, double mat1[], double mat2[])
+{
+  int i;
+
+  for (i=0; i< siz; i++) {
+    nmat[i] = mat1[i]-mat2[i];
+  }
+}
+
+static void
+matrix_long_mult_data(long int *nmat, int siz, long int mat1[], long int mat2[])
+{
+  int i;
+
+  for (i=0; i< siz; i++) {
+    nmat[i] = mat1[i]*mat2[i];
+  }
+}
+
+static void
+matrix_long_double_mult_data(double *nmat, int siz, long int mat1[], double mat2[])
+{
+  int i;
+
+  for (i=0; i< siz; i++) {
+    nmat[i] = mat1[i]*mat2[i];
+  }
+}
+
+static void
+matrix_double_mult_data(double *nmat, int siz, double mat1[], double mat2[])
+{
+  int i;
+
+  for (i=0; i< siz; i++) {
+    nmat[i] = mat1[i]*mat2[i];
+  }
+}
+
 static int
 matrix_op(void)
 {
@@ -1389,31 +1467,47 @@ matrix_op(void)
     data1 = matrix_long_data(mat1, dims);
 
     if (mat2[MAT_TYPE] == INT_MATRIX) {
-      long int *data2 = matrix_long_data(mat2, 1);
-      if (op == MAT_PLUS) {
-	long int *ndata;
+      long int *data2 = matrix_long_data(mat2, dims);
+      long int *ndata;
 
-	tf = new_int_matrix(dims,mat1+MAT_DIMS,NULL);
-	if (tf == YAP_TermNil())
-	  return FALSE;
-	nmat = YAP_BlobOfTerm(tf);
-	ndata = matrix_long_data(nmat, dims);
+      tf = new_int_matrix(dims,mat1+MAT_DIMS,NULL);
+      if (tf == YAP_TermNil())
+	return FALSE;
+      nmat = YAP_BlobOfTerm(tf);
+      ndata = matrix_long_data(nmat, dims);
+      switch (op) {
+      case MAT_PLUS:
 	matrix_long_add_data(ndata, mat1[MAT_SIZE], data1, data2);
-      } else {
+	break;
+      case MAT_SUB:
+	matrix_long_sub_data(ndata, mat1[MAT_SIZE], data1, data2);
+	break;
+      case MAT_TIMES:
+	matrix_long_mult_data(ndata, mat1[MAT_SIZE], data1, data2);
+	break;
+      default:
 	return FALSE;
       }
     } else if (mat2[MAT_TYPE] == FLOAT_MATRIX) {
-      double *data2 = matrix_double_data(mat2, 1);
-      if (op == MAT_PLUS) {
-	double *ndata;
+      double *data2 = matrix_double_data(mat2, dims);
+      double *ndata;
 
-	tf = new_float_matrix(dims,mat1+MAT_DIMS,NULL);
-	if (tf == YAP_TermNil())
-	  return FALSE;
-	nmat = YAP_BlobOfTerm(tf);
-	ndata = matrix_double_data(nmat, dims);
+      tf = new_float_matrix(dims,mat1+MAT_DIMS,NULL);
+      if (tf == YAP_TermNil())
+	return FALSE;
+      nmat = YAP_BlobOfTerm(tf);
+      ndata = matrix_double_data(nmat, dims);
+      switch (op) {
+      case MAT_PLUS:
 	matrix_long_double_add_data(ndata, mat1[MAT_SIZE], data1, data2);
-      } else {
+	break;
+      case MAT_SUB:
+	matrix_long_double_sub_data(ndata, mat1[MAT_SIZE], data1, data2);
+	break;
+      case MAT_TIMES:
+	matrix_long_double_mult_data(ndata, mat1[MAT_SIZE], data1, data2);
+	break;
+      default:
 	return FALSE;
       }
     } else {
@@ -1426,31 +1520,47 @@ matrix_op(void)
     data1 = matrix_double_data(mat1, dims);
 
     if (mat2[MAT_TYPE] == INT_MATRIX) {
-      long int *data2 = matrix_long_data(mat2, 1);
-      if (op == MAT_PLUS) {
-	double *ndata;
+      long int *data2 = matrix_long_data(mat2, dims);
+      double *ndata;
 
-	tf = new_float_matrix(dims,mat1+MAT_DIMS,NULL);
-	if (tf == YAP_TermNil())
-	  return FALSE;
-	nmat = YAP_BlobOfTerm(tf);
-	ndata = matrix_double_data(nmat, dims);
+      tf = new_float_matrix(dims,mat1+MAT_DIMS,NULL);
+      if (tf == YAP_TermNil())
+	return FALSE;
+      nmat = YAP_BlobOfTerm(tf);
+      ndata = matrix_double_data(nmat, dims);
+      switch (op) {
+      case MAT_PLUS:
 	matrix_long_double_add_data(ndata, mat1[MAT_SIZE], data2, data1);
-      } else {
+	break;
+      case MAT_SUB:
+	matrix_long_double_rsub_data(ndata, mat1[MAT_SIZE], data1, data2);
+	break;
+      case MAT_TIMES:
+	matrix_long_double_mult_data(ndata, mat1[MAT_SIZE], data2, data1);
+	break;
+      default:
 	return FALSE;
       }
     } else if (mat2[MAT_TYPE] == FLOAT_MATRIX) {
-      double *data2 = matrix_double_data(mat2, 1);
-      if (op == MAT_PLUS) {
-	double *ndata;
+      double *data2 = matrix_double_data(mat2, dims);
+      double *ndata;
 
-	tf = new_float_matrix(dims,mat1+MAT_DIMS,NULL);
-	if (tf == YAP_TermNil())
-	  return FALSE;
-	nmat = YAP_BlobOfTerm(tf);
-	ndata = matrix_double_data(nmat, dims);
+      tf = new_float_matrix(dims,mat1+MAT_DIMS,NULL);
+      if (tf == YAP_TermNil())
+	return FALSE;
+      nmat = YAP_BlobOfTerm(tf);
+      ndata = matrix_double_data(nmat, dims);
+      switch (op) {
+      case MAT_PLUS:
 	matrix_double_add_data(ndata, mat1[MAT_SIZE], data1, data2);
-      } else {
+	break;
+      case MAT_SUB:
+	matrix_double_sub_data(ndata, mat1[MAT_SIZE], data1, data2);
+	break;
+      case MAT_TIMES:
+	matrix_double_mult_data(ndata, mat1[MAT_SIZE], data1, data2);
+	break;
+      default:
 	return FALSE;
       }
     } else {
@@ -1673,28 +1783,413 @@ matrix_op_to_all(void)
     nmat = (int *)YAP_BlobOfTerm(tf);
     data = matrix_double_data(mat, dims);
     ndata = matrix_double_data(nmat, dims);
-    if (op == MAT_PLUS) {
-      int i;
+    switch(op) {
+    case MAT_PLUS:
+      {
+	int i;
 
-      for (i = 0; i < mat[MAT_SIZE]; i++) {
-	ndata[i] = data[i] + num;
+	for (i = 0; i < mat[MAT_SIZE]; i++) {
+	  ndata[i] = data[i] + num;
+	}
       }
-    } else if (op == MAT_TIMES) {
+      break;
+    case MAT_TIMES:
+      {
 	int i;
 	
 	for (i = 0; i < mat[MAT_SIZE]; i++) {
 	  ndata[i] = data[i] * num;
 	}
-    } else if (op == MAT_DIV) {
-      int i;
-      
-      for (i = 0; i < mat[MAT_SIZE]; i++) {
-	ndata[i] = data[i] / num;
       }
-    } else
+      break;
+    case MAT_DIV:
+      {
+	int i;
+      
+	for (i = 0; i < mat[MAT_SIZE]; i++) {
+	  ndata[i] = data[i] / num;
+	}
+      } 
+      break;
+    default:
       return FALSE;
+    }
   }
   return YAP_Unify(YAP_ARG4,tf);
+}
+
+/* given a matrix M and a set of dims, build a new reordered matrix to follow
+   the new order
+*/ 
+static int
+matrix_transpose(void)
+{
+  int ndims, i, *dims, *dimsn;
+  int conv[MAX_DIMS], indx[MAX_DIMS], nindx[MAX_DIMS];
+  YAP_Term tconv, tf;
+  int *mat = (int *)YAP_BlobOfTerm(YAP_ARG1), *nmat;
+  if (!mat) {
+    /* Error */
+    return FALSE;
+  }
+  ndims = mat[MAT_NDIMS];
+  if (mat[MAT_TYPE] == INT_MATRIX) {
+    /* create a new matrix with the same size */
+    tf = new_int_matrix(ndims,mat+MAT_DIMS,NULL);
+    if (tf == YAP_TermNil())
+      return FALSE;
+  } else {
+    /* create a new matrix with the same size */
+    tf = new_float_matrix(ndims,mat+MAT_DIMS,NULL);
+    if (tf == YAP_TermNil())
+      return FALSE;
+  }
+  /* just in case there was an overflow */
+  mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+  nmat = (int *)YAP_BlobOfTerm(tf);  
+  dims = mat+MAT_DIMS;
+  dimsn = nmat+MAT_DIMS;
+  /* we now have our target matrix, let us grab our conversion matrix */
+  tconv = YAP_ARG2;
+  for (i=0; i < ndims; i++) {
+    YAP_Term th;
+    long int j;
+
+    if (!YAP_IsPairTerm(tconv))
+      return FALSE;
+    th = YAP_HeadOfTerm(tconv);
+    if (!YAP_IsIntTerm(th))
+      return FALSE;
+    conv[i] = j = YAP_IntOfTerm(th);
+    dimsn[i] = dims[j];
+    tconv = YAP_TailOfTerm(tconv);
+  }
+  /*
+    we now got all the dimensions set up, so what we need to do
+    next is to copy the elements to the new matrix.
+  */
+  if (mat[MAT_TYPE] == INT_MATRIX) {
+    long int *data = matrix_long_data(mat,ndims);
+    /* create a new matrix with the same size */
+    for (i=0; i< mat[MAT_SIZE]; i++) {
+      long int x = data[i];
+      int j;
+      /*
+	not very efficient, we could try to take advantage of the fact
+	that we usually only change an index at a time
+      */
+      matrix_get_index(mat, i, indx);
+      for (j = 0; j < ndims; j++)  {
+	nindx[j] = indx[conv[j]];
+      }
+      matrix_long_set(nmat, nindx, x);
+    }
+  } else {
+    double *data = matrix_double_data(mat,ndims);
+    /* create a new matrix with the same size */
+    for (i=0; i< mat[MAT_SIZE]; i++) {
+      double x = data[i];
+      long j;
+
+      matrix_get_index(mat, i, indx);
+      for (j = 0; j < ndims; j++) 
+	nindx[j] = indx[conv[j]];
+      matrix_float_set(nmat, nindx, x);
+    }
+  }
+  return YAP_Unify(YAP_ARG3, tf);
+}
+
+/* given a matrix M and a set of dims, fold one of the dimensions of the
+   matrix on one of the elements
+*/ 
+static int
+matrix_select(void)
+{
+  int ndims, i, j, *dims, newdims, prdim, leftarg;
+  int indx[MAX_DIMS], nindx[MAX_DIMS];
+  YAP_Term tpdim, tdimarg, tf;
+  int *mat = (int *)YAP_BlobOfTerm(YAP_ARG1), *nmat;
+  if (!mat) {
+    /* Error */
+    return FALSE;
+  }
+  /* we now have our target matrix, let us grab our conversion arguments */
+  tpdim = YAP_ARG2;
+  ndims = mat[MAT_NDIMS];
+  dims = mat+MAT_DIMS;
+  if (!YAP_IsIntTerm(tpdim)) {
+    return FALSE;
+  }
+  prdim = YAP_IntOfTerm(tpdim);
+  tdimarg = YAP_ARG3;
+  if (!YAP_IsIntTerm(tdimarg)) {
+    return FALSE;
+  }
+  leftarg = YAP_IntOfTerm(tdimarg);
+  for (i=0, j=0; i< ndims; i++) {
+    if (i != prdim) {
+      nindx[j]= (mat+MAT_DIMS)[i];
+      j++;
+    }
+  }
+  newdims = ndims-1;
+  if (mat[MAT_TYPE] == INT_MATRIX) {
+    long int *data, *ndata;
+
+    /* create a new matrix with the same size */
+    tf = new_int_matrix(newdims,nindx,NULL);
+    if (tf == YAP_TermNil())
+      return FALSE;
+    /* in case the matrix moved */
+    mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+    nmat = (int *)YAP_BlobOfTerm(tf);  
+    data = matrix_long_data(mat,ndims);
+    ndata = matrix_long_data(nmat,newdims);
+    /* create a new matrix with smaller size */
+    for (i=0; i< nmat[MAT_SIZE]; i++) {
+      int j,k;
+      /*
+	not very efficient, we could try to take advantage of the fact
+	that we usually only change an index at a time
+      */
+      matrix_get_index(nmat, i, indx);
+      for (j = 0, k=0; j < newdims; j++,k++)  {
+	if (j == prdim) {
+	  nindx[k] = leftarg;
+	  k++;
+	}
+	nindx[k]= indx[j];
+      }
+      if (k == prdim) {
+	  nindx[k] = leftarg;
+      }
+      ndata[i] = data[matrix_get_offset(mat, nindx)];
+    }
+  } else {
+    double *data, *ndata;
+
+    /* create a new matrix with the same size */
+    tf = new_float_matrix(newdims,nindx,NULL);
+    if (tf == YAP_TermNil())
+      return FALSE;
+    /* in case the matrix moved */
+    mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+    nmat = (int *)YAP_BlobOfTerm(tf);  
+    data = matrix_double_data(mat,ndims);
+    ndata = matrix_double_data(nmat,newdims);
+    /* create a new matrix with the same size */
+    for (i=0; i< nmat[MAT_SIZE]; i++) {
+      int j,k;
+      /*
+	not very efficient, we could try to take advantage of the fact
+	that we usually only change an index at a time
+      */
+      matrix_get_index(nmat, i, indx);
+      for (j = 0, k=0; j < newdims; j++,k++)  {
+	if (j == prdim) {
+	  nindx[k] = leftarg;
+	  k++;
+	}
+	nindx[k]= indx[j];
+      }
+      if (k == prdim) {
+	  nindx[k] = leftarg;
+      }
+      ndata[i] = data[matrix_get_offset(mat, nindx)];
+    }
+  }
+  return YAP_Unify(YAP_ARG4, tf);
+}
+
+/* given a matrix M and a set of dims, sum out one of the dimensions
+*/ 
+static int
+matrix_sum_out(void)
+{
+  int ndims, i, j, *dims, newdims, prdim;
+  int indx[MAX_DIMS], nindx[MAX_DIMS];
+  YAP_Term tpdim, tf;
+  int *mat = (int *)YAP_BlobOfTerm(YAP_ARG1), *nmat;
+  if (!mat) {
+    /* Error */
+    return FALSE;
+  }
+  /* we now have our target matrix, let us grab our conversion arguments */
+  tpdim = YAP_ARG2;
+  ndims = mat[MAT_NDIMS];
+  dims = mat+MAT_DIMS;
+  if (!YAP_IsIntTerm(tpdim)) {
+    return FALSE;
+  }
+  prdim = YAP_IntOfTerm(tpdim);
+  newdims = ndims-1;
+  for (i=0, j=0; i< ndims; i++) {
+    if (i != prdim) {
+      nindx[j]= (mat+MAT_DIMS)[i];
+      j++;
+    }
+  }
+  if (mat[MAT_TYPE] == INT_MATRIX) {
+    long int *data, *ndata;
+
+    /* create a new matrix with the same size */
+    tf = new_int_matrix(newdims,nindx,NULL);
+    if (tf == YAP_TermNil())
+      return FALSE;
+    /* in case the matrix moved */
+    mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+    nmat = (int *)YAP_BlobOfTerm(tf);  
+    data = matrix_long_data(mat,ndims);
+    ndata = matrix_long_data(nmat,newdims);
+    /* create a new matrix with smaller size */
+    for (i=0;i<nmat[MAT_SIZE];i++) 
+      ndata[i] = 0;
+    for (i=0; i< mat[MAT_SIZE]; i++) {
+      int j, k;
+      /*
+	not very efficient, we could try to take advantage of the fact
+	that we usually only change an index at a time
+      */
+      matrix_get_index(mat, i, indx);
+      for (j = 0, k=0; j < ndims; j++)  {
+	if (j != prdim) {
+	  nindx[k++]= indx[j];
+	}
+      }
+      ndata[matrix_get_offset(nmat, nindx)] += data[i];
+    }
+  } else {
+    double *data, *ndata;
+
+    /* create a new matrix with the same size */
+    tf = new_float_matrix(newdims,nindx,NULL);
+    if (tf == YAP_TermNil())
+      return FALSE;
+    /* in case the matrix moved */
+    mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+    nmat = (int *)YAP_BlobOfTerm(tf);  
+    data = matrix_double_data(mat,ndims);
+    ndata = matrix_double_data(nmat,newdims);
+    /* create a new matrix with smaller size */
+    for (i=0;i<nmat[MAT_SIZE];i++) 
+      ndata[i] = 0.0;
+    for (i=0; i< mat[MAT_SIZE]; i++) {
+      int j, k;
+      /*
+	not very efficient, we could try to take advantage of the fact
+	that we usually only change an index at a time
+      */
+      matrix_get_index(mat, i, indx);
+      for (j = 0, k=0; j < ndims; j++)  {
+	if (j != prdim) {
+	  nindx[k++]= indx[j];
+	}
+      }
+      ndata[matrix_get_offset(nmat, nindx)] += data[i];
+    }
+  }
+  return YAP_Unify(YAP_ARG3, tf);
+}
+
+/* given a matrix M and a set of dims, build contract a matrix to follow
+   the new order
+*/ 
+static int
+matrix_expand(void)
+{
+  int ndims, i, *dims, newdims=0, olddims = 0;
+  int new[MAX_DIMS], indx[MAX_DIMS], nindx[MAX_DIMS];
+  YAP_Term tconv, tf;
+  int *mat = (int *)YAP_BlobOfTerm(YAP_ARG1), *nmat;
+  if (!mat) {
+    /* Error */
+    return FALSE;
+  }
+  /* we now have our target matrix, let us grab our conversion matrix */
+  tconv = YAP_ARG2;
+  ndims = mat[MAT_NDIMS];
+  dims = mat+MAT_DIMS;
+  for (i=0; i < MAX_DIMS; i++) {
+    YAP_Term th;
+    long int j;
+
+    if (!YAP_IsPairTerm(tconv)) {
+      if (tconv != YAP_TermNil())
+	return FALSE;
+      break;
+    }
+    th = YAP_HeadOfTerm(tconv);
+    if (!YAP_IsIntTerm(th))
+      return FALSE;
+    newdims++;
+    j = YAP_IntOfTerm(th);
+    if (j==0) {
+      new[i] = 0;
+      nindx[i] = dims[olddims];
+      olddims++;
+    } else {
+      new[i] = 1;
+      nindx[i] = j;
+    }
+    tconv = YAP_TailOfTerm(tconv);
+  }
+  if (olddims != ndims)
+    return FALSE;
+  if (mat[MAT_TYPE] == INT_MATRIX) {
+    long int *data, *ndata;
+
+    /* create a new matrix with the same size */
+    tf = new_int_matrix(newdims,nindx,NULL);
+    if (tf == YAP_TermNil())
+      return FALSE;
+    /* in case the matrix moved */
+    mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+    nmat = (int *)YAP_BlobOfTerm(tf);  
+    data = matrix_long_data(mat,ndims);
+    ndata = matrix_long_data(nmat,newdims);
+    /* create a new matrix with the same size */
+    for (i=0; i< nmat[MAT_SIZE]; i++) {
+      int j,k=0;
+      /*
+	not very efficient, we could try to take advantage of the fact
+	that we usually only change an index at a time
+      */
+      matrix_get_index(nmat, i, indx);
+      for (j = 0; j < newdims; j++)  {
+	if (!new[j])
+	  nindx[k++] = indx[j];
+      }
+      ndata[i] = data[matrix_get_offset(mat, nindx)];
+    }
+  } else {
+    double *data, *ndata;
+
+    /* create a new matrix with the same size */
+    tf = new_float_matrix(newdims,nindx,NULL);
+    if (tf == YAP_TermNil())
+      return FALSE;
+    /* in case the matrix moved */
+    mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+    nmat = (int *)YAP_BlobOfTerm(tf);  
+    data = matrix_double_data(mat,ndims);
+    ndata = matrix_double_data(nmat,newdims);
+    /* create a new matrix with the same size */
+    for (i=0; i< nmat[MAT_SIZE]; i++) {
+      int j,k=0;
+      /*
+	not very efficient, we could try to take advantage of the fact
+	that we usually only change an index at a time
+      */
+      matrix_get_index(nmat, i, indx);
+      for (j = 0; j < newdims; j++)  {
+	if (!new[j])
+	  nindx[k++] = indx[j];
+      }
+      ndata[i] = data[matrix_get_offset(mat, nindx)];
+    }
+  }
+  return YAP_Unify(YAP_ARG3, tf);
 }
 
 void PROTO(init_matrix, (void));
@@ -1726,7 +2221,11 @@ init_matrix(void)
   YAP_UserCPredicate("matrix_min", matrix_min, 2);
   YAP_UserCPredicate("matrix_minarg", matrix_minarg, 2);
   YAP_UserCPredicate("matrix_sum", matrix_sum, 2);
+  YAP_UserCPredicate("matrix_shuffle", matrix_transpose, 3);
+  YAP_UserCPredicate("matrix_expand", matrix_expand, 3);
+  YAP_UserCPredicate("matrix_select", matrix_select, 4);
   YAP_UserCPredicate("matrix_add_to_all", matrix_sum, 2);
+  YAP_UserCPredicate("matrix_sum_out", matrix_sum_out, 3);
   YAP_UserCPredicate("do_matrix_op", matrix_op, 4);
   YAP_UserCPredicate("do_matrix_agg_lines", matrix_agg_lines, 3);
   YAP_UserCPredicate("do_matrix_agg_cols", matrix_agg_cols, 3);

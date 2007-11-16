@@ -7,6 +7,7 @@
 	dist/3,
         dists/1,
 	get_dist/4,
+	get_dist_matrix/5,
 	get_dist_domain/2,
 	get_dist_params/2,
 	get_dist_domain_size/2,
@@ -15,6 +16,8 @@
 	]).
 
 :- use_module(library(lists),[is_list/1]).
+
+:- use_module(library(matrix),[matrix_new/4]).
 
 
 /*
@@ -145,6 +148,18 @@ dist(Id) :-
 
 get_dist(Id, Type, Domain, Tab) :-
 	db(Id, Tab, Type, Domain, _, _).
+
+get_dist_matrix(Id, Parents, Type, Domain, Mat) :-
+	db(Id, Tab, Type, Domain, _, DomainSize),
+	get_dsizes(Parents, Sizes, []),
+	matrix_new(floats, [DomainSize|Sizes], Tab, Mat).
+
+get_dsizes([], Sizes, Sizes).
+get_dsizes([P|Parents], [Sz|Sizes], Sizes0) :-
+	clpbn:get_atts(P,dist(Dist,_)),
+	get_dist_domain_size(Dist, Sz),
+	get_dsizes(Parents, Sizes, Sizes0).
+
 
 get_dist_params(Id, Parms) :-
 	db(Id, Parms, _, _, _, _).

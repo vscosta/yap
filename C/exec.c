@@ -210,7 +210,7 @@ do_execute(Term t, Term mod)
 	  goto restart_exec;
 	}
       } else {
-	return(CallMetaCall(mod));
+	return CallMetaCall(mod);
       }
     }
     /* now let us do what we wanted to do from the beginning !! */

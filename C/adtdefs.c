@@ -599,6 +599,10 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
     WRITE_UNLOCK(fe->FRWLock);
     return NULL;
   }
+  if (cur_mod == TermProlog)
+    p->ModuleOfPred = 0L;
+  else
+    p->ModuleOfPred = cur_mod;
   if (fe->PropsOfFE) {
     UInt hsh = PRED_HASH(fe, cur_mod, PredHashTableSize);
 

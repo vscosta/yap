@@ -69,7 +69,6 @@ project_inner_loop(I,Sz,[ok|Evs],NBase,F,Table,Ent0,Ent) :- !,
 project_inner_loop(I,Sz,[_|Evs],NBase,F,Table,Ent0,Ent) :- !,
 	I1 is I+1,
 	project_inner_loop(I1,Sz,Evs,NBase,F,Table,Ent0,Ent).
-	
 
 %
 % Given a set of variables Vs0 and a discrete CPT T0,

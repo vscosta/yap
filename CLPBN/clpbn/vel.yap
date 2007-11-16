@@ -27,7 +27,7 @@
 
 :- use_module(library('clpbn/dists'), [
 	get_dist_domain_size/2,
-	get_dist/4]).
+	get_dist_matrix/5]).
 
 :- use_module(library('clpbn/utils'), [
 	clpbn_not_var_member/2,
@@ -36,9 +36,13 @@
 :- use_module(library('clpbn/display'), [
 	clpbn_bind_vals/3]).
 
-:- use_module(library('clpbn/discrete_utils'), [
-	project_from_CPT/3,
-	reorder_CPT/5]).
+:- use_module(library('clpbn/matrix_cpt_utils'),
+	      [project_from_CPT/3,
+	       reorder_CPT/5,
+	       get_dist_size/2,
+	       multiply_CPTs/3,
+	       normalise_CPT/2,
+	       list_from_CPT/2]).
 
 :- use_module(library(lists),
 	      [
@@ -62,9 +66,9 @@ do_vel(LVs,Vs0,AllDiffs) :-
 	(clpbn:output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
 	(clpbn:output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,vel,Vs,LVs) ; true),
 	process(LVi, LVs, tab(Dist,_,_)),
-	Dist =.. [_|Ps0],
-	normalise(Ps0,Ps),
-	clpbn_bind_vals(LVs,Ps,AllDiffs).
+	normalise_CPT(Dist,Ps),
+	list_from_CPT(Ps, LPs),
+	clpbn_bind_vals(LVs,LPs,AllDiffs).
 
 %
 % some variables might already have evidence in the data-base.
@@ -93,10 +97,10 @@ find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Parents,Size
 
 var_with_deps(V, Table, Deps, Sizes, Ev, Vals) :-
 	clpbn:get_atts(V, [dist(Id,Parents)]),
-	get_dist(Id,_,Vals,OTable),
+	get_dist_matrix(Id,Parents,_,Vals,TAB0),
 	( clpbn:get_atts(V, [evidence(Ev)]) -> true ; true),
-	reorder_CPT([V|Parents],OTable,Deps0,Table0,Sizes0),
-	simplify_evidence(Deps0, Table0, Deps0, Sizes0, Table, Deps, Sizes).
+	reorder_CPT([V|Parents],TAB0,Deps0,TAB1,Sizes1),
+	simplify_evidence(Deps0, TAB1, Deps0, Sizes1, Table, Deps, Sizes).
 
 find_all_table_deps(Tables0, LV) :-
 	find_dep_graph(Tables0, DepGraph0),
@@ -143,8 +147,7 @@ process(LV0, InputVs, Out) :-
 	V \== V0, !,
 %format('1 ~w: ~w~n',[V,WorkTables]),
 	multiply_tables(WorkTables, tab(Tab0,Deps0,_)),
-	Tab0 =.. [_|LTab0],
-	reorder_CPT(Deps0,LTab0,Deps,Tab,Sizes),
+	reorder_CPT(Deps0,Tab0,Deps,Tab,Sizes),
 	Table = tab(Tab,Deps,Sizes),
 %format('2 ~w: ~w~n',[V,Table]),
 	project_from_CPT(V,Table,NewTable),
@@ -174,9 +177,9 @@ find_best([V|LV], V0, Threshold, VF, WorkTables, [V|LVF], Inputs) :-
 	find_best(LV, V0, Threshold, VF, WorkTables, LVF, Inputs).
 
 multiply_tables([Table], Table) :- !.
-multiply_tables([tab(Tab1,Deps1,Szs1), tab(Tab2,Deps2,Sz2)| Tables], Out) :-
-	multiply_table(Tab1, Deps1, Szs1, Tab2, Deps2, Sz2, NTab, NDeps, NSz),
-	multiply_tables([tab(NTab,NDeps,NSz)| Tables], Out).
+multiply_tables([TAB1, TAB2| Tables], Out) :-
+	multiply_CPTs(TAB1, TAB2, TAB),
+	multiply_tables([TAB| Tables], Out).
 
 
 simplify_evidence([], Table, Deps, Sizes, Table, Deps, Sizes).
@@ -191,56 +194,6 @@ fetch_tables([], []).
 fetch_tables([var(_,_,_,_,_,_,Deps,_)|LV0], Tables) :-
 	append(Deps,Tables0,Tables),
 	fetch_tables(LV0, Tables0).
-
-multiply_table(Tab1, Deps1, Szs1, Tab2, Deps2, Szs2, NTab, NDeps, NSzs) :-
-	deps_union(Deps1,Szs1,Fs10,Deps2,Szs2,Fs20,NDeps,NSzs),
-	factors(NSzs, Fs, Total),
-	factors(Fs10, Fs1, _),
-	factors(Fs20, Fs2, _),
-	elements(0, Total, Fs, Fs1, Fs2, Tab1, Tab2, LTab),
-	NTab =.. [t|LTab].
-
-deps_union([],[],[],[],[],[],[],[]) :- !.
-deps_union([],[],Fs1,[V2|Deps2],[Sz|Szs2],[Sz|Szs2],[V2|Deps2],[Sz|Szs2]) :- !,
-	mk_zeros([Sz|Szs2],Fs1).
-deps_union([V1|Deps1],[Sz|Szs1],[Sz|Szs1],[],[],Fs2,[V1|Deps1],[Sz|Szs1]) :- !,
-	mk_zeros([Sz|Szs1],Fs2).
-deps_union([V1|Deps1],[Sz|Szs1],[Sz|Fs1],[V2|Deps2],[Sz|Szs2],[Sz|Fs2],[V1|NDeps],[Sz|NSzs]) :- V1 == V2, !,
-	deps_union(Deps1,Szs1,Fs1,Deps2,Szs2,Fs2,NDeps,NSzs).
-deps_union([V1|Deps1],[Sz1|Szs1],[Sz1|Fs1],[V2|Deps2],Szs2,[0|Fs2],[V1|NDeps],[Sz1|NSzs]) :- V1 @< V2, !,
-	deps_union(Deps1,Szs1,Fs1,[V2|Deps2],Szs2,Fs2,NDeps,NSzs).
-deps_union([V1|Deps1],Szs1,[0|Fs1],[V2|Deps2],[Sz|Szs2],[Sz|Fs2],[V2|NDeps],[Sz|NSzs]) :-
-	deps_union([V1|Deps1],Szs1,Fs1,Deps2,Szs2,Fs2,NDeps,NSzs).
-
-mk_zeros([],[]).
-mk_zeros([_|Szs],[0|Fs]) :-
-	mk_zeros(Szs,Fs).
-
-
-factors([], [], 1).
-factors([0|Ls], [0|NLs], Prod) :- !,
-	factors(Ls, NLs, Prod).
-factors([N|Ls], [Prod0|NLs], Prod) :-
-	factors(Ls, NLs, Prod0),
-	Prod is Prod0*N.
-
-elements(Total, Total, _, _, _, _, _, []) :- !.
-elements(I, Total, Fs, Fs1, Fs2, Tab1, Tab2, [El|Els]) :-
-	element(Fs, I, 1, Fs1, 1, Fs2, Tab1, Tab2, El),	
-	I1 is I+1,
-	elements(I1, Total, Fs, Fs1, Fs2, Tab1, Tab2, Els).
-
-element([], _, P1, [], P2, [], Tab1, Tab2, El) :-
-	arg(P1, Tab1, El1),
-	arg(P2, Tab2, El2),
-	El is El1*El2.
-element([F|Fs], I, P1, [F1|Fs1], P2, [F2|Fs2], Tab1, Tab2, El) :-
-	FF is I // F,
-	NP1 is P1+F1*FF,
-	NP2 is P2+F2*FF,
-	NI is I mod F,
-	element(Fs, NI, NP1, Fs1, NP2, Fs2, Tab1, Tab2, El).
-
 % 
 include([],_,_,[]).
 include([var(V,P,VSz,D,Parents,Ev,Tabs,Est)|LV],tab(T,Vs,Sz),V1,[var(V,P,VSz,D,Parents,Ev,Tabs,Est)|NLV]) :-
@@ -257,21 +210,6 @@ update_tables([tab(Tab0,Vs,Sz)|Tabs],[tab(Tab0,Vs,Sz)|NTabs],Table,V) :-
 	update_tables(Tabs,NTabs,Table,V).
 update_tables([_|Tabs],NTabs,Table,V) :-
 	update_tables(Tabs,NTabs,Table,V).
-
-normalise(Ps0,Ps) :-
-	add_all(Ps0,0.0,Sum),
-	divide_by_sum(Ps0,Sum,Ps).
-
-add_all([],Sum,Sum).
-add_all([P|Ps0],Sum0,Sum) :-
-	SumI is Sum0+P,
-	add_all(Ps0,SumI,Sum).
-
-divide_by_sum([],_,[]).
-divide_by_sum([P|Ps0],Sum,[PN|Ps]) :-
-	PN is P/Sum,
-	divide_by_sum(Ps0,Sum,Ps).
-
 
 vel_get_dist_size(V,Sz) :-
 	get_atts(V, [size(Sz)]), !.
