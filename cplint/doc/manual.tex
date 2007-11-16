@@ -1,15 +1,15 @@
 %% uncomment the following for htlatex compilation
-\documentclass{article}
-\usepackage{graphicx}
-\DeclareGraphicsExtensions{.png, .gif, .jpg}
-\newcommand{\href}[2]{\Link[#1]{}{} #2 \EndLink}
-\newcommand{\hypertarget}[2]{\Link[]{}{#1} #2 \EndLink}
-\newcommand{\hyperlink}[2]{\Link[]{#1}{} #2 \EndLink}
+%\documentclass{article}
+%\usepackage{graphicx}
+%\DeclareGraphicsExtensions{.png, .gif, .jpg}
+%\newcommand{\href}[2]{\Link[#1]{}{} #2 \EndLink}
+%\newcommand{\hypertarget}[2]{\Link[]{}{#1} #2 \EndLink}
+%\newcommand{\hyperlink}[2]{\Link[]{#1}{} #2 \EndLink}
 %% uncomment the following for pdflatex compilation
-%\documentclass[a4paper,12pt]{article}
-%\usepackage[pdftex]{graphicx}
-%\DeclareGraphicsExtensions{.pdf,.png,.jpg}
-%\RequirePackage[hyperindex]{hyperref}
+\documentclass[a4paper,12pt]{article}
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+\RequirePackage[hyperindex]{hyperref}
 
 
 
@@ -165,7 +165,13 @@ After having parsed a program, in order to read in a new program you must restar
 
 When using \texttt{lpad.pl}, the system can print the message ``Uunsound program'' in the case in which an instance with a three valued well founded model is found.  Moreover, it can print the message ``It requires the choice of a head atom from a non ground head'': in this case, in order to answer the query, all the groundings of the culprit clause must be generated, which may be impossible for programs with function symbols. 
 
-When using \texttt{cpl.pl}, the system can print the above messages plus ``Invalid program'' in the case in which no execution process exists. The same message can be returned by \texttt{semcpl.pl}.
+When using \texttt{semcpl.pl}, you can print the execution process by using the command \texttt{print.}
+after \texttt{p(file).} Moreover, you can build an execution process given a context by issuing the command \texttt{parse(file)}. and then
+\texttt{build(context).} where \texttt{context} is a list of atoms that are true in the context.
+\texttt{semcpl.pl}  can print ``Invalid program'' in the case in which no execution process exists. 
+
+When using \texttt{cpl.pl} you can print a partial execution model including all the clauses involved in the query issued with \texttt{print.} \texttt{cpl.pl} can print the messages ``Uunsound program'', ``It requires the choice of a head atom from a non ground head'' and ``Invalid program''.
+
 
 The modules make use of a number of parameters in order to control their behavior. They that can be set with the command
 \begin{verbatim}

@@ -7,7 +7,7 @@
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
 <!-- html --> 
 <meta name="src" content="manual.tex"> 
-<meta name="date" content="2007-11-15 13:17:00"> 
+<meta name="date" content="2007-11-16 16:20:00"> 
 <link rel="stylesheet" type="text/css" href="manual.css"> 
 </head><body 
 >
@@ -22,7 +22,7 @@ class="cmr-12">Fabrizio Riguzzi</span>
 class="cmr-12">fabrizio.riguzzi@unife.it</span></div>
 <br />
 <div class="date" ><span 
-class="cmr-12">November 15, 2007</span></div>
+class="cmr-12">November 16, 2007</span></div>
    </div>
    <h3 class="sectionHead"><span class="titlemark">1   </span> <a 
  id="x1-10001"></a>Introduction</h3>
@@ -90,15 +90,17 @@ class="cmtt-10">semlpadsld.pl</span>, <span
 class="cmtt-10">semlpad.pl </span>and <span 
 class="cmtt-10">semcpl.pl</span>:
      <ul class="itemize1">
-     <li class="itemize">semlpadsld.pl: given an LPAD <span 
+     <li class="itemize"><span 
+class="cmtt-10">semlpadsld.pl</span>: given an LPAD <span 
 class="cmmi-10">P</span>, it generates all the instances of <span 
-class="cmmi-10">P</span>. The
-     probability of a query <span 
-class="cmmi-10">Q </span>is computed by identifying all the instances where
-     <span 
+class="cmmi-10">P</span>.
+     The probability of a query <span 
+class="cmmi-10">Q </span>is computed by identifying all the instances
+     where <span 
 class="cmmi-10">Q </span>is derivable by SLDNF resolution.
      </li>
-     <li class="itemize">semlpad.pl: given an LPAD <span 
+     <li class="itemize"><span 
+class="cmtt-10">semlpad.pl</span>: given an LPAD <span 
 class="cmmi-10">P</span>, it generates all the instances of <span 
 class="cmmi-10">P</span>. The
      probability of a query <span 
@@ -106,7 +108,8 @@ class="cmmi-10">Q </span>is computed by identifying all the instances where
      <span 
 class="cmmi-10">Q </span>is derivable by SLG resolution.
      </li>
-     <li class="itemize">semlcpl.pl: given an LPAD <span 
+     <li class="itemize"><span 
+class="cmtt-10">semlcpl.pl</span>: given an LPAD <span 
 class="cmmi-10">P</span>, it builds an execution model of <span 
 class="cmmi-10">P</span>, i.e.,
      a probabilistic process that satisfy the principles of universal causation,
@@ -355,11 +358,25 @@ ground head&#8221;: in this case, in order to answer the query, all the groundin
 culprit clause must be generated, which may be impossible for programs with
 function symbols.
 <!--l. 168--><p class="indent" >   When using <span 
-class="cmtt-10">cpl.pl</span>, the system can print the above messages plus &#8220;Invalid
-program&#8221; in the case in which no execution process exists. The same message can be
-returned by <span 
-class="cmtt-10">semcpl.pl</span>.
-<!--l. 170--><p class="indent" >   The modules make use of a number of parameters in order to control their
+class="cmtt-10">semcpl.pl</span>, you can print the execution process by using the
+command <span 
+class="cmtt-10">print. </span>after <span 
+class="cmtt-10">p(file). </span>Moreover, you can build an execution
+process given a context by issuing the command <span 
+class="cmtt-10">parse(file)</span>. and then
+<span 
+class="cmtt-10">build(context). </span>where <span 
+class="cmtt-10">context </span>is a list of atoms that are true in the context.
+<span 
+class="cmtt-10">semcpl.pl </span>can print &#8220;Invalid program&#8221; in the case in which no execution process
+exists.
+<!--l. 173--><p class="indent" >   When using <span 
+class="cmtt-10">cpl.pl </span>you can print a partial execution model including all the
+clauses involved in the query issued with <span 
+class="cmtt-10">print. cpl.pl </span>can print the messages
+&#8220;Uunsound program&#8221;, &#8220;It requires the choice of a head atom from a non ground
+head&#8221; and &#8220;Invalid program&#8221;.
+<!--l. 176--><p class="indent" >   The modules make use of a number of parameters in order to control their
 behavior. They that can be set with the command
 
    <table 
@@ -368,7 +385,7 @@ class="verbatim"><div class="verbatim">
 set(parameter,value).
 </div>
 </td></tr></table>
-<!--l. 173--><p class="nopar" > from the Yap prompt after having loaded the module. The current value can be read
+<!--l. 179--><p class="nopar" > from the Yap prompt after having loaded the module. The current value can be read
 with
 
    <table 
@@ -377,7 +394,7 @@ class="verbatim"><div class="verbatim">
 setting(parameter,Value).
 </div>
 </td></tr></table>
-<!--l. 178--><p class="nopar" > from the Yap prompt. The available parameters are:
+<!--l. 184--><p class="nopar" > from the Yap prompt. The available parameters are:
      <ul class="itemize1">
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">epsilon_parsing</span></span></span> (valid  for  all  six  modules):  if  (1  -  the  sum  of  the
@@ -405,7 +422,7 @@ class="verbatim"><div class="verbatim">
      Variables:&#x00A0;[(2,[X=2,X1=1]),(2,[X=1,X1=0]),(1,[])]
 </div>
      </td></tr></table>
-     <!--l. 192--><p class="nopar" > where the first element of each couple is the clause number of the input file
+     <!--l. 198--><p class="nopar" > where the first element of each couple is the clause number of the input file
      (starting from 1). In the example above variable <span 
 class="cmtt-10">X0 </span>corresponds to clause <span 
 class="cmtt-10">2</span>
@@ -428,7 +445,7 @@ class="verbatim"><div class="verbatim">
      dotty&#x00A0;cpl.dot&#x00A0;&amp;
 </div>
      </td></tr></table>
-     <!--l. 201--><p class="nopar" >
+     <!--l. 207--><p class="nopar" >
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">ground_body</span></span></span> (valid for <span 
@@ -441,15 +458,15 @@ class="cmtt-10">false</span>, ground
      constant. In the case where the body contains variables not in the
      head, setting it to false means that the body represents an existential
      event.</li></ul>
-<!--l. 205--><p class="noindent" >
+<!--l. 211--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">5   </span> <a 
  id="x1-50005"></a>Semantic Modules</h3>
-<!--l. 206--><p class="noindent" >The three semantic modules need to produce a grounding of the program in order to
+<!--l. 212--><p class="noindent" >The three semantic modules need to produce a grounding of the program in order to
 compute the semantics. They require an extra file with extension <span 
 class="cmtt-10">.uni </span>(for universe)
 in the same directory where the <span 
 class="cmtt-10">.cpl </span>file is.
-<!--l. 209--><p class="indent" >   There are two ways to specify how to ground a program. The first consists in
+<!--l. 215--><p class="indent" >   There are two ways to specify how to ground a program. The first consists in
 providing the list of constants to which each variable can be instantiated. For
 example, in our case the current directory will contain a file <span 
 class="cmtt-10">coin.uni </span>that is a
@@ -461,7 +478,7 @@ class="verbatim"><div class="verbatim">
 universe(var_list,const_list).
 </div>
 </td></tr></table>
-<!--l. 212--><p class="nopar" > where <span class="obeylines-h"><span class="verb"><span 
+<!--l. 218--><p class="nopar" > where <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">var_list</span></span></span> is a list of variables names (each must be included in single quotes)
 and <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">const_list</span></span></span> is a list of constants. The semantic modules generate the grounding
@@ -471,7 +488,7 @@ class="cmtt-10">var_list</span></span></span> with the constants of
 class="cmtt-10">const_list</span></span></span>. Note that the variables are identified by name, so a variable with
 the same name in two different clauses will be instantiated with the same
 constants.
-<!--l. 215--><p class="indent" >   The other way to specify how to ground a program consists in using mode and
+<!--l. 221--><p class="indent" >   The other way to specify how to ground a program consists in using mode and
 type information. For each predicate, the file <span 
 class="cmtt-10">.uni </span>must contain a fact of the
 form
@@ -482,7 +499,7 @@ class="verbatim"><div class="verbatim">
 mode(predicate(t1,...,tn)).
 </div>
 </td></tr></table>
-<!--l. 218--><p class="nopar" > that specifies the number and types of each argument of the predicate. Then, the list
+<!--l. 224--><p class="nopar" > that specifies the number and types of each argument of the predicate. Then, the list
 of constants that are in the domain of each type <span 
 class="cmtt-10">ti </span>must be specified with a fact of
 the form
@@ -493,7 +510,7 @@ class="verbatim"><div class="verbatim">
 type(ti,list_of_constants).
 </div>
 </td></tr></table>
-<!--l. 223--><p class="nopar" > The file <span 
+<!--l. 229--><p class="nopar" > The file <span 
 class="cmtt-10">.uni </span>can contain both universe and mode declaration, the ones to be used
 depend on the value of the parameter <span 
 class="cmtt-10">grounding</span>: with value <span 
@@ -501,15 +518,15 @@ class="cmtt-10">variables</span>, the
 universe declarations are used, with value <span 
 class="cmtt-10">modes </span>the mode declarations are
 used.
-<!--l. 226--><p class="indent" >   With <span 
+<!--l. 232--><p class="indent" >   With <span 
 class="cmtt-10">semcpl.pl </span>only mode declarations can be used.
-<!--l. 230--><p class="noindent" >
+<!--l. 236--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">6   </span> <a 
  id="x1-60006"></a>Extensions</h3>
-<!--l. 231--><p class="noindent" >In this section we will present the extensions to the syntax of LPADs and CP-logic
+<!--l. 237--><p class="noindent" >In this section we will present the extensions to the syntax of LPADs and CP-logic
 programs that <span 
 class="cmtt-10">cplint </span>can handle.
-<!--l. 233--><p class="indent" >   The first is the use of some standard Prolog predicates. The bodies can contain
+<!--l. 239--><p class="indent" >   The first is the use of some standard Prolog predicates. The bodies can contain
 the built-in predicates:
 
    <table 
@@ -531,7 +548,7 @@ is/2
 &#x00A0;<br />length/2
 </div>
 </td></tr></table>
-<!--l. 250--><p class="nopar" > The bodies can also contain the following library predicates:
+<!--l. 256--><p class="nopar" > The bodies can also contain the following library predicates:
 
    <table 
 class="verbatim"><tr class="verbatim"><td 
@@ -543,7 +560,7 @@ member/2
 &#x00A0;<br />nth/3
 </div>
 </td></tr></table>
-<!--l. 259--><p class="nopar" > plus the predicate
+<!--l. 265--><p class="nopar" > plus the predicate
 
    <table 
 class="verbatim"><tr class="verbatim"><td 
@@ -551,8 +568,8 @@ class="verbatim"><div class="verbatim">
 average/2
 </div>
 </td></tr></table>
-<!--l. 263--><p class="nopar" > that, given a list of numbers, computes its arithmetic mean.
-<!--l. 266--><p class="indent" >   When using <span 
+<!--l. 269--><p class="nopar" > that, given a list of numbers, computes its arithmetic mean.
+<!--l. 272--><p class="indent" >   When using <span 
 class="cmtt-10">lpadsld.pl</span>, the bodies can contain the predicates <span 
 class="cmtt-10">setof/3 </span>and
 <span 
@@ -565,13 +582,13 @@ class="verbatim"><div class="verbatim">
 setof(Z,&#x00A0;(term(X,Y))^foo(X,Y,Z),&#x00A0;L).
 </div>
 </td></tr></table>
-<!--l. 269--><p class="nopar" > returns all the instantiations of <span 
+<!--l. 275--><p class="nopar" > returns all the instantiations of <span 
 class="cmtt-10">Z </span>such that there exists an instantiation of <span 
 class="cmtt-10">X </span>and <span 
 class="cmtt-10">Y</span>
 for which <span 
 class="cmtt-10">foo(X,Y,Z) </span>is true.
-<!--l. 272--><p class="indent" >   An example of the use of <span 
+<!--l. 278--><p class="indent" >   An example of the use of <span 
 class="cmtt-10">setof </span>and <span 
 class="cmtt-10">bagof </span>is in the file <span 
 class="cmtt-10">female.cpl</span>:
@@ -600,18 +617,18 @@ male(C):M/P&#x00A0;;&#x00A0;female(C):F/P:-
 &#x00A0;<br />known_male(e).
 </div>
 </td></tr></table>
-<!--l. 293--><p class="nopar" > The disjunctive rule expresses the probability of a person of unknown sex of being
+<!--l. 299--><p class="nopar" > The disjunctive rule expresses the probability of a person of unknown sex of being
 male or female depending on the number of males and females that are known. This
 is an example of the use of expressions in the probabilities in the head that depend
 on variables in the body. The probabilities are well defined because they always sum
 to 1 (unless <span 
 class="cmtt-10">P </span>is 0).
-<!--l. 297--><p class="indent" >   Another use of <span 
+<!--l. 303--><p class="indent" >   Another use of <span 
 class="cmtt-10">setof </span>and <span 
 class="cmtt-10">bagof </span>is to have an attribute depend on an
 aggregate function of another attribute, similarly to what is done in PRM and
 CLP(BN).
-<!--l. 299--><p class="indent" >   So, in the classical school example (available in <span 
+<!--l. 305--><p class="indent" >   So, in the classical school example (available in <span 
 class="cmtt-10">student.cpl</span>) you can find the
 following clauses:
 
@@ -627,7 +644,7 @@ student_rank(S,h):0.6&#x00A0;;&#x00A0;student_rank(S,l):0.4:-
 &#x00A0;<br />&#x00A0;&#x00A0;&#x00A0;&#x00A0;average(L,Av),Av&#x00A0;=&#x003C;&#x00A0;1.5.
 </div>
 </td></tr></table>
-<!--l. 309--><p class="nopar" > where <span class="obeylines-h"><span class="verb"><span 
+<!--l. 315--><p class="nopar" > where <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">registr_stu(R,S)</span></span></span> expresses that registration <span 
 class="cmtt-10">R </span>refers to student <span 
 class="cmtt-10">S </span>and
@@ -637,7 +654,7 @@ class="cmtt-10">R </span>reports grade <span
 class="cmtt-10">G </span>which is a natural
 number. The two clauses express a dependency of the rank of the student from the
 average of her grades.
-<!--l. 312--><p class="indent" >   Another extension can be used with <span 
+<!--l. 318--><p class="indent" >   Another extension can be used with <span 
 class="cmtt-10">lpadsld.pl </span>in order to be able to represent
 reference uncertainty of PRMs. Reference uncertainty means that the link structure
 of a relational model is not fixed but is uncertain: this is represented by having the
@@ -659,13 +676,13 @@ uniform(cites_cited(C,P),P,L):-
 &#x00A0;<br />&#x00A0;&#x00A0;&#x00A0;&#x00A0;bagof(Pap,paper_topic(Pap,ai),L).
 </div>
 </td></tr></table>
-<!--l. 319--><p class="nopar" > The first clauses states that the paper <span 
+<!--l. 325--><p class="nopar" > The first clauses states that the paper <span 
 class="cmtt-10">P </span>cited in a citation <span 
 class="cmtt-10">C </span>is selected
 uniformly from the set of all papers with topic theory. The second clauses
 expresses that the citing paper is selected uniformly from the papers with topic
 ai.
-<!--l. 324--><p class="indent" >   These clauses make use of the predicate
+<!--l. 330--><p class="indent" >   These clauses make use of the predicate
 
    <table 
 class="verbatim"><tr class="verbatim"><td 
@@ -673,7 +690,7 @@ class="verbatim"><div class="verbatim">
 uniform(Atom,Variable,List)
 </div>
 </td></tr></table>
-<!--l. 327--><p class="nopar" > in the head, where <span 
+<!--l. 333--><p class="nopar" > in the head, where <span 
 class="cmtt-10">Atom </span>must contain <span 
 class="cmtt-10">Variable</span>. The meaning is the following:
 the set of all the atoms obtained by instantiating <span 
@@ -686,7 +703,7 @@ class="cmmi-10">&#x2215;N </span>where <span
 class="cmmi-10">N </span>is the length of
 <span 
 class="cmtt-10">List</span>.
-<!--l. 331--><p class="indent" >   A more elaborate example is present in file <span class="obeylines-h"><span class="verb"><span 
+<!--l. 337--><p class="indent" >   A more elaborate example is present in file <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">paper_ref.cpl</span></span></span>:
 
    <table 
@@ -705,13 +722,13 @@ uniform(cites_citing(C,P),P,L):-
 &#x00A0;<br />&#x00A0;&#x00A0;&#x00A0;&#x00A0;cites_cited_group(C,T),bagof(Pap,paper_topic(Pap,T),L).
 </div>
 </td></tr></table>
-<!--l. 344--><p class="nopar" > where the cited paper depends on the topic of the citing paper. In particular, if the
+<!--l. 350--><p class="nopar" > where the cited paper depends on the topic of the citing paper. In particular, if the
 topic is theory, the cited paper is selected uniformly from the papers about theory
 with probability 0.9 and from the papers about ai with probability 0.1. if
 the topic is ai, the cited paper is selected uniformly from the papers about
 theory with probability 0.01 and from the papers about ai with probability
 0.99.
-<!--l. 347--><p class="indent" >   PRMs take into account as well existence uncertainty, where the existence of
+<!--l. 353--><p class="indent" >   PRMs take into account as well existence uncertainty, where the existence of
 instances is also probabilistic. For example, in the paper domain, the total number of
 citations may be unknown and a citation between any two paper may have a
 probability of existing. For example, a citation between two paper may be more
@@ -733,7 +750,7 @@ cites(X,Y):0.005&#x00A0;:-
 &#x00A0;<br />&#x00A0;&#x00A0;&#x00A0;&#x00A0;paper_topic(X,ai),paper_topic(Y,ai).
 </div>
 </td></tr></table>
-<!--l. 360--><p class="nopar" > This is an example where the probabilities in the head do not sum up to one so the
+<!--l. 366--><p class="nopar" > This is an example where the probabilities in the head do not sum up to one so the
 null event is automatically added to the head. The first clause states that, if the topic
 of a paper <span 
 class="cmtt-10">X </span>is theory and of paper <span 
@@ -742,10 +759,10 @@ there is a citation from <span
 class="cmtt-10">X </span>to <span 
 class="cmtt-10">Y</span>. The other clauses consider the remaining cases for the
 topics.
-<!--l. 365--><p class="noindent" >
+<!--l. 371--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">7   </span> <a 
  id="x1-70007"></a>Additional Files</h3>
-<!--l. 366--><p class="noindent" >In the directory where Yap keeps the library files (usually <span 
+<!--l. 372--><p class="noindent" >In the directory where Yap keeps the library files (usually <span 
 class="cmtt-10">/usr/local/share/ Yap</span>)
 you can find the directory <span 
 class="cmtt-10">cplint </span>that contains the files:
@@ -846,7 +863,7 @@ class="cmtt-10">invalid.cpl</span>: programs taken from <span class="cite">[<a
 href="#XCP-logic-unp">13</a>]</span>. <span 
 class="cmtt-10">invalid.cpl </span>is an example
          of a program that is invalid but sound.</li></ul>
-     <!--l. 390--><p class="noindent" >The files <span 
+     <!--l. 396--><p class="noindent" >The files <span 
 class="cmtt-10">*.uni </span>that are present for some of the examples are used by the
      semantical modules. Some of the example files contain in an initial comment
      some queries together with their result.
@@ -854,18 +871,18 @@ class="cmtt-10">*.uni </span>that are present for some of the examples are used 
      <li class="itemize">Subdirectory <span 
 class="cmtt-10">doc</span>: contains this manual in latex, html and pdf.</li></ul>
 
-<!--l. 393--><p class="noindent" >
+<!--l. 399--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">8   </span> <a 
  id="x1-80008"></a>License</h3>
-<!--l. 398--><p class="noindent" ><span 
+<!--l. 404--><p class="noindent" ><span 
 class="cmtt-10">cplint</span>, as Yap, follows the Artistic License 2.0 that you can find in Yap CVS root
 dir. The copyright is by Fabrizio Riguzzi.
-<!--l. 403--><p class="indent" >   The program uses the library <a 
+<!--l. 409--><p class="indent" >   The program uses the library <a 
 href="http://vlsi.colorado.edu/\protect \unhbox \voidb@x \penalty \@M \relax \unhbox \voidb@x \special {t4ht@+&{35}x00A0{59}}x{}fabio/" > CUDD </a> for manipulating BDDs that is included in
 glu. For the use of CUDD, the following license must be accepted:
-<!--l. 408--><p class="indent" >   Copyright (c) 1995-2004, Regents of the University of Colorado
-<!--l. 410--><p class="indent" >   All rights reserved.
-<!--l. 412--><p class="indent" >   Redistribution and use in source and binary forms, with or without modification,
+<!--l. 414--><p class="indent" >   Copyright (c) 1995-2004, Regents of the University of Colorado
+<!--l. 416--><p class="indent" >   All rights reserved.
+<!--l. 418--><p class="indent" >   Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
      <ul class="itemize1">
      <li class="itemize">Redistributions of source code must retain the above copyright notice, this
@@ -878,7 +895,7 @@ are permitted provided that the following conditions are met:
      <li class="itemize">Neither  the  name  of  the  University  of  Colorado  nor  the  names  of  its
      contributors may be used to endorse or promote products derived from
      this software without specific prior written permission.</li></ul>
-<!--l. 429--><p class="noindent" >THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS
+<!--l. 435--><p class="noindent" >THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS
 <br class="newline" />AND CONTRIBUTORS &#8221;AS IS&#8221; AND ANY EXPRESS OR IMPLIED
 WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -892,7 +909,7 @@ INTERRUPTION) HOWEVER CAU-SED
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-<!--l. 443--><p class="indent" >   <span 
+<!--l. 449--><p class="indent" >   <span 
 class="cmtt-10">lpad.pl</span>, <span 
 class="cmtt-10">semlpad.pl </span>and <span 
 class="cmtt-10">cpl.pl </span>are based on the SLG system by <a 

@@ -2,10 +2,10 @@
 # to manually edit manual.tex following the instructions at the beginning of
 # it
 
-pdf: manual.tex manual.bbl
+manual.pdf: manual.tex manual.bbl
 	pdflatex manual
 	pdflatex manual
 
-html: manual.tex manual.bbl
+manual.html: manual.tex manual.bbl
 	htlatex manual
 
