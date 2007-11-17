@@ -1,15 +1,16 @@
-%% uncomment the following for htlatex compilation
-%\documentclass{article}
-%\usepackage{graphicx}
-%\DeclareGraphicsExtensions{.png, .gif, .jpg}
-%\newcommand{\href}[2]{\Link[#1]{}{} #2 \EndLink}
-%\newcommand{\hypertarget}[2]{\Link[]{}{#1} #2 \EndLink}
-%\newcommand{\hyperlink}[2]{\Link[]{#1}{} #2 \EndLink}
-%% uncomment the following for pdflatex compilation
+\ifnum\pdfoutput>0 % pdflatex compilation
 \documentclass[a4paper,12pt]{article}
 \usepackage[pdftex]{graphicx}
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}
 \RequirePackage[hyperindex]{hyperref}
+\else % htlatex compilation
+\documentclass{article}
+\usepackage{graphicx}
+\DeclareGraphicsExtensions{.png, .gif, .jpg}
+\newcommand{\href}[2]{\Link[#1]{}{} #2 \EndLink}
+\newcommand{\hypertarget}[2]{\Link[]{}{#1} #2 \EndLink}
+\newcommand{\hyperlink}[2]{\Link[]{#1}{} #2 \EndLink}
+\fi
 
 
 
