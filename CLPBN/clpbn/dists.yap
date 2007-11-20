@@ -61,7 +61,7 @@ where Id is the id,
 
 ********************************************/
 
- :- dynamic id/1, db/6.
+ :- dynamic id/1.
 
 id(1).
 
@@ -127,12 +127,12 @@ distribution(Domain, CPT, Id, Parents, Parents) :-
 	add_dist(Domain, tab, CPT, Id).
 
 add_dist(Domain, Type, CPT, Id) :-
-	db(Id, CPT, Type, Domain, _, _), !.
+	recorded(clpbn_dist_db, db(Id, CPT, Type, Domain, _, _), _), !.
 add_dist(Domain, Type, CPT, Id) :-
 	length(CPT, CPTSize),
 	length(Domain, DSize),
 	new_id(Id),
-	assert(db(Id, CPT, Type, Domain, CPTSize, DSize)).
+	recordz(clpbn_dist_db,db(Id, CPT, Type, Domain, CPTSize, DSize),_).
 
 %
 % Often, * is used to code empty in HMMs.
@@ -144,13 +144,13 @@ compress_hmm_table([Prob|L],[P|Parents],[Prob|NL],[P|NParents]) :-
 	compress_hmm_table(L,Parents,NL,NParents).
 
 dist(Id) :-
-	db(Id, _, _, _, _, _).
+	recorded(clpbn_dist_db, db(Id, _, _, _, _, _), _).
 
 get_dist(Id, Type, Domain, Tab) :-
-	db(Id, Tab, Type, Domain, _, _).
+	recorded(clpbn_dist_db, db(Id, Tab, Type, Domain, _, _), _).
 
 get_dist_matrix(Id, Parents, Type, Domain, Mat) :-
-	db(Id, Tab, Type, Domain, _, DomainSize),
+	recorded(clpbn_dist_db, db(Id, Tab, Type, Domain, _, DomainSize), _),
 	get_dsizes(Parents, Sizes, []),
 	matrix_new(floats, [DomainSize|Sizes], Tab, Mat).
 
@@ -162,15 +162,15 @@ get_dsizes([P|Parents], [Sz|Sizes], Sizes0) :-
 
 
 get_dist_params(Id, Parms) :-
-	db(Id, Parms, _, _, _, _).
+	recorded(clpbn_dist_db, db(Id, Parms, _, _, _, _), _).
 
 get_dist_domain_size(Id, DSize) :-
-	db(Id, _, _, _, _, DSize).
+	recorded(clpbn_dist_db, db(Id, _, _, _, _, DSize), _).
 
 get_dist_domain(Id, Domain) :-
-	db(Id, _, _, Domain, _, _).
+	recorded(clpbn_dist_db, db(Id, _, _, Domain, _, _), _).
 
 get_dist_nparams(Id, NParms) :-
-	db(Id, _, _, _, NParms, _).
+	recorded(clpbn_dist_db, db(Id, _, _, _, NParms, _), _).
 
 dist_to_term(_Id,_Term).

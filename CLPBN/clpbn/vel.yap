@@ -145,13 +145,13 @@ multiply_sizes([V|Vs],K0,K) :-
 process(LV0, InputVs, Out) :-
 	find_best(LV0, V0, -1, V, WorkTables, LVI, InputVs),
 	V \== V0, !,
-%format('1 ~w: ~w~n',[V,WorkTables]),
+% format('1 ~w: ~w~n',[V,WorkTables]),
 	multiply_tables(WorkTables, tab(Tab0,Deps0,_)),
 	reorder_CPT(Deps0,Tab0,Deps,Tab,Sizes),
 	Table = tab(Tab,Deps,Sizes),
-%format('2 ~w: ~w~n',[V,Table]),
+% format('2 ~w: ~w~n',[V,Table]),
 	project_from_CPT(V,Table,NewTable),
-%format('3 ~w: ~w~n',[V,NewTable]),
+% format('3 ~w: ~w~n',[V,NewTable]),
 	include(LVI,NewTable,V,LV2),
 	process(LV2, InputVs, Out).
 process(LV0, _, Out) :-

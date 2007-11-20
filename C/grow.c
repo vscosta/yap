@@ -1537,11 +1537,11 @@ Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
 #else
   CELL **old_top = (CELL **)Yap_TrailTop;
   if (do_growtrail(64 * 1024L, FALSE, FALSE, NULL, NULL, NULL)) {
-    CELL **dest = (CELL **)((char *)to_visit+64 * 1024L);
+    CELL **dest = (CELL **)((char *)to_visit+(Yap_TrailTop-(ADDR)old_top));
     cpcellsd((CELL *)dest, (CELL *)to_visit, (CELL)((CELL *)old_top-(CELL *)to_visit));
     return dest;
   } else {
-    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot grow temporary stack for unification (%p)", Yap_TrailTop);    
+    Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"cannot grow temporary stack for unification (%p)", Yap_TrailTop);    
     return to_visit;
   }
 #endif

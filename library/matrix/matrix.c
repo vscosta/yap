@@ -1467,12 +1467,19 @@ matrix_op(void)
     data1 = matrix_long_data(mat1, dims);
 
     if (mat2[MAT_TYPE] == INT_MATRIX) {
-      long int *data2 = matrix_long_data(mat2, dims);
+      long int *data2;
       long int *ndata;
 
       tf = new_int_matrix(dims,mat1+MAT_DIMS,NULL);
-      if (tf == YAP_TermNil())
+      if (tf == YAP_TermNil()) {
 	return FALSE;
+      } else {
+	/* there may have been an overflow */
+	mat1 = (int *)YAP_BlobOfTerm(YAP_ARG1);
+	data1 = matrix_long_data(mat1, dims);
+	mat2 = (int *)YAP_BlobOfTerm(YAP_ARG2);
+	data2 = matrix_long_data(mat2, dims);
+      }
       nmat = YAP_BlobOfTerm(tf);
       ndata = matrix_long_data(nmat, dims);
       switch (op) {
@@ -1489,12 +1496,19 @@ matrix_op(void)
 	return FALSE;
       }
     } else if (mat2[MAT_TYPE] == FLOAT_MATRIX) {
-      double *data2 = matrix_double_data(mat2, dims);
+      double *data2;
       double *ndata;
 
       tf = new_float_matrix(dims,mat1+MAT_DIMS,NULL);
-      if (tf == YAP_TermNil())
+      if (tf == YAP_TermNil()) {
 	return FALSE;
+      } else {
+	/* there may have been an overflow */
+	mat1 = (int *)YAP_BlobOfTerm(YAP_ARG1);
+	data1 = matrix_long_data(mat1, dims);
+	mat2 = (int *)YAP_BlobOfTerm(YAP_ARG2);
+	data2  = matrix_double_data(mat2, dims);
+      }
       nmat = YAP_BlobOfTerm(tf);
       ndata = matrix_double_data(nmat, dims);
       switch (op) {
@@ -1520,12 +1534,19 @@ matrix_op(void)
     data1 = matrix_double_data(mat1, dims);
 
     if (mat2[MAT_TYPE] == INT_MATRIX) {
-      long int *data2 = matrix_long_data(mat2, dims);
+      long int *data2;
       double *ndata;
 
       tf = new_float_matrix(dims,mat1+MAT_DIMS,NULL);
-      if (tf == YAP_TermNil())
+      if (tf == YAP_TermNil()) {
 	return FALSE;
+      } else {
+	/* there may have been an overflow */
+	mat1 = (int *)YAP_BlobOfTerm(YAP_ARG1);
+	data1 = matrix_double_data(mat1, dims);
+	mat2 = (int *)YAP_BlobOfTerm(YAP_ARG2);
+	data2  = matrix_long_data(mat2, dims);
+      }
       nmat = YAP_BlobOfTerm(tf);
       ndata = matrix_double_data(nmat, dims);
       switch (op) {
@@ -1542,12 +1563,19 @@ matrix_op(void)
 	return FALSE;
       }
     } else if (mat2[MAT_TYPE] == FLOAT_MATRIX) {
-      double *data2 = matrix_double_data(mat2, dims);
+      double *data2;
       double *ndata;
 
       tf = new_float_matrix(dims,mat1+MAT_DIMS,NULL);
-      if (tf == YAP_TermNil())
+      if (tf == YAP_TermNil()) {
 	return FALSE;
+      } else {
+	/* there may have been an overflow */
+	mat1 = (int *)YAP_BlobOfTerm(YAP_ARG1);
+	data1 = matrix_double_data(mat1, dims);
+	mat2 = (int *)YAP_BlobOfTerm(YAP_ARG2);
+	data2  = matrix_double_data(mat2, dims);
+      }
       nmat = YAP_BlobOfTerm(tf);
       ndata = matrix_double_data(nmat, dims);
       switch (op) {
