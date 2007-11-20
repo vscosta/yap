@@ -271,6 +271,8 @@ TrData itrie_traverse_cont(TrEntry itrie) {
   data = TrEntry_traverse_data(itrie);
   if (!data) {
     traverse_bucket = TrEntry_traverse_bucket(itrie);
+    if (traverse_bucket == TrEntry_num_buckets(itrie))
+      return NULL;
     do {
       bucket = TrEntry_bucket(itrie, traverse_bucket);
       traverse_bucket++;
