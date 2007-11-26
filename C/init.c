@@ -933,6 +933,7 @@ InitCodes(void)
   Yap_heap_regs->yescode->opc = Yap_opcode(_Ystop);
   Yap_heap_regs->undef_op = Yap_opcode(_undef_p);
   Yap_heap_regs->index_op = Yap_opcode(_index_pred);
+  Yap_heap_regs->lockpred_op = Yap_opcode(_lock_pred);
   Yap_heap_regs->fail_op = Yap_opcode(_op_fail);
 
   Yap_heap_regs->nocode->opc = Yap_opcode(_Nstop);

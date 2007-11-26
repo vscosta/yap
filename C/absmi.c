@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2007-11-08 15:52:15 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-26 23:43:07 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.230  2007/11/08 15:52:15  vsc
+* fix some bugs in new dbterm code.
+*
 * Revision 1.229  2007/11/07 09:25:27  vsc
 * speedup meta-calls
 *
@@ -1042,26 +1045,24 @@ Yap_absmi(int inp)
 	/* HEY, leave indexing block alone!! */
 	/* check if we are the ones using this code */
 #if defined(YAPOR) || defined(THREADS)
-	LOCK(cl->ClLock);
+	LOCK(ap->PELock);
+	PP = ap;
 	DEC_CLREF_COUNT(cl);
 	/* clear the entry from the trail */
 	B->cp_tr--;
 	TR = B->cp_tr;
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
-	  UNLOCK(cl->ClLock);
 	  if (PREG != FAILCODE) {
 	    /* I am the last one using this clause, hence I don't need a lock
 	       to dispose of it 
 	    */
-	    LOCK(lcl->ClLock);
 	    if (lcl->ClRefCount == 1) {
 	      /* make sure the clause isn't destroyed */
 	      /* always add an extra reference */
 	      INC_CLREF_COUNT(lcl);
 	      TRAIL_CLREF(lcl);
 	    }
-	    UNLOCK(lcl->ClLock);
 	  }
 	  if (cl->ClFlags & ErasedMask) {
 	    saveregs();
@@ -1073,8 +1074,6 @@ Yap_absmi(int inp)
 	    setregs();
 	  }
 	  save_pc();
-	} else {
-	  UNLOCK(cl->ClLock);
 	}
 #else
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
@@ -1367,25 +1366,23 @@ Yap_absmi(int inp)
 	/* HEY, leave indexing block alone!! */
 	/* check if we are the ones using this code */
 #if defined(YAPOR) || defined(THREADS)
-	LOCK(cl->ClLock);
+	LOCK(ap->PELock);
+	PP = ap;
 	DEC_CLREF_COUNT(cl);
 	/* clear the entry from the trail */
 	TR = --B->cp_tr;
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
-	  UNLOCK(cl->ClLock);
 	  if (PREG != FAILCODE) {
 	    /* I am the last one using this clause, hence I don't need a lock
 	       to dispose of it 
 	    */
-	    LOCK(lcl->ClLock);
 	    if (lcl->ClRefCount == 1) {
 	      /* make sure the clause isn't destroyed */
 	      /* always add an extra reference */
 	      INC_CLREF_COUNT(lcl);
 	      TRAIL_CLREF(lcl);
 	    }
-	    UNLOCK(lcl->ClLock);
 	  }
 	  if (cl->ClFlags & ErasedMask) {
 	    saveregs();
@@ -1397,8 +1394,6 @@ Yap_absmi(int inp)
 	    setregs();
 	  }
 	  save_pc();
-	} else {
-	  UNLOCK(cl->ClLock);
 	}
 #else
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
@@ -1462,16 +1457,13 @@ Yap_absmi(int inp)
 
       /* only meaningful with THREADS on! */
       /* lock logical updates predicate.  */
-      Op(lock_lu, p);
+      Op(lock_lu, e);
 #if defined(YAPOR) || defined(THREADS)
-      PP = PREG->u.p.p;
-      READ_LOCK(PP->PRWLock);
-      if (PP->cs.p_code.TrueCodeOfPred != PREG) {
-	PREG = PP->cs.p_code.TrueCodeOfPred;
-	READ_UNLOCK(PP->PRWLock);
-	PP = NULL;
+      if (PP) {
 	GONext();
       }
+      PP = PREG->u.p.p;
+      LOCK(PP->PELock);
 #endif
       PREG = NEXTOP(PREG, p);
       GONext();
@@ -1480,13 +1472,11 @@ Yap_absmi(int inp)
       /* only meaningful with THREADS on! */
       /* lock logical updates predicate.  */
       Op(unlock_lu, e);
-      PREG = NEXTOP(PREG, e);
 #if defined(YAPOR) || defined(THREADS)
-      if (PP) {
-	READ_UNLOCK(PP->PRWLock);
-	PP = NULL;
-      }
+      UNLOCK(PP->PELock);
+      PP = NULL;
 #endif
+      PREG = NEXTOP(PREG, e);
       GONext();
       ENDOp();
  
@@ -1499,16 +1489,13 @@ Yap_absmi(int inp)
 #if defined(YAPOR) || defined(THREADS)
       {
 	LogUpdClause *cl = PREG->u.EC.ClBase;
+	PredEntry *ap = PREG->u.EC.p;
 
-	LOCK(cl->ClLock);
 	/* always add an extra reference */
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
-	UNLOCK(cl->ClLock);
-	if (PP) {
-	  READ_UNLOCK(PP->PRWLock);
-	  PP = NULL;
-	}
+	UNLOCK(ap->PELock);
+	PP = NULL;
       }
 #else
       {
@@ -1539,12 +1526,20 @@ Yap_absmi(int inp)
 	  if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	    Yap_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_growglobal(NULL)) {
+	      UNLOCK(PP->PELock);
+#if defined(YAPOR) || defined(THREADS)
+	      PP = NULL;
+#endif
 	      Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
 	      FAIL();
 	    }
 	  } else {
 	    Yap_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_gc(3, ENV, CP)) {
+	      UNLOCK(PP->PELock);
+#if defined(YAPOR) || defined(THREADS)
+	      PP = NULL;
+#endif
 	      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	      FAIL();
 	    }
@@ -1552,24 +1547,28 @@ Yap_absmi(int inp)
 	}
 	if (!Yap_IUnify(ARG2, t)) {
 	  setregs();
+	  UNLOCK(PP->PELock);
+#if defined(YAPOR) || defined(THREADS)
+	  PP = NULL;
+#endif
 	  FAIL();
 	}
 	if (!Yap_IUnify(ARG3, MkDBRefTerm((DBRef)cl))) {
 	  setregs();
+	  UNLOCK(PP->PELock);
+#if defined(YAPOR) || defined(THREADS)
+	  PP = NULL;
+#endif
 	  FAIL();
 	}
 	setregs();
 
 #if defined(YAPOR) || defined(THREADS)
-	LOCK(cl->ClLock);
 	/* always add an extra reference */
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
-	UNLOCK(cl->ClLock);
-	if (PP) {
-	  READ_UNLOCK(PP->PRWLock);
-	  PP = NULL;
-	}
+	UNLOCK(PP->PELock);
+	PP = NULL;
 #else
 	if (!(cl->ClFlags & InUseMask)) {
 	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
@@ -1598,10 +1597,18 @@ Yap_absmi(int inp)
 	saveregs();
 	if (!Yap_IUnify(ARG2, cl->ClSource->Entry)) {
 	  setregs();
+	  UNLOCK(PP->PELock);
+#if defined(YAPOR) || defined(THREADS)
+	  PP = NULL;
+#endif
 	  FAIL();
 	}
 	if (!Yap_IUnify(ARG3, MkDBRefTerm((DBRef)cl))) {
 	  setregs();
+	  UNLOCK(PP->PELock);
+#if defined(YAPOR) || defined(THREADS)
+	  PP = NULL;
+#endif
 	  FAIL();
 	}
 	setregs();
@@ -1609,15 +1616,11 @@ Yap_absmi(int inp)
 	/* say that an environment is using this clause */
 	/* we have our own copy for the clause */
 #if defined(YAPOR) || defined(THREADS)
-	LOCK(cl->ClLock);
 	/* always add an extra reference */
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
-	UNLOCK(cl->ClLock);
-	if (PP) {
-	  READ_UNLOCK(PP->PRWLock);
-	  PP = NULL;
-	}
+	UNLOCK(PP->PELock);
+	PP = NULL;
 #else
 	if (!(cl->ClFlags & InUseMask)) {
 	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
@@ -1638,18 +1641,15 @@ Yap_absmi(int inp)
       ENDBOp();
 
 
-
-
-
 /*****************************************************************
 *        try and retry of dynamic predicates                     *
 *****************************************************************/
 
       /* spy_or_trymark                   */
       BOp(spy_or_trymark, ld);
-      READ_LOCK(((PredEntry *)(PREG->u.ld.p))->PRWLock);
+      LOCK(((PredEntry *)(PREG->u.ld.p))->PELock);
       PREG = (yamop *)(&(((PredEntry *)(PREG->u.ld.p))->OpcodeOfPred));
-      READ_UNLOCK(((PredEntry *)(PREG->u.ld.p))->PRWLock);
+      UNLOCK(((PredEntry *)(PREG->u.ld.p))->PELock);
       goto dospy;
       ENDBOp();
 
@@ -1661,13 +1661,17 @@ Yap_absmi(int inp)
       /* The flags I check here should never change during execution */
       CUT_wait_leftmost();
 #endif /* YAPOR */
-      READ_LOCK(((PredEntry *)(PREG->u.ld.p))->PRWLock);
+      if (PREG->u.ld.p->PredFlags & LogUpdatePredFlag) {
+	LOCK(PREG->u.ld.p->PELock);
+	PP = PREG->u.ld.p;
+      }
       if (PREG->u.ld.p->CodeOfPred != PREG) {
 	/* oops, someone changed the procedure under our feet,
 	   fortunately this is no big deal because we haven't done
 	   anything yet */
-	READ_UNLOCK(((PredEntry *)(PREG->u.ld.p))->PRWLock);
+	PP = NULL;
 	PREG = PREG->u.ld.p->CodeOfPred;
+	UNLOCK(PREG->u.ld.p->PELock);
 	/* for profiler */
 	save_pc();
 	JMPNext();
@@ -1681,7 +1685,7 @@ Yap_absmi(int inp)
       */
       LOCK(DynamicLock(PREG));
       /* one can now mess around with the predicate */
-      READ_UNLOCK(((PredEntry *)(PREG->u.ld.p))->PRWLock);
+      UNLOCK(((PredEntry *)(PREG->u.ld.p))->PELock);
       BEGD(d1);
       d1 = PREG->u.ld.s;
       store_args(d1);
@@ -1741,11 +1745,11 @@ Yap_absmi(int inp)
       CUT_wait_leftmost();
 #endif /* YAPOR */
       /* need to make the DB stable until I get the new clause */
-      READ_LOCK(PREG->u.ld.p->PRWLock);
+      LOCK(PREG->u.ld.p->PELock);
       CACHE_Y(B);
       PREG = PREG->u.ld.d;
       LOCK(DynamicLock(PREG));
-      READ_UNLOCK(PREG->u.ld.p->PRWLock);
+      UNLOCK(PREG->u.ld.p->PELock);
       restore_yaam_regs(PREG);
       restore_args(PREG->u.ld.s);
 #ifdef FROZEN_STACKS
@@ -1820,7 +1824,7 @@ Yap_absmi(int inp)
 	register tr_fr_ptr pt0 = TR;
 #if defined(YAPOR) || defined(THREADS)
 	if (PP) {
-	  READ_UNLOCK(PP->PRWLock);
+	  UNLOCK(PP->PELock);
 	  PP = NULL;
 	}
 #endif
@@ -2013,11 +2017,11 @@ Yap_absmi(int inp)
 		if (flags & IndexMask) {
 		  LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt1);
 		  int erase;
+		  PredEntry *ap = cl->ClPred;
 
-		  LOCK(cl->ClLock);
+		  LOCK(ap->PELock);
 		  DEC_CLREF_COUNT(cl);
 		  erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
-		  UNLOCK(cl->ClLock);
 		  if (erase) {
 		    saveregs();
 		    /* at this point, 
@@ -2033,14 +2037,15 @@ Yap_absmi(int inp)
 		    Yap_CleanUpIndex(cl);
 		    setregs();
 		  }
+		  UNLOCK(ap->PELock);
 		} else {
 		  LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt1);
 		  int erase;
+		  PredEntry *ap = cl->ClPred;
 
-		  LOCK(cl->ClLock);
+		  LOCK(ap->PELock);
 		  DEC_CLREF_COUNT(cl);
 		  erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
-		  UNLOCK(cl->ClLock);
 		  if (erase) {
 		    saveregs();
 		    /* at this point, 
@@ -2049,11 +2054,12 @@ Yap_absmi(int inp)
 		    Yap_ErLogUpdCl(cl);
 		    setregs();
 		  }
+		  UNLOCK(ap->PELock);
 		}
 	      } else {
 		DynamicClause *cl = ClauseFlagsToDynamicClause(pt1);
 		int erase;
-
+		  
 		LOCK(cl->ClLock);
 		DEC_CLREF_COUNT(cl);
 		erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
@@ -2193,12 +2199,12 @@ Yap_absmi(int inp)
 	      } else if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
 		LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt);
 		int erase;
+		PredEntry *ap = cl->ClPred;
 
-		LOCK(cl->ClLock);
+		LOCK(ap->PELock);
 		DEC_CLREF_COUNT(cl);
 		cl->ClFlags &= ~InUseMask;
 		erase = (cl->ClFlags & (ErasedMask|DirtyMask)) && !(cl->ClRefCount);
-		UNLOCK(cl->ClLock);
 		if (erase) {
 		  /* at this point, we are the only ones accessing the clause,
 		     hence we don't need to have a lock it */
@@ -2209,6 +2215,7 @@ Yap_absmi(int inp)
 		    Yap_CleanUpIndex(cl);
 		  setregs();
 		}
+		UNLOCK(ap->PELock);
 	      } else {
 		TrailTerm(pt0) = d1;
 		TrailVal(pt0) = TrailVal(pt1);
@@ -2294,11 +2301,10 @@ Yap_absmi(int inp)
 		LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt);
 		int erase;
 
-		LOCK(cl->ClLock);
+		LOCK(cl->ClPred->PELock);
 		DEC_CLREF_COUNT(cl);
 		cl->ClFlags &= ~InUseMask;
 		erase = (cl->ClFlags & (DirtyMask|ErasedMask)) && !(cl->ClRefCount);
-		UNLOCK(cl->ClLock);
 		if (erase) {
 		  /* at this point, we are the only ones accessing the clause,
 		     hence we don't need to have a lock it */
@@ -2309,6 +2315,7 @@ Yap_absmi(int inp)
 		    Yap_CleanUpIndex(cl);
 		  setregs();
 		}
+		UNLOCK(cl->ClPred->PELock);
 	      } else {
 		TrailTerm(pt0) = d1;
 		pt0++;
@@ -2670,11 +2677,6 @@ Yap_absmi(int inp)
       BOp(call, sla);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	extern long long int vsc_count;
-
-	if (vsc_count == 165491LL) {
-	  fprintf(stderr,"%p:%p\n",PREG,PREG->u.sla.sla_u.p);
-	}
 	low_level_trace(enter_pred,PREG->u.sla.sla_u.p,XREGS+1);
       }
 #endif	/* LOW_LEVEL_TRACER */
@@ -2686,6 +2688,11 @@ Yap_absmi(int inp)
 #ifndef NO_CHECKING
 	check_stack(NoStackCall, H);
 #endif
+  if (pt->PredFlags & LogUpdatePredFlag) {
+    if (pt->OpcodeOfPred != LOCKPRED_OPCODE &&
+	pt->ModuleOfPred != IDB_MODULE && pt->OpcodeOfPred != UNDEF_OPCODE)
+      fprintf(stderr,"OOPS\n");
+  }
 	ENV = ENV_YREG;
 	/* Try to preserve the environment */
 	ENV_YREG = (CELL *) (((char *) ENV_YREG) + PREG->u.sla.s);
@@ -7745,21 +7752,56 @@ Yap_absmi(int inp)
 *	support instructions             				 *
 \************************************************************************/
 
+      BOp(lock_pred, e);
+#if defined(YAPOR) || defined(THREADS)
+      {
+	PredEntry *ap = PredFromDefCode(PREG);
+ 	LOCK(ap->PELock);
+	PP = ap;
+	if (!ap->cs.p_code.NOfClauses) {
+	  FAIL();
+	}
+	/*
+	  we do not lock access to the predicate,
+	  we must take extra care here
+	*/
+	if (ap->cs.p_code.NOfClauses > 1 &&
+	    !(ap->PredFlags & IndexedPredFlag)) {
+	  /* update ASP before calling IPred */
+	  ASP = YREG+E_CB;
+	  if (ASP > (CELL *) PROTECT_FROZEN_B(B)) {
+	    ASP = (CELL *) PROTECT_FROZEN_B(B);
+	  }
+	  saveregs();
+	  Yap_IPred(ap, 0);
+	  /* IPred can generate errors, it thus must get rid of the lock itself */
+	  setregs();
+	  CACHE_A1();
+	  /* for profiler */
+	  save_pc();
+	}
+	PREG = ap->cs.p_code.TrueCodeOfPred;
+      }
+#endif
+      JMPNext();
+      ENDBOp();
+
       BOp(index_pred, e);
       {
 	PredEntry *ap = PredFromDefCode(PREG);
- 	WRITE_LOCK(ap->PRWLock);
 #if defined(YAPOR) || defined(THREADS)
       /*
 	we do not lock access to the predicate,
 	we must take extra care here
       */
+	if (!PP) {
+	  LOCK(ap->PELock);
+	}
 	if (ap->OpcodeOfPred != INDEX_OPCODE) {
 	  /* someone was here before we were */
 	  PREG = ap->CodeOfPred;
 	  /* for profiler */
 	  save_pc();
-	  WRITE_UNLOCK(ap->PRWLock);
 	  JMPNext();
 	}
 #endif
@@ -7776,7 +7818,11 @@ Yap_absmi(int inp)
 	PREG = ap->CodeOfPred;
 	/* for profiler */
 	save_pc();
-	WRITE_UNLOCK(ap->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
+	if (!PP)
+#endif
+	  UNLOCK(ap->PELock);
+
       }
       JMPNext();
       ENDBOp();
@@ -7805,37 +7851,25 @@ Yap_absmi(int inp)
 	  ASP = (CELL *) PROTECT_FROZEN_B(B);
 	}
 #if defined(YAPOR) || defined(THREADS)
-	if (PP == NULL) {
-	  READ_LOCK(pe->PRWLock);
-	  PP = pe;
+	if (!PP) {
+	  LOCK(pe->PELock);
 	}
-	LOCK(pe->PELock);
 	if (!same_lu_block(PREG_ADDR, PREG)) {
 	  PREG = *PREG_ADDR;
-	  if (pe->PredFlags & (ThreadLocalPredFlag|LogUpdatePredFlag)) {
-	    READ_UNLOCK(pe->PRWLock);
-	    PP = NULL;
-	  }
-	  UNLOCK(pe->PELock);
+	  if (!PP)
+	    UNLOCK(pe->PELock);
 	  JMPNext();
 	}
 #endif
  	saveregs();
- {
-   static yamop *opppp;
-   opppp= PREG;
- }
 	pt0 = Yap_ExpandIndex(pe, 0);
 	/* restart index */
 	setregs();
-	UNLOCK(pe->PELock);
  	PREG = pt0;
 #if defined(YAPOR) || defined(THREADS)
-	if (pe->PredFlags & (ThreadLocalPredFlag|LogUpdatePredFlag)) {
-	  READ_UNLOCK(pe->PRWLock);
-	  PP = NULL;
-	}
+	if (!PP)
 #endif
+	  UNLOCK(pe->PELock);
 	JMPNext();
       }
       ENDBOp();
@@ -7852,17 +7886,13 @@ Yap_absmi(int inp)
 	}
 #if defined(YAPOR) || defined(THREADS)
 	if (PP == NULL) {
-	  READ_LOCK(pe->PRWLock);
-	  PP = pe;
+	  LOCK(pe->PELock);
 	}
-	LOCK(pe->PELock);
 	if (!same_lu_block(PREG_ADDR, PREG)) {
 	  PREG = *PREG_ADDR;
-	  if (pe->PredFlags & (ThreadLocalPredFlag|LogUpdatePredFlag)) {
-	    READ_UNLOCK(pe->PRWLock);
-	    PP = NULL;
+	  if (!PP) {
+	    UNLOCK(pe->PELock);	    
 	  }
-	  UNLOCK(pe->PELock);
 	  JMPNext();
 	}
 #endif
@@ -7873,9 +7903,8 @@ Yap_absmi(int inp)
 	UNLOCK(pe->PELock);
  	PREG = pt0;
 #if defined(YAPOR) || defined(THREADS)
-	if (pe->PredFlags & (ThreadLocalPredFlag|LogUpdatePredFlag)) {
-	  READ_UNLOCK(pe->PRWLock);
-	  PP = NULL;
+	if (!PP) {
+	  UNLOCK(pe->PELock);
 	}
 #endif
 	JMPNext();
@@ -7887,14 +7916,16 @@ Yap_absmi(int inp)
       { 
 	PredEntry *pe = PredFromDefCode(PREG);
 	BEGD(d0);
- 	READ_LOCK(pe->PRWLock);
 	/* avoid trouble with undefined dynamic procedures */
 	if (pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag)) {
-	  READ_UNLOCK(pe->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
+	  PP = NULL;
+#endif
+	  UNLOCK(pe->PELock);
 	  FAIL();
 	}
 	d0 = pe->ArityOfPE;
-	READ_UNLOCK(pe->PRWLock);
+	UNLOCK(pe->PELock);
 	if (d0 == 0) {
 	  H[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
 	}
@@ -7953,7 +7984,7 @@ Yap_absmi(int inp)
       {
 	PredEntry *pe = PredFromDefCode(PREG);
 	BEGD(d0);
- 	WRITE_LOCK(pe->PRWLock);
+ 	LOCK(pe->PELock);
 	if (!(pe->PredFlags & IndexedPredFlag) &&
 	      pe->cs.p_code.NOfClauses > 1) {
 	  /* update ASP before calling IPred */
@@ -7966,7 +7997,7 @@ Yap_absmi(int inp)
 	  /* IPred can generate errors, it thus must get rid of the lock itself */
 	  setregs();
 	}
-	WRITE_UNLOCK(pe->PRWLock);
+	UNLOCK(pe->PELock);
 	d0 = pe->ArityOfPE;
 	/* save S for ModuleName */
 	if (d0 == 0) {
@@ -8244,7 +8275,6 @@ Yap_absmi(int inp)
 	*--YENV = MkIntegerTerm(ap->TimeStampOfPred);
 	/* fprintf(stderr,"> %p/%p %d %d\n",cl,ap,ap->TimeStampOfPred,PREG->u.Ill.s);*/
 	PREG = PREG->u.Ill.l1;
-	LOCK(cl->ClLock);
 	/* indicate the indexing code is being used */
 #if defined(YAPOR) || defined(THREADS)
 	/* just store a reference */
@@ -8254,14 +8284,6 @@ Yap_absmi(int inp)
 	if (!(cl->ClFlags & InUseMask)) {
 	  cl->ClFlags |= InUseMask;
 	  TRAIL_CLREF(cl);
-	}
-#endif
-	UNLOCK(cl->ClLock);
-#if defined(YAPOR) || defined(THREADS)
-	if (PP) {
-	  /* PP would be NULL for local preds */
-	  READ_UNLOCK(PP->PRWLock);
-	  PP = NULL;
 	}
 #endif
       }
@@ -8304,6 +8326,10 @@ Yap_absmi(int inp)
 	UInt timestamp;
 	CACHE_Y(B);
       
+#if defined(YAPOR) || defined(THREADS)
+	PP = PREG->u.lld.d->ClPred;
+#endif
+	LOCK(PP->PELock);
 	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.lld.t.s]);
 	/* fprintf(stderr,"^ %p/%p %d %d %d--%u\n",PREG,PREG->u.lld.d->ClPred,timestamp,PREG->u.lld.d->ClPred->TimeStampOfPred,PREG->u.lld.d->ClTimeStart,PREG->u.lld.d->ClTimeEnd);*/
 	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
@@ -8335,28 +8361,29 @@ Yap_absmi(int inp)
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
 	/* fprintf(stderr,"- %p/%p %d %d %p\n",PREG,ap,timestamp,ap->TimeStampOfPred,PREG->u.lld.d->ClCode);*/
+	LOCK(ap->PELock);
 	if (!VALID_TIMESTAMP(timestamp, lcl)) {
 	  /* jump to next alternative */
 	  PREG = FAILCODE;
 	} else {
 	  PREG = lcl->ClCode;
+#if defined(YAPOR) || defined(THREADS)
+	  PP = ap;
+#endif
 	}
 	/* HEY, leave indexing block alone!! */
 	/* check if we are the ones using this code */
 #if defined(YAPOR) || defined(THREADS)
-	LOCK(cl->ClLock);
 	DEC_CLREF_COUNT(cl);
 	/* clear the entry from the trail */
 	B->cp_tr--;
 	TR = B->cp_tr;
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
-	  UNLOCK(cl->ClLock);
 	  if (PREG != FAILCODE) {
 	    /* I am the last one using this clause, hence I don't need a lock
 	       to dispose of it 
 	    */
-	    LOCK(lcl->ClLock);
 	    if (lcl->ClRefCount == 1) {
 	      /* make sure the clause isn't destroyed */
 	      /* always add an extra reference */
@@ -8364,7 +8391,6 @@ Yap_absmi(int inp)
 	      TRAIL_CLREF(lcl);
 	      B->cp_tr = TR;
 	    }
-	    UNLOCK(lcl->ClLock);
 	  }
 	  if (cl->ClFlags & ErasedMask) {
 	    saveregs();
@@ -8376,8 +8402,6 @@ Yap_absmi(int inp)
 	    setregs();
 	  }
 	  save_pc();
-	} else {
-	  UNLOCK(cl->ClLock);
 	}
 #else
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&

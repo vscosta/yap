@@ -11,8 +11,11 @@
 * File:		computils.c						 *
 * comments:	some useful routines for YAP's compiler			 *
 *									 *
-* Last rev:     $Date: 2007-11-06 17:02:12 $							 *
+* Last rev:     $Date: 2007-11-26 23:43:08 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.31  2007/11/06 17:02:12  vsc
+* compile ground terms away.
+*
 * Revision 1.30  2006/09/20 20:03:51  vsc
 * improve indexing on floats
 * fix sending large lists to DB
@@ -666,6 +669,10 @@ static char *opformat[] =
   "fetch_reg1_reg2\t%N,%N",
   "fetch_constant_reg\t%l,%N",
   "fetch_reg_constant\t%l,%N",
+  "fetch_constant_reg\t%l,%N",
+  "fetch_reg_constant\t%l,%N",
+  "fetch_integer_reg\t%d,%N",
+  "fetch_reg_integer\t%d,%N",
   "function_to_var\t%v,%B",
   "function_to_al\t%v,%B",
   "enter_profiling\t\t%g",

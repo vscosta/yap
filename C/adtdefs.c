@@ -637,7 +637,6 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
     fe->PropsOfFE = AbsPredProp(p);
     p->NextOfPE = NIL;
   }
-  INIT_RWLOCK(p->PRWLock);
   INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = fe->ArityOfFE;
@@ -692,7 +691,6 @@ Yap_NewThreadPred(PredEntry *ap)
 {
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
-  INIT_RWLOCK(p->PRWLock);
   INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = ap->ArityOfPE;
@@ -742,7 +740,6 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
 
 /* Printf("entering %s:%s/0\n", RepAtom(AtomOfTerm(cur_mod))->StrOfAE, ae->StrOfAE); */
 
-  INIT_RWLOCK(p->PRWLock);
   INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = 0;

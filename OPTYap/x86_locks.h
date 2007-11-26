@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        x86_locks.h
-  version:     $Id: x86_locks.h,v 1.3 2005-05-31 08:24:24 ricroc Exp $   
+  version:     $Id: x86_locks.h,v 1.4 2007-11-26 23:43:09 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -25,10 +25,10 @@
 #define TRY_LOCK(LOCK_VAR)  (swap(1,(LOCK_VAR))==0)
 
 #define INIT_LOCK(LOCK_VAR)    ((LOCK_VAR) = 0)
-#define LOCK(LOCK_VAR)         do {                                     \
+#define LOCK(LOCK_VAR)         do {	\
                                  if (TRY_LOCK(&(LOCK_VAR))) break;      \
 		                 while (IS_LOCKED(LOCK_VAR)) continue;  \
-		               } while (1)
+                               } while (1)
 #define IS_LOCKED(LOCK_VAR)    ((LOCK_VAR) != 0)
 #define IS_UNLOCKED(LOCK_VAR)  ((LOCK_VAR) == 0)
 #define UNLOCK(LOCK_VAR)       ((LOCK_VAR) = 0)

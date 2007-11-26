@@ -270,6 +270,7 @@ p_show_op_counters()
   print_instruction(_pop_n);
   print_instruction(_trust_fail);
   print_instruction(_index_pred);
+  print_instruction(_lock_pred);
 #if THREADS
   print_instruction(_thread_local);
 #endif
@@ -632,6 +633,7 @@ p_show_ops_by_group(void)
     Yap_opcount[_Ystop] +
     Yap_opcount[_Nstop] +
     Yap_opcount[_index_pred] +
+    Yap_opcount[_lock_pred] +
 #if THREADS
     Yap_opcount[_thread_local] +
 #endif

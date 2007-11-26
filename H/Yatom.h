@@ -720,7 +720,6 @@ typedef struct pred_entry
     struct mfile *file_srcs;	/* for multifile predicates */
   } src;
 #if defined(YAPOR) || defined(THREADS)
-  rwlock_t PRWLock;		/* a simple lock to protect this entry */
   lockvar PELock;		/* a simple lock to protect expansion */
 #endif
 #ifdef TABLING

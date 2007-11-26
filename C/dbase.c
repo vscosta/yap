@@ -392,7 +392,7 @@ FindDBPropHavingLock(AtomEntry *ae, int CodeDB, unsigned int arity, Term dbmod)
 		((CodeDB & MkCode) && p->ModuleOfDB && p->ModuleOfDB != dbmod))) {
     p = RepDBProp(p0 = p->NextOfPE);
   }
-  return (p0);
+  return p0;
 }
 
 
@@ -1107,7 +1107,7 @@ check_if_cons(DBRef p, Term to_compare)
 	 && (p->Flags & (DBCode | ErasedMask | DBVar | DBNoVars | DBComplex)
 	     || p->DBT.Entry != Unsigned(to_compare)))
     p = NextDBRef(p);
-  return (p);
+  return p;
 }
 
 /*
@@ -1120,7 +1120,7 @@ check_if_var(DBRef p)
   while (p != NIL &&
 	 p->Flags & (DBCode | ErasedMask | DBAtomic | DBNoVars | DBComplex ))
     p = NextDBRef(p);
-  return (p);
+  return p;
 }
 
 /*
@@ -1142,15 +1142,15 @@ check_if_wvars(DBRef p, unsigned int NOfCells, CELL *BTptr)
 	   p->Flags & (DBCode | ErasedMask | DBAtomic | DBNoVars | DBVar))
       p = NextDBRef(p);
     if (p == NIL)
-      return (p);
+      return p;
     memptr = CellPtr(&(p->DBT.Contents));
     if (NOfCells == p->DBT.NOfCells
 	&& cmpclls(memptr, BTptr, NOfCells))
-      return (p);
+      return p;
     else
       p = NextDBRef(p);
   } while (TRUE);
-  return (NIL);
+  return NIL;
 }
 
 static int 
@@ -1175,15 +1175,15 @@ scheckcells(int NOfCells, register CELL *m1, register CELL *m2, link_entry *lp, 
       while (*lp1 != r1 && *lp1)
 	lp1++;
       if (!(*lp1))
-	return (FALSE);
+	return FALSE;
       /* keep the old link pointer for future search. */
       /* vsc: this looks like a bug!!!! */
       /* *lp1 = *lp++; */
     } else {
-      return (FALSE);
+      return FALSE;
     }
   }
-  return (TRUE);
+  return TRUE;
 }
 
 /*
@@ -1200,14 +1200,14 @@ check_if_nvars(DBRef p, unsigned int NOfCells, CELL *BTptr, struct db_globs *dbg
 	   p->Flags & (DBCode | ErasedMask | DBAtomic | DBComplex | DBVar))
       p = NextDBRef(p);
     if (p == NIL)
-      return (p);
+      return p;
     memptr = CellPtr(p->DBT.Contents);
     if (scheckcells(NOfCells, memptr, BTptr, dbg->LinkAr, Unsigned(p->DBT.Contents-1)))
-	return (p);
+	return p;
       else
 	p = NextDBRef(p);
-  } while (TRUE);
-  return (NIL);
+  } while(TRUE);
+  return NIL;
 }
 
 static DBRef
@@ -1359,7 +1359,7 @@ CreateDBRefForVar(Term Tm, DBProp p, int InFlag, struct db_globs *dbg) {
 #endif
   INIT_LOCK(pp->lock);
   INIT_DBREF_COUNT(pp);
-  return(pp);
+  return pp;
 }
 
 static DBRef 
@@ -1447,7 +1447,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 		     dbg);
       if (ntp == NULL) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-	return(NULL);
+	return NULL;
       }
     } else
 #endif
@@ -1461,7 +1461,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 		     &vars_found, dbg);
       if (ntp == NULL) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-	return(NULL);
+	return NULL;
       }
     }
     else {
@@ -1500,14 +1500,14 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 		       &vars_found, dbg);
 	if (ntp == NULL) {
 	  Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-	  return(NULL);
+	  return NULL;
 	}
       }
     } 
     CodeAbs = (CELL *)((CELL)ntp-(CELL)ntp0);
     if (Yap_Error_TYPE) {
       Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-      return (NULL);	/* Error Situation */
+      return NULL;	/* Error Situation */
     }
     NOfCells = ntp - ntp0;	/* End Of Code Info */
     *dbg->lr++ = 0;
@@ -1524,7 +1524,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 	Yap_Error_Size = (UInt)DBLength(CodeAbs);
 	Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-	return(NULL);
+	return NULL;
       }
       if ((InFlag & MkIfNot) && (dbg->found_one = check_if_wvars(p->First, NOfCells, ntp0))) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
@@ -1657,13 +1657,13 @@ record(int Flag, Term key, Term t_data, Term t_code)
   FathersPlace = NIL;
 #endif
   if (EndOfPAEntr(p = FetchDBPropFromKey(twork, Flag & MkCode, TRUE, "record/3"))) {
-    return(NULL);
+    return NULL;
   }
   if ((x = CreateDBStruct(t_data, p, Flag, &needs_vars, 0, &dbg)) == NULL) {
-    return (NULL);
+    return NULL;
   }
   if ((Flag & MkIfNot) && dbg.found_one)
-    return (NULL);
+    return NULL;
   TRAIL_REF(x);
   if (x->Flags & (DBNoVars|DBComplex))
     x->Mask = EvalMasks(t_data, &x->Key);
@@ -1716,7 +1716,7 @@ record(int Flag, Term key, Term t_data, Term t_code)
     x->Code = (yamop *) IntegerOfTerm(t_code);
   }
   WRITE_UNLOCK(p->DBRWLock);
-  return (x);
+  return x;
 }
 
 /* add a new entry next to an old one */
@@ -1734,7 +1734,7 @@ record_at(int Flag, DBRef r0, Term t_data, Term t_code)
 #endif
   p = r0->Parent;
   if ((x = CreateDBStruct(t_data, p, Flag, &needs_vars, 0, &dbg)) == NULL) {
-    return (NULL);
+    return NULL;
   }
   TRAIL_REF(x);
   if (x->Flags & (DBNoVars|DBComplex))
@@ -1796,7 +1796,7 @@ record_at(int Flag, DBRef r0, Term t_data, Term t_code)
     x->Code = (yamop *) IntegerOfTerm(t_code);
   }
   WRITE_UNLOCK(p->DBRWLock);
-  return (x);
+  return x;
 }
 
 
@@ -1878,10 +1878,6 @@ record_lu(PredEntry *pe, Term t, int position)
   if ((cl = new_lu_db_entry(t, pe)) == NULL) {
     return NULL;
   }
-  WRITE_LOCK(pe->PRWLock);
-#if defined(YAPOR) || defined(THREADS)
-  WPP = pe;
-#endif
 #ifdef LOW_PROF
     if (ProfilerOn &&
 	Yap_OffLineProfiler) {
@@ -1889,10 +1885,6 @@ record_lu(PredEntry *pe, Term t, int position)
     }
 #endif /* LOW_PROF */
   Yap_add_logupd_clause(pe, cl, (position == MkFirst ? 2 : 0));
-#if defined(YAPOR) || defined(THREADS)
-  WPP = NULL;
-#endif
-  WRITE_UNLOCK(pe->PRWLock);
   return cl;
 }
 
@@ -1902,12 +1894,12 @@ record_lu_at(int position, LogUpdClause *ocl, Term t)
   LogUpdClause *cl;
   PredEntry *pe;
 
-  LOCK(ocl->ClLock);
   pe = ocl->ClPred;
+  LOCK(pe->PELock);
   if ((cl = new_lu_db_entry(t,pe)) == NULL) {
+    UNLOCK(pe->PELock);
     return NULL;
   }
-  WRITE_LOCK(pe->PRWLock);
   if(pe->cs.p_code.NOfClauses > 1)
     Yap_RemoveIndexation(pe);
   if (position == MkFirst) {
@@ -1934,8 +1926,7 @@ record_lu_at(int position, LogUpdClause *ocl, Term t)
     ocl->ClNext = cl;
   }
   pe->cs.p_code.NOfClauses++;
-  WRITE_UNLOCK(pe->PRWLock);
-  UNLOCK(ocl->ClLock);
+  UNLOCK(pe->PELock);
   return cl;
 }
 
@@ -1952,6 +1943,7 @@ p_rcda(void)
     return (FALSE);
   pe = find_lu_entry(t1);
   Yap_Error_Size = 0;
+  LOCK(pe->PELock);
  restart_record:
   if (pe) {
     LogUpdClause *cl;
@@ -1970,6 +1962,7 @@ p_rcda(void)
   } else { 
     TRef = MkDBRefTerm(record(MkFirst, t1, t2, Unsigned(0)));
   }
+  UNLOCK(pe->PELock);
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(3)) {
       t2 = Deref(ARG2);
@@ -2014,14 +2007,14 @@ p_rcda_at(void)
   DBRef           dbr;
 
   if (!IsVarTerm(Deref(ARG3)))
-    return (FALSE);
+    return FALSE;
   if (IsVarTerm(t1)) {
       Yap_Error(INSTANTIATION_ERROR, t1, "recorda_at/3");
-      return(FALSE);
+      return FALSE;
   }
   if (!IsDBRefTerm(t1)) {
       Yap_Error(TYPE_ERROR_DBREF, t1, "recorda_at/3");
-      return(FALSE);
+      return FALSE;
   }
   Yap_Error_Size = 0;
  restart_record:
@@ -2148,11 +2141,11 @@ p_rcdz_at(void)
     return (FALSE);
   if (IsVarTerm(t1)) {
       Yap_Error(INSTANTIATION_ERROR, t1, "recordz_at/3");
-      return(FALSE);
+      return FALSE;
   }
   if (!IsDBRefTerm(t1)) {
       Yap_Error(TYPE_ERROR_DBREF, t1, "recordz_at/3");
-      return(FALSE);
+      return FALSE;
   }
   Yap_Error_Size = 0;
  restart_record:
@@ -2364,19 +2357,19 @@ copy_attachments(CELL *ts)
 static Term
 GetDBLUKey(PredEntry *ap)
 {
-  READ_LOCK(ap->PRWLock);
+  LOCK(ap->PELock);
   if (ap->PredFlags & NumberDBPredFlag) {
     Int id = ap->src.IndxId;
-    READ_UNLOCK(ap->PRWLock);
+    UNLOCK(ap->PELock);
     return MkIntegerTerm(id);
   } else if (ap->PredFlags & AtomDBPredFlag ||
 	     (ap->ModuleOfPred != IDB_MODULE && ap->ArityOfPE == 0)) {
     Atom at = (Atom)ap->FunctorOfPred;
-    READ_UNLOCK(ap->PRWLock);
+    UNLOCK(ap->PELock);
     return MkAtomTerm(at);
   } else {
     Functor f = ap->FunctorOfPred;
-    READ_UNLOCK(ap->PRWLock);
+    UNLOCK(ap->PELock);
     return Yap_MkNewApplTerm(f,ArityOfFunctor(f));
   }
 }
@@ -2408,7 +2401,7 @@ UnifyDBKey(DBRef DBSP, PropFlags flags, Term t)
     return FALSE;
   }
   READ_UNLOCK(p->DBRWLock);
-  return(Yap_unify(tf,t));
+  return Yap_unify(tf,t);
 }
 
 
@@ -2429,7 +2422,7 @@ UnifyDBNumber(DBRef DBSP, Term t)
   if (ref == NIL)
     return FALSE;
   READ_UNLOCK(p->DBRWLock);
-  return(Yap_unify(MkIntegerTerm(i),t));
+  return Yap_unify(MkIntegerTerm(i),t);
 }
 
 
@@ -2534,7 +2527,7 @@ resize_int_keys(UInt new_size) {
   if (INT_KEYS == NULL) {
     INT_KEYS_SIZE = new_size;
     YAPLeaveCriticalSection();
-    return(TRUE);
+    return TRUE;
   }
   new = (Prop *)Yap_AllocCodeSpace(sizeof(Prop)*new_size);
   if (new == NULL) {
@@ -2542,7 +2535,7 @@ resize_int_keys(UInt new_size) {
     Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "could not allocate space";
-    return(FALSE);
+    return FALSE;
   }
   Yap_LUClauseSpace += sizeof(Prop)*new_size;
   for (i = 0; i < new_size; i++) {
@@ -2569,7 +2562,7 @@ resize_int_keys(UInt new_size) {
   if (INT_KEYS_TIMESTAMP == MAX_ABS_INT)
     INT_KEYS_TIMESTAMP = 0;
   YAPLeaveCriticalSection();
-  return(TRUE);
+  return TRUE;
 }
 
 static PredEntry *
@@ -2607,7 +2600,8 @@ find_int_key(Int key)
   p0 = INT_KEYS[hash_key];
   while (p0) {
     DBProp p = RepDBProp(p0);
-    if (p->FunctorOfDB == (Functor)key) return(p);
+    if (p->FunctorOfDB == (Functor)key)
+      return p;
     p0 = p->NextOfPE;
   }
   return NULL;
@@ -2682,7 +2676,7 @@ find_entry(Term t)
   UInt arity;
 
   if (IsVarTerm(t)) {
-    return(RepDBProp(NIL));
+    return RepDBProp(NIL);
   } else if (IsAtomTerm(t)) {
     at = AtomOfTerm(t);
     arity = 0;
@@ -2749,13 +2743,14 @@ FetchIntDBPropFromKey(Int key, int flag, int new, char *error_mssg)
       Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
       Yap_Error_Term = TermNil;
       Yap_ErrorMessage = "could not allocate space";
-      return(NULL);
+      return NULL;
     }
   }
   p0 = INT_KEYS[hash_key];
   while (p0 != NIL) {
     DBProp p = RepDBProp(p0);
-    if (p->FunctorOfDB == fun) return(p);
+    if (p->FunctorOfDB == fun)
+      return p;
     p0 = p->NextOfPE;
   }
   /* p is NULL, meaning we did not find the functor */
@@ -2772,9 +2767,10 @@ FetchIntDBPropFromKey(Int key, int flag, int new, char *error_mssg)
     p->NextOfPE = INT_KEYS[hash_key];
     INIT_RWLOCK(p->DBRWLock);
     INT_KEYS[hash_key] = AbsDBProp(p);
-    return(p);
+    return p;
   } else {
-    return(RepDBProp(NULL));
+    return
+      RepDBProp(NULL);
   }
 }
 
@@ -2802,11 +2798,13 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
       dbmod = ArgOfTerm(1, twork);
       if (IsVarTerm(dbmod)) {
 	Yap_Error(INSTANTIATION_ERROR, twork, "var in module");
-	return(RepDBProp(NIL));
+	return
+	  RepDBProp(NIL);
       }
       if (!IsAtomTerm(dbmod)) {
 	Yap_Error(TYPE_ERROR_ATOM, twork, "not atom in module");
-	return(RepDBProp(NIL));
+	return
+	  RepDBProp(NIL);
       }
       twork = ArgOfTerm(2, twork);
     }
@@ -2816,16 +2814,19 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
   }
   if (IsVarTerm(twork)) {
     Yap_Error(INSTANTIATION_ERROR, twork, error_mssg);
-    return(RepDBProp(NIL));
+    return
+      RepDBProp(NIL);
   } else if (IsAtomTerm(twork)) {
     arity = 0, At = AtomOfTerm(twork);
   } else if (IsIntegerTerm(twork)) {
-    return(FetchIntDBPropFromKey(IntegerOfTerm(twork), flag, new, error_mssg));
+    return
+      FetchIntDBPropFromKey(IntegerOfTerm(twork), flag, new, error_mssg);
   } else if (IsApplTerm(twork)) {
     Register Functor f = FunctorOfTerm(twork);
     if (IsExtensionFunctor(f)) {
       Yap_Error(TYPE_ERROR_KEY, twork, error_mssg);
-      return(RepDBProp(NIL));
+      return
+	RepDBProp(NIL);
     }
     At = NameOfFunctor(f);
     arity = ArityOfFunctor(f);
@@ -2834,7 +2835,8 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
     arity = 2;
   } else {
     Yap_Error(TYPE_ERROR_KEY, twork,error_mssg);
-    return(RepDBProp(NIL));
+    return
+      RepDBProp(NIL);
   }
   if (new) {
     DBProp p;
@@ -2849,10 +2851,10 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
 	pp = RepPredProp(Yap_GetPredPropHavingLock(At, arity, dbmod));
 
 	if (!EndOfPAEntr(pp)) {
-	  READ_LOCK(pp->PRWLock);
+	  LOCK(pp->PELock);
 	  if(pp->PredFlags & LogUpdatePredFlag)
 	    UPDATE_MODE = UPDATE_MODE_LOGICAL;
-	  READ_UNLOCK(pp->PRWLock);
+	  UNLOCK(pp->PELock);
 	}
 
       }
@@ -2873,9 +2875,11 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
       ae->PropsOfAE = AbsDBProp(p);
     }
     WRITE_UNLOCK(ae->ARWLock);
-    return(p);
+    return
+      p;
   } else
-    return(RepDBProp(FindDBProp(RepAtom(At), flag, arity, dbmod)));
+    return
+      RepDBProp(FindDBProp(RepAtom(At), flag, arity, dbmod));
 }
 
 
@@ -2889,10 +2893,10 @@ lu_nth_recorded(PredEntry *pe, Int Count)
   if (cl == NULL)
     return FALSE;
 #if defined(YAPOR) || defined(THREADS)
-  LOCK(cl->ClLock);
+  LOCK(pe->PELock);
   TRAIL_CLREF(cl);		/* So that fail will erase it */
   INC_CLREF_COUNT(cl);
-  UNLOCK(cl->ClLock);
+  UNLOCK(pe->PELock);
 #else
   if (!(cl->ClFlags & InUseMask)) {
     cl->ClFlags |= InUseMask;
@@ -2970,13 +2974,12 @@ p_nth_instance(void)
 	Term tpred;
 	Term pred_module;
 
-	LOCK(cl->ClLock);
+	pe = cl->ClPred;
+	LOCK(pe->PELock);
 	if (cl->ClFlags & ErasedMask) {
-	  UNLOCK(cl->ClLock);
+	  UNLOCK(pe->PELock);
 	  return FALSE;
 	}
-	pe = cl->ClPred;
-	READ_LOCK(pe->PRWLock);
 	ocl = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
 	pred_module = pe->ModuleOfPred;
 	if (pred_module != IDB_MODULE) {
@@ -3000,8 +3003,7 @@ p_nth_instance(void)
 	  if (cl == ocl) break;
 	  ocl = ocl->ClNext;
 	} while (ocl != NULL);
-	READ_UNLOCK(pe->PRWLock);
-	UNLOCK(cl->ClLock);
+	UNLOCK(pe->PELock);
 	if (ocl == NULL) {
 	  return FALSE;
 	}
@@ -3083,15 +3085,18 @@ p_nth_instancep(void)
 	  || !UnifyDBKey(ref,CodeDBBit,ARG1)
 	  || !UnifyDBNumber(ref,ARG2)) {
 	UNLOCK(ref->lock);
-	return(FALSE);
+	return
+	  FALSE;
       } else {
 	UNLOCK(ref->lock);
-	return(TRUE);
+	return
+	  TRUE;
       }
     }
   }
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(Deref(ARG1), MkCode, FALSE, "nth_instance/3"))) {
-    return(FALSE);
+    return
+      FALSE;
   }
   TCount = Deref(ARG2);
   if (IsVarTerm(TCount)) {
@@ -3121,9 +3126,9 @@ p_db_key(void)
 
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, 0, TRUE, "db_key/3"))) {
     /* should never happen */
-    return(FALSE);
+    return FALSE;
   }
-  return(Yap_unify(ARG2,MkIntegerTerm((Int)AtProp)));
+  return Yap_unify(ARG2,MkIntegerTerm((Int)AtProp));
 }
 
 /* Finds a term recorded under the key ARG1			 */
@@ -3234,7 +3239,7 @@ i_recorded(DBProp AtProp, Term t3)
 	  Yap_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	    return(FALSE);
+	    return FALSE;
 	  }
 	}
 	READ_LOCK(AtProp->DBRWLock);
@@ -3330,7 +3335,7 @@ c_recorded(int flags)
 	Yap_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return(FALSE);
+	  return FALSE;
 	}
       }
       Yap_Error_Size = 0;
@@ -3373,7 +3378,7 @@ c_recorded(int flags)
 	  Yap_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	    return(FALSE);
+	    return FALSE;
 	  }
 	}
 	Yap_Error_Size = 0;
@@ -3414,6 +3419,10 @@ static Int
 lu_recorded(PredEntry *pe) {
   op_numbers opc = Yap_op_from_opcode(P->opc);
 
+#if defined(YAPOR) || defined(THREADS)
+  LOCK(pe->PELock);
+  PP = pe;
+#endif
   if (opc == _procceed) {
     P = pe->CodeOfPred;
   } else {
@@ -3494,7 +3503,7 @@ p_recorded(void)
 	  Yap_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	    return(FALSE);
+	    return FALSE;
 	  }
 	}
       }
@@ -3555,7 +3564,7 @@ in_rdedp(void)
     if (b0 == B)
       cut_fail();
     else
-      return(FALSE);
+      return FALSE;
   }
   return (i_recorded(AtProp,t3));
 }
@@ -3576,7 +3585,7 @@ p_somercdedp(void)
   Register Term   twork = Deref(ARG1);	/* initially working with
 						 * ARG1 */
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, MkCode, FALSE, "some_recorded/3"))) {
-    return(FALSE);
+    return FALSE;
   }
   READ_LOCK(AtProp->DBRWLock);
   ref = FrstDBRef(AtProp);
@@ -3605,7 +3614,7 @@ p_first_instance(void)
     cut_fail();
   }
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, 0, FALSE, "first_instance/3"))) {
-    return(FALSE);
+    return FALSE;
   }
   READ_LOCK(AtProp->DBRWLock);
   ref = AtProp->First;
@@ -3641,16 +3650,16 @@ p_first_instance(void)
       Yap_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return(FALSE);
+	return FALSE;
       }
     }
   }
   if (IsVarTerm(TermDB)) {
     Yap_unify(TermDB, ARG2);
   } else {
-    return(Yap_unify(ARG2, TermDB));
+    return Yap_unify(ARG2, TermDB);
   }
-  return(Yap_unify(ARG3, TRef));
+  return Yap_unify(ARG3, TRef);
 }
 
 static UInt
@@ -3745,7 +3754,7 @@ p_key_statistics(void)
   }
   if (EndOfPAEntr(p = FetchDBPropFromKey(twork, 0, TRUE, "key_statistics/4"))) {
     /* This is not a key property */
-    return(FALSE);
+    return FALSE;
   }
   /* count number of clauses and size */
   x = p->First;
@@ -3932,7 +3941,7 @@ find_next_clause(DBRef ref0)
 #ifdef DEBUG
   if (!(ref0->Flags & ErasedMask)) {
     Yap_Error(SYSTEM_ERROR, TermNil, "find_next_clause (dead clause %x)", ref0);
-    return(NIL);
+    return NULL;
   }
 #endif
   /* search for an newer entry that is to the left and points to code */
@@ -3943,7 +3952,7 @@ find_next_clause(DBRef ref0)
   }
   /* no extra alternatives to try, let us leave gracefully */
   if (ref == NULL) {
-    return(NULL);
+    return NULL;
   } else {
     /* OK, we found a clause we can jump to, do a bit of hanky pancking with
        the choice-point, so that it believes we are actually working from that
@@ -3966,7 +3975,7 @@ find_next_clause(DBRef ref0)
       TRAIL_CLREF(ClauseCodeToDynamicClause(newp));
     }
 #endif
-    return(newp);
+    return newp;
   }
 }
 
@@ -3986,7 +3995,7 @@ p_jump_to_next_dynamic_clause(void)
   /* and next, enter the clause */
   P = NEXTOP(newp,ld);
   /* and return like if nothing had happened. */
-  return(TRUE);
+  return TRUE;
 }
 
 static void
@@ -4018,15 +4027,11 @@ complete_lu_erase(LogUpdClause *clau)
     while ((ref = *--cp) != NIL) {
       if (ref->Flags & LogUpdMask) {
 	LogUpdClause *cl = (LogUpdClause *)ref;
-	LOCK(cl->ClLock);
 	cl->ClRefCount--;
 	if (cl->ClFlags & ErasedMask &&
 	    !(cl->ClFlags & InUseMask) &&
 	    !(cl->ClRefCount)) {
-	  UNLOCK(cl->ClLock);
 	  EraseLogUpdCl(cl);
-	} else {
-	  UNLOCK(cl->ClLock);
 	}
       } else {
 	LOCK(ref->lock);
@@ -4053,32 +4058,15 @@ EraseLogUpdCl(LogUpdClause *clau)
   PredEntry *ap;
 
   ap = clau->ClPred;
-  LOCK(clau->ClLock);
   /* no need to erase what has been erased */ 
   if (!(clau->ClFlags & ErasedMask)) {
-#if defined(YAPOR) || defined(THREADS)
-    int i_locked = FALSE;
-
-    if (WPP != ap) {
-      WRITE_LOCK(ap->PRWLock);
-      if (WPP == NULL) {
-	i_locked = TRUE;
-	WPP = ap;
-      }
-    }
-#endif
     /* get ourselves out of the list */
     if (clau->ClNext != NULL) {
-      LOCK(clau->ClNext->ClLock);
       clau->ClNext->ClPrev = clau->ClPrev;
-      UNLOCK(clau->ClNext->ClLock);
     }
     if (clau->ClPrev != NULL) {
-      LOCK(clau->ClPrev->ClLock);
       clau->ClPrev->ClNext = clau->ClNext;
-      UNLOCK(clau->ClPrev->ClLock);
     }
-    UNLOCK(clau->ClLock);
     if (ap) {
       if (clau->ClCode == ap->cs.p_code.FirstClause) {
 	if (clau->ClNext == NULL) {
@@ -4131,20 +4119,11 @@ EraseLogUpdCl(LogUpdClause *clau)
 	}
       }
       clau->ClTimeEnd = ap->TimeStampOfPred;
-      UNLOCK(clau->ClLock);
       Yap_RemoveClauseFromIndex(ap, clau->ClCode);
       /* release the extra reference */
-      LOCK(clau->ClLock);
     }
     clau->ClRefCount--;
-#if defined(YAPOR) || defined(THREADS)
-    if (WPP != ap || i_locked) {
-      if (i_locked) WPP= NULL;
-      WRITE_UNLOCK(ap->PRWLock);
-    }
-#endif
   }
-  UNLOCK(clau->ClLock);
   complete_lu_erase(clau);
 }
 
@@ -4220,11 +4199,6 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
   if (clau->ClFlags & ErasedMask)
     return;
   clau->ClFlags |= ErasedMask;
-#if defined(YAPOR) || defined(THREADS)
-  if (WPP != p) {
-    WRITE_LOCK(p->PRWLock);
-  }
-#endif
   if (p->cs.p_code.FirstClause != cl) {
     /* we are not the first clause... */
     yamop *prev_code_p = (yamop *)(dbr->Prev->Code);
@@ -4257,10 +4231,20 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
       if (p->PredFlags & SpiedPredFlag) {
 	p->OpcodeOfPred = Yap_opcode(_spy_pred);
 	p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+#if defined(YAPOR) || defined(THREADS)
+      } else if (p->ModuleOfPred != IDB_MODULE) {
+	p->OpcodeOfPred = LOCKPRED_OPCODE;
+	p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+#endif
       } else {
 	p->CodeOfPred = p->cs.p_code.TrueCodeOfPred;
 	p->OpcodeOfPred = p->cs.p_code.TrueCodeOfPred->opc;
       }
+#if defined(YAPOR) || defined(THREADS)
+    } else if (p->ModuleOfPred != IDB_MODULE) {
+	p->OpcodeOfPred = LOCKPRED_OPCODE;
+	p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+#endif
     } else {
       p->OpcodeOfPred = FAIL_OPCODE;
       p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
@@ -4269,16 +4253,16 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
     if (p->PredFlags & SpiedPredFlag) {
       p->OpcodeOfPred = Yap_opcode(_spy_pred);
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+#if defined(YAPOR) || defined(THREADS)
+    } else if (p->ModuleOfPred != IDB_MODULE) {
+      p->OpcodeOfPred = LOCKPRED_OPCODE;
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+#endif
     } else {
       p->OpcodeOfPred = INDEX_OPCODE;
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
   }
-#if defined(YAPOR) || defined(THREADS)
-  if (WPP != p) {
-    WRITE_UNLOCK(p->PRWLock);
-  }
-#endif
 }
 
 static void 
@@ -4293,27 +4277,21 @@ ErDBE(DBRef entryref)
   if ((entryref->Flags & DBCode) && entryref->Code) {
     if (entryref->Flags & LogUpdMask) {
       LogUpdClause *clau = ClauseCodeToLogUpdClause(entryref->Code);
-      LOCK(clau->ClLock);
       if (CL_IN_USE(clau) || entryref->NOfRefsTo != 0) {
 	PrepareToEraseLogUpdClause(clau, entryref);
-	UNLOCK(clau->ClLock);
       } else {
 	if (!(clau->ClFlags & ErasedMask))
 	  PrepareToEraseLogUpdClause(clau, entryref);
-	UNLOCK(clau->ClLock);
 	/* the clause must have left the chain */
 	EraseLogUpdCl(clau);
       }
     } else {
       DynamicClause *clau = ClauseCodeToDynamicClause(entryref->Code);
-      LOCK(clau->ClLock);
       if (CL_IN_USE(clau) || entryref->NOfRefsTo != 0) {
 	PrepareToEraseClause(clau, entryref);
-	UNLOCK(clau->ClLock);
       } else {
 	if (!(clau->ClFlags & ErasedMask))
 	  PrepareToEraseClause(clau, entryref);
-	UNLOCK(clau->ClLock);
 	/* the clause must have left the chain */
 	MyEraseClause(clau);
       }
@@ -4345,7 +4323,10 @@ EraseEntry(DBRef entryref)
     return;
   if (entryref->Flags & LogUpdMask &&
       !(entryref->Flags & DBClMask)) {
-    EraseLogUpdCl((LogUpdClause *)entryref);
+    LogUpdClause *luclause = (LogUpdClause *)entryref;
+    LOCK(luclause->ClPred->PELock);
+    EraseLogUpdCl(luclause);
+    UNLOCK(luclause->ClPred->PELock);
     return;
   }
   entryref->Flags |= ErasedMask;
@@ -4378,14 +4359,14 @@ p_erase(void)
 
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "erase");
-    return (FALSE);
+    return FALSE;
   }
   if (!IsDBRefTerm(t1)) {
     Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
-    return (FALSE);
+    return FALSE;
   }
   EraseEntry(DBRefOfTerm(t1));
-  return (TRUE);
+  return TRUE;
 }
 
 static Int
@@ -4396,7 +4377,7 @@ p_erase_clause(void)
 
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "erase");
-    return (FALSE);
+    return FALSE;
   }
   if (!IsDBRefTerm(t1)) {
     if (IsApplTerm(t1)) {
@@ -4410,7 +4391,7 @@ p_erase_clause(void)
       }
     }
     Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
-    return (FALSE);
+    return FALSE;
   } else {
     entryref = DBRefOfTerm(t1);
   }
@@ -4443,7 +4424,7 @@ p_eraseall(void)
     return TRUE;
   }
   if (EndOfPAEntr(p = FetchDBPropFromKey(twork, 0, FALSE, "eraseall/3"))) {
-    return(TRUE);
+    return TRUE;
   }
   WRITE_LOCK(p->DBRWLock);
   entryref = FrstDBRef(p);
@@ -4543,7 +4524,7 @@ static_instance(StaticClause *cl)
 	Yap_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return(FALSE);
+	  return FALSE;
 	}
       }
     }
@@ -4603,13 +4584,16 @@ p_instance(void)
   if (dbr->Flags & LogUpdMask) {
     op_numbers opc;
     LogUpdClause *cl = (LogUpdClause *)dbr;
+    PredEntry *ap = cl->ClPred;
 
+    LOCK(ap->PELock);
     if (cl->ClFlags & ErasedMask) {
+      UNLOCK(ap->PELock);
       return FALSE;
     }
     if (cl->ClSource == NULL) {
-      PredEntry *ap = cl->ClPred;
       if (ap->ArityOfPE == 0) {
+	UNLOCK(ap->PELock);
 	return Yap_unify(ARG2,MkAtomTerm((Atom)ap->FunctorOfPred));
       } else {
 	Functor f = ap->FunctorOfPred;
@@ -4630,11 +4614,13 @@ p_instance(void)
 	YENV = ASP;
 	YENV[E_CB] = (CELL) B;
 	P = cl->ClCode;
+	UNLOCK(ap->PELock);
 	return TRUE;
       }
     }
     opc = Yap_op_from_opcode(cl->ClCode->opc);
     if (opc == _unify_idb_term) {
+      UNLOCK(ap->PELock);
       return Yap_unify(ARG2, cl->ClSource->Entry);
     } else  {
       Term            TermDB;
@@ -4644,16 +4630,19 @@ p_instance(void)
 	  Yap_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_growglobal(NULL)) {
 	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	    UNLOCK(ap->PELock);
 	    return FALSE;
 	  }
 	} else {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	    return(FALSE);
+	    UNLOCK(ap->PELock);
+	    return FALSE;
 	  }
 	}
       }
+      UNLOCK(ap->PELock);
       return Yap_unify(ARG2, TermDB);
     }
   } else {
@@ -4670,7 +4659,7 @@ p_instance(void)
 	Yap_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return(FALSE);
+	  return FALSE;
 	}
       }
       t1 = Deref(ARG1);
@@ -4685,28 +4674,23 @@ Yap_LUInstance(LogUpdClause *cl, UInt arity)
   Term  TermDB;
   op_numbers opc = Yap_op_from_opcode(cl->ClCode->opc);
 
-  LOCK(cl->ClLock);
   if (opc == _unify_idb_term) {
     TermDB = cl->ClSource->Entry;
   } else  {
     while ((TermDB = GetDBTerm(cl->ClSource)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
       if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	UNLOCK(cl->ClLock);
 	Yap_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
 	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
 	  return 0L;
 	}
-	LOCK(cl->ClLock);
       } else {
-	UNLOCK(cl->ClLock);
 	Yap_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_gcl(Yap_Error_Size, arity, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return 0L;
 	}
-	LOCK(cl->ClLock);
       }
     }
   }
@@ -4719,7 +4703,6 @@ Yap_LUInstance(LogUpdClause *cl, UInt arity)
     TRAIL_CLREF(cl);
   }
 #endif
-  UNLOCK(cl->ClLock);
   return TermDB;
 } 
 
@@ -4805,7 +4788,7 @@ init_current_key(void)
   EXTRA_CBACK_ARG(2,3) = MkAtomTerm(a);
   EXTRA_CBACK_ARG(2,2) = MkIntTerm(i);
   EXTRA_CBACK_ARG(2,1) = MkIntegerTerm((Int)pp);
-  return (cont_current_key());
+  return cont_current_key();
 }
 
 static Int 
@@ -4820,7 +4803,7 @@ cont_current_key(void)
   DBEntry        *pp = (DBEntry *) IntegerOfTerm(EXTRA_CBACK_ARG(2,1));
 
   if (IsIntTerm(term = EXTRA_CBACK_ARG(2,3)))
-    return(cont_current_key_integer());
+    return cont_current_key_integer();
   a = AtomOfTerm(term);
   if (EndOfPAEntr(pp) && IsAtomTerm(first)) {
     cut_fail();
@@ -4862,13 +4845,13 @@ cont_current_key(void)
 	    EXTRA_CBACK_ARG(2,2) = MkIntegerTerm(j+1);
 	    EXTRA_CBACK_ARG(2,3) = MkIntTerm(INT_KEYS_TIMESTAMP);
 	    term = MkIntegerTerm((Int)(pptr->FunctorOfDB));
-	    return(Yap_unify(term,ARG1) && Yap_unify(term,ARG2));
+	    return Yap_unify(term,ARG1) && Yap_unify(term,ARG2);
 	  }
 	}
 	if (j == INT_KEYS_SIZE) {
 	  cut_fail();
 	}	  
-	return(cont_current_key_integer());
+	return cont_current_key_integer();
       } else {
 	/* release our lock over the hash table */
 	READ_UNLOCK(HashChain[i].AERWLock);
@@ -4927,7 +4910,7 @@ cont_current_key_integer(void)
   pptr = RepDBProp(pp);
   EXTRA_CBACK_ARG(2,1) = MkIntegerTerm((Int)(pptr->NextOfPE));
   term = MkIntegerTerm((Int)(pptr->FunctorOfDB));
-  return(Yap_unify(term,ARG1) && Yap_unify(term,ARG2));
+  return Yap_unify(term,ARG1) && Yap_unify(term,ARG2);
 }
 
 Term 
@@ -4991,7 +4974,7 @@ p_init_queue(void)
   while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NULL) {
     if (!Yap_growheap(FALSE, sizeof(db_queue), NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "in findall");
-      return(FALSE);
+      return FALSE;
     }
   }
   /* Yap_LUClauseSpace += sizeof(db_queue); */
@@ -5000,7 +4983,7 @@ p_init_queue(void)
   dbq->FirstInQueue = dbq->LastInQueue = NULL;
   INIT_RWLOCK(dbq->QRWLock);
   t = MkIntegerTerm((Int)dbq);
-  return(Yap_unify(ARG1, t));
+  return Yap_unify(ARG1, t);
 }
 
 
@@ -5014,10 +4997,10 @@ p_enqueue(void)
 
   if (IsVarTerm(Father)) {
     Yap_Error(INSTANTIATION_ERROR, Father, "enqueue");
-    return(FALSE);
+    return FALSE;
   } else if (!IsIntegerTerm(Father)) {
     Yap_Error(TYPE_ERROR_INTEGER, Father, "enqueue");
-    return(FALSE);
+    return FALSE;
   } else
     father_key = (db_queue *)IntegerOfTerm(Father);
   while ((x = (QueueEntry *)AllocDBSpace(sizeof(QueueEntry))) == NULL) {
@@ -5041,7 +5024,7 @@ p_enqueue(void)
     father_key->FirstInQueue = x;
   }
   WRITE_UNLOCK(father_key->QRWLock);
-  return(TRUE);
+  return TRUE;
 }
 
 /* when reading an entry in the data base we are making it accessible from
@@ -5085,10 +5068,10 @@ p_dequeue(void)
 
   if (IsVarTerm(Father)) {
     Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
-    return(FALSE);
+    return FALSE;
   } else if (!IsIntegerTerm(Father)) {
     Yap_Error(TYPE_ERROR_INTEGER, Father, "dequeue");
-    return(FALSE);
+    return FALSE;
   } else
     father_key = (db_queue *)IntegerOfTerm(Father);
   WRITE_LOCK(father_key->QRWLock);
@@ -5096,7 +5079,7 @@ p_dequeue(void)
     /* an empty queue automatically goes away */
     WRITE_UNLOCK(father_key->QRWLock);
     FreeDBSpace((char *)father_key);
-    return(FALSE);
+    return FALSE;
   } else {
     Term TDB;
     if (cur_instance == father_key->LastInQueue)
@@ -5124,14 +5107,14 @@ p_dequeue(void)
     ErasePendingRefs(cur_instance->DBT);
     FreeDBSpace((char *) cur_instance->DBT);
     FreeDBSpace((char *) cur_instance);
-    return(Yap_unify(ARG2, TDB));
+    return Yap_unify(ARG2, TDB);
   }
 }
 
 static Int
 p_clean_queues(void)
 {
-  return(TRUE);
+  return TRUE;
 }
 
 /* set the logical updates flag */
@@ -5141,21 +5124,21 @@ p_slu(void)
   Term t = Deref(ARG1);
   if (IsVarTerm(t)) { 
     Yap_Error(INSTANTIATION_ERROR, t, "switch_logical_updates/1");
-    return(FALSE);
+    return FALSE;
   } 
   if (!IsIntTerm(t)) { 
     Yap_Error(TYPE_ERROR_INTEGER, t, "switch_logical_updates/1");
-    return(FALSE);
+    return FALSE;
   }
   UPDATE_MODE = IntOfTerm(t);
-  return(TRUE);
+  return TRUE;
 }
 
 /* check current status for logical updates */
 static Int
 p_lu(void)
 {
-  return(Yap_unify(ARG1,MkIntTerm(UPDATE_MODE)));
+  return Yap_unify(ARG1,MkIntTerm(UPDATE_MODE));
 }
 
 /* get a hold over the index table for logical update predicates */ 
@@ -5174,11 +5157,11 @@ p_fetch_reference_from_index(void)
   Int pos;
 
   if (IsVarTerm(t1) || !IsDBRefTerm(t1))
-    return(FALSE);
+    return FALSE;
   table = DBRefOfTerm(t1);
 
   if (IsVarTerm(t2) || !IsIntTerm(t2))
-    return(FALSE);
+    return FALSE;
   pos = IntOfTerm(t2);
   el = (DBRef)(table->DBT.Contents[pos]);
 #if defined(YAPOR) || defined(THREADS)
@@ -5192,7 +5175,7 @@ p_fetch_reference_from_index(void)
     TRAIL_REF(el);
   }
 #endif
-  return(Yap_unify(ARG3, MkDBRefTerm(el)));
+  return Yap_unify(ARG3, MkDBRefTerm(el));
 }
 
 static Int
@@ -5200,13 +5183,13 @@ p_resize_int_keys(void)
 {
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
-    return(Yap_unify(ARG1,MkIntegerTerm((Int)INT_KEYS_SIZE)));
+    return Yap_unify(ARG1,MkIntegerTerm((Int)INT_KEYS_SIZE));
   }
   if (!IsIntegerTerm(t1)) {
     Yap_Error(TYPE_ERROR_INTEGER, t1, "yap_flag(resize_db_int_keys,T)");
-    return(FALSE);
+    return FALSE;
   }
-  return(resize_int_keys(IntegerOfTerm(t1)));
+  return resize_int_keys(IntegerOfTerm(t1));
 }
 
 static void 
@@ -5252,7 +5235,7 @@ p_install_thread_local(void)
   } else {
     return FALSE;
   }
-  WRITE_LOCK(pe->PRWLock);
+  LOCK(pe->PELock);
   if (pe->PredFlags & (UserCPredFlag|HiddenPredFlag|CArgsPredFlag|SyncPredFlag|TestPredFlag|AsmPredFlag|StandardPredFlag|CPredFlag|SafePredFlag|IndexedPredFlag|BinaryTestPredFlag) ||
       pe->cs.p_code.NOfClauses) {
     return FALSE;
@@ -5260,7 +5243,7 @@ p_install_thread_local(void)
   pe->PredFlags |= ThreadLocalPredFlag;
   pe->OpcodeOfPred = Yap_opcode(_thread_local);
   pe->CodeOfPred = (yamop *)&pe->OpcodeOfPred;
-  WRITE_UNLOCK(pe->PRWLock);
+  UNLOCK(pe->PELock);
 #endif
   return TRUE;
 }

@@ -51,13 +51,11 @@ true :- true.
 	'$allocate_default_arena'(1024, 64),
 	'$enter_system_mode',
 	set_value(fileerrors,1),
+	'$init_consult',
 	set_value('$gc',on),
-	set_value('$lf_verbose',informational),
 	('$exit_undefp' -> true ; true),
 	prompt('  ?- '),
 	nb_setval('$break',0),
-	nb_setval('$if_level',0),
-	nb_setval('$endif',off),
 	% '$set_read_error_handler'(error), let the user do that
 	nb_setval('$debug',off),
 	nb_setval('$trace',off),
@@ -81,6 +79,15 @@ true :- true.
 	'$db_clean_queues'(0),
 	'$startup_reconsult',
 	'$startup_goals'.
+
+'$init_consult' :-
+	nb_setval('$lf_verbose',informational),
+	nb_setval('$if_level',0),
+	nb_setval('$endif',off),
+	nb_setval('$consulting_file',user_input),
+	nb_setval('$consulting',false),
+	nb_setval('$included_file','').
+	
 
 % Start file for yap
 
@@ -863,11 +870,12 @@ break :-
 
 '$silent_bootstrap'(F) :-
 	'$allocate_default_arena'(1024, 64),
+	'$init_consult',
 	nb_setval('$if_level',0),
-	get_value('$lf_verbose',OldSilent),
-	set_value('$lf_verbose',silent),
+	nb_getval('$lf_verbose',OldSilent),
+	nb_setval('$lf_verbose',silent),
 	bootstrap(F),
-	set_value('$lf_verbose', OldSilent).
+	nb_setval('$lf_verbose', OldSilent).
 
 bootstrap(F) :-
 	'$open'(F,'$csult',Stream,0,0),
@@ -877,7 +885,7 @@ bootstrap(F) :-
 	getcwd(OldD),
 	cd(Dir),
 	(
-	  get_value('$lf_verbose',silent)
+	  nb_getval('$lf_verbose',silent)
 	->
 	  true
 	;
@@ -888,7 +896,7 @@ bootstrap(F) :-
 	cd(OldD),
 	'$end_consult',
 	(
-	  get_value('$lf_verbose',silent)
+	  nb_getval('$lf_verbose',silent)
 	->
 	  true
 	;

@@ -77,7 +77,7 @@ module(N) :-
 
 '$module_dec'(N,P) :-
 	'$current_module'(_,N),
-	get_value('$consulting_file',F),
+	nb_getval('$consulting_file',F),
 	'$add_module_on_file'(N, F, P).
 
 '$add_module_on_file'(Mod, F, Exports) :-

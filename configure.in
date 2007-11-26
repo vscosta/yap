@@ -43,7 +43,7 @@ AC_ARG_ENABLE(threads,
 	[ --enable-threads           support system threads ],
 	threads="$enableval", threads=no)
 AC_ARG_ENABLE(pthread-locking,
-	[ --pthread-locking           use pthread locking primitives for internal locking (requires threads)  ],
+	[ --enable-pthread-locking   use pthread locking primitives for internal locking (requires threads)  ],
 	pthreadlocking="$enableval", pthreadlocking=no)
 AC_ARG_ENABLE(max-performance,
 	[ --enable-max-performance   try using the best flags for specific architecture ],

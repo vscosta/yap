@@ -67,12 +67,12 @@ legal_env (CELL *ep)
     return (FALSE);
   ps = *((CELL *) (Addr (cp) - CellSize));
   pe = (PredEntry *) (ps - sizeof (OPREG) - sizeof (Prop));
-  READ_LOCK(pe->PRWLock);
+  LOCK(pe->PELock);
   if (!ONHEAP (pe) || Unsigned (pe) & 3 || pe->KindOfPE & 0xff00) {
-    READ_UNLOCK(pe->PRWLock);
+    UNLOCK(pe->PELock);
     return (FALSE);
   }
-  READ_UNLOCK(pe->PRWLock);
+  UNLOCK(pe->PELock);
   return (TRUE);
 }
 
@@ -100,9 +100,9 @@ DumpActiveGoals (void)
       pe = EnvPreg(cp);
       if (!ONHEAP (pe) || Unsigned (pe) & (sizeof(CELL)-1))
 	break;
-      READ_LOCK(pe->PRWLock);
+      LOCK(pe->PELock);
       if (pe->KindOfPE & 0xff00) {
-	READ_UNLOCK(pe->PRWLock);
+	UNLOCK(pe->PELock);
 	break;
       }
       if (pe->PredFlags & (CompiledPredFlag | DynamicPredFlag))
@@ -110,7 +110,7 @@ DumpActiveGoals (void)
 	  Functor f;
 	  Term mod = TermProlog;
 
-	  READ_UNLOCK(pe->PRWLock);
+	  UNLOCK(pe->PELock);
 	  f = pe->FunctorOfPred;
 	  if (pe->KindOfPE && hidden (NameOfFunctor (f)))
 	    goto next;
@@ -128,7 +128,7 @@ DumpActiveGoals (void)
 	  }
 	  Yap_DebugPutc (Yap_c_error_stream,'\n');
 	} else {
-	  READ_UNLOCK(pe->PRWLock);
+	  UNLOCK(pe->PELock);
 	}
     next:
       ep = (CELL *) ep[E_E];
@@ -142,7 +142,7 @@ DumpActiveGoals (void)
       if (!ONLOCAL (b_ptr) || b_ptr->cp_b == NULL)
 	break;
       pe = Yap_PredForChoicePt(b_ptr);
-      READ_LOCK(pe->PRWLock);
+      LOCK(pe->PELock);
       {
 	Functor f;
 	Term mod = PROLOG_MODULE;
@@ -168,7 +168,7 @@ DumpActiveGoals (void)
 	}
 	Yap_DebugPutc (Yap_c_error_stream,'\n');
       }
-      READ_UNLOCK(pe->PRWLock);
+      UNLOCK(pe->PELock);
       b_ptr = b_ptr->cp_b;
     }
 }

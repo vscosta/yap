@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2007-11-07 09:25:27 $							 *
+* Last rev:     $Date: 2007-11-26 23:43:07 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.97  2007/11/07 09:25:27  vsc
+* speedup meta-calls
+*
 * Revision 1.96  2007/11/06 17:02:09  vsc
 * compile ground terms away.
 *
@@ -481,6 +484,9 @@ a_cle(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
     code_p->u.EC.ClENV = 0;
     code_p->u.EC.ClRefs = 0;
     code_p->u.EC.ClBase = cl;
+#if defined(THREADS) || defined(YAPOR)
+    code_p->u.EC.p = cip->CurrentPred;
+#endif
     cl->ClExt = code_p;
     cl->ClFlags |= LogUpdRuleMask;
   }
@@ -2821,16 +2827,6 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       }
       code_p = cl_u->lui.ClCode;
       *entry_codep = code_p;
-#if defined(YAPOR) || defined(THREADS)
-      if (assembling == ASSEMBLING_INDEX &&
-	  !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag)) {
-	if (pass_no) {
-	  code_p->opc = opcode(_lock_lu);
-	  code_p->u.p.p = cip->CurrentPred;
-	}
-	GONEXT(p);
-      }
-#endif
     } else {
       if (pass_no) {
 	cl_u->si.ClSize = size;
@@ -3114,7 +3110,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
      else
        if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
 	   !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag))
-	code_p = a_e(_unlock_lu, code_p, pass_no);
+	 code_p = a_e(_unlock_lu, code_p, pass_no);
 #endif
       code_p = a_pl(_procceed, cip->CurrentPred, code_p, pass_no);
 #ifdef YAPOR

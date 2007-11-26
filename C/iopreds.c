@@ -3019,6 +3019,21 @@ Yap_CheckStream (Term arg, int kind, char *msg)
   return CheckStream(arg, kind, msg);
 }
 
+
+#if  defined(YAPOR) || defined(THREADS)
+void
+Yap_LockStream (int sno)
+{
+  LOCK(Stream[sno].streamlock);
+}
+
+void
+Yap_UnLockStream (int sno)
+{
+  UNLOCK(Stream[sno].streamlock);
+}
+#endif
+
 static Int
 p_check_stream (void)
 {				/* '$check_stream'(Stream,Mode)                  */

@@ -88,8 +88,8 @@ load_files(Files,Opts) :-
 	'$do_error'(domain_error(unimplemented_option,qcompile),Call).
 '$process_lf_opt'(qcompile(false),_,_,_,_,false,_,_,_,_,_,_,_,_).
 '$process_lf_opt'(silent(true),Silent,silent,_,_,_,_,_,_,_,_,_,_,_) :-
-	( get_value('$lf_verbose',Silent) -> true ;  Silent = informational),
-	set_value('$lf_verbose',silent).
+	( nb_getval('$lf_verbose',Silent) -> true ;  Silent = informational),
+	nb_setval('$lf_verbose',silent).
 '$process_lf_opt'(skip_unix_comments,_,_,_,_,_,_,_,_,skip_unix_comments,_,_,_,_).
 '$process_lf_opt'(compilation_mode(source),_,_,_,_,_,_,_,_,_,source,_,_,_).
 '$process_lf_opt'(compilation_mode(compile),_,_,_,_,_,_,_,_,_,compile,_,_,_).
@@ -148,7 +148,7 @@ load_files(Files,Opts) :-
 
 '$close_lf'(Silent) :- 
 	nonvar(Silent), !,
-	set_value('$lf_verbose',Silent).
+	nb_setval('$lf_verbose',Silent).
 '$close_lf'(_).
 
 ensure_loaded(Fs) :-
@@ -211,14 +211,14 @@ use_module(M,F,Is) :-
 	'$record_loaded'(Stream, ContextModule),
 	'$current_module'(OldModule,ContextModule),
 	getcwd(OldD),
-	get_value('$consulting_file',OldF),
+	nb_getval('$consulting_file',OldF),
 	'$set_consulting_file'(Stream),
 	H0 is heapused, '$cputime'(T0,_),
 	'$current_stream'(File,_,Stream),
 	'$fetch_stream_alias'(OldStream,'$loop_stream'),
 	'$change_alias_to_stream'('$loop_stream',Stream),
-	get_value('$consulting',Old),
-	set_value('$consulting',false),
+	nb_getval('$consulting',Old),
+	nb_setval('$consulting',false),
 	'$access_yap_flags'(18,GenerateDebug),
 	'$consult_infolevel'(InfLevel),
 	'$comp_mode'(OldCompMode, CompMode),
@@ -251,8 +251,8 @@ use_module(M,F,Is) :-
 	'$change_alias_to_stream'('$loop_stream',OldStream),
 	'$set_yap_flags'(18,GenerateDebug),
 	'$comp_mode'(_, OldCompMode),
-	set_value('$consulting',Old),
-	set_value('$consulting_file',OldF),
+	nb_setval('$consulting',Old),
+	nb_setval('$consulting_file',OldF),
 	cd(OldD),
 	nb_setval('$if_level',OldIncludeLevel),
 	% surely, we were in run mode or we would not have included the file!
@@ -279,7 +279,7 @@ use_module(M,F,Is) :-
 
 '$consult_infolevel'(InfoLevel) :- nonvar(InfoLevel), !.
 '$consult_infolevel'(InfoLevel) :-
-	get_value('$lf_verbose',InfoLevel), InfoLevel \= [], !.
+	nb_getval('$lf_verbose',InfoLevel), InfoLevel \= [], !.
 '$consult_infolevel'(informational).
 
 '$start_reconsulting'(F) :-
@@ -338,9 +338,10 @@ use_module(M,F,Is) :-
 	'$include'(F, Status),
 	'$include'(Fs, Status).
 '$include'(X, Status) :-
-	get_value('$lf_verbose',Verbosity),
+	nb_getval('$lf_verbose',Verbosity),
 	'$find_in_path'(X,Y,include(X)),
-	'$values'('$included_file',OY,Y),
+	nb_getval('$included_file',OY),
+	nb_setval('$included_file', Y),
 	'$current_module'(Mod),
 	H0 is heapused, '$cputime'(T0,_),
 	'$default_encoding'(Encoding),
@@ -352,7 +353,7 @@ use_module(M,F,Is) :-
 	),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	'$print_message'(Verbosity, loaded(included, Y, Mod, T, H)),
-	set_value('$included_file',OY).
+	nb_setval('$included_file',OY).
 
 '$do_startup_reconsult'(X) :-
 	( '$access_yap_flags'(15, 0) ->
@@ -374,13 +375,13 @@ use_module(M,F,Is) :-
 
 
 prolog_load_context(_, _) :-
-	get_value('$consulting_file',[]), !, fail.
+	nb_getval('$consulting_file',[]), !, fail.
 prolog_load_context(directory, DirName) :- 
 	getcwd(DirName).
 prolog_load_context(file, FileName) :- 
-	get_value('$included_file',IncFileName),
+	nb_getval('$included_file',IncFileName),
 	( IncFileName = [] ->
-	  get_value('$consulting_file',FileName)
+	  nb_getval('$consulting_file',FileName)
         ;
            FileName
  = IncFileName
@@ -388,7 +389,7 @@ prolog_load_context(file, FileName) :-
 prolog_load_context(module, X) :-
 	'$current_module'(X).
 prolog_load_context(source, FileName) :-
-	get_value('$consulting_file',FileName).
+	nb_getval('$consulting_file',FileName).
 prolog_load_context(stream, Stream) :- 
 	'$fetch_stream_alias'(Stream,'$loop_stream').
 prolog_load_context(term_position, Position) :- 
@@ -465,7 +466,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 
 % add_multifile_predicate when we start consult
 '$add_multifile'(Name,Arity,Module) :-
-	get_value('$consulting_file',File),
+	nb_getval('$consulting_file',File),
 	'$add_multifile'(File,Name,Arity,Module).
 
 '$add_multifile'(File,Name,Arity,Module) :-
@@ -494,12 +495,12 @@ remove_from_path(New) :- '$check_path'(New,Path),
 '$remove_multifile_clauses'(_).
 
 '$set_consulting_file'(user) :- !,
-	set_value('$consulting_file',user_input).
+	nb_setval('$consulting_file',user_input).
 '$set_consulting_file'(user_input) :- !,
-	set_value('$consulting_file',user_input).
+	nb_setval('$consulting_file',user_input).
 '$set_consulting_file'(Stream) :-
 	'$file_name'(Stream,F),
-	set_value('$consulting_file',F),
+	nb_setval('$consulting_file',F),
 	'$set_consulting_dir'(F).
 
 %

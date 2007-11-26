@@ -11,8 +11,11 @@
 * File:		checker.yap						 *
 * comments:	style checker for Prolog				 *
 *									 *
-* Last rev:     $Date: 2006-11-17 12:10:46 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-26 23:43:09 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.22  2006/11/17 12:10:46  vsc
+* style_checker was failing on DCGs
+*
 * Revision 1.21  2006/03/24 16:26:31  vsc
 * code review
 *
@@ -153,7 +156,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$sv_warning'(SVs,T) :-
 	'$current_module'(OM),
 	'$xtract_head'(T,OM,M,H,Name,Arity),
-	( get_value('$consulting',false),
+	( nb_getval('$consulting',false),
 	   '$first_clause_in_file'(Name,Arity, OM) ->
 	    ClN = 1 ;
 		'$number_of_clauses'(H,M,ClN0),
@@ -184,7 +187,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$handle_multiple'(F,A,M) :-
 	\+ '$first_clause_in_file'(F,A,M), !.
 '$handle_multiple'(_,_,_) :-
-	get_value('$consulting',true), !.
+	nb_getval('$consulting',true), !.
 '$handle_multiple'(F,A,M) :-
 	recorded('$predicate_defs','$predicate_defs'(F,A,M,Fil),_), !,
 	'$multiple_has_been_defined'(Fil, F/A, M), !.
@@ -252,7 +255,7 @@ discontiguous(F) :-
 %
 '$check_multifile_pred'(Hd, M, _) :-
 	functor(Hd,Na,Ar),
-	get_value('$consulting_file',F),
+	nb_getval('$consulting_file',F),
 	recorded('$multifile_defs','$defined'(F,Na,Ar,M),_), !.
 % oops, we did not.
 '$check_multifile_pred'(Hd, M, Fl) :-

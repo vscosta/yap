@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2007-11-07 09:25:27 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-26 23:43:09 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.20  2007/11/07 09:25:27  vsc
+* speedup meta-calls
+*
 * Revision 1.19  2007/11/06 17:02:12  vsc
 * compile ground terms away.
 *
@@ -243,6 +246,9 @@ restore_opcodes(yamop *pc)
       /* instructions type EC */
     case _alloc_for_logical_pred:
       pc->u.EC.ClBase = (struct logic_upd_clause *)PtoOpAdjust((yamop *)pc->u.EC.ClBase);
+#if defined(THREADS) || defined(YAPOR)
+      pc->u.EC.p = PtoPredAdjust(pc->u.EC.p);
+#endif
       pc = NEXTOP(pc,EC);
       break;
       /* instructions type e */
@@ -262,6 +268,7 @@ restore_opcodes(yamop *pc)
     case _write_l_list:
     case _pop:
     case _index_pred:
+    case _lock_pred:
 #ifdef BEAM
     case _retry_eam:
 #endif

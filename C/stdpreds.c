@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2007-11-06 17:02:12 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-26 23:43:08 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.123  2007/11/06 17:02:12  vsc
+* compile ground terms away.
+*
 * Revision 1.122  2007/10/18 08:24:16  vsc
 * fix global variables
 *
@@ -540,10 +543,10 @@ FindAtom(codeToFind, arity)
 	pp = RepPredProp(pp->NextOfPE);
       if (pp != NIL) {
 	CODEADDR *out;
-	READ_LOCK(pp->PRWLock);
+	LOCK(pp->PELock);
 	out = &(pp->CodeOfPred)
 	*arityp = pp->ArityOfPE;
-	READ_UNLOCK(pp->PRWLock);
+	UNLOCK(pp->PELock);
 	READ_UNLOCK(ae->ARWLock);
 	return (out);
       }
@@ -565,10 +568,10 @@ FindAtom(codeToFind, arity)
 	pp = RepPredProp(pp->NextOfPE);
       if (pp != NIL) {
 	CODEADDR *out;
-	READ_LOCK(pp->PRWLock);
+	LOCK(pp->PELock);
 	out = &(pp->CodeOfPred)
 	*arityp = pp->ArityOfPE;
-	READ_UNLOCK(pp->PRWLock);
+	UNLOCK(pp->PELock);
 	READ_UNLOCK(ae->ARWLock);
 	return (out);
       }
@@ -2909,14 +2912,14 @@ p_flags(void)
     return (FALSE);
   if (EndOfPAEntr(pe))
     return (FALSE);
-  READ_LOCK(pe->PRWLock);
+  LOCK(pe->PELock);
   if (!Yap_unify_constant(ARG3, MkIntegerTerm(pe->PredFlags))) {
-    READ_UNLOCK(pe->PRWLock);
+    UNLOCK(pe->PELock);
     return(FALSE);
   }
   ARG4 = Deref(ARG4);
   if (IsVarTerm(ARG4)) {
-    READ_UNLOCK(pe->PRWLock);
+    UNLOCK(pe->PELock);
     return (TRUE);
   } else if (!IsIntegerTerm(ARG4)) {
     union arith_ret v;
@@ -2924,15 +2927,15 @@ p_flags(void)
     if (Yap_Eval(ARG4, &v) == long_int_e) {
 	newFl = v.Int;
     } else {
-      READ_UNLOCK(pe->PRWLock);
+      UNLOCK(pe->PELock);
       Yap_Error(TYPE_ERROR_INTEGER, ARG4, "flags");
       return(FALSE);
     }
   } else
     newFl = IntegerOfTerm(ARG4);
   pe->PredFlags = (CELL)newFl;
-  READ_UNLOCK(pe->PRWLock);
-  return (TRUE);
+  UNLOCK(pe->PELock);
+  return TRUE;
 }
 
 static int 

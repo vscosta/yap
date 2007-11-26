@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2007-11-07 09:25:27 $							 *
+* Last rev:     $Date: 2007-11-26 23:43:09 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.42  2007/11/07 09:25:27  vsc
+* speedup meta-calls
+*
 * Revision 1.41  2007/11/06 17:02:12  vsc
 * compile ground terms away.
 *
@@ -282,6 +285,7 @@
     OPCODE(index_blob              ,e),	
     OPCODE(trust_fail              ,e),		
     OPCODE(index_pred              ,e),
+    OPCODE(lock_pred               ,e),
     OPCODE(expand_index            ,e),		
     OPCODE(expand_clauses          ,sp),
     OPCODE(save_b_x                ,x),		

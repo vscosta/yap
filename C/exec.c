@@ -57,12 +57,11 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt, yamop *code) {
   if (Yap_do_low_level_trace)
     low_level_trace(enter_pred,pen,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
-  READ_LOCK(pen->PRWLock);
 #ifdef DEPTH_LIMIT
   if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is prolog */
     if (pen->ModuleOfPred) {
       if (DEPTH == MkIntTerm(0)) {
-	READ_UNLOCK(pen->PRWLock);
+	UNLOCK(pen->PELock);
 	return FALSE;
       }
       else DEPTH = RESET_DEPTH();
@@ -73,7 +72,6 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt, yamop *code) {
   CP = P;
   P = code;
   /* vsc: increment reduction counter at meta-call entry */
-  READ_UNLOCK(pen->PRWLock);
   if (pen->PredFlags & ProfiledPredFlag) {
     LOCK(pen->StatisticsForPred.lock);
     pen->StatisticsForPred.NOfEntries++;
@@ -1552,15 +1550,15 @@ Yap_execute_goal(Term t, int nargs, Term mod)
   if (pe == NIL) {
     return(CallMetaCall(mod));
   }
-  READ_LOCK(ppe->PRWLock);
+  LOCK(ppe->PELock);
   if (IsAtomTerm(t)) {
     CodeAdr = RepPredProp (pe)->CodeOfPred;
-    READ_UNLOCK(ppe->PRWLock);
+    UNLOCK(ppe->PELock);
     out = do_goal(t, CodeAdr, 0, pt, FALSE);
   } else {
     Functor f = FunctorOfTerm(t);
     CodeAdr = RepPredProp (pe)->CodeOfPred;
-    READ_UNLOCK(ppe->PRWLock);
+    UNLOCK(ppe->PELock);
     out = do_goal(t, CodeAdr, ArityOfFunctor(f), pt, FALSE);
   }
 
@@ -1697,9 +1695,9 @@ Yap_RunTopGoal(Term t)
     /* we must always start the emulator with Prolog code */
     return FALSE;
   }
-  READ_LOCK(ppe->PRWLock);
+  LOCK(ppe->PELock);
   CodeAdr = ppe->CodeOfPred;
-  READ_UNLOCK(ppe->PRWLock);
+  UNLOCK(ppe->PELock);
 #if !USE_SYSTEM_MALLOC
   if (Yap_TrailTop - HeapTop < 2048) {
     Yap_PrologMode = BootMode;

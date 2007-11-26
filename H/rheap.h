@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2007-11-07 09:35:53 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-26 23:43:09 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.80  2007/11/07 09:35:53  vsc
+* small fix
+*
 * Revision 1.79  2007/11/07 09:25:27  vsc
 * speedup meta-calls
 *
@@ -447,6 +450,7 @@ restore_codes(void)
   Yap_heap_regs->yescode->opc = Yap_opcode(_Ystop);
   Yap_heap_regs->undef_op = Yap_opcode(_undef_p);
   Yap_heap_regs->index_op = Yap_opcode(_index_pred);
+  Yap_heap_regs->lockpred_op = Yap_opcode(_lock_pred);
   Yap_heap_regs->fail_op = Yap_opcode(_op_fail);
   Yap_heap_regs->nocode->opc = Yap_opcode(_Nstop);
 #ifdef YAPOR

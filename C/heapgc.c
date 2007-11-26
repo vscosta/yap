@@ -2398,6 +2398,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	      if (flags & IndexMask) {
 		LogUpdIndex *indx = ClauseFlagsToLogUpdIndex(pt0);
 		int erase;
+		LOCK(indx->ClPred->PELock);
 		DEC_CLREF_COUNT(indx);
 		indx->ClFlags &= ~InUseMask;
 		erase = (indx->ClFlags & ErasedMask
@@ -2407,10 +2408,12 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 		     no one is accessing the clause */
 		  Yap_ErLogUpdIndex(indx);
 		}
+		UNLOCK(indx->ClPred->PELock);
 	      } else {
 		LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt0);
 		int erase;
 
+		LOCK(cl->ClPred->PELock);
 		DEC_CLREF_COUNT(cl);
 		cl->ClFlags &= ~InUseMask;
 		erase = ((cl->ClFlags & ErasedMask) && !cl->ClRefCount);
@@ -2419,6 +2422,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 		     no one is accessing the clause */
 		  Yap_ErLogUpdCl(cl);
 		}
+		UNLOCK(cl->ClPred->PELock);
 	      }
 	    } else {
 	      DynamicClause *cl = ClauseFlagsToDynamicClause(pt0);

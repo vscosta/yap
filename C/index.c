@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2007-11-08 15:52:15 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-26 23:43:08 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.191  2007/11/08 15:52:15  vsc
+* fix some bugs in new dbterm code.
+*
 * Revision 1.190  2007/11/07 09:25:27  vsc
 * speedup meta-calls
 *
@@ -945,6 +948,7 @@ has_cut(yamop *pc)
 #endif /* !YAPOR */
     case _pop:
     case _index_pred:
+    case _lock_pred:
 #if THREADS
     case _thread_local:
 #endif
@@ -2366,6 +2370,9 @@ add_info(ClauseDef *clause, UInt regno)
       }
       cl = NEXTOP(cl,ycx);
       break;
+    case _lock_lu:
+      cl = NEXTOP(cl,p);
+      break;
     case _call_bfunc_xx:
       cl = NEXTOP(cl,llxx);
       break;
@@ -2425,7 +2432,6 @@ add_info(ClauseDef *clause, UInt regno)
     case _skip:
     case _jump_if_var:
     case _try_in:
-    case _lock_lu:
     case _unlock_lu:
     case _try_clause2:
     case _try_clause3:
@@ -2454,6 +2460,7 @@ add_info(ClauseDef *clause, UInt regno)
 #endif  /* !YAPOR */
     case _pop:
     case _index_pred:
+    case _lock_pred:
 #if THREADS
     case _thread_local:
 #endif
@@ -4790,7 +4797,9 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots)
   }
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
+    Yap_LockStream(Yap_c_error_stream);
     Yap_ShowCode(&cint);
+    Yap_UnLockStream(Yap_c_error_stream);
   }
 #endif
   /* globals for assembler */
@@ -5818,8 +5827,18 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
 	cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
 	Yap_kill_iblock((ClauseUnion *)ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
       }
-      ap->OpcodeOfPred = INDEX_OPCODE;
-      ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+#if defined(YAPOR) || defined(THREADS)
+      if (ap->PredFlags & LogUpdatePredFlag &&
+	  ap->ModuleOfPred != IDB_MODULE) {
+	ap->OpcodeOfPred = LOCKPRED_OPCODE;
+	ap->cs.p_code.TrueCodeOfPred = ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+      } else {
+#endif
+	ap->OpcodeOfPred = INDEX_OPCODE;
+	ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+#if defined(YAPOR) || defined(THREADS)
+      }
+#endif
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return FAILCODE;
     }
@@ -5851,7 +5870,12 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
+    Yap_LockStream(Yap_c_error_stream);
     if (!tmod) tmod = TermProlog;
+#if THREADS
+    Yap_plwrite(MkIntegerTerm(worker_id), Yap_DebugPutc, 0);
+    Yap_DebugPutc(Yap_c_error_stream,' ');
+#endif
     Yap_DebugPutc(Yap_c_error_stream,'>');
     Yap_DebugPutc(Yap_c_error_stream,'\t');
     Yap_plwrite(tmod, Yap_DebugPutc, 0);
@@ -5880,8 +5904,14 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
 	Yap_DebugPutc(Yap_c_error_stream,'/');
 	Yap_plwrite(MkIntegerTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
       }
+      Yap_UnLockStream(Yap_c_error_stream);
     }
     Yap_DebugPutc(Yap_c_error_stream,'\n');
+#if THREADS
+    Yap_plwrite(MkIntegerTerm(worker_id), Yap_DebugPutc, 0);
+    Yap_DebugPutc(Yap_c_error_stream,' ');
+#endif
+    Yap_UnLockStream(Yap_c_error_stream);
   }
 #endif
   if ((labp = expand_index(&cint)) == NULL) {
@@ -5900,7 +5930,9 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
   }
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
+    Yap_LockStream(Yap_c_error_stream);
     Yap_ShowCode(&cint);
+    Yap_UnLockStream(Yap_c_error_stream);
   }
 #endif
   /* globals for assembler */
@@ -6284,16 +6316,12 @@ expand_ftable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Functor f
 static void
 clean_ref_to_clause(LogUpdClause *tgl)
 {
-  LOCK(tgl->ClLock);
   tgl->ClRefCount--;
   if ((tgl->ClFlags & ErasedMask) &&
       !(tgl->ClRefCount) &&
       !(tgl->ClFlags & InUseMask)) {
     /* last ref to the clause */
-    UNLOCK(tgl->ClLock);
     Yap_ErLogUpdCl(tgl);
-  } else {
-    UNLOCK(tgl->ClLock);
   }
 }
 
@@ -7250,6 +7278,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
+    Yap_LockStream(Yap_c_error_stream);
     if (!tmod) tmod = TermProlog;
     Yap_DebugPutc(Yap_c_error_stream,'+');
     Yap_DebugPutc(Yap_c_error_stream,'\t');
@@ -7281,6 +7310,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
       }
     }
     Yap_DebugPutc(Yap_c_error_stream,'\n');
+    Yap_UnLockStream(Yap_c_error_stream);
   }
 #endif
   stack = (path_stack_entry *)TR;
@@ -7334,6 +7364,13 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
     if (ap->PredFlags & SpiedPredFlag) {
       ap->OpcodeOfPred = Yap_opcode(_spy_pred);
       ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+#if defined(YAPOR) || defined(THREADS)
+    } else if (ap->PredFlags & LogUpdatePredFlag &&
+	       ap->ModuleOfPred != IDB_MODULE) {
+      ap->cs.p_code.TrueCodeOfPred = FAILCODE;
+      ap->OpcodeOfPred = LOCKPRED_OPCODE;
+      ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+#endif
     } else {
       ap->OpcodeOfPred = ap->cs.p_code.FirstClause->opc;
       ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
@@ -7730,6 +7767,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     Term tmod = ap->ModuleOfPred;
 
     if (!tmod) tmod = TermProlog;
+    Yap_LockStream(Yap_c_error_stream);
     Yap_DebugPutc(Yap_c_error_stream,'-');
     Yap_DebugPutc(Yap_c_error_stream,'\t');
     Yap_plwrite(tmod, Yap_DebugPutc, 0);
@@ -7761,6 +7799,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
       }
     }
     Yap_DebugPutc(Yap_c_error_stream,'\n');
+    Yap_UnLockStream(Yap_c_error_stream);
   }
 #endif
   stack = (path_stack_entry *)TR;
@@ -7776,8 +7815,19 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   sp = push_path(stack, NULL, &cl, &cint);
   if (ap->cs.p_code.NOfClauses == 0) {
     /* there was no indexing code */
-    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = FAILCODE;
-    ap->OpcodeOfPred = Yap_opcode(_op_fail);
+#if defined(YAPOR) || defined(THREADS)
+    if (ap->PredFlags & LogUpdatePredFlag &&
+	ap->ModuleOfPred != IDB_MODULE) {
+      ap->cs.p_code.TrueCodeOfPred = FAILCODE;
+      ap->OpcodeOfPred = LOCKPRED_OPCODE;
+      ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+    } else {
+#endif
+      ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = FAILCODE;
+      ap->OpcodeOfPred = Yap_opcode(_op_fail);
+#if defined(YAPOR) || defined(THREADS)
+    }
+#endif
   } else {
     remove_from_index(ap, sp, &cl, beg, last, &cint); 
   }
@@ -7859,7 +7909,6 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
   /* try to refine the interval using the indexing code */
   while (ipc != NULL) {
     op_numbers op = Yap_op_from_opcode(ipc->opc);
-
     switch(op) {
     case _try_in:
       update_clause_choice_point(NEXTOP(ipc,l), ap_pc);
@@ -8006,7 +8055,6 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  ap->LastCallOfPred = LUCALL_EXEC;
 	}
 	*--ASP = MkIntegerTerm(ap->TimeStampOfPred);
-	LOCK(cl->ClLock);
 	/* indicate the indexing code is being used */
 #if defined(YAPOR) || defined(THREADS)
 	/* just store a reference */
@@ -8018,7 +8066,6 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  TRAIL_CLREF(cl);
 	}	
 #endif
-	UNLOCK(cl->ClLock);
       }
       ipc = ipc->u.Ill.l1;
       break;
@@ -8070,11 +8117,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 #if defined(YAPOR) || defined(THREADS)
 	B->cp_tr--;
 	TR--;
-	LOCK(cl->ClLock);
 	DEC_CLREF_COUNT(cl);
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && cl->ClFlags & (ErasedMask|DirtyMask)) {
-	  UNLOCK(cl->ClLock);
 	  /* I am the last one using this clause, hence I don't need a lock
 	     to dispose of it 
 	  */
@@ -8083,8 +8128,6 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  } else {
 	    Yap_CleanUpIndex(cl);
 	  }
-	} else {
-	  UNLOCK(cl->ClLock);
 	}
 #else
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
@@ -8296,16 +8339,13 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       XREGS[ap->ArityOfPE+3] = Terms[0];
       XREGS[ap->ArityOfPE+4] = Terms[1];
       XREGS[ap->ArityOfPE+5] = Terms[2];
-      LOCK(ap->PELock);
 #if defined(YAPOR) || defined(THREADS)
       if (!same_lu_block(jlbl, ipc)) {
 	ipc = *jlbl;
-	UNLOCK(ap->PELock);
 	break;
       }
 #endif
       ipc = ExpandIndex(ap, 5);
-      UNLOCK(ap->PELock);
       s_reg = (CELL *)XREGS[ap->ArityOfPE+1];
       t = XREGS[ap->ArityOfPE+2];
       Terms[0] = XREGS[ap->ArityOfPE+3];
@@ -8327,6 +8367,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
 #endif
     case _spy_pred:
+    case _lock_pred:
       if ((ap->PredFlags & IndexedPredFlag) ||
 	      ap->cs.p_code.NOfClauses <= 1) {
 	ipc = ap->cs.p_code.TrueCodeOfPred;
@@ -8572,19 +8613,18 @@ Yap_NthClause(PredEntry *ap, Int ncls)
     case _expand_index:
     case _expand_clauses:
 #if defined(YAPOR) || defined(THREADS)
-      LOCK(ap->PELock);
       if (*jlbl != (yamop *)&(ap->cs.p_code.ExpandCode)) {
 	ipc = *jlbl;
-	UNLOCK(ap->PELock);
 	break;
       }
 #endif
       ipc = ExpandIndex(ap, 0);
-      UNLOCK(ap->PELock);
+
       break;
     case _op_fail:
       ipc = alt;
       break;
+    case _lock_pred:
     case _index_pred:
     case _spy_pred:
       Yap_IPred(ap, 0);

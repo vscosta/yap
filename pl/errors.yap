@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2007-09-27 23:02:00 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-26 23:43:10 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.82  2007/09/27 23:02:00  vsc
+* encoding/1
+*
 * Revision 1.81  2007/09/27 15:25:34  vsc
 * upgrade JPL
 *
@@ -232,7 +235,7 @@ print_message(Level, Mss) :-
 	format(user_error, '~n', []).
 
 '$output_error_location'(MsgCodes) :-
-	get_value('$consulting_file',FileName),
+	nb_getval('$consulting_file',FileName),
 	FileName \= [], !,
 	'$start_line'(LN),
 	'$show_consult_level'(LC),

@@ -279,6 +279,13 @@ char	 STD_PROTO(*Yap_AllocScannerMemory,(unsigned int));
 /* routines in iopreds.c */
 Int   STD_PROTO(Yap_FirstLineInParse,(void));
 int   STD_PROTO(Yap_CheckIOStream,(Term, char *));
+#if  defined(YAPOR) || defined(THREADS)
+void  STD_PROTO(Yap_LockStream,(int));
+void  STD_PROTO(Yap_UnLockStream,(int));
+#else
+#define Yap_LockStream(X)
+#define Yap_UnLockStream(X)
+#endif
 int   STD_PROTO(Yap_GetStreamFd,(int));
 void  STD_PROTO(Yap_CloseStreams,(int));
 void  STD_PROTO(Yap_CloseStream,(int));

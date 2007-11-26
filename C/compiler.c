@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2007-11-06 17:02:11 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-26 23:43:08 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.85  2007/11/06 17:02:11  vsc
+* compile ground terms away.
+*
 * Revision 1.84  2007/03/27 13:48:51  vsc
 * fix number of overflows (comments by Bart Demoen).
 *
@@ -722,12 +725,12 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
       pop_code(level, cglobs);
     }
   } else if (IsRefTerm(t)) {
-    READ_LOCK(cglobs->cint.CurrentPred->PRWLock);
+    LOCK(cglobs->cint.CurrentPred->PELock);
     if (!(cglobs->cint.CurrentPred->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
-      READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
+      UNLOCK(cglobs->cint.CurrentPred->PELock);
       FAIL("can not compile data base reference",TYPE_ERROR_CALLABLE,t);
     } else {
-      READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
+      UNLOCK(cglobs->cint.CurrentPred->PELock);
       cglobs->hasdbrefs = TRUE;
       if (level == 0)
 	Yap_emit((cglobs->onhead ? get_atom_op : put_atom_op), (CELL) t, argno, &cglobs->cint);      
@@ -1385,14 +1388,14 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
       if (cglobs->onlast) {
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	READ_LOCK(cglobs->cint.CurrentPred->PRWLock);
+	LOCK(cglobs->cint.CurrentPred->PELock);
 	if (is_tabled(cglobs->cint.CurrentPred))
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	else
 #endif /* TABLING */
 	  Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
+	UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
       }
       return;
@@ -1406,7 +1409,7 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 	/* never a problem here with a -> b, !, c ; d */
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	READ_LOCK(cglobs->cint.CurrentPred->PRWLock);
+	LOCK(cglobs->cint.CurrentPred->PELock);
 	if (is_tabled(cglobs->cint.CurrentPred)) {
 	  Yap_emit_3ops(cut_op, Zero, Zero, Zero, &cglobs->cint);
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
@@ -1417,7 +1420,7 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 	    Yap_emit_3ops(cutexit_op, Zero, Zero, Zero, &cglobs->cint);
 	  }
 #ifdef TABLING
-	READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
+	UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
       }
       else {
@@ -1454,14 +1457,14 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
       Yap_emit(label_op, l2, Zero, &cglobs->cint);
       if (cglobs->onlast) {
 #ifdef TABLING
-	READ_LOCK(cglobs->cint.CurrentPred->PRWLock);
+	LOCK(cglobs->cint.CurrentPred->PELock);
 	if (is_tabled(cglobs->cint.CurrentPred))
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	else
 #endif /* TABLING */
 	  Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
+	UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
       }
       else
@@ -1687,14 +1690,14 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
       if (cglobs->onlast) {
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	READ_LOCK(cglobs->cint.CurrentPred->PRWLock);
+	LOCK(cglobs->cint.CurrentPred->PELock);
 	if (is_tabled(cglobs->cint.CurrentPred))
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	else
 #endif /* TABLING */
 	  Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
+	UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
       }
       return;
@@ -1711,14 +1714,14 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 	if (cglobs->onlast) {
 	  Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	  READ_LOCK(cglobs->cint.CurrentPred->PRWLock);
+	  LOCK(cglobs->cint.CurrentPred->PELock);
 	  if (is_tabled(cglobs->cint.CurrentPred))
 	    Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	  else
 #endif /* TABLING */
 	    Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	  READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
+	  UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
 	}
 	return;
@@ -1739,14 +1742,14 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 	if (cglobs->onlast) {
 	  Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	  READ_LOCK(cglobs->cint.CurrentPred->PRWLock);
+	  LOCK(cglobs->cint.CurrentPred->PELock);
 	  if (is_tabled(cglobs->cint.CurrentPred))
 	    Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	  else
 #endif /* TABLING */
 	    Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	  READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
+	  UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
 	}
 	return;
@@ -1820,14 +1823,14 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
       if (cglobs->onlast) {
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	READ_LOCK(cglobs->cint.CurrentPred->PRWLock);
+	LOCK(cglobs->cint.CurrentPred->PELock);
 	if (is_tabled(cglobs->cint.CurrentPred))
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	else
 #endif /* TABLING */
 	  Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
+	UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
       }
       return;
@@ -1855,14 +1858,14 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
     if (cglobs->onlast) {
       Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-      READ_LOCK(cglobs->cint.CurrentPred->PRWLock);
+      LOCK(cglobs->cint.CurrentPred->PELock);
       if (is_tabled(cglobs->cint.CurrentPred))
 	Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
       else
 #endif /* TABLING */
 	Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-      READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
+      UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
     }
   }
@@ -1884,14 +1887,14 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 	cglobs->or_found = TRUE;
 #ifdef TABLING
-	READ_LOCK(cglobs->cint.CurrentPred->PRWLock);
+	LOCK(cglobs->cint.CurrentPred->PELock);
 	if (is_tabled(cglobs->cint.CurrentPred))
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	else
 #endif /* TABLING */
 	  Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
+	UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
       }
     }
@@ -1899,7 +1902,7 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
       if (cglobs->onlast) {
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	READ_LOCK(cglobs->cint.CurrentPred->PRWLock);
+	LOCK(cglobs->cint.CurrentPred->PELock);
 	if (is_tabled(cglobs->cint.CurrentPred)) {
 	  cglobs->needs_env = TRUE;
 	  Yap_emit_3ops(call_op, (CELL) p0, Zero, Zero, &cglobs->cint);
@@ -1909,7 +1912,7 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 #endif /* TABLING */
 	  Yap_emit(execute_op, (CELL) p0, Zero, &cglobs->cint);
 #ifdef TABLING
-	READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
+	UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
       }
       else {
@@ -2695,7 +2698,7 @@ c_layout(compiler_struct *cglobs)
 	cglobs->cint.cpc->op = nop_op;
       } else {
 #ifdef TABLING
-	READ_LOCK(cglobs->cint.CurrentPred->PRWLock);
+	LOCK(cglobs->cint.CurrentPred->PELock);
 	if (is_tabled(cglobs->cint.CurrentPred))
 	  cglobs->cint.cpc->op = nop_op;
 	else
@@ -2703,7 +2706,7 @@ c_layout(compiler_struct *cglobs)
 	  if (cglobs->goalno == 1 && !cglobs->or_found && nperm == 0)
 	    cglobs->cint.cpc->op = nop_op;
 #ifdef TABLING
-	READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
+	UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
       }
       break;
@@ -3243,7 +3246,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
       cglobs.cint.CurrentPred = RepPredProp(PredPropByFunc(FunctorOfTerm(head),mod));
     }
     /* insert extra instructions to count calls */
-    READ_LOCK(cglobs.cint.CurrentPred->PRWLock);
+    LOCK(cglobs.cint.CurrentPred->PELock);
     if ((cglobs.cint.CurrentPred->PredFlags & ProfiledPredFlag) ||
 	(PROFILING && (cglobs.cint.CurrentPred->cs.p_code.FirstClause == NIL))) {
       profiling = TRUE;
@@ -3256,7 +3259,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
       profiling = FALSE;
       call_counting = FALSE;
     }
-    READ_UNLOCK(cglobs.cint.CurrentPred->PRWLock);
+    UNLOCK(cglobs.cint.CurrentPred->PELock);
   }
   cglobs.is_a_fact = (body == MkAtomTerm(AtomTrue));
   /* phase 1 : produce skeleton code and variable information              */
@@ -3265,14 +3268,14 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
 
   if (cglobs.is_a_fact && !cglobs.vtable) {
 #ifdef TABLING
-    READ_LOCK(cglobs.cint.CurrentPred->PRWLock);
+    LOCK(cglobs.cint.CurrentPred->PELock);
     if (is_tabled(cglobs.cint.CurrentPred))
       Yap_emit(table_new_answer_op, Zero, cglobs.cint.CurrentPred->ArityOfPE, &cglobs.cint);
     else
 #endif /* TABLING */
       Yap_emit(procceed_op, Zero, Zero, &cglobs.cint);
 #ifdef TABLING
-    READ_UNLOCK(cglobs.cint.CurrentPred->PRWLock);
+    UNLOCK(cglobs.cint.CurrentPred->PELock);
 #endif
     /* ground term, do not need much more work */
     if (cglobs.cint.BlobsStart != NULL) {

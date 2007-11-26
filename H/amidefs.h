@@ -11,8 +11,11 @@
  * File:		amidefs.h						 *
  * comments:	Abstract machine peculiarities				 *
  *									 *
- * Last rev:     $Date: 2006-10-10 14:08:17 $							 *
+ * Last rev:     $Date: 2007-11-26 23:43:09 $							 *
  * $Log: not supported by cvs2svn $
+ * Revision 1.32  2006/10/10 14:08:17  vsc
+ * small fixes on threaded implementation.
+ *
  * Revision 1.31  2006/09/20 20:03:51  vsc
  * improve indexing on floats
  * fix sending large lists to DB
@@ -233,6 +236,9 @@ typedef struct yami {
       Int  ClENV;
       Int  ClRefs;
       struct logic_upd_clause *ClBase;
+#if defined(THREADS) || defined(YAPOR)
+      struct pred_entry        *p;
+#endif
       CELL  next;
     } EC;
     struct {
