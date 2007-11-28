@@ -467,15 +467,15 @@ del_max(black(L,K0,V0,R), K, V, Nil, NT, Flag) :-
 
 
 
-delete_red_node(L,L,L,done) :- !.
-delete_red_node(black([],[],[],[]),R,R,done) :- !.
-delete_red_node(L,black([],[],[],[]),L,done) :- !.
-delete_red_node(L,R,OUT,Done) :-
-	delete_next(R,NK,NV,NR,Done0),
+delete_red_node(L1,L2,L1,done) :- L1 == L2, !.
+delete_red_node(black([],[],[],[]),R,R,done) :-  !.
+delete_red_node(L,black([],[],[],[]),L,done) :-  !.
+delete_red_node(L,R,OUT,Done) :- 	
+	delete_next(R,NK,NV,NR,Done0),	
 	fixup_right(Done0,red(L,NK,NV,NR),OUT,Done).
 
 
-delete_black_node(L,L,L,not_done) :- !.
+delete_black_node(L1,L2,L1,not_done) :- 	L1 == L2, !.
 delete_black_node(black([],[],[],[]),red(L,K,V,R),black(L,K,V,R),done) :- !.
 delete_black_node(black([],[],[],[]),R,R,not_done) :- !.
 delete_black_node(red(L,K,V,R),black([],[],[],[]),black(L,K,V,R),done) :- !.
@@ -485,7 +485,7 @@ delete_black_node(L,R,OUT,Done) :-
 	fixup_right(Done0,black(L,NK,NV,NR),OUT,Done).
 
 
-delete_next(red(black([],[],[],[]),K,V,R),K,V,R,done) :- !.
+delete_next(red(black([],[],[],[]),K,V,R),K,V,R,done) :- 	!.
 delete_next(black(black([],[],[],[]),K,V,red(L1,K1,V1,R1)),
 	K,V,black(L1,K1,V1,R1),done) :- !.
 delete_next(black(black([],[],[],[]),K,V,R),K,V,R,not_done) :- !.
@@ -541,6 +541,7 @@ fixup2(black(black(Al,KA,VA,Be),KB,VB,black(C,KD,VD,red(Ep,KE,VE,Fi))),
 fixup_right(done,T,T,done).
 fixup_right(not_done,T,NT,Done) :-
 	fixup3(T,NT,Done).
+
 
 
 %
@@ -658,34 +659,38 @@ partial_map(black([],_,_,_),Map,Map,Nil,_,Nil) :- !.
 partial_map(red(L,K,V,R),Map,MapF,Nil,Goal,red(NL,K,NV,NR)) :-
 	partial_map(L,Map,MapI,Nil,Goal,NL),
 	( 
-	    MapI == [] -> 
-	    NR = R, NV = V
+	  MapI == [] -> 
+	  NR = R, NV = V, MapF = []
 	;
-	   MapI = [K1|MapR],
-	   (
-	     K == K1 ->
-	        once(call(Goal,V,NV)),
-	        Map2 = MapR
-	    ;
-	        Map2 = MapI, NV = V
-	    ),
-	    partial_map(R,Map2,MapF,Nil,Goal,NR)
+	  MapI = [K1|MapR],
+	  (
+	   K == K1
+	   ->
+	    ( call(Goal,V,NV) -> true ; NV = V ),
+	    MapN = MapR
+	   ;
+	    NV = V,
+	    MapN = MapI
+	   ),
+	  partial_map(R,MapN,MapF,Nil,Goal,NR)
 	).
 partial_map(black(L,K,V,R),Map,MapF,Nil,Goal,black(NL,K,NV,NR)) :-
 	partial_map(L,Map,MapI,Nil,Goal,NL),
 	( 
-	    MapI == [] -> 
-	    NR = R, NV = V
+	  MapI == [] -> 
+	  NR = R, NV = V, MapF = []
 	;
-	   MapI = [K1|MapR],
-	   (
-	     K == K1 ->
-	        once(call(Goal,V,NV)),
-	        Map2 = MapR
-	    ;
-	        Map2 = MapI, NV = V
-	    ),
-	    partial_map(R,Map2,MapF,Nil,Goal,NR)
+	  MapI = [K1|MapR],
+	  (
+	   K == K1
+	   ->
+	    ( call(Goal,V,NV) -> true ; NV = V ),
+	    MapN = MapR
+	   ;
+	    NV = V,
+	    MapN = MapI
+	   ),
+	  partial_map(R,MapN,MapF,Nil,Goal,NR)
 	).
 
 
@@ -706,6 +711,22 @@ keys(black(L,K,_,R),L0,Lf) :-
 	keys(L,[K|L1],Lf),
 	keys(R,L0,L1).
 
+
+ord_list_to_rbtree(List,Tree) :-
+	list_to_rbtree(List,Tree).
+
+list_to_rbtree(List,Tree) :-
+	rb_new(T0),
+	list_to_rbtree(List,T0,Tree).
+
+list_to_rbtree([],Tree,Tree).
+list_to_rbtree([K-V|List],T0,Tree) :-
+	rb_insert(T0, K, V, T1),
+	list_to_rbtree(List,T1,Tree).
+
+
+	
+/*
 list_to_rbtree(List,t(Nil,Tree)) :-
 	Nil = black([], [], [], []),
 	sort(List,Sorted),
@@ -718,6 +739,7 @@ ord_list_to_rbtree(List,t(Nil,Tree)) :-
 	Ar =.. [seq|List],
 	functor(Ar,_,L),
 	construct_rbtree(1, L, Ar, black, Nil, Tree).
+*/
 
 construct_rbtree(L, M, _, _, Nil, Nil) :- M < L, !.
 construct_rbtree(L, L, Ar, Color, Nil, Node) :- !,
@@ -762,8 +784,8 @@ rbtree(T) :-
 
 rbtree1(black(L,K,_,R)) :-
 	find_path_blacks(L, 0, Bls),
-	check_rbtree(L,-1000000,K,Bls),
-	check_rbtree(R,K,1000000,Bls).
+	check_rbtree(L,-inf,K,Bls),
+	check_rbtree(R,K,+inf,Bls).
 rbtree1(red(_,_,_,_)) :-
 	throw(msg("root should be black",[])).
 	
@@ -793,7 +815,7 @@ check_height(0,_,_) :- !.
 check_height(Bls0,Min,Max) :-
 	throw(msg("Unbalance ~d between ~w and ~w~n",[Bls0,Min,Max])).
 
-check_val(K, Min, Max) :- K > Min, K < Max, !.
+check_val(K, Min, Max) :- ( K @> Min ; Min == -inf), (K @< Max ; Max == +inf), !.
 check_val(K, Min, Max) :- 
 	throw(msg("not ordered: ~w not between ~w and ~w~n",[K,Min,Max])).
 

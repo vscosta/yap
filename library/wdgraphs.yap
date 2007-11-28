@@ -101,16 +101,16 @@ edges2wgraphl([V|Vertices], SortedEdges, [V-[]|GraphL]) :-
 
 
 wdgraph_add_edges([],[]) --> [].
-wdgraph_add_edges([V|Vs],[V-(V1-W)|Es]) --> !,
-	{ get_extra_children(Es,V,Children,REs) },
-	wdgraph_update_vertex(V,[V1-W|Children]),
+wdgraph_add_edges([VA|Vs],[VB-(V1-W)|Es]) --> { VA == VB }, !,
+	{ get_extra_children(Es,VA,Children,REs) },
+	wdgraph_update_vertex(VA,[V1-W|Children]),
 	wdgraph_add_edges(Vs,REs).
 wdgraph_add_edges([V|Vs],Es) --> !,
 	wdgraph_update_vertex(V,[]),
 	wdgraph_add_edges(Vs,Es).
 
-get_extra_children([V-(C-W)|Es],V,[C-W|Children],REs) :- !,
-	get_extra_children(Es,V,Children,REs).
+get_extra_children([VA-(C-W)|Es],VB,[C-W|Children],REs) :- VA == VB, !,
+	get_extra_children(Es,VB,Children,REs).
 get_extra_children(Es,_,[],Es).
 
 
@@ -120,9 +120,9 @@ wdgraph_update_vertex(V,Edges,WG0,WGF) :-
 wdgraph_update_vertex(V,Edges,WG0,WGF) :-
 	rb_insert(WG0, V, Edges, WGF).
 
-key_union([], [], []).
+key_union([], [], []) :- !.
 key_union([], [C|Children], [C|Children]).
-key_union([C|Children], [], [C|Children]).
+key_union([C|Children], [], [C|Children]) :- !.
 key_union([K-W|ToAdd], [K1-W1|Children0], NewUnion) :-
 	( K == K1 ->
 	    NewUnion = [K-W|NewChildren],

@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2007-11-26 23:43:07 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-28 23:52:14 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.231  2007/11/26 23:43:07  vsc
+* fixes to support threads and assert correctly, even if inefficiently.
+*
 * Revision 1.230  2007/11/08 15:52:15  vsc
 * fix some bugs in new dbterm code.
 *
@@ -2688,11 +2691,6 @@ Yap_absmi(int inp)
 #ifndef NO_CHECKING
 	check_stack(NoStackCall, H);
 #endif
-  if (pt->PredFlags & LogUpdatePredFlag) {
-    if (pt->OpcodeOfPred != LOCKPRED_OPCODE &&
-	pt->ModuleOfPred != IDB_MODULE && pt->OpcodeOfPred != UNDEF_OPCODE)
-      fprintf(stderr,"OOPS\n");
-  }
 	ENV = ENV_YREG;
 	/* Try to preserve the environment */
 	ENV_YREG = (CELL *) (((char *) ENV_YREG) + PREG->u.sla.s);

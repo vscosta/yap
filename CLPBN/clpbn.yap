@@ -29,6 +29,9 @@
 		    check_if_vel_done/1
 		    ]).
 
+:- use_module('clpbn/jt', [jt/3
+		    ]).
+
 :- use_module('clpbn/bnt', [do_bnt/3,
 		    check_if_bnt_done/1
 		    ]).
@@ -57,7 +60,7 @@
 
 :- dynamic solver/1,output/1,use/1.
 
-solver(vel).
+solver(jt).
 
 %output(xbif(user_error)).
 %output(gviz(user_error)).
@@ -142,6 +145,8 @@ get_clpbn_vars([_|GVars],CLPBNGVars) :-
 
 write_out(vel, GVars, AVars, DiffVars) :-
 	vel(GVars, AVars, DiffVars).
+write_out(jt, GVars, AVars, DiffVars) :-
+	jt(GVars, AVars, DiffVars).
 write_out(gibbs, GVars, AVars, DiffVars) :-
 	gibbs(GVars, AVars, DiffVars).
 write_out(bnt, GVars, AVars, DiffVars) :-
@@ -223,6 +228,9 @@ bind_clpbn(_, Var, _, _, _, _) :-
 	check_if_bnt_done(Var), !.
 bind_clpbn(_, Var, _, _, _, _) :-
 	use(vel),
+	check_if_vel_done(Var), !.
+bind_clpbn(_, Var, _, _, _, _) :-
+	use(jt),
 	check_if_vel_done(Var), !.
 bind_clpbn(T, Var, Key0, _, _, _) :-
 	get_atts(Var, [key(Key)]), !,

@@ -40,6 +40,7 @@ CLPBN_PROGRAMS= \
 	$(CLPBN_SRCDIR)/graphs.yap \
 	$(CLPBN_SRCDIR)/graphviz.yap \
 	$(CLPBN_SRCDIR)/hmm.yap \
+	$(CLPBN_SRCDIR)/jt.yap \
 	$(CLPBN_SRCDIR)/matrix_cpt_utils.yap \
 	$(CLPBN_SRCDIR)/topsort.yap \
 	$(CLPBN_SRCDIR)/utils.yap \

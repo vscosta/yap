@@ -31,6 +31,7 @@
 	    dgraph_min_path/5,
 	    dgraph_max_path/5,
 	    dgraph_min_paths/3,
+	    dgraph_isomorphic/4,
 	    dgraph_path/3]).
 
 :- use_module(library(rbtrees),
@@ -387,3 +388,24 @@ do_children([_|Children], G, SoFar, Path) :-
 	do_children(Children, G, SoFar, Path).
 
 
+dgraph_isomorphic(Vs, Vs2, G1, G2) :-
+	rb_new(Map0),
+	mapping(Vs,Vs2,Map0,Map),
+	dgraph_edges(G1,Edges),
+	translate_edges(Edges,Map,TEdges),
+	dgraph_new(G20),
+	dgraph_add_vertices(Vs2,G20,G21),
+	dgraph_add_edges(TEdges,G21,G2).
+
+mapping([],[],Map,Map).
+mapping([V1|Vs],[V2|Vs2],Map0,Map) :-
+	rb_insert(Map0,V1,V2,MapI),
+	mapping(Vs,Vs2,MapI,Map).
+
+
+	
+translate_edges([],_,[]).
+translate_edges([V1-V2|Edges],Map,[NV1-NV2|TEdges]) :-
+	rb_lookup(V1,NV1,Map),
+	rb_lookup(V2,NV2,Map),
+	translate_edges(Edges,Map,TEdges).

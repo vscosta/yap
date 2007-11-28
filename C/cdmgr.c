@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2007-11-26 23:43:07 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-11-28 23:52:14 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.213  2007/11/26 23:43:07  vsc
+* fixes to support threads and assert correctly, even if inefficiently.
+*
 * Revision 1.212  2007/11/16 14:58:40  vsc
 * implement sophisticated operations with matrices.
 *
@@ -2966,7 +2969,7 @@ p_undefined(void)
 {				/* '$undefined'(P,Mod)	 */
   PredEntry      *pe;
 
-  pe = get_pred(Deref(ARG1), CurrentModule, "undefined/1");
+  pe = get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
   if (EndOfPAEntr(pe))
     return TRUE;
   LOCK(pe->PELock);
@@ -2992,7 +2995,7 @@ p_kill_dynamic(void)
 {				/* '$kill_dynamic'(P,M)       */
   PredEntry      *pe;
 
-  pe = get_pred(Deref(ARG1), CurrentModule, "kill_dynamic/1");
+  pe = get_pred(Deref(ARG1), Deref(ARG2), "kill_dynamic/1");
   if (EndOfPAEntr(pe))
     return TRUE;
   LOCK(pe->PELock);

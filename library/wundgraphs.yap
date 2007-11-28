@@ -219,6 +219,14 @@ wundgraph_to_undgraph(G1, G2) :-
 
 wundgraph_min_tree(G, T, C) :-
 	rb_visit(G, Els0),
+	generate_min_tree(Els0, T, C).
+
+generate_min_tree([], T, 0) :- !,
+	wundgraph_new(T).
+generate_min_tree([El-_], T, 0) :- !,
+	wundgraph_new(T0),
+	wundgraph_add_vertex(El,T0,T).
+generate_min_tree(Els0, T, C) :-
 	mk_list_of_edges(Els0, Edges),
 	keysort(Edges, SortedEdges),
 	rb_new(V0),
@@ -228,6 +236,14 @@ wundgraph_min_tree(G, T, C) :-
 
 wundgraph_max_tree(G, T, C) :-
 	rb_visit(G, Els0),
+	generate_max_tree(Els0, T, C).
+
+generate_max_tree([], T, 0) :- !,
+	wundgraph_new(T).
+generate_max_tree([El-_], T, 0) :- !,
+	wundgraph_new(T0),
+	wundgraph_add_vertex(El,T0,T).
+generate_max_tree(Els0, T, C) :-
 	mk_list_of_edges(Els0, Edges),
 	keysort(Edges, SortedEdges),
 	reverse(SortedEdges, ReversedEdges),

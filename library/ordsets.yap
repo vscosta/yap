@@ -41,9 +41,6 @@
 	ord_memberchk/2             % Element X Set
       ]).
 
-:- use_module(library(lists),
-   [memberchk/2]).
-
 /*
 :- mode
 	list_to_ord_set(+, ?),
@@ -354,6 +351,7 @@ ord_union_all(N,Sets0,Union,Sets) :-
 
 ord_empty([]).
 
-ord_memberchk(Element, Set) :-
-	memberchk(Element, Set).
+ord_memberchk(Element, [E|_]) :- E == Element, !.
+ord_memberchk(Element, [_|Set]) :-
+	ord_memberchk(Element, Set).
 

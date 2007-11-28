@@ -62,6 +62,7 @@ typedef enum {
 	    matrix_minarg/2,
 	    matrix_sum/2,
 	    matrix_sum_out/3,
+	    matrix_sum_out_several/3,
 	    matrix_add_to_all/2,
 	    matrix_agg_lines/3,
 	    matrix_agg_cols/3,
@@ -71,6 +72,7 @@ typedef enum {
 	    matrix_op_to_cols/4,
 	    matrix_shuffle/3,
 	    matrix_transpose/2,
+	    matrix_set_all_that_disagree/5,
 	    matrix_expand/3,
 	    matrix_select/4
 	    ]).
@@ -121,6 +123,8 @@ matrix_op(M1,M2,-,NM) :-
 	do_matrix_op(M1,M2,1,NM).
 matrix_op(M1,M2,*,NM) :-
 	do_matrix_op(M1,M2,2,NM).
+matrix_op(M1,M2,/,NM) :-
+	do_matrix_op(M1,M2,3,NM).
 
 matrix_op_to_all(M1,+,Num,NM) :-
 	do_matrix_op_to_all(M1,0,Num,NM).

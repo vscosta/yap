@@ -25,9 +25,10 @@
 
 :- use_module(library('clpbn/graphviz'), [clpbn2gviz/4]).
 
-:- use_module(library('clpbn/dists'), [
-	get_dist_domain_size/2,
-	get_dist_matrix/5]).
+:- use_module(library('clpbn/dists'),
+	      [
+	       get_dist_domain_size/2,
+	       get_dist_matrix/5]).
 
 :- use_module(library('clpbn/utils'), [
 	clpbn_not_var_member/2,
@@ -39,8 +40,7 @@
 :- use_module(library('clpbn/matrix_cpt_utils'),
 	      [project_from_CPT/3,
 	       reorder_CPT/5,
-	       get_dist_size/2,
-	       multiply_CPTs/3,
+	       multiply_CPTs/4,
 	       normalise_CPT/2,
 	       list_from_CPT/2]).
 
@@ -178,7 +178,7 @@ find_best([V|LV], V0, Threshold, VF, WorkTables, [V|LVF], Inputs) :-
 
 multiply_tables([Table], Table) :- !.
 multiply_tables([TAB1, TAB2| Tables], Out) :-
-	multiply_CPTs(TAB1, TAB2, TAB),
+	multiply_CPTs(TAB1, TAB2, TAB, _),
 	multiply_tables([TAB| Tables], Out).
 
 
