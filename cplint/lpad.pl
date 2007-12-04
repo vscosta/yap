@@ -237,7 +237,7 @@ slgall(Call,Anss,N0:Tab0,N:Tab) :-
         ).
 
 
-/* oldt(QueryAtom,Table): top level call for SLG resolution.
+/* oldt(QueryAtom,Table,C0,C,D0,D): top level call for SLG resolution.
    It returns a table consisting of answers for each relevant
    subgoal. For stable predicates, it basically extract the 
    relevant set of ground clauses by solving Prolog predicates
@@ -253,7 +253,7 @@ oldt(Call,Tab,C0,C,D0,D) :-
     ; true 
     ).
 
-/* oldt(Call,Ggoal,Tab0,Tab,Stack0,Stack,DFN0,DFN,Dep0,Dep,TP0,TP)
+/* oldt(Call,Ggoal,Tab0,Tab,Stack0,Stack,DFN0,DFN,Dep0,Dep,TP0,TP,C0,C,D0,D,PC)
    explores the initial set of edges, i.e., all the 
    program clauses for Call. Ggoal is of the form 
    Gcall-Gdfn, where Gcall is numbervar of Call and Gdfn
@@ -266,6 +266,16 @@ oldt(Call,Tab,C0,C,D0,D) :-
    polynomial data complexity in processing clauses with
    universal disjuntions in the body of a clause. The newly 
    created propositions are represented by numbers.
+   C0/C are accumulators for disjunctive clauses used in the derivation of Call: 
+	 they are list of triples (N,R,S) where N is the number of the head atom used
+   (starting from 0), R is the number of the rule used (starting from 1) and
+   S is the substitution of the variables in the head atom used. S is a list 
+	 of elements of the form Varname=Term.
+	 D0/D are accumulators for definite clauses: they are list of couples (R,S),
+	 where R is a rule number and S is a substitution.
+	 PC is a list of disjunctive rules selected but not used in the derivation,
+	 they are added to the C set afterwards if they are consistent with C
+	 (PC stands for Possible C, i.e., possible additions to the C set).
 */
 oldt(Call,Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D,PC) :-
     ( number(Call) ->
@@ -279,75 +289,67 @@ oldt(Call,Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D,PC) :-
     ),
     comp_tab_ent(Ggoal,Tab1,Tab,S1,S,Dfn1,Dfn,Dep1,Dep,TP1,TP).
 
+/* find_rules(Call,Frames,C,PossC)
+	finds rules for Call. Frames is the list of clauses that resolve with Call. It
+	is a list of terms of the form
+	rule(d(Call,[]),Body,R,N,S)
+	C is the current set of disjunctive clauses together with the head selected
+	PossC is the list of possible disjunctive clauses together with the head
+	selected: they are the clauses with an head that does not unify with Call. It
+	is a list of terms of the form
+	rule(d(Call,[]),Body,R,N,S)
+*/
 find_rules(Call,Frames,C,PossC):-
 	findall(rule(d(Call,[]),Body,def(N),Subs,_),def_rule(N,Subs,Call,Body),Fr1),
 	find_disj_rules(Call,Fr2,C,PossC),
 	append(Fr1,Fr2,Frames).
 	
+/* find_disj_rules(Call,Fr,C,PossC):-	
+	finds disjunctive rules for Call. 
+*/
 find_disj_rules(Call,Fr,C,PossC):-	
 	findall(rule(d(Call,[]),Body,R,S,N,LH),
-		find_rule(Call,(R,S,N),Body,LH),LD),
-		(setof((R,LH),(Call,Body,S,N)^member(rule(d(Call,[]),Body,R,S,N,LH),LD),LR)->		
-	choose_rules(LR,LD,[],Fr,C,[],PossC)
+	find_rule(Call,(R,S,N),Body,LH),LD),
+	(setof((R,LH),(Call,Body,S,N)^member(rule(d(Call,[]),Body,R,S,N,LH),LD),LR)->		
+		choose_rules(LR,LD,[],Fr,C,[],PossC)
 	;
 		Fr=[],
 		PossC=[]
 	).
 
-identify_already_present([],LD,LD,_C,Fr,Fr).
-
-identify_already_present([rule(d(Call,[]),Body,R,S,N,_LH)|T],LD0,LD,C,Fr0,Fr):-
-	already_present_with_the_same_head(N,R,S,C),!,
-	identify_already_present(T,LD0,LD,C,[rule(d(Call,[]),Body,S)|Fr0],Fr).
-
-identify_already_present([rule(d(_Call,[]),_Body,R,S,N,_LH)|T],LD0,LD,C,Fr0,Fr):-
-	already_present_with_a_different_head(N,R,S,C),!,
-	identify_already_present(T,LD0,LD,C,Fr0,Fr).
-
-identify_already_present([rule(d(Call,[]),Body,R,S,N,LH)|T],LD0,LD,C,Fr0,Fr):-
-	identify_already_present(T,[rule(d(Call,[]),Body,R,S,N,LH)|LD0],LD,C,Fr0,Fr).
-
-already_present_with_the_same_head(N,R,S,[(N,R,S)|_T]):-!.
-
-already_present_with_the_same_head(N,R,S,[(_N,_R,_S)|T]):-!,
-	already_present_with_the_same_head(N,R,S,T).
-
-already_present_with_a_different_head(N,R,S,[(N1,R,S1)|_T]):-
-	different_head(N,N1,S,S1),!.
-
-already_present_with_a_different_head(N,R,S,[(_N1,_R1,_S1)|T]):-
-	already_present_with_a_different_head(N,R,S,T).
-
-different_head(N,N1,S,S1):-
-	N\=N1,S=S1, !.
-
-find_distinct_rules([],LR,LR).
-
-find_distinct_rules([rule(d(_Call,[]),_Body,R,S,_N,LH)|T],LR0,LR):-
-	member((R,S,LH),LR0),!,
-	find_distinct_rules(T,LR0,LR).
-
-find_distinct_rules([rule(d(_Call,[]),_Body,R,S,_N,LH)|T],LR0,LR):-
-	find_distinct_rules(T,[(R,S,LH)|LR0],LR).
 
 
+/* choose_rules(LR,LD,Fr0,Fr,C,PossC0,PossC)
+	 LR is a list of couples (R,LH) where R is a disjunctive rule number and LH is
+	 a list of head atoms numbers, from 0 to length(head)-1
+	 LD is the list of disjunctive clauses resolving with Call. Its elements are
+	 of the form
+	 rule(d(Call,[]),Body,R,N,S)
+	 Fr0/Fr are accumulators for the matching disjunctive clauses
+	 PossC0/PossC are accumulators for the additional disjunctive clauses
+
+*/
 choose_rules([],_LD,Fr,Fr,_C,PC,PC).
 
 choose_rules([(R,LH)|LR],LD,Fr0,Fr,C,PC0,PC):-
 	member(N,LH),
 	(member(rule(d(Call,[]),Body,R,S,N,LH),LD)->
+	% the selected head resolves with Call
 		consistent(N,R,S,C),
 		Fr=[rule(d(Call,[]),Body,R,N,S)|Fr1],
 		PC=PC1
 	;
-%		findall((S,Call),member(rule(d(Call,[]),Body,R,S,_N,LH),LD),LS),
-%		(merge_subs(LS,Call,S)->
+	% the selected head does not resolve with Call
 		findall(S,member(rule(d(Call,[]),Body,R,S,_N,LH),LD),LS),
-		(merge_subs(LS,S)->
+		% this is done to handle the case in which there are
+		% multiple instances of rule R with different substitutions
+		(merge_subs(LS,S)-> 
+		% all the substitutions are consistent, their merge is used
 			consistent(N,R,S,C),
 			Fr=Fr1,
 			PC=[rule(d(_Call,[]),Body,R,N,S)|PC1]
 		;
+		% the substitutions are inconsistent, the empty substitution is used
 			rule(R,S,_LH,_Head,_Body),
 			consistent(N,R,S,C),
 			Fr=Fr1,
@@ -366,17 +368,25 @@ merge_subs([],_Call,_S).
 merge_subs([(S,Call)|ST],Call,S):-
 	merge_subs(ST,Call,S).
 	
+/* consistent(N,R,S,C)
+	 head N of rule R with substitution S is consistent with C
+*/
+	
 consistent(_N,_R,_S,[]):-!.
 
 consistent(N,R,S,[(_N,R1,_S)|T]):-
+% different rule
 	R\=R1,!,
 	consistent(N,R,S,T).
 	
 consistent(N,R,S,[(N,R,_S)|T]):-
+% same rule, same head
 	consistent(N,R,S,T).
 
 consistent(N,R,S,[(N1,R,S1)|T]):-
+% same rule, different head
 	N\=N1,
+% different substitutions
 	dif(S,S1),
 	consistent(N,R,S,T).
 
@@ -418,13 +428,11 @@ edge_oldt(Clause,Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D) :-
         )
       )
     ).
-
-add_cl(R,S,N,C,C):-
-	member((N,R,S),C),!.
-	
-add_cl(R,S,N,CIn,COut):-
-	append(CIn,[(N,R,S)],COut).
-
+/* add_ans_to_C(rule(Head,Body,R,N,S),C0,C,D0,D):-
+	 adds rule rule(Head,Body,R,N,S) to the C set if it is disjunctive
+	 or to the D set if it is definite. The rule is added only if it is consistent
+	 with the current C set
+*/
 add_ans_to_C(rule(_,_,def(N),S,_),C,C,D,[(N,S)|D]):-!.
 
 add_ans_to_C(rule(_Ans,_B,R,N,S),C0,C,D,D):-
@@ -434,7 +442,32 @@ add_ans_to_C(rule(_Ans,_B,R,N,S),C0,C,D,D):-
 	;
 		C=[(N,R,S)|C0]
 	).
+/* already_present_with_the_same_head(N,R,S,C)
+	 succeeds if rule R is present in C with head N and substitution S
+*/
+already_present_with_the_same_head(N,R,S,[(N,R,S)|_T]):-!.
 
+already_present_with_the_same_head(N,R,S,[(_N,_R,_S)|T]):-!,
+	already_present_with_the_same_head(N,R,S,T).
+
+/* already_present_with_a_different_head(N,R,S,C)
+	 succeeds if rule R is present in C with susbtitution S and a head different
+	 from N
+*/
+
+already_present_with_a_different_head(N,R,S,[(N1,R,S1)|_T]):-
+	different_head(N,N1,S,S1),!.
+
+already_present_with_a_different_head(N,R,S,[(_N1,_R1,_S1)|T]):-
+	already_present_with_a_different_head(N,R,S,T).
+
+different_head(N,N1,S,S1):-
+	N\=N1,S=S1, !.
+
+/* add_PC_to_C(PossC,C0,C)
+	 adds the rules in PossC to C if they are consistent with it, otherwise it
+	 fails
+*/
 add_PC_to_C([],C,C).
 
 add_PC_to_C([rule(H,B,R,N,S)|T],C0,C):-
@@ -1688,7 +1721,6 @@ rule */
 find_rule(H,(R,S,N),Body,LH):-
 	rule(R,S,_,Head,Body),
 	member_head(H,Head,0,N),
-%	not_already_present_with_a_different_head(N,R,S,C),
 	length(Head,NH),
 	listN(0,NH,LH).
 
