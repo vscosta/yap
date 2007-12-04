@@ -67,7 +67,6 @@ xnotrace :-
     ).
 
 /* isprolog(Call): Call is a Prolog subgoal */
-
 isprolog(Call) :- 
 	builtin(Call).
 
@@ -75,7 +74,6 @@ isprolog(Call) :-
    It returns all true answers of Call under the well-founded semantics
    one by one.
 */
-
 slg(Call,C,D):-
 	slg(Call,[],C,[],D).
 	
@@ -110,7 +108,7 @@ s(GoalsList,Prob):-
 	convert_to_goal(GoalsList,Goal),
 	solve(Goal,Prob).
 
-convert_to_goal([Goal],Goal):-!.
+convert_to_goal([Goal],Goal):-Goal \= (\+ _) ,!.
 
 convert_to_goal(GoalsList,Head):-
 	get_new_atom(Atom),
