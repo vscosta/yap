@@ -68,6 +68,8 @@ CPLINT_TEST_PROGRAMS= \
 	$(CPLINT_SRCDIR)/testlpadsld_gbfalse.pl \
 	$(CPLINT_SRCDIR)/testlpad.pl \
 	$(CPLINT_SRCDIR)/testcpl.pl \
+	$(CPLINT_SRCDIR)/testsemlpadsld.pl \
+	$(CPLINT_SRCDIR)/testsemlpad.pl \
 	$(CPLINT_SRCDIR)/testsemcpl.pl 
 	
 CPLINT_EXAMPLES= \

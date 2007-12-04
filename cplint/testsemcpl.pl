@@ -37,7 +37,7 @@ t:-
 	format("Test successful, time ~f secs.~n",[T1]).
 
 t:-
-	format("Test unsuccessful.",[]).
+	format("Test unsuccessful.~n",[]).
 	
 test_files([],_GB).
 
@@ -62,8 +62,8 @@ test_all(F,[H|T]):-
 
 
 files([
-esapprox,esrange,threesideddice,mendels,
-coin2,es,throws,trigger,win,hiv,light,
+exapprox,exrange,threesideddice,mendels,
+coin2,ex,throws,trigger,win,hiv,light,
 invalid]).
 
 test((s([p],P),close_to(P,0)),invalid,_). 
@@ -96,12 +96,12 @@ test((s([light],P),close_to(P,0.5)),light,_).
 test((s([replace],P),close_to(P,0.5)),light,_).
 
 
-test((s([a],P),close_to(P,0.1719)),esapprox,ground_body(true)).
-test((s([a],P),close_to(P,0.099)),esapprox,ground_body(false)).
+test((s([a],P),close_to(P,0.1719)),exapprox,ground_body(true)).
+test((s([a],P),close_to(P,0.099)),exapprox,ground_body(false)).
 
 
-test((s([a(1)],P),close_to(P,0.2775)),esrange,_).
-test((s([a(2)],P),close_to(P,0.36)),esrange,_).
+test((s([a(1)],P),close_to(P,0.2775)),exrange,_).
+test((s([a(2)],P),close_to(P,0.36)),exrange,_).
 
 test((s([on(0,1)],P),close_to(P,0.333333333333333)),threesideddice,_).
 test((s([on(1,1)],P),close_to(P,0.222222222222222)),threesideddice,_).
@@ -123,5 +123,5 @@ test((s([heads(coin2)],P),close_to(P,0.51)),coin2,_).
 test((s([tails(coin1)],P),close_to(P,0.49)),coin2,_).
 test((s([tails(coin2)],P),close_to(P,0.49)),coin2,_).
 
-test((s([a],P),close_to(P,0.226)),es,_).
+test((s([a],P),close_to(P,0.226)),ex,_).
 

@@ -25,6 +25,9 @@ if set to variables, the universe facts from the .uni file are used
 if set to modes, the mode and type declaration from the .uni file are used
 */
 
+setting(verbose,false).
+
+
 sc(Goals,Evidence,Prob):-
 	s(Evidence,ProbE),
 	append(Goals,Evidence,GE),
@@ -52,18 +55,38 @@ run_query([Prog|T],Goal,PIn,POut):-
 
 /* predicate for parsing the program file */	
 p(File):-
-	atom_concat(File,'.uni',FileUni),
-	reconsult(FileUni),
+	clean_db,
 	atom_concat(File,'.cpl',FilePl),
 	open(FilePl,read,S),
 	read_clauses(S,C),
 	close(S),
+	atom_concat(File,'.uni',FileUni),
+	reconsult(FileUni),
 	process_clauses(C,ClausesVar),
 	instantiate(ClausesVar,[],Clauses),
 	assert(program(1)),
 	assert(program_names([])),
 	create_programs(Clauses).
 
+clean_db:-
+	findall((P/A),(mode(Atom),functor(Atom,P,A0),A is A0+1),L),
+	abolish_all(L),
+	abolish(program/1),
+	abolish(program_names/1),
+	abolish(prob/2).
+
+abolish_all([]).
+
+abolish_all([(P/A)|T]):-
+	abolish(P/A),
+	abolish_all(T).
+
+/* create_programs(Clauses)
+	create the instances of the ground LPAD composed by Clauses
+	Each instance is identified by an atom of the form P<Number> where <Number> is an
+	increasing number. An extra argument is added to each atom in the clauses to represent
+	the identifier of the instance.
+*/
 create_programs(Clauses):-
 	create_single_program(Clauses,1,Program),
 	retract(program(N)),
@@ -72,7 +95,11 @@ create_programs(Clauses):-
 	atom_concat(p,NA,Name),
 	N1 is N+1,
 	assert(program(N1)),
-	format("Writing instance ~d~n",[N]),
+	(setting(verbose,true)->
+		format("Writing instance ~d~n",[N])
+	;
+		true
+	),
 	write_program(Name,Program),
 	retract(program_names(L)),
 	append(L,[Name],L1),
@@ -90,6 +117,9 @@ write_program(Name,[(H:-B)|T]):-
 	assertz((H1:-B1)),
 	write_program(Name,T).
 
+/* elab_conj(Name,Conj0,Conj)
+	adds the extra argument Name to the conjunction Conj0 resulting in Conj
+*/
 elab_conj(_Name,true,true):-!.
 
 elab_conj(Name,\+(B),\+(B1)):-!,
@@ -134,6 +164,10 @@ create_single_program([r(H,B)|T],PIn,[(HA:-B)|T1]):-
 	create_single_program(T,P1,T1).
 
 /* predicates for producing the ground instances of program clauses */
+
+/* instantiate(Clauses,C0,C)
+	returns in C the set of clauses obtained by grounding Clauses
+*/
 instantiate([],C,C).
 
 instantiate([r(_V,[H:1],B)|T],CIn,COut):-!,
@@ -234,7 +268,9 @@ instantiate_clause_variables([VarName=_Var|T],H,BIn,BOut):-
 varName_present_variables(VarName):-
 	universe(VarNames,_U), member(VarName,VarNames).
 
-
+/* check_body(Body0,Body)
+	removes the true builtin literals from Body0. Fails if there is a false builtin literal.
+*/
 check_body([],[]).
 
 check_body([H|T],TOut):-
@@ -247,6 +283,15 @@ check_body([H|T],[H|TOut]):-
 	
 
 /* predicates for processing the clauses read from the file */
+/* process_clauses(Terms,Clauses)
+	processes Terms to produce Clauses
+	Terms is a list contatining elements of the form
+	((H:-B),V)
+	Clauses is a list containing elements of the form
+	r(V,HL,BL)
+	where HL is the list of disjuncts in H and BL is the list
+	of literals in B
+*/
 process_clauses([(end_of_file,[])],[]).
 
 process_clauses([((H:-B),V)|T],[r(V,HL,B)|T1]):-
@@ -298,6 +343,9 @@ process_head([H:PH|T],P,[H:PH1|NT]):-
 	
 
 /* predicates for reading in the program clauses */
+/* read_clauses(S,Clauses)
+	read Clauses from stream S
+*/
 read_clauses(S,Clauses):-
 	(setting(ground_body,true)->
 		read_clauses_ground_body(S,Clauses)
@@ -325,6 +373,9 @@ read_clauses_exist_body(S,[(Cl,V)|Out]):-
 	).
 
 
+/* extract_vars_cl(Clause,VariableNames,Couples)
+	extract from Clause couples of the form VariableName=Variable
+*/
 extract_vars_cl(end_of_file,[]).
 
 extract_vars_cl(Cl,VN,Couples):-
@@ -415,4 +466,3 @@ average(L,Av):-
 set(Parameter,Value):-
 	retract(setting(Parameter,_)),
 	assert(setting(Parameter,Value)).
-

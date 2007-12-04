@@ -35,7 +35,7 @@ t:-
 	format("Test successful, time ~f secs.~n",[T1]).
 
 t:-
-	format("Test unsuccessful.",[]).
+	format("Test unsuccessful.~n",[]).
 
 test_files([],_GB).
 
