@@ -36,7 +36,6 @@
 			]).
 
  :- dynamic wfs_trace/0.
- :- dynamic new_number/1.
  :-use_module(library(ugraphs)).
  :-use_module(library(lists)).
  :- use_module(library(charsio)).
@@ -46,7 +45,6 @@
 :- op(1200,xfx,<--).
 :- op(900,xfx,<-).
 
-new_number(0).
 
 
 
@@ -129,9 +127,9 @@ solve(Goal,Prob):-
 				var2numbers(Var,0,NewVar),
 				(setting(save_dot,true)->
 					format("Variables: ~p~n",[Var]),
-					compute_prob(NewVar,Formula,_Prob,1)
+					compute_prob1(NewVar,Formula,_Prob,1)
 				;
-					compute_prob(NewVar,Formula,Prob,0)
+					compute_prob1(NewVar,Formula,Prob,0)
 				)
 			;
 				format("It requires the choice of a head atom from a non ground head~n~p~n",[L]),
@@ -170,7 +168,7 @@ solve_cond(Goal,Evidence,Prob):-
 		rem_dup_lists(LDupE,[],LE),
 		build_formula(LE,FormulaE,[],VarE),
 		var2numbers(VarE,0,NewVarE),
-		compute_prob(NewVarE,FormulaE,ProbE,0),
+		compute_prob1(NewVarE,FormulaE,ProbE,0),
 		solve_cond_goals(Goal,LE,ProbGE),
 		Prob is ProbGE/ProbE
 	;
@@ -199,9 +197,9 @@ find_deriv_GE(LD,GoalsList,Deriv):-
 call_compute_prob(NewVarGE,FormulaGE,ProbGE):-
 	(setting(save_dot,true)->
 		format("Variables: ~p~n",[NewVarGE]),
-		compute_prob(NewVarGE,FormulaGE,ProbGE,1)
+		compute_prob1(NewVarGE,FormulaGE,ProbGE,1)
 	;
-		compute_prob(NewVarGE,FormulaGE,ProbGE,0)
+		compute_prob1(NewVarGE,FormulaGE,ProbGE,0)
 	).
 
 
@@ -298,14 +296,18 @@ oldt(Call,Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D,PC) :-
 	rule(d(Call,[]),Body,R,N,S)
 */
 find_rules(Call,Frames,C,PossC):-
-	findall(rule(d(Call,[]),Body,def(N),Subs,_),def_rule(N,Subs,Call,Body),Fr1),
+	findall(rule(d(Call,[]),Body,def(N),_,Subs,_),def_rule(N,Subs,Call,Body),Fr1),
 	find_disj_rules(Call,Fr2,C,PossC),
 	append(Fr1,Fr2,Frames).
 	
 /* find_disj_rules(Call,Fr,C,PossC):-	
 	finds disjunctive rules for Call. 
 */
-find_disj_rules(Call,Fr,C,PossC):-	
+find_disj_rules(Call,Fr,C,[]):-	
+	findall(rule(d(Call,[]),Body,R,N,S,LH),
+	find_rule(Call,(R,S,N),Body,LH),Fr).
+
+find_disj_rulesold(Call,Fr,C,PossC):-	
 	findall(rule(d(Call,[]),Body,R,S,N,LH),
 	find_rule(Call,(R,S,N),Body,LH),LD),
 	(setof((R,LH),(Call,Body,S,N)^member(rule(d(Call,[]),Body,R,S,N,LH),LD),LR)->		
@@ -327,9 +329,26 @@ find_disj_rules(Call,Fr,C,PossC):-
 	 PossC0/PossC are accumulators for the additional disjunctive clauses
 
 */
-choose_rules([],_LD,Fr,Fr,_C,PC,PC).
+choose_rules([],Fr,Fr,_C,PC,PC).
 
-choose_rules([(R,LH)|LR],LD,Fr0,Fr,C,PC0,PC):-
+choose_rules([rule(d(Call,[]),Body,R,S,N1,LH)|LD],Fr0,Fr,C,PC0,PC):-
+	member(N,LH),
+	(N=N1->
+	% the selected head resolves with Call
+		consistent(N,R,S,C),
+		Fr=[rule(d(Call,[]),Body,R,N,S)|Fr1],
+		PC=PC1
+	;
+	% the selected head does not resolve with Call
+		consistent(N,R,S,C),
+		Fr=[rule(d('$null',[]),Body,R,N,S)|Fr1],
+		PC=PC1
+	),
+	choose_rules(LD,Fr0,Fr1,C,PC0,PC1).
+
+choose_rulesold([],_LD,Fr,Fr,_C,PC,PC).
+
+choose_rulesold([(R,LH)|LR],LD,Fr0,Fr,C,PC0,PC):-
 	member(N,LH),
 	(member(rule(d(Call,[]),Body,R,S,N,LH),LD)->
 	% the selected head resolves with Call
@@ -408,9 +427,9 @@ map_oldt([Clause|Frames],Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,
    subgoal in Blist.
 */
 edge_oldt(Clause,Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D) :-
-    Clause = rule(Ans,B,Rule,Number,Sub),
+    Clause = rule(Ans,B,Rule,Number,Sub,LH),
     ( B == [] ->
-      ans_edge(rule(Ans,B,Rule,Number,Sub),Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D)
+      ans_edge(rule(Ans,B,Rule,Number,Sub,LH),Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D)
     ; B = [Lit|_] ->
       ( Lit = (\+N) ->
         neg_edge(Clause,Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D)
@@ -431,14 +450,20 @@ edge_oldt(Clause,Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D) :-
 	 or to the D set if it is definite. The rule is added only if it is consistent
 	 with the current C set
 */
-add_ans_to_C(rule(_,_,def(N),S,_),C,C,D,[(N,S)|D]):-!.
+add_ans_to_C(rule(_,_,def(N),_,S,_),C,C,D,[(N,S)|D],true):-!.
 
-add_ans_to_C(rule(_Ans,_B,R,N,S),C0,C,D,D):-
-	\+ already_present_with_a_different_head(N,R,S,C0),
-	(already_present_with_the_same_head(N,R,S,C0)->
+add_ans_to_C(rule(_Ans,_B,R,N,S,LH),C0,C,D,D,HeadSelected):-
+	member(N1,LH),
+	(N1=N->
+		HeadSelected=true
+	;
+		HeadSelected=false
+	),
+	\+ already_present_with_a_different_head(N1,R,S,C0),
+	(already_present_with_the_same_head(N1,R,S,C0)->
 		C=C0
 	;
-		C=[(N,R,S)|C0]
+		C=[(N1,R,S)|C0]
 	).
 /* already_present_with_the_same_head(N,R,S,C)
 	 succeeds if rule R is present in C with head N and substitution S
@@ -472,20 +497,28 @@ add_PC_to_C([rule(H,B,R,N,S)|T],C0,C):-
 	add_ans_to_C(rule(H,B,R,N,S),C0,C1,[],[]),
 	add_PC_to_C(T,C1,C).
 
-ans_edge(rule(Ans,B,Rule,Number,Sub),Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D) :-
-	add_ans_to_C(rule(Ans,B,Rule,Number,Sub),C0,C1,D0,D1),
-    ( add_ans(Tab0,Ggoal,Ans,Nodes,Mode,Tab1) -> 
-      ( Mode = new_head -> 
-        returned_ans(Ans,Ggoal,RAns),
-        map_nodes(Nodes,RAns,Tab1,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C1,C,D1,D)
-      ; Mode = no_new_head ->
-        Tab = Tab1, S = S0, Dfn = Dfn0, Dep = Dep0, TP = TP0, C=C1, D=D1
-      )
-    ; Tab = Tab0, S = S0, Dfn = Dfn0, Dep = Dep0, TP = TP0, C=C1, D=D1
-    ).
+ans_edge(rule(Ans,B,Rule,Number,Sub,LH),Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D) :-
+	add_ans_to_C(rule(Ans,B,Rule,Number,Sub,LH),C0,C1,D0,D1,HeadSelected),
+	(HeadSelected=false->
+		Tab = Tab0, S = S0, Dfn = Dfn0, Dep = Dep0, TP = TP0, C=C1, D=D1
+	;
+		(add_ans(Tab0,Ggoal,Ans,Nodes,Mode,Tab1) -> 
+	      		(Mode = new_head -> 
+	        		returned_ans(Ans,Ggoal,RAns),
+	        		map_nodes(Nodes,RAns,Tab1,Tab,
+					S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C1,C,D1,D)
+			;
+				Mode = no_new_head ->
+	        			Tab = Tab1, S = S0, Dfn = Dfn0, Dep = Dep0, 
+					TP = TP0, C=C1, D=D1
+	      		)
+		; 
+			Tab = Tab0, S = S0, Dfn = Dfn0, Dep = Dep0, TP = TP0, C=C1, D=D1
+		)
+	).
 
 neg_edge(Clause,Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D) :-
-    Clause = rule(_,[\+N|_],_R,_N,_Sub),
+    Clause = rule(_,[\+N|_],_R,_N,_Sub,_LH),
     ( ground(N) -> true
     ; write('Flounder: '), write(\+N), nl, fail
     ),
@@ -516,7 +549,7 @@ neg_edge(Clause,Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D) :-
     ).
 
 pos_edge(Clause,Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D) :-
-    Clause = rule(_H,[N|_B],_R,_N,_Sub),
+    Clause = rule(_H,[N|_B],_R,_N,_Sub,_LH),
     Node = (Ggoal:Clause),
     ground(N,Ngoal),
     ( isprolog(N) ->
@@ -576,7 +609,7 @@ apos_edge(Clause,Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP) :-
     edge_oldt(rule(d(H,D),all(B)),Ggoal,Tab1,Tab,S1,S,Dfn1,Dfn,Dep1,Dep,TP1,TP).
 
 apply_subst(Ggoal:Cl,d(An,Vr),Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D) :-
-    copy_term(Cl,rule(d(Ac,Vc),Body,R,N,Sub)),
+    copy_term(Cl,rule(d(Ac,Vc),Body,R,N,Sub,LH)),
     ( Body = [Call|NBody] ->
       Call = An,
       append(Vr,Vc,Vn)
@@ -590,7 +623,7 @@ apply_subst(Ggoal:Cl,d(An,Vr),Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D) 
       ),
       NBody = all(Calls)
     ),
-    edge_oldt(rule(d(Ac,Vn),NBody,R,N,Sub),Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D).
+    edge_oldt(rule(d(Ac,Vn),NBody,R,N,Sub,LH),Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D).
 
 /* map_nodes(Nodes,Ans,....):
    return Ans to each of the waiting nodes in Nodes, where a node
@@ -1873,6 +1906,8 @@ parse(File):-
 	close(S),
 	retractall(rule(_,_,_,_,_)),
 	retractall(def_rule(_,_,_,_)),
+	retractall(new_number(_)),
+	assert(new_number(0)),
 	process_clauses(C,1),!.
 
 process_clauses([(end_of_file,[])],_N).
