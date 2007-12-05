@@ -13,7 +13,7 @@ for the relative license.
 #include "array.h"
 #include "mtr.h"
 #include "avl.h"
-#include "Yap/YapInterface.h"
+#include "YapInterface.h"
 #include <glib.h>
  
 typedef struct
