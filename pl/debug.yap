@@ -50,10 +50,11 @@
 	->
 	  M = EM
 	;
-	  recorded('$import','$import'(EM,M,A,_),_)
+	 recorded('$import','$import'(EM,M,GA,_,A,_),_),
+	 functor(GA,NA,_)
 	),
 	!,
-	'$do_suspy_predicates_by_name'(A,S,EM).
+	'$do_suspy_predicates_by_name'(NA,S,EM).
 '$suspy_predicates_by_name'(A,spy,M) :- !,
 	'$print_message'(warning,no_match(spy(M:A))).
 '$suspy_predicates_by_name'(A,nospy,M) :-
@@ -64,17 +65,18 @@
 	functor(T,A,N),
 	'$do_suspy'(S, A, N, T, M).
 '$do_suspy_predicates_by_name'(A, S, M) :-
-	recorded('$import','$import'(EM,M,A,N),_),
-	functor(T,A,N),
-	'$do_suspy'(S, A, N, T, EM).
+	recorded('$import','$import'(EM,M,T0,_,A,N),_),
+	functor(T0,A0,N0),
+	'$do_suspy'(S, A0, N0, T, EM).
 
 
 %
 % protect against evil arguments.
 %
 '$do_suspy'(S, F, N, T, M) :-
-	recorded('$import','$import'(EM,M,F,N),_), !,
-	'$do_suspy'(S, F, N, T, EM).
+	recorded('$import','$import'(EM,M,T0,_,F,N),_), !,
+	functor(T0, F0, N0),
+	'$do_suspy'(S, F0, N0, T, EM).
 '$do_suspy'(S, F, N, T, M) :-
 	 '$undefined'(T,M), !,
 	 ( S = spy ->

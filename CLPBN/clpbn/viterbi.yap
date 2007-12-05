@@ -48,8 +48,8 @@ mk_graph(NOfNodes, Map, ViterbiCode) :-
 	empty_assoc(KeyMap0),
 	get_graph(Vars0, Nodes, Edges, KeyMap0, KeyMap),
 	dgraph_new(G0),
-	dgraph_add_vertices(Nodes, G0, G1),
-	dgraph_add_edges(Edges, G1, G2),
+	dgraph_add_vertices(G0, Nodes, G1),
+	dgraph_add_edges(G1, Edges, G2),
 	dgraph_top_sort(G2, SortedNodes),
 	compile_viterbi(SortedNodes, KeyMap, NOfNodes, Map, ViterbiCode).
 

@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-11-16 14:58:40 $,$Author: vsc $						 *
+* Last rev:	$Date: 2007-12-05 12:17:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.103  2007/11/16 14:58:40  vsc
+* implement sophisticated operations with matrices.
+*
 * Revision 1.102  2007/11/01 20:50:31  vsc
 * fix YAP_LeaveGoal (again)
 *
@@ -412,6 +415,8 @@ X_API int      STD_PROTO(YAP_ThreadDestroyEngine,(int));
 X_API Term     STD_PROTO(YAP_MkBlobTerm,(unsigned int));
 X_API void    *STD_PROTO(YAP_BlobOfTerm,(Term));
 X_API Term     STD_PROTO(YAP_TermNil,(void));
+X_API int      STD_PROTO(YAP_AtomGetHold,(Atom));
+X_API int      STD_PROTO(YAP_AtomReleaseHold,(Atom));
 
 static int (*do_getf)(void);
 
@@ -452,7 +457,7 @@ doexpand(UInt sz)
   } else {
     arity = 0;
   }
-  if (!Yap_gcl(sz, arity, ENV, CP)) {
+  if (!Yap_gcl(sz, arity, ENV, P)) {
     return FALSE;
   }
   return TRUE;
@@ -2059,5 +2064,23 @@ X_API Term
 YAP_TermNil(void)
 {
   return TermNil;
+} 
+
+X_API int
+YAP_AtomGetHold(Atom at)
+{
+  return Yap_AtomGetHold(at);
+} 
+
+X_API int
+YAP_AtomReleaseHold(Atom at)
+{
+  return Yap_AtomReleaseHold(at);
+} 
+
+X_API void
+YAP_AGCRegisterHook(Agc_hook hook)
+{
+   AGCHook = hook;
 } 
 

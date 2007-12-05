@@ -58,7 +58,7 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
       if (i > 0) fprintf(Yap_stderr, ",");
 #if DEBUG
 #if COROUTINING
-      Yap_Portray_delays = TRUE;
+      Yap_Portray_delays = FALSE;
 #endif
 #endif
   omax_depth = max_depth;

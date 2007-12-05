@@ -168,6 +168,7 @@ Subnodes of Modules
 * Defining Modules:: How To Define a New Module
 * Using Modules:: How to Use a Module
 * Meta-Predicates in Modules:: How to Handle New Meta-Predicates
+* Re-Exporting Modules:: How to Re-export Predicates From Other Modules
 
 Subnodes of Input/Output
 * Streams and Files:: Handling Streams and Files
@@ -284,11 +285,13 @@ Subnodes of CHR
 
 Subnodes of C-Interface
 * Manipulating Terms:: Primitives available to the C programmer
+* Manipulating Terms:: Primitives available to the C programmer
 * Unifying Terms:: How to Unify Two Prolog Terms
 * Manipulating Strings:: From character arrays to Lists of codes and back
 * Memory Allocation:: Stealing Memory From YAP
 * Controlling Streams:: Control How YAP sees Streams
 * Calling YAP From C:: From C to YAP to C to YAP 
+* Module Manipulation in C:: Create and Test Modules from within C
 * Writing C:: Writing Predicates in C
 * Loading Objects:: Loading Object Files
 * Save&Rest:: Saving and Restoring
@@ -2090,6 +2093,7 @@ slowed down by the presence of modules.
 * Defining Modules:: How To Define a New Module
 * Using Modules:: How to Use a Module
 * Meta-Predicates in Modules:: How to Handle New Meta-Predicates
+* Re-Exporting Modules:: How to Re-export Predicates From Other Modules
 
 @end menu
 
@@ -2243,7 +2247,8 @@ the current module. Otherwise, load the files specified by @var{F},
 importing the predicates specified in the list @var{L}. 
 @end table
 
-@node Meta-Predicates in Modules, , Using Modules, Modules
+
+@node Meta-Predicates in Modules, Re-Exporting Modules, Using Modules, Modules
 @section Meta-Predicates in Modules
 
 The module system must know whether predicates operate on goals or
@@ -2303,6 +2308,61 @@ a(G) :- call(example:G)
 ...
 
 @end example
+
+@node Re-Exporting Modules, , Meta-Predicates in Modules, Modules
+@section Re-Exporting Predicates From Other Modules
+
+It is sometimes convenient to re-export predicates originally defined in
+a different module. This is often useful if you are adding to the
+functionality of a module, or if you are composing a large module with
+several small modules. The following declarations can be used for that purpose:
+
+@table @code
+
+@item reexport(+@var{F})
+@findex reexport/1
+@snindex reexport/1
+@cnindex reexport/1
+Export all predicates defined in file @var{F} as if they were defined in
+the curremt module.
+
+@item reexport(+@var{F},+@var{Decls})
+@findex reexport/2
+@snindex reexport/2
+@cnindex reexport/2
+Export predicates defined in file @var{F} according to @var{Decls}. The
+declarations may be of the form:
+@itemize @bullet
+@item A list of predicate declarations to be exported. Each declaration
+may be a predicate indicator or of the form ``@var{PI} @code{as}
+@var{NewName}'', meaning that the predicate with indicator @var{PI} is
+to be exported under name @var{NewName}.
+@item @code{except}(@var{List}) 
+In this case, all predicates not in @var{List} are exported. Moreover,
+if ``@var{PI} @code{as} @var{NewName}'' is found, the predicate with
+indicator @var{PI} is to be exported under name @var{NewName}@ as
+before.
+@end itemize
+@end table
+
+Re-exporting predicates must be used with some care. Please, take into
+account the following observations:
+
+@itemize @bullet
+@item
+The @code{reexport} declarations must be the first declarations to
+follow the  @code{module} declaration.
+@item
+It is possible to use both @code{reexport} and @code{use_module}, but
+all predicates reexported are automatically available for use in the
+current module.
+@item
+In order to obtain efficient execution, YAP compiles dependencies
+between re-exported predicates. In practice, this means that changing a
+@code{reexport} declaration and then @strong{just} recompiling the file
+may result in incorrect execution.
+@end itemize
+
 
 @node Built-ins, Library, Modules, Top
 
@@ -10460,7 +10520,7 @@ NG = [0-[],1-[3,5],2-[4],3-[],4-[5],5-[],
       6-[],7-[],8-[],9-[],10-[],11-[]]
 @end example
 
-@item del_vertices(+@var{Vertices}, +@var{Graph}, -@var{NewGraph})
+@item del_vertices(+@var{Graph}, +@var{Vertices}, -@var{NewGraph})
 @findex  del_vertices/3
 @syindex del_vertices/3
 @cnindex del_vertices/3
@@ -10807,7 +10867,7 @@ Unify @var{Edges} with all edges appearing in graph
 Unify @var{NewGraph} with a new graph obtained by adding the list of
 vertices @var{Vertices} to the graph @var{Graph}.
 
-@item undgraph_del_vertices(+@var{Vertices}, +@var{Graph}, -@var{NewGraph})
+@item undgraph_del_vertices(+@var{Graph}, +@var{Vertices}, -@var{NewGraph})
 @findex  undgraph_del_vertices/3
 @syindex undgraph_del_vertices/3
 @cnindex undgraph_del_vertices/3
@@ -13135,6 +13195,7 @@ The rest of this appendix describes exhaustively how to interface C to YAP.
 * Memory Allocation:: Stealing Memory From YAP
 * Controlling Streams:: Control How YAP sees Streams
 * Calling YAP From C:: From C to YAP to C to YAP 
+* Module Manipulation in C:: Create and Test Modules from within C
 * Writing C:: Writing Predicates in C
 * Loading Objects:: Loading Object Files
 * Save&Rest:: Saving and Restoring
@@ -13329,6 +13390,21 @@ representation-independent way:
       int      YAP_AtomNameLength(YAP_Atom @var{t})
 @end example
 
+@findex YAP_AtomGetHold  (C-Interface function)
+@findex YAP_AtomReleaseHold  (C-Interface function)
+@findex YAP_AGCHook  (C-Interface function)
+The next routines give users some control over  the atom
+garbage collector. They allow the user to guarantee that an atom is not
+to be garbage collected (this is important if the atom is hold
+externally to the Prolog engine, allow it to be collected, and call a
+hook on garbage collection:
+@example
+      int  YAP_AtomGetHold(YAP_Atom @var{at})
+      int  YAP_AtomReleaseHold(YAP_Atom @var{at})
+      int  YAP_AGCRegisterHook(YAP_AGC_hook @var{f})
+      YAP_Term  YAP_TailOfTerm(YAP_Term @var{t})
+@end example
+
 @findex YAP_MkPairTerm (C-Interface function)
 @findex YAP_MkNewPairTerm (C-Interface function)
 @findex YAP_HeadOfTerm (C-Interface function)
@@ -13511,15 +13587,169 @@ The available flags are @code{YAP_INPUT_STREAM},
 stream is supposed to be at position 0. The argument @var{name} gives
 the name by which YAP should know the new stream.
 
-@node Calling YAP From C, Writing C, Controlling Streams, C-Interface
+@node Calling YAP From C, Module Manipulation in C, Controlling Streams, C-Interface
 @section From @code{C} back to Prolog
 
-@findex YAP_CallProlog (C-Interface function)
-Newer versions of YAP allow for calling the Prolog interpreter from
-@code{C}. One must first construct a goal @code{G}, and then it is
-sufficient to perform:
+@findex YAP_RunGoal (C-Interface function)
+There are several ways to call Prolog code from C-code. By default, the
+@code{YAP_RunGoal()} should be used for this task. It assumes the engine
+has been initialised before:
+
 @example
-      YAP_Bool      YAPCallProlog(YAP_Term @var{G})
+  YAP_RunGoal(YAP_Term Goal)
+@end example
+Execute query @var{Goal} and return 1 if the query succeeds, and 0
+otherwise. The predicate returns 0 if failure, otherwise it will return
+an @var{YAP_Term}. 
+
+One problem is that @var{YAP_Term} may change due to garbage
+collection. To make sure you have access to the current value, it may be
+a good idea to reload the term, as next example shows:
+@example
+  val = YAP_RunGoal(YAP_ARG1);
+  if (val == 0) return FALSE;
+  else t = YAP_ARG1;
+@end example
+Note that even if execution failed, garbage collection might still have
+been called and moved the term. In this case, this is not a problem:
+
+An alternative that ensures correct access to arguments is to use
+@emph{slots}, as shown next:
+
+@example
+  long sl = YAP_InitSlot(scoreTerm);
+
+  out = YAP_RunGoal(t);
+  t = YAP_GetFromSlot(sl);
+  YAP_RecoverSlots(1);
+  if (out == 0) return FALSE;
+@end example
+Slots are safe houses in the stack, preserved by the garbage collector
+and the stack shifter. In this case, we use a slot to preserve @var{t}
+during the execution of @code{YAP_RunGoal}. When the execution of
+@var{t} is over we read the (possibly changed) value of @var{t} back
+from the slot @var{sl} and tell YAP that the slot @var{sl} is not needed
+and can be given back to the system. The slot functions are as follows:
+
+@table @code
+@item long int YAP_NewSlots(int @var{NumberOfSlots})
+@findex YAP_NewSlots (C-Interface function)
+Allocate @var{NumberOfSlots} from the stack and return an handle to the
+last one. Th eother hand can be obtained by decrementing the handle.
+
+@item long int YAP_CurrentSlot(void)
+@findex YAP_CurrentSlot (C-Interface function)
+Return a handle to the system's default slot.
+
+@item long YAP_InitSlot(YAP_Term @var{t})
+@findex YAP_InitSlot (C-Interface function)
+Create a new slot, initialise it with @var{t}, and return a handle to
+this slot, that also becomes the current slot.
+
+@item YAP_Term *YAP_AddressFromSlot(long int @var{slot})
+@findex YAP_AddressFromSlot (C-Interface function)
+Return the address of slot @var{slot}: please use with care.
+
+@item void YAP_PutInSlot(long int @var{slot}, YAP_Term @var{t})
+@findex YAP_PutInSlot (C-Interface function)
+Set the contents of slot @var{slot} to @var{t}.
+
+@item void YAP_RecoverSlots(int @var{HowMany})
+@findex YAP_RecoverSlots (C-Interface function)
+Recover the space for @var{HowMany} slots: these will include the
+current default slot.
+@end table
+
+The following functions complement @var{YAP_RunGoal}:
+@table @code
+@findex YAP_RestartGoal (C-Interface function)
+Look for the next solution to the current query by forcing YAP to
+backtrack to the latest goal. Notice that slots allocated since the last
+@code{YAP_RunGoal} will become invalid.
+
+@item  @code{int} YAP_Reset(@code{void})
+@findex YAP_Reset (C-Interface function)
+Reset execution environment (similar to the @code{abort/0}
+built-in). This is useful when you want to start a new query before
+asking all solutions to the previous query.
+
+@item  @code{int} YAP_ShutdownGoal(@code{int backtrack})
+@findex YAP_ShutdownGoal (C-Interface function)
+Clean up the current goal. If
+@code{backtrack} is true, stack space will be recovered and bindings
+will be undone. In both cases, any slots allocated since the goal was
+created will become invalid.
+
+@item  @code{YAP_Bool} YAP_GoalHasException(@code{YAP_Term *tp})
+@findex YAP_RestartGoal (C-Interface function)
+Check if the last goal generated an exception, and if so copy it to the
+space pointed to by @var{tp}
+
+@item  @code{void} YAP_ClearExceptions(@code{void})
+@findex YAP_ClearExceptions (C-Interface function)
+Reset any exceptions left over by the system.
+@end table
+
+The @var{YAP_RunGoal} interface is designed to be very robust, but may
+not be the most efficient when repeated calls to the same goal are made
+and when there is no interest in processing exception. The
+@var{YAP_EnterGoal} interface should have lower-overhead:
+@table @code
+@item  @code{YAP_PredEntryPtr} YAP_FunctorToPred(@code{YAP_Functor} @var{f},
+@findex YAP_FunctorToPred (C-Interface function)
+Return the predicate whose main functor is @var{f}.
+
+@item  @code{YAP_PredEntryPtr} YAP_AtomToPred(@code{YAP_Atom} @var{at},
+@findex YAP_AtomToPred (C-Interface function)
+Return the arity 0 predicate whose name is @var{at}.
+
+@item  @code{YAP_Bool} YAP_EnterGoal(@code{YAP_PredEntryPtr} @var{pe},
+@code{YAP_Term *} @var{array}, @code{YAP_dogoalinfo *} @var{infop})
+@findex YAP_EnterGoal (C-Interface function)
+Execute a  query for predicate @var{pe}. The query is given as an
+array of terms @var{Array}. @var{infop} is the address of a goal
+handle that can be used to backtrack and to recover space. Succeeds if
+a solution was found.
+
+Notice that you cannot create new slots if an YAP_EnterGoal goal is open.
+
+@item  @code{YAP_Bool} YAP_RetryGoal(@code{YAP_dogoalinfo *} @var{infop})
+@findex YAP_RetryGoal (C-Interface function)
+Backtrack to a query created by @code{YAP_EnterGoal}. The query is
+given by the handle @var{infop}. Returns whether a new solution could
+be be found.
+
+@item  @code{YAP_Bool} YAP_LeaveGoal(@code{YAP_Bool} @var{backtrack},
+@code{YAP_dogoalinfo *} @var{infop})
+@findex YAP_LeaveGoal (C-Interface function)
+Exit a query query created by @code{YAP_EnterGoal}. If
+@code{backtrack} is @code{TRUE}, variable bindings are undone and Heap
+space is recovered.  Otherwise, only stack space is recovered, ie,
+@code{LeaveGoal} executes a cut.
+@end table
+Next, follows an example of how to use @code{YAP_EnterGoal}:
+@example
+void
+runall(YAP_Term g)
+@{
+    YAP_dogoalinfo goalInfo;
+    YAP_Term *goalArgs = YAP_ArraysOfTerm(g);
+    YAP_Functor *goalFunctor = YAP_FunctorOfTerm(g);
+    YAP_PredEntryPtr goalPred = YAP_FunctorToGoal(goalFunctor);
+    
+    result = YAP_EnterGoal( goalPred, goalArgs, &goalInfo );
+    while (result)
+       result = YAP_RetryGoal( &goalInfo );
+    YAP_LeaveGoal(TRUE, &goalInfo);
+@}
+@end example
+
+@findex YAP_CallProlog (C-Interface function)
+YAP allows calling a @strong{new} Prolog interpreter from @code{C}. One
+way is to first construct a goal @code{G}, and then it is sufficient to
+perform:
+@example
+      YAP_Bool      YAP_CallProlog(YAP_Term @var{G})
 @end example
 @noindent
 the result will be @code{FALSE}, if the goal failed, or @code{TRUE}, if
@@ -13528,7 +13758,34 @@ the values they have been unified with. Execution only proceeds until
 finding the first solution to the goal, but you can call
 @code{findall/3} or friends if you need all the solutions.
 
-@node Writing C, Loading Objects, Calling YAP From C, C-Interface
+Notice that during execution, garbage collection or stack shifting may
+have moved the terms 
+
+@node Module Manipulation in C, Writing C, Calling YAP From C, C-Interface
+@section Module Manipulation in C
+
+YAP allows one to create a new module from C-code. To create the new
+code it is sufficient to call:
+@example
+      YAP_Module      YAP_CreateModule(YAP_Atom @var{ModuleName})
+@end example
+@noindent
+Notice that the new module does not have any predicates associated and
+that it is not the current module. To find the current module, you can call:
+@example
+      YAP_Module      YAP_CurrentModule()
+@end example
+
+Given a module, you may want to obtain the corresponding name. This is
+possioble by using:
+@example
+      YAP_Term      YAP_ModuleName(YAP_Module mod)
+@end example
+@noindent
+Notice that this function returns a term, and not an atom. You can
+@code{YAP_AtomOfTerm} to extract the corresponding Prolog atom.
+
+@node Writing C, Loading Objects, Module Manipulation in C, C-Interface
 @section Writing predicates in C
 
 We will distinguish two kinds of predicates:
@@ -13935,113 +14192,6 @@ simple way for controlling and communicating with the Prolog run-time.
 @item  @code{YAP_Term} YAP_Read(@code{int (*)(void)} @var{GetC})
 @findex  YAP_Read/1
 Parse a Term  using the function @var{GetC} to input characters.
-
-@item  @code{YAP_Term} YAP_RunGoal(@code{YAP_Term} @var{Goal})
-@findex YAP_RunGoal/1
-Execute query @var{Goal} and return 1 if the query succeeds, and
-0 otherwise. The predicate returns 0 if failure, otherwise it will
-return @var{YAP_Term}. Note that @var{YAP_Term} may change due to garbage
-collection, so you should use something like:
-@example
-  t = YAP_RunGoal(t);
-  if (t == 0) return FALSE;
-@end example
-If the execution fails, garbage collection might still have changed
-the term, so you should not use the input argument again.
-
-An alternative is to use @emph{slots}, as shown next:
-
-@example
-  long sl = YAP_InitSlot(scoreTerm);
-
-  out = YAP_RunGoal(t);
-  t = YAP_GetFromSlot(sl);
-  YAP_RecoverSlots(1);
-  if (out == 0) return FALSE;
-@end example
-Slots are safe houses in the stack, preserved by the garbage collector
-and the stack shifter. In this case, we use a slot to preserve @var{t}
-during the execution of @code{YAP_RunGoal}. When the execution of
-@var{t} is over we read the (possibly changed) value of @var{t} back
-from the slot @var{sl} and tell YAP that the slot @var{sl} is not
-needed and can be given back to the system.
-
-@item  @code{int} YAP_RestartGoal(@code{void})
-@findex YAP_RestartGoal/0
-Look for the next solution to the current query by forcing YAP to
-backtrack to the latest goal. Notice that slots allocated since the last
-@code{YAP_RunGoal} will become invalid.
-
-@item  @code{int} YAP_ShutdownGoal(@code{int backtrack})
-@findex YAP_ShutdownGoal/0
-Clean up the current goal. If
-@code{backtrack} is true, stack space will be recovered and bindings
-will be undone. In both cases, any slots allocated since the goal was
-created will become invalid.
-
-@item  @code{int} YAP_Reset(@code{void})
-@findex YAP_Reset/0
-Reset execution environment (similar to the @code{abort/0}
-built-in). This is useful when you want to start a new query before
-asking all solutions to the previous query.
-
-@item  @code{YAP_Bool} YAP_GoalHasException(@code{YAP_Term *tp})
-@findex YAP_RestartGoal/1
-Check if the last goal generated an exception, and if so copy it to the
-space pointed to by @var{tp}
-
-@item  @code{void} YAP_ClearExceptions(@code{void})
-@findex YAP_ClearExceptions/0
-Reset any exceptions left over by the system.
-
-@item  @code{YAP_PredEntryPtr} YAP_FunctorToPred(@code{YAP_Functor} @var{f},
-@findex YAP_FunctorToPred/1
-Return the predicate whose main functor is @var{f}.
-
-@item  @code{YAP_PredEntryPtr} YAP_AtomToPred(@code{YAP_Atom} @var{at},
-@findex YAP_AtomToPred/1
-Return the arity 0 predicate whose name is @var{at}.
-
-@item  @code{YAP_Bool} YAP_EnterGoal(@code{YAP_PredEntryPtr} @var{pe},
-@code{YAP_Term *} @var{array}, @code{YAP_dogoalinfo *} @var{infop})
-@findex YAP_EnterGoal/3
-Execute a  query for predicate @var{pe}. The query is given as an
-array of terms @var{Array}. @var{infop} is the address of a goal
-handle that can be used to backtrack and to recover space. Succeeds if
-a solution was found.
-
-Notice that you cannot create new slots if an YAP_EnterGoal goal is open.
-
-@item  @code{YAP_Bool} YAP_RetryGoal(@code{YAP_dogoalinfo *} @var{infop})
-@findex YAP_RetryGoal/1
-Backtrack to a query created by @code{YAP_EnterGoal}. The query is
-given by the handle @var{infop}. Returns whether a new solution could
-be be found.
-
-@item  @code{YAP_Bool} YAP_LeaveGoal(@code{YAP_Bool} @var{backtrack},
-@code{YAP_dogoalinfo *} @var{infop})
-@findex YAP_LeaveGoal/2
-Exit a query query created by @code{YAP_EnterGoal}. If
-@code{backtrack} is @code{TRUE}, variable bindings are undone and Heap
-space is recovered.  Otherwise, only stack space is recovered, ie,
-@code{LeaveGoal} executes a cut.
-
-Next, follows an example of how to use @code{YAP_EnterGoal}:
-@example
-void
-runall(YAP_Term g)
-@{
-    YAP_dogoalinfo goalInfo;
-    YAP_Term *goalArgs = YAP_ArraysOfTerm(g);
-    YAP_Functor *goalFunctor = YAP_FunctorOfTerm(g);
-    YAP_PredEntryPtr goalPred = YAP_FunctorToGoal(goalFunctor);
-    
-    result = YAP_EnterGoal( goalPred, goalArgs, &goalInfo );
-    while (result)
-       result = YAP_RetryGoal( &goalInfo );
-    YAP_LeaveGoal(TRUE, &goalInfo);
-@}
-@end example
 
 @item  @code{YAP_Term} YAP_Write(@code{YAP_Term} @var{t})
 @findex  YAP_CopyTerm/1

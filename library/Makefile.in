@@ -61,6 +61,7 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/undgraphs.yap \
 	$(srcdir)/varnumbers.yap \
 	$(srcdir)/wdgraphs.yap \
+	$(srcdir)/wgraphs.yap \
 	$(srcdir)/wundgraphs.yap \
 	$(srcdir)/lam_mpi.yap \
 	$(srcdir)/ypp.yap 

@@ -5,7 +5,6 @@
 
 :- module( dgraphs,
 	   [
-	    dgraph_new/1,
 	    dgraph_add_edge/4,
 	    dgraph_add_edges/3,
 	    dgraph_add_vertex/3,
@@ -34,9 +33,11 @@
 	    dgraph_isomorphic/4,
 	    dgraph_path/3]).
 
+:- reexport(library(rbtrees),
+	[rb_new/1 as dgraph_new]).
+
 :- use_module(library(rbtrees),
-	[rb_new/1,
-	 rb_empty/1,
+	[rb_empty/1,
 	 rb_lookup/3,
 	 rb_apply/4,
 	 rb_insert/4,
@@ -60,27 +61,22 @@
 	 wdgraph_max_path/5,
 	 wdgraph_min_paths/3]).
 
-dgraph_new(Vertices) :-
-	rb_new(Vertices).
-
-dgraph_add_edge(V1,V2,Vs0,Vs2) :-
+dgraph_add_edge(Vs0,V1,V2,Vs2) :-
 	dgraph_new_edge(V1,V2,Vs0,Vs1),
-	dgraph_add_vertex(V2,Vs1,Vs2).
+	dgraph_add_vertex(Vs1,V2,Vs2).
 	
-dgraph_add_edges(Edges, V0, VF) :-
+dgraph_add_edges(V0, Edges, VF) :-
 	rb_empty(V0), !,
 	sort(Edges,SortedEdges),
 	all_vertices_in_edges(SortedEdges,Vertices),
 	sort(Vertices,SortedVertices),
 	edges2graphl(SortedVertices, SortedEdges, GraphL),
 	ord_list_to_rbtree(GraphL, VF).
-dgraph_add_edges(Edges) -->
-	{
-	 sort(Edges,SortedEdges),
-	 all_vertices_in_edges(SortedEdges,Vertices),
-	 sort(Vertices,SortedVertices)
-	},
-	dgraph_add_edges(SortedVertices,SortedEdges).
+dgraph_add_edges(G0, Edges, GF) :-
+	sort(Edges,SortedEdges),
+	all_vertices_in_edges(SortedEdges,Vertices),
+	sort(Vertices,SortedVertices),
+	dgraph_add_edges(SortedVertices,SortedEdges, G0, GF).
 
 all_vertices_in_edges([],[]).
 all_vertices_in_edges([V1-V2|Edges],[V1,V2|Vertices]) :-
@@ -124,15 +120,15 @@ dgraph_new_edge(V1,V2,Vs0,Vs) :-
 insert_edge(V2, Children0, Children) :-
 	ord_insert(Children0,V2,Children).
 
-dgraph_add_vertices([]) --> [].
-dgraph_add_vertices([V|Vs]) -->
-	dgraph_add_vertex(V),
-	dgraph_add_vertices(Vs).
+dgraph_add_vertices(G, [], G).
+dgraph_add_vertices(G0, [V|Vs], GF) :-
+	dgraph_add_vertex(G0, V, G1),
+	dgraph_add_vertices(G1, Vs, GF).
 
 
-dgraph_add_vertex(V,Vs0,Vs0) :-
+dgraph_add_vertex(Vs0, V, Vs0) :-
 	rb_lookup(V,_,Vs0), !.
-dgraph_add_vertex(V, Vs0, Vs) :-
+dgraph_add_vertex(Vs0, V, Vs) :-
 	rb_insert(Vs0, V, [], Vs).
 
 dgraph_edges(Vs,Edges) :-
@@ -169,14 +165,12 @@ dgraph_complement(Vs0,VsF) :-
 complement(Vs,Children,NewChildren) :-
 	ord_subtract(Vs,Children,NewChildren).
 
-dgraph_del_edge(V1,V2,Vs0,Vs1) :-
+dgraph_del_edge(Vs0,V1,V2,Vs1) :-
 	rb_apply(Vs0, V1, delete_edge(V2), Vs1).
 
-dgraph_del_edges(Edges) -->
-	{
-	 sort(Edges,SortedEdges)
-	},
-	continue_del_edges(SortedEdges).
+dgraph_del_edges(G0, Edges, Gf) :-
+	sort(Edges,SortedEdges),
+	continue_del_edges(SortedEdges, G0, Gf).
 
 continue_del_edges([]) --> [].
 continue_del_edges([V-V1|Es]) --> !,
@@ -190,17 +184,17 @@ contract_vertex(V,Children, Vs0, Vs) :-
 del_edges(ToRemove,E0,E) :-
 	ord_subtract(E0,ToRemove,E).
 
-dgraph_del_vertex(V,Vs0,Vsf) :-
+dgraph_del_vertex(Vs0, V, Vsf) :-
 	rb_delete(Vs0, V, Vs1),
 	rb_map(Vs1, delete_edge(V), Vsf).
 
-delete_edge(V, Edges0, Edges) :-
+delete_edge(Edges0, V, Edges) :-
 	ord_del_element(Edges0, V, Edges).
 
-dgraph_del_vertices(Vs) -->
-	{ sort(Vs,SortedVs) },
-	delete_all(SortedVs),
-	delete_remaining_edges(SortedVs).
+dgraph_del_vertices(G0, Vs, GF) -->
+	sort(Vs,SortedVs),
+	delete_all(SortedVs, G0, G1),
+	delete_remaining_edges(SortedVs, G1, GF).
 
 % it would be nice to be able to delete a set of elements from an RB tree
 % but I don't how to do it yet.
@@ -240,7 +234,7 @@ dgraph_compose(T1,T2,CT) :-
 	rb_visit(T1,Nodes),
 	compose(Nodes,T2,NewNodes),
 	dgraph_new(CT0),
-	dgraph_add_edges(NewNodes,CT0,CT).
+	dgraph_add_edges(CT0,NewNodes,CT).
 
 compose([],_,[]).
 compose([V-Children|Nodes],T2,NewNodes) :-
@@ -264,7 +258,7 @@ dgraph_transitive_closure(G,Closure) :-
 continue_closure([], Closure, Closure) :- !.
 continue_closure(Edges, G, Closure) :-
 	transit_graph(Edges,G,NewEdges),
-	dgraph_add_edges(NewEdges, G, GN),
+	dgraph_add_edges(G, NewEdges, GN),
 	continue_closure(NewEdges, GN, Closure).
 
 transit_graph([],_,[]).
@@ -287,7 +281,7 @@ is_edge(V1,V2,G) :-
 dgraph_symmetric_closure(G,S) :-
 	dgraph_edges(G, Edges),
 	invert_edges(Edges, InvertedEdges),
-	dgraph_add_edges(InvertedEdges, G, S).
+	dgraph_add_edges(G, InvertedEdges, S).
 
 invert_edges([], []).
 invert_edges([V1-V2|Edges], [V2-V1|InvertedEdges]) :-
@@ -395,7 +389,7 @@ dgraph_isomorphic(Vs, Vs2, G1, G2) :-
 	translate_edges(Edges,Map,TEdges),
 	dgraph_new(G20),
 	dgraph_add_vertices(Vs2,G20,G21),
-	dgraph_add_edges(TEdges,G21,G2).
+	dgraph_add_edges(G21,TEdges,G2).
 
 mapping([],[],Map,Map).
 mapping([V1|Vs],[V2|Vs2],Map0,Map) :-

@@ -33,14 +33,13 @@ alloc_ring_buf(void)
   return buffers+(TMP_BUF_SIZE+ret*BUF_SIZE);
 }
 
-/* SWI: void PL_agc_hook(void)
-   YAP: NO EQUIVALENT */
+/* SWI: void PL_agc_hook(void) */
 
 /* dummy function for now (until Vitor comes through!)*/
 X_API PL_agc_hook_t
 PL_agc_hook(PL_agc_hook_t entry)
 {
-  return entry;
+  YAP_AGCRegisterHook((YAP_agc_hook)entry);
 }
 
 /* SWI: char* PL_atom_chars(atom_t atom)
@@ -977,18 +976,20 @@ X_API int PL_unify_term(term_t l,...)
 
 /* end PL_unify_* functions =============================*/
 
-/* SWI: void PL_register_atom(atom_t atom)
-   YAP: NO EQUIVALENT */
+/* SWI: void PL_register_atom(atom_t atom) */
 /* SAM TO DO */
 X_API void PL_register_atom(atom_t atom)
 {
+  extern int Yap_AtomGetHold(atom_t atom);
+  Yap_AtomGetHold(atom);
 }
 
-/* SWI: void PL_unregister_atom(atom_t atom)
-   YAP: NO EQUIVALENT */
+/* SWI: void PL_unregister_atom(atom_t atom) */
 /* SAM TO DO */
 X_API void PL_unregister_atom(atom_t atom)
 {
+  extern int Yap_AtomReleaseHold(atom_t atom);
+  Yap_AtomReleaseHold(atom);
 }
 
 X_API int PL_get_string_chars(term_t t, char **s, int *len)

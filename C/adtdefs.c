@@ -1169,4 +1169,60 @@ Yap_PutInSlot(long slot, Term t)
   LCL0[slot] = t;
 }
 
+HoldEntry *
+Yap_InitAtomHold(void)
+{
+  HoldEntry *x = (HoldEntry *)Yap_AllocAtomSpace(sizeof(struct hold_entry));
+  x->KindOfPE = HoldProperty;
+  x->NextOfPE = NIL;
+  return x;
+}
 
+int
+Yap_AtomGetHold(Atom at)
+{
+  AtomEntry *ae = RepAtom(at);
+  PropEntry *pp, *opp = NULL;
+
+  WRITE_LOCK(ae->ARWLock);
+  pp = RepProp(ae->PropsOfAE);
+  while (!EndOfPAEntr(pp)) {
+    pp = RepProp(pp->NextOfPE);
+    opp = pp;
+  }
+  if (!pp) {
+    ae->PropsOfAE = AbsHoldProp(GlobalHoldEntry);
+  } else if (opp->KindOfPE != HoldProperty) {
+    opp->NextOfPE = AbsHoldProp(GlobalHoldEntry);
+  } else {
+    WRITE_UNLOCK(ae->ARWLock);
+    return FALSE;
+  }
+  WRITE_UNLOCK(ae->ARWLock);
+  return TRUE;
+}
+
+int
+Yap_AtomReleaseHold(Atom at)
+{
+  AtomEntry *ae = RepAtom(at);
+  PropEntry *pp, *opp = NULL;
+
+  WRITE_LOCK(ae->ARWLock);
+  pp = RepProp(ae->PropsOfAE);
+  while (!EndOfPAEntr(pp)) {
+    if (pp->KindOfPE == HoldProperty) {
+      if (!opp) {
+	ae->PropsOfAE = NIL;
+      } else {
+	opp->NextOfPE = NIL;
+      }
+      WRITE_UNLOCK(ae->ARWLock);
+      return TRUE;
+    }
+    pp = RepProp(pp->NextOfPE);
+    opp = pp;
+  }
+  WRITE_UNLOCK(ae->ARWLock);
+  return FALSE;
+}

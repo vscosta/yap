@@ -5,57 +5,45 @@
 
 :- module( wundgraphs,
 	   [
-	    wundgraph_new/1,
 	    wundgraph_add_edge/5,
 	    wundgraph_add_edges/3,
-	    wundgraph_add_vertex/3,
-	    wundgraph_add_vertices/3,
 	    wundgraph_del_edge/5,
 	    wundgraph_del_edges/3,
 	    wundgraph_del_vertex/3,
-	    wundgraph_del_vertices/3,
-	    wundgraph_edge/4,
 	    wundgraph_edges/2,
-	    wundgraph_vertices/2,
 	    wundgraph_neighbors/3,
 	    wundgraph_neighbours/3,
 	    wdgraph_to_wundgraph/2,
-	    wundgraph_to_wdgraph/2,
-	    undgraph_to_wundgraph/2,
 	    wundgraph_to_undgraph/2,
 	    wundgraph_min_tree/3,
-	    wundgraph_max_tree/3,
-	    wundgraph_min_path/5,
-	    wundgraph_min_paths/3,
-	    wundgraph_max_path/5,
-	    wundgraph_path/3]).
+	    wundgraph_max_tree/3]).
+
+:- reexport( library(wdgraphs),
+	   [
+	    wdgraph_new/1 as wundgraph_new,
+	    wdgraph_add_vertex/3 as wundgraph_add_vertex,
+	    wdgraph_add_vertices/3 as wundgraph_add_vertices,
+	    wdgraph_vertices/2 as wundgraph_vertices,
+	    wdgraph_del_vertices/3 as wundgraph_del_vertices,
+	    wdgraph_edge/4 as wundgraph_edge,
+	    wdgraph_to_dgraph/2 as wundgraph_to_undgraph,
+	    dgraph_to_wdgraph/2 as undgraph_to_wundgraph,
+	    wdgraph_min_path/5 as wundgraph_min_path,
+	    wdgraph_min_paths/3 as wundgraph_min_paths,
+	    wdgraph_max_path/5 as wundgraph_max_path,
+	    wdgraph_path/3 as wundgraph_path]).
 
 :- use_module( library(wdgraphs),
 	   [
-	    wdgraph_new/1,
 	    wdgraph_add_edge/5,
 	    wdgraph_add_edges/3,
-	    wdgraph_add_vertex/3,
-	    wdgraph_add_vertices/3,
 	    wdgraph_del_edge/5,
 	    wdgraph_del_edges/3,
 	    wdgraph_del_vertex/3,
-	    wdgraph_del_vertices/3,
-	    wdgraph_edge/4,
 	    wdgraph_edges/2,
-	    wdgraph_to_dgraph/2,
-	    dgraph_to_wdgraph/2,
-	    wdgraph_symmetric_closure/2,
-	    wdgraph_min_path/5,
-	    wdgraph_min_paths/3,
-	    wdgraph_max_path/5,
-	    wdgraph_path/3]).
-
-:- use_module( library(dgraphs),
-	   [
-            dgraph_vertices/2,
-	    dgraph_neighbors/3
-	]).
+	    wdgraph_neighbors/3,
+	    wdgraph_symmetric_closure/2
+	   ]).
 
 :- use_module(library(rbtrees),
 	[  
@@ -72,29 +60,20 @@
          reverse/2
 	]).
 
-wundgraph_new(Vertices) :-
-	wdgraph_new(Vertices).
-
-wundgraph_add_edge(V1,V2,K,Vs0,Vs2) :-
+wundgraph_add_edge(Vs0, V1, V2, K, Vs2) :-
 	wdgraphs:wdgraph_new_edge(V1,V2,K,Vs0,Vs1),
 	wdgraphs:wdgraph_new_edge(V2,V1,K,Vs1,Vs2).
 	
-wundgraph_add_edges(Edges) -->
-	{ dup_edges(Edges, DupEdges) },
-	wdgraph_add_edges(DupEdges).
+wundgraph_add_edges(G0, Edges, GF) :-
+	dup_edges(Edges, DupEdges),
+	wdgraph_add_edges(G0, DupEdges, GF).
 
 dup_edges([],[]).
 dup_edges([E1-(E2-K)|Edges], [E1-(E2-K),E2-(E1-K)|DupEdges]) :-
 	dup_edges(Edges, DupEdges).
 
-wundgraph_add_vertices(Vs) -->
-	wdgraph_add_vertices(Vs).
-
-wundgraph_add_vertex(V) -->
-	wdgraph_add_vertex(V).
-
-wundgraph_edges(Vs,Edges) :-
-	wdgraph_edges(Vs,DupEdges),
+wundgraph_edges(Vs, Edges) :-
+	wdgraph_edges(Vs, DupEdges),
 	remove_dups(DupEdges,Edges).
 
 remove_dups([],[]).
@@ -104,11 +83,8 @@ remove_dups([V1-(V2-K)|DupEdges],NEdges) :- V1 @< V2, !,
 remove_dups([_|DupEdges],Edges) :-
 	remove_dups(DupEdges,Edges).
 
-wundgraph_vertices(Vs,Vertices) :-
-	dgraph_vertices(Vs,Vertices).
-
 wundgraph_neighbours(V,Vertices,Children) :-
-	dgraph_neighbours(V,Vertices,Children0),
+	wdgraph_neighbours(V,Vertices,Children0),
 	(
 	    del_me(Children0,V,Children)
 	->
@@ -117,7 +93,7 @@ wundgraph_neighbours(V,Vertices,Children) :-
 	    Children = Children0
 	).
 wundgraph_neighbors(V,Vertices,Children) :-
-	dgraph_neighbors(V,Vertices,Children0),
+	wdgraph_neighbors(V,Vertices,Children0),
 	(
 	    del_me(Children0,V,Children)
 	->
@@ -139,17 +115,15 @@ del_me([K-_|Children], K1, NewChildren) :-
 	    compact(Children, MoreChildren)
 	).
 
-wundgraph_del_edge(V1,V2,K,Vs0,VsF) :-
-	wdgraph_del_edge(V1,V2,K,Vs0,Vs1),
-	wdgraph_del_edge(V2,V1,K,Vs1,VsF).
+wundgraph_del_edge(Vs0,V1,V2,K,VsF) :-
+	wdgraph_del_edge(Vs0,V1,V2,K,Vs1),
+	wdgraph_del_edge(Vs1,V2,V1,K,VsF).
 
-wundgraph_del_edges(Edges) -->
-	{
-	  dup_edges(Edges,DupEdges)
-	},
-	wdgraph_del_edges(DupEdges).
+wundgraph_del_edges(G0, Edges, GF) :-
+	dup_edges(Edges,DupEdges),
+	wdgraph_del_edges(G0, DupEdges, GF).
 
-wundgraph_del_vertex(V, Vs0, Vsf) :-
+wundgraph_del_vertex(Vs0, V, Vsf) :-
 	rb_delete(Vs0, V, BackEdges, Vsi),
 	del_and_compact(BackEdges,V,BackVertices),
 	rb_partial_map(Vsi, BackVertices, del_edge(V), Vsf).
@@ -172,8 +146,8 @@ compact([K-_|Children], [K|CompactChildren]) :-
 	compact(Children, CompactChildren).
 
 
-wundgraph_del_vertices(Vs) -->
-	wdgraph_del_vertices(Vs).
+wundgraph_del_vertices(G0, Vs, GF) :-
+	wdgraph_del_vertices(G0, Vs, GF).
 
 del_edge(_, [], []).
 del_edge(K1, [K-W|Children], NewChildren) :-
@@ -195,21 +169,6 @@ wdgraph_to_wundgraph(G, U) :-
 
 wundgraph_to_wdgraph(G, G).
 
-wundgraph_min_path(V1, V2, WGraph, Path, Cost) :-
-	wdgraph_min_path(V1, V2, WGraph, Path, Cost).
-
-wundgraph_max_path(V1, V2, WGraph, Path, Cost) :-
-	wdgraph_max_path(V1, V2, WGraph, Path, Cost).
-
-wundgraph_min_paths(V1, WGraph, T) :-
-	wdgraph_min_paths(V1, WGraph, T).
-
-wundgraph_path(V, WG, P) :-
-	wdgraph_path(V, WG, P).
-
-undgraph_to_wundgraph(G1, G2) :-
-	dgraph_to_wdgraph(G1, G2).
-
 wundgraph_to_undgraph(G1, G2) :-
 	    wdgraph_to_dgraph(G1, G2).
 
@@ -225,14 +184,14 @@ generate_min_tree([], T, 0) :- !,
 	wundgraph_new(T).
 generate_min_tree([El-_], T, 0) :- !,
 	wundgraph_new(T0),
-	wundgraph_add_vertex(El,T0,T).
+	wundgraph_add_vertex(T0, El, T).
 generate_min_tree(Els0, T, C) :-
 	mk_list_of_edges(Els0, Edges),
 	keysort(Edges, SortedEdges),
 	rb_new(V0),
 	rb_new(T0),
 	add_sorted_edges(SortedEdges, V0, TreeEdges, 0, C),
-	wundgraph_add_edges(TreeEdges, T0, T).
+	wundgraph_add_edges(T0, TreeEdges, T).
 
 wundgraph_max_tree(G, T, C) :-
 	rb_visit(G, Els0),
@@ -242,7 +201,7 @@ generate_max_tree([], T, 0) :- !,
 	wundgraph_new(T).
 generate_max_tree([El-_], T, 0) :- !,
 	wundgraph_new(T0),
-	wundgraph_add_vertex(El,T0,T).
+	wundgraph_add_vertex(T0, El, T).
 generate_max_tree(Els0, T, C) :-
 	mk_list_of_edges(Els0, Edges),
 	keysort(Edges, SortedEdges),
@@ -250,7 +209,7 @@ generate_max_tree(Els0, T, C) :-
 	rb_new(V0),
 	rb_new(T0),
 	add_sorted_edges(ReversedEdges, V0, TreeEdges, 0, C),
-	wundgraph_add_edges(TreeEdges, T0, T).
+	wundgraph_add_edges(T0, TreeEdges, T).
 
 mk_list_of_edges([], []).
 mk_list_of_edges([V-Els|Els0], Edges) :-

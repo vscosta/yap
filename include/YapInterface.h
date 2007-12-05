@@ -406,6 +406,15 @@ extern X_API YAP_Module  PROTO(YAP_CurrentModule,(void));
 /*  int  YAP_CurrentModule()  */
 extern X_API YAP_Module  PROTO(YAP_CreateModule,(YAP_Atom));
 
+/*  int  YAP_AtomGetHold(YAP_Atom)  */
+extern X_API int  PROTO(YAP_AtomGetHold,(YAP_Atom));
+
+/*  int  YAP_AtomReleaseHold(YAP_Atom)  */
+extern X_API int  PROTO(YAP_AtomReleaseHold,(YAP_Atom));
+
+/*  void  YAP_AtomReleaseHold(YAP_Atom)  */
+extern X_API void  PROTO(YAP_AGCRegisterHook,(YAP_agc_hook));
+
 /* thread stuff */
 extern X_API int  PROTO(YAP_ThreadSelf,(void));
 extern X_API YAP_CELL PROTO(YAP_ThreadCreateEngine,(YAP_thread_attr *));

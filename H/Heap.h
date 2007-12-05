@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.121 2007-11-26 23:43:08 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.122 2007-12-05 12:17:23 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -348,6 +348,7 @@ typedef struct various_codes {
   unsigned int size_of_overflow;
   struct mod_entry *current_modules;
   struct operator_entry *op_list;
+  struct hold_entry *global_hold_entry;
   struct static_clause *dead_static_clauses;
   struct static_mega_clause *dead_mega_clauses;
   struct static_index *dead_static_indices;
@@ -949,6 +950,7 @@ struct various_codes *Yap_heap_regs;
 #define  PredHashInitialSize      1039L
 #define  PredHashIncrement        7919L
 #define  ParserErrorStyle         Yap_heap_regs->parser_error_style
+#define  GlobalHoldEntry          Yap_heap_regs->global_hold_entry
 #define  DeadStaticClauses        Yap_heap_regs->dead_static_clauses
 #define  DeadMegaClauses          Yap_heap_regs->dead_mega_clauses
 #define  DBTermsList              Yap_heap_regs->dbterms_list

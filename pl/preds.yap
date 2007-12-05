@@ -634,8 +634,7 @@ abolish(X) :-
 	erase(Ref),
 	fail.
 '$abolishd'(T, M) :-
-	functor(T,N,A),
-	recorded('$import','$import'(_,M,N,A),R),	
+	recorded('$import','$import'(_,M,_,T,_,_),R),
 	erase(R),
 	fail.
 '$abolishd'(T, M) :-
@@ -665,8 +664,7 @@ abolish(X) :-
 	erase(Ref),
 	fail.
 '$abolishs'(T, M) :-
-	functor(T,N,A),
-	recorded('$import','$import'(_,M,N,A),R),
+	recorded('$import','$import'(_,M,_,_,T,_,_),R),
 	erase(R),
 	fail.
 '$abolishs'(G, M) :-
@@ -803,16 +801,14 @@ predicate_property(Pred,Prop) :-
 	'$pred_exists'(Pred,Mod), !,
 	'$predicate_property'(Pred,Mod,Mod,Prop).
 '$predicate_property2'(Pred,Prop,Mod) :- 
-	functor(Pred, N, K),
-	recorded('$import','$import'(M,Mod,N,K),_),
-	'$predicate_property'(Pred,M,Mod,Prop).
+	recorded('$import','$import'(M,Mod,NPred,Pred,_,_),_),
+	'$predicate_property2'(NPred,Prop,M).
 
 '$generate_all_preds_from_mod'(Pred, M, M) :-
 	'$current_predicate'(M,Na,Ar),
 	functor(Pred, Na, Ar).
 '$generate_all_preds_from_mod'(Pred, SourceMod, Mod) :-
-	recorded('$import','$import'(SourceMod,Mod,N,K),_),
-	functor(Pred, N, K).
+	recorded('$import','$import'(SourceMod,Mod,_,Pred,_,_),_).
 
 
 '$predicate_property'(P,M,_,built_in) :- 
@@ -834,8 +830,7 @@ predicate_property(Pred,Prop) :-
 '$predicate_property'(P,M,_,multifile) :-
 	'$is_multifile'(P,M).
 '$predicate_property'(P,Mod,M,imported_from(Mod)) :-
-	functor(P,N,K),
-	recorded('$import','$import'(Mod,M,N,K),_).
+	recorded('$import','$import'(Mod,M,_,P,_,_),_).
 '$predicate_property'(P,M,_,public) :-
 	'$is_public'(P,M).
 '$predicate_property'(P,M,M,exported) :-

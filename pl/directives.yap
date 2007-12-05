@@ -54,6 +54,8 @@
 '$directive'(else).
 '$directive'(elif(_)).
 '$directive'(endif).
+'$directive'(reexport(_)).
+'$directive'(reexport(_,_)).
 
 '$exec_directives'((G1,G2), Mode, M) :- !,
 	'$exec_directives'(G1, Mode, M),
@@ -109,6 +111,10 @@
 	'$consult'(Fs, M).
 '$exec_directive'(use_module(F), _, M) :-
 	'$load_files'(M:F, [if(not_loaded)],use_module(F)).
+'$exec_directive'(reexport(F), _, M) :-
+	'$reexport'(F, all, M).
+'$exec_directive'(reexport(F,Spec), _, M) :-
+	'$reexport'(F, Spec, M).
 '$exec_directive'(use_module(F,Is), _, M) :-
 	'$load_files'(M:F, [if(not_loaded),imports(Is)],use_module(F,Is)).
 '$exec_directive'(use_module(Mod,F,Is), _, _) :-

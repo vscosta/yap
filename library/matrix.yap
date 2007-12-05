@@ -31,7 +31,8 @@ typedef enum {
   MAT_SUB=1,
   MAT_TIMES=2,
   MAT_DIV=3,
-  MAT_IDIV=4
+  MAT_IDIV=4,
+  MAT_ZDIV=5
 } op_type;
 
   */
@@ -63,9 +64,13 @@ typedef enum {
 	    matrix_sum/2,
 	    matrix_sum_out/3,
 	    matrix_sum_out_several/3,
+	    matrix_sum_logs_out/3,
+	    matrix_sum_logs_out_several/3,
 	    matrix_add_to_all/2,
 	    matrix_agg_lines/3,
 	    matrix_agg_cols/3,
+	    matrix_to_logs/1,
+	    matrix_to_exps/1,
 	    matrix_op/4,
 	    matrix_op_to_all/4,
 	    matrix_op_to_lines/4,
@@ -125,6 +130,8 @@ matrix_op(M1,M2,*,NM) :-
 	do_matrix_op(M1,M2,2,NM).
 matrix_op(M1,M2,/,NM) :-
 	do_matrix_op(M1,M2,3,NM).
+matrix_op(M1,M2,zdiv,NM) :-
+	do_matrix_op(M1,M2,5,NM).
 
 matrix_op_to_all(M1,+,Num,NM) :-
 	do_matrix_op_to_all(M1,0,Num,NM).

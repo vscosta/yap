@@ -254,6 +254,14 @@ CellPtoHeapAdjust (CELL * ptr)
   return (CELL *) (((CELL *) (CharP (ptr) + HDiff)));
 }
 
+inline EXTERN HoldEntry *HoldEntryAdjust (HoldEntry *);
+
+inline EXTERN HoldEntry *
+HoldEntryAdjust (HoldEntry * ptr)
+{
+  return (HoldEntry *) (((HoldEntry *) (CharP (ptr) + HDiff)));
+}
+
 
 #if	USE_OFFSETS
 

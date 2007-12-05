@@ -17,6 +17,11 @@
 
 <h2>Yap-5.1.3:</h2>
 <ul>
+<li> NEW: allow re-exporting other modules.</li>
+<li> FIXED: graph add_ and del_ predicates should have the original
+  graph as the first argument (obs from A N Saravanaraj).</li>
+<li> FIXED: implement atom holds so that the C-interface can make sure
+  the atom garbage collector will not remove an object.</li>
 <li> FIXED: implement JT for CLP(BN).</li>
 <li> FIXED: use safe locking to ensure that dynamic predicates
   run correctly.</li>

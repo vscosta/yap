@@ -164,9 +164,9 @@ get_tied(More,_,Vs,Vs,Ns,Ns,Es,Es,More).
 
 tied_graph(TVars,Graph,Vertices) :-
 	dgraph_new(Graph0),
-	dgraph_add_vertices(Vertices, Graph0, Graph1),
+	dgraph_add_vertices(Graph0, Vertices, Graph1),
 	get_tied_edges(TVars,Edges),
-	dgraph_add_edges(Edges, Graph1, Graph).
+	dgraph_add_edges(Graph1, Edges, Graph).
 
 get_tied_edges([],[]).
 get_tied_edges([N-g(_,Vs,_)|TGraph],Edges) :-
@@ -192,9 +192,9 @@ distribute_tied([V|Vs],I0,In,[V|NVs],NVs0) :-
 
 extract_graph(AllVars, Graph) :-
 	dgraph_new(Graph0),
-	dgraph_add_vertices(AllVars, Graph0, Graph1),
+	dgraph_add_vertices(Graph0, AllVars, Graph1),
 	get_edges(AllVars,Edges),
-	dgraph_add_edges(Edges, Graph1, Graph).
+	dgraph_add_edges(Graph1, Edges, Graph).
 	
 get_edges([],[]).
 get_edges([V|AllVars],Edges) :-

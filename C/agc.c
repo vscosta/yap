@@ -153,6 +153,7 @@ AtomAdjust(Atom a)
 #define TrailAddrAdjust(P) (P)
 #define XAdjust(P) (P)
 #define YAdjust(P) (P)
+#define HoldEntryAdjust(P) (P)
 
 static void
 recompute_mask(DBRef dbr)

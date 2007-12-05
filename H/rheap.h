@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2007-11-26 23:43:09 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-12-05 12:17:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.81  2007/11/26 23:43:09  vsc
+* fixes to support threads and assert correctly, even if inefficiently.
+*
 * Revision 1.80  2007/11/07 09:35:53  vsc
 * small fix
 *
@@ -736,6 +739,7 @@ restore_codes(void)
   Yap_heap_regs->readutil_module = AtomTermAdjust(Yap_heap_regs->readutil_module);
   Yap_heap_regs->globals_module = AtomTermAdjust(Yap_heap_regs->globals_module);
   Yap_heap_regs->swi_module = AtomTermAdjust(Yap_heap_regs->swi_module);
+  Yap_heap_regs->global_hold_entry = HoldEntryAdjust(Yap_heap_regs->global_hold_entry);
   if (Yap_heap_regs->file_aliases != NULL) {
     Yap_heap_regs->yap_streams =
       (struct stream_desc *)AddrAdjust((ADDR)Yap_heap_regs->yap_streams);

@@ -391,6 +391,7 @@ static Opdef    Ops[] = {
   {">", xfx, 700},
   {"=<", xfx, 700},
   {">=", xfx, 700},
+  {"as", xfx, 600},
   {":", xfy, 600},
   {"+", yfx, 500},
   {"-", yfx, 500},
@@ -1231,6 +1232,7 @@ InitCodes(void)
   Yap_heap_regs->agc_threshold = 10000;
   Yap_heap_regs->agc_hook = NULL;
   Yap_heap_regs->parser_error_style = EXCEPTION_ON_PARSER_ERROR;
+  Yap_heap_regs->global_hold_entry = Yap_InitAtomHold();
   Yap_heap_regs->size_of_overflow  = 0;
   /* make sure no one else can use these two atoms */
   CurrentModule = 0;

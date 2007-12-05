@@ -26,16 +26,19 @@
 	       matrix_op/4,
 	       matrix_dims/2,
 	       matrix_sum/2,
-	       matrix_sum_out/3,
-	       matrix_sum_out_several/3,
+	       matrix_sum_logs_out/3,
+	       matrix_sum_logs_out_several/3,
 	       matrix_op_to_all/4,
+	       matrix_to_exps/1,
+	       matrix_to_logs/1,
 	       matrix_set_all_that_disagree/5,
 	       matrix_to_list/2]).
 
 :- use_module(library(lists), [nth0/3]).
 
 init_CPT(List, Sizes, TAB) :-
-	matrix_new(floats, Sizes, List, TAB).
+	matrix_new(floats, Sizes, List, TAB),
+	matrix_to_logs(TAB).
 
 project_from_CPT(V,tab(Table,Deps,_),tab(NewTable,NDeps,NSzs)) :-
 	evidence(V,Pos), !,
@@ -44,7 +47,7 @@ project_from_CPT(V,tab(Table,Deps,_),tab(NewTable,NDeps,NSzs)) :-
 	matrix_dims(NewTable, NSzs).
 project_from_CPT(V,tab(Table,Deps,_),tab(NewTable,NDeps,NSzs)) :-
 	vnth(Deps, 0, V, N, NDeps),
-	matrix_sum_out(Table, N, NewTable),
+	matrix_sum_logs_out(Table, N, NewTable),
 	matrix_dims(NewTable, NSzs).
 
 evidence(V, Pos) :-
@@ -110,14 +113,14 @@ split_map([_-M|Is], [M|Map]) :-
 	split_map(Is, Map).
 
 divide_CPTs(Tab1, Tab2, OT) :-
-	matrix_op(Tab1,Tab2,/,OT).
+	matrix_op(Tab1,Tab2,-,OT).
 
 
 multiply_CPTs(tab(Tab1, Deps1, Sz1), tab(Tab2, Deps2, Sz2), tab(OT, NDeps, NSz), NTab2) :-
 	expand_tabs(Deps1, Sz1, Deps2, Sz2, Map1, Map2, NDeps),
 	matrix_expand(Tab1, Map1, NTab1),
 	matrix_expand(Tab2, Map2, NTab2),
-	matrix_op(NTab1,NTab2,*,OT),
+	matrix_op(NTab1,NTab2,+,OT),
 	matrix_dims(OT,NSz).
 
 expand_tabs([], [], [], [], [], [], []).
@@ -149,6 +152,7 @@ expand_tabs([V1|Deps1], [S1|Sz1], [V2|Deps2], [S2|Sz2], Map1, Map2, NDeps) :-
 	).
 	
 normalise_CPT(MAT,NMAT) :-
+	matrix_to_exps(MAT),
 	matrix_sum(MAT, Sum),
 	matrix_op_to_all(MAT,/,Sum,NMAT).
 
@@ -174,11 +178,11 @@ unit_CPT(V,CPT) :-
 
 reset_CPT_that_disagrees(CPT, Vars, V, Pos, NCPT) :-
 	vnth(Vars, 0, V, Dim,  _),
-	matrix_set_all_that_disagree(CPT, Dim, Pos, 0.0, NCPT).
+	matrix_set_all_that_disagree(CPT, Dim, Pos, -inf, NCPT).
 
 sum_out_from_CPT(Vs,Table,Deps,tab(NewTable,Vs,Sz)) :-
 	conversion_matrix(Vs, Deps, Conv),
-	matrix_sum_out_several(Table, Conv, NewTable),
+	matrix_sum_logs_out_several(Table, Conv, NewTable),
 	matrix_dims(NewTable, Sz).
 
 conversion_matrix([], [], []).

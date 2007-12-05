@@ -814,9 +814,8 @@ not(G) :-    \+ '$execute'(G).
 	'$find_undefp_handler'(G,M,Goal,NM), !,
 	'$execute0'(Goal,NM).
 
-'$find_undefp_handler'(G,M,G,S) :-
-	functor(G,F,N),
-	recorded('$import','$import'(S,M,F,N),_),
+'$find_undefp_handler'(G,M,NG,S) :-
+	recorded('$import','$import'(S,M,NG,G,_,_),_),
 	S \= M, % can't try importing from the module itself.
 	!,
 	'$exit_undefp'.

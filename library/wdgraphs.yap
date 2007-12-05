@@ -8,15 +8,12 @@
 	    wdgraph_new/1,
 	    wdgraph_add_edge/5,
 	    wdgraph_add_edges/3,
-	    wdgraph_add_vertex/3,
-	    wdgraph_add_vertices/3,
+	    wdgraph_add_vertices_and_edges/4,
 	    wdgraph_del_edge/5,
 	    wdgraph_del_edges/3,
 	    wdgraph_del_vertex/3,
 	    wdgraph_del_vertices/3,
 	    wdgraph_edge/4,
-	    wdgraph_edges/2,
-	    wdgraph_vertices/2,
 	    wdgraph_to_dgraph/2,
 	    dgraph_to_wdgraph/2,
 	    wdgraph_neighbors/3,
@@ -30,13 +27,17 @@
 	    wdgraph_max_path/5,
 	    wdgraph_path/3]).
 
+:- reexport(library(dgraphs),
+	    [dgraph_add_vertex/3 as wdgraph_add_vertex,
+	     dgraph_add_vertices/3 as wdgraph_add_vertices,
+	     dgraph_vertices/2 as wdgraph_vertices,
+	     dgraph_edges/2 as wdgraph_edges
+	    ]).
+
+
 :- use_module(library(dgraphs),
 	[	    
-        dgraph_add_vertex/3,
-	dgraph_add_vertices/3,
 	dgraph_top_sort/2,
-	dgraph_edges/2,
-	dgraph_vertices/2,
 	dgraph_path/3
 	]
     ).
@@ -69,24 +70,27 @@
 wdgraph_new(Vertices) :-
 	rb_new(Vertices).
 
-wdgraph_add_edge(V1,V2,Weight,Vs0,Vs2) :-
-	wdgraph_new_edge(V1,V2,Weight,Vs0,Vs1),
-	dgraph_add_vertex(V2,Vs1,Vs2).
+wdgraph_add_vertices_and_edges(Vs0,Vertices,Edges,Vs2) :-
+	wdgraph_add_vertices(Vs0, Vertices, Vs1),
+	wdgraph_add_edges(Vs1, Edges, Vs2).
 	
-wdgraph_add_edges(Edges, V0, VF) :-
+
+wdgraph_add_edge(Vs0,V1,V2,Weight,Vs2) :-
+	wdgraph_new_edge(V1,V2,Weight,Vs0,Vs1),
+	dgraph_add_vertex(Vs1,V2,Vs2).
+	
+wdgraph_add_edges(V0, Edges, VF) :-
 	rb_empty(V0), !,
 	sort(Edges,SortedEdges),
 	all_vertices_in_wedges(SortedEdges,Vertices),
 	sort(Vertices,SortedVertices),
 	edges2wgraphl(SortedVertices, SortedEdges, GraphL),
 	ord_list_to_rbtree(GraphL, VF).
-wdgraph_add_edges(Edges) -->
-	{
-	 sort(Edges,SortedEdges),
-	 all_vertices_in_wedges(SortedEdges,Vertices),
-	 sort(Vertices,SortedVertices)
-	},
-	wdgraph_add_edges(SortedVertices,SortedEdges).
+wdgraph_add_edges(G0, Edges, GF) :-
+	sort(Edges,SortedEdges),
+	all_vertices_in_wedges(SortedEdges,Vertices),
+	sort(Vertices,SortedVertices),
+	add_edges(SortedVertices,SortedEdges, G0, GF).
 
 all_vertices_in_wedges([],[]).
 all_vertices_in_wedges([V1-(V2-_)|Edges],[V1,V2|Vertices]) :-
@@ -100,14 +104,14 @@ edges2wgraphl([V|Vertices], SortedEdges, [V-[]|GraphL]) :-
 	edges2wgraphl(Vertices, SortedEdges, GraphL).
 
 
-wdgraph_add_edges([],[]) --> [].
-wdgraph_add_edges([VA|Vs],[VB-(V1-W)|Es]) --> { VA == VB }, !,
+add_edges([],[]) --> [].
+add_edges([VA|Vs],[VB-(V1-W)|Es]) --> { VA == VB }, !,
 	{ get_extra_children(Es,VA,Children,REs) },
 	wdgraph_update_vertex(VA,[V1-W|Children]),
-	wdgraph_add_edges(Vs,REs).
-wdgraph_add_edges([V|Vs],Es) --> !,
+	add_edges(Vs,REs).
+add_edges([V|Vs],Es) --> !,
 	wdgraph_update_vertex(V,[]),
-	wdgraph_add_edges(Vs,Es).
+	add_edges(Vs,Es).
 
 get_extra_children([VA-(C-W)|Es],VB,[C-W|Children],REs) :- VA == VB, !,
 	get_extra_children(Es,VB,Children,REs).
@@ -144,12 +148,6 @@ wdgraph_new_edge(V1,V2,W,Vs0,Vs) :-
 insert_edge(V2, W, Children0, Children) :-
 	ord_insert(Children0,V2-W,Children).
 
-wdgraph_add_vertex(V) -->
-	dgraph_add_vertex(V).
-
-wdgraph_add_vertices(V) -->
-	dgraph_add_vertices(V).
-
 wdgraph_top_sort(WG,Q) :-
 	wdgraph_to_dgraph(WG, G),
 	dgraph_top_sort(G, Q).
@@ -168,7 +166,7 @@ find_edge(N-W,[N1-W|_]) :- N == N1, !.
 find_edge(El,[_|Edges]) :- 
 	find_edge(El,Edges).
 
-wdgraph_del_edge(V1, V2, W, Vs0, Vs) :-
+wdgraph_del_edge(Vs0, V1, V2, W, Vs) :-
 	rb_update(Vs0, V1, Children0, NewChildren, Vs),
 	del_edge(Children0, V2, W, NewChildren).
 
@@ -183,11 +181,9 @@ del_edge([K-W|Children], K1, W1, NewChildren) :-
 	    del_edge(Children, K1, W1, ChildrenLeft)
 	).
 
-wdgraph_del_edges(Edges) -->
-	{
-	 sort(Edges,SortedEdges)
-	},
-	continue_del_edges(SortedEdges).
+wdgraph_del_edges(G0, Edges, GF) :-
+	sort(Edges,SortedEdges),
+	continue_del_edges(SortedEdges, G0, GF).
 
 continue_del_edges([]) --> [].
 continue_del_edges([V-V1|Es]) --> !,
@@ -200,18 +196,18 @@ contract_vertex(V,Children, Vs0, Vs) :-
 	del_vertices(Children, Children0, NewChildren).
 
 % I assume first argument is subset of second.
-del_vertices([], Children, Children).
-del_vertices([K-W|ToDel], [K1-W1|Children0], NewChildren) :-
+del_vertices(Children, [], Children).
+del_vertices([K1-W1|Children0], [K-W|ToDel], NewChildren) :-
 	( K == K1 ->
 	    W = W1,
-	    del_vertices(ToDel, Children0, NewChildren)
+	    del_vertices(Children0, ToDel, NewChildren)
 	;
 	    % K1 @< K
 	    NewChildren = [K1-W1|ChildrenLeft],
-	    del_vertices([K-W|ToDel], Children0, ChildrenLeft)
+	    del_vertices(Children0, [K-W|ToDel], ChildrenLeft)
 	).
 
-wdgraph_del_vertex(V,Vs0,Vsf) :-
+wdgraph_del_vertex(Vs0, V, Vsf) :-
 	rb_delete(Vs0, V, Vs1),
 	rb_map(Vs1, delete_wedge(V), Vsf).
 
@@ -227,10 +223,10 @@ delete_wedge(V, [K-W|Children], NewChildren) :-
 	   Children = NewChildren
 	).
 
-wdgraph_del_vertices(Vs) -->
-	{ sort(Vs,SortedVs) },
-	delete_all(SortedVs),
-	delete_remaining_edges(SortedVs).
+wdgraph_del_vertices(G0, Vs, GF) :-
+	sort(Vs,SortedVs),
+	delete_all(SortedVs, G0, G1),
+	delete_remaining_edges(SortedVs, G1, GF).
 
 % it would be nice to be able to delete a set of elements from an RB tree
 % but I don't how to do it yet.
@@ -255,12 +251,6 @@ del_possible_edges([K|ToDel], [K1-W1|Children0], NewChildren) :-
 	;
 	    del_possible_edges(ToDel, [K1-W1|Children0], NewChildren)
 	).
-
-wdgraph_edges(G,Edges) :-
-	dgraph_edges(G,Edges).
-
-wdgraph_vertices(G,Edges) :-
-	dgraph_vertices(G,Edges).
 
 wdgraph_to_dgraph(WG, DG) :-
 	rb_clone(WG, EdgesList0, DG, EdgeList),
@@ -327,7 +317,7 @@ wdgraph_transitive_closure(G,Closure) :-
 continue_closure([], Closure, Closure) :- !.
 continue_closure(Edges, G, Closure) :-
 	transit_wgraph(Edges,G,NewEdges),
-	wdgraph_add_edges(NewEdges, G, GN),
+	wdgraph_add_edges(G, NewEdges, GN),
 	continue_closure(NewEdges, GN, Closure).
 
 transit_wgraph([],_,[]).
@@ -351,7 +341,7 @@ is_edge(V1,V2,G) :-
 wdgraph_symmetric_closure(G,S) :-
 	dgraph_edges(G, WEdges),
 	invert_wedges(WEdges, InvertedWEdges),
-	wdgraph_add_edges(InvertedWEdges, G, S).
+	wdgraph_add_edges(G, InvertedWEdges, S).
 
 invert_wedges([], []).
 invert_wedges([V1-(V2-W)|WEdges], [V2-(V1-W)|InvertedWEdges]) :-
@@ -421,7 +411,7 @@ wdgraph_min_paths(V1, WGraph, T) :-
 	queue_edges(Edges, V1, 0, H0, H1),
 	dijkstra(H1, WGraph, Status, [], EPath),
 	rb_empty(T0),
-	wdgraph_add_edges(EPath, T0, T).
+	wdgraph_add_edges(T0, EPath, T).
 
 
 dijkstra(H0, WGraph, Status, Path0, PathF) :-

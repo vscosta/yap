@@ -154,7 +154,7 @@ add_empty_vertices([V|G], [V-[]|NG]) :-
 %
 % unmark a set of vertices plus all edges leading to them.
 %
-del_vertices(Vertices, Graph, NewGraph) :-
+del_vertices(Graph, Vertices, NewGraph) :-
 	msort(Vertices, V1),
 	(V1 = [] -> Graph = NewGraph ;
 	 del_vertices(Graph, V1, V1, NewGraph) ).

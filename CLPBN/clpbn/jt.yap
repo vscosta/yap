@@ -76,6 +76,7 @@ jt(LVs,Vs0,AllDiffs) :-
 	% JTree is a dgraph
 	% now our tree has cpts
 	fill_with_cpts(JTree, NewTree),
+%	write_tree(NewTree,0),
 	propagate_evidence(Evidence, NewTree, EvTree),
 	message_passing(EvTree, MTree),
 	get_margin(MTree, LVs, LPs),
@@ -85,8 +86,8 @@ jt(LVs,Vs0,AllDiffs) :-
 get_graph(LVs, BayesNet, CPTs, Evidence) :-
 	run_vars(LVs, Edges, Vertices, CPTs, Evidence),
 	dgraph_new(V0),
-	dgraph_add_edges(Edges, V0, V1),
-	dgraph_add_vertices(Vertices, V1, V2),
+	dgraph_add_edges(V0, Edges, V1),
+	dgraph_add_vertices(V1, Vertices, V2),
 	dgraph_to_ugraph(V2, BayesNet).
 
 run_vars([], [], [], [], []).
@@ -125,7 +126,7 @@ build_jt(BayesNet, CPTs, Tree) :-
 initial_graph(_,Parents, CPTs) :-
 	test_graph(0, Graph0, CPTs),
 	dgraph_new(V0),
-	dgraph_add_edges(Graph0, V0, V1),
+	dgraph_add_edges(V0, Graph0, V1),
 	% OK, this is a bit silly, I could have written the transposed graph
 	% from the very beginning.
 	dgraph_transpose(V1, V2),
@@ -180,7 +181,7 @@ moralised([_-KPars|Ks],Moral0,MoralF) :-
 add_moral_edges([], Moral, Moral).
 add_moral_edges([_], Moral, Moral).
 add_moral_edges([K1,K2|KPars], Moral0, MoralF) :-
-	undgraph_add_edge(K1,K2,Moral0,MoralI),
+	undgraph_add_edge(Moral0, K1, K2, MoralI),
 	add_moral_edges([K1|KPars], MoralI, MoralJ),
 	add_moral_edges([K2|KPars],MoralJ,MoralF).
 
@@ -188,9 +189,9 @@ triangulate([], _, Triangulated, Triangulated, []) :- !.
 triangulate(Vertices, S0, T0, Tf, Cliques) :-
 	choose(Vertices, S0, +inf, [], -1, BestVertex, _, Cliques0, Cliques, Edges),
 	ord_del_element(Vertices, BestVertex, NextVertices),
-	undgraph_add_edges(Edges, T0, T1),
-	undgraph_del_vertex(BestVertex, S0, Si),
-	undgraph_add_edges(Edges, Si, Si2),
+	undgraph_add_edges(T0, Edges, T1),
+	undgraph_del_vertex(S0, BestVertex, Si),
+	undgraph_add_edges(Si, Edges, Si2),
 	triangulate(NextVertices, Si2, T1, Tf, Cliques0).
 
 choose([], _, _, NewEdges, Best, Best, Clique, Cliques0, [Clique|Cliques0], NewEdges).
@@ -208,7 +209,8 @@ choose([V|Vertices], Graph, Score0, _, _, Best, _, Cliques0, Cliques, EdgesF) :-
 	   length(PossibleClique,L),
 	   Cliques = [L-PossibleClique|Cliques0]
 	;
-	   length(PossibleClique,CL),
+%	   cliquelength(PossibleClique,1,CL),
+	 length(PossibleClique,CL),
 	   CL < Score0, !,
 	   choose(Vertices,Graph,CL,NewEdges, V, Best, CL-PossibleClique, Cliques0,Cliques,EdgesF)
 	).
@@ -227,6 +229,12 @@ new_edges([N1|Neighbors],N,Graph,NewEdges0, NewEdgesF) :-
 new_edges([N1|Neighbors],N,Graph,NewEdges0, [N-N1|NewEdgesF]) :-
 	new_edges(Neighbors,N,Graph,NewEdges0, NewEdgesF).
 
+cliquelength([],CL,CL).
+cliquelength([V|Vs],CL0,CL) :-
+	clpbn:get_atts(V, [dist(Id,_)]),
+	get_dist_domain_size(Id, Sz),
+	CL1 is CL0*Sz,
+	cliquelength(Vs,CL1,CL).
 
 
 %
@@ -239,8 +247,8 @@ cliques(CliqueList, CliquesF) :-
 	keysort(CliqueList,Sort),
 	reverse(Sort, Rev),
 	get_links(Rev, [], Vertices, [], Edges),
-	wundgraph_add_vertices(Vertices, Cliques0, CliquesI),
-	wundgraph_add_edges(Edges, CliquesI, CliquesF).
+	wundgraph_add_vertices(Cliques0, Vertices, CliquesI),
+	wundgraph_add_edges(CliquesI, Edges, CliquesF).
 
 % stupid quadratic algorithm, needs to be improved.
 get_links([], Vertices, Vertices, Edges, Edges).
@@ -276,7 +284,7 @@ remove_leaves(Tree, SmallerTree) :-
 	Vertices = [_,_,_|_],
 	get_leaves(Vertices, Tree, Leaves),
 	Leaves = [_|_], !,
-	undgraph_del_vertices(Leaves, Tree, NTree),
+	undgraph_del_vertices(Tree, Leaves, NTree),
 	remove_leaves(NTree, SmallerTree).
 remove_leaves(Tree, Tree).
 
@@ -424,21 +432,24 @@ add_evidence_to_kids([K|Kids], V, P, [K|NNKids]) :-
 
 message_passing(tree(Clique-Dist,Kids), tree(Clique-NDist,NKids)) :-
 	get_CPT_sizes(Dist, Sizes),
-	upward(Kids, Clique, tab(Dist, Clique, Sizes), IKids, ITab),
+	upward(Kids, Clique, tab(Dist, Clique, Sizes), IKids, ITab, 1),
 	ITab = tab(NDist, _, _),
+	nb_setval(cnt,0),
 	downward(IKids, Clique, ITab, NKids).
 
-upward([], _, Dist, [], Dist).
-upward([tree(Clique1-Dist1,DistKids)|Kids], Clique, Tab, [tree(Clique1-(NewDist1,EDist1),NDistKids)|Kids], NewTab) :-
+upward([], _, Dist, [], Dist, _).
+upward([tree(Clique1-Dist1,DistKids)|Kids], Clique, Tab, [tree(Clique1-(NewDist1,EDist1),NDistKids)|NKids], NewTab, Lev) :-
 	get_CPT_sizes(Dist1, Sizes1),
-	upward(DistKids, Clique1, tab(Dist1,Clique1,Sizes1), NDistKids, NewTab1),
+	Lev1 is Lev+1,
+	upward(DistKids, Clique1, tab(Dist1,Clique1,Sizes1), NDistKids, NewTab1, Lev1),
 	NewTab1 = tab(NewDist1,_,_),
 	ord_intersection(Clique1, Clique, Int),
 	sum_out_from_CPT(Int, NewDist1, Clique1, Tab1),
-	multiply_CPTs(Tab, Tab1, NewTab, EDist1).
+	multiply_CPTs(Tab, Tab1, ITab, EDist1),
+	upward(Kids, Clique, ITab, NKids, NewTab, Lev).
 
 downward([], _, _, []).
-downward([tree(Clique1-(Dist1,Msg1),DistKids)|Kids], Clique, Tab, [tree(Clique1-NDist1,NDistKids)|Kids]) :-
+downward([tree(Clique1-(Dist1,Msg1),DistKids)|Kids], Clique, Tab, [tree(Clique1-NDist1,NDistKids)|NKids]) :-
 	get_CPT_sizes(Dist1, Sizes1),
 	ord_intersection(Clique1, Clique, Int),
 	Tab = tab(Dist,_,_),
@@ -446,7 +457,8 @@ downward([tree(Clique1-(Dist1,Msg1),DistKids)|Kids], Clique, Tab, [tree(Clique1-
 	sum_out_from_CPT(Int, Div, Clique, STab),
 	multiply_CPTs(STab, tab(Dist1, Clique1, Sizes1), NewTab, _),
 	NewTab = tab(NDist1,_,_),
-	downward(DistKids, Clique1, NewTab, NDistKids).
+	downward(DistKids, Clique1, NewTab, NDistKids),
+	downward(Kids, Clique, Tab, NKids).
 
 
 get_margin(NewTree, LVs0, LPs) :-
@@ -466,4 +478,21 @@ find_clique_from_kids([K|_], LVs, Clique, Dist) :-
 	find_clique(K, LVs, Clique, Dist), !.
 find_clique_from_kids([_|Kids], LVs, Clique, Dist) :-
 	find_clique_from_kids(Kids, LVs, Clique, Dist).
+
+
+write_tree(tree(Clique-(Dist,_),Leaves), I0) :- !,
+	matrix:matrix_to_list(Dist,L),
+	format('~*c ~w:~w~n',[I0,0' ,Clique,L]),
+	I is I0+2,
+	write_subtree(Leaves, I).
+write_tree(tree(Clique-Dist,Leaves), I0) :-
+	matrix:matrix_to_list(Dist,L),
+	format('~*c ~w:~w~n',[I0,0' ,Clique, L]),
+	I is I0+2,
+	write_subtree(Leaves, I).
+
+write_subtree([], _).
+write_subtree([Tree|Leaves], I) :-
+	write_tree(Tree, I),
+	write_subtree(Leaves, I).
 

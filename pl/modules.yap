@@ -99,7 +99,7 @@ module(N) :-
 % redefining a previously-defined file, no problem.
 '$add_preexisting_module_on_file'(F, F, Mod, Exports, R) :- !,
 	erase(R),
-	( recorded('$import','$import'(Mod,_,_,_),R), erase(R), fail; true),
+	( recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R), fail; true),
 	recorda('$module','$module'(F,Mod,Exports),_).
 '$add_preexisting_module_on_file'(F,F0,Mod,Exports,R) :-
 	repeat,
@@ -119,37 +119,10 @@ module(N) :-
 '$import'([],_,_) :- !.
 '$import'([N/K|L],M,T) :-
 	integer(K), atom(N), !,
-	( '$check_import'(M,T,N,K) ->
-	     ( T = user ->
-	       ( recordzifnot('$import','$import'(M,user,N,K),_) -> true ; true)
-             ;
-	       ( recordaifnot('$import','$import'(M,T,N,K),_) -> true ; true )
-             )
-	 ;
-	    true
-	),
+	'$do_import'(N, K, M, T),
 	'$import'(L,M,T).
 '$import'([PS|L],_,_) :-
 	'$do_error'(domain_error(predicate_spec,PS),import([PS|L])).
-
-'$check_import'(M,T,N,K) :-
-   recorded('$import','$import'(MI,T,N,K),R),
-    \+ '$module_produced by'(M,T,N,K), !,
-    format(user_error,"NAME CLASH: ~w was already imported to module ~w;~n",[MI:N/K,T]),
-    format(user_error,"            Do you want to import it from ~w ? [y or n] ",M),
-    repeat,
-	get0(C), '$skipeol'(C),
-	( C is "y" -> erase(R), !;
-	  C is "n" -> !, fail;
-	  write(user_error, ' Please answer with ''y'' or ''n'' '), fail
-	).
-'$check_import'(_,_,_,_).
-
-'$module_produced by'(M,M0,N,K) :-
-	recorded('$import','$import'(M,M0,N,K),_), !.
-'$module_produced by'(M,M0,N,K) :-
-	recorded('$import','$import'(MI,M0,N,K),_), 
-	'$module_produced by'(M,MI,N,K).	
 
 % $use_preds(Imports,Publics,Mod,M)
 '$use_preds'(Imports,Publics,Mod,M) :- var(Imports), !,
@@ -164,17 +137,48 @@ module(N) :-
     (  '$member'(N/K,Publics) -> true ;
 	print_message(warning,import(N/K,Mod,M,private))
     ),
-    ( '$check_import'(M,Mod,N,K) -> 
-	%	     format(user_error,'[ Importing ~w to ~w]~n',[M:N/K,Mod]),
-        %            '$trace_module'(importing(M:N/K,Mod)),
-	  (Mod = user ->
-             ( recordzifnot('$import','$import'(M,user,N,K),_) -> true ; true )
-	     ;
-	     ( recordaifnot('$import','$import'(M,Mod,N,K),_) -> true ; true )
-          )
-	 ;
-	   true
-    ). 
+    '$do_import'(N, K, M, Mod).
+ 
+
+'$do_import'(N, K, M, T) :-
+	functor(G,N,K),
+	'$follow_import_chain'(M,G,M0,G0),
+	functor(G0,N1,K),
+	( '$check_import'(M0,T,N1,K) ->
+	  ( T = user ->
+	    ( recordzifnot('$import','$import'(M0,user,G0,G,N,K),_) -> true ; true)
+	  ;
+	    ( recordaifnot('$import','$import'(M0,T,G0,G,N,K),_) -> true ; true )
+	  )
+	;
+	  true
+	).
+
+'$follow_import_chain'(M,G,M0,G0) :-
+	recorded('$import','$import'(M1,M,G1,G,_,_),_), !,
+	'$follow_import_chain'(M1,G1,M0,G0).
+'$follow_import_chain'(M,G,M,G).
+
+'$check_import'(M,T,N,K) :-
+   recorded('$import','$import'(MI,T,_,_,N,K),R),
+    \+ '$module_produced by'(M,T,N,K), !,
+    format(user_error,"NAME CLASH: ~w was already imported to module ~w;~n",[MI:N/K,T]),
+    format(user_error,"            Do you want to import it from ~w ? [y or n] ",M),
+    repeat,
+	get0(C), '$skipeol'(C),
+	( C is "y" -> erase(R), !;
+	  C is "n" -> !, fail;
+	  write(user_error, ' Please answer with ''y'' or ''n'' '), fail
+	).
+'$check_import'(_,_,_,_).
+
+'$module_produced by'(M,M0,N,K) :-
+	recorded('$import','$import'(M,M0,_,_,N,K),_), !.
+'$module_produced by'(M,M0,N,K) :-
+	recorded('$import','$import'(MI,M0,G1,_,N,K),_),
+	functor(G1, N1, K1),
+	'$module_produced by'(M,MI,N1,K1).	
+
 
 % expand module names in a clause
 '$module_expansion'(((Mod:H) :-B ),((Mod:H) :- B1),((Mod:H) :- BO),M) :- !,
@@ -279,8 +283,8 @@ module(N) :-
 %
 '$module_expansion'(G, G1, GO, CurMod, MM, TM, HVars) :-
 	% is this imported from some other module M1?
-	( '$imported_pred'(G, CurMod, M1) ->
-	    '$module_expansion'(G, G1, GO, M1, MM, TM, HVars)
+	( '$imported_pred'(G, CurMod, GG, M1) ->
+	    '$module_expansion'(GG, G1, GO, M1, MM, TM, HVars)
 	;
 	( '$meta_expansion'(CurMod, MM, G, GI, HVars)
           ;
@@ -290,10 +294,9 @@ module(N) :-
 	).
 
 
-'$imported_pred'(G, ImportingMod, ExportingMod) :-
+'$imported_pred'(G, ImportingMod, G0, ExportingMod) :-
 	'$undefined'(G, ImportingMod),
-	functor(G,F,N),
-	recorded('$import','$import'(ExportingMod,ImportingMod,F,N),_),
+	recorded('$import','$import'(ExportingMod,ImportingMod,G0,G,_,_),_),
 	ExportingMod \= ImportingMod.
 
 % args are:
@@ -562,6 +565,67 @@ abolish_module(Mod) :-
 	recorded('$module','$module'(_,Mod,_),R), erase(R),
 	fail.
 abolish_module(Mod) :-
-	recorded('$import','$import'(Mod,_,_,_),R), erase(R),
+	recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R),
 	fail.
 abolish_module(_).
+
+'$reexport'(ModuleSource, Spec, Module) :-
+	nb_getval('$consulting_file',TopFile),
+	(
+	 Spec == all
+	->
+	 Goal =	reexport(ModuleSource)
+	;
+	 Goal =	reexport(ModuleSource,Spec)
+	),
+	absolute_file_name(ModuleSource, File),
+	'$load_files'(File, [if(not_loaded)], Goal),
+	recorded('$module', '$module'(FullFile, Mod, Exports),_),
+	atom_concat(File, _, FullFile), !,
+	'$convert_for_reexport'(Spec, Exports, Tab, MyExports, Goal),
+	'$add_to_imports'(Tab, Module, Mod),
+	recorded('$lf_loaded','$lf_loaded'(TopFile,TopModule,_),_),
+	recorded('$module', '$module'(CurrentFile, Module, ModExports), Ref),
+	erase(Ref),
+	'$append'(ModExports, MyExports, AllExports),
+	recorda('$module', '$module'(CurrentFile, Module, AllExports), _),
+	'$import'(MyExports, Module, TopModule).
+
+'$convert_for_reexport'(all, Exports, Tab, MyExports, _) :-
+	'$simple_conversion'(Exports, Tab, MyExports).
+'$convert_for_reexport'([P1|Ps], Exports, Tab, MyExports, Goal) :-
+	'$clean_conversion'([P1|Ps], Exports, Tab, MyExports, Goal).
+'$convert_for_reexport'(except(List), Exports, Tab, MyExports, Goal) :-
+	'$neg_conversion'(Exports, List, Tab, MyExports, Goal).
+
+'$simple_conversion'([], [], []).
+'$simple_conversion'([P|Exports], [P-P|Tab], [P|MyExports]) :-
+	'$simple_conversion'(Exports, Tab, MyExports).
+
+'$clean_conversion'([], _, [], [], _).
+'$clean_conversion'([P1|Ps], List, [P1-P1|Tab], [P1|MyExports], Goal) :-
+	'$member'(P1, List), !,
+	'$clean_conversion'(Ps, List, Tab, MyExports, Goal).
+'$clean_conversion'([(N1/A1 as N2)|Ps], List, [N1/A1-N2/A1|Tab], [N2/A1|MyExports], Goal) :-
+	'$member'(N1/A1, List), !,
+	'$clean_conversion'(Ps, List, Tab, MyExports, Goal).
+'$clean_conversion'([P|_], _, _, _, Goal) :-
+	'$do_error'(domain_error(module_reexport_predicates,P), Goal).
+	
+'$neg_conversion'([], _, [], [], _).
+'$neg_conversion'([P1|Ps], List, Tab, MyExports, Goal) :-
+	'$member'(P1, List), !,
+	'$neg_conversion'(Ps, List, Tab, MyExports, Goal).
+'$neg_conversion'([N1/A1|Ps], List, [N1/A1-N2/A1|Tab], [N2/A1|MyExports], Goal) :-
+	'$member'(N1/A1 as N2, List), !,
+	'$neg_conversion'(Ps, List, Tab, MyExports, Goal).
+'$neg_conversion'([P|Ps], List, [P-P|Tab], [P|MyExports], Goal) :-
+	'$neg_conversion'(Ps, List, Tab, MyExports, Goal).
+	
+'$add_to_imports'([], _, _).
+'$add_to_imports'([N0/K0-N1/_|Tab], Mod, ModR) :-
+	functor(G,N0,K0),
+	G=..[N0|Args],
+	G1=..[N1|Args],
+	recordaifnot('$import','$import'(ModR,Mod,G,G1,N0,K0),_),
+	'$add_to_imports'(Tab, Mod, ModR).

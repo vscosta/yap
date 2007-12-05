@@ -188,6 +188,7 @@ IsFunctorProperty (int flags)
 	bb 00	functor entry 
 	ff df	sparse functor
 	ff ex	arithmetic property
+	ff f6   hold
 	ff f7   array
 	ff f8   wide atom
 	ff fa   module property
@@ -1107,6 +1108,69 @@ inline EXTERN PropFlags
 IsBBProperty (int flags)
 {
   return (PropFlags) ((flags == BBProperty));
+}
+
+
+/*		hold property entry structure				*/
+typedef struct hold_entry
+{
+  Prop NextOfPE;		/* used to chain properties             */
+  PropFlags KindOfPE;		/* kind of property                     */
+} HoldEntry;
+
+#if USE_OFFSETS_IN_PROPS
+
+inline EXTERN HoldEntry *RepHoldProp (Prop p);
+
+inline EXTERN HoldEntry *
+RepHoldProp (Prop p)
+{
+  return (HoldEntry *) (AtomBase + Unsigned (p));
+}
+
+
+
+inline EXTERN Prop AbsHoldProp (HoldEntry * p);
+
+inline EXTERN Prop
+AbsHoldProp (HoldEntry * p)
+{
+  return (Prop) (Addr (p) - AtomBase);
+}
+
+
+#else
+
+inline EXTERN HoldEntry *RepHoldProp (Prop p);
+
+inline EXTERN HoldEntry *
+RepHoldProp (Prop p)
+{
+  return (HoldEntry *) (p);
+}
+
+
+
+inline EXTERN Prop AbsHoldProp (HoldEntry * p);
+
+inline EXTERN Prop
+AbsHoldProp (HoldEntry * p)
+{
+  return (Prop) (p);
+}
+
+
+#endif
+#define	HoldProperty  0xfff6
+
+/* only unary and binary expressions are acceptable */
+
+inline EXTERN PropFlags IsHoldProperty (int);
+
+inline EXTERN PropFlags
+IsHoldProperty (int flags)
+{
+  return (PropFlags) ((flags == HoldProperty));
 }
 
 
