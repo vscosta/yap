@@ -26,7 +26,12 @@ t:-
 	format("~nTesting lpad.yap~n~n",[]),
 	files(F),
 	statistics(runtime,[_,_]),
+	set(ground_body,false),
+	format("~nNon ground body~n~n",[]),
 	test_files(F,ground_body(false)),
+	set(ground_body,true),
+	format("~nGround body~n~n",[]),
+	test_files(F,ground_body(true)),
 	statistics(runtime,[_,T]),
 	T1 is T /1000,
 	format("Test successful, time ~f secs.~n",[T1]).
@@ -59,7 +64,13 @@ test_all(F,[H|T]):-
 files([
 exapprox,exrange,threesideddice,mendels,
 coin2,ex,throws,trigger,win,hiv,light,
-invalid]).
+invalid,exist,exist1]).
+
+test((s([a],P),close_to(P,0.18)),exist,ground_body(false)). 
+test((s([a],P),close_to(P,0.19)),exist,ground_body(true)). 
+
+test((s([a],P),close_to(P,0.276)),exist1,ground_body(false)). 
+test((s([a],P),close_to(P,0.3115)),exist1,ground_body(true)). 
 
 test((s([p],P),close_to(P,0.5)),invalid,_). 
 test((s([q],P),close_to(P,0.5)),invalid,_). 

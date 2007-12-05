@@ -71,17 +71,24 @@ exrange,
 threesideddice, 
 %mendels, %ok only with grounding=variables
 coin2, 
-ex 
+ex,exist,exist1 
 ]).
 
 files_variables([
 exapprox, 
 exrange,  
-threesideddice, 
+%threesideddice, removed because of a strange bug in yap, in debug it does not fail
 mendels, 
 coin2, 
-ex 
+ex
 ]).
+
+
+test((s([a],P),close_to(P,0.18)),exist,ground_body(false)). 
+test((s([a],P),close_to(P,0.19)),exist,ground_body(true)). 
+
+test((s([a],P),close_to(P,0.276)),exist1,ground_body(false)). 
+test((s([a],P),close_to(P,0.3115)),exist1,ground_body(true)). 
 
 test((s([a],P),close_to(P,0.1719)),exapprox,ground_body(true)).
 test((s([a],P),close_to(P,0.099)),exapprox,ground_body(false)).

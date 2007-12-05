@@ -112,7 +112,11 @@ CPLINT_EXAMPLES= \
 	$(CPLINT_EXDIR)/trigger.cpl \
 	$(CPLINT_EXDIR)/trigger.uni \
 	$(CPLINT_EXDIR)/win.cpl \
-	$(CPLINT_EXDIR)/win.uni
+	$(CPLINT_EXDIR)/win.uni \
+	$(CPLINT_EXDIR)/exist.cpl \
+	$(CPLINT_EXDIR)/exist.uni \
+	$(CPLINT_EXDIR)/exist1.cpl \
+	$(CPLINT_EXDIR)/exist1.uni
 
 CPLINT_DOCS=\
 	$(CPLINT_DOCDIR)/manual.bbl \
@@ -153,4 +157,8 @@ install: all
 
 installcheck: 
 	for h in ${CPLINT_TEST_PROGRAMS}; do echo "t. halt." | yap -l $$h; done
-	
+
+# use the following target to run individual tests, e.g. make testlpad
+test%:  	
+	echo "t. halt." | yap -l $(CPLINT_SRCDIR)/$@.pl
+
