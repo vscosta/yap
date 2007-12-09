@@ -944,10 +944,10 @@ if test ! "$yap_cv_cplint" = "no"
   then	
 	GLIBS=`glib-config --libs glib` 
 	GFLAGS=`glib-config --cflags glib`
-	CPLINT_LIBS+=$GLIBS
+	CPLINT_LIBS=${CPLINT_LIBS}$GLIBS
 	CPLINT_CFLAGS=" $GFLAGS "
 	CPLINT_LDFLAGS=" `echo $GLIBS | awk '{print $1}'` -L/usrl/local/lib/"
-		LDFLAGS+=" `echo $GLIBS | awk '{print $1}'` -L/usrl/local/lib/"
+		LDFLAGS=${LDFLAGS}" `echo $GLIBS | awk '{print $1}'` -L/usrl/local/lib/"
 	if test ! "$yap_cv_cplint" = "yes"
 	then
 		LDFLAGS+=" -L${yap_cv_cplint}/lib"
