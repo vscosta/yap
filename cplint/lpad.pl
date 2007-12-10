@@ -39,7 +39,7 @@
  :-use_module(library(ugraphs)).
  :-use_module(library(lists)).
  :- use_module(library(charsio)).
-:-load_foreign_files(['cplint'],[],init_my_predicates).
+%:-load_foreign_files(['cplint'],[],init_my_predicates).
 
 
 :- op(1200,xfx,<--).
