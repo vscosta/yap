@@ -39,7 +39,6 @@
  :-use_module(library(ugraphs)).
  :-use_module(library(lists)).
  :- use_module(library(charsio)).
-%:-load_foreign_files(['cplint'],[],init_my_predicates).
 
 
 :- op(1200,xfx,<--).
@@ -127,9 +126,9 @@ solve(Goal,Prob):-
 				var2numbers(Var,0,NewVar),
 				(setting(save_dot,true)->
 					format("Variables: ~p~n",[Var]),
-					compute_prob1(NewVar,Formula,_Prob,1)
+					compute_prob(NewVar,Formula,_Prob,1)
 				;
-					compute_prob1(NewVar,Formula,Prob,0)
+					compute_prob(NewVar,Formula,Prob,0)
 				)
 			;
 				format("It requires the choice of a head atom from a non ground head~n~p~n",[L]),
@@ -140,7 +139,7 @@ solve(Goal,Prob):-
 		Prob=0
 	).
 
-compute_prob1(Var,For,Prob,_):-
+compute_prob(Var,For,Prob,_):-
 	compute_prob_term(Var,For,0,Prob).
 
 compute_prob_term(_Var,[],Prob,Prob).
@@ -168,7 +167,7 @@ solve_cond(Goal,Evidence,Prob):-
 		rem_dup_lists(LDupE,[],LE),
 		build_formula(LE,FormulaE,[],VarE),
 		var2numbers(VarE,0,NewVarE),
-		compute_prob1(NewVarE,FormulaE,ProbE,0),
+		compute_prob(NewVarE,FormulaE,ProbE,0),
 		solve_cond_goals(Goal,LE,ProbGE),
 		Prob is ProbGE/ProbE
 	;
@@ -197,9 +196,9 @@ find_deriv_GE(LD,GoalsList,Deriv):-
 call_compute_prob(NewVarGE,FormulaGE,ProbGE):-
 	(setting(save_dot,true)->
 		format("Variables: ~p~n",[NewVarGE]),
-		compute_prob1(NewVarGE,FormulaGE,ProbGE,1)
+		compute_prob(NewVarGE,FormulaGE,ProbGE,1)
 	;
-		compute_prob1(NewVarGE,FormulaGE,ProbGE,0)
+		compute_prob(NewVarGE,FormulaGE,ProbGE,0)
 	).
 
 

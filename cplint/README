@@ -1,7 +1,7 @@
 This directory contains the code of the LPAD anc CP-logic interpreter cplint
 
 COMPILATION:
-This package requires GLU (a subpackage of VIS) and GLIB.
+This package requires GLU (a subpackage of VIS) and GLIB version 1.2.
 You can download GLU from http://vlsi.colorado.edu/~vis/getting_VIS_2.1.html
 You can download GLIB from http://www.gtk.org/. This is a standard Linux package 
 so it is easy to install using the package management software of your Linux 
