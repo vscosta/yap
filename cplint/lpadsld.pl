@@ -33,7 +33,7 @@ s(GoalsList,Prob):-
 
 solve(GoalsList,Prob):-
 	setof(Deriv,find_deriv(GoalsList,Deriv),LDup),
-	rem_dup_lists(LDup,L),
+	rem_dup_lists(LDup,[],L),
 	build_formula(L,Formula,[],Var),
 	var2numbers(Var,0,NewVar),
 	(setting(save_dot,true)->
@@ -63,7 +63,7 @@ sc(Goals,Evidence,Prob):-
 
 solve_cond(Goals,Evidence,Prob):-
 	setof(DerivE,find_deriv(Evidence,DerivE),LDupE),
-	rem_dup_lists(LDupE,LE),
+	rem_dup_lists(LDupE,[],LE),
 	build_formula(LE,FormulaE,[],VarE),
 	var2numbers(VarE,0,NewVarE),
 	compute_prob(NewVarE,FormulaE,ProbE,0),
@@ -72,7 +72,7 @@ solve_cond(Goals,Evidence,Prob):-
 
 solve_cond_goals(Goals,LE,ProbGE):-
 	setof(DerivGE,find_deriv_GE(LE,Goals,DerivGE),LDupGE),
-	rem_dup_lists(LDupGE,LGE),
+	rem_dup_lists(LDupGE,[],LGE),
 	build_formula(LGE,FormulaGE,[],VarGE),
 	var2numbers(VarGE,0,NewVarGE),
 	call_compute_prob(NewVarGE,FormulaGE,ProbGE).
@@ -151,7 +151,7 @@ solve([setof(V,G,L)|T],CIn,COut):-!,
 solve([\+ H |T],CIn,COut):-!,
 	list2and(HL,H),
 	(setof(D,find_deriv(HL,D),LDup)->
-		rem_dup_lists(LDup,L),
+		rem_dup_lists(LDup,[],L),
 		choose_clauses(CIn,L,C1),	
 		solve(T,C1,COut)
 	;
@@ -280,19 +280,25 @@ choose_clauses(C,[],C).
 
 choose_clauses(CIn,[D|T],COut):-
 	member((N,R,S),D),
-	instantiation_present_with_the_same_head(N,R,S,CIn),
-	choose_a_different_head(N,R,S,T,CIn,COut).
+	choose_a_head(N,R,S,CIn,C1),!,
+	choose_clauses(C1,T,COut).
 
-choose_a_different_head(N,R,S,D,CIn,COut):-
-/* cases 1 and 2 of Select */
-	choose_a_head(N,R,S,CIn,C1),
-	choose_clauses(C1,D,COut).
 	
-choose_a_different_head(N,R,S,D,CIn,COut):-
-/* case 3 of Select */
+choose_clauses(CIn,[D|T],COut):-
+	member((N,R,S),D),
 	new_head(N,R,S,N1),
 	\+ already_present(N1,R,S,CIn),
-	choose_clauses([(N1,R,S)|CIn],D,COut).
+	impose_dif_cons(R,S,CIn),
+	choose_clauses([(N1,R,S)|CIn],T,COut).
+
+impose_dif_cons(_R,_S,[]):-!.
+
+impose_dif_cons(R,S,[(_NH,R,SH)|T]):-!,
+	dif(S,SH),
+	impose_dif_cons(R,S,T).
+
+impose_dif_cons(R,S,[_H|T]):-
+	impose_dif_cons(R,S,T).
 	
 /* instantiation_present_with_the_same_head(N,R,S,C)
 takes rule R with substitution S and selected head N and a C set
@@ -301,17 +307,18 @@ is an instantitation and have the same head selected */
 instantiation_present_with_the_same_head(_N,_R,_S,[]).
 
 instantiation_present_with_the_same_head(N,R,S,[(NH,R,SH)|T]):-
-	\+ \+ S=SH, 
+	\+ \+ S=SH,!,
+	dif_head_or_subs(N,R,S,NH,SH,T).
+
+instantiation_present_with_the_same_head(N,R,S,[_H|T]):-
+	instantiation_present_with_the_same_head(N,R,S,T).
+
+dif_head_or_subs(N,R,S,NH,_SH,T):-
 	dif(N,NH),
 	instantiation_present_with_the_same_head(N,R,S,T).
 
-instantiation_present_with_the_same_head(N,R,S,[(NH,R,SH)|T]):-
-	\+ \+ S=SH, 
-	N=NH,!,
+dif_head_or_subs(N,R,S,N,SH,T):-
 	dif(S,SH),
-	instantiation_present_with_the_same_head(N,R,S,T).
-
-instantiation_present_with_the_same_head(N,R,S,[_H|T]):-
 	instantiation_present_with_the_same_head(N,R,S,T).
 
 /* case 1 of Select: a more general rule is present in C with
@@ -355,20 +362,24 @@ already_present(N,R,S,[_H|T]):-
 
 /* rem_dup_lists removes the C sets that are a superset of 
 another C sets further on in the list of C sets */
-rem_dup_lists([],[]).
+/* rem_dup_lists removes the C sets that are a superset of 
+another C sets further on in the list of C sets */
+rem_dup_lists([],L,L).
 
-rem_dup_lists([H|T],T1):-
-	member_subset(H,T),!,
-	rem_dup_lists(T,T1).
+rem_dup_lists([H|T],L0,L):-
+	(member_subset(H,T);member_subset(H,L0)),!,
+	rem_dup_lists(T,L0,L).
 
-rem_dup_lists([H|T],[H|T1]):-
-	rem_dup_lists(T,T1).
+rem_dup_lists([H|T],L0,L):-
+	rem_dup_lists(T,[H|L0],L).
 
 member_subset(E,[H|_T]):-
 	subset_my(H,E),!.
 
 member_subset(E,[_H|T]):-
 	member_subset(E,T).
+
+
 
 /* predicates for building the formula to be converted into a BDD */
 
