@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2007-11-26 23:43:08 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-12-18 17:46:58 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.86  2007/11/26 23:43:08  vsc
+* fixes to support threads and assert correctly, even if inefficiently.
+*
 * Revision 1.85  2007/11/06 17:02:11  vsc
 * compile ground terms away.
 *
@@ -698,8 +701,6 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 	if (try_store_as_dbterm(t, argno, arity, level, cglobs))
 	  return;
       }      
-      if (try_store_as_dbterm(t, argno, arity, level, cglobs))
-	return;
       t = optimize_ce(t, arity, level, cglobs);
       if (IsVarTerm(t)) {
 	c_var(t, argno, arity, level, cglobs);

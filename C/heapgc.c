@@ -1862,7 +1862,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       }
     if (very_verbose) {
       PredEntry *pe = Yap_PredForChoicePt(gc_B);
-
 #if defined(ANALYST) || defined(DEBUG)
       if (pe == NULL) {
 	fprintf(Yap_stderr,"%%       marked %ld (%s)\n", total_marked, Yap_op_names[opnum]);

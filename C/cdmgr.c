@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2007-11-28 23:52:14 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-12-18 17:46:58 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.214  2007/11/28 23:52:14  vsc
+* junction tree algorithm
+*
 * Revision 1.213  2007/11/26 23:43:07  vsc
 * fixes to support threads and assert correctly, even if inefficiently.
 *
@@ -486,6 +489,9 @@ PredForChoicePt(yamop *p_code) {
     switch(opnum) {
     case _Nstop:
       return NULL;
+    case _jump:
+      p_code = p_code->u.l.l;
+      break;
     case _retry_me:
     case _trust_me:
       return p_code->u.ld.p;
@@ -2535,10 +2541,12 @@ p_endconsult(void)
 static void
 purge_clauses(PredEntry *pred)
 {
-  if (pred->PredFlags & IndexedPredFlag)
-    RemoveIndexation(pred);
-  Yap_PutValue(AtomAbol, MkAtomTerm(AtomTrue));
-  retract_all(pred, static_in_use(pred,TRUE));
+  if (pred->cs.p_code.NOfClauses) {
+    if (pred->PredFlags & IndexedPredFlag)
+      RemoveIndexation(pred);
+    Yap_PutValue(AtomAbol, MkAtomTerm(AtomTrue));
+    retract_all(pred, static_in_use(pred,TRUE));
+  }
   pred->src.OwnerFile = AtomNil;
   if (pred->PredFlags & MultiFileFlag)
     pred->PredFlags ^= MultiFileFlag;
@@ -3715,22 +3723,32 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _table_answer_resolution:
     case _table_completion:
 #endif /* TABLING */
-      pp = pc->u.ld.p;
       pc = NEXTOP(pc,ld);
       break;
     case _try_logical:
     case _retry_logical:
-    case _trust_logical:
     case _count_retry_logical:
-    case _count_trust_logical:
     case _profiled_retry_logical:
-    case _profiled_trust_logical:
-      pp = pc->u.lld.d->ClPred;
       pc = pc->u.lld.n;
       break;
+    case _trust_logical:
+    case _count_trust_logical:
+    case _profiled_trust_logical:
+      {
+	LogUpdIndex *cl = pc->u.lld.t.block;
+	pp = cl->ClPred;
+	*startp = (CODEADDR)cl;
+	*endp = (CODEADDR)cl+cl->ClSize;
+	return pp;
+      }
     case _enter_lu_pred:
-      pc = pc->u.Ill.l1;
-      break;
+      {
+	LogUpdIndex *cl = pc->u.Ill.I;
+	pp = cl->ClPred;
+	*startp = (CODEADDR)cl;
+	*endp = (CODEADDR)cl+cl->ClSize;
+	return pp;
+      }
       /* instructions type p */
     case _count_call:
     case _count_retry:
@@ -5570,8 +5588,10 @@ p_predicate_erased_statistics(void)
   PredEntry *pe;
   LogUpdClause *cl = DBErasedList;
   LogUpdIndex *icl = DBErasedIList;
+  Term tpred = ArgOfTerm(1,Deref(ARG1));
+  Term tmod = ArgOfTerm(2,Deref(ARG1));
 
-  if (EndOfPAEntr(pe=get_pred(Deref(ARG1),  Deref(ARG2), "predicate_statistics")))
+  if (EndOfPAEntr(pe=get_pred(tpred,  tmod, "predicate_erased_statistics")))
     return FALSE;
   while (cl) {
     if (cl->ClPred == pe) {

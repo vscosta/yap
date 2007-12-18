@@ -861,3 +861,10 @@ predicate_statistics(P,NCls,Sz,ISz) :-
 '$predicate_statistics'(P,M,NCls,Sz,ISz) :-
 	'$static_pred_statistics'(P,M,NCls,Sz,ISz).
 
+predicate_erased_statistics(V,NCls,Sz,ISz) :- var(V), !,
+	'$do_error'(instantiation_error,predicate_statistics(V,NCls,Sz,ISz)).
+predicate_erased_statistics(M:P,NCls,Sz,ISz) :- !,
+	'$predicate_erased_statistics'(M:P,NCls,Sz,_,ISz).
+predicate_erased_statistics(P,NCls,Sz,ISz) :-
+	'$current_module'(M),
+	'$predicate_erased_statistics'(M:P,NCls,Sz,_,ISz).
