@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2007-12-18 17:46:58 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-12-23 22:48:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.215  2007/12/18 17:46:58  vsc
+* purge_clauses does not need to do anything if there are no clauses
+* fix gprof bugs.
+*
 * Revision 1.214  2007/11/28 23:52:14  vsc
 * junction tree algorithm
 *
@@ -1259,7 +1263,6 @@ kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 static void
 kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 {
-  decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
   /* parent is always locked, now I lock myself */
   if (parent != NULL) {
     /* remove myself from parent */
@@ -1285,6 +1288,7 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
   /* make sure that a child cannot remove us */
   kill_children(c, ap);
   /* check if we are still the main index */
+  decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
   if (!((c->ClFlags & InUseMask) || c->ClRefCount)) {
     kill_off_lu_block(c, parent, ap);
   } else {

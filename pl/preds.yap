@@ -639,7 +639,8 @@ abolish(X) :-
 	fail.
 '$abolishd'(T, M) :-
 	'$purge_clauses'(T,M), fail.
-'$abolishd'(T, M) :- '$kill_dynamic'(T,M), fail.
+'$abolishd'(T, M) :-
+	'$kill_dynamic'(T,M), fail.
 '$abolishd'(_, _).
 
 '$abolishs'(G, M) :- '$system_predicate'(G,M), !,

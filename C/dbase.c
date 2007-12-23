@@ -3807,6 +3807,11 @@ p_total_erased(void)
   LogUpdClause *cl = DBErasedList;
   LogUpdIndex *icl = DBErasedIList;
 
+  int i=200000;
+  while (cl &&  i>0)
+    cl=cl->ClNext,i--;
+  if (cl)
+    fprintf(stderr,"cl=%p\n",cl);
   /* only for log upds */
   while (cl) {
     cls++;

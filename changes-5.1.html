@@ -17,6 +17,8 @@
 
 <h2>Yap-5.1.3:</h2>
 <ul>
+<li> FIXED: memory leak where I'd try to clear refs from an index
+block before I released the kids (so the refs would never be released).</li>
 <li> FIXED: small glitches with profon.</li>
 <li> NEW: allow re-exporting other modules.</li>
 <li> FIXED: graph add_ and del_ predicates should have the original
