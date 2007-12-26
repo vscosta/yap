@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2007-12-23 22:48:44 $,$Author: vsc $						 *
+* Last rev:     $Date: 2007-12-26 19:50:40 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.216  2007/12/23 22:48:44  vsc
+* recover stack space
+*
 * Revision 1.215  2007/12/18 17:46:58  vsc
 * purge_clauses does not need to do anything if there are no clauses
 * fix gprof bugs.
@@ -4864,6 +4867,9 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 #if defined(YAPOR) || defined(THREADS)
       PP = pe;
 #endif
+    } else {
+      /* we don't actually need to execute code */
+      UNLOCK(pe->PELock);
     }
     return TRUE;
   } else {
@@ -4980,6 +4986,9 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
 #if defined(YAPOR) || defined(THREADS)
       PP = pe;
 #endif
+    } else {
+      /* we don't actually need to execute code */
+      UNLOCK(pe->PELock);
     }
     return TRUE;
   } else {
