@@ -32,6 +32,12 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif
+#if HAVE_CTYPE_H
+#include <ctype.h>
+#endif
+#if HAVE_WCTYPE_H
+#include <wctype.h>
+#endif
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
@@ -5525,12 +5531,12 @@ p_change_type_of_char (void)
 {				/* change_type_of_char(+char,+type)      */
   Term t1 = Deref (ARG1);
   Term t2 = Deref (ARG2);
-  if (!IsVarTerm (t1) && !IsIntTerm (t1))
-    return (FALSE);
-  if (!IsVarTerm(t2) && !IsIntTerm(t2))
-    return (FALSE);
-  Yap_chtype[IntOfTerm(t1)] = IntOfTerm(t2);
-  return (TRUE);
+  if (!IsVarTerm (t1) && !IsIntegerTerm (t1))
+    return FALSE;
+  if (!IsVarTerm(t2) && !IsIntegerTerm(t2))
+    return FALSE;
+  Yap_chtype[IntegerOfTerm(t1)] = IntegerOfTerm(t2);
+  return TRUE;
 }
 
 static Int
@@ -5539,10 +5545,10 @@ p_type_of_char (void)
   Term t;
 
   Term t1 = Deref (ARG1);
-  if (!IsVarTerm (t1) && !IsIntTerm (t1))
-    return (FALSE);
-  t = MkIntTerm(Yap_chtype[IntOfTerm (t1)]);
-  return (Yap_unify(t,ARG2));
+  if (!IsVarTerm (t1) && !IsIntegerTerm (t1))
+    return FALSE;
+  t = MkIntTerm(Yap_chtype[IntegerOfTerm (t1)]);
+  return Yap_unify(t,ARG2);
 }
 
 
@@ -5834,6 +5840,36 @@ p_get_default_encoding(void)
 }
 
 static Int
+p_toupper(void)
+{
+  Int out = IntegerOfTerm(Deref(ARG1)), uout;
+  if (out < 0) {
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE, ARG1, "toupper");
+    return FALSE;
+  }
+  if (out < 128)
+    uout = toupper(out);
+  else
+    uout = towupper(out);
+  return Yap_unify(ARG2, MkIntegerTerm(uout));
+}
+
+static Int
+p_tolower(void)
+{
+  Int out = IntegerOfTerm(Deref(ARG1)), uout;
+  if (out < 0) {
+    Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE, ARG1, "tolower");
+    return FALSE;
+  }
+  if (out < 128)
+    uout = tolower(out);
+  else
+    uout = towlower(out);
+  return Yap_unify(ARG2, MkIntegerTerm(uout));
+}
+
+static Int
 p_encoding (void)
 {				/* '$encoding'(Stream,N)                      */
   int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "encoding/2");
@@ -5998,6 +6034,8 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$same_file", 2, p_same_file, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$has_readline", 0, p_has_readline, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$toupper", 2, p_toupper, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$tolower", 2, p_tolower, SafePredFlag|HiddenPredFlag);
 
   Yap_InitReadUtil ();
 #if USE_SOCKET

@@ -71,6 +71,7 @@ otherwise.
 	 'tabling.yap',
 	 'threads.yap',
 	 'eam.yap',
+	 'chtypes.yap',
 	 'yapor.yap'].
 
 :-	 ['protect.yap'].

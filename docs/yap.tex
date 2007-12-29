@@ -115,6 +115,8 @@ Built In Predicates
 * Control:: Controlling the execution of Prolog programs
 * Undefined Procedures:: Handling calls to Undefined Procedures
 * Testing Terms:: Predicates on Terms
+* Predicates on Atoms:: Manipulating Atoms
+* Predicates on Characters:: Manipulating Characters
 * Comparing Terms:: Comparison of Terms
 * Arithmetic:: Arithmetic in YAP
 * I/O:: Input/Output with YAP
@@ -2374,6 +2376,8 @@ Built-ins, Debugging, Syntax, Top
 * Control:: Controlling the Execution of Prolog Programs
 * Undefined Procedures:: Handling calls to Undefined Procedures
 * Testing Terms:: Predicates on Terms
+* Predicates on Atoms:: Manipulating Atoms
+* Predicates on Characters:: Manipulating Characters
 * Comparing Terms:: Comparison of Terms
 * Arithmetic:: Arithmetic in YAP
 * I/O:: Input/Output with YAP
@@ -2880,7 +2884,7 @@ execute @var{NG}. If  @code{user:unknown_predicate_handler/3} fails, the
 system will execute default action as specified by @code{unknown/2}.
 @end table
 
-@node Testing Terms, Comparing Terms, Undefined Procedures, Top
+@node Testing Terms, Predicates on Atoms, Undefined Procedures, Top
 @section Predicates on terms
 
 @table @code
@@ -2957,173 +2961,6 @@ Checks whether @var{T} is unbound, an atom, or a number.
 @cnindex callable/1
 Checks whether @var{T} is a callable term, that is, an atom or a
 compound term.
-
-@item name(@var{A},@var{L})
-@findex name/2
-@syindex name/2
-@cyindex name/2
-The predicate holds when at least one of the arguments is ground
-(otherwise, an error message will be displayed). The argument @var{A} will
-be unified with an atomic symbol and @var{L} with the list of the ASCII
-codes for the characters of the external representation of @var{A}.
-
-@example
- name(yap,L).
-@end example
-@noindent
-will return:
-@example
- L = [121,97,112].
-@end example
-@noindent
-and
-@example
- name(3,L).
-@end example
-@noindent
-will return:
-@example
- L = [51].
-@end example
-
-@item atom_chars(?@var{A},?@var{L}) [ISO]
-@findex atom_chars/2
-@saindex atom_chars/2
-@cnindex atom_chars/2
-The predicate holds when at least one of the arguments is ground
-(otherwise, an error message will be displayed). The argument @var{A} must
-be unifiable with an atom, and the argument @var{L} with the list of the
-ASCII codes for the characters of the external representation of @var{A}.
-
-The ISO-Prolog standard dictates that @code{atom_chars/2} should unify
-the second argument with a list of one-char atoms, and not the character
-codes. For compatibility with previous versions of YAP, and
-with other Prolog implementations, YAP unifies the second
-argument with the character codes, as in @code{atom_codes/2}. Use the
-@code{set_prolog_flag(to_chars_mode,iso)} to obtain ISO standard
-compatibility.
-
-@item atom_codes(?@var{A},?@var{L}) [ISO]
-@findex atom_codes/2
-@syindex atom_codes/2
-@cnindex atom_codes/2
-The predicate holds when at least one of the arguments is ground
-(otherwise, an error message will be displayed). The argument @var{A} will
-be unified with an atom and @var{L} with the list of the ASCII
-codes for the characters of the external representation of @var{A}.
-
-@item atom_concat(+@var{As},?@var{A})
-@findex atom_concat/2
-@syindex atom_concat/2
-@cnindex atom_concat/2
-The predicate holds when the first argument is a list of atoms, and the
-second unifies with the atom obtained by concatenating all the atoms in
-the first list.
-
-@item atomic_concat(+@var{As},?@var{A})
-@findex atomic_concat/2
-@snindex atomic_concat/2
-@cnindex atomic_concat/2
-The predicate holds when the first argument is a list of atoms, and
-the second unifies with the atom obtained by concatenating all the
-atomic terms in the first list. The first argument thus may contain
-atoms or numbers.
-
-@item atom_concat(+@var{A1},+@var{A2},?@var{A})
-@findex atom_concat/3
-@syindex atom_concat/3
-@cnindex atom_concat/3
-The predicate holds when the first argument and second argument are
-atoms, and the third unifies with the atom obtained by concatenating
-the first two arguments.
-
-@item atom_length(+@var{A},?@var{I}) [ISO]
-@findex atom_length/2
-@snindex atom_length/2
-@cnindex atom_length/2
-The predicate holds when the first argument is an atom, and the second
-unifies with the number of characters forming that atom.
-
-@item atom_concat(?@var{A1},?@var{A2},?@var{A12}) [ISO]
-@findex atom_concat/3
-@snindex atom_concat/3
-@cnindex atom_concat/3
-The predicate holds when the third argument unifies with an atom, and
-the first and second unify with atoms such that their representations
-concatenated are the representation for @var{A12}.
-
-If @var{A1} and @var{A2} are unbound, the built-in will find all the atoms
-that concatenated give @var{A12}.
-
-@item number_chars(?@var{I},?@var{L})
-@findex number_chars/2
-@saindex number_chars/2
-@cnindex number_chars/2
-
-The predicate holds when at least one of the arguments is ground
-(otherwise, an error message will be displayed). The argument @var{I} must
-be unifiable with a number, and the argument @var{L} with the list of the
-ASCII codes for the characters of the external representation of @var{I}.
-
-The ISO-Prolog standard dictates that @code{number_chars/2} should unify
-the second argument with a list of one-char atoms, and not the character
-codes. For compatibility with previous versions of YAP, and
-with other Prolog implementations, YAP unifies the second
-argument with the character codes, as in @code{number_codes/2}. Use the
-@code{set_prolog_flag(to_chars_mode,iso)} to obtain ISO standard
-compatibility.
-
-@item number_codes(?@var{A},?@var{L}) [ISO]
-@findex number_codes/2
-@syindex number_codes/2
-@cnindex number_codes/2
-The predicate holds when at least one of the arguments is ground
-(otherwise, an error message will be displayed). The argument @var{A}
-will be unified with a number and @var{L} with the list of the ASCII
-codes for the characters of the external representation of @var{A}.
-
-@item atom_number(?@var{Atom},?@var{Number}) [ISO]
-@findex atom_number/2
-@syindex atom_number/2
-@cnindex atom_number/2
-The predicate holds when at least one of the arguments is ground
-(otherwise, an error message will be displayed). If the argument
-@var{Atom} is an atom, @var{Number} must be the number corresponding
-to the characters in @var{Atom}, otherwise the characters in
-@var{Atom} must encode a number @var{Number}.
-
-@item number_atom(?@var{I},?@var{L})
-@findex number_atom/2
-@snindex number_atom/2
-@cnindex number_atom/2
-
-The predicate holds when at least one of the arguments is ground
-(otherwise, an error message will be displayed). The argument @var{I} must
-be unifiable with a number, and the argument @var{L} must be unifiable
-with an atom representing the number.
-
-@item char_code(?@var{A},?@var{I}) [ISO]
-@findex char_code/2
-@syindex char_code/2
-@cnindex char_code/2
-The built-in succeeds with @var{A} bound to character represented as an
-atom, and @var{I} bound to the character code represented as an
-integer. At least, one of either @var{A} or @var{I} must be bound before
-the call.
-
-@item sub_atom(+@var{A},?@var{Bef}, ?@var{Size}, ?@var{After}, ?@var{At_out}) [ISO]
-@findex sub_atom/5
-@snindex sub_atom/5
-@cnindex sub_atom/5
-True when @var{A} and @var{At_out} are atoms such that the name of
-@var{At_out} has size @var{Size} and is a sub-string of the name of
-@var{A}, such that @var{Bef} is the number of characters before and
-@var{After} the number of characters afterwards.
-
-Note that @var{A} must always be known, but @var{At_out} can be unbound when
-calling this built-in. If all the arguments for @code{sub_atom/5} but @var{A}
-are unbound, the built-in will backtrack through all possible
-sub-strings of @var{A}.
 
 @item numbervars(@var{T},+@var{N1},-@var{Nn})
 @findex numbervars/3
@@ -3243,7 +3080,280 @@ in @var{TI} are also duplicated.
 Also refer to @code{copy_term/2}.
 @end table
 
-@node Comparing Terms, Arithmetic, Testing Terms, Top
+@node Predicates on Atoms, Predicates on Characters, Testing Terms, Top
+@section Predicates on Atoms
+
+The following predicates are used to manipulate atoms:
+
+@table @code
+@item name(@var{A},@var{L})
+@findex name/2
+@syindex name/2
+@cyindex name/2
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). The argument @var{A} will
+be unified with an atomic symbol and @var{L} with the list of the ASCII
+codes for the characters of the external representation of @var{A}.
+
+@example
+ name(yap,L).
+@end example
+@noindent
+will return:
+@example
+ L = [121,97,112].
+@end example
+@noindent
+and
+@example
+ name(3,L).
+@end example
+@noindent
+will return:
+@example
+ L = [51].
+@end example
+
+@item atom_chars(?@var{A},?@var{L}) [ISO]
+@findex atom_chars/2
+@saindex atom_chars/2
+@cnindex atom_chars/2
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). The argument @var{A} must
+be unifiable with an atom, and the argument @var{L} with the list of the
+ASCII codes for the characters of the external representation of @var{A}.
+
+The ISO-Prolog standard dictates that @code{atom_chars/2} should unify
+the second argument with a list of one-char atoms, and not the character
+codes. For compatibility with previous versions of YAP, and
+with other Prolog implementations, YAP unifies the second
+argument with the character codes, as in @code{atom_codes/2}. Use the
+@code{set_prolog_flag(to_chars_mode,iso)} to obtain ISO standard
+compatibility.
+
+@item atom_codes(?@var{A},?@var{L}) [ISO]
+@findex atom_codes/2
+@syindex atom_codes/2
+@cnindex atom_codes/2
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). The argument @var{A} will
+be unified with an atom and @var{L} with the list of the ASCII
+codes for the characters of the external representation of @var{A}.
+
+@item atom_concat(+@var{As},?@var{A})
+@findex atom_concat/2
+@syindex atom_concat/2
+@cnindex atom_concat/2
+The predicate holds when the first argument is a list of atoms, and the
+second unifies with the atom obtained by concatenating all the atoms in
+the first list.
+
+@item atomic_concat(+@var{As},?@var{A})
+@findex atomic_concat/2
+@snindex atomic_concat/2
+@cnindex atomic_concat/2
+The predicate holds when the first argument is a list of atoms, and
+the second unifies with the atom obtained by concatenating all the
+atomic terms in the first list. The first argument thus may contain
+atoms or numbers.
+
+@item atom_length(+@var{A},?@var{I}) [ISO]
+@findex atom_length/2
+@snindex atom_length/2
+@cnindex atom_length/2
+The predicate holds when the first argument is an atom, and the second
+unifies with the number of characters forming that atom.
+
+@item atom_concat(?@var{A1},?@var{A2},?@var{A12}) [ISO]
+@findex atom_concat/3
+@snindex atom_concat/3
+@cnindex atom_concat/3
+The predicate holds when the third argument unifies with an atom, and
+the first and second unify with atoms such that their representations
+concatenated are the representation for @var{A12}.
+
+If @var{A1} and @var{A2} are unbound, the built-in will find all the atoms
+that concatenated give @var{A12}.
+
+@item number_chars(?@var{I},?@var{L})
+@findex number_chars/2
+@saindex number_chars/2
+@cnindex number_chars/2
+
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). The argument @var{I} must
+be unifiable with a number, and the argument @var{L} with the list of the
+ASCII codes for the characters of the external representation of @var{I}.
+
+The ISO-Prolog standard dictates that @code{number_chars/2} should unify
+the second argument with a list of one-char atoms, and not the character
+codes. For compatibility with previous versions of YAP, and
+with other Prolog implementations, YAP unifies the second
+argument with the character codes, as in @code{number_codes/2}. Use the
+@code{set_prolog_flag(to_chars_mode,iso)} to obtain ISO standard
+compatibility.
+
+@item number_codes(?@var{A},?@var{L}) [ISO]
+@findex number_codes/2
+@syindex number_codes/2
+@cnindex number_codes/2
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). The argument @var{A}
+will be unified with a number and @var{L} with the list of the ASCII
+codes for the characters of the external representation of @var{A}.
+
+@item atom_number(?@var{Atom},?@var{Number}) [ISO]
+@findex atom_number/2
+@syindex atom_number/2
+@cnindex atom_number/2
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). If the argument
+@var{Atom} is an atom, @var{Number} must be the number corresponding
+to the characters in @var{Atom}, otherwise the characters in
+@var{Atom} must encode a number @var{Number}.
+
+@item number_atom(?@var{I},?@var{L})
+@findex number_atom/2
+@snindex number_atom/2
+@cnindex number_atom/2
+
+The predicate holds when at least one of the arguments is ground
+(otherwise, an error message will be displayed). The argument @var{I} must
+be unifiable with a number, and the argument @var{L} must be unifiable
+with an atom representing the number.
+
+@item sub_atom(+@var{A},?@var{Bef}, ?@var{Size}, ?@var{After}, ?@var{At_out}) [ISO]
+@findex sub_atom/5
+@snindex sub_atom/5
+@cnindex sub_atom/5
+True when @var{A} and @var{At_out} are atoms such that the name of
+@var{At_out} has size @var{Size} and is a sub-string of the name of
+@var{A}, such that @var{Bef} is the number of characters before and
+@var{After} the number of characters afterwards.
+
+Note that @var{A} must always be known, but @var{At_out} can be unbound when
+calling this built-in. If all the arguments for @code{sub_atom/5} but @var{A}
+are unbound, the built-in will backtrack through all possible
+sub-strings of @var{A}.
+
+@end table
+
+@node Predicates on Characters, Comparing Terms, Predicates on Atoms, Top
+@section Predicates on Atoms
+
+The following predicates are used to manipulate characters:
+
+@table @code
+@item char_code(?@var{A},?@var{I}) [ISO]
+@findex char_code/2
+@syindex char_code/2
+@cnindex char_code/2
+The built-in succeeds with @var{A} bound to character represented as an
+atom, and @var{I} bound to the character code represented as an
+integer. At least, one of either @var{A} or @var{I} must be bound before
+the call.
+
+@item char_type(?@var{Char}, ?@var{Type})
+@findex char_type/2
+@snindex char_type/2
+@cnindex char_type/2
+    Tests or generates alternative @var{Types} or @var{Chars}. The
+    character-types are inspired by the standard @code{C}
+    @code{<ctype.h>} primitives.
+
+@table @code
+@item    alnum
+        @var{Char} is a letter (upper- or lowercase) or digit.
+
+@item    alpha
+        @var{Char} is a letter (upper- or lowercase).
+
+@item    csym
+        @var{Char} is a letter (upper- or lowercase), digit or the underscore (_). These are valid C- and Prolog symbol characters.
+
+@item    csymf
+        @var{Char} is a letter (upper- or lowercase) or the underscore (_). These are valid first characters for C- and Prolog symbols
+
+@item    ascii
+        @var{Char} is a 7-bits ASCII character (0..127).
+
+@item    white
+        @var{Char} is a space or tab. E.i. white space inside a line.
+
+@item    cntrl
+        @var{Char} is an ASCII control-character (0..31).
+
+@item    digit
+        @var{Char} is a digit.
+
+@item    digit(@var{Weigth})
+        @var{Char} is a digit with value
+        @var{Weigth}. I.e. @code{char_type(X, digit(6))} yields @code{X =
+        '6'}. Useful for parsing numbers.
+
+@item    xdigit(@var{Weigth})
+        @var{Char} is a haxe-decimal digit with value @var{Weigth}. I.e. char_type(a, xdigit(X) yields X = '10'. Useful for parsing numbers.
+
+@item    graph
+        @var{Char} produces a visible mark on a page when printed. Note that the space is not included!
+
+@item    lower
+        @var{Char} is a lower-case letter.
+
+@item    lower(Upper)
+        @var{Char} is a lower-case version of Upper. Only true if @var{Char} is lowercase and Upper uppercase.
+
+@item    to_lower(Upper)
+        @var{Char} is a lower-case version of Upper. For non-letters, or letter without case, @var{Char} and Lower are the same. See also upcase_atom/2 and downcase_atom/2.
+
+@item    upper
+        @var{Char} is an upper-case letter.
+
+@item    upper(Lower)
+        @var{Char} is an upper-case version of Lower. Only true if @var{Char} is uppercase and Lower lowercase.
+
+@item    to_upper(Lower)
+        @var{Char} is an upper-case version of Lower. For non-letters, or letter without case, @var{Char} and Lower are the same. See also upcase_atom/2 and downcase_atom/2.
+
+@item    punct
+        @var{Char} is a punctuation character. This is a graph character that is not a letter or digit.
+
+@item    space
+        @var{Char} is some form of layout character (tab, vertical-tab, newline, etc.).
+
+@item    end_of_file
+        @var{Char} is -1.
+
+@item    end_of_line
+        @var{Char} ends a line (ASCII: 10..13).
+
+@item    newline
+        @var{Char} is a the newline character (10).
+
+@item    period
+        @var{Char} counts as the end of a sentence (.,!,?).
+
+@item    quote
+        @var{Char} is a quote-character (", ', `).
+
+@item    paren(Close)
+        @var{Char} is an open-parenthesis and Close is the corresponding close-parenthesis. 
+@end table
+
+@item code_type(?@var{Code}, ?@var{Type})
+@findex code_type/2
+@snindex code_type/2
+@cnindex code_type/2
+    As @code{char_type/2}, but uses character-codes rather than
+    one-character atoms. Please note that both predicates are as
+    flexible as possible. They handle either representation if the
+    argument is instantiated and only will instantiate with an integer
+    code or one-character atom depending of the version used. See also
+    the prolog-flag double_quotes, atom_chars/2 and atom_codes/2.
+
+@end table
+
+@node Comparing Terms, Arithmetic, Predicates on Characters, Top
 @section Comparing Terms
 
 The following predicates are used to compare and order terms, using the

@@ -50,7 +50,7 @@
 #endif
 
 /* You just can't trust some machines */
-#define my_isxdigit(C,SU,SL)	(chtype[C] == NU || (C >= 'A' && \
+#define my_isxdigit(C,SU,SL)	(chtype(C) == NU || (C >= 'A' &&	\
 				 C <= (SU)) || (C >= 'a' && C <= (SL)))
 #define my_isupper(C)	( C >= 'A' && C <= 'Z' )
 #define my_islower(C)	( C >= 'a' && C <= 'z' )
@@ -119,7 +119,6 @@ EF,
 #endif
 };
 
-#define chtype (chtype0+1)
 char *Yap_chtype = chtype0+1;
 
 /* in case there is an overflow */
@@ -255,7 +254,7 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
     } else {
       /* sicstus */
       ch = QuotedNxtch(inp_stream);
-      if (chtype[ch] == SL) {
+      if (chtype(ch) == SL) {
 	goto restart;
       } else {
 	return 'c';
@@ -397,11 +396,11 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
       unsigned char so_far = 0; 
       ch = QuotedNxtch(inp_stream);
       if (my_isxdigit(ch,'f','F')) {/* hexa */
-	so_far = so_far * 16 + (chtype[ch] == NU ? ch - '0' :
+	so_far = so_far * 16 + (chtype(ch) == NU ? ch - '0' :
 				(my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
 	ch = QuotedNxtch(inp_stream);
 	if (my_isxdigit(ch,'f','F')) { /* hexa */
-	  so_far = so_far * 16 + (chtype[ch] == NU ? ch - '0' :
+	  so_far = so_far * 16 + (chtype(ch) == NU ? ch - '0' :
 				  (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
 	  ch = QuotedNxtch(inp_stream);
 	  if (ch == '\\') {
@@ -426,11 +425,11 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
       /* sicstus mode */
       unsigned char so_far = 0;
       ch = QuotedNxtch(inp_stream);
-      so_far = (chtype[ch] == NU ? ch - '0' :
+      so_far = (chtype(ch) == NU ? ch - '0' :
 		my_isupper(ch) ? ch - 'A' + 10 : 
 		my_islower(ch) ? ch - 'a' +10 : 0);
       ch = QuotedNxtch(inp_stream);
-      return so_far*16 + (chtype[ch] == NU ? ch - '0' :
+      return so_far*16 + (chtype(ch) == NU ? ch - '0' :
 		       my_isupper(ch) ? ch - 'A' +10 :
 		       my_islower(ch) ? ch - 'a' + 10 : 0);
     }
@@ -443,7 +442,7 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
       return 0;
     } else {
       /* sicstus */
-      if (chtype[ch] == SL) {
+      if (chtype(ch) == SL) {
 	goto restart;
       } else {
 	return ch;
@@ -468,7 +467,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
    * because of things like 00'2, 03'2 and even better 12'2, I need to
    * do this (have mercy) 
    */
-  if (chtype[ch] == NU) {
+  if (chtype(ch) == NU) {
     *sp++ = ch;
     if (--max_size == 0) {
       Yap_ErrorMessage = "Number Too Long";
@@ -512,7 +511,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	  return TermNil;
 	}
 	*sp++ = ch;
-	val = val * base + (chtype[ch] == NU ? ch - '0' :
+	val = val * base + (chtype(ch) == NU ? ch - '0' :
 			    (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
 	if (oval >= val && oval != 0) /* overflow */
 	  has_overflow = (has_overflow || TRUE);
@@ -534,7 +533,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	return TermNil;
       }
       *sp++ = ch;
-      val = val * 16 + (chtype[ch] == NU ? ch - '0' :
+      val = val * 16 + (chtype(ch) == NU ? ch - '0' :
 			(my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
       if (oval >= val && oval != 0) /* overflow */
 	has_overflow = (has_overflow || TRUE);
@@ -556,7 +555,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
     val = base;
     base = 10;
   }
-  while (chtype[ch] == NU) {
+  while (chtype(ch) == NU) {
     Int oval = val;
     if (!(val == 0 && ch == '0')) {
       if (--max_size == 0) {
@@ -579,7 +578,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	return TermNil;
       }
       *sp++ = '.';
-      if (chtype[ch = Nxtch(inp_stream)] != NU) {
+      if (chtype(ch = Nxtch(inp_stream)) != NU) {
 	*chbuffp = '.';
 	*chp = ch;
 	*--sp = '\0';
@@ -594,7 +593,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	}
 	*sp++ = ch;
       }
-      while (chtype[ch = Nxtch(inp_stream)] == NU);
+      while (chtype(ch = Nxtch(inp_stream)) == NU);
     }
     if (ch == 'e' || ch == 'E') {
       char *sp0 = sp;
@@ -618,7 +617,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	cbuff = '+';
 	ch = Nxtch(inp_stream);
       }
-      if (chtype[ch] != NU) {
+      if (chtype(ch) != NU) {
 	/* error */
 	char *sp;
 	*chp = ch;
@@ -644,7 +643,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	  return TermNil;
 	}
 	*sp++ = ch;
-      } while (chtype[ch = Nxtch(inp_stream)] == NU);
+      } while (chtype(ch = Nxtch(inp_stream)) == NU);
     }
     *sp = '\0';
     *chp = ch;
@@ -691,7 +690,7 @@ Yap_scan_num(int (*Nxtch) (int))
   } else if (ch == '+') {
     ch = Nxtch(-1);
   }
-  if (chtype[ch] != NU) {
+  if (chtype(ch) != NU) {
     Yap_clean_tokenizer(NULL, NULL, NULL);
     return TermNil;
   }
@@ -777,16 +776,16 @@ Yap_tokenizer(int inp_stream)
       p->TokNext = t;
     p = t;
   restart:
-    while (chtype[ch] == BS) {
+    while (chtype(ch) == BS) {
       ch = Nxtch(inp_stream);
     }
     t->TokPos = GetCurInpPos(inp_stream);
 
-    switch (chtype[ch]) {
+    switch (chtype(ch)) {
 
     case CC:
-      while ((ch = Nxtch(inp_stream)) != 10 && chtype[ch] != EF);
-      if (chtype[ch] != EF) {
+      while ((ch = Nxtch(inp_stream)) != 10 && chtype(ch) != EF);
+      if (chtype(ch) != EF) {
 	/* blank space */
 	goto restart;
       } else {
@@ -802,9 +801,9 @@ Yap_tokenizer(int inp_stream)
     scan_name:
       TokImage = ((AtomEntry *) ( Yap_PreAllocCodeSpace()))->StrOfAE;
       charp = TokImage;
-      isvar = (chtype[och] != LC);
+      isvar = (chtype(och) != LC);
       *charp++ = och;
-      for (; chtype[ch] <= NU; ch = Nxtch(inp_stream)) {
+      for (; chtype(ch) <= NU; ch = Nxtch(inp_stream)) {
 	if (charp == (char *)AuxSp-1024) {
 	  /* huge atom or variable, we are in trouble */
 	  Yap_ErrorMessage = "Code Space Overflow due to huge atom";
@@ -1019,7 +1018,7 @@ Yap_tokenizer(int inp_stream)
 	  if (scan_next) {
 	    ch = QuotedNxtch(inp_stream);
 	  }
-	} else if (chtype[ch] == EF && ch <= MAX_ISO_LATIN1) {
+	} else if (chtype(ch) == EF && ch <= MAX_ISO_LATIN1) {
 	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  t->Tok = Ord(kind = eot_tok);
 	  break;
@@ -1097,29 +1096,29 @@ Yap_tokenizer(int inp_stream)
       och = ch;
       ch = Nxtch(inp_stream);
       if (och == '/' && ch == '*') {
-	while ((och != '*' || ch != '/') && chtype[ch] != EF) {
+	while ((och != '*' || ch != '/') && chtype(ch) != EF) {
 	  och = ch;
 	  ch = Nxtch(inp_stream);
 	}
-	if (chtype[ch] == EF) {
+	if (chtype(ch) == EF) {
 	  t->Tok = Ord(kind = eot_tok);
 	}
 	ch = Nxtch(inp_stream);
 	goto restart;
       }
     enter_symbol:
-      if (och == '.' && (chtype[ch] == BS || chtype[ch] == EF
-			 || chtype[ch] == CC)) {
+      if (och == '.' && (chtype(ch) == BS || chtype(ch) == EF
+			 || chtype(ch) == CC)) {
 	Yap_eot_before_eof = TRUE;
-	if (chtype[ch] == CC)
-	  while ((ch = Nxtch(inp_stream)) != 10 && chtype[ch] != EF);
+	if (chtype(ch) == CC)
+	  while ((ch = Nxtch(inp_stream)) != 10 && chtype(ch) != EF);
 	t->Tok = Ord(kind = eot_tok);
       }
       else {
 	TokImage = ((AtomEntry *) ( Yap_PreAllocCodeSpace()))->StrOfAE;
 	charp = TokImage;
 	*charp++ = och;
-	for (; chtype[ch] == SY; ch = Nxtch(inp_stream))
+	for (; chtype(ch) == SY; ch = Nxtch(inp_stream))
 	  *charp++ = ch;
 	*charp = '\0';
 	t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
@@ -1156,7 +1155,7 @@ Yap_tokenizer(int inp_stream)
       och = ch;
       do {
 	ch = Nxtch(inp_stream);
-      } while (chtype[ch] == BS);
+      } while (chtype(ch) == BS);
       if (och == '[' && ch == ']') {
 	t->TokInfo = Unsigned(AtomNil);
 	ch = Nxtch(inp_stream);
@@ -1179,7 +1178,7 @@ Yap_tokenizer(int inp_stream)
 
     default:
 #ifdef DEBUG
-      fprintf(Yap_stderr, "\n++++ token: wrong char type %c %d\n", ch, chtype[ch]);
+      fprintf(Yap_stderr, "\n++++ token: wrong char type %c %d\n", ch, chtype(ch));
 #endif
       t->Tok = Ord(kind = eot_tok);
     }

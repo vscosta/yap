@@ -211,6 +211,7 @@ typedef	struct VARSTRUCT {
 
 #define EOFCHAR EOF
 
+
 #if USE_SOCKET
 /****************** defines for sockets *********************************/
 
@@ -262,6 +263,17 @@ typedef enum {
 /****************** character definition table **************************/
 #define NUMBER_OF_CHARS 256
 extern char *Yap_chtype;
+
+inline int STD_PROTO(chtype,(wchar_t));
+
+EXTERN inline int
+chtype(wchar_t ch)
+{
+  if (ch < 256)
+    return Yap_chtype[ch];
+  return SL;
+}
+
 
 /* parser stack, used to be AuxSp, now is ASP */
 #define ParserAuxSp ScannerStack

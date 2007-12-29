@@ -9367,7 +9367,8 @@ done
 
 
 
-for ac_header in time.h unistd.h winsock.h winsock2.h
+
+for ac_header in time.h unistd.h wctype.h winsock.h winsock2.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then

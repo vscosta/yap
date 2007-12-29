@@ -995,7 +995,7 @@ AC_CHECK_HEADERS(sys/mman.h sys/param.h sys/resource.h sys/select.h)
 AC_CHECK_HEADERS(sys/shm.h sys/socket.h sys/stat.h)
 AC_CHECK_HEADERS(sys/time.h sys/times.h sys/types.h)
 AC_CHECK_HEADERS(sys/ucontext.h sys/un.h)
-AC_CHECK_HEADERS(time.h unistd.h winsock.h winsock2.h)
+AC_CHECK_HEADERS(time.h unistd.h wctype.h winsock.h winsock2.h)
 AC_CHECK_HEADERS(mach-o/dyld.h)
 if test "$yap_cv_gmp" != "no"
 then
