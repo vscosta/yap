@@ -264,7 +264,7 @@ typedef enum {
 #define NUMBER_OF_CHARS 256
 extern char *Yap_chtype;
 
-inline int STD_PROTO(chtype,(wchar_t));
+EXTERN inline int STD_PROTO(chtype,(wchar_t));
 
 EXTERN inline int
 chtype(wchar_t ch)
