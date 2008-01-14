@@ -1562,6 +1562,10 @@ PlUnGetc (int sno)
     s->stream_getc = MemGetc;
     s->stream_putc = MemPutc;
     s->stream_wputc = put_wchar;
+  } else if (s->status & Socket_Stream_f) {
+    s->stream_getc = SocketGetc;
+    s->stream_putc = SocketPutc;
+    s->stream_wputc = put_wchar;
   } else if (s->status & Promptable_Stream_f) {
     s->stream_putc = ConsolePutc;
     s->stream_wputc = put_wchar;
