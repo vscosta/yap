@@ -48,7 +48,8 @@
 	(
 	  current_predicate(A,M:_)
 	->
-	  M = EM
+	 M = EM,
+	 A = NA
 	;
 	 recorded('$import','$import'(EM,M,GA,_,A,_),_),
 	 functor(GA,NA,_)
