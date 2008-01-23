@@ -1,6 +1,7 @@
 :- module(line_utils,
 	  [search_for/3,
 	   scan_natural/3,
+	   scan_integer/3,
 	   split/3
 	  ]).
 
@@ -12,7 +13,11 @@ search_for(C) --> [C], !.
 search_for(C) --> [_],
 	search_for(C).
 
-scan_natural(N) -->
+scan_integer(N) -->
+	"-", !,
+	scan_natural(0, N0),
+	N is -N0.
+scan_integer(N) -->
 	scan_natural(0, N).
 
 scan_natural(N0,N) -->
