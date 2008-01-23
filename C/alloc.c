@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.87 2008-01-23 17:57:44 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.88 2008-01-23 18:25:19 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -195,6 +195,7 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip)
     Yap_PrologMode |= MallocMode;
   }
   Yap_PrologMode &= ~MallocMode;
+  ScratchPad.sz = ScratchPad.msz = sz;
   ScratchPad.ptr = ptr;
   AuxSp = (CELL *)(AuxTop = ptr+sz);
   return ptr;
@@ -655,6 +656,9 @@ Yap_AllocCodeSpace(unsigned int size)
 ADDR
 Yap_ExpandPreAllocCodeSpace(UInt sz, void *cip)
 {
+  if (sz < SCRATCH_INC_SIZE)
+    sz = SCRATCH_INC_SIZE;
+  sz = AdjustLargePageSize(sz+sz/4);
   if (!Yap_growheap((cip!=NULL), sz, cip)) {
     Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
     return NULL;
