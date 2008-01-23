@@ -221,6 +221,7 @@ Term    STD_PROTO(Yap_cp_as_integer,(choiceptr));
 yamop   *STD_PROTO(Yap_PredIsIndexable,(PredEntry *, UInt));
 yamop   *STD_PROTO(Yap_ExpandIndex,(PredEntry *, UInt));
 void     STD_PROTO(Yap_CleanUpIndex,(struct logic_upd_index *));
+void     STD_PROTO(Yap_CleanKids,(struct logic_upd_index *));
 void     STD_PROTO(Yap_AddClauseToIndex,(PredEntry *,yamop *,int));
 void     STD_PROTO(Yap_RemoveClauseFromIndex,(PredEntry *,yamop *));
 LogUpdClause  *STD_PROTO(Yap_NthClause,(PredEntry *,Int));

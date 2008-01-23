@@ -80,14 +80,16 @@ typedef	struct FREEB {
 /* I'll assume page size is always a power of two */
 #if _WIN32
 /* in WIN32 VirtualAlloc works in multiples of 64K */
-#define ALLOC_SIZE (64*1024)
+#define YAP_ALLOC_SIZE (64*1024)
+#define LG_PAGE_SIZE ALLOC_SIZE
 
-#define AdjustPageSize(X)  (((X)+ (ALLOC_SIZE-1))/ALLOC_SIZE)*ALLOC_SIZE;
 #else
-#define AdjustPageSize(X)  ((X) & (Yap_page_size-1) ? \
-      ((X) + Yap_page_size) & (~(Yap_page_size-1)) :      \
-      (X) )
+#define YAP_ALLOC_SIZE Yap_page_size
+#define LGPAGE_SIZE (16*Yap_page_size)
 #endif
+
+#define AdjustPageSize(X)  (((X)+ (YAP_ALLOC_SIZE-1))/YAP_ALLOC_SIZE)*YAP_ALLOC_SIZE;
+#define AdjustLargePageSize(X)  (((X)+ (LGPAGE_SIZE-1))/LGPAGE_SIZE)*LGPAGE_SIZE;
 
 #define BlockTrailer(b)		((YAP_SEG_SIZE *)b)[((BlockHeader *) b)->b_size]
 

@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2007-11-26 23:43:08 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-01-23 17:57:46 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.192  2007/11/26 23:43:08  vsc
+* fixes to support threads and assert correctly, even if inefficiently.
+*
 * Revision 1.191  2007/11/08 15:52:15  vsc
 * fix some bugs in new dbterm code.
 *
@@ -488,10 +491,10 @@ cleanup_sw_on_clauses(CELL larg, UInt sz, OPCODE ecls)
 	}
 	UNLOCK(ExpandClausesListLock);
 #if DEBUG
+	Yap_ExpandClauses--;
 	Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sp))+xp->u.sp.s1*sizeof(yamop *);
 #endif
 	if (xp->u.sp.p->PredFlags & LogUpdatePredFlag) {
-	  //	fprintf(stderr,"VSC %p %d - %d\n",xp,(UInt)NEXTOP((yamop *)NULL,sp)+xp->u.sp.s1*sizeof(yamop *),Yap_LUIndexSpace_EXT);
 	  Yap_LUIndexSpace_EXT -= (UInt)NEXTOP((yamop *)NULL,sp)+xp->u.sp.s1*sizeof(yamop *);
 	} else
 	  Yap_IndexSpace_EXT -= (UInt)(NEXTOP((yamop *)NULL,sp))+xp->u.sp.s1*sizeof(yamop *);
@@ -2521,7 +2524,6 @@ add_info(ClauseDef *clause, UInt regno)
       return;
 #ifdef BEAM
     case _run_eam:
-      //      clause->Tag = (CELL)NULL;
       cl = NEXTOP(cl,os);
       break;
     case _retry_eam:
@@ -3563,7 +3565,7 @@ emit_type_switch(compiler_vm_op op, struct intermediates *cint)
 
 
 static yamop *
-emit_switch_space(UInt n, UInt item_size, struct intermediates *cint)
+emit_switch_space(UInt n, UInt item_size, struct intermediates *cint, CELL func_mask)
 {
   PredEntry *ap = cint->CurrentPred;
 
@@ -3576,7 +3578,7 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint)
       longjmp(cint->CompilerBotch,2);
     }
     Yap_LUIndexSpace_SW += sz;
-    cl->ClFlags = SwitchTableMask|LogUpdMask;
+    cl->ClFlags = SwitchTableMask|LogUpdMask|func_mask;
     cl->ClSize = sz;
     cl->ClPred = cint->CurrentPred;
     /* insert into code chain */
@@ -3622,7 +3624,7 @@ emit_cswitch(int n, yamop *fail_l, struct intermediates *cint)
     while (cases < n) cases *= 2;
     n = cases;
     op = switch_c_op;
-    target = (AtomSwiEntry *)emit_switch_space(n, sizeof(AtomSwiEntry), cint);
+    target = (AtomSwiEntry *)emit_switch_space(n, sizeof(AtomSwiEntry), cint, 0);
     for (i=0; i<n; i++) {
       target[i].Tag = Zero;
       target[i].u.labp = fail_l;
@@ -3632,7 +3634,7 @@ emit_cswitch(int n, yamop *fail_l, struct intermediates *cint)
     UInt i;
 
     op = if_c_op;
-    target = (AtomSwiEntry *)emit_switch_space(n+1, sizeof(AtomSwiEntry), cint);
+    target = (AtomSwiEntry *)emit_switch_space(n+1, sizeof(AtomSwiEntry), cint, 0);
 
     for (i=0; i<n; i++) {
       target[i].u.labp = fail_l;
@@ -3689,7 +3691,7 @@ emit_fswitch(int n, yamop *fail_l, struct intermediates *cint)
     while (cases < n) cases *= 2;
     n = cases;
     op = switch_f_op;
-    target = (FuncSwiEntry *)emit_switch_space(n, sizeof(FuncSwiEntry), cint);
+    target = (FuncSwiEntry *)emit_switch_space(n, sizeof(FuncSwiEntry), cint, FuncSwitchMask);
     for (i=0; i<n; i++) {
       target[i].Tag = NULL;
       target[i].u.labp = fail_l;
@@ -3699,7 +3701,7 @@ emit_fswitch(int n, yamop *fail_l, struct intermediates *cint)
     UInt i;
 
     op = if_f_op;
-    target = (FuncSwiEntry *)emit_switch_space(n+1, sizeof(FuncSwiEntry), cint);
+    target = (FuncSwiEntry *)emit_switch_space(n+1, sizeof(FuncSwiEntry), cint, FuncSwitchMask);
     for (i=0; i<n; i++) {
       target[i].u.labp = fail_l;
     }
@@ -3913,15 +3915,15 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
       tels = cls;
     }
     sz = (UInt)NEXTOP((yamop *)NULL,sp)+tels*sizeof(yamop *), sz;
-#if DEBUG
-    Yap_expand_clauses_sz += sz;
-#endif
     if ((ncode = (yamop *)Yap_AllocCodeSpace(sz)) == NULL) {
       save_machine_regs();
       longjmp(cint->CompilerBotch, 2);
     }
+#if DEBUG
+    Yap_ExpandClauses++;
+    Yap_expand_clauses_sz += sz;
+#endif
     if (ap->PredFlags & LogUpdatePredFlag) {
-      //	fprintf(stderr,"VSC %p %d + %d\n",ncode,sz,Yap_LUIndexSpace_EXT);
       Yap_LUIndexSpace_EXT += sz;
     } else {
       Yap_IndexSpace_EXT += sz;
@@ -3980,6 +3982,7 @@ recover_ecls_block(yamop *ipc)
     }
     UNLOCK(ExpandClausesListLock);
 #if DEBUG
+    Yap_ExpandClauses--;
     Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sp))+ipc->u.sp.s1*sizeof(yamop *);
 #endif
     /* no dangling pointers for gprof */
@@ -6158,7 +6161,8 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
     if (c == cl) {
       parent_block->lui.ChildIndex = ncl;
     } else {
-      cl->PrevSiblingIndex->SiblingIndex = ncl;
+      if (cl->PrevSiblingIndex)
+	cl->PrevSiblingIndex->SiblingIndex = ncl;
     }
     if (cl->SiblingIndex) {
       cl->SiblingIndex->PrevSiblingIndex = ncl;
@@ -6221,7 +6225,7 @@ expand_ctable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Term at)
       return fetch_centry(old_ae, at, n-1, n);
     }
     /* initialise */
-    target = (AtomSwiEntry *)emit_switch_space(cases, sizeof(AtomSwiEntry), cint);
+    target = (AtomSwiEntry *)emit_switch_space(cases, sizeof(AtomSwiEntry), cint, 0);
     pc->opc = Yap_opcode(_switch_on_cons);
     pc->u.sssl.s = cases;
     for (i=0; i<cases; i++) {
@@ -6231,7 +6235,7 @@ expand_ctable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Term at)
   } else {
     pc->opc = Yap_opcode(_if_cons);
     pc->u.sssl.s = n;
-    target = (AtomSwiEntry *)emit_switch_space(n+1, sizeof(AtomSwiEntry), cint);
+    target = (AtomSwiEntry *)emit_switch_space(n+1, sizeof(AtomSwiEntry), cint, 0);
     target[n].Tag = Zero;
     target[n].u.Label = fail_l;
   }
@@ -6285,7 +6289,7 @@ expand_ftable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Functor f
     pc->u.sssl.e = n;
     pc->u.sssl.w = 0;
     /* initialise */
-    target = (FuncSwiEntry *)emit_switch_space(cases, sizeof(FuncSwiEntry), cint);
+    target = (FuncSwiEntry *)emit_switch_space(cases, sizeof(FuncSwiEntry), cint, FuncSwitchMask);
     for (i=0; i<cases; i++) {
       target[i].Tag = NULL;
       target[i].u.Label = fail_l;
@@ -6295,7 +6299,7 @@ expand_ftable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Functor f
     pc->u.sssl.s = n;
     pc->u.sssl.e = n;
     pc->u.sssl.w = 0;
-    target = (FuncSwiEntry *)emit_switch_space(n+1, sizeof(FuncSwiEntry), cint);
+    target = (FuncSwiEntry *)emit_switch_space(n+1, sizeof(FuncSwiEntry), cint, FuncSwitchMask);
     target[n].Tag = Zero;
     target[n].u.Label = fail_l;
   }
@@ -7354,7 +7358,6 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
   yamop *ipc = ap->cs.p_code.TrueCodeOfPred;
   UInt current_arity = 0;
 
-  sp = init_block_stack(sp, ipc, ap);
   if (ap->cs.p_code.NOfClauses == 1) {
     if (ap->PredFlags & IndexedPredFlag) {
       Yap_RemoveIndexation(ap);
@@ -7377,6 +7380,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
     }
     return;
   }
+  sp = init_block_stack(sp, ipc, ap);
   /* try to refine the interval using the indexing code */
   while (ipc != NULL) {
     op_numbers op = Yap_op_from_opcode(ipc->opc);
@@ -7819,15 +7823,14 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     if (ap->PredFlags & LogUpdatePredFlag &&
 	ap->ModuleOfPred != IDB_MODULE) {
       ap->cs.p_code.TrueCodeOfPred = FAILCODE;
-      ap->OpcodeOfPred = LOCKPRED_OPCODE;
       ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
     } else {
 #endif
       ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = FAILCODE;
-      ap->OpcodeOfPred = Yap_opcode(_op_fail);
 #if defined(YAPOR) || defined(THREADS)
     }
 #endif
+    ap->OpcodeOfPred = Yap_opcode(_op_fail);
   } else {
     remove_from_index(ap, sp, &cl, beg, last, &cint); 
   }
@@ -8078,7 +8081,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	update_clause_choice_point(ipc->u.lld.n, ap_pc);
       }
       {
-	UInt timestamp = ((CELL *)(B+1))[5];
+	UInt timestamp = IntegerOfTerm(((CELL *)(B+1))[5]);
    
 	if (!VALID_TIMESTAMP(timestamp, ipc->u.lld.d)) {
 	  /* jump to next instruction */
@@ -8091,7 +8094,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _profiled_retry_logical:
     case _count_retry_logical:
       {
-	UInt timestamp = ((CELL *)(B+1))[5];
+	UInt timestamp = IntegerOfTerm(((CELL *)(B+1))[5]);
 	if (!VALID_TIMESTAMP(timestamp, ipc->u.lld.d)) {
 	  /* jump to next instruction */
 	  ipc = ipc->u.lld.n;
@@ -8139,7 +8142,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
 	    LogUpdClause *lcl = ipc->u.lld.d;
-	    /* make sure we don't erase the clause we are jumping too */
+	    /* make sure we don't erase the clause we are jumping to */
 	    if (lcl->ClRefCount == 1 && !(lcl->ClFlags & (DirtyMask|InUseMask))) {
 	      lcl->ClFlags |= InUseMask;
 	      TRAIL_CLREF(lcl);

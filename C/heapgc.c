@@ -937,7 +937,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 #ifdef SBA
 	  (ADDR) pt0 >= HeapTop
 #else
-	  (ADDR) pt0 >= Yap_TrailBase
+	  (ADDR) pt0 >= Yap_TrailBase && (ADDR) pt0 < Yap_TrailTop
 #endif
 	  ) {
 	continue;
@@ -1347,7 +1347,7 @@ mark_variable(CELL_PTR current)
       case (CELL)FunctorBigInt:
 	{
 	  UInt sz = (sizeof(MP_INT)+
-		     (((MP_INT *)(next+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
+		     ((MP_INT *)(next+1))->_mp_alloc*sizeof(mp_limb_t))/CellSize;
 	  MARK(next);
 	  /* size is given by functor + friends */
 	  if (next < HGEN)
@@ -1819,6 +1819,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
   
   yamop *lu_cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,ld),
     *lu_cl = NEXTOP(PredLogUpdClause->CodeOfPred,ld),
+    *lu_cle = NEXTOP(PredLogUpdClauseErase->CodeOfPred,ld),
     *su_cl = NEXTOP(PredStaticClause->CodeOfPred,ld);
 #ifdef TABLING
   dep_fr_ptr depfr = LOCAL_top_dep_fr;
@@ -2133,9 +2134,16 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 
       if (gc_B->cp_ap == lu_cl0 ||
 	  gc_B->cp_ap == lu_cl ||
+	  gc_B->cp_ap == lu_cle ||
 	  gc_B->cp_ap == su_cl) {
-	CELL *pt = (CELL *)IntegerOfTerm(gc_B->cp_args[1]);
-	mark_db_fixed(pt);
+	yamop *pt = (yamop *)IntegerOfTerm(gc_B->cp_args[1]);
+	if (gc_B->cp_ap == su_cl) {
+	  mark_db_fixed((CELL *)pt);
+	} else {
+	  while (pt->opc != trust_lu)
+	    pt = pt->u.lld.n;
+	  mark_ref_in_use((DBRef)pt->u.lld.t.block);
+	}
       }
       /* for each saved register */
       for (saved_reg = &gc_B->cp_a1;
@@ -3595,6 +3603,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   if (gc_trace) {
     fprintf(Yap_stderr, "%% gc\n");
   } else if (gc_verbose) {
+#if  defined(YAPOR) || defined(THREADS)
+    fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
+#endif
     fprintf(Yap_stderr, "%% Start of garbage collection %d:\n", GcCalls);
     fprintf(Yap_stderr, "%%       Global: %8ld cells (%p-%p)\n", (long int)heap_cells,H0,H);
     fprintf(Yap_stderr, "%%       Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
@@ -3815,15 +3826,16 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   UInt   gc_margin = MinStackGap;
   Term   Tgc_margin;
   Int    effectiveness = 0;
-  int    gc_on = FALSE;
+  int    gc_on = FALSE, gc_t = FALSE;
 
   if (Yap_GetValue(AtomGc) != TermNil)
     gc_on = TRUE;
   if (IsIntegerTerm(Tgc_margin = Yap_GetValue(AtomGcMargin)) &&
       gc_margin > 0) {
     gc_margin = (UInt)IntegerOfTerm(Tgc_margin);
+    gc_t = TRUE;
   } else {
-    /* only go exponential for the first 8 calls */
+    /* only go exponential for the first 6 calls, that would ask about 2MB minimum */
     if (GcCalls < 8) 
       gc_margin <<= GcCalls;
     else {
@@ -3845,8 +3857,8 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
     effectiveness = do_gc(predarity, current_env, nextop);
     if (effectiveness < 0)
       return FALSE;
-    if (effectiveness > 90) {
-      while (gc_margin < H-H0) 
+    if (effectiveness > 90 && !gc_t) {
+      while (gc_margin < (H-H0)/sizeof(CELL)) 
 	gc_margin <<= 1;
     }
   } else {
@@ -3856,7 +3868,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   if (ASP - H < gc_margin/sizeof(CELL) ||
       effectiveness < 20) {
     LeaveGCMode();
-    return Yap_growstack(gc_margin);
+    return Yap_growstack(gc_margin-((ASP-H)*sizeof(CELL)));
   }
   /*
    * debug for(save_total=1; save_total<=N; ++save_total)

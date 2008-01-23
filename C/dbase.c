@@ -3807,14 +3807,10 @@ p_total_erased(void)
   LogUpdClause *cl = DBErasedList;
   LogUpdIndex *icl = DBErasedIList;
 
-  int i=200000;
-  while (cl &&  i>0)
-    cl=cl->ClNext,i--;
-  if (cl)
-    fprintf(stderr,"cl=%p\n",cl);
   /* only for log upds */
   while (cl) {
     cls++;
+    fprintf(stderr,"cl=%p, %x %d\n",cl,cl->ClFlags,cl->ClRefCount);
     sz += cl->ClSize;
     cl = cl->ClNext;
   }
@@ -4007,6 +4003,7 @@ static void
 complete_lu_erase(LogUpdClause *clau)
 {
   DBRef *cp;
+
   if (clau->ClSource)
     cp = clau->ClSource->DBRefs;
   else 
@@ -4015,6 +4012,7 @@ complete_lu_erase(LogUpdClause *clau)
     return;
   }
   if (clau->ClFlags & LogUpdRuleMask &&
+      clau->ClExt &&
       clau->ClExt->u.EC.ClRefs > 0) {
     return;
   }
@@ -4116,9 +4114,12 @@ EraseLogUpdCl(LogUpdClause *clau)
 	  ap->LastCallOfPred = LUCALL_RETRACT;
 	} else {
 	  /* OK, there's noone left */
+#ifndef THREADS
 	  if (ap->cs.p_code.NOfClauses == 0) {
+	    /* Other threads may hold refs to clauses */
 	    ap->TimeStampOfPred = 0L;
 	  }
+#endif
 	/*	  fprintf(stderr,"- %x--%d--%ul\n",ap,ap->TimeStampOfPred,ap->ArityOfPE);*/
 	  ap->LastCallOfPred = LUCALL_ASSERT;
 	}
@@ -4201,8 +4202,9 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
   PredEntry *p = clau->ClPred;
   yamop *cl = code_p;
 
-  if (clau->ClFlags & ErasedMask)
+  if (clau->ClFlags & ErasedMask) {
     return;
+  }
   clau->ClFlags |= ErasedMask;
   if (p->cs.p_code.FirstClause != cl) {
     /* we are not the first clause... */

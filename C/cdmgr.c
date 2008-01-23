@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2007-12-26 19:50:40 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-01-23 17:57:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.217  2007/12/26 19:50:40  vsc
+* new version of clp(fd)
+* fix deadlock with empty args facts in clause/2.
+*
 * Revision 1.216  2007/12/23 22:48:44  vsc
 * recover stack space
 *
@@ -589,7 +593,7 @@ static_in_use(PredEntry *p, int check_everything)
 #else
   CELL pflags = p->PredFlags;
   if (pflags & (DynamicPredFlag|LogUpdatePredFlag)) {
-    return (FALSE);
+    return FALSE;
   }
   if (STATIC_PREDICATES_MARKED) {
     return (p->PredFlags & InUsePredFlag);
@@ -964,37 +968,40 @@ decrease_ref_counter(yamop *ptr, yamop *b, yamop *e, yamop *sc)
   }
 }
 
-static void
+static yamop *
 release_wcls(yamop *cop, OPCODE ecs)
 {
   if (cop->opc == ecs) {
     cop->u.sp.s3--;
     if (!cop->u.sp.s3) {
-    LOCK(ExpandClausesListLock);
-    if (ExpandClausesFirst == cop)
-      ExpandClausesFirst = cop->u.sp.snext;
-    if (ExpandClausesLast == cop) {
-      ExpandClausesLast = cop->u.sp.sprev;
-    }
-    if (cop->u.sp.sprev) {
-      cop->u.sp.sprev->u.sp.snext = cop->u.sp.snext;
-    }
-    if (cop->u.sp.snext) {
-      cop->u.sp.snext->u.sp.sprev = cop->u.sp.sprev;
-    }
-    UNLOCK(ExpandClausesListLock);
-#if DEBUG
-      Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sp)+cop->u.sp.s1*sizeof(yamop *));
+      UInt sz = (UInt)NEXTOP((yamop *)NULL,sp)+cop->u.sp.s1*sizeof(yamop *);
+      LOCK(ExpandClausesListLock);
+#ifdef DEBUG
+      Yap_expand_clauses_sz -= sz;
+      Yap_ExpandClauses--;
 #endif
-      Yap_InformOfRemoval((CODEADDR)cop);
       if (cop->u.sp.p->PredFlags & LogUpdatePredFlag) {
-	Yap_LUIndexSpace_EXT -= (UInt)NEXTOP((yamop *)NULL,sp)+cop->u.sp.s1*sizeof(yamop *);
+	Yap_LUIndexSpace_EXT -= sz;
       } else {
-	Yap_IndexSpace_EXT -= (UInt)NEXTOP((yamop *)NULL,sp)+cop->u.sp.s1*sizeof(yamop *);
+	Yap_IndexSpace_EXT -= sz;
       }
+      if (ExpandClausesFirst == cop)
+	ExpandClausesFirst = cop->u.sp.snext;
+      if (ExpandClausesLast == cop) {
+	ExpandClausesLast = cop->u.sp.sprev;
+      }
+      if (cop->u.sp.sprev) {
+	cop->u.sp.sprev->u.sp.snext = cop->u.sp.snext;
+      }
+      if (cop->u.sp.snext) {
+	cop->u.sp.snext->u.sp.sprev = cop->u.sp.sprev;
+      }
+      UNLOCK(ExpandClausesListLock);
+      Yap_InformOfRemoval((CODEADDR)cop);
       Yap_FreeCodeSpace((char *)cop);
     }
   }
+  return FAILCODE;
 }
 
 
@@ -1015,13 +1022,9 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       ipc = NEXTOP(ipc,e);
       break;
     case _lock_lu:
-      /* just skip for now, but should worry about locking */
-      ipc = NEXTOP(ipc,p);
-      break;
     case _unlock_lu:
-      /* just skip for now, but should worry about locking */
+      /* locking should be done already */
       ipc = NEXTOP(ipc,e);
-      break;
     case _retry_profiled:
     case _count_retry:
       ipc = NEXTOP(ipc,p);
@@ -1065,7 +1068,6 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
 	Yap_FreedCps++;
 #endif
       }
-      end = ipc;
       break;
     case _trust_logical:
     case _count_trust_logical:
@@ -1077,56 +1079,60 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       decrease_ref_counter(ipc->u.lld.d->ClCode, beg, end, suspend_code);
       Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop *)NULL,lld);
       Yap_FreeCodeSpace((ADDR)ipc);
-      end = ipc;
       return;
     case _enter_lu_pred:
-      if (ipc->u.Ill.I->ClFlags & InUseMask || ipc->u.Ill.I->ClRefCount)
-	return;
+      {
+	yamop *oipc = ipc;
+	if (ipc->u.Ill.I->ClFlags & InUseMask || ipc->u.Ill.I->ClRefCount)
+	  return;
 #ifdef DEBUG
-      Yap_DirtyCps+=ipc->u.Ill.s;
-      Yap_LiveCps-=ipc->u.Ill.s;
+	Yap_DirtyCps+=ipc->u.Ill.s;
+	Yap_LiveCps-=ipc->u.Ill.s;
 #endif
-      ipc = ipc->u.Ill.l1;
-      end = ipc;
+	ipc = ipc->u.Ill.l1;
+	/* in case we visit again */
+	oipc->u.Ill.l1 = FAILCODE;
+	oipc->u.Ill.s = 0;
+      }
       break;
     case _try_in:
     case _jump:
     case _jump_if_var:
-      release_wcls(ipc->u.l.l, ecs);
+      ipc->u.l.l = release_wcls(ipc->u.l.l, ecs);
       ipc = NEXTOP(ipc,l);
       break;
       /* instructions type xl */
     case _jump_if_nonvar:
-      release_wcls(ipc->u.xll.l1, ecs);
+      ipc->u.xll.l1 = release_wcls(ipc->u.xll.l1, ecs);
       ipc = NEXTOP(ipc,xll);
       break;
       /* instructions type e */
     case _switch_on_type:
-      release_wcls(ipc->u.llll.l1, ecs);
-      release_wcls(ipc->u.llll.l2, ecs);
-      release_wcls(ipc->u.llll.l3, ecs);
-      release_wcls(ipc->u.llll.l4, ecs);
+      ipc->u.llll.l1 = release_wcls(ipc->u.llll.l1, ecs);
+      ipc->u.llll.l2 = release_wcls(ipc->u.llll.l2, ecs);
+      ipc->u.llll.l3 = release_wcls(ipc->u.llll.l3, ecs);
+      ipc->u.llll.l4 = release_wcls(ipc->u.llll.l4, ecs);
       ipc = NEXTOP(ipc,llll);
       break;
     case _switch_list_nl:
-      release_wcls(ipc->u.ollll.l1, ecs);
-      release_wcls(ipc->u.ollll.l2, ecs);
-      release_wcls(ipc->u.ollll.l3, ecs);
-      release_wcls(ipc->u.ollll.l4, ecs);
+      ipc->u.ollll.l1 = release_wcls(ipc->u.ollll.l1, ecs);
+      ipc->u.ollll.l2 = release_wcls(ipc->u.ollll.l2, ecs);
+      ipc->u.ollll.l3 = release_wcls(ipc->u.ollll.l3, ecs);
+      ipc->u.ollll.l4 = release_wcls(ipc->u.ollll.l4, ecs);
       ipc = NEXTOP(ipc,ollll);
       break;
     case _switch_on_arg_type:
-      release_wcls(ipc->u.xllll.l1, ecs);
-      release_wcls(ipc->u.xllll.l2, ecs);
-      release_wcls(ipc->u.xllll.l3, ecs);
-      release_wcls(ipc->u.xllll.l4, ecs);
+      ipc->u.xllll.l1 = release_wcls(ipc->u.xllll.l1, ecs);
+      ipc->u.xllll.l2 = release_wcls(ipc->u.xllll.l2, ecs);
+      ipc->u.xllll.l3 = release_wcls(ipc->u.xllll.l3, ecs);
+      ipc->u.xllll.l4 = release_wcls(ipc->u.xllll.l4, ecs);
       ipc = NEXTOP(ipc,xllll);
       break;
     case _switch_on_sub_arg_type:
-      release_wcls(ipc->u.sllll.l1, ecs);
-      release_wcls(ipc->u.sllll.l2, ecs);
-      release_wcls(ipc->u.sllll.l3, ecs);
-      release_wcls(ipc->u.sllll.l4, ecs);
+      ipc->u.sllll.l1 = release_wcls(ipc->u.sllll.l1, ecs);
+      ipc->u.sllll.l2 = release_wcls(ipc->u.sllll.l2, ecs);
+      ipc->u.sllll.l3 = release_wcls(ipc->u.sllll.l3, ecs);
+      ipc->u.sllll.l4 = release_wcls(ipc->u.sllll.l4, ecs);
       ipc = NEXTOP(ipc,sllll);
       break;
     case _if_not_then:
@@ -1140,6 +1146,8 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
     case _go_on_cons:
       ipc = NEXTOP(ipc,sssl);
       break;
+    case _op_fail:
+      return;
     default:
       Yap_Error(SYSTEM_ERROR,TermNil,"Bug in Indexing Code: opcode %d", op);
       return;
@@ -1168,10 +1176,9 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
     OPCODE ecs = Yap_opcode(_expand_clauses);
 
     while (beg < end) {
-      yamop *cop;
-      cop = (yamop *)beg[1];
+      yamop **x = (yamop **)(beg+1);
       beg += 2;
-      release_wcls(cop, ecs);
+      *x = release_wcls(*x, ecs);
     }
     return;
   }
@@ -1221,6 +1228,7 @@ kill_children(LogUpdIndex *c, PredEntry *ap)
   c->ClRefCount--;
 }
 
+
 /* assumes c is already locked */
 static void
 kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
@@ -1242,17 +1250,14 @@ kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
       }
     }
   }
-  {
-    LogUpdIndex *parent = DBErasedIList, *c0 = NULL;
-    while (parent != NULL) {
-      if (c == parent) {
-	if (c0) c0->SiblingIndex = c->SiblingIndex;
-	else DBErasedIList = c->SiblingIndex;
-	break;
-      }
-      c0 = parent;
-      parent = parent->SiblingIndex;
-    }
+  decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
+  /* remove from list */
+  if (c->SiblingIndex)
+    c->SiblingIndex->PrevSiblingIndex = c->PrevSiblingIndex;
+  if (c->PrevSiblingIndex) {
+    c->PrevSiblingIndex->SiblingIndex = c->SiblingIndex;
+  } else {
+    DBErasedIList = c->SiblingIndex;
   }
   Yap_InformOfRemoval((CODEADDR)c);
   if (c->ClFlags & SwitchTableMask)
@@ -1288,10 +1293,16 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
       RemoveMainIndex(ap);
     }
   }
+  decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
   /* make sure that a child cannot remove us */
   kill_children(c, ap);
   /* check if we are still the main index */
-  decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
+  /* always add to erased list */
+  c->SiblingIndex = DBErasedIList;
+  c->PrevSiblingIndex = NULL;
+  if (DBErasedIList)
+    DBErasedIList->PrevSiblingIndex = c;
+  DBErasedIList = c;
   if (!((c->ClFlags & InUseMask) || c->ClRefCount)) {
     kill_off_lu_block(c, parent, ap);
   } else {
@@ -1306,8 +1317,6 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
       parent->ParentIndex->ClRefCount++;
       parent->ClRefCount--;
     }
-    c->SiblingIndex = DBErasedIList;
-    DBErasedIList = c;
   }
 }
 
@@ -1536,6 +1545,15 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
   }
   p->cs.p_code.TrueCodeOfPred = pt;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = cp;
+  p->OpcodeOfPred = pt->opc;
+#if defined(YAPOR) || defined(THREADS)
+  if (p->PredFlags & LogUpdatePredFlag &&
+      p->ModuleOfPred != IDB_MODULE) {
+    p->OpcodeOfPred = LOCKPRED_OPCODE;
+    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+  } else
+#endif
+    p->CodeOfPred = pt;
   p->cs.p_code.NOfClauses = 1;
   p->StatisticsForPred.NOfEntries = 0;
   p->StatisticsForPred.NOfHeadSuccesses = 0;
@@ -4945,6 +4963,144 @@ p_continue_log_update_clause(void)
 }
 
 static Int
+fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, yamop *cp_ptr, int first_time)
+{
+  LogUpdClause *cl;
+  Term rtn;
+  Term Terms[3];
+
+  Terms[0] = th;
+  Terms[1] = tb;
+  Terms[2] = tr;
+  cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClauseErase->CodeOfPred,ld), cp_ptr);
+  th = Terms[0];
+  tb = Terms[1];
+  tr = Terms[2];
+  /* don't do this!! I might have stored a choice-point and changed ASP
+     Yap_RecoverSlots(3);
+  */
+  if (cl == NULL) {
+    UNLOCK(pe->PELock);
+    return FALSE;
+  }
+  rtn = MkDBRefTerm((DBRef)cl);
+#if defined(YAPOR) || defined(THREADS)
+  TRAIL_CLREF(cl);		/* So that fail will erase it */
+  INC_CLREF_COUNT(cl);
+#else
+  if (!(cl->ClFlags & InUseMask)) {
+    cl->ClFlags |= InUseMask;
+    TRAIL_CLREF(cl);	/* So that fail will erase it */
+  }
+#endif
+  if (cl->ClFlags & FactMask) {
+    if (!Yap_unify_constant(tb, MkAtomTerm(AtomTrue)) ||
+	!Yap_unify(tr, rtn)) {
+      UNLOCK(pe->PELock);
+      return FALSE;
+    }
+    if (pe->ArityOfPE) {
+      Functor f = FunctorOfTerm(th);
+      UInt arity = ArityOfFunctor(f), i;
+      CELL *pt = RepAppl(th)+1;
+
+      for (i=0; i<arity; i++) {
+	XREGS[i+1] = pt[i];
+      }
+      /* don't need no ENV */
+      if (first_time) {
+	CP = P;
+	ENV = YENV;
+	YENV = ASP;
+	YENV[E_CB] = (CELL) B;
+      }
+      P = cl->ClCode;
+#if defined(YAPOR) || defined(THREADS)
+      PP = pe;
+#endif
+    } else {
+      /* we don't actually need to execute code */
+      UNLOCK(pe->PELock);
+    }
+    Yap_ErLogUpdCl(cl);
+    return TRUE;
+  } else {
+    Term t;
+    Int res;
+
+    while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
+      if (first_time) {
+	ARG5 = th;
+	ARG6 = tb;
+	ARG7 = tr;
+	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growglobal(NULL)) {
+	    UNLOCK(pe->PELock);
+	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
+	  }
+	} else {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_gcl(Yap_Error_Size, 7, YENV, P)) {
+	    UNLOCK(pe->PELock);
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
+	  }
+	}
+	th = ARG5;
+	tb = ARG6;
+	tr = ARG7;
+      } else {
+	ARG6 = th;
+	ARG7 = tb;
+	ARG8 = tr;
+	if (!Yap_gcl(Yap_Error_Size, 8, ENV, CP)) {
+	  UNLOCK(pe->PELock);
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+	th = ARG6;
+	tb = ARG7;
+	tr = ARG8;
+      }
+    }
+    res = Yap_unify(th, ArgOfTerm(1,t)) &&
+      Yap_unify(tb, ArgOfTerm(2,t)) &&
+      Yap_unify(tr, rtn);
+    if (res)
+      Yap_ErLogUpdCl(cl);
+    UNLOCK(pe->PELock);
+    return res;
+  }
+}
+
+static Int			/* $hidden_predicate(P) */
+p_log_update_clause_erase(void)
+{
+  PredEntry      *pe;
+  Term t1 = Deref(ARG1);
+  Int ret;
+
+  pe = get_pred(t1, Deref(ARG2), "clause/3");
+  if (pe == NULL || EndOfPAEntr(pe))
+    return FALSE;
+  LOCK(pe->PELock);
+  ret = fetch_next_lu_clause_erase(pe, pe->CodeOfPred, t1, ARG3, ARG4, P, TRUE);
+  return ret;
+}
+
+static Int			/* $hidden_predicate(P) */
+p_continue_log_update_clause_erase(void)
+{
+  PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
+  yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
+
+  LOCK(pe->PELock);
+  return fetch_next_lu_clause_erase(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_cp, FALSE);
+}
+
+static Int
 fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_ptr, int first_time)
 {
   LogUpdClause *cl;
@@ -5097,6 +5253,7 @@ Yap_UpdateTimestamps(PredEntry *ap)
   choiceptr bptr = B;
   yamop *cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,ld);
   yamop *cl = NEXTOP(PredLogUpdClause->CodeOfPred,ld);
+  yamop *cle = NEXTOP(PredLogUpdClauseErase->CodeOfPred,ld);
   UInt ar = ap->ArityOfPE;
   UInt *arp, *top, *base;
   LogUpdClause *lcl;
@@ -5137,7 +5294,7 @@ Yap_UpdateTimestamps(PredEntry *ap)
       bptr = bptr->cp_b;
       break;
     case _retry:
-      if ((bptr->cp_ap == cl0 || bptr->cp_ap == cl) &&
+      if ((bptr->cp_ap == cl0 || bptr->cp_ap == cl || bptr->cp_ap == cle) &&
 	  ((PredEntry *)IntegerOfTerm(bptr->cp_args[0]) == ap)) {
 	UInt ts = IntegerOfTerm(bptr->cp_args[5]);
 	if (ts != arp[0]) {
@@ -5193,7 +5350,7 @@ Yap_UpdateTimestamps(PredEntry *ap)
       bptr = bptr->cp_b;
       break;
     case _retry:
-      if ((bptr->cp_ap == cl0 || bptr->cp_ap == cl) &&
+      if ((bptr->cp_ap == cl0 || bptr->cp_ap == cl || bptr->cp_ap == cle) &&
 	  ((PredEntry *)IntegerOfTerm(bptr->cp_args[0]) == ap)) {
 	UInt ts = IntegerOfTerm(bptr->cp_args[5]);
 	while (ts != arp[0])
@@ -5601,8 +5758,8 @@ p_predicate_erased_statistics(void)
   PredEntry *pe;
   LogUpdClause *cl = DBErasedList;
   LogUpdIndex *icl = DBErasedIList;
-  Term tpred = ArgOfTerm(1,Deref(ARG1));
-  Term tmod = ArgOfTerm(2,Deref(ARG1));
+  Term tpred = ArgOfTerm(2,Deref(ARG1));
+  Term tmod = ArgOfTerm(1,Deref(ARG1));
 
   if (EndOfPAEntr(pe=get_pred(tpred,  tmod, "predicate_erased_statistics")))
     return FALSE;
@@ -5966,6 +6123,8 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$current_stack", 1, p_current_stack, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$log_update_clause", 4, p_log_update_clause, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$continue_log_update_clause", 5, p_continue_log_update_clause, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$log_update_clause_erase", 4, p_log_update_clause_erase, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$continue_log_update_clause_erase", 5, p_continue_log_update_clause_erase, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$log_update_clause", 3, p_log_update_clause0, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$continue_log_update_clause", 4, p_continue_log_update_clause0, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$static_clause", 4, p_static_clause, SyncPredFlag|HiddenPredFlag);

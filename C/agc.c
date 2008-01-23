@@ -270,7 +270,7 @@ mark_trail(void)
 static void
 mark_local(void)
 {
-  register CELL   *pt;
+  CELL   *pt;
 
   /* Adjusting the local */
   pt = LCL0;
@@ -434,9 +434,12 @@ atom_gc(void)
   
 
   UInt		time_start, agc_time;
+#if  defined(YAPOR) || defined(THREADS)
   return;
+#endif
   if (Yap_GetValue(AtomGcTrace) != TermNil)
     gc_trace = 1;
+
   agc_calls++;
   agc_collected = 0;
   

@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2007-11-28 23:52:14 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-01-23 17:57:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.232  2007/11/28 23:52:14  vsc
+* junction tree algorithm
+*
 * Revision 1.231  2007/11/26 23:43:07  vsc
 * fixes to support threads and assert correctly, even if inefficiently.
 *
@@ -751,6 +754,7 @@ Yap_absmi(int inp)
 	CELL cut_b = LCL0-(CELL *)(SREG[E_CB]);
 
 	saveregs();
+	/* do a garbage collection first to check if we can recover memory */
 	if (!Yap_growheap(FALSE, 0, NULL)) {
 	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
 	  setregs();
@@ -11514,6 +11518,7 @@ Yap_absmi(int inp)
 	 */
 	HBREG = H;
 	B = (choiceptr) H;
+	B->cp_h = H;
 	SET_BB(B);
 	save_hb();
 	opresult = Yap_IUnify(d0, d1);

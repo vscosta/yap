@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2007-11-26 23:43:08 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-01-23 17:57:53 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.124  2007/11/26 23:43:08  vsc
+* fixes to support threads and assert correctly, even if inefficiently.
+*
 * Revision 1.123  2007/11/06 17:02:12  vsc
 * compile ground terms away.
 *
@@ -727,9 +730,6 @@ runtime(void)
   return(Yap_cputime()-Yap_total_gc_time()-Yap_total_stack_shift_time());
 }
 
-Int last_gc_time = 0;
-Int last_ss_time = 0;
-
 /* $runtime(-SinceInterval,-SinceStart)	 */
 static Int 
 p_runtime(void)
@@ -737,16 +737,20 @@ p_runtime(void)
   Int now, interval,
     gc_time,
     ss_time;
+  Term tnow, tinterval;
 
   Yap_cputime_interval(&now, &interval);
   gc_time = Yap_total_gc_time();
+  now -= gc_time;
   ss_time = Yap_total_stack_shift_time();
-  now -= gc_time+ss_time;
-  interval -= (gc_time-last_gc_time)+(ss_time-last_ss_time);
-  last_gc_time = gc_time;
-  last_ss_time = ss_time;
-  return( Yap_unify_constant(ARG1, MkIntegerTerm(now)) && 
-	 Yap_unify_constant(ARG2, MkIntegerTerm(interval)) );
+  now -= ss_time;
+  interval -= (gc_time-LastGcTime)+(ss_time-LastSSTime);
+  LastGcTime = gc_time;
+  LastSSTime = ss_time;
+  tnow = MkIntegerTerm(now);
+  tinterval = MkIntegerTerm(interval);
+  return( Yap_unify_constant(ARG1, tnow) && 
+	 Yap_unify_constant(ARG2, tinterval) );
 }
 
 /* $cputime(-SinceInterval,-SinceStart)	 */
@@ -3229,7 +3233,7 @@ p_statistics_heap_info(void)
 
   Term tmax = MkIntegerTerm((mi.arena+mi.hblkhd)-Yap_HoleSize);
 #else
-  Term tmax = MkIntegerTerm((Unsigned(H0) - Unsigned(Yap_HeapBase))-Yap_HoleSize);
+  Term tmax = MkIntegerTerm((Yap_GlobalBase - Yap_HeapBase)-Yap_HoleSize);
 #endif
 
   return(Yap_unify(tmax, ARG1) && Yap_unify(tusage,ARG2));

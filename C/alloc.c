@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.86 2006-05-19 14:31:31 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.87 2008-01-23 17:57:44 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -171,9 +171,11 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip)
   UInt sz = ScratchPad.msz;
   if (sz0 < SCRATCH_INC_SIZE)
     sz0 = SCRATCH_INC_SIZE;
-  ScratchPad.msz =
-    ScratchPad.sz =
-    sz = sz + sz0;
+  if (sz0 < ScratchPad.sz)
+    sz = ScratchPad.sz+sz0;
+  else 
+    sz = sz0;
+  sz = AdjustLargePageSize(sz+sz/4);
 
 #if INSTRUMENT_MALLOC
   if (reallocs % 1024*4 == 0) 
@@ -214,6 +216,8 @@ void
 Yap_InitHeap(void *heap_addr)
 {
   InitHeap();
+  Yap_HoleSize = 0;
+  HeapMax = 0;
 }
 
 static void

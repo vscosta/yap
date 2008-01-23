@@ -3087,6 +3087,8 @@ static Int
 init_cur_s (void)
 {				/* Init current_stream */
   Term t3 = Deref(ARG3);
+  /* make valgrind happy by always filling in memory */
+  EXTRA_CBACK_ARG (3, 1) = MkIntTerm (0);
   if (!IsVarTerm(t3)) {
     
     Int i;
@@ -3107,7 +3109,6 @@ init_cur_s (void)
       cut_fail();
     }
   } else {
-    EXTRA_CBACK_ARG (3, 1) = MkIntTerm (0);
     return (cont_cur_s ());
   }
 }

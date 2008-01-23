@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2007-11-26 23:43:10 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-01-23 17:57:55 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.83  2007/11/26 23:43:10  vsc
+* fixes to support threads and assert correctly, even if inefficiently.
+*
 * Revision 1.82  2007/09/27 23:02:00  vsc
 * encoding/1
 *
@@ -666,6 +669,9 @@ print_message(Level, Mss) :-
 '$output_error_message'(existence_error(stream,Stream), Where) :-
 	format(user_error,'% EXISTENCE ERROR- ~w: ~w not an open stream~n',
 	[Where,Stream]).
+'$output_error_message'(existence_error(thread,Thread), Where) :-
+	format(user_error,'% EXISTENCE ERROR- ~w: ~w not a running thread~n',
+	[Where,Thread]).
 '$output_error_message'(evaluation_error(int_overflow), Where) :-
 	format(user_error,'% INTEGER OVERFLOW ERROR- ~w~n',
 	[Where]).

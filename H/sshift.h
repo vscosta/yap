@@ -31,7 +31,11 @@ inline EXTERN int IsHeapP (CELL *);
 inline EXTERN int
 IsHeapP (CELL * ptr)
 {
+#if USE_SYSTEM_MALLOC
+  return (int) ((ptr < (CELL *) Yap_GlobalBase || ptr > (CELL *) Yap_TrailTop));
+#else
   return (int) ((ptr >= (CELL *) Yap_HeapBase && ptr <= (CELL *) HeapTop));
+#endif
 }
 
 
@@ -740,7 +744,11 @@ inline EXTERN int IsOldCode (CELL);
 inline EXTERN int
 IsOldCode (CELL reg)
 {
+#if USE_SYSTEM_MALLOC
+  return reg < (CELL)OldGlobalBase || reg > (CELL)OldTrailTop;
+#else 
   return (int) (IN_BETWEEN (OldHeapBase, reg, OldHeapTop));
+#endif
 }
 
 

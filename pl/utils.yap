@@ -200,16 +200,23 @@ call_cleanup(Goal, Catcher, Cleanup) :-
 '$call_cleanup'(Goal, Cleanup, Result) :-
 	'$freeze_goal'(Result, '$clean_call'(Cleanup)),
 	yap_hacks:trail_suspension_marker(Result),
-	yap_hacks:current_choice_point(CP0),
-	(	'$execute'(Goal),
-		yap_hacks:current_choice_point(CPF),
-		(	CP0 =:= CPF ->
-	    	Result = exit, !
-		;	true
-		)
-	;	Result = fail,
-		fail
+	(
+	 yap_hacks:current_choice_point(CP0),
+	 '$execute'(Goal),
+	 yap_hacks:current_choice_point(CPF),
+	 (
+	  CP0 =:= CPF ->
+	  Result = exit,
+	  !
+	 ;
+	  true
+	 )
+	;
+	 Result = fail,
+	 fail
 	).
+
+'$holds_true'.
 
 '$clean_call'(Cleanup) :-
 	'$execute'(Cleanup), !.

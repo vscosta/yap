@@ -297,6 +297,7 @@ use_module(M,F,Is) :-
 	'$show_consult_level'(Level1),
 	% it will be done after we leave the current consult level.
 	Level is Level1-1,
+	format(user_error,'add~w~n',[G]),
 	recorda('$initialisation',do(Level,G),_),
 	fail.
 '$initialization'(_).

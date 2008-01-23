@@ -339,6 +339,13 @@ clause(V,Q,R) :-
 
 :- '$do_log_upd_clause'(_,_,_,_,_,_), !.
 
+'$do_log_upd_clause_erase'(_,_,_,_,_,_).
+'$do_log_upd_clause_erase'(A,B,C,D,E,_) :-
+	'$continue_log_update_clause_erase'(A,B,C,D,E).
+'$do_log_upd_clause_erase'(_,_,_,_,_,_).
+
+:- '$do_log_upd_clause_erase'(_,_,_,_,_,_), !.
+
 '$do_log_upd_clause0'(_,_,_,_,_,_).
 '$do_log_upd_clause0'(A,B,C,D,_,_) :-
 	'$continue_log_update_clause'(A,B,C,D).
@@ -405,21 +412,27 @@ retract(C) :-
 	'$retract'(C,M).
 '$retract'(C,M) :- 
 	'$check_head_and_body'(C,H,B,retract(M:C)), !,
-	'$retract2'(H,M,B).
+	'$flags'(H, M, F, F),
+	'$retract2'(F, H,M,B,_).
 
-'$retract2'(H,M,B) :- 	
-	'$is_log_updatable'(H, M), !,
+'$retract2'(F, H, M, B, R) :-
+	F /\ 0x08000000 =:= 0x08000000, !,
+%	'$is_log_updatable'(H, M), !,
 	'$log_update_clause'(H,M,B,R),
+	( F /\ 0x20000000  =:= 0x20000000, recorded('$mf','$mf_clause'(_,_,_,_,R),MR), erase(MR), fail ; true),
 	erase(R).
-'$retract2'(H,M,B) :- 	
-	'$is_dynamic'(H,M), !,
-	'$recordedp'(M:H,(H:-B),R), erase(R).
-'$retract2'(H,M,_) :- 	
+'$retract2'(F, H, M, B, R) :- 	
+%	'$is_dynamic'(H,M), !,
+	F /\ 0x00002000 =:= 0x00002000, !,
+	'$recordedp'(M:H,(H:-B),R),
+	( F /\ 0x20000000  =:= 0x20000000, recorded('$mf','$mf_clause'(_,_,_,_,MRef),MR), erase(MR), fail ; true),
+	erase(R).
+'$retract2'(_, H,M,_,_) :- 	
 	'$undefined'(H,M), !,
 	functor(H,Na,Ar),
 	'$dynamic'(Na/Ar,M),
 	fail.
-'$retract2'(H,M,B) :- 	
+'$retract2'(_, H,M,B,_) :- 	
 	functor(H,Na,Ar),
 	'$do_error'(permission_error(modify,static_procedure,Na/Ar),retract(M:(H:-B))).
 
@@ -439,16 +452,8 @@ retract(C,R) :-
 	instance(R,(H:-B)), erase(R).
 '$retract'(C,M,R) :-
 	'$check_head_and_body'(C,H,B,retract(C,R)),
-	'$is_dynamic'(H,M), !,
-	var(R),
-	'$recordedp'(M:H,(H:-B),R),
-	erase(R).
-'$retract'(C,M,R) :- 
-	'$check_head_and_body'(C,H,_,retract(M:C,R)),
-	'$undefined'(H,M), !,
-	functor(H,Na,Ar),
-	'$dynamic'(Na/Ar,M),
-	fail.
+	var(R), !,
+	'$retract2'(H, M, B, R).
 '$retract'(C,M,_) :-
 	'$fetch_predicate_indicator_from_clause'(C, PI),
 	'$do_error'(permission_error(modify,static_procedure,PI),retract(M:C)).
@@ -472,7 +477,11 @@ retractall(V) :-
 '$retractall'(T,M) :-
 	(
 	  '$is_log_updatable'(T, M) ->
-	  '$retractall_lu'(T,M)
+	 ( '$is_multifile'(T, M) ->
+	   '$retractall_lu_mf'(T,M)
+	 ;
+	   '$retractall_lu'(T,M)
+	 )
 	;
 	  '$undefined'(T,M) ->
 	  functor(T,Na,Ar),
@@ -485,12 +494,18 @@ retractall(V) :-
 	  '$do_error'(permission_error(modify,static_procedure,Na/Ar),retractall(T))
 	).
 	
-
 '$retractall_lu'(T,M) :-
 	'$log_update_clause'(T,M,_,R),
 	erase(R),
 	fail.
 '$retractall_lu'(_,_).
+
+'$retractall_lu_mf'(T,M) :-
+	'$log_update_clause'(T,M,_,R),
+	( recorded('$mf','$mf_clause'(_,_,_,_,R),MR), erase(MR), fail ; true),
+	erase(R),
+	fail.
+'$retractall_lu_mf'(_,_).
 
 '$erase_all_clauses_for_dynamic'(T, M) :-
 	'$recordedp'(M:T,(T :- _),R), erase(R), fail.
@@ -777,7 +792,7 @@ hide_predicate(M:P) :- !,
 	'$hide_predicate2'(P, M).
 hide_predicate(P) :-
 	'$current_module'(M),
-	'$hide_predicate2'(M, P).
+	'$hide_predicate2'(P, M).
 
 '$hide_predicate2'(V, M) :- var(V), !,
 	'$do_error'(instantiation_error,hide_predicate(M:V)).

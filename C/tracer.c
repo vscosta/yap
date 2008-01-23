@@ -161,6 +161,8 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
+  //*(H0+(0xb65f2850-0xb64b2008)/sizeof(CELL))==0xc || 
+  //0x4fd4d
 #ifdef COMMENTED
   if (vsc_count == 40650191LL)
     jmp_deb(1);
@@ -273,8 +275,8 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     arity = pred->ArityOfPE;
     if (arity == 0)
       s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
-      else
-    s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
+    else
+      s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
     /*    if ((pred->ModuleOfPred == 0) && (s[0] == '$'))
 	  return;       */
     send_tracer_message("CALL: ", s, arity, mname, args);

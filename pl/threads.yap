@@ -38,18 +38,19 @@
 	'$thread_self'(Id),
 	(Detached == true -> '$detach_thread'(Id) ; true),
 	'$current_module'(Module),
-	'$system_catch'((G,'$close_thread'(Detached,true) ; '$close_thread'(Detached,false)),Module,Exception,'$thread_exception'(Exception,Detached)).
+	% always finish with a throw to make sure we clean stacks.
+	'$system_catch'((G -> throw('$thread_finished'(true)) ; throw('$thread_finished'(false))),Module,Exception,'$close_thread'(Exception,Detached)).
 
-'$close_thread'(Detached, Status) :-
+'$close_thread'('$thread_finished'(Status), Detached) :- !,
 	'$thread_self'(Id0),
 	(Detached == true ->
 	    true
 	;
 	    recorda('$thread_exit_status', [Id0|Status], _)
 	),
-	'$run_at_thread_exit'(Id0).
-
-'$thread_exception'(Exception,Detached) :-
+	format(user_error,'closing thread ~w~n',[v([Id0|Status])]).
+	'$run_at_thread_exit'(Id0).	
+'$close_thread'(Exception,Detached) :-
 	'$thread_self'(Id0),
 	(Detached == true ->
 	    true

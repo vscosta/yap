@@ -1672,7 +1672,7 @@ UnmarkTrEntries(void)
 	      if (FlagOn(ErasedMask, flags))
 		Yap_ErLogUpdIndex(ClauseFlagsToLogUpdIndex(ent));
 	      else
-		Yap_CleanUpIndex(ClauseFlagsToLogUpdIndex(ent));		
+		Yap_CleanUpIndex(ClauseFlagsToLogUpdIndex(ent));
 	    } else {
 	      Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(ent));
 	    }

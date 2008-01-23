@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2007-11-26 23:43:07 $							 *
+* Last rev:     $Date: 2008-01-23 17:57:44 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.98  2007/11/26 23:43:07  vsc
+* fixes to support threads and assert correctly, even if inefficiently.
+*
 * Revision 1.97  2007/11/07 09:25:27  vsc
 * speedup meta-calls
 *
@@ -460,8 +463,9 @@ static yamop *
 a_lucl(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip, clause_info *cla)
 {
   if (pass_no) {
+    LogUpdIndex *lcl = (LogUpdIndex *)cip->code_addr;
     code_p->opc = emit_op(opcode);
-    code_p->u.Ill.I = (LogUpdIndex *)cip->code_addr;
+    code_p->u.Ill.I = lcl;
     cip->current_try_lab = &code_p->u.Ill.l1;
     cip->current_trust_lab = &code_p->u.Ill.l2;
     code_p->u.Ill.s  = cip->cpc->rnd3;

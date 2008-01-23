@@ -67,13 +67,13 @@ STATIC_PROTO(void MoveLocalAndTrail, (void));
 STATIC_PROTO(void SetHeapRegs, (void));
 STATIC_PROTO(void AdjustTrail, (int));
 STATIC_PROTO(void AdjustLocal, (void));
-STATIC_PROTO(void AdjustGlobal, (void));
+STATIC_PROTO(void AdjustGlobal, (long));
 STATIC_PROTO(void AdjustGrowStack, (void));
 STATIC_PROTO(int  static_growheap, (long,int,struct intermediates *,tr_fr_ptr *, TokEntry **, VarEntry **));
 STATIC_PROTO(void cpcellsd, (CELL *, CELL *, CELL));
 STATIC_PROTO(CELL AdjustAppl, (CELL));
 STATIC_PROTO(CELL AdjustPair, (CELL));
-STATIC_PROTO(void AdjustStacksAndTrail, (void));
+STATIC_PROTO(void AdjustStacksAndTrail, (long));
 STATIC_PROTO(void AdjustRegs, (int));
 
 static void
@@ -127,6 +127,7 @@ SetHeapRegs(void)
   OldTR = TR;
   OldHeapBase = Yap_HeapBase;
   OldHeapTop = HeapTop;
+  OldDelayTop = CurrentDelayTop;
   /* Adjust stack addresses */
   Yap_TrailBase = TrailAddrAdjust(Yap_TrailBase);
   Yap_TrailTop = TrailAddrAdjust(Yap_TrailTop);
@@ -155,6 +156,8 @@ SetHeapRegs(void)
     HB = PtoGloAdjust(HB);
   if (B)
     B = ChoicePtrAdjust(B);
+  if (CurrentDelayTop)
+    CurrentDelayTop = PtoGloAdjust(CurrentDelayTop);
 #ifdef CUT_C
   if (Yap_REGS.CUT_C_TOP)
     Yap_REGS.CUT_C_TOP = (cut_c_str_ptr)ChoicePtrAdjust((choiceptr)Yap_REGS.CUT_C_TOP);
@@ -291,7 +294,7 @@ AdjustPair(register CELL t0)
 static void
 AdjustTrail(int adjusting_heap)
 {
-  register tr_fr_ptr ptt;
+  volatile tr_fr_ptr ptt;
 
   ptt = TR;
   /* moving the trail is simple */
@@ -382,8 +385,10 @@ AdjustGlobTerm(Term reg)
   return AtomTermAdjust(reg);
 }
 
+static volatile CELL *cpt=NULL;
+
 static void
-AdjustGlobal(void)
+AdjustGlobal(long sz)
 {
   CELL *pt;
   ArrayEntry *al = DynamicArrays;
@@ -419,10 +424,11 @@ AdjustGlobal(void)
    * to clean the global now that functors are just variables pointing to
    * the code 
    */
-  pt = CellPtr(Yap_GlobalBase);
-  while (pt < H) {
+  pt = CurrentDelayTop;
+  while (pt < (H-sz/CellSize)) {
     CELL reg;
     
+    cpt = pt;
     reg = *pt;
     if (IsVarTerm(reg)) {
 	if (IsOldGlobal(reg))
@@ -431,32 +437,33 @@ AdjustGlobal(void)
 	  *pt = LocalAdjust(reg);
 	else if (IsOldCode(reg)) {
 	  Functor f;
-	  f = (Functor)(*pt = CodeAdjust(reg));
-	  if (f <= FunctorDouble && f >= FunctorLongInt) {
-	    /* skip bitmaps */
-	    switch((CELL)f) {
-	    case (CELL)FunctorDouble:
+	  f = (Functor)reg;
+	  /* skip bitmaps */
+	  switch((CELL)f) {
+	  case (CELL)FunctorDouble:
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-	      pt += 3;
+	    pt += 3;
 #else
-	      pt += 2;
+	    pt += 2;
 #endif
-	      break;
+	    break;
 #if USE_GMP
-	    case (CELL)FunctorBigInt:
-	      {
-		Int sz = 1+
-		  sizeof(MP_INT)+
-		  (((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
-		pt += sz;
-	      }
-	      break;
-#endif
-	    case (CELL)FunctorLongInt:
-	    default:
-	      pt += 2;
-	      break;
+	  case (CELL)FunctorBigInt:
+	    {
+	      Int sz = 1+
+		(sizeof(MP_INT)+
+		 (((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
+	      pt += sz;
 	    }
+	    break;
+#endif
+	  case (CELL)0L:
+	    break;
+	  case (CELL)FunctorLongInt:
+	    pt += 2;
+	    break;
+	  default:
+	    *pt = CodeAdjust(reg);
 	  }
 	}
 #ifdef MULTI_ASSIGNMENT_VARIABLES
@@ -479,17 +486,17 @@ AdjustGlobal(void)
  * (just once) the trail cells pointing both to the global and to the local
  */
 static void
-AdjustStacksAndTrail(void)
+AdjustStacksAndTrail(long sz)
 {
   AdjustTrail(TRUE);
   AdjustLocal();
-  AdjustGlobal();
+  AdjustGlobal(sz);
 }
 
 void
 Yap_AdjustStacksAndTrail(void)
 {
-  AdjustStacksAndTrail();
+  AdjustStacksAndTrail(0);
 }
 
 /*
@@ -622,6 +629,7 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
   int gc_verbose;
   UInt minimal_request = 0L;
 
+  CurrentDelayTop = (CELL *)DelayTop();
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
   Yap_ErrorMessage = NULL;
@@ -641,7 +649,10 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
   gc_verbose = Yap_is_gc_verbose();
   heap_overflows++;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "%% Database overflow %d\n", heap_overflows);
+#if  defined(YAPOR) || defined(THREADS)
+    fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
+#endif
+    fprintf(Yap_stderr, "%% Database Overflow %d\n", heap_overflows);
     fprintf(Yap_stderr, "%%   growing the heap %ld bytes\n", size);
   }
   /* CreepFlag is set to force heap expansion */
@@ -672,10 +683,10 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
     nTR = TR;
     *old_trp = PtoTRAdjust(*old_trp);
     TR = *old_trp;
-    AdjustStacksAndTrail();
+    AdjustStacksAndTrail(0);
     TR = nTR;
   } else {
-    AdjustStacksAndTrail();
+    AdjustStacksAndTrail(0);
   }
   AdjustRegs(MaxTemps);
   YAPLeaveCriticalSection();
@@ -705,6 +716,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   char vb_msg1 = '\0', *vb_msg2;
   int do_grow = TRUE;
 
+  CurrentDelayTop = (CELL *)omax;
   if (hsplit) {
     /* just a little bit of sanity checking */
     if (hsplit < (CELL*)omax ||
@@ -757,7 +769,10 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
       vb_msg1 = 'D';
       vb_msg2 = "Delay";
     }
-    fprintf(Yap_stderr, "%% %cO %s overflow %d\n", vb_msg1, vb_msg2, delay_overflows);
+#if  defined(YAPOR) || defined(THREADS)
+    fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
+#endif
+    fprintf(Yap_stderr, "%% %cO %s Overflow %d\n", vb_msg1, vb_msg2, delay_overflows);
     fprintf(Yap_stderr, "%% %cO   growing the stacks %ld bytes\n", vb_msg1, size);
   }
   ASP -= 256;
@@ -810,7 +825,12 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
       MoveExpandedGlobal();
     }
   }
-  AdjustStacksAndTrail();
+  /* don't run through garbage */
+  if (hsplit && (OldH != hsplit)) {
+    AdjustStacksAndTrail(sz);
+  } else {
+    AdjustStacksAndTrail(0);
+  }
   AdjustRegs(MaxTemps);
   if (ptr) {
     *ptr = PtoLocAdjust(*ptr);
@@ -1151,7 +1171,10 @@ growatomtable(void)
   }
   atom_table_overflows++;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "%% Atom Table overflow %d\n", atom_table_overflows);
+#if  defined(YAPOR) || defined(THREADS)
+    fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
+#endif
+    fprintf(Yap_stderr, "%% Atom Table Overflow %d\n", atom_table_overflows);
     fprintf(Yap_stderr, "%%    growing the atom table to %ld entries\n", (long int)(nsize));
   }
   YAPEnterCriticalSection();
@@ -1170,7 +1193,7 @@ growatomtable(void)
 #if USE_SYSTEM_MALLOC
   return TRUE;
 #else
-  if (HeapTop + sizeof(YAP_SEG_SIZE) < HeapLim) {
+  if (HeapTop + sizeof(YAP_SEG_SIZE)  > HeapLim - MinHeapGap) {
     /* make sure there is no heap overflow */
     int res;
     YAPEnterCriticalSection();
@@ -1274,6 +1297,7 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
   long size = size0;
   ADDR old_Yap_GlobalBase = Yap_GlobalBase;
   
+  CurrentDelayTop = (CELL *)DelayTop();
   if (!Yap_ExtendWorkSpace(size)) {
     /* make sure stacks and trail are contiguous */
 
@@ -1331,10 +1355,10 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
       nTR = TR;
       *old_trp = PtoTRAdjust(*old_trp);
       TR = *old_trp;
-      AdjustStacksAndTrail();
+      AdjustStacksAndTrail(0);
       TR = nTR;
     } else {
-      AdjustStacksAndTrail();
+      AdjustStacksAndTrail(0);
     }
     AdjustRegs(MaxTemps);
 #ifdef TABLING
@@ -1379,6 +1403,9 @@ growstack(long size)
   gc_verbose = Yap_is_gc_verbose();
   stack_overflows++;
   if (gc_verbose) {
+#if  defined(YAPOR) || defined(THREADS)
+    fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
+#endif
     fprintf(Yap_stderr, "%% Stack Overflow %d\n", stack_overflows);
     fprintf(Yap_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),Yap_GlobalBase,H);
     fprintf(Yap_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
@@ -1413,6 +1440,9 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   gc_verbose = Yap_is_gc_verbose();
   stack_overflows++;
   if (gc_verbose) {
+#if  defined(YAPOR) || defined(THREADS)
+    fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
+#endif
     fprintf(Yap_stderr, "%% Stack Overflow %d\n", stack_overflows);
     fprintf(Yap_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),Yap_GlobalBase,H);
     fprintf(Yap_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
@@ -1455,7 +1485,10 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
   size = AdjustPageSize(size);
   trail_overflows++;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "%% Trail overflow %d\n", trail_overflows);
+#if  defined(YAPOR) || defined(THREADS)
+    fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
+#endif
+    fprintf(Yap_stderr, "%% Trail Overflow %d\n", trail_overflows);
 #if USE_SYSTEM_MALLOC
     fprintf(Yap_stderr, "%%  Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),(CELL *)Yap_GlobalBase,H);
     fprintf(Yap_stderr, "%%  Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);

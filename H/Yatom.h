@@ -798,6 +798,7 @@ IsPredProperty (int flags)
 /* There are several flags for code and data base entries */
 typedef enum
 {
+  FuncSwitchMask = 0x800000,	/* is a switch of functors */
   HasDBTMask = 0x400000,	/* includes a pointer to a DBTerm */
   MegaMask = 0x200000,		/* mega clause */
   FactMask = 0x100000,		/* a fact */

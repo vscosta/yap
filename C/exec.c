@@ -1983,8 +1983,10 @@ Yap_InitYaamRegs(void)
   CreepFlag = CalculateStackGap();
   UNLOCK(SignalLock);
   EX = 0L;
-  init_stack(0, NULL, TRUE, NULL);
   /* for slots to work */
+  Yap_StartSlots();
+  init_stack(0, NULL, TRUE, NULL);
+  /* the first real choice-point will also have AP=FAIL */ 
   Yap_StartSlots();
   GlobalArena = TermNil;
   h0var = MkVarTerm();

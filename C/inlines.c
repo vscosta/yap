@@ -406,6 +406,7 @@ p_dif(void)
      */
     HBREG = H;
     B = (choiceptr) H;
+    B->cp_h = H;
     SET_BB(B);
     save_hb();
     d0 = Yap_IUnify(d0, d1);

@@ -39,8 +39,8 @@ STD_PROTO(Int p_load_foreign, (void));
 Int
 p_load_foreign(void)
 {
-  StringList ofiles = NIL;
-  StringList libs = NIL;
+  StringList ofiles = NULL;
+  StringList libs = NULL;
   char *InitProcName;
   YapInitProc InitProc = NULL;
   Term t, t1;
@@ -94,6 +94,17 @@ p_load_foreign(void)
     f_code->next = ForeignCodeLoaded;
     f_code->module = CurrentModule;
     ForeignCodeLoaded = (void *)f_code;
+  } else {
+    while (ofiles) {
+      new = ofiles->next;
+      Yap_FreeCodeSpace((ADDR)ofiles);
+      ofiles = new;
+    }
+    while (libs) {
+      new = libs->next;
+      Yap_FreeCodeSpace((ADDR)libs);
+      libs = new;
+    }
   }
   return returncode;
 }

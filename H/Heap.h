@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.122 2007-12-05 12:17:23 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.123 2008-01-23 17:57:53 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -88,6 +88,7 @@ typedef struct restore_info {
   CELL    *g_split;
   tr_fr_ptr old_TR;  
   CELL    *old_GlobalBase, *old_H, *old_H0;
+  CELL    *old_DelayTop, *current_DelayTop;
   ADDR     old_TrailBase, old_TrailTop;
   ADDR     old_HeapBase, old_HeapTop;
 } restoreinfo;
@@ -131,6 +132,7 @@ typedef struct worker_local_struct {
   unsigned int      gc_calls;	/* number of times GC has been called */ 
   Int      tot_gc_time; /* total time spent in GC */
   YAP_ULONG_LONG      tot_gc_recovered; /* number of heap objects in all garbage collections */
+  Int      last_gc_time, last_ss_time; /* number of heap objects in all garbage collections */
 /* in a single gc */
 #if defined(YAPOR) || defined(THREADS)
   /* otherwise, use global variables for speed */
@@ -238,6 +240,7 @@ typedef struct various_codes {
 #endif /* TABLING */
   OPCODE expand_op_code;
   yamop *expand_clauses_first, *expand_clauses_last;
+  UInt expand_clauses;
 #if defined(YAPOR) || defined(THREADS)
   lockvar expand_clauses_list_lock;
   lockvar op_list_lock;
@@ -504,6 +507,7 @@ typedef struct various_codes {
   struct pred_entry *pred_dollar_catch;
   struct pred_entry *pred_recorded_with_key;
   struct pred_entry *pred_log_upd_clause;
+  struct pred_entry *pred_log_upd_clause_erase;
   struct pred_entry *pred_log_upd_clause0;
   struct pred_entry *pred_static_clause;
   struct pred_entry *pred_throw;
@@ -611,6 +615,7 @@ struct various_codes *Yap_heap_regs;
 #define  ExpandClausesFirst       Yap_heap_regs->expand_clauses_first
 #define  ExpandClausesLast        Yap_heap_regs->expand_clauses_last
 #define  ExpandClausesListLock    Yap_heap_regs->expand_clauses_list_lock
+#define  Yap_ExpandClauses        Yap_heap_regs->expand_clauses
 #define  OpListLock               Yap_heap_regs->op_list_lock
 #define  COMMA_CODE               Yap_heap_regs->comma_code
 #define  FAILCODE                 Yap_heap_regs->failcode
@@ -809,6 +814,7 @@ struct various_codes *Yap_heap_regs;
 #define  PredDollarCatch          Yap_heap_regs->pred_dollar_catch
 #define  PredRecordedWithKey      Yap_heap_regs->pred_recorded_with_key
 #define  PredLogUpdClause         Yap_heap_regs->pred_log_upd_clause
+#define  PredLogUpdClauseErase    Yap_heap_regs->pred_log_upd_clause_erase
 #define  PredLogUpdClause0        Yap_heap_regs->pred_log_upd_clause0
 #define  PredStaticClause         Yap_heap_regs->pred_static_clause
 #define  PredThrow                Yap_heap_regs->pred_throw
@@ -886,6 +892,8 @@ struct various_codes *Yap_heap_regs;
 #define  OldTrailTop              RINFO.old_TrailTop
 #define  OldHeapBase              RINFO.old_HeapBase
 #define  OldHeapTop               RINFO.old_HeapTop
+#define  OldDelayTop              RINFO.old_DelayTop
+#define  CurrentDelayTop          RINFO.current_DelayTop
 #define  ClDiff                   RINFO.cl_diff
 #define  GDiff                    RINFO.g_diff
 #define  GDiff0                   RINFO.g_diff0
@@ -924,6 +932,8 @@ struct various_codes *Yap_heap_regs;
 #define  GcCalls                  Yap_heap_regs->WL.gc_calls
 #define  TotGcTime                Yap_heap_regs->WL.tot_gc_time
 #define  TotGcRecovered           Yap_heap_regs->WL.tot_gc_recovered
+#define  LastGcTime               Yap_heap_regs->WL.last_gc_time
+#define  LastSSTime               Yap_heap_regs->WL.last_ss_time
 #define  Yap_gc_restore           Yap_heap_regs->WL.gc_restore
 #define  TrustLUCode              Yap_heap_regs->WL.trust_lu_code
 #define  DynamicArrays            Yap_heap_regs->WL.dynamic_arrays

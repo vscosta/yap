@@ -11,8 +11,13 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2007-12-05 12:17:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-01-23 17:57:55 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.82  2007/12/05 12:17:23  vsc
+* improve JT
+* fix graph compatibility with SICStus
+* re-export declaration.
+*
 * Revision 1.81  2007/11/26 23:43:09  vsc
 * fixes to support threads and assert correctly, even if inefficiently.
 *
@@ -360,14 +365,45 @@ RestoreDBTermEntry(struct dbterm_list *dbl) {
   }
 }
 
+static void
+restore_switch(CELL *start, CELL *end, int is_func)
+{
+  CELL *pt = start;
+  if (is_func) {
+    while (pt < end) {
+      yamop **x = (yamop **)(pt+1);
+      Functor *fp = (Functor *)pt;
+
+      *fp = FuncAdjust(*fp);
+      *x = PtoOpAdjust(*x);
+      pt += 2;
+    }
+  } else {
+    while (pt < end) {
+      Term *tp = (Term *)pt;
+      Term t = *tp;
+      yamop **x = (yamop **)(pt+1);
+
+      if (IsAtomTerm(t))
+	*tp = AtomTermAdjust(t);
+      else if (IsApplTerm(t) && *(Functor *)DBRefAdjust(DBRefOfTerm(t)) == FunctorDBRef)
+	*tp = AbsAppl((CELL *)DBRefAdjust(DBRefOfTerm(t)));
+      *x = PtoOpAdjust(*x);
+      pt += 2;
+    }
+  }
+}
+
 static void 
 CleanLUIndex(LogUpdIndex *idx)
 {
-  idx->ClRefCount = 0;
   INIT_LOCK(idx->ClLock);
   idx->ClPred = PtoPredAdjust(idx->ClPred);
   if (idx->ParentIndex)
     idx->ParentIndex = LUIndexAdjust(idx->ParentIndex);
+  if (idx->PrevSiblingIndex) {
+    idx->PrevSiblingIndex = LUIndexAdjust(idx->PrevSiblingIndex);
+  }
   if (idx->SiblingIndex) {
     idx->SiblingIndex = LUIndexAdjust(idx->SiblingIndex);
     CleanLUIndex(idx->SiblingIndex);
@@ -376,7 +412,9 @@ CleanLUIndex(LogUpdIndex *idx)
     idx->ChildIndex = LUIndexAdjust(idx->ChildIndex);
     CleanLUIndex(idx->ChildIndex);
   }
-  if (!(idx->ClFlags & SwitchTableMask)) {
+  if (idx->ClFlags & SwitchTableMask) {
+    restore_switch((CELL *)idx->ClCode, (CELL *)((char *)idx+idx->ClSize), ((idx->ClFlags & FuncSwitchMask) == FuncSwitchMask));
+  } else {
     restore_opcodes(idx->ClCode);
   }
 }
@@ -393,7 +431,9 @@ CleanSIndex(StaticIndex *idx)
     idx->ChildIndex = SIndexAdjust(idx->ChildIndex);
     CleanSIndex(idx->ChildIndex);
   }
-  if (!(idx->ClFlags & SwitchTableMask)) {
+  if (idx->ClFlags & SwitchTableMask) {
+    restore_switch((CELL *)idx->ClCode, (CELL *)((char *)idx+idx->ClSize), ((idx->ClFlags & FuncSwitchMask) == FuncSwitchMask));
+  } else {
     restore_opcodes(idx->ClCode);
   }
 }
@@ -760,6 +800,8 @@ restore_codes(void)
     PredEntryAdjust(Yap_heap_regs->pred_recorded_with_key);
   Yap_heap_regs->pred_log_upd_clause =
     PredEntryAdjust(Yap_heap_regs->pred_log_upd_clause);
+  Yap_heap_regs->pred_log_upd_clause_erase =
+    PredEntryAdjust(Yap_heap_regs->pred_log_upd_clause_erase);
   Yap_heap_regs->pred_log_upd_clause0 =
     PredEntryAdjust(Yap_heap_regs->pred_log_upd_clause0);
   Yap_heap_regs->pred_static_clause =

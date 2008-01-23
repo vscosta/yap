@@ -915,6 +915,7 @@ InitCodes(void)
   Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);
   Yap_heap_regs->expand_clauses_first = NULL;
   Yap_heap_regs->expand_clauses_last = NULL;
+  Yap_heap_regs->expand_clauses = 0;
   Yap_heap_regs->failcode->opc = Yap_opcode(_op_fail);
   Yap_heap_regs->failcode_1 = Yap_opcode(_op_fail);
   Yap_heap_regs->failcode_2 = Yap_opcode(_op_fail);
@@ -986,8 +987,14 @@ InitCodes(void)
       Yap_heap_regs->wl[i].static_arrays = NULL;
       Yap_heap_regs->wl[i].global_variables = NULL;
       Yap_heap_regs->wl[i].global_arena = 0L;
+      Yap_heap_regs->wl[i].global_arena_overflows = 0;
       Yap_heap_regs->wl[i].global_delay_arena = 0L;
       Yap_heap_regs->wl[i].allow_restart = FALSE;
+      Yap_heap_regs->wl[i].tot_gc_time = 0;
+      Yap_heap_regs->wl[i].tot_gc_recovered = 0;
+      Yap_heap_regs->wl[i].gc_calls = 0;
+      Yap_heap_regs->wl[i].last_gc_time = 0;
+      Yap_heap_regs->wl[i].last_ss_time = 0;
       Yap_heap_regs->wl[i].consultlow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
       if (Yap_heap_regs->wl[i].consultlow == NULL) {
 	Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
@@ -1003,8 +1010,14 @@ InitCodes(void)
   Yap_heap_regs->wl.static_arrays = NULL;
   Yap_heap_regs->wl.global_variables = NULL;
   Yap_heap_regs->wl.global_arena = 0L;
+  Yap_heap_regs->wl.global_arena_overflows = 0;
   Yap_heap_regs->wl.allow_restart = FALSE;
   Yap_heap_regs->wl.global_delay_arena = 0L;
+  Yap_heap_regs->wl.tot_gc_time = 0;
+  Yap_heap_regs->wl.tot_gc_recovered = 0;
+  Yap_heap_regs->wl.gc_calls = 0;
+  Yap_heap_regs->wl.last_gc_time = 0;
+  Yap_heap_regs->wl.last_ss_time = 0;
   Yap_heap_regs->wl.consultlow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
   if (Yap_heap_regs->wl.consultlow == NULL) {
     Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
@@ -1251,6 +1264,7 @@ InitCodes(void)
   Yap_heap_regs->pred_dollar_catch = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$catch"),3),PROLOG_MODULE));
   Yap_heap_regs->pred_recorded_with_key = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$recorded_with_key"),3),PROLOG_MODULE));
   Yap_heap_regs->pred_log_upd_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_log_upd_clause"),6),PROLOG_MODULE));
+  Yap_heap_regs->pred_log_upd_clause_erase = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_log_upd_clause_erase"),6),PROLOG_MODULE));
   Yap_heap_regs->pred_log_upd_clause0 = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_log_upd_clause0"),6),PROLOG_MODULE));
   Yap_heap_regs->pred_static_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_static_clause"),5),PROLOG_MODULE));
   Yap_heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,PROLOG_MODULE));
@@ -1271,6 +1285,7 @@ InitCodes(void)
   Yap_heap_regs->db_erased_marker =
     (DBRef)Yap_AllocCodeSpace(sizeof(DBStruct));
   Yap_LUClauseSpace += sizeof(DBStruct);
+  Yap_heap_regs->dbterms_list = NULL;
   Yap_heap_regs->db_erased_marker->id = FunctorDBRef;
   Yap_heap_regs->db_erased_marker->Flags = ErasedMask;
   Yap_heap_regs->db_erased_marker->Code = NULL;
@@ -1420,7 +1435,6 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
   for (i = 0; i <= LAST_FLAG; i++) {
     yap_flags[i] = 0;
   }
-  GcCalls = 0;
 #ifdef LOW_PROF
   ProfilerOn = FALSE;
   FPreds = NULL;

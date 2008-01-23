@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2007-11-26 23:43:09 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-01-23 17:57:55 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.21  2007/11/26 23:43:09  vsc
+* fixes to support threads and assert correctly, even if inefficiently.
+*
 * Revision 1.20  2007/11/07 09:25:27  vsc
 * speedup meta-calls
 *
@@ -360,7 +363,7 @@ restore_opcodes(yamop *pc)
       break;
     case _expand_clauses:
       Yap_Error(SYSTEM_ERROR, TermNil,
-	    "Invalid Opcode expand_clauses at %p", pc);
+		"Invalid Opcode expand_clauses at %p", pc);
       break;
       /* instructions type y */
     case _save_b_y:

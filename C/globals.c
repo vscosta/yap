@@ -488,6 +488,9 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, CELL *p
 	    H[1] = ap2[1];
 	    H[2] = EndSpecials;
 	    H += 3;
+	    if (H > ASP - 128) {
+	      goto overflow;
+	    }
 	    break;
 	  case (CELL)FunctorDouble:
 	    if (H > ASP - (128+(2+SIZEOF_DOUBLE/sizeof(CELL)))) {

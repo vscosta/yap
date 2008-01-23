@@ -17,6 +17,14 @@
 
 <h2>Yap-5.1.3:</h2>
 <ul>
+<li> NEW: start atom garbage collector by default (except for threads).</li>
+<li> FIXED: restore indices should run over the indices, and not mess
+  them up.</li>
+<li> FIXED: make sure to always remove try-trust chains.</li>
+<li> FIXED: don't adjust garbage when doing stack shift.</li>
+<li> FIXED: stack shifter would get ignore big terms.</li>
+<li> FIXED: retract and friends should remove mf pointers.</li>
+<li> FIXED: small memory leaks and use of uninitialised memory (valgrind).</li>
 <li> NEW: char_type/2 and code_type/2 (request from Brian DeVries).</li>
 <li> FIXED: memory leak where I'd try to clear refs from an index
 block before I released the kids (so the refs would never be released).</li>
