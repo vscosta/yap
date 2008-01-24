@@ -161,9 +161,16 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
+  if (FALSE && vsc_count < 59800LL) {
+    UNLOCK(Yap_heap_regs->low_level_trace_lock);
+    return;
+  }
+  if (FALSE && vsc_count == 59855LL) {
+    jmp_deb(1);
+  }
+#ifdef COMMENTED
   //*(H0+(0xb65f2850-0xb64b2008)/sizeof(CELL))==0xc || 
   //0x4fd4d
-#ifdef COMMENTED
   if (vsc_count == 40650191LL)
     jmp_deb(1);
   return;

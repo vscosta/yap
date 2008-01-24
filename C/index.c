@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2008-01-24 00:11:59 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-01-24 10:20:42 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.194  2008/01/24 00:11:59  vsc
+* garbage collector was not asking for space.
+* avoid 0 sized calls to mmap.
+*
 * Revision 1.193  2008/01/23 17:57:46  vsc
 * valgrind it!
 * enable atom garbage collection.
@@ -8422,6 +8426,8 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 #endif /* YAPOR */
 	/* I did a trust */
       }
+      if (op == _op_fail)
+	return NULL;
       if (lu_pred)
 	return lu_clause(ipc);
       else
