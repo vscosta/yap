@@ -631,6 +631,8 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
 
   CurrentDelayTop = (CELL *)DelayTop();
   /* adjust to a multiple of 256) */
+  if (size < YAP_ALLOC_SIZE)
+    size = YAP_ALLOC_SIZE;
   size = AdjustPageSize(size);
   Yap_ErrorMessage = NULL;
   if (!Yap_ExtendWorkSpace(size)) {
@@ -734,6 +736,8 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   if (size < ((char *)H0-omax)/8)
     size = ((char *)H0-omax)/8;
   if (do_grow) {
+    if (size < YAP_ALLOC_SIZE)
+      size = YAP_ALLOC_SIZE;
     size = AdjustPageSize(size);
   }
   /* adjust to a multiple of 256) */
@@ -1073,8 +1077,11 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
   Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
   return FALSE;
 #endif
-  if (SizeOfOverflow > sz)
+  if (SizeOfOverflow > sz) {
+    if (size < YAP_ALLOC_SIZE)
+      size = YAP_ALLOC_SIZE;
     sz = AdjustPageSize(SizeOfOverflow);
+  }
   while(sz >= sizeof(CELL) * 16 * 1024L && !static_growheap(sz, fix_code, cip, old_trp, tksp, vep)) {
     size = size/2;
     sz =  size << shift_factor;
@@ -1397,6 +1404,8 @@ growstack(long size)
   int gc_verbose;
 
   /* adjust to a multiple of 256) */
+  if (size < YAP_ALLOC_SIZE)
+    size = YAP_ALLOC_SIZE;
   size = AdjustPageSize(size);
   Yap_ErrorMessage = NULL;
   start_growth_time = Yap_cputime();
@@ -1477,8 +1486,8 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
   if (!size)
     size = ((ADDR)TR-Yap_TrailBase);
   size *= 2;
-  if (size < 64*1024)
-    size = 64*1024;
+  if (size < YAP_ALLOC_SIZE)
+    size = YAP_ALLOC_SIZE;
   if (size > 2048*1024)
     size = 2048*1024;
   /* adjust to a multiple of 256) */

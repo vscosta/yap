@@ -194,7 +194,7 @@ yapsbrk(long size)
 {
   ADDR newHeapTop = HeapTop, oldHeapTop = HeapTop;
   newHeapTop = HeapTop+size;
-  if (Yap_NOfMemoryHoles && newHeapTop > Yap_MemoryHoles[0].start) {
+  while (Yap_NOfMemoryHoles && newHeapTop > Yap_MemoryHoles[0].start) {
     UInt i;
 
     HeapTop = oldHeapTop = Yap_MemoryHoles[0].end;

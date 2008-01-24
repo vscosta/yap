@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2008-01-23 17:57:46 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-01-24 00:11:59 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.193  2008/01/23 17:57:46  vsc
+* valgrind it!
+* enable atom garbage collection.
+*
 * Revision 1.192  2007/11/26 23:43:08  vsc
 * fixes to support threads and assert correctly, even if inefficiently.
 *
@@ -4767,7 +4771,10 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots)
   if ((setjres = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     recover_from_failed_susp_on_cls(&cint, 0);
-    Yap_gcl(Yap_Error_Size, ap->ArityOfPE+NSlots, ENV, CP);
+    if (!Yap_gcl(Yap_Error_Size, ap->ArityOfPE+NSlots, ENV, CP)) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      return FAILCODE;
+    }
   } else if (setjres == 2) {
     restore_machine_regs();
     Yap_Error_Size = recover_from_failed_susp_on_cls(&cint, Yap_Error_Size);
