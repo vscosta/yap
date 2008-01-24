@@ -2405,7 +2405,15 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	      if (flags & IndexMask) {
 		LogUpdIndex *indx = ClauseFlagsToLogUpdIndex(pt0);
 		int erase;
-		LOCK(indx->ClPred->PELock);
+#if  defined(YAPOR) || defined(THREADS)
+		/*
+		  gc may be called when executing a dynamic goal,
+		  check PP to avoid deadlock
+		*/
+		PredEntry *ap = cl->ClPred;
+		if (ap != PP)
+		  LOCK(ap->PELock);
+#endif
 		DEC_CLREF_COUNT(indx);
 		indx->ClFlags &= ~InUseMask;
 		erase = (indx->ClFlags & ErasedMask
@@ -2415,12 +2423,21 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 		     no one is accessing the clause */
 		  Yap_ErLogUpdIndex(indx);
 		}
-		UNLOCK(indx->ClPred->PELock);
+#if  defined(YAPOR) || defined(THREADS)
+		if (ap != PP)
+		  UNLOCK(ap->PELock);
+#endif
 	      } else {
 		LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt0);
+#if  defined(YAPOR) || defined(THREADS)
+		PredEntry *ap = cl->ClPred;
+#endif
 		int erase;
 
-		LOCK(cl->ClPred->PELock);
+#if  defined(YAPOR) || defined(THREADS)
+		if (ap != PP)
+		    LOCK(ap->PELock);
+#endif
 		DEC_CLREF_COUNT(cl);
 		cl->ClFlags &= ~InUseMask;
 		erase = ((cl->ClFlags & ErasedMask) && !cl->ClRefCount);
@@ -2429,7 +2446,10 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 		     no one is accessing the clause */
 		  Yap_ErLogUpdCl(cl);
 		}
-		UNLOCK(cl->ClPred->PELock);
+#if  defined(YAPOR) || defined(THREADS)
+		if (ap != PP)
+		  UNLOCK(ap->PELock);
+#endif
 	      }
 	    } else {
 	      DynamicClause *cl = ClauseFlagsToDynamicClause(pt0);
@@ -3867,8 +3887,6 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   /* expand the stack if effectiveness is less than 20 % */
   if (ASP - H < gc_margin/sizeof(CELL) ||
       effectiveness < 20) {
-    UInt sz;
-    
     LeaveGCMode();
     return Yap_growstack(gc_margin);
   }
