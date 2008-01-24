@@ -2410,7 +2410,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 		  gc may be called when executing a dynamic goal,
 		  check PP to avoid deadlock
 		*/
-		PredEntry *ap = cl->ClPred;
+		PredEntry *ap = indx->ClPred;
 		if (ap != PP)
 		  LOCK(ap->PELock);
 #endif

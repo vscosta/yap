@@ -150,6 +150,8 @@ check_area(void)
 }
 */
 
+PredEntry *old_p = NULL;
+
 void
 low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 {
@@ -161,7 +163,8 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
-  if (FALSE && vsc_count < 59800LL) {
+  old_p = pred;
+  if (LCL0[-30]) {
     UNLOCK(Yap_heap_regs->low_level_trace_lock);
     return;
   }
