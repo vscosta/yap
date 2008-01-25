@@ -150,7 +150,8 @@ check_area(void)
 }
 */
 
-PredEntry *old_p = NULL;
+PredEntry *old_p[10000];
+Term old_x1[10000], old_x2[10000], old_x3[10000];
 
 void
 low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
@@ -163,14 +164,19 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
-  old_p = pred;
   if (LCL0[-30]) {
-    UNLOCK(Yap_heap_regs->low_level_trace_lock);
+    UNLOCK(Yap_heap_regs->low_level_trace_lock);    
+    old_p[worker_id] = pred;
+    old_x2[worker_id] = ARG2;
+    old_x1[worker_id] = ARG1;
+    old_x3[worker_id] = ARG3;
     return;
   }
-  if (FALSE && vsc_count == 59855LL) {
-    jmp_deb(1);
-  }
+  jmp_deb(worker_id);
+  old_p[worker_id] = pred;
+  old_x2[worker_id] = ARG2;
+  old_x1[worker_id] = ARG1;
+  old_x3[worker_id] = ARG3;
 #ifdef COMMENTED
   //*(H0+(0xb65f2850-0xb64b2008)/sizeof(CELL))==0xc || 
   //0x4fd4d

@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.23 2007-06-29 01:33:35 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.24 2008-01-25 00:21:28 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -237,7 +237,10 @@ extern char Yap_Option[20];
 #define MMAP_ADDR 0x40000000
 #elif mips
 #define MMAP_ADDR 0x02000000
-#elif __APPLE__
+#elif __APPLE__ && __LP64__
+// this address is high enough that it is likely not to confuse Apple's malloc debugger; lowest possible is 0x100200000
+#define MMAP_ADDR 0x200000000
+#elif __APPLE__ && !__LP64__
 #define MMAP_ADDR 0x20000000
 #else
 #define MMAP_ADDR 0x08800000
@@ -635,7 +638,7 @@ typedef enum
 	if you place things in the lower addresses (power to the libc people).
 */
 
-#if (defined(_AIX) || defined(_WIN32) || defined(__APPLE__) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(__POWERPC__) || defined(__linux__) || defined(IN_SECOND_QUADRANT) || defined(__CYGWIN__))
+#if (defined(_AIX) || (defined(__APPLE__) && !defined(__LP64__)) || defined(_WIN32) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(__POWERPC__) || defined(__linux__) || defined(IN_SECOND_QUADRANT) || defined(__CYGWIN__))
 #define USE_LOW32_TAGS 1
 #endif
 
@@ -833,7 +836,7 @@ FunctorOfTerm (Term t)
 }
 
 
-#if USE_SYSTEM_MALLOC || USE_DL_MALLOC
+#if (USE_SYSTEM_MALLOC || USE_DL_MALLOC) && !__LP64__
 #if USE_LOW32_TAGS
 
 inline EXTERN Term MkAtomTerm (Atom);

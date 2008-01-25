@@ -48,7 +48,7 @@
 	;
 	    recorda('$thread_exit_status', [Id0|Status], _)
 	),
-	format(user_error,'closing thread ~w~n',[v([Id0|Status])]).
+%	format(user_error,'closing thread ~w~n',[v([Id0|Status])]).
 	'$run_at_thread_exit'(Id0).	
 '$close_thread'(Exception,Detached) :-
 	'$thread_self'(Id0),

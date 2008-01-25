@@ -770,9 +770,9 @@ dnl Linux has both elf and a.out, in this case we found elf
 	SHLIB_CFLAGS="-fno-common"
 	SHLIB_SUFFIX=".dylib"
         DO_SECOND_LD=""
-	SHLIB_LD="gcc -bundle -flat_namespace -undefined suppress"
+	SHLIB_LD="$CC -bundle -flat_namespace -undefined suppress"
 	INSTALL_DLLS=""
-        CC="cc -no-cpp-precomp"
+        CC="$CC -no-cpp-precomp"
 	JAVALIBPATH="-L/System/Library/Frameworks/JavaVM.framework/Libraries"
 	JAVAINCPATH="-I/System/Library/Frameworks/JavaVM.framework/Headers"
 	;;
