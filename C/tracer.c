@@ -164,19 +164,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
-  if (LCL0[-30]) {
-    UNLOCK(Yap_heap_regs->low_level_trace_lock);    
-    old_p[worker_id] = pred;
-    old_x2[worker_id] = ARG2;
-    old_x1[worker_id] = ARG1;
-    old_x3[worker_id] = ARG3;
-    return;
-  }
-  jmp_deb(worker_id);
-  old_p[worker_id] = pred;
-  old_x2[worker_id] = ARG2;
-  old_x1[worker_id] = ARG1;
-  old_x3[worker_id] = ARG3;
 #ifdef COMMENTED
   //*(H0+(0xb65f2850-0xb64b2008)/sizeof(CELL))==0xc || 
   //0x4fd4d

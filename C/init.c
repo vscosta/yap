@@ -913,6 +913,10 @@ InitCodes(void)
 #endif /* YAPOR */
 #endif /* TABLING */
   Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);
+  INIT_LOCK(Yap_heap_regs->expand_clauses_list_lock);
+#ifdef LOW_LEVEL_TRACER
+  INIT_LOCK(Yap_heap_regs->low_level_trace_lock);
+#endif
   Yap_heap_regs->expand_clauses_first = NULL;
   Yap_heap_regs->expand_clauses_last = NULL;
   Yap_heap_regs->expand_clauses = 0;
@@ -953,7 +957,9 @@ InitCodes(void)
     int i;
     for (i=0; i < MAX_WORKERS; i++) {
       Yap_heap_regs->thread_handle[i].in_use = FALSE;
+      Yap_heap_regs->thread_handle[i].zombie = FALSE;
       Yap_heap_regs->thread_handle[i].local_preds = NULL;
+      pthread_mutex_init(&Yap_heap_regs->thread_handle[i].tlock, NULL);
     }
   }
   Yap_heap_regs->thread_handle[0].id = 0;
@@ -980,6 +986,8 @@ InitCodes(void)
   {
     int i;
     for (i=0; i < MAX_WORKERS; i++) {
+      INIT_LOCK(Yap_heap_regs->wl[i].signal_lock);
+      Yap_heap_regs->wl[i].active_signals = 0;
       Yap_heap_regs->wl[i].scratchpad.ptr = NULL;
       Yap_heap_regs->wl[i].scratchpad.sz = SCRATCH_START_SIZE;
       Yap_heap_regs->wl[i].scratchpad.msz = SCRATCH_START_SIZE;
@@ -1003,6 +1011,7 @@ InitCodes(void)
       Yap_heap_regs->wl[i].consultcapacity = InitialConsultCapacity;
       Yap_heap_regs->wl[i].consultbase = Yap_heap_regs->wl[i].consultsp =
 	Yap_heap_regs->wl[i].consultlow + Yap_heap_regs->wl[i].consultcapacity;
+      Yap_heap_regs->wl[i].Gc_timestamp = 0;
     }
   }
 #else
@@ -1285,6 +1294,7 @@ InitCodes(void)
   Yap_heap_regs->db_erased_marker =
     (DBRef)Yap_AllocCodeSpace(sizeof(DBStruct));
   Yap_LUClauseSpace += sizeof(DBStruct);
+  INIT_LOCK(Yap_heap_regs->dbterms_list_lock);
   Yap_heap_regs->dbterms_list = NULL;
   Yap_heap_regs->db_erased_marker->id = FunctorDBRef;
   Yap_heap_regs->db_erased_marker->Flags = ErasedMask;

@@ -28,11 +28,13 @@
 '$init_thread0' :-
 	no_threads, !.
 '$init_thread0' :-
-	'$create_mq'(0),
 	'$record_thread_info'(0, main, [0, 0, 0], false, '$init_thread0'),
 	recorda('$thread_defaults', [0, 0, 0, false], _),
+	'$new_mutex'(QId),
+	assert('$global_queue_mutex'(QId)),
+	'$create_mq'(0),
 	'$new_mutex'(Id),
-	recorda('$with_mutex_mutex',Id,_).
+	assert('$with_mutex_mutex'(Id)).
 
 '$top_thread_goal'(G, Detached) :-
 	'$thread_self'(Id),
@@ -41,23 +43,29 @@
 	% always finish with a throw to make sure we clean stacks.
 	'$system_catch'((G -> throw('$thread_finished'(true)) ; throw('$thread_finished'(false))),Module,Exception,'$close_thread'(Exception,Detached)).
 
-'$close_thread'('$thread_finished'(Status), Detached) :- !,
-	'$thread_self'(Id0),
+'$close_thread'(Status, Detached) :-
+	'$thread_zombie_self'(Id0), !,
+	'$close_thread'(Status, Detached, Id0).
+'$close_thread'(Status, Detached) :- !,
+	% one self will fail if it had messages
+	'$close_thread'(Status, Detached).
+
+
+'$close_thread'('$thread_finished'(Status), Detached, Id0) :- !,
+	'$run_at_thread_exit'(Id0),
 	(Detached == true ->
 	    true
 	;
 	    recorda('$thread_exit_status', [Id0|Status], _)
-	),
-%	format(user_error,'closing thread ~w~n',[v([Id0|Status])]).
-	'$run_at_thread_exit'(Id0).	
+	).
+%	format(user_error,'closing thread ~w~n',[v([Id0|Status])]).	
 '$close_thread'(Exception,Detached) :-
-	'$thread_self'(Id0),
+	'$run_at_thread_exit'(Id0),
 	(Detached == true ->
 	    true
 	;
 	    recorda('$thread_exit_status', [Id0|exception(Exception)], _)
-	),
-	'$run_at_thread_exit'(Id0).
+	).
 
 thread_create(Goal) :-
 	G0 = thread_create(Goal),
@@ -283,14 +291,13 @@ thread_exit(Term) :-
 	var(Term), !,
 	'$do_error'(instantiation_error, thread_exit(Term)).
 thread_exit(Term) :-
-	'$thread_self'(Id0),
-	'$run_at_thread_exit'(Id0),
-	recorda('$thread_exit_status', [Id0|exited(Term)], _),
-	'$thread_exit'.
+	'$close_thread'('$thread_finished'(exited(Term)), Detached).
 
 '$run_at_thread_exit'(Id0) :-
 	findall(Hook, (recorded('$thread_exit_hook',[Id0|Hook],R), erase(R)), Hooks),
 	'$run_thread_hooks'(Hooks),
+	fail.
+'$run_at_thread_exit'(Id0) :-
 	message_queue_destroy(Id0).
 
 '$run_thread_hooks'([]).
@@ -453,15 +460,15 @@ with_mutex(M, G) :-
 	'$do_error'(type_error(callable,G),with_mutex(M, G)).
 with_mutex(M, G) :-
 	atom(M), !,
-	recorded('$with_mutex_mutex',WMId,_),
+	'$with_mutex_mutex'(WMId),
 	'$lock_mutex'(WMId),
 	(	recorded('$mutex_alias',[Id|M],_) ->
 		true
 	;	'$new_mutex'(Id),
 		recorda('$mutex_alias',[Id|M],_)
 	),
-	'$unlock_mutex'(WMId),
 	'$lock_mutex'(Id),
+	'$unlock_mutex'(WMId),
 	(	catch('$execute'(G), E, ('$unlock_mutex'(Id), throw(E))) ->
 		'$unlock_mutex'(Id)
 	;	'$unlock_mutex'(Id),
@@ -532,10 +539,7 @@ message_queue_create(_, [alias(Alias)]) :-	% TEMPORARY FIX
 
 message_queue_create(Cond) :-
 	var(Cond), !,
-	mutex_create(Mutex),
-	'$cond_create'(Cond),
-	'$mq_iname'(Cond, CName),
-	recorda('$queue',q(Cond,Mutex,Cond,CName), _).
+	'$create_mq'(Cond).
 message_queue_create(Name) :-
 	atom(Name),
 	recorded('$thread_alias',[_,Name],_), !,
@@ -547,10 +551,18 @@ message_queue_create(Name) :-
 	'$do_error'(type_error(atom,Name),message_queue_create(Name)).
 
 '$create_mq'(Name) :-
-	mutex_create(Mutex),
+	'$new_mutex'(Mutex),
 	'$cond_create'(Cond),
 	'$mq_iname'(Name, CName),
-	recorda('$queue',q(Name,Mutex,Cond, CName),_).
+	'$global_queue_mutex'(QMutex),
+	'$lock_mutex'(QMutex),
+	( recorded('$queue',q(Name,_,_, _),_) ->
+	  '$unlock_mutex'(QMutex),
+	  '$do_error'(permission_error(create,message_queue,Name),message_queue_create(Name))
+	;
+	  recorda('$queue',q(Name,Mutex,Cond, CName),_),
+	  '$unlock_mutex'(QMutex)
+	).
 
 '$mq_iname'(I,X) :-
 	integer(I), !,
@@ -564,13 +576,18 @@ message_queue_destroy(Name) :-
 	var(Name), !,
 	'$do_error'(instantiation_error,message_queue_destroy(Name)).
 message_queue_destroy(Queue) :-
+	'$global_queue_mutex'(QMutex),
+	'$lock_mutex'(QMutex),
 	recorded('$queue',q(Queue,Mutex,Cond,CName),R), !,
 	erase(R),
 	'$cond_destroy'(Cond),
-	mutex_destroy(Mutex),
+	'$destroy_mutex'(Mutex),
+	'$unlock_mutex'(QMutex),
 	'$clean_mqueue'(CName).
 message_queue_destroy(Queue) :-
-	atom(Queue), !,
+	'$global_queue_mutex'(QMutex),
+	'$unlock_mutex'(QMutex),
+	atomic(Queue), !,
 	'$do_error'(existence_error(message_queue,Queue),message_queue_destroy(Queue)).
 message_queue_destroy(Name) :-
 	'$do_error'(type_error(atom,Name),message_queue_destroy(Name)).
@@ -591,12 +608,17 @@ thread_send_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_), !,
 	thread_send_message(Id, Term).
 thread_send_message(Queue, Term) :-
+	'$global_queue_mutex'(QMutex),
+	'$lock_mutex'(QMutex),
 	recorded('$queue',q(Queue,Mutex,Cond,Key),_), !,
-	mutex_lock(Mutex),
+	'$lock_mutex'(Mutex),
+	'$unlock_mutex'(QMutex),
 	recordz(Key,Term,_),
 	'$cond_broadcast'(Cond),
-	mutex_unlock(Mutex).
+	'$unlock_mutex'(Mutex).
 thread_send_message(Queue, Term) :-
+	'$global_queue_mutex'(QMutex),
+	'$unlock_mutex'(QMutex),
 	'$do_error'(existence_error(message_queue,Queue),thread_send_message(Queue,Term)).
 
 thread_get_message(Term) :-
@@ -609,17 +631,22 @@ thread_get_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_), !,
 	thread_get_message(Id, Term).
 thread_get_message(Queue, Term) :-
+	'$global_queue_mutex'(QMutex),
+	'$lock_mutex'(QMutex),
 	recorded('$queue',q(Queue,Mutex,Cond,Key),_), !,
-	mutex_lock(Mutex),
+	'$lock_mutex'(Mutex),
+	'$unlock_mutex'(QMutex),
 	'$thread_get_message_loop'(Key, Term, Mutex, Cond).
 thread_get_message(Queue, Term) :-
+	'$global_queue_mutex'(QMutex),
+	'$unlock_mutex'(QMutex),
 	'$do_error'(existence_error(message_queue,Queue),thread_get_message(Queue,Term)).
 
 
 '$thread_get_message_loop'(Key, Term, Mutex, _) :-
 	recorded(Key,Term,R), !,
 	erase(R),
-	mutex_unlock(Mutex).
+	'$unlock_mutex'(Mutex).
 '$thread_get_message_loop'(Key, Term, Mutex, Cond) :-
 	'$cond_wait'(Cond, Mutex),
 	'$thread_get_message_loop'(Key, Term, Mutex, Cond).
@@ -634,18 +661,23 @@ thread_peek_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_), !,
 	thread_peek_message(Id, Term).
 thread_peek_message(Queue, Term) :-
+	'$global_queue_mutex'(QMutex),
+	'$lock_mutex'(QMutex),
 	recorded('$queue',q(Queue,Mutex,_,Key),_), !,
-	mutex_lock(Mutex),
+	'$lock_mutex'(Mutex),
+	'$unlock_mutex'(QMutex),
 	'$thread_peek_message2'(Key, Term, Mutex).
 thread_peek_message(Queue, Term) :-
+	'$global_queue_mutex'(QMutex),
+	'$unlock_mutex'(QMutex),
 	'$do_error'(existence_error(message_queue,Queue),thread_peek_message(Queue,Term)).
 
 
 '$thread_peek_message2'(Key, Term, Mutex) :-
 	recorded(Key,Term,_), !,
-	mutex_unlock(Mutex).
+	'$unlock_mutex'(Mutex).
 '$thread_peek_message2'(_, _, Mutex) :-
-	mutex_unlock(Mutex),
+	'$unlock_mutex'(Mutex),
 	fail.
 
 thread_local(X) :-

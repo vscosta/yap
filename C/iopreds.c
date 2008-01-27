@@ -5155,8 +5155,12 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    if (targ > tnum-1 || has_repeats)
 	      goto do_consistency_error;
 	    t = targs[targ++];
+	    if (!LCL0[-30])
+	      fprintf(stderr,"OOPS %d\n",LCL0-ASP);
 	    Yap_StartSlots();
 	    Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f);
+	    if (!LCL0[-30])
+	      fprintf(stderr,"OOPS %d\n",LCL0-ASP);
 	    FormatInfo = &finfo;
 	    ASP++;
 	    break;
@@ -5280,7 +5284,11 @@ format(volatile Term otail, volatile Term oargs, int sno)
   if (Stream[sno].status & InMemory_Stream_f) {
     Stream[sno].u.mem_string.error_handler = old_handler;
   }
+  if (!LCL0[-30])
+    fprintf(stderr,"OOPS 3 %d\n",LCL0-ASP);
   format_clean_up(finfo.format_base, fstr, targs);
+  if (!LCL0[-30])
+    fprintf(stderr,"OOPS 4 %d\n",LCL0-ASP);
   return (TRUE);
 }
 

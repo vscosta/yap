@@ -44,10 +44,10 @@ allocate_new_tid(void)
   int new_worker_id = 0;
   LOCK(ThreadHandlesLock);
   while(new_worker_id < MAX_WORKERS &&
-	ThreadHandle[new_worker_id].in_use == TRUE)
+	(ThreadHandle[new_worker_id].in_use == TRUE ||
+	 ThreadHandle[new_worker_id].zombie == TRUE) )
     new_worker_id++;
   ThreadHandle[new_worker_id].in_use = TRUE;
-  pthread_mutex_init(&ThreadHandle[new_worker_id].tlock, NULL);
   pthread_mutex_lock(&(ThreadHandle[new_worker_id].tlock));
   UNLOCK(ThreadHandlesLock);
   if (new_worker_id == MAX_WORKERS) 
@@ -92,8 +92,9 @@ kill_thread_engine (int wid)
   free(ThreadHandle[wid].default_yaam_regs);
   free(ThreadHandle[wid].start_of_timesp);
   free(ThreadHandle[wid].last_timep);
-  ThreadHandle[wid].in_use = FALSE;
-  pthread_mutex_destroy(&(ThreadHandle[wid].tlock));
+  pthread_mutex_lock(&(ThreadHandle[wid].tlock));
+  ThreadHandle[wid].zombie = FALSE;
+  pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
 }
 
 static void
@@ -106,8 +107,9 @@ thread_die(int wid, int always_die)
     ThreadsTotalTime += Yap_cputime();
   }
   if (ThreadHandle[wid].tdetach == MkAtomTerm(AtomTrue) ||
-      always_die)
+      always_die) {
     kill_thread_engine(wid);
+  }
   UNLOCK(ThreadHandlesLock);
 }
 
@@ -141,12 +143,31 @@ start_thread(int myworker_id)
 static void *
 thread_run(void *widp)
 {
-  Term tgoal;
+  Term tgoal, t;
   Term tgs[2];
   int myworker_id = *((int *)widp); 
 
   start_thread(myworker_id);
-  tgs[0] = Yap_FetchTermFromDB(ThreadHandle[worker_id].tgoal);
+  do {
+    t = tgs[0] = Yap_FetchTermFromDB(ThreadHandle[worker_id].tgoal);
+    if (t == 0) {
+      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  thread_die(worker_id, FALSE);
+	  return NULL;
+	}
+      } else {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growstack(ThreadHandle[worker_id].tgoal->NOfCells*CellSize)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  thread_die(worker_id, FALSE);
+	  return NULL;
+	}
+      }
+    }
+  } while (t == 0);
   tgs[1] = ThreadHandle[worker_id].tdetach;
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
   Yap_RunTopGoal(tgoal);
@@ -185,7 +206,6 @@ p_create_thread(void)
   ThreadHandle[new_worker_id].ref_count = 1;
   if ((ThreadHandle[new_worker_id].ret = pthread_create(&ThreadHandle[new_worker_id].handle, NULL, thread_run, (void *)(&(ThreadHandle[new_worker_id].id)))) == 0) {
     /* wait until the client is initialised */
-    pthread_mutex_lock(&(ThreadHandle[new_worker_id].tlock));
     pthread_mutex_unlock(&(ThreadHandle[new_worker_id].tlock));  
     return TRUE;
   }
@@ -232,6 +252,24 @@ p_thread_self(void)
 {
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return Yap_unify(MkIntegerTerm(-1), ARG1);
+  return Yap_unify(MkIntegerTerm(worker_id), ARG1);
+}
+
+
+static Int
+p_thread_zombie_self(void)
+{
+  /* make sure the lock is available */
+  if (pthread_getspecific(Yap_yaamregs_key) == NULL)
+    return Yap_unify(MkIntegerTerm(-1), ARG1);
+  pthread_mutex_lock(&(ThreadHandle[worker_id].tlock));
+  if (Yap_heap_regs->wl[worker_id].active_signals &= YAP_ITI_SIGNAL) {
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    return FALSE;
+  }
+  Yap_heap_regs->thread_handle[worker_id].in_use = FALSE;
+  Yap_heap_regs->thread_handle[worker_id].zombie = TRUE;
+  pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
 }
 
@@ -291,7 +329,6 @@ Yap_thread_destroy_engine(int wid)
 {
   pthread_mutex_lock(&(ThreadHandle[wid].tlock));
   if (ThreadHandle[wid].ref_count == 0) {
-    pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
     kill_thread_engine(wid);
     return TRUE;
   } else {
@@ -307,7 +344,8 @@ p_thread_join(void)
   Int tid = IntegerOfTerm(Deref(ARG1));
 
   LOCK(ThreadHandlesLock);
-  if (!ThreadHandle[tid].in_use) {
+  if (!ThreadHandle[tid].in_use &&
+      !ThreadHandle[tid].zombie) {
     UNLOCK(ThreadHandlesLock);
     return FALSE;
   }
@@ -321,6 +359,7 @@ p_thread_join(void)
     /* ERROR */
     return FALSE;
   }
+  /* notice mutex is already locked */
   return TRUE;
 }
 
@@ -346,7 +385,8 @@ p_thread_detach(void)
 static Int
 p_thread_exit(void)
 {
-  thread_die(worker_id, FALSE);
+  thread_die(worker_id, FALSE); 
+  fprintf(stderr,"2 the end of worker_id=%d\n",worker_id);
   pthread_exit(NULL);
   return TRUE;
 }
@@ -385,7 +425,7 @@ static Int
 p_valid_thread(void)
 {
   Int i = IntegerOfTerm(Deref(ARG1)); 
-  return ThreadHandle[i].in_use;
+  return ThreadHandle[i].in_use || ThreadHandle[i].zombie;
 }
 
 /* Mutex Support */
@@ -593,6 +633,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$thread_new_tid", 1, p_thread_new_tid, HiddenPredFlag);
   Yap_InitCPred("$create_thread", 6, p_create_thread, HiddenPredFlag);
   Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$thread_zombie_self", 1, p_thread_zombie_self, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_join", 1, p_thread_join, HiddenPredFlag);
   Yap_InitCPred("$thread_destroy", 1, p_thread_destroy, HiddenPredFlag);
   Yap_InitCPred("thread_yield", 0, p_thread_yield, 0);

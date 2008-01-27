@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2008-01-23 17:57:44 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-01-27 11:01:06 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.233  2008/01/23 17:57:44  vsc
+* valgrind it!
+* enable atom garbage collection.
+*
 * Revision 1.232  2007/11/28 23:52:14  vsc
 * junction tree algorithm
 *
@@ -2306,9 +2310,12 @@ Yap_absmi(int inp)
 		}
 	      } else if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
 		LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt);
+#if defined(YAPOR) || defined(THREADS)
+		PredEntry *ap = cl->ClPred;
+#endif
 		int erase;
 
-		LOCK(cl->ClPred->PELock);
+		LOCK(ap->PELock);
 		DEC_CLREF_COUNT(cl);
 		cl->ClFlags &= ~InUseMask;
 		erase = (cl->ClFlags & (DirtyMask|ErasedMask)) && !(cl->ClRefCount);
@@ -2322,7 +2329,7 @@ Yap_absmi(int inp)
 		    Yap_CleanUpIndex(cl);
 		  setregs();
 		}
-		UNLOCK(cl->ClPred->PELock);
+		UNLOCK(ap->PELock);
 	      } else {
 		TrailTerm(pt0) = d1;
 		pt0++;

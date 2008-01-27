@@ -1371,7 +1371,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
   /* place DBRefs in ConsultStack */
   DBRef    *TmpRefBase = (DBRef *)Yap_TrailTop;
   CELL	   *CodeAbs;	/* how much code did we find	 */
-  int vars_found;
+  int vars_found = FALSE;
 
   Yap_Error_TYPE = YAP_NO_ERROR;
 

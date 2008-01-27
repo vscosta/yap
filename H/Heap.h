@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.123 2008-01-23 17:57:53 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.124 2008-01-27 11:01:07 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -178,6 +178,7 @@ typedef struct worker_local_struct {
 #ifdef THREADS
 typedef struct thandle {
   int in_use;
+  int zombie;
   UInt ssize;
   UInt tsize;
   Term tdetach;
