@@ -809,7 +809,6 @@ TrNode copy_child_nodes(TrNode parent_dest, TrNode child_source) {
   return child_dest;
 }
 
-
 static
 void traverse_tries_join(TrNode parent_dest, TrNode parent_source){
   TrNode child_dest, child_source;

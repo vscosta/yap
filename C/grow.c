@@ -1328,7 +1328,7 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
     }
   }
   XDiff = HDiff = 0;
-  GDiff0=0;
+  GDiff0=GDiff;
 #if USE_SYSTEM_MALLOC
   if (from_trail) {
     TrDiff = LDiff = GDiff;

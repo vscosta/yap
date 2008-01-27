@@ -36,6 +36,7 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/gensym.yap \
 	$(srcdir)/hacks.yap \
 	$(srcdir)/heaps.yap \
+	$(srcdir)/lineutils.yap \
 	$(srcdir)/listing.yap \
 	$(srcdir)/lists.yap \
 	$(srcdir)/logtalk.yap \
