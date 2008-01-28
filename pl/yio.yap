@@ -61,7 +61,7 @@ open(F,T,S,Opts) :-
 	'$check_io_opts'(Opts,open(F,T,S,Opts)),
 	'$process_open_opts'(Opts, 0, N,  Aliases, E, BOM),
 	'$open2'(F,T,S,N,E),
-	'$process_bom'(S, BOM).
+	'$process_bom'(S, BOM),
 	'$process_open_aliases'(Aliases,S).
 
 '$open2'(Source,M,T,N,_) :- var(Source), !,
@@ -74,8 +74,7 @@ open(F,T,S,Opts) :-
 	'$open'(File,Mode,Stream,N,Encoding).
 
 '$process_bom'(S, BOM) :-
-	var(BOM), !,
-	( '$has_bom'(S) -> BOM = true ; BOM = false ).
+	var(BOM), !,	( '$has_bom'(S) -> BOM = true ; BOM = false ).
 '$process_bom'(_, _).
 	
 
