@@ -3483,6 +3483,9 @@ p_recorded(void)
 	P = cl->ClCode;
       } else {
 	CP = P;
+#if defined(YAPOR) || defined(THREADS)
+	PP = cl->ClPred;
+#endif
 	P = cl->ClCode;
 	ENV = YENV;
 	YENV = ASP;
