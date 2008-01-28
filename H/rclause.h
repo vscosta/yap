@@ -12,8 +12,12 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2008-01-23 17:57:55 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-01-28 18:12:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.22  2008/01/23 17:57:55  vsc
+* valgrind it!
+* enable atom garbage collection.
+*
 * Revision 1.21  2007/11/26 23:43:09  vsc
 * fixes to support threads and assert correctly, even if inefficiently.
 *
@@ -396,7 +400,10 @@ restore_opcodes(yamop *pc)
     case _p_execute2:
       pc->u.sla.sla_u.p = PtoPredAdjust(pc->u.sla.sla_u.p);
       if (pc->u.sla.sla_u.mod != 0) {
-	pc->u.sla.sla_u.mod = AtomTermAdjust(pc->u.sla.sla_u.mod);
+	if (IsAtomTerm(pc->u.sla.sla_u.mod))
+	  pc->u.sla.sla_u.mod = AtomTermAdjust(pc->u.sla.sla_u.mod);
+	else
+	  pc->u.sla.sla_u.p = PtoPredAdjust(pc->u.sla.sla_u.p);	  
       }
       pc->u.sla.p0 = PtoPredAdjust(pc->u.sla.p0);
       if (pc->u.sla.bmap != NULL) {
