@@ -130,7 +130,7 @@ mygetc (void)
 {
   int ch;
   if (eof_found)
-    return (EOF);
+    return EOF;
   ch = getc (bootfile);
   if (ch == EOF)
     eof_found = TRUE;
@@ -140,7 +140,7 @@ mygetc (void)
 #endif
     yap_lineno++;
   }
-  return (ch);
+  return ch;
 }
 
 static void

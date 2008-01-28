@@ -692,12 +692,6 @@ Yap_DebugPutc(int sno, wchar_t ch)
 }
 
 void 
-Yap_DebugPlWrite(Term t)
-{
-  Yap_plwrite(t, Yap_DebugPutc, 0);
-}
-
-void 
 Yap_DebugErrorPutc(int c)
 {
   Yap_DebugPutc (Yap_c_error_stream, c);
@@ -1423,12 +1417,13 @@ ConsolePipeGetc(int sno)
 static int
 PlGetc (int sno)
 {
-  register StreamDesc *s = &Stream[sno];
-  register Int ch;
+  StreamDesc *s = &Stream[sno];
+  Int ch;
 
   ch = YP_getc (s->u.file.file);
-  if (ch == EOF)
+  if (ch == EOF) {
     return post_process_eof(s);    
+  }
   return post_process_read_char(ch, s);
 }
 

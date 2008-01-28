@@ -81,7 +81,7 @@ typedef	struct FREEB {
 #if _WIN32
 /* in WIN32 VirtualAlloc works in multiples of 64K */
 #define YAP_ALLOC_SIZE (64*1024)
-#define LG_PAGE_SIZE ALLOC_SIZE
+#define LGPAGE_SIZE YAP_ALLOC_SIZE
 
 #else
 #define YAP_ALLOC_SIZE Yap_page_size

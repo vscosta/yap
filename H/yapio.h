@@ -264,10 +264,10 @@ typedef enum {
 #define NUMBER_OF_CHARS 256
 extern char *Yap_chtype;
 
-EXTERN inline int STD_PROTO(chtype,(wchar_t));
+EXTERN inline int STD_PROTO(chtype,(int));
 
 EXTERN inline int
-chtype(wchar_t ch)
+chtype(int ch)
 {
   if (ch < 256)
     return Yap_chtype[ch];

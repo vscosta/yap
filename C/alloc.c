@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.88 2008-01-23 18:25:19 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.89 2008-01-28 23:35:03 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -752,7 +752,7 @@ InitWorkSpace(Int s)
 
   GetSystemInfo(&si);
   Yap_page_size = si.dwPageSize;
-  s = ((s+ (ALLOC_SIZE-1))/ALLOC_SIZE)*ALLOC_SIZE;
+  s = ((s+ (YAP_ALLOC_SIZE-1))/YAP_ALLOC_SIZE)*YAP_ALLOC_SIZE;
   brk = (LPVOID)Yap_page_size;
   if (!ExtendWorkSpace(s,0))
     return FALSE;
