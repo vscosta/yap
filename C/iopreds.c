@@ -1466,7 +1466,7 @@ DefaultGets (int sno, UInt size, char *buf)
   while((ch = *buf++ = s->stream_getc(sno)) != 
 	-1 && ch != 10 && --size); 
   *buf++ = '\0';
-  return pt-buf;
+  return (buf-pt)-1;
 }
 
 /* read from memory */
@@ -1583,6 +1583,7 @@ PlUnGetc (int sno)
       }
   } else {
     s->stream_getc = PlGetc;
+    s->stream_gets = PlGetsFunc();
   }
   return(post_process_read_char(ch, s));
 }
@@ -1729,6 +1730,7 @@ get_wchar(int sno)
 	    Stream[sno].och = ch;
 	    Stream[sno].stream_getc = PlUnGetc;
 	    Stream[sno].stream_wgetc = get_wchar;
+	    Stream[sno].stream_gets = DefaultGets;
 	    return och;
 	  }
 	  if (!how_many) {
@@ -2104,6 +2106,7 @@ check_bom(int sno, StreamDesc *st)
 	st->och = ch;
 	st->stream_getc = PlUnGetc376;
 	st->stream_wgetc = get_wchar;
+	st->stream_gets = DefaultGets;
 	return TRUE;
       } else {
 	st->status  |= HAS_BOM_f;
@@ -2118,6 +2121,7 @@ check_bom(int sno, StreamDesc *st)
 	st->och = ch;
 	st->stream_getc = PlUnGetc377;
 	st->stream_wgetc = get_wchar;
+	st->stream_gets = DefaultGets;
 	return TRUE;
       } else {
 	st->status  |= HAS_BOM_f;
@@ -2131,6 +2135,7 @@ check_bom(int sno, StreamDesc *st)
       st->och = ch;
       st->stream_getc = PlUnGetc357;
       st->stream_wgetc = get_wchar;
+      st->stream_gets = DefaultGets;
       return TRUE;
     } else {
       ch = st->stream_getc(sno);
@@ -2138,6 +2143,7 @@ check_bom(int sno, StreamDesc *st)
 	st->och = ch;
 	st->stream_getc = PlUnGetc357273;
 	st->stream_wgetc = get_wchar;
+	st->stream_gets = DefaultGets;
 	return TRUE;
       } else {
 	st->status  |= HAS_BOM_f;
@@ -2149,6 +2155,7 @@ check_bom(int sno, StreamDesc *st)
     st->och = ch;
     st->stream_getc = PlUnGetc;
     st->stream_wgetc = get_wchar;
+    st->stream_gets = DefaultGets;
     return TRUE;
   }
 }
@@ -3338,6 +3345,7 @@ p_peek_byte (void)
   /* mark a special function to recover this character */
   s->stream_getc = PlUnGetc;
   s->stream_wgetc = get_wchar;
+  s->stream_gets = DefaultGets;
   if (CharConversionTable != NULL)
     s->stream_wgetc_for_read = ISOWGetc;
   else
@@ -3383,6 +3391,7 @@ p_peek (void)
   /* mark a special function to recover this character */
   s->stream_getc = PlUnGetc;
   s->stream_wgetc = get_wchar;
+  s->stream_gets = DefaultGets;
   if (CharConversionTable != NULL)
     s->stream_wgetc_for_read = ISOWGetc;
   else
@@ -4269,14 +4278,6 @@ p_get (void)
 
   if (sno < 0)
     return FALSE;
-  if (Stream[sno].stream_getc == PlUnGetc) {
-    ch = PlUnGetc(sno);
-    if (ch <= 32 && ch >= 0) {
-      /* done */
-      UNLOCK(Stream[sno].streamlock);
-      return Yap_unify_constant (ARG2, MkIntegerTerm (ch));
-    }
-  }
   status = Stream[sno].status;
   if (status & Binary_Stream_f) {
     UNLOCK(Stream[sno].streamlock);
@@ -4297,17 +4298,13 @@ p_get0 (void)
 
   if (sno < 0)
     return(FALSE);
-  if (Stream[sno].stream_getc == PlUnGetc) {
-    out = PlUnGetc(sno);
-  } else {
-    status = Stream[sno].status;
-    if (status & Binary_Stream_f) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
-      return FALSE;
-    }
-    out = get_wchar(sno);
+  status = Stream[sno].status;
+  if (status & Binary_Stream_f) {
+    UNLOCK(Stream[sno].streamlock);
+    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
+    return FALSE;
   }
+  out = get_wchar(sno);
   UNLOCK(Stream[sno].streamlock);
   return (Yap_unify_constant (ARG2, MkIntegerTerm (out)) );
 }
@@ -5155,12 +5152,8 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    if (targ > tnum-1 || has_repeats)
 	      goto do_consistency_error;
 	    t = targs[targ++];
-	    if (!LCL0[-30])
-	      fprintf(stderr,"OOPS %d\n",LCL0-ASP);
 	    Yap_StartSlots();
 	    Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f);
-	    if (!LCL0[-30])
-	      fprintf(stderr,"OOPS %d\n",LCL0-ASP);
 	    FormatInfo = &finfo;
 	    ASP++;
 	    break;
@@ -5284,11 +5277,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
   if (Stream[sno].status & InMemory_Stream_f) {
     Stream[sno].u.mem_string.error_handler = old_handler;
   }
-  if (!LCL0[-30])
-    fprintf(stderr,"OOPS 3 %d\n",LCL0-ASP);
   format_clean_up(finfo.format_base, fstr, targs);
-  if (!LCL0[-30])
-    fprintf(stderr,"OOPS 4 %d\n",LCL0-ASP);
   return (TRUE);
 }
 

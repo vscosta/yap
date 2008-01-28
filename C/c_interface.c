@@ -10,8 +10,13 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2007-12-05 12:17:23 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-01-28 10:42:19 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.104  2007/12/05 12:17:23  vsc
+* improve JT
+* fix graph compatibility with SICStus
+* re-export declaration.
+*
 * Revision 1.103  2007/11/16 14:58:40  vsc
 * implement sophisticated operations with matrices.
 *
@@ -883,10 +888,13 @@ YAP_ExtraSpace(void)
 {
   void *ptr;
   BACKUP_B();
+  BACKUP_H();
 
   /* find a pointer to extra space allocable */
   ptr = (void *)((CELL *)(B+1)+P->u.lds.s);
+  B->cp_h = H;
 
+  RECOVER_H();
   RECOVER_B();
   return(ptr);
 }

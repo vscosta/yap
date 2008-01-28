@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.24 2008-01-25 00:21:28 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.25 2008-01-28 10:42:20 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -165,7 +165,7 @@
 
 #elif SIZEOF_INT_P==8
 
-#   if SIZEOF_INT==8
+#if SIZEOF_INT==8
 /*   */ typedef int Int;
 /*   */ typedef unsigned int UInt;
 
