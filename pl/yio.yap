@@ -59,8 +59,9 @@ close(S,Opts) :-
 	
 open(F,T,S,Opts) :-
 	'$check_io_opts'(Opts,open(F,T,S,Opts)),
-	'$process_open_opts'(Opts, 0, N,  Aliases, E),
+	'$process_open_opts'(Opts, 0, N,  Aliases, E, BOM),
 	'$open2'(F,T,S,N,E),
+	'$process_bom'(S, BOM).
 	'$process_open_aliases'(Aliases,S).
 
 '$open2'(Source,M,T,N,_) :- var(Source), !,
@@ -72,41 +73,53 @@ open(F,T,S,Opts) :-
 '$open2'(File,Mode,Stream,N,Encoding) :-
 	'$open'(File,Mode,Stream,N,Encoding).
 
+'$process_bom'(S, BOM) :-
+	var(BOM), !,
+	( '$has_bom'(S) -> BOM = true ; BOM = false ).
+'$process_bom'(_, _).
+	
+
 '$process_open_aliases'([],_).
 '$process_open_aliases'([Alias|Aliases],S) :-
 	'$add_alias_to_stream'(Alias, S),
 	'$process_open_aliases'(Aliases,S).
 
-'$process_open_opts'([], N, N, [], DefaultEncoding) :-
+'$process_open_opts'([], N, N, [], DefaultEncoding, []) :-
 	'$default_encoding'(DefaultEncoding).
-'$process_open_opts'([type(T)|L], N0, N, Aliases, Encoding) :-
+'$process_open_opts'([type(T)|L], N0, N, Aliases, Encoding, BOM) :-
 	'$value_open_opt'(T,type,I1,I2),
 	N1 is I1\/N0,
 	N2 is I2/\N1,
-	'$process_open_opts'(L,N2,N, Aliases, Encoding).
-'$process_open_opts'([reposition(T)|L], N0, N, Aliases, Encoding) :-
+	'$process_open_opts'(L,N2,N, Aliases, Encoding, BOM).
+'$process_open_opts'([reposition(T)|L], N0, N, Aliases, Encoding, BOM) :-
 	'$value_open_opt'(T,reposition,I1,I2),
 	N1 is I1\/N0,
 	N2 is I2/\N1,
-	'$process_open_opts'(L,N2,N, Aliases, Encoding).
-'$process_open_opts'([encoding(Enc)|L], N0, N, Aliases, EncCode) :-
+	'$process_open_opts'(L,N2,N, Aliases, Encoding, BOM).
+'$process_open_opts'([encoding(Enc)|L], N0, N, Aliases, EncCode, BOM) :-
 	'$valid_encoding'(Enc, EncCode),
-	'$process_open_opts'(L, N0, N, Aliases, _).
-'$process_open_opts'([representation_errors(Mode)|L], N0, N, Aliases, EncCode) :-
+	'$process_open_opts'(L, N0, N, Aliases, _, BOM).
+'$process_open_opts'([representation_errors(Mode)|L], N0, N, Aliases, EncCode, BOM) :-
 	'$valid_reperrorhandler'(Mode, Flag),
 	NI is N0 \/ Flag,
-	'$process_open_opts'(L, NI, N, Aliases, EncCode).
-'$process_open_opts'([bom(BOM)|L], N0, N, Aliases, EncCode) :-
-	'$valid_bom'(BOM, Flag),
-	NI is N0 \/ Flag,
-	'$process_open_opts'(L, NI, N, Aliases, EncCode).
-'$process_open_opts'([eof_action(T)|L], N0, N, Aliases, Encoding) :-
+	'$process_open_opts'(L, NI, N, Aliases, EncCode, BOM).
+'$process_open_opts'([bom(BOM)|L], N0, N, Aliases, EncCode, BOM) :-
+	(
+	 var(BOM)
+	->
+	 true
+	;
+	 '$valid_bom'(BOM, Flag),
+	 NI is N0 \/ Flag
+	),
+	'$process_open_opts'(L, NI, N, Aliases, EncCode, _).
+'$process_open_opts'([eof_action(T)|L], N0, N, Aliases, Encoding, BOM) :-
 	'$value_open_opt'(T,eof_action,I1,I2),
 	N1 is I1\/N0,
 	N2 is I2/\N1,
-	'$process_open_opts'(L,N2,N, Aliases, Encoding).
-'$process_open_opts'([alias(Alias)|L], N0, N, [Alias|Aliases], Encoding) :-
-	'$process_open_opts'(L,N0,N, Aliases, Encoding).
+	'$process_open_opts'(L,N2,N, Aliases, Encoding, BOM).
+'$process_open_opts'([alias(Alias)|L], N0, N, [Alias|Aliases], Encoding, BOM) :-
+	'$process_open_opts'(L,N0,N, Aliases, Encoding, BOM).
 
 
 '$value_open_opt'(text,_,1,X) :- X is 128-2. % default

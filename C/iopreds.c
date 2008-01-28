@@ -2374,7 +2374,7 @@ p_open (void)
   if (open_mode == AtomWrite ) {
     if (needs_bom && !write_bom(sno,st))
       return FALSE;
-  } else if (open_mode == AtomRead &&
+  } else if ((open_mode == AtomRead || open_mode == AtomCsult) &&
 	     !avoid_bom &&
 	     (needs_bom || (st->status & Seekable_Stream_f))) {
     if (!check_bom(sno, st))
@@ -2448,9 +2448,10 @@ static Int p_change_alias_to_stream (void)
     return (FALSE);
   }
   at = AtomOfTerm(tname);
-  if ((sno = CheckStream (tstream, Input_Stream_f | Output_Stream_f | Append_Stream_f | Socket_Stream_f,  "change_stream_alias/2"))
-	  == -1)
+  if ((sno = CheckStream (tstream, Input_Stream_f | Output_Stream_f | Append_Stream_f | Socket_Stream_f,  "change_stream_alias/2")) == -1) {
+    UNLOCK(Stream[sno].streamlock);
     return(FALSE);
+    }
   SetAlias(at, sno);
   UNLOCK(Stream[sno].streamlock);
   return(TRUE);
@@ -3103,7 +3104,7 @@ init_cur_s (void)
 
     i = CheckStream (t3, Input_Stream_f|Output_Stream_f, "current_stream/3");
     if (i < 0) {
-      return(FALSE);
+      return FALSE;
     }
     t1 = StreamName(i);
     t2 = (Stream[i].status & Input_Stream_f ?
@@ -3125,28 +3126,26 @@ cont_cur_s (void)
 {				/* current_stream */
   Term t1, t2, t3;
   int i = IntOfTerm (EXTRA_CBACK_ARG (3, 1));
-  while (i < MaxStreams)
-    {
-      if (Stream[i].status & Free_Stream_f)
-	{
-	  ++i;
-	  continue;
-	}
-      t1 = StreamName(i);
-      t2 = (Stream[i].status & Input_Stream_f ?
-	    MkAtomTerm (AtomRead) :
-	    MkAtomTerm (AtomWrite));
-      t3 = MkStream (i++);
-      EXTRA_CBACK_ARG (3, 1) = Unsigned (MkIntTerm (i));
-      if (Yap_unify (ARG3, t3) && Yap_unify_constant (ARG1, t1) && Yap_unify_constant (ARG2, t2))
-	{
-	  return (TRUE);
-	}
-      else
-	{
-	  return(FALSE);
-	}
+  while (i < MaxStreams) {
+    LOCK(Stream[i].streamlock);
+    if (Stream[i].status & Free_Stream_f) {
+      ++i;
+      UNLOCK(Stream[i-1].streamlock);
+      continue;
     }
+    t1 = StreamName(i);
+    t2 = (Stream[i].status & Input_Stream_f ?
+	  MkAtomTerm (AtomRead) :
+	  MkAtomTerm (AtomWrite));
+    t3 = MkStream (i++);
+    UNLOCK(Stream[i-1].streamlock);
+    EXTRA_CBACK_ARG (3, 1) = Unsigned (MkIntTerm (i));
+    if (Yap_unify (ARG3, t3) && Yap_unify_constant (ARG1, t1) && Yap_unify_constant (ARG2, t2)) {
+      return TRUE;
+    } else {
+      return FALSE;
+    }
+  }
   cut_fail();
 }
 
@@ -3296,6 +3295,7 @@ p_past_eof (void)
   if (sno < 0)
     return (FALSE);
   if (Stream[sno].stream_getc == PlUnGetc) {
+    UNLOCK(Stream[sno].streamlock);
     return FALSE;
   }
   out = Stream[sno].status & Eof_Stream_f;
@@ -3408,7 +3408,7 @@ p_set_input (void)
     return (FALSE);
   Yap_c_input_stream = sno;
   UNLOCK(Stream[sno].streamlock);
-  return (TRUE);
+  return TRUE;
 }
 
 static Int
@@ -3416,7 +3416,7 @@ p_set_output (void)
 {				/* '$set_output'(+Stream,-ErrorMessage)  */
   Int sno = CheckStream (ARG1, Output_Stream_f, "set_output/1");
   if (sno < 0)
-    return (FALSE);
+    return FALSE;
   Yap_c_output_stream = sno;
   UNLOCK(Stream[sno].streamlock);
   return (TRUE);
@@ -3428,6 +3428,7 @@ p_has_bom (void)
   Int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "has_bom/1");
   if (sno < 0)
     return (FALSE);
+  UNLOCK(Stream[sno].streamlock);
   return ((Stream[sno].status & HAS_BOM_f));
 }
 
@@ -3440,6 +3441,7 @@ p_representation_error (void)
   Term t = Deref(ARG2);
 
   if (IsVarTerm(t)) {
+    UNLOCK(Stream[sno].streamlock);
     if (Stream[sno].status & RepError_Prolog_f) {
       return Yap_unify(ARG2, MkIntegerTerm(512));
     }
@@ -3477,14 +3479,14 @@ p_current_input (void)
     if (CellPtr(t1) < H0) Yap_WakeUp(VarOfTerm(t1));
   bind_in_current_input:
 #endif
-    return(TRUE);
+    return TRUE;
   } else if (!IsApplTerm(t1) ||
 	     FunctorOfTerm(t1) != FunctorStream ||
 	     !IsIntTerm((t1=ArgOfTerm(1,t1)))) {
     Yap_Error(DOMAIN_ERROR_STREAM,t1,"current_input/1");
-    return(FALSE);
+    return FALSE;
   } else {
-    return(Yap_c_input_stream == IntOfTerm(t1));
+    return Yap_c_input_stream == IntOfTerm(t1);
   }
 }
 
@@ -3500,12 +3502,12 @@ p_current_output (void)
     if (CellPtr(t1) < H0) Yap_WakeUp(VarOfTerm(t1));
   bind_in_current_output:
 #endif
-    return(TRUE);
+    return TRUE;
   } else if (!IsApplTerm(t1) ||
 	     FunctorOfTerm(t1) != FunctorStream ||
 	     !IsIntTerm((t1=ArgOfTerm(1,t1)))) {
     Yap_Error(DOMAIN_ERROR_STREAM,t1,"current_output/1");
-    return(FALSE);
+    return FALSE;
   } else {
     return(Yap_c_output_stream == IntOfTerm(t1));
   }
@@ -5879,6 +5881,7 @@ p_encoding (void)
   if (sno < 0)
     return FALSE;
   if (IsVarTerm(t)) {
+    UNLOCK(Stream[sno].streamlock);
     return Yap_unify(ARG2, MkIntegerTerm(Stream[sno].encoding));
   }
   Stream[sno].encoding = IntegerOfTerm(Deref(ARG2));

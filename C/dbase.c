@@ -3810,7 +3810,7 @@ p_total_erased(void)
   /* only for log upds */
   while (cl) {
     cls++;
-    fprintf(stderr,"cl=%p, %x %d\n",cl,cl->ClFlags,cl->ClRefCount);
+    fprintf(stderr,"cl=%p, %lx %lu\n",cl,(unsigned long int)cl->ClFlags,(unsigned long int)cl->ClRefCount);
     sz += cl->ClSize;
     cl = cl->ClNext;
   }
