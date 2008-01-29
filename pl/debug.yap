@@ -146,10 +146,6 @@ debug :-
 	nb_setval('$debug',Mode),
 	nb_setval('$debug_run',off).
 	
-'$start_debugging'(Mode) :-
-	nb_setval('$debug',Mode),
-	nb_setval('$debug_run',off).
-	
 nodebug :-
 	nb_setval('$debug',off),
 	nb_setval('$trace',off),
