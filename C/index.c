@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2008-01-24 10:20:42 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-01-30 10:35:43 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.195  2008/01/24 10:20:42  vsc
+* clause should not try to discover who is fail.
+*
 * Revision 1.194  2008/01/24 00:11:59  vsc
 * garbage collector was not asking for space.
 * avoid 0 sized calls to mmap.
@@ -598,7 +601,7 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
 static inline int
 smaller(Term t1, Term t2)
 {
-  CELL tg1 = TagOf(t1), tg2 = TagOf(t2);
+  CELL tg1 = LowTagOf(t1), tg2 = LowTagOf(t2);
   if (tg1 == tg2) {
     return t1 < t2;
   } else
@@ -608,7 +611,7 @@ smaller(Term t1, Term t2)
 static inline int
 smaller_or_eq(Term t1, Term t2)
 {
-  CELL tg1 = TagOf(t1), tg2 = TagOf(t2);
+  CELL tg1 = LowTagOf(t1), tg2 = LowTagOf(t2);
   if (tg1 == tg2) {
     return t1 <= t2;
   } else
@@ -3621,13 +3624,13 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint, CELL func_
 }
 
 static AtomSwiEntry *
-emit_cswitch(int n, yamop *fail_l, struct intermediates *cint)
+emit_cswitch(COUNT n, yamop *fail_l, struct intermediates *cint)
 {
   compiler_vm_op op;
   AtomSwiEntry *target;
 
   if (n > MIN_HASH_ENTRIES) {
-    int cases = MIN_HASH_ENTRIES, i;
+    COUNT cases = MIN_HASH_ENTRIES, i;
     n += 1+n/4;
     while (cases < n) cases *= 2;
     n = cases;
@@ -3688,7 +3691,7 @@ fetch_centry(AtomSwiEntry *cebase, Term wt, int i, int n)
 }
 
 static FuncSwiEntry *
-emit_fswitch(int n, yamop *fail_l, struct intermediates *cint)
+emit_fswitch(COUNT n, yamop *fail_l, struct intermediates *cint)
 {
   compiler_vm_op op;
   FuncSwiEntry *target;
@@ -4017,9 +4020,9 @@ do_var_entries(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, in
 static UInt
 do_consts(GroupDef *grp, Term t, struct intermediates *cint, int compound_term, CELL *sreg, UInt arity, int last_arg, UInt argno, int first, UInt nxtlbl, int clleft, CELL *top)
 {
-  UInt n;
+  COUNT n;
   ClauseDef *min = grp->FirstClause;
-  UInt i;
+  COUNT i;
   UInt lbl;
   /* generate a switch */
   AtomSwiEntry *cs;
@@ -4072,9 +4075,9 @@ do_consts(GroupDef *grp, Term t, struct intermediates *cint, int compound_term, 
 static void
 do_blobs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int first, UInt nxtlbl, int clleft, CELL *top)
 {
-  UInt n;
+  COUNT n;
   ClauseDef *min = grp->FirstClause;
-  UInt i;
+  COUNT i;
   /* generate a switch */
   AtomSwiEntry *cs;
   PredEntry *ap = cint->CurrentPred;
@@ -4106,9 +4109,9 @@ do_blobs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
 static UInt
 do_funcs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int first, int last_arg, UInt nxtlbl, int clleft, CELL *top)
 {
-  UInt n = count_funcs(grp);
+  COUNT n = count_funcs(grp);
   ClauseDef *min = grp->FirstClause;
-  UInt i;
+  COUNT i;
   FuncSwiEntry *fs;
   UInt lbl;
 
@@ -4135,6 +4138,7 @@ do_funcs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
        ifs->u.Label = suspend_indexing(min, max, ap, cint);
        } else 
     */
+
     if (IsExtensionFunctor(f)) {
       if (f == FunctorDBRef) 
 	ifs->u.Label = do_dbref_index(min, max, t, cint, argno, nxtlbl, first, clleft, top);

@@ -18,7 +18,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
-* version:      $Id: Tags_32Ops.h,v 1.2 2005-12-23 00:20:14 vsc Exp $	 *
+* version:      $Id: Tags_32Ops.h,v 1.3 2008-01-30 10:35:43 vsc Exp $	 *
 *************************************************************************/
 
 /*
@@ -91,6 +91,7 @@ are now 1 in compound terms and structures.
 #endif
 
 #define TagOf(t) 	(Unsigned(t)&TagBits)
+#define LowTagOf(t) 	(Unsigned(t)&TagBits)
 #define	NonTagPart(X)	(Signed(X) & MaskPrim)
 #define TAGGEDA(TAG,V)	(TAG | Unsigned(V))
 #define TAGGED(TAG,V)   (TAG | NonTagPart(Unsigned(V)<<2))

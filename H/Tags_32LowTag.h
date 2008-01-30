@@ -11,7 +11,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
-* version:      $Id: Tags_32LowTag.h,v 1.3 2005-05-31 08:21:43 ricroc Exp $	 *
+* version:      $Id: Tags_32LowTag.h,v 1.4 2008-01-30 10:35:43 vsc Exp $	 *
 *************************************************************************/
 
 #define TAG_LOW_BITS_32 1
@@ -66,6 +66,7 @@
 #define NumberMask  /* 0x0000000bL */ MKTAG(0x2,3)
 
 #define	TagOf(V)	(Unsigned(V) & LowTagBits)
+#define	LowTagOf(V)	(Unsigned(V) & LowTagBits)
 #define	NonTagPart(V)	((Unsigned(V)>>1) & ~LowTagBits)
 #define TAGGED(TAG,V)	(((Unsigned(V)<<(SHIFT_HIGH_TAG+SHIFT_LOW_TAG+1))>>1)|(TAG))
 #define NONTAGGED(TAG,V) ((Unsigned(V)<<(SHIFT_HIGH_TAG+SHIFT_LOW_TAG+1))>>1)
