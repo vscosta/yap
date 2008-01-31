@@ -125,4 +125,32 @@ key_statistics(Key, NOfEntries, TotalSize) :-
 	key_statistics(Key, NOfEntries, ClSize, IndxSize),
 	TotalSize is ClSize+IndxSize.
 
-	
+
+%%	time(:Goal)
+%
+%	Time the execution of Goal.  Possible choice-points of Goal are removed.
+%	Based on the SWI-Prolog definition minus reporting the number of inferences,
+%	which YAP does not currently supports
+
+:- meta_predicate time(:).
+
+time(Goal) :-
+	statistics(walltime, _),
+	statistics(cputime, _), 
+	(   catch(Goal, E, true)
+	->  Result = yes
+	;   Result = no
+	),
+	statistics(cputime, [_, Time]),
+	statistics(walltime, [_, Wall]),
+	(   Time =:= 0
+	->  CPU = 'Inf'
+	;   CPU is truncate(Time/Wall*100)
+	),
+	TimeSecs is Time/1000,
+	WallSecs is Wall/1000,
+	format("% ~3f CPU in ~3f seconds (~|~t~d~3+% CPU)~n", [TimeSecs, WallSecs, CPU]),
+	(   nonvar(E)
+	->  throw(E)
+	;   Result == yes
+	).

@@ -6306,7 +6306,6 @@ Unify the current value of mutable term @var{M} with term @var{D}.
 Set the current value of mutable term @var{M} to term @var{D}.
 @end table
 
-<<<<<<< yap.tex
 @node Global Variables, Profiling, Profiling, Term Modification, Top
 @section Global Variables
 
@@ -7232,6 +7231,15 @@ Space in kbytes currently being used and still available for the trail.
 This gives the clock time in milliseconds since starting Prolog.
 
 @end table
+
+@item time(:@var{Goal})
+@findex time/1
+@snindex time/1
+@cnindex time/1
+Prints the CPU time and the wall time for the execution of @var{Goal}.
+Possible choice-points of @var{Goal} are removed. Based on the SWI-Prolog 
+definition (minus reporting the number of inferences, which YAP currently
+does not support).
 
 @item yap_flag(?@var{Param},?@var{Value})
 @findex yap_flag/2
