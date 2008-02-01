@@ -691,6 +691,12 @@ Yap_DebugPutc(int sno, wchar_t ch)
   return (putc(ch, Yap_stderr));
 }
 
+void
+Yap_DebugPlWrite(Term t)
+{
+  Yap_plwrite(t, Yap_DebugPutc, 0);
+}
+
 void 
 Yap_DebugErrorPutc(int c)
 {
