@@ -42,7 +42,7 @@ static void     traverse_trie_print(TrNode node, YAP_Int *arity, char *str, int 
 /* -------------------------- */
 
 static TrEngine CURRENT_TRIE_ENGINE;
-static YAP_Int CURRENT_TRIE_MODE, CURRENT_DEPTH, CURRENT_INDEX, USAGE_ENTRIES, USAGE_NODES, USAGE_VIRTUAL_NODES;
+static YAP_Int CURRENT_TRIE_MODE, CURRENT_LOAD_VERSION, CURRENT_DEPTH, CURRENT_INDEX, USAGE_ENTRIES, USAGE_NODES, USAGE_VIRTUAL_NODES;
 static YAP_Term AUXILIARY_TERM_STACK[AUXILIARY_TERM_STACK_SIZE];
 static YAP_Term *stack_args, *stack_args_base, *stack_vars, *stack_vars_base;
 static YAP_Functor FunctorComma;
@@ -364,9 +364,9 @@ void trie_save(TrNode node, FILE *file, void (*save_function)(TrNode, FILE *)) {
   CURRENT_INDEX = -1;
   DATA_SAVE_FUNCTION = save_function;
   if (TrNode_child(node)) {
-    fprintf(file, "BEGIN_TRIE ");
+    fprintf(file, "BEGIN_TRIE_v2 ");
     traverse_trie_save(TrNode_child(node), file, 0);
-    fprintf(file, "END_TRIE");
+    fprintf(file, "END_TRIE_v2");
   }
   return;
 }
@@ -375,14 +375,21 @@ void trie_save(TrNode node, FILE *file, void (*save_function)(TrNode, FILE *)) {
 inline
 TrNode trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode, YAP_Int, FILE *)) {
   TrNode node;
+  char version[15];
 
   CURRENT_TRIE_ENGINE = engine;
   CURRENT_INDEX = -1;
   CURRENT_DEPTH = 0;
   DATA_LOAD_FUNCTION = load_function;
   node = trie_open(engine);
-  if (!fscanf(file, "BEGIN_TRIE"))
+  fscanf(file, "%s", version);
+  if (!strcmp(version, "BEGIN_TRIE_v2")) {
+    CURRENT_LOAD_VERSION = 2;
     traverse_trie_load(node, file);
+  } else if (!strcmp(version, "BEGIN_TRIE")) {
+    CURRENT_LOAD_VERSION = 1;
+    traverse_trie_load(node, file);
+  }
   return node;
 }
 
@@ -809,6 +816,7 @@ TrNode copy_child_nodes(TrNode parent_dest, TrNode child_source) {
   return child_dest;
 }
 
+
 static
 void traverse_tries_join(TrNode parent_dest, TrNode parent_source){
   TrNode child_dest, child_source;
@@ -994,7 +1002,7 @@ void traverse_trie_save(TrNode node, FILE *file, int float_block) {
 	fprintf(stderr, "\nTries base module: term stack full");
       AUXILIARY_TERM_STACK[CURRENT_INDEX] = t;
       if (YAP_IsAtomTerm(t))
-	  fprintf(file, "%lu %d %s ", ATOM_SAVE_MARK, index, YAP_AtomName(YAP_AtomOfTerm(t)));
+	  fprintf(file, "%lu %d %s%c ", ATOM_SAVE_MARK, index, YAP_AtomName(YAP_AtomOfTerm(t)), '\0');
       else  /* (ApplTag & t) */
 	fprintf(file, "%lu %d %s %d ", FUNCTOR_SAVE_MARK, index,
 		YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)(~ApplTag & t))),
@@ -1046,7 +1054,16 @@ void traverse_trie_load(TrNode parent, FILE *file) {
       fscanf(file, "%d", &index);
       if (index > CURRENT_INDEX) {
 	char atom[1000];
-	fscanf(file, "%s", atom);
+	if (CURRENT_LOAD_VERSION == 2) {
+	  char *ptr, ch;
+	  ptr = atom;
+	  fgetc(file);  /* skip the first empty space */
+	  while ((ch = fgetc(file)))
+	    *ptr++ = ch;
+	  *ptr = '\0';
+	} else if (CURRENT_LOAD_VERSION == 1) {
+	  fscanf(file, "%s", atom);
+	}
 	AUXILIARY_TERM_STACK[index] = YAP_MkAtomTerm(YAP_LookupAtom(atom));
 	CURRENT_INDEX++;
       }
