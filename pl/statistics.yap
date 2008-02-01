@@ -149,7 +149,7 @@ time(Goal) :-
 	),
 	TimeSecs is Time/1000,
 	WallSecs is Wall/1000,
-	format("% ~3f CPU in ~3f seconds (~|~t~d~3+% CPU)~n", [TimeSecs, WallSecs, CPU]),
+	format("% ~3f CPU in ~3f seconds (~|~t~w~3+% CPU)~n", [TimeSecs, WallSecs, CPU]),
 	(   nonvar(E)
 	->  throw(E)
 	;   Result == yes
