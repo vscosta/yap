@@ -338,7 +338,7 @@ Prolog systems.
 
  @item Functionality: it supports stream I/O, sockets, modules,
 exceptions, Prolog debugger, C-interface, dynamic code, internal
-database, DCGs, saved states, co-routining, arrays.
+database, DCGs, saved states, co-routining, arrays, threads.
 
  @item We explicitly allow both commercial and non-commercial use of YAP.
 @end itemize
@@ -1264,7 +1264,7 @@ Examples:
 
 The first string is an empty string, the last string shows the use of
 double-quoting. The implementation of YAP represents strings as
-lists of integers. Since YAP4.3.0 there is no static limit on string
+lists of integers. Since YAP 4.3.0 there is no static limit on string
 size.
 
 Escape sequences can be used to include the non-printable characters
@@ -2596,7 +2596,7 @@ The built-in @code{repeat/1} could be defined in Prolog by:
  repeat :- repeat.
 @end example
 
-@item call(+@var{P}) [IS0]
+@item call(+@var{P}) [ISO]
 @findex call/1
 @syindex call/1
 @cyindex call/1
@@ -2642,7 +2642,7 @@ is converted to:
  a(X) :- call(X).
 @end example
 
-@item if(?@var{G},?@var{H},?@var{I}) [IS0]
+@item if(?@var{G},?@var{H},?@var{I})
 @findex if/3
 @syindex if/3
 @cnindex if/3
@@ -2689,7 +2689,7 @@ over @var{G}.
 If you want @var{G} to be deterministic you should use if-then-else, as
 it is both more efficient and more portable.
 
-@item once(:@var{G}) [IS0]
+@item once(:@var{G}) [ISO]
 @findex once/1
 @snindex once/1
 @cnindex once/1
@@ -2743,7 +2743,7 @@ Halts Prolog, and exits to the calling application. In YAP,
 Halts Prolog, and exits to the calling application returning the code
 given by the integer @var{I}.
 
-@item catch(+@var{Goal},+@var{Exception},+@var{Action}) [IS0]
+@item catch(+@var{Goal},+@var{Exception},+@var{Action}) [ISO]
 @findex catch/3
 @snindex catch/3
 @cnindex catch/3
@@ -2987,7 +2987,7 @@ unbound, if @var{T} is not a compound term, of if @var{N} is not a positive
 integer. Note that previous versions of YAP would fail silently
 under these errors.
 
-@item functor(@var{T},@var{F},@var{N})
+@item functor(@var{T},@var{F},@var{N}) [ISO]
 @findex functor/3
 @syindex functor/3
 @cyindex functor/3
@@ -3202,7 +3202,7 @@ The predicate holds when at least one of the arguments is ground
 will be unified with a number and @var{L} with the list of the ASCII
 codes for the characters of the external representation of @var{A}.
 
-@item atom_number(?@var{Atom},?@var{Number}) [ISO]
+@item atom_number(?@var{Atom},?@var{Number})
 @findex atom_number/2
 @syindex atom_number/2
 @cnindex atom_number/2
