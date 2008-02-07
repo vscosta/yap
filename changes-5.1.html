@@ -17,8 +17,10 @@ xb
 
 <h2>Yap-5.1.3:</h2>
 <ul>
+<li> NEW: variable_names_may_end_with_quotes allows A' in variable
+  names (request from Nicos Angelopoulos).</li>
 <li> SPEEDUP: quickly check if we are importing an undefined goal.</li>
-<li> FIXED: current_predicate/1 should enumerate all predicates
+<li> FIXED: current_predicate/1 should enumerate all non-system predicates
   visible (obs from Nicos Angelopoulos).</li>
 <li> NEW: time/1 (based on the SWI-Prolog time/1 predicate; request from Paulo Moura).</li>
 <li> FIXED: with 64 bits indexing would separate ints from atoms  (obs from   A N Saravanaraj).</li>

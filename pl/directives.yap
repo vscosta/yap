@@ -450,6 +450,19 @@ yap_flag(strict_iso,off) :- !,
 yap_flag(strict_iso,X) :-
 	'$do_error'(domain_error(flag_value,strict_iso+X),yap_flag(strict_iso,X)).
 
+yap_flag(variable_names_may_end_with_quotes,OUT) :-
+	var(OUT), !,
+	'$access_yap_flags'(21,X),
+	'$transl_to_on_off'(X,OUT).
+yap_flag(variable_names_may_end_with_quotes,on) :- !,
+	'$transl_to_on_off'(X,on),
+	'$set_yap_flags'(21,X).
+yap_flag(variable_names_may_end_with_quotes,off) :- !,
+	'$transl_to_on_off'(X,off),
+	'$set_yap_flags'(21,X).
+yap_flag(variable_names_may_end_with_quotes,X) :-
+	'$do_error'(domain_error(flag_value,strict_iso+X),yap_flag(strict_iso,X)).
+
 yap_flag(language,X) :-
 	var(X), !,
 	'$access_yap_flags'(8, X1),
@@ -780,6 +793,7 @@ yap_flag(dialect,yap).
             V = user_error ;
 	    V = user_input ;
             V = user_output ;
+            V = variable_names_may_end_with_quotes ;
             V = verbose_auto_load ;
             V = version ;
             V = version_data ;

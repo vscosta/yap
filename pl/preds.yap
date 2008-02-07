@@ -940,11 +940,11 @@ system_predicate(P) :-
 	 functor(T,A,Arity),
 	'$pred_exists'(T,M)
 	;
-	 '$current_predicate'(prolog,A,Arity)
-	->
-	 functor(T,A,Arity),
-	'$pred_exists'(T,M)
-	;
+%	 '$current_predicate'(prolog,A,Arity)
+%	->
+%	 functor(T,A,Arity),
+%	'$pred_exists'(T,M)
+%	;
 	 recorded('$import','$import'(NM,M,G,T,A,Arity),_)
 	->
 	'$pred_exists'(G,NM)
@@ -955,10 +955,10 @@ system_predicate(P) :-
 	 functor(T,A,Arity),
 	'$pred_exists'(T,M)
 	;
-	 '$current_predicate'(prolog,A,Arity),
-	 functor(T,A,Arity),
-	'$pred_exists'(T,M)
-	;
+%	 '$current_predicate'(prolog,A,Arity),
+%	 functor(T,A,Arity),
+%	'$pred_exists'(T,M)
+%	;
 	 recorded('$import','$import'(NM,M,G,T,A,Arity),_),
 	 functor(T,A,Arity),
 	'$pred_exists'(G,NM)

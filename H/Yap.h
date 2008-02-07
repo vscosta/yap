@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.25 2008-01-28 10:42:20 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.26 2008-02-07 23:09:13 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -520,8 +520,9 @@ typedef enum
   GENERATE_DEBUG_INFO_FLAG = 18,
   INDEXING_MODE_FLAG = 19,
   TABLING_MODE_FLAG = 20,
+  VARS_CAN_HAVE_QUOTE_FLAG = 21,
   /* let this be the last one */
-  LAST_FLAG = 21
+  LAST_FLAG = 22
 } yap_flags;
 
 #define STRING_AS_CHARS		0

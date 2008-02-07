@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2008-01-23 17:57:53 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-02-07 23:09:13 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.125  2008/01/23 17:57:53  vsc
+* valgrind it!
+* enable atom garbage collection.
+*
 * Revision 1.124  2007/11/26 23:43:08  vsc
 * fixes to support threads and assert correctly, even if inefficiently.
 *
@@ -3607,6 +3611,11 @@ p_set_yap_flags(void)
     } 
     break;
 #endif /* TABLING */
+  case VARS_CAN_HAVE_QUOTE_FLAG:
+    if (value != 0  && value != 1)
+      return(FALSE);
+    yap_flags[VARS_CAN_HAVE_QUOTE_FLAG] = value;
+    break;
   default:
     return(FALSE);
   }

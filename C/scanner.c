@@ -805,6 +805,7 @@ Yap_tokenizer(int inp_stream)
       *charp++ = och;
       for (; chtype(ch) <= NU; ch = Nxtch(inp_stream)) {
 	if (charp == (char *)AuxSp-1024) {
+	huge_var_error:
 	  /* huge atom or variable, we are in trouble */
 	  Yap_ErrorMessage = "Code Space Overflow due to huge atom";
 	  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
@@ -816,6 +817,13 @@ Yap_tokenizer(int inp_stream)
 	  return l;
 	}
 	*charp++ = ch;
+      }
+      while (ch == '\'' && isvar && yap_flags[VARS_CAN_HAVE_QUOTE_FLAG]) {
+	if (charp == (char *)AuxSp-1024) {
+	  goto huge_var_error;
+	}
+	*charp++ = ch;
+	ch = Nxtch(inp_stream);
       }
       *charp++ = '\0';
       if (!isvar) {
