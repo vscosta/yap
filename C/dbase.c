@@ -1943,10 +1943,11 @@ p_rcda(void)
     return (FALSE);
   pe = find_lu_entry(t1);
   Yap_Error_Size = 0;
-  LOCK(pe->PELock);
  restart_record:
   if (pe) {
     LogUpdClause *cl;
+
+    LOCK(pe->PELock);
     cl = record_lu(pe, t2, MkFirst);
     if (cl != NULL) {
       TRAIL_CLREF(cl);
@@ -1959,10 +1960,10 @@ p_rcda(void)
     } else {
       TRef = TermNil;
     }
-  } else { 
-    TRef = MkDBRefTerm(record(MkFirst, t1, t2, Unsigned(0)));
+    UNLOCK(pe->PELock);
+  } else {
+    TRef = 0L;
   }
-  UNLOCK(pe->PELock);
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(3)) {
       t2 = Deref(ARG2);
@@ -1971,6 +1972,8 @@ p_rcda(void)
       return FALSE;
     }
   }
+  if (!pe)
+    return FALSE;
   return Yap_unify(ARG3, TRef);
 }
 
@@ -2053,7 +2056,10 @@ p_rcdz(void)
   Yap_Error_Size = 0;
  restart_record:
   if (pe) {
-    LogUpdClause *cl = record_lu(pe, t2, MkLast);
+    LogUpdClause *cl;
+
+    LOCK(pe->PELock);
+    cl = record_lu(pe, t2, MkLast);
     if (cl != NULL) {
       TRAIL_CLREF(cl);
 #if defined(YAPOR) || defined(THREADS)
@@ -2065,8 +2071,9 @@ p_rcdz(void)
     } else {
       TRef = TermNil;
     }
-  } else { 
-    TRef = MkDBRefTerm(record(MkLast, t1, t2, Unsigned(0)));
+    UNLOCK(pe->PELock);
+  } else {
+    TRef = 0L;
   }
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(3)) {
@@ -2077,6 +2084,8 @@ p_rcdz(void)
       return FALSE;
     }
   }
+  if (!pe)
+    return FALSE;
   return Yap_unify(ARG3, TRef);
 }
 
