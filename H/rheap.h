@@ -11,8 +11,12 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-01-23 17:57:55 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-02-07 21:39:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.83  2008/01/23 17:57:55  vsc
+* valgrind it!
+* enable atom garbage collection.
+*
 * Revision 1.82  2007/12/05 12:17:23  vsc
 * improve JT
 * fix graph compatibility with SICStus
@@ -1161,7 +1165,9 @@ CleanCode(PredEntry *pp)
   }
   if (pp->ArityOfPE) {
     if (pp->ModuleOfPred == IDB_MODULE) {
-      if (pp->PredFlags & AtomDBPredFlag) {
+      if (pp->PredFlags & NumberDBPredFlag) {
+	/* it's an integer, do nothing */
+      } else if (pp->PredFlags & AtomDBPredFlag) {
 	pp->FunctorOfPred = (Functor)AtomAdjust((Atom)(pp->FunctorOfPred));
       } else {
 	pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
