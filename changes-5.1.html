@@ -7,7 +7,7 @@
 	<title>YAP change log</title>
 	<link rel=stylesheet href="changes.css" type="text/css">
 </head>
-
+xb
 
 <body>
 
@@ -17,6 +17,9 @@
 
 <h2>Yap-5.1.3:</h2>
 <ul>
+<li> SPEEDUP: quickly check if we are importing an undefined goal.</li>
+<li> FIXED: current_predicate/1 should enumerate all predicates
+  visible (obs from Nicos Angelopoulos).</li>
 <li> NEW: time/1 (based on the SWI-Prolog time/1 predicate; request from Paulo Moura).</li>
 <li> FIXED: with 64 bits indexing would separate ints from atoms  (obs from   A N Saravanaraj).</li>
 <li> FIXED: duplicated clause when starting from trace (obs from   A N Saravanaraj).</li>

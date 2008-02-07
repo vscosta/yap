@@ -381,68 +381,6 @@ current_atom(A) :-				% generate
 current_atom(A) :-				% generate
 	'$current_wide_atom'(A).
 
-current_predicate(A,T) :- var(T), !,		% only for the predicate
-	'$current_module'(M),
-	'$current_predicate_no_modules'(M,A,T).
-current_predicate(A,M:T) :-			% module specified
-	var(M), !,
-	current_module(M),
-	M \= prolog,
-	'$current_predicate_no_modules'(M,A,T).
-current_predicate(A,M:T) :- % module specified
-	nonvar(T),
-	!,
-	functor(T,A,_),
-	'$pred_exists'(T,M).
-current_predicate(A,M:T) :- % module specified
-	!,
-	'$current_predicate_no_modules'(M,A,T).
-current_predicate(A,T) :-			% only for the predicate
-	'$current_module'(M),
-	'$current_predicate_no_modules'(M,A,T).
-
-current_predicate(F) :-	var(F), !,		% only for the predicate
-	'$current_module'(M),
-	'$current_predicate3'(M,F).
-current_predicate(M:F) :-			% module specified
-	var(M), !,
-	'$current_module'(M),
-	M \= prolog,
-	'$current_predicate3'(M,F).
-current_predicate(M:F) :- % module specified
-	!,
-	'$current_predicate3'(M,F).
-current_predicate(S) :-			% only for the predicate
-	'$current_module'(M),
-	'$current_predicate3'(M,S).
-	
-system_predicate(A,P) :-
-	'$current_predicate_no_modules'(prolog,A,P),
-	\+ '$hidden'(A).
-
-system_predicate(P) :-
-	'$current_module'(M),
-	'$system_predicate'(P,M).
-
-'$current_predicate_no_modules'(M,A,T) :-
-	'$current_predicate'(M,A,Arity),
-	functor(T,A,Arity),
-	'$pred_exists'(T,M).
-
-'$current_predicate3'(M,A/Arity) :- !,
-	'$current_predicate'(M,A,Arity),
-	functor(T,A,Arity),
-	'$pred_exists'(T,M).
-'$current_predicate3'(M,BadSpec) :-			% only for the predicate
-	'$do_error'(type_error(predicate_indicator,BadSpec),current_predicate(M:BadSpec)).
-
-current_key(A,K) :-
-	'$current_predicate'(idb,A,Arity),
-	functor(K,A,Arity).
-current_key(A,K) :-
-	'$current_immediate_key'(A,K).
-
-
 %%% The unknown predicate,
 %	informs about what the user wants to be done when
 %	there are no clauses for a certain predicate */

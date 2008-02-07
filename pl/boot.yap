@@ -810,21 +810,15 @@ not(G) :-    \+ '$execute'(G).
 '$undefp'([M|G]) :-
 	% make sure we do not loop on undefined predicates
         % for undefined_predicates.
+	(
+	 recorded('$import','$import'(NM,M,Goal,G,_,_),_)
+	;
 	'$enter_undefp',
-	'$find_undefp_handler'(G,M,Goal,NM), !,
+	once('$find_undefp_handler'(G,M,Goal,NM))
+	),
+	!,
 	'$execute0'(Goal,NM).
 
-'$find_undefp_handler'(G,M,NG,S) :-
-	recorded('$import','$import'(S,M,NG,G,_,_),_),
-	S \= M, % can't try importing from the module itself.
-	!,
-	'$exit_undefp'.
-/*
-'$find_undefp_handler'(G,M,NG,M) :-
-	'$is_expand_goal_or_meta_predicate'(G,M),
-	'$system_catch'(goal_expansion(G, M, NG), user, _, fail), !,
-	'$exit_undefp'.
-*/
 '$find_undefp_handler'(G,M,NG,user) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
 	'$system_catch'(unknown_predicate_handler(G,M,NG), user, Error, '$leave_undefp'(Error)), !,
