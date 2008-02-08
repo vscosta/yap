@@ -38,9 +38,9 @@
 #define FloatInitTag  67  /* 0x43 */
 #define FloatEndTag   83  /* 0x53 */
 
-#define TRIE_MODE_STANDARD           0
-#define TRIE_MODE_REVERSE            1
-#define AUXILIARY_TERM_STACK_SIZE 100000
+#define TRIE_MODE_STANDARD             0
+#define TRIE_MODE_REVERSE              1
+#define BASE_AUXILIARY_TERM_STACK_SIZE 1000
 
 #define TRIE_PRINT_NORMAL    0
 #define TRIE_PRINT_FLOAT     1
@@ -136,11 +136,11 @@ typedef struct trie_hash {
 #define HASH_TERM(TERM, SEED)    (((TERM) >> 4) & (SEED))
 #define IS_HASH_NODE(NODE)       (TrHash_mark(NODE) == NULL)
 
-#define HASH_SAVE_MARK           ((YAP_Term) MkTrieVar(AUXILIARY_TERM_STACK_SIZE))
-#define ATOM_SAVE_MARK           ((YAP_Term) MkTrieVar(AUXILIARY_TERM_STACK_SIZE + 1))
-#define FUNCTOR_SAVE_MARK        ((YAP_Term) MkTrieVar(AUXILIARY_TERM_STACK_SIZE + 2))
-#define FLOAT_SAVE_MARK          ((YAP_Term) MkTrieVar(AUXILIARY_TERM_STACK_SIZE + 3))
-
+#define BASE_SAVE_MARK           1000  /* could lead to errors if the number of different variables in a term is greater than it */
+#define HASH_SAVE_MARK           ((YAP_Term) MkTrieVar(BASE_SAVE_MARK))
+#define ATOM_SAVE_MARK           ((YAP_Term) MkTrieVar(BASE_SAVE_MARK + 1))
+#define FUNCTOR_SAVE_MARK        ((YAP_Term) MkTrieVar(BASE_SAVE_MARK + 2))
+#define FLOAT_SAVE_MARK          ((YAP_Term) MkTrieVar(BASE_SAVE_MARK + 3))
 
 #define STACK_NOT_EMPTY(STACK, STACK_BASE) STACK != STACK_BASE
 #define POP_UP(STACK)                      *--STACK
@@ -198,6 +198,17 @@ typedef struct trie_hash {
           for (i = NUM_BUCKETS; i != 0; i--)                                       \
             *ptr++ = NULL;                                                         \
           INCREMENT_MEMORY(CURRENT_TRIE_ENGINE, (NUM_BUCKETS) * SIZEOF_TR_BUCKET); \
+        }
+
+
+#define expand_auxiliary_term_stack()                                              \
+        { YAP_Term *aux_stack;                                                     \
+          YAP_Int aux_size = CURRENT_AUXILIARY_TERM_STACK_SIZE * sizeof(YAP_Term); \
+	  new_struct(aux_stack, YAP_Term, aux_size * 2);                           \
+	  memcpy(aux_stack, AUXILIARY_TERM_STACK, aux_size);                       \
+	  free_struct(AUXILIARY_TERM_STACK);                                       \
+  	  AUXILIARY_TERM_STACK = aux_stack;                                        \
+          CURRENT_AUXILIARY_TERM_STACK_SIZE *= 2;                                  \
         }
 
 

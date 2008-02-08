@@ -42,8 +42,9 @@ static void     traverse_trie_print(TrNode node, YAP_Int *arity, char *str, int 
 /* -------------------------- */
 
 static TrEngine CURRENT_TRIE_ENGINE;
-static YAP_Int CURRENT_TRIE_MODE, CURRENT_LOAD_VERSION, CURRENT_DEPTH, CURRENT_INDEX, USAGE_ENTRIES, USAGE_NODES, USAGE_VIRTUAL_NODES;
-static YAP_Term AUXILIARY_TERM_STACK[AUXILIARY_TERM_STACK_SIZE];
+static YAP_Int USAGE_ENTRIES, USAGE_NODES, USAGE_VIRTUAL_NODES;
+static YAP_Int CURRENT_AUXILIARY_TERM_STACK_SIZE, CURRENT_TRIE_MODE, CURRENT_LOAD_VERSION, CURRENT_DEPTH, CURRENT_INDEX;
+static YAP_Term *AUXILIARY_TERM_STACK;
 static YAP_Term *stack_args, *stack_args_base, *stack_vars, *stack_vars_base;
 static YAP_Functor FunctorComma;
 static void (*DATA_SAVE_FUNCTION)(TrNode, FILE *);
@@ -204,6 +205,8 @@ TrEngine trie_init_module(void) {
   TrEngine engine;
 
   if (init_once) {
+    new_struct(AUXILIARY_TERM_STACK, YAP_Term, BASE_AUXILIARY_TERM_STACK_SIZE * sizeof(YAP_Term));
+    CURRENT_AUXILIARY_TERM_STACK_SIZE = BASE_AUXILIARY_TERM_STACK_SIZE;
     CURRENT_TRIE_MODE = TRIE_MODE_STANDARD;
     FunctorComma = YAP_MkFunctor(YAP_LookupAtom(","), 2);
     init_once = 0;
@@ -270,7 +273,7 @@ TrNode trie_put_entry(TrEngine engine, TrNode node, YAP_Term entry, YAP_Int *dep
   CURRENT_TRIE_ENGINE = engine;
   CURRENT_DEPTH = 0;
   stack_args_base = stack_args = AUXILIARY_TERM_STACK;
-  stack_vars_base = stack_vars = AUXILIARY_TERM_STACK + AUXILIARY_TERM_STACK_SIZE - 1;
+  stack_vars_base = stack_vars = AUXILIARY_TERM_STACK + CURRENT_AUXILIARY_TERM_STACK_SIZE - 1;
   node = put_trie(node, entry);
   if (!IS_LEAF_TRIE_NODE(node)) {
     MARK_AS_LEAF_TRIE_NODE(node);
@@ -292,7 +295,7 @@ TrNode trie_check_entry(TrNode node, YAP_Term entry) {
   if (!TrNode_child(node))
     return NULL;
   stack_args_base = stack_args = AUXILIARY_TERM_STACK;
-  stack_vars_base = stack_vars = AUXILIARY_TERM_STACK + AUXILIARY_TERM_STACK_SIZE - 1;
+  stack_vars_base = stack_vars = AUXILIARY_TERM_STACK + CURRENT_AUXILIARY_TERM_STACK_SIZE - 1;
   node = check_trie(node, entry);
   /* reset var terms */
   while (STACK_NOT_EMPTY(stack_vars++, stack_vars_base)) {
@@ -307,7 +310,7 @@ inline
 YAP_Term trie_get_entry(TrNode node) {
   CURRENT_INDEX = -1;
   stack_vars_base = stack_vars = AUXILIARY_TERM_STACK;
-  stack_args_base = stack_args = AUXILIARY_TERM_STACK + AUXILIARY_TERM_STACK_SIZE - 1;
+  stack_args_base = stack_args = AUXILIARY_TERM_STACK + CURRENT_AUXILIARY_TERM_STACK_SIZE - 1;
   return get_trie(node, stack_args, &node);
 }
 
@@ -995,11 +998,11 @@ void traverse_trie_save(TrNode node, FILE *file, int float_block) {
     int index;
     for (index = 0; index <= CURRENT_INDEX; index++)
       if (AUXILIARY_TERM_STACK[index] == t)
-	break;	   
+	break;
     if (index > CURRENT_INDEX) {
-      CURRENT_INDEX++;
-      if (CURRENT_INDEX == AUXILIARY_TERM_STACK_SIZE)
-	fprintf(stderr, "\nTries base module: term stack full");
+      CURRENT_INDEX = index;
+      if (CURRENT_INDEX == CURRENT_AUXILIARY_TERM_STACK_SIZE)
+	expand_auxiliary_term_stack();
       AUXILIARY_TERM_STACK[CURRENT_INDEX] = t;
       if (YAP_IsAtomTerm(t))
 	  fprintf(file, "%lu %d %s%c ", ATOM_SAVE_MARK, index, YAP_AtomName(YAP_AtomOfTerm(t)), '\0');
@@ -1064,8 +1067,10 @@ void traverse_trie_load(TrNode parent, FILE *file) {
 	} else if (CURRENT_LOAD_VERSION == 1) {
 	  fscanf(file, "%s", atom);
 	}
-	AUXILIARY_TERM_STACK[index] = YAP_MkAtomTerm(YAP_LookupAtom(atom));
-	CURRENT_INDEX++;
+	CURRENT_INDEX = index;
+	if (CURRENT_INDEX == CURRENT_AUXILIARY_TERM_STACK_SIZE)
+	  expand_auxiliary_term_stack();
+	AUXILIARY_TERM_STACK[CURRENT_INDEX] = YAP_MkAtomTerm(YAP_LookupAtom(atom));
       }
       t = AUXILIARY_TERM_STACK[index];
     } else if (t == FUNCTOR_SAVE_MARK) {
@@ -1075,8 +1080,10 @@ void traverse_trie_load(TrNode parent, FILE *file) {
 	char atom[1000];
 	int arity;
 	fscanf(file, "%s %d", atom, &arity);
-	AUXILIARY_TERM_STACK[index] = ApplTag | ((YAP_Term) YAP_MkFunctor(YAP_LookupAtom(atom), arity));
-	CURRENT_INDEX++;
+	CURRENT_INDEX = index;
+	if (CURRENT_INDEX == CURRENT_AUXILIARY_TERM_STACK_SIZE)
+	  expand_auxiliary_term_stack();
+	AUXILIARY_TERM_STACK[CURRENT_INDEX] = ApplTag | ((YAP_Term) YAP_MkFunctor(YAP_LookupAtom(atom), arity));
       }
       t = AUXILIARY_TERM_STACK[index];
     } else if (t == FLOAT_SAVE_MARK)
