@@ -815,7 +815,7 @@ yap_flag(dialect,yap).
 	'$set_yap_flags'(12,0), % disable character escapes.
 	'$set_yap_flags'(14,1),
 	'$set_fpu_exceptions',
-	unknown(_,error).
+	unknown(_,fail).
 '$adjust_language'(sicstus) :-
 	'$switch_log_upd'(1),
 	leash(full),
@@ -833,7 +833,7 @@ yap_flag(dialect,yap).
 	fileerrors,
 	unknown(_,error).
 '$adjust_language'(iso) :-
-	'$switch_log_upd'(2),
+	'$switch_log_upd'(1),
 	'$syntax_check_mode'(_,on),
 	'$syntax_check_single_var'(_,on),
 	'$syntax_check_discontiguous'(_,on),

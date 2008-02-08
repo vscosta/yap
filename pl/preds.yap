@@ -939,29 +939,29 @@ system_predicate(P) :-
 	->
 	 functor(T,A,Arity),
 	'$pred_exists'(T,M)
-	;
+%	;
 %	 '$current_predicate'(prolog,A,Arity)
 %	->
 %	 functor(T,A,Arity),
 %	'$pred_exists'(T,M)
 %	;
-	 recorded('$import','$import'(NM,M,G,T,A,Arity),_)
-	->
-	'$pred_exists'(G,NM)
+%	 recorded('$import','$import'(NM,M,G,T,A,Arity),_)
+%	->
+%	'$pred_exists'(G,NM)
 	).
 '$current_predicate3'(M,A/Arity) :- !,
 	(
 	 '$current_predicate'(M,A,Arity),
 	 functor(T,A,Arity),
 	'$pred_exists'(T,M)
-	;
+%	;
 %	 '$current_predicate'(prolog,A,Arity),
 %	 functor(T,A,Arity),
 %	'$pred_exists'(T,M)
 %	;
-	 recorded('$import','$import'(NM,M,G,T,A,Arity),_),
-	 functor(T,A,Arity),
-	'$pred_exists'(G,NM)
+%	 recorded('$import','$import'(NM,M,G,T,A,Arity),_),
+%	 functor(T,A,Arity),
+%	'$pred_exists'(G,NM)
 	).
 '$current_predicate3'(M,BadSpec) :-			% only for the predicate
 	'$do_error'(type_error(predicate_indicator,BadSpec),current_predicate(M:BadSpec)).

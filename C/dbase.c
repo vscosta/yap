@@ -1962,7 +1962,7 @@ p_rcda(void)
     }
     UNLOCK(pe->PELock);
   } else {
-    TRef = 0L;
+    TRef = MkDBRefTerm(record(MkFirst, t1, t2, Unsigned(0)));
   }
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(3)) {
@@ -2073,7 +2073,7 @@ p_rcdz(void)
     }
     UNLOCK(pe->PELock);
   } else {
-    TRef = 0L;
+    TRef = MkDBRefTerm(record(MkLast, t1, t2, Unsigned(0)));
   }
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(3)) {

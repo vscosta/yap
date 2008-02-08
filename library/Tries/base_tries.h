@@ -40,7 +40,7 @@
 
 #define TRIE_MODE_STANDARD           0
 #define TRIE_MODE_REVERSE            1
-#define AUXILIARY_TERM_STACK_SIZE 1000
+#define AUXILIARY_TERM_STACK_SIZE 100000
 
 #define TRIE_PRINT_NORMAL    0
 #define TRIE_PRINT_FLOAT     1
