@@ -509,29 +509,41 @@ message_queue_create(Id, Options) :-
 message_queue_create(Id, Options) :-
 	var(Options), !,
 	'$do_error'(instantiation_error, message_queue_create(Id, Options)).
-	message_queue_create(Cond).
+message_queue_create(Id, []) :- !,
+	'$global_queue_mutex'(QMutex),
+	'$new_mutex'(Mutex),
+	'$cond_create'(Cond),
+	'$thread_new_qid'(Id),
+	recorda('$queue',q(Id,Mutex,Cond,Id), _),
+	'$unlock_mutex'(QMutex).
 message_queue_create(Id, [alias(Alias)]) :-
 	var(Alias), !,
-	'$do_error'(instantiation_error, message_queue_create(Id, Options)).
+	'$do_error'(instantiation_error, message_queue_create(Id, [alias(Alias)])).
 message_queue_create(Id, [alias(Alias)]) :-
-	atom(Alias),
-	(	recorded('$thread_alias', [_,Alias], _),
-	;	recorded('$queue', q(Alias,_,_,_), _)
-	), !,
-	'$do_error'(permission_error(create,queue,Alias), message_queue_create(Id, [alias(Alias)])).
+	\+ atom(Alias), !,
+	'$do_error'(type_error(atom,Alias), message_queue_create(Id, [alias(Alias)])).
 message_queue_create(Id, [alias(Alias)]) :-
-	mutex_create(Mutex),
-	'$cond_create'(Id),
-	'$mq_iname'(Id, CName),
-	recorda('$queue',q(Alias,Mutex,Id,CName), _).
-
-
+	'$global_queue_mutex'(QMutex),
+	'$lock_mutex'(QMutex),
+	'$new_mutex'(Mutex),
+	'$cond_create'(Cond),
+	'$thread_new_qid'(Id),
+	(	recorded('$queue', q(Alias,_,_,_), _) ->
+		'$unlock_mutex'(QMutex),
+		'$do_error'(permission_error(create,queue,alias(Alias)),message_queue_create(Id, [alias(Alias)]))
+	;	recorded('$thread_alias', [_,Alias], _) ->
+		'$unlock_mutex'(QMutex),
+		'$do_error'(permission_error(create,queue,alias(Alias)),message_queue_create(Id, [alias(Alias)]))
+	;	recorda('$queue',q(Alias,Mutex,Cond,Id), _),
+		'$unlock_mutex'(QMutex)
+	).
 
 message_queue_create(Id) :-
-	(	var(Id) ->
+	(	var(Id) ->		% ISO DTR
 		message_queue_create(Id, [])
-	;	atom(Id) ->
+	;	atom(Id) ->		% old behavior
 		message_queue_create(_, [alias(Id)])
+	;	
 	).
 */
 message_queue_create(_, [alias(Alias)]) :-	% TEMPORARY FIX
