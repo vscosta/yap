@@ -38,14 +38,15 @@
 #define FloatInitTag  67  /* 0x43 */
 #define FloatEndTag   83  /* 0x53 */
 
-#define TRIE_MODE_STANDARD             0
-#define TRIE_MODE_REVERSE              1
-#define BASE_AUXILIARY_TERM_STACK_SIZE 1000
+#define TRIE_MODE_STANDARD   0
+#define TRIE_MODE_REVERSE    1
 
 #define TRIE_PRINT_NORMAL    0
 #define TRIE_PRINT_FLOAT     1
 #define TRIE_PRINT_FLOAT2    2
 #define TRIE_PRINT_FLOAT_END 3
+
+#define BASE_AUXILIARY_TERM_STACK_SIZE 1000
 
 
 
@@ -270,13 +271,16 @@ inline void     trie_close(TrEngine engine, TrNode node, void (*destruct_functio
 inline void     trie_close_all(TrEngine engine, void (*destruct_function)(TrNode));
 inline void     trie_set_mode(YAP_Int mode);
 inline YAP_Int  trie_get_mode(void);
-inline TrNode   trie_put_entry(TrEngine engine, TrNode node, YAP_Term entry,  YAP_Int *depth);
+inline TrNode   trie_put_entry(TrEngine engine, TrNode node, YAP_Term entry, YAP_Int *depth);
 inline TrNode   trie_check_entry(TrNode node, YAP_Term entry);
 inline YAP_Term trie_get_entry(TrNode node);
 inline void     trie_remove_entry(TrEngine engine, TrNode node, void (*destruct_function)(TrNode));
 inline void     trie_remove_subtree(TrEngine engine, TrNode node, void (*destruct_function)(TrNode));
-inline void     trie_join(TrEngine engine, TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode));
 inline void     trie_add(TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode));
+inline void     trie_join(TrEngine engine, TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode), void (*construct_function)(TrNode, TrNode));
+inline void     trie_intersect(TrEngine engine, TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode), void (*destruct_function)(TrNode));
+inline YAP_Int  trie_count_join(TrNode node1, TrNode node2);
+inline YAP_Int  trie_count_intersect(TrNode node1, TrNode node2);
 inline void     trie_save(TrNode node, FILE *file, void (*save_function)(TrNode, FILE *));
 inline TrNode   trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode, YAP_Int, FILE *));
 inline void     trie_stats(TrEngine engine, YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes);

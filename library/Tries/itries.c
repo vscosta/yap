@@ -38,9 +38,12 @@ static int p_itrie_traverse_init(void);
 static int p_itrie_traverse_cont(void);
 static int p_itrie_remove_entry(void);
 static int p_itrie_remove_subtree(void);
-static int p_itrie_join(void);
 static int p_itrie_add(void);
 static int p_itrie_subtract(void);
+static int p_itrie_join(void);
+static int p_itrie_intersect(void);
+static int p_itrie_count_join(void);
+static int p_itrie_count_intersect(void);
 static int p_itrie_save(void);
 static int p_itrie_load(void);
 static int p_itrie_stats(void);
@@ -70,9 +73,12 @@ void init_itries(void) {
   YAP_UserBackCPredicate("itrie_traverse", p_itrie_traverse_init, p_itrie_traverse_cont, 2, 0);
   YAP_UserCPredicate("itrie_remove_entry", p_itrie_remove_entry, 1);
   YAP_UserCPredicate("itrie_remove_subtree", p_itrie_remove_subtree, 1);
-  YAP_UserCPredicate("itrie_join", p_itrie_join, 2);
   YAP_UserCPredicate("itrie_add", p_itrie_add, 2);
   YAP_UserCPredicate("itrie_subtract", p_itrie_subtract, 2);
+  YAP_UserCPredicate("itrie_join", p_itrie_join, 2);
+  YAP_UserCPredicate("itrie_intersect", p_itrie_intersect, 2);
+  YAP_UserCPredicate("itrie_count_join", p_itrie_count_join, 3);
+  YAP_UserCPredicate("itrie_count_intersect", p_itrie_count_intersect, 3);
   YAP_UserCPredicate("itrie_save", p_itrie_save, 2);
   YAP_UserCPredicate("itrie_load", p_itrie_load, 2);
   YAP_UserCPredicate("itrie_stats", p_itrie_stats, 4);
@@ -376,24 +382,6 @@ static int p_itrie_remove_subtree(void) {
 #undef arg_ref
 
 
-/* itrie_join(-ItrieDest,-ItrieSource) */
-#define arg_itrie_dest   YAP_ARG1
-#define arg_itrie_source YAP_ARG2
-static int p_itrie_join(void) {
-  /* check args */
-  if (!YAP_IsIntTerm(arg_itrie_dest)) 
-    return FALSE;
-  if (!YAP_IsIntTerm(arg_itrie_source)) 
-    return FALSE;
-
-  /* join itrie */
-  itrie_join((TrEntry) YAP_IntOfTerm(arg_itrie_dest), (TrEntry) YAP_IntOfTerm(arg_itrie_source));
-  return TRUE;
-}
-#undef arg_itrie_dest
-#undef arg_itrie_source
-
-
 /* itrie_add(-ItrieDest,-ItrieSource) */
 #define arg_itrie_dest   YAP_ARG1
 #define arg_itrie_source YAP_ARG2
@@ -428,6 +416,86 @@ static int p_itrie_subtract(void) {
 }
 #undef arg_itrie_dest
 #undef arg_itrie_source
+
+
+/* itrie_join(-ItrieDest,-ItrieSource) */
+#define arg_itrie_dest   YAP_ARG1
+#define arg_itrie_source YAP_ARG2
+static int p_itrie_join(void) {
+  /* check args */
+  if (!YAP_IsIntTerm(arg_itrie_dest)) 
+    return FALSE;
+  if (!YAP_IsIntTerm(arg_itrie_source)) 
+    return FALSE;
+
+  /* join itrie */
+  itrie_join((TrEntry) YAP_IntOfTerm(arg_itrie_dest), (TrEntry) YAP_IntOfTerm(arg_itrie_source));
+  return TRUE;
+}
+#undef arg_itrie_dest
+#undef arg_itrie_source
+
+
+/* itrie_intersect(-ItrieDest,-ItrieSource) */
+#define arg_itrie_dest   YAP_ARG1
+#define arg_itrie_source YAP_ARG2
+static int p_itrie_intersect(void) {
+  /* check args */
+  if (!YAP_IsIntTerm(arg_itrie_dest)) 
+    return FALSE;
+  if (!YAP_IsIntTerm(arg_itrie_source)) 
+    return FALSE;
+
+  /* intersect itrie */
+  itrie_intersect((TrEntry) YAP_IntOfTerm(arg_itrie_dest), (TrEntry) YAP_IntOfTerm(arg_itrie_source));
+  return TRUE;
+}
+#undef arg_itrie_dest
+#undef arg_itrie_source
+
+
+/* itrie_count_join(-Itrie1,-Itrie2,+Entries) */
+#define arg_itrie1   YAP_ARG1
+#define arg_itrie2   YAP_ARG2
+#define arg_entries YAP_ARG3
+static int p_itrie_count_join(void) {
+  YAP_Int entries;
+
+  /* check args */
+  if (!YAP_IsIntTerm(arg_itrie1)) 
+    return FALSE;
+  if (!YAP_IsIntTerm(arg_itrie2)) 
+    return FALSE;
+
+  /* count join itrie */
+  entries = itrie_count_join((TrEntry) YAP_IntOfTerm(arg_itrie1), (TrEntry) YAP_IntOfTerm(arg_itrie2));
+  return YAP_Unify(arg_entries, YAP_MkIntTerm(entries));
+}
+#undef arg_itrie1
+#undef arg_itrie2
+#undef arg_entries
+
+
+/* itrie_count_intersect(-Itrie1,-Itrie2,+Entries) */
+#define arg_itrie1   YAP_ARG1
+#define arg_itrie2   YAP_ARG2
+#define arg_entries YAP_ARG3
+static int p_itrie_count_intersect(void) {
+  YAP_Int entries;
+
+  /* check args */
+  if (!YAP_IsIntTerm(arg_itrie1)) 
+    return FALSE;
+  if (!YAP_IsIntTerm(arg_itrie2)) 
+    return FALSE;
+
+  /* count intersect itrie */
+  entries = itrie_count_intersect((TrEntry) YAP_IntOfTerm(arg_itrie1), (TrEntry) YAP_IntOfTerm(arg_itrie2));
+  return YAP_Unify(arg_entries, YAP_MkIntTerm(entries));
+}
+#undef arg_itrie1
+#undef arg_itrie2
+#undef arg_entries
 
 
 /* itrie_save(-Itrie,-FileName) */

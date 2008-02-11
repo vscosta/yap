@@ -28,8 +28,11 @@ static YAP_Term get_trie(TrNode node, YAP_Term *stack_list, TrNode *cur_node);
 static void     remove_trie(TrNode node);
 static void     free_child_nodes(TrNode node);
 static TrNode   copy_child_nodes(TrNode parent_dest, TrNode node_source);
-static void     traverse_tries_join(TrNode parent_dest, TrNode parent_source);
 static void     traverse_tries(TrNode parent_dest, TrNode parent_source);
+static void     traverse_tries_join(TrNode parent_dest, TrNode parent_source);
+static void     traverse_tries_intersect(TrNode parent_dest, TrNode parent_source);
+static YAP_Int  count_tries_intersect(TrNode parent1, TrNode parent2);
+static YAP_Int  count_trie(TrNode node);
 static void     traverse_trie_usage(TrNode node, YAP_Int depth);
 static void     traverse_trie_save(TrNode node, FILE *file, int float_block);
 static void     traverse_trie_load(TrNode parent, FILE *file);
@@ -50,8 +53,9 @@ static YAP_Functor FunctorComma;
 static void (*DATA_SAVE_FUNCTION)(TrNode, FILE *);
 static void (*DATA_LOAD_FUNCTION)(TrNode, YAP_Int, FILE *);
 static void (*DATA_PRINT_FUNCTION)(TrNode);
+static void (*DATA_ADD_FUNCTION)(TrNode, TrNode);
+static void (*DATA_CONSTRUCT_FUNCTION)(TrNode, TrNode);
 static void (*DATA_DESTRUCT_FUNCTION)(TrNode);
-static void (*DATA_JOIN_FUNCTION)(TrNode, TrNode);
 
 
 
@@ -341,9 +345,19 @@ void trie_remove_subtree(TrEngine engine, TrNode node, void (*destruct_function)
 
 
 inline
-void trie_join(TrEngine engine, TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode)) {
+void trie_add(TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode)) {
+  DATA_ADD_FUNCTION = add_function;
+  if (TrNode_child(node_dest) && TrNode_child(node_source))
+    traverse_tries(node_dest, node_source);
+  return;
+}
+
+
+inline
+void trie_join(TrEngine engine, TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode), void (*construct_function)(TrNode, TrNode)) {
   CURRENT_TRIE_ENGINE = engine;
-  DATA_JOIN_FUNCTION = add_function;
+  DATA_ADD_FUNCTION = add_function;
+  DATA_CONSTRUCT_FUNCTION = construct_function;
   if (TrNode_child(node_dest)) {
     if (TrNode_child(node_source))
       traverse_tries_join(node_dest, node_source);
@@ -354,11 +368,46 @@ void trie_join(TrEngine engine, TrNode node_dest, TrNode node_source, void (*add
 
 
 inline
-void trie_add(TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode)) {
-  DATA_JOIN_FUNCTION = add_function;
-  if (TrNode_child(node_dest) && TrNode_child(node_source))
-    traverse_tries(node_dest, node_source);
+void trie_intersect(TrEngine engine, TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode), void (*destruct_function)(TrNode)) {
+  CURRENT_TRIE_ENGINE = engine;
+  DATA_ADD_FUNCTION = add_function;
+  DATA_DESTRUCT_FUNCTION = destruct_function;
+  if (TrNode_child(node_dest)) {
+    if (TrNode_child(node_source))
+      traverse_tries_intersect(node_dest, node_source);
+    else {
+      free_child_nodes(TrNode_child(node_dest));
+      TrNode_child(node_dest) = NULL;
+    }
+  }
   return;
+}
+
+
+inline
+YAP_Int trie_count_join(TrNode node1, TrNode node2) {
+  YAP_Int count = 0;
+
+  if (TrNode_child(node1)) {
+    count += count_trie(TrNode_child(node1));
+    if (TrNode_child(node2)) {
+      count += count_trie(TrNode_child(node2));
+      count -= count_tries_intersect(node1, node2);
+    }
+  } else if (TrNode_child(node2))
+    count += count_trie(TrNode_child(node2));
+  return count;
+}
+
+
+inline
+YAP_Int trie_count_intersect(TrNode node1, TrNode node2) {
+  YAP_Int count = 0;
+
+  if (TrNode_child(node1))
+    if (TrNode_child(node2))
+      count = count_tries_intersect(node1, node2);
+  return count;
 }
 
 
@@ -813,7 +862,8 @@ TrNode copy_child_nodes(TrNode parent_dest, TrNode child_source) {
   if (IS_LEAF_TRIE_NODE(child_source)) {
     MARK_AS_LEAF_TRIE_NODE(child_dest);
     INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
-    (*DATA_JOIN_FUNCTION)(child_dest, child_source);
+    if (DATA_CONSTRUCT_FUNCTION)
+      (*DATA_CONSTRUCT_FUNCTION)(child_dest, child_source);
   } else
     TrNode_child(child_dest) = copy_child_nodes(child_dest, TrNode_child(child_source));
   return child_dest;
@@ -821,9 +871,10 @@ TrNode copy_child_nodes(TrNode parent_dest, TrNode child_source) {
 
 
 static
-void traverse_tries_join(TrNode parent_dest, TrNode parent_source){
+void traverse_tries(TrNode parent_dest, TrNode parent_source) {
   TrNode child_dest, child_source;
 
+  /* parent_source is not a leaf node */
   child_source = TrNode_child(parent_source);
   if (IS_HASH_NODE(child_source)) {
     TrNode *first_bucket_source, *bucket_source;
@@ -834,20 +885,72 @@ void traverse_tries_join(TrNode parent_dest, TrNode parent_source){
     do {
       child_source = *--bucket_source;
       while (child_source) {
-	/* parent_dest cannot be a leaf node */
+	/* parent_dest is not a leaf node */
 	child_dest = trie_node_check(parent_dest, TrNode_entry(child_source));
 	if (child_dest) {
-	  if (IS_LEAF_TRIE_NODE(child_dest))
-	    (*DATA_JOIN_FUNCTION)(child_dest, child_source);
-	  else
-	    /* child_dest is not a leaf node */
+	  if (IS_LEAF_TRIE_NODE(child_dest)) {
+	    /* child_source is a leaf node */
+	    if (DATA_ADD_FUNCTION)
+	      (*DATA_ADD_FUNCTION)(child_dest, child_source);
+	  } else
+	    /* child_dest and child_source are not leaf nodes */
+	    traverse_tries(child_dest, child_source);
+	}
+	child_source = TrNode_next(child_source);
+      }
+    } while (bucket_source != first_bucket_source);
+    return;
+  }
+  while (child_source) {
+    /* parent_dest is not a leaf node */
+    child_dest = trie_node_check(parent_dest, TrNode_entry(child_source));
+    if (child_dest) {
+      if (IS_LEAF_TRIE_NODE(child_dest)) {
+	/* child_source is a leaf node */
+	if (DATA_ADD_FUNCTION)
+	  (*DATA_ADD_FUNCTION)(child_dest, child_source);
+      } else
+	/* child_dest and child_source are not leaf nodes */
+	traverse_tries(child_dest, child_source);
+    }
+    child_source = TrNode_next(child_source);
+  }
+  return;
+}
+
+
+static
+void traverse_tries_join(TrNode parent_dest, TrNode parent_source) {
+  TrNode child_dest, child_source;
+
+  /* parent_source is not a leaf node */
+  child_source = TrNode_child(parent_source);
+  if (IS_HASH_NODE(child_source)) {
+    TrNode *first_bucket_source, *bucket_source;
+    TrHash hash_source;
+    hash_source = (TrHash) child_source;
+    first_bucket_source = TrHash_buckets(hash_source);
+    bucket_source = first_bucket_source + TrHash_num_buckets(hash_source);
+    do {
+      child_source = *--bucket_source;
+      while (child_source) {
+	/* parent_dest is not a leaf node */
+	child_dest = trie_node_check(parent_dest, TrNode_entry(child_source));
+	if (child_dest) {
+	  if (IS_LEAF_TRIE_NODE(child_dest)) {
+	    /* child_source is a leaf node */
+	    if (DATA_ADD_FUNCTION)
+	      (*DATA_ADD_FUNCTION)(child_dest, child_source);
+	  } else
+	    /* child_dest and child_source are not leaf nodes */
 	    traverse_tries_join(child_dest, child_source);
 	} else {
 	  child_dest = trie_node_check_insert(parent_dest, TrNode_entry(child_source));
 	  if (IS_LEAF_TRIE_NODE(child_source)) {
 	    MARK_AS_LEAF_TRIE_NODE(child_dest);
 	    INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
-	    (*DATA_JOIN_FUNCTION)(child_dest, child_source);
+	    if (DATA_ADD_FUNCTION)
+	      (*DATA_ADD_FUNCTION)(child_dest, child_source);
 	  } else
             TrNode_child(child_dest) = copy_child_nodes(child_dest, TrNode_child(child_source));
 	}
@@ -857,20 +960,23 @@ void traverse_tries_join(TrNode parent_dest, TrNode parent_source){
     return;
   }
   while (child_source) {
-    /* parent_dest cannot be a leaf node */
+    /* parent_dest is not a leaf node */
     child_dest = trie_node_check(parent_dest, TrNode_entry(child_source));
     if (child_dest) {
-      if (IS_LEAF_TRIE_NODE(child_dest))
-	(*DATA_JOIN_FUNCTION)(child_dest, child_source);
-      else
-	/* child_dest is not a leaf node */
+      if (IS_LEAF_TRIE_NODE(child_dest)) {
+	/* child_source is a leaf node */
+	if (DATA_ADD_FUNCTION)
+	  (*DATA_ADD_FUNCTION)(child_dest, child_source);
+      } else
+	/* child_dest and child_source are not leaf nodes */
 	traverse_tries_join(child_dest, child_source);
     } else {
       child_dest = trie_node_check_insert(parent_dest, TrNode_entry(child_source));
       if (IS_LEAF_TRIE_NODE(child_source)) {
 	MARK_AS_LEAF_TRIE_NODE(child_dest);
 	INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
-	(*DATA_JOIN_FUNCTION)(child_dest, child_source);
+	if (DATA_ADD_FUNCTION)
+	  (*DATA_ADD_FUNCTION)(child_dest, child_source);
       } else
         TrNode_child(child_dest) = copy_child_nodes(child_dest, TrNode_child(child_source));
     }
@@ -881,48 +987,146 @@ void traverse_tries_join(TrNode parent_dest, TrNode parent_source){
 
 
 static
-void traverse_tries(TrNode parent_dest, TrNode parent_source) {
-  TrNode child_dest, child_source;
+void traverse_tries_intersect(TrNode parent_dest, TrNode parent_source) {
+  TrNode child_dest, child_source, child_next;
 
-  child_source = TrNode_child(parent_source);
-  if (IS_HASH_NODE(child_source)) {
-    TrNode *first_bucket_source, *bucket_source;
-    TrHash hash_source;
-    hash_source = (TrHash) child_source;
-    first_bucket_source = TrHash_buckets(hash_source);
-    bucket_source = first_bucket_source + TrHash_num_buckets(hash_source);
+  /* parent_dest is not a leaf node */
+  child_dest = TrNode_child(parent_dest);
+  if (IS_HASH_NODE(child_dest)) {
+    TrNode *first_bucket_dest, *bucket_dest;
+    TrHash hash_dest;
+    hash_dest = (TrHash) child_dest;
+    first_bucket_dest = TrHash_buckets(hash_dest);
+    bucket_dest = first_bucket_dest + TrHash_num_buckets(hash_dest);
     do {
-      child_source = *--bucket_source;
-      while (child_source) {
-	/* parent_dest cannot be a leaf node */
-	child_dest = trie_node_check(parent_dest, TrNode_entry(child_source));
-	if (child_dest) {
+      child_dest = *--bucket_dest;
+      while (child_dest) {
+	child_next = TrNode_next(child_dest);
+	/* parent_source is not a leaf node */
+	child_source = trie_node_check(parent_source, TrNode_entry(child_dest));
+	if (child_source) {
 	  if (IS_LEAF_TRIE_NODE(child_dest)) {
-	    if (IS_LEAF_TRIE_NODE(child_source))
-	      (*DATA_JOIN_FUNCTION)(child_dest, child_source);
+	    /* child_source is a leaf node */
+	    if (DATA_ADD_FUNCTION)
+	      (*DATA_ADD_FUNCTION)(child_dest, child_source);
 	  } else
-	    /* child_dest is not a leaf node */
-	    traverse_tries(child_dest, child_source);
+	    /* child_dest and child_source are not leaf nodes */
+	    traverse_tries_intersect(child_dest, child_source);
+	} else {
+	  if (IS_LEAF_TRIE_NODE(child_dest)) {
+	    if (DATA_DESTRUCT_FUNCTION)
+	      (*DATA_DESTRUCT_FUNCTION)(child_dest);
+	    DECREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
+	  } else
+	    free_child_nodes(TrNode_child(child_dest));
+	  remove_trie(child_dest);
 	}
-	child_source = TrNode_next(child_source);
+	child_dest = child_next;
       }
-    } while (bucket_source != first_bucket_source);
+    } while (bucket_dest != first_bucket_dest);
     return;
   }
-  while (child_source) {
-    /* parent_dest cannot be a leaf node */
-    child_dest = trie_node_check(parent_dest, TrNode_entry(child_source));
-    if (child_dest) {
+  while (child_dest) {
+    child_next = TrNode_next(child_dest);
+    /* parent_source is not a leaf node */
+    child_source = trie_node_check(parent_source, TrNode_entry(child_dest));
+    if (child_source) {
       if (IS_LEAF_TRIE_NODE(child_dest)) {
-	if (IS_LEAF_TRIE_NODE(child_source))
-	  (*DATA_JOIN_FUNCTION)(child_dest, child_source);
+	/* child_source is a leaf node */
+	if (DATA_ADD_FUNCTION)
+	  (*DATA_ADD_FUNCTION)(child_dest, child_source);
       } else
-	/* child_dest is not a leaf node */
-	traverse_tries(child_dest, child_source);
+	/* child_dest and child_source are not leaf nodes */
+	traverse_tries_intersect(child_dest, child_source);
+    } else {
+      if (IS_LEAF_TRIE_NODE(child_dest)) {
+	if (DATA_DESTRUCT_FUNCTION)
+	  (*DATA_DESTRUCT_FUNCTION)(child_dest);
+	DECREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
+      } else
+	free_child_nodes(TrNode_child(child_dest));
+      remove_trie(child_dest);
     }
-    child_source = TrNode_next(child_source);
+    child_dest = child_next;
   }
   return;
+}
+
+
+static
+YAP_Int count_tries_intersect(TrNode parent1, TrNode parent2) {
+  TrNode child1, child2;
+  YAP_Int count = 0;
+
+  /* parent1 is not a leaf node */
+  child1 = TrNode_child(parent1);
+  if (IS_HASH_NODE(child1)) {
+    TrNode *first_bucket, *bucket;
+    TrHash hash;
+    hash = (TrHash) child1;
+    first_bucket = TrHash_buckets(hash);
+    bucket = first_bucket + TrHash_num_buckets(hash);
+    do {
+      child1 = *--bucket;
+      while (child1) {
+	/* parent2 is not a leaf node */
+	child2 = trie_node_check(parent2, TrNode_entry(child1));
+	if (child2) {
+	  if (IS_LEAF_TRIE_NODE(child1))
+	    /* child2 is a leaf node */
+	    count++;
+	  else
+	    /* child1 and child2 are not leaf nodes */
+	    count += count_tries_intersect(child1, child2);
+	}
+	child1 = TrNode_next(child1);
+      }
+    } while (bucket != first_bucket);
+    return count;
+  }
+  while (child1) {
+    /* parent2 is not a leaf node */
+    child2 = trie_node_check(parent2, TrNode_entry(child1));
+    if (child2) {
+      if (IS_LEAF_TRIE_NODE(child1))
+	/* child2 is a leaf node */
+	count++;
+      else
+	/* child1 and child2 are not leaf nodes */
+	count += count_tries_intersect(child1, child2);
+    }
+    child1 = TrNode_next(child1);
+  }
+  return count;
+}
+
+
+static
+YAP_Int count_trie(TrNode node) {
+  YAP_Int count = 0;
+
+  if (IS_HASH_NODE(node)) {
+    TrNode *first_bucket, *bucket;
+    TrHash hash;
+    hash = (TrHash) node;
+    first_bucket = TrHash_buckets(hash);
+    bucket = first_bucket + TrHash_num_buckets(hash);
+    do {
+      if (*--bucket) {
+        node = *bucket;
+        count += count_trie(node);
+      }
+    } while (bucket != first_bucket);
+    return count;
+  }
+
+  if (TrNode_next(node))
+    count += count_trie(TrNode_next(node));
+  if (!IS_LEAF_TRIE_NODE(node))
+    count += count_trie(TrNode_child(node));
+  else
+    count++;
+  return count;
 }
 
 

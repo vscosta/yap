@@ -73,6 +73,17 @@ void itrie_data_print(TrNode node) {
 
 
 inline
+void itrie_data_construct(TrNode node_dest, TrNode node_source) {
+  TrData data_dest, data_source;
+
+  data_source = (TrData) GET_DATA_FROM_LEAF_TRIE_NODE(node_source);
+  new_itrie_data(data_dest, CURRENT_ITRIE, node_dest, TrData_pos(data_source), TrData_neg(data_source), TrData_timestamp(data_source), TrData_depth(data_source));
+  PUT_DATA_IN_LEAF_TRIE_NODE(node_dest, data_dest);
+  return;
+}
+
+
+inline
 void itrie_data_destruct(TrNode node) {
   TrEntry itrie;
   TrData data;
@@ -95,17 +106,12 @@ inline
 void itrie_data_add(TrNode node_dest, TrNode node_source) {
   TrData data_dest, data_source;
 
+  data_dest = (TrData) GET_DATA_FROM_LEAF_TRIE_NODE(node_dest);
   data_source = (TrData) GET_DATA_FROM_LEAF_TRIE_NODE(node_source);
-  if (!(data_dest = (TrData) GET_DATA_FROM_LEAF_TRIE_NODE(node_dest))) {
-    new_itrie_data(data_dest, CURRENT_ITRIE, node_dest, TrData_pos(data_source), TrData_neg(data_source),
-                   TrData_timestamp(data_source), TrData_depth(data_source));
-    PUT_DATA_IN_LEAF_TRIE_NODE(node_dest, data_dest);
-  } else {
-    TrData_pos(data_dest) += TrData_pos(data_source);
-    TrData_neg(data_dest) += TrData_neg(data_source);
-    if (TrData_timestamp(data_dest) < TrData_timestamp(data_source))
-      TrData_timestamp(data_dest) = TrData_timestamp(data_source);
-  }
+  TrData_pos(data_dest) += TrData_pos(data_source);
+  TrData_neg(data_dest) += TrData_neg(data_source);
+  if (TrData_timestamp(data_dest) < TrData_timestamp(data_source))
+    TrData_timestamp(data_dest) = TrData_timestamp(data_source);
   return;
 }
 
@@ -303,14 +309,6 @@ void itrie_remove_subtree(TrData data) {
 
 
 inline
-void itrie_join(TrEntry itrie_dest, TrEntry itrie_source) {
-  CURRENT_ITRIE = itrie_dest;
-  trie_join(ITRIE_ENGINE, TrEntry_trie(itrie_dest), TrEntry_trie(itrie_source), &itrie_data_add);
-  return;
-}
-
-
-inline
 void itrie_add(TrEntry itrie_dest, TrEntry itrie_source) {
   trie_add(TrEntry_trie(itrie_dest), TrEntry_trie(itrie_source), &itrie_data_add);
   return;
@@ -321,6 +319,33 @@ inline
 void itrie_subtract(TrEntry itrie_dest, TrEntry itrie_source) {
   trie_add(TrEntry_trie(itrie_dest), TrEntry_trie(itrie_source), &itrie_data_subtract);
   return;
+}
+
+
+inline
+void itrie_join(TrEntry itrie_dest, TrEntry itrie_source) {
+  CURRENT_ITRIE = itrie_dest;
+  trie_join(ITRIE_ENGINE, TrEntry_trie(itrie_dest), TrEntry_trie(itrie_source), &itrie_data_add, &itrie_data_construct);
+  return;
+}
+
+
+inline
+void itrie_intersect(TrEntry itrie_dest, TrEntry itrie_source) {
+  trie_intersect(ITRIE_ENGINE, TrEntry_trie(itrie_dest), TrEntry_trie(itrie_source), &itrie_data_add, &itrie_data_destruct);
+  return;
+}
+
+
+inline
+YAP_Int itrie_count_join(TrEntry itrie1, TrEntry itrie2) {
+  return trie_count_join(TrEntry_trie(itrie1), TrEntry_trie(itrie2));
+}
+
+
+inline
+YAP_Int itrie_count_intersect(TrEntry itrie1, TrEntry itrie2) {
+  return trie_count_intersect(TrEntry_trie(itrie1), TrEntry_trie(itrie2));
 }
 
 
