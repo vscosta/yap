@@ -30,41 +30,51 @@ compile_expressions :- set_value('$c_arith',true).
 
 do_not_compile_expressions :- set_value('$c_arith',[]).
 
-'$c_built_in'(IN, M, OUT) :-
+'$c_built_in'(IN, M, OUT, MT) :-
 	get_value('$c_arith',true), !,
-	'$do_c_built_in'(IN, M, OUT).
-'$c_built_in'(IN, _, IN).
+	'$do_c_built_in'(IN, M, OUT, MT).
+'$c_built_in'(IN, _, IN, _).
 
 
-'$do_c_built_in'(G, M, OUT) :- var(G), !,
-	'$do_c_built_in'(call(M:G),M,OUT).
-'$do_c_built_in'(Mod:G, _, GN) :- !,
-	'$do_c_built_in'(G, Mod, GN0),
+'$do_c_built_in'(G, M, OUT, MT) :- var(G), !,
+	(MT = on -> NG = G ; NG = M:G),
+	'$do_c_built_in'(call(NG),M,OUT).
+'$do_c_built_in'(Mod:G, _, GN, MT) :- !,
+	'$do_c_built_in'(G, Mod, GN0, MT),
 	(GN0 = (_,_) -> GN = GN0 ; GN = Mod:GN0).
-'$do_c_built_in'(\+ G, _, OUT) :-
+'$do_c_built_in'(\+ G, _, OUT, _) :-
 	nonvar(G),
 	G = (A = B),
 	!,
 	OUT = (A \= B).
-'$do_c_built_in'(call(G), _, OUT) :-
+'$do_c_built_in'(call(G), _, OUT, _) :-
 	nonvar(G),
 	G = (Mod:G1), !,
 	'$do_c_built_metacall'(G1, Mod, OUT).
-'$do_c_built_in'(call(G), M, OUT) :-
+'$do_c_built_in'(call(G), M, OUT, off) :-
 	var(G), !,
 	'$do_c_built_metacall'(G, M, OUT).
-'$do_c_built_in'(depth_bound_call(G,D), M, OUT) :- !,
-	'$do_c_built_in'(G, M, NG),
+'$do_c_built_in'(depth_bound_call(G,D), M, OUT, MT) :- !,
+	'$do_c_built_in'(G, M, NG, MT),
 	% make sure we don't have something like (A,B) -> $depth_next(D), A, B.
 	( '$composed_built_in'(NG) ->
 	    OUT = depth_bound_call(NG,D)
 	;
 	    OUT = ('$set_depth_limit_for_next_call'(D),NG)
 	).
-'$do_c_built_in'(once(G), M, (yap_hacks:current_choice_point(CP),NG,'$$cut_by'(CP))) :- !,
-	'$do_c_built_in'(G,M,NG).
-'$do_c_built_in'('C'(A,B.C), _, (A=[B|C])) :- !.
-'$do_c_built_in'(X is Y, _, P) :-
+'$do_c_built_in'(once(G), M, (yap_hacks:current_choice_point(CP),NG,'$$cut_by'(CP)), MT) :- !,
+	'$do_c_built_in'(G,M,NG0, MT),
+	'$clean_cuts'(NG0, NG).
+'$do_c_built_in'(if(G,A,B), M, (yap_hacks:current_choicepoint(DCP),NG,yap_hacks:cut_at(DCP),NA; NB), MT) :- !,
+	'$do_c_built_in'(A,M,NA0, MT),
+	'$clean_cuts'(NA0, NA),
+	'$do_c_built_in'(B,M,NB, MT).
+'$do_c_built_in'((G*->A), M, (NG,NA), MT) :- !,
+	'$do_c_built_in'(G,M,NG0, MT),
+	'$clean_cuts'(NG0, NG),
+	'$do_c_built_in'(A,M,NA, MT).
+'$do_c_built_in'('C'(A,B.C), _, (A=[B|C]), _) :- !.
+'$do_c_built_in'(X is Y, _, P, _) :-
 	nonvar(Y),		% Don't rewrite variables
 	!,
 	(
@@ -74,7 +84,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 		'$drop_is'(X0, X, P1),
 		'$do_and'(P0, P1, P)
 	).
-'$do_c_built_in'(Comp0, _, R) :-		% now, do it for comparisons
+'$do_c_built_in'(Comp0, _, R), _ :-		% now, do it for comparisons
 	'$compop'(Comp0, Op, E, F),
 	!,
 	'$compop'(Comp,  Op, U, V),
@@ -82,7 +92,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	'$expand_expr'(F, Q, V),
 	'$do_and'(P, Q, R0),
 	'$do_and'(R0, Comp, R).
-'$do_c_built_in'(P, _, P).
+'$do_c_built_in'(P, _, P, _).
 
 '$do_c_built_metacall'(G1, Mod, '$execute_wo_mod'(G1,Mod)) :- 
 	var(Mod), !.

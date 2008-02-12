@@ -52,13 +52,8 @@
 check_if_vel_done(Var) :-
 	get_atts(Var, [size(_)]), !.
 
-vel(LVs0,Vs0,AllDiffs) :-
-	sort(LVs0,LVs1),
-	get_rid_of_ev_vars(LVs1,LVs),
-	do_vel(LVs,Vs0,AllDiffs).
-	       
-do_vel([],_,_) :- !.
-do_vel(LVs,Vs0,AllDiffs) :-
+vel([],_,_) :- !.
+vel(LVs,Vs0,AllDiffs) :-
 	check_for_hidden_vars(Vs0, Vs0, Vs1),
 	sort(Vs1,Vs),
 	find_all_clpbn_vars(Vs, LV0, LVi, Tables0),
@@ -69,18 +64,6 @@ do_vel(LVs,Vs0,AllDiffs) :-
 	normalise_CPT(Dist,Ps),
 	list_from_CPT(Ps, LPs),
 	clpbn_bind_vals(LVs,LPs,AllDiffs).
-
-%
-% some variables might already have evidence in the data-base.
-%
-get_rid_of_ev_vars([],[]).
-get_rid_of_ev_vars([V|LVs0],LVs) :-
-	clpbn:get_atts(V, [evidence(Ev)]), !,
-	clpbn_display:put_atts(V, [posterior([],Ev,[],[])]), !,
-	get_rid_of_ev_vars(LVs0,LVs).
-get_rid_of_ev_vars([V|LVs0],[V|LVs]) :-
-	get_rid_of_ev_vars(LVs0,LVs).
-
 
 find_all_clpbn_vars([], [], [], []) :- !.
 find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Parents,Sizes)|Tables]) :-
@@ -98,7 +81,7 @@ find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Parents,Size
 var_with_deps(V, Table, Deps, Sizes, Ev, Vals) :-
 	clpbn:get_atts(V, [dist(Id,Parents)]),
 	get_dist_matrix(Id,Parents,_,Vals,TAB0),
-	( clpbn:get_atts(V, [evidence(Ev)]) -> true ; true),
+	( clpbn:get_atts(V, [evidence(_)]) -> true ; true),
 	reorder_CPT([V|Parents],TAB0,Deps0,TAB1,Sizes1),
 	simplify_evidence(Deps0, TAB1, Deps0, Sizes1, Table, Deps, Sizes).
 

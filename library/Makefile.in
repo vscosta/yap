@@ -25,6 +25,7 @@ srcdir=@srcdir@
 YAP_EXTRAS=@YAP_EXTRAS@ 
 
 PROGRAMS= $(srcdir)/apply_macros.yap \
+	$(srcdir)/arg.yap \
 	$(srcdir)/assoc.yap \
 	$(srcdir)/atts.yap \
 	$(srcdir)/avl.yap \

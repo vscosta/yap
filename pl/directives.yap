@@ -30,8 +30,10 @@
 '$directive'(module(_,_)).
 '$directive'(module(_,_,_)).
 '$directive'(meta_predicate(_)).
+'$directive'(module_transparent(_)).
 '$directive'(public(_)).
 '$directive'(dynamic(_)).
+'$directive'(noprofile(_)).
 '$directive'(op(_,_,_)).
 '$directive'(set_prolog_flag(_,_)).
 '$directive'(ensure_loaded(_)).
@@ -89,6 +91,10 @@
 	'$module'(Status,N,P,Op).
 '$exec_directive'(meta_predicate(P), _, M) :-
 	'$meta_predicate'(P, M).
+'$exec_directive'(module_transparent(P), _, M) :-
+	'$module_transparent'(P, M).
+'$exec_directive'(noprofile(P), _, M) :-
+	'$noprofile'(P, M).
 '$exec_directive'(dynamic(P), _, M) :-
 	'$dynamic'(P, M).
 '$exec_directive'(thread_local(P), _, M) :-
@@ -136,6 +142,15 @@
 '$exec_directive'(endif, Context, _) :-
 	'$endif'(Context).
 
+
+yap_flag(V,Out) :-
+	'$user_defined_flag'(V,_),
+	(nonvar(V) ->
+	 !
+	;
+	 true
+	),
+	'$user_flag_value'(V, Out).
 
 yap_flag(V,Out) :-
 	var(V), !,
@@ -942,4 +957,30 @@ user_defined_directive(Dir,Action) :-
 	assert_static('$directive'(NDir)),
 	assert_static(('$exec_directive'(Dir, _, _) :- Action)),
 	'$current_module'(_, M).
+
+%
+% allow users to define their own flags.
+%
+user_defined_flag(Atom) :- var(Atom), !,
+	'$do_error'(instantiation_error,user_defined_flag(Atom)).
+user_defined_flag(Atom) :-
+	'$user_defined_flag'(Atom,_), !.
+user_defined_flag(Atom) :-
+	yap_flag(Atom, _), !,
+	'$do_error'(domain_error(user_defined_prolog_flag,Atom),user_defined_flag(Atom)).
+user_defined_flag(Atom) :-
+	assert(prolog:'$user_defined_flag'(Atom,[])).
+
+'$enumerate_user_flag'(V, Out) :-
+	'$user_defined_flag'(V, Out).
+
+'$user_flag_value'(F, Val) :-
+	var(Val), !,
+	'$user_defined_flag'(F,Val).
+'$user_flag_value'(F, Val) :-
+	atomic(Val), !,
+	retractall(prolog:'$user_defined_flag'(F,_)),
+	assert(prolog:'$user_defined_flag'(Atom,Val)).
+'$user_flag_value'(F, Val) :-
+	'$do_error'(type_error(atomic,Val),yap_flag(F,Val)).
 

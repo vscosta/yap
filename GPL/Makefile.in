@@ -1,0 +1,40 @@
+#
+# default base directory for YAP installation
+#
+ROOTDIR = @prefix@
+#
+# where the binary should be
+#
+BINDIR = $(ROOTDIR)/bin
+#
+# where YAP should look for binary libraries
+#
+LIBDIR=$(ROOTDIR)/lib/Yap
+#
+# where YAP should look for architecture-independent Prolog libraries
+#
+SHAREDIR=$(ROOTDIR)/share
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+srcdir=@srcdir@
+YAP_EXTRAS=@YAP_EXTRAS@ 
+
+PROGRAMS= \
+	$(srcdir)/aggregate.pl \
+	$(srcdir)/apply.pl \
+	$(srcdir)/error.pl \
+	$(srcdir)/occurs.yap \
+	$(srcdir)/pairs.pl
+
+
+install: $(PROGRAMS)
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
+	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/logtalk
+	for p in $(LOGTALK_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/logtalk; done
+

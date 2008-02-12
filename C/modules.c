@@ -215,12 +215,37 @@ init_current_module(void)
   return cont_current_module();
 }
 
+static Int
+p_strip_module(void)
+{
+  Term t1 = Deref(ARG1), t2, tmod;
+  if (IsVarTerm(t1) ||
+      !IsApplTerm(t1) ||
+      FunctorOfTerm(t1) != FunctorModule ||
+      IsVarTerm(t2 = ArgOfTerm(1,t1)) ||
+      !IsAtomTerm(t2)) {
+    return Yap_unify(ARG3, t1) &&
+      Yap_unify(ARG2, CurrentModule);
+  }
+  do {
+    tmod = t2;
+    t1 = ArgOfTerm(2,t1);
+  } while (!IsVarTerm(t1) &&
+	   IsApplTerm(t1) &&
+	   FunctorOfTerm(t1) == FunctorModule &&
+	   !IsVarTerm(t2 = ArgOfTerm(1,t1)) &&
+	   IsAtomTerm(t2));
+  return Yap_unify(ARG3, t1) &&
+    Yap_unify(ARG2, tmod);      
+}
+
 void 
 Yap_InitModulesC(void)
 {
   Yap_InitCPred("$current_module", 2, p_current_module, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("strip_module", 3, p_strip_module, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPredBack("$all_current_modules", 1, 1, init_current_module, cont_current_module,
 		SafePredFlag|SyncPredFlag|HiddenPredFlag);
 }
@@ -238,6 +263,7 @@ Yap_InitModules(void)
   LookupModule(SYSTEM_MODULE);
   LookupModule(READUTIL_MODULE);
   LookupModule(HACKS_MODULE);
+  LookupModule(ARG_MODULE);
   LookupModule(GLOBALS_MODULE);
   CurrentModule = PROLOG_MODULE;
 }

@@ -1,6 +1,6 @@
 /* yap2swi.h  */
 /*
- * Project: jpl for Yap Prolog
+ * Project: SWI emulation for Yap Prolog
  * Author: Steve Moyle and Vitor Santos Costa
  * Email:  steve.moyle@comlab.ox.ac.uk
  * Date:   21 January 2002
@@ -10,12 +10,20 @@
 
 */
 
+#ifndef _FLI_H_INCLUDED
+#define _FLI_H_INCLUDED
+
+#ifndef __SWI_PROLOG__			/* use this to switch on Prolog dialect */
+#define __SWI_PROLOG__			/* normally defined by the plld compiler driver */
+#endif
+
 
 //=== includes ===============================================================
 #include "config.h"
 #include	<YapInterface.h>
 #include	<stdarg.h>
-#include	<wchar.h>
+#include	<stdlib.h>
+#include        <stddef.h>
 #if HAVE_TIME_H
 #include <time.h>
 #endif
@@ -69,6 +77,7 @@ typedef void *PL_engine_t;
 #define PL_FA_TRANSPARENT	(0x02)	/* foreign is module transparent */
 #define PL_FA_NONDETERMINISTIC	(0x04)	/* foreign is non-deterministic */
 #define PL_FA_VARARGS		(0x08)	/* call using t0, ac, ctx */
+#define PL_FA_CREF		(0x10)	/* Internal: has clause-reference */
 
 /* begin from pl-itf.h */
 #define PL_VARIABLE      (1)            /* nothing */
@@ -145,6 +154,7 @@ extern X_API void PL_reset_term_refs(term_t);
 extern X_API int PL_get_arg(int, term_t, term_t);
 extern X_API int PL_get_atom(term_t, atom_t *);
 extern X_API int PL_get_atom_chars(term_t, char **);
+extern X_API int PL_get_bool(term_t, int *);
 extern X_API int PL_get_chars(term_t, char **, unsigned);
 extern X_API int PL_get_nchars(term_t, size_t *, char **, unsigned);
 extern X_API int PL_get_wchars(term_t, size_t *, wchar_t **, unsigned);
@@ -239,6 +249,7 @@ extern X_API void PL_close_query(qid_t);
 extern X_API term_t PL_exception(qid_t);
 extern X_API int PL_call_predicate(module_t, int, predicate_t, term_t);
 extern X_API int PL_call(term_t, module_t);
+extern X_API void PL_register_foreign_in_module(const char *, const char *, int, foreign_t (*)(void), int);
 extern X_API void PL_register_extensions(PL_extension *);
 extern X_API void PL_load_extensions(PL_extension *);
 extern X_API int  PL_thread_self(void);
@@ -250,9 +261,14 @@ extern X_API int PL_destroy_engine(PL_engine_t);
 extern X_API int PL_set_engine(PL_engine_t,PL_engine_t *);
 extern X_API int PL_get_string_chars(term_t, char **, int *);
 extern X_API int PL_action(int,...);
+extern X_API void *PL_malloc(int);
+extern X_API void PL_free(void *);
+
+#define PL_register_foreign(name, arity, function, flags) PL_register_foreign_in_module(NULL, (name), (arity), (function), (flags))
 
 extern X_API int Sprintf(char *,...);
 extern X_API int Sdprintf(char *,...);
 
 void swi_install(void);
 
+#endif /* _FLI_H_INCLUDED */

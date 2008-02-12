@@ -14,7 +14,7 @@
 #include	<string.h>
 #include	<stdio.h>
 
-#include	<yap2swi.h>
+#include	<SWI-Prolog.h>
 
 #define BUF_SIZE 256
 #define TMP_BUF_SIZE 2*BUF_SIZE
@@ -35,11 +35,10 @@ alloc_ring_buf(void)
 
 /* SWI: void PL_agc_hook(void) */
 
-/* dummy function for now (until Vitor comes through!)*/
 X_API PL_agc_hook_t
 PL_agc_hook(PL_agc_hook_t entry)
 {
-  YAP_AGCRegisterHook((YAP_agc_hook)entry);
+  return (PL_agc_hook_t)YAP_AGCRegisterHook((YAP_agc_hook)entry);
 }
 
 /* SWI: char* PL_atom_chars(atom_t atom)
@@ -336,6 +335,27 @@ X_API int PL_get_integer(term_t ts, int *i)
     return 0;
   *i = YAP_IntOfTerm(t);
   return 1;
+}
+
+/* SWI: int PL_get_bool(term_t t, int *i)
+   YAP: long int  YAP_AtomOfTerm(Term) */
+X_API int PL_get_bool(term_t ts, int *i)
+{
+  YAP_Term t = YAP_GetFromSlot(ts);
+  char *sp;
+
+  if (!YAP_IsAtomTerm(t) )
+    return 0;
+  sp = (char *)YAP_AtomName(YAP_AtomOfTerm(t));
+  if (!strcmp(sp,"true")) {
+    *sp = TRUE;
+    return 1;    
+  }
+  if (!strcmp(sp,"false")) {
+    *sp = FALSE;
+    return 1;    
+  }
+  return 0;
 }
 
 X_API int PL_get_long(term_t ts, long *i)
@@ -1335,11 +1355,31 @@ X_API int PL_call(term_t tp, module_t m)
 
 X_API void PL_register_extensions(PL_extension *ptr)
 {
-  /* ignore flags for now */
   while(ptr->predicate_name != NULL) {
-    YAP_UserCPredicateWithArgs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,YAP_CurrentModule());
+    if (ptr->flags & (PL_FA_NOTRACE|PL_FA_NONDETERMINISTIC|PL_FA_VARARGS|PL_FA_CREF)) {
+      YAP_Error(0,YAP_MkIntTerm(ptr->flags),"non-implemented flag %x when creating predicates", ptr->flags);
+      return;      
+    }      
+    if (ptr->flags & PL_FA_TRANSPARENT)
+      YAP_UserCPredicateWithArgs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,YAP_MkAtomTerm(YAP_LookupAtom("prolog")));
+    else
+      YAP_UserCPredicateWithArgs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,YAP_CurrentModule());
     ptr++;
   }
+}
+
+X_API void PL_register_foreign_in_module(const char *module, const char *name, int arity, foreign_t (*function)(void), int flags)
+{
+    if (flags & (PL_FA_NOTRACE|PL_FA_NONDETERMINISTIC|PL_FA_VARARGS|PL_FA_CREF)) {
+      YAP_Error(0,YAP_MkIntTerm(flags),"non-implemented flag %x when creating predicates", flags);
+      return;      
+    }      
+  if (flags & PL_FA_TRANSPARENT)
+    YAP_UserCPredicateWithArgs(name,(YAP_Bool (*)(void))function,arity,YAP_MkAtomTerm(YAP_LookupAtom("prolog")));
+  else if (module == NULL)
+    YAP_UserCPredicateWithArgs(name,(YAP_Bool (*)(void))function,arity,YAP_CurrentModule());
+  else
+    YAP_UserCPredicateWithArgs(name,(YAP_Bool (*)(void))function,arity,YAP_MkAtomTerm(YAP_LookupAtom(module)));
 }
 
 X_API void PL_load_extensions(PL_extension *ptr)
@@ -1444,6 +1484,19 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
     return PL_ENGINE_INUSE;
   }
   return PL_ENGINE_SET;
+}
+
+
+X_API void *
+PL_malloc(int sz)
+{
+  return YAP_AllocSpaceFromYap(sz);
+}
+
+X_API void
+PL_free(void *obj)
+{
+  return YAP_FreeSpaceFromYap(obj);
 }
 
 

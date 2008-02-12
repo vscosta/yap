@@ -10,11 +10,19 @@
 
 */
 
+#ifndef _FLI_H_INCLUDED
+#define _FLI_H_INCLUDED
+
+#ifndef __SWI_PROLOG__			/* use this to switch on Prolog dialect */
+#define __SWI_PROLOG__			/* normally defined by the plld compiler driver */
+#endif
+
 
 //=== includes ===============================================================
 #include "config.h"
 #include	<YapInterface.h>
 #include	<stdarg.h>
+#include	<wchar.h>
 #if HAVE_TIME_H
 #include <time.h>
 #endif

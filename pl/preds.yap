@@ -972,4 +972,5 @@ current_key(A,K) :-
 current_key(A,K) :-
 	'$current_immediate_key'(A,K).
 
-
+% do nothing for now.
+'$noprofile'(_, _).

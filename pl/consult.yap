@@ -383,8 +383,7 @@ prolog_load_context(file, FileName) :-
 	( IncFileName = [] ->
 	  nb_getval('$consulting_file',FileName)
         ;
-           FileName
- = IncFileName
+           FileName  = IncFileName
         ).
 prolog_load_context(module, X) :-
 	'$current_module'(X).

@@ -34,8 +34,6 @@
 	       matrix_set_all_that_disagree/5,
 	       matrix_to_list/2]).
 
-:- use_module(library(lists), [nth0/3]).
-
 init_CPT(List, Sizes, TAB) :-
 	matrix_new(floats, Sizes, List, TAB),
 	matrix_to_logs(TAB).
@@ -51,9 +49,7 @@ project_from_CPT(V,tab(Table,Deps,_),tab(NewTable,NDeps,NSzs)) :-
 	matrix_dims(NewTable, NSzs).
 
 evidence(V, Pos) :-
-	clpbn:get_atts(V, [evidence(Ev),dist(Id,_)]),
-	get_dist_domain(Id, Dom),
-	nth0(Pos, Dom, Ev).
+	clpbn:get_atts(V, [evidence(Pos),dist(Id,_)]).
 
 vnth([V1|Deps], N, V, N, Deps) :-
 	V == V1, !.	

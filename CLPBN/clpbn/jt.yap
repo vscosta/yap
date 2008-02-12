@@ -99,9 +99,7 @@ run_vars([V|LVs], Edges, [V|Vs], [CPTVars-dist([V|Parents],Id)|CPTs], Ev) :-
 	run_vars(LVs, Edges0, Vs, CPTs, Ev0).
 
 add_evidence(V, Id, [e(V,P)|Evs], Evs) :-
-	clpbn:get_atts(V, [evidence(Ev)]), !,
-	get_dist_domain(Id, D),
-	find_nth0(D, Ev, 0, P).
+	clpbn:get_atts(V, [evidence(P)]), !.
 add_evidence(_, _, Evs, Evs).
 	
 find_nth0([Id|_], Id, P, P) :- !.

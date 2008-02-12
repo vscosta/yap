@@ -176,6 +176,7 @@ STATIC_PROTO (Int p_type_of_char, (void));
 STATIC_PROTO (void CloseStream, (int));
 STATIC_PROTO (int get_wchar, (int));
 STATIC_PROTO (int put_wchar, (int,wchar_t));
+STATIC_PROTO (Term StreamPosition, (int));
 
 static encoding_t
 DefaultEncoding(void)
@@ -3060,7 +3061,8 @@ p_check_stream (void)
   int sno = CheckStream (ARG1,
    AtomOfTerm (mode) == AtomRead ? Input_Stream_f : Output_Stream_f,
    "check_stream/2");
-  UNLOCK(Stream[sno].streamlock);
+  if (sno != -1)
+    UNLOCK(Stream[sno].streamlock);
   return sno != -1;
 }
 
@@ -3068,6 +3070,8 @@ static Int
 p_check_if_stream (void)
 {				/* '$check_stream'(Stream)                  */
   int sno = CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f | Socket_Stream_f,  "check_stream/1");
+  if (sno != -1)
+    UNLOCK(Stream[sno].streamlock);
   return sno != -1;
 }
 
@@ -3774,7 +3778,7 @@ static Int
 #if EMACS
   int emacs_cares = FALSE;
 #endif
-  Term tmod = Deref(ARG3), OCurrentModule = CurrentModule;
+  Term tmod = Deref(ARG3), OCurrentModule = CurrentModule, tpos;
 
   if (IsVarTerm(tmod)) {
     tmod = CurrentModule;
@@ -3811,6 +3815,7 @@ static Int
     while (TRUE) {
       old_H = H;
       Yap_eot_before_eof = FALSE;
+      tpos = StreamPosition(inp_stream);
       tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(inp_stream);
       if (Yap_Error_TYPE != YAP_NO_ERROR && seekable) {
 	H = old_H;
@@ -3970,10 +3975,10 @@ static Int
     }
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
     return Yap_unify(t, ARG2) && Yap_unify (v, ARG4) &&
-	   Yap_unify(MkIntTerm(StartLine = tokstart->TokPos),ARG5);
+	   Yap_unify(tpos,ARG5);
   } else {
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-    return(Yap_unify(t, ARG2) && Yap_unify(MkIntTerm(StartLine = tokstart->TokPos),ARG5));
+    return(Yap_unify(t, ARG2) && Yap_unify(tpos,ARG5));
   }
 }
 
@@ -4150,14 +4155,10 @@ p_show_stream_flags(void)
   return (Yap_unify (ARG2, tout));
 }
 
-static Int
-p_show_stream_position (void)
-{				/* '$show_stream_position'(+Stream,Pos) */
-  Term sargs[5], tout;
-  int sno =
-    CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f, "stream_position/2");
-  if (sno < 0)
-    return (FALSE);
+static Term
+StreamPosition(int sno)
+{
+  Term sargs[5];
   if (Stream[sno].status & (Tty_Stream_f|Socket_Stream_f|Pipe_Stream_f|InMemory_Stream_f))
     sargs[0] = MkIntTerm (Stream[sno].charcount);
   else if (Stream[sno].status & Null_Stream_f)
@@ -4168,12 +4169,24 @@ p_show_stream_position (void)
     else
       sargs[0] = MkIntTerm (YP_ftell (Stream[sno].u.file.file));
   }
-  sargs[1] = MkIntTerm (Stream[sno].linecount);
-  sargs[2] = MkIntTerm (Stream[sno].linepos);
+  sargs[1] = MkIntegerTerm (Stream[sno].linecount);
+  sargs[2] = MkIntegerTerm (Stream[sno].linepos);
   sargs[3] = sargs[4] = MkIntTerm (0);
+  return Yap_MkApplTerm (FunctorStreamPos, 5, sargs);
+}
+
+
+static Int
+p_show_stream_position (void)
+{				/* '$show_stream_position'(+Stream,Pos) */
+  Term tout;
+  int sno =
+    CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f, "stream_position/2");
+  if (sno < 0)
+    return (FALSE);
+  tout = StreamPosition(sno);
   UNLOCK(Stream[sno].streamlock);
-  tout = Yap_MkApplTerm (FunctorStreamPos, 5, sargs);
-  return (Yap_unify (ARG2, tout));
+  return Yap_unify (ARG2, tout);
 }
 
 static Int

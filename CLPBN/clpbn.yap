@@ -25,38 +25,48 @@
 :- attribute key/1, dist/2, evidence/1, starter/0.
 
 
-:- use_module('clpbn/vel', [vel/3,
-		    check_if_vel_done/1
-		    ]).
+:- use_module('clpbn/vel',
+	      [vel/3,
+	       check_if_vel_done/1
+	      ]).
 
-:- use_module('clpbn/jt', [jt/3
-		    ]).
+:- use_module('clpbn/jt',
+	      [jt/3
+	      ]).
 
-:- use_module('clpbn/bnt', [do_bnt/3,
-		    check_if_bnt_done/1
-		    ]).
+:- use_module('clpbn/bnt',
+	      [do_bnt/3,
+	       check_if_bnt_done/1
+	      ]).
 
-:- use_module('clpbn/gibbs', [gibbs/3,
-		    check_if_gibbs_done/1
-		    ]).
+:- use_module('clpbn/gibbs',
+	      [gibbs/3,
+	       check_if_gibbs_done/1
+	      ]).
 
-:- use_module('clpbn/graphs', [
-		    clpbn2graph/1
-		    ]).
+:- use_module('clpbn/graphs',
+	      [
+	       clpbn2graph/1
+	      ]).
 
-:- use_module('clpbn/dists', [
-		    dist/3,
-		    get_dist/4
-		    ]).
+:- use_module('clpbn/dists',
+	      [
+	       dist/3,
+	       get_dist/4,
+	       get_evidence_position/3,
+	       get_evidence_from_position/3
+	      ]).
 
-:- use_module('clpbn/evidence', [
-	store_evidence/1,
-	incorporate_evidence/2
-	]).
+:- use_module('clpbn/evidence',
+	      [
+	       store_evidence/1,
+	       incorporate_evidence/2
+	      ]).
 
-:- use_module('clpbn/utils', [
-		    sort_vars_by_key/3
-		    ]).
+:- use_module('clpbn/utils',
+	      [
+	       sort_vars_by_key/3
+	      ]).
 
 :- dynamic solver/1,output/1,use/1.
 
@@ -91,7 +101,7 @@ clpbn_flag(bnt_model,Before,After) :-
 {Var = Key with Dist} :-
 	put_atts(El,[key(Key),dist(DistInfo,Parents)]),
 	dist(Dist, DistInfo, Parents),
-	add_evidence(Var,El).
+	add_evidence(Var,DistInfo,El).
 
 check_constraint(Constraint, _, _, Constraint) :- var(Constraint), !.
 check_constraint((A->D), _, _, (A->D)) :- var(A), !.
@@ -109,10 +119,11 @@ replace_var([V|_], V0, [NV|_], NV) :- V == V0, !.
 replace_var([_|Vars], V, [_|NVars], NV) :-
 	replace_var(Vars, V, NVars, NV).
 
-add_evidence(V,NV) :-
+add_evidence(V,Distinfo,NV) :-
 	nonvar(V), !,
-	clpbn:put_atts(NV,evidence(V)).
-add_evidence(V,V).
+	get_evidence_position(V, Distinfo, Pos),
+	clpbn:put_atts(NV,evidence(Pos)).
+add_evidence(V,_,V).
 
 clpbn_marginalise(V, Dist) :-
 	attributes:all_attvars(AVars),
@@ -128,7 +139,8 @@ project_attributes(GVars, AVars) :-
 	solver(Solver),
 	( GVars = [_|_] ; Solver = graphs), !,
 	clpbn_vars(AVars, DiffVars, AllVars),
-	get_clpbn_vars(GVars,CLPBNGVars),
+	get_clpbn_vars(GVars,CLPBNGVars0),
+	simplify_query_vars(CLPBNGVars0, CLPBNGVars),
 	write_out(Solver,CLPBNGVars, AllVars, DiffVars).
 project_attributes(_, _).
 
@@ -142,6 +154,23 @@ get_clpbn_vars([V|GVars],[V|CLPBNGVars]) :-
 	get_clpbn_vars(GVars,CLPBNGVars).
 get_clpbn_vars([_|GVars],CLPBNGVars) :-
 	get_clpbn_vars(GVars,CLPBNGVars).
+
+simplify_query_vars(LVs0, LVs) :-
+	sort(LVs0,LVs1),
+	get_rid_of_ev_vars(LVs1,LVs).
+
+%
+% some variables might already have evidence in the data-base.
+%
+get_rid_of_ev_vars([],[]).
+get_rid_of_ev_vars([V|LVs0],LVs) :-
+	clpbn:get_atts(V, [dist(Id,_),evidence(Pos)]), !,
+	get_evidence_from_position(Ev, Id, Pos),
+	clpbn_display:put_atts(V, [posterior([],Ev,[],[])]), !,
+	get_rid_of_ev_vars(LVs0,LVs).
+get_rid_of_ev_vars([V|LVs0],[V|LVs]) :-
+	get_rid_of_ev_vars(LVs0,LVs).
+
 
 write_out(vel, GVars, AVars, DiffVars) :-
 	vel(GVars, AVars, DiffVars).
@@ -250,7 +279,13 @@ bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1) :-
 	Key == Key1, !,
 	get_dist(Dist,Type,Domain,Table),
 	get_dist(Dist1,Type1,Domain1,Table1),
-	( Dist == Dist1, same_parents(Parents,Parents1) -> true ; throw(error(domain_error(bayesian_domain),bind_clpbns(var(Key, Type, Domain, Table, Parents),var(Key1, Type1, Domain1, Table1, Parents1))))).
+	( Dist == Dist1,
+	  same_parents(Parents,Parents1)
+	->
+	  true
+	;
+	  throw(error(domain_error(bayesian_domain),bind_clpbns(var(Key, Type, Domain, Table, Parents),var(Key1, Type1, Domain1, Table1, Parents1))))
+	).
 bind_clpbns(Key, _, _, _, Key1, _, _, _) :-
 	Key\=Key1, !, fail.
 bind_clpbns(_, _, _, _, _, _, _, _) :-

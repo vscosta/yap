@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-02-07 21:39:51 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-02-12 17:03:52 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.84  2008/02/07 21:39:51  vsc
+* fix case where predicate is for an integer (DBEntry).
+*
 * Revision 1.83  2008/01/23 17:57:55  vsc
 * valgrind it!
 * enable atom garbage collection.
@@ -782,6 +785,7 @@ restore_codes(void)
   Yap_heap_regs->system_module = AtomTermAdjust(Yap_heap_regs->system_module);
   Yap_heap_regs->readutil_module = AtomTermAdjust(Yap_heap_regs->readutil_module);
   Yap_heap_regs->globals_module = AtomTermAdjust(Yap_heap_regs->globals_module);
+  Yap_heap_regs->arg_module = AtomTermAdjust(Yap_heap_regs->arg_module);
   Yap_heap_regs->swi_module = AtomTermAdjust(Yap_heap_regs->swi_module);
   Yap_heap_regs->global_hold_entry = HoldEntryAdjust(Yap_heap_regs->global_hold_entry);
   if (Yap_heap_regs->file_aliases != NULL) {

@@ -822,9 +822,85 @@ p_erroneous_call(void)
   return(FALSE);
 }
 
+static Int 
+init_genarg(void)
+{				/* getarg(?Atom)		 */
+  Term t0 = Deref(ARG1);
+  Term t1 = Deref(ARG2);
+  CELL *pt, *end;
+  int res;
+  UInt arity;
+
+  if (!IsVarTerm(t0)) {
+    res = p_arg();
+    if (res) {
+      cut_succeed();
+    } else {
+      cut_fail();
+    }
+  }
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR,t1,"genarg/3");
+    return FALSE;
+  }
+  if (IsPrimitiveTerm(t1)) {
+    Yap_Error(TYPE_ERROR_COMPOUND,t1,"genarg/3");
+    return FALSE;
+  }
+  if (IsPairTerm(t1)) {
+    pt = RepPair(t1);
+    end = RepPair(t1)+1;
+    arity = 2;
+  } else {
+    arity = ArityOfFunctor(FunctorOfTerm(t1));
+    pt = RepAppl(t1);
+    end = pt+arity;
+    pt += 1;
+  }
+  res = Yap_unify(ARG1,MkIntTerm(1)) &&
+    Yap_unify(ARG3,pt[0]);
+  if (arity == 1) {
+    if (res) {
+      cut_succeed();
+    } else {
+      cut_fail();
+    }
+  }
+  EXTRA_CBACK_ARG(3,1) = (Term)(pt+1);
+  EXTRA_CBACK_ARG(3,2) = (Term)(end);
+  EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(arity);
+  return res;
+}
+
+static Int
+cont_genarg(void)
+{				/* genarg(?Atom)		 */
+  CELL *pt, *end;
+  int res;
+  UInt arity;
+
+  pt = (CELL *)EXTRA_CBACK_ARG(3,1);
+  end = (CELL *)EXTRA_CBACK_ARG(3,2);
+  arity = IntegerOfTerm(EXTRA_CBACK_ARG(3,3));
+  if (pt == end) {
+    res = Yap_unify(ARG1,MkIntegerTerm(arity)) &&
+      Yap_unify(ARG3,pt[0]);
+    if (res) {
+      cut_succeed();
+    } else {
+      cut_fail();
+    }
+  }
+  EXTRA_CBACK_ARG(3,1) = (Term)(pt+1);
+  return Yap_unify(ARG1,MkIntegerTerm(arity-(end-pt))) &&
+      Yap_unify(ARG3,pt[0]);
+}
+
+
 void 
 Yap_InitInlines(void)
 {
+  Term cm = CurrentModule;
   Yap_InitAsmPred("$$cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
   Yap_InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag);
   Yap_InitAsmPred("atomic", 1, _atomic, p_atomic, SafePredFlag);
@@ -849,5 +925,8 @@ Yap_InitInlines(void)
   Yap_InitAsmPred("$or", 3, _or, p_erroneous_call, SafePredFlag);
   Yap_InitAsmPred("$sll", 3, _sll, p_erroneous_call, SafePredFlag);
   Yap_InitAsmPred("$slr", 3, _slr, p_erroneous_call, SafePredFlag);
+  CurrentModule = GLOBALS_MODULE;
+  Yap_InitCPredBack("genarg", 3, 3, init_genarg, cont_genarg,SafePredFlag);
+  CurrentModule = cm;
 }
 

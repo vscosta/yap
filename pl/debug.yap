@@ -466,12 +466,16 @@ debugging :-
 	( '$do_spy'(Cl, M, CP, InControl) ; InRedo = true ).
 '$spycall'(G, M, InControl, InRedo) :-
 	'$undefined'(G, M), !,
-	'$enter_undefp',
 	(
-	    '$find_undefp_handler'(G,M,Goal,NM)
+	 recorded('$import','$import'(NM,M,Goal,G,_,_),_)
 	->
-	   '$spycall'(Goal, NM, InControl, InRedo)
-       ).
+	 '$spycall'(Goal, NM, InControl, InRedo)
+	;
+	'$enter_undefp',
+	 '$find_undefp_handler'(G,M,Goal,NM)
+	->
+	 '$spycall'(Goal, NM, InControl, InRedo)
+	).
 '$spycall'(G, M, InControl, InRedo) :-
 	% I lost control here.
 	CP is '$last_choice_pt',

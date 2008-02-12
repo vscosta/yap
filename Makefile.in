@@ -92,7 +92,7 @@ VERSION=Yap-5.1.3
 MYDDAS_VERSION=MYDDAS-0.9.1
 #
 
-INTERFACE_HEADERS = $(srcdir)/include/c_interface.h $(srcdir)/include/yap_structs.h $(srcdir)/include/YapInterface.h
+INTERFACE_HEADERS = $(srcdir)/include/c_interface.h $(srcdir)/include/yap_structs.h $(srcdir)/include/YapInterface.h $(srcdir)/include/SWI-Prolog.h $(srcdir)/include/SWI-Stream.h
 
 HEADERS = \
 	$(srcdir)/H/TermExt.h $(srcdir)/H/Atoms.h \
@@ -515,7 +515,7 @@ sys.o: $(srcdir)/library/system/sys.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/library/system/sys.c  -o $@
 
 yap2swi.o: $(srcdir)/library/yap2swi/yap2swi.c 
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)/library/yap2swi  $(srcdir)/library/yap2swi/yap2swi.c  -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $(srcdir)/library/yap2swi/yap2swi.c  -o $@
 
 random.o: $(srcdir)/library/random/random.c 
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $(srcdir)/library/random/random.c  -o $@
@@ -632,6 +632,8 @@ install_library: @YAPLIB@
 
 install_data:
 	(cd library ; make install)
+	(cd LGPL ; make install)
+	(cd GPL ; make install)
 	@ENABLE_JPL@ (cd LGPL/JPL ; make install)
 	@ENABLE_JPL@ (cd LGPL/JPL/java; make install)
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(SHAREDIR)/Yap/

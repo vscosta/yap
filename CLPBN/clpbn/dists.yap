@@ -12,10 +12,12 @@
 	get_dist_params/2,
 	get_dist_domain_size/2,
 	get_dist_tparams/2,
+	get_evidence_position/3,
+	get_evidence_from_position/3,
 	dist_to_term/2
 	]).
 
-:- use_module(library(lists),[is_list/1]).
+:- use_module(library(lists),[is_list/1,nth0/3]).
 
 :- use_module(library(matrix),
 	      [matrix_new/4,
@@ -175,5 +177,23 @@ get_dist_domain(Id, Domain) :-
 
 get_dist_nparams(Id, NParms) :-
 	recorded(clpbn_dist_db, db(Id, _, _, _, NParms, _), _).
+
+get_evidence_position(El, Id, Pos) :-
+	recorded(clpbn_dist_db, db(Id, _, _, Domain, _, _), _),
+	nth0(Pos, El, Domain), !.
+get_evidence_position(El, Id, Pos) :-
+	recorded(clpbn_dist_db, db(Id, _, _, Domain, _, _), _), !,
+	throw(error(domain_error(evidence,Id),add_evidence(Ev,Domain))).
+get_evidence_position(El, Id, Pos) :-
+	throw(error(domain_error(no_distribution,Id),add_evidence(Ev,Domain))).
+
+get_evidence_from_position(El, Id, Pos) :-
+	recorded(clpbn_dist_db, db(Id, _, _, Domain, _, _), _),
+	nth0(Pos, El, Domain), !.
+get_evidence_from_position(El, Id, Pos) :-
+	recorded(clpbn_dist_db, db(Id, _, _, Domain, _, _), _), !,
+	throw(error(domain_error(evidence,Id),add_evidence(Ev,Domain))).
+get_evidence_from_position(El, Id, Pos) :-
+	throw(error(domain_error(no_distribution,Id),add_evidence(Ev,Domain))).
 
 dist_to_term(_Id,_Term).

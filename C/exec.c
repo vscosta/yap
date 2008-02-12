@@ -224,6 +224,8 @@ do_execute(Term t, Term mod)
       else
 	XREGS[i] = d0;
 #else
+
+
       XREGS[i] = *pt++;
 #endif
     }
@@ -1795,18 +1797,30 @@ p_restore_regs2(void)
 
 static Int
 p_clean_ifcp(void) {
+  Term t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, "cut_at/1");
+    return FALSE;    
+  }
+  if (!IsIntegerTerm(t)) {
+    Yap_Error(TYPE_ERROR_INTEGER, t, "cut_at/1");
+    return FALSE;    
+  }
 #if SBA
-  choiceptr pt0 = (choiceptr)IntegerOfTerm(Deref(ARG1));
+  choiceptr pt0 = (choiceptr)IntegerOfTerm(t);
 #else
-  choiceptr pt0 = (choiceptr)(LCL0-IntOfTerm(Deref(ARG1)));
+  choiceptr pt0 = cp_from_integer(t);
 #endif
-  if (pt0 == B) {
+  if (pt0 < B) {
+    /* this should never happen */ 
+    return TRUE;
+  } else if (pt0 == B) {
     B = B->cp_b;
     HB = B->cp_h;
   } else {
     pt0->cp_ap = (yamop *)TRUSTFAILCODE;
   }
-  return(TRUE);
+  return TRUE;
 }
 
 
@@ -2059,8 +2073,10 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$execute_clause", 4, p_execute_clause, HiddenPredFlag);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("current_choice_point", 1, p_save_cp, HiddenPredFlag);
+  Yap_InitCPred("current_choicepoint", 1, p_save_cp, HiddenPredFlag);
   Yap_InitCPred("env_choice_point", 1, p_save_env_b, HiddenPredFlag);
   Yap_InitCPred("trail_suspension_marker", 1, p_trail_suspension_marker, HiddenPredFlag);
+  Yap_InitCPred("cut_at", 1, p_clean_ifcp, SafePredFlag);
   CurrentModule = cm;
   Yap_InitCPred("$pred_goal_expansion_on", 0, p_pred_goal_expansion_on, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag|HiddenPredFlag);

@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-01-28 10:42:19 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-02-12 17:03:50 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.105  2008/01/28 10:42:19  vsc
+* fix BOM trouble
+*
 * Revision 1.104  2007/12/05 12:17:23  vsc
 * improve JT
 * fix graph compatibility with SICStus
@@ -422,6 +425,7 @@ X_API void    *STD_PROTO(YAP_BlobOfTerm,(Term));
 X_API Term     STD_PROTO(YAP_TermNil,(void));
 X_API int      STD_PROTO(YAP_AtomGetHold,(Atom));
 X_API int      STD_PROTO(YAP_AtomReleaseHold,(Atom));
+X_API Agc_hook STD_PROTO(YAP_AGCRegisterHook,(Agc_hook));
 
 static int (*do_getf)(void);
 
@@ -2086,9 +2090,11 @@ YAP_AtomReleaseHold(Atom at)
   return Yap_AtomReleaseHold(at);
 } 
 
-X_API void
+X_API Agc_hook
 YAP_AGCRegisterHook(Agc_hook hook)
 {
-   AGCHook = hook;
+  Agc_hook old = AGCHook;
+  AGCHook = hook;
+  return old;
 } 
 

@@ -2027,6 +2027,65 @@ camacho_dum(void)
 
 #endif /* DEBUG */
 
+static Int 
+cont_current_atom(void)
+{
+  Atom            catom;
+  Int             i = IntOfTerm(EXTRA_CBACK_ARG(1,2));
+  AtomEntry       *ap; /* nasty hack for gcc on hpux */
+
+  /* protect current hash table line */
+  if (IsAtomTerm(EXTRA_CBACK_ARG(1,1)))
+    catom = AtomOfTerm(EXTRA_CBACK_ARG(1,1));
+  else
+    catom = NIL;
+  if (catom == NIL){
+    i++;
+    /* move away from current hash table line */
+    while (i < AtomHashTableSize) {
+      READ_LOCK(HashChain[i].AERWLock);
+      catom = HashChain[i].Entry;
+      READ_UNLOCK(HashChain[i].AERWLock);
+      if (catom != NIL) {
+	break;
+      }
+      i++;
+    }
+    if (i == AtomHashTableSize) {
+      cut_fail();
+    }
+  }
+  ap = RepAtom(catom);
+  if (Yap_unify_constant(ARG1, MkAtomTerm(catom))) {
+    READ_LOCK(ap->ARWLock);
+    if (ap->NextOfAE == NIL) {
+      READ_UNLOCK(ap->ARWLock);
+      i++;
+      while (i < AtomHashTableSize) {
+	READ_LOCK(HashChain[i].AERWLock);
+	catom = HashChain[i].Entry;
+	READ_UNLOCK(HashChain[i].AERWLock);
+	if (catom != NIL) {
+	  break;
+	}
+	i++;
+      }
+      if (i == AtomHashTableSize) {
+	cut_fail();
+      } else {
+	EXTRA_CBACK_ARG(1,1) = MkAtomTerm(catom);
+      }
+    } else {
+      EXTRA_CBACK_ARG(1,1) = MkAtomTerm(ap->NextOfAE);
+      READ_UNLOCK(ap->ARWLock);
+    }
+    EXTRA_CBACK_ARG(1,2) = MkIntTerm(i);
+    return TRUE;
+  } else {
+    return FALSE;
+  }
+}
+
 void Yap_InitUtilCPreds(void)
 {
   Term cm = CurrentModule;

@@ -2297,6 +2297,7 @@ that the system already includes declarations for all built-ins.
 
 @end table
 
+
 In the previous example, the only argument to @code{call/1} must be
 expanded, resulting in the following code:
 
@@ -2310,6 +2311,20 @@ a(G) :- call(example:G)
 ...
 
 @end example
+
+You can avoid goal expansion by using @code{module_transparent/1}.
+
+@table @code
+
+@item module_transparent +@var{Preds}
+@findex module_transparent/1 (directive)
+@syindex module_transparent/1 (directive)
+@cnindex module_transparent/1 (directive)
+     @var{Preds} is a comma separated list of name/arity pairs (like
+    @code{dynamic/1}). Each goal associated with a transparent declared
+    predicate will inherit the context module from its parent goal.
+@end table
+
 
 @node Re-Exporting Modules, , Meta-Predicates in Modules, Modules
 @section Re-Exporting Predicates From Other Modules
@@ -2571,6 +2586,21 @@ Note also that you can use chains of commit operators like:
 @noindent
 Note that @code{(->)/2} does not affect the scope of cuts in its
 arguments.
+
+@item  +@var{Conditon} *-> +@var{Action} ; +@var{Else}
+@findex ->*/2
+@snindex ->*/2
+@cnindex ->*/2
+This construct implements the so-called @emph{soft-cut}. The control is
+    defined as follows: If @var{Condition} succeeds at least once, the
+    semantics is the same as (@var{Condition}, @var {Action}). If
+    @var{Condition} does not succeed, the semantics is that of (\+
+    @var{Condition}, @var{Else}). In other words, If @var{Condition}
+    succeeds at least once, simply behave as the conjunction of
+    @var{Condition} and @var{Action}, otherwise execute @var{Else}.
+
+    The construct @var{A *-> B}, i.e. without an @var{Else} branch, is
+translated as the normal conjunction @var{A}, @var{B}.
 
 @item repeat [ISO]
 @findex repeat/0
@@ -3932,6 +3962,14 @@ Closes the stream @var{S}, following options @var{O}.
 The only valid options are @code{force(true)} and @code{force(false)}.
 YAP currently ignores these options.
 
+@item time_file(+@var{File},-@var{Time})
+@findex time_file/2
+@snindex time_file/2
+@cnindex time_file/2
+Unify the last modification time of @vaar{File} with
+@var{Time}. @var{Time} is a floating point number expressing the seconds
+elapsed since Jan 1, 1970.
+
 @item absolute_file_name(+@var{Name},+@var{Options}, -@var{FullPath})
 @item absolute_file_name(+@var{Name}, -@var{FullPath},+@var{Options})
 @findex absolute_file_name/3
@@ -4008,6 +4046,12 @@ Defines the relation: The stream @var{S} is opened on the file @var{F}
 in mode @var{M}. It might be used to obtain all open streams (by
 backtracking) or to access the stream for a file @var{F} in mode
 @var{M}, or to find properties for a stream @var{S}.
+
+@item is_stream(@var{S})
+@findex is_stream/1
+@snindex is_stream/1
+@cnindex is_stream/1
+Succeeds if @var{S} is a currently open stream.
 
 @item flush_output [ISO]
 @findex flush_output/0
@@ -8260,6 +8304,13 @@ True when all three arguments are lists, and the members of
 @var{Combined} are the members of @var{Prefix} followed by the members of @var{Suffix}.
 It may be used to form @var{Combined} from a given @var{Prefix}, @var{Suffix} or to take
 a given @var{Combined} apart.
+
+@item append(?@var{Lists},?@var{Combined})
+@findex append/2
+@syindex append/2
+@cnindex append/2
+Holds if the lists of @var{Lists} can be concatenated as a
+@var{Combined} list.
 
 @item delete(+@var{List}, ?@var{Element}, ?@var{Residue})
 @findex delete/3

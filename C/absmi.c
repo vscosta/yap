@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2008-01-27 11:01:06 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-02-12 17:03:50 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.234  2008/01/27 11:01:06  vsc
+* make thread code more stable
+*
 * Revision 1.233  2008/01/23 17:57:44  vsc
 * valgrind it!
 * enable atom garbage collection.
@@ -7926,7 +7929,7 @@ Yap_absmi(int inp)
 	PredEntry *pe = PredFromDefCode(PREG);
 	BEGD(d0);
 	/* avoid trouble with undefined dynamic procedures */
-	if (pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag)) {
+	if (pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)) {
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
 #endif

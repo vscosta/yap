@@ -1059,3 +1059,13 @@ current_stream(File, Opts, Stream) :-
 
 write_depth(T,L) :- write_depth(T,L,_).
 
+is_stream(S) :-
+	'$check_stream'(S).
+
+time_file(File, Time) :-
+	'$file_age'(File, Time).
+
+stream_position_data(line_count, '$stream_position'(_,Data,_,_,_), Data).
+stream_position_data(line_position, '$stream_position'(_,_,Data,_,_), Data).
+%stream_position_data(char_count, '$stream_position'(Data,_,_,_,_), Data).
+stream_position_data(byte_count, '$stream_position'(Data,_,_,_,_), Data).

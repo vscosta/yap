@@ -413,7 +413,7 @@ extern X_API int  PROTO(YAP_AtomGetHold,(YAP_Atom));
 extern X_API int  PROTO(YAP_AtomReleaseHold,(YAP_Atom));
 
 /*  void  YAP_AtomReleaseHold(YAP_Atom)  */
-extern X_API void  PROTO(YAP_AGCRegisterHook,(YAP_agc_hook));
+extern X_API YAP_agc_hook  PROTO(YAP_AGCRegisterHook,(YAP_agc_hook));
 
 /* thread stuff */
 extern X_API int  PROTO(YAP_ThreadSelf,(void));

@@ -182,34 +182,37 @@ module(N) :-
 
 % expand module names in a clause
 '$module_expansion'(((Mod:H) :-B ),((Mod:H) :- B1),((Mod:H) :- BO),M) :- !,
-	'$prepare_body_with_correct_modules'(B, M, B0),
+	'$is_mt'(Mod,H,MT),
+	'$prepare_body_with_correct_modules'(B, M, MT, B0),
 	'$module_u_vars'(H,UVars,M),	 % collect head variables in
 					 % expanded positions
-	'$module_expansion'(B0,B1,BO,M,M,M,UVars). % expand body
+	'$module_expansion'(B0,B1,BO,M,M,M,UVars,MT). % expand body
 '$module_expansion'((H:-B),(H:-B1),(H:-BO),M) :-
+	'$is_mt'(Mod,H,MT),
 	'$module_u_vars'(H,UVars,M),	 % collect head variables in
 					 % expanded positions
-	'$module_expansion'(B,B1,BO,M,M,M,UVars). % expand body
+	'$module_expansion'(B,B1,BO,M,M,M,UVars,MT). % expand body
 %	$trace_module((H:-B),(H:-B1)).
 
 % expand module names in a body
-'$prepare_body_with_correct_modules'(V,M,call(M:V)) :- var(V), !.
-'$prepare_body_with_correct_modules'((A,B),M,(A1,B1)) :- !,
-	'$prepare_body_with_correct_modules'(A,M,A1),
-	'$prepare_body_with_correct_modules'(B,M,B1).
-'$prepare_body_with_correct_modules'((A;B),M,(A1;B1)) :- !,
-	'$prepare_body_with_correct_modules'(A,M,A1),
-	'$prepare_body_with_correct_modules'(B,M,B1).
-'$prepare_body_with_correct_modules'((A->B),M,(A1->B1)) :- !,
-	'$prepare_body_with_correct_modules'(A,M,A1),
-	'$prepare_body_with_correct_modules'(B,M,B1).
-'$prepare_body_with_correct_modules'(true,_,true) :- !.
-'$prepare_body_with_correct_modules'(fail,_,fail) :- !.
-'$prepare_body_with_correct_modules'(false,_,false) :- !.
+'$prepare_body_with_correct_modules'(V,M,MT,call(G)) :- var(V), !,
+	(MT = on -> G = M:V ; G = V).
+'$prepare_body_with_correct_modules'((A,B),M,MT,(A1,B1)) :- !,
+	'$prepare_body_with_correct_modules'(A,M,MT,A1),
+	'$prepare_body_with_correct_modules'(B,M,MT,B1).
+'$prepare_body_with_correct_modules'((A;B),M,MT,(A1;B1)) :- !,
+	'$prepare_body_with_correct_modules'(A,M,MT,A1),
+	'$prepare_body_with_correct_modules'(B,M,MT,B1).
+'$prepare_body_with_correct_modules'((A->B),M,MT,(A1->B1)) :- !,
+	'$prepare_body_with_correct_modules'(A,M,MT,A1),
+	'$prepare_body_with_correct_modules'(B,M,MT,B1).
+'$prepare_body_with_correct_modules'(true,_,_,true) :- !.
+'$prepare_body_with_correct_modules'(fail,_,_,fail) :- !.
+'$prepare_body_with_correct_modules'(false,_,_,false) :- !.
 '$prepare_body_with_correct_modules'(M:G,_,M:G) :- !.
-'$prepare_body_with_correct_modules'(G,M,G) :-
+'$prepare_body_with_correct_modules'(G,M,MT,G) :-
 	'$system_predicate'(G,M), !.
-'$prepare_body_with_correct_modules'(G,M,M:G).
+'$prepare_body_with_correct_modules'(G,M,MT,M:G).
 
 
 '$trace_module'(X) :-
@@ -239,31 +242,38 @@ module(N) :-
 %       current module for fixing up meta-call arguments
 %       current module for predicate
 %       head variables.
-'$module_expansion'(V,call(MM:V),call(MM:V),_M,MM,_TM,_) :- var(V), !.
-'$module_expansion'((A,B),(A1,B1),(AO,BO),M,MM,TM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
-	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
-'$module_expansion'((A;B),(A1;B1),(AO;BO),M,MM,TM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
-	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
-'$module_expansion'((A|B),(A1|B1),(AO|BO),M,MM,TM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
-	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
-'$module_expansion'((A->B),(A1->B1),(AO->BO),M,MM,TM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
-	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
-'$module_expansion'(\+A,\+A1,\+AO,M,MM,TM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars).
-'$module_expansion'(not(A),not(A1),not(AO),M,MM,TM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars).
+'$module_expansion'(V,call(G),call(G),_M,MM,_TM,_,MT) :- var(V), !,
+	(MT = on -> G = MM:V ; G = V).
+'$module_expansion'((A,B),(A1,B1),(AO,BO),M,MM,TM,HVars,MT) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars,MT),
+	'$module_expansion'(B,B1,BO,M,MM,TM,HVars,MT).
+'$module_expansion'((A*->B;C),(A1*->B1;C1),(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),M,MM,TM,HVars,MT) :- !,
+	'$module_expansion'(A,A1,AOO,M,MM,TM,HVars,MT),
+	'$clean_cuts'(AOO, AO),
+	'$module_expansion'(B,B1,BO,M,MM,TM,HVars,MT),
+	'$module_expansion'(C,C1,CO,M,MM,TM,HVars,MT).
+'$module_expansion'((A;B),(A1;B1),(AO;BO),M,MM,TM,HVars,MT) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars,MT),
+	'$module_expansion'(B,B1,BO,M,MM,TM,HVars,MT).
+'$module_expansion'((A|B),(A1|B1),(AO|BO),M,MM,TM,HVars,MT) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars,MT),
+	'$module_expansion'(B,B1,BO,M,MM,TM,HVars,MT).
+'$module_expansion'((A->B),(A1->B1),(AO->BO),M,MM,TM,HVars,MT) :- !,
+	'$module_expansion'(A,A1,AOO,M,MM,TM,HVars,MT),
+	'$clean_cuts'(AOO, AO),
+	'$module_expansion'(B,B1,BO,M,MM,TM,HVars,MT).
+'$module_expansion'(\+A,\+A1,\+AO,M,MM,TM,HVars,MT) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars,MT).
+'$module_expansion'(not(A),not(A1),not(AO),M,MM,TM,HVars,MT) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars,MT).
 '$module_expansion'(true,true,true,_,_,_,_) :- !.
 '$module_expansion'(fail,fail,fail,_,_,_,_) :- !.
 '$module_expansion'(false,false,false,_,_,_,_) :- !.
 % if I don't know what the module is, I cannot do anything to the goal,
 % so I just put a call for later on.
-'$module_expansion'(M:G,call(M:G),'$execute_wo_mod'(G,M),_,_,_,_) :- var(M), !.
-'$module_expansion'(M:G,G1,GO,_,_,TM,HVars) :-
-	'$module_expansion'(G,G1,GO,M,M,TM,HVars).
+'$module_expansion'(M:G,call(M:G),'$execute_wo_mod'(G,M),_,_,_,_,_) :- var(M), !.
+'$module_expansion'(M:G,G1,GO,_,_,TM,HVars,MT) :-
+	'$module_expansion'(G,G1,GO,M,M,TM,HVars,MT).
 % if M1 is given explicitly process G within M1's context.
 % '$module_expansion'(M:G,G1,GO,_Mod,_MM,TM,HVars) :- !,
 % 	% is this imported from some other module M1?
@@ -281,16 +291,19 @@ module(N) :-
 %
 % next, check if this is something imported.
 %
-'$module_expansion'(G, G1, GO, CurMod, MM, TM, HVars) :-
+'$module_expansion'(G, G1, GO, CurMod, MM, TM, HVars,MT) :-
 	% is this imported from some other module M1?
 	( '$imported_pred'(G, CurMod, GG, M1) ->
-	    '$module_expansion'(GG, G1, GO, M1, MM, TM, HVars)
+	    '$module_expansion'(GG, G1, GO, M1, MM, TM, HVars,MT)
 	;
-	( '$meta_expansion'(CurMod, MM, G, GI, HVars)
-          ;
-          GI = G
+	(
+	 % only expand meta-predicates if we are not module transparent!
+	 MT = off,
+	 '$meta_expansion'(CurMod, MM, G, GI, HVars)
+	;
+	 GI = G
         ),
-	'$complete_goal_expansion'(GI, CurMod, MM, TM, G1, GO, HVars)
+	'$complete_goal_expansion'(GI, CurMod, MM, TM, G1, GO, HVars, MT)
 	).
 
 
@@ -306,15 +319,15 @@ module(N) :-
 %       goal to pass to compiler
 %       goal to pass to listing
 %       head variables.
-'$complete_goal_expansion'(G, M, CM, TM, G1, G2, HVars) :-
+'$complete_goal_expansion'(G, M, CM, TM, G1, G2, HVars, MT) :-
 	'$pred_goal_expansion_on',
 	user:goal_expansion(G,M,GI), !,
-	'$module_expansion'(GI,G1,G2,M,CM,TM,HVars).
-'$complete_goal_expansion'(G, M, CM, TM, G1, G2, HVars) :-
+	'$module_expansion'(GI, G1, G2, M, CM, TM, HVars, MT).
+'$complete_goal_expansion'(G, M, CM, TM, G1, G2, HVars, MT) :-
 	'$all_system_predicate'(G,M), !,
-	'$c_built_in'(G,M,Gi),
+	'$c_built_in'(G, M, Gi, MT),
 	(Gi \== G ->
-	   '$module_expansion'(Gi,_,G2,M,CM,TM,HVars),
+	   '$module_expansion'(Gi, _, G2, M, CM, TM, HVars, MT),
 	    % make built-in processing transparent.
 	    (TM = M -> G1 = G ; G1 = M:G)
 	 ; TM = M ->
@@ -322,8 +335,28 @@ module(N) :-
 	;
 	    G2 = M:G, G1 = M:G % atts:
 	).
-'$complete_goal_expansion'(G, Mod, _, Mod, G, G, _) :- !.
-'$complete_goal_expansion'(G, GMod, _, _, GMod:G, GMod:G, _).
+'$complete_goal_expansion'(G, Mod, _, Mod, G, G, _, _) :- !.
+'$complete_goal_expansion'(G, GMod, _, _, GMod:G, GMod:G, _, _).
+
+
+% module_transparent declaration
+% 
+
+:- dynamic('$module_transparent'/4).
+
+'$module_transparent'((P,Ps), M) :- !, 
+	'$module_transparent'(P, M),
+	'$module_transparent'(Ps, M).
+'$module_transparent'(M:D, _) :- !,
+	'$module_transparent'(D, M).
+'$module_transparent'(F/N, M) :-
+	functor(P,F,N),
+	( retractall('$module_transparent'(F,M,N,_)), fail ; true),
+	asserta(prolog:'$module_transparent'(F,M,N,P)).
+
+'$is_mt'(Mod,H,on) :-
+	'$module_transparent'(_,M,_,H), !.
+'$is_mt'(_,_,off).
 
 % meta_predicate declaration
 % records $meta_predicate(SourceModule,Functor,Arity,Declaration)
@@ -629,3 +662,30 @@ abolish_module(_).
 	G1=..[N1|Args],
 	recordaifnot('$import','$import'(ModR,Mod,G,G1,N0,K0),_),
 	'$add_to_imports'(Tab, Mod, ModR).
+
+% I assume the clause has been processed, so the
+% var case is long gone! Yes :)
+'$clean_cuts'(G,(yap_hacks:current_choicepoint(DCP),NG)) :-
+	'$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
+'$clean_cuts'(G,G).
+
+'$conj_has_cuts'(!,DCP,'$$cut_by'(DCP), ok) :- !. 
+'$conj_has_cuts'((G1,G2),DCP,(NG1,NG2), OK) :- !,
+	'$conj_has_cuts'(G1, DCP, NG1, OK),
+	'$conj_has_cuts'(G2, DCP, NG2, OK).
+'$conj_has_cuts'((G1;G2),DCP,(NG1;NG2), OK) :- !,
+	'$conj_has_cuts'(G1, DCP, NG1, OK),
+	'$conj_has_cuts'(G2, DCP, NG2, OK).
+'$conj_has_cuts'((G1->G2),DCP,(G1;NG2), OK) :- !,
+	% G1: the system must have done it already
+	'$conj_has_cuts'(G2, DCP, NG2, OK).
+'$conj_has_cuts'((G1*->G2),DCP,(G1;NG2), OK) :- !,
+	% G1: the system must have done it already
+	'$conj_has_cuts'(G2, DCP, NG2, OK).
+'$conj_has_cuts'(if(G1,G2,G3),DCP,if(G1,NG2,NG3), OK) :- !,
+	% G1: the system must have done it already
+	'$conj_has_cuts'(G2, DCP, NG2, OK),
+	'$conj_has_cuts'(G3, DCP, NG3, OK).
+'$conj_has_cuts'(G,_,G, _).
+
+

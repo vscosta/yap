@@ -27,6 +27,8 @@ CLPBN_TOP= $(srcdir)/clpbn.yap
 
 CLPBN_SRCDIR = $(srcdir)/clpbn
 
+CLPBN_LEARNING_SRCDIR = $(srcdir)/learning
+
 CLPBN_EXDIR = $(srcdir)/clpbn/examples
 
 CLPBN_PROGRAMS= \
@@ -48,6 +50,11 @@ CLPBN_PROGRAMS= \
 	$(CLPBN_SRCDIR)/viterbi.yap \
 	$(CLPBN_SRCDIR)/xbif.yap
 
+CLPBN_LEARNING_PROGRAMS= \
+	$(CLPBN_LEARNING_SRCDIR)/bnt_parms.yap \
+	$(CLPBN_LEARNING_SRCDIR)/learn_utils.yap \
+	$(CLPBN_LEARNING_SRCDIR)/mle.yap
+
 CLPBN_EXAMPLES= \
 	$(CLPBN_EXDIR)/cg.yap \
 	$(CLPBN_EXDIR)/School/README \
@@ -62,9 +69,11 @@ CLPBN_EXAMPLES= \
 
 install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_PROGRAMS)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn
+	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn/learning
 	mkdir -p $(DESTDIR)$(SHAREDIR)/examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn/examples/School
 	for h in $(CLPBN_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	for h in $(CLPBN_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn; done
+	for h in $(CLPBN_LEARNING_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/learning; done
 	for h in $(CLPBN_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/examples; done
 

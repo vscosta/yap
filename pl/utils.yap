@@ -17,13 +17,17 @@
 
 once(G) :- '$execute'(G), !.
 
-if(X,Y,_Z) :-
-	CP is '$last_choice_pt',
-	'$execute'(X),
-	'$clean_ifcp'(CP),
-	'$execute'(Y).
-if(_X,_Y,Z) :-
-	'$execute'(Z).
+if(X,Y,Z) :-
+	yap_hacks:env_choice_point(CP0),
+	(
+	 CP is '$last_choice_pt',
+	 '$call'(X,CP,if(X,Y,Z),M),
+	 '$execute'(X),
+	 '$clean_ifcp'(CP),
+	 '$call'(Y,CP,if(X,Y,Z),M)
+	;
+	 '$call'(Z,CP,if(X,Y,Z),M)
+	).
 
 call(X,A) :- '$execute'(X,A).
 

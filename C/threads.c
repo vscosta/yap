@@ -47,8 +47,8 @@ allocate_new_tid(void)
 	(ThreadHandle[new_worker_id].in_use == TRUE ||
 	 ThreadHandle[new_worker_id].zombie == TRUE) )
     new_worker_id++;
-  ThreadHandle[new_worker_id].in_use = TRUE;
   pthread_mutex_lock(&(ThreadHandle[new_worker_id].tlock));
+  ThreadHandle[new_worker_id].in_use = TRUE;
   UNLOCK(ThreadHandlesLock);
   if (new_worker_id == MAX_WORKERS) 
     return -1;
@@ -87,12 +87,14 @@ kill_thread_engine (int wid)
     Yap_FreeCodeSpace((char *)ap);
   }
   Yap_KillStacks(wid);
+  Yap_FreeCodeSpace((ADDR)(ThreadHandle[wid].tgoal));
   Yap_heap_regs->wl[wid].active_signals = 0L;
+  pthread_mutex_lock(&(ThreadHandle[wid].tlock));
   free(Yap_heap_regs->wl[wid].scratchpad.ptr);
   free(ThreadHandle[wid].default_yaam_regs);
+  ThreadHandle[wid].current_yaam_regs = NULL;
   free(ThreadHandle[wid].start_of_timesp);
   free(ThreadHandle[wid].last_timep);
-  pthread_mutex_lock(&(ThreadHandle[wid].tlock));
   ThreadHandle[wid].zombie = FALSE;
   pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
 }
@@ -577,12 +579,14 @@ p_thread_signal(void)
   Int wid = IntegerOfTerm(Deref(ARG1));
   /* make sure the lock is available */
   pthread_mutex_lock(&(ThreadHandle[wid].tlock));
-  if (!ThreadHandle[wid].in_use) {
+  if (!ThreadHandle[wid].in_use || 
+      !ThreadHandle[wid].current_yaam_regs) {
     pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
     return TRUE;
   }
   LOCK(Yap_heap_regs->wl[wid].signal_lock);
-  ThreadHandle[wid].current_yaam_regs->CreepFlag_ = Unsigned(LCL0);
+  ThreadHandle[wid].current_yaam_regs->CreepFlag_ = 
+    Unsigned(ThreadHandle[wid].current_yaam_regs->LCL0_);
   Yap_heap_regs->wl[wid].active_signals |= YAP_ITI_SIGNAL;
   UNLOCK(Yap_heap_regs->wl[wid].signal_lock);
   pthread_mutex_unlock(&(ThreadHandle[wid].tlock));

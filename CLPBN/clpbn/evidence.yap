@@ -3,10 +3,12 @@
 %
 %
 
-:- module(clpbn_evidence, [
-	store_evidence/1,
-        incorporate_evidence/2
-    ]).
+:- module(clpbn_evidence,
+	  [
+	   store_evidence/1,
+	   incorporate_evidence/2,
+	   get_evidence_position/3
+	  ]).
 
 :- use_module(library(clpbn), [
 	{}/1,
@@ -107,7 +109,9 @@ extract_vars([_-V|Cache], [V|AllVs]) :-
 
 add_evidence(K, V) :-
 	evidence(K, Ev), !,
-	clpbn:put_atts(V, [evidence(Ev)]).
+	clpbn:get_atts(V, [dist(Id,_)]).
+	get_evidence_position(Ev, Id, EvPos),
+	clpbn:put_atts(V, [evidence(EvPos)]).
 add_evidence(_, _).
 
 

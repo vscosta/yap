@@ -17,6 +17,12 @@ xb
 
 <h2>Yap-5.1.3:</h2>
 <ul>
+<li> NEW: time_file/2 (SWI-compatibility).</li>
+<li> NEW: module_transparent declaration (SWI-compatibility).</li>
+<li> NEW: strip_module/3 (SWI-compatibility).</li>
+<li> FIXED: head of if/3, ->/2, *->/2 and once/1 should not be able to
+  cut up to predicate level. Don't ask me why.</li>
+<li> NEW: *->/2 (SWI-compatibility).</li>
 <li> NEW: variable_names_may_end_with_quotes allows A' in variable
   names (request from Nicos Angelopoulos).</li>
 <li> SPEEDUP: quickly check if we are importing an undefined goal.</li>

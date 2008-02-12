@@ -74,6 +74,9 @@ otherwise.
 	 'chtypes.yap',
 	 'yapor.yap'].
 
+:- dynamic prolog:'$user_defined_flag'/2.
+
+
 :-	 ['protect.yap'].
 
 version(yap,[5,1]).

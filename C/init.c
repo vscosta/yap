@@ -352,11 +352,13 @@ static Opdef    Ops[] = {
   {"?-", fx, 1200},
   {":-", fx, 1200},
   {"dynamic", fx, 1150},
+  {"thread_local", fx, 1150},
   {"initialization", fx, 1150},
   {"mode", fx, 1150},
   {"public", fx, 1150},
   {"multifile", fx, 1150},
   {"meta_predicate", fx, 1150},
+  {"module_transparent", fx, 1150},
   {"discontiguous", fx, 1150},
 #ifdef YAPOR
   {"sequential", fx, 1150},
@@ -371,6 +373,7 @@ static Opdef    Ops[] = {
   {"|", xfy, 1100},
   /*  {";", yf, 1100}, not allowed in ISO */
   {"->", xfy, 1050},
+  {"*->", xfy, 1050},
   {",", xfy, 1000},
   {".", xfy, 999},
   {"\\+", fy, 900},
@@ -385,6 +388,8 @@ static Opdef    Ops[] = {
   {"@>", xfx, 700},
   {"@=<", xfx, 700},
   {"@>=", xfx, 700},
+  {"=@=", xfx, 700},
+  {"\\=@=", xfx, 700},
   {"=:=", xfx, 700},
   {"=\\=", xfx, 700},
   {"<", xfx, 700},
@@ -887,6 +892,7 @@ InitCodes(void)
   Yap_heap_regs->readutil_module = MkAtomTerm(Yap_LookupAtom("readutil"));
   Yap_heap_regs->hacks_module = MkAtomTerm(Yap_LookupAtom("yap_hacks"));
   Yap_heap_regs->globals_module = MkAtomTerm(Yap_LookupAtom("nb"));
+  Yap_heap_regs->arg_module = MkAtomTerm(Yap_LookupAtom("arg"));
   Yap_heap_regs->swi_module = MkAtomTerm(Yap_LookupAtom("swi"));
   Yap_InitModules();
 #ifdef BEAM

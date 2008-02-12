@@ -691,6 +691,26 @@ incore(G) :- '$execute'(G).
 	'$current_module'(M),
         '$call'(X,CP,(X,Y),M),
         '$call'(Y,CP,(X,Y),M).
+';'((X->A),Y) :- !,
+	yap_hacks:env_choice_point(CP),
+	'$current_module'(M),
+        ( '$execute'(X)
+	->
+	  '$call'(A,CP,(X->A;Y),M)
+	;
+	  '$call'(Y,CP,(X->A;Y),M)
+	).
+';'((X*->A),Y) :- !,
+	yap_hacks:env_choice_point(CP),
+	'$current_module'(M),
+	(
+	 yap_hacks:current_choicepoint(DCP),
+	 '$execute'(X),
+	 yap_hacks:cut_at(DCP),
+	 '$call'(A,CP,((X*->A),Y),M)
+        ;
+	 '$call'(Y,CP,((X*->A),Y),M)
+	).
 ';'(X,Y) :-
 	yap_hacks:env_choice_point(CP),
 	'$current_module'(M),
@@ -703,6 +723,10 @@ incore(G) :- '$execute'(G).
 	yap_hacks:env_choice_point(CP),
 	'$current_module'(M),
         ( '$call'(X,CP,(X->Y),M) -> '$call'(Y,CP,(X->Y),M) ).
+'*->'(X,Y) :-
+	yap_hacks:env_choice_point(CP),
+	'$current_module'(M),
+        ( '$call'(X,CP,(X*->Y),M), '$call'(Y,CP,(X*->Y),M) ).
 \+(G) :-     \+ '$execute'(G).
 not(G) :-    \+ '$execute'(G).
 
@@ -733,17 +757,29 @@ not(G) :-    \+ '$execute'(G).
         '$call'(Y,CP,G0,M).
 '$call'((X->Y),CP,G0,M) :- !,
 	(
-	    '$call'(X,CP,G0,M)
+	 '$execute'(X)
           ->
-	    '$call'(Y,CP,G0,M)
+	 '$call'(Y,CP,G0,M)
 	).
+'$call'((X*->Y),CP,G0,M) :- !,
+	'$execute'(X),
+	'$call'(Y,CP,G0,M).
 '$call'((X->Y; Z),CP,G0,M) :- !,
 	(
-	    '$call'(X,CP,G0,M)
+	    '$execute'(X)
          ->
 	    '$call'(Y,CP,G0,M)
         ;
 	    '$call'(Z,CP,G0,M)
+	).
+'$call'((X*->Y; Z),CP,G0,M) :- !,
+	(
+	 yap_hacks:current_choicepoint(DCP),
+	 '$execute'(X),
+	 yap_hacks:cut_at(DCP),
+	 '$call'(Y,CP,G0,M)
+        ;
+	 '$call'(Z,CP,G0,M)
 	).
 '$call'((A;B),CP,G0,M) :- !,
 	(
@@ -753,11 +789,20 @@ not(G) :-    \+ '$execute'(G).
 	).
 '$call'((X->Y| Z),CP,G0,M) :- !,
 	(
-	    '$call'(X,CP,G0,M)
+	    '$execute'(X)
          ->
 	    '$call'(Y,CP,G0,M)
         ;
 	    '$call'(Z,CP,G0,M)
+	).
+'$call'((X*->Y| Z),CP,G0,M) :- !,
+	(
+	 yap_hacks:current_choicepoint(DCP),
+	 '$execute'(X),
+	 yap_hacks:cut_at(DCP),
+	 '$call'(Y,CP,G0,M)
+        ;
+	 '$call'(Z,CP,G0,M)
 	).
 '$call'((A|B),CP, G0,M) :- !,
 	(
@@ -812,9 +857,11 @@ not(G) :-    \+ '$execute'(G).
         % for undefined_predicates.
 	(
 	 recorded('$import','$import'(NM,M,Goal,G,_,_),_)
+	->
+	 true
 	;
-	'$enter_undefp',
-	once('$find_undefp_handler'(G,M,Goal,NM))
+	 '$enter_undefp',
+	 once('$find_undefp_handler'(G,M,Goal,NM))
 	),
 	!,
 	'$execute0'(Goal,NM).

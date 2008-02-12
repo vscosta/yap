@@ -374,9 +374,7 @@ add_evidence(Graph, Size, Is) :-
 
 mk_evidence([], [], []).
 mk_evidence([V|L], [I|Is], [ar(1,I,Val)|LN]) :-
-	clpbn:get_atts(V, [evidence(Ev),dist(Id,_)]), !,
-	get_dist_domain(Id, Domain),
-	evidence_val(Ev,1,Domain,Val),
+	clpbn:get_atts(V, [evidence(EvVal),dist(Id,_)]), !,
 	mk_evidence(L, Is, LN).
 mk_evidence([_|L], [_|Is], LN) :-
 	mk_evidence(L, Is, LN).

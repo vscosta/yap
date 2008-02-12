@@ -148,8 +148,10 @@ SetHeapRegs(void)
     ASP = PtoLocAdjust(ASP);
   if (H0)
     H0 = PtoGloAdjust(H0);
+  LOCK(SignalLock);
   if (LCL0)
     LCL0 = PtoLocAdjust(LCL0);
+  UNLOCK(SignalLock);
   if (H)
     H = PtoGloAdjust(H);
   if (HB)

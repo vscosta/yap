@@ -3,33 +3,36 @@
 %
 % This file includes code from Bob Welham, Lawrence Byrd, and R. A. O'Keefe.
 %
-:- module(lists,[append/3,
-	delete/3,
-	is_list/1,
-	last/2,
-	member/2,
-	memberchk/2,
-	nextto/3,
-	nth/3,
-	nth/4,
-	nth0/3,
-	nth0/4,
-	permutation/2,
-	prefix/2,
-	remove_duplicates/2,
-	reverse/2,
-	same_length/2,
-	select/3,
-	sublist/2,
-	substitute/4,
-	sum_list/2,
-	suffix/2,
-	sumlist/2,
-        list_concat/2,
-        flatten/2,
-	max_list/2,	 
-	min_list/2
-		]).
+:- module(lists,
+	  [
+	   append/3,
+	   append/2,
+	   delete/3,
+	   is_list/1,
+	   last/2,
+	   member/2,
+	   memberchk/2,
+	   nextto/3,
+	   nth/3,
+	   nth/4,
+	   nth0/3,
+	   nth0/4,
+	   permutation/2,
+	   prefix/2,
+	   remove_duplicates/2,
+	   reverse/2,
+	   same_length/2,
+	   select/3,
+	   sublist/2,
+	   substitute/4,
+	   sum_list/2,
+	   suffix/2,
+	   sumlist/2,
+	   list_concat/2,
+	   flatten/2,
+	   max_list/2,	 
+	   min_list/2
+	  ]).
 
 
 %   append(Prefix, Suffix, Combined)
@@ -42,6 +45,23 @@
 append([], L, L).
 append([H|T], L, [H|R]) :-
 	append(T, L, R).
+
+
+%%	append(+ListOfLists, ?List)
+%
+%	Concatenate a list of lists.  Is  true   if  Lists  is a list of
+%	lists, and List is the concatenation of these lists.
+%	
+%	@param	ListOfLists must be a list of -possibly- partial lists
+
+append(ListOfLists, List) :-
+%	must_be(list, ListOfLists),
+	append_(ListOfLists, List).
+
+append_([], []).
+append_([L|Ls], As) :-
+	append(L, Ws, As),
+	append_(Ls, Ws).
 
 
 %   delete(List, Elem, Residue)
