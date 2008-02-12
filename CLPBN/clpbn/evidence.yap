@@ -109,7 +109,7 @@ extract_vars([_-V|Cache], [V|AllVs]) :-
 
 add_evidence(K, V) :-
 	evidence(K, Ev), !,
-	clpbn:get_atts(V, [dist(Id,_)]).
+	clpbn:get_atts(V, [dist(Id,_)]),
 	get_evidence_position(Ev, Id, EvPos),
 	clpbn:put_atts(V, [evidence(EvPos)]).
 add_evidence(_, _).

@@ -3816,6 +3816,7 @@ static Int
       old_H = H;
       Yap_eot_before_eof = FALSE;
       tpos = StreamPosition(inp_stream);
+      StartLine = Stream[inp_stream].linecount;
       tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(inp_stream);
       if (Yap_Error_TYPE != YAP_NO_ERROR && seekable) {
 	H = old_H;
@@ -3876,7 +3877,7 @@ static Int
 	} else {
 	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	
-	  return Yap_unify(MkIntegerTerm(StartLine = Stream[inp_stream].linecount),ARG5) &&
+	  return Yap_unify(tpos,ARG5) &&
 	    Yap_unify_constant(ARG2, MkAtomTerm (AtomEof));
 	}
       }
@@ -3934,12 +3935,11 @@ static Int
 	  Yap_Error(SYNTAX_ERROR,terr,Yap_ErrorMessage);
 	  return FALSE;
 	} else /* FAIL ON PARSER ERROR */ {
-	  Term t[2], t1;
+	  Term t[2];
 	  t[0] = terr;
 	  t[1] = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
-	  t1 = MkIntegerTerm(StartLine = tokstart->TokPos);
 	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-	  return(Yap_unify(t1,ARG5) &&
+	  return(Yap_unify(tpos,ARG5) &&
 		 Yap_unify(ARG6,Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("error"),2),2,t)));
 	}
       }
