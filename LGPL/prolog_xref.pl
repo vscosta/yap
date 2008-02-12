@@ -1,4 +1,4 @@
-/*  $Id: prolog_xref.pl,v 1.1 2008-02-12 17:03:54 vsc Exp $
+/*  $Id: prolog_xref.pl,v 1.2 2008-02-12 18:10:48 vsc Exp $
 
     Part of SWI-Prolog
 
@@ -117,6 +117,8 @@ genarg(X,Y,Z) :-
 	arg(X,Y,Z).
 :- else.
 % yap
+
+:- ensure_loaded(library(swi)).
 
 :- user_defined_flag(xref).
 

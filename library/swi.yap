@@ -23,10 +23,10 @@
 			      term_hash/2,
 			      variant/2]).
 
-:- multifile
+:- dynamic
    prolog:message/3.
 
-:- dynamic
+:- multifile
    prolog:message/3.
 
 :- multifile
@@ -174,8 +174,16 @@ prolog:nth1(I,L,A) :- nth(I,L,A).
 
 prolog:prolog_to_os_filename(X,X).
 
+prolog:is_absolute_file_name(X) :-
+	absolute_file_name(X,X).
+
+prolog:read_clause(X,Y) :-
+	read_term(X,Y,[singetons(warning)]).
+
 prolog:forall(X,Y) :- 
 	catch(do_forall(X,Y), fail_forall, fail).
+
+prolog:string(_) :- fail.
 
 do_forall(X,Y) :-
 	call(X),
