@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.26 2008-02-07 23:09:13 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.27 2008-02-12 21:50:58 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -326,7 +326,7 @@ typedef CELL Term;
 typedef pthread_mutex_t lockvar;
 typedef pthread_rwlock_t rwlock_t;
 #include <pthread_locks.h>
-#elif defined(i386)
+#elif defined(i386) || defined(__x86_64__)
 typedef volatile int lockvar;
 #include <x86_locks.h>
 #elif defined(sparc) || defined(__sparc)

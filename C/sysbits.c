@@ -302,6 +302,7 @@ bla bla
 #if THREADS
 #define StartOfTimes (*(ThreadHandle[worker_id].start_of_timesp))
 #define last_time    (*(ThreadHandle[worker_id].last_timep))
+
 #else
 /* since the point YAP was started */
 static struct timeval StartOfTimes;
@@ -2343,7 +2344,7 @@ p_alarm(void)
     tout = MkIntegerTerm(0);
     return Yap_unify(ARG3,tout) && Yap_unify(ARG4,MkIntTerm(0));
   }
-#elif HAVE_SETITIMER
+#elif HAVE_SETITIMER && !SUPPORT_CONDOR
   {
     struct itimerval new, old;
 
@@ -2362,7 +2363,7 @@ p_alarm(void)
     return Yap_unify(ARG3,MkIntegerTerm(old.it_value.tv_sec)) &&
       Yap_unify(ARG4,MkIntegerTerm(old.it_value.tv_usec));
   }
-#elif HAVE_ALARM
+#elif HAVE_ALARM && !SUPPORT_CONDOR
   {
     Int left;
     Term tout;
@@ -2835,7 +2836,7 @@ rw_lock_voodoo(void) {
 #endif /* sparc */
 
 
-#ifdef i386
+#if defined(i386) || defined(__x86_64__)
 asm(
 
 ".align	4\n"

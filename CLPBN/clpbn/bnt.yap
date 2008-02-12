@@ -68,6 +68,7 @@ bnt_path('$HOME/Yap/CLPBN/FullBNT-1.0.4/BNT').
 %
 %bnt_model(propositional).
 bnt_model(tied).
+%bnt_model(dbn).
 
 /*****************************************
 

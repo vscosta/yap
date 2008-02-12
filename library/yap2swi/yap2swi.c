@@ -16,6 +16,10 @@
 
 #include	<SWI-Prolog.h>
 
+#ifdef USE_GMP
+#include <gmp.h>
+#endif
+
 #define BUF_SIZE 256
 #define TMP_BUF_SIZE 2*BUF_SIZE
 #define BUF_RINGS 16
