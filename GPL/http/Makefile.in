@@ -1,0 +1,179 @@
+################################################################
+# SWI-Prolog `HTTP' package
+# Author:    Jan Wielemaker. wielemak@science.uva.nl
+# Adapted to YAP by:    Vitor Santos Costa. vsc@dcc.fc.up.pt
+# Copyright: GPL (see COPYING or www.gnu.org
+################################################################
+
+#
+# default base directory for YAP installation
+#
+ROOTDIR = @prefix@
+#
+# where the binary should be
+#
+BINDIR = $(ROOTDIR)/bin
+#
+# where YAP should look for binary libraries
+#
+LIBDIR=$(ROOTDIR)/lib/Yap
+#
+# where YAP should look for architecture-independent Prolog libraries
+#
+SHAREDIR=$(ROOTDIR)/share
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+srcdir=@srcdir@
+CC=@CC@
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
+
+PROGRAMS= $(srcdir)/jpl.yap  jpl_paths.yap
+
+@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
+
+.SUFFIXES: .txt .tex .dvi .doc .pl
+
+SHELL=@SHELL@
+PLBASE=@PLBASE@
+PLARCH=@PLARCH@
+PL=@PL@
+XPCEBASE=$(PLBASE)/xpce
+PKGDOC=$(PLBASE)/doc/packages
+PCEHOME=../xpce
+LIBDIR=$(PLBASE)/library/http
+EXDIR=$(PKGDOC)/examples/http
+DESTDIR=
+
+DOCTOTEX=$(PCEHOME)/bin/doc2tex
+RUNTEX=../../man/runtex
+LATEX=latex
+DOC=http
+TEX=$(DOC).tex
+DVI=$(DOC).dvi
+PDF=$(DOC).pdf
+HTML=$(DOC).html
+
+INSTALL=@INSTALL@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+INSTALL_DATA=@INSTALL_DATA@
+
+STREAMOBJ=	http_stream.o
+JSONOBJ=	json.o
+LIBPL=		$(srcdir)/html_write.pl $(srcdir)/http_client.pl \
+		$(srcdir)/http_header.pl \
+		$(srcdir)/http_mime_plugin.pl $(srcdir)/http_sgml_plugin.pl \
+		$(srcdir)/mimepack.pl $(srcdir)/mimetype.pl \
+		$(srcdir)/dcg_basics.pl \
+		$(srcdir)/thread_httpd.pl $(srcdir)/xpce_httpd.pl \
+		$(srcdir)/inetd_httpd.pl \
+		$(srcdir)/http_wrapper.pl $(srcdir)/http_open.pl \
+		$(srcdir)/http_session.pl \
+		$(srcdir)/http_error.pl $(srcdir)/http_parameters.pl \
+		$(srcdir)/http_dispatch.pl \
+		$(srcdir)/http_authenticate.pl $(srcdir)/http_stream.pl \
+		$(srcdir)/json.pl $(srcdir)/http_json.pl \
+		$(srcdir)/json_convert.pl
+EXAMPLES=	$(srcdir)/demo_body.pl \
+		$(srcdir)/demo_client.pl \
+		$(srcdir)/demo_threads.pl \
+		$(srcdir)/demo_xpce.pl \
+		$(srcdir)/calc.pl
+EXAMPLEEXE=	demo_inetd		
+XPCEPL=		$(srcdir)/http_image.pl
+SOLIBS=		http_stream@SHLIB_SUFFIX@ json@SHLIB_SUFFIX@
+
+all:		$(SOLIBS)
+
+
+http_stream.o: $(srcdir)/http_error.c $(srcdir)/http_chunked.c $(srcdir)/stream_range.c $(srcdir)/http_stream.c 
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/http_stream.c -o http_stream.o
+
+@DO_SECOND_LD@http_stream@SHLIB_SUFFIX@: $(STREAMOBJ)
+@DO_SECOND_LD@	@SHLIB_LD@ -o http_stream@SHLIB_SUFFIX@ $(STREAMOBJ)
+
+json.o: $(srcdir)/json.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/json.c -o json.o
+
+@DO_SECOND_LD@json@SHLIB_SUFFIX@: $(JSONOBJ)
+@DO_SECOND_LD@	@SHLIB_LD@ -o json@SHLIB_SUFFIX@ $(JSONOBJ)
+
+install:	$(LIBPL)
+		mkdir -p $(DESTDIR)$(LIBDIR)
+		$(INSTALL_PROGRAM) $(SOLIBS) $(DESTDIR)$(LIBDIR)
+		mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
+		$(INSTALL_DATA) $(LIBPL) $(DESTDIR)$(SHAREDIR)/Yap/http
+		$(INSTALL_DATA) README $(DESTDIR)$(SHAREDIR)/Yap/http
+		$(PL) -f none -g make -t halt
+
+ln-install:	$(LIBPL)
+		$(MAKE) INSTALL_DATA="../ln-install" INSTALL_PROGRAM="../ln-install" install
+
+rpm-install:	install
+
+pdf-install:	install-examples
+		$(INSTALL_DATA) $(DOC).pdf $(DESTDIR)$(PKGDOC)
+
+html-install:	install-examples
+		$(INSTALL_DATA) $(DOC).html httpserver.gif $(DESTDIR)$(PKGDOC)
+
+install-examples::
+		mkdir -p $(DESTDIR)$(EXDIR)
+		(cd examples && $(INSTALL_DATA) $(EXAMPLES) $(DESTDIR)$(EXDIR))
+		(cd examples && $(INSTALL_PROGRAM) $(EXAMPLEEXE) $(DESTDIR)$(EXDIR))
+
+uninstall::
+		(cd $(LIBDIR) && rm -f $(LIBPL))
+		$(PL) -f none -g make -t halt
+
+check::
+		$(PL) -q -f test_http.pl -g true -t run_tests
+		$(PL) -q -f test_json.pl -g true -t test_json
+
+################################################################
+# Documentation
+################################################################
+
+doc:		$(PDF) $(HTML)
+pdf:		$(PDF)
+html:		$(HTML)
+
+SUBTEX=		post.tex json.tex
+
+$(HTML):	$(TEX) $(SUBTEX)
+		latex2html $(DOC)
+		mv html/index.html $@
+		mv html/httpserver.gif .
+		rmdir html
+
+$(PDF):		$(TEX) $(SUBTEX)
+		$(RUNTEX) --pdf $(DOC)
+
+$(TEX):		$(DOCTOTEX)
+
+json.tex:	json.pl json_convert.pl http_json.pl
+
+.txt.tex:
+		pl -q -s txttotex.pl -g txttotex,halt -t 'halt(1)' -- $*.txt
+
+.doc.tex:
+		$(DOCTOTEX) $*.doc > $*.tex
+
+################################################################
+# Clean
+################################################################
+
+clean:
+		rm -f $(STREAMOBJ) $(JSONOBJ)
+		rm -f *~ *% config.log
+		rm -f $(TEX) $(SUBTEX)
+		$(RUNTEX) --clean $(DOC)
+		rm -rf html
+
+distclean:	clean
+		rm -f $(SOLIBS) config.cache config.status Makefile
