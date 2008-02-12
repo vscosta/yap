@@ -280,7 +280,8 @@ choose_clauses(C,[],C).
 
 choose_clauses(CIn,[D|T],COut):-
 	member((N,R,S),D),
-	choose_a_head(N,R,S,CIn,C1),!,
+	already_present_with_a_different_head(N,R,S,CIn),!,
+	choose_a_head(N,R,S,CIn,C1),
 	choose_clauses(C1,T,COut).
 
 	
@@ -351,6 +352,13 @@ new_head(N,R,S,N1):-
 	listN(0,Tot,Numbers),
 	nth0(N, Numbers, _Elem, Rest),
 	member(N1,Rest).
+
+already_present_with_a_different_head(N,R,S,[(NH,R,SH)|_T]):-
+	\+ \+ S=SH,NH \= N.
+
+already_present_with_a_different_head(N,R,S,[_H|T]):-
+	already_present_with_a_different_head(N,R,S,T).
+
 
 /* checks that a rule R with head N and selection S is already
 present in C (or a generalization of it is in C) */ 
