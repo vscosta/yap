@@ -517,6 +517,7 @@ source_module(Mod) :-
 	clause(:,?,?),
 	compile(:),
 	consult(:),
+	current_op(?,?,:),
 	current_predicate(:),
 	current_predicate(?,:),
 	depth_bound_call(:,+),

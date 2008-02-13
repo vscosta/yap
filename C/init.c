@@ -338,7 +338,7 @@ Yap_GetOp(OpEntry *pp, int *prio, int fix)
     else
       n = 4, *prio = p;
   }
-  return (Yap_LookupAtom(optypes[n]));
+  return Yap_LookupAtom(optypes[n]);
 }
 
 typedef struct OPSTRUCT {

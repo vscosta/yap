@@ -226,43 +226,109 @@ call_cleanup(Goal, Catcher, Cleanup) :-
 	'$execute'(Cleanup), !.
 '$clean_call'(_).
 
-op(P,T,V) :- var(P), !,
-	'$do_error'(instantiation_error,op(P,T,V)).
-op(P,T,V) :- \+integer(P), !,
-	'$do_error'(type_error(integer,P),op(P,T,V)).
-op(P,T,V) :- (P < 0 ; P > 1200), !,
-	'$do_error'(domain_error(operator_priority,P),op(P,T,V)).
-op(P,T,V) :- var(T), !,
-	'$do_error'(instantiation_error,op(P,T,V)).
-op(P,T,V) :- \+atom(T), !,
-	'$do_error'(type_error(atom,T),op(P,T,V)).
-op(P,T,V) :- var(V), !,
-	'$do_error'(instantiation_error,op(P,T,V)).
 op(P,T,V) :-
-	\+ atom(V), \+ '$check_list_of_operators'(V, op(P,T,V)),
-	'$do_error'(type_error(list,V),op(P,T,V)).
-op(P,T,V) :- '$op2'(P,T,V).
+	'$check_op'(P,T,V,op(P,T,V)),
+	'$op'(P, T, V).
 
-'$check_list_of_operators'(V, T) :- var(V), !,
-	'$do_error'(instantiation_error,T).
-'$check_list_of_operators'([], _).
-'$check_list_of_operators'([H|L], T) :-
-	'$check_if_operator'(H,T),
-	'$check_list_of_operators'(L, T).
+'$check_op'(P,T,V,G) :-
+	(
+	 var(P) ->
+	 '$do_error'(instantiation_error,G)
+	;
+	 var(T) ->
+	 '$do_error'(instantiation_error,G)
+	;
+	 var(V) ->
+	 '$do_error'(instantiation_error,G)
+	;
+	 \+ integer(P) ->
+	 '$do_error'(type_error(integer,P),G)
+	;
+	 \+ atom(T) ->
+	 '$do_error'(type_error(atom,T),G)
+	;
+	 P < 0 ->
+	 '$do_error'(domain_error(out_of_range,P),G)
+	;
+	 P > 1200 ->
+	 '$do_error'(domain_error(out_of_range,P),G)
+	;
+	 \+ '$associativity'(T) ->
+	 '$do_error'(domain_error(operator_specifier,P),G)
+	;
+	 '$check_op_name'(V,G)
+	).
 
-'$check_if_operator'(H,T) :- var(H), !,
-	'$do_error'(instantiation_error,T).
-'$check_if_operator'(H,_) :- atom(H), !.
-'$check_if_operator'(H,T) :-
-	'$do_error'(type_error(atom,H),T).
+'$associativity'(xfx).
+'$associativity'(xfy).
+'$associativity'(yfy).
+'$associativity'(xf).
+'$associativity'(yf).
+'$associativity'(fx).
+'$associativity'(fy).
 
-'$op2'(_,_,[]) :- !.
-'$op2'(P,T,[A|L]) :- !, '$op'(P,T,A), '$op2'(P,T,L).
-'$op2'(P,T,A) :- atom(A), '$op'(P,T,A).
+ '$check_op_name'(V,_) :-
+	 atom(V), !.
+ '$check_op_name'(M:A, G) :-
+	 (
+	  var(M) ->
+	 '$do_error'(instantiation_error,G)
+	 ;
+	  var(A) ->
+	 '$do_error'(instantiation_error,G)
+	 ;
+	  \+ atom(A) ->
+	 '$do_error'(instantiation_error,G)
+	 ;
+	  \+ atom(M) ->
+	 '$do_error'(instantiation_error,G)
+	 ;
+	  true
+	 ).
+ '$check_op_name'([A|As], G) :-
+	  '$check_op_name'(A, G),
+	  '$check_op_names'(As, G).
 
-'$op'(P,T,',') :- !,
-	'$do_error'(permission_error(modify,operator,','),op(P,T,',')).
-'$op'(P,T,A) :- '$opdec'(P,T,A,prolog).
+'$check_op_names'([], _).
+'$check_op_names'([A|As], G) :-
+	'$check_op_name'(A, G),
+	'$check_op_names'(As, G).
+
+	  
+'$op'(P, T, A) :-
+	atom(A), !,
+	'$opdec'(P,T,A,prolog).
+'$op'(P, T, user:A) :- !,
+	'$opdec'(P,T,A,prolog).
+'$op'(P, T, M:A) :-
+	'$opdec'(P,T,A,M).
+'$op'(_, _, []).
+'$op'(P, T, [A|As]) :-
+	'$op'(P, T, A),
+	'$op'(P, T, As).
+
+current_op(X,Y,V) :- var(V), !,
+	'$current_module'(M),
+	V = M:Z,
+	'$do_current_op'(X,Y,Z,M).
+current_op(X,Y,M:Z) :- !,
+	'$current_opm'(X,Y,Z,M).
+current_op(X,Y,Z) :-
+	'$current_module'(M),
+	'$do_current_op'(X,Y,Z,M).
+
+
+'$current_opm'(X,Y,Z,M) :-
+	var(Z), !,
+	'$do_current_op'(X,Y,Z,M).
+'$current_opm'(X,Y,M:Z,_) :- !,
+	'$current_opm'(X,Y,Z,M).
+'$current_opm'(X,Y,Z,M) :-
+	'$do_current_op'(X,Y,Z,M).
+
+'$do_current_op'(X,Y,Z,M) :-
+	'$current_op'(X,Y,Z,M1),
+	( M1 = prolog -> true ; M1 = M ).
 
 %%% Operating System utilities
 

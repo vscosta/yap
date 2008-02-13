@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2008-02-07 23:09:13 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-02-13 10:15:35 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.126  2008/02/07 23:09:13  vsc
+* don't break ISO standard in current_predicate/1.
+* Include Nicos flag.
+*
 * Revision 1.125  2008/01/23 17:57:53  vsc
 * valgrind it!
 * enable atom garbage collection.
@@ -2749,9 +2753,10 @@ static Int
 cont_current_op(void)
 {
   int             prio;
-  Atom            a = AtomOfTerm(EXTRA_CBACK_ARG(3,1));
-  Int             fix = IntOfTerm(EXTRA_CBACK_ARG(3,3));
+  Atom            a = AtomOfTerm(EXTRA_CBACK_ARG(4,1));
+  Int             fix = IntOfTerm(EXTRA_CBACK_ARG(4,3));
   Term            TType;
+  Term            tmod;
   OpEntry        *pp = NIL;
     /* fix hp gcc bug */
   AtomEntry *at = RepAtom(a);
@@ -2778,12 +2783,19 @@ cont_current_op(void)
       fix = 6;
     if (fix == 6 && pp->Infix == 0)
       fix = 7;
+    if (pp->OpModule == PROLOG_MODULE)
+      tmod = TermProlog;
+    else
+      tmod = pp->OpModule; 
     READ_UNLOCK(pp->OpRWLock);
-    EXTRA_CBACK_ARG(3,3) = (CELL) MkIntTerm(fix);
+    EXTRA_CBACK_ARG(4,3) = (CELL) MkIntTerm(fix);
     if (fix < 7)
       return (Yap_unify_constant(ARG1, MkIntTerm(prio))
-	      && Yap_unify_constant(ARG2, TType));
-    if (Yap_unify_constant(ARG1, MkIntTerm(prio)) && Yap_unify_constant(ARG2, TType))
+	      && Yap_unify_constant(ARG2, TType)
+	      && Yap_unify_constant(ARG4, tmod));
+    if (Yap_unify_constant(ARG1, MkIntTerm(prio))
+	&& Yap_unify_constant(ARG2, TType)
+	&& Yap_unify_constant(ARG4, tmod))
       cut_succeed();
     else
       cut_fail();
@@ -2796,7 +2808,7 @@ cont_current_op(void)
       cut_fail();
     }
     fix = 0;
-    EXTRA_CBACK_ARG(3,1) = (CELL) MkAtomTerm(at=RepAtom(a=pp->OpName));
+    EXTRA_CBACK_ARG(4,1) = (CELL) MkAtomTerm(at=RepAtom(a=pp->OpName));
   }
   READ_LOCK(pp->OpRWLock);
   if (fix == 0 && pp->Prefix == 0)
@@ -2809,11 +2821,16 @@ cont_current_op(void)
     fix = 2;
   if (fix == 2 && pp->Infix == 0)
     fix = 3;
+    if (pp->OpModule == PROLOG_MODULE)
+      tmod = TermProlog;
+    else
+      tmod = pp->OpModule;
   READ_UNLOCK(pp->OpRWLock);
-  EXTRA_CBACK_ARG(3,3) = (CELL) MkIntTerm(fix);
+  EXTRA_CBACK_ARG(4,3) = (CELL) MkIntTerm(fix);
   return (Yap_unify_constant(ARG1, MkIntTerm(prio)) &&
 	  Yap_unify_constant(ARG2, TType) &&
-	  Yap_unify_constant(ARG3, MkAtomTerm(a)));
+	  Yap_unify_constant(ARG3, MkAtomTerm(a)) &&
+	  Yap_unify_constant(ARG4, tmod));
 }
 
 static Int 
@@ -2861,15 +2878,15 @@ init_current_op(void)
     else
       cut_fail();
   }
-  EXTRA_CBACK_ARG(3,1) = (CELL) MkAtomTerm(a);
-  EXTRA_CBACK_ARG(3,2) = (CELL) MkIntTerm(i);
+  EXTRA_CBACK_ARG(4,1) = (CELL) MkAtomTerm(a);
+  EXTRA_CBACK_ARG(4,2) = (CELL) MkIntTerm(i);
   if (IsVarTerm(top))
-    EXTRA_CBACK_ARG(3,3) = (CELL) MkIntTerm(3);
+    EXTRA_CBACK_ARG(4,3) = (CELL) MkIntTerm(3);
   else if (IsAtomTerm(top))
-    EXTRA_CBACK_ARG(3,3) = (CELL) MkIntTerm(4);
+    EXTRA_CBACK_ARG(4,3) = (CELL) MkIntTerm(4);
   else
     cut_fail();
-  return (cont_current_op());
+  return cont_current_op();
 }
 
 #ifdef DEBUG
@@ -3799,7 +3816,7 @@ Yap_InitBackCPreds(void)
 		SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPredBack("$current_predicate_for_atom", 3, 1, init_current_predicate_for_atom, cont_current_predicate_for_atom,
 		SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPredBack("current_op", 3, 3, init_current_op, cont_current_op,
+  Yap_InitCPredBack("$current_op", 4, 3, init_current_op, cont_current_op,
 		SafePredFlag|SyncPredFlag);
 #ifdef BEAM
   Yap_InitCPredBack("eam", 1, 0, start_eam, cont_eam,

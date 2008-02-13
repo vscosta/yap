@@ -38,7 +38,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 
 '$do_c_built_in'(G, M, OUT, MT) :- var(G), !,
 	(MT = on -> NG = G ; NG = M:G),
-	'$do_c_built_in'(call(NG),M,OUT).
+	'$do_c_built_in'(call(NG), M, OUT, MT).
 '$do_c_built_in'(Mod:G, _, GN, MT) :- !,
 	'$do_c_built_in'(G, Mod, GN0, MT),
 	(GN0 = (_,_) -> GN = GN0 ; GN = Mod:GN0).
