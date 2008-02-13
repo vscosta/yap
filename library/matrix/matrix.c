@@ -264,11 +264,14 @@ cp_float_matrix(YAP_Term tl,YAP_Term matrix)
       return FALSE;
     }
     th = YAP_HeadOfTerm(tl);
-    if (!YAP_IsFloatTerm(th)) {
+    if (YAP_IsIntTerm(th)) {
+      d = YAP_IntOfTerm(th);
+    } else if (!YAP_IsFloatTerm(th)) {
       /* ERROR */
       return FALSE;
+    } else {
+      d = YAP_FloatOfTerm(th);
     }
-    d = YAP_FloatOfTerm(th);
     j[i] = d;
     tl = YAP_TailOfTerm(tl);
   }
