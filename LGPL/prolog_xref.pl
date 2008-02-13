@@ -1,4 +1,4 @@
-/*  $Id: prolog_xref.pl,v 1.2 2008-02-12 18:10:48 vsc Exp $
+/*  $Id: prolog_xref.pl,v 1.3 2008-02-13 14:42:55 vsc Exp $
 
     Part of SWI-Prolog
 
@@ -538,7 +538,7 @@ process_meta_predicate(Decl) :-
 	    ;   meta_goal(Head, _)
 	    )
 	->  true
-	;   assert(meta_goal(Head, Meta))
+	;   assert(prolog:meta_goal(Head, Meta))
 	).
 
 meta_args(I, Arity, _, _, []) :-

@@ -254,13 +254,14 @@ op(P,T,V) :-
 	 '$do_error'(domain_error(out_of_range,P),G)
 	;
 	 \+ '$associativity'(T) ->
-	 '$do_error'(domain_error(operator_specifier,P),G)
+	 '$do_error'(domain_error(operator_specifier,T),G)
 	;
 	 '$check_op_name'(V,G)
 	).
 
 '$associativity'(xfx).
 '$associativity'(xfy).
+'$associativity'(yfx).
 '$associativity'(yfy).
 '$associativity'(xf).
 '$associativity'(yf).
