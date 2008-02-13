@@ -19,7 +19,8 @@
 	      [member/2,
 	       append/3,
 	       delete/3,
-	       max_list/2]).
+	       max_list/2,
+	       sum_list/2]).
 
 :- use_module(library(ordsets),
 	      [ord_subtract/3]).
@@ -38,12 +39,16 @@
 :- use_module(library('clpbn/topsort'), [
 	topsort/2]).
 
+:- use_module(library('clpbn/display'), [
+	clpbn_bind_vals/3]).
+
 :- dynamic gibbs_params/3.
 
 :- dynamic implicit/1.
 
 gibbs([],_,_) :- !.
-gibbs(LVs,Vs0,_) :-
+gibbs(LVs,Vs0,AllDiffs) :-
+	LVs = [_], !,
 	clean_up,
 	check_for_hidden_vars(Vs0, Vs0, Vs1),
 	sort(Vs1,Vs),
@@ -52,8 +57,12 @@ gibbs(LVs,Vs0,_) :-
 	initialise(Vs, Graph, LVs, OutputVars, VarOrder),
 %	write(Graph),nl,
 	process(VarOrder, Graph, OutputVars, Estimates),
-	write(Estimates),nl,
+	sum_up(Estimates, [LPs]),
+%	write(Estimates),nl,
+	clpbn_bind_vals(LVs,LPs,AllDiffs),
 	clean_up.
+gibbs(LVs,_,_) :-
+	throw(error(domain_error(solver,LVs),solver(gibbs))).
 
 initialise(LVs, Graph, GVs, OutputVars, VarOrder) :-
 	init_keys(Keys0),
@@ -386,7 +395,7 @@ gen_e0(Sz,[0|E0L]) :-
 process_chains(0,_,F,F,_,_,Est,Est) :- !.
 process_chains(ToDo,VarOrder,End,Start,Graph,Len,Est0,Estf) :-
 	process_chains(Start,VarOrder,Int,Graph,Len,Est0,Esti),
-(ToDo mod 100 =:= 0 -> statistics,cvt2problist(Esti, Probs), Int =[S|_], format('did ~d: ~w~n ~w~n',[ToDo,Probs,S]) ; true),
+% (ToDo mod 100 =:= 0 -> statistics,cvt2problist(Esti, Probs), Int =[S|_], format('did ~d: ~w~n ~w~n',[ToDo,Probs,S]) ; true),
 	ToDo1 is ToDo-1,
 	process_chains(ToDo1,VarOrder,End,Int,Graph,Len,Esti,Estf).
 
@@ -496,3 +505,31 @@ show_sorted([I|VarOrder], Graph) :-
 	clpbn:get_atts(V,[key(K)]),
 	format('~w ',[K]),
 	show_sorted(VarOrder, Graph).
+
+sum_up([[]|_], []).
+sum_up([[[Id|Counts]|More]|Chains], [Dist|Dists]) :-
+	add_up(Counts,Chains, Id, Add,RChains),
+	normalise(Add, Dist),
+	sum_up([More|RChains], Dists).
+
+add_up(Counts,[],_,Counts,[]).
+add_up(Counts,[[[Id|Cs]|MoreVars]|Chains],Id, Add, [MoreVars|RChains]) :-
+	sum_lists(Counts, Cs, NCounts),
+	add_up(NCounts, Chains, Id, Add, RChains).
+
+sum_lists([],[],[]).	
+sum_lists([Count|Counts], [C|Cs], [NC|NCounts]) :-
+	NC is Count+C,
+	sum_lists(Counts, Cs, NCounts).
+
+normalise(Add, Dist) :-
+	sum_list(Add, Sum),
+	divide_list(Add, Sum, Dist).
+
+divide_list([],  _, []).
+divide_list([C|Add], Sum, [P|Dist]) :-
+	P is C/Sum,
+	divide_list(Add, Sum, Dist).
+
+
+

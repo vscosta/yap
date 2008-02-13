@@ -93,14 +93,14 @@ get_graph(LVs, BayesNet, CPTs, Evidence) :-
 run_vars([], [], [], [], []).
 run_vars([V|LVs], Edges, [V|Vs], [CPTVars-dist([V|Parents],Id)|CPTs], Ev) :-
 	clpbn:get_atts(V, [dist(Id,Parents)]),
-	add_evidence(V, Id, Ev, Ev0),
+	add_evidence_from_vars(V, Ev, Ev0),
 	sort([V|Parents],CPTVars),
 	add_edges(Parents, V, Edges, Edges0),
 	run_vars(LVs, Edges0, Vs, CPTs, Ev0).
 
-add_evidence(V, Id, [e(V,P)|Evs], Evs) :-
+add_evidence_from_vars(V, [e(V,P)|Evs], Evs) :-
 	clpbn:get_atts(V, [evidence(P)]), !.
-add_evidence(_, _, Evs, Evs).
+add_evidence_from_vars(_, Evs, Evs).
 	
 find_nth0([Id|_], Id, P, P) :- !.
 find_nth0([_|D], Id, P0, P) :-

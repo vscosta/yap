@@ -374,8 +374,8 @@ add_evidence(Graph, Size, Is) :-
 	[engine, loglik] <-- enter_evidence(engine, evidence).
 
 mk_evidence([], [], []).
-mk_evidence([V|L], [I|Is], [ar(1,I,Val)|LN]) :-
-	clpbn:get_atts(V, [evidence(EvVal),dist(Id,_)]), !,
+mk_evidence([V|L], [I|Is], [ar(1,I,EvVal)|LN]) :-
+	clpbn:get_atts(V, [evidence(EvVal)]), !,
 	mk_evidence(L, Is, LN).
 mk_evidence([_|L], [_|Is], LN) :-
 	mk_evidence(L, Is, LN).

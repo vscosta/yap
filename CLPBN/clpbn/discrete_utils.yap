@@ -34,7 +34,7 @@ generate_szs_with_evidence([_|Out],Ev,Ev,[ok|Evs],found) :- !,
 	generate_szs_with_evidence(Out,Ev,I,Evs,found).
 generate_szs_with_evidence([_|Out],Ev,I0,[not_ok|Evs],Found) :-
 	I is I0+1,
-	generate_szs_with_evidence(Out,Ev,I0,Evs,Found).
+	generate_szs_with_evidence(Out,Ev,I,Evs,Found).
 
 find_projection_factor([V|Deps], V1, Deps, [Sz|Szs], Szs, F, Sz) :-
 	V == V1, !,

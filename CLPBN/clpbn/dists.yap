@@ -180,20 +180,20 @@ get_dist_nparams(Id, NParms) :-
 
 get_evidence_position(El, Id, Pos) :-
 	recorded(clpbn_dist_db, db(Id, _, _, Domain, _, _), _),
-	nth0(Pos, El, Domain), !.
+	nth0(Pos, Domain, El), !.
 get_evidence_position(El, Id, Pos) :-
-	recorded(clpbn_dist_db, db(Id, _, _, Domain, _, _), _), !,
-	throw(error(domain_error(evidence,Id),add_evidence(Ev,Domain))).
+	recorded(clpbn_dist_db, db(Id, _, _, _, _, _), _), !,
+	throw(error(domain_error(evidence,Id),get_evidence_position(El, Id, Pos))).
 get_evidence_position(El, Id, Pos) :-
-	throw(error(domain_error(no_distribution,Id),add_evidence(Ev,Domain))).
+	throw(error(domain_error(no_distribution,Id),get_evidence_position(El, Id, Pos))).
 
 get_evidence_from_position(El, Id, Pos) :-
 	recorded(clpbn_dist_db, db(Id, _, _, Domain, _, _), _),
-	nth0(Pos, El, Domain), !.
+	nth0(Pos, Domain, El), !.
 get_evidence_from_position(El, Id, Pos) :-
-	recorded(clpbn_dist_db, db(Id, _, _, Domain, _, _), _), !,
-	throw(error(domain_error(evidence,Id),add_evidence(Ev,Domain))).
+	recorded(clpbn_dist_db, db(Id, _, _, _, _, _), _), !,
+	throw(error(domain_error(evidence,Id),get_evidence_from_position(El, Id, Pos))).
 get_evidence_from_position(El, Id, Pos) :-
-	throw(error(domain_error(no_distribution,Id),add_evidence(Ev,Domain))).
+	throw(error(domain_error(no_distribution,Id),get_evidence_from_position(El, Id, Pos))).
 
 dist_to_term(_Id,_Term).

@@ -49,7 +49,7 @@ project_from_CPT(V,tab(Table,Deps,_),tab(NewTable,NDeps,NSzs)) :-
 	matrix_dims(NewTable, NSzs).
 
 evidence(V, Pos) :-
-	clpbn:get_atts(V, [evidence(Pos),dist(Id,_)]).
+	clpbn:get_atts(V, [evidence(Pos)]).
 
 vnth([V1|Deps], N, V, N, Deps) :-
 	V == V1, !.	

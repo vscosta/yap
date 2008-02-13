@@ -30,7 +30,7 @@ attribute_goal(V, node(K,Dom,CPT,TVs,Ev)) :-
 	clpbn:get_atts(V, [key(K),dist(Id,Vs)]),
 	get_dist(Id,_,Dom,CPT),
 	translate_vars(Vs,TVs),
-	( clpbn:get_atts(V, [evidence(_)]) -> true ; true).
+	( clpbn:get_atts(V, [evidence(Ev)]) -> true ; true).
 
 translate_vars([],[]).
 translate_vars([V|Vs],[K|Ks]) :-
