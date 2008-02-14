@@ -191,7 +191,7 @@ module(N) :-
 	'$is_mt'(Mod,H,MT),
 	'$module_u_vars'(H,UVars,M),	 % collect head variables in
 					 % expanded positions
-	'$module_expansion'(B,B1,BO,M,M,M,UVars,MT). % expand body
+	'$module_expansion'(B,B1,BO,M,M,M,UVars,MT).% expand body
 %	$trace_module((H:-B),(H:-B1)).
 
 % expand module names in a body
