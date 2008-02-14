@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2008-01-30 10:35:43 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-02-14 14:35:13 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.196  2008/01/30 10:35:43  vsc
+* fix indexing in 64 bits (it would split ints from atoms :( ).
+*
 * Revision 1.195  2008/01/24 10:20:42  vsc
 * clause should not try to discover who is fail.
 *
@@ -3391,6 +3394,9 @@ valid_instructions(yamop *end, yamop *cl)
     case _pop_n:
       cl = NEXTOP(cl,s);
       break;      
+    case _procceed:
+      /* we have reached the end of code for a legal clause */
+      return TRUE;
     default:
       return FALSE;
     }
@@ -3488,11 +3494,14 @@ emit_trust(ClauseDef *cl, struct intermediates *cint, UInt nxtlbl, int clauses)
 
   if (ap->PredFlags & TabledPredFlag)
     clcode = NEXTOP(clcode, ld);
-  if (ap->PredFlags & ProfiledPredFlag) {
-    Yap_emit(retry_profiled_op, Unsigned(ap), Zero, cint);
-  }
-  if (ap->PredFlags & CountPredFlag) {
-    Yap_emit(count_retry_op, Unsigned(ap), Zero, cint);
+  if (!(ap->PredFlags & LogUpdatePredFlag)) {
+    /* this should not be generated for logical update predicates!! */
+    if (ap->PredFlags & ProfiledPredFlag) {
+      Yap_emit(retry_profiled_op, Unsigned(ap), Zero, cint);
+    }
+    if (ap->PredFlags & CountPredFlag) {
+      Yap_emit(count_retry_op, Unsigned(ap), Zero, cint);
+    }
   }
   if (clauses == 0) {
     Yap_emit(trust_op, (CELL)clcode, has_cut(cl->CurrentCode) , cint);
@@ -3510,11 +3519,14 @@ emit_retry(ClauseDef *cl, struct intermediates *cint, int clauses)
 
   if (ap->PredFlags & TabledPredFlag)
     clcode = NEXTOP(clcode, ld);
-  if (ap->PredFlags & ProfiledPredFlag) {
-    Yap_emit(retry_profiled_op, Unsigned(ap), Zero, cint);
-  }
-  if (ap->PredFlags & CountPredFlag) {
-    Yap_emit(count_retry_op, Unsigned(ap), Zero, cint);
+  if (!(ap->PredFlags & LogUpdatePredFlag)) {
+    /* this should not be generated for logical update predicates!! */
+    if (ap->PredFlags & ProfiledPredFlag) {
+      Yap_emit(retry_profiled_op, Unsigned(ap), Zero, cint);
+    }
+    if (ap->PredFlags & CountPredFlag) {
+      Yap_emit(count_retry_op, Unsigned(ap), Zero, cint);
+    }
   }
   Yap_emit(retry_op, (CELL)clcode, (clauses << 1) | has_cut(cl->CurrentCode), cint);
 }
@@ -6858,9 +6870,9 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       icl = ipc->u.Ill.I;
       if (first) {
 	if (ap->PredFlags & CountPredFlag)
-	  ipc->opc = Yap_opcode(_count_retry_logical);
+	  ipc->u.Ill.l1->opc = Yap_opcode(_count_retry_logical);
 	else if (ap->PredFlags & ProfiledPredFlag)
-	  ipc->opc = Yap_opcode(_profiled_retry_logical);
+	  ipc->u.Ill.l1->opc = Yap_opcode(_profiled_retry_logical);
 	else
 	  ipc->u.Ill.l1->opc = Yap_opcode(_retry_logical);
 	ipc->u.Ill.l1 = add_try(ap, cls, ipc->u.Ill.l1, cint);
