@@ -243,7 +243,7 @@ module(N) :-
 %       current module for predicate
 %       head variables.
 '$module_expansion'(V,call(G),call(G),_M,MM,_TM,_,MT) :- var(V), !,
-	(MT = on -> G = MM:V ; G = V).
+	(MT = on -> G = V ; G = MM:V).
 '$module_expansion'((A,B),(A1,B1),(AO,BO),M,MM,TM,HVars,MT) :- !,
 	'$module_expansion'(A,A1,AO,M,MM,TM,HVars,MT),
 	'$module_expansion'(B,B1,BO,M,MM,TM,HVars,MT).
