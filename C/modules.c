@@ -218,14 +218,17 @@ init_current_module(void)
 static Int
 p_strip_module(void)
 {
-  Term t1 = Deref(ARG1), t2, tmod;
+  Term t1 = Deref(ARG1), t2, tmod = CurrentModule;
+  if (tmod == PROLOG_MODULE) {
+    tmod = TermProlog;
+  }
   if (IsVarTerm(t1) ||
       !IsApplTerm(t1) ||
       FunctorOfTerm(t1) != FunctorModule ||
       IsVarTerm(t2 = ArgOfTerm(1,t1)) ||
       !IsAtomTerm(t2)) {
     return Yap_unify(ARG3, t1) &&
-      Yap_unify(ARG2, CurrentModule);
+      Yap_unify(ARG2, tmod);
   }
   do {
     tmod = t2;

@@ -296,17 +296,23 @@ op(P,T,V) :-
 	'$check_op_names'(As, G).
 
 	  
+'$op'(P, T, [A|As]) :- !,
+	'$opl'(P, T, [A|As]).
 '$op'(P, T, A) :-
+	'$op2'(P,T,A).
+
+'$opl'(P, T, []).
+'$opl'(P, T, [A|As]) :-
+	'$op2'(P, T, A),
+	'$opl'(P, T, As).
+
+'$op2'(P,T,A) :-
 	atom(A), !,
 	'$opdec'(P,T,A,prolog).
-'$op'(P, T, user:A) :- !,
-	'$opdec'(P,T,A,prolog).
-'$op'(P, T, M:A) :-
-	'$opdec'(P,T,A,M).
-'$op'(_, _, []).
-'$op'(P, T, [A|As]) :-
-	'$op'(P, T, A),
-	'$op'(P, T, As).
+'$op2'(P,T,A) :-
+	strip_module(A,M,N),
+	(M = user -> NM = prolog ; NM = M),
+	'$opdec'(P,T,N,NM).
 
 current_op(X,Y,V) :- var(V), !,
 	'$current_module'(M),

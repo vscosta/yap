@@ -1007,8 +1007,10 @@ get_coded(int flag, OPCODE old_ops[])
 static void 
 restore_heap_regs(void)
 {
-  HeapTop = AddrAdjust(HeapTop);
-  *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
+  if (HeapTop) {
+    HeapTop = AddrAdjust(HeapTop);
+    *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
+  }
   HeapMax = Yap_heap_regs->heap_used = OldHeapUsed;
   restore_codes();
 }

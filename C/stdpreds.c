@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2008-02-13 10:15:35 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-02-15 12:41:33 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.127  2008/02/13 10:15:35  vsc
+* fix some bugs from yesterday plus improve support for modules in
+* operators.
+*
 * Revision 1.126  2008/02/07 23:09:13  vsc
 * don't break ISO standard in current_predicate/1.
 * Include Nicos flag.
@@ -2827,7 +2831,7 @@ cont_current_op(void)
       tmod = pp->OpModule;
   READ_UNLOCK(pp->OpRWLock);
   EXTRA_CBACK_ARG(4,3) = (CELL) MkIntTerm(fix);
-  return (Yap_unify_constant(ARG1, MkIntTerm(prio)) &&
+  return  (Yap_unify_constant(ARG1, MkIntTerm(prio)) &&
 	  Yap_unify_constant(ARG2, TType) &&
 	  Yap_unify_constant(ARG3, MkAtomTerm(a)) &&
 	  Yap_unify_constant(ARG4, tmod));
@@ -2881,7 +2885,7 @@ init_current_op(void)
   EXTRA_CBACK_ARG(4,1) = (CELL) MkAtomTerm(a);
   EXTRA_CBACK_ARG(4,2) = (CELL) MkIntTerm(i);
   if (IsVarTerm(top))
-    EXTRA_CBACK_ARG(4,3) = (CELL) MkIntTerm(3);
+    EXTRA_CBACK_ARG(4,3) = (CELL) MkIntTerm(0);
   else if (IsAtomTerm(top))
     EXTRA_CBACK_ARG(4,3) = (CELL) MkIntTerm(4);
   else
