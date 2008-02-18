@@ -68,13 +68,14 @@
 	       sort_vars_by_key/3
 	      ]).
 
-:- dynamic solver/1,output/1,use/1.
+:- dynamic solver/1,output/1,use/1,suppress_attribute_display/1.
 
 solver(jt).
 
 %output(xbif(user_error)).
 %output(gviz(user_error)).
 output(no).
+suppress_attribute_display(false).
 
 clpbn_flag(Flag,Option) :-
 	clpbn_flag(Flag, Option, Option).
@@ -97,6 +98,10 @@ clpbn_flag(bnt_path,Before,After) :-
 clpbn_flag(bnt_model,Before,After) :-
 	retract(bnt:bnt_model(Before)),
 	assert(bnt:bnt_model(After)).
+clpbn_flag(suppress_attribute_display,Before,After) :-
+	retract(suppress_attribute_display(Before)),
+	assert(suppress_attribute_display(After)).
+
 
 {Var = Key with Dist} :-
 	put_atts(El,[key(Key),dist(DistInfo,Parents)]),
@@ -135,6 +140,7 @@ clpbn_marginalise(V, Dist) :-
 % or by call_residue/2
 %
 project_attributes(GVars, AVars) :-
+	suppress_attribute_display(false),
 	AVars = [_|_],
 	solver(Solver),
 	( GVars = [_|_] ; Solver = graphs), !,
@@ -143,6 +149,17 @@ project_attributes(GVars, AVars) :-
 	simplify_query_vars(CLPBNGVars0, CLPBNGVars),
 	write_out(Solver,CLPBNGVars, AllVars, DiffVars).
 project_attributes(_, _).
+
+call_solver(GVars, AVars) :-
+	AVars = [_|_],
+	solver(Solver),
+	( GVars = [_|_] ; Solver = graphs), !,
+	clpbn_vars(AVars, DiffVars, AllVars),
+	get_clpbn_vars(GVars,CLPBNGVars0),
+	simplify_query_vars(CLPBNGVars0, CLPBNGVars),
+	write_out(Solver,CLPBNGVars, AllVars, DiffVars).
+
+
 
 clpbn_vars(AVars, DiffVars, AllVars) :-
 	sort_vars_by_key(AVars,SortedAVars,DiffVars),

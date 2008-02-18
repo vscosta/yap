@@ -107,15 +107,18 @@ create_bnt_graph(AllVars, Representatives, SortedVertices, NumberedVertices, Siz
 
 
 % make sure MATLAB works.
+
 init_matlab :-
 	bnt(on), !.
 init_matlab :-
 	start_matlab,
 	bnt_path(Path),
-	atom_concat('cd ', Path, Command),
+	append("cd ",Path,Command),
+%	atom_concat('cd ', Path, Command),
 	matlab_eval_string(Command),
 	matlab_eval_string('addpath(genpathKPM(pwd))',_),
 	assert(bnt(on)).
+
 
 start_matlab :-
 	matlab_on, !.

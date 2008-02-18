@@ -15,6 +15,7 @@
 % what is actually output
 %
 attribute_goal(V, G) :-
+	clpbn:suppress_attribute_display(false),
 	get_atts(V, [posterior(Vs,Vals,Ps,AllDiffs)]),
 	massage_out(Vs, Vals, Ps, G, AllDiffs, V).
 
