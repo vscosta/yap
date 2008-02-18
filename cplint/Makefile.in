@@ -53,6 +53,7 @@ CPLINT_DOCDIR = $(srcdir)/doc
 
 
 CPLINT_PROGRAMS= \
+	$(CPLINT_SRCDIR)/lpadclpbn.pl \
 	$(CPLINT_SRCDIR)/lpadsld.pl \
 	$(CPLINT_SRCDIR)/lpad.pl \
 	$(CPLINT_SRCDIR)/cpl.pl 
