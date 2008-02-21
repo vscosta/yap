@@ -949,8 +949,8 @@ void traverse_tries_join(TrNode parent_dest, TrNode parent_source) {
 	  if (IS_LEAF_TRIE_NODE(child_source)) {
 	    MARK_AS_LEAF_TRIE_NODE(child_dest);
 	    INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
-	    if (DATA_ADD_FUNCTION)
-	      (*DATA_ADD_FUNCTION)(child_dest, child_source);
+	    if (DATA_CONSTRUCT_FUNCTION)
+	      (*DATA_CONSTRUCT_FUNCTION)(child_dest, child_source);
 	  } else
             TrNode_child(child_dest) = copy_child_nodes(child_dest, TrNode_child(child_source));
 	}
@@ -975,8 +975,8 @@ void traverse_tries_join(TrNode parent_dest, TrNode parent_source) {
       if (IS_LEAF_TRIE_NODE(child_source)) {
 	MARK_AS_LEAF_TRIE_NODE(child_dest);
 	INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
-	if (DATA_ADD_FUNCTION)
-	  (*DATA_ADD_FUNCTION)(child_dest, child_source);
+	if (DATA_CONSTRUCT_FUNCTION)
+	  (*DATA_CONSTRUCT_FUNCTION)(child_dest, child_source);
       } else
         TrNode_child(child_dest) = copy_child_nodes(child_dest, TrNode_child(child_source));
     }
