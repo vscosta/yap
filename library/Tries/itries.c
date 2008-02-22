@@ -14,7 +14,7 @@
 #include <YapInterface.h>
 #include <string.h>
 #include <stdio.h>
-#include "base_tries.h"
+#include "core_tries.h"
 #include "base_itries.h"
 
 
@@ -45,6 +45,7 @@ static int p_itrie_intersect(void);
 static int p_itrie_count_join(void);
 static int p_itrie_count_intersect(void);
 static int p_itrie_save(void);
+static int p_itrie_save_as_trie(void);
 static int p_itrie_load(void);
 static int p_itrie_stats(void);
 static int p_itrie_max_stats(void);
@@ -80,6 +81,7 @@ void init_itries(void) {
   YAP_UserCPredicate("itrie_count_join", p_itrie_count_join, 3);
   YAP_UserCPredicate("itrie_count_intersect", p_itrie_count_intersect, 3);
   YAP_UserCPredicate("itrie_save", p_itrie_save, 2);
+  YAP_UserCPredicate("itrie_save_as_trie", p_itrie_save_as_trie, 2);
   YAP_UserCPredicate("itrie_load", p_itrie_load, 2);
   YAP_UserCPredicate("itrie_stats", p_itrie_stats, 4);
   YAP_UserCPredicate("itrie_max_stats", p_itrie_max_stats, 4);
@@ -518,6 +520,34 @@ static int p_itrie_save(void) {
 
   /* save itrie and close file */
   itrie_save((TrEntry) YAP_IntOfTerm(arg_itrie), file);
+  if (fclose(file))
+    return FALSE;
+  return TRUE;
+}
+#undef arg_itrie
+#undef arg_file
+
+
+/* itrie_save_as_trie(-Itrie,-FileName) */
+#define arg_itrie YAP_ARG1
+#define arg_file  YAP_ARG2
+static int p_itrie_save_as_trie(void) {
+  const char *file_str;
+  FILE *file;
+
+  /* check args */
+  if (!YAP_IsIntTerm(arg_itrie))
+    return FALSE;
+  if (!YAP_IsAtomTerm(arg_file))
+    return FALSE;
+
+  /* open file */
+  file_str = YAP_AtomName(YAP_AtomOfTerm(arg_file));
+  if (!(file = fopen(file_str, "w")))
+    return FALSE;
+
+  /* save itrie as trie and close file */
+  itrie_save_as_trie((TrEntry) YAP_IntOfTerm(arg_itrie), file);
   if (fclose(file))
     return FALSE;
   return TRUE;

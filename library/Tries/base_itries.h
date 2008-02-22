@@ -147,6 +147,7 @@ typedef struct itrie_data {
         } 
 
 
+
 #define free_itrie_entry(STR)                                                    \
         { free_itrie_buckets(TrEntry_buckets(STR), TrEntry_num_buckets(STR));    \
           free_struct(STR);                                                      \
@@ -171,7 +172,7 @@ inline void     itrie_init_module(void);
 inline void     itrie_data_save(TrNode node, FILE *file);
 inline void     itrie_data_load(TrNode node, YAP_Int depth, FILE *file);
 inline void     itrie_data_print(TrNode node);
-inline void     itrie_data_construct(TrNode node_dest, TrNode node_source);
+inline void     itrie_data_copy(TrNode node_dest, TrNode node_source);
 inline void     itrie_data_destruct(TrNode node);
 inline void     itrie_data_add(TrNode node_dest, TrNode node_source);
 inline void     itrie_data_subtract(TrNode node_dest, TrNode node_source);
@@ -198,6 +199,7 @@ inline void     itrie_intersect(TrEntry itrie_dest, TrEntry itrie_source);
 inline YAP_Int  itrie_count_join(TrEntry itrie1, TrEntry itrie2);
 inline YAP_Int  itrie_count_intersect(TrEntry itrie1, TrEntry itrie2);
 inline void     itrie_save(TrEntry itrie, FILE *file);
+inline void     itrie_save_as_trie(TrEntry itrie, FILE *file);
 inline TrEntry  itrie_load(FILE *file);
 inline void     itrie_stats(YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes);
 inline void     itrie_max_stats(YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes);
