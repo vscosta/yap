@@ -13,6 +13,7 @@
 		  trie_put_entry/3,
 		  trie_check_entry/3,
 		  trie_get_entry/2,
+		  trie_traverse/2,
 		  trie_remove_entry/1,
 		  trie_remove_subtree/1,
 		  trie_join/2,

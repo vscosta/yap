@@ -26,6 +26,7 @@
 		  itrie_count_join/3,
 		  itrie_count_intersect/3,
 		  itrie_save/2,
+		  itrie_save_as_trie/2,
 		  itrie_load/2,
 		  itrie_stats/4,
 		  itrie_max_stats/4,
