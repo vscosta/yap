@@ -528,7 +528,7 @@ unknown(V0,V) :-
 '$unknown_warning'(Mod:Goal) :-
 	functor(Goal,Name,Arity),
 	'$program_continuation'(PMod,PName,PAr),
-	'$print_message'(error,error(existence_error(procedure,Name/Arity), context(Mod:Goal,PMod:PName/PAr))),
+	print_message(error,error(existence_error(procedure,Name/Arity), context(Mod:Goal,PMod:PName/PAr))),
 	fail.
 
 %%% Some "dirty" predicates
@@ -809,7 +809,7 @@ version(T) :-
 halt(X) :- '$halt'(X).
 
 halt :-
-	'$print_message'(informational, halt),
+	print_message(informational, halt),
 	'$halt'(0).
 
 halt(X) :-

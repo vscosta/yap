@@ -459,7 +459,8 @@ module(N) :-
 '$not_in_vars'(V,[X|L]) :- X\==V, '$not_in_vars'(V,L).
 
 current_module(Mod) :-
-	'$all_current_modules'(Mod).
+	'$all_current_modules'(Mod),
+	\+ '$system_module'(Mod).
 
 current_module(Mod,TFN) :-
 	'$all_current_modules'(Mod),

@@ -11,8 +11,12 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-01-23 17:57:55 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-02-22 15:08:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.84  2008/01/23 17:57:55  vsc
+* valgrind it!
+* enable atom garbage collection.
+*
 * Revision 1.83  2007/11/26 23:43:10  vsc
 * fixes to support threads and assert correctly, even if inefficiently.
 *
@@ -172,8 +176,8 @@
 *************************************************************************/
 
 '$do_error'(Type,Message) :-
-	'$current_stack'(local_sp(_,Envs,CPs)),
-	throw(error(Type,[Message|local_sp(Message,Envs,CPs)])).
+	'$current_stack'(local_sp(_,CP,Envs,CPs)),
+	throw(error(Type,[Message|local_sp(Message,CP,Envs,CPs)])).
 
 '$Error'(E) :-
 	'$LoopError'(E,top).
@@ -195,741 +199,75 @@
 	throw('$abort').
 '$process_error'(error(Msg, Where), _) :- !,
 	'$set_fpu_exceptions',
-	'$print_message'(error,error(Msg, Where)).
+	print_message(error,error(Msg, Where)).
 '$process_error'(Throw, _) :-
 	print_message(error,Throw).
 
-print_message(Level, Mss) :-
-	'$print_message'(Level, Mss).
-
-'$print_message'(force(_Severity), Msg) :- !,
+print_message(force(_Severity), Msg) :- !,
 	print(user_error,Msg).
-'$print_message'(Severity, Msg) :-
+print_message(error, error(Msg,[Info|local_sp(P,CP,Envs,CPs)])) :- !,
+	nb_setval(sp_info,local_sp(P,CP,Envs,CPs)),
+	print_message(error, error(Msg, Info)),
+	nb_setval(sp_info,[]).
+print_message(Severity, Msg) :-
 	nonvar(Severity), nonvar(Msg),
-	\+ '$undefined'(portray_message(Severity, Msg), user),
-	user:portray_message(Severity, Msg), !.
-'$print_message'(error,error(Msg,Info)) :-
-	( var(Msg) ; var(Info) ), !,
-	format(user_error,'% YAP: no handler for error ~w~n', [error(Msg,Info)]).
-'$print_message'(error,error(syntax_error(A,B,C,D,E,F),_)) :- !,
-	'$output_error_message'(syntax_error(A,B,C,D,E,F), 'SYNTAX ERROR').
-'$print_message'(error,error(Msg,[Info|local_sp(Where,Envs,CPs)])) :-
-	'$output_error_location'('\% ERROR:'),
-	'$prepare_loc'(Info,Where,Location),
-	'$output_error_message'(Msg, Location), !,
-	'$do_stack_dump'(Envs, CPs).
-% old format: don't want a stack dump.
-'$print_message'(error,error(Type,Where)) :-
-	'$output_error_message'(Type, Where), !.
-'$print_message'(error,Throw) :-
-	format(user_error,'% YAP: no handler for error ~w~n', [Throw]).
-'$print_message'(informational,_) :-
-	 get_value('$verbose',off), !.				  
-'$print_message'(informational,M) :-
-	'$do_informational_message'(M).
-'$print_message'(warning,M) :-
-	'$output_error_location'('!! WARNING:'),
-	format(user_error, '!! ', []),
-	'$do_print_message'(M),
-	format(user_error, '~n', []).
-'$print_message'(silent,_).
-'$print_message'(help,M) :-
-	'$do_print_message'(M),
-	format(user_error, '~n', []).
-
-'$output_error_location'(MsgCodes) :-
-	nb_getval('$consulting_file',FileName),
-	FileName \= [], !,
-	'$start_line'(LN),
-	'$show_consult_level'(LC),
-	'$output_file_pos'(FileName,LN,LC,MsgCodes),
-	format(user_error, '~*|', [LC]).
-'$output_error_location'(_).
-	
-'$output_file_pos'(user_input,LN,LC,MsgCodes) :- !,
-	format(user_error,'~*|~a at user_input near line ~d,~n',[LC,MsgCodes,LN]).
-'$output_file_pos'(FileName,LN,LC,MsgCodes) :-
-	format(user_error,'~*|~a at file ~a, near line ~d,~n',[LC,MsgCodes,FileName,LN]).
-
-'$do_informational_message'(halt) :- !,
-	format(user_error, '% YAP execution halted~n', []).
-'$do_informational_message'('$abort') :- !,
-	format(user_error, '% YAP execution aborted~n', []).
-'$do_informational_message'(loading(_,user)) :- !.
-'$do_informational_message'(loading(What,AbsoluteFileName)) :- !,
-	'$show_consult_level'(LC),
-	format(user_error, '~*|% ~a ~a...~n', [LC, What, AbsoluteFileName]).
-'$do_informational_message'(loaded(_,user,_,_,_)) :- !.
-'$do_informational_message'(loaded(included,AbsoluteFileName,Mod,Time,Space)) :- !,
-	'$show_consult_level'(LC),
-	format(user_error, '~*|% ~a included in module ~a, ~d msec ~d bytes~n', [LC, AbsoluteFileName,Mod,Time,Space]).
-'$do_informational_message'(loaded(What,AbsoluteFileName,Mod,Time,Space)) :- !,
-	'$show_consult_level'(LC0),
-	LC is LC0+1,
-	format(user_error, '~*|% ~a ~a in module ~a, ~d msec ~d bytes~n', [LC, What, AbsoluteFileName,Mod,Time,Space]).
-'$do_informational_message'(prompt(BreakLevel,TraceDebug)) :- !,
-	(BreakLevel =:= 0 ->
-	    (
-	      var(TraceDebug) ->
-	      true
-	    ;
-	      format(user_error, '% ~a~n', [TraceDebug])
-	    )
-	;
-	    (
-	      var(TraceDebug) ->
-	      format(user_error, '% ~d~n', [BreakLevel])
-	    ;
-	      format(user_error, '% ~d,~a~n', [BreakLevel,TraceDebug])
+	'$notrace'(user:portray_message(Severity, Msg)), !.
+% This predicate has more hooks than a pirate ship!
+print_message(Severity, Term) :-
+	(
+	 (
+	  '$notrace'(user:generate_message_hook(Term, [], Lines)) ->
+	  true
+	 ;
+	  '$notrace'(prolog:message(Term, Lines, [])) ->
+	  true
+	 ;
+	 '$message':generate_message(Term, Lines, [])
+	 )
+	->  (   nonvar(Term),
+		'$notrace'(user:message_hook(Term, Severity, Lines))
+	    ->  !
+	    ;   !, '$print_system_message'(Term, Severity, Lines)
 	    )
 	).
-'$do_informational_message'(debug) :- !,
-	format(user_error, '% [debug]~n', []).
-'$do_informational_message'(trace) :- !,
-	format(user_error, '% [trace]~n', []).
-'$do_informational_message'(M) :-
-	format(user_error,'% ', []),
-	'$do_print_message'(M),
-	format(user_error,'~n', []).
+print_message(_, error(syntax_error(_,between(_,L,_),_,_,_,_),_)) :-  !,
+	format(user_error,'SYNTAX ERROR close to ~d~n',[L]).
+print_message(_, loading(A, F)) :- !,
+	format(user_error,'  % ~a ~a~n',[A,F]).
+print_message(_, loaded(A, F, _, Time, Space)) :- !,
+	format(user_error,'  % ~a ~a ~d bytes in ~d msecs~n',[F,A,Space,Time]).
+print_message(_, Term) :-
+	format(user_error,'~q~n',[Term]).
 
-%message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
-'$do_print_message'(format(Msg, Args)) :- !,
-	format(user_error,Msg,Args).
-'$do_print_message'(ancestors([])) :- !,
-	format(user_error,'There are no ancestors.',
-	       []).	
-'$do_print_message'(breakp(bp(debugger,_,_,M:F/N,_),add,already)) :- !,
-	format(user_error,'There is already a spy point on ~w:~w/~w.',
-	[M,F,N]).	
-'$do_print_message'(breakp(bp(debugger,_,_,M:F/N,_),add,ok)) :- !,
-	format(user_error,'Spy point set on ~w:~w/~w.',
-	[M,F,N]).	
-'$do_print_message'(breakp(bp(debugger,_,_,M:F/N,_),remove,last)) :- !,
-	format(user_error,'Spy point on ~w:~w/~w removed.',
-	[M,F,N]).
-'$do_print_message'(breakp(no,breakpoint_for,M:F/N)) :- !,
-	format(user_error,'There is no spy point on ~w:~w/~w.',
-	[M,F,N]).
-'$do_print_message'(breakpoints([])) :- !,
-	format(user_error,'There are no spy-points set.',
-	[]).
-'$do_print_message'(breakpoints(L)) :- !,
-	format(user_error,'Spy-points set on:', []),
-	'$print_list_of_preds'(L).
-'$do_print_message'(clauses_not_together(P)) :- !,
-	format(user_error, 'Discontiguous definition of ~q.',[P]).
-'$do_print_message'(debug(debug)) :- !,
-	format(user_error,'Debug mode on.',[]).
-'$do_print_message'(debug(off)) :- !,
-	format(user_error,'Debug mode off.',[]).
-'$do_print_message'(debug(trace)) :- !,
-	format(user_error,'Trace mode on.',[]).
-'$do_print_message'(declaration(Args,Action)) :- !,
-	format(user_error,'declaration ~w ~w.',	[Args,Action]).
-'$do_print_message'(defined_elsewhere(P,F)) :- !,
-	format(user_error, 'predicate ~q previously defined in file ~w',[P,F]).
-'$do_print_message'(import(Pred,To,From,private)) :- !,
-	format(user_error,'Importing private predicate ~w:~w to ~w.',
-	[From,Pred,To]).
-'$do_print_message'(leash([])) :- !,
-	format(user_error,'No leashing.',
-	[]).
-'$do_print_message'(leash([A|B])) :- !,
-	format(user_error,'Leashing set to ~w.',
-	[[A|B]]).
-'$do_print_message'(no) :- !,
-	format(user_error, 'no', []).
-'$do_print_message'(no_match(P)) :- !,
-	format(user_error,'No matching predicate for ~w.',
-	[P]).
-'$do_print_message'(leash([A|B])) :- !,
-	format(user_error,'Leashing set to ~w.',
-	[[A|B]]).
-'$do_print_message'(singletons(SVs,P,CLN)) :- !,
-	format(user_error, 'Singleton variable',[]),
-	'$write_svs'(SVs),
-	format(user_error, ' in ~q, clause ~d.',[P,CLN]).
-'$do_print_message'(trace_command(-1)) :- !,
-	format(user_error,'EOF is not a valid debugger command.', []).
-'$do_print_message'(trace_command(C)) :- !,
-	format(user_error,'~c is not a valid debugger command.', [C]).
-'$do_print_message'(trace_help) :- !,
-	format(user_error,'   Please enter a valid debugger command (h for help).', []).
-'$do_print_message'(version(Version)) :- !,
-	format(user_error,'YAP version ~a', [Version]).
-'$do_print_message'(myddas_version(Version)) :- !,
-	format(user_error,'MYDDAS version ~a', [Version]).
-'$do_print_message'(yes) :- !,
-	format(user_error, 'yes', []).
-'$do_print_message'(Messg) :-
-	format(user_error,'~q',Messg).
+%	print_system_message(+Term, +Level, +Lines)
+%
+%	Print the message if the user did not intecept the message.
+%	The first is used for errors and warnings that can be related
+%	to source-location.  Note that syntax errors have their own
+%	source-location and should therefore not be handled this way.
 
-'$write_svs'([H]) :- !, write(user_error,' '), '$write_svs1'([H]).
-'$write_svs'(SVs) :- write(user_error,'s '), '$write_svs1'(SVs).
+'$print_system_message'(_, silent, _) :- !.
+'$print_system_message'(_, informational, _) :-
+	current_prolog_flag(verbose, silent), !.
+'$print_system_message'(_, banner, _) :-
+	current_prolog_flag(verbose, silent), !.
+'$print_system_message'(Term, Level, Lines) :-
+	Term = error(syntax_error(_,_,_,_,_,_),_), !,
+	flush_output(user_output),
+	flush_output(user_error),
+	'$message':prefix(Level, LinePrefix, Stream, _, Lines), !,
+	% make sure we don't give a PC.
+	print_message_lines(Stream, LinePrefix, Lines).
+'$print_system_message'(Term, Level, Lines) :-
+	'$message':prefix(Level, Prefix, EndPrefix, Stream, LinePrefix, Lines),
+	'$message':file_location(Prefix, LinesF, Lines), !,
+	flush_output(user_output),
+	flush_output(user_error),
+	print_message_lines(Stream, LinePrefix, LinesF).
+'$print_system_message'(Error, Level, Lines) :-
+	flush_output(user_output),
+	flush_output(user_error),
+	'$message':prefix(Level, LinePrefix, Stream, LinesF, Lines), !,
+	print_message_lines(Stream, LinePrefix, LinesF).
 
-'$write_svs1'([H]) :- !,
-        '$write_str_in_stderr'(H).
-'$write_svs1'([H|T]) :- 
-        '$write_str_in_stderr'(H),
-        write(user_error,','),
-        '$write_svs1'(T).
-
-'$write_str_in_stderr'([]).
-'$write_str_in_stderr'([C|T]) :-
-	put(user_error,C),
-	'$write_str_in_stderr'(T).
-
-
-'$print_list_of_preds'([]).
-'$print_list_of_preds'([P|L]) :-
-	format(user_error,'~n      ~w',[P]),
-	'$print_list_of_preds'(L).
-
-'$do_stack_dump'(Envs, CPs) :-
-	'$preprocess_stack'(CPs,0, PCPs),
-	'$preprocess_stack'(Envs,0, PEnvs),
-	'$say_stack_dump'(PEnvs, PCPs),
-	'$show_cps'(PCPs),
-	'$show_envs'(PEnvs),
-	'$close_stack_dump'(PEnvs, PCPs).
-
-'$preprocess_stack'([], _, []).
-'$preprocess_stack'([_|_],40, [overflow]) :- !.
-'$preprocess_stack'([G|Gs],I, NGs) :-
-	'$pred_for_code'(G,Name,Arity,Mod,Clause),
-	I1 is I+1,
-	'$beautify_stack_goal'(Name,Arity,Mod,Clause,Gs,I1,NGs).
-	
-'$beautify_stack_goal'(_,_,_,0,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs,I,NGs).
-'$beautify_stack_goal'(Name,Arity,Module,Clause,Gs,I,NGs) :-
-	functor(G,Name,Arity),
-	'$hidden_predicate'(G,Module), !,
-	'$beautify_hidden_goal'(Name,Arity,Module,Clause,Gs,I,NGs).
-'$beautify_stack_goal'(Name,Arity,Module,Clause,Gs,I,[cl(Name,Arity,Module,Clause)|NGs]) :-
-	'$preprocess_stack'(Gs,I,NGs).
-
-
-'$beautify_hidden_goal'('$yes_no',_,_,_,_,_,[]) :- !.
-'$beautify_hidden_goal'('$do_yes_no',_,_,_,_,_,[]) :- !.
-'$beautify_hidden_goal'('$query',_,_,_,_,_,[]) :- !.
-'$beautify_hidden_goal'('$enter_top_level',_,_,_,_,_,[]) :- !.
-% The user should never know these exist.
-'$beautify_hidden_goal'('$csult',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$use_module',2,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$ensure_loaded',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$continue_with_command',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$spycall_stdpred',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$spycalls',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$spycall',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$do_spy',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$spy',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$do_creep_execute',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$creep_execute',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$direct_spy',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$system_catch',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$execute_command',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$process_directive',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$catch',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$loop',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$consult',3,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$reconsult',_,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$undefp',1,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$use_module',2,prolog,_,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$repeat',0,prolog,ClNo,Gs,I,[cl(repeat,0,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$recorded_with_key',3,prolog,ClNo,Gs,I,[cl(recorded,3,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$consult',3,prolog,ClNo,Gs,I,[cl(consult,1,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$findall_with_common_vars',_,prolog,ClNo,Gs,I,[cl(findall,4,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$findall',_,prolog,ClNo,Gs,I,[cl(findall,4,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$bagof',_,prolog,ClNo,Gs,I,[cl(bagof,3,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$listing',_,prolog,ClNo,Gs,I,[cl(listing,1,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$call',Args,prolog,ClNo,Gs,I,[cl(call,Args,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$current_predicate',Args,prolog,ClNo,Gs,I,[cl(current_predicate,Args,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$list_clauses',_,prolog,ClNo,Gs,I,[cl(listing,1,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$use_module',1,prolog,ClNo,Gs,I,[cl(use_module,1,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'(Name,Args,Mod,ClNo,Gs,I,[cl(Name,Args,Mod,ClNo)|NGs]) :-
-	'$preprocess_stack'(Gs, I, NGs).
-
-
-'$say_stack_dump'([], []) :- !.
-'$say_stack_dump'(_, _) :-
-	format(user_error,'% Stack dump for error:', []).
-	
-'$close_stack_dump'([], []) :- !.
-'$close_stack_dump'(_, _) :-
-	format(user_error,'~n', []).
-	
-'$show_cps'([]) :- !.
-'$show_cps'(List) :-
-	format(user_error,'%  ~n   choice-points (goals with alternatives left):',[]),
-        '$print_stack'(List).
-
-'$show_envs'([]) :- !.
-'$show_envs'(List) :-
-	format(user_error,'%  ~n   environments (partially executed clauses):',[]),
-        '$print_stack'(List).
-
-'$prepare_loc'(Info,Where,Location) :- integer(Where), !,
-	'$pred_for_code'(Where,Name,Arity,Mod,Clause),
-	'$construct_code'(Clause,Name,Arity,Mod,Info,Location).
-'$prepare_loc'(Info,_,Info).
-
-'$print_stack'([]).
-'$print_stack'([overflow]) :- !,
-	format(user_error,'~n%	...',[]).
-'$print_stack'([cl(Name,Arity,Mod,Clause)|List]) :-
-	'$show_goal'(Clause,Name,Arity,Mod),
-	'$print_stack'(List).
-
-'$show_goal'(-1,Name,Arity,Mod) :- !,
-	format('~n%      ~a:~a/~d at indexing code',[Mod,Name,Arity]).
-'$show_goal'(0,_,_,_) :- !.
-'$show_goal'(I,Name,Arity,Mod) :-
-	format(user_error,'~n%      ~a:~a/~d at clause ~d',[Mod,Name,Arity,I]).
-
-'$construct_code'(-1,Name,Arity,Mod,Where,Location) :- !,
-	number_codes(Arity,ArityCode),
-	atom_codes(ArityAtom,ArityCode),
-	atom_concat([Where,' at ',Mod,':',Name,'/',ArityAtom,' at indexing code'],Location).
-'$construct_code'(0,_,_,_,Location,Location) :- !.
-'$construct_code'(Cl,Name,Arity,Mod,Where,Location) :-
-	number_codes(Arity,ArityCode),
-	atom_codes(ArityAtom,ArityCode),
-	number_codes(Cl,ClCode),
-	atom_codes(ClAtom,ClCode),
-	atom_concat([Where,' at ',Mod,':',Name,'/',ArityAtom,' (clause ',ClAtom,')'],Location).
-
-'$output_error_message'(consistency_error(Who),Where) :-
-	format(user_error,'% CONSISTENCY ERROR- ~w ~w~n',
-	[Who,Where]).
-'$output_error_message'(context_error(Goal,Who),Where) :-
-	format(user_error,'% CONTEXT ERROR- ~w: ~w appeared in ~w~n',
-	[Goal,Who,Where]).
-'$output_error_message'(domain_error(array_overflow,Opt), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: invalid index ~w for array~n',
-	[Where,Opt]).
-'$output_error_message'(domain_error(array_type,Opt), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: invalid static array type ~w~n',
-	[Where,Opt]).
-'$output_error_message'(domain_error(builtin_procedure,P), P) :-
-	format(user_error,'% DOMAIN ERROR- non-iso built-in procedure  ~w~n',
-	[P]).
-'$output_error_message'(domain_error(character_code_list,Opt), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: invalid list of codes ~w~n',
-	[Where,Opt]).
-'$output_error_message'(domain_error(delete_file_option,Opt), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: invalid list of options ~w~n',
-	[Where,Opt]).
-'$output_error_message'(domain_error(encoding,Opt), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: invalid encoding ~w~n',
-	[Where,Opt]).
-'$output_error_message'(domain_error(operator_specifier,Op), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: invalid operator specifier ~w~n',
-	[Where,Op]).
-'$output_error_message'(domain_error(out_of_range,Value), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: expression ~w is out of range~n',
-	[Where,Value]).
-'$output_error_message'(domain_error(close_option,Opt), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: invalid close option ~w~n',
-	[Where,Opt]).
-'$output_error_message'(domain_error(radix,Opt), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: invalid radix ~w~n',
-	[Where,Opt]).
-'$output_error_message'(domain_error(shift_count_overflow,Opt), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: shift count overflow in ~w~n',
-	[Where,Opt]).
-'$output_error_message'(domain_error(flag_value,F+V), W) :-
-	format(user_error,'% DOMAIN ERROR- ~w: invalid value ~w for flag ~w~n',
-	[W,V,F]).
-'$output_error_message'(domain_error(io_mode,N), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: invalid io mode ~w~n',
-	[Where,N]).
-'$output_error_message'(domain_error(mutable,N), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: invalid mutable ~w~n',
-	[Where,N]).
-'$output_error_message'(domain_error(module_decl_options,N), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: expect module declaration options, found ~w~n',
-	[Where,N]).
-'$output_error_message'(domain_error(not_empty_list,_), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: found empty list~n',
-	[Where]).
-'$output_error_message'(domain_error(not_less_than_zero,N), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: number ~w less than zero~n',
-	[Where,N]).
-'$output_error_message'(domain_error(not_newline,N), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: number ~w not newline~n',
-	[Where,N]).
-'$output_error_message'(domain_error(not_zero,N), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w is not allowed in the domain ~n',
-	[Where,N]).
-'$output_error_message'(domain_error(operator_priority,N), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w invalid operator priority~n',
-	[Where,N]).
-'$output_error_message'(domain_error(operator_specifier,N), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w invalid operator specifier~n',
-	[Where,N]).
-'$output_error_message'(domain_error(predicate_spec,N), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w invalid predicate specifier~n',
-	[Where,N]).
-'$output_error_message'(domain_error(read_option,N), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w invalid option to read~n',
-	[Where,N]).
-'$output_error_message'(domain_error(semantics_indicator,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected predicate indicator, got ~w~n',
-	[Where,W]).
-'$output_error_message'(domain_error(source_sink,N), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w is not a source sink term~n',
-	[Where,N]).
-'$output_error_message'(domain_error(stream,What), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w not a stream~n',
-	[Where,What]).
-'$output_error_message'(domain_error(stream_or_alias,What), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w not a stream~n',
-	[Where,What]).
-'$output_error_message'(domain_error(stream_option,What), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w not a stream option~n',
-	[Where,What]).
-'$output_error_message'(domain_error(stream_position,What), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w not a stream position~n',
-	[Where,What]).
-'$output_error_message'(domain_error(stream_property,What), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w not a stream property~n',
-	[Where,What]).
-'$output_error_message'(domain_error(syntax_error_handler,What), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w not a syntax error handler~n',
-	[Where,What]).
-'$output_error_message'(domain_error(thread_create_option,Option+Opts), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w not in ~w~n',
-	[Where,Option, Opts]).
-'$output_error_message'(domain_error(time_out_spec,What), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w not a valid specification for a time out~n',
-	[Where,What]).
-'$output_error_message'(domain_error(unimplemented_option,What), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w not yet implemented~n',
-	[Where,What]).
-'$output_error_message'(domain_error(write_option,N), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: ~w invalid option to write~n',
-	[Where,N]).
-'$output_error_message'(domain_error(table,P), Where) :-
-	format(user_error,'% DOMAIN ERROR- ~w: non-tabled procedure ~w~n',
-	[Where,P]).
-'$output_error_message'(existence_error(array,F), W) :-
-	format(user_error,'% EXISTENCE ERROR- ~w could not open array ~w~n',
-	[W,F]).
-'$output_error_message'(existence_error(file,F), W) :-
-	format(user_error,'% EXISTENCE ERROR- ~w could not open file ~w~n',
-	[W,F]).
-'$output_error_message'(existence_error(library,F), W) :-
-	format(user_error,'% EXISTENCE ERROR- ~w could not open library ~w~n',
-	[W,F]).
-'$output_error_message'(existence_error(message_queue,F), W) :-
-	format(user_error,'% EXISTENCE ERROR- ~w could not open message queue ~w~n',
-	[W,F]).
-'$output_error_message'(existence_error(mutex,F), W) :-
-	format(user_error,'% EXISTENCE ERROR- ~w could not open mutex ~w~n',
-	[W,F]).
-'$output_error_message'(existence_error(procedure,P), context(Call,Parent)) :-
-	format(user_error,'% EXISTENCE ERROR- procedure ~w is undefined, called from context  ~w~n%                  Goal was ~w~n',
-	[P,Parent,Call]).
-'$output_error_message'(existence_error(source_sink,F), W) :-
-	format(user_error,'% EXISTENCE ERROR- ~w could not find file ~w~n',
-	[W,F]).
-'$output_error_message'(existence_error(stream,Stream), Where) :-
-	format(user_error,'% EXISTENCE ERROR- ~w: ~w not an open stream~n',
-	[Where,Stream]).
-'$output_error_message'(existence_error(thread,Thread), Where) :-
-	format(user_error,'% EXISTENCE ERROR- ~w: ~w not a running thread~n',
-	[Where,Thread]).
-'$output_error_message'(evaluation_error(int_overflow), Where) :-
-	format(user_error,'% INTEGER OVERFLOW ERROR- ~w~n',
-	[Where]).
-'$output_error_message'(evaluation_error(float_overflow), Where) :-
-	format(user_error,'% FLOATING POINT OVERFLOW ERROR- ~w~n',
-	[Where]).
-'$output_error_message'(evaluation_error(undefined), Where) :-
-	format(user_error,'% UNDEFINED ARITHMETIC RESULT ERROR- ~w~n',
-	[Where]).
-'$output_error_message'(evaluation_error(underflow), Where) :-
-	format(user_error,'% UNDERFLOW ERROR- ~w~n',
-	[Where]).
-'$output_error_message'(evaluation_error(float_underflow), Where) :-
-	format(user_error,'% FLOATING POINT UNDERFLOW ERROR- ~w~n',
-	[Where]).
-'$output_error_message'(evaluation_error(zero_divisor), Where) :-
-	format(user_error,'% ZERO DIVISOR ERROR- ~w~n',
-	[Where]).
-'$output_error_message'(instantiation_error, Where) :-
-	format(user_error,'% INSTANTIATION ERROR- ~w: expected bound value~n',
-	[Where]).
-'$output_error_message'(operating_system_error, Where) :-
-	format(user_error,'% OPERATING SYSTEM ERROR- ~w~n',
-	[Where]).
-'$output_error_message'(out_of_heap_error, Where) :-
-	format(user_error,'% OUT OF DATABASE SPACE ERROR- ~w~n',
-	[Where]).
-'$output_error_message'(out_of_stack_error, Where) :-
-	format(user_error,'% OUT OF STACK SPACE ERROR- ~w~n',
-	[Where]).
-'$output_error_message'(out_of_trail_error, Where) :-
-	format(user_error,'% OUT OF TRAIL SPACE ERROR- ~w~n',
-	[Where]).
-'$output_error_message'(out_of_attvars_error, Where) :-
-	format(user_error,'% OUT OF STACK SPACE ERROR- ~w~n',
-	[Where]).
-'$output_error_message'(out_of_auxspace_error, Where) :-
-	format(user_error,'% OUT OF AUXILIARY STACK SPACE ERROR- ~w~n',
-	[Where]).
-'$output_error_message'(permission_error(access,private_procedure,P), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot see clauses for ~w~n',
-	[Where,P]).
-'$output_error_message'(permission_error(access,static_procedure,P), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot access static procedure ~w~n',
-	[Where,P]).
-'$output_error_message'(permission_error(alias,new,P), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot create alias ~w~n',
-	[Where,P]).
-'$output_error_message'(permission_error(create,array,P), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot create array ~w~n',
-	[Where,P]).
-'$output_error_message'(permission_error(create,mutex,P), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot create mutex ~a~n',
-	[Where,P]).
-'$output_error_message'(permission_error(create,message_queue,P), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot create message queue ~a~n',
-	[Where,P]).
-'$output_error_message'(permission_error(create,operator,P), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot create operator ~w~n',
-	[Where,P]).
-'$output_error_message'(permission_error(input,binary_stream,Stream), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot read from binary stream ~w~n',
-	[Where,Stream]).
-'$output_error_message'(permission_error(input,closed_stream,Stream), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: trying to read from closed stream ~w~n',
-	[Where,Stream]).
-'$output_error_message'(permission_error(input,past_end_of_stream,Stream), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: past end of stream ~w~n',
-	[Where,Stream]).
-'$output_error_message'(permission_error(input,stream,Stream), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot read from ~w~n',
-	[Where,Stream]).
-'$output_error_message'(permission_error(input,text_stream,Stream), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot read from text stream ~w~n',
-	[Where,Stream]).
-'$output_error_message'(permission_error(modify,dynamic_procedure,_), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: modifying a dynamic procedure~n',
-	[Where]).
-'$output_error_message'(permission_error(modify,flag,W), _) :-
-	format(user_error,'% PERMISSION ERROR- cannot modify flag ~w~n',
-	[W]).
-'$output_error_message'(permission_error(modify,operator,W), _) :-
-	format(user_error,'% PERMISSION ERROR- T cannot declare ~w an operator~n',
-	[W]).
-'$output_error_message'(permission_error(modify,dynamic_procedure,_), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: modifying a dynamic procedure~n',
-	[Where]).
-'$output_error_message'(permission_error(modify,static_procedure,_), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: modifying a static procedure~n',
-	[Where]).
-'$output_error_message'(permission_error(modify,static_procedure_in_use,_), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: modifying a static procedure in use~n',
-	[Where]).
-'$output_error_message'(permission_error(modify,table,P), _) :-
-	format(user_error,'% PERMISSION ERROR- cannot table procedure ~w~n',
-	[P]).
-'$output_error_message'(permission_error(module,redefined,Mod), Who) :-
-	format(user_error,'% PERMISSION ERROR ~w- redefining module ~a in a different file~n',
-	[Who,Mod]).
-'$output_error_message'(permission_error(open,source_sink,Stream), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot open file ~w~n',
-	[Where,Stream]).
-'$output_error_message'(permission_error(output,binary_stream,Stream), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot write to binary stream ~w~n',
-	[Where,Stream]).
-'$output_error_message'(permission_error(output,stream,Stream), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot write to ~w~n',
-	[Where,Stream]).
-'$output_error_message'(permission_error(output,text_stream,Stream), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot write to text stream ~w~n',
-	[Where,Stream]).
-'$output_error_message'(permission_error(resize,array,P), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot resize array ~w~n',
-	[Where,P]).
-'$output_error_message'(permission_error(unlock,mutex,P), Where) :-
-	format(user_error,'% PERMISSION ERROR- ~w: cannot unlock mutex ~w~n',
-	[Where,P]).
-'$output_error_message'(representation_error(character), Where) :-
-	format(user_error,'% REPRESENTATION ERROR- ~w: expected character~n',
-	[Where]).
-'$output_error_message'(representation_error(character_code), Where) :-
-	format(user_error,'% REPRESENTATION ERROR- ~w: expected character code~n',
-	[Where]).
-'$output_error_message'(representation_error(max_arity), Where) :-
-	format(user_error,'% REPRESENTATION ERROR- ~w: number too big~n',
-	[Where]).
-'$output_error_message'(syntax_error(G,0,Msg,[],0,0), _) :- !,
-	format(user_error,'% SYNTAX ERROR: ~a',[G,Msg]).
-'$output_error_message'(syntax_error(_,_,_,Term,Pos,Start), Where) :-
-	format(user_error,'% ~w ',[Where]),
-	'$dump_syntax_error_line'(Start,Pos),
-	'$dump_syntax_error_term'(10,Pos, Term),
-	format(user_error,'.~n',[]).
-'$output_error_message'(system_error, Where) :-
-	format(user_error,'% SYSTEM ERROR- ~w~n',
-	[Where]).
-'$output_error_message'(internal_compiler_error, Where) :-
-	format(user_error,'% INTERNAL COMPILER ERROR- ~w~n',
-	[Where]).
-'$output_error_message'(system_error(Message), Where) :-
-	format(user_error,'% SYSTEM ERROR- ~w at ~w]~n',
-	[Message,Where]).
-'$output_error_message'(type_error(T,_,Err,M), _Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected ~w, got ~w~n',
-	[T,Err,M]).
-'$output_error_message'(type_error(array,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected array, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(atom,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected atom, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(atomic,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected atomic, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(byte,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected byte, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(callable,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected callable goal, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(char,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected char, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(character,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected character, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(character_code,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected character code, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(compound,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected compound, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(db_reference,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected data base reference, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(db_term,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected data base term, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(evaluable,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected evaluable term, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(float,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected float, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(in_byte,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected byte, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(in_character,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected atom character, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(in_character_code,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected character code, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(integer,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected integer, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(key,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected database key, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(leash_mode,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected modes for leash, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(list,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected list, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(number,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected number, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(pointer,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected pointer, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(predicate_indicator,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected predicate indicator, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(unsigned_byte,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected unsigned byte, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(unsigned_char,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected unsigned char, got ~w~n',
-	[Where,W]).
-'$output_error_message'(type_error(variable,W), Where) :-
-	format(user_error,'% TYPE ERROR- ~w: expected unbound variable, got ~w~n',
-	[Where,W]).
-'$output_error_message'(unknown, Where) :-
-	format(user_error,'% EXISTENCE ERROR- procedure ~w undefined~n',
-	[Where]).
-
-
-'$dump_syntax_error_line'(Position,_) :-
-	format(user_error,', near line ~d:~n',[Position]).
-
-'$dump_syntax_error_term'(0,J,L) :- !,
-	format(user_error,'~n', []),
-	'$dump_syntax_error_term'(10,J,L).
-'$dump_syntax_error_term'(_,0,L) :- !,
-	format(user_error,'~n<==== HERE ====>~n', []),
-	'$dump_syntax_error_term'(10,-1,L).
-'$dump_syntax_error_term'(_,_,[]) :- !.
-'$dump_syntax_error_term'(I,J,[T-_P|R]) :-
-	'$dump_error_token'(T),
-	I1 is I-1,
-	J1 is J-1,
-	'$dump_syntax_error_term'(I1,J1,R).
-
-'$dump_error_token'(atom(A)) :- !,
-	format(user_error,' ~a', [A]).
-'$dump_error_token'(number(N)) :- !,
-	format(user_error,' ~w', [N]).
-'$dump_error_token'(var(_,S,_)) :- !,
-	format(user_error,' ~s ', [S]).
-'$dump_error_token'(string(S)) :- !,
-	format(user_error,' ""~s""', [S]).
-'$dump_error_token'('(') :- !,
-	format(user_error,"(", []).
-'$dump_error_token'(')') :- !,
-	format(user_error," )", []).
-'$dump_error_token'(',') :- !,
-	format(user_error," ,", []).
-'$dump_error_token'(A) :-
-	format(user_error," ~a", [A]).
 

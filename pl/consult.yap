@@ -234,13 +234,16 @@ use_module(M,F,Is) :-
 	    StartMsg = consulting,
 	    EndMsg = consulted
 	),
-	'$print_message'(InfLevel, loading(StartMsg, File)),
+	print_message(InfLevel, loading(StartMsg, File)),
 	( SkipUnixComments == skip_unix_comments ->
 	    '$skip_unix_comments'(Stream)
 	;
 	    true
 	),
 	'$loop'(Stream,Reconsult),
+	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+	'$current_module'(Mod,OldModule),
+	print_message(InfLevel, loaded(EndMsg, File, Mod, T, H)),
 	'$end_consult',
 	( 
 	    Reconsult = reconsult ->
@@ -259,12 +262,9 @@ use_module(M,F,Is) :-
 	nb_setval('$if_skip_mode',run),
 	% back to include mode!
 	nb_setval('$if_level',OldIncludeLevel),
-	'$current_module'(Mod,OldModule),
 	'$bind_module'(Mod, UseModule),
 	'$import_to_current_module'(File, ContextModule, Imports),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
-	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-	'$print_message'(InfLevel, loaded(EndMsg, File, Mod, T, H)),
         ( OldMode == off -> '$exit_system_mode' ; true ),
 	'$exec_initialisation_goals',
 	!.
@@ -346,13 +346,13 @@ use_module(M,F,Is) :-
 	H0 is heapused, '$cputime'(T0,_),
 	'$default_encoding'(Encoding),
 	( '$open'(Y,'$csult',Stream,0,Encoding), !,
-		'$print_message'(Verbosity, loading(including, Y)),
+		print_message(Verbosity, loading(including, Y)),
 		'$loop'(Stream,Status), '$close'(Stream)
 	;
 		'$do_error'(permission_error(input,stream,Y),include(X))
 	),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-	'$print_message'(Verbosity, loaded(included, Y, Mod, T, H)),
+	print_message(Verbosity, loaded(included, Y, Mod, T, H)),
 	nb_setval('$included_file',OY).
 
 '$do_startup_reconsult'(X) :-
@@ -470,7 +470,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 
 '$add_multifile'(File,Name,Arity,Module) :-
 	recorded('$multifile_defs','$defined'(File,Name,Arity,Module), _), !,
-	'$print_message'(warning,declaration((multifile Module:Name/Arity),ignored)).
+	print_message(warning,declaration((multifile Module:Name/Arity),ignored)).
 '$add_multifile'(File,Name,Arity,Module) :-
 	recordz('$multifile_defs','$defined'(File,Name,Arity,Module),_), !,
 	fail.
@@ -519,12 +519,6 @@ remove_from_path(New) :- '$check_path'(New,Path),
 	recorda('$lf_loaded','$lf_loaded'(F,M,Age),_),
 	fail.
 '$record_loaded'(_, _).
-
-'$system_library_directories'(Dir) :-
-	getenv('YAPSHAREDIR', Dir).
-'$system_library_directories'(Dir) :-
-	get_value(system_library_directory,Dir).
-
 
 %
 % encoding stuff: what I believe SWI does.
@@ -696,7 +690,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$find_in_path'(library(File),Opts,NewFile, Call) :- !,
 	'$dir_separator'(D),
 	atom_codes(A,[D]),
-	'$extend_path_directory'(Name, A, File, Opts, NewFile, Call).
+	'$extend_path_directory'(library, A, File, Opts, NewFile, Call).
 '$find_in_path'(S, Opts, NewFile, Call) :-
 	S =.. [Name,File], !,
 	'$dir_separator'(D),
@@ -755,10 +749,15 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	recorded('$path',Path,_),
 	atom_concat([Path,File],PFile).
 
+'$system_library_directories'(Dir) :-
+	getenv('YAPSHAREDIR', Dir).
+'$system_library_directories'(Dir) :-
+	get_value(system_library_directory,Dir).
+
+
 '$extend_path_directory'(Name, D, File, Opts, NewFile, Call) :-
 	user:file_search_path(Name, Dir),	
 	'$extend_pathd'(Dir, D, File, Opts, NewFile, Call).
-
 
 '$extend_pathd'(Dir, A, File, Opts, NewFile, Call) :-
 	atom(Dir), !,

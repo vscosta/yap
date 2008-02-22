@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2008-01-23 17:57:44 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-02-22 15:08:33 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.218  2008/01/23 17:57:44  vsc
+* valgrind it!
+* enable atom garbage collection.
+*
 * Revision 1.217  2007/12/26 19:50:40  vsc
 * new version of clp(fd)
 * fix deadlock with empty args facts in clause/2.
@@ -3331,16 +3335,17 @@ static Term
 all_calls(void)
 {
   Term ts[3];
-  Functor f = Yap_MkFunctor(AtomLocal,3);
+  Functor f = Yap_MkFunctor(AtomLocal,4);
 
   ts[0] = MkIntegerTerm((Int)P);
+  ts[1] = MkIntegerTerm((Int)CP);
   if (yap_flags[STACK_DUMP_ON_ERROR_FLAG]) {
-    ts[1] = all_envs(ENV);
-    ts[2] = all_cps(B);
+    ts[2] = all_envs(ENV);
+    ts[3] = all_cps(B);
   } else {
-    ts[1] = ts[2] = TermNil;
+    ts[2] = ts[3] = TermNil;
   }
-  return(Yap_MkApplTerm(f,3,ts));
+  return(Yap_MkApplTerm(f,4,ts));
 }
 
 Term

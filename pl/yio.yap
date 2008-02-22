@@ -387,7 +387,7 @@ told :- current_output(Stream), '$close'(Stream), set_output(user).
 read(T) :-
 	'$read'(false,T,_,_,_,Err),
 	(nonvar(Err) ->
-	    '$print_message'(error,Err), fail
+	    print_message(error,Err), fail
 	    ;
 	    true
 	).
@@ -395,7 +395,7 @@ read(T) :-
 read(Stream,T) :-
 	'$read'(false,T,_,_,_,Err,Stream),
 	(nonvar(Err) ->
-	    '$print_message'(error,Err), fail
+	    print_message(error,Err), fail
 	    ;
 	    true
 	).

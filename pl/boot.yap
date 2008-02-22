@@ -45,6 +45,14 @@ true :- true.
 	;
 	  true
 	),
+	(
+	 retractall(user:library_directory(_)),
+	 '$system_library_directories'(D),
+	 assert(user:library_directory(D)),
+	 fail
+	;
+	 true
+	),
 	'$stream_representation_error'(user_input, 512),
 	'$stream_representation_error'(user_output, 512),
 	'$stream_representation_error'(user_error, 512),
@@ -84,7 +92,7 @@ true :- true.
 	nb_setval('$lf_verbose',informational),
 	nb_setval('$if_level',0),
 	nb_setval('$endif',off),
-	nb_setval('$consulting_file',user_input),
+	nb_setval('$consulting_file',[]),
 	nb_setval('$consulting',false),
 	nb_setval('$included_file','').
 	
@@ -104,7 +112,7 @@ true :- true.
 '$read_vars'(Stream,T,Mod,Pos,V) :-
 	'$read'(true,T,Mod,V,Pos,Err,Stream),
 	(nonvar(Err) ->
-	 '$print_message'(error,Err), fail
+	 print_message(error,Err), fail
 	;
 	 true
 	).
@@ -135,7 +143,7 @@ true :- true.
 	;
 	 true
 	),
-	'$print_message'(informational,prompt(BreakLevel,TraceDebug)),
+	print_message(informational,prompt(BreakLevel,TraceDebug)),
 	fail.
 '$enter_top_level' :-
 	get_value('$top_level_goal',GA), GA \= [], !,
@@ -227,13 +235,13 @@ true :- true.
 
  '$version' :- 
 	 get_value('$version_name',VersionName),
-	 '$print_message'(help, version(VersionName)),
+	 print_message(help, version(VersionName)),
 	 get_value('$myddas_version_name',MYDDASVersionName),
 	 MYDDASVersionName \== [],
-	 '$print_message'(help, myddas_version(MYDDASVersionName)),
+	 print_message(help, myddas_version(MYDDASVersionName)),
 	 fail.
  '$version' :- recorded('$version',VersionName,_),
-	 '$print_message'(help, VersionName),
+	 print_message(help, VersionName),
 	 fail.
  '$version'.
 
@@ -476,7 +484,7 @@ true :- true.
 '$add_env_and_fail' :- fail.
 
 '$out_neg_answer' :-
-	 ( '$undefined'('$print_message'(_,_),prolog) -> 
+	 ( '$undefined'(print_message(_,_),prolog) -> 
 	    '$present_answer'(user_error,"no~n", [])
 	 ;
 	    print_message(help,no)
@@ -530,7 +538,7 @@ true :- true.
 	    fail
 	;
 	    C== 10 -> '$add_nl_outside_console',
-		( '$undefined'('$print_message'(_,_),prolog) -> 
+		( '$undefined'(print_message(_,_),prolog) -> 
 			format(user_error,'yes~n', [])
 	        ;
 		   print_message(help,yes)

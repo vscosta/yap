@@ -114,6 +114,7 @@ us to include his text in this document.
 Built In Predicates
 * Control:: Controlling the execution of Prolog programs
 * Undefined Procedures:: Handling calls to Undefined Procedures
+* Messages:: Message Handling in YAP
 * Testing Terms:: Predicates on Terms
 * Predicates on Atoms:: Manipulating Atoms
 * Predicates on Characters:: Manipulating Characters
@@ -2390,6 +2391,7 @@ may result in incorrect execution.
 Built-ins, Debugging, Syntax, Top
 * Control:: Controlling the Execution of Prolog Programs
 * Undefined Procedures:: Handling calls to Undefined Procedures
+* Messages:: Message Handling in YAP
 * Testing Terms:: Predicates on Terms
 * Predicates on Atoms:: Manipulating Atoms
 * Predicates on Characters:: Manipulating Characters
@@ -2835,13 +2837,13 @@ Increase stack size @var{Size} kilobytes.
 
 @end table
 
-@node Undefined Procedures, Testing Terms, Control, Top
+@node Undefined Procedures, Messages, Control, Top
 @section Handling Undefined Procedures
 
 A predicate in a module is said to be undefined if there are no clauses
 defining the predicate, and if the predicate has not been declared to be
 dynamic. What YAP does when trying to execute undefined predicates can
-be specified through three different ways:
+be specified in three different ways:
 @itemize @bullet
 @item By setting an YAP flag, through the @code{yap_flag/2} or
 @code{set_prolog_flag/2} built-ins. This solution generalizes the
@@ -2914,7 +2916,113 @@ execute @var{NG}. If  @code{user:unknown_predicate_handler/3} fails, the
 system will execute default action as specified by @code{unknown/2}.
 @end table
 
-@node Testing Terms, Predicates on Atoms, Undefined Procedures, Top
+@node Messages, Testing Terms, Undefined Procedures, Top
+@section Message Handling
+
+The interaction between YAP and the user relies on YAP's ability to
+portray messages. These messages range from prompts to error
+information. All message processing is performed through the builtin
+@code{print_message/2}, in two steps:
+
+@itemize @bullet
+@item The message is processed into a list of commands 
+@item The commands in the list are sent to the @code{format/3} builtin
+in sequence.
+@end itemize 
+
+The first argument to @code{print_message/2} specifies the importance of
+the message. The options are:
+
+@table @code
+@item error
+error handling
+@item warning
+compilation and run-time warnings,
+@item informational
+generic informational messages
+@item help 
+help messages (not currently implemented in YAP)
+@item query
+query 	used in query processing (not currently implemented in YAP)
+@item  silent
+messages that do not produce output but that can be intercepted by hooks.
+@end table
+
+The next table shows the main predicates and hooks associated to message
+handling in YAP:
+@table @code
+@item print_message(+@var{Kind}, @var{Term})
+@findex print_message/2
+@syindex print_message/2
+@cnindex print_message/2
+The predicate print_message/2 is used to print messages, notably from
+exceptions in a human-readable format. @var{Kind} is one of
+@code{informational}, @code{banner}, @code{warning}, @code{error},
+@code{help} or @code{silent}. A human-readable message is printed to
+the stream @code{user_error}.
+
+@c \index{silent}\index{quiet}%
+If the Prolog flag @code{verbose} is @code{silent}, messages with
+@var{Kind} @code{informational}, or @code{banner} are treated as
+silent.@c  See \cmdlineoption{-q}.
+
+This predicate first translates the @var{Term} into a list of `message
+lines' (see @code{print_message_lines/3} for details).  Next it will
+call the hook @code{message_hook/3} to allow the user intercepting the
+message.  If @code{message_hook/3} fails it will print the message unless
+@var{Kind} is silent.
+
+@c The print_message/2 predicate and its rules are in the file
+@c \file{<plhome>/boot/messages.pl}, which may be inspected for more
+@c information on the error messages and related error terms. 
+If you need to report errors from your own predicates, we advise you to
+stick to the existing error terms if you can; but should you need to
+invent new ones, you can define corresponding error messages by
+asserting clauses for @code{prolog:message/2}. You will need to declare
+the predicate as multifile.
+
+@c See also message_to_string/2.
+
+@item print_message_lines(+@var{Stream}, +@var{Prefix}, +@var{Lines})
+@findex print_message_lines/3
+@syindex print_message_lines/3
+@cnindex print_message_lines/3
+Print a message (see @code{print_message/2}) that has been translated to
+a list of message elements.  The elements of this list are:
+
+@table @code
+    @item @code{<Format>}-@code{<Args>}
+        Where @var{Format} is an atom and @var{Args} is a list
+	of format argument.  Handed to @code{format/3}.
+    @item @code{flush}
+	If this appears as the last element, @var{Stream} is flushed
+	(see @code{flush_output/1}) and no final newline is generated.
+    @item @code{at_same_line}
+        If this appears as first element, no prefix is printed for
+	the first line and the line-position is not forced to 0
+	(see @code{format/1}, @code{~N}).
+    @item @code{<Format>}
+        Handed to @code{format/3} as @code{format(Stream, Format, [])}.
+    @item nl
+        A new line is started and if the message is not complete
+	the @var{Prefix} is printed too.
+@end table
+
+@item user:message_hook(+@var{Term}, +@var{Kind}, +@var{Lines})
+@findex message_hook/3
+@syindex message_hook/3
+@cnindex message_hook/3
+Hook predicate that may be define in the module @code{user} to intercept
+messages from @code{print_message/2}. @var{Term} and @var{Kind} are the
+same as passed to @code{print_message/2}. @var{Lines} is a list of
+format statements as described with @code{print_message_lines/3}.
+
+This predicate should be defined dynamic and multifile to allow other
+modules defining clauses for it too.
+
+@end table
+
+@node Testing Terms, Predicates on Atoms, Messages, Top
 @section Predicates on terms
 
 @table @code
@@ -3966,7 +4074,7 @@ YAP currently ignores these options.
 @findex time_file/2
 @snindex time_file/2
 @cnindex time_file/2
-Unify the last modification time of @vaar{File} with
+Unify the last modification time of @var{File} with
 @var{Time}. @var{Time} is a floating point number expressing the seconds
 elapsed since Jan 1, 1970.
 

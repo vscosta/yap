@@ -57,9 +57,9 @@
 	!,
 	'$do_suspy_predicates_by_name'(NA,S,EM).
 '$suspy_predicates_by_name'(A,spy,M) :- !,
-	'$print_message'(warning,no_match(spy(M:A))).
+	print_message(warning,no_match(spy(M:A))).
 '$suspy_predicates_by_name'(A,nospy,M) :-
-	'$print_message'(warning,no_match(nospy(M:A))).
+	print_message(warning,no_match(nospy(M:A))).
 	
 '$do_suspy_predicates_by_name'(A,S,M) :-
 	current_predicate(A,M:T),
@@ -81,9 +81,9 @@
 '$do_suspy'(S, F, N, T, M) :-
 	 '$undefined'(T,M), !,
 	 ( S = spy ->
-	     '$print_message'(warning,no_match(spy(M:F/N)))
+	     print_message(warning,no_match(spy(M:F/N)))
 	 ;
-	     '$print_message'(warning,no_match(nospy(M:F/N)))
+	     print_message(warning,no_match(nospy(M:F/N)))
 	 ).
 '$do_suspy'(S, F, N, T, M) :-
 	 '$system_predicate'(T,M),
@@ -97,27 +97,27 @@
 '$do_suspy'(S, F, N, T, M) :-
 	 '$undefined'(T,M), !,
 	 ( S = spy ->
-	     '$print_message'(warning,no_match(spy(M:F/N)))
+	     print_message(warning,no_match(spy(M:F/N)))
 	 ;
-	     '$print_message'(warning,no_match(nospy(M:F/N)))
+	     print_message(warning,no_match(nospy(M:F/N)))
 	 ).
 '$do_suspy'(S,F,N,T,M) :-
 	'$suspy2'(S,F,N,T,M).
 
 '$suspy2'(spy,F,N,T,M) :- 
 	recorded('$spy','$spy'(T,M),_), !,
-	'$print_message'(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,already)).
+	print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,already)).
 '$suspy2'(spy,F,N,T,M) :- !,
 	recorda('$spy','$spy'(T,M),_), 
 	'$set_spy'(T,M),
-	'$print_message'(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,ok)).
+	print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,ok)).
 '$suspy2'(nospy,F,N,T,M) :- 
 	recorded('$spy','$spy'(T,M),R), !,
 	erase(R),
 	'$rm_spy'(T,M),
-	'$print_message'(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),remove,last)).
+	print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),remove,last)).
 '$suspy2'(nospy,F,N,_,M) :-
-	'$print_message'(informational,breakp(no,breakpoint_for,M:F/N)).
+	print_message(informational,breakp(no,breakpoint_for,M:F/N)).
 
 '$pred_being_spied'(G, M) :-
 	recorded('$spy','$spy'(G,M),_), !.
@@ -140,7 +140,7 @@ nospyall.
 
 debug :-
 	'$start_debugging'(on),
-	'$print_message'(informational,debug(debug)).
+	print_message(informational,debug(debug)).
 
 '$start_debugging'(Mode) :-
 	nb_setval('$debug',Mode),
@@ -149,7 +149,7 @@ debug :-
 nodebug :-
 	nb_setval('$debug',off),
 	nb_setval('$trace',off),
-	'$print_message'(informational,debug(off)).
+	print_message(informational,debug(off)).
 
  %
  % remove any debugging info after an abort.
@@ -160,7 +160,7 @@ trace :-
 trace :-
 	nb_setval('$trace',on),
 	'$start_debugging'(on),
-	'$print_message'(informational,debug(trace)),
+	print_message(informational,debug(trace)),
 	'$creep'.
 
 notrace :-
@@ -183,13 +183,13 @@ leash(X) :-
 	'$do_error'(type_error(leash_mode,X),leash(X)).
 
 '$show_leash'(Msg,0) :-
-	'$print_message'(Msg,leash([])).
+	print_message(Msg,leash([])).
 '$show_leash'(Msg,Code) :-
 	'$check_leash_bit'(Code,0x8,L3,call,LF),
 	'$check_leash_bit'(Code,0x4,L2,exit,L3),
 	'$check_leash_bit'(Code,0x2,L1,redo,L2),
 	'$check_leash_bit'(Code,0x1,[],fail,L1),
-	'$print_message'(Msg,leash(LF)).
+	print_message(Msg,leash(LF)).
 
 '$check_leash_bit'(Code,Bit,L0,_,L0) :- Bit /\ Code =:= 0, !.
 '$check_leash_bit'(_,_,L0,Name,[Name|L0]).
@@ -224,12 +224,12 @@ leash(X) :-
 
 debugging :-
 	( nb_getval('$debug',on) ->
-	    '$print_message'(help,debug(debug))
+	    print_message(help,debug(debug))
 	    ;
-	    '$print_message'(help,debug(off))
+	    print_message(help,debug(off))
 	),
 	findall(M:(N/A),(recorded('$spy','$spy'(T,M),_),functor(T,N,A)),L),
-	'$print_message'(help,breakpoints(L)),
+	print_message(help,breakpoints(L)),
 	get_value('$leash',Leash),
 	'$show_leash'(help,Leash).
 
@@ -667,7 +667,7 @@ debugging :-
 	(
 	  History == []
 	->
-	  '$print_message'(help, ancestors([]))
+	  print_message(help, ancestors([]))
 	;
 	  '$show_ancestors'(History,HowMany),
 	  nl(user_error)
@@ -708,8 +708,8 @@ debugging :-
 	format(user_error,'! g execute goal~n', []).
 	
 '$ilgl'(C) :-
-	'$print_message'(warning, trace_command(C)),
-	'$print_message'(help, trace_help),
+	print_message(warning, trace_command(C)),
+	print_message(help, trace_help),
 	fail.
 
 '$skipeol'(10) :- !.

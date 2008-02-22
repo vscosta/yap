@@ -695,8 +695,15 @@ p_thread_runtime(void)
   return Yap_unify(ARG1,MkIntTerm(0));
 }
 
+static Int 
+p_thread_self(void)
+{				/* '$thread_runtime'(+P)	 */
+  return Yap_unify(ARG1,MkIntTerm(0));
+}
+
 void Yap_InitThreadPreds(void)
 {
+  Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$no_threads", 0, p_no_threads, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$max_threads", 1, p_max_threads, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$nof_threads", 1, p_nof_threads, SafePredFlag|HiddenPredFlag);

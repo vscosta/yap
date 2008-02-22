@@ -26,7 +26,8 @@
 :- initialization('$init_thread0').
 
 '$init_thread0' :-
-	no_threads, !.
+	no_threads, !,
+	recorda('$thread_alias', [0|main], _).
 '$init_thread0' :-
 	'$record_thread_info'(0, main, [0, 0, 0], false, '$init_thread0'),
 	recorda('$thread_defaults', [0, 0, 0, false], _),

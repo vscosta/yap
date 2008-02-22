@@ -665,7 +665,7 @@ abolish(X) :-
 	'$access_yap_flags'(8, 2), % only do this in sicstus mode
 	'$undefined'(G, Module),
 	functor(G,Name,Arity),
-	'$print_message'(warning,no_match(abolish(Module:Name/Arity))).
+	print_message(warning,no_match(abolish(Module:Name/Arity))).
 % I cannot allow modifying static procedures in YAPOR
 % this code has to be here because of abolish/2
 '$abolishs'(G, Module) :-
@@ -974,3 +974,7 @@ current_key(A,K) :-
 
 % do nothing for now.
 '$noprofile'(_, _).
+
+'$notrace'(G) :-
+	\+ '$undefined'(G, prolog),
+	call(G).

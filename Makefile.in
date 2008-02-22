@@ -185,10 +185,14 @@ PL_SOURCES= \
 	$(srcdir)/pl/checker.yap $(srcdir)/pl/chtypes.yap \
 	$(srcdir)/pl/consult.yap \
 	$(srcdir)/pl/corout.yap $(srcdir)/pl/debug.yap \
+	$(srcdir)/pl/depth_bound.yap \
 	$(srcdir)/pl/directives.yap \
+	$(srcdir)/pl/eam.yap \
 	$(srcdir)/pl/errors.yap	$(srcdir)/pl/grammar.yap \
-	$(srcdir)/pl/ground.yap $(srcdir)/pl/init.yap \
-	$(srcdir)/pl/depth_bound.yap $(srcdir)/pl/listing.yap \
+	$(srcdir)/pl/ground.yap
+	$(srcdir)/pl/hacks.yap
+	$(srcdir)/pl/init.yap \
+	$(srcdir)/pl/listing.yap \
 	$(srcdir)/pl/load_foreign.yap \
 	$(srcdir)/pl/modules.yap $(srcdir)/pl/preds.yap \
 	$(srcdir)/pl/profile.yap \
@@ -199,7 +203,6 @@ PL_SOURCES= \
 	$(srcdir)/pl/strict_iso.yap \
 	$(srcdir)/pl/tabling.yap $(srcdir)/pl/threads.yap \
 	$(srcdir)/pl/utils.yap \
-	$(srcdir)/pl/eam.yap \
 	$(srcdir)/pl/yapor.yap $(srcdir)/pl/yio.yap
 
 YAPDOCS=$(srcdir)/docs/yap.tex $(srcdir)/docs/chr.tex \

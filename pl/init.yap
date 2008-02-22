@@ -91,6 +91,12 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 :- 	['corout.yap',
 	 'arrays.yap'].
 
+:- use_module('messages.yap').
+:- use_module('hacks.yap').
+
+'$system_module'('$message').
+'$system_module'('$hacks').
+
 yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- '$change_type_of_char'(36,7). % Make $ a symbol character
@@ -100,15 +106,6 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 :- multifile user:library_directory/1.
 
 :- dynamic user:library_directory/1.
-
-:-  (
-     prolog:'$system_library_directories'(D),
-     write(D),nl,
-     assert(user:library_directory(D)),
-     fail
-    ;
-     true
-    ).
 
 %
 % cleanup ensure loaded and recover some data-base space.
@@ -128,6 +125,10 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- system_mode(verbose,on).
 
+:- multifile prolog:message/3.
+
+:- dynamic prolog:message/3.
+
 :- module(user).
 
 :- multifile goal_expansion/3.
@@ -141,6 +142,10 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 :- multifile file_search_path/2.
 
 :- dynamic file_search_path/2.
+
+:- multifile generate_message_hook/3.
+
+:- dynamic generate_message_hook/3.
 
 file_search_path(library, Dir) :-
 	library_directory(Dir).

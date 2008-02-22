@@ -1233,6 +1233,8 @@ post_process_eof(StreamDesc *s)
 static int
 console_post_process_read_char(int ch, StreamDesc *s)
 {
+  /* the character is also going to be output by the console handler */
+  console_count_output_char(ch,Stream+StdErrStream);
   if (ch == '\n') {
     ++s->linecount;
     ++s->charcount;
