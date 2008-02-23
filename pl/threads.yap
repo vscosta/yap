@@ -801,9 +801,10 @@ threads :-
 	write('------------------------------------------------------------------------'), nl,
 	format("~t~a~48+~n", 'Thread  Detached  Status'),
 	write('------------------------------------------------------------------------'), nl,
-	thread_property(Thread, detached(Detached)),
-	thread_property(Thread, status(Status)),
-	'$thread_id_alias'(Thread, Alias),
+	recorded('$thread_sizes', [Id| _], _),
+	recorded('$thread_detached', [Id| Detached], _),
+	'$thread_property'(Id, status(Status)),
+	'$thread_id_alias'(Id, Alias),
 	format("~t~q~30+~33|~w~42|~q~n", [Alias, Detached, Status]),
 	fail.
 threads :-
