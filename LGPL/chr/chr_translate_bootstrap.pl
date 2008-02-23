@@ -1,4 +1,4 @@
-/*  $Id: chr_translate_bootstrap.pl,v 1.4 2007-10-16 23:17:03 vsc Exp $
+/*  $Id: chr_translate_bootstrap.pl,v 1.5 2008-02-23 01:32:30 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -609,7 +609,6 @@ generate_detach_a_constraint_1_1(CFct / CAty,Mod,Clause) :-
 		RecursiveCall
 	),
 	Clause = (Head :- Body).
-
 generate_detach_a_constraint_t_p(Total,Position,CFct / CAty ,Mod,Clause) :-
 	atom_concat_list(['detach_',CFct, (/) ,CAty],Fct),
 	Args = [[Var|Vars],Susp],
@@ -2287,7 +2286,6 @@ create_get_mutable_ref(V,M,GM) :- GM = (M = mutable(V)).
 %% SICStus end
 
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2507,3 +2505,4 @@ verbosity_on :- prolog_flag(verbose,V), V == yes.
 %% SICStus begin
 %% verbosity_on.  % at the moment
 %% SICStus end
+

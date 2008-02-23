@@ -11,7 +11,7 @@
 * File:		utilities for displaying messages in YAP.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-02-22 15:08:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-02-23 01:32:31 $,$Author: vsc $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -445,15 +445,8 @@ print_message_line(S, [Fmt|T0], T) :-
 	format(S, Fmt, []),
 	print_message_line(S, T0, T).
 
-prefix(error,   '     ', '', user_error) -->
-	{ nb_getval(sp_info,local_sp(P,_,_,_)) },
-	[ 'ERROR at ' ],
-	'$hacks':display_pc(P), !,
-	[' !!', nl].
-prefix(error,   '     ', '', user_error) -->
-	[ 'ERROR!! ', nl ].
-prefix(warning, '% ', '', user_error) -->
-	[ 'Warning:', nl ].
+prefix(error,   '     ', user_error, 'ERROR!! ').
+prefix(warning, '% ', user_error, 'Warning: ').
 
 prefix(help,	      '',          user_error) --> [].
 prefix(query,	      '',          user_error) --> [].

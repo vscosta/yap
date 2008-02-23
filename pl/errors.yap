@@ -11,8 +11,13 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-02-22 15:08:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-02-23 01:32:31 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.85  2008/02/22 15:08:37  vsc
+* Big update to support more SICStus/SWI like message handling
+* fix YAPSHAREDIR
+* fix yap.tex (Bernd)
+*
 * Revision 1.84  2008/01/23 17:57:55  vsc
 * valgrind it!
 * enable atom garbage collection.
@@ -259,7 +264,7 @@ print_message(_, Term) :-
 	% make sure we don't give a PC.
 	print_message_lines(Stream, LinePrefix, Lines).
 '$print_system_message'(Term, Level, Lines) :-
-	'$message':prefix(Level, Prefix, EndPrefix, Stream, LinePrefix, Lines),
+	'$message':prefix(Level, LinePrefix, Stream, Prefix),
 	'$message':file_location(Prefix, LinesF, Lines), !,
 	flush_output(user_output),
 	flush_output(user_error),

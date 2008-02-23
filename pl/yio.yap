@@ -1069,3 +1069,4 @@ stream_position_data(line_count, '$stream_position'(_,Data,_,_,_), Data).
 stream_position_data(line_position, '$stream_position'(_,_,Data,_,_), Data).
 %stream_position_data(char_count, '$stream_position'(Data,_,_,_,_), Data).
 stream_position_data(byte_count, '$stream_position'(Data,_,_,_,_), Data).
+
