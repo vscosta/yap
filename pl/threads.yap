@@ -523,7 +523,7 @@ message_queue_create(Id, [alias(Alias)]) :-
 message_queue_create(Id, [alias(Alias)]) :-
 	\+ atom(Alias), !,
 	'$do_error'(type_error(atom,Alias), message_queue_create(Id, [alias(Alias)])).
-message_queue_create(Id, [alias(Alias)]) :-
+message_queue_create(Id, [alias(Alias)]) :- !,
 	'$global_queue_mutex'(QMutex),
 	'$lock_mutex'(QMutex),
 	'$new_mutex'(Mutex),
@@ -538,13 +538,17 @@ message_queue_create(Id, [alias(Alias)]) :-
 	;	recorda('$queue',q(Alias,Mutex,Cond,Id), _),
 		'$unlock_mutex'(QMutex)
 	).
+message_queue_create(Id, [Option| _]) :-
+	'$do_error'(domain_error(queue_option, Option), message_queue_create(Id, [Option| _])).
+message_queue_create(Id, Options) :-
+	'$do_error'(type_error(list, Options), message_queue_create(Id, Options)).
 
 message_queue_create(Id) :-
 	(	var(Id) ->		% ISO DTR
 		message_queue_create(Id, [])
 	;	atom(Id) ->		% old behavior
 		message_queue_create(_, [alias(Id)])
-	;	
+	;	'$do_error'(type_error(variable, Id), message_queue_create(Id)).
 	).
 */
 message_queue_create(_, [alias(Alias)]) :-	% TEMPORARY FIX
