@@ -407,6 +407,45 @@ yap_flag(min_tagged_integer,X) :-
 yap_flag(min_tagged_integer,X) :-
 	'$do_error'(domain_error(flag_value,min_tagged_integer+X),yap_flag(min_tagged_integer,X)).
 
+/* ISO Core Revision DTR: new float flags
+
+yap_flag(ﬂoat_mantissa_digits,X) :-
+	var(X), !,
+	?????
+yap_flag(ﬂoat_mantissa_digits,X) :-
+	integer(X), X > 0, !,
+	'$do_error'(permission_error(modify,flag,ﬂoat_mantissa_digits),yap_flag(ﬂoat_mantissa_digits,X)).
+yap_flag(ﬂoat_mantissa_digits,X) :-
+	'$do_error'(domain_error(flag_value,ﬂoat_mantissa_digits+X),yap_flag(ﬂoat_mantissa_digits,X)).
+
+yap_flag(ﬂoat_epsilon,X) :-
+	var(X), !,
+	?????
+yap_flag(ﬂoat_epsilon,X) :-
+	float(X), X > 0, !,
+	'$do_error'(permission_error(modify,flag,ﬂoat_epsilon),yap_flag(ﬂoat_epsilon,X)).
+yap_flag(ﬂoat_epsilon,X) :-
+	'$do_error'(domain_error(flag_value,ﬂoat_epsilon+X),yap_flag(ﬂoat_epsilon,X)).
+
+yap_flag(ﬂoat_min_exponent,X) :-
+	var(X), !,
+	?????
+yap_flag(ﬂoat_min_exponent,X) :-
+	integer(X), X > 0, !,
+	'$do_error'(permission_error(modify,flag,ﬂoat_min_exponent),yap_flag(ﬂoat_min_exponent,X)).
+yap_flag(ﬂoat_epsilon,X) :-
+	'$do_error'(domain_error(flag_value,ﬂoat_min_exponent+X),yap_flag(ﬂoat_min_exponent,X)).
+
+yap_flag(ﬂoat_max_exponent,X) :-
+	var(X), !,
+	?????
+yap_flag(ﬂoat_max_exponent,X) :-
+	integer(X), X > 0, !,
+	'$do_error'(permission_error(modify,flag,ﬂoat_max_exponent),yap_flag(ﬂoat_max_exponent,X)).
+yap_flag(ﬂoat_max_exponent,X) :-
+	'$do_error'(domain_error(flag_value,ﬂoat_max_exponent+X),yap_flag(ﬂoat_max_exponent,X)).
+*/
+
 yap_flag(char_conversion,X) :-
 	var(X), !,
 	'$access_yap_flags'(5, X1),
@@ -755,65 +794,69 @@ yap_flag(dialect,yap).
 
 '$show_yap_flag_opts'(V,Out) :-
 	(
-	    V = answer_format ;
-	    V = argv ;
-	    V = bounded ;
-	    V = char_conversion ;
-	    V = character_escapes ;
-            V = chr_toplevel_show_store ;
-	    V = debug ;
-	    V = debugger_print_options ;
-	    V = dialect ;
-	    V = discontiguous_warnings ;
-	    V = dollar_as_lower_case ;
-	    V = double_quotes ;
-	    V = encoding ;
-%	    V = fast  ;
-	    V = fileerrors  ;
-	    V = float_format ;
-	    V = gc    ;
-	    V = gc_margin    ;
-	    V = gc_trace     ;
-	    V = generate_debug_info     ;
+		V = answer_format ;
+		V = argv ;
+		V = bounded ;
+		V = char_conversion ;
+		V = character_escapes ;
+		    V = chr_toplevel_show_store ;
+		V = debug ;
+		V = debugger_print_options ;
+		V = dialect ;
+		V = discontiguous_warnings ;
+		V = dollar_as_lower_case ;
+		V = double_quotes ;
+		V = encoding ;
+%		V = fast  ;
+		V = fileerrors  ;
+		V = float_format ;
+		V = gc    ;
+		V = gc_margin    ;
+		V = gc_trace     ;
+		V = generate_debug_info     ;
 %	    V = hide  ;
-	    V = home  ;
-	    V = host_type  ;
-	    V = index ;
-	    V = tabling_mode ;
-	    V = informational_messages ;
-	    V = integer_rounding_function ;
-	    V = language ;
-	    V = max_arity ;
-	    V = max_integer ;
-	    V = max_tagged_integer ;
-	    V = max_threads ;
-	    V = min_integer ;
-	    V = min_tagged_integer ;
-            V = n_of_integer_keys_in_db ;
-	    V = profiling ;
-	    V = redefine_warnings ;
-	    V = shared_object_search_path ;
-	    V = single_var_warnings ;
-	    V = stack_dump_on_error ;
-	    V = strict_iso ;
-	    V = syntax_errors ;
-	    V = system_options ;
-	    V = to_chars_mode ;
-	    V = toplevel_hook ;
-	    V = toplevel_print_options ;
-	    V = typein_module ;
-	    V = unix ;
-	    V = unknown ;
-	    V = update_semantics ;
-            V = user_error ;
-	    V = user_input ;
-            V = user_output ;
-            V = variable_names_may_end_with_quotes ;
-            V = verbose_auto_load ;
-            V = version ;
-            V = version_data ;
-	    V = windows ;
-            V = write_strings
+		V = home  ;
+		V = host_type  ;
+		V = index ;
+		V = tabling_mode ;
+		V = informational_messages ;
+		V = integer_rounding_function ;
+		V = language ;
+		V = max_arity ;
+		V = max_integer ;
+		V = max_tagged_integer ;
+		V = max_threads ;
+		V = min_integer ;
+		V = min_tagged_integer ;
+%		V = ﬂoat_mantissa_digits ;
+%		V = ﬂoat_epsilon ;
+%		V = ﬂoat_min_exponent ;
+%		V = ﬂoat_max_exponent ;
+		V = n_of_integer_keys_in_db ;
+		V = profiling ;
+		V = redefine_warnings ;
+		V = shared_object_search_path ;
+		V = single_var_warnings ;
+		V = stack_dump_on_error ;
+		V = strict_iso ;
+		V = syntax_errors ;
+		V = system_options ;
+		V = to_chars_mode ;
+		V = toplevel_hook ;
+		V = toplevel_print_options ;
+		V = typein_module ;
+		V = unix ;
+		V = unknown ;
+		V = update_semantics ;
+		V = user_error ;
+		V = user_input ;
+		V = user_output ;
+		V = variable_names_may_end_with_quotes ;
+		V = verbose_auto_load ;
+		V = version ;
+		V = version_data ;
+		V = windows ;
+		V = write_strings
 	),
 	yap_flag(V, Out).
 
