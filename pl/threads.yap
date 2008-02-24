@@ -767,7 +767,7 @@ thread_property(Prop) :-
 thread_property(Id, Prop) :-
 	(	nonvar(Id) ->
 		'$check_thread_or_alias'(Id, thread_property(Id, Prop))
-	;	'$current_thread'(Id)
+	;	recorded('$thread_sizes', [Id| _], _)
 	),
 	'$check_thread_property'(Prop, thread_property(Id, Prop)),
 	'$thread_id_alias'(Id0, Id),
@@ -790,23 +790,11 @@ thread_property(Id, Prop) :-
 	recorded('$thread_sizes', [Id, _, _, System], _).
 
 
-'$current_thread'(Id) :-
-	'$current_thread'(0, Id).
-
-'$current_thread'(Id, Id) :-
-	'$valid_thread'(Id).
-'$current_thread'(Id, NextId) :-
-	'$valid_thread'(Id),
-	Id2 is Id + 1,
-	'$current_thread'(Id2, NextId).
-
-
 threads :-
 	write('------------------------------------------------------------------------'), nl,
 	format("~t~a~48+~n", 'Thread  Detached  Status'),
 	write('------------------------------------------------------------------------'), nl,
-	recorded('$thread_sizes', [Id| _], _),
-	recorded('$thread_detached', [Id| Detached], _),
+	'$thread_property'(Id, detached(Detached)),
 	'$thread_property'(Id, status(Status)),
 	'$thread_id_alias'(Id, Alias),
 	format("~t~q~30+~33|~w~42|~q~n", [Alias, Detached, Status]),
