@@ -11,7 +11,7 @@
 * File:		utilities for displaying messages in YAP.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-02-23 01:32:31 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-02-25 10:15:31 $,$Author: vsc $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -58,7 +58,7 @@ generate_message(prompt(BreakLevel,TraceDebug)) --> !,
 	    )
 	;
 	    (
-	     var(TraceDebug) ->
+	     { var(TraceDebug) } ->
 	     [ '~d' - [BreakLevel] ]
 	    ;
 	     [ '~d ~a' - [BreakLevel, TraceDebug] ]
@@ -252,7 +252,7 @@ system_message(error(system_error(Message), Where)) -->
 system_message(error(type_error(T,_,Err,M), _Where)) -->
 	[ 'TYPE ERROR- ~w: expected ~w, got ~w' - [T,Err,M] ].
 system_message(error(type_error(TE,W), Where)) -->
-	{ type_error(TE, M) }, !,
+	{ object_name(TE, M) }, !,
 	[ 'TYPE ERROR- ~w: expected ~a, got ~w' - [Where,M,W] ].
 system_message(error(type_error(TE,W), Where)) -->
 	[ 'TYPE ERROR- ~w: expected ~q, got ~w' - [Where,TE,W] ].
@@ -302,7 +302,7 @@ domain_error(predicate_spec, Opt) --> !,
 	[ '~w invalid predicate specifier' - [Opt] ].
 domain_error(radix, Opt) --> !,
 	[ 'invalid radix ~w' - [Opt] ].
-domain_error(read_option, Opt) --> !,
+vdomain_error(read_option, Opt) --> !,
 	[ '~w invalid option to read_term' - [Opt] ].
 domain_error(semantics_indicatior, Opt) --> !,
 	[ '~w expected predicate indicator, got ~w' - [Opt] ].
