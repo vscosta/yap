@@ -35,8 +35,8 @@
 				dgraph_edges/2
 			      ]).
 
-:- use_module(library(lists), [
-	member/2]).
+:- use_module(library(lists), [append/3,
+	member/2,nth/3]).
 
 :- use_module(library(ordsets), [
 	ord_insert/3]).
@@ -60,6 +60,7 @@ bnt_solver(jtree).
 % likelihood_weighting
 
 bnt_path('$HOME/Yap/CLPBN/FullBNT-1.0.4/BNT').
+
 
 %
 % What BNT are we using:
@@ -92,9 +93,9 @@ do_bnt(QueryVars, AllVars, AllDiffs)  :-
 	create_bnt_graph(AllVars, _, SortedVertices, NumberedVertices, Size),
 	set_inference,
 	add_evidence(SortedVertices, Size, NumberedVertices),
-	marginalize(QueryVars, Ps),
+	marginalize(QueryVars, SortedVertices, NumberedVertices, Ps),
 	clpbn_bind_vals(QueryVars, Ps, AllDiffs).
-
+	
 create_bnt_graph(AllVars, Representatives) :-
 	create_bnt_graph(AllVars, Representatives, _, _, _).
 
@@ -222,8 +223,8 @@ init_bnet(propositional, SortedGraph, NumberedGraph, Size, []) :-
 	build_dag(SortedGraph, Size),
 	init_discrete_nodes(SortedGraph, Size),
 	bnet <-- mk_bnet(dag, node_sizes, \discrete, discrete_nodes),
-	dump_cpts(SortedGraph, NumberedGraph),
-	matlab_eval_string('bnet.CPD{3}',S),format('~s~n',[S]).
+	dump_cpts(SortedGraph, NumberedGraph).
+	
 init_bnet(tied, SortedGraph, NumberedGraph, Size, Representatives) :-
 	build_dag(SortedGraph, Size),
 	init_discrete_nodes(SortedGraph, Size),
@@ -374,11 +375,12 @@ init_solver(var_elim) :-
 add_evidence(Graph, Size, Is) :-
 	mk_evidence(Graph, Is, LN),
 	matlab_initialized_cells( 1, Size, LN, evidence),
-	[engine, loglik] <-- enter_evidence(engine, evidence).
-
+	[engine_ev, loglik] <-- enter_evidence(engine, evidence).
+	
 mk_evidence([], [], []).
-mk_evidence([V|L], [I|Is], [ar(1,I,EvVal)|LN]) :-
+mk_evidence([V|L], [I|Is], [ar(1,I,EvVal1)|LN]) :-
 	clpbn:get_atts(V, [evidence(EvVal)]), !,
+	EvVal1 is EvVal +1,
 	mk_evidence(L, Is, LN).
 mk_evidence([_|L], [_|Is], LN) :-
 	mk_evidence(L, Is, LN).
@@ -388,8 +390,37 @@ evidence_val(Ev,I0,[_|Domain],Val) :-
 	I1 is I0+1,
 	evidence_val(Ev,I1,Domain,Val).
 
-marginalize([V], Ps) :- !,
+marginalize([V], _SortedVars,_NunmberedVars, Ps) :- !,
 	v2number(V,Pos),
-	marg <-- marginal_nodes(engine, Pos),
+	marg <-- marginal_nodes(engine_ev, Pos),
 	matlab_get_variable( marg.'T', Ps).
+
+marginalize(Vs, SortedVars, NumberedVars,Ps) :-
+	bnt_solver(jtree),!,
+	matlab_get_variable(loglik, Den),
+	D is exp(Den),
+	clpbn_display:get_all_combs(Vs, Vals),
+	mk_evidence(SortedVars, NumberedVars, Ev),
+	length(SortedVars,L),
+	cycle_values(Den, Ev, Vs, L, Vals, Ps).
+
+cycle_values(_D, Ev, _Vs, _Size, [], []).	
+
+cycle_values(Den,Ev,Vs,Size,[H|T],[HP|TP]):-
+	mk_evidence_query(Vs, H, EvQuery),
+	append(EvQuery,Ev,Instantiation),
+	matlab_initialized_cells( 1, Size, Instantiation, instantiation),
+	[engine_ev, logll] <-- enter_evidence(engine, instantiation),
+	matlab_get_variable(logll, Num),
+	HP is exp(Num-Den),
+	cycle_values(Den,Ev,Vs,Size,T,TP).
+
+mk_evidence_query([], [], []).
+mk_evidence_query([V|L], [H|T], [ar(1,Pos,El)|LN]) :-
+	v2number(V,Pos),
+	clpbn:get_atts(V, [dist(Id,_)]),
+	get_dist_domain(Id,D),
+	nth(El,D,H),
+	mk_evidence_query(L, T, LN).
+	
 
