@@ -59,7 +59,7 @@ G <-- Y :-
 bnt_solver(jtree).
 % likelihood_weighting
 
-bnt_path('$HOME/Yap/CLPBN/FullBNT-1.0.4/BNT').
+bnt_path("$HOME/Yap/CLPBN/FullBNT-1.0.4/BNT").
 
 
 %
