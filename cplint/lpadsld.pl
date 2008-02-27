@@ -53,7 +53,7 @@ CPUTime1 is the cpu time for performing resolution
 CPUTime2 is the cpu time for elaborating the BDD 
 WallTime1 is the wall time for performing resolution
 WallTime2 is the wall time for elaborating the BDD */
-*/
+
 
 s(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 	solve(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2).
