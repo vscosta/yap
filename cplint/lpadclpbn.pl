@@ -8,7 +8,7 @@
 */
 
 :- module(lpadclpbn, [p/1,
-		  s/2,sc/3]).
+		  s/2,sc/3,s/6,sc/7]).
 
 
 :-dynamic rule/4,def_rule/2,setting/2.
@@ -35,10 +35,22 @@ not appearing in the head, the body represents an existential event */
 
 /* end of list of parameters */
 
-/* s(GoalsLIst,Prob) compute the probability of a list of goals 
-GoalsLis can have variables, s returns in backtracking all the solutions with their
-corresponding probability */
+/* s(GoalsList,Prob) compute the probability of a list of goals 
+GoalsLis can have variables, s returns in backtracking all the solutions with 
+their corresponding probability */
+s(GL,P):-
+	setof(Deriv,find_deriv(GL,Deriv),LDup),
+	append_all(LDup,[],L),
+	remove_head(L,L1),
+	remove_duplicates(L1,L2),
+	build_ground_lpad(L2,0,CL),
+	convert_to_clpbn(CL,GL,LV,P).
 
+/* sc(GoalsList,EvidenceList,Prob) compute the probability of a list of goals 
+GoalsList given EvidenceList. Both lists can have variables, sc returns in 
+backtracking all the solutions with their corresponding probability 
+Time1 is the time for performing resolution
+Time2 is the time for performing bayesian inference */
 sc(GL,GLC,P):-
 	setof(Deriv,find_deriv(GL,Deriv),LDup),
 	setof(Deriv,find_deriv(GLC,Deriv),LDupC),
@@ -52,13 +64,56 @@ sc(GL,GLC,P):-
 	convert_to_clpbn(CL,GL,LV,P,GLC).
 
 
-s(GL,P):-
+
+/* s(GoalsList,Prob,Time1,Time2) compute the probability of a list of goals 
+GoalsLis can have variables, s returns in backtracking all the solutions with 
+their corresponding probability 
+Time1 is the time for performing resolution
+Time2 is the time for performing bayesian inference */
+s(GL,P,Time1,Time2):-
+	statistics(cputime,[_,_]),
+	statistics(walltime,[_,_]),
 	setof(Deriv,find_deriv(GL,Deriv),LDup),
 	append_all(LDup,[],L),
 	remove_head(L,L1),
 	remove_duplicates(L1,L2),
+	statistics(cputime,[_,CT1]),
+	CPUTime1 is CT1/1000,
+	statistics(walltime,[_,WT1]),
+	WallTime1 is WT1/1000,
 	build_ground_lpad(L2,0,CL),
-	convert_to_clpbn(CL,GL,LV,P).
+	convert_to_clpbn(CL,GL,LV,P),
+	statistics(cputime,[_,CT2]),
+	CPUTime2 is CT2/1000,
+	statistics(walltime,[_,WT2]),
+	WallTime2 is WT2/1000.
+
+/* sc(GoalsList,EvidenceList,Prob) compute the probability of a list of goals 
+GoalsList given EvidenceList. Both lists can have variables, sc returns in 
+backtracking all the solutions with their corresponding probability */
+
+sc(GL,GLC,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
+	statistics(cputime,[_,_]),
+	statistics(walltime,[_,_]),
+	setof(Deriv,find_deriv(GL,Deriv),LDup),
+	setof(Deriv,find_deriv(GLC,Deriv),LDupC),
+	append_all(LDup,[],L),
+	remove_head(L,L1),
+	append_all(LDupC,[],LC),
+	remove_head(LC,LC1),
+	append(L1,LC1,LD),
+	remove_duplicates(LD,LD1),
+	statistics(cputime,[_,CT1]),
+	CPUTime1 is CT1/1000,
+	statistics(walltime,[_,WT1]),
+	WallTime1 is WT1/1000,
+	build_ground_lpad(LD1,0,CL),
+	convert_to_clpbn(CL,GL,LV,P,GLC),
+	statistics(cputime,[_,CT2]),
+	CPUTime2 is CT2/1000,
+	statistics(walltime,[_,WT2]),
+	WallTime2 is WT2/1000.
+
 
 remove_head([],[]).
 

@@ -46,6 +46,43 @@ solve(GoalsList,Prob):-
 solve(GoalsList,0):-
 	\+ find_deriv(GoalsList,_Deriv).
 
+/* s(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2) compute the probability of a list of goals 
+GoalsLis can have variables, s returns in backtracking all the solutions with 
+their corresponding probability 
+CPUTime1 is the cpu time for performing resolution
+CPUTime2 is the cpu time for elaborating the BDD 
+WallTime1 is the wall time for performing resolution
+WallTime2 is the wall time for elaborating the BDD */
+*/
+
+s(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
+	solve(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2).
+
+
+solve(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
+	statistics(cputime,[_,_]),
+	statistics(walltime,[_,_]),
+	setof(Deriv,find_deriv(GoalsList,Deriv),LDup),
+	rem_dup_lists(LDup,[],L),
+	statistics(cputime,[_,CT1]),
+	CPUTime1 is CT1/1000,
+	statistics(walltime,[_,WT1]),
+	WallTime1 is WT1/1000,
+	build_formula(L,Formula,[],Var),
+	var2numbers(Var,0,NewVar),
+	(setting(save_dot,true)->
+		format("Variables: ~p~n",[Var]),
+		compute_prob(NewVar,Formula,Prob,1)
+	;
+		compute_prob(NewVar,Formula,Prob,0)
+	),
+	statistics(cputime,[_,CT2]),
+	CPUTime2 is CT2/1000,
+	statistics(walltime,[_,WT2]),
+	WallTime2 is WT2/1000,!.
+
+
+
 find_deriv(GoalsList,Deriv):-
 	solve(GoalsList,[],DerivDup),
 	remove_duplicates(DerivDup,Deriv). 
@@ -56,29 +93,85 @@ same clause when instantiated */
 Goals given the list of goals Evidence 
 Goals and Evidence can have variables, sc returns in backtracking all the solutions with their
 corresponding probability 
-if it fails, the conditional probability is undefined
 */
 sc(Goals,Evidence,Prob):-
 	solve_cond(Goals,Evidence,Prob).
 
 solve_cond(Goals,Evidence,Prob):-
-	setof(DerivE,find_deriv(Evidence,DerivE),LDupE),
-	rem_dup_lists(LDupE,[],LE),
-	build_formula(LE,FormulaE,[],VarE),
-	var2numbers(VarE,0,NewVarE),
-	compute_prob(NewVarE,FormulaE,ProbE,0),
-	solve_cond_goals(Goals,LE,ProbGE),
-	Prob is ProbGE/ProbE.
+	(setof(DerivE,find_deriv(Evidence,DerivE),LDupE)->
+		rem_dup_lists(LDupE,[],LE),
+		(setof(DerivGE,find_deriv_GE(LE,Goals,DerivGE),LDupGE)->
+			rem_dup_lists(LDupGE,[],LGE),
+			build_formula(LE,FormulaE,[],VarE),
+			var2numbers(VarE,0,NewVarE),
+			build_formula(LGE,FormulaGE,[],VarGE),
+			var2numbers(VarGE,0,NewVarGE),
+			compute_prob(NewVarE,FormulaE,ProbE,0),
+			call_compute_prob(NewVarGE,FormulaGE,ProbGE),
+			Prob is ProbGE/ProbE
+		;
+			Prob=0.0
+		)
+	;
+		Prob=undefined
+	).
 
-solve_cond_goals(Goals,LE,ProbGE):-
-	setof(DerivGE,find_deriv_GE(LE,Goals,DerivGE),LDupGE),
-	rem_dup_lists(LDupGE,[],LGE),
-	build_formula(LGE,FormulaGE,[],VarGE),
-	var2numbers(VarGE,0,NewVarGE),
-	call_compute_prob(NewVarGE,FormulaGE,ProbGE).
+/* sc(Goals,Evidence,Prob,Time1,Time2) compute the conditional probability of the list of goals
+Goals given the list of goals Evidence 
+Goals and Evidence can have variables, sc returns in backtracking all the solutions with their
+corresponding probability 
+Time1 is the time for performing resolution
+Time2 is the time for elaborating the two BDDs
+*/
+sc(Goals,Evidence,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
+	solve_cond(Goals,Evidence,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2).
 
-solve_cond_goals(Goals,LE,0):-
-	\+ find_deriv_GE(LE,Goals,_DerivGE).
+solve_cond(Goals,Evidence,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
+	statistics(cputime,[_,_]),
+	statistics(walltime,[_,_]),
+	(setof(DerivE,find_deriv(Evidence,DerivE),LDupE)->
+		rem_dup_lists(LDupE,[],LE),
+		(setof(DerivGE,find_deriv_GE(LE,Goals,DerivGE),LDupGE)->
+			rem_dup_lists(LDupGE,[],LGE),
+			statistics(cputime,[_,CT1]),
+			CPUTime1 is CT1/1000,
+			statistics(walltime,[_,WT1]),
+			WallTime1 is WT1/1000,
+			build_formula(LE,FormulaE,[],VarE),
+			var2numbers(VarE,0,NewVarE),
+			build_formula(LGE,FormulaGE,[],VarGE),
+			var2numbers(VarGE,0,NewVarGE),
+			compute_prob(NewVarE,FormulaE,ProbE,0),
+			call_compute_prob(NewVarGE,FormulaGE,ProbGE),
+			Prob is ProbGE/ProbE,
+			statistics(cputime,[_,CT2]),
+			CPUTime2 is CT2/1000,
+			statistics(walltime,[_,WT2]),
+			WallTime2 is WT2/1000
+		;
+			Prob=0.0,
+			statistics(cputime,[_,CT1]),
+			CPUTime1 is CT1/1000,
+			statistics(walltime,[_,WT1]),
+			WallTime1 is WT1/1000,
+			CPUTime2=0.0,
+			WallTime2=0.0
+		)
+	;
+		Prob=undefined,
+			statistics(cputime,[_,CT1]),
+			CPUTime1 is CT1/1000,
+			statistics(walltime,[_,WT1]),
+			WallTime1 is WT1/1000,
+			CPUTime2=0.0,
+			WallTime2=0.0
+	).
+
+solve_cond_goals(Goals,LE,0,Time1,0):-
+	statistics(runtime,[_,_]),
+	\+ find_deriv_GE(LE,Goals,_DerivGE),
+	statistics(runtime,[_,T1]),
+	Time1 is T1/1000.
 
 call_compute_prob(NewVarGE,FormulaGE,ProbGE):-
 	(setting(save_dot,true)->
