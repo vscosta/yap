@@ -5,11 +5,13 @@
 	   split/3,
 	   glue/3,
 	   filter/3,
+	   file_filter/3,
+	   process/2,
 	   copy_line/2,
 	   file_filter/3
 	  ]).
 
-:- meta_predicate filter(+,+,:).
+:- meta_predicate filter(+,+,:), file_filter(+,+,:), process(+,:).
 
 :- use_module(library(lists),
 	      [member/2,
@@ -77,6 +79,19 @@ filter(StreamInp, StreamOut, Command) :-
 	;
 	 call(Command, Line, NewLine),
 	 format(StreamOut, '~s~n', [NewLine]),
+	 fail
+	).
+
+
+process(StreamInp, Command) :-
+	repeat,
+	read_line_to_codes(StreamInp, Line),
+	(
+	 Line == end_of_file
+	->
+	 true
+	;
+	 call(Command, Line),
 	 fail
 	).
 
