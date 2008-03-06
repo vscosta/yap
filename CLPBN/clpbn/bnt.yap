@@ -59,7 +59,7 @@ G <-- Y :-
 bnt_solver(jtree).
 % likelihood_weighting
 
-bnt_path("$HOME/Yap/CLPBN/FullBNT-1.0.4/BNT").
+bnt_path("/home/fabrizio/Desktop/cplint/cplint/trunk/FullBNT-1.0.4/BNT").
 
 
 %
@@ -259,6 +259,7 @@ mkdag(N,Els) :-
 	add_els(Els,N,Dag),
 	Dag=..[_|L],
 	addzeros(L),
+	format("prova",[]),
 	matlab_matrix(N,N,L,dag).
 
 add_els([],_,_).

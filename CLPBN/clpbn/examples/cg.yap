@@ -5,6 +5,8 @@
 
 :- use_module(library(clpbn)).
 
+cg(P,P1):-cg(s,1,P),cg(f,1,P1).
+
 cg(X,1,C):-
     father(Y,X),
     cg(Y,1,C1),cg(Y,2,C2),

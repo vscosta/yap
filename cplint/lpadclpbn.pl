@@ -8,7 +8,7 @@
 */
 
 :- module(lpadclpbn, [p/1,
-		  s/2,sc/3,s/6,sc/7]).
+		  s/2,sc/3,s/6,sc/7,set/2,setting/2]).
 
 
 :-dynamic rule/4,def_rule/2,setting/2.
@@ -32,6 +32,8 @@ setting(ground_body,true).
 if true, both the head and the body of each clause will be grounded, otherwise
 only the head is grounded. In the case in which the body contains variables 
 not appearing in the head, the body represents an existential event */
+
+setting(cpt_zero,0.0001). 
 
 /* end of list of parameters */
 
@@ -214,7 +216,8 @@ build_col_conj([],Tr,Final,Row0,Row1):-
 	(Tr=Final->
 		append(Row0,[1.0],Row1)
 	;
-		append(Row0,[0.0],Row1)
+		setting(cpt_zero,Zero),
+		append(Row0,[Zero],Row1)
 	).
 
 build_col_conj([\+H|RP],Tr,Final,Row0,Row2):-!,
@@ -233,7 +236,8 @@ build_col(A,[],Tr,Found,Row0,Row1):-
 	(Tr=Found->
 		append(Row0,[1.0],Row1)
 	;
-		append(Row0,[0.0],Row1)
+		setting(cpt_zero,Zero),
+		append(Row0,[Zero],Row1)
 	).
 
 build_col(A,[(N,H)|RP],Tr,Found,Row0,Row1):-
@@ -277,7 +281,8 @@ build_table([P],L,Row):-!,
 	build_col(L,t,P,1.0,Row).
 
 build_table([HP|TP],L,Tab):-
-	build_col(L,t,HP,0.0,Row),
+	setting(cpt_zero,Zero),
+	build_col(L,t,HP,Zero,Row),
 	append(Row,Row1,Tab),
 	build_table(TP,L,Row1).
 

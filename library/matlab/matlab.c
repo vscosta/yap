@@ -19,6 +19,8 @@
 #include "YapInterface.h"
 #include <math.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 #if defined(__MINGW32__) || _MSC_VER
 #include <windows.h>
 #endif

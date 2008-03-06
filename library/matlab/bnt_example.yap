@@ -57,9 +57,9 @@ init_bnt :-
 	matlab_on, !.
 init_bnt :-
 	getcwd(D),
-	cd('~/Yap/CLPBN/FullBNT/BNT'),
+%	cd('~/Yap/CLPBN/FullBNT/BNT'),
 	start_matlab('matlab -nojvm -nosplash'),
-	matlab_eval_string("add_BNT_to_path",_),
+%	matlab_eval_string("add_BNT_to_path",_),
 	cd(D).
 	
 mk2s(0, []) :- !.
@@ -73,6 +73,7 @@ mkdag(N,Els) :-
 	add_els(Els,N,Dag),
 	Dag=..[_|L],
 	addzeros(L),
+format("priova",[]),
 	matlab_matrix(N,N,L,dag).
 
 add_els([],_,_).
