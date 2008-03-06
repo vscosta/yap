@@ -830,7 +830,7 @@ ground_prob([_H:PH|T]):-
 	ground(PH),
 	ground_prob(T).
 
-process_head_ground([H:PH],P,[H:PH1,'':PNull1]):-
+process_head_ground([H:PH],P,[H:PH1,'':PNull1]):-!,
 	PH1 is PH,
 	PNull is 1.0-P-PH1,
 	(PNull>=0.0->
