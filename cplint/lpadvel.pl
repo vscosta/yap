@@ -13,20 +13,18 @@
 :- set_prolog_flag(discontiguous_warnings,on).
 :- set_prolog_flag(single_var_warnings,on).
 :-source.
-:- module(lpadclpbn, [p/1,
-		  s/2,sc/3,s/6,sc/7,set/2,setting/2]).
+%:- module(lpadclpbn, [p/1,
+%		  s/2,sc/3,s/6,sc/7,set/2,setting/2]).
 
 
-:-dynamic rule/4,def_rule/2,setting/2.
+:-dynamic rule/5,def_rule/2,setting/2.
 
 :-use_module(library(lists)).
 :-use_module(library(ugraphs)).
 :-use_module(library(avl)).
-:-use_module(library(clpbn)).
+:-use_module(library(ugraphs)).
 
-:-set_clpbn_flag(suppress_attribute_display,true).
-
-:-set_clpbn_flag(bnt_model,propositional).
+:-use_module(library(matrix)).
 
 
 /* start of list of parameters that can be set by the user with
@@ -47,30 +45,45 @@ setting(cpt_zero,0.0001).
 GoalsLis can have variables, s returns in backtracking all the solutions with 
 their corresponding probability */
 s(GL,P):-
-	setof(Deriv,find_deriv(GL,Deriv),LDup),
-	append_all(LDup,[],L),
-	remove_head(L,L1),
-	remove_duplicates(L1,L2),
-	build_ground_lpad(L2,0,CL),
-	convert_to_clpbn(CL,GL,LV,P).
+	get_ground_portion(GL,CL),!,
+	convert_to_bn(CL,GL,[],P).
 
+s(_GL,0.0).
 /* sc(GoalsList,EvidenceList,Prob) compute the probability of a list of goals 
 GoalsList given EvidenceList. Both lists can have variables, sc returns in 
 backtracking all the solutions with their corresponding probability 
 Time1 is the time for performing resolution
 Time2 is the time for performing bayesian inference */
 sc(GL,GLC,P):-
-	setof(Deriv,find_deriv(GL,Deriv),LDup),
-	setof(Deriv,find_deriv(GLC,Deriv),LDupC),
-	append_all(LDup,[],L),
-	remove_head(L,L1),
-	append_all(LDupC,[],LC),
-	remove_head(LC,LC1),
-	append(L1,LC1,LD),
-	remove_duplicates(LD,LD1),
-	build_ground_lpad(LD1,0,CL),
-	convert_to_clpbn(CL,GL,LV,P,GLC).
+	get_ground_portion(GL,GLC,CL,Undef),!,
+	(Undef=yes->
+		P=undef
+	;
+		convert_to_bn(CL,GL,GLC,P)
+	).
 
+sc(_GL,_GLC,0.0).
+
+get_ground_portion(GL,CL):-
+	setof(Deriv,find_deriv(GL,Deriv),LDup),
+	append_all(LDup,[],L),
+	remove_head(L,LD),
+	remove_duplicates(LD,LD1),
+	build_ground_lpad(LD1,0,CL).
+
+get_ground_portion(GL,GLC,CL,Undef):-
+	setof(Deriv,find_deriv(GL,Deriv),LDup),
+	(setof(Deriv,find_deriv(GLC,Deriv),LDupC)->
+		append_all(LDup,[],L),
+		remove_head(L,L1),
+		append_all(LDupC,[],LC),
+		remove_head(LC,LC1),
+		append(L1,LC1,LD),
+		remove_duplicates(LD,LD1),
+		build_ground_lpad(LD1,0,CL)
+	;
+		Undef=yes
+	).
 
 
 /* s(GoalsList,Prob,Time1,Time2) compute the probability of a list of goals 
@@ -78,23 +91,28 @@ GoalsLis can have variables, s returns in backtracking all the solutions with
 their corresponding probability 
 Time1 is the time for performing resolution
 Time2 is the time for performing bayesian inference */
-s(GL,P,Time1,Time2):-
+s(GL,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 	statistics(cputime,[_,_]),
 	statistics(walltime,[_,_]),
-	setof(Deriv,find_deriv(GL,Deriv),LDup),
-	append_all(LDup,[],L),
-	remove_head(L,L1),
-	remove_duplicates(L1,L2),
-	statistics(cputime,[_,CT1]),
-	CPUTime1 is CT1/1000,
-	statistics(walltime,[_,WT1]),
-	WallTime1 is WT1/1000,
-	build_ground_lpad(L2,0,CL),
-	convert_to_clpbn(CL,GL,LV,P),
-	statistics(cputime,[_,CT2]),
-	CPUTime2 is CT2/1000,
-	statistics(walltime,[_,WT2]),
-	WallTime2 is WT2/1000.
+	(get_ground_portion(GL,CL)->
+		statistics(cputime,[_,CT1]),
+		CPUTime1 is CT1/1000,
+		statistics(walltime,[_,WT1]),
+		WallTime1 is WT1/1000,
+		convert_to_bn(CL,GL,[],P),
+		statistics(cputime,[_,CT2]),
+		CPUTime2 is CT2/1000,
+		statistics(walltime,[_,WT2]),
+		WallTime2 is WT2/1000
+	;
+		statistics(cputime,[_,CT1]),
+		CPUTime1 is CT1/1000,
+		statistics(walltime,[_,WT1]),
+		WallTime1 is WT1/1000,
+		CPUTime2=0.0,
+		WallTime2=0.0,
+		P=0.0
+	).
 
 /* sc(GoalsList,EvidenceList,Prob) compute the probability of a list of goals 
 GoalsList given EvidenceList. Both lists can have variables, sc returns in 
@@ -103,25 +121,31 @@ backtracking all the solutions with their corresponding probability */
 sc(GL,GLC,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 	statistics(cputime,[_,_]),
 	statistics(walltime,[_,_]),
-	setof(Deriv,find_deriv(GL,Deriv),LDup),
-	setof(Deriv,find_deriv(GLC,Deriv),LDupC),
-	append_all(LDup,[],L),
-	remove_head(L,L1),
-	append_all(LDupC,[],LC),
-	remove_head(LC,LC1),
-	append(L1,LC1,LD),
-	remove_duplicates(LD,LD1),
-	statistics(cputime,[_,CT1]),
-	CPUTime1 is CT1/1000,
-	statistics(walltime,[_,WT1]),
-	WallTime1 is WT1/1000,
-	build_ground_lpad(LD1,0,CL),
-	convert_to_bn(CL,GL,GLC,P),
-	statistics(cputime,[_,CT2]),
-	CPUTime2 is CT2/1000,
-	statistics(walltime,[_,WT2]),
-	WallTime2 is WT2/1000.
-
+	(get_ground_portion(GL,GLC,CL,Undef)->
+		statistics(cputime,[_,CT1]),
+		CPUTime1 is CT1/1000,
+		statistics(walltime,[_,WT1]),
+		WallTime1 is WT1/1000,
+		(Undef=yes->
+			P=undef
+			CPUTime2=0.0,
+			WallTime2=0.0
+		;
+			convert_to_bn(CL,GL,GLC,P),
+			statistics(cputime,[_,CT2]),
+			CPUTime2 is CT2/1000,
+			statistics(walltime,[_,WT2]),
+			WallTime2 is WT2/1000
+		)
+	;
+		statistics(cputime,[_,CT1]),
+		CPUTime1 is CT1/1000,
+		statistics(walltime,[_,WT1]),
+		WallTime1 is WT1/1000,
+		CPUTime2=0.0,
+		WallTime2=0.0,
+		P=0.0
+	).
 
 remove_head([],[]).
 
@@ -143,52 +167,139 @@ process_goals([H|T],[HG|TG],[HV|TV]):-
 
 build_ground_lpad([],_N,[]).
 
-build_ground_lpad([(R,S)|T],N,[(N1,Head,Body)|T1]):-
+build_ground_lpad([(R,S)|T],N,[(N1,Head1,Body1)|T1]):-
 	rule(R,S,_,Head,Body),
 	N1 is N+1,
+	merge_identical(Head,Head1),
+	remove_built_ins(Body,Body1),
 	build_ground_lpad(T,N1,T1).
+
+remove_built_ins([],[]):-!.
+
+remove_built_ins([\+H|T],T1):-
+	builtin(H),!,
+	remove_built_ins(T,T1).
+
+remove_built_ins([H|T],T1):-
+	builtin(H),!,
+	remove_built_ins(T,T1).
+
+remove_built_ins([H|T],[H|T1]):-
+	remove_built_ins(T,T1).
+
+merge_identical([],[]):-!.
+
+merge_identical([A:P|T],[A:P1|Head]):-
+	find_identical(A,P,T,P1,T1),
+	merge_identical(T1,Head).
+
+find_identical(_A,P,[],P,[]):-!.
+
+find_identical(A,P0,[A:P|T],P1,T1):-!,
+	P2 is P0+P,
+	find_identical(A,P2,T,P1,T1).
+
+find_identical(A,P0,[H:P|T],P1,[H:P|T1]):-
+	find_identical(A,P0,T,P1,T1).
 
 convert_to_bn(CL,GL,GLC,P):-
 	find_ground_atoms(CL,[],GADup),
 	remove_duplicates(GADup,GANull),
 	delete(GANull,'',GA),
-	rule_factors(CL,[],RF),
-	identity_facotrs(GA,GAD,IF),
-	get_order(CL,GA,Order),
-	append(GA,GAD,Atoms),
-	sort_atoms(Atoms,Order,SortedAtoms),
-	find_atoms_body(GLC,EvAtoms),
+	rule_factors(CL,[],HetF,HomFR,[],Graph0),
+	identity_facotrs(GA,_GAD,IF,Graph0,Graph1),
+	top_sort(Graph1,SortedAtoms),
 	find_atoms_body(GL,QAtoms),
-	vel(IF,RF,QAtoms,EvAtoms,GLC,SortedAtoms,OutptuTable),
-	get_prob_goal(GL,QAtoms,OutptuTable,P).
+	append(HomFR,IF,HomF),
+	vel(HomF,HetF,QAtoms,GLC,SortedAtoms,OutptutTable),
+	get_prob_goal(GL,QAtoms,SortedAtoms,OutptutTable,P).
+
+get_prob_goal(GL,QAtoms,SortedAtoms,f(M,_D,_S),P):-
+	positions(QAtoms,SortedAtoms,VarsPos),
+	keysort(VarsPos,Vars1Pos),
+	split_map(Vars1Pos,Vars1),
+	get_index(Vars1,GL,Index),
+	matrix_to_list(M,_),
+	matrix_get(M,Index,P).
+
+get_index([],_GL,[]):-!.
+
+get_index([H|Vars1],GL,[1|Index]):-
+	member(H,GL),!,
+	get_index(Vars1,GL,Index).
+
+get_index([H|Vars1],GL,[0|Index]):-
+	member(\+H,GL),
+	get_index(Vars1,GL,Index).
 
 
-vel(IF,RF,QAtoms,EvAtoms,GLC,SortedAtoms,OutptuTable):-
-	fix_evidence(GLC,RF,RF1),
-	fix_evidence(GLC,IF,IF1),
+vel(IF,RF,QAtoms,GLC,SortedAtoms,OutptutTable):-
+	fix_evidence(RF,RF1,GLC),
+	fix_evidence(IF,IF1,GLC),
 	sort_tables(RF1,RF2,SortedAtoms),
 	sort_tables(IF1,IF2,SortedAtoms),
 	delete_all(QAtoms,SortedAtoms,SortedAtoms1),
-	vel_cycle(IF,RF,SortedAtoms1,OutptuTable).
+	vel_cycle(SortedAtoms1,IF2,RF2,SortedAtoms,OutptutTable).
+
+fix_evidence([],[],_Ev):-!.
+
+fix_evidence([f(Tab,Dep,Sz)|T],[f(Tab1,Dep1,Sz1)|T1],Ev):-
+	add_conv(Ev,Ev1),
+	simplify_evidence(Ev1,Tab,Dep,Sz,Tab1,Dep1,Sz1),
+	fix_evidence(T,T1,Ev).
+
+add_conv([],[]):-!.
+
+add_conv([\+H|Ev],[\+H,\+d(H)|Ev1]):-!,
+	add_conv(Ev,Ev1).
+
+add_conv([H|Ev],[H,d(H)|Ev1]):-!,
+	add_conv(Ev,Ev1).
+
+
+simplify_evidence([], Table, Deps, Sizes, Table, Deps, Sizes).
+simplify_evidence([V|VDeps], Table0, Deps0, Sizes0, Table, Deps, Sizes) :-!,
+	project_from_CPT(V,tab(Table0,Deps0,Sizes0),tab(Table1,Deps1,Sizes1)),
+	matrix_to_list(Table1,_),
+	simplify_evidence(VDeps, Table1, Deps1, Sizes1, Table, Deps, Sizes).
+
+
+
+
+project_from_CPT(\+H,tab(Table,Deps,_),tab(NewTable,NDeps,NSzs)) :-
+	nth0(N,Deps, H),!,
+	matrix_to_list(Table,_),
+	matrix_select(Table, N, 0, NewTable),
+	matrix_to_list(NewTable,_),
+	matrix_dims(NewTable, NSzs),
+	delete(Deps,H,NDeps).
+project_from_CPT(H,tab(Table,Deps,_),tab(NewTable,NDeps,NSzs)) :-
+	nth0(N,Deps, H),!,
+	matrix_to_list(Table,_),
+	matrix_select(Table, N, 1, NewTable),
+	matrix_to_list(NewTable,_),
+	matrix_dims(NewTable, NSzs),
+	delete(Deps,H,NDeps).
+project_from_CPT(_H,tab(Table,Deps,S),tab(Table,Deps,S)).
+
+
 
 sort_tables([],[],_SortedAtoms):-!.
 
-sort_tables([f(Mat,Vars)|T],[f(Mat1,Vars1)|T1],SortedAtoms):-
-	reorder_CPT(Mat,Vars,Ma)
-		 matrix_shuffle(T0,Map,TF)
-
+sort_tables([f(Mat,Vars,_Sz)|T],[f(Mat1,Vars1,Sz1)|T1],SortedAtoms):-
+	reorder_CPT(Vars,SortedAtoms,Vars1,Map),
+	matrix_shuffle(Mat,Map,Mat1),
+	matrix_dims(Mat1,Sz1),
+	matrix_to_list(Mat,_L),
+	matrix_to_list(Mat1,_L1),
 	sort_tables(T,T1,SortedAtoms).
 
-order_vec(Vs0,Vs,Map) :-
-	add_indices(Vs0,0,Is),
-	keysort(Is,NIs),
-	get_els(NIs, Vs, Map).
 
-add_indices([],_,[]).
-add_indices([V|Vs0],I0,[V-I0|Is]) :-
-	I is I0+1,
-	add_indices(Vs0,I,Is).
+delete_all([],L,L):-!.
 
+delete_all([H|T],L0,L1):-
+	delete(L0,H,L2),
+	delete_all(T,L2,L1).
 
 mapping(Vs0,Vs,Map) :-
 	add_indices(Vs0,0,I1s),
@@ -205,103 +316,251 @@ split_map([], []).
 split_map([_-M|Is], [M|Map]) :-
 	split_map(Is, Map).
 
+split_pos([], []).
+split_pos([V-_|Is], [V|Map]) :-
+	split_pos(Is, Map).
+
+positions([],_SA,[]):-!.
+
+positions([HV|Vars],SortedAtoms,[Pos-HV|VarsPos]):-
+	nth(Pos,SortedAtoms,HV),!,
+	positions(Vars,SortedAtoms,VarsPos).
 
 
-reorder_CPT(Vs0,T0,Vs,TF,Sizes) :-
-	mapping(Vs0,Vs,Map),
-	(
-	 Vs == Vs0
-	->
-	 TF = T0
-	;
-	 matrix_shuffle(T0,Map,TF)
-	),
-	matrix_dims(TF, Sizes).
-
-order_vec(Vs0,Vs,Map) :-
-	add_indices(Vs0,0,Is),
-	keysort(Is,NIs),
-	get_els(NIs, Vs, Map).
+reorder_CPT(Vars,SortedAtoms,Vars1,Map):-
+	positions(Vars,SortedAtoms,VarsPos),
+	keysort(VarsPos,Vars1Pos),
+	split_map(Vars1Pos,Vars1),
+	mapping(Vars,Vars1,Map).
 
 add_indices([],_,[]).
 add_indices([V|Vs0],I0,[V-I0|Is]) :-
 	I is I0+1,
 	add_indices(Vs0,I,Is).
 
-vel_cycle(HomFact,HetFact,[],OutputTable):-!,
-	combine_factors(HomFact,HetFact,Function),
-	normalize(Function,OutputTable).
-		
-vel_cycle(HomFact,HetFact,[Z|TVar],OutputTable):-
-	sum_out1(HomFact,HetFact,Z,HomFact1,HetFact1),
-	vel_cycle(HomFact,HetFact,TVar,OutputTable).
+vel_cycle([],HomFact,HetFact,SortedAtoms,f(Mat1,Dep,Sz)):-!,
+	combine_factors(HomFact,HetFact,SortedAtoms,f(Mat,Dep,Sz)),
+	normalise_CPT(Mat,Mat1),
+	matrix_to_list(Mat1,_).
 
-sum_out1(Hom,Het,Var,Hom2,Het2):-
+vel_cycle([Z|TVar],HomFact,HetFact,SortedAtoms,OutputTable):-
+	sum_out1(Z,HomFact,HetFact,HomFact1,HetFact1,SortedAtoms),
+	vel_cycle(TVar,HomFact1,HetFact1,SortedAtoms,OutputTable).
+
+normalise_CPT(MAT,NMAT) :-
+	matrix_sum(MAT, Sum),
+	matrix_op_to_all(MAT,/,Sum,NMAT).
+
+combine_factors(HomFacts,HetFacts,SortedAtoms,Fact):-
+	combine_tables(HetFacts,HetFact,SortedAtoms),
+	multiply_tables([HetFact|HomFacts],Fact,SortedAtoms).
+
+
+sum_out1(Var,Hom,Het,Hom2,Het2,SortedAtoms):-
 	get_factors_with_var(Hom,Var,HomFacts,Hom1),
-	multiply_tables(HomFacts,HomFact),
+	multiply_tables(HomFacts,HomFact,SortedAtoms),
+	(HomFact=[];HomFact=f(Mat1,_,_),	
+	matrix_to_list(Mat1,_)),
 	get_factors_with_var(Het,Var,HetFacts,Het1),
-	combine(HetFacts,HetFact),
-	update_factors(HomFact,HetFact,Var,Hom1,Hom2,Het1,Het2).
-	
-get_factors_with_var([],_V,[],[]):-1
+	combine_tables(HetFacts,HetFact,SortedAtoms),
+	(HetFact=[];HetFact=f(Mat2,_,_),	
+	matrix_to_list(Mat2,_)),
+	update_factors(HomFact,HetFact,Var,Hom1,Hom2,Het1,Het2,SortedAtoms).
 
-get_factors_with_var([f(Table,Vars)|T],Var,[f(Table,Vars)|TFV],TRest):-
+update_factors([],[],_Var,Hom,Hom,Het,Het,_SortedAtoms):-!.
+
+update_factors(HomFact,[],Var,Hom,[Fact|Hom],Het,Het,_SortedAtoms):-!,
+	sum_var(Var,HomFact,Fact),
+	Fact=f(Mat2,_,_),	
+	matrix_to_list(Mat2,_).
+
+update_factors([],HetFact,Var,Hom,Hom,Het,[Fact|Het],_SortedAtoms):-
+	sum_var(Var,HetFact,Fact),
+	Fact=f(Mat2,_,_),	
+	matrix_to_list(Mat2,_).
+
+update_factors(HomFact,HetFact,Var,Hom,Hom,Het,[Fact1|Het],SortedAtoms):-
+	multiply_CPTs(HomFact,HetFact,Fact,SortedAtoms),
+	Fact=f(Mat,_,_),	
+	matrix_to_list(Mat,_),
+	sum_var(Var,Fact,Fact1),
+	Fact1=f(Mat2,_,_),	
+	matrix_to_list(Mat2,_).
+
+sum_var(Var,f(Table,Deps,_),f(NewTable,NDeps,NSzs)):-
+	nth0(N,Deps, Var),!,
+	delete(Deps,Var,NDeps),
+	matrix_sum_out(Table, N, NewTable),
+	matrix_dims(NewTable, NSzs).
+
+combine_tables([],[],_SortedAtoms):-!.
+
+combine_tables([Fact],Fact,_SortedAtoms):-!.
+
+combine_tables([Fact1,Fact2|T],Fact,SortedAtoms):-
+	combine_CPTs(Fact1,Fact2,Fact0,SortedAtoms),
+	combine_tables([Fact0|T],Fact,SortedAtoms).
+	
+get_factors_with_var([],_V,[],[]):-!.
+
+get_factors_with_var([f(Table,Vars,Sz)|T],Var,[f(Table,Vars,Sz)|TFV],TRest):-
 	member(Var,Vars),!,
 	get_factors_with_var(T,Var,TFV,TRest).
 	
-get_factors_with_var([f(Table,Vars)|T],Var,TFV,[f(Table,Vars)|TRest]):-
+get_factors_with_var([f(Table,Vars,Sz)|T],Var,TFV,[f(Table,Vars,Sz)|TRest]):-
 	get_factors_with_var(T,Var,TFV,TRest).
 
-multiply_tables([Table], Table) :- !.
-multiply_tables(TAB1, TAB2| Tables], Out) :-
-	multiply_CPTs(TAB1, TAB2, TAB, _),
-	multiply_tables([TAB| Tables], Out).
+multiply_tables([], [],_SorteAtoms) :- !.
 
-multiply_CPTs(f(Tab1, Deps1, Sz1), f(Tab2, Deps2, Sz2), f(OT, NDeps, NSz), NTab2) :-
-	expand_tabs(Deps1, Sz1, Deps2, Sz2, Map1, Map2, NDeps),
+multiply_tables([Table], Table,_SorteAtoms) :- !.
+multiply_tables([TAB1, TAB2| Tables], Out,SorteAtoms) :-
+	multiply_CPTs(TAB1, TAB2, TAB,SorteAtoms),
+	multiply_tables([TAB| Tables], Out,SorteAtoms).
+
+combine_CPTs(f(Tab1, Deps1, Sz1), f(Tab2, Deps2, Sz2), F, SortedAtoms) :-
+	get_common_conv(Deps1,Deps2,CommConv),
+	rename_convergent(1,CommConv,Deps1,Deps11,[],NewAt0),
+	rename_convergent(2,CommConv,Deps2,Deps21,NewAt0,NewAt1),
+	update_sorted(SortedAtoms,NewAt1,SortedAtoms1),
+	expand_tabs(Deps11, Sz1, Deps21, Sz2, Map1, Map2, NDeps0,SortedAtoms1),
 	matrix_expand(Tab1, Map1, NTab1),
+	matrix_to_list(NTab1,_),
 	matrix_expand(Tab2, Map2, NTab2),
+	matrix_to_list(NTab2,_),
+	matrix_op(NTab1,NTab2,*,OT0),
+	matrix_to_list(OT0,_),
+	matrix_dims(OT0,NSz0),
+	sum_fact(CommConv,OT0,NDeps0,NSz0,OT,NDeps,NSz),
+	matrix_to_list(OT,_),
+	sort_tables([f(OT, NDeps, NSz)],[F],SortedAtoms).
+
+get_common_conv(Deps1,Deps2,CommConv):-
+	get_conv(Deps1,C1),
+	get_conv(Deps2,C2),
+	intersection(C1,C2,CommConv).
+
+get_conv([],[]):-!.
+
+get_conv([d(H)|T],[H|T1]):-!,
+	get_conv(T,T1).
+
+get_conv([_H|T],T1):-!,
+	get_conv(T,T1).
+
+        
+sum_fact([],T,D,S,T,D,S):-!.
+
+%	remove_renamed_conv(D0,D1).
+
+sum_fact([H|T],T0,D0,S0,T1,D1,S1):-
+	simplify_evidence([\+d(H,1),\+d(H,2)],T0,D0,S0,Tff,D,S),
+	simplify_evidence([\+d(H,1),d(H,2)],T0,D0,S0,Tft,D,S),
+	simplify_evidence([d(H,1),\+d(H,2)],T0,D0,S0,Ttf,D,S),
+	simplify_evidence([d(H,1),d(H,2)],T0,D0,S0,Ttt,D,S),
+	matrix_op(Tft,Ttf,+,T2),
+	matrix_op(T2,Ttt,+,T3),
+	matrix_to_list(T3,Lt),
+	matrix_to_list(Tff,Lf),
+	append(Lf,Lt,L),
+	matrix_new(floats, [2|S], L,T4),
+	matrix_to_list(T2,_),
+	sum_fact(T,T4,[d(H)|D],[2|S],T1,D1,S1),
+		matrix_to_list(T1,_).
+
+remove_renamed_conv([],[]):-!.
+
+remove_renamed_conv([d(H,_N)|D0],[d(H)|D1]):-!,
+	remove_renamed_conv(D0,D1).
+
+remove_renamed_conv([H|D0],[H|D1]):-
+	remove_renamed_conv(D0,D1).
+
+
+
+update_sorted([],_NewAt,[]):-!.
+
+update_sorted([d(H)|T],NewAt,[d(H,1)|T1]):-
+	member(d(H,1),NewAt),!,
+	update_sorted1(H,T,NewAt,T1).
+
+update_sorted([d(H)|T],NewAt,[d(H,2)|T1]):-
+	member(d(H,2),NewAt),!,
+	update_sorted(T,NewAt,T1).
+
+update_sorted([H|T],NewAt,[H|T1]):-
+	update_sorted(T,NewAt,T1).
+
+update_sorted1(H,T,NewAt,[d(H,2)|T1]):-
+	member(d(H,2),NewAt),!,
+	update_sorted(T,NewAt,T1).
+
+update_sorted1(_H,T,NewAt,T1):-
+	update_sorted(T,NewAt,T1).
+
+rename_convergent(_N,_CommConv,[],[],NA,NA):-!.
+
+rename_convergent(N,CommConv,[d(H)|T],[d(H,N)|T1],NA0,[d(H,N)|NA1]):-
+	member(H,CommConv),!,
+	rename_convergent(N,CommConv,T,T1,NA0,NA1).
+
+rename_convergent(N,CommConv,[H|T],[H|T1],NA0,NA1):-
+	rename_convergent(N,CommConv,T,T1,NA0,NA1).
+
+
+multiply_CPTs(f(Tab1, Deps1, Sz1), f(Tab2, Deps2, Sz2), f(OT, NDeps, NSz), SortedAtoms) :-
+	expand_tabs(Deps1, Sz1, Deps2, Sz2, Map1, Map2, NDeps,SortedAtoms),
+	matrix_expand(Tab1, Map1, NTab1),
+	matrix_to_list(NTab1,_),
+	matrix_expand(Tab2, Map2, NTab2),
+	matrix_to_list(NTab2,_),
 	matrix_op(NTab1,NTab2,*,OT),
+	matrix_to_list(OT,_),
 	matrix_dims(OT,NSz).
 
-expand_tabs([], [], [], [], [], [], []).
-expand_tabs([V1|Deps1], [S1|Sz1], [], [], [0|Map1], [S1|Map2], [V1|NDeps]) :-
-	expand_tabs(Deps1, Sz1, [], [], Map1, Map2, NDeps).
-expand_tabs([], [], [V2|Deps2], [S2|Sz2], [S2|Map1], [0|Map2], [V2|NDeps]) :-
-	expand_tabs([], [], Deps2, Sz2, Map1, Map2, NDeps).
-expand_tabs([V1|Deps1], [S1|Sz1], [V2|Deps2], [S2|Sz2], Map1, Map2, NDeps) :-
-	compare(C,V1,V2),
+expand_tabs([], [], [], [], [], [], [],_SortedAtoms):-!.
+expand_tabs([V1|Deps1], [S1|Sz1], [], [], [0|Map1], [S1|Map2], [V1|NDeps],SortedAtoms) :-!,
+	expand_tabs(Deps1, Sz1, [], [], Map1, Map2, NDeps,SortedAtoms).
+expand_tabs([], [], [V2|Deps2], [S2|Sz2], [S2|Map1], [0|Map2], [V2|NDeps],SortedAtoms) :-!,
+	expand_tabs([], [], Deps2, Sz2, Map1, Map2, NDeps,SortedAtoms).
+expand_tabs([V1|Deps1], [S1|Sz1], [V2|Deps2], [S2|Sz2], Map1, Map2, NDeps,SortedAtoms) :-
+	compare_var(C,V1,V2,SortedAtoms),
 	(C == = ->
 	 NDeps = [V1|MDeps],
 	 Map1 = [0|M1],
 	 Map2 = [0|M2],
 	 NDeps = [V1|MDeps],
-	 expand_tabs(Deps1, Sz1, Deps2, Sz2, M1, M2, MDeps)
+	 expand_tabs(Deps1, Sz1, Deps2, Sz2, M1, M2, MDeps,SortedAtoms)
 	;
 	 C == < ->
 	 NDeps = [V1|MDeps],
 	 Map1 = [0|M1],
 	 Map2 = [S1|M2],
 	 NDeps = [V1|MDeps],
-	 expand_tabs(Deps1, Sz1, [V2|Deps2], [S2|Sz2], M1, M2, MDeps)
+	 expand_tabs(Deps1, Sz1, [V2|Deps2], [S2|Sz2], M1, M2, MDeps,SortedAtoms)
 	;
 	 NDeps = [V2|MDeps],
 	 Map1 = [S2|M1],
 	 Map2 = [0|M2],
 	 NDeps = [V2|MDeps],
-	 expand_tabs([V1|Deps1], [S1|Sz1], Deps2, Sz2, M1, M2, MDeps)
+	 expand_tabs([V1|Deps1], [S1|Sz1], Deps2, Sz2, M1, M2, MDeps,SortedAtoms)
 	).
 	
+compare_var(C,V1,V2,SortedAtoms):-
+	nth(N1,SortedAtoms,V1),
+	nth(N2,SortedAtoms,V2),!,
+	compare(C,N1,N2).
 
 deputy_atoms([],[]):-!.
 
 deputy_atoms([H|T],[d(H)|T1]):-
 	deputy_atoms(T,T1).
 
-identity_facotrs([],[],[]):-!.
+identity_facotrs([],[],[],Graph,Graph):-!.
 
-identity_facotrs([H|T],[d(H)|TD],[f([1.0,0.0,0.0,1.0],[H,d(H)])|TF]):-
-		identity_facotrs(T,TD,IF).
+identity_facotrs([H|T],[d(H)|TD],[f(Mat,[d(H),H],[2,2])|TF],Graph0,Graph1):-
+	add_edges(Graph0,[d(H)-H],Graph2),
+	matrix_new(floats, [2,2], [1.0,0.0,0.0,1.0],Mat),
+	identity_facotrs(T,TD,TF,Graph2,Graph1).
 
 
 
@@ -318,166 +577,96 @@ add_ev([H|T],AV):-
 	clpbn:put_atts(V,evidence(1)),
 	add_ev(T,AV).
 
-convert_to_bn(CL,GL,LV,P):-
-	find_ground_atoms(CL,[],GAD),
-	remove_duplicates(GAD,GANull),
-	delete(GANull,'',GA),
-	atom_vars(GA,[],AV,AVL),
-	choice_vars(CL,[],CV,CVL),
-	add_rule_tables(CL,CVL,AV),
-	add_atoms_tables(AVL,GA,CL,CV,AV),
-	get_prob(GL,AV,AVL,CVL,P).
-	
-get_prob(GL,AV,AVL,CVL,P):-	
-	build_table_conj(GL,Table),
-	find_atoms_body(GL,Atoms),
-	lookup_gvars(GL,AV,Parents,[],_Signs),
-	{G=goal with p([f,t],Table, Parents)},
-	append(AVL,CVL,Vars),
-	append(Vars,[G],Vars1),
-	clpbn:call_solver([G], Vars1),
-	clpbn_display:get_atts(G, [posterior(Vs,Vals,[_P0,P],AllDiffs)]).
-	
-lookup_gvars([],_AV,[],S,S).	
-
-lookup_gvars([\+ H|T],AV,[HV|T1],Sign0,Sign2):-	!,
-	avl_lookup(H,HV,AV),
-	clpbn:get_atts(HV, [key(K)]), 
-	avl_insert(K,f,Sign0,Sign1),
-	lookup_gvars(T,AV,T1,Sign1,Sign2).
-	
-lookup_gvars([H|T],AV,[HV|T1],Sign0,Sign2):-	
-	avl_lookup(H,HV,AV),
-	clpbn:get_atts(HV, [key(K)]), 
-	avl_insert(K,t,Sign0,Sign1),
-	lookup_gvars(T,AV,T1,Sign1,Sign2).
-	
-add_atoms_tables([],[],_CL,_CV,_AV).
-
-add_atoms_tables([H|T],[HA|TA],CL,CV,AV):-
-	find_rules_with_atom(HA,CL,R),
-	parents(R,CV,Par),
-	build_table_atoms(HA,R,Table),
-	{H = HA with p([f,t],Table,Par)},
-	add_atoms_tables(T,TA,CL,CV,AV).
-
-build_table_conj(R,Table):-
-	build_col_conj(R,t,f,[],Row1),
-	build_col_conj(R,t,t,Row1,Table).
-
-build_col_conj([],Tr,Final,Row0,Row1):-
-	(Tr=Final->
-		append(Row0,[1.0],Row1)
-	;
-		setting(cpt_zero,Zero),
-		append(Row0,[Zero],Row1)
-	).
-
-build_col_conj([\+H|RP],Tr,Final,Row0,Row2):-!,
-	build_col_conj(RP,Tr,Final,Row0,Row1),
-	build_col_conj(RP,f,Final,Row1,Row2).
-
-build_col_conj([H|RP],Tr,Final,Row0,Row2):-
-	build_col_conj(RP,f,Final,Row0,Row1),
-	build_col_conj(RP,Tr,Final,Row1,Row2).
-
-build_table_atoms(H,R,Table):-
-	build_col(H,R,f,f,[],Row1),
-	build_col(H,R,t,f,Row1,Table).
-
-build_col(A,[],Tr,Found,Row0,Row1):-
-	(Tr=Found->
-		append(Row0,[1.0],Row1)
-	;
-		setting(cpt_zero,Zero),
-		append(Row0,[Zero],Row1)
-	).
-
-build_col(A,[(N,H)|RP],Tr,Found,Row0,Row1):-
-	build_col_cycle(A,H,RP,Tr,Found,Row0,Row1).
-
-build_col_cycle(_A,[],_RP,_Tr,_Found,Row,Row).
-	
-build_col_cycle(A,[A:P|T],RP,Tr,Found,Row0,Row2):-!,
-	build_col(A,RP,Tr,t,Row0,Row1),
-	build_col_cycle(A,T,RP,Tr,Found,Row1,Row2).
-	
-build_col_cycle(A,[_|T],RP,Tr,Found,Row0,Row2):-
-	build_col(A,RP,Tr,Found,Row0,Row1),
-	build_col_cycle(A,T,RP,Tr,Found,Row1,Row2).
-
-parents([],_CV,[]).
-
-parents([(N,_H)|T],CV,[V|T1]):-
-	avl_lookup(N,V,CV),
-	parents(T,CV,T1).
-
 find_rules_with_atom(_A,[],[]).
 
-find_rules_with_atom(A,[(N,Head,Body)|T],[(N,Head)|R]):-
-	member(A:P,Head),!,
+find_rules_with_atom(A,[(N,Head,_Body)|T],[(N,Head)|R]):-
+	member(A:_P,Head),!,
 	find_rules_with_atom(A,T,R).
 
 find_rules_with_atom(A,[_H|T],R):-
 	find_rules_with_atom(A,T,R).
 
+rule_factors([],HetF,HetF,[],Graph,Graph):-!.
 
-rule_factors([],RF,RF):-.
-
-rule_factors([(N,Head,Body)|T],RF0,RF1):-
+rule_factors([(N,Head,Body)|T],HetF0,HetF1,[f(Mat,Deps,Sizes)|HomF],Graph0,Graph1):-
 	find_atoms_head(Head,Atoms,Probs),
-	gen_rule_table(PT,PF,Body,Table),
-	find_atoms_body(Body,BodyAtoms),
 	length(Body,LB),
-	LB1 is LB+1,
-	list2(0,LB1,Sizes),
-	gen_factors(Atoms,Probs,PT,PF,Table,Sizes,BodyAtoms,RF0,RF2),
-	rule_factors(T,RF2,RF1).
+	list2(0,LB,Sizes0),
+	length(Head,LH),
+	LH1 is LH-1,
+	list0(0,LH1,FalseCol0),
+	append(FalseCol0,[1.0],FalseCol),
+	build_table(Probs,FalseCol,Body,Table),
+	append(Sizes0,[LH],Sizes),
+	matrix_new(floats,Sizes,Table,Mat),
+	find_atoms_body(Body,BodyAtoms),
+	append(BodyAtoms,[ch(N)],Deps),
+	gen_het_factors(Atoms,N,LH,0,HetF0,HetF2),
+	add_hom_edges_to_graph(BodyAtoms,N,Graph0,Graph2),
+	add_het_edges_to_graph(Atoms,N,Graph2,Graph3),
+	rule_factors(T,HetF2,HetF1,HomF,Graph3,Graph1).
 
-gen_rule_table(PT,PF,Body,Table):-
-	build_col_rule(Body,PT,PF,t,f,[],Row1),
-	build_col_rule(Body,PT,PF,t,t,Row1,Table).
 
-build_col_rule([],PT,PF,Tr,Final,Row0,Row1):-!,
-	(Tr=Final->
-		update_row_true_body(PT,PF,Tr,Row0,Row1)
-	;
-		update_row_false_body(Final,Row0,Row1)
-	).
+build_table(Probs,FalseCol,Body,T):-!,
+	build_col(Body,t,Probs,FalseCol,[],T).
 
-build_col_rule([\+H|RP],PT,PF,Tr,Final,Row0,Row2):-!,
-	build_col_rule(RP,PT,PF,Tr,Final,Row0,Row1),
-	build_col_rule(RP,PT,PF,f,Final,Row1,Row2).
+build_col([],t,Probs,_FalseCol,T0,T1):-!,
+	append(T0,Probs,T1).
 
-build_col_rule([H|RP],PT,PF,Tr,Final,Row0,Row2):-
-	build_col_rule(RP,PT,PF,f,Final,Row0,Row1),
-	build_col_rule(RP,PT,PF,Tr,Final,Row1,Row2).
+build_col([],f,_Probs,FalseCol,T0,T1):-!,
+	append(T0,FalseCol,T1).
 
-update_row_true_body(PT,_PF,t,Row0,Row1):-!,
-	append(Row0,[PT],Row1).
+build_col([\+ _H|T],Truth,Probs,FalseCol,T0,T1):-!,
+	build_col(T,Truth,Probs,FalseCol,T0,T2),
+	build_col(T,f,Probs,FalseCol,T2,T1).
+
+build_col([_H|T],Truth,Probs,FalseCol,T0,T1):-
+	build_col(T,f,Probs,FalseCol,T0,T2),
+	build_col(T,Truth,Probs,FalseCol,T2,T1).
+
+add_hom_edges_to_graph([],_N,Graph,Graph):-!.
+
+add_hom_edges_to_graph([H|T],N,Graph0,Graph1):-
+	add_edges(Graph0,[H-ch(N)],Graph2),
+	add_hom_edges_to_graph(T,N,Graph2,Graph1).
+
+add_het_edges_to_graph([''],_N,Graph,Graph):-!.
+
+add_het_edges_to_graph([H|T],N,Graph0,Graph1):-
+	add_edges(Graph0,[ch(N)-d(H)],Graph2),
+	add_het_edges_to_graph(T,N,Graph2,Graph1).
+
+add_edges_to_graph([],_Atoms,Graph,Graph):-!.
+
+add_edges_to_graph([H|T],Atoms,Graph0,Graph1):-
+	add_edges_from_atom(Atoms,H,Graph0,Graph2),
+	add_edges_to_graph(T,Atoms,Graph2,Graph1).
+
+add_edges_from_atom([''],_At,Graph,Graph):-!.
+
+add_edges_from_atom([H|T],At,Graph0,Graph1):-
+	add_edges(Graph0,[At-d(H)],Graph2),
+	add_edges_from_atom(T,At,Graph2,Graph1).
+
+gen_het_factors([''],_N,_LH,_Pos,HetF,HetF):-!.
+
+gen_het_factors([H|Atoms],N,LH,Pos,HetF0,[f(Mat,[ch(N),d(H)],[LH,2])|HetF1]):-
+	gen_het_table(0,LH,Pos,Table),
+	matrix_new(floats, [LH,2], Table, Mat),
+	Pos1 is Pos+1,
+	gen_het_factors(Atoms,N,LH,Pos1,HetF0,HetF1).
+
+gen_het_table(N,N,_Pos,[]):-!.
+
+gen_het_table(N0,N,N0,[0.0,1.0|T]):-!,
+	N1 is N0+1,
+	gen_het_table(N1,N,N0,T).
+
+gen_het_table(N0,N,Pos,[1.0,0.0|T]):-
+	N1 is N0+1,
+	gen_het_table(N1,N,Pos,T).
+
 	
-update_row_true_body(_PT,PF,f,Row0,Row1):-
-	append(Row0,[PF],Row1).
-
-update_row_false_body(t,Row0,Row1):-!,
-		setting(cpt_zero,Zero),
-		append(Row0,[Zero],Row1).
-
-update_row_false_body(f,Row0,Row1):-
-		append(Row0,[1.0],Row1).
-
-
-gen_factors([],[],_PT,_PF,_Table,-Sizes,,_BodyAtoms,RF,RF):-!.
-
-gen_factors([HA|TA],[HP|TP],PT,PF,Table,Sizes,BodyAtoms,RF0,[f(Mat,[d(HA)|BodyAtoms])[RF1):-
-	copy_term((PT,PF,Table),{PT1,PF1,Table1)),
-	PT1 = HP,
-	PF1 is 1.0-HP,
-	matrix_new(floats, Sizes, Table1, Mat),
-	gen_factors(TA,TP,PT,PF,Table,Sizes,BodyAtoms,RF0,RF1).
-
-
-
 	
 get_parents([],_AV,[]).
 		
@@ -1155,6 +1344,19 @@ listN(N,N,[]):-!.
 listN(NIn,N,[NIn|T]):-
 	N1 is NIn+1,
 	listN(N1,N,T).
+
+list2(N,N,[]):-!.
+
+list2(NIn,N,[2|T]):-
+	N1 is NIn+1,
+	list2(N1,N,T).
+
+list0(N,N,[]):-!.
+
+list0(NIn,N,[0.0|T]):-
+	N1 is NIn+1,
+	list0(N1,N,T).
+
 /* end of predicates for parsing an input file containing a program */
 
 /* start of utility predicates */
