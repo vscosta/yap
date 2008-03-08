@@ -80,7 +80,8 @@ get_ground_portion(GL,GLC,CL,Undef):-
 		remove_head(LC,LC1),
 		append(L1,LC1,LD),
 		remove_duplicates(LD,LD1),
-		build_ground_lpad(LD1,0,CL)
+		build_ground_lpad(LD1,0,CL),
+		Undef=no
 	;
 		Undef=yes
 	).
@@ -127,7 +128,7 @@ sc(GL,GLC,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 		statistics(walltime,[_,WT1]),
 		WallTime1 is WT1/1000,
 		(Undef=yes->
-			P=undef
+			P=undef,
 			CPUTime2=0.0,
 			WallTime2=0.0
 		;
@@ -244,8 +245,8 @@ vel(IF,RF,QAtoms,GLC,SortedAtoms,OutptutTable):-
 fix_evidence([],[],_Ev):-!.
 
 fix_evidence([f(Tab,Dep,Sz)|T],[f(Tab1,Dep1,Sz1)|T1],Ev):-
-	add_conv(Ev,Ev1),
-	simplify_evidence(Ev1,Tab,Dep,Sz,Tab1,Dep1,Sz1),
+%	add_conv(Ev,Ev1),
+	simplify_evidence(Ev,Tab,Dep,Sz,Tab1,Dep1,Sz1),
 	fix_evidence(T,T1,Ev).
 
 add_conv([],[]):-!.
@@ -365,21 +366,21 @@ sum_out1(Var,Hom,Het,Hom2,Het2,SortedAtoms):-
 	combine_tables(HetFacts,HetFact,SortedAtoms),
 	(HetFact=[];HetFact=f(Mat2,_,_),	
 	matrix_to_list(Mat2,_)),
-	update_factors(HomFact,HetFact,Var,Hom1,Hom2,Het1,Het2,SortedAtoms).
+	update_factors(Var,HomFact,HetFact,Hom1,Hom2,Het1,Het2,SortedAtoms).
 
-update_factors([],[],_Var,Hom,Hom,Het,Het,_SortedAtoms):-!.
+update_factors(_Var,[],[],Hom,Hom,Het,Het,_SortedAtoms):-!.
 
-update_factors(HomFact,[],Var,Hom,[Fact|Hom],Het,Het,_SortedAtoms):-!,
+update_factors(Var,HomFact,[],Hom,[Fact|Hom],Het,Het,_SortedAtoms):-!,
 	sum_var(Var,HomFact,Fact),
 	Fact=f(Mat2,_,_),	
 	matrix_to_list(Mat2,_).
 
-update_factors([],HetFact,Var,Hom,Hom,Het,[Fact|Het],_SortedAtoms):-
+update_factors(Var,[],HetFact,Hom,Hom,Het,[Fact|Het],_SortedAtoms):-
 	sum_var(Var,HetFact,Fact),
 	Fact=f(Mat2,_,_),	
 	matrix_to_list(Mat2,_).
 
-update_factors(HomFact,HetFact,Var,Hom,Hom,Het,[Fact1|Het],SortedAtoms):-
+update_factors(Var,HomFact,HetFact,Hom,Hom,Het,[Fact1|Het],SortedAtoms):-
 	multiply_CPTs(HomFact,HetFact,Fact,SortedAtoms),
 	Fact=f(Mat,_,_),	
 	matrix_to_list(Mat,_),
@@ -423,8 +424,10 @@ combine_CPTs(f(Tab1, Deps1, Sz1), f(Tab2, Deps2, Sz2), F, SortedAtoms) :-
 	rename_convergent(2,CommConv,Deps2,Deps21,NewAt0,NewAt1),
 	update_sorted(SortedAtoms,NewAt1,SortedAtoms1),
 	expand_tabs(Deps11, Sz1, Deps21, Sz2, Map1, Map2, NDeps0,SortedAtoms1),
+	matrix_to_list(Tab1,_),
 	matrix_expand(Tab1, Map1, NTab1),
 	matrix_to_list(NTab1,_),
+	matrix_to_list(Tab2,_),
 	matrix_expand(Tab2, Map2, NTab2),
 	matrix_to_list(NTab2,_),
 	matrix_op(NTab1,NTab2,*,OT0),
