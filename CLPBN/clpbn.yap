@@ -5,7 +5,8 @@
 		  set_clpbn_flag/2,
 		  clpbn_flag/3,
 		  clpbn_key/2,
-		  clpbn_marginalise/2]).
+		  clpbn_marginalise/2,
+			call_solver/2]).
 
 :- use_module(library(atts)).
 :- use_module(library(lists)).
