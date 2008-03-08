@@ -53,6 +53,7 @@ CPLINT_DOCDIR = $(srcdir)/doc
 
 
 CPLINT_PROGRAMS= \
+	$(CPLINT_SRCDIR)/lpadvel.pl \
 	$(CPLINT_SRCDIR)/lpadclpbn.pl \
 	$(CPLINT_SRCDIR)/lpadsld.pl \
 	$(CPLINT_SRCDIR)/lpad.pl \
@@ -65,6 +66,8 @@ CPLINT_SEMANTICS_PROGRAMS= \
 	$(CPLINT_SRCDIR)/slg.pl 
 	
 CPLINT_TEST_PROGRAMS= \
+	$(CPLINT_SRCDIR)/testlpadvel.pl \
+	$(CPLINT_SRCDIR)/testlpadclpbn.pl \
 	$(CPLINT_SRCDIR)/testlpadsld_gbtrue.pl \
 	$(CPLINT_SRCDIR)/testlpadsld_gbfalse.pl \
 	$(CPLINT_SRCDIR)/testlpad.pl \
