@@ -41,13 +41,14 @@ setting(cpt_zero,0.0001).
 GoalsLis can have variables, s returns in backtracking all the solutions with 
 their corresponding probability */
 s(GL,P):-
-	setof(Deriv,find_deriv(GL,Deriv),LDup),
+	setof(Deriv,find_deriv(GL,Deriv),LDup),!,
 	append_all(LDup,[],L),
 	remove_head(L,L1),
 	remove_duplicates(L1,L2),
 	build_ground_lpad(L2,0,CL),
 	convert_to_clpbn(CL,GL,LV,P).
 
+s(_GL,0.0).
 /* sc(GoalsList,EvidenceList,Prob) compute the probability of a list of goals 
 GoalsList given EvidenceList. Both lists can have variables, sc returns in 
 backtracking all the solutions with their corresponding probability 
@@ -137,10 +138,40 @@ process_goals([H|T],[HG|TG],[HV|TV]):-
 
 build_ground_lpad([],_N,[]).
 
-build_ground_lpad([(R,S)|T],N,[(N1,Head,Body)|T1]):-
+build_ground_lpad([(R,S)|T],N,[(N1,Head1,Body1)|T1]):-
 	rule(R,S,_,Head,Body),
 	N1 is N+1,
+	merge_identical(Head,Head1),
+	remove_built_ins(Body,Body1),
 	build_ground_lpad(T,N1,T1).
+
+remove_built_ins([],[]):-!.
+
+remove_built_ins([\+H|T],T1):-
+	builtin(H),!,
+	remove_built_ins(T,T1).
+
+remove_built_ins([H|T],T1):-
+	builtin(H),!,
+	remove_built_ins(T,T1).
+
+remove_built_ins([H|T],[H|T1]):-
+	remove_built_ins(T,T1).
+
+merge_identical([],[]):-!.
+
+merge_identical([A:P|T],[A:P1|Head]):-
+	find_identical(A,P,T,P1,T1),
+	merge_identical(T1,Head).
+
+find_identical(_A,P,[],P,[]):-!.
+
+find_identical(A,P0,[A:P|T],P1,T1):-!,
+	P2 is P0+P,
+	find_identical(A,P2,T,P1,T1).
+
+find_identical(A,P0,[H:P|T],P1,[H:P|T1]):-
+	find_identical(A,P0,T,P1,T1).
 
 convert_to_clpbn(CL,GL,LV,P,GLC):-
 	find_ground_atoms(CL,[],GAD),
