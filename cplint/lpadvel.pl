@@ -22,7 +22,6 @@
 :-use_module(library(lists)).
 :-use_module(library(ugraphs)).
 :-use_module(library(avl)).
-:-use_module(library(ugraphs)).
 
 :-use_module(library(matrix)).
 
@@ -565,20 +564,6 @@ identity_facotrs([H|T],[d(H)|TD],[f(Mat,[d(H),H],[2,2])|TF],Graph0,Graph1):-
 	matrix_new(floats, [2,2], [1.0,0.0,0.0,1.0],Mat),
 	identity_facotrs(T,TD,TF,Graph2,Graph1).
 
-
-
-
-add_ev([],_AV).
-
-add_ev([\+ H|T],AV):-!,
-	avl_lookup(H,V,AV),
-	clpbn:put_atts(V,evidence(0)),
-	add_ev(T,AV).
-
-add_ev([H|T],AV):-
-	avl_lookup(H,V,AV),
-	clpbn:put_atts(V,evidence(1)),
-	add_ev(T,AV).
 
 find_rules_with_atom(_A,[],[]).
 
