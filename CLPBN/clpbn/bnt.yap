@@ -398,13 +398,12 @@ marginalize([V], _SortedVars,_NunmberedVars, Ps) :- !,
 marginalize(Vs, SortedVars, NumberedVars,Ps) :-
 	bnt_solver(jtree),!,
 	matlab_get_variable(loglik, Den),
-	D is exp(Den),
 	clpbn_display:get_all_combs(Vs, Vals),
 	mk_evidence(SortedVars, NumberedVars, Ev),
 	length(SortedVars,L),
 	cycle_values(Den, Ev, Vs, L, Vals, Ps).
 
-cycle_values(_D, Ev, _Vs, _Size, [], []).	
+cycle_values(_D, _Ev, _Vs, _Size, [], []).	
 
 cycle_values(Den,Ev,Vs,Size,[H|T],[HP|TP]):-
 	mk_evidence_query(Vs, H, EvQuery),
