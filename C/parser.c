@@ -576,8 +576,14 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
       break;
     case '[':
       NextToken;
-      t = ParseList(FailBuff);
-      checkfor((Term) ']', FailBuff);
+      if (Yap_tokptr->Tok == Ord(Ponctuation_tok) &&
+	  Unsigned(Yap_tokptr->TokInfo) == ']') {
+	t = TermNil;
+	NextToken;
+      } else {
+	t = ParseList(FailBuff);
+	checkfor((Term) ']', FailBuff);
+      }
       break;
     case '{':
       NextToken;

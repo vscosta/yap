@@ -1161,23 +1161,13 @@ Yap_tokenizer(int inp_stream)
 
     case BK:
       och = ch;
-      do {
-	ch = Nxtch(inp_stream);
-      } while (chtype(ch) == BS);
-      if (och == '[' && ch == ']') {
-	t->TokInfo = Unsigned(AtomNil);
-	ch = Nxtch(inp_stream);
-	t->Tok = Ord(kind = Name_tok);
-	if (ch == '(')
-	  solo_flag = FALSE;
-      } else {
-	t->TokInfo = och;
-	if (t->TokInfo == '(' && !solo_flag) {
-	  t->TokInfo = 'l';
-	  solo_flag = TRUE;
-	}
-	t->Tok = Ord(kind = Ponctuation_tok);
+      ch = Nxtch(inp_stream);
+      t->TokInfo = och;
+      if (t->TokInfo == '(' && !solo_flag) {
+	t->TokInfo = 'l';
+	solo_flag = TRUE;
       }
+      t->Tok = Ord(kind = Ponctuation_tok);
       break;
 
     case EF:
