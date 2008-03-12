@@ -138,7 +138,4 @@ phrase(Phrase, S0, S) :-
 	'$t_body'(Phrase, _, last, S0, S, Goal), !,
 	'$execute'(Goal).
 
-lists:append([], L, L) .
-lists:append([H|T], L, [H|R]) :-
-	lists:append(T, L, R).
 
