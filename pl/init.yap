@@ -95,7 +95,7 @@ lists:memberchk(X,[_|L]) :-
 %   Element occurs in a known Set.  In return for this limited use, it
 %   is more efficient when it is applicable.
 
-lists:member(X,[X|_]) :- !.
+lists:member(X,[X|_]).
 lists:member(X,[_|L]) :-
 	lists:member(X,L).
 
@@ -169,6 +169,8 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 :- multifile generate_message_hook/3.
 
 :- dynamic generate_message_hook/3.
+
+:- multifile swi:swi_predicate_table/4.
 
 file_search_path(library, Dir) :-
 	library_directory(Dir).
