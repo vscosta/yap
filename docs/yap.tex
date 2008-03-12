@@ -7831,6 +7831,14 @@ the current @code{user_output} stream.
 By default, the @code{user_output} stream is set to a stream
 corresponding to the Unix @code{stdout} stream.
 
+@item  verbose
+@findex verbose (yap_flag/2 option)
+@*
+If @code{normal} allow printing of informational and banner messages,
+such as the ones that are printed when consulting. If @code{silent}
+disable printing these messages. It is @code{normal} by default except if
+YAP is booted with the @code{-L} flag.
+
 @item version
 @findex version (yap_flag/2 option)
 @* Read-only flag that returns an atom with the current version of

@@ -322,6 +322,14 @@ yap_flag(informational_messages,off) :- !, set_value('$verbose',off).
 yap_flag(informational_messages,X) :-
 	'$do_error'(domain_error(flag_value,informational_messages+X),yap_flag(informational_messages,X)).
 
+yap_flag(verbose,X) :- var(X), !,
+	 get_value('$verbose',X0),
+	 (X0 == on -> X = normal ; X = silent).
+yap_flag(verbose,normal)  :- !, set_value('$verbose',on).
+yap_flag(verbose,silent) :- !, set_value('$verbose',off).
+yap_flag(verbose,X) :-
+	'$do_error'(domain_error(flag_value,verbose+X),yap_flag(verbose,X)).
+
 yap_flag(integer_rounding_function,X) :-
 	var(X), !,
 	'$access_yap_flags'(2, X1),
@@ -859,6 +867,7 @@ yap_flag(dialect,yap).
 		V = user_input ;
 		V = user_output ;
 		V = variable_names_may_end_with_quotes ;
+		V = verbose ;
 		V = verbose_auto_load ;
 		V = version ;
 		V = version_data ;
