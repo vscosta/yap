@@ -594,7 +594,7 @@ atomic_concat(X,Y,At) :-
 	;
 	  number(At) ->
 	  number_codes(At,Codes),
-	  '$append'(X0,Y0,Codes),
+	  lists:append(X0,Y0,Codes),
 	  name(X,X0),
 	  name(Y,Y0)
 	;

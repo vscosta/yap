@@ -94,7 +94,7 @@
 
 '$extend'(More, OldT, NewT) :-
 	OldT =.. OldL,
-	'$append'(OldL, More, NewL),
+	lists:append(OldL, More, NewL),
 	NewT =.. NewL.
 
 
@@ -133,12 +133,12 @@ phrase(P, S0, S) :-
 phrase([], S0, S) :- !,
 	S0 = S.
 phrase([H|T], S0, S) :- !,
-	'$append'([H|T], S, S0).
+	lists:append([H|T], S, S0).
 phrase(Phrase, S0, S) :-
 	'$t_body'(Phrase, _, last, S0, S, Goal), !,
 	'$execute'(Goal).
 
-'$append'([], L, L) .
-'$append'([H|T], L, [H|R]) :-
-	'$append'(T, L, R).
+lists:append([], L, L) .
+lists:append([H|T], L, [H|R]) :-
+	lists:append(T, L, R).
 

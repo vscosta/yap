@@ -60,10 +60,10 @@ load_foreign_files(Objs,Libs,Entry) :-
 
 '$process_obj_suffix'(ObjCodes,ObjCodes) :-
 	'$obj_suffix'(ObjSuffix),
-	'$append'(_,ObjSuffix,ObjCodes), !.
+	lists:append(_,ObjSuffix,ObjCodes), !.
 '$process_obj_suffix'(ObjCodes,NewObjCodes) :-
 	'$obj_suffix'(ObjSuffix),
-	'$append'(ObjCodes,ObjSuffix,NewObjCodes).
+	lists:append(ObjCodes,ObjSuffix,NewObjCodes).
 
 '$checklib_prefix'(Cs,Cs) :- '$rooted_path'(Cs), !.
 '$checklib_prefix'([0'l,0'i,0'b|NewObjCodes],[0'l,0'i,0'b|NewObjCodes]) :- !.

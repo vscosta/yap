@@ -637,7 +637,7 @@ abolish_module(_).
 	recorded('$lf_loaded','$lf_loaded'(TopFile,TopModule,_),_),
 	recorded('$module', '$module'(CurrentFile, Module, ModExports), Ref),
 	erase(Ref),
-	'$append'(ModExports, MyExports, AllExports),
+	lists:append(ModExports, MyExports, AllExports),
 	recorda('$module', '$module'(CurrentFile, Module, AllExports), _),
 	'$import'(MyExports, Module, TopModule).
 
