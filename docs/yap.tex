@@ -2595,7 +2595,7 @@ arguments.
 @cnindex ->*/2
 This construct implements the so-called @emph{soft-cut}. The control is
     defined as follows: If @var{Condition} succeeds at least once, the
-    semantics is the same as (@var{Condition}, @var {Action}). If
+    semantics is the same as (@var{Condition}, @var{Action}). If
     @var{Condition} does not succeed, the semantics is that of (\+
     @var{Condition}, @var{Else}). In other words, If @var{Condition}
     succeeds at least once, simply behave as the conjunction of
@@ -4326,6 +4326,54 @@ The initial mode is @code{prolog} for the user streams and
 
 @end table
 
+@item current_line_number(-@var{LineNumber})
+@findex current_line_number/1
+@saindex current_line_number/1
+@cnindex current_line_number/1
+Unify @var{LineNumber} with the line number for the current stream.
+
+@item current_line_number(+@var{Stream},-@var{LineNumber})
+@findex current_line_number/2
+@saindex current_line_number/2
+@cnindex current_line_number/2
+Unify @var{LineNumber} with the line number for the @var{Stream}. 
+
+@item line_count(+@var{Stream},-@var{LineNumber})
+@findex line_count/2
+@syindex line_count/2
+@cnindex line_count/2
+Unify @var{LineNumber} with the line number for the @var{Stream}.
+
+@item character_count(+@var{Stream},-@var{CharacterCount})
+@findex character_count/2
+@syindex character_count/2
+@cnindex character_count/2
+Unify @var{CharacterCount} with the number of characters written to or
+read to @var{Stream}.
+
+@item line_position(+@var{Stream},-@var{LinePosition})
+@findex line_position/2
+@syindex line_position/2
+@cnindex line_position/2
+Unify @var{LinePosition} with the position on current text stream
+@var{Stream}.
+
+@item stream_position(+@var{Stream},-@var{StreamPosition})
+@findex stream_position/2
+@syindex stream_position/2
+@cnindex stream_position/2
+Unify @var{StreamPosition} with the packaged information of position on
+current stream @var{Stream}. Use @code{stream_position_data/3} to
+retrieve information on charater or line count.
+
+@item stream_position_data(+@var{Field},+@var{StreamPsition},-@var{Info})
+@findex stream_position_data/3
+@syindex stream_position_data/3
+@cnindex stream_position_data/3
+Given the packaged stream position term @var{StreamPosition}, unify
+@var{Info} with @var{Field} @code{line_count}, @code{byte_count}, or
+@code{char_count}.
+
 @end table
 
 @node C-Prolog File Handling, I/O of Terms, Streams and Files, I/O
@@ -4420,6 +4468,12 @@ Reads term @var{T} from the current input stream with execution
 controlled by the following options:
 
 @table @code
+
+@item  term_position(-@var{Position})
+@findex term_position/1 (read_term/2 option)
+Unify @var{Position} with a term describing the position of the stream
+at the start of parse. Use @code{stream_position_data/3} to obtain extra
+information.
 
 @item  singletons(-@var{Names})
 @findex singletons/1 (read_term/2 option)
@@ -6474,161 +6528,6 @@ Unify the current value of mutable term @var{M} with term @var{D}.
 Set the current value of mutable term @var{M} to term @var{D}.
 @end table
 
-@node Global Variables, Profiling, Profiling, Term Modification, Top
-@section Global Variables
-
-@cindex global variables
-
-Global variables are associations between names (atoms) and
-terms. They differ in various ways from storing information using
-@node{assert/1} or @node{recorda/3}.
-
-@itemize @bullet
-@item The value lives on the Prolog (global) stack. This implies that
-lookup time is independent from the size of the term. This is
-particularly interesting for large data structures such as parsed XML
-documents or the CHR global constraint store. 
-
-@item They support both global assignment using nb_setval/2 and
-backtrackable assignment using b_setval/2.
-
-@item Only one value (which can be an arbitrary complex Prolog term) can be associated to a variable at a time. 
-
-@item Their value cannot be shared among threads. Each thread has its own
-namespace and values for global variables.
-@end itemize
-
-Currently global variables are scoped globally. We may consider module
-scoping in future versions.  Both @code{b_setval/2} and
-@code{nb_setval/2} implicitly create a variable if the referenced name
-does not already refer to a variable.
-
-Global variables may be initialised from directives to make them
-available during the program lifetime, but some considerations are
-necessary for saved-states and threads. Saved-states to not store
-global variables, which implies they have to be declared with
-@code{initialization/1} to recreate them after loading the saved
-state. Each thread has its own set of global variables, starting with
-an empty set. Using @code{thread_initialization/1} to define a global
-variable it will be defined, restored after reloading a saved state
-and created in all threads that are created after the
-registration. Finally, global variables can be initialised using the
-exception hook called @code{exception/3}. The latter technique is by
-CHR.
-
-@table @code
-@item b_setval(+@var{Name}, +@var{Value}) 
-@findex b_setval/2
-@snindex b_setval/2
-@cnindex b_setval/2
-Associate the term @var{Value} with the atom @var{Name} or replaces
-the currently associated value with @var{Value}. If @var{Name} does
-not refer to an existing global variable a variable with initial value
-[] is created (the empty list). On backtracking the assignment is
-reversed. 
-
-@item b_getval(+@var{Name}, -@var{Value}) 
-@findex b_getval/2
-@snindex b_getval/2
-@cnindex b_getval/2
-Get the value associated with the global variable @var{Name} and unify
-it with @var{Value}. Note that this unification may further
-instantiate the value of the global variable. If this is undesirable
-the normal precautions (double negation or @var{copy_term/2}) must be
-taken. The @var{b_getval/2} predicate generates errors if @var{Name} is not
-an atom or the requested variable does not exist. 
-
-@item nb_setval(+@var{Name}, +@var{Value}) 
-@findex nb_setval/2
-@snindex nb_setval/2
-@cnindex nb_setval/2
-Associates a copy of @var{Value} created with @var{duplicate_term/2} with
-the atom @var{Name}. Note that this can be used to set an initial
-value other than @code{[]} prior to backtrackable assignment.
-
-@item nb_getval(+@var{Name}, -@var{Value}) 
-@findex nb_getval/2
-@snindex nb_getval/2
-@cnindex nb_getval/2
-The @code{nb_getval/2} predicate is a synonym for @code{b_getval/2},
-introduced for compatibility and symmetry. As most scenarios will use
-a particular global variable either using non-backtracable or
-backtrackable assignment, using @code{nb_getval/2} can be used to
-document that the variable is used non-backtracable.
-
-@item nb_linkval(+@var{Name}, +@var{Value}) 
-@findex nb_linkval/2
-@snindex nb_linkval/2
-@cnindex nb_linkval/2
-Associates the term @var{Value} with the atom @var{Name} without
-copying it. This is a fast special-purpose variation of @code{nb_setval/2}
-intended for expert users only because the semantics on backtracking
-to a point before creating the link are poorly defined for compound
-terms. The principal term is always left untouched, but backtracking
-behaviour on arguments is undone if the original assignment was
-trailed and left alone otherwise, which implies that the history that
-created the term affects the behaviour on backtracking. Please
-consider the following example:
-
-@example
-demo_nb_linkval :-
-        T = nice(N),
-        (   N = world,
-            nb_linkval(myvar, T),
-            fail
-        ;   nb_getval(myvar, V),
-            writeln(V)
-        ).
-@end example
-
-@item nb_set_shared_val(+@var{Name}, +@var{Value}) 
-@findex nb_set_shared_val/2
-@snindex nb_set_shared_val/2
-@cnindex nb_set_shared_val/2
-Associates the term @var{Value} with the atom @var{Name}, but sharing
-non-backtrackable terms. This may be useful if you want to rewrite a
-global variable so that the new copy will survive backtracking, but
-you want to share structure with the previous term.
-
-The next example shows the differences between the three built-ins:
-@example
-demo_nb_linkval :-
-        T = nice(N),
-        (   N = world,
-            nb_linkval(myvar, T),
-            fail
-        ;   nb_getval(myvar, V),
-            writeln(V)
-        ).
-@end example
-
-
-@item nb_current(?@var{Name}, ?@var{Value}) 
-@findex nb_current/2
-@snindex nb_current/2
-@cnindex nb_current/2
-Enumerate all defined variables with their value. The order of
-enumeration is undefined. 
-
-@item nb_delete(+@var{Name}) 
-@findex nb_delete/2
-@snindex nb_delete/2
-@cnindex nb_delete/2
-Delete the named global variable. 
-@end table
-
-Global variables have been introduced by various Prolog
-implementations recently. We follow the implementation of them in
-SWI-Prolog, itself based on hProlog by Bart Demoen.
-
-GNU-Prolog provides a rich set of global variables, including
-arrays. Arrays can be implemented easily in YAP and SWI-Prolog using
-@code{functor/3} and @code{setarg/3} due to the unrestricted arity of
-compound terms.
-
-
-@node Profiling, Call Counting, Global Variables, Top
-=======
 @node Global Variables, Profiling, Term Modification, Top
 @section Global Variables
 
@@ -13198,7 +13097,17 @@ If defined by the user, this predicate will be used to print goals by
 the debugger instead of @code{write/2}.
 
 @item trace
+@findex trace/0
+@syindex trace/0
+@cyindex trace/0
 Switches on the debugger and starts tracing.
+
+@item notrace
+@findex notrace/0
+@syindex notrace/0
+@cyindex notrace/0
+Ends tracing and exits the debugger. This is the same as
+@code{nodebug/0}.
 
 @end table
 
