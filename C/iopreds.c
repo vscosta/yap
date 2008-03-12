@@ -2239,17 +2239,17 @@ p_open (void)
     Yap_Error(DOMAIN_ERROR_IO_MODE, t2, "open/3");
     return(FALSE);   
   }
-  if (!Yap_TrueFileName (RepAtom (AtomOfTerm (file_name))->StrOfAE, Yap_FileNameBuf, FALSE))
-    return (PlIOError (EXISTENCE_ERROR_SOURCE_SINK,file_name,"open/3"));
-  sno = GetFreeStreamD();
-  if (sno < 0)
-    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open/3"));
-  st = &Stream[sno];
   /* can never happen */
   topts = Deref(ARG4);
   if (IsVarTerm(topts) || !IsIntegerTerm(topts))
     return(FALSE);
   opts = IntegerOfTerm(topts);
+  if (!strncpy(Yap_FileNameBuf, RepAtom (AtomOfTerm (file_name))->StrOfAE, YAP_FILENAME_MAX))
+    return (PlIOError (SYSTEM_ERROR,file_name,"file name is too long in open/3"));
+  sno = GetFreeStreamD();
+  if (sno < 0)
+    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open/3"));
+  st = &Stream[sno];
   /* can never happen */
   tenc = Deref(ARG5);
   if (IsVarTerm(tenc) || !IsIntegerTerm(tenc))
@@ -4309,7 +4309,7 @@ p_get (void)
 
 static Int
 p_get0 (void)
-{				/* '$get0'(Stream,-N)                    */
+{				/* get0(Stream,-N)                    */
   int sno = CheckStream (ARG1, Input_Stream_f, "get0/2");
   Int status;
   Int out;
@@ -6014,8 +6014,8 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$close", 1, p_close, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("flush_output", 1, p_flush, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$flush_all_streams", 0, p_flush_all_streams, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$get", 2, p_get, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$get0", 2, p_get0, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("get", 2, p_get, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("get0", 2, p_get0, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get0_line_codes", 2, p_get0_line_codes, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get_byte", 2, p_get_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$access", 1, p_access, SafePredFlag|SyncPredFlag|HiddenPredFlag);

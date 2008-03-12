@@ -95,25 +95,6 @@ last([], Last, Last).
 last([H|List], _, Last) :-
 	last(List, H, Last).
 
-%   member(?Element, ?Set)
-%   is true when Set is a list, and Element occurs in it.  It may be used
-%   to test for an element or to enumerate all the elements by backtracking.
-%   Indeed, it may be used to generate the Set!
-
-member(Element, [Element|_]).
-member(Element, [_|Rest]) :-
-        member(Element, Rest).
-
-
-%   memberchk(+Element, +Set)
-%   means the same thing, but may only be used to test whether a known
-%   Element occurs in a known Set.  In return for this limited use, it
-%   is more efficient when it is applicable.
-
-memberchk(Element, [Element|_]) :- !.
-memberchk(Element, [_|Rest]) :-
-        memberchk(Element, Rest).
-
 %   nextto(X, Y, List)
 %   is true when X and Y appear side-by-side in List.  It could be written as
 %	nextto(X, Y, List) :- append(_, [X,Y,_], List).

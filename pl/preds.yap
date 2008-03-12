@@ -852,7 +852,7 @@ predicate_property(Pred,Prop) :-
 '$predicate_property'(P,M,M,exported) :-
 	functor(P,N,A),
 	recorded('$module','$module'(_TFN,M,Publics),_),
-	'$member'(N/A,Publics), !.	/* defined in modules.yap */
+	lists:memberchk(N/A,Publics), !.
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
 	'$number_of_clauses'(P,Mod,NCl).
 

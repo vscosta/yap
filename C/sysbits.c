@@ -1589,13 +1589,14 @@ Yap_volume_header(char *file)
   return volume_header(file);
 }
 
+/******
+      TODO: rewrite to use wordexp
+ ****/
 static int
 TrueFileName (char *source, char *root, char *result, int in_lib)
 {
-  register int ch;
-  register char *res0 = result, *work;
-  char ares1[YAP_FILENAME_MAX], *res1 = ares1;
-  char *var_name;
+  char *res0 = result, *work;
+  char ares1[YAP_FILENAME_MAX];
 
   result[0] = '\0';
 #if defined(__MINGW32__) || _MSC_VER
@@ -1610,149 +1611,137 @@ TrueFileName (char *source, char *root, char *result, int in_lib)
   }
 #endif
   /* step 1: eating home information */
-  if (source[0] == '~')
-    {
-      if (dir_separator(source[1]) || source[1] == '\0')
-	{
-	  char *s;
-	  source++;
+  if (source[0] == '~') {
+    if (dir_separator(source[1]) || source[1] == '\0')
+      {
+	char *s;
+	source++;
 #if defined(_WIN32)
-	  s = getenv("HOMEDRIVE");
-	  if (s != NULL)
-	    strncpy (result, getenv ("HOMEDRIVE"), YAP_FILENAME_MAX);
-	  s = getenv("HOMEPATH");
-	  if (s != NULL)
-	    strncpy (result, s, YAP_FILENAME_MAX);
+	s = getenv("HOMEDRIVE");
+	if (s != NULL)
+	  strncpy (result, getenv ("HOMEDRIVE"), YAP_FILENAME_MAX);
+	s = getenv("HOMEPATH");
+	if (s != NULL)
+	  strncpy (result, s, YAP_FILENAME_MAX);
 #else
-	  s = getenv ("HOME");
-	  if (s != NULL)
-	    strncpy (result, s, YAP_FILENAME_MAX);
+	s = getenv ("HOME");
+	if (s != NULL)
+	  strncpy (result, s, YAP_FILENAME_MAX);
 #endif
-	}
+      } else {
 #if HAVE_GETPWNAM
-      else
-	{
-	  struct passwd *user_passwd;
+      struct passwd *user_passwd;
 
-	  source++;
-	  while (!dir_separator((*res0 = *source)) && *res0 != '\0')
-	    res0++, source++;
-	  *res0++ = '\0';
-	  if ((user_passwd = getpwnam (result)) == NULL)
-	    {
-	      return(FALSE);
-	    }
-	  strncpy (result, user_passwd->pw_dir, YAP_FILENAME_MAX);
-	}
+      source++;
+      while (!dir_separator((*res0 = *source)) && *res0 != '\0')
+	res0++, source++;
+      *res0++ = '\0';
+      if ((user_passwd = getpwnam (result)) == NULL) {
+	return FALSE;
+      }
+      strncpy (result, user_passwd->pw_dir, YAP_FILENAME_MAX);
+#else
+      return FALSE;
 #endif
-      strncat (result, source, YAP_FILENAME_MAX);
     }
-  else
+    strncat (result, source, YAP_FILENAME_MAX);
+  } else if (source[0] == '$') {
+    /* follow SICStus expansion rules */
+    int ch;
+    char *s;
+    char *res0 = source+1;
+
+    while ((ch = *res0) && is_valid_env_char (ch)) {
+      res0++;
+    }
+    *res0 = '\0';
+    if (!(s = (char *) getenv (source+1))) {
+      return FALSE;
+    }
+    *res0 = ch;
+    strncpy (result, s, YAP_FILENAME_MAX);
+    strncat (result, res0, YAP_FILENAME_MAX);
+  } else {
     strncpy (result, source, YAP_FILENAME_MAX);
-  /* step 2: handling environment variables in file names */
-  strncpy (ares1, result, YAP_FILENAME_MAX);
-  res0 = result;
-  while ((ch = *res1++)!=0)
-    {
-      if (ch == '\\' && !dir_separator('\\'))
-	{
-	  ch = *res1++;
-	  if (ch == '\0')
-	    {
-	      *res0 = '\0';
-	      break;
-	    }
-	  else
-	    *res0++ = ch;
-	}
-      if (ch != '$')
-	*res0++ = ch;
-      else
-	{
-	  char env_var[256], *sptr = env_var;
-	  while (((ch = *res1)!=0) && is_valid_env_char (ch))
-	    {
-	      res1++;
-	      *sptr++ = ch;
-	    }
-	  *sptr = '\0';
-	  if ((var_name = (char *) getenv (env_var)) == NULL)
-	    {
-	      return(FALSE);
-	    }
-	  else
-	    while ((*res0 = *var_name++)!=0)
-	      res0++;
-	}
+  }
+#if defined(_WIN32)
+  res1 = result;
+  /* step 2 WINDOWS: replacing \ by / */
+  while ((ch = *res1++)) {
+    if (ch == '\\' && dir_separator('\\')) {
+      res1[-1] = '/';
     }
-  *res0 = '\0';
+  }
+#endif
   /* step 3: get the full file name */
   if (!dir_separator(result[0]) && !volume_header(result)) {
-    if (root) {
-      strncpy(ares1, root, YAP_FILENAME_MAX);
-#if _MSC_VER || defined(__MINGW32__)
-      strncat (ares1, "\\", YAP_FILENAME_MAX);
-#else
-      strncat (ares1, "/", YAP_FILENAME_MAX);
-#endif
-      strncat (ares1, result, YAP_FILENAME_MAX);
-    } else {
 #if __simplescalar__
-      /* does not implement getcwd */
-      strncpy(ares1,yap_pwd,YAP_FILENAME_MAX);
+    /* does not implement getcwd */
+    strncpy(ares1,yap_pwd,YAP_FILENAME_MAX);
 #elif HAVE_GETCWD
-      if (getcwd (ares1, YAP_FILENAME_MAX) == NULL)
-	return FALSE;
+    if (getcwd (ares1, YAP_FILENAME_MAX) == NULL)
+      return FALSE;
 #else
-      if (getwd (ares1) == NULL)
-	return FALSE;
+    if (getwd (ares1) == NULL)
+      return FALSE;
 #endif
+#if _MSC_VER || defined(__MINGW32__)
+    strncat (ares1, "\\", YAP_FILENAME_MAX);
+#else
+    strncat (ares1, "/", YAP_FILENAME_MAX);
+#endif
+    if (root) {
+      if (!dir_separator(root[0]) && !volume_header(root)) {
+	strncat(ares1, root, YAP_FILENAME_MAX);
+      } else {
+	strncpy(ares1, root, YAP_FILENAME_MAX);
+      }
 #if _MSC_VER || defined(__MINGW32__)
       strncat (ares1, "\\", YAP_FILENAME_MAX);
 #else
       strncat (ares1, "/", YAP_FILENAME_MAX);
 #endif
-      strncat (ares1, result, YAP_FILENAME_MAX);
-      if (in_lib) {
-	int tmpf;
-	if ((tmpf = open(ares1, O_RDONLY)) < 0) {
-	    /* not in current directory, let us try the library */
-	  if  (Yap_LibDir != NULL) {
-	    strncpy(Yap_FileNameBuf, Yap_LibDir, YAP_FILENAME_MAX);
+    }
+    strncat (ares1, result, YAP_FILENAME_MAX);
+    if (in_lib) {
+      int tmpf;
+      if ((tmpf = open(ares1, O_RDONLY)) < 0) {
+	/* not in current directory, let us try the library */
+	if  (Yap_LibDir != NULL) {
+	  strncpy(Yap_FileNameBuf, Yap_LibDir, YAP_FILENAME_MAX);
 #if HAVE_GETENV
-	  } else {
-	    char *yap_env = getenv("YAPLIBDIR");
-	    if (yap_env != NULL) {
-	      strncpy(ares1, yap_env, YAP_FILENAME_MAX);
-#endif
-	    } else {
-#if _MSC_VER || defined(__MINGW32__)
-	      if (libdir)
-		strncpy(ares1, libdir, YAP_FILENAME_MAX);
-	      else
-#endif
-		strncpy(ares1, LIB_DIR, YAP_FILENAME_MAX);
-	    }
-#if HAVE_GETENV
-	  }
-#endif
-#if _MSC_VER || defined(__MINGW32__)
-	  strncat(ares1,"\\", YAP_FILENAME_MAX);
-#else
-	  strncat(ares1,"/", YAP_FILENAME_MAX);
-#endif
-	  strncat(ares1,result, YAP_FILENAME_MAX);
-	  if ((tmpf = open(ares1, O_RDONLY)) >= 0) {
-	    close(tmpf);
-	    strncpy (result, ares1, YAP_FILENAME_MAX);
-	  }
 	} else {
-	  strncpy (result, ares1, YAP_FILENAME_MAX);
+	  char *yap_env = getenv("YAPLIBDIR");
+	  if (yap_env != NULL) {
+	    strncpy(ares1, yap_env, YAP_FILENAME_MAX);
+#endif
+	  } else {
+#if _MSC_VER || defined(__MINGW32__)
+	    if (libdir)
+	      strncpy(ares1, libdir, YAP_FILENAME_MAX);
+	    else
+#endif
+	      strncpy(ares1, LIB_DIR, YAP_FILENAME_MAX);
+	  }
+#if HAVE_GETENV
+	}
+#endif
+#if _MSC_VER || defined(__MINGW32__)
+	strncat(ares1,"\\", YAP_FILENAME_MAX);
+#else
+	strncat(ares1,"/", YAP_FILENAME_MAX);
+#endif
+	strncat(ares1,result, YAP_FILENAME_MAX);
+	if ((tmpf = open(ares1, O_RDONLY)) >= 0) {
 	  close(tmpf);
+	  strncpy (result, ares1, YAP_FILENAME_MAX);
 	}
       } else {
 	strncpy (result, ares1, YAP_FILENAME_MAX);
+	close(tmpf);
       }
+    } else {
+      strncpy (result, ares1, YAP_FILENAME_MAX);
     }
   }
   /* step 4: simplifying the file name */

@@ -4047,6 +4047,16 @@ escape code or @code{xml} (write @code{&#...;} XML character entity).
 The initial mode is @code{prolog} for the user streams and
 @code{error} for all other streams. See also @ref{Encoding}.
 
+@item expand_filename(+@var{Mode})
+If @var{Mode} is @code{true} then do filename expansion, then ask Prolog
+to do file name expansion before actually trying to opening the file:
+this includes processing @code{~} characters and processing @code{$}
+environment variables at the beginning of the file. Otherwise, just try
+to open the file using the given name.
+
+The default behavior is given by the Prolog flag
+@code{open_expands_filename}.
+
 @end table
 
 @item close(+@var{S}) [ISO]
@@ -7615,6 +7625,13 @@ blackboard when the key is an integer.
 @*
 Read or set the size of the hash table that is used for looking up the
 internal data-base when the key is an integer.
+
+@item open_expands_filename
+@findex open_expands_filename (yap_flag/2 option)
+@*
+If @code{true} the @code{open/3} builtin performs filename-expansion
+before opening a file (SICStus Prolog like). If @code{false} it does not
+(SWI-Prolog like).
 
 @item  profiling
 @findex profiling (yap_flag/2 option)

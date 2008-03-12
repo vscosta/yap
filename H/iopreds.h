@@ -126,6 +126,8 @@ StreamDesc;
 #define RepError_Prolog_f	0x400000
 #define RepError_Xml_f		0x800000
 
+#define EXPAND_FILENAME		0x000080
+
 #define StdInStream	0
 #define StdOutStream	1
 #define	StdErrStream	2

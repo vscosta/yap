@@ -65,6 +65,7 @@ true :- true.
 	prompt('  ?- '),
 	nb_setval('$break',0),
 	% '$set_read_error_handler'(error), let the user do that
+	nb_setval('$open_expands_filename',true),
 	nb_setval('$debug',off),
 	nb_setval('$trace',off),
 	b_setval('$spy_glist',[]),
@@ -532,7 +533,7 @@ true :- true.
 
 '$another' :-
 	format(user_error,' ? ',[]),
-	'$get0'(user_input,C),
+	get0(user_input,C),
 	(   C== 0'; ->  '$skip'(user_input,10), %'
 	    '$add_nl_outside_console',
 	    fail

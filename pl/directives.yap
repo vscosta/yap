@@ -436,13 +436,13 @@ yap_flag(ﬂoat_min_exponent,X) :-
 yap_flag(ﬂoat_epsilon,X) :-
 	'$do_error'(domain_error(flag_value,ﬂoat_min_exponent+X),yap_flag(ﬂoat_min_exponent,X)).
 
-yap_flag(ﬂoat_max_exponent,X) :-
+yap_flag(float_max_exponent,X) :-
 	var(X), !,
 	?????
-yap_flag(ﬂoat_max_exponent,X) :-
+yap_flag(float_max_exponent,X) :-
 	integer(X), X > 0, !,
 	'$do_error'(permission_error(modify,flag,ﬂoat_max_exponent),yap_flag(ﬂoat_max_exponent,X)).
-yap_flag(ﬂoat_max_exponent,X) :-
+yap_flag(float_max_exponent,X) :-
 	'$do_error'(domain_error(flag_value,ﬂoat_max_exponent+X),yap_flag(ﬂoat_max_exponent,X)).
 */
 
@@ -579,6 +579,12 @@ yap_flag(chr_toplevel_show_store,X) :-
 	nb_setval('$chr_toplevel_show_store',X).
 yap_flag(chr_toplevel_show_store,X) :-
 	'$do_error'(domain_error(flag_value,chr_toplevel_show_store+X),yap_flag(chr_toplevel_show_store,X)).
+
+yap_flag(open_expands_filename,Expand) :-
+	var(Expand), !,
+	'$default_expand'(Expand).
+yap_flag(open_expands_filename,Expand) :-
+	'$set_default_expand'(Expand).
 
 yap_flag(single_var_warnings,X) :-
 	var(X), !,
@@ -810,6 +816,10 @@ yap_flag(dialect,yap).
 %		V = fast  ;
 		V = fileerrors  ;
 		V = float_format ;
+%		V = float_mantissa_digits ;
+%		V = float_epsilon ;
+%		V = float_min_exponent ;
+%		V = float_max_exponent ;
 		V = gc    ;
 		V = gc_margin    ;
 		V = gc_trace     ;
@@ -828,11 +838,8 @@ yap_flag(dialect,yap).
 		V = max_threads ;
 		V = min_integer ;
 		V = min_tagged_integer ;
-%		V = ﬂoat_mantissa_digits ;
-%		V = ﬂoat_epsilon ;
-%		V = ﬂoat_min_exponent ;
-%		V = ﬂoat_max_exponent ;
 		V = n_of_integer_keys_in_db ;
+		V = open_expands_filename ;
 		V = profiling ;
 		V = redefine_warnings ;
 		V = shared_object_search_path ;

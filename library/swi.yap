@@ -5,6 +5,8 @@
 
 :- yap_flag(unknown,error).
 
+:- yap_flag(open_expands_filename,false).
+
 % redefines stuff in prolog module.
 
 :- module(swi, []).

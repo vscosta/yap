@@ -23,8 +23,10 @@ open(Source,M,T) :- var(M), !,
 	'$do_error'(instantiation_error,open(Source,M,T)).
 open(Source,M,T) :- nonvar(T), !,
 	'$do_error'(type_error(variable,T),open(Source,M,T)).
-open(File,Mode,Stream) :-
+open(File0,Mode,Stream) :-
 	'$default_encoding'(Encoding),
+	'$default_expand'(Expansion),	
+	'$expand_filename'(Expansion, File0, File),
 	'$open'(File,Mode,Stream,16,Encoding).
 
 /* meaning of flags for '$write' is
@@ -59,10 +61,15 @@ close(S,Opts) :-
 	
 open(F,T,S,Opts) :-
 	'$check_io_opts'(Opts,open(F,T,S,Opts)),
-	'$process_open_opts'(Opts, 0, N,  Aliases, E, BOM),
-	'$open2'(F,T,S,N,E),
+	'$process_open_opts'(Opts, 0, N,  Aliases, E, BOM, Expand),
+	'$expand_filename'(Expand, F, NF),
+	'$open2'(NF, T, S, N, E),
 	'$process_bom'(S, BOM),
 	'$process_open_aliases'(Aliases,S).
+
+'$expand_filename'(false, F, F) :- !.
+'$expand_filename'(true, F, NF) :-
+	system:true_file_name(F, NF).
 
 '$open2'(Source,M,T,N,_) :- var(Source), !,
 	'$do_error'(instantiation_error,open(Source,M,T,N)).
@@ -83,26 +90,30 @@ open(F,T,S,Opts) :-
 	'$add_alias_to_stream'(Alias, S),
 	'$process_open_aliases'(Aliases,S).
 
-'$process_open_opts'([], N, N, [], DefaultEncoding, []) :-
-	'$default_encoding'(DefaultEncoding).
-'$process_open_opts'([type(T)|L], N0, N, Aliases, Encoding, BOM) :-
+'$process_open_opts'([], N, N, [], DefaultEncoding, [], DefaultExpand) :-
+	'$default_encoding'(DefaultEncoding),
+	'$default_expand'(DefaultExpand).
+'$process_open_opts'([type(T)|L], N0, N, Aliases, Encoding, BOM, DefaultExpand) :-
 	'$value_open_opt'(T,type,I1,I2),
 	N1 is I1\/N0,
 	N2 is I2/\N1,
-	'$process_open_opts'(L,N2,N, Aliases, Encoding, BOM).
-'$process_open_opts'([reposition(T)|L], N0, N, Aliases, Encoding, BOM) :-
+	'$process_open_opts'(L,N2,N, Aliases, Encoding, BOM, DefaultExpand).
+'$process_open_opts'([expand_filename(T)|L], N0, N, Aliases, Encoding, BOM, Expand) :-
+	'$valid_expand'(T, Expand),
+	'$process_open_opts'(L,N2,N, Aliases, Encoding, BOM, _).
+'$process_open_opts'([reposition(T)|L], N0, N, Aliases, Encoding, BOM, DefaultExpand) :-
 	'$value_open_opt'(T,reposition,I1,I2),
 	N1 is I1\/N0,
 	N2 is I2/\N1,
-	'$process_open_opts'(L,N2,N, Aliases, Encoding, BOM).
-'$process_open_opts'([encoding(Enc)|L], N0, N, Aliases, EncCode, BOM) :-
+	'$process_open_opts'(L,N2,N, Aliases, Encoding, BOM, DefaultExpand).
+'$process_open_opts'([encoding(Enc)|L], N0, N, Aliases, EncCode, BOM, DefaultExpand) :-
 	'$valid_encoding'(Enc, EncCode),
-	'$process_open_opts'(L, N0, N, Aliases, _, BOM).
-'$process_open_opts'([representation_errors(Mode)|L], N0, N, Aliases, EncCode, BOM) :-
+	'$process_open_opts'(L, N0, N, Aliases, _, BOM, DefaultExpand).
+'$process_open_opts'([representation_errors(Mode)|L], N0, N, Aliases, EncCode, BOM, DefaultExpand) :-
 	'$valid_reperrorhandler'(Mode, Flag),
 	NI is N0 \/ Flag,
-	'$process_open_opts'(L, NI, N, Aliases, EncCode, BOM).
-'$process_open_opts'([bom(BOM)|L], N0, N, Aliases, EncCode, BOM) :-
+	'$process_open_opts'(L, NI, N, Aliases, EncCode, BOM, DefaultExpand).
+'$process_open_opts'([bom(BOM)|L], N0, N, Aliases, EncCode, BOM, DefaultExpand) :-
 	(
 	 var(BOM)
 	->
@@ -111,14 +122,14 @@ open(F,T,S,Opts) :-
 	 '$valid_bom'(BOM, Flag),
 	 NI is N0 \/ Flag
 	),
-	'$process_open_opts'(L, NI, N, Aliases, EncCode, _).
-'$process_open_opts'([eof_action(T)|L], N0, N, Aliases, Encoding, BOM) :-
+	'$process_open_opts'(L, NI, N, Aliases, EncCode, _, DefaultExpand).
+'$process_open_opts'([eof_action(T)|L], N0, N, Aliases, Encoding, BOM, DefaultExpand) :-
 	'$value_open_opt'(T,eof_action,I1,I2),
 	N1 is I1\/N0,
 	N2 is I2/\N1,
-	'$process_open_opts'(L,N2,N, Aliases, Encoding, BOM).
-'$process_open_opts'([alias(Alias)|L], N0, N, [Alias|Aliases], Encoding, BOM) :-
-	'$process_open_opts'(L,N0,N, Aliases, Encoding, BOM).
+	'$process_open_opts'(L,N2,N, Aliases, Encoding, BOM, DefaultExpand).
+'$process_open_opts'([alias(Alias)|L], N0, N, [Alias|Aliases], Encoding, BOM, DefaultExpand) :-
+	'$process_open_opts'(L,N0,N, Aliases, Encoding, BOM, DefaultExpand).
 
 
 '$value_open_opt'(text,_,1,X) :- X is 128-2. % default
@@ -139,6 +150,9 @@ open(F,T,S,Opts) :-
 '$valid_reperrorhandler'(error, 0). % default.
 '$valid_reperrorhandler'(prolog, 512).
 '$valid_reperrorhandler'(xml, 1024).
+
+'$valid_expand'(true, true),
+'$valid_expand'(false, false),
 
 /* check whether a list of options is valid */
 '$check_io_opts'(V,G) :- var(V), !,
@@ -587,7 +601,7 @@ print(_,_).
 
 /* character I/O	*/
 
-get(N) :- current_input(S), '$get'(S,N).
+get(N) :- current_input(S), get(S,N).
 
 get_byte(V) :-
 	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
@@ -621,7 +635,7 @@ get_char(V) :-
 	'$do_error'(type_error(in_character,V),get_char(V)).
 get_char(V) :-
 	current_input(S),
-	'$get0'(S,I),
+	get0(S,I),
 	( I = -1 -> V = end_of_file ; atom_codes(V,[I])).
 
 get_char(S,V) :-
@@ -629,7 +643,7 @@ get_char(S,V) :-
 	( atom(V)  -> atom_codes(V,[_,_|_]), V \= end_of_file ; true ), !,
 	'$do_error'(type_error(in_character,V),get_char(S,V)).
 get_char(S,V) :-
-	'$get0'(S,I),
+	get0(S,I),
 	( I = -1 -> V = end_of_file ; atom_codes(V,[I])).
 
 peek_char(V) :-
@@ -653,14 +667,14 @@ get_code(S,V) :-
 	\+ var(V), (\+ integer(V)), !,
 	'$do_error'(type_error(in_character_code,V),get_code(S,V)).
 get_code(S,V) :-
-	'$get0'(S,V).
+	get0(S,V).
 
 get_code(V) :-
 	\+ var(V), (\+ integer(V)), !,
 	'$do_error'(type_error(in_character_code,V),get_code(V)).
 get_code(V) :-
 	current_input(S),
-	'$get0'(S,V).
+	get0(S,V).
 
 peek_code(S,V) :-
 	\+ var(V), (\+ integer(V)), !,
@@ -732,11 +746,7 @@ put_code(S,V) :-
 
 
 
-get(Stream,N) :- '$get'(Stream,N).
-
-get0(N) :- current_input(S), '$get0'(S,N).
-
-get0(Stream,N) :- '$get0'(Stream,N).
+get0(N) :- current_input(S), get0(S,N).
 
 put(N) :- current_output(S),  N1 is N, '$put'(S,N1).
 
@@ -759,9 +769,9 @@ tab(_).
 tab(Stream,N) :- '$tab'(Stream,N), fail.
 tab(_,_).
 
-ttyget(N) :- '$get'(user_input,N).
+ttyget(N) :- get(user_input,N).
 
-ttyget0(N) :- '$get0'(user_input,N).
+ttyget0(N) :- get0(user_input,N).
 
 ttyskip(N) :-  N1 is N, '$skip'(user_input,N1).
 
@@ -1070,3 +1080,12 @@ stream_position_data(line_position, '$stream_position'(_,_,Data,_,_), Data).
 %stream_position_data(char_count, '$stream_position'(Data,_,_,_,_), Data).
 stream_position_data(byte_count, '$stream_position'(Data,_,_,_,_), Data).
 
+'$default_expand'(Expand) :-
+	nb_getval('$open_expands_filename',Expand).
+
+'$set_default_expand'(true) :- !,
+	nb_setval('$open_expands_filename',true).
+'$set_default_expand'(false) :- !,
+	nb_setval('$open_expands_filename',false).
+'$set_default_expand'(V) :- !,
+	'$do_error'(domain_error(flag_value,V),yap_flag(open_expands_file_name,X)).

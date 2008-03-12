@@ -134,7 +134,7 @@ module(N) :-
 	'$use_preds'(P,Publics,Mod,M),
 	'$use_preds'(Ps,Publics,Mod,M).
 '$use_preds'(N/K,Publics,M,Mod) :-
-    (  '$member'(N/K,Publics) -> true ;
+    (  lists:memberchk(N/K,Publics) -> true ;
 	print_message(warning,import(N/K,Mod,M,private))
     ),
     '$do_import'(N, K, M, Mod).
@@ -469,8 +469,23 @@ current_module(Mod,TFN) :-
 source_module(Mod) :-
 	'$current_module'(Mod).
 
-'$member'(X,[X|_]) :- !.
-'$member'(X,[_|L]) :- '$member'(X,L).
+%   member(?Element, ?Set)
+%   is true when Set is a list, and Element occurs in it.  It may be used
+%   to test for an element or to enumerate all the elements by backtracking.
+%   Indeed, it may be used to generate the Set!
+
+lists:memberchk(X,[X|_]) :- !.
+lists:memberchk(X,[_|L]) :-
+	lists:memberchk(X,L).
+
+%   memberchk(+Element, +Set)
+%   means the same thing, but may only be used to test whether a known
+%   Element occurs in a known Set.  In return for this limited use, it
+%   is more efficient when it is applicable.
+
+lists:member(X,[X|_]) :- !.
+lists:member(X,[_|L]) :-
+	lists:member(X,L).
 
 
 % comma has its own problems.
@@ -639,20 +654,20 @@ abolish_module(_).
 
 '$clean_conversion'([], _, [], [], _).
 '$clean_conversion'([P1|Ps], List, [P1-P1|Tab], [P1|MyExports], Goal) :-
-	'$member'(P1, List), !,
+	lists:memberchk(P1, List), !,
 	'$clean_conversion'(Ps, List, Tab, MyExports, Goal).
 '$clean_conversion'([(N1/A1 as N2)|Ps], List, [N1/A1-N2/A1|Tab], [N2/A1|MyExports], Goal) :-
-	'$member'(N1/A1, List), !,
+	lists:memberchk(N1/A1, List), !,
 	'$clean_conversion'(Ps, List, Tab, MyExports, Goal).
 '$clean_conversion'([P|_], _, _, _, Goal) :-
 	'$do_error'(domain_error(module_reexport_predicates,P), Goal).
 	
 '$neg_conversion'([], _, [], [], _).
 '$neg_conversion'([P1|Ps], List, Tab, MyExports, Goal) :-
-	'$member'(P1, List), !,
+	lists:memberchk(P1, List), !,
 	'$neg_conversion'(Ps, List, Tab, MyExports, Goal).
 '$neg_conversion'([N1/A1|Ps], List, [N1/A1-N2/A1|Tab], [N2/A1|MyExports], Goal) :-
-	'$member'(N1/A1 as N2, List), !,
+	lists:memberchk(N1/A1 as N2, List), !,
 	'$neg_conversion'(Ps, List, Tab, MyExports, Goal).
 '$neg_conversion'([P|Ps], List, [P-P|Tab], [P|MyExports], Goal) :-
 	'$neg_conversion'(Ps, List, Tab, MyExports, Goal).
