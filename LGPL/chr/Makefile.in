@@ -44,7 +44,6 @@ LIBPL=		$(srcdir)/chr_runtime.pl $(srcdir)/chr_op.pl chr_translate.pl $(srcdir)/
 		$(srcdir)/chr_compiler_options.pl $(srcdir)/chr_compiler_utility.pl \
 		$(srcdir)/chr_integertable_store.pl
 CHRPL=		$(srcdir)/chr_swi.pl
-CHRYAP=		$(srcdir)/chr.yap
 EXAMPLES=	$(srcdir)/Benchmarks/chrfreeze.chr $(srcdir)/Benchmarks/fib.chr $(srcdir)/Benchmarks/gcd.chr $(srcdir)/Benchmarks/primes.chr \
 		$(srcdir)/Benchmarks/bool.chr $(srcdir)/Benchmarks/family.chr $(srcdir)/Benchmarks/fibonacci.chr $(srcdir)/Benchmarks/leq.chr $(srcdir)/Benchmarks/listdom.chr \
 		$(srcdir)/Benchmarks/chrdif.chr
@@ -90,7 +89,6 @@ install:	chr_translate.pl guard_entailment.pl
 		mkdir -p $(DESTDIR)$(CHRDIR)
 		$(INSTALL) -m 644 $(LIBPL) $(DESTDIR)$(CHRDIR)
 		$(INSTALL) -m 644 $(CHRPL) $(DESTDIR)$(SHAREDIR)/chr.pl
-		$(INSTALL) -m 644 $(CHRYAP) $(DESTDIR)$(SHAREDIR)
 		$(INSTALL) -m 644 $(srcdir)/README   $(DESTDIR)$(CHRDIR)
 #		$(PL) -g make -z halt
 

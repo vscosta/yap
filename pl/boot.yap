@@ -634,6 +634,8 @@ true :- true.
 	   write_term(user_error,B,Opts) ;
 	   format(user_error,'~w',[B])
         ).
+'$write_goal_output'(nl, First, NG, First, NG) :- !,
+	format(user_error,'~n',[]).
 '$write_goal_output'(Format-G, First, NG, Next, IG) :-
 	G = [_|_], !,
 	% dump on string first so that we can check whether we actually

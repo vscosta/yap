@@ -24,6 +24,7 @@
 	'$directive'(G).
 
 '$directive'(multifile(_)).
+'$directive'(expects_dialect(_)).
 '$directive'(discontiguous(_)).
 '$directive'(initialization(_)).
 '$directive'(include(_)).
@@ -73,6 +74,8 @@
 	'$discontiguous'(D,M).
 '$exec_directive'(initialization(D), _, M) :-
 	'$initialization'(M:D).
+'$exec_directive'(expects_dialect(D), _, _) :-
+	'$expects_dialect'(D).
 '$exec_directive'(encoding(Enc), _, _) :-
         '$set_encoding'(Enc).
 '$exec_directive'(parallel, _, _) :-
@@ -1043,3 +1046,6 @@ user_defined_flag(Atom) :-
 '$user_flag_value'(F, Val) :-
 	'$do_error'(type_error(atomic,Val),yap_flag(F,Val)).
 
+
+'$expects_dialect'(swi) :-
+	load_files(library(swi),[silent(true),if(not_loaded)]).

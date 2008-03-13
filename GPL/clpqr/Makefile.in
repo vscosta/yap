@@ -16,29 +16,64 @@ PCEHOME=../../xpce
 LIBDIR=$(PLBASE)/library
 SHAREDIR=$(ROOTDIR)/share/Yap
 CLPRDIR=$(SHAREDIR)/clpr
+CLPQDIR=$(SHAREDIR)/clpq
+CLPQRDIR=$(SHAREDIR)/clpqr
 EXDIR=$(PKGDOC)/examples/clpr
 DESTDIR=
 srcdir=@srcdir@
+CLPQSOURCEDIR=$(srcdir)/clpq
 CLPRSOURCEDIR=$(srcdir)/clpr
+CLPQRSOURCEDIR=$(srcdir)/clpqr
+
 
 INSTALL=@INSTALL@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
 INSTALL_DATA=@INSTALL_DATA@
 
-CLPRPRIV=	$(CLPRSOURCEDIR)/arith_r.pl $(CLPRSOURCEDIR)/bb.pl $(CLPRSOURCEDIR)/bv.pl $(CLPRSOURCEDIR)/class.pl $(CLPRSOURCEDIR)/dump.pl $(CLPRSOURCEDIR)/fourmotz.pl \
-		$(CLPRSOURCEDIR)/geler.pl $(CLPRSOURCEDIR)/ineq.pl $(CLPRSOURCEDIR)/itf3.pl $(CLPRSOURCEDIR)/nf.pl $(CLPRSOURCEDIR)/nfr.pl $(CLPRSOURCEDIR)/ordering.pl \
-		$(CLPRSOURCEDIR)/project.pl $(CLPRSOURCEDIR)/redund.pl $(CLPRSOURCEDIR)/store.pl $(CLPRSOURCEDIR)/ugraphs.pl
-LIBPL=		$(srcdir)/clpr.yap $(srcdir)/clpr.pl
+CLPRPRIV= \
+	$(CLPRSOURCEDIR)/bb_r.pl \
+	$(CLPRSOURCEDIR)/bv_r.pl \
+	$(CLPRSOURCEDIR)/fourmotz_r.pl \
+	$(CLPRSOURCEDIR)/ineq_r.pl \
+	$(CLPRSOURCEDIR)/itf_r.pl \
+	$(CLPRSOURCEDIR)/nf_r.pl \
+	$(CLPRSOURCEDIR)/store_r.pl
+
+CLPQPRIV= \
+	$(CLPQSOURCEDIR)/bb_q.pl \
+	$(CLPQSOURCEDIR)/bv_q.pl \
+	$(CLPQSOURCEDIR)/fourmotz_q.pl \
+	$(CLPQSOURCEDIR)/ineq_q.pl \
+	$(CLPQSOURCEDIR)/itf_q.pl \
+	$(CLPQSOURCEDIR)/nf_q.pl \
+	$(CLPQSOURCEDIR)/store_q.pl
+
+CLPQRPRIV= \
+	$(CLPQRSOURCEDIR)/class.pl \
+	$(CLPQRSOURCEDIR)/dump.pl \
+	$(CLPQRSOURCEDIR)/geler.pl \
+	$(CLPQRSOURCEDIR)/itf.pl \
+	$(CLPQRSOURCEDIR)/ordering.pl \
+	$(CLPQRSOURCEDIR)/project.pl \
+	$(CLPQRSOURCEDIR)/redund.pl
+
+LIBPL=	\
+	$(srcdir)/clpr.pl \
+	$(srcdir)/clpq.pl
 EXAMPLES=	
 
 all::
 		@echo "Nothing to be done for this package"
 
-install:	$(LIBPL)
+install:	$(LIBPL) $(CLPQRPRIV) $(CLPRPRIV) $(CLPQPRIV)
+		mkdir -p $(DESTDIR)$(CLPQRDIR)
 		mkdir -p $(DESTDIR)$(CLPRDIR)
+		mkdir -p $(DESTDIR)$(CLPQDIR)
 		$(INSTALL_DATA) $(LIBPL) $(DESTDIR)$(SHAREDIR)
+		$(INSTALL_DATA) $(CLPQRPRIV) $(DESTDIR)$(CLPQRDIR)
 		$(INSTALL_DATA) $(CLPRPRIV) $(DESTDIR)$(CLPRDIR)
-		$(INSTALL_DATA) $(srcdir)/README $(DESTDIR)$(CLPRDIR)
+		$(INSTALL_DATA) $(CLPQPRIV) $(DESTDIR)$(CLPQDIR)
+		$(INSTALL_DATA) $(srcdir)/README $(DESTDIR)$(CLPQRDIR)
 
 rpm-install:	install
 
@@ -52,7 +87,7 @@ install-examples::
 
 uninstall:
 		(cd $(CLPDIR) && rm -f $(LIBPL))
-		rm -rf $(CLPRDIR)
+		rm -rf $(CLPQRDIR)
 
 check::
 #		$(PL) -q -f clpr_test.pl -g test,halt -t 'halt(1)'

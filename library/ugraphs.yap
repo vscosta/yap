@@ -30,23 +30,25 @@
     s_transpose transposes a graph in S-form, cost O(|V|^2).
 */
 
-:- module(ugraphs, [
-	add_vertices/3,
-	add_edges/3,
-	complement/2,
-	compose/3,
-	del_edges/3,
-	del_vertices/3,
-	edges/2,
-	neighbours/3,
-	neighbors/3,
-	reachable/3,
-	top_sort/2,
-	top_sort/3,
-	transitive_closure/2,
-	transpose/2,
-	vertices/2,
-	vertices_edges_to_ugraph/3
+:- module(ugraphs,
+	  [
+	   add_vertices/3,
+	   add_edges/3,
+	   complement/2,
+	   compose/3,
+	   del_edges/3,
+	   del_vertices/3,
+	   edges/2,
+	   neighbours/3,
+	   neighbors/3,
+	   reachable/3,
+	   top_sort/2,
+	   top_sort/3,
+	   transitive_closure/2,
+	   transpose/2,
+	   vertices/2,
+	   vertices_edges_to_ugraph/3,
+	   ugraph_union/3
 	]).
 
 :- use_module(library(lists), [
@@ -549,4 +551,23 @@ reachable([N|Ns], G, Rs0, RsF) :-
 	ord_union(Rs0, Nei, Rs1, D),
 	append(Ns, D, Nsi),
 	reachable(Nsi, G, Rs1, RsF).
+
+%%	ugraph_union(+Set1, +Set2, ?Union)
+%   
+%	Is true when Union is the union of Set1 and Set2. This code is a
+%	copy of set union
+
+ugraph_union(Set1, [], Set1) :- !.
+ugraph_union([], Set2, Set2) :- !.
+ugraph_union([Head1-E1|Tail1], [Head2-E2|Tail2], Union) :-
+	compare(Order, Head1, Head2),
+	ugraph_union(Order, Head1-E1, Tail1, Head2-E2, Tail2, Union).
+
+ugraph_union(=, Head-E1, Tail1, _-E2, Tail2, [Head-Es|Union]) :-
+	ord_union(E1, E2, Es),
+	ugraph_union(Tail1, Tail2, Union).
+ugraph_union(<, Head1, Tail1, Head2, Tail2, [Head1|Union]) :-
+	ugraph_union(Tail1, [Head2|Tail2], Union).
+ugraph_union(>, Head1, Tail1, Head2, Tail2, [Head2|Union]) :-
+	ugraph_union([Head1|Tail1], Tail2, Union).
 

@@ -1,20 +1,19 @@
-/*  $Id: ordering.pl,v 1.1 2005-10-28 17:51:01 vsc Exp $
+/*  $Id: ordering.pl,v 1.1 2008-03-13 17:16:43 vsc Exp $
 
-    Part of CPL(R) (Constraint Logic Programming over Reals)
+    Part of CLP(Q) (Constraint Logic Programming over Rationals)
 
     Author:        Leslie De Koninck
-    E-mail:        Tom.Schrijvers@cs.kuleuven.ac.be
+    E-mail:        Leslie.DeKoninck@cs.kuleuven.be
     WWW:           http://www.swi-prolog.org
 		   http://www.ai.univie.ac.at/cgi-bin/tr-online?number+95-09
-    Copyright (C): 2004, K.U. Leuven and
+    Copyright (C): 2006, K.U. Leuven and
 		   1992-1995, Austrian Research Institute for
 		              Artificial Intelligence (OFAI),
 			      Vienna, Austria
 
-    This software is part of Leslie De Koninck's master thesis, supervised
-    by Bart Demoen and daily advisor Tom Schrijvers.  It is based on CLP(Q,R)
-    by Christian Holzbaur for SICStus Prolog and distributed under the
-    license details below with permission from all mentioned authors.
+    This software is based on CLP(Q,R) by Christian Holzbaur for SICStus
+    Prolog and distributed under the license details below with permission from
+    all mentioned authors.
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -41,25 +40,30 @@
  
 :- module(ordering,
 	[
-		combine/3,
-		ordering/1,
-		arrangement/2
+	    combine/3,
+	    ordering/1,
+	    arrangement/2
 	]).
 :- use_module(class,
 	[
-		class_get_prio/2,
-		class_put_prio/2
+	    class_get_clp/2,
+	    class_get_prio/2,
+	    class_put_prio/2
 	]).
-:- use_module(bv,
+:- use_module(itf,
 	[
-		var_intern/2
+	    clp_type/2
 	]).
-		
-:- use_module(ugraphs,
+:- use_module(library(ugraphs),
 	[
-		add_edges/3,
-		add_vertices/3,
-		top_sort/2
+	    add_edges/3,
+	    add_vertices/3,
+	    top_sort/2,
+	    ugraph_union/3
+	]).
+:- use_module(library(lists),
+	[
+	    append/3
 	]).
 
 ordering(X) :-
@@ -81,13 +85,11 @@ ordering(Pb) :-
 	join_class(Pb,Class),
 	class_get_prio(Class,Ga),
 	!,
-	(
-		Xs = [],
-		add_vertices([],Pb,Gb)
-	;
-		Xs=[_|_],
-		gen_edges(Pb,Es,[]),
-		add_edges([],Es,Gb)
+	(   Xs = [],
+	    add_vertices([],Pb,Gb)
+	;   Xs=[_|_],
+	    gen_edges(Pb,Es,[]),
+	    add_edges([],Es,Gb)
 	),
 	combine(Ga,Gb,Gc),
 	class_put_prio(Class,Gc).
@@ -98,16 +100,17 @@ arrangement(Class,Arr) :-
 	normalize(G,Gn),
 	top_sort(Gn,Arr),
 	!.
-arrangement(_,_) :- raise_exception(unsatisfiable_ordering).
+arrangement(_,_) :- throw(unsatisfiable_ordering).
 
 join_class([],_).
 join_class([X|Xs],Class) :-
-	(  
-	  var(X) ->
-
-		var_intern(X,Class)
-	;
-		true
+	(   var(X)
+	->  clp_type(X,CLP),
+	    (   CLP = clpr
+	    ->  bv_r:var_intern(X,Class)
+	    ;   bv_q:var_intern(X,Class)
+	    )
+	;   true
 	),
 	join_class(Xs,Class).
 
@@ -118,7 +121,7 @@ join_class([X|Xs],Class) :-
 combine(Ga,Gb,Gc) :-
 	normalize(Ga,Gan),
 	normalize(Gb,Gbn),
-	ugraphs:graph_union(Gan,Gbn,Gc).
+	ugraph_union(Gan,Gbn,Gc).
 
 %
 % both Ga and Gb might have their internal ordering invalidated
@@ -134,13 +137,10 @@ normalize(G,Gsgn) :-
 
 normalize_vertices([],[]).
 normalize_vertices([X-Xnb|Xs],Res) :-
-	(
-	  normalize_vertex(X,Xnb,Xnorm) ->
-	
-		Res = [Xnorm|Xsn],
-		normalize_vertices(Xs,Xsn)
-	;
-		normalize_vertices(Xs,Res)
+	(   normalize_vertex(X,Xnb,Xnorm)
+	->  Res = [Xnorm|Xsn],
+	    normalize_vertices(Xs,Xsn)
+	;   normalize_vertices(Xs,Res)
 	).
 
 % normalize_vertex(X,Nbs,X-Nbss)
@@ -160,18 +160,14 @@ normalize_vertex(X,Nbs,X-Nbsss) :-
 
 strip_nonvar([],_,[]).
 strip_nonvar([X|Xs],Y,Res) :-
-	(
-	  X==Y ->	% duplicate of Y
-	
-		strip_nonvar(Xs,Y,Res)
-	;
-	  var(X) ->	% var: keep
-		
-		Res = [X|Stripped],
-		strip_nonvar(Xs,Y,Stripped)
-	;	% nonvar: remove
-		nonvar(X),
-		Res = []	% because Vars<anything
+	(   X==Y % duplicate of Y
+	->  strip_nonvar(Xs,Y,Res)
+	;   var(X) % var: keep
+	->  Res = [X|Stripped],
+	    strip_nonvar(Xs,Y,Stripped)
+	;   % nonvar: remove
+	    nonvar(X),
+	    Res = []	% because Vars<anything
 	).
 
 gen_edges([]) --> [].
@@ -194,17 +190,9 @@ group([K-Kl|Ks],Res) :-
 
 group([],K,Kl,[K-Kl]).
 group([L-Ll|Ls],K,Kl,Res) :-
-	(
-	  K==L ->
-	
-		append(Kl,Ll,KLl),
-		group(Ls,K,KLl,Res)
-	;
-		Res = [K-Kl|Tail],
-		group(Ls,L,Ll,Tail)
+	(   K==L
+	->  append(Kl,Ll,KLl),
+	    group(Ls,K,KLl,Res)
+	;   Res = [K-Kl|Tail],
+	    group(Ls,L,Ll,Tail)
 	).
-
-
-
-
-

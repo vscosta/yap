@@ -650,7 +650,7 @@ install_data:
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(SHAREDIR)/Yap/
 #	(cd CLPQR ; make install)
 	@INSTALLCLP@(cd LGPL/clp ; make install)
-	@INSTALLCLP@(cd LGPL/clpr ; make install)
+	@INSTALLCLP@(cd GPL/clpqr ; make install)
 #	(cd CHR ; make install)
 	@INSTALLCLP@(cd LGPL/chr ; make install)
 	@INSTALLCLP@(cd CLPBN ; make install)
