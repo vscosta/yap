@@ -1,4 +1,4 @@
-/*  $Id: chr_translate_bootstrap2.chr,v 1.4 2008-03-13 17:43:13 vsc Exp $
+/*  $Id: chr_translate_bootstrap2.chr,v 1.5 2008-03-13 22:37:07 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -113,7 +113,7 @@
 	  [ chr_translate/2		% +Decls, -TranslatedDecls
 	  ]).
 %% SWI begin
-:- use_module(library(lists),[append/3,append/2,member/2,delete/3,reverse/2,permutation/2,min_list/2]).
+:- use_module(library(lists),[append/3,append/2,member/2,delete/3,reverse/2,permutation/2]).
 :- use_module(library(ordsets)).
 %% SWI end
 

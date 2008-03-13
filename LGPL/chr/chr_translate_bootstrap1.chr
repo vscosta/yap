@@ -14,7 +14,6 @@
 :- style_check(- (discontiguous)).
 :- use_module(library(lists),
 	      [ append/3,
-	        append/2,
 		member/2,
 		permutation/2,
 		reverse/2
