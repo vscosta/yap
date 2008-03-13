@@ -1,4 +1,4 @@
-/*  $Id: chr_swi_bootstrap.pl,v 1.3 2008-03-13 14:38:00 vsc Exp $
+/*  $Id: chr_swi_bootstrap.pl,v 1.4 2008-03-13 17:43:13 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -37,6 +37,12 @@
 	  , chr_compile/3
 	  ]).
 %% SWI begin
+:- if(current_prolog_flag(dialect, yap)).
+:- hide(atomic_concat).
+:- endif.
+
+:- expects_dialect(swi).
+
 :- use_module(library(listing)). % portray_clause/2
 %% SWI end
 :- include(chr_op).

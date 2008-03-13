@@ -15,7 +15,8 @@
 
 :- use_module(library(charsio),[write_to_chars/2,read_from_chars/2]).
 
-:- use_module(library(lists),[append/3,
+:- use_module(library(lists),[append/2,
+			      append/3,
 			      delete/3,
 			      member/2,
 			      memberchk/2,
@@ -64,8 +65,11 @@ swi_predicate_table(_,delete(X,Y,Z),lists,delete(X,Y,Z)).
 swi_predicate_table(_,nth1(X,Y,Z),lists,nth(X,Y,Z)).
 swi_predicate_table(_,memberchk(X,Y),lists,memberchk(X,Y)).
 swi_predicate_table(_,member(X,Y),lists,member(X,Y)).
+swi_predicate_table(_,append(X,Y),lists,append(X,Y)).
 swi_predicate_table(_,append(X,Y,Z),lists,append(X,Y,Z)).
 swi_predicate_table(_,select(X,Y,Z),lists,select(X,Y,Z)).
+swi_predicate_table(_,hash_term(X,Y),terms,term_hash(X,Y)).
+swi_predicate_table(_,term_hash(X,Y),terms,term_hash(X,Y)).
 swi_predicate_table(_,term_variables(X,Y),terms,term_variables(X,Y)).
 swi_predicate_table(_,term_variables(X,Y,Z),terms,term_variables(X,Y,Z)).
 swi_predicate_table(_,subsumes(X,Y),terms,subsumes(X,Y)).
@@ -302,8 +306,6 @@ prolog:atom_concat(A,B,C) :- atomic_concat(A,B,C).
 :- hide(get_mutable).
 
 :- hide(update_mutable).
-
-prolog:hash_term(X,Y) :- term_hash(X,Y).
 
 prolog:make.
 

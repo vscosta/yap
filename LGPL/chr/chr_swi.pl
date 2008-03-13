@@ -1,4 +1,4 @@
-/*  $Id: chr_swi.pl,v 1.4 2008-03-13 17:16:44 vsc Exp $
+/*  $Id: chr_swi.pl,v 1.5 2008-03-13 17:43:13 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -52,6 +52,10 @@
 	    chr_notrace/0,
 	    chr_leash/1			% +Ports
 	  ]).
+
+:- if(current_prolog_flag(dialect, yap)).
+:- hide(atomic_concat).
+:- endif.
 
 :- expects_dialect(swi).
 

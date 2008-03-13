@@ -1,4 +1,4 @@
-/*  $Id: chr_hashtable_store.pl,v 1.3 2008-03-13 14:37:59 vsc Exp $
+/*  $Id: chr_hashtable_store.pl,v 1.4 2008-03-13 17:43:13 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -51,17 +51,10 @@
 :- use_module(hprolog).
 :- use_module(library(lists)).
 
-:- if(current_prolog_flag(dialect, swi)).
 :- multifile user:goal_expansion/2.
 :- dynamic user:goal_expansion/2.
 
 user:goal_expansion(term_hash(Term,Hash),hash_term(Term,Hash)).
-
-:- else.
-
-:- use_module(library(terms), [term_hash/2]).
-
-:- endif.
 
 % term_hash(Term,Hash) :-
 % 	hash_term(Term,Hash).
@@ -78,6 +71,8 @@ new_ht(Capacity,HT) :-
 
 lookup_ht(HT,Key,Values) :-
 	term_hash(Key,Hash),
+	lookup_ht1(HT,Hash,Key,Values).
+/*
 	HT = ht(Capacity,_,Table),
 	Index is (Hash mod Capacity) + 1,
 	arg(Index,Table,Bucket),
@@ -88,6 +83,23 @@ lookup_ht(HT,Key,Values) :-
 	;
 	    lookup(Bucket,Key,Values)
 	).
+*/
+
+% :- load_foreign_library(chr_support).
+
+/*
+lookup_ht1(HT,Hash,Key,Values) :-
+	( lookup_ht1_(HT,Hash,Key,Values) ->
+		true
+	;
+		( lookup_ht1__(HT,Hash,Key,Values) ->
+			writeln(lookup_ht1(HT,Hash,Key,Values)),
+			throw(error)
+		;
+			fail
+		)
+	).
+*/
 
 lookup_ht1(HT,Hash,Key,Values) :-
 	HT = ht(Capacity,_,Table),

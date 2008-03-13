@@ -1,4 +1,4 @@
-/*  $Id: chr_compiler_utility.pl,v 1.3 2008-03-13 14:37:59 vsc Exp $
+/*  $Id: chr_compiler_utility.pl,v 1.4 2008-03-13 17:43:13 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -28,7 +28,6 @@
     invalidate any other reasons why the executable file might be covered by
     the GNU General Public License.
 */
-:- if(current_prolog_flag(dialect, swi)).
 :- module(chr_compiler_utility,
 	[ time/2
 	, replicate/3
@@ -58,40 +57,6 @@
 	, tree_set_memberchk/2
 	, tree_set_add/3
 	]).
-:- else.
-
-% ugly: this is because YAP also has atomic_concat
-% so we cannot export it from chr_compiler_utility.
-
-:- module(chr_compiler_utility,
-	[ time/2
-	, replicate/3
-	, pair_all_with/3
-	, conj2list/2
-	, list2conj/2
-	, disj2list/2
-	, list2disj/2
-	, variable_replacement/3
-	, variable_replacement/4
-	, identical_rules/2
-	, identical_guarded_rules/2
-	, copy_with_variable_replacement/3
-	, my_term_copy/3
-	, my_term_copy/4
-	, atom_concat_list/2
-	, init/2
-	, member2/3
-	, select2/6
-	, set_elems/2
-	, instrument_goal/4
-	, sort_by_key/3
-	, arg1/3
-	, wrap_in_functor/3
-	, tree_set_empty/1
-	, tree_set_memberchk/2
-	, tree_set_add/3
-	]).
-:- endif.
 
 :- use_module(pairlist).
 :- use_module(library(lists), [permutation/2]).
@@ -279,12 +244,10 @@ atom_concat_list([X|Xs],A) :-
 	atom_concat_list(Xs,B),
 	atomic_concat(X,B,A).
 
-:- if(current_prolog_flag(dialect, swi)).
 atomic_concat(A,B,C) :-
 	make_atom(A,AA),
 	make_atom(B,BB),
 	atom_concat(AA,BB,C).
-:- endif.
 
 make_atom(A,AA) :-
 	(

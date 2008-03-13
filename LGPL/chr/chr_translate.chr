@@ -1,4 +1,4 @@
-/*  $Id: chr_translate.chr,v 1.3 2008-03-13 14:38:00 vsc Exp $
+/*  $Id: chr_translate.chr,v 1.4 2008-03-13 17:43:13 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -133,7 +133,7 @@
 	  , chr_translate_line_info/3	% +DeclsWithLines, -TranslatedDecls
 	  ]).
 %% SWI begin {{{
-:- use_module(library(lists),[member/2, append/3, append/2,reverse/2,permutation/2,last/2]).
+:- use_module(library(lists),[member/2, append/3,reverse/2,permutation/2,last/2]).
 :- use_module(library(ordsets)).
 :- use_module(library(aggregate)).
 :- use_module(library(apply_macros)).
@@ -497,8 +497,8 @@ validate_store_type_assumption(C) \ actual_store_types(C,STs), actual_ground_mul
 	|
 		( Index = [IndexPos],
                   get_constraint_arg_type(C,IndexPos,Type),
-		  ( Type = chr_constants(Key)  -> get_chr_constants(Key,Constants)
-		  ; Type = chr_enum(Constants) -> true
+		  ( is_chr_constants_type(Type,Key,_) -> get_chr_constants(Key,Constants)
+		  ; Type = chr_enum(Constants)      -> true
 		  )
 		->	 
 			Completeness = complete
@@ -529,7 +529,7 @@ validate_store_type_assumption(C) \ actual_store_types(C,STs)
 		memberchk(multi_hash([[Index]]),STs),
 		get_constraint_arg_type(C,Index,Type),
 		( Type = chr_enum(Constants)  -> true
-		; Type = chr_constants(Key)   -> get_chr_constants(Key,Constants)
+		; is_chr_constants_type(Type,Key,_) -> get_chr_constants(Key,Constants)
 		)
 	|
 		delete(STs,multi_hash([[Index]]),STs0),
@@ -3509,8 +3509,9 @@ module_initializers(G), module_initializer(Initializer) <=>
 module_initializers(G) <=>
 	G = true.
 
-generate_attach_code(Constraints,[Enumerate|L]) :-
+generate_attach_code(Constraints,Clauses) :-
 	enumerate_stores_code(Constraints,Enumerate),
+	append(Enumerate,L,Clauses),
 	generate_attach_code(Constraints,L,T),
 	module_initializers(Initializers),
 	prolog_global_variables_code(PrologGlobalVariables),
@@ -3800,8 +3801,7 @@ specialized_hash_term_call(Constraint,Index,Key,Hash,Call) :-
 	  unalias_type(Type,NormalType),
 	  memberchk_eq(NormalType,[int,natural]) ->
 		( NormalType == int ->	
-			Hash = abs(Key),
-			Call = true
+			Call = (Hash is abs(Key)) 
 		;
 			Hash = Key,
 			Call = true 
@@ -3834,7 +3834,8 @@ multi_hash_lookup_goal(ConstraintSymbol,HashType,Index,Key,SuspsList,Goal) :-
 		actual_ground_multi_hash_keys(ConstraintSymbol,Index,[Key])
 	;
 		( Index = [Pos], 
-		  get_constraint_arg_type(ConstraintSymbol,Pos,chr_constants(_))
+		  get_constraint_arg_type(ConstraintSymbol,Pos,Type),
+		  is_chr_constants_type(Type,_,_)
 		->
 			true
 		;
@@ -3891,32 +3892,19 @@ actual_non_ground_multi_hash_key(C,Index) \ actual_ground_multi_hash_keys(C,Inde
 %
 %	Returns predicate name of hash table lookup predicate.
 multi_hash_lookup_name(F/A,Index,Name) :-
-	( integer(Index) ->
-		IndexName = Index
-	; is_list(Index) ->
-		atom_concat_list(Index,IndexName)
-	),
+	atom_concat_list(Index,IndexName),
 	atom_concat_list(['$via1_multi_hash_',F,'___',A,'-',IndexName],Name).
 
 multi_hash_store_name(F/A,Index,Name) :-
 	get_target_module(Mod),		
-	( integer(Index) ->
-		IndexName = Index
-	; is_list(Index) ->
-		atom_concat_list(Index,IndexName)
-	),
+	atom_concat_list(Index,IndexName),
 	atom_concat_list(['$chr_store_multi_hash_',Mod,'____',F,'___',A,'-',IndexName],Name).
 
 multi_hash_key(FA,Index,Susp,KeyBody,Key) :-
-	( ( integer(Index) ->
-		I = Index
-	  ; 
-		Index = [I]
-	  ) ->
+	( Index = [I] ->
 		get_dynamic_suspension_term_field(argument(I),FA,Susp,Key,KeyBody)
-	; is_list(Index) ->
-		sort(Index,Indexes),
-		maplist(get_dynamic_suspension_term_field1(FA,Susp),Indexes,Keys,Bodies),
+	;
+		maplist(get_dynamic_suspension_term_field1(FA,Susp),Index,Keys,Bodies),
 		Key =.. [k|Keys],
 		list2conj(Bodies,KeyBody)
 	).
@@ -3925,22 +3913,19 @@ get_dynamic_suspension_term_field1(FA,Susp,I,KeyI,Goal) :-
 	get_dynamic_suspension_term_field(argument(I),FA,Susp,KeyI,Goal).
 
 multi_hash_key(C,Head,Index,Susp,VarDict,KeyBody,Key) :-
-	( ( integer(Index) ->
-		I = Index
-	  ; 
-		Index = [I]
-	  ) ->
+	( Index = [I] ->
 		get_suspension_argument_possibly_in_scope(Head,VarDict,Susp,I,Key,KeyBody)
-	; is_list(Index) ->
-		sort(Index,Indexes),
-		maplist(get_suspension_argument_possibly_in_scope(Head,VarDict,Susp),Indexes,Keys,Bodies),
+	;
+		maplist(get_suspension_argument_possibly_in_scope(Head,VarDict,Susp),Index,Keys,Bodies),
 		Key =.. [k|Keys],
 		list2conj(Bodies,KeyBody)
 	).
 
 get_suspension_argument_possibly_in_scope(Head,VarDict,Susp,Index,Arg,Goal) :-
 		arg(Index,Head,OriginalArg),
-		( lookup_eq(VarDict,OriginalArg,Arg) ->
+		( term_variables(OriginalArg,OriginalVars),
+		  copy_term_nat(OriginalArg-OriginalVars,Arg-Vars),
+		  translate(OriginalVars,VarDict,Vars) ->
 			Goal = true
 		;	
 			functor(Head,F,A),
@@ -3949,27 +3934,15 @@ get_suspension_argument_possibly_in_scope(Head,VarDict,Susp,Index,Arg,Goal) :-
 		).
 
 multi_hash_key_direct(FA,Index,Susp,Key,UsedVars) :-
-	( ( integer(Index) ->
-		I = Index
-	  ; 
-		Index = [I]
-	  ) ->
+	( Index = [I] ->
 		UsedVars = [I-Key]
-	; is_list(Index) ->
-		sort(Index,Indexes),
-		pairup(Indexes,Keys,UsedVars),
+	; 
+		pairup(Index,Keys,UsedVars),
 		Key =.. [k|Keys]
 	).
 
 multi_hash_key_args(Index,Head,KeyArgs) :-
-	( integer(Index) ->
-		arg(Index,Head,Arg),
-		KeyArgs = [Arg]
-	; is_list(Index) ->
-		sort(Index,Indexes),
-		term_variables(Head,Vars),
-		maplist(arg1(Head),Indexes,KeyArgs)
-	).
+	maplist(arg1(Head),Index,KeyArgs).
 
 %-------------------------------------------------------------------------------	
 atomic_constants_code(C,Index,Constants,L,T) :-
@@ -4060,11 +4033,12 @@ trie_step_case(F/A,N,Patterns,MorePatterns,Results,Symbol,Prefix,[Clause|List],T
 			gensym(Prefix,RSymbol),
 			append(DiffVars,[Result],RecCallVars),
 			Body =.. [RSymbol|RecCallVars],
-			findall(CH-CT,member([CH|CT],Differences),CPairs),
-			once(pairup(CHs,CTs,CPairs)),
+			maplist(head_tail,Differences,CHs,CTs),
 			trie_step(CHs,RSymbol,Prefix,CTs,MoreResults,List,Tail)
 		)
 	).
+
+head_tail([H|T],H,T).
 	
 rec_cases([],[],[],_,[],[],[]).
 rec_cases([Pattern|Patterns],[MorePattern|MorePatterns],[Result|Results],F/A,Cases,MoreCases,MoreResults) :-
@@ -4126,6 +4100,7 @@ maplist_dcg_([],[],[],_) --> [].
 maplist_dcg_([X|Xs],[Y|Ys],[Z|Zs],P) -->
 	call(P,X,Y,Z),
 	maplist_dcg_(Xs,Ys,Zs,P).	
+
 %-------------------------------------------------------------------------------	
 global_list_store_name(F/A,Name) :-
 	get_target_module(Mod),		
@@ -4234,11 +4209,20 @@ get_update_static_suspension_field(Constraint,Susp,SuspTerm,FieldName,Value,NewV
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-enumerate_stores_code(Constraints,Clause) :-
+enumerate_stores_code(Constraints,[Clause|List]) :-
 	Head = '$enumerate_constraints'(Constraint),
-	enumerate_store_bodies(Constraints,Constraint,Bodies),
-	list2disj(Bodies,Body),
-	Clause = (Head :- Body).	
+	Clause = ( Head :- Body),
+	enumerate_store_bodies(Constraints,Constraint,List),
+	( List = [] ->
+		Body = fail
+	;
+		Body = ( nonvar(Constraint) ->
+				functor(Constraint,Functor,_),
+				'$enumerate_constraints'(Functor,Constraint)
+		       ; 
+				'$enumerate_constraints'(_,Constraint)
+		       )
+	).
 
 enumerate_store_bodies([],_,[]).
 enumerate_store_bodies([C|Cs],Constraint,L) :-
@@ -4252,8 +4236,9 @@ enumerate_store_bodies([C|Cs],Constraint,L) :-
 		get_dynamic_suspension_term_field(arguments,C,Suspension,Arguments,DynamicGoal),
 		C = F/_,
 		Constraint0 =.. [F|Arguments],
+		Head = '$enumerate_constraints'(F,Constraint),
 		Body = (SuspensionBody, DynamicGoal, Constraint = Constraint0),
-		L = [Body|T]
+		L = [(Head :- Body)|T]
 	;
 		L = T
 	),
@@ -4323,10 +4308,14 @@ enumerate_store_body(global_singleton,C,Susp,Body) :-
 		Susp \== []
 	).
 enumerate_store_body(multi_store(STs),C,Susp,Body) :-
-	once((
-		member(ST,STs),
-		enumerate_store_body(ST,C,Susp,Body)
-	)).
+	( memberchk(global_ground,STs) ->
+		enumerate_store_body(global_ground,C,Susp,Body)
+	;
+		once((
+			member(ST,STs),
+			enumerate_store_body(ST,C,Susp,Body)
+		))
+	).
 enumerate_store_body(identifier_store(Index),C,Susp,Body) :-
 	Body = fail.
 enumerate_store_body(type_indexed_identifier_store(Index,IndexType),C,Susp,Body) :-
@@ -4365,14 +4354,15 @@ background_info(X) \ get_bg_info(Q) <=> Q=X.
 get_bg_info(Q) <=> Q = [].
 
 background_info(T,I), get_bg_info(A,Q) ==> 
-        copy_term_nat(T,A) 
+        copy_term_nat(T,T1),
+	subsumes_chk(T1,A)
 	|
         copy_term_nat(T-I,A-X), 
 	get_bg_info_answer([X]).
 get_bg_info_answer(X), get_bg_info_answer(Y) <=> 
 	append(X,Y,XY), get_bg_info_answer(XY).
 
-get_bg_info_answer(X), get_bg_info(A,Q) <=> Q=X.
+get_bg_info_answer(X) # Id, get_bg_info(A,Q) <=> Q=X pragma passive(Id).
 get_bg_info(_,Q) <=> Q=[].      % no info found on this term
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -4544,7 +4534,6 @@ add_background_info2(X,Info) :-
         ),
         get_bg_info(X,XInfo),
         append(XInfo,XArgInfo,Info).
-
 
 %%
 % 	when all earlier guards are added or skipped, we simplify the guard.
@@ -4800,22 +4789,6 @@ prev_guard_list(RuleNb,H,G,GuardList,M,[]),rule(RuleNb,Rule)
 	|
     		chr_warning(weird_program,'Heads will never match or guard will always fail in ~@.\n\tThis rule will never fire!\n',[format_rule(Rule)]),
     		set_all_passive(RuleNb).
-
-/*
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%    ALWAYS FAILING HEADS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-rule(RuleNb,Rule) \ prev_guard_list(RuleNb,H,G,GuardList,M,[]) 
-	<=> 
-    		chr_pp_flag(check_impossible_rules,on),
-    		Rule = pragma(rule(Head1,Head2,G,B),Ids,Pragmas,Name,RuleNb),
-    		append(M,GuardList,Info),
-    		guard_entailment:entails_guard(Info,fail)
-	|
-    		chr_warning(weird_program,'Heads will never match in ~@.\n\tThis rule will never fire!\n',[format_rule(Rule)]),
-    		set_all_passive(RuleNb).
-*/
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %    HEAD SIMPLIFICATION
@@ -5120,31 +5093,42 @@ assert_constraint_type(Constraint,ArgTypes) :-
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % Consistency checks of type aliases
 
+type_alias(T1,T2) <=>
+	var(T1)
+	|
+   	chr_error(type_error,'Variable alias definition: "~w".\n',[(:- chr_type T1 == T2)]).
+
+type_alias(T1,T2) <=>
+	var(T2)
+	|
+   	chr_error(type_error,'Variable alias definition: "~w".\n',[(:- chr_type T1 == T2)]).
+
 type_alias(T,T2) <=>
-   nonvar(T),nonvar(T2),functor(T,F,A),functor(T2,F,A),
-   copy_term((T,T2),(X,Y)),oneway_unification(Y,X) |
-   chr_error(type_error,'Cyclic alias definition: "~w".\n',[(T == T2)]).
+	functor(T,F,A),
+	functor(T2,F,A),
+	copy_term((T,T2),(X,Y)), subsumes(X,Y) 
+	|
+	chr_error(type_error,'Cyclic alias definition: "~w".\n',[(T == T2)]).
 
 type_alias(T1,A1), type_alias(T2,A2) <=>
-   nonvar(T1),nonvar(T2),functor(T1,F,A),functor(T2,F,A),
-   \+ (T1\=T2) |
-   copy_term_nat(T1,T1_),
-   copy_term_nat(T2,T2_),
-   T1_ = T2_,
-   chr_error(type_error,
-   'Ambiguous type aliases: you have defined \n\t`~w\'\n\t`~w\'\n\tresulting in two definitions for "~w".\n',[T1==A1,T2==A2,T1_]).
+   	functor(T1,F,A),
+	functor(T2,F,A),
+   	\+ (T1\=T2) 
+	|
+	copy_term_nat(T1,T1_),
+	copy_term_nat(T2,T2_),
+	T1_ = T2_,
+	chr_error(type_error,
+	'Ambiguous type aliases: you have defined \n\t`~w\'\n\t`~w\'\n\tresulting in two definitions for "~w".\n',[T1==A1,T2==A2,T1_]).
 
 type_alias(T,B) \ type_alias(X,T2) <=> 
-	nonvar(T),nonvar(T2),functor(T,F,A),functor(T2,F,A),
-	copy_term_nat((X,T2,T,B),(X2,T3,T1,D1)),oneway_unification(T3,T1) |
+	functor(T,F,A),
+	functor(T2,F,A),
+	copy_term_nat((X,T2,T,B),(X2,T3,T1,D1)),
+	subsumes(T1,T3) 
+	|
    	% chr_info(type_information,'Inferring `~w\' from `~w\' and `~w\'.\n',[X2==D1,X==T2,T==B]),
 	type_alias(X2,D1).
-
-oneway_unification(X,Y) :-
-	term_variables(X,XVars),
-	chr_runtime:lockv(XVars),
-	X=Y,
-	chr_runtime:unlockv(XVars).
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % Consistency checks of type definitions
@@ -5377,7 +5361,10 @@ type_condition([DefCase|DefCases],Arg,UnrollArg,Mode,[Condition|Conditions]) :-
 				;	/* all possible values appear in rule heads; 
 					   to distinguish between multiple chr_constants
 					   we have a key*/
-					chr_constants(any).
+					chr_constants(any)
+				;	/* all relevant values appear in rule heads;
+					   for other values a handler is provided */
+					chr_constants(any,any).
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 atomic_builtin_type(any,_Arg,true).
@@ -5389,6 +5376,7 @@ atomic_builtin_type(natural,Arg,(integer(Arg),Arg>=0)).
 atomic_builtin_type(chr_identifier,_Arg,true).
 
 compound_builtin_type(chr_constants(_),_Arg,true,true).
+compound_builtin_type(chr_constants(_,_),_Arg,true,true).
 compound_builtin_type(chr_identifier(_),_Arg,true,true).
 compound_builtin_type(chr_enum(Constants),Arg,(ground(Arg), memberchk(Arg,Constants)),
 		     once(( member(Constant,Constants),
@@ -5396,6 +5384,9 @@ compound_builtin_type(chr_enum(Constants),Arg,(ground(Arg), memberchk(Arg,Consta
 			  )
 			 ) 
 	).
+
+is_chr_constants_type(chr_constants(Key),Key,no).
+is_chr_constants_type(chr_constants(Key,ErrorHandler),Key,yes(ErrorHandler)).
 
 type_def_case_condition(DefCase,Arg,UnrollArg,Mode,Condition) :-
 	( nonvar(DefCase) ->
@@ -5721,7 +5712,7 @@ atomic_types_suspended_constraint(C) :-
 	C = _/N,
 	get_constraint_type(C,ArgTypes),
 	get_constraint_mode(C,ArgModes),
-	findall(I,between(1,N,I),Indexes),
+	numlist(1,N,Indexes),
 	maplist(atomic_types_suspended_constraint(C),ArgTypes,ArgModes,Indexes).	
 
 atomic_types_suspended_constraint(C,Type,Mode,Index) :-
@@ -6056,8 +6047,12 @@ make_suspension_continuation_goal(F/A,VarsSusp,Goal) :-
 :- chr_constraint has_active_occurrence/1, has_active_occurrence/2.
 :- chr_option(mode,has_active_occurrence(+)).
 :- chr_option(mode,has_active_occurrence(+,+)).
+
+:- chr_constraint memo_has_active_occurrence/1.
+:- chr_option(mode,memo_has_active_occurrence(+)).
 %-------------------------------------------------------------------------------
-has_active_occurrence(C) <=> has_active_occurrence(C,1).
+memo_has_active_occurrence(C) \ has_active_occurrence(C) <=> true.
+has_active_occurrence(C) <=> has_active_occurrence(C,1), memo_has_active_occurrence(C).
 
 max_occurrence(C,MO) \ has_active_occurrence(C,O) <=>
 	O > MO | fail.
@@ -6763,7 +6758,14 @@ head_arg_matches(Pairs,Modes,VarDict,Goal,NVarDict,GroundVars,NGroundVars) :-
 	list2conj(GoalList,Goal).
  
 head_arg_matches_([],[],VarDict,GroundVars,[],VarDict,GroundVars).
-head_arg_matches_([Arg-Var| Rest],[Mode|Modes],VarDict,GroundVars,GoalList,NVarDict,NGroundVars) :-
+head_arg_matches_([silent(Arg-Var)| Rest],[Mode|Modes],VarDict,GroundVars,GoalList,NVarDict,NGroundVars) :- !,
+	( Mode == (+) ->
+		term_variables(Arg,GroundVars0,GroundVars),
+		head_arg_matches_(Rest,Modes,VarDict,GroundVars0,GoalList,NVarDict,NGroundVars)
+	;
+		head_arg_matches_(Rest,Modes,VarDict,GroundVars,GoalList,NVarDict,NGroundVars)
+	).
+head_arg_matches_([Arg-Var| Rest],[Mode|Modes],VarDict,GroundVars,GoalList,NVarDict,NGroundVars) :- 
 	( var(Arg) ->
 	    	( lookup_eq(VarDict,Arg,OtherVar) ->
 	        	( Mode = (+) ->
@@ -7000,11 +7002,11 @@ rest_heads_retrieval_and_matching_n([H|Hs],[ID|IDs],PrevHs,PrevSusps,ActiveHead,
 		),
 		existential_lookup(StoreType,H,[ActiveHead|PrevHs],VarDict,GroundVars,Suspension,ExistentialLookup,Susp,Pairs,NPairs),
 		get_constraint_mode(F/A,Mode),
-		filter_mode(NPairs,Pairs,Mode,NMode),
+		NMode = Mode, % filter_mode(NPairs,Pairs,Mode,NMode),
 		head_arg_matches(NPairs,NMode,VarDict,MatchingGoal,VarDict1,GroundVars,GroundVars1)
 	),
 	different_from_other_susps(H,Susp,PrevHs,PrevSusps,DiffSuspGoals),
-	append(NPairs,VarDict1,DA_),		% order important here
+	filter_append(NPairs,VarDict1,DA_),		% order important here
 	translate(GroundVars1,DA_,GroundVarsA),
 	translate(GroundVars1,VarDict1,GroundVarsB),
 	inline_matching_goal(MatchingGoal,MatchingGoal2,GroundVarsA,GroundVarsB),
@@ -7037,6 +7039,15 @@ filter_mode([Arg-Var|Rest],[_-V|R],[M|Ms],Modes) :-
 		filter_mode([Arg-Var|Rest],R,Ms,Modes)
 	).
 
+filter_append([],VarDict,VarDict).
+filter_append([X|Xs],VarDict,NVarDict) :-
+	( X = silent(_) ->
+		filter_append(Xs,VarDict,NVarDict)
+	;
+		NVarDict = [X|NVarDict0],
+		filter_append(Xs,VarDict,NVarDict0)
+	).
+
 check_unique_keys([],_).
 check_unique_keys([V|Vs],Dict) :-
 	lookup_eq(Dict,V,_),
@@ -7064,7 +7075,11 @@ different_from_other_susps_([PreHead|Heads],[PreSusp|Susps],Head,Susp,List) :-
 passive_head_via(Head,PrevHeads,VarDict,Goal,AllSusps) :-
 	functor(Head,F,A),
 	get_constraint_index(F/A,Pos),
-	common_variables(Head,PrevHeads,CommonVars),
+	/* which static variables may contain runtime variables */
+	common_variables(Head,PrevHeads,CommonVars0),
+	ground_vars([Head],GroundVars),
+	list_difference_eq(CommonVars0,GroundVars,CommonVars),		
+	/********************************************************/
 	global_list_store_name(F/A,Name),
        	GlobalGoal = nb_getval(Name,AllSusps),
 	get_constraint_mode(F/A,ArgModes),
@@ -7093,22 +7108,10 @@ common_variables(T,Ts,Vs) :-
 	intersect_eq(V1,V2,Vs).
 
 gen_get_mod_constraints(FA,Vars,TypeDict,ViaGoal,AttrGoal,AllSusps) :-
+	via_goal(Vars,TypeDict,ViaGoal,Var),
 	get_target_module(Mod),
-        ( Vars = [A] ->
-		lookup_eq(TypeDict,A,Type),
-		( atomic_type(Type) ->
-			ViaGoal = var(A),
-			A = V
-		;
-	        	ViaGoal =  'chr newvia_1'(A,V)
-		)
-       	; Vars = [A,B] ->
-               	ViaGoal = 'chr newvia_2'(A,B,V)
-        ;   
-		ViaGoal = 'chr newvia'(Vars,V)
-       	),
        	AttrGoal =
-       	(   get_attr(V,Mod,TSusps),
+       	(   get_attr(Var,Mod,TSusps),
 	    TSuspsEqSusps % TSusps = Susps
        	),
 	get_max_constraint_index(N),
@@ -7119,6 +7122,22 @@ gen_get_mod_constraints(FA,Vars,TypeDict,ViaGoal,AttrGoal,AllSusps) :-
 		get_constraint_index(FA,Pos),
 		get_suspensions(N,Pos,TSusps,TSuspsEqSusps,AllSusps)
 	).
+via_goal(Vars,TypeDict,ViaGoal,Var) :-
+        ( Vars = [] ->
+		ViaGoal = fail	
+	; Vars = [A] ->
+		lookup_eq(TypeDict,A,Type),
+		( atomic_type(Type) ->
+			ViaGoal = var(A),
+			A = Var
+		;
+	        	ViaGoal =  'chr newvia_1'(A,Var)
+		)
+       	; Vars = [A,B] ->
+               	ViaGoal = 'chr newvia_2'(A,B,Var)
+        ;   
+		ViaGoal = 'chr newvia'(Vars,Var)
+       	).
 gen_get_mod_constraints(FA,Var,AttrGoal,AllSusps) :-
 	get_target_module(Mod),
        	AttrGoal =
@@ -7850,7 +7869,7 @@ propagation_body(CurrentHead,PreHeads,RestIDs,Rule,RuleNb,F/A,O,Id,L,T) :-
 			)
 		;
 			HistorySusp = Susp,
-			findall(Functor/Arity,(member(H,H2),functor(H,Functor,Arity)),ConstraintSymbols),
+			maplist(extract_symbol,H2,ConstraintSymbols),
 			sort([ID|RestIDs],HistoryIDs),
 			history_susps(RestIDs,[OtherSusp|RestSusps],Susp,ID,HistorySusps),
 			Tuple =.. [t,RuleNb|HistorySusps]
@@ -7905,6 +7924,9 @@ propagation_body(CurrentHead,PreHeads,RestIDs,Rule,RuleNb,F/A,O,Id,L,T) :-
    ),
    add_location(Clause,RuleNb,LocatedClause),
    L = [LocatedClause|T].
+
+extract_symbol(Head,F/A) :-
+	functor(Head,F,A).
 
 novel_production_calls([],[],[],_,_,true).
 novel_production_calls([ConstraintSymbol|ConstraintSymbols],[ID|IDs],[Suspension|Suspensions],RuleNb,Tuple,(Goal,Goals)) :-
@@ -8033,53 +8055,75 @@ expand_data(Entry,NEntry,Cost) :-
 	NEntry = entry([Head1|Heads],[ID1|IDs],Vars1,NHeads1,NIDs1,RuleNb),
 	order_score(Head1,ID1,Vars,NHeads1,RuleNb,Cost).
 
-	% Assigns score to head based on known variables and heads to lookup
+% Assigns score to head based on known variables and heads to lookup
+% order_score(+head,+id,+knownvars,+heads,+rule_nb,-score). {{{
 order_score(Head,ID,KnownVars,RestHeads,RuleNb,Score) :-
 	functor(Head,F,A),
 	get_store_type(F/A,StoreType),
-	order_score(StoreType,Head,ID,KnownVars,RestHeads,RuleNb,Score).
+	order_score(StoreType,Head,ID,KnownVars,RestHeads,RuleNb,99999,Score).
+% }}}
 
-order_score(default,Head,_ID,KnownVars,RestHeads,RuleNb,Score) :-
-	term_variables(Head,HeadVars),
+%% order_score(+store+_type,+head,+id,+vars,+heads,+rule_nb,+score,-score) {{{
+order_score(default,Head,_ID,KnownVars,RestHeads,RuleNb,CScore,NScore) :-
+	term_variables(Head,HeadVars0),
 	term_variables(RestHeads,RestVars),
-	order_score_vars(HeadVars,KnownVars,RestVars,Score).
-order_score(multi_inthash(Indexes),Head,_ID,KnownVars,RestHeads,RuleNb,Score) :-
-	order_score_indexes(Indexes,Head,KnownVars,0,Score).
-order_score(multi_hash(Indexes),Head,_ID,KnownVars,RestHeads,RuleNb,Score) :-
-	order_score_indexes(Indexes,Head,KnownVars,0,Score).
-order_score(global_ground,Head,ID,KnownVars,RestHeads,RuleNb,Score) :-
+	ground_vars([Head],GroundVars),
+	list_difference_eq(HeadVars0,GroundVars,HeadVars),
+	order_score_vars(HeadVars,KnownVars,RestVars,Score),
+	NScore is min(CScore,Score).
+order_score(multi_inthash(Indexes),Head,_ID,KnownVars,RestHeads,RuleNb,CScore,Score) :-
+	( CScore =< 100 ->
+		Score = CScore
+	;
+		order_score_indexes(Indexes,Head,KnownVars,Score)
+	).
+order_score(multi_hash(Indexes),Head,_ID,KnownVars,RestHeads,RuleNb,CScore,Score) :-
+	( CScore =< 100 ->
+		Score = CScore
+	;
+		order_score_indexes(Indexes,Head,KnownVars,Score)
+	).
+order_score(global_ground,Head,ID,KnownVars,RestHeads,RuleNb,CScore,NScore) :-
 	term_variables(Head,HeadVars),
 	term_variables(RestHeads,RestVars),
 	order_score_vars(HeadVars,KnownVars,RestVars,Score_),
-	Score is Score_ * 2.
-order_score(var_assoc_store(_,_),_,_,_,_,_,1).
-order_score(global_singleton,_Head,ID,_KnownVars,_RestHeads,_RuleNb,Score) :-
+	Score is Score_ * 200,
+	NScore is min(CScore,Score).
+order_score(var_assoc_store(_,_),_,_,_,_,_,_,1).
+order_score(global_singleton,_Head,ID,_KnownVars,_RestHeads,_RuleNb,_,Score) :-
 	Score = 1.		% guaranteed O(1)
-			
-order_score(multi_store(StoreTypes),Head,ID,KnownVars,RestHeads,RuleNb,Score) :-
-	maplist(order_score1(Head,ID,KnownVars,RestHeads,RuleNb),StoreTypes,Scores),
-	min_list(Scores,Score).
-order_score1(Head,ID,KnownVars,RestHeads,RuleNb,StoreType,Score) :-
-	( order_score(StoreType,Head,ID,KnownVars,RestHeads,RuleNb,Score) ->
-		true
-	;
-		Score = 10000
-	).
-order_score(identifier_store(Index),Head,ID,KnownVars,RestHeads,RuleNb,Score) :-
-	Score = 10.
-order_score(type_indexed_identifier_store(_,_),Head,ID,KnownVars,RestHeads,RuleNb,Score) :-
-	Score = 10.
-
-order_score_indexes([],_,_,Score,NScore) :-
-	Score > 0, NScore = 100.
-order_score_indexes([I|Is],Head,KnownVars,Score,NScore) :-
-	multi_hash_key_args(I,Head,Args),
-	( forall(Arg,Args,memberchk_eq(Arg,KnownVars)) ->
-		Score1 is Score + 1 	
-	;
-		Score1 = Score
+order_score(multi_store(StoreTypes),Head,ID,KnownVars,RestHeads,RuleNb,CScore,Score) :-
+	multi_order_score(StoreTypes,Head,ID,KnownVars,RestHeads,RuleNb,CScore,Score).
+multi_order_score([],_,_,_,_,_,Score,Score).
+multi_order_score([StoreType|StoreTypes],Head,ID,KnownVars,RestHeads,RuleNb,Score0,Score) :-
+	( order_score(StoreType,Head,ID,KnownVars,RestHeads,RuleNb,Score0,Score1) -> true
+	; Score1 = Score0
 	),
-	order_score_indexes(Is,Head,KnownVars,Score1,NScore).
+	multi_order_score(StoreTypes,Head,ID,KnownVars,RestHeads,RuleNb,Score1,Score).
+	
+order_score(identifier_store(Index),Head,ID,KnownVars,RestHeads,RuleNb,CScore,Score) :-
+	Score is min(CScore,10).
+order_score(type_indexed_identifier_store(_,_),Head,ID,KnownVars,RestHeads,RuleNb,CScore,Score) :-
+	Score is min(CScore,10).
+% }}}
+
+
+%% order_score_indexes(+indexes,+head,+vars,-score). {{{
+order_score_indexes(Indexes,Head,Vars,Score) :-
+	copy_term_nat(Head+Vars,HeadCopy+VarsCopy),
+	numbervars(VarsCopy,0,_),
+	order_score_indexes(Indexes,HeadCopy,Score).
+
+order_score_indexes([I|Is],Head,Score) :-
+	multi_hash_key_args(I,Head,Args),
+	( maplist(ground,Args) /* forall(Arg,Args,memberchk_eq(Arg,KnownVars)) */ ->
+		Score = 100
+	;
+		order_score_indexes(Is,Head,Score)
+	).
+% }}}
+
+memberchk_eq_flip(List,Element) :- memberchk_eq(Element,List).
 
 order_score_vars(Vars,KnownVars,RestVars,Score) :-
 	order_score_count_vars(Vars,KnownVars,RestVars,K-R-O),
@@ -8088,9 +8132,9 @@ order_score_vars(Vars,KnownVars,RestVars,Score) :-
 	; K > 0 ->
 		Score is max(10 - K,0)
 	; R > 0 ->
-		Score is max(10 - R,1) * 10
+		Score is max(10 - R,1) * 100
 	; 
-		Score is max(10-O,1) * 100
+		Score is max(10-O,1) * 1000
 	).	
 order_score_count_vars([],_,_,0-0-0).
 order_score_count_vars([V|Vs],KnownVars,RestVars,NK-NR-NO) :-
@@ -8432,7 +8476,7 @@ lookup_passive_head(multi_inthash(Indexes),Head,_PreJoin,VarDict,GroundVars,Goal
 	hash_lookup_passive_head(inthash,Indexes,Head,VarDict,GroundVars,Goal,AllSusps,_).
 lookup_passive_head(multi_hash(Indexes),Head,_PreJoin,VarDict,GroundVars,Goal,AllSusps) :-
 	hash_lookup_passive_head(hash,Indexes,Head,VarDict,GroundVars,Goal,AllSusps,_).
-lookup_passive_head(global_ground,Head,_PreJoin,_VarDict,_,(Goal,AllSusps \== []),AllSusps) :-
+lookup_passive_head(global_ground,Head,_PreJoin,_VarDict,_,Goal,AllSusps) :-
 	functor(Head,F,A),
 	global_ground_store_name(F/A,StoreName),
 	make_get_store_goal(StoreName,AllSusps,Goal), % Goal = nb_getval(StoreName,AllSusps),
@@ -8502,15 +8546,7 @@ type_indexed_identifier_lookup(C,Index,IndexType,AllSusps,KeyVar,Goal) :-
 %	Create a universal hash lookup goal for given head.
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 hash_lookup_passive_head(HashType,Indexes,Head,VarDict,GroundVars,Goal,AllSusps,Index) :-
-	once((
-		member(Index,Indexes),
-		multi_hash_key_args(Index,Head,KeyArgs),	
-		(
-			translate(KeyArgs,VarDict,KeyArgCopies) 
-		;
-		 	ground(KeyArgs), KeyArgCopies = KeyArgs 
-		)
-	)),
+	pick_hash_index(Indexes,Head,VarDict,Index,KeyArgs,KeyArgCopies),
 	( KeyArgCopies = [KeyCopy] ->
 		true
 	;
@@ -8529,6 +8565,21 @@ hash_lookup_passive_head(HashType,Indexes,Head,VarDict,GroundVars,Goal,AllSusps,
 	;
 		update_store_type(F/A,multi_hash([Index]))
 	).
+
+pick_hash_index(Indexes,Head,VarDict,Index,KeyArgs,KeyArgCopies) :-
+	member(Index,Indexes),
+	multi_hash_key_args(Index,Head,KeyArgs),	
+	key_in_scope(KeyArgs,VarDict,KeyArgCopies),
+	!.
+
+% check whether we can copy the given terms
+% with the given dictionary, and, if so, do so
+key_in_scope([],VarDict,[]).
+key_in_scope([Arg|Args],VarDict,[ArgCopy|ArgCopies]) :-
+	term_variables(Arg,Vars),
+	translate(Vars,VarDict,VarCopies),
+	copy_term(Arg/Vars,ArgCopy/VarCopies),
+	key_in_scope(Args,VarDict,ArgCopies).
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %%	existential_lookup(+StoreType,+Head,+PrevVariablesHead,+RenamingVarDict,
@@ -8663,14 +8714,10 @@ existential_hash_lookup(HashType,Indexes,Head,VarDict,GroundVars,SuspTerm,Goal,S
 %%	hash_index_filter(+Pairs,+Index,-NPairs) is det.
 %
 %	Filter out pairs already covered by given hash index.
+%	makes them 'silent'
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 hash_index_filter(Pairs,Index,NPairs) :-
-	( integer(Index) ->
-		NIndex = [Index]
-	;
-		NIndex = Index
-	),
-	hash_index_filter(Pairs,NIndex,1,NPairs).
+	hash_index_filter(Pairs,Index,1,NPairs).
 
 hash_index_filter([],_,_,[]).
 hash_index_filter([P|Ps],Index,N,NPairs) :-
@@ -8680,7 +8727,8 @@ hash_index_filter([P|Ps],Index,N,NPairs) :-
 			NPairs = [P|NPs],
 			hash_index_filter(Ps,[I|Is],NN,NPs)
 		; I == N ->
-			hash_index_filter(Ps,Is,NN,NPairs)
+			NPairs = [silent(P)|NPs],
+			hash_index_filter(Ps,Is,NN,NPs)
 		)	
 	;
 		NPairs = [P|Ps]
@@ -8819,7 +8867,7 @@ all_distinct_var_args(Term) :-
 	copy_term_nat(Term,TermCopy),
 	functor(Term,F,A),
 	functor(Pattern,F,A),
-	Pattern =@= Term.
+	Pattern =@= TermCopy.
 
 get_indexed_arguments(C,IndexedArgs) :-
 	C = F/A,
@@ -9428,22 +9476,13 @@ unconditional_occurrence(C,O) :-
 	PRule = pragma(ORule,_,_,_,_),
 	copy_term_nat(ORule,Rule),
 	Rule = rule(H1,H2,Guard,_),
-	% writeq(guard_entailment:entails_guard([chr_pp_headvariables(H1,H2)],Guard)),nl,
 	guard_entailment:entails_guard([chr_pp_headvariables(H1,H2)],Guard),
 	once((
 		H1 = [Head], H2 == []
 	     ;
 		H2 = [Head], H1 == [], \+ may_trigger(C)
 	)),
-	functor(Head,F,A),
-	Head =.. [_|Args],
-	unconditional_occurrence_args(Args).
-
-unconditional_occurrence_args([]).
-unconditional_occurrence_args([X|Xs]) :-
-	var(X),
-	X = x,
-	unconditional_occurrence_args(Xs).
+	all_distinct_var_args(Head).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -9642,11 +9681,7 @@ ht_prev_fields_int([H|T],Fields) :-
 	ht_prev_fields_int(T,FT).
 	
 ht_prev_field(Index,Field) :-
-	(   integer(Index)
-	->  atom_concat('multi_hash_prev-',Index,Field)
-	;   Index = [_|_]
-	->  concat_atom(['multi_hash_prev-'|Index],Field)
-	).
+	concat_atom(['multi_hash_prev-'|Index],Field).
 
 get_static_suspension_term_field(FieldName,FA,StaticSuspension,Field) :-
 	suspension_term_base_fields(FA,Fields),
@@ -10146,8 +10181,8 @@ collect_constants(Rules,Constraints,Clauses0) :-
 		),
 		( chr_pp_flag(experiment,on) ->
 			flattening_dictionary(Constraints,Dictionary),
-			copy_term_nat([dict(Dictionary)|Clauses0],Clauses),
-			flatten_clauses(Clauses,FlatClauses),
+			copy_term_nat(Clauses0,Clauses),
+			flatten_clauses(Clauses,Dictionary,FlatClauses),
 			install_new_declarations_and_restart(FlatClauses)
 		;
 			true
@@ -10201,7 +10236,8 @@ collect_head_constants(Head) :-
 
 collect_arg_constants(Arg,Type) :-
 	( ground(Arg),
-	  unalias_type(Type,chr_constants(Key)) ->
+	  unalias_type(Type,NormalType),
+	  is_chr_constants_type(NormalType,Key,_) ->
 		add_chr_constant(Key,Arg)
 	;
 		true	
@@ -10241,9 +10277,12 @@ flattening_dictionary([CS|CSs],Dictionary) :-
 
 flattening_dictionary_entry(CS,Entry) :-
 	get_constraint_arg_type(CS,Pos,Type),
-	Type = chr_constants(Key), !,
-	get_chr_constants(Key,Constants),
-	Entry = CS-Pos-Specs,
+	( is_chr_constants_type(Type,Key,MaybeErrorHandler) ->
+		get_chr_constants(Key,Constants)
+	; Type = chr_enum(Constants) ->
+		MaybeErrorHandler = no
+	),
+	Entry = CS-Pos-Specs-MaybeErrorHandler,
 	maplist(flat_spec(CS,Pos),Constants,Specs).
 
 flat_spec(C/N,Pos,Term,Spec) :-
@@ -10286,8 +10325,7 @@ install_new_declarations_and_restart(Declarations) :-
 %	-) refined semantics correctness issue
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-flatten_clauses(Clauses0,NClauses) :-
-	select(dict(Dict),Clauses0,Clauses),
+flatten_clauses(Clauses,Dict,NClauses) :-
 	flatten_readcontent(Clauses,Rules,Symbols,ModeDecls,_TypeDefs,TypeDecls,RestClauses),
 	flatten_clauses_(Dict,Rules,RestClauses,Symbols,ModeDecls,TypeDecls,NClauses).
 
@@ -10303,7 +10341,7 @@ flatten_clauses_(Dict,Clauses,RestClauses,Symbols,ModeDecls,TypeDecls,NClauses) 
 
 % declarations(+constraint_symbols,+dict,+mode_decls,+type_decls,-clauses) {{{
 declarations(ConstraintSymbols,Dict,ModeDecls,TypeDecls,Declarations) :-
-	findall(Symbol,(member(Symbol,ConstraintSymbols), \+ memberchk(Symbol-_-_,Dict)),Symbols), 
+	findall(Symbol,(member(Symbol,ConstraintSymbols), \+ memberchk(Symbol-_-_-_,Dict)),Symbols), 
 	maplist(declaration(ModeDecls,TypeDecls),Symbols,DeclarationsList),
 	flatten(DeclarationsList,Declarations).
 
@@ -10380,7 +10418,7 @@ flatten_readcontent([Clause|RClauses],Rules,ConstraintSymbols,ModeDecls,TypeDefs
 crude_is_rule((_ @ _)).
 crude_is_rule((_ pragma _)).
 crude_is_rule((_ ==> _)).
-crude_is_rule((_ <=> _)).	
+crude_is_rule((_ <=> _)).
 
 pure_is_declaration(D, Constraints,Modes,Types) :-		%% constraint declaration
 	D = (:- Decl), Decl =.. [F,Cs], F == (chr_constraint),
@@ -10421,7 +10459,7 @@ auxiliary_constraints_declaration(Dict,ModeDecls,TypeDecls,
 		[(:- chr_constraint ConstraintSpec),
 		 (:- chr_option(mode,NewModeDecl)),
 		 (:- chr_option(type_declaration,NewTypeDecl))]) :-
-	member(C/N-I-SFs,Dict),
+	member(C/N-I-SFs-_,Dict),
 	arg_modes(C,N,ModeDecls,Modes),
 	specialize_modes(Modes,I,SpecializedModes),
 	arg_types(C,N,TypeDecls,Types),
@@ -10462,19 +10500,27 @@ specialize_types(Types,I,SpecializedTypes) :-
 %
 % dispatching_rules(+dict,-newrules)
 
+
 % {{{
+
+% This code generates a decision tree for calling the appropriate specialized
+% constraint based on the particular value of the argument the constraint
+% is being specialized on.
+%
+% In case an error handler is provided, the handler is called with the 
+% unexpected constraint.
+
 dispatching_rules([],[]).
-dispatching_rules([CN-I-SFs|Dict], DispatchingRules) :-
-	constraint_dispatching_rule(SFs,CN,I,DispatchingRules,RestDispatchingRules),
+dispatching_rules([CN-I-SFs-MaybeErrorHandler|Dict], DispatchingRules) :-
+	constraint_dispatching_rule(SFs,CN,I,MaybeErrorHandler,DispatchingRules,RestDispatchingRules),
 	dispatching_rules(Dict,RestDispatchingRules).
       
-constraint_dispatching_rule(SFs,CN,I,Rules,RestRules) :-
+constraint_dispatching_rule(SFs,C/N,I,MaybeErrorHandler,Rules,RestRules) :-
  	( I == 1 ->
 		/* index on first argument */
 		Rules0 = Rules,
- 		NCN = CN
+ 		NCN = C/N
  	;
-		CN = C/N,
 		/* reorder arguments for 1st argument indexing */
 		functor(Head,C,N),
 		Head =.. [_|Args],
@@ -10485,40 +10531,26 @@ constraint_dispatching_rule(SFs,CN,I,Rules,RestRules) :-
 		[(Head :- Body)|Rules0] = Rules,
  		NCN = NC / N
  	),
-	dispatching_rule_term_cases(SFs,NCN,Rules0,RestRules).	
-	% dispatching_rule_cases(SFs,NCN,Rules0,RestRules).
+	Context = swap(C,I),
+	dispatching_rule_term_cases(SFs,NCN,MaybeErrorHandler,Context,Rules0,RestRules).	
 
-dispatching_rule_term_cases(SFs,NC/N,Rules,RestRules) :-
+dispatching_rule_term_cases(SFs,NC/N,MaybeErrorHandler,Context,Rules,RestRules) :-
 	once(pairup(Terms,Functors,SFs)),
 	length(Terms,K),
 	replicate(K,[],MorePatterns),
 	Payload is N - 1,
-	maplist(dispatching_action,Functors,Actions),
-	dispatch_trie_index([Terms|MorePatterns],Payload,Actions,NC,Rules,RestRules).
+	maplist(wrap_in_functor(dispatching_action),Functors,Actions),
+	dispatch_trie_index([Terms|MorePatterns],Payload,MaybeErrorHandler,Context,Actions,NC,Rules,RestRules).
 
 dispatching_action(Functor,PayloadArgs,Goal) :-
 	Goal =.. [Functor|PayloadArgs].
 
-% dispatching_rule_cases([],C/N,Rules,RestRules) :-
-% 	functor(Head,C,N),
-% 	arg(1,Head,IndexArg),
-% 	Body = throw(wrong_argument(C/N,IndexArg)),
-% 	Rules = [(Head :- Body)|RestRules].
-% dispatching_rule_cases([Term-Name|SFs],C/N,[Rule|Rules],RestRules) :-
-% 	functor(Head,C,N),
-% 	Head =.. [_,IndexArg|RestArgs],
-% 	IndexArg = Term,
-% 	Body =.. [Name|RestArgs],
-% 	Rule = (Head :- !, Body),
-% 	dispatching_rule_special(SFs,C/N,Rules,RestRules).
+dispatch_trie_index([Patterns|MorePatterns],Payload,MaybeErrorHandler,Context,Actions,Prefix,Clauses,Tail) :-
+	dispatch_trie_step(Patterns,Prefix,Prefix,MorePatterns,Payload,MaybeErrorHandler,Context,Actions,Clauses,Tail).
 
-dispatch_trie_index([Patterns|MorePatterns],Payload,Actions,Prefix,Clauses,Tail) :-
-	dispatch_trie_step(Patterns,Prefix,Prefix,MorePatterns,Payload,Actions,Clauses,Tail).
-
-dispatch_trie_step([],_,_,_,[],[],L,L) :- !.
+dispatch_trie_step([],_,_,_,[],_,_,[],L,L) :- !.
 	% length MorePatterns == length Patterns == length Results
-dispatch_trie_step(Patterns,Symbol,Prefix,MorePatterns,Payload,Actions,Clauses,T) :-
-	writeln(dispatch_trie_step(Patterns,Symbol,Prefix,MorePatterns,Payload,Actions,Clauses,T)),
+dispatch_trie_step(Patterns,Symbol,Prefix,MorePatterns,Payload,MaybeErrorHandler,Context,Actions,Clauses,T) :-
 	MorePatterns = [List|_],
 	length(List,N),	
 	aggregate_all(set(F/A),
@@ -10527,15 +10559,30 @@ dispatch_trie_step(Patterns,Symbol,Prefix,MorePatterns,Payload,Actions,Clauses,T
 		),
 		FAs),
 	N1 is N + 1,
-	dispatch_trie_step_cases(FAs,N1,Patterns,MorePatterns,Payload,Actions,Symbol,Prefix,Clauses,T).
+	dispatch_trie_step_cases(FAs,N1,Patterns,MorePatterns,Payload,MaybeErrorHandler,Context,Actions,Symbol,Prefix,Clauses,T).
 
-dispatch_trie_step_cases([],_,_,_,_,_,_,_,Clauses,Clauses).
-dispatch_trie_step_cases([FA|FAs],N,Pattern,MorePatterns,Payload,Actions,Symbol,Prefix,Clauses,Tail) :-
-	dispatch_trie_step_case(FA,N,Pattern,MorePatterns,Payload,Actions,Symbol,Prefix,Clauses,Clauses1),
-	dispatch_trie_step_cases(FAs,N,Pattern,MorePatterns,Payload,Actions,Symbol,Prefix,Clauses1,Tail).
+dispatch_trie_step_cases([],N,_,_,Payload,MaybeErrorHandler,Context,_,Symbol,_,Clauses0,Clauses) :-
+	( MaybeErrorHandler = yes(ErrorHandler) ->
+		Clauses0 = [ErrorClause|Clauses],
+		ErrorClause = (Head :- Body),
+		Arity is N + Payload,
+		functor(Head,Symbol,Arity),
+		reconstruct_original_term(Context,Head,Term),
+		Body =.. [ErrorHandler,Term]
+	;
+		Clauses0 = Clauses
+	).
+dispatch_trie_step_cases([FA|FAs],N,Pattern,MorePatterns,Payload,MaybeErrorHandler,Context,Actions,Symbol,Prefix,Clauses,Tail) :-
+	dispatch_trie_step_case(FA,N,Pattern,MorePatterns,Payload,MaybeErrorHandler,Context,Actions,Symbol,Prefix,Clauses,Clauses1),
+	dispatch_trie_step_cases(FAs,N,Pattern,MorePatterns,Payload,MaybeErrorHandler,Context,Actions,Symbol,Prefix,Clauses1,Tail).
 
-dispatch_trie_step_case(F/A,N,Patterns,MorePatterns,Payload,Actions,Symbol,Prefix,[Clause|List],Tail) :-
-	Clause = (Head :- Body),
+dispatch_trie_step_case(F/A,N,Patterns,MorePatterns,Payload,MaybeErrorHandler,Context0,Actions,Symbol,Prefix,[Clause|List],Tail) :-
+	Clause = (Head :- Cut, Body),
+	( MaybeErrorHandler = yes(_) ->
+		Cut = (!)
+	;
+		Cut = true
+	),
 	/* Head = Symbol(IndexPattern,V2,...,Vn,Payload) */
 	N1 is N  + Payload,
 	functor(Head,Symbol,N1),
@@ -10545,6 +10592,7 @@ dispatch_trie_step_case(F/A,N,Patterns,MorePatterns,Payload,Actions,Symbol,Prefi
 	once(append(Vs,PayloadArgs,RestArgs)),
 	/* IndexPattern = F(...) */
 	functor(IndexPattern,F,A),
+	Context1 = index_functor(F,A,Context0),
 	IndexPattern =.. [_|Args],
 	append(Args,RestArgs,RecArgs),
 	( RecArgs == PayloadArgs ->
@@ -10568,12 +10616,13 @@ dispatch_trie_step_case(F/A,N,Patterns,MorePatterns,Payload,Actions,Symbol,Prefi
 			common_pattern(CasePairs,CommonPatternPair,DiffVars,Differences),
 			append(Args,Vs,[First|Rest]),
 			First-Rest = CommonPatternPair,	
+			Context2 = gct(Vs,Context1),
 			gensym(Prefix,RSymbol),
 			append(DiffVars,PayloadArgs,RecCallVars),
 			Body =.. [RSymbol|RecCallVars],
 			findall(CH-CT,member([CH|CT],Differences),CPairs),
 			once(pairup(CHs,CTs,CPairs)),
-			dispatch_trie_step(CHs,RSymbol,Prefix,CTs,Payload,MoreActions,List,Tail)
+			dispatch_trie_step(CHs,RSymbol,Prefix,CTs,Payload,MaybeErrorHandler,Context2,MoreActions,List,Tail)
 		)
 	).
 	
@@ -10591,13 +10640,39 @@ split([X|Xs],I,Before,At,After) :-
 		split(Xs,J,RBefore,At,After)
 	).
 
+% reconstruct_original_term(Context,CurrentTerm,OriginalTerm)
+%
+% context	::= 	swap(functor,position)
+%		|	index_functor(functor,arity,context)
+%		|	gct(Pattern,Context)
+
+reconstruct_original_term(swap(Functor,Position),Term,OriginalTerm) :-
+	Term =.. [_,IndexArg|Args],
+	PrefixSize is Position - 1,
+	split_at(PrefixSize,Args,Prefix,Suffix),
+	append(Prefix,[IndexArg|Suffix],OriginalArgs),
+	OriginalTerm =.. [Functor|OriginalArgs].
+reconstruct_original_term(index_functor(Functor,Arity,Context),Term0,OriginalTerm) :-
+	Term0 =.. [Predicate|Args],
+	split_at(Arity,Args,IndexArgs,RestArgs),
+	Index =.. [Functor|IndexArgs],
+	Term1 =.. [Predicate,Index|RestArgs],
+	reconstruct_original_term(Context,Term1,OriginalTerm).
+reconstruct_original_term(gct(PatternList,Context),Term0,OriginalTerm) :-
+	copy_term_nat(PatternList,IndexTerms),
+	term_variables(IndexTerms,Variables),
+	Term0 =.. [Predicate|Args0],
+	append(Variables,RestArgs,Args0),
+	append(IndexTerms,RestArgs,Args1),
+	Term1 =.. [Predicate|Args1],
+	reconstruct_original_term(Context,Term1,OriginalTerm).
 % }}}
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 % SUBSTITUTE CONSTRAINT SYMBOL FUNCTORS
 %
 % flatten_rules(+rule_clauses,+dict,-rule_clauses).
 %
-% dict :== list(functor/arity-int-list(term-functor))
+% dict :== list(functor/arity-int-list(term-functor)-maybe(error_handler))
 
 % {{{
 flatten_rules(Rules,Dict,FlatRules) :-
@@ -10630,7 +10705,7 @@ flatten_heads((H # Annotation),Dict,(NH # Annotation)) :- !,
 	flatten_heads(H,Dict,NH).
 flatten_heads(H,Dict,NH) :-
 	( functor(H,C,N),
-	  memberchk(C/N-I-SFs,Dict) ->
+	  memberchk(C/N-I-SFs-_,Dict) ->
 		H =.. [_|AllArgs],
 		split(AllArgs,I,PreArgs,Arg,PostArgs),
 		member(Term-Name,SFs),
@@ -10641,31 +10716,41 @@ flatten_heads(H,Dict,NH) :-
 		NH = H
 	).
 	
+flatten_body((Guard | Body),Dict,(NGuard | NBody)) :- !,
+	conj2list(Guard,Guards),
+	maplist(flatten_goal(Dict),Guards,NGuards),
+	list2conj(NGuards,NGuard),
+	conj2list(Body,Goals),
+	maplist(flatten_goal(Dict),Goals,NGoals),
+	list2conj(NGoals,NBody).
 flatten_body(Body,Dict,NBody) :-
 	conj2list(Body,Goals),
 	maplist(flatten_goal(Dict),Goals,NGoals),
 	list2conj(NGoals,NBody).
 
+flatten_goal(Dict,Goal,NGoal) :- var(Goal), !, NGoal = Goal.
 flatten_goal(Dict,Goal,NGoal) :-
 	( is_specializable_goal(Goal,Dict,ArgPos)
 	->
 	  specialize_goal(Goal,ArgPos,NGoal)
-	; nonvar(Goal),
-	  Goal = Mod : TheGoal,
+	; Goal = Mod : TheGoal,
 	  get_target_module(Module),
 	  Mod == Module,
+	  nonvar(TheGoal),
 	  is_specializable_goal(TheGoal,Dict,ArgPos)
   	->
 	  specialize_goal(TheGoal,ArgPos,NTheGoal),
 	  NGoal = Mod : NTheGoal	
-	;
+	; partial_eval(Goal,NGoal) 
+	->
+	  true
+	; 
 		NGoal = Goal	
 	).	
 
 is_specializable_goal(Goal,Dict,ArgPos) :-
-	nonvar(Goal),
 	functor(Goal,C,N),
-     	memberchk(C/N-ArgPos-_,Dict),
+     	memberchk(C/N-ArgPos-_-_,Dict),
 	arg(ArgPos,Goal,Arg),
 	ground(Arg).
 
@@ -10677,6 +10762,20 @@ specialize_goal(Goal,ArgPos,NGoal) :-
 	  append(Before,After,NArgs),
 	  flat_spec(C/N,ArgPos,Arg,_-Functor),
 	  NGoal =.. [Functor|NArgs].	
+
+partial_eval(append(L1,L2,L3),NGoal) :-
+	( L1 == [] ->
+		NGoal = (L3 = L2)
+	; L2 == [] ->
+		NGoal = (L3 = L1)
+	).
+partial_eval(flatten_path(L1,L2),NGoal) :-
+	nonvar(L1),
+	flatten(L1,FlatterL1),
+	FlatterL1 \== L1 ->
+	NGoal = flatten_path(FlatterL1,L2).
+		
+	
 % }}}	
 
 % }}}

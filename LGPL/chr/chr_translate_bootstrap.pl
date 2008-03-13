@@ -1,4 +1,4 @@
-/*  $Id: chr_translate_bootstrap.pl,v 1.6 2008-03-13 14:38:00 vsc Exp $
+/*  $Id: chr_translate_bootstrap.pl,v 1.7 2008-03-13 17:43:13 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -2458,8 +2458,6 @@ list2conj([G|Gs],C) :-
 		list2conj(Gs,R)
 	).
 
-:- if(current_prolog_flag(dialect, swi)).
-
 atom_concat_list([X],X) :- ! .
 atom_concat_list([X|Xs],A) :-
 	atom_concat_list(Xs,B),
@@ -2479,13 +2477,6 @@ make_atom(A,AA) :-
 	  number_codes(A,AL),
 	  atom_codes(AA,AL)
 	).
-
-:- else.
-
-atom_concat_list(L,X) :-
-	atomic_concat(L, X).
-
-:- endif.
 
 set_elems([],_).
 set_elems([X|Xs],X) :-
