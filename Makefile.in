@@ -33,7 +33,7 @@ INFODIR=$(SHAREDIR)/info
 #       -DCOROUTINING: implement extra control primitives
 #       -DANALYST: low level profiler
 #	-DDEPTH_LIMIT: support depth-limits in Prolog execution
-#	-DLOW_LEVEL_TRACER: low level tracing       
+#	-DLOW_LEVEL_TRACER: low level tracing
 #
 # very experimental stuff, you'll need to contact the developers
 # if you want to use this:
@@ -45,7 +45,7 @@ INFODIR=$(SHAREDIR)/info
 #
 # check also optimisation options in INSTALL file.
 #
-YAP_EXTRAS=@YAP_EXTRAS@ 
+YAP_EXTRAS=@YAP_EXTRAS@
 
 #
 # Please do not add YAP_EXTRA flags here: if you do check the flags
@@ -127,7 +127,8 @@ HEADERS = \
 	$(srcdir)/H/cut_c.h \
 	$(srcdir)/MYDDAS/myddas.h $(srcdir)/MYDDAS/myddas_structs.h \
 	$(srcdir)/MYDDAS/myddas_statistics.h \
-	$(srcdir)/MYDDAS/myddas_statistics_structs.h 	 
+	$(srcdir)/MYDDAS/myddas_statistics_structs.h \
+	$(srcdir)/MYDDAS/myddas_wkb.h $(srcdir)/MYDDAS/myddas_wkb2prolog.h
 
 C_SOURCES= \
 	$(srcdir)/C/absmi.c $(srcdir)/C/adtdefs.c \
@@ -177,7 +178,8 @@ C_SOURCES= \
 	$(srcdir)/MYDDAS/myddas_initialization.c \
 	$(srcdir)/MYDDAS/myddas_shared.c \
 	$(srcdir)/MYDDAS/myddas_statistics.c \
-	$(srcdir)/MYDDAS/myddas_top_level.c
+	$(srcdir)/MYDDAS/myddas_top_level.c \
+	$(srcdir)/MYDDAS/myddas_wkb2prolog.c
 
 PL_SOURCES= \
 	$(srcdir)/pl/arith.yap $(srcdir)/pl/arrays.yap $(srcdir)/pl/boot.yap \
@@ -207,7 +209,7 @@ PL_SOURCES= \
 	$(srcdir)/pl/yapor.yap $(srcdir)/pl/yio.yap
 
 YAPDOCS=$(srcdir)/docs/yap.tex $(srcdir)/docs/chr.tex \
-	$(srcdir)/docs/clpr.tex $(srcdir)/docs/swi.tex 
+	$(srcdir)/docs/clpr.tex $(srcdir)/docs/swi.tex
 
 ENGINE_OBJECTS = \
 	agc.o absmi.o adtdefs.o alloc.o amasm.o analyst.o arrays.o \
@@ -220,7 +222,7 @@ ENGINE_OBJECTS = \
 	iopreds.o depth_bound.o mavar.o \
 	myddas_mysql.o myddas_odbc.o myddas_shared.o myddas_initialization.o \
 	myddas_util.o myddas_statistics.o myddas_top_level.o \
-	modules.o other.o   \
+	myddas_wkb2prolog.o modules.o other.o   \
 	parser.o readutil.o save.o scanner.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
 	unify.o userpreds.o utilpreds.o \
@@ -238,7 +240,7 @@ OR_OBJECTS = \
 	tab.tries.o tab.suspend.o
 
 BEAM_OBJECTS = \
-	eamamasm.o eam_showcode.o eamindex.o eam_am.o 
+	eamamasm.o eam_showcode.o eamindex.o eam_am.o
 
 STATIC_OBJECTS = \
 	@STATIC_MODE@sys.o random.o regexp.o  @NO_BUILTIN_REGEXP@ regcomp.o regerror.o regfree.o regexec.o
@@ -255,7 +257,7 @@ all: Makefile startup
 Makefile: $(srcdir)/Makefile.in
 
 
-absmi.o: $(srcdir)/C/absmi.c 
+absmi.o: $(srcdir)/C/absmi.c
 	$(CC) -c $(CFLAGS) $(ABSMI_FLAGS) $(srcdir)/C/absmi.c -o $@
 
 adtdefs.o: $(srcdir)/C/adtdefs.c
@@ -461,6 +463,9 @@ myddas_initialization.o: $(srcdir)/MYDDAS/myddas_initialization.c
 myddas_top_level.o: $(srcdir)/MYDDAS/myddas_top_level.c
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_top_level.c -o $@
 
+myddas_wkb2prolog.o: $(srcdir)/MYDDAS/myddas_wkb2prolog.c
+	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_wkb2prolog.c -o $@
+
 myddas_statistics.o: $(srcdir)/MYDDAS/myddas_statistics.c
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_statistics.c -o $@
 
@@ -515,13 +520,13 @@ eamamasm.o:  $(srcdir)/BEAM/eamamasm.c
 eamindex.o:  $(srcdir)/BEAM/eamindex.c
 	$(CC) -c $(CFLAGS) $(srcdir)/BEAM/eamindex.c -o $@
 
-sys.o: $(srcdir)/library/system/sys.c 
+sys.o: $(srcdir)/library/system/sys.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/library/system/sys.c  -o $@
 
-yap2swi.o: $(srcdir)/library/yap2swi/yap2swi.c 
+yap2swi.o: $(srcdir)/library/yap2swi/yap2swi.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $(srcdir)/library/yap2swi/yap2swi.c  -o $@
 
-random.o: $(srcdir)/library/random/random.c 
+random.o: $(srcdir)/library/random/random.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $(srcdir)/library/random/random.c  -o $@
 
 regexp.o: $(srcdir)/library/regex/regexp.c  @NO_BUILTIN_REGEXP@ $(srcdir)/library/regex/regex2.h  $(srcdir)/library/regex/engine.c
@@ -545,7 +550,7 @@ regexec.o: $(srcdir)/library/regex/regexec.c
 %.i : $(srcdir)/C/%.c
 	$(CC) -E $< $(CFLAGS) > $@
 
-absmi.i: $(srcdir)/C/absmi.c 
+absmi.i: $(srcdir)/C/absmi.c
 	$(CC) -E $(CFLAGS) $(ABSMI_FLAGS) $(srcdir)/C/absmi.c > $@
 
 c_interface.i: $(srcdir)/C/c_interface.c $(srcdir)/include/c_interface.h
@@ -655,7 +660,7 @@ install_data:
 TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
 	etags  $(C_SOURCES)  $(PL_SOURCES) $(HEADERS)
 
-depend: $(HEADERS) $(C_SOURCES) 
+depend: $(HEADERS) $(C_SOURCES)
 	-@if test "$(GCC)" = yes; then\
 	  $(CC) -MM $(CFLAGS) -I$(srcdir)/include $(C_SOURCES) > .depend;\
 	else\

@@ -29,6 +29,7 @@
 #include "myddas_structs.h"
 #include "myddas_statistics.h"
 #endif
+#include "myddas_wkb2prolog.h"
 
 #define IS_SQL_INT(FIELD) FIELD == FIELD_TYPE_INT24    || \
 	                  FIELD == FIELD_TYPE_LONG     || \
@@ -40,6 +41,7 @@
 	                    FIELD == FIELD_TYPE_DOUBLE     || \
 	                    FIELD == FIELD_TYPE_FLOAT 
 
+#define IS_SQL_GEOMETRY(FIELD) FIELD == FIELD_TYPE_GEOMETRY
 
 static Int null_id = 0;
 
@@ -535,6 +537,11 @@ c_db_my_row(void) {
 		  else if (IS_SQL_FLOAT(field->type))
 		    {
 		      if (!Yap_unify(head, MkFloatTerm(atof(row[i]))))
+			continue;
+		    }
+		  else if (IS_SQL_GEOMETRY(field->type))
+		    {
+		      if (!Yap_unify(head, wkb2prolog(row[i])))
 			continue;
 		    }
 		  else 
