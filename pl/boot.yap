@@ -40,10 +40,19 @@ true :- true.
 	'$change_alias_to_stream'('$loop_stream','$stream'(0)),
         % do catch as early as possible
 	(
-	 '$access_yap_flags'(15, 0), \+ '$uncaught_throw' ->
+	 '$access_yap_flags'(15, 0),
+	 '$access_yap_flags'(22, 0),
+	 \+ '$uncaught_throw'
+	->
 	  '$version'
 	;
 	  true
+	),
+	(
+	 '$access_yap_flags'(22, 0) ->
+	 set_value('$verbose',on)
+	;
+	 set_value('$verbose',off)
 	),
 	(
 	 retractall(user:library_directory(_)),

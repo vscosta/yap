@@ -1398,7 +1398,7 @@ commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *A
     return(FAIL_RESTORE);
   Yap_PrologMode = BootMode;
   if (Yap_HeapBase) {
-    if (!yap_flags[HALT_AFTER_CONSULT_FLAG]) {
+    if (!yap_flags[HALT_AFTER_CONSULT_FLAG] && !yap_flags[QUIET_MODE_FLAG]) {
       Yap_TrueFileName(s,Yap_FileNameBuf2, YAP_FILENAME_MAX);
       fprintf(stderr, "%% Restoring file %s\n", Yap_FileNameBuf2);
     }

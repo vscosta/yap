@@ -233,8 +233,10 @@ print_usage(void)
   fprintf(stderr,"\n[ Valid switches for command line arguments: ]\n");
   fprintf(stderr,"  -?   Shows this screen\n");
   fprintf(stderr,"  -b   Boot file \n");
+  fprintf(stderr,"  -f   Do not consult startup prolog files\n");
   fprintf(stderr,"  -g   Run Goal Before Top-Level \n");
   fprintf(stderr,"  -z   Run Goal Before Top-Level \n");
+  fprintf(stderr,"  -q   start with informational messages off\n");
   fprintf(stderr,"  -l   load Prolog file\n");
   fprintf(stderr,"  -L   run Prolog file and exit\n");
   fprintf(stderr,"  -p   extra path for file-search-path\n");
@@ -295,6 +297,9 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
           case '?':
 	    print_usage();
             exit(EXIT_SUCCESS);
+          case 'q':
+	    iap->QuietMode = TRUE;
+	    break;
 	  case 'w':
 	    ssize = &(iap->NumberWorkers);
 	    goto GetSize;
@@ -432,7 +437,8 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    break;
 #endif
 	  case 'L':
-           iap->HaltAfterConsult = TRUE;
+	    iap->QuietMode = TRUE;
+	    iap->HaltAfterConsult = TRUE;
 	  case 'l':
            p++;
 	   if (!*++argv) {
@@ -590,6 +596,7 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
 #endif  
   iap->ErrorNo = 0;
   iap->ErrorCause = NULL;
+  iap->QuietMode = FALSE;
 
   BootMode = parse_yap_arguments(argc,argv,iap);
 

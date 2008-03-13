@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-02-12 17:03:50 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-03-13 18:41:50 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.106  2008/02/12 17:03:50  vsc
+* SWI-portability changes
+*
 * Revision 1.105  2008/01/28 10:42:19  vsc
 * fix BOM trouble
 *
@@ -1681,6 +1684,9 @@ YAP_Init(YAP_init_args *yap_init)
 	      yap_init->DelayedReleaseLoad
 	      );
   Yap_InitExStacks (Trail, Stack);
+  if (yap_init->QuietMode) {
+    yap_flags[QUIET_MODE_FLAG] = TRUE;
+  }
 
 { BACKUP_MACHINE_REGS();
   Yap_InitYaamRegs();
@@ -1773,6 +1779,9 @@ YAP_Init(YAP_init_args *yap_init)
   if (yap_init->YapPrologAddPath) {
     Yap_PutValue(Yap_FullLookupAtom("$extend_file_search_path"), MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologAddPath)));
   }
+  if (yap_init->QuietMode) {
+    yap_flags[QUIET_MODE_FLAG] = TRUE;
+  }
   if (yap_init->SavedState != NULL ||
       yap_init->YapPrologBootFile == NULL) {
     if (restore_result == FAIL_RESTORE) {
@@ -1816,6 +1825,7 @@ YAP_FastInit(char saved_state[])
   init_args.Argv = NULL;
   init_args.ErrorNo = 0;
   init_args.ErrorCause = NULL;
+  init_args.QuietMode = FALSE;
   out = YAP_Init(&init_args);
   if (out == YAP_BOOT_FROM_SAVED_ERROR) {
     Yap_Error(init_args.ErrorNo,TermNil,init_args.ErrorCause);

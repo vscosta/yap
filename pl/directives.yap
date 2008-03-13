@@ -320,16 +320,24 @@ yap_flag(tabling_mode,Options) :-
 
 yap_flag(informational_messages,X) :- var(X), !,
 	 get_value('$verbose',X).
-yap_flag(informational_messages,on)  :- !, set_value('$verbose',on).
-yap_flag(informational_messages,off) :- !, set_value('$verbose',off).
+yap_flag(informational_messages,on)  :- !,
+	set_value('$verbose',on),
+	'$set_yap_flags'(22,0).
+yap_flag(informational_messages,off) :- !,
+	set_value('$verbose',off),
+	'$set_yap_flags'(22,1).
 yap_flag(informational_messages,X) :-
 	'$do_error'(domain_error(flag_value,informational_messages+X),yap_flag(informational_messages,X)).
 
 yap_flag(verbose,X) :- var(X), !,
 	 get_value('$verbose',X0),
 	 (X0 == on -> X = normal ; X = silent).
-yap_flag(verbose,normal)  :- !, set_value('$verbose',on).
-yap_flag(verbose,silent) :- !, set_value('$verbose',off).
+yap_flag(verbose,normal)  :- !,
+	set_value('$verbose',on),
+	'$set_yap_flags'(22,0).
+yap_flag(verbose,silent) :- !,
+	set_value('$verbose',off),
+	'$set_yap_flags'(22,1).
 yap_flag(verbose,X) :-
 	'$do_error'(domain_error(flag_value,verbose+X),yap_flag(verbose,X)).
 

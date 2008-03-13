@@ -859,6 +859,7 @@ InitFlags(void)
   /* current default */
   yap_flags[INDEXING_MODE_FLAG] = INDEX_MODE_MULTI;
   yap_flags[TABLING_MODE_FLAG] = 0;
+  yap_flags[QUIET_MODE_FLAG] = FALSE;
 }
 
 static void 

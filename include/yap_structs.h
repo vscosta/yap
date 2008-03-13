@@ -114,6 +114,8 @@ typedef struct {
   int Argc;
   /* array of arguments as seen by Prolog */
   char **Argv;
+  /* QuietMode */
+  int QuietMode;
 #ifdef MYDDAS_MYSQL
   /* If any myddas option was given */
   short myddas;

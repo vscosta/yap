@@ -890,6 +890,10 @@ the predicate '$live'/0.
 connect standard streams to host @t{IP_HOST} at port @t{port}
 @item filename
 restore state saved in the given file
+@item -f
+do not consult initial files
+@item -q
+do not print informational messages
 @item --
 separator for arguments to Prolog code. These arguments are visible
 through the unix/1 built-in.
@@ -10508,6 +10512,14 @@ variable in @var{Term1}.
 @cnindex variable_in_term/2
 Succeed if the second argument @var{Var} is a variable and occurs in
 term @var{Term}.
+
+@item unifiable(?@var{Term1}, ?@var{Term2}, -@var{Bindings})
+@findex  unifiable/3
+@syindex unifiable/3
+@cnindex unifiable/3
+
+Succeed if @var{Term1} and @var{Term2} are unifiable with substitution
+@var{Bindings}.
 
 @end table
 
