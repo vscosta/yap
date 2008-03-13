@@ -359,7 +359,7 @@ open_pipe_streams(P1,P2) :- '$open_pipe_stream'(P1, P2).
 fileerrors :- set_value(fileerrors,1).
 nofileerrors :- set_value(fileerrors,0).
 
-exists(F) :- '$exists'(F,read).
+exists(F) :- '$exists'(F,'$csult').
 
 see(user) :- !, set_input(user_input).
 see(F) :- var(F), !,
@@ -988,15 +988,6 @@ at_end_of_line(S) :-
 
 
 consult_depth(LV) :- '$show_consult_level'(LV).
-
-'$exists'(F,Mode,AbsFile) :-
-	get_value(fileerrors,V),
-	set_value(fileerrors,0),
-	( '$open'(F,Mode,S,0,0), !,
-	    '$file_name'(S, AbsFile),
-	     '$close'(S), set_value(fileerrors,V);
-	     set_value(fileerrors,V), fail).
-
 
 current_char_conversion(X,Y) :-
 	var(X), !,

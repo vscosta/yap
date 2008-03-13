@@ -1016,7 +1016,16 @@ access_file(F,Mode) :-
 '$exists'(F,Mode) :-
 	get_value(fileerrors,V),
 	set_value(fileerrors,0),
-	( '$open'(F,Mode,S,0,1) -> '$close'(S), set_value(fileerrors,V) ; set_value(fileerrors,V), fail).
+	system:true_file_name(F, F1),
+	(
+	 '$open'(F1,Mode,S,0,1)
+	->
+	 '$close'(S),
+	 set_value(fileerrors,V)
+	;
+	 set_value(fileerrors,V),
+	 fail
+	).
 
 
 % term expansion
