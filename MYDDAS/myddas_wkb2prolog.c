@@ -27,7 +27,7 @@ Term wkb2prolog(char *wkb) {
 
   cursor = wkb;
 
-  /*ignorar o SRID 4 bytes*/
+  /*ignore the SRID 4 bytes*/
   cursor += 4;
 
   /*byteorder*/
@@ -35,7 +35,7 @@ Term wkb2prolog(char *wkb) {
   inbyteorder = get_inbyteorder();
 
   swaporder = 0;
-  if ( hostbyteorder != inbyteorder ) 
+  if ( hostbyteorder != inbyteorder )
     swaporder = 1;
 
   type = get_wkbType();
@@ -44,8 +44,8 @@ Term wkb2prolog(char *wkb) {
 }
 
 static byte get_hostbyteorder(void){
-  uint16_t host = 5;  
-  uint16_t net;  
+  uint16_t host = 5;
+  uint16_t net;
 
   net = htons(host);
   if ( net == host )
@@ -62,7 +62,6 @@ static byte get_inbyteorder(void){
     exit(0);
   }
 
-  /*avançar o cursor*/
   cursor++;
 
   return(b);
@@ -70,7 +69,7 @@ static byte get_inbyteorder(void){
 
 static uint32 get_wkbType(void){
   uint32 u;
-  
+
   /* read the type */
   readswap4(&u);
 
@@ -93,7 +92,7 @@ static void readswap4(uint32 *buf){
       *buf = (uint32)ntohl((u_long)*buf);
     } else {
       byte u[4];
-      
+
       u[0] = ((byte *) buf)[3];
       u[1] = ((byte *) buf)[2];
       u[2] = ((byte *) buf)[1];
@@ -105,7 +104,6 @@ static void readswap4(uint32 *buf){
     }
   }
 
-  /*avançar cursor*/
   cursor += 4;
 }
 
@@ -122,14 +120,14 @@ static void readswap8(double *buf) {
   if ( swaporder ) {
     if ( inbyteorder == WKBXDR ) {
       u_long u[2];
-      
+
       u[0] = ((u_long *) buf)[0];
       u[1] = ((u_long *) buf)[1];
       ((u_long *) buf)[1] = ntohl(u[0]);
       ((u_long *) buf)[0] = ntohl(u[1]);
     } else {
       byte u[8];
-      
+
       u[0] = ((byte *) buf)[7];
       u[1] = ((byte *) buf)[6];
       u[2] = ((byte *) buf)[5];
@@ -149,7 +147,6 @@ static void readswap8(double *buf) {
     }
   }
 
-  /*avançar cursor*/
   cursor += 8;
 }
 
@@ -157,7 +154,7 @@ static Term get_point(char *func){
   Term args[2];
   Functor functor;
   double d;
-  
+
   if(func == NULL)
     /*functor "," => (_,_)*/
     functor = Yap_MkFunctor(Yap_LookupAtom(","), 2);
@@ -167,7 +164,7 @@ static Term get_point(char *func){
   /* read the X */
   readswap8(&d);
   args[0] = MkFloatTerm(d);
-      
+
   /* read the Y */
   readswap8(&d);
   args[1] = MkFloatTerm(d);
@@ -185,17 +182,15 @@ static Term get_linestring(char *func){
   /* read the number of vertices */
   readswap4(&n);
 
-  /*alocar o espaço para os argumentos*/
+  /* space for arguments */
   c_list = (Term *) calloc(sizeof(Term),n);
 
   for ( i = 0; i < n; i++) {
     c_list[i] = get_point(NULL);
   }
 
-  /*criar a lista*/
   list = MkAtomTerm(Yap_LookupAtom("[]"));
   for (i = n - 1; i >= 0; i--) {
-    /*percorrer a lista em ordem inversa para o resultado ser o original*/
     list = MkPairTerm(c_list[i],list);
   }
 
@@ -217,17 +212,15 @@ static Term get_polygon(char *func){
   /* read the number of rings */
   readswap4(&r);
 
-  /*alocar o espaço para os aneis*/
+  /* space for rings */
   c_list = (Term *) calloc(sizeof(Term),r);
 
   for ( i = 0; i < r; i++ ) {
     c_list[i] = get_linestring(NULL);
   }
 
-  /*criar a lista*/
   list = MkAtomTerm(Yap_LookupAtom("[]"));
   for (i = r - 1; i >= 0; i--) {
-    /*percorrer a lista em ordem inversa para o resultado ser o original*/
     list = MkPairTerm(c_list[i],list);
   }
 
@@ -260,7 +253,7 @@ static Term get_geometry(uint32 type){
       /* read the number of points */
       readswap4(&n);
 
-      /*alocar o espaço para os pontos*/
+      /* space for points */
       c_list = (Term *) calloc(sizeof(Term),n);
 
       for ( i = 0; i < n; i++ ) {
@@ -271,10 +264,8 @@ static Term get_geometry(uint32 type){
 	c_list[i] = get_point(NULL);
       }
 
-      /*criar a lista*/
       list = MkAtomTerm(Yap_LookupAtom("[]"));
       for (i = n - 1; i >= 0; i--) {
-	/*percorrer a lista em ordem inversa para o resultado ser o original*/
 	list = MkPairTerm(c_list[i],list);
       }
 
@@ -296,7 +287,7 @@ static Term get_geometry(uint32 type){
       /* read the number of polygons */
       readswap4(&n);
 
-      /*alocar o espaço para os polygons*/
+      /* space for polygons*/
       c_list = (Term *) calloc(sizeof(Term),n);
 
       for ( i = 0; i < n; i++ ) {
@@ -307,10 +298,8 @@ static Term get_geometry(uint32 type){
 	c_list[i] = get_linestring(NULL);
       }
 
-      /*criar a lista*/
       list = MkAtomTerm(Yap_LookupAtom("[]"));
       for (i = n - 1; i >= 0; i--) {
-	/*percorrer a lista em ordem inversa para o resultado ser o original*/
 	list = MkPairTerm(c_list[i],list);
       }
 
@@ -332,7 +321,7 @@ static Term get_geometry(uint32 type){
       /* read the number of polygons */
       readswap4(&n);
 
-      /*alocar o espaço para os polygons*/
+      /* space for polygons*/
       c_list = (Term *) calloc(sizeof(Term),n);
 
       for ( i = 0; i < n; i++ ) {
@@ -343,10 +332,8 @@ static Term get_geometry(uint32 type){
 	c_list[i] = get_polygon(NULL);
       }
 
-      /*criar a lista*/
       list = MkAtomTerm(Yap_LookupAtom("[]"));
       for (i = n - 1; i >= 0; i--) {
-	/*percorrer a lista em ordem inversa para o resultado ser o original*/
 	list = MkPairTerm(c_list[i],list);
       }
 
@@ -363,23 +350,21 @@ static Term get_geometry(uint32 type){
       Functor functor;
       Term *c_list;
       Term list;
-      
+
       /* read the number of geometries */
       readswap4(&n);
-      
-      /*alocar o espaço para as geometrys*/
+
+      /* space for geometries*/
       c_list = (Term *) calloc(sizeof(Term),n);
-      
-      
+
+
       for ( i = 0; i < n; i++ ) {
 	b = get_inbyteorder();
 	c_list[i] = get_geometry(get_wkbType());
       }
-      
-      /*criar a lista*/
+
       list = MkAtomTerm(Yap_LookupAtom("[]"));
       for (i = n - 1; i >= 0; i--) {
-	/*percorrer a lista em ordem inversa para o resultado ser o original*/
 	list = MkPairTerm(c_list[i],list);
       }
 
