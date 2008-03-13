@@ -1,4 +1,4 @@
-/*  $Id: chr_compiler_utility.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
+/*  $Id: chr_compiler_utility.pl,v 1.3 2008-03-13 14:37:59 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -28,9 +28,9 @@
     invalidate any other reasons why the executable file might be covered by
     the GNU General Public License.
 */
+:- if(current_prolog_flag(dialect, swi)).
 :- module(chr_compiler_utility,
-	[ is_variant/2
-	, time/2
+	[ time/2
 	, replicate/3
 	, pair_all_with/3
 	, conj2list/2
@@ -45,43 +45,62 @@
 	, my_term_copy/3
 	, my_term_copy/4
 	, atom_concat_list/2
-%vsc	, atomic_concat/3
+	, atomic_concat/3
 	, init/2
 	, member2/3
 	, select2/6
 	, set_elems/2
 	, instrument_goal/4
 	, sort_by_key/3
+	, arg1/3
+	, wrap_in_functor/3
+	, tree_set_empty/1
+	, tree_set_memberchk/2
+	, tree_set_add/3
 	]).
+:- else.
+
+% ugly: this is because YAP also has atomic_concat
+% so we cannot export it from chr_compiler_utility.
+
+:- module(chr_compiler_utility,
+	[ time/2
+	, replicate/3
+	, pair_all_with/3
+	, conj2list/2
+	, list2conj/2
+	, disj2list/2
+	, list2disj/2
+	, variable_replacement/3
+	, variable_replacement/4
+	, identical_rules/2
+	, identical_guarded_rules/2
+	, copy_with_variable_replacement/3
+	, my_term_copy/3
+	, my_term_copy/4
+	, atom_concat_list/2
+	, init/2
+	, member2/3
+	, select2/6
+	, set_elems/2
+	, instrument_goal/4
+	, sort_by_key/3
+	, arg1/3
+	, wrap_in_functor/3
+	, tree_set_empty/1
+	, tree_set_memberchk/2
+	, tree_set_add/3
+	]).
+:- endif.
 
 :- use_module(pairlist).
 :- use_module(library(lists), [permutation/2]).
+:- use_module(library(assoc)).
 
 %% SICStus begin
 %% use_module(library(terms),[term_variables/2]).
 %% SICStus end
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-is_variant(A,B) :-
-	copy_term_nat(A,AC),
-	copy_term_nat(B,BC),
-	term_variables(AC,AVars), 
-	term_variables(BC,BVars),
-	AC = BC,
-	is_variant1(AVars),
-	is_variant2(BVars).
-
-is_variant1([]).
-is_variant1([X|Xs]) :-
-	var(X),
-	X = '$test',
-	is_variant1(Xs).
-	
-is_variant2([]).
-is_variant2([X|Xs]) :-
-	X == '$test',
-	is_variant2(Xs).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % time(Phase,Goal) :-
@@ -260,12 +279,13 @@ atom_concat_list([X|Xs],A) :-
 	atom_concat_list(Xs,B),
 	atomic_concat(X,B,A).
 
-/* vsc
+:- if(current_prolog_flag(dialect, swi)).
 atomic_concat(A,B,C) :-
 	make_atom(A,AA),
 	make_atom(B,BB),
 	atom_concat(AA,BB,C).
-*/
+:- endif.
+
 make_atom(A,AA) :-
 	(
 	  atom(A) ->
@@ -301,3 +321,31 @@ sort_by_key(List,Keys,SortedList) :-
 	pairup(Keys,List,Pairs),
 	sort(Pairs,SortedPairs),
 	once(pairup(_,SortedList,SortedPairs)).	
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+arg1(Term,Index,Arg) :- arg(Index,Term,Arg).	
+
+wrap_in_functor(Functor,X,Term) :-
+	Term =.. [Functor,X].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+tree_set_empty(TreeSet) :- empty_assoc(TreeSet).
+tree_set_memberchk(Element,TreeSet) :- get_assoc(Element,TreeSet,_).
+tree_set_add(TreeSet,Element,NTreeSet) :- put_assoc(Element,TreeSet,x,NTreeSet).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- dynamic
+	user:goal_expansion/2.
+:- multifile
+	user:goal_expansion/2.
+
+user:goal_expansion(arg1(Term,Index,Arg), arg(Index,Term,Arg)).
+user:goal_expansion(wrap_in_functor(Functor,In,Out), Goal) :-
+	( atom(Functor), var(Out) ->
+		Out =.. [Functor,In],
+		Goal = true
+	;
+		Goal = (Out =.. [Functor,In])
+	).
+

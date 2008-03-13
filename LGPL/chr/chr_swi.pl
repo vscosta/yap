@@ -1,4 +1,4 @@
-/*  $Id: chr_swi.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
+/*  $Id: chr_swi.pl,v 1.3 2008-03-13 14:38:00 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -43,6 +43,7 @@
 	    op(1190, xfx, pragma),
 	    op( 500, yfx, #),
 	    op(1150, fx, chr_type),
+	    op(1150, fx, chr_declaration),
 	    op(1130, xfx, --->),
 	    op(1150, fx, (?)),
 	    chr_show_store/1,		% +Module
@@ -130,6 +131,7 @@ chr_expandable((constraints _)).
 chr_expandable((:- chr_constraint _)).
 chr_expandable((:- chr_type _)).
 chr_expandable((chr_type _)).
+chr_expandable((:- chr_declaration _)).
 chr_expandable(option(_, _)).
 chr_expandable((:- chr_option(_, _))).
 chr_expandable((handler _)).
@@ -165,7 +167,7 @@ chr_expand(Term, []) :-
 	add_pragma_to_chr_rule(Term,line_number(LineNumber),NTerm),
 	assert(chr_term(File, LineNumber, NTerm)).
 chr_expand(Term, []) :-
-	Term = (:- chr_preprocessor(Preprocessor)), !,
+	Term = ((:- chr_preprocessor Preprocessor)), !,
 	prolog_load_context(file,File),
 	assert(chr_pp(File, Preprocessor)).
 chr_expand(end_of_file, FinalProgram) :-

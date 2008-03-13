@@ -2,25 +2,31 @@
 % distribution
 %
 
-:- module(clpbn_dist,[
-	dist/1,
-	dist/3,
-        dists/1,
-	get_dist/4,
-	get_dist_matrix/5,
-	get_dist_domain/2,
-	get_dist_params/2,
-	get_dist_domain_size/2,
-	get_dist_tparams/2,
-	get_evidence_position/3,
-	get_evidence_from_position/3,
-	dist_to_term/2
+:- module(clpbn_dist,
+	  [
+	   dist/1,
+	   dist/3,
+	   dists/1,
+	   dist_new_table/2,
+	   get_dist/4,
+	   get_dist_matrix/5,
+	   get_dist_domain/2,
+	   get_dist_params/2,
+	   get_dist_domain_size/2,
+	   get_dist_tparams/2,
+	   get_evidence_position/3,
+	   get_evidence_from_position/3,
+	   dist_to_term/2,
+	   empty_dist/2,
+	   dist_new_table/2
 	]).
 
 :- use_module(library(lists),[is_list/1,nth0/3]).
 
 :- use_module(library(matrix),
 	      [matrix_new/4,
+	       matrix_new/3,
+	       matrix_to_list/2,
 	       matrix_to_logs/1]).
 
 
@@ -95,48 +101,57 @@ dist(p(Type, CPT), Id, FParents) :-
 distribution(bool, trans(CPT), Id, Parents, FParents) :-
 	is_list(CPT), !,
 	compress_hmm_table(CPT, Parents, Tab, FParents),
-	add_dist([t,f], trans, Tab, Id).
+	add_dist([t,f], trans, Tab, ParentsId).
 distribution(bool, CPT, Id, Parents, Parents) :-
 	is_list(CPT), !,
 	add_dist([t,f], tab, CPT, Id).
 distribution(aminoacids, trans(CPT), Id, Parents, FParents) :-
 	is_list(CPT), !,
 	compress_hmm_table(CPT, Parents, Tab, FParents),
-	add_dist([a,c,d,e,f,g,h,i,k,l,m,n,p,q,r,s,t,v,w,y], trans, Tab, Id).
+	add_dist([a,c,d,e,f,g,h,i,k,l,m,n,p,q,r,s,t,v,w,y], trans, Tab, FParents, Id).
 distribution(aminoacids, CPT, Id, Parents, Parents) :-
 	is_list(CPT), !,
-	add_dist([a,c,d,e,f,g,h,i,k,l,m,n,p,q,r,s,t,v,w,y], tab, CPT, Id).
+	add_dist([a,c,d,e,f,g,h,i,k,l,m,n,p,q,r,s,t,v,w,y], tab, CPT, Parents, Id).
 distribution(dna, trans(CPT), Id, Parents, FParents) :-
 	is_list(CPT), !,
 	compress_hmm_table(CPT, Parents, Tab, FParents),
-	add_dist([a,c,g,t], trans, Tab, Id).
+	add_dist([a,c,g,t], trans, Tab, FParents, Id).
 distribution(dna, CPT, Id, Parents, Parents) :-
 	is_list(CPT), !,
 	add_dist([a,c,g,t], tab, CPT, Id).
 distribution(rna, trans(CPT), Id, Parents, FParents) :-
 	is_list(CPT), !,
-	compress_hmm_table(CPT, Parents, Tab, FParents),
+	compress_hmm_table(CPT, Parents, Tab, FParents, FParents),
 	add_dist([a,c,g,u], trans, Tab, Id).
 distribution(rna, CPT, Id, Parents, Parents) :-
 	is_list(CPT), !,
-	add_dist([a,c,g,u], tab, CPT, Id).
+	add_dist([a,c,g,u], tab, CPT, Parents, Id).
 distribution(Domain, trans(CPT), Id, Parents, FParents) :-
 	is_list(Domain),
 	is_list(CPT), !,
 	compress_hmm_table(CPT, Parents, Tab, FParents),
-	add_dist(Domain, trans, Tab, Id).
+	add_dist(Domain, trans, Tab, FParents, Id).
 distribution(Domain, CPT, Id, Parents, Parents) :-
 	is_list(Domain),
 	is_list(CPT), !,
-	add_dist(Domain, tab, CPT, Id).
+	add_dist(Domain, tab, CPT, Parents, Id).
 
-add_dist(Domain, Type, CPT, Id) :-
+add_dist(Domain, Type, CPT, _, Id) :-
 	recorded(clpbn_dist_db, db(Id, CPT, Type, Domain, _, _), _), !.
-add_dist(Domain, Type, CPT, Id) :-
+add_dist(Domain, Type, CPT, PSizes, Id) :-
 	length(CPT, CPTSize),
 	length(Domain, DSize),
 	new_id(Id),
+	record_parent_sizes(Parents, Id, PSizes, [DSize|PSizes]),
 	recordz(clpbn_dist_db,db(Id, CPT, Type, Domain, CPTSize, DSize),_).
+
+
+record_parent_sizes([], Id, [], DSizes) :-
+	recordz(clpbn_dist_psizes,db(Id, DSizes),_).
+record_parent_sizes([P|Parents], Id, [Size|Sizes], DSizes) :-
+	clpbn:get_atts(P,dist(Dist,_)),
+	get_dist_domain_size(Dist, DSize),
+	record_parent_sizes(Parents, Id, Sizes, DSizes).
 
 %
 % Often, * is used to code empty in HMMs.
@@ -197,3 +212,17 @@ get_evidence_from_position(El, Id, Pos) :-
 	throw(error(domain_error(no_distribution,Id),get_evidence_from_position(El, Id, Pos))).
 
 dist_to_term(_Id,_Term).
+
+empty_dist(Dist, TAB) :-
+	recorded(clpbn_dist_psizes,db(Dist, DSizes),_),
+	matrix_new(floats, DSizes, TAB).
+
+dist_new_table(Id, NewMAT) :-
+	matrix_to_list(NewMat, List),
+	recorded(clpbn_dist_db, db(Id, _, A, B, C, D), R),
+	erase(R),
+	recorda(clpbn_dist_db, db(Id, List, A, B, C, D), R),
+	fail.
+dist_new_table(_, _).
+
+

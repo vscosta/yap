@@ -1,4 +1,4 @@
-/*  $Id: chr_swi_bootstrap.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
+/*  $Id: chr_swi_bootstrap.pl,v 1.3 2008-03-13 14:38:00 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -76,7 +76,7 @@ chr_compile(From, To, MsgLevel) :-
 	print_message(MsgLevel, chr(end(From, To))).
 
 
-%% SWI begin with yap change
+%% SWI begin
 specific_declarations([(:- use_module('chr_runtime')),
 		       (:- style_check(-discontiguous))|Tail], Tail).
 %% SWI end
@@ -130,7 +130,8 @@ writeheader(File, Out) :-
 format_date(Out) :-
 	get_time(Now),
 	convert_time(Now, Date),
-	format(Out, '    Date: ~s~n~n', [Date]).  % yap change
+    % vsc: this is a string
+	format(Out, '    Date: ~s~n~n', [Date]).
 %% SWI end
 
 %% SICStus begin

@@ -1,4 +1,4 @@
-/*  $Id: chr_integertable_store.pl,v 1.2 2007-10-16 23:40:07 vsc Exp $
+/*  $Id: chr_integertable_store.pl,v 1.3 2008-03-13 14:37:59 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 

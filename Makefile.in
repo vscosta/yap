@@ -593,6 +593,7 @@ install_unix: startup libYap.a
 	@INSTALL_DLLS@ $(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/swi
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
 	@INSTALL_DLLS@ (cd library/random; make install)
 	@INSTALL_DLLS@ (cd library/regex; make install)

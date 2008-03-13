@@ -669,6 +669,7 @@ typedef enum
   SequentialPredFlag = 0x00000020L,	/* may not create parallel choice points! */
   ProfiledPredFlag = 0x00000010L,	/* pred is being profiled   */
   MyddasPredFlag = 0x00000008L,	/* Myddas Imported pred  */
+  ModuleTransparentPredFlag = 0x00000004L,	/* ModuleTransparent pred  */
 } pred_flag;
 
 /* profile data */

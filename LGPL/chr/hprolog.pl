@@ -1,7 +1,5 @@
 :- module(hprolog,
-	  [ append/2,		        % +ListOfLists, -List
-	    nth/3,			% ?Index, ?List, ?Element
-	    substitute_eq/4,		% +OldVal, +OldList, +NewVal, -NewList
+	  [ substitute_eq/4,		% +OldVal, +OldList, +NewVal, -NewList
 	    memberchk_eq/2,		% +Val, +List
 	    intersect_eq/3,		% +List1, +List2, -Intersection
 	    list_difference_eq/3,	% +List, -Subtract, -Rest
@@ -12,7 +10,6 @@
 	    or_list/2,			% +ListOfInts, -BitwiseOr
 	    sublist/2,			% ?Sublist, +List
 	    bounded_sublist/3,		% ?Sublist, +List, +Bound
-	    min_list/2,
 	    chr_delete/3,
 	    init_store/2,
 	    get_store/2,
@@ -52,27 +49,6 @@ make_update_store_goal(Name,Value,Goal) :- Goal = b_setval(Name,Value).
 		 /*******************************
 		 *      MORE LIST OPERATIONS	*
 		 *******************************/
-
-%	append(+ListOfLists, -List)
-%	
-%	Convert a one-level nested list into a flat one.  E.g.
-%	append([[a,b], [c]], X) --> X = [a,b,c].  See also
-%	flatten/3.
-
-append([],[]).
-append([X],X) :- !.
-append([X|Xs],L) :-
-	append(X,T,L),
-	append(Xs,T).
-
-
-%	nth(?Index, ?List, ?Element)
-%	
-%	Same as nth1/3
-
-nth(Index, List, Element) :-
-	nth1(Index, List, Element).
-
 
 %	substitute_eq(+OldVal, +OldList, +NewVal, -NewList)
 %	
@@ -204,15 +180,6 @@ bounded_sublist(Sublist,[H|List],Bound) :-
 	
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-min_list([H|T], Min) :-
-	'$min_list1'(T, H, Min).
-
-'$min_list1'([], Min, Min).
-'$min_list1'([H|T], X, Min) :-
-        (   H>=X ->
-            '$min_list1'(T, X, Min)
-        ;   '$min_list1'(T, H, Min)
-        ).
 
 chr_delete([], _, []).
 chr_delete([H|T], X, L) :-

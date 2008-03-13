@@ -1,4 +1,4 @@
-/*  $Id: chr_op.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
+/*  $Id: chr_op.pl,v 1.3 2008-03-13 14:38:00 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -47,3 +47,4 @@
 :- op(1150, fx, chr_type).
 :- op(1130, xfx, --->).
 :- op(1150, fx, (?)).
+:- op(1150, fx, chr_declaration).

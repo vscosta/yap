@@ -242,6 +242,28 @@ p_strip_module(void)
     Yap_unify(ARG2, tmod);      
 }
 
+static Int
+p_context_module(void)
+{
+  yamop *parentcp = P;
+  CELL *yenv;
+  PredEntry *ap = EnvPreg(parentcp);
+  if (ap->ModuleOfPred &&
+      !(ap->PredFlags & MetaPredFlag))
+    return Yap_unify(ARG1, ap->ModuleOfPred);
+  parentcp = CP;
+  yenv = ENV;
+  do {
+    ap = EnvPreg(parentcp);
+    if (ap->ModuleOfPred &&
+	!(ap->PredFlags & MetaPredFlag))
+      return Yap_unify(ARG1, ap->ModuleOfPred);
+    parentcp = (yamop *)yenv[E_CP];
+    yenv = (CELL *)yenv[E_E];
+  } while(yenv);
+  return Yap_unify(ARG1, CurrentModule);
+}
+
 void 
 Yap_InitModulesC(void)
 {
@@ -249,6 +271,7 @@ Yap_InitModulesC(void)
   Yap_InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("strip_module", 3, p_strip_module, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("context_module", 1, p_context_module, 0);
   Yap_InitCPredBack("$all_current_modules", 1, 1, init_current_module, cont_current_module,
 		SafePredFlag|SyncPredFlag|HiddenPredFlag);
 }

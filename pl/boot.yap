@@ -870,7 +870,13 @@ not(G) :-    \+ '$execute'(G).
 	 true
 	;
 	 '$enter_undefp',
-	 once('$find_undefp_handler'(G,M,Goal,NM))
+	 (
+	  swi:swi_predicate_table(M,G,NM,Goal)
+	 ->
+	  '$exit_undefp'
+	 ;
+	  once('$find_undefp_handler'(G,M,Goal,NM))
+	 )
 	),
 	!,
 	'$execute0'(Goal,NM).

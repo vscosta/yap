@@ -10,10 +10,9 @@
 %%  \____\___/ \__,_|\___|  \____|_|\___|\__,_|_| |_|_|_| |_|\__, |
 %%                                                           |___/ 
 %%
-%% removes redundant 'true's and other trivial but potentially non-free constructs
-
-% TODO
-%	Remove last clause with Body = fail
+%%
+%% To be done:
+%%	inline clauses
 
 :- module(clean_code,
 	[
@@ -22,10 +21,24 @@
 
 :- use_module(hprolog).
 
-clean_clauses([],[]).
-clean_clauses([C|Cs],[NC|NCs]) :-
+clean_clauses(Clauses,NClauses) :-
+	clean_clauses1(Clauses,Clauses1),
+	merge_clauses(Clauses1,NClauses).
+	
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CLEAN CLAUSES
+%
+%	- move neck unification into the head of the clause	
+%	- drop true body
+%	- specialize control flow goal wrt true and fail
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+clean_clauses1([],[]).
+clean_clauses1([C|Cs],[NC|NCs]) :-
 	clean_clause(C,NC),
-	clean_clauses(Cs,NCs).
+	clean_clauses1(Cs,NCs).
 
 clean_clause(Clause,NClause) :-
 	( Clause = (Head :- Body) ->
@@ -128,20 +141,6 @@ move_unification_into_head_([G|Gs],Head,NHead,NBody) :-
 		list2conj([G|Gs],NBody)
 	).
 
-% move_unification_into_head(Head,Body,NHead,NBody) :-
-% 	( Body = (X = Y, More) ; Body = (X = Y), More = true), !,
-% 	( var(X), term_variables(More,MoreVars), \+ memberchk_eq(X,MoreVars) ->
-% 		X = Y,
-% 		move_unification_into_head(Head,More,NHead,NBody)
-% 	; var(Y) ->
-% 		move_unification_into_head(Head,(Y = X,More),NHead,NBody)
-% 	; 
-% 		NHead = Head,
-% 		NBody = Body
-% 	).
-% 
-% move_unification_into_head(Head,Body,Head,Body).
-
 		
 conj2list(Conj,L) :-				%% transform conjunctions to list
   conj2list(Conj,L,[]).
@@ -164,4 +163,62 @@ list2conj([G|Gs],C) :-
 	;
 		C = (G,R),
 		list2conj(Gs,R)
+	).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MERGE CLAUSES
+%
+%	Find common prefixes of successive clauses and share them.
+%
+%	Note: we assume that the prefix does not generate a side effect.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+merge_clauses([],[]).
+merge_clauses([C],[C]).
+merge_clauses([X,Y|Clauses],NClauses) :-
+	( merge_two_clauses(X,Y,Clause) ->
+		merge_clauses([Clause|Clauses],NClauses)
+	;
+		NClauses = [X|RClauses],
+		merge_clauses([Y|Clauses],RClauses)
+	).
+		
+merge_two_clauses('$source_location'(F1,L1) : C1,
+		  '$source_location'(_F2,_L2) : C2,
+		  Result) :- !,
+	merge_two_clauses(C1,C2,C),
+	Result = '$source_location'(F1,L1) : C.
+merge_two_clauses((H1 :- B1), (H2 :- B2), (H :- B)) :-
+	H1 =@= H2,
+	H1 = H,
+	conj2list(B1,List1),
+	conj2list(B2,List2),
+	merge_lists(List1,List2,H1,H2,Unifier,List,NList1,NList2),
+	List \= [],
+	H1 = H2,
+	call(Unifier),
+	list2conj(List,Prefix),
+	list2conj(NList1,NB1),
+	( NList2 == (!) ->
+		B = Prefix
+	;
+		list2conj(NList2,NB2),
+		B = (Prefix,(NB1 ; NB2))
+	).
+
+merge_lists([],[],_,_,true,[],[],[]).
+merge_lists([],L2,_,_,true,[],[],L2).
+merge_lists([!|Xs],_,_,_,true,[!|Xs],[],!) :- !.
+merge_lists([X|Xs],[],_,_,true,[],[X|Xs],[]).
+merge_lists([X|Xs],[Y|Ys],H1,H2,Unifier,Common,N1,N2) :-
+	( H1-X =@= H2-Y ->
+		Unifier = (X = Y, RUnifier),
+		Common = [X|NCommon],
+		merge_lists(Xs,Ys,H1/X,H2/Y,RUnifier,NCommon,N1,N2)
+	;
+		Unifier = true,
+		Common = [],
+		N1 = [X|Xs],
+		N2 = [Y|Ys]
 	).

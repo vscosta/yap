@@ -1,4 +1,4 @@
-/*  $Id: chr_hashtable_store.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
+/*  $Id: chr_hashtable_store.pl,v 1.3 2008-03-13 14:37:59 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -35,26 +35,37 @@
 :- module(chr_hashtable_store,
 	[ new_ht/1,
 	  lookup_ht/3,
+	  lookup_ht1/4,
+	  lookup_ht2/4,
 	  insert_ht/3,
 	  insert_ht/4,
 	  delete_ht/3,
+	  delete_ht1/4,
 	  delete_first_ht/3,
-	  value_ht/2
+	  value_ht/2,
+	  stats_ht/1,
+	  stats_ht/1
 	]).
 
 :- use_module(pairlist).
 :- use_module(hprolog).
 :- use_module(library(lists)).
-:- use_module(library(terms)). %yap
 
+:- if(current_prolog_flag(dialect, swi)).
 :- multifile user:goal_expansion/2.
 :- dynamic user:goal_expansion/2.
 
 user:goal_expansion(term_hash(Term,Hash),hash_term(Term,Hash)).
 
+:- else.
+
+:- use_module(library(terms), [term_hash/2]).
+
+:- endif.
+
 % term_hash(Term,Hash) :-
 % 	hash_term(Term,Hash).
-initial_capacity(1).
+initial_capacity(89).
 
 new_ht(HT) :-
 	initial_capacity(Capacity),
@@ -78,6 +89,31 @@ lookup_ht(HT,Key,Values) :-
 	    lookup(Bucket,Key,Values)
 	).
 
+lookup_ht1(HT,Hash,Key,Values) :-
+	HT = ht(Capacity,_,Table),
+	Index is (Hash mod Capacity) + 1,
+	arg(Index,Table,Bucket),
+	nonvar(Bucket),
+	( Bucket = K-Vs ->
+	    K == Key,	
+	    Values = Vs
+	;
+	    lookup(Bucket,Key,Values)
+	).
+
+lookup_ht2(HT,Key,Values,Index) :-
+	term_hash(Key,Hash),
+	HT = ht(Capacity,_,Table),
+	Index is (Hash mod Capacity) + 1,
+	arg(Index,Table,Bucket),
+	nonvar(Bucket),
+	( Bucket = K-Vs ->
+	    K == Key,	
+	    Values = Vs
+	;
+	    lookup(Bucket,Key,Values)
+	).
+
 lookup_pair_eq([P | KVs],Key,Pair) :-
 	P = K-_,
 	( K == Key ->
@@ -88,6 +124,34 @@ lookup_pair_eq([P | KVs],Key,Pair) :-
 
 insert_ht(HT,Key,Value) :-
 	term_hash(Key,Hash),
+	HT = ht(Capacity0,Load,Table0),
+	LookupIndex is (Hash mod Capacity0) + 1,
+	arg(LookupIndex,Table0,LookupBucket),
+	( var(LookupBucket) ->
+		LookupBucket = Key - [Value]
+	; LookupBucket = K-Values ->
+		( K == Key ->	
+			setarg(2,LookupBucket,[Value|Values])
+		;
+			setarg(LookupIndex,Table0,[Key-[Value],LookupBucket])
+		)	
+	;
+	      	( lookup_pair_eq(LookupBucket,Key,Pair) ->
+			Pair = _-Values,
+			setarg(2,Pair,[Value|Values])
+		;
+			setarg(LookupIndex,Table0,[Key-[Value]|LookupBucket])
+		)
+	),
+	NLoad is Load + 1,
+	setarg(2,HT,NLoad),
+	( Load == Capacity0 ->
+		expand_ht(HT,_Capacity)
+	;
+		true
+	).
+
+insert_ht1(HT,Key,Hash,Value) :-
 	HT = ht(Capacity0,Load,Table0),
 	LookupIndex is (Hash mod Capacity0) + 1,
 	arg(LookupIndex,Table0,LookupBucket),
@@ -186,39 +250,37 @@ delete_ht(HT,Key,Value) :-
 	term_hash(Key,Hash),
 	Index is (Hash mod Capacity) + 1,
 	arg(Index,Table,Bucket),
-	( var(Bucket) ->
+	( /* var(Bucket) ->
 		true
-	;
-		( Bucket = K-Vs ->
-			( K == Key,
-			  delete_first_fail(Vs,Value,NVs) ->
-				setarg(2,HT,NLoad),
-				( NVs == [] ->
-					setarg(Index,Table,_)
-				;
-					setarg(2,Bucket,NVs)
-				)
+	; */ Bucket = _K-Vs ->
+		( /* _K == Key, */
+		  delete_first_fail(Vs,Value,NVs) ->
+			setarg(2,HT,NLoad),
+			( NVs == [] ->
+				setarg(Index,Table,_)
 			;
-				true
-			)	
-		; 
-			( lookup_pair_eq(Bucket,Key,Pair),
-			  Pair = _-Vs,
-			  delete_first_fail(Vs,Value,NVs) ->
-				setarg(2,HT,NLoad),
-				( NVs == [] ->
-					pairlist_delete_eq(Bucket,Key,NBucket),
-					( NBucket = [Singleton] ->
-						setarg(Index,Table,Singleton)
-					;
-						setarg(Index,Table,NBucket)
-					)
-				;
-					setarg(2,Pair,NVs)
-				)
-			;
-				true
+				setarg(2,Bucket,NVs)
 			)
+		;
+			true
+		)	
+	; 
+		( lookup_pair_eq(Bucket,Key,Pair),
+		  Pair = _-Vs,
+		  delete_first_fail(Vs,Value,NVs) ->
+			setarg(2,HT,NLoad),
+			( NVs == [] ->
+				pairlist_delete_eq(Bucket,Key,NBucket),
+				( NBucket = [Singleton] ->
+					setarg(Index,Table,Singleton)
+				;
+					setarg(Index,Table,NBucket)
+				)
+			;
+				setarg(2,Pair,NVs)
+			)
+		;
+			true
 		)
 	).
 
@@ -228,6 +290,46 @@ delete_first_fail([X | Xs], Y, Zs) :-
 	;
 		Zs = [X | Zs1],
 		delete_first_fail(Xs, Y, Zs1)
+	).
+
+delete_ht1(HT,Key,Value,Index) :-
+	HT = ht(_Capacity,Load,Table),
+	NLoad is Load - 1,
+	% term_hash(Key,Hash),
+	% Index is (Hash mod _Capacity) + 1,
+	arg(Index,Table,Bucket),
+	( /* var(Bucket) ->
+		true
+	; */ Bucket = _K-Vs ->
+		( /* _K == Key, */
+		  delete_first_fail(Vs,Value,NVs) ->
+			setarg(2,HT,NLoad),
+			( NVs == [] ->
+				setarg(Index,Table,_)
+			;
+				setarg(2,Bucket,NVs)
+			)
+		;
+			true
+		)	
+	; 
+		( lookup_pair_eq(Bucket,Key,Pair),
+		  Pair = _-Vs,
+		  delete_first_fail(Vs,Value,NVs) ->
+			setarg(2,HT,NLoad),
+			( NVs == [] ->
+				pairlist_delete_eq(Bucket,Key,NBucket),
+				( NBucket = [Singleton] ->
+					setarg(Index,Table,Singleton)
+				;
+					setarg(Index,Table,NBucket)
+				)
+			;
+				setarg(2,Pair,NVs)
+			)
+		;
+			true
+		)
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 value_ht(HT,Value) :-
@@ -254,7 +356,7 @@ value_ht(I,N,Table,Value) :-
 
 expand_ht(HT,NewCapacity) :-
 	HT = ht(Capacity,_,Table),
-	NewCapacity is Capacity * 2,
+	NewCapacity is Capacity * 2 + 1,
 	functor(NewTable,t,NewCapacity),
 	setarg(1,HT,NewCapacity),
 	setarg(3,HT,NewTable),
@@ -293,4 +395,17 @@ expand_insert(Table,Capacity,K,V) :-
 		setarg(Index,Table,[K-V|Bucket])
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	
+stats_ht(HT) :-	
+	HT = ht(Capacity,Load,Table),
+	format('HT load = ~w / ~w\n',[Load,Capacity]),
+	( between(1,Capacity,Index),
+		arg(Index,Table,Entry),
+		( var(Entry)  -> Size = 0
+		; Entry = _-_ -> Size = 1
+		; length(Entry,Size)
+		),
+		format('~w : ~w\n',[Index,Size]),
+		fail
+	;
+		true
+	).

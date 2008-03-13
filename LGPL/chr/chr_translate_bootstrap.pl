@@ -1,4 +1,4 @@
-/*  $Id: chr_translate_bootstrap.pl,v 1.5 2008-02-23 01:32:30 vsc Exp $
+/*  $Id: chr_translate_bootstrap.pl,v 1.6 2008-03-13 14:38:00 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -122,7 +122,7 @@
 	  [ chr_translate/2		% +Decls, -TranslatedDecls
 	  ]).
 %% SWI begin
-:- use_module(library(lists),[member/2,append/3,permutation/2,reverse/2]).
+:- use_module(library(lists),[member/2,append/3,append/2,permutation/2,reverse/2]).
 :- use_module(library(ordsets)).
 %% SWI end
 :- use_module(hprolog).
@@ -536,13 +536,13 @@ generate_attach_a_constraint_t_p(Total,Position,CFct / CAty ,Mod,Clause) :-
 	RecursiveCall =.. [Fct,Vars,Susp],
 	or_pattern(Position,Pattern),
 	make_attr(Total,Mask,SuspsList,Attr),
-	nth(Position,SuspsList,Susps),
+	nth1(Position,SuspsList,Susps),
 	substitute_eq(Susps,SuspsList,[Susp|Susps],SuspsList1),
 	make_attr(Total,Mask,SuspsList1,NewAttr1),
 	substitute_eq(Susps,SuspsList,[Susp],SuspsList2),
 	make_attr(Total,NewMask,SuspsList2,NewAttr2),
 	copy_term_nat(SuspsList,SuspsList3),
-	nth(Position,SuspsList3,[Susp]),
+	nth1(Position,SuspsList3,[Susp]),
 	chr_delete(SuspsList3,[Susp],RestSuspsList),
 	set_elems(RestSuspsList,[]),
 	make_attr(Total,Pattern,SuspsList3,NewAttr3),
@@ -609,6 +609,7 @@ generate_detach_a_constraint_1_1(CFct / CAty,Mod,Clause) :-
 		RecursiveCall
 	),
 	Clause = (Head :- Body).
+
 generate_detach_a_constraint_t_p(Total,Position,CFct / CAty ,Mod,Clause) :-
 	atom_concat_list(['detach_',CFct, (/) ,CAty],Fct),
 	Args = [[Var|Vars],Susp],
@@ -617,7 +618,7 @@ generate_detach_a_constraint_t_p(Total,Position,CFct / CAty ,Mod,Clause) :-
 	or_pattern(Position,Pattern),
 	and_pattern(Position,DelPattern),
 	make_attr(Total,Mask,SuspsList,Attr),
-	nth(Position,SuspsList,Susps),
+	nth1(Position,SuspsList,Susps),
 	substitute_eq(Susps,SuspsList,[],SuspsList1),
 	make_attr(Total,NewMask,SuspsList1,Attr1),
 	substitute_eq(Susps,SuspsList,NewSusps,SuspsList2),
@@ -1419,9 +1420,9 @@ rest_heads_retrieval_and_matching_n([H|Hs],[ID|IDs],Pragmas,PrevHs,PrevSusps,Act
 	( N == 1 ->
 		VarSusps = Attr
 	;
-		nth(Pos,Constraints,Fct/Aty), !,
+		nth1(Pos,Constraints,Fct/Aty), !,
 		make_attr(N,_Mask,SuspsList,Attr),
-		nth(Pos,SuspsList,VarSusps)
+		nth1(Pos,SuspsList,VarSusps)
 	),
 	different_from_other_susps(H,Susp,PrevHs,PrevSusps,DiffSuspGoals),
 	create_get_mutable_ref(active,State,GetMutable),
@@ -1460,7 +1461,7 @@ check_unique_keys([V|Vs],Dict) :-
 
 % Generates tests to ensure the found constraint differs from previously found constraints
 different_from_other_susps(Head,Susp,Heads,Susps,DiffSuspGoals) :-
-	( bagof(DiffSuspGoal, Pos ^ ( nth(Pos,Heads,PreHead), \+ Head \= PreHead, nth(Pos,Susps,PreSusp), DiffSuspGoal = (Susp \== PreSusp) ),DiffSuspGoalList) ->
+	( bagof(DiffSuspGoal, Pos ^ ( nth1(Pos,Heads,PreHead), \+ Head \= PreHead, nth1(Pos,Susps,PreSusp), DiffSuspGoal = (Susp \== PreSusp) ),DiffSuspGoalList) ->
 	     list2conj(DiffSuspGoalList,DiffSuspGoals)
 	;
 	     DiffSuspGoals = true
@@ -1468,7 +1469,7 @@ different_from_other_susps(Head,Susp,Heads,Susps,DiffSuspGoals) :-
 
 passive_head_via(Head,PrevHeads,AttrDict,Constraints,Mod,VarDict,Goal,Attr,NewAttrDict) :-
 	functor(Head,F,A),
-	nth(Pos,Constraints,F/A),!,
+	nth1(Pos,Constraints,F/A),!,
 	common_variables(Head,PrevHeads,CommonVars),
 	translate(CommonVars,VarDict,Vars),
 	or_pattern(Pos,Bit),
@@ -1699,9 +1700,9 @@ simpagation_head2_prelude(Head,Head1,Rest,F/A,_I,N,Constraints,Mod,Id1,L,T) :-
 		AllSusps = Attr
 	;
 		functor(Head1,F1,A1),
-		nth(Pos,Constraints,F1/A1), !,
+		nth1(Pos,Constraints,F1/A1), !,
 		make_attr(N,_,SuspsList,Attr),
-		nth(Pos,SuspsList,AllSusps)
+		nth1(Pos,SuspsList,AllSusps)
 	),
 
 	(   Id1 == [0] ->	% create suspension
@@ -1941,8 +1942,8 @@ propagation_prelude(Head,[First|Rest],Rule,F/A,N,Constraints,Mod,Id,L,T) :-
    ;
 	functor(First,FirstFct,FirstAty),
 	make_attr(N,_Mask,SuspsList,Attr),
-        nth(Pos,Constraints,FirstFct/FirstAty), !,
-	nth(Pos,SuspsList,Susps)
+        nth1(Pos,Constraints,FirstFct/FirstAty), !,
+	nth1(Pos,SuspsList,Susps)
    ),
 
    (   Id == [0] ->
@@ -2120,9 +2121,9 @@ propagation_accumulator([NextHead|RestHeads],[CurrentHead|PreHeads],Rule,F/A,N,C
 	( N == 1 ->
 	     NextSusps = Attr
 	;
-	     nth(Position,Constraints,NextF/NextA), !,
+	     nth1(Position,Constraints,NextF/NextA), !,
 	     make_attr(N,_Mask,SuspsList,Attr),
-	     nth(Position,SuspsList,NextSusps)
+	     nth1(Position,SuspsList,NextSusps)
 	),
 	inc_id(Id,NestedId),
 	ClauseVars = [[OtherSusp|OtherSusps]|PreVarsAndSusps],
@@ -2284,6 +2285,7 @@ create_get_mutable_ref(V,M,GM) :- GM = (M = mutable(V)).
 %% SICStus begin
 %% create_get_mutable_ref(V,M,GM) :- GM = (get_mutable(V,M)).
 %% SICStus end
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2456,6 +2458,8 @@ list2conj([G|Gs],C) :-
 		list2conj(Gs,R)
 	).
 
+:- if(current_prolog_flag(dialect, swi)).
+
 atom_concat_list([X],X) :- ! .
 atom_concat_list([X|Xs],A) :-
 	atom_concat_list(Xs,B),
@@ -2476,6 +2480,12 @@ make_atom(A,AA) :-
 	  atom_codes(AA,AL)
 	).
 
+:- else.
+
+atom_concat_list(L,X) :-
+	atomic_concat(L, X).
+
+:- endif.
 
 set_elems([],_).
 set_elems([X|Xs],X) :-
@@ -2505,4 +2515,3 @@ verbosity_on :- prolog_flag(verbose,V), V == yes.
 %% SICStus begin
 %% verbosity_on.  % at the moment
 %% SICStus end
-

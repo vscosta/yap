@@ -1,4 +1,4 @@
-/*  $Id: chr_compiler_options.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
+/*  $Id: chr_compiler_options.pl,v 1.3 2008-03-13 14:37:59 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -200,6 +200,18 @@ option_definition(mode,ModeDecl,[]) :-
 option_definition(store,FA-Store,[]) :-
 	chr_translate:store_type(FA,Store).
 
+%------------------------------------------------------------------------------%
+option_definition(declare_stored_constraints,off,[declare_stored_constraints-off]).
+option_definition(declare_stored_constraints,on ,[declare_stored_constraints-on]).
+
+option_definition(stored,F/A,[]) :-
+	chr_translate:stored_assertion(F/A).
+%------------------------------------------------------------------------------%
+option_definition(experiment,off,[experiment-off]).
+option_definition(experiment,on,[experiment-on]).
+option_definition(experimental,off,[experiment-off]).
+option_definition(experimental,on,[experiment-on]).
+%------------------------------------------------------------------------------%
 option_definition(debug,off,Flags) :-
         option_definition(optimize,full,Flags2),
         Flags = [ debugable - off | Flags2].
@@ -280,6 +292,12 @@ option_definition(dynattr,on,Flags) :-
 option_definition(dynattr,off,Flags) :-
 	Flags = [dynattr - off].
 
+option_definition(verbose,off,[verbose-off]).
+option_definition(verbose,on,[verbose-on]).
+
+option_definition(dump,off,[dump-off]).
+option_definition(dump,on,[dump-on]).
+
 init_chr_pp_flags :-
 	chr_pp_flag_definition(Name,[DefaultValue|_]),
 	set_chr_pp_flag(Name,DefaultValue),
@@ -323,6 +341,13 @@ chr_pp_flag_definition(ht_removal,[off,on]).
 chr_pp_flag_definition(mixed_stores,[off,on]).
 chr_pp_flag_definition(line_numbers,[off,on]).
 chr_pp_flag_definition(dynattr,[off,on]).
+chr_pp_flag_definition(experiment,[off,on]).
+	% emit compiler inferred code
+chr_pp_flag_definition(verbose,[off,on]).
+	% emit input code and output code
+chr_pp_flag_definition(dump,[off,on]).
+
+chr_pp_flag_definition(declare_stored_constraints,[off,on]).
 
 chr_pp_flag(Name,Value) :-
 	atom_concat('$chr_pp_',Name,GlobalVar),

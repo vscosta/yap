@@ -2086,6 +2086,26 @@ cont_current_atom(void)
   }
 }
 
+static Int
+p_unifiable(void)
+{
+  tr_fr_ptr trp;
+  Term tf = TermNil;
+  if (!Yap_unify(ARG1,ARG2)) {
+    return FALSE;
+  }
+  trp = TR;
+  while (trp != B->cp_tr) {
+    Term t[2];
+    --trp;
+    t[0] = TrailTerm(trp);
+    t[1] = *(CELL *)t[0];
+    tf = MkPairTerm(Yap_MkApplTerm(FunctorEq,2,t),tf);
+    RESET_VARIABLE(t[0]);
+  }
+  return Yap_unify(ARG3, tf);
+}
+
 void Yap_InitUtilCPreds(void)
 {
   Term cm = CurrentModule;
@@ -2102,6 +2122,7 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("term_hash", 4, GvNTermHash, SafePredFlag);
   Yap_InitCPred("variant", 2, p_variant, 0);
   Yap_InitCPred("subsumes", 2, p_subsumes, SafePredFlag);
+  Yap_InitCPred("protected_unifiable", 3, p_unifiable, 0);
   CurrentModule = cm;
 #ifdef DEBUG
   Yap_InitCPred("$force_trail_expansion", 1, p_force_trail_expansion, SafePredFlag|HiddenPredFlag);

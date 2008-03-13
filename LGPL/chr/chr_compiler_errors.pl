@@ -1,4 +1,4 @@
-/*  $Id: chr_compiler_errors.pl,v 1.2 2007-10-16 23:40:07 vsc Exp $
+/*  $Id: chr_compiler_errors.pl,v 1.3 2008-03-13 14:37:59 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -119,6 +119,13 @@ print_chr_error(error(Type,Message,Params)) :-
 print_chr_error(syntax(Term),Message,Params) :- !,
 	long_line_with_equality_signs,
 	format(user_error,'CHR compiler ERROR: invalid syntax "~w".\n',[Term]),	
+	format(user_error,'    `--> ',[]),
+	format(user_error,Message,Params),
+	long_line_with_equality_signs.
+
+print_chr_error(type_error,Message,Params) :- !,
+	long_line_with_equality_signs,
+	format(user_error,'CHR compiler TYPE ERROR:\n',[]),	
 	format(user_error,'    `--> ',[]),
 	format(user_error,Message,Params),
 	long_line_with_equality_signs.

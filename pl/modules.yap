@@ -90,8 +90,8 @@ module(N) :-
 '$process_exports'([],_,[]).
 '$process_exports'([Name/Arity|Exports],Mod,[Name/Arity|ExportedPreds]):- !,
 	'$process_exports'(Exports,Mod,ExportedPreds).
-'$process_exports'([op(_Prio,_Assoc,_Name)|Exports],Mod,ExportedPreds) :- !,
-%	'$opdec'(_Prio,_Assoc,_Name,Mod),
+'$process_exports'([op(Prio,Assoc,Name)|Exports],Mod,ExportedPreds) :- !,
+	op(Prio,Assoc,Name),
 	'$process_exports'(Exports,Mod,ExportedPreds).
 '$process_exports'([Trash|_],Mod,_) :-
 	'$do_error'(type_error(predicate_indicator,Trash),module(Mod,[Trash])).
@@ -168,7 +168,7 @@ module(N) :-
 	get0(C), '$skipeol'(C),
 	( C is "y" -> erase(R), !;
 	  C is "n" -> !, fail;
-	  write(user_error, ' Please answer with ''y'' or ''n'' '), fail
+	  format(user_error, ' Please answer with ''y'' or ''n'' ',[]), fail
 	).
 '$check_import'(_,_,_,_).
 
@@ -181,38 +181,37 @@ module(N) :-
 
 
 % expand module names in a clause
-'$module_expansion'(((Mod:H) :-B ),((Mod:H) :- B1),((Mod:H) :- BO),M) :- !,
-	'$is_mt'(Mod,H,MT),
-	'$prepare_body_with_correct_modules'(B, M, MT, B0),
+'$module_expansion'(((Mod:H) :- B ),((Mod:H) :- B1),((Mod:H) :- BO),M) :- !,
+	'$is_mt'(Mod,H,B,IB,MM),
+	'$prepare_body_with_correct_modules'(IB, M, B0),
 	'$module_u_vars'(H,UVars,M),	 % collect head variables in
 					 % expanded positions
-	'$module_expansion'(B0,B1,BO,M,M,M,UVars,MT). % expand body
+	'$module_expansion'(B0,B1,BO,M,MM,M,UVars).			% expand body
 '$module_expansion'((H:-B),(H:-B1),(H:-BO),M) :-
-	'$is_mt'(Mod,H,MT),
+	'$is_mt'(M,H,B,IB,MM),
 	'$module_u_vars'(H,UVars,M),	 % collect head variables in
 					 % expanded positions
-	'$module_expansion'(B,B1,BO,M,M,M,UVars,MT).% expand body
+	'$module_expansion'(IB,B1,BO,M,MM,M,UVars).
 %	$trace_module((H:-B),(H:-B1)).
 
 % expand module names in a body
-'$prepare_body_with_correct_modules'(V,M,MT,call(G)) :- var(V), !,
-	(MT = on -> G = M:V ; G = V).
-'$prepare_body_with_correct_modules'((A,B),M,MT,(A1,B1)) :- !,
-	'$prepare_body_with_correct_modules'(A,M,MT,A1),
-	'$prepare_body_with_correct_modules'(B,M,MT,B1).
-'$prepare_body_with_correct_modules'((A;B),M,MT,(A1;B1)) :- !,
-	'$prepare_body_with_correct_modules'(A,M,MT,A1),
-	'$prepare_body_with_correct_modules'(B,M,MT,B1).
-'$prepare_body_with_correct_modules'((A->B),M,MT,(A1->B1)) :- !,
-	'$prepare_body_with_correct_modules'(A,M,MT,A1),
-	'$prepare_body_with_correct_modules'(B,M,MT,B1).
-'$prepare_body_with_correct_modules'(true,_,_,true) :- !.
-'$prepare_body_with_correct_modules'(fail,_,_,fail) :- !.
-'$prepare_body_with_correct_modules'(false,_,_,false) :- !.
-'$prepare_body_with_correct_modules'(M:G,_,M:G) :- !.
-'$prepare_body_with_correct_modules'(G,M,MT,G) :-
+'$prepare_body_with_correct_modules'(V,M,M:call(V)) :- var(V), !.
+'$prepare_body_with_correct_modules'((A,B),M,(A1,B1)) :- !,
+	'$prepare_body_with_correct_modules'(A,M,A1),
+	'$prepare_body_with_correct_modules'(B,M,B1).
+'$prepare_body_with_correct_modules'((A;B),M,(A1;B1)) :- !,
+	'$prepare_body_with_correct_modules'(A,M,A1),
+	'$prepare_body_with_correct_modules'(B,M,B1).
+'$prepare_body_with_correct_modules'((A->B),M,(A1->B1)) :- !,
+	'$prepare_body_with_correct_modules'(A,M,A1),
+	'$prepare_body_with_correct_modules'(B,M,B1).
+'$prepare_body_with_correct_modules'(true,_,true) :- !.
+'$prepare_body_with_correct_modules'(fail,_,fail) :- !.
+'$prepare_body_with_correct_modules'(false,_,false) :- !.
+'$prepare_body_with_correct_modules'(M:G,M:G) :- !.
+'$prepare_body_with_correct_modules'(G,M,G) :-
 	'$system_predicate'(G,M), !.
-'$prepare_body_with_correct_modules'(G,M,MT,M:G).
+'$prepare_body_with_correct_modules'(G,M,M:G).
 
 
 '$trace_module'(X) :-
@@ -242,38 +241,37 @@ module(N) :-
 %       current module for fixing up meta-call arguments
 %       current module for predicate
 %       head variables.
-'$module_expansion'(V,call(G),call(G),_M,MM,_TM,_,MT) :- var(V), !,
-	(MT = on -> G = V ; G = MM:V).
-'$module_expansion'((A,B),(A1,B1),(AO,BO),M,MM,TM,HVars,MT) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars,MT),
-	'$module_expansion'(B,B1,BO,M,MM,TM,HVars,MT).
-'$module_expansion'((A*->B;C),(A1*->B1;C1),(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),M,MM,TM,HVars,MT) :- !,
-	'$module_expansion'(A,A1,AOO,M,MM,TM,HVars,MT),
+'$module_expansion'(V,call(G),call(MM:G),_M,MM,_TM,_) :- var(V), !.
+'$module_expansion'((A,B),(A1,B1),(AO,BO),M,MM,TM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
+	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
+'$module_expansion'((A*->B;C),(A1*->B1;C1),(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),M,MM,TM,HVars) :- !,
+	'$module_expansion'(A,A1,AOO,M,MM,TM,HVars),
 	'$clean_cuts'(AOO, AO),
-	'$module_expansion'(B,B1,BO,M,MM,TM,HVars,MT),
-	'$module_expansion'(C,C1,CO,M,MM,TM,HVars,MT).
-'$module_expansion'((A;B),(A1;B1),(AO;BO),M,MM,TM,HVars,MT) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars,MT),
-	'$module_expansion'(B,B1,BO,M,MM,TM,HVars,MT).
-'$module_expansion'((A|B),(A1|B1),(AO|BO),M,MM,TM,HVars,MT) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars,MT),
-	'$module_expansion'(B,B1,BO,M,MM,TM,HVars,MT).
-'$module_expansion'((A->B),(A1->B1),(AO->BO),M,MM,TM,HVars,MT) :- !,
-	'$module_expansion'(A,A1,AOO,M,MM,TM,HVars,MT),
+	'$module_expansion'(B,B1,BO,M,MM,TM,HVars),
+	'$module_expansion'(C,C1,CO,M,MM,TM,HVars).
+'$module_expansion'((A;B),(A1;B1),(AO;BO),M,MM,TM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
+	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
+'$module_expansion'((A|B),(A1|B1),(AO|BO),M,MM,TM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
+	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
+'$module_expansion'((A->B),(A1->B1),(AO->BO),M,MM,TM,HVars) :- !,
+	'$module_expansion'(A,A1,AOO,M,MM,TM,HVars),
 	'$clean_cuts'(AOO, AO),
-	'$module_expansion'(B,B1,BO,M,MM,TM,HVars,MT).
-'$module_expansion'(\+A,\+A1,\+AO,M,MM,TM,HVars,MT) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars,MT).
-'$module_expansion'(not(A),not(A1),not(AO),M,MM,TM,HVars,MT) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars,MT).
+	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
+'$module_expansion'(\+A,\+A1,\+AO,M,MM,TM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars).
+'$module_expansion'(not(A),not(A1),not(AO),M,MM,TM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars).
 '$module_expansion'(true,true,true,_,_,_,_) :- !.
 '$module_expansion'(fail,fail,fail,_,_,_,_) :- !.
 '$module_expansion'(false,false,false,_,_,_,_) :- !.
 % if I don't know what the module is, I cannot do anything to the goal,
 % so I just put a call for later on.
-'$module_expansion'(M:G,call(M:G),'$execute_wo_mod'(G,M),_,_,_,_,_) :- var(M), !.
-'$module_expansion'(M:G,G1,GO,_,_,TM,HVars,MT) :-
-	'$module_expansion'(G,G1,GO,M,M,TM,HVars,MT).
+'$module_expansion'(M:G,call(M:G),'$execute_wo_mod'(G,M),_,_,_,_) :- var(M), !.
+'$module_expansion'(M:G,G1,GO,_,_,TM,HVars) :-
+	'$module_expansion'(G,G1,GO,M,M,TM,HVars).
 % if M1 is given explicitly process G within M1's context.
 % '$module_expansion'(M:G,G1,GO,_Mod,_MM,TM,HVars) :- !,
 % 	% is this imported from some other module M1?
@@ -291,26 +289,37 @@ module(N) :-
 %
 % next, check if this is something imported.
 %
-'$module_expansion'(G, G1, GO, CurMod, MM, TM, HVars,MT) :-
+'$module_expansion'(G, G1, GO, CurMod, MM, TM, HVars) :-
 	% is this imported from some other module M1?
 	( '$imported_pred'(G, CurMod, GG, M1) ->
-	    '$module_expansion'(GG, G1, GO, M1, MM, TM, HVars,MT)
+	    '$module_expansion'(GG, G1, GO, M1, MM, TM, HVars)
 	;
-	(
-	 % only expand meta-predicates if we are not module transparent!
-	 MT = off,
-	 '$meta_expansion'(CurMod, MM, G, GI, HVars)
-	;
-	 GI = G
-        ),
-	'$complete_goal_expansion'(GI, CurMod, MM, TM, G1, GO, HVars, MT)
+	  (
+	   '$meta_expansion'(CurMod, MM, G, GI, HVars)
+	  ->
+	   true
+	   ;
+	   GI = G
+	  ),
+	  '$complete_goal_expansion'(GI, CurMod, MM, TM, G1, GO, HVars)
 	).
 
 
+% be careful here not to generate an undefined exception.
 '$imported_pred'(G, ImportingMod, G0, ExportingMod) :-
+	'$enter_undefp',
 	'$undefined'(G, ImportingMod),
 	recorded('$import','$import'(ExportingMod,ImportingMod,G0,G,_,_),_),
-	ExportingMod \= ImportingMod.
+	ExportingMod \= ImportingMod, !,
+	'$exit_undefp'.
+'$imported_pred'(G, ImportingMod, G0, ExportingMod) :-
+	'$undefined'(G, ImportingMod),
+	swi:swi_predicate_table(ImportingMod,G,ExportingMod,G0),
+	ExportingMod \= ImportingMod,
+	'$exit_undefp'.
+'$imported_pred'(G, ImportingMod, _, _) :-
+	'$exit_undefp',
+	fail.
 
 % args are:
 %       goal to expand
@@ -319,15 +328,15 @@ module(N) :-
 %       goal to pass to compiler
 %       goal to pass to listing
 %       head variables.
-'$complete_goal_expansion'(G, M, CM, TM, G1, G2, HVars, MT) :-
+'$complete_goal_expansion'(G, M, CM, TM, G1, G2, HVars) :-
 	'$pred_goal_expansion_on',
 	user:goal_expansion(G,M,GI), !,
-	'$module_expansion'(GI, G1, G2, M, CM, TM, HVars, MT).
-'$complete_goal_expansion'(G, M, CM, TM, G1, G2, HVars, MT) :-
+	'$module_expansion'(GI, G1, G2, M, CM, TM, HVars).
+'$complete_goal_expansion'(G, M, CM, TM, G1, G2, HVars) :-
 	'$all_system_predicate'(G,M), !,
-	'$c_built_in'(G, M, Gi, MT),
+	'$c_built_in'(G, M, Gi),
 	(Gi \== G ->
-	   '$module_expansion'(Gi, _, G2, M, CM, TM, HVars, MT),
+	   '$module_expansion'(Gi, _, G2, M, CM, TM, HVars),
 	    % make built-in processing transparent.
 	    (TM = M -> G1 = G ; G1 = M:G)
 	 ; TM = M ->
@@ -335,8 +344,8 @@ module(N) :-
 	;
 	    G2 = M:G, G1 = M:G % atts:
 	).
-'$complete_goal_expansion'(G, Mod, _, Mod, G, G, _, _) :- !.
-'$complete_goal_expansion'(G, GMod, _, _, GMod:G, GMod:G, _, _).
+'$complete_goal_expansion'(G, Mod, _, Mod, G, G, _) :- !.
+'$complete_goal_expansion'(G, GMod, _, _, GMod:G, GMod:G, _).
 
 
 % module_transparent declaration
@@ -350,13 +359,17 @@ module(N) :-
 '$module_transparent'(M:D, _) :- !,
 	'$module_transparent'(D, M).
 '$module_transparent'(F/N, M) :-
+	'$module_transparent'(F,M,N,_), !.
+'$module_transparent'(F/N, M) :-
 	functor(P,F,N),
-	( retractall('$module_transparent'(F,M,N,_)), fail ; true),
-	asserta(prolog:'$module_transparent'(F,M,N,P)).
+	asserta(prolog:'$module_transparent'(F,M,N,P)),
+	'$flags'(P, M, Fl, Fl),
+	NFlags is Fl \/ 0x200004,
+	'$flags'(P, M, Fl, NFlags).
 
-'$is_mt'(Mod,H,on) :-
+'$is_mt'(M,H0,B,(context_module(CM),B),CM) :-
 	'$module_transparent'(_,M,_,H), !.
-'$is_mt'(_,_,off).
+'$is_mt'(M,_,B,B,M).
 
 % meta_predicate declaration
 % records $meta_predicate(SourceModule,Functor,Arity,Declaration)

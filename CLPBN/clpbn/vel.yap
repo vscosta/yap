@@ -52,19 +52,32 @@
 check_if_vel_done(Var) :-
 	get_atts(Var, [size(_)]), !.
 
+%
+% implementation of the well known variable elimination algorithm
+%
 vel([],_,_) :- !.
 vel(LVs,Vs0,AllDiffs) :-
 	check_for_hidden_vars(Vs0, Vs0, Vs1),
 	sort(Vs1,Vs),
+	% LVi will have a  list of CLPBN variables
+	% Tables0 will have the full data on each variable
 	find_all_clpbn_vars(Vs, LV0, LVi, Tables0),
+	% construct the graph
 	find_all_table_deps(Tables0, LV0),
 	(clpbn:output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
 	(clpbn:output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,vel,Vs,LVs) ; true),
+	% variable elimination proper
 	process(LVi, LVs, tab(Dist,_,_)),
+	% move from potentials back to probabilities
 	normalise_CPT(Dist,Ps),
+	% from array to list
 	list_from_CPT(Ps, LPs),
+	% bind Probs back to variables so that they can be output.
 	clpbn_bind_vals(LVs,LPs,AllDiffs).
 
+%
+% just get a list of variables plus associated tables
+%
 find_all_clpbn_vars([], [], [], []) :- !.
 find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Parents,Sizes)|Tables]) :-
 	var_with_deps(V, Table, Parents, Sizes, Ev, Vals), !,
@@ -82,7 +95,9 @@ var_with_deps(V, Table, Deps, Sizes, Ev, Vals) :-
 	clpbn:get_atts(V, [dist(Id,Parents)]),
 	get_dist_matrix(Id,Parents,_,Vals,TAB0),
 	( clpbn:get_atts(V, [evidence(Ev)]) -> true ; true),
+	% set CPT in canonical form
 	reorder_CPT([V|Parents],TAB0,Deps0,TAB1,Sizes1),
+	% remove evidence.
 	simplify_evidence(Deps0, TAB1, Deps0, Sizes1, Table, Deps, Sizes).
 
 find_all_table_deps(Tables0, LV) :-

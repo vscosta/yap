@@ -11,8 +11,12 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2007-12-18 17:46:58 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-13 14:37:58 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.87  2007/12/18 17:46:58  vsc
+* purge_clauses does not need to do anything if there are no clauses
+* fix gprof bugs.
+*
 * Revision 1.86  2007/11/26 23:43:08  vsc
 * fixes to support threads and assert correctly, even if inefficiently.
 *
@@ -1871,7 +1875,7 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
     }
   }
   else {
-    if (p->PredFlags & (CPredFlag | AsmPredFlag)) {
+    if (p->PredFlags & (CPredFlag | AsmPredFlag | ModuleTransparentPredFlag)) {
 #ifdef YAPOR
       if (p->PredFlags & SyncPredFlag)
 	Yap_emit(sync_op, (CELL)p, (CELL)(p->ArityOfPE), &cglobs->cint);

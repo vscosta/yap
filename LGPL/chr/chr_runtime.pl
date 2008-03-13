@@ -1,4 +1,4 @@
-/*  $Id: chr_runtime.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
+/*  $Id: chr_runtime.pl,v 1.3 2008-03-13 14:38:00 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 

@@ -21,6 +21,7 @@
 	term_variables/2,
 	term_variables/3,
 	variant/2,
+	unifiable/3,
 	subsumes/2,
 	subsumes_chk/2,
         cyclic_term/1,
@@ -37,7 +38,9 @@ term_hash(T,H) :-
 subsumes_chk(X,Y) :-
 	\+ \+ subsumes(X,Y).
 
-
+unifiable(X,Y,Z) :-
+	protected_unifiable(X,Y,Z), !.
+unifiable(_,_,_) :- fail.
 
 
 

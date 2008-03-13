@@ -15,15 +15,62 @@
 
 :- use_module(library(charsio),[write_to_chars/2,read_from_chars/2]).
 
-:- use_module(library(lists),[nth/3]).
+:- use_module(library(lists),[append/3,
+			      delete/3,
+			      member/2,
+			      memberchk/2,
+			      min_list/2,
+			      nth/3]).
 
-:- use_module(library(system),[datime/1,
-   mktime/2]).
+:- use_module(library(system),
+	      [datime/1,
+	       mktime/2]).
 
-:- use_module(library(terms),[term_variables/2,
-			      term_variables/3,
-			      term_hash/2,
-			      variant/2]).
+:- use_module(library(arg),
+	      [genarg/3]).
+
+:- use_module(library(terms),
+	      [subsumes/2,
+	       term_variables/2,
+	       term_variables/3,
+	       term_hash/2,
+	       unifiable/3,
+	       variant/2]).
+
+:- unhide('$system_library_directories'),
+	unhide('$dir_separator').
+
+% make sure we also use 
+:- user:library_directory(X),
+	atom(X),
+	atom_concat([X,'/swi'],SwiDir),
+	\+ user:library_directory(SwiDir),
+	asserta(user:library_directory(SwiDir)),
+	fail
+	;
+	true.
+
+:- use_module(library(maplist)).
+
+:- multifile swi_predicate_table/4.
+
+swi_predicate_table(_,maplist(X,Y),maplist,maplist(X,Y)).
+swi_predicate_table(_,maplist(X,Y,Z),maplist,maplist(X,Y,Z)).
+swi_predicate_table(_,maplist(X,Y,Z,W),maplist,maplist(X,Y,Z,W)).
+swi_predicate_table(_,is_list(X),lists,is_list(X)).
+swi_predicate_table(_,min_list(X,Y),lists,min_list(X,Y)).
+swi_predicate_table(_,nth(X,Y,Z),lists,nth(X,Y,Z)).
+swi_predicate_table(_,delete(X,Y,Z),lists,delete(X,Y,Z)).
+swi_predicate_table(_,nth1(X,Y,Z),lists,nth(X,Y,Z)).
+swi_predicate_table(_,memberchk(X,Y),lists,memberchk(X,Y)).
+swi_predicate_table(_,member(X,Y),lists,member(X,Y)).
+swi_predicate_table(_,append(X,Y,Z),lists,append(X,Y,Z)).
+swi_predicate_table(_,select(X,Y,Z),lists,select(X,Y,Z)).
+swi_predicate_table(_,term_variables(X,Y),terms,term_variables(X,Y)).
+swi_predicate_table(_,term_variables(X,Y,Z),terms,term_variables(X,Y,Z)).
+swi_predicate_table(_,subsumes(X,Y),terms,subsumes(X,Y)).
+swi_predicate_table(_,unifiable(X,Y,Z),terms,unifiable(X,Y,Z)).
+swi_predicate_table(_,genarg(X,Y,Z),arg,genarg(X,Y,Z)).
 
 :- dynamic
    prolog:message/3.
@@ -36,10 +83,6 @@
 
 :- dynamic
    user:file_search_path/2.
-
-prolog:is_list(L) :- var(L), !, fail.
-prolog:is_list([]).
-prolog:is_list([_|List]) :- prolog:is_list(List).
 
 user:file_search_path(swi, Home) :-
         current_prolog_flag(home, Home).
@@ -172,8 +215,6 @@ add_separator_to_list([H|T], Separator, [H,Separator|NT]) :-
 
 prolog:setenv(X,Y) :- unix(putenv(X,Y)).
 
-prolog:nth1(I,L,A) :- nth(I,L,A).
-
 prolog:prolog_to_os_filename(X,X).
 
 prolog:is_absolute_file_name(X) :-
@@ -238,26 +279,6 @@ cvt_bindings([[Name|Value]|L],[AName=Value|Bindings]) :-
 
 '$messages':prolog_message(_,L,L).
 
-prolog:append([],L,L).
-prolog:append([X|L0],L,[X|Lf]) :-
-	prolog:append(L0,L,Lf).
-
-prolog:member(X,[X|_]).
-prolog:member(X,[_|L0]) :-
-	prolog:member(X,L0).
-
-prolog:select(Element, [Element|Rest], Rest).
-prolog:select(Element, [Head|Tail], [Head|Rest]) :-
-	prolog:select(Element, Tail, Rest).
-
-tv(Term,List) :- term_variables(Term,List).
-
-prolog:term_variables(Term,List) :- tv(Term,List).
-
-tv(Term,List,Tail) :- term_variables(Term,List,Tail).
-
-prolog:term_variables(Term,List,Tail) :- tv(Term,List,Tail).
-
 prolog:working_directory(OCWD,NCWD) :-
 	getcwd(OCWD),
 	(var(NCWD) -> true ; cd(NCWD)).
@@ -284,33 +305,11 @@ prolog:atom_concat(A,B,C) :- atomic_concat(A,B,C).
 
 prolog:hash_term(X,Y) :- term_hash(X,Y).
 
-:- meta_predicate prolog:maplist(:,?), prolog:maplist(:,?,?), prolog:maplist(:,?,?).
-
-
-prolog:maplist(_, []).
-prolog:maplist(G, [H|L]) :-
-	call(G,H),
-	prolog:maplist(G, L).
-
-prolog:maplist(_, [], []).
-prolog:maplist(G, [H1|L1], [H2|L2]) :-
-	call(G,H1,H2),
-	prolog:maplist(G, L1, L2).
-
-prolog:maplist(_, [], [], []).
-prolog:maplist(G, [H1|L1], [H2|L2], [H3|L3]) :-
-	call(G,H1,H2,H3),
-	prolog:maplist(G, L1, L2, L3).
-
 prolog:make.
 
 prolog:source_location(File,Line) :-
 	prolog_load_context(file, File),
 	prolog_load_context(term_position, '$stream_position'(_,Line,_)).
-
-prolog:memberchk(Element, [Element|_]) :- !.
-prolog:memberchk(Element, [_|Rest]) :-
-        prolog:memberchk(Element, Rest).
 
 % copied from SWI lists library.
 prolog:intersection([], _, []) :- !.

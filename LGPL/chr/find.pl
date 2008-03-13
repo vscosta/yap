@@ -1,4 +1,4 @@
-/*  $Id: find.pl,v 1.2 2007-10-16 23:17:03 vsc Exp $
+/*  $Id: find.pl,v 1.3 2008-03-13 14:38:01 vsc Exp $
 
     Part of CHR (Constraint Handling Rules)
 
@@ -61,3 +61,15 @@ forall(X,L,G) :-
 forsome(X,L,G) :-
 	member(X,L),
 	call(G), !.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- dynamic
+	user:goal_expansion/2.
+:- multifile
+	user:goal_expansion/2.
+
+user:goal_expansion(forall(Element,List,Test), GoalOut) :-
+	nonvar(Test),
+	Test =.. [Functor,Arg],
+	Arg == Element,
+	GoalOut = once(maplist(Functor,List)).

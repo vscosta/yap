@@ -1,4 +1,4 @@
-/*  $Id: aggregate.pl,v 1.2 2008-02-12 18:10:48 vsc Exp $
+/*  $Id: aggregate.pl,v 1.3 2008-03-13 14:37:58 vsc Exp $
 
     Part of SWI-Prolog
 
@@ -524,7 +524,7 @@ var_in_term(Term, Var) :-
 	Var == Term, !.
 var_in_term(Term, Var) :-
 	compound(Term),
-	arg(_, Term, Arg),
+	genarg(_, Term, Arg),
 	var_in_term(Arg, Var), !.
 
 
