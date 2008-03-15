@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2008-02-15 12:41:33 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-15 12:19:33 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.128  2008/02/15 12:41:33  vsc
+* more fixes to modules
+*
 * Revision 1.127  2008/02/13 10:15:35  vsc
 * fix some bugs from yesterday plus improve support for modules in
 * operators.
@@ -3633,6 +3636,11 @@ p_set_yap_flags(void)
     break;
 #endif /* TABLING */
   case VARS_CAN_HAVE_QUOTE_FLAG:
+    if (value != 0  && value != 1)
+      return(FALSE);
+    yap_flags[VARS_CAN_HAVE_QUOTE_FLAG] = value;
+    break;
+  case QUIET_MODE_FLAG:
     if (value != 0  && value != 1)
       return(FALSE);
     yap_flags[VARS_CAN_HAVE_QUOTE_FLAG] = value;
