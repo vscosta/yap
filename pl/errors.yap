@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-02-23 01:32:31 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-17 12:08:28 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.86  2008/02/23 01:32:31  vsc
+* fix chr bootstrap.
+*
 * Revision 1.85  2008/02/22 15:08:37  vsc
 * Big update to support more SICStus/SWI like message handling
 * fix YAPSHAREDIR
@@ -235,6 +238,7 @@ print_message(Severity, Term) :-
 	    ;   !, '$print_system_message'(Term, Severity, Lines)
 	    )
 	).
+print_message(silent, _) :-  !.
 print_message(_, error(syntax_error(_,between(_,L,_),_,_,_,_),_)) :-  !,
 	format(user_error,'SYNTAX ERROR close to ~d~n',[L]).
 print_message(_, loading(A, F)) :- !,

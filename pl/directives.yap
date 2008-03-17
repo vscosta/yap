@@ -1057,3 +1057,5 @@ user_defined_flag(Atom) :-
 
 '$expects_dialect'(swi) :-
 	load_files(library(swi),[silent(true),if(not_loaded)]).
+'$expects_dialect'(yap).
+
