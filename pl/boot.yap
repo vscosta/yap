@@ -1151,6 +1151,3 @@ throw(Ball) :-
 	nb_setval('$system_mode',off),
 	( nb_getval('$trace',on) -> '$creep' ; true).
 	
-'$notrace'(G) :-
-	\+ '$undefined'(G, prolog),
-	call(G).
