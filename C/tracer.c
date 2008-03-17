@@ -164,6 +164,8 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
+  if (vsc_count < 2064000LL)
+    return;
 #ifdef COMMENTED
   //*(H0+(0xb65f2850-0xb64b2008)/sizeof(CELL))==0xc || 
   //0x4fd4d
@@ -241,7 +243,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     return;
   }
   {
-    CELL *env_ptr = ENV;
+     CELL *env_ptr = ENV;
     PredEntry *p;
 
     while (env_ptr) {

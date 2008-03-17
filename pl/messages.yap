@@ -11,7 +11,7 @@
 * File:		utilities for displaying messages in YAP.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-02-25 10:15:31 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-17 18:31:16 $,$Author: vsc $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -73,6 +73,7 @@ generate_message(M) -->
 	stack_dump(M).
 
 stack_dump(error(_,_)) -->
+	{ fail }, 
 	{ nb_getval(sp_info,local_sp(P,CP,Envs,CPs)) },
 	{ Envs = [_|_] ; CPs = [_|_] }, !,
 	[nl],

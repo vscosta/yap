@@ -241,7 +241,7 @@ module(N) :-
 %       current module for fixing up meta-call arguments
 %       current module for predicate
 %       head variables.
-'$module_expansion'(V,call(G),call(MM:G),_M,MM,_TM,_) :- var(V), !.
+'$module_expansion'(V,call(MM:V),call(MM:V),_M,MM,_TM,_) :- var(V), !.
 '$module_expansion'((A,B),(A1,B1),(AO,BO),M,MM,TM,HVars) :- !,
 	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
 	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).

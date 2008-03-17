@@ -11,7 +11,7 @@
 * File:		utilities for messing around in YAP internals.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-02-22 15:08:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-17 18:31:16 $,$Author: vsc $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -74,8 +74,7 @@ display_stack_info([],[Env|Envs],I,Cont) -->
 	{ I1 is I-1 },
 	display_stack_info([], Envs, I1, NCont).
 display_stack_info([CP|LCPs],[Env|LEnvs],I,Cont) -->
-	continuation(Env, _, NCont, CB),
-	{ I1 is I-1 },
+	{ yap_hacks:continuation(Env, _, NCont, CB), I1 is I-1 },
 	( { CP == Env, CB < CP } ->
 	    % if we follow choice-point and we cut to before choice-point
 	    % we are the same goal
@@ -91,7 +90,7 @@ display_stack_info([CP|LCPs],[Env|LEnvs],I,Cont) -->
 	).
 
 show_cp(CP, Continuation) -->
-	{ choicepoint(CP, Addr, Mod, Name, Arity, Goal, ClNo) },
+	{ yap_hacks:choicepoint(CP, Addr, Mod, Name, Arity, Goal, ClNo) },
 	( { Goal = (_;_) }
           ->
 	  [ '0x~16r~t*~16+ Cur~t~d~16+ ~q:~q/~d( ? ; ? )~n'-
@@ -106,8 +105,8 @@ show_cp(CP, Continuation) -->
 
 show_env(Env,Cont,NCont) -->
 	{
-	 continuation(Env, Addr, NCont, _),
-	 cp_to_predicate(Cont, Mod, Name, Arity, ClId)
+	 yap_hacks:continuation(Env, Addr, NCont, _),
+	 yap_hacks:cp_to_predicate(Cont, Mod, Name, Arity, ClId)
 	},
         [ '0x~16r~t  ~16+ Cur~t ~d~16+ ~q:' -
 		[Addr, ClId, Mod] ],
@@ -121,9 +120,14 @@ clean_goal(G,_,G).
 scratch_goal(N,A,Mod,NG) :-
 	list_of_qmarks(A,L),
 	G=..[N|L],
-	beautify_hidden_goal(G,Mod,[NG],[]), !.
+	(
+	  beautify_hidden_goal(G,Mod,[NG],[])
+	;
+	  G = NG
+	),
+	!.
 
-list_of_qmarks(0,[]).
+list_of_qmarks(0,[]) :- !.
 list_of_qmarks(I,[?|L]) :-
 	I1 is I-1,
 	list_of_qmarks(I1,L).

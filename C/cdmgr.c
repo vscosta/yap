@@ -11,8 +11,13 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2008-02-22 15:08:33 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-17 18:31:16 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.219  2008/02/22 15:08:33  vsc
+* Big update to support more SICStus/SWI like message handling
+* fix YAPSHAREDIR
+* fix yap.tex (Bernd)
+*
 * Revision 1.218  2008/01/23 17:57:44  vsc
 * valgrind it!
 * enable atom garbage collection.
@@ -5934,7 +5939,6 @@ p_choicepoint_info(void)
   taddr = MkIntegerTerm((Int)cptr);
   while (go_on) {
     op_numbers opnum = Yap_op_from_opcode(ipc->opc);
-
     go_on = FALSE;
     switch (opnum) {
 #ifdef TABLING
@@ -6065,8 +6069,6 @@ p_choicepoint_info(void)
       break;
     case _Ystop:
     default:
-      pe = NULL;
-      t = TermNil;
       return FALSE;
     }
   }
