@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2008-03-17 18:31:16 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-22 23:35:00 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.220  2008/03/17 18:31:16  vsc
+* fix breakage in module system
+* disable stack writing in error for now
+*
 * Revision 1.219  2008/02/22 15:08:33  vsc
 * Big update to support more SICStus/SWI like message handling
 * fix YAPSHAREDIR
@@ -3339,7 +3343,7 @@ all_cps(choiceptr b_ptr)
 static Term
 all_calls(void)
 {
-  Term ts[3];
+  Term ts[4];
   Functor f = Yap_MkFunctor(AtomLocal,4);
 
   ts[0] = MkIntegerTerm((Int)P);

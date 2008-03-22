@@ -1706,8 +1706,8 @@ Restore(char *s, char *lib_dir)
   int restore_mode;
 
   OPCODE old_ops[_std_top+1];
-
   CELL MyTrail, MyStack, MyHeap, MyState;
+
   if ((restore_mode = OpenRestore(s, lib_dir, &MyState, &MyTrail, &MyStack, &MyHeap)) == FAIL_RESTORE)
     return(FALSE);
   Yap_ShutdownLoadForeign();

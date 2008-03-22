@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-03-13 18:41:50 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-03-22 23:35:00 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.107  2008/03/13 18:41:50  vsc
+* -q flag
+*
 * Revision 1.106  2008/02/12 17:03:50  vsc
 * SWI-portability changes
 *
@@ -1746,7 +1749,7 @@ YAP_Init(YAP_init_args *yap_init)
 #endif /* YAPOR */
 #endif /* YAPOR || TABLING */
   RECOVER_MACHINE_REGS();
-}
+ }
   if (yap_init->YapPrologRCFile) {
     Yap_PutValue(Yap_FullLookupAtom("$consult_on_boot"), MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologRCFile)));
     /*
