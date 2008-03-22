@@ -1061,7 +1061,7 @@ current_stream(File, Opts, Stream) :-
 write_depth(T,L) :- write_depth(T,L,_).
 
 is_stream(S) :-
-	'$check_stream'(S).
+	catch('$check_stream'(S), _, fail), !.
 
 time_file(File, Time) :-
 	'$file_age'(File, Time).
