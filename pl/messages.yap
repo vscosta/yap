@@ -11,7 +11,7 @@
 * File:		utilities for displaying messages in YAP.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-03-17 18:31:16 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-24 23:48:47 $,$Author: vsc $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -190,7 +190,7 @@ system_message(error(permission_error(access,static_procedure,P), Where)) -->
 	[ 'PERMISSION ERROR- ~w: cannot access static procedure ~w' - [Where,P] ].
 system_message(error(permission_error(alias,new,P), Where)) -->
 	[ 'PERMISSION ERROR- ~w: cannot create alias ~w' - [Where,P] ].
-system_message(error(permission_error(create,array,P), Where)) -->
+system_message(error(permission_error(create,Name,P), Where)) -->
 	{ object_name(Name, ObjName) },
 	[ 'PERMISSION ERROR- ~w: cannot create ~a ~w' - [Where,ObjName,P] ].
 system_message(error(permission_error(input,binary_stream,Stream), Where)) -->
@@ -237,6 +237,8 @@ system_message(error(representation_error(character_code), Where)) -->
 	[ 'REPRESENTATION ERROR- ~w: expected character code' - [Where] ].
 system_message(error(representation_error(max_arity), Where)) -->
 	[ 'REPRESENTATION ERROR- ~w: number too big' - [Where] ].
+system_message(error(resource_error(max_threads), Where)) -->
+	[ 'RESOURCE ERROR- too many open threads' - [Where] ].
 system_message(error(syntax_error(G,0,Msg,[],0,0), _)) -->
 	[ 'SYNTAX ERROR: ~a' - [G,Msg] ].
 system_message(error(syntax_error(_,_,_,Term,Pos,Start), Where)) -->

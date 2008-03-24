@@ -47,11 +47,13 @@ allocate_new_tid(void)
 	(ThreadHandle[new_worker_id].in_use == TRUE ||
 	 ThreadHandle[new_worker_id].zombie == TRUE) )
     new_worker_id++;
-  pthread_mutex_lock(&(ThreadHandle[new_worker_id].tlock));
-  ThreadHandle[new_worker_id].in_use = TRUE;
+  if (new_worker_id < MAX_WORKERS) {
+    pthread_mutex_lock(&(ThreadHandle[new_worker_id].tlock));
+    ThreadHandle[new_worker_id].in_use = TRUE;
+  } else {
+    new_worker_id = -1;
+  }
   UNLOCK(ThreadHandlesLock);
-  if (new_worker_id == MAX_WORKERS) 
-    return -1;
   return new_worker_id;  
 }
 
@@ -180,7 +182,12 @@ thread_run(void *widp)
 static Int
 p_thread_new_tid(void)
 {
-  return Yap_unify(MkIntegerTerm(allocate_new_tid()), ARG1);
+  int new_worker = allocate_new_tid();
+  if (new_worker == -1) {
+    Yap_Error(RESOURCE_ERROR_MAX_THREADS, MkIntegerTerm(MAX_WORKERS), "");
+    return FALSE;
+  }
+  return Yap_unify(MkIntegerTerm(new_worker), ARG1);
 }
 
 static void

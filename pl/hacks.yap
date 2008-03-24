@@ -11,7 +11,7 @@
 * File:		utilities for messing around in YAP internals.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-03-17 18:31:16 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-24 23:48:47 $,$Author: vsc $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -74,7 +74,10 @@ display_stack_info([],[Env|Envs],I,Cont) -->
 	{ I1 is I-1 },
 	display_stack_info([], Envs, I1, NCont).
 display_stack_info([CP|LCPs],[Env|LEnvs],I,Cont) -->
-	{ yap_hacks:continuation(Env, _, NCont, CB), I1 is I-1 },
+	{
+	 yap_hacks:continuation(Env, _, NCont, CB),
+	 I1 is I-1
+	},
 	( { CP == Env, CB < CP } ->
 	    % if we follow choice-point and we cut to before choice-point
 	    % we are the same goal

@@ -1328,6 +1328,20 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       serious = TRUE;
     }
     break;
+  case RESOURCE_ERROR_MAX_THREADS:
+    {
+      int i;
+      Term ti[1];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(Yap_LookupAtom("max_threads"));
+      nt[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("resource_error"),1), 1, ti);
+      tp = tmpbuf+i;
+      psize -= i;
+      fun = Yap_MkFunctor(Yap_LookupAtom("error"),2);
+      serious = TRUE;
+    }
+    break;
   case SYNTAX_ERROR:
     {
       int i;

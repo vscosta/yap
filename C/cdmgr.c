@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2008-03-22 23:35:00 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-24 23:48:47 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.221  2008/03/22 23:35:00  vsc
+* fix bug in all_calls
+*
 * Revision 1.220  2008/03/17 18:31:16  vsc
 * fix breakage in module system
 * disable stack writing in error for now
@@ -3354,7 +3357,7 @@ all_calls(void)
   } else {
     ts[2] = ts[3] = TermNil;
   }
-  return(Yap_MkApplTerm(f,4,ts));
+  return Yap_MkApplTerm(f,4,ts);
 }
 
 Term
