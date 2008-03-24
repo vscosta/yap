@@ -791,16 +791,16 @@ thread_property(Id, Prop) :-
 
 
 threads :-
-	write('------------------------------------------------------------------------'), nl,
-	format("~t~a~48+~n", 'Thread  Detached  Status'),
-	write('------------------------------------------------------------------------'), nl,
+	format(user_error,'------------------------------------------------------------------------~n',[]),
+	format(user_error, '~t~a~48+~n', 'Thread  Detached  Status'),
+	format(user_error,'------------------------------------------------------------------------~n',[]),
 	'$thread_property'(Id, detached(Detached)),
 	'$thread_property'(Id, status(Status)),
 	'$thread_id_alias'(Id, Alias),
-	format("~t~q~30+~33|~w~42|~q~n", [Alias, Detached, Status]),
+	format(user_error,'~t~q~30+~33|~w~42|~q~n', [Alias, Detached, Status]),
 	fail.
 threads :-
-	write('------------------------------------------------------------------------'), nl.
+	format(user_error,'------------------------------------------------------------------------~n',[]).
 
 
 '$check_thread_or_alias'(Term, Goal) :-
