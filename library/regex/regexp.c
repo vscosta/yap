@@ -129,8 +129,8 @@ static int regexp(void)
     YAP_FreeSpaceFromYap(sbuf); 
     return(FALSE);
   }
-  pmatch = YAP_AllocSpaceFromYap(sizeof(regmatch_t)*(nmatch+1));
-  out = yap_regexec(&reg,sbuf,nmatch+1,pmatch,0);
+  pmatch = YAP_AllocSpaceFromYap(sizeof(regmatch_t)*(nmatch));
+  out = yap_regexec(&reg,sbuf,nmatch,pmatch,0);
   if (out == 0) {
     /* match succeed, let's fill the match in */
     long int i;

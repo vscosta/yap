@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.39 2006-05-22 16:29:58 tiagosoares Exp $	 *
+* version:      $Id: Regs.h,v 1.40 2008-03-25 22:03:13 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -141,7 +141,7 @@ typedef struct
        extra register, but makes it easier to access X[1].
      */
 
-#if PUSH_X
+#ifdef PUSH_X
     Term XTERMS[MaxTemps];	/* 29                                    */
 #endif
   }
@@ -149,7 +149,7 @@ REGSTORE;
 
 extern REGSTORE *Yap_regp;
 
-#if PUSH_X
+#ifdef PUSH_X
 
 #define XREGS  (Yap_REGS.XTERMS)
 
@@ -750,7 +750,7 @@ EXTERN inline void restore_B(void) {
 #define BBREG         BB
 #endif /* SBA || TABLING */
 
-#if !THREADS
+#if !defined(THREADS)
 /* use actual addresses for regs */
 #define PRECOMPUTE_REGADDRESS 1
 #endif /* THREADS */

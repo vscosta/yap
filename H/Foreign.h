@@ -71,7 +71,7 @@
 #define LOAD_SHL 1
 #endif
 
-#if HAVE_NSLINKMODULE
+#ifdef HAVE_NSLINKMODULE
 #ifdef NO_DYN
 #undef NO_DYN
 #endif

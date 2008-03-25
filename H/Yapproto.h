@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.82 2007-12-05 12:17:23 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.83 2008-03-25 22:03:13 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -56,7 +56,7 @@ Term   *STD_PROTO(Yap_AddressFromSlot,(long));
 void    STD_PROTO(Yap_PutInSlot,(long, Term));
 
 
-#if SFUNC
+#ifdef SFUNC
 Term	STD_PROTO(MkSFTerm,(Functor,int,Term *,Term));
 CELL	STD_PROTO(*ArgsOfSFTerm,(Term));
 #endif
@@ -113,7 +113,7 @@ Term	STD_PROTO(Yap_all_calls,(void));
 Atom	STD_PROTO(Yap_ConsultingFile,(void));
 struct pred_entry *STD_PROTO(Yap_PredForChoicePt,(choiceptr));
 void	STD_PROTO(Yap_InitCdMgr,(void));
-#if     EMACS
+#ifdef  EMACS
 int     STD_PROTO(where_new_clause, (Prop, int));
 #endif
 void	STD_PROTO(Yap_init_consult,(int, char *));
@@ -297,7 +297,7 @@ Int	STD_PROTO(Yap_walltime,(void));
 int	STD_PROTO(Yap_dir_separator,(int));
 int	STD_PROTO(Yap_volume_header,(char *));
 void	STD_PROTO(Yap_InitSysPath,(void));
-#if MAC
+#ifdef MAC
 void	STD_PROTO(Yap_SetTextFile,(char *));
 #endif
 void    STD_PROTO(Yap_cputime_interval,(Int *,Int *));

@@ -78,18 +78,6 @@ static void PROTO(do_bootfile, (char *));
 static void PROTO(do_top_goal,(YAP_Term));
 static void PROTO(exec_top_level,(int, YAP_init_args *));
 
-#ifndef LIGHT
-void PROTO (exit, (int));
-#endif
-
-#ifdef LIGHT
-#include <unix.h>
-int
-  _main (int, char **);
-#else
-int PROTO (main, (int, char **));
-#endif
-
 #ifdef DEBUG
 static int output_msg;
 #endif
@@ -117,7 +105,7 @@ static char *def_value[MAXDEFS];
 static int  def_c=0;
 /* End preprocessor code */
 
-#if USE_MYPUTC
+#ifdef USE_MYPUTC
 static void
 myputc (int ch)
 {
@@ -274,7 +262,7 @@ static int
 parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 {
   char *p;
-#if USE_SYSTEM_MALLOC
+#ifdef USE_SYSTEM_MALLOC
   int BootMode = YAP_FULL_BOOT_FROM_PROLOG;
 #else
   int BootMode = YAP_BOOT_FROM_SAVED_CODE;

@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h,v 1.14 2007-09-21 13:52:52 vsc Exp $	 *
+* version:      $Id: TermExt.h,v 1.15 2008-03-25 22:03:13 vsc Exp $	 *
 *************************************************************************/
 
 #ifdef USE_SYSTEM_MALLOC
@@ -19,12 +19,12 @@
 #define SF_STORE  ((special_functors *)HEAP_INIT_BASE)
 #endif
 
-#if USE_OFFSETS
+#ifdef USE_OFFSETS
 #define   AtomFoundVar ((Atom)(&(((special_functors *)(NULL))->AtFoundVar)))
 #define   AtomFreeTerm ((Atom)(&(((special_functors *)(NULL))->AtFreeTerm)))
 #define   AtomNil ((Atom)(&(((special_functors *)(NULL))->AtNil)))
 #define   AtomDot ((Atom)(&(((special_functors *)(NULL))->AtDot)))
-#elif THREADS
+#elif defined(THREADS)
 #define   AtomFoundVar AbsAtom(SF_STORE->AtFoundVar)
 #define   AtomFreeTerm AbsAtom(SF_STORE->AtFreeTerm)
 #define   AtomNil AbsAtom(SF_STORE->AtNil)
@@ -111,7 +111,7 @@ extern ext_op attas[attvars_ext + 1];
 
 /* make sure that these data structures are the first thing to be allocated
    in the heap when we start the system */
-#if THREADS
+#ifdef THREADS
 typedef struct special_functors_struct
 {
   AtomEntry *AtFoundVar;
@@ -505,7 +505,11 @@ unify_extension (Functor f, CELL d0, CELL * pt0, CELL d1)
       return (pt0[1] == RepAppl (d1)[1]);
     case big_int_e:
 #ifdef USE_GMP
-      return (mpz_cmp (Yap_BigIntOfTerm (d0), Yap_BigIntOfTerm (d1)) == 0);
+      {
+	MP_INT *m0 = Yap_BigIntOfTerm (d0);
+	MP_INT *m1 = Yap_BigIntOfTerm (d1);
+	return mpz_cmp (m0, m1) == 0;
+      }
 #else
       return d0 == d1;
 #endif /* USE_GMP */

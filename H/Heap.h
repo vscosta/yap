@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.126 2008-03-25 16:45:53 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.127 2008-03-25 22:03:13 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -50,7 +50,7 @@ typedef struct memory_hole {
 
 typedef struct gc_ma_hash_entry_struct {
   UInt timestmp;
-#if TABLING
+#ifdef TABLING
   tr_fr_ptr loc;
   struct gc_ma_hash_entry_struct *more;
 #endif
@@ -1024,13 +1024,13 @@ struct various_codes *Yap_heap_regs;
 #endif
 
 
-#if (USE_SYSTEM_MALLOC && HAVE_MALLINFO)||USE_DL_MALLOC
+#if (defined(USE_SYSTEM_MALLOC) && HAVE_MALLINFO)||USE_DL_MALLOC
 UInt STD_PROTO(Yap_givemallinfo, (void));
 #endif
 
 ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt, void *));
 #define Yap_ReleasePreAllocCodeSpace(x)
-#if USE_SYSTEM_MALLOC||USE_DL_MALLOC
+#if defined(USE_SYSTEM_MALLOC)||USE_DL_MALLOC
 ADDR    STD_PROTO(Yap_InitPreAllocCodeSpace, (void));
 EXTERN inline ADDR
 Yap_PreAllocCodeSpace(void)
@@ -1047,7 +1047,7 @@ Yap_PreAllocCodeSpace(void)
 }
 #endif
 
-#if THREADS
+#ifdef THREADS
 Prop STD_PROTO(Yap_NewThreadPred, (PredEntry *));
 Prop STD_PROTO(Yap_NewPredPropByFunctor, (Functor, Term));
 

@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-03-25 16:45:53 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-25 22:03:14 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.86  2008/03/25 16:45:53  vsc
+* make or-parallelism compile again
+*
 * Revision 1.85  2008/02/12 17:03:52  vsc
 * SWI-portability changes
 *
@@ -821,7 +824,7 @@ restore_codes(void)
     PredEntryAdjust(Yap_heap_regs->pred_throw);
   Yap_heap_regs->pred_handle_throw =
     PredEntryAdjust(Yap_heap_regs->pred_handle_throw);
-#if DEBUG
+#ifdef DEBUG
   if (Yap_heap_regs->db_erased_list) {
     Yap_heap_regs->db_erased_list = 
       PtoLUCAdjust(Yap_heap_regs->db_erased_list);

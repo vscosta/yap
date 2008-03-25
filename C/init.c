@@ -156,7 +156,7 @@ char            emacs_tmp[256], emacs_tmp2[256];
 
 /********* Prolog State ********************************************/
 
-prolog_exec_mode      Yap_PrologMode = BootMode;
+Int      Yap_PrologMode = BootMode;
 
 int      Yap_CritLocks = 0;
 

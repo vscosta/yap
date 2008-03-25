@@ -34,7 +34,7 @@
 #define YP_clearerr     clearerr
 #define YP_feof		feof
 #define YP_ferror	ferror
-#if _MSC_VER || defined(__MINGW32__)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #define YP_fileno	_fileno
 #else
 #define YP_fileno	fileno
@@ -49,7 +49,7 @@
 #define YP_fdopen	fdopen
 #define init_yp_stdio()
 
-#if _MSC_VER || defined(__MINGW32__)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #define open _open
 #define close _close
 #define popen _popen
@@ -347,13 +347,13 @@ int  STD_PROTO(Yap_growtrail_in_parser,  (tr_fr_ptr *, TokEntry **, VarEntry **)
 
 
 
-#if HAVE_ERRNO_H
+#ifdef HAVE_ERRNO_H
 #include <errno.h>
 #else
 extern int errno;
 #endif
 
-#if DEBUG
+#ifdef DEBUG
 #if COROUTINING
 extern int  Yap_Portray_delays;
 #endif

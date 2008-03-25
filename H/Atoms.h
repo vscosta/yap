@@ -61,7 +61,7 @@ AtomEntry;
 
 
 /* Props and Atoms are stored in chains, ending with a NIL */
-#if USE_OFFSETS
+#ifdef USE_OFFSETS
 #	define EndOfPAEntr(P)	( Addr(P) == AtomBase)
 #else
 #	define EndOfPAEntr(P)	( Addr(P) == NIL )
@@ -72,7 +72,7 @@ AtomEntry;
 
 /* ********************** Properties  **********************************/
 
-#if USE_OFFSETS
+#if defined(USE_OFFSETS)
 #define USE_OFFSETS_IN_PROPS 1
 #else
 #define USE_OFFSETS_IN_PROPS 0

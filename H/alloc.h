@@ -78,7 +78,7 @@ typedef	struct FREEB {
 #define ALIGN_SIZE(X,SIZE) (((CELL)(X)+((SIZE)-1)) & ~((SIZE)-1))
 
 /* I'll assume page size is always a power of two */
-#if _WIN32
+#ifdef _WIN32
 /* in WIN32 VirtualAlloc works in multiples of 64K */
 #define YAP_ALLOC_SIZE (64*1024)
 #define LGPAGE_SIZE YAP_ALLOC_SIZE

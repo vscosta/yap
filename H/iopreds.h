@@ -23,7 +23,7 @@ static char SccsId[] = "%W% %G%";
  *
  */
 
-#if _MSC_VER || defined(__MINGW32__)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 
 #include <windows.h>
 
@@ -33,7 +33,7 @@ static char SccsId[] = "%W% %G%";
 
 #if HAVE_LIBREADLINE
 
-#if _MSC_VER || defined(__MINGW32__)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 
 FILE *rl_instream, *rl_outstream;
 #endif
@@ -48,7 +48,7 @@ typedef struct stream_desc
       struct {
 	Atom name;
 	Term user_name;
-#if defined(__MINGW32__) || _MSC_VER
+#if defined(__MINGW32__) || defined(_MSC_VER)
 #define PLGETC_BUF_SIZE 4096
 	char *buf, *ptr;
 	int left;
@@ -62,7 +62,7 @@ typedef struct stream_desc
 	volatile void *error_handler;
       } mem_string;
       struct {
-#if defined(__MINGW32__) || _MSC_VER
+#if defined(__MINGW32__) || defined(_MSC_VER)
 	HANDLE hdl;
 #else
 	int fd;

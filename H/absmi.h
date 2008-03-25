@@ -75,7 +75,7 @@ static char SccsId[] = "%W% %G%";
 /***************************************************************
 * Use bp as PREG for X86 machines		               *
 ***************************************************************/
-#if IN_ABSMI_C
+#if defined(IN_ABSMI_C)
 register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 #define PREG P1REG
 #endif
@@ -139,7 +139,7 @@ register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 #ifdef YAPOR
 #include "or.macros.h"
 #endif	/* YAPOR */
-#if USE_SYSTEM_MALLOC
+#ifdef USE_SYSTEM_MALLOC
 #include "Heap.h"
 #endif
 #ifdef TABLING
@@ -367,7 +367,7 @@ restore_absmi_regs(REGSTORE * old_regs)
 
 #endif
 
-#if USE_PREFETCH
+#ifdef USE_PREFETCH
 
 #define START_PREFETCH(TYPE) ALWAYS_START_PREFETCH(TYPE)
 
@@ -447,7 +447,7 @@ restore_absmi_regs(REGSTORE * old_regs)
 
 #endif
 
-#if USE_PREFETCH
+#ifdef USE_PREFETCH
 
 #define GONext() ALWAYS_GONext() 
 
@@ -600,7 +600,7 @@ typedef CELL label;
 /* 
  * Next, Y
  */
-#if SHADOW_Y
+#ifdef SHADOW_Y
 #define set_y()		YREG = YENV
 #define save_y()	YENV = YREG
 #else
@@ -612,7 +612,7 @@ typedef CELL label;
 /* 
  * Next, CP
  */
-#if SHADOW_CP
+#ifdef SHADOW_CP
 #define set_cp()	CPREG = CP
 #define save_cp()	CP = CPREG
 #else
@@ -654,12 +654,12 @@ Macros to check the limits of stacks
 /* for the moment I don't know how to handle trail overflows
    in a pure Windows environment 
 */
-#if !_MSC_VER && !defined(__MINGW32__) && !defined(THREADS) && !defined(YAPOR) && !USE_SYSTEM_MALLOC && !USE_DL_MALLOC
+#if !defined(_MSC_VER) && !defined(__MINGW32__) && !defined(THREADS) && !defined(YAPOR) && !defined(USE_SYSTEM_MALLOC) && !USE_DL_MALLOC
 #define OS_HANDLES_TR_OVERFLOW 1
 #endif
 #endif
 
-#if OS_HANDLES_TR_OVERFLOW
+#ifdef OS_HANDLES_TR_OVERFLOW
 
 #define check_trail(x)
 
@@ -1068,7 +1068,7 @@ Macros to check the limits of stacks
 /* 
  * Next, HB
  */
-#if SHADOW_HB
+#ifdef SHADOW_HB
 #undef HBREG
 #define set_hb()	HBREG = HB
 #define save_hb()	HB = HBREG
@@ -1077,17 +1077,17 @@ Macros to check the limits of stacks
 #define save_hb()
 #endif
 
-#if IN_ABSMI_C || IN_UNIFY_C
+#if defined(IN_ABSMI_C) || defined(IN_UNIFY_C)
 
 static int 
 
 IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 {
-#if THREADS
+#ifdef THREADS
 #undef Yap_REGS
   register REGSTORE *regp = Yap_regp;
 #define Yap_REGS (*regp)
-#elif SHADOW_REGS
+#elif defined(SHADOW_REGS)
 #if defined(B) || defined(TR)
   register REGSTORE *regp = &Yap_REGS;
 
@@ -1095,11 +1095,11 @@ IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 #endif /* defined(B) || defined(TR) || defined(HB) */
 #endif
 
-#if SHADOW_HB
+#ifdef SHADOW_HB
   register CELL *HBREG = HB;
 #endif /* SHADOW_HB */
 
-#if USE_SYSTEM_MALLOC
+#ifdef USE_SYSTEM_MALLOC
   CELL  **to_visit_max = (CELL **)Yap_PreAllocCodeSpace(), **to_visit  = (CELL **)AuxSp;
 #define address_to_visit_max (&to_visit_max)
 #define to_visit_base ((CELL **)AuxSp)
@@ -1265,10 +1265,10 @@ cufail:
   }
 #endif
   return (FALSE);
-#if THREADS
+#ifdef THREADS
 #undef Yap_REGS
 #define Yap_REGS (*Yap_regp)  
-#elif SHADOW_REGS
+#elif defined(SHADOW_REGS)
 #if defined(B) || defined(TR)
 #undef Yap_REGS
 #endif /* defined(B) || defined(TR) */
@@ -1289,7 +1289,7 @@ cufail:
 #endif
 
 
-#if IN_ABSMI_C || IN_INLINES_C
+#if defined(IN_ABSMI_C) || defined(IN_INLINES_C)
 
 static int 
 iequ_complex(register CELL *pt0, register CELL *pt0_end,

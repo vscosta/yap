@@ -17,7 +17,7 @@
 
 /* This code can only be defined *after* including Regs.h!!! */
 
-#if USE_OFFSETS
+#ifdef USE_OFFSETS
 
 inline EXTERN Atom AbsAtom (AtomEntry * p);
 
@@ -1372,7 +1372,7 @@ Atom STD_PROTO (Yap_GetOp, (OpEntry *, int *, int));
 Prop STD_PROTO (Yap_GetAProp, (Atom, PropFlags));
 Prop STD_PROTO (Yap_GetAPropHavingLock, (AtomEntry *, PropFlags));
 
-#if THREADS
+#ifdef THREADS
 EXTERN inline PredEntry *STD_PROTO (Yap_GetThreadPred, (PredEntry *));
 #endif
 
@@ -1407,7 +1407,7 @@ GetPredPropByFuncHavingLock (FunctorEntry *fe, Term cur_mod)
     return NIL;
   }
   if ((p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
-#if THREADS
+#ifdef THREADS
     /* Thread Local Predicates */
     if (p->PredFlags & ThreadLocalPredFlag) {
       return AbsPredProp (Yap_GetThreadPred (p));
@@ -1424,7 +1424,7 @@ GetPredPropByFuncHavingLock (FunctorEntry *fe, Term cur_mod)
       if (p->FunctorOfPred == fe &&
 	  p->ModuleOfPred == cur_mod)
 	{
-#if THREADS
+#ifdef THREADS
 	  /* Thread Local Predicates */
 	  if (p->PredFlags & ThreadLocalPredFlag) {
 	    READ_UNLOCK(PredHashRWLock);
@@ -1471,7 +1471,7 @@ PredPropByAtom (Atom at, Term cur_mod)
       if (pe->KindOfPE == PEProp &&
 	  (pe->ModuleOfPred == cur_mod || !pe->ModuleOfPred))
 	{
-#if THREADS
+#ifdef THREADS
 	  /* Thread Local Predicates */
 	  if (pe->PredFlags & ThreadLocalPredFlag)
 	    {

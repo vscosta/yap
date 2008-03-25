@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2008-01-28 18:12:36 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-25 22:03:14 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.23  2008/01/28 18:12:36  vsc
+* fix small bug in restore opcode
+*
 * Revision 1.22  2008/01/23 17:57:55  vsc
 * valgrind it!
 * enable atom garbage collection.
@@ -279,7 +282,7 @@ restore_opcodes(yamop *pc)
 #ifdef BEAM
     case _retry_eam:
 #endif
-#if THREADS
+#ifdef THREADS
     case _thread_local:
 #endif
     case _expand_index:
@@ -946,12 +949,12 @@ restore_opcodes(yamop *pc)
       {
 	int             i, j;
 	CELL            *oldcode;
-#if !USE_OFFSETS
+#if !defined(USE_OFFSETS)
 	CELL            *startcode;
 #endif
 
 	i = pc->u.sssl.s;
-#if !USE_OFFSETS
+#if !defined(USE_OFFSETS)
 	startcode =
 #endif
 	  oldcode = (CELL *)(pc->u.sssl.l = PtoOpAdjust(pc->u.sssl.l));

@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2007-11-26 23:43:09 $							 *
+* Last rev:     $Date: 2008-03-25 22:03:13 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.43  2007/11/26 23:43:09  vsc
+* fixes to support threads and assert correctly, even if inefficiently.
+*
 * Revision 1.42  2007/11/07 09:25:27  vsc
 * speedup meta-calls
 *
@@ -386,7 +389,7 @@
     OPCODE(alloc_for_logical_pred  ,EC),
     OPCODE(unify_idb_term          ,e),
     OPCODE(copy_idb_term           ,e),
-#if THREADS
+#if defined(THREADS)
     OPCODE(thread_local            ,e),
 #endif
 #ifdef SFUNC

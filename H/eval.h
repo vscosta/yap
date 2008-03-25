@@ -21,10 +21,10 @@
 #if HAVE_MATH_H
 #include <math.h>
 #endif
-#if HAVE_IEEEFP_H
+#ifdef HAVE_IEEEFP_H
 #include <ieeefp.h>
 #endif
-#if HAVE_LIMITS_H
+#ifdef HAVE_LIMITS_H
 #include <limits.h>
 #endif
 
@@ -82,7 +82,7 @@ Functor     STD_PROTO(EvalArg,(Term,arith_retptr));
 
 /* this macro, dependent on the particular implementation
 	is used to interface the arguments into the C libraries */
-#if	MPW
+#ifdef	MPW
 #define FL(X)		((extended)(X))
 #else
 #define FL(X)		((double)(X))

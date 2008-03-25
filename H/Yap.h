@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.29 2008-03-24 23:48:47 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.30 2008-03-25 22:03:13 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -53,7 +53,7 @@
 #undef TRAILING_REQUIRES_BRANCH
 #endif /* YAPOR || TABLING */
 
-#if ANALYST
+#ifdef ANALYST
 #ifdef USE_THREADED_CODE
 #undef USE_THREADED_CODE
 #endif
@@ -65,7 +65,7 @@
 #endif
 #endif
 
-#if SUPPORT_THREADS || SUPPORT_CONDOR
+#if defined(SUPPORT_THREADS) || defined(SUPPORT_CONDOR)
 #define USE_SYSTEM_MALLOC 1
 #endif
 
@@ -219,7 +219,7 @@ typedef unsigned long int YAP_ULONG_LONG;
 #define LOW_PROF 1
 #endif
 
-#if DEBUG
+#ifdef DEBUG
 extern char Yap_Option[20];
 #endif
 
@@ -230,17 +230,17 @@ extern char Yap_Option[20];
 #define MMAP_ADDR 0x42000000
 #endif
 
-#if !IN_SECOND_QUADRANT
+#if !defined(IN_SECOND_QUADRANT)
 #if __linux__ || __FreeBSD__ || __NetBSD__ || mips || __APPLE__
 #if defined(YAPOR) && defined(__alpha)
 
 #define MMAP_ADDR 0x40000000
-#elif mips
+#elif defined(mips)
 #define MMAP_ADDR 0x02000000
-#elif __APPLE__ && __LP64__
+#elif defined(__APPLE__) && __LP64__
 // this address is high enough that it is likely not to confuse Apple's malloc debugger; lowest possible is 0x100200000
 #define MMAP_ADDR 0x200000000
-#elif __APPLE__ && !__LP64__
+#elif defined(__APPLE__) && !__LP64__
 #define MMAP_ADDR 0x20000000
 #else
 #define MMAP_ADDR 0x08800000
@@ -254,7 +254,7 @@ extern char Yap_Option[20];
 #define HEAP_INIT_BASE  0L
 #define AtomBase        NULL
 #else
-#if defined(MMAP_ADDR) && (USE_MMAP || USE_SHMAT) && !__simplescalar__
+#if defined(MMAP_ADDR) && (defined(USE_MMAP) || USE_SHMAT) && !defined(__simplescalar__)
 #define HEAP_INIT_BASE  (MMAP_ADDR)
 #define AtomBase        ((char *)MMAP_ADDR)
 #else
@@ -775,7 +775,7 @@ VarOfTerm (Term t)
 }
 
 
-#if SBA
+#ifdef SBA
 
 inline EXTERN Term MkVarTerm (void);
 
@@ -839,7 +839,7 @@ FunctorOfTerm (Term t)
 }
 
 
-#if (USE_SYSTEM_MALLOC || USE_DL_MALLOC) && !__LP64__
+#if (defined(USE_SYSTEM_MALLOC) || USE_DL_MALLOC) && !defined(__LP64__)
 #if USE_LOW32_TAGS
 
 inline EXTERN Term MkAtomTerm (Atom);
@@ -1033,7 +1033,7 @@ IntegerOfTerm (Term t)
 
 /*************** unification routines ***********************************/
 
-#if SBA
+#ifdef SBA
 #include "sbaamiops.h"
 #else
 #include "amiops.h"
@@ -1159,7 +1159,7 @@ typedef enum
   SystemMode = 0x10000,		/* in system mode */
 } prolog_exec_mode;
 
-extern prolog_exec_mode Yap_PrologMode;
+extern Int Yap_PrologMode;
 extern int Yap_CritLocks;
 
 /************** Access to yap initial arguments ***************************/
@@ -1175,7 +1175,7 @@ extern int Yap_PrologShouldHandleInterrupts;
 
 #define DefaultMaxModules	256
 
-#if YAPOR
+#ifdef YAPOR
 #define YAPEnterCriticalSection()                                        \
 	{                                                                \
           if (worker_id != GLOBAL_LOCKS_who_locked_heap) {               \
@@ -1202,7 +1202,7 @@ extern int Yap_PrologShouldHandleInterrupts;
             UNLOCK(GLOBAL_LOCKS_heap_access);                            \
           }                                                              \
         }
-#elif THREADS
+#elif defined(THREADS)
 #define YAPEnterCriticalSection()                                        \
 	{                                                                \
           /* LOCK(BGL); */                                              \
@@ -1260,7 +1260,7 @@ typedef struct TIMED_MAVAR
 
 /********* while debugging you may need some info ***********************/
 
-#if EMACS
+#ifdef EMACS
 extern char emacs_tmp[], emacs_tmp2[];
 #endif
 
@@ -1270,7 +1270,7 @@ extern char emacs_tmp[], emacs_tmp2[];
 #include "opt.macros.h"
 #endif /* YAPOR || TABLING */
 
-#if SBA
+#ifdef SBA
 #include "sbaunify.h"
 #endif
 

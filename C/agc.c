@@ -155,16 +155,9 @@ AtomAdjust(Atom a)
 #define YAdjust(P) (P)
 #define HoldEntryAdjust(P) (P)
 
-static void
-recompute_mask(DBRef dbr)
-{
-  return;
-}
+#define recompute_mask(dbr)
 
-static void 
-rehash(CELL *oldcode, int NOfE, int KindOfEntries)
-{
-}
+#define rehash(oldcode, NOfE, KindOfEntries)
 
 #include "rheap.h"
 
@@ -280,7 +273,7 @@ mark_local(void)
 
     if (!IsVarTerm(reg)) {
       if (IsAtomTerm(reg)
-#if TABLING
+#ifdef TABLING
 	  /* assume we cannot have atoms on first page,
 	     so this must be an arity
 	  */

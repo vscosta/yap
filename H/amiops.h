@@ -233,7 +233,7 @@ AlignGlobalForDouble(void)
 #define TRAIL_LOCAL(A,D)	if ((A) > (CELL *)B) DO_TRAIL(A,D);
 
 
-#elif __alpha && !defined(TERM_EXTENSIONS)
+#elif defined(__alpha) && !defined(TERM_EXTENSIONS)
 
 /* alpha machines have a move conditional instruction, which avoids a
    branch when jumping */
@@ -387,7 +387,7 @@ reset_trail(tr_fr_ptr TR0) {
       /* AbsAppl means */
       /* multi-assignment variable */
       /* so the next cell is the old value */ 
-#if FROZEN_STACKS
+#ifdef FROZEN_STACKS
       pt[0] = TrailVal(TR-1);
       TR -= 1;
 #else
@@ -434,18 +434,31 @@ Yap_unify_constant(register Term a, register Term cons)
 	case (CELL)FunctorDBRef:
 	  return(a == cons);
 	case (CELL)FunctorLongInt:
-	  return(RepAppl(a)[1] == RepAppl(cons)[1]);
+	  {
+	    CELL d0 = RepAppl(a)[1];
+	    CELL d1 = RepAppl(cons)[1];
+	    return d0 == d1;
+	  }
 	case (CELL)FunctorDouble:
-	  return(FloatOfTerm(a) == FloatOfTerm(cons));
-#ifdef USE_GMP
+	  {
+	    Float d0 = FloatOfTerm(a);
+	    Float d1 = FloatOfTerm(cons);
+	    return d0 == d1;
+	  }
 	case (CELL)FunctorBigInt:
-	  return(mpz_cmp(Yap_BigIntOfTerm(a),Yap_BigIntOfTerm(cons)) == 0);
+#ifdef USE_GMP
+	  {
+	    MP_INT *d0 = Yap_BigIntOfTerm(a);
+	    MP_INT *d1 = Yap_BigIntOfTerm(cons);
+	    return mpz_cmp(d0,d1) == 0;
+	  }
 #endif /* USE_GMP */
 	default:
-	  return(FALSE);
+	  return FALSE;
 	}
       }
-    } else return(FALSE);
+    } else
+      return FALSE;
   }
 
   deref_body(a,pt,unify_cons_unk,unify_cons_nonvar);
