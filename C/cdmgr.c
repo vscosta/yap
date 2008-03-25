@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2008-03-24 23:48:47 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-25 16:45:53 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.222  2008/03/24 23:48:47  vsc
+* fix maximum number of threads open error
+*
 * Revision 1.221  2008/03/22 23:35:00  vsc
 * fix bug in all_calls
 *
@@ -440,9 +443,6 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
-#ifdef YAPOR
-#include "or.macros.h"
-#endif	/* YAPOR */
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -1549,8 +1549,6 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
       p->PredFlags |= SequentialPredFlag;
       PUT_YAMOP_SEQ(pt);
     }
-    if (YAMOP_LTT(pt) != 1)
-      Yap_Error(INTERNAL_ERROR, TermNil, "YAMOP_LTT error (add_first_static)");
 #endif /* YAPOR */
 #ifdef TABLING
     if (is_tabled(p)) {
@@ -1717,9 +1715,6 @@ asserta_stat_clause(PredEntry *p, yamop *q, int spy_flag)
     return;
   }
   cl->ClNext = ClauseCodeToStaticClause(p->cs.p_code.FirstClause);
-#ifdef YAPOR
-  PUT_YAMOP_LTT(q, YAMOP_LTT((yamop *)(p->cs.p_code.FirstClause)) + 1);
-#endif /* YAPOR */
   p->cs.p_code.FirstClause = q;
   p->cs.p_code.TrueCodeOfPred = q;
   if (p->PredFlags & SpiedPredFlag) {
@@ -3697,7 +3692,7 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
       if (pc == YESCODE) {
 	pp = RepPredProp(Yap_GetPredPropByAtom(AtomTrue,CurrentModule));
 	*startp = (CODEADDR)YESCODE;
-	*endp = (CODEADDR)YESCODE; /*+(CELL)(NEXTOP((yamop *)NULL,e));*/
+	*endp = (CODEADDR)YESCODE+(CELL)(NEXTOP((yamop *)NULL,e));
 	return pp;
       }
       if (!pp) {

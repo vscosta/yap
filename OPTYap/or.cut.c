@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        or.cut.c
-  version:     $Id: or.cut.c,v 1.2 2005-05-31 08:24:24 ricroc Exp $   
+  version:     $Id: or.cut.c,v 1.3 2008-03-25 16:45:53 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -249,11 +249,11 @@ void prune_shared_branch(choiceptr prune_cp) {
           BITMAP_copy(members, OrFr_members(leftmost_or_fr));
           leftmost_cp = leftmost_cp->cp_b;
         }
-end_prune_more:
       }
     }
   }
 
+end_prune_more:
   CUT_reset_prune_request();
 #ifdef TABLING
   LOCAL_top_cp_on_stack = LOCAL_top_cp;

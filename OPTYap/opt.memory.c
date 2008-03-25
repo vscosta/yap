@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.memory.c  
-  version:     $Id: opt.memory.c,v 1.9 2005-06-03 18:28:11 ricroc Exp $   
+  version:     $Id: opt.memory.c,v 1.10 2008-03-25 16:45:53 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -55,6 +55,7 @@ void shm_map_memory(int id, int size, void *shmaddr) {
   return;
 }
 #else /* MMAP_MEMORY_MAPPING_SCHEME */
+void
 open_mapfile(long TotalArea) {
   char mapfile[20];
   strcpy(mapfile,"/tmp/mapfile");
@@ -69,6 +70,7 @@ open_mapfile(long TotalArea) {
 }
 
 
+void
 close_mapfile(void) {
   if (close(fd_mapfile) < 0) 
     Yap_Error(FATAL_ERROR, TermNil, "close error (close_mapfile)");
@@ -90,11 +92,12 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
 #endif /* YAPOR_MODEL */
 
   /* initial allocation - model independent */
-  HeapArea = ADJUST_SIZE_TO_PAGE(HeapArea * KBYTES);
-  GlobalLocalArea = ADJUST_SIZE(GlobalLocalArea * KBYTES);
-  TrailAuxArea = ADJUST_SIZE(TrailAuxArea * KBYTES);
+  HeapArea = ADJUST_SIZE_TO_PAGE(HeapArea);
+  GlobalLocalArea = ADJUST_SIZE(GlobalLocalArea);
+  TrailAuxArea = ADJUST_SIZE(TrailAuxArea);
 
   /* we'll need this later */
+  Yap_HeapBase = (ADDR)mmap_addr;
   Yap_GlobalBase = mmap_addr + HeapArea;
 
   /* shared memory allocation - model dependent */
@@ -163,11 +166,11 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   Yap_LocalBase = Yap_TrailBase - CellSize;
 
   if (TrailAuxArea > 262144)                       /* 262144 = 256 * 1024 */ 
-    Yap_TrailTop = Yap_TrailBase + TrailAuxArea - 131072;  /* 131072 = 262144 / 2 */ 
+    Yap_TrailTop = Yap_TrailBase + (TrailAuxArea - 131072);  /* 131072 = 262144 / 2 */ 
   else
-    Yap_TrailTop = Yap_TrailBase + TrailAuxArea / 2;
+    Yap_TrailTop = Yap_TrailBase + (TrailAuxArea / 2);
 
-  HeapMax = Yap_TrailBase + TrailAuxArea - CellSize;
+  HeapMax = (CELL)(Yap_TrailBase + (TrailAuxArea - CellSize));
   Yap_InitHeap(mmap_addr);
 }
 
@@ -245,7 +248,7 @@ void remap_memory(void) {
   int i;
 
   remap_addr = worker_area(0);
-  remap_offset = remap_addr - Yap_HeapBase;
+  remap_offset = (char *)remap_addr - (char *)Yap_HeapBase;
   WorkerArea = worker_offset(1);
 #ifdef SHM_MEMORY_MAPPING_SCHEME
   for (i = 0; i < number_workers; i++) {

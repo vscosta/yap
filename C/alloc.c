@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.89 2008-01-28 23:35:03 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.90 2008-03-25 16:45:52 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -50,8 +50,6 @@ static char SccsId[] = "%W% %G%";
 #undef USE_SBRK
 #endif
 #endif
-
-#define K		((Int) 1024)
 
 
 /************************************************************************/
@@ -1363,17 +1361,6 @@ void
 Yap_InitMemory(int Trail, int Heap, int Stack)
 {
   Int pm, sa, ta;
-
-  if (Heap < MinHeapSpace)
-    Heap = MinHeapSpace;
-  /* sanity checking for data areas */
-  if (Trail < MinTrailSpace)
-    Trail = MinTrailSpace;
-  Trail = AdjustPageSize(Trail * K);
-  if (Stack < MinStackSpace)
-    Stack = MinStackSpace;
-  Stack = AdjustPageSize(Stack * K);
-  Heap = AdjustPageSize(Heap * K);
 
   pm = (Trail + Heap + Stack);	/* memory to be
 				 * requested         */

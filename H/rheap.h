@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-02-12 17:03:52 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-25 16:45:53 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.85  2008/02/12 17:03:52  vsc
+* SWI-portability changes
+*
 * Revision 1.84  2008/02/07 21:39:51  vsc
 * fix case where predicate is for an integer (DBEntry).
 *
@@ -497,17 +500,17 @@ restore_codes(void)
   Yap_heap_regs->trustfailcode->opc = Yap_opcode(_trust_fail);
 
   Yap_heap_regs->env_for_yes_code.op = Yap_opcode(_call);
-  Yap_heap_regs->yescode->opc = Yap_opcode(_Ystop);
+  Yap_heap_regs->yescode.opc = Yap_opcode(_Ystop);
   Yap_heap_regs->undef_op = Yap_opcode(_undef_p);
   Yap_heap_regs->index_op = Yap_opcode(_index_pred);
   Yap_heap_regs->lockpred_op = Yap_opcode(_lock_pred);
   Yap_heap_regs->fail_op = Yap_opcode(_op_fail);
-  Yap_heap_regs->nocode->opc = Yap_opcode(_Nstop);
+  Yap_heap_regs->nocode.opc = Yap_opcode(_Nstop);
+  Yap_heap_regs->rtrycode.opc = Yap_opcode(_retry_and_mark);
 #ifdef YAPOR
   INIT_YAMOP_LTT(&(Yap_heap_regs->nocode), 1);
   INIT_YAMOP_LTT(&(Yap_heap_regs->rtrycode), 1);
 #endif /* YAPOR */
-  ((yamop *)(&Yap_heap_regs->rtrycode))->opc = Yap_opcode(_retry_and_mark);
   if (((yamop *)(&Yap_heap_regs->rtrycode))->u.ld.d != NIL)
     ((yamop *)(&Yap_heap_regs->rtrycode))->u.ld.d =
       PtoOpAdjust(((yamop *)(&Yap_heap_regs->rtrycode))->u.ld.d);
@@ -526,7 +529,7 @@ restore_codes(void)
 	(Functor)AtomAdjust((Atom)(Yap_heap_regs->clausecode->func));
     }
   }
-#if !defined(THREADS)
+#if !defined(THREADS) && !defined(YAPOR)
   /* restore consult stack. It consists of heap pointers, so it
      is easy to fix.
   */
@@ -834,7 +837,7 @@ restore_codes(void)
     Yap_heap_regs->creep_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->creep_code));
   if (Yap_heap_regs->spy_code != NULL)
     Yap_heap_regs->spy_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->spy_code));
-#if !defined(THREADS)
+#if !defined(THREADS) && !defined(YAPOR)
   if (Yap_heap_regs->wl.scratchpad.ptr) {
     Yap_heap_regs->wl.scratchpad.ptr =
       (char *)AddrAdjust((ADDR)Yap_heap_regs->wl.scratchpad.ptr);
@@ -848,7 +851,7 @@ restore_codes(void)
 #ifdef COROUTINING
   if (Yap_heap_regs->wake_up_code != NULL)
     Yap_heap_regs->wake_up_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->wake_up_code));
-#if !defined(THREADS)
+#if !defined(THREADS) && !defined(YAPOR)
   Yap_heap_regs->wl.atts_mutable_list =
     AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.atts_mutable_list)));
   if (Yap_heap_regs->wl.dynamic_arrays) {

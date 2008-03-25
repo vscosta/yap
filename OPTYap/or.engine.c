@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        or.engine.c
-  version:     $Id: or.engine.c,v 1.10 2005-06-03 18:28:11 ricroc Exp $   
+  version:     $Id: or.engine.c,v 1.11 2008-03-25 16:45:53 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -304,7 +304,7 @@ sync_with_p:
 
   /* install fase --> TR and LOCAL_top_cp->cp_tr are equal */
   aux_tr = ((choiceptr) LOCAL_start_local_copy)->cp_tr;
-  NEW_MAHASH((ma_h_inner_struct *)H);
+  Yap_NEW_MAHASH((ma_h_inner_struct *)H);
   while (TR != aux_tr) {
     aux_cell = TrailTerm(--aux_tr);
     if (IsVarTerm(aux_cell)) {
@@ -334,7 +334,7 @@ sync_with_p:
       CELL *cell_ptr = RepAppl(aux_cell);
       if (((CELL *)aux_cell < LOCAL_top_cp->cp_h || 
           EQUAL_OR_YOUNGER_CP(LOCAL_top_cp, (choiceptr)aux_cell)) &&
-	  !lookup_ma_var(cell_ptr)) {
+	  !Yap_lookup_ma_var(cell_ptr)) {
 	/* first time we found the variable, let's put the new value */
 #ifdef TABLING
         *cell_ptr = TrailVal(aux_tr);

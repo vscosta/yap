@@ -11,8 +11,12 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2008-01-23 17:57:44 $							 *
+* Last rev:     $Date: 2008-03-25 16:45:52 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.99  2008/01/23 17:57:44  vsc
+* valgrind it!
+* enable atom garbage collection.
+*
 * Revision 1.98  2007/11/26 23:43:07  vsc
 * fixes to support threads and assert correctly, even if inefficiently.
 *
@@ -1911,7 +1915,7 @@ a_either(op_numbers opcode, CELL opr, CELL lab, yamop *code_p, int pass_no, stru
     INIT_YAMOP_LTT(code_p, nofalts);
     if (hascut)
       PUT_YAMOP_CUT(code_p);
-    if (clinfo->CurrentPred->PredFlags & SequentialPredFlag)
+    if (cip->CurrentPred->PredFlags & SequentialPredFlag)
       PUT_YAMOP_SEQ(code_p);
     if(opcode != _or_last) {
       code_p->u.sla.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
@@ -2848,7 +2852,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     switch ((int) cip->cpc->op) {
 #ifdef YAPOR
     case sync_op:
-      code_p = a_try(_sync, cip->cpc->rnd1, cip->cpc->rnd2, 1, Zero, cip);
+      code_p = a_try(_sync, cip->cpc->rnd1, cip->cpc->rnd2, 1, Zero, code_p, pass_no, cip);
       break;
 #endif /* YAPOR */
 #ifdef TABLING
@@ -3296,7 +3300,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 #ifdef YAPOR
       if (pass_no)
 	either_inst[either_cont++] = code_p;
-      code_p = a_either(_or_last, 0, 0, 0, 0, code_p, pass_no, cpc);
+      code_p = a_either(_or_last, 0, 0, 0, 0, code_p, pass_no, cip);
       if (pass_no) {
 	int cont = 1;
 	do {

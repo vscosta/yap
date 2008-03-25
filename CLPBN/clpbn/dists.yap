@@ -1,5 +1,5 @@
 %
-% distribution
+% routines to manipulate distributions
 %
 
 :- module(clpbn_dist,
@@ -101,10 +101,10 @@ dist(p(Type, CPT), Id, FParents) :-
 distribution(bool, trans(CPT), Id, Parents, FParents) :-
 	is_list(CPT), !,
 	compress_hmm_table(CPT, Parents, Tab, FParents),
-	add_dist([t,f], trans, Tab, ParentsId).
+	add_dist([t,f], trans, Tab, Parents, Id).
 distribution(bool, CPT, Id, Parents, Parents) :-
 	is_list(CPT), !,
-	add_dist([t,f], tab, CPT, Id).
+	add_dist([t,f], tab, CPT, Parents, Id).
 distribution(aminoacids, trans(CPT), Id, Parents, FParents) :-
 	is_list(CPT), !,
 	compress_hmm_table(CPT, Parents, Tab, FParents),
@@ -138,7 +138,7 @@ distribution(Domain, CPT, Id, Parents, Parents) :-
 
 add_dist(Domain, Type, CPT, _, Id) :-
 	recorded(clpbn_dist_db, db(Id, CPT, Type, Domain, _, _), _), !.
-add_dist(Domain, Type, CPT, PSizes, Id) :-
+add_dist(Domain, Type, CPT, Parents, Id) :-
 	length(CPT, CPTSize),
 	length(Domain, DSize),
 	new_id(Id),
@@ -150,7 +150,7 @@ record_parent_sizes([], Id, [], DSizes) :-
 	recordz(clpbn_dist_psizes,db(Id, DSizes),_).
 record_parent_sizes([P|Parents], Id, [Size|Sizes], DSizes) :-
 	clpbn:get_atts(P,dist(Dist,_)),
-	get_dist_domain_size(Dist, DSize),
+	get_dist_domain_size(Dist, Size),
 	record_parent_sizes(Parents, Id, Sizes, DSizes).
 
 %
@@ -217,7 +217,7 @@ empty_dist(Dist, TAB) :-
 	recorded(clpbn_dist_psizes,db(Dist, DSizes),_),
 	matrix_new(floats, DSizes, TAB).
 
-dist_new_table(Id, NewMAT) :-
+dist_new_table(Id, NewMat) :-
 	matrix_to_list(NewMat, List),
 	recorded(clpbn_dist_db, db(Id, _, A, B, C, D), R),
 	erase(R),

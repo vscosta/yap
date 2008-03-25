@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.125 2008-02-12 17:03:52 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.126 2008-03-25 16:45:53 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -21,9 +21,13 @@
 
 #if defined(YAPOR) || defined(THREADS)
 #define WL wl[worker_id]
-#define RINFO rinfo[worker_id]
 #else
 #define WL wl
+#endif
+
+#if defined(THREADS)
+#define RINFO rinfo[worker_id]
+#else
 #define RINFO rinfo
 #endif
 
@@ -93,7 +97,7 @@ typedef struct restore_info {
   ADDR     old_HeapBase, old_HeapTop;
 } restoreinfo;
 
-#if THREADS
+#if defined(THREADS)
 extern struct restore_info rinfo[MAX_WORKERS];
 #else
 extern struct restore_info rinfo;
@@ -279,9 +283,9 @@ typedef struct various_codes {
     struct pred_entry *p;
     struct pred_entry *p0;
   } env_for_yes_code; /* sla */
-  yamop yescode[1];
-  yamop nocode[1];
-  yamop rtrycode[1];
+  struct yami yescode;
+  struct yami nocode;
+  struct yami rtrycode;
   struct {
     OPREG arity;
     struct yami *clause;
@@ -332,7 +336,7 @@ typedef struct various_codes {
   Int   yap_flags_field[NUMBER_OF_YAP_FLAGS];
   char *char_conversion_table;
   char *char_conversion_table2;
-#if THREADS
+#if defined(THREADS) || defined(YAPOR)
   unsigned int n_of_threads;      /* number of threads and processes in system */
   unsigned int n_of_threads_created;      /* number of threads created since start */
   UInt  threads_total_time;      /* total run time for dead threads */
@@ -591,6 +595,9 @@ struct various_codes *Yap_heap_regs;
 #define  Yap_NOfMemoryHoles      Yap_heap_regs->nof_memory_holes
 #if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
 #define  HeapUsed                Yap_givemallinfo()
+#ifdef YAPOR
+#define  HeapUsedLock            Yap_heap_regs->heap_used_lock
+#endif
 #else
 #define  HeapUsed                Yap_heap_regs->heap_used
 #define  HeapUsedLock            Yap_heap_regs->heap_used_lock
@@ -622,9 +629,9 @@ struct various_codes *Yap_heap_regs;
 #define  COMMA_CODE               Yap_heap_regs->comma_code
 #define  FAILCODE                 Yap_heap_regs->failcode
 #define  TRUSTFAILCODE            Yap_heap_regs->trustfailcode
-#define  YESCODE                  Yap_heap_regs->yescode
-#define  NOCODE                   Yap_heap_regs->nocode
-#define  RTRYCODE                 Yap_heap_regs->rtrycode
+#define  YESCODE                  (&Yap_heap_regs->yescode)
+#define  NOCODE                   (&Yap_heap_regs->nocode)
+#define  RTRYCODE                 (&Yap_heap_regs->rtrycode)
 #define  DUMMYCODE                Yap_heap_regs->dummycode
 #define  CLAUSECODE               Yap_heap_regs->clausecode
 #define  INVISIBLECHAIN           Yap_heap_regs->invisiblechain

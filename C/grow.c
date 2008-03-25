@@ -1005,6 +1005,9 @@ fix_compiler_instructions(PInstr *pcpc)
     case table_new_answer_op:
     case table_try_single_op:
 #endif /* TABLING */
+#ifdef YAPOR
+    case sync_op:
+#endif
 #ifdef BEAM
     case run_op:
     case body_op:
@@ -1261,7 +1264,7 @@ Yap_growglobal(CELL **ptr)
 {
   unsigned long sz = sizeof(CELL) * 16 * 1024L;
 
-#if YAPOR
+#if defined(YAPOR) || defined(THREADS)
   if (NOfThreads != 1) {
     Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
     return(FALSE);

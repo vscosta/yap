@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2008-02-14 14:35:13 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-25 16:45:53 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.197  2008/02/14 14:35:13  vsc
+* fixes for indexing code.
+*
 * Revision 1.196  2008/01/30 10:35:43  vsc
 * fix indexing in 64 bits (it would split ints from atoms :( ).
 *
@@ -872,6 +875,8 @@ has_cut(yamop *pc)
   do {
     op_numbers op = Yap_op_from_opcode(pc->opc);
     switch (op) {
+    case _unify_idb_term:
+    case _copy_idb_term:
     case _Ystop:
     case _Nstop:
       return FALSE;
@@ -918,7 +923,6 @@ has_cut(yamop *pc)
       break;
       /* instructions type Ill */
     case _enter_lu_pred:
-    case _stale_lu_index:
       pc = pc->u.Ill.l1;
       break;
     case _execute:
@@ -953,6 +957,8 @@ has_cut(yamop *pc)
       pc = NEXTOP(pc,EC);
       break;
       /* instructions type e */
+    case _lock_lu:
+    case _unlock_lu:
     case _trust_fail:
     case _op_fail:
     case _allocate:
@@ -1045,7 +1051,6 @@ has_cut(yamop *pc)
     case _p_primitive_x:
     case _p_compound_x:
     case _p_float_x:
-    case _p_cut_by_x:
       pc = NEXTOP(pc,xF);
       break;
       /* instructions type y */
@@ -1066,7 +1071,6 @@ has_cut(yamop *pc)
     case _p_primitive_y:
     case _p_compound_y:
     case _p_float_y:
-    case _p_cut_by_y:
       pc = NEXTOP(pc,yF);
       break;
       /* instructions type sla */
@@ -1277,6 +1281,10 @@ has_cut(yamop *pc)
       /* instructions type ps */
    case _write_atom:
       pc = NEXTOP(pc,c);
+      break;
+      /* instructions type p */
+   case _procceed:
+      pc = NEXTOP(pc,p);
       break;
       /* instructions type sc */
    case _write_n_atoms:

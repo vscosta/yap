@@ -1908,7 +1908,7 @@ matrix_op_to_all(void)
     /* Error */
     return FALSE;
   }
-  /* create a new array without first dimension */
+  /* create a new array with same dimensions */
   if (mat[MAT_TYPE] == INT_MATRIX) {
     long int *data;
     int dims = mat[MAT_NDIMS];
@@ -2804,7 +2804,6 @@ init_matrix(void)
   YAP_UserCPredicate("matrix_shuffle", matrix_transpose, 3);
   YAP_UserCPredicate("matrix_expand", matrix_expand, 3);
   YAP_UserCPredicate("matrix_select", matrix_select, 4);
-  YAP_UserCPredicate("matrix_add_to_all", matrix_sum, 2);
   YAP_UserCPredicate("matrix_to_logs", matrix_log_all,1);
   YAP_UserCPredicate("matrix_to_exps", matrix_exp_all, 1);
   YAP_UserCPredicate("matrix_sum_out", matrix_sum_out, 3);

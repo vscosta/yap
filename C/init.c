@@ -81,7 +81,7 @@ STD_PROTO(void  exit, (int));
 
 ADDR Yap_HeapBase;
 
-#ifdef THREADS
+#if defined(THREADS)
 
 struct restore_info rinfo[MAX_WORKERS];
 
@@ -944,17 +944,17 @@ InitCodes(void)
   Yap_heap_regs->env_for_yes_code.op = Yap_opcode(_call);
   Yap_heap_regs->env_for_yes_code.s = -Signed(RealEnvSize);
   Yap_heap_regs->env_for_yes_code.l2 = NULL;
-  Yap_heap_regs->yescode->opc = Yap_opcode(_Ystop);
+  Yap_heap_regs->yescode.opc = Yap_opcode(_Ystop);
   Yap_heap_regs->undef_op = Yap_opcode(_undef_p);
   Yap_heap_regs->index_op = Yap_opcode(_index_pred);
   Yap_heap_regs->lockpred_op = Yap_opcode(_lock_pred);
   Yap_heap_regs->fail_op = Yap_opcode(_op_fail);
 
-  Yap_heap_regs->nocode->opc = Yap_opcode(_Nstop);
+  Yap_heap_regs->nocode.opc = Yap_opcode(_Nstop);
 
-  ((yamop *)(&Yap_heap_regs->rtrycode))->opc = Yap_opcode(_retry_and_mark);
-  ((yamop *)(&Yap_heap_regs->rtrycode))->u.ld.s = 0;
-  ((yamop *)(&Yap_heap_regs->rtrycode))->u.ld.d = NIL;
+  Yap_heap_regs->rtrycode.opc = Yap_opcode(_retry_and_mark);
+  Yap_heap_regs->rtrycode.u.ld.s = 0;
+  Yap_heap_regs->rtrycode.u.ld.d = NIL;
 #ifdef YAPOR
   INIT_YAMOP_LTT(&(Yap_heap_regs->rtrycode), 1);
 #endif /* YAPOR */
@@ -980,6 +980,9 @@ InitCodes(void)
   Yap_heap_regs->n_of_threads = 1;
   Yap_heap_regs->n_of_threads_created = 1;
   Yap_heap_regs->threads_total_time = 0;
+#endif
+#ifdef  YAPOR
+  Yap_heap_regs->n_of_threads = 1;
 #endif
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(Yap_heap_regs->bgl);
@@ -1343,6 +1346,9 @@ InitVersion(void)
 }
 
 
+#define K		((Int) 1024)
+
+
 void
 Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size, 
                   int n_workers, int sch_loop, int delay_load)
@@ -1369,6 +1375,17 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
   /* Init signal handling and time */
   /* also init memory page size, required by later functions */
   Yap_InitSysbits ();
+
+  if (Heap < MinHeapSpace)
+    Heap = MinHeapSpace;
+  Heap = AdjustPageSize(Heap * K);
+  /* sanity checking for data areas */
+  if (Trail < MinTrailSpace)
+    Trail = MinTrailSpace;
+  Trail = AdjustPageSize(Trail * K);
+  if (Stack < MinStackSpace)
+    Stack = MinStackSpace;
+  Stack = AdjustPageSize(Stack * K);
 
 #ifdef YAPOR
   worker_id = 0;

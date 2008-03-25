@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.preds.c
-  version:     $Id: opt.preds.c,v 1.27 2007-04-26 14:11:08 ricroc Exp $   
+  version:     $Id: opt.preds.c,v 1.28 2008-03-25 16:45:53 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -48,18 +48,18 @@ static qg_ans_fr_ptr actual_answer;
 
 #ifdef YAPOR
 static realtime current_time(void);
-static int p_yapor_on(void);
-static int p_start_yapor(void);
-static int p_sequential(void);
-static int p_default_sequential(void);
-static int p_execution_mode(void);
-static int p_performance(void);
-static int p_parallel_new_answer(void);
-static int p_parallel_yes_answer(void);
+static Int p_yapor_on(void);
+static Int p_start_yapor(void);
+static Int p_sequential(void);
+static Int p_default_sequential(void);
+static Int p_execution_mode(void);
+static Int p_performance(void);
+static Int p_parallel_new_answer(void);
+static Int p_parallel_yes_answer(void);
 static int parallel_new_answer_putchar(int sno, int ch);
 static void show_answers(void);
 static void answer_to_stdout(char *answer);
-static int p_or_statistics(void);
+static Int p_or_statistics(void);
 #endif /* YAPOR */
 
 #ifdef TABLING
@@ -173,13 +173,13 @@ realtime current_time(void) {
 
 
 static
-int p_yapor_on(void) {
+Int p_yapor_on(void) {
   return (PARALLEL_EXECUTION_MODE);
 }
 
 
 static
-int p_start_yapor(void) {
+Int p_start_yapor(void) {
 #ifdef TIMESTAMP_CHECK
   GLOBAL_timestamp = 0;
 #endif /* TIMESTAMP_CHECK */
@@ -199,7 +199,7 @@ int p_start_yapor(void) {
 
 
 static
-int p_sequential(void) {
+Int p_sequential(void) {
   Term t, mod;
   PredEntry *pe;
 
@@ -223,7 +223,7 @@ int p_sequential(void) {
 
 
 static
-int p_default_sequential(void) {
+Int p_default_sequential(void) {
   Term t;
   t = Deref(ARG1);
   if (IsVarTerm(t)) {
@@ -252,7 +252,7 @@ int p_default_sequential(void) {
 
 
 static
-int p_execution_mode(void) {
+Int p_execution_mode(void) {
   Term t;
   t = Deref(ARG1);
   if (IsVarTerm(t)) {
@@ -281,7 +281,7 @@ int p_execution_mode(void) {
 
 
 static
-int p_performance(void) {
+Int p_performance(void) {
   Term t;
   realtime one_worker_execution_time = 0;
   int i;
@@ -356,7 +356,7 @@ int p_performance(void) {
 
 
 static
-int p_parallel_new_answer(void) {
+Int p_parallel_new_answer(void) {
   or_fr_ptr leftmost_or_fr;
 
   length_answer = 0;
@@ -378,7 +378,7 @@ int p_parallel_new_answer(void) {
 
 
 static
-int p_parallel_yes_answer(void) {
+Int p_parallel_yes_answer(void) {
   GLOBAL_answers = YES_ANSWER;
   return (TRUE);
 }
@@ -490,7 +490,7 @@ void answer_to_stdout(char *answer) {
 
 
 static
-int p_or_statistics(void) {
+Int p_or_statistics(void) {
 #ifdef SHM_MEMORY_ALLOC_SCHEME
   long pages_in_use = 0, bytes_in_use = 0;
 

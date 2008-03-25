@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        or.macros.h
-  version:     $Id: or.macros.h,v 1.4 2005-05-31 08:24:24 ricroc Exp $   
+  version:     $Id: or.macros.h,v 1.5 2008-03-25 16:45:53 vsc Exp $   
                                                                      
 **********************************************************************/
 
@@ -298,11 +298,11 @@ void SCH_refuse_share_request_if_any(void)  {
 
 static inline 
 void SCH_set_load(choiceptr current_cp) {
-  int lub;  /* local untried branches */
+  Int lub;  /* local untried branches */
   choiceptr previous_cp = current_cp->cp_b;
 
 #define INIT_CP_LUB(CP, LUB)  CP->cp_or_fr = (struct or_frame *)(LUB)
-#define CP_LUB(CP)            (int)(CP->cp_or_fr)
+#define CP_LUB(CP)            (Int)(CP->cp_or_fr)
 
   if (SCH_top_shared_cp(previous_cp))
     lub = 0;  

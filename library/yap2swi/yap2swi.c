@@ -1478,13 +1478,13 @@ PL_destroy_engine(PL_engine_t e)
 X_API int
 PL_set_engine(PL_engine_t engine, PL_engine_t *old)
 {
-  int cwid = YAP_ThreadSelf();
+  long int cwid = YAP_ThreadSelf();
   if (*old) *old = (PL_engine_t)cwid;
   if (engine == PL_ENGINE_CURRENT)
     return PL_ENGINE_SET;
   if (engine < 0) /* should really check if engine does not exist */
     return PL_ENGINE_INVAL;
-  if (!(YAP_ThreadAttachEngine((int)engine))) {
+  if (!(YAP_ThreadAttachEngine((long int)engine))) {
     return PL_ENGINE_INUSE;
   }
   return PL_ENGINE_SET;
