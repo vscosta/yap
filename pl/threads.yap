@@ -570,8 +570,8 @@ message_queue_create(Name) :-
 '$create_mq'(Name) :-
 	'$new_mutex'(Mutex),
 	'$cond_create'(Cond),
-	'$mq_iname'(Name, CName),
 	'$global_queue_mutex'(QMutex),
+	'$mq_iname'(Name, CName),
 	'$lock_mutex'(QMutex),
 	( recorded('$queue',q(Name,_,_, _),_) ->
 	  '$unlock_mutex'(QMutex),
@@ -583,10 +583,20 @@ message_queue_create(Name) :-
 
 '$mq_iname'(I,X) :-
 	integer(I), !,
-	number_codes(I,Codes),
-	atom_codes(X, [0'$,0'M,0'Q,0'_|Codes]).
+	atomic_concat('$MQ_NAME_KEY_',I,X).
+'$mq_iname'(A,X) :-
+	var(A), !,
+	'$integers'(I),
+	atomic_concat(message_queue_,I,A),
+	atomic_concat('$MQ_NAME_KEY_',A,X),
+	\+ recorded('$queue',q(A,_,_, X),_), !.
 '$mq_iname'(A,X) :-
 	atom_concat('$MQ_NAME_KEY_',A,X).
+
+'$integers'(0).
+'$integers'(I) :-
+	'$integers'(I1),
+	I is I1+1.
 
 	
 message_queue_destroy(Name) :-
