@@ -571,8 +571,8 @@ message_queue_create(Name) :-
 	'$new_mutex'(Mutex),
 	'$cond_create'(Cond),
 	'$global_queue_mutex'(QMutex),
-	'$mq_iname'(Name, CName),
 	'$lock_mutex'(QMutex),
+	'$mq_iname'(Name, CName),
 	( recorded('$queue',q(Name,_,_, _),_) ->
 	  '$unlock_mutex'(QMutex),
 	  '$do_error'(permission_error(create,message_queue,Name),message_queue_create(Name))
