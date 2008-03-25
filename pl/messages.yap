@@ -11,7 +11,7 @@
 * File:		utilities for displaying messages in YAP.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-03-24 23:48:47 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-25 01:04:27 $,$Author: pmoura $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -237,7 +237,7 @@ system_message(error(representation_error(character_code), Where)) -->
 	[ 'REPRESENTATION ERROR- ~w: expected character code' - [Where] ].
 system_message(error(representation_error(max_arity), Where)) -->
 	[ 'REPRESENTATION ERROR- ~w: number too big' - [Where] ].
-system_message(error(resource_error(max_threads), Where)) -->
+system_message(error(resource_error(threads), Where)) -->
 	[ 'RESOURCE ERROR- too many open threads' - [Where] ].
 system_message(error(syntax_error(G,0,Msg,[],0,0), _)) -->
 	[ 'SYNTAX ERROR: ~a' - [G,Msg] ].
