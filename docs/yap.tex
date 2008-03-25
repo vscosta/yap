@@ -9813,19 +9813,19 @@ according to options @var{Opts}. The options may be:
         be treated  as  lower case during the matching process.
 @end itemize
 
-@item regexp(+@var{RegExp},+@var{String},+@var{Opts},@var{SubMatchVars})
+@item regexp(+@var{RegExp},+@var{String},+@var{Opts},?@var{SubMatchVars})
 @findex regexp/4
 @snindex regexp/4
 @cnindex regexp/4
 
 Match regular expression @var{RegExp} to input string @var{String}
 according to options @var{Opts}. The variable @var{SubMatchVars} should
-be originally a list of unbound variables all will contain a sequence of
-matches, that is, the head of @var{SubMatchVars} will contain the
-characters in @var{String} that matched the leftmost parenthesized
-subexpression within @var{RegExp}, the next head of list will contain
-the characters that matched the next parenthesized subexpression to the
-right in @var{RegExp}, and so on.
+be originally unbound or a list of unbound variables all will contain a
+sequence of matches, that is, the head of @var{SubMatchVars} will
+contain the characters in @var{String} that matched the leftmost
+parenthesized subexpression within @var{RegExp}, the next head of list
+will contain the characters that matched the next parenthesized
+subexpression to the right in @var{RegExp}, and so on.
 
 The options may be:
 @itemize @bullet

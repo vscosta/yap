@@ -39,8 +39,7 @@ regexp(RegExp, String, Opts, OUT) :-
 % OUT must be bound to a list of unbound variables.
 % Check this and count how many.
 %
-check_out(V,_,_,G) :- var(V), !,
-	throw(error(instantiation_error,G)).
+check_out(V,_,_,G) :- var(V), !.
 check_out([],I,I,_) :- !.
 check_out([V|L],I0,IF,G) :- !,
 	(nonvar(V) -> throw(error(type_error(variable,V),G)) ; true),

@@ -88,11 +88,12 @@ static int regexp(void)
   char *buf, *sbuf;
   regex_t reg;
   int out;
-  long int nmatch = YAP_IntOfTerm(YAP_ARG7);
+  size_t nmatch;
   regmatch_t *pmatch;
   long int tout;
   int yap_flags = YAP_IntOfTerm(YAP_ARG5);
   int regcomp_flags = REG_EXTENDED;
+  
   
   if ((buf = (char *)YAP_AllocSpaceFromYap(buflen)) == NULL) {
     /* early exit */
@@ -106,8 +107,15 @@ static int regexp(void)
   if (yap_flags & 1)
     regcomp_flags |= REG_ICASE;
   /* cool, now I have my string in the buffer, let's have some fun */
-  if (yap_regcomp(&reg,buf, regcomp_flags) != 0)
+  if (yap_regcomp(&reg,buf, regcomp_flags) != 0) {
+    YAP_FreeSpaceFromYap(buf);
     return(FALSE);
+  }
+  if (YAP_IsVarTerm(YAP_ARG7)) {
+    nmatch = reg.re_nsub;
+  } else {
+    nmatch = YAP_IntOfTerm(YAP_ARG7);
+  }
   if ((sbuf = (char *)YAP_AllocSpaceFromYap(sbuflen)) == NULL) {
     /* early exit */
     yap_regfree(&reg);
@@ -121,36 +129,37 @@ static int regexp(void)
     YAP_FreeSpaceFromYap(sbuf); 
     return(FALSE);
   }
-  pmatch = YAP_AllocSpaceFromYap(sizeof(regmatch_t)*nmatch);
-  out = yap_regexec(&reg,sbuf,(int)nmatch,pmatch,0);
+  pmatch = YAP_AllocSpaceFromYap(sizeof(regmatch_t)*(nmatch+1));
+  out = yap_regexec(&reg,sbuf,nmatch+1,pmatch,0);
   if (out == 0) {
     /* match succeed, let's fill the match in */
     long int i;
     YAP_Term TNil = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
     YAP_Functor FDiff = YAP_MkFunctor(YAP_LookupAtom("-"),2);
 
-    tout = YAP_ARG6;
-    for (i = 0; i < nmatch; i++) {
+    tout = TNil;
+    for (i = nmatch-1; i >= 0; --i) {
       int j;
       YAP_Term t = TNil;
 
-      if (pmatch[i].rm_so == -1) break;
-      if (yap_flags & 2) {
-	YAP_Term to[2];
-	to[0] = YAP_MkIntTerm(pmatch[i].rm_so);
-	to[1] = YAP_MkIntTerm(pmatch[i].rm_eo);
-	t = YAP_MkApplTerm(FDiff,2,to);
-      } else {
-	for (j = pmatch[i].rm_eo-1; j >= pmatch[i].rm_so; j--) {
-	  t = YAP_MkPairTerm(YAP_MkIntTerm(sbuf[j]),t);
+      if (pmatch[i].rm_so != -1) {
+	if (yap_flags & 2) {
+	  YAP_Term to[2];
+	  to[0] = YAP_MkIntTerm(pmatch[i].rm_so);
+	  to[1] = YAP_MkIntTerm(pmatch[i].rm_eo);
+	  t = YAP_MkApplTerm(FDiff,2,to);
+	} else {
+	  for (j = pmatch[i].rm_eo-1; j >= pmatch[i].rm_so; j--) {
+	    t = YAP_MkPairTerm(YAP_MkIntTerm(sbuf[j]),t);
+	  }
 	}
+	tout = YAP_MkPairTerm(t,tout);
       }
-      YAP_Unify(t,YAP_HeadOfTerm(tout));
-      tout = YAP_TailOfTerm(tout);
     }
+    out = !YAP_Unify(tout, YAP_ARG6);
   }
   else if (out != REG_NOMATCH) {
-    return(FALSE);
+    out = 0;
   }
   yap_regfree(&reg);
   YAP_FreeSpaceFromYap(buf);
