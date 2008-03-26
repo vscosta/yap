@@ -1,0 +1,69 @@
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+prefix = @prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=$(EROOTDIR)/lib/Yap
+#
+#
+CC=@CC@
+MPI_CC=mpicc
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SHLIB_CFLAGS=@SHLIB_CFLAGS@
+SHLIB_SUFFIX=@SHLIB_SUFFIX@
+#
+
+OBJS=yap_rl.o range_list.o
+
+#in some systems we just create a single object, in others we need to
+# create a libray
+all: $(SOBJS)
+
+yap_rl.so: yap_rl.c  range_list.o
+	$(CC) $(CFLAGS)  -c yap_rl.c 
+	ld $(LDFLAGS) -o yap_rl.so yap_rl.o range_list.o
+
+range_list.o: $(srcdir)/range_list.c $(srcdir)/range_list.h
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/range_list.c -o range_list.o
+
+yap_rl.o: $(srcdir)/yap_rl.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/yap_rl.c -o yap_rl.o
+
+@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
+
+@DO_SECOND_LD@yap_mpi@SHLIB_SUFFIX@: $(OBJS)
+@DO_SECOND_LD@	@SHLIB_LD@ $(MPILDF)  -o yap_rl@SHLIB_SUFFIX@ $(OBJS)
+
+install: all
+	@if test "$(SOBJS)" = "no"; then echo ""; else $(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR); fi
+
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+
+no:
+	@echo "YAP RL module not compiled."
+
