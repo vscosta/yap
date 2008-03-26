@@ -286,7 +286,16 @@ thread_cancel(Id) :-
 thread_detach(Id) :-
 	'$check_thread_or_alias'(Id, thread_detach(Id)),
 	'$thread_id_alias'(Id0, Id),
-	'$detach_thread'(Id0).
+	(
+	 recorded('$thread_detached', [Id0|_], R),
+	 erase(R),
+	 fail
+	;
+	 recordz('$thread_detached', [Id0|true], _),
+	 fail
+	;
+	'$detach_thread'(Id0)
+	).
 
 thread_exit(Term) :-
 	var(Term), !,
