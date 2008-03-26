@@ -55,6 +55,8 @@ typedef	struct FREEB {
   struct FREEB		*b_next_size;
 } BlockHeader;
 
+#define K		((Int) 1024)
+
 #define MinBlockSize	(sizeof(BlockHeader)+sizeof(YAP_SEG_SIZE))
 #define MaxBlockSize	0xffffff
 #define	InUseFlag	0x80000000
@@ -137,5 +139,4 @@ void Yap_add_memory_hole(ADDR, ADDR);
 
 #define SCRATCH_START_SIZE        (64*1024L)
 #define SCRATCH_INC_SIZE          (64*1024L)
-
 

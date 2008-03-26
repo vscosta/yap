@@ -18,6 +18,7 @@
 	    undgraph_neighbors/3,
 	    undgraph_neighbours/3,
 	    undgraph_complement/2,
+	    undgraph_components/2,
 	    dgraph_to_undgraph/2,
 	    undgraph_min_tree/2]).
 
@@ -58,6 +59,8 @@
 
 :- use_module(library(rbtrees),
 	[  rb_delete/4,
+	   rb_insert/4,
+	   rb_in/3,
 	   rb_partial_map/4
 	]).
 
@@ -160,4 +163,24 @@ undgraph_max_tree(G, T) :-
 	wundgraph_max_tree(WG, WT, _),
 	wundgraph_to_undgraph(WT, T).
 
-
+undgraph_components(Graph,[Map|Gs]) :-
+	pick_node(Graph,Node,Children,Graph1), !,
+	undgraph_new(Map0),
+	rb_insert(Map0, Node, Children, Map1),
+	expand_component(Children, Map1, Map, Graph1, NGraph),
+	undgraph_components(NGraph,Gs).
+undgraph_components(_,[]).
+	
+expand_component([], Map, Map, Graph, Graph).
+expand_component([C|Children], Map1, Map, Graph1, NGraph) :-
+	rb_delete(Graph1, C, Edges, Graph2), !,
+	rb_insert(Map1, C, Edges, Map2),
+	expand_component(Children, Map2, Map3, Graph2, Graph3),
+	expand_component(Edges, Map3, Map, Graph3, NGraph).
+expand_component([C|Children], Map1, Map, Graph1, NGraph) :-
+	expand_component(Children, Map1, Map, Graph3, NGraph).
+	
+	
+pick_node(Graph,Node,Children,Graph1) :-
+	rb_in(Node,Children,Graph), !,
+	rb_delete(Graph, Node, Graph1).

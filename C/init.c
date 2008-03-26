@@ -1346,9 +1346,6 @@ InitVersion(void)
 }
 
 
-#define K		((Int) 1024)
-
-
 void
 Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size, 
                   int n_workers, int sch_loop, int delay_load)

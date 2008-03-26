@@ -384,10 +384,16 @@ p_thread_destroy(void)
 static Int
 p_thread_detach(void)
 {
-  if (pthread_detach(ThreadHandle[IntegerOfTerm(Deref(ARG1))].handle) < 0) {
+  Int tid = IntegerOfTerm(Deref(ARG1));
+  pthread_mutex_lock(&(ThreadHandle[tid].tlock));
+  if (pthread_detach(ThreadHandle[tid].handle) < 0) {
     /* ERROR */
+    pthread_mutex_unlock(&(ThreadHandle[tid].tlock));
     return FALSE;
   }
+  ThreadHandle[tid].tdetach = 
+    MkAtomTerm(AtomTrue);
+  pthread_mutex_unlock(&(ThreadHandle[tid].tlock));
   return TRUE;
 }
 
