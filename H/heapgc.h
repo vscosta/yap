@@ -81,8 +81,8 @@
 extern char *Yap_bp;
 #endif
 
-#define  MARK_BIT 1
-#define RMARK_BIT 2
+#define  MARK_BIT ((char)1)
+#define RMARK_BIT ((char)2)
 
 #define mcell(X)  Yap_bp[(X)-(CELL *)Yap_GlobalBase]
 

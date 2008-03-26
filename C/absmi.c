@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2008-03-25 16:45:52 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-26 14:37:07 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.236  2008/03/25 16:45:52  vsc
+* make or-parallelism compile again
+*
 * Revision 1.235  2008/02/12 17:03:50  vsc
 * SWI-portability changes
 *
@@ -592,23 +595,23 @@ Yap_absmi(int inp)
 
 #endif /* LONG_LIVED_REGISTERS */
   
-#if SHADOW_P 
+#ifdef SHADOW_P 
   register yamop *PREG = P;
 #endif /* SHADOW_P */
 
-#if SHADOW_CP
+#ifdef SHADOW_CP
   register yamop *CPREG = CP;
 #endif /* SHADOW_CP */
 
-#if SHADOW_HB
+#ifdef SHADOW_HB
   register CELL *HBREG = HB;
 #endif /* SHADOW_HB */
 
-#if SHADOW_Y
+#ifdef SHADOW_Y
   register CELL *YREG = Yap_REGS.YENV_;
 #endif /* SHADOW_Y */
 
-#if SHADOW_S
+#ifdef SHADOW_S
   register CELL *SREG = Yap_REGS.S_;
 #else
 #define SREG S
@@ -633,7 +636,7 @@ Yap_absmi(int inp)
 
 #endif /* USE_THREADED_CODE */
 
-#if SHADOW_REGS
+#ifdef SHADOW_REGS
 
   /* work with a local pointer to the registers */
   register REGSTORE *regp = &Yap_REGS;
@@ -697,7 +700,7 @@ Yap_absmi(int inp)
 
 #endif /* PUSH_REGS */
 
-#if SHADOW_REGS
+#ifdef SHADOW_REGS
 
   /* use regp as a copy of REGS */
   regp = &Yap_REGS;
@@ -784,7 +787,7 @@ Yap_absmi(int inp)
       {
 	CELL cut_b;
 
-#if SHADOW_S
+#ifdef SHADOW_S
 	S = SREG;
 #endif
 	/* YREG was pointing to where we were going to build the
@@ -3113,7 +3116,7 @@ Yap_absmi(int inp)
       /* and now CREEP */
 
     creep:
-#if  _MSC_VER || defined(__MINGW32__)
+#if  defined(_MSC_VER) || defined(__MINGW32__)
 	/* I need this for Windows and other systems where SIGINT
 	   is not proceesed by same thread as absmi */
       LOCK(SignalLock);
@@ -3134,7 +3137,7 @@ Yap_absmi(int inp)
       }
       UNLOCK(SignalLock);
 #endif
-#if SHADOW_S
+#ifdef SHADOW_S
       S = SREG;
 #endif
       BEGD(d0);
@@ -4955,7 +4958,7 @@ Yap_absmi(int inp)
       READ_IN_S();
       BEGD(d0);
       d0 = *S_SREG;
-#if SBA
+#ifdef SBA
       if (d0 == 0)
 	d0 = (CELL)S_SREG;
 #endif
@@ -4990,7 +4993,7 @@ Yap_absmi(int inp)
       d0 = SREG[0];
       pt0 = &XREG(PREG->u.ox.x);
       PREG = NEXTOP(PREG, ox);
-#if SBA
+#ifdef SBA
       if (d0 == 0)
 	d0 = (CELL)SREG;
 #endif
@@ -5026,7 +5029,7 @@ Yap_absmi(int inp)
       d0 = S_SREG[0];
       BEGD(d1);
       d1 = S_SREG[1];
-#if SBA
+#ifdef SBA
       if (d0 == 0)
 	d0 = (CELL)S_SREG;
       if (d1 == 0)
@@ -5071,14 +5074,14 @@ Yap_absmi(int inp)
       d0 = S_SREG[0];
       BEGD(d1);
       d1 = S_SREG[1];
-#if SBA
+#ifdef SBA
       if (d0 == 0)
 	XREG(PREG->u.oxx.xl) = (CELL)S_SREG;
       else
 #endif
 	XREG(PREG->u.oxx.xl) = d0;
       PREG = NEXTOP(PREG, oxx);
-#if SBA
+#ifdef SBA
       if (d1 == 0)
 	*pt0 = (CELL)(S_SREG+1);
       else
@@ -5359,7 +5362,7 @@ Yap_absmi(int inp)
       /* we are in write mode */
       BEGD(d0);
       d0 = YREG[PREG->u.oy.y];
-#if SBA
+#ifdef SBA
       if (d0 == 0) /* free variable */
 	*SREG++ = (CELL)(YREG+PREG->u.oy.y);
       else
@@ -5455,7 +5458,7 @@ Yap_absmi(int inp)
       /* we are in write mode */
       BEGD(d0);
       d0 = YREG[PREG->u.oy.y];
-#if SBA
+#ifdef SBA
       if (d0 == 0) /* new variable */
 	SREG[0] = (CELL)(YREG+PREG->u.oy.y);
       else
@@ -6864,7 +6867,7 @@ Yap_absmi(int inp)
       Op(put_y_val, yx);
       BEGD(d0);
       d0 = YREG[PREG->u.yx.y];
-#if SBA
+#ifdef SBA
       if (d0 == 0) /* new variable */
 	XREG(PREG->u.yx.x) = (CELL)(YREG+PREG->u.yx.y);
       else
@@ -7052,7 +7055,7 @@ Yap_absmi(int inp)
       Op(write_y_val, y);
       BEGD(d0);
       d0 = YREG[PREG->u.y.y];
-#if SBA
+#ifdef SBA
       if (d0 == 0) /* new variable */
 	*SREG++ = (CELL)(YREG+PREG->u.y.y);
       else
@@ -7500,7 +7503,7 @@ Yap_absmi(int inp)
       saveregs();
       d0 = (f)();
       setregs();
-#if SHADOW_S
+#ifdef SHADOW_S
       SREG = Yap_REGS.S_;
 #endif
       if (!d0) {
@@ -13379,7 +13382,7 @@ Yap_absmi(int inp)
 	  pt1 = RepAppl(d0);
 	  BEGD(d2);
 	  for (d2 = ArityOfFunctor(f); d2; d2--) {
-#if SBA
+#ifdef SBA
 	    BEGD(d1);
 	    d1 = pt1[d2];
 	    if (d1 == 0) {
@@ -13532,7 +13535,7 @@ Yap_absmi(int inp)
 		ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
 		ENV_YREG[-EnvSizeInCells-3]  = mod;
 	      } else if (IsApplTerm(d1)) {
-		Functor f = FunctorOfTerm(d1);
+		f = FunctorOfTerm(d1);
 		if (IsExtensionFunctor(f)) {
 		  goto execute_metacall;
 		} else {
@@ -13575,7 +13578,7 @@ Yap_absmi(int inp)
 	  pt1 = RepAppl(d0);
 	  BEGD(d2);
 	  for (d2 = ArityOfFunctor(f); d2; d2--) {
-#if SBA
+#ifdef SBA
 	    BEGD(d1);
 	    d1 = pt1[d2];
 	    if (d1 == 0) {
@@ -13840,7 +13843,7 @@ Yap_absmi(int inp)
 	  pt1 = RepAppl(d0);
 	  BEGD(d2);
 	  for (d2 = arity; d2; d2--) {
-#if SBA
+#ifdef SBA
 	    BEGD(d1);
 	    d1 = pt1[d2];
 	    if (d1 == 0)
@@ -13940,7 +13943,7 @@ Yap_absmi(int inp)
 	  }
 	}
 	if (ActiveSignals & YAP_TROVF_SIGNAL) {
-#if SHADOW_S
+#ifdef SHADOW_S
 	  S = SREG;
 #endif
 	  saveregs_and_ycache();
@@ -13996,8 +13999,6 @@ Yap_absmi(int inp)
 #endif
 
 }
-
-int	     STD_PROTO(Yap_absmiEND,(void));
 
 /* dummy function that is needed for profiler */
 int Yap_absmiEND(void)

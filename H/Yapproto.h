@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.83 2008-03-25 22:03:13 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.84 2008-03-26 14:37:08 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -21,6 +21,7 @@
 
 /* absmi.c */
 Int	     STD_PROTO(Yap_absmi,(int));
+int	     STD_PROTO(Yap_absmiEND,(void));
 
 /* adtdefs.c */
 Term	STD_PROTO(Yap_ArrayToList,(Term *,int));

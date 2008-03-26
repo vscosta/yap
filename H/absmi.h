@@ -1039,27 +1039,27 @@ Macros to check the limits of stacks
 #define UnifyBound(d0,d1)                                              \
   if (d0 == d1) GONext();                                              \
   if (IsPairTerm(d0)) {                                                \
-    register CELL *pt0, *pt1;                                          \
+    register CELL *ipt0, *ipt1;                                        \
     if (!IsPairTerm(d1)) { FAIL(); }                                   \
-    pt0 = RepPair(d0);                                                 \
-    pt1 = RepPair(d1);                                                 \
+    ipt0 = RepPair(d0);                                                \
+    ipt1 = RepPair(d1);                                                \
     save_hb();							       \
     always_save_pc();						       \
-    if (IUnify_complex(pt0-1,pt0+1,pt1-1)) {always_set_pc(); GONext();}\
+    if (IUnify_complex(ipt0-1,ipt0+1,ipt1-1)) {always_set_pc(); GONext();}\
     else { FAIL(); }                                                   \
   } else if (IsApplTerm(d0)) {                                         \
-    register CELL *pt0, *pt1;                                          \
+    register CELL *ipt0, *ipt1;                                        \
     register Functor f;                                                \
     if (!IsApplTerm(d1)) { FAIL(); }                                   \
-    pt0 = RepAppl(d0);                                                 \
-    pt1 = RepAppl(d1);                                                 \
-    f = (Functor)*pt0;                                                 \
-    if (f != (Functor)*pt1) { FAIL(); }                                \
-    UnifyBound_TEST_ATTACHED(f,d0,pt0,d1);                             \
+    ipt0 = RepAppl(d0);                                                \
+    ipt1 = RepAppl(d1);                                                \
+    f = (Functor)*ipt0;                                                \
+    if (f != (Functor)*ipt1) { FAIL(); }                               \
+    UnifyBound_TEST_ATTACHED(f,d0,ipt0,d1);                            \
     d0 = ArityOfFunctor(f);                                            \
     always_save_pc();						       \
     save_hb();							       \
-    if (IUnify_complex(pt0, pt0+d0, pt1)) {always_set_pc(); GONext();} \
+    if (IUnify_complex(ipt0, ipt0+d0, ipt1)) {always_set_pc(); GONext();} \
     else { FAIL(); }                                                   \
   }                                                                    \
   else { FAIL(); }

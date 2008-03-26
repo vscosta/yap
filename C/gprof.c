@@ -11,8 +11,11 @@
 * File:		gprof.c							 *
 * comments:	Interrupt Driven Profiler				 *
 *									 *
-* Last rev:     $Date: 2007-10-08 23:02:15 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-26 14:37:07 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.9  2007/10/08 23:02:15  vsc
+* minor fixes
+*
 * Revision 1.8  2007/04/10 22:13:20  vsc
 * fix max modules limitation
 *
@@ -904,8 +907,6 @@ showprofres(UInt type) {
 
 
 #define TestMode (GCMode | GrowHeapMode | GrowStackMode | ErrorHandlingMode | InErrorMode | AbortMode | MallocMode)
-
-extern int Yap_absmiEND(void);
 
 static void
 prof_alrm(int signo, siginfo_t *si, void *scv)
