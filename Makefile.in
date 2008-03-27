@@ -563,6 +563,7 @@ mycb: $(srcdir)/mycb.c
 all: startup
 	@INSTALL_DLLS@ (cd library/random; make)
 	@INSTALL_DLLS@ (cd library/regex; make)
+	@INSTALL_DLLS@ (cd library/rltree; make)
 	@INSTALL_DLLS@ (cd library/system; make)
 	@INSTALL_DLLS@ (cd library/tries; make)
 	@INSTALL_DLLS@ (cd library/lammpi; make)
@@ -602,6 +603,7 @@ install_unix: startup libYap.a
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
 	@INSTALL_DLLS@ (cd library/random; make install)
 	@INSTALL_DLLS@ (cd library/regex; make install)
+	@INSTALL_DLLS@ (cd library/rltree; make install)
 	@INSTALL_DLLS@ (cd library/system; make install)
 	@INSTALL_DLLS@ (cd library/tries; make install)
 	@INSTALL_DLLS@ (cd library/lammpi; make install)
@@ -632,6 +634,7 @@ install_win32: startup
 	(cd library/random; make install)
 	(cd library/matrix; make install)
 	(cd library/regex; make install)
+	(cd library/rltree; make install)
 	(cd library/system; make install)
 	(cd LGPL/swi_console; make install)
 	@INSTALL_MATLAB@ (cd library/matlab; make install)
@@ -676,6 +679,7 @@ clean: clean_docs
 	@INSTALL_DLLS@ (cd library/random; make clean)
 	@INSTALL_DLLS@ (cd library/regex; make clean)
 	@INSTALL_DLLS@ (cd library/system; make clean)
+	@INSTALL_DLLS@ (cd library/rltree; make clean)
 	@INSTALL_DLLS@ (cd library/tries; make clean)
 	@INSTALL_DLLS@ (cd library/lammpi; make clean)
 	@INSTALL_MATLAB@ (cd library/matlab; make clean)
