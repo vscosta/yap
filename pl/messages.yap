@@ -11,7 +11,7 @@
 * File:		utilities for displaying messages in YAP.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-03-25 01:04:27 $,$Author: pmoura $						 *
+* Last rev:     $Date: 2008-03-27 00:41:33 $,$Author: vsc $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -153,6 +153,8 @@ system_message(error(existence_error(procedure,P), context(Call,Parent))) --> !,
 	[ 'EXISTENCE ERROR- procedure ~w is undefined, called from context  ~w~n                 Goal was ~w' - [P,Parent,Call] ].
 system_message(error(existence_error(stream,Stream), Where)) -->
 	[ 'EXISTENCE ERROR- ~w: ~w not an open stream' - [Where,Stream] ].
+system_message(error(existence_error(key,Key), Where)) -->
+	[ 'EXISTENCE ERROR- ~w: ~w not an existing key' - [Where,Key] ].
 system_message(error(existence_error(thread,Thread), Where)) -->
 	[ 'EXISTENCE ERROR- ~w: ~w not a running thread' - [Where,Thread] ].
 system_message(error(existence_error(Name,F), W)) -->

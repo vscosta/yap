@@ -858,6 +858,21 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       serious = TRUE;
     }
     break;
+  case EXISTENCE_ERROR_KEY:
+    {
+      int i;
+      Term ti[2];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(Yap_LookupAtom("key"));
+      ti[1] = where;
+      nt[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("existence_error"),2), 2, ti);
+      tp = tmpbuf+i;
+      psize -= i;
+      fun = Yap_MkFunctor(Yap_LookupAtom("error"),2);
+      serious = TRUE;
+    }
+    break;
   case EXISTENCE_ERROR_STREAM:
     {
       int i;

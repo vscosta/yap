@@ -545,7 +545,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
       goto myddas_error;
     }
 #endif
-  return(BootMode);
+  return BootMode;
 }
 
 static char boot_file[256];
@@ -589,7 +589,6 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
   BootMode = parse_yap_arguments(argc,argv,iap);
 
   if (BootMode == YAP_FULL_BOOT_FROM_PROLOG) {
-
 #if HAVE_STRNCAT
     strncpy(boot_file, PL_SRC_DIR, 256);
 #else

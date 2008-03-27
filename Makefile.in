@@ -624,6 +624,7 @@ install_win32: startup
 	$(INSTALL_PROGRAM) -m 755 startup $(DESTDIR)$(YAPLIBDIR)/startup
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/swi
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
@@ -632,6 +633,7 @@ install_win32: startup
 	(cd library/matrix; make install)
 	(cd library/regex; make install)
 	(cd library/system; make install)
+	(cd LGPL/swi_console; make install)
 	@INSTALL_MATLAB@ (cd library/matlab; make install)
 	(cd library/tries; make install)
 	@ENABLE_CPLINT@ (cd cplint; make install)

@@ -1431,8 +1431,12 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   int mode = FAIL_RESTORE;
 
   //  Yap_ErrorMessage = NULL;
-  if (inpf == NULL)
-    inpf = StartUpFile;
+  if (inpf == NULL) {
+#if _MSC_VER || defined(__MINGW32__)
+    if (!(inpf = Yap_RegistryGetString("startup")))
+#endif
+      inpf = StartUpFile;
+  }
 #if __simplescalar__
   /* does not implement getcwd */
   strncpy(Yap_FileNameBuf,yap_pwd,YAP_FILENAME_MAX);

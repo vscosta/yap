@@ -186,6 +186,16 @@ char *libdir = NULL;
 
 void
 Yap_InitSysPath(void) {
+#if _MSC_VER || defined(__MINGW32__)
+  {
+    char *dir;
+    if ((dir = Yap_RegistryGetString("library"))) {
+      Yap_PutValue(Yap_LookupAtom("system_library_directory"),
+		   MkAtomTerm(Yap_LookupAtom(dir)));
+      return;
+    }
+  }
+#endif
   strncpy(Yap_FileNameBuf, SHARE_DIR, YAP_FILENAME_MAX);
 #if _MSC_VER || defined(__MINGW32__)
   {
@@ -1665,13 +1675,17 @@ TrueFileName (char *source, char *root, char *result, int in_lib)
     strncpy (result, source, YAP_FILENAME_MAX);
   }
 #if defined(_WIN32)
-  res1 = result;
-  /* step 2 WINDOWS: replacing \ by / */
-  while ((ch = *res1++)) {
-    if (ch == '\\' && dir_separator('\\')) {
-      res1[-1] = '/';
-    }
-  }
+ {
+   int ch;
+
+   res0 = result;
+   /* step 2 WINDOWS: replacing \ by / */
+   while ((ch = *res0++)) {
+     if (ch == '\\' && dir_separator('\\')) {
+       res0[-1] = '/';
+     }
+   }
+ }
 #endif
   /* step 3: get the full file name */
   if (!dir_separator(result[0]) && !volume_header(result)) {
@@ -2657,6 +2671,193 @@ p_ld_path(void)
 
 
 
+#ifdef _WIN32
+
+/* This code is from SWI-Prolog by Jan Wielemaker */
+
+#define wstreq(s,q) (wcscmp((s), (q)) == 0)
+
+static HKEY
+reg_open_key(const wchar_t *which, int create)
+{ HKEY key = HKEY_CURRENT_USER;
+  DWORD disp;
+  LONG rval;
+
+  while(*which)
+  { wchar_t buf[256];
+    wchar_t *s;
+    HKEY tmp;
+
+    for(s=buf; *which && !(*which == '/' || *which == '\\'); )
+      *s++ = *which++;
+    *s = '\0';
+    if ( *which )
+      which++;
+
+    if ( wstreq(buf, L"HKEY_CLASSES_ROOT") )
+    { key = HKEY_CLASSES_ROOT;
+      continue;
+    } else if ( wstreq(buf, L"HKEY_CURRENT_USER") )
+    { key = HKEY_CURRENT_USER;
+      continue;
+    } else if ( wstreq(buf, L"HKEY_LOCAL_MACHINE") )
+    { key = HKEY_LOCAL_MACHINE;
+      continue;
+    } else if ( wstreq(buf, L"HKEY_USERS") )
+    { key = HKEY_USERS;
+      continue;
+    }
+
+    if ( RegOpenKeyExW(key, buf, 0L, KEY_READ, &tmp) == ERROR_SUCCESS )
+    { RegCloseKey(key);
+      key = tmp;
+      continue;
+    }
+
+    if ( !create )
+      return NULL;
+
+    rval = RegCreateKeyExW(key, buf, 0, L"", 0,
+			  KEY_ALL_ACCESS, NULL, &tmp, &disp);
+    RegCloseKey(key);
+    if ( rval == ERROR_SUCCESS )
+      key = tmp;
+    else
+      return NULL;
+  }
+
+  return key;
+}
+
+#define MAXREGSTRLEN 1024
+
+static void
+recover_space(wchar_t *k, Atom At)
+{
+  if (At->WStrOfAE != k)
+    Yap_FreeCodeSpace((char *)k);
+}
+
+static wchar_t *
+WideStringFromAtom(Atom KeyAt)
+{
+  if (IsWideAtom(KeyAt)) {
+    return KeyAt->WStrOfAE;
+  } else {
+    int len = strlen(KeyAt->StrOfAE);
+    int sz = sizeof(wchar_t)*(len+1);
+    char *chp = KeyAt->StrOfAE;
+    wchar_t *kptr, *k;
+
+    k = (wchar_t *)Yap_AllocCodeSpace(sz);
+    while (k == NULL) {
+      if (!Yap_growheap(FALSE, sz, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, MkIntegerTerm(sz), "generating key in win_registry_get_value/3");
+	return FALSE;
+      }      
+    }
+    kptr = k;
+    while ((*kptr++ = *chp++));
+    return k;
+  }
+}
+
+static Int
+p_win_registry_get_value(void)
+{
+  DWORD type;
+  BYTE  data[MAXREGSTRLEN];
+  DWORD len = sizeof(data);
+  wchar_t *k, *name;
+  HKEY key;
+  Term Key = Deref(ARG1);
+  Term Name = Deref(ARG2);
+  Atom KeyAt, NameAt;
+
+  if (IsVarTerm(Key)) {
+    Yap_Error(INSTANTIATION_ERROR,Key,"argument to win_registry_get_value unbound");
+    return FALSE;
+  }
+  if (!IsAtomTerm(Key)) {
+    Yap_Error(TYPE_ERROR_ATOM,Key,"argument to win_registry_get_value");
+    return FALSE;
+  }
+  KeyAt = AtomOfTerm(Key);
+  if (IsVarTerm(Name)) {
+    Yap_Error(INSTANTIATION_ERROR,Key,"argument to win_registry_get_value unbound");
+    return FALSE;
+  }
+  if (!IsAtomTerm(Name)) {
+    Yap_Error(TYPE_ERROR_ATOM,Key,"argument to win_registry_get_value");
+    return FALSE;
+  }
+  NameAt = AtomOfTerm(Name);
+
+  k = WideStringFromAtom(KeyAt);
+  if ( !(key=reg_open_key(k, FALSE)) ) {
+    Yap_Error(EXISTENCE_ERROR_KEY, Key, "argument to win_registry_get_value");
+    recover_space(k, KeyAt);
+    return FALSE;
+  }
+  name = WideStringFromAtom(NameAt);
+
+  if ( RegQueryValueExW(key, name, NULL, &type, data, &len) == ERROR_SUCCESS ) {
+    RegCloseKey(key);
+    switch(type) {
+    case REG_SZ:
+      recover_space(k, KeyAt);
+      recover_space(name, NameAt);
+      ((wchar_t *)data)[len] = '\0';
+      return Yap_unify(MkAtomTerm(Yap_LookupMaybeWideAtom((wchar_t *)data)),ARG3);
+    case REG_DWORD:
+      recover_space(k, KeyAt);
+      recover_space(name, NameAt);
+      return Yap_unify(MkIntegerTerm(*((DWORD *)data)),ARG3);
+    default:
+      recover_space(k, KeyAt);
+      recover_space(name, NameAt);
+      return FALSE;
+    }
+  }
+  recover_space(k, KeyAt);
+  recover_space(name, NameAt);
+  return FALSE;
+}
+
+char *
+Yap_RegistryGetString(char *name)
+{
+  DWORD type;
+  BYTE  data[MAXREGSTRLEN];
+  DWORD len = sizeof(data);
+  HKEY key;
+  char *ptr;
+  int i;
+
+  if ( !(key=reg_open_key(L"HKEY_LOCAL_MACHINE/SOFTWARE/YAP/Prolog", FALSE)) ) {
+    return NULL;
+  }
+  if ( RegQueryValueEx(key, name, NULL, &type, data, &len) == ERROR_SUCCESS ) {
+    RegCloseKey(key);
+    switch(type) {
+    case REG_SZ:
+      ptr = malloc(len+2);
+      if (!ptr)
+	return NULL;
+      for (i=0; i<= len; i++)
+	ptr[i] = data[i];
+      ptr[len+1] = '\0';
+      return ptr;
+    default:
+      return NULL;
+    }
+  }
+  return NULL;
+}
+
+
+#endif
+
 void
 Yap_InitSysPreds(void)
 {
@@ -2686,6 +2887,9 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$unix", 0, p_unix, SafePredFlag);
   Yap_InitCPred ("$win32", 0, p_win32, SafePredFlag);
   Yap_InitCPred ("$ld_path", 1, p_ld_path, SafePredFlag);
+#ifdef _WIN32
+  Yap_InitCPred ("win_registry_get_value", 3, p_win_registry_get_value,0);
+#endif
   CurrentModule = SYSTEM_MODULE;
   Yap_InitCPred ("true_file_name", 2, p_true_file_name, SyncPredFlag);
   Yap_InitCPred ("true_file_name", 3, p_true_file_name3, SyncPredFlag);

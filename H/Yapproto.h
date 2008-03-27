@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.84 2008-03-26 14:37:08 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.85 2008-03-27 00:41:32 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -28,6 +28,7 @@ Term	STD_PROTO(Yap_ArrayToList,(Term *,int));
 int	STD_PROTO(Yap_GetName,(char *,UInt,Term));
 Term	STD_PROTO(Yap_GetValue,(Atom));
 Atom	STD_PROTO(Yap_LookupAtom,(char *));
+Atom	STD_PROTO(Yap_LookupMaybeWideAtom,(wchar_t *));
 Atom	STD_PROTO(Yap_FullLookupAtom,(char *));
 void	STD_PROTO(Yap_LookupAtomWithAddress,(char *,AtomEntry *));
 Prop	STD_PROTO(Yap_NewPredPropByFunctor,(struct FunctorEntryStruct *, Term));
@@ -309,6 +310,9 @@ void	STD_PROTO(Yap_InitTime,(void));
 int     STD_PROTO(Yap_TrueFileName, (char *, char *, int));
 int	STD_PROTO(Yap_ProcessSIGINT,(void));
 double  STD_PROTO(Yap_random, (void));
+#ifdef _WIN32
+char	*STD_PROTO(Yap_RegistryGetString,(char *));
+#endif
 
 /* threads.c */
 void   STD_PROTO(Yap_InitThreadPreds,(void));

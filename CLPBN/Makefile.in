@@ -55,25 +55,27 @@ CLPBN_LEARNING_PROGRAMS= \
 	$(CLPBN_LEARNING_SRCDIR)/learn_utils.yap \
 	$(CLPBN_LEARNING_SRCDIR)/mle.yap
 
-CLPBN_EXAMPLES= \
-	$(CLPBN_EXDIR)/cg.yap \
+CLPBN_SCHOOL_EXAMPLES= \
 	$(CLPBN_EXDIR)/School/README \
 	$(CLPBN_EXDIR)/School/evidence_128.yap \
 	$(CLPBN_EXDIR)/School/schema.yap \
 	$(CLPBN_EXDIR)/School/school_128.yap \
 	$(CLPBN_EXDIR)/School/school_32.yap \
 	$(CLPBN_EXDIR)/School/school_64.yap \
-	$(CLPBN_EXDIR)/School/tables.yap \
+	$(CLPBN_EXDIR)/School/tables.yap
+
+CLPBN_EXAMPLES= \
+	$(CLPBN_EXDIR)/cg.yap \
 	$(CLPBN_EXDIR)/sprinkler.yap
 
 
 install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_PROGRAMS)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn/learning
-	mkdir -p $(DESTDIR)$(SHAREDIR)/examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn/examples/School
 	for h in $(CLPBN_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	for h in $(CLPBN_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn; done
 	for h in $(CLPBN_LEARNING_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/learning; done
-	for h in $(CLPBN_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/examples; done
+	for h in $(CLPBN_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/examples; done
+	for h in $(CLPBN_SCHOOL_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/examples/School; done
 

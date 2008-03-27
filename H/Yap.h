@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.30 2008-03-25 22:03:13 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.31 2008-03-27 00:41:32 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -442,6 +442,7 @@ typedef enum
   EVALUATION_ERROR_UNDERFLOW,
   EVALUATION_ERROR_ZERO_DIVISOR,
   EXISTENCE_ERROR_ARRAY,
+  EXISTENCE_ERROR_KEY,
   EXISTENCE_ERROR_SOURCE_SINK,
   EXISTENCE_ERROR_STREAM,
   INSTANTIATION_ERROR,

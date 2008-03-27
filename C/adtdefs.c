@@ -274,6 +274,28 @@ LookupWideAtom(wchar_t *atom)
 }
 
 Atom
+Yap_LookupMaybeWideAtom(wchar_t *atom)
+{				/* lookup atom in atom table            */
+  wchar_t *p = atom, c;
+  size_t len = 0;
+  char *ptr, *ptr0;
+  Atom at;
+
+  while ((c = *p++)) { 
+    if (c > 255) return LookupWideAtom(atom);
+    len++;
+  }
+  /* not really a wide atom */
+  ptr0 = ptr = Yap_AllocCodeSpace(len+1);
+  if (!ptr)
+    return NIL;
+  while ((*ptr++ = *p++));
+  at = LookupAtom(ptr0);
+  Yap_FreeCodeSpace(ptr0);
+  return at;
+}
+
+Atom
 Yap_LookupAtom(char *atom)
 {				/* lookup atom in atom table            */
   return LookupAtom(atom);
