@@ -29,8 +29,8 @@
 	no_threads, !,
 	recorda('$thread_alias', [0|main], _).
 '$init_thread0' :-
-	'$record_thread_info'(0, main, [0, 0, 0], false, '$init_thread0'),
-	recorda('$thread_defaults', [0, 0, 0, false], _),
+	'$record_thread_info'(0, main, [0, 0, 0], false, true, '$init_thread0'),
+	recorda('$thread_defaults', [0, 0, 0, false, true], _),
 	'$new_mutex'(QId),
 	assert('$global_queue_mutex'(QId)),
 	'$create_mq'(0),
@@ -71,10 +71,10 @@
 thread_create(Goal) :-
 	G0 = thread_create(Goal),
 	'$check_callable'(Goal, G0),
-	'$thread_options'([detached(true)], [], Stack, Trail, System, Detached, G0),
+	'$thread_options'([detached(true)], [], Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
 	'$erase_thread_info'(Id),
-	'$record_thread_info'(Id, [Stack, Trail, System], true),
+	'$record_thread_info'(Id, [Stack, Trail, System], Detached, AtExit),
 	'$create_mq'(Id),	
 	'$create_thread'(Goal, Stack, Trail, System, Detached, Id).
 
@@ -82,10 +82,10 @@ thread_create(Goal, OutId) :-
 	G0 = thread_create(Goal, Id),
 	'$check_callable'(Goal, G0),
 	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
-	'$thread_options'([], [], Stack, Trail, System, Detached, G0),
+	'$thread_options'([], [], Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
 	'$erase_thread_info'(Id),
-	'$record_thread_info'(Id, [Stack, Trail, System], Detached),
+	'$record_thread_info'(Id, [Stack, Trail, System], Detached, AtExit),
 	'$create_mq'(Id),	
 	'$create_thread'(Goal, Stack, Trail, System, Detached, Id),
 	OutId = Id.
@@ -94,12 +94,12 @@ thread_create(Goal, OutId, Options) :-
 	G0 = thread_create(Goal, Id, Options),
 	'$check_callable'(Goal,G0),
 	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
-	'$thread_options'(Options, Alias, Stack, Trail, System, Detached, G0),
+	'$thread_options'(Options, Alias, Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
 	'$erase_thread_info'(Id),
 	(	var(Alias) ->
-		'$record_thread_info'(Id, [Stack, Trail, System], Detached)
-	;	'$record_thread_info'(Id, Alias, [Stack, Trail, System], Detached, G0)
+		'$record_thread_info'(Id, [Stack, Trail, System], Detached, AtExit)
+	;	'$record_thread_info'(Id, Alias, [Stack, Trail, System], Detached, AtExit, G0)
 	),
 	'$create_mq'(Id),	
 	'$create_thread'(Goal, Stack, Trail, System, Detached, Id),
@@ -122,76 +122,87 @@ thread_create(Goal, OutId, Options) :-
 	erase(R),
 	fail.
 '$erase_thread_info'(Id) :-
+	recorded('$thread_at_exit', [Id|_], R),
+	erase(R),
+	fail.
+'$erase_thread_info'(Id) :-
 	recorded('$thread_exit_hook', [Id|_], R),
 	erase(R),
 	fail.
 '$erase_thread_info'(_).
 
 
-'$thread_options'(V, _, _, _, _, _, G) :- var(V), !,
+'$thread_options'(V, _, _, _, _, _, _, G) :- var(V), !,
 	'$do_error'(instantiation_error,G).
-'$thread_options'([], _, Stack, Trail, System, Detached, _) :-
-	recorded('$thread_defaults', [DefaultStack, DefaultTrail, DefaultSystem, DefaultDetached], _),
+'$thread_options'([], _, Stack, Trail, System, Detached, AtExit, _) :-
+	recorded('$thread_defaults', [DefaultStack, DefaultTrail, DefaultSystem, DefaultDetached, DefaultAtExit], _),
 	( var(Stack) -> Stack = DefaultStack; true ),
 	( var(Trail) -> Trail = DefaultTrail; true ),
 	( var(System) -> System = DefaultSystem; true ),
-	( var(Detached) -> Detached = DefaultDetached; true ).
-'$thread_options'([Opt|Opts], Alias, Stack, Trail, System, Detached, G0) :-
-	'$thread_option'(Opt, Alias, Stack, Trail, System, Detached, G0),
-	'$thread_options'(Opts, Alias, Stack, Trail, System, Detached, G0).
+	( var(Detached) -> Detached = DefaultDetached; true ),
+	( var(AtExit) -> AtExit = DefaultAtExit; true ).
+'$thread_options'([Opt|Opts], Alias, Stack, Trail, System, Detached, AtExit, G0) :-
+	'$thread_option'(Opt, Alias, Stack, Trail, System, Detached, AtExit, G0),
+	'$thread_options'(Opts, Alias, Stack, Trail, System, Detached, AtExit, G0).
 
-'$thread_option'(Option, _, _, _, _, _, G0) :- var(Option), !,
+'$thread_option'(Option, _, _, _, _, _, _, G0) :- var(Option), !,
 	'$do_error'(instantiation_error,G0).
-'$thread_option'(stack(Stack), _, Stack, _, _, _, G0) :- !,
+'$thread_option'(stack(Stack), _, Stack, _, _, _, _, G0) :- !,
 	( \+ integer(Stack) -> '$do_error'(type_error(integer,Stack),G0) ; true ).
-'$thread_option'(trail(Trail), _, _, Trail, _, _, G0) :- !,
+'$thread_option'(trail(Trail), _, _, Trail, _, _, _, G0) :- !,
 	( \+ integer(Trail) -> '$do_error'(type_error(integer,Trail),G0) ; true ).
-'$thread_option'(system(System), _, _, _, System, _, G0) :- !,
+'$thread_option'(system(System), _, _, _, System, _, _, G0) :- !,
 	( \+ integer(System) -> '$do_error'(type_error(integer,System),G0) ; true ).
-'$thread_option'(alias(Alias), Alias, _, _, _, _, G0) :- !,
+'$thread_option'(alias(Alias), Alias, _, _, _, _, _, G0) :- !,
 	( \+ atom(Alias) -> '$do_error'(type_error(atom,Alias),G0) ; true ).
-'$thread_option'(detached(Detached), _, _, _, _, Detached, G0) :- !,
+'$thread_option'(detached(Detached), _, _, _, _, Detached, _, G0) :- !,
 	( Detached \== true, Detached \== false  -> '$do_error'(domain_error(thread_option,Detached+[true,false]),G0) ; true ).
-'$thread_option'(Option, _, _, _, _, _, G0) :-
+'$thread_option'(at_exit(AtExit), _, _, _, _, _, AtExit, G0) :- !,
+	( \+ callable(AtExit)  -> '$do_error'(type_error(callable,AtExit),G0) ; true ).
+'$thread_option'(Option, _, _, _, _, _, _, G0) :-
 	'$do_error'(domain_error(thread_option,Option),G0).
 
-'$record_thread_info'(_, Alias, _, _, Goal) :-
+'$record_thread_info'(_, Alias, _, _, _, Goal) :-
 	recorded('$thread_alias', [_|Alias], _), !,
 	'$do_error'(permission_error(create,thread,alias(Alias)), Goal).
-'$record_thread_info'(Id, Alias, Sizes, Detached, _) :-
+'$record_thread_info'(Id, Alias, Sizes, Detached, AtExit, _) :-
 	recorda('$thread_alias', [Id|Alias], _),
-	'$record_thread_info'(Id, Sizes, Detached).
+	'$record_thread_info'(Id, Sizes, Detached, AtExit).
 
-'$record_thread_info'(Id, Sizes, Detached) :-
+'$record_thread_info'(Id, Sizes, Detached, AtExit) :-
 	recorda('$thread_sizes', [Id|Sizes], _),
-	recorda('$thread_detached', [Id|Detached], _).
+	recorda('$thread_detached', [Id|Detached], _),
+	recorda('$thread_at_exit', [Id|AtExit], _).
 
 % vsc: ?????
 thread_defaults(Defaults) :-
 	nonvar(Defaults), !,
 	'$do_error'(type_error(variable, Defaults), thread_defaults(Defaults)).
-thread_defaults([stack(Stack), trail(Trail), system(System), detached(Detached)]) :-
-	recorded('$thread_defaults',[Stack, Trail, System, Detached], _).
+thread_defaults([stack(Stack), trail(Trail), system(System), detached(Detached), at_exit(AtExit)]) :-
+	recorded('$thread_defaults',[Stack, Trail, System, Detached, AtExit], _).
 
 thread_default(Default) :-
 	var(Default), !,
 	recorded('$thread_defaults', Defaults, _),
 	'$thread_default'(Default, Defaults).
 thread_default(stack(Stack)) :- !,
-	recorded('$thread_defaults',[Stack, _, _, _], _).
+	recorded('$thread_defaults',[Stack, _, _, _, _], _).
 thread_default(trail(Trail)) :- !,
-	recorded('$thread_defaults',[_, Trail, _, _], _).
+	recorded('$thread_defaults',[_, Trail, _, _, _], _).
 thread_default(system(System)) :- !,
-	recorded('$thread_defaults',[_, _, System, _], _).
+	recorded('$thread_defaults',[_, _, System, _, _], _).
 thread_default(detached(Detached)) :- !,
-	recorded('$thread_defaults',[_, _, _, Detached], _).
+	recorded('$thread_defaults',[_, _, _, Detached, _], _).
+thread_default(at_exit(AtExit)) :- !,
+	recorded('$thread_defaults',[_, _, _, _, AtExit], _).
 thread_default(Default) :-
 	'$do_error'(type_error(thread_option,Default),thread_default(Default)).
 
-'$thread_default'(stack(Stack), [Stack, _, _, _]).
-'$thread_default'(trail(Trail), [_, Trail, _, _]).
-'$thread_default'(stack(System), [_, _, System, _]).
-'$thread_default'(detached(Detached), [_, _, _, Detached]).
+'$thread_default'(stack(Stack), [Stack, _, _, _, _]).
+'$thread_default'(trail(Trail), [_, Trail, _, _, _]).
+'$thread_default'(stack(System), [_, _, System, _, _]).
+'$thread_default'(detached(Detached), [_, _, _, Detached, _]).
+'$thread_default'(at_exit(AtExit), [_, _, _, _, AtExit]).
 
 thread_set_defaults(V) :- var(V), !,
 	'$do_error'(instantiation_error, thread_set_defaults(V)).
@@ -217,9 +228,9 @@ thread_set_default(Default) :-
 	Stack < 0, !,
 	'$do_error'(domain_error(not_less_than_zero, Stack), G).
 '$thread_set_default'(stack(Stack), _) :- !,
-	recorded('$thread_defaults', [_, Trail, System, Detached], Ref),
+	recorded('$thread_defaults', [_, Trail, System, Detached, AtExit], Ref),
 	erase(Ref),
-	recorda('$thread_defaults', [Stack, Trail, System, Detached], _).
+	recorda('$thread_defaults', [Stack, Trail, System, Detached, AtExit], _).
 
 '$thread_set_default'(trail(Trail), G) :-
 	\+ integer(Trail), !,
@@ -228,9 +239,9 @@ thread_set_default(Default) :-
 	Trail < 0, !,
 	'$do_error'(domain_error(not_less_than_zero, Trail), G).
 '$thread_set_default'(trail(Trail), _) :- !,
-	recorded('$thread_defaults', [Stack, _, System, Detached], Ref),
+	recorded('$thread_defaults', [Stack, _, System, Detached, AtExit], Ref),
 	erase(Ref),
-	recorda('$thread_defaults', [Stack, Trail, System, Detached], _).
+	recorda('$thread_defaults', [Stack, Trail, System, Detached, AtExit], _).
 
 '$thread_set_default'(system(System), G) :-
 	\+ integer(System), !,
@@ -239,17 +250,25 @@ thread_set_default(Default) :-
 	System < 0, !,
 	'$do_error'(domain_error(not_less_than_zero, System), G0).
 '$thread_set_default'(system(System), _) :- !,
-	recorded('$thread_defaults', [Stack, Trail, _, Detached], Ref),
+	recorded('$thread_defaults', [Stack, Trail, _, Detached, AtExit], Ref),
 	erase(Ref),
-	recorda('$thread_defaults', [Stack, Trail, System, Detached], _).
+	recorda('$thread_defaults', [Stack, Trail, System, Detached, AtExit], _).
 
 '$thread_set_default'(detached(Detached), G) :-
 	Detached \== true, Detached \== false, !,
 	'$do_error'(type_error(boolean, Detached), G).
 '$thread_set_default'(detached(Detached), _) :- !,
-	recorded('$thread_defaults', [Stack, Trail, System, _], Ref),
+	recorded('$thread_defaults', [Stack, Trail, System, _, AtExit], Ref),
 	erase(Ref),
-	recorda('$thread_defaults', [Stack, Trail, System, Detached], _).
+	recorda('$thread_defaults', [Stack, Trail, System, Detached, AtExit], _).
+
+'$thread_set_default'(at_exit(AtExit), G) :-
+	\+ callable(AtExit), !,
+	'$do_error'(type_error(callable, AtExit), G).
+'$thread_set_default'(at_exit(AtExit), _) :- !,
+	recorded('$thread_defaults', [Stack, Trail, System, Detached, _], Ref),
+	erase(Ref),
+	recorda('$thread_defaults', [Stack, Trail, System, Detached, AtExit], _).
 
 '$thread_set_default'(Default, G) :-
 	'$do_error'(domain_error(thread_default, Default), G).
@@ -303,6 +322,11 @@ thread_exit(Term) :-
 thread_exit(Term) :-
 	'$close_thread'('$thread_finished'(exited(Term)), Detached).
 
+'$run_at_thread_exit'(Id0) :-
+	recorded('$thread_at_exit',[Id0|AtExit],R), erase(R),
+	writeq(at_exit-AtExit), nl,
+	'$thread_top_goal'(AtExit),
+	fail.
 '$run_at_thread_exit'(Id0) :-
 	findall(Hook, (recorded('$thread_exit_hook',[Id0|Hook],R), erase(R)), Hooks),
 	'$run_thread_hooks'(Hooks),
@@ -801,6 +825,8 @@ thread_property(Id, Prop) :-
 	).
 '$thread_property'(Id, detached(Detached)) :-
 	recorded('$thread_detached', [Id|Detached], _).
+'$thread_property'(Id, at_exit(AtExit)) :-
+	recorded('$thread_at_exit', [Id|AtExit], _).
 '$thread_property'(Id, stack(Stack)) :-
 	recorded('$thread_sizes', [Id, Stack, _, _], _).
 '$thread_property'(Id, trail(Trail)) :-
@@ -840,6 +866,7 @@ threads :-
 	var(Term), !.
 '$check_thread_property'(alias(_), _) :- !.
 '$check_thread_property'(detached(_), _) :- !.
+'$check_thread_property'(at_exit(_), _) :- !.
 '$check_thread_property'(status(_), _) :- !.
 '$check_thread_property'(stack(_), _) :- !.
 '$check_thread_property'(trail(_), _) :- !.
