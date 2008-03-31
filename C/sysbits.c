@@ -2644,7 +2644,11 @@ p_unix(void)
 #ifdef __unix__
   return TRUE;
 #else
+#ifdef __APPLE__
+  return TRUE;
+#else
   return FALSE;
+#endif
 #endif
 #endif
 }
