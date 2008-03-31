@@ -76,6 +76,9 @@ otherwise.
 
 :- dynamic prolog:'$user_defined_flag'/2.
 
+:- multifile prolog:debug_action_hook/1.
+
+:- source.
 
 lists:append([], L, L).
 lists:append([H|T], L, [H|R]) :-
@@ -98,6 +101,8 @@ lists:memberchk(X,[_|L]) :-
 lists:member(X,[X|_]).
 lists:member(X,[_|L]) :-
 	lists:member(X,L).
+
+:- no_source.
 
 
 :-	 ['protect.yap'].

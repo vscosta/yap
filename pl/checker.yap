@@ -11,8 +11,11 @@
 * File:		checker.yap						 *
 * comments:	style checker for Prolog				 *
 *									 *
-* Last rev:     $Date: 2007-11-26 23:43:09 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-31 22:56:22 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.23  2007/11/26 23:43:09  vsc
+* fixes to support threads and assert correctly, even if inefficiently.
+*
 * Revision 1.22  2006/11/17 12:10:46  vsc
 * style_checker was failing on DCGs
 *
@@ -180,6 +183,9 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
 '$handle_discontiguous'(F,A,M) :-
 	recorded('$discontiguous_defs','$df'(F,A,M),_), !.
+'$handle_discontiguous'(F,A,M) :-
+	functor(Head, F, A), !,
+	'$is_multifile'(Head, M).
 '$handle_discontiguous'(F,A,M) :-
 	'$in_this_file_before'(F,A,M),
 	print_message(warning,clauses_not_together((M:F/A))).

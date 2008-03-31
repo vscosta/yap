@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2008-03-25 16:45:53 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-03-31 22:56:21 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.223  2008/03/25 16:45:53  vsc
+* make or-parallelism compile again
+*
 * Revision 1.222  2008/03/24 23:48:47  vsc
 * fix maximum number of threads open error
 *
@@ -828,7 +831,7 @@ split_megaclause(PredEntry *ap)
       }
     }
     Yap_ClauseSpace += sizeof(StaticClause)+mcl->ClItemSize;
-    new->ClFlags = FactMask;
+    new->ClFlags = StaticMask|FactMask;
     new->ClSize = mcl->ClItemSize;
     new->usc.ClPred = ap;
     new->ClNext = NULL;

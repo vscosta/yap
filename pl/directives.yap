@@ -786,6 +786,17 @@ yap_flag(fileerrors,X) :-
 yap_flag(host_type,X) :-
 	'$host_type'(X).
 
+yap_flag(verbose_load,X) :-
+	var(X), !,
+	( get_value('$lf_verbose',silent) -> X = false ; X = true ).
+yap_flag(verbose_load,true) :- !,
+	set_value('$lf_verbose',informational).
+yap_flag(verbose_load,false) :- !,
+	set_value('$lf_verbose',silent),
+	'$set_yap_flags'(7,1).
+yap_flag(verbose_load,X) :-
+	'$do_error'(domain_error(flag_value,verbose_auto_load+X),yap_flag(verbose_auto_load,X)).
+
 yap_flag(verbose_auto_load,X) :-
 	var(X), !,
 	( get_value('$verbose_auto_load',true) -> X = true ; X = false ).

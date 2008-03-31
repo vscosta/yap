@@ -7568,7 +7568,7 @@ default for YAP is @code{off}, unless we are in @code{sicstus} or
 @code{iso} mode.
 
 @item strict_iso
-@findex strict_iso (prolog_flag/2 option)
+@findex strict_iso (yap_flag/2 option)
 @*
  If @var{Value} is unbound, tell whether strict ISO compatibility mode
 is @code{on} or @code{off}. If @var{Value} is bound to @code{on} set
@@ -7740,7 +7740,14 @@ corresponding to the Unix @code{stdout} stream.
 If @code{normal} allow printing of informational and banner messages,
 such as the ones that are printed when consulting. If @code{silent}
 disable printing these messages. It is @code{normal} by default except if
-YAP is booted with the @code{-L} flag.
+YAP is booted with the @code{-q} or @code{-L} flag.
+
+@item  verbose_load
+@findex verbose_load (yap_flag/2 option)
+@* If @code{true} allow printing of informational messages when
+consulting files. If @code{false} disable printing these messages. It
+is @code{normal} by default except if YAP is booted with the @code{-L}
+flag.
 
 @item version
 @findex version (yap_flag/2 option)
