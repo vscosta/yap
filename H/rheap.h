@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-03-25 22:03:14 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-01 08:42:46 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.87  2008/03/25 22:03:14  vsc
+* fix some icc warnings
+*
 * Revision 1.86  2008/03/25 16:45:53  vsc
 * make or-parallelism compile again
 *
@@ -273,7 +276,8 @@ RestoreDBTerm(DBTerm *dbr, int attachments)
       dbr->ag.attachments = AdjustDBTerm(dbr->ag.attachments, dbr->Contents);
 #endif
   } else {
-    dbr->ag.NextDBT = DBTermAdjust(dbr->ag.NextDBT);
+    if (dbr->ag.NextDBT)
+      dbr->ag.NextDBT = DBTermAdjust(dbr->ag.NextDBT);
   }    
   if (dbr->DBRefs !=  NULL) {
     DBRef          *cp;
@@ -368,42 +372,17 @@ static void
 RestoreDBTermEntry(struct dbterm_list *dbl) {
   DBTerm *dbt;
 
-  dbt = dbl->dbterms = DBTermAdjust(dbl->dbterms);
+  if (dbl->dbterms)
+    dbt = dbl->dbterms = DBTermAdjust(dbl->dbterms);
+  else
+    return;
   dbl->clause_code = PtoOpAdjust(dbl->clause_code);
-  dbl->next_dbl = PtoDBTLAdjust(dbl->next_dbl);
+  if (dbl->next_dbl)
+    dbl->next_dbl = PtoDBTLAdjust(dbl->next_dbl);
   dbl->p = PredEntryAdjust(dbl->p);
   while (dbt) {
     RestoreDBTerm(dbt, FALSE);
     dbt = dbt->ag.NextDBT;
-  }
-}
-
-static void
-restore_switch(CELL *start, CELL *end, int is_func)
-{
-  CELL *pt = start;
-  if (is_func) {
-    while (pt < end) {
-      yamop **x = (yamop **)(pt+1);
-      Functor *fp = (Functor *)pt;
-
-      *fp = FuncAdjust(*fp);
-      *x = PtoOpAdjust(*x);
-      pt += 2;
-    }
-  } else {
-    while (pt < end) {
-      Term *tp = (Term *)pt;
-      Term t = *tp;
-      yamop **x = (yamop **)(pt+1);
-
-      if (IsAtomTerm(t))
-	*tp = AtomTermAdjust(t);
-      else if (IsApplTerm(t) && *(Functor *)DBRefAdjust(DBRefOfTerm(t)) == FunctorDBRef)
-	*tp = AbsAppl((CELL *)DBRefAdjust(DBRefOfTerm(t)));
-      *x = PtoOpAdjust(*x);
-      pt += 2;
-    }
   }
 }
 
@@ -425,9 +404,7 @@ CleanLUIndex(LogUpdIndex *idx)
     idx->ChildIndex = LUIndexAdjust(idx->ChildIndex);
     CleanLUIndex(idx->ChildIndex);
   }
-  if (idx->ClFlags & SwitchTableMask) {
-    restore_switch((CELL *)idx->ClCode, (CELL *)((char *)idx+idx->ClSize), ((idx->ClFlags & FuncSwitchMask) == FuncSwitchMask));
-  } else {
+  if (!(idx->ClFlags & SwitchTableMask)) {
     restore_opcodes(idx->ClCode);
   }
 }
@@ -444,9 +421,7 @@ CleanSIndex(StaticIndex *idx)
     idx->ChildIndex = SIndexAdjust(idx->ChildIndex);
     CleanSIndex(idx->ChildIndex);
   }
-  if (idx->ClFlags & SwitchTableMask) {
-    restore_switch((CELL *)idx->ClCode, (CELL *)((char *)idx+idx->ClSize), ((idx->ClFlags & FuncSwitchMask) == FuncSwitchMask));
-  } else {
+  if (!(idx->ClFlags & SwitchTableMask)) {
     restore_opcodes(idx->ClCode);
   }
 }
@@ -790,6 +765,7 @@ restore_codes(void)
   Yap_heap_regs->terms_module = AtomTermAdjust(Yap_heap_regs->terms_module);
   Yap_heap_regs->system_module = AtomTermAdjust(Yap_heap_regs->system_module);
   Yap_heap_regs->readutil_module = AtomTermAdjust(Yap_heap_regs->readutil_module);
+  Yap_heap_regs->hacks_module = AtomTermAdjust(Yap_heap_regs->hacks_module);
   Yap_heap_regs->globals_module = AtomTermAdjust(Yap_heap_regs->globals_module);
   Yap_heap_regs->arg_module = AtomTermAdjust(Yap_heap_regs->arg_module);
   Yap_heap_regs->swi_module = AtomTermAdjust(Yap_heap_regs->swi_module);

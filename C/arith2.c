@@ -673,7 +673,7 @@ p_fdiv(Term t1, Term t2 E_ARGS)
 }
 
 #if USE_GMP
-#if !HAVE_MPZ_XOR
+#if !defined(HAVE_MPZ_XOR)
 static void
 mpz_xor(MP_INT *new, MP_INT *r1, MP_INT *r2)
 {

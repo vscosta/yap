@@ -340,12 +340,29 @@ BlobTermAdjust (Term t)
 }
 
 
+inline EXTERN Term CodeComposedTermAdjust (Term);
+
+inline EXTERN Term
+CodeComposedTermAdjust (Term t)
+{
+  return (Term) ((t - HDiff));
+}
+
+
 #else
 
 inline EXTERN Term BlobTermAdjust (Term);
 
 inline EXTERN Term
 BlobTermAdjust (Term t)
+{
+  return (Term) ((t + HDiff));
+}
+
+inline EXTERN Term CodeComposedTermAdjust (Term);
+
+inline EXTERN Term
+CodeComposedTermAdjust (Term t)
 {
   return (Term) ((t + HDiff));
 }

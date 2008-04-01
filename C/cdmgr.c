@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2008-03-31 22:56:21 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-01 08:42:45 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.224  2008/03/31 22:56:21  vsc
+* more fixes
+*
 * Revision 1.223  2008/03/25 16:45:53  vsc
 * make or-parallelism compile again
 *
@@ -693,6 +696,7 @@ get_pred(Term t,  Term tmod, char *pname)
 #define CellPtoHeapAdjust(X) (X)
 #define FuncAdjust(X) (X)
 #define CodeAddrAdjust(X) (X)
+#define CodeComposedTermAdjust(X) (X)
 #define rehash(A,B,C)
 static Term BlobTermAdjust(Term t)
 {

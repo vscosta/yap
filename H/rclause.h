@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2008-03-25 22:03:14 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-01 08:42:46 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.24  2008/03/25 22:03:14  vsc
+* fix some icc warnings
+*
 * Revision 1.23  2008/01/28 18:12:36  vsc
 * fix small bug in restore opcode
 *
@@ -489,9 +492,7 @@ restore_opcodes(yamop *pc)
       break;
       /* instructions type xc */
     case _get_atom:
-    case _put_atom:
     case _get_bigint:
-    case _get_dbterm:
       pc->u.xc.x = XAdjust(pc->u.xc.x);
       {
 	Term t = pc->u.xc.c;
@@ -500,6 +501,24 @@ restore_opcodes(yamop *pc)
 	else if (IsApplTerm(t))
 	  pc->u.xc.c = BlobTermAdjust(t);
       }
+      pc = NEXTOP(pc,xc);
+      break;
+    case _put_atom:
+      pc->u.xc.x = XAdjust(pc->u.xc.x);
+      {
+	Term t = pc->u.xc.c;
+	if (IsAtomTerm(t))
+	  pc->u.xc.c = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.xc.c = BlobTermAdjust(t);
+	else if (IsPairTerm(t))
+	  pc->u.xc.c = CodeComposedTermAdjust(t);
+      }
+      pc = NEXTOP(pc,xc);
+      break;
+    case _get_dbterm:
+      pc->u.xc.x = XAdjust(pc->u.xc.x);
+      pc->u.xc.c = CodeComposedTermAdjust(pc->u.xc.c);
       pc = NEXTOP(pc,xc);
       break;
     case _get_2atoms:
@@ -765,14 +784,18 @@ restore_opcodes(yamop *pc)
       pc = NEXTOP(pc,oi);
       break;
       /* instructions type oc */
+    case _unify_dbterm:
+    case _unify_l_dbterm:
+      pc->u.oc.opcw = Yap_opcode(Yap_op_from_opcode(pc->u.oc.opcw));
+      pc->u.oc.c = CodeComposedTermAdjust(pc->u.oc.c);
+      pc = NEXTOP(pc,oc);
+      break;
     case _unify_atom_write:
     case _unify_atom:
     case _unify_l_atom_write:
     case _unify_l_atom:
     case _unify_bigint:
     case _unify_l_bigint:
-    case _unify_dbterm:
-    case _unify_l_dbterm:
       pc->u.oc.opcw = Yap_opcode(Yap_op_from_opcode(pc->u.oc.opcw));
       {
 	Term t = pc->u.oc.c;
@@ -830,6 +853,8 @@ restore_opcodes(yamop *pc)
 	    pc->u.c.c = AtomTermAdjust(t);
 	else if (IsApplTerm(t))
 	  pc->u.c.c = BlobTermAdjust(t);
+	else if (IsPairTerm(t))
+	  pc->u.c.c = CodeComposedTermAdjust(t);
       }
       pc = NEXTOP(pc,c);
       break;
@@ -934,7 +959,7 @@ restore_opcodes(yamop *pc)
 	for (j = 0; j < i; j++) {
 	  Functor oldfunc = (Functor)(oldcode[0]);
 	  CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
-	  if (oldfunc != NULL) {
+	  if (oldfunc) {
 	    oldcode[0] = (CELL)FuncAdjust(oldfunc);
 	  }
 	  oldcode[1] = (CELL)CodeAddrAdjust(oldjmp);

@@ -1298,13 +1298,17 @@ RestoreHashPreds(void)
     np[i] = NULL;
   }
   for (i = 0; i < PredHashTableSize; i++) {
-    PredEntry *p = PredHash[i];
+    PredEntry *p = oldp[i];
 
-    p = PredEntryAdjust(p);
+    if (p)
+      p = PredEntryAdjust(p);
     while (p) {
-      Prop nextp = p->NextOfPE = PropAdjust(p->NextOfPE);
+      Prop nextp;
       UInt hsh;
       
+      if (p->NextOfPE)
+	p->NextOfPE = PropAdjust(p->NextOfPE);
+      nextp = p->NextOfPE;
       CleanCode(p);
       hsh = PRED_HASH(p->FunctorOfPred, p->ModuleOfPred, new_size);
       p->NextOfPE = AbsPredProp(np[hsh]);
@@ -1660,37 +1664,37 @@ UnmarkTrEntries(void)
   B->cp_ap = NOCODE;
   Entries = (CELL *)Yap_TrailBase;
   while ((entry = *Entries++) != (CELL)NULL) {
-    if (IsVarTerm(entry)) {
-      RESET_VARIABLE((CELL *)entry);
-    } else if (IsPairTerm(entry)) {
-      CELL *ent = CellPtoHeapAdjust(RepPair(entry));
-      register CELL flags;
+    if (!IsVarTerm(entry)) {
+      if(IsPairTerm(entry)) {
+	CELL *ent = CellPtoHeapAdjust(RepPair(entry));
+	register CELL flags;
 
-      flags = *ent;
-      ResetFlag(InUseMask, flags);
-      *ent = flags;
-      if (FlagOn((DirtyMask|ErasedMask), flags)) {
-	if (FlagOn(DBClMask, flags)) {
-	  Yap_ErDBE(DBStructFlagsToDBStruct(ent));
-	} else {
-	  if (flags & LogUpdMask) {
-	    if (flags & IndexMask) {
-	      if (FlagOn(ErasedMask, flags))
-		Yap_ErLogUpdIndex(ClauseFlagsToLogUpdIndex(ent));
-	      else
-		Yap_CleanUpIndex(ClauseFlagsToLogUpdIndex(ent));
-	    } else {
-	      Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(ent));
-	    }
+	flags = *ent;
+	ResetFlag(InUseMask, flags);
+	*ent = flags;
+	if (FlagOn((DirtyMask|ErasedMask), flags)) {
+	  if (FlagOn(DBClMask, flags)) {
+	    Yap_ErDBE(DBStructFlagsToDBStruct(ent));
 	  } else {
-	    Yap_ErCl(ClauseFlagsToDynamicClause(ent));
+	    if (flags & LogUpdMask) {
+	      if (flags & IndexMask) {
+		if (FlagOn(ErasedMask, flags))
+		  Yap_ErLogUpdIndex(ClauseFlagsToLogUpdIndex(ent));
+		else
+		  Yap_CleanUpIndex(ClauseFlagsToLogUpdIndex(ent));
+	      } else {
+		Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(ent));
+	      }
+	    } else {
+	      Yap_ErCl(ClauseFlagsToDynamicClause(ent));
+	    }
 	  }
 	}
-      }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
-    } else /* if (IsApplTerm(d1)) */ {
-      Entries += 2;
+      } else /* if (IsApplTerm(d1)) */ {
+	Entries += 2;
 #endif
+      }
     }
   }
   B = NULL;
