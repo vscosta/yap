@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-04-01 08:42:46 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-01 09:41:05 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.88  2008/04/01 08:42:46  vsc
+* fix restore and small VISTA thingies
+*
 * Revision 1.87  2008/03/25 22:03:14  vsc
 * fix some icc warnings
 *
@@ -778,8 +781,10 @@ restore_codes(void)
     Yap_heap_regs->file_aliases =
       (struct AliasDescS *)AddrAdjust((ADDR)Yap_heap_regs->file_aliases);
   }
-  Yap_heap_regs->yap_lib_dir =
-    (char *)AddrAdjust((ADDR)Yap_heap_regs->yap_lib_dir);
+  if (Yap_heap_regs->yap_lib_dir) {
+    Yap_heap_regs->yap_lib_dir =
+      (char *)AddrAdjust((ADDR)Yap_heap_regs->yap_lib_dir);
+  }
   Yap_heap_regs->pred_goal_expansion =
     PredEntryAdjust(Yap_heap_regs->pred_goal_expansion);
   Yap_heap_regs->pred_meta_call =
@@ -1329,8 +1334,10 @@ RestoreEntries(PropEntry *pp)
 	  PropAdjust(gb->NextOfPE);
 	gb->AtomOfGE =
 	  AtomEntryAdjust(gb->AtomOfGE);
-	gb->NextGE =
-	  GlobalEntryAdjust(gb->NextGE);
+	if (gb->NextGE) {
+	  gb->NextGE =
+	    GlobalEntryAdjust(gb->NextGE);
+	}
 	if (IsVarTerm(gbt)) {
 	  CELL *gbp = VarOfTerm(gbt);
 	  if (IsOldGlobalPtr(gbp))
