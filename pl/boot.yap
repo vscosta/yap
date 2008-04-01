@@ -420,7 +420,7 @@ true :- true.
 	 ;
 	  nb_getval('$assert_all',on)
 	 ->
-	  functor(G,N,A),
+	  functor(H,N,A),
 	  '$dynamic'(N/A,Mod),
 	  '$assertz_dynamic'(L,G,G0,Mod)
 	 ;
