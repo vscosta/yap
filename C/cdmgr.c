@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2008-04-01 08:42:45 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-01 22:28:41 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.225  2008/04/01 08:42:45  vsc
+* fix restore and small VISTA thingies
+*
 * Revision 1.224  2008/03/31 22:56:21  vsc
 * more fixes
 *
@@ -1554,7 +1557,6 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
 #ifdef YAPOR
     if (SEQUENTIAL_IS_DEFAULT) {
       p->PredFlags |= SequentialPredFlag;
-      PUT_YAMOP_SEQ(pt);
     }
 #endif /* YAPOR */
 #ifdef TABLING
@@ -1585,7 +1587,6 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
     p->PredFlags &= ~ProfiledPredFlag;
 #ifdef YAPOR
   p->PredFlags |= SequentialPredFlag;
-  PUT_YAMOP_SEQ((yamop *)cp);
 #endif /* YAPOR */
   if (spy_flag) {
     p->OpcodeOfPred = Yap_opcode(_spy_pred);
@@ -1647,10 +1648,6 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
   ncp->u.ld.s = p->ArityOfPE;
   ncp->u.ld.p = p;
   ncp->u.ld.d = cp;
-#ifdef YAPOR
-  INIT_YAMOP_LTT(ncp, 1);
-  PUT_YAMOP_SEQ(ncp);
-#endif /* YAPOR */
   /* This is the point we enter the code */
   p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = ncp;
   p->cs.p_code.NOfClauses = 1;

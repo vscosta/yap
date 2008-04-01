@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.90 2008-03-25 16:45:52 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.91 2008-04-01 22:28:41 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -136,6 +136,8 @@ Yap_FreeAtomSpace(char *p)
   Yap_PrologMode &= ~MallocMode;
 }
 
+#endif
+
 /* If you need to dinamically allocate space from the heap, this is
  * the macro you should use */
 ADDR
@@ -198,8 +200,6 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip)
   AuxSp = (CELL *)(AuxTop = ptr+sz);
   return ptr;
 }
-
-#endif
 
 #if USE_SYSTEM_MALLOC
 
@@ -651,18 +651,6 @@ Yap_AllocCodeSpace(unsigned int size)
   return out;
 }
 
-ADDR
-Yap_ExpandPreAllocCodeSpace(UInt sz, void *cip)
-{
-  if (sz < SCRATCH_INC_SIZE)
-    sz = SCRATCH_INC_SIZE;
-  sz = AdjustLargePageSize(sz+sz/4);
-  if (!Yap_growheap((cip!=NULL), sz, cip)) {
-    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
-    return NULL;
-  }
-  return Addr(HeapTop) + sizeof(CELL);
-}
 #endif
 
 

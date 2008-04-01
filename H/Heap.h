@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.127 2008-03-25 22:03:13 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.128 2008-04-01 22:28:41 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -1030,7 +1030,6 @@ UInt STD_PROTO(Yap_givemallinfo, (void));
 
 ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt, void *));
 #define Yap_ReleasePreAllocCodeSpace(x)
-#if defined(USE_SYSTEM_MALLOC)||USE_DL_MALLOC
 ADDR    STD_PROTO(Yap_InitPreAllocCodeSpace, (void));
 EXTERN inline ADDR
 Yap_PreAllocCodeSpace(void)
@@ -1039,13 +1038,6 @@ Yap_PreAllocCodeSpace(void)
   if (ptr) return ptr;
   return Yap_InitPreAllocCodeSpace();
 }
-#else
-EXTERN inline ADDR
-Yap_PreAllocCodeSpace(void)
-{
-  return Addr(HeapTop) + sizeof(CELL);
-}
-#endif
 
 #ifdef THREADS
 Prop STD_PROTO(Yap_NewThreadPred, (PredEntry *));

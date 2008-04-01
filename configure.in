@@ -253,7 +253,7 @@ AC_ARG_WITH(max-workers,
 
 if test "$tabling" = yes -o "$orparallelism" = yes -o "$threads" = yes
 then
-  AC_DEFINE(MinHeapSpace, (600*SIZEOF_INT_P))
+  AC_DEFINE(MinHeapSpace, (1000*SIZEOF_INT_P))
   AC_DEFINE(MinStackSpace,(300*SIZEOF_INT_P))
   AC_DEFINE(MinTrailSpace,( 48*SIZEOF_INT_P))
 else
@@ -1377,7 +1377,10 @@ dnl large memory configuration, don't trust Yap allocation routines
 if test "$maxmemory" = yes
 then
 AC_DEFINE(GC_NO_TAGS,1)
+if test "$orparallelism" != yes
+then
 AC_DEFINE(USE_DL_MALLOC,1)
+fi
 fi
 
 mkdir -p  library/matrix

@@ -3084,7 +3084,7 @@ fi
 if test "$tabling" = yes -o "$orparallelism" = yes -o "$threads" = yes
 then
   cat >>confdefs.h <<\_ACEOF
-#define MinHeapSpace (600*SIZEOF_INT_P)
+#define MinHeapSpace (1000*SIZEOF_INT_P)
 _ACEOF
 
   cat >>confdefs.h <<\_ACEOF
@@ -16112,10 +16112,13 @@ cat >>confdefs.h <<\_ACEOF
 #define GC_NO_TAGS 1
 _ACEOF
 
+if test "$orparallelism" != yes
+then
 cat >>confdefs.h <<\_ACEOF
 #define USE_DL_MALLOC 1
 _ACEOF
 
+fi
 fi
 
 mkdir -p  library/matrix

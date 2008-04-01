@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2008-03-25 16:45:52 $							 *
+* Last rev:     $Date: 2008-04-01 22:28:41 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.100  2008/03/25 16:45:52  vsc
+* make or-parallelism compile again
+*
 * Revision 1.99  2008/01/23 17:57:44  vsc
 * valgrind it!
 * enable atom garbage collection.
@@ -2705,8 +2708,8 @@ static yamop *
 do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp, int *clause_has_dbtermp, struct intermediates *cip, UInt size)
 {
 #ifdef YAPOR
-#define EITHER_INST 50
-  yamop *either_inst[EITHER_INST];
+#define MAX_DISJ_BRANCHES 256
+  yamop *either_inst[MAX_DISJ_BRANCHES];
   int either_cont = 0;
 #endif	/* YAPOR */
   int log_update;
@@ -3086,10 +3089,6 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case commit_b_op:
       code_p = a_v(_commit_b_x, code_p, pass_no, cip->cpc);
-#ifdef YAPOR
-      if (pass_no)
-	PUT_YAMOP_CUT(*entry_codep);
-#endif /* YAPOR */
       break;
     case save_pair_op:
       code_p = a_uv((Ventry *) cip->cpc->rnd1, _save_pair_x, _save_pair_x_write, code_p, pass_no);
@@ -3103,10 +3102,6 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case cut_op:
       code_p = a_cut(&clinfo, code_p, pass_no, cip);
-#ifdef YAPOR
-      if (pass_no)
-	PUT_YAMOP_CUT(*entry_codep);
-#endif	/* YAPOR */
       break;
     case cutexit_op:
       code_p = a_cut(&clinfo, code_p, pass_no, cip);
@@ -3114,17 +3109,13 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	 (*clause_has_blobsp  || *clause_has_dbtermp) &&
 	  !clinfo.alloc_found)
 	code_p = a_cle(_alloc_for_logical_pred, code_p, pass_no, cip);
-#if THREADS
+#if defined(THREADS) || defined(YAPOR)
      else
        if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
 	   !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag))
 	 code_p = a_e(_unlock_lu, code_p, pass_no);
 #endif
       code_p = a_pl(_procceed, cip->CurrentPred, code_p, pass_no);
-#ifdef YAPOR
-      if (pass_no)
-	PUT_YAMOP_CUT(*entry_codep);
-#endif	/* YAPOR */
       break;
     case allocate_op:
       clinfo.alloc_found = 2;
@@ -3217,7 +3208,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	  (*clause_has_blobsp || *clause_has_dbtermp) &&
 	  !clinfo.alloc_found)
 	code_p = a_cle(_alloc_for_logical_pred, code_p, pass_no, cip);
-#if THREADS
+#if defined(THREADS) || defined(YAPOR)
      else
        if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
 	   !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag))
@@ -3229,7 +3220,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_p(_call, &clinfo, code_p, pass_no, cip);
       break;
     case execute_op:
-#if THREADS
+#if defined(THREADS) || defined(YAPOR)
       if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
 	  !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag))
 	code_p = a_e(_unlock_lu, code_p, pass_no);
@@ -3273,6 +3264,10 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 #ifdef YAPOR
       if (pass_no)
 	either_inst[either_cont++] = code_p;
+      if (either_cont == MAX_DISJ_BRANCHES) {
+	Yap_Error(FATAL_ERROR,TermNil,"Too Many Branches in  disjunction: please increase MAX_DISJ_BRANCHES in amasm.c\n");
+	exit(1);
+      }
       code_p = a_either(_either,
 	       -Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2,
 	       Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], 0, 0, code_p, pass_no, cip);
