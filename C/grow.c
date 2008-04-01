@@ -1435,7 +1435,7 @@ growstack(long size)
     fprintf(Yap_stderr, "%%   took %g sec\n", (double)growth_time/1000);
     fprintf(Yap_stderr, "%% Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
   }
-  return(TRUE);
+  return TRUE;
 }
 
 /* Used by parser when we're short of stack space */

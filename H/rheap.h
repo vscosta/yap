@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-04-01 09:41:05 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-01 14:09:43 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.89  2008/04/01 09:41:05  vsc
+* more fixes to restore
+*
 * Revision 1.88  2008/04/01 08:42:46  vsc
 * fix restore and small VISTA thingies
 *
@@ -435,7 +438,7 @@ restore_codes(void)
 {
   Yap_heap_regs->heap_top = AddrAdjust(OldHeapTop);
   if (Yap_heap_regs->heap_lim) {
-    Yap_heap_regs->heap_lim = AddrAdjust(Yap_heap_regs->heap_lim);
+    Yap_heap_regs->heap_lim = GlobalAddrAdjust(Yap_heap_regs->heap_lim);
   }
 #ifdef YAPOR
   Yap_heap_regs->seq_def = TRUE;

@@ -1286,15 +1286,21 @@ RestoreAtomList(Atom atm)
 static void
 RestoreHashPreds(void)
 {
-  UInt new_size = PredHashTableSize;
-  PredEntry **oldp = (PredEntry **)AddrAdjust((ADDR)PredHash);
-  PredEntry **np = (PredEntry **) Yap_AllocAtomSpace(sizeof(PredEntry **)*new_size);
+  UInt size = PredHashTableSize;
+  int malloced = FALSE;
+  PredEntry **np;
   UInt i;
+  PredEntry **oldp = PredHash = (PredEntry **)AddrAdjust((ADDR)PredHash);
 
+  np = (PredEntry **) Yap_AllocAtomSpace(sizeof(PredEntry **)*size);
   if (!np) {
-    Yap_Error(FATAL_ERROR,TermNil,"Could not allocate space for pred table");
+    if (!(np = (PredEntry **) malloc(sizeof(PredEntry **)*size))) {
+	Yap_Error(FATAL_ERROR,TermNil,"Could not allocate space for pred table");
+	return;
+      }
+    malloced = TRUE;
   }
-  for (i = 0; i < new_size; i++) {
+  for (i = 0; i < size; i++) {
     np[i] = NULL;
   }
   for (i = 0; i < PredHashTableSize; i++) {
@@ -1310,15 +1316,19 @@ RestoreHashPreds(void)
 	p->NextOfPE = PropAdjust(p->NextOfPE);
       nextp = p->NextOfPE;
       CleanCode(p);
-      hsh = PRED_HASH(p->FunctorOfPred, p->ModuleOfPred, new_size);
+      hsh = PRED_HASH(p->FunctorOfPred, p->ModuleOfPred, size);
       p->NextOfPE = AbsPredProp(np[hsh]);
       np[hsh] = p;
       p = RepPredProp(nextp);
     }
   }
-  PredHashTableSize = new_size;
-  PredHash = np;
-  Yap_FreeAtomSpace((ADDR)oldp);
+  for (i = 0; i < size; i++) {
+    PredHash[i] = np[i];
+  }
+  if (malloced)
+    free((ADDR)np);
+  else
+    Yap_FreeAtomSpace((ADDR)np);
 }
 
 

@@ -622,13 +622,18 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
   pe->ModuleOfPred = CurrentModule;
   if (def != NULL) {
     yamop      *p_code = ((StaticClause *)NULL)->ClCode;
-    StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),sla),p),l)); 
+    StaticClause     *cl;
 
-    if (!cl) {
-      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitAsmPred");
-      return;
+    if (pe->CodeOfPred == (yamop *)(&(pe->OpcodeOfPred))) {
+      cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),sla),p),l)); 
+      if (!cl) {
+	Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitAsmPred");
+	return;
+      }
+      Yap_ClauseSpace += (CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),sla),p),l);
+    } else {
+      cl = ClauseCodeToStaticClause(pe->CodeOfPred);
     }
-    Yap_ClauseSpace += (CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),sla),p),l);
     cl->ClFlags = StaticMask;
     cl->ClNext = NULL;
     cl->ClSize = (CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),sla),e),e);
