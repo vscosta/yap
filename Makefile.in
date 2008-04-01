@@ -566,7 +566,7 @@ all: startup
 	@INSTALL_DLLS@ (cd library/rltree; make)
 	@INSTALL_DLLS@ (cd library/system; make)
 	@INSTALL_DLLS@ (cd library/tries; make)
-	@INSTALL_DLLS@ (cd library/rltrees; make)
+	@INSTALL_DLLS@ (cd library/rltree; make)
 	@INSTALL_DLLS@ (cd library/lammpi; make)
 	@INSTALL_DLLS@ (cd library/matrix; make)
 	@INSTALL_MATLAB@ (cd library/matlab; make)
