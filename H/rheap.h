@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-04-01 14:09:43 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-01 15:31:43 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.90  2008/04/01 14:09:43  vsc
+* improve restore
+*
 * Revision 1.89  2008/04/01 09:41:05  vsc
 * more fixes to restore
 *
@@ -437,9 +440,6 @@ static void
 restore_codes(void)
 {
   Yap_heap_regs->heap_top = AddrAdjust(OldHeapTop);
-  if (Yap_heap_regs->heap_lim) {
-    Yap_heap_regs->heap_lim = GlobalAddrAdjust(Yap_heap_regs->heap_lim);
-  }
 #ifdef YAPOR
   Yap_heap_regs->seq_def = TRUE;
   Yap_heap_regs->getwork_code.opc = Yap_opcode(_getwork);
@@ -776,13 +776,27 @@ restore_codes(void)
   Yap_heap_regs->arg_module = AtomTermAdjust(Yap_heap_regs->arg_module);
   Yap_heap_regs->swi_module = AtomTermAdjust(Yap_heap_regs->swi_module);
   Yap_heap_regs->global_hold_entry = HoldEntryAdjust(Yap_heap_regs->global_hold_entry);
-  if (Yap_heap_regs->file_aliases != NULL) {
+  if (Yap_heap_regs->yap_streams != NULL) {
+    int sno;
+
     Yap_heap_regs->yap_streams =
       (struct stream_desc *)AddrAdjust((ADDR)Yap_heap_regs->yap_streams);
+    for (sno = 0; sno < MaxStreams; ++sno) {
+      if (Stream[sno].status & Free_Stream_f)
+	continue;
+      if (Stream[sno].status & (Socket_Stream_f|Pipe_Stream_f|InMemory_Stream_f)) 
+	continue;
+      Stream[sno].u.file.user_name = AtomTermAdjust(Stream[sno].u.file.user_name);
+      Stream[sno].u.file.name = AtomAdjust(Stream[sno].u.file.name);
+    }    
   }
   if (Yap_heap_regs->file_aliases != NULL) {
+    int i;
+
     Yap_heap_regs->file_aliases =
       (struct AliasDescS *)AddrAdjust((ADDR)Yap_heap_regs->file_aliases);
+    for (i = 0; i < NOfFileAliases; i++)
+      FileAliases[i].name = AtomAdjust(FileAliases[i].name);
   }
   if (Yap_heap_regs->yap_lib_dir) {
     Yap_heap_regs->yap_lib_dir =

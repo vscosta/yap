@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-03-22 23:35:00 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-04-01 15:31:41 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.108  2008/03/22 23:35:00  vsc
+* fix bug in all_calls
+*
 * Revision 1.107  2008/03/13 18:41:50  vsc
 * -q flag
 *
@@ -1652,7 +1655,7 @@ YAP_Init(YAP_init_args *yap_init)
 
   Yap_argv = yap_init->Argv;
   Yap_argc = yap_init->Argc;
-  if (yap_init->SavedState != NULL &&
+  if (yap_init->SavedState != NULL ||
       yap_init->YapPrologBootFile == NULL) {
     if (Yap_SavedInfo (yap_init->SavedState, yap_init->YapLibDir, &Trail, &Stack, &Heap) != 1) {
       yap_init->ErrorNo = Yap_Error_TYPE;

@@ -1012,6 +1012,7 @@ restore_heap_regs(void)
     *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
   }
   HeapMax = Yap_heap_regs->heap_used = OldHeapUsed;
+  HeapLim = Yap_GlobalBase;
   restore_codes();
 }
 
