@@ -547,7 +547,8 @@ predicates provided by YAP. Depending on the operating system, the
 option @code{--enable-pthread-locking} may also need to be used.
 
  @item @code{--with-max-threads} allows definition of the maximum 
-number of threads.
+number of threads (the default value is 1024; its value can be consulted 
+at runtime using the flag @code{max_threads}).
 
 @end itemize
 
@@ -12137,6 +12138,10 @@ Associate an alias-name with the thread.  This named may be used to
 refer to the thread and remains valid until the thread is joined
 (see @code{thread_join/2}).
 
+    @item at_exit
+Define an exit hook for the thread.  This hook is called when the thread
+terminates, no matter its exit status.
+
     @item detached
 If @code{false} (default), the thread can be waited for using
 @code{thread_join/2}. @code{thread_join/2} must be called on this thread
@@ -12302,6 +12307,9 @@ The thread status of a thread (see below).
 
     @item alias(@var{Alias})
 The thread alias, if it exists.
+
+    @item at_exit(@var{AtExit})
+The thread exit hook, if defined (not available if the thread is already terminated).
 
     @item detached(@var{Boolean})
 The detached state of the thread.
