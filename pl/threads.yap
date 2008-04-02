@@ -48,7 +48,7 @@
 	'$thread_zombie_self'(Id0), !,
 	'$close_thread'(Status, Detached, Id0).
 '$close_thread'(Status, Detached) :- !,
-	% one self will fail if it had messages
+	% zombie_self failed as it the thread was messages pending
 	'$close_thread'(Status, Detached).
 
 
@@ -59,7 +59,7 @@
 	;	recorda('$thread_exit_status', [Id0|Status], _)
 	).
 %	format(user_error,'closing thread ~w~n',[v([Id0|Status])]).	
-'$close_thread'(Exception, Detached) :-
+'$close_thread'(Exception, Detached, Id0) :-
 	'$run_at_thread_exit'(Id0),
 	(	Detached == true ->
 		'$erase_thread_info'(Id0)
@@ -327,19 +327,14 @@ thread_exit(Term) :-
 
 '$run_at_thread_exit'(Id0) :-
 	recorded('$thread_at_exit',[Id0|AtExit],R), erase(R),
-	'$thread_top_goal'(AtExit),
+	catch(once(AtExit),_,fail),
 	fail.
 '$run_at_thread_exit'(Id0) :-
-	findall(Hook, (recorded('$thread_exit_hook',[Id0|Hook],R), erase(R)), Hooks),
-	'$run_thread_hooks'(Hooks),
+	recorded('$thread_exit_hook',[Id0|Hook],R), erase(R),
+	catch(once(Hook),_,fail),
 	fail.
 '$run_at_thread_exit'(Id0) :-
 	message_queue_destroy(Id0).
-
-'$run_thread_hooks'([]).
-'$run_thread_hooks'([Hook|Hooks]) :-
-	'$thread_top_goal'(Hook),
-	'$run_thread_hooks'(Hooks).
 
 thread_at_exit(Goal) :-
 	'$check_callable'(Goal,thread_at_exit(Goal)),
