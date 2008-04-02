@@ -240,7 +240,7 @@ AC_ARG_WITH(trail-space,
 	[yap_cv_trail_space=0])
 
 AC_ARG_WITH(max-workers,
-	[ --with-max-workers[=integer] maximum number of threads or parallel processes],
+	[ --with-max-workers[=integer] maximum number of or-parallel processes],
 	if test "$withval" = yes; then
 	  yap_cv_max_workers="(8*SIZEOF_INT_P)"
 	elif test "$withval" = no; then
@@ -249,6 +249,17 @@ AC_ARG_WITH(max-workers,
 	  yap_cv_max_workers=$withval
 	fi,
 	[yap_cv_max_workers="(8*SIZEOF_INT_P)"])
+
+AC_ARG_WITH(max-threads,
+	[ --with-max-threads[=integer] maximum number of or-parallel processes],
+	if test "$withval" = yes; then
+	  yap_cv_max_threads="1024"
+	elif test "$withval" = no; then
+	  yap_cv_max_threads="1"
+	else
+	  yap_cv_max_threads=$withval
+	fi,
+	[yap_cv_max_threads="1024"])
 
 
 if test "$tabling" = yes -o "$orparallelism" = yes -o "$threads" = yes
@@ -270,11 +281,18 @@ AC_CANONICAL_SYSTEM
 
 AC_DEFINE_UNQUOTED(HOST_ALIAS,"${target}")
 
-if test "$or-parallelism" = no -a "$threads" = no
+if test "$or-parallelism" = no
 then
   AC_DEFINE(MAX_WORKERS,1)
 else
 eval "AC_DEFINE(MAX_WORKERS,$yap_cv_max_workers)"
+fi
+
+if test "$threads" = no
+then
+  AC_DEFINE(MAX_THREADS,1)
+else
+eval "AC_DEFINE(MAX_THREADS,$yap_cv_max_threads)"
 fi
 
 

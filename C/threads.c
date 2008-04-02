@@ -43,11 +43,11 @@ allocate_new_tid(void)
 {
   int new_worker_id = 0;
   LOCK(ThreadHandlesLock);
-  while(new_worker_id < MAX_WORKERS &&
+  while(new_worker_id < MAX_THREADS &&
 	(ThreadHandle[new_worker_id].in_use == TRUE ||
 	 ThreadHandle[new_worker_id].zombie == TRUE) )
     new_worker_id++;
-  if (new_worker_id < MAX_WORKERS) {
+  if (new_worker_id < MAX_THREADS) {
     pthread_mutex_lock(&(ThreadHandle[new_worker_id].tlock));
     ThreadHandle[new_worker_id].in_use = TRUE;
   } else {
@@ -184,7 +184,7 @@ p_thread_new_tid(void)
 {
   int new_worker = allocate_new_tid();
   if (new_worker == -1) {
-    Yap_Error(RESOURCE_ERROR_MAX_THREADS, MkIntegerTerm(MAX_WORKERS), "");
+    Yap_Error(RESOURCE_ERROR_MAX_THREADS, MkIntegerTerm(MAX_THREADS), "");
     return FALSE;
   }
   return Yap_unify(MkIntegerTerm(new_worker), ARG1);
@@ -617,7 +617,7 @@ p_nof_threads(void)
 {				/* '$nof_threads'(+P)	 */
   int i = 0, wid;
   LOCK(ThreadHandlesLock);
-  for (wid = 0; wid < MAX_WORKERS; wid++) {
+  for (wid = 0; wid < MAX_THREADS; wid++) {
     if (ThreadHandle[wid].in_use)
       i++;
   }
@@ -628,7 +628,7 @@ p_nof_threads(void)
 static Int 
 p_max_threads(void)
 {				/* '$max_threads'(+P)	 */
-  return Yap_unify(ARG1,MkIntegerTerm(MAX_WORKERS));
+  return Yap_unify(ARG1,MkIntegerTerm(MAX_THREADS));
 }
 
 static Int 

@@ -428,41 +428,41 @@ yap_flag(min_tagged_integer,X) :-
 
 /* ISO Core Revision DTR: new float flags
 
-yap_flag(ﬂoat_mantissa_digits,X) :-
+yap_flag(float_mantissa_digits,X) :-
 	var(X), !,
 	?????
-yap_flag(ﬂoat_mantissa_digits,X) :-
+yap_flag(float_mantissa_digits,X) :-
 	integer(X), X > 0, !,
-	'$do_error'(permission_error(modify,flag,ﬂoat_mantissa_digits),yap_flag(ﬂoat_mantissa_digits,X)).
-yap_flag(ﬂoat_mantissa_digits,X) :-
-	'$do_error'(domain_error(flag_value,ﬂoat_mantissa_digits+X),yap_flag(ﬂoat_mantissa_digits,X)).
+	'$do_error'(permission_error(modify,flag,float_mantissa_digits),yap_flag(float_mantissa_digits,X)).
+yap_flag(float_mantissa_digits,X) :-
+	'$do_error'(domain_error(flag_value,float_mantissa_digits+X),yap_flag(float_mantissa_digits,X)).
 
-yap_flag(ﬂoat_epsilon,X) :-
+yap_flag(float_epsilon,X) :-
 	var(X), !,
 	?????
-yap_flag(ﬂoat_epsilon,X) :-
+yap_flag(float_epsilon,X) :-
 	float(X), X > 0, !,
-	'$do_error'(permission_error(modify,flag,ﬂoat_epsilon),yap_flag(ﬂoat_epsilon,X)).
-yap_flag(ﬂoat_epsilon,X) :-
-	'$do_error'(domain_error(flag_value,ﬂoat_epsilon+X),yap_flag(ﬂoat_epsilon,X)).
+	'$do_error'(permission_error(modify,flag,float_epsilon),yap_flag(float_epsilon,X)).
+yap_flag(float_epsilon,X) :-
+	'$do_error'(domain_error(flag_value,float_epsilon+X),yap_flag(float_epsilon,X)).
 
-yap_flag(ﬂoat_min_exponent,X) :-
+yap_flag(float_min_exponent,X) :-
 	var(X), !,
 	?????
-yap_flag(ﬂoat_min_exponent,X) :-
+yap_flag(float_min_exponent,X) :-
 	integer(X), X > 0, !,
-	'$do_error'(permission_error(modify,flag,ﬂoat_min_exponent),yap_flag(ﬂoat_min_exponent,X)).
-yap_flag(ﬂoat_epsilon,X) :-
-	'$do_error'(domain_error(flag_value,ﬂoat_min_exponent+X),yap_flag(ﬂoat_min_exponent,X)).
+	'$do_error'(permission_error(modify,flag,float_min_exponent),yap_flag(ﬂoat_min_exponent,X)).
+yap_flag(float_epsilon,X) :-
+	'$do_error'(domain_error(flag_value,float_min_exponent+X),yap_flag(ﬂoat_min_exponent,X)).
 
 yap_flag(float_max_exponent,X) :-
 	var(X), !,
 	?????
 yap_flag(float_max_exponent,X) :-
 	integer(X), X > 0, !,
-	'$do_error'(permission_error(modify,flag,ﬂoat_max_exponent),yap_flag(ﬂoat_max_exponent,X)).
+	'$do_error'(permission_error(modify,flag,float_max_exponent),yap_flag(ﬂoat_max_exponent,X)).
 yap_flag(float_max_exponent,X) :-
-	'$do_error'(domain_error(flag_value,ﬂoat_max_exponent+X),yap_flag(ﬂoat_max_exponent,X)).
+	'$do_error'(domain_error(flag_value,float_max_exponent+X),yap_flag(ﬂoat_max_exponent,X)).
 */
 
 yap_flag(char_conversion,X) :-

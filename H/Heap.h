@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.128 2008-04-01 22:28:41 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.129 2008-04-02 15:41:50 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -98,7 +98,7 @@ typedef struct restore_info {
 } restoreinfo;
 
 #if defined(THREADS)
-extern struct restore_info rinfo[MAX_WORKERS];
+extern struct restore_info rinfo[MAX_THREADS];
 #else
 extern struct restore_info rinfo;
 #endif
@@ -224,7 +224,7 @@ typedef struct various_codes {
 #if defined(YAPOR) || defined(THREADS)
   lockvar  bgl;		 /* protect long critical regions   */
   lockvar  free_blocks_lock;     /* protect the list of free blocks */
-  worker_local wl[MAX_WORKERS];
+  worker_local wl[MAX_AGENTS];
 #else
   worker_local wl;
 #endif
@@ -564,7 +564,7 @@ typedef struct various_codes {
 #endif /* YAPOR || TABLING */
 #ifdef THREADS
   lockvar  thread_handles_lock;        /* protect ThreadManipulation */
-  struct thandle thread_handle[MAX_WORKERS];
+  struct thandle thread_handle[MAX_THREADS];
 #endif
   UInt n_of_atoms;
   UInt atom_hash_table_size;

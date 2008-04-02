@@ -83,9 +83,9 @@ ADDR Yap_HeapBase;
 
 #if defined(THREADS)
 
-struct restore_info rinfo[MAX_WORKERS];
+struct restore_info rinfo[MAX_THREADS];
 
-struct thread_globs Yap_thread_gl[MAX_WORKERS];
+struct thread_globs Yap_thread_gl[MAX_THREADS];
 
 #else
 
@@ -968,7 +968,7 @@ InitCodes(void)
   INIT_LOCK(Yap_heap_regs->thread_handles_lock);
   {
     int i;
-    for (i=0; i < MAX_WORKERS; i++) {
+    for (i=0; i < MAX_THREADS; i++) {
       Yap_heap_regs->thread_handle[i].in_use = FALSE;
       Yap_heap_regs->thread_handle[i].zombie = FALSE;
       Yap_heap_regs->thread_handle[i].local_preds = NULL;
@@ -1001,7 +1001,7 @@ InitCodes(void)
   Yap_heap_regs->heap_top_owner = -1;
   {
     int i;
-    for (i=0; i < MAX_WORKERS; i++) {
+    for (i=0; i < MAX_AGENTS; i++) {
       INIT_LOCK(Yap_heap_regs->wl[i].signal_lock);
       Yap_heap_regs->wl[i].active_signals = 0;
       Yap_heap_regs->wl[i].scratchpad.ptr = NULL;

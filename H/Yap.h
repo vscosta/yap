@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.31 2008-03-27 00:41:32 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.32 2008-04-02 15:41:50 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -388,6 +388,12 @@ typedef pthread_rwlock_t rwlock_t;
 #ifdef __alpha
 #include <alpha_locks_funcs.h>
 #endif
+#ifdef YAPOR
+#define MAX_AGENTS MAX_WORKERS
+#endif
+#ifdef THREADS
+#define MAX_AGENTS MAX_THREADS
+#endif
 #endif
 
 /************ variables	concerned with Error Handling *************/
@@ -730,7 +736,7 @@ typedef struct thread_globs
 
 } tglobs;
 
-extern struct thread_globs Yap_thread_gl[MAX_WORKERS];
+extern struct thread_globs Yap_thread_gl[MAX_THREADS];
 
 
 #define    Yap_LocalBase  Yap_thread_gl[worker_id].local_base
