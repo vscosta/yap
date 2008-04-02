@@ -7778,8 +7778,7 @@ this flag is @code{off}.
 
 @item max_workers
 @findex  max_workers (yap_flag/2 option)
-@* Read-only flag telling the maximum number of Prolog workers when using 
-or-parallelism.
+@* Read-only flag telling the maximum number of parallel processes.
 
 @item max_threads
 @findex  max_threads (yap_flag/2 option)
@@ -12257,8 +12256,11 @@ Run @var{Goal} just before releasing the thread resources. This is to
 be compared to @code{at_halt/1}, but only for the current
 thread. These hooks are ran regardless of why the execution of the
 thread has been completed. As these hooks are run, the return-code is
-already available through @code{current_thread/2} using the result of
-@code{thread_self/1} as thread-identifier.
+already available through @code{thread_property/2} using the result of
+@code{thread_self/1} as thread-identifier. If you want to guarantee the 
+execution of an exit hook no matter how the thread terminates (the thread 
+can be aborted before reaching the @code{thread_at_exit/1} call), consider
+using instead the @code{at_exit/1} option of @code{thread_create/3}. 
 
 @item thread_setconcurrency(+@var{Old}, -@var{New})
 @findex thread_setconcurrency/2
