@@ -646,6 +646,12 @@ p_nof_threads(void)
 }
 
 static Int 
+p_max_workers(void)
+{				/* '$max_workers'(+P)	 */
+  return Yap_unify(ARG1,MkIntegerTerm(MAX_WORKERS));
+}
+
+static Int 
 p_max_threads(void)
 {				/* '$max_threads'(+P)	 */
   return Yap_unify(ARG1,MkIntegerTerm(MAX_THREADS));
@@ -666,6 +672,7 @@ p_thread_runtime(void)
 void Yap_InitThreadPreds(void)
 {
   Yap_InitCPred("$no_threads", 0, p_no_threads, HiddenPredFlag);
+  Yap_InitCPred("$max_workers", 1, p_max_workers, HiddenPredFlag);
   Yap_InitCPred("$max_threads", 1, p_max_threads, HiddenPredFlag);
   Yap_InitCPred("$thread_new_tid", 1, p_thread_new_tid, HiddenPredFlag);
   Yap_InitCPred("$create_thread", 6, p_create_thread, HiddenPredFlag);

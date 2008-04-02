@@ -537,7 +537,8 @@ or-parallelism supported by one of these three forms. This option is
 still highly experimental.
 
  @item @code{--with-max-workers} allows definition of the maximum 
-number of parallel processes.
+number of parallel processes (its value can be consulted at runtime 
+using the flag @code{max_workers}).
 
  @item @code{--with-gmp[=DIR]} give a path to where one can find the
 @code{GMP} library if not installed in the default path.
@@ -7774,6 +7775,11 @@ running on an Windows machine.
 integers that are writable character codes using the list notation. It
 is @code{on} if enables or @code{off} if disabled. The default value for
 this flag is @code{off}.
+
+@item max_workers
+@findex  max_workers (yap_flag/2 option)
+@* Read-only flag telling the maximum number of Prolog workers when using 
+or-parallelism.
 
 @item max_threads
 @findex  max_threads (yap_flag/2 option)

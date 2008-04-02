@@ -817,6 +817,15 @@ yap_flag(float_format,X) :-
 yap_flag(float_format,X) :-
 	'$do_error'(type_error(atom,X),yap_flag(float_format,X)).
 
+yap_flag(max_workers,X) :-
+	var(X), !,
+	'$max_workers'(X).
+yap_flag(max_workers,X) :-
+	integer(X), X > 0, !,
+	'$do_error'(permission_error(modify,flag,max_workers),yap_flag(max_workers,X)).
+yap_flag(max_workers,X) :-
+	'$do_error'(domain_error(flag_value,max_workers+X),yap_flag(max_workers,X)).
+
 yap_flag(max_threads,X) :-
 	var(X), !,
 	'$max_threads'(X).
@@ -865,6 +874,7 @@ yap_flag(dialect,yap).
 		V = max_arity ;
 		V = max_integer ;
 		V = max_tagged_integer ;
+		V = max_workers ;
 		V = max_threads ;
 		V = min_integer ;
 		V = min_tagged_integer ;
