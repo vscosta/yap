@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-04-01 15:31:41 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-04-02 17:37:06 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.109  2008/04/01 15:31:41  vsc
+* more saved state fixes
+*
 * Revision 1.108  2008/03/22 23:35:00  vsc
 * fix bug in all_calls
 *
@@ -1689,6 +1692,17 @@ YAP_Init(YAP_init_args *yap_init)
 	      yap_init->SchedulerLoop,
 	      yap_init->DelayedReleaseLoad
 	      );
+#if USE_SYSTEM_MALLOC
+  if (Trail < MinTrailSpace)
+    Trail = MinTrailSpace;
+  if (Stack < MinStackSpace)
+    Stack = MinStackSpace;
+  if (!(Yap_GlobalBase = (ADDR)malloc((Trail+Stack)*1024))) {
+    yap_init->ErrorNo = RESOURCE_ERROR_MEMORY;
+    yap_init->ErrorCause = "could not allocate stack space for main thread";
+    return YAP_BOOT_FROM_SAVED_ERROR;;
+  }
+#endif
   Yap_InitExStacks (Trail, Stack);
   if (yap_init->QuietMode) {
     yap_flags[QUIET_MODE_FLAG] = TRUE;

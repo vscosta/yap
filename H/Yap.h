@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.32 2008-04-02 15:41:50 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.33 2008-04-02 17:37:06 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -479,6 +479,7 @@ typedef enum
   REPRESENTATION_ERROR_CHARACTER_CODE,
   REPRESENTATION_ERROR_MAX_ARITY,
   RESOURCE_ERROR_MAX_THREADS,
+  RESOURCE_ERROR_MEMORY,
   RETRY_COUNTER_UNDERFLOW,
   SYNTAX_ERROR,
   SYSTEM_ERROR,

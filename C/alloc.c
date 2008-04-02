@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.91 2008-04-01 22:28:41 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.92 2008-04-02 17:37:05 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -233,7 +233,10 @@ InitExStacks(int Trail, int Stack)
 				 * requested         */
   sa = Stack*K;			/* stack area size   */
 
-  Yap_GlobalBase = malloc(pm);
+#ifdef THREADS
+  if (worker_id)
+    Yap_GlobalBase = (ADDR)ThreadHandle[worker_id].stack_address;
+#endif
   Yap_TrailTop = Yap_GlobalBase + pm;
   Yap_LocalBase = Yap_GlobalBase + sa;
   Yap_TrailBase = Yap_LocalBase + sizeof(CELL);

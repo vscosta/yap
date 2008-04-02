@@ -63,7 +63,12 @@
 	'$run_at_thread_exit'(Id0),
 	(	Detached == true ->
 		'$erase_thread_info'(Id0)
-	;	recorda('$thread_exit_status', [Id0|exception(Exception)], _)
+	;
+	 (
+	  recorded('$thread_exit_status',[Id|_],R), erase(R), fail
+	 ;
+	  recorda('$thread_exit_status', [Id|exception(error(resource_error(memory),thread_create(Goal,Id)))])
+	 )
 	).
 
 thread_create(Goal) :-
@@ -74,7 +79,13 @@ thread_create(Goal) :-
 	'$erase_thread_info'(Id),
 	'$record_thread_info'(Id, [Stack, Trail, System], Detached, AtExit),
 	'$create_thread_mq'(Id),
-	'$create_thread'(Goal, Stack, Trail, System, Detached, Id).
+	(
+	'$create_thread'(Goal, Stack, Trail, System, Detached, Id)
+	->
+	 true
+	;
+	 recorda('$thread_exit_status', [Id|exception(error(resource_error(memory),thread_create(Goal,Id)))],_)
+	).
 
 thread_create(Goal, OutId) :-
 	G0 = thread_create(Goal, Id),
@@ -85,7 +96,13 @@ thread_create(Goal, OutId) :-
 	'$erase_thread_info'(Id),
 	'$record_thread_info'(Id, [Stack, Trail, System], Detached, AtExit),
 	'$create_thread_mq'(Id),
-	'$create_thread'(Goal, Stack, Trail, System, Detached, Id),
+	(
+	 '$create_thread'(Goal, Stack, Trail, System, Detached, Id)
+	->
+	 true
+	;
+	 recorda('$thread_exit_status', [Id|exception(error(resource_error(memory),thread_create(Goal,Id)))],_)
+	),
 	OutId = Id.
 
 thread_create(Goal, OutId, Options) :-
@@ -100,7 +117,13 @@ thread_create(Goal, OutId, Options) :-
 	;	'$record_thread_info'(Id, Alias, [Stack, Trail, System], Detached, AtExit, G0)
 	),
 	'$create_thread_mq'(Id),
-	'$create_thread'(Goal, Stack, Trail, System, Detached, Id),
+	(
+	 '$create_thread'(Goal, Stack, Trail, System, Detached, Id)
+	->
+	 true
+	;
+	 recorda('$thread_exit_status', [Id|exception(error(resource_error(memory),thread_create(Goal,Id,Options)))],_)
+	),
 	OutId = Id.
 
 '$erase_thread_info'(Id) :-

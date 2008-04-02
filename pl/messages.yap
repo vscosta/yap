@@ -11,7 +11,7 @@
 * File:		utilities for displaying messages in YAP.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-03-27 00:41:33 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-02 17:37:07 $,$Author: vsc $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -241,6 +241,8 @@ system_message(error(representation_error(max_arity), Where)) -->
 	[ 'REPRESENTATION ERROR- ~w: number too big' - [Where] ].
 system_message(error(resource_error(threads), Where)) -->
 	[ 'RESOURCE ERROR- too many open threads' - [Where] ].
+system_message(error(resource_error(memory), Where)) -->
+	[ 'RESOURCE ERROR- not enough virtual memory' - [Where] ].
 system_message(error(syntax_error(G,0,Msg,[],0,0), _)) -->
 	[ 'SYNTAX ERROR: ~a' - [G,Msg] ].
 system_message(error(syntax_error(_,_,_,Term,Pos,Start), Where)) -->
