@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-04-02 21:44:07 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-04-03 13:26:38 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.111  2008/04/02 21:44:07  vsc
+* threaded version should ignore saved states (for now).
+*
 * Revision 1.110  2008/04/02 17:37:06  vsc
 * handle out of memory error at thread creation (obs from Paulo Moura).
 *
@@ -1663,7 +1666,7 @@ YAP_Init(YAP_init_args *yap_init)
   Yap_argc = yap_init->Argc;
 #ifdef THREADS
   if (yap_init->SavedState) {
-    fprintf(stderr,"[ WARNING: thread Yap will ignore saved state %s ]\n",yap_init->SavedState);
+    fprintf(stderr,"[ WARNING: threaded Yap will ignore saved state %s ]\n",yap_init->SavedState);
     yap_init->SavedState = NULL;
   }    
 #endif

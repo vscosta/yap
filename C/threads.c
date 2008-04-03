@@ -669,6 +669,13 @@ p_thread_runtime(void)
   return Yap_unify(ARG1,MkIntegerTerm(ThreadsTotalTime));
 }
 
+static Int 
+p_thread_self_lock(void)
+{				/* '$thread_self_lock'	 */
+  pthread_mutex_lock(&(ThreadHandle[worker_id].tlock));
+  return TRUE;
+}
+
 void Yap_InitThreadPreds(void)
 {
   Yap_InitCPred("$no_threads", 0, p_no_threads, HiddenPredFlag);
@@ -741,6 +748,12 @@ p_thread_self(void)
   return Yap_unify(ARG1,MkIntTerm(0));
 }
 
+static Int 
+p_thread_self_lock(void)
+{				/* '$thread_runtime'(+P)	 */
+  return TRUE;
+}
+
 void Yap_InitThreadPreds(void)
 {
   Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag|HiddenPredFlag);
@@ -749,6 +762,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$nof_threads", 1, p_nof_threads, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$nof_threads_created", 1, p_nof_threads_created, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$self_thread_lock", p_thread_self_lock, SafePredFlag);
 }
 
 

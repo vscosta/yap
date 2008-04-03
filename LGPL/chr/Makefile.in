@@ -51,34 +51,34 @@ EXAMPLES=	$(srcdir)/Benchmarks/chrfreeze.chr $(srcdir)/Benchmarks/fib.chr $(srcd
 all:		chr_translate.pl
 
 chr_translate_bootstrap1.pl: $(srcdir)/chr_translate_bootstrap1.chr
-		$(PL) -l chr_swi_bootstrap.yap \
+		$(PL) -f -l chr_swi_bootstrap.yap \
 		      -g "chr_compile_step1('$<','$@'),halt." \
 		      -z 'halt(1).'
-		$(PL) -l chr_swi_bootstrap.yap \
+		$(PL) -f -l chr_swi_bootstrap.yap \
 		      -g "chr_compile_step2('$<','$@'),halt." \
 		      -z 'halt(1).'
 
 chr_translate_bootstrap2.pl: $(srcdir)/chr_translate_bootstrap2.chr  chr_translate_bootstrap1.pl
-		$(PL) -l chr_swi_bootstrap.yap \
+		$(PL) -f -l chr_swi_bootstrap.yap \
 		      -g "chr_compile_step2('$<','$@'),halt." \
 		      -z 'halt(1).'
-		$(PL) -l chr_swi_bootstrap.yap \
+		$(PL) -f -l chr_swi_bootstrap.yap \
 		      -g "chr_compile_step3('$<','$@'),halt." \
 		      -z 'halt(1).'
 
 guard_entailment.pl: $(srcdir)/guard_entailment.chr chr_translate_bootstrap2.pl 
-		$(PL) -l chr_swi_bootstrap.yap \
+		$(PL) -f -l chr_swi_bootstrap.yap \
 		      -g "chr_compile_step3('$<','$@'),halt." \
 		      -z 'halt(1).'
 
 chr_translate.pl: $(srcdir)/chr_translate.chr chr_translate_bootstrap2.pl guard_entailment.pl
-		$(PL) -l chr_swi_bootstrap.yap \
+		$(PL) -f -l chr_swi_bootstrap.yap \
 		      -g "chr_compile_step3('$<','$@'),halt." \
 		      -z 'halt(1).'
-		$(PL) -p chr=. -l chr_swi_bootstrap.yap \
+		$(PL) -f -p chr=. -l chr_swi_bootstrap.yap \
 		      -g "chr_compile_step4('guard_entailment.chr','guard_entailment.pl'),halt." \
 		      -z 'halt(1).'
-		$(PL) -p chr=. -l chr_swi_bootstrap.yap \
+		$(PL) -f -p chr=. -l chr_swi_bootstrap.yap \
 		      -g "chr_compile_step4('$<','$@'),halt." \
 		      -z 'halt(1).'
 
@@ -90,7 +90,7 @@ install:	chr_translate.pl guard_entailment.pl
 		$(INSTALL) -m 644 $(LIBPL) $(DESTDIR)$(CHRDIR)
 		$(INSTALL) -m 644 $(CHRPL) $(DESTDIR)$(SHAREDIR)/chr.pl
 		$(INSTALL) -m 644 $(srcdir)/README   $(DESTDIR)$(CHRDIR)
-#		$(PL) -g make -z halt
+#		$(PL) -f -g make -z halt
 
 rpm-install:	install
 

@@ -269,7 +269,7 @@ dump_stack(void)
   
 #if DEBUG
   fprintf(stderr,"%% YAP regs: P=%p, CP=%p, ASP=%p, H=%p, TR=%p, HeapTop=%p\n",P,CP,ASP,H,TR,HeapTop);
-  fprintf(stderr,"%% YAP mode: %x\n",Yap_PrologMode);
+  fprintf(stderr,"%% YAP mode: %ux\n",(unsigned long int)Yap_PrologMode);
   if (Yap_ErrorMessage)
     fprintf(stderr,"%% YAP_ErrorMessage: %s\n",Yap_ErrorMessage);
 #endif

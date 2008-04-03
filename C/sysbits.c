@@ -2513,6 +2513,9 @@ static Int
 p_first_signal(void)
 {
   LOCK(SignalLock);
+#ifdef THREADS
+  pthread_mutex_lock(&(ThreadHandle[worker_id].tlock));
+#endif  
   /* always do wakeups first, because you don't want to keep the
      non-backtrackable variable bad */
   if (ActiveSignals & YAP_WAKEUP_SIGNAL) {
@@ -2586,6 +2589,9 @@ p_first_signal(void)
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_statistics")));
   }
   UNLOCK(SignalLock);
+#ifdef THREADS
+  pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
   return FALSE;
 }
 
@@ -2632,6 +2638,9 @@ p_continue_signals(void)
   if (ActiveSignals & YAP_STATISTICS_SIGNAL) {
     Yap_signal(YAP_STATISTICS_SIGNAL);
   }
+#ifdef THREADS
+  pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
   return TRUE;
 }
 
