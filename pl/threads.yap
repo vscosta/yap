@@ -1,18 +1,18 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
+*                                                                        *
+*  YAP Prolog                                                            *
+*                                                                        *
+*  Yap Prolog was developed at NCCUP - Universidade do Porto             *
+*                                                                        *
+*  Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997      *
+*                                                                        *
 **************************************************************************
-*									 *
-* File:		threads.yap						 *
-* Last rev:	8/2/88							 *
-* mods:									 *
-* comments:	support threads						 *
-*									 *
+*                                                                        *
+* File:		threads.yap                                                  *
+* Last rev:	8/2/88                                                       *
+* mods:                                                                  *
+* comments:	support threads                                              *
+*                                                                        *
 *************************************************************************/
 
 :- meta_predicate
@@ -83,7 +83,7 @@ thread_create(Goal) :-
 	->
 	 true
 	;
-	 recorda('$thread_exit_status', [Id|exception(error(resource_error(memory),thread_create(Goal,Id)))],_)
+	 recorda('$thread_exit_status', [Id|exception(error(resource_error(memory),thread_create(Goal)))],_)
 	).
 
 thread_create(Goal, Id) :-
@@ -350,7 +350,7 @@ thread_exit(Term) :-
 
 '$run_at_thread_exit'(Id0) :-
 	recorded('$thread_at_exit',[Id0|AtExit],R), erase(R),
-	catch(once(AtExit),_,fail),
+	catch(once(AtExit), _, fail),
 	fail.
 '$run_at_thread_exit'(Id0) :-
 	recorded('$thread_exit_hook',[Id0|Hook],R), erase(R),
