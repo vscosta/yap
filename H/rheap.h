@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-04-01 15:31:43 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-03 11:34:47 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.91  2008/04/01 15:31:43  vsc
+* more saved state fixes
+*
 * Revision 1.90  2008/04/01 14:09:43  vsc
 * improve restore
 *
@@ -243,13 +246,25 @@ AdjustDBTerm(Term trm, Term *p_base)
     return AtomTermAdjust(trm);
   if (IsPairTerm(trm)) {
     Term           *p;
+    Term out;
 
     p = PtoHeapCellAdjust(RepPair(trm));
+    out = AbsPair(p);
+  loop:
     if (p >= p_base) {
       p[0] = AdjustDBTerm(p[0], p);
-      p[1] = AdjustDBTerm(p[1], p);
+      if (IsPairTerm(p[1])) {
+	/* avoid term recursion with very deep lists */
+	Term *newp = PtoHeapCellAdjust(RepPair(p[1]));
+	p[1] = AbsPair(newp);
+	p_base = p;
+	p = newp;
+	goto loop;
+      } else {
+	p[1] = AdjustDBTerm(p[1], p);
+      }
     }
-    return AbsPair(p);
+    return out;
   }
   if (IsApplTerm(trm)) {
     Term           *p;
@@ -600,7 +615,7 @@ restore_codes(void)
       for (i = 0; i < Yap_heap_regs->int_keys_size; i++) {
 	if (Yap_heap_regs->IntKeys[i] != NIL) {
 	  Prop p0 = Yap_heap_regs->IntKeys[i] = PropAdjust(Yap_heap_regs->IntKeys[i]);
-	  RestoreEntries(RepProp(p0));
+	  RestoreEntries(RepProp(p0), TRUE);
 	}
       }
     }
@@ -632,7 +647,7 @@ restore_codes(void)
       for (i = 0; i < Yap_heap_regs->int_bb_keys_size; i++) {
 	if (Yap_heap_regs->IntBBKeys[i] != NIL) {
 	  Prop p0 = Yap_heap_regs->IntBBKeys[i] = PropAdjust(Yap_heap_regs->IntBBKeys[i]);
-	  RestoreEntries(RepProp(p0));
+	  RestoreEntries(RepProp(p0), TRUE);
 	}
       }
     }
@@ -1004,7 +1019,7 @@ CleanClauses(yamop *First, yamop *Last, PredEntry *pp)
 
 /* Restores a DB structure, as it was saved in the heap */
 static void 
-RestoreBB(BlackBoardEntry *pp)
+RestoreBB(BlackBoardEntry *pp, int int_key)
 {
   Term t = pp->Element;
   if (t) {
@@ -1018,7 +1033,9 @@ RestoreBB(BlackBoardEntry *pp)
       }
     }
   }
-  pp->KeyOfBB = AtomAdjust(pp->KeyOfBB);
+  if (!int_key) {
+    pp->KeyOfBB = AtomAdjust(pp->KeyOfBB);
+  }
 }
 
 static void
@@ -1247,7 +1264,7 @@ CleanCode(PredEntry *pp)
  * if we find code or data bases 
  */
 static void 
-RestoreEntries(PropEntry *pp)
+RestoreEntries(PropEntry *pp, int int_key)
 {
   while (!EndOfPAEntr(pp)) {
     switch(pp->KindOfPE) {
@@ -1339,7 +1356,7 @@ RestoreEntries(PropEntry *pp)
 	BlackBoardEntry *bb = (BlackBoardEntry *) pp;
 	bb->NextOfPE =
 	  PropAdjust(bb->NextOfPE);
-	RestoreBB(bb);
+	RestoreBB(bb, int_key);
       }
       break;
     case GlobalProperty:

@@ -32,7 +32,7 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 #define errout Yap_stderr
 #endif
 
-STATIC_PROTO(void  RestoreEntries, (PropEntry *));
+STATIC_PROTO(void  RestoreEntries, (PropEntry *, int));
 STATIC_PROTO(void  CleanCode, (PredEntry *));
 
 static int agc_calls;
@@ -192,7 +192,7 @@ mark_hash_entry(AtomHashEntry *HashPtr)
       else
 	fprintf(errout, "Restoring %s\n", at->StrOfAE);
 #endif
-      RestoreEntries(RepProp(at->PropsOfAE));
+      RestoreEntries(RepProp(at->PropsOfAE), FALSE);
       atm = at->NextOfAE;
       at = RepAtom(CleanAtomMarkedBit(atm));
     } while (!EndOfPAEntr(at));

@@ -113,7 +113,7 @@ STATIC_PROTO(void  RestoreDB, (DBEntry *));
 STATIC_PROTO(void  CleanClauses, (yamop *, yamop *,PredEntry *));
 STATIC_PROTO(void  rehash, (CELL *, int, int));
 STATIC_PROTO(void  CleanCode, (PredEntry *));
-STATIC_PROTO(void  RestoreEntries, (PropEntry *));
+STATIC_PROTO(void  RestoreEntries, (PropEntry *, int));
 STATIC_PROTO(void  RestoreFreeSpace, (void));
 STATIC_PROTO(void  restore_heap, (void));
 #ifdef DEBUG_RESTORE3
@@ -1275,7 +1275,7 @@ RestoreAtomList(Atom atm)
     fprintf(errout, "Restoring %s\n", at->StrOfAE);
 #endif
     at->PropsOfAE = PropAdjust(at->PropsOfAE);
-    RestoreEntries(RepProp(at->PropsOfAE));
+    RestoreEntries(RepProp(at->PropsOfAE), FALSE);
     atm = at->NextOfAE;
     at->NextOfAE = atm = AtomAdjust(atm);
     at = RepAtom(atm);
