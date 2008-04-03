@@ -193,7 +193,10 @@ thread_create(Goal, OutId, Options) :-
 '$record_thread_info'(Id, Sizes, Detached, AtExit) :-
 	recorda('$thread_sizes', [Id|Sizes], _),
 	recorda('$thread_detached', [Id|Detached], _),
-	recorda('$thread_at_exit', [Id|AtExit], _).
+	(	AtExit == true ->
+		true
+	;	recorda('$thread_at_exit', [Id|AtExit], _)
+	).
 
 % vsc: ?????
 thread_defaults(Defaults) :-
