@@ -5035,7 +5035,8 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	  case 'r':
 	  case 'R':
 	    {
-	      Int numb, radix, div = 1, size = 1, i;
+	      Int numb, radix;
+	      UInt divfactor = 1, size = 1, i;
 	      wchar_t och;
 
 	      /* print a decimal, using weird . stuff */
@@ -5044,33 +5045,51 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      t = targs[targ++];
 	      if (IsVarTerm(t))
 		goto do_instantiation_error;
-	      if (!IsIntegerTerm(t))
-		goto do_type_int_error;
 	      if (!has_repeats)
 		radix = 8;
 	      else
 		radix = repeats;
 	      if (radix > 36 || radix < 2)
 		goto do_domain_error_radix;
+#ifdef USE_GMP
+	      if (IsBigIntTerm(t)) {
+		MP_INT *dst = Yap_BigIntOfTerm(t);
+		char *tmp2, *pt;
+		int ch;
+
+		siz = mpz_sizeinbase (dst, radix)+2;
+		if (siz > 256) {
+		  if (!(tmp2 = Yap_AllocCodeSpace(siz)))
+		    goto do_type_int_error;
+		}
+		else
+		  tmp2 = tmp1;
+		mpz_get_str (tmp2, radix, dst);
+		pt = tmp2;
+		while ((ch = *pt++))
+		  f_putc(sno, ch);
+		if (tmp2 != tmp1)
+		  Yap_FreeCodeSpace(tmp2);
+		break;
+	      }
+#endif
+	      if (!IsIntegerTerm(t))
+		goto do_type_int_error;
 	      numb = IntegerOfTerm(t);
 	      if (numb < 0) {
 		numb = -numb;
 		f_putc(sno, (int) '-');
 	      }
-	      while (div <  numb) {
-		div *= radix;
+	      while (numb/divfactor > radix) {
+		divfactor *= radix;
 		size++;
 	      }
-	      if (div != numb) {
-		div /= radix;
-		size--;
-	      }
 	      for (i = 1; i < size; i++) {
-		Int dig = numb/div;
+		Int dig = numb/divfactor;
 		och = base_dig(dig, ch);
 		f_putc(sno, och);
-		numb %= div;
-		div /= radix;
+		numb %= divfactor;
+		divfactor /= radix;
 	      }
 	      och = base_dig(numb, ch);
 	      f_putc(sno, och);

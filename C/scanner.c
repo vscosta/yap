@@ -506,14 +506,15 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 
       while (my_isxdigit(ch, upper_case, lower_case)) {
 	Int oval = val;
+	int chval = (chtype(ch) == NU ? ch - '0' :
+		     (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
 	if (--max_size == 0) {
 	  Yap_ErrorMessage = "Number Too Long";
 	  return TermNil;
 	}
 	*sp++ = ch;
-	val = val * base + (chtype(ch) == NU ? ch - '0' :
-			    (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
-	if (oval >= val && oval != 0) /* overflow */
+	val = oval * base + chval;
+	if (oval != (val-chval)/base) /* overflow */
 	  has_overflow = (has_overflow || TRUE);
 	ch = Nxtch(inp_stream);
       }
@@ -528,15 +529,16 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
     ch = Nxtch(inp_stream);
     while (my_isxdigit(ch, 'F', 'f')) {
       Int oval = val;
+      int chval = (chtype(ch) == NU ? ch - '0' :
+		   (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
       if (--max_size == 0) {
 	Yap_ErrorMessage = "Number Too Long";
 	return TermNil;
       }
       *sp++ = ch;
-      val = val * 16 + (chtype(ch) == NU ? ch - '0' :
-			(my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
-      if (oval >= val && oval != 0) /* overflow */
-	has_overflow = (has_overflow || TRUE);
+      val = val * 16 + chval;
+      if (oval != (val-chval)/16) /* overflow */
+	has_overflow = TRUE;
       ch = Nxtch(inp_stream);
     }
     *chp = ch;
@@ -557,7 +559,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
   }
   while (chtype(ch) == NU) {
     Int oval = val;
-    if (!(val == 0 && ch == '0')) {
+    if (!(val == 0 && ch == '0') || has_overflow) {
       if (--max_size == 0) {
 	Yap_ErrorMessage = "Number Too Long";
 	return (TermNil);
@@ -568,7 +570,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       return MkIntegerTerm(val);
     val = val * base + ch - '0';
     if (val/base != oval || val -oval*base != ch-'0') /* overflow */
-      has_overflow = (has_overflow || TRUE);
+      has_overflow = TRUE;
     ch = Nxtch(inp_stream);
   }
   if (might_be_float && (ch == '.' || ch == 'e' || ch == 'E')) {
