@@ -53,22 +53,21 @@
 
 
 '$close_thread'('$thread_finished'(Status), Detached, Id0) :- !,
+	recorda('$thread_exit_status', [Id0|Status], _),
 	'$run_at_thread_exit'(Id0),
 	(	Detached == true ->
 		'$erase_thread_info'(Id0)
-	;	recorda('$thread_exit_status', [Id0|Status], _)
+	;	true
 	).
 %	format(user_error,'closing thread ~w~n',[v([Id0|Status])]).	
 '$close_thread'(Exception, Detached, Id0) :-
+	 (	recorded('$thread_exit_status',[Id0|_],R), erase(R), fail
+	 ;	recorda('$thread_exit_status', [Id0|exception(error(Exception,_))])
+	 ),
 	'$run_at_thread_exit'(Id0),
 	(	Detached == true ->
 		'$erase_thread_info'(Id0)
-	;
-	 (
-	  recorded('$thread_exit_status',[Id|_],R), erase(R), fail
-	 ;
-	  recorda('$thread_exit_status', [Id|exception(error(resource_error(memory),thread_create(Goal,Id)))])
-	 )
+	;	true
 	).
 
 thread_create(Goal) :-
