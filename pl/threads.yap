@@ -87,7 +87,7 @@ thread_create(Goal) :-
 	 recorda('$thread_exit_status', [Id|exception(error(resource_error(memory),thread_create(Goal,Id)))],_)
 	).
 
-thread_create(Goal, OutId) :-
+thread_create(Goal, Id) :-
 	G0 = thread_create(Goal, Id),
 	'$check_callable'(Goal, G0),
 	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
@@ -102,10 +102,9 @@ thread_create(Goal, OutId) :-
 	 true
 	;
 	 recorda('$thread_exit_status', [Id|exception(error(resource_error(memory),thread_create(Goal,Id)))],_)
-	),
-	OutId = Id.
+	).
 
-thread_create(Goal, OutId, Options) :-
+thread_create(Goal, Id, Options) :-
 	G0 = thread_create(Goal, Id, Options),
 	'$check_callable'(Goal,G0),
 	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
@@ -123,8 +122,7 @@ thread_create(Goal, OutId, Options) :-
 	 true
 	;
 	 recorda('$thread_exit_status', [Id|exception(error(resource_error(memory),thread_create(Goal,Id,Options)))],_)
-	),
-	OutId = Id.
+	).
 
 '$erase_thread_info'(Id) :-
 	recorded('$thread_exit_status', [Id|_], R),
