@@ -762,7 +762,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$nof_threads", 1, p_nof_threads, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$nof_threads_created", 1, p_nof_threads_created, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$self_thread_lock", p_thread_self_lock, SafePredFlag);
+  Yap_InitCPred("$self_thread_lock", 0, p_thread_self_lock, SafePredFlag);
 }
 
 
