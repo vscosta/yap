@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2008-03-26 14:37:07 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-03 10:50:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.237  2008/03/26 14:37:07  vsc
+* more icc fixes
+*
 * Revision 1.236  2008/03/25 16:45:52  vsc
 * make or-parallelism compile again
 *
@@ -2220,7 +2223,9 @@ Yap_absmi(int inp)
 		  } else if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
 		    LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt);
 		    int erase;
+#if defined(THREADS) || defined(YAPOR)
 		    PredEntry *ap = cl->ClPred;
+#endif
 
 		    LOCK(ap->PELock);
 		    DEC_CLREF_COUNT(cl);

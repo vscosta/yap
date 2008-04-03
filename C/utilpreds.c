@@ -742,7 +742,11 @@ p_term_variables(void)	/* variables in term t		 */
   do {
     Term t = Deref(ARG1);
     if (IsVarTerm(t)) {
-      return Yap_unify(MkPairTerm(t,TermNil), ARG2);
+      Term out = Yap_MkNewPairTerm();
+      return
+	Yap_unify(t,HeadOfTerm(out)) &&
+	Yap_unify(TermNil, TailOfTerm(out)) &&
+	Yap_unify(out, ARG2);
     }  else if (IsPrimitiveTerm(t)) {
       return Yap_unify(TermNil, ARG2);
     } else if (IsPairTerm(t)) {
@@ -771,7 +775,11 @@ p_term_variables3(void)	/* variables in term t		 */
   do {
     Term t = Deref(ARG1);
     if (IsVarTerm(t)) {
-      return Yap_unify(MkPairTerm(t,ARG3), ARG2);
+      Term out = Yap_MkNewPairTerm();
+      return
+	Yap_unify(t,HeadOfTerm(out)) &&
+	Yap_unify(ARG3, TailOfTerm(out)) &&
+	Yap_unify(out, ARG2);
     }  else if (IsPrimitiveTerm(t)) {
       return Yap_unify(ARG2, ARG3);
     } else if (IsPairTerm(t)) {
