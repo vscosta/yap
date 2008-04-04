@@ -175,7 +175,8 @@ thread_create(Goal, Id, Options) :-
 	( \+ integer(System) -> '$do_error'(type_error(integer,System),G0) ; true ).
 '$thread_option'(detached(Detached), _, _, _, _, Detached, _, G0) :- !,
 	( Detached \== true, Detached \== false -> '$do_error'(domain_error(thread_option,Detached+[true,false]),G0) ; true ).
-'$thread_option'(at_exit(AtExit), _, _, _, _, _, AtExit, G0) :- !,
+'$thread_option'(at_exit(AtExit), _, _, _, _, _, M:AtExit, G0) :- !,
+	'$current_module'(M),
 	( \+ callable(AtExit) -> '$do_error'(type_error(callable,AtExit),G0) ; true ).
 '$thread_option'(Option, _, _, _, _, _, _, G0) :-
 	'$do_error'(domain_error(thread_option,Option),G0).
@@ -289,7 +290,8 @@ thread_set_default(Default) :-
 '$thread_set_default'(at_exit(AtExit), _) :- !,
 	recorded('$thread_defaults', [Stack, Trail, System, Detached, _], Ref),
 	erase(Ref),
-	recorda('$thread_defaults', [Stack, Trail, System, Detached, AtExit], _).
+	'$current_module'(M),
+	recorda('$thread_defaults', [Stack, Trail, System, Detached, M:AtExit], _).
 
 '$thread_set_default'(Default, G) :-
 	'$do_error'(domain_error(thread_default, Default), G).
