@@ -10,8 +10,13 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-04-03 13:26:38 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-04-04 09:10:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.112  2008/04/03 13:26:38  vsc
+* protect signal handling with locks for threaded version.
+* fix close/1 entry in manual (obs from Nicos).
+* fix -f option in chr Makefile.
+*
 * Revision 1.111  2008/04/02 21:44:07  vsc
 * threaded version should ignore saved states (for now).
 *
@@ -1664,7 +1669,7 @@ YAP_Init(YAP_init_args *yap_init)
 
   Yap_argv = yap_init->Argv;
   Yap_argc = yap_init->Argc;
-#ifdef THREADS
+#ifdef USE_SYSTEM_MALLOC
   if (yap_init->SavedState) {
     fprintf(stderr,"[ WARNING: threaded Yap will ignore saved state %s ]\n",yap_init->SavedState);
     yap_init->SavedState = NULL;

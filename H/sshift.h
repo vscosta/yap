@@ -378,6 +378,14 @@ AtomEntryAdjust (AtomEntry * at)
   return (AtomEntry *) ((AtomEntry *) (CharP (at) + HDiff));
 }
 
+inline EXTERN struct mfile *MFileAdjust (struct mfile *);
+
+inline EXTERN struct mfile *
+MFileAdjust (struct mfile * at)
+{
+  return (struct mfile *) (CharP (at) + HDiff);
+}
+
 inline EXTERN GlobalEntry *GlobalEntryAdjust (GlobalEntry *);
 
 inline EXTERN GlobalEntry *

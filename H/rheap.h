@@ -11,8 +11,12 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-04-03 11:34:47 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-04 09:10:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.92  2008/04/03 11:34:47  vsc
+* fix restorebb in cases entry key is not an atom (obs from Nicos
+* Angelopoulos)
+*
 * Revision 1.91  2008/04/01 15:31:43  vsc
 * more saved state fixes
 *
@@ -1203,12 +1207,14 @@ CleanCode(PredEntry *pp)
   } else {
     pp->FunctorOfPred = (Functor)AtomAdjust((Atom)(pp->FunctorOfPred));
   }
-  if (pp->ModuleOfPred != IDB_MODULE) {
-    if (pp->src.OwnerFile && pp->ModuleOfPred != IDB_MODULE)
-      pp->src.OwnerFile = AtomAdjust(pp->src.OwnerFile);
-  }
   if (!(pp->PredFlags & NumberDBPredFlag)) {
-    pp->src.OwnerFile = AtomAdjust(pp->src.OwnerFile);
+    if (pp->PredFlags & MultiFileFlag) {
+      if (pp->src.file_srcs)
+	pp->src.file_srcs = MFileAdjust(pp->src.file_srcs);
+    } else {
+      if (pp->src.OwnerFile)
+	pp->src.OwnerFile = AtomAdjust(pp->src.OwnerFile);
+    }
   }
   pp->OpcodeOfPred = Yap_opcode(Yap_op_from_opcode(pp->OpcodeOfPred));
   if (pp->PredFlags & (AsmPredFlag|CPredFlag)) {

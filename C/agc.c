@@ -116,6 +116,7 @@ AtomAdjust(Atom a)
 #define CharP(X) ((char *)(X))
 
 #define AddrAdjust(P) (P)
+#define MFileAdjust(P) (P)
 #define PredEntryAdjust(P) (P)
 #define AtomEntryAdjust(P) (P)
 #define GlobalEntryAdjust(P) (P)
