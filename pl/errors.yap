@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-03-17 12:08:28 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-04 10:02:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.87  2008/03/17 12:08:28  vsc
+* avoid silly message
+*
 * Revision 1.86  2008/02/23 01:32:31  vsc
 * fix chr bootstrap.
 *
@@ -205,6 +208,9 @@
 	print_message(informational,abort(user)).
 '$process_error'(abort, _) :- !,
 	throw('$abort').
+'$process_error'(error(thread_cancel(Id), G),top) :- !.
+'$process_error'(error(thread_cancel(Id), G), _) :- !,
+	throw(error(thread_cancel(Id), G)).
 '$process_error'(error(Msg, Where), _) :- !,
 	'$set_fpu_exceptions',
 	print_message(error,error(Msg, Where)).

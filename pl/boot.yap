@@ -1120,7 +1120,7 @@ catch(G, C, A) :-
 %
 throw(Ball) :-
 	% get this off the unwound computation.
-	copy_term(Ball,NewBall),
+	duplicate_term(Ball,NewBall),
 	% get current jump point
 	'$jump_env_and_store_ball'(NewBall).
 

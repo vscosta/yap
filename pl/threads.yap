@@ -319,11 +319,7 @@ thread_cancel(Id) :-
 	(Id == main; Id == 0), !,
 	'$do_error'(permission_error(cancel, thread, main), thread_cancel(Id)).
 thread_cancel(Id) :-
-	'$check_thread_or_alias'(Id, thread_cancel(Id)),
-	'$thread_id_alias'(Id0, Id),
-	'$unlock_all_thread_mutexes'(Id0),
-	'$erase_thread_info'(Id0),
-	'$thread_destroy'(Id0).	
+	thread_signal(Id, throw(error(thread_cancel(Id),thread_cancel(Id)))).
 
 thread_detach(Id) :-
 	'$check_thread_or_alias'(Id, thread_detach(Id)),
