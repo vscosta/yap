@@ -887,7 +887,7 @@ run the goal @var{Goal} as top-level. The goal is converted from
 an atom to a Prolog term.
 @item -b @var{BOOT_FILE}
 boot code is in Prolog file @var{BOOT_FILE}. The filename must define
-the predicate '$live'/0.
+the predicate @code{'$live'/0}.
 @item -c @t{IP_HOST} @t{port}
 connect standard streams to host @t{IP_HOST} at port @t{port}
 @item filename
@@ -898,7 +898,7 @@ do not consult initial files
 do not print informational messages
 @item --
 separator for arguments to Prolog code. These arguments are visible
-through the unix/1 built-in.
+through the @code{unix/1} built-in predicate.
 @end table
 
 Note that YAP will output an error message on the following conditions:
@@ -3493,7 +3493,8 @@ the call.
     flexible as possible. They handle either representation if the
     argument is instantiated and only will instantiate with an integer
     code or one-character atom depending of the version used. See also
-    the prolog-flag double_quotes, atom_chars/2 and atom_codes/2.
+    the prolog-flag @code{double_quotes} and the built-in predicates 
+    @code{atom_chars/2} and @code{atom_codes/2}.
 
 @end table
 
@@ -4114,13 +4115,14 @@ specified both as @code{.ext} or plain @code{ext}.
     @item relative_to(+@var{FileOrDir})
 Resolve the path relative to the given directory or directory the
 holding the given file.  Without this option, paths are resolved
-relative to the working directory (see working_directory/2) or,
-if @var{Spec} is atomic and absolute_file_name/[2,3] is executed
+relative to the working directory (see @code{working_directory/2}) or,
+if @var{Spec} is atomic and @code{absolute_file_name/[2,3]} is executed
 in a directive, it uses the current source-file as reference.
 
     @item access(+@var{Mode})
 Imposes the condition access_file(@var{File}, @var{Mode}).  @var{Mode}
-is on of @code{read}, @code{write}, @code{append}, @code{exist} or @code{none}.  See also access_file/2.
+is on of @code{read}, @code{write}, @code{append}, @code{exist} or @code{none}. 
+See also @code{access_file/2}.
 
     @item file_type(+@var{Type})
 Defines extensions. Current mapping: @code{txt} implies @code{['']},
@@ -4128,7 +4130,7 @@ Defines extensions. Current mapping: @code{txt} implies @code{['']},
 @code{['.so', '']}, @code{qlf} implies @code{['.qlf', '']} and
 @code{directory} implies @code{['']}.  The file-type @code{source}
 is an alias for @code{prolog} for compatibility to SICStus Prolog.
-See also prolog_file_type/2.
+See also @code{prolog_file_type/2}.
 
     @item file_errors(@code{fail}/@code{error})
 If @code{error} (default), throw and @code{existence_error} exception
@@ -6595,15 +6597,15 @@ reversed.
 Get the value associated with the global variable @var{Name} and unify
 it with @var{Value}. Note that this unification may further
 instantiate the value of the global variable. If this is undesirable
-the normal precautions (double negation or @var{copy_term/2}) must be
-taken. The @var{b_getval/2} predicate generates errors if @var{Name} is not
+the normal precautions (double negation or @code{copy_term/2}) must be
+taken. The @code{b_getval/2} predicate generates errors if @var{Name} is not
 an atom or the requested variable does not exist. 
 
 @item nb_setval(+@var{Name}, +@var{Value}) 
 @findex nb_setval/2
 @snindex nb_setval/2
 @cnindex nb_setval/2
-Associates a copy of @var{Value} created with @var{duplicate_term/2} with
+Associates a copy of @var{Value} created with @code{duplicate_term/2} with
 the atom @var{Name}. Note that this can be used to set an initial
 value other than @code{[]} prior to backtrackable assignment.
 
@@ -7479,7 +7481,7 @@ Read-only flag telling the rounding function used for integers. Takes the value
 Choose whether YAP is closer to C-Prolog, @code{cprolog}, iso-prolog,
 @code{iso} or SICStus Prolog, @code{sicstus}. The current default is
 @code{cprolog}. This flag affects update semantics, leashing mode,
-style_checking, handling calls to undefined procedures, how directives
+style checking, handling calls to undefined procedures, how directives
 are interpreted, when to use dynamic, character escapes, and how files
 are consulted.
 
@@ -15031,15 +15033,16 @@ precedence is the main functor.
 
  If there are two operators with the highest precedence, the ambiguity 
 is solved analyzing the types of the operators. The possible infix types are: 
-xfx, xfy, yfx.
+@var{xfx}, @var{xfy}, and @var{yfx}.
 
- With an operator of type xfx both sub-expressions must have lower 
+ With an operator of type @var{xfx} both sub-expressions must have lower 
 precedence than the operator itself, unless they are bracketed (which 
-assigns to them zero precedence). With an operator type xfy only the  
+assigns to them zero precedence). With an operator type @var{xfy} only the  
 left-hand sub-expression must have lower precedence. The opposite happens 
-for yfx type.
+for @var{yfx} type.
 
- A prefix operator can be of type fx or fy, and a postfix operator, xf, yf. 
+ A prefix operator can be of type @var{fx} or @var{fy}. 
+A postfix operator can be of type @var{xf} or @var{yf}. 
 The meaning of the notation is analogous to the above.
 @example
 a + b * c
