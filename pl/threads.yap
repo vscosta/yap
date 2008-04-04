@@ -566,8 +566,8 @@ message_queue_create(Id, []) :- !,
 	'$global_queue_mutex'(QMutex),
 	'$new_mutex'(Mutex),
 	'$cond_create'(Cond),
-	'$mq_new_id'(Id),
-	recorda('$queue',q(Id,Mutex,Cond,Id), _),
+	'$mq_new_id'(Id, NId, Key),
+	recorda('$queue',q(Id,Mutex,Cond,NId,Key), _),
 	'$unlock_mutex'(QMutex).
 message_queue_create(Id, [alias(Alias)]) :-
 	var(Alias), !,
@@ -580,14 +580,14 @@ message_queue_create(Id, [alias(Alias)]) :- !,
 	'$lock_mutex'(QMutex),
 	'$new_mutex'(Mutex),
 	'$cond_create'(Cond),
-	(	recorded('$queue', q(Alias,_,_,_), _) ->
+	(	recorded('$queue', q(Alias,_,_,_,_), _) ->
 		'$unlock_mutex'(QMutex),
 		'$do_error'(permission_error(create,queue,alias(Alias)),message_queue_create(Id, [alias(Alias)]))
 	;	recorded('$thread_alias', [_|Alias], _) ->
 		'$unlock_mutex'(QMutex),
 		'$do_error'(permission_error(create,queue,alias(Alias)),message_queue_create(Id, [alias(Alias)]))
-	;	'$mq_new_id'(Id),
-		recorda('$queue',q(Alias,Mutex,Cond,Id), _),
+	;	'$mq_new_id'(Id, NId, Key),
+		recorda('$queue',q(Alias,Mutex,Cond,NId,Key), _),
 		'$unlock_mutex'(QMutex)
 	).
 message_queue_create(Id, [Option| _]) :-
@@ -603,23 +603,29 @@ message_queue_create(Id) :-
 	;	'$do_error'(type_error(variable, Id), message_queue_create(Id))
 	).
 
-'$create_thread_mq'(Tid) :-
+'$create_thread_mq'(TId) :-
 	'$global_queue_mutex'(QMutex),
 	'$new_mutex'(Mutex),
 	'$cond_create'(Cond),
-	'$mq_new_id'(Id),
-	recorda('$queue', q(Tid,Mutex,Cond,Id), _),
+	'$mq_new_id'(TId, TId, Key),
+	recorda('$queue', q(TId,Mutex,Cond,TId,Key), _),
 	'$unlock_mutex'(QMutex).
 
-'$mq_new_id'('$message_queue'(I)) :-
-	'$integers'(I),
-	\+ recorded('$queue', q(_,_,_,'$message_queue'(I)), _),
+'$mq_new_id'(Id, Id, AtId) :-
+	integer(Id), !,
+	\+ recorded('$queue', q(_,_,_,Id,_), _),
+	atomic_concat('$queue__',Id,AtId),
+	!.
+'$mq_new_id'(_, Id, AtId) :-
+	'$integers'(Id),
+	\+ recorded('$queue', q(_,_,_,Id,_), _),
+	atomic_concat('$queue__',Id,AtId),
 	!.
 
-'$integers'(0).
+'$integers'(-1).
 '$integers'(I) :-
 	'$integers'(I1),
-	I is I1+1.
+	I is I1-1.
 
 	
 message_queue_destroy(Name) :-
@@ -628,12 +634,12 @@ message_queue_destroy(Name) :-
 message_queue_destroy(Queue) :-
 	'$global_queue_mutex'(QMutex),
 	'$lock_mutex'(QMutex),
-	recorded('$queue',q(Queue,Mutex,Cond,CName),R), !,
+	recorded('$queue',q(Queue,Mutex,Cond,_,QKey),R), !,
 	erase(R),
 	'$cond_destroy'(Cond),
 	'$destroy_mutex'(Mutex),
 	'$unlock_mutex'(QMutex),
-	'$clean_mqueue'(CName).
+	'$clean_mqueue'(QKey).
 message_queue_destroy(Queue) :-
 	'$global_queue_mutex'(QMutex),
 	'$unlock_mutex'(QMutex),
@@ -652,7 +658,7 @@ message_queue_destroy(Name) :-
 message_queue_property(Id, Prop) :-
 	(	nonvar(Id) ->
 		'$check_message_queue_or_alias'(Id, message_queue_property(Id, Prop))
-	;	recorded('$queue', q(Id,_,_,_), _)
+	;	recorded('$queue', q(Id,_,_,_,_), _)
 	),
 	'$check_message_queue_property'(Prop, message_queue_property(Id, Prop)),
 	'$message_queue_id_alias'(Id0, Id),
@@ -666,16 +672,16 @@ message_queue_property(Id, Prop) :-
 	Term \= '$message_queue'(_), !,
 	'$do_error'(domain_error(queue_or_alias, Term), Goal).
 '$check_message_queue_or_alias'('$message_queue'(I), Goal) :-
-	\+ recorded('$queue', q(_,_,_,'$message_queue'(I)), _), !,
+	\+ recorded('$queue', q(_,_,_,I,_), _), !,
 	'$do_error'(existence_error(queue, '$message_queue'(I)), Goal).
 '$check_message_queue_or_alias'(Term, Goal) :-
 	atom(Term),
-	\+ recorded('$queue', q(Term,_,_,_), _), !,
+	\+ recorded('$queue', q(Term,_,_,_,_), _), !,
 	'$do_error'(existence_error(queue, Term), Goal).
 '$check_message_queue_or_alias'(_, _).
 
 '$message_queue_id_alias'(Id, Alias) :-
-	recorded('$queue', q(Alias,_,_,Id), _), !.
+	recorded('$queue', q(Alias,_,_,Id,_), _), !.
 '$message_queue_id_alias'(Id, Id).
 
 '$check_message_queue_property'(Term, _) :-
@@ -687,7 +693,7 @@ message_queue_property(Id, Prop) :-
 	'$do_error'(domain_error(queue_property, Term), Goal).
 
 '$message_queue_property'(Id, alias(Alias)) :-
-	recorded('$queue', q(Alias,Mutex,Cond,Id), _).
+	recorded('$queue', q(Alias,_,_,Id,_), _).
 
 
 thread_send_message(Term) :-
@@ -702,7 +708,7 @@ thread_send_message(Queue, Term) :-
 thread_send_message(Queue, Term) :-
 	'$global_queue_mutex'(QMutex),
 	'$lock_mutex'(QMutex),
-	recorded('$queue',q(Queue,Mutex,Cond,Key),_), !,
+	recorded('$queue',q(Queue,Mutex,Cond,_,Key),_), !,
 	'$lock_mutex'(Mutex),
 	'$unlock_mutex'(QMutex),
 	recordz(Key,Term,_),
@@ -725,7 +731,7 @@ thread_get_message(Queue, Term) :-
 thread_get_message(Queue, Term) :-
 	'$global_queue_mutex'(QMutex),
 	'$lock_mutex'(QMutex),
-	recorded('$queue',q(Queue,Mutex,Cond,Key),_), !,
+	recorded('$queue',q(Queue,Mutex,Cond,_,Key),_), !,
 	'$lock_mutex'(Mutex),
 	'$unlock_mutex'(QMutex),
 	'$thread_get_message_loop'(Key, Term, Mutex, Cond).
@@ -755,7 +761,7 @@ thread_peek_message(Queue, Term) :-
 thread_peek_message(Queue, Term) :-
 	'$global_queue_mutex'(QMutex),
 	'$lock_mutex'(QMutex),
-	recorded('$queue',q(Queue,Mutex,_,Key),_), !,
+	recorded('$queue',q(Queue,Mutex,_,_,Key),_), !,
 	'$lock_mutex'(Mutex),
 	'$unlock_mutex'(QMutex),
 	'$thread_peek_message2'(Key, Term, Mutex).
