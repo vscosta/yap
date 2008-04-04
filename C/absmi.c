@@ -10,8 +10,13 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2008-04-03 13:26:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-04 16:11:40 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.239  2008/04/03 13:26:37  vsc
+* protect signal handling with locks for threaded version.
+* fix close/1 entry in manual (obs from Nicos).
+* fix -f option in chr Makefile.
+*
 * Revision 1.238  2008/04/03 10:50:23  vsc
 * term_variables could store local variable in global.
 *
@@ -8072,15 +8077,17 @@ Yap_absmi(int inp)
       H += 2;
       {
 	PredEntry *pt0;
+#ifdef THREADS
 	LOCK(ThreadHandlesLock);
+#endif
 	pt0 = SpyCode;
 	P_before_spy = PREG;
 	PREG = pt0->CodeOfPred;
 	/* for profiler */
 #ifdef THREADS
 	pthread_mutex_lock(&(ThreadHandle[worker_id].tlock));
-#endif
 	UNLOCK(ThreadHandlesLock);
+#endif
 	save_pc();
 	CACHE_A1();
 #ifdef LOW_LEVEL_TRACER
