@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-04-04 09:10:02 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-04-04 13:35:41 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.113  2008/04/04 09:10:02  vsc
+* restore was restoring twice
+*
 * Revision 1.112  2008/04/03 13:26:38  vsc
 * protect signal handling with locks for threaded version.
 * fix close/1 entry in manual (obs from Nicos).
@@ -1760,7 +1763,11 @@ YAP_Init(YAP_init_args *yap_init)
   }
   yap_flags[FAST_BOOT_FLAG] = yap_init->FastBoot;
 #if defined(YAPOR) || defined(TABLING)
-  make_root_frames();
+#ifdef YAP_MEMORY_ALLOC_SCHEME
+  if (restore_result != DO_ONLY_CODE &&
+      restore_result != DO_EVERYTHING)
+#endif
+    make_root_frames();
 #ifdef YAPOR
   init_workers();
 #endif /* YAPOR */
