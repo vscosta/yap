@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-04-04 09:10:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-06 11:53:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.93  2008/04/04 09:10:02  vsc
+* restore was restoring twice
+*
 * Revision 1.92  2008/04/03 11:34:47  vsc
 * fix restorebb in cases entry key is not an atom (obs from Nicos
 * Angelopoulos)
@@ -1217,6 +1220,9 @@ CleanCode(PredEntry *pp)
     }
   }
   pp->OpcodeOfPred = Yap_opcode(Yap_op_from_opcode(pp->OpcodeOfPred));
+  if (pp->NextPredOfModule) {
+    pp->NextPredOfModule = PtoPredAdjust(pp->NextPredOfModule);
+  }
   if (pp->PredFlags & (AsmPredFlag|CPredFlag)) {
     /* assembly */
     if (pp->CodeOfPred) {
@@ -1233,8 +1239,6 @@ CleanCode(PredEntry *pp)
     pp->CodeOfPred =PtoOpAdjust(pp->CodeOfPred);
     pp->cs.p_code.TrueCodeOfPred = PtoOpAdjust(pp->cs.p_code.TrueCodeOfPred);
     pp->cs.p_code.ExpandCode = Yap_opcode(_expand_index);
-    if (pp->NextPredOfModule)
-      pp->NextPredOfModule = PtoPredAdjust(pp->NextPredOfModule);
     flag = pp->PredFlags;
     FirstC = pp->cs.p_code.FirstClause;
     LastC = pp->cs.p_code.LastClause;
@@ -1409,10 +1413,14 @@ RestoreEntries(PropEntry *pp, int int_key)
     case ModProperty:
       {
 	ModEntry *me = (ModEntry *)pp;
-	me->NextOfPE =
-	  PropAdjust(me->NextOfPE);
-	me->PredForME =
+	if (me->NextOfPE) {
+	  me->NextOfPE =
+	    PropAdjust(me->NextOfPE);
+	}
+	if (me->PredForME) {
+	  me->PredForME =
 	  PtoPredAdjust(me->PredForME);
+	}
 	me->AtomOfME =
 	  AtomAdjust(me->AtomOfME);
 	me->NextME = (struct mod_entry *)

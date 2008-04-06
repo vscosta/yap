@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2008-03-15 12:19:33 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-06 11:53:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.129  2008/03/15 12:19:33  vsc
+* fix flags
+*
 * Revision 1.128  2008/02/15 12:41:33  vsc
 * more fixes to modules
 *
@@ -2669,7 +2672,7 @@ cont_current_predicate(void)
     cut_fail();
   EXTRA_CBACK_ARG(3,1) = (CELL)MkIntegerTerm((Int)(pp->NextPredOfModule));
   if (pp->FunctorOfPred == FunctorModule)
-    return(FALSE);
+    return FALSE;
   if (pp->ModuleOfPred != IDB_MODULE) {
     Arity = pp->ArityOfPE;
     if (Arity)
@@ -2689,8 +2692,9 @@ cont_current_predicate(void)
       Arity = ArityOfFunctor(f);
     }
   }
-  return (Yap_unify(ARG2,name) &&
-	  Yap_unify(ARG3, MkIntegerTerm((Int)Arity)));
+  return
+    Yap_unify(ARG2,name) &&
+    Yap_unify(ARG3, MkIntegerTerm((Int)Arity));
 }
 
 static Int 
@@ -2700,7 +2704,7 @@ init_current_predicate(void)
 
   if (IsVarTerm(t1) || !IsAtomTerm(t1)) cut_fail();
   EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)Yap_ModulePred(t1));
-  return (cont_current_predicate());
+  return cont_current_predicate();
 }
 
 static Int 
@@ -2718,8 +2722,9 @@ cont_current_predicate_for_atom(void)
 	if (p->ModuleOfPred == mod ||
 	    p->ModuleOfPred == 0) {
 	  /* we found the predicate */
-	  EXTRA_CBACK_ARG(3,1) = (CELL)MkIntegerTerm((Int)(pp->NextOfPE));
-	  return(Yap_unify(ARG3,Yap_MkNewApplTerm(p->FunctorOfPred,p->ArityOfPE)));
+	  EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)(pp->NextOfPE));
+	  return 
+	    Yap_unify(ARG3,Yap_MkNewApplTerm(p->FunctorOfPred,p->ArityOfPE));
 	}
 	p0 = p->NextOfPE;
       }
@@ -2728,8 +2733,8 @@ cont_current_predicate_for_atom(void)
       if (pe->ModuleOfPred == mod ||
 	  pe->ModuleOfPred == 0) {
 	/* we found the predicate */
-	EXTRA_CBACK_ARG(3,1) = (CELL)MkIntegerTerm((Int)(pp->NextOfPE));
-	return(Yap_unify(ARG3,MkAtomTerm((Atom)(pe->FunctorOfPred))));
+	EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)(pp->NextOfPE));
+	return Yap_unify(ARG3,MkAtomTerm((Atom)(pe->FunctorOfPred)));
       }
     }
     pf = pp->NextOfPE;
