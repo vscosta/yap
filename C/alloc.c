@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.93 2008-04-06 11:53:02 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.94 2008-04-06 12:06:48 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -743,7 +743,7 @@ InitWorkSpace(Int s)
   Yap_page_size = si.dwPageSize;
   s = ((s+ (YAP_ALLOC_SIZE-1))/YAP_ALLOC_SIZE)*YAP_ALLOC_SIZE;
   brk = (LPVOID)Yap_page_size;
-  if (!ExtendWorkSpace(s+1024*1024,0))
+  if (!ExtendWorkSpace(s,0))
     return FALSE;
   return (MALLOC_T)brk-s;
 }
@@ -1358,7 +1358,6 @@ Yap_InitMemory(int Trail, int Heap, int Stack)
   sa = Stack;			/* stack area size   */
   ta = Trail;			/* trail area size   */
 
-  pm += 1024*1024;
   InitHeap(InitWorkSpace(pm));
 
   Yap_TrailTop = Yap_HeapBase + pm;

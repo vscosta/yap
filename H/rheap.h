@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-04-06 11:53:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-06 12:06:48 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.94  2008/04/06 11:53:02  vsc
+*  fix some restore bugs
+*
 * Revision 1.93  2008/04/04 09:10:02  vsc
 * restore was restoring twice
 *
@@ -1423,8 +1426,9 @@ RestoreEntries(PropEntry *pp, int int_key)
 	}
 	me->AtomOfME =
 	  AtomAdjust(me->AtomOfME);
-	me->NextME = (struct mod_entry *)
-	  AddrAdjust((ADDR)me->NextME);
+	if (me->NextME)
+	  me->NextME = (struct mod_entry *)
+	    AddrAdjust((ADDR)me->NextME);
       }
       break;      
     case ExpProperty:
