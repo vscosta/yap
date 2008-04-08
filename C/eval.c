@@ -108,6 +108,12 @@ Eval(Term t, E_ARGS)
       }
     }
   } else if (IsPairTerm(t)) {
+    if (TailOfTerm(t) != TermNil) {
+      Yap_Error(TYPE_ERROR_EVALUABLE, t,
+		"string must contain a single character to be evaluated as an arithmetic expression");
+      P = (yamop *)FAILCODE;
+      RERROR();
+    }
     return(Eval(HeadOfTerm(t), USE_E_ARGS));
   } else if (IsIntTerm(t)) {
     RINT(IntOfTerm(t));
@@ -182,6 +188,12 @@ Yap_Eval(Term t, E_ARGS)
       }
     }
   } else if (IsPairTerm(t)) {
+    if (TailOfTerm(t) != TermNil) {
+      Yap_Error(TYPE_ERROR_EVALUABLE, t,
+		"string must contain a single character to be evaluated as an arithmetic expression");
+      P = (yamop *)FAILCODE;
+      RERROR();
+    }
     return(Eval(HeadOfTerm(t), USE_E_ARGS));
   } else if (IsIntTerm(t)) {
     RINT(IntOfTerm(t));

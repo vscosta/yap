@@ -337,7 +337,8 @@ thread_detach(Id) :-
 	(	recorded('$thread_exit_status', [Id0|_], _) ->
 		'$erase_thread_info'(Id0),
 		'$thread_destroy'(Id0)
-	;	true
+	;
+		'$thread_unlock'(Id0)
 	).
 
 thread_exit(Term) :-
@@ -637,6 +638,7 @@ message_queue_destroy(Queue) :-
 	recorded('$queue',q(Queue,Mutex,Cond,_,QKey),R), !,
 	erase(R),
 	'$cond_destroy'(Cond),
+	write(Queue:Mutex),nl,
 	'$destroy_mutex'(Mutex),
 	'$unlock_mutex'(QMutex),
 	'$clean_mqueue'(QKey).
