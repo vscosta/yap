@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.init.c  
-  version:     $Id: opt.init.c,v 1.15 2007-04-26 14:11:08 ricroc Exp $   
+  version:     $Id: opt.init.c,v 1.16 2008-04-11 16:26:18 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -146,6 +146,7 @@ void Yap_init_global(int max_table_size, int n_workers, int sch_loop, int delay_
   GLOBAL_last_sg_fr = NULL;
   GLOBAL_check_sg_fr = NULL;
 #endif /* LIMIT_TABLING */
+  GLOBAL_root_dep_fr = NULL;
   for (i = 0; i < MAX_TABLE_VARS; i++) {
     CELL *pt = GLOBAL_table_var_enumerator_addr(i);
     RESET_VARIABLE(pt);
@@ -219,7 +220,8 @@ void make_root_frames(void) {
 
 #ifdef TABLING
   /* root dependency frame */
-  new_dependency_frame(GLOBAL_root_dep_fr, FALSE, NULL, NULL, NULL, NULL, NULL);
+  if (!GLOBAL_root_dep_fr)
+    new_dependency_frame(GLOBAL_root_dep_fr, FALSE, NULL, NULL, NULL, NULL, NULL);
 #endif /* TABLING */
 }
 

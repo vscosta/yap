@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2008-04-01 22:28:41 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-11 16:30:27 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.226  2008/04/01 22:28:41  vsc
+* put YAPOR back to life.
+*
 * Revision 1.225  2008/04/01 08:42:45  vsc
 * fix restore and small VISTA thingies
 *
@@ -1585,9 +1588,6 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
     p->PredFlags |= ProfiledPredFlag;
   } else
     p->PredFlags &= ~ProfiledPredFlag;
-#ifdef YAPOR
-  p->PredFlags |= SequentialPredFlag;
-#endif /* YAPOR */
   if (spy_flag) {
     p->OpcodeOfPred = Yap_opcode(_spy_pred);
     p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 

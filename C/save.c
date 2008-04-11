@@ -471,7 +471,7 @@ save_heap(void)
 {
   int j;
   /* Then save the whole heap */
-#if (defined(YAPOR) || defined(TABLING)) && !defined(YAP_MEMORY_ALLOC_SCHEME)
+#if defined(YAPOR) || (defined(TABLING) && !defined(YAP_MEMORY_ALLOC_SCHEME))
   /* skip the local and global data structures */
   j = Unsigned(&GLOBAL) - Unsigned(Yap_HeapBase);
   putout(j);
@@ -483,7 +483,7 @@ save_heap(void)
   j = Unsigned(HeapTop) - Unsigned(Yap_HeapBase);
   /* store 10 more cells because of the memory manager */
   mywrite(splfild, (char *) Yap_HeapBase, j);
-#endif /* YAPOR || TABLING */
+#endif /* YAPOR || (TABLING && !YAP_MEMORY_ALLOC_SCHEME) */
 }
 
 static void
@@ -908,7 +908,7 @@ get_hash(void)
 static int 
 CopyCode(void)
 {
-#if (defined(YAPOR) || defined(TABLING)) && !defined(YAP_MEMORY_ALLOC_SCHEME)
+#if defined(YAPOR) || (defined(TABLING) && !defined(YAP_MEMORY_ALLOC_SCHEME))
   /* skip the local and global data structures */
   CELL j = get_cell();
   if (Yap_ErrorMessage)
@@ -928,7 +928,7 @@ CopyCode(void)
   if (myread(splfild, (char *) Yap_HeapBase,
 	     (Unsigned(OldHeapTop) - Unsigned(OldHeapBase))) < 0)
     return -1;
-#endif /* YAPOR || TABLING */
+#endif /* YAPOR || (TABLING && !YAP_MEMORY_ALLOC_SCHEME) */
   return 1;
 }
 

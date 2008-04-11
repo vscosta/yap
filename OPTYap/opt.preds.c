@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.preds.c
-  version:     $Id: opt.preds.c,v 1.28 2008-03-25 16:45:53 vsc Exp $   
+  version:     $Id: opt.preds.c,v 1.29 2008-04-11 16:26:19 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -191,6 +191,7 @@ Int p_start_yapor(void) {
   BITMAP_clear(GLOBAL_bm_pruning_workers);
 #endif /* TABLING_INNER_CUTS */
   make_root_choice_point();
+  GLOBAL_performance_mode &= ~PERFORMANCE_IN_EXECUTION;
   GLOBAL_execution_time = current_time();
   BITMAP_clear(GLOBAL_bm_finished_workers);
   PUT_IN_EXECUTING(worker_id);
@@ -423,9 +424,7 @@ void show_answers(void) {
   }
   fprintf(Yap_stderr, " (in %f seconds) ]\n\n", GLOBAL_execution_time);
 
-  if (GLOBAL_performance_mode & PERFORMANCE_IN_EXECUTION) {
-    GLOBAL_performance_mode &= ~PERFORMANCE_IN_EXECUTION;
-  } else if (GLOBAL_performance_mode == PERFORMANCE_ON) {
+  if (GLOBAL_performance_mode == PERFORMANCE_ON) {
     for (i = GLOBAL_number_goals; i > 0; i--) {
       if (GLOBAL_best_times(i) > GLOBAL_execution_time) {
         if (i + 1 < MAX_BEST_TIMES)
