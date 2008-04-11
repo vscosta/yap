@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-04-06 12:06:48 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-11 16:58:17 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.95  2008/04/06 12:06:48  vsc
+* more small fixes
+*
 * Revision 1.94  2008/04/06 11:53:02  vsc
 *  fix some restore bugs
 *
@@ -466,7 +469,8 @@ restore_codes(void)
 {
   Yap_heap_regs->heap_top = AddrAdjust(OldHeapTop);
 #ifdef YAPOR
-  Yap_heap_regs->seq_def = TRUE;
+  /* ricroc: if in use overrides startup file settings
+  Yap_heap_regs->seq_def = TRUE; */
   Yap_heap_regs->getwork_code.opc = Yap_opcode(_getwork);
   INIT_YAMOP_LTT(&(Yap_heap_regs->getwork_code), 0);
   Yap_heap_regs->getwork_seq_code.opc = Yap_opcode(_getwork_seq);
