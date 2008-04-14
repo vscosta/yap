@@ -818,7 +818,16 @@ predicate_property(Pred,Prop) :-
 	'$predicate_property'(Pred,Mod,Mod,Prop).
 '$predicate_property2'(Pred,Prop,Mod) :- 
 	recorded('$import','$import'(M,Mod,NPred,Pred,_,_),_),
-	'$predicate_property2'(NPred,Prop,M).
+	(
+	 Prop = imported_from(M)
+	;
+	 functor(Pred,P,A),
+	 recorded('$module','$module'(_TFN,Mod,Publics),_),
+	 lists:memberchk(N/A,Publics)
+	;	 
+	 '$predicate_property2'(NPred,Prop,M),
+	 Prop \= exported
+	).
 
 '$generate_all_preds_from_mod'(Pred, M, M) :-
 	'$current_predicate'(M,Na,Ar),
@@ -845,8 +854,6 @@ predicate_property(Pred,Prop) :-
 	'$meta_predicate'(M,Na,Ar,P).
 '$predicate_property'(P,M,_,multifile) :-
 	'$is_multifile'(P,M).
-'$predicate_property'(P,Mod,M,imported_from(Mod)) :-
-	recorded('$import','$import'(Mod,M,_,P,_,_),_).
 '$predicate_property'(P,M,_,public) :-
 	'$is_public'(P,M).
 '$predicate_property'(P,M,M,exported) :-
@@ -854,6 +861,7 @@ predicate_property(Pred,Prop) :-
 	recorded('$module','$module'(_TFN,M,Publics),_),
 	lists:memberchk(N/A,Publics), !.
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
+	write(P:Mod),nl,
 	'$number_of_clauses'(P,Mod,NCl).
 
 

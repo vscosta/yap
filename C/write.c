@@ -475,8 +475,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
       case (CELL)FunctorLongInt:
 	wrputn(LongIntOfTerm(t),wglb->writewch);
 	return;
-#ifdef USE_GMP
       case (CELL)FunctorBigInt:
+#ifdef USE_GMP
 	{
 	  MP_INT *big = Yap_BigIntOfTerm(t);
 	  char *s = (char *)TR;
@@ -498,8 +498,12 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 	  mpz_get_str(s, 10, big);
 	  wrputs(s,wglb->writewch);
 	}
-	return;
+#else
+	{
+	  wrputs("0",wglb->writewch);
+	}
 #endif
+	return;
       }
     }
     Arity = ArityOfFunctor(functor);

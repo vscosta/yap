@@ -61,6 +61,7 @@ split(SplitCodes, [C|New], Set) -->
 split(_, [], []) --> [].
 
 glue([], _, []).
+glue([A], _, A) :- !.
 glue([H|T], [B|_], Merged) :-
 	append(H, [B|Rest], Merged),
 	glue(T, [B], Rest).
