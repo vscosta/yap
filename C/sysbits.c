@@ -2353,8 +2353,8 @@ p_alarm(void)
 
     new.it_interval.tv_sec = 0;
     new.it_interval.tv_usec = 0;
-    new.it_value.tv_sec = IntegerOfTerm(ARG1);
-    new.it_value.tv_usec = IntegerOfTerm(ARG2);
+    new.it_value.tv_sec = IntegerOfTerm(t);
+    new.it_value.tv_usec = IntegerOfTerm(t2);
     if (setitimer(ITIMER_REAL, &new, &old) < 0) {
 #if HAVE_STRERROR
       Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "setitimer: %s", strerror(errno));

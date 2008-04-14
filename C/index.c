@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2008-03-25 16:45:53 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-14 21:20:35 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.198  2008/03/25 16:45:53  vsc
+* make or-parallelism compile again
+*
 * Revision 1.197  2008/02/14 14:35:13  vsc
 * fixes for indexing code.
 *
@@ -6603,8 +6606,8 @@ static_clause(yamop *ipc, PredEntry *ap)
     if ((fls & StaticMask) == StaticMask &&
 	!(fls & (MegaMask|SwitchRootMask|SwitchTableMask|DynamicMask|IndexMask|DBClMask|LogUpdMask|LogUpdRuleMask|DirtyMask))) {
       if (ap->PredFlags & SourcePredFlag) {
-	if ((char *)c->usc.ClSource < (char *)c+c->ClSize &&
-	    valid_instructions(ipc, c->ClCode))
+	if ((c->usc.ClPred == ap || (char *)c->usc.ClSource < (char *)c+c->ClSize)
+	    && valid_instructions(ipc, c->ClCode))
 	  return c;
       } else {
 	if (c->usc.ClPred == ap &&

@@ -861,7 +861,6 @@ predicate_property(Pred,Prop) :-
 	recorded('$module','$module'(_TFN,M,Publics),_),
 	lists:memberchk(N/A,Publics), !.
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
-	write(P:Mod),nl,
 	'$number_of_clauses'(P,Mod,NCl).
 
 

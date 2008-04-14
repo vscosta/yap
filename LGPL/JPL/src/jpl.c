@@ -1,4 +1,4 @@
-/*	$Id: jpl.c,v 1.14 2007-10-09 11:43:43 vsc Exp $
+/*	$Id: jpl.c,v 1.15 2008-04-14 21:20:36 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -5486,7 +5486,7 @@ static
 	  { "jni_func", 					 4, jni_func_2_plc, 				   0 },
 	  { "jni_func", 					 5, jni_func_3_plc, 				   0 },
 	  { "jni_func", 					 6, jni_func_4_plc, 				   0 },
-#if IN_YAP
+#ifdef __YAP_PROLOG__
 	  { "jni_SetByteArrayElement",	 3, jni_SetByteArrayElement,	       0 },
 	  { "jni_SetDoubleArrayElement",	 3, jni_SetDoubleArrayElement,	       0 },
 #endif
