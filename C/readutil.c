@@ -66,7 +66,11 @@ rl_to_codes(Term TEnd, int do_as_binary, int arity)
       Term end;
       UNLOCK(Stream[sno].streamlock);
       if (!(do_as_binary || Stream[sno].status & Eof_Stream_f)) {
-	buf[sz-1] = '\0';
+	/* handle CR before NL */
+	if (sz-2 >= 0 && buf[sz-2] == 13)
+	  buf[sz-2] = '\0';
+	else
+	  buf[sz-1] = '\0';
       }
       if (arity == 2)
 	end = TermNil;
