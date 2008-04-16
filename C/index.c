@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2008-04-14 21:20:35 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-04-16 17:16:47 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.199  2008/04/14 21:20:35  vsc
+* fixed a bug in static_clause (thanks to Jose Santos)
+*
 * Revision 1.198  2008/03/25 16:45:53  vsc
 * make or-parallelism compile again
 *
@@ -3330,91 +3333,6 @@ skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno, int at_point)
 }
 
 
-static int
-valid_instructions(yamop *end, yamop *cl)
-{
-  while (end > cl) {
-    op_numbers op = Yap_op_from_opcode(cl->opc);
-    switch (op) {
-    case _p_db_ref_x:
-    case _p_float_x:
-      cl = NEXTOP(cl,xF);
-      break;
-    case _get_list:
-      cl = NEXTOP(cl,x);
-      break;
-    case _get_atom:
-      cl = NEXTOP(cl,xc);
-      break;
-    case _get_float:
-      cl = NEXTOP(cl,xd);
-      break;
-    case _get_2atoms:
-      cl = NEXTOP(cl,cc);
-      break;
-    case _get_3atoms:
-      cl = NEXTOP(cl,ccc);
-      break;
-    case _get_4atoms:
-      cl = NEXTOP(cl,cccc);
-      break;
-    case _get_5atoms:
-      cl = NEXTOP(cl,ccccc);
-      break;
-    case _get_6atoms:
-      cl = NEXTOP(cl,cccccc);
-      break;
-    case _get_struct:
-      cl = NEXTOP(cl,xf);
-      break;      
-    case _unify_void:
-    case _unify_void_write:
-    case _unify_list:
-    case _unify_l_list:
-    case _unify_list_write:
-    case _unify_l_list_write:
-      cl = NEXTOP(cl,o);
-      break;
-    case _unify_atom:
-    case _unify_l_atom:
-    case _unify_atom_write:
-    case _unify_l_atom_write:
-      cl = NEXTOP(cl,oc);
-      break;
-    case _unify_float:
-    case _unify_l_float:
-    case _unify_float_write:
-    case _unify_l_float_write:
-      cl = NEXTOP(cl,od);
-      break;
-    case _unify_struct:
-    case _unify_struct_write:
-    case _unify_l_struc:
-    case _unify_l_struc_write:
-      cl = NEXTOP(cl,of);
-      break;      
-    case _unify_n_voids:
-    case _unify_l_n_voids:
-    case _unify_n_voids_write:
-    case _unify_l_n_voids_write:
-      cl = NEXTOP(cl,os);
-      break;      
-    case _pop:
-      cl = NEXTOP(cl,e);
-      break;            
-    case _pop_n:
-      cl = NEXTOP(cl,s);
-      break;      
-    case _procceed:
-      /* we have reached the end of code for a legal clause */
-      return TRUE;
-    default:
-      return FALSE;
-    }
-  }
-  return TRUE;
-}
-
 static UInt
 groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp, struct intermediates *cint)
 {
@@ -6589,9 +6507,21 @@ lu_clause(yamop *ipc)
 }
 
 static StaticClause *
-static_clause(yamop *ipc, PredEntry *ap)
+find_static_clause(PredEntry *ap, yamop *ipc)
 {
-  StaticClause *c;
+  StaticClause *cl = ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
+  while (ipc < cl->ClCode ||
+	 ipc > (yamop *)((char *)cl+ cl->ClSize)) {
+    cl = cl->ClNext;
+    if (!cl)
+      return NULL;
+  }
+  return cl;
+}
+
+static StaticClause *
+static_clause(yamop *ipc, PredEntry *ap, int trust)
+{
   CELL *p;
 
   if (ipc == FAILCODE)
@@ -6601,25 +6531,42 @@ static_clause(yamop *ipc, PredEntry *ap)
   if (ap->PredFlags & TabledPredFlag)
     ipc = PREVOP(ipc, ld); 
   p = (CELL *)ipc;
-  while ((c = ClauseCodeToStaticClause(p))) {
-    UInt fls = c->ClFlags;
-    if ((fls & StaticMask) == StaticMask &&
-	!(fls & (MegaMask|SwitchRootMask|SwitchTableMask|DynamicMask|IndexMask|DBClMask|LogUpdMask|LogUpdRuleMask|DirtyMask))) {
-      if (ap->PredFlags & SourcePredFlag) {
-	if ((c->usc.ClPred == ap || (char *)c->usc.ClSource < (char *)c+c->ClSize)
-	    && valid_instructions(ipc, c->ClCode))
-	  return c;
-      } else {
-	if (c->usc.ClPred == ap &&
-	    valid_instructions(ipc, c->ClCode))
-	  return c;
-      }
-    } else if (fls == (StaticMask|FactMask)) {
-      if (c->usc.ClPred == ap &&
-	  valid_instructions(ipc,c->ClCode))
-	return c;
+  if (trust) {
+    return ClauseCodeToStaticClause(p); 
+  } else {
+    op_numbers op = Yap_op_from_opcode(ipc->opc);
+    UInt j;
+
+    /* unbound call, so we cannot optimise instructions */
+    switch (op) {
+    case _p_db_ref_x:
+    case _p_float_x:
+      j = Yap_regnotoreg(ipc->u.xF.x);
+      break;
+    case _get_list:
+      j = Yap_regnotoreg(ipc->u.x.x);
+      break;
+    case _get_atom:
+      j = Yap_regnotoreg(ipc->u.xc.x);
+      break;
+    case _get_float:
+      j = Yap_regnotoreg(ipc->u.xd.x);
+      break;
+    case _get_struct:
+      j = Yap_regnotoreg(ipc->u.xd.x);
+      break;
+    case _get_2atoms:
+    case _get_3atoms:
+    case _get_4atoms:
+    case _get_5atoms:
+    case _get_6atoms:
+      return ClauseCodeToStaticClause(p);
+    default:
+      return find_static_clause(ap, ipc);
     }
-    p--;
+    if (j == 1) /* must be the first instruction */
+      return ClauseCodeToStaticClause(p);
+    return find_static_clause(ap, ipc);
   }
   return NULL;
 }
@@ -7936,6 +7883,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
   choiceptr b0 = NULL;
   yamop **jlbl = NULL;
   int lu_pred = ap->PredFlags & LogUpdatePredFlag;
+  int unbounded = TRUE;
 
   if (ap->ModuleOfPred != IDB_MODULE) {
     if (ap->ArityOfPE) {
@@ -7956,7 +7904,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       if (lu_pred)
 	return lu_clause(ipc->u.l.l);
       else
-	return (LogUpdClause *)static_clause(ipc->u.l.l, ap);
+	return (LogUpdClause *)static_clause(ipc->u.l.l, ap, unbounded);
       break;
     case _try_clause:
 #if TABLING
@@ -7972,7 +7920,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       if (lu_pred)
 	return lu_clause(ipc->u.ld.d);
       else
-	return (LogUpdClause *)static_clause(ipc->u.ld.d, ap);
+	return (LogUpdClause *)static_clause(ipc->u.ld.d, ap, unbounded);
     case _try_clause2:
     case _try_clause3:
     case _try_clause4:
@@ -7986,7 +7934,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       if (lu_pred)
 	return lu_clause(ipc->u.l.l);
       else
-	return (LogUpdClause *)static_clause(ipc->u.l.l, ap);
+	return (LogUpdClause *)static_clause(ipc->u.l.l, ap, unbounded);
     case _try_me:
 #if TABLING
     case _table_try_me:
@@ -8012,7 +7960,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       if (lu_pred)
 	return lu_clause(ipc->u.ld.d);
       else
-	return (LogUpdClause *)static_clause(ipc->u.ld.d, ap);
+	return (LogUpdClause *)static_clause(ipc->u.ld.d, ap, TRUE);
     case _retry2:
     case _retry3:
     case _retry4:
@@ -8020,7 +7968,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       if (lu_pred)
 	return lu_clause(ipc->u.l.l);
       else
-	return (LogUpdClause *)static_clause(ipc->u.l.l, ap);
+	return (LogUpdClause *)static_clause(ipc->u.l.l, ap, TRUE);
     case _retry_me:
       update_clause_choice_point(ipc->u.ld.d,ap_pc);
       ipc = NEXTOP(ipc,ld);
@@ -8051,7 +7999,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       if (lu_pred)
 	return lu_clause(ipc->u.ld.d);
       else
-	return (LogUpdClause *)static_clause(ipc->u.ld.d, ap);
+	return (LogUpdClause *)static_clause(ipc->u.ld.d, ap, TRUE);
     case _profiled_trust_me:
     case _trust_me:
     case _count_trust_me:
@@ -8246,6 +8194,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	jlbl = &(ipc->u.llll.l4);
 	ipc = ipc->u.llll.l4;
       } else if (IsPairTerm(t)) {
+	unbounded = FALSE;
 	jlbl = &(ipc->u.llll.l1);
 	ipc = ipc->u.llll.l1;
 	S = s_reg = RepPair(t);
@@ -8264,6 +8213,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	jlbl = &(ipc->u.ollll.l4);
 	ipc = ipc->u.ollll.l4;
       } else if (IsPairTerm(t)) {
+	unbounded = FALSE;
 	jlbl = &(ipc->u.ollll.l1);
 	ipc = ipc->u.ollll.l1;
 	S = s_reg = RepPair(t);
@@ -8282,6 +8232,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	jlbl = &(ipc->u.xllll.l4);
 	ipc = ipc->u.xllll.l4;
       } else if (IsPairTerm(t)) {
+	unbounded = FALSE;
 	jlbl = &(ipc->u.xllll.l1);
 	ipc = ipc->u.xllll.l1;
 	S = s_reg = RepPair(t);
@@ -8300,6 +8251,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	jlbl = &(ipc->u.sllll.l4);
 	ipc = ipc->u.sllll.l4;
       } else if (IsPairTerm(t)) {
+	unbounded = FALSE;
 	jlbl = &(ipc->u.sllll.l1);
 	ipc = ipc->u.sllll.l1;
 	S = s_reg = RepPair(t);
@@ -8333,6 +8285,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	FuncSwiEntry *fe;
 	Functor f;
 	
+	unbounded = FALSE;
 	s_reg = RepAppl(t);
 	f = (Functor)s_reg[0];
 	s_reg++;
@@ -8364,6 +8317,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       {
 	AtomSwiEntry *ae;
 	
+	unbounded = FALSE;
 	if (op == _switch_on_cons) {
 	  ae = lookup_c_hash(t, ipc->u.sssl.l, ipc->u.sssl.s);
 	} else {
@@ -8458,7 +8412,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       if (lu_pred)
 	return lu_clause(ipc);
       else
-	return (LogUpdClause *)static_clause(ipc, ap);
+	return (LogUpdClause *)static_clause(ipc, ap, unbounded);
     }
   }
   if (b0) {
