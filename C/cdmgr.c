@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2008-04-11 16:30:27 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2008-04-28 23:02:32 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.227  2008/04/11 16:30:27  ricroc
+* *** empty log message ***
+*
 * Revision 1.226  2008/04/01 22:28:41  vsc
 * put YAPOR back to life.
 *
@@ -2887,6 +2890,22 @@ p_is_source(void)
 }
 
 static Int 
+p_mk_d(void)
+{				/* '$is_dynamic'(+P)	 */
+  PredEntry      *pe;
+
+  pe = get_pred(Deref(ARG1),  Deref(ARG2), "$is_source");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  LOCK(pe->PELock);
+  if (pe->OpcodeOfPred == UNDEF_OPCODE) {
+    pe->OpcodeOfPred = FAIL_OPCODE;
+  }
+  UNLOCK(pe->PELock);
+  return TRUE;
+}
+
+static Int 
 p_is_dynamic(void)
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
@@ -3049,14 +3068,14 @@ p_kill_dynamic(void)
   LOCK(pe->PELock);
   if (!(pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
     UNLOCK(pe->PELock);
-    return (FALSE);
+    return FALSE;
   }
   if (pe->cs.p_code.LastClause != pe->cs.p_code.FirstClause) {
     UNLOCK(pe->PELock);
     return (FALSE);
   }
   pe->cs.p_code.LastClause = pe->cs.p_code.FirstClause = NULL;
-  pe->OpcodeOfPred = UNDEF_OPCODE;
+  pe->OpcodeOfPred = FAIL_OPCODE;
   pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred)); 
   pe->PredFlags = pe->PredFlags & GoalExPredFlag;
   UNLOCK(pe->PELock);
@@ -6106,6 +6125,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$is_expand_goal_or_meta_predicate", 2, p_is_expandgoalormetapredicate, TestPredFlag | SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$is_log_updatable", 2, p_is_log_updatable, TestPredFlag | SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$is_source", 2, p_is_source, TestPredFlag | SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$mk_d", 2, p_mk_d, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$number_of_clauses", 3, p_number_of_clauses, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$undefined", 2, p_undefined, SafePredFlag|TestPredFlag|HiddenPredFlag);

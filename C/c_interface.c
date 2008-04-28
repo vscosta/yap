@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-04-11 16:30:27 $,$Author: ricroc $						 *
+* Last rev:	$Date: 2008-04-28 23:02:32 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.115  2008/04/11 16:30:27  ricroc
+* *** empty log message ***
+*
 * Revision 1.114  2008/04/04 13:35:41  vsc
 * fix duplicate dependency frame at entry
 *
@@ -1305,6 +1308,8 @@ run_emulator(YAP_dogoalinfo *dgi)
     ASP = (CELL *)(B+1);
     B = B->cp_b;
     HB = B->cp_h;
+  } else {
+    Yap_StartSlots();
   }
   P = dgi->p;
   RECOVER_MACHINE_REGS();

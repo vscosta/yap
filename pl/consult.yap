@@ -687,6 +687,12 @@ absolute_file_name(File,Opts,TrueFileName) :-
 % all must try search in path
 '$find_in_path'(user,_,user_input, _) :- !.
 '$find_in_path'(user_input,_,user_input, _) :- !.
+'$find_in_path'(library(F),_,_, _) :-
+	% make sure library_directory is open.
+	\+ clause(user:library_directory(_),_),
+	'$system_library_directories'(D),
+	assert(user:library_directory(D)),
+	fail.
 '$find_in_path'(library(File),Opts,NewFile, Call) :- !,
 	'$dir_separator'(D),
 	atom_codes(A,[D]),

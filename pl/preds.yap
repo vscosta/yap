@@ -712,10 +712,10 @@ dynamic(X) :-
 	integer(N), atom(A), !,
 	functor(T,A,N), '$flags'(T,Mod,F,F),
 	% LogUpd,BinaryTest,Safe,C,Dynamic,Compiled,Standard,Asm,
-	( F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x00002000, '$flags'(T, Mod, F, NF);
-	    F /\ 0x00002000 =:= 0x00002000 -> true;                     % dynamic
-	    F /\ 0x08000000 =:= 0x08000000 -> true ;      % LU
-	    F /\ 0x00000400 =:= 0x00000400, '$undefined'(T,Mod) -> F1 is F /\ \(0x400), N1F is F1 \/ 0x00002000, NF is N1F /\ \(0x00400000), '$flags'(T,Mod,F,NF);
+	( F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x00002000, '$flags'(T, Mod, F, NF), '$mk_d'(T,Mod);
+	    F /\ 0x00002000 =:= 0x00002000 -> '$mk_d'(T,Mod);                     % dynamic
+	    F /\ 0x08000000 =:= 0x08000000 -> '$mk_d'(T,Mod) ;      % LU
+	    F /\ 0x00000400 =:= 0x00000400, '$undefined'(T,Mod) -> F1 is F /\ \(0x400), N1F is F1 \/ 0x00002000, NF is N1F /\ \(0x00400000), '$flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
 	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
 	).
 '$dynamic2'(X,Mod) :- 
@@ -725,10 +725,10 @@ dynamic(X) :-
 '$logical_updatable'(A/N,Mod) :- integer(N), atom(A), !,
 	functor(T,A,N), '$flags'(T,Mod,F,F),
 	(
-	    F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x08000400, '$flags'(T,Mod,F,NF);
-	    F /\ 0x08000000 =:= 0x08000000 -> true ;      % LU
-	    F /\ 0x00002000 =:= 0x00002000 -> true;      % dynamic
-	    F /\ 0x00000400 =:= 0x00000400 , '$undefined'(T,Mod) -> N1F is F \/ 0x08000000, NF is N1F /\ \(0x00400000), '$flags'(T,Mod,F,NF);
+	    F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x08000400, '$flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
+	    F /\ 0x08000000 =:= 0x08000000 -> '$mk_d'(T,Mod) ;      % LU
+	    F /\ 0x00002000 =:= 0x00002000 -> '$mk_d'(T,Mod);      % dynamic
+	    F /\ 0x00000400 =:= 0x00000400 , '$undefined'(T,Mod) -> N1F is F \/ 0x08000000, NF is N1F /\ \(0x00400000), '$flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
 	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
 	).
 '$logical_updatable'(X,Mod) :- 
