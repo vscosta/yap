@@ -9,7 +9,8 @@ Use
 to execute the test
 
 */
-:-use_module(library(lpadvel)).
+%:-use_module(library(lpadvel)).
+:-use_module(lpadvelor).
 
 
 epsilon(0.000001).
@@ -21,18 +22,26 @@ close_to(V,T):-
 	TLow<V,
 	V<THigh.
 
-
 t:-
 	format("~nTesting lpadvel.yap~n~n",[]),
+	t(max_card),!,
+	t(top_sort),!,
+	t(min_def),
+	format("All orders successful~n",[]).
+
+t:-
+	format("Test unsuccessful.~n",[]).
+
+t(Order):-
 	files(F),
 	statistics(runtime,[_,_]),
+	format("~nOrder=~p~n",[Order]),
+	set(order,Order), 
 	test_files(F,ground_body(true)),
 	statistics(runtime,[_,T]),
 	T1 is T /1000,
 	format("Test successful, time ~f secs.~n",[T1]).
 
-t:-
-	format("Test unsuccessful.~n",[]).
 
 test_files([],_GB).
 

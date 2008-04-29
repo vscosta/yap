@@ -20,7 +20,8 @@
 :-dynamic rule/5,def_rule/2,setting/2.
 
 :-use_module(library(lists)).
-:-use_module(library(ugraphs)).
+:-use_module(library(undgraphs)).
+:-use_module(library(dgraphs)).
 :-use_module(library(avl)).
 
 :-use_module(library(matrix)).
@@ -37,6 +38,10 @@ only the head is grounded. In the case in which the body contains variables
 not appearing in the head, the body represents an existential event */
 
 setting(cpt_zero,0.0001). 
+
+%setting(order,top_sort). 
+setting(order,min_def). 
+%setting(order,max_card). 
 
 /* end of list of parameters */
 
@@ -206,13 +211,136 @@ convert_to_bn(CL,GL,GLC,P):-
 	find_ground_atoms(CL,[],GADup),
 	remove_duplicates(GADup,GANull),
 	delete(GANull,'',GA),
-	rule_factors(CL,[],HetF,HomFR,[],Graph0),
-	identity_facotrs(GA,_GAD,IF,Graph0,Graph1),
-	top_sort(Graph1,SortedAtoms),
+	undgraph_new(Graph0),
+	rule_factors(CL,[],HetF,HomFR,Graph0,Graph1),
+	identity_facotrs(GA,_GAD,IF,Graph1,Graph2),
+	setting(order,Order)->
+	(Order=top_sort->
+		dgraph_top_sort(Graph2,SortedAtoms)
+	;
+		dgraph_to_undgraph(Graph2,Graph3),
+		undgraph_vertices(Graph3,SortedAtoms0),
+		(Order=max_card->
+			max_card_order(SortedAtoms0,[],SortedAtoms,Graph3)
+		;
+			SortedAtoms=SortedAtoms0
+		)
+	),
 	find_atoms_body(GL,QAtoms),
 	append(HomFR,IF,HomF),
-	vel(HomF,HetF,QAtoms,GLC,SortedAtoms,OutptutTable),
+	vel(HomF,HetF,QAtoms,GLC,Graph3,SortedAtoms,OutptutTable),
 	get_prob_goal(GL,QAtoms,SortedAtoms,OutptutTable,P).
+
+
+max_card_order([],SortedAtoms,SortedAtoms,_Graph):-!.
+
+max_card_order(Atoms,SortedAtoms0,SortedAtoms1,Graph):-
+	find_max_card(Atoms,SortedAtoms0,Graph,null,-1,At),
+	delete(Atoms,At,Atoms1),
+	max_card_order(Atoms1,[At|SortedAtoms0],SortedAtoms1,Graph).
+
+find_max_card([],_SortedAtoms,_Graph,At,_MaxCard,At):-!.
+
+find_max_card([HVar|T],SortedAtoms,Graph,MaxAt0,MaxCard0,MaxAt1):-
+	(
+		(HVar \= d(_At);HVar=ch(_N))
+	;
+		HVar = d(Var),
+		member(Var,SortedAtoms)
+	),!,
+	find_card(SortedAtoms,Graph,HVar,0,Card),
+	(Card>MaxCard0->
+		MaxCard2=Card,
+		MaxAt2=HVar
+	;
+		MaxCard2=MaxCard0,
+		MaxAt2=MaxAt0
+	),
+	find_max_card(T,SortedAtoms,Graph,MaxAt2,MaxCard2,MaxAt1).
+
+/*find_max_card([HVar|T],SortedAtoms,Graph,MaxAt0,MaxCard0,MaxAt1):-
+	member(d(HVar),T),!,
+	find_card(SortedAtoms,Graph,HVar,0,Card),
+	(Card>MaxCard0->
+		MaxCard2=Card,
+		MaxAt2=HVar
+	;
+		MaxCard2=MaxCard0,
+		MaxAt2=MaxAt0
+	),
+	find_max_card(T,SortedAtoms,Graph,MaxAt2,MaxCard2,MaxAt1).
+*/
+find_max_card([_HVar|T],SortedAtoms,Graph,MaxAt0,MaxCard0,MaxAt1):-
+	find_max_card(T,SortedAtoms,Graph,MaxAt0,MaxCard0,MaxAt1).
+
+find_card([],_Graph,_At,Card,Card):-!.
+
+find_card([H|T],Graph,At,Card0,Card1):-
+	(undgraph_edge(H,At,Graph)->
+		Card2 is Card0+1
+	;
+		Card2 = Card0
+	),
+	find_card(T,Graph,At,Card2,Card1).
+
+
+compute_min_def([],_Eliminated,Graph0,Graph1,MinVar,MinVar,_MinDef0):-
+	undgraph_del_vertices(Graph0,[MinVar],Graph1).
+
+compute_min_def([HVar|TVars],Eliminated,Graph0,Graph1,MinVar0,MinVar1,MinDef0):-
+	(
+		(HVar=d(_At);HVar=ch(_N))
+	;
+		member(d(HVar),Eliminated)
+	),!,
+	compute_def(HVar,Graph0,Def),
+	(Def<MinDef0->
+		MinDef2=Def,
+		MinVar2=HVar
+	;	
+		MinDef2=MinDef0,
+		MinVar2=MinVar0
+	),
+	compute_min_def(TVars,Eliminated,Graph0,Graph1,MinVar2,MinVar1,MinDef2).
+
+/*compute_min_def([HVar|TVars],Eliminated,Graph0,Graph1,MinVar0,MinVar1,MinDef0):-
+	member(d(HVar),Eliminated),!,
+	compute_def(HVar,Graph0,Def),
+	(Def<MinDef0->
+		MinDef2=Def,
+		MinVar2=HVar
+	;	
+		MinDef2=MinDef0,
+		MinVar2=MinVar0
+	),
+	compute_min_def(TVars,Eliminated,Graph0,Graph1,MinVar2,MinVar1,MinDef2).	
+*/
+
+compute_min_def([_HVar|TVars],Eliminated,Graph0,Graph1,MinVar0,MinVar1,MinDef0):-
+	compute_min_def(TVars,Eliminated,Graph0,Graph1,MinVar0,MinVar1,MinDef0).	
+	
+	
+compute_def(Node,UndGraph,Def):-
+	undgraph_neighbors(Node,UndGraph,AdjNodes),
+	undgraph_new(SecGraph0),
+	section_graph([Node|AdjNodes],UndGraph,SecGraph0,SecGraph1),
+	undgraph_complement(SecGraph1,SecGraphC),
+	undgraph_edges(SecGraphC, Edges),
+	length(Edges,Def).
+
+
+section_graph([],_Graph,SG,SG):-!.
+
+section_graph([H|T],Graph,SecGraph0,SecGraph1):-!,
+	undgraph_neighbors(H,Graph,Neig),
+	new_edges(Neig,H,Edges),
+	undgraph_add_edges(SecGraph0,Edges,SecGraph2),
+	section_graph(T,Graph,SecGraph2,SecGraph1).
+
+new_edges([],_V,[]):-!.
+
+new_edges([H|T],V,[V-H|TE]):-
+	new_edges(T,V,TE).
 
 get_prob_goal(GL,QAtoms,SortedAtoms,f(M,_D,_S),P):-
 	positions(QAtoms,SortedAtoms,VarsPos),
@@ -233,13 +361,14 @@ get_index([H|Vars1],GL,[0|Index]):-
 	get_index(Vars1,GL,Index).
 
 
-vel(IF,RF,QAtoms,GLC,SortedAtoms,OutptutTable):-
+vel(IF,RF,QAtoms,GLC,Graph,SortedAtoms,OutptutTable):-
 	fix_evidence(RF,RF1,GLC),
 	fix_evidence(IF,IF1,GLC),
 	sort_tables(RF1,RF2,SortedAtoms),
 	sort_tables(IF1,IF2,SortedAtoms),
 	delete_all(QAtoms,SortedAtoms,SortedAtoms1),
-	vel_cycle(SortedAtoms1,IF2,RF2,SortedAtoms,OutptutTable).
+	vel_cycle(SortedAtoms1,IF2,RF2,Graph,SortedAtoms,[],_Eliminated,OutptutTable).
+
 
 fix_evidence([],[],_Ev):-!.
 
@@ -338,14 +467,21 @@ add_indices([V|Vs0],I0,[V-I0|Is]) :-
 	I is I0+1,
 	add_indices(Vs0,I,Is).
 
-vel_cycle([],HomFact,HetFact,SortedAtoms,f(Mat1,Dep,Sz)):-!,
+vel_cycle([],HomFact,HetFact,_Graph,SortedAtoms,Eliminated,Eliminated,f(Mat1,Dep,Sz)):-!,
 	combine_factors(HomFact,HetFact,SortedAtoms,f(Mat,Dep,Sz)),
 	normalise_CPT(Mat,Mat1),
 	matrix_to_list(Mat1,_).
 
-vel_cycle([Z|TVar],HomFact,HetFact,SortedAtoms,OutputTable):-
-	sum_out1(Z,HomFact,HetFact,HomFact1,HetFact1,SortedAtoms),
-	vel_cycle(TVar,HomFact1,HetFact1,SortedAtoms,OutputTable).
+vel_cycle(Vars0,HomFact,HetFact,Graph0,SortedAtoms,Eliminated0,Eliminated1,OutputTable):-
+	(setting(order,min_def)->
+		compute_min_def(Vars0,Eliminated0,Graph0,Graph1,null,MinVar,+inf),
+		delete(Vars0,MinVar,Vars1)
+	;
+		Vars0=[MinVar|Vars1]
+	),
+	sum_out1(MinVar,HomFact,HetFact,HomFact1,HetFact1,SortedAtoms),
+	append(Eliminated0,[MinVar],Eliminated2),
+	vel_cycle(Vars1,HomFact1,HetFact1,Graph1,SortedAtoms,Eliminated2,Eliminated1,OutputTable).
 
 normalise_CPT(MAT,NMAT) :-
 	matrix_sum(MAT, Sum),
@@ -560,7 +696,7 @@ deputy_atoms([H|T],[d(H)|T1]):-
 identity_facotrs([],[],[],Graph,Graph):-!.
 
 identity_facotrs([H|T],[d(H)|TD],[f(Mat,[d(H),H],[2,2])|TF],Graph0,Graph1):-
-	add_edges(Graph0,[d(H)-H],Graph2),
+	dgraph_add_edges(Graph0,[d(H)-H],Graph2),
 	matrix_new(floats, [2,2], [1.0,0.0,0.0,1.0],Mat),
 	identity_facotrs(T,TD,TF,Graph2,Graph1).
 
@@ -615,13 +751,13 @@ build_col([_H|T],Truth,Probs,FalseCol,T0,T1):-
 add_hom_edges_to_graph([],_N,Graph,Graph):-!.
 
 add_hom_edges_to_graph([H|T],N,Graph0,Graph1):-
-	add_edges(Graph0,[H-ch(N)],Graph2),
+	dgraph_add_edges(Graph0,[H-ch(N)],Graph2),
 	add_hom_edges_to_graph(T,N,Graph2,Graph1).
 
 add_het_edges_to_graph([''],_N,Graph,Graph):-!.
 
 add_het_edges_to_graph([H|T],N,Graph0,Graph1):-
-	add_edges(Graph0,[ch(N)-d(H)],Graph2),
+	dgraph_add_edges(Graph0,[ch(N)-d(H)],Graph2),
 	add_het_edges_to_graph(T,N,Graph2,Graph1).
 
 add_edges_to_graph([],_Atoms,Graph,Graph):-!.
@@ -633,7 +769,7 @@ add_edges_to_graph([H|T],Atoms,Graph0,Graph1):-
 add_edges_from_atom([''],_At,Graph,Graph):-!.
 
 add_edges_from_atom([H|T],At,Graph0,Graph1):-
-	add_edges(Graph0,[At-d(H)],Graph2),
+	dgraph_add_edges(Graph0,[At-d(H)],Graph2),
 	add_edges_from_atom(T,At,Graph2,Graph1).
 
 gen_het_factors([''],_N,_LH,_Pos,HetF,HetF):-!.
