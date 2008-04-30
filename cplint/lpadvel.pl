@@ -58,6 +58,9 @@ GoalsList given EvidenceList. Both lists can have variables, sc returns in
 backtracking all the solutions with their corresponding probability 
 Time1 is the time for performing resolution
 Time2 is the time for performing bayesian inference */
+
+sc(GL,GL,1.0).
+
 sc(GL,GLC,P):-
 	get_ground_portion(GL,GLC,CL,Undef),!,
 	(Undef=yes->
@@ -122,6 +125,8 @@ s(GL,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 /* sc(GoalsList,EvidenceList,Prob) compute the probability of a list of goals 
 GoalsList given EvidenceList. Both lists can have variables, sc returns in 
 backtracking all the solutions with their corresponding probability */
+
+sc(GL,GL,1.0,0.0,0.0,0.0,0.0).
 
 sc(GL,GLC,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 	statistics(cputime,[_,_]),
