@@ -366,7 +366,7 @@ vel(IF,RF,QAtoms,GLC,Graph,SortedAtoms,OutptutTable):-
 	fix_evidence(IF,IF1,GLC),
 	sort_tables(RF1,RF2,SortedAtoms),
 	sort_tables(IF1,IF2,SortedAtoms),
-	get_atoms_body(GLC,AtomsC),
+	find_atoms_body(GLC,AtomsC),
 	delete_all(QAtoms,SortedAtoms,SortedAtoms1),
 	delete_all(AtomsC,SortedAtoms1,SortedAtoms2),	
 	vel_cycle(SortedAtoms2,IF2,RF2,Graph,SortedAtoms,[],_Eliminated,OutptutTable).
