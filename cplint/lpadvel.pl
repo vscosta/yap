@@ -263,18 +263,6 @@ find_max_card([HVar|T],SortedAtoms,Graph,MaxAt0,MaxCard0,MaxAt1):-
 	),
 	find_max_card(T,SortedAtoms,Graph,MaxAt2,MaxCard2,MaxAt1).
 
-/*find_max_card([HVar|T],SortedAtoms,Graph,MaxAt0,MaxCard0,MaxAt1):-
-	member(d(HVar),T),!,
-	find_card(SortedAtoms,Graph,HVar,0,Card),
-	(Card>MaxCard0->
-		MaxCard2=Card,
-		MaxAt2=HVar
-	;
-		MaxCard2=MaxCard0,
-		MaxAt2=MaxAt0
-	),
-	find_max_card(T,SortedAtoms,Graph,MaxAt2,MaxCard2,MaxAt1).
-*/
 find_max_card([_HVar|T],SortedAtoms,Graph,MaxAt0,MaxCard0,MaxAt1):-
 	find_max_card(T,SortedAtoms,Graph,MaxAt0,MaxCard0,MaxAt1).
 
@@ -308,19 +296,6 @@ compute_min_def([HVar|TVars],Eliminated,Graph0,Graph1,MinVar0,MinVar1,MinDef0):-
 	),
 	compute_min_def(TVars,Eliminated,Graph0,Graph1,MinVar2,MinVar1,MinDef2).
 
-/*compute_min_def([HVar|TVars],Eliminated,Graph0,Graph1,MinVar0,MinVar1,MinDef0):-
-	member(d(HVar),Eliminated),!,
-	compute_def(HVar,Graph0,Def),
-	(Def<MinDef0->
-		MinDef2=Def,
-		MinVar2=HVar
-	;	
-		MinDef2=MinDef0,
-		MinVar2=MinVar0
-	),
-	compute_min_def(TVars,Eliminated,Graph0,Graph1,MinVar2,MinVar1,MinDef2).	
-*/
-
 compute_min_def([_HVar|TVars],Eliminated,Graph0,Graph1,MinVar0,MinVar1,MinDef0):-
 	compute_min_def(TVars,Eliminated,Graph0,Graph1,MinVar0,MinVar1,MinDef0).	
 	
@@ -352,7 +327,6 @@ get_prob_goal(GL,QAtoms,SortedAtoms,f(M,_D,_S),P):-
 	keysort(VarsPos,Vars1Pos),
 	split_map(Vars1Pos,Vars1),
 	get_index(Vars1,GL,Index),
-	matrix_to_list(M,_),
 	matrix_get(M,Index,P).
 
 get_index([],_GL,[]):-!.
@@ -380,23 +354,13 @@ vel(IF,RF,QAtoms,GLC,Graph,SortedAtoms,OutptutTable):-
 fix_evidence([],[],_Ev):-!.
 
 fix_evidence([f(Tab,Dep,Sz)|T],[f(Tab1,Dep1,Sz1)|T1],Ev):-
-%	add_conv(Ev,Ev1),
 	simplify_evidence(Ev,Tab,Dep,Sz,Tab1,Dep1,Sz1),
 	fix_evidence(T,T1,Ev).
-
-add_conv([],[]):-!.
-
-add_conv([\+H|Ev],[\+H,\+d(H)|Ev1]):-!,
-	add_conv(Ev,Ev1).
-
-add_conv([H|Ev],[H,d(H)|Ev1]):-!,
-	add_conv(Ev,Ev1).
 
 
 simplify_evidence([], Table, Deps, Sizes, Table, Deps, Sizes).
 simplify_evidence([V|VDeps], Table0, Deps0, Sizes0, Table, Deps, Sizes) :-!,
 	project_from_CPT(V,tab(Table0,Deps0,Sizes0),tab(Table1,Deps1,Sizes1)),
-	matrix_to_list(Table1,_),
 	simplify_evidence(VDeps, Table1, Deps1, Sizes1, Table, Deps, Sizes).
 
 
@@ -404,16 +368,12 @@ simplify_evidence([V|VDeps], Table0, Deps0, Sizes0, Table, Deps, Sizes) :-!,
 
 project_from_CPT(\+H,tab(Table,Deps,_),tab(NewTable,NDeps,NSzs)) :-
 	nth0(N,Deps, H),!,
-	matrix_to_list(Table,_),
 	matrix_select(Table, N, 0, NewTable),
-	matrix_to_list(NewTable,_),
 	matrix_dims(NewTable, NSzs),
 	delete(Deps,H,NDeps).
 project_from_CPT(H,tab(Table,Deps,_),tab(NewTable,NDeps,NSzs)) :-
 	nth0(N,Deps, H),!,
-	matrix_to_list(Table,_),
 	matrix_select(Table, N, 1, NewTable),
-	matrix_to_list(NewTable,_),
 	matrix_dims(NewTable, NSzs),
 	delete(Deps,H,NDeps).
 project_from_CPT(_H,tab(Table,Deps,S),tab(Table,Deps,S)).
@@ -426,8 +386,6 @@ sort_tables([f(Mat,Vars,_Sz)|T],[f(Mat1,Vars1,Sz1)|T1],SortedAtoms):-
 	reorder_CPT(Vars,SortedAtoms,Vars1,Map),
 	matrix_shuffle(Mat,Map,Mat1),
 	matrix_dims(Mat1,Sz1),
-	matrix_to_list(Mat,_L),
-	matrix_to_list(Mat1,_L1),
 	sort_tables(T,T1,SortedAtoms).
 
 
@@ -476,8 +434,7 @@ add_indices([V|Vs0],I0,[V-I0|Is]) :-
 
 vel_cycle([],HomFact,HetFact,_Graph,SortedAtoms,Eliminated,Eliminated,f(Mat1,Dep,Sz)):-!,
 	combine_factors(HomFact,HetFact,SortedAtoms,f(Mat,Dep,Sz)),
-	normalise_CPT(Mat,Mat1),
-	matrix_to_list(Mat1,_).
+	normalise_CPT(Mat,Mat1).
 
 vel_cycle(Vars0,HomFact,HetFact,Graph0,SortedAtoms,Eliminated0,Eliminated1,OutputTable):-
 	(setting(order,min_def)->
@@ -502,33 +459,21 @@ combine_factors(HomFacts,HetFacts,SortedAtoms,Fact):-
 sum_out1(Var,Hom,Het,Hom2,Het2,SortedAtoms):-
 	get_factors_with_var(Hom,Var,HomFacts,Hom1),
 	multiply_tables(HomFacts,HomFact,SortedAtoms),
-	(HomFact=[];HomFact=f(Mat1,_,_),	
-	matrix_to_list(Mat1,_)),
 	get_factors_with_var(Het,Var,HetFacts,Het1),
 	combine_tables(HetFacts,HetFact,SortedAtoms),
-	(HetFact=[];HetFact=f(Mat2,_,_),	
-	matrix_to_list(Mat2,_)),
 	update_factors(Var,HomFact,HetFact,Hom1,Hom2,Het1,Het2,SortedAtoms).
 
 update_factors(_Var,[],[],Hom,Hom,Het,Het,_SortedAtoms):-!.
 
 update_factors(Var,HomFact,[],Hom,[Fact|Hom],Het,Het,_SortedAtoms):-!,
-	sum_var(Var,HomFact,Fact),
-	Fact=f(Mat2,_,_),	
-	matrix_to_list(Mat2,_).
+	sum_var(Var,HomFact,Fact).
 
 update_factors(Var,[],HetFact,Hom,Hom,Het,[Fact|Het],_SortedAtoms):-
-	sum_var(Var,HetFact,Fact),
-	Fact=f(Mat2,_,_),	
-	matrix_to_list(Mat2,_).
+	sum_var(Var,HetFact,Fact).
 
 update_factors(Var,HomFact,HetFact,Hom,Hom,Het,[Fact1|Het],SortedAtoms):-
 	multiply_CPTs(HomFact,HetFact,Fact,SortedAtoms),
-	Fact=f(Mat,_,_),	
-	matrix_to_list(Mat,_),
-	sum_var(Var,Fact,Fact1),
-	Fact1=f(Mat2,_,_),	
-	matrix_to_list(Mat2,_).
+	sum_var(Var,Fact,Fact1).
 
 sum_var(Var,f(Table,Deps,_),f(NewTable,NDeps,NSzs)):-
 	nth0(N,Deps, Var),!,
@@ -566,17 +511,11 @@ combine_CPTs(f(Tab1, Deps1, Sz1), f(Tab2, Deps2, Sz2), F, SortedAtoms) :-
 	rename_convergent(2,CommConv,Deps2,Deps21,NewAt0,NewAt1),
 	update_sorted(SortedAtoms,NewAt1,SortedAtoms1),
 	expand_tabs(Deps11, Sz1, Deps21, Sz2, Map1, Map2, NDeps0,SortedAtoms1),
-	matrix_to_list(Tab1,_),
 	matrix_expand(Tab1, Map1, NTab1),
-	matrix_to_list(NTab1,_),
-	matrix_to_list(Tab2,_),
 	matrix_expand(Tab2, Map2, NTab2),
-	matrix_to_list(NTab2,_),
 	matrix_op(NTab1,NTab2,*,OT0),
-	matrix_to_list(OT0,_),
 	matrix_dims(OT0,NSz0),
 	sum_fact(CommConv,OT0,NDeps0,NSz0,OT,NDeps,NSz),
-	matrix_to_list(OT,_),
 	sort_tables([f(OT, NDeps, NSz)],[F],SortedAtoms).
 
 get_common_conv(Deps1,Deps2,CommConv):-
@@ -608,9 +547,7 @@ sum_fact([H|T],T0,D0,S0,T1,D1,S1):-
 	matrix_to_list(Tff,Lf),
 	append(Lf,Lt,L),
 	matrix_new(floats, [2|S], L,T4),
-	matrix_to_list(T2,_),
-	sum_fact(T,T4,[d(H)|D],[2|S],T1,D1,S1),
-		matrix_to_list(T1,_).
+	sum_fact(T,T4,[d(H)|D],[2|S],T1,D1,S1).
 
 remove_renamed_conv([],[]):-!.
 
@@ -655,11 +592,8 @@ rename_convergent(N,CommConv,[H|T],[H|T1],NA0,NA1):-
 multiply_CPTs(f(Tab1, Deps1, Sz1), f(Tab2, Deps2, Sz2), f(OT, NDeps, NSz), SortedAtoms) :-
 	expand_tabs(Deps1, Sz1, Deps2, Sz2, Map1, Map2, NDeps,SortedAtoms),
 	matrix_expand(Tab1, Map1, NTab1),
-	matrix_to_list(NTab1,_),
 	matrix_expand(Tab2, Map2, NTab2),
-	matrix_to_list(NTab2,_),
 	matrix_op(NTab1,NTab2,*,OT),
-	matrix_to_list(OT,_),
 	matrix_dims(OT,NSz).
 
 expand_tabs([], [], [], [], [], [], [],_SortedAtoms):-!.
