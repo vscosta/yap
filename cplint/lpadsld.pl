@@ -43,7 +43,7 @@ solve(GoalsList,Prob):-
 		compute_prob(NewVar,Formula,Prob,0)
 	).
 
-solve(GoalsList,0):-
+solve(GoalsList,0.0):-
 	\+ find_deriv(GoalsList,_Deriv).
 
 /* s(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2) compute the probability of a list of goals 
@@ -62,24 +62,34 @@ s(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 solve(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 	statistics(cputime,[_,_]),
 	statistics(walltime,[_,_]),
-	setof(Deriv,find_deriv(GoalsList,Deriv),LDup),
-	rem_dup_lists(LDup,[],L),
-	statistics(cputime,[_,CT1]),
-	CPUTime1 is CT1/1000,
-	statistics(walltime,[_,WT1]),
-	WallTime1 is WT1/1000,
-	build_formula(L,Formula,[],Var),
-	var2numbers(Var,0,NewVar),
-	(setting(save_dot,true)->
-		format("Variables: ~p~n",[Var]),
-		compute_prob(NewVar,Formula,Prob,1)
+	(setof(Deriv,find_deriv(GoalsList,Deriv),LDup)->
+		rem_dup_lists(LDup,[],L),
+		statistics(cputime,[_,CT1]),
+		CPUTime1 is CT1/1000,
+		statistics(walltime,[_,WT1]),
+		WallTime1 is WT1/1000,
+		build_formula(L,Formula,[],Var),
+		var2numbers(Var,0,NewVar),
+		(setting(save_dot,true)->
+			format("Variables: ~p~n",[Var]),
+			compute_prob(NewVar,Formula,Prob,1)
+		;
+			compute_prob(NewVar,Formula,Prob,0)
+		),
+		statistics(cputime,[_,CT2]),
+		CPUTime2 is CT2/1000,
+		statistics(walltime,[_,WT2]),
+		WallTime2 is WT2/1000
 	;
-		compute_prob(NewVar,Formula,Prob,0)
-	),
-	statistics(cputime,[_,CT2]),
-	CPUTime2 is CT2/1000,
-	statistics(walltime,[_,WT2]),
-	WallTime2 is WT2/1000,!.
+		Prob=0.0,
+		statistics(cputime,[_,CT1]),
+		CPUTime1 is CT1/1000,
+		statistics(walltime,[_,WT1]),
+		WallTime1 is WT1/1000,
+		CPUTime2 =0.0,
+		statistics(walltime,[_,WT2]),
+		WallTime2 =0.0
+	),!.
 
 
 
