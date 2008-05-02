@@ -99,6 +99,38 @@ s(GL,P,Time1,Time2):-
 		statistics(walltime,[_,WT1]),
 		Time2 is WT1/1000
 	).
+	
+s(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
+	solve(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2).
+
+
+solve(GL,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
+	statistics(cputime,[_,_]),
+	statistics(walltime,[_,_]),
+	(setof(Deriv,find_deriv(GL,Deriv),LDup)->
+		append_all(LDup,[],L),
+		remove_head(L,L1),
+		remove_duplicates(L1,L2),
+		statistics(cputime,[_,CT1]),
+		CPUTime1 is CT1/1000,
+		statistics(walltime,[_,WT1]),
+		WallTime1 is WT1/1000,
+		build_ground_lpad(L2,0,CL),
+		convert_to_clpbn(CL,GL,LV,P),
+		statistics(cputime,[_,CT2]),
+		CPUTime2 is CT2/1000,
+		statistics(walltime,[_,WT2]),
+		WallTime2 is WT2/1000
+	;
+		P=0.0,
+		statistics(cputime,[_,CT1]),
+		CPUTime1 is CT1/1000,
+		statistics(walltime,[_,WT1]),
+		WallTime1 is WT1/1000,
+		CPUTime2 =0.0,
+		statistics(walltime,[_,WT2]),
+		WallTime2 =0.0
+	),!.	
 
 /* sc(GoalsList,EvidenceList,Prob) compute the probability of a list of goals 
 GoalsList given EvidenceList. Both lists can have variables, sc returns in 
