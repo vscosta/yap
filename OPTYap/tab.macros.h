@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.macros.h
-  version:     $Id: tab.macros.h,v 1.20 2007-04-26 14:11:08 ricroc Exp $   
+  version:     $Id: tab.macros.h,v 1.21 2008-05-05 17:17:35 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -242,7 +242,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
         { SgFr_init_yapor_fields(SG_FR);                           \
           SgFr_state(SG_FR) = evaluating;                          \
           SgFr_next(SG_FR) = LOCAL_top_sg_fr;                      \
-          LOCAL_top_sg_fr = sg_fr;                                 \
+          LOCAL_top_sg_fr = SG_FR;                                 \
 	}
 
 
