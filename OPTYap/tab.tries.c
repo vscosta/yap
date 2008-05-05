@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.C
-  version:     $Id: tab.tries.c,v 1.22 2007-04-26 19:02:46 ricroc Exp $   
+  version:     $Id: tab.tries.c,v 1.23 2008-05-05 17:09:37 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -863,7 +863,7 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 
 void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
   CELL *stack_vars_base, *stack_vars, *stack_terms_base, *stack_terms;
-  int subs_arity, i, n_vars = MAX_TABLE_VARS;
+  int subs_arity, i, n_vars = -1;
   Term t;
 
   if ((subs_arity = *subs_ptr) == 0)
@@ -881,14 +881,15 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
   do {
     if (IsVarTerm(t)) {
       int var_index = VarIndexOfTableTerm(t);
-      if (n_vars == MAX_TABLE_VARS) {
-	stack_vars += var_index;
-	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
-      }
-      if (var_index < n_vars) {
+      if(var_index > n_vars) {
+	for (i = var_index; i > n_vars; i--)
+	  stack_vars_base[i] = NULL; 
 	n_vars = var_index;
-	stack_vars_base[var_index] = MkVarTerm();
-      }
+	stack_vars = stack_terms_base + n_vars;
+	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
+      }  
+      if (stack_vars_base[var_index] == NULL)
+	stack_vars_base[var_index] = MkVarTerm(); 
       STACK_PUSH_UP(stack_vars_base[var_index], stack_terms);
       STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
     } else if (IsAtomOrIntTerm(t)) {
