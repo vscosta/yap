@@ -369,12 +369,15 @@ TrEntry itrie_load(FILE *file) {
   TrNode node;
 
   new_itrie_entry(itrie, NULL);
+  CURRENT_ITRIE = itrie;
+  if (!(node = core_trie_load(ITRIE_ENGINE, file, &itrie_data_load))) {
+    free_itrie_entry(itrie);
+    return NULL;
+  }
+  TrEntry_trie(itrie) = node;
   if (FIRST_ITRIE)
     TrEntry_previous(FIRST_ITRIE) = itrie;
   FIRST_ITRIE = itrie;
-  CURRENT_ITRIE = itrie;
-  node = core_trie_load(ITRIE_ENGINE, file, &itrie_data_load);
-  TrEntry_trie(itrie) = node;
   return itrie;
 }
 

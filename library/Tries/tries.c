@@ -527,6 +527,8 @@ static int p_trie_load(void) {
   data = trie_load(file);
   if (fclose(file))
     return FALSE;
+  if (!data)
+    return FALSE;
   return YAP_Unify(arg_trie, YAP_MkIntTerm((YAP_Int) data));
 }
 #undef arg_trie

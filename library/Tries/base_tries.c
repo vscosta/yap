@@ -240,12 +240,15 @@ TrEntry trie_load(FILE *file) {
   TrNode node;
 
   new_trie_entry(trie, NULL);
+  CURRENT_TRIE = trie;
+  if (!(node = core_trie_load(TRIE_ENGINE, file, &trie_data_load))) {
+    free_trie_entry(trie);  
+    return NULL;
+  }
+  TrEntry_trie(trie) = node;
   if (FIRST_TRIE)
     TrEntry_previous(FIRST_TRIE) = trie;
   FIRST_TRIE = trie;
-  CURRENT_TRIE = trie;
-  node = core_trie_load(TRIE_ENGINE, file, &trie_data_load);
-  TrEntry_trie(trie) = node;
   return trie;
 }
 

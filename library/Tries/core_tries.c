@@ -429,19 +429,41 @@ TrNode core_trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode,
   TrNode node;
   char version[15];
 
+  fscanf(file, "%14s", version);
+  if (!strcmp(version, "BEGIN_TRIE_v2")) {
+    fseek(file, -11, SEEK_END);
+    fscanf(file, "%s", version);
+    if (strcmp(version, "END_TRIE_v2")) {
+      fprintf(stderr, "******************************************\n");
+      fprintf(stderr, "  Tries core module: trie file corrupted\n");
+      fprintf(stderr, "******************************************\n");  
+      return NULL;
+    }
+    fseek(file, 13, SEEK_SET);
+    CURRENT_LOAD_VERSION = 2;
+  } else if (!strcmp(version, "BEGIN_TRIE")) {
+    fseek(file, -8, SEEK_END);
+    fscanf(file, "%s", version);
+    if (strcmp(version, "END_TRIE")) {
+      fprintf(stderr, "******************************************\n");
+      fprintf(stderr, "  Tries core module: trie file corrupted\n");
+      fprintf(stderr, "******************************************\n");  
+      return NULL;
+    }
+    fseek(file, 10, SEEK_SET);
+    CURRENT_LOAD_VERSION = 1;
+  } else {
+    fprintf(stderr, "****************************************\n");
+    fprintf(stderr, "  Tries core module: invalid trie file\n");
+    fprintf(stderr, "****************************************\n");  
+    return NULL;
+  }
   CURRENT_TRIE_ENGINE = engine;
   CURRENT_INDEX = -1;
   CURRENT_DEPTH = 0;
   DATA_LOAD_FUNCTION = load_function;
   node = core_trie_open(engine);
-  fscanf(file, "%s", version);
-  if (!strcmp(version, "BEGIN_TRIE_v2")) {
-    CURRENT_LOAD_VERSION = 2;
-    traverse_and_load(node, file);
-  } else if (!strcmp(version, "BEGIN_TRIE")) {
-    CURRENT_LOAD_VERSION = 1;
-    traverse_and_load(node, file);
-  }
+  traverse_and_load(node, file);
   return node;
 }
 

@@ -579,6 +579,8 @@ static int p_itrie_load(void) {
   itrie = itrie_load(file);
   if (fclose(file))
     return FALSE;
+  if (!itrie)
+    return FALSE;
   return YAP_Unify(arg_itrie, YAP_MkIntTerm((YAP_Int) itrie));
 }
 #undef arg_itrie
