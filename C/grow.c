@@ -433,51 +433,51 @@ AdjustGlobal(long sz)
     cpt = pt;
     reg = *pt;
     if (IsVarTerm(reg)) {
-	if (IsOldGlobal(reg))
-	  *pt = GlobalAdjust(reg);
-	else if (IsOldLocal(reg))
-	  *pt = LocalAdjust(reg);
-	else if (IsOldCode(reg)) {
-	  Functor f;
-	  f = (Functor)reg;
-	  /* skip bitmaps */
-	  switch((CELL)f) {
-	  case (CELL)FunctorDouble:
+      if (IsOldGlobal(reg))
+	*pt = GlobalAdjust(reg);
+      else if (IsOldLocal(reg))
+	*pt = LocalAdjust(reg);
+      else if (IsOldCode(reg)) {
+	Functor f;
+	f = (Functor)reg;
+	/* skip bitmaps */
+	switch((CELL)f) {
+	case (CELL)FunctorDouble:
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-	    pt += 3;
+	  pt += 3;
 #else
-	    pt += 2;
+	  pt += 2;
 #endif
-	    break;
+	  break;
 #if USE_GMP
-	  case (CELL)FunctorBigInt:
-	    {
-	      Int sz = 1+
-		(sizeof(MP_INT)+
-		 (((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
-	      pt += sz;
-	    }
-	    break;
-#endif
-	  case (CELL)0L:
-	    break;
-	  case (CELL)FunctorLongInt:
-	    pt += 2;
-	    break;
-	  default:
-	    *pt = CodeAdjust(reg);
+	case (CELL)FunctorBigInt:
+	  {
+	    Int sz = 1+
+	      (sizeof(MP_INT)+
+	       (((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
+	    pt += sz;
 	  }
-	}
-#ifdef MULTI_ASSIGNMENT_VARIABLES
-	else if (IsOldTrail(reg))
-	  *pt = TrailAdjust(reg);
+	  break;
 #endif
-      } else if (IsApplTerm(reg))
-	*pt = AdjustAppl(reg);
-      else if (IsPairTerm(reg))
-	*pt = AdjustPair(reg);
-      else if (IsAtomTerm(reg))
-	*pt = AtomTermAdjust(reg);
+	case (CELL)0L:
+	  break;
+	case (CELL)FunctorLongInt:
+	  pt += 2;
+	  break;
+	default:
+	  *pt = CodeAdjust(reg);
+	}
+      }
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+      else if (IsOldTrail(reg))
+	*pt = TrailAdjust(reg);
+#endif
+    } else if (IsApplTerm(reg))
+      *pt = AdjustAppl(reg);
+    else if (IsPairTerm(reg))
+      *pt = AdjustPair(reg);
+    else if (IsAtomTerm(reg))
+      *pt = AtomTermAdjust(reg);
     pt++;
   }
 }

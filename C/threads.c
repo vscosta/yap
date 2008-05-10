@@ -100,6 +100,7 @@ kill_thread_engine (int wid)
   }
   Yap_KillStacks(wid);
   Yap_FreeCodeSpace((ADDR)(ThreadHandle[wid].tgoal));
+  ThreadHandle[wid].tgoal = NULL;
   Yap_heap_regs->wl[wid].active_signals = 0L;
   free(Yap_heap_regs->wl[wid].scratchpad.ptr);
   free(ThreadHandle[wid].default_yaam_regs);
@@ -131,12 +132,12 @@ setup_engine(int myworker_id)
 {
   REGSTORE *standard_regs;
   
-  standard_regs = (REGSTORE *)malloc(sizeof(REGSTORE));
+  standard_regs = (REGSTORE *)calloc(1,sizeof(REGSTORE));
   /* create the YAAM descriptor */
   ThreadHandle[myworker_id].default_yaam_regs = standard_regs;
   pthread_setspecific(Yap_yaamregs_key, (void *)standard_regs);
   worker_id = myworker_id;
-  Yap_InitExStacks(ThreadHandle[myworker_id].ssize, ThreadHandle[myworker_id].tsize);
+  Yap_InitExStacks(ThreadHandle[myworker_id].tsize, ThreadHandle[myworker_id].ssize);
   CurrentModule = ThreadHandle[myworker_id].cmod;
   Yap_InitTime();
   Yap_InitYaamRegs();
@@ -419,7 +420,6 @@ static Int
 p_thread_exit(void)
 {
   thread_die(worker_id, FALSE); 
-  fprintf(stderr,"2 the end of worker_id=%d\n",worker_id);
   pthread_exit(NULL);
   return TRUE;
 }

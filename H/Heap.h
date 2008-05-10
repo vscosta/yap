@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.130 2008-04-02 17:37:06 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.131 2008-05-10 23:24:12 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -196,6 +196,9 @@ typedef struct thandle {
   struct pred_entry *local_preds;
   pthread_t handle;
   int ref_count;
+#ifdef LOW_LEVEL_TRACER
+  long long int thread_inst_count;
+#endif
   pthread_mutex_t tlock;
 #if HAVE_GETRUSAGE
   struct timeval *start_of_timesp;

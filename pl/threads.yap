@@ -638,7 +638,6 @@ message_queue_destroy(Queue) :-
 	recorded('$queue',q(Queue,Mutex,Cond,_,QKey),R), !,
 	erase(R),
 	'$cond_destroy'(Cond),
-	write(Queue:Mutex),nl,
 	'$destroy_mutex'(Mutex),
 	'$unlock_mutex'(QMutex),
 	'$clean_mqueue'(QKey).

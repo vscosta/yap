@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.94 2008-04-06 12:06:48 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.95 2008-05-10 23:24:11 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -208,7 +208,7 @@ struct various_codes *Yap_heap_regs;
 static void
 InitHeap(void)
 {
-  Yap_heap_regs = (struct various_codes *)malloc(sizeof(struct various_codes));
+  Yap_heap_regs = (struct various_codes *)calloc(1, sizeof(struct various_codes));
 }
 
 void
@@ -265,14 +265,14 @@ Yap_InitExStacks(int Trail, int Stack)
   InitExStacks(Trail, Stack);
 }
 
-#if defined(YAPOR) || defined(THREADS)
+#if defined(THREADS)
 void
 Yap_KillStacks(int wid)
 {
-  ADDR gb = Yap_thread_gl[wid].global_base;
+  ADDR gb = ThreadHandle[wid].stack_address;
   if (gb) {
     free(gb);
-    Yap_thread_gl[wid].global_base = NULL;
+    ThreadHandle[wid].stack_address = NULL;
   }
 }
 #else
@@ -300,6 +300,9 @@ Yap_ExtendWorkSpace(Int s)
   nbp = realloc(basebp, s+s0);
   if (nbp == NULL) 
     return FALSE;
+#if defined(THREADS)
+  ThreadHandle[worker_id].stack_address = (char *)nbp;
+#endif
   Yap_GlobalBase = (char *)nbp;
   return TRUE;
 }

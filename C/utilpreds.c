@@ -19,7 +19,7 @@ static char     SccsId[] = "@(#)utilpreds.c	1.3";
 #endif
 
 #include "Yap.h"
-#include "Yatom.h"
+#include "clause.h"
 #include "Heap.h"
 #include "yapio.h"
 #include "eval.h"
@@ -155,9 +155,22 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	f = (Functor)(*ap2);
 
 	if (IsExtensionFunctor(f)) {
-	    {
-	      *ptf++ = d0;  /* you can just copy other extensions. */
+#if defined(YAPOR) || defined(THREADS)
+	  if (f == FunctorDBRef) {
+	    DBRef  entryref = DBRefOfTerm(d0);
+	    if (entryref->Flags & LogUpdMask) {
+	      LogUpdClause *luclause = (LogUpdClause *)entryref;
+	      LOCK(luclause->ClPred->PELock);
+	      UNLOCK(luclause->ClPred->PELock);
+	    } else {
+	      LOCK(entryref->lock);
+	      TRAIL_REF(entryref);	/* So that fail will erase it */
+	      INC_DBREF_COUNT(entryref);
+	      UNLOCK(entryref->lock);
 	    }
+	  }
+#endif
+	  *ptf++ = d0;  /* you can just copy other extensions. */
 	  continue;
 	}
 	*ptf = AbsAppl(H);
@@ -545,7 +558,6 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
 	/* store the terms to visit */
 	ap2 = RepAppl(d0);
 	f = (Functor)(*ap2);
-
 	if (IsExtensionFunctor(f)) {
 	  continue;
 	}

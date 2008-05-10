@@ -18,6 +18,8 @@ fetch_arch(Arch) :-
 
 gen_arch(L,mac) :-
 	append(_,[0'd,0'a,0'r,0'w,0'i,0'n|_],L), !.
+% handle compilation in 64 bit machine of 32 bit binary.
+gen_arch([0'x,0'8,0'6,0'_,0'6,0'4|_],i386) :- yap_flag(max_tagged_integer, 67108863).
 gen_arch([0'x,0'8,0'6,0'_,0'6,0'4|_],amd64).
 gen_arch([0'i,_,0'8,0'6|_],i386). % take all versions of X86
 gen_arch([0's,0'p,0'a,0'r,0'c|_],sparc).

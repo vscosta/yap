@@ -399,9 +399,8 @@ yap_flag(max_integer,X) :-
 	'$do_error'(domain_error(flag_value,max_integer+X),yap_flag(max_integer,X)).
 
 yap_flag(max_tagged_integer,X) :-
-	var(X), !,
-	'$max_tagged_integer'(X).
-yap_flag(max_tagged_integer,X) :-
+	'$max_tagged_integer'(X), !.
+yap_flag(max_tagged_integer,X) :-			       
 	integer(X), X > 0, !,
 	'$do_error'(permission_error(modify,flag,max_tagged_integer),yap_flag(max_tagged_integer,X)).
 yap_flag(max_tagged_integer,X) :-
@@ -418,8 +417,7 @@ yap_flag(min_integer,X) :-
 	'$do_error'(domain_error(flag_value,min_integer+X),yap_flag(min_integer,X)).
 
 yap_flag(min_tagged_integer,X) :-
-	var(X), !,
-	'$min_tagged_integer'( X).
+	'$min_tagged_integer'( X), !.
 yap_flag(min_tagged_integer,X) :-
 	integer(X), X > 0, !,
 	'$do_error'(permission_error(modify,flag,min_tagged_integer),yap_flag(min_tagged_integer,X)).

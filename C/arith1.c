@@ -234,6 +234,7 @@ p_uminus(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       mpz_neg(v.big, v.big);
+      fprintf(stderr,"Here I am %p\n", v.big);
       RBIG(v.big);
 #endif
     default:

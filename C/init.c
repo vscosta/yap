@@ -972,6 +972,9 @@ InitCodes(void)
       Yap_heap_regs->thread_handle[i].in_use = FALSE;
       Yap_heap_regs->thread_handle[i].zombie = FALSE;
       Yap_heap_regs->thread_handle[i].local_preds = NULL;
+#ifdef LOW_LEVEL_TRACER
+      Yap_heap_regs->thread_handle[i].thread_inst_count = 0LL;
+#endif
       pthread_mutex_init(&Yap_heap_regs->thread_handle[i].tlock, NULL);
     }
   }

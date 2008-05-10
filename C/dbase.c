@@ -240,19 +240,11 @@ STATIC_PROTO(PredEntry *new_lu_int_key, (Int));
 STATIC_PROTO(PredEntry *find_lu_entry, (Term));
 STATIC_PROTO(DBProp find_int_key, (Int));
 
-#if USE_SYSTEM_MALLOC
 #define db_check_trail(x) {                            \
   if (Unsigned(dbg->tofref) == Unsigned(x)) {          \
     goto error_tr_overflow;                            \
   }                                                    \
 }
-#else
-#define db_check_trail(x) {                            \
-  if (Unsigned(dbg->tofref) == Unsigned(x)) {          \
-    goto error_tr_overflow;                            \
-  }                                                    \
-}
-#endif
 
 static UInt new_trail_size(void)
 {
@@ -3689,7 +3681,7 @@ index_sz(LogUpdIndex *x)
   if (op == _enter_lu_pred) {
     PredEntry *ap = x->ClPred;
     OPCODE endop, op1;
-    UInt count = 0, count0 = start->u.Ill.s, dead=0;
+    UInt count = 0, dead=0;
 
     if (ap->PredFlags & CountPredFlag)
       endop = Yap_opcode(_count_trust_logical);
@@ -3706,12 +3698,6 @@ index_sz(LogUpdIndex *x)
 	dead++;
       start = start->u.lld.n;
     } while (op1 != endop);
-    if (x->ClFlags & InUseMask)
-      fprintf(stderr,"Inuse -- %p(%p)\n",ap,x);
-    if (x->ClFlags & DirtyMask)
-      fprintf(stderr,"Dirty -- %p(%p)\n",ap,x);
-    if (count > 200)
-      fprintf(stderr,"%lu/%lu/%lu -- %p(%p)\n",(unsigned long int)count,(unsigned long int)count0,(unsigned long int)dead,ap,x);
   }
   x = x->ChildIndex;
   while (x != NULL) {

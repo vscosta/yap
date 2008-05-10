@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2008-04-16 17:16:47 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-05-10 23:24:11 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.200  2008/04/16 17:16:47  vsc
+* make static_clause only commit to a lause if it is sure that is the true
+* clause. Otherwise, search for the clause.
+*
 * Revision 1.199  2008/04/14 21:20:35  vsc
 * fixed a bug in static_clause (thanks to Jose Santos)
 *
@@ -3839,7 +3843,11 @@ emit_single_switch_case(ClauseDef *min, struct intermediates *cint, int first, i
     }
   }
 #endif /* TABLING */
-  return (UInt)(min->CurrentCode);
+  if (cint->CurrentPred->PredFlags & LogUpdatePredFlag) {
+    return (UInt)(min->Code);
+  } else {
+    return (UInt)(min->CurrentCode);
+  }
 }
 
 static UInt
@@ -4120,7 +4128,11 @@ do_pair(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int first
   grp->FirstClause = max+1;
   if (min == max) {
     /* single clause, no need to do indexing, but we do know it is a list */ 
-    return (UInt)(min->CurrentCode);
+    if (cint->CurrentPred->PredFlags & LogUpdatePredFlag) {
+      return (UInt)(min->Code);
+    } else {
+      return (UInt)(min->CurrentCode);
+    }
   }
   if (min != max && !IsPairTerm(t)) {
     if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
@@ -6491,19 +6503,13 @@ expandz_block(path_stack_entry *sp, PredEntry *ap, ClauseDef *cls, int group1, y
 }
 
 static LogUpdClause *
-lu_clause(yamop *ipc)
+lu_clause(yamop *ipc, PredEntry *ap)
 {
-  LogUpdClause *c;
-  CELL *p = (CELL *)ipc;
-
   if (ipc == FAILCODE)
     return NULL;
-  while ((c = ClauseCodeToLogUpdClause(p))->Id != FunctorDBRef ||
-	 !(c->ClFlags & LogUpdMask) ||
-	 (c->ClFlags & (IndexMask|DynamicMask|SwitchTableMask|SwitchRootMask))) {
-    p--;
-  }
-  return c;
+  if (ipc == (yamop *)(&(ap->OpcodeOfPred)))
+    return NULL;
+  return ClauseCodeToLogUpdClause(ipc);
 }
 
 static StaticClause *
@@ -6525,6 +6531,8 @@ static_clause(yamop *ipc, PredEntry *ap, int trust)
   CELL *p;
 
   if (ipc == FAILCODE)
+    return NULL;
+  if (ipc == (yamop*)(&(ap->OpcodeOfPred)))
     return NULL;
   if (ap->PredFlags & MegaClausePredFlag)
     return (StaticClause *)ipc;
@@ -6572,8 +6580,10 @@ static_clause(yamop *ipc, PredEntry *ap, int trust)
 }
 
 static StaticClause *
-simple_static_clause(yamop *ipc)
+simple_static_clause(yamop *ipc, PredEntry *ap)
 {
+  if (ipc == (yamop*)(&(ap->OpcodeOfPred)))
+    return NULL;
   if (ipc == FAILCODE)
     return NULL;
   return ClauseCodeToStaticClause(ipc);
@@ -6598,7 +6608,7 @@ kill_unsafe_block(path_stack_entry *sp, op_numbers op, PredEntry *ap, int first,
     }
     if (ap->PredFlags & LogUpdatePredFlag) {
       struct intermediates intrs;
-      LogUpdClause *lc = lu_clause(ipc);
+      LogUpdClause *lc = lu_clause(ipc, ap);
 
       if (first) {
 	cld[0].Code = cls[0].Code;
@@ -6956,7 +6966,11 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	move_next(cls, 1);
 	if (nipc == FAILCODE) {
 	  /* jump straight to clause */
-	  ipc->u.llll.l1 = cls->CurrentCode;
+	  if (ap->PredFlags & LogUpdatePredFlag) {
+	    ipc->u.llll.l1 = cls->Code;
+	  } else {
+	    ipc->u.llll.l1 = cls->CurrentCode;
+	  }
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
 	  /* go on */
@@ -7010,7 +7024,11 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	move_next(cls, Yap_regtoregno(ipc->u.xllll.x));
 	if (nipc == FAILCODE) {
 	  /* jump straight to clause */
-	  ipc->u.xllll.l1 = cls->CurrentCode;
+	  if (ap->PredFlags & LogUpdatePredFlag) {
+	    ipc->u.xllll.l1 = cls->Code;
+	  } else {
+	    ipc->u.xllll.l1 = cls->CurrentCode;
+	  }
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
 	  /* go on */
@@ -7059,7 +7077,11 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	}
 	if (nipc == FAILCODE) {
 	  /* jump straight to clause */
-	  ipc->u.sllll.l1 = cls->CurrentCode;
+	  if (ap->PredFlags & LogUpdatePredFlag) {
+	    ipc->u.sllll.l1 = cls->Code;
+	  } else {
+	    ipc->u.sllll.l1 = cls->CurrentCode;
+	  }
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
 	  /* go on */
@@ -7141,7 +7163,11 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	    fe->Tag = f;
 	    ipc->u.sssl.e++;
 	  }
-	  fe->u.labp = cls->CurrentCode;
+	  if (ap->PredFlags & LogUpdatePredFlag) {
+	     fe->u.labp = cls->Code;
+	  } else {
+	    fe->u.labp = cls->CurrentCode;
+	  }
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
 	  yamop *newpc = fe->u.labp;
@@ -7193,7 +7219,11 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	    ae->Tag = at;
 	    ipc->u.sssl.e++;
 	  }
-	  ae->u.labp = cls->CurrentCode;
+	  if (ap->PredFlags & LogUpdatePredFlag) {
+	    ae->u.labp = cls->Code;
+	  } else {
+	    ae->u.labp = cls->CurrentCode;
+	  }
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
 	  yamop *newpc = ae->u.labp;
@@ -7696,9 +7726,6 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
     case _lock_lu:
       ipc = NEXTOP(ipc,p);
       break;
-    case _unlock_lu:
-      ipc = NEXTOP(ipc,e);
-      break;
     default:
       if (IN_BETWEEN(bg,ipc,lt)) {
 	sp = kill_unsafe_block(sp, op, ap, TRUE, TRUE, cls);
@@ -7867,11 +7894,11 @@ static LogUpdClause *
 to_clause(yamop *ipc, PredEntry *ap)
 {
   if (ap->PredFlags & LogUpdatePredFlag)
-    return lu_clause(ipc);
+    return lu_clause(ipc, ap);
   else if (ap->PredFlags & MegaClausePredFlag)
     return (LogUpdClause *)ipc;
   else
-    return (LogUpdClause *)simple_static_clause(ipc);
+    return (LogUpdClause *)simple_static_clause(ipc, ap);
 }
 
 LogUpdClause *
@@ -7902,7 +7929,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _try_in:
       update_clause_choice_point(NEXTOP(ipc,l), ap_pc);
       if (lu_pred)
-	return lu_clause(ipc->u.l.l);
+	return lu_clause(ipc->u.l.l, ap);
       else
 	return (LogUpdClause *)static_clause(ipc->u.l.l, ap, unbounded);
       break;
@@ -7918,7 +7945,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	update_clause_choice_point(NEXTOP(ipc,ld), ap_pc);
       }
       if (lu_pred)
-	return lu_clause(ipc->u.ld.d);
+	return lu_clause(ipc->u.ld.d, ap);
       else
 	return (LogUpdClause *)static_clause(ipc->u.ld.d, ap, unbounded);
     case _try_clause2:
@@ -7932,7 +7959,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	update_clause_choice_point(NEXTOP(ipc,l), ap_pc);
       }
       if (lu_pred)
-	return lu_clause(ipc->u.l.l);
+	return lu_clause(ipc->u.l.l, ap);
       else
 	return (LogUpdClause *)static_clause(ipc->u.l.l, ap, unbounded);
     case _try_me:
@@ -7958,7 +7985,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 #endif
       update_clause_choice_point(NEXTOP(ipc,ld),ap_pc);
       if (lu_pred)
-	return lu_clause(ipc->u.ld.d);
+	return lu_clause(ipc->u.ld.d, ap);
       else
 	return (LogUpdClause *)static_clause(ipc->u.ld.d, ap, TRUE);
     case _retry2:
@@ -7966,7 +7993,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _retry4:
       update_clause_choice_point(NEXTOP(ipc,l),ap_pc);
       if (lu_pred)
-	return lu_clause(ipc->u.l.l);
+	return lu_clause(ipc->u.l.l, ap);
       else
 	return (LogUpdClause *)static_clause(ipc->u.l.l, ap, TRUE);
     case _retry_me:
@@ -7997,7 +8024,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 #endif /* YAPOR */
       b0 = B;
       if (lu_pred)
-	return lu_clause(ipc->u.ld.d);
+	return lu_clause(ipc->u.ld.d, ap);
       else
 	return (LogUpdClause *)static_clause(ipc->u.ld.d, ap, TRUE);
     case _profiled_trust_me:
@@ -8352,9 +8379,6 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _lock_lu:
       ipc = NEXTOP(ipc,p);
       break;
-    case _unlock_lu:
-      ipc = NEXTOP(ipc,e);
-      break;
 #if THREADS
     case _thread_local:
       ap = Yap_GetThreadPred(ap);
@@ -8410,7 +8434,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       if (op == _op_fail)
 	return NULL;
       if (lu_pred)
-	return lu_clause(ipc);
+	return lu_clause(ipc, ap);
       else
 	return (LogUpdClause *)static_clause(ipc, ap, unbounded);
     }
