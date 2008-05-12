@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-05-12 14:04:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-05-12 22:31:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.97  2008/05/12 14:04:23  vsc
+* updates to restore
+*
 * Revision 1.96  2008/04/11 16:58:17  ricroc
 * yapor: seq_def initialization
 *
@@ -259,9 +262,9 @@ static Term
 AdjustDBTerm(Term trm, Term *p_base)
 {
   if (IsVarTerm(trm))
-    return AtomTermAdjust(trm);
-  if (IsAtomTerm(trm))
     return CodeVarAdjust(trm);
+  if (IsAtomTerm(trm))
+    return AtomTermAdjust(trm);
   if (IsPairTerm(trm)) {
     Term           *p;
     Term out;
@@ -1467,3 +1470,21 @@ RestoreEntries(PropEntry *pp, int int_key)
   }
 }
 
+static void
+RestoreAtom(AtomEntry *at)
+{
+  AtomEntry *nat;
+
+#ifdef DEBUG_RESTORE2			/* useful during debug */
+  if (IsWideAtom(AbsAtom(at)))
+    fprintf(errout, "Restoring %S\n", at->WStrOfAE);
+  else
+    fprintf(errout, "Restoring %s\n", at->StrOfAE);
+#endif
+  at->PropsOfAE = PropAdjust(at->PropsOfAE);
+  RestoreEntries(RepProp(at->PropsOfAE), FALSE);
+  /* cannot use AtomAdjust without breaking agc */
+  nat = RepAtom(at->NextOfAE);
+  if (nat)
+    at->NextOfAE = AbsAtom(AtomEntryAdjust(nat));
+}

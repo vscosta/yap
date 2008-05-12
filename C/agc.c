@@ -188,13 +188,7 @@ mark_hash_entry(AtomHashEntry *HashPtr)
   if (atm) {
     AtomEntry      *at =  RepAtom(atm);
     do {
-#ifdef DEBUG_RESTORE1			/* useful during debug */
-      if (IsWideAtom(atm))
-	fprintf(errout, "Restoring %S\n", at->WStrOfAE);
-      else
-	fprintf(errout, "Restoring %s\n", at->StrOfAE);
-#endif
-      RestoreEntries(RepProp(at->PropsOfAE), FALSE);
+      RestoreAtom(at);
       atm = at->NextOfAE;
       at = RepAtom(CleanAtomMarkedBit(atm));
     } while (!EndOfPAEntr(at));
@@ -240,6 +234,8 @@ mark_atoms(void)
     HashPtr++;
   }
   mark_hash_entry(&INVISIBLECHAIN);
+  RestoreAtom(RepAtom(AtomFoundVar));
+  RestoreAtom(RepAtom(AtomFreeTerm));
   mark_hash_preds();
 }
 

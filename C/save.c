@@ -1271,16 +1271,9 @@ RestoreAtomList(Atom atm)
   if (EndOfPAEntr(at))
     return;
   do {
-#ifdef DEBUG_RESTORE2		/* useful during debug */
-    fprintf(errout, "Restoring %s\n", at->StrOfAE);
-#endif
-    at->PropsOfAE = PropAdjust(at->PropsOfAE);
-    RestoreEntries(RepProp(at->PropsOfAE), FALSE);
-    atm = at->NextOfAE;
-    at->NextOfAE = atm = AtomAdjust(atm);
-    at = RepAtom(atm);
-  }
-  while (!EndOfPAEntr(at));
+    RestoreAtom(at);
+    at = RepAtom(at->NextOfAE);
+  } while (!EndOfPAEntr(at));
 }
 
 
@@ -1354,6 +1347,8 @@ restore_heap(void)
   }
   INVISIBLECHAIN.Entry = AtomAdjust(INVISIBLECHAIN.Entry);
   RestoreAtomList(INVISIBLECHAIN.Entry);
+  RestoreAtom(RepAtom(AtomFoundVar));
+  RestoreAtom(RepAtom(AtomFreeTerm));
   RestoreHashPreds();
   RestoreForeignCodeStructure();
   RestoreIOStructures();
