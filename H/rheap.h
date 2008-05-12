@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-04-11 16:58:17 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2008-05-12 14:04:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.96  2008/04/11 16:58:17  ricroc
+* yapor: seq_def initialization
+*
 * Revision 1.95  2008/04/06 12:06:48  vsc
 * more small fixes
 *
@@ -255,8 +258,10 @@ do_clean_susp_clauses(yamop *ipc) {
 static Term 
 AdjustDBTerm(Term trm, Term *p_base)
 {
-  if (IsAtomTerm(trm))
+  if (IsVarTerm(trm))
     return AtomTermAdjust(trm);
+  if (IsAtomTerm(trm))
+    return CodeVarAdjust(trm);
   if (IsPairTerm(trm)) {
     Term           *p;
     Term out;
@@ -424,7 +429,7 @@ RestoreDBTermEntry(struct dbterm_list *dbl) {
 }
 
 static void 
-CleanLUIndex(LogUpdIndex *idx)
+CleanLUIndex(LogUpdIndex *idx, int recurse)
 {
   INIT_LOCK(idx->ClLock);
   idx->ClPred = PtoPredAdjust(idx->ClPred);
@@ -435,11 +440,13 @@ CleanLUIndex(LogUpdIndex *idx)
   }
   if (idx->SiblingIndex) {
     idx->SiblingIndex = LUIndexAdjust(idx->SiblingIndex);
-    CleanLUIndex(idx->SiblingIndex);
+    if (recurse)
+      CleanLUIndex(idx->SiblingIndex, TRUE);
   }
   if (idx->ChildIndex) {
     idx->ChildIndex = LUIndexAdjust(idx->ChildIndex);
-    CleanLUIndex(idx->ChildIndex);
+    if (recurse)
+      CleanLUIndex(idx->ChildIndex, TRUE);
   }
   if (!(idx->ClFlags & SwitchTableMask)) {
     restore_opcodes(idx->ClCode);
@@ -447,16 +454,18 @@ CleanLUIndex(LogUpdIndex *idx)
 }
 
 static void 
-CleanSIndex(StaticIndex *idx)
+CleanSIndex(StaticIndex *idx, int recurse)
 {
   idx->ClPred = PtoPredAdjust(idx->ClPred);
   if (idx->SiblingIndex) {
     idx->SiblingIndex = SIndexAdjust(idx->SiblingIndex);
-    CleanSIndex(idx->SiblingIndex);
+    if (recurse)
+      CleanSIndex(idx->SiblingIndex, TRUE);
   }
   if (idx->ChildIndex) {
     idx->ChildIndex = SIndexAdjust(idx->ChildIndex);
-    CleanSIndex(idx->ChildIndex);
+    if (recurse)
+      CleanSIndex(idx->ChildIndex, TRUE);
   }
   if (!(idx->ClFlags & SwitchTableMask)) {
     restore_opcodes(idx->ClCode);
@@ -614,7 +623,7 @@ restore_codes(void)
     StaticIndex *si = (StaticIndex *)AddrAdjust((ADDR)(Yap_heap_regs->dead_static_indices));
     Yap_heap_regs->dead_static_indices = si;
     while (si) {
-      CleanSIndex(si);
+      CleanSIndex(si, FALSE);
       si = si->SiblingIndex;
     }
   }
@@ -664,6 +673,22 @@ restore_codes(void)
 	  RestoreEntries(RepProp(p0), TRUE);
 	}
       }
+    }
+  }
+  if (Yap_heap_regs->db_erased_list) {
+    LogUpdClause *lcl = Yap_heap_regs->db_erased_list = 
+      PtoLUCAdjust(Yap_heap_regs->db_erased_list);
+    while (lcl) {
+      RestoreLUClause(lcl, FALSE);
+      lcl = lcl->ClNext;
+    }
+  }
+  if (Yap_heap_regs->db_erased_ilist) {
+    LogUpdIndex *icl = Yap_heap_regs->db_erased_ilist = 
+      LUIndexAdjust(Yap_heap_regs->db_erased_ilist);
+    while (icl) {
+      CleanLUIndex(icl, FALSE);
+      icl = icl->SiblingIndex;
     }
   }
   Yap_heap_regs->atom_abol = AtomAdjust(Yap_heap_regs->atom_abol);
@@ -851,16 +876,6 @@ restore_codes(void)
     PredEntryAdjust(Yap_heap_regs->pred_throw);
   Yap_heap_regs->pred_handle_throw =
     PredEntryAdjust(Yap_heap_regs->pred_handle_throw);
-#ifdef DEBUG
-  if (Yap_heap_regs->db_erased_list) {
-    Yap_heap_regs->db_erased_list = 
-      PtoLUCAdjust(Yap_heap_regs->db_erased_list);
-  }
-  if (Yap_heap_regs->db_erased_ilist) {
-    Yap_heap_regs->db_erased_ilist = 
-      LUIndexAdjust(Yap_heap_regs->db_erased_ilist);
-  }
-#endif
   if (Yap_heap_regs->undef_code != NULL)
     Yap_heap_regs->undef_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->undef_code));
   if (Yap_heap_regs->creep_code != NULL)
@@ -1049,6 +1064,9 @@ RestoreBB(BlackBoardEntry *pp, int int_key)
   }
   if (!int_key) {
     pp->KeyOfBB = AtomAdjust(pp->KeyOfBB);
+  }
+  if (pp->ModuleOfBB) {
+    pp->ModuleOfBB = AtomTermAdjust(pp->ModuleOfBB);
   }
 }
 
@@ -1262,9 +1280,9 @@ CleanCode(PredEntry *pp)
       fprintf(stderr, "Correcting indexed code\n");
 #endif
       if (flag & LogUpdatePredFlag) {
-	CleanLUIndex(ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred));
+	CleanLUIndex(ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), TRUE);
       } else {
-	CleanSIndex(ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred));
+	CleanSIndex(ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred), TRUE);
       } 
     } else if (flag & DynamicPredFlag) {
 #ifdef	DEBUG_RESTORE2

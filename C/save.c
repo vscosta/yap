@@ -1618,6 +1618,7 @@ RestoreHeap(OPCODE old_ops[])
 #endif
   /* opcodes_moved has side-effects and should be tried first */
   if (heap_moved) {
+    opcodes_moved = TRUE;
     RestoreFreeSpace();
   }
   if (heap_moved || opcodes_moved) {

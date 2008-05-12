@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2008-04-01 08:42:46 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-05-12 14:04:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.25  2008/04/01 08:42:46  vsc
+* fix restore and small VISTA thingies
+*
 * Revision 1.24  2008/03/25 22:03:14  vsc
 * fix some icc warnings
 *
@@ -404,7 +407,6 @@ restore_opcodes(yamop *pc)
     case _p_execute_tail:
     case _p_execute:
     case _p_execute2:
-      pc->u.sla.sla_u.p = PtoPredAdjust(pc->u.sla.sla_u.p);
       if (pc->u.sla.sla_u.mod != 0) {
 	if (IsAtomTerm(pc->u.sla.sla_u.mod))
 	  pc->u.sla.sla_u.mod = AtomTermAdjust(pc->u.sla.sla_u.mod);

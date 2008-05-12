@@ -328,6 +328,14 @@ AtomTermAdjust (Term at)
   return at + HDiff;
 }
 
+inline EXTERN Term CodeVarAdjust (Term);
+
+inline EXTERN Term
+CodeVarAdjust (Term var)
+{
+  return var + HDiff;
+}
+
 
 #if TAGS_FAST_OPS
 
