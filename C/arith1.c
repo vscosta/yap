@@ -217,7 +217,7 @@ p_uminus(Term t E_ARGS)
     {
       MP_INT *new = TMP_BIG();
 
-      MPZ_SET(new, Yap_BigIntOfTerm(t));
+      mpz_init_set(new, Yap_BigIntOfTerm(t));
       mpz_neg(new, new);
       RBIG(new);
     }
@@ -233,9 +233,14 @@ p_uminus(Term t E_ARGS)
       RFLOAT(-v.dbl);
 #ifdef USE_GMP
     case big_int_e:
-      mpz_neg(v.big, v.big);
-      fprintf(stderr,"Here I am %p\n", v.big);
-      RBIG(v.big);
+      {
+	MP_INT *new = TMP_BIG();
+
+	mpz_init_set(new, v.big);
+	mpz_neg(new, new);
+	mpz_clear(v.big);
+	RBIG(new);
+      }
 #endif
     default:
       /* Error */
@@ -378,6 +383,7 @@ p_log(Term t E_ARGS)
       dbl = v.dbl;
       break;
 #ifdef USE_GMP
+    case big_int_e:
       dbl = mpz_get_d(v.big);
       mpz_clear(v.big);
       break;

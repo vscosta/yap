@@ -182,9 +182,11 @@ Yap_Eval(Term t, E_ARGS)
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	}
-	if (n == 1)
-	  return(p->FOfEE.unary(ArgOfTerm(1,t), USE_E_ARGS));
-	return(p->FOfEE.binary(ArgOfTerm(1,t),ArgOfTerm(2,t), USE_E_ARGS));
+	if (n == 1) {
+	  return p->FOfEE.unary(ArgOfTerm(1,t), USE_E_ARGS);
+	}
+	return
+	  p->FOfEE.binary(ArgOfTerm(1,t),ArgOfTerm(2,t), USE_E_ARGS);
       }
     }
   } else if (IsPairTerm(t)) {
