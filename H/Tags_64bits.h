@@ -18,7 +18,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
-* version:      $Id: Tags_64bits.h,v 1.2 2008-01-30 10:35:43 vsc Exp $	 *
+* version:      $Id: Tags_64bits.h,v 1.3 2008-05-15 13:41:46 vsc Exp $	 *
 *************************************************************************/
 
 #define TAG_64BITS 1
@@ -67,8 +67,8 @@ property list
 #define TagOf(t) 	(Unsigned(t)&TagBits)
 #define LowTagOf(t) 	(Unsigned(t)&LowTagBits)
 #define	NonTagPart(X)	(Signed(X) & MaskPrim)
-#define TAGGEDA(TAG,V)	(TAG | Unsigned(V))
-#define TAGGED(TAG,V)   (TAG | NonTagPart(Unsigned(V)<<3))	/* SQRT(8) */
+#define TAGGEDA(TAG,V)	(Unsigned(TAG) | Unsigned(V))
+#define TAGGED(TAG,V)   (Unsigned(TAG) | NonTagPart(Unsigned(V)<<3))	/* SQRT(8) */
 #define NONTAGGED(TAG,V)   NonTagPart(Unsigned(V)<<3)	/* SQRT(8) */
 #define CHKTAG(t,Tag) 	((Unsigned(t)&TagBits)==Tag)
 

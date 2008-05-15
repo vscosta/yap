@@ -61,6 +61,14 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 '$do_c_built_in'(once(G), M, (yap_hacks:current_choice_point(CP),NG,'$$cut_by'(CP))) :- !,
 	'$do_c_built_in'(G,M,NG0),
 	'$clean_cuts'(NG0, NG).
+'$do_c_built_in'(forall(Cond,Action), M, \+((NCond, \+(NAction)))) :- !,
+	'$do_c_built_in'(Cond,M,ICond),
+	'$do_c_built_in'(Action,M,IAction),
+	'$clean_cuts'(ICond, NCond),
+	'$clean_cuts'(IAction, NAction).
+'$do_c_built_in'(ignore(Goal), M, (NGoal -> true ; true)) :- !,
+	'$do_c_built_in'(Goal,M,IGoal),
+	'$clean_cuts'(IGoal, NGoal).
 '$do_c_built_in'(if(G,A,B), M, (yap_hacks:current_choicepoint(DCP),NG,yap_hacks:cut_at(DCP),NA; NB)) :- !,
 	'$do_c_built_in'(A,M,NA0),
 	'$clean_cuts'(NA0, NA),

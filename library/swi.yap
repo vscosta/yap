@@ -179,8 +179,6 @@ prolog:load_foreign_library(P) :-
 
 do_volatile(_,_).
 
-:- meta_predicate prolog:forall(:,:).
-
 :- use_module(library(lists)).
 
 prolog:term_to_atom(Term,Atom) :-
@@ -227,18 +225,7 @@ prolog:is_absolute_file_name(X) :-
 prolog:read_clause(X,Y) :-
 	read_term(X,Y,[singetons(warning)]).
 
-prolog:forall(X,Y) :- 
-	catch(do_forall(X,Y), fail_forall, fail).
-
 prolog:string(_) :- fail.
-
-do_forall(X,Y) :-
-	call(X),
-	do_for_forall(Y).
-do_forall(_,_).
-
-do_for_forall(Y) :- call(Y), !, fail.
-do_for_forall(_) :- throw(fail_forall).
 
 prolog:between(I,_,I).
 prolog:between(I0,I,J) :- I0 < I, 

@@ -167,8 +167,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 #ifdef THREADS
   Yap_heap_regs->thread_handle[worker_id].thread_inst_count++;
 #endif  
-  UNLOCK(Yap_heap_regs->low_level_trace_lock);
-  return;
 #ifdef COMMENTED
   //*(H0+(0xb65f2850-0xb64b2008)/sizeof(CELL))==0xc || 
   //0x4fd4d

@@ -1,4 +1,4 @@
-/*  $Id: error.pl,v 1.1 2008-02-12 17:03:52 vsc Exp $
+/*  $Id: error.pl,v 1.2 2008-05-15 13:41:45 vsc Exp $
 
     Part of SWI-Prolog
 
@@ -172,7 +172,7 @@ not_a_list(Type, X) :-
 	'$skip_list'(Anything, [_|More], Rest).
 '$skip_list'(Anything, [_|More], Rest) :-
 	'$skip_list'(Anything, More, Rest).
-'$skip_list'(Anything, Rest, Rest).
+'$skip_list'(_Anything, Rest, Rest).
 
 :- endif.
 

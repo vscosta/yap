@@ -410,7 +410,7 @@ true :- true.
 
  % process an input clause
  '$$compile'(G, G0, L, Mod) :-
-	 '$head_and_body'(G,H,_), 
+	 '$head_and_body'(G,H,_),
 	 '$flags'(H, Mod, Fl, Fl),
 	 is(NFl, /\, Fl, 0x00002000),
 	 (
@@ -424,28 +424,36 @@ true :- true.
 	  '$dynamic'(N/A,Mod),
 	  '$assertz_dynamic'(L,G,G0,Mod)
 	 ;
+	  '$not_imported'(H, Mod),
 	  '$compile'(G, L, G0, Mod)
 	 ).
 
- '$check_if_reconsulted'(N,A) :-
+'$not_imported'(H, Mod) :-
+	recorded('$import','$import'(NM,Mod,NH,H,_,_),_),
+	NM \= Mod, !,
+	functor(NH,N,Ar),
+	'$do_error'(permission_error(modify, static_procedure, NM:N/Ar), consult).
+'$not_imported'(_, _).
+
+'$check_if_reconsulted'(N,A) :-
 	 recorded('$reconsulted',X,_),
 	 ( X = N/A , !;
 	   X = '$', !, fail;
 	   fail
 	 ).
 
- '$inform_as_reconsulted'(N,A) :-
+'$inform_as_reconsulted'(N,A) :-
 	 recorda('$reconsulted',N/A,_).
 
- '$clear_reconsulting' :-
-	 recorded('$reconsulted',X,Ref),
-	 erase(Ref),
-	 X == '$', !,
-	 ( recorded('$reconsulting',_,R) -> erase(R) ).
+'$clear_reconsulting' :-
+	recorded('$reconsulted',X,Ref),
+	erase(Ref),
+	X == '$', !,
+	( recorded('$reconsulting',_,R) -> erase(R) ).
 
  /* Executing a query */
 
- '$query'(end_of_file,_).
+'$query'(end_of_file,_).
 
  % ***************************
  % * -------- YAPOR -------- *

@@ -191,6 +191,7 @@ Subnodes of Database
 * BlackBoard:: Storing and Fetching Terms in the BlackBoard
 
 Subnodes of Library
+* Apply:: SWI-Compatible Apply library.
 * Apply Macros:: Apply a Predicate to a list or to sub-terms.
 * Association Lists:: Binary Tree Implementation of Association Lists.
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
@@ -240,7 +241,6 @@ Subnodes of Attributes
 
 Subnodes of SWI-Prolog
 * Invoking Predicates on all Members of a List :: maplist and friends
-* Forall :: forall built-in
 * hProlog and SWI-Prolog Attributed Variables :: Emulating SWI-like attributed variables
 * SWI-Prolog Global Variables :: Emulating SWI-like attributed variables
 
@@ -2740,6 +2740,32 @@ Execute the goal @var{G} only once. The predicate is defined by:
 @noindent
 Note that cuts inside @code{once/1} can only cut the other goals inside
 @code{once/1}.
+
+@item forall(:@var{Cond},:@var{Action})
+@findex forall/2
+@snindex forall/2
+@cnindex forall/2
+For all alternative bindings of @var{Cond} @var{Action} can be
+proven. The example verifies that all arithmetic statements in the list
+@var{L} are correct. It does not say which is wrong if one proves wrong.
+
+@example
+?- forall(member(Result = Formula, [2 = 1 + 1, 4 = 2 * 2]),
+                 Result =:= Formula).
+@end example
+
+@item ignore(:@var{Goal})
+@findex ignore/1
+@snindex ignore/1
+@cnindex ignore/1
+Calls @var{Goal} as @code{once/1}, but succeeds, regardless of whether
+@code{Goal} succeeded or not. Defined as:
+
+@example
+ignore(Goal) :-
+        Goal, !.
+ignore(_).
+@end example
 
 @item abort
 @findex abort/0
@@ -7928,6 +7954,7 @@ most files in the library are from the Edinburgh Prolog library.
 @menu
  
 Library, Extensions, Built-ins, Top
+* Apply:: SWI-Compatible Apply library.
 * Apply Macros:: Apply a Predicate to a list or to sub-terms.
 * Association Lists:: Binary Tree Implementation of Association Lists.
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
@@ -7961,7 +7988,15 @@ Library, Extensions, Built-ins, Top
 @end menu
 
  
-@node Apply Macros, Association Lists, , Library
+@node Apply, Apply Macros, , Library
+@section Apply Macros
+@cindex macros
+
+This library provides a SWI-compatible set of utilities for applying a
+predicate to all elements of a list. The library just forwards
+definitions from the @code{apply_macros} library.
+
+@node Apply Macros, Association Lists, Apply, Library
 @section Apply Macros
 @cindex macros
 
@@ -8045,7 +8080,39 @@ collects a  result in @var{Accumulator}
 @snindex sumnodes/4
 @cnindex sumnodes/4
       Calls the predicate @var{Pred} on all sub-terms of @var{Term} and
-collect a result in @var{Accumulator} (depth-first and left-to-right order)
+collect a result in @var{Accumulator} (depth-first and left-to-right
+order)
+
+@item include(+@var{Pred}, +@var{ListIn}, ?@var{ListOut})
+@findex include/3
+@snindex include/3
+@cnindex include/3
+      Same as @code{selectlist/3}.
+
+@item exclude(+@var{Goal}, +@var{List1}, ?@var{List2})
+@findex exclude/3
+@snindex exclude/3
+@cnindex exclude/3
+Filter elements for which @var{Goal} fails. True if @var{List2} contains
+      those elements @var{Xi} of @var{List1} for which @code{call(Goal, Xi)} fails.
+
+@item partition(+@var{Pred},  +@var{List1}, ?@var{Included}, ?@var{Excluded})
+@findex partition/4
+@snindex partition/4
+@cnindex partition/4
+Filter elements of @var{List} according to @var{Pred}. True if
+@var{Included} contains all elements for which @code{call(Pred, X)}
+succeeds and @var{Excluded} contains the remaining elements.
+
+@item partition(+@var{Pred},  +@var{List1}, ?@var{Lesser}, ?@var{Equal}, ?@var{Greater})
+@findex partition/5
+@snindex partition/5
+@cnindex partition/5
+Filter list according to @var{Pred} in three sets. For each element
+@var{Xi} of @var{List}, its destination is determined by
+@code{call(Pred, Xi, Place)}, where @var{Place} must be unified to one
+of @code{<}, @code{=} or @code{>}. @code{Pred} must be deterministic.
+
 @end table
 
 Examples:

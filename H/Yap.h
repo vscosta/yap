@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.35 2008-05-13 10:37:27 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.36 2008-05-15 13:41:46 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -250,7 +250,7 @@ extern char Yap_Option[20];
 #endif
 #endif /* !IN_SECOND_QUADRANT */
 
-#ifdef THREADS
+#ifdef USE_SYSTEM_MALLOC
 #define HEAP_INIT_BASE  0L
 #define AtomBase        NULL
 #else
@@ -855,7 +855,7 @@ inline EXTERN Term MkAtomTerm (Atom);
 inline EXTERN Term
 MkAtomTerm (Atom a)
 {
-  return (Term) ((AtomTag | (CELL) (a)));
+  return (Term) (AtomTag | (CELL) (a));
 }
 
 
@@ -876,7 +876,7 @@ inline EXTERN Term MkAtomTerm (Atom);
 inline EXTERN Term
 MkAtomTerm (Atom a)
 {
-  return (Term) (TAGGEDA (AtomTag, (CELL) (a)));
+  return (Term) (TAGGEDA ((CELL)AtomTag, (CELL) (a)));
 }
 
 

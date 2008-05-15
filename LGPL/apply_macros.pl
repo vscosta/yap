@@ -1,4 +1,4 @@
-/*  $Id: apply_macros.pl,v 1.1 2008-03-13 14:37:59 vsc Exp $
+/*  $Id: apply_macros.pl,v 1.2 2008-05-15 13:41:46 vsc Exp $
 
     Part of SWI-Prolog
 

@@ -11,7 +11,7 @@
 * File:		utilities for displaying messages in YAP.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-04-02 17:37:07 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-05-15 13:41:47 $,$Author: vsc $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -211,10 +211,10 @@ system_message(error(permission_error(modify,flag,W), _)) -->
 	[ 'PERMISSION ERROR- cannot modify flag ~w' - [W] ].
 system_message(error(permission_error(modify,operator,W), _)) -->
 	[ 'PERMISSION ERROR- T cannot declare ~w an operator' - [W] ].
-system_message(error(permission_error(modify,dynamic_procedure,_), Where)) -->
-	[ 'PERMISSION ERROR- ~w: modifying a dynamic procedure' - [Where] ].
-system_message(error(permission_error(modify,static_procedure,_), Where)) -->
-	[ 'PERMISSION ERROR- ~w: modifying a static procedure' - [Where] ].
+system_message(error(permission_error(modify,dynamic_procedure,F), Where)) -->
+	[ 'PERMISSION ERROR- ~w: modifying dynamic procedure ~w' - [Where,F] ].
+system_message(error(permission_error(modify,static_procedure,F), Where)) -->
+	[ 'PERMISSION ERROR- ~w: modifying static procedure ~w' - [Where,F] ].
 system_message(error(permission_error(modify,static_procedure_in_use,_), Where)) -->
 	[ 'PERMISSION ERROR- ~w: modifying a static procedure in use' - [Where] ].
 system_message(error(permission_error(modify,table,P), _)) -->

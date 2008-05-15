@@ -289,6 +289,11 @@ module(N) :-
 %
 % next, check if this is something imported.
 %
+% first, try doing goal_expansion
+'$module_expansion'(G, G1, G0, CurMod, MM, TM, HVars) :-
+	'$pred_goal_expansion_on',
+	user:goal_expansion(G, CurMod, GI), !,
+	'$module_expansion'(GI, G1, G0, CurMod, MM, TM, HVars).
 '$module_expansion'(G, G1, GO, CurMod, MM, TM, HVars) :-
 	% is this imported from some other module M1?
 	( '$imported_pred'(G, CurMod, GG, M1) ->
@@ -328,10 +333,6 @@ module(N) :-
 %       goal to pass to compiler
 %       goal to pass to listing
 %       head variables.
-'$complete_goal_expansion'(G, M, CM, TM, G1, G2, HVars) :-
-	'$pred_goal_expansion_on',
-	user:goal_expansion(G,M,GI), !,
-	'$module_expansion'(GI, G1, G2, M, CM, TM, HVars).
 '$complete_goal_expansion'(G, M, CM, TM, G1, G2, HVars) :-
 	'$all_system_predicate'(G,M), !,
 	'$c_built_in'(G, M, Gi),
@@ -535,9 +536,11 @@ source_module(Mod) :-
 	ensure_loaded(:),
 	findall(?,:,?),
 	findall(?,:,?,?),
+	forall(:,:),
 	freeze(?,:),
 	hide_predicate(:),
 	if(:,:,:),
+	ignore(:),
 	incore(:),
 	listing(:),
 	multifile(:),

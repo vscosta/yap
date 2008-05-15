@@ -17,6 +17,13 @@ xb
 
 <h2>Yap-5.1.3:</h2>
 <ul>
+<li> FIXED: user:expand_goal should be called before import,
+  not after.</li>
+<li> NEW: add apply SWI library to apply_macros.</li>
+<li> NEW: add forall/2 and ignore/1 to system (SWI compatibility).</li>
+<li> FIXED: apply_macros should also define the predicates it exports
+  (obs from Rui Mendes).</li>
+<li> FIXED: complain if we want to redefine an imported module.</li>
 <li> FIXED: X is -(222222222222) would crash (obs from Jan Wielemaker).</li>
 <li> FIXED: more restore fixes.</li>
 <li> FIXED: don't ever jump to mid of lu code.</li>

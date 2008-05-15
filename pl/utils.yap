@@ -17,6 +17,10 @@
 
 once(G) :- '$execute'(G), !.
 
+forall(Cond, Action) :- \+((Cond, \+(Action))).
+
+ignore(Goal) :- (Goal->true;true).
+
 if(X,Y,Z) :-
 	yap_hacks:env_choice_point(CP0),
 	(
