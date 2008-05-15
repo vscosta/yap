@@ -262,7 +262,7 @@ copy_execn_to_heap(Functor f, CELL *pt, unsigned int n, unsigned int arity, Term
       *H++ = pt[i];
     }
     for (i=0; i< n; i++) {
-      *H++ = h0[i-n];
+      *H++ = h0[(int)(i-n)];
     }
     tf = AbsPair(h0);
   } else {
@@ -271,7 +271,7 @@ copy_execn_to_heap(Functor f, CELL *pt, unsigned int n, unsigned int arity, Term
       *H++ = pt[i];
     }
     for (i=0; i< n; i++) {
-      *H++ = h0[i-n];
+      *H++ = h0[(int)(i-n)];
     }
     tf = AbsAppl(h0);
   }
@@ -326,7 +326,6 @@ do_execute_n(Term t, Term mod, unsigned int n)
   if (IsExtensionFunctor(f)) {
     return CallError(TYPE_ERROR_CALLABLE, mod);
   }
-  arity = ArityOfFunctor(f);
     
   if (PRED_GOAL_EXPANSION_ALL) {
     LOCK(SignalLock);
@@ -384,9 +383,9 @@ EnterCreepMode(Term t, Term mod) {
   }
   PredCreep = RepPredProp(PredPropByFunc(FunctorCreep,1));
   if (mod) {
-    ARG1 = MkPairTerm(mod,ARG1);
+    ARG1 = MkPairTerm(mod,t);
   } else {
-    ARG1 = MkPairTerm(TermProlog,ARG1);
+    ARG1 = MkPairTerm(TermProlog,t);
   }
   LOCK(SignalLock);
   CreepFlag = CalculateStackGap();

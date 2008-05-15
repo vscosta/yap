@@ -497,7 +497,8 @@ true :- true.
 	 ),
 	 fail.
  '$yes_no'(_,_) :-
-         '$out_neg_answer'.
+	 '$enter_system_mode',
+	 '$out_neg_answer'.
 
 '$add_env_and_fail' :- fail.
 
@@ -513,7 +514,7 @@ true :- true.
  '$do_yes_no'(G, M) :-
          '$exit_system_mode',
 	 '$execute'(M:G),
-         ( '$enter_system_mode' ; '$exit_system_mode', fail ).    
+         ( '$enter_system_mode' ; '$exit_system_mode', fail).
 
  '$write_query_answer_true'([]) :- !,
 	 format(user_error,'~ntrue',[]).
