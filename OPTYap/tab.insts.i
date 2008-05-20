@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.insts.i
-  version:     $Id: tab.insts.i,v 1.24 2007-04-26 14:11:08 ricroc Exp $   
+  version:     $Id: tab.insts.i,v 1.25 2008-05-20 18:25:37 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -36,8 +36,7 @@
 
 
 #define store_generator_node(TAB_ENT, SG_FR, ARITY, AP)               \
-        { register int subs_arity = *YENV;                            \
-          register CELL *pt_args;                                     \
+        { register CELL *pt_args;                                     \
           register choiceptr gcp;                                     \
           /* store args */                                            \
           pt_args = XREGS + (ARITY);                                  \
@@ -54,13 +53,13 @@
           /* store generator choice point */                          \
           HBREG = H;                                                  \
           store_yaam_reg_cpdepth(gcp);                                \
-          gcp->cp_tr = TR;            	                              \
+          gcp->cp_tr = TR;                                            \
           gcp->cp_ap = (yamop *)(AP);                                 \
           gcp->cp_h  = H;                                             \
           gcp->cp_b  = B;                                             \
           gcp->cp_env = ENV;                                          \
           gcp->cp_cp = CPREG;                                         \
-	  if (subs_arity && IsMode_Local(TabEnt_mode(TAB_ENT))) {     \
+	  if (IsMode_Local(TabEnt_mode(TAB_ENT))) {                   \
             /* go local */                                            \
             register dep_fr_ptr new_dep_fr;                           \
             /* adjust freeze registers */                             \
@@ -935,6 +934,12 @@
 #endif /* TABLING_ERRORS */
       UNLOCK(SgFr_lock(sg_fr));
       if (IS_BATCHED_GEN_CP(gcp)) {
+	/* if the number of substitution variables is zero, 
+           an answer is sufficient to perform an early completion  */
+	if (*subs_ptr == 0 && gcp->cp_ap != NULL) {
+	  gcp->cp_ap = COMPLETION;
+	  mark_as_completed(sg_fr);
+	}
         /* deallocate and procceed */
         PREG = (yamop *) YENV[E_CP];
         PREFETCH_OP(PREG);
@@ -946,6 +951,12 @@
 #endif /* DEPTH_LIMIT */
         GONext();
       } else {
+	/* if the number of substitution variables is zero, 
+           an answer is sufficient to perform an early completion  */
+	if (*subs_ptr == 0 && gcp->cp_ap != ANSWER_RESOLUTION) {
+	  gcp->cp_ap = COMPLETION;
+	  mark_as_completed(sg_fr);
+	}
         /* fail */
         goto fail;
       }

@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.C
-  version:     $Id: tab.tries.c,v 1.23 2008-05-05 17:09:37 ricroc Exp $   
+  version:     $Id: tab.tries.c,v 1.24 2008-05-20 18:25:37 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -883,12 +883,12 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
       int var_index = VarIndexOfTableTerm(t);
       if(var_index > n_vars) {
 	for (i = var_index; i > n_vars; i--)
-	  stack_vars_base[i] = NULL; 
+	  stack_vars_base[i] = 0; 
 	n_vars = var_index;
 	stack_vars = stack_terms_base + n_vars;
 	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
       }  
-      if (stack_vars_base[var_index] == NULL)
+      if (stack_vars_base[var_index] == 0)
 	stack_vars_base[var_index] = MkVarTerm(); 
       STACK_PUSH_UP(stack_vars_base[var_index], stack_terms);
       STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
