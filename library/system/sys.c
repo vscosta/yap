@@ -8,8 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.33 2007-10-05 18:24:30 vsc Exp $									 *
+* $Id: sys.c,v 1.34 2008-05-22 23:25:21 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.33  2007/10/05 18:24:30  vsc
+* mods:		fix garbage collector and fix LeaveGoal
+* mods:		
 * mods:		Revision 1.32  2007/05/07 12:11:39  vsc
 * mods:		fix mktime fix
 * mods:		
@@ -483,12 +486,46 @@ p_mktemp(void)
 }
 
 static int
-p_tpmnam(void)
+p_tmpnam(void)
 {
 #if HAVE_TMPNAM
-  return(YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(tmpnam(NULL)))));
+  char buf[L_tmpnam], *s;
+  if (!(s = tmpnam(buf)))
+    return FALSE;
+  return YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(s)));
 #else
   return FALSE;
+#endif
+}
+
+static int
+p_tmpdir(void)
+{
+  char *s;
+#if defined(__MINGW32__) || _MSC_VER
+  char buf[512];
+  DWORD out = GetTempPath(512, buf);
+  if (!out) {
+    return(YAP_Unify(YAP_ARG2, WinError()));
+  }
+  if (out > 511) {
+    nbuf = malloc(out+1);
+    if (!nbuf)
+      return YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom("no malloc memory")));
+    out = GetTempPath(512, nbuf);
+    if (!out) {
+      return(YAP_Unify(YAP_ARG2, WinError()));
+    }
+    return  YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(nbuf)));
+  }
+  return  YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(buf)));
+#else
+  if ((s = getenv("TMPDIR")))
+    return  YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(s)));
+#ifdef P_tmpdir
+  return  YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(P_tmpdir)));
+#endif
+  return  YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom("/tmp")));
 #endif
 }
 
@@ -1021,7 +1058,8 @@ init_sys(void)
   YAP_UserCPredicate("pid", pid, 2);
   YAP_UserCPredicate("kill", p_kill, 3);
   YAP_UserCPredicate("mktemp", p_mktemp, 3);
-  YAP_UserCPredicate("tmpnam", p_tpmnam, 2);
+  YAP_UserCPredicate("tmpnam", p_tmpnam, 2);
+  YAP_UserCPredicate("tmpdir", p_tmpdir, 2);
   YAP_UserCPredicate("rename_file", rename_file, 3);
   YAP_UserCPredicate("sleep", p_sleep, 2);
   YAP_UserCPredicate("error_message", error_message, 2);

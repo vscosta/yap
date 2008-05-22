@@ -75,6 +75,7 @@ swi_predicate_table(_,term_variables(X,Y,Z),terms,term_variables(X,Y,Z)).
 swi_predicate_table(_,subsumes(X,Y),terms,subsumes(X,Y)).
 swi_predicate_table(_,unifiable(X,Y,Z),terms,unifiable(X,Y,Z)).
 swi_predicate_table(_,genarg(X,Y,Z),arg,genarg(X,Y,Z)).
+swi_predicate_table(_,tmp_file(X,Y),system,tmp_file(X,Y)).
 
 :- dynamic
    prolog:message/3.

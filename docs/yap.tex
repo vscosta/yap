@@ -10395,8 +10395,18 @@ process. An interface to the @t{getpid} function.
 @syindex tmpnam/1
 @cnindex tmpnam/1
 
-Interface with @var{tmpnam}: create an unique file and unify its name
-with @var{File}.
+Interface with @var{tmpnam}: obtain a new, unique file name @var{File}.
+
+@item tmp_file(-@var{File})
+@findex  tmp_file/2
+@snindex tmp_file/2
+@cnindex tmp_file/2
+
+Create a name for a temporary file. @var{Base} is an user provided
+identifier for the category of file. The @var{TmpName} is guaranteed to
+be unique. If the system halts, it will automatically remove all created
+temporary files.
+
 
 @item exec(+@var{Command},[+@var{InputStream},+@var{OutputStream},+@var{ErrorStream}],-@var{PID})
 @findex  exec/3
