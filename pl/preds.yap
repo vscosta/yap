@@ -821,11 +821,7 @@ predicate_property(Pred,Prop) :-
 	(
 	 Prop = imported_from(M)
 	;
-	 functor(Pred,P,A),
-	 recorded('$module','$module'(_TFN,Mod,Publics),_),
-	 lists:memberchk(N/A,Publics)
-	;	 
-	 '$predicate_property2'(NPred,Prop,M),
+	 '$predicate_property'(NPred,M,M,Prop),
 	 Prop \= exported
 	).
 
@@ -858,8 +854,8 @@ predicate_property(Pred,Prop) :-
 	'$is_public'(P,M).
 '$predicate_property'(P,M,M,exported) :-
 	functor(P,N,A),
-	recorded('$module','$module'(_TFN,M,Publics),_),
-	lists:memberchk(N/A,Publics), !.
+	once(recorded('$module','$module'(_TFN,M,Publics),_)),
+	lists:memberchk(N/A,Publics).
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
 	'$number_of_clauses'(P,Mod,NCl).
 
