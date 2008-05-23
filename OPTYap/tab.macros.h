@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.macros.h
-  version:     $Id: tab.macros.h,v 1.21 2008-05-05 17:17:35 ricroc Exp $   
+  version:     $Id: tab.macros.h,v 1.22 2008-05-23 18:28:58 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -547,29 +547,28 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
       /* no answers --> ready */
       SgFr_state(sg_fr) = ready;
       UNLOCK(SgFr_lock(sg_fr));
+    } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+      /* yes answer --> complete */
+      /* at this point the subgoal should be already completed (early completion)  */ 
+      /* SgFr_state(sg_fr) = complete; */
+      UNLOCK(SgFr_lock(sg_fr));
     } else {
-      if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
-	/* yes answer --> complete */
-	SgFr_state(sg_fr) = complete;
-	UNLOCK(SgFr_lock(sg_fr));
-      } else {
-	/* answers --> incomplete/ready */
+      /* answers --> incomplete/ready */
 #ifdef INCOMPLETE_TABLING
-	SgFr_state(sg_fr) = incomplete;
-	UNLOCK(SgFr_lock(sg_fr));
+      SgFr_state(sg_fr) = incomplete;
+      UNLOCK(SgFr_lock(sg_fr));
 #else
-	ans_node_ptr node;
-	SgFr_state(sg_fr) = ready;
-	free_answer_hash_chain(SgFr_hash_chain(sg_fr));
-	SgFr_hash_chain(sg_fr) = NULL;
-	SgFr_first_answer(sg_fr) = NULL;
-	SgFr_last_answer(sg_fr) = NULL;
-	node = TrNode_child(SgFr_answer_trie(sg_fr));
-	TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
-	UNLOCK(SgFr_lock(sg_fr));
-	free_answer_trie_branch(node);
+      ans_node_ptr node;
+      SgFr_state(sg_fr) = ready;
+      free_answer_hash_chain(SgFr_hash_chain(sg_fr));
+      SgFr_hash_chain(sg_fr) = NULL;
+      SgFr_first_answer(sg_fr) = NULL;
+      SgFr_last_answer(sg_fr) = NULL;
+      node = TrNode_child(SgFr_answer_trie(sg_fr));
+      TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
+      UNLOCK(SgFr_lock(sg_fr));
+      free_answer_trie_branch(node);
 #endif /* INCOMPLETE_TABLING */
-      }
     }
 #ifdef LIMIT_TABLING
     insert_into_global_sg_fr_list(sg_fr);

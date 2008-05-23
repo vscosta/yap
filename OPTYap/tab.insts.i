@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.insts.i
-  version:     $Id: tab.insts.i,v 1.25 2008-05-20 18:25:37 ricroc Exp $   
+  version:     $Id: tab.insts.i,v 1.26 2008-05-23 18:28:58 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -739,8 +739,6 @@
     sg_fr_ptr sg_fr;
     ans_node_ptr ans_node;
 
-    /* possible optimization: when the number of substitution variables **
-    ** is zero, an answer is sufficient to perform an early completion  */
     gcp = NORM_CP(YENV[E_B]);
     sg_fr = GEN_CP(gcp)->cp_sg_fr;
     subs_ptr = (CELL *)(GEN_CP(gcp) + 1) + PREG->u.s.s;

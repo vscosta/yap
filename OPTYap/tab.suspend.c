@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.suspend.c
-  version:     $Id: tab.suspend.c,v 1.4 2005-05-31 08:24:24 ricroc Exp $   
+  version:     $Id: tab.suspend.c,v 1.5 2008-05-23 18:28:58 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -369,14 +369,18 @@ void complete_suspension_branch(susp_fr_ptr susp_fr, choiceptr top_cp, or_fr_ptr
   aux_sg_fr = SuspFr_top_sg_fr(susp_fr);
   if (DepFr_leader_dep_is_on_stack(aux_dep_fr)) {
     while (aux_sg_fr && 
-           SgFr_state(aux_sg_fr) == evaluating &&
+	   /* continue if the subgoal was early completed */ 
+           /* SgFr_state(aux_sg_fr) == evaluating && */
+           (SgFr_state(aux_sg_fr) == evaluating || SgFr_first_answer(aux_sg_fr) == SgFr_answer_trie(aux_sg_fr)) &&
            EQUAL_OR_YOUNGER_CP(SgFr_gen_cp(aux_sg_fr), top_cp)) {
       mark_as_completed(aux_sg_fr);
       aux_sg_fr = SgFr_next(aux_sg_fr);
     }
   } else {
     while (aux_sg_fr && 
-           SgFr_state(aux_sg_fr) == evaluating &&
+	   /* continue if the subgoal was early completed */ 
+           /* SgFr_state(aux_sg_fr) == evaluating && */
+           (SgFr_state(aux_sg_fr) == evaluating || SgFr_first_answer(aux_sg_fr) == SgFr_answer_trie(aux_sg_fr)) &&
            YOUNGER_CP(SgFr_gen_cp(aux_sg_fr), top_cp)) {
       mark_as_completed(aux_sg_fr);
       aux_sg_fr = SgFr_next(aux_sg_fr);
