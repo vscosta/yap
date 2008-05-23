@@ -1492,19 +1492,25 @@ ReceiveSignal (int s)
     case SIGKILL:
       Yap_Error(INTERRUPT_ERROR,MkIntTerm(s),NULL);
 #endif
-#if defined(SIGUSR1)
+#ifdef SIGUSR1
     case SIGUSR1:
       /* force the system to creep */
       Yap_signal (YAP_USR1_SIGNAL);
       break;
 #endif /* defined(SIGUSR1) */
-#if defined(SIGUSR2)
+#ifdef SIGUSR2
     case SIGUSR2:
       /* force the system to creep */
       Yap_signal (YAP_USR2_SIGNAL);
       break;
 #endif /* defined(SIGUSR2) */
-#if defined(SIGHUP)
+#ifdef SIGPIPE
+    case SIGPIPE:
+      /* force the system to creep */
+      Yap_signal (YAP_PIPE_SIGNAL);
+      break;
+#endif /* defined(SIGPIPE) */
+#ifdef SIGHUP
     case SIGHUP:
       /* force the system to creep */
       Yap_signal (YAP_HUP_SIGNAL);
@@ -1544,6 +1550,9 @@ InitSignals (void)
     my_signal (SIGUSR2, ReceiveSignal);
     my_signal (SIGHUP,  ReceiveSignal);
     my_signal (SIGALRM, HandleALRM);
+#endif
+#ifdef SIGPIPE
+    my_signal (SIGPIPE, ReceiveSignal);
 #endif
 #if _MSC_VER || defined(__MINGW32__)
     signal (SIGINT, SIG_IGN);
@@ -2542,6 +2551,11 @@ p_first_signal(void)
     ActiveSignals &= ~YAP_USR1_SIGNAL;
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_usr1")));
+  }
+  if (ActiveSignals & YAP_PIPE_SIGNAL) {
+    ActiveSignals &= ~YAP_PIPE_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_pipe")));
   }
   if (ActiveSignals & YAP_HUP_SIGNAL) {
     ActiveSignals &= ~YAP_HUP_SIGNAL;

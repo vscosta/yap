@@ -72,6 +72,8 @@
 	'$signal_handler'(sig_usr1, G).
 '$do_signal'(sig_usr2, G) :-
 	'$signal_handler'(sig_usr2, G).
+'$do_signal'(sig_pipe, G) :-
+	'$signal_handler'(sig_pipe, G).
 
 '$signal_handler'(Sig, [M|G]) :-
 	'$signal_do'(Sig, Goal),
@@ -122,8 +124,9 @@
 		      ( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
 		      ( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true ))).
 % die on signal default.
-'$signal_def'(sig_usr1, (print_message(error, 'Received user signal 1'),halt)).
-'$signal_def'(sig_usr2, (print_message(error, 'Received user signal 2'),halt)).
+'$signal_def'(sig_usr1, throw(error(signal(usr1,[]),true))).
+'$signal_def'(sig_usr2, throw(error(signal(usr2,[]),true))).
+'$signal_def'(sig_pipe, throw(error(signal(pipe,[]),true))).
 % ignore sig_alarm by default
 '$signal_def'(sig_alarm, true). 
 

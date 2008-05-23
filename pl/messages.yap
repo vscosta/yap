@@ -11,7 +11,7 @@
 * File:		utilities for displaying messages in YAP.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-05-15 13:41:47 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-05-23 10:02:13 $,$Author: vsc $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -243,6 +243,8 @@ system_message(error(resource_error(threads), Where)) -->
 	[ 'RESOURCE ERROR- too many open threads' - [Where] ].
 system_message(error(resource_error(memory), Where)) -->
 	[ 'RESOURCE ERROR- not enough virtual memory' - [Where] ].
+system_message(error(signal(SIG,_), _)) -->
+	[ 'UNEXPECTED SIGNAL: ~a' [SIG] ].
 system_message(error(syntax_error(G,0,Msg,[],0,0), _)) -->
 	[ 'SYNTAX ERROR: ~a' - [G,Msg] ].
 system_message(error(syntax_error(_,_,_,Term,Pos,Start), Where)) -->
