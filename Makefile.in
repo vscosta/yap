@@ -637,7 +637,7 @@ install_win32: startup
 	(cd library/regex; make install)
 	(cd library/rltree; make install)
 	(cd library/system; make install)
-	(cd LGPL/swi_console; make install)
+	@ENABLE_WINCONSOLE@ (cd LGPL/swi_console; make install)
 	@INSTALL_MATLAB@ (cd library/matlab; make install)
 	(cd library/tries; make install)
 	@ENABLE_CPLINT@ (cd cplint; make install)

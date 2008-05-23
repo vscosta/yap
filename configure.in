@@ -453,9 +453,11 @@ then
     use_malloc="yes"
     LIBS="-lcygwin"
    fi
+  ENABLE_WINCONSOLE="@#"   
 elif test "$target_os" = "mingw32" 
 then
   yap_cv_readline=no
+  ENABLE_WINCONSOLE=""   
   INSTALL_COMMAND=install_win32
   AC_CHECK_LIB(wsock32,main)
   AC_CHECK_LIB(psapi,main)
@@ -1126,6 +1128,7 @@ AC_SUBST(JAVAINCPATH)
 AC_SUBST(LAMOBJS)
 AC_SUBST(MAX_WORKERS)
 AC_SUBST(STATIC_MODE)
+AC_SUBST(ENABLE_WINCONSOLE)
 
 AC_SUBST(INSTALL_MATLAB)
 AC_SUBST(MATLAB_INCLUDE)
