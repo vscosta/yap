@@ -27,7 +27,6 @@ true :- true.
 
 '$do_live' :-
 	repeat,
-		'$set_input'(user_input),'$set_output'(user),
 		'$current_module'(Module),
 		( Module==user ->
 		    '$compile_mode'(_,0)
@@ -96,7 +95,8 @@ true :- true.
 	),
 	'$db_clean_queues'(0),
 	'$startup_reconsult',
-	'$startup_goals'.
+	'$startup_goals',
+	'$set_input'(user_input),'$set_output'(user).
 
 '$init_consult' :-
 	nb_setval('$lf_verbose',informational),

@@ -383,7 +383,7 @@ tell(F) :- var(F), !,
 	'$do_error'(instantiation_error,tell(F)).
 tell(F) :- current_output(Stream),
 	'$user_file_name'(Stream,F), !.
-tell(F) :- current_stream(_,write,Stream), '$user_file_name'(Stream, F), !,
+tell(F) :- current_stream(_,write,Stream), '$user_file_name'(Stream, F),  !,
 	set_output(Stream).
 tell(Stream) :- '$stream'(Stream), current_stream(_,write,Stream), !,
 	set_output(Stream).
