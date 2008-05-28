@@ -7,26 +7,28 @@ This directory contains a release of the Yap 5.1.* Prolog system,
 originally developed at the Universidade do Porto by Luis Damas and
 Vitor Santos Costa, with contributions from the Edinburgh Prolog
 library, the C-Prolog manual authors, Ricardo Lopes, Ricardo Rocha,
-and many others. You should read the rest of this file for information
-on what Yap is and for instructions on how to build it.
+M. Hermenegildo, D. Cabeza, Eric Alphonse, Paulo Moura, Nuno Fonseca,
+Jan Wielemaker, Paul Singleton, Fred Dushin, Jan Wielemaker, Markus
+Triska, and many others. You should read the rest of this file for
+information on what Yap is and for instructions on how to build it.
 
 YAP 52 is known to build with many versions of gcc (<= gcc-2.7.2, >=
-gcc-2.8.1, >= egcs-1.0.1, gcc-2.95.*) and on a variety of Unix'es:
-SunOS 4.1, Solaris 2.*, Irix 5.2, HP-UX 10.20, Dec Alpha Unix, Linux 1.2
-and Linux 2.* (RedHat 4.0 through 5.2, Debian 2.*) in both the x86 and
-alpha platforms. It has been built on Windows XP using cygwin/mingw from
-Cygnus Solutions.
+gcc-2.8.1, >= egcs-1.0.1, gcc-2.95.*) and on a variety of Linux,
+MacOSX, and Unix'es: SunOS 4.1, Solaris 2.*, Irix 5.2, HP-UX 10.20,
+Dec Alpha Unix, Linux 1.2 and Linux 2.* (RedHat 4.0 through 5.2,
+Debian 2.*) in both the x86 and alpha platforms. It has been built on
+Windows XP using cygwin/mingw from Cygnus Solutions. and on MaxO
 
-Yap is now distributed under two licenses. YAP can also be distributed
-under the FSF's LGPL (see the file COPYING). Also, all the components
-of Yap not in the LGPL directory can be distributed under the Perl
-Artistic license 2.
+The main core of the YAP distribution is distributed under a dual
+license: the Perl Artistic license 2 and the FSF's LGPL. The YAP
+distribution also contains files distributed under the LGPL
+exclusively, and under the GPL. 
 
-The Yap distribution includes several packages ported to Yap, such as
-Pillow, JPL, CLP(R) and CHR. We would like to take
-the opportunity to thank the developers of these packages for their
-generosity in allowing YAP to distribute these packages. Any bugs in
-these packages are probably our fault.
+The YAP distribution includes several packages ported to Yap, such as
+Pillow, JPL, CLP(R) and CHR. We would like to take the opportunity to
+thank the developers of these packages for their generosity in
+allowing YAP to distribute these packages. Any bugs in these packages
+are probably our fault.
 
 If you have a question about this software, desire to add code, found
 a bug, want to request a feature, or wonder how to get further
@@ -68,8 +70,6 @@ missing. The manual also includes a (largely incomplete) comparison
 with SICStus Prolog.
  
 2. How to compile YAP
-
-If you are compiling YAP under VisualC++ look at README.VC.
 
 To compile YAP just do:
 
