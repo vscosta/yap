@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.131 2008-05-10 23:24:12 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.132 2008-05-28 17:18:35 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -198,6 +198,8 @@ typedef struct thandle {
   int ref_count;
 #ifdef LOW_LEVEL_TRACER
   long long int thread_inst_count;
+  int been_here1;
+  int been_here2;
 #endif
   pthread_mutex_t tlock;
 #if HAVE_GETRUSAGE

@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2008-04-28 23:02:32 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-05-28 17:18:35 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.228  2008/04/28 23:02:32  vsc
+* fix bug in current_predicate/2
+* fix bug in c_interface.
+*
 * Revision 1.227  2008/04/11 16:30:27  ricroc
 * *** empty log message ***
 *
@@ -1875,9 +1879,13 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
   register consult_obj  *fp;
   Prop                   p0 = AbsProp((PropEntry *)p);
 
-  for (fp = ConsultSp; fp < ConsultBase; ++fp)
-    if (fp->p == p0)
-      break;
+  if (p->cs.p_code.NOfClauses) {
+    for (fp = ConsultSp; fp < ConsultBase; ++fp)
+      if (fp->p == p0)
+	break;
+  } else {
+    fp = ConsultBase;
+  }
   if (fp != ConsultBase)
     return (FALSE);
   if (mode) {

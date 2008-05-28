@@ -38,6 +38,16 @@ static char     SccsId[] = "%W% %G%";
  *
  */
 
+#if DEBUG
+
+static void DEBUG_TLOCK_ACCESS( int pos, int wid) { 
+    ThreadHandle[wid].been_here2 = ThreadHandle[wid].been_here1;
+    ThreadHandle[wid].been_here1 = pos;
+}
+#else
+#define DEBUG_TLOCK_ACCESS(WID, POS)
+#endif
+
 static int
 allocate_new_tid(void)
 {
@@ -49,6 +59,7 @@ allocate_new_tid(void)
     new_worker_id++;
   if (new_worker_id < MAX_THREADS) {
     pthread_mutex_lock(&(ThreadHandle[new_worker_id].tlock));
+    DEBUG_TLOCK_ACCESS(new_worker_id, 0);
     ThreadHandle[new_worker_id].in_use = TRUE;
   } else {
     new_worker_id = -1;
@@ -108,6 +119,7 @@ kill_thread_engine (int wid)
   free(ThreadHandle[wid].start_of_timesp);
   free(ThreadHandle[wid].last_timep);
   ThreadHandle[wid].zombie = FALSE;
+  DEBUG_TLOCK_ACCESS(1, wid);
   pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
 }
 
@@ -144,6 +156,7 @@ setup_engine(int myworker_id)
   Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
   /* I exist */
   NOfThreadsCreated++;
+  DEBUG_TLOCK_ACCESS(2, myworker_id);
   pthread_mutex_unlock(&(ThreadHandle[myworker_id].tlock));  
 }
 
@@ -234,6 +247,7 @@ p_create_thread(void)
   ThreadHandle[new_worker_id].ref_count = 1;
   if ((ThreadHandle[new_worker_id].ret = pthread_create(&ThreadHandle[new_worker_id].handle, NULL, thread_run, (void *)(&(ThreadHandle[new_worker_id].id)))) == 0) {
     /* wait until the client is initialised */
+    DEBUG_TLOCK_ACCESS(3, new_worker_id);
     pthread_mutex_unlock(&(ThreadHandle[new_worker_id].tlock));  
     return TRUE;
   }
@@ -291,12 +305,15 @@ p_thread_zombie_self(void)
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return Yap_unify(MkIntegerTerm(-1), ARG1);
   pthread_mutex_lock(&(ThreadHandle[worker_id].tlock));
+  DEBUG_TLOCK_ACCESS(4, worker_id);
   if (Yap_heap_regs->wl[worker_id].active_signals &= YAP_ITI_SIGNAL) {
+    DEBUG_TLOCK_ACCESS(5, worker_id);
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
     return FALSE;
   }
   Yap_heap_regs->thread_handle[worker_id].in_use = FALSE;
   Yap_heap_regs->thread_handle[worker_id].zombie = TRUE;
+  DEBUG_TLOCK_ACCESS(6, worker_id);
   pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
 }
@@ -330,14 +347,17 @@ Int
 Yap_thread_attach_engine(int wid)
 {
   pthread_mutex_lock(&(ThreadHandle[wid].tlock));
+  DEBUG_TLOCK_ACCESS(7, wid);
   if (ThreadHandle[wid].ref_count &&
       ThreadHandle[wid].handle != pthread_self()) {
+    DEBUG_TLOCK_ACCESS(8, wid);
     pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
     return FALSE;
   }
   ThreadHandle[wid].handle = pthread_self();
   ThreadHandle[wid].ref_count++;
   worker_id = wid;
+  DEBUG_TLOCK_ACCESS(9, wid);
   pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
   return TRUE;
 }
@@ -346,9 +366,11 @@ Int
 Yap_thread_detach_engine(int wid)
 {
   pthread_mutex_lock(&(ThreadHandle[wid].tlock));
+  DEBUG_TLOCK_ACCESS(10, wid);
   if (ThreadHandle[wid].handle == pthread_self())
     ThreadHandle[wid].handle = 0;
   ThreadHandle[wid].ref_count--;
+  DEBUG_TLOCK_ACCESS(11, wid);
   pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
   return TRUE;
 }
@@ -360,6 +382,7 @@ Yap_thread_destroy_engine(int wid)
     kill_thread_engine(wid);
     return TRUE;
   } else {
+    DEBUG_TLOCK_ACCESS(12, wid);
     pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
     return FALSE;
   }
@@ -382,6 +405,7 @@ p_thread_join(void)
     return FALSE;
   }
   pthread_mutex_lock(&(ThreadHandle[tid].tlock));
+  DEBUG_TLOCK_ACCESS(13, tid);
   UNLOCK(ThreadHandlesLock);
   /* make sure this lock is accessible */
   if (pthread_join(ThreadHandle[tid].handle, NULL) < 0) {
@@ -406,13 +430,17 @@ p_thread_detach(void)
 {
   Int tid = IntegerOfTerm(Deref(ARG1));
   pthread_mutex_lock(&(ThreadHandle[tid].tlock));
+  DEBUG_TLOCK_ACCESS(14, tid);
   if (pthread_detach(ThreadHandle[tid].handle) < 0) {
     /* ERROR */
+    DEBUG_TLOCK_ACCESS(15, tid);
     pthread_mutex_unlock(&(ThreadHandle[tid].tlock));
     return FALSE;
   }
   ThreadHandle[tid].tdetach = 
     MkAtomTerm(AtomTrue);
+  DEBUG_TLOCK_ACCESS(30, tid);
+  pthread_mutex_unlock(&(ThreadHandle[tid].tlock));
   return TRUE;
 }
 
@@ -610,16 +638,19 @@ p_thread_signal(void)
   Int wid = IntegerOfTerm(Deref(ARG1));
   /* make sure the lock is available */
   pthread_mutex_lock(&(ThreadHandle[wid].tlock));
+  DEBUG_TLOCK_ACCESS(16, wid);
   if (!ThreadHandle[wid].in_use || 
       !ThreadHandle[wid].current_yaam_regs) {
+    DEBUG_TLOCK_ACCESS(17, wid);
     pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
-    return TRUE;
+   return TRUE;
   }
   LOCK(Yap_heap_regs->wl[wid].signal_lock);
   ThreadHandle[wid].current_yaam_regs->CreepFlag_ = 
     Unsigned(ThreadHandle[wid].current_yaam_regs->LCL0_);
   Yap_heap_regs->wl[wid].active_signals |= YAP_ITI_SIGNAL;
   UNLOCK(Yap_heap_regs->wl[wid].signal_lock);
+  DEBUG_TLOCK_ACCESS(18, wid);
   pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
   return TRUE;
 }
@@ -671,6 +702,7 @@ static Int
 p_thread_unlock(void)
 {				/* '$thread_self_lock'	 */
   Int wid = IntegerOfTerm(Deref(ARG1));
+  DEBUG_TLOCK_ACCESS(19, wid);
   pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
   return TRUE;
 }

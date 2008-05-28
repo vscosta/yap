@@ -3871,7 +3871,7 @@ static Int
 	if (tokstart != NULL && tokstart->Tok != Ord (eot_tok)) {
 	  /* we got the end of file from an abort */
 	  if (Yap_ErrorMessage &&
-	      strcmp(Yap_ErrorMessage,"Abort")) {
+	      !strcmp(Yap_ErrorMessage,"Abort")) {
 	    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	    return FALSE;
 	  }
