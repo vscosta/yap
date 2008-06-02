@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2008-05-28 17:18:35 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-06-02 17:20:28 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.229  2008/05/28 17:18:35  vsc
+* thread fixes
+*
 * Revision 1.228  2008/04/28 23:02:32  vsc
 * fix bug in current_predicate/2
 * fix bug in c_interface.
@@ -3083,7 +3086,7 @@ p_kill_dynamic(void)
     return (FALSE);
   }
   pe->cs.p_code.LastClause = pe->cs.p_code.FirstClause = NULL;
-  pe->OpcodeOfPred = FAIL_OPCODE;
+  pe->OpcodeOfPred = UNDEF_OPCODE;
   pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred)); 
   pe->PredFlags = pe->PredFlags & GoalExPredFlag;
   UNLOCK(pe->PELock);
