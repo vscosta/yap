@@ -69,12 +69,12 @@ ranstart(N) :-
 	Incr is (8'154 << (Wsize - 9)) + 1,	% per Knuth, v.2 p.78
 	Mult is 8'3655,				% OK for 16-18 Wsize
 	Prev is Mult * (8 * N + 5) + Incr,
-	assert(ranState, ranState(Mult, Prev, Wsize, MaxInt, Incr).
+	assert(ranState(Mult, Prev, Wsize, MaxInt, Incr) ).
  
 rannum(Raw) :-
 	retract(ranState(Mult, Prev, Wsize, MaxInt, Incr)),
 	Curr is Mult * Prev + Incr,
-	assert(ranState(Mult, Curr, Wsize, MaxInt, Incr),
+	assert(ranState(Mult, Curr, Wsize, MaxInt, Incr)),
 	(	Curr > 0,
 		Raw is Curr
 	;
