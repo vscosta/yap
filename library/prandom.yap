@@ -47,9 +47,11 @@
 	ranstart/0,
 	ranstart/1,
 	rannum/1,
-	rannunif/2]).
+	ranunif/2]).
 
 :- initialization(ranstart).
+
+:- dynamic ranState/5.
 
 %
 % vsc: dangerous code, to change.
@@ -67,13 +69,12 @@ ranstart(N) :-
 	Incr is (8'154 << (Wsize - 9)) + 1,	% per Knuth, v.2 p.78
 	Mult is 8'3655,				% OK for 16-18 Wsize
 	Prev is Mult * (8 * N + 5) + Incr,
-	recorda(ranState, ranState(Mult, Prev, Wsize, MaxInt, Incr), Ref).
+	assert(ranState, ranState(Mult, Prev, Wsize, MaxInt, Incr).
  
 rannum(Raw) :-
-	recorded(ranState, ranState(Mult, Prev, Wsize, MaxInt, Incr), Oldref),
-	erase(Oldref),
+	retract(ranState(Mult, Prev, Wsize, MaxInt, Incr)),
 	Curr is Mult * Prev + Incr,
-	recorda(ranState, ranState(Mult, Curr, Wsize, MaxInt, Incr), Ref),
+	assert(ranState(Mult, Curr, Wsize, MaxInt, Incr),
 	(	Curr > 0,
 		Raw is Curr
 	;
@@ -83,10 +84,9 @@ rannum(Raw) :-
  
 ranunif(Range, Unif) :-
 	Range > 0,
-	recorded(ranState, ranState(Mult, Prev, Wsize, MaxInt, Incr), Oldref),
-	erase(Oldref),
+	retract( ranState(Mult, Prev, Wsize, MaxInt, Incr) ),
 	Curr is Mult * Prev + Incr,
-	recorda(ranState, ranState(Mult, Curr, Wsize, MaxInt, Incr), Ref),
+	assert(ranState(Mult, Curr, Wsize, MaxInt, Incr)),
 	(	Curr > 0,
 		Raw is Curr
 	;

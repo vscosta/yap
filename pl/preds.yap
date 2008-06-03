@@ -979,5 +979,21 @@ current_key(A,K) :-
 '$noprofile'(_, _).
 
 '$notrace'(G) :-
-	\+ '$undefined'(G, prolog),
-	call(G).
+	var(G), !,
+	'$do_error'(instantiation_error,G).	
+'$notrace'(G) :- number(G), !,
+	'$do_error'(type_error(callable,G),G).
+'$notrace'(G) :- db_reference(G), !,
+	'$do_error'(type_error(callable,G),G).
+'$notrace'(M:G) :-
+	\+ atom(M),
+	'$do_error'(type_error(atom,Na), Msg).
+'$notrace'(M:G) :- !,
+	'$notrace'(G, M).
+'$notrace'(G) :- !,
+	'$notrace'(G, prolog).
+
+
+'$notrace'(G, Mod) :-
+	\+ '$undefined'(G, Mod),
+	call(Mod:G).

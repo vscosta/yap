@@ -786,8 +786,15 @@ p_thread_unlock(void)
   return TRUE;
 }
 
+static Int 
+p_max_workers(void)
+{				/* '$max_workers'(+P)	 */
+  return Yap_unify(ARG1,MkIntTerm(1));
+}
+
 void Yap_InitThreadPreds(void)
 {
+  Yap_InitCPred("$max_workers", 1, p_max_workers, HiddenPredFlag);
   Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$no_threads", 0, p_no_threads, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$max_threads", 1, p_max_threads, SafePredFlag|HiddenPredFlag);
