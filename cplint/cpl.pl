@@ -14,10 +14,22 @@
 p(File):-
 	lpad:p(File).
 
+sc(Goals,Evidences,Prob,CPUTime1,0.0,WallTime1,0.0):-
+	statistics(cputime,[_,_]),
+	statistics(walltime,[_,_]),
+	lpad:convert_to_goal(Goals,Goal),
+	lpad:convert_to_goal(Evidences,Evidence),
+	solve_cond(Goal,Evidence,Prob),
+	statistics(cputime,[_,CT1]),
+	CPUTime1 is CT1/1000,
+	statistics(walltime,[_,WT1]),
+	WallTime1 is WT1/1000.
+
 sc(Goals,Evidences,Prob):-
 	lpad:convert_to_goal(Goals,Goal),
 	lpad:convert_to_goal(Evidences,Evidence),
 	solve_cond(Goal,Evidence,Prob).
+
 
 solve_cond(Goal,Evidence,Prob):-
 	(setof((DerivE,D),slg(Evidence,DerivE,D),LCouplesE)->
@@ -61,6 +73,16 @@ find_deriv_GE(LD,GoalsList,Deriv,Def):-
 s(GoalsList,Prob):-
 	lpad:convert_to_goal(GoalsList,Goal),
 	solve(Goal,Prob).
+
+s(GoalsList,Prob,CPUTime1,0.0,WallTime1,0.0):-
+	statistics(cputime,[_,_]),
+	statistics(walltime,[_,_]),
+	lpad:convert_to_goal(GoalsList,Goal),
+	solve(Goal,Prob),
+	statistics(cputime,[_,CT1]),
+	CPUTime1 is CT1/1000,
+	statistics(walltime,[_,WT1]),
+	WallTime1 is WT1/1000.
 
 solve(Goal,Prob):-
 	(setof((C,D),slg(Goal,C,D),LCouples)->

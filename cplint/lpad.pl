@@ -29,8 +29,8 @@
    comment out the following Quintus-specific code, and include the code
    for the Prolog you are running.
 */
-:- module(lpad, [s/2,
-		  sc/3,
+:- module(lpad, [s/2,s/6,
+		  sc/3,sc/7,
 		  p/1,
 		  slg/3,setting/2,set/2
 			]).
@@ -105,6 +105,16 @@ s(GoalsList,Prob):-
 	convert_to_goal(GoalsList,Goal),
 	solve(Goal,Prob).
 
+s(GoalsList,Prob,CPUTime1,0.0,WallTime1,0.0):-
+	statistics(cputime,[_,_]),
+	statistics(walltime,[_,_]),
+	convert_to_goal(GoalsList,Goal),
+	solve(Goal,Prob),
+	statistics(cputime,[_,CT1]),
+	CPUTime1 is CT1/1000,
+	statistics(walltime,[_,WT1]),
+	WallTime1 is WT1/1000.
+
 convert_to_goal([Goal],Goal):-Goal \= (\+ _) ,!.
 
 convert_to_goal(GoalsList,Head):-
@@ -161,6 +171,17 @@ sc(Goals,Evidences,Prob):-
 	convert_to_goal(Goals,Goal),
 	convert_to_goal(Evidences,Evidence),
 	solve_cond(Goal,Evidence,Prob).
+
+sc(Goals,Evidences,Prob,CPUTime1,0.0,WallTime1,0.0):-
+	statistics(cputime,[_,_]),
+	statistics(walltime,[_,_]),
+	convert_to_goal(Goals,Goal),
+	convert_to_goal(Evidences,Evidence),
+	solve_cond(Goal,Evidence,Prob),
+	statistics(cputime,[_,CT1]),
+	CPUTime1 is CT1/1000,
+	statistics(walltime,[_,WT1]),
+	WallTime1 is WT1/1000.
 
 solve_cond(Goal,Evidence,Prob):-
 	(setof(DerivE,D^slg(Evidence,DerivE,D),LDupE)->
