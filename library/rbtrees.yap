@@ -378,15 +378,16 @@ fix_root(red(L,K,V,R),black(L,K,V,R)).
 insert2(black([],[],[],[]), K, V, Nil, T, Status) :- !,
 	T = red(Nil,K,V,Nil),
 	Status = not_done.
-insert2(red(L,K0,V0,R), K, V, Nil, red(NL,K0,V0,NR), Flag) :-
+insert2(red(L,K0,V0,R), K, V, Nil, NT, Flag) :-
 	( K @< K0
 	-> NR = R,
-	 insert2(L, K, V, Nil, NL, Flag)
+	  NT = red(NL,K0,V0,R),
+	  insert2(L, K, V, Nil, NL, Flag)
 	; K == K0 ->
 	  NT = red(L,K0,V,R),
 	  Flag = done
 	;
-	  NL = L,
+	  NT = red(L,K0,V0,NR),
 	  insert2(R, K, V, Nil, NR, Flag)
 	).
 insert2(black(L,K0,V0,R), K, V, Nil, NT, Flag) :-
@@ -471,7 +472,7 @@ fix_right(T,T,done).
 % simplified processor
 %
 %
-pretty_print(T) :-
+pretty_print(t(_,T)) :-
 	pretty_print(T,6).
 
 pretty_print(black([],[],[],[]),_) :- !.
@@ -919,8 +920,8 @@ is_rbtree(t(_,T)) :-
 % This code checks if a tree is ordered and a rbtree
 %
 %
-rbtree(black([],[],[],[])) :- !.
-rbtree(T) :-
+rbtree(t(_,black([],[],[],[]))) :- !.
+rbtree(t(_,T)) :-
 	catch(rbtree1(T),msg(S,Args),format(S,Args)).
 
 rbtree1(black(L,K,_,R)) :-
@@ -974,44 +975,44 @@ count(I,M,L) :-
 	I < M, I1 is I+1, count(I1,M,L).
 
 test_pos :-
-	new(1,a,T0),
+	rb_new(1,a,T0),
 	N = 10000,
 	build_ptree(2,N,T0,T),
 %	pretty_print(T),
 	rbtree(T),
 	clean_tree(1,N,T,_),
 	bclean_tree(N,1,T,_),
-	count(1,N,X), ( delete(T,X,TF) -> true ; abort ),
+	count(1,N,X), ( rb_delete(T,X,TF) -> true ; abort ),
 %	pretty_print(TF), 
 	rbtree(TF),
-	format("done ~d~n",[X]),
+%	format("done ~d~n",[X]),
 	fail.
 test_pos.
 
 build_ptree(X,X,T0,TF) :- !,
-	insert(T0,X,X,TF).
+	rb_insert(T0,X,X,TF).
 build_ptree(X1,X,T0,TF) :-
-	insert(T0,X1,X1,TI),
+	rb_insert(T0,X1,X1,TI),
 	X2 is X1+1,
 	build_ptree(X2,X,TI,TF).
 
 
 clean_tree(X,X,T0,TF) :- !,
-	delete(T0,X,TF),
+	rb_delete(T0,X,TF),
 	( rbtree(TF) -> true ; abort).
 clean_tree(X1,X,T0,TF) :-
-	delete(T0,X1,TI),
+	rb_delete(T0,X1,TI),
 	X2 is X1+1,
 	( rbtree(TI) -> true ; abort),
 	clean_tree(X2,X,TI,TF).
 
 bclean_tree(X,X,T0,TF) :- !,
-	format("cleaning ~d~n", [X]),
-	delete(T0,X,TF),
+%	format("cleaning ~d~n", [X]),
+	rb_delete(T0,X,TF),
 	( rbtree(TF) -> true ; abort).
 bclean_tree(X1,X,T0,TF) :-
-	format("cleaning ~d~n", [X1]),
-	delete(T0,X1,TI),
+%	format("cleaning ~d~n", [X1]),
+	rb_delete(T0,X1,TI),
 	X2 is X1-1,
 	( rbtree(TI) -> true ; abort),
 	bclean_tree(X2,X,TI,TF).
@@ -1020,26 +1021,26 @@ bclean_tree(X1,X,T0,TF) :-
 
 test_neg :-
 	Size = 10000,
-	new(-1,a,T0),
+	rb_new(-1,a,T0),
 	build_ntree(2,Size,T0,T),
 %	pretty_print(T),
 	rbtree(T),
 	MSize is -Size,
 	clean_tree(MSize,-1,T,_),
 	bclean_tree(-1,MSize,T,_),
-	count(1,Size,X), NX is -X, ( delete(T,NX,TF) -> true ; abort ),
+	count(1,Size,X), NX is -X, ( rb_delete(T,NX,TF) -> true ; abort ),
 %	pretty_print(TF), 
 	rbtree(TF),
-	format("done ~d~n",[X]),
+%	format("done ~d~n",[X]),
 	fail.
 test_neg.
 
 build_ntree(X,X,T0,TF) :- !,
 	X1 is -X,
-	insert(T0,X1,X1,TF).
+	rb_insert(T0,X1,X1,TF).
 build_ntree(X1,X,T0,TF) :-
 	NX1 is -X1,
-	insert(T0,NX1,NX1,TI),
+	rb_insert(T0,NX1,NX1,TI),
 	X2 is X1+1,
 	build_ntree(X2,X,TI,TF).
 

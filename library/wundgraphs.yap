@@ -26,6 +26,7 @@
 	    wdgraph_vertices/2 as wundgraph_vertices,
 	    wdgraph_del_vertices/3 as wundgraph_del_vertices,
 	    wdgraph_edge/4 as wundgraph_edge,
+	    wdgraph_symmetric_closure/2 as wdgraph_to_wundgraph,
 	    wdgraph_to_dgraph/2 as wundgraph_to_undgraph,
 	    dgraph_to_wdgraph/2 as undgraph_to_wundgraph,
 	    wdgraph_min_path/5 as wundgraph_min_path,
@@ -146,9 +147,6 @@ compact([K-_|Children], [K|CompactChildren]) :-
 	compact(Children, CompactChildren).
 
 
-wundgraph_del_vertices(G0, Vs, GF) :-
-	wdgraph_del_vertices(G0, Vs, GF).
-
 del_edge(_, [], []).
 del_edge(K1, [K-W|Children], NewChildren) :-
 	( K == K1 ->
@@ -161,16 +159,7 @@ del_edge(K1, [K-W|Children], NewChildren) :-
 	    NewChildren = [K-W|Children]
 	).
 
-wundgraph_edge(N1, N2, K, G) :-
-	wdgraph_edge(N1, N2, K, G).
-
-wdgraph_to_wundgraph(G, U) :-
-	wdgraph_symmetric_closure(G, U).
-
 wundgraph_to_wdgraph(G, G).
-
-wundgraph_to_undgraph(G1, G2) :-
-	    wdgraph_to_dgraph(G1, G2).
 
 
 % simplistic algorithm to build a minimal spanning tree.

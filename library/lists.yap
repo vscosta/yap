@@ -265,14 +265,14 @@ sublist(Sublist, [_|List]) :-
 %   is true when XList and YList only differ in that the elements X in XList
 %   are replaced by elements Y in the YList.
 substitute(X, XList, Y, YList) :-
-	'$substitute'(XList, X, Y, YList).
+	substitute2(XList, X, Y, YList).
 
-'$substitute'([], _, _, []).
-'$substitute'([X0|XList], X, Y, [Y|YList]) :-
+substitute2([], _, _, []).
+substitute2([X0|XList], X, Y, [Y|YList]) :-
 	X == X0, !,
-	'$substitute'(XList, X, Y, YList).
-'$substitute'([X0|XList], X, Y, [X0|YList]) :-
-	'$substitute'(XList, X, Y, YList).
+	substitute2(XList, X, Y, YList).
+substitute2([X0|XList], X, Y, [X0|YList]) :-
+	substitute2(XList, X, Y, YList).
 
 %   suffix(Suffix, List)
 %   holds when append(_,Suffix,List) holds. 
