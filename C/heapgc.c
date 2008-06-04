@@ -3456,15 +3456,15 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   cont_top0 = (cont *)db_vec;
 #endif
   cont_top = (cont *)db_vec;
-#ifdef COROUTINING
-  mark_delays(max);
-#endif
   /* These two must be marked first so that our trail optimisation won't lose
      values */
   mark_regs(old_TR);		/* active registers & trail */
   /* active environments */
   mark_environments(current_env, EnvSize(curp), EnvBMap((CELL *)curp));
   mark_choicepoints(B, old_TR, is_gc_very_verbose());	/* choicepoints, and environs  */
+#ifdef COROUTINING
+  mark_delays(max);
+#endif
 #ifdef EASY_SHUNTING
   set_conditionals(sTR);
 #endif

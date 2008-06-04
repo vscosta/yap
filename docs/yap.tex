@@ -14091,18 +14091,19 @@ Execute query @var{Goal} and return 1 if the query succeeds, and 0
 otherwise. The predicate returns 0 if failure, otherwise it will return
 an @var{YAP_Term}. 
 
-One problem is that @var{YAP_Term} may change due to garbage
-collection. To make sure you have access to the current value, it may be
-a good idea to reload the term, as next example shows:
+Quite often, one wants to run a query once. In this case you should use
+@var{Goal}:
 @example
-  val = YAP_RunGoal(YAP_ARG1);
-  if (val == 0) return FALSE;
-  else t = YAP_ARG1;
+  YAP_RunGoalOnce(YAP_Term Goal)
 @end example
-Note that even if execution failed, garbage collection might still have
-been called and moved the term. In this case, this is not a problem:
+The  @code{YAP_RunGoal()} function makes sure to recover stack space at
+the end of execution.
 
-An alternative that ensures correct access to arguments is to use
+Prolog terms are pointers: a problem users often find is that the term
+@var{Goal} may actually @emph{be moved around} during the execution of
+@code{YAP_RunGoal()}, due to garbage collection or stack shifting. If
+this is possible, @var{Goal} will become invalid after executing
+@code{YAP_RunGoal()}. In this case, it is a good idea to save @var{Goal}
 @emph{slots}, as shown next:
 
 @example
@@ -14113,12 +14114,13 @@ An alternative that ensures correct access to arguments is to use
   YAP_RecoverSlots(1);
   if (out == 0) return FALSE;
 @end example
-Slots are safe houses in the stack, preserved by the garbage collector
-and the stack shifter. In this case, we use a slot to preserve @var{t}
-during the execution of @code{YAP_RunGoal}. When the execution of
-@var{t} is over we read the (possibly changed) value of @var{t} back
-from the slot @var{sl} and tell YAP that the slot @var{sl} is not needed
-and can be given back to the system. The slot functions are as follows:
+Slots are safe houses in the stack, the garbage collector and the stack
+shifter know about them and make sure they have correct values. In this
+case, we use a slot to preserve @var{t} during the execution of
+@code{YAP_RunGoal}. When the execution of @var{t} is over we read the
+(possibly changed) value of @var{t} back from the slot @var{sl} and tell
+YAP that the slot @var{sl} is not needed and can be given back to the
+system. The slot functions are as follows:
 
 @table @code
 @item long int YAP_NewSlots(int @var{NumberOfSlots})

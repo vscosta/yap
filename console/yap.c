@@ -139,7 +139,7 @@ do_top_goal (YAP_Term Goal)
     fprintf(stderr,"Entering absmi\n");
 #endif
   /* PlPutc(0,'a'); PlPutc(0,'\n'); */
-  YAP_RunGoal(Goal);
+  YAP_RunGoalOnce(Goal);
 }
 
 /* do initial boot by consulting the file boot.yap */
@@ -665,12 +665,12 @@ exec_top_level(int BootMode, YAP_init_args *iap)
 	fgoal = YAP_MkFunctor(YAP_FullLookupAtom("$silent_bootstrap"), 1);
 	goal = YAP_MkApplTerm(fgoal, 1, as);
 	/* launch consult */
-	YAP_RunGoal(goal);
+	YAP_RunGoalOnce(goal);
 	/* set default module to user */
 	as[0] = YAP_MkAtomTerm(YAP_LookupAtom("user"));
 	fgoal = YAP_MkFunctor(YAP_FullLookupAtom("module"), 1);
 	goal = YAP_MkApplTerm(fgoal, 1, as);
-	YAP_RunGoal(goal);
+	YAP_RunGoalOnce(goal);
       }
       YAP_PutValue(livegoal, YAP_MkAtomTerm (YAP_FullLookupAtom("$true")));
       
@@ -712,14 +712,14 @@ main (int argc, char **argv)
     // load the module
     YAP_Term mod_arg[1];
     mod_arg[0] = YAP_MkAtomTerm(YAP_LookupAtom("ypp"));
-    YAP_RunGoal(YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("use_module"),1), 1, mod_arg)); 
+    YAP_RunGoalOnce(YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("use_module"),1), 1, mod_arg)); 
     // process the definitions
     for(i=0;i<def_c;++i) {
       YAP_Term t_args[2],t_goal;
       t_args[0] = YAP_MkAtomTerm(YAP_LookupAtom(def_var[i]));
       t_args[1] = YAP_MkAtomTerm(YAP_LookupAtom(def_value[i])); 
       t_goal  = YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("ypp_define"),2), 2, t_args); 
-      YAP_RunGoal(t_goal);
+      YAP_RunGoalOnce(t_goal);
     }
   }
   YAP_ClearExceptions();

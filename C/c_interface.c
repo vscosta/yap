@@ -10,8 +10,12 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-04-28 23:02:32 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-06-04 13:58:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.116  2008/04/28 23:02:32  vsc
+* fix bug in current_predicate/2
+* fix bug in c_interface.
+*
 * Revision 1.115  2008/04/11 16:30:27  ricroc
 * *** empty log message ***
 *
@@ -399,6 +403,7 @@ X_API Term    STD_PROTO(YAP_BufferToString, (char *));
 X_API Term    STD_PROTO(YAP_BufferToAtomList, (char *));
 X_API void    STD_PROTO(YAP_Error,(int, Term, char *, ...));
 X_API Term    STD_PROTO(YAP_RunGoal,(Term));
+X_API Term    STD_PROTO(YAP_RunGoalOnce,(Term));
 X_API int     STD_PROTO(YAP_RestartGoal,(void));
 X_API int     STD_PROTO(YAP_ShutdownGoal,(int));
 X_API int     STD_PROTO(YAP_EnterGoal,(PredEntry *, Term *, YAP_dogoalinfo *));
@@ -1429,11 +1434,46 @@ YAP_RunGoal(Term t)
     CP = old_CP;
     Yap_AllowRestart = TRUE;
   } else {
-    if (B != NULL) /* restore might have destroyed B */
-      B = B->cp_b;
+    ASP = B->cp_env;
+    B = B->cp_b;
     Yap_AllowRestart = FALSE;
   }
   
+  RECOVER_MACHINE_REGS();
+  return(out);
+}
+
+X_API Term
+YAP_RunGoalOnce(Term t)
+{
+  Term out;
+  yamop *old_CP = CP;
+  BACKUP_MACHINE_REGS();
+
+  Yap_PrologMode = UserMode;
+  out = Yap_RunTopGoal(t);
+  Yap_PrologMode = UserCCallMode;
+  if (out) {
+    choiceptr cut_pt;
+
+    cut_pt = B;
+    while (cut_pt-> cp_ap != NOCODE) {
+      cut_pt = cut_pt->cp_b;
+    }
+#ifdef YAPOR
+    CUT_prune_to(cut_pt);
+#endif
+    B = cut_pt;
+  }
+  ASP = B->cp_env;
+  ENV = (CELL *)ASP[E_E];
+  B = (choiceptr)ASP[E_CB];
+#ifdef  DEPTH_LIMIT
+  DEPTH = ASP[E_DEPTH];
+#endif
+  P = (yamop *)ASP[E_CP];
+  CP = old_CP;
+  Yap_AllowRestart = FALSE;
   RECOVER_MACHINE_REGS();
   return(out);
 }
@@ -1469,7 +1509,6 @@ YAP_ShutdownGoal(int backtrack)
   
   if (Yap_AllowRestart) {
     choiceptr cut_pt;
-    yamop *my_p = P;
 
     cut_pt = B;
     while (cut_pt-> cp_ap != NOCODE) {
@@ -1488,10 +1527,7 @@ YAP_ShutdownGoal(int backtrack)
       TR = cut_pt->cp_tr;
     }
     /* we can always recover the stack */
-    ENV = cut_pt->cp_env;
-    ASP = (CELL *)(cut_pt+1);
-    ASP += EnvSizeInCells;
-    P = my_p;
+    ASP = cut_pt->cp_env;
     ENV = (CELL *)ASP[E_E];
     B = (choiceptr)ASP[E_CB];
 #ifdef  DEPTH_LIMIT
