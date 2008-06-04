@@ -26,7 +26,6 @@ YAP_EXTRAS=@YAP_EXTRAS@
 
 PROGRAMS= $(srcdir)/debug.pl \
 	$(srcdir)/maplist.pl \
-	$(srcdir)/nb_rbtrees.yap \
 	$(srcdir)/operators.pl \
 	$(srcdir)/option.pl \
 	$(srcdir)/prolog_source.pl \
