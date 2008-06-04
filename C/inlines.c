@@ -801,7 +801,7 @@ p_cut_by( void)
 #endif /* TABLING */
     B = pt0;
     HB = B->cp_h;
-    /*    trim_trail();*/
+    Yap_TrimTrail();
   }
   ENDCHO(pt0);
   return(TRUE);

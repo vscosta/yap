@@ -680,3 +680,8 @@ Yap_InitAbsmi(void)
 #endif
 }
 
+void
+Yap_TrimTrail(void)
+{
+#include "trim_trail.h"
+}

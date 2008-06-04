@@ -1789,7 +1789,7 @@ p_restore_regs2(void)
 #endif /* TABLING */
     B = pt0;
     HB = B->cp_h;
-    /*    trim_trail();*/
+    Yap_TrimTrail();
   }
   return(TRUE);
 }
@@ -1852,7 +1852,8 @@ p_cut_up_to_next_disjunction(void) {
     abolish_incomplete_subgoals(B);
 #endif /* TABLING */
   }
-  /* trim_trail(); */
+  HB = B->cp_h;
+  Yap_TrimTrail();
   return TRUE;
 }
 

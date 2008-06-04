@@ -111,8 +111,9 @@ HEADERS = \
 	$(srcdir)/H/index.h $(srcdir)/H/iopreds.h \
 	$(srcdir)/H/rclause.h \
 	$(srcdir)/H/rheap.h \
-	$(srcdir)/H/tracer.h \
 	$(srcdir)/H/threads.h \
+	$(srcdir)/H/tracer.h \
+	$(srcdir)/H/trim_trail.h \
 	$(srcdir)/H/yapio.h \
 	$(srcdir)/BEAM/eam.h $(srcdir)/BEAM/eamamasm.h \
 	$(srcdir)/OPTYap/opt.config.h \

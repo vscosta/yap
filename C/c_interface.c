@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-06-04 13:58:36 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-06-04 14:47:18 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.117  2008/06/04 13:58:36  vsc
+* more fixes to C-interface
+*
 * Revision 1.116  2008/04/28 23:02:32  vsc
 * fix bug in current_predicate/2
 * fix bug in c_interface.
@@ -964,6 +967,7 @@ YAP_cut_up(void)
   B = B->cp_b;  /* cut_fail */
 #endif
   HB = B->cp_h; /* cut_fail */
+  Yap_TrimTrail();
 
   RECOVER_B();
 }
@@ -1407,6 +1411,8 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
     DEPTH = B->cp_depth;
 #endif /* DEPTH_LIMIT */
     YENV = ENV = B->cp_env;
+  } else {
+    Yap_TrimTrail();
   }
   /* recover local stack */
   ASP = (CELL *)(B+1);
@@ -1464,6 +1470,7 @@ YAP_RunGoalOnce(Term t)
     CUT_prune_to(cut_pt);
 #endif
     B = cut_pt;
+    Yap_TrimTrail();
   }
   ASP = B->cp_env;
   ENV = (CELL *)ASP[E_E];
@@ -1530,6 +1537,7 @@ YAP_ShutdownGoal(int backtrack)
     ASP = cut_pt->cp_env;
     ENV = (CELL *)ASP[E_E];
     B = (choiceptr)ASP[E_CB];
+    Yap_TrimTrail();
 #ifdef  DEPTH_LIMIT
     DEPTH = ASP[E_DEPTH];
 #endif
@@ -1563,6 +1571,7 @@ YAP_PruneGoal(void)
   }
   B = B->cp_b;
 
+  Yap_TrimTrail();
   RECOVER_B();
 }
 
