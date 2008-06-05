@@ -683,5 +683,13 @@ Yap_InitAbsmi(void)
 void
 Yap_TrimTrail(void)
 {
+#ifdef saveregs
+#undef saveregs
+#define saveregs()
+#endif
+#ifdef setregs
+#undef setregs
+#define setregs()
+#endif
 #include "trim_trail.h"
 }
