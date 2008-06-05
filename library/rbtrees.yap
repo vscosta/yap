@@ -853,12 +853,9 @@ keys(black(L,K,_,R),L0,Lf) :-
 %
 %	T is the red-black tree corresponding to the mapping in list L.
 
-list_to_rbtree(List, t(Nil,Tree)) :-
-	Nil = black([], [], [], []),
+list_to_rbtree(List, T) :-
 	sort(List,Sorted),
-	Ar =.. [seq|Sorted],
-	functor(Ar,_,L),
-	construct_rbtree(1, L, Ar, black, Nil, Tree).
+	ord_list_to_rbtree(Sorted, T).
 
 %%	ord_list_to_rbtree(+L, -T) is det.
 %
@@ -866,6 +863,8 @@ list_to_rbtree(List, t(Nil,Tree)) :-
 %	list L.
 
 ord_list_to_rbtree([], t(Nil,Nil)) :- !,
+	Nil = black([], [], [], []).
+ord_list_to_rbtree([K-V], t(Nil,black(Nil,K,V,Nil))) :- !,
 	Nil = black([], [], [], []).
 ord_list_to_rbtree(List, t(Nil,Tree)) :-
 	Nil = black([], [], [], []),
@@ -924,7 +923,7 @@ is_rbtree(t(_,T)) :-
 is_rbtree(X,_) :-
 	var(X), !, fail.
 is_rbtree(T,Goal) :-
-	catch(rbtree1(T), msg(S,Args), (format('when doing ~w~n got ~w',[Goal,T]), format(S,Args), trace, Goal)).
+	catch(rbtree1(T), msg(S,Args), format(S,Args)).
 
 %
 % This code checks if a tree is ordered and a rbtree
