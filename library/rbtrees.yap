@@ -249,8 +249,8 @@ apply(black(Left,Key0,Val0,Right), Key, Goal,
 	-> NewLeft = Left,
 	    NewRight = Right,
 	    call(Goal,Val0,Val)
-	; Cmp == (>) ->
-	    NewRight = Right,
+	; Cmp == (>)
+	->  NewRight = Right,
 	    Val = Val0,
 	    apply(Left, Key, Goal, NewLeft)
 	;
@@ -431,7 +431,7 @@ fix_left(black(red(red(Al,KA,VA,Be),KB,VB,Ga),KC,VC,De),
 	black(red(Al,KA,VA,Be),KB,VB,red(Ga,KC,VC,De)),
 	done) :- !.
 %
-% case 4 of RB: nothig to do
+% case 4 of RB: nothing to do
 %
 fix_left(T,T,done).
 
@@ -498,7 +498,8 @@ rb_delete(t(Nil,T), K, t(Nil,NT)) :-
 %	Val associated with the key and a new tree TN.
 
 rb_delete(t(Nil,T), K, V, t(Nil,NT)) :-
-	delete(T, K, V, NT, _).
+	delete(T, K, V0, NT, _),
+	V = V0.
 
 %
 % I am afraid our representation is not as nice for delete
@@ -864,27 +865,31 @@ list_to_rbtree(List, t(Nil,Tree)) :-
 %	T is the red-black tree corresponding  to the mapping in ordered
 %	list L.
 
+ord_list_to_rbtree([], t(Nil,Nil)) :- !,
+	Nil = black([], [], [], []).
 ord_list_to_rbtree(List, t(Nil,Tree)) :-
 	Nil = black([], [], [], []),
 	Ar =.. [seq|List],
 	functor(Ar,_,L),
-	construct_rbtree(1, L, Ar, black, Nil, Tree).
+	Height is integer(log(L)/log(2)),
+	construct_rbtree(1, L, Ar, Height, Nil, Tree).
 
 construct_rbtree(L, M, _, _, Nil, Nil) :- M < L, !.
-construct_rbtree(L, L, Ar, Color, Nil, Node) :- !,
+construct_rbtree(L, L, Ar, Depth, Nil, Node) :- !,
 	arg(L, Ar, K-Val),
-	build_node(Color, Nil, K, Val, Nil, Node, _).
-construct_rbtree(I0, Max, Ar, Color, Nil, Node) :-
+	build_node(Depth, Nil, K, Val, Nil, Node).
+construct_rbtree(I0, Max, Ar, Depth, Nil, Node) :-
 	I is (I0+Max)//2,
 	arg(I, Ar, K-Val),
-	build_node(Color, Left, K, Val, Right, Node, NewColor),
+	build_node(Depth, Left, K, Val, Right, Node),
 	I1 is I-1,
-	construct_rbtree(I0, I1, Ar, NewColor, Nil, Left),
+	NewDepth is Depth-1,
+	construct_rbtree(I0, I1, Ar, NewDepth, Nil, Left),
 	I2 is I+1,
-	construct_rbtree(I2, Max, Ar, NewColor, Nil, Right).
+	construct_rbtree(I2, Max, Ar, NewDepth, Nil, Right).
 
-build_node(black, Left, K, Val, Right, black(Left, K, Val, Right), red).
-build_node(red, Left, K, Val, Right, red(Left, K, Val, Right), black).
+build_node( 0, Left, K, Val, Right, red(Left, K, Val, Right)) :- !.
+build_node( _, Left, K, Val, Right, black(Left, K, Val, Right)).
 
 
 %%	rb_size(+T, -Size) is det.
@@ -915,6 +920,11 @@ is_rbtree(X) :-
 is_rbtree(t(Nil,Nil)) :- !.
 is_rbtree(t(_,T)) :-
 	catch(rbtree1(T), msg(_,_), fail).
+
+is_rbtree(X,_) :-
+	var(X), !, fail.
+is_rbtree(T,Goal) :-
+	catch(rbtree1(T), msg(S,Args), (format('when doing ~w~n got ~w',[Goal,T]), format(S,Args), trace, Goal)).
 
 %
 % This code checks if a tree is ordered and a rbtree

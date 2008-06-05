@@ -1,4 +1,6 @@
 
+:- module(jt, [jt/3]).
+
 
 :- use_module(library(dgraphs),
 	      [dgraph_new/1,

@@ -36,8 +36,10 @@
 #if HAVE_SYS_TIME_H && !defined(__MINGW32__) && !_MSC_VER
 #include <sys/time.h>
 #endif
+#ifdef _WIN32
 #if HAVE_IO_H
 #include <io.h>
+#endif
 #endif
 #if _MSC_VER || defined(__MINGW32__)
 #include <io.h>

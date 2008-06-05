@@ -132,8 +132,10 @@ STATIC_PROTO(void NewFileInfo, (long, long));
 extern int      DefVol;
 #endif
 
+#ifdef _WIN32
 #if HAVE_IO_H
 #include <io.h>
+#endif
 #endif
 
 #ifdef LIGHT

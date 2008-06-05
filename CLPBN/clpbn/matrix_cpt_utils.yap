@@ -32,7 +32,9 @@
 	       matrix_to_exps/1,
 	       matrix_to_logs/1,
 	       matrix_set_all_that_disagree/5,
-	       matrix_to_list/2]).
+	       matrix_to_list/2,
+	       matrix_agg_lines/3,
+	       matrix_op_to_lines/4]).
 
 init_CPT(List, Sizes, TAB) :-
 	matrix_new(floats, Sizes, List, TAB),

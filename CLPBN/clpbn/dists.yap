@@ -29,7 +29,6 @@
 	       matrix_to_list/2,
 	       matrix_to_logs/1]).
 
-
 /*
 :- mode dist(+, -).
 
@@ -83,20 +82,23 @@ new_id(Id) :-
 dists(X) :- id(X1), X is X1-1.
 
 dist(V, Id, Parents) :-
-	var(V), !,
-	freeze(V, dist(V, Id, Parents)).
-dist(p(Type, CPT, Parents), Id, FParents) :-
-	when(
-	 (ground(Type), ground(CPT))
-	,
-	 distribution(Type, CPT, Id, Parents, FParents)
-	).
+	dist_unbound(V, Culprit), !,
+	when(Culprit, dist(V, Id, Parents)).
 dist(p(Type, CPT), Id, FParents) :-
-	  when(
-	   (ground(Type), ground(CPT))
-	,
-	    distribution(Type, CPT, Id, [], FParents)
-	).
+	distribution(Type, CPT, Id, [], FParents).
+dist(p(Type, CPT, Parents), Id, FParents) :-
+	distribution(Type, CPT, Id, Parents, FParents).
+
+dist_unbound(V, ground(V)) :-
+	var(V), !.
+dist_unbound(p(Type,CPT), ground(Type)) :-
+	\+ ground(Type), !.
+dist_unbound(p(_,CPT), ground(CPT)) :-
+	\+ ground(CPT).
+dist_unbound(p(Type,CPT,_), ground(Type)) :-
+	\+ ground(Type), !.
+dist_unbound(p(_,CPT,_), ground(CPT)) :-
+	\+ ground(CPT).
 
 distribution(bool, trans(CPT), Id, Parents, FParents) :-
 	is_list(CPT), !,
@@ -149,9 +151,10 @@ add_dist(Domain, Type, CPT, Parents, Id) :-
 record_parent_sizes([], Id, [], DSizes) :-
 	recordz(clpbn_dist_psizes,db(Id, DSizes),_).
 record_parent_sizes([P|Parents], Id, [Size|Sizes], DSizes) :-
-	clpbn:get_atts(P,dist(Dist,_)),
+	clpbn:get_atts(P,dist(Dist,_)), !,
 	get_dist_domain_size(Dist, Size),
 	record_parent_sizes(Parents, Id, Sizes, DSizes).
+record_parent_sizes([_|_], _, _, _).
 
 %
 % Often, * is used to code empty in HMMs.
@@ -179,7 +182,6 @@ get_dsizes([P|Parents], [Sz|Sizes], Sizes0) :-
 	clpbn:get_atts(P,dist(Dist,_)),
 	get_dist_domain_size(Dist, Sz),
 	get_dsizes(Parents, Sizes, Sizes0).
-
 
 get_dist_params(Id, Parms) :-
 	recorded(clpbn_dist_db, db(Id, Parms, _, _, _, _), _).
@@ -214,8 +216,10 @@ get_evidence_from_position(El, Id, Pos) :-
 dist_to_term(_Id,_Term).
 
 empty_dist(Dist, TAB) :-
-	recorded(clpbn_dist_psizes,db(Dist, DSizes),_),
+	recorded(clpbn_dist_psizes,db(Dist, DSizes),_), !,
 	matrix_new(floats, DSizes, TAB).
+empty_dist(Dist, TAB) :-
+	throw(error(domain_error(no_distribution,Dist),empty_dist(Dist,TAB))).
 
 dist_new_table(Id, NewMat) :-
 	matrix_to_list(NewMat, List),

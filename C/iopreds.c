@@ -63,9 +63,11 @@ static char SccsId[] = "%W% %G%";
 /* for O_BINARY and O_TEXT in WIN32 */
 #include <fcntl.h>
 #endif
+#ifdef _WIN32
 #if HAVE_IO_H
 /* Windows */
 #include <io.h>
+#endif
 #endif
 #if !HAVE_STRNCAT
 #define strncat(X,Y,Z) strcat(X,Y)
