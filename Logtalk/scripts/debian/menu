@@ -1,1 +1,0 @@
-?package(logtalk): needs="text" section="Apps/Programming" title="Logtalk - GNU Prolog" command="gplgt"
