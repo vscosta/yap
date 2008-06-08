@@ -923,7 +923,7 @@ is_rbtree(t(_,T)) :-
 is_rbtree(X,_) :-
 	var(X), !, fail.
 is_rbtree(T,Goal) :-
-	catch(rbtree1(T), msg(S,Args), format(S,Args)).
+	catch(rbtree1(T), msg(S,Args), (once(Goal),format(S,Args))).
 
 %
 % This code checks if a tree is ordered and a rbtree
