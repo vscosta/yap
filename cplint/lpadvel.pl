@@ -107,20 +107,36 @@ s(GL,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 		CPUTime1 is CT1/1000,
 		statistics(walltime,[_,WT1]),
 		WallTime1 is WT1/1000,
+		print_mem,
 		convert_to_bn(CL,GL,[],P),
 		statistics(cputime,[_,CT2]),
 		CPUTime2 is CT2/1000,
 		statistics(walltime,[_,WT2]),
 		WallTime2 is WT2/1000
+
 	;
 		statistics(cputime,[_,CT1]),
 		CPUTime1 is CT1/1000,
 		statistics(walltime,[_,WT1]),
 		WallTime1 is WT1/1000,
+		print_mem,
 		CPUTime2=0.0,
 		WallTime2=0.0,
 		P=0.0
-	).
+	),
+	format(user_error,"~nMemory after inference~n",[]),
+	print_mem.
+
+print_mem:-
+	statistics(global_stack,[GS,GSF]),
+	statistics(local_stack,[LS,LSF]),
+	statistics(heap,[HP,HPF]),
+	statistics(trail,[TU,TF]),
+	format(user_error,"~nGloabal stack used ~d execution stack free: ~d~n",[GS,GSF]),
+	format(user_error,"Local stack used ~d execution stack free: ~d~n",[LS,LSF]),
+	format(user_error,"Heap used ~d heap free: ~d~n",[HP,HPF]),
+	format(user_error,"Trail used ~d Trail free: ~d~n",[TU,TF]).
+
 
 /* sc(GoalsList,EvidenceList,Prob) compute the probability of a list of goals 
 GoalsList given EvidenceList. Both lists can have variables, sc returns in 
@@ -136,6 +152,7 @@ sc(GL,GLC,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 		CPUTime1 is CT1/1000,
 		statistics(walltime,[_,WT1]),
 		WallTime1 is WT1/1000,
+		print_mem,
 		(Undef=yes->
 			P=undef,
 			CPUTime2=0.0,
@@ -148,6 +165,7 @@ sc(GL,GLC,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 			WallTime2 is WT2/1000
 		)
 	;
+		print_mem,
 		statistics(cputime,[_,CT1]),
 		CPUTime1 is CT1/1000,
 		statistics(walltime,[_,WT1]),
@@ -155,7 +173,9 @@ sc(GL,GLC,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 		CPUTime2=0.0,
 		WallTime2=0.0,
 		P=0.0
-	).
+	),
+	format(user_error,"~nMemory after inference~n",[]),
+	print_mem.
 
 remove_head([],[]).
 

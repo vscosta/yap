@@ -24,7 +24,7 @@ FILE *open_file (char *filename, const char *mode);
 void reverse(char s[]);
 static int compute_prob(void);
 
-void createVars(array_t * vars, YAP_Term t,DdManager * mgr, array_t * bVar2mVar, char inames[1000][20])
+void createVars(array_t * vars, YAP_Term t,DdManager * mgr, array_t * bVar2mVar,int create_dot,  char inames[1000][20])
 /* adds the boolean variables to the BDD and returns
 an array_t containing them (array_t is defined in the util library of glu)
 returns also the names of the variables to be used to save the ADD in dot format
@@ -52,12 +52,15 @@ returns also the names of the variables to be used to save the ADD in dot format
 		v.booleanVars=array_alloc(DdNode *,0);
 		for (i=0;i<nVal;i++)
 		{
-			strcpy(inames[b+i],"X");
-			sprintf(numberVar,"%d",varIndex);
-			strcat(inames[b+i],numberVar);
-			strcat(inames[b+i],"_");
-			sprintf(numberBit,"%d",i);
-			strcat(inames[b+i],numberBit);
+			if (create_dot)
+			{
+				strcpy(inames[b+i],"X");
+				sprintf(numberVar,"%d",varIndex);
+				strcat(inames[b+i],numberVar);
+				strcat(inames[b+i],"_");
+				sprintf(numberBit,"%d",i);
+				strcat(inames[b+i],numberBit);
+			}
 			p=YAP_FloatOfTerm(YAP_HeadOfTerm(probTerm));
 			array_insert(double,v.probabilities,i,p);
 			probTerm=YAP_TailOfTerm(probTerm);
@@ -112,7 +115,7 @@ static int compute_prob(void)
 	array_t * variables,* expression, * bVar2mVar;
 	DdNode * function, * add;
 	DdManager * mgr;
-	int nBVar,i,j,intBits;
+	int nBVar,i,j,intBits,create_dot;
         FILE * file;
         DdNode * array[1];
         char * onames[1];
@@ -120,20 +123,29 @@ static int compute_prob(void)
 	char * names[1000];
 	GHashTable  * nodes; /* hash table that associates nodes with their probability if already 
 				computed, it is defined in glib */
-
+	Cudd_ReorderingType order;
 	arg1=YAP_ARG1;
 	arg2=YAP_ARG2;
 	arg3=YAP_ARG3;
 	arg4=YAP_ARG4;
 
   	mgr=Cudd_Init(0,0,CUDD_UNIQUE_SLOTS,CUDD_CACHE_SLOTS,0);
-
 	variables=array_alloc(variable,0);
 	bVar2mVar=array_alloc(int,0);
-	createVars(variables,arg1,mgr,bVar2mVar,inames);
+	create_dot=YAP_IntOfTerm(arg4);
+	createVars(variables,arg1,mgr,bVar2mVar,create_dot,inames);
+        Cudd_PrintInfo(mgr,stderr);
 
 	/* automatic variable reordering, default method CUDD_REORDER_SIFT used */
-	Cudd_AutodynEnable(mgr,CUDD_REORDER_SAME);
+	printf("status %d\n",Cudd_ReorderingStatus(mgr,&order));
+	printf("order %d\n",order);
+
+	Cudd_AutodynEnable(mgr,CUDD_REORDER_SAME); 
+/*	 Cudd_AutodynEnable(mgr, CUDD_REORDER_RANDOM_PIVOT);
+	printf("status %d\n",Cudd_ReorderingStatus(mgr,&order));
+        printf("order %d\n",order);
+	printf("%d",CUDD_REORDER_RANDOM_PIVOT);
+*/
 
 
 	expression=array_alloc(array_t *,0);
@@ -143,8 +155,9 @@ static int compute_prob(void)
 	/* the BDD build by retFunction is converted to an ADD (algebraic decision diagram)
 	because it is easier to interpret and to print */
 	add=Cudd_BddToAdd(mgr,function);
+	Cudd_PrintInfo(mgr,stderr);
 
-	if (YAP_IntOfTerm(arg4))
+	if (create_dot)
 	/* if specified by the user, a dot file for the BDD is written to cpl.dot */
 	{	
 		nBVar=array_n(bVar2mVar);

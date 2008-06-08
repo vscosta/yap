@@ -68,7 +68,11 @@ solve(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 		CPUTime1 is CT1/1000,
 		statistics(walltime,[_,WT1]),
 		WallTime1 is WT1/1000,
-		build_formula(L,Formula,[],Var),
+		print_mem,
+		build_formula(L,Formula,[],Var,0,Conj),
+		length(L,ND),
+		length(Var,NV),
+		format(user_error,"Disjunctions :~d~nConjunctions: ~d~nVariables ~d~n",[ND,Conj,NV]),
 		var2numbers(Var,0,NewVar),
 		(setting(save_dot,true)->
 			format("Variables: ~p~n",[Var]),
@@ -81,6 +85,7 @@ solve(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 		statistics(walltime,[_,WT2]),
 		WallTime2 is WT2/1000
 	;
+		print_mem,
 		Prob=0.0,
 		statistics(cputime,[_,CT1]),
 		CPUTime1 is CT1/1000,
@@ -89,9 +94,19 @@ solve(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 		CPUTime2 =0.0,
 		statistics(walltime,[_,WT2]),
 		WallTime2 =0.0
-	),!.
+	),!,
+	format(user_error,"~nMemory after inference~n",[]),
+	print_mem.
 
-
+print_mem:-
+	statistics(global_stack,[GS,GSF]),
+	statistics(local_stack,[LS,LSF]),
+	statistics(heap,[HP,HPF]),
+	statistics(trail,[TU,TF]),
+	format(user_error,"~nGloabal stack used ~d execution stack free: ~d~n",[GS,GSF]),
+	format(user_error,"Local stack used ~d execution stack free: ~d~n",[LS,LSF]),
+	format(user_error,"Heap used ~d heap free: ~d~n",[HP,HPF]),
+	format(user_error,"Trail used ~d Trail free: ~d~n",[TU,TF]).
 
 find_deriv(GoalsList,Deriv):-
 	solve(GoalsList,[],DerivDup),
@@ -111,6 +126,7 @@ solve_cond(Goals,Evidence,Prob):-
 	(setof(DerivE,find_deriv(Evidence,DerivE),LDupE)->
 		rem_dup_lists(LDupE,[],LE),
 		(setof(DerivGE,find_deriv_GE(LE,Goals,DerivGE),LDupGE)->
+			print_mem,
 			rem_dup_lists(LDupGE,[],LGE),
 			build_formula(LE,FormulaE,[],VarE),
 			var2numbers(VarE,0,NewVarE),
@@ -120,11 +136,15 @@ solve_cond(Goals,Evidence,Prob):-
 			call_compute_prob(NewVarGE,FormulaGE,ProbGE),
 			Prob is ProbGE/ProbE
 		;
+			print_mem,
 			Prob=0.0
 		)
 	;
+		print_mem,
 		Prob=undefined
-	).
+	),
+	format(user_error,"~nMemory after inference~n",[]),
+	print_mem.
 
 /* sc(Goals,Evidence,Prob,Time1,Time2) compute the conditional probability of the list of goals
 Goals given the list of goals Evidence 
@@ -502,6 +522,14 @@ Termi is of the form [Factor1,...,Factorm]
 Factorj is of the form (Var,Value) where Var is the index of
 the multivalued variable Var and Value is the index of the value
 */
+build_formula([],[],Var,Var,C,C).
+
+build_formula([D|TD],[F|TF],VarIn,VarOut,C0,C1):-
+	length(D,NC),
+	C2 is C0+NC,
+	build_term(D,F,VarIn,Var1),
+	build_formula(TD,TF,Var1,VarOut,C2,C1).
+
 build_formula([],[],Var,Var).
 
 build_formula([D|TD],[F|TF],VarIn,VarOut):-

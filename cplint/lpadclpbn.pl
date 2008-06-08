@@ -115,6 +115,7 @@ solve(GL,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 		CPUTime1 is CT1/1000,
 		statistics(walltime,[_,WT1]),
 		WallTime1 is WT1/1000,
+		print_mem,
 		build_ground_lpad(L2,0,CL),
 		convert_to_clpbn(CL,GL,LV,P),
 		statistics(cputime,[_,CT2]),
@@ -122,6 +123,7 @@ solve(GL,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 		statistics(walltime,[_,WT2]),
 		WallTime2 is WT2/1000
 	;
+		print_mem,
 		P=0.0,
 		statistics(cputime,[_,CT1]),
 		CPUTime1 is CT1/1000,
@@ -130,7 +132,9 @@ solve(GL,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 		CPUTime2 =0.0,
 		statistics(walltime,[_,WT2]),
 		WallTime2 =0.0
-	),!.	
+	),!,
+	format(user_error,"Memory after inference~n",[]),
+	print_mem.	
 
 /* sc(GoalsList,EvidenceList,Prob) compute the probability of a list of goals 
 GoalsList given EvidenceList. Both lists can have variables, sc returns in 
@@ -151,6 +155,7 @@ sc(GL,GLC,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 			CPUTime1 is CT1/1000,
 			statistics(walltime,[_,WT1]),
 			WallTime1 is WT1/1000,
+			print_mem,
 			build_ground_lpad(LD1,0,CL),
 			convert_to_clpbn(CL,GL,LV,P,GLC),
 			statistics(cputime,[_,CT2]),
@@ -159,6 +164,8 @@ sc(GL,GLC,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 			WallTime2 is WT2/1000
 		;
 			P=0.0,
+			print_mem,
+			format(user_error,"Porb 0~n",[]),
 			statistics(cputime,[_,CT1]),
 			CPUTime1 is CT1/1000,
 			statistics(walltime,[_,WT1]),
@@ -168,13 +175,18 @@ sc(GL,GLC,P,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 		)
 	;
 		P=undef,
+		print_mem,
 		statistics(cputime,[_,CT1]),
 		CPUTime1 is CT1/1000,
 		statistics(walltime,[_,WT1]),
 		WallTime1 is WT1/1000,
 		CPUTime2 =0.0,
-		WallTime2 =0.0
-	).
+		WallTime2 =0.0,
+		print_mem,
+		format(user_error,"Undef~n",[])
+	),
+	format(user_error,"Memory after inference~n",[]),
+	print_mem.
 
 remove_head([],[]).
 
@@ -435,6 +447,15 @@ find_atoms_head([],[],[]).
 find_atoms_head([H:P|T],[H|TA],[P|TP]):-
 	find_atoms_head(T,TA,TP).
 
+print_mem:-
+	statistics(global_stack,[GS,GSF]),
+	statistics(local_stack,[LS,LSF]),
+	statistics(heap,[HP,HPF]),
+	statistics(trail,[TU,TF]),
+	format(user_error,"~nGloabal stack used ~d execution stack free: ~d~n",[GS,GSF]),
+	format(user_error,"Local stack used ~d execution stack free: ~d~n",[LS,LSF]),
+	format(user_error,"Heap used ~d heap free: ~d~n",[HP,HPF]),
+	format(user_error,"Trail used ~d Trail free: ~d~n",[TU,TF]).
 
 find_deriv(GoalsList,Deriv):-
 	solve(GoalsList,[],DerivDup),

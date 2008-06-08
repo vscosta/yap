@@ -29,7 +29,7 @@ typedef struct
   } variable;
 
 
-void createVars(array_t * vars, YAP_Term t,DdManager * mgr, array_t * bVar2mVar, char inames[1000][20]);
+void createVars(array_t * vars, YAP_Term t,DdManager * mgr, array_t * bVar2mVar,int create_dot, char inames[1000][20]);
 void createExpression(array_t * expression, YAP_Term t);
 void init_my_predicates(void);
 int compare(char *a, char *b);
