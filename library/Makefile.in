@@ -41,7 +41,6 @@ PROGRAMS= $(srcdir)/apply.yap \
 	$(srcdir)/lineutils.yap \
 	$(srcdir)/listing.yap \
 	$(srcdir)/lists.yap \
-	$(srcdir)/logtalk.yap \
 	$(srcdir)/nb.yap \
 	$(srcdir)/ordsets.yap \
 	$(srcdir)/matlab.yap \
