@@ -62,7 +62,7 @@
 %	format(user_error,'closing thread ~w~n',[v([Id0|Status])]).	
 '$close_thread'(Exception, Detached, Id0) :-
 	 (	recorded('$thread_exit_status', [Id0|_], R), erase(R), fail
-	 ;	recorda('$thread_exit_status', [Id0|exception(Exception))], _)
+	 ;	recorda('$thread_exit_status', [Id0|exception(Exception)], _)
 	 ),
 	'$run_at_thread_exit'(Id0),
 	(	Detached == true ->
@@ -83,7 +83,7 @@ thread_create(Goal) :-
 	->
 	 true
 	;
-	 recorda('$thread_exit_status', [Id|exception(resource_error(memory)))],_)
+	 recorda('$thread_exit_status', [Id|exception(resource_error(memory))],_)
 	).
 
 thread_create(Goal, Id) :-
@@ -100,7 +100,7 @@ thread_create(Goal, Id) :-
 	->
 	 true
 	;
-	 recorda('$thread_exit_status', [Id|exception(resource_error(memory)))],_)
+	 recorda('$thread_exit_status', [Id|exception(resource_error(memory))],_)
 	).
 
 thread_create(Goal, Id, Options) :-
@@ -120,7 +120,7 @@ thread_create(Goal, Id, Options) :-
 	->
 	 true
 	;
-	 recorda('$thread_exit_status', [Id|exception(resource_error(memory)))],_)
+	 recorda('$thread_exit_status', [Id|exception(resource_error(memory))],_)
 	).
 
 '$erase_thread_info'(Id) :-
