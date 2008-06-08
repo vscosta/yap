@@ -35,6 +35,4 @@ PROGRAMS= \
 install: $(PROGRAMS)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
-	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/logtalk
-	for p in $(LOGTALK_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/logtalk; done
 
