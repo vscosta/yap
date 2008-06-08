@@ -9,6 +9,7 @@ Use
 to execute the test
 
 */
+:-source.
 :-use_module(library(lpadsld)).
 
 
@@ -21,43 +22,21 @@ close_to(V,T):-
 	TLow<V,
 	V<THigh.
 
-ti:-
+t:-
 	format("~nTesting iterative deepening lpadsld.yap~n~n",[]),
 	files(F),
 	statistics(runtime,[_,_]),
 	set(ground_body,true),
+	set(depth_bound,1),
+	set(min_error,0.05),
 	format("~nGround body~n~n",[]),
 	test_filesi(F,ground_body(true)),
 	statistics(runtime,[_,T]),
 	T1 is T /1000,
 	format("Test successful, time ~f secs.~n",[T1]).
-ti:-
-	format("Test unsuccessful.~n",[]).
-
-t:-
-	format("~nTesting lpadsld.yap~n~n",[]),
-	files(F),
-	statistics(runtime,[_,_]),
-	set(ground_body,true),
-	format("~nGround body~n~n",[]),
-	test_files(F,ground_body(true)),
-	statistics(runtime,[_,T]),
-	T1 is T /1000,
-	format("Test successful, time ~f secs.~n",[T1]).
-
 t:-
 	format("Test unsuccessful.~n",[]).
 
-test_files([],_GB).
-
-test_files([H|T],GB):-
-	library_directory(LD),
-	atom_concat(LD,'/cplint/examples/',ExDir),
-	atom_concat(ExDir,H,NH),
-	p(NH),!,
-	findall(A,test(A,H,GB),L),
-	test_all(H,L),
-	test_files(T,GB).
 test_filesi([],_GB).
 
 test_filesi([H|T],GB):-
@@ -69,28 +48,32 @@ test_filesi([H|T],GB):-
 	test_alli(H,L),
 	test_filesi(T,GB).
 
-test_all(_F,[]).
-
-test_all(F,[H|T]):-
-	copy_term(H,NH),
-	NH=(_Query,close_to('P',_Prob)),
-	format("~a ~p.~n",[F,NH]),
-	call(H),!,
-	test_all(F,T).
-
 test_alli(_F,[]).
 
 test_alli(F,[H|T]):-
         copy_term(H,NH),
-	NH=(s(Q,P),close_to('P',_Prob)),
+	NH=(s(Q,_P),close_to('P',P)),!,
 	format("~a ~p.~n",[F,NH]),
-	si(Q,PL,PU,T),!,
+	si(Q,PL,PU,_Time),!,
 	format("Lower bound ~f, Upper bound ~f~n",[PL,PU]),
-	test_all(F,T).
+	P>=PL-1e-7,P=<PU+1e-7,
+	test_alli(F,T).
+
+test_alli(F,[H|T]):-
+        copy_term(H,NH),
+	NH=(sc(Q,E,_P),close_to('P',P)),
+	format("~a ~p.~n",[F,NH]),
+	sci(Q,E,PL,PU,_Time),!,
+	format("Lower bound ~f, Upper bound ~f~n",[PL,PU]),
+	P>=PL-1e-10,P=<PU+1e-10,
+	test_alli(F,T).
 
 
-files([paper_ref_not,paper_ref,female,exapprox,exrange,threesideddice,
-mendel,student,school_simple,school,coin2,ex,trigger,throws,light]).
+files([
+exapprox,exrange, 
+threesideddice,
+mendel,
+coin2,ex,trigger,throws,light]).
 
 test((s([death],P),close_to(P,0.305555555555556)),trigger,_).
 
@@ -130,9 +113,14 @@ test((s([a(2)],P),close_to(P,0.36)),exrange,_).
 test((s([on(0,1)],P),close_to(P,0.333333333333333)),threesideddice,_).
 test((s([on(1,1)],P),close_to(P,0.222222222222222)),threesideddice,_).
 test((s([on(2,1)],P),close_to(P,0.148148147703704)),threesideddice,_).
+test((s([on(3,1)],P),close_to(P,0.0987654320987654)),threesideddice,_).  
+test((s([on(4,1)],P),close_to(P,0.0658436213991769)),threesideddice,_).
 
 test((sc([on(2,1)],[on(0,1)],P),close_to(P,0.222222222222222)),threesideddice,_).
 test((sc([on(2,1)],[on(1,1)],P),close_to(P,0.333333333333333)),threesideddice,_).
+test((sc([on(4,1)],[on(1,1)],P),close_to(P, 0.148148148148148)),threesideddice,_).
+test((sc([on(5,1)],[on(2,1)],P),close_to(P, 0.148148148148148)),threesideddice,_).
+
 
 
 test((s([cg(s,1,p)],P),close_to(P,0.75)),mendel,_).

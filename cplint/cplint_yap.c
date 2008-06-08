@@ -134,11 +134,11 @@ static int compute_prob(void)
 	bVar2mVar=array_alloc(int,0);
 	create_dot=YAP_IntOfTerm(arg4);
 	createVars(variables,arg1,mgr,bVar2mVar,create_dot,inames);
-        Cudd_PrintInfo(mgr,stderr);
+        //Cudd_PrintInfo(mgr,stderr);
 
 	/* automatic variable reordering, default method CUDD_REORDER_SIFT used */
-	printf("status %d\n",Cudd_ReorderingStatus(mgr,&order));
-	printf("order %d\n",order);
+	//printf("status %d\n",Cudd_ReorderingStatus(mgr,&order));
+	//printf("order %d\n",order);
 
 	Cudd_AutodynEnable(mgr,CUDD_REORDER_SAME); 
 /*	 Cudd_AutodynEnable(mgr, CUDD_REORDER_RANDOM_PIVOT);

@@ -21,7 +21,8 @@ setting(ground_body,false).
 if true, both the head and the body of each clause will be grounded, otherwise
 only the head is grounded. In the case in which the body contains variables 
 not appearing in the head, the body represents an existential event */
-
+setting(min_error,0.01).
+setting(depth_bound,4).
 /* end of list of parameters */
 
 /* s(GoalsLIst,Prob) compute the probability of a list of goals 
@@ -98,6 +99,51 @@ solve(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 	format(user_error,"~nMemory after inference~n",[]),
 	print_mem.
 
+si(GoalsList,ProbL,ProbU,CPUTime):-
+        statistics(cputime,[_,_]),
+	setting(depth_bound,D),
+        solvei(GoalsList,D,ProbL,ProbU),
+	statistics(cputime,[_,CT]),
+	CPUTime is CT/1000.
+
+
+
+solvei(GoalsList,D,ProbL0,ProbU0):-
+	(setof(Deriv,find_deriv(GoalsList,D,Deriv),LDup)->
+		rem_dup_lists(LDup,[],L),
+	%	print_mem,
+		separate_ulb(L,[],LL,[],LU),
+		compute_prob_deriv(LL,ProbL),
+		compute_prob_deriv(LU,ProbU),
+		Err is ProbU-ProbL,
+		setting(min_error,ME),
+		(Err<ME->
+			ProbU0=ProbU,
+			ProbL0=ProbL
+		;
+			setting(depth_bound,DB),
+			D1 is D+DB,
+			solvei(GoalsList,D1,ProbL0,ProbU0)
+		)
+	;
+	%	print_mem,
+		ProbL0=0.0,
+		ProbU0=0.0
+	).
+
+compute_prob_deriv(LL,ProbL):-
+	build_formula(LL,FormulaL,[],VarL,0,ConjL),
+	length(LL,NDL),
+	length(VarL,NVL),
+	%format(user_error,"Disjunctions :~d~nConjunctions: ~d~nVariables ~d~n",[NDL,ConjL,NVL]),
+	var2numbers(VarL,0,NewVarL),
+	(setting(save_dot,true)->
+	%	format("Variables: ~p~n",[VarL]),
+		compute_prob(NewVarL,FormulaL,ProbL,1)
+	;
+		compute_prob(NewVarL,FormulaL,ProbL,0)
+	).
+
 print_mem:-
 	statistics(global_stack,[GS,GSF]),
 	statistics(local_stack,[LS,LSF]),
@@ -111,6 +157,11 @@ print_mem:-
 find_deriv(GoalsList,Deriv):-
 	solve(GoalsList,[],DerivDup),
 	remove_duplicates(DerivDup,Deriv). 
+
+find_deriv(GoalsList,DB,Deriv):-
+        solve(GoalsList,DB,[],DerivDup),
+	remove_duplicates(DerivDup,Deriv).
+
 /* duplicate can appear in the C set because two different unistantiated clauses may become the 
 same clause when instantiated */
 
@@ -145,6 +196,55 @@ solve_cond(Goals,Evidence,Prob):-
 	),
 	format(user_error,"~nMemory after inference~n",[]),
 	print_mem.
+
+sci(Goals,Evidence,ProbL,ProbU,CPUTime):-
+	statistics(cputime,[_,_]),
+	setting(depth_bound,D),
+        solve_condi(Goals,Evidence,D,ProbL,ProbU),
+	statistics(cputime,[_,CT]),
+	CPUTime is CT/1000.
+
+solve_condi(Goals,Evidence,D,ProbL0,ProbU0):-
+	(call_residue(setof(DerivE,find_deriv(Evidence,D,DerivE),LDupE),_R0)->
+		rem_dup_lists(LDupE,[],LE),
+		append(Evidence,Goals,EG),
+		(call_residue(setof(DerivGE,find_deriv(EG,D,DerivGE),LDupGE),_R1)->
+			rem_dup_lists(LDupGE,[],LGE),
+			separate_ulb(LGE,[],LLGE,[],LUGE),
+			compute_prob_deriv(LLGE,ProbLGE),
+			compute_prob_deriv(LUGE,ProbUGE),
+			separate_ulb(LE,[],LLE,[],LUE),
+			compute_prob_deriv(LLE,ProbLE),
+			compute_prob_deriv(LUE,ProbUE),
+			ProbL is ProbLGE/ProbUE,
+			(ProbLE=0.0->
+				ProbU1=1.0
+			;
+				ProbU1 is ProbUGE/ProbLE
+			),
+			(ProbU1>1.0->
+				ProbU=1.0
+			;
+				ProbU=ProbU1
+			),
+			Err is ProbU-ProbL,
+			setting(min_error,ME),
+			(Err<ME->
+				ProbU0=ProbU,
+				ProbL0=ProbL
+			;
+				setting(depth_bound,DB),
+				D1 is D+DB,
+				solve_condi(Goals,Evidence,D1,ProbL0,ProbU0)
+			)
+		;
+			ProbL0=0.0,
+			ProbU0=0.0
+		)	
+	;
+		ProbL0=undefined,
+		ProbU0=undefined
+	).
 
 /* sc(Goals,Evidence,Prob,Time1,Time2) compute the conditional probability of the list of goals
 Goals given the list of goals Evidence 
@@ -214,6 +314,11 @@ call_compute_prob(NewVarGE,FormulaGE,ProbGE):-
 find_deriv_GE(LD,GoalsList,Deriv):-
 	member(D,LD),
 	solve(GoalsList,D,DerivDup),
+	remove_duplicates(DerivDup,Deriv).
+
+find_deriv_GE(LD,GoalsList,DB,Deriv):-
+        member(D,LD),
+	solve(GoalsList,DB,D,DerivDup),
 	remove_duplicates(DerivDup,Deriv).
 
 /* solve(GoalsList,CIn,COut) takes a list of goals and an input C set
@@ -295,6 +400,45 @@ solve([H|T],CIn,COut):-
 	find_rule(H,(R,S,N),B,CIn),
 	solve_pres(R,S,N,B,T,CIn,COut).
 
+
+solve([],_DB,C,C):-!.
+
+solve(_G,0,C,[(_,pruned,_)|C]):-!.
+
+solve([\+ H |T],DB,CIn,COut):-!,
+        list2and(HL,H),
+	(setof(D,find_deriv(HL,DB,D),LDup)->
+		rem_dup_lists(LDup,[],L),
+		separate_ulb(L,[],LB,[],UB),
+		(\+ LB=UB->
+			
+			choose_clauses(CIn,LB,C0),
+			C1=[(_,pruned,_)|C0]
+		;
+			choose_clauses(CIn,L,C1)
+		),
+		solve(T,DB,C1,COut)
+	;
+		solve(T,DB,CIn,COut)
+	).
+solve([H|T],DB,CIn,COut):-
+	builtin(H),!,
+	call(H),
+	solve(T,DB,CIn,COut).
+
+solve([H|T],DB,CIn,COut):-
+	def_rule(H,B),
+	append(B,T,NG),
+	DB1 is DB-1,
+	solve(NG,DB1,CIn,COut).
+
+solve([H|T],DB,CIn,COut):-
+	find_rule(H,(R,S,N),B,CIn),
+	DB1 is DB-1,
+	solve_pres(R,S,N,B,T,DB1,CIn,COut).
+
+
+
 solve_pres(R,S,N,B,T,CIn,COut):-
 	member_eq((N,R,S),CIn),!,
 	append(B,T,NG),
@@ -304,6 +448,16 @@ solve_pres(R,S,N,B,T,CIn,COut):-
 	append(CIn,[(N,R,S)],C1),
 	append(B,T,NG),
 	solve(NG,C1,COut).
+
+solve_pres(R,S,N,B,T,DB,CIn,COut):-
+        member_eq((N,R,S),CIn),!,
+	append(B,T,NG),
+	solve(NG,DB,CIn,COut).
+
+solve_pres(R,S,N,B,T,DB,CIn,COut):-
+	append(CIn,[(N,R,S)],C1),
+	append(B,T,NG),
+	solve(NG,DB,C1,COut).
 
 build_initial_graph(N,G):-
 	listN(0,N,Vert),
@@ -372,6 +526,7 @@ find_rule(H,(R,S,Number),Body,C):-
 
 not_already_present_with_a_different_head(_N,_R,_S,[]).
 
+
 not_already_present_with_a_different_head(N,R,S,[(N1,R,S1)|T]):-
 	not_different(N,N1,S,S1),!,
 	not_already_present_with_a_different_head(N,R,S,T).
@@ -379,6 +534,7 @@ not_already_present_with_a_different_head(N,R,S,[(N1,R,S1)|T]):-
 not_already_present_with_a_different_head(N,R,S,[(_N1,R1,_S1)|T]):-
 	R\==R1,
 	not_already_present_with_a_different_head(N,R,S,T).
+
 
 not_different(_N,_N1,S,S1):-
 	S\=S1,!.	
@@ -414,6 +570,24 @@ choose_clauses(CIn,[D|T],COut):-
 	\+ already_present(N1,R,S,CIn),
 	impose_dif_cons(R,S,CIn),
 	choose_clauses([(N1,R,S)|CIn],T,COut).
+
+choose_clauses_DB(C,[],C).
+
+choose_clauses_DB(CIn,[D|T],COut):-
+        member((N,R,S),D),
+	ground((N,R,S)),
+	already_present_with_a_different_head(N,R,S,CIn),!,
+	choose_a_head(N,R,S,CIn,C1),
+	choose_clauses_DB(C1,T,COut).
+
+choose_clauses_DB(CIn,[D|T],COut):-
+        member((N,R,S),D),
+	ground((N,R,S)),!,
+	new_head(N,R,S,N1),
+	\+ already_present(N1,R,S,CIn),
+	impose_dif_cons(R,S,CIn),
+	choose_clauses_DB([(N1,R,S)|CIn],T,COut).
+
 
 impose_dif_cons(_R,_S,[]):-!.
 
@@ -511,6 +685,29 @@ member_subset(E,[_H|T]):-
 	member_subset(E,T).
 
 
+separate_ulb([],L,L,U,U):-!.
+/*
+separate_ulb([H|T],L0,L1,U0,[H|U1]):-
+        member(pruned,H),!,
+	separate_ulb(T,L0,L1,U0,U1).
+*/		
+separate_ulb([H|T],L0,[H|L1],U0,[H|U1]):-
+	ground(H),!,
+	separate_ulb(T,L0,L1,U0,U1).
+
+separate_ulb([H|T],L0,L1,U0,[H1|U1]):-
+        get_ground(H,H1),
+	separate_ulb(T,L0,L1,U0,U1).
+
+get_ground([],[]):-!.
+
+get_ground([H|T],[H|T1]):-
+	ground(H),!,
+	get_ground(T,T1).
+
+get_ground([H|T],T1):-
+	get_ground(T,T1).
+
 
 /* predicates for building the formula to be converted into a BDD */
 
@@ -536,7 +733,11 @@ build_formula([D|TD],[F|TF],VarIn,VarOut):-
 	build_term(D,F,VarIn,Var1),
 	build_formula(TD,TF,Var1,VarOut).
 
+
 build_term([],[],Var,Var).
+
+build_term([(_,pruned,_)|TC],TF,VarIn,VarOut):-!,
+	build_term(TC,TF,VarIn,VarOut).
 
 build_term([(N,R,S)|TC],[[NVar,N]|TF],VarIn,VarOut):-
 	(nth0_eq(0,NVar,VarIn,(R,S))->
