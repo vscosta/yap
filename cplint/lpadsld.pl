@@ -23,6 +23,7 @@ only the head is grounded. In the case in which the body contains variables
 not appearing in the head, the body represents an existential event */
 setting(min_error,0.01).
 setting(depth_bound,4).
+setting(prob_threshold,0.00001).
 /* end of list of parameters */
 
 /* s(GoalsLIst,Prob) compute the probability of a list of goals 
@@ -102,14 +103,47 @@ solve(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 si(GoalsList,ProbL,ProbU,CPUTime):-
         statistics(cputime,[_,_]),
 	setting(depth_bound,D),
-        solvei(GoalsList,D,ProbL,ProbU),
+        solve_i([(GoalsList,[])],[],D,ProbL,ProbU),
 	statistics(cputime,[_,CT]),
 	CPUTime is CT/1000.
 
 
 
-solvei(GoalsList,D,ProbL0,ProbU0):-
-	(setof(Deriv,find_deriv(GoalsList,D,Deriv),LDup)->
+solve_i(L0,Succ,D,ProbL0,ProbU0):-
+	(findall((G1,Deriv),(member((G0,C0),L0),solvei(G0,D,C0,Deriv,G1)),L)->
+	%	print_mem,
+		separate_ulbi(L,[],LL0,[],LU,[],Incomplete),
+		append(Succ,LL0,LL),
+		compute_prob_deriv(LL,ProbL),
+		append(Succ,LU,LU1),
+		compute_prob_deriv(LU1,ProbU),
+		Err is ProbU-ProbL,
+		setting(min_error,ME),
+		(Err<ME->
+			ProbU0=ProbU,
+			ProbL0=ProbL
+		;
+			setting(depth_bound,DB),
+			D1 is D+DB,
+			solve_i(Incomplete,LL,D1,ProbL0,ProbU0)
+		)
+	;
+	%	print_mem,
+		ProbL0=0.0,
+		ProbU0=0.0
+	).
+
+sir(GoalsList,ProbL,ProbU,CPUTime):-
+        statistics(cputime,[_,_]),
+	setting(depth_bound,D),
+        solveir(GoalsList,D,ProbL,ProbU),
+	statistics(cputime,[_,CT]),
+	CPUTime is CT/1000.
+
+
+
+solveir(GoalsList,D,ProbL0,ProbU0):-
+	(setof(Deriv,find_derivr(GoalsList,D,Deriv),LDup)->
 		rem_dup_lists(LDup,[],L),
 	%	print_mem,
 		separate_ulb(L,[],LL,[],LU),
@@ -123,8 +157,35 @@ solvei(GoalsList,D,ProbL0,ProbU0):-
 		;
 			setting(depth_bound,DB),
 			D1 is D+DB,
-			solvei(GoalsList,D1,ProbL0,ProbU0)
+			solveir(GoalsList,D1,ProbL0,ProbU0)
 		)
+	;
+	%	print_mem,
+		ProbL0=0.0,
+		ProbU0=0.0
+	).
+
+
+sic(GoalsList,ProbL,ProbU,CPUTime):-
+        statistics(cputime,[_,_]),
+	setting(depth_bound,D),
+        solveic(GoalsList,D,ProbL,ProbU),
+	statistics(cputime,[_,CT]),
+	CPUTime is CT/1000.
+
+
+
+solveic(GoalsList,D,ProbL0,ProbU0):-
+	(setof((Deriv,P,Pruned),solvec(GoalsList,D,[],Deriv,1.0,P,Pruned),L)->
+	%	print_mem,
+		separate_ulbc(L,[],LL,0,Err),
+		compute_prob_deriv(LL,ProbL0),
+		ProbU0 is ProbL0+Err
+		/*(ProbU>1.0->
+			ProbU0=1.0
+		;
+			ProbU0=ProbU
+		)*/
 	;
 	%	print_mem,
 		ProbL0=0.0,
@@ -158,9 +219,10 @@ find_deriv(GoalsList,Deriv):-
 	solve(GoalsList,[],DerivDup),
 	remove_duplicates(DerivDup,Deriv). 
 
-find_deriv(GoalsList,DB,Deriv):-
-        solve(GoalsList,DB,[],DerivDup),
+find_derivr(GoalsList,DB,Deriv):-
+        solver(GoalsList,DB,[],DerivDup),
 	remove_duplicates(DerivDup,Deriv).
+
 
 /* duplicate can appear in the C set because two different unistantiated clauses may become the 
 same clause when instantiated */
@@ -200,15 +262,68 @@ solve_cond(Goals,Evidence,Prob):-
 sci(Goals,Evidence,ProbL,ProbU,CPUTime):-
 	statistics(cputime,[_,_]),
 	setting(depth_bound,D),
-        solve_condi(Goals,Evidence,D,ProbL,ProbU),
+	append(Goals,Evidence,GE),
+        solve_condi([(GE,[])],[(Evidence,[])],[],[],D,ProbL,ProbU),
 	statistics(cputime,[_,CT]),
 	CPUTime is CT/1000.
 
-solve_condi(Goals,Evidence,D,ProbL0,ProbU0):-
-	(call_residue(setof(DerivE,find_deriv(Evidence,D,DerivE),LDupE),_R0)->
+solve_condi(LGoals,LEvidence,SuccGE,SuccE,D,ProbL0,ProbU0):-
+	findall((GE1,DerivE),
+		(member((GE,CE),LEvidence),solvei(GE,D,CE,DerivE,GE1)),
+		LE),
+	findall((GE1,DerivE),
+		(member((GE,CE),LGoals),solvei(GE,D,CE,DerivE,GE1)),
+		LGE),
+	separate_ulbi(LE,[],LLE0,[],LUE0,[],IncE),
+	append(SuccE,LUE0,LUE),
+	compute_prob_deriv(LUE,ProbUE),
+	(ProbUE\==0.0->
+		separate_ulbi(LGE,[],LLGE0,[],LUGE0,[],IncGE),
+		append(SuccGE,LLGE0,LLGE),
+		compute_prob_deriv(LLGE,ProbLGE),
+		ProbL is ProbLGE/ProbUE,
+		append(SuccE,LLE0,LLE),
+		compute_prob_deriv(LLE,ProbLE),
+		(ProbLE\==0.0->
+			append(SuccGE,LUGE0,LUGE),
+			compute_prob_deriv(LUGE,ProbUGE),
+			ProbU1 is ProbUGE/ProbLE
+		;	
+			ProbU1=1.0
+		),
+		(ProbU1>1.0->
+			ProbU=1.0
+		;
+			ProbU=ProbU1
+		),
+		Err is ProbU-ProbL,
+		setting(min_error,ME),
+		(Err<ME->
+			ProbU0=ProbU,
+			ProbL0=ProbL
+		;
+			setting(depth_bound,DB),
+			D1 is D+DB,
+			solve_condi(IncGE,IncE,LLGE,LLE,D1,ProbL0,ProbU0)
+		)
+	;
+		ProbL0=undefined,
+		ProbU0=undefined
+	).
+
+
+scir(Goals,Evidence,ProbL,ProbU,CPUTime):-
+	statistics(cputime,[_,_]),
+	setting(depth_bound,D),
+        solve_condir(Goals,Evidence,D,ProbL,ProbU),
+	statistics(cputime,[_,CT]),
+	CPUTime is CT/1000.
+
+solve_condir(Goals,Evidence,D,ProbL0,ProbU0):-
+	(call_residue(setof(DerivE,find_derivr(Evidence,D,DerivE),LDupE),_R0)->
 		rem_dup_lists(LDupE,[],LE),
 		append(Evidence,Goals,EG),
-		(call_residue(setof(DerivGE,find_deriv(EG,D,DerivGE),LDupGE),_R1)->
+		(call_residue(setof(DerivGE,find_derivr(EG,D,DerivGE),LDupGE),_R1)->
 			rem_dup_lists(LDupGE,[],LGE),
 			separate_ulb(LGE,[],LLGE,[],LUGE),
 			compute_prob_deriv(LLGE,ProbLGE),
@@ -235,7 +350,54 @@ solve_condi(Goals,Evidence,D,ProbL0,ProbU0):-
 			;
 				setting(depth_bound,DB),
 				D1 is D+DB,
-				solve_condi(Goals,Evidence,D1,ProbL0,ProbU0)
+				solve_condir(Goals,Evidence,D1,ProbL0,ProbU0)
+			)
+		;
+			ProbL0=0.0,
+			ProbU0=0.0
+		)	
+	;
+		ProbL0=undefined,
+		ProbU0=undefined
+	).
+
+scic(Goals,Evidence,ProbL,ProbU,CPUTime):-
+	statistics(cputime,[_,_]),
+	setting(depth_bound,D),
+        solve_condic(Goals,Evidence,D,ProbL,ProbU),
+	statistics(cputime,[_,CT]),
+	CPUTime is CT/1000.
+
+solve_condic(Goals,Evidence,D,ProbL0,ProbU0):-
+	(call_residue(setof((DerivE,P,Pruned),solvec(Evidence,D,[],DerivE,1.0,P,Pruned),LE),_R0)->
+		append(Evidence,Goals,EG),
+		(call_residue(setof((DerivGE,P,Pruned),solvec(EG,D,[],DerivGE,1.0,P,Pruned),LGE),_R1)->
+			separate_ulbc(LGE,[],LLGE,0.0,ErrGE),
+			compute_prob_deriv(LLGE,ProbLGE),
+			separate_ulbc(LE,[],LLE,0.0,ErrE),
+			compute_prob_deriv(LLE,ProbLE),
+			ProbUGE0 is ProbLGE+ErrGE,
+			(ProbUGE0>1.0->
+				ProbUGE=1.0
+			;
+				ProbUGE=ProbUGE0
+			),
+			ProbUE0 is ProbLE+ErrE,
+			(ProbUE0>1.0->
+				ProbUE=1.0
+			;
+				ProbUE=ProbUE0
+			),
+			ProbL0 is ProbLGE/ProbUE,
+			(ProbLE=0.0->
+				ProbU1=1.0
+			;
+				ProbU1 is ProbUGE/ProbLE
+			),
+			(ProbU1>1.0->
+				ProbU0=1.0
+			;
+				ProbU0=ProbU1
 			)
 		;
 			ProbL0=0.0,
@@ -401,13 +563,48 @@ solve([H|T],CIn,COut):-
 	solve_pres(R,S,N,B,T,CIn,COut).
 
 
-solve([],_DB,C,C):-!.
+solvei([],_DB,C,C,[]):-!.
 
-solve(_G,0,C,[(_,pruned,_)|C]):-!.
+solvei(G,0,C,C,G):-!.
 
-solve([\+ H |T],DB,CIn,COut):-!,
+solvei([\+ H |T],DB,CIn,COut,G):-!,
         list2and(HL,H),
-	(setof(D,find_deriv(HL,DB,D),LDup)->
+	(findall((GH,D),solvei(HL,DB,CIn,D,GH),L)->
+		separate_ulbi(L,[],LB,[],UB,[],I),
+		(I\=[]->
+			C1=CIn,
+			G=[\+ H|G1]
+		;
+			choose_clauses(CIn,LB,C1),
+			G=G1
+		),
+		solvei(T,DB,C1,COut,G1)
+	;
+		solvei(T,DB,CIn,COut,G1)
+	).
+solvei([H|T],DB,CIn,COut,G):-
+	builtin(H),!,
+	call(H),
+	solvei(T,DB,CIn,COut,G).
+
+solvei([H|T],DB,CIn,COut,G):-
+	def_rule(H,B),
+	append(B,T,NG),
+	DB1 is DB-1,
+	solvei(NG,DB1,CIn,COut,G).
+
+solvei([H|T],DB,CIn,COut,G):-
+	find_rule(H,(R,S,N),B,CIn),
+	DB1 is DB-1,
+	solve_presi(R,S,N,B,T,DB1,CIn,COut,G).
+
+solver([],_DB,C,C):-!.
+
+solver(_G,0,C,[(_,pruned,_)|C]):-!.
+
+solver([\+ H |T],DB,CIn,COut):-!,
+        list2and(HL,H),
+	(setof(D,find_derivr(HL,DB,D),LDup)->
 		rem_dup_lists(LDup,[],L),
 		separate_ulb(L,[],LB,[],UB),
 		(\+ LB=UB->
@@ -417,25 +614,68 @@ solve([\+ H |T],DB,CIn,COut):-!,
 		;
 			choose_clauses(CIn,L,C1)
 		),
-		solve(T,DB,C1,COut)
+		solver(T,DB,C1,COut)
 	;
-		solve(T,DB,CIn,COut)
+		solver(T,DB,CIn,COut)
 	).
-solve([H|T],DB,CIn,COut):-
+solver([H|T],DB,CIn,COut):-
 	builtin(H),!,
 	call(H),
-	solve(T,DB,CIn,COut).
+	solver(T,DB,CIn,COut).
 
-solve([H|T],DB,CIn,COut):-
+solver([H|T],DB,CIn,COut):-
 	def_rule(H,B),
 	append(B,T,NG),
 	DB1 is DB-1,
-	solve(NG,DB1,CIn,COut).
+	solver(NG,DB1,CIn,COut).
 
-solve([H|T],DB,CIn,COut):-
+solver([H|T],DB,CIn,COut):-
 	find_rule(H,(R,S,N),B,CIn),
 	DB1 is DB-1,
-	solve_pres(R,S,N,B,T,DB1,CIn,COut).
+	solve_presr(R,S,N,B,T,DB1,CIn,COut).
+
+
+solvec([],_DB,C,C,P,P,false):-!.
+
+solvec(_G,0,C,C,P,P,true):-!.
+
+solvec(_G,_DB,C,C,P,P,true):-
+	setting(prob_threshold,T),
+	P=<T,!.
+
+solvec([\+ H |T],DB,CIn,COut,P0,P1,Pruned):-!,
+        list2and(HL,H),
+	(setof((D,P,Pr),solvec(HL,DB,[],D,1,P,Pr),L)->
+		separate_ulbc(L,[],LB,0.0,PP),
+		(PP=\=0.0->
+			
+			choose_clausesc(CIn,LB,C1,P0,P2),
+			Pruned=true,
+			solvec(T,DB,C1,COut,P2,P1,_)
+
+		;
+			choose_clausesc(CIn,LB,C1,P0,P2),
+			solvec(T,DB,C1,COut,P2,P1,Pruned)
+		)
+	;
+		solve(T,DB,CIn,COut,P0,P1,Pruned)
+	).
+
+solvec([H|T],DB,CIn,COut,P0,P1,Pruned):-
+	builtin(H),!,
+	call(H),
+	solvec(T,DB,CIn,COut,P0,P1,Pruned).
+
+solvec([H|T],DB,CIn,COut,P0,P1,Pruned):-
+	def_rule(H,B),
+	append(B,T,NG),
+	DB1 is DB-1,
+	solvec(NG,DB1,CIn,COut,P0,P1,Pruned).
+
+solvec([H|T],DB,CIn,COut,P0,P1,Pruned):-
+	find_rulec(H,(R,S,N),B,CIn,P),
+	DB1 is DB-1,
+	solve_presc(R,S,N,B,T,DB1,CIn,COut,P,P0,P1,Pruned).
 
 
 
@@ -449,15 +689,39 @@ solve_pres(R,S,N,B,T,CIn,COut):-
 	append(B,T,NG),
 	solve(NG,C1,COut).
 
-solve_pres(R,S,N,B,T,DB,CIn,COut):-
+solve_presi(R,S,N,B,T,DB,CIn,COut,G):-
         member_eq((N,R,S),CIn),!,
 	append(B,T,NG),
-	solve(NG,DB,CIn,COut).
+	solvei(NG,DB,CIn,COut,G).
 
-solve_pres(R,S,N,B,T,DB,CIn,COut):-
+solve_presi(R,S,N,B,T,DB,CIn,COut,G):-
 	append(CIn,[(N,R,S)],C1),
 	append(B,T,NG),
-	solve(NG,DB,C1,COut).
+	solvei(NG,DB,C1,COut,G).
+
+
+solve_presr(R,S,N,B,T,DB,CIn,COut):-
+        member_eq((N,R,S),CIn),!,
+	append(B,T,NG),
+	solver(NG,DB,CIn,COut).
+
+solve_presr(R,S,N,B,T,DB,CIn,COut):-
+	append(CIn,[(N,R,S)],C1),
+	append(B,T,NG),
+	solver(NG,DB,C1,COut).
+
+
+solve_presc(R,S,N,B,T,DB,CIn,COut,_,P0,P1,Pruned):-
+        member_eq((N,R,S),CIn),!,
+	append(B,T,NG),
+	solvec(NG,DB,CIn,COut,P0,P1,Pruned).
+
+solve_presc(R,S,N,B,T,DB,CIn,COut,P,P0,P1,Pruned):-
+	append(CIn,[(N,R,S)],C1),
+	append(B,T,NG),
+	P2 is P0*P,
+	solvec(NG,DB,C1,COut,P2,P1,Pruned).
+
 
 build_initial_graph(N,G):-
 	listN(0,N,Vert),
@@ -524,6 +788,12 @@ find_rule(H,(R,S,Number),Body,C):-
 	rule(R,S,_,uniform(H:1/_Num,_P,Number),Body),
 	not_already_present_with_a_different_head(Number,R,S,C).
 
+find_rulec(H,(R,S,N),Body,C,P):-
+	rule(R,S,_,Head,Body),
+	member_headc(H,Head,0,N,P),
+	not_already_present_with_a_different_head(N,R,S,C).
+
+
 not_already_present_with_a_different_head(_N,_R,_S,[]).
 
 
@@ -552,6 +822,13 @@ member_head(H,[(_H:_P)|T],NIn,NOut):-
 	N1 is NIn+1,
 	member_head(H,T,N1,NOut).
 
+member_headc(H,[(H:P)|_T],N,N,P).
+
+member_headc(H,[(_H:_P)|T],NIn,NOut,P):-
+	N1 is NIn+1,
+	member_headc(H,T,N1,NOut,P).
+
+
 /* choose_clauses(CIn,LC,COut) takes as input the current C set and 
 the set of C sets for a negative goal and returns a new C set that 
 excludes all the derivations for the negative goals */
@@ -570,6 +847,26 @@ choose_clauses(CIn,[D|T],COut):-
 	\+ already_present(N1,R,S,CIn),
 	impose_dif_cons(R,S,CIn),
 	choose_clauses([(N1,R,S)|CIn],T,COut).
+
+choose_clausesc(C,[],C,P,P).
+
+choose_clausesc(CIn,[D|T],COut,P0,P1):-
+	member((N,R,S),D),
+	already_present_with_a_different_head(N,R,S,CIn),!,
+	choose_a_headc(N,R,S,CIn,C1,P0,P2),
+	choose_clausesc(C1,T,COut,P2,P1).
+
+	
+choose_clausesc(CIn,[D|T],COut,P0,P1):-
+	member((N,R,S),D),
+	new_head(N,R,S,N1),
+	\+ already_present(N1,R,S,CIn),
+	impose_dif_cons(R,S,CIn),
+	rule(R,S,_Numbers,Head,_Body),
+	nth0(N1, Head, (_H:P), _Rest),
+	P2 is P0*P,
+	choose_clausesc([(N1,R,S)|CIn],T,COut,P2,P1).
+
 
 choose_clauses_DB(C,[],C).
 
@@ -621,6 +918,26 @@ dif_head_or_subs(N,R,S,N,SH,T):-
 
 /* case 1 of Select: a more general rule is present in C with
 a different head, instantiate it */
+choose_a_headc(N,R,S,[(NH,R,SH)|T],[(NH,R,SH)|T],P,P):-
+	S=SH, 
+	dif(N,NH).
+
+/* case 2 of Select: a more general rule is present in C with
+a different head, ensure that they do not generate the same
+ground clause */
+choose_a_headc(N,R,S,[(NH,R,SH)|T],[(NH,R,S),(NH,R,SH)|T],P0,P1):-
+	\+ \+ S=SH, S\==SH, 
+	dif(N,NH),
+	dif(S,SH),
+	rule(R,S,_Numbers,Head,_Body),
+	nth0(NH, Head, (_H:P), _Rest),
+	P1 is P0*P.
+
+choose_a_headc(N,R,S,[H|T],[H|T1],P0,P1):-
+	choose_a_headc(N,R,S,T,T1,P0,P1).
+
+/* case 1 of Select: a more general rule is present in C with
+a different head, instantiate it */
 choose_a_head(N,R,S,[(NH,R,SH)|T],[(NH,R,SH)|T]):-
 	S=SH, 
 	dif(N,NH).
@@ -635,6 +952,7 @@ choose_a_head(N,R,S,[(NH,R,SH)|T],[(NH,R,S),(NH,R,SH)|T]):-
 
 choose_a_head(N,R,S,[H|T],[H|T1]):-
 	choose_a_head(N,R,S,T,T1).
+
 
 /* select a head different from N for rule R with
 substitution S, return it in N1 */
@@ -684,6 +1002,20 @@ member_subset(E,[H|_T]):-
 member_subset(E,[_H|T]):-
 	member_subset(E,T).
 
+separate_ulbi([],L,L,U,U,I,I):-!.
+/*
+separate_ulb([H|T],L0,L1,U0,[H|U1]):-
+        member(pruned,H),!,
+	separate_ulb(T,L0,L1,U0,U1).
+*/		
+separate_ulbi([([],H)|T],L0,[H|L1],U0,[H|U1],I0,I1):-
+	!,
+	separate_ulbi(T,L0,L1,U0,U1,I0,I1).
+
+separate_ulbi([(G,H)|T],L0,L1,U0,[H1|U1],I0,[(G,H)|I1]):-
+        get_ground(H,H1),
+	separate_ulbi(T,L0,L1,U0,U1,I0,I1).
+
 
 separate_ulb([],L,L,U,U):-!.
 /*
@@ -698,6 +1030,17 @@ separate_ulb([H|T],L0,[H|L1],U0,[H|U1]):-
 separate_ulb([H|T],L0,L1,U0,[H1|U1]):-
         get_ground(H,H1),
 	separate_ulb(T,L0,L1,U0,U1).
+
+
+separate_ulbc([],L,L,P,P):-!.
+
+separate_ulbc([(H,P,true)|T],L0,L1,P0,P1):-!,
+	P2 is P0+P,
+	separate_ulbc(T,L0,L1,P2,P1).
+
+separate_ulbc([(H,_P,false)|T],L0,[H|L1],P0,P1):-
+	separate_ulbc(T,L0,L1,P0,P1).
+
 
 get_ground([],[]):-!.
 

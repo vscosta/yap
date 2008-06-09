@@ -27,7 +27,7 @@ t:-
 	files(F),
 	statistics(runtime,[_,_]),
 	set(ground_body,true),
-	set(depth_bound,1),
+	set(depth_bound,7),
 	set(min_error,0.05),
 	format("~nGround body~n~n",[]),
 	test_filesi(F,ground_body(true)),
@@ -54,7 +54,7 @@ test_alli(F,[H|T]):-
         copy_term(H,NH),
 	NH=(s(Q,_P),close_to('P',P)),!,
 	format("~a ~p.~n",[F,NH]),
-	si(Q,PL,PU,_Time),!,
+	sic(Q,PL,PU,_Time),!,
 	format("Lower bound ~f, Upper bound ~f~n",[PL,PU]),
 	P>=PL-1e-7,P=<PU+1e-7,
 	test_alli(F,T).
@@ -63,7 +63,7 @@ test_alli(F,[H|T]):-
         copy_term(H,NH),
 	NH=(sc(Q,E,_P),close_to('P',P)),
 	format("~a ~p.~n",[F,NH]),
-	sci(Q,E,PL,PU,_Time),!,
+	scic(Q,E,PL,PU,_Time),!,
 	format("Lower bound ~f, Upper bound ~f~n",[PL,PU]),
 	P>=PL-1e-10,P=<PU+1e-10,
 	test_alli(F,T).
@@ -73,7 +73,7 @@ files([
 exapprox,
 exrange, 
 threesideddice,
-%mendel,
+mendel,
 coin2,ex,trigger,throws,light
 ]).
 

@@ -54,7 +54,7 @@ test_alli(F,[H|T]):-
         copy_term(H,NH),
 	NH=(s(Q,_P),close_to('P',P)),!,
 	format("~a ~p.~n",[F,NH]),
-	si(Q,PL,PU,_Time),!,
+	sir(Q,PL,PU,_Time),!,
 	format("Lower bound ~f, Upper bound ~f~n",[PL,PU]),
 	P>=PL-1e-7,P=<PU+1e-7,
 	test_alli(F,T).
@@ -63,19 +63,17 @@ test_alli(F,[H|T]):-
         copy_term(H,NH),
 	NH=(sc(Q,E,_P),close_to('P',P)),
 	format("~a ~p.~n",[F,NH]),
-	sci(Q,E,PL,PU,_Time),!,
+	scir(Q,E,PL,PU,_Time),!,
 	format("Lower bound ~f, Upper bound ~f~n",[PL,PU]),
 	P>=PL-1e-10,P=<PU+1e-10,
 	test_alli(F,T).
 
 
 files([
-exapprox,
-exrange, 
+%exapprox,exrange, 
 threesideddice,
-%mendel,
-coin2,ex,trigger,throws,light
-]).
+mendel,
+coin2,ex,trigger,throws,light]).
 
 test((s([death],P),close_to(P,0.305555555555556)),trigger,_).
 

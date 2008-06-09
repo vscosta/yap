@@ -155,7 +155,7 @@ static int compute_prob(void)
 	/* the BDD build by retFunction is converted to an ADD (algebraic decision diagram)
 	because it is easier to interpret and to print */
 	add=Cudd_BddToAdd(mgr,function);
-	Cudd_PrintInfo(mgr,stderr);
+	//Cudd_PrintInfo(mgr,stderr);
 
 	if (create_dot)
 	/* if specified by the user, a dot file for the BDD is written to cpl.dot */
