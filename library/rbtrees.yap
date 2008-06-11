@@ -403,6 +403,10 @@ insert2(black(L,K0,V0,R), K, V, Nil, NT, Flag) :-
 %	Add a new element with key Key and Value  to the tree T0 creating a
 %	new red-black tree TN. Duplicated elements are not allowed.
 
+rb_insert_new(t(Nil,Tree0),Key,Val,t(Nil,Tree)) :-
+	insert_new(Tree0,Key,Val,Nil,Tree).
+
+
 insert_new(Tree0,Key,Val,Nil,Tree) :-
 	insert_new_2(Tree0,Key,Val,Nil,TreeI,_),
 	fix_root(TreeI,Tree).
@@ -422,7 +426,7 @@ insert_new_2(red(L,K0,V0,R), K, V, Nil, NT, Flag) :-
 	  fail
 	;
 	  NT = red(L,K0,V0,NR),
-	  insert2(R, K, V, Nil, NR, Flag)
+	  insert_new_2(R, K, V, Nil, NR, Flag)
 	).
 insert_new_2(black(L,K0,V0,R), K, V, Nil, NT, Flag) :-
 	( K @< K0
