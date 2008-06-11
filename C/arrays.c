@@ -692,6 +692,95 @@ ResizeStaticArray(StaticArrayEntry *pp, Int dim)
   WRITE_UNLOCK(pp->ArRWLock);
 }
 
+static void
+ClearStaticArray(StaticArrayEntry *pp)
+{
+  statarray_elements old_v = pp->ValueOfVE;
+  static_array_types type = pp->ArrayType;
+  Int dim = - pp->ArrayEArity, i;
+
+  /* change official size */
+  if (pp->ArrayEArity >= 0){
+    return;
+  }
+  WRITE_LOCK(pp->ArRWLock);
+  switch(type) {
+  case array_of_ints:
+    memset((void *)pp->ValueOfVE.ints,0,sizeof(int)*dim);
+    break;
+  case array_of_chars:
+    memset((void *)pp->ValueOfVE.chars,0,sizeof(char)*dim);
+    break;
+  case array_of_uchars:
+    memset((void *)pp->ValueOfVE.uchars,0,sizeof(unsigned char)*dim);
+    break;
+  case array_of_doubles:
+    memset((void *)pp->ValueOfVE.floats,0,sizeof(double)*dim);
+    break;
+  case array_of_ptrs:
+    memset((void *)pp->ValueOfVE.ptrs,0,sizeof(void *)*dim);
+    break;
+  case array_of_atoms:
+    for (i = 0;  i< dim; i++)
+      pp->ValueOfVE.atoms[i] = TermNil;
+    break;
+  case array_of_dbrefs:
+    for (i = 0; i < dim; i++) {
+      Term t0 = pp->ValueOfVE.dbrefs[i];
+      if (t0 != 0L) {
+	DBRef ptr = DBRefOfTerm(t0);
+
+	if (ptr->Flags & LogUpdMask) {
+	  LogUpdClause *lup = (LogUpdClause *)ptr;
+	  LOCK(lup->ClLock);
+	  lup->ClRefCount--;
+	  if (lup->ClRefCount == 0 &&
+	      (lup->ClFlags & ErasedMask) &&
+	      !(lup->ClFlags & InUseMask)) {
+	    UNLOCK(lup->ClLock);
+	    Yap_ErLogUpdCl(lup);
+	  } else {
+	    UNLOCK(lup->ClLock);
+	  }
+	} else {
+	  ptr->NOfRefsTo--;
+	  if (ptr->NOfRefsTo == 0 &&
+	      (ptr->Flags & ErasedMask) &&
+	      !(ptr->Flags & InUseMask)) {
+	    Yap_ErDBE(ptr);
+	  }
+	}
+      }
+      pp->ValueOfVE.dbrefs[i] = 0L;
+    }
+    break;
+  case array_of_terms:
+    for (i = 0; i < dim; i++) {
+      DBTerm *ref = pp->ValueOfVE.terms[i];
+
+      if (ref != NULL) {
+	Yap_ReleaseTermFromDB(ref);
+      }
+      pp->ValueOfVE.terms[i] = NULL;
+    }
+    break;
+  case array_of_nb_terms:
+    for (i = 0; i < dim; i++) {
+      Term told = pp->ValueOfVE.lterms[i].tstore;
+      CELL *livep = &(pp->ValueOfVE.lterms[i].tlive);
+
+      RESET_VARIABLE(livep);
+      /* recover space */
+      if (IsApplTerm(told)) {
+	Yap_ReleaseTermFromDB((DBTerm *)RepAppl(told));
+      }
+      pp->ValueOfVE.lterms[i].tstore = old_v.lterms[i].tstore;
+    }
+    break;
+  }
+  WRITE_UNLOCK(pp->ArRWLock);
+}
+
 /* create an array (?Name, + Size) */
 static Int 
 p_create_array(void)
@@ -1005,6 +1094,37 @@ p_resize_static_array(void)
   } else {
     Yap_Error(TYPE_ERROR_ATOM,t,"resize a static array");
     return (FALSE);
+  }
+}
+
+/* resize a static array (+Name, + Size, +Props) */
+/* does not work for mmap arrays yet */
+static Int 
+p_clear_static_array(void)
+{
+  Term t = Deref(ARG1);
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"clear a static array");
+    return FALSE;
+  }
+  else if (IsAtomTerm(t)) {
+    /* resize a named array */
+    Atom a = AtomOfTerm(t);
+    StaticArrayEntry *pp = RepStaticArrayProp(RepAtom(a)->PropsOfAE);
+
+    while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
+      pp = RepStaticArrayProp(pp->NextOfPE);
+    if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
+      Yap_Error(PERMISSION_ERROR_RESIZE_ARRAY,t,"clear a static array");
+      return FALSE;
+    } else {
+      ClearStaticArray(pp);
+      return TRUE;
+    }
+  } else {
+    Yap_Error(TYPE_ERROR_ATOM,t,"clear a static array");
+    return FALSE;
   }
 }
 
@@ -2368,6 +2488,7 @@ Yap_InitArrayPreds(void)
   Yap_InitCPred("dynamic_update_array", 3, p_assign_dynamic, SafePredFlag);
   Yap_InitCPred("add_to_array_element", 4, p_add_to_array_element, SafePredFlag);
   Yap_InitCPred("array_element", 3, p_access_array, 0);
+  Yap_InitCPred("reset_static_array", 1, p_clear_static_array, SafePredFlag);
   Yap_InitCPred("close_static_array", 1, p_close_static_array, SafePredFlag);
   Yap_InitCPred("$sync_mmapped_arrays", 0, p_sync_mmapped_arrays, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$compile_array_refs", 0, p_compile_array_refs, SafePredFlag|HiddenPredFlag);
