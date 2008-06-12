@@ -381,7 +381,8 @@ prolog_load_context(directory, DirName) :-
 prolog_load_context(file, FileName) :- 
 	nb_getval('$included_file',IncFileName),
 	( IncFileName = [] ->
-	  nb_getval('$consulting_file',FileName)
+	  nb_getval('$consulting_file',FileName),
+	  FileName \= []
         ;
            FileName  = IncFileName
         ).

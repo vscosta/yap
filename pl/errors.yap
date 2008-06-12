@@ -11,8 +11,13 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-04-04 10:02:44 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-06-12 10:55:52 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.88  2008/04/04 10:02:44  vsc
+* implement thread_cancel using signals
+* use duplicate_term instead of copy_term in throw: throw may lose
+* reference to term.
+*
 * Revision 1.87  2008/03/17 12:08:28  vsc
 * avoid silly message
 *
@@ -245,8 +250,8 @@ print_message(Severity, Term) :-
 	    )
 	).
 print_message(silent, _) :-  !.
-print_message(_, error(syntax_error(_,between(_,L,_),_,_,_,_),_)) :-  !,
-	format(user_error,'SYNTAX ERROR close to ~d~n',[L]).
+print_message(_, error(syntax_error(_,between(_,L,_),_,_,_,_,StreamName),_)) :-  !,
+	format(user_error,'SYNTAX ERROR at ~a, close to ~d~n',[StreamName,L]).
 print_message(_, loading(A, F)) :- !,
 	format(user_error,'  % ~a ~a~n',[A,F]).
 print_message(_, loaded(A, F, _, Time, Space)) :- !,
@@ -267,7 +272,7 @@ print_message(_, Term) :-
 '$print_system_message'(_, banner, _) :-
 	current_prolog_flag(verbose, silent), !.
 '$print_system_message'(Term, Level, Lines) :-
-	Term = error(syntax_error(_,_,_,_,_,_),_), !,
+	Term = error(syntax_error(_,_,_,_,_,_,_),_), !,
 	flush_output(user_output),
 	flush_output(user_error),
 	'$message':prefix(Level, LinePrefix, Stream, _, Lines), !,

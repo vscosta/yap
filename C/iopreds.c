@@ -1592,7 +1592,7 @@ PlUnGetc (int sno)
     s->stream_getc = PlGetc;
     s->stream_gets = PlGetsFunc();
   }
-  return(post_process_read_char(ch, s));
+  return(ch);
 }
 
 /* give back 0376+ch  */
@@ -3590,7 +3590,7 @@ clean_vars(VarEntry *p)
 }
 
 static Term
-syntax_error (TokEntry * tokptr)
+syntax_error (TokEntry * tokptr, int sno)
 {
   Term info;
   int count = 0, out = 0;
@@ -3687,6 +3687,7 @@ syntax_error (TokEntry * tokptr)
   tf[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("read"),1),1,&ARG2);
   {
     Term t[3];
+
     t[0] = MkIntegerTerm(start);
     t[1] = MkIntegerTerm(err);
     t[2] = MkIntegerTerm(end);
@@ -3695,7 +3696,8 @@ syntax_error (TokEntry * tokptr)
   tf[2] = MkAtomTerm(Yap_LookupAtom("\n<==== HERE ====>\n"));
   tf[4] = MkIntegerTerm(out);
   tf[5] = MkIntegerTerm(err);
-  return(Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("syntax_error"),6),6,tf));
+  tf[6] = StreamName(sno);
+  return(Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("syntax_error"),7),7,tf));
 }
 
 Int
@@ -3932,7 +3934,7 @@ static Int
 	/* try again */
 	goto repeat_cycle;
       } else {
-	Term terr = syntax_error(tokstart);
+	Term terr = syntax_error(tokstart, inp_stream);
 	if (Yap_ErrorMessage == NULL)
 	  Yap_ErrorMessage = "SYNTAX ERROR";
 	
@@ -4284,7 +4286,7 @@ p_set_stream_position (void)
     Stream[sno].stream_gets = PlGetsFunc();
     /* reset the counters */
     Stream[sno].linepos = 0;
-    Stream[sno].linecount = 0;
+    Stream[sno].linecount = 1;
     Stream[sno].charcount = 0;
   }
   UNLOCK(Stream[sno].streamlock);
@@ -5938,33 +5940,40 @@ Yap_StringToTerm(char *s,Term *tp)
 
   if (sno < 0)
     return FALSE;
+  UNLOCK(Stream[sno].streamlock);
   TR_before_parse = TR;
   tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno);
-  /* cannot actually use CloseStream, because we didn't allocate the buffer */  
-  Stream[sno].status = Free_Stream_f;
   if (tokstart == NIL && tokstart->Tok == Ord (eot_tok)) {
     if (tp) {
       *tp = MkAtomTerm(Yap_LookupAtom("end of file found before end of term"));
     }
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    /* cannot actually use CloseStream, because we didn't allocate the buffer */  
+    Stream[sno].status = Free_Stream_f;
     return FALSE;
   } else if (Yap_ErrorMessage) {
     if (tp) {
       *tp = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
     }
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    /* cannot actually use CloseStream, because we didn't allocate the buffer */  
+    Stream[sno].status = Free_Stream_f;
     return FALSE;
   }
   t = Yap_Parse();
   TR = TR_before_parse;
   if (Yap_ErrorMessage) {
     if (tp) {
-      *tp = syntax_error(tokstart);
+      *tp = syntax_error(tokstart, sno);
     }
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    /* cannot actually use CloseStream, because we didn't allocate the buffer */  
+    Stream[sno].status = Free_Stream_f;
     return FALSE;
   }
   Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+  /* cannot actually use CloseStream, because we didn't allocate the buffer */  
+  Stream[sno].status = Free_Stream_f;
   return t;
 }
 

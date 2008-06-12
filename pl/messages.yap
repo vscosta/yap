@@ -11,7 +11,7 @@
 * File:		utilities for displaying messages in YAP.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-05-23 22:29:52 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-06-12 10:55:52 $,$Author: vsc $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -24,8 +24,7 @@
 
 file_location(Prefix) -->
 	{
-	 nb_getval('$consulting_file',FileName),
-	 FileName \= []
+	 prolog_load_context(file, FileName)
 	 },
 	{ '$start_line'(LN) },
 	file_position(FileName,LN,Prefix),
@@ -245,11 +244,11 @@ system_message(error(resource_error(memory), Where)) -->
 	[ 'RESOURCE ERROR- not enough virtual memory' - [Where] ].
 system_message(error(signal(SIG,_), _)) -->
 	[ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].
-system_message(error(syntax_error(G,0,Msg,[],0,0), _)) -->
-	[ 'SYNTAX ERROR: ~a' - [G,Msg] ].
-system_message(error(syntax_error(_,_,_,Term,Pos,Start), Where)) -->
+system_message(error(syntax_error(G,0,Msg,[],0,0,File), _)) -->
+	[ 'SYNTAX ERROR at "~a", goal ~q: ~a' - [File,G,Msg] ].
+system_message(error(syntax_error(read(Term),_,_,Term,Pos,Start,File), Where)) -->
 	['~w' - [Where]],
-	syntax_error_line(Start,Pos),
+	syntax_error_line(File, Start, Pos),
 	syntax_error_term(10, Pos, Term),
 	[ '.' ].
 system_message(error(system_error, Where)) -->
@@ -385,8 +384,8 @@ list_of_preds([P|L]) -->
 	list_of_preds(L).
 
 
-syntax_error_line(Position,_) -->
-	[', near line ~d:~n' - [Position]].
+syntax_error_line(File, Position,_) -->
+	[' at ~a, near line ~d:~n' - [File,Position]].
 
 syntax_error_term(0,J,L) -->
 	['~n' ],

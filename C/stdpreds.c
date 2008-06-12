@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2008-04-06 11:53:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-06-12 10:55:52 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.130  2008/04/06 11:53:02  vsc
+*  fix some restore bugs
+*
 * Revision 1.129  2008/03/15 12:19:33  vsc
 * fix flags
 *
@@ -1843,16 +1846,17 @@ p_atom_split(void)
 }
 
 static Term
-gen_syntax_error(char *s)
+gen_syntax_error(Atom InpAtom, char *s)
 {
   Term ts[6], ti[2];
   ti[0] = ARG1;
   ti[1] = ARG2;
   ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(s),2),2,ti);
   ts[1] = ts[4] = ts[5] = MkIntTerm(0);
-  ts[2] = MkAtomTerm(Yap_LookupAtom("number syntax"));
+  ts[2] = MkAtomTerm(Yap_LookupAtom("expected number syntax"));
   ts[3] = TermNil;
-  return(Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("syntax_error"),6),6,ts));
+  ts[6] = MkAtomTerm(InpAtom);
+  return(Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("syntax_error"),7),7,ts));
 }
 
 static Int 
@@ -1991,7 +1995,7 @@ p_number_chars(void)
   }
   *s++ = '\0';
   if ((NewT = get_num(String)) == TermNil) {
-    Yap_Error(SYNTAX_ERROR, gen_syntax_error("number_chars"), "while scanning %s", String);
+    Yap_Error(SYNTAX_ERROR, gen_syntax_error(Yap_LookupAtom(String), "number_chars"), "while scanning %s", String);
     return (FALSE);
   }
   return (Yap_unify(ARG1, NewT));
@@ -2060,7 +2064,7 @@ p_number_atom(void)
   }
   s = RepAtom(AtomOfTerm(t))->StrOfAE;
   if ((NewT = get_num(s)) == TermNil) {
-    Yap_Error(SYNTAX_ERROR, gen_syntax_error("number_atom"), "while scanning %s", s);
+    Yap_Error(SYNTAX_ERROR, gen_syntax_error(Yap_LookupAtom(String), "number_atom"), "while scanning %s", s);
     return (FALSE);
   }
   return (Yap_unify(ARG1, NewT));
@@ -2155,7 +2159,7 @@ p_number_codes(void)
   }
   *s++ = '\0';
   if ((NewT = get_num(String)) == TermNil) {
-    Yap_Error(SYNTAX_ERROR, gen_syntax_error("number_codes"), "while scanning %s", String);
+    Yap_Error(SYNTAX_ERROR, gen_syntax_error(Yap_LookupAtom(String), "number_codes"), "while scanning %s", String);
     return (FALSE);
   }
   return (Yap_unify(ARG1, NewT));
@@ -2217,12 +2221,12 @@ p_atom_number(void)
     }
     at = AtomOfTerm(t);
     if (IsWideAtom(at)) {
-      Yap_Error(SYNTAX_ERROR, gen_syntax_error("number_codes"), "while scanning %S", RepAtom(at)->WStrOfAE);
+      Yap_Error(SYNTAX_ERROR, gen_syntax_error(at, "number_codes"), "while scanning %S", RepAtom(at)->WStrOfAE);
       return FALSE;
     }
     s = RepAtom(at)->StrOfAE; /* alloc temp space on Trail */
     if ((NewT = get_num(s)) == TermNil) {
-      Yap_Error(SYNTAX_ERROR, gen_syntax_error("atom_number"), "while scanning %s", s);
+      Yap_Error(SYNTAX_ERROR, gen_syntax_error(at, "atom_number"), "while scanning %s", s);
       return FALSE;
     }
     return Yap_unify(ARG2, NewT);

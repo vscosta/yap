@@ -478,8 +478,12 @@ matrix_long_set_all(int *mat, long int nval)
   int i;
   long int *data = matrix_long_data(mat,mat[MAT_NDIMS]);
 
-  for (i = 0; i< mat[MAT_SIZE]; i++)
-    data[i] = nval;
+  if (nval == 0) {
+    memset((void *)data,0,sizeof(long int)*mat[MAT_SIZE]);
+  } else {
+    for (i = 0; i< mat[MAT_SIZE]; i++)
+      data[i] = nval;
+  }
 }
 
 static void
