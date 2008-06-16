@@ -11,7 +11,7 @@
 * File:		utilities for displaying messages in YAP.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-06-12 10:55:52 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-06-16 21:22:15 $,$Author: vsc $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -25,7 +25,7 @@
 file_location(Prefix) -->
 	{
 	 prolog_load_context(file, FileName)
-	 },
+	},
 	{ '$start_line'(LN) },
 	file_position(FileName,LN,Prefix),
 	[ nl ].

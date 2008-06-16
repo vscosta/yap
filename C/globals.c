@@ -1869,6 +1869,7 @@ p_nb_heap_add_to_heap(void)
   CELL *qd = GetHeap(ARG1,"add_to_heap"), *oldH, *oldHB, *pt;
   UInt hsize, hmsize, old_sz;
   Term arena, to, key;
+  UInt mingrow;
 
   if (!qd)
     return FALSE;
@@ -1879,7 +1880,7 @@ p_nb_heap_add_to_heap(void)
     CELL *top = qd+(HEAP_START+2*hmsize);
     UInt extra_size;
 
-    if (hmsize >= 64*1024) {
+    if (hmsize <= 64*1024) {
       extra_size = 64*1024;
     } else {
       extra_size = hmsize;
@@ -1913,9 +1914,10 @@ p_nb_heap_add_to_heap(void)
   arena = qd[HEAP_ARENA];
   if (arena == 0L)
     return FALSE;
-  key = CopyTermToArena(ARG2, arena, FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
+  mingrow = garena_overflow_size(ArenaPt(arena));
+  key = CopyTermToArena(ARG2, arena, FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
   arena = qd[HEAP_ARENA];
-  to = CopyTermToArena(ARG3, arena, FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
+  to = CopyTermToArena(ARG3, arena, FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
   if (key == 0 || to == 0L)
     return FALSE;
   qd = GetHeap(ARG1,"add_to_heap");
@@ -2295,6 +2297,7 @@ p_nb_beam_add_to_beam(void)
   CELL *qd = GetHeap(ARG1,"add_to_beam"), *oldH, *oldHB, *pt;
   UInt hsize, hmsize, old_sz;
   Term arena, to, key;
+  UInt mingrow;
 
   if (!qd)
     return FALSE;
@@ -2314,9 +2317,10 @@ p_nb_beam_add_to_beam(void)
   arena = qd[HEAP_ARENA];
   if (arena == 0L)
     return FALSE;
-  key = CopyTermToArena(ARG2, qd[HEAP_ARENA], FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
+  mingrow = garena_overflow_size(ArenaPt(arena));
+  key = CopyTermToArena(ARG2, qd[HEAP_ARENA], FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
   arena = qd[HEAP_ARENA];
-  to = CopyTermToArena(ARG3, arena, FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, 0);
+  to = CopyTermToArena(ARG3, arena, FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
   if (key == 0 || to == 0L)
     return FALSE;
   qd = GetHeap(ARG1,"add_to_beam");

@@ -3703,7 +3703,7 @@ syntax_error (TokEntry * tokptr, int sno)
 Int
 Yap_FirstLineInParse (void)
 {
-  return(StartLine);
+  return StartLine;
 }
 
 static Int

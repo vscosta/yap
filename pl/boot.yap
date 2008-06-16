@@ -104,7 +104,7 @@ true :- true.
 	nb_setval('$endif',off),
 	nb_setval('$consulting_file',[]),
 	nb_setval('$consulting',false),
-	nb_setval('$included_file','').
+	nb_setval('$included_file',[]).
 	
 
 % Start file for yap

@@ -7072,6 +7072,12 @@ must be an atom (named array). The @var{Size} must evaluate to an
 integer.  The @var{Type} must be bound to one of types mentioned
 previously.
 
+@item reset_static_array(+@var{Name})
+@findex reset_static_array/1
+@snindex reset_static_array/1
+@cnindex reset_static_array/1
+Reset static array with name @var{Name} to its initial value.
+
 @item static_array_location(+@var{Name}, -@var{Ptr})
 @findex static_array_location/4
 @snindex static_array_location/4
@@ -9683,6 +9689,12 @@ Check whether @var{T} is a valid red-black tree.
 Add an element with key @var{Key} and @var{Value} to the tree
 @var{T0} creating a new red-black tree @var{TF}. Duplicated elements are not
 allowed.
+
+@snindex rb_insert_new/4
+@cnindex rb_insert_new/4
+Add a new element with key @var{Key} and @var{Value} to the tree
+@var{T0} creating a new red-black tree @var{TF}. Fails is an element
+with @var{Key} exists in the tree.
 
 @item rb_lookup(+@var{Key},-@var{Value},+@var{T})
 @findex rb_lookup/3
