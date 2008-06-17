@@ -1165,12 +1165,16 @@ Yap_InitSlot(Term t)
   return((ASP+1)-LCL0);
 }
 
-void
+int
 Yap_RecoverSlots(int n)
 {
   Int old_slots = IntOfTerm(ASP[0]);
+  if (old_slots - n < 0) {
+    return FALSE;
+  }
   ASP += n;
   ASP[0] = MkIntTerm(old_slots-n);
+  return TRUE;
 }
 
 Term

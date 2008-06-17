@@ -381,7 +381,7 @@ extern X_API YAP_Term *PROTO(YAP_AddressFromSlot,(long int));
 extern X_API void PROTO(YAP_PutInSlot,(long int, YAP_Term));
 
 /*  void  YAP_RecoverSlots()  */
-extern X_API void PROTO(YAP_RecoverSlots,(int));
+extern X_API int PROTO(YAP_RecoverSlots,(int));
 
 /*  void  YAP_Throw()  */
 extern X_API void PROTO(YAP_Throw,(YAP_Term));

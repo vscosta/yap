@@ -1566,7 +1566,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
     if (MARKED_PTR(gc_ENV+E_CB))
       return;
     MARK(gc_ENV+E_CB);
-    
+
     size = EnvSize((CELL_PTR) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
     pvbmap = EnvBMap((CELL_PTR) (gc_ENV[E_CP]));
 #if 0

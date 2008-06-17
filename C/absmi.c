@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2008-06-04 14:47:18 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-06-17 13:37:48 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.241  2008/06/04 14:47:18  vsc
+* make sure we do trim_trail whenever we mess with B!
+*
 * Revision 1.240  2008/04/04 16:11:40  vsc
 * yapor had gotten broken with recent thread changes
 *
@@ -832,7 +835,7 @@ Yap_absmi(int inp)
 	ASP = (CELL *) PROTECT_FROZEN_B(B);
       }
       else {
-	ASP = YREG;
+	ASP = YREG+E_CB;
       }
       saveregs();
 #if PUSH_REGS
@@ -849,7 +852,7 @@ Yap_absmi(int inp)
 	ASP = (CELL *) PROTECT_FROZEN_B(B);
       }
       else {
-	ASP = YREG;
+	ASP = YREG+E_CB;
       }
       saveregs();
 #if PUSH_REGS
@@ -858,7 +861,7 @@ Yap_absmi(int inp)
 #if BP_FREE
       P1REG = PCBACKUP;
 #endif
-      return (0);
+      return 0;
       ENDBOp();
 
 /*****************************************************************
@@ -1042,7 +1045,7 @@ Yap_absmi(int inp)
 	  JMPNext();
 	}
 	restore_yaam_regs(PREG->u.lld.n);
-	restore_at_least_one_arg(PREG->u.lld.t.s);
+	restore_args(PREG->u.lld.t.s);
 	LOCK(PREG->u.lld.d->ClPred->StatisticsForPred.lock);
 	PREG->u.lld.d->ClPred->StatisticsForPred.NOfRetries++;
 	UNLOCK(PREG->u.lld.d->ClPred->StatisticsForPred.lock);
@@ -1139,7 +1142,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	if (SCH_top_shared_cp(B)) {
 	  SCH_last_alternative(PREG, B_YREG);
-	  restore_at_least_one_arg(ap->ArityOfPE);
+	  restore_args(ap->ArityOfPE);
 #ifdef FROZEN_STACKS
 	  S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 #else
@@ -1150,7 +1153,7 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
 	  {
 	    pop_yaam_regs();
-	    pop_at_least_one_arg(ap->ArityOfPE);
+	    pop_args(ap->ArityOfPE);
 	    S_YREG--;
 #ifdef FROZEN_STACKS
 	    S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
@@ -1335,7 +1338,7 @@ Yap_absmi(int inp)
 	  JMPNext();
 	}
 	restore_yaam_regs(PREG->u.lld.n);
-	restore_at_least_one_arg(PREG->u.lld.t.s);
+	restore_args(PREG->u.lld.t.s);
 	RetriesCounter--;
 	if (RetriesCounter == 0) {
 	  saveregs();
@@ -1459,7 +1462,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	if (SCH_top_shared_cp(B)) {
 	  SCH_last_alternative(PREG, B_YREG);
-	  restore_at_least_one_arg(ap->ArityOfPE);
+	  restore_args(ap->ArityOfPE);
 #ifdef FROZEN_STACKS
 	  S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 #else
@@ -1470,7 +1473,7 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
 	  {
 	    pop_yaam_regs();
-	    pop_at_least_one_arg(ap->ArityOfPE);
+	    pop_args(ap->ArityOfPE);
 	    S_YREG--;
 #ifdef FROZEN_STACKS
 	    S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
@@ -1554,7 +1557,7 @@ Yap_absmi(int inp)
 	LogUpdClause *cl = ClauseCodeToLogUpdClause(PREG);
 	Term t;
 
-	ASP = YREG;
+	ASP = YREG+E_CB;
 	saveregs();
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
 	  if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
@@ -2677,7 +2680,7 @@ Yap_absmi(int inp)
 	if (ActiveSignals & YAP_CREEP_SIGNAL) {
 	  GONext();
 	}
-	ASP = YREG;
+	ASP = YREG+E_CB;
 	/* cut_e */
 	if (SREG <= ASP) {
 	  ASP = SREG-EnvSizeInCells;
@@ -8171,7 +8174,7 @@ Yap_absmi(int inp)
 	/* fprintf(stderr,"+ %p/%p %d %d %d--%u\n",PREG,PREG->u.lld.d->ClPred,timestamp,PREG->u.lld.d->ClPred->TimeStampOfPred,PREG->u.lld.d->ClTimeStart,PREG->u.lld.d->ClTimeEnd);*/
 	/* Point AP to the code that follows this instruction */
 	/* always do this, even if we are not going to use it */
-	store_at_least_one_arg(PREG->u.lld.t.s);
+	store_args(PREG->u.lld.t.s);
 	store_yaam_regs(PREG->u.lld.n, 0);
 	set_cut(S_YREG, B);
 	B = B_YREG;
@@ -8304,7 +8307,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	if (SCH_top_shared_cp(B)) {
 	  SCH_last_alternative(PREG, B_YREG);
-	  restore_at_least_one_arg(ap->ArityOfPE);
+	  restore_args(ap->ArityOfPE);
 #ifdef FROZEN_STACKS
 	  S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 #else
@@ -8315,7 +8318,7 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
 	  {
 	    pop_yaam_regs();
-	    pop_at_least_one_arg(ap->ArityOfPE);
+	    pop_args(ap->ArityOfPE);
 	    S_YREG--;
 #ifdef FROZEN_STACKS
 	    S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);

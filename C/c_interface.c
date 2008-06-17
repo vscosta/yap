@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-06-04 14:47:18 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-06-17 13:37:48 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.118  2008/06/04 14:47:18  vsc
+* make sure we do trim_trail whenever we mess with B!
+*
 * Revision 1.117  2008/06/04 13:58:36  vsc
 * more fixes to C-interface
 *
@@ -438,7 +441,7 @@ X_API long    STD_PROTO(YAP_InitSlot,(Term));
 X_API Term    STD_PROTO(YAP_GetFromSlot,(long));
 X_API Term   *STD_PROTO(YAP_AddressFromSlot,(long));
 X_API void    STD_PROTO(YAP_PutInSlot,(long, Term));
-X_API void    STD_PROTO(YAP_RecoverSlots,(int));
+X_API int     STD_PROTO(YAP_RecoverSlots,(int));
 X_API void    STD_PROTO(YAP_Throw,(Term));
 X_API void    STD_PROTO(YAP_Halt,(int));
 X_API Term   *STD_PROTO(YAP_TopOfLocalStack,(void));
@@ -1002,10 +1005,10 @@ YAP_InitSlot(Term t)
   return Yap_InitSlot(t);
 }
 
-X_API void
+X_API int
 YAP_RecoverSlots(int n)
 {
- Yap_RecoverSlots(n);
+ return Yap_RecoverSlots(n);
 }
 
 X_API Term
@@ -1440,7 +1443,7 @@ YAP_RunGoal(Term t)
     CP = old_CP;
     Yap_AllowRestart = TRUE;
   } else {
-    ASP = B->cp_env;
+    ENV = B->cp_env;
     B = B->cp_b;
     Yap_AllowRestart = FALSE;
   }

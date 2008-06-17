@@ -14150,10 +14150,10 @@ Return the address of slot @var{slot}: please use with care.
 @findex YAP_PutInSlot (C-Interface function)
 Set the contents of slot @var{slot} to @var{t}.
 
-@item void YAP_RecoverSlots(int @var{HowMany})
+@item int YAP_RecoverSlots(int @var{HowMany})
 @findex YAP_RecoverSlots (C-Interface function)
 Recover the space for @var{HowMany} slots: these will include the
-current default slot.
+current default slot. Fails if no such slots exist.
 @end table
 
 The following functions complement @var{YAP_RunGoal}:
