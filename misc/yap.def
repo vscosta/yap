@@ -49,6 +49,7 @@ YAP_BufferToString
 YAP_BufferToAtomList
 YAP_Error
 YAP_RunGoal
+YAP_RunGoalOnce
 YAP_RestartGoal
 YAP_GoalHasException
 YAP_ClearExceptions
