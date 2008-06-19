@@ -962,19 +962,19 @@ if test "$tabling" = "yes"
 fi
 if test ! "$yap_cv_cplint" = "no"
   then	
-	GLIBS=`glib-config --libs glib` 
-	GFLAGS=`glib-config --cflags glib`
+	GLIBS=`pkg-config --libs glib-2.0` 
+	GFLAGS=`pkg-config --cflags glib-2.0`
 	CPLINT_LIBS=${CPLINT_LIBS}$GLIBS
 	CPLINT_CFLAGS=" $GFLAGS "
-	CPLINT_LDFLAGS=" `echo $GLIBS | awk '{print $1}'` -L/usr/local/lib/"
-		LDFLAGS=${LDFLAGS}" `echo $GLIBS | awk '{print $1}'` -L/usr/local/lib/"
+	CPLINT_LDFLAGS=" `echo $GLIBS | awk '{print $1}'` -L$pefic/lib/"
+		LDFLAGS=${LDFLAGS}" `echo $GLIBS | awk '{print $1}'` -L$prefix/lib/"
 	if test ! "$yap_cv_cplint" = "yes"
 	then
 		LDFLAGS+=" -L${yap_cv_cplint}/lib"
 		CPLINT_LDFLAGS+=" -L${yap_cv_cplint}/lib"
 		CPLINT_CFLAGS+=" -I${yap_cv_cplint}/include"
 	fi
-	AC_SEARCH_LIBS([g_hash_table_new], [glib], [CPLINT_LIBS="-lglib "], [AC_MSG_ERROR([This package needs glib.], [1])], [])
+	AC_SEARCH_LIBS([g_hash_table_new], [glib-2.0], [CPLINT_LIBS="-lglib-2.0 "], [AC_MSG_ERROR([This package needs glib >=2.0.], [1])], [])
 	AC_SEARCH_LIBS([array_do_alloc], [glu], [CPLINT_LIBS="-lglu "$CPLINT_LIBS], [AC_MSG_ERROR([This package needs glu.], [1])], [])
 	AC_SEARCH_LIBS([Cudd_Init], [cu], [CPLINT_LIBS="-lcu "$CPLINT_LIBS], [AC_MSG_ERROR([This package needs glu.], [1])], [-lglu -lm])
 	ENABLE_CPLINT=""

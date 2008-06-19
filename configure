@@ -7232,12 +7232,12 @@ if test "$tabling" = "yes"
 fi
 if test ! "$yap_cv_cplint" = "no"
   then
-	GLIBS=`glib-config --libs glib`
-	GFLAGS=`glib-config --cflags glib`
+	GLIBS=`pkg-config --libs glib-2.0`
+	GFLAGS=`pkg-config --cflags glib-2.0`
 	CPLINT_LIBS=${CPLINT_LIBS}$GLIBS
 	CPLINT_CFLAGS=" $GFLAGS "
-	CPLINT_LDFLAGS=" `echo $GLIBS | awk '{print $1}'` -L/usr/local/lib/"
-		LDFLAGS=${LDFLAGS}" `echo $GLIBS | awk '{print $1}'` -L/usr/local/lib/"
+	CPLINT_LDFLAGS=" `echo $GLIBS | awk '{print $1}'` -L$pefic/lib/"
+		LDFLAGS=${LDFLAGS}" `echo $GLIBS | awk '{print $1}'` -L$prefix/lib/"
 	if test ! "$yap_cv_cplint" = "yes"
 	then
 		LDFLAGS+=" -L${yap_cv_cplint}/lib"
@@ -7272,7 +7272,7 @@ return g_hash_table_new ();
   return 0;
 }
 _ACEOF
-for ac_lib in '' glib; do
+for ac_lib in '' glib-2.0; do
   if test -z "$ac_lib"; then
     ac_res="none required"
   else
@@ -7324,10 +7324,10 @@ echo "${ECHO_T}$ac_cv_search_g_hash_table_new" >&6; }
 ac_res=$ac_cv_search_g_hash_table_new
 if test "$ac_res" != no; then
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-  CPLINT_LIBS="-lglib "
+  CPLINT_LIBS="-lglib-2.0 "
 else
-  { { echo "$as_me:$LINENO: error: This package needs glib." >&5
-echo "$as_me: error: This package needs glib." >&2;}
+  { { echo "$as_me:$LINENO: error: This package needs glib >=2.0." >&5
+echo "$as_me: error: This package needs glib >=2.0." >&2;}
    { (exit 1); exit 1; }; }
 fi
 
