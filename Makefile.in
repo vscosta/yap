@@ -562,17 +562,17 @@ mycb: $(srcdir)/mycb.c
 	$(CC) $(CFLAGS) $(srcdir)/mycb.c -o mycb
 
 all: startup
-	@INSTALL_DLLS@ (cd library/random; make)
-	@INSTALL_DLLS@ (cd library/regex; make)
-	@INSTALL_DLLS@ (cd library/rltree; make)
-	@INSTALL_DLLS@ (cd library/system; make)
-	@INSTALL_DLLS@ (cd library/tries; make)
-	@INSTALL_DLLS@ (cd library/rltree; make)
-	@INSTALL_DLLS@ (cd library/lammpi; make)
-	@INSTALL_DLLS@ (cd library/matrix; make)
-	@INSTALL_MATLAB@ (cd library/matlab; make)
-	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; make)
-	@ENABLE_CPLINT@ (cd cplint; make)
+	@INSTALL_DLLS@ (cd library/random; $(MAKE))
+	@INSTALL_DLLS@ (cd library/regex; $(MAKE))
+	@INSTALL_DLLS@ (cd library/rltree; $(MAKE))
+	@INSTALL_DLLS@ (cd library/system; $(MAKE))
+	@INSTALL_DLLS@ (cd library/tries; $(MAKE))
+	@INSTALL_DLLS@ (cd library/rltree; $(MAKE))
+	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE))
+	@INSTALL_DLLS@ (cd library/matrix; $(MAKE))
+	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE))
+	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; $(MAKE))
+	@ENABLE_CPLINT@ (cd cplint; $(MAKE))
 
 startup: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup
@@ -603,18 +603,18 @@ install_unix: startup libYap.a
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/swi
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
-	@INSTALL_DLLS@ (cd library/random; make install)
-	@INSTALL_DLLS@ (cd library/regex; make install)
-	@INSTALL_DLLS@ (cd library/rltree; make install)
-	@INSTALL_DLLS@ (cd library/system; make install)
-	@INSTALL_DLLS@ (cd library/tries; make install)
-	@INSTALL_DLLS@ (cd library/lammpi; make install)
-	@INSTALL_DLLS@ (cd library/matrix; make install)
-	@INSTALL_MATLAB@ (cd library/matlab; make install)
-	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; make install)
+	@INSTALL_DLLS@ (cd library/random; $(MAKE) install)
+	@INSTALL_DLLS@ (cd library/regex; $(MAKE) install)
+	@INSTALL_DLLS@ (cd library/rltree; $(MAKE) install)
+	@INSTALL_DLLS@ (cd library/system; $(MAKE) install)
+	@INSTALL_DLLS@ (cd library/tries; $(MAKE) install)
+	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE) install)
+	@INSTALL_DLLS@ (cd library/matrix; $(MAKE) install)
+	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
+	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; $(MAKE) install)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
-	@ENABLE_CPLINT@ (cd cplint; make install)
+	@ENABLE_CPLINT@ (cd cplint; $(MAKE) install)
 
 
 install_win32: startup
@@ -633,34 +633,34 @@ install_win32: startup
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 	$(INSTALL) config.h $(INCLUDEDIR)/config.h
-	(cd library/random; make install)
-	(cd library/matrix; make install)
-	(cd library/regex; make install)
-	(cd library/rltree; make install)
-	(cd library/system; make install)
-	@ENABLE_WINCONSOLE@ (cd LGPL/swi_console; make install)
-	@INSTALL_MATLAB@ (cd library/matlab; make install)
-	(cd library/tries; make install)
-	@ENABLE_CPLINT@ (cd cplint; make install)
+	(cd library/random; $(MAKE) install)
+	(cd library/matrix; $(MAKE) install)
+	(cd library/regex; $(MAKE) install)
+	(cd library/rltree; $(MAKE) install)
+	(cd library/system; $(MAKE) install)
+	@ENABLE_WINCONSOLE@ (cd LGPL/swi_console; $(MAKE) install)
+	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
+	(cd library/tries; $(MAKE) install)
+	@ENABLE_CPLINT@ (cd cplint; $(MAKE) install)
 
 install_library: @YAPLIB@
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 
 install_data:
-	(cd library ; make install)
-	(cd LGPL ; make install)
-	(cd GPL ; make install)
-	@ENABLE_JPL@ (cd LGPL/JPL ; make install)
-	@ENABLE_JPL@ (cd LGPL/JPL/java; make install)
+	(cd library ; $(MAKE) install)
+	(cd LGPL ; $(MAKE) install)
+	(cd GPL ; $(MAKE) install)
+	@ENABLE_JPL@ (cd LGPL/JPL ; $(MAKE) install)
+	@ENABLE_JPL@ (cd LGPL/JPL/java; $(MAKE) install)
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(SHAREDIR)/Yap/
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(SHAREDIR)/Yap/
-#	(cd CLPQR ; make install)
-	@INSTALLCLP@(cd LGPL/clp ; make install)
-	@INSTALLCLP@(cd GPL/clpqr ; make install)
-#	(cd CHR ; make install)
-	@INSTALLCLP@(cd LGPL/chr ; make install)
-	@INSTALLCLP@(cd CLPBN ; make install)
+#	(cd CLPQR ; $(MAKE) install)
+	@INSTALLCLP@(cd LGPL/clp ; $(MAKE) install)
+	@INSTALLCLP@(cd GPL/clpqr ; $(MAKE) install)
+#	(cd CHR ; $(MAKE) install)
+	@INSTALLCLP@(cd LGPL/chr ; $(MAKE) install)
+	@INSTALLCLP@(cd CLPBN ; $(MAKE) install)
 
 
 ##########
@@ -677,16 +677,16 @@ depend: $(HEADERS) $(C_SOURCES)
 
 clean: clean_docs
 	rm -f *.o *~ *.BAK *.a
-	@INSTALL_DLLS@ (cd library/matrix; make clean)
-	@INSTALL_DLLS@ (cd library/random; make clean)
-	@INSTALL_DLLS@ (cd library/regex; make clean)
-	@INSTALL_DLLS@ (cd library/system; make clean)
-	@INSTALL_DLLS@ (cd library/rltree; make clean)
-	@INSTALL_DLLS@ (cd library/tries; make clean)
-	@INSTALL_DLLS@ (cd library/lammpi; make clean)
-	@INSTALL_MATLAB@ (cd library/matlab; make clean)
-	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; make clean)
-	@ENABLE_CPLINT@ (cd cplint; make clean)
+	@INSTALL_DLLS@ (cd library/matrix; $(MAKE) clean)
+	@INSTALL_DLLS@ (cd library/random; $(MAKE) clean)
+	@INSTALL_DLLS@ (cd library/regex; $(MAKE) clean)
+	@INSTALL_DLLS@ (cd library/system; $(MAKE) clean)
+	@INSTALL_DLLS@ (cd library/rltree; $(MAKE) clean)
+	@INSTALL_DLLS@ (cd library/tries; $(MAKE) clean)
+	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE) clean)
+	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) clean)
+	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; $(MAKE) clean)
+	@ENABLE_CPLINT@ (cd cplint; $(MAKE) clean)
 
 
 
@@ -712,7 +712,7 @@ yap.dll:  libYap.a
 	-Wl,--no-whole-archive $(LIBS) $(LDFLAGS)
 
 install_info:
-	make info; \
+	$(MAKE) info; \
 	$(INSTALL) yap.info* $(DESTDIR)$(INFODIR); \
 	if test -e $(DESTDIR)$(INFODIR)/emacs.bz2; then \
 	  bzip2 --quiet --force $(DESTDIR)$(INFODIR)/yap.info*; \
@@ -765,7 +765,7 @@ realclean_docs: clean_docs
 	rm -f yap.ps yap.html yap_toc.html yap.pdf yap.info*
 
 installcheck:
-	@ENABLE_CPLINT@ (cd cplint; make installcheck)
+	@ENABLE_CPLINT@ (cd cplint; $(MAKE) installcheck)
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 

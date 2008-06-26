@@ -18,6 +18,8 @@
 	    dgraph_to_wdgraph/2,
 	    wdgraph_neighbors/3,
 	    wdgraph_neighbours/3,
+	    wdgraph_wneighbors/3,
+	    wdgraph_wneighbours/3,
 	    wdgraph_transpose/2,
 	    wdgraph_transitive_closure/2,
 	    wdgraph_symmetric_closure/2,
@@ -25,7 +27,8 @@
 	    wdgraph_min_path/5,
 	    wdgraph_min_paths/3,
 	    wdgraph_max_path/5,
-	    wdgraph_path/3]).
+	    wdgraph_path/3,
+	    wdgraph_reachable/3]).
 
 :- reexport(library(dgraphs),
 	    [dgraph_add_vertex/3 as wdgraph_add_vertex,
@@ -279,12 +282,18 @@ cvt_neighbs([V|WEs], [V-1|Es]) :-
 	cvt_neighbs(WEs, Es).
 
 wdgraph_neighbors(V, WG, Neighbors) :-
-	rb_lookup(V, WG, EdgesList0),
+	rb_lookup(V, EdgesList0, WG),
 	cvt_wneighbs(EdgesList0, Neighbors).
 
 wdgraph_neighbours(V, WG, Neighbors) :-
-	rb_lookup(V, WG, EdgesList0),
+	rb_lookup(V, EdgesList0, WG),
 	cvt_wneighbs(EdgesList0, Neighbors).
+
+wdgraph_wneighbors(V, WG, Neighbors) :-
+	rb_lookup(V, Neighbors, WG).
+
+wdgraph_wneighbours(V, WG, Neighbors) :-
+	rb_lookup(V, Neighbors, WG).
 
 wdgraph_transpose(Graph, TGraph) :-
 	rb_visit(Graph, Edges),
@@ -433,3 +442,17 @@ wdgraph_path(V, WG, P) :-
 	wdgraph_to_dgraph(WG, G),
 	dgraph_path(V, G, P).
 
+wdgraph_reachable(V, G, Edges) :-
+	rb_lookup(V, Children, G),
+	ord_list_to_rbtree([V-[]],Done0),
+	reachable(Children, Done0, _, G, Edges, []).
+
+reachable([], Done, Done, _, Edges, Edges).
+reachable([V-_|Vertices], Done0, DoneF, G, EdgesF, Edges0) :-
+	rb_lookup(V,_, Done0), !,
+	reachable(Vertices, Done0, DoneF, G, EdgesF, Edges0).
+reachable([V-_|Vertices], Done0, DoneF, G, [V|EdgesF], Edges0) :-
+	rb_lookup(V, Kids, G),
+	rb_insert(Done0, V, [], Done1),
+	reachable(Kids, Done1, DoneI, G, EdgesF, EdgesI),
+	reachable(Vertices, DoneI, DoneF, G, EdgesI, Edges0).

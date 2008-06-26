@@ -29,7 +29,8 @@
 	    dgraph_vertices/2 as undgraph_vertices,
 	    dgraph_complement/2 as undgraph_complement,
 	    dgraph_symmetric_closure/2 as dgraph_to_undgraph,
-	    dgraph_edge/3 as undgraph_edge
+	    dgraph_edge/3 as undgraph_edge,
+	    dgraph_reachable/3 as undgraph_reachable
 	    ]).
 
 

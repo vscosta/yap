@@ -11197,6 +11197,13 @@ Edge @var{N1}-@var{N2} is an edge in directed graph @var{Graph}.
 Unify @var{Edges} with all edges appearing in graph
 @var{Graph}.
 
+@item dgraph_add_vertices(+@var{Graph}, +@var{Vertex}, -@var{NewGraph})
+@findex  dgraph_add_vertex/3
+@snindex dgraph_add_vertex/3
+@cnindex dgraph_add_vertex/3
+Unify @var{NewGraph} with a new graph obtained by adding
+vertex @var{Vertex} to the graph @var{Graph}.
+
 @item dgraph_add_vertices(+@var{Graph}, +@var{Vertices}, -@var{NewGraph})
 @findex  dgraph_add_vertices/3
 @snindex dgraph_add_vertices/3
@@ -11204,13 +11211,28 @@ Unify @var{Edges} with all edges appearing in graph
 Unify @var{NewGraph} with a new graph obtained by adding the list of
 vertices @var{Vertices} to the graph @var{Graph}.
 
-@item dgraph_del_vertices(+@var{Vertices}, +@var{Graph}, -@var{NewGraph})
+@item dgraph_del_vertex(+@var{Graph}, +@var{Vertex}, -@var{NewGraph})
+@findex  dgraph_del_vertex/3
+@syindex dgraph_del_vertex/3
+@cnindex dgraph_del_vertex/3
+Unify @var{NewGraph} with a new graph obtained by deleting vertex
+@var{Vertex} and all the edges that start from or go to @var{Vertex} to
+the graph @var{Graph}.
+
+@item dgraph_del_vertices(+@var{Graph}, +@var{Vertices}, -@var{NewGraph})
 @findex  dgraph_del_vertices/3
 @syindex dgraph_del_vertices/3
 @cnindex dgraph_del_vertices/3
 Unify @var{NewGraph} with a new graph obtained by deleting the list of
 vertices @var{Vertices} and all the edges that start from or go to a
 vertex in @var{Vertices} to the graph @var{Graph}.
+
+@item dgraph_add_edge(+@var{Graph}, +@var{N1}, +@var{N2}, -@var{NewGraph})
+@findex  dgraph_add_edge/4
+@snindex dgraph_add_edge/4
+@cnindex dgraph_add_edge/4
+Unify @var{NewGraph} with a new graph obtained by adding the edge
+@var{N1}-@var{N2} to the graph @var{Graph}.
 
 @item dgraph_add_edges(+@var{Graph}, +@var{Edges}, -@var{NewGraph})
 @findex  dgraph_add_edges/3
@@ -11219,6 +11241,14 @@ vertex in @var{Vertices} to the graph @var{Graph}.
 Unify @var{NewGraph} with a new graph obtained by adding the list of
 edges @var{Edges} to the graph @var{Graph}.
 
+@item dgraph_del_edge(+@var{Graph}, +@var{N1}, +@var{N2}, -@var{NewGraph})
+@findex  dgraph_del_edge/4
+@snindex dgraph_del_edge/4
+@cnindex dgraph_del_edge/4
+Succeeds if @var{NewGraph} unifies with a new graph obtained by
+removing the edge @var{N1}-@var{N2} from the graph @var{Graph}. Notice
+that no vertices are deleted.
+
 @item dgraph_del_edges(+@var{Graph}, +@var{Edges}, -@var{NewGraph})
 @findex  dgraph_del_edges/3
 @snindex dgraph_del_edges/3
@@ -11226,6 +11256,23 @@ edges @var{Edges} to the graph @var{Graph}.
 Unify @var{NewGraph} with a new graph obtained by removing the list of
 edges @var{Edges} from the graph @var{Graph}. Notice that no vertices
 are deleted.
+
+@item dgraph_to_ugraph(+@var{Graph}, -@var{UGraph})
+@findex  dgraph_to_ugraph/2
+@snindex dgraph_to_ugraph/2
+@cnindex dgraph_to_ugraph/2
+Unify @var{UGraph} with the representation used by the @var{ugraphs}
+unweighted graphs library, that is, a list of the form
+@var{V-Neighbors}, where @var{V} is a node and @var{Neighbors} the nodes
+children.
+
+@item ugraph_to_dgraph( +@var{UGraph}, -@var{Graph})
+@findex  ugraph_to_dgraph/2
+@snindex ugraph_to_dgraph/2
+@cnindex ugraph_to_dgraph/2
+Unify @var{Graph} with the directed graph obtain from @var{UGraph},
+represented in the form used in the @var{ugraphs} unweighted graphs
+library.
 
 @item dgraph_neighbors(+@var{Vertex}, +@var{Graph}, -@var{Vertices})
 @findex  dgraph_neighbors/3
@@ -11255,7 +11302,7 @@ Unify @var{NewGraph} with a new graph obtained from @var{Graph} by
 replacing all edges of the form @var{V1-V2} by edges of the form
 @var{V2-V1}. 
 
-@item dgraph_close(+@var{Graph1}, +@var{Graph2}, -@var{ComposedGraph})
+@item dgraph_compose(+@var{Graph1}, +@var{Graph2}, -@var{ComposedGraph})
 @findex  dgraph_compose/3
 @snindex dgraph_compose/3
 @cnindex dgraph_compose/3
@@ -11284,22 +11331,57 @@ contain the edge @var{V-U}.
 @cnindex dgraph_top_sort/2
 Unify @var{Vertices} with the topological sort of graph @var{Graph}.
 
-@item dgraph_to_ugraph(+@var{Graph}, -@var{UGraph})
-@findex  dgraph_to_ugraph/2
-@snindex dgraph_to_ugraph/2
-@cnindex dgraph_to_ugraph/2
-Unify @var{UGraph} with the representation used by the @var{ugraphs}
-unweighted graphs library, that is, a list of the form
-@var{V-Neighbors}, where @var{V} is a node and @var{Neighbors} the nodes
-children.
+@item dgraph_top_sort(+@var{Graph}, -@var{Vertices}, ?@var{Vertices0})
+@findex  dgraph_top_sort/3
+@snindex dgraph_top_sort/3
+@cnindex dgraph_top_sort/3
+Unify the difference list @var{Vertices}-@var{Vertices0} with the
+topological sort of graph @var{Graph}.
 
-@item ugraph_to_dgraph( +@var{UGraph}, -@var{Graph})
-@findex  ugraph_to_dgraph/2
-@snindex ugraph_to_dgraph/2
-@cnindex ugraph_to_dgraph/2
-Unify @var{Graph} with the directed graph obtain from @var{UGraph},
-represented in the form used in the @var{ugraphs} unweighted graphs
-library.
+@item dgraph_min_path(+@var{V1}, +@var{V1}, +@var{Graph}, -@var{Path}, ?@var{Costt})
+@findex  dgraph_min_path/5
+@snindex dgraph_min_path/5
+@cnindex dgraph_min_path/5
+Unify the list @var{Path} with the minimal cost path between nodes
+@var{N1} and @var{N2} in graph @var{Graph}. Path @var{Path} has cost
+@var{Cost}.
+
+@item dgraph_max_path(+@var{V1}, +@var{V1}, +@var{Graph}, -@var{Path}, ?@var{Costt})
+@findex  dgraph_max_path/5
+@snindex dgraph_max_path/5
+@cnindex dgraph_max_path/5
+Unify the list @var{Path} with the maximal cost path between nodes
+@var{N1} and @var{N2} in graph @var{Graph}. Path @var{Path} has cost
+@var{Cost}.
+
+@item dgraph_min_paths(+@var{V1}, +@var{Graph}, -@var{Paths})
+@findex  dgraph_min_paths/3
+@snindex dgraph_min_paths/3
+@cnindex dgraph_min_paths/3
+Unify the list @var{Paths} with the minimal cost paths from node
+@var{N1} to the nodes in graph @var{Graph}.
+
+@item dgraph_isomorphic(+@var{Vs}, +@var{NewVs}, +@var{G0}, -@var{GF})
+@findex  dgraph_isomorphic/4
+@snindex dgraph_isomorphic/4
+@cnindex dgraph_isomorphic/4
+Unify the list @var{GF} with the graph isomorphic to @var{G0} where 
+vertices in @var{Vs} map to vertices in @var{NewVs}.
+
+@item dgraph_path(+@var{Vertex}, +@var{Graph}, ?@var{Path})
+@findex  dgraph_path/3
+@snindex dgraph_path/3
+@cnindex dgraph_path/3
+The path @var{Path} is a path starting at vertex @var{Vertex} in graph
+@var{Graph}.
+
+@item dgraph_reachable(+@var{Vertex}, +@var{Graph}, ?@var{Edges})
+@findex  dgraph_path/3
+@snindex dgraph_path/3
+@cnindex dgraph_path/3
+The path @var{Path} is a path starting at vertex @var{Vertex} in graph
+@var{Graph}.
+
 @end table
 
 @node UnDGraphs, LAM , DGraphs, Library

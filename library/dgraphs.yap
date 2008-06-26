@@ -5,17 +5,17 @@
 
 :- module( dgraphs,
 	   [
-	    dgraph_add_edge/4,
-	    dgraph_add_edges/3,
-	    dgraph_add_vertex/3,
-	    dgraph_add_vertices/3,
-	    dgraph_del_edge/4,
-	    dgraph_del_edges/3,
-	    dgraph_del_vertex/3,
-	    dgraph_del_vertices/3,
+	    dgraph_vertices/2,
 	    dgraph_edge/3,
 	    dgraph_edges/2,
-	    dgraph_vertices/2,
+	    dgraph_add_vertex/3,
+	    dgraph_add_vertices/3,
+	    dgraph_del_vertex/3,
+	    dgraph_del_vertices/3,
+	    dgraph_add_edge/4,
+	    dgraph_add_edges/3,
+	    dgraph_del_edge/4,
+	    dgraph_del_edges/3,
 	    dgraph_to_ugraph/2,
 	    ugraph_to_dgraph/2,
 	    dgraph_neighbors/3,
@@ -31,7 +31,8 @@
 	    dgraph_max_path/5,
 	    dgraph_min_paths/3,
 	    dgraph_isomorphic/4,
-	    dgraph_path/3]).
+	    dgraph_path/3,
+	    dgraph_reachable/3]).
 
 :- reexport(library(rbtrees),
 	[rb_new/1 as dgraph_new]).
@@ -191,7 +192,7 @@ dgraph_del_vertex(Vs0, V, Vsf) :-
 delete_edge(Edges0, V, Edges) :-
 	ord_del_element(Edges0, V, Edges).
 
-dgraph_del_vertices(G0, Vs, GF) -->
+dgraph_del_vertices(G0, Vs, GF) :-
 	sort(Vs,SortedVs),
 	delete_all(SortedVs, G0, G1),
 	delete_remaining_edges(SortedVs, G1, GF).
@@ -362,7 +363,7 @@ dgraph_max_path(V1, V2, Graph, Path, Cost) :-
 
 dgraph_min_paths(V1, Graph, Paths) :-
 	dgraph_to_wdgraph(Graph, WGraph),
-	wdgraph_min_path(V1, WGraph, Paths).
+	wdgraph_min_paths(V1, WGraph, Paths).
 
 dgraph_path(V, G, [V|P]) :-
 	rb_lookup(V, Children, G),
@@ -403,3 +404,18 @@ translate_edges([V1-V2|Edges],Map,[NV1-NV2|TEdges]) :-
 	rb_lookup(V1,NV1,Map),
 	rb_lookup(V2,NV2,Map),
 	translate_edges(Edges,Map,TEdges).
+
+dgraph_reachable(V, G, Edges) :-
+	rb_lookup(V, Children, G),
+	ord_list_to_rbtree([V-[]],Done0),
+	reachable(Children, Done0, _, G, Edges, []).
+
+reachable([], Done, Done, _, Edges, Edges).
+reachable([V|Vertices], Done0, DoneF, G, EdgesF, Edges0) :-
+	rb_lookup(V,_, Done0), !,
+	reachable(Vertices, Done0, DoneF, G, EdgesF, Edges0).
+reachable([V|Vertices], Done0, DoneF, G, [V|EdgesF], Edges0) :-
+	rb_lookup(V, Kids, G),
+	rb_insert(Done0, V, [], Done1),
+	reachable(Kids, Done1, DoneI, G, EdgesF, EdgesI),
+	reachable(Vertices, DoneI, DoneF, G, EdgesI, Edges0).
