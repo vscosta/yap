@@ -299,9 +299,6 @@ sumlist([Head|Tail], Sofar, Total) :-
 %   is true when Lists is a list of lists, and List is the
 %   concatenation of these lists.
 
-list_concat(Lists, List) :-
-	list_concat(Lists, [], List).
-
 list_concat([], []).
 list_concat([H|T], L) :-
 	list_concat(H, L, Li),

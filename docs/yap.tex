@@ -1663,8 +1663,9 @@ supported encodings.
 
 @item compilation_mode(+@var{Mode})
     This extension controls how procedures are compiled. If @var{Mode}
-    is @code{compile} clauses are compiled and no source code is stored;
-    is @code{assert_all} clauses are asserted into the data-base.
+    is @code{compact} clauses are compiled and no source code is stored;
+    if it is @code{source} clauses are compiled and source code is stored;
+    if it is @code{assert_all} clauses are asserted into the data-base.
 @end table
 
 @item ensure_loaded(@var{+F}) [ISO]
@@ -14147,6 +14148,15 @@ A second routine that is sometimes useful is:
 This routine closes the YAP Input/Output system except for the first
 three streams, that are always associated with the three standard Unix
 streams. It is most useful if you are doing @code{fork()}.
+
+@findex YAP_FlushAllStreams (C-Interface function)
+Last, one may sometimes need to flush all streams:
+@example
+      void      YAP_CloseAllOpenStreams(void)
+@end example
+@noindent
+It is also useful before you do a @code{fork()}, or otherwise you may
+have trouble with unflushed output.
 
 @findex YAP_OpenStream (C-Interface function)
 The next routine allows a currently open file to become a stream. The

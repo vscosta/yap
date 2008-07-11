@@ -69,6 +69,7 @@ YAP_InitSocks
 YAP_SetOutputMessage
 YAP_StreamToFileNo
 YAP_CloseAllOpenStreams
+YAP_FlushAllStreams
 YAP_OpenStream
 YAP_NewSlots
 YAP_InitSlot

@@ -300,6 +300,7 @@ void  STD_PROTO(Yap_UnLockStream,(int));
 #endif
 int   STD_PROTO(Yap_GetStreamFd,(int));
 void  STD_PROTO(Yap_CloseStreams,(int));
+void  STD_PROTO(Yap_FlushStreams,(void));
 void  STD_PROTO(Yap_CloseStream,(int));
 int   STD_PROTO(Yap_PlGetchar,(void));
 int   STD_PROTO(Yap_PlGetWchar,(void));

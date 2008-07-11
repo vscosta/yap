@@ -27,7 +27,7 @@
 % silent(true,false)  => implemented
 % stream(Stream)  => implemented
 % consult(consult,reconsult) => implemented
-% compilation_mode(compile,source,assert_all) => implemented
+% compilation_mode(compact,source,assert_all) => implemented
 %
 load_files(Files,Opts) :-
 	'$load_files'(Files,Opts,load_files(Files,Opts)).
@@ -92,7 +92,7 @@ load_files(Files,Opts) :-
 	nb_setval('$lf_verbose',silent).
 '$process_lf_opt'(skip_unix_comments,_,_,_,_,_,_,_,_,skip_unix_comments,_,_,_,_).
 '$process_lf_opt'(compilation_mode(source),_,_,_,_,_,_,_,_,_,source,_,_,_).
-'$process_lf_opt'(compilation_mode(compile),_,_,_,_,_,_,_,_,_,compile,_,_,_).
+'$process_lf_opt'(compilation_mode(compact),_,_,_,_,_,_,_,_,_,compact,_,_,_).
 '$process_lf_opt'(compilation_mode(assert_all),_,_,_,_,_,_,_,_,_,assert_all,_,_,_).
 '$process_lf_opt'(silent(false),_,_,_,_,_,_,_,_,_,_,_,_,_).
 '$process_lf_opt'(consult(reconsult),_,_,_,_,_,_,_,_,_,_,reconsult,_,_).
@@ -253,7 +253,7 @@ use_module(M,F,Is) :-
 	),
 	'$change_alias_to_stream'('$loop_stream',OldStream),
 	'$set_yap_flags'(18,GenerateDebug),
-	'$comp_mode'(_, OldCompMode),
+	'$comp_mode'(CompMode, OldCompMode),
 	nb_setval('$consulting',Old),
 	nb_setval('$consulting_file',OldF),
 	cd(OldD),
@@ -872,33 +872,22 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$if_directive'((:- elif(_))).
 '$if_directive'((:- endif)).
 
-'$comp_mode'(OldCompMode, CompMode) :-
-	(
-	 nb_getval('$assert_all',on)
-	->
-	 OldCompMode = assert_all
-	;
-	 '$access_yap_flags'(11,1)
-	->
-	 OldCompMode = source
-	;
-	 OldCompMode = compile
-	),
-	(
-	 var(CompMode) ->
-	 true
-	;
-	 CompMode == assert_all
-	->
-	 nb_setval('$assert_all',on)
-	;
-	 CompMode == source
-	->
-	 nb_setval('$assert_all',off),
-	 '$set_yap_flags'(11,1)
-	;
-	 nb_setval('$assert_all',off),
-	 '$set_yap_flags'(11,0)
-	).
 
+'$comp_mode'(_OldCompMode, CompMode) :-
+	var(CompMode), !. % just do nothing.
+'$comp_mode'(OldCompMode, assert_all) :-
+	'$fetch_comp_status'(OldCompMode),
+	nb_setval('$assert_all',on).
+'$comp_mode'(OldCompMode, source) :-
+	'$fetch_comp_status'(OldCompMode),
+	'$set_yap_flags'(11,1).
+'$comp_mode'(OldCompMode, compact) :-
+	'$fetch_comp_status'(OldCompMode),
+	'$set_yap_flags'(11,0).
+
+'$fetch_comp_status'(assert_all) :-
+	nb_getval('$assert_all',on), !.
+'$fetch_comp_status'(source) :-
+	 '$get_yap_flags'(11,1).
+'$fetch_comp_status'(compact).
 

@@ -243,7 +243,6 @@ user:goal_expansion(maplist(Meta, ListIn, ListOut), Mod, Goal) :-
 	append_args(HeadPrefix, [[In|Ins], [Out|Outs]], RecursionHead),
 	append_args(Pred, [In, Out], Apply),
 	append_args(HeadPrefix, [Ins, Outs], RecursiveCall),
-	write(Goal),nl,
 	compile_aux([
 		     Base,
 		     (RecursionHead :- Apply, RecursiveCall)

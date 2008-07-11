@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2008-04-01 22:28:41 $							 *
+* Last rev:     $Date: 2008-07-11 17:02:07 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.101  2008/04/01 22:28:41  vsc
+* put YAPOR back to life.
+*
 * Revision 1.100  2008/03/25 16:45:52  vsc
 * make or-parallelism compile again
 *
@@ -3570,7 +3573,6 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     DBTerm *x;
     StaticClause *cl;
     UInt osize;
-
     if(!(x = fetch_clause_space(&t,size,cip,&osize))) {
       return NULL;
     }

@@ -5395,7 +5395,12 @@ p_flush_all_streams (void)
   fflush (NULL);
 #endif
   
-  return (TRUE);
+  return TRUE;
+}
+
+void Yap_FlushStreams(void)
+{
+  (void)p_flush_all_streams();
 }
 
 #if HAVE_SELECT

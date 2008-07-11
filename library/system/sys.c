@@ -8,8 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.35 2008-05-23 13:16:13 vsc Exp $									 *
+* $Id: sys.c,v 1.36 2008-07-11 17:02:09 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.35  2008/05/23 13:16:13  vsc
+* mods:		fix sys.c for win32
+* mods:		
 * mods:		Revision 1.34  2008/05/22 23:25:21  vsc
 * mods:		add tmp_file/2
 * mods:		
@@ -710,6 +713,7 @@ execute_command(void)
     close(outf);
     return(YAP_Unify(YAP_ARG6, YAP_MkIntTerm(errno)));
   }
+  YAP_FlushAllStreams();
   /* we are now ready to fork */
   if ((res = fork()) < 0) {
     /* close streams we don't need */

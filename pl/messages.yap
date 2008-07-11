@@ -11,7 +11,7 @@
 * File:		utilities for displaying messages in YAP.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-06-16 21:22:15 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-07-11 17:02:10 $,$Author: vsc $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -106,7 +106,7 @@ system_message(debug(off)) -->
 system_message(debug(trace)) -->
 	[ 'Trace mode on.' ].
 system_message(declaration(Args,Action)) -->
-	[ 'declaration ~w ~w.',	[Args,Action] ].
+	[ 'declaration ~w ~w.' - [Args,Action] ].
 system_message(defined_elsewhere(P,F)) -->
 	[  'predicate ~q previously defined in file ~w' - [P,F] ].
 system_message(import(Pred,To,From,private)) -->

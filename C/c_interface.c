@@ -10,8 +10,13 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-06-17 13:37:48 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-07-11 17:02:07 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.119  2008/06/17 13:37:48  vsc
+* fix c_interface not to crash when people try to recover slots that are
+* not there.
+* fix try_logical and friends to handle case where predicate has arity 0.
+*
 * Revision 1.118  2008/06/04 14:47:18  vsc
 * make sure we do trim_trail whenever we mess with B!
 *
@@ -434,6 +439,7 @@ X_API void    STD_PROTO(YAP_InitSocks, (char *, long));
 X_API void    STD_PROTO(YAP_SetOutputMessage, (void));
 X_API int     STD_PROTO(YAP_StreamToFileNo, (Term));
 X_API void    STD_PROTO(YAP_CloseAllOpenStreams,(void));
+X_API void    STD_PROTO(YAP_FlushAllStreams,(void));
 X_API Term    STD_PROTO(YAP_OpenStream,(void *, char *, Term, int));
 X_API long    STD_PROTO(YAP_CurrentSlot,(void));
 X_API long    STD_PROTO(YAP_NewSlots,(int));
@@ -2001,6 +2007,16 @@ YAP_CloseAllOpenStreams(void)
   BACKUP_H();
 
   Yap_CloseStreams(FALSE);
+
+  RECOVER_H();
+}
+
+X_API void
+YAP_FlushAllStreams(void)
+{
+  BACKUP_H();
+
+  Yap_FlushStreams();
 
   RECOVER_H();
 }

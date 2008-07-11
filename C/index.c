@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2008-05-10 23:24:11 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-07-11 17:02:07 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.201  2008/05/10 23:24:11  vsc
+* fix threads and LU
+*
 * Revision 1.200  2008/04/16 17:16:47  vsc
 * make static_clause only commit to a lause if it is sure that is the true
 * clause. Otherwise, search for the clause.
@@ -1487,7 +1490,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _write_x_val:
     case _write_x_loc:
     case _write_x_var:
-      cl = NEXTOP(cl,e);
+      cl = NEXTOP(cl,x);
       break;
     case _save_b_x:
     case _put_list:

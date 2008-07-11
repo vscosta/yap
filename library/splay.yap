@@ -104,7 +104,7 @@ splay_insert(Item, Val,Tree, NewTree):-
 	bst(insert, Item, Val, Tree, NewTree).
 splay_del(Item, Tree, NewTree):-
 	bst(access(true), Item, Val, Tree, n(Item, Val, Left, Right)),
-	join(Left, Right, NewTree).
+	splay_join(Left, Right, NewTree).
 splay_join(Left, Right, New):-
 	join(L-L, Left, Right, New).
 splay_split(Item, Val, Tree, Left, Right):-

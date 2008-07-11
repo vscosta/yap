@@ -104,15 +104,10 @@ list_to_tree(List, Tree) :-
 %   a tool for everyday use.
 
 map_tree(Pred, t(Old,OLeft,ORight), t(New,NLeft,NRight)) :-
-	tree_apply(Pred, [Old,New]),
+	once(call(Pred, Old, New)),
 	map_tree(Pred, OLeft, NLeft),
 	map_tree(Pred, ORight, NRight).
 map_tree(_, t, t).
-
-tree_apply(Pred,Args) :-
-	G =.. [Pred,Args],
-	call(G), !.
-
 
 %   put_label(Index, OldTree, Label, NewTree)
 %   constructs a new tree the same shape as the old which moreover has the

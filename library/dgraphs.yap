@@ -32,7 +32,8 @@
 	    dgraph_min_paths/3,
 	    dgraph_isomorphic/4,
 	    dgraph_path/3,
-	    dgraph_reachable/3]).
+	    dgraph_reachable/3
+	]).
 
 :- reexport(library(rbtrees),
 	[rb_new/1 as dgraph_new]).

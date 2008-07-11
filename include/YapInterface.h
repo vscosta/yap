@@ -341,14 +341,14 @@ extern X_API YAP_Term MkSFTerm();
 
 #endif /* SFUNC */
 
-/*  YAP_Term  YAP_SetOutputMessage()  */
+
 extern X_API void PROTO(YAP_SetOutputMessage,(void));
 
-/*  YAP_Term  YAP_SetOutputMessage()  */
 extern X_API int PROTO(YAP_StreamToFileNo,(YAP_Term));
 
-/*  YAP_Term  YAP_SetOutputMessage()  */
 extern X_API void PROTO(YAP_CloseAllOpenStreams,(void));
+
+extern X_API void PROTO(YAP_FlushAllStreams,(void));
 
 #define YAP_INPUT_STREAM	0x01
 #define YAP_OUTPUT_STREAM	0x02

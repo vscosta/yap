@@ -300,7 +300,8 @@ true :- true.
  '$execute_commands'([],_,_,_) :- !, fail.
  '$execute_commands'([C|Cs],VL,Con,Source) :- !,
 	 (
-	   '$execute_command'(C,VL,Con,Source)
+	   '$execute_command'(C,VL,Con,Source),
+	   fail	
 	 ;
 	   '$execute_commands'(Cs,VL,Con,Source)
 	 ),
@@ -1064,7 +1065,7 @@ access_file(F,Mode) :-
 
 expand_term(Term,Expanded) :-
 	( \+ '$undefined'(term_expansion(_,_), user),
-	  user:term_expansion(Term,Expanded)
+	  once(user:term_expansion(Term,Expanded))
         ;
 	  '$expand_term_grammar'(Term,Expanded)
 	),
