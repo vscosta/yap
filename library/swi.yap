@@ -58,6 +58,10 @@
 swi_predicate_table(_,maplist(X,Y),maplist,maplist(X,Y)).
 swi_predicate_table(_,maplist(X,Y,Z),maplist,maplist(X,Y,Z)).
 swi_predicate_table(_,maplist(X,Y,Z,W),maplist,maplist(X,Y,Z,W)).
+swi_predicate_table(_,append(X,Y),lists,append(X,Y)).
+swi_predicate_table(_,append(X,Y,Z),lists,append(X,Y,Z)).
+swi_predicate_table(_,member(X,Y),lists,member(X,Y)).
+swi_predicate_table(_,nextto(X,Y,Z),lists,nextto(X,Y,Z)).
 swi_predicate_table(_,is_list(X),lists,is_list(X)).
 swi_predicate_table(_,min_list(X,Y),lists,min_list(X,Y)).
 swi_predicate_table(_,nth(X,Y,Z),lists,nth(X,Y,Z)).
@@ -65,9 +69,6 @@ swi_predicate_table(_,delete(X,Y,Z),lists,delete(X,Y,Z)).
 swi_predicate_table(_,nth1(X,Y,Z),lists,nth(X,Y,Z)).
 swi_predicate_table(_,memberchk(X,Y),lists,memberchk(X,Y)).
 swi_predicate_table(_,flatten(X,Y),lists,flatten(X,Y)).
-swi_predicate_table(_,member(X,Y),lists,member(X,Y)).
-swi_predicate_table(_,append(X,Y),lists,append(X,Y)).
-swi_predicate_table(_,append(X,Y,Z),lists,append(X,Y,Z)).
 swi_predicate_table(_,select(X,Y,Z),lists,select(X,Y,Z)).
 swi_predicate_table(_,hash_term(X,Y),terms,term_hash(X,Y)).
 swi_predicate_table(_,term_hash(X,Y),terms,term_hash(X,Y)).

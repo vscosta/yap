@@ -8025,6 +8025,30 @@ The following routines are available once included with the
       Creates @var{ListOut} by applying the predicate @var{Pred} to all
 elements of @var{ListIn}.
 
+@item maplist(+@var{Pred}, ?@var{ListIn})
+@findex maplist/3
+@snindex maplist/3
+@cnindex maplist/3
+      Creates @var{ListOut} by applying the predicate @var{Pred} to all
+elements of @var{ListIn}.
+
+@item maplist(+@var{Pred}, ?@var{L1}, ?@var{L2}, ?@var{L3})
+@findex maplist/4
+@snindex maplist/4
+@cnindex maplist/4
+      @var{L1},  @var{L2}, and @var{L3} are such that
+      @code{call(@var{Pred},@var{A1},@var{A2},@var{A3})} holds for every
+      corresponding element in lists @var{L1},  @var{L2}, and @var{L3}.
+
+@item maplist(+@var{Pred}, ?@var{L1}, ?@var{L2}, ?@var{L3}, ?@var{L4})
+@findex maplist/5
+@snindex maplist/5
+@cnindex maplist/5
+      @var{L1}, @var{L2}, @var{L3}, and @var{L4} are such that
+      @code{call(@var{Pred},@var{A1},@var{A2},@var{A3},@var{A4})} holds
+      for every corresponding element in lists @var{L1}, @var{L2}, @var{L3}, and
+      @var{L4}.
+
 @item checklist(+@var{Pred}, +@var{List})
 @findex checklist/2
 @snindex checklist/2

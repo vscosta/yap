@@ -14,7 +14,10 @@
 
 :- module(apply_macros, [selectlist/3,
 			 checklist/2,
+			 maplist/2,
 			 maplist/3,
+			 maplist/4,
+			 maplist/5,
 			 convlist/3,
 			 mapargs/3,
 			 sumargs/4,
@@ -31,7 +34,10 @@
 :- meta_predicate
 	selectlist(:,+,-),
 	checklist(:,+),
+	maplist(:,+),
 	maplist(:,+,-),
+	maplist(:,+,+,-),
+	maplist(:,+,+,+,-),
 	convlist(:,+,-),
 	mapargs(:,+,-),
 	mapargs_args(:,+,-,+),
@@ -121,6 +127,15 @@ checklist(Pred, [In|ListIn]) :-
     call(Pred, In),
     checklist(Pred, ListIn).
 
+%   maplist(Pred, OldList)
+%   succeeds when Pred(Old,New) succeeds for each corresponding
+%   Old in OldList, New in NewList.  In InterLisp, this is MAPCAR. 
+%   It is also MAP2C.  Isn't bidirectionality wonderful?
+maplist(_, []).
+maplist(Pred, [In|ListIn]) :-
+    call(Pred, In),
+    maplist(Pred, ListIn).
+
 %   maplist(Pred, OldList, NewList)
 %   succeeds when Pred(Old,New) succeeds for each corresponding
 %   Old in OldList, New in NewList.  In InterLisp, this is MAPCAR. 
@@ -129,6 +144,24 @@ maplist(_, [], []).
 maplist(Pred, [In|ListIn], [Out|ListOut]) :-
     call(Pred, In, Out),
     maplist(Pred, ListIn, ListOut).
+
+%   maplist(Pred, List1, List2, List3)
+%   succeeds when Pred(Old,New) succeeds for each corresponding
+%   Gi in Listi, New in NewList.  In InterLisp, this is MAPCAR. 
+%   It is also MAP2C.  Isn't bidirectionality wonderful?
+maplist(_, [], [], []).
+maplist(Pred, [A1|L1], [A2|L2], [A3|L3]) :-
+    call(Pred, A1, A2, A3),
+    maplist(Pred, L1, L2, L3).
+
+%   maplist(Pred, List1, List2, List3, List4)
+%   succeeds when Pred(Old,New) succeeds for each corresponding
+%   Gi in Listi, New in NewList.  In InterLisp, this is MAPCAR. 
+%   It is also MAP2C.  Isn't bidirectionality wonderful?
+maplist(_, [], [], [], []).
+maplist(Pred, [A1|L1], [A2|L2], [A3|L3], [A4|L4]) :-
+    call(Pred, A1, A2, A3, A4),
+    maplist(Pred, L1, L2, L3, L4).
 
 %   convlist(Rewrite, OldList, NewList)
 %   is a sort of hybrid of maplist/3 and sublist/3.
@@ -234,7 +267,7 @@ user:goal_expansion(maplist(Meta, ListIn, ListOut), Mod, Goal) :-
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
 	% the new goal
-	pred_name(maplist, Proto, GoalName),
+	pred_name(maplist, 3, Proto, GoalName),
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
@@ -253,7 +286,7 @@ user:goal_expansion(checklist(Meta, List), Mod, Goal) :-
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
 	% the new goal
-	pred_name(checklist, Proto, GoalName),
+	pred_name(checklist, 2, Proto, GoalName),
 	append(MetaVars, [List], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
@@ -267,12 +300,69 @@ user:goal_expansion(checklist(Meta, List), Mod, Goal) :-
 		     (RecursionHead :- Apply, RecursiveCall)
 		    ], Module).
 
+user:goal_expansion(maplist(Meta, List), Mod, Goal) :-
+	callable(Meta),
+	!,
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
+	% the new goal
+	pred_name(maplist, 2, Proto, GoalName),
+	append(MetaVars, [List], GoalArgs),
+	Goal =.. [GoalName|GoalArgs],
+	% the new predicate declaration
+	HeadPrefix =.. [GoalName|PredVars],
+	append_args(HeadPrefix, [[]], Base),
+	append_args(HeadPrefix, [[In|Ins]], RecursionHead),
+	append_args(Pred, [In], Apply),
+	append_args(HeadPrefix, [Ins], RecursiveCall),
+	compile_aux([
+		     Base,
+		     (RecursionHead :- Apply, RecursiveCall)
+		    ], Module).
+
+user:goal_expansion(maplist(Meta, L1, L2, L3), Mod, Goal) :-
+	callable(Meta),
+	!,
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
+	% the new goal
+	pred_name(maplist, 4, Proto, GoalName),
+	append(MetaVars, [L1, L2, L3], GoalArgs),
+	Goal =.. [GoalName|GoalArgs],
+	% the new predicate declaration
+	HeadPrefix =.. [GoalName|PredVars],	
+	append_args(HeadPrefix, [[], [], []], Base),
+	append_args(HeadPrefix, [[A1|A1s], [A2|A2s], [A3|A3s]], RecursionHead),
+	append_args(Pred, [A1, A2, A3], Apply),
+	append_args(HeadPrefix, [A1s, A2s, A3s], RecursiveCall),
+	compile_aux([
+		     Base,
+		     (RecursionHead :- Apply, RecursiveCall)
+		    ], Module).
+
+user:goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod, Goal) :-
+	callable(Meta),
+	!,
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
+	% the new goal
+	pred_name(maplist, 5, Proto, GoalName),
+	append(MetaVars, [L1, L2, L3, L4], GoalArgs),
+	Goal =.. [GoalName|GoalArgs],
+	% the new predicate declaration
+	HeadPrefix =.. [GoalName|PredVars],	
+	append_args(HeadPrefix, [[], [], [], []], Base),
+	append_args(HeadPrefix, [[A1|A1s], [A2|A2s], [A3|A3s], [A4|A4s]], RecursionHead),
+	append_args(Pred, [A1, A2, A3, A4], Apply),
+	append_args(HeadPrefix, [A1s, A2s, A3s, A4s], RecursiveCall),
+	compile_aux([
+		     Base,
+		     (RecursionHead :- Apply, RecursiveCall)
+		    ], Module).
+
 user:goal_expansion(selectlist(Meta, ListIn, ListOut), Mod, Goal) :-
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
 	% the new goal
-	pred_name(selectlist, Proto, GoalName),
+	pred_name(selectlist, 3, Proto, GoalName),
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
@@ -294,7 +384,7 @@ user:goal_expansion(include(Meta, ListIn, ListOut), Mod, Goal) :-
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
 	% the new goal
-	pred_name(include, Proto, GoalName),
+	pred_name(include, 3, Proto, GoalName),
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
@@ -315,7 +405,7 @@ user:goal_expansion(exclude(Meta, ListIn, ListOut), Mod, Goal) :-
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
 	% the new goal
-	pred_name(exclude, Proto, GoalName),
+	pred_name(exclude, 3, Proto, GoalName),
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
@@ -336,7 +426,7 @@ user:goal_expansion(partition(Meta, ListIn, List1, List2), Mod, Goal) :-
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
 	% the new goal
-	pred_name(partition, Proto, GoalName),
+	pred_name(partition, 4, Proto, GoalName),
 	append(MetaVars, [ListIn, List1, List2], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
@@ -357,7 +447,7 @@ user:goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod, Goal) :-
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
 	% the new goal
-	pred_name(partition2, Proto, GoalName),
+	pred_name(partition2, 5, Proto, GoalName),
 	append(MetaVars, [ListIn, List1, List2, List3], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
@@ -395,7 +485,7 @@ user:goal_expansion(convlist(Meta, ListIn, ListOut), Mod, Goal) :-
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
 	% the new goal
-	pred_name(convlist, Proto, GoalName),
+	pred_name(convlist, 3, Proto, GoalName),
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
@@ -416,7 +506,7 @@ user:goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod, Goal) :-
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
 	% the new goal
-	pred_name(sumlist, Proto, GoalName),
+	pred_name(sumlist, 4, Proto, GoalName),
 	append(MetaVars, [List, AccIn, AccOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
@@ -457,7 +547,7 @@ user:goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod, Goal) :-
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
 	% the new goal
-	pred_name(mapnodes, Proto, GoalName),
+	pred_name(mapnodes, 3, Proto, GoalName),
 	append(MetaVars, [[InTerm], [OutTerm]], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
@@ -487,7 +577,7 @@ user:goal_expansion(checknodes(Meta, Term), Mod, Goal) :-
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
 	% the new goal
-	pred_name(checknodes, Proto, GoalName),
+	pred_name(checknodes, 2, Proto, GoalName),
 	append(MetaVars, [[Term]], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
@@ -515,7 +605,7 @@ user:goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod, Goal) :-
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
 	% the new goal
-	pred_name(sumnodes, Proto, GoalName),
+	pred_name(sumnodes, 4, Proto, GoalName),
 	append(MetaVars, [[Term], AccIn, AccOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
@@ -583,7 +673,7 @@ aux_args([Arg|Args], [Arg|MVars], [PVar|PArgs], [PVar|PVars], ['_'|ProtoArgs]) :
 aux_args([Arg|Args], MVars, [Arg|PArgs], PVars, [Arg|ProtoArgs]) :-
 	aux_args(Args, MVars, PArgs, PVars, ProtoArgs).
 
-pred_name(Macro, Proto, Name) :-
-	format_to_chars('\'~a(~w)\'.',[Macro, Proto], Chars),
+pred_name(Macro, Arity, Proto, Name) :-
+	format_to_chars('\'~a(~d,~w)\'.',[Macro, Arity, Proto], Chars),
 	read_from_chars(Chars, Name).
 
