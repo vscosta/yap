@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2008-03-25 22:03:13 $							 *
+* Last rev:     $Date: 2008-07-16 10:58:59 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.44  2008/03/25 22:03:13  vsc
+* fix some icc warnings
+*
 * Revision 1.43  2007/11/26 23:43:09  vsc
 * fixes to support threads and assert correctly, even if inefficiently.
 *
@@ -247,10 +250,10 @@
     OPCODE(call_cpred              ,sla),		
     OPCODE(call_usercpred          ,sla),
     OPCODE(call_c_wfail            ,sdl),
-    OPCODE(call_bfunc_xx           ,lxx),
-    OPCODE(call_bfunc_xy           ,lxy),
-    OPCODE(call_bfunc_yx           ,lxy),
-    OPCODE(call_bfunc_yy           ,lyy),
+    OPCODE(call_bfunc_xx           ,llxx),
+    OPCODE(call_bfunc_xy           ,llxy),
+    OPCODE(call_bfunc_yx           ,llxy),
+    OPCODE(call_bfunc_yy           ,llyy),
     OPCODE(cut_t                   ,e),		
     OPCODE(cut_e                   ,sla),	
     OPCODE(try_clause              ,ld),		
@@ -283,7 +286,7 @@
     OPCODE(switch_on_func          ,sssl),	
     OPCODE(go_on_func              ,sssl),		
     OPCODE(if_func                 ,sssl),		
-    OPCODE(if_not_then             ,cll),	
+    OPCODE(if_not_then             ,clll),	
     OPCODE(index_dbref             ,e),	
     OPCODE(index_blob              ,e),	
     OPCODE(trust_fail              ,e),		
@@ -308,7 +311,7 @@
     OPCODE(write_n_atoms           ,sc),	
     OPCODE(unify_n_voids           ,os),	
     OPCODE(write_n_voids           ,s),	
-    OPCODE(glist_valx              ,ss),       /* peephole */
+    OPCODE(glist_valx              ,xx),       /* peephole */
     OPCODE(glist_valy              ,xy),       /* peephole */
     OPCODE(fcall                   ,sla),		
     OPCODE(dexecute                ,pp),			

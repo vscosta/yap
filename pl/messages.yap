@@ -11,7 +11,7 @@
 * File:		utilities for displaying messages in YAP.		 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-07-11 17:02:10 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-07-16 10:58:59 $,$Author: vsc $						 *
 *									 *
 *									 *
 *************************************************************************/
@@ -142,7 +142,7 @@ system_message(error,error(Msg,Info)) -->
 	( { var(Msg) } ; { var(Info)} ), !,
 	['bad error ~w' - [error(Msg,Info)]].
 system_message(error(consistency_error(Who),Where)) -->
-	[ 'CONSISTENCY ERROR- ~w ~w' - [Who,Where] ].
+	[ 'CONSISTENCY ERROR (arguments not compatible with format)- ~w ~w' - [Who,Where] ].
 system_message(error(context_error(Goal,Who),Where)) -->
 	[ 'CONTEXT ERROR- ~w: ~w appeared in ~w' - [Goal,Who,Where] ].
 system_message(error(domain_error(DomainType,Opt), Where)) -->
