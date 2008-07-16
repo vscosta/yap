@@ -64,6 +64,7 @@ swi_predicate_table(_,nth(X,Y,Z),lists,nth(X,Y,Z)).
 swi_predicate_table(_,delete(X,Y,Z),lists,delete(X,Y,Z)).
 swi_predicate_table(_,nth1(X,Y,Z),lists,nth(X,Y,Z)).
 swi_predicate_table(_,memberchk(X,Y),lists,memberchk(X,Y)).
+swi_predicate_table(_,flatten(X,Y),lists,flatten(X,Y)).
 swi_predicate_table(_,member(X,Y),lists,member(X,Y)).
 swi_predicate_table(_,append(X,Y),lists,append(X,Y)).
 swi_predicate_table(_,append(X,Y,Z),lists,append(X,Y,Z)).
@@ -315,27 +316,4 @@ prolog:intersection([_|T], L, R) :-
 
 prolog:(Term1 =@= Term2) :-
 	variant(Term1, Term2), !.
-
-%%	flatten(+List1, ?List2) is det.
-%
-%	Is true it List2 is a non nested version of List1.
-%	
-%	@deprecated	Ending up needing flatten/3 often indicates,
-%			like append/3 for appending two lists, a bad
-%			design.  Efficient code that generates lists
-%			from generated small lists must use difference
-%			lists, often possible through grammar rules for
-%			optimal readability.
-
-prolog:flatten(List, FlatList) :-
-	flatten(List, [], FlatList0), !,
-	FlatList = FlatList0.
-
-flatten(Var, Tl, [Var|Tl]) :-
-	var(Var), !.
-flatten([], Tl, Tl) :- !.
-flatten([Hd|Tl], Tail, List) :- !,
-	flatten(Hd, FlatHeadTail, List), 
-	flatten(Tl, Tail, FlatHeadTail).
-flatten(NonList, Tl, [NonList|Tl]).
 
