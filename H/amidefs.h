@@ -11,8 +11,11 @@
  * File:		amidefs.h						 *
  * comments:	Abstract machine peculiarities				 *
  *									 *
- * Last rev:     $Date: 2007-11-26 23:43:09 $							 *
+ * Last rev:     $Date: 2008-07-22 23:34:49 $							 *
  * $Log: not supported by cvs2svn $
+ * Revision 1.33  2007/11/26 23:43:09  vsc
+ * fixes to support threads and assert correctly, even if inefficiently.
+ *
  * Revision 1.32  2006/10/10 14:08:17  vsc
  * small fixes on threaded implementation.
  *
@@ -226,11 +229,6 @@ typedef struct yami {
       CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
       CELL next;
     } d;
-    struct {
-      CODEADDR            d;
-      struct pred_entry  *p;
-      CELL next;
-    } dp;
     struct {
       Int  ClTrail;
       Int  ClENV;

@@ -19,9 +19,9 @@
 			      append/3,
 			      delete/3,
 			      member/2,
-			      memberchk/2,
 			      min_list/2,
-			      nth/3]).
+			      nth1/3,
+			      nth0/3]).
 
 :- use_module(library(system),
 	      [datime/1,
@@ -51,33 +51,39 @@
 	;
 	true.
 
-:- use_module(library(maplist)).
-
 :- multifile swi_predicate_table/4.
 
-swi_predicate_table(_,maplist(X,Y),maplist,maplist(X,Y)).
-swi_predicate_table(_,maplist(X,Y,Z),maplist,maplist(X,Y,Z)).
-swi_predicate_table(_,maplist(X,Y,Z,W),maplist,maplist(X,Y,Z,W)).
 swi_predicate_table(_,append(X,Y),lists,append(X,Y)).
 swi_predicate_table(_,append(X,Y,Z),lists,append(X,Y,Z)).
 swi_predicate_table(_,member(X,Y),lists,member(X,Y)).
 swi_predicate_table(_,nextto(X,Y,Z),lists,nextto(X,Y,Z)).
-swi_predicate_table(_,is_list(X),lists,is_list(X)).
-swi_predicate_table(_,min_list(X,Y),lists,min_list(X,Y)).
-swi_predicate_table(_,nth(X,Y,Z),lists,nth(X,Y,Z)).
 swi_predicate_table(_,delete(X,Y,Z),lists,delete(X,Y,Z)).
-swi_predicate_table(_,nth1(X,Y,Z),lists,nth(X,Y,Z)).
-swi_predicate_table(_,memberchk(X,Y),lists,memberchk(X,Y)).
-swi_predicate_table(_,flatten(X,Y),lists,flatten(X,Y)).
 swi_predicate_table(_,select(X,Y,Z),lists,select(X,Y,Z)).
+swi_predicate_table(_,selectchk(X,Y,Z),lists,selectchk(X,Y,Z)).
+swi_predicate_table(_,nth0(X,Y,Z),lists,nth0(X,Y,Z)).
+swi_predicate_table(_,nth1(X,Y,Z),lists,nth1(X,Y,Z)).
+swi_predicate_table(_,last(X,Y),lists,last(X,Y)).
+swi_predicate_table(_,reverse(X,Y),lists,reverse(X,Y)).
+swi_predicate_table(_,permutation(X,Y),lists,permutation(X,Y)).
+swi_predicate_table(_,flatten(X,Y),lists,flatten(X,Y)).
+swi_predicate_table(_,sumlist(X,Y),lists,sumlist(X,Y)).
+swi_predicate_table(_,min_list(X,Y),lists,min_list(X,Y)).
+swi_predicate_table(_,max_list(X,Y),lists,max_list(X,Y)).
+swi_predicate_table(_,memberchk(X,Y),lists,memberchk(X,Y)).
 swi_predicate_table(_,hash_term(X,Y),terms,term_hash(X,Y)).
 swi_predicate_table(_,term_hash(X,Y),terms,term_hash(X,Y)).
-swi_predicate_table(_,term_variables(X,Y),terms,term_variables(X,Y)).
-swi_predicate_table(_,term_variables(X,Y,Z),terms,term_variables(X,Y,Z)).
 swi_predicate_table(_,subsumes(X,Y),terms,subsumes(X,Y)).
 swi_predicate_table(_,unifiable(X,Y,Z),terms,unifiable(X,Y,Z)).
 swi_predicate_table(_,genarg(X,Y,Z),arg,genarg(X,Y,Z)).
 swi_predicate_table(_,tmp_file(X,Y),system,tmp_file(X,Y)).
+
+swi_isl(X) :- lists:is_list(X).
+
+prolog:is_list(X) :- swi_isl(X).
+
+swi_mchk(X,Y) :- lists:memberchk(X,Y).
+
+prolog:memberchk(X,Y) :- swi_mchk(X,Y).
 
 :- dynamic
    prolog:message/3.
@@ -99,6 +105,15 @@ user:file_search_path(foreign, swi(ArchLib)) :-
 user:file_search_path(foreign, swi(lib)).
 
 :- meta_predicate prolog:predsort(:,+,-).
+
+switv(X,Y) :- term_variables(X, Y).
+switv(X,Y,Z) :- term_variables(X, Y, Z).
+
+prolog:term_variables(X, Y) :-
+	switv(X, Y).
+
+prolog:term_variables(X, Y, Z) :-
+	switv(X, Y, Z).
 
 prolog:plus(X, Y, Z) :-
        integer(X),
@@ -317,4 +332,93 @@ prolog:intersection([_|T], L, R) :-
 
 prolog:(Term1 =@= Term2) :-
 	variant(Term1, Term2), !.
+
+% copied from SWI's boot/apply library
+:- module_transparent
+	prolog:maplist/2, 
+	maplist2/2, 
+	prolog:maplist/3, 
+	maplist2/3, 
+	prolog:maplist/4, 
+	maplist2/4, 
+	prolog:maplist/5, 
+	maplist2/5.
+
+%	maplist(:Goal, +List)
+%
+%	True if Goal can succesfully be applied on all elements of List.
+%	Arguments are reordered to gain performance as well as to make
+%	the predicate deterministic under normal circumstances.
+
+prolog:maplist(Goal, List) :-
+	maplist2(List, Goal).
+
+maplist2([], _).
+maplist2([Elem|Tail], Goal) :-
+	call(Goal, Elem), 
+	maplist2(Tail, Goal).
+
+%	maplist(:Goal, ?List1, ?List2)
+%
+%	True if Goal can succesfully be applied to all succesive pairs
+%	of elements of List1 and List2.
+
+prolog:maplist(Goal, List1, List2) :-
+	maplist2(List1, List2, Goal).
+
+maplist2([], [], _).
+maplist2([Elem1|Tail1], [Elem2|Tail2], Goal) :-
+	call(Goal, Elem1, Elem2), 
+	maplist2(Tail1, Tail2, Goal).
+
+%	maplist(:Goal, ?List1, ?List2, ?List3)
+%
+%	True if Goal can succesfully be applied to all succesive triples
+%	of elements of List1..List3.
+
+prolog:maplist(Goal, List1, List2, List3) :-
+	maplist2(List1, List2, List3, Goal).
+
+maplist2([], [], [], _).
+maplist2([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], Goal) :-
+	call(Goal, Elem1, Elem2, Elem3), 
+	maplist2(Tail1, Tail2, Tail3, Goal).
+
+%	maplist(:Goal, ?List1, ?List2, ?List3, List4)
+%
+%	True if Goal  can  succesfully  be   applied  to  all  succesive
+%	quadruples of elements of List1..List4
+
+prolog:maplist(Goal, List1, List2, List3, List4) :-
+	maplist2(List1, List2, List3, List4, Goal).
+
+maplist2([], [], [], [], _).
+maplist2([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], [Elem4|Tail4], Goal) :-
+	call(Goal, Elem1, Elem2, Elem3, Elem4), 
+	maplist2(Tail1, Tail2, Tail3, Tail4, Goal).
+
+prolog:compile_aux_clauses([]).
+prolog:compile_aux_clauses([(:- G)|Cls]) :-
+	prolog_load_context(module, M),
+	once(M:G),
+	prolog:compile_aux_clauses(Cls).
+prolog:compile_aux_clauses([Cl|Cls]) :-
+	prolog_load_context(module, M),
+	assert_static(M:Cl),
+	prolog:compile_aux_clauses(Cls).
+
+%
+% convert from SWI's goal expansion to YAP/SICStus old style goal
+% expansion.
+%
+user:term_expansion(goal_expansion(A,B),O) :-
+	prolog_load_context(module, user), !,
+	O = goal_expansion(A,user,B).
+user:term_expansion(user:goal_expansion(A,B),O) :- !,
+	O = user:goal_expansion(A,_,B).
+user:term_expansion((goal_expansion(A,B) :- G), O) :-
+	prolog_load_context(module, user), !,
+	O = (goal_expansion(A,user,B) :- G).
+user:term_expansion((user:goal_expansion(A,B) :- G),O) :-
+	O = (user:goal_expansion(A,_,B) :- G).
 

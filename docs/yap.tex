@@ -6249,7 +6249,7 @@ Grammar related built-in predicates:
 
 @table @code
 
-@item expand_term(@var{T},-@var{X})
+@item user:expand_term(@var{T},-@var{X})
 @findex expand_term/2
 @syindex expand_term/2
 @cyindex expand_term/2
@@ -6260,7 +6260,7 @@ This predicate is used by YAP for preprocessing each top level
 term read when consulting a file and before asserting or executing it.
 It rewrites a term @var{T} to a term @var{X} according to the following
 rules: first try to use the user defined predicate
-@code{term_expansion/2}. If this call fails then the translating process
+@code{user:term_expansion/2}. If this call fails then the translating process
 for DCG rules is applied, together with the arithmetic optimizer
 whenever the compilation of arithmetic expressions is in progress.
 
@@ -8525,21 +8525,27 @@ As @code{member/2}, but may only be used to test whether a known
 is more efficient when it is applicable.
 
 @item nth0(?@var{N}, ?@var{List}, ?@var{Elem})
-@findex nth0/2
-@syindex nth0/2
-@cnindex nth0/2
+@findex nth0/3
+@syindex nth0/3
+@cnindex nth0/3
 True when @var{Elem} is the Nth member of @var{List},
 counting the first as element 0.  (That is, throw away the first
 N elements and unify @var{Elem} with the next.)  It can only be used to
 select a particular element given the list and index.  For that
 task it is more efficient than @code{member/2}
 
-@item nth(?@var{N}, ?@var{List}, ?@var{Elem})
-@findex nth/2
-@syindex nth/2
-@cnindex nth/2
+@item nth1(?@var{N}, ?@var{List}, ?@var{Elem})
+@findex nth1/3
+@syindex nth1/3
+@cnindex nth1/3
 The same as @code{nth0/3}, except that it counts from
 1, that is @code{nth(1, [H|_], H)}.
+
+@item nth(?@var{N}, ?@var{List}, ?@var{Elem})
+@findex nth/3
+@syindex nth/3
+@cnindex nth/3
+The same as @code{nth1/3}.
 
 @item nth0(?@var{N}, ?@var{List}, ?@var{Elem}, ?@var{Rest})
 @findex nth0/4
@@ -8553,10 +8559,10 @@ it yields @var{List}, e.g. @code{nth0(2, List, c, [a,b,d,e])} unifies List with
 @code{[a,b,c,d,e]}.  @code{nth/4} is the same except that it counts from 1.  @code{nth0/4}
 can be used to insert @var{Elem} after the Nth element of @var{Rest}.
 
-@item nth(?@var{N}, ?@var{List}, ?@var{Elem}, ?@var{Rest})
-@findex nth/4
-@syindex nth/4
-@cnindex nth/4
+@item nth1(?@var{N}, ?@var{List}, ?@var{Elem}, ?@var{Rest})
+@findex nth1/4
+@syindex nth1/4
+@cnindex nth1/4
 Unifies @var{Elem} with the Nth element of @var{List}, counting from 1,
 and @var{Rest} with the other elements.  It can be used to select the
 Nth element of @var{List} (yielding @var{Elem} and @var{Rest}), or to
@@ -8564,6 +8570,12 @@ insert @var{Elem} before the Nth (counting from 1) element of
 @var{Rest}, when it yields @var{List}, e.g. @code{nth(1, List, c,
 [a,b,d,e])} unifies List with @code{[a,b,c,d,e]}.  @code{nth/4}
 can be used to insert @var{Elem} after the Nth element of @var{Rest}.
+
+@item nth(?@var{N}, ?@var{List}, ?@var{Elem}, ?@var{Rest})
+@findex nth/4
+@syindex nth/4
+@cnindex nth/4
+Same as @code{nth1/4}.
 
 @item permutation(+@var{List},?@var{Perm})
 @findex permutation/2
@@ -8596,12 +8608,26 @@ Modes @code{same_length(-,+)} and @code{same_length(+,-)} generate either list g
 the other; mode @code{same_length(-,-)} generates two lists of the same length,
 in which case the arguments will be bound to lists of length 0, 1, 2, ...
 
-@item select(?@var{Element}, ?@var{Set}, ?@var{Residue})
+@item select(?@var{Element}, ?@var{List}, ?@var{Residue})
 @findex select/3
 @syindex select/3
 @cnindex select/3
-True when @var{Set} is a list, @var{Element} occurs in @var{Set}, and @var{Residue} is
-everything in @var{Set} except @var{Element} (things stay in the same order).
+True when @var{Set} is a list, @var{Element} occurs in @var{List}, and
+@var{Residue} is everything in @var{List} except @var{Element} (things
+stay in the same order).
+ 
+@item selectchk(?@var{Element}, ?@var{List}, ?@var{Residue})
+@findex selectchk/3
+@snindex selectchk/3
+@cnindex selectchk/3
+Semi-deterministic selection from a list. Steadfast: defines as
+
+@example
+selectchk(Elem, List, Residue) :-
+        select(Elem, List, Rest0), !,
+        Rest = Rest0.
+@end example
+
  
 @item sublist(?@var{Sublist}, ?@var{List})
 @findex sublist/2
@@ -8640,6 +8666,14 @@ True when @var{Numbers} is a list of numbers, and @var{Max} is the maximum.
 @syindex min_list/2
 @cnindex min_list/2
 True when @var{Numbers} is a list of numbers, and @var{Min} is the minimum.
+
+@item numlist(+@var{Low}, +@var{High}, +@var{List})
+@findex numlist/3
+@syindex numlist/3
+@cnindex numlist/3
+If @var{Low} and @var{High} are integers with @var{Low} @geq{}
+@var{High}, unify @var{List} to a list @code{[Low, Low+1, ...High]}. See
+also @code{between/3}.
 
 @end table
 

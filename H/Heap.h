@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.132 2008-05-28 17:18:35 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.133 2008-07-22 23:34:49 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -449,6 +449,7 @@ typedef struct various_codes {
     functor_arrow,
     functor_assert,
     functor_at_found_one,
+    functor_atom,
 #ifdef COROUTINING
     functor_att_goal,   /* goal that activates attributed variables */
 #endif
@@ -762,6 +763,7 @@ struct various_codes *Yap_heap_regs;
 #define  FunctorArrow             Yap_heap_regs->functor_arrow
 #define  FunctorAssert            Yap_heap_regs->functor_assert
 #define  FunctorAtFoundOne        Yap_heap_regs->functor_at_found_one
+#define  FunctorAtom              Yap_heap_regs->functor_atom
 #ifdef COROUTINING
 #define  FunctorAttGoal           Yap_heap_regs->functor_att_goal
 #endif

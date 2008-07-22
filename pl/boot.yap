@@ -386,28 +386,22 @@ true :- true.
  % not 100% compatible with SICStus Prolog, as SICStus Prolog would put
  % module prefixes all over the place, although unnecessarily so.
  %
- '$go_compile_clause'(Mod:G,V,N,Source) :- !,
-	 '$go_compile_clause'(G,V,N,Mod,Source).
- '$go_compile_clause'((M:G :- B),V,N,Source) :- !,
-	 '$current_module'(M1),
-	 (M1 = M ->
-	    NG = (G :- B)
-	 ;
-	    '$preprocess_clause_before_mod_change'((G:-B),M1,M,NG)
-	 ),
-	 '$go_compile_clause'(NG,V,N,M,Source).
  '$go_compile_clause'(G,V,N,Source) :-
 	 '$current_module'(Mod),
-	 '$go_compile_clause'(G,V,N,Mod,Source).
+	 '$go_compile_clause'(G,V,N,Mod,Mod,Source).
+ 
+'$go_compile_clause'(M:G,V,N,_,_,Source) :- !,
+	  '$go_compile_clause'(G,V,N,M,M,Source).
+'$go_compile_clause'((M:H :- B),V,N,_,BodyMod,Source) :- !,
+	  '$go_compile_clause'((H :- B),V,N,M,BodyMod,Source).
+'$go_compile_clause'(G,V,N,HeadMod,BodyMod,Source) :- !,
+	 '$prepare_term'(G, V, G0, G1, BodyMod, HeadMod, Source),
+	 '$$compile'(G1, G0, N, HeadMod).
 
- '$go_compile_clause'(G, V, N, Mod, Source) :-
-	 '$prepare_term'(G, V, G0, G1, Mod, Source),
-	 '$$compile'(G1, G0, N, Mod).
-
- '$prepare_term'(G, V, G0, G1, Mod, Source) :-
+ '$prepare_term'(G, V, G0, G1, BodyMod, SourceMod, Source) :-
 	 ( get_value('$syntaxcheckflag',on) ->
-		 '$check_term'(Source, V, Mod) ; true ),
-	 '$precompile_term'(G, G0, G1, Mod).
+		 '$check_term'(Source, V, BodyMod) ; true ),
+	 '$precompile_term'(G, G0, G1, BodyMod, SourceMod).
 
  % process an input clause
  '$$compile'(G, G0, L, Mod) :-
@@ -857,7 +851,7 @@ not(G) :-    \+ '$execute'(G).
 	       % repeat other code.
              '$is_metapredicate'(G,CurMod) ->
 	       (
-	         '$meta_expansion'(CurMod,CurMod,G,NG,[]) ->
+	         '$meta_expansion'(G,CurMod,CurMod,CurMod,NG,[]) ->
 	         '$execute0'(NG, CurMod)
 	       ;
 	         '$execute0'(G, CurMod)
@@ -900,7 +894,18 @@ not(G) :-    \+ '$execute'(G).
 	 )
 	),
 	!,
-	'$execute0'(Goal,NM).
+	Goal \= fail,
+	'$complete_goal'(M, Goal, NM, G).
+
+'$complete_goal'(M, G, CurMod, G0) :-
+	  (
+	   '$is_metapredicate'(G,CurMod)
+	  ->
+	   '$meta_expansion'(G, CurMod, M, M, NG,[]) ->
+	   '$execute0'(NG, CurMod)
+	  ;
+	   '$execute0'(G, CurMod)
+	  ).
 
 '$find_undefp_handler'(G,M,NG,user) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
@@ -1052,16 +1057,18 @@ access_file(F,Mode) :-
 % return two arguments: Expanded0 is the term after "USER" expansion.
 %                       Expanded is the final expanded term.
 %
-'$precompile_term'(Term, Expanded0, Expanded, Mod) :-
+'$precompile_term'(Term, Expanded0, Expanded, BodyMod, SourceMod) :-
+	'$module_expansion'(Term, Expanded0, ExpandedI, BodyMod, SourceMod), !,
 	(
-	    '$access_yap_flags'(9,1)      /* strict_iso on */
+	 '$access_yap_flags'(9,1)      /* strict_iso on */
         ->
-	    '$expand_term_modules'(Term, Expanded0, Expanded, Mod),
-	    '$check_iso_strict_clause'(Expanded0)
+	 Expanded = ExpandedI,
+	 '$check_iso_strict_clause'(Expanded0)
         ;
-	    '$expand_term_modules'(Term, Expanded0, ExpandedI, Mod),
-	    '$expand_array_accesses_in_term'(ExpandedI,Expanded)
+	 '$expand_array_accesses_in_term'(ExpandedI,Expanded)
 	).
+'$precompile_term'(Term, Term, Term, _, _).
+	
 
 expand_term(Term,Expanded) :-
 	( \+ '$undefined'(term_expansion(_,_), user),
@@ -1095,13 +1102,6 @@ expand_term(Term,Expanded) :-
 	'$array_refs_compiled',
 	'$c_arrays'(Expanded0,ExpandedF), !.
 '$expand_array_accesses_in_term'(Expanded,Expanded).
-
-%
-% Module system expansion
-%
-'$expand_term_modules'(A,B,C,M) :- '$module_expansion'(A,B,C,M), !.
-'$expand_term_modules'(A,A,A,_).
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

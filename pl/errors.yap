@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2008-06-12 10:55:52 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-07-22 23:34:50 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.89  2008/06/12 10:55:52  vsc
+* fix syntax error messages
+*
 * Revision 1.88  2008/04/04 10:02:44  vsc
 * implement thread_cancel using signals
 * use duplicate_term instead of copy_term in throw: throw may lose
@@ -224,6 +227,8 @@
 
 print_message(force(_Severity), Msg) :- !,
 	print(user_error,Msg).
+print_message(error, error(Msg,Info)) :- var(Info), !,
+	print_message(error, error(Msg, '')).
 print_message(error, error(Msg,[Info|local_sp(P,CP,Envs,CPs)])) :- !,
 	nb_setval(sp_info,local_sp(P,CP,Envs,CPs)),
 	print_message(error, error(Msg, Info)),

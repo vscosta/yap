@@ -1212,6 +1212,7 @@ InitCodes(void)
   Yap_heap_regs->functor_arrow = Yap_MkFunctor(AtomArrow, 2);
   Yap_heap_regs->functor_assert = Yap_MkFunctor(AtomAssert, 2);
   Yap_heap_regs->functor_at_found_one = Yap_MkFunctor(AtomFoundVar, 2);
+  Yap_heap_regs->functor_atom = Yap_MkFunctor(Yap_LookupAtom("atom"), 1);
 #ifdef COROUTINING
   Yap_heap_regs->functor_att_goal = Yap_MkFunctor(Yap_FullLookupAtom("$att_do"),2);
 #endif

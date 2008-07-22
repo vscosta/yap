@@ -664,6 +664,7 @@ p_execute0(void)
       }
     }
     pe = PredPropByFunc(f, mod);
+    //    Yap_DebugPlWrite(mod);fprintf(stderr,"\n");
     arity = ArityOfFunctor(f);
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and

@@ -17,12 +17,15 @@
 	   nth/4,
 	   nth0/3,
 	   nth0/4,
+	   nth1/3,
+	   nth1/4,
 	   permutation/2,
 	   prefix/2,
 	   remove_duplicates/2,
 	   reverse/2,
 	   same_length/2,
 	   select/3,
+	   selectchk/3,
 	   sublist/2,
 	   substitute/4,
 	   sum_list/2,
@@ -31,8 +34,11 @@
 	   list_concat/2,
 	   flatten/2,
 	   max_list/2,	 
-	   min_list/2
+	   min_list/2,
+	   numlist/3
 	  ]).
+
+:- ensure_loaded(library(error)).
 
 
 %   append(Prefix, Suffix, Combined)
@@ -125,6 +131,14 @@ find_nth0(N, [_|Tail], Elem) :-
 	find_nth0(M, Tail, Elem).
 
 
+nth1(V, In, Element) :- var(V), !,
+	generate_nth(1, V, In, Element).
+nth1(1, [Head|_], Head) :- !.
+nth1(N, [_|Tail], Elem) :-
+	nonvar(N), !,
+	M is N-1,			% should be succ(M, N)
+	find_nth(M, Tail, Elem).
+
 nth(V, In, Element) :- var(V), !,
 	generate_nth(1, V, In, Element).
 nth(1, [Head|_], Head) :- !.
@@ -167,6 +181,13 @@ find_nth0(N, [Head|Tail], Elem, [Head|Rest]) :-
 	find_nth0(M, Tail, Elem, Rest).
 
 
+
+nth1(V, In, Element, Tail) :- var(V), !,
+	generate_nth(1, V, In, Element, Tail).
+nth1(1, [Head|Tail], Head, Tail) :- !.
+nth1(N, [Head|Tail], Elem, [Head|Rest]) :-
+	M is N-1,
+	nth1(M, Tail, Elem, Rest).
 
 nth(V, In, Element, Tail) :- var(V), !,
 	generate_nth(1, V, In, Element, Tail).
@@ -243,6 +264,15 @@ same_length([], []).
 same_length([_|List1], [_|List2]) :-
 	same_length(List1, List2).
 
+%%      selectchk(+Elem, +List, -Rest) is semidet.
+%
+%       Semi-deterministic removal of first element in List that unifies
+%       Elem.
+
+selectchk(Elem, List, Rest) :-
+        select(Elem, List, Rest0), !,
+        Rest = Rest0.
+
 
 %   select(?Element, ?Set, ?Residue)
 %   is true when Set is a list, Element occurs in Set, and Residue is
@@ -315,6 +345,7 @@ list_concat([H|T], [H|Lf], Li) :-
 %
 flatten(X,Y) :- flatten_list(X,Y,[]).
  
+flatten_list(V) --> {var(V)}, !.
 flatten_list([]) --> !.
 flatten_list([H|T]) --> !, flatten_list(H),flatten_list(T).
 flatten_list(H) --> [H].
@@ -344,4 +375,23 @@ min_list([H|L],Max0,Max) :-
 	;
 	  min_list(L, Max0, Max)
 	).
+
+%%      numlist(+Low, +High, -List) is semidet.
+%                                                                               
+%       List is a list [Low, Low+1, ... High].  Fails if High < Low.%
+%
+%       @error type_error(integer, Low)                                         
+%       @error type_error(integer, High)
+
+numlist(L, U, Ns) :-
+        must_be(integer, L),
+        must_be(integer, U),
+        L =< U,
+        numlist_(L, U, Ns).
+
+numlist_(U, U, [U]) :- !.
+numlist_(L, U, [L|Ns]) :-
+        succ(L, L2),
+        numlist_(L2, U, Ns).
+
 

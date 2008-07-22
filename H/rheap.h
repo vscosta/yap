@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-05-12 22:31:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-07-22 23:34:49 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.98  2008/05/12 22:31:37  vsc
+* fix previous fixes
+*
 * Revision 1.97  2008/05/12 14:04:23  vsc
 * updates to restore
 *
@@ -771,6 +774,7 @@ restore_codes(void)
   Yap_heap_regs->functor_arrow = FuncAdjust(Yap_heap_regs->functor_arrow);
   Yap_heap_regs->functor_assert = FuncAdjust(Yap_heap_regs->functor_assert);
   Yap_heap_regs->functor_at_found_one = FuncAdjust(Yap_heap_regs->functor_at_found_one);
+  Yap_heap_regs->functor_atom = FuncAdjust(Yap_heap_regs->functor_atom);
 #ifdef COROUTINING
   Yap_heap_regs->functor_att_goal = FuncAdjust(Yap_heap_regs->functor_att_goal);
 #endif

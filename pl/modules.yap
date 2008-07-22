@@ -181,37 +181,22 @@ module(N) :-
 
 
 % expand module names in a clause
-'$module_expansion'(((Mod:H) :- B ),((Mod:H) :- B1),((Mod:H) :- BO),M) :- !,
-	'$is_mt'(Mod,H,B,IB,MM),
-	'$prepare_body_with_correct_modules'(IB, M, B0),
+% A1: Input Clause
+% A2: Output Class to Compiler (lives in module HM) 
+% A3: Output Class to clause/2 and listing (lives in module HM)
+%
+% modules:
+% A4: module for body of clause (this is the one used in looking up predicates)
+% A5: context module (this is the current context
+% A6: head module (this is the one used in compiling and accessing).
+%
+'$module_expansion'((H:-B),(H:-B1),(H:-BO),M,HM) :- !,
+	'$is_mt'(M, H, B, IB, MM),
 	'$module_u_vars'(H,UVars,M),	 % collect head variables in
 					 % expanded positions
-	'$module_expansion'(B0,B1,BO,M,MM,M,UVars).			% expand body
-'$module_expansion'((H:-B),(H:-B1),(H:-BO),M) :-
-	'$is_mt'(M,H,B,IB,MM),
-	'$module_u_vars'(H,UVars,M),	 % collect head variables in
-					 % expanded positions
-	'$module_expansion'(IB,B1,BO,M,MM,M,UVars).
-%	$trace_module((H:-B),(H:-B1)).
-
-% expand module names in a body
-'$prepare_body_with_correct_modules'(V,M,M:call(V)) :- var(V), !.
-'$prepare_body_with_correct_modules'((A,B),M,(A1,B1)) :- !,
-	'$prepare_body_with_correct_modules'(A,M,A1),
-	'$prepare_body_with_correct_modules'(B,M,B1).
-'$prepare_body_with_correct_modules'((A;B),M,(A1;B1)) :- !,
-	'$prepare_body_with_correct_modules'(A,M,A1),
-	'$prepare_body_with_correct_modules'(B,M,B1).
-'$prepare_body_with_correct_modules'((A->B),M,(A1->B1)) :- !,
-	'$prepare_body_with_correct_modules'(A,M,A1),
-	'$prepare_body_with_correct_modules'(B,M,B1).
-'$prepare_body_with_correct_modules'(true,_,true) :- !.
-'$prepare_body_with_correct_modules'(fail,_,fail) :- !.
-'$prepare_body_with_correct_modules'(false,_,false) :- !.
-'$prepare_body_with_correct_modules'(M:G,M:G) :- !.
-'$prepare_body_with_correct_modules'(G,M,G) :-
-	'$system_predicate'(G,M), !.
-'$prepare_body_with_correct_modules'(G,M,M:G).
+	'$module_expansion'(IB,B1,BO,M,MM,HM,UVars).
+% do not expand bodyless clauses.
+'$module_expansion'(H,H,H,_,_).
 
 
 '$trace_module'(X) :-
@@ -235,79 +220,113 @@ module(N) :-
 % expand module names in a body
 % args are:
 %       goals to expand
-%       code to pass to compiler
 %       code to pass to listing
-%       current module for looking up preds
-%       current module for fixing up meta-call arguments
-%       current module for predicate
+%       code to pass to compiler
+%       current module for looking up preds  M
+%       default module  DM
+%       head module   HM
+%
+% to understand the differences, you can consider:
+%
+%  a:(d:b(X) :- g:c(X), d(X), user:hello(X)).
+%
+% when we process meta-predicate c, HM=d, DM=a, BM=a, M=g and we should get:
+%
+%  d:b(X) :- g:c(g:X), a:d(X), user:hello(X).
+%
+% on the other hand,
+%
+%  a:(d:b(X) :- c(X), d(X), d:e(X)).
+%
+% will give
+%
+%  d:b(X) :- a:c(a:X), a:d(X), e(X).
+%
+%
 %       head variables.
-'$module_expansion'(V,call(MM:V),call(MM:V),_M,MM,_TM,_) :- var(V), !.
-'$module_expansion'((A,B),(A1,B1),(AO,BO),M,MM,TM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
-	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
-'$module_expansion'((A*->B;C),(A1*->B1;C1),(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),M,MM,TM,HVars) :- !,
-	'$module_expansion'(A,A1,AOO,M,MM,TM,HVars),
+%       goals or arguments/sub-arguments?
+% I cannot use call here because of format/3
+'$module_expansion'(V,NG,NG,_,MM,_,HVars) :-
+	var(V), !,
+	( '$not_in_vars'(V,HVars)
+	->
+	  NG = call(MM:V)
+	;
+	  NG = call(V)
+	).	
+'$module_expansion'((A,B),(A1,B1),(AO,BO),M,MM,HM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,HM,HVars),
+	'$module_expansion'(B,B1,BO,M,MM,HM,HVars).
+'$module_expansion'((A*->B;C),(A1*->B1;C1),(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),M,MM,HM,HVars) :- !,
+	'$module_expansion'(A,A1,AOO,M,MM,HM,HVars),
 	'$clean_cuts'(AOO, AO),
-	'$module_expansion'(B,B1,BO,M,MM,TM,HVars),
-	'$module_expansion'(C,C1,CO,M,MM,TM,HVars).
-'$module_expansion'((A;B),(A1;B1),(AO;BO),M,MM,TM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
-	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
-'$module_expansion'((A|B),(A1|B1),(AO|BO),M,MM,TM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
-	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
-'$module_expansion'((A->B),(A1->B1),(AO->BO),M,MM,TM,HVars) :- !,
-	'$module_expansion'(A,A1,AOO,M,MM,TM,HVars),
+	'$module_expansion'(B,B1,BO,M,MM,HM,HVars),
+	'$module_expansion'(C,C1,CO,M,MM,HM,HVars).
+'$module_expansion'((A;B),(A1;B1),(AO;BO),M,MM,HM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,HM,HVars),
+	'$module_expansion'(B,B1,BO,M,MM,HM,HVars).
+'$module_expansion'((A|B),(A1|B1),(AO|BO),M,MM,HM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,HM,HVars),
+	'$module_expansion'(B,B1,BO,M,MM,HM,HVars).
+'$module_expansion'((A->B),(A1->B1),(AO->BO),M,MM,HM,HVars) :- !,
+	'$module_expansion'(A,A1,AOO,M,MM,HM,HVars),
 	'$clean_cuts'(AOO, AO),
-	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
-'$module_expansion'(\+A,\+A1,\+AO,M,MM,TM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars).
-'$module_expansion'(not(A),not(A1),not(AO),M,MM,TM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,TM,HVars).
+	'$module_expansion'(B,B1,BO,M,MM,HM,HVars).
+'$module_expansion'(\+A,\+A1,\+AO,M,MM,HM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,HM,HVars).
+'$module_expansion'(not(A),not(A1),not(AO),M,MM,HM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,HM,HVars).
 '$module_expansion'(true,true,true,_,_,_,_) :- !.
 '$module_expansion'(fail,fail,fail,_,_,_,_) :- !.
 '$module_expansion'(false,false,false,_,_,_,_) :- !.
 % if I don't know what the module is, I cannot do anything to the goal,
 % so I just put a call for later on.
 '$module_expansion'(M:G,call(M:G),'$execute_wo_mod'(G,M),_,_,_,_) :- var(M), !.
-'$module_expansion'(M:G,G1,GO,_,_,TM,HVars) :-
-	'$module_expansion'(G,G1,GO,M,M,TM,HVars).
-% if M1 is given explicitly process G within M1's context.
-% '$module_expansion'(M:G,G1,GO,_Mod,_MM,TM,HVars) :- !,
-% 	% is this imported from some other module M1?
-% 	( '$imported_pred'(G, M, M1) ->
-% 	    % continue recursively...
-% 	    '$module_expansion'(G,G1,GO,M1,M,TM,HVars)
-% 	;
-% 	  (
-% 	      '$meta_expansion'(M, M, G, NG, HVars)
-% 	  ;
-% 	      G = NG
-% 	  ),
-% 	  '$complete_goal_expansion'(NG, M, M, TM, G1, GO, HVars)
-% 	).
-%
-% next, check if this is something imported.
-%
-% first, try doing goal_expansion
-'$module_expansion'(G, G1, G0, CurMod, MM, TM, HVars) :-
+'$module_expansion'(M:G,G1,GO,_,_,HM,HVars) :- !,
+	'$module_expansion'(G,G1,GO,M,M,HM,HVars).
+'$module_expansion'(G, G1, GO, CurMod, MM, HM, HVars) :-
 	'$pred_goal_expansion_on',
 	user:goal_expansion(G, CurMod, GI), !,
-	'$module_expansion'(GI, G1, G0, CurMod, MM, TM, HVars).
-'$module_expansion'(G, G1, GO, CurMod, MM, TM, HVars) :-
+	'$module_expansion'(GI, G1, GO, CurMod, MM, HM, HVars).
+'$module_expansion'(G, G1, GO, CurMod, MM, HM,HVars) :-
 	% is this imported from some other module M1?
-	( '$imported_pred'(G, CurMod, GG, M1) ->
-	    '$module_expansion'(GG, G1, GO, M1, MM, TM, HVars)
+	'$imported_pred'(G, CurMod, GG, M1),
+	!,
+	'$module_expansion'(GG, G1, GO, M1, MM, HM,HVars).
+'$module_expansion'(G, G1, GO, CurMod, MM, HM,HVars) :-
+	'$meta_expansion'(G, CurMod, MM, HM, GI, HVars), !,
+	'$complete_goal_expansion'(GI, CurMod, MM, HM, G1, GO, HVars).
+'$module_expansion'(G, G1, GO, CurMod, MM, HM, HVars) :-
+	'$complete_goal_expansion'(G, CurMod, MM, HM, G1, GO, HVars).
+
+% args are:
+%       goal to expand
+%       current module for looking up pred
+%       current module for looking up pred
+%       current module from top-level clause
+%       goal to pass to listing
+%       goal to pass to compiler
+%       head variables.
+'$complete_goal_expansion'(G, M, CM, HM, G1, G2, HVars) :-
+	'$all_system_predicate'(G,M,ORIG), !,
+	% make built-in processing transparent.
+	'$match_mod'(G, M, ORIG, HM, G1),
+	'$c_built_in'(G1, M, Gi),
+	(Gi \== G1 ->
+	 '$module_expansion'(Gi, G2, _, M, CM, HM, HVars)
 	;
-	  (
-	   '$meta_expansion'(CurMod, MM, G, GI, HVars)
-	  ->
-	   true
-	   ;
-	   GI = G
-	  ),
-	  '$complete_goal_expansion'(GI, CurMod, MM, TM, G1, GO, HVars)
+	 G2 = G1
 	).
+'$complete_goal_expansion'(G, GMod, _, HM, NG, NG, _) :-
+	'$match_mod'(G, GMod, GMod, HM, NG).
+
+%'$match_mod'(G, GMod, GMod, NG) :- !,
+%	NG = G.
+'$match_mod'(G, _, SM, _, G) :- SM == prolog, !. % prolog: needs no module info.
+% same module as head,  and body goal (I cannot get rid of qualifier before
+% meta-call.
+'$match_mod'(G, HMod, _, HM, G) :- HMod == HM, !.
+'$match_mod'(G, GMod, _, _,  GMod:G).
 
 
 % be careful here not to generate an undefined exception.
@@ -325,29 +344,6 @@ module(N) :-
 '$imported_pred'(G, ImportingMod, _, _) :-
 	'$exit_undefp',
 	fail.
-
-% args are:
-%       goal to expand
-%       current module for looking up pred
-%       current module from top-level clause
-%       goal to pass to compiler
-%       goal to pass to listing
-%       head variables.
-'$complete_goal_expansion'(G, M, CM, TM, G1, G2, HVars) :-
-	'$all_system_predicate'(G,M), !,
-	'$c_built_in'(G, M, Gi),
-	(Gi \== G ->
-	   '$module_expansion'(Gi, _, G2, M, CM, TM, HVars),
-	    % make built-in processing transparent.
-	    (TM = M -> G1 = G ; G1 = M:G)
-	 ; TM = M ->
-	    G2 = G, G1 = G
-	;
-	    G2 = M:G, G1 = M:G % atts:
-	).
-'$complete_goal_expansion'(G, Mod, _, Mod, G, G, _) :- !.
-'$complete_goal_expansion'(G, GMod, _, _, GMod:G, GMod:G, _).
-
 
 % module_transparent declaration
 % 
@@ -422,53 +418,34 @@ module(N) :-
 % expand arguments of a meta-predicate
 % $meta_expansion(ModuleWhereDefined,CurrentModule,Goal,ExpandedGoal,MetaVariables)
 
-'$meta_expansion'(Mod,MP,G,G1,HVars) :- 
+'$meta_expansion'(G,Mod,MP,HM,G1,HVars) :-
 	functor(G,F,N),
 	'$meta_predicate'(F,Mod,N,D), !,
+%	format(user_error,'[ ~w ',[G]),
 	functor(G1,F,N),
-	'$meta_expansion_loop'(N,D,G,G1,HVars,MP).
-%	format(user_error," gives ~w~n]",[G1]).
+	'$meta_expansion_loop'(N, D, G, G1, HVars, Mod, MP, HM).
+%	format(user_error,' gives ~w]`n',[G1]).
 
 % expand argument
-'$meta_expansion_loop'(0,_,_,_,_,_) :- !.
-'$meta_expansion_loop'(I,D,G,G1,HVars,M) :- 
+'$meta_expansion_loop'(0,_,_,_,_,_,_,_) :- !.
+'$meta_expansion_loop'(I,D,G,NG,HVars,CurMod,M,HM) :- 
 	arg(I,D,X), (X==':' ; integer(X)),
-	arg(I,G,A), '$do_expand'(A,HVars), !,
-	'$process_expanded_arg'(A, M, NA),
-	arg(I,G1,NA),
+	arg(I,G,A), '$do_expand'(A,HVars),
+	!,
+	arg(I,NG,M:A),
 	I1 is I-1,
-	'$meta_expansion_loop'(I1,D,G,G1,HVars,M).
-'$meta_expansion_loop'(I,D,G,G1,HVars,M) :- 
+	'$meta_expansion_loop'(I1, D, G, NG, HVars, CurMod, M, HM).
+'$meta_expansion_loop'(I, D, G, NG, HVars, CurMod, M, HM) :- 
 	arg(I,G,A),
-	arg(I,G1,A),
+	arg(I,NG,A),
 	I1 is I-1,
-	'$meta_expansion_loop'(I1,D,G,G1,HVars,M).
+	'$meta_expansion_loop'(I1, D, G, NG, HVars, CurMod, M, HM).
 
 % check if an argument should be expanded
 '$do_expand'(V,HVars) :- var(V), !, '$not_in_vars'(V,HVars).
 '$do_expand'(_:_,_) :- !, fail.
 '$do_expand'(_,_).
 
-'$process_expanded_arg'(V, M, M:V) :- var(V), !.
-'$process_expanded_arg'((V1,V2), M, (NV1,NV2)) :- !,
-	'$process_expanded_arg'(V1, M, NV1),
-	'$process_expanded_arg'(V2, M, NV2).
-'$process_expanded_arg'((V1;V2), M, (NV1;NV2)) :- !,
-	'$process_expanded_arg'(V1, M, NV1),
-	'$process_expanded_arg'(V2, M, NV2).
-'$process_expanded_arg'((V1|V2), M, (NV1|NV2)) :- !,
-	'$process_expanded_arg'(V1, M, NV1),
-	'$process_expanded_arg'(V2, M, NV2).
-'$process_expanded_arg'((V1->V2), M, (NV1->NV2)) :- !,
-	'$process_expanded_arg'(V1, M, NV1),
-	'$process_expanded_arg'(V2, M, NV2).
-'$process_expanded_arg'(\+V, M, \+NV) :- !,
-	'$process_expanded_arg'(V, M, NV).
-'$process_expanded_arg'(M:A, _, M:A) :- !.
-%'$process_expanded_arg'(G, M, G) :-
-%	'$system_predicate'(G,M), !.
-'$process_expanded_arg'(A, M, M:A).
-	
 '$not_in_vars'(_,[]).
 '$not_in_vars'(V,[X|L]) :- X\==V, '$not_in_vars'(V,L).
 
@@ -565,41 +542,11 @@ source_module(Mod) :-
 	use_module(?,:,?),
 	when(?,:),
 	with_mutex(+,:),
+	(: -> :),
+	(: *-> :),
+	(: ; :),
 	^(+,:),
 	\+ : .
-
-%
-% if we are asserting something in somewhere else's module,
-% we need this little bird.
-%
-% assert((a:g :- b)) then SICStus compiles this into the original module.
-% YAP is not 100% compatible, as it will transform this into:
-%    a:assert(g :- user:b))
-%
-'$preprocess_clause_before_mod_change'((H:-B),M,M1,(H:-B1)) :-
-	'$module_u_vars'(H,UVars,M1),
-	'$preprocess_body_before_mod_change'(B,M,UVars,B1).
-
-'$preprocess_body_before_mod_change'(V,M,_,call(M:V)) :- var(V), !.
-'$preprocess_body_before_mod_change'((G1,G2),M,UVars,(NG1,NG2)) :- !,
-	'$preprocess_body_before_mod_change'(G1,M,UVars,NG1),
-	'$preprocess_body_before_mod_change'(G2,M,UVars,NG2).
-'$preprocess_body_before_mod_change'((G1;G2),M,UVars,(NG1;NG2)) :- !,
-	'$preprocess_body_before_mod_change'(G1,M,UVars,NG1),
-	'$preprocess_body_before_mod_change'(G2,M,UVars,NG2).
-'$preprocess_body_before_mod_change'((G1->G2),M,UVars,(NG1->NG2)) :- !,
-	'$preprocess_body_before_mod_change'(G1,M,UVars,NG1),
-	'$preprocess_body_before_mod_change'(G2,M,UVars,NG2).
-'$preprocess_body_before_mod_change'(M:G,_,_,M:G) :- !.
-'$preprocess_body_before_mod_change'(true,_,_,true) :- !.
-'$preprocess_body_before_mod_change'(fail,_,_,fail) :- !.
-'$preprocess_body_before_mod_change'(false,_,_,false) :- !.
-'$preprocess_body_before_mod_change'(G,M,UVars,M:NG) :-
-	'$meta_expansion'(M, M, G, NG, UVars), !.
-'$preprocess_body_before_mod_change'(G,M,_,G) :-
-	'$system_predicate'(G,M), !.
-'$preprocess_body_before_mod_change'(G,M,_,M:G).
-
 
 %
 % get rid of a module and of all predicates included in the module.

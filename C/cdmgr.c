@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2008-06-02 17:20:28 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-07-22 23:34:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.230  2008/06/02 17:20:28  vsc
+* fix abolish bug
+*
 * Revision 1.229  2008/05/28 17:18:35  vsc
 * thread fixes
 *
@@ -4785,6 +4788,13 @@ p_all_system_pred(void)
     return FALSE;
   if (EndOfPAEntr(pe))
     return FALSE;
+  if (pe->ModuleOfPred) {
+    if (!Yap_unify(ARG3,pe->ModuleOfPred))
+      return FALSE;
+  } else {
+    if (!Yap_unify(ARG3,TermProlog))
+      return FALSE;
+  } 
   return(!pe->ModuleOfPred || /* any predicate in prolog module */
 	 /* any C-pred */
 	 pe->PredFlags & (UserCPredFlag|CPredFlag|BinaryTestPredFlag|AsmPredFlag|TestPredFlag) ||
@@ -4829,7 +4839,7 @@ p_hide_predicate(void)
   } else
     return (FALSE);
   if (EndOfPAEntr(pe))
-    return(FALSE);
+    return FALSE;
   pe->PredFlags |= HiddenPredFlag;
   return(TRUE);
 }
@@ -6160,7 +6170,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$parent_pred", 3, p_parent_pred, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$system_predicate", 2, p_system_pred, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$all_system_predicate", 2, p_all_system_pred, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$all_system_predicate", 3, p_all_system_pred, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$hide_predicate", 2, p_hide_predicate, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$hidden_predicate", 2, p_hidden_predicate, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$pred_for_code", 5, p_pred_for_code, SyncPredFlag|HiddenPredFlag);

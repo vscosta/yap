@@ -51,10 +51,6 @@ assert(C) :-
 	var(H), !, '$do_error'(instantiation_error,P).
 '$assert_clause'(M1:C, G, M1, Where, R, P) :- !,
 	'$assert_clause2'(C, G, M1, Where, R, P).
-'$assert_clause'(M:C, G, M1, Where, R, P) :- !,
-	'$preprocess_clause_before_mod_change'((C:-G),M1,M,C1),
-	C1 = (NH :- NG),
-	'$assert_clause2'(NH, NG, M, Where, R, P).
 '$assert_clause'(H, G, M1, Where, R, P) :- !,
 	'$assert_clause2'(H, G, M1, Where, R, P).
 
@@ -108,13 +104,7 @@ assert(C) :-
 '$assert_dynamic'(M:C,_,Where,R,P) :- !,
 	'$assert_dynamic'(C,M,Where,R,P).
 '$assert_dynamic'((H:-G),M1,Where,R,P) :-
-        (var(H) -> '$do_error'(instantiation_error,P) ;  H=M:C), !,
-	( M1 = M ->
-	    '$assert_dynamic'((C:-G),M1,Where,R,P)
-	;
-	    '$preprocess_clause_before_mod_change'((C:-G),M1,M,C1),
-	    '$assert_dynamic'(C1,M,Where,R,P)
-	).
+        var(H), !, '$do_error'(instantiation_error,P).
 '$assert_dynamic'(CI,Mod,Where,R,P) :-
 	'$expand_clause'(CI,C0,C,Mod),
 	'$assert_dynamic2'(C0,C,Mod,Where,R,P).
@@ -159,13 +149,7 @@ assertz_static(C) :-
 '$assert_static'(M:C,_,Where,R,P) :- !,
 	'$assert_static'(C,M,Where,R,P).
 '$assert_static'((H:-G),M1,Where,R,P) :-
-	(var(H) -> '$do_error'(instantiation_error,P) ;  H=M:C), !,
-	( M1 = M ->
-	    '$assert_static'((C:-G),M1,Where,R,P)
-	;
-	    '$preprocess_clause_before_mod_change'((C:-G),M1,M,C1),
-	    '$assert_static'(C1,M,Where,R,P)
-	).
+	var(H), !, '$do_error'(instantiation_error,P).
 '$assert_static'(CI,Mod,Where,R,P) :-
 	'$expand_clause'(CI,C0,C,Mod),
 	'$check_head_and_body'(C,H,B,P),
@@ -753,7 +737,7 @@ dynamic_predicate(P,Sem) :-
 
 
 '$expand_clause'(C0,C1,C2,Mod) :-
-	'$expand_term_modules'(C0, C1, C2, Mod),
+	'$module_expansion'(C0, C1, C2, Mod, Mod),
 	( get_value('$strict_iso',on) ->
 	    '$check_iso_strict_clause'(C1)
         ;
@@ -845,9 +829,9 @@ predicate_property(Pred,Prop) :-
 '$predicate_property'(P,M,_,static) :-
 	\+ '$is_dynamic'(P,M),
 	\+ '$undefined'(P,M).
-'$predicate_property'(P,M,_,meta_predicate(P)) :-
+'$predicate_property'(P,M,_,meta_predicate(Q)) :-
 	functor(P,Na,Ar),
-	'$meta_predicate'(M,Na,Ar,P).
+	'$meta_predicate'(Na,M,Ar,Q).
 '$predicate_property'(P,M,_,multifile) :-
 	'$is_multifile'(P,M).
 '$predicate_property'(P,M,_,public) :-

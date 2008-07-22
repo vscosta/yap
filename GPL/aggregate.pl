@@ -1,4 +1,4 @@
-/*  $Id: aggregate.pl,v 1.3 2008-03-13 14:37:58 vsc Exp $
+/*  $Id: aggregate.pl,v 1.4 2008-07-22 23:34:49 vsc Exp $
 
     Part of SWI-Prolog
 
@@ -41,10 +41,6 @@
 :- use_module(library(pairs)).
 :- use_module(library(error)).
 :- use_module(library(lists)).
-
-:- if(current_prolog_flag(dialect, yap)).
-:- use_module(library(maplist)).
-:- endif.
 
 :- module_transparent
 	foreach/2,

@@ -2781,21 +2781,29 @@ open_buf_write_stream(char *nbuf, UInt  sz)
   return sno;
 }
 
+static int
+OpenBufWriteStream(void)
+{
+  char *nbuf;
+  extern int Yap_page_size;
+
+
+  while ((nbuf = (char *)Yap_AllocAtomSpace(Yap_page_size*sizeof(char))) == NULL) {
+    if (!Yap_growheap(FALSE, Yap_page_size*sizeof(char), NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      return -1;
+    }
+  }
+  return open_buf_write_stream(nbuf, Yap_page_size);
+}
+
 static Int
 p_open_mem_write_stream (void)   /* $open_mem_write_stream(-Stream) */
 {
   Term t;
   int sno;
-  char *nbuf;
-  extern int Yap_page_size;
 
-  while ((nbuf = (char *)Yap_AllocAtomSpace(Yap_page_size*sizeof(char))) == NULL) {
-    if (!Yap_growheap(FALSE, Yap_page_size*sizeof(char), NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    }
-  }
-  sno = open_buf_write_stream(nbuf, Yap_page_size);
+  sno = OpenBufWriteStream();
   if (sno == -1)
     return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_mem_read_stream/1"));
   t = MkStream (sno);
@@ -5337,18 +5345,41 @@ static Int
 p_format2(void)
 {				/* 'format'(Stream,Control,Args)          */
   int old_c_stream = Yap_c_output_stream;
+  int mem_stream = FALSE;
   Int out;
+  Term tin = Deref(ARG1);
 
-  /* needs to change Yap_c_output_stream for write */
-  Yap_c_output_stream = CheckStream (ARG1, Output_Stream_f, "format/3");
+  if (IsVarTerm(tin)) {
+    Yap_Error(INSTANTIATION_ERROR,tin,"format/3");
+    return FALSE;
+  }
+  if (IsApplTerm(tin) && FunctorOfTerm(tin) == FunctorAtom) {
+    Yap_c_output_stream = OpenBufWriteStream();
+    mem_stream = TRUE;
+  } else {
+    /* needs to change Yap_c_output_stream for write */
+    Yap_c_output_stream = CheckStream (ARG1, Output_Stream_f, "format/3");
+  }
   UNLOCK(Stream[Yap_c_output_stream].streamlock);
   if (Yap_c_output_stream == -1) {
     Yap_c_output_stream = old_c_stream;  
-    return(FALSE);
+    return FALSE;
   }
   out = format(Deref(ARG2),Deref(ARG3),Yap_c_output_stream);
-  Yap_c_output_stream = old_c_stream;  
-  return(out);
+  if (mem_stream) {
+    Term tat;
+    int stream = Yap_c_output_stream;
+    Yap_c_output_stream = old_c_stream;  
+    if (out) {
+      tat = MkAtomTerm(Yap_LookupAtom(Stream[stream].u.mem_string.buf));
+      CloseStream(stream);
+      if (!Yap_unify(tat,ArgOfTerm(1,ARG1)))
+	return FALSE;
+    }
+  } else {
+    Yap_c_output_stream = old_c_stream;  
+  }
+  return out;
 }
 
 
@@ -5421,7 +5452,7 @@ p_stream_select(void)
 
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR,t1,"stream_select/3");
-    return(FALSE);
+    return FALSE;
   }
   if (!IsPairTerm(t1)) {
     Yap_Error(TYPE_ERROR_LIST,t1,"stream_select/3");

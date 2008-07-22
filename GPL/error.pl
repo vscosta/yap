@@ -1,4 +1,4 @@
-/*  $Id: error.pl,v 1.2 2008-05-15 13:41:45 vsc Exp $
+/*  $Id: error.pl,v 1.3 2008-07-22 23:34:49 vsc Exp $
 
     Part of SWI-Prolog
 
@@ -163,20 +163,6 @@ not_a_list(Type, X) :-
 	;   type_error(Type, X)
 	).
 
-:- if(current_prolog_flag(dialect, yap)).
-
-% vsc: I hope it works like this
-'$skip_list'(_, Rest, Rest) :- var(Rest), !.
-'$skip_list'(_, [], _) :- !, fail.
-'$skip_list'(Anything, [_|More], Rest) :-
-	'$skip_list'(Anything, [_|More], Rest).
-'$skip_list'(Anything, [_|More], Rest) :-
-	'$skip_list'(Anything, More, Rest).
-'$skip_list'(_Anything, Rest, Rest).
-
-:- endif.
-
-
 not_a_rational(X) :-
 	(   var(X)
 	->  instantiation_error(X)
@@ -259,3 +245,18 @@ element_types([H|T], Type) :-
 is_list_or_partial_list(L0) :-
 	'$skip_list'(_, L0,L),
 	( var(L) -> true ; L == [] ).
+
+:- if(current_prolog_flag(dialect, yap)).
+
+% vsc: I hope it works like this
+'$skip_list'(_, Rest, Rest) :- var(Rest), !.
+'$skip_list'(_, [], _) :- !, fail.
+'$skip_list'(Anything, [_|More], Rest) :-
+	'$skip_list'(Anything, [_|More], Rest).
+'$skip_list'(Anything, [_|More], Rest) :-
+	'$skip_list'(Anything, More, Rest).
+'$skip_list'(_Anything, Rest, Rest).
+
+:- endif.
+
+
