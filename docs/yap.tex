@@ -2648,6 +2648,14 @@ instead of the call to @code{call/1}, except that any "cut" occurring in
 @cnindex incore/1
 The same as @code{call/1}.
 
+@item call(+@var{Closure},...,?@var{Ai},...)
+@findex call/n
+@snindex call/n
+@cnindex call/n
+Meta-call where @var{Closure} is a closure that is converted into a goal by 
+appending the @var{Ai} additional arguments. The number of arguments varies 
+between 0 and 10.
+
 @item call_with_args(+@var{Name},...,?@var{Ai},...)
 @findex call_with_args/n
 @snindex call_with_args/n
