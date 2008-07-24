@@ -10,8 +10,12 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-07-11 17:02:07 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-07-24 16:02:00 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.120  2008/07/11 17:02:07  vsc
+* fixes by Bart and Tom: mostly libraries but nasty one in indexing
+* compilation.
+*
 * Revision 1.119  2008/06/17 13:37:48  vsc
 * fix c_interface not to crash when people try to recover slots that are
 * not there.
@@ -411,7 +415,17 @@ X_API void    STD_PROTO(YAP_FreeSpaceFromYap,(void *));
 X_API int     STD_PROTO(YAP_StringToBuffer, (Term, char *, unsigned int));
 X_API Term    STD_PROTO(YAP_ReadBuffer, (char *,Term *));
 X_API Term    STD_PROTO(YAP_BufferToString, (char *));
+X_API Term    STD_PROTO(YAP_NBufferToString, (char *, size_t));
+X_API Term    STD_PROTO(YAP_WideBufferToString, (wchar_t *));
+X_API Term    STD_PROTO(YAP_NWideBufferToString, (wchar_t *, size_t));
 X_API Term    STD_PROTO(YAP_BufferToAtomList, (char *));
+X_API Term    STD_PROTO(YAP_NBufferToAtomList, (char *,size_t));
+X_API Term    STD_PROTO(YAP_WideBufferToAtomList, (wchar_t *));
+X_API Term    STD_PROTO(YAP_NWideBufferToAtomList, (wchar_t *, size_t));
+X_API Term    STD_PROTO(YAP_BufferToDiffList, (char *, Term));
+X_API Term    STD_PROTO(YAP_NBufferToDiffList, (char *, Term, size_t));
+X_API Term    STD_PROTO(YAP_WideBufferToDiffList, (wchar_t *, Term));
+X_API Term    STD_PROTO(YAP_NWideBufferToDiffList, (wchar_t *, Term, size_t));
 X_API void    STD_PROTO(YAP_Error,(int, Term, char *, ...));
 X_API Term    STD_PROTO(YAP_RunGoal,(Term));
 X_API Term    STD_PROTO(YAP_RunGoalOnce,(Term));
@@ -1232,6 +1246,45 @@ YAP_BufferToString(char *s)
 
 /* copy a string to a buffer */
 X_API Term
+YAP_NBufferToString(char *s, size_t len)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = Yap_NStringToList(s, len);
+
+  RECOVER_H();
+  return t;
+}
+
+/* copy a string to a buffer */
+X_API Term
+YAP_WideBufferToString(wchar_t *s)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = Yap_WideStringToList(s);
+
+  RECOVER_H();
+  return t;
+}
+
+/* copy a string to a buffer */
+X_API Term
+YAP_NWideBufferToString(wchar_t *s, size_t len)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = Yap_NWideStringToList(s, len);
+
+  RECOVER_H();
+  return t;
+}
+
+/* copy a string to a buffer */
+X_API Term
 YAP_ReadBuffer(char *s, Term *tp)
 {
   Term t; 
@@ -1253,6 +1306,97 @@ YAP_BufferToAtomList(char *s)
   BACKUP_H();
 
   t = Yap_StringToListOfAtoms(s);
+
+  RECOVER_H();
+  return t;
+}
+
+/* copy a string of size len to a buffer */
+X_API Term
+YAP_NBufferToAtomList(char *s, size_t len)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = Yap_NStringToListOfAtoms(s, len);
+
+  RECOVER_H();
+  return t;
+}
+
+/* copy a string to a buffer */
+X_API Term
+YAP_WideBufferToAtomList(wchar_t *s)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = Yap_WideStringToListOfAtoms(s);
+
+  RECOVER_H();
+  return t;
+}
+
+/* copy a string of size len to a buffer */
+X_API Term
+YAP_NWideBufferToAtomList(wchar_t *s, size_t len)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = Yap_NWideStringToListOfAtoms(s, len);
+
+  RECOVER_H();
+  return t;
+}
+
+/* copy a string to a buffer */
+X_API Term
+YAP_BufferToDiffList(char *s, Term t0)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = Yap_StringToDiffList(s, t0);
+
+  RECOVER_H();
+  return t;
+}
+
+/* copy a string of size len to a buffer */
+X_API Term
+YAP_NBufferToDiffList(char *s, Term t0, size_t len)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = Yap_NStringToDiffList(s, t0, len);
+
+  RECOVER_H();
+  return t;
+}
+
+/* copy a string to a buffer */
+X_API Term
+YAP_WideBufferToDiffList(wchar_t *s, Term t0)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = Yap_WideStringToDiffList(s, t0);
+
+  RECOVER_H();
+  return t;
+}
+
+/* copy a string of size len to a buffer */
+X_API Term
+YAP_NWideBufferToDiffList(wchar_t *s, Term t0, size_t len)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = Yap_NWideStringToDiffList(s, t0, len);
 
   RECOVER_H();
   return t;

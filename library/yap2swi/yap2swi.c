@@ -15,6 +15,7 @@
 #include	<stdio.h>
 
 #include	<SWI-Prolog.h>
+#include	<SWI-Stream.h>
 
 #ifdef USE_GMP
 #include <gmp.h>
@@ -270,28 +271,42 @@ X_API int PL_get_wchars(term_t l, size_t *len, wchar_t **wsp, unsigned flags)
     int res = PL_get_chars(l, &sp, ((flags & ~(BUF_MALLOC|BUF_DISCARDABLE))|BUF_RING));
     size_t sz;
 
-    if (!res)
-      return FALSE;
+    if (!res) {
+      if (flags & CVT_EXCEPTION)
+	YAP_Error(0, 0L, "PL_get_wchars");
+      return 0;
+    }
     sz = wcstombs(sp,NULL,BUF_SIZE);
     if (flags & BUF_MALLOC) {
       wchar_t *nbf = (wchar_t *)YAP_AllocSpaceFromYap(sz+1);
-      if (nbf == NULL)
+      if (nbf == NULL) {
+	if (flags & CVT_EXCEPTION)
+	  YAP_Error(0, 0L, "PL_get_wchars: lack of memory");
 	return 0;
+      }
       *wsp = nbf;
     } else if (flags & BUF_DISCARDABLE) {
       wchar_t *buf = (wchar_t *)buffers;
 
-      if (wcstombs(sp,buf,BUF_SIZE) == -1)
+      if (wcstombs(sp,buf,BUF_SIZE) == -1) {
+	if (flags & CVT_EXCEPTION)
+	  YAP_Error(0, 0L, "PL_get_wchars: wcstombs");
 	return 0;
+      }
       *wsp = buf;
     } else {
       wchar_t *tmp = (wchar_t *)alloc_ring_buf();
-      if (wcstombs(sp, tmp, BUF_SIZE) == -1)
+      if (wcstombs(sp, tmp, BUF_SIZE) == -1) {
+	if (flags & CVT_EXCEPTION)
+	  YAP_Error(0, 0L, "PL_get_wchars: wcstombs");
 	return 0;
+      }
       *wsp = tmp;
     }
     return res;
   }
+  if (flags & CVT_EXCEPTION)
+    YAP_Error(0, 0L, "PL_get_wchars");
   return 0;
 }
 
@@ -842,6 +857,33 @@ X_API int PL_unify_pointer(term_t t, void *ptr)
 X_API int PL_unify_string_chars(term_t t, const char *chars)
 {
   YAP_Term chterm = YAP_BufferToString((char *)chars);
+  return YAP_Unify(YAP_GetFromSlot(t), chterm);
+}
+
+/* SWI: int PL_unify_wchars(term_t ?t, int type, size_t len,, const pl_wchar_t *s)
+ */
+X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *chars)
+{
+  YAP_Term chterm;
+
+  if (len == (size_t)-1)
+    len = wcslen(chars);
+
+  switch (type) {
+  case PL_ATOM:
+    chterm = YAP_MkAtomTerm(YAP_LookupWideAtom(chars));
+    break;
+  case PL_STRING:
+  case PL_CODE_LIST:
+    chterm = YAP_NWideBufferToString(chars, len);
+    break;
+  case PL_CHAR_LIST:
+    chterm = YAP_NWideBufferToAtomList(chars, len);
+    break;
+  default:
+    /* should give error?? */
+    return FALSE;
+  }
   return YAP_Unify(YAP_GetFromSlot(t), chterm);
 }
 
@@ -1566,6 +1608,111 @@ SWI_ctime(void)
 #endif
 }
 
+
+/***** SWI IO ***************/
+
+#define GET_LD
+#define LOCK()
+#define UNLOCK()
+#define FUNCTOR_dstream1 (functor_t)YAP_MkFunctor(YAP_LookupAtom("stream"),1)
+#define succeed return 1
+#define fail    return 0
+
+typedef struct symbol *		Symbol;		/* symbol of hash table */
+
+struct symbol
+{ Symbol	next;		/* next in chain */
+  void *	name;		/* name entry of symbol */
+  void *	value;		/* associated value with name */
+};
+
+static Symbol *streamContext;
+
+#define NULL_ATOM 0L
+
+#define allocHeap(size) YAP_AllocSpaceFromYap(size)
+
+// FIX THIS
+#define PL_error(A,B,C,D,E,F) 0
+
+static Symbol lookupHTable(Symbol *htp, void *name)
+{
+  Symbol ht = *htp;
+  while (ht) {
+    if (ht->name == name) return ht;
+  }
+  return NULL;
+}
+
+static void addHTable(Symbol *htp, void *name, void *val)
+{
+  Symbol s = (Symbol)allocHeap(sizeof(Symbol));
+  if (!s)
+    return;
+  s->next = *htp;
+  s->name = name;
+  s->value = val;
+  *htp = s;
+}
+
+typedef struct _alias
+{ struct _alias *next;
+  atom_t name;
+} alias;
+
+typedef struct
+{ alias *alias_head;
+  alias *alias_tail;
+  atom_t filename;			/* associated filename */
+  unsigned flags;
+} stream_context;
+
+
+static stream_context *
+getStreamContext(IOSTREAM *s)
+{ Symbol symb;
+
+  if ( !(symb = lookupHTable(streamContext, s)) )
+  { GET_LD
+    stream_context *ctx = allocHeap(sizeof(*ctx));
+
+    //    DEBUG(1, Sdprintf("Created ctx=%p for stream %p\n", ctx, s));
+
+    ctx->alias_head = ctx->alias_tail = NULL;
+    ctx->filename = NULL_ATOM;
+    ctx->flags = 0;
+    addHTable(streamContext, s, ctx);
+
+    return ctx;
+  }
+
+  return symb->value;
+}
+
+X_API int
+PL_unify_stream(term_t t, IOSTREAM *s)
+{ GET_LD
+  stream_context *ctx;
+  term_t a = PL_new_term_ref();
+
+  LOCK();
+  ctx = getStreamContext(s);
+  UNLOCK();
+
+  PL_put_pointer(a, s);
+  PL_cons_functor(a, FUNCTOR_dstream1, a);
+
+  if ( PL_unify(t, a) )
+    succeed;
+  if ( PL_is_functor(t, FUNCTOR_dstream1) )
+    fail;
+
+  return PL_error(NULL, 0, NULL, ERR_DOMAIN, ATOM_stream, t);
+}
+
+
+
+
 void Yap_swi_install(void);
 
 void
@@ -1596,3 +1743,4 @@ int WINAPI win_yap2swi(HANDLE hinst, DWORD reason, LPVOID reserved)
   return 1;
 }
 #endif
+

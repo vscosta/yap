@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.87 2008-06-17 13:37:49 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.88 2008-07-24 16:02:02 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -41,8 +41,17 @@ void	STD_PROTO(Yap_MkFunctorWithAddress,(Atom,unsigned int,FunctorEntry *));
 void	STD_PROTO(Yap_PutValue,(Atom,Term));
 void	STD_PROTO(Yap_ReleaseAtom,(Atom));
 Term	STD_PROTO(Yap_StringToList,(char *));
+Term	STD_PROTO(Yap_NStringToList,(char *, size_t));
+Term	STD_PROTO(Yap_WideStringToList,(wchar_t *));
+Term	STD_PROTO(Yap_NWideStringToList,(wchar_t *, size_t));
 Term	STD_PROTO(Yap_StringToDiffList,(char *,Term));
+Term	STD_PROTO(Yap_NStringToDiffList,(char *,Term, size_t));
+Term	STD_PROTO(Yap_WideStringToDiffList,(wchar_t *,Term));
+Term	STD_PROTO(Yap_NWideStringToDiffList,(wchar_t *,Term, size_t));
 Term	STD_PROTO(Yap_StringToListOfAtoms,(char *));
+Term	STD_PROTO(Yap_NStringToListOfAtoms,(char *, size_t));
+Term	STD_PROTO(Yap_WideStringToListOfAtoms,(wchar_t *));
+Term	STD_PROTO(Yap_NWideStringToListOfAtoms,(wchar_t *, size_t));
 struct hold_entry *STD_PROTO(Yap_InitAtomHold,(void));
 int     STD_PROTO(Yap_AtomGetHold,(Atom));
 int     STD_PROTO(Yap_AtomReleaseHold,(Atom));

@@ -546,11 +546,11 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
       if (*p == 0)
 	t = MkAtomTerm(AtomNil);
       else if (yap_flags[YAP_DOUBLE_QUOTES_FLAG] == STRING_AS_CHARS)
-	t = Yap_WStringToListOfAtoms(p);
+	t = Yap_WideStringToListOfAtoms(p);
       else if (yap_flags[YAP_DOUBLE_QUOTES_FLAG] == STRING_AS_ATOM)
 	t = MkAtomTerm(Yap_LookupWideAtom(p));
       else
-	t = Yap_WStringToList(p);
+	t = Yap_WideStringToList(p);
       NextToken;
     }
   break;

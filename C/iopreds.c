@@ -3660,7 +3660,7 @@ syntax_error (TokEntry * tokptr, int sno)
       break;
     case WString_tok:
       {
-	Term t0 = Yap_WStringToList((wchar_t *)info);
+	Term t0 = Yap_WideStringToList((wchar_t *)info);
 	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("string"),1),1,&t0);
       }
       break;

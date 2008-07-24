@@ -287,7 +287,7 @@ extern X_API YAP_Term PROTO(YAP_Read,(int (*)(void)));
 /*  void YAP_Write(YAP_Term,void (*)(int),int) */
 extern X_API void PROTO(YAP_Write,(YAP_Term,void (*)(int),int));
 
-/*  void YAP_WriteBuffer(YAP_Term,char *,unsgined int,int) */
+/*  void YAP_WriteBufffer(YAP_Term,char *,unsgined int,int) */
 extern X_API void PROTO(YAP_WriteBuffer,(YAP_Term,char *,unsigned int,int));
 
 /*  void YAP_Term(YAP_Term) */
@@ -323,11 +323,41 @@ extern X_API int PROTO(YAP_StringToBuffer,(YAP_Term,char *,unsigned int));
 /*  int BufferToString(const char *) */
 extern X_API YAP_Term PROTO(YAP_BufferToString,(CONST char *));
 
-/* YAP_Term BufferToTerm(const char *) */
-extern X_API YAP_Term PROTO(YAP_ReadBuffer,(CONST char *,YAP_Term *));
+/*  int BufferToString(const char *) */
+extern X_API YAP_Term PROTO(YAP_NBufferToString,(CONST char *, size_t len));
+
+/*  int BufferToString(const char *) */
+extern X_API YAP_Term PROTO(YAP_WideBufferToString,(CONST wchar_t *));
+
+/*  int BufferToString(const char *) */
+extern X_API YAP_Term PROTO(YAP_NWideBufferToString,(CONST wchar_t *, size_t len));
 
 /*  int BufferToAtomList(const char *) */
 extern X_API YAP_Term PROTO(YAP_BufferToAtomList,(CONST char *));
+
+/*  int BufferToAtomList(const char *) */
+extern X_API YAP_Term PROTO(YAP_NBufferToAtomList,(CONST char *, size_t len));
+
+/*  int BufferToAtomList(const char *) */
+extern X_API YAP_Term PROTO(YAP_WideBufferToAtomList,(CONST wchar_t *));
+
+/*  int BufferToAtomList(const char *) */
+extern X_API YAP_Term PROTO(YAP_NWideBufferToAtomList,(CONST wchar_t *, size_t len));
+
+/*  int BufferToDiffList(const char *) */
+extern X_API YAP_Term PROTO(YAP_BufferToDiffList,(CONST char *));
+
+/*  int BufferToDiffList(const char *) */
+extern X_API YAP_Term PROTO(YAP_NBufferToDiffList,(CONST char *, size_t len));
+
+/*  int BufferToDiffList(const char *) */
+extern X_API YAP_Term PROTO(YAP_WideBufferToDiffList,(CONST wchar_t *));
+
+/*  int BufferToDiffList(const char *) */
+extern X_API YAP_Term PROTO(YAP_NWideBufferToDiffList,(CONST wchar_t *, size_t len));
+
+/* YAP_Term BufferToTerm(const char *) */
+extern X_API YAP_Term PROTO(YAP_ReadBuffer,(CONST char *,YAP_Term *));
 
 /*  void YAP_InitSocks(const char *,long) */
 extern X_API int PROTO(YAP_InitSocks,(CONST char *,long));

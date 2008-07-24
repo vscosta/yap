@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2008-07-16 10:58:59 $							 *
+* Last rev:     $Date: 2008-07-24 16:02:01 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.45  2008/07/16 10:58:59  vsc
+* small fixes
+*
 * Revision 1.44  2008/03/25 22:03:13  vsc
 * fix some icc warnings
 *
@@ -206,7 +209,7 @@
     OPCODE(unify_y_val             ,oy),	
     OPCODE(unify_atom              ,oc),		
     OPCODE(unify_float             ,od),		
-    OPCODE(unify_longint           ,oc),		
+    OPCODE(unify_longint           ,oi),		
     OPCODE(unify_bigint            ,oc),		
     OPCODE(unify_dbterm            ,oc),		
     OPCODE(unify_list              ,o),		

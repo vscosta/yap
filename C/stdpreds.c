@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2008-06-12 10:55:52 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-07-24 16:02:00 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.131  2008/06/12 10:55:52  vsc
+* fix syntax error messages
+*
 * Revision 1.130  2008/04/06 11:53:02  vsc
 *  fix some restore bugs
 *
@@ -890,7 +893,7 @@ p_name(void)
     if (IsAtomTerm(AtomNameT)) {
       Atom at = AtomOfTerm(AtomNameT);
       if (IsWideAtom(at)) {
-	NewT = Yap_WStringToList((wchar_t *)(RepAtom(at)->StrOfAE));
+	NewT = Yap_WideStringToList((wchar_t *)(RepAtom(at)->StrOfAE));
 	return Yap_unify(NewT, ARG2);
       } else
 	String = RepAtom(at)->StrOfAE;
@@ -1051,9 +1054,9 @@ p_atom_chars(void)
     at = AtomOfTerm(t1);
     if (IsWideAtom(at)) {
       if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
-	NewT = Yap_WStringToList((wchar_t *)RepAtom(at)->StrOfAE);
+	NewT = Yap_WideStringToList((wchar_t *)RepAtom(at)->StrOfAE);
       } else {
-	NewT = Yap_WStringToListOfAtoms((wchar_t *)RepAtom(AtomOfTerm(t1))->StrOfAE);
+	NewT = Yap_WideStringToListOfAtoms((wchar_t *)RepAtom(AtomOfTerm(t1))->StrOfAE);
       }
     } else {
       if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
@@ -1606,7 +1609,7 @@ p_atom_codes(void)
     }
     at = AtomOfTerm(t1);
     if (IsWideAtom(at)) {
-      NewT = Yap_WStringToList((wchar_t *)RepAtom(at)->StrOfAE);
+      NewT = Yap_WideStringToList((wchar_t *)RepAtom(at)->StrOfAE);
     } else {
       NewT = Yap_StringToList(RepAtom(at)->StrOfAE);
     }

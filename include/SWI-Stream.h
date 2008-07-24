@@ -2,6 +2,14 @@
 #ifndef _PL_STREAM_H
 #define _PL_STREAM_H
 
+#ifndef X_API
+#if defined(_MSC_VER) && defined(YAP_EXPORTS)
+#define X_API __declspec(dllexport)
+#else
+#define X_API
+#endif
+#endif
+
 /* This appears to make the wide-character support compile and work
    on HPUX 11.23.  There really should be a cleaner way ...
 */
@@ -138,5 +146,8 @@ typedef struct io_stream
   intptr_t		reserved[3];	/* reserved for extension */
 } IOSTREAM;
 
+#define PL_EXPORT(type)		extern X_API type
+
+extern X_API int	PL_unify_stream(term_t t, IOSTREAM *s);
 
 #endif /*_PL_STREAM_H*/

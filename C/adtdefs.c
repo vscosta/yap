@@ -1009,10 +1009,36 @@ Yap_StringToList(char *s)
 }
 
 Term
-Yap_WStringToList(wchar_t *s)
+Yap_NStringToList(char *s, size_t len)
+{
+  Term t;
+  char *cp = s + len;
+
+  t = MkAtomTerm(AtomNil);
+  while (cp > s) {
+    t = MkPairTerm(MkIntegerTerm(*--cp), t);
+  }
+  return t;
+}
+
+Term
+Yap_WideStringToList(wchar_t *s)
 {
   Term t;
   wchar_t *cp = s + wcslen(s);
+
+  t = MkAtomTerm(AtomNil);
+  while (cp > s) {
+    t = MkPairTerm(MkIntegerTerm(*--cp), t);
+  }
+  return t;
+}
+
+Term
+Yap_NWideStringToList(wchar_t *s, size_t len)
+{
+  Term t;
+  wchar_t *cp = s + len;
 
   t = MkAtomTerm(AtomNil);
   while (cp > s) {
@@ -1033,6 +1059,39 @@ Yap_StringToDiffList(char *s, Term t)
 }
 
 Term
+Yap_NStringToDiffList(char *s, Term t, size_t len)
+{
+  register unsigned char *cp = (unsigned char *)s + len;
+
+  while (cp > (unsigned char *)s) {
+    t = MkPairTerm(MkIntTerm(*--cp), t);
+  }
+  return t;
+}
+
+Term
+Yap_WideStringToDiffList(wchar_t *s, Term t)
+{
+ wchar_t *cp = s + wcslen(s);
+
+  while (cp > s) {
+    t = MkPairTerm(MkIntegerTerm(*--cp), t);
+  }
+  return t;
+}
+
+Term
+Yap_NWideStringToDiffList(wchar_t *s, Term t, size_t len)
+{
+ wchar_t *cp = s + len;
+
+  while (cp > s) {
+    t = MkPairTerm(MkIntegerTerm(*--cp), t);
+  }
+  return t;
+}
+
+Term
 Yap_StringToListOfAtoms(char *s)
 {
   register Term t;
@@ -1045,15 +1104,47 @@ Yap_StringToListOfAtoms(char *s)
     so[0] = *--cp;
     t = MkPairTerm(MkAtomTerm(LookupAtom(so)), t);
   }
-  return (t);
+  return t;
 }
 
 Term
-Yap_WStringToListOfAtoms(wchar_t *s)
+Yap_NStringToListOfAtoms(char *s, size_t len)
+{
+  register Term t;
+  char so[2];
+  register unsigned char *cp = (unsigned char *)s + len;
+
+  so[1] = '\0';
+  t = MkAtomTerm(AtomNil);
+  while (cp > (unsigned char *)s) {
+    so[0] = *--cp;
+    t = MkPairTerm(MkAtomTerm(LookupAtom(so)), t);
+  }
+  return t;
+}
+
+Term
+Yap_WideStringToListOfAtoms(wchar_t *s)
 {
   register Term t;
   wchar_t so[2];
   wchar_t *cp = s + wcslen(s);
+
+  so[1] = '\0';
+  t = MkAtomTerm(AtomNil);
+  while (cp > s) {
+    so[0] = *--cp;
+    t = MkPairTerm(MkAtomTerm(LookupWideAtom(so)), t);
+  }
+  return t;
+}
+
+Term
+Yap_NWideStringToListOfAtoms(wchar_t *s, size_t len)
+{
+  register Term t;
+  wchar_t so[2];
+  wchar_t *cp = s + len;
 
   so[1] = '\0';
   t = MkAtomTerm(AtomNil);

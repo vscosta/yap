@@ -14142,16 +14142,35 @@ otherwise the routine will simply fail. The @var{StringToBuffer} routine
 fails and generates an exception if @var{String} is not a valid string.
 
 @findex YAP_BufferToString (C-Interface function)
+@findex YAP_NBufferToString (C-Interface function)
+@findex YAP_WideBufferToString (C-Interface function)
+@findex YAP_NWideBufferToString (C-Interface function)
 @findex YAP_BufferToAtomList (C-Interface function)
+@findex YAP_NBufferToAtomList (C-Interface function)
+@findex YAP_WideBufferToAtomList (C-Interface function)
+@findex YAP_NWideBufferToAtomList (C-Interface function)
+@findex YAP_BufferToDiffList (C-Interface function)
+@findex YAP_NBufferToDiffList (C-Interface function)
+@findex YAP_WideBufferToDiffList (C-Interface function)
+@findex YAP_NWideBufferToDiffList (C-Interface function)
 The C-interface also includes utility routines to do the reverse, that
-is, to copy a from a buffer to a list of character codes or to a list of
-character atoms
+is, to copy a from a buffer to a list of character codes, to a
+difference list,  or to a list of
+character atoms. The routines work either on strings of characters or
+strings of wide characters:
 @example
       YAP_Term YAP_BufferToString(char *@var{buf})
+      YAP_Term YAP_NBufferToString(char *@var{buf}, size_t @var{len})
+      YAP_Term YAP_WideBufferToString(wchar_t *@var{buf})
+      YAP_Term YAP_NWideBufferToString(wchar_t *@var{buf}, size_t @var{len})
       YAP_Term YAP_BufferToAtomList(char *@var{buf})
+      YAP_Term YAP_NBufferToAtomList(char *@var{buf}, size_t @var{len})
+      YAP_Term YAP_WideBufferToAtomList(wchar_t *@var{buf})
+      YAP_Term YAP_NWideBufferToAtomList(wchar_t *@var{buf}, size_t @var{len})
 @end example
 @noindent
-The user-provided string must include a terminating null character.
+Users are advised to use the @var{N} version of the routines. Otherwise,
+the user-provided string must include a terminating null character.
 
 @findex YAP_ReadBuffer (C-Interface function)
 The C-interface function calls the parser on a sequence of characters

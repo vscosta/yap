@@ -28,10 +28,12 @@
 #include <time.h>
 #endif
 
+#ifndef X_API
 #if defined(_MSC_VER) && defined(YAP_EXPORTS)
 #define X_API __declspec(dllexport)
 #else
 #define X_API
+#endif
 #endif
 
 typedef	unsigned long    fid_t;
@@ -114,6 +116,8 @@ typedef void *PL_engine_t;
 #define CVT_WRITE	0x0040		/* as of version 3.2.10 */
 #define CVT_ALL		(CVT_ATOMIC|CVT_LIST)
 #define CVT_MASK	0x00ff
+
+#define CVT_EXCEPTION	0x10000
 
 #define BUF_DISCARDABLE	0x0000
 #define BUF_RING	0x0100
@@ -216,6 +220,7 @@ extern X_API int PL_unify_nil(term_t);
 extern X_API int PL_unify_pointer(term_t, void *);
 extern X_API int PL_unify_string_chars(term_t, const char *);
 extern X_API int PL_unify_term(term_t,...);
+extern X_API int PL_unify_wchars(term_t, int, size_t, const pl_wchar_t *);
 /* end PL_unify_* functions =============================*/
 /* begin PL_is_* functions =============================*/
 extern X_API int PL_is_atom(term_t);
