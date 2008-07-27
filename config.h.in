@@ -124,10 +124,12 @@
   in adtdefs.c
 */
 #define  FFIEEE 1
-#undef   FFVAX   		/* manual */
+/*manual */
+#undef   FFVAX   
 
 /* Define the standard type of a float argument to a function */
-#define  FAFloat double		/* manual */
+/*manual */
+#define  FAFloat double	
 
 /* Set the minimum and default heap, trail and stack size */
 #undef MinTrailSpace

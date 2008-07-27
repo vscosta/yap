@@ -11,7 +11,7 @@ srcdir=@srcdir@
 SHELL=@SHELL@
 PLBASE=@PLBASE@
 PLARCH=@PLARCH@
-PL=../../yap ../../startup
+PL=LD_LIBRARY_PATH=system YAPSHAREDIR=`pwd`/../../library ../../yap ../../startup
 XPCEBASE=$(PLBASE)/xpce
 PKGDOC=$(PLBASE)/doc/packages
 PCEHOME=../../xpce
@@ -48,9 +48,16 @@ EXAMPLES=	$(srcdir)/Benchmarks/chrfreeze.chr $(srcdir)/Benchmarks/fib.chr $(srcd
 		$(srcdir)/Benchmarks/bool.chr $(srcdir)/Benchmarks/family.chr $(srcdir)/Benchmarks/fibonacci.chr $(srcdir)/Benchmarks/leq.chr $(srcdir)/Benchmarks/listdom.chr \
 		$(srcdir)/Benchmarks/chrdif.chr
 
+GPLDIR=		$(srcdir)/../../GPL
+LGPLDIR=	$(srcdir)/../../LGPL
+EXTRALIBDIR=	$(srcdir)/../../library
+GPLLIBPL=	$(EXTRALIBDIR)/aggregate.pl $(EXTRALIBDIR)/error.pl $(EXTRALIBDIR)/occurs.yap $(EXTRALIBDIR)/pairs.pl 
+LGPLLIBPL=	$(EXTRALIBDIR)/maplist.pl
+EXTRALIBPL=	$(GPLLIBPL) $(LGPLLIBPL)
+
 all:		chr_translate.pl
 
-chr_translate_bootstrap1.pl: $(srcdir)/chr_translate_bootstrap1.chr
+chr_translate_bootstrap1.pl: $(srcdir)/chr_translate_bootstrap1.chr $(EXTRALIBPL)
 		$(PL) -f -l chr_swi_bootstrap.yap \
 		      -g "chr_compile_step1('$<','$@'),halt." \
 		      -z 'halt(1).'
@@ -83,6 +90,11 @@ chr_translate.pl: $(srcdir)/chr_translate.chr chr_translate_bootstrap2.pl guard_
 		      -z 'halt(1).'
 
 chr.pl:		chr_swi.pl
+		cp $< $@
+
+$(GPLLIBPL): $(EXTRALIBDIR)/%: $(GPLDIR)/%
+		cp $< $@
+$(LGPLLIBPL): $(EXTRALIBDIR)/%: $(LGPLDIR)/%
 		cp $< $@
 
 install:	chr_translate.pl guard_entailment.pl
