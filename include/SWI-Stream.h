@@ -10,6 +10,10 @@
 #endif
 #endif
 
+#ifndef PL_EXPORT
+#define PL_EXPORT(type)		extern X_API type
+#endif
+
 /* This appears to make the wide-character support compile and work
    on HPUX 11.23.  There really should be a cleaner way ...
 */
@@ -146,8 +150,78 @@ typedef struct io_stream
   intptr_t		reserved[3];	/* reserved for extension */
 } IOSTREAM;
 
-#define PL_EXPORT(type)		extern X_API type
+#define SmakeFlag(n)	(1<<(n-1))
 
-extern X_API int	PL_unify_stream(term_t t, IOSTREAM *s);
+#define SIO_FBUF	SmakeFlag(1)	/* full buffering */
+#define SIO_LBUF	SmakeFlag(2)	/* line buffering */
+#define SIO_NBUF	SmakeFlag(3)	/* no buffering */
+#define SIO_FEOF	SmakeFlag(4)	/* end-of-file */
+#define SIO_FERR	SmakeFlag(5)	/* error ocurred */
+#define SIO_USERBUF	SmakeFlag(6)	/* buffer is from user */
+#define SIO_INPUT	SmakeFlag(7)	/* input stream */
+#define SIO_OUTPUT	SmakeFlag(8)	/* output stream */
+#define SIO_NOLINENO	SmakeFlag(9)	/* line no. info is void */
+#define SIO_NOLINEPOS	SmakeFlag(10)	/* line pos is void */
+#define SIO_STATIC	SmakeFlag(11)	/* Stream in static memory */
+#define SIO_RECORDPOS	SmakeFlag(12)	/* Maintain position */
+#define SIO_FILE	SmakeFlag(13)	/* Stream refers to an OS file */
+#define SIO_PIPE	SmakeFlag(14)	/* Stream refers to an OS pipe */
+#define SIO_NOFEOF	SmakeFlag(15)	/* don't set SIO_FEOF flag */
+#define SIO_TEXT	SmakeFlag(16)	/* text-mode operation */
+#define SIO_FEOF2	SmakeFlag(17)	/* attempt to read past eof */
+#define SIO_FEOF2ERR	SmakeFlag(18)	/* Sfpasteof() */
+#define SIO_NOCLOSE     SmakeFlag(19)	/* Do not close on abort */
+#define SIO_APPEND	SmakeFlag(20)	/* opened in append-mode */
+#define SIO_UPDATE	SmakeFlag(21)	/* opened in update-mode */
+#define SIO_ISATTY	SmakeFlag(22)	/* Stream is a tty */
+#define SIO_CLOSING	SmakeFlag(23)	/* We are closing the stream */
+#define SIO_TIMEOUT	SmakeFlag(24)	/* We had a timeout */
+#define SIO_NOMUTEX	SmakeFlag(25)	/* Do not allow multi-thread access */
+#define SIO_ADVLOCK	SmakeFlag(26)	/* File locked with advisory lock */
+#define SIO_WARN	SmakeFlag(27)	/* Pending warning */
+#define SIO_CLEARERR	SmakeFlag(28)	/* Clear error after reporting */
+#define SIO_REPXML	SmakeFlag(29)	/* Bad char --> XML entity */
+#define SIO_REPPL	SmakeFlag(30)	/* Bad char --> Prolog \hex\ */
+#define SIO_BOM		SmakeFlag(31)	/* BOM was detected/written */
+
+#define	SIO_SEEK_SET	0	/* From beginning of file.  */
+#define	SIO_SEEK_CUR	1	/* From current position.  */
+#define	SIO_SEEK_END	2	/* From end of file.  */
+
+#define Sinput  (&S__iob[0])		/* Stream Sinput */
+#define Soutput (&S__iob[1])		/* Stream Soutput */
+#define Serror  (&S__iob[2])		/* Stream Serror */
+
+#define Sgetchar()	Sgetc(Sinput)
+#define Sputchar(c)	Sputc((c), Soutput)
+
+#define S__updatefilepos_getc(s, c) \
+	((s)->position ? S__fupdatefilepos_getc((s), (c)) \
+		       : (c))
+
+#define Snpgetc(s) ((s)->bufp < (s)->limitp ? (int)(*(s)->bufp++)&0xff \
+					    : S__fillbuf(s))
+#define Sgetc(s) S__updatefilepos_getc((s), Snpgetc(s))
+
+/* Control-operations */
+#define SIO_GETSIZE	(1)		/* get size of underlying object */
+#define SIO_GETFILENO	(2)		/* get underlying file (if any) */
+#define SIO_SETENCODING	(3)		/* modify encoding of stream */
+
+/* Sread_pending() */
+#define SIO_RP_BLOCK 0x1		/* wait for new input */
+
+PL_EXPORT(void)		Sseterr(IOSTREAM *s, int which, const char *message);
+PL_EXPORT(int)		S__fillbuf(IOSTREAM *s);
+PL_EXPORT(IOSTREAM *)	Snew(void *handle, int flags, IOFUNCTIONS *functions);
+PL_EXPORT(int)	   	Sfileno(IOSTREAM *s);
+PL_EXPORT(int)		Sgetcode(IOSTREAM *s);
+PL_EXPORT(int)		Sungetc(int c, IOSTREAM *s);
+PL_EXPORT(int)		Sputcode(int c, IOSTREAM *s);
+PL_EXPORT(int)		Sfeof(IOSTREAM *s);
+PL_EXPORT(int)		Sfpasteof(IOSTREAM *s);
+PL_EXPORT(int)		Sferror(IOSTREAM *s);
+PL_EXPORT(void)		Sclearerr(IOSTREAM *s);
+PL_EXPORT(void)		Sseterr(IOSTREAM *s, int which, const char *message);
 
 #endif /*_PL_STREAM_H*/

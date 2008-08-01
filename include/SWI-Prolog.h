@@ -104,6 +104,19 @@ typedef void *PL_engine_t;
 #define PL_INT           (20)           /* int */
 #define PL_LONG          (21)           /* long */
 #define PL_DOUBLE        (22)           /* double */
+#define PL_NCHARS	 (23)		/* unsigned, const char * */
+#define PL_UTF8_CHARS	 (24)		/* const char * */
+#define PL_UTF8_STRING	 (25)		/* const char * */
+#define PL_INT64	 (26)		/* int64_t */
+#define PL_NUTF8_CHARS	 (27)		/* unsigned, const char * */
+#define PL_NUTF8_CODES	 (29)		/* unsigned, const char * */
+#define PL_NUTF8_STRING	 (30)		/* unsigned, const char * */
+#define PL_NWCHARS	 (31)		/* unsigned, const wchar_t * */
+#define PL_NWCODES	 (32)		/* unsigned, const wchar_t * */
+#define PL_NWSTRING	 (33)		/* unsigned, const wchar_t * */
+#define PL_MBCHARS	 (34)		/* const char * */
+#define PL_MBCODES	 (35)		/* const char * */
+#define PL_MBSTRING	 (36)		/* const char * */
 
 #define CVT_ATOM	0x0001
 #define CVT_STRING	0x0002
@@ -143,6 +156,21 @@ typedef void *PL_engine_t;
 
 /* end from pl-itf.h */
 
+		 /*******************************
+		 *	     CALL-BACK		*
+		 *******************************/
+
+#ifdef PL_KERNEL
+#define PL_Q_DEBUG		0x01	/* = TRUE for backward compatibility */
+#endif
+#define PL_Q_NORMAL		0x02	/* normal usage */
+#define PL_Q_NODEBUG		0x04	/* use this one */
+#define PL_Q_CATCH_EXCEPTION	0x08	/* handle exceptions in C */
+#define PL_Q_PASS_EXCEPTION	0x10	/* pass to parent environment */
+#ifdef PL_KERNEL
+#define PL_Q_DETERMINISTIC	0x20	/* call was deterministic */
+#endif
+
 /* copied from old SICStus/SWI interface */
 typedef void install_t;
 
@@ -171,6 +199,8 @@ extern X_API int PL_get_list(term_t, term_t, term_t);
 extern X_API int PL_get_long(term_t, long *);
 extern X_API int PL_get_list_chars(term_t, char **, unsigned);
 extern X_API int PL_get_module(term_t, module_t *);
+extern X_API module_t PL_context(void);
+extern X_API int PL_strip_module(term_t, module_t *, term_t);
 extern X_API atom_t PL_module_name(module_t);
 extern X_API module_t PL_new_module(atom_t);
 extern X_API int PL_get_name_arity(term_t, atom_t *, int *);
@@ -205,39 +235,41 @@ extern X_API void PL_put_pointer(term_t, void *);
 extern X_API void PL_put_string_chars(term_t, const char *);
 extern X_API void PL_put_term(term_t, term_t);
 extern X_API void PL_put_variable(term_t);
-extern X_API int PL_compare(term_t, term_t);
+extern X_API  int PL_compare(term_t, term_t);
 /* end PL_put_* functions =============================*/
 /* begin PL_unify_* functions =============================*/
-extern X_API int PL_unify(term_t, term_t);
-extern X_API int PL_unify_atom(term_t, atom_t);
-extern X_API int PL_unify_atom_chars(term_t, const char *);
-extern X_API int PL_unify_float(term_t, double);
-extern X_API int PL_unify_int64(term_t, int64_t);
-extern X_API int PL_unify_integer(term_t, long);
-extern X_API int PL_unify_list(term_t, term_t, term_t);
-extern X_API int PL_unify_list_chars(term_t, const char *);
-extern X_API int PL_unify_nil(term_t);
-extern X_API int PL_unify_pointer(term_t, void *);
-extern X_API int PL_unify_string_chars(term_t, const char *);
-extern X_API int PL_unify_term(term_t,...);
-extern X_API int PL_unify_wchars(term_t, int, size_t, const pl_wchar_t *);
+extern X_API  int PL_unify(term_t, term_t);
+extern X_API  int PL_unify_atom(term_t, atom_t);
+extern X_API  int PL_unify_atom_chars(term_t, const char *);
+extern X_API  int PL_unify_atom_nchars(term_t, size_t len, const char *);
+extern X_API  int PL_unify_float(term_t, double);
+extern X_API  int PL_unify_functor(term_t, functor_t);
+extern X_API  int PL_unify_int64(term_t, int64_t);
+extern X_API  int PL_unify_integer(term_t, long);
+extern X_API  int PL_unify_list(term_t, term_t, term_t);
+extern X_API  int PL_unify_list_chars(term_t, const char *);
+extern X_API  int PL_unify_nil(term_t);
+extern X_API  int PL_unify_pointer(term_t, void *);
+extern X_API  int PL_unify_string_chars(term_t, const char *);
+extern X_API  int PL_unify_term(term_t,...);
+extern X_API  int PL_unify_wchars(term_t, int, size_t, const pl_wchar_t *);
 /* end PL_unify_* functions =============================*/
 /* begin PL_is_* functions =============================*/
-extern X_API int PL_is_atom(term_t);
-extern X_API int PL_is_atomic(term_t);
-extern X_API int PL_is_compound(term_t);
-extern X_API int PL_is_float(term_t);
-extern X_API int PL_is_functor(term_t, functor_t);
-extern X_API int PL_is_integer(term_t);
-extern X_API int PL_is_list(term_t);
-extern X_API int PL_is_number(term_t);
-extern X_API int PL_is_string(term_t);
-extern X_API int PL_is_variable(term_t);
-extern X_API int PL_term_type(term_t);
+extern X_API  int PL_is_atom(term_t);
+extern X_API  int PL_is_atomic(term_t);
+extern X_API  int PL_is_compound(term_t);
+extern X_API  int PL_is_float(term_t);
+extern X_API  int PL_is_functor(term_t, functor_t);
+extern X_API  int PL_is_integer(term_t);
+extern X_API  int PL_is_list(term_t);
+extern X_API  int PL_is_number(term_t);
+extern X_API  int PL_is_string(term_t);
+extern X_API  int PL_is_variable(term_t);
+extern X_API  int PL_term_type(term_t);
 /* end PL_is_* functions =============================*/
 extern X_API void PL_halt(int);
-extern X_API int  PL_initialise(int, char **);
-extern X_API int  PL_is_initialised(int *, char ***);
+extern X_API  int  PL_initialise(int, char **);
+extern X_API  int  PL_is_initialised(int *, char ***);
 extern X_API void PL_close_foreign_frame(fid_t);
 extern X_API void PL_discard_foreign_frame(fid_t);
 extern X_API fid_t PL_open_foreign_frame(void);
@@ -257,6 +289,7 @@ extern X_API int PL_call(term_t, module_t);
 extern X_API void PL_register_foreign_in_module(const char *, const char *, int, foreign_t (*)(void), int);
 extern X_API void PL_register_extensions(PL_extension *);
 extern X_API void PL_load_extensions(PL_extension *);
+extern X_API int PL_handle_signals(void);
 extern X_API int  PL_thread_self(void);
 extern X_API int PL_thread_attach_engine(const PL_thread_attr_t *);
 extern X_API int PL_thread_destroy_engine(void);
@@ -273,6 +306,12 @@ extern X_API void PL_free(void *);
 
 extern X_API int Sprintf(char *,...);
 extern X_API int Sdprintf(char *,...);
+
+#ifdef SIO_MAGIC			/* defined from <SWI-Stream.h> */
+extern X_API  int PL_unify_stream(term_t t, IOSTREAM *s);
+extern X_API  int PL_open_stream(term_t t, IOSTREAM *s); /* compat */
+extern X_API  int PL_get_stream_handle(term_t t, IOSTREAM **s);
+#endif
 
 void swi_install(void);
 

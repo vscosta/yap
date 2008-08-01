@@ -13,9 +13,12 @@
 #include	<stdlib.h>
 #include	<string.h>
 #include	<stdio.h>
+#include	<wchar.h>
+#include	<assert.h>
 
-#include	<SWI-Prolog.h>
+
 #include	<SWI-Stream.h>
+#include	<SWI-Prolog.h>
 
 #ifdef USE_GMP
 #include <gmp.h>
@@ -785,6 +788,24 @@ X_API int PL_unify_atom_chars(term_t t, const char *s)
   return YAP_Unify(YAP_GetFromSlot(t),cterm);
 }
 
+/* SWI: int PL_unify_atom_chars(term_t ?t, const char *chars)
+   YAP long int  unify(YAP_Term* a, Term* b) */
+X_API int PL_unify_atom_nchars(term_t t, size_t len, const char *s)
+{
+  YAP_Atom catom;
+  YAP_Term cterm;
+  char *buf = (char *)YAP_AllocSpaceFromYap(len+1);
+
+  if (!buf)
+    return FALSE;
+  strncpy(buf, s, len);
+  buf[len] = '\0';
+  catom = YAP_LookupAtom(buf);
+  free(buf);
+  cterm = YAP_MkAtomTerm(catom);
+  return YAP_Unify(YAP_GetFromSlot(t),cterm);
+}
+
 /* SWI: int PL_unify_float(term_t ?t, double f)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_float(term_t t, double f)
@@ -799,6 +820,18 @@ X_API int PL_unify_integer(term_t t, long n)
 {	
   YAP_Term iterm = YAP_MkIntTerm(n);
   return YAP_Unify(YAP_GetFromSlot(t),iterm);
+}
+
+/* SWI: int PL_unify_integer(term_t ?t, long n)
+   YAP long int  unify(YAP_Term* a, Term* b) */
+X_API int PL_unify_functor(term_t t, functor_t f)
+{	
+  YAP_Term tt = YAP_GetFromSlot(t);
+  if (YAP_IsVarTerm(tt))
+    return YAP_Unify(tt, YAP_MkNewApplTerm((YAP_Functor)f,YAP_ArityOfFunctor((YAP_Functor)f)));
+  if (!YAP_IsApplTerm(tt))
+    return FALSE;
+  return f == (functor_t)YAP_FunctorOfTerm(tt);
 }
 
 /* SWI: int PL_unify_integer(term_t ?t, long n)
@@ -894,11 +927,60 @@ typedef struct {
     term_t t;
     atom_t a;
     long l;
+    int i;
     double dbl;
     char *s;
+    struct {
+      size_t n;
+      char *s;
+    } ns;
+    struct {
+      size_t n;
+      wchar_t *w;
+    } nw;
     void *p;
+    wchar_t *w;
   } arg;
 } arg_types;
+
+static YAP_Atom
+LookupMaxAtom(size_t n, char *s)
+{
+  YAP_Atom catom;
+  char *buf = (char *)YAP_AllocSpaceFromYap(n+1);
+  
+  if (!buf)
+    return FALSE;
+  strncpy(buf, s, n);
+  buf[n] = '\0';
+  catom = YAP_LookupAtom(buf);
+  free(buf);
+  return catom;
+}
+
+static YAP_Atom
+LookupMaxWideAtom(size_t n, wchar_t *s)
+{
+  YAP_Atom catom;
+  wchar_t *buf = (wchar_t *)YAP_AllocSpaceFromYap((n+1)*sizeof(wchar_t));
+  
+  if (!buf)
+    return FALSE;
+  wcsncpy(buf, s, n);
+  buf[n] = '\0';
+  catom = YAP_LookupWideAtom(buf);
+  free(buf);
+  return catom;
+}
+
+static YAP_Term
+MkBoolTerm(int b)
+{
+  if (b)
+    return YAP_MkAtomTerm(YAP_LookupAtom("true"));
+  else
+    return YAP_MkAtomTerm(YAP_LookupAtom("false"));
+}
 
 static YAP_Term
 get_term(arg_types **buf)
@@ -913,9 +995,22 @@ get_term(arg_types **buf)
     t = YAP_MkVarTerm();
     ptr++;
     break;
+  case PL_BOOL:
+    t = MkBoolTerm(ptr->arg.i);
+    ptr++;
+    break;
   case PL_ATOM:
     t = YAP_MkAtomTerm((YAP_Atom)ptr->arg.a);
     ptr++;
+    break;
+  case PL_CHARS:
+    t = YAP_MkAtomTerm(YAP_LookupAtom(ptr->arg.s));
+    break;
+  case PL_NCHARS:
+    t = YAP_MkAtomTerm(LookupMaxAtom(ptr->arg.ns.n, ptr->arg.ns.s));
+    break;
+  case PL_NWCHARS:
+    t = YAP_MkAtomTerm(LookupMaxWideAtom(ptr->arg.nw.n, ptr->arg.nw.w));
     break;
   case PL_INTEGER:
     t = YAP_MkIntTerm(ptr->arg.l);
@@ -936,9 +1031,6 @@ get_term(arg_types **buf)
   case PL_TERM:
     t = YAP_GetFromSlot(ptr->arg.t);
     ptr++;
-    break;
-  case PL_CHARS:
-    t = YAP_MkAtomTerm(YAP_LookupAtom(ptr->arg.s));
     break;
   case PL_FUNCTOR:
     {
@@ -996,6 +1088,9 @@ X_API int PL_unify_term(term_t l,...)
     switch(type) {
     case PL_VARIABLE:
       break;
+    case PL_BOOL:
+      ptr->arg.i = va_arg(ap, int);
+      break;
     case PL_ATOM:
       ptr->arg.a = va_arg(ap, atom_t);
       break;
@@ -1016,6 +1111,14 @@ X_API int PL_unify_term(term_t l,...)
       break;
     case PL_CHARS:
       ptr->arg.s = va_arg(ap, char *);
+      break;
+    case PL_NCHARS:
+      ptr->arg.ns.n = va_arg(ap, size_t);
+      ptr->arg.ns.s = va_arg(ap, char *);
+      break;
+    case PL_NWCHARS:
+      ptr->arg.nw.n = va_arg(ap, size_t);
+      ptr->arg.nw.w = va_arg(ap, wchar_t *);
       break;
     case PL_FUNCTOR:
       {
@@ -1280,6 +1383,22 @@ PL_is_initialised(int *argc, char ***argv)
   return TRUE;
 }
 
+X_API module_t
+PL_context(void)
+{
+  return (module_t)YAP_CurrentModule();
+}
+
+X_API int
+PL_strip_module(term_t raw, module_t *m, term_t plain)
+{
+  YAP_Term t =  YAP_StripModule(YAP_GetFromSlot(raw),(YAP_Term *)m);
+  if (!t)
+    return FALSE;
+  YAP_PutInSlot(plain, t);
+  return TRUE;
+}
+
 X_API atom_t PL_module_name(module_t m)
 {
   YAP_Atom at = YAP_AtomOfTerm((YAP_Term)m);
@@ -1435,6 +1554,12 @@ X_API void PL_load_extensions(PL_extension *ptr)
     YAP_UserCPredicateWithArgs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,YAP_CurrentModule());
     ptr++;
   }
+}
+
+X_API int PL_handle_signals(void)
+{
+  fprintf(stderr,"not implemented\n");
+  return 0;
 }
 
 X_API int PL_thread_self(void)
@@ -1608,15 +1733,73 @@ SWI_ctime(void)
 #endif
 }
 
-
 /***** SWI IO ***************/
 
+#include <errno.h>
+
+#define char_to_int(c)	(0xff & (int)(c))
+
+struct {
+  struct {
+    IOSTREAM *streams[6];
+  } IO;
+} lds;
+
+#define LD (&lds)
+
+#define ARG_LD
 #define GET_LD
+#define PASS_LD
+
 #define LOCK()
 #define UNLOCK()
 #define FUNCTOR_dstream1 (functor_t)YAP_MkFunctor(YAP_LookupAtom("stream"),1)
 #define succeed return 1
 #define fail    return 0
+
+static int	S__removebuf(IOSTREAM *s);
+static int	S__flushbuf(IOSTREAM *s);
+
+#ifndef MB_LEN_MAX
+#define MB_LEN_MAX 6
+#endif
+
+
+#ifndef UTF8_H_INCLUDED
+#define UTF8_H_INCLUDED
+
+#define UTF8_MALFORMED_REPLACEMENT 0xfffd
+
+#define ISUTF8_MB(c) ((unsigned)(c) >= 0xc0 && (unsigned)(c) <= 0xfd)
+
+#define ISUTF8_CB(c)  (((c)&0xc0) == 0x80) /* Is continuation byte */
+#define ISUTF8_FB2(c) (((c)&0xe0) == 0xc0)
+#define ISUTF8_FB3(c) (((c)&0xf0) == 0xe0)
+#define ISUTF8_FB4(c) (((c)&0xf8) == 0xf0)
+#define ISUTF8_FB5(c) (((c)&0xfc) == 0xf8)
+#define ISUTF8_FB6(c) (((c)&0xfe) == 0xfc)
+
+#define UTF8_FBN(c) (!(c&0x80)     ? 0 : \
+		     ISUTF8_FB2(c) ? 1 : \
+		     ISUTF8_FB3(c) ? 2 : \
+		     ISUTF8_FB4(c) ? 3 : \
+		     ISUTF8_FB5(c) ? 4 : \
+		     ISUTF8_FB6(c) ? 5 : -1)
+#define UTF8_FBV(c,n) ( n == 0 ? c : (c & ((0x01<<(6-n))-1)) )
+
+#define utf8_get_char(in, chr) \
+	(*(in) & 0x80 ? _PL__utf8_get_char(in, chr) \
+		      : (*(chr) = *(in), (char *)(in)+1))
+#define utf8_put_char(out, chr) \
+	((chr) < 0x80 ? out[0]=(char)(chr), out+1 \
+		      : _PL__utf8_put_char(out, (chr)))
+
+extern char *_PL__utf8_get_char(const char *in, int *chr);
+extern char *_PL__utf8_put_char(char *out, int chr);
+
+extern unsigned int utf8_strlen(const char *s, unsigned int len);
+
+#endif /*UTF8_H_INCLUDED*/
 
 typedef struct symbol *		Symbol;		/* symbol of hash table */
 
@@ -1627,6 +1810,8 @@ struct symbol
 };
 
 static Symbol *streamContext;
+
+static Symbol *streamAliases;
 
 #define NULL_ATOM 0L
 
@@ -1689,6 +1874,256 @@ getStreamContext(IOSTREAM *s)
   return symb->value;
 }
 
+char *
+_PL__utf8_put_char(char *out, int chr)
+{ if ( chr < 0x80 )
+  { *out++ = chr;
+  } else if ( chr < 0x800 )
+  { *out++ = 0xc0|((chr>>6)&0x1f);
+    *out++ = 0x80|(chr&0x3f);
+  } else if ( chr < 0x10000 )
+  { *out++ = 0xe0|((chr>>12)&0x0f);
+    *out++ = 0x80|((chr>>6)&0x3f);
+    *out++ = 0x80|(chr&0x3f);
+  } else if ( chr < 0x200000 )
+  { *out++ = 0xf0|((chr>>18)&0x07);
+    *out++ = 0x80|((chr>>12)&0x3f);
+    *out++ = 0x80|((chr>>6)&0x3f);
+    *out++ = 0x80|(chr&0x3f);
+  } else if ( chr < 0x4000000 )
+  { *out++ = 0xf8|((chr>>24)&0x03);
+    *out++ = 0x80|((chr>>18)&0x3f);
+    *out++ = 0x80|((chr>>12)&0x3f);
+    *out++ = 0x80|((chr>>6)&0x3f);
+    *out++ = 0x80|(chr&0x3f);
+  } else if ( chr < 0x80000000 )
+  { *out++ = 0xfc|((chr>>30)&0x01);
+    *out++ = 0x80|((chr>>24)&0x3f);
+    *out++ = 0x80|((chr>>18)&0x3f);
+    *out++ = 0x80|((chr>>12)&0x3f);
+    *out++ = 0x80|((chr>>6)&0x3f);
+    *out++ = 0x80|(chr&0x3f);
+  }
+
+  return out;
+}
+
+
+static inline void
+update_linepos(IOSTREAM *s, int c)
+{ IOPOS *p = s->position;
+
+  switch(c)
+  { case '\n':
+      p->lineno++;
+      p->linepos = 0;
+      s->flags &= ~SIO_NOLINEPOS;
+#ifdef __WIN32__
+      if ( s->flags & O_TEXT )
+	p->charno++;			/* writes one extra! */
+#endif
+      break;
+    case '\r':
+      p->linepos = 0;
+      s->flags &= ~SIO_NOLINEPOS;
+      break;
+    case '\b':
+      if ( p->linepos > 0 )
+	p->linepos--;
+      break;
+    case EOF:
+      break;
+    case '\t':
+      p->linepos |= 7;
+    default:
+      p->linepos++;
+  }
+}
+
+
+
+
+		 /*******************************
+		 *	      BUFFER		*
+		 *******************************/
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Note that the  buffer  is  allocated   from  s->unbuffer,  which  starts
+MB_LEN_MAX before s->buffer, so we can always push-back a wide character
+into a multibyte stream. We do  not   do  this for SIO_USERBUF case, but
+this is only used by  the  output   stream  Svfprintf()  where it is not
+needed.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+static int
+S__setbuf(IOSTREAM *s, char *buffer, int size)
+{ if ( size == 0 )
+    size = SIO_BUFSIZE;
+
+  S__removebuf(s);
+  s->bufsize = size;
+
+  if ( buffer )
+  { s->unbuffer = s->buffer = buffer;
+    s->flags |= SIO_USERBUF;
+  } else
+  { if ( !(s->unbuffer = malloc(s->bufsize+MB_LEN_MAX)) )
+    { errno = ENOMEM;
+      return -1;
+    }
+    s->flags &= ~SIO_USERBUF;
+    s->buffer = s->unbuffer + MB_LEN_MAX;
+  }
+
+  s->limitp = &s->buffer[s->bufsize];
+  s->bufp   = s->buffer;
+
+  return size;
+}
+
+
+static int
+S__removebuf(IOSTREAM *s)
+{ if ( s->buffer && s->unbuffer )
+  { int rval = 0;
+
+    if ( (s->flags & SIO_OUTPUT) && S__flushbuf(s) < 0 )
+      rval = -1;
+
+    if ( !(s->flags & SIO_USERBUF) )
+      free(s->unbuffer);
+    s->bufp = s->limitp = s->buffer = s->unbuffer = NULL;
+    s->bufsize = 0;
+
+    return rval;
+  }
+
+  return 0;
+}
+
+
+#ifdef DEBUG_IO_LOCKS
+static char *
+Sname(IOSTREAM *s)
+{ if ( s == Serror ) return "error";
+  if ( s == Sinput ) return "input";
+  if ( s == Soutput ) return "output";
+  return "?";
+}
+#endif
+
+		 /*******************************
+		 *	     FLUSH/FILL		*
+		 *******************************/
+
+static int
+S__flushbuf(IOSTREAM *s)
+{ int size;
+  char *from = s->buffer;
+
+  while ( (size = s->bufp - from) > 0 )
+  { int n = (*s->functions->write)(s->handle, from, size);
+
+    if ( n > 0 )			/* wrote some */
+    { from += n;
+    } else if ( n < 0 )			/* error */
+    { s->flags |= SIO_FERR;
+      return -1;
+    } else				/* wrote nothing? */
+    { break;
+    }
+  }
+
+  if ( s->bufp - from == 0 )		/* full flush */
+  { int rc = s->bufp - s->buffer;
+
+    s->bufp = s->buffer;
+
+    return rc;
+  } else				/* partial flush */
+  { int rc = from - s->buffer;
+    int left = s->bufp - from;
+
+    memmove(s->buffer, from, left);
+    s->bufp = s->buffer + left;
+
+    return rc;
+  }
+}
+
+
+static inline int
+S__updatefilepos(IOSTREAM *s, int c)
+{ IOPOS *p = s->position;
+
+  if ( p )
+  { update_linepos(s, c);
+    p->charno++;
+  }
+
+  return c;
+}
+
+
+int
+Sfileno(IOSTREAM *s)
+{ int n;
+
+  if ( s->flags & SIO_FILE )
+  { long h = (long)s->handle;
+    n = (int)h;
+  } else if ( s->flags & SIO_PIPE )
+  { n = fileno((FILE *)s->handle);
+  } else if ( s->functions->control &&
+	      (*s->functions->control)(s->handle,
+				       SIO_GETFILENO,
+				       (void *)&n)  == 0 )
+  { ;
+  } else
+  { errno = EINVAL;
+    n = -1;				/* no file stream */
+  }
+
+  return n;
+}
+
+
+IOSTREAM *
+Snew(void *handle, int flags, IOFUNCTIONS *functions)
+{ IOSTREAM *s;
+  int fd;
+
+  if ( !(s = malloc(sizeof(IOSTREAM))) )
+  { errno = ENOMEM;
+    return NULL;
+  }
+  memset((char *)s, 0, sizeof(IOSTREAM));
+  s->magic         = SIO_MAGIC;
+  s->lastc         = EOF;
+  s->flags         = flags;
+  s->handle        = handle;
+  s->functions     = functions;
+  s->timeout       = -1;		/* infinite */
+  s->posbuf.lineno = 1;
+  s->encoding      = ENC_ISO_LATIN_1;
+  if ( flags & SIO_RECORDPOS )
+    s->position = &s->posbuf;
+#ifdef O_PLMT
+  if ( !(flags & SIO_NOMUTEX) )
+  { if ( !(s->mutex = malloc(sizeof(recursiveMutex))) )
+    { free(s);
+      return NULL;
+    }
+    recursiveMutexInit(s->mutex);
+  }
+#endif
+  if ( (fd = Sfileno(s)) >= 0 && isatty(fd) )
+    s->flags |= SIO_ISATTY;
+
+  return s;
+}
+
+
 X_API int
 PL_unify_stream(term_t t, IOSTREAM *s)
 { GET_LD
@@ -1710,6 +2145,654 @@ PL_unify_stream(term_t t, IOSTREAM *s)
   return PL_error(NULL, 0, NULL, ERR_DOMAIN, ATOM_stream, t);
 }
 
+int					/* old FLI name (compatibility) */
+PL_open_stream(term_t handle, IOSTREAM *s)
+{ return PL_unify_stream(handle, s);
+}
+
+#define SH_ERRORS   0x01		/* generate errors */
+#define SH_ALIAS    0x02		/* allow alias */
+#define SH_UNLOCKED 0x04		/* don't lock the stream */
+#define SH_SAFE	    0x08		/* Lookup in table */
+
+#define _PL_get_arg PL_get_arg
+
+#define getStream(s)	(s)
+
+static int
+get_stream_handle__LD(term_t t, IOSTREAM **s, int flags ARG_LD)
+{ atom_t alias;
+
+  if ( PL_is_functor(t, FUNCTOR_dstream1) )
+  { void *p;
+    term_t a = PL_new_term_ref();
+
+    _PL_get_arg(1, t, a);
+    if ( PL_get_pointer(a, &p) )
+    { if ( flags & SH_SAFE )
+      { Symbol symb;
+
+	LOCK();
+	symb = lookupHTable(streamContext, p);
+	UNLOCK();
+	
+	if ( !symb )
+	  goto noent;
+      }
+
+      if ( flags & SH_UNLOCKED )
+      { if ( ((IOSTREAM *)p)->magic == SIO_MAGIC )
+	{ *s = p;
+	  return TRUE;
+	}
+	goto noent;
+      }
+
+      if ( (*s = getStream(p)) )
+	return TRUE;
+
+      goto noent;
+    }
+  } else if ( PL_get_atom(t, &alias) )
+  { Symbol symb;
+
+    if ( !(flags & SH_UNLOCKED) )
+      LOCK();
+    if ( (symb=lookupHTable(streamAliases, (void *)alias)) )
+    { IOSTREAM *stream;
+      unsigned long n = (unsigned long)symb->value;
+
+      if ( n < 6 )			/* standard stream! */
+      { stream = LD->IO.streams[n];
+      } else
+	stream = symb->value;
+	
+      if ( !(flags & SH_UNLOCKED) )
+	UNLOCK();
+      
+      if ( stream )
+      { if ( (flags & SH_UNLOCKED) )
+	{ if ( stream->magic == SIO_MAGIC )
+	  { *s = stream;
+	    return TRUE;
+	  }
+	} else if ( (*s = getStream(stream)) )
+	  return TRUE;
+	goto noent;
+      }
+    }
+    if ( !(flags & SH_UNLOCKED) )
+      UNLOCK();
+
+    goto noent;
+  }
+      
+  if ( flags & SH_ERRORS )
+    return PL_error(NULL, 0, NULL, ERR_DOMAIN,
+		    (flags&SH_ALIAS) ? ATOM_stream_or_alias : ATOM_stream, t);
+
+  fail;
+
+noent:
+  if ( flags & SH_ERRORS )
+    PL_error(NULL, 0, NULL, ERR_EXISTENCE, ATOM_stream, t);
+  fail;
+}
+
+#define get_stream_handle(t, sp, flags) \
+	get_stream_handle__LD(t, sp, flags PASS_LD)
+
+int
+PL_get_stream_handle(term_t t, IOSTREAM **s)
+{ GET_LD
+  return get_stream_handle(t, s, SH_ERRORS|SH_ALIAS);
+}
+
+static inline int
+get_byte(IOSTREAM *s)
+{ int c = Snpgetc(s);
+
+  if ( s->position )
+    s->position->byteno++;
+
+  return c;
+}
+
+
+int
+Sgetcode(IOSTREAM *s)
+{ int c;
+
+#ifdef CRLF_MAPPING
+retry:
+#endif
+
+  switch(s->encoding)
+  { case ENC_OCTET:
+    case ENC_ISO_LATIN_1:
+      c = get_byte(s);
+      break;
+    case ENC_ASCII:
+    { c = get_byte(s);
+      if ( c > 128 )
+	Sseterr(s, SIO_WARN, "non-ASCII character");
+      break;
+    }
+    case ENC_ANSI:
+    { char b[1];
+      int rc, n = 0;
+      wchar_t wc;
+
+      if ( !s->mbstate )
+      { if ( !(s->mbstate = malloc(sizeof(*s->mbstate))) )
+	  return EOF;			/* out of memory */
+	memset(s->mbstate, 0, sizeof(*s->mbstate));
+      }
+
+      for(;;)
+      { if ( (c = get_byte(s)) == EOF )
+	{ if ( n == 0 )
+	    return EOF;
+	  else
+	  { Sseterr(s, SIO_WARN, "EOF in multibyte Sequence");
+	    goto mberr;
+	  }
+	}
+	b[0] = c;
+
+	if ( (rc=mbrtowc(&wc, b, 1, s->mbstate)) == 1 )
+	{ c = wc;
+	  goto out;
+	} else if ( rc == -1 )
+	{ Sseterr(s, SIO_WARN, "Illegal multibyte Sequence");
+	  goto mberr;
+	}				/* else -2: incomplete */
+      }
+
+    mberr:
+      c = UTF8_MALFORMED_REPLACEMENT;
+      goto out;
+    }
+    case ENC_UTF8:
+    { c = get_byte(s);
+      if ( c == EOF )
+	break;
+
+      if ( c & 0x80 )
+      { int extra = UTF8_FBN(c);
+	int code;
+
+	code = UTF8_FBV(c,extra);
+	for( ; extra > 0; extra-- )
+	{ int c2 = get_byte(s);
+	  
+	  if ( !ISUTF8_CB(c2) )
+	  { Sseterr(s, SIO_WARN, "Illegal UTF-8 Sequence");
+	    c = UTF8_MALFORMED_REPLACEMENT;
+	    Sungetc(c2, s);
+	    goto out;
+	  }
+	  code = (code<<6)+(c2&0x3f);
+	}
+	c = code;
+      }
+      break;
+    }
+    case ENC_UNICODE_BE:
+    case ENC_UNICODE_LE:
+    { int c1, c2;
+
+      c1 = get_byte(s);
+      if ( c1 == EOF )
+	return EOF;
+      c2 = get_byte(s);
+
+      if ( c2 == EOF )
+      { Sseterr(s, SIO_WARN, "EOF in unicode character");
+	c = UTF8_MALFORMED_REPLACEMENT;
+      } else
+      { if ( s->encoding == ENC_UNICODE_BE )
+	  c = (c1<<8)+c2;
+	else
+	  c = (c2<<8)+c1;
+      }
+
+      break;
+    }
+    case ENC_WCHAR:
+    { pl_wchar_t chr;
+      char *p = (char*)&chr;
+      int n;
+
+      for(n=0; n<sizeof(pl_wchar_t); n++)
+      { int c1 = get_byte(s);
+
+	if ( c1 == EOF )
+	{ if ( n == 0 )
+	  { return EOF;
+	  } else
+	  { Sseterr(s, SIO_WARN, "EOF in UCS character");
+	    c = UTF8_MALFORMED_REPLACEMENT; 
+	    goto out;
+	  }
+	}
+
+	*p++ = c1;
+      }
+
+      c = chr;
+      break;
+    }
+    default:
+      assert(0);
+      c = -1;
+  }
+
+out:
+#ifdef CRLF_MAPPING
+  if ( c == '\r' && (s->flags&SIO_TEXT) )
+    goto retry;
+#endif
+
+  if ( s->tee && s->tee->magic == SIO_MAGIC && c != -1 )
+    Sputcode(c, s->tee);
+
+  return S__updatefilepos(s, c);
+}
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+S__fillbuf() fills the read-buffer, returning the first character of it.
+It also realises the SWI-Prolog timeout facility.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+int
+S__fillbuf(IOSTREAM *s)
+{ int c;
+
+  if ( s->flags & (SIO_FEOF|SIO_FERR) )
+  { s->flags |= SIO_FEOF2;		/* reading past eof */
+    goto error;
+  }
+
+#ifdef HAVE_SELECT
+  s->flags &= ~SIO_TIMEOUT;
+
+  if ( s->timeout >= 0 )
+  { int fd = Sfileno(s);
+
+    if ( fd >= 0 )
+    { fd_set wait;
+      struct timeval time;
+      int rc;
+      
+      time.tv_sec  = s->timeout / 1000;
+      time.tv_usec = (s->timeout % 1000) * 1000;
+      FD_ZERO(&wait);
+#ifdef WIN32
+      FD_SET((SOCKET)fd, &wait);
+#else
+      FD_SET(fd, &wait);
+#endif
+
+      for(;;)
+      { rc = select(fd+1, &wait, NULL, NULL, &time);
+	
+	if ( rc < 0 && errno == EINTR )
+	{ if ( PL_handle_signals() < 0 )
+	  { errno = EPLEXCEPTION;
+	    goto error;
+	  }
+
+	  continue;
+	}
+
+	break;
+      }
+
+      if ( rc == 0 )
+      { s->flags |= (SIO_TIMEOUT|SIO_FERR);
+	goto error;
+      }
+    } else
+    { errno = EPERM;			/* no permission to select */
+      s->flags |= SIO_FERR;
+      goto error;
+    }
+  }
+#endif
+
+
+  if ( s->flags & SIO_NBUF )
+  { char chr;
+    int n;
+
+    if ( (n=(*s->functions->read)(s->handle, &chr, 1)) == 1 )
+    { c = char_to_int(chr);
+      goto ok;
+    } else if ( n == 0 )
+    { if ( !(s->flags & SIO_NOFEOF) )
+	s->flags |= SIO_FEOF;
+      goto error;
+    } else
+    { s->flags |= SIO_FERR;
+      goto error;			/* error */
+    }
+  } else
+  { int n, len;
+
+    if ( !s->buffer )
+    { if ( S__setbuf(s, NULL, 0) < 0 )
+	goto error;
+      s->bufp = s->limitp = s->buffer;
+      len = s->bufsize;
+    } else if ( s->bufp < s->limitp )
+    { len = s->limitp - s->bufp;
+      memmove(s->buffer, s->bufp, s->limitp - s->bufp);
+      s->bufp = s->buffer;
+      s->limitp = &s->bufp[len];
+      len = s->bufsize - len;
+    } else
+    { s->bufp = s->limitp = s->buffer;
+      len = s->bufsize;
+    }
+
+    if ( (n=(*s->functions->read)(s->handle, s->limitp, len)) > 0 )
+    { s->limitp += n;
+      c = char_to_int(*s->bufp++);
+      goto ok;
+    } else
+    { if ( n == 0 )
+      { if ( !(s->flags & SIO_NOFEOF) )
+	  s->flags |= SIO_FEOF;
+	goto error;
+#ifdef EWOULDBLOCK
+      } else if ( errno == EWOULDBLOCK )
+      { s->bufp = s->buffer;
+	s->limitp = s->buffer;
+	goto error;
+#endif
+      } else
+      { s->flags |= SIO_FERR;
+	goto error;
+      }
+    }
+  }
+
+error:
+  c = -1;
+ok:
+  return c;
+}
+
+static int
+S__flushbufc(int c, IOSTREAM *s)
+{ if ( s->buffer )
+  { if ( S__flushbuf(s) <= 0 )		/* == 0: no progress!? */
+      c = -1;
+    else
+      *s->bufp++ = (c & 0xff);
+  } else
+  { if ( s->flags & SIO_NBUF )
+    { char chr = (char)c;
+    
+      if ( (*s->functions->write)(s->handle, &chr, 1) != 1 )
+      { s->flags |= SIO_FERR;
+	c = -1;
+      }
+    } else
+    { if ( S__setbuf(s, NULL, 0) < 0 )
+      { s->flags |= SIO_FERR;
+	c = -1;
+      } else
+	*s->bufp++ = (char)c;
+    }
+  }
+
+  return c;
+}
+
+
+static inline void
+unget_byte(int c, IOSTREAM *s)
+{ IOPOS *p = s->position;
+
+  *--s->bufp = c;
+  if ( p )
+  { p->charno--;
+    p->byteno--;
+    s->flags |= (SIO_NOLINENO|SIO_NOLINEPOS);
+  }
+}
+
+
+int
+Sungetc(int c, IOSTREAM *s)
+{ if ( s->bufp > s->unbuffer )
+  { unget_byte(c, s);
+
+    return c;
+  }
+
+  return -1;
+}
+
+static int
+put_byte(int c, IOSTREAM *s)
+{ c &= 0xff;
+
+  if ( s->bufp < s->limitp )
+  { *s->bufp++ = c;
+  } else
+  { if ( S__flushbufc(c, s) < 0 )
+    { s->lastc = EOF;
+      return -1;
+    }
+  }
+
+  if ( s->position )
+    s->position->byteno++;
+
+  return c;
+}
+
+
+static int
+reperror(int c, IOSTREAM *s)
+{ if ( c >= 0 && (s->flags & (SIO_REPXML|SIO_REPPL)) )
+  { char buf[16];
+    const char *q;
+
+    if ( (s->flags & SIO_REPPL) )
+    { if ( c <= 0xffff )
+	sprintf(buf, "\\u%04X", c);
+      else
+	sprintf(buf, "\\U%08X", c);
+    } else
+      sprintf(buf, "&#%d;", c);
+
+    for(q = buf; *q; q++)
+    { if ( put_byte(*q, s) < 0 )
+	return -1;
+    }
+	
+    return c;
+  }
+
+  Sseterr(s, SIO_FERR|SIO_CLEARERR, "Encoding cannot represent character");
+  return -1;
+}
+
+int
+Sputcode(int c, IOSTREAM *s)
+{ if ( c < 0 )
+    return reperror(c, s);
+
+  if ( s->tee && s->tee->magic == SIO_MAGIC )
+    Sputcode(c, s->tee);
+
+#ifdef CRLF_MAPPING
+  if ( c == '\n' && (s->flags&SIO_TEXT) )
+  { if ( Sputcode('\r', s) < 0 )
+      return -1;
+  }
+#endif
+
+  switch(s->encoding)
+  { case ENC_OCTET:
+    case ENC_ISO_LATIN_1:
+      if ( c >= 256 )
+      { if ( reperror(c, s) < 0 )
+	  return -1;
+	break;
+      }
+    simple:
+      if ( put_byte(c, s) < 0 )
+	return -1;
+      break;
+    case ENC_ASCII:
+      if ( c >= 128 )
+      { if ( reperror(c, s) < 0 )
+	  return -1;
+	break;
+      }
+      goto simple;
+    case ENC_ANSI:
+    { char b[MB_LEN_MAX];
+      int n;
+
+      if ( !s->mbstate )
+      { if ( !(s->mbstate = malloc(sizeof(*s->mbstate))) )
+	  return EOF;			/* out of memory */
+	memset(s->mbstate, 0, sizeof(*s->mbstate));
+      }
+
+      if ( (n = wcrtomb(b, (wchar_t)c, s->mbstate)) < 0 )
+      { if ( reperror(c, s) < 0 )
+	  return -1;
+      } else
+      { int i;
+
+	for(i=0; i<n; i++)
+	{ if ( put_byte(b[i]&0xff, s) < 0 )
+	    return -1;
+	}
+      }
+
+      break;
+    }
+    case ENC_UTF8:
+    { char buf[6];
+      char *p, *end;
+      
+      if ( c < 128 )
+	goto simple;
+
+      end = utf8_put_char(buf, c);
+      for(p=buf; p<end; p++)
+      { if ( put_byte(*p&0xff, s) < 0 )
+	  return -1;
+      }
+
+      break;
+    }
+    case ENC_UNICODE_BE:
+      if ( put_byte(c>>8, s) < 0 )
+	return -1;
+      if ( put_byte(c&0xff, s) < 0 )
+	return -1;
+      break;
+    case ENC_UNICODE_LE:
+      if ( put_byte(c&0xff, s) < 0 )
+	return -1;
+      if ( put_byte(c>>8, s) < 0 )
+	return -1;
+      break;
+    case ENC_WCHAR:
+    { pl_wchar_t chr = c;
+      unsigned char *q = (unsigned char *)&chr;
+      unsigned char *e = &q[sizeof(pl_wchar_t)];
+
+      while(q<e)
+      { if ( put_byte(*q++, s) < 0 )
+	  return -1;
+      }
+      
+      break;
+    }
+    case ENC_UNKNOWN:
+      return -1;
+  }
+
+
+  s->lastc = c;
+
+  if ( c == '\n' && (s->flags & SIO_LBUF) )
+  { if ( S__flushbuf(s) < 0 )
+      return -1;
+  }
+
+  return S__updatefilepos(s, c);
+}
+
+
+		 /*******************************
+		 *               FLAGS		*
+		 *******************************/
+
+int
+Sfeof(IOSTREAM *s)
+{ if ( s->flags & SIO_FEOF )
+    return TRUE;
+
+  if ( s->bufp < s->limitp )
+    return FALSE;
+
+  if ( s->flags & SIO_NBUF )
+  { errno = EINVAL;
+    return -1;
+  }
+
+  if ( S__fillbuf(s) == -1 )
+    return TRUE;
+
+  s->bufp--;
+  return FALSE;
+}
+    
+
+int
+Sferror(IOSTREAM *s)
+{ return (s->flags & SIO_FERR) != 0;
+}
+    
+
+int
+Sfpasteof(IOSTREAM *s)
+{ return (s->flags & (SIO_FEOF2ERR|SIO_FEOF2)) == (SIO_FEOF2ERR|SIO_FEOF2);
+}
+
+
+void
+Sclearerr(IOSTREAM *s)
+{ s->flags &= ~(SIO_FEOF|SIO_WARN|SIO_FERR|SIO_FEOF2|SIO_TIMEOUT|SIO_CLEARERR);
+  Sseterr(s, 0, NULL);
+}
+
+
+void
+Sseterr(IOSTREAM *s, int flag, const char *message)
+{ if ( s->message )
+  { free(s->message);
+    s->message = NULL;
+    s->flags &= ~SIO_CLEARERR;
+  }
+  if ( message )
+  { s->flags |= flag;
+    s->message = strdup(message);
+  } else
+  { s->flags &= ~flag;
+  }
+}
 
 
 
