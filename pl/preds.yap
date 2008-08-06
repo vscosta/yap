@@ -45,7 +45,8 @@ assert(C) :-
 '$assert'((H:-G),M1,Where,R,P) :- !,
 	'$assert_clause'(H, G, M1, Where, R, P).
 '$assert'(H,M1,Where,R,_) :-
-	'$assert_fact'(H, M1, Where, R).
+	strip_module(M1:H, HM, H1),
+	'$assert_fact'(H1, HM, Where, R).
 
 '$assert_clause'(H, _, _, _, _, P) :-
 	var(H), !, '$do_error'(instantiation_error,P).
@@ -75,8 +76,8 @@ assert(C) :-
 
 
 '$assert_clause2'(HI,BI,Mod,Where,R,P) :-
-	'$expand_clause'((HI :- BI),C0,C,Mod),
-	'$assert_clause3'(C0,C,Mod,Where,R,P).
+	'$expand_clause'((HI :- BI),C0,C,Mod,HM),
+	'$assert_clause3'(C0,C,HM,Where,R,P).
 
 '$assert_clause3'(C0,C,Mod,Where,R,P) :-
 	'$check_head_and_body'(C,H,B,P),
@@ -106,8 +107,8 @@ assert(C) :-
 '$assert_dynamic'((H:-G),M1,Where,R,P) :-
         var(H), !, '$do_error'(instantiation_error,P).
 '$assert_dynamic'(CI,Mod,Where,R,P) :-
-	'$expand_clause'(CI,C0,C,Mod),
-	'$assert_dynamic2'(C0,C,Mod,Where,R,P).
+	'$expand_clause'(CI,C0,C,Mod,HM),
+	'$assert_dynamic2'(C0,C,HM,Where,R,P).
 
 '$assert_dynamic2'(C0,C,Mod,Where,R,P) :-
 	'$check_head_and_body'(C,H,B,P),
@@ -151,15 +152,15 @@ assertz_static(C) :-
 '$assert_static'((H:-G),M1,Where,R,P) :-
 	var(H), !, '$do_error'(instantiation_error,P).
 '$assert_static'(CI,Mod,Where,R,P) :-
-	'$expand_clause'(CI,C0,C,Mod),
+	'$expand_clause'(CI,C0,C,Mod, HM),
 	'$check_head_and_body'(C,H,B,P),
-	( '$is_dynamic'(H, Mod) ->
-	    '$do_error'(permission_error(modify,dynamic_procedure,Na/Ar),P)
+	( '$is_dynamic'(H, HM) ->
+	    '$do_error'(permission_error(modify,dynamic_procedure,HM:Na/Ar),P)
 	;
-	  '$undefined'(H,Mod), get_value('$full_iso',true) ->
-	    functor(H,Na,Ar), '$dynamic'(Na/Ar, Mod), '$assertat_d'(Where,H,B,C0,Mod,R)
+	  '$undefined'(H,HM), get_value('$full_iso',true) ->
+	    functor(H,Na,Ar), '$dynamic'(Na/Ar, HM), '$assertat_d'(Where,H,B,C0,HM,R)
 	;
-	    '$assert1'(Where,C,C0,Mod,H)
+	'$assert1'(Where,C,C0,HM,H)
         ).
 
 
@@ -736,13 +737,16 @@ dynamic_predicate(P,Sem) :-
 	'$do_error'(domain_error(semantics_indicator,Sem),Goal).
 
 
-'$expand_clause'(C0,C1,C2,Mod) :-
-	'$module_expansion'(C0, C1, C2, Mod, Mod),
+'$expand_clause'((H:-B),C1,C2,Mod,HM) :- !,
+	strip_module(Mod:H, HM, H1),
+	'$module_expansion'((H1:-B), C1, C2, Mod, HM),
 	( get_value('$strict_iso',on) ->
 	    '$check_iso_strict_clause'(C1)
         ;
            true
         ).
+'$expand_clause'(H,H1,H1,Mod,HM) :-
+	strip_module(Mod:H, HM, H1).
 
 '$public'(X, _) :- var(X), !,
 	'$do_error'(instantiation_error,public(X)).

@@ -190,6 +190,7 @@ module(N) :-
 % A5: context module (this is the current context
 % A6: head module (this is the one used in compiling and accessing).
 %
+%
 '$module_expansion'((H:-B),(H:-B1),(H:-BO),M,HM) :- !,
 	'$is_mt'(M, H, B, IB, MM),
 	'$module_u_vars'(H,UVars,M),	 % collect head variables in

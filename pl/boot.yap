@@ -304,8 +304,7 @@ true :- true.
 	   fail	
 	 ;
 	   '$execute_commands'(Cs,VL,Con,Source)
-	 ),
-	 fail.
+	 ).
  '$execute_commands'(C,VL,Con,Source) :-
 	 '$execute_command'(C,VL,Con,Source).
 
@@ -781,16 +780,16 @@ not(G) :-    \+ '$execute'(G).
         '$call'(Y,CP,G0,M).
 '$call'((X->Y),CP,G0,M) :- !,
 	(
-	 '$execute'(X)
+	 '$call'(X,CP,G0,M)
           ->
 	 '$call'(Y,CP,G0,M)
 	).
 '$call'((X*->Y),CP,G0,M) :- !,
-	'$execute'(X),
+	'$call'(X,CP,G0,M),
 	'$call'(Y,CP,G0,M).
 '$call'((X->Y; Z),CP,G0,M) :- !,
 	(
-	    '$execute'(X)
+	    '$call'(X,CP,G0,M)
          ->
 	    '$call'(Y,CP,G0,M)
         ;
@@ -799,7 +798,7 @@ not(G) :-    \+ '$execute'(G).
 '$call'((X*->Y; Z),CP,G0,M) :- !,
 	(
 	 yap_hacks:current_choicepoint(DCP),
-	 '$execute'(X),
+	 '$call'(X,CP,G0,M),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(Y,CP,G0,M)
         ;
@@ -813,16 +812,16 @@ not(G) :-    \+ '$execute'(G).
 	).
 '$call'((X->Y| Z),CP,G0,M) :- !,
 	(
-	    '$execute'(X)
+	    '$call'(X,CP,G0,M)
          ->
-	    '$call'(Y,CP,G0,M)
+	 '$call'(Y,CP,G0,M)
         ;
-	    '$call'(Z,CP,G0,M)
+	'$call'(Z,CP,G0,M)
 	).
 '$call'((X*->Y| Z),CP,G0,M) :- !,
 	(
 	 yap_hacks:current_choicepoint(DCP),
-	 '$execute'(X),
+	 '$call'(X,CP,G0,M),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(Y,CP,G0,M)
         ;
@@ -835,9 +834,9 @@ not(G) :-    \+ '$execute'(G).
 	    '$call'(B,CP,G0,M)
 	).
 '$call'(\+ X, _CP, _G0, M) :- !,
-	\+ '$execute'(M:X).
+	\+  '$call'(X,CP,G0,M).
 '$call'(not(X), _CP, _G0, M) :- !,
-	\+ '$execute'(M:X).
+	\+  '$call'(X,CP,G0,M).
 '$call'(!, CP, _,_) :- !,
 	'$$cut_by'(CP).
 '$call'([A|B], _, _, M) :- !,
