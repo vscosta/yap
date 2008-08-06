@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2008-08-06 17:32:18 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-08-06 23:05:49 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.243  2008/08/06 17:32:18  vsc
+* more thread fixes
+*
 * Revision 1.242  2008/06/17 13:37:48  vsc
 * fix c_interface not to crash when people try to recover slots that are
 * not there.
@@ -1564,11 +1567,6 @@ Yap_absmi(int inp)
 
 	ASP = YREG+E_CB;
 	saveregs();
-	if (cl->ClSource == NULL) {
-	  fprintf(stderr,"%d  CLLLLL   %p %p %s\n",worker_id,cl,cl->ClSource,RepAtom(cl->ClPred->FunctorOfPred)->StrOfAE);
-	  exit(1);
-	  FAIL();
-	}
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
 	  if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	    Yap_Error_TYPE = YAP_NO_ERROR;
