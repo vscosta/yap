@@ -400,7 +400,6 @@ maplist2([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], [Elem4|Tail4], Goal) :-
 	call(Goal, Elem1, Elem2, Elem3, Elem4), 
 	maplist2(Tail1, Tail2, Tail3, Tail4, Goal).
 
-=======
 % copied from SWI's boot/apply library
 :- module_transparent
 	prolog:maplist/2, 
