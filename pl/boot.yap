@@ -288,8 +288,12 @@ true :- true.
 '$command'(C,VL,Con) :-
 	( (Con = top ; var(C) ; C = [_|_])  ->  
 	  '$execute_command'(C,VL,Con,C), ! ;
+	  % do term expansion
 	  expand_term(C, EC),
-	  '$execute_commands'(EC,VL,Con,C)
+	  % execute a list of commands
+	  '$execute_commands'(EC,VL,Con,C),
+	  % succeed only if the *original* was at end of file.
+	  C == end_of_file
 	).
 
  %
@@ -297,7 +301,7 @@ true :- true.
  %
  '$execute_commands'(V,_,_,Source) :- var(V), !,
 	 '$do_error'(instantiation_error,meta_call(Source)).
- '$execute_commands'([],_,_,_) :- !, fail.
+ '$execute_commands'([],_,_,_) :- !.
  '$execute_commands'([C|Cs],VL,Con,Source) :- !,
 	 (
 	   '$execute_command'(C,VL,Con,Source),
@@ -322,15 +326,13 @@ true :- true.
  '$execute_command'(Command,_,_,_) :-
 	 nb_getval('$if_skip_mode',skip),
 	 \+ '$if_directive'(Command),
-	 !,
-	 fail.
+	 !.
  '$execute_command'((:-G),_,Option,_) :- !,
 	 '$current_module'(M),
 	 % allow user expansion
 	 expand_term((:- G), O),
          O = (:- G1),
-	 '$process_directive'(G1, Option, M),
-	 fail.
+	 '$process_directive'(G1, Option, M).
  '$execute_command'((?-G),V,_,Source) :- !,
 	 '$execute_command'(G,V,top,Source).
  '$execute_command'(G,V,Option,Source) :-
