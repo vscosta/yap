@@ -38,11 +38,9 @@ static char     SccsId[] = "%W% %G%";
  *
  */
 
-#if DEBUG
-
+#if DEBUGX
 static void DEBUG_TLOCK_ACCESS( int pos, int wid) { 
-    ThreadHandle[wid].been_here2 = ThreadHandle[wid].been_here1;
-    ThreadHandle[wid].been_here1 = pos;
+  fprintf(stderr,"wid=%p %p\n", wid, pos);
 }
 #else
 #define DEBUG_TLOCK_ACCESS(WID, POS)
@@ -58,8 +56,8 @@ allocate_new_tid(void)
 	 ThreadHandle[new_worker_id].zombie == TRUE) )
     new_worker_id++;
   if (new_worker_id < MAX_THREADS) {
-    pthread_mutex_lock(&(ThreadHandle[new_worker_id].tlock));
     DEBUG_TLOCK_ACCESS(new_worker_id, 0);
+    pthread_mutex_lock(&(ThreadHandle[new_worker_id].tlock));
     ThreadHandle[new_worker_id].in_use = TRUE;
   } else {
     new_worker_id = -1;
@@ -98,7 +96,7 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, Term tgoal, Term tdetach)
 
 
 static void
-kill_thread_engine (int wid)
+kill_thread_engine (int wid, int always_die)
 {
   Prop p0 = AbsPredProp(Yap_heap_regs->thread_handle[wid].local_preds);
 
@@ -110,33 +108,32 @@ kill_thread_engine (int wid)
     Yap_FreeCodeSpace((char *)ap);
   }
   Yap_KillStacks(wid);
-  Yap_FreeCodeSpace((ADDR)(ThreadHandle[wid].tgoal));
-  ThreadHandle[wid].tgoal = NULL;
   Yap_heap_regs->wl[wid].active_signals = 0L;
   free(Yap_heap_regs->wl[wid].scratchpad.ptr);
   free(ThreadHandle[wid].default_yaam_regs);
   ThreadHandle[wid].current_yaam_regs = NULL;
   free(ThreadHandle[wid].start_of_timesp);
   free(ThreadHandle[wid].last_timep);
-  ThreadHandle[wid].zombie = FALSE;
-  DEBUG_TLOCK_ACCESS(1, wid);
-  pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
+  LOCK(ThreadHandlesLock);
+  if (ThreadHandle[wid].tdetach == MkAtomTerm(AtomTrue) ||
+      always_die) {
+    ThreadHandle[wid].zombie = FALSE;
+    ThreadHandle[wid].in_use = FALSE;
+    DEBUG_TLOCK_ACCESS(1, wid);
+    pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
+  }
+  UNLOCK(ThreadHandlesLock);
 }
 
 static void
 thread_die(int wid, int always_die)
 {
 
-  LOCK(ThreadHandlesLock);
   if (!always_die) {
     /* called by thread itself */
     ThreadsTotalTime += Yap_cputime();
   }
-  if (ThreadHandle[wid].tdetach == MkAtomTerm(AtomTrue) ||
-      always_die) {
-    kill_thread_engine(wid);
-  }
-  UNLOCK(ThreadHandlesLock);
+  kill_thread_engine(wid, always_die);
 }
 
 static void
@@ -195,6 +192,8 @@ thread_run(void *widp)
       }
     }
   } while (t == 0);
+  free(ThreadHandle[myworker_id].tgoal);
+  ThreadHandle[myworker_id].tgoal = NULL;
   tgs[1] = ThreadHandle[worker_id].tdetach;
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
   Yap_RunTopGoal(tgoal);
@@ -230,6 +229,7 @@ p_create_thread(void)
   Term x3 = Deref(ARG3);
   int new_worker_id = IntegerOfTerm(Deref(ARG6));
   
+  //  fprintf(stderr," %d --> %d\n", worker_id, new_worker_id); 
   if (IsBigIntTerm(x2))
     return FALSE;
   if (IsBigIntTerm(x3))
@@ -241,14 +241,13 @@ p_create_thread(void)
     /* YAP ERROR */
     return FALSE;
   }
+  /* make sure we can proceed */
   if (!init_thread_engine(new_worker_id, ssize, tsize, tgoal, tdetach))
     return FALSE;
   ThreadHandle[new_worker_id].id = new_worker_id;
   ThreadHandle[new_worker_id].ref_count = 1;
   if ((ThreadHandle[new_worker_id].ret = pthread_create(&ThreadHandle[new_worker_id].handle, NULL, thread_run, (void *)(&(ThreadHandle[new_worker_id].id)))) == 0) {
     /* wait until the client is initialised */
-    DEBUG_TLOCK_ACCESS(3, new_worker_id);
-    pthread_mutex_unlock(&(ThreadHandle[new_worker_id].tlock));  
     return TRUE;
   }
   return FALSE;
@@ -304,17 +303,36 @@ p_thread_zombie_self(void)
   /* make sure the lock is available */
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return Yap_unify(MkIntegerTerm(-1), ARG1);
-  pthread_mutex_lock(&(ThreadHandle[worker_id].tlock));
   DEBUG_TLOCK_ACCESS(4, worker_id);
+  pthread_mutex_lock(&(ThreadHandle[worker_id].tlock));
   if (Yap_heap_regs->wl[worker_id].active_signals &= YAP_ITI_SIGNAL) {
     DEBUG_TLOCK_ACCESS(5, worker_id);
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
     return FALSE;
   }
+  //  fprintf(stderr," -- %d\n", worker_id); 
   Yap_heap_regs->thread_handle[worker_id].in_use = FALSE;
   Yap_heap_regs->thread_handle[worker_id].zombie = TRUE;
-  DEBUG_TLOCK_ACCESS(6, worker_id);
-  pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+  return Yap_unify(MkIntegerTerm(worker_id), ARG1);
+}
+
+static Int
+p_thread_status_lock(void)
+{
+  /* make sure the lock is available */
+  if (pthread_getspecific(Yap_yaamregs_key) == NULL)
+    return FALSE;
+  pthread_mutex_lock(&(ThreadHandle[worker_id].tlock_status));
+  return Yap_unify(MkIntegerTerm(worker_id), ARG1);
+}
+
+static Int
+p_thread_status_unlock(void)
+{
+  /* make sure the lock is available */
+  if (pthread_getspecific(Yap_yaamregs_key) == NULL)
+    return FALSE;
+  pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock_status));
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
 }
 
@@ -346,8 +364,8 @@ Yap_thread_create_engine(thread_attr *ops)
 Int
 Yap_thread_attach_engine(int wid)
 {
-  pthread_mutex_lock(&(ThreadHandle[wid].tlock));
   DEBUG_TLOCK_ACCESS(7, wid);
+  pthread_mutex_lock(&(ThreadHandle[wid].tlock));
   if (ThreadHandle[wid].ref_count &&
       ThreadHandle[wid].handle != pthread_self()) {
     DEBUG_TLOCK_ACCESS(8, wid);
@@ -365,8 +383,8 @@ Yap_thread_attach_engine(int wid)
 Int
 Yap_thread_detach_engine(int wid)
 {
-  pthread_mutex_lock(&(ThreadHandle[wid].tlock));
   DEBUG_TLOCK_ACCESS(10, wid);
+  pthread_mutex_lock(&(ThreadHandle[wid].tlock));
   if (ThreadHandle[wid].handle == pthread_self())
     ThreadHandle[wid].handle = 0;
   ThreadHandle[wid].ref_count--;
@@ -379,7 +397,7 @@ Int
 Yap_thread_destroy_engine(int wid)
 {
   if (ThreadHandle[wid].ref_count == 0) {
-    kill_thread_engine(wid);
+    kill_thread_engine(wid, TRUE);
     return TRUE;
   } else {
     DEBUG_TLOCK_ACCESS(12, wid);
@@ -404,8 +422,6 @@ p_thread_join(void)
     UNLOCK(ThreadHandlesLock);
     return FALSE;
   }
-  pthread_mutex_lock(&(ThreadHandle[tid].tlock));
-  DEBUG_TLOCK_ACCESS(13, tid);
   UNLOCK(ThreadHandlesLock);
   /* make sure this lock is accessible */
   if (pthread_join(ThreadHandle[tid].handle, NULL) < 0) {
@@ -421,7 +437,12 @@ p_thread_destroy(void)
 {
   Int tid = IntegerOfTerm(Deref(ARG1));
 
-  thread_die(tid, TRUE);
+  LOCK(ThreadHandlesLock);
+  ThreadHandle[tid].zombie = FALSE;
+  ThreadHandle[tid].in_use = FALSE;
+  DEBUG_TLOCK_ACCESS(32, tid);
+  pthread_mutex_unlock(&(ThreadHandle[tid].tlock));
+  UNLOCK(ThreadHandlesLock);
   return TRUE;
 }
 
@@ -442,6 +463,12 @@ p_thread_detach(void)
   DEBUG_TLOCK_ACCESS(30, tid);
   pthread_mutex_unlock(&(ThreadHandle[tid].tlock));
   return TRUE;
+}
+
+static Int
+p_thread_detached(void)
+{
+  return Yap_unify(ARG1,ThreadHandle[worker_id].tdetach);
 }
 
 static Int
@@ -699,8 +726,15 @@ p_thread_runtime(void)
 }
 
 static Int 
+p_thread_self_lock(void)
+{				/* '$thread_unlock'	 */
+  pthread_mutex_lock(&(ThreadHandle[worker_id].tlock));
+  return Yap_unify(ARG1,MkIntegerTerm(worker_id));
+}
+
+static Int 
 p_thread_unlock(void)
-{				/* '$thread_self_lock'	 */
+{				/* '$thread_unlock'	 */
   Int wid = IntegerOfTerm(Deref(ARG1));
   DEBUG_TLOCK_ACCESS(19, wid);
   pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
@@ -715,11 +749,14 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$thread_new_tid", 1, p_thread_new_tid, HiddenPredFlag);
   Yap_InitCPred("$create_thread", 6, p_create_thread, HiddenPredFlag);
   Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$thread_status_lock", 1, p_thread_status_lock, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$thread_status_unlock", 1, p_thread_status_unlock, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_zombie_self", 1, p_thread_zombie_self, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_join", 1, p_thread_join, HiddenPredFlag);
   Yap_InitCPred("$thread_destroy", 1, p_thread_destroy, HiddenPredFlag);
   Yap_InitCPred("thread_yield", 0, p_thread_yield, 0);
   Yap_InitCPred("$detach_thread", 1, p_thread_detach, HiddenPredFlag);
+  Yap_InitCPred("$thread_detached", 1, p_thread_detached, HiddenPredFlag);
   Yap_InitCPred("$thread_exit", 0, p_thread_exit, HiddenPredFlag);
   Yap_InitCPred("thread_setconcurrency", 2, p_thread_set_concurrency, 0);
   Yap_InitCPred("$valid_thread", 1, p_valid_thread, HiddenPredFlag);
@@ -739,6 +776,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$nof_threads_created", 1, p_nof_threads_created, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_sleep", 4, p_thread_sleep, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$thread_self_lock", 1, p_thread_self_lock, SafePredFlag);
   Yap_InitCPred("$thread_unlock", 1, p_thread_unlock, SafePredFlag);
 }
 

@@ -1504,7 +1504,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
     NOfCells = ntp - ntp0;	/* End Of Code Info */
     *dbg->lr++ = 0;
     NOfLinks = (dbg->lr - dbg->LinkAr);
-    if (vars_found || InFlag & InQueue) {
+    if (vars_found || InFlag & InQueue ) {
 
       /*
        * Take into account the fact that one needs an entry
@@ -1800,10 +1800,16 @@ new_lu_db_entry(Term t, PredEntry *pe)
   yamop *ipc;
   int needs_vars = FALSE;
   struct db_globs dbg;
+  int d_flag = 0;
 
+#ifdef THREADS
+  /* we cannot allow sharing between threads (for now) */ 
+  if (!(pe->PredFlags & ThreadLocalPredFlag))
+    d_flag |= InQueue;
+#endif
   s_dbg = &dbg;
   ipc = NEXTOP(((LogUpdClause *)NULL)->ClCode,e);
-  if ((x = (DBTerm *)CreateDBStruct(t, NULL, 0, &needs_vars, (UInt)ipc, &dbg)) == NULL) {
+  if ((x = (DBTerm *)CreateDBStruct(t, NULL, d_flag, &needs_vars, (UInt)ipc, &dbg)) == NULL) {
     return NULL; /* crash */
   }
   cl = (LogUpdClause *)((ADDR)x-(UInt)ipc);
@@ -1928,7 +1934,7 @@ static Int
 p_rcda(void)
 {
   /* Idiotic xlc's cpp does not work with ARG1 within MkDBRefTerm */
-  Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
+  Term            TRef, t1 = Deref(ARG1);
   PredEntry *pe = NULL;
 
   if (!IsVarTerm(Deref(ARG3)))
@@ -1940,7 +1946,7 @@ p_rcda(void)
     LogUpdClause *cl;
 
     LOCK(pe->PELock);
-    cl = record_lu(pe, t2, MkFirst);
+    cl = record_lu(pe, Deref(ARG2), MkFirst);
     if (cl != NULL) {
       TRAIL_CLREF(cl);
 #if defined(YAPOR) || defined(THREADS)
@@ -1954,11 +1960,10 @@ p_rcda(void)
     }
     UNLOCK(pe->PELock);
   } else {
-    TRef = MkDBRefTerm(record(MkFirst, t1, t2, Unsigned(0)));
+    TRef = MkDBRefTerm(record(MkFirst, t1, Deref(ARG2), Unsigned(0)));
   }
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(3)) {
-      t2 = Deref(ARG2);
       goto restart_record;
     } else {
       return FALSE;

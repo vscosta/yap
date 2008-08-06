@@ -70,6 +70,9 @@ swi_predicate_table(_,sumlist(X,Y),lists,sumlist(X,Y)).
 swi_predicate_table(_,min_list(X,Y),lists,min_list(X,Y)).
 swi_predicate_table(_,max_list(X,Y),lists,max_list(X,Y)).
 swi_predicate_table(_,memberchk(X,Y),lists,memberchk(X,Y)).
+swi_predicate_table(_,flatten(X,Y),lists,flatten(X,Y)).
+swi_predicate_table(_,select(X,Y,Z),lists,select(X,Y,Z)).
+swi_predicate_table(_,sublist(X,Y),lists,sublist(X,Y)).
 swi_predicate_table(_,hash_term(X,Y),terms,term_hash(X,Y)).
 swi_predicate_table(_,term_hash(X,Y),terms,term_hash(X,Y)).
 swi_predicate_table(_,subsumes(X,Y),terms,subsumes(X,Y)).
@@ -333,6 +336,71 @@ prolog:intersection([_|T], L, R) :-
 prolog:(Term1 =@= Term2) :-
 	variant(Term1, Term2), !.
 
+% copied from SWI's boot/apply library
+:- module_transparent
+	prolog:maplist/2, 
+	maplist2/2, 
+	prolog:maplist/3, 
+	maplist2/3, 
+	prolog:maplist/4, 
+	maplist2/4, 
+	prolog:maplist/5, 
+	maplist2/5.
+
+%	maplist(:Goal, +List)
+%
+%	True if Goal can succesfully be applied on all elements of List.
+%	Arguments are reordered to gain performance as well as to make
+%	the predicate deterministic under normal circumstances.
+
+prolog:maplist(Goal, List) :-
+	maplist2(List, Goal).
+
+maplist2([], _).
+maplist2([Elem|Tail], Goal) :-
+	call(Goal, Elem), 
+	maplist2(Tail, Goal).
+
+%	maplist(:Goal, ?List1, ?List2)
+%
+%	True if Goal can succesfully be applied to all succesive pairs
+%	of elements of List1 and List2.
+
+prolog:maplist(Goal, List1, List2) :-
+	maplist2(List1, List2, Goal).
+
+maplist2([], [], _).
+maplist2([Elem1|Tail1], [Elem2|Tail2], Goal) :-
+	call(Goal, Elem1, Elem2), 
+	maplist2(Tail1, Tail2, Goal).
+
+%	maplist(:Goal, ?List1, ?List2, ?List3)
+%
+%	True if Goal can succesfully be applied to all succesive triples
+%	of elements of List1..List3.
+
+prolog:maplist(Goal, List1, List2, List3) :-
+	maplist2(List1, List2, List3, Goal).
+
+maplist2([], [], [], _).
+maplist2([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], Goal) :-
+	call(Goal, Elem1, Elem2, Elem3), 
+	maplist2(Tail1, Tail2, Tail3, Goal).
+
+%	maplist(:Goal, ?List1, ?List2, ?List3, List4)
+%
+%	True if Goal  can  succesfully  be   applied  to  all  succesive
+%	quadruples of elements of List1..List4
+
+prolog:maplist(Goal, List1, List2, List3, List4) :-
+	maplist2(List1, List2, List3, List4, Goal).
+
+maplist2([], [], [], [], _).
+maplist2([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], [Elem4|Tail4], Goal) :-
+	call(Goal, Elem1, Elem2, Elem3, Elem4), 
+	maplist2(Tail1, Tail2, Tail3, Tail4, Goal).
+
+=======
 % copied from SWI's boot/apply library
 :- module_transparent
 	prolog:maplist/2, 

@@ -985,6 +985,7 @@ InitCodes(void)
   Yap_heap_regs->thread_handle[0].handle = pthread_self();
   Yap_heap_regs->thread_handle[0].handle = pthread_self();
   pthread_mutex_init(&ThreadHandle[0].tlock, NULL);
+  pthread_mutex_init(&ThreadHandle[0].tlock_status, NULL);
   Yap_heap_regs->n_of_threads = 1;
   Yap_heap_regs->n_of_threads_created = 1;
   Yap_heap_regs->threads_total_time = 0;

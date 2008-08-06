@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2008-03-13 14:37:58 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-08-06 17:32:18 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.88  2008/03/13 14:37:58  vsc
+* update chr
+*
 * Revision 1.87  2007/12/18 17:46:58  vsc
 * purge_clauses does not need to do anything if there are no clauses
 * fix gprof bugs.
@@ -701,10 +704,13 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 	    write_num_op), (CELL) t, Zero, &cglobs->cint);
   } else if (IsPairTerm(t)) {
     if (optimizer_on && level < 6) {
+#if !defined(THREADS)
+      /* discard code sharing because we cannot write on shared stuff */
       if (!(cglobs->cint.CurrentPred->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
 	if (try_store_as_dbterm(t, argno, arity, level, cglobs))
 	  return;
-      }      
+      }     
+#endif 
       t = optimize_ce(t, arity, level, cglobs);
       if (IsVarTerm(t)) {
 	c_var(t, argno, arity, level, cglobs);

@@ -24,6 +24,9 @@ static char     SccsId[] = "@(#)utilpreds.c	1.3";
 #include "yapio.h"
 #include "eval.h"
 #include "attvar.h"
+#ifdef HAVE_STRING_H
+#include "string.h"
+#endif
 
 typedef struct {
 	Term            old_var;
@@ -168,9 +171,30 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	      INC_DBREF_COUNT(entryref);
 	      UNLOCK(entryref->lock);
 	    }
+	    *ptf++ = d0;  /* you can just copy other extensions. */
 	  }
 #endif
-	  *ptf++ = d0;  /* you can just copy other extensions. */
+	  else if (!share) {
+	    UInt sz;
+
+	    *ptf++ = AbsAppl(H);  /* you can just copy other extensions. */
+	    /* make sure to copy floats */
+	    if (f== FunctorDouble) {
+	      sz = sizeof(Float)/sizeof(CELL)+2;
+	    } else if (f== FunctorLongInt) {
+	      sz = 3;
+	    } else {
+	      CELL *pt = ap2+1;
+	      sz = 2+sizeof(MP_INT)+(((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
+	    }
+	    if (H+sz > ASP - 2048) {
+	      goto overflow;
+	    }
+	    memcpy((void *)H, (void *)ap2, sz*sizeof(CELL));
+	    H += sz;
+	  } else {
+	    *ptf++ = d0;  /* you can just copy other extensions. */
+	  }
 	  continue;
 	}
 	*ptf = AbsAppl(H);
@@ -252,7 +276,7 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	      goto trail_overflow;
 	    }
 	  }
-	  Bind_Global(ptd0, ptf[-1]);
+	  Bind(ptd0, ptf[-1]);
 	}
       } else {
 #endif
@@ -264,7 +288,7 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	    goto trail_overflow;
 	  }
 	}
-	Bind_Global(ptd0, (CELL)ptf);
+	Bind(ptd0, (CELL)ptf);
 	ptf++;
 #ifdef COROUTINING
       }
@@ -480,6 +504,11 @@ CopyTerm(Term inp, UInt arity, int share, int newattvs) {
 Term
 Yap_CopyTerm(Term inp) {
   return CopyTerm(inp, 0, TRUE, TRUE);
+}
+
+Term
+Yap_CopyTermNoShare(Term inp) {
+  return CopyTerm(inp, 0, FALSE, FALSE);
 }
 
 static Int 

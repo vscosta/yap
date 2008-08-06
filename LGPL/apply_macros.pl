@@ -1,4 +1,4 @@
-/*  $Id: apply_macros.pl,v 1.2 2008-05-15 13:41:46 vsc Exp $
+/*  $Id: apply_macros.pl,v 1.3 2008-08-06 17:32:21 vsc Exp $
 
     Part of SWI-Prolog
 
@@ -179,7 +179,7 @@ contains_illegal_dcgnt(NT) :-
 
 %	@tbd	Should we only apply if optimization is enabled (-O)?
 
-user:goal_expansion(GoalIn, GoalOut) :-
+user:goal_expansion(GoalIn, M, GoalOut) :-
 	\+ current_prolog_flag(xref, true),
-	expand_apply(GoalIn, GoalOut).
+	expand_apply(M:GoalIn, GoalOut).
 	

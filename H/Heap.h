@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.133 2008-07-22 23:34:49 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.134 2008-08-06 17:32:20 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -202,6 +202,7 @@ typedef struct thandle {
   int been_here2;
 #endif
   pthread_mutex_t tlock;
+  pthread_mutex_t tlock_status;
 #if HAVE_GETRUSAGE
   struct timeval *start_of_timesp;
   struct timeval *last_timep;

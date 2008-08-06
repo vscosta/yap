@@ -66,7 +66,7 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
   omax_write_args = max_write_args;
   max_depth = 5;
   max_list = 5;
-  max_write_args = 5;
+  max_write_args = 10;
   Yap_plwrite(args[i], TracePutchar, Handle_vars_f);
   max_depth = omax_depth;
   max_list = omax_list;
@@ -361,6 +361,12 @@ static Int p_start_low_level_trace(void)
   return(TRUE);
 }
 
+static Int p_show_low_level_trace(void)
+{
+  fprintf(stderr,"Call counter=%lld\n",vsc_count);
+  return(TRUE);
+}
+
 #ifdef THREADS
 static Int p_start_low_level_trace2(void)
 {
@@ -395,6 +401,7 @@ Yap_InitLowLevelTrace(void)
   Yap_InitCPred("start_low_level_trace", 1, p_start_low_level_trace2, SafePredFlag);
 #endif
   Yap_InitCPred("stop_low_level_trace", 0, p_stop_low_level_trace, SafePredFlag);
+  Yap_InitCPred("show_low_level_trace", 0, p_show_low_level_trace, SafePredFlag);
   Yap_InitCPred("vsc_wait", 0, p_vsc_wait, SafePredFlag);
 }
 

@@ -10,8 +10,13 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2008-06-17 13:37:48 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-08-06 17:32:18 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.242  2008/06/17 13:37:48  vsc
+* fix c_interface not to crash when people try to recover slots that are
+* not there.
+* fix try_logical and friends to handle case where predicate has arity 0.
+*
 * Revision 1.241  2008/06/04 14:47:18  vsc
 * make sure we do trim_trail whenever we mess with B!
 *
@@ -1559,6 +1564,11 @@ Yap_absmi(int inp)
 
 	ASP = YREG+E_CB;
 	saveregs();
+	if (cl->ClSource == NULL) {
+	  fprintf(stderr,"%d  CLLLLL   %p %p %s\n",worker_id,cl,cl->ClSource,RepAtom(cl->ClPred->FunctorOfPred)->StrOfAE);
+	  exit(1);
+	  FAIL();
+	}
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
 	  if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	    Yap_Error_TYPE = YAP_NO_ERROR;
@@ -8200,9 +8210,11 @@ Yap_absmi(int inp)
 	CACHE_Y(B);
       
 #if defined(YAPOR) || defined(THREADS)
-	PP = PREG->u.lld.d->ClPred;
+	if (!PP) {
+	  PP = PREG->u.lld.d->ClPred;
+	  LOCK(PP->PELock);
+	}
 #endif
-	LOCK(PP->PELock);
 	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.lld.t.s]);
 	/* fprintf(stderr,"^ %p/%p %d %d %d--%u\n",PREG,PREG->u.lld.d->ClPred,timestamp,PREG->u.lld.d->ClPred->TimeStampOfPred,PREG->u.lld.d->ClTimeStart,PREG->u.lld.d->ClTimeEnd);*/
 	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
@@ -8234,15 +8246,17 @@ Yap_absmi(int inp)
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
 	/* fprintf(stderr,"- %p/%p %d %d %p\n",PREG,ap,timestamp,ap->TimeStampOfPred,PREG->u.lld.d->ClCode);*/
-	LOCK(ap->PELock);
+#if defined(YAPOR) || defined(THREADS)
+	if (!PP) {
+	  LOCK(ap->PELock);
+	  PP = ap;
+	}
+#endif
 	if (!VALID_TIMESTAMP(timestamp, lcl)) {
 	  /* jump to next alternative */
 	  PREG = FAILCODE;
 	} else {
 	  PREG = lcl->ClCode;
-#if defined(YAPOR) || defined(THREADS)
-	  PP = ap;
-#endif
 	}
 	/* HEY, leave indexing block alone!! */
 	/* check if we are the ones using this code */
@@ -8327,6 +8341,12 @@ Yap_absmi(int inp)
 	  }
 	SET_BB(B_YREG);
 	ENDCACHE_Y();
+#if defined(YAPOR) || defined(THREADS)
+	if (PREG == FAILCODE) {
+	  UNLOCK(PP->PELock);
+	  PP = NULL;
+	}
+#endif
 	JMPNext();
       }
       ENDBOp();

@@ -46,36 +46,29 @@
 
 '$close_thread'(Status, Detached) :-
 	'$thread_zombie_self'(Id0), !,
-	'$close_thread'(Status, Detached, Id0).
-'$close_thread'(Status, Detached) :- !,
-	% zombie_self failed as it the thread was messages pending
-	'$close_thread'(Status, Detached).
-
-
-'$close_thread'('$thread_finished'(Status), Detached, Id0) :- !,
-	recorda('$thread_exit_status', [Id0|Status], _),
+	'$record_thread_status'(Id0,Status),
 	'$run_at_thread_exit'(Id0),
-	(	Detached == true ->
-		'$erase_thread_info'(Id0)
-	;	true
-	).
-%	format(user_error,'closing thread ~w~n',[v([Id0|Status])]).	
-'$close_thread'(Exception, Detached, Id0) :-
-	 (	recorded('$thread_exit_status', [Id0|_], R), erase(R), fail
-	 ;	recorda('$thread_exit_status', [Id0|exception(Exception)], _)
-	 ),
-	'$run_at_thread_exit'(Id0),
-	(	Detached == true ->
-		'$erase_thread_info'(Id0)
-	;	true
-	).
+	'$erase_thread_info'(Id0).
+'$close_thread'(Status) :-
+	 '$close_thread'(Status).
+
+% OK, we want to ensure atomicity here in case we get an exception while we
+% are closing down the thread.
+'$record_thread_status'(Id0,Stat) :- !,
+	 (recorded('$thread_exit_status', [Id0|_], R), erase(R), fail
+	 ;
+	  Stat = '$thread_finished'(Status) ->
+	  recorda('$thread_exit_status', [Id0|Status], _)
+	 ;
+	  recorda('$thread_exit_status', [Id0|exception(Stat)], _)
+	 ).
 
 thread_create(Goal) :-
 	G0 = thread_create(Goal),
 	'$check_callable'(Goal, G0),
 	'$thread_options'([detached(true)], [], Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
-	'$erase_thread_info'(Id),
+%	'$erase_thread_info'(Id), % this should not be here
 	'$record_thread_info'(Id, [Stack, Trail, System], Detached, AtExit),
 	'$create_thread_mq'(Id),
 	(
@@ -92,7 +85,7 @@ thread_create(Goal, Id) :-
 	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
 	'$thread_options'([], [], Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
-	'$erase_thread_info'(Id),
+%	'$erase_thread_info'(Id), % this should not be here
 	'$record_thread_info'(Id, [Stack, Trail, System], Detached, AtExit),
 	'$create_thread_mq'(Id),
 	(
@@ -109,7 +102,7 @@ thread_create(Goal, Id, Options) :-
 	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
 	'$thread_options'(Options, Alias, Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
-	'$erase_thread_info'(Id),
+%	'$erase_thread_info'(Id), % this should not be here
 	(	var(Alias) ->
 		'$record_thread_info'(Id, [Stack, Trail, System], Detached, AtExit)
 	;	'$record_thread_info'(Id, Alias, [Stack, Trail, System], Detached, AtExit, G0)
@@ -124,19 +117,11 @@ thread_create(Goal, Id, Options) :-
 	).
 
 '$erase_thread_info'(Id) :-
-	recorded('$thread_exit_status', [Id|_], R),
-	erase(R),
-	fail.
-'$erase_thread_info'(Id) :-
 	recorded('$thread_alias',[Id|_],R),
 	erase(R),
 	fail.
 '$erase_thread_info'(Id) :-
 	recorded('$thread_sizes', [Id|_], R),
-	erase(R),
-	fail.
-'$erase_thread_info'(Id) :-
-	recorded('$thread_detached', [Id|_], R),
 	erase(R),
 	fail.
 '$erase_thread_info'(Id) :-
@@ -146,6 +131,9 @@ thread_create(Goal, Id, Options) :-
 '$erase_thread_info'(Id) :-
 	recorded('$thread_exit_hook', [Id|_], R),
 	erase(R),
+	fail.
+'$erase_thread_info'(Id) :-
+	message_queue_destroy(Id),
 	fail.
 '$erase_thread_info'(_).
 
@@ -190,7 +178,6 @@ thread_create(Goal, Id, Options) :-
 
 '$record_thread_info'(Id, Sizes, Detached, AtExit) :-
 	recorda('$thread_sizes', [Id|Sizes], _),
-	recorda('$thread_detached', [Id|Detached], _),
 	(	AtExit == true ->
 		true
 	;	recorda('$thread_at_exit', [Id|AtExit], _)
@@ -311,8 +298,8 @@ thread_join(Id, Status) :-
 	'$check_thread_or_alias'(Id, thread_join(Id, Status)),
 	'$thread_id_alias'(Id0, Id),
 	'$thread_join'(Id0),
-	recorded('$thread_exit_status', [Id0|Status], _),
-	'$erase_thread_info'(Id0),
+	recorded('$thread_exit_status', [Id0|Status], R),
+	erase(R),
 	'$thread_destroy'(Id0).
 
 thread_cancel(Id) :-
@@ -324,16 +311,7 @@ thread_cancel(Id) :-
 thread_detach(Id) :-
 	'$check_thread_or_alias'(Id, thread_detach(Id)),
 	'$thread_id_alias'(Id0, Id),
-	(
-	 recorded('$thread_detached', [Id0|_], R),
-	 erase(R),
-	 fail
-	;
-	 recordz('$thread_detached', [Id0|true], _),
-	 fail
-	;
-	'$detach_thread'(Id0)
-	),
+	'$detach_thread'(Id0),
 	(	recorded('$thread_exit_status', [Id0|_], _) ->
 		'$erase_thread_info'(Id0),
 		'$thread_destroy'(Id0)
@@ -355,8 +333,7 @@ thread_exit(Term) :-
 	recorded('$thread_exit_hook',[Id0|Hook],R), erase(R),
 	catch(once(Hook),_,fail),
 	fail.
-'$run_at_thread_exit'(Id0) :-
-	message_queue_destroy(Id0).
+'$run_at_thread_exit'(_).
 
 thread_at_exit(Goal) :-
 	'$check_callable'(Goal,thread_at_exit(Goal)),
@@ -639,8 +616,8 @@ message_queue_destroy(Queue) :-
 	erase(R),
 	'$cond_destroy'(Cond),
 	'$destroy_mutex'(Mutex),
-	'$unlock_mutex'(QMutex),
-	'$clean_mqueue'(QKey).
+	'$clean_mqueue'(QKey),
+	'$unlock_mutex'(QMutex).
 message_queue_destroy(Queue) :-
 	'$global_queue_mutex'(QMutex),
 	'$unlock_mutex'(QMutex),
@@ -713,7 +690,7 @@ thread_send_message(Queue, Term) :-
 	'$lock_mutex'(Mutex),
 	'$unlock_mutex'(QMutex),
 	recordz(Key,Term,_),
-	'$cond_broadcast'(Cond),
+	'$cond_signal'(Cond),
 	'$unlock_mutex'(Mutex).
 thread_send_message(Queue, Term) :-
 	'$global_queue_mutex'(QMutex),
@@ -863,7 +840,7 @@ thread_property(Id, Prop) :-
 	;	Status = running
 	).
 '$thread_property'(Id, detached(Detached)) :-
-	recorded('$thread_detached', [Id|Detached], _).
+	'$thread_detached'(Detached).
 '$thread_property'(Id, at_exit(AtExit)) :-
 	recorded('$thread_at_exit', [Id|AtExit], _).
 '$thread_property'(Id, stack(Stack)) :-
