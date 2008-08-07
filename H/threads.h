@@ -1,7 +1,9 @@
 typedef struct{
   UInt		    ssize;
   UInt		    tsize;
+  UInt		    sysize;
   int		   (*cancel)(int thread);
+  Term              egoal;
 } thread_attr;
 
 Int STD_PROTO(Yap_thread_self,(void));

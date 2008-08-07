@@ -44,7 +44,7 @@ typedef struct logic_upd_index {
   UInt             ClRefCount;
 #if defined(YAPOR) || defined(THREADS)
   /* A lock for manipulating the clause */
-  lockvar          ClLock;
+  //  lockvar          ClLock;
 #endif
   UInt		   ClSize;
   struct logic_upd_index *ParentIndex;
@@ -65,7 +65,7 @@ typedef struct logic_upd_clause {
   CELL             ClFlags;
 #if defined(YAPOR) || defined(THREADS)
   /* A lock for manipulating the clause */
-  lockvar          ClLock;
+  //  lockvar          ClLock;
 #endif
   UInt		  ClSize;
   /* extra clause information for logical update indices and facts */

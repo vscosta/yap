@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.134 2008-08-06 17:32:20 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.135 2008-08-07 20:51:23 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -185,10 +185,11 @@ typedef struct thandle {
   int zombie;
   UInt ssize;
   UInt tsize;
+  UInt sysize;
   void *stack_address;
   Term tdetach;
-  Term  cmod;
-  struct DB_TERM *tgoal;
+  Term  cmod, texit_mod;
+  struct DB_TERM *tgoal, *texit;
   int id;
   int ret;
   REGSTORE *default_yaam_regs;

@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2008-07-11 17:02:07 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-08-07 20:51:21 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.202  2008/07/11 17:02:07  vsc
+* fixes by Bart and Tom: mostly libraries but nasty one in indexing
+* compilation.
+*
 * Revision 1.201  2008/05/10 23:24:11  vsc
 * fix threads and LU
 *
@@ -6128,7 +6132,7 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
     ncl->ChildIndex = cl->ChildIndex;
     ncl->ParentIndex = cl->ParentIndex;
     ncl->ClPred = cl->ClPred;
-    INIT_LOCK(ncl->ClLock);
+    //    INIT_LOCK(ncl->ClLock);
     if (c == cl) {
       parent_block->lui.ChildIndex = ncl;
     } else {

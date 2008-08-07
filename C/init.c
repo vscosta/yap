@@ -1335,7 +1335,7 @@ InitCodes(void)
   Yap_heap_regs->logdb_erased_marker->ClNext = NULL;
   Yap_heap_regs->logdb_erased_marker->ClSize = (UInt)NEXTOP(((LogUpdClause *)NULL)->ClCode,e);
   Yap_heap_regs->logdb_erased_marker->ClCode->opc = Yap_opcode(_op_fail);
-  INIT_LOCK(Yap_heap_regs->logdb_erased_marker->ClLock);
+  //  INIT_LOCK(Yap_heap_regs->logdb_erased_marker->ClLock);
   INIT_CLREF_COUNT(Yap_heap_regs->logdb_erased_marker);
   Yap_heap_regs->yap_streams = NULL;
 #if DEBUG

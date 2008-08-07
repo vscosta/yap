@@ -1835,7 +1835,7 @@ new_lu_db_entry(Term t, PredEntry *pe)
   }
   cl->ClTimeEnd = TIMESTAMP_EOT; 
 #if defined(YAPOR) || defined(THREADS)
-  INIT_LOCK(cl->ClLock);
+  //  INIT_LOCK(cl->ClLock);
   INIT_CLREF_COUNT(cl);
 #endif
   if (needs_vars)

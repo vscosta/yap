@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2008-08-06 23:05:49 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-08-07 20:51:15 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.244  2008/08/06 23:05:49  vsc
+* fix debugging info
+*
 * Revision 1.243  2008/08/06 17:32:18  vsc
 * more thread fixes
 *
@@ -8266,9 +8269,6 @@ Yap_absmi(int inp)
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
 	  if (PREG != FAILCODE) {
-	    /* I am the last one using this clause, hence I don't need a lock
-	       to dispose of it 
-	    */
 	    if (lcl->ClRefCount == 1) {
 	      /* make sure the clause isn't destroyed */
 	      /* always add an extra reference */

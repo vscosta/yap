@@ -264,6 +264,39 @@ p_context_module(void)
   return Yap_unify(ARG1, CurrentModule);
 }
 
+Term
+Yap_StripModule(Term t,  Term *modp)
+{
+  Term tmod;
+
+  tmod = CurrentModule;
+ restart:
+  if (IsVarTerm(t)) {
+    return 0L;
+  } else if (IsAtomTerm(t)) {
+    *modp = tmod;
+    return t;
+  } else if (IsApplTerm(t)) {
+    Functor    fun = FunctorOfTerm(t);
+    if (fun == FunctorModule) {
+      tmod = ArgOfTerm(1, t);
+      if (IsVarTerm(tmod) ) {
+	return 0L;
+      }
+      if (!IsAtomTerm(tmod) ) {
+	return 0L;
+      }
+      t = ArgOfTerm(2, t);
+      goto restart;
+    }
+    *modp = tmod;
+    return t;
+  }
+  return 0L;
+}
+
+
+
 void 
 Yap_InitModulesC(void)
 {

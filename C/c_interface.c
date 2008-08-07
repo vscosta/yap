@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2008-08-01 21:44:24 $,$Author: vsc $						 *
+* Last rev:	$Date: 2008-08-07 20:51:21 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.122  2008/08/01 21:44:24  vsc
+* swi compatibility support
+*
 * Revision 1.121  2008/07/24 16:02:00  vsc
 * improve C-interface and SWI comptaibility a bit.
 *
@@ -2295,34 +2298,8 @@ YAP_CreateModule(Atom at)
 X_API Term
 YAP_StripModule(Term t,  Term *modp)
 {
-  Term tmod;
-
-  tmod = CurrentModule;
- restart:
-  if (IsVarTerm(t)) {
-    return 0L;
-  } else if (IsAtomTerm(t)) {
-    *modp = tmod;
-    return t;
-  } else if (IsApplTerm(t)) {
-    Functor    fun = FunctorOfTerm(t);
-    if (fun == FunctorModule) {
-      tmod = ArgOfTerm(1, t);
-      if (IsVarTerm(tmod) ) {
-	return 0L;
-      }
-      if (!IsAtomTerm(tmod) ) {
-	return 0L;
-      }
-      t = ArgOfTerm(2, t);
-      goto restart;
-    }
-    *modp = tmod;
-    return t;
-  }
-  return 0L;
+  return Yap_StripModule(t, modp);
 }
-
 
 
 X_API int

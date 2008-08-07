@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2008-07-22 23:34:49 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-08-07 20:51:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.99  2008/07/22 23:34:49  vsc
+* SWI and module fixes
+*
 * Revision 1.98  2008/05/12 22:31:37  vsc
 * fix previous fixes
 *
@@ -398,7 +401,7 @@ RestoreLUClause(LogUpdClause *cl, PredEntry *pp)
  * clause for this predicate or not 
  */
 {
-  INIT_LOCK(cl->ClLock);
+  //  INIT_LOCK(cl->ClLock);
   if (cl->ClFlags & LogUpdRuleMask) {
     cl->ClExt = PtoOpAdjust(cl->ClExt);
   }
@@ -437,7 +440,7 @@ RestoreDBTermEntry(struct dbterm_list *dbl) {
 static void 
 CleanLUIndex(LogUpdIndex *idx, int recurse)
 {
-  INIT_LOCK(idx->ClLock);
+  //  INIT_LOCK(idx->ClLock);
   idx->ClPred = PtoPredAdjust(idx->ClPred);
   if (idx->ParentIndex)
     idx->ParentIndex = LUIndexAdjust(idx->ParentIndex);

@@ -11,8 +11,12 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2008-07-11 17:02:07 $							 *
+* Last rev:     $Date: 2008-08-07 20:51:16 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.102  2008/07/11 17:02:07  vsc
+* fixes by Bart and Tom: mostly libraries but nasty one in indexing
+* compilation.
+*
 * Revision 1.101  2008/04/01 22:28:41  vsc
 * put YAPOR back to life.
 *
@@ -1664,7 +1668,7 @@ init_log_upd_table(LogUpdIndex *ic, union clause_obj *cl_u)
   ic->ChildIndex = NULL;
   ic->ClRefCount = 0;
   ic->ParentIndex = (LogUpdIndex *)cl_u;
-  INIT_LOCK(ic->ClLock);
+  //  INIT_LOCK(ic->ClLock);
   cl_u->lui.ChildIndex = ic;
   cl_u->lui.ClRefCount++;
 }
@@ -2770,7 +2774,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->luc.ClExt = NULL;
 	cl_u->luc.ClPrev = cl_u->luc.ClNext = NULL;
 #if defined(YAPOR) || defined(THREADS)
-	INIT_LOCK(cl_u->luc.ClLock);
+	//INIT_LOCK(cl_u->luc.ClLock);
 	INIT_CLREF_COUNT(&(cl_u->luc));
 #endif
       }
@@ -2834,7 +2838,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->lui.ParentIndex = NULL;
 	cl_u->lui.ClSize = size;
 	cl_u->lui.ClRefCount =  0;
-	INIT_LOCK(cl_u->lui.ClLock);
+	//	INIT_LOCK(cl_u->lui.ClLock);
 #if defined(YAPOR) || defined(THREADS)
 	INIT_CLREF_COUNT(&(cl_u->lui));
 #endif

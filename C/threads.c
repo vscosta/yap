@@ -67,21 +67,24 @@ allocate_new_tid(void)
 }
 
 static int
-store_specs(int new_worker_id, UInt ssize, UInt tsize, Term tgoal, Term tdetach)
+store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term tgoal, Term tdetach, Term texit)
 {
   UInt pm;	/* memory to be requested         */
+  Term tmod;
+
   if (tsize < MinTrailSpace)
     tsize = MinTrailSpace;
   if (ssize < MinStackSpace)
     ssize = MinStackSpace;
   ThreadHandle[new_worker_id].ssize = ssize;
   ThreadHandle[new_worker_id].tsize = tsize;
+  ThreadHandle[new_worker_id].sysize = sysize;
   pm = (ssize + tsize)*1024;
   if (!(ThreadHandle[new_worker_id].stack_address = malloc(pm))) {
     return FALSE;
   }
   ThreadHandle[new_worker_id].tgoal =
-    Yap_StoreTermInDB(tgoal,4);
+    Yap_StoreTermInDB(tgoal,7);
   ThreadHandle[new_worker_id].cmod =
     CurrentModule;
   if (IsVarTerm(tdetach)){
@@ -91,6 +94,10 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, Term tgoal, Term tdetach)
     ThreadHandle[new_worker_id].tdetach = 
       tdetach;
   }
+  tgoal = Yap_StripModule(texit, &tmod);
+  ThreadHandle[new_worker_id].texit_mod = tmod;
+  ThreadHandle[new_worker_id].texit =
+    Yap_StoreTermInDB(tgoal,7);
   return TRUE;
 }
 
@@ -114,6 +121,7 @@ kill_thread_engine (int wid, int always_die)
   ThreadHandle[wid].current_yaam_regs = NULL;
   free(ThreadHandle[wid].start_of_timesp);
   free(ThreadHandle[wid].last_timep);
+  Yap_FreeCodeSpace((ADDR)ThreadHandle[wid].texit);
   LOCK(ThreadHandlesLock);
   if (ThreadHandle[wid].tdetach == MkAtomTerm(AtomTrue) ||
       always_die) {
@@ -213,9 +221,9 @@ p_thread_new_tid(void)
 }
 
 static int
-init_thread_engine(int new_worker_id, UInt ssize, UInt tsize, Term tgoal, Term tdetach)
+init_thread_engine(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term tgoal, Term tdetach, Term texit)
 {
-  return store_specs(new_worker_id, ssize, tsize, tgoal, tdetach);
+  return store_specs(new_worker_id, ssize, tsize, sysize, tgoal, tdetach, texit);
 }
 
 static Int
@@ -223,11 +231,14 @@ p_create_thread(void)
 {
   UInt ssize;
   UInt tsize;
+  UInt sysize;
   Term tgoal = Deref(ARG1);
   Term tdetach = Deref(ARG5);
+  Term texit = Deref(ARG6);
   Term x2 = Deref(ARG2);
   Term x3 = Deref(ARG3);
-  int new_worker_id = IntegerOfTerm(Deref(ARG6));
+  Term x4 = Deref(ARG4);
+  int new_worker_id = IntegerOfTerm(Deref(ARG7));
   
   //  fprintf(stderr," %d --> %d\n", worker_id, new_worker_id); 
   if (IsBigIntTerm(x2))
@@ -236,13 +247,14 @@ p_create_thread(void)
     return FALSE;
   ssize = IntegerOfTerm(x2);
   tsize = IntegerOfTerm(x3);
+  sysize = IntegerOfTerm(x4);
   /*  UInt systemsize = IntegerOfTerm(Deref(ARG4)); */
   if (new_worker_id == -1) {
     /* YAP ERROR */
     return FALSE;
   }
   /* make sure we can proceed */
-  if (!init_thread_engine(new_worker_id, ssize, tsize, tgoal, tdetach))
+  if (!init_thread_engine(new_worker_id, ssize, tsize, sysize, tgoal, tdetach, texit))
     return FALSE;
   ThreadHandle[new_worker_id].id = new_worker_id;
   ThreadHandle[new_worker_id].ref_count = 1;
@@ -352,7 +364,7 @@ Yap_thread_create_engine(thread_attr *ops)
     /* YAP ERROR */
     return FALSE;
   }
-  if (!init_thread_engine(new_id, ops->ssize, ops->tsize, TermNil, TermNil))
+  if (!init_thread_engine(new_id, ops->ssize, ops->tsize, ops->sysize, TermNil, TermNil, ops->egoal))
     return FALSE;
   ThreadHandle[new_id].id = new_id;
   ThreadHandle[new_id].handle = pthread_self();
@@ -658,6 +670,57 @@ p_cond_wait(void)
   return TRUE;
 }
 
+static Int 
+p_thread_stacks(void)
+{				/* '$thread_signal'(+P)	 */
+  Int tid = IntegerOfTerm(Deref(ARG1));
+  Int status= TRUE;
+
+  LOCK(ThreadHandlesLock);
+  if (!ThreadHandle[tid].in_use &&
+      !ThreadHandle[tid].zombie) {
+    UNLOCK(ThreadHandlesLock);
+    return FALSE;
+  }
+  status &= Yap_unify(ARG2,MkIntegerTerm(ThreadHandle[tid].ssize));
+  status &= Yap_unify(ARG3,MkIntegerTerm(ThreadHandle[tid].tsize));
+  status &= Yap_unify(ARG4,MkIntegerTerm(ThreadHandle[tid].sysize));
+  UNLOCK(ThreadHandlesLock);
+  return status;
+}
+
+static Int 
+p_thread_atexit(void)
+{				/* '$thread_signal'(+P)	 */
+  Term t;
+
+  if (ThreadHandle[worker_id].texit->Entry == MkAtomTerm(AtomTrue)) {
+    return FALSE;
+  }
+  do {
+    t = Yap_FetchTermFromDB(ThreadHandle[worker_id].texit);
+    if (t == 0) {
+      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  thread_die(worker_id, FALSE);
+	  return FALSE;
+	}
+      } else {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growstack(ThreadHandle[worker_id].tgoal->NOfCells*CellSize)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  thread_die(worker_id, FALSE);
+	  return FALSE;
+	}
+      }
+    }
+  } while (t == 0);
+  return Yap_unify(ARG1, t) && Yap_unify(ARG2, ThreadHandle[worker_id].texit_mod);
+}
+
+
 
 static Int 
 p_thread_signal(void)
@@ -747,7 +810,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$max_workers", 1, p_max_workers, HiddenPredFlag);
   Yap_InitCPred("$max_threads", 1, p_max_threads, HiddenPredFlag);
   Yap_InitCPred("$thread_new_tid", 1, p_thread_new_tid, HiddenPredFlag);
-  Yap_InitCPred("$create_thread", 6, p_create_thread, HiddenPredFlag);
+  Yap_InitCPred("$create_thread", 7, p_create_thread, HiddenPredFlag);
   Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_status_lock", 1, p_thread_status_lock, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_status_unlock", 1, p_thread_status_unlock, SafePredFlag|HiddenPredFlag);
@@ -771,12 +834,14 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$cond_signal", 1, p_cond_signal, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$cond_broadcast", 1, p_cond_broadcast, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$cond_wait", 2, p_cond_wait, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$thread_stacks", 4, p_thread_stacks, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$signal_thread", 1, p_thread_signal, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$nof_threads", 1, p_nof_threads, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$nof_threads_created", 1, p_nof_threads_created, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_sleep", 4, p_thread_sleep, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_self_lock", 1, p_thread_self_lock, SafePredFlag);
+  Yap_InitCPred("$thread_run_at_exit", 2, p_thread_atexit, SafePredFlag);
   Yap_InitCPred("$thread_unlock", 1, p_thread_unlock, SafePredFlag);
 }
 
@@ -838,6 +903,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$max_threads", 1, p_max_threads, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$nof_threads", 1, p_nof_threads, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$nof_threads_created", 1, p_nof_threads_created, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$thread_stacks", 4, p_thread_stacks, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$thread_unlock", 1, p_thread_unlock, SafePredFlag);
 }
