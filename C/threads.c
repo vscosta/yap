@@ -479,7 +479,20 @@ p_thread_detach(void)
 static Int
 p_thread_detached(void)
 {
-  return Yap_unify(ARG1,ThreadHandle[worker_id].tdetach);
+  if (ThreadHandle[worker_id].tdetach)
+    return Yap_unify(ARG1,ThreadHandle[worker_id].tdetach);
+  else
+    return FALSE;
+}
+
+static Int
+p_thread_detached2(void)
+{
+  Int tid = IntegerOfTerm(Deref(ARG1));
+  if (ThreadHandle[tid].tdetach)
+    return Yap_unify(ARG2,ThreadHandle[tid].tdetach);
+  else
+    return FALSE;
 }
 
 static Int
@@ -820,6 +833,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("thread_yield", 0, p_thread_yield, 0);
   Yap_InitCPred("$detach_thread", 1, p_thread_detach, HiddenPredFlag);
   Yap_InitCPred("$thread_detached", 1, p_thread_detached, HiddenPredFlag);
+  Yap_InitCPred("$thread_detached", 2, p_thread_detached2, HiddenPredFlag);
   Yap_InitCPred("$thread_exit", 0, p_thread_exit, HiddenPredFlag);
   Yap_InitCPred("thread_setconcurrency", 2, p_thread_set_concurrency, 0);
   Yap_InitCPred("$valid_thread", 1, p_valid_thread, HiddenPredFlag);

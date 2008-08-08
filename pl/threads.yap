@@ -807,12 +807,24 @@ thread_property(Prop) :-
 thread_property(Id, Prop) :-
 	(	nonvar(Id) ->
 		'$check_thread_or_alias'(Id, thread_property(Id, Prop))
-	;	'$thread_stacks'(Id, _, _, _)
+	;	'$enumerate_threads'(Id)
 	),
 	'$check_thread_property'(Prop, thread_property(Id, Prop)),
 	'$thread_id_alias'(Id0, Id),
 	'$thread_property'(Id0, Prop).
 
+'$enumerate_threads'(Id) :-
+	'$max_threads'(Max),
+	Max1 is Max-1,
+	'$between'(0,Max1,Id),
+	'$thread_stacks'(Id, _, _, _).
+
+'$between'(I,_,I).
+'$between'(I0,I,J) :-
+	I0 < I, 
+	I1 is I0+1,
+	'$between'(I1,I,J).
+	
 '$thread_property'(Id, alias(Alias)) :-
 	recorded('$thread_alias', [Id|Alias], _).
 '$thread_property'(Id, status(Status)) :-
@@ -822,7 +834,7 @@ thread_property(Id, Prop) :-
 	;	Status = running
 	).
 '$thread_property'(Id, detached(Detached)) :-
-	'$thread_detached'(Detached).
+	'$thread_detached'(Id,Detached).
 '$thread_property'(Id, at_exit(M:G)) :-
 	'$thread_run_at_exit'(G,M).
 '$thread_property'(Id, InfoSize) :-
@@ -837,7 +849,7 @@ threads :-
 	format(user_error,'------------------------------------------------------------------------~n',[]),
 	format(user_error, '~t~a~48+~n', 'Thread  Detached  Status'),
 	format(user_error,'------------------------------------------------------------------------~n',[]),
-	'$thread_property'(Id, detached(Detached)),
+	thread_property(Id, detached(Detached)),
 	'$thread_property'(Id, status(Status)),
 	'$thread_id_alias'(Id, Alias),
 	format(user_error,'~t~q~30+~33|~w~42|~q~n', [Alias, Detached, Status]),
