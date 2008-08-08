@@ -1837,11 +1837,13 @@ new_lu_db_entry(Term t, PredEntry *pe)
 #if defined(YAPOR) || defined(THREADS)
   //  INIT_LOCK(cl->ClLock);
   INIT_CLREF_COUNT(cl);
-#endif
+  ipc->opc = Yap_opcode(_copy_idb_term);
+#else
   if (needs_vars)
     ipc->opc = Yap_opcode(_copy_idb_term);
   else
     ipc->opc = Yap_opcode(_unify_idb_term);
+#endif
 
   return cl;
 }
@@ -5036,6 +5038,44 @@ p_enqueue(void)
   return TRUE;
 }
 
+static Int 
+p_enqueue_unlocked(void)
+{
+  Term Father = Deref(ARG1);
+  Term t;
+  QueueEntry *x;
+  db_queue *father_key;
+
+  if (IsVarTerm(Father)) {
+    Yap_Error(INSTANTIATION_ERROR, Father, "enqueue");
+    return FALSE;
+  } else if (!IsIntegerTerm(Father)) {
+    Yap_Error(TYPE_ERROR_INTEGER, Father, "enqueue");
+    return FALSE;
+  } else
+    father_key = (db_queue *)IntegerOfTerm(Father);
+  while ((x = (QueueEntry *)AllocDBSpace(sizeof(QueueEntry))) == NULL) {
+    if (!Yap_growheap(FALSE, sizeof(QueueEntry), NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "in findall");
+      return FALSE;
+    }
+  }
+  /* Yap_LUClauseSpace += sizeof(QueueEntry); */
+  t = Deref(ARG1);
+  x->DBT = StoreTermInDB(Deref(ARG2), 2);
+  if (x->DBT == NULL) {
+    return FALSE;
+  }
+  x->next = NULL;
+  if (father_key->LastInQueue != NULL)
+    father_key->LastInQueue->next = x;
+  father_key->LastInQueue = x;
+  if (father_key->FirstInQueue == NULL) {
+    father_key->FirstInQueue = x;
+  }
+  return TRUE;
+}
+
 /* when reading an entry in the data base we are making it accessible from
    the outside. If the entry was removed, and this was the last pointer, the
    target entry would be immediately removed, leading to dangling pointers.
@@ -5119,6 +5159,108 @@ p_dequeue(void)
     return Yap_unify(ARG2, TDB);
   }
 }
+
+
+static Int 
+p_dequeue_unlocked(void)
+{
+  db_queue *father_key;
+  QueueEntry *cur_instance, *prev_instance;
+  Term Father = Deref(ARG1);
+
+  if (IsVarTerm(Father)) {
+    Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
+    return FALSE;
+  } else if (!IsIntegerTerm(Father)) {
+    Yap_Error(TYPE_ERROR_INTEGER, Father, "dequeue");
+    return FALSE;
+  } else
+    father_key = (db_queue *)IntegerOfTerm(Father);
+  prev_instance = NULL;
+  cur_instance = father_key->FirstInQueue;
+  while (cur_instance) {
+    Term TDB;
+    while ((TDB = GetDBTerm(cur_instance->DBT)) == 0L) {
+      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      } else {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_gcl(Yap_Error_Size, 2, YENV, P)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      }
+    }
+    if (Yap_unify(ARG2, TDB)) {
+      if (prev_instance)  {
+	prev_instance->next = cur_instance->next;
+	if (father_key->LastInQueue == cur_instance)
+	  father_key->LastInQueue = prev_instance;
+      } else if (cur_instance == father_key->LastInQueue)
+	father_key->FirstInQueue = father_key->LastInQueue = NULL;
+      else
+	father_key->FirstInQueue = cur_instance->next;
+      /* release space for cur_instance */
+      keepdbrefs(cur_instance->DBT);
+      ErasePendingRefs(cur_instance->DBT);
+      FreeDBSpace((char *) cur_instance->DBT);
+      FreeDBSpace((char *) cur_instance);
+      return TRUE;
+    } else {
+      prev_instance = cur_instance;
+      cur_instance = cur_instance->next;
+    }
+  }
+  /* an empty queue automatically goes away */
+  return FALSE;
+}
+
+static Int 
+p_peek_queue(void)
+{
+  db_queue *father_key;
+  QueueEntry *cur_instance;
+  Term Father = Deref(ARG1);
+
+  if (IsVarTerm(Father)) {
+    Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
+    return FALSE;
+  } else if (!IsIntegerTerm(Father)) {
+    Yap_Error(TYPE_ERROR_INTEGER, Father, "dequeue");
+    return FALSE;
+  } else
+    father_key = (db_queue *)IntegerOfTerm(Father);
+  cur_instance = father_key->FirstInQueue;
+  while (cur_instance) {
+    Term TDB;
+    while ((TDB = GetDBTerm(cur_instance->DBT)) == 0L) {
+      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      } else {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_gcl(Yap_Error_Size, 2, YENV, P)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      }
+    }
+    if (Yap_unify(ARG2, TDB)) {
+      return TRUE;
+    }
+    cur_instance = cur_instance->next;
+  }
+  return FALSE;
+}
+
+
 
 static Int
 p_clean_queues(void)
@@ -5205,7 +5347,8 @@ static void
 ReleaseTermFromDB(DBTerm *ref)
 {
   keepdbrefs(ref);
-  FreeDBSpace((char *)ref);
+  ErasePendingRefs(ref);
+  FreeDBSpace((char *) ref);
 }
 
 void 
@@ -5282,7 +5425,10 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("$init_db_queue", 1, p_init_queue, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$db_key", 2, p_db_key, HiddenPredFlag);
   Yap_InitCPred("$db_enqueue", 2, p_enqueue, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$db_enqueue_unlocked", 2, p_enqueue_unlocked, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$db_dequeue", 2, p_dequeue, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$db_dequeue_unlocked", 2, p_dequeue_unlocked, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$db_peek_queue", 2, p_peek_queue, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$db_clean_queues", 1, p_clean_queues, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$switch_log_upd", 1, p_slu, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$log_upd", 1, p_lu, SafePredFlag|SyncPredFlag|HiddenPredFlag);

@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.40 2008-03-25 22:03:13 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.41 2008-08-08 14:05:34 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -763,7 +763,7 @@ EXTERN inline void restore_B(void) {
    when we come from a longjmp */
 #if PUSH_REGS
 /* In this case we need to initialise the abstract registers */
-REGSTORE Yap_standard_regs;
+extern REGSTORE Yap_standard_regs;
 #endif /* PUSH_REGS */
 
 /******************* controlling debugging ****************************/

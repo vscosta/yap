@@ -186,6 +186,7 @@ typedef struct dbterm_list {
 #define INIT_CLREF_COUNT(X) (X)->ClRefCount = 0
 #define  INC_CLREF_COUNT(X) (X)->ClRefCount++
 #define  DEC_CLREF_COUNT(X) (X)->ClRefCount--
+
 #define        CL_IN_USE(X) ((X)->ClRefCount)
 #else
 #define INIT_CLREF_COUNT(X)

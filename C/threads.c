@@ -136,7 +136,6 @@ kill_thread_engine (int wid, int always_die)
 static void
 thread_die(int wid, int always_die)
 {
-
   if (!always_die) {
     /* called by thread itself */
     ThreadsTotalTime += Yap_cputime();
@@ -200,7 +199,7 @@ thread_run(void *widp)
       }
     }
   } while (t == 0);
-  free(ThreadHandle[myworker_id].tgoal);
+  Yap_ReleaseTermFromDB(ThreadHandle[myworker_id].tgoal);
   ThreadHandle[myworker_id].tgoal = NULL;
   tgs[1] = ThreadHandle[worker_id].tdetach;
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
@@ -488,6 +487,7 @@ p_thread_exit(void)
 {
   thread_die(worker_id, FALSE); 
   pthread_exit(NULL);
+  /* done, just make gcc happy */
   return TRUE;
 }
 

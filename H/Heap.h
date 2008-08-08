@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.135 2008-08-07 20:51:23 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.136 2008-08-08 14:05:34 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -584,7 +584,7 @@ typedef struct various_codes {
 } all_heap_codes;
 
 #ifdef USE_SYSTEM_MALLOC
-struct various_codes *Yap_heap_regs;
+extern struct various_codes *Yap_heap_regs;
 #else
 #define Yap_heap_regs  ((all_heap_codes *)HEAP_INIT_BASE)
 #endif
