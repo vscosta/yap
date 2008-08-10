@@ -592,6 +592,10 @@ print(Stream,T) :-
 print(_,_).
 
 
+format(T) :-
+	format(T, []).
+
+
 /* interface to user portray	*/
 '$portray'(T) :-
 	\+ '$undefined'(portray(_),user),
