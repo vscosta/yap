@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2008-08-07 20:51:16 $							 *
+* Last rev:     $Date: 2008-08-12 01:27:22 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.103  2008/08/07 20:51:16  vsc
+* more threadin  fixes
+*
 * Revision 1.102  2008/07/11 17:02:07  vsc
 * fixes by Bart and Tom: mostly libraries but nasty one in indexing
 * compilation.
@@ -3119,7 +3122,8 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 #if defined(THREADS) || defined(YAPOR)
      else
        if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
-	   !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag))
+	   !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag) &&
+	   !clinfo.alloc_found)
 	 code_p = a_e(_unlock_lu, code_p, pass_no);
 #endif
       code_p = a_pl(_procceed, cip->CurrentPred, code_p, pass_no);
@@ -3218,7 +3222,8 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 #if defined(THREADS) || defined(YAPOR)
      else
        if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
-	   !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag))
+	   !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag) &&
+	  !clinfo.alloc_found)
 	code_p = a_e(_unlock_lu, code_p, pass_no);
 #endif
       code_p = a_pl(_procceed, cip->CurrentPred, code_p, pass_no);
@@ -3229,7 +3234,8 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case execute_op:
 #if defined(THREADS) || defined(YAPOR)
       if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
-	  !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag))
+	  !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag) &&
+	  !clinfo.alloc_found)
 	code_p = a_e(_unlock_lu, code_p, pass_no);
 #endif
       code_p = a_p(_execute, &clinfo, code_p, pass_no, cip);

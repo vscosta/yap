@@ -3757,6 +3757,16 @@ Hyperbolic arc cosine.
 @item atanh(@var{X})
 Hyperbolic arc tangent.
 
+@item lgamma(@var{X}) [ISO]
+gamma function.
+
+@item random(@var{X}) [ISO]
+An integer random number between 0 and @var{X}.
+
+In @code{iso} language mode the argument must be a floating
+point-number, the result is an integer and it the float is equidistant
+it is rounded up, that is, to the least integer greater than @var{X}.
+
 @item integer(@var{X})
 If @var{X} evaluates to a float, the integer between the value of @var{X}
 and 0 closest to the value of @var{X}, else if @var{X} evaluates to an

@@ -1,4 +1,4 @@
-/*	$Id: jpl.c,v 1.16 2008-05-10 23:24:12 vsc Exp $
+/*	$Id: jpl.c,v 1.17 2008-08-12 01:27:22 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -1798,6 +1798,8 @@ jni_create_jvm_c(
  /* opt[optn++].optionString = "-Xcheck:jni";    // extra checking of JNI calls */
 #if __YAP_PROLOG__
     opt[optn++].optionString = "-Xmx1512m";    // give java enough space
+    opt[optn++].optionString = "-Djava.awt.headless=true";    // 
+    //    opt[optn++].optionString = "-XstartOnFirstThread";    // 
 #endif
  /* opt[optn++].optionString = "-Xnoclassgc";    // so method/field IDs remain valid (?) */
  /* opt[optn].optionString = "vfprintf"; */
@@ -1827,7 +1829,7 @@ jni_create_jvm_c(
 	? 2				    /* success (JVM already available) */
 	: ( (r=JNI_CreateJavaVM(&jvm,(void**)&env,&vm_args)) == 0
 	  ? 0				    /* success (JVM created OK) */
-	  : ( jvm=NULL, r)		    /* -ve, i.e. some create error */
+	    : ( jvm=NULL, r)		    /* -ve, i.e. some create error */
 	  )
 	);
     }
@@ -1857,7 +1859,7 @@ jni_create_jvm(
 	? 1				    /* already initialised */
 	: ( (r1=jni_create_jvm_c(cp)) < 0
 	    ? r1				    /* err code from JVM-specific routine */
-	  : ( (r2=jni_init()) < 0
+	    :  ( (r2=jni_init()) < 0
 	    ? r2			    /* err code from jni_init() */
 	    : ( r1 == 0			    /* success code from JVM-specific routine */
 	      ? ( DEBUG(0, Sdprintf("[JPL: Java VM created]\n")), r1)

@@ -1966,6 +1966,52 @@ p_sign(Term t E_ARGS)
   }
 }
 
+/*
+  unary negation is \
+*/
+static E_FUNC
+p_random(Term t E_ARGS)
+{
+  Functor f = AritFunctorOfTerm(t);
+  union arith_ret v;
+  blob_type bt;
+
+  switch (BlobOfFunctor(f)) {
+  case long_int_e:
+    RINT(Yap_random()*IntegerOfTerm(t));
+  case double_e:
+    Yap_Error(TYPE_ERROR_INTEGER, t, "random(%f)", FloatOfTerm(t));
+    P = (yamop *)FAILCODE;
+    RERROR();
+#ifdef USE_GMP
+    Yap_Error(TYPE_ERROR_INTEGER, t, "random(%f)", FloatOfTerm(t));
+    P = (yamop *)FAILCODE;
+    RERROR();
+#endif
+  default:
+    /* we've got a full term, need to evaluate it first */
+    bt = Yap_Eval(t, &v);
+    /* second case, no need no evaluation */
+    switch (bt) {
+    case long_int_e:
+      RINT(Yap_random()*v.Int);
+    case double_e:
+      Yap_Error(TYPE_ERROR_INTEGER, t, "random(%f)", v.dbl);
+      P = (yamop *)FAILCODE;
+      RERROR();
+#ifdef USE_GMP
+    case big_int_e:
+      Yap_Error(TYPE_ERROR_INTEGER, t, "random(%f)", FloatOfTerm(t));
+      P = (yamop *)FAILCODE;
+      RERROR();
+#endif
+    default:
+      /* Yap_Error */
+      RERROR();
+    }
+  }
+}
+
 static InitUnEntry InitUnTab[] = {
   {"+", p_uplus},
   {"-", p_uminus},
@@ -1998,6 +2044,7 @@ static InitUnEntry InitUnTab[] = {
   {"float_integer_part", p_fintp},
   {"sign", p_sign},
   {"lgamma", p_lgamma},
+  {"random", p_random},
 };
 
 static Int 

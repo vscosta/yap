@@ -172,9 +172,9 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	      UNLOCK(entryref->lock);
 	    }
 	    *ptf++ = d0;  /* you can just copy other extensions. */
-	  }
+	  } else
 #endif
-	  else if (!share) {
+	  if (!share) {
 	    UInt sz;
 
 	    *ptf++ = AbsAppl(H);  /* you can just copy other extensions. */
@@ -2105,9 +2105,9 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("ground", 1, p_ground, SafePredFlag);
   Yap_InitCPred("$variables_in_term", 3, p_variables_in_term, HiddenPredFlag);
   Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, SafePredFlag|HiddenPredFlag);
-  CurrentModule = TERMS_MODULE;
   Yap_InitCPred("term_variables", 2, p_term_variables, 0);
   Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
+  CurrentModule = TERMS_MODULE;
   Yap_InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
   Yap_InitCPred("term_hash", 4, GvNTermHash, SafePredFlag);
   Yap_InitCPred("variant", 2, p_variant, 0);

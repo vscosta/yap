@@ -855,3 +855,9 @@ nb_current(GlobalVariable, Val) :-
 nb_current(GlobalVariable, Val) :-
 	nb_getval(GlobalVariable, Val).
 
+
+between(I,_,I).
+between(I0,I,J) :- I0 < I, 
+	I1 is I0+1,
+	between(I1,I,J).
+

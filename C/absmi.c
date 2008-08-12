@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2008-08-07 20:51:15 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-08-12 01:27:22 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.245  2008/08/07 20:51:15  vsc
+* more threadin  fixes
+*
 * Revision 1.244  2008/08/06 23:05:49  vsc
 * fix debugging info
 *
@@ -489,6 +492,15 @@
 
 #ifdef CUT_C
 #include "cut_c.h"
+#endif
+
+#ifdef PUSH_X
+#else
+
+/* keep X as a global variable */
+
+Term Yap_XREGS[MaxTemps];	/* 29                                     */
+
 #endif
 
 inline static Functor

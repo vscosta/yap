@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.41 2008-08-08 14:05:34 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.42 2008-08-12 01:27:22 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -157,7 +157,7 @@ extern REGSTORE *Yap_regp;
 
 /* keep X as a global variable */
 
-Term Yap_XREGS[MaxTemps];	/* 29                                     */
+extern Term Yap_XREGS[MaxTemps];	/* 29                                     */
 
 #define XREGS Yap_XREGS
 

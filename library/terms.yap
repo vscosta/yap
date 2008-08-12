@@ -18,8 +18,6 @@
 :- module(terms, [
 	term_hash/2,
 	term_hash/4,
-	term_variables/2,
-	term_variables/3,
 	variant/2,
 	unifiable/3,
 	subsumes/2,

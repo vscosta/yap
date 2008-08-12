@@ -25,7 +25,8 @@
 
 :- use_module(library(system),
 	      [datime/1,
-	       mktime/2]).
+	       mktime/2,
+	       sleep/1]).
 
 :- use_module(library(arg),
 	      [genarg/3]).
@@ -248,10 +249,10 @@ prolog:read_clause(X,Y) :-
 
 prolog:string(_) :- fail.
 
-prolog:between(I,_,I).
-prolog:between(I0,I,J) :- I0 < I, 
-	I1 is I0+1,
-	prolog:between(I1,I,J).
+slp(T) :- sleep(T).
+
+prolog:sleep(T) :-
+	slp(T).
 
 % SWI has a dynamic attribute scheme
 
@@ -322,83 +323,19 @@ prolog:source_location(File,Line) :-
 	prolog_load_context(term_position, '$stream_position'(_,Line,_)).
 
 % copied from SWI lists library.
-prolog:intersection([], _, []) :- !.
-prolog:intersection([X|T], L, Intersect) :-
+lists:intersection([], _, []) :- !.
+lists:intersection([X|T], L, Intersect) :-
 	memberchk(X, L), !, 
 	Intersect = [X|R], 
-	prolog:intersection(T, L, R).
-prolog:intersection([_|T], L, R) :-
-	prolog:intersection(T, L, R).
+	lists:intersection(T, L, R).
+lists:intersection([_|T], L, R) :-
+	lists:intersection(T, L, R).
 
 
 :- op(700, xfx, '=@=').
 
 prolog:(Term1 =@= Term2) :-
 	variant(Term1, Term2), !.
-
-% copied from SWI's boot/apply library
-:- module_transparent
-	prolog:maplist/2, 
-	maplist2/2, 
-	prolog:maplist/3, 
-	maplist2/3, 
-	prolog:maplist/4, 
-	maplist2/4, 
-	prolog:maplist/5, 
-	maplist2/5.
-
-%	maplist(:Goal, +List)
-%
-%	True if Goal can succesfully be applied on all elements of List.
-%	Arguments are reordered to gain performance as well as to make
-%	the predicate deterministic under normal circumstances.
-
-prolog:maplist(Goal, List) :-
-	maplist2(List, Goal).
-
-maplist2([], _).
-maplist2([Elem|Tail], Goal) :-
-	call(Goal, Elem), 
-	maplist2(Tail, Goal).
-
-%	maplist(:Goal, ?List1, ?List2)
-%
-%	True if Goal can succesfully be applied to all succesive pairs
-%	of elements of List1 and List2.
-
-prolog:maplist(Goal, List1, List2) :-
-	maplist2(List1, List2, Goal).
-
-maplist2([], [], _).
-maplist2([Elem1|Tail1], [Elem2|Tail2], Goal) :-
-	call(Goal, Elem1, Elem2), 
-	maplist2(Tail1, Tail2, Goal).
-
-%	maplist(:Goal, ?List1, ?List2, ?List3)
-%
-%	True if Goal can succesfully be applied to all succesive triples
-%	of elements of List1..List3.
-
-prolog:maplist(Goal, List1, List2, List3) :-
-	maplist2(List1, List2, List3, Goal).
-
-maplist2([], [], [], _).
-maplist2([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], Goal) :-
-	call(Goal, Elem1, Elem2, Elem3), 
-	maplist2(Tail1, Tail2, Tail3, Goal).
-
-%	maplist(:Goal, ?List1, ?List2, ?List3, List4)
-%
-%	True if Goal  can  succesfully  be   applied  to  all  succesive
-%	quadruples of elements of List1..List4
-
-prolog:maplist(Goal, List1, List2, List3, List4) :-
-	maplist2(List1, List2, List3, List4, Goal).
-
-maplist2([], [], [], [], _).
-maplist2([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], [Elem4|Tail4], Goal) :-
-	call(Goal, Elem1, Elem2, Elem3, Elem4), 
-	maplist2(Tail1, Tail2, Tail3, Tail4, Goal).
 
 % copied from SWI's boot/apply library
 :- module_transparent
@@ -473,6 +410,7 @@ prolog:compile_aux_clauses([Cl|Cls]) :-
 	prolog_load_context(module, M),
 	assert_static(M:Cl),
 	prolog:compile_aux_clauses(Cls).
+
 
 %
 % convert from SWI's goal expansion to YAP/SICStus old style goal
