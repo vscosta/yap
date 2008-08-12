@@ -689,6 +689,7 @@ CPLINT_CFLAGS
 CPLINT_LDFLAGS
 CPLINT_SHLIB_LD
 ENABLE_CPLINT
+EXTEND_DYNLOADER_PATH
 M4
 M4GENHDRS
 INSTALL_DLLS
@@ -3095,7 +3096,6 @@ if test "${with_max_threads+set}" = set; then
 else
   yap_cv_max_threads="1024"
 fi
-
 
 
 if test "$tabling" = yes -o "$orparallelism" = yes -o "$threads" = yes
@@ -7124,10 +7124,14 @@ then
   YAP_EXTRAS="$SHLIB_CFLAGS $YAP_EXTRAS"
   CROSS_SIMULATOR="LD_LIBRARY_PATH=."
   case "$target_os" in
+  *cygwin*!*mingw32*)
+    EXTEND_DYNLOADER_PATH=""
+    ;;
   *darwin*)
     DYNYAPLIB=libYap"$SHLIB_SUFFIX"
     YAPLIB="$DYNYAPLIB"
     DYNLIB_LD="gcc -dynamiclib"
+    EXTEND_DYNLOADER_PATH="DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR)/Yap YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
     ;;
   *)
        case "$target_cpu" in
@@ -7141,6 +7145,7 @@ then
         JAVA_TARGET=sparc
         ;;
        esac
+    EXTEND_DYNLOADER_PATH="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(DESTDIR)$(LIBDIR): YAPSHAREDIR=$(DESTDIR)$(SHAREDIR)"
     LDFLAGS="$LDFLAGS -Wl,-R,$prefix/lib  -Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET"
     DYNYAPLIB=libYap"$SHLIB_SUFFIX"
     YAPLIB="$DYNYAPLIB"
@@ -7148,6 +7153,7 @@ then
     ;;
   esac
 else
+  EXTEND_DYNLOADER_PATH="YAPSHAREDIR=$(DESTDIR)$(SHAREDIR)"
   DYNYAPLIB=libYap.notused
 fi
 
@@ -7519,6 +7525,7 @@ fi
 else
 	ENABLE_CPLINT="#"
 fi
+
 
 
 # LAM
@@ -16902,6 +16909,7 @@ CPLINT_CFLAGS!$CPLINT_CFLAGS$ac_delim
 CPLINT_LDFLAGS!$CPLINT_LDFLAGS$ac_delim
 CPLINT_SHLIB_LD!$CPLINT_SHLIB_LD$ac_delim
 ENABLE_CPLINT!$ENABLE_CPLINT$ac_delim
+EXTEND_DYNLOADER_PATH!$EXTEND_DYNLOADER_PATH$ac_delim
 M4!$M4$ac_delim
 M4GENHDRS!$M4GENHDRS$ac_delim
 INSTALL_DLLS!$INSTALL_DLLS$ac_delim
@@ -16922,7 +16930,6 @@ JAVAC!$JAVAC$ac_delim
 JAR!$JAR$ac_delim
 IN_UNIX!$IN_UNIX$ac_delim
 YAPMPILIB!$YAPMPILIB$ac_delim
-LAM_MPI_CC!$LAM_MPI_CC$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -16964,6 +16971,7 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+LAM_MPI_CC!$LAM_MPI_CC$ac_delim
 MPI_OBJS!$MPI_OBJS$ac_delim
 MPI_LIBS!$MPI_LIBS$ac_delim
 INSTALL_COMMAND!$INSTALL_COMMAND$ac_delim
@@ -16982,7 +16990,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 16; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 17; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

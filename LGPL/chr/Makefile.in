@@ -8,18 +8,15 @@ EROOTDIR = @exec_prefix@
 
 srcdir=@srcdir@
 
+BINDIR = $(EROOTDIR)/bin
+LIBDIR=$(EROOTDIR)/lib
+YAPLIBDIR=$(EROOTDIR)/lib/Yap
+SHAREDIR=$(ROOTDIR)/share
+
 SHELL=@SHELL@
-PLBASE=@PLBASE@
-PLARCH=@PLARCH@
-PL=LD_LIBRARY_PATH=system YAPSHAREDIR=`pwd`/../../library ../../yap ../../startup
-XPCEBASE=$(PLBASE)/xpce
-PKGDOC=$(PLBASE)/doc/packages
-PCEHOME=../../xpce
-LIBDIR=$(PLBASE)/library
-SHAREDIR=$(ROOTDIR)/share/Yap
+PL=@EXTEND_DYNLOADER_PATH@ $(DESTDIR)$(BINDIR)/yap $(DESTDIR)$(YAPLIBDIR)/startup 
 CHRDIR=$(SHAREDIR)/chr
 EXDIR=$(CHRDIR)/examples/chr
-DESTDIR=
 LN_S=@LN_S@
 
 DOCTOTEX=$(PCEHOME)/bin/doc2tex

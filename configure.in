@@ -261,7 +261,6 @@ AC_ARG_WITH(max-threads,
 	fi,
 	[yap_cv_max_threads="1024"])
 
-
 if test "$tabling" = yes -o "$orparallelism" = yes -o "$threads" = yes
 then
   AC_DEFINE(MinHeapSpace, (1000*SIZEOF_INT_P))
@@ -854,10 +853,14 @@ then
   YAP_EXTRAS="$SHLIB_CFLAGS $YAP_EXTRAS"
   CROSS_SIMULATOR="LD_LIBRARY_PATH=."
   case "$target_os" in
+  *cygwin*!*mingw32*)
+    EXTEND_DYNLOADER_PATH=""
+    ;;
   *darwin*)
     DYNYAPLIB=libYap"$SHLIB_SUFFIX"
     YAPLIB="$DYNYAPLIB"
     DYNLIB_LD="gcc -dynamiclib"
+    EXTEND_DYNLOADER_PATH="DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR)/Yap YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
     ;;
   *)
        case "$target_cpu" in
@@ -871,6 +874,7 @@ then
         JAVA_TARGET=sparc
         ;;
        esac
+    EXTEND_DYNLOADER_PATH="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(DESTDIR)$(LIBDIR): YAPSHAREDIR=$(DESTDIR)$(SHAREDIR)"
     LDFLAGS="$LDFLAGS -Wl,-R,$prefix/lib  -Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET"
     DYNYAPLIB=libYap"$SHLIB_SUFFIX"
     YAPLIB="$DYNYAPLIB"
@@ -878,6 +882,7 @@ then
     ;;
   esac
 else
+  EXTEND_DYNLOADER_PATH="YAPSHAREDIR=$(DESTDIR)$(SHAREDIR)"
   DYNYAPLIB=libYap.notused
 fi
 
@@ -992,6 +997,7 @@ else
 	ENABLE_CPLINT="#"
 fi
 AC_SUBST(ENABLE_CPLINT)
+AC_SUBST(EXTEND_DYNLOADER_PATH)
 
 # LAM
 OLD_CC=${CC}	
