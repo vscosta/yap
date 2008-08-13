@@ -10,8 +10,14 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2008-08-12 01:27:22 $,$Author: vsc $						 *
+* Last rev:     $Date: 2008-08-13 01:16:26 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.246  2008/08/12 01:27:22  vsc
+* MaxOS fixes
+* Avoid a thread deadlock
+* improvements to SWI predicates.
+* make variables_in_term system builtin.
+*
 * Revision 1.245  2008/08/07 20:51:15  vsc
 * more threadin  fixes
 *
@@ -13806,8 +13812,8 @@ Yap_absmi(int inp)
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	LOCK(SignalLock);
-	UNLOCK(SignalLock);
 	if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+	  UNLOCK(SignalLock);
 	  saveregs_and_ycache();
 	  if (!Yap_growheap(FALSE, 0, NULL)) {
 	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
@@ -13818,12 +13824,13 @@ Yap_absmi(int inp)
 	  LOCK(SignalLock);
 	  ActiveSignals &= ~YAP_CDOVF_SIGNAL;
 	  CreepFlag = CalculateStackGap();
-	  UNLOCK(SignalLock);
 	  if (!ActiveSignals) {
+	    UNLOCK(SignalLock);
 	    goto execute_after_comma;
 	  }
 	}
 	if (ActiveSignals & YAP_TROVF_SIGNAL) {
+	  UNLOCK(SignalLock);
 #ifdef SHADOW_S
 	  S = SREG;
 #endif
@@ -13837,17 +13844,20 @@ Yap_absmi(int inp)
 	  LOCK(SignalLock);
 	  ActiveSignals &= ~YAP_TROVF_SIGNAL;
 	  CreepFlag = CalculateStackGap();
-	  UNLOCK(SignalLock);
 	  if (!ActiveSignals) {
+	    UNLOCK(SignalLock);
 	    goto execute_after_comma;
 	  }
 	}
 	if (ActiveSignals) {
 	  if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+	    UNLOCK(SignalLock);
 	    goto noheapleft;
 	  }
+	  UNLOCK(SignalLock);
 	  goto creep;
 	}
+	UNLOCK(SignalLock);
 	saveregs();
 	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sla))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);

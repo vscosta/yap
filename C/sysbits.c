@@ -2529,36 +2529,57 @@ p_first_signal(void)
      non-backtrackable variable bad */
   if (ActiveSignals & YAP_WAKEUP_SIGNAL) {
     ActiveSignals &= ~YAP_WAKEUP_SIGNAL;
+#ifdef THREADS
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_wake_up")));
   }
   if (ActiveSignals & YAP_ITI_SIGNAL) {
     ActiveSignals &= ~YAP_ITI_SIGNAL;
+#ifdef THREADS
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_iti")));
   }
   if (ActiveSignals & YAP_INT_SIGNAL) {
     ActiveSignals &= ~YAP_INT_SIGNAL;
+#ifdef THREADS
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_int")));
   }
   if (ActiveSignals & YAP_USR2_SIGNAL) {
     ActiveSignals &= ~YAP_USR2_SIGNAL;
+#ifdef THREADS
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_usr2")));
   }
   if (ActiveSignals & YAP_USR1_SIGNAL) {
     ActiveSignals &= ~YAP_USR1_SIGNAL;
+#ifdef THREADS
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_usr1")));
   }
   if (ActiveSignals & YAP_PIPE_SIGNAL) {
     ActiveSignals &= ~YAP_PIPE_SIGNAL;
+#ifdef THREADS
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_pipe")));
   }
   if (ActiveSignals & YAP_HUP_SIGNAL) {
     ActiveSignals &= ~YAP_HUP_SIGNAL;
+#ifdef THREADS
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_hup")));
   }
@@ -2569,43 +2590,64 @@ p_first_signal(void)
   }
   if (ActiveSignals & YAP_DELAY_CREEP_SIGNAL) {
     ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+#ifdef THREADS
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_delay_creep")));
   }
   if (ActiveSignals & YAP_CREEP_SIGNAL) {
     ActiveSignals &= ~YAP_CREEP_SIGNAL;
+#ifdef THREADS
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_creep")));
   }
   if (ActiveSignals & YAP_TRACE_SIGNAL) {
     ActiveSignals &= ~YAP_TRACE_SIGNAL;
+#ifdef THREADS
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_trace")));
   }
   if (ActiveSignals & YAP_DEBUG_SIGNAL) {
     ActiveSignals &= ~YAP_DEBUG_SIGNAL;
+#ifdef THREADS
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_debug")));
   }
   if (ActiveSignals & YAP_BREAK_SIGNAL) {
     ActiveSignals &= ~YAP_BREAK_SIGNAL;
+#ifdef THREADS
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_break")));
   }
   if (ActiveSignals & YAP_STACK_DUMP_SIGNAL) {
     ActiveSignals &= ~YAP_STACK_DUMP_SIGNAL;
+#ifdef THREADS
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_stack_dump")));
   }
   if (ActiveSignals & YAP_STATISTICS_SIGNAL) {
     ActiveSignals &= ~YAP_STATISTICS_SIGNAL;
+#ifdef THREADS
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+#endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_statistics")));
   }
-  UNLOCK(SignalLock);
 #ifdef THREADS
-  pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
+  UNLOCK(SignalLock);
   return FALSE;
 }
 
