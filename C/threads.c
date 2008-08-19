@@ -897,6 +897,7 @@ p_thread_self(void)
   return Yap_unify(ARG1,MkIntTerm(0));
 }
 
+static Int
 p_thread_stacks(void)
 {				/* '$thread_runtime'(+P)	 */
   return FALSE;
