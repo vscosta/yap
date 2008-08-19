@@ -288,11 +288,7 @@ unix_upd_stream_info (StreamDesc * s)
 #if _MSC_VER  || defined(__MINGW32__)
   {
     if (
-#ifdef __MINGW32__
-	TRUE  /* we cannot trust _isatty in MINGW */
-#else
 	_isatty(_fileno(s->u.file.file))
-#endif
 	) {
       s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
       /* make all console descriptors unbuffered */
@@ -1310,7 +1306,7 @@ static int
 ConsoleSocketGetc(int sno)
 {
   register StreamDesc *s = &Stream[sno];
-  register int ch;
+  int ch;
   Int c;
   int count;
 
@@ -1327,7 +1323,7 @@ ConsoleSocketGetc(int sno)
   /* should be able to use a buffer */
   Yap_PrologMode |= ConsoleGetcMode;
 #if _MSC_VER || defined(__MINGW32__)
-  count = recv(s->u.socket.fd, &c, sizeof(char), 0);
+  count = recv(s->u.socket.fd, (void *)&c, sizeof(char), 0);
 #else
   count = read(s->u.socket.fd, &c, sizeof(char));
 #endif

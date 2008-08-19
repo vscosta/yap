@@ -24,6 +24,11 @@
 #include <gmp.h>
 #endif
 
+#ifdef __WIN32__
+/* Windows */
+#include <fcntl.h>
+#endif
+
 #define BUF_SIZE 256
 #define TMP_BUF_SIZE 2*BUF_SIZE
 #define BUF_RINGS 16
