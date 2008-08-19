@@ -7812,7 +7812,8 @@ Yap_absmi(int inp)
 	PredEntry *pe = PredFromDefCode(PREG);
 	BEGD(d0);
 	/* avoid trouble with undefined dynamic procedures */
-	if (pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)) {
+	if ((pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)) ||
+	    (UndefCode->OpcodeOfPred == UNDEF_OPCODE)) {
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
 #endif
