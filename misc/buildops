@@ -1,0 +1,68 @@
+
+:- use_module(library(lineutils),
+	[process/2,
+	 split/3]).
+
+:- initialization(main).
+
+main :-
+	open('H/YapOpcodes.h',write,W),
+	header(W),
+	file('C/absmi.c',W),
+	format(W, '#ifdef YAPOR~n',[]),
+	file('OPTYap/or.insts.i',W),
+	format(W, '#endif~n',[]),
+	format(W, '#ifdef TABLING~n',[]),
+	file('OPTYap/tab.insts.i',W),
+	file('OPTYap/tab.tries.insts.i',W),
+	format(W, '#endif~n',[]),
+	footer(W),
+	close(W).
+
+header(W) :-
+	format(W,'~n  /* This file was generated automatically by \"yap -L misc/buildops\"~n     please do not update */~n~n',[]).
+
+
+file(I,W) :-
+	open(I,read,R),
+	process(R,grep_opcode(W)),
+	close(R).
+
+grep_opcode(W, Line) :-
+	split(Line," 	,();",[OP,Name,Type]),
+	Name \= "or_last",
+	check_op(OP),
+	special(Name,W),
+	format(W,'  OPCODE(~s~36+,~s),~n',[Name,Type]),
+	end_special(Name,W).
+
+check_op("Op").
+check_op("BOp").
+check_op("PBOp").
+check_op("OpRW").
+check_op("OpW").
+
+special(Name, W) :-
+	special_op(Name, Decl), !,
+	format(W,"#ifdef ~s~n",[Decl]).
+special(_, _).
+
+end_special(Name, W) :-
+	special_op(Name, _), !,
+	format(W,"#endif~n",[]).
+end_special(_, _).
+
+special_op("cut_c","CUT_C").
+special_op("cut_userc","CUT_C").
+special_op("run_eam","BEAM").
+special_op("retry_eam","BEAM").
+special_op("thread_local","THREADS").
+
+/* or_last requires special handling */
+footer(W) :-
+	format(W,'  /* this instruction is hardwired */~n',[]),
+	format(W,'#ifdef YAPOR~n',[]),
+	format(W,'  OPCODE(~s~36+,~s)~n',["or_last","sblp"]),
+	format(W,'#else~n',[]),
+	format(W,'  OPCODE(~s~36+,~s)~n',["or_last","p"]),
+	format(W,'#endif~n',[]).
