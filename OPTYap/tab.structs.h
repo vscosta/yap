@@ -88,7 +88,7 @@ typedef struct subgoal_trie_node {
 typedef struct answer_trie_node {
   OPCODE trie_instruction;  /* u.opc */
 #ifdef YAPOR
-  int or_arg;               /* u.ld.or_arg */
+  int or_arg;               /* u.apl.or_arg */
 #endif /* YAPOR */
   Term entry;
 #ifdef TABLE_LOCK_AT_NODE_LEVEL
@@ -182,8 +182,8 @@ typedef struct subgoal_frame {
 #define SgFr_gen_worker(X)     ((X)->generator_worker)
 #define SgFr_gen_top_or_fr(X)  ((X)->top_or_frame_on_generator_branch)
 #define SgFr_code(X)           ((X)->code_of_subgoal)
-#define SgFr_tab_ent(X)        (((X)->code_of_subgoal)->u.ld.te)
-#define SgFr_arity(X)          (((X)->code_of_subgoal)->u.ld.s)
+#define SgFr_tab_ent(X)        (((X)->code_of_subgoal)->u.apl.te)
+#define SgFr_arity(X)          (((X)->code_of_subgoal)->u.apl.s)
 #define SgFr_state(X)          ((X)->state_flag)
 #define SgFr_gen_cp(X)         ((X)->generator_choice_point)
 #define SgFr_hash_chain(X)     ((X)->hash_chain)

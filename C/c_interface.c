@@ -515,8 +515,8 @@ dogc(void)
 {
   UInt arity;
 
-  if (P && PREVOP(P,sla)->opc == Yap_opcode(_call_usercpred)) {
-    arity = PREVOP(P,sla)->u.sla.sla_u.p->ArityOfPE;
+  if (P && PREVOP(P,sbpp)->opc == Yap_opcode(_call_usercpred)) {
+    arity = PREVOP(P,sbpp)->u.sbpp.p->ArityOfPE;
   } else {
     arity = 0;
   }
@@ -531,8 +531,8 @@ doexpand(UInt sz)
 {
   UInt arity;
 
-  if (P && PREVOP(P,sla)->opc == Yap_opcode(_call_usercpred)) {
-    arity = PREVOP(P,sla)->u.sla.sla_u.p->ArityOfPE;
+  if (P && PREVOP(P,sbpp)->opc == Yap_opcode(_call_usercpred)) {
+    arity = PREVOP(P,sbpp)->u.sbpp.p->ArityOfPE;
   } else {
     arity = 0;
   }
@@ -950,7 +950,7 @@ YAP_ExtraSpaceCut(void)
   void *ptr;
   BACKUP_B();
 
-  ptr = (void *)(((CELL *)(Yap_REGS.CUT_C_TOP))-(((yamop *)Yap_REGS.CUT_C_TOP->try_userc_cut_yamop)->u.lds.extra));
+  ptr = (void *)(((CELL *)(Yap_REGS.CUT_C_TOP))-(((yamop *)Yap_REGS.CUT_C_TOP->try_userc_cut_yamop)->u.apFs.extra));
 
   RECOVER_B();
   return(ptr);
@@ -965,7 +965,7 @@ YAP_ExtraSpace(void)
   BACKUP_H();
 
   /* find a pointer to extra space allocable */
-  ptr = (void *)((CELL *)(B+1)+P->u.lds.s);
+  ptr = (void *)((CELL *)(B+1)+P->u.apFs.s);
   B->cp_h = H;
 
   RECOVER_H();

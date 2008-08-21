@@ -897,7 +897,7 @@ Yap_absmi(int inp)
 *        Plain try - retry - trust instructions                  *
 *****************************************************************/
       /* try_me    Label,NArgs */
-      Op(try_me, ld);
+      Op(try_me, apl);
       /* check if enough space between trail and codespace */
       check_trail(TR);
       /* I use YREG =to go through the choicepoint. Usually YREG =is in a
@@ -905,9 +905,9 @@ Yap_absmi(int inp)
        * new register to point at YREG =*/
       CACHE_Y(YREG);
       /* store arguments for procedure */
-      store_at_least_one_arg(PREG->u.ld.s);
+      store_at_least_one_arg(PREG->u.apl.s);
       /* store abstract machine registers */
-      store_yaam_regs(PREG->u.ld.d, 0);
+      store_yaam_regs(PREG->u.apl.d, 0);
       /* On a try_me, set cut to point at previous choicepoint,
        * that is, to the B before the cut.
        */
@@ -919,17 +919,17 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = NEXTOP(PREG, ld);
+      PREG = NEXTOP(PREG, apl);
       GONext();
       ENDOp();
 
       /* retry_me    Label,NArgs */
-      Op(retry_me, ld);
+      Op(retry_me, apl);
       CACHE_Y(B);
       /* After retry, cut should be pointing at the parent
        * choicepoint for the current B */
-      restore_yaam_regs(PREG->u.ld.d);
-      restore_at_least_one_arg(PREG->u.ld.s);
+      restore_yaam_regs(PREG->u.apl.d);
+      restore_at_least_one_arg(PREG->u.apl.s);
 #ifdef FROZEN_STACKS
       S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
@@ -938,17 +938,17 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = NEXTOP(PREG, ld);
+      PREG = NEXTOP(PREG, apl);
       GONext();
       ENDOp();
 
       /* trust_me    UnusedLabel,NArgs */
-      Op(trust_me, ld);
+      Op(trust_me, apl);
       CACHE_Y(B);
 #ifdef YAPOR
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_YREG);
-	restore_at_least_one_arg(PREG->u.ld.s);
+	restore_at_least_one_arg(PREG->u.apl.s);
 #ifdef FROZEN_STACKS
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
@@ -958,7 +958,7 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
       {
 	pop_yaam_regs();
-	pop_at_least_one_arg(PREG->u.ld.s);
+	pop_at_least_one_arg(PREG->u.apl.s);
 	/* After trust, cut should be pointing at the new top
 	 * choicepoint */
 #ifdef FROZEN_STACKS
@@ -966,7 +966,7 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B);
       }
-      PREG = NEXTOP(PREG, ld);
+      PREG = NEXTOP(PREG, apl);
       SET_BB(B_YREG);
       ENDCACHE_Y();
       GONext();
@@ -1007,15 +1007,15 @@ Yap_absmi(int inp)
       ENDOp();
 
       /* profiled_retry_me    Label,NArgs */
-      Op(profiled_retry_me, ld);
+      Op(profiled_retry_me, apl);
       CACHE_Y(B);
       /* After retry, cut should be pointing at the parent
        * choicepoint for the current B */
-      LOCK(PREG->u.ld.p->StatisticsForPred.lock);
-      PREG->u.ld.p->StatisticsForPred.NOfRetries++;
-      UNLOCK(PREG->u.ld.p->StatisticsForPred.lock);
-      restore_yaam_regs(PREG->u.ld.d);
-      restore_args(PREG->u.ld.s);
+      LOCK(PREG->u.apl.p->StatisticsForPred.lock);
+      PREG->u.apl.p->StatisticsForPred.NOfRetries++;
+      UNLOCK(PREG->u.apl.p->StatisticsForPred.lock);
+      restore_yaam_regs(PREG->u.apl.d);
+      restore_args(PREG->u.apl.s);
 #ifdef FROZEN_STACKS
       S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
@@ -1024,17 +1024,17 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = NEXTOP(PREG, ld);
+      PREG = NEXTOP(PREG, apl);
       GONext();
       ENDOp();
 
       /* profiled_trust_me    UnusedLabel,NArgs */
-      Op(profiled_trust_me, ld);
+      Op(profiled_trust_me, apl);
       CACHE_Y(B);
 #ifdef YAPOR
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_YREG);
-	restore_args(PREG->u.ld.s);
+	restore_args(PREG->u.apl.s);
 #ifdef FROZEN_STACKS
         S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
@@ -1044,7 +1044,7 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
       {
 	pop_yaam_regs();
-	pop_args(PREG->u.ld.s);
+	pop_args(PREG->u.apl.s);
 	/* After trust, cut should be pointing at the new top
 	 * choicepoint */
 #ifdef FROZEN_STACKS
@@ -1054,31 +1054,31 @@ Yap_absmi(int inp)
       }
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      LOCK(PREG->u.ld.p->StatisticsForPred.lock);
-      PREG->u.ld.p->StatisticsForPred.NOfRetries++;
-      UNLOCK(PREG->u.ld.p->StatisticsForPred.lock);
-      PREG = NEXTOP(PREG, ld);
+      LOCK(PREG->u.apl.p->StatisticsForPred.lock);
+      PREG->u.apl.p->StatisticsForPred.NOfRetries++;
+      UNLOCK(PREG->u.apl.p->StatisticsForPred.lock);
+      PREG = NEXTOP(PREG, apl);
       GONext();
       ENDOp();
 
-      BOp(profiled_retry_logical, lld);
+      BOp(profiled_retry_logical, aLl);
       check_trail(TR);
       {
 	UInt timestamp;
 	CACHE_Y(B);
       
-	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.lld.t.s]);
-	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
+	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.aLl.s]);
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.aLl.d)) {
 	  /* jump to next instruction */
-	  PREG=PREG->u.lld.n;
+	  PREG=PREG->u.aLl.n;
 	  JMPNext();
 	}
-	restore_yaam_regs(PREG->u.lld.n);
-	restore_args(PREG->u.lld.t.s);
-	LOCK(PREG->u.lld.d->ClPred->StatisticsForPred.lock);
-	PREG->u.lld.d->ClPred->StatisticsForPred.NOfRetries++;
-	UNLOCK(PREG->u.lld.d->ClPred->StatisticsForPred.lock);
-	PREG = PREG->u.lld.d->ClCode;
+	restore_yaam_regs(PREG->u.aLl.n);
+	restore_args(PREG->u.aLl.s);
+	LOCK(PREG->u.aLl.d->ClPred->StatisticsForPred.lock);
+	PREG->u.aLl.d->ClPred->StatisticsForPred.NOfRetries++;
+	UNLOCK(PREG->u.aLl.d->ClPred->StatisticsForPred.lock);
+	PREG = PREG->u.aLl.d->ClCode;
 #ifdef FROZEN_STACKS
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 	set_cut(S_YREG, B->cp_b);
@@ -1091,12 +1091,12 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(profiled_trust_logical, ld);
+      BOp(profiled_trust_logical, ILl);
       CACHE_Y(B);
       {
-	LogUpdIndex *cl = PREG->u.lld.t.block;
+	LogUpdIndex *cl = PREG->u.ILl.block;
 	PredEntry *ap = cl->ClPred;
-	LogUpdClause *lcl = PREG->u.lld.d;
+	LogUpdClause *lcl = PREG->u.ILl.d;
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
 	if (!VALID_TIMESTAMP(timestamp, lcl)) {
@@ -1272,13 +1272,13 @@ Yap_absmi(int inp)
       ENDOp();
 
       /* count_retry_me    Label,NArgs */
-      Op(count_retry_me, ld);
+      Op(count_retry_me, apl);
       CACHE_Y(B);
       /* After retry, cut should be pointing at the parent
        * choicepoint for the current B */
-      LOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
+      LOCK(((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.lock);
+      ((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.lock);
       RetriesCounter--;
       if (RetriesCounter == 0 && RetriesCounterOn) {
 	saveregs();
@@ -1293,8 +1293,8 @@ Yap_absmi(int inp)
 	setregs();
 	JMPNext();
       } 
-      restore_yaam_regs(PREG->u.ld.d);
-      restore_args(PREG->u.ld.s);
+      restore_yaam_regs(PREG->u.apl.d);
+      restore_args(PREG->u.apl.s);
 #ifdef FROZEN_STACKS
       S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
@@ -1303,17 +1303,17 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = NEXTOP(PREG, ld);
+      PREG = NEXTOP(PREG, apl);
       GONext();
       ENDOp();
 
       /* count_trust_me    UnusedLabel,NArgs */
-      Op(count_trust_me, ld);
+      Op(count_trust_me, apl);
       CACHE_Y(B);
 #ifdef YAPOR
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_YREG);
-	restore_args(PREG->u.ld.s);
+	restore_args(PREG->u.apl.s);
 #ifdef FROZEN_STACKS
         S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
@@ -1323,7 +1323,7 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
       {
 	pop_yaam_regs();
-	pop_args(PREG->u.ld.s);
+	pop_args(PREG->u.apl.s);
 	/* After trust, cut should be pointing at the new top
 	 * choicepoint */
 #ifdef FROZEN_STACKS
@@ -1347,27 +1347,27 @@ Yap_absmi(int inp)
 	setregs();
 	JMPNext();
       } 
-      LOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
-      PREG = NEXTOP(PREG, ld);
+      LOCK(((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.lock);
+      ((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.lock);
+      PREG = NEXTOP(PREG, apl);
       GONext();
       ENDOp();
 
-      BOp(count_retry_logical, lld);
+      BOp(count_retry_logical, aLl);
       check_trail(TR);
       {
 	UInt timestamp;
 	CACHE_Y(B);
       
-	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.lld.t.s]);
-	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
+	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.aLl.s]);
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.aLl.d)) {
 	  /* jump to next instruction */
-	  PREG=PREG->u.lld.n;
+	  PREG=PREG->u.aLl.n;
 	  JMPNext();
 	}
-	restore_yaam_regs(PREG->u.lld.n);
-	restore_args(PREG->u.lld.t.s);
+	restore_yaam_regs(PREG->u.aLl.n);
+	restore_args(PREG->u.aLl.s);
 	RetriesCounter--;
 	if (RetriesCounter == 0) {
 	  saveregs();
@@ -1382,10 +1382,10 @@ Yap_absmi(int inp)
 	  setregs();
 	  JMPNext();
 	} 
-	LOCK(PREG->u.lld.d->ClPred->StatisticsForPred.lock);
-	PREG->u.lld.d->ClPred->StatisticsForPred.NOfRetries++;
-	UNLOCK(PREG->u.lld.d->ClPred->StatisticsForPred.lock);
-	PREG = PREG->u.lld.d->ClCode;
+	LOCK(PREG->u.aLl.d->ClPred->StatisticsForPred.lock);
+	PREG->u.aLl.d->ClPred->StatisticsForPred.NOfRetries++;
+	UNLOCK(PREG->u.aLl.d->ClPred->StatisticsForPred.lock);
+	PREG = PREG->u.aLl.d->ClCode;
 #ifdef FROZEN_STACKS
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 	set_cut(S_YREG, B->cp_b);
@@ -1398,12 +1398,12 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(count_trust_logical, ld);
+      BOp(count_trust_logical, ILl);
       CACHE_Y(B);
       {
-	LogUpdIndex *cl = PREG->u.lld.t.block;
+	LogUpdIndex *cl = PREG->u.ILl.block;
 	PredEntry *ap = cl->ClPred;
-	LogUpdClause *lcl = PREG->u.lld.d;
+	LogUpdClause *lcl = PREG->u.ILl.d;
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
 	if (!VALID_TIMESTAMP(timestamp, lcl)) {
@@ -1548,14 +1548,14 @@ Yap_absmi(int inp)
  
 
       /* enter logical pred               */
-      BOp(alloc_for_logical_pred, EC);
+      BOp(alloc_for_logical_pred, L);
       check_trail(TR); 
       /* say that an environment is using this clause */
       /* we have our own copy for the clause */
 #if defined(YAPOR) || defined(THREADS)
       {
-	LogUpdClause *cl = PREG->u.EC.ClBase;
-	PredEntry *ap = PREG->u.EC.p;
+	LogUpdClause *cl = PREG->u.L.ClBase;
+	PredEntry *ap = cl->ClPred;
 
 	/* always add an extra reference */
 	INC_CLREF_COUNT(cl);
@@ -1565,18 +1565,14 @@ Yap_absmi(int inp)
       }
 #else
       {
-	LogUpdClause *cl = (LogUpdClause *)PREG->u.EC.ClBase;
+	LogUpdClause *cl = (LogUpdClause *)PREG->u.L.ClBase;
 	if (!(cl->ClFlags & InUseMask)) {
-	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
-
-	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)Yap_TrailBase;
-	  PREG->u.EC.ClENV = LCL0-YENV;*/
 	  cl->ClFlags |= InUseMask;
 	  TRAIL_CLREF(cl);
 	}
       }
 #endif
-      PREG = NEXTOP(PREG, EC);
+      PREG = NEXTOP(PREG, L);
       GONext();
       ENDBOp();
 
@@ -1712,48 +1708,48 @@ Yap_absmi(int inp)
 *****************************************************************/
 
       /* spy_or_trymark                   */
-      BOp(spy_or_trymark, ld);
-      LOCK(((PredEntry *)(PREG->u.ld.p))->PELock);
-      PREG = (yamop *)(&(((PredEntry *)(PREG->u.ld.p))->OpcodeOfPred));
-      UNLOCK(((PredEntry *)(PREG->u.ld.p))->PELock);
+      BOp(spy_or_trymark, apl);
+      LOCK(((PredEntry *)(PREG->u.apl.p))->PELock);
+      PREG = (yamop *)(&(((PredEntry *)(PREG->u.apl.p))->OpcodeOfPred));
+      UNLOCK(((PredEntry *)(PREG->u.apl.p))->PELock);
       goto dospy;
       ENDBOp();
 
       /* try_and_mark   Label,NArgs       */
-      BOp(try_and_mark, ld);
+      BOp(try_and_mark, apl);
       check_trail(TR);
 #if defined(YAPOR) || defined(THREADS)
 #ifdef YAPOR
       /* The flags I check here should never change during execution */
       CUT_wait_leftmost();
 #endif /* YAPOR */
-      if (PREG->u.ld.p->PredFlags & LogUpdatePredFlag) {
-	LOCK(PREG->u.ld.p->PELock);
-	PP = PREG->u.ld.p;
+      if (PREG->u.apl.p->PredFlags & LogUpdatePredFlag) {
+	LOCK(PREG->u.apl.p->PELock);
+	PP = PREG->u.apl.p;
       }
-      if (PREG->u.ld.p->CodeOfPred != PREG) {
+      if (PREG->u.apl.p->CodeOfPred != PREG) {
 	/* oops, someone changed the procedure under our feet,
 	   fortunately this is no big deal because we haven't done
 	   anything yet */
 	PP = NULL;
-	PREG = PREG->u.ld.p->CodeOfPred;
-	UNLOCK(PREG->u.ld.p->PELock);
+	PREG = PREG->u.apl.p->CodeOfPred;
+	UNLOCK(PREG->u.apl.p->PELock);
 	/* for profiler */
 	save_pc();
 	JMPNext();
       }
 #endif
       CACHE_Y(YREG);
-      PREG = PREG->u.ld.d;
+      PREG = PREG->u.apl.d;
       /*
 	I've got a read lock on the DB, so I don't need to care...
 	 niaaahh.... niahhhh...
       */
       LOCK(DynamicLock(PREG));
       /* one can now mess around with the predicate */
-      UNLOCK(((PredEntry *)(PREG->u.ld.p))->PELock);
+      UNLOCK(((PredEntry *)(PREG->u.apl.p))->PELock);
       BEGD(d1);
-      d1 = PREG->u.ld.s;
+      d1 = PREG->u.apl.s;
       store_args(d1);
       store_yaam_regs(PREG, 0);
       ENDD(d1);
@@ -1775,12 +1771,12 @@ Yap_absmi(int inp)
 	TRAIL_CLREF(ClauseCodeToDynamicClause(PREG));
       }
 #endif
-      PREG = NEXTOP(PREG,ld);
+      PREG = NEXTOP(PREG,apl);
       JMPNext();
 
       ENDBOp();
 
-      BOp(count_retry_and_mark, ld);
+      BOp(count_retry_and_mark, apl);
       RetriesCounter--;
       if (RetriesCounter == 0) {
 	saveregs();
@@ -1798,26 +1794,26 @@ Yap_absmi(int inp)
       /* enter a retry dynamic */
       ENDBOp();
 
-      BOp(profiled_retry_and_mark, ld);
-      LOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
+      BOp(profiled_retry_and_mark, apl);
+      LOCK(((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.lock);
+      ((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.lock);
       /* enter a retry dynamic */
       ENDBOp();
 
       /* retry_and_mark   Label,NArgs     */
-      BOp(retry_and_mark, ld);
+      BOp(retry_and_mark, apl);
 #ifdef YAPOR
       CUT_wait_leftmost();
 #endif /* YAPOR */
       /* need to make the DB stable until I get the new clause */
-      LOCK(PREG->u.ld.p->PELock);
+      LOCK(PREG->u.apl.p->PELock);
       CACHE_Y(B);
-      PREG = PREG->u.ld.d;
+      PREG = PREG->u.apl.d;
       LOCK(DynamicLock(PREG));
-      UNLOCK(PREG->u.ld.p->PELock);
+      UNLOCK(PREG->u.apl.p->PELock);
       restore_yaam_regs(PREG);
-      restore_args(PREG->u.ld.s);
+      restore_args(PREG->u.apl.s);
 #ifdef FROZEN_STACKS
       S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
@@ -1837,7 +1833,7 @@ Yap_absmi(int inp)
 	TRAIL_CLREF(ClauseCodeToDynamicClause(PREG));
       }
 #endif
-      PREG = NEXTOP(PREG,ld);
+      PREG = NEXTOP(PREG, apl);
       JMPNext();
 
       ENDBOp();
@@ -1963,7 +1959,7 @@ Yap_absmi(int inp)
 		break;
 	      case _retry_c:
 	      case _retry_userc:
-		low_level_trace(retry_pred, ipc->u.lds.p, B->cp_args);
+		low_level_trace(retry_pred, ipc->u.apFs.p, B->cp_args);
 		break;
 	      case _retry_profiled:
 	      case _count_retry:
@@ -1980,7 +1976,7 @@ Yap_absmi(int inp)
 	      case _profiled_retry_and_mark:
 	      case _retry:
 	      case _trust:
-		low_level_trace(retry_pred, ipc->u.ld.p, B->cp_args);
+		low_level_trace(retry_pred, ipc->u.apl.p, B->cp_args);
 		break;
 	      case _try_logical:
 	      case _retry_logical:
@@ -1989,7 +1985,7 @@ Yap_absmi(int inp)
 	      case _trust_logical:
 	      case _profiled_trust_logical:
 	      case _count_trust_logical:
-		low_level_trace(retry_pred, ipc->u.lld.d->ClPred, B->cp_args);
+		low_level_trace(retry_pred, ipc->u.ILl.d->ClPred, B->cp_args);
 		break;
 	      case _Nstop:
 	      case _Ystop:
@@ -2362,7 +2358,7 @@ Yap_absmi(int inp)
     do_commit_b_x:
 #endif
       /* skip a void call and a label */
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, x),sla),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, x),sbpp),l);
       {
 	choiceptr pt0;
 #if defined(SBA) && defined(FROZEN_STACKS)
@@ -2408,7 +2404,7 @@ Yap_absmi(int inp)
       ENDCACHE_Y_AS_ENV();
     do_commit_b_y:
 #endif
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, y),sla),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, y),sbpp),l);
       {
 	choiceptr pt0;
 #if defined(SBA) && defined(FROZEN_STACKS)
@@ -2564,7 +2560,7 @@ Yap_absmi(int inp)
       ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
-      BOp(fcall, sla);
+      BOp(fcall, sbpp);
       CACHE_Y_AS_ENV(YREG);
       ENV_YREG[E_CP] = (CELL) CPREG;
       ENV_YREG[E_E] = (CELL) ENV;
@@ -2574,24 +2570,24 @@ Yap_absmi(int inp)
       ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
-      BOp(call, sla);
+      BOp(call, sbpp);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	low_level_trace(enter_pred,PREG->u.sla.sla_u.p,XREGS+1);
+	low_level_trace(enter_pred,PREG->u.sbpp.p,XREGS+1);
       }
 #endif	/* LOW_LEVEL_TRACER */
       CACHE_Y_AS_ENV(YREG);
       {
 	PredEntry *pt;
-	pt = PREG->u.sla.sla_u.p;
+	pt = PREG->u.sbpp.p;
 	CACHE_A1();
 #ifndef NO_CHECKING
 	check_stack(NoStackCall, H);
 #endif
 	ENV = ENV_YREG;
 	/* Try to preserve the environment */
-	ENV_YREG = (CELL *) (((char *) ENV_YREG) + PREG->u.sla.s);
-	CPREG = NEXTOP(PREG, sla);
+	ENV_YREG = (CELL *) (((char *) ENV_YREG) + PREG->u.sbpp.s);
+	CPREG = NEXTOP(PREG, sbpp);
 	ALWAYS_LOOKAHEAD(pt->OpcodeOfPred);
 	PREG = pt->CodeOfPred;
 	/* for profiler */
@@ -2635,14 +2631,14 @@ Yap_absmi(int inp)
     NoStackCall:
       /* on X86 machines S will not actually be holding the pointer to pred */
       if (ActiveSignals & YAP_CREEP_SIGNAL) {
-	PredEntry *ap = PREG->u.sla.sla_u.p;
+	PredEntry *ap = PREG->u.sbpp.p;
 	if (ap->PredFlags & HiddenPredFlag) {
 	  CACHE_Y_AS_ENV(YREG);
 	  CACHE_A1();
 	  ENV = ENV_YREG;
 	  /* Try to preserve the environment */
-	  ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
-	  CPREG = NEXTOP(PREG, sla);
+	  ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
+	  CPREG = NEXTOP(PREG, sbpp);
 	  ALWAYS_LOOKAHEAD(ap->OpcodeOfPred);
 	  PREG = ap->CodeOfPred;
 	  /* for profiler */
@@ -2676,9 +2672,9 @@ Yap_absmi(int inp)
 	  goto creepc;
 	}
       }
-      SREG = (CELL *) PREG->u.sla.sla_u.p;
+      SREG = (CELL *) PREG->u.sbpp.p;
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
-	ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+	ASP = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	goto noheapleft;
@@ -2686,11 +2682,11 @@ Yap_absmi(int inp)
       if (ActiveSignals) {
 	goto creepc;
       }
-      ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+      ASP = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
       if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
       saveregs();
-      if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, YREG, NEXTOP(PREG, sla))) {
+      if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, YREG, NEXTOP(PREG, sbpp))) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
       }
       setregs();
@@ -2805,7 +2801,7 @@ Yap_absmi(int inp)
       /* find something to fool S */
       SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,1),0));
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
-	ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+	ASP = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	goto noheapleft;
@@ -2813,11 +2809,11 @@ Yap_absmi(int inp)
       if (ActiveSignals) {
 	goto creep_either;
       }
-      ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+      ASP = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
       if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
       saveregs();
-      if (!Yap_gc(0, YREG, NEXTOP(PREG, sla))) {
+      if (!Yap_gc(0, YREG, NEXTOP(PREG, sbpp))) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
       }
       setregs();
@@ -2825,8 +2821,8 @@ Yap_absmi(int inp)
 
     creep_either:			/* do creep in either      */
       ENV = YREG;
-      CPREG = NEXTOP(PREG, sla);
-      YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+      CPREG = NEXTOP(PREG, sbpp);
+      YREG = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -2851,8 +2847,8 @@ Yap_absmi(int inp)
 
     creepc:			/* do creep in call                                     */
       ENV = YREG;
-      CPREG = NEXTOP(PREG, sla);
-      YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+      CPREG = NEXTOP(PREG, sbpp);
+      YREG = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -4016,26 +4012,26 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOpRW();
 
-      OpRW(get_struct, xf);
+      OpRW(get_struct, xfa);
       BEGD(d0);
-      d0 = XREG(PREG->u.xf.x);
+      d0 = XREG(PREG->u.xfa.x);
       deref_head(d0, gstruct_unk);
 
     gstruct_nonvar:
       if (!IsApplTerm(d0))
 	FAIL();
       /* we have met a compound term */
-      START_PREFETCH(xf);
+      START_PREFETCH(xfa);
       CACHE_S();
       S_SREG = RepAppl(d0);
       /* check functor */
-      d0 = (CELL) (PREG->u.xf.f);
+      d0 = (CELL) (PREG->u.xfa.f);
       if (*S_SREG != d0) {
 	FAIL();
       }
       WRITEBACK_S(S_SREG+1);
       ENDCACHE_S();
-      PREG = NEXTOP(PREG, xf);
+      PREG = NEXTOP(PREG, xfa);
       /* enter read mode */
       GONext();
       END_PREFETCH();
@@ -4044,7 +4040,7 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, gstruct_unk, gstruct_nonvar);
       /* Enter Write mode */
       /* set d1 to be the new structure we are going to create */
-      START_PREFETCH_W(xf);
+      START_PREFETCH_W(xfa);
       BEGD(d1);
       d1 = AbsAppl(H);
       BIND(pt0, d1, bind_gstruct);
@@ -4060,10 +4056,10 @@ Yap_absmi(int inp)
       pt0 = H;
       ENDD(d1);
       /* first, put the functor */
-      d0 = (CELL) (PREG->u.xf.f);
+      d0 = (CELL) (PREG->u.xfa.f);
       *pt0++ = d0;
-      H = pt0 + PREG->u.xf.a;
-      PREG = NEXTOP(PREG, xf);
+      H = pt0 + PREG->u.xfa.a;
+      PREG = NEXTOP(PREG, xfa);
       /* set SREG */
       SREG = pt0;
       /* update H */
@@ -5062,13 +5058,6 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      OpW(unify_x_val_write, ox);
-      /* we are in write mode */
-      *SREG++ = XREG(PREG->u.ox.x);
-      PREG = NEXTOP(PREG, ox);
-      GONextW();
-      ENDOpW();
-
       /* We assume the value in X is pointing to an object in the
        * global stack */
       Op(unify_x_val, ox);
@@ -5149,12 +5138,12 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(unify_l_x_val_write, ox);
+      OpW(unify_x_val_write, ox);
       /* we are in write mode */
-      SREG[0] = XREG(PREG->u.ox.x);
+      *SREG++ = XREG(PREG->u.ox.x);
       PREG = NEXTOP(PREG, ox);
-      GONext();
-      ENDOp();
+      GONextW();
+      ENDOpW();
 
       /* We assume the value in X is pointing to an object in the
        * global stack */
@@ -5231,20 +5220,12 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      OpW(unify_y_val_write, oy);
+      Op(unify_l_x_val_write, ox);
       /* we are in write mode */
-      BEGD(d0);
-      d0 = YREG[PREG->u.oy.y];
-#ifdef SBA
-      if (d0 == 0) /* free variable */
-	*SREG++ = (CELL)(YREG+PREG->u.oy.y);
-      else
-#endif
-	*SREG++ = d0;
-      ENDD(d0);
-      PREG = NEXTOP(PREG, oy);
-      GONextW();
-      ENDOpW();
+      SREG[0] = XREG(PREG->u.ox.x);
+      PREG = NEXTOP(PREG, ox);
+      GONext();
+      ENDOp();
 
       /* We assume the value in X is pointing to an object in the
        * global stack */
@@ -5327,20 +5308,20 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(unify_l_y_val_write, oy);
+      OpW(unify_y_val_write, oy);
       /* we are in write mode */
       BEGD(d0);
       d0 = YREG[PREG->u.oy.y];
 #ifdef SBA
-      if (d0 == 0) /* new variable */
-	SREG[0] = (CELL)(YREG+PREG->u.oy.y);
+      if (d0 == 0) /* free variable */
+	*SREG++ = (CELL)(YREG+PREG->u.oy.y);
       else
 #endif
-	SREG[0] = d0;
+	*SREG++ = d0;
       ENDD(d0);
       PREG = NEXTOP(PREG, oy);
-      GONext();
-      ENDOp();
+      GONextW();
+      ENDOpW();
 
       /* We assume the value in X is pointing to an object in the
        * global stack */
@@ -5421,39 +5402,20 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      OpW(unify_x_loc_write, ox);
+      Op(unify_l_y_val_write, oy);
       /* we are in write mode */
       BEGD(d0);
-      d0 = XREG(PREG->u.ox.x);
-      deref_head(d0, unify_x_loc_unk);
-    unify_x_loc_nonvar:
-      *SREG++ = d0;
-      PREG = NEXTOP(PREG, ox);
-      GONextW();
-
-      BEGP(pt0);
-      deref_body(d0, pt0, unify_x_loc_unk, unify_x_loc_nonvar);
-      /* move ahead in the instructions */
-      PREG = NEXTOP(PREG, ox);
-      /* d0 is a variable, check whether we need to globalise it */
-      if (pt0 < H) {
-	/* variable is global */
-	*SREG++ = Unsigned(pt0);
-	GONextW();
-      }
-      else {
-	/* bind our variable to the structure */
-	CACHE_S();
-	READ_IN_S();
-	Bind_Local(pt0, Unsigned(S_SREG));
-	RESET_VARIABLE(S_SREG);
-	WRITEBACK_S(S_SREG+1);
-	ENDCACHE_S();
-	GONextW();
-      }
-      ENDP(pt0);
+      d0 = YREG[PREG->u.oy.y];
+#ifdef SBA
+      if (d0 == 0) /* new variable */
+	SREG[0] = (CELL)(YREG+PREG->u.oy.y);
+      else
+#endif
+	SREG[0] = d0;
       ENDD(d0);
-      ENDOpW();
+      PREG = NEXTOP(PREG, oy);
+      GONext();
+      ENDOp();
 
       /* In the next instructions, we do not know anything about
        * what is in X */
@@ -5537,30 +5499,35 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(unify_l_x_loc_write, ox);
+      OpW(unify_x_loc_write, ox);
       /* we are in write mode */
       BEGD(d0);
       d0 = XREG(PREG->u.ox.x);
-      deref_head(d0, ulnify_x_loc_unk);
-    ulnify_x_loc_nonvar:
-      SREG[0] = d0;
+      deref_head(d0, unify_x_loc_unk);
+    unify_x_loc_nonvar:
+      *SREG++ = d0;
       PREG = NEXTOP(PREG, ox);
-      GONext();
+      GONextW();
 
       BEGP(pt0);
-      deref_body(d0, pt0, ulnify_x_loc_unk, ulnify_x_loc_nonvar);
-      /* d0 is a variable, check whether we need to globalise it */
+      deref_body(d0, pt0, unify_x_loc_unk, unify_x_loc_nonvar);
+      /* move ahead in the instructions */
       PREG = NEXTOP(PREG, ox);
+      /* d0 is a variable, check whether we need to globalise it */
       if (pt0 < H) {
 	/* variable is global */
-	SREG[0] = Unsigned(pt0);
-	GONext();
+	*SREG++ = Unsigned(pt0);
+	GONextW();
       }
       else {
-	/* create a new Heap variable and bind our variable to it */
-	Bind_Local(pt0, Unsigned(SREG));
-	RESET_VARIABLE(SREG);
-	GONext();
+	/* bind our variable to the structure */
+	CACHE_S();
+	READ_IN_S();
+	Bind_Local(pt0, Unsigned(S_SREG));
+	RESET_VARIABLE(S_SREG);
+	WRITEBACK_S(S_SREG+1);
+	ENDCACHE_S();
+	GONextW();
       }
       ENDP(pt0);
       ENDD(d0);
@@ -5639,35 +5606,30 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      OpW(unify_y_loc_write, oy);
+      Op(unify_l_x_loc_write, ox);
       /* we are in write mode */
       BEGD(d0);
-      BEGP(pt0);
-      pt0 = YREG+PREG->u.oy.y;
-      d0 = *pt0;
-      deref_head(d0, unify_y_loc_unk);
-    unify_y_loc_nonvar:
-      *SREG++ = d0;
-      PREG = NEXTOP(PREG, oy);
-      GONextW();
+      d0 = XREG(PREG->u.ox.x);
+      deref_head(d0, ulnify_x_loc_unk);
+    ulnify_x_loc_nonvar:
+      SREG[0] = d0;
+      PREG = NEXTOP(PREG, ox);
+      GONext();
 
-      derefa_body(d0, pt0, unify_y_loc_unk, unify_y_loc_nonvar);
+      BEGP(pt0);
+      deref_body(d0, pt0, ulnify_x_loc_unk, ulnify_x_loc_nonvar);
       /* d0 is a variable, check whether we need to globalise it */
-      PREG = NEXTOP(PREG, oy);
+      PREG = NEXTOP(PREG, ox);
       if (pt0 < H) {
 	/* variable is global */
-	*SREG++ = Unsigned(pt0);
-	GONextW();
+	SREG[0] = Unsigned(pt0);
+	GONext();
       }
       else {
 	/* create a new Heap variable and bind our variable to it */
-	CACHE_S();
-	READ_IN_S();
-	Bind_Local(pt0, Unsigned(S_SREG));
-	RESET_VARIABLE(S_SREG);
-	WRITEBACK_S(S_SREG+1);
-	ENDCACHE_S();
-	GONextW();
+	Bind_Local(pt0, Unsigned(SREG));
+	RESET_VARIABLE(SREG);
+	GONext();
       }
       ENDP(pt0);
       ENDD(d0);
@@ -5755,25 +5717,25 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(unify_l_y_loc_write, oy);
+      OpW(unify_y_loc_write, oy);
       /* we are in write mode */
       BEGD(d0);
       BEGP(pt0);
       pt0 = YREG+PREG->u.oy.y;
       d0 = *pt0;
-      deref_head(d0, ulunify_y_loc_unk);
-    ulunify_y_loc_nonvar:
-      SREG[0] = d0;
+      deref_head(d0, unify_y_loc_unk);
+    unify_y_loc_nonvar:
+      *SREG++ = d0;
       PREG = NEXTOP(PREG, oy);
-      GONext();
+      GONextW();
 
-      derefa_body(d0, pt0, ulunify_y_loc_unk, ulunify_y_loc_nonvar);
+      derefa_body(d0, pt0, unify_y_loc_unk, unify_y_loc_nonvar);
       /* d0 is a variable, check whether we need to globalise it */
       PREG = NEXTOP(PREG, oy);
       if (pt0 < H) {
 	/* variable is global */
-	SREG[0] = Unsigned(pt0);
-	GONext();
+	*SREG++ = Unsigned(pt0);
+	GONextW();
       }
       else {
 	/* create a new Heap variable and bind our variable to it */
@@ -5781,12 +5743,13 @@ Yap_absmi(int inp)
 	READ_IN_S();
 	Bind_Local(pt0, Unsigned(S_SREG));
 	RESET_VARIABLE(S_SREG);
+	WRITEBACK_S(S_SREG+1);
 	ENDCACHE_S();
-	GONext();
+	GONextW();
       }
       ENDP(pt0);
       ENDD(d0);
-      ENDOp();
+      ENDOpW();
 
       Op(unify_l_y_loc, oy);
       /* else we are in read mode */
@@ -5866,6 +5829,45 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
+      Op(unify_l_y_loc_write, oy);
+      /* we are in write mode */
+      BEGD(d0);
+      BEGP(pt0);
+      pt0 = YREG+PREG->u.oy.y;
+      d0 = *pt0;
+      deref_head(d0, ulunify_y_loc_unk);
+    ulunify_y_loc_nonvar:
+      SREG[0] = d0;
+      PREG = NEXTOP(PREG, oy);
+      GONext();
+
+      derefa_body(d0, pt0, ulunify_y_loc_unk, ulunify_y_loc_nonvar);
+      /* d0 is a variable, check whether we need to globalise it */
+      PREG = NEXTOP(PREG, oy);
+      if (pt0 < H) {
+	/* variable is global */
+	SREG[0] = Unsigned(pt0);
+	GONext();
+      }
+      else {
+	/* create a new Heap variable and bind our variable to it */
+	CACHE_S();
+	READ_IN_S();
+	Bind_Local(pt0, Unsigned(S_SREG));
+	RESET_VARIABLE(S_SREG);
+	ENDCACHE_S();
+	GONext();
+      }
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(unify_void, o);
+      SREG++;
+      PREG = NEXTOP(PREG, o);
+      GONext();
+      ENDOp();
+
       OpW(unify_void_write, o);
       CACHE_S();
       READ_IN_S();
@@ -5876,8 +5878,7 @@ Yap_absmi(int inp)
       GONextW();
       ENDOpW();
 
-      Op(unify_void, o);
-      SREG++;
+      Op(unify_l_void, o);
       PREG = NEXTOP(PREG, o);
       GONext();
       ENDOp();
@@ -5888,8 +5889,9 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      Op(unify_l_void, o);
-      PREG = NEXTOP(PREG, o);
+      Op(unify_n_voids, os);
+      SREG += PREG->u.os.s;
+      PREG = NEXTOP(PREG, os);
       GONext();
       ENDOp();
 
@@ -5909,8 +5911,7 @@ Yap_absmi(int inp)
       GONextW();
       ENDOpW();
 
-      Op(unify_n_voids, os);
-      SREG += PREG->u.os.s;
+      Op(unify_l_n_voids, os);
       PREG = NEXTOP(PREG, os);
       GONext();
       ENDOp();
@@ -5929,29 +5930,6 @@ Yap_absmi(int inp)
       ENDD(d0);
       GONext();
       ENDOp();
-
-      Op(unify_l_n_voids, os);
-      PREG = NEXTOP(PREG, os);
-      GONext();
-      ENDOp();
-
-      OpW(unify_atom_write, oc);
-      * SREG++ = PREG->u.oc.c;
-      PREG = NEXTOP(PREG, oc);
-      GONextW();
-      ENDOpW();
-
-      OpW(unify_float_write, od);
-      * SREG++ = AbsAppl(PREG->u.od.d);
-      PREG = NEXTOP(PREG, od);
-      GONextW();
-      ENDOpW();
-
-      OpW(unify_longint_write, oi);
-      * SREG++ = AbsAppl(PREG->u.oi.i);
-      PREG = NEXTOP(PREG, oi);
-      GONextW();
-      ENDOpW();
 
       Op(unify_atom, oc);
       BEGD(d0);
@@ -5980,23 +5958,11 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(unify_l_float_write, od);
-      SREG[0] = AbsAppl(PREG->u.od.d);
-      PREG = NEXTOP(PREG, od);
-      GONext();
-      ENDOp();
-
-      Op(unify_l_longint_write, oi);
-      SREG[0] = AbsAppl(PREG->u.oi.i);
-      PREG = NEXTOP(PREG, oi);
-      GONext();
-      ENDOp();
-
-      Op(unify_l_atom_write, oc);
-      SREG[0] = PREG->u.oc.c;
+      OpW(unify_atom_write, oc);
+      * SREG++ = PREG->u.oc.c;
       PREG = NEXTOP(PREG, oc);
-      GONext();
-      ENDOp();
+      GONextW();
+      ENDOpW();
 
       Op(unify_l_atom, oc);
       BEGD(d0);
@@ -6025,23 +5991,11 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      OpW(unify_n_atoms_write, osc);
-      BEGD(d0);
-      BEGD(d1);
-      d0 = PREG->u.osc.s;
-      d1 = PREG->u.osc.c;
-      /* write N atoms */
-      CACHE_S();
-      READ_IN_S();
-      PREG = NEXTOP(PREG, osc);
-      for (; d0 > 0; d0--)
-	*S_SREG++ = d1;
-      WRITEBACK_S(S_SREG);
-      ENDCACHE_S();
-      ENDD(d1);
-      ENDD(d0);
-      GONextW();
-      ENDOpW();
+      Op(unify_l_atom_write, oc);
+      SREG[0] = PREG->u.oc.c;
+      PREG = NEXTOP(PREG, oc);
+      GONext();
+      ENDOp();
 
       Op(unify_n_atoms, osc);
       {
@@ -6077,6 +6031,24 @@ Yap_absmi(int inp)
       PREG = NEXTOP(PREG, osc);
       GONext();
       ENDOp();
+
+      OpW(unify_n_atoms_write, osc);
+      BEGD(d0);
+      BEGD(d1);
+      d0 = PREG->u.osc.s;
+      d1 = PREG->u.osc.c;
+      /* write N atoms */
+      CACHE_S();
+      READ_IN_S();
+      PREG = NEXTOP(PREG, osc);
+      for (; d0 > 0; d0--)
+	*S_SREG++ = d1;
+      WRITEBACK_S(S_SREG);
+      ENDCACHE_S();
+      ENDD(d1);
+      ENDD(d0);
+      GONextW();
+      ENDOpW();
 
       Op(unify_float, od);
       BEGD(d0);
@@ -6126,6 +6098,12 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
+      OpW(unify_float_write, od);
+      * SREG++ = AbsAppl(PREG->u.od.d);
+      PREG = NEXTOP(PREG, od);
+      GONextW();
+      ENDOpW();
+
       Op(unify_l_float, od);
       BEGD(d0);
       CACHE_S();
@@ -6173,6 +6151,12 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
+      Op(unify_l_float_write, od);
+      SREG[0] = AbsAppl(PREG->u.od.d);
+      PREG = NEXTOP(PREG, od);
+      GONext();
+      ENDOp();
+
       Op(unify_longint, oi);
       BEGD(d0);
       BEGP(pt0);
@@ -6216,6 +6200,12 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
+      OpW(unify_longint_write, oi);
+      * SREG++ = AbsAppl(PREG->u.oi.i);
+      PREG = NEXTOP(PREG, oi);
+      GONextW();
+      ENDOpW();
+
       Op(unify_l_longint, oi);
       BEGD(d0);
       CACHE_S();
@@ -6256,6 +6246,12 @@ Yap_absmi(int inp)
       ENDD(d1);
       ENDCACHE_S();
       ENDD(d0);
+      ENDOp();
+
+      Op(unify_l_longint_write, oi);
+      SREG[0] = AbsAppl(PREG->u.oi.i);
+      PREG = NEXTOP(PREG, oi);
+      GONext();
       ENDOp();
 
       Op(unify_bigint, oc);
@@ -6409,24 +6405,6 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      OpW(unify_list_write, o);
-      PREG = NEXTOP(PREG, o);
-      BEGD(d0);
-      d0 = AbsPair(H);
-      CACHE_S();
-      READ_IN_S();
-      SP -= 2;
-      SP[0] = WRITE_MODE;
-      SP[1] = Unsigned(S_SREG + 1);
-      S_SREG[0] = d0;
-      S_SREG = H;
-      H = S_SREG + 2;
-      WRITEBACK_S(S_SREG);
-      ENDCACHE_S();
-      GONextW();
-      ENDD(d0);
-      ENDOpW();
-
       OpRW(unify_list, o);
       *--SP = Unsigned(SREG + 1);
       *--SP = READ_MODE;
@@ -6471,13 +6449,15 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOpRW();
 
-      OpW(unify_l_list_write, o);
-      /* we continue in write mode */
+      OpW(unify_list_write, o);
+      PREG = NEXTOP(PREG, o);
       BEGD(d0);
       d0 = AbsPair(H);
-      PREG = NEXTOP(PREG, o);
       CACHE_S();
       READ_IN_S();
+      SP -= 2;
+      SP[0] = WRITE_MODE;
+      SP[1] = Unsigned(S_SREG + 1);
       S_SREG[0] = d0;
       S_SREG = H;
       H = S_SREG + 2;
@@ -6528,34 +6508,30 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOpRW();
 
-      OpW(unify_struct_write, of);
-      CACHE_S();
-      READ_IN_S();
-      *--SP = Unsigned(S_SREG + 1);
-      *--SP = WRITE_MODE;
+      OpW(unify_l_list_write, o);
       /* we continue in write mode */
       BEGD(d0);
-      d0 = AbsAppl(H);
+      d0 = AbsPair(H);
+      PREG = NEXTOP(PREG, o);
+      CACHE_S();
+      READ_IN_S();
       S_SREG[0] = d0;
       S_SREG = H;
-      d0 = (CELL) (PREG->u.of.f);
-      *S_SREG++ = d0;
-      H = S_SREG + PREG->u.of.a;
-      PREG = NEXTOP(PREG, of);
+      H = S_SREG + 2;
       WRITEBACK_S(S_SREG);
       ENDCACHE_S();
-      ENDD(d0);
       GONextW();
+      ENDD(d0);
       ENDOpW();
 
-      OpRW(unify_struct, of);
+      OpRW(unify_struct, ofa);
       *--SP = Unsigned(SREG + 1);
       *--SP = READ_MODE;
       BEGD(d0);
       BEGP(pt0);
       pt0 = SREG;
       d0 = *pt0;
-      START_PREFETCH(of);
+      START_PREFETCH(ofa);
       deref_head(d0, ustruct_unk);
     ustruct_nonvar:
       /* we are in read mode */
@@ -6567,11 +6543,11 @@ Yap_absmi(int inp)
       /* we continue in read mode */
       S_SREG = RepAppl(d0);
       /* just check functor */
-      d0 = (CELL) (PREG->u.of.f);
+      d0 = (CELL) (PREG->u.ofa.f);
       if (*S_SREG != d0) {
 	FAIL();
       }
-      PREG = NEXTOP(PREG, of);
+      PREG = NEXTOP(PREG, ofa);
       WRITEBACK_S(S_SREG+1);
       ENDCACHE_S();
       GONext();
@@ -6579,7 +6555,7 @@ Yap_absmi(int inp)
 
       derefa_body(d0, pt0, ustruct_unk, ustruct_nonvar);
       /* Enter Write mode */
-      START_PREFETCH_W(of);
+      START_PREFETCH_W(ofa);
       /* set d1 to be the new structure we are going to create */
       BEGD(d1);
       d1 = AbsAppl(H);
@@ -6595,10 +6571,10 @@ Yap_absmi(int inp)
       pt0 = H;
       ENDD(d1);
       /* first, put the functor */
-      d0 = (CELL) (PREG->u.of.f);
+      d0 = (CELL) (PREG->u.ofa.f);
       *pt0++ = d0;
-      H = pt0 + PREG->u.of.a;
-      PREG = NEXTOP(PREG, of);
+      H = pt0 + PREG->u.ofa.a;
+      PREG = NEXTOP(PREG, ofa);
       /* set SREG */
       SREG = pt0;
       /* update H */
@@ -6610,24 +6586,27 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOpRW();
 
-      OpW(unify_l_struc_write, of);
-      BEGD(d0);
-      d0 = AbsAppl(H);
+      OpW(unify_struct_write, ofa);
       CACHE_S();
       READ_IN_S();
+      *--SP = Unsigned(S_SREG + 1);
+      *--SP = WRITE_MODE;
+      /* we continue in write mode */
+      BEGD(d0);
+      d0 = AbsAppl(H);
       S_SREG[0] = d0;
       S_SREG = H;
-      d0 = (CELL) (PREG->u.of.f);
+      d0 = (CELL) (PREG->u.ofa.f);
       *S_SREG++ = d0;
-      H = S_SREG + PREG->u.of.a;
-      PREG = NEXTOP(PREG, of);
+      H = S_SREG + PREG->u.ofa.a;
+      PREG = NEXTOP(PREG, ofa);
       WRITEBACK_S(S_SREG);
       ENDCACHE_S();
       ENDD(d0);
       GONextW();
       ENDOpW();
 
-      OpRW(unify_l_struc, of);
+      OpRW(unify_l_struc, ofa);
       BEGD(d0);
       BEGP(pt0);
       pt0 = SREG;
@@ -6635,25 +6614,25 @@ Yap_absmi(int inp)
       deref_head(d0, ulstruct_unk);
     ulstruct_nonvar:
       /* we are in read mode */
-      START_PREFETCH(of);
+      START_PREFETCH(ofa);
       if (!IsApplTerm(d0)) {
 	FAIL();
       }
       /* we continue in read mode */
       SREG = RepAppl(d0);
       /* just check functor */
-      d0 = (CELL) (PREG->u.of.f);
+      d0 = (CELL) (PREG->u.ofa.f);
       if (*SREG++ != d0) {
 	FAIL();
       }
-      PREG = NEXTOP(PREG, of);
+      PREG = NEXTOP(PREG, ofa);
       GONext();
       END_PREFETCH();
 
       derefa_body(d0, pt0, ulstruct_unk, ulstruct_nonvar);
       /* Enter Write mode */
       /* set d1 to be the new structure we are going to create */
-      START_PREFETCH_W(of);
+      START_PREFETCH_W(ofa);
       BEGD(d1);
       d1 = AbsAppl(H);
       /* we know the variable must be in the heap */
@@ -6668,10 +6647,10 @@ Yap_absmi(int inp)
       pt0 = H;
       ENDD(d1);
       /* first, put the functor */
-      d0 = (CELL) (PREG->u.of.f);
+      d0 = (CELL) (PREG->u.ofa.f);
       *pt0++ = d0;
-      H = pt0 + PREG->u.of.a;
-      PREG = NEXTOP(PREG, of);
+      H = pt0 + PREG->u.ofa.a;
+      PREG = NEXTOP(PREG, ofa);
       /* set SREG */
       SREG = pt0;
       /* update H */
@@ -6681,6 +6660,24 @@ Yap_absmi(int inp)
 
       ENDD(d0);
       ENDOpRW();
+
+      OpW(unify_l_struc_write, ofa);
+      BEGD(d0);
+      d0 = AbsAppl(H);
+      CACHE_S();
+      READ_IN_S();
+      S_SREG[0] = d0;
+      S_SREG = H;
+      d0 = (CELL) (PREG->u.ofa.f);
+      *S_SREG++ = d0;
+      H = S_SREG + PREG->u.ofa.a;
+      PREG = NEXTOP(PREG, ofa);
+      WRITEBACK_S(S_SREG);
+      ENDCACHE_S();
+      ENDD(d0);
+      GONextW();
+      ENDOpW();
+
 
 /************************************************************************\
 * Put Instructions							 *
@@ -6825,16 +6822,16 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      Op(put_struct, xf);
+      Op(put_struct, xfa);
       BEGD(d0);
       d0 = AbsAppl(H);
-      XREG(PREG->u.xf.x) = d0;
-      d0 = (CELL) (PREG->u.xf.f);
+      XREG(PREG->u.xfa.x) = d0;
+      d0 = (CELL) (PREG->u.xfa.f);
       *H++ = d0;
       SREG = H;
-      H += PREG->u.xf.a;
+      H += PREG->u.xfa.a;
       ENDD(d0);
-      PREG = NEXTOP(PREG, xf);
+      PREG = NEXTOP(PREG, xfa);
       GONext();
       ENDOp();
 
@@ -7048,36 +7045,36 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      Op(write_struct, f);
+      Op(write_struct, fa);
       BEGD(d0);
       d0 = AbsAppl(H);
       *SREG++ = d0;
       SP[-1] = Unsigned(SREG);
       SP[-2] = 1;		/* Put instructions follow the main stream */
       SP -= 2;
-      d0 = (CELL) (PREG->u.f.f);
+      d0 = (CELL) (PREG->u.fa.f);
       *H++ = d0;
       ENDD(d0);
       BEGD(d0);
-      d0 = PREG->u.f.a;
-      PREG = NEXTOP(PREG, f);
+      d0 = PREG->u.fa.a;
+      PREG = NEXTOP(PREG, fa);
       SREG = H;
       H += d0;
       ENDD(d0);
       GONext();
       ENDOp();
 
-      Op(write_l_struc, f);
+      Op(write_l_struc, fa);
       BEGD(d0);
       d0 = AbsAppl(H);
       *SREG = d0;
-      d0 = (CELL) (PREG->u.f.f);
+      d0 = (CELL) (PREG->u.fa.f);
       *H++ = d0;
       SREG = H;
       ENDD(d0);
       BEGD(d0);
-      d0 = PREG->u.f.a;
-      PREG = NEXTOP(PREG, f);
+      d0 = PREG->u.fa.a;
+      PREG = NEXTOP(PREG, fa);
       H += d0;
       ENDD(d0);
       GONext();
@@ -7091,25 +7088,15 @@ Yap_absmi(int inp)
  * othe instructions.
  */
 
-      OpW(save_pair_x_write, ox);
-      XREG(PREG->u.ox.x) = AbsPair(SREG);
-      PREG = NEXTOP(PREG, ox);
-      GONextW();
-      ENDOpW();
-
       Op(save_pair_x, ox);
       XREG(PREG->u.ox.x) = AbsPair(SREG);
       PREG = NEXTOP(PREG, ox);
       GONext();
       ENDOp();
 
-      OpW(save_pair_y_write, oy);
-#if defined(SBA) && defined(FROZEN_STACKS)
-      Bind_Local(YREG+PREG->u.oy.y,AbsPair(SREG));
-#else
-      YREG[PREG->u.oy.y] = AbsPair(SREG);
-#endif /* SBA && FROZEN_STACKS */
-      PREG = NEXTOP(PREG, oy);
+      OpW(save_pair_x_write, ox);
+      XREG(PREG->u.ox.x) = AbsPair(SREG);
+      PREG = NEXTOP(PREG, ox);
       GONextW();
       ENDOpW();
 
@@ -7123,15 +7110,35 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      OpW(save_appl_x_write, ox);
-      XREG(PREG->u.ox.x) = AbsAppl(SREG - 1);
-      PREG = NEXTOP(PREG, ox);
+      OpW(save_pair_y_write, oy);
+#if defined(SBA) && defined(FROZEN_STACKS)
+      Bind_Local(YREG+PREG->u.oy.y,AbsPair(SREG));
+#else
+      YREG[PREG->u.oy.y] = AbsPair(SREG);
+#endif /* SBA && FROZEN_STACKS */
+      PREG = NEXTOP(PREG, oy);
       GONextW();
       ENDOpW();
 
       Op(save_appl_x, ox);
       XREG(PREG->u.ox.x) = AbsAppl(SREG - 1);
       PREG = NEXTOP(PREG, ox);
+      GONext();
+      ENDOp();
+
+      OpW(save_appl_x_write, ox);
+      XREG(PREG->u.ox.x) = AbsAppl(SREG - 1);
+      PREG = NEXTOP(PREG, ox);
+      GONextW();
+      ENDOpW();
+
+      Op(save_appl_y, oy);
+#if defined(SBA) && defined(FROZEN_STACKS)
+      Bind_Local(YREG+PREG->u.oy.y,AbsAppl(SREG-1));
+#else
+      YREG[PREG->u.oy.y] = AbsAppl(SREG - 1);
+#endif /* SBA && FROZEN_STACKS */
+      PREG = NEXTOP(PREG, oy);
       GONext();
       ENDOp();
 
@@ -7145,15 +7152,6 @@ Yap_absmi(int inp)
       GONextW();
       ENDOpW();
 
-      Op(save_appl_y, oy);
-#if defined(SBA) && defined(FROZEN_STACKS)
-      Bind_Local(YREG+PREG->u.oy.y,AbsAppl(SREG-1));
-#else
-      YREG[PREG->u.oy.y] = AbsAppl(SREG - 1);
-#endif /* SBA && FROZEN_STACKS */
-      PREG = NEXTOP(PREG, oy);
-      GONext();
-      ENDOp();
 
 /************************************************************************\
 *   Instructions for implemeting 'or;'					 *
@@ -7168,7 +7166,7 @@ Yap_absmi(int inp)
 	 was interrupted when waking up goals
       */	 
       BOp(move_back, l);
-      PREG = (yamop *)(((char *)PREG)-(Int)(NEXTOP((yamop *)NULL,sla)));
+      PREG = (yamop *)(((char *)PREG)-(Int)(NEXTOP((yamop *)NULL,sbpp)));
       JMPNext();
       ENDBOp();
 
@@ -7180,7 +7178,7 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      Op(either, sla);
+      Op(either, sblp);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	low_level_trace(try_or, (PredEntry *)PREG, NULL);
@@ -7194,7 +7192,7 @@ Yap_absmi(int inp)
 #endif
       BEGD(d0);
       /* Try to preserve the environment */
-      d0 = PREG->u.sla.s;
+      d0 = PREG->u.sblp.s;
       BEGCHO(pt1);
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0);
 #ifdef FROZEN_STACKS
@@ -7213,7 +7211,7 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
       pt1 = (choiceptr)(((CELL *) pt1)-1);
       *(CELL **) pt1 = YREG;
-      store_yaam_regs_for_either(PREG->u.sla.sla_u.l, PREG);
+      store_yaam_regs_for_either(PREG->u.sblp.l, PREG);
       SREG = (CELL *) (B = pt1);
 #ifdef YAPOR
       SCH_set_load(pt1);
@@ -7221,12 +7219,12 @@ Yap_absmi(int inp)
       SET_BB(pt1);
       ENDCHO(pt1);
       /* skip the current instruction plus the next one */
-      PREG = NEXTOP(NEXTOP(PREG, sla),l);
+      PREG = NEXTOP(NEXTOP(PREG, sblp),l);
       GONext();
       ENDD(d0);
       ENDOp();
 
-      Op(or_else, sla);
+      Op(or_else, sblp);
       H = HBREG = PROTECT_FROZEN_H(B);
       ENV = B->cp_env;
       B->cp_cp = PREG;
@@ -7236,17 +7234,17 @@ Yap_absmi(int inp)
       SET_BB(PROTECT_FROZEN_B(B));
 #ifdef YAPOR
       if (SCH_top_shared_cp(B)) {
-	SCH_new_alternative(PREG, PREG->u.sla.sla_u.l);
+	SCH_new_alternative(PREG, PREG->u.sblp.l);
       } else
 #endif	/* YAPOR */
-      B->cp_ap = PREG->u.sla.sla_u.l;
-      PREG = NEXTOP(PREG, sla);
+      B->cp_ap = PREG->u.sblp.l;
+      PREG = NEXTOP(PREG, sblp);
       YREG = (CELL *) B->cp_a1;
       GONext();
       ENDOp();
 
 #ifdef YAPOR
-      Op(or_last, sla);
+      Op(or_last, sblp);
 #else
       Op(or_last, p);
 #endif	/* YAPOR */
@@ -7275,7 +7273,7 @@ Yap_absmi(int inp)
 	HBREG = PROTECT_FROZEN_H(B);
       }
 #ifdef YAPOR
-      PREG = NEXTOP(PREG, sla);
+      PREG = NEXTOP(PREG, sblp);
 #else
       PREG = NEXTOP(PREG, p);
 #endif	/* YAPOR */
@@ -7339,10 +7337,10 @@ Yap_absmi(int inp)
 *	Call C predicates instructions					 *
 \************************************************************************/
 
-      BOp(call_cpred, sla);
+      BOp(call_cpred, sbpp);
      
 
-      if (!(PREG->u.sla.sla_u.p->PredFlags & (SafePredFlag|HiddenPredFlag))) {
+      if (!(PREG->u.sbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) {
 	CACHE_Y_AS_ENV(YREG);
 	check_stack(NoStackCall, H);
 	ENDCACHE_Y_AS_ENV();
@@ -7356,23 +7354,23 @@ Yap_absmi(int inp)
 #else
 	if (YREG > (CELL *) top_b) ASP = (CELL *)top_b;
 #endif /* SBA */
-	else ASP = (CELL *)(((char *)YREG) +  PREG->u.sla.s);
+	else ASP = (CELL *)(((char *)YREG) +  PREG->u.sbpp.s);
       }
 #else
       if (YREG > (CELL *) B) {
 	ASP = (CELL *) B;
       } else {
-	ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+	ASP = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
       }
       /* for slots to work */
 #endif /* FROZEN_STACKS */
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
-	low_level_trace(enter_pred,PREG->u.sla.sla_u.p,XREGS+1);
+	low_level_trace(enter_pred,PREG->u.sbpp.p,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
-      CPredicate f = PREG->u.sla.sla_u.p->cs.f_code;
-      PREG = NEXTOP(PREG, sla);
+      CPredicate f = PREG->u.sbpp.p->cs.f_code;
+      PREG = NEXTOP(PREG, sbpp);
       saveregs();
       d0 = (f)();
       setregs();
@@ -7391,7 +7389,7 @@ Yap_absmi(int inp)
       /* trust the C-function we are calling and hence we must */
       /* guarantee that *all* machine registers are saved and */
       /* restored */
-      BOp(call_usercpred, sla);
+      BOp(call_usercpred, sbpp);
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCall, H);
       ENDCACHE_Y_AS_ENV();
@@ -7403,25 +7401,25 @@ Yap_absmi(int inp)
 #else
 	if (YREG > (CELL *) top_b) ASP = (CELL *) top_b;
 #endif /* SBA */
-	else ASP = (CELL *)(((char *)YREG) +  PREG->u.sla.s);
+	else ASP = (CELL *)(((char *)YREG) +  PREG->u.sbpp.s);
       }
 #else
       if (YREG > (CELL *) B)
 	ASP = (CELL *) B;
       else {
-	ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+	ASP = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
       }
       /* for slots to work */
       Yap_StartSlots();
       Yap_PrologMode = UserCCallMode;
 #endif /* FROZEN_STACKS */
       {
-	PredEntry *p = PREG->u.sla.sla_u.p;
+	PredEntry *p = PREG->u.sbpp.p;
 #ifdef LOW_LEVEL_TRACER
 	if (Yap_do_low_level_trace)
 	  low_level_trace(enter_pred,p,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
-	PREG = NEXTOP(PREG, sla);
+	PREG = NEXTOP(PREG, sbpp);
 	saveregs();
 	save_machine_regs();
 
@@ -7438,7 +7436,7 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(call_c_wfail, sdl);
+      BOp(call_c_wfail, sdlp);
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -7449,7 +7447,7 @@ Yap_absmi(int inp)
 #endif /* SBA */
 	else {
 	  BEGD(d0);
-	  d0 = PREG->u.sdl.s;
+	  d0 = PREG->u.sdlp.s;
 	  ASP = ((CELL *)YREG) + d0;
 	  ENDD(d0);
 	}
@@ -7459,37 +7457,37 @@ Yap_absmi(int inp)
 	ASP = (CELL *) B;
       else {
 	BEGD(d0);
-	d0 = PREG->u.sdl.s;
+	d0 = PREG->u.sdlp.s;
 	ASP = ((CELL *) YREG) + d0;
 	ENDD(d0);
       }
 #endif /* FROZEN_STACKS */
       {
-	CPredicate f = PREG->u.sdl.p->cs.f_code;
+	CPredicate f = PREG->u.sdlp.p->cs.f_code;
 	saveregs();
 	SREG = (CELL *)((f)());
 	setregs();
       }
       if (!SREG)
-	PREG = PREG->u.sdl.l;
+	PREG = PREG->u.sdlp.l;
       else
-	PREG = NEXTOP(PREG, sdl);
+	PREG = NEXTOP(PREG, sdlp);
       CACHE_A1();
       JMPNext();
       ENDBOp();
 
-      BOp(try_c, lds);
+      BOp(try_c, apFs);
 #ifdef YAPOR
       CUT_wait_leftmost();
 #endif /* YAPOR */
       CACHE_Y(YREG);
 #ifdef CUT_C
       /* Alocate space for the cut_c structure*/
-      CUT_C_PUSH(NEXTOP(NEXTOP(PREG,lds),lds),S_YREG);
+      CUT_C_PUSH(NEXTOP(NEXTOP(PREG,apFs),apFs),S_YREG);
 #endif  
-      S_YREG = S_YREG - PREG->u.lds.extra;
-      store_args(PREG->u.lds.s);
-      store_yaam_regs(NEXTOP(PREG, lds), 0);
+      S_YREG = S_YREG - PREG->u.apFs.extra;
+      store_args(PREG->u.apFs.s);
+      store_yaam_regs(NEXTOP(PREG, apFs), 0);
       B = B_YREG;
 #ifdef YAPOR
       SCH_set_load(B_YREG);
@@ -7500,7 +7498,7 @@ Yap_absmi(int inp)
     TRYCC:
       ASP = (CELL *)B;
       {
-	CPredicate f = (CPredicate)(PREG->u.lds.f);
+	CPredicate f = (CPredicate)(PREG->u.apFs.f);
 	saveregs();
 	SREG = (CELL *) ((f) ());
 	/* This last instruction changes B B*/
@@ -7534,7 +7532,7 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(retry_c, lds);
+      BOp(retry_c, apFs);
 #ifdef YAPOR
       CUT_wait_leftmost();
 #endif /* YAPOR */
@@ -7546,13 +7544,13 @@ Yap_absmi(int inp)
       DEPTH =B->cp_depth;
 #endif
       HBREG = H;
-      restore_args(PREG->u.lds.s);
+      restore_args(PREG->u.apFs.s);
       ENDCACHE_Y();
       goto TRYCC;
       ENDBOp();
 
 #ifdef CUT_C
-      BOp(cut_c, lds);
+      BOp(cut_c, apFs);
       /*This is a phantom instruction. This is not executed by the WAM*/
 #ifdef DEBUG
       /*If WAM executes this instruction, probably there's an error
@@ -7562,18 +7560,18 @@ Yap_absmi(int inp)
       ENDBOp();
 #endif
 
-      BOp(try_userc, lds);
+      BOp(try_userc, apFs);
 #ifdef YAPOR
       CUT_wait_leftmost();
 #endif /* YAPOR */
       CACHE_Y(YREG);
 #ifdef CUT_C
       /* Alocate space for the cut_c structure*/
-      CUT_C_PUSH(NEXTOP(NEXTOP(PREG,lds),lds),S_YREG);
+      CUT_C_PUSH(NEXTOP(NEXTOP(PREG,apFs),apFs),S_YREG);
 #endif
-      S_YREG = S_YREG - PREG->u.lds.extra;
-      store_args(PREG->u.lds.s);
-      store_yaam_regs(NEXTOP(PREG, lds), 0);
+      S_YREG = S_YREG - PREG->u.apFs.extra;
+      store_args(PREG->u.apFs.s);
+      store_yaam_regs(NEXTOP(PREG, apFs), 0);
       B = B_YREG;
 #ifdef YAPOR
       SCH_set_load(B_YREG);
@@ -7586,7 +7584,7 @@ Yap_absmi(int inp)
       ASP = YENV;
       saveregs();
       save_machine_regs();
-      SREG = (CELL *) YAP_Execute(PREG->u.lds.p, (CPredicate)(PREG->u.lds.f));
+      SREG = (CELL *) YAP_Execute(PREG->u.apFs.p, (CPredicate)(PREG->u.apFs.f));
       EX = 0L;
       restore_machine_regs();
       setregs();
@@ -7614,7 +7612,7 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(retry_userc, lds);
+      BOp(retry_userc, apFs);
 #ifdef YAPOR
       CUT_wait_leftmost();
 #endif /* YAPOR */
@@ -7626,13 +7624,13 @@ Yap_absmi(int inp)
       DEPTH =B->cp_depth;
 #endif
       HBREG = H;
-      restore_args(PREG->u.lds.s);
+      restore_args(PREG->u.apFs.s);
       ENDCACHE_Y();
       goto TRYUSERCC;
       ENDBOp();
 
 #ifdef CUT_C
-      BOp(cut_userc, lds);
+      BOp(cut_userc, apFs);
       /*This is a phantom instruction. This is not executed by the WAM*/
 #ifdef DEBUG
       /*If WAM executes this instruction, probably there's an error
@@ -7769,9 +7767,9 @@ Yap_absmi(int inp)
       }
       ENDBOp();
 
-      BOp(expand_clauses, sp);
+      BOp(expand_clauses, sssllp);
       {
-	PredEntry *pe = PREG->u.sp.p;
+	PredEntry *pe = PREG->u.sssllp.p;
 	yamop *pt0;
 
 	/* update ASP before calling IPred */
@@ -7964,13 +7962,13 @@ Yap_absmi(int inp)
 * 	Try / Retry / Trust for main indexing blocks			*
 \************************************************************************/
 
-      BOp(try_clause, ld);
+      BOp(try_clause, apl);
       check_trail(TR);
       CACHE_Y(YREG);
       /* Point AP to the code that follows this instruction */
-      store_at_least_one_arg(PREG->u.ld.s);
-      store_yaam_regs(NEXTOP(PREG, ld), 0);
-      PREG = PREG->u.ld.d;
+      store_at_least_one_arg(PREG->u.apl.s);
+      store_yaam_regs(NEXTOP(PREG, apl), 0);
+      PREG = PREG->u.apl.d;
       set_cut(S_YREG, B);
       B = B_YREG;
 #ifdef YAPOR
@@ -8047,10 +8045,10 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(retry, ld);
+      BOp(retry, apl);
       CACHE_Y(B);
-      restore_yaam_regs(NEXTOP(PREG, ld));
-      restore_at_least_one_arg(PREG->u.ld.s);
+      restore_yaam_regs(NEXTOP(PREG, apl));
+      restore_at_least_one_arg(PREG->u.apl.s);
 #ifdef FROZEN_STACKS
       S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
@@ -8059,7 +8057,7 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = PREG->u.ld.d;
+      PREG = PREG->u.apl.d;
       JMPNext();
       ENDBOp();
 
@@ -8117,12 +8115,12 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(trust, ld);
+      BOp(trust, apl);
       CACHE_Y(B);
 #ifdef YAPOR
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_YREG);
-	restore_at_least_one_arg(PREG->u.ld.s);
+	restore_at_least_one_arg(PREG->u.apl.s);
 #ifdef FROZEN_STACKS
         S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
@@ -8132,7 +8130,7 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
       {
 	pop_yaam_regs();
-	pop_at_least_one_arg(PREG->u.ld.s);
+	pop_at_least_one_arg(PREG->u.apl.s);
 #ifdef FROZEN_STACKS
         S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
@@ -8140,7 +8138,7 @@ Yap_absmi(int inp)
       }
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = PREG->u.ld.d;
+      PREG = PREG->u.apl.d;
       JMPNext();
       ENDBOp();
 
@@ -8157,11 +8155,11 @@ Yap_absmi(int inp)
 \************************************************************************/
 
       /* enter logical pred               */
-      BOp(enter_lu_pred, Ill);
+      BOp(enter_lu_pred, Ills);
       check_trail(TR);
       /* mark the indexing code */
       {
-	LogUpdIndex *cl = PREG->u.Ill.I;
+	LogUpdIndex *cl = PREG->u.Ills.I;
 	PredEntry *ap = cl->ClPred;
 
 	if (ap->LastCallOfPred != LUCALL_EXEC) {
@@ -8176,8 +8174,8 @@ Yap_absmi(int inp)
 	  /*	  fprintf(stderr,"R %x--%d--%ul\n",ap,ap->TimeStampOfPred,ap->ArityOfPE);*/
 	}
 	*--YENV = MkIntegerTerm(ap->TimeStampOfPred);
-	/* fprintf(stderr,"> %p/%p %d %d\n",cl,ap,ap->TimeStampOfPred,PREG->u.Ill.s);*/
-	PREG = PREG->u.Ill.l1;
+	/* fprintf(stderr,"> %p/%p %d %d\n",cl,ap,ap->TimeStampOfPred,PREG->u.Ills.s);*/
+	PREG = PREG->u.Ills.l1;
 	/* indicate the indexing code is being used */
 #if defined(YAPOR) || defined(THREADS)
 	/* just store a reference */
@@ -8193,7 +8191,7 @@ Yap_absmi(int inp)
       GONext();
       ENDBOp();
 
-      BOp(try_logical, lld);
+      BOp(try_logical, aLl);
       check_trail(TR);
       {
 	UInt timestamp;
@@ -8201,21 +8199,21 @@ Yap_absmi(int inp)
 	CACHE_Y(YREG);
 
 	timestamp = IntegerOfTerm(S_YREG[0]);
-	/* fprintf(stderr,"+ %p/%p %d %d %d--%u\n",PREG,PREG->u.lld.d->ClPred,timestamp,PREG->u.lld.d->ClPred->TimeStampOfPred,PREG->u.lld.d->ClTimeStart,PREG->u.lld.d->ClTimeEnd);*/
+	/* fprintf(stderr,"+ %p/%p %d %d %d--%u\n",PREG,PREG->u.aLl.d->ClPred,timestamp,PREG->u.aLl.d->ClPred->TimeStampOfPred,PREG->u.aLl.d->ClTimeStart,PREG->u.aLl.d->ClTimeEnd);*/
 	/* Point AP to the code that follows this instruction */
 	/* always do this, even if we are not going to use it */
-	store_args(PREG->u.lld.t.s);
-	store_yaam_regs(PREG->u.lld.n, 0);
+	store_args(PREG->u.aLl.s);
+	store_yaam_regs(PREG->u.aLl.n, 0);
 	set_cut(S_YREG, B);
 	B = B_YREG;
 #ifdef YAPOR
 	SCH_set_load(B_YREG);
 #endif	/* YAPOR */
-	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.aLl.d)) {
 	  /* jump to next alternative */
-	  PREG=PREG->u.lld.n;
+	  PREG=PREG->u.aLl.n;
 	} else {
-	  PREG = PREG->u.lld.d->ClCode;
+	  PREG = PREG->u.aLl.d->ClCode;
 	}
 	SET_BB(B_YREG);
 	ENDCACHE_Y();
@@ -8223,7 +8221,7 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(retry_logical, lld);
+      BOp(retry_logical, aLl);
       check_trail(TR);
       {
 	UInt timestamp;
@@ -8231,20 +8229,20 @@ Yap_absmi(int inp)
       
 #if defined(YAPOR) || defined(THREADS)
 	if (!PP) {
-	  PP = PREG->u.lld.d->ClPred;
+	  PP = PREG->u.aLl.d->ClPred;
 	  LOCK(PP->PELock);
 	}
 #endif
-	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.lld.t.s]);
-	/* fprintf(stderr,"^ %p/%p %d %d %d--%u\n",PREG,PREG->u.lld.d->ClPred,timestamp,PREG->u.lld.d->ClPred->TimeStampOfPred,PREG->u.lld.d->ClTimeStart,PREG->u.lld.d->ClTimeEnd);*/
-	if (!VALID_TIMESTAMP(timestamp, PREG->u.lld.d)) {
+	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.aLl.s]);
+	/* fprintf(stderr,"^ %p/%p %d %d %d--%u\n",PREG,PREG->u.aLl.d->ClPred,timestamp,PREG->u.aLl.d->ClPred->TimeStampOfPred,PREG->u.aLl.d->ClTimeStart,PREG->u.aLl.d->ClTimeEnd);*/
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.aLl.d)) {
 	  /* jump to next instruction */
-	  PREG=PREG->u.lld.n;
+	  PREG=PREG->u.aLl.n;
 	  JMPNext();
 	}
-	restore_yaam_regs(PREG->u.lld.n);
-	restore_at_least_one_arg(PREG->u.lld.t.s);
-	PREG = PREG->u.lld.d->ClCode;
+	restore_yaam_regs(PREG->u.aLl.n);
+	restore_at_least_one_arg(PREG->u.aLl.s);
+	PREG = PREG->u.aLl.d->ClCode;
 #ifdef FROZEN_STACKS
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 	set_cut(S_YREG, B->cp_b);
@@ -8257,15 +8255,15 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(trust_logical, ld);
+      BOp(trust_logical, ILl);
       CACHE_Y(B);
       {
-	LogUpdIndex *cl = PREG->u.lld.t.block;
+	LogUpdIndex *cl = PREG->u.ILl.block;
 	PredEntry *ap = cl->ClPred;
-	LogUpdClause *lcl = PREG->u.lld.d;
+	LogUpdClause *lcl = PREG->u.ILl.d;
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
-	/* fprintf(stderr,"- %p/%p %d %d %p\n",PREG,ap,timestamp,ap->TimeStampOfPred,PREG->u.lld.d->ClCode);*/
+	/* fprintf(stderr,"- %p/%p %d %d %p\n",PREG,ap,timestamp,ap->TimeStampOfPred,PREG->u.ILl.d->ClCode);*/
 #if defined(YAPOR) || defined(THREADS)
 	if (!PP) {
 	  LOCK(ap->PELock);
@@ -8811,106 +8809,106 @@ Yap_absmi(int inp)
 *	Basic Primitive Predicates					 *
 \************************************************************************/
 
-      Op(p_atom_x, xF);
+      Op(p_atom_x, xl);
       BEGD(d0);
-      d0 = XREG(PREG->u.xF.x);
+      d0 = XREG(PREG->u.xl.x);
       deref_head(d0, atom_x_unk);
     atom_x_nvar:
       if (IsAtomTerm(d0)) {
-	PREG = NEXTOP(PREG, xF);
+	PREG = NEXTOP(PREG, xl);
 	GONext();
       }
       else {
-	PREG = PREG->u.xF.F;
+	PREG = PREG->u.xl.F;
 	GONext();
       }
 
       BEGP(pt0);
       deref_body(d0, pt0, atom_x_unk, atom_x_nvar);
-      PREG = PREG->u.xF.F;
+      PREG = PREG->u.xl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_atom_y, yF);
+      Op(p_atom_y, yl);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yF.y;
+      pt0 = YREG + PREG->u.yl.y;
       d0 = *pt0;
       deref_head(d0, atom_y_unk);
     atom_y_nvar:
       if (IsAtomTerm(d0)) {
-	PREG = NEXTOP(PREG, yF);
+	PREG = NEXTOP(PREG, yl);
 	GONext();
       }
       else {
-	PREG = PREG->u.yF.F;
+	PREG = PREG->u.yl.F;
 	GONext();
       }
 
       derefa_body(d0, pt0, atom_y_unk, atom_y_nvar);
-      PREG = PREG->u.yF.F;
+      PREG = PREG->u.yl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_atomic_x, xF);
+      Op(p_atomic_x, xl);
       BEGD(d0);
-      d0 = XREG(PREG->u.xF.x);
+      d0 = XREG(PREG->u.xl.x);
       deref_head(d0, atomic_x_unk);
     atomic_x_nvar:
       /* non variable */
       if (IsAtomicTerm(d0)) {
-	PREG = NEXTOP(PREG, xF);
+	PREG = NEXTOP(PREG, xl);
 	GONext();
       }
       else {
-	PREG = PREG->u.xF.F;
+	PREG = PREG->u.xl.F;
 	GONext();
       }
 
       BEGP(pt0);
       deref_body(d0, pt0, atomic_x_unk, atomic_x_nvar);
-      PREG = PREG->u.xF.F;
+      PREG = PREG->u.xl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_atomic_y, yF);
+      Op(p_atomic_y, yl);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yF.y;
+      pt0 = YREG + PREG->u.yl.y;
       d0 = *pt0;
       deref_head(d0, atomic_y_unk);
     atomic_y_nvar:
       /* non variable */
       if (IsAtomicTerm(d0)) {
-	PREG = NEXTOP(PREG, yF);
+	PREG = NEXTOP(PREG, yl);
 	GONext();
       }
       else {
-	PREG = PREG->u.yF.F;
+	PREG = PREG->u.yl.F;
 	GONext();
       }
 
       derefa_body(d0, pt0, atomic_y_unk, atomic_y_nvar);
-      PREG = PREG->u.yF.F;
+      PREG = PREG->u.yl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_integer_x, xF);
+      Op(p_integer_x, xl);
       BEGD(d0);
-      d0 = XREG(PREG->u.xF.x);
+      d0 = XREG(PREG->u.xl.x);
       deref_head(d0, integer_x_unk);
     integer_x_nvar:
       /* non variable */
       if (IsIntTerm(d0)) {
-	PREG = NEXTOP(PREG, xF);
+	PREG = NEXTOP(PREG, xl);
 	GONext();
       }
       if (IsApplTerm(d0)) {
@@ -8919,35 +8917,35 @@ Yap_absmi(int inp)
 	  switch ((CELL)f0) {
 	  case (CELL)FunctorLongInt:
 	  case (CELL)FunctorBigInt:
-	    PREG = NEXTOP(PREG, xF);
+	    PREG = NEXTOP(PREG, xl);
 	    GONext();
 	  default:
-	    PREG = PREG->u.xF.F;
+	    PREG = PREG->u.xl.F;
 	    GONext();
 	  }
 	}
       }
-      PREG = PREG->u.xF.F;
+      PREG = PREG->u.xl.F;
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, integer_x_unk, integer_x_nvar);
-      PREG = PREG->u.xF.F;
+      PREG = PREG->u.xl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_integer_y, yF);
+      Op(p_integer_y, yl);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yF.y;
+      pt0 = YREG + PREG->u.yl.y;
       d0 = *pt0;
       deref_head(d0, integer_y_unk);
     integer_y_nvar:
       /* non variable */
       if (IsIntTerm(d0)) {
-	PREG = NEXTOP(PREG, yF);
+	PREG = NEXTOP(PREG, yl);
 	GONext();
       }
       if (IsApplTerm(d0)) {
@@ -8958,65 +8956,65 @@ Yap_absmi(int inp)
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
 #endif
-	    PREG = NEXTOP(PREG, yF);
+	    PREG = NEXTOP(PREG, yl);
 	    GONext();
 	  default:
-	    PREG = PREG->u.yF.F;
+	    PREG = PREG->u.yl.F;
 	    GONext();
 	  }
 	}
       }
-      PREG = PREG->u.yF.F;
+      PREG = PREG->u.yl.F;
       GONext();
 
       derefa_body(d0, pt0, integer_y_unk, integer_y_nvar);
-      PREG = PREG->u.yF.F;
+      PREG = PREG->u.yl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_nonvar_x, xF);
+      Op(p_nonvar_x, xl);
       BEGD(d0);
-      d0 = XREG(PREG->u.xF.x);
+      d0 = XREG(PREG->u.xl.x);
       deref_head(d0, nonvar_x_unk);
     nonvar_x_nvar:
-      PREG = NEXTOP(PREG, xF);
+      PREG = NEXTOP(PREG, xl);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, nonvar_x_unk, nonvar_x_nvar);
-      PREG = PREG->u.xF.F;
+      PREG = PREG->u.xl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_nonvar_y, yF);
+      Op(p_nonvar_y, yl);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yF.y;
+      pt0 = YREG + PREG->u.yl.y;
       d0 = *pt0;
       deref_head(d0, nonvar_y_unk);
     nonvar_y_nvar:
-      PREG = NEXTOP(PREG, yF);
+      PREG = NEXTOP(PREG, yl);
       GONext();
 
       derefa_body(d0, pt0, nonvar_y_unk, nonvar_y_nvar);
-      PREG = PREG->u.yF.F;
+      PREG = PREG->u.yl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_number_x, xF);
+      Op(p_number_x, xl);
       BEGD(d0);
-      d0 = XREG(PREG->u.xF.x);
+      d0 = XREG(PREG->u.xl.x);
       deref_head(d0, number_x_unk);
     number_x_nvar:
       /* non variable */
       if (IsIntTerm(d0)) {
-	PREG = NEXTOP(PREG, xF);
+	PREG = NEXTOP(PREG, xl);
 	GONext();
       }
       if (IsApplTerm(d0)) {
@@ -9028,36 +9026,36 @@ Yap_absmi(int inp)
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
 #endif
-	    PREG = NEXTOP(PREG, xF);
+	    PREG = NEXTOP(PREG, xl);
 	    GONext();
 	  default:
-	    PREG = PREG->u.xF.F;
+	    PREG = PREG->u.xl.F;
 	    GONext();
 	  } 
 	} 
       }
-      PREG = PREG->u.xF.F;
+      PREG = PREG->u.xl.F;
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, number_x_unk, number_x_nvar);
-      PREG = PREG->u.xF.F;
+      PREG = PREG->u.xl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_number_y, xF);
+      Op(p_number_y, xl);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yF.y;
+      pt0 = YREG + PREG->u.yl.y;
       d0 = *pt0;
       deref_head(d0, number_y_unk);
     number_y_nvar:
       /* non variable */
       /* non variable */
       if (IsIntTerm(d0)) {
-	PREG = NEXTOP(PREG, xF);
+	PREG = NEXTOP(PREG, xl);
 	GONext();
       }
       if (IsApplTerm(d0)) {
@@ -9069,88 +9067,88 @@ Yap_absmi(int inp)
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
 #endif
-	    PREG = NEXTOP(PREG, yF);
+	    PREG = NEXTOP(PREG, yl);
 	    GONext();
 	  default:
-	    PREG = PREG->u.yF.F;
+	    PREG = PREG->u.yl.F;
 	    GONext();
 	  } 
 	}
       }
-      PREG = PREG->u.xF.F;
+      PREG = PREG->u.xl.F;
       GONext();
 
       derefa_body(d0, pt0, number_y_unk, number_y_nvar);
-      PREG = PREG->u.yF.F;
+      PREG = PREG->u.yl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_var_x, xF);
+      Op(p_var_x, xl);
       BEGD(d0);
-      d0 = XREG(PREG->u.xF.x);
+      d0 = XREG(PREG->u.xl.x);
       deref_head(d0, var_x_unk);
     var_x_nvar:
       /* non variable */
-      PREG = PREG->u.xF.F;
+      PREG = PREG->u.xl.F;
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, var_x_unk, var_x_nvar);
-      PREG = NEXTOP(PREG, xF);
+      PREG = NEXTOP(PREG, xl);
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_var_y, yF);
+      Op(p_var_y, yl);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yF.y;
+      pt0 = YREG + PREG->u.yl.y;
       d0 = *pt0;
       deref_head(d0, var_y_unk);
     var_y_nvar:
       /* non variable */
-      PREG = PREG->u.yF.F;
+      PREG = PREG->u.yl.F;
       GONext();
 
       derefa_body(d0, pt0, var_y_unk, var_y_nvar);
-      PREG = NEXTOP(PREG, yF);
+      PREG = NEXTOP(PREG, yl);
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_db_ref_x, xF);
+      Op(p_db_ref_x, xl);
       BEGD(d0);
-      d0 = XREG(PREG->u.xF.x);
+      d0 = XREG(PREG->u.xl.x);
       deref_head(d0, dbref_x_unk);
     dbref_x_nvar:
       /* non variable */
       if (IsDBRefTerm(d0)) {
 	/* only allow references to the database, not general references
 	 * to go through. */
-	PREG = NEXTOP(PREG, xF);
+	PREG = NEXTOP(PREG, xl);
 	GONext();
       }
       else {
-	PREG = PREG->u.xF.F;
+	PREG = PREG->u.xl.F;
 	GONext();
       }
 
       BEGP(pt0);
       deref_body(d0, pt0, dbref_x_unk, dbref_x_nvar);
-      PREG = PREG->u.xF.F;
+      PREG = PREG->u.xl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_db_ref_y, yF);
+      Op(p_db_ref_y, yl);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yF.y;
+      pt0 = YREG + PREG->u.yl.y;
       d0 = *pt0;
       deref_head(d0, dbref_y_unk);
     dbref_y_nvar:
@@ -9158,177 +9156,177 @@ Yap_absmi(int inp)
       if (IsDBRefTerm(d0)) {
 	/* only allow references to the database, not general references
 	 * to go through. */
-	PREG = NEXTOP(PREG, yF);
+	PREG = NEXTOP(PREG, yl);
 	GONext();
       }
       else {
-	PREG = PREG->u.yF.F;
+	PREG = PREG->u.yl.F;
 	GONext();
       }
 
       derefa_body(d0, pt0, dbref_y_unk, dbref_y_nvar);
-      PREG = PREG->u.yF.F;
+      PREG = PREG->u.yl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_primitive_x, xF);
+      Op(p_primitive_x, xl);
       BEGD(d0);
-      d0 = XREG(PREG->u.xF.x);
+      d0 = XREG(PREG->u.xl.x);
       deref_head(d0, primi_x_unk);
     primi_x_nvar:
       /* non variable */
       if (IsPrimitiveTerm(d0)) {
-	PREG = NEXTOP(PREG, xF);
+	PREG = NEXTOP(PREG, xl);
 	GONext();
       }
       else {
-	PREG = PREG->u.xF.F;
+	PREG = PREG->u.xl.F;
 	GONext();
       }
 
       BEGP(pt0);
       deref_body(d0, pt0, primi_x_unk, primi_x_nvar);
-      PREG = PREG->u.xF.F;
+      PREG = PREG->u.xl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_primitive_y, yF);
+      Op(p_primitive_y, yl);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yF.y;
+      pt0 = YREG + PREG->u.yl.y;
       d0 = *pt0;
       deref_head(d0, primi_y_unk);
     primi_y_nvar:
       /* non variable */
       if (IsPrimitiveTerm(d0)) {
-	PREG = NEXTOP(PREG, yF);
+	PREG = NEXTOP(PREG, yl);
 	GONext();
       }
       else {
-	PREG = PREG->u.yF.F;
+	PREG = PREG->u.yl.F;
 	GONext();
       }
 
       derefa_body(d0, pt0, primi_y_unk, primi_y_nvar);
-      PREG = PREG->u.yF.F;
+      PREG = PREG->u.yl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_compound_x, xF);
+      Op(p_compound_x, xl);
       BEGD(d0);
-      d0 = XREG(PREG->u.xF.x);
+      d0 = XREG(PREG->u.xl.x);
       deref_head(d0, compound_x_unk);
     compound_x_nvar:
       /* non variable */
       if (IsPairTerm(d0)) {
-	PREG = NEXTOP(PREG, xF);
+	PREG = NEXTOP(PREG, xl);
 	GONext();
       }
       else if (IsApplTerm(d0)) {
 	if (IsExtensionFunctor(FunctorOfTerm(d0))) {
-	  PREG = PREG->u.xF.F;
+	  PREG = PREG->u.xl.F;
 	  GONext();
 	}
-	PREG = NEXTOP(PREG, xF);
+	PREG = NEXTOP(PREG, xl);
 	GONext();
       }
       else {
-	PREG = PREG->u.xF.F;
+	PREG = PREG->u.xl.F;
 	GONext();
       }
 
       BEGP(pt0);
       deref_body(d0, pt0, compound_x_unk, compound_x_nvar);
-      PREG = PREG->u.xF.F;
+      PREG = PREG->u.xl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_compound_y, yF);
+      Op(p_compound_y, yl);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yF.y;
+      pt0 = YREG + PREG->u.yl.y;
       d0 = *pt0;
       deref_head(d0, compound_y_unk);
     compound_y_nvar:
       /* non variable */
       if (IsPairTerm(d0)) {
-	PREG = NEXTOP(PREG, yF);
+	PREG = NEXTOP(PREG, yl);
 	GONext();
       }
       else if (IsApplTerm(d0)) {
 	if (IsExtensionFunctor(FunctorOfTerm(d0))) {
-	  PREG = PREG->u.yF.F;
+	  PREG = PREG->u.yl.F;
 	  GONext();
 	}
-	PREG = NEXTOP(PREG, yF);
+	PREG = NEXTOP(PREG, yl);
 	GONext();
       }
       else {
-	PREG = PREG->u.yF.F;
+	PREG = PREG->u.yl.F;
 	GONext();
       }
 
       derefa_body(d0, pt0, compound_y_unk, compound_y_nvar);
-      PREG = PREG->u.yF.F;
+      PREG = PREG->u.yl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_float_x, xF);
+      Op(p_float_x, xl);
       BEGD(d0);
-      d0 = XREG(PREG->u.xF.x);
+      d0 = XREG(PREG->u.xl.x);
       deref_head(d0, float_x_unk);
     float_x_nvar:
       /* non variable */
       if (IsFloatTerm(d0)) {
-	PREG = NEXTOP(PREG, xF);
+	PREG = NEXTOP(PREG, xl);
 	GONext();
       }
-      PREG = PREG->u.xF.F;
+      PREG = PREG->u.xl.F;
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, float_x_unk, float_x_nvar);
-      PREG = PREG->u.xF.F;
+      PREG = PREG->u.xl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_float_y, yF);
+      Op(p_float_y, yl);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yF.y;
+      pt0 = YREG + PREG->u.yl.y;
       d0 = *pt0;
       deref_head(d0, float_y_unk);
     float_y_nvar:
       /* non variable */
       if (IsFloatTerm(d0)) {
-	PREG = NEXTOP(PREG, yF);
+	PREG = NEXTOP(PREG, yl);
 	GONext();
       }
-      PREG = PREG->u.yF.F;
+      PREG = PREG->u.yl.F;
       GONext();
 
       derefa_body(d0, pt0, float_y_unk, float_y_nvar);
-      PREG = PREG->u.yF.F;
+      PREG = PREG->u.yl.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_cut_by_x, xF);
+      Op(p_cut_by_x, xl);
       BEGD(d0);
-      d0 = XREG(PREG->u.xF.x);
+      d0 = XREG(PREG->u.xl.x);
       deref_head(d0, cutby_x_unk);
     cutby_x_nvar:
 #if defined(SBA) && defined(FROZEN_STACKS)
@@ -9336,7 +9334,7 @@ Yap_absmi(int inp)
 #else
       if (!IsIntTerm(d0)) {
 #endif /* SBA && FROZEN_STACKS */
-	PREG = NEXTOP(PREG, xF);
+	PREG = NEXTOP(PREG, xl);
 	GONext();
       }
       BEGCHO(pt0);
@@ -9370,7 +9368,7 @@ Yap_absmi(int inp)
 #endif /* TABLING */
 	goto trim_trail;
       }
-      PREG = NEXTOP(PREG, xF);
+      PREG = NEXTOP(PREG, xl);
       ENDCHO(pt0);
       GONext();
 
@@ -9383,10 +9381,10 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_cut_by_y, yF);
+      Op(p_cut_by_y, yl);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yF.y;
+      pt0 = YREG + PREG->u.yl.y;
       d0 = *pt0;
       deref_head(d0, cutby_y_unk);
     cutby_y_nvar:
@@ -9428,7 +9426,7 @@ Yap_absmi(int inp)
 #endif /* TABLING */
 	goto trim_trail;
       }
-      PREG = NEXTOP(PREG, yF);
+      PREG = NEXTOP(PREG, yl);
       GONext();
       ENDCHO(pt1);
 
@@ -9740,14 +9738,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_minus_y_cv, ycx);
+      Op(p_minus_y_cv, yxc);
       BEGD(d0);
-      d0 = XREG(PREG->u.ycx.xi);
+      d0 = XREG(PREG->u.yxc.xi);
       /* first check pt1 */
       deref_head(d0, minus_y_cv_unk);
     minus_y_cv_nvar:
       {
-	Int d1 = PREG->u.ycx.c;
+	Int d1 = PREG->u.yxc.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntegerTerm(d1 - IntOfTerm(d0));
 	}
@@ -9760,8 +9758,8 @@ Yap_absmi(int inp)
 	}
       }
       BEGP(pt0);
-      pt0 = YREG + PREG->u.ycx.y;
-      PREG = NEXTOP(PREG, ycx);
+      pt0 = YREG + PREG->u.yxc.y;
+      PREG = NEXTOP(PREG, yxc);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -10002,14 +10000,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_div_vc, xcx);
+      Op(p_div_vc, xxc);
       BEGD(d0);
-      d0 = XREG(PREG->u.xcx.xi);
+      d0 = XREG(PREG->u.xxc.xi);
       /* first check pt1 */
       deref_head(d0, div_vc_unk);
     div_vc_nvar:
       {
-	Int d1 = PREG->u.xcx.c;
+	Int d1 = PREG->u.xxc.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntTerm(IntOfTerm(d0) / d1);
 	}
@@ -10021,8 +10019,8 @@ Yap_absmi(int inp)
 	    FAIL();
 	}
       }
-      XREG(PREG->u.xcx.x) = d0;
-      PREG = NEXTOP(PREG, xcx);
+      XREG(PREG->u.xxc.x) = d0;
+      PREG = NEXTOP(PREG, xxc);
       GONext();
 
       BEGP(pt0);
@@ -10135,12 +10133,12 @@ Yap_absmi(int inp)
 
       Op(p_div_y_vc, yxc);
       BEGD(d0);
-      d0 = XREG(PREG->u.ycx.xi);
+      d0 = XREG(PREG->u.yxc.xi);
       /* first check pt1 */
       deref_head(d0, div_y_vc_unk);
     div_y_vc_nvar:
       {
-	Int d1 = PREG->u.ycx.c;
+	Int d1 = PREG->u.yxc.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntTerm(IntOfTerm(d0)/d1);
 	}
@@ -10173,14 +10171,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_div_y_cv, ycx);
+      Op(p_div_y_cv, yxc);
       BEGD(d0);
-      d0 = XREG(PREG->u.ycx.xi);
+      d0 = XREG(PREG->u.yxc.xi);
       /* first check pt1 */
       deref_head(d0, div_y_cv_unk);
     div_y_cv_nvar:
       {
-	Int d1 = PREG->u.ycx.c;
+	Int d1 = PREG->u.yxc.c;
 	if (IsIntTerm(d0)) {
 	  Int div = IntOfTerm(d0);
 	  if (div == 0) {
@@ -10200,8 +10198,8 @@ Yap_absmi(int inp)
 	}
       }
       BEGP(pt0);
-      pt0 = YREG + PREG->u.ycx.y;
-      PREG = NEXTOP(PREG, ycx);
+      pt0 = YREG + PREG->u.yxc.y;
+      PREG = NEXTOP(PREG, yxc);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -10643,14 +10641,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_sll_cv, xcx);
+      Op(p_sll_cv, xxc);
       BEGD(d0);
-      d0 = XREG(PREG->u.xcx.xi);
+      d0 = XREG(PREG->u.xxc.xi);
       /* first check pt1 */
       deref_head(d0, sll_cv_unk);
     sll_cv_nvar:
       {
-	Int d1 = PREG->u.xcx.c;
+	Int d1 = PREG->u.xxc.c;
 	if (IsIntTerm(d0)) {
 	  Int i2 = IntOfTerm(d0);
 	  if (i2 < 0)
@@ -10667,7 +10665,7 @@ Yap_absmi(int inp)
       if (PREG == (yamop *)FAILCODE)
 	FAIL();
       XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(PREG, xcx);
+      PREG = NEXTOP(PREG, xxc);
       GONext();
 
       BEGP(pt0);
@@ -10777,14 +10775,14 @@ Yap_absmi(int inp)
       ENDOp();
 
 
-      Op(p_sll_y_cv, ycx);
+      Op(p_sll_y_cv, yxc);
       BEGD(d0);
-      d0 = XREG(PREG->u.ycx.xi);
+      d0 = XREG(PREG->u.yxc.xi);
       /* first check pt1 */
       deref_head(d0, sll_y_cv_unk);
     sll_y_cv_nvar:
       {
-	Int d1 = PREG->u.ycx.c;
+	Int d1 = PREG->u.yxc.c;
 	if (IsIntTerm(d0)) {
 	  Int i2 = IntOfTerm(d0);
 	  if (i2 < 0)
@@ -10801,8 +10799,8 @@ Yap_absmi(int inp)
       if (PREG == (yamop *)FAILCODE)
 	FAIL();
       BEGP(pt0);
-      pt0 = YREG + PREG->u.ycx.y;
-      PREG = NEXTOP(PREG, ycx);
+      pt0 = YREG + PREG->u.yxc.y;
+      PREG = NEXTOP(PREG, yxc);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -10903,14 +10901,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_slr_cv, xcx);
+      Op(p_slr_cv, xxc);
       BEGD(d0);
-      d0 = XREG(PREG->u.xcx.xi);
+      d0 = XREG(PREG->u.xxc.xi);
       /* first check pt1 */
       deref_head(d0, slr_cv_unk);
     slr_cv_nvar:
       {
-	Int d1 = PREG->u.xcx.c;
+	Int d1 = PREG->u.xxc.c;
 	if (IsIntTerm(d0)) {
 	 Int i2 = IntOfTerm(d0);
 	 if (i2 < 0)
@@ -10927,7 +10925,7 @@ Yap_absmi(int inp)
       if (PREG == (yamop *)FAILCODE)
 	FAIL();
       XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(PREG, xcx);
+      PREG = NEXTOP(PREG, xxc);
       GONext();
 
       BEGP(pt0);
@@ -11035,14 +11033,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_slr_y_cv, ycx);
+      Op(p_slr_y_cv, yxc);
       BEGD(d0);
-      d0 = XREG(PREG->u.ycx.xi);
+      d0 = XREG(PREG->u.yxc.xi);
       /* first check pt1 */
       deref_head(d0, slr_y_cv_unk);
     slr_y_cv_nvar:
       {
-	Int d1 = PREG->u.ycx.c;
+	Int d1 = PREG->u.yxc.c;
 	if (IsIntTerm(d0)) {
 	 Int i2 = IntOfTerm(d0);
 	 if (i2 < 0)
@@ -11059,8 +11057,8 @@ Yap_absmi(int inp)
       if (PREG == (yamop *)FAILCODE)
 	FAIL();
       BEGP(pt0);
-      pt0 = YREG + PREG->u.ycx.y;
-      PREG = NEXTOP(PREG, ycx);
+      pt0 = YREG + PREG->u.yxc.y;
+      PREG = NEXTOP(PREG, yxc);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -11079,59 +11077,59 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      BOp(call_bfunc_xx, llxx);
+      BOp(call_bfunc_xx, plxxs);
       BEGD(d0);
       BEGD(d1);
-      d0 = XREG(PREG->u.llxx.x1);
+      d0 = XREG(PREG->u.plxxs.x1);
     call_bfunc_xx_nvar:
-      d1 = XREG(PREG->u.llxx.x2);
+      d1 = XREG(PREG->u.plxxs.x2);
     call_bfunc_xx2_nvar:
       deref_head(d0, call_bfunc_xx_unk);
       deref_head(d1, call_bfunc_xx2_unk);
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
-	int flags;
+	COUNT flags;
 
 	Int v = IntOfTerm(d0) - IntOfTerm(d1);
-	flags = PREG->u.llxx.flags;
+	flags = PREG->u.plxxs.flags;
 	if (v > 0) {
 	  if (flags & GT_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, llxx);
+	    PREG = NEXTOP(PREG, plxxs);
 	    JMPNext();
 	  } else {
-	    PREG = PREG->u.llxx.f;
+	    PREG = PREG->u.plxxs.f;
 	    JMPNext();
 	  }    
 	} else if (v < 0) {
 	  if (flags & LT_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, llxx);
+	    PREG = NEXTOP(PREG, plxxs);
 	    JMPNext();
 	  } else {
-	    PREG = PREG->u.llxx.f;
+	    PREG = PREG->u.plxxs.f;
 	    JMPNext();
 	  }
 	} else /* if (v == 0) */ {
 	  if (flags & EQ_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, llxx);
+	    PREG = NEXTOP(PREG, plxxs);
 	    JMPNext();
 	  } else {
-	    PREG = PREG->u.llxx.f;
+	    PREG = PREG->u.plxxs.f;
 	    JMPNext();
 	  }
 	}
       } 
     exec_bin_cmp_xx:
       {
-	 CmpPredicate f = PREG->u.llxx.p->cs.d_code;
+	 CmpPredicate f = PREG->u.plxxs.p->cs.d_code;
 	 saveregs();
 	 d0 = (CELL) (f) (d0,d1);
 	 setregs();
       }
       if (!d0) {
 	if (PREG != FAILCODE)
-	  PREG = PREG->u.llxx.f;
+	  PREG = PREG->u.plxxs.f;
 	JMPNext();
       }
-      PREG = NEXTOP(PREG, llxx);
+      PREG = NEXTOP(PREG, plxxs);
       JMPNext();
 
       BEGP(pt0);
@@ -11149,12 +11147,12 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDBOp();
 
-      BOp(call_bfunc_yx, llxy);
+      BOp(call_bfunc_yx, plxys);
       BEGD(d0);
       BEGD(d1);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.llxy.y;
-      d1 = XREG(PREG->u.llxy.x);
+      pt0 = YREG + PREG->u.plxys.y;
+      d1 = XREG(PREG->u.plxys.x);
       d0 = *pt0;
       ENDP(pt0);
       deref_head(d0, call_bfunc_yx_unk);
@@ -11165,46 +11163,46 @@ Yap_absmi(int inp)
 	int flags;
 
 	Int v = IntOfTerm(d0) - IntOfTerm(d1);
-	flags = PREG->u.llxy.flags;
+	flags = PREG->u.plxys.flags;
 	if (v > 0) {
 	  if (flags & GT_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, llxy);
+	    PREG = NEXTOP(PREG, plxys);
 	    JMPNext();
 	  } else {
-	    PREG = PREG->u.llxy.f;
+	    PREG = PREG->u.plxys.f;
 	    JMPNext();
 	  }
 	} else if (v < 0) {
 	  if (flags & LT_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, llxy);
+	    PREG = NEXTOP(PREG, plxys);
 	    JMPNext();
 	  } else {
-	    PREG = PREG->u.llxy.f;
+	    PREG = PREG->u.plxys.f;
 	    JMPNext();
 	  }
 	} else /* if (v == 0) */ {
 	  if (flags & EQ_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, llxy);
+	    PREG = NEXTOP(PREG, plxys);
 	    JMPNext();
 	  } else {
-	    PREG = PREG->u.llxy.f;
+	    PREG = PREG->u.plxys.f;
 	    JMPNext();
 	  }
 	}
       } 
     exec_bin_cmp_yx:
       {
-	CmpPredicate f = PREG->u.llxy.p->cs.d_code;
+	CmpPredicate f = PREG->u.plxys.p->cs.d_code;
 	saveregs();
 	d0 = (CELL) (f) (d0,d1);
 	setregs();
       }
       if (!d0) {
 	if (PREG != FAILCODE)
-	  PREG = PREG->u.llxy.f;
+	  PREG = PREG->u.plxys.f;
 	JMPNext();
       }
-      PREG = NEXTOP(PREG, llxy);
+      PREG = NEXTOP(PREG, plxys);
       JMPNext();
 
       BEGP(pt0);
@@ -11222,12 +11220,12 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDBOp();
 
-      BOp(call_bfunc_xy, llxy);
+      BOp(call_bfunc_xy, plxys);
       BEGD(d0);
       BEGD(d1);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.llxy.y;
-      d0 = XREG(PREG->u.llxy.x);
+      pt0 = YREG + PREG->u.plxys.y;
+      d0 = XREG(PREG->u.plxys.x);
       d1 = *pt0;
       ENDP(pt0);
       deref_head(d0, call_bfunc_xy_unk);
@@ -11238,46 +11236,46 @@ Yap_absmi(int inp)
 	int flags;
 
 	Int v = IntOfTerm(d0) - IntOfTerm(d1);
-	flags = PREG->u.llxy.flags;
+	flags = PREG->u.plxys.flags;
 	if (v > 0) {
 	  if (flags & GT_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, llxy);
+	    PREG = NEXTOP(PREG, plxys);
 	    JMPNext();
 	  } else {
-	    PREG = PREG->u.llxy.f;
+	    PREG = PREG->u.plxys.f;
 	    JMPNext();
 	  }
 	} else if (v < 0) {
 	  if (flags & LT_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, llxy);
+	    PREG = NEXTOP(PREG, plxys);
 	    JMPNext();
 	  } else {
-	    PREG = PREG->u.llxy.f;
+	    PREG = PREG->u.plxys.f;
 	    JMPNext();
 	  }
 	} else /* if (v == 0) */ {
 	  if (flags & EQ_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, llxy);
+	    PREG = NEXTOP(PREG, plxys);
 	    JMPNext();
 	  } else {
-	    PREG = PREG->u.llxy.f;
+	    PREG = PREG->u.plxys.f;
 	    JMPNext();
 	  }
 	}
       } 
     exec_bin_cmp_xy:
       {
-	CmpPredicate f = PREG->u.llxy.p->cs.d_code;
+	CmpPredicate f = PREG->u.plxys.p->cs.d_code;
 	saveregs();
 	d0 = (CELL) (f) (d0,d1);
 	setregs();
       }
       if (!d0) {
 	if (PREG != FAILCODE)
-	  PREG = PREG->u.llxy.f;
+	  PREG = PREG->u.plxys.f;
 	JMPNext();
       }
-      PREG = NEXTOP(PREG, llxy);
+      PREG = NEXTOP(PREG, plxys);
       JMPNext();
 
       BEGP(pt0);
@@ -11295,13 +11293,13 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDBOp();
 
-      BOp(call_bfunc_yy, llyy);
+      BOp(call_bfunc_yy, plyys);
       BEGD(d0);
       BEGD(d1);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.llyy.y1;
+      pt0 = YREG + PREG->u.plyys.y1;
       BEGP(pt1);
-      pt1 = YREG + PREG->u.llyy.y2;
+      pt1 = YREG + PREG->u.plyys.y2;
       d0 = *pt0;
       d1 = *pt1;
       ENDP(pt1);
@@ -11314,46 +11312,46 @@ Yap_absmi(int inp)
 	int flags;
 
 	Int v = IntOfTerm(d0) - IntOfTerm(d1);
-	flags = PREG->u.llyy.flags;
+	flags = PREG->u.plyys.flags;
 	if (v > 0) {
 	  if (flags & GT_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, llyy);
+	    PREG = NEXTOP(PREG, plyys);
 	    JMPNext();
 	  } else {
-	    PREG = PREG->u.llyy.f;
+	    PREG = PREG->u.plyys.f;
 	    JMPNext();
 	  }
 	} else if (v < 0) {
 	  if (flags & LT_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, llyy);
+	    PREG = NEXTOP(PREG, plyys);
 	    JMPNext();
 	  } else {
-	    PREG = PREG->u.llyy.f;
+	    PREG = PREG->u.plyys.f;
 	    JMPNext();
 	  }
 	} else /* if (v == 0) */ {
 	  if (flags & EQ_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, llyy);
+	    PREG = NEXTOP(PREG, plyys);
 	    JMPNext();
 	  } else {
-	    PREG = PREG->u.llyy.f;
+	    PREG = PREG->u.plyys.f;
 	    JMPNext();
 	  }
 	}
       } 
     exec_bin_cmp_yy:
       {
-	CmpPredicate f = PREG->u.llyy.p->cs.d_code;
+	CmpPredicate f = PREG->u.plyys.p->cs.d_code;
 	saveregs();
 	d0 = (CELL) (f) (d0,d1);
       }
       setregs();
       if (!d0) {
 	if (PREG != FAILCODE)
-	  PREG = PREG->u.llyy.f;
+	  PREG = PREG->u.plyys.f;
 	JMPNext();
       }
-      PREG = NEXTOP(PREG, llyy);
+      PREG = NEXTOP(PREG, plyys);
       JMPNext();
 
       BEGP(pt0);
@@ -12090,7 +12088,7 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	XREG(PREG->u.xxx.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sla),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sbpp),l);
 	GONext();
       }
       else if ((Int)d1 > 0) {
@@ -12113,7 +12111,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxx),sla))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxx),sbpp))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -12132,11 +12130,11 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	XREG(PREG->u.xxx.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sla),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sbpp),l);
 	GONext();
       }	else if ((Int)d1  == 0) {
 	XREG(PREG->u.xxx.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sla),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sbpp),l);
 	GONext();
       }	else {
 	saveregs();
@@ -12166,23 +12164,23 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_func2s_cv, xcx);
+      Op(p_func2s_cv, xxc);
       /* A1 is a variable */
     restart_func2s_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	RESET_VARIABLE(H);
-	H[1] = PREG->u.xcx.c;
-	H[2] = XREG(PREG->u.xcx.xi);
+	H[1] = PREG->u.xxc.c;
+	H[2] = XREG(PREG->u.xxc.xi);
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
       /* We have to build the structure */
-      d0 = PREG->u.xcx.c;
+      d0 = PREG->u.xxc.c;
       /* we do, let's get the third argument */
       BEGD(d1);
-      d1 = XREG(PREG->u.xcx.xi);
+      d1 = XREG(PREG->u.xxc.xi);
       deref_head(d1, func2s_unk2_cv);
     func2s_nvar2_cv:
       /* Uuuff, the second and third argument are bound */
@@ -12203,8 +12201,8 @@ Yap_absmi(int inp)
 	H += 2;
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
-	XREG(PREG->u.xcx.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xcx),sla),l);
+	XREG(PREG->u.xxc.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sbpp),l);
 	GONext();
       } else if ((Int)d1 > 0) {
 	/* now let's build a compound term */
@@ -12226,7 +12224,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xcx),sla))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxc),sbpp))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -12244,12 +12242,12 @@ Yap_absmi(int inp)
 	ENDP(pt1);
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
-	XREG(PREG->u.xcx.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xcx),sla),l);
+	XREG(PREG->u.xxc.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sbpp),l);
 	GONext();
       }	else if (d1  == 0) {
-	XREG(PREG->u.xcx.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xcx),sla),l);
+	XREG(PREG->u.xxc.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sbpp),l);
 	GONext();
       }	else {
 	saveregs();
@@ -12309,13 +12307,13 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	XREG(PREG->u.xxc.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sla),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sbpp),l);
 	GONext();
       }
       /* now let's build a compound term */
       if (d1 == 0) {
 	XREG(PREG->u.xxc.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sla),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sbpp),l);
 	GONext();
       }
       if (!IsAtomTerm(d0)) {
@@ -12336,7 +12334,7 @@ Yap_absmi(int inp)
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
-	if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxc),sla))) {
+	if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxc),sbpp))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	  setregs();
 	  JMPNext();
@@ -12356,7 +12354,7 @@ Yap_absmi(int inp)
       /* else if arity is 0 just pass d0 through */
       /* Ding, ding, we made it */
       XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sla),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sbpp),l);
       GONext();
 
       BEGP(pt1);
@@ -12415,7 +12413,7 @@ Yap_absmi(int inp)
 	H += 2;
 	BEGP(pt1);
 	pt1 = YREG + PREG->u.yxx.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sla),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12443,7 +12441,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxx),sla))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxx),sbpp))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -12463,7 +12461,7 @@ Yap_absmi(int inp)
 	/* Ding, ding, we made it */
 	BEGP(pt1);
 	pt1 = YREG + PREG->u.yxx.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sla),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12474,7 +12472,7 @@ Yap_absmi(int inp)
       }	else if (d1  == 0) {
 	BEGP(pt1);
 	pt1 = YREG + PREG->u.yxx.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sla),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12510,23 +12508,23 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_func2s_y_cv, ycx);
+      Op(p_func2s_y_cv, yxc);
       /* A1 is a variable */
     restart_func2s_y_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	RESET_VARIABLE(H);
-	H[1] = PREG->u.ycx.c;
-	H[2] = XREG(PREG->u.ycx.xi);
+	H[1] = PREG->u.yxc.c;
+	H[2] = XREG(PREG->u.yxc.xi);
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
       BEGD(d0);
-      d0 = PREG->u.ycx.c;
+      d0 = PREG->u.yxc.c;
       /* we do, let's get the third argument */
       BEGD(d1);
-      d1 = XREG(PREG->u.ycx.xi);
+      d1 = XREG(PREG->u.yxc.xi);
       deref_head(d1, func2s_y_unk_cv);
     func2s_y_nvar_cv:
       /* Uuuff, the second and third argument are bound */
@@ -12548,8 +12546,8 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	BEGP(pt1);
-	pt1 = YREG + PREG->u.ycx.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, ycx),sla),l);
+	pt1 = YREG + PREG->u.yxc.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12578,7 +12576,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,ycx),sla))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxc),sbpp))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -12597,8 +12595,8 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	BEGP(pt1);
-	pt1 = YREG + PREG->u.ycx.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, ycx),sla),l);
+	pt1 = YREG + PREG->u.yxc.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12608,8 +12606,8 @@ Yap_absmi(int inp)
 	GONext();
       }	else if (d1  == 0) {
 	BEGP(pt1);
-	pt1 = YREG + PREG->u.ycx.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, ycx),sla),l);
+	pt1 = YREG + PREG->u.yxc.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12676,7 +12674,7 @@ Yap_absmi(int inp)
 	/* Ding, ding, we made it */
 	BEGP(pt1);
 	pt1 = YREG + PREG->u.yxc.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sla),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12688,7 +12686,7 @@ Yap_absmi(int inp)
       if (d1 == 0) {
 	BEGP(pt1);
 	pt1 = YREG + PREG->u.yxc.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sla),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12722,7 +12720,7 @@ Yap_absmi(int inp)
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
-	if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxc),sla))) {
+	if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxc),sbpp))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	  setregs();
 	  JMPNext();
@@ -12742,7 +12740,7 @@ Yap_absmi(int inp)
       /* Ding, ding, we made it */
       BEGP(pt1);
       pt1 = YREG + PREG->u.yxc.y;
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sla),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt1,d0);
 #else
@@ -12811,42 +12809,42 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_func2f_xy, xyx);
+      Op(p_func2f_xy, xxy);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	H[0] = XREG(PREG->u.xyx.x);
+	H[0] = XREG(PREG->u.xxy.x);
 	RESET_VARIABLE(H+1);
 	RESET_VARIABLE(H+2);
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
-      d0 = XREG(PREG->u.xyx.x);
+      d0 = XREG(PREG->u.xxy.x);
       deref_head(d0, func2f_xy_unk);
     func2f_xy_nvar:
       if (IsApplTerm(d0)) {
 	Functor d1 = FunctorOfTerm(d0);
-	CELL *pt0 = YREG+PREG->u.xyx.y2;
+	CELL *pt0 = YREG+PREG->u.xxy.y2;
 	if (IsExtensionFunctor(d1)) {
-	  XREG(PREG->u.xyx.x1) = d0;
-	  PREG = NEXTOP(PREG, xyx);
+	  XREG(PREG->u.xxy.x1) = d0;
+	  PREG = NEXTOP(PREG, xxy);
 	  *pt0 = MkIntTerm(0);
 	  GONext();
 	}
-	XREG(PREG->u.xyx.x1) = MkAtomTerm(NameOfFunctor(d1));
-	PREG = NEXTOP(PREG, xyx);
+	XREG(PREG->u.xxy.x1) = MkAtomTerm(NameOfFunctor(d1));
+	PREG = NEXTOP(PREG, xxy);
 	*pt0 = MkIntegerTerm(ArityOfFunctor(d1));
 	GONext();
       } else if (IsPairTerm(d0)) {
-	CELL *pt0 = YREG+PREG->u.xyx.y2;
-	XREG(PREG->u.xyx.x1) = TermDot;
-	PREG = NEXTOP(PREG, xyx);
+	CELL *pt0 = YREG+PREG->u.xxy.y2;
+	XREG(PREG->u.xxy.x1) = TermDot;
+	PREG = NEXTOP(PREG, xxy);
 	*pt0 = MkIntTerm(2);
 	GONext();
       } else {
-	CELL *pt0 = YREG+PREG->u.xyx.y2;
-	XREG(PREG->u.xyx.x1) = d0;
-	PREG = NEXTOP(PREG, xyx);
+	CELL *pt0 = YREG+PREG->u.xxy.y2;
+	XREG(PREG->u.xxy.x1) = d0;
+	PREG = NEXTOP(PREG, xxy);
 	*pt0 = MkIntTerm(0);
 	GONext();
       }
@@ -13036,13 +13034,13 @@ Yap_absmi(int inp)
 	  FAIL();
 	}
 	/* Done */
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),sla),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),sbmp),l);
 	GONext();
 
 	BEGP(pt0);
 	deref_body(d1, pt0, func_nvar3_unk, func_nvar3_nvar);
 	/* A3 is a variable, go and bind it */
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),sla),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),sbmp),l);
 	BIND(pt0, d0, bind_func_nvar3_var);
 	/* Done */
 #ifdef COROUTINING
@@ -13112,7 +13110,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP(PREG,e),sla))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP(PREG,e),sbmp))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -13136,7 +13134,7 @@ Yap_absmi(int inp)
       }
       /* else if arity is 0 just pass d0 through */
       /* Ding, ding, we made it */
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),sla),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),sbpp),l);
       BIND(pt0, d0, bind_func_var_3nvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
@@ -13168,7 +13166,7 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      BOp(p_execute2, sla);
+      BOp(p_execute2, sbpp);
       { 
 	PredEntry *pen;
 	Term mod = ARG2;
@@ -13182,7 +13180,7 @@ Yap_absmi(int inp)
 	}
 	CACHE_Y_AS_ENV(YREG);
 	/* Try to preserve the environment */
-	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
 #ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -13238,7 +13236,7 @@ Yap_absmi(int inp)
 	      } else {
 		goto execute2_metacall;
 	      }
-	      ENV_YREG[E_CP] = (CELL)NEXTOP(PREG,sla);
+	      ENV_YREG[E_CP] = (CELL)NEXTOP(PREG,sbpp);
 	      ENV_YREG[E_CB] = (CELL)B;
 	      ENV_YREG[E_E]  = (CELL)ENV;
 #ifdef DEPTH_LIMIT
@@ -13300,7 +13298,7 @@ Yap_absmi(int inp)
 #ifndef NO_CHECKING
 	check_stack(NoStackPExecute2, H);
 #endif
-	CPREG = NEXTOP(PREG, sla);
+	CPREG = NEXTOP(PREG, sbpp);
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	PREG = pen->CodeOfPred;
 	/* for profiler */
@@ -13353,7 +13351,7 @@ Yap_absmi(int inp)
 	  goto creep_pe;
 	}
 	saveregs_and_ycache();
-	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sla))) {
+	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sbpp))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	}
 	setregs_and_ycache();
@@ -13371,14 +13369,14 @@ Yap_absmi(int inp)
       }
       ENDBOp();
 
-      BOp(p_execute, sla);
+      BOp(p_execute, sbmp);
       { 
 	PredEntry *pen;
-	Term mod = PREG->u.sla.sla_u.mod;
+	Term mod = PREG->u.sbmp.mod;
 
 	CACHE_Y_AS_ENV(YREG);
 	/* Try to preserve the environment */
-	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.sbmp.s);
 #ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -13434,7 +13432,7 @@ Yap_absmi(int inp)
 	      } else {
 		goto execute_metacall;
 	      }
-	      ENV_YREG[E_CP] = (CELL)NEXTOP(PREG,sla);
+	      ENV_YREG[E_CP] = (CELL)NEXTOP(PREG,sbmp);
 	      ENV_YREG[E_CB] = (CELL)B;
 	      ENV_YREG[E_E]  = (CELL)ENV;
 #ifdef DEPTH_LIMIT
@@ -13496,7 +13494,7 @@ Yap_absmi(int inp)
 #ifndef NO_CHECKING
 	check_stack(NoStackPExecute, H);
 #endif
-	CPREG = NEXTOP(PREG, sla);
+	CPREG = NEXTOP(PREG, sbmp);
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	PREG = pen->CodeOfPred;
 	/* for profiler */
@@ -13549,7 +13547,7 @@ Yap_absmi(int inp)
 	  goto creep_pe;
 	}
 	saveregs_and_ycache();
-	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sla))) {
+	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sbmp))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	}
 	setregs_and_ycache();
@@ -13559,10 +13557,10 @@ Yap_absmi(int inp)
       ENDBOp();
 
     creep_pe:			/* do creep in call                                     */
-      CPREG = NEXTOP(PREG, sla);
+      CPREG = NEXTOP(PREG, sbmp);
       goto creep;
 
-      BOp(p_execute_tail, sla);
+      BOp(p_execute_tail, sbpp);
       {
 	PredEntry *pen;
 	Term mod;
@@ -13635,7 +13633,7 @@ Yap_absmi(int inp)
 	    ENV = ENV_YREG;
 	    ENV_YREG -= EnvSizeInCells+3;
 	    d0 = SREG[1];
-	    CPREG = NEXTOP(COMMA_CODE,sla);
+	    CPREG = NEXTOP(COMMA_CODE,sbpp);
 	  execute_comma_comma2:
 	    /* create an to execute the call */
 	    deref_head(d0, execute_comma_comma2_unk);
@@ -13860,7 +13858,7 @@ Yap_absmi(int inp)
 	}
 	UNLOCK(SignalLock);
 	saveregs();
-	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sla))) {
+	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sbpp))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	}
 	setregs();

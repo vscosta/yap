@@ -1817,10 +1817,10 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 {
   OPCODE trust_lu = Yap_opcode(_trust_logical);
   
-  yamop *lu_cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,ld),
-    *lu_cl = NEXTOP(PredLogUpdClause->CodeOfPred,ld),
-    *lu_cle = NEXTOP(PredLogUpdClauseErase->CodeOfPred,ld),
-    *su_cl = NEXTOP(PredStaticClause->CodeOfPred,ld);
+  yamop *lu_cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,apl),
+    *lu_cl = NEXTOP(PredLogUpdClause->CodeOfPred,apl),
+    *lu_cle = NEXTOP(PredLogUpdClauseErase->CodeOfPred,apl),
+    *su_cl = NEXTOP(PredStaticClause->CodeOfPred,apl);
 #ifdef TABLING
   dep_fr_ptr depfr = LOCAL_top_dep_fr;
 #endif /* TABLING */
@@ -1889,13 +1889,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
     if (opnum == _or_else || opnum == _or_last) {
       /* ; choice point */
       mark_environments((CELL_PTR) (gc_B->cp_a1),
-#ifdef YAPOR
-			-gc_B->cp_cp->u.ldl.s / ((OPREG)sizeof(CELL)),
-			(CELL *)(gc_B->cp_cp->u.ldl.bl)
-#else
-			-gc_B->cp_cp->u.sla.s / ((OPREG)sizeof(CELL)),
-			gc_B->cp_cp->u.sla.bmap
-#endif
+			-gc_B->cp_cp->u.sblp.s / ((OPREG)sizeof(CELL)),
+			gc_B->cp_cp->u.sblp.bmap
 			);
     } else {
       /* choicepoint with arguments */
@@ -1943,7 +1938,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	  }
 	  B = old_b;
 	}
-	nargs = rtp->u.lds.s+rtp->u.lds.extra;
+	nargs = rtp->u.apFs.s+rtp->u.apFs.extra;
 	break;
       case _jump:
 	rtp = rtp->u.l.l;
@@ -1980,7 +1975,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	{
 	  CELL *vars_ptr, vars;
 	  vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
-	  nargs = rtp->u.ld.s;
+	  nargs = rtp->u.apl.s;
 	  while (nargs--) {	
 	    mark_external_reference(vars_ptr);
 	    vars_ptr++;
@@ -2096,20 +2091,20 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	     on the other hand it's the only way we can be sure we can reclaim
 	     space
 	  */
-	  yamop *end = rtp->u.lld.n;
+	  yamop *end = rtp->u.aLl.n;
 	  while (end->opc != trust_lu)
-	    end = end->u.lld.n;
-	  mark_ref_in_use((DBRef)end->u.lld.t.block);
+	    end = end->u.aLl.n;
+	  mark_ref_in_use((DBRef)end->u.ILl.block);
 	}
 	/* mark timestamp */
-	nargs = rtp->u.lld.t.s+1;
+	nargs = rtp->u.aLl.s+1;
 	break;
       case _trust_logical:
       case _count_trust_logical:
       case _profiled_trust_logical:
 	/* mark timestamp */
-	mark_ref_in_use((DBRef)rtp->u.lld.t.block);
-	nargs = rtp->u.lld.d->ClPred->ArityOfPE+1;
+	mark_ref_in_use((DBRef)rtp->u.ILl.block);
+	nargs = rtp->u.ILl.d->ClPred->ArityOfPE+1;
 	break;
 #ifdef DEBUG
       case _retry_me:
@@ -2120,14 +2115,14 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _count_trust_me:
       case _retry:
       case _trust:
-	nargs = rtp->u.ld.s;
+	nargs = rtp->u.apl.s;
 	break;
       default:
 	fprintf(Yap_stderr, "OOps in GC: Unexpected opcode: %d\n", opnum);
 	nargs = 0;
 #else
       default:
-	nargs = rtp->u.ld.s;
+	nargs = rtp->u.apl.s;
 #endif
       }
 	
@@ -2141,8 +2136,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	  mark_db_fixed((CELL *)pt);
 	} else {
 	  while (pt->opc != trust_lu)
-	    pt = pt->u.lld.n;
-	  mark_ref_in_use((DBRef)pt->u.lld.t.block);
+	    pt = pt->u.aLl.n;
+	  mark_ref_in_use((DBRef)pt->u.ILl.block);
 	}
       }
       /* for each saved register */
@@ -2752,13 +2747,8 @@ sweep_choicepoints(choiceptr gc_B)
     case _or_last:
 
       sweep_environments((CELL_PTR)(gc_B->cp_a1),
-#ifdef YAPOR
-			 -gc_B->cp_cp->u.ldl.s / ((OPREG)sizeof(CELL)),
-			 (CELL *)(gc_B->cp_cp->u.ldl.bl)
-#else
-			 -gc_B->cp_cp->u.sla.s / ((OPREG)sizeof(CELL)),
-			 gc_B->cp_cp->u.sla.bmap
-#endif
+			 -gc_B->cp_cp->u.sblp.s / ((OPREG)sizeof(CELL)),
+			 gc_B->cp_cp->u.sblp.bmap
 			 );
       break;
     case _retry_profiled:
@@ -2801,7 +2791,7 @@ sweep_choicepoints(choiceptr gc_B)
 	CELL *vars_ptr, vars;
 	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
 	vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
-	nargs = rtp->u.ld.s;
+	nargs = rtp->u.apl.s;
 	while(nargs--) {
 	  CELL cp_cell = *vars_ptr;
 	  if (MARKED_PTR(vars_ptr)) {
@@ -2947,12 +2937,12 @@ sweep_choicepoints(choiceptr gc_B)
     case _count_retry_logical:
     case _profiled_retry_logical:
 	/* sweep timestamp */
-      sweep_b(gc_B, rtp->u.lld.t.s+1);
+      sweep_b(gc_B, rtp->u.aLl.s+1);
       break;
     case _trust_logical:
     case _count_trust_logical:
     case _profiled_trust_logical:
-      sweep_b(gc_B, rtp->u.lld.d->ClPred->ArityOfPE+1);
+      sweep_b(gc_B, rtp->u.ILl.d->ClPred->ArityOfPE+1);
       break;
     case _retry2:
       sweep_b(gc_B, 2);
@@ -2969,8 +2959,8 @@ sweep_choicepoints(choiceptr gc_B)
 	register CELL_PTR saved_reg;
 	
 	/* for each extra saved register */
-	for (saved_reg = &(gc_B->cp_a1)+rtp->u.lds.s;
-	     saved_reg < &(gc_B->cp_a1)+rtp->u.lds.s+rtp->u.lds.extra;
+	for (saved_reg = &(gc_B->cp_a1)+rtp->u.apFs.s;
+	     saved_reg < &(gc_B->cp_a1)+rtp->u.apFs.s+rtp->u.apFs.extra;
 	     saved_reg++) {
 	  CELL cp_cell = *saved_reg;
 	  if (MARKED_PTR(saved_reg)) {
@@ -2983,7 +2973,7 @@ sweep_choicepoints(choiceptr gc_B)
       }
       /* continue to clean environments and arguments */
     default:
-      sweep_b(gc_B,rtp->u.ld.s);
+      sweep_b(gc_B,rtp->u.apl.s);
     }
 
     /* link to prev choicepoint */

@@ -33,7 +33,7 @@ typedef union CONSULT_OBJ {
 #define ASSEMBLING_INDEX	1
 #define ASSEMBLING_EINDEX	2
 
-#define NextDynamicClause(X)	(((yamop *)X)->u.ld.d)
+#define NextDynamicClause(X)	(((yamop *)X)->u.apl.d)
 
 #define PredFirstClause		0
 #define PredMiddleClause	1
@@ -197,7 +197,7 @@ typedef struct dbterm_list {
 
 /* amasm.c */
 wamreg	STD_PROTO(Yap_emit_x,(CELL));
-wamreg  STD_PROTO(Yap_compile_cmp_flags,(PredEntry *));
+COUNT   STD_PROTO(Yap_compile_cmp_flags,(PredEntry *));
 void    STD_PROTO(Yap_InitComma,(void));
 
 /* cdmgr.c */

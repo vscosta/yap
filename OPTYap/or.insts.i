@@ -41,7 +41,7 @@
 
 
 
-  PBOp(getwork,ld)
+  PBOp(getwork,apl)
 #ifdef TABLING
     if (DepFr_leader_cp(LOCAL_top_dep_fr) == LOCAL_top_cp) {
       /* the current top node is a leader node with consumer nodes below */
@@ -93,7 +93,7 @@
 
   /* The idea is to check whether we are the last worker in the node.
      If we are, we can go ahead, otherwise we should call the scheduler. */
-  PBOp(getwork_seq,ld)
+  PBOp(getwork_seq,apl)
     LOCK_OR_FRAME(LOCAL_top_or_fr);
     if (OrFr_alternative(LOCAL_top_or_fr) &&
         BITMAP_alone(OrFr_members(LOCAL_top_or_fr), worker_id)) {
@@ -108,9 +108,9 @@
 
 
 
-  PBOp(sync,ld)
+  PBOp(sync,apl)
     CUT_wait_leftmost();
-    PREG = NEXTOP(PREG, ld);
+    PREG = NEXTOP(PREG, apl);
     PREFETCH_OP(PREG);
     GONext();
   ENDPBOp();

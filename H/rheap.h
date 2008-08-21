@@ -244,17 +244,17 @@ static char     SccsId[] = "@(#)rheap.c	1.3 3/15/90";
 static void 
 do_clean_susp_clauses(yamop *ipc) {
   COUNT i;
-  yamop **st = (yamop **)NEXTOP(ipc,sp);
+  yamop **st = (yamop **)NEXTOP(ipc,sssllp);
 
   ipc->opc = Yap_opcode(_expand_clauses);
-  ipc->u.sp.p = PtoPredAdjust(ipc->u.sp.p);
-  if (ipc->u.sp.sprev) {
-    ipc->u.sp.sprev = PtoOpAdjust(ipc->u.sp.sprev);
+  ipc->u.sssllp.p = PtoPredAdjust(ipc->u.sssllp.p);
+  if (ipc->u.sssllp.sprev) {
+    ipc->u.sssllp.sprev = PtoOpAdjust(ipc->u.sssllp.sprev);
   }
-  if (ipc->u.sp.snext) {
-    ipc->u.sp.snext = PtoOpAdjust(ipc->u.sp.snext);
+  if (ipc->u.sssllp.snext) {
+    ipc->u.sssllp.snext = PtoOpAdjust(ipc->u.sssllp.snext);
   }
-  for (i = 0; i < ipc->u.sp.s1; i++, st++) {
+  for (i = 0; i < ipc->u.sssllp.s1; i++, st++) {
     if (*st) {
       *st = PtoOpAdjust(*st);
     }
@@ -516,7 +516,7 @@ restore_codes(void)
     yamop *ptr = Yap_heap_regs->expand_clauses_first;
     while (ptr) {
       do_clean_susp_clauses(ptr);
-      ptr = ptr->u.sp.snext;
+      ptr = ptr->u.sssllp.snext;
     }
   }
   Yap_heap_regs->failcode->opc = Yap_opcode(_op_fail);
@@ -542,9 +542,9 @@ restore_codes(void)
   INIT_YAMOP_LTT(&(Yap_heap_regs->nocode), 1);
   INIT_YAMOP_LTT(&(Yap_heap_regs->rtrycode), 1);
 #endif /* YAPOR */
-  if (((yamop *)(&Yap_heap_regs->rtrycode))->u.ld.d != NIL)
-    ((yamop *)(&Yap_heap_regs->rtrycode))->u.ld.d =
-      PtoOpAdjust(((yamop *)(&Yap_heap_regs->rtrycode))->u.ld.d);
+  if (((yamop *)(&Yap_heap_regs->rtrycode))->u.apl.d != NIL)
+    ((yamop *)(&Yap_heap_regs->rtrycode))->u.apl.d =
+      PtoOpAdjust(((yamop *)(&Yap_heap_regs->rtrycode))->u.apl.d);
   {
     int             arity;
     arity = Yap_heap_regs->clausecode->arity;

@@ -790,7 +790,7 @@ showprofres(UInt type) {
              InCCall++;  /* I Was in a C Call */
 	     pc_ptr=y;
     	     /* 
-	      printf("Aqui está um call_cpred(%p) \n",y->u.sla.sla_u.p->cs.f_code);
+	      printf("Aqui está um call_cpred(%p) \n",y->u.sbpp.p->cs.f_code);
               for(i=0;i<_std_top && pc_ptr->opc!=Yap_ABSMI_OPCODES[i];i++);
       	         printf("Outro syscall diferente  %s\n", Yap_op_names[i]);
              */
@@ -973,11 +973,11 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
     current_p = P;
 #endif
   } else {
-    op_numbers oop = Yap_op_from_opcode(PREVOP(P,sla)->opc);
+    op_numbers oop = Yap_op_from_opcode(PREVOP(P,sbpp)->opc);
     
     if (oop == _call_cpred || oop == _call_usercpred) {
       /* doing C-code */
-      current_p = PREVOP(P,sla)->u.sla.sla_u.p->CodeOfPred;
+      current_p = PREVOP(P,sbpp)->u.sbpp.p->CodeOfPred;
     } else {
       current_p = P;
     }

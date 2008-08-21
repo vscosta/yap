@@ -230,10 +230,10 @@ STATIC_PROTO(OPCODE emit_op, (op_numbers));
 STATIC_PROTO(yamop *a_cle, (op_numbers, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_e, (op_numbers, yamop *, int));
 STATIC_PROTO(yamop *a_ue, (op_numbers, op_numbers, yamop *, int));
-STATIC_PROTO(yamop *a_v, (op_numbers, yamop *, int, struct PSEUDO *));
-STATIC_PROTO(yamop *a_uv, (Ventry *,op_numbers, op_numbers, yamop *, int));
-STATIC_PROTO(yamop *a_vr, (op_numbers, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_rv, (op_numbers, OPREG, yamop *, int, struct PSEUDO *));
+STATIC_PROTO(yamop *a_v, (op_numbers, op_numbers, yamop *, int, struct PSEUDO *));
+STATIC_PROTO(yamop *a_uv, (Ventry *,op_numbers, op_numbers, op_numbers, op_numbers, yamop *, int));
+STATIC_PROTO(yamop *a_vr, (op_numbers, op_numbers, yamop *, int, struct intermediates *));
+STATIC_PROTO(yamop *a_rv, (op_numbers, op_numbers, OPREG, yamop *, int, struct PSEUDO *));
 STATIC_PROTO(yamop *a_vv, (op_numbers, op_numbers, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_glist, (int *, yamop *, int, struct intermediates *));
 STATIC_PROTO(void   a_pair, (CELL *, int, struct intermediates *));
@@ -260,7 +260,8 @@ STATIC_PROTO(yamop *a_either, (op_numbers, CELL, CELL, yamop *,  int, struct int
 #endif	/* YAPOR */
 STATIC_PROTO(yamop *a_gl, (op_numbers, yamop *, int, struct PSEUDO *, struct intermediates *));
 STATIC_PROTO(yamop *a_bfunc, (CELL, clause_info *, yamop *, int, struct intermediates *));
-STATIC_PROTO(wamreg compile_cmp_flags, (char *));
+STATIC_PROTO(
+COUNT compile_cmp_flags, (char *));
 STATIC_PROTO(yamop *a_igl, (CELL, op_numbers, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_xigl, (op_numbers, yamop *, int, struct PSEUDO *));
 STATIC_PROTO(yamop *a_ucons, (int *, compiler_vm_op, yamop *, int, struct intermediates *));
@@ -482,15 +483,12 @@ a_lucl(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip,
   if (pass_no) {
     LogUpdIndex *lcl = (LogUpdIndex *)cip->code_addr;
     code_p->opc = emit_op(opcode);
-    code_p->u.Ill.I = lcl;
-    cip->current_try_lab = &code_p->u.Ill.l1;
-    cip->current_trust_lab = &code_p->u.Ill.l2;
-    code_p->u.Ill.s  = cip->cpc->rnd3;
-#if defined(YAPOR) || defined(THREADS)
-    code_p->u.Ill.p = cip->CurrentPred;
-#endif
+    code_p->u.Ills.I = lcl;
+    cip->current_try_lab = &code_p->u.Ills.l1;
+    cip->current_trust_lab = &code_p->u.Ills.l2;
+    code_p->u.Ills.s  = cip->cpc->rnd3;
   }
-  GONEXT(Ill);
+  GONEXT(Ills);
   return code_p;
 }
 
@@ -501,17 +499,11 @@ a_cle(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
     LogUpdClause *cl = (LogUpdClause *)cip->code_addr;
 
     code_p->opc = emit_op(opcode);
-    code_p->u.EC.ClTrail = 0;
-    code_p->u.EC.ClENV = 0;
-    code_p->u.EC.ClRefs = 0;
-    code_p->u.EC.ClBase = cl;
-#if defined(THREADS) || defined(YAPOR)
-    code_p->u.EC.p = cip->CurrentPred;
-#endif
+    code_p->u.L.ClBase = cl;
     cl->ClExt = code_p;
     cl->ClFlags |= LogUpdRuleMask;
   }
-  GONEXT(EC);
+  GONEXT(L);
   return code_p;
 }
 
@@ -537,23 +529,23 @@ a_ue(op_numbers opcode, op_numbers opcodew, yamop *code_p, int pass_no)
 }
 
 inline static yamop *
-a_v(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
+a_v(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct PSEUDO *cpc)
 {
   Ventry *ve = (Ventry *) cpc->rnd1;
   OPREG var_offset;
   int is_y_var = (ve->KindOfVE == PermVar);
 
   var_offset = Var_Ref(ve, is_y_var);
-  if (ve->KindOfVE == PermVar) {
+  if (is_y_var) {
     if (pass_no) {
-      code_p->opc = emit_op((op_numbers)((int)opcode + is_y_var));
+      code_p->opc = emit_op(opcodey);
       code_p->u.y.y = emit_yreg(var_offset);
     }
     GONEXT(y);
   }
   else {
     if (pass_no) {
-      code_p->opc = emit_op((op_numbers)((int)opcode + is_y_var));
+      code_p->opc = emit_op(opcodex);
       code_p->u.x.x = emit_xreg(var_offset);
     }
     GONEXT(x);
@@ -562,7 +554,7 @@ a_v(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
 }
 
 inline static yamop *
-a_uv(Ventry *ve, op_numbers opcode, op_numbers opcodew, yamop *code_p, int pass_no)
+a_uv(Ventry *ve, op_numbers opcodex, op_numbers opcodexw, op_numbers opcodey, op_numbers opcodeyw, yamop *code_p, int pass_no)
 {
   OPREG var_offset;
   int is_y_var = (ve->KindOfVE == PermVar);
@@ -570,16 +562,16 @@ a_uv(Ventry *ve, op_numbers opcode, op_numbers opcodew, yamop *code_p, int pass_
   var_offset = Var_Ref(ve, is_y_var);
   if (is_y_var) {
     if (pass_no) {
-      code_p->opc = emit_op((op_numbers)((int)opcode + is_y_var));
-      code_p->u.oy.opcw = emit_op((op_numbers)((int)opcodew + is_y_var));
+      code_p->opc = emit_op(opcodey);
+      code_p->u.oy.opcw = emit_op(opcodeyw);
       code_p->u.oy.y = emit_yreg(var_offset);
     }
     GONEXT(oy);
   }
   else {
     if (pass_no) {
-      code_p->opc = emit_op((op_numbers)((int)opcode + is_y_var));
-      code_p->u.ox.opcw = emit_op((op_numbers)((int)opcodew + is_y_var));
+      code_p->opc = emit_op(opcodex);
+      code_p->u.ox.opcw = emit_op(opcodexw);
       code_p->u.ox.x = emit_xreg(var_offset);
     }
     GONEXT(ox);
@@ -614,7 +606,7 @@ a_vv(op_numbers opcode, op_numbers opcodew, yamop *code_p, int pass_no, struct i
 }
 
 inline static yamop *
-a_vr(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
+a_vr(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct intermediates *cip)
 {
   struct PSEUDO *cpc = cip->cpc;
   Ventry *ve = (Ventry *) cpc->rnd1;
@@ -625,13 +617,13 @@ a_vr(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
       OPREG var_offset;
 
       var_offset = Var_Ref(ve, is_y_var);
-      code_p->opc = emit_op((op_numbers)((int)opcode + is_y_var));
+      code_p->opc = emit_op(opcodey);
       code_p->u.yx.y = emit_yreg(var_offset);
       code_p->u.yx.x = emit_x(cpc->rnd2);
     }
     GONEXT(yx);
   }
-  else if (opcode == _put_x_val &&
+  else if (opcodex == _put_x_val &&
 	   cpc->nextInst &&
 	   cpc->nextInst->op == put_val_op &&
 	   !(((Ventry *) cpc->nextInst->rnd1)->KindOfVE == PermVar)) {
@@ -656,7 +648,7 @@ a_vr(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
       OPREG var_offset;
 
       var_offset = Var_Ref(ve, is_y_var);
-      code_p->opc = emit_op((op_numbers)((int)opcode + is_y_var));
+      code_p->opc = emit_op(opcodex);
       code_p->u.xx.xl = emit_xreg(var_offset);
       code_p->u.xx.xr = emit_x(cpc->rnd2);
     }
@@ -666,14 +658,14 @@ a_vr(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
 }
 
 inline static yamop *
-a_rv(op_numbers opcode, OPREG var_offset, yamop *code_p, int pass_no, struct PSEUDO *cpc)
+a_rv(op_numbers opcodex, op_numbers opcodey, OPREG var_offset, yamop *code_p, int pass_no, struct PSEUDO *cpc)
 {
   Ventry *ve = (Ventry *) cpc->rnd1;
   int is_y_var = (ve->KindOfVE == PermVar);
 
   if (is_y_var) {
     if (pass_no) {
-      code_p->opc = emit_op((op_numbers)((int)opcode + is_y_var));
+      code_p->opc = emit_op(opcodey);
       code_p->u.xy.x = emit_x(cpc->rnd2);
       code_p->u.xy.y = emit_yreg(var_offset);
     }
@@ -681,7 +673,7 @@ a_rv(op_numbers opcode, OPREG var_offset, yamop *code_p, int pass_no, struct PSE
   }
   else {
     if (pass_no) {
-      code_p->opc = emit_op((op_numbers)((int)opcode + is_y_var));
+      code_p->opc = emit_op(opcodex);
       code_p->u.xx.xl = emit_x(cpc->rnd2);
       code_p->u.xx.xr = emit_xreg(var_offset);
     }
@@ -792,10 +784,10 @@ a_f(CELL rnd1, op_numbers opcode, yamop *code_p, int pass_no)
     Functor f = emit_f(rnd1);
 
     code_p->opc = emit_op(opcode);
-    code_p->u.f.f = f;
-    code_p->u.f.a = ArityOfFunctor(f);
+    code_p->u.fa.f = f;
+    code_p->u.fa.a = ArityOfFunctor(f);
   }
-  GONEXT(f);
+  GONEXT(fa);
   return code_p;
 }
 
@@ -806,11 +798,11 @@ a_uf(CELL rnd1, op_numbers opcode, op_numbers opcodew, yamop *code_p, int pass_n
     Functor f = emit_f(rnd1);
 
     code_p->opc = emit_op(opcode);
-    code_p->u.of.opcw = emit_op(opcodew);
-    code_p->u.of.f = f;
-    code_p->u.of.a = ArityOfFunctor(f);
+    code_p->u.ofa.opcw = emit_op(opcodew);
+    code_p->u.ofa.f = f;
+    code_p->u.ofa.a = ArityOfFunctor(f);
   }
-  GONEXT(of);
+  GONEXT(ofa);
   return code_p;
 }
 
@@ -978,11 +970,11 @@ a_rf(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.xf.x = emit_x(cpc->rnd2);
-    code_p->u.xf.f = emit_f(cpc->rnd1);
-    code_p->u.xf.a = ArityOfFunctor(emit_f(cpc->rnd1));
+    code_p->u.xfa.x = emit_x(cpc->rnd2);
+    code_p->u.xfa.f = emit_f(cpc->rnd1);
+    code_p->u.xfa.a = ArityOfFunctor(emit_f(cpc->rnd1));
   }
-  GONEXT(xf);
+  GONEXT(xfa);
   return code_p;
 }
 
@@ -1243,14 +1235,14 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
 	  longjmp(cip->CompilerBotch, 1);
 	} else
 	  code_p->opc = emit_op(_call_c_wfail);
-	code_p->u.sdl.s =
+	code_p->u.sdlp.s =
 	  emit_count(-Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2);
-	code_p->u.sdl.l =
+	code_p->u.sdlp.l =
 	  emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
-	code_p->u.sdl.p =
+	code_p->u.sdlp.p =
 	  emit_pe(RepPredProp(fe));
       }
-      GONEXT(sdl);
+      GONEXT(sdlp);
       clinfo->commit_lab = 0;
     } else {
       if (pass_no) {
@@ -1265,22 +1257,22 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
 	    code_p->opc = emit_op(_call_cpred);
 	  }
 	}
-	code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - CELLSIZE
+	code_p->u.sbpp.s = emit_count(-Signed(RealEnvSize) - CELLSIZE
 				     * (cip->cpc->rnd2));
 	if (RepPredProp(fe)->FunctorOfPred != FunctorExecuteInMod) {
-	  code_p->u.sla.sla_u.p =  RepPredProp(fe);
+	  code_p->u.sbpp.p =  RepPredProp(fe);
 	} else {
-	  code_p->u.sla.sla_u.mod =  cip->cpc->rnd4;
+	  code_p->u.sbmp.mod =  cip->cpc->rnd4;
 	}
-	code_p->u.sla.p0 =  clinfo->CurrentPred;
+	code_p->u.sbpp.p0 =  clinfo->CurrentPred;
 	if (cip->cpc->rnd2) {
-	  code_p->u.sla.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
+	  code_p->u.sbpp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
 	} else {
 	  /* there is no bitmap as there are no variables in the environment */
-	  code_p->u.sla.bmap = NULL;
+	  code_p->u.sbpp.bmap = NULL;
 	}
       }
-      GONEXT(sla);
+      GONEXT(sbpp);
     }
     return code_p;
   }
@@ -1300,17 +1292,17 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
   }
   if (opcode == _call) {
     if (pass_no) {
-      code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - CELLSIZE *
+      code_p->u.sbpp.s = emit_count(-Signed(RealEnvSize) - CELLSIZE *
 				   cip->cpc->rnd2);
-      code_p->u.sla.sla_u.p = RepPredProp(fe);
-      code_p->u.sla.p0 = clinfo->CurrentPred;
+      code_p->u.sbpp.p = RepPredProp(fe);
+      code_p->u.sbpp.p0 = clinfo->CurrentPred;
       if (cip->cpc->rnd2)
-	code_p->u.sla.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
+	code_p->u.sbpp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
       else
 	/* there is no bitmap as there are no variables in the environment */
-	code_p->u.sla.bmap = NULL;
+	code_p->u.sbpp.bmap = NULL;
     }
-    GONEXT(sla);
+    GONEXT(sbpp);
   }
   else if (opcode == _execute ||
       opcode == _dexecute) {
@@ -1347,17 +1339,17 @@ a_empty_call(clause_info *clinfo, yamop *code_p, int pass_no, struct  intermedia
   }
   if (pass_no) {
     PredEntry *pe = RepPredProp(Yap_GetPredPropByAtom(AtomTrue,0));
-    code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - CELLSIZE *
+    code_p->u.sbpp.s = emit_count(-Signed(RealEnvSize) - CELLSIZE *
 				   cip->cpc->rnd2);
-    code_p->u.sla.sla_u.p = pe;
-    code_p->u.sla.p0 = clinfo->CurrentPred;
+    code_p->u.sbpp.p = pe;
+    code_p->u.sbpp.p0 = clinfo->CurrentPred;
     if (cip->cpc->rnd2)
-      code_p->u.sla.bmap = emit_bmlabel(cip->cpc->rnd1, cip);
+      code_p->u.sbpp.bmap = emit_bmlabel(cip->cpc->rnd1, cip);
     else
       /* there is no bitmap as there are no variables in the environment */
-      code_p->u.sla.bmap = NULL;
+      code_p->u.sbpp.bmap = NULL;
   }
-  GONEXT(sla);
+  GONEXT(sbpp);
   return code_p;
 }
 
@@ -1372,7 +1364,7 @@ a_pl(op_numbers opcode, PredEntry *pred, yamop *code_p, int pass_no)
   return code_p;
 }
 
-static wamreg
+static COUNT
 compile_cmp_flags(char *s)
 {
   if (strcmp(s,"=<") == 0)
@@ -1401,7 +1393,7 @@ compile_cmp_flags(char *s)
   return(0);
 }
 
-wamreg
+COUNT
 Yap_compile_cmp_flags(PredEntry *pred)
 {
   return
@@ -1425,35 +1417,35 @@ a_bfunc(CELL pred, clause_info *clinfo, yamop *code_p, int pass_no, struct inter
     if (is_y_var) {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_yy);
-	code_p->u.llyy.p = RepPredProp(((Prop)pred));
+	code_p->u.plyys.p = RepPredProp(((Prop)pred));
 	if (clinfo->commit_lab) {
-	  code_p->u.llyy.f = 
+	  code_p->u.plyys.f = 
 	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
 	  clinfo->commit_lab = 0;
 	} else {
-	  code_p->u.llyy.f = FAILCODE;
+	  code_p->u.plyys.f = FAILCODE;
 	}
-	code_p->u.llyy.y1 = v1;
-	code_p->u.llyy.y2 = emit_yreg(var_offset);
-	code_p->u.llyy.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
+	code_p->u.plyys.y1 = v1;
+	code_p->u.plyys.y2 = emit_yreg(var_offset);
+	code_p->u.plyys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
-      GONEXT(llyy);
+      GONEXT(plyys);
     } else {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_yx);
-	code_p->u.llxy.p = RepPredProp(((Prop)pred));
+	code_p->u.plxys.p = RepPredProp(((Prop)pred));
 	if (clinfo->commit_lab) {
-	  code_p->u.llxy.f = 
+	  code_p->u.plxys.f = 
 	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
 	  clinfo->commit_lab = 0;
 	} else {
-	  code_p->u.llxy.f = FAILCODE;
+	  code_p->u.plxys.f = FAILCODE;
 	}
-	code_p->u.llxy.x = emit_xreg(var_offset);
-	code_p->u.llxy.y = v1;
-	code_p->u.llxy.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
+	code_p->u.plxys.x = emit_xreg(var_offset);
+	code_p->u.plxys.y = v1;
+	code_p->u.plxys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
-      GONEXT(llxy);
+      GONEXT(plxys);
     }
   } else {
     wamreg x1 = emit_xreg(var_offset);
@@ -1466,35 +1458,35 @@ a_bfunc(CELL pred, clause_info *clinfo, yamop *code_p, int pass_no, struct inter
     if (is_y_var) {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_xy);
-	code_p->u.llxy.p = RepPredProp(((Prop)pred));
+	code_p->u.plxys.p = RepPredProp(((Prop)pred));
 	if (clinfo->commit_lab) {
-	  code_p->u.llxy.f = 
+	  code_p->u.plxys.f = 
 	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
 	  clinfo->commit_lab = 0;
 	} else {
-	  code_p->u.llxy.f = FAILCODE;
+	  code_p->u.plxys.f = FAILCODE;
 	}
-	code_p->u.llxy.x = x1;
-	code_p->u.llxy.y = emit_yreg(var_offset);
-	code_p->u.llxy.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
+	code_p->u.plxys.x = x1;
+	code_p->u.plxys.y = emit_yreg(var_offset);
+	code_p->u.plxys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
-      GONEXT(llxy);
+      GONEXT(plxys);
     } else {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_xx);
-	code_p->u.llxx.p = RepPredProp(((Prop)pred));
+	code_p->u.plxxs.p = RepPredProp(((Prop)pred));
 	if (clinfo->commit_lab) {
-	  code_p->u.llxx.f = 
+	  code_p->u.plxxs.f = 
 	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
 	  clinfo->commit_lab = 0;
 	} else {
-	  code_p->u.llxx.f = FAILCODE;
+	  code_p->u.plxxs.f = FAILCODE;
 	}
-	code_p->u.llxx.x1 = x1;
-	code_p->u.llxx.x2 = emit_xreg(var_offset);
-	code_p->u.llxx.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
+	code_p->u.plxxs.x1 = x1;
+	code_p->u.plxxs.x2 = emit_xreg(var_offset);
+	code_p->u.plxxs.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
-      GONEXT(llxx);
+      GONEXT(plxxs);
     }
   }
   return code_p;
@@ -1793,7 +1785,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
     yamop *newcp;
     /* emit a special instruction and then a label for backpatching */
     if (pass_no) {
-      UInt size = (UInt)NEXTOP((yamop *)NULL,lld);
+      UInt size = (UInt)NEXTOP((yamop *)NULL,aLl);
       if ((newcp = (yamop *)Yap_AllocCodeSpace(size)) == NULL) {
 	/* OOOPS, got in trouble, must do a longjmp and recover space */
 	save_machine_regs();
@@ -1810,15 +1802,15 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
 	  try-retry-trust
 	  instructions allocated in this run
 	*/
-	newcp->u.lld.n = cip->try_instructions;
+	newcp->u.aLl.n = cip->try_instructions;
 	cip->try_instructions = newcp;
       } else {
-	newcp->u.lld.n = *cip->current_try_lab;
+	newcp->u.aLl.n = *cip->current_try_lab;
 	*cip->current_try_lab = newcp;
       }
       if (opcode == _try_clause) {
 	newcp->opc = emit_op(_try_logical);
-	newcp->u.lld.t.s = emit_count(opr);
+	newcp->u.aLl.s = emit_count(opr);
       } else if (opcode == _retry) {
 	if (ap->PredFlags & CountPredFlag)
 	  newcp->opc = emit_op(_count_retry_logical);
@@ -1826,7 +1818,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
 	  newcp->opc = emit_op(_profiled_retry_logical);
 	else
 	  newcp->opc = emit_op(_retry_logical);
-	newcp->u.lld.t.s = emit_count(opr);
+	newcp->u.aLl.s = emit_count(opr);
       } else {
 	if (ap->PredFlags & CountPredFlag)
 	  newcp->opc = emit_op(_count_trust_logical);
@@ -1834,11 +1826,11 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
 	  newcp->opc = emit_op(_profiled_trust_logical);
 	else
 	  newcp->opc = emit_op(_trust_logical);
-	newcp->u.lld.t.block = (LogUpdIndex *)(cip->code_addr);
+	newcp->u.ILl.block = (LogUpdIndex *)(cip->code_addr);
 	*cip->current_trust_lab = newcp;
       }
-      newcp->u.lld.d = ClauseCodeToLogUpdClause(emit_a(lab));
-      cip->current_try_lab = &(newcp->u.lld.n);
+      newcp->u.aLl.d = ClauseCodeToLogUpdClause(emit_a(lab));
+      cip->current_try_lab = &(newcp->u.aLl.n);
     }
     return code_p;
   }
@@ -1894,11 +1886,11 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
   }
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.ld.d = emit_a(lab);
-    code_p->u.ld.s = emit_count(opr);
-    code_p->u.ld.p = ap;
+    code_p->u.apl.d = emit_a(lab);
+    code_p->u.apl.s = emit_count(opr);
+    code_p->u.apl.p = ap;
 #ifdef TABLING
-    code_p->u.ld.te = ap->TableOfPred;
+    code_p->u.apl.te = ap->TableOfPred;
 #endif
 #ifdef YAPOR
     INIT_YAMOP_LTT(code_p, nofalts);
@@ -1908,7 +1900,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
       PUT_YAMOP_SEQ(code_p);
 #endif /* YAPOR */
   }
-  GONEXT(ld);
+  GONEXT(apl);
   return code_p;
 }
 
@@ -1921,9 +1913,9 @@ a_either(op_numbers opcode, CELL opr, CELL lab, yamop *code_p, int pass_no, stru
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.sla.s = emit_count(opr);
-    code_p->u.sla.sla_u.l = emit_a(lab);
-    code_p->u.sla.p0 =  cip->CurrentPred;
+    code_p->u.sblp.s = emit_count(opr);
+    code_p->u.sblp.l = emit_a(lab);
+    code_p->u.sblp.p0 =  cip->CurrentPred;
 #ifdef YAPOR
     INIT_YAMOP_LTT(code_p, nofalts);
     if (hascut)
@@ -1931,13 +1923,13 @@ a_either(op_numbers opcode, CELL opr, CELL lab, yamop *code_p, int pass_no, stru
     if (cip->CurrentPred->PredFlags & SequentialPredFlag)
       PUT_YAMOP_SEQ(code_p);
     if(opcode != _or_last) {
-      code_p->u.sla.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
+      code_p->u.sblp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
     }
 #else
-    code_p->u.sla.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
+    code_p->u.sblp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
 #endif /* YAPOR */
   }
-  GONEXT(sla);
+  GONEXT(sblp);
   return code_p;
 }
 
@@ -2017,7 +2009,7 @@ a_uvar(yamop *code_p, int pass_no, struct intermediates *cip)
       }
     }
 #endif /* AGGREGATE_OPS */
-    return a_uv((Ventry *) cip->cpc->rnd1, _unify_x_var, _unify_x_var_write, code_p, pass_no);
+    return a_uv((Ventry *) cip->cpc->rnd1, _unify_x_var, _unify_x_var_write, _unify_y_var, _unify_y_var_write, code_p, pass_no);
   }
   else {
 #if AGGREGATE_OPS
@@ -2054,7 +2046,7 @@ static yamop *
 a_wvar(yamop *code_p, int pass_no, struct intermediates *cip)
 {
   if (!no_ref_var())
-    return a_v(_write_x_var, code_p, pass_no, cip->cpc);
+    return a_v(_write_x_var, _write_y_var, code_p, pass_no, cip->cpc);
   else {
 #if AGGREGATE_OPS
     int i = 0;
@@ -2091,7 +2083,7 @@ a_glist(int *do_not_optimise_uatomp, yamop *code_p, int pass_no, struct intermed
     cip->cpc = pnext;
     is_y_var = (ve->KindOfVE == PermVar);
     var_offset = Var_Ref(ve, is_y_var);
-    return a_rv(_glist_valx, var_offset, code_p, pass_no, cip->cpc);
+    return a_rv(_glist_valx, _glist_valy, var_offset, code_p, pass_no, cip->cpc);
   } else if (cip->cpc->rnd2 == 1 && pnext->op == unify_atom_op) {
     *do_not_optimise_uatomp = TRUE;
     return a_r(cip->cpc->rnd2, _get_list, code_p, pass_no);
@@ -2108,7 +2100,10 @@ a_glist(int *do_not_optimise_uatomp, yamop *code_p, int pass_no, struct intermed
       ppnext->rnd2 = cip->cpc->rnd2;
       cip->cpc = ppnext;
       var_offset = Var_Ref(ve, is_y_var);
-      return a_rv((op_numbers)((int)_gl_void_varx + (cip->cpc->op == unify_last_var_op ? 0 : 2)), var_offset, code_p, pass_no, cip->cpc);
+      if (cip->cpc->op == unify_last_var_op)
+	return a_rv(_gl_void_varx, _gl_void_vary, var_offset, code_p, pass_no, cip->cpc);
+      else
+	return a_rv(_gl_void_valx, _gl_void_valy, var_offset, code_p, pass_no, cip->cpc);
     } else {
       return a_r(cip->cpc->rnd2, _get_list, code_p, pass_no);
     }
@@ -2269,7 +2264,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
   if (opc <= _primitive) {
     if (is_y_var) {
       if (pass_no) {
-	code_p->u.yF.y = emit_y(ve);
+	code_p->u.yl.y = emit_y(ve);
 	switch (opc) {
 	case _atom:
 	  code_p->opc = opcode(_p_atom_y);
@@ -2306,18 +2301,18 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  break;
 	}
 	if (cmp_info->cl_info->commit_lab) {
-	  code_p->u.yF.F = 
+	  code_p->u.yl.F = 
 	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[cmp_info->cl_info->commit_lab]);
 	  cmp_info->cl_info->commit_lab = 0;
 	} else {
-	  code_p->u.yF.F = FAILCODE;
+	  code_p->u.yl.F = FAILCODE;
 	}
       }
-      GONEXT(yF);
+      GONEXT(yl);
       return code_p;
     } else {
       if (pass_no) {
-	code_p->u.xF.x = emit_x(ve->NoOfVE & MaskVarAdrs);
+	code_p->u.xl.x = emit_x(ve->NoOfVE & MaskVarAdrs);
 	switch (opc) {
 	case _atom:
 	  code_p->opc = opcode(_p_atom_x);
@@ -2354,14 +2349,14 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  break;
 	}
 	if (cmp_info->cl_info->commit_lab) {
-	  code_p->u.xF.F = 
+	  code_p->u.xl.F = 
 	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[cmp_info->cl_info->commit_lab]);
 	  cmp_info->cl_info->commit_lab = 0;
 	} else {
-	  code_p->u.xF.F = FAILCODE;
+	  code_p->u.xl.F = FAILCODE;
 	}
       }
-      GONEXT(xF);
+      GONEXT(xl);
       return code_p;
     }
   }
@@ -2394,11 +2389,11 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
       if (nve->KindOfVE == PermVar) {
 	if (pass_no) {
 	  code_p->opc = emit_op(_p_func2f_xy);
-	  code_p->u.xyx.x1 = emit_x(ve->NoOfVE & MaskVarAdrs);
-	  code_p->u.xyx.y2 = emit_y(nve);
-	  code_p->u.xyx.x = cmp_info->x1_arg;
+	  code_p->u.xxy.x1 = emit_x(ve->NoOfVE & MaskVarAdrs);
+	  code_p->u.xxy.y2 = emit_y(nve);
+	  code_p->u.xxy.x = cmp_info->x1_arg;
 	}
-	GONEXT(xyx);
+	GONEXT(xxy);
 	return code_p;
       } else {
 	if (pass_no) {
@@ -2496,11 +2491,11 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_func2s_y_cv);
 	  break;
 	}
-	code_p->u.ycx.y = emit_y(ve);
-	code_p->u.ycx.c = cmp_info->c_arg;
-	code_p->u.ycx.xi = cmp_info->x1_arg;
+	code_p->u.yxc.y = emit_y(ve);
+	code_p->u.yxc.c = cmp_info->c_arg;
+	code_p->u.yxc.xi = cmp_info->x1_arg;
       }
-      GONEXT(ycx);
+      GONEXT(yxc);
       break;	  
     case TYPE_XC:
       if (pass_no) {
@@ -2695,11 +2690,11 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_func2s_vc);
 	  break;
 	}
-	code_p->u.xcx.x = emit_x(ve->NoOfVE & MaskVarAdrs);
-	code_p->u.xcx.c = cmp_info->c_arg;
-	code_p->u.xcx.xi = cmp_info->x1_arg;
+	code_p->u.xxc.x = emit_x(ve->NoOfVE & MaskVarAdrs);
+	code_p->u.xxc.c = cmp_info->c_arg;
+	code_p->u.xxc.xi = cmp_info->x1_arg;
       }
-      GONEXT(xcx);
+      GONEXT(xxc);
       break;	  
     }
   }
@@ -2926,16 +2921,16 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
 #endif
    case get_var_op:
-      code_p = a_vr(_get_x_var, code_p, pass_no, cip);
+      code_p = a_vr(_get_x_var, _get_y_var, code_p, pass_no, cip);
       break;
     case put_var_op:
-      code_p = a_vr(_put_x_var, code_p, pass_no, cip);
+      code_p = a_vr(_put_x_var, _put_y_var, code_p, pass_no, cip);
       break;
     case get_val_op:
-      code_p = a_vr(_get_x_val, code_p, pass_no, cip);
+      code_p = a_vr(_get_x_val, _get_y_val, code_p, pass_no, cip);
       break;
     case put_val_op:
-      code_p = a_vr(_put_x_val, code_p, pass_no, cip);
+      code_p = a_vr(_put_x_val, _put_y_val, code_p, pass_no, cip);
       break;
     case get_num_op:
     case get_atom_op:
@@ -2986,34 +2981,34 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_rf(_put_struct, code_p, pass_no, cip->cpc);
       break;
     case put_unsafe_op:
-      code_p = a_vr((op_numbers)((int)_put_unsafe - 1), code_p, pass_no, cip);
+      code_p = a_vr(_put_unsafe, _put_unsafe, code_p, pass_no, cip);
       break;
     case unify_var_op:
       code_p = a_uvar(code_p, pass_no, cip);
       break;
     case unify_last_var_op:
-      code_p = a_uv((Ventry *) cip->cpc->rnd1, _unify_l_x_var, _unify_l_x_var_write, code_p, pass_no);
+      code_p = a_uv((Ventry *) cip->cpc->rnd1, _unify_l_x_var, _unify_l_x_var_write, _unify_l_y_var, _unify_l_y_var_write, code_p, pass_no);
       break;
     case write_var_op:
       code_p = a_wvar(code_p, pass_no, cip);
       break;
     case unify_local_op:
-      code_p = a_uv((Ventry *) cip->cpc->rnd1, _unify_x_loc, _unify_x_loc_write, code_p, pass_no);
+      code_p = a_uv((Ventry *) cip->cpc->rnd1, _unify_x_loc, _unify_x_loc_write, _unify_y_loc, _unify_y_loc_write, code_p, pass_no);
       break;
     case unify_val_op:
-      code_p = a_uv((Ventry *) cip->cpc->rnd1, _unify_x_val, _unify_x_val_write, code_p, pass_no);
+      code_p = a_uv((Ventry *) cip->cpc->rnd1, _unify_x_val, _unify_x_val_write, _unify_y_val, _unify_y_val_write, code_p, pass_no);
       break;
     case unify_last_local_op:
-      code_p = a_uv((Ventry *) cip->cpc->rnd1, _unify_l_x_loc, _unify_l_x_loc_write, code_p, pass_no);
+      code_p = a_uv((Ventry *) cip->cpc->rnd1, _unify_l_x_loc, _unify_l_x_loc_write, _unify_l_y_loc, _unify_l_y_loc_write, code_p, pass_no);
       break;
     case unify_last_val_op:
-      code_p = a_uv((Ventry *) cip->cpc->rnd1, _unify_l_x_val, _unify_l_x_val_write, code_p, pass_no);
+      code_p = a_uv((Ventry *) cip->cpc->rnd1, _unify_l_x_val, _unify_l_x_val_write, _unify_l_y_val, _unify_l_y_val_write, code_p, pass_no);
       break;
     case write_local_op:
-      code_p = a_v(_write_x_loc, code_p, pass_no, cip->cpc);
+      code_p = a_v(_write_x_loc, _write_y_loc, code_p, pass_no, cip->cpc);
       break;
     case write_val_op:
-      code_p = a_v(_write_x_val, code_p, pass_no, cip->cpc);
+      code_p = a_v(_write_x_val, _write_y_val, code_p, pass_no, cip->cpc);
       break;
     case unify_num_op:
     case unify_atom_op:
@@ -3095,16 +3090,16 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case save_b_op:
     case patch_b_op:
-      code_p = a_v(_save_b_x, code_p, pass_no, cip->cpc);
+      code_p = a_v(_save_b_x, _save_b_y, code_p, pass_no, cip->cpc);
       break;
     case commit_b_op:
-      code_p = a_v(_commit_b_x, code_p, pass_no, cip->cpc);
+      code_p = a_v(_commit_b_x, _commit_b_y, code_p, pass_no, cip->cpc);
       break;
     case save_pair_op:
-      code_p = a_uv((Ventry *) cip->cpc->rnd1, _save_pair_x, _save_pair_x_write, code_p, pass_no);
+      code_p = a_uv((Ventry *) cip->cpc->rnd1, _save_pair_x, _save_pair_x_write, _save_pair_y, _save_pair_y_write, code_p, pass_no);
       break;
     case save_appl_op:
-      code_p = a_uv((Ventry *) cip->cpc->rnd1, _save_appl_x, _save_appl_x_write, code_p, pass_no);
+      code_p = a_uv((Ventry *) cip->cpc->rnd1, _save_appl_x, _save_appl_x_write, _save_appl_y, _save_appl_y_write, code_p, pass_no);
       break;
     case fail_op:
       code_p = a_e(_op_fail, code_p, pass_no);
@@ -3558,7 +3553,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
   }
   if (ap->PredFlags & DynamicPredFlag) {
     size =
-      (CELL)NEXTOP(NEXTOP(NEXTOP((yamop *)(((DynamicClause *)NULL)->ClCode),ld),sla),e);
+      (CELL)NEXTOP(NEXTOP(NEXTOP((yamop *)(((DynamicClause *)NULL)->ClCode),apl),sbpp),e);
   }
   if ((CELL)code_p > size)
     size = (CELL)code_p;
@@ -3631,28 +3626,28 @@ Yap_InitComma(void)
 {
   yamop *code_p = COMMA_CODE;
   code_p->opc = opcode(_call);
-  code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - sizeof(CELL) * 3);
-  code_p->u.sla.sla_u.p = 
-    code_p->u.sla.p0 =
+  code_p->u.sbpp.s = emit_count(-Signed(RealEnvSize) - sizeof(CELL) * 3);
+  code_p->u.sbpp.p = 
+    code_p->u.sbpp.p0 =
     RepPredProp(PredPropByFunc(FunctorComma,0));
-  code_p->u.sla.bmap = NULL;
-  GONEXT(sla);
+  code_p->u.sbpp.bmap = NULL;
+  GONEXT(sbpp);
   if (PRED_GOAL_EXPANSION_ON) {
     Functor fp = Yap_MkFunctor(Yap_FullLookupAtom("$generate_pred_info"),4);
     code_p->opc = emit_op(_call_cpred);
-    code_p->u.sla.s = emit_count(-Signed(RealEnvSize));
-    code_p->u.sla.sla_u.p =  
-      code_p->u.sla.p0 = 
+    code_p->u.sbpp.s = emit_count(-Signed(RealEnvSize));
+    code_p->u.sbpp.p =  
+      code_p->u.sbpp.p0 = 
       RepPredProp(Yap_GetPredPropByFunc(fp,0));
-    code_p->u.sla.bmap = NULL;
-    GONEXT(sla);
+    code_p->u.sbpp.bmap = NULL;
+    GONEXT(sbpp);
     code_p->opc = emit_op(_call);
-    code_p->u.sla.s = emit_count(-Signed(RealEnvSize));
-    code_p->u.sla.sla_u.p =  
-      code_p->u.sla.p0 = 
+    code_p->u.sbpp.s = emit_count(-Signed(RealEnvSize));
+    code_p->u.sbpp.p =  
+      code_p->u.sbpp.p0 = 
       PredMetaCall;
-    code_p->u.sla.bmap = NULL;
-    GONEXT(sla);
+    code_p->u.sbpp.bmap = NULL;
+    GONEXT(sbpp);
     code_p->opc = emit_op(_deallocate);
     GONEXT(e);
     code_p->opc = emit_op(_procceed);
@@ -3668,11 +3663,11 @@ Yap_InitComma(void)
       GONEXT(e);
     }
     code_p->opc = opcode(_p_execute_tail);
-    code_p->u.sla.s = emit_count(-Signed(RealEnvSize)-3*sizeof(CELL));
-    code_p->u.sla.bmap = NULL;
-    code_p->u.sla.sla_u.p = 
-      code_p->u.sla.p0 =
+    code_p->u.sbpp.s = emit_count(-Signed(RealEnvSize)-3*sizeof(CELL));
+    code_p->u.sbpp.bmap = NULL;
+    code_p->u.sbpp.p = 
+      code_p->u.sbpp.p0 =
       RepPredProp(PredPropByFunc(FunctorComma,0));
-    GONEXT(sla);
+    GONEXT(sbpp);
   }
 }
