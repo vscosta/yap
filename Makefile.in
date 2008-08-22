@@ -26,6 +26,10 @@ INCLUDEDIR=$(ROOTDIR)/include/Yap
 # where to store info files
 #
 INFODIR=$(SHAREDIR)/info
+#
+# where to store documentaion files
+#
+DOCSDIR=$(SHAREDIR)/docs/yap
 
 #
 # Add this flag to YAP_EXTRAS if you need the extension:
@@ -732,6 +736,13 @@ install_info:
 	  fi \
 	fi; \
 	$(INSTALL_INFO) --quiet --section "Programming Languages" --entry="`cat pillow_doc.infoindex`" pillow_doc.info $(DESTDIR)$(INFODIR)/dir
+
+install_docs:
+	$(MAKE) pdf
+	$(MAKE) html
+	$(INSTALL_DATA) yap.html* $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) yap.pdf $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) $(srcdir)/README $(DESTDIR)$(DOCSDIR)
 
 info: yap.info
 
