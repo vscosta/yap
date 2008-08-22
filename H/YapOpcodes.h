@@ -322,7 +322,9 @@
   OPCODE(sync                       ,apl),
 #endif
 #ifdef TABLING
+#ifdef TABLING_INNER_CUTS
   OPCODE(clause_with_cut            ,e),
+#endif
   OPCODE(table_load_answer          ,apl),
   OPCODE(table_try_answer           ,apl),
   OPCODE(table_try_single           ,apl),
