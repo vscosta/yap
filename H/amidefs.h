@@ -163,11 +163,13 @@ typedef enum {
 
   The meaning of the symbols in a abstract machine instruction is:
 
-  c: constant
+  c: constant, is a Term
+  l: label, yamop *
+
+
   d: predicate definition
   f: functor
   n: small number
-  l: label
   x: argument or temporary register
   y: environment slot
 
@@ -179,46 +181,46 @@ typedef struct yami {
       CELL next;
     } e;
     struct {
-      CELL                c;
+      Term                c;
       CELL next;
     } c;
     struct {
-      CELL                c1;
-      CELL                c2;
+      Term                c1;
+      Term                c2;
       CELL next;
     } cc;
     struct {
-      CELL                c1;
-      CELL                c2;
-      CELL                c3;
+      Term                c1;
+      Term                c2;
+      Term                c3;
       CELL next;
     } ccc;
     struct {
-      CELL                c1;
-      CELL                c2;
-      CELL                c3;
-      CELL                c4;
+      Term                c1;
+      Term                c2;
+      Term                c3;
+      Term                c4;
       CELL next;
     } cccc;
     struct {
-      CELL                c1;
-      CELL                c2;
-      CELL                c3;
-      CELL                c4;
-      CELL                c5;
+      Term                c1;
+      Term                c2;
+      Term                c3;
+      Term                c4;
+      Term                c5;
       CELL next;
     } ccccc;
     struct {
-      CELL                c1;
-      CELL                c2;
-      CELL                c3;
-      CELL                c4;
-      CELL                c5;
-      CELL                c6;
+      Term                c1;
+      Term                c2;
+      Term                c3;
+      Term                c4;
+      Term                c5;
+      Term                c6;
       CELL next;
     } cccccc;
     struct {
-      CELL                c;
+      Term                c;
       struct yami        *l1;
       struct yami        *l2;
       struct yami        *l3;
