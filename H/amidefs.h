@@ -164,6 +164,7 @@ typedef enum {
   The meaning of the symbols in a abstract machine instruction is:
 
   c: constant, is a Term
+  d: double (functor + unaligned)
   l: label, yamop *
 
 
@@ -227,7 +228,6 @@ typedef struct yami {
       CELL next;
     } clll;
     struct {
-      OPCODE              opcw;
       CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
       CELL next;
     } d;
