@@ -250,6 +250,24 @@ print_usage(void)
   fprintf(stderr,"\n");
 }
 
+static char *
+add_end_dot(char arg[])
+{
+  int sz = strlen(arg), i;
+  i = sz;
+  while (i && isblank(arg[--i]));
+  if (i && arg[i] != ',') {
+    char *p = (char *)malloc(sz+2);
+    if (!p)
+      return NULL;
+    strncpy(p,arg,sz);
+    p[sz] = '.';
+    p[sz+1] = '\0';
+    return p;
+  }
+  return arg;
+}
+
 /*
  * proccess command line arguments: valid switches are: -b    boot -s
  * stack area size (K) -h    heap area size -a    aux stack size -e
@@ -387,10 +405,6 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    }
 #endif /* ENV_COPY || ACOW || SBA */
 	    goto GetSize;
-	  case 'h':
-	  case 'H':
-	    ssize = &(iap->HeapSize);
-	    goto GetSize;
 	  case 't':
 	  case 'T':
 	    ssize = &(iap->TrailSize);
@@ -399,7 +413,33 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      p++;
 	      ssize = &(iap->MaxTableSpaceSize);
 	    }
+	    if (*++p == '\0')
+	      {
+		if (argc > 1)
+		  --argc, p = *++argv;
+		else
+		  {
+		    fprintf(stderr,"[ YAP unrecoverable error: missing size in flag %s ]", argv[0]);
+		    print_usage();
+		    exit(EXIT_FAILURE);
+		  }
+	      }
+	    {
+	      int i = 0, ch;
+	      while ((ch = *p++) >= '0' && ch <= '9')
+		i = i * 10 + ch - '0';
+	      if (ch) {
+		iap->YapPrologTopLevelGoal = add_end_dot(*argv);
+	      } else {
+		*ssize = i;
+	      }
+	    }
+	    break;
 #endif /* TABLING */
+	    goto GetSize;
+	  case 'h':
+	  case 'H':
+	    ssize = &(iap->HeapSize);
 	  GetSize:
 	    if (*++p == '\0')
 	      {
@@ -483,7 +523,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 		exit(EXIT_FAILURE);
 	      }
 	      argv++;
-	      iap->YapPrologTopLevelGoal = *argv;
+	      iap->YapPrologTopLevelGoal = add_end_dot(*argv);
 	    }
 	    break;
 	  case 'p':
