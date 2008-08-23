@@ -397,6 +397,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 #endif
 	  case 's':
 	  case 'S':
+	  stack_mode:
 	    ssize = &(iap->StackSize);
 #if defined(ENV_COPY) || defined(ACOW) || defined(SBA)
 	    if (p[1] == 'l') {
@@ -428,6 +429,22 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      int i = 0, ch;
 	      while ((ch = *p++) >= '0' && ch <= '9')
 		i = i * 10 + ch - '0';
+	      switch(ch) {
+	      case 'M':
+	      case 'm':
+		i *= 1024;
+		ch = *p++;
+		break;
+	      case 'g':
+	      case 'G':
+		i *= 1024*1024;
+		ch = *p++;
+		break;
+	      case 'k':
+	      case 'K':
+		ch = *p++;
+		break;
+	      }
 	      if (ch) {
 		iap->YapPrologTopLevelGoal = add_end_dot(*argv);
 	      } else {
@@ -456,6 +473,22 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      int i = 0, ch;
 	      while ((ch = *p++) >= '0' && ch <= '9')
 		i = i * 10 + ch - '0';
+	      switch(ch) {
+	      case 'M':
+	      case 'm':
+		i *= 1024;
+		ch = *p++;
+		break;
+	      case 'g':
+	      case 'G':
+		i *= 1024*1024;
+		ch = *p++;
+		break;
+	      case 'k':
+	      case 'K':
+		ch = *p++;
+		break;
+	      }
 	      if (ch)
 		{
 		  fprintf(stderr,"[ YAP unrecoverable error: illegal size specification %s ]", argv[-1]);
@@ -471,6 +504,8 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    break;
 #endif
 	  case 'L':
+	    if (p[0])
+	      goto stack_mode;
 	    iap->QuietMode = TRUE;
 	    iap->HaltAfterConsult = TRUE;
 	  case 'l':
