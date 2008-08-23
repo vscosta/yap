@@ -407,6 +407,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 #endif
 	  case 's':
 	  case 'S':
+	  case 'G':
 	  stack_mode:
 	    ssize = &(iap->StackSize);
 #if defined(ENV_COPY) || defined(ACOW) || defined(SBA)
