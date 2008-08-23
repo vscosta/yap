@@ -221,7 +221,7 @@ print_usage(void)
   fprintf(stderr,"\n[ Valid switches for command line arguments: ]\n");
   fprintf(stderr,"  -?   Shows this screen\n");
   fprintf(stderr,"  -b   Boot file \n");
-  fprintf(stderr,"  -f   Do not consult startup prolog files\n");
+  fprintf(stderr,"  -f   initialization file or \"none\"\n");
   fprintf(stderr,"  -g   Run Goal Before Top-Level \n");
   fprintf(stderr,"  -z   Run Goal Before Top-Level \n");
   fprintf(stderr,"  -q   start with informational messages off\n");
@@ -357,6 +357,16 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    break;
 #endif /* EMACS */
 	  case 'f':
+	    if (argc && argv[1][0] != '-') {
+	      argc--;
+	      argv++;
+	      if (!strcmp(*argv,"none")) {
+		iap->FastBoot = TRUE;
+	      } else {
+		iap->YapPrologRCFile = *argv;
+	      }
+	      break;
+	    }
 	    iap->FastBoot = TRUE;
 	    break;
 #ifdef MYDDAS_MYSQL 
@@ -414,6 +424,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      p++;
 	      ssize = &(iap->MaxTableSpaceSize);
 	    }
+#endif /* TABLING */
 	    if (*++p == '\0')
 	      {
 		if (argc > 1)
@@ -452,8 +463,6 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      }
 	    }
 	    break;
-#endif /* TABLING */
-	    goto GetSize;
 	  case 'h':
 	  case 'H':
 	    ssize = &(iap->HeapSize);
