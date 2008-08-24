@@ -174,6 +174,9 @@ typedef void *PL_engine_t;
 /* copied from old SICStus/SWI interface */
 typedef void install_t;
 
+#define PL_fail		return FALSE	/* fail */
+#define PL_succeed	return TRUE	/* success */
+
 extern X_API void PL_free(void *);
 
 extern X_API PL_agc_hook_t PL_agc_hook(PL_agc_hook_t);
