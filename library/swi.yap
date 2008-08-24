@@ -33,8 +33,6 @@
 
 :- use_module(library(terms),
 	      [subsumes/2,
-	       term_variables/2,
-	       term_variables/3,
 	       term_hash/2,
 	       unifiable/3,
 	       variant/2]).
@@ -51,6 +49,9 @@
 	fail
 	;
 	true.
+
+:- multifile user:term_expansion/2.
+:- multifile user:goal_expansion/3.
 
 :- multifile swi_predicate_table/4.
 
@@ -109,15 +110,6 @@ user:file_search_path(foreign, swi(ArchLib)) :-
 user:file_search_path(foreign, swi(lib)).
 
 :- meta_predicate prolog:predsort(:,+,-).
-
-switv(X,Y) :- term_variables(X, Y).
-switv(X,Y,Z) :- term_variables(X, Y, Z).
-
-prolog:term_variables(X, Y) :-
-	switv(X, Y).
-
-prolog:term_variables(X, Y, Z) :-
-	switv(X, Y, Z).
 
 prolog:plus(X, Y, Z) :-
        integer(X),
@@ -411,6 +403,9 @@ prolog:compile_aux_clauses([Cl|Cls]) :-
 	assert_static(M:Cl),
 	prolog:compile_aux_clauses(Cls).
 
+% fix different semantics for arg/3.
+user:goal_expansion(arg(X,Y,Z),_,arg:genarg(X,Y,Z)) :-
+	nonvar(X), !.
 
 %
 % convert from SWI's goal expansion to YAP/SICStus old style goal
