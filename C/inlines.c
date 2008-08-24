@@ -925,7 +925,7 @@ Yap_InitInlines(void)
   Yap_InitAsmPred("$or", 3, _or, p_erroneous_call, SafePredFlag);
   Yap_InitAsmPred("$sll", 3, _sll, p_erroneous_call, SafePredFlag);
   Yap_InitAsmPred("$slr", 3, _slr, p_erroneous_call, SafePredFlag);
-  CurrentModule = GLOBALS_MODULE;
+  CurrentModule = ARG_MODULE;
   Yap_InitCPredBack("genarg", 3, 3, init_genarg, cont_genarg,SafePredFlag);
   CurrentModule = cm;
 }
