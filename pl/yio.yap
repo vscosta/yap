@@ -506,6 +506,10 @@ nl.
 write(T) :-
 	'$write'(4, T).
 
+writeln(T) :-
+	'$write'(4, T),
+	nl.	
+
 write(Stream,T) :- 
 	'$write'(Stream,4,T).
 
