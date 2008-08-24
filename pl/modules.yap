@@ -90,6 +90,9 @@ module(N) :-
 '$process_exports'([],_,[]).
 '$process_exports'([Name/Arity|Exports],Mod,[Name/Arity|ExportedPreds]):- !,
 	'$process_exports'(Exports,Mod,ExportedPreds).
+'$process_exports'([Name//Arity|Exports],Mod,[Name/Arity2|ExportedPreds]):- !,
+	Arity2 is Arity+2,
+	'$process_exports'(Exports,Mod,ExportedPreds).
 '$process_exports'([op(Prio,Assoc,Name)|Exports],Mod,ExportedPreds) :- !,
 	op(Prio,Assoc,Name),
 	'$process_exports'(Exports,Mod,ExportedPreds).
