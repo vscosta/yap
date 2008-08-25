@@ -25,7 +25,7 @@ stack_dump(Max) :-
 	length(CPs, LCPs),
 	length(Envs, LEnvs),
 	format(user_error,'~n~n~tStack Dump~t~40+~n~nAddress~tChoiceP~16+ Cur/Next Clause        Goal~n',[LCPs,LEnvs]),
-	display_stack_info(CPs, Envs, Max, ContP, StackInfo, StackInfo, []),
+	'$hacks':display_stack_info(CPs, Envs, Max, ContP, StackInfo, []),
 	run_formats(StackInfo, user_error).
 
 run_formats([], _).

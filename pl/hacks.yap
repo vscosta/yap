@@ -104,7 +104,7 @@ show_cp(CP, Continuation) -->
 		[Addr, Continuation, ClNo, Mod]]
 	),
 	{clean_goal(Goal,Mod,G)},
-	['~@.~q~n' -  write_term(G,Opts)].
+	['~@.~n' -  write_term(G,Opts)].
 
 show_env(Env,Cont,NCont) -->
 	{
@@ -114,7 +114,7 @@ show_env(Env,Cont,NCont) -->
         [ '0x~16r~t  ~16+ Cur~t ~d~16+ ~q:' -
 		[Addr, ClId, Mod] ],
 	{scratch_goal(Name, Arity, Mod, G)},
-	['~@.~q~n' - write_term(G,Opts)].
+	['~@.~n' - write_term(G,Opts)].
 
 clean_goal(G,Mod,NG) :-
 	beautify_hidden_goal(G,Mod,[NG],[]), !.
