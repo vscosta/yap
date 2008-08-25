@@ -1410,6 +1410,17 @@ AC_DEFINE(USE_DL_MALLOC,1)
 fi
 fi
 
+dnl SWI compatibility support!
+PROLOG_SYSTEM=yap
+IN_YAP=
+IN_SWI="#"
+CHR_TARGETS=chr_support"$SHLIB_SUFFIX"
+
+AC_SUBST(PROLOG_SYSTEM)
+AC_SUBST(IN_YAP)
+AC_SUBST(IN_SWI)
+AC_SUBST(CHR_TARGETS)
+
 mkdir -p  library/matrix
 mkdir -p  library/matlab
 mkdir -p  library/mpi
@@ -1438,7 +1449,7 @@ mkdir -p  GPL/clpqr
 mkdir -p  GPL/http
 mkdir -p  cplint
 
-AC_OUTPUT(Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile GPL/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile  LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile  cplint/Makefile)
+AC_OUTPUT(Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile LGPL/chr/Makefile CLPBN/Makefile LGPL/clp/Makefile GPL/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile  LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile  cplint/Makefile)
 
 make depend
 

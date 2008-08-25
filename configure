@@ -725,6 +725,10 @@ ENABLE_WINCONSOLE
 INSTALL_MATLAB
 MATLAB_INCLUDE
 M4GENABSMI
+PROLOG_SYSTEM
+IN_YAP
+IN_SWI
+CHR_TARGETS
 LIBOBJS
 LTLIBOBJS'
 ac_subst_files=''
@@ -16161,6 +16165,16 @@ _ACEOF
 fi
 fi
 
+PROLOG_SYSTEM=yap
+IN_YAP=
+IN_SWI="#"
+CHR_TARGETS=chr_support"$SHLIB_SUFFIX"
+
+
+
+
+
+
 mkdir -p  library/matrix
 mkdir -p  library/matlab
 mkdir -p  library/mpi
@@ -16189,7 +16203,7 @@ mkdir -p  GPL/clpqr
 mkdir -p  GPL/http
 mkdir -p  cplint
 
-ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile LGPL/chr/Makefile LGPL/chr/chr_swi_bootstrap.yap CLPBN/Makefile LGPL/clp/Makefile GPL/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile cplint/Makefile"
+ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile LGPL/chr/Makefile CLPBN/Makefile LGPL/clp/Makefile GPL/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile cplint/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -16757,7 +16771,6 @@ do
     "library/Makefile") CONFIG_FILES="$CONFIG_FILES library/Makefile" ;;
     "LGPL/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/Makefile" ;;
     "LGPL/chr/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/chr/Makefile" ;;
-    "LGPL/chr/chr_swi_bootstrap.yap") CONFIG_FILES="$CONFIG_FILES LGPL/chr/chr_swi_bootstrap.yap" ;;
     "CLPBN/Makefile") CONFIG_FILES="$CONFIG_FILES CLPBN/Makefile" ;;
     "LGPL/clp/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/clp/Makefile" ;;
     "GPL/clpqr/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/clpqr/Makefile" ;;
@@ -16986,11 +16999,15 @@ ENABLE_WINCONSOLE!$ENABLE_WINCONSOLE$ac_delim
 INSTALL_MATLAB!$INSTALL_MATLAB$ac_delim
 MATLAB_INCLUDE!$MATLAB_INCLUDE$ac_delim
 M4GENABSMI!$M4GENABSMI$ac_delim
+PROLOG_SYSTEM!$PROLOG_SYSTEM$ac_delim
+IN_YAP!$IN_YAP$ac_delim
+IN_SWI!$IN_SWI$ac_delim
+CHR_TARGETS!$CHR_TARGETS$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 17; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 21; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
