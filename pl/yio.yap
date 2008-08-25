@@ -1055,15 +1055,16 @@ current_stream(File, Opts, Stream) :-
 	catch(Goal, Exception, '$handle_exception'(Exception,Stream,SO)),
 	!,
 	set_output(SO),
-	charsio:peek_mem_write_stream(Stream, L0, Chars).
+	charsio:peek_mem_write_stream(Stream, L0, Chars),
+	close(Stream).
 '$do_output_to_chars'(_Goal, Stream, _L0, _Chars, SO) :-
 	set_output(SO),
 	close(Stream),
 	fail.
 
 '$handle_exception'(Exception, Stream, SO) :-
+	set_output(SO),
 	close(Stream),
-	current_output(SO),
 	throw(Exception).
 
 write_depth(T,L) :- write_depth(T,L,_).

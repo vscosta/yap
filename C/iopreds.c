@@ -5371,6 +5371,8 @@ p_format2(void)
       CloseStream(stream);
       if (!Yap_unify(tat,ArgOfTerm(1,ARG1)))
 	return FALSE;
+    } else {
+      CloseStream(stream);
     }
   } else {
     Yap_c_output_stream = old_c_stream;  
