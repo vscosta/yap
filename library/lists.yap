@@ -345,7 +345,7 @@ list_concat([H|T], [H|Lf], Li) :-
 %
 flatten(X,Y) :- flatten_list(X,Y,[]).
  
-flatten_list(V) --> {var(V)}, !.
+flatten_list(V) --> {var(V)}, !, [V].
 flatten_list([]) --> !.
 flatten_list([H|T]) --> !, flatten_list(H),flatten_list(T).
 flatten_list(H) --> [H].
