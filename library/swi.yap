@@ -282,8 +282,6 @@ cvt_bindings([[Name|Value]|L],[AName=Value|Bindings]) :-
 	atom_codes(AName, Name),
 	cvt_bindings(L,Bindings).
 
-'$messages':prolog_message(_,L,L).
-
 prolog:working_directory(OCWD,NCWD) :-
 	getcwd(OCWD),
 	(var(NCWD) -> true ; cd(NCWD)).
