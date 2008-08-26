@@ -537,7 +537,10 @@ STATIC_PROTO(StaticIndex *find_owner_static_index,(StaticIndex *, yamop *));
 static PredEntry *
 PredForChoicePt(yamop *p_code) {
   while (TRUE) {
-    op_numbers opnum = Yap_op_from_opcode(p_code->opc);
+    op_numbers opnum;
+    if (!p_code)
+      return NULL;
+    opnum = Yap_op_from_opcode(p_code->opc);
     switch(opnum) {
     case _Nstop:
       return NULL;
