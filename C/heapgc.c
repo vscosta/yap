@@ -1473,16 +1473,6 @@ mark_regs(tr_fr_ptr old_TR)
   }
 }
 
-#ifdef COROUTINING
-static void 
-mark_delays(CELL *max)
-{
-  for (; max < H0; max++) {
-    mark_external_reference2(max);
-  }
-}
-#endif
-
 /* mark all heap objects accessible from a chain of environments */
 
 static void 
@@ -1811,6 +1801,23 @@ mark_slots(CELL *ptr)
     ns--;
   }
 }
+
+
+#ifdef COROUTINING
+static void 
+mark_delays(attvar_record *top, attvar_record *bottom)
+{
+  attvar_record *attv = (attvar_record *)top;
+  for (; attv < bottom; attv++) {
+      mark_external_reference2(&attv->Done);
+      mark_external_reference2(&attv->Value);
+      mark_external_reference2(&attv->Atts);
+  }
+}
+#else
+#define mark_delays(T,B)
+#endif
+
 
 static void 
 mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
@@ -3446,13 +3453,11 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   cont_top0 = (cont *)db_vec;
 #endif
   cont_top = (cont *)db_vec;
-#ifdef COROUTINING
-  mark_delays(max);
-#endif
   /* These two must be marked first so that our trail optimisation won't lose
      values */
   mark_regs(old_TR);		/* active registers & trail */
   /* active environments */
+  mark_delays((attvar_record *)max, (attvar_record *)H0);
   mark_environments(current_env, EnvSize(curp), EnvBMap((CELL *)curp));
   mark_choicepoints(B, old_TR, is_gc_very_verbose());	/* choicepoints, and environs  */
 #ifdef EASY_SHUNTING
