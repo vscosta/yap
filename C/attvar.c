@@ -471,7 +471,7 @@ p_put_att(void) {
     mfun= Yap_MkFunctor(modname,ar);
     if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts,mfun))) {
       while (!(tatts = BuildAttTerm(mfun,ar))) {
-	if (!Yap_gcl(Yap_Error_Size, 5, ENV, P)) {
+	if (!Yap_gcl(Yap_Error_Size, 5, ENV, gc_P(P,CP))) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}    
@@ -549,7 +549,7 @@ p_rm_att(void) {
     mfun= Yap_MkFunctor(modname,ar);
     if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts,mfun))) {
       while (!(tatts = BuildAttTerm(mfun,ar))) {
-	if (!Yap_gcl(Yap_Error_Size, 4, ENV, P)) {
+	if (!Yap_gcl(Yap_Error_Size, 4, ENV, gc_P(P,CP))) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}    
@@ -882,7 +882,7 @@ p_all_attvars(void)
 
     base = (attvar_record *)Yap_ReadTimedVar(AttsMutableList);
     if (!(out = AllAttVars(base))) {
-      if (!Yap_gcl(Yap_Error_Size, 1, ENV, P)) {
+      if (!Yap_gcl(Yap_Error_Size, 1, ENV, gc_P(P,CP))) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return FALSE;
       }    

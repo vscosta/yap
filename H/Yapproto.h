@@ -437,3 +437,9 @@ void	STD_PROTO(Yap_init_socks,(char *, long));
 void    STD_PROTO(Yap_init_optyap_preds,(void));
 
 
+static inline
+yamop *
+gc_P(yamop *p, yamop *cp)
+{
+  return (p->opc == Yap_opcode(_execute_cpred) ? cp : p);
+}

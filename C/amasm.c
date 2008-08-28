@@ -1224,7 +1224,8 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
       return a_e(op, code_p, pass_no);
     }
   }
-  if (Flags & CPredFlag) {
+  if (Flags & CPredFlag &&
+      opcode == _call) {
     code_p = check_alloc(clinfo, code_p, pass_no, cip);
     if (clinfo->commit_lab && (Flags & TestPredFlag)) {
       if (pass_no) {
@@ -1307,6 +1308,10 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
   else if (opcode == _execute ||
       opcode == _dexecute) {
     if (pass_no) {
+      if (opcode == _execute &&
+	  (RepPredProp(fe)->PredFlags & CPredFlag))  {
+	code_p->opc = emit_op(_execute_cpred);
+      }
       code_p->u.pp.p = RepPredProp(fe);
       code_p->u.pp.p0 = clinfo->CurrentPred;
     }
@@ -2112,13 +2117,14 @@ a_glist(int *do_not_optimise_uatomp, yamop *code_p, int pass_no, struct intermed
     return a_r(cip->cpc->rnd2, _get_list, code_p, pass_no);
 }
 
-#define NEXTOPC   (cip->cpc->nextInst)->op
+#define NEXTOPC   (cip->cpc->nextInst->op)
 
 static yamop *
 a_deallocate(clause_info *clinfo, yamop *code_p, int pass_no, struct intermediates *cip)
 {
   if (clinfo->alloc_found == 1) {
-    if (NEXTOPC == execute_op) {
+    if (NEXTOPC == execute_op &&
+	!(RepPredProp((Prop)(cip->cpc->nextInst->rnd1))->PredFlags & CPredFlag)) {
       cip->cpc = cip->cpc->nextInst;
       code_p = a_p(_dexecute, clinfo, code_p, pass_no, cip);
     } else

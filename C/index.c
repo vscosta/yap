@@ -944,6 +944,7 @@ has_cut(yamop *pc)
       break;
     case _execute:
     case _dexecute:
+    case _p_execute_cpred:
       pc = NEXTOP(pc,pp);
       break;
       /* instructions type l */
@@ -2467,6 +2468,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _retry_profiled:
     case _count_retry:
     case _execute:
+    case _execute_cpred:
     case _dexecute:
     case _jump:
     case _move_back:

@@ -232,6 +232,7 @@ restore_opcodes(yamop *pc)
       break;
     case _execute:
     case _dexecute:
+    case _execute_cpred:
       pc->u.pp.p = PtoPredAdjust(pc->u.pp.p);
       pc->u.pp.p0 = PtoPredAdjust(pc->u.pp.p0);
       pc = NEXTOP(pc,pp);

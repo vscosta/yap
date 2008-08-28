@@ -180,6 +180,7 @@
   OPCODE(pop_n                      ,s),
   OPCODE(pop                        ,e),
   OPCODE(call_cpred                 ,sbpp),
+  OPCODE(execute_cpred              ,pp),
   OPCODE(call_usercpred             ,sbpp),
   OPCODE(call_c_wfail               ,sdlp),
   OPCODE(try_c                      ,apFs),

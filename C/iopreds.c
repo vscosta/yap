@@ -3284,7 +3284,7 @@ p_peek_mem_write_stream (void)
     if (H + 1024 >= ASP) {
       UNLOCK(Stream[sno].streamlock);
       H = HI;
-      if (!Yap_gcl((ASP-HI)*sizeof(CELL), 3, ENV, P)) {
+      if (!Yap_gcl((ASP-HI)*sizeof(CELL), 3, ENV, gc_P(P,CP))) {
 	UNLOCK(Stream[sno].streamlock);
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
@@ -5842,7 +5842,7 @@ p_same_file(void) {
   {
     struct stat *b1, *b2;
     while ((char *)H+sizeof(struct stat)*2 > (char *)(ASP-1024)) {
-      if (!Yap_gcl(2*sizeof(struct stat), 2, ENV, P)) {
+      if (!Yap_gcl(2*sizeof(struct stat), 2, ENV, gc_P(P,CP))) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return FALSE;
       }

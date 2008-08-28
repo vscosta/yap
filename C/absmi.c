@@ -2500,7 +2500,7 @@ Yap_absmi(int inp)
 	goto NoStackExec;
 
       /* dexecute    Label               */
-/* joint deallocate and execute */
+      /* joint deallocate and execute */
       BOp(dexecute, pp);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
@@ -2702,7 +2702,12 @@ Yap_absmi(int inp)
       {
 	CELL cut_b = LCL0-(CELL *)(SREG[E_CB]);
 
-	if (ActiveSignals & YAP_CREEP_SIGNAL) {
+	/* 
+	   don't do a creep here; also, if our instruction is followed by
+	   a execute_c, just wait a bit more */
+	if (ActiveSignals & YAP_CREEP_SIGNAL &&
+	    Yap_op_from_opcode(PREG->opc) != Yap_opcode(_procceed) &&
+	    Yap_op_from_opcode(PREG->opc) != Yap_opcode(_cut_e)) {
 	  GONext();
 	}
 	ASP = YREG+E_CB;
@@ -7339,7 +7344,6 @@ Yap_absmi(int inp)
 
       BOp(call_cpred, sbpp);
      
-
       if (!(PREG->u.sbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) {
 	CACHE_Y_AS_ENV(YREG);
 	check_stack(NoStackCall, H);
@@ -7385,6 +7389,88 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
       
+      /* execute     Label               */
+      BOp(execute_cpred, pp);
+      {
+	PredEntry *pt0;
+	BEGD(d0);
+	CACHE_Y_AS_ENV(YREG);
+#ifdef FROZEN_STACKS
+      { 
+	choiceptr top_b = PROTECT_FROZEN_B(B);
+
+#ifdef SBA
+	if (YREG > (CELL *) top_b || YREG < H) ASP = (CELL *)top_b;
+#else
+	if (YREG > (CELL *) top_b) ASP = (CELL *)top_b;
+#endif /* SBA */
+	else ASP = YREG+E_CB;
+      }
+#else
+      if (YREG > (CELL *) B) {
+	ASP = (CELL *) B;
+      } else {
+	ASP = YREG+E_CB;
+      }
+      /* for slots to work */
+#endif /* FROZEN_STACKS */
+      pt0 = PREG->u.pp.p;
+#ifdef LOW_LEVEL_TRACER
+      if (Yap_do_low_level_trace) {
+	low_level_trace(enter_pred,pt0,XREGS+1);
+      }
+#endif	/* LOW_LEVEL_TRACE */
+      CACHE_A1();
+      BEGD(d0);
+      d0 = (CELL)B;
+#ifndef NO_CHECKING
+      check_stack(NoStackExecute, H);
+#endif
+      /* for profiler */
+      save_pc();
+      ENV_YREG[E_CB] = d0;
+      ENDD(d0);
+#ifdef DEPTH_LIMIT
+      if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is prolog */
+	if (pt0->ModuleOfPred) {
+	  if (DEPTH == MkIntTerm(0))
+	    FAIL();
+	  else DEPTH = RESET_DEPTH();
+	}
+      } else if (pt0->ModuleOfPred)
+	DEPTH -= MkIntConstant(2);
+#endif	/* DEPTH_LIMIT */
+	/* now call C-Code */
+      CPredicate f = PREG->u.pp.p->cs.f_code;
+      yamop *oldPREG = PREG;
+      saveregs();
+      d0 = (f)();
+      setregs();
+#ifdef SHADOW_S
+      SREG = Yap_REGS.S_;
+#endif
+      if (!d0) {
+	FAIL();
+      }
+      if (oldPREG == PREG) {
+	/* we did not update PREG */
+	/* we can proceed */
+	PREG = CPREG;
+	ENV_YREG = ENV;
+#ifdef DEPTH_LIMIT
+	DEPTH = ENV_YREG[E_DEPTH];
+#endif
+	WRITEBACK_Y_AS_ENV();
+      } else {
+	/* call the new code  */
+	CACHE_A1();
+      }
+      JMPNext();
+      ENDCACHE_Y_AS_ENV();
+      ENDD(d0);
+      }
+      ENDBOp();
+
       /* Like previous, the only difference is that we do not */
       /* trust the C-function we are calling and hence we must */
       /* guarantee that *all* machine registers are saved and */

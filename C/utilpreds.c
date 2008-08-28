@@ -393,7 +393,7 @@ handle_cp_overflow(int res, UInt arity, Term t)
   XREGS[arity+1] = t;
   switch(res) {
   case -1:
-    if (!Yap_gcl((ASP-H)*sizeof(CELL), arity+1, ENV, P)) {
+    if (!Yap_gcl((ASP-H)*sizeof(CELL), arity+1, ENV, gc_P(P,CP))) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return 0L;
     }
@@ -733,7 +733,7 @@ expand_vts(void)
       return FALSE;
     }
   } else {
-    if (!Yap_gcl(expand, 3, ENV, P)) {
+    if (!Yap_gcl(expand, 3, ENV, gc_P(P,CP))) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_variables");
       return FALSE;
     }
@@ -1787,7 +1787,7 @@ p_variant(void) /* variant terms t1 and t2	 */
   }
  error:
   if (out == -1) {
-    if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, P)) {
+    if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in variant");
       return FALSE;
     }

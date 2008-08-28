@@ -69,7 +69,12 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt, yamop *code) {
   } else if (pen->ModuleOfPred)
     DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
-  CP = P;
+  if (P->opc != Yap_opcode(_execute_cpred)) {
+    CP = P;
+    ENV = YENV;
+    YENV = ASP;
+    YENV[E_CB] = (CELL) cut_pt;
+  }
   P = code;
   /* vsc: increment reduction counter at meta-call entry */
   if (pen->PredFlags & ProfiledPredFlag) {
@@ -77,9 +82,6 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt, yamop *code) {
     pen->StatisticsForPred.NOfEntries++;
     UNLOCK(pen->StatisticsForPred.lock);
   }
-  ENV = YENV;
-  YENV = ASP;
-  YENV[E_CB] = (CELL) cut_pt;
   return TRUE;
 }
 
@@ -627,7 +629,7 @@ p_execute_clause(void)
 static Int
 p_execute_in_mod(void)
 {				/* '$execute'(Goal)	 */
-  return(do_execute(Deref(ARG1), IntOfTerm(Deref(ARG2))));
+  return(do_execute(Deref(ARG1), Deref(ARG2)));
 }
 
 static Int
@@ -1898,8 +1900,10 @@ JumpToEnv(Term t) {
     /* is it a continuation? */
     env = B->cp_env;
     while (env > ENV)
-      ENV = (CELL *)ENV[E_E];
+      ENV = ENV_Parent(ENV);
     /* yes, we found it ! */
+    while (env < ENV)
+      env = ENV_Parent(env);
     if (env == ENV) break;
     /* oops, try next */
     B = B->cp_b;

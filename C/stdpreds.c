@@ -2299,7 +2299,7 @@ p_univ(void)
       if (H > ASP - 1024) {
 	/* restore space */
 	H = Ar;
-	if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, P)) {
+	if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}
@@ -2364,7 +2364,7 @@ p_univ(void)
       }
       twork = Yap_ArrayToList(CellPtr(TR), argno - 1);
       while (IsIntTerm(twork)) {
-	if (!Yap_gc(2, ENV, P)) {
+	if (!Yap_gc(2, ENV, gc_P(P,CP))) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}    
@@ -2374,7 +2374,7 @@ p_univ(void)
 #endif
       {
 	while (H+arity*2 > ASP-1024) {
-	  if (!Yap_gcl((arity*2)*sizeof(CELL), 2, ENV, P)) {
+	  if (!Yap_gcl((arity*2)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }

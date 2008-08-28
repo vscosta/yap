@@ -1557,8 +1557,8 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
       return;
     MARK(gc_ENV+E_CB);
 
-    size = EnvSize((CELL_PTR) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
-    pvbmap = EnvBMap((CELL_PTR) (gc_ENV[E_CP]));
+    size = EnvSize((yamop *) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
+    pvbmap = EnvBMap((yamop *) (gc_ENV[E_CP]));
 #if 0
       if (size < 0) {
 	PredEntry *pe = EnvPreg(gc_ENV[E_CP]);
@@ -1913,8 +1913,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	if (opnum != _table_completion)
 #endif /* TABLING */
 	  mark_environments((CELL_PTR) gc_B->cp_env,
-			    EnvSize((CELL_PTR) (gc_B->cp_cp)),
-			    EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+			    EnvSize((yamop *) (gc_B->cp_cp)),
+			    EnvBMap((yamop *) (gc_B->cp_cp)));
       /* extended choice point */
     restart_cp:
       switch (opnum) {
@@ -2641,8 +2641,8 @@ sweep_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
       return;
     UNMARK(gc_ENV+E_CB);
 
-    size = EnvSize((CELL_PTR) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
-    pvbmap = EnvBMap((CELL_PTR) (gc_ENV[E_CP]));
+    size = EnvSize((yamop *) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
+    pvbmap = EnvBMap((yamop *) (gc_ENV[E_CP]));
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
 					 * environment */
   }
@@ -2672,8 +2672,8 @@ sweep_b(choiceptr gc_B, UInt arity)
   register CELL_PTR saved_reg;
 
   sweep_environments(gc_B->cp_env,
-		     EnvSize((CELL_PTR) (gc_B->cp_cp)),
-		     EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+		     EnvSize((yamop *) (gc_B->cp_cp)),
+		     EnvBMap((yamop *) (gc_B->cp_cp)));
 
   /* for each saved register */
   for (saved_reg = &gc_B->cp_a1;
@@ -3458,7 +3458,7 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   mark_regs(old_TR);		/* active registers & trail */
   /* active environments */
   mark_delays((attvar_record *)max, (attvar_record *)H0);
-  mark_environments(current_env, EnvSize(curp), EnvBMap((CELL *)curp));
+  mark_environments(current_env, EnvSize(curp), EnvBMap(curp));
   mark_choicepoints(B, old_TR, is_gc_very_verbose());	/* choicepoints, and environs  */
 #ifdef EASY_SHUNTING
   set_conditionals(sTR);
@@ -3527,7 +3527,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 #ifdef COROUTINING
   sweep_delays(max, myH0);
 #endif
-  sweep_environments(current_env, EnvSize(curp), EnvBMap((CELL *)curp));
+  sweep_environments(current_env, EnvSize(curp), EnvBMap(curp));
   sweep_choicepoints(B);
   sweep_trail(B, old_TR);
 #ifdef HYBRID_SCHEME
@@ -3941,7 +3941,10 @@ p_gc(void)
 {
   int res;
   Yap_PrologMode |= GCMode;
-  res = do_gc(0, ENV, P) >= 0;
+  if (P->opc == Yap_opcode(_execute_cpred))
+    res = do_gc(0, ENV, CP) >= 0;
+  else
+    res = do_gc(0, ENV, P) >= 0;
   LeaveGCMode();
   return res;
 }

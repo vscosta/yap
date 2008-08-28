@@ -261,7 +261,7 @@ recover_from_record_error(int nargs)
 {
   switch(Yap_Error_TYPE) {
   case OUT_OF_STACK_ERROR:
-    if (!Yap_gcl(Yap_Error_Size, nargs, ENV, P)) {
+    if (!Yap_gcl(Yap_Error_Size, nargs, ENV, gc_P(P,CP))) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;
     }
@@ -3434,11 +3434,13 @@ lu_recorded(PredEntry *pe) {
   if (opc == _procceed) {
     P = pe->CodeOfPred;
   } else {
-    CP = P;
+    if (P->opc != Yap_opcode(_execute_cpred)) {
+      CP = P;
+      ENV = YENV;
+      YENV = ASP;
+      YENV[E_CB] = (CELL) B;
+    }
     P = pe->CodeOfPred;
-    ENV = YENV;
-    YENV = ASP;
-    YENV[E_CB] = (CELL) B;
   }
   if (pe->PredFlags & ProfiledPredFlag) {
     LOCK(pe->StatisticsForPred.lock);
@@ -3512,7 +3514,7 @@ p_recorded(void)
 	  }
 	} else {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
+	  if (!Yap_gcl(Yap_Error_Size, 3, ENV, gc_P(P,CP))) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
@@ -3659,7 +3661,7 @@ p_first_instance(void)
       }
     } else {
       Yap_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
+      if (!Yap_gcl(Yap_Error_Size, 3, ENV, gc_P(P,CP))) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return FALSE;
       }
@@ -4528,7 +4530,7 @@ static_instance(StaticClause *cl)
 	}
       } else {
 	Yap_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
+	if (!Yap_gcl(Yap_Error_Size, 2, ENV, gc_P(P,CP))) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}
@@ -4641,7 +4643,7 @@ p_instance(void)
 	  }
 	} else {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
+	  if (!Yap_gcl(Yap_Error_Size, 2, ENV, gc_P(P,CP))) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    UNLOCK(ap->PELock);
 	    return FALSE;
@@ -4663,7 +4665,7 @@ p_instance(void)
 	}
       } else {
 	Yap_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
+	if (!Yap_gcl(Yap_Error_Size, 2, ENV, gc_P(P,CP))) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}
@@ -4693,7 +4695,7 @@ Yap_LUInstance(LogUpdClause *cl, UInt arity)
 	}
       } else {
 	Yap_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_gcl(Yap_Error_Size, arity, ENV, P)) {
+	if (!Yap_gcl(Yap_Error_Size, arity, ENV, gc_P(P,CP))) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return 0L;
 	}
@@ -5140,7 +5142,7 @@ p_dequeue(void)
 	}
       } else {
 	Yap_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_gcl(Yap_Error_Size, 2, YENV, P)) {
+	if (!Yap_gcl(Yap_Error_Size, 2, ENV, gc_P(P,CP))) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}
@@ -5184,7 +5186,7 @@ p_dequeue_unlocked(void)
 	}
       } else {
 	Yap_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_gcl(Yap_Error_Size, 2, YENV, P)) {
+	if (!Yap_gcl(Yap_Error_Size, 2, ENV, gc_P(P,CP))) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}
@@ -5241,7 +5243,7 @@ p_peek_queue(void)
 	}
       } else {
 	Yap_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_gcl(Yap_Error_Size, 2, YENV, P)) {
+	if (!Yap_gcl(Yap_Error_Size, 2, ENV, gc_P(P,CP))) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}

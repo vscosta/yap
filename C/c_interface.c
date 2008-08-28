@@ -536,7 +536,7 @@ doexpand(UInt sz)
   } else {
     arity = 0;
   }
-  if (!Yap_gcl(sz, arity, ENV, P)) {
+  if (!Yap_gcl(sz, arity, ENV, gc_P(P,CP))) {
     return FALSE;
   }
   return TRUE;

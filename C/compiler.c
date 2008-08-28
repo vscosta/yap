@@ -1881,7 +1881,10 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
     }
   }
   else {
-    if (p->PredFlags & (CPredFlag | AsmPredFlag | ModuleTransparentPredFlag)) {
+    if ((p->PredFlags & (AsmPredFlag | 
+			ModuleTransparentPredFlag |
+			 UserCPredFlag)) ||
+	p->FunctorOfPred == FunctorExecuteInMod) {
 #ifdef YAPOR
       if (p->PredFlags & SyncPredFlag)
 	Yap_emit(sync_op, (CELL)p, (CELL)(p->ArityOfPE), &cglobs->cint);
@@ -3123,7 +3126,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
 	ARG3 = src;
 
 	YAPLeaveCriticalSection();
-	if (!Yap_gcl(Yap_Error_Size, NOfArgs, ENV, P)) {
+	if (!Yap_gcl(Yap_Error_Size, NOfArgs, ENV, gc_P(P,CP))) {
 	  Yap_Error_TYPE = OUT_OF_STACK_ERROR;
 	  Yap_Error_Term = inp_clause;
 	}

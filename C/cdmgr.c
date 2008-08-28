@@ -3850,6 +3850,7 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
       break;
     case _execute:
     case _dexecute:
+    case _execute_cpred:
       clause_code = TRUE;
       pp = pc->u.pp.p0;
       pc = NEXTOP(pc,pp);
@@ -4939,11 +4940,13 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 	XREGS[i+1] = pt[i];
       }
       /* don't need no ENV */
-      if (first_time) {
+      if (first_time &&
+	  P->opc != Yap_opcode(_execute_cpred)) {
 	CP = P;
 	ENV = YENV;
 	YENV = ASP;
 	YENV[E_CB] = (CELL) B;
+
       }
       P = cl->ClCode;
 #if defined(YAPOR) || defined(THREADS)
@@ -4971,7 +4974,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 	  }
 	} else {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(Yap_Error_Size, 7, YENV, P)) {
+	  if (!Yap_gcl(Yap_Error_Size, 7, YENV, gc_P(P,CP))) {
 	    UNLOCK(pe->PELock);
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
@@ -4984,7 +4987,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 	ARG6 = th;
 	ARG7 = tb;
 	ARG8 = tr;
-	if (!Yap_gcl(Yap_Error_Size, 8, ENV, CP)) {
+	if (!Yap_gcl(Yap_Error_Size, 8, ENV, gc_P(P,CP))) {
 	  UNLOCK(pe->PELock);
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
@@ -5072,7 +5075,8 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
 	XREGS[i+1] = pt[i];
       }
       /* don't need no ENV */
-      if (first_time) {
+      if (first_time &&
+	  P->opc != Yap_opcode(_execute_cpred)) {
 	CP = P;
 	ENV = YENV;
 	YENV = ASP;
@@ -5106,7 +5110,7 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
 	  }
 	} else {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(Yap_Error_Size, 7, YENV, P)) {
+	  if (!Yap_gcl(Yap_Error_Size, 7, YENV, gc_P(P,CP))) {
 	    UNLOCK(pe->PELock);
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
@@ -5196,7 +5200,8 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
 	XREGS[i+1] = pt[i];
       }
       /* don't need no ENV */
-      if (first_time) {
+      if (first_time &&
+	  P->opc != Yap_opcode(_execute_cpred)) {
 	CP = P;
 	ENV = YENV;
 	YENV = ASP;
@@ -5225,7 +5230,7 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
 	  }
 	} else {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(Yap_Error_Size, 4, YENV, P)) {
+	  if (!Yap_gcl(Yap_Error_Size, 4, YENV, gc_P(P,CP))) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
@@ -5472,7 +5477,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 	XREGS[i+1] = pt[i];
       }
       /* don't need no ENV */
-      if (first_time) {
+      if (first_time && P->opc != Yap_opcode(_execute_cpred)) {
 	CP = P;
 	ENV = YENV;
 	YENV = ASP;
@@ -5497,7 +5502,8 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 	XREGS[i+1] = pt[i];
       }
       /* don't need no ENV */
-      if (first_time) {
+      if (first_time &&
+	  P->opc != Yap_opcode(_execute_cpred)) {
 	CP = P;
 	ENV = YENV;
 	YENV = ASP;
@@ -5532,7 +5538,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 	  ARG5 = th;
 	  ARG6 = tb;
 	  ARG7 = tr;
-	  if (!Yap_gc(7, YENV, P)) {
+	  if (!Yap_gc(7, YENV, gc_P(P,CP))) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
