@@ -1594,11 +1594,26 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 
 */
 
+
+static void
+mark_att_var(CELL *hp)
+{
+  int relpos = ((CELL *)Yap_GlobalBase-hp)%3;
+  attvar_record *attv = (attvar_record *)(hp-relpos);
+  mark_external_reference2(&attv->Done);
+  mark_external_reference2(&attv->Value);
+  mark_external_reference2(&attv->Atts);
+}
+
+
 static void
 mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B)
 {
 #ifdef EASY_SHUNTING
   tr_fr_ptr begsTR = NULL, endsTR = NULL;
+#endif
+#ifdef COROUTINING
+  CELL *detatt = NULL;
 #endif
   cont *old_cont_top0 = cont_top0;
 
@@ -1634,13 +1649,22 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif
 	discard_trail_entries++;
       } else {
-	if (trail_cell == (CELL)trail_base)
-	  discard_trail_entries++;
+	if ( hp > (CELL*)Yap_GlobalBase && hp < H0) {
+	  if (!detatt || hp >= detatt) {
+	    mark_att_var(hp);
+	  } else {
+	    trail_cell = TrailTerm(trail_base) = (CELL)trail_base;
+	    discard_trail_entries++;
+	  }
+	} else {
+	  if (trail_cell == (CELL)trail_base)
+	    discard_trail_entries++;
 #ifdef FROZEN_STACKS
-	else {
-	  mark_external_reference(&TrailVal(trail_base));
-	}
+	  else {
+	    mark_external_reference(&TrailVal(trail_base));
+	  }
 #endif
+	}
 #ifdef EASY_SHUNTING
 	if (hp < gc_H   && hp >= H0) {
 	  tr_fr_ptr nsTR = (tr_fr_ptr)cont_top0;
@@ -1685,6 +1709,16 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
       */
       if (cptr < (CELL *)gc_B && cptr >= gc_H) {
 	goto remove_trash_entry;
+      } else if (!detatt && cptr == RepAppl(DelayedVars)+1) {
+	detatt = cptr;
+      } else if (cptr > (CELL*)Yap_GlobalBase && cptr < H0) {
+	/* MABINDING that should be recovered */
+	if (detatt && cptr >= detatt) {
+	  goto remove_trash_entry;
+	} else {
+	  /* This attributed variable is still in play */
+	  mark_att_var(cptr);
+	}
       }
       if (!gc_lookup_ma_var(cptr, trail_base)) {
 	/* check whether this is the first time we see it*/
@@ -1809,9 +1843,12 @@ mark_delays(attvar_record *top, attvar_record *bottom)
 {
   attvar_record *attv = (attvar_record *)top;
   for (; attv < bottom; attv++) {
+    /* only mark what is accessible */
+    if (IsVarTerm(attv->Done) && IsUnboundVar(&attv->Done)) {
       mark_external_reference2(&attv->Done);
       mark_external_reference2(&attv->Value);
       mark_external_reference2(&attv->Atts);
+    }
   }
 }
 #else
