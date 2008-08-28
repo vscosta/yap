@@ -763,12 +763,47 @@ typedef struct choicept {
 #endif
 #define RealEnvSize	(EnvSizeInCells*sizeof(CELL))
 
-#define ENV_Size(cp)       (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->u.sbpp.s)
-#define ENV_ToP(cp)        (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->u.sla.p)
-#define ENV_ToOp(cp)       (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->opc)
-#define EnvSize(cp)        ((-ENV_Size(cp))/(OPREG)sizeof(CELL))
-#define EnvBMap(p)         (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->u.sbpp.bmap)
-#define EnvPreg(p)         (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->u.sbpp.p0)
+static inline
+CELL *ENV_Parent(CELL *env)
+{
+  return (CELL *)env[E_E];
+}
+
+static inline 
+UInt ENV_Size(yamop *cp)
+{
+  return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->u.sbpp.s);
+}
+
+static inline 
+struct pred_entry *ENV_ToP(yamop *cp)
+{
+  return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->u.sbpp.p);
+}
+
+static inline 
+OPCODE ENV_ToOp(yamop *cp)
+{
+  return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->opc);
+}
+
+static inline 
+UInt EnvSize(yamop *cp)
+{
+  return ((-ENV_Size(cp))/(OPREG)sizeof(CELL));
+}
+
+static inline 
+CELL *EnvBMap(yamop *p)
+{
+  return (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->u.sbpp.bmap);
+}
+
+static inline 
+struct pred_entry *EnvPreg(yamop *p)
+{
+  return (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->u.sbpp.p0);
+}
 
 /* access to instructions */
 
