@@ -163,25 +163,28 @@ typedef enum {
 
   The meaning of the symbols in a abstract machine instruction is:
 
-  c: constant, is a Term
+  b: arity (Int)
   b: bitmap (CELL *)
+  c: constant, is a Term
   d: double (functor + unaligned double)
   f: functor
   F: Function, CPredicate
   i: large integer (functor + long)
+  I: index (struct logic_upd_index *)
   l: label, yamop *
   L: logic upd clause, logic_upd_clause *
   m: module, Term
   o: opcode, OPCODE
+  p: predicate, struct pred_entry *
   s: small integer, COUNT
   x: wam register, wamreg
-
-
-  d: predicate definition
-  n: small number
-  x: argument or temporary register
   y: environment slot
 
+*/
+/* This declaration is going to be parsed by a Prolog program, so:
+   comments are welcome, but they should take a whole line,
+   every field declaration should also take a single line,
+   please check the Prolog program if you come up with something not unsignd or struct.
 */
 typedef struct yami {
   OPCODE opc;
@@ -275,18 +278,19 @@ typedef struct yami {
       struct yami              *d;
       CELL next;
     } apl;
-    /* The next two instructions are twin: they both correspond to the old ldd.
-       The first one, aLl, handles try_logical and retry_logical,
-       Ill handles trust_logical.
-       They must have the same fields.
-    */
+    /* The next two instructions are twin: they both correspond to the old ldd. */
+    /* The first one, aLl, handles try_logical and retry_logical, */
+    /* Ill handles trust_logical. */
+    /* They must have the same fields. */
+    
     struct {
 #ifdef YAPOR
       unsigned int               or_arg;
 #endif /* YAPOR */
 #ifdef TABLING
-      struct table_entry        *te; /* pointer to table entry */
-#endif /* TABLING */
+      /* pointer to table entry */
+      struct table_entry        *te;
+#endif
       /* number of arguments */
       COUNT                    s;
       struct logic_upd_clause   *d;
@@ -296,9 +300,10 @@ typedef struct yami {
     struct {
 #ifdef YAPOR
       unsigned int               or_arg;
-#endif /* YAPOR */
+#endif
 #ifdef TABLING
-      struct table_entry        *te; /* pointer to table entry */
+      /* pointer to table entry */
+      struct table_entry        *te;
 #endif /* TABLING */
       /* number of arguments */
       struct logic_upd_index  *block;
@@ -309,10 +314,11 @@ typedef struct yami {
     struct {
 #ifdef YAPOR
       unsigned int        or_arg;
-#endif /* YAPOR */
+#endif
 #ifdef TABLING
-      struct table_entry *te; /* pointer to table entry */
-#endif /* TABLING */
+       /* pointer to table entry */
+      struct table_entry *te;
+#endif
       Int               s;
       struct pred_entry  *p;
       CPredicate          f;
@@ -450,7 +456,8 @@ typedef struct yami {
       COUNT               s1;
       COUNT               s2;
       COUNT               s3;
-      struct yami  *sprev, *snext;
+      struct yami  *sprev;
+      struct yami  *snext;
       struct pred_entry  *p;
       CELL next;
     } sssllp;
@@ -471,7 +478,7 @@ typedef struct yami {
     struct {
 #ifdef YAPOR
       unsigned int        or_arg;
-#endif /* YAPOR */
+#endif
       COUNT               s;
       CELL               *bmap;
       struct yami *l;
@@ -481,7 +488,7 @@ typedef struct yami {
     struct {
 #ifdef YAPOR
       unsigned int        or_arg;
-#endif /* YAPOR */
+#endif
       COUNT               s;
       CELL               *bmap;
       struct pred_entry  *p;
@@ -491,7 +498,7 @@ typedef struct yami {
     struct {
 #ifdef YAPOR
       unsigned int        or_arg;
-#endif /* YAPOR */
+#endif
       COUNT               s;
       CELL               *bmap;
       Term  mod;
@@ -499,9 +506,12 @@ typedef struct yami {
       CELL next;
     } sbmp;
     struct {
-      COUNT               s;  /* size of table */
-      COUNT               e;  /* live entries */
-      COUNT               w;  /* pending suspended blocks */
+      /* size of table */
+      COUNT               s;
+      /* live entries */
+      COUNT               e;
+      /* pending suspended blocks */
+      COUNT               w;
       struct yami        *l;
       CELL next;
     } sssl;

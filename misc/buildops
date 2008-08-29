@@ -3,36 +3,84 @@
 	[process/2,
 	 split/3]).
 
+:- use_module(library(readutil),
+	[read_line_to_codes/2]).
+
+:- use_module(library(lists),
+	[member/2]).
+
 :- initialization(main).
 
+:- yap_flag(write_strings,on).
+
+:- yap_flag(unknown,error).
+
+:- style_check(all).
+
+:- dynamic qual/1.
+
+qual("none").
+
 main :-
+	get_field_names('H/amidefs.h'),
 	open('H/YapOpcodes.h',write,W),
+	open('H/rclause.h',write,C),
 	header(W),
-	file('C/absmi.c',W),
-	format(W, '#ifdef YAPOR~n',[]),
-	file('OPTYap/or.insts.i',W),
-	format(W, '#endif~n',[]),
-	format(W, '#ifdef TABLING~n',[]),
-	file('OPTYap/tab.insts.i',W),
-	file('OPTYap/tab.tries.insts.i',W),
-	format(W, '#endif~n',[]),
+	header_rclause(C),
+	file('C/absmi.c',W,C),
+	start_ifdef("YAPOR",W,C),
+	file('OPTYap/or.insts.i',W,C),
+	end_ifdef(W,C),
+	start_ifdef("TABLING",W,C),
+	retractall(op(_,_)),
+	file('OPTYap/tab.insts.i',W,C),
+	file('OPTYap/tab.tries.insts.i',W,C),
+	end_ifdef(W,C),
 	footer(W),
-	close(W).
+	footer_rclause(C),
+	close(W),
+	close(C).
+
+start_ifdef(D,W,C) :-
+	retractall(op(_,_)),
+	format(W, '#ifdef ~s~n',[D]),
+	format(C, '#ifdef ~s~n',[D]).
+	
+end_ifdef(W,C) :-
+	format(W, '#endif~n',[]),
+	format(C, '#endif~n',[]).
 
 header(W) :-
 	format(W,'~n  /* This file was generated automatically by \"yap -L misc/buildops\"~n     please do not update */~n~n',[]).
 
 
-file(I,W) :-
+header_rclause(W) :-
+	format(W,'~n  /* This file was generated automatically by \"yap -L misc/buildops\"~n     please do not update */~n~n
+static void 
+restore_opcodes(yamop *pc)
+{
+  do {
+    op_numbers op = Yap_op_from_opcode(pc->opc);
+    pc->opc = Yap_opcode(op);
+#ifdef DEBUG_RESTORE2
+    fprintf(stderr, "%s ", Yap_op_names[op]);
+#endif
+    switch (op) {
+',[]).
+
+
+file(I,W,C) :-
 	open(I,read,R),
 	process(R,grep_opcode(W)),
-	close(R).
+	close(R),
+	output_rclause(C).
 
 grep_opcode(W, Line) :-
 	split(Line," 	,();",[OP,Name,Type]),
 	Name \= "or_last",
 	check_op(OP),
 	special(Name,W),
+	assert(op(Type,Name)),
 	format(W,'  OPCODE(~s~36+,~s),~n',[Name,Type]),
 	end_special(Name,W).
 
@@ -59,6 +107,62 @@ special_op("run_eam","BEAM").
 special_op("retry_eam","BEAM").
 special_op("thread_local","THREADS").
 
+output_rclause(C) :-
+	setof(T,O^op(T,O),Types),
+	member(T, Types),
+	output_type(T, C),
+	fail.
+output_rclause(_).
+
+output_type(T, C) :-
+	format(C,'      /* instructions type ~s */~n',[T]),
+	setof(Op,op(T,Op),Ops),
+	dump_ops(C,Ops),
+	output_typeinfo(C,T).
+
+
+output_typeinfo(C,T) :-
+	tinfo(T, Info),
+	dump_fields(C,Info,T,T),
+	format(C,'      pc = NEXTOP(pc,~s);
+      break;~n',[T]).
+
+dump_fields(_,[],"e",_).
+dump_fields(_,[],[],_).
+dump_fields(C,[I-"none"|Info],[O|Ops],T) :- !,
+	dump_field(C,I,O,T),
+	dump_fields(C,Info,Ops,T).
+dump_fields(C,[_|Info],Ops,T) :-
+	dump_fields(C,Info,Ops,T).
+
+dump_field(C,I,O,T) :-
+	get_op(O,A),
+	format(C,"      pc->u.~s.~s = ~sAdjust(pc->u.~s.~s);~n",[T,I,A,T,I]).
+
+get_op(0'a,"Arity").
+get_op(0'b,"CellPtoHeap").
+get_op(0'c,"ConstantTerm").
+get_op(0'd,"DoubleInCode").
+get_op(0'f,"Functor").
+get_op(0'F,"ExternalFunction").
+get_op(0'i,"IntegerInCode").
+get_op(0'I,"LogUpdIndex").
+get_op(0'l,"PtoOp").
+get_op(0'L,"LogUpdClause").
+get_op(0'm,"Module").
+get_op(0'o,"Opcode").
+get_op(0'p,"PtoPred").
+get_op(0's,"Constant").
+get_op(0'x,"X").
+get_op(0'y,"Y").
+
+dump_ops(_,[]).
+dump_ops(C,[Op|Ops]) :-
+	special(Op,C),
+	format(C,'    case _~s:~n',[Op]),
+	end_special(Op,C),
+	dump_ops(C,Ops).
+	
 /* or_last requires special handling */
 footer(W) :-
 	format(W,'  /* this instruction is hardwired */~n',[]),
@@ -67,3 +171,88 @@ footer(W) :-
 	format(W,'#else~n',[]),
 	format(W,'  OPCODE(~s~36+,~s)~n',["or_last","p"]),
 	format(W,'#endif~n',[]).
+
+
+footer_rclause(W) :-
+	format(W,'      /* this instruction is hardwired */~n',[]),
+	dump_ops(W,["or_last"]),
+	format(W,'#ifdef YAPOR~n',[]),
+	output_typeinfo(W,"sblp"),
+	format(W,'#else~n',[]),
+	output_typeinfo(W,"p"),
+	format(W,'#endif~n',[]),
+	format(W,'    }
+  } while (TRUE);
+}
+',[]).
+
+get_field_names(F) :-
+	open(F, read, A),
+	loop_for_fields(A),
+	close(A).
+
+loop_for_fields(A) :-
+	read_line_to_codes(A,"typedef struct yami {"), !,
+	loop_for_fields_go(A).
+loop_for_fields(A) :-
+	loop_for_fields(A).
+
+loop_for_fields_go(A) :-
+	read_line_to_codes(A,_),
+	read_line_to_codes(A,_),
+	read_field_by_field(A).
+
+read_field_by_field(A) :-
+	read_line_to_codes(A,L),
+	split(L," 	",Statement),
+	read_field_by_field(A,Statement).
+
+read_field_by_field(_,["}","u;"]) :- !.
+read_field_by_field(A,["struct","{"]) :- !,
+	read_fields(A,Fields,Type),
+	assert(tinfo(Type,Fields)),
+	read_field_by_field(A).
+read_field_by_field(A,_) :-
+	read_field_by_field(A).
+
+read_fields(A,Fields,Type) :-
+	read_line_to_codes(A,L),
+	split(L," 	;*[",Statements0),
+	clean_statements(Statements0, Statements),
+	( Statements = ["}",Type]
+	->
+	  Fields = []
+	;
+	  Statements = ["CELL","next"]
+	->
+	  read_fields(A,Fields,Type)
+	;
+	  Statements = ["/"|_]
+	->
+	  read_fields(A,Fields,Type)
+	;
+	  Statements = ["#ifdef",If]
+	->
+	  retract(qual(_)),
+	  assert(qual(If)),
+	  read_fields(A,Fields,Type)
+	;
+	  Statements = ["#endif"|_]
+	->
+	  retract(qual(_)),
+	  assert(qual("none")),
+	  read_fields(A,Fields,Type)
+	;
+	  Statements = [_,F|_],
+	  qual(Qual),
+	  Fields = [F-Qual|More],
+	  read_fields(A,More,Type)
+	).
+	
+	
+	
+clean_statements(["struct"|Statements0], StatementsF) :- !,
+	clean_statements(Statements0, StatementsF).
+clean_statements(["unsigned"|Statements0], StatementsF) :- !,
+	clean_statements(Statements0, StatementsF).
+clean_statements(Statements, Statements).
