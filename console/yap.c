@@ -514,7 +514,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    break;
 #endif
 	  case 'L':
-	    if (p[0])
+	    if (p[1])
 	      goto stack_mode;
 	    iap->QuietMode = TRUE;
 	    iap->HaltAfterConsult = TRUE;
