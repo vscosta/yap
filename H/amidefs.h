@@ -174,6 +174,7 @@ typedef enum {
   l: label, yamop *
   L: logic upd clause, logic_upd_clause *
   m: module, Term
+  n: number, Integer
   o: opcode, OPCODE
   p: predicate, struct pred_entry *
   s: small integer, COUNT
@@ -184,7 +185,7 @@ typedef enum {
 /* This declaration is going to be parsed by a Prolog program, so:
    comments are welcome, but they should take a whole line,
    every field declaration should also take a single line,
-   please check the Prolog program if you come up with something not unsignd or struct.
+   please check the Prolog program if you come up with a compilcated C-type that does not start by unsigned or struct.
 */
 typedef struct yami {
   OPCODE opc;
@@ -572,9 +573,9 @@ typedef struct yami {
     struct {
       wamreg                x;
       wamreg                xi;
-      COUNT                 c;
+      Int                   c;
       CELL next;
-    } xxc;
+    } xxn;
     struct {
       wamreg                x;
       yslot                y;

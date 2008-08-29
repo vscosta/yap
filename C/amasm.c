@@ -2642,11 +2642,11 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_func2s_cv);
 	  break;
 	}
-	code_p->u.xxc.x = emit_x(ve->NoOfVE & MaskVarAdrs);
-	code_p->u.xxc.c = cmp_info->c_arg;
-	code_p->u.xxc.xi = cmp_info->x1_arg;
+	code_p->u.xxn.x = emit_x(ve->NoOfVE & MaskVarAdrs);
+	code_p->u.xxn.c = cmp_info->c_arg;
+	code_p->u.xxn.xi = cmp_info->x1_arg;
       }
-      GONEXT(xxc);
+      GONEXT(xxn);
       break;	  
     case TYPE_XC:
       if (pass_no) {
@@ -2696,11 +2696,11 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_func2s_vc);
 	  break;
 	}
-	code_p->u.xxc.x = emit_x(ve->NoOfVE & MaskVarAdrs);
-	code_p->u.xxc.c = cmp_info->c_arg;
-	code_p->u.xxc.xi = cmp_info->x1_arg;
+	code_p->u.xxn.x = emit_x(ve->NoOfVE & MaskVarAdrs);
+	code_p->u.xxn.c = cmp_info->c_arg;
+	code_p->u.xxn.xi = cmp_info->x1_arg;
       }
-      GONEXT(xxc);
+      GONEXT(xxn);
       break;	  
     }
   }

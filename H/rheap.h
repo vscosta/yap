@@ -239,6 +239,20 @@ static char     SccsId[] = "@(#)rheap.c	1.3 3/15/90";
 #define Atomics		0
 #define Funcs		1
 
+static Term
+ConstantTermAdjust (Term t)
+{
+  if (IsAtomTerm(t))
+    return AtomTermAdjust(t);
+  else if (IsIntTerm(t))
+    return t;
+  else if (IsApplTerm(t))
+    return BlobTermAdjust(t);
+  else if (IsPairTerm(t))
+    return CodeComposedTermAdjust(t);
+  else return t;
+}
+
 /* Now, everything on its place so you must adjust the pointers */
 
 static void 
@@ -258,6 +272,108 @@ do_clean_susp_clauses(yamop *ipc) {
     if (*st) {
       *st = PtoOpAdjust(*st);
     }
+  }
+}
+
+static void
+AdjustSwitchTable(op_numbers op, yamop *table, COUNT i)
+{
+  CELL *startcode = (CELL *)table;
+  switch (op) {
+  case _switch_on_func:
+    {
+      COUNT            j;
+      CELL            *oldcode;
+
+      oldcode = startcode;
+      for (j = 0; j < i; j++) {
+	Functor oldfunc = (Functor)(oldcode[0]);
+	CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
+	if (oldfunc) {
+	  oldcode[0] = (CELL)FuncAdjust(oldfunc);
+	}
+	oldcode[1] = (CELL)CodeAddrAdjust(oldjmp);
+	oldcode += 2;
+      }
+      rehash(startcode, i, Funcs);
+    }
+    break;
+  case _switch_on_cons:
+    {
+      COUNT            j;
+      CELL            *oldcode;
+
+#if !defined(USE_OFFSETS)
+      oldcode = startcode;
+#endif
+      for (j = 0; j < i; j++) {
+	Term oldcons = oldcode[0];
+	CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
+	if (oldcons != 0x0 && IsAtomTerm(oldcons)) {
+	  oldcode[0] = AtomTermAdjust(oldcons);
+	}
+	oldcode[1] = (CELL)CodeAddrAdjust(oldjmp);
+	oldcode += 2;
+      }
+#if !USE_OFFSETS
+      rehash(startcode, i, Atomics);
+#endif
+    }
+    break;
+  case _go_on_func:
+    {
+      Functor oldfunc = (Functor)(startcode[0]);
+
+      startcode[0] = (CELL)FuncAdjust(oldfunc);
+      startcode[1] = (CELL)CodeAddrAdjust((CODEADDR)startcode[1]);
+      startcode[3] = (CELL)CodeAddrAdjust((CODEADDR)startcode[3]);
+    }
+    break;
+  case _go_on_cons:
+    {
+      Term oldcons = startcode[0];
+
+      if (IsAtomTerm(oldcons)) {
+	startcode[0] = AtomTermAdjust(oldcons);
+      }
+      startcode[1] = (CELL)CodeAddrAdjust((CODEADDR)startcode[1]);
+      startcode[3] = (CELL)CodeAddrAdjust((CODEADDR)startcode[3]);
+    }
+    break;
+  case _if_func:
+    {
+      Int j;
+
+      for (j = 0; j < i; j++) {
+	Functor oldfunc = (Functor)(startcode[0]);
+	CODEADDR oldjmp = (CODEADDR)(startcode[1]);
+	startcode[0] = (CELL)FuncAdjust(oldfunc);
+	startcode[1] = (CELL)CodeAddrAdjust(oldjmp);
+	startcode += 2;
+      }
+      /* adjust fail code */
+      startcode[1] = (CELL)CodeAddrAdjust((CODEADDR)startcode[1]);
+    }
+    break;
+  case _if_cons:
+    {
+      Int j;
+
+      for (j = 0; j < i; j++) {
+	Term oldcons = startcode[0];
+	CODEADDR oldjmp = (CODEADDR)(startcode[1]);
+	if (IsAtomTerm(oldcons)) {
+	  startcode[0] = (CELL)AtomTermAdjust(oldcons);
+	}
+	startcode[1] = (CELL)CodeAddrAdjust(oldjmp);
+	startcode += 2;
+      }
+      /* adjust fail code */
+      startcode[1] = (CELL)CodeAddrAdjust((CODEADDR)startcode[1]);
+    }
+    break;
+  default:
+    Yap_Error(INTERNAL_ERROR,0L,"Opcode Not Implemented in AdjustSwitchTable");
   }
 }
 
@@ -1495,3 +1611,4 @@ RestoreAtom(AtomEntry *at)
   if (nat)
     at->NextOfAE = AbsAtom(AtomEntryAdjust(nat));
 }
+

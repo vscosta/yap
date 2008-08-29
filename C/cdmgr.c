@@ -708,6 +708,9 @@ get_pred(Term t,  Term tmod, char *pname)
 ******************************************************************/
 
 
+#define DoubleInCodeAdjust(D)
+#define IntegerInCodeAdjust(D)
+#define IntegerAdjust(D)  (D)
 #define PtoPredAdjust(X) (X)
 #define PtoOpAdjust(X) (X)
 #define PtoLUClauseAdjust(P) (P)
@@ -719,6 +722,12 @@ get_pred(Term t,  Term tmod, char *pname)
 #define FuncAdjust(X) (X)
 #define CodeAddrAdjust(X) (X)
 #define CodeComposedTermAdjust(X) (X)
+#define ConstantAdjust(X) (X)
+#define ArityAdjust(X) (X)
+#define OpcodeAdjust(X) (X)
+#define ModuleAdjust(X) (X)
+#define ExternalFunctionAdjust(X) (X)
+#define AdjustSwitchTable(X,Y,Z) 
 #define rehash(A,B,C)
 static Term BlobTermAdjust(Term t)
 {
@@ -728,6 +737,23 @@ static Term BlobTermAdjust(Term t)
   return t+ClDiff;
 #endif
 }
+
+static Term ConstantTermAdjust (Term);
+
+static Term
+ConstantTermAdjust (Term t)
+{
+  if (IsAtomTerm(t))
+    return AtomTermAdjust(t);
+  else if (IsIntTerm(t))
+    return t;
+  else if (IsApplTerm(t))
+    return BlobTermAdjust(t);
+  else if (IsPairTerm(t))
+    return CodeComposedTermAdjust(t);
+  else return t;
+}
+
 
 #include "rclause.h"
 
@@ -3180,7 +3206,7 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
 	 only for retracts
       */
       while (env_ptr && b_ptr > (choiceptr)env_ptr) {
-	PredEntry *pe = EnvPreg(env_ptr[E_CP]);
+	PredEntry *pe = EnvPreg((yamop *)env_ptr[E_CP]);
 	if (p == pe) return(TRUE);
 	if (env_ptr != NULL)
 	  env_ptr = (CELL *)(env_ptr[E_E]);
@@ -3257,7 +3283,7 @@ do_toggle_static_predicates_in_use(int mask)
     PredEntry *pe;
     /* check first environments that are younger than our latest choicepoint */
     while (b_ptr > (choiceptr)env_ptr) {
-      PredEntry *pe = EnvPreg(env_ptr[E_CP]);
+      PredEntry *pe = EnvPreg((yamop *)env_ptr[E_CP]);
       
       mark_pred(mask, pe);
       env_ptr = (CELL *)(env_ptr[E_E]);
@@ -4305,7 +4331,7 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
       clause_code = TRUE;
       pc = NEXTOP(pc,xxx);
       break;
-      /* instructions type xxc */
+      /* instructions type xxn */
     case _p_plus_vc:
     case _p_minus_cv:
     case _p_times_vc:
@@ -4316,18 +4342,18 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _p_slr_vc:
     case _p_func2s_vc:
       clause_code = TRUE;
-      pc = NEXTOP(pc,xxc);
+      pc = NEXTOP(pc,xxn);
       break;
     case _p_div_vc:
     case _p_sll_cv:
     case _p_slr_cv:
     case _p_arg_cv:
       clause_code = TRUE;
-      pc = NEXTOP(pc,xxc);
+      pc = NEXTOP(pc,xxn);
       break;
     case _p_func2s_cv:
       clause_code = TRUE;
-      pc = NEXTOP(pc,xxc);
+      pc = NEXTOP(pc,xxn);
       break;
       /* instructions type xxy */
     case _p_func2f_xy:
@@ -5868,7 +5894,7 @@ p_predicate_lu_cps(void)
 static Int
 p_program_continuation(void)
 {
-  PredEntry *pe = EnvPreg(((CELL *)ENV[E_E])[E_CP]);
+  PredEntry *pe = EnvPreg((yamop *)((ENV_Parent(ENV))[E_CP]));
   if (pe->ModuleOfPred) {
     if (!Yap_unify(ARG1,pe->ModuleOfPred))
       return FALSE;

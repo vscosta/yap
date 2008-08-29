@@ -1373,7 +1373,7 @@ has_cut(yamop *pc)
     case _p_func2f_xx:
       pc = NEXTOP(pc,xxx);
       break;
-      /* instructions type xxc */
+      /* instructions type xxn */
     case _p_plus_vc:
     case _p_minus_cv:
     case _p_times_vc:
@@ -1383,16 +1383,16 @@ has_cut(yamop *pc)
     case _p_sll_vc:
     case _p_slr_vc:
     case _p_func2s_vc:
-      pc = NEXTOP(pc,xxc);
+      pc = NEXTOP(pc,xxn);
       break;
     case _p_div_vc:
     case _p_sll_cv:
     case _p_slr_cv:
     case _p_arg_cv:
-      pc = NEXTOP(pc,xxc);
+      pc = NEXTOP(pc,xxn);
       break;
     case _p_func2s_cv:
-      pc = NEXTOP(pc,xxc);
+      pc = NEXTOP(pc,xxn);
       break;
       /* instructions type xxy */
     case _p_func2f_xy:
@@ -2321,26 +2321,26 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_sll_vc:
     case _p_slr_vc:
     case _p_func2s_vc:
-      if (regcopy_in(myregs, nofregs, cl->u.xxc.x) &&
-	  (nofregs = delete_regcopy(myregs, nofregs, cl->u.xxc.x)) == 0 &&
+      if (regcopy_in(myregs, nofregs, cl->u.xxn.x) &&
+	  (nofregs = delete_regcopy(myregs, nofregs, cl->u.xxn.x)) == 0 &&
 	  !ycopy) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,xxc);
+      cl = NEXTOP(cl,xxn);
       break;
     case _p_div_vc:
     case _p_sll_cv:
     case _p_slr_cv:
     case _p_arg_cv:
     case _p_func2s_cv:
-      if (regcopy_in(myregs, nofregs, cl->u.xxc.x) &&
-	  (nofregs = delete_regcopy(myregs, nofregs, cl->u.xxc.x)) == 0 &&
+      if (regcopy_in(myregs, nofregs, cl->u.xxn.x) &&
+	  (nofregs = delete_regcopy(myregs, nofregs, cl->u.xxn.x)) == 0 &&
 	  !ycopy) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,xxc);
+      cl = NEXTOP(cl,xxn);
       break;
     case _p_func2f_xy:
       if (regcopy_in(myregs, nofregs, cl->u.xxy.x) &&

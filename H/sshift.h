@@ -152,7 +152,6 @@ DelayAdjust (CELL val)
 }
 
 
-
 inline EXTERN ADDR GlobalAddrAdjust (ADDR);
 
 inline EXTERN ADDR
@@ -164,6 +163,7 @@ GlobalAddrAdjust (ADDR ptr)
     return (ADDR) ((ptr + GDiff));
   }
 }
+
 
 
 
@@ -255,6 +255,8 @@ inline EXTERN CELL *CellPtoHeapAdjust (CELL *);
 inline EXTERN CELL *
 CellPtoHeapAdjust (CELL * ptr)
 {
+  if (!ptr)
+    return ptr;
   return (CELL *) (((CELL *) (CharP (ptr) + HDiff)));
 }
 
@@ -319,6 +321,37 @@ PredEntryAdjust (PredEntry *p)
   return (PredEntry *) ((p == NULL ? (p) : (PredEntry *) (CharP (p) + HDiff)));
 }
 
+inline EXTERN COUNT ConstantAdjust (COUNT);
+
+inline EXTERN COUNT
+ConstantAdjust (COUNT val)
+{
+  return val;
+}
+
+inline EXTERN Int ArityAdjust (Int);
+
+inline EXTERN Int
+ArityAdjust (Int val)
+{
+  return val;
+}
+
+inline EXTERN OPCODE OpcodeAdjust (OPCODE);
+
+inline EXTERN OPCODE
+OpcodeAdjust (OPCODE val)
+{
+  return Yap_opcode(Yap_op_from_opcode(val));
+}
+
+#define DoubleInCodeAdjust(D)
+
+#define IntegerInCodeAdjust(D) 
+
+#define IntegerAdjust(D)  (D)
+
+#define ExternalFunctionAdjust(D) (D);
 
 inline EXTERN Term AtomTermAdjust (Term);
 
@@ -326,6 +359,14 @@ inline EXTERN Term
 AtomTermAdjust (Term at)
 {
   return at + HDiff;
+}
+
+inline EXTERN Term ModuleAdjust (Term);
+
+inline EXTERN Term
+ModuleAdjust (Term t)
+{
+  return AtomTermAdjust(t);
 }
 
 inline EXTERN Term CodeVarAdjust (Term);
@@ -653,7 +694,6 @@ YAdjust (yslot reg)
 {
   return (yslot) ((reg));
 }
-
 
 
 

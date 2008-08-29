@@ -1523,7 +1523,7 @@ Yap_absmi(int inp)
 
       /* only meaningful with THREADS on! */
       /* lock logical updates predicate.  */
-      Op(lock_lu, e);
+      Op(lock_lu, p);
 #if defined(YAPOR) || defined(THREADS)
       if (PP) {
 	GONext();
@@ -9569,14 +9569,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_plus_vc, xxc);
+      Op(p_plus_vc, xxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.xxc.xi);
+      d0 = XREG(PREG->u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, plus_vc_unk);
     plus_vc_nvar:
       {
-	Int d1 = PREG->u.xxc.c;
+	Int d1 = PREG->u.xxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntegerTerm(IntOfTerm(d0) + d1);
 	}
@@ -9588,8 +9588,8 @@ Yap_absmi(int inp)
 	    FAIL();
 	}
       }
-      XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(PREG, xxc);
+      XREG(PREG->u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
@@ -9739,14 +9739,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_minus_cv, xxc);
+      Op(p_minus_cv, xxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.xxc.xi);
+      d0 = XREG(PREG->u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, minus_cv_unk);
     minus_cv_nvar:
       {
-	Int d1 = PREG->u.xxc.c;
+	Int d1 = PREG->u.xxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntegerTerm(d1 - IntOfTerm(d0));
 	}
@@ -9758,8 +9758,8 @@ Yap_absmi(int inp)
 	    FAIL();
 	}
       }
-      XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(PREG, xxc);
+      XREG(PREG->u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
@@ -9909,14 +9909,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_times_vc, xxc);
+      Op(p_times_vc, xxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.xxc.xi);
+      d0 = XREG(PREG->u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, times_vc_unk);
     times_vc_nvar:
       {
-	Int d1 = PREG->u.xxc.c;
+	Int d1 = PREG->u.xxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = times_int(IntOfTerm(d0), d1);
 	}
@@ -9928,8 +9928,8 @@ Yap_absmi(int inp)
 	    FAIL();
 	}
       }
-      XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(PREG, xxc);
+      XREG(PREG->u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
@@ -10086,14 +10086,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_div_vc, xxc);
+      Op(p_div_vc, xxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.xxc.xi);
+      d0 = XREG(PREG->u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, div_vc_unk);
     div_vc_nvar:
       {
-	Int d1 = PREG->u.xxc.c;
+	Int d1 = PREG->u.xxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntTerm(IntOfTerm(d0) / d1);
 	}
@@ -10105,8 +10105,8 @@ Yap_absmi(int inp)
 	    FAIL();
 	}
       }
-      XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(PREG, xxc);
+      XREG(PREG->u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
@@ -10119,14 +10119,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_div_cv, xxc);
+      Op(p_div_cv, xxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.xxc.xi);
+      d0 = XREG(PREG->u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, div_cv_unk);
     div_cv_nvar:
       {
-	Int d1 = PREG->u.xxc.c;
+	Int d1 = PREG->u.xxn.c;
 	if (IsIntTerm(d0)) {
 	  Int div = IntOfTerm(d0);
 	  if (div == 0){
@@ -10144,8 +10144,8 @@ Yap_absmi(int inp)
 	    FAIL();
 	}
       }
-      XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(PREG, xxc);
+      XREG(PREG->u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
@@ -10350,14 +10350,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_and_vc, xxc);
+      Op(p_and_vc, xxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.xxc.xi);
+      d0 = XREG(PREG->u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, and_vc_unk);
     and_vc_nvar:
       {
-	Int d1 = PREG->u.xxc.c;
+	Int d1 = PREG->u.xxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntegerTerm(IntOfTerm(d0) & d1);
 	}
@@ -10369,8 +10369,8 @@ Yap_absmi(int inp)
 	    FAIL();
 	}
       }
-      XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(PREG, xxc);
+      XREG(PREG->u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
@@ -10521,14 +10521,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_or_vc, xxc);
+      Op(p_or_vc, xxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.xxc.xi);
+      d0 = XREG(PREG->u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, or_vc_unk);
     or_vc_nvar:
       {
-	Int d1 = PREG->u.xxc.c;
+	Int d1 = PREG->u.xxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntegerTerm(IntOfTerm(d0) | d1);
 	}
@@ -10539,8 +10539,8 @@ Yap_absmi(int inp)
 	    FAIL();
 	}
       }
-      XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(PREG, xxc);
+      XREG(PREG->u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
@@ -10694,14 +10694,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_sll_vc, xxc);
+      Op(p_sll_vc, xxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.xxc.xi);
+      d0 = XREG(PREG->u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, sll_vc_unk);
     sll_vc_nvar:
       {
-	Int d1 = PREG->u.xxc.c;
+	Int d1 = PREG->u.xxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = do_sll(IntOfTerm(d0), (Int)d1);
 	}
@@ -10713,8 +10713,8 @@ Yap_absmi(int inp)
       }
       if (PREG == (yamop *)FAILCODE)
 	FAIL();
-      XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(PREG, xxc);
+      XREG(PREG->u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
@@ -10727,14 +10727,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_sll_cv, xxc);
+      Op(p_sll_cv, xxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.xxc.xi);
+      d0 = XREG(PREG->u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, sll_cv_unk);
     sll_cv_nvar:
       {
-	Int d1 = PREG->u.xxc.c;
+	Int d1 = PREG->u.xxn.c;
 	if (IsIntTerm(d0)) {
 	  Int i2 = IntOfTerm(d0);
 	  if (i2 < 0)
@@ -10750,8 +10750,8 @@ Yap_absmi(int inp)
       }
       if (PREG == (yamop *)FAILCODE)
 	FAIL();
-      XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(PREG, xxc);
+      XREG(PREG->u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
@@ -10954,14 +10954,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_slr_vc, xxc);
+      Op(p_slr_vc, xxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.xxc.xi);
+      d0 = XREG(PREG->u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, slr_vc_unk);
     slr_vc_nvar:
       {
-	Int d1 = PREG->u.xxc.c;
+	Int d1 = PREG->u.xxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntTerm(IntOfTerm(d0) >> d1);
 	}
@@ -10973,8 +10973,8 @@ Yap_absmi(int inp)
 	    FAIL();
 	}
       }
-      XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(PREG, xxc);
+      XREG(PREG->u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
@@ -10987,14 +10987,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_slr_cv, xxc);
+      Op(p_slr_cv, xxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.xxc.xi);
+      d0 = XREG(PREG->u.xxn.xi);
       /* first check pt1 */
       deref_head(d0, slr_cv_unk);
     slr_cv_nvar:
       {
-	Int d1 = PREG->u.xxc.c;
+	Int d1 = PREG->u.xxn.c;
 	if (IsIntTerm(d0)) {
 	 Int i2 = IntOfTerm(d0);
 	 if (i2 < 0)
@@ -11010,8 +11010,8 @@ Yap_absmi(int inp)
       }
       if (PREG == (yamop *)FAILCODE)
 	FAIL();
-      XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(PREG, xxc);
+      XREG(PREG->u.xxn.x) = d0;
+      PREG = NEXTOP(PREG, xxn);
       GONext();
 
       BEGP(pt0);
@@ -11839,23 +11839,23 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_arg_cv, xxc);
+      Op(p_arg_cv, xxn);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	CELL *Ho = H;
-	Term t = MkIntegerTerm(PREG->u.xxc.c); 
+	Term t = MkIntegerTerm(PREG->u.xxn.c); 
 	H[0] =  t;
-	H[1] = XREG(PREG->u.xxc.xi);
+	H[1] = XREG(PREG->u.xxn.xi);
 	RESET_VARIABLE(H+2);
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("arg"),3),0)),H);
 	H = Ho;
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
-      d0 = PREG->u.xxc.c;
+      d0 = PREG->u.xxn.c;
       /* d0 now got the argument we want */
       BEGD(d1);
-      d1 = XREG(PREG->u.xxc.xi);
+      d1 = XREG(PREG->u.xxn.xi);
       deref_head(d1, arg_arg2_vc_unk);
     arg_arg2_vc_nvar:
       /* d1 now got the structure we want to fetch the argument
@@ -11879,8 +11879,8 @@ Yap_absmi(int inp)
 	  */
 	  FAIL();
 	}
-	XREG(PREG->u.xxc.x) = pt0[d0];
-	PREG = NEXTOP(PREG, xxc);
+	XREG(PREG->u.xxn.x) = pt0[d0];
+	PREG = NEXTOP(PREG, xxn);
 	GONext();
 	ENDP(pt0);
       }
@@ -11896,8 +11896,8 @@ Yap_absmi(int inp)
 	  }
 	  FAIL();
 	}
-	XREG(PREG->u.xxc.x) = pt0[d0-1];
-	PREG = NEXTOP(PREG, xxc);
+	XREG(PREG->u.xxn.x) = pt0[d0-1];
+	PREG = NEXTOP(PREG, xxn);
 	GONext();
 	ENDP(pt0);
       }
@@ -12033,7 +12033,7 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_arg_y_cv, xxc);
+      Op(p_arg_y_cv, yxc);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	CELL *Ho = H;
@@ -12250,23 +12250,23 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_func2s_cv, xxc);
+      Op(p_func2s_cv, xxn);
       /* A1 is a variable */
     restart_func2s_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	RESET_VARIABLE(H);
-	H[1] = PREG->u.xxc.c;
-	H[2] = XREG(PREG->u.xxc.xi);
+	H[1] = PREG->u.xxn.c;
+	H[2] = XREG(PREG->u.xxn.xi);
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
       /* We have to build the structure */
-      d0 = PREG->u.xxc.c;
+      d0 = PREG->u.xxn.c;
       /* we do, let's get the third argument */
       BEGD(d1);
-      d1 = XREG(PREG->u.xxc.xi);
+      d1 = XREG(PREG->u.xxn.xi);
       deref_head(d1, func2s_unk2_cv);
     func2s_nvar2_cv:
       /* Uuuff, the second and third argument are bound */
@@ -12287,8 +12287,8 @@ Yap_absmi(int inp)
 	H += 2;
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
-	XREG(PREG->u.xxc.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sbpp),l);
+	XREG(PREG->u.xxn.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),sbpp),l);
 	GONext();
       } else if ((Int)d1 > 0) {
 	/* now let's build a compound term */
@@ -12310,7 +12310,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxc),sbpp))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxn),sbpp))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -12328,12 +12328,12 @@ Yap_absmi(int inp)
 	ENDP(pt1);
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
-	XREG(PREG->u.xxc.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sbpp),l);
+	XREG(PREG->u.xxn.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),sbpp),l);
 	GONext();
       }	else if (d1  == 0) {
-	XREG(PREG->u.xxc.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sbpp),l);
+	XREG(PREG->u.xxn.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),sbpp),l);
 	GONext();
       }	else {
 	saveregs();
@@ -12354,7 +12354,7 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_func2s_vc, xxc);
+      Op(p_func2s_vc, xxn);
       /* A1 is a variable */
     restart_func2s_vc:
 #ifdef LOW_LEVEL_TRACER
@@ -12362,9 +12362,9 @@ Yap_absmi(int inp)
 	Term ti;
 	CELL *hi = H;
 
-	ti = MkIntegerTerm((Int)(PREG->u.xxc.c));
+	ti = MkIntegerTerm((Int)(PREG->u.xxn.c));
 	RESET_VARIABLE(H);
-	H[1] = XREG(PREG->u.xxc.xi);
+	H[1] = XREG(PREG->u.xxn.xi);
 	H[2] = ti;
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
 	H = hi;
@@ -12372,11 +12372,11 @@ Yap_absmi(int inp)
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
       BEGD(d0);
-      d0 = XREG(PREG->u.xxc.xi);
+      d0 = XREG(PREG->u.xxn.xi);
       deref_head(d0, func2s_unk_vc);
     func2s_nvar_vc:
       BEGD(d1);
-      d1 = PREG->u.xxc.c;
+      d1 = PREG->u.xxn.c;
       if (!IsAtomicTerm(d0)) {
 	saveregs();
 	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
@@ -12392,14 +12392,14 @@ Yap_absmi(int inp)
 	H += 2;
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
-	XREG(PREG->u.xxc.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sbpp),l);
+	XREG(PREG->u.xxn.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),sbpp),l);
 	GONext();
       }
       /* now let's build a compound term */
       if (d1 == 0) {
-	XREG(PREG->u.xxc.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sbpp),l);
+	XREG(PREG->u.xxn.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),sbpp),l);
 	GONext();
       }
       if (!IsAtomTerm(d0)) {
@@ -12420,7 +12420,7 @@ Yap_absmi(int inp)
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
-	if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxc),sbpp))) {
+	if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxn),sbpp))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	  setregs();
 	  JMPNext();
@@ -12439,8 +12439,8 @@ Yap_absmi(int inp)
       ENDD(d1);
       /* else if arity is 0 just pass d0 through */
       /* Ding, ding, we made it */
-      XREG(PREG->u.xxc.x) = d0;
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sbpp),l);
+      XREG(PREG->u.xxn.x) = d0;
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),sbpp),l);
       GONext();
 
       BEGP(pt1);
