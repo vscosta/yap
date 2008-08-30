@@ -4388,7 +4388,7 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
       clause_code = TRUE;
       pc = NEXTOP(pc,yyx);
       break;
-      /* instructions type yxc */
+      /* instructions type yxn */
     case _p_plus_y_vc:
     case _p_minus_y_cv:
     case _p_times_y_vc:
@@ -4400,19 +4400,19 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _p_slr_y_vc:
     case _p_func2s_y_vc:
       clause_code = TRUE;
-      pc = NEXTOP(pc,yxc);
+      pc = NEXTOP(pc,yxn);
       break;
-      /* instructions type yxc */
+      /* instructions type yxn */
     case _p_sll_y_cv:
     case _p_slr_y_cv:
     case _p_arg_y_cv:
       clause_code = TRUE;
-      pc = NEXTOP(pc,yxc);
+      pc = NEXTOP(pc,yxn);
       break;
-      /* instructions type yxc */
+      /* instructions type yxn */
     case _p_func2s_y_cv:
       clause_code = TRUE;
-      pc = NEXTOP(pc,yxc);
+      pc = NEXTOP(pc,yxn);
       break;
       /* instructions type plxxs */
     case _call_bfunc_xx:

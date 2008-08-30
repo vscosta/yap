@@ -1416,7 +1416,7 @@ has_cut(yamop *pc)
     case _p_func2f_yy:
       pc = NEXTOP(pc,yyx);
       break;
-      /* instructions type yxc */
+      /* instructions type yxn */
     case _p_plus_y_vc:
     case _p_minus_y_cv:
     case _p_times_y_vc:
@@ -1427,17 +1427,17 @@ has_cut(yamop *pc)
     case _p_sll_y_vc:
     case _p_slr_y_vc:
     case _p_func2s_y_vc:
-      pc = NEXTOP(pc,yxc);
+      pc = NEXTOP(pc,yxn);
       break;
-      /* instructions type yxc */
+      /* instructions type yxn */
     case _p_sll_y_cv:
     case _p_slr_y_cv:
     case _p_arg_y_cv:
-      pc = NEXTOP(pc,yxc);
+      pc = NEXTOP(pc,yxn);
       break;
-      /* instructions type yxc */
+      /* instructions type yxn */
     case _p_func2s_y_cv:
-      pc = NEXTOP(pc,yxc);
+      pc = NEXTOP(pc,yxn);
       break;
       /* instructions type plxxs */
     case _call_bfunc_xx:
@@ -2392,27 +2392,27 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_sll_y_vc:
     case _p_slr_y_vc:
     case _p_func2s_y_vc:
-      if (cl->u.yxc.y == ycopy) {
+      if (cl->u.yxn.y == ycopy) {
 	ycopy = 0;	/* weird stuff, let's just reset ycopy */
 	if (nofregs == 0) {
 	  clause->Tag = (CELL)NULL;
 	  return;
 	}
       }
-      cl = NEXTOP(cl,yxc);
+      cl = NEXTOP(cl,yxn);
       break;
     case _p_sll_y_cv:
     case _p_slr_y_cv:
     case _p_arg_y_cv:
     case _p_func2s_y_cv:
-      if (cl->u.yxc.y == ycopy) {
+      if (cl->u.yxn.y == ycopy) {
 	ycopy = 0;	/* weird stuff, let's just reset ycopy */
 	if (nofregs == 0) {
 	  clause->Tag = (CELL)NULL;
 	  return;
 	}
       }
-      cl = NEXTOP(cl,yxc);
+      cl = NEXTOP(cl,yxn);
       break;
     case _lock_lu:
       cl = NEXTOP(cl,p);

@@ -670,7 +670,7 @@ restore_opcodes(yamop *pc)
       pc->u.yx.x = XAdjust(pc->u.yx.x);
       pc = NEXTOP(pc,yx);
       break;
-      /* instructions type yxc */
+      /* instructions type yxn */
     case _p_and_y_vc:
     case _p_arg_y_cv:
     case _p_div_y_cv:
@@ -685,10 +685,10 @@ restore_opcodes(yamop *pc)
     case _p_slr_y_cv:
     case _p_slr_y_vc:
     case _p_times_y_vc:
-      pc->u.yxc.xi = YAdjust(pc->u.yxc.xi);
-      pc->u.yxc.y = XAdjust(pc->u.yxc.y);
-      pc->u.yxc.c = ConstantTermAdjust(pc->u.yxc.c);
-      pc = NEXTOP(pc,yxc);
+      pc->u.yxn.xi = YAdjust(pc->u.yxn.xi);
+      pc->u.yxn.y = XAdjust(pc->u.yxn.y);
+      pc->u.yxn.c = IntegerAdjust(pc->u.yxn.c);
+      pc = NEXTOP(pc,yxn);
       break;
       /* instructions type yxx */
     case _p_and_y_vv:

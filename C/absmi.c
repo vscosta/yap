@@ -9652,14 +9652,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_plus_y_vc, yxc);
+      Op(p_plus_y_vc, yxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.yxc.xi);
+      d0 = XREG(PREG->u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, plus_y_vc_unk);
     plus_y_vc_nvar:
       {
-	Int d1 = PREG->u.yxc.c;
+	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntegerTerm(IntOfTerm(d0) + d1);
 	}
@@ -9672,8 +9672,8 @@ Yap_absmi(int inp)
 	}
       }
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yxc.y;
-      PREG = NEXTOP(PREG, yxc);
+      pt0 = YREG + PREG->u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -9822,14 +9822,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_minus_y_cv, yxc);
+      Op(p_minus_y_cv, yxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.yxc.xi);
+      d0 = XREG(PREG->u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, minus_y_cv_unk);
     minus_y_cv_nvar:
       {
-	Int d1 = PREG->u.yxc.c;
+	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntegerTerm(d1 - IntOfTerm(d0));
 	}
@@ -9842,8 +9842,8 @@ Yap_absmi(int inp)
 	}
       }
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yxc.y;
-      PREG = NEXTOP(PREG, yxc);
+      pt0 = YREG + PREG->u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -9992,14 +9992,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_times_y_vc, yxc);
+      Op(p_times_y_vc, yxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.yxc.xi);
+      d0 = XREG(PREG->u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, times_y_vc_unk);
     times_y_vc_nvar:
       {
-	Int d1 = PREG->u.yxc.c;
+	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = times_int(IntOfTerm(d0), d1);
 	}
@@ -10012,8 +10012,8 @@ Yap_absmi(int inp)
 	}
       }
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yxc.y;
-      PREG = NEXTOP(PREG, yxc);
+      pt0 = YREG + PREG->u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -10215,14 +10215,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_div_y_vc, yxc);
+      Op(p_div_y_vc, yxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.yxc.xi);
+      d0 = XREG(PREG->u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, div_y_vc_unk);
     div_y_vc_nvar:
       {
-	Int d1 = PREG->u.yxc.c;
+	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntTerm(IntOfTerm(d0)/d1);
 	}
@@ -10235,8 +10235,8 @@ Yap_absmi(int inp)
 	}
       }
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yxc.y;
-      PREG = NEXTOP(PREG, yxc);
+      pt0 = YREG + PREG->u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -10255,14 +10255,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_div_y_cv, yxc);
+      Op(p_div_y_cv, yxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.yxc.xi);
+      d0 = XREG(PREG->u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, div_y_cv_unk);
     div_y_cv_nvar:
       {
-	Int d1 = PREG->u.yxc.c;
+	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
 	  Int div = IntOfTerm(d0);
 	  if (div == 0) {
@@ -10282,8 +10282,8 @@ Yap_absmi(int inp)
 	}
       }
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yxc.y;
-      PREG = NEXTOP(PREG, yxc);
+      pt0 = YREG + PREG->u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -10433,14 +10433,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_and_y_vc, yxc);
+      Op(p_and_y_vc, yxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.yxc.xi);
+      d0 = XREG(PREG->u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, and_y_vc_unk);
     and_y_vc_nvar:
       {
-	Int d1 = PREG->u.yxc.c;
+	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntegerTerm(IntOfTerm(d0) & d1);
 	}
@@ -10453,8 +10453,8 @@ Yap_absmi(int inp)
 	}
       }
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yxc.y;
-      PREG = NEXTOP(PREG, yxc);
+      pt0 = YREG + PREG->u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -10603,14 +10603,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_or_y_vc, yxc);
+      Op(p_or_y_vc, yxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.yxc.xi);
+      d0 = XREG(PREG->u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, or_y_vc_unk);
     or_y_vc_nvar:
       {
-	Int d1 = PREG->u.yxc.c;
+	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntegerTerm(IntOfTerm(d0) | d1);
 	}
@@ -10623,8 +10623,8 @@ Yap_absmi(int inp)
 	}
       }
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yxc.y;
-      PREG = NEXTOP(PREG, yxc);
+      pt0 = YREG + PREG->u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -10818,14 +10818,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_sll_y_vc, yxc);
+      Op(p_sll_y_vc, yxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.yxc.xi);
+      d0 = XREG(PREG->u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, sll_y_vc_unk);
     sll_y_vc_nvar:
       {
-	Int d1 = PREG->u.yxc.c;
+	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = do_sll(IntOfTerm(d0), d1);
 	}
@@ -10838,8 +10838,8 @@ Yap_absmi(int inp)
       if (PREG == (yamop *)FAILCODE)
 	FAIL();
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yxc.y;
-      PREG = NEXTOP(PREG, yxc);
+      pt0 = YREG + PREG->u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -10859,14 +10859,14 @@ Yap_absmi(int inp)
       ENDOp();
 
 
-      Op(p_sll_y_cv, yxc);
+      Op(p_sll_y_cv, yxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.yxc.xi);
+      d0 = XREG(PREG->u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, sll_y_cv_unk);
     sll_y_cv_nvar:
       {
-	Int d1 = PREG->u.yxc.c;
+	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
 	  Int i2 = IntOfTerm(d0);
 	  if (i2 < 0)
@@ -10883,8 +10883,8 @@ Yap_absmi(int inp)
       if (PREG == (yamop *)FAILCODE)
 	FAIL();
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yxc.y;
-      PREG = NEXTOP(PREG, yxc);
+      pt0 = YREG + PREG->u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -11078,14 +11078,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_slr_y_vc, yxc);
+      Op(p_slr_y_vc, yxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.yxc.xi);
+      d0 = XREG(PREG->u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, slr_y_vc_unk);
     slr_y_vc_nvar:
       {
-	Int d1 = PREG->u.yxc.c;
+	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
 	  d0 = MkIntTerm(IntOfTerm(d0) >> d1);
 	}
@@ -11098,8 +11098,8 @@ Yap_absmi(int inp)
 	}
       }
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yxc.y;
-      PREG = NEXTOP(PREG, yxc);
+      pt0 = YREG + PREG->u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -11117,14 +11117,14 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_slr_y_cv, yxc);
+      Op(p_slr_y_cv, yxn);
       BEGD(d0);
-      d0 = XREG(PREG->u.yxc.xi);
+      d0 = XREG(PREG->u.yxn.xi);
       /* first check pt1 */
       deref_head(d0, slr_y_cv_unk);
     slr_y_cv_nvar:
       {
-	Int d1 = PREG->u.yxc.c;
+	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
 	 Int i2 = IntOfTerm(d0);
 	 if (i2 < 0)
@@ -11141,8 +11141,8 @@ Yap_absmi(int inp)
       if (PREG == (yamop *)FAILCODE)
 	FAIL();
       BEGP(pt0);
-      pt0 = YREG + PREG->u.yxc.y;
-      PREG = NEXTOP(PREG, yxc);
+      pt0 = YREG + PREG->u.yxn.y;
+      PREG = NEXTOP(PREG, yxn);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
@@ -12031,23 +12031,23 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_arg_y_cv, yxc);
+      Op(p_arg_y_cv, yxn);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	CELL *Ho = H;
-	Term t = MkIntegerTerm(PREG->u.yxc.c); 
+	Term t = MkIntegerTerm(PREG->u.yxn.c); 
 	H[0] =  t;
-	H[1] = XREG(PREG->u.yxc.xi);
+	H[1] = XREG(PREG->u.yxn.xi);
 	RESET_VARIABLE(H+2);
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("arg"),3),0)),H);
 	H = Ho;
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
-      d0 = PREG->u.yxc.c;
+      d0 = PREG->u.yxn.c;
       /* d0 now got the argument we want */
       BEGD(d1);
-      d1 = XREG(PREG->u.yxc.xi);
+      d1 = XREG(PREG->u.yxn.xi);
       deref_head(d1, arg_y_arg2_vc_unk);
     arg_y_arg2_vc_nvar:
       /* d1 now got the structure we want to fetch the argument
@@ -12072,8 +12072,8 @@ Yap_absmi(int inp)
 	  FAIL();
 	}
 	BEGP(pt1);
-	pt1 = YREG + PREG->u.yxc.y;
-	PREG = NEXTOP(PREG, yxc);
+	pt1 = YREG + PREG->u.yxn.y;
+	PREG = NEXTOP(PREG, yxn);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,pt0[d0]);
 #else
@@ -12096,8 +12096,8 @@ Yap_absmi(int inp)
 	  FAIL();
 	}
 	BEGP(pt1);
-	pt1 = YREG + PREG->u.yxc.y;
-	PREG = NEXTOP(PREG, yxc);
+	pt1 = YREG + PREG->u.yxn.y;
+	PREG = NEXTOP(PREG, yxn);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,pt0[d0-1]);
 #else
@@ -12592,23 +12592,23 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_func2s_y_cv, yxc);
+      Op(p_func2s_y_cv, yxn);
       /* A1 is a variable */
     restart_func2s_y_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	RESET_VARIABLE(H);
-	H[1] = PREG->u.yxc.c;
-	H[2] = XREG(PREG->u.yxc.xi);
+	H[1] = PREG->u.yxn.c;
+	H[2] = XREG(PREG->u.yxn.xi);
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
       BEGD(d0);
-      d0 = PREG->u.yxc.c;
+      d0 = PREG->u.yxn.c;
       /* we do, let's get the third argument */
       BEGD(d1);
-      d1 = XREG(PREG->u.yxc.xi);
+      d1 = XREG(PREG->u.yxn.xi);
       deref_head(d1, func2s_y_unk_cv);
     func2s_y_nvar_cv:
       /* Uuuff, the second and third argument are bound */
@@ -12630,8 +12630,8 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	BEGP(pt1);
-	pt1 = YREG + PREG->u.yxc.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sbpp),l);
+	pt1 = YREG + PREG->u.yxn.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12660,7 +12660,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxc),sbpp))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),sbpp))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -12679,8 +12679,8 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	BEGP(pt1);
-	pt1 = YREG + PREG->u.yxc.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sbpp),l);
+	pt1 = YREG + PREG->u.yxn.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12690,8 +12690,8 @@ Yap_absmi(int inp)
 	GONext();
       }	else if (d1  == 0) {
 	BEGP(pt1);
-	pt1 = YREG + PREG->u.yxc.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sbpp),l);
+	pt1 = YREG + PREG->u.yxn.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12718,7 +12718,7 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_func2s_y_vc, yxc);
+      Op(p_func2s_y_vc, yxn);
       /* A1 is a variable */
     restart_func2s_y_vc:
 #ifdef LOW_LEVEL_TRACER
@@ -12726,9 +12726,9 @@ Yap_absmi(int inp)
 	Term ti;
 	CELL *hi = H;
 
-	ti = MkIntegerTerm((Int)(PREG->u.yxc.c));
+	ti = MkIntegerTerm((Int)(PREG->u.yxn.c));
 	RESET_VARIABLE(H);
-	H[1] = XREG(PREG->u.yxc.xi);
+	H[1] = XREG(PREG->u.yxn.xi);
 	H[2] = ti;
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
 	H = hi;
@@ -12736,11 +12736,11 @@ Yap_absmi(int inp)
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
       BEGD(d0);
-      d0 = XREG(PREG->u.yxc.xi);
+      d0 = XREG(PREG->u.yxn.xi);
       deref_head(d0, func2s_y_unk_vc);
     func2s_y_nvar_vc:
       BEGD(d1);
-      d1 = PREG->u.yxc.c;
+      d1 = PREG->u.yxn.c;
       if (!IsAtomicTerm(d0)) {
 	saveregs();
 	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
@@ -12757,8 +12757,8 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	BEGP(pt1);
-	pt1 = YREG + PREG->u.yxc.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sbpp),l);
+	pt1 = YREG + PREG->u.yxn.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12769,8 +12769,8 @@ Yap_absmi(int inp)
       }
       if (d1 == 0) {
 	BEGP(pt1);
-	pt1 = YREG + PREG->u.yxc.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sbpp),l);
+	pt1 = YREG + PREG->u.yxn.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12804,7 +12804,7 @@ Yap_absmi(int inp)
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
-	if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxc),sbpp))) {
+	if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),sbpp))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	  setregs();
 	  JMPNext();
@@ -12823,8 +12823,8 @@ Yap_absmi(int inp)
       /* else if arity is 0 just pass d0 through */
       /* Ding, ding, we made it */
       BEGP(pt1);
-      pt1 = YREG + PREG->u.yxc.y;
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sbpp),l);
+      pt1 = YREG + PREG->u.yxn.y;
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),sbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt1,d0);
 #else

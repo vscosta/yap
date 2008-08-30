@@ -630,11 +630,11 @@ typedef struct yami {
       CELL next;
     } yyy;
     struct {
-      wamreg                xi;
+      wamreg               xi;
       yslot                y;
-      Int                 c;
+      Int                  c;
       CELL next;
-    } yxc;
+    } yxn;
   } u;
 } yamop;
 

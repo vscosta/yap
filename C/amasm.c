@@ -2535,11 +2535,11 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_func2s_y_cv);
 	  break;
 	}
-	code_p->u.yxc.y = emit_y(ve);
-	code_p->u.yxc.c = cmp_info->c_arg;
-	code_p->u.yxc.xi = cmp_info->x1_arg;
+	code_p->u.yxn.y = emit_y(ve);
+	code_p->u.yxn.c = cmp_info->c_arg;
+	code_p->u.yxn.xi = cmp_info->x1_arg;
       }
-      GONEXT(yxc);
+      GONEXT(yxn);
       break;	  
     case TYPE_XC:
       if (pass_no) {
@@ -2589,11 +2589,11 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_func2s_y_vc);
 	  break;
 	}
-	code_p->u.yxc.y = emit_y(ve);
-	code_p->u.yxc.c = cmp_info->c_arg;
-	code_p->u.yxc.xi = cmp_info->x1_arg;
+	code_p->u.yxn.y = emit_y(ve);
+	code_p->u.yxn.c = cmp_info->c_arg;
+	code_p->u.yxn.xi = cmp_info->x1_arg;
       }
-      GONEXT(yxc);
+      GONEXT(yxn);
       break;	  
     }
   } else {
