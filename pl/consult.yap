@@ -368,7 +368,7 @@ use_module(M,F,Is) :-
 	( '$access_yap_flags'(15, 0) -> true ; halt).
 
 '$skip_unix_comments'(Stream) :-
-	'$peek'(Stream, 0'#), !, % 35 is ASCII for #
+	'$peek'(Stream, 0'#), !, % 35 is ASCII for '#
 	'$get0_line_codes'(Stream, _),
 	'$skip_unix_comments'(Stream).
 '$skip_unix_comments'(_).
@@ -688,28 +688,43 @@ absolute_file_name(File,Opts,TrueFileName) :-
 % all must try search in path
 '$find_in_path'(user,_,user_input, _) :- !.
 '$find_in_path'(user_input,_,user_input, _) :- !.
-'$find_in_path'(library(F),_,_, _) :-
+'$find_in_path'(library(F0),_,_, _) :-
+	'$cat_file_name'(F0,F),
 	% make sure library_directory is open.
 	\+ clause(user:library_directory(_),_),
 	'$system_library_directories'(D),
 	assert(user:library_directory(D)),
 	fail.
-'$find_in_path'(library(File),Opts,NewFile, Call) :- !,
+'$find_in_path'(library(File0),Opts,NewFile, Call) :- !,
 	'$dir_separator'(D),
+	'$cat_file_name'(File0,File),
 	atom_codes(A,[D]),
 	'$extend_path_directory'(library, A, File, Opts, NewFile, Call).
 '$find_in_path'(S, Opts, NewFile, Call) :-
-	S =.. [Name,File], !,
+	S =.. [Name,File0], !,
 	'$dir_separator'(D),
+	'$cat_file_name'(File0,File),
 	atom_codes(A,[D]),
 	'$extend_path_directory'(Name, A, File, Opts, NewFile, Call).
-'$find_in_path'(File,Opts,NewFile,_) :-
-	atom(File), !,
+'$find_in_path'(File0,Opts,NewFile,_) :-
+	'$cat_file_name'(File0,File), !,
 	'$add_path'(File,PFile),
 	'$get_abs_file'(PFile,Opts,AbsFile),
 	'$search_in_path'(AbsFile,Opts,NewFile).
 '$find_in_path'(File,_,_,Call) :-
 	'$do_error'(domain_error(source_sink,File),Call).
+
+% allow paths in File Name
+'$cat_file_name'(File0,File) :-
+	atom(File0), !,
+	File = File0.
+'$cat_file_name'(File0,File) :-
+	ground(File0),
+	charsio:open_mem_write_stream(Stream),
+	write(Stream, File0),
+	charsio:peek_mem_write_stream(Stream, [], L),
+	close(Stream),
+	atom_codes(File, L).
 
 '$get_abs_file'(File,opts(_,D0,_,_,_,_,_),AbsFile) :-
 	system:true_file_name(File,D0,AbsFile).
