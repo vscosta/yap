@@ -383,6 +383,7 @@ EnterCreepMode(Term t, Term mod) {
       return do_execute(ARG1, mod);
     }
   }
+  PP = PredMetaCall;
   PredCreep = RepPredProp(PredPropByFunc(FunctorCreep,1));
   if (mod) {
     ARG1 = MkPairTerm(mod,t);
@@ -623,6 +624,11 @@ p_execute_clause(void)
   } else {
     code = Yap_ClauseFromTerm(clt)->ClCode;
   }
+  LOCK(SignalLock);
+  if (ActiveSignals & YAP_CREEP_SIGNAL) {
+    Yap_signal(YAP_CREEP_SIGNAL);
+  }
+  UNLOCK(SignalLock);
   return CallPredicate(RepPredProp(pe), cut_cp, code);
 }
 
@@ -745,6 +751,11 @@ p_execute_nonstop(void)
   }
   /*	N = arity; */
   /* call may not define new system predicates!! */
+  LOCK(SignalLock);
+  if (ActiveSignals & YAP_CREEP_SIGNAL) {
+    Yap_signal(YAP_CREEP_SIGNAL);
+  }
+  UNLOCK(SignalLock);
   if (RepPredProp(pe)->PredFlags & SpiedPredFlag) {
     return CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->cs.p_code.TrueCodeOfPred);
   }  else if ((RepPredProp(pe)->PredFlags & (AsmPredFlag|CPredFlag)) &&
@@ -2040,6 +2051,12 @@ p_uncaught_throw(void)
   return out;
 }
 
+static Int
+p_creep_allowed(void)
+{
+  return (PP != NULL);
+}
+
 void 
 Yap_InitExecFs(void)
 {
@@ -2089,6 +2106,7 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("qpack_clean_up_to_disjunction", 0, p_cut_up_to_next_disjunction, SafePredFlag);
   Yap_InitCPred("$jump_env_and_store_ball", 1, p_jump_env, HiddenPredFlag);
+  Yap_InitCPred("$creep_allowed", 0, p_creep_allowed, HiddenPredFlag);
   Yap_InitCPred("$generate_pred_info", 4, p_generate_pred_info, HiddenPredFlag);
   Yap_InitCPred("$uncaught_throw", 0, p_uncaught_throw, HiddenPredFlag);
 }

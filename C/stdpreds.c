@@ -503,7 +503,7 @@ p_creep(void)
 }
 
 static Int 
-p_delayed_creep(void)
+p_signal_creep(void)
 {
   Atom            at;
   PredEntry      *pred;
@@ -511,10 +511,40 @@ p_delayed_creep(void)
   at = Yap_FullLookupAtom("$creep");
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
   CreepCode = pred;
-  do_signal(YAP_CREEP_SIGNAL);
   LOCK(SignalLock);
-  CreepFlag = CalculateStackGap();
+  ActiveSignals |= YAP_CREEP_SIGNAL;
   UNLOCK(SignalLock);
+  return TRUE;
+}
+
+static Int 
+p_disable_creep(void)
+{
+  LOCK(SignalLock);
+  if (ActiveSignals & YAP_CREEP_SIGNAL) {
+    ActiveSignals &= ~YAP_CREEP_SIGNAL;    
+    if (!ActiveSignals)
+      CreepFlag = CalculateStackGap();
+    UNLOCK(SignalLock);
+    return TRUE;
+  }
+  UNLOCK(SignalLock);
+  return FALSE;
+}
+
+/* never fails */
+static Int 
+p_disable_docreep(void)
+{
+  LOCK(SignalLock);
+  if (ActiveSignals & YAP_CREEP_SIGNAL) {
+    ActiveSignals &= ~YAP_CREEP_SIGNAL;    
+    if (!ActiveSignals)
+      CreepFlag = CalculateStackGap();
+    UNLOCK(SignalLock);
+  } else {
+    UNLOCK(SignalLock);
+  }
   return TRUE;
 }
 
@@ -3925,8 +3955,10 @@ Yap_InitCPreds(void)
   /* basic predicates for the prolog machine tracer */
   /* they are defined in analyst.c */
   /* Basic predicates for the debugger */
-  Yap_InitCPred("$creep", 0, p_creep, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$late_creep", 0, p_delayed_creep, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$creep", 0, p_creep, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$signal_creep", 0, p_signal_creep, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$disable_creep", 0, p_disable_creep, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$disable_docreep", 0, p_disable_docreep, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$do_not_creep", 0, p_stop_creep, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #ifdef DEBUG
   Yap_InitCPred("$debug", 1, p_debug, SafePredFlag|SyncPredFlag|HiddenPredFlag);

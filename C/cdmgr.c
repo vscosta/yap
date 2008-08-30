@@ -3987,9 +3987,12 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
 #endif /* TABLING_INNER_CUTS */
       pc = NEXTOP(pc,e);
       break;
+      /* instructions type xp */
+    case _commit_b_x:
+      pc = NEXTOP(pc,xp);
+      break;
       /* instructions type x */
     case _save_b_x:
-    case _commit_b_x:
     case _get_list:
     case _put_list:
     case _write_x_var:
@@ -4011,9 +4014,12 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _p_cut_by_x:
       pc = NEXTOP(pc,xl);
       break;
+      /* instructions type yp */
+    case _commit_b_y:
+      pc = NEXTOP(pc,yp);
+      break;
       /* instructions type y */
     case _save_b_y:
-    case _commit_b_y:
     case _write_y_var:
     case _write_y_val: 
     case _write_y_loc:

@@ -984,4 +984,4 @@ current_key(A,K) :-
 
 '$notrace'(G, Mod) :-
 	\+ '$undefined'(G, Mod),
-	call(Mod:G).
+	'$donotrace'(Mod:G).

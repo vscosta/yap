@@ -480,7 +480,6 @@ restore_opcodes(yamop *pc)
       pc = NEXTOP(pc,sssllp);
       break;
       /* instructions type x */
-    case _commit_b_x:
     case _get_list:
     case _put_list:
     case _save_b_x:
@@ -553,6 +552,12 @@ restore_opcodes(yamop *pc)
       pc->u.xllll.l3 = PtoOpAdjust(pc->u.xllll.l3);
       pc->u.xllll.l4 = PtoOpAdjust(pc->u.xllll.l4);
       pc = NEXTOP(pc,xllll);
+      break;
+      /* instructions type xp */
+    case _commit_b_x:
+      pc->u.xp.x = XAdjust(pc->u.xp.x);
+      pc->u.xp.p0 = PtoPredAdjust(pc->u.xp.p0);
+      pc = NEXTOP(pc,xp);
       break;
       /* instructions type xx */
     case _get_x_val:
@@ -627,7 +632,6 @@ restore_opcodes(yamop *pc)
       pc = NEXTOP(pc,xy);
       break;
       /* instructions type y */
-    case _commit_b_y:
     case _save_b_y:
     case _write_y_loc:
     case _write_y_val:
@@ -649,6 +653,12 @@ restore_opcodes(yamop *pc)
       pc->u.yl.y = YAdjust(pc->u.yl.y);
       pc->u.yl.F = PtoOpAdjust(pc->u.yl.F);
       pc = NEXTOP(pc,yl);
+      break;
+      /* instructions type yp */
+    case _commit_b_y:
+      pc->u.yp.y = YAdjust(pc->u.yp.y);
+      pc->u.yp.p0 = PtoPredAdjust(pc->u.yp.p0);
+      pc = NEXTOP(pc,yp);
       break;
       /* instructions type yx */
     case _get_y_val:

@@ -31,8 +31,13 @@
 	% if more signals alive, set creep flag
 	'$continue_signals',
 	'$wake_up_goal'(G, LG).
+% never creep on entering system mode!!!
 '$do_signal'(sig_creep, [M|G]) :-
+	'$creep_allowed', !,
         '$start_creep'([M|G]).
+'$do_signal'(sig_creep, [M|G]) :-
+        '$signal_creep',
+	'$execute_nonstop'(G,M).
 '$do_signal'(sig_delay_creep, [M|G]) :-
 	'$execute'(M:G),
         '$creep'.
@@ -97,18 +102,13 @@
 	'$creep'.
 '$start_creep'([Mod|G]) :-
 	'$hidden_predicate'(G,Mod), !,
-	'$creep',
-	'$execute_nonstop'(G,Mod).
-'$start_creep'([Mod|G]) :-
-	'$system_predicate'(G, Mod),
-	'$protected_env', !,
-	'$creep',
-	'$execute_nonstop'(G,Mod).
+	'$execute_nonstop'(G,Mod),
+	'$creep'.
 % do not debug if we are zipping through.  
 '$start_creep'([Mod|G]) :-
 	nb_getval('$debug_zip',on),
 	'$zip'(-1, G, Mod), !,
-	'$creep',
+        '$signal_creep',
 	'$execute_nonstop'(G,Mod).
 '$start_creep'([Mod|G]) :-
 	CP is '$last_choice_pt',	
@@ -171,35 +171,4 @@ read_sig :-
 read_sig.
 
 
-'$protected_env' :-
-	yap_hacks:current_continuations([Env|Envs]),
-	yap_hacks:continuation(Env,_,Addr,_),
-%'$envs'(Envs, Addr),
-	'$skim_envs'(Envs,Addr,Mod,Name,Arity),
-	\+ '$external_call_seen'(Mod,Name,Arity).
-
-
-'$envs'([Env|Envs], Addr0) :-
-        yap_hacks:cp_to_predicate(Addr0,Mod0,Name0,Arity0,ClId),
-	format(user_error,'~a:~w/~w ~d~n',[Mod0,Name0,Arity0,ClId]),
-        yap_hacks:continuation(Env,_,Addr,_),
-	 '$envs'(Envs, Addr).
-'$envs'([], _) :- format(user_error,'*****done*****~n',[]).
-
-'$skim_envs'([Env|Envs],Addr0,Mod,Name,Arity) :-
-	yap_hacks:cp_to_predicate(Addr0, Mod0, Name0, Arity0, _ClId),
-	'$debugger_env'(Mod0,Name0,Arity0), !,
-        yap_hacks:continuation(Env,_,Addr,_),
-	'$skim_envs'(Envs,Addr,Mod,Name,Arity).
-'$skim_envs'(_,Addr,Mod,Name,Arity) :-
-	yap_hacks:cp_to_predicate(Addr, Mod, Name, Arity, _ClId).
-
-'$debugger_env'(prolog,'$start_creep',1).
-
-'$external_call_seen'(prolog,Name,Arity) :- !,
-	 '$allowed'(Name,Arity).
-'$external_call_seen'(_,_,_).
-
- '$allowed'('$spycall',4).
- '$allowed'('$query',2).
 

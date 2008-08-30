@@ -554,6 +554,33 @@ a_v(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct P
 }
 
 inline static yamop *
+a_vp(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct PSEUDO *cpc, clause_info *clinfo)
+{
+  Ventry *ve = (Ventry *) cpc->rnd1;
+  OPREG var_offset;
+  int is_y_var = (ve->KindOfVE == PermVar);
+
+  var_offset = Var_Ref(ve, is_y_var);
+  if (is_y_var) {
+    if (pass_no) {
+      code_p->opc = emit_op(opcodey);
+      code_p->u.yp.y = emit_yreg(var_offset);
+      code_p->u.yp.p0 = clinfo->CurrentPred;
+    }
+    GONEXT(yp);
+  }
+  else {
+    if (pass_no) {
+      code_p->opc = emit_op(opcodex);
+      code_p->u.xp.x = emit_xreg(var_offset);
+      code_p->u.xp.p0 = clinfo->CurrentPred;
+    }
+    GONEXT(xp);
+  }
+  return code_p;
+}
+
+inline static yamop *
 a_uv(Ventry *ve, op_numbers opcodex, op_numbers opcodexw, op_numbers opcodey, op_numbers opcodeyw, yamop *code_p, int pass_no)
 {
   OPREG var_offset;
@@ -3099,7 +3126,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_v(_save_b_x, _save_b_y, code_p, pass_no, cip->cpc);
       break;
     case commit_b_op:
-      code_p = a_v(_commit_b_x, _commit_b_y, code_p, pass_no, cip->cpc);
+      code_p = a_vp(_commit_b_x, _commit_b_y, code_p, pass_no, cip->cpc, &clinfo);
       break;
     case save_pair_op:
       code_p = a_uv((Ventry *) cip->cpc->rnd1, _save_pair_x, _save_pair_x_write, _save_pair_y, _save_pair_y_write, code_p, pass_no);

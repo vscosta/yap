@@ -522,7 +522,12 @@ typedef struct yami {
     } x;
     struct {
       wamreg                x;
-      CELL                c;
+      struct pred_entry    *p0;
+      CELL next;
+    } xp;
+    struct {
+      wamreg                x;
+      CELL                  c;
       CELL next;
     } xc;
     struct {
@@ -591,6 +596,11 @@ typedef struct yami {
       yslot                y;
       CELL next;
     } y;
+    struct {
+      yslot                y;
+      struct pred_entry   *p0;
+      CELL next;
+    } yp;
     struct {
       yslot                y;
       struct yami         *F;

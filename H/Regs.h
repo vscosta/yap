@@ -117,8 +117,8 @@ typedef struct
     choiceptr B_FZ_;
     tr_fr_ptr TR_FZ_;
 #endif /* SBA || TABLING */
-#if defined(YAPOR) || defined(THREADS)
     struct pred_entry *PP_;
+#if defined(YAPOR) || defined(THREADS)
     /* recursive write-locks for PredEntry */
     yamop **PREG_ADDR_;
     unsigned int worker_id_;
@@ -699,9 +699,9 @@ EXTERN inline void restore_B(void) {
 #define B_FZ          Yap_REGS.B_FZ_
 #define TR_FZ         Yap_REGS.TR_FZ_
 #endif /* SBA || TABLING */
+#define PP	         (Yap_REGS.PP_)
 #if defined(YAPOR) || defined(THREADS)
 #define worker_id         (Yap_REGS.worker_id_)
-#define PP	         (Yap_REGS.PP_)
 #define PREG_ADDR	         (Yap_REGS.PREG_ADDR_)
 #ifdef SBA
 #define BSEG	      Yap_REGS.BSEG_

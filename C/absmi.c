@@ -549,6 +549,24 @@ static inline Term rbig(MP_INT *big)
 
 #include "arith2.h"
 
+/*
+  I can creep if I am not a prolog builtin that has been called
+  by a prolog builtin,
+  exception: meta-calls
+*/
+static PredEntry *
+creep_allowed(PredEntry *p, PredEntry *p0)
+{
+  if (p0 == PredMetaCall)
+    return p0;
+  if (!p0->ModuleOfPred && 
+      (!p->ModuleOfPred
+       ||
+       p->PredFlags & StandardPredFlag))
+    return NULL;
+  return p;
+}
+
 #ifdef COROUTINING
 /*
   Imagine we are interrupting the execution, say, because we have a spy
@@ -2348,9 +2366,9 @@ Yap_absmi(int inp)
       ENDOp();
 
       /* commit_b_x    Xi                 */
-      Op(commit_b_x, x);
+      Op(commit_b_x, xp);
       BEGD(d0);
-      d0 = XREG(PREG->u.x.x);
+      d0 = XREG(PREG->u.xp.x);
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCommitX, H);
@@ -2358,7 +2376,7 @@ Yap_absmi(int inp)
     do_commit_b_x:
 #endif
       /* skip a void call and a label */
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, x),sbpp),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xp),sbpp),l);
       {
 	choiceptr pt0;
 #if defined(SBA) && defined(FROZEN_STACKS)
@@ -2395,16 +2413,16 @@ Yap_absmi(int inp)
       ENDOp();
 
       /* commit_b_y    Yi                 */
-      Op(commit_b_y, y);
+      Op(commit_b_y, yp);
       BEGD(d0);
-      d0 = YREG[PREG->u.y.y];
+      d0 = YREG[PREG->u.yp.y];
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCommitY, H);
       ENDCACHE_Y_AS_ENV();
     do_commit_b_y:
 #endif
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, y),sbpp),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yp),sbpp),l);
       {
 	choiceptr pt0;
 #if defined(SBA) && defined(FROZEN_STACKS)
@@ -2488,6 +2506,7 @@ Yap_absmi(int inp)
 
     NoStackExecute:
       SREG = (CELL *) PREG->u.pp.p;
+      PP = PREG->u.pp.p0;
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	ASP = YREG+E_CB;
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
@@ -2629,48 +2648,12 @@ Yap_absmi(int inp)
       ENDBOp();
 
     NoStackCall:
+      PP = PREG->u.sbpp.p0;
       /* on X86 machines S will not actually be holding the pointer to pred */
       if (ActiveSignals & YAP_CREEP_SIGNAL) {
 	PredEntry *ap = PREG->u.sbpp.p;
-	if (ap->PredFlags & HiddenPredFlag) {
-	  CACHE_Y_AS_ENV(YREG);
-	  CACHE_A1();
-	  ENV = ENV_YREG;
-	  /* Try to preserve the environment */
-	  ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
-	  CPREG = NEXTOP(PREG, sbpp);
-	  ALWAYS_LOOKAHEAD(ap->OpcodeOfPred);
-	  PREG = ap->CodeOfPred;
-	  /* for profiler */
-	  save_pc();
-	  check_depth(DEPTH, ap);
-#ifdef FROZEN_STACKS
-	  { 
-	    choiceptr top_b = PROTECT_FROZEN_B(B);
-#ifdef SBA
-	    if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
-#else
-	    if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
-#endif
-	  }
-#else
-	  if (ENV_YREG > (CELL *) B) {
-	    ENV_YREG = (CELL *) B;
-	  }
-#endif /* FROZEN_STACKS */
-	  WRITEBACK_Y_AS_ENV();
-	  /* setup GB */
-	  ENV_YREG[E_CB] = (CELL) B;
-#ifdef YAPOR
-	  SCH_check_requests();
-#endif	/* YAPOR */
-	  ALWAYS_GONext();
-	  ALWAYS_END_PREFETCH();
-	  ENDCACHE_Y_AS_ENV();
-	} else {
-	  SREG = (CELL *) ap;
-	  goto creepc;
-	}
+	SREG = (CELL *) ap;
+	goto creepc;
       }
       SREG = (CELL *) PREG->u.sbpp.p;
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
@@ -2742,6 +2725,7 @@ Yap_absmi(int inp)
 
      /* This is easier: I know there is an environment so I cannot do allocate */
     NoStackCommitY:
+      PP = PREG->u.yp.p0;
       /* find something to fool S */
       if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_commit_b_y;
@@ -2757,6 +2741,7 @@ Yap_absmi(int inp)
 
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
+      PP = PREG->u.xp.p0;
       /* find something to fool S */
       if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_commit_b_x;
@@ -2787,6 +2772,7 @@ Yap_absmi(int inp)
 
       /* Problem: have I got an environment or not? */
     NoStackFail:
+      PP = NULL;
       /* find something to fool S */
       if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto fail;
@@ -2800,6 +2786,7 @@ Yap_absmi(int inp)
 
       /* don't forget I cannot creep at ; */
     NoStackEither:
+      PP = PREG->u.sblp.p0;
       if (ActiveSignals & YAP_CREEP_SIGNAL) {
 	goto either_notest;
       }
@@ -2876,8 +2863,9 @@ Yap_absmi(int inp)
       goto creep;
 
     NoStackDExecute:
+      PP = PREG->u.pp.p0;
       if (ActiveSignals & YAP_CREEP_SIGNAL) {
-	PredEntry *ap = PREG->u.p.p;
+	PredEntry *ap = PREG->u.pp.p;
 
 	if (ap->PredFlags & HiddenPredFlag) {
 	  CACHE_Y_AS_ENV(YREG);
@@ -3014,6 +3002,10 @@ Yap_absmi(int inp)
 #ifdef SHADOW_S
       S = SREG;
 #endif
+      /* tell whether we can creep or not, this is hard because we will
+	 lose the info RSN
+      */
+      PP = creep_allowed((PredEntry*)SREG,PP);
       BEGD(d0);
       d0 = ((PredEntry *)(SREG))->ArityOfPE;
       if (d0 == 0) {
@@ -3061,9 +3053,9 @@ Yap_absmi(int inp)
 
       H += 2;
       LOCK(SignalLock);
-      CreepFlag = CalculateStackGap();
 #ifdef COROUTINING
       if (ActiveSignals & YAP_WAKEUP_SIGNAL) {
+	CreepFlag = CalculateStackGap();
 	ActiveSignals &= ~YAP_WAKEUP_SIGNAL;
 	UNLOCK(SignalLock);
 	ARG2 = Yap_ListOfWokenGoals();
@@ -3072,13 +3064,16 @@ Yap_absmi(int inp)
 	Yap_UpdateTimedVar(WokenGoals, TermNil);
       } else	
 #endif
-	SREG = (CELL *) CreepCode;
+	{
+	  CreepFlag = CalculateStackGap();
+	  SREG = (CELL *) CreepCode;
+	}
       UNLOCK(SignalLock);
+      PREG = ((PredEntry *)SREG)->CodeOfPred;
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
 	low_level_trace(enter_pred,(PredEntry *)(SREG),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
-      PREG = ((PredEntry *)(SREG))->CodeOfPred;
       /* for profiler */
       save_pc();
       CACHE_A1();
@@ -13428,6 +13423,7 @@ Yap_absmi(int inp)
 
 	ENDD(d0);
       NoStackPExecute2:
+	PP = PredMetaCall;
 	SREG = (CELL *) pen;
 	ASP = ENV_YREG;
 	/* setup GB */
@@ -13624,6 +13620,7 @@ Yap_absmi(int inp)
 
 	ENDD(d0);
       NoStackPExecute:
+	PP = PredMetaCall;
 	SREG = (CELL *) pen;
 	ASP = ENV_YREG;
 	/* setup GB */
@@ -13891,6 +13888,7 @@ Yap_absmi(int inp)
 	ENDD(d0);
 	ENDP(pt0);
       NoStackPTExecute:
+	PP = NULL;
 	WRITEBACK_Y_AS_ENV();
 	SREG = (CELL *) pen;
 	ASP = ENV_YREG;
