@@ -507,7 +507,7 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
     if (flags & SafePredFlag) {
       sz = (CELL)NEXTOP(NEXTOP(NEXTOP(p_code,sbpp),p),l);
     } else {
-      sz = (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(NEXTOP(p_code,e),sbpp),e),p),l);
+      sz = (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(NEXTOP(p_code,e),sbpp),p),p),l);
     }
     cl = (StaticClause *)Yap_AllocCodeSpace(sz);
     if (!cl) {
@@ -544,7 +544,8 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
   p_code = NEXTOP(p_code,sbpp);
   if (!(flags & SafePredFlag)) {
     p_code->opc = Yap_opcode(_deallocate);
-    p_code = NEXTOP(p_code,e);
+    p_code->u.p.p = pe;
+    p_code = NEXTOP(p_code,p);
   }
   p_code->opc = Yap_opcode(_procceed);
   p_code->u.p.p = pe;

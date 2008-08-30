@@ -518,6 +518,17 @@ a_e(op_numbers opcode, yamop *code_p, int pass_no)
 }
 
 inline static yamop *
+a_p0(op_numbers opcode, yamop *code_p, int pass_no, PredEntry *p0)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.p.p = p0;
+  }
+  GONEXT(p);  
+  return code_p;
+}
+
+inline static yamop *
 a_ue(op_numbers opcode, op_numbers opcodew, yamop *code_p, int pass_no)
 {
   if (pass_no) {
@@ -2155,7 +2166,7 @@ a_deallocate(clause_info *clinfo, yamop *code_p, int pass_no, struct intermediat
       cip->cpc = cip->cpc->nextInst;
       code_p = a_p(_dexecute, clinfo, code_p, pass_no, cip);
     } else
-      code_p = a_e(_deallocate, code_p, pass_no);
+      code_p = a_p0(_deallocate, code_p, pass_no, cip->CurrentPred);
     clinfo->dealloc_found = TRUE;
   }
   return code_p;
@@ -3682,7 +3693,8 @@ Yap_InitComma(void)
     code_p->u.sbpp.bmap = NULL;
     GONEXT(sbpp);
     code_p->opc = emit_op(_deallocate);
-    GONEXT(e);
+    code_p->u.p.p = PredMetaCall;
+    GONEXT(p);
     code_p->opc = emit_op(_procceed);
     code_p->u.p.p =  PredMetaCall;
     GONEXT(p);

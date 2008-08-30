@@ -3919,11 +3919,13 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
 	*endp = (CODEADDR)cl+cl->ClSize;
 	return cl->ClPred;
       }
+    case _deallocate:
+      pc = NEXTOP(pc,p);
+      break;
     case _cut:
     case _cut_t:
     case _cut_e:
     case _allocate:
-    case _deallocate:
     case _write_void:
     case _write_list:
     case _write_l_list:

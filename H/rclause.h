@@ -149,7 +149,6 @@ restore_opcodes(yamop *pc)
     case _cut:
     case _cut_e:
     case _cut_t:
-    case _deallocate:
     case _enter_a_profiling:
     case _expand_index:
     case _index_blob:
@@ -353,6 +352,7 @@ restore_opcodes(yamop *pc)
       /* instructions type p */
     case _count_call:
     case _count_retry:
+    case _deallocate:
     case _enter_profiling:
     case _lock_lu:
     case _procceed:

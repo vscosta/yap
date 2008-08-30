@@ -980,7 +980,6 @@ has_cut(yamop *pc)
     case _trust_fail:
     case _op_fail:
     case _allocate:
-    case _deallocate:
     case _write_void:
     case _write_list:
     case _write_l_list:
@@ -1298,7 +1297,8 @@ has_cut(yamop *pc)
       pc = NEXTOP(pc,c);
       break;
       /* instructions type p */
-   case _procceed:
+    case _deallocate:
+    case _procceed:
       pc = NEXTOP(pc,p);
       break;
       /* instructions type sc */
@@ -1479,8 +1479,10 @@ add_info(ClauseDef *clause, UInt regno)
     case _cut_e:
       clause->Tag = (CELL)NULL;
       return;
-    case _allocate:
     case _deallocate:
+      cl = NEXTOP(cl,p);
+      break;
+    case _allocate:
     case _write_void:
     case _write_list:
     case _write_l_list:

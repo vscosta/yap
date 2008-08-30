@@ -46,7 +46,7 @@
   OPCODE(call                       ,sbpp),
   OPCODE(procceed                   ,p),
   OPCODE(allocate                   ,e),
-  OPCODE(deallocate                 ,e),
+  OPCODE(deallocate                 ,p),
 #ifdef BEAM
   OPCODE(retry_eam                  ,e),
 #endif

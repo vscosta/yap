@@ -557,11 +557,13 @@ static inline Term rbig(MP_INT *big)
 static PredEntry *
 creep_allowed(PredEntry *p, PredEntry *p0)
 {
+  if (!p0)
+    return NULL;
   if (p0 == PredMetaCall)
     return p0;
   if (!p0->ModuleOfPred && 
-      (!p->ModuleOfPred
-       ||
+      (!p ||
+       !p->ModuleOfPred ||
        p->PredFlags & StandardPredFlag))
     return NULL;
   return p;
@@ -2693,6 +2695,7 @@ Yap_absmi(int inp)
 	    Yap_op_from_opcode(PREG->opc) != Yap_opcode(_cut_e)) {
 	  GONext();
 	}
+	PP = PREG->u.p.p;
 	ASP = YREG+E_CB;
 	/* cut_e */
 	if (SREG <= ASP) {
@@ -2732,8 +2735,8 @@ Yap_absmi(int inp)
       }
       if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
 	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,2),0));
-	XREGS[0] = YREG[PREG->u.y.y];
-	PREG = NEXTOP(PREG,y);
+	XREGS[0] = YREG[PREG->u.yp.y];
+	PREG = NEXTOP(PREG,yp);
 	goto creep_either;
       }
       /* don't do debugging and friends here */
@@ -2763,8 +2766,8 @@ Yap_absmi(int inp)
 #endif	/* DEPTH_LIMIT */
 	      ENDCACHE_Y_AS_ENV();
 	    }
-	XREGS[0] = XREG(PREG->u.x.x);
-	PREG = NEXTOP(PREG,x);
+	XREGS[0] = XREG(PREG->u.xp.x);
+	PREG = NEXTOP(PREG,xp);
 	goto creep_either;
       }
       /* don't do debugging and friends here */
@@ -3106,9 +3109,9 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      Op(deallocate, e);
+      Op(deallocate, p);
       CACHE_Y_AS_ENV(YREG);
-      PREG = NEXTOP(PREG, e);
+      PREG = NEXTOP(PREG, p);
       /* other instructions do depend on S being set by deallocate
 	 :-( */
       SREG = YREG;
