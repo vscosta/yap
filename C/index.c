@@ -2427,6 +2427,9 @@ add_info(ClauseDef *clause, UInt regno)
     case _call_bfunc_yy:
       cl = NEXTOP(cl,plyys);
       break;
+    case _pop:
+      cl = NEXTOP(cl,e);
+      break;
     case _Ystop:
     case _Nstop:
     case _try_me:
@@ -2503,7 +2506,6 @@ add_info(ClauseDef *clause, UInt regno)
 #if !defined(YAPOR)
     case _or_last:
 #endif  /* !YAPOR */
-    case _pop:
     case _index_pred:
     case _lock_pred:
 #if THREADS
