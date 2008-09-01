@@ -1,14 +1,14 @@
 :- module(line_utils,
-	  [search_for/3,
+	  [search_for/2,
+	   search_for/3,
 	   scan_natural/3,
 	   scan_integer/3,
 	   split/3,
 	   glue/3,
+	   copy_line/2,
 	   filter/3,
 	   file_filter/3,
 	   process/2,
-	   copy_line/2,
-	   file_filter/3
 	  ]).
 
 :- meta_predicate filter(+,+,:), file_filter(+,+,:), process(+,:).
@@ -20,6 +20,8 @@
 :- use_module(library(readutil),
 	      [read_line_to_codes/2]).
 
+search_for(C,L) :-
+	search_for(C, L, []).
 
 search_for(C) --> [C], !.
 search_for(C) --> [_],
@@ -32,10 +34,13 @@ scan_integer(N) -->
 scan_integer(N) -->
 	scan_natural(0, N).
 
+scan_natural(N) -->
+	scan_natural(0, N).
+
 scan_natural(N0,N) -->
 	[C],
 	{C >= 0'0, C =< 0'9 }, !,
-	{ N1 is N0*10+(C-0'0) },
+	{ N1 is N0*10+(C-0'0) }, %'
 	get_natural(N1,N).
 scan_natural(N,N) --> [].
 
