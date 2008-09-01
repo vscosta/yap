@@ -197,6 +197,7 @@ Subnodes of Library
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
+* LineUtilities:: Line Manipulation Utilities
 * Lists:: List Manipulation
 * matrix:: Matrix Objects
 * MATLAB:: Matlab Interface
@@ -8037,6 +8038,7 @@ Library, Extensions, Built-ins, Top
     than or equal to the keys of its children.
 * LAM:: LAM MPI
 * Lists:: List Manipulation
+* LineUtilities:: Line Manipulation Utilities
 * matrix:: Matrix Objects
 * MATLAB:: Matlab Interface
 * Non-Backtrackable Data Structures:: Queues, Heaps, and Beams.
@@ -8509,7 +8511,7 @@ Returns the smallest (Key1) and second smallest (Key2) pairs in the
 heap, without deleting them.
 @end table
 
-@node Lists, matrix, Heaps, Library
+@node Lists, LineUtilities, Heaps, Library
 @section List Manipulation
 @cindex list manipulation
 
@@ -8745,7 +8747,125 @@ also @code{between/3}.
 
 @end table
 
-@node matrix, MATLAB, Lists, Library
+@node LineUtilities, matrix, Lists, Library
+@section Line Manipulation Utilities
+@cindex Line Utilities Library
+
+This package provides a set of useful predicates to manipulate
+sequences of characters codes, usually first read in as a line. It is
+avalailable by loading the library @code{library(lineutils)}.
+
+@table @code
+
+@item search_for(+@var{Char},+@var{Line})
+@findex search_for/2
+@snindex search_for/2
+@cnindex search_for/2
+
+Search for a character @var{Char} in the list of codes @var{Line}.
+
+@item search_for(+@var{Char},+@var{Line})
+@findex search_for/2
+@snindex search_for/2
+@cnindex search_for/2
+
+Search for a character @var{Char} in the list of codes @var{Line}.
+
+@item search_for(+@var{Char},+@var{Line},-@var{RestOfine})
+@findex search_for/2
+@snindex search_for/2
+@cnindex search_for/2
+
+Search for a character @var{Char} in the list of codes @var{Line},
+@var{RestOfLine} has the line to the right.
+
+@item scan_natural(?@var{Nat},+@var{Line},+@var{RestOfLine})
+@findex scan_natural/3
+@snindex scan_natural/3
+@cnindex scan_natural/3
+
+Scan the list of codes @var{Line} for a natural number @var{Nat}, zero
+or a positive integer, and unify @var{RestOfLine} with the remainder
+of the line.
+
+@item scan_integer(?@var{Int},+@var{Line},+@var{RestOfLine})
+@findex scan_integer/3
+@snindex scan_integer/3
+@cnindex scan_integer/3
+
+Scan the list of codes @var{Line} for an integer @var{Nat}, either a
+positive, zero, or negative integer, and unify @var{RestOfLine} with
+the remainder of the line.
+
+@item split(+@var{Line},+@var{Separators},-@var{Split})
+@findex split/3
+@snindex split/3
+@cnindex split/3
+
+Unify @var{Words} with a set of strings obtained from @var{Line} by
+using the character codes in @var{Separators} as separators. As an
+example, consider:
+@example
+?- split("Hello * I am free"," *",S).
+
+S = ["Hello","I","am","free"] ?
+
+no
+@end example
+
+@item glue(+@var{Words},+@var{Separator},-@var{Line})
+@findex glue/3
+@snindex glue/3
+@cnindex glue/3
+
+Unify @var{Line} with  string obtained by glueing @var{Words} with
+the character code @var{Separator}.
+
+@item copy_line(+@var{StreamInput},+@var{StreamOutput})
+@findex copy_line/2
+@snindex copy_line/2
+@cnindex copy_line/2
+
+Copy a line from @var{StreamInput} to @var{StreamOutput}.
+
+@item copy_line(+@var{StreamInput},+@var{StreamOutput})
+@findex copy_line/2
+@snindex copy_line/2
+@cnindex copy_line/2
+
+Copy a line from @var{StreamInput} to @var{StreamOutput}.
+
+@item process(+@var{StreamInp}, +@var{Goal})
+@findex process/2
+@snindex process/2
+@cnindex process/2
+
+For every line @var{LineIn} in stream @var{StreamInp}, call
+@code{call(Goal,LineIn)}.
+
+@item filter(+@var{StreamInp}, +@var{StreamOut}, +@var{Goal})
+@findex filter/3
+@snindex filter/3
+@cnindex filter/3
+
+For every line @var{LineIn} in stream @var{StreamInp}, execute
+@code{call(Goal,LineIn,LineOut)}, and output @var{LineOut} to
+stream @var{StreamOut}.
+
+@item file_filter(+@var{FileIn}, +@var{FileOut}, +@var{Goal})
+@findex filter/3
+@snindex filter/3
+@cnindex filter/3
+
+For every line @var{LineIn} in file @var{FileIn}, execute
+@code{call(Goal,LineIn,LineOut)}, and output @var{LineOut} to file
+@var{FileOut}.
+
+@end table
+
+
+
+@node matrix, MATLAB, LineUtilities, Library
 @section Matrix Library
 @cindex Matrix Library
 
