@@ -4587,7 +4587,7 @@ the operator declarations in force.
 @findex writeln/1
 @snindex writeln/1
 @cnindex writeln/1
-Same as @code{write/1} followed by {nl/0}.
+Same as @code{write/1} followed by @code{nl/0}.
 
 @item display(+@var{T})
 @findex display/1
@@ -7296,12 +7296,34 @@ argument:
 
 @table @code
 
+@item atoms
+@findex atoms (statistics/2 option)
+@code{[@var{NumberOfAtoms},@var{SpaceUsedBy Atoms}]}
+@* 
+This gives the total number of atoms @code{NumberOfAtoms} and how much
+space they require in bytes, @var{SpaceUsedBy Atoms}.
+
 @item cputime
 @findex cputime (statistics/2 option)
 @code{[@var{Time since Boot},@var{Time From Last Call to Cputime}]}
 @* 
 This gives the total cputime in milliseconds spent executing Prolog code,
 garbage collection and stack shifts time included.
+
+@item dynamic_code
+@findex dynamic_code (statistics/2 option)
+@code{[@var{Clause Size},@var{Index Size},@var{Tree Index
+Size},@var{Choice Point Instructions
+Size},@var{Expansion Nodes Size},@var{Index Switch Size}]}
+@*
+Size of static code in YAP in bytes: @var{Clause Size}, the number of
+bytes allocated for clauses, plus
+@var{Index Size}, the number of bytes spent in the indexing code. The
+indexing code is divided into main tree, @var{Tree Index
+Size}, tables that implement choice-point manipulation, @var{Choice Point Instructions
+Size}, tables that cache clauses for future expansion of the index
+tree, @var{Expansion Nodes Size}, and 
+tables such as hash tables that select according to value,  @var{Index Switch Size}.
 
 @item garbage_collection
 @findex garbage_collection (statistics/2 option)
@@ -7350,13 +7372,26 @@ until YAP4.1.2 the @code{runtime} statistics would return time spent on
 garbage collection and stack shifting.
 
 @item stack_shifts
-@findex stack_shifts (stack_shifts/3 option)
+@findex stack_shifts (statistics/2 option)
 @code{[@var{Number of Heap Shifts},@var{Number of Stack
 Shifts},@var{Number of Trail Shifts}]}
 @*
 Number of times YAP had to
 expand the heap, the stacks, or the trail. More detailed information is
 available using @code{yap_flag(gc_trace,verbose)}.
+
+@item static_code
+@findex static_code (statistics/2 option)
+@code{[@var{Clause Size},@var{Index Size},@var{Tree Index
+Size},@var{Expansion Nodes Size},@var{Index Switch Size}]}
+@*
+Size of static code in YAP in bytes: @var{Clause Size}, the number of
+bytes allocated for clauses, plus
+@var{Index Size}, the number of bytes spent in the indexing code. The
+indexing code is divided into a main tree, @var{Tree Index
+Size}, table that cache clauses for future expansion of the index
+tree, @var{Expansion Nodes Size}, and and 
+tables such as hash tables that select according to value,  @var{Index Switch Size}.
 
 @item trail
 @findex trail (statistics/2 option)
