@@ -251,7 +251,7 @@ typedef struct various_codes {
   yamop table_answer_resolution_code;
   yamop table_completion_code;
 #endif /* TABLING */
-  OPCODE expand_op_code;
+  OPCODE execute_cpred_op_code, expand_op_code;
   yamop *expand_clauses_first, *expand_clauses_last;
   UInt expand_clauses;
 #if defined(YAPOR) || defined(THREADS)
@@ -629,6 +629,7 @@ extern struct various_codes *Yap_heap_regs;
 #define  ANSWER_RESOLUTION        ((yamop *)&(Yap_heap_regs->table_answer_resolution_code))
 #define  COMPLETION               ((yamop *)&(Yap_heap_regs->table_completion_code))
 #endif /* TABLING */
+#define  EXECUTE_CPRED_OP_CODE    Yap_heap_regs->execute_cpred_op_code
 #define  EXPAND_OP_CODE           Yap_heap_regs->expand_op_code
 #define  ExpandClausesFirst       Yap_heap_regs->expand_clauses_first
 #define  ExpandClausesLast        Yap_heap_regs->expand_clauses_last

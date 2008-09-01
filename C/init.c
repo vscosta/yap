@@ -927,6 +927,7 @@ InitCodes(void)
   INIT_YAMOP_LTT(&(Yap_heap_regs->table_answer_resolution_code), 0);
 #endif /* YAPOR */
 #endif /* TABLING */
+  Yap_heap_regs->execute_cpred_op_code = Yap_opcode(_execute_cpred);
   Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);
   INIT_LOCK(Yap_heap_regs->expand_clauses_list_lock);
 #ifdef LOW_LEVEL_TRACER

@@ -69,7 +69,7 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt, yamop *code) {
   } else if (pen->ModuleOfPred)
     DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
-  if (P->opc != Yap_opcode(_execute_cpred)) {
+  if (P->opc != EXECUTE_CPRED_OP_CODE) {
     CP = P;
     ENV = YENV;
     YENV = ASP;

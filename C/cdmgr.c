@@ -4975,7 +4975,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
       }
       /* don't need no ENV */
       if (first_time &&
-	  P->opc != Yap_opcode(_execute_cpred)) {
+	  P->opc != EXECUTE_CPRED_OP_CODE) {
 	CP = P;
 	ENV = YENV;
 	YENV = ASP;
@@ -5046,7 +5046,7 @@ p_log_update_clause(void)
   Int ret;
   yamop *new_cp;
 
-  if (P->opc == Yap_opcode(_execute_cpred)) {
+  if (P->opc == EXECUTE_CPRED_OP_CODE) {
     new_cp = CP;
   } else {
     new_cp = P;
@@ -5116,7 +5116,7 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
       }
       /* don't need no ENV */
       if (first_time &&
-	  P->opc != Yap_opcode(_execute_cpred)) {
+	  P->opc != EXECUTE_CPRED_OP_CODE) {
 	CP = P;
 	ENV = YENV;
 	YENV = ASP;
@@ -5191,7 +5191,7 @@ p_log_update_clause_erase(void)
   Int ret;
   yamop *new_cp;
 
-  if (P->opc == Yap_opcode(_execute_cpred)) {
+  if (P->opc == EXECUTE_CPRED_OP_CODE) {
     new_cp = CP;
   } else {
     new_cp = P;
@@ -5247,7 +5247,7 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
       }
       /* don't need no ENV */
       if (first_time &&
-	  P->opc != Yap_opcode(_execute_cpred)) {
+	  P->opc != EXECUTE_CPRED_OP_CODE) {
 	CP = P;
 	ENV = YENV;
 	YENV = ASP;
@@ -5301,7 +5301,7 @@ p_log_update_clause0(void)
   Int ret;
   yamop *new_cp;
 
-  if (P->opc == Yap_opcode(_execute_cpred)) {
+  if (P->opc == EXECUTE_CPRED_OP_CODE) {
     new_cp = CP;
   } else {
     new_cp = P;
@@ -5529,7 +5529,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 	XREGS[i+1] = pt[i];
       }
       /* don't need no ENV */
-      if (first_time && P->opc != Yap_opcode(_execute_cpred)) {
+      if (first_time && P->opc != EXECUTE_CPRED_OP_CODE) {
 	CP = P;
 	ENV = YENV;
 	YENV = ASP;
@@ -5555,7 +5555,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
       }
       /* don't need no ENV */
       if (first_time &&
-	  P->opc != Yap_opcode(_execute_cpred)) {
+	  P->opc != EXECUTE_CPRED_OP_CODE) {
 	CP = P;
 	ENV = YENV;
 	YENV = ASP;
@@ -5632,7 +5632,7 @@ p_static_clause(void)
   Term t1 = Deref(ARG1);
   yamop * new_cp;
 
-  if (P->opc == Yap_opcode(_execute_cpred)) {
+  if (P->opc == EXECUTE_CPRED_OP_CODE) {
     new_cp = CP;
   } else {
     new_cp = P;
