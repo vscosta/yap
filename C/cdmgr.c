@@ -5044,12 +5044,18 @@ p_log_update_clause(void)
   PredEntry      *pe;
   Term t1 = Deref(ARG1);
   Int ret;
+  yamop *new_cp;
 
+  if (P->opc == Yap_opcode(_execute_cpred)) {
+    new_cp = CP;
+  } else {
+    new_cp = P;
+  }
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   LOCK(pe->PELock);
-  ret = fetch_next_lu_clause(pe, pe->CodeOfPred, t1, ARG3, ARG4, P, TRUE);
+  ret = fetch_next_lu_clause(pe, pe->CodeOfPred, t1, ARG3, ARG4, new_cp, TRUE);
   return ret;
 }
 
@@ -5183,12 +5189,18 @@ p_log_update_clause_erase(void)
   PredEntry      *pe;
   Term t1 = Deref(ARG1);
   Int ret;
+  yamop *new_cp;
 
+  if (P->opc == Yap_opcode(_execute_cpred)) {
+    new_cp = CP;
+  } else {
+    new_cp = P;
+  }
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   LOCK(pe->PELock);
-  ret = fetch_next_lu_clause_erase(pe, pe->CodeOfPred, t1, ARG3, ARG4, P, TRUE);
+  ret = fetch_next_lu_clause_erase(pe, pe->CodeOfPred, t1, ARG3, ARG4, new_cp, TRUE);
   return ret;
 }
 
@@ -5287,12 +5299,18 @@ p_log_update_clause0(void)
   PredEntry      *pe;
   Term           t1 = Deref(ARG1);
   Int ret;
+  yamop *new_cp;
 
+  if (P->opc == Yap_opcode(_execute_cpred)) {
+    new_cp = CP;
+  } else {
+    new_cp = P;
+  }
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   LOCK(pe->PELock);
-  ret = fetch_next_lu_clause0(pe, pe->CodeOfPred, t1, ARG3, P, TRUE);
+  ret = fetch_next_lu_clause0(pe, pe->CodeOfPred, t1, ARG3, new_cp, TRUE);
   return ret;
 }
 
@@ -5612,12 +5630,18 @@ p_static_clause(void)
 {
   PredEntry      *pe;
   Term t1 = Deref(ARG1);
+  yamop * new_cp;
 
+  if (P->opc == Yap_opcode(_execute_cpred)) {
+    new_cp = CP;
+  } else {
+    new_cp = P;
+  }
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   LOCK(pe->PELock);
-  return fetch_next_static_clause(pe, pe->CodeOfPred, ARG1, ARG3, ARG4, P, TRUE);
+  return fetch_next_static_clause(pe, pe->CodeOfPred, ARG1, ARG3, ARG4, new_cp, TRUE);
 }
 
 static Int			/* $hidden_predicate(P) */
