@@ -376,7 +376,7 @@ yap_flag(version_data,X) :-
 
 '$get_version_codes'(Major,Minor,Patch) :-
 	get_value('$version_name',X),
-	atom_codes(X,[0'Y,0'a,0'p,0'-|VersionTag]),
+	atom_codes(X,[0'Y,0'a,0'p,0'-|VersionTag]), %'
 	'$fetch_num_code'(VersionTag,0,Major,L1),
 	'$fetch_num_code'(L1,0,Minor,L2),
 	'$fetch_num_code'(L2,0,Patch,[]).
@@ -384,7 +384,7 @@ yap_flag(version_data,X) :-
 '$fetch_num_code'([],Code,Code,[]).
 '$fetch_num_code'([C|Cs],Code0,CodeF,L) :-
         C >= 0'0, C =< 0'9, !,
-	CodeI is Code0*10+(C-0'0),
+	CodeI is Code0*10+(C-0'0), %'
 	'$fetch_num_code'(Cs,CodeI,CodeF,L).
 '$fetch_num_code'([_|Cs],Code,Code,Cs).
 
@@ -547,7 +547,12 @@ yap_flag(language,X) :-
 
 yap_flag(debug,X) :-
 	var(X), !,
-	nb_getval('$debug',X).
+	('$debug_on'(true)
+	->
+	 X = on
+	;
+	 X = true
+	).
 yap_flag(debug,X) :-
 	'$transl_to_on_off'(_,X), !,
 	(X = on -> debug ; nodebug).

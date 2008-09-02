@@ -2691,8 +2691,8 @@ Yap_absmi(int inp)
 	   don't do a creep here; also, if our instruction is followed by
 	   a execute_c, just wait a bit more */
 	if (ActiveSignals & YAP_CREEP_SIGNAL &&
-	    Yap_op_from_opcode(PREG->opc) != Yap_opcode(_procceed) &&
-	    Yap_op_from_opcode(PREG->opc) != Yap_opcode(_cut_e)) {
+	    PREG->opc != Yap_opcode(_procceed) &&
+	    PREG->opc != Yap_opcode(_cut_e)) {
 	  GONext();
 	}
 	PP = PREG->u.p.p;
@@ -7975,7 +7975,13 @@ Yap_absmi(int inp)
 	  /* IPred can generate errors, it thus must get rid of the lock itself */
 	  setregs();
 	}
+	if (!DebugOn) {
+	  PREG = pe->cs.p_code.TrueCodeOfPred;
+	  UNLOCK(pe->PELock);
+	  JMPNext();
+	}
 	UNLOCK(pe->PELock);
+	
 	d0 = pe->ArityOfPE;
 	/* save S for ModuleName */
 	if (d0 == 0) {
@@ -9450,6 +9456,7 @@ Yap_absmi(int inp)
 #ifdef TABLING
 	abolish_incomplete_subgoals(B);
 #endif /* TABLING */
+	PREG = NEXTOP(PREG, xl);
 	goto trim_trail;
       }
       PREG = NEXTOP(PREG, xl);
@@ -9508,6 +9515,7 @@ Yap_absmi(int inp)
 #ifdef TABLING
 	abolish_incomplete_subgoals(B);
 #endif /* TABLING */
+	PREG = NEXTOP(PREG, xl);
 	goto trim_trail;
       }
       PREG = NEXTOP(PREG, yl);

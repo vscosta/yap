@@ -89,7 +89,7 @@
 
 % do not debug if we are not in debug mode. 
 '$start_creep'([Mod|G]) :-
-	nb_getval('$debug',off), !,
+	'$debug_on'(DBON), DBON = false, !,
 	'$execute_nonstop'(G,Mod).
 '$start_creep'([Mod|G]) :-
 	nb_getval('$system_mode',on), !,

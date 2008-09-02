@@ -117,6 +117,7 @@ typedef struct worker_local_struct {
   union CONSULT_OBJ *consultsp;
   union CONSULT_OBJ *consultbase;
   union CONSULT_OBJ *consultlow;
+  int    debug_on;
   UInt   consultcapacity;
   UInt   active_signals;
   UInt   i_pred_arity;
@@ -932,6 +933,7 @@ extern struct various_codes *Yap_heap_regs;
 #define  ConsultLow               Yap_heap_regs->WL.consultlow
 /* current maximum number of cells in consult stack */
 #define  ConsultCapacity          Yap_heap_regs->WL.consultcapacity
+#define  DebugOn                  Yap_heap_regs->WL.debug_on
 #define  FormatInfo               Yap_heap_regs->WL.f_info
 #define  ScannerStack             Yap_heap_regs->WL.scanner_stack
 #define  ScannerExtraBlocks       Yap_heap_regs->WL.scanner_extra_blocks

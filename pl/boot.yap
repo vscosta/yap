@@ -74,7 +74,7 @@ true :- true.
 	nb_setval('$break',0),
 	% '$set_read_error_handler'(error), let the user do that
 	nb_setval('$open_expands_filename',true),
-	nb_setval('$debug',off),
+	'$debug_on'(false),
 	nb_setval('$trace',off),
 	b_setval('$spy_glist',[]),
 	% simple trick to find out if this is we are booting from Prolog.
@@ -142,12 +142,13 @@ true :- true.
 	fail.
 '$enter_top_level' :-
 	nb_getval('$break',BreakLevel),
+	 '$debug_on'(DBON),
 	(
 	 nb_getval('$trace',on)
 	->
 	 TraceDebug = trace
 	;
-	 nb_getval('$debug', on)
+	 DBON == true
 	->
 	 TraceDebug = debug
 	;
@@ -933,8 +934,8 @@ not(G) :-    \+ '$execute'(G).
 break :-
 	nb_getval('$trace',Trace),
 	nb_setval('$trace',off),
-	nb_getval('$debug',Debug),
-	nb_setval('$debug',off),
+	'$debug_on'(Debug),
+	'$debug_on'(false),
 	nb_getval('$break',BL), NBL is BL+1,
 	nb_getval('$spy_gn',SPY_GN),
 	b_getval('$spy_glist',GList),
@@ -948,7 +949,7 @@ break :-
 	b_setval('$spy_glist',GList),
 	nb_setval('$spy_gn',SPY_GN),
 	'$set_input'(InpStream), '$set_output'(OutStream),
-	nb_setval('$debug',Debug),
+	'$debug_on'(Debug),
 	nb_setval('$trace',Trace),
 	nb_setval('$break',BL).
 

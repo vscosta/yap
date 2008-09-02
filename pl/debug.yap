@@ -149,11 +149,16 @@ debug :-
 	print_message(informational,debug(debug)).
 
 '$start_debugging'(Mode) :-
-	nb_setval('$debug',Mode),
-	nb_setval('$debug_run',off).
+	(Mode == on ->
+	 '$debug_on'(true)
+	;
+	 '$debug_on'(false)
+	),
+	nb_setval('$debug_run',off),
+	nb_setval('$debug_jump',false).
 	
 nodebug :-
-	nb_setval('$debug',off),
+	'$debug_on'(false),
 	nb_setval('$trace',off),
 	print_message(informational,debug(off)).
 
@@ -231,7 +236,7 @@ leash(X) :-
 debugging :-
 	prolog:debug_action_hook(nospyall), !.
 debugging :-
-	( nb_getval('$debug',on) ->
+	( '$debug_on'(true) ->
 	    print_message(help,debug(debug))
 	    ;
 	    print_message(help,debug(off))
@@ -274,7 +279,7 @@ debugging :-
 %
 % $spy may be called from user code, so be careful.
 '$spy'([Mod|G]) :-
-	nb_getval('$debug',off), !,
+	'$debug_on'(F), F = false, !,
 	'$execute'(G,Mod).
 '$spy'([Mod|G]) :-
 	nb_getval('$system_mode',on), !,
@@ -453,10 +458,9 @@ debugging :-
 
 % 
 '$spycall'(G, M, _, _) :-
-	nb_getval('$debug_run',StopPoint),
-	StopPoint \= off,
+	nb_getval('$debug_jump',true),
 	!,
-	'$execute'(M:G).
+	'$execute_nonstop'(G,M).
 '$spycall'(G, M, _, _) :-
         '$system_predicate'(G,M),
 	\+ '$is_metapredicate'(G,M),
@@ -502,7 +506,7 @@ debugging :-
 	% at this point we are done with leap or skip
 	nb_setval('$debug_run',off),
 	% make sure we run this code outside debugging mode.
-	nb_setval('$debug', off),
+	'$debug_on'(false),
 	repeat,
 	'$trace_msg'(P,G,Module,L,Deterministic),
 	( 
@@ -512,8 +516,17 @@ debugging :-
 	  ;
 	  write(user_error,' ? '), get0(user_input,C),
 	  '$action'(C,P,L,G,Module,Debug)
-	  ),
-	nb_setval('$debug', Debug),
+	),
+	(Debug = on
+	->
+	 '$debug_on'(true)
+	;
+	 Debug = zip
+	->
+	 '$debug_on'(true)
+	;
+	 '$debug_on'(false)
+	),
 	!.
 
 '$trace_msg'(P,G,Module,L,Deterministic) :-
@@ -532,12 +545,12 @@ debugging :-
 	),
 	'$debugger_write'(user_error,G).
 
-'$unleashed'(call) :- get_value('$leash',L), L /\ 2'1000 =:= 0.
-'$unleashed'(exit) :- get_value('$leash',L), L /\ 2'0100 =:= 0.
-'$unleashed'(redo) :- get_value('$leash',L), L /\ 2'0010 =:= 0.
-'$unleashed'(fail) :- get_value('$leash',L), L /\ 2'0001 =:= 0.
+'$unleashed'(call) :- get_value('$leash',L), L /\ 2'1000 =:= 0. %'
+'$unleashed'(exit) :- get_value('$leash',L), L /\ 2'0100 =:= 0. %'
+'$unleashed'(redo) :- get_value('$leash',L), L /\ 2'0010 =:= 0. %'
+'$unleashed'(fail) :- get_value('$leash',L), L /\ 2'0001 =:= 0. %'
 % the same as fail.
-'$unleashed'(exception) :- get_value('$leash',L), L /\ 2'0001 =:= 0.
+'$unleashed'(exception) :- get_value('$leash',L), L /\ 2'0001 =:= 0.  %'
 
 '$debugger_write'(Stream, G) :-
 	recorded('$print_options','$debugger'(OUT),_), !,
@@ -546,51 +559,51 @@ debugging :-
 	writeq(Stream, G).
 
 '$action'(10,_,_,_,_,on). 			% newline 	creep
-'$action'(0'!,_,_,_,_,_) :- !,			% ! g		execute
+'$action'(0'!,_,_,_,_,_) :- !,			% ! 'g		execute
 	read(user,G),
 	% don't allow yourself to be caught by creep.
-	nb_getval('$debug',OldDeb),
-	nb_setval('$debug',off),
+	'$debug_on'(OldDeb),
+	'$debug_on'(false),
 	( '$execute'(G) -> true ; true),
-	nb_setval('$debug',OldDeb),
-%	'$skipeol'(0'!),
+	'$debug_on'(OldDeb),
+%	'$skipeol'(0'!),                        % '
 	fail.
-'$action'(0'<,_,_,_,_,_) :- !,			% <Depth
+'$action'(0'<,_,_,_,_,_) :- !,			% <'Depth
 	'$new_deb_depth',
 	'$skipeol'(0'<),
 	fail.
-'$action'(0'^,_,_,G,_,_) :- !,
+'$action'(0'^,_,_,G,_,_) :- !,			% '
 	'$print_deb_sterm'(G),
 	'$skipeol'(0'^),
 	fail.
-'$action'(0'a,_,_,_,_,off) :- !,		% a		abort
+'$action'(0'a,_,_,_,_,off) :- !,		% 'a		abort
 	'$skipeol'(0'a),
 	abort.
-'$action'(0'b,_,_,_,_,_) :- !,			% b		break
+'$action'(0'b,_,_,_,_,_) :- !,			% 'b		break
 	'$skipeol'(0'b),
 	break,
 	fail.
-'$action'(0'A,_,_,_,_,_) :- !,			% b		break
+'$action'(0'A,_,_,_,_,_) :- !,			% 'b		break
 	'$skipeol'(0'A),
 	'$show_choicepoint_stack',
 	fail.
-'$action'(0'c,_,_,_,_,on) :- !,			% c		creep
+'$action'(0'c,_,_,_,_,on) :- !,			% 'c		creep
 	'$skipeol'(0'c).
-'$action'(0'e,_,_,_,_,_) :- !,			% e		exit
+'$action'(0'e,_,_,_,_,_) :- !,			% 'e		exit
 	'$skipeol'(0'e),
 	halt.
-'$action'(0'f,_,CallId,_,_,_) :- !,		% f		fail
+'$action'(0'f,_,CallId,_,_,_) :- !,		% 'f		fail
 	'$scan_number'(0'f, CallId, GoalId),
 	throw('$fail_spy'(GoalId)).
-'$action'(0'h,_,_,_,_,_) :- !,			% h		help
+'$action'(0'h,_,_,_,_,_) :- !,			% 'h		help
 	'$action_help',
 	'$skipeol'(104),
 	fail.
-'$action'(0'?,_,_,_,_,_) :- !,			% ?		help
+'$action'(0'?,_,_,_,_,_) :- !,			% '?		help
 	'$action_help',
 	'$skipeol'(104),
 	fail.
-'$action'(0'p,_,_,G,Module,_) :- !,		% p		print
+'$action'(0'p,_,_,G,Module,_) :- !,		% 'p		print
 	((Module = prolog ; Module = user) ->
 	    print(user_error,G), nl(user_error)
 	;
@@ -598,7 +611,7 @@ debugging :-
 	),
 	'$skipeol'(0'p),
 	fail.
-'$action'(0'd,_,_,G,Module,_) :- !,		% d		display
+'$action'(0'd,_,_,G,Module,_) :- !,		% 'd		display
 	((Module = prolog ; Module = user) ->
 	    display(user_error,G), nl(user_error)
 	;
@@ -606,52 +619,58 @@ debugging :-
 	),
 	'$skipeol'(0'd),
 	fail.
-'$action'(0'l,_,_,_,_,on) :- !,		% l		leap
+'$action'(0'l,_,_,_,_,on) :- !,			% 'l		leap
 	'$skipeol'(0'l),
-	nb_setval('$debug_run',spy).
-'$action'(0'z,_,_,_,_,zip) :- !,		% k		zip, fast leap
-	'$skipeol'(0'z),
-	nb_setval('$debug_run',spy).
+	nb_setval('$debug_run',spy),
+	nb_setval('$debug_jump',false).
+'$action'(0'z,_,_,_,_,zip) :- !,		% 'z		zip, fast leap
+	'$skipeol'(0'z),			% 'z
+	nb_setval('$debug_run',spy),
+	nb_setval('$debug_jump',true).
 	% skip first call (for current goal),
 	% stop next time.
-'$action'(0'k,_,_,_,_,zip) :- !,		% k		zip, fast leap
-	'$skipeol'(0'k),
-	nb_setval('$debug_run',spy).
+'$action'(0'k,_,_,_,_,zip) :- !,		% 'k		zip, fast leap
+	'$skipeol'(0'k),			% '
+	nb_setval('$debug_run',spy),
+	nb_setval('$debug_jump',true).
 	% skip first call (for current goal),
 	% stop next time.
-'$action'(0'n,_,_,_,_,off) :- !,			% n		nodebug
-	'$skipeol'(0'n),
+'$action'(0'n,_,_,_,_,off) :- !,			% 'n		nodebug
+	'$skipeol'(0'n),				% '
 	% tell debugger never to stop.
         nb_setval('$debug_run', -1),
+	nb_setval('$debug_jump',true),
 	nodebug.
-'$action'(0'r,_,CallId,_,_,_) :- !,		        % r		retry
-        '$scan_number'(0'r,CallId,ScanNumber),
-        nb_setval('$debug',on),
+'$action'(0'r,_,CallId,_,_,_) :- !,		        % 'r		retry
+        '$scan_number'(0'r,CallId,ScanNumber),		% '
+        '$debug_on'(true),
 	throw('$retry_spy'(ScanNumber)).
-'$action'(0's,P,CallNumber,_,_,on) :- !,		% s		skip
-	'$skipeol'(0's),
+'$action'(0's,P,CallNumber,_,_,on) :- !,		% 's		skip
+	'$skipeol'(0's),				% '		
 	( (P=call; P=redo) ->
-		nb_setval('$debug_run',CallNumber)
+	  nb_setval('$debug_run',CallNumber),
+	  nb_setval('$debug_jump',false)
 	;
-	    '$ilgl'(0's)
+	    '$ilgl'(0's)				% '
 	).
-'$action'(0't,P,CallNumber,_,_,zip) :- !,		% t		fast skip
-	'$skipeol'(0't),
+'$action'(0't,P,CallNumber,_,_,zip) :- !,		% 't		fast skip
+	'$skipeol'(0't),				% '
 	( (P=call; P=redo) ->
-	    nb_setval('$debug_run',CallNumber)
+	  nb_setval('$debug_run',CallNumber),
+	  nb_setval('$debug_jump',true)
 	;
-	    '$ilgl'(0't)
+	    '$ilgl'(0't)				% '
 	).
-'$action'(0'+,_,_,G,M,_) :- !,			% +		spy this
+'$action'(0'+,_,_,G,M,_) :- !,			% '+		spy this
 	functor(G,F,N), spy(M:(F/N)),
-	'$skipeol'(0'+),
+	'$skipeol'(0'+),			% '
 	fail.
-'$action'(0'-,_,_,G,M,_) :- !,			% -		nospy this
+'$action'(0'-,_,_,G,M,_) :- !,			% '-		nospy this
 	functor(G,F,N), nospy(M:(F/N)),
-	'$skipeol'(0'-),
+	'$skipeol'(0'-),			% '
 	fail.
-'$action'(0'g,_,_,_,_,_) :- !,			% g		ancestors
-        '$scan_number'(0'g,-1,HowMany),
+'$action'(0'g,_,_,_,_,_) :- !,			% 'g		ancestors
+        '$scan_number'(0'g,-1,HowMany),         % '
         '$show_ancestors'(HowMany),
 	fail.
 '$action'(C,_,_,_,_,_) :-
@@ -746,10 +765,10 @@ debugging :-
 '$scan_number'(_, CallId, CallId).
 
 '$scan_number2'(10, _) :- !, fail.
-'$scan_number2'(0' , Nb) :- !,
+'$scan_number2'(0' , Nb) :- !, % '
 	get0(user,C),
 	'$scan_number2'(C , Nb).
-'$scan_number2'(0'	, Nb) :- !,
+'$scan_number2'(0'	, Nb) :- !, %'
 	get0(user,C),
 	'$scan_number2'(C, Nb).
 '$scan_number2'(C, Nb) :-

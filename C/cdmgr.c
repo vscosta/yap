@@ -5008,7 +5008,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 	  }
 	} else {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(Yap_Error_Size, 7, YENV, gc_P(P,CP))) {
+	  if (!Yap_gcl(Yap_Error_Size, 7, ENV, gc_P(P,CP))) {
 	    UNLOCK(pe->PELock);
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
@@ -5150,7 +5150,7 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
 	  }
 	} else {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(Yap_Error_Size, 7, YENV, gc_P(P,CP))) {
+	  if (!Yap_gcl(Yap_Error_Size, 7, ENV, gc_P(P,CP))) {
 	    UNLOCK(pe->PELock);
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
@@ -5276,7 +5276,7 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
 	  }
 	} else {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(Yap_Error_Size, 4, YENV, gc_P(P,CP))) {
+	  if (!Yap_gcl(Yap_Error_Size, 4, ENV, gc_P(P,CP))) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
@@ -5590,7 +5590,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 	  ARG5 = th;
 	  ARG6 = tb;
 	  ARG7 = tr;
-	  if (!Yap_gc(7, YENV, gc_P(P,CP))) {
+	  if (!Yap_gc(7, ENV, gc_P(P,CP))) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }

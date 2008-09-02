@@ -2054,7 +2054,36 @@ p_uncaught_throw(void)
 static Int
 p_creep_allowed(void)
 {
-  return (PP != NULL);
+  if (PP != NULL) {
+    LOCK(SignalLock);
+    if (ActiveSignals & YAP_CREEP_SIGNAL) {
+      ActiveSignals &= ~YAP_CREEP_SIGNAL;    
+      if (!ActiveSignals)
+	CreepFlag = CalculateStackGap();
+      UNLOCK(SignalLock);
+    } else {
+      UNLOCK(SignalLock);
+    }
+    return TRUE;
+  }
+  return FALSE;
+}
+
+static Int
+p_debug_on(void)
+{
+  Term t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    if (DebugOn)
+      return Yap_unify(MkAtomTerm(AtomTrue),ARG1);
+    else
+      return Yap_unify(MkAtomTerm(AtomFalse),ARG1);
+  }
+  if (t == MkAtomTerm(AtomTrue))
+    DebugOn = TRUE;
+  else
+    DebugOn = FALSE;
+  return TRUE;
 }
 
 void 
@@ -2087,6 +2116,7 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$call_with_args", 10, p_execute_8, HiddenPredFlag);
   Yap_InitCPred("$call_with_args", 11, p_execute_9, HiddenPredFlag);
   Yap_InitCPred("$call_with_args", 12, p_execute_10, HiddenPredFlag);
+  Yap_InitCPred("$debug_on", 1, p_debug_on, HiddenPredFlag);
 #ifdef DEPTH_LIMIT
   Yap_InitCPred("$execute_under_depth_limit", 2, p_execute_depth_limit, HiddenPredFlag);
 #endif
