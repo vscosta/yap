@@ -8,7 +8,7 @@
 	   copy_line/2,
 	   filter/3,
 	   file_filter/3,
-	   process/2,
+	   process/2
 	  ]).
 
 :- meta_predicate filter(+,+,:), file_filter(+,+,:), process(+,:).
