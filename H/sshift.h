@@ -38,7 +38,8 @@ IsHeapP (CELL * ptr)
 #endif
 }
 
-
+#define OrArgAdjust(P) 
+#define TabEntryAdjust(P) 
 
 /* Adjusting cells and pointers to cells */
 
@@ -847,3 +848,4 @@ IsGlobal (CELL reg)
 
 void STD_PROTO (Yap_AdjustStacksAndTrail, (void));
 void STD_PROTO (Yap_AdjustRegs, (int));
+

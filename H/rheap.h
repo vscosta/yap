@@ -659,9 +659,9 @@ restore_codes(void)
   INIT_YAMOP_LTT(&(Yap_heap_regs->nocode), 1);
   INIT_YAMOP_LTT(&(Yap_heap_regs->rtrycode), 1);
 #endif /* YAPOR */
-  if (((yamop *)(&Yap_heap_regs->rtrycode))->u.apl.d != NIL)
-    ((yamop *)(&Yap_heap_regs->rtrycode))->u.apl.d =
-      PtoOpAdjust(((yamop *)(&Yap_heap_regs->rtrycode))->u.apl.d);
+  if (((yamop *)(&Yap_heap_regs->rtrycode))->u.Otapl.d != NIL)
+    ((yamop *)(&Yap_heap_regs->rtrycode))->u.Otapl.d =
+      PtoOpAdjust(((yamop *)(&Yap_heap_regs->rtrycode))->u.Otapl.d);
   {
     int             arity;
     arity = Yap_heap_regs->clausecode->arity;

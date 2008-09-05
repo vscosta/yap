@@ -32,8 +32,8 @@ main :-
 	file('OPTYap/or.insts.i',W,C),
 	end_ifdef(W,C),
 	start_ifdef("TABLING",W,C),
-	retractall(op(_,_)),
 	file('OPTYap/tab.insts.i',W,C),
+	retractall(op(_,_)),
 	file('OPTYap/tab.tries.insts.i',W,C),
 	end_ifdef(W,C),
 	footer(W),
@@ -139,20 +139,25 @@ special_formats(_,_).
 
 dump_fields(_,[],"e",_).
 dump_fields(_,[],[],_).
-dump_fields(C,[I-"none"|Info],[O|Ops],T) :- !,
+dump_fields(C,[I-_|Info],[O|Ops],T) :- !,
 	dump_field(C,I,O,T),
 	dump_fields(C,Info,Ops,T).
 dump_fields(C,[_|Info],Ops,T) :-
 	dump_fields(C,Info,Ops,T).
 
 dump_field(C,I,O,T) :-
-	O \= 0'd,
-	O \= 0'i, !,
-	get_op(O,A),
-	format(C,'      pc->u.~s.~s = ~sAdjust(pc->u.~s.~s);~n',[T,I,A,T,I]).
-dump_field(C,I,O,T) :-
+	rewritable_field(O), !,
 	get_op(O,A),
 	format(C,'      ~sAdjust(pc->u.~s.~s);~n',[A,T,I]).
+dump_field(C,I,O,T) :-
+	get_op(O,A),
+	format(C,'      pc->u.~s.~s = ~sAdjust(pc->u.~s.~s);~n',[T,I,A,T,I]).
+
+rewritable_field(0'd).
+rewritable_field(0'i).
+rewritable_field(0'O).
+rewritable_field(0't).
+
 
 get_op(0'a,"Arity").
 get_op(0'b,"CellPtoHeap").
@@ -167,8 +172,10 @@ get_op(0'L,"PtoLUClause").
 get_op(0'm,"Module").
 get_op(0'n,"Integer").
 get_op(0'o,"Opcode").
+get_op(0'O,"OrArg").
 get_op(0'p,"PtoPred").
 get_op(0's,"Constant").
+get_op(0't,"TabEntry").
 get_op(0'x,"X").
 get_op(0'y,"Y").
 % '
@@ -194,7 +201,7 @@ footer_rclause(W) :-
 	format(W,'      /* this instruction is hardwired */~n',[]),
 	dump_ops(W,["or_last"]),
 	format(W,'#ifdef YAPOR~n',[]),
-	output_typeinfo(W,"sblp"),
+	output_typeinfo(W,"Osblp"),
 	format(W,'#else~n',[]),
 	output_typeinfo(W,"p"),
 	format(W,'#endif~n',[]),

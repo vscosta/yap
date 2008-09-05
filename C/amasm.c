@@ -1296,22 +1296,22 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
 	    code_p->opc = emit_op(_call_cpred);
 	  }
 	}
-	code_p->u.sbpp.s = emit_count(-Signed(RealEnvSize) - CELLSIZE
+	code_p->u.Osbpp.s = emit_count(-Signed(RealEnvSize) - CELLSIZE
 				     * (cip->cpc->rnd2));
 	if (RepPredProp(fe)->FunctorOfPred != FunctorExecuteInMod) {
-	  code_p->u.sbpp.p =  RepPredProp(fe);
+	  code_p->u.Osbpp.p =  RepPredProp(fe);
 	} else {
-	  code_p->u.sbmp.mod =  cip->cpc->rnd4;
+	  code_p->u.Osbmp.mod =  cip->cpc->rnd4;
 	}
-	code_p->u.sbpp.p0 =  clinfo->CurrentPred;
+	code_p->u.Osbpp.p0 =  clinfo->CurrentPred;
 	if (cip->cpc->rnd2) {
-	  code_p->u.sbpp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
+	  code_p->u.Osbpp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
 	} else {
 	  /* there is no bitmap as there are no variables in the environment */
-	  code_p->u.sbpp.bmap = NULL;
+	  code_p->u.Osbpp.bmap = NULL;
 	}
       }
-      GONEXT(sbpp);
+      GONEXT(Osbpp);
     }
     return code_p;
   }
@@ -1331,17 +1331,17 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
   }
   if (opcode == _call) {
     if (pass_no) {
-      code_p->u.sbpp.s = emit_count(-Signed(RealEnvSize) - CELLSIZE *
+      code_p->u.Osbpp.s = emit_count(-Signed(RealEnvSize) - CELLSIZE *
 				   cip->cpc->rnd2);
-      code_p->u.sbpp.p = RepPredProp(fe);
-      code_p->u.sbpp.p0 = clinfo->CurrentPred;
+      code_p->u.Osbpp.p = RepPredProp(fe);
+      code_p->u.Osbpp.p0 = clinfo->CurrentPred;
       if (cip->cpc->rnd2)
-	code_p->u.sbpp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
+	code_p->u.Osbpp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
       else
 	/* there is no bitmap as there are no variables in the environment */
-	code_p->u.sbpp.bmap = NULL;
+	code_p->u.Osbpp.bmap = NULL;
     }
-    GONEXT(sbpp);
+    GONEXT(Osbpp);
   }
   else if (opcode == _execute ||
       opcode == _dexecute) {
@@ -1382,17 +1382,17 @@ a_empty_call(clause_info *clinfo, yamop *code_p, int pass_no, struct  intermedia
   }
   if (pass_no) {
     PredEntry *pe = RepPredProp(Yap_GetPredPropByAtom(AtomTrue,0));
-    code_p->u.sbpp.s = emit_count(-Signed(RealEnvSize) - CELLSIZE *
+    code_p->u.Osbpp.s = emit_count(-Signed(RealEnvSize) - CELLSIZE *
 				   cip->cpc->rnd2);
-    code_p->u.sbpp.p = pe;
-    code_p->u.sbpp.p0 = clinfo->CurrentPred;
+    code_p->u.Osbpp.p = pe;
+    code_p->u.Osbpp.p0 = clinfo->CurrentPred;
     if (cip->cpc->rnd2)
-      code_p->u.sbpp.bmap = emit_bmlabel(cip->cpc->rnd1, cip);
+      code_p->u.Osbpp.bmap = emit_bmlabel(cip->cpc->rnd1, cip);
     else
       /* there is no bitmap as there are no variables in the environment */
-      code_p->u.sbpp.bmap = NULL;
+      code_p->u.Osbpp.bmap = NULL;
   }
-  GONEXT(sbpp);
+  GONEXT(Osbpp);
   return code_p;
 }
 
@@ -1828,7 +1828,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
     yamop *newcp;
     /* emit a special instruction and then a label for backpatching */
     if (pass_no) {
-      UInt size = (UInt)NEXTOP((yamop *)NULL,aLl);
+      UInt size = (UInt)NEXTOP((yamop *)NULL,OtaLl);
       if ((newcp = (yamop *)Yap_AllocCodeSpace(size)) == NULL) {
 	/* OOOPS, got in trouble, must do a longjmp and recover space */
 	save_machine_regs();
@@ -1845,15 +1845,15 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
 	  try-retry-trust
 	  instructions allocated in this run
 	*/
-	newcp->u.aLl.n = cip->try_instructions;
+	newcp->u.OtaLl.n = cip->try_instructions;
 	cip->try_instructions = newcp;
       } else {
-	newcp->u.aLl.n = *cip->current_try_lab;
+	newcp->u.OtaLl.n = *cip->current_try_lab;
 	*cip->current_try_lab = newcp;
       }
       if (opcode == _try_clause) {
 	newcp->opc = emit_op(_try_logical);
-	newcp->u.aLl.s = emit_count(opr);
+	newcp->u.OtaLl.s = emit_count(opr);
       } else if (opcode == _retry) {
 	if (ap->PredFlags & CountPredFlag)
 	  newcp->opc = emit_op(_count_retry_logical);
@@ -1861,7 +1861,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
 	  newcp->opc = emit_op(_profiled_retry_logical);
 	else
 	  newcp->opc = emit_op(_retry_logical);
-	newcp->u.aLl.s = emit_count(opr);
+	newcp->u.OtaLl.s = emit_count(opr);
       } else {
 	if (ap->PredFlags & CountPredFlag)
 	  newcp->opc = emit_op(_count_trust_logical);
@@ -1869,11 +1869,11 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
 	  newcp->opc = emit_op(_profiled_trust_logical);
 	else
 	  newcp->opc = emit_op(_trust_logical);
-	newcp->u.ILl.block = (LogUpdIndex *)(cip->code_addr);
+	newcp->u.OtILl.block = (LogUpdIndex *)(cip->code_addr);
 	*cip->current_trust_lab = newcp;
       }
-      newcp->u.aLl.d = ClauseCodeToLogUpdClause(emit_a(lab));
-      cip->current_try_lab = &(newcp->u.aLl.n);
+      newcp->u.OtaLl.d = ClauseCodeToLogUpdClause(emit_a(lab));
+      cip->current_try_lab = &(newcp->u.OtaLl.n);
     }
     return code_p;
   }
@@ -1929,11 +1929,11 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
   }
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.apl.d = emit_a(lab);
-    code_p->u.apl.s = emit_count(opr);
-    code_p->u.apl.p = ap;
+    code_p->u.Otapl.d = emit_a(lab);
+    code_p->u.Otapl.s = emit_count(opr);
+    code_p->u.Otapl.p = ap;
 #ifdef TABLING
-    code_p->u.apl.te = ap->TableOfPred;
+    code_p->u.Otapl.te = ap->TableOfPred;
 #endif
 #ifdef YAPOR
     INIT_YAMOP_LTT(code_p, nofalts);
@@ -1943,7 +1943,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
       PUT_YAMOP_SEQ(code_p);
 #endif /* YAPOR */
   }
-  GONEXT(apl);
+  GONEXT(Otapl);
   return code_p;
 }
 
@@ -1956,9 +1956,9 @@ a_either(op_numbers opcode, CELL opr, CELL lab, yamop *code_p, int pass_no, stru
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.sblp.s = emit_count(opr);
-    code_p->u.sblp.l = emit_a(lab);
-    code_p->u.sblp.p0 =  cip->CurrentPred;
+    code_p->u.Osblp.s = emit_count(opr);
+    code_p->u.Osblp.l = emit_a(lab);
+    code_p->u.Osblp.p0 =  cip->CurrentPred;
 #ifdef YAPOR
     INIT_YAMOP_LTT(code_p, nofalts);
     if (hascut)
@@ -1966,13 +1966,13 @@ a_either(op_numbers opcode, CELL opr, CELL lab, yamop *code_p, int pass_no, stru
     if (cip->CurrentPred->PredFlags & SequentialPredFlag)
       PUT_YAMOP_SEQ(code_p);
     if(opcode != _or_last) {
-      code_p->u.sblp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
+      code_p->u.Osblp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
     }
 #else
-    code_p->u.sblp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
+    code_p->u.Osblp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
 #endif /* YAPOR */
   }
-  GONEXT(sblp);
+  GONEXT(Osblp);
   return code_p;
 }
 
@@ -2858,7 +2858,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     *entry_codep = code_p;
     if (tabled) {
 #if TABLING
-      code_p = a_try(_table_try_single, (CELL)NEXTOP(code_p,apl), IPredArity, code_p, pass_no, cip);
+      code_p = a_try(_table_try_single, (CELL)NEXTOP(code_p,Otapl), IPredArity, code_p, pass_no, cip);
 #endif
     }
     if (dynamic) {
@@ -3597,7 +3597,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
   }
   if (ap->PredFlags & DynamicPredFlag) {
     size =
-      (CELL)NEXTOP(NEXTOP(NEXTOP((yamop *)(((DynamicClause *)NULL)->ClCode),apl),sbpp),e);
+      (CELL)NEXTOP(NEXTOP(NEXTOP((yamop *)(((DynamicClause *)NULL)->ClCode),Otapl ),Osbpp),e);
   }
   if ((CELL)code_p > size)
     size = (CELL)code_p;
@@ -3670,28 +3670,28 @@ Yap_InitComma(void)
 {
   yamop *code_p = COMMA_CODE;
   code_p->opc = opcode(_call);
-  code_p->u.sbpp.s = emit_count(-Signed(RealEnvSize) - sizeof(CELL) * 3);
-  code_p->u.sbpp.p = 
-    code_p->u.sbpp.p0 =
+  code_p->u.Osbpp.s = emit_count(-Signed(RealEnvSize) - sizeof(CELL) * 3);
+  code_p->u.Osbpp.p = 
+    code_p->u.Osbpp.p0 =
     RepPredProp(PredPropByFunc(FunctorComma,0));
-  code_p->u.sbpp.bmap = NULL;
-  GONEXT(sbpp);
+  code_p->u.Osbpp.bmap = NULL;
+  GONEXT(Osbpp);
   if (PRED_GOAL_EXPANSION_ON) {
     Functor fp = Yap_MkFunctor(Yap_FullLookupAtom("$generate_pred_info"),4);
     code_p->opc = emit_op(_call_cpred);
-    code_p->u.sbpp.s = emit_count(-Signed(RealEnvSize));
-    code_p->u.sbpp.p =  
-      code_p->u.sbpp.p0 = 
+    code_p->u.Osbpp.s = emit_count(-Signed(RealEnvSize));
+    code_p->u.Osbpp.p =  
+      code_p->u.Osbpp.p0 = 
       RepPredProp(Yap_GetPredPropByFunc(fp,0));
-    code_p->u.sbpp.bmap = NULL;
-    GONEXT(sbpp);
+    code_p->u.Osbpp.bmap = NULL;
+    GONEXT(Osbpp);
     code_p->opc = emit_op(_call);
-    code_p->u.sbpp.s = emit_count(-Signed(RealEnvSize));
-    code_p->u.sbpp.p =  
-      code_p->u.sbpp.p0 = 
+    code_p->u.Osbpp.s = emit_count(-Signed(RealEnvSize));
+    code_p->u.Osbpp.p =  
+      code_p->u.Osbpp.p0 = 
       PredMetaCall;
-    code_p->u.sbpp.bmap = NULL;
-    GONEXT(sbpp);
+    code_p->u.Osbpp.bmap = NULL;
+    GONEXT(Osbpp);
     code_p->opc = emit_op(_deallocate);
     code_p->u.p.p = PredMetaCall;
     GONEXT(p);
@@ -3708,11 +3708,11 @@ Yap_InitComma(void)
       GONEXT(e);
     }
     code_p->opc = opcode(_p_execute_tail);
-    code_p->u.sbpp.s = emit_count(-Signed(RealEnvSize)-3*sizeof(CELL));
-    code_p->u.sbpp.bmap = NULL;
-    code_p->u.sbpp.p = 
-      code_p->u.sbpp.p0 =
+    code_p->u.Osbpp.s = emit_count(-Signed(RealEnvSize)-3*sizeof(CELL));
+    code_p->u.Osbpp.bmap = NULL;
+    code_p->u.Osbpp.p = 
+      code_p->u.Osbpp.p0 =
       RepPredProp(PredPropByFunc(FunctorComma,0));
-    GONEXT(sbpp);
+    GONEXT(Osbpp);
   }
 }

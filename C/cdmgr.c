@@ -549,7 +549,7 @@ PredForChoicePt(yamop *p_code) {
       break;
     case _retry_me:
     case _trust_me:
-      return p_code->u.apl.p;
+      return p_code->u.Otapl.p;
     case _try_logical:
     case _retry_logical:
     case _trust_logical:
@@ -557,7 +557,7 @@ PredForChoicePt(yamop *p_code) {
     case _count_trust_logical:
     case _profiled_retry_logical:
     case _profiled_trust_logical:
-      return p_code->u.aLl.d->ClPred;
+      return p_code->u.OtaLl.d->ClPred;
 #ifdef TABLING
     case _trie_retry_null:
     case _trie_trust_null:
@@ -586,17 +586,17 @@ PredForChoicePt(yamop *p_code) {
       /* compile error --> return ENV_ToP(gc_B->cp_cp); */
 #endif /* TABLING */
     case _or_else:
-      if (p_code == p_code->u.sblp.l) {
+      if (p_code == p_code->u.Osblp.l) {
 	/* repeat */
 	Atom at = Yap_LookupAtom("repeat ");
 	return RepPredProp(PredPropByAtom(at, PROLOG_MODULE));
       } else {
-	return p_code->u.sblp.p0;
+	return p_code->u.Osblp.p0;
       }
       break;
     case _or_last:
 #ifdef YAPOR
-      return p_code->u.sblp.p0;
+      return p_code->u.Osblp.p0;
 #else
       return p_code->u.p.p;
 #endif /* YAPOR */
@@ -609,7 +609,7 @@ PredForChoicePt(yamop *p_code) {
       p_code = NEXTOP(p_code,l);
       break;
     default:
-      return p_code->u.apl.p;
+      return p_code->u.Otapl.p;
     }
   }
   return NULL;
@@ -708,6 +708,8 @@ get_pred(Term t,  Term tmod, char *pname)
 ******************************************************************/
 
 
+#define OrArgAdjust(P) 
+#define TabEntryAdjust(P) 
 #define DoubleInCodeAdjust(D)
 #define IntegerInCodeAdjust(D)
 #define IntegerAdjust(D)  (D)
@@ -1113,8 +1115,8 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       break;
     case _retry:
     case _trust:
-      decrease_ref_counter(ipc->u.apl.d, beg, end, suspend_code);
-      ipc = NEXTOP(ipc,apl);
+      decrease_ref_counter(ipc->u.Otapl.d, beg, end, suspend_code);
+      ipc = NEXTOP(ipc,Otapl);
       break;
     case _try_clause:
     case _try_me:
@@ -1122,7 +1124,7 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
     case _profiled_trust_me:
     case _trust_me:
     case _count_trust_me:
-      ipc = NEXTOP(ipc,apl);
+      ipc = NEXTOP(ipc,Otapl);
       break;
     case _try_logical:
     case _retry_logical:
@@ -1130,9 +1132,9 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
     case _profiled_retry_logical:
       {
 	yamop *oipc = ipc;
-	decrease_ref_counter(ipc->u.aLl.d->ClCode, beg, end, suspend_code);
-	ipc = ipc->u.aLl.n;
-	Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop *)NULL,aLl);
+	decrease_ref_counter(ipc->u.OtaLl.d->ClCode, beg, end, suspend_code);
+	ipc = ipc->u.OtaLl.n;
+	Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop *)NULL,OtaLl);
 	Yap_FreeCodeSpace((ADDR)oipc);
 #ifdef DEBUG
 	Yap_DirtyCps--;
@@ -1147,8 +1149,8 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       Yap_DirtyCps--;
       Yap_FreedCps++;
 #endif
-      decrease_ref_counter(ipc->u.ILl.d->ClCode, beg, end, suspend_code);
-      Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop *)NULL,ILl);
+      decrease_ref_counter(ipc->u.OtILl.d->ClCode, beg, end, suspend_code);
+      Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop *)NULL,OtILl);
       Yap_FreeCodeSpace((ADDR)ipc);
       return;
     case _enter_lu_pred:
@@ -1666,12 +1668,12 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
   /* allocate starter block, containing info needed to start execution,
    * that is a try_mark to start the code and a fail to finish things up */
   cl =
-    (DynamicClause *) Yap_AllocCodeSpace((Int)NEXTOP(NEXTOP(NEXTOP(ncp,apl),e),l));
+    (DynamicClause *) Yap_AllocCodeSpace((Int)NEXTOP(NEXTOP(NEXTOP(ncp,Otapl),e),l));
   if (cl == NIL) {
     Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"Heap crashed against Stacks");
     return;
   }
-  Yap_ClauseSpace += (Int)NEXTOP(NEXTOP(NEXTOP(ncp,apl),e),l);
+  Yap_ClauseSpace += (Int)NEXTOP(NEXTOP(NEXTOP(ncp,Otapl),e),l);
   /* skip the first entry, this contains the back link and will always be
      empty for this entry */
   ncp = (yamop *)(((CELL *)ncp)+1);
@@ -1687,9 +1689,9 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
     p->OpcodeOfPred = ncp->opc = Yap_opcode(_spy_or_trymark);
   else
     p->OpcodeOfPred = ncp->opc = Yap_opcode(_try_and_mark);
-  ncp->u.apl.s = p->ArityOfPE;
-  ncp->u.apl.p = p;
-  ncp->u.apl.d = cp;
+  ncp->u.Otapl.s = p->ArityOfPE;
+  ncp->u.Otapl.p = p;
+  ncp->u.Otapl.d = cp;
   /* This is the point we enter the code */
   p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = ncp;
   p->cs.p_code.NOfClauses = 1;
@@ -1708,9 +1710,9 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
     cp->opc = Yap_opcode(_count_retry_and_mark);
   else
     cp->opc = Yap_opcode(_retry_and_mark);
-  cp->u.apl.s = p->ArityOfPE;
-  cp->u.apl.p = p;
-  cp->u.apl.d = ncp;
+  cp->u.Otapl.s = p->ArityOfPE;
+  cp->u.Otapl.p = p;
+  cp->u.Otapl.d = ncp;
   /* also, keep a backpointer for the days you delete the clause */
   ClauseCodeToDynamicClause(cp)->ClPrevious = ncp;
   /* Don't forget to say who is the only clause for the predicate so
@@ -1718,7 +1720,7 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
   p->cs.p_code.LastClause = p->cs.p_code.FirstClause = cp;
   /* we're only missing what to do when we actually exit the procedure
    */
-  ncp = NEXTOP(ncp,apl);
+  ncp = NEXTOP(ncp,Otapl);
   /* and the last instruction to execute to exit the predicate, note
      the retry is pointing to this pseudo clause */
   ncp->opc = Yap_opcode(_trust_fail);
@@ -1770,7 +1772,7 @@ asserta_stat_clause(PredEntry *p, yamop *q, int spy_flag)
     p->OpcodeOfPred = INDEX_OPCODE;
     p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
   }
-  p->cs.p_code.LastClause->u.apl.d = q;
+  p->cs.p_code.LastClause->u.Otapl.d = q;
 }
 
 /* p is already locked */
@@ -1786,22 +1788,22 @@ asserta_dynam_clause(PredEntry *p, yamop *cp)
   cl->ClPrevious = (yamop *)(p->CodeOfPred);
   cl->ClFlags |= DynamicMask;
   UNLOCK(ClauseCodeToDynamicClause(p->cs.p_code.FirstClause)->ClLock);
-  q->u.apl.d = p->cs.p_code.FirstClause;
-  q->u.apl.s = p->ArityOfPE;
-  q->u.apl.p = p;
+  q->u.Otapl.d = p->cs.p_code.FirstClause;
+  q->u.Otapl.s = p->ArityOfPE;
+  q->u.Otapl.p = p;
   if (p->PredFlags & ProfiledPredFlag)
     cp->opc = Yap_opcode(_profiled_retry_and_mark);
   else if (p->PredFlags & CountPredFlag)
     cp->opc = Yap_opcode(_count_retry_and_mark);
   else
     cp->opc = Yap_opcode(_retry_and_mark);
-  cp->u.apl.s = p->ArityOfPE;
-  cp->u.apl.p = p;
+  cp->u.Otapl.s = p->ArityOfPE;
+  cp->u.Otapl.p = p;
   p->cs.p_code.FirstClause = cp;
   q = p->CodeOfPred;
-  q->u.apl.d = cp;
-  q->u.apl.s = p->ArityOfPE;
-  q->u.apl.p = p;
+  q->u.Otapl.d = cp;
+  q->u.Otapl.s = p->ArityOfPE;
+  q->u.Otapl.p = p;
 
 }
 
@@ -1859,7 +1861,7 @@ assertz_dynam_clause(PredEntry *p, yamop *cp)
 
   q = p->cs.p_code.LastClause;
   LOCK(ClauseCodeToDynamicClause(q)->ClLock);
-  q->u.apl.d = cp;
+  q->u.Otapl.d = cp;
   p->cs.p_code.LastClause = cp;
   /* also, keep backpointers for the days we'll delete all the clause */
   cl->ClPrevious = q;
@@ -1872,9 +1874,9 @@ assertz_dynam_clause(PredEntry *p, yamop *cp)
     q->opc = Yap_opcode(_count_retry_and_mark);
   else
     q->opc = Yap_opcode(_retry_and_mark);
-  q->u.apl.d = p->CodeOfPred;
-  q->u.apl.s = p->ArityOfPE;
-  q->u.apl.p = p;
+  q->u.Otapl.d = p->CodeOfPred;
+  q->u.Otapl.s = p->ArityOfPE;
+  q->u.Otapl.p = p;
   p->cs.p_code.NOfClauses++;
 }
 
@@ -3231,16 +3233,16 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
 	if (p->PredFlags & LogUpdatePredFlag) {
 	  LogUpdIndex *cl = ClauseCodeToLogUpdIndex(code_beg);
 	  if (find_owner_log_index(cl, code_p)) 
-	    b_ptr->cp_ap = cur_log_upd_clause(pe, b_ptr->cp_ap->u.apl.d);
+	    b_ptr->cp_ap = cur_log_upd_clause(pe, b_ptr->cp_ap->u.Otapl.d);
 	} else if (p->PredFlags & MegaClausePredFlag) {
 	  StaticIndex *cl = ClauseCodeToStaticIndex(code_beg);
 	  if (find_owner_static_index(cl, code_p)) 
-	    b_ptr->cp_ap = cur_clause(pe, b_ptr->cp_ap->u.apl.d);
+	    b_ptr->cp_ap = cur_clause(pe, b_ptr->cp_ap->u.Otapl.d);
 	} else {
 	  /* static clause */
 	  StaticIndex *cl = ClauseCodeToStaticIndex(code_beg);
 	  if (find_owner_static_index(cl, code_p)) {
-	    b_ptr->cp_ap = cur_clause(pe, b_ptr->cp_ap->u.apl.d);
+	    b_ptr->cp_ap = cur_clause(pe, b_ptr->cp_ap->u.Otapl.d);
 	  }
 	}
       }
@@ -3826,19 +3828,19 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _table_answer_resolution:
     case _table_completion:
 #endif /* TABLING */
-      pc = NEXTOP(pc, apl);
+      pc = NEXTOP(pc, Otapl);
       break;
     case _try_logical:
     case _retry_logical:
     case _count_retry_logical:
     case _profiled_retry_logical:
-      pc = pc->u.aLl.n;
+      pc = pc->u.OtaLl.n;
       break;
     case _trust_logical:
     case _count_trust_logical:
     case _profiled_trust_logical:
       {
-	LogUpdIndex *cl = pc->u.ILl.block;
+	LogUpdIndex *cl = pc->u.OtILl.block;
 	pp = cl->ClPred;
 	*startp = (CODEADDR)cl;
 	*endp = (CODEADDR)cl+cl->ClSize;
@@ -4041,7 +4043,7 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _p_cut_by_y:
       pc = NEXTOP(pc,yl);
       break;
-      /* instructions type sbpp or sbmp */      
+      /* instructions type Osbpp or Osbmp */      
     case _p_execute_tail:
     case _p_execute:
     case _p_execute2:
@@ -4056,21 +4058,21 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
     case _or_last:
 #endif
       clause_code = TRUE;
-      pp = pc->u.sbpp.p;
-      pc = NEXTOP(pc,sbpp);
+      pp = pc->u.Osbpp.p;
+      pc = NEXTOP(pc,Osbpp);
       break;
-      /* instructions type sbpp, but for disjunctions */
+      /* instructions type Osbpp, but for disjunctions */
     case _either:
     case _or_else:
       clause_code = TRUE;
-      pp = pc->u.sblp.p0;
-      pc = NEXTOP(pc,sblp);
+      pp = pc->u.Osblp.p0;
+      pc = NEXTOP(pc,Osblp);
       break;
     case _call_cpred:
     case _call_usercpred:
       clause_code = TRUE;
-      pp = pc->u.sbpp.p0;
-      pc = NEXTOP(pc,sbpp);
+      pp = pc->u.Osbpp.p0;
+      pc = NEXTOP(pc,Osbpp);
       break;
       /* instructions type xx */
     case _get_x_var:
@@ -4278,14 +4280,14 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
       pp = pc->u.sdlp.p;
       pc = NEXTOP(pc,sdlp);
       break;
-      /* instructions type apFs */
+      /* instructions type OtapFs */
     case _try_c:
     case _try_userc:
     case _retry_c:
     case _retry_userc:
       clause_code = TRUE;
-      pp = pc->u.apFs.p;
-      pc = NEXTOP(pc,apFs);
+      pp = pc->u.OtapFs.p;
+      pc = NEXTOP(pc,OtapFs);
       break;
 #ifdef CUT_C
     case _cut_c:
@@ -4938,7 +4940,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
   Terms[0] = th;
   Terms[1] = tb;
   Terms[2] = tr;
-  cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClause->CodeOfPred,apl), cp_ptr);
+  cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClause->CodeOfPred,Otapl), cp_ptr);
   th = Terms[0];
   tb = Terms[1];
   tr = Terms[2];
@@ -5079,7 +5081,7 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
   Terms[0] = th;
   Terms[1] = tb;
   Terms[2] = tr;
-  cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClauseErase->CodeOfPred,apl), cp_ptr);
+  cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClauseErase->CodeOfPred,Otapl), cp_ptr);
   th = Terms[0];
   tb = Terms[1];
   tr = Terms[2];
@@ -5223,7 +5225,7 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
   Terms[0] = th;
   Terms[1] = tb;
   Terms[2] = TermNil;
-  cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClause0->CodeOfPred,apl), cp_ptr);
+  cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClause0->CodeOfPred,Otapl), cp_ptr);
   th = Terms[0];
   tb = Terms[1];
   /* don't do this!! I might have stored a choice-point and changed ASP
@@ -5372,9 +5374,9 @@ void			/* $hidden_predicate(P) */
 Yap_UpdateTimestamps(PredEntry *ap)
 {
   choiceptr bptr = B;
-  yamop *cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,apl);
-  yamop *cl = NEXTOP(PredLogUpdClause->CodeOfPred,apl);
-  yamop *cle = NEXTOP(PredLogUpdClauseErase->CodeOfPred,apl);
+  yamop *cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,Otapl);
+  yamop *cl = NEXTOP(PredLogUpdClause->CodeOfPred,Otapl);
+  yamop *cle = NEXTOP(PredLogUpdClauseErase->CodeOfPred,Otapl);
   UInt ar = ap->ArityOfPE;
   UInt *arp, *top, *base;
   LogUpdClause *lcl;
@@ -5398,7 +5400,7 @@ Yap_UpdateTimestamps(PredEntry *ap)
     case _trust_logical:
     case _count_trust_logical:
     case _profiled_trust_logical:
-      if (bptr->cp_ap->u.aLl.d->ClPred == ap) {
+      if (bptr->cp_ap->u.OtaLl.d->ClPred == ap) {
 	UInt ts = IntegerOfTerm(bptr->cp_args[ar]);
 	if (ts != arp[0]) {
 	  if (arp-H < 1024) {
@@ -5462,7 +5464,7 @@ Yap_UpdateTimestamps(PredEntry *ap)
     case _trust_logical:
     case _count_trust_logical:
     case _profiled_trust_logical:
-      if (bptr->cp_ap->u.aLl.d->ClPred == ap) {
+      if (bptr->cp_ap->u.OtaLl.d->ClPred == ap) {
 	UInt ts = IntegerOfTerm(bptr->cp_args[ar]);
 	while (ts != arp[0])
 	  arp--;
@@ -5504,7 +5506,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
   Terms[0] = th;
   Terms[1] = tb;
   Terms[2] = tr;
-  cl = (StaticClause *)Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredStaticClause->CodeOfPred,apl), cp_ptr);
+  cl = (StaticClause *)Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredStaticClause->CodeOfPred,Otapl), cp_ptr);
   UNLOCK(pe->PELock);
   th = Terms[0];
   tb = Terms[1];
@@ -6026,7 +6028,7 @@ p_env_info(void)
   env_b = MkIntegerTerm((Int)(LCL0-(CELL *)env[E_CB]));
   env_cp = (yamop *)env[E_CP];
   
-  pe = PREVOP(env_cp,sbpp)->u.sbpp.p0;
+  pe = PREVOP(env_cp,Osbpp)->u.Osbpp.p0;
   taddr = MkIntegerTerm((Int)env);
   return Yap_unify(ARG3,MkIntegerTerm((Int)env_cp)) &&
     Yap_unify(ARG2, taddr) &&
@@ -6039,7 +6041,7 @@ p_cpc_info(void)
   PredEntry *pe;
   yamop *ipc = (yamop *)IntegerOfTerm(Deref(ARG1));
 
-  pe = PREVOP(ipc,sbpp)->u.sbpp.p0;
+  pe = PREVOP(ipc,Osbpp)->u.Osbpp.p0;
   return UnifyPredInfo(pe, 2) &&
     Yap_unify(ARG5,MkIntegerTerm(ClauseId(ipc,pe)));
 }
@@ -6119,12 +6121,12 @@ p_choicepoint_info(void)
     case _count_trust_logical:
     case _profiled_retry_logical:
     case _profiled_trust_logical:
-      ncl = ipc->u.aLl.d->ClCode;
-      pe = ipc->u.aLl.d->ClPred;
+      ncl = ipc->u.OtaLl.d->ClCode;
+      pe = ipc->u.OtaLl.d->ClPred;
       t = BuildActivePred(pe, cptr->cp_args);
       break;
     case _or_else:
-      pe = ipc->u.sblp.p0;
+      pe = ipc->u.Osblp.p0;
       ncl = ipc;
       t = Yap_MkNewApplTerm(FunctorOr, 2);
       break;
@@ -6140,7 +6142,7 @@ p_choicepoint_info(void)
       t = TermNil;
       ipc = NEXTOP(ipc,l);
       if (!ncl)
-	ncl = ipc->u.apl.d;
+	ncl = ipc->u.Otapl.d;
       go_on = TRUE;
       break;
     case _jump:
@@ -6151,15 +6153,15 @@ p_choicepoint_info(void)
       break;
     case _retry_c:
     case _retry_userc:
-      ncl = NEXTOP(ipc,apFs);
-      pe = ipc->u.apFs.p;
+      ncl = NEXTOP(ipc,OtapFs);
+      pe = ipc->u.OtapFs.p;
       t = BuildActivePred(pe, cptr->cp_args);
       break;
     case _retry_profiled:
     case _count_retry:
       pe = NULL;
       t = TermNil;
-      ncl = ipc->u.apl.d;
+      ncl = ipc->u.Otapl.d;
       ipc = NEXTOP(ipc,p);
       go_on = TRUE;
       break;
@@ -6174,8 +6176,8 @@ p_choicepoint_info(void)
     case _retry:
     case _trust:
       if (!ncl)
-	ncl = ipc->u.apl.d;
-      pe = ipc->u.apl.p;
+	ncl = ipc->u.Otapl.d;
+      pe = ipc->u.Otapl.p;
       t = BuildActivePred(pe, cptr->cp_args);
       break;
     case _Nstop:

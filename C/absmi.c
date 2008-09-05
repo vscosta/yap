@@ -917,7 +917,7 @@ Yap_absmi(int inp)
 *        Plain try - retry - trust instructions                  *
 *****************************************************************/
       /* try_me    Label,NArgs */
-      Op(try_me, apl);
+      Op(try_me, Otapl);
       /* check if enough space between trail and codespace */
       check_trail(TR);
       /* I use YREG =to go through the choicepoint. Usually YREG =is in a
@@ -925,9 +925,9 @@ Yap_absmi(int inp)
        * new register to point at YREG =*/
       CACHE_Y(YREG);
       /* store arguments for procedure */
-      store_at_least_one_arg(PREG->u.apl.s);
+      store_at_least_one_arg(PREG->u.Otapl.s);
       /* store abstract machine registers */
-      store_yaam_regs(PREG->u.apl.d, 0);
+      store_yaam_regs(PREG->u.Otapl.d, 0);
       /* On a try_me, set cut to point at previous choicepoint,
        * that is, to the B before the cut.
        */
@@ -939,17 +939,17 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = NEXTOP(PREG, apl);
+      PREG = NEXTOP(PREG, Otapl);
       GONext();
       ENDOp();
 
       /* retry_me    Label,NArgs */
-      Op(retry_me, apl);
+      Op(retry_me, Otapl);
       CACHE_Y(B);
       /* After retry, cut should be pointing at the parent
        * choicepoint for the current B */
-      restore_yaam_regs(PREG->u.apl.d);
-      restore_at_least_one_arg(PREG->u.apl.s);
+      restore_yaam_regs(PREG->u.Otapl.d);
+      restore_at_least_one_arg(PREG->u.Otapl.s);
 #ifdef FROZEN_STACKS
       S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
@@ -958,17 +958,17 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = NEXTOP(PREG, apl);
+      PREG = NEXTOP(PREG, Otapl);
       GONext();
       ENDOp();
 
       /* trust_me    UnusedLabel,NArgs */
-      Op(trust_me, apl);
+      Op(trust_me, Otapl);
       CACHE_Y(B);
 #ifdef YAPOR
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_YREG);
-	restore_at_least_one_arg(PREG->u.apl.s);
+	restore_at_least_one_arg(PREG->u.Otapl.s);
 #ifdef FROZEN_STACKS
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
@@ -978,7 +978,7 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
       {
 	pop_yaam_regs();
-	pop_at_least_one_arg(PREG->u.apl.s);
+	pop_at_least_one_arg(PREG->u.Otapl.s);
 	/* After trust, cut should be pointing at the new top
 	 * choicepoint */
 #ifdef FROZEN_STACKS
@@ -986,7 +986,7 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B);
       }
-      PREG = NEXTOP(PREG, apl);
+      PREG = NEXTOP(PREG, Otapl);
       SET_BB(B_YREG);
       ENDCACHE_Y();
       GONext();
@@ -1027,15 +1027,15 @@ Yap_absmi(int inp)
       ENDOp();
 
       /* profiled_retry_me    Label,NArgs */
-      Op(profiled_retry_me, apl);
+      Op(profiled_retry_me, Otapl);
       CACHE_Y(B);
       /* After retry, cut should be pointing at the parent
        * choicepoint for the current B */
-      LOCK(PREG->u.apl.p->StatisticsForPred.lock);
-      PREG->u.apl.p->StatisticsForPred.NOfRetries++;
-      UNLOCK(PREG->u.apl.p->StatisticsForPred.lock);
-      restore_yaam_regs(PREG->u.apl.d);
-      restore_args(PREG->u.apl.s);
+      LOCK(PREG->u.Otapl.p->StatisticsForPred.lock);
+      PREG->u.Otapl.p->StatisticsForPred.NOfRetries++;
+      UNLOCK(PREG->u.Otapl.p->StatisticsForPred.lock);
+      restore_yaam_regs(PREG->u.Otapl.d);
+      restore_args(PREG->u.Otapl.s);
 #ifdef FROZEN_STACKS
       S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
@@ -1044,17 +1044,17 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = NEXTOP(PREG, apl);
+      PREG = NEXTOP(PREG, Otapl);
       GONext();
       ENDOp();
 
       /* profiled_trust_me    UnusedLabel,NArgs */
-      Op(profiled_trust_me, apl);
+      Op(profiled_trust_me, Otapl);
       CACHE_Y(B);
 #ifdef YAPOR
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_YREG);
-	restore_args(PREG->u.apl.s);
+	restore_args(PREG->u.Otapl.s);
 #ifdef FROZEN_STACKS
         S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
@@ -1064,7 +1064,7 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
       {
 	pop_yaam_regs();
-	pop_args(PREG->u.apl.s);
+	pop_args(PREG->u.Otapl.s);
 	/* After trust, cut should be pointing at the new top
 	 * choicepoint */
 #ifdef FROZEN_STACKS
@@ -1074,31 +1074,31 @@ Yap_absmi(int inp)
       }
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      LOCK(PREG->u.apl.p->StatisticsForPred.lock);
-      PREG->u.apl.p->StatisticsForPred.NOfRetries++;
-      UNLOCK(PREG->u.apl.p->StatisticsForPred.lock);
-      PREG = NEXTOP(PREG, apl);
+      LOCK(PREG->u.Otapl.p->StatisticsForPred.lock);
+      PREG->u.Otapl.p->StatisticsForPred.NOfRetries++;
+      UNLOCK(PREG->u.Otapl.p->StatisticsForPred.lock);
+      PREG = NEXTOP(PREG, Otapl);
       GONext();
       ENDOp();
 
-      BOp(profiled_retry_logical, aLl);
+      BOp(profiled_retry_logical, OtaLl);
       check_trail(TR);
       {
 	UInt timestamp;
 	CACHE_Y(B);
       
-	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.aLl.s]);
-	if (!VALID_TIMESTAMP(timestamp, PREG->u.aLl.d)) {
+	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.OtaLl.s]);
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.OtaLl.d)) {
 	  /* jump to next instruction */
-	  PREG=PREG->u.aLl.n;
+	  PREG=PREG->u.OtaLl.n;
 	  JMPNext();
 	}
-	restore_yaam_regs(PREG->u.aLl.n);
-	restore_args(PREG->u.aLl.s);
-	LOCK(PREG->u.aLl.d->ClPred->StatisticsForPred.lock);
-	PREG->u.aLl.d->ClPred->StatisticsForPred.NOfRetries++;
-	UNLOCK(PREG->u.aLl.d->ClPred->StatisticsForPred.lock);
-	PREG = PREG->u.aLl.d->ClCode;
+	restore_yaam_regs(PREG->u.OtaLl.n);
+	restore_args(PREG->u.OtaLl.s);
+	LOCK(PREG->u.OtaLl.d->ClPred->StatisticsForPred.lock);
+	PREG->u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++;
+	UNLOCK(PREG->u.OtaLl.d->ClPred->StatisticsForPred.lock);
+	PREG = PREG->u.OtaLl.d->ClCode;
 #ifdef FROZEN_STACKS
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 	set_cut(S_YREG, B->cp_b);
@@ -1111,12 +1111,12 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(profiled_trust_logical, ILl);
+      BOp(profiled_trust_logical, OtILl);
       CACHE_Y(B);
       {
-	LogUpdIndex *cl = PREG->u.ILl.block;
+	LogUpdIndex *cl = PREG->u.OtILl.block;
 	PredEntry *ap = cl->ClPred;
-	LogUpdClause *lcl = PREG->u.ILl.d;
+	LogUpdClause *lcl = PREG->u.OtILl.d;
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
 	if (!VALID_TIMESTAMP(timestamp, lcl)) {
@@ -1292,13 +1292,13 @@ Yap_absmi(int inp)
       ENDOp();
 
       /* count_retry_me    Label,NArgs */
-      Op(count_retry_me, apl);
+      Op(count_retry_me, Otapl);
       CACHE_Y(B);
       /* After retry, cut should be pointing at the parent
        * choicepoint for the current B */
-      LOCK(((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.lock);
+      LOCK(((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.lock);
+      ((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.lock);
       RetriesCounter--;
       if (RetriesCounter == 0 && RetriesCounterOn) {
 	saveregs();
@@ -1313,8 +1313,8 @@ Yap_absmi(int inp)
 	setregs();
 	JMPNext();
       } 
-      restore_yaam_regs(PREG->u.apl.d);
-      restore_args(PREG->u.apl.s);
+      restore_yaam_regs(PREG->u.Otapl.d);
+      restore_args(PREG->u.Otapl.s);
 #ifdef FROZEN_STACKS
       S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
@@ -1323,17 +1323,17 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = NEXTOP(PREG, apl);
+      PREG = NEXTOP(PREG, Otapl);
       GONext();
       ENDOp();
 
       /* count_trust_me    UnusedLabel,NArgs */
-      Op(count_trust_me, apl);
+      Op(count_trust_me, Otapl);
       CACHE_Y(B);
 #ifdef YAPOR
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_YREG);
-	restore_args(PREG->u.apl.s);
+	restore_args(PREG->u.Otapl.s);
 #ifdef FROZEN_STACKS
         S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
@@ -1343,7 +1343,7 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
       {
 	pop_yaam_regs();
-	pop_args(PREG->u.apl.s);
+	pop_args(PREG->u.Otapl.s);
 	/* After trust, cut should be pointing at the new top
 	 * choicepoint */
 #ifdef FROZEN_STACKS
@@ -1367,27 +1367,27 @@ Yap_absmi(int inp)
 	setregs();
 	JMPNext();
       } 
-      LOCK(((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.lock);
-      PREG = NEXTOP(PREG, apl);
+      LOCK(((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.lock);
+      ((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.lock);
+      PREG = NEXTOP(PREG, Otapl);
       GONext();
       ENDOp();
 
-      BOp(count_retry_logical, aLl);
+      BOp(count_retry_logical, OtaLl);
       check_trail(TR);
       {
 	UInt timestamp;
 	CACHE_Y(B);
       
-	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.aLl.s]);
-	if (!VALID_TIMESTAMP(timestamp, PREG->u.aLl.d)) {
+	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.OtaLl.s]);
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.OtaLl.d)) {
 	  /* jump to next instruction */
-	  PREG=PREG->u.aLl.n;
+	  PREG=PREG->u.OtaLl.n;
 	  JMPNext();
 	}
-	restore_yaam_regs(PREG->u.aLl.n);
-	restore_args(PREG->u.aLl.s);
+	restore_yaam_regs(PREG->u.OtaLl.n);
+	restore_args(PREG->u.OtaLl.s);
 	RetriesCounter--;
 	if (RetriesCounter == 0) {
 	  saveregs();
@@ -1402,10 +1402,10 @@ Yap_absmi(int inp)
 	  setregs();
 	  JMPNext();
 	} 
-	LOCK(PREG->u.aLl.d->ClPred->StatisticsForPred.lock);
-	PREG->u.aLl.d->ClPred->StatisticsForPred.NOfRetries++;
-	UNLOCK(PREG->u.aLl.d->ClPred->StatisticsForPred.lock);
-	PREG = PREG->u.aLl.d->ClCode;
+	LOCK(PREG->u.OtaLl.d->ClPred->StatisticsForPred.lock);
+	PREG->u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++;
+	UNLOCK(PREG->u.OtaLl.d->ClPred->StatisticsForPred.lock);
+	PREG = PREG->u.OtaLl.d->ClCode;
 #ifdef FROZEN_STACKS
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 	set_cut(S_YREG, B->cp_b);
@@ -1418,12 +1418,12 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(count_trust_logical, ILl);
+      BOp(count_trust_logical, OtILl);
       CACHE_Y(B);
       {
-	LogUpdIndex *cl = PREG->u.ILl.block;
+	LogUpdIndex *cl = PREG->u.OtILl.block;
 	PredEntry *ap = cl->ClPred;
-	LogUpdClause *lcl = PREG->u.ILl.d;
+	LogUpdClause *lcl = PREG->u.OtILl.d;
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
 	if (!VALID_TIMESTAMP(timestamp, lcl)) {
@@ -1728,48 +1728,48 @@ Yap_absmi(int inp)
 *****************************************************************/
 
       /* spy_or_trymark                   */
-      BOp(spy_or_trymark, apl);
-      LOCK(((PredEntry *)(PREG->u.apl.p))->PELock);
-      PREG = (yamop *)(&(((PredEntry *)(PREG->u.apl.p))->OpcodeOfPred));
-      UNLOCK(((PredEntry *)(PREG->u.apl.p))->PELock);
+      BOp(spy_or_trymark, Otapl);
+      LOCK(((PredEntry *)(PREG->u.Otapl.p))->PELock);
+      PREG = (yamop *)(&(((PredEntry *)(PREG->u.Otapl.p))->OpcodeOfPred));
+      UNLOCK(((PredEntry *)(PREG->u.Otapl.p))->PELock);
       goto dospy;
       ENDBOp();
 
       /* try_and_mark   Label,NArgs       */
-      BOp(try_and_mark, apl);
+      BOp(try_and_mark, Otapl);
       check_trail(TR);
 #if defined(YAPOR) || defined(THREADS)
 #ifdef YAPOR
       /* The flags I check here should never change during execution */
       CUT_wait_leftmost();
 #endif /* YAPOR */
-      if (PREG->u.apl.p->PredFlags & LogUpdatePredFlag) {
-	LOCK(PREG->u.apl.p->PELock);
-	PP = PREG->u.apl.p;
+      if (PREG->u.Otapl.p->PredFlags & LogUpdatePredFlag) {
+	LOCK(PREG->u.Otapl.p->PELock);
+	PP = PREG->u.Otapl.p;
       }
-      if (PREG->u.apl.p->CodeOfPred != PREG) {
+      if (PREG->u.Otapl.p->CodeOfPred != PREG) {
 	/* oops, someone changed the procedure under our feet,
 	   fortunately this is no big deal because we haven't done
 	   anything yet */
 	PP = NULL;
-	PREG = PREG->u.apl.p->CodeOfPred;
-	UNLOCK(PREG->u.apl.p->PELock);
+	PREG = PREG->u.Otapl.p->CodeOfPred;
+	UNLOCK(PREG->u.Otapl.p->PELock);
 	/* for profiler */
 	save_pc();
 	JMPNext();
       }
 #endif
       CACHE_Y(YREG);
-      PREG = PREG->u.apl.d;
+      PREG = PREG->u.Otapl.d;
       /*
 	I've got a read lock on the DB, so I don't need to care...
 	 niaaahh.... niahhhh...
       */
       LOCK(DynamicLock(PREG));
       /* one can now mess around with the predicate */
-      UNLOCK(((PredEntry *)(PREG->u.apl.p))->PELock);
+      UNLOCK(((PredEntry *)(PREG->u.Otapl.p))->PELock);
       BEGD(d1);
-      d1 = PREG->u.apl.s;
+      d1 = PREG->u.Otapl.s;
       store_args(d1);
       store_yaam_regs(PREG, 0);
       ENDD(d1);
@@ -1791,12 +1791,12 @@ Yap_absmi(int inp)
 	TRAIL_CLREF(ClauseCodeToDynamicClause(PREG));
       }
 #endif
-      PREG = NEXTOP(PREG,apl);
+      PREG = NEXTOP(PREG,Otapl);
       JMPNext();
 
       ENDBOp();
 
-      BOp(count_retry_and_mark, apl);
+      BOp(count_retry_and_mark, Otapl);
       RetriesCounter--;
       if (RetriesCounter == 0) {
 	saveregs();
@@ -1814,26 +1814,26 @@ Yap_absmi(int inp)
       /* enter a retry dynamic */
       ENDBOp();
 
-      BOp(profiled_retry_and_mark, apl);
-      LOCK(((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->u.apl.p))->StatisticsForPred.lock);
+      BOp(profiled_retry_and_mark, Otapl);
+      LOCK(((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.lock);
+      ((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.lock);
       /* enter a retry dynamic */
       ENDBOp();
 
       /* retry_and_mark   Label,NArgs     */
-      BOp(retry_and_mark, apl);
+      BOp(retry_and_mark, Otapl);
 #ifdef YAPOR
       CUT_wait_leftmost();
 #endif /* YAPOR */
       /* need to make the DB stable until I get the new clause */
-      LOCK(PREG->u.apl.p->PELock);
+      LOCK(PREG->u.Otapl.p->PELock);
       CACHE_Y(B);
-      PREG = PREG->u.apl.d;
+      PREG = PREG->u.Otapl.d;
       LOCK(DynamicLock(PREG));
-      UNLOCK(PREG->u.apl.p->PELock);
+      UNLOCK(PREG->u.Otapl.p->PELock);
       restore_yaam_regs(PREG);
-      restore_args(PREG->u.apl.s);
+      restore_args(PREG->u.Otapl.s);
 #ifdef FROZEN_STACKS
       S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
@@ -1853,7 +1853,7 @@ Yap_absmi(int inp)
 	TRAIL_CLREF(ClauseCodeToDynamicClause(PREG));
       }
 #endif
-      PREG = NEXTOP(PREG, apl);
+      PREG = NEXTOP(PREG, Otapl);
       JMPNext();
 
       ENDBOp();
@@ -1979,7 +1979,7 @@ Yap_absmi(int inp)
 		break;
 	      case _retry_c:
 	      case _retry_userc:
-		low_level_trace(retry_pred, ipc->u.apFs.p, B->cp_args);
+		low_level_trace(retry_pred, ipc->u.OtapFs.p, B->cp_args);
 		break;
 	      case _retry_profiled:
 	      case _count_retry:
@@ -1996,7 +1996,7 @@ Yap_absmi(int inp)
 	      case _profiled_retry_and_mark:
 	      case _retry:
 	      case _trust:
-		low_level_trace(retry_pred, ipc->u.apl.p, B->cp_args);
+		low_level_trace(retry_pred, ipc->u.Otapl.p, B->cp_args);
 		break;
 	      case _try_logical:
 	      case _retry_logical:
@@ -2005,7 +2005,7 @@ Yap_absmi(int inp)
 	      case _trust_logical:
 	      case _profiled_trust_logical:
 	      case _count_trust_logical:
-		low_level_trace(retry_pred, ipc->u.ILl.d->ClPred, B->cp_args);
+		low_level_trace(retry_pred, ipc->u.OtILl.d->ClPred, B->cp_args);
 		break;
 	      case _Nstop:
 	      case _Ystop:
@@ -2378,7 +2378,7 @@ Yap_absmi(int inp)
     do_commit_b_x:
 #endif
       /* skip a void call and a label */
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xp),sbpp),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xp),Osbpp),l);
       {
 	choiceptr pt0;
 #if defined(SBA) && defined(FROZEN_STACKS)
@@ -2424,7 +2424,7 @@ Yap_absmi(int inp)
       ENDCACHE_Y_AS_ENV();
     do_commit_b_y:
 #endif
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yp),sbpp),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yp),Osbpp),l);
       {
 	choiceptr pt0;
 #if defined(SBA) && defined(FROZEN_STACKS)
@@ -2581,7 +2581,7 @@ Yap_absmi(int inp)
       ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
-      BOp(fcall, sbpp);
+      BOp(fcall, Osbpp);
       CACHE_Y_AS_ENV(YREG);
       ENV_YREG[E_CP] = (CELL) CPREG;
       ENV_YREG[E_E] = (CELL) ENV;
@@ -2591,24 +2591,24 @@ Yap_absmi(int inp)
       ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
-      BOp(call, sbpp);
+      BOp(call, Osbpp);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	low_level_trace(enter_pred,PREG->u.sbpp.p,XREGS+1);
+	low_level_trace(enter_pred,PREG->u.Osbpp.p,XREGS+1);
       }
 #endif	/* LOW_LEVEL_TRACER */
       CACHE_Y_AS_ENV(YREG);
       {
 	PredEntry *pt;
-	pt = PREG->u.sbpp.p;
+	pt = PREG->u.Osbpp.p;
 	CACHE_A1();
 #ifndef NO_CHECKING
 	check_stack(NoStackCall, H);
 #endif
 	ENV = ENV_YREG;
 	/* Try to preserve the environment */
-	ENV_YREG = (CELL *) (((char *) ENV_YREG) + PREG->u.sbpp.s);
-	CPREG = NEXTOP(PREG, sbpp);
+	ENV_YREG = (CELL *) (((char *) ENV_YREG) + PREG->u.Osbpp.s);
+	CPREG = NEXTOP(PREG, Osbpp);
 	ALWAYS_LOOKAHEAD(pt->OpcodeOfPred);
 	PREG = pt->CodeOfPred;
 	/* for profiler */
@@ -2650,16 +2650,16 @@ Yap_absmi(int inp)
       ENDBOp();
 
     NoStackCall:
-      PP = PREG->u.sbpp.p0;
+      PP = PREG->u.Osbpp.p0;
       /* on X86 machines S will not actually be holding the pointer to pred */
       if (ActiveSignals & YAP_CREEP_SIGNAL) {
-	PredEntry *ap = PREG->u.sbpp.p;
+	PredEntry *ap = PREG->u.Osbpp.p;
 	SREG = (CELL *) ap;
 	goto creepc;
       }
-      SREG = (CELL *) PREG->u.sbpp.p;
+      SREG = (CELL *) PREG->u.Osbpp.p;
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
-	ASP = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
+	ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	goto noheapleft;
@@ -2667,11 +2667,11 @@ Yap_absmi(int inp)
       if (ActiveSignals) {
 	goto creepc;
       }
-      ASP = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
+      ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
       if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
       saveregs();
-      if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, YREG, NEXTOP(PREG, sbpp))) {
+      if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, YREG, NEXTOP(PREG, Osbpp))) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
       }
       setregs();
@@ -2789,14 +2789,14 @@ Yap_absmi(int inp)
 
       /* don't forget I cannot creep at ; */
     NoStackEither:
-      PP = PREG->u.sblp.p0;
+      PP = PREG->u.Osblp.p0;
       if (ActiveSignals & YAP_CREEP_SIGNAL) {
 	goto either_notest;
       }
       /* find something to fool S */
       SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,1),0));
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
-	ASP = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
+	ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	goto noheapleft;
@@ -2804,11 +2804,11 @@ Yap_absmi(int inp)
       if (ActiveSignals) {
 	goto creep_either;
       }
-      ASP = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
+      ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
       if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
       saveregs();
-      if (!Yap_gc(0, YREG, NEXTOP(PREG, sbpp))) {
+      if (!Yap_gc(0, YREG, NEXTOP(PREG, Osbpp))) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
       }
       setregs();
@@ -2816,8 +2816,8 @@ Yap_absmi(int inp)
 
     creep_either:			/* do creep in either      */
       ENV = YREG;
-      CPREG = NEXTOP(PREG, sbpp);
-      YREG = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
+      CPREG = NEXTOP(PREG, Osbpp);
+      YREG = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -2842,8 +2842,8 @@ Yap_absmi(int inp)
 
     creepc:			/* do creep in call                                     */
       ENV = YREG;
-      CPREG = NEXTOP(PREG, sbpp);
-      YREG = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
+      CPREG = NEXTOP(PREG, Osbpp);
+      YREG = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -7169,7 +7169,7 @@ Yap_absmi(int inp)
 	 was interrupted when waking up goals
       */	 
       BOp(move_back, l);
-      PREG = (yamop *)(((char *)PREG)-(Int)(NEXTOP((yamop *)NULL,sbpp)));
+      PREG = (yamop *)(((char *)PREG)-(Int)(NEXTOP((yamop *)NULL,Osbpp)));
       JMPNext();
       ENDBOp();
 
@@ -7181,7 +7181,7 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      Op(either, sblp);
+      Op(either, Osblp);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	low_level_trace(try_or, (PredEntry *)PREG, NULL);
@@ -7195,7 +7195,7 @@ Yap_absmi(int inp)
 #endif
       BEGD(d0);
       /* Try to preserve the environment */
-      d0 = PREG->u.sblp.s;
+      d0 = PREG->u.Osblp.s;
       BEGCHO(pt1);
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0);
 #ifdef FROZEN_STACKS
@@ -7214,7 +7214,7 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
       pt1 = (choiceptr)(((CELL *) pt1)-1);
       *(CELL **) pt1 = YREG;
-      store_yaam_regs_for_either(PREG->u.sblp.l, PREG);
+      store_yaam_regs_for_either(PREG->u.Osblp.l, PREG);
       SREG = (CELL *) (B = pt1);
 #ifdef YAPOR
       SCH_set_load(pt1);
@@ -7222,12 +7222,12 @@ Yap_absmi(int inp)
       SET_BB(pt1);
       ENDCHO(pt1);
       /* skip the current instruction plus the next one */
-      PREG = NEXTOP(NEXTOP(PREG, sblp),l);
+      PREG = NEXTOP(NEXTOP(PREG, Osblp),l);
       GONext();
       ENDD(d0);
       ENDOp();
 
-      Op(or_else, sblp);
+      Op(or_else, Osblp);
       H = HBREG = PROTECT_FROZEN_H(B);
       ENV = B->cp_env;
       B->cp_cp = PREG;
@@ -7237,17 +7237,17 @@ Yap_absmi(int inp)
       SET_BB(PROTECT_FROZEN_B(B));
 #ifdef YAPOR
       if (SCH_top_shared_cp(B)) {
-	SCH_new_alternative(PREG, PREG->u.sblp.l);
+	SCH_new_alternative(PREG, PREG->u.Osblp.l);
       } else
 #endif	/* YAPOR */
-      B->cp_ap = PREG->u.sblp.l;
-      PREG = NEXTOP(PREG, sblp);
+      B->cp_ap = PREG->u.Osblp.l;
+      PREG = NEXTOP(PREG, Osblp);
       YREG = (CELL *) B->cp_a1;
       GONext();
       ENDOp();
 
 #ifdef YAPOR
-      Op(or_last, sblp);
+      Op(or_last, Osblp);
 #else
       Op(or_last, p);
 #endif	/* YAPOR */
@@ -7276,7 +7276,7 @@ Yap_absmi(int inp)
 	HBREG = PROTECT_FROZEN_H(B);
       }
 #ifdef YAPOR
-      PREG = NEXTOP(PREG, sblp);
+      PREG = NEXTOP(PREG, Osblp);
 #else
       PREG = NEXTOP(PREG, p);
 #endif	/* YAPOR */
@@ -7340,9 +7340,9 @@ Yap_absmi(int inp)
 *	Call C predicates instructions					 *
 \************************************************************************/
 
-      BOp(call_cpred, sbpp);
+      BOp(call_cpred, Osbpp);
      
-      if (!(PREG->u.sbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) {
+      if (!(PREG->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) {
 	CACHE_Y_AS_ENV(YREG);
 	check_stack(NoStackCall, H);
 	ENDCACHE_Y_AS_ENV();
@@ -7356,23 +7356,23 @@ Yap_absmi(int inp)
 #else
 	if (YREG > (CELL *) top_b) ASP = (CELL *)top_b;
 #endif /* SBA */
-	else ASP = (CELL *)(((char *)YREG) +  PREG->u.sbpp.s);
+	else ASP = (CELL *)(((char *)YREG) +  PREG->u.Osbpp.s);
       }
 #else
       if (YREG > (CELL *) B) {
 	ASP = (CELL *) B;
       } else {
-	ASP = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
+	ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
       }
       /* for slots to work */
 #endif /* FROZEN_STACKS */
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
-	low_level_trace(enter_pred,PREG->u.sbpp.p,XREGS+1);
+	low_level_trace(enter_pred,PREG->u.Osbpp.p,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
-      CPredicate f = PREG->u.sbpp.p->cs.f_code;
-      PREG = NEXTOP(PREG, sbpp);
+      CPredicate f = PREG->u.Osbpp.p->cs.f_code;
+      PREG = NEXTOP(PREG, Osbpp);
       saveregs();
       d0 = (f)();
       setregs();
@@ -7473,7 +7473,7 @@ Yap_absmi(int inp)
       /* trust the C-function we are calling and hence we must */
       /* guarantee that *all* machine registers are saved and */
       /* restored */
-      BOp(call_usercpred, sbpp);
+      BOp(call_usercpred, Osbpp);
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCall, H);
       ENDCACHE_Y_AS_ENV();
@@ -7485,25 +7485,25 @@ Yap_absmi(int inp)
 #else
 	if (YREG > (CELL *) top_b) ASP = (CELL *) top_b;
 #endif /* SBA */
-	else ASP = (CELL *)(((char *)YREG) +  PREG->u.sbpp.s);
+	else ASP = (CELL *)(((char *)YREG) +  PREG->u.Osbpp.s);
       }
 #else
       if (YREG > (CELL *) B)
 	ASP = (CELL *) B;
       else {
-	ASP = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
+	ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
       }
       /* for slots to work */
       Yap_StartSlots();
       Yap_PrologMode = UserCCallMode;
 #endif /* FROZEN_STACKS */
       {
-	PredEntry *p = PREG->u.sbpp.p;
+	PredEntry *p = PREG->u.Osbpp.p;
 #ifdef LOW_LEVEL_TRACER
 	if (Yap_do_low_level_trace)
 	  low_level_trace(enter_pred,p,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
-	PREG = NEXTOP(PREG, sbpp);
+	PREG = NEXTOP(PREG, Osbpp);
 	saveregs();
 	save_machine_regs();
 
@@ -7560,18 +7560,18 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(try_c, apFs);
+      BOp(try_c, OtapFs);
 #ifdef YAPOR
       CUT_wait_leftmost();
 #endif /* YAPOR */
       CACHE_Y(YREG);
 #ifdef CUT_C
       /* Alocate space for the cut_c structure*/
-      CUT_C_PUSH(NEXTOP(NEXTOP(PREG,apFs),apFs),S_YREG);
+      CUT_C_PUSH(NEXTOP(NEXTOP(PREG,OtapFs),OtapFs),S_YREG);
 #endif  
-      S_YREG = S_YREG - PREG->u.apFs.extra;
-      store_args(PREG->u.apFs.s);
-      store_yaam_regs(NEXTOP(PREG, apFs), 0);
+      S_YREG = S_YREG - PREG->u.OtapFs.extra;
+      store_args(PREG->u.OtapFs.s);
+      store_yaam_regs(NEXTOP(PREG, OtapFs), 0);
       B = B_YREG;
 #ifdef YAPOR
       SCH_set_load(B_YREG);
@@ -7582,7 +7582,7 @@ Yap_absmi(int inp)
     TRYCC:
       ASP = (CELL *)B;
       {
-	CPredicate f = (CPredicate)(PREG->u.apFs.f);
+	CPredicate f = (CPredicate)(PREG->u.OtapFs.f);
 	saveregs();
 	SREG = (CELL *) ((f) ());
 	/* This last instruction changes B B*/
@@ -7616,7 +7616,7 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(retry_c, apFs);
+      BOp(retry_c, OtapFs);
 #ifdef YAPOR
       CUT_wait_leftmost();
 #endif /* YAPOR */
@@ -7628,13 +7628,13 @@ Yap_absmi(int inp)
       DEPTH =B->cp_depth;
 #endif
       HBREG = H;
-      restore_args(PREG->u.apFs.s);
+      restore_args(PREG->u.OtapFs.s);
       ENDCACHE_Y();
       goto TRYCC;
       ENDBOp();
 
 #ifdef CUT_C
-      BOp(cut_c, apFs);
+      BOp(cut_c, OtapFs);
       /*This is a phantom instruction. This is not executed by the WAM*/
 #ifdef DEBUG
       /*If WAM executes this instruction, probably there's an error
@@ -7644,18 +7644,18 @@ Yap_absmi(int inp)
       ENDBOp();
 #endif
 
-      BOp(try_userc, apFs);
+      BOp(try_userc, OtapFs);
 #ifdef YAPOR
       CUT_wait_leftmost();
 #endif /* YAPOR */
       CACHE_Y(YREG);
 #ifdef CUT_C
       /* Alocate space for the cut_c structure*/
-      CUT_C_PUSH(NEXTOP(NEXTOP(PREG,apFs),apFs),S_YREG);
+      CUT_C_PUSH(NEXTOP(NEXTOP(PREG,OtapFs),OtapFs),S_YREG);
 #endif
-      S_YREG = S_YREG - PREG->u.apFs.extra;
-      store_args(PREG->u.apFs.s);
-      store_yaam_regs(NEXTOP(PREG, apFs), 0);
+      S_YREG = S_YREG - PREG->u.OtapFs.extra;
+      store_args(PREG->u.OtapFs.s);
+      store_yaam_regs(NEXTOP(PREG, OtapFs), 0);
       B = B_YREG;
 #ifdef YAPOR
       SCH_set_load(B_YREG);
@@ -7668,7 +7668,7 @@ Yap_absmi(int inp)
       ASP = YENV;
       saveregs();
       save_machine_regs();
-      SREG = (CELL *) YAP_Execute(PREG->u.apFs.p, (CPredicate)(PREG->u.apFs.f));
+      SREG = (CELL *) YAP_Execute(PREG->u.OtapFs.p, (CPredicate)(PREG->u.OtapFs.f));
       EX = 0L;
       restore_machine_regs();
       setregs();
@@ -7696,7 +7696,7 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(retry_userc, apFs);
+      BOp(retry_userc, OtapFs);
 #ifdef YAPOR
       CUT_wait_leftmost();
 #endif /* YAPOR */
@@ -7708,13 +7708,13 @@ Yap_absmi(int inp)
       DEPTH =B->cp_depth;
 #endif
       HBREG = H;
-      restore_args(PREG->u.apFs.s);
+      restore_args(PREG->u.OtapFs.s);
       ENDCACHE_Y();
       goto TRYUSERCC;
       ENDBOp();
 
 #ifdef CUT_C
-      BOp(cut_userc, apFs);
+      BOp(cut_userc, OtapFs);
       /*This is a phantom instruction. This is not executed by the WAM*/
 #ifdef DEBUG
       /*If WAM executes this instruction, probably there's an error
@@ -8052,13 +8052,13 @@ Yap_absmi(int inp)
 * 	Try / Retry / Trust for main indexing blocks			*
 \************************************************************************/
 
-      BOp(try_clause, apl);
+      BOp(try_clause, Otapl);
       check_trail(TR);
       CACHE_Y(YREG);
       /* Point AP to the code that follows this instruction */
-      store_at_least_one_arg(PREG->u.apl.s);
-      store_yaam_regs(NEXTOP(PREG, apl), 0);
-      PREG = PREG->u.apl.d;
+      store_at_least_one_arg(PREG->u.Otapl.s);
+      store_yaam_regs(NEXTOP(PREG, Otapl), 0);
+      PREG = PREG->u.Otapl.d;
       set_cut(S_YREG, B);
       B = B_YREG;
 #ifdef YAPOR
@@ -8135,10 +8135,10 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(retry, apl);
+      BOp(retry, Otapl);
       CACHE_Y(B);
-      restore_yaam_regs(NEXTOP(PREG, apl));
-      restore_at_least_one_arg(PREG->u.apl.s);
+      restore_yaam_regs(NEXTOP(PREG, Otapl));
+      restore_at_least_one_arg(PREG->u.Otapl.s);
 #ifdef FROZEN_STACKS
       S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
@@ -8147,7 +8147,7 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = PREG->u.apl.d;
+      PREG = PREG->u.Otapl.d;
       JMPNext();
       ENDBOp();
 
@@ -8205,12 +8205,12 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(trust, apl);
+      BOp(trust, Otapl);
       CACHE_Y(B);
 #ifdef YAPOR
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_YREG);
-	restore_at_least_one_arg(PREG->u.apl.s);
+	restore_at_least_one_arg(PREG->u.Otapl.s);
 #ifdef FROZEN_STACKS
         S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
@@ -8220,7 +8220,7 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
       {
 	pop_yaam_regs();
-	pop_at_least_one_arg(PREG->u.apl.s);
+	pop_at_least_one_arg(PREG->u.Otapl.s);
 #ifdef FROZEN_STACKS
         S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
@@ -8228,7 +8228,7 @@ Yap_absmi(int inp)
       }
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = PREG->u.apl.d;
+      PREG = PREG->u.Otapl.d;
       JMPNext();
       ENDBOp();
 
@@ -8281,7 +8281,7 @@ Yap_absmi(int inp)
       GONext();
       ENDBOp();
 
-      BOp(try_logical, aLl);
+      BOp(try_logical, OtaLl);
       check_trail(TR);
       {
 	UInt timestamp;
@@ -8289,21 +8289,21 @@ Yap_absmi(int inp)
 	CACHE_Y(YREG);
 
 	timestamp = IntegerOfTerm(S_YREG[0]);
-	/* fprintf(stderr,"+ %p/%p %d %d %d--%u\n",PREG,PREG->u.aLl.d->ClPred,timestamp,PREG->u.aLl.d->ClPred->TimeStampOfPred,PREG->u.aLl.d->ClTimeStart,PREG->u.aLl.d->ClTimeEnd);*/
+	/* fprintf(stderr,"+ %p/%p %d %d %d--%u\n",PREG,PREG->u.OtaLl.d->ClPred,timestamp,PREG->u.OtaLl.d->ClPred->TimeStampOfPred,PREG->u.OtaLl.d->ClTimeStart,PREG->u.OtaLl.d->ClTimeEnd);*/
 	/* Point AP to the code that follows this instruction */
 	/* always do this, even if we are not going to use it */
-	store_args(PREG->u.aLl.s);
-	store_yaam_regs(PREG->u.aLl.n, 0);
+	store_args(PREG->u.OtaLl.s);
+	store_yaam_regs(PREG->u.OtaLl.n, 0);
 	set_cut(S_YREG, B);
 	B = B_YREG;
 #ifdef YAPOR
 	SCH_set_load(B_YREG);
 #endif	/* YAPOR */
-	if (!VALID_TIMESTAMP(timestamp, PREG->u.aLl.d)) {
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.OtaLl.d)) {
 	  /* jump to next alternative */
-	  PREG=PREG->u.aLl.n;
+	  PREG=PREG->u.OtaLl.n;
 	} else {
-	  PREG = PREG->u.aLl.d->ClCode;
+	  PREG = PREG->u.OtaLl.d->ClCode;
 	}
 	SET_BB(B_YREG);
 	ENDCACHE_Y();
@@ -8311,7 +8311,7 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(retry_logical, aLl);
+      BOp(retry_logical, OtaLl);
       check_trail(TR);
       {
 	UInt timestamp;
@@ -8319,20 +8319,20 @@ Yap_absmi(int inp)
       
 #if defined(YAPOR) || defined(THREADS)
 	if (!PP) {
-	  PP = PREG->u.aLl.d->ClPred;
+	  PP = PREG->u.OtaLl.d->ClPred;
 	  LOCK(PP->PELock);
 	}
 #endif
-	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.aLl.s]);
-	/* fprintf(stderr,"^ %p/%p %d %d %d--%u\n",PREG,PREG->u.aLl.d->ClPred,timestamp,PREG->u.aLl.d->ClPred->TimeStampOfPred,PREG->u.aLl.d->ClTimeStart,PREG->u.aLl.d->ClTimeEnd);*/
-	if (!VALID_TIMESTAMP(timestamp, PREG->u.aLl.d)) {
+	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.OtaLl.s]);
+	/* fprintf(stderr,"^ %p/%p %d %d %d--%u\n",PREG,PREG->u.OtaLl.d->ClPred,timestamp,PREG->u.OtaLl.d->ClPred->TimeStampOfPred,PREG->u.OtaLl.d->ClTimeStart,PREG->u.OtaLl.d->ClTimeEnd);*/
+	if (!VALID_TIMESTAMP(timestamp, PREG->u.OtaLl.d)) {
 	  /* jump to next instruction */
-	  PREG=PREG->u.aLl.n;
+	  PREG=PREG->u.OtaLl.n;
 	  JMPNext();
 	}
-	restore_yaam_regs(PREG->u.aLl.n);
-	restore_at_least_one_arg(PREG->u.aLl.s);
-	PREG = PREG->u.aLl.d->ClCode;
+	restore_yaam_regs(PREG->u.OtaLl.n);
+	restore_at_least_one_arg(PREG->u.OtaLl.s);
+	PREG = PREG->u.OtaLl.d->ClCode;
 #ifdef FROZEN_STACKS
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 	set_cut(S_YREG, B->cp_b);
@@ -8345,15 +8345,15 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(trust_logical, ILl);
+      BOp(trust_logical, OtILl);
       CACHE_Y(B);
       {
-	LogUpdIndex *cl = PREG->u.ILl.block;
+	LogUpdIndex *cl = PREG->u.OtILl.block;
 	PredEntry *ap = cl->ClPred;
-	LogUpdClause *lcl = PREG->u.ILl.d;
+	LogUpdClause *lcl = PREG->u.OtILl.d;
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
-	/* fprintf(stderr,"- %p/%p %d %d %p\n",PREG,ap,timestamp,ap->TimeStampOfPred,PREG->u.ILl.d->ClCode);*/
+	/* fprintf(stderr,"- %p/%p %d %d %p\n",PREG,ap,timestamp,ap->TimeStampOfPred,PREG->u.OtILl.d->ClCode);*/
 #if defined(YAPOR) || defined(THREADS)
 	if (!PP) {
 	  LOCK(ap->PELock);
@@ -12180,7 +12180,7 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	XREG(PREG->u.xxx.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),Osbpp),l);
 	GONext();
       }
       else if ((Int)d1 > 0) {
@@ -12203,7 +12203,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxx),sbpp))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxx),Osbpp))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -12222,11 +12222,11 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	XREG(PREG->u.xxx.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),Osbpp),l);
 	GONext();
       }	else if ((Int)d1  == 0) {
 	XREG(PREG->u.xxx.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),Osbpp),l);
 	GONext();
       }	else {
 	saveregs();
@@ -12294,7 +12294,7 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	XREG(PREG->u.xxn.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),Osbpp),l);
 	GONext();
       } else if ((Int)d1 > 0) {
 	/* now let's build a compound term */
@@ -12316,7 +12316,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxn),sbpp))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxn),Osbpp))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -12335,11 +12335,11 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	XREG(PREG->u.xxn.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),Osbpp),l);
 	GONext();
       }	else if (d1  == 0) {
 	XREG(PREG->u.xxn.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),Osbpp),l);
 	GONext();
       }	else {
 	saveregs();
@@ -12399,13 +12399,13 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	XREG(PREG->u.xxn.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),Osbpp),l);
 	GONext();
       }
       /* now let's build a compound term */
       if (d1 == 0) {
 	XREG(PREG->u.xxn.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),Osbpp),l);
 	GONext();
       }
       if (!IsAtomTerm(d0)) {
@@ -12426,7 +12426,7 @@ Yap_absmi(int inp)
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
-	if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxn),sbpp))) {
+	if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxn),Osbpp))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	  setregs();
 	  JMPNext();
@@ -12446,7 +12446,7 @@ Yap_absmi(int inp)
       /* else if arity is 0 just pass d0 through */
       /* Ding, ding, we made it */
       XREG(PREG->u.xxn.x) = d0;
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),sbpp),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),Osbpp),l);
       GONext();
 
       BEGP(pt1);
@@ -12505,7 +12505,7 @@ Yap_absmi(int inp)
 	H += 2;
 	BEGP(pt1);
 	pt1 = YREG + PREG->u.yxx.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),Osbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12533,7 +12533,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxx),sbpp))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxx),Osbpp))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -12553,7 +12553,7 @@ Yap_absmi(int inp)
 	/* Ding, ding, we made it */
 	BEGP(pt1);
 	pt1 = YREG + PREG->u.yxx.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),Osbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12564,7 +12564,7 @@ Yap_absmi(int inp)
       }	else if (d1  == 0) {
 	BEGP(pt1);
 	pt1 = YREG + PREG->u.yxx.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),Osbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12639,7 +12639,7 @@ Yap_absmi(int inp)
 	/* Ding, ding, we made it */
 	BEGP(pt1);
 	pt1 = YREG + PREG->u.yxn.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),Osbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12668,7 +12668,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),sbpp))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),Osbpp))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -12688,7 +12688,7 @@ Yap_absmi(int inp)
 	/* Ding, ding, we made it */
 	BEGP(pt1);
 	pt1 = YREG + PREG->u.yxn.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),Osbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12699,7 +12699,7 @@ Yap_absmi(int inp)
       }	else if (d1  == 0) {
 	BEGP(pt1);
 	pt1 = YREG + PREG->u.yxn.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),Osbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12766,7 +12766,7 @@ Yap_absmi(int inp)
 	/* Ding, ding, we made it */
 	BEGP(pt1);
 	pt1 = YREG + PREG->u.yxn.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),Osbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12778,7 +12778,7 @@ Yap_absmi(int inp)
       if (d1 == 0) {
 	BEGP(pt1);
 	pt1 = YREG + PREG->u.yxn.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),sbpp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),Osbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
@@ -12812,7 +12812,7 @@ Yap_absmi(int inp)
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
-	if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),sbpp))) {
+	if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),Osbpp))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	  setregs();
 	  JMPNext();
@@ -12832,7 +12832,7 @@ Yap_absmi(int inp)
       /* Ding, ding, we made it */
       BEGP(pt1);
       pt1 = YREG + PREG->u.yxn.y;
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),sbpp),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),Osbpp),l);
 #if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt1,d0);
 #else
@@ -13126,13 +13126,13 @@ Yap_absmi(int inp)
 	  FAIL();
 	}
 	/* Done */
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),sbmp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbmp),l);
 	GONext();
 
 	BEGP(pt0);
 	deref_body(d1, pt0, func_nvar3_unk, func_nvar3_nvar);
 	/* A3 is a variable, go and bind it */
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),sbmp),l);
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbmp),l);
 	BIND(pt0, d0, bind_func_nvar3_var);
 	/* Done */
 #ifdef COROUTINING
@@ -13202,7 +13202,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP(PREG,e),sbmp))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP(PREG,e),Osbmp))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -13226,7 +13226,7 @@ Yap_absmi(int inp)
       }
       /* else if arity is 0 just pass d0 through */
       /* Ding, ding, we made it */
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),sbpp),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbpp),l);
       BIND(pt0, d0, bind_func_var_3nvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
@@ -13258,7 +13258,7 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      BOp(p_execute2, sbpp);
+      BOp(p_execute2, Osbpp);
       { 
 	PredEntry *pen;
 	Term mod = ARG2;
@@ -13272,7 +13272,7 @@ Yap_absmi(int inp)
 	}
 	CACHE_Y_AS_ENV(YREG);
 	/* Try to preserve the environment */
-	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.sbpp.s);
+	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
 #ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -13328,7 +13328,7 @@ Yap_absmi(int inp)
 	      } else {
 		goto execute2_metacall;
 	      }
-	      ENV_YREG[E_CP] = (CELL)NEXTOP(PREG,sbpp);
+	      ENV_YREG[E_CP] = (CELL)NEXTOP(PREG,Osbpp);
 	      ENV_YREG[E_CB] = (CELL)B;
 	      ENV_YREG[E_E]  = (CELL)ENV;
 #ifdef DEPTH_LIMIT
@@ -13390,7 +13390,7 @@ Yap_absmi(int inp)
 #ifndef NO_CHECKING
 	check_stack(NoStackPExecute2, H);
 #endif
-	CPREG = NEXTOP(PREG, sbpp);
+	CPREG = NEXTOP(PREG, Osbpp);
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	PREG = pen->CodeOfPred;
 	/* for profiler */
@@ -13444,7 +13444,7 @@ Yap_absmi(int inp)
 	  goto creep_pe;
 	}
 	saveregs_and_ycache();
-	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sbpp))) {
+	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, Osbpp))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	}
 	setregs_and_ycache();
@@ -13462,14 +13462,14 @@ Yap_absmi(int inp)
       }
       ENDBOp();
 
-      BOp(p_execute, sbmp);
+      BOp(p_execute, Osbmp);
       { 
 	PredEntry *pen;
-	Term mod = PREG->u.sbmp.mod;
+	Term mod = PREG->u.Osbmp.mod;
 
 	CACHE_Y_AS_ENV(YREG);
 	/* Try to preserve the environment */
-	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.sbmp.s);
+	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.Osbmp.s);
 #ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -13525,7 +13525,7 @@ Yap_absmi(int inp)
 	      } else {
 		goto execute_metacall;
 	      }
-	      ENV_YREG[E_CP] = (CELL)NEXTOP(PREG,sbmp);
+	      ENV_YREG[E_CP] = (CELL)NEXTOP(PREG,Osbmp);
 	      ENV_YREG[E_CB] = (CELL)B;
 	      ENV_YREG[E_E]  = (CELL)ENV;
 #ifdef DEPTH_LIMIT
@@ -13587,7 +13587,7 @@ Yap_absmi(int inp)
 #ifndef NO_CHECKING
 	check_stack(NoStackPExecute, H);
 #endif
-	CPREG = NEXTOP(PREG, sbmp);
+	CPREG = NEXTOP(PREG, Osbmp);
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	PREG = pen->CodeOfPred;
 	/* for profiler */
@@ -13641,7 +13641,7 @@ Yap_absmi(int inp)
 	  goto creep_pe;
 	}
 	saveregs_and_ycache();
-	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sbmp))) {
+	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, Osbmp))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	}
 	setregs_and_ycache();
@@ -13651,10 +13651,10 @@ Yap_absmi(int inp)
       ENDBOp();
 
     creep_pe:			/* do creep in call                                     */
-      CPREG = NEXTOP(PREG, sbmp);
+      CPREG = NEXTOP(PREG, Osbmp);
       goto creep;
 
-      BOp(p_execute_tail, sbpp);
+      BOp(p_execute_tail, Osbpp);
       {
 	PredEntry *pen;
 	Term mod;
@@ -13727,7 +13727,7 @@ Yap_absmi(int inp)
 	    ENV = ENV_YREG;
 	    ENV_YREG -= EnvSizeInCells+3;
 	    d0 = SREG[1];
-	    CPREG = NEXTOP(COMMA_CODE,sbpp);
+	    CPREG = NEXTOP(COMMA_CODE,Osbpp);
 	  execute_comma_comma2:
 	    /* create an to execute the call */
 	    deref_head(d0, execute_comma_comma2_unk);
@@ -13953,7 +13953,7 @@ Yap_absmi(int inp)
 	}
 	UNLOCK(SignalLock);
 	saveregs();
-	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sbpp))) {
+	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, Osbpp))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	}
 	setregs();

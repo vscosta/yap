@@ -682,8 +682,8 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
   tab_ent_ptr tab_ent;
   sg_fr_ptr sg_fr;
 
-  arity = preg->u.apl.s;
-  tab_ent = preg->u.apl.te;
+  arity = preg->u.Otapl.s;
+  tab_ent = preg->u.Otapl.te;
   count_vars = 0;
   stack_vars = *Yaddr;
   stack_terms_limit = (CELL *)TR;

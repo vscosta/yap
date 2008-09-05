@@ -272,7 +272,7 @@
 
 
 
-  PBOp(table_load_answer, apl)
+  PBOp(table_load_answer, Otapl)
     CELL *subs_ptr;
     ans_node_ptr ans_node;
 
@@ -299,7 +299,7 @@
 
 
 
-  PBOp(table_try_answer, apl)
+  PBOp(table_try_answer, Otapl)
 #ifdef INCOMPLETE_TABLING
     sg_fr_ptr sg_fr;
     ans_node_ptr ans_node;
@@ -330,16 +330,16 @@
       PREG = SgFr_code(sg_fr);
       if (PREG->opc == Yap_opcode(_table_try)) {
 	/* table_try */
-	code_ap = NEXTOP(PREG,apl);
-	PREG = PREG->u.apl.d;
+	code_ap = NEXTOP(PREG,Otapl);
+	PREG = PREG->u.Otapl.d;
       } else if (PREG->opc == Yap_opcode(_table_try_single)) {
 	/* table_try_single */
 	code_ap = COMPLETION;
-	PREG = PREG->u.apl.d;
+	PREG = PREG->u.Otapl.d;
       } else {
 	/* table_try_me */
-	code_ap = PREG->u.apl.d;
-	PREG = NEXTOP(PREG,apl);
+	code_ap = PREG->u.Otapl.d;
+	PREG = NEXTOP(PREG,Otapl);
       }
       PREFETCH_OP(PREG);
       restore_generator_node(SgFr_arity(sg_fr), code_ap);
@@ -350,7 +350,7 @@
       GONext();
     }
 #else
-    PREG = PREG->u.apl.d;
+    PREG = PREG->u.Otapl.d;
     PREFETCH_OP(PREG);
     GONext();    
 #endif /* INCOMPLETE_TABLING */
@@ -358,12 +358,12 @@
 
 
 
-  PBOp(table_try_single, apl)
+  PBOp(table_try_single, Otapl)
     tab_ent_ptr tab_ent;
     sg_fr_ptr sg_fr;
 
     check_trail(TR);
-    tab_ent = PREG->u.apl.te;
+    tab_ent = PREG->u.Otapl.te;
     YENV2MEM;
     sg_fr = subgoal_search(PREG, YENV_ADDRESS);
     MEM2YENV;
@@ -372,8 +372,8 @@
       /* subgoal new */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
-      store_generator_node(tab_ent, sg_fr, PREG->u.apl.s, COMPLETION);
-      PREG = PREG->u.apl.d;  /* should work also with PREG = NEXTOP(PREG,apl); */
+      store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, COMPLETION);
+      PREG = PREG->u.Otapl.d;  /* should work also with PREG = NEXTOP(PREG,Otapl); */
       PREFETCH_OP(PREG);
       allocate_environment();
       GONext();
@@ -385,7 +385,7 @@
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
       SgFr_try_answer(sg_fr) = ans_node;
-      store_generator_node(tab_ent, sg_fr, PREG->u.apl.s, TRY_ANSWER);
+      store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
       PREG = (yamop *) CPREG;
       PREFETCH_OP(PREG);
       load_answer_trie(ans_node, subs_ptr);
@@ -467,12 +467,12 @@
 
 
 
-  PBOp(table_try_me, apl)
+  PBOp(table_try_me, Otapl)
     tab_ent_ptr tab_ent;
     sg_fr_ptr sg_fr;
 
     check_trail(TR);
-    tab_ent = PREG->u.apl.te;
+    tab_ent = PREG->u.Otapl.te;
     YENV2MEM;
     sg_fr = subgoal_search(PREG, YENV_ADDRESS);
     MEM2YENV;
@@ -481,8 +481,8 @@
       /* subgoal new */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
-      store_generator_node(tab_ent, sg_fr, PREG->u.apl.s, PREG->u.apl.d);
-      PREG = NEXTOP(PREG, apl);
+      store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, PREG->u.Otapl.d);
+      PREG = NEXTOP(PREG, Otapl);
       PREFETCH_OP(PREG);
       allocate_environment();
       GONext();
@@ -494,7 +494,7 @@
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
       SgFr_try_answer(sg_fr) = ans_node;
-      store_generator_node(tab_ent, sg_fr, PREG->u.apl.s, TRY_ANSWER);
+      store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
       PREG = (yamop *) CPREG;
       PREFETCH_OP(PREG);
       load_answer_trie(ans_node, subs_ptr);
@@ -576,12 +576,12 @@
 
 
 
-  PBOp(table_try, apl)
+  PBOp(table_try, Otapl)
     tab_ent_ptr tab_ent;
     sg_fr_ptr sg_fr;
 
     check_trail(TR);
-    tab_ent = PREG->u.apl.te;
+    tab_ent = PREG->u.Otapl.te;
     YENV2MEM;
     sg_fr = subgoal_search(PREG, YENV_ADDRESS);
     MEM2YENV;
@@ -590,8 +590,8 @@
       /* subgoal new */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
-      store_generator_node(tab_ent, sg_fr, PREG->u.apl.s, NEXTOP(PREG,apl));
-      PREG = PREG->u.apl.d;
+      store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, NEXTOP(PREG,Otapl));
+      PREG = PREG->u.Otapl.d;
       PREFETCH_OP(PREG);
       allocate_environment();
       GONext();
@@ -603,7 +603,7 @@
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
       SgFr_try_answer(sg_fr) = ans_node;
-      store_generator_node(tab_ent, sg_fr, PREG->u.apl.s, TRY_ANSWER);
+      store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
       PREG = (yamop *) CPREG;
       PREFETCH_OP(PREG);
       load_answer_trie(ans_node, subs_ptr);
@@ -685,49 +685,49 @@
 
 
 
-  Op(table_retry_me, apl)
-    restore_generator_node(PREG->u.apl.s, PREG->u.apl.d);
+  Op(table_retry_me, Otapl)
+    restore_generator_node(PREG->u.Otapl.s, PREG->u.Otapl.d);
     YENV = (CELL *) PROTECT_FROZEN_B(B);
     set_cut(YENV, B->cp_b);
     SET_BB(NORM_CP(YENV));
     allocate_environment();
-    PREG = NEXTOP(PREG,apl);
+    PREG = NEXTOP(PREG,Otapl);
     GONext();
   ENDOp();
 
 
 
-  Op(table_retry, apl)
-    restore_generator_node(PREG->u.apl.s, NEXTOP(PREG,apl));
+  Op(table_retry, Otapl)
+    restore_generator_node(PREG->u.Otapl.s, NEXTOP(PREG,Otapl));
     YENV = (CELL *) PROTECT_FROZEN_B(B);
     set_cut(YENV, B->cp_b);
     SET_BB(NORM_CP(YENV));
     allocate_environment();
-    PREG = PREG->u.apl.d;
+    PREG = PREG->u.Otapl.d;
     GONext();
   ENDOp();
 
 
 
-  Op(table_trust_me, apl)
-    restore_generator_node(PREG->u.apl.s, COMPLETION);
+  Op(table_trust_me, Otapl)
+    restore_generator_node(PREG->u.Otapl.s, COMPLETION);
     YENV = (CELL *) PROTECT_FROZEN_B(B);
     set_cut(YENV, B->cp_b);
     SET_BB(NORM_CP(YENV));
     allocate_environment();
-    PREG = NEXTOP(PREG,apl);
+    PREG = NEXTOP(PREG,Otapl);
     GONext();
   ENDOp();
 
 
 
-  Op(table_trust, apl)
-    restore_generator_node(PREG->u.apl.s, COMPLETION);
+  Op(table_trust, Otapl)
+    restore_generator_node(PREG->u.Otapl.s, COMPLETION);
     YENV = (CELL *) PROTECT_FROZEN_B(B);
     set_cut(YENV, B->cp_b);
     SET_BB(NORM_CP(YENV));
     allocate_environment();
-    PREG = PREG->u.apl.d;
+    PREG = PREG->u.Otapl.d;
     GONext();
   ENDOp();
 
@@ -973,7 +973,7 @@
 
 
 
-  BOp(table_answer_resolution, apl)
+  BOp(table_answer_resolution, Otapl)
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
       UNLOCK_OR_FRAME(LOCAL_top_or_fr);
@@ -1259,7 +1259,7 @@
 
 
 
-  BOp(table_completion, apl)
+  BOp(table_completion, Otapl)
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
       if (IS_BATCHED_GEN_CP(B)) {

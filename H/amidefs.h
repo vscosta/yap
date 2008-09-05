@@ -176,8 +176,10 @@ typedef enum {
   m: module, Term
   n: number, Integer
   o: opcode, OPCODE
+  O: OR-parallel information, used by YAPOR, unsigned int
   p: predicate, struct pred_entry *
   s: small integer, COUNT
+  t: pointer to table entry, used by yaptab, struct table_entry *
   x: wam register, wamreg
   y: environment slot
 
@@ -185,7 +187,7 @@ typedef enum {
 /* This declaration is going to be parsed by a Prolog program, so:
    comments are welcome, but they should take a whole line,
    every field declaration should also take a single line,
-   please check the Prolog program if you come up with a compilcated C-type that does not start by unsigned or struct.
+   please check the Prolog program if you come up with a complicated C-type that does not start by unsigned or struct.
 */
 typedef struct yami {
   OPCODE opc;
@@ -278,7 +280,7 @@ typedef struct yami {
       struct pred_entry  *p;
       struct yami              *d;
       CELL next;
-    } apl;
+    } Otapl;
     /* The next two instructions are twin: they both correspond to the old ldd. */
     /* The first one, aLl, handles try_logical and retry_logical, */
     /* Ill handles trust_logical. */
@@ -297,7 +299,7 @@ typedef struct yami {
       struct logic_upd_clause   *d;
       struct yami               *n;
       CELL                       next;
-    } aLl;
+    } OtaLl;
     struct {
 #ifdef YAPOR
       unsigned int               or_arg;
@@ -311,7 +313,7 @@ typedef struct yami {
       struct logic_upd_clause   *d;
       struct yami               *n;
       CELL                       next;
-    } ILl;
+    } OtILl;
     struct {
 #ifdef YAPOR
       unsigned int        or_arg;
@@ -325,7 +327,7 @@ typedef struct yami {
       CPredicate          f;
       COUNT               extra;
       CELL next;
-    } apFs;
+    } OtapFs;
     struct {
       struct yami               *l1;
       struct yami               *l2;
@@ -476,6 +478,7 @@ typedef struct yami {
     } sdlp;
     /* the next 3 instructions must have same size and have fields in same order! */
     /* also check env for yes and trustfail code before making any changes */
+    /* last, Osblp is known to the buildops script */
     struct {
 #ifdef YAPOR
       unsigned int        or_arg;
@@ -485,7 +488,7 @@ typedef struct yami {
       struct yami *l;
       struct pred_entry  *p0;
       CELL next;
-    } sblp;
+    } Osblp;
     struct {
 #ifdef YAPOR
       unsigned int        or_arg;
@@ -495,7 +498,7 @@ typedef struct yami {
       struct pred_entry  *p;
       struct pred_entry  *p0;
       CELL next;
-    } sbpp;
+    } Osbpp;
     struct {
 #ifdef YAPOR
       unsigned int        or_arg;
@@ -505,7 +508,7 @@ typedef struct yami {
       Term  mod;
       struct pred_entry  *p0;
       CELL next;
-    } sbmp;
+    } Osbmp;
     struct {
       /* size of table */
       COUNT               s;
@@ -793,19 +796,19 @@ CELL *ENV_Parent(CELL *env)
 static inline 
 UInt ENV_Size(yamop *cp)
 {
-  return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->u.sbpp.s);
+  return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->u.Osbpp.s);
 }
 
 static inline 
 struct pred_entry *ENV_ToP(yamop *cp)
 {
-  return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->u.sbpp.p);
+  return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->u.Osbpp.p);
 }
 
 static inline 
 OPCODE ENV_ToOp(yamop *cp)
 {
-  return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->opc);
+  return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->opc);
 }
 
 static inline 
@@ -817,13 +820,13 @@ UInt EnvSize(yamop *cp)
 static inline 
 CELL *EnvBMap(yamop *p)
 {
-  return (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->u.sbpp.bmap);
+  return (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->u.Osbpp.bmap);
 }
 
 static inline 
 struct pred_entry *EnvPreg(yamop *p)
 {
-  return (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,sbpp)))->u.sbpp.p0);
+  return (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->u.Osbpp.p0);
 }
 
 /* access to instructions */

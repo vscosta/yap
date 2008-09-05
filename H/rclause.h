@@ -13,15 +13,6 @@ restore_opcodes(yamop *pc)
     fprintf(stderr, "%s ", Yap_op_names[op]);
 #endif
     switch (op) {
-      /* instructions type ILl */
-    case _count_trust_logical:
-    case _profiled_trust_logical:
-    case _trust_logical:
-      pc->u.ILl.block = PtoLUIndexAdjust(pc->u.ILl.block);
-      pc->u.ILl.d = PtoLUClauseAdjust(pc->u.ILl.d);
-      pc->u.ILl.n = PtoOpAdjust(pc->u.ILl.n);
-      pc = NEXTOP(pc,ILl);
-      break;
       /* instructions type Ills */
     case _enter_lu_pred:
       pc->u.Ills.I = PtoLUIndexAdjust(pc->u.Ills.I);
@@ -35,17 +26,63 @@ restore_opcodes(yamop *pc)
       pc->u.L.ClBase = PtoLUClauseAdjust(pc->u.L.ClBase);
       pc = NEXTOP(pc,L);
       break;
-      /* instructions type aLl */
+      /* instructions type Osblp */
+    case _either:
+    case _or_else:
+      OrArgAdjust(pc->u.Osblp.or_arg);
+      pc->u.Osblp.s = ConstantAdjust(pc->u.Osblp.s);
+      pc->u.Osblp.bmap = CellPtoHeapAdjust(pc->u.Osblp.bmap);
+      pc->u.Osblp.l = PtoOpAdjust(pc->u.Osblp.l);
+      pc->u.Osblp.p0 = PtoPredAdjust(pc->u.Osblp.p0);
+      pc = NEXTOP(pc,Osblp);
+      break;
+      /* instructions type Osbmp */
+    case _p_execute:
+      OrArgAdjust(pc->u.Osbmp.or_arg);
+      pc->u.Osbmp.s = ConstantAdjust(pc->u.Osbmp.s);
+      pc->u.Osbmp.bmap = CellPtoHeapAdjust(pc->u.Osbmp.bmap);
+      pc->u.Osbmp.mod = ModuleAdjust(pc->u.Osbmp.mod);
+      pc->u.Osbmp.p0 = PtoPredAdjust(pc->u.Osbmp.p0);
+      pc = NEXTOP(pc,Osbmp);
+      break;
+      /* instructions type Osbpp */
+    case _call:
+    case _call_cpred:
+    case _call_usercpred:
+    case _fcall:
+    case _p_execute2:
+    case _p_execute_tail:
+      OrArgAdjust(pc->u.Osbpp.or_arg);
+      pc->u.Osbpp.s = ConstantAdjust(pc->u.Osbpp.s);
+      pc->u.Osbpp.bmap = CellPtoHeapAdjust(pc->u.Osbpp.bmap);
+      pc->u.Osbpp.p = PtoPredAdjust(pc->u.Osbpp.p);
+      pc->u.Osbpp.p0 = PtoPredAdjust(pc->u.Osbpp.p0);
+      pc = NEXTOP(pc,Osbpp);
+      break;
+      /* instructions type OtILl */
+    case _count_trust_logical:
+    case _profiled_trust_logical:
+    case _trust_logical:
+      OrArgAdjust(pc->u.OtILl.or_arg);
+      TabEntryAdjust(pc->u.OtILl.te);
+      pc->u.OtILl.block = PtoLUIndexAdjust(pc->u.OtILl.block);
+      pc->u.OtILl.d = PtoLUClauseAdjust(pc->u.OtILl.d);
+      pc->u.OtILl.n = PtoOpAdjust(pc->u.OtILl.n);
+      pc = NEXTOP(pc,OtILl);
+      break;
+      /* instructions type OtaLl */
     case _count_retry_logical:
     case _profiled_retry_logical:
     case _retry_logical:
     case _try_logical:
-      pc->u.aLl.s = ArityAdjust(pc->u.aLl.s);
-      pc->u.aLl.d = PtoLUClauseAdjust(pc->u.aLl.d);
-      pc->u.aLl.n = PtoOpAdjust(pc->u.aLl.n);
-      pc = NEXTOP(pc,aLl);
+      OrArgAdjust(pc->u.OtaLl.or_arg);
+      TabEntryAdjust(pc->u.OtaLl.te);
+      pc->u.OtaLl.s = ArityAdjust(pc->u.OtaLl.s);
+      pc->u.OtaLl.d = PtoLUClauseAdjust(pc->u.OtaLl.d);
+      pc->u.OtaLl.n = PtoOpAdjust(pc->u.OtaLl.n);
+      pc = NEXTOP(pc,OtaLl);
       break;
-      /* instructions type apFs */
+      /* instructions type OtapFs */
 #ifdef CUT_C
     case _cut_c:
 #endif
@@ -56,13 +93,15 @@ restore_opcodes(yamop *pc)
     case _retry_userc:
     case _try_c:
     case _try_userc:
-      pc->u.apFs.s = ArityAdjust(pc->u.apFs.s);
-      pc->u.apFs.p = PtoPredAdjust(pc->u.apFs.p);
-      pc->u.apFs.f = ExternalFunctionAdjust(pc->u.apFs.f);
-      pc->u.apFs.extra = ConstantAdjust(pc->u.apFs.extra);
-      pc = NEXTOP(pc,apFs);
+      OrArgAdjust(pc->u.OtapFs.or_arg);
+      TabEntryAdjust(pc->u.OtapFs.te);
+      pc->u.OtapFs.s = ArityAdjust(pc->u.OtapFs.s);
+      pc->u.OtapFs.p = PtoPredAdjust(pc->u.OtapFs.p);
+      pc->u.OtapFs.f = ExternalFunctionAdjust(pc->u.OtapFs.f);
+      pc->u.OtapFs.extra = ConstantAdjust(pc->u.OtapFs.extra);
+      pc = NEXTOP(pc,OtapFs);
       break;
-      /* instructions type apl */
+      /* instructions type Otapl */
     case _count_retry_and_mark:
     case _count_retry_me:
     case _count_trust_me:
@@ -78,10 +117,12 @@ restore_opcodes(yamop *pc)
     case _try_and_mark:
     case _try_clause:
     case _try_me:
-      pc->u.apl.s = ArityAdjust(pc->u.apl.s);
-      pc->u.apl.p = PtoPredAdjust(pc->u.apl.p);
-      pc->u.apl.d = PtoOpAdjust(pc->u.apl.d);
-      pc = NEXTOP(pc,apl);
+      OrArgAdjust(pc->u.Otapl.or_arg);
+      TabEntryAdjust(pc->u.Otapl.te);
+      pc->u.Otapl.s = ArityAdjust(pc->u.Otapl.s);
+      pc->u.Otapl.p = PtoPredAdjust(pc->u.Otapl.p);
+      pc->u.Otapl.d = PtoOpAdjust(pc->u.Otapl.d);
+      pc = NEXTOP(pc,Otapl);
       break;
       /* instructions type c */
     case _write_atom:
@@ -402,36 +443,6 @@ restore_opcodes(yamop *pc)
       pc->u.s.s = ConstantAdjust(pc->u.s.s);
       pc = NEXTOP(pc,s);
       break;
-      /* instructions type sblp */
-    case _either:
-    case _or_else:
-      pc->u.sblp.s = ConstantAdjust(pc->u.sblp.s);
-      pc->u.sblp.bmap = CellPtoHeapAdjust(pc->u.sblp.bmap);
-      pc->u.sblp.l = PtoOpAdjust(pc->u.sblp.l);
-      pc->u.sblp.p0 = PtoPredAdjust(pc->u.sblp.p0);
-      pc = NEXTOP(pc,sblp);
-      break;
-      /* instructions type sbmp */
-    case _p_execute:
-      pc->u.sbmp.s = ConstantAdjust(pc->u.sbmp.s);
-      pc->u.sbmp.bmap = CellPtoHeapAdjust(pc->u.sbmp.bmap);
-      pc->u.sbmp.mod = ModuleAdjust(pc->u.sbmp.mod);
-      pc->u.sbmp.p0 = PtoPredAdjust(pc->u.sbmp.p0);
-      pc = NEXTOP(pc,sbmp);
-      break;
-      /* instructions type sbpp */
-    case _call:
-    case _call_cpred:
-    case _call_usercpred:
-    case _fcall:
-    case _p_execute2:
-    case _p_execute_tail:
-      pc->u.sbpp.s = ConstantAdjust(pc->u.sbpp.s);
-      pc->u.sbpp.bmap = CellPtoHeapAdjust(pc->u.sbpp.bmap);
-      pc->u.sbpp.p = PtoPredAdjust(pc->u.sbpp.p);
-      pc->u.sbpp.p0 = PtoPredAdjust(pc->u.sbpp.p0);
-      pc = NEXTOP(pc,sbpp);
-      break;
       /* instructions type sc */
     case _write_n_atoms:
       pc->u.sc.s = ConstantAdjust(pc->u.sc.s);
@@ -715,14 +726,16 @@ restore_opcodes(yamop *pc)
       pc = NEXTOP(pc,yyx);
       break;
 #ifdef YAPOR
-      /* instructions type apl */
+      /* instructions type Otapl */
     case _getwork:
     case _getwork_seq:
     case _sync:
-      pc->u.apl.s = ArityAdjust(pc->u.apl.s);
-      pc->u.apl.p = PtoPredAdjust(pc->u.apl.p);
-      pc->u.apl.d = PtoOpAdjust(pc->u.apl.d);
-      pc = NEXTOP(pc,apl);
+      OrArgAdjust(pc->u.Otapl.or_arg);
+      TabEntryAdjust(pc->u.Otapl.te);
+      pc->u.Otapl.s = ArityAdjust(pc->u.Otapl.s);
+      pc->u.Otapl.p = PtoPredAdjust(pc->u.Otapl.p);
+      pc->u.Otapl.d = PtoOpAdjust(pc->u.Otapl.d);
+      pc = NEXTOP(pc,Otapl);
       break;
       /* instructions type e */
     case _getwork_first_time:
@@ -731,7 +744,7 @@ restore_opcodes(yamop *pc)
       break;
 #endif
 #ifdef TABLING
-      /* instructions type apl */
+      /* instructions type Otapl */
     case _table_answer_resolution:
     case _table_completion:
     case _table_load_answer:
@@ -743,10 +756,12 @@ restore_opcodes(yamop *pc)
     case _table_try_answer:
     case _table_try_me:
     case _table_try_single:
-      pc->u.apl.s = ArityAdjust(pc->u.apl.s);
-      pc->u.apl.p = PtoPredAdjust(pc->u.apl.p);
-      pc->u.apl.d = PtoOpAdjust(pc->u.apl.d);
-      pc = NEXTOP(pc,apl);
+      OrArgAdjust(pc->u.Otapl.or_arg);
+      TabEntryAdjust(pc->u.Otapl.te);
+      pc->u.Otapl.s = ArityAdjust(pc->u.Otapl.s);
+      pc->u.Otapl.p = PtoPredAdjust(pc->u.Otapl.p);
+      pc->u.Otapl.d = PtoOpAdjust(pc->u.Otapl.d);
+      pc = NEXTOP(pc,Otapl);
       break;
       /* instructions type e */
 #ifdef TABLING_INNER_CUTS
@@ -760,27 +775,7 @@ restore_opcodes(yamop *pc)
       pc->u.s.s = ConstantAdjust(pc->u.s.s);
       pc = NEXTOP(pc,s);
       break;
-      /* instructions type apl */
-    case _table_answer_resolution:
-    case _table_completion:
-    case _table_load_answer:
-    case _table_retry:
-    case _table_retry_me:
-    case _table_trust:
-    case _table_trust_me:
-    case _table_try:
-    case _table_try_answer:
-    case _table_try_me:
-    case _table_try_single:
-      pc->u.apl.s = ArityAdjust(pc->u.apl.s);
-      pc->u.apl.p = PtoPredAdjust(pc->u.apl.p);
-      pc->u.apl.d = PtoOpAdjust(pc->u.apl.d);
-      pc = NEXTOP(pc,apl);
-      break;
       /* instructions type e */
-#ifdef TABLING_INNER_CUTS
-    case _clause_with_cut:
-#endif
     case _trie_do_atom:
     case _trie_do_extension:
     case _trie_do_float:
@@ -820,20 +815,16 @@ restore_opcodes(yamop *pc)
       if (op == _Nstop || op == _copy_idb_term || op == _unify_idb_term) return;
       pc = NEXTOP(pc,e);
       break;
-      /* instructions type s */
-    case _table_new_answer:
-      pc->u.s.s = ConstantAdjust(pc->u.s.s);
-      pc = NEXTOP(pc,s);
-      break;
 #endif
       /* this instruction is hardwired */
     case _or_last:
 #ifdef YAPOR
-      pc->u.sblp.s = ConstantAdjust(pc->u.sblp.s);
-      pc->u.sblp.bmap = CellPtoHeapAdjust(pc->u.sblp.bmap);
-      pc->u.sblp.l = PtoOpAdjust(pc->u.sblp.l);
-      pc->u.sblp.p0 = PtoPredAdjust(pc->u.sblp.p0);
-      pc = NEXTOP(pc,sblp);
+      OrArgAdjust(pc->u.Osblp.or_arg);
+      pc->u.Osblp.s = ConstantAdjust(pc->u.Osblp.s);
+      pc->u.Osblp.bmap = CellPtoHeapAdjust(pc->u.Osblp.bmap);
+      pc->u.Osblp.l = PtoOpAdjust(pc->u.Osblp.l);
+      pc->u.Osblp.p0 = PtoPredAdjust(pc->u.Osblp.p0);
+      pc = NEXTOP(pc,Osblp);
       break;
 #else
       pc->u.p.p = PtoPredAdjust(pc->u.p.p);

@@ -115,6 +115,8 @@ AtomAdjust(Atom a)
 
 #define CharP(X) ((char *)(X))
 
+#define OrArgAdjust(P) 
+#define TabEntryAdjust(P) 
 #define IntegerAdjust(D)  (D)
 #define AddrAdjust(P) (P)
 #define MFileAdjust(P) (P)
