@@ -527,35 +527,9 @@
   ENDPBOp();
 
 
-  PBOp(trie_try_null, e)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = YENV;
-    int heap_arity = *aux_ptr;
-    int vars_arity = *(aux_ptr + heap_arity + 1);
-    int subs_arity = *(aux_ptr + heap_arity + 2);
-    int i;
-
-    store_trie_node(TrNode_next(node));
-    cp_trie_null_instr();
-  ENDPBOp();
-
-
-  PBOp(trie_retry_null, e)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_ptr;
-    int vars_arity = *(aux_ptr + heap_arity + 1);
-    int subs_arity = *(aux_ptr + heap_arity + 2);
-    int i;
-
-    restore_trie_node(TrNode_next(node));
-    cp_trie_null_instr();
-  ENDPBOp();
-
-
   PBOp(trie_trust_null, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = (CELL *) (B + 1);
+    register CELL *aux_ptr = (CELL *)(B+1);
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
@@ -578,6 +552,32 @@
   ENDPBOp();
 
 
+  PBOp(trie_try_null, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = YENV;
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int i;
+
+    store_trie_node(TrNode_next(node));
+    cp_trie_null_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_retry_null, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = (CELL *)(B+1);
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int i;
+
+    restore_trie_node(TrNode_next(node));
+    cp_trie_null_instr();
+  ENDPBOp();
+
+
   PBOp(trie_do_var, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_ptr = YENV;
@@ -591,37 +591,9 @@
   ENDPBOp();
 
 
-  PBOp(trie_try_var, e)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = YENV;
-    register CELL var_ptr;
-    int heap_arity = *aux_ptr;
-    int vars_arity = *(aux_ptr + heap_arity + 1);
-    int subs_arity = *(aux_ptr + heap_arity + 2);
-    int i;
-
-    store_trie_node(TrNode_next(node));
-    cp_trie_var_instr();
-  ENDPBOp();
-
-
-  PBOp(trie_retry_var, e)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = (CELL *) (B + 1);
-    register CELL var_ptr;
-    int heap_arity = *aux_ptr;
-    int vars_arity = *(aux_ptr + heap_arity + 1);
-    int subs_arity = *(aux_ptr + heap_arity + 2);
-    int i;
-
-    restore_trie_node(TrNode_next(node));
-    cp_trie_var_instr();
-  ENDPBOp();
-
-
   PBOp(trie_trust_var, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = (CELL *) (B + 1);
+    register CELL *aux_ptr = (CELL *)(B+1);
     register CELL var_ptr;
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
@@ -645,6 +617,34 @@
   ENDPBOp();
 
 
+  PBOp(trie_try_var, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = YENV;
+    register CELL var_ptr;
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int i;
+
+    store_trie_node(TrNode_next(node));
+    cp_trie_var_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_retry_var, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = (CELL *)(B+1);
+    register CELL var_ptr;
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int i;
+
+    restore_trie_node(TrNode_next(node));
+    cp_trie_var_instr();
+  ENDPBOp();
+
+
   PBOp(trie_do_val, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_ptr = YENV, *subs_ptr;
@@ -659,39 +659,9 @@
   ENDPBOp();
 
 
-  PBOp(trie_try_val, e)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = YENV, *subs_ptr;
-    register CELL aux, subs;
-    int heap_arity = *aux_ptr;
-    int vars_arity = *(aux_ptr + heap_arity + 1);
-    int subs_arity = *(aux_ptr + heap_arity + 2);
-    int var_index = VarIndexOfTableTerm(TrNode_entry(node));
-    int i;
-
-    store_trie_node(TrNode_next(node));
-    cp_trie_val_instr();
-  ENDPBOp();
-
-
-  PBOp(trie_retry_val, e)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = (CELL *) (B + 1), *subs_ptr;
-    register CELL aux, subs;
-    int heap_arity = *aux_ptr;
-    int vars_arity = *(aux_ptr + heap_arity + 1);
-    int subs_arity = *(aux_ptr + heap_arity + 2);
-    int var_index = VarIndexOfTableTerm(TrNode_entry(node));
-    int i;
-
-    restore_trie_node(TrNode_next(node));
-    cp_trie_val_instr();
-  ENDPBOp();
-
-
   PBOp(trie_trust_val, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = (CELL *) (B + 1), *subs_ptr;
+    register CELL *aux_ptr = (CELL *)(B+1), *subs_ptr;
     register CELL aux, subs;
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
@@ -716,6 +686,37 @@
   ENDPBOp();
 
 
+  PBOp(trie_try_val, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = YENV;
+    register CELL *subs_ptr;
+    register CELL aux, subs;
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int var_index = VarIndexOfTableTerm(TrNode_entry(node));
+    int i;
+
+    store_trie_node(TrNode_next(node));
+    cp_trie_val_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_retry_val, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = (CELL *)(B+1), *subs_ptr;
+    register CELL aux, subs;
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int var_index = VarIndexOfTableTerm(TrNode_entry(node));
+    int i;
+
+    restore_trie_node(TrNode_next(node));
+    cp_trie_val_instr();
+  ENDPBOp();
+
+
   PBOp(trie_do_atom, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_ptr = YENV;
@@ -728,35 +729,9 @@
   ENDPBOp();
 
 
-  PBOp(trie_try_atom, e)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = YENV;
-    int heap_arity = *aux_ptr;
-    int vars_arity = *(aux_ptr + heap_arity + 1);
-    int subs_arity = *(aux_ptr + heap_arity + 2);
-    int i;
-
-    store_trie_node(TrNode_next(node));
-    cp_trie_atom_instr();
-  ENDPBOp();
-
-
-  PBOp(trie_retry_atom, e)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_ptr;
-    int vars_arity = *(aux_ptr + heap_arity + 1);
-    int subs_arity = *(aux_ptr + heap_arity + 2);
-    int i;
-
-    restore_trie_node(TrNode_next(node));
-    cp_trie_atom_instr();
-  ENDPBOp();
-
-
   PBOp(trie_trust_atom, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = (CELL *) (B + 1);
+    register CELL *aux_ptr =  (CELL *)(B+1);
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
@@ -779,6 +754,32 @@
   ENDPBOp();
 
 
+  PBOp(trie_try_atom, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = YENV;
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int i;
+
+    store_trie_node(TrNode_next(node));
+    cp_trie_atom_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_retry_atom, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = (CELL *)(B+1);
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int i;
+
+    restore_trie_node(TrNode_next(node));
+    cp_trie_atom_instr();
+  ENDPBOp();
+
+
   PBOp(trie_do_list, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_ptr = YENV;
@@ -791,35 +792,9 @@
   ENDPBOp();
 
 
-  PBOp(trie_try_list, e)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = YENV;
-    int heap_arity = *aux_ptr;
-    int vars_arity = *(aux_ptr + heap_arity + 1);
-    int subs_arity = *(aux_ptr + heap_arity + 2);
-    int i;
-
-    store_trie_node(TrNode_next(node));
-    cp_trie_list_instr();
-  ENDPBOp();
-
-
-  PBOp(trie_retry_list, e)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_ptr;
-    int vars_arity = *(aux_ptr + heap_arity + 1);
-    int subs_arity = *(aux_ptr + heap_arity + 2);
-    int i;
-
-    restore_trie_node(TrNode_next(node));
-    cp_trie_list_instr();
-  ENDPBOp();
-
-
   PBOp(trie_trust_list, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = (CELL *) (B + 1);
+    register CELL *aux_ptr = (CELL *)(B+1);
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
@@ -842,6 +817,32 @@
   ENDPBOp();
 
 
+  PBOp(trie_try_list, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = YENV;
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int i;
+
+    store_trie_node(TrNode_next(node));
+    cp_trie_list_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_retry_list, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = (CELL *)(B+1);
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int i;
+
+    restore_trie_node(TrNode_next(node));
+    cp_trie_list_instr();
+  ENDPBOp();
+
+
   PBOp(trie_do_struct, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_ptr = YENV;
@@ -856,39 +857,9 @@
   ENDPBOp();
 
 
-  PBOp(trie_try_struct, e)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = YENV;
-    int heap_arity = *aux_ptr;
-    int vars_arity = *(aux_ptr + heap_arity + 1);
-    int subs_arity = *(aux_ptr + heap_arity + 2);
-    Functor func = (Functor) RepAppl(TrNode_entry(node));
-    int func_arity = ArityOfFunctor(func);
-    int i;
-
-    store_trie_node(TrNode_next(node));
-    cp_trie_struct_instr();
-  ENDPBOp();
-
-
-  PBOp(trie_retry_struct, e)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_ptr;
-    int vars_arity = *(aux_ptr + heap_arity + 1);
-    int subs_arity = *(aux_ptr + heap_arity + 2);
-    Functor func = (Functor) RepAppl(TrNode_entry(node));
-    int func_arity = ArityOfFunctor(func);
-    int i;
-
-    restore_trie_node(TrNode_next(node));
-    cp_trie_struct_instr();
-  ENDPBOp();
-
-
   PBOp(trie_trust_struct, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = (CELL *) (B + 1);
+    register CELL *aux_ptr = (CELL *)(B+1);
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
@@ -913,6 +884,36 @@
   ENDPBOp();
 
 
+  PBOp(trie_try_struct, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = YENV;
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    Functor func = (Functor) RepAppl(TrNode_entry(node));
+    int func_arity = ArityOfFunctor(func);
+    int i;
+
+    store_trie_node(TrNode_next(node));
+    cp_trie_struct_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_retry_struct, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = (CELL *)(B+1);
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    Functor func = (Functor) RepAppl(TrNode_entry(node));
+    int func_arity = ArityOfFunctor(func);
+    int i;
+
+    restore_trie_node(TrNode_next(node));
+    cp_trie_struct_instr();
+  ENDPBOp();
+
+
   PBOp(trie_do_extension, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_ptr = YENV;
@@ -922,35 +923,9 @@
   ENDPBOp();
 
 
-  PBOp(trie_try_extension, e)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = YENV;
-    int heap_arity = *aux_ptr;
-    int vars_arity = *(aux_ptr + heap_arity + 1);
-    int subs_arity = *(aux_ptr + heap_arity + 2);
-    int i;
-
-    store_trie_node(TrNode_next(node));
-    cp_trie_extension_instr();
-  ENDPBOp();
-
-
-  PBOp(trie_retry_extension, e)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_ptr;
-    int vars_arity = *(aux_ptr + heap_arity + 1);
-    int subs_arity = *(aux_ptr + heap_arity + 2);
-    int i;
-
-    restore_trie_node(TrNode_next(node));
-    cp_trie_extension_instr();
-  ENDPBOp();
-
-
   PBOp(trie_trust_extension, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = (CELL *) (B + 1);
+    register CELL *aux_ptr = (CELL *)(B+1);
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
@@ -970,6 +945,32 @@
         no_cp_trie_extension_instr();
       }
     }
+  ENDPBOp();
+
+
+  PBOp(trie_try_extension, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = YENV;
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int i;
+
+    store_trie_node(TrNode_next(node));
+    cp_trie_extension_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_retry_extension, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_ptr = (CELL *)(B+1);
+    int heap_arity = *aux_ptr;
+    int vars_arity = *(aux_ptr + heap_arity + 1);
+    int subs_arity = *(aux_ptr + heap_arity + 2);
+    int i;
+
+    restore_trie_node(TrNode_next(node));
+    cp_trie_extension_instr();
   ENDPBOp();
 
 
@@ -996,6 +997,11 @@
   ENDPBOp();
 
 
+  BOp(trie_trust_float, e)
+    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_float)");
+  ENDBOp();
+
+
   BOp(trie_try_float, e)
   Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_float)");
   ENDBOp();
@@ -1003,11 +1009,6 @@
 
   BOp(trie_retry_float, e)
     Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_float)");
-  ENDBOp();
-
-
-  BOp(trie_trust_float, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_float)");
   ENDBOp();
 
 
@@ -1023,6 +1024,9 @@
     no_cp_trie_float_longint_instr();
   ENDPBOp();
 
+  BOp(trie_trust_long, e)
+    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_long)");
+  ENDBOp();
 
   BOp(trie_try_long, e)
     Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_long)");
@@ -1034,6 +1038,3 @@
   ENDBOp();
 
 
-  BOp(trie_trust_long, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_long)");
-  ENDBOp();
