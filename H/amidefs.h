@@ -161,7 +161,7 @@ typedef enum {
 
   Types of possible YAAM instructions.
 
-  The meaning of the symbols in a abstract machine instruction is:
+  The meaning and type of the symbols in a abstract machine instruction is:
 
   b: arity (Int)
   b: bitmap (CELL *)
@@ -170,7 +170,7 @@ typedef enum {
   f: functor
   F: Function, CPredicate
   i: large integer (functor + long)
-  I: index (struct logic_upd_index *)
+  I: logic upd index (struct logic_upd_index *)
   l: label, yamop *
   L: logic upd clause, logic_upd_clause *
   m: module, Term
