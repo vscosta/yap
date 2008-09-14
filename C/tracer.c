@@ -50,34 +50,39 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
     int i;
 
     if (arity) {
-      fprintf(Yap_stderr, "%s %s:%s(", start, mname, name);
+      if (args)
+	fprintf(Yap_stderr, "%s %s:%s(", start, mname, name);
+      else
+	fprintf(Yap_stderr, "%s %s:%s/%d", start, mname, name, arity);
     } else {
       fprintf(Yap_stderr, "%s %s:%s", start, mname, name);
     }
-    for (i= 0; i < arity; i++) {
-      if (i > 0) fprintf(Yap_stderr, ",");
+    if (args) {
+      for (i= 0; i < arity; i++) {
+	if (i > 0) fprintf(Yap_stderr, ",");
 #if DEBUG
 #if COROUTINING
-      Yap_Portray_delays = FALSE;
+	Yap_Portray_delays = FALSE;
 #endif
 #endif
-  omax_depth = max_depth;
-  omax_list = max_list;
-  omax_write_args = max_write_args;
-  max_depth = 5;
-  max_list = 5;
-  max_write_args = 10;
-  Yap_plwrite(args[i], TracePutchar, Handle_vars_f);
-  max_depth = omax_depth;
-  max_list = omax_list;
-  max_write_args = omax_write_args;
+	omax_depth = max_depth;
+	omax_list = max_list;
+	omax_write_args = max_write_args;
+	max_depth = 5;
+	max_list = 5;
+	max_write_args = 10;
+	Yap_plwrite(args[i], TracePutchar, Handle_vars_f);
+	max_depth = omax_depth;
+	max_list = omax_list;
+	max_write_args = omax_write_args;
 #if DEBUG
 #if COROUTINING
-      Yap_Portray_delays = FALSE;
+	Yap_Portray_delays = FALSE;
 #endif
 #endif
+      }
+      fprintf(Yap_stderr, ")");
     }
-    if (arity) fprintf(Yap_stderr, ")");
   }
   fprintf(Yap_stderr, "\n");
 }
@@ -308,11 +313,13 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     send_tracer_message("FAIL ", NULL, 0, NULL, args);
     mname = RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
     arity = pred->ArityOfPE;
-    if (arity == 0)
+    if (arity == 0) { 
       s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
-    else
+      send_tracer_message("RETRY CONSUMER: ", s, 0, mname, NULL);
+    } else {
       s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
-    send_tracer_message("RETRY CONSUMER: ", s, 0, mname, NULL);
+      send_tracer_message("RETRY CONSUMER: ", s, pred->ArityOfPE, mname, NULL);
+    }
     break;
   case retry_table_loader:
     send_tracer_message("FAIL ", NULL, 0, NULL, args);
