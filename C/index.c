@@ -3971,8 +3971,7 @@ static UInt
 do_var_entries(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int first, int clleft, UInt nxtlbl){
   PredEntry *ap = cint->CurrentPred;
 
-  if ((!IsVarTerm(t) || t != 0L) &&
-      yap_flags[INDEXING_MODE_FLAG] != INDEX_MODE_SINGLE) {
+  if (!IsVarTerm(t) || t != 0L) {
     return suspend_indexing(grp->FirstClause, grp->LastClause, ap, cint);
   }
   return do_var_group(grp, cint, FALSE, first, clleft, nxtlbl, ap->ArityOfPE+1);
@@ -4008,20 +4007,12 @@ do_consts(GroupDef *grp, Term t, struct intermediates *cint, int compound_term, 
     if (min != max) {
       if (sreg != NULL) {
 	if (ap->PredFlags & LogUpdatePredFlag && max > min) {
-	  if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
-	    ics->u.Label = do_index(min, max, cint, ap->ArityOfPE+1, nxtlbl, first, clleft, top);
-	  } else {
-	    ics->u.Label = suspend_indexing(min, max, ap, cint);
-	  }
+	  ics->u.Label = suspend_indexing(min, max, ap, cint);
 	} else {
 	    ics->u.Label = do_compound_index(min, max, sreg, cint, compound_term, arity, argno, nxtlbl, first, last_arg, clleft, top, TRUE);
 	}
       } else if (ap->PredFlags & LogUpdatePredFlag) {
-	if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
-	  ics->u.Label = do_index(min, max, cint, ap->ArityOfPE+1, nxtlbl, first, clleft, top);
-	} else {
-	  ics->u.Label = suspend_indexing(min, max, cint->CurrentPred, cint);
-	}
+	ics->u.Label = suspend_indexing(min, max, cint->CurrentPred, cint);
       } else {
 	ics->u.Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
       }
@@ -4055,11 +4046,7 @@ do_blobs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
 	   max != grp->LastClause) max++;
     if (min != max &&
 	(ap->PredFlags & LogUpdatePredFlag)) {
-      if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
-	ics->u.Label = do_index(min, max, cint, ap->ArityOfPE+1, nxtlbl, first, clleft, top);
-      } else {
-	ics->u.Label = suspend_indexing(min, max, ap, cint);
-      }
+      ics->u.Label = suspend_indexing(min, max, ap, cint);
     } else {
       ics->u.Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
     }
@@ -4147,11 +4134,7 @@ do_pair(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int first
     }
   }
   if (min != max && !IsPairTerm(t)) {
-    if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
-      return do_index(min, max, cint, cint->CurrentPred->ArityOfPE+1, nxtlbl, first, clleft, top);
-    } else {
-      return suspend_indexing(min, max, cint->CurrentPred, cint);
-    }
+    return suspend_indexing(min, max, cint->CurrentPred, cint);
   }
   return do_compound_index(min, max, (IsPairTerm(t) ? RepPair(t) : NULL), cint, 0, 2, argno, nxtlbl, first, last_arg, clleft, top, TRUE);
 }
@@ -4397,7 +4380,7 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
     /* base case, just commit to the current code */
     return emit_single_switch_case(min, cint, first, clleft, fail_l);
   }
-  if ((argno > 1 && yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) ||
+  if ((argno > 1 && yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE && ap->PredFlags & LogUpdatePredFlag) ||
       yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_OFF ||
       ap->ArityOfPE < argno) {
     return do_var_clauses(min, max, FALSE, cint, first, clleft, fail_l, ap->ArityOfPE+1);
@@ -4421,7 +4404,8 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
 	Yap_emit(jump_nv_op, susp_lab, argno, cint);
       }
       if (argno == ap->ArityOfPE ||
-	  yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
+	  (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE &&
+	   ap->PredFlags & LogUpdatePredFlag)) {
 	do_var_clauses(min, max, FALSE, cint, first, clleft, fail_l, argno0);
 	cint->expand_block = eblk;
 	return lablx;
@@ -4546,7 +4530,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
     /* base case, just commit to the current code */
     return emit_single_switch_case(min0, cint, first, clleft, fail_l);
   }
-  if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
+  if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE && ap->PredFlags & LogUpdatePredFlag) {
     *newlabp = 
       do_var_clauses(min0, max0, FALSE, cint, first, clleft, fail_l, ap->ArityOfPE+1);
     return ret_lab;
@@ -6401,6 +6385,7 @@ remove_dirty_clauses_from_index(yamop *header)
 #endif
     clean_ref_to_clause(cl);
     curp = curp->u.OtaLl.n;
+    Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop*)NULL,OtaLl);
     Yap_FreeCodeSpace((ADDR)ocurp);
   } 
   *prevp = curp;
