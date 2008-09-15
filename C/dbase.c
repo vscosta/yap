@@ -2596,6 +2596,12 @@ find_lu_int_key(Int key)
   return NULL;
 }
 
+PredEntry *
+Yap_FindLUIntKey(Int key)
+{
+  return find_lu_int_key(key);
+}
+
 static DBProp
 find_int_key(Int key)
 {
@@ -2642,6 +2648,7 @@ new_lu_int_key(Int key)
   p->ArityOfPE = 3;
   p->OpcodeOfPred = Yap_opcode(_op_fail);
   p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = FAILCODE;
+  WRITE_UNLOCK(ae->FRWLock);
   INT_LU_KEYS[hash_key] = p0;
   return p;
 }
@@ -3791,6 +3798,8 @@ p_lu_statistics(void)
   } else if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
     pe = RepPredProp(Yap_GetPredPropByAtom(at, mod));
+  } else if (IsIntegerTerm(t) && mod == IDB_MODULE) {
+    pe = find_lu_int_key(IntegerOfTerm(t));
   } else if (IsApplTerm(t)) {
     Functor         fun = FunctorOfTerm(t);
     pe = RepPredProp(Yap_GetPredPropByFunc(fun, mod));

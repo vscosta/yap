@@ -815,7 +815,7 @@ predicate_property(Pred,Prop) :-
 
 '$generate_all_preds_from_mod'(Pred, M, M) :-
 	'$current_predicate'(M,Na,Ar),
-	functor(Pred, Na, Ar).
+	'$ifunctor'(Pred,Na,Ar).
 '$generate_all_preds_from_mod'(Pred, SourceMod, Mod) :-
 	recorded('$import','$import'(SourceMod,Mod,_,Pred,_,_),_).
 
@@ -921,14 +921,14 @@ system_predicate(P) :-
 
 '$current_predicate_no_modules'(M,A,T) :-
 	'$current_predicate'(M,A,Arity),
-	functor(T,A,Arity),
+	'$ifunctor'(T,A,Arity),
 	'$pred_exists'(T,M).
 
 '$current_predicate3'(M,A/Arity) :- nonvar(A), nonvar(Arity), !,
 	(
 	 '$current_predicate'(M,A,Arity)
 	->
-	 functor(T,A,Arity),
+	'$ifunctor'(T,A,Arity)
 	'$pred_exists'(T,M)
 %	;
 %	 '$current_predicate'(prolog,A,Arity)
@@ -943,7 +943,7 @@ system_predicate(P) :-
 '$current_predicate3'(M,A/Arity) :- !,
 	(
 	 '$current_predicate'(M,A,Arity),
-	 functor(T,A,Arity),
+	 '$ifunctor'(T,A,Arity),
 	'$pred_exists'(T,M)
 %	;
 %	 '$current_predicate'(prolog,A,Arity),
@@ -959,9 +959,7 @@ system_predicate(P) :-
 
 current_key(A,K) :-
 	'$current_predicate'(idb,A,Arity),
-	functor(K,A,Arity).
-current_key(A,K) :-
-	'$current_immediate_key'(A,K).
+	'$ifunctor'(K,A,Arity).
 
 % do nothing for now.
 '$noprofile'(_, _).
@@ -985,3 +983,10 @@ current_key(A,K) :-
 '$notrace'(G, Mod) :-
 	\+ '$undefined'(G, Mod),
 	'$donotrace'(Mod:G).
+
+'$ifunctor'(Pred,Na,Ar) :-
+	(Ar > 0 ->
+	    functor(Pred, Na, Ar)
+	;
+	     Pred = Na
+	 ).

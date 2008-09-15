@@ -151,6 +151,7 @@ void	STD_PROTO(Yap_WakeUp,(CELL *));
 #endif
 
 /* dbase.c */
+struct pred_entry  *STD_PROTO(Yap_FindLUIntKey,(Int));
 int     STD_PROTO(Yap_DBTrailOverflow,(void));
 CELL	STD_PROTO(Yap_EvalMasks,(Term,CELL *));
 void	STD_PROTO(Yap_InitBackDB,(void));

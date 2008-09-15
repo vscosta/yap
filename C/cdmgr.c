@@ -681,6 +681,8 @@ get_pred(Term t,  Term tmod, char *pname)
     return NULL;
   } else if (IsAtomTerm(t)) {
     return RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
+  } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
+    return Yap_FindLUIntKey(IntegerOfTerm(t));
   } else if (IsApplTerm(t)) {
     Functor    fun = FunctorOfTerm(t);
     if (fun == FunctorModule) {
