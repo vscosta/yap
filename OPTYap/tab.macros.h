@@ -84,7 +84,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
           void *old_top;                                                         \
           UInt diff;                                                             \
           CELL *NEW_STACK;                                                       \
-          INFORMATION_MESSAGE("Expanding trail in 64 Mbytes");                   \
+          INFORMATION_MESSAGE("Expanding trail in 64 Kbytes");                   \
           old_top = Yap_TrailTop;                                                \
           Yap_growtrail(64 * 1024L, TRUE);                                       \
           diff = (void *)Yap_TrailTop - old_top;                                 \
