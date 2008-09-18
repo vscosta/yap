@@ -97,7 +97,7 @@ DumpActiveGoals (void)
       cp = ep[E_CP];
       if (!ONHEAP (cp) || (Unsigned (cp) & (sizeof(CELL)-1)))
 	break;
-      pe = EnvPreg(cp);
+      pe = EnvPreg((yamop *)cp);
       if (!ONHEAP (pe) || Unsigned (pe) & (sizeof(CELL)-1))
 	break;
       LOCK(pe->PELock);
