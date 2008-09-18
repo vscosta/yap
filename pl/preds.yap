@@ -928,7 +928,7 @@ system_predicate(P) :-
 	(
 	 '$current_predicate'(M,A,Arity)
 	->
-	'$ifunctor'(T,A,Arity)
+	'$ifunctor'(T,A,Arity),
 	'$pred_exists'(T,M)
 %	;
 %	 '$current_predicate'(prolog,A,Arity)
