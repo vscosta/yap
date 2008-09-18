@@ -593,6 +593,14 @@ PtoHeapCellAdjust (CELL * ptr)
   return (CELL *) (((CELL *) (CharP (ptr) + HDiff)));
 }
 
+inline EXTERN AtomHashEntry *PtoAtomHashEntryAdjust (AtomHashEntry *);
+
+inline EXTERN AtomHashEntry *
+PtoAtomHashEntryAdjust (AtomHashEntry * ptr)
+{
+  return (AtomHashEntry *) (((AtomHashEntry *) (CharP (ptr) + HDiff)));
+}
+
 
 
 inline EXTERN PredEntry *PtoPredAdjust (PredEntry *);

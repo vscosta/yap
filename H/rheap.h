@@ -1065,9 +1065,9 @@ restore_codes(void)
   Yap_heap_regs->logdb_erased_marker->ClPred = 
     PtoPredAdjust(Yap_heap_regs->logdb_erased_marker->ClPred);
   Yap_heap_regs->hash_chain = 
-    (AtomHashEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->hash_chain));
+    PtoAtomHashEntryAdjust(Yap_heap_regs->hash_chain);
   Yap_heap_regs->wide_hash_chain = 
-    (AtomHashEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->wide_hash_chain));
+    PtoAtomHashEntryAdjust(Yap_heap_regs->wide_hash_chain);
 }
 
 
