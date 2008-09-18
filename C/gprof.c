@@ -61,7 +61,11 @@ static char     SccsId[] = "%W% %G%";
 #include <signal.h>
 #include <unistd.h>
 #include <sys/time.h>
+#ifdef __APPLE__
+#include <sys/ucontext.h>
+#else
 #include <ucontext.h>
+#endif
 
 static Int ProfCalls, ProfGCs, ProfHGrows, ProfSGrows, ProfMallocs, ProfOn, ProfOns;
 
@@ -908,11 +912,26 @@ showprofres(UInt type) {
 
 #define TestMode (GCMode | GrowHeapMode | GrowStackMode | ErrorHandlingMode | InErrorMode | AbortMode | MallocMode)
 
+#ifdef __APPLE__
+#include <sys/ucontext.h>
+
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
+#define CONTEXT_STATE (((ucontext_t *)context)->uc_mcontext->ss)
+#define CONTEXT_PC (CONTEXT_STATE.eip)
+#define CONTEXT_BP (CONTEXT_STATE.ebp)
+#else
+#define CONTEXT_STATE (((ucontext_t *)scv)->uc_mcontext->__ss)
+#define CONTEXT_PC (CONTEXT_STATE.__eip)
+#define CONTEXT_BP (CONTEXT_STATE.__ebp)
+#endif
+
+#endif
+
 static void
 prof_alrm(int signo, siginfo_t *si, void *scv)
 {
   
-#if __linux__ 
+#ifdef __linux__ 
   ucontext_t *sc = (ucontext_t *)scv;
 #if (defined(i386) || defined(__amd64__))
   void * oldpc=(void *) sc->uc_mcontext.gregs[14]; /* 14= REG_EIP */
@@ -920,9 +939,13 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
   void * oldpc= NULL;
 #endif
 #else
-#if __POWERPC__ || _POWER
+#ifdef __APPLE__
+#ifdef __darwin__
   ucontext_t *sc = (ucontext_t *)scv;
   void * oldpc=(void *) sc->uc_mcontext->ss.srr0; /* 14= POWER PC */
+#else
+  void * oldpc=(void *) CONTEXT_PC;
+#endif
 #else
   void *NULL;
 #endif
@@ -968,7 +991,11 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
   if (oldpc>(void *) &Yap_absmi && oldpc <= (void *) &Yap_absmiEND) { 
     /* we are running emulator code */
 #if BP_FREE
-    current_p =(yamop *) sc->uc_mcontext.gregs[6]; /* 6= REG_EBP */
+#ifdef __APPLE__
+    current_p =(yamop *) CONTEXT_BP;
+#else
+    current_p =(amop *) sc->uc_mcontext.gregs[6]; /* 6= REG_EBP */
+#endif
 #else
     current_p = P;
 #endif

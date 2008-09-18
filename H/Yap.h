@@ -215,7 +215,7 @@ typedef long int YAP_LONG_LONG;
 typedef unsigned long int YAP_ULONG_LONG;
 #endif
 
-#if HAVE_SIGPROF && (defined(__linux__)  || defined(__POWERPC__))
+#if HAVE_SIGPROF && (defined(__linux__)  || defined(__APPLE__))
 #define LOW_PROF 1
 #endif
 
@@ -1034,6 +1034,7 @@ inline EXTERN Int IntegerOfTerm (Term);
 inline EXTERN Int
 IntegerOfTerm (Term t)
 {
+
   return (Int) (IsIntTerm (t) ? IntOfTerm (t) : LongIntOfTerm (t));
 }
 
