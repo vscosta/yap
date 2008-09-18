@@ -636,6 +636,51 @@ void free_answer_hash_chain(ans_hash_ptr hash) {
   return;
 }
 
+/*
+choiceptr create_cp_and_freeze(void) {
+  choiceptr freeze_cp;
+
+  // initialize and store freeze choice point
+  //  freeze_cp = (NORM_CP(YENV) - 1);
+  freeze_cp = (NORM_CP(YENV) - 2);
+  HBREG = H;
+  store_yaam_reg_cpdepth(freeze_cp);
+  freeze_cp->cp_tr = TR;
+  freeze_cp->cp_ap = (yamop *)(TRUSTFAILCODE);
+  freeze_cp->cp_h  = H;
+  freeze_cp->cp_b  = B;
+  freeze_cp->cp_env = ENV;
+  freeze_cp->cp_cp = CPREG;
+  // set_cut((CELL *)freeze_cp, B);
+  B = freeze_cp;
+  SET_BB(B);
+  // adjust freeze registers
+  B_FZ  = freeze_cp;
+  H_FZ  = H;
+  TR_FZ = TR;
+  return freeze_cp;
+}
+*/
+
+static inline choiceptr 
+freeze_current_cp(void) {
+  choiceptr freeze_cp = B;
+
+  B_FZ  = freeze_cp;
+  H_FZ  = freeze_cp->cp_h;
+  TR_FZ = freeze_cp->cp_tr;
+  return freeze_cp;
+}
+
+
+static inline void
+resume_frozen_cp(choiceptr frozen_cp) {
+  restore_bindings(TR, frozen_cp->cp_tr);
+  B = frozen_cp;
+  TR = TR_FZ;
+  TRAIL_LINK(B->cp_tr);
+  return;
+}
 
 #ifdef YAPOR
 static inline

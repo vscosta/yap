@@ -1516,3 +1516,4 @@ Yap_regtoregno(wamreg reg)
 #define copy_jmp_address(X) 
 #define copy_jmp_addressa(X) 
 #endif
+

@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.preds.c
-  version:     $Id: opt.preds.c,v 1.29 2008-04-11 16:26:19 ricroc Exp $   
+  version:     $Id: opt.preds.c,v 1.29 2008/04/11 16:26:19 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -63,6 +63,8 @@ static Int p_or_statistics(void);
 #endif /* YAPOR */
 
 #ifdef TABLING
+static Int p_freeze(void);
+static Int p_wake(void);
 static Int p_table(void);
 static Int p_tabling_mode(void);
 static Int p_abolish_table(void);
@@ -125,6 +127,8 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("or_statistics", 0, p_or_statistics, SafePredFlag|SyncPredFlag);
 #endif /* YAPOR */
 #ifdef TABLING
+  Yap_InitCPred("freeze_choice_point", 1, p_freeze, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("wake_choice_point", 1, p_wake, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_table", 2, p_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$c_tabling_mode", 3, p_tabling_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$c_abolish_table", 2, p_abolish_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
@@ -521,6 +525,31 @@ Int p_or_statistics(void) {
 
 
 #ifdef TABLING
+static Int p_freeze(void) {
+  Term term_arg, term_cp;
+
+  term_arg = Deref(ARG1);
+  if (IsVarTerm(term_arg)) {
+    choiceptr cp = freeze_current_cp();
+    term_cp = MkIntegerTerm((Int) cp);
+    return Yap_unify(ARG1, term_cp);
+  }
+  return (FALSE);
+}
+
+
+static Int p_wake(void) {
+  Term term_arg;
+
+  term_arg = Deref(ARG1);
+  if (IsIntegerTerm(term_arg)) {
+    choiceptr cp = (choiceptr) IntegerOfTerm(term_arg);
+    resume_frozen_cp(cp);
+  }
+  return (FALSE);
+}
+
+
 static
 Int p_table(void) {
   Term mod, t;
