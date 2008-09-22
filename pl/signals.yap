@@ -17,6 +17,10 @@
 
 :- meta_predicate on_signal(+,?,:), alarm(+,:,-).
 
+% '$execute0' should be ignored.
+'$creep'([_|'$execute0'(G,M)]) :-
+	!,
+	'$creep'([M|G]).
 '$creep'(G) :-
 	% get the first signal from the mask
 	'$first_signal'(Sig), !,
@@ -32,6 +36,7 @@
 	'$continue_signals',
 	'$wake_up_goal'(G, LG).
 % never creep on entering system mode!!!
+% don't creep on meta-call.
 '$do_signal'(sig_creep, [M|G]) :-
 	'$creep_allowed', !,
         '$start_creep'([M|G]).
