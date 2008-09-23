@@ -3904,7 +3904,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   HGEN = VarOfTerm(Yap_ReadTimedVar(GcGeneration));
   if (gc_on && !(Yap_PrologMode & InErrorMode) &&
       /* make sure there is a point in collecting the heap */
-      (ASP-H0)*sizeof(CELL) > gc_lim &&
+      (ASP-H0)*sizeof(CELL) > gc_lim && 
       H-HGEN > (LCL0-ASP)/2) {
     effectiveness = do_gc(predarity, current_env, nextop);
     if (effectiveness < 0)
