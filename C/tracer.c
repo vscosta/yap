@@ -81,7 +81,9 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
 #endif
 #endif
       }
-      fprintf(Yap_stderr, ")");
+      if (arity) {
+	fprintf(Yap_stderr, ")");
+      }
     }
   }
   fprintf(Yap_stderr, "\n");
