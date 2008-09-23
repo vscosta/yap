@@ -17,10 +17,6 @@
 
 :- meta_predicate on_signal(+,?,:), alarm(+,:,-).
 
-% '$execute0' should be ignored.
-'$creep'([_|'$execute0'(G,M)]) :-
-	!,
-	'$creep'([M|G]).
 '$creep'(G) :-
 	% get the first signal from the mask
 	'$first_signal'(Sig), !,
@@ -92,6 +88,15 @@
 	'$current_module'(M0),
 	'$execute0'((Goal,M:G),M0).
 
+% '$execute0' should be ignored.
+'$start_creep'([_|'$execute0'(G,M)]) :-
+	!,
+	'$start_creep'([M|G]).
+% '$call'() is a complicated thing
+'$start_creep'([M0|'$call'(G, CP, G0, M)]) :-
+	!,
+	'$creep',
+	'$execute_nonstop'('$call'(G, CP, G0, M),M0).
 % do not debug if we are not in debug mode. 
 '$start_creep'([Mod|G]) :-
 	'$debug_on'(DBON), DBON = false, !,
@@ -117,7 +122,7 @@
 	'$execute_nonstop'(G,Mod).
 '$start_creep'([Mod|G]) :-
 	CP is '$last_choice_pt',	
-	'$do_spy'(G, Mod, CP, yes).
+	'$do_spy'(G, Mod, CP, no).
 
 '$signal_do'(Sig, Goal) :-
 	recorded('$signal_handler', action(Sig,Goal), _), !.
