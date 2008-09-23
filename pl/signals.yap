@@ -99,7 +99,7 @@
 	'$execute_nonstop'('$call'(G, CP, G0, M),M0).
 % donotrace: means do not trace! So,
 % ignore and then put creep back for the continuation.
-'$start_creep'([M0|'$donotrace'(G)]) :-
+'$start_creep'([M0|'$notrace'(G)]) :-
 	!,
 	(
 	 CP0 is '$last_choice_pt',

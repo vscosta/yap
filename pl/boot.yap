@@ -849,7 +849,7 @@ not(G) :-    \+ '$execute'(G).
 '$call'(G, CP, G0, CurMod) :-
 	( '$is_expand_goal_or_meta_predicate'(G,CurMod) ->
 	   (
-	     '$oncenotrace'(user:goal_expansion(G, CurMod, NG)) ->
+	     '$notrace'(user:goal_expansion(G, CurMod, NG)) ->
 	       '$call'(NG, CP, G0,CurMod)
 	     ;
 	       % repeat other code.
@@ -1076,7 +1076,7 @@ access_file(F,Mode) :-
 
 expand_term(Term,Expanded) :-
 	( \+ '$undefined'(term_expansion(_,_), user),
-	  once(user:term_expansion(Term,Expanded))
+	  '$notrace'(user:term_expansion(Term,Expanded))
         ;
 	  '$expand_term_grammar'(Term,Expanded)
 	),
@@ -1116,7 +1116,11 @@ expand_term(Term,Expanded) :-
 % where was the previous catch	
 catch(G, C, A) :-
 	'$catch'(C,A,_),
-	'$execute'(G).
+	'$execute'(G),
+	'$true'.
+
+% makes sure we have an environment.
+'$true'.
 
 
 % system_catch is like catch, but it avoids the overhead of a full
@@ -1127,7 +1131,8 @@ catch(G, C, A) :-
 '$system_catch'(G, M, C, A) :-
 	% check current trail
 	'$catch'(C,A,_),
-	'$execute_nonstop'(G, M).
+	'$execute_nonstop'(G, M),
+	'$true'.
 
 %
 % throw has to be *exactly* after system catch!
@@ -1164,8 +1169,11 @@ throw(Ball) :-
 '$exit_system_mode' :-
 	nb_setval('$system_mode',off),
 	( nb_getval('$trace',on) -> '$creep' ; true).
-	
-'$donotrace'(G) :-
+
+%
+% just leave this around to show  the debugger.
+%
+'$notrace'(G) :-
 	'$execute'(G).
 
 '$oncenotrace'(G) :-

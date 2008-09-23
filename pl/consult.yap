@@ -778,7 +778,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 
 
 '$extend_path_directory'(Name, D, File, Opts, NewFile, Call) :-
-	user:file_search_path(Name, Dir),	
+	'$notrace'(user:file_search_path(Name, Dir)),
 	'$extend_pathd'(Dir, D, File, Opts, NewFile, Call).
 
 '$extend_pathd'(Dir, A, File, Opts, NewFile, Call) :-

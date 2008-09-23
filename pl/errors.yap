@@ -240,16 +240,16 @@ print_message(Severity, Msg) :-
 print_message(Severity, Term) :-
 	(
 	 (
-	  '$notrace'(user:generate_message_hook(Term, [], Lines)) ->
+	  '$oncenotrace'(user:generate_message_hook(Term, [], Lines)) ->
 	  true
 	 ;
-	  '$notrace'(prolog:message(Term, Lines, [])) ->
+	  '$oncenotrace'(prolog:message(Term, Lines, [])) ->
 	  true
 	 ;
 	 '$message':generate_message(Term, Lines, [])
 	 )
 	->  (   nonvar(Term),
-		'$notrace'(user:message_hook(Term, Severity, Lines))
+		'$oncenotrace'(user:message_hook(Term, Severity, Lines))
 	    ->  !
 	    ;   !, '$print_system_message'(Term, Severity, Lines)
 	    )
