@@ -669,6 +669,8 @@ freeze_current_cp(void) {
   B_FZ  = freeze_cp;
   H_FZ  = freeze_cp->cp_h;
   TR_FZ = freeze_cp->cp_tr;
+  B = B->cp_b;
+  HB = B->cp_h;
   return freeze_cp;
 }
 
