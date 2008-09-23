@@ -97,6 +97,48 @@
 	!,
 	'$creep',
 	'$execute_nonstop'('$call'(G, CP, G0, M),M0).
+% donotrace: means do not trace! So,
+% ignore and then put creep back for the continuation.
+'$start_creep'([M0|'$donotrace'(G)]) :-
+	!,
+	(
+	 CP0 is '$last_choice_pt',
+	 '$execute_nonstop'(G,M0),
+	 CP1 is '$last_choice_pt',
+	 % exit port: creep
+	 '$creep',
+	 (
+	  % if deterministic just creep all you want.
+	  CP0 = CP1 ->
+	  !
+	 ;
+	  % extra disjunction protects reentry into usergoal
+	  (
+	    % cannot cut here
+	    true
+	   ;
+	    % be sure to disable creep on redo port
+	    '$disable_creep',
+	    fail
+	  )
+	 )
+	;
+	   % put it back again on fail
+	 '$creep',
+	 fail	   
+	).
+'$start_creep'([M0|'$oncenotrace'(G)]) :-
+	!,
+	('$execute_nonstop'(G,M0),
+	 CP1 is '$last_choice_pt',
+	 % exit port: creep
+	 '$creep',
+	 !
+	;
+	   % put it back again on fail
+	 '$creep',
+	 fail	   
+	).
 % do not debug if we are not in debug mode. 
 '$start_creep'([Mod|G]) :-
 	'$debug_on'(DBON), DBON = false, !,

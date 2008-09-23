@@ -849,7 +849,7 @@ not(G) :-    \+ '$execute'(G).
 '$call'(G, CP, G0, CurMod) :-
 	( '$is_expand_goal_or_meta_predicate'(G,CurMod) ->
 	   (
-	     user:goal_expansion(G, CurMod, NG) ->
+	     '$oncenotrace'(user:goal_expansion(G, CurMod, NG)) ->
 	       '$call'(NG, CP, G0,CurMod)
 	     ;
 	       % repeat other code.
@@ -1166,8 +1166,7 @@ throw(Ball) :-
 	( nb_getval('$trace',on) -> '$creep' ; true).
 	
 '$donotrace'(G) :-
-	'$disable_creep', !,
-	'$execute'(G),
-	'$creep'.
-'$donotrace'(G) :-
 	'$execute'(G).
+
+'$oncenotrace'(G) :-
+	'$execute'(G), !.
