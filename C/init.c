@@ -482,15 +482,28 @@ InitDebug(void)
 void 
 Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
 {
-  Atom              atom = Yap_FullLookupAtom(Name);
-  PredEntry        *pe;
+  Atom              atom = NIL;
+  PredEntry        *pe = NULL;
   yamop            *p_code;
   StaticClause     *cl = NULL;
 
-  if (Arity)
-    pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(atom, Arity),CurrentModule));
-  else
-    pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
+  while (atom == NIL) {
+    atom = Yap_FullLookupAtom(Name);
+    if (atom == NIL && !Yap_growheap(FALSE, 0L, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while initialising %s", Name);
+      return;
+    }
+  }
+  while (pe == NULL) {
+    if (Arity)
+      pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(atom, Arity),CurrentModule));
+    else
+      pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
+    if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while initialising %s", Name);
+      return;
+    }
+  } 
   if (pe->PredFlags & CPredFlag) {
     /* already exists */
     cl = ClauseCodeToStaticClause(pe->CodeOfPred);
@@ -558,16 +571,28 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
 void 
 Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int flags)
 {
-  Atom              atom = Yap_LookupAtom(Name);
-  PredEntry        *pe;
+  Atom              atom = NIL;
+  PredEntry        *pe = NULL;
   yamop            *p_code = NULL;
   StaticClause     *cl = NULL; 
 
-  if (Arity) {
-    pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(atom, Arity),CurrentModule));
-  } else {
-    pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
+  while (atom == NIL) {
+    atom = Yap_FullLookupAtom(Name);
+    if (atom == NIL && !Yap_growheap(FALSE, 0L, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while initialising %s", Name);
+      return;
+    }
   }
+  while (pe == NULL) {
+    if (Arity)
+      pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(atom, Arity),CurrentModule));
+    else
+      pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
+    if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while initialising %s", Name);
+      return;
+    }
+  } 
   if (pe->PredFlags & CPredFlag) {
     p_code = pe->CodeOfPred;
     /* already exists */
@@ -612,13 +637,26 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int 
 void 
 Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, int flags)
 {
-  Atom            atom = Yap_FullLookupAtom(Name);
-  PredEntry      *pe;
+  Atom            atom = NIL;
+  PredEntry      *pe = NULL;
 	
-  if (Arity)
-    pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(atom, Arity),CurrentModule));
-  else
-    pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
+  while (atom == NIL) {
+    atom = Yap_FullLookupAtom(Name);
+    if (atom == NIL && !Yap_growheap(FALSE, 0L, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while initialising %s", Name);
+      return;
+    }
+  }
+  while (pe == NULL) {
+    if (Arity)
+      pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(atom, Arity),CurrentModule));
+    else
+      pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
+    if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while initialising %s", Name);
+      return;
+    }
+  } 
   pe->PredFlags = flags | AsmPredFlag | StandardPredFlag | (code);
   pe->cs.f_code =  def;
   pe->ModuleOfPred = CurrentModule;
@@ -732,13 +770,26 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
 		  CPredicate Cont, int flags)
 #endif 
 {
-  PredEntry      *pe;
-  Atom            atom = Yap_FullLookupAtom(Name);
+  PredEntry      *pe = NULL;
+  Atom            atom = NIL;
 
-  if (Arity)
-    pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(atom, Arity),CurrentModule));
-  else
-    pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
+  while (atom == NIL) {
+    atom = Yap_FullLookupAtom(Name);
+    if (atom == NIL && !Yap_growheap(FALSE, 0L, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while initialising %s", Name);
+      return;
+    }
+  }
+  while (pe == NULL) {
+    if (Arity)
+      pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(atom, Arity),CurrentModule));
+    else
+      pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
+    if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while initialising %s", Name);
+      return;
+    }
+  } 
   if (pe->cs.p_code.FirstClause != NIL)
     {
 #ifdef CUT_C

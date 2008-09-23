@@ -759,6 +759,8 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
 {
   Prop p0;
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
+  if (!p)
+    return NIL;
 
 /* Printf("entering %s:%s/0\n", RepAtom(AtomOfTerm(cur_mod))->StrOfAE, ae->StrOfAE); */
 
