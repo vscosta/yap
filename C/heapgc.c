@@ -2810,7 +2810,7 @@ sweep_choicepoints(choiceptr gc_B)
     case _table_load_answer:
       {
 	CELL *vars_ptr, vars;
-	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+	sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp));
 	vars_ptr = (CELL *) (LOAD_CP(gc_B) + 1);
 	vars = *vars_ptr++;
 	while (vars--) {	
@@ -2833,7 +2833,7 @@ sweep_choicepoints(choiceptr gc_B)
       {
 	int nargs;
 	CELL *vars_ptr, vars;
-	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+	sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp));
 	vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
 	nargs = rtp->u.Otapl.s;
 	while(nargs--) {
@@ -2863,7 +2863,7 @@ sweep_choicepoints(choiceptr gc_B)
       if (rtp) {
 	int nargs;
 	CELL *vars_ptr, vars;
-	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+	sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp));
 	vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
 	nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);	  
 	while(nargs--) {
@@ -2892,7 +2892,7 @@ sweep_choicepoints(choiceptr gc_B)
     case _table_answer_resolution:
       {
 	CELL *vars_ptr, vars;
-	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+	sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp));
 	init_substitution_pointer(gc_B, vars_ptr, CONS_CP(gc_B)->cp_dep_fr);
 	vars = *vars_ptr++;
 	while (vars--) {	
@@ -2928,7 +2928,7 @@ sweep_choicepoints(choiceptr gc_B)
       {
 	CELL *vars_ptr;
 	int heap_arity, vars_arity, subs_arity;
-	sweep_environments(gc_B->cp_env, EnvSize((CELL_PTR) (gc_B->cp_cp)), EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+	sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp));
 	vars_ptr = (CELL *)(gc_B + 1);
 	heap_arity = *vars_ptr;
 	vars_arity = *(vars_ptr + heap_arity + 1);
