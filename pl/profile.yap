@@ -58,15 +58,16 @@ profile_reset :-
 	fail.
 profile_reset.
 
-showprofres(A) :-
-	  '$proftype'(offline),
-	  '$offline_showprofres'(A).
-showprofres(_) :- fail.
-
 showprofres :-
-	  '$proftype'(offline),
+	  '$proftype'(offline), !,
 	  '$offline_showprofres'.
 showprofres :-
+	 showprofres(-1).
+
+showprofres(A) :-
+	  '$proftype'(offline), !,
+	  '$offline_showprofres'(A).
+showprofres(A) :-
 	('$profison' -> profoff, Stop = true ; Stop = false),
 	'$profglobs'(Tot,GCs,HGrows,SGrows,Mallocs,ProfOns),
 	% root node has no useful info.
@@ -82,7 +83,8 @@ showprofres :-
 	;
 	    format(user_error,'~d ticks, ~d accounted for (~d overhead)~n',[Tot,Accounted,ProfOns])
 	),
-	'$display_preds'(Preds, Tot, 0, 1),
+	A1 is A+1,
+	'$display_preds'(Preds, Tot, 0, 1, A1),
 	 (Stop = true -> profon ; true).
 
 /*
@@ -118,15 +120,16 @@ showprofres :-
 	'$get_more_ppreds'(Cls,PProfInfo,Count1,NCls,Sum).
 '$get_more_ppreds'(Cls, _, Sum, Cls, NSum) :- NSum is -Sum.
 
-'$display_preds'([], _, _, _).
-'$display_preds'([NSum-P|Ps], Tot, SoFar, I) :-
+'$display_preds'(_, _, _, N, N) :- !.
+'$display_preds'([], _, _, _, _).
+'$display_preds'([NSum-P|Ps], Tot, SoFar, I, N) :-
 	Sum is -NSum,
 	Perc is (100*Sum)/Tot,
         Next is SoFar+Sum,
 	NextP is (100*Next)/Tot,
 	format(user_error,'~|~t~d.~7+ ~|~w:~t~d~50+ (~|~t~2f~6+%)  |~|~t~2f~6+%|~n',[I,P,Sum,Perc,NextP]),
 	I1 is I+1,
-	'$display_preds'(Ps,Tot,Next,I1).
+	'$display_preds'(Ps,Tot,Next,I1, N).
 
 '$sum_alls'([],Tot,Tot).
 '$sum_alls'([C-_|Preds],Tot0,Tot) :-
