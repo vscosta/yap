@@ -4177,7 +4177,7 @@ emit_protection_choicepoint(int first, int clleft, UInt nxtlbl, struct intermedi
 	kinds of hell would follow, so we just keep it around: not nice,
 	but should work.
       */
-      Yap_emit(retryme_op, (CELL)TRUSTFAILCODE, 0, cint);
+      Yap_emit(trustme_op, 0, 0, cint);
 #endif /* TABLING */
     } else {
       Yap_emit(trustme_op, 0, 0, cint);
