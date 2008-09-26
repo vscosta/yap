@@ -952,31 +952,8 @@
 	/* if the number of substitution variables is zero, 
            an answer is sufficient to perform an early completion  */
 	if (*subs_ptr == 0 && gcp->cp_ap != ANSWER_RESOLUTION) {
-	  dep_fr_ptr depfr = LOCAL_top_dep_fr;
 	  gcp->cp_ap = COMPLETION;
 	  mark_as_completed(sg_fr);
-	  if (LOCAL_top_sg_fr && gcp != SgFr_gen_cp(LOCAL_top_sg_fr)) {
-	    fprintf(stderr,"Producer %p--%p\n",gcp,SgFr_gen_cp(LOCAL_top_sg_fr));
-	  } else if ((depfr = LOCAL_top_dep_fr)) {
-	    int external_consumers = FALSE;
-	    choiceptr gc_B = B;
-	    while (gc_B) {
-	      if (gc_B > DepFr_cons_cp(depfr)) {
-		gc_B = DepFr_cons_cp(depfr);
-		depfr = DepFr_next(depfr);
-	      }
-	      if (gc_B->cp_b >= gcp) {
-		if (gc_B->cp_b > gcp)
-		  external_consumers = TRUE;
-		break;
-	      }
-	      gc_B = gc_B->cp_b;
-	    }
-	    if (!external_consumers) {
-	      B = gcp;
-	      goto complete_all;
-	    }
-	  }
 	}
         /* fail */
         goto fail;
@@ -1578,7 +1555,6 @@
       /* complete all */
       sg_fr_ptr sg_fr;
 
-    complete_all:
       sg_fr = GEN_CP(B)->cp_sg_fr;
       private_completion(sg_fr);
       if (IS_BATCHED_GEN_CP(B)) {
