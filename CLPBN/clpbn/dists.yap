@@ -18,7 +18,8 @@
 	   get_evidence_from_position/3,
 	   dist_to_term/2,
 	   empty_dist/2,
-	   dist_new_table/2
+	   dist_new_table/2,
+	   all_dist_ids/1
 	]).
 
 :- use_module(library(lists),[is_list/1,nth0/3]).
@@ -228,5 +229,4 @@ dist_new_table(Id, NewMat) :-
 	recorda(clpbn_dist_db, db(Id, List, A, B, C, D), R),
 	fail.
 dist_new_table(_, _).
-
 

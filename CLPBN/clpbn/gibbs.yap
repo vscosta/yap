@@ -8,7 +8,8 @@
 %
 
 :- module(gibbs, [gibbs/3,
-		check_if_gibbs_done/1]).
+		check_if_gibbs_done/1,
+		init_gibbs_solver/3]).
 
 :- use_module(library(rbtrees),
 	      [rb_new/1,
@@ -49,9 +50,7 @@
 gibbs([],_,_) :- !.
 gibbs(LVs,Vs0,AllDiffs) :-
 	LVs = [_], !,
-	clean_up,
-	check_for_hidden_vars(Vs0, Vs0, Vs1),
-	sort(Vs1,Vs),
+	init_gibbs_solver(Vs0, LVs, Gibbs),
 	(clpbn:output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
 	(clpbn:output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,vel,Vs,LVs) ; true),
 	initialise(Vs, Graph, LVs, OutputVars, VarOrder),
@@ -63,6 +62,11 @@ gibbs(LVs,Vs0,AllDiffs) :-
 	clean_up.
 gibbs(LVs,_,_) :-
 	throw(error(domain_error(solver,LVs),solver(gibbs))).
+
+init_gibbs_solver(LVs, Vs0, Gibbs) :-
+	clean_up,
+	check_for_hidden_vars(Vs0, Vs0, Vs1),
+	sort(Vs1,Vs).
 
 initialise(LVs, Graph, GVs, OutputVars, VarOrder) :-
 	init_keys(Keys0),
