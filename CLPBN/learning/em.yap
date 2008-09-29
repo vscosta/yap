@@ -26,7 +26,7 @@ init_em(Items, state(AllVars, AllDists, AllDistInstances)) :-
 	different_dists(AllVars, AllDists, AllDistInstances).
 
 % loop for as long as you want.
-em_loop(MaxIts, Likelihood State, _, _ MaxIts, Likelihood) :- !.
+em_loop(MaxIts, Likelihood, State, _, _, MaxIts, Likelihood) :- !.
 em_loop(Its, Likelihood0, State, MaxError, MaxIts, LikelihoodF) :-
 	estimate(State),
 	maximise(State, Likelihood),
@@ -49,7 +49,7 @@ different_dists(AllVars, AllDists, AllInfo) :-
 	sort(Dists0, Dists1),
 	group(Dists1, AllInfo).
 
-group([], []) :-
+group([], []).
 group([i(Id,V,Ps)|Dists1], [Id-[[V|Ps]|Extra]|AllInfo]) :-
 	same_id(Dists1, Id, Extra, Rest),
 	group(Rest, AllInfo).
@@ -85,7 +85,7 @@ maximise(state(_,_,DistInstances), Tables, Likelihood) :-
 compute_parameters([], [], Lik, Lik).
 compute_parameters([Id-Samples|Dists], [Tab|Tables], Lik0, Lik) :-
 	empty_dist(Id, NewTable),
-	add_samples(Samples, NewTable).
+	add_samples(Samples, NewTable),
 	normalise_table(Id, NewTable),
 	compute_parameters(Dists, Tables, Lik0, Lik).
 
@@ -95,7 +95,7 @@ add_samples([S|Samples], Table) :-
 	matrix_add(Table, Pos, Tot),
 	fail.
 add_samples([_|Samples], Table) :-
-	add_samples(Samples, Table)
+	add_samples(Samples, Table).
 	
 run_sample([], Tot,  [], Tot).
 run_sample([V|S], W0,  [P|Pos], Tot) :-
