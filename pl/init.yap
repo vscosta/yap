@@ -177,6 +177,14 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- multifile swi:swi_predicate_table/4.
 
+:- multifile user:generate_message_hook/3.
+
+:- multifile user:message_hook/3.
+
+:- multifile prolog:message/3.
+
+:- multifile user:portray_message/2.
+
 file_search_path(library, Dir) :-
 	library_directory(Dir).
 file_search_path(swi, Home) :-
