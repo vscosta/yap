@@ -92,11 +92,11 @@ dist(p(Type, CPT, Parents), Id, FParents) :-
 
 dist_unbound(V, ground(V)) :-
 	var(V), !.
-dist_unbound(p(Type,CPT), ground(Type)) :-
+dist_unbound(p(Type,_), ground(Type)) :-
 	\+ ground(Type), !.
 dist_unbound(p(_,CPT), ground(CPT)) :-
 	\+ ground(CPT).
-dist_unbound(p(Type,CPT,_), ground(Type)) :-
+dist_unbound(p(Type,_,_), ground(Type)) :-
 	\+ ground(Type), !.
 dist_unbound(p(_,CPT,_), ground(CPT)) :-
 	\+ ground(CPT).
