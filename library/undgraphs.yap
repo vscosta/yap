@@ -178,8 +178,8 @@ expand_component([C|Children], Map1, Map, Graph1, NGraph) :-
 	rb_insert(Map1, C, Edges, Map2),
 	expand_component(Children, Map2, Map3, Graph2, Graph3),
 	expand_component(Edges, Map3, Map, Graph3, NGraph).
-expand_component([C|Children], Map1, Map, Graph1, NGraph) :-
-	expand_component(Children, Map1, Map, Graph3, NGraph).
+expand_component([_|Children], Map1, Map, Graph1, NGraph) :-
+	expand_component(Children, Map1, Map, Graph1, NGraph).
 	
 	
 pick_node(Graph,Node,Children,Graph1) :-
