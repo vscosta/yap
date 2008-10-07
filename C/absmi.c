@@ -9135,7 +9135,7 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_number_y, xl);
+      Op(p_number_y, yl);
       BEGD(d0);
       BEGP(pt0);
       pt0 = YREG + PREG->u.yl.y;
