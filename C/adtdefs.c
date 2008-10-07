@@ -713,6 +713,9 @@ Yap_NewThreadPred(PredEntry *ap)
 {
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
+  if (p == NULL) {
+    return NULL;
+  }
   INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = ap->ArityOfPE;
@@ -923,6 +926,10 @@ Yap_PutValue(Atom a, Term v)
     WRITE_UNLOCK(ae->ARWLock);
   } else {
     p = (ValEntry *) Yap_AllocAtomSpace(sizeof(ValEntry));
+    if (p == NULL) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return;
+    }
     p->NextOfPE = RepAtom(a)->PropsOfAE;
     RepAtom(a)->PropsOfAE = AbsValProp(p);
     p->KindOfPE = ValProperty;
@@ -951,6 +958,10 @@ Yap_PutValue(Atom a, Term v)
 	Yap_FreeCodeSpace((char *) (RepAppl(t0)));
       }
       pt = (CELL *) Yap_AllocAtomSpace(sizeof(CELL)*(1 + 2*sizeof(Float)/sizeof(CELL)));
+      if (pt == NULL) {
+	WRITE_UNLOCK(ae->ARWLock);
+	return;
+      }
       p->ValueOfVE = AbsAppl(pt);
       pt[0] = (CELL)FunctorDouble;
     }
@@ -970,6 +981,10 @@ Yap_PutValue(Atom a, Term v)
 	Yap_FreeCodeSpace((char *) (RepAppl(t0)));
       }
       pt = (CELL *) Yap_AllocAtomSpace(2*sizeof(CELL));
+      if (pt == NULL) {
+	WRITE_UNLOCK(ae->ARWLock);
+	return;
+      }
       p->ValueOfVE = AbsAppl(pt);
       pt[0] = (CELL)FunctorLongInt;
     }
@@ -981,6 +996,11 @@ Yap_PutValue(Atom a, Term v)
       sizeof(MP_INT)+sizeof(CELL)+
       (((MP_INT *)(ap+1))->_mp_alloc*sizeof(mp_limb_t));
     CELL *pt = (CELL *) Yap_AllocAtomSpace(sz);
+
+    if (pt == NULL) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return;
+    }
     if (IsApplTerm(t0)) {
       Yap_FreeCodeSpace((char *) RepAppl(t0));
     }
@@ -1292,6 +1312,9 @@ HoldEntry *
 Yap_InitAtomHold(void)
 {
   HoldEntry *x = (HoldEntry *)Yap_AllocAtomSpace(sizeof(struct hold_entry));
+  if (x == NULL) {
+    return NULL;
+  }
   x->KindOfPE = HoldProperty;
   x->NextOfPE = NIL;
   return x;
