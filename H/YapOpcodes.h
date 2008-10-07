@@ -240,7 +240,7 @@
   OPCODE(p_nonvar_x                 ,xl),
   OPCODE(p_nonvar_y                 ,yl),
   OPCODE(p_number_x                 ,xl),
-  OPCODE(p_number_y                 ,xl),
+  OPCODE(p_number_y                 ,yl),
   OPCODE(p_var_x                    ,xl),
   OPCODE(p_var_y                    ,yl),
   OPCODE(p_db_ref_x                 ,xl),

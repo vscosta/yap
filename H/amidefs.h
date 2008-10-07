@@ -633,8 +633,8 @@ typedef struct yami {
       CELL next;
     } yyy;
     struct {
-      wamreg               xi;
       yslot                y;
+      wamreg               xi;
       Int                  c;
       CELL next;
     } yxn;

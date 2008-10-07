@@ -541,7 +541,6 @@ restore_opcodes(yamop *pc)
     case _p_integer_x:
     case _p_nonvar_x:
     case _p_number_x:
-    case _p_number_y:
     case _p_primitive_x:
     case _p_var_x:
       pc->u.xl.x = XAdjust(pc->u.xl.x);
@@ -659,6 +658,7 @@ restore_opcodes(yamop *pc)
     case _p_float_y:
     case _p_integer_y:
     case _p_nonvar_y:
+    case _p_number_y:
     case _p_primitive_y:
     case _p_var_y:
       pc->u.yl.y = YAdjust(pc->u.yl.y);
@@ -696,8 +696,8 @@ restore_opcodes(yamop *pc)
     case _p_slr_y_cv:
     case _p_slr_y_vc:
     case _p_times_y_vc:
-      pc->u.yxn.xi = YAdjust(pc->u.yxn.xi);
-      pc->u.yxn.y = XAdjust(pc->u.yxn.y);
+      pc->u.yxn.y = YAdjust(pc->u.yxn.y);
+      pc->u.yxn.xi = XAdjust(pc->u.yxn.xi);
       pc->u.yxn.c = IntegerAdjust(pc->u.yxn.c);
       pc = NEXTOP(pc,yxn);
       break;
