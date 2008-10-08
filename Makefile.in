@@ -83,6 +83,7 @@ SHELL=@SHELL@
 RANLIB=@RANLIB@
 AR=@AR@
 srcdir=@srcdir@
+abs_top_builddir=@abs_top_builddir@
 SHLIB_SUFFIX=@SHLIB_SUFFIX@
 MAKEINFO=makeinfo
 TEXI2DVI=texi2dvi
@@ -580,7 +581,7 @@ all: startup
 
 startup: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup
-	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). save_program(startup)." |  @CROSS_SIMULATOR@ ./yap -b $(srcdir)/pl/boot.yap
+	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). save_program(startup)." |  @PRE_DYNLOADER_PATH@ ./yap -b $(srcdir)/pl/boot.yap
 
 yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
 	$(MPI_CC) $(STANDARD_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS) @MPI_LIBS@
