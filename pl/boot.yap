@@ -1173,8 +1173,8 @@ throw(Ball) :-
 %
 % just leave this around to show  the debugger.
 %
-'$notrace'(G) :-
-	'$execute'(G).
+'$notrace'(M:G) :-
+	'$execute0'(G, M).
 
-'$oncenotrace'(G) :-
-	'$execute'(G), !.
+'$oncenotrace'(M:G) :-
+	'$execute0'(G, M), !.
