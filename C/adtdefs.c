@@ -714,7 +714,7 @@ Yap_NewThreadPred(PredEntry *ap)
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
   if (p == NULL) {
-    return NULL;
+    return NIL;
   }
   INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
@@ -762,11 +762,13 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
 {
   Prop p0;
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
-  if (!p)
-    return NIL;
 
 /* Printf("entering %s:%s/0\n", RepAtom(AtomOfTerm(cur_mod))->StrOfAE, ae->StrOfAE); */
 
+  if (p == NULL) {
+    WRITE_UNLOCK(ae->ARWLock);
+    return NIL;
+  }
   INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = 0;

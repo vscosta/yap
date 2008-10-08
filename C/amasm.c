@@ -1344,18 +1344,16 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
     GONEXT(Osbpp);
   }
   else if (opcode == _execute ||
-      opcode == _dexecute) {
+	   opcode == _dexecute) {
     if (pass_no) {
-      if (opcode == _execute &&
-	  (RepPredProp(fe)->PredFlags & CPredFlag))  {
+      if (Flags & CPredFlag) {
 	code_p->opc = emit_op(_execute_cpred);
       }
       code_p->u.pp.p = RepPredProp(fe);
       code_p->u.pp.p0 = clinfo->CurrentPred;
     }
     GONEXT(pp);
-  }
-  else {
+  } else {
     if (pass_no)
       code_p->u.p.p = RepPredProp(fe);
     GONEXT(p);
@@ -2900,7 +2898,6 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     }
   }
   while (cip->cpc) {
-
     switch ((int) cip->cpc->op) {
 #ifdef YAPOR
     case sync_op:
