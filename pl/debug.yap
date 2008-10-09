@@ -558,7 +558,8 @@ debugging :-
 '$debugger_write'(Stream, G) :-
 	writeq(Stream, G).
 
-'$action'(10,_,_,_,_,on). 			% newline 	creep
+'$action'(10,_,_,_,_,on) :-
+	nb_setval('$debug_jump',false) 			% newline 	creep
 '$action'(0'!,_,_,_,_,_) :- !,			% ! 'g		execute
 	read(user,G),
 	% don't allow yourself to be caught by creep.
@@ -588,7 +589,8 @@ debugging :-
 	'$show_choicepoint_stack',
 	fail.
 '$action'(0'c,_,_,_,_,on) :- !,			% 'c		creep
-	'$skipeol'(0'c).
+	'$skipeol'(0'c),
+	nb_setval('$debug_jump',false).
 '$action'(0'e,_,_,_,_,_) :- !,			% 'e		exit
 	'$skipeol'(0'e),
 	halt.
