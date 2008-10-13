@@ -286,7 +286,7 @@ debugging :-
 	'$execute'(G,Mod).
 '$spy'([Mod|G]) :-
 	CP is '$last_choice_pt',	
-	'$do_spy'(G, Mod, CP, yes).
+	'$do_spy'(G, Mod, CP, no).
 
 % last argument to do_spy says that we are at the end of a context. It
 % is required to know whether we are controlled by the debugger.
@@ -558,8 +558,8 @@ debugging :-
 '$debugger_write'(Stream, G) :-
 	writeq(Stream, G).
 
-'$action'(10,_,_,_,_,on) :-
-	nb_setval('$debug_jump',false) 			% newline 	creep
+'$action'(10,_,_,_,_,on) :-			% newline 	creep
+	nb_setval('$debug_jump',false).
 '$action'(0'!,_,_,_,_,_) :- !,			% ! 'g		execute
 	read(user,G),
 	% don't allow yourself to be caught by creep.
