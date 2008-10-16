@@ -69,6 +69,9 @@
 #if HAVE_ERRNO_H
 #include <errno.h>
 #endif
+#if HAVE_CTYPE_H
+#include <ctype.h>
+#endif
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -250,12 +253,26 @@ print_usage(void)
   fprintf(stderr,"\n");
 }
 
+static int
+myisblank(int c)
+{
+  switch (c) {
+  case ' ':
+  case '\t':
+  case '\n':
+  case '\r':
+    return TRUE;
+  default:
+    return FALSE;
+  }
+}
+
 static char *
 add_end_dot(char arg[])
 {
   int sz = strlen(arg), i;
   i = sz;
-  while (i && isblank(arg[--i]));
+  while (i && myisblank(arg[--i]));
   if (i && arg[i] != ',') {
     char *p = (char *)malloc(sz+2);
     if (!p)
@@ -514,16 +531,20 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    break;
 #endif
 	  case 'L':
-	    if (p[1])
+	    if (p[1] && p[1] >= '0' && p[1] <= '9') /* hack to emulate SWI's L local option */
 	      goto stack_mode;
 	    iap->QuietMode = TRUE;
 	    iap->HaltAfterConsult = TRUE;
 	  case 'l':
            p++;
 	   if (!*++argv) {
-	     fprintf(stderr,
-		     "%% YAP unrecoverable error: missing boot file name\n");
+	     fprintf(stderr,"%% YAP unrecoverable error: missing load file name\n");
 	     exit(1);
+	   } else if (!strcmp("--",*argv)) {
+	     /* shell script, the next entry should be the file itself */
+	     iap->YapPrologRCFile = argv[1];
+	     argc = 1;
+	     break;
 	   } else {
 	     iap->YapPrologRCFile = *argv;
 	     argc--;
@@ -608,6 +629,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    /* End preprocessor code */
 	  case '-':
 	    /* skip remaining arguments */
+	    fprintf(stderr,"skipping remaining arguments\n");
 	    argc = 1;
 	    break;
 	  default:
