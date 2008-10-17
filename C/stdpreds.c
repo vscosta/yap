@@ -3439,7 +3439,14 @@ mk_argc_list(void)
 	for (j = Yap_argc-1; j > i+1; --j) {
 	  t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(Yap_argv[j])),t);
 	}
-      return(t);
+	return t;
+      } else if (Yap_argv[i+1] && Yap_argv[i+1][0] == '-' && Yap_argv[i+1][1] == '-'  && Yap_argv[i+1][2] == '\0') {
+	/* we found the separator */
+	int j;
+	for (j = Yap_argc-1; j > i+2; --j) {
+	  t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(Yap_argv[j])),t);
+	}
+	return t;
       }
     }
     if (arg[0] == '-' && arg[1] == '-' && arg[2] == '\0') {
