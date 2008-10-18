@@ -1925,6 +1925,8 @@ JumpToEnv(Term t) {
   B->cp_env = (CELL *)env[E_E];
   /* cannot recover Heap because of copy term :-( */
   B->cp_h = H;
+  /* nor can I recover terms */
+  B->cp_tr = TR;
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
   B->cp_a3 = t;

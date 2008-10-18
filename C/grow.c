@@ -856,9 +856,9 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
     fprintf(Yap_stderr, "%% %cO Total of %g sec expanding stacks \n", vb_msg1, (double)total_delay_overflow_time/1000);
   }
   LeaveGrowMode(GrowStackMode);
-  if (hsplit)
-    return GDiff-GDiff0;
-  else
+  if (hsplit) {
+    return size0;
+  } else
     return GDiff-DelayDiff;
 }
 

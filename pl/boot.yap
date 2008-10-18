@@ -1138,10 +1138,8 @@ catch(G, C, A) :-
 % throw has to be *exactly* after system catch!
 %
 throw(Ball) :-
-	% get this off the unwound computation.
-	duplicate_term(Ball,NewBall),
 	% get current jump point
-	'$jump_env_and_store_ball'(NewBall).
+	'$jump_env_and_store_ball'(Ball).
 
 
 % just create a choice-point

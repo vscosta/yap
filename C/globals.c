@@ -723,7 +723,7 @@ CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term 
   CELL *oldH = H;
   CELL *oldHB = HB;
   CELL *oldASP = ASP;
-  int res;
+  int res = 0;
 #if COROUTINING
   Term old_delay_arena;
 #endif

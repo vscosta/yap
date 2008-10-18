@@ -149,7 +149,7 @@ inline EXTERN CELL DelayAdjust (CELL);
 inline EXTERN CELL
 DelayAdjust (CELL val)
 {
-  return (CELL) ((val + DelayDiff));
+  return (CELL) (val + DelayDiff);
 }
 
 
