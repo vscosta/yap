@@ -70,8 +70,9 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	'$do_c_built_in'(Goal,M,IGoal),
 	'$clean_cuts'(IGoal, NGoal).
 '$do_c_built_in'(if(G,A,B), M, (yap_hacks:current_choicepoint(DCP),NG,yap_hacks:cut_at(DCP),NA; NB)) :- !,
-	'$do_c_built_in'(A,M,NA0),
-	'$clean_cuts'(NA0, NA),
+	'$do_c_built_in'(G,M,NG0),
+	'$clean_cuts'(NG0, NG),
+	'$do_c_built_in'(A,M,NA),
 	'$do_c_built_in'(B,M,NB).
 '$do_c_built_in'((G*->A), M, (NG,NA)) :- !,
 	'$do_c_built_in'(G,M,NG0),
