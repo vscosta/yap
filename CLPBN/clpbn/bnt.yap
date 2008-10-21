@@ -390,12 +390,12 @@ evidence_val(Ev,I0,[_|Domain],Val) :-
 	I1 is I0+1,
 	evidence_val(Ev,I1,Domain,Val).
 
-marginalize([V], _SortedVars,_NunmberedVars, Ps) :- !,
+marginalize([[V]], _SortedVars,_NunmberedVars, Ps) :- !,
 	v2number(V,Pos),
 	marg <-- marginal_nodes(engine_ev, Pos),
 	matlab_get_variable( marg.'T', Ps).
 
-marginalize(Vs, SortedVars, NumberedVars,Ps) :-
+marginalize([Vs], SortedVars, NumberedVars,Ps) :-
 	bnt_solver(jtree),!,
 	matlab_get_variable(loglik, Den),
 	clpbn_display:get_all_combs(Vs, Vals),

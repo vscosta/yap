@@ -7,9 +7,11 @@
 % Markov Blanket
 %
 
-:- module(gibbs, [gibbs/3,
-		check_if_gibbs_done/1,
-		init_gibbs_solver/3]).
+:- module(clpbn_gibbs,
+	  [gibbs/3,
+	   check_if_gibbs_done/1,
+	   init_gibbs_solver/3,
+	   run_gibbs_solver/3]).
 
 :- use_module(library(rbtrees),
 	      [rb_new/1,
@@ -47,26 +49,34 @@
 
 :- dynamic implicit/1.
 
-gibbs([],_,_) :- !.
+% arguments:
+%
+% list of output variables
+% list of attributed variables
+%
+gibbs([[]],_,_) :- !.
 gibbs(LVs,Vs0,AllDiffs) :-
-	LVs = [_], !,
-	init_gibbs_solver(Vs0, LVs, Gibbs),
+	init_gibbs_solver(LVs, Vs0, Vs),
 	(clpbn:output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
 	(clpbn:output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,vel,Vs,LVs) ; true),
-	initialise(Vs, Graph, LVs, OutputVars, VarOrder),
-%	write(Graph),nl,
-	process(VarOrder, Graph, OutputVars, Estimates),
-	sum_up(Estimates, [LPs]),
-%	write(Estimates),nl,
+	run_gibbs_solver(LVs, Vs, LPs),
 	clpbn_bind_vals(LVs,LPs,AllDiffs),
 	clean_up.
-gibbs(LVs,_,_) :-
-	throw(error(domain_error(solver,LVs),solver(gibbs))).
 
-init_gibbs_solver(LVs, Vs0, Gibbs) :-
+init_gibbs_solver(_, Vs0, Vs) :-
 	clean_up,
 	check_for_hidden_vars(Vs0, Vs0, Vs1),
 	sort(Vs1,Vs).
+
+run_gibbs_solver(LVs, Vs, LPs) :-
+	initialise(Vs, Graph, LVs, OutputVars, VarOrder),
+%	writeln(Graph),
+%	write_pars(Vs),
+	process(VarOrder, Graph, OutputVars, Estimates),
+%	writeln(Estimates),
+	sum_up_all(Estimates, LPs),
+	clean_up.
+%	writeln(Estimates).
 
 initialise(LVs, Graph, GVs, OutputVars, VarOrder) :-
 	init_keys(Keys0),
@@ -76,7 +86,7 @@ initialise(LVs, Graph, GVs, OutputVars, VarOrder) :-
 	compile_graph(Graph),
 	topsort(TGraph, VarOrder),
 %	show_sorted(VarOrder, Graph),
-	add_output_vars(GVs, Keys, OutputVars).
+	add_all_output_vars(GVs, Keys, OutputVars).
 
 init_keys(Keys0) :-
 	rb_new(Keys0).
@@ -120,7 +130,7 @@ graph_representation([V|Vs], Graph, I0, Keys, [I-IParents|TGraph]) :-
 
 write_pars([]).
 write_pars([V|Parents]) :- 
-	clpbn:get_atts(V, [key(K)]),write(K),nl,
+	clpbn:get_atts(V, [key(K),dist(I,_)]),write(K:I),nl,
 	write_pars(Parents).
 
 get_sizes([], []).
@@ -310,9 +320,12 @@ normalise_factors([F|Factors],S0,S,[P0|Probs],PF) :-
 	PF is P0-F/S.
 
 store_mblanket(I,Values,Probs) :-
-	append(Values,Probs,Args),
-	Rule =.. [mblanket,I|Args],
-	assert(Rule).
+	recordz(mblanket,m(I,Values,Probs),_).
+
+add_all_output_vars([], _, []).
+add_all_output_vars([Vs|LVs], Keys, [Is|OutputVars]) :-
+	add_output_vars(Vs, Keys, Is),
+	add_all_output_vars(LVs, Keys, OutputVars).
 
 add_output_vars([], _, []).
 add_output_vars([V|LVs], Keys, [I|OutputVars]) :-
@@ -382,15 +395,29 @@ iparents_pos_sz([I|IPars], Chain, [P|IPos], Graph, [Sz|Sizes]) :-
 init_estimates(0,_,_,[]) :- !.
 init_estimates(NChains,OutputVars,Graph,[Est|Est0]) :-
 	NChainsI is NChains-1,
-	init_estimate(OutputVars,Graph,Est),
+	init_estimate_all_outvs(OutputVars,Graph,Est),
 	init_estimates(NChainsI,OutputVars,Graph,Est0).
 
-init_estimate([],_,[]).
-init_estimate([V|OutputVars],Graph,[[I|E0L]|Est]) :-
-	arg(V,Graph,var(_,I,_,_,Sz,_,_,_,_)),
-	gen_e0(Sz,E0L),
-	init_estimate(OutputVars,Graph,Est).
+init_estimate_all_outvs([],_,[]).
+init_estimate_all_outvs([Vs|OutputVars],Graph,[E|Est]) :-
+	init_estimate(Vs, Graph, E),
+	init_estimate_all_outvs(OutputVars,Graph,Est).
 
+init_estimate([],_,[]).
+init_estimate([V],Graph,[I|E0L]) :- !,
+	arg(V,Graph,var(_,I,_,_,Sz,_,_,_,_)),
+	gen_e0(Sz,E0L).
+init_estimate(Vs,Graph,me(Is,Mults,Es)) :-
+	generate_est_mults(Vs, Is, Graph, Mults, Sz),
+	gen_e0(Sz,Es).
+
+
+generate_est_mults([], [], _, [], 1).
+generate_est_mults([V|Vs], [I|Is], Graph, [M0|Mults], M) :-
+	arg(V,Graph,var(_,I,_,_,Sz,_,_,_,_)),
+	generate_est_mults(Vs, Is, Graph, Mults, M0),
+	M is M0*Sz.	
+	
 gen_e0(0,[]) :- !.
 gen_e0(Sz,[0|E0L]) :-
 	Sz1 is Sz-1,
@@ -398,8 +425,9 @@ gen_e0(Sz,[0|E0L]) :-
 
 process_chains(0,_,F,F,_,_,Est,Est) :- !.
 process_chains(ToDo,VarOrder,End,Start,Graph,Len,Est0,Estf) :-
+%format('ToDo = ~d~n',[ToDo]),
 	process_chains(Start,VarOrder,Int,Graph,Len,Est0,Esti),
-% (ToDo mod 100 =:= 0 -> statistics,cvt2problist(Esti, Probs), Int =[S|_], format('did ~d: ~w~n ~w~n',[ToDo,Probs,S]) ; true),
+% (ToDo mod 100 =:= 1 -> statistics,cvt2problist(Esti, Probs), Int =[S|_], format('did ~d: ~w~n ~w~n',[ToDo,Probs,S]) ; true),
 	ToDo1 is ToDo-1,
 	process_chains(ToDo1,VarOrder,End,Int,Graph,Len,Esti,Estf).
 
@@ -408,8 +436,8 @@ process_chains([], _, [], _, _,[],[]).
 process_chains([Sample0|Samples0], VarOrder, [Sample|Samples], Graph, SampLen,[E0|E0s],[Ef|Efs]) :-
 	functor(Sample,sample,SampLen),
 	do_sample(VarOrder,Sample,Sample0,Graph),
-%format('Sample = ~w~n',[Sample]),
-	update_estimate(E0,Sample,Ef),
+% format('Sample = ~w~n',[Sample]),
+	update_estimates(E0,Sample,Ef),
 	process_chains(Samples0, VarOrder, Samples, Graph, SampLen,E0s,Efs).
 
 do_sample([],_,_,_).
@@ -418,15 +446,14 @@ do_sample([I|VarOrder],Sample,Sample0,Graph) :-
 	do_sample(VarOrder,Sample,Sample0,Graph).
 
 do_var(I,Sample,Sample0,Graph) :-
-	arg(I,Graph,var(_,I,_,_,Sz,CPTs,Parents,_,_)),
 	( implicit(I) ->
-	   fetch_parents(Parents,I,Sample,Sample0,Bindings,[]),
-	   multiply_all_in_context(Parents,Bindings,CPTs,Sz,Graph,Vals)
+	  arg(I,Graph,var(_,_,_,_,Sz,CPTs,Parents,_,_)),
+	  fetch_parents(Parents,I,Sample,Sample0,Bindings),
+	  multiply_all_in_context(Parents,Bindings,CPTs,Sz,Graph,Vals)
 	;
-	   length(Vals,Sz),	   
-	   fetch_parents(Parents,I,Sample,Sample0,Args,Vals),
-	   Goal =.. [mblanket,I|Args],
-	   call(Goal)
+	  arg(I,Graph,var(_,_,_,_,_,_,Parents,_,_)),
+	  fetch_parents(Parents,I,Sample,Sample0,Args),
+	  recorded(mblanket,m(I,Args,Vals),_)
 	),
 	X is random,
 	pick_new_value(Vals,X,0,Val),
@@ -444,31 +471,50 @@ set_pos([I|Is],[Pos|Args],Graph) :-
 	arg(I,Graph,var(_,I,Pos,_,_,_,_,_,_)),
 	set_pos(Is,Args,Graph).
 
-fetch_parents([],_,_,_,Args,Args).
-fetch_parents([P|Parents],I,Sample,Sample0,[VP|Args],Vals) :-
+fetch_parents([],_,_,_,[]).
+fetch_parents([P|Parents],I,Sample,Sample0,[VP|Args]) :-
 	arg(P,Sample,VP),
 	nonvar(VP), !,
-	fetch_parents(Parents,I,Sample,Sample0,Args,Vals).
-fetch_parents([P|Parents],I,Sample,Sample0,[VP|Args],Vals) :-
+	fetch_parents(Parents,I,Sample,Sample0,Args).
+fetch_parents([P|Parents],I,Sample,Sample0,[VP|Args]) :-
 	arg(P,Sample0,VP),
-	fetch_parents(Parents,I,Sample,Sample0,Args,Vals).
+	fetch_parents(Parents,I,Sample,Sample0,Args).
 
-pick_new_value([V|_],X,Val,Val) :-
-	X < V, !.
-pick_new_value([_|Vals],X,I0,Val) :-
-	I is I0+1,
-	pick_new_value(Vals,X,I,Val).
+pick_new_value([V|Vals],X,I0,Val) :-
+	( X < V ->
+	  Val = I0
+	;
+	  I is I0+1,
+	  pick_new_value(Vals,X,I,Val)
+	).
 
-update_estimate([],_,[]).
-update_estimate([[I|E]|E0],Sample,[[I|NE]|Ef]) :-
+update_estimates([],_,[]).
+update_estimates([Est|E0],Sample,[NEst|Ef]) :-
+	update_estimate(Est,Sample,NEst),
+	update_estimates(E0,Sample,Ef).
+
+update_estimate([I|E],Sample,[I|NE]) :-
 	arg(I,Sample,V),
-	update_estimate_for_var(V,E,NE),
-	update_estimate(E0,Sample,Ef).
+	update_estimate_for_var(V,E,NE).
+update_estimate(me(Is,Mult,E),Sample,me(Is,Mult,NE)) :-
+	get_estimate_pos(Is, Sample, Mult, 0, V),
+	update_estimate_for_var(V,E,NE).
 
-update_estimate_for_var(0,[X|T],[X1|T]) :- !, X1 is X+1.
-update_estimate_for_var(V,[E|Es],[E|NEs]) :-
-	V1 is V-1,
-	update_estimate_for_var(V1,Es,NEs).
+get_estimate_pos([], _, [], V, V).
+get_estimate_pos([I|Is], Sample, [M|Mult], V0, V) :-
+	arg(I,Sample,VV),
+	VI is VV*M+V0,
+	get_estimate_pos(Is, Sample, Mult, VI, V).
+
+update_estimate_for_var(V0,[X|T],[X1|NT]) :-
+	( V0 == 0 ->
+	  X1 is X+1,
+	  NT = T
+	;
+	  V1 is V0-1,
+	  X1 = X,
+	  update_estimate_for_var(V1,T,NT)
+	).
 
 
 
@@ -476,16 +522,14 @@ check_if_gibbs_done(Var) :-
 	get_atts(Var, [dist(_)]), !.
 
 clean_up :-
-	current_predicate(mblanket,P),
-	retractall(P),
+	eraseall(mblanket),
 	fail.
 clean_up :-
 	retractall(implicit(_)),
 	fail.
 clean_up.
 
-
-gibbs_params(5,10000,100000).
+gibbs_params(5,1000,10000).
 
 cvt2problist([], []).
 cvt2problist([[[_|E]]|Est0], [Ps|Probs]) :-
@@ -510,16 +554,32 @@ show_sorted([I|VarOrder], Graph) :-
 	format('~w ',[K]),
 	show_sorted(VarOrder, Graph).
 
-sum_up([[]|_], []).
-sum_up([[[Id|Counts]|More]|Chains], [Dist|Dists]) :-
-	add_up(Counts,Chains, Id, Add,RChains),
-	normalise(Add, Dist),
-	sum_up([More|RChains], Dists).
+sum_up_all([[]|_], []).
+sum_up_all([[C|MoreC]|Chains], [Dist|Dists]) :-
+	extract_sums(Chains, CurrentChains, LeftChains),
+	sum_up([C|CurrentChains], Dist),
+	sum_up_all([MoreC|LeftChains], Dists).
 
-add_up(Counts,[],_,Counts,[]).
-add_up(Counts,[[[Id|Cs]|MoreVars]|Chains],Id, Add, [MoreVars|RChains]) :-
+extract_sums([], [], []).
+extract_sums([[C|Chains]|MoreChains], [C|CurrentChains], [Chains|LeftChains]) :-
+	extract_sums(MoreChains, CurrentChains, LeftChains).
+
+sum_up([[_|Counts]|Chains], Dist) :-
+	add_up(Counts,Chains, Add),
+	normalise(Add, Dist).
+sum_up([me(_,_,Counts)|Chains], Dist) :-
+	add_up_mes(Counts,Chains, Add),
+	normalise(Add, Dist).
+
+add_up(Counts,[],Counts).
+add_up(Counts,[[_|Cs]|Chains], Add) :-
 	sum_lists(Counts, Cs, NCounts),
-	add_up(NCounts, Chains, Id, Add, RChains).
+	add_up(NCounts, Chains, Add).
+
+add_up_mes(Counts,[],Counts).
+add_up_mes(Counts,[me(_,_,Cs)|Chains], Add) :-
+	sum_lists(Counts, Cs, NCounts),
+	add_up_mes(NCounts, Chains, Add).
 
 sum_lists([],[],[]).	
 sum_lists([Count|Counts], [C|Cs], [NC|NCounts]) :-

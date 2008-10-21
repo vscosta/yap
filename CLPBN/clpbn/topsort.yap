@@ -37,7 +37,6 @@ topsort(Graph0, Sort0, Found0, Sort) :-
 
 add_nodes([], Found, Sort, [], Found, Sort).
 add_nodes([N-Ns|Graph0], Found0, SortI, NewGraph, Found, NSort) :-
-(N=1600 -> write(Ns), nl ; true),
 	delete_nodes(Ns, Found0, NNs),
 	( NNs == [] ->
 	   NewGraph = IGraph,

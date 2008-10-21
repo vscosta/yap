@@ -37,14 +37,19 @@ add_alldiffs([],Eqs,Eqs).
 add_alldiffs(AllDiffs,Eqs,(Eqs/alldiff(AllDiffs))).
 
 
-clpbn_bind_vals([],_,_) :- !.
+clpbn_bind_vals([],[],_).
+clpbn_bind_vals([Vs|MoreVs],[Ps|MorePs],AllDiffs) :-
+	clpbn_bind_vals2(Vs, Ps, AllDiffs),
+	clpbn_bind_vals(MoreVs,MorePs,AllDiffs).
+
+clpbn_bind_vals2([],_,_) :- !.
 % simple case, we want a distribution on a single variable.
 %bind_vals([V],Ps) :- !,
 %	clpbn:get_atts(V, [dist(Vals,_,_)]),
 %	put_atts(V, posterior([V], Vals, Ps)).
 % complex case, we want a joint distribution, do it on a leader.
 % should split on cliques ?
-clpbn_bind_vals(Vs,Ps,AllDiffs) :-
+clpbn_bind_vals2(Vs,Ps,AllDiffs) :-
 	get_all_combs(Vs, Vals),
 	Vs = [V|_],
 	put_atts(V, posterior(Vs, Vals, Ps, AllDiffs)).

@@ -1,12 +1,32 @@
 %
+% Maximum likelihood estimator and friends.
+%
+%
 % This assumes we have a single big example.
 %
 
-:- use_module(library('clpbn_learning/utils'),
-	      [run_all/1,
-	       clpbn_vars/2]).
+:- module(clpbn_mle, [learn_parameters/2,
+		      learn_parameters/3,
+		      parameters_from_evidence/3]).
 
-:- module(bnt_mle, [learn_parameters/2]).
+:- use_module(library('clpbn')).
+	      
+:- use_module(library('clpbn/learning/learn_utils'),
+	      [run_all/1,
+	       clpbn_vars/2,
+	       normalise_counts/2]).
+
+:- use_module(library('clpbn/dists'),
+	      [empty_dist/2,
+	       dist_new_table/2]).
+
+:- use_module(library(matrix),
+	      [matrix_inc/2,
+	       matrix_op_to_all/4]).
+
+
+learn_parameters(Items, Tables) :-
+	learn_parameters(Items, Tables, []).
 
 %
 % full evidence learning
@@ -14,16 +34,26 @@
 learn_parameters(Items, Tables, Extras) :-
 	run_all(Items),
 	attributes:all_attvars(AVars),
-	% sort and incorporte evidence
+	% sort and incorporate evidence
 	clpbn_vars(AVars, AllVars),
 	mk_sample(AllVars, Sample),
 	compute_tables(Extras, Sample, Tables).
 
-mk_sample(AllVars, NVars, LL) :-
-	add2sample(AllVars, Sample),
-	msort(Sample, AddL),
-	compute_params(AddL, Parms).
+parameters_from_evidence(AllVars, Sample, Extras) :-
+	mk_sample_from_evidence(AllVars, Sample),
+	compute_tables(Extras, Sample, Tables).
 
+mk_sample_from_evidence(AllVars, SortedSample) :-
+	add_evidence2sample(AllVars, Sample),
+	msort(Sample, SortedSample).
+
+mk_sample(AllVars, SortedSample) :-
+	add2sample(AllVars, Sample),
+	msort(Sample, SortedSample).
+
+%
+% assumes we have full data, meaning evidence for every variable 
+%
 add2sample([],  []).
 add2sample([V|Vs],[val(Id,[Ev|EParents])|Vals]) :-
 	clpbn:get_atts(V, [evidence(Ev),dist(Id,Parents)]),
@@ -31,12 +61,72 @@ add2sample([V|Vs],[val(Id,[Ev|EParents])|Vals]) :-
 	add2sample(Vs, Vals).
 
 get_eparents([P|Parents], [E|EParents]) :-
-	clpbn:get_atts(V, [evidence(Ev)]),
+	clpbn:get_atts(P, [evidence(E)]),
 	get_eparents(Parents, EParents).
 get_eparents([], []).
 
 
-compute_tables([], Sample, Tables) :-
-	mle(Sample, Tables).
-compute_tables([laplace|_], Sample, Tables) :-
-	laplace(Sample, Tables).
+%
+% assumes we ignore variables without evidence or without evidence
+% on a parent!
+%
+add_evidence2sample([],  []).
+add_evidence2sample([V|Vs],[val(Id,[Ev|EParents])|Vals]) :-
+	clpbn:get_atts(V, [evidence(Ev),dist(Id,Parents)]),
+	get_eveparents(Parents, EParents), !,
+	add_evidence2sample(Vs, Vals).
+add_evidence2sample([_|Vs],Vals) :-
+	add_evidence2sample(Vs, Vals).
+
+get_eveparents([P|Parents], [E|EParents]) :-
+	clpbn:get_atts(P, [evidence(E)]),
+	get_eparents(Parents, EParents).
+get_eveparents([], []).
+
+
+compute_tables(Parameters, Sample, NewTables) :-
+	estimator(Sample, Tables),
+	add_priors(Parameters, Tables, NewTables).
+
+estimator([], []).
+estimator([val(Id,Sample)|Samples], [NewTable|Tables]) :-
+	empty_dist(Id, NewTable),
+	id_samples(Id, Samples, IdSamples, MoreSamples),
+	mle([Sample|IdSamples], NewTable),
+	% replace matrix in distribution
+	dist_new_table(Id, NewTable),
+	estimator(MoreSamples, Tables).
+
+
+id_samples(_, [], [], []).
+id_samples(Id, [val(Id,Sample)|Samples], [Sample|IdSamples], MoreSamples) :- !,
+	id_samples(Id, Samples, IdSamples, MoreSamples).
+id_samples(_, Samples, [], Samples).
+
+mle([Sample|IdSamples], Table) :-
+	matrix_inc(Table, Sample),
+	mle(IdSamples, Table).
+mle([], _).
+
+add_priors([], Tables, NewTables) :-
+	normalise(Tables, NewTables).
+add_priors([laplace|_], Tables, NewTables) :- !,
+	laplace(Tables, TablesI),
+	normalise(TablesI, NewTables).
+add_priors([m_estimate(M)|_], Tables, NewTables) :- !,
+	add_mestimate(Tables, M, TablesI),
+	normalise(TablesI, NewTables).
+add_priors([_|Parms], Tables, NewTables) :-
+	add_priors(Parms, Tables, NewTables).
+
+normalise([], []).
+normalise([T0|TablesI], [T|NewTables]) :-
+	normalise_counts(T0, T),
+	normalise(TablesI, NewTables).
+
+laplace([], []).
+laplace([T0|TablesI], [T|NewTables]) :-
+	matrix_op_to_all(T0, +, 1, T),
+	laplace(TablesI, NewTables).
+
+

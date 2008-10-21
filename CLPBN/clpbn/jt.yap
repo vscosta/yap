@@ -72,6 +72,7 @@
 :- use_module(library('clpbn/display'), [
 	clpbn_bind_vals/3]).
 
+jt([[]],_,_) :- !.
 jt(LVs,Vs0,AllDiffs) :-
 	get_graph(Vs0, BayesNet, CPTs, Evidence),
 	build_jt(BayesNet, CPTs, JTree),
@@ -81,7 +82,7 @@ jt(LVs,Vs0,AllDiffs) :-
 %	write_tree(NewTree,0),
 	propagate_evidence(Evidence, NewTree, EvTree),
 	message_passing(EvTree, MTree),
-	get_margin(MTree, LVs, LPs),
+	get_margins(MTree, LVs, LPs),
 	clpbn_bind_vals(LVs,LPs,AllDiffs).
 
 
@@ -461,7 +462,12 @@ downward([tree(Clique1-(Dist1,Msg1),DistKids)|Kids], Clique, Tab, [tree(Clique1-
 	downward(Kids, Clique, Tab, NKids).
 
 
-get_margin(NewTree, LVs0, LPs) :-
+get_margins(_, [], []).
+get_margins(NewTree, [Vs|LVs], [LP|LPs]) :-
+	get_margin(NewTree, Vs, LP),
+	get_margins(NewTree, LVs, LPs).
+
+get_margin(NewTree, LVs, LPs) :-
 	sort(LVs0, LVs),
 	find_clique(NewTree, LVs, Clique, Dist),
 	sum_out_from_CPT(LVs, Dist, Clique, tab(TAB,_,_)),

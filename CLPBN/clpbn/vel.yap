@@ -55,8 +55,8 @@ check_if_vel_done(Var) :-
 %
 % implementation of the well known variable elimination algorithm
 %
-vel([],_,_) :- !.
-vel(LVs,Vs0,AllDiffs) :-
+vel([[]],_,_) :- !.
+vel([LVs],Vs0,AllDiffs) :-
 	check_for_hidden_vars(Vs0, Vs0, Vs1),
 	sort(Vs1,Vs),
 	% LVi will have a  list of CLPBN variables

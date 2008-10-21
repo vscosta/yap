@@ -5,8 +5,8 @@
 		  set_clpbn_flag/2,
 		  clpbn_flag/3,
 		  clpbn_key/2,
-		  clpbn_marginalise/2,
-			call_solver/2]).
+		  clpbn_init_solver/3,
+		  clpbn_run_solver/3]).
 
 :- use_module(library(atts)).
 :- use_module(library(lists)).
@@ -42,7 +42,9 @@
 
 :- use_module('clpbn/gibbs',
 	      [gibbs/3,
-	       check_if_gibbs_done/1
+	       check_if_gibbs_done/1,
+	       init_gibbs_solver/3,
+	       run_gibbs_solver/3
 	      ]).
 
 :- use_module('clpbn/graphs',
@@ -52,7 +54,7 @@
 
 :- use_module('clpbn/dists',
 	      [
-	       dist/3,
+	       dist/4,
 	       get_dist/4,
 	       get_evidence_position/3,
 	       get_evidence_from_position/3
@@ -106,7 +108,7 @@ clpbn_flag(suppress_attribute_display,Before,After) :-
 
 {Var = Key with Dist} :-
 	put_atts(El,[key(Key),dist(DistInfo,Parents)]),
-	dist(Dist, DistInfo, Parents),
+	dist(Dist, DistInfo, Key, Parents),
 	add_evidence(Var,DistInfo,El).
 
 check_constraint(Constraint, _, _, Constraint) :- var(Constraint), !.
@@ -158,7 +160,7 @@ call_solver(GVars, AVars) :-
 	clpbn_vars(AVars, DiffVars, AllVars),
 	get_clpbn_vars(GVars,CLPBNGVars0),
 	simplify_query_vars(CLPBNGVars0, CLPBNGVars),
-	write_out(Solver,CLPBNGVars, AllVars, DiffVars).
+	write_out(Solver,[CLPBNGVars], AllVars, DiffVars).
 
 
 
@@ -332,3 +334,32 @@ user:term_expansion((A :- {}), ( :- true )) :-	 !, % evidence
 
 clpbn_key(Var,Key) :-
 	get_atts(Var, [key(Key)]).
+
+%
+% This is a routine to start a solver, called by the learning procedures (ie, em).
+% LVs is a list of lists of variables one is interested in eventually marginalising out
+% Vs0 gives the original graph
+% AllDiffs gives variables that are not fully constrainted, ie, we don't fully know
+% the key. In this case, we assume different instances will be bound to different
+% values at the end of the day.
+%
+clpbn_init_solver(LVs,Vs0,VarsWithUnboundKeys) :-
+       	solver(Solver),
+	clpbn_init_known_solver(Solver,LVs,Vs0,VarsWithUnboundKeys).
+
+clpbn_init_known_solver(gibbs, LVs, Vs0, VarsWithUnboundKeys) :- !,
+	init_gibbs_solver(LVs, Vs0, VarsWithUnboundKeys).
+clpbn_init_known_solver(_, _, _, _).
+
+%
+% LVs is the list of lists of variables to marginalise
+% Vs is the full graph
+% Ps are the probabilities on LVs.
+% 
+%
+clpbn_run_solver(LVs,Vs,LPs) :-
+       	solver(Solver),
+	clpbn_run_known_solver(Solver,LVs,Vs,LPs).
+
+clpbn_run_known_solver(gibbs,LVs, Vs, LPs) :- !,
+	run_gibbs_solver(LVs, Vs, LPs).
