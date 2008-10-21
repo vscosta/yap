@@ -71,6 +71,8 @@ typedef enum {
 	    matrix_agg_cols/3,
 	    matrix_to_logs/1,
 	    matrix_to_exps/1,
+	    matrix_to_logs/2,
+	    matrix_to_exps/2,
 	    matrix_op/4,
 	    matrix_op_to_all/4,
 	    matrix_op_to_lines/4,

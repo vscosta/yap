@@ -1036,6 +1036,43 @@ matrix_log_all(void)
 }
 
 static int
+matrix_log_all2(void)
+{
+  int *mat;
+
+  mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+  if (!mat) {
+    /* Error */
+    return FALSE;
+  }
+  if (mat[MAT_TYPE] == INT_MATRIX) {
+    return FALSE;
+  } else {
+    YAP_Term out;
+    double *data = matrix_double_data(mat, mat[MAT_NDIMS]), *ndata;
+    int i;
+    int *nmat;
+
+    if (!YAP_IsVarTerm(YAP_ARG2)) {
+      out = YAP_ARG2;
+    } else {
+      out = new_float_matrix(mat[MAT_NDIMS], mat+MAT_DIMS, NULL);
+      if (out == YAP_TermNil())
+	return FALSE;
+    }
+    nmat = (int *)YAP_BlobOfTerm(out);
+    ndata = matrix_double_data(nmat, mat[MAT_NDIMS]);
+    for (i=0; i< mat[MAT_SIZE]; i++) {
+      ndata[i] = log(data[i]);
+    }
+    if (YAP_IsVarTerm(YAP_ARG2)) {
+      return YAP_Unify(YAP_ARG2, out);
+    }
+  }
+  return TRUE;
+}
+
+static int
 matrix_exp_all(void)
 {
   int *mat;
@@ -1053,6 +1090,43 @@ matrix_exp_all(void)
 
     for (i=0; i< mat[MAT_SIZE]; i++) {
       data[i] = exp(data[i]);
+    }
+  }
+  return TRUE;
+}
+
+static int
+matrix_exp_all2(void)
+{
+  int *mat;
+
+  mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+  if (!mat) {
+    /* Error */
+    return FALSE;
+  }
+  if (mat[MAT_TYPE] == INT_MATRIX) {
+    return FALSE;
+  } else {
+    YAP_Term out;
+    double *data = matrix_double_data(mat, mat[MAT_NDIMS]), *ndata;
+    int i;
+    int *nmat;
+
+    if (!YAP_IsVarTerm(YAP_ARG2)) {
+      out = YAP_ARG2;
+    } else {
+      out = new_float_matrix(mat[MAT_NDIMS], mat+MAT_DIMS, NULL);
+      if (out == YAP_TermNil())
+	return FALSE;
+    }
+    nmat = (int *)YAP_BlobOfTerm(out);
+    ndata = matrix_double_data(nmat, mat[MAT_NDIMS]);
+    for (i=0; i< mat[MAT_SIZE]; i++) {
+      ndata[i] = exp(data[i]);
+    }
+    if (YAP_IsVarTerm(YAP_ARG2)) {
+      return YAP_Unify(YAP_ARG2, out);
     }
   }
   return TRUE;
@@ -2810,6 +2884,8 @@ init_matrix(void)
   YAP_UserCPredicate("matrix_select", matrix_select, 4);
   YAP_UserCPredicate("matrix_to_logs", matrix_log_all,1);
   YAP_UserCPredicate("matrix_to_exps", matrix_exp_all, 1);
+  YAP_UserCPredicate("matrix_to_logs", matrix_log_all2,2);
+  YAP_UserCPredicate("matrix_to_exps", matrix_exp_all2, 2);
   YAP_UserCPredicate("matrix_sum_out", matrix_sum_out, 3);
   YAP_UserCPredicate("matrix_sum_out_several", matrix_sum_out_several, 3);
   YAP_UserCPredicate("matrix_sum_logs_out", matrix_sum_out_logs, 3);
