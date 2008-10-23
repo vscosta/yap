@@ -3827,8 +3827,7 @@ static Int
       old_H = H;
       Yap_eot_before_eof = FALSE;
       tpos = StreamPosition(inp_stream);
-      StartLine = Stream[inp_stream].linecount;
-      tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(inp_stream);
+      tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(inp_stream, &tpos);
       if (Yap_Error_TYPE != YAP_NO_ERROR && seekable) {
 	H = old_H;
 	Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
@@ -4181,12 +4180,18 @@ StreamPosition(int sno)
     else
       sargs[0] = MkIntTerm (YP_ftell (Stream[sno].u.file.file));
   }
-  sargs[1] = MkIntegerTerm (Stream[sno].linecount);
+  sargs[1] = MkIntegerTerm (StartLine = Stream[sno].linecount);
   sargs[2] = MkIntegerTerm (Stream[sno].linepos);
   sargs[3] = sargs[4] = MkIntTerm (0);
   return Yap_MkApplTerm (FunctorStreamPos, 5, sargs);
 }
 
+
+Term
+Yap_StreamPosition(int sno)
+{
+  return StreamPosition(sno);
+}
 
 static Int
 p_show_stream_position (void)
@@ -5971,12 +5976,13 @@ Yap_StringToTerm(char *s,Term *tp)
   Term t;
   TokEntry *tokstart;
   tr_fr_ptr TR_before_parse;
+  Term tpos = TermNil;
 
   if (sno < 0)
     return FALSE;
   UNLOCK(Stream[sno].streamlock);
   TR_before_parse = TR;
-  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno);
+  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno, &tpos);
   if (tokstart == NIL && tokstart->Tok == Ord (eot_tok)) {
     if (tp) {
       *tp = MkAtomTerm(Yap_LookupAtom("end of file found before end of term"));

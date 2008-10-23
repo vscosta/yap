@@ -16,6 +16,9 @@
 	       empty_dist/2,
 	       dist_new_table/2]).
 
+:- use_module(library('clpbn/connected'),
+	      [clpbn_subgraphs/2]).
+
 :- use_module(library('clpbn/learning/learn_utils'),
 	      [run_all/1,
 	       clpbn_vars/2,
@@ -29,8 +32,10 @@
 	      [matrix_add/3,
 	       matrix_to_list/2]).
 
-:- use_module(library('clpbn/utils'), [
-	check_for_hidden_vars/3]).
+:- use_module(library('clpbn/utils'),
+	      [
+	       check_for_hidden_vars/3,
+	       sort_vars_by_key/3]).
 
 :- meta_predicate em(:,+,+,-,-), init_em(:,-).
 
@@ -50,8 +55,9 @@ em(Items, MaxError, MaxIts, Tables, Likelihood) :-
 init_em(Items, state(AllVars, AllDists, AllDistInstances, MargVars)) :-
 	run_all(Items),
 	attributes:all_attvars(AllVars0),
+	sort_vars_by_key(AllVars0,AllVars1,[]),
 	% remove variables that do not have to do with this query.
-	check_for_hidden_vars(AllVars0, AllVars0, AllVars),
+	check_for_hidden_vars(AllVars1, AllVars1, AllVars),
 	different_dists(AllVars, AllDists, AllDistInstances, MargVars),
 	clpbn_init_solver(MargVars, AllVars, _).
 
@@ -59,6 +65,8 @@ init_em(Items, state(AllVars, AllDists, AllDistInstances, MargVars)) :-
 em_loop(Its, Likelihood0, State, MaxError, MaxIts, LikelihoodF, FTables) :-
 	estimate(State, LPs),
 	maximise(State, Tables, LPs, Likelihood),
+	(recorded(clpbn_dist_db, DB, _), writeln(DB), fail ; true),
+	writeln(Likelihood:Tables),
 	(
 	    (
 	     (Likelihood - Likelihood0)/Likelihood < MaxError

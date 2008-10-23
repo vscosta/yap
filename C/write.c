@@ -178,17 +178,18 @@ legalAtom(unsigned char *s)			/* Is this a legal atom ? */
     else if (Yap_chtype[ch] == SL)
       return (!*++s);
     else if ((ch == ',' || ch == '.') && !s[1])
-      return (FALSE);
+      return FALSE;
     else
       while (ch) {
-	if (Yap_chtype[ch] != SY) return (FALSE);
+	if (Yap_chtype[ch] != SY || ch == '\\')
+	  return FALSE;
 	ch = *++s;
       }
-    return (TRUE);
+    return TRUE;
   } else
     while ((ch = *++s) != 0)
       if (Yap_chtype[ch] > NU)
-	return (FALSE);
+	return FALSE;
   return (TRUE);
 }
 
@@ -219,6 +220,73 @@ AtomIsSymbols(unsigned char *s)		/* Is this atom just formed by symbols ? */
   return(symbol);
 }
 
+static void
+write_quoted(int ch, int quote, wrf writewch)
+{
+  if (yap_flags[CHARACTER_ESCAPE_FLAG] == CPROLOG_CHARACTER_ESCAPES) {
+    wrputc(ch, writewch);
+    if (ch == '\'')
+      wrputc('\'', writewch);	/* be careful about quotes */
+    return;
+  }
+  if (!(ch < 0xff  && chtype(ch) == BS) && ch != '\'' && ch != '\\') {
+    wrputc(ch, writewch);
+  } else {
+    switch (ch) {
+    case '\\':
+    case '\'':
+      wrputc('\\', writewch);	
+      wrputc(ch, writewch);	
+      break;
+    case 7:
+      wrputc('\\', writewch);	
+      wrputc('a', writewch);	
+      break;
+    case '\b':
+      wrputc('\\', writewch);
+      wrputc('b', writewch);	
+      break;
+    case '\t':
+      wrputc('\\', writewch);
+      wrputc('t', writewch);	
+      break;
+    case ' ':
+    case 160:
+      wrputc(' ', writewch);
+      break;
+    case '\n':
+      wrputc('\\', writewch);
+      wrputc('n', writewch);	
+      break;
+    case 11:
+      wrputc('\\', writewch);
+      wrputc('v', writewch);	
+      break;
+    case '\r':
+      wrputc('\\', writewch);
+      wrputc('r', writewch);	
+      break;
+    case '\f':
+      wrputc('\\', writewch);
+      wrputc('f', writewch);	
+      break;
+    default:
+      if ( ch <= 0xff ) {
+	char esc[8];
+	
+	if (yap_flags[CHARACTER_ESCAPE_FLAG] == SICSTUS_CHARACTER_ESCAPES) {
+	  sprintf(esc, "\\%03o", ch);
+	} else {
+	  /* last backslash in ISO mode */
+	  sprintf(esc, "\\%03o\\", ch);
+	}
+	wrputs(esc, writewch);
+      }
+    }
+  }
+}
+
+
 static void 
 putAtom(Atom atom, int Quote_illegal, wrf writewch)			/* writes an atom	 */
 	                     
@@ -242,11 +310,7 @@ putAtom(Atom atom, int Quote_illegal, wrf writewch)			/* writes an atom	 */
       wrputc('\'', writewch);
       while (*ws) {
 	wchar_t ch = *ws++;
-	wrputc(ch, writewch);
-	if (ch == '\\' && yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES)
-	  wrputc('\\', writewch);	/* be careful about backslashes */
-	else if (ch == '\'')
-	  wrputc('\'', writewch);	/* be careful about quotes */
+	write_quoted(ch, '\'', writewch);
       }
       wrputc('\'', writewch);
     } else {
@@ -261,11 +325,7 @@ putAtom(Atom atom, int Quote_illegal, wrf writewch)			/* writes an atom	 */
     wrputc('\'', writewch);
     while (*s) {
       wchar_t ch = *s++;
-      wrputc(ch, writewch);
-      if (ch == '\\' && yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES)
-	wrputc('\\', writewch);	/* be careful about backslashes */
-      else if (ch == '\'')
-	wrputc('\'', writewch);	/* be careful about quotes */
+      write_quoted(ch, '\'', writewch);
     }
     wrputc('\'', writewch);
   } else {
@@ -276,7 +336,8 @@ putAtom(Atom atom, int Quote_illegal, wrf writewch)			/* writes an atom	 */
 static int 
 IsStringTerm(Term string)	/* checks whether this is a string */
 {
-  if (IsVarTerm(string)) return(FALSE);
+  if (IsVarTerm(string))
+    return FALSE;
   do {
     Term hd;
     int ch;
@@ -301,12 +362,7 @@ putString(Term string, wrf writewch)		/* writes a string	 */
   wrputc('"', writewch);
   while (string != TermNil) {
     int ch = IntOfTerm(HeadOfTerm(string));
-    wrputc(ch, writewch);
-    if (ch == '\\' && yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES)
-      wrputc('\\', writewch);	/* be careful about backslashes */
-    else if (ch == '"')
-      wrputc('"', writewch);	/* be careful about quotes */
-    string = TailOfTerm(string);
+    write_quoted(ch, '"', writewch);
   }
   wrputc('"', writewch);
   lastw = alphanum;

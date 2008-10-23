@@ -165,13 +165,13 @@ true :- true.
 	prompt(_,'   ?- '),
 	prompt('   | '),
 	'$run_toplevel_hooks',
-	'$read_vars'(user_input,Command,_,_,Varnames),
+	'$read_vars'(user_input,Command,_,Pos,Varnames),
 	nb_setval('$spy_gn',1),
 		% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_zip',off),
 	prompt(_,'   |: '),
-	'$command'((?-Command),Varnames,top),
+	'$command'((?-Command),Varnames,Pos,top),
 	'$sync_mmapped_arrays',
 	set_value('$live','$false').
 
@@ -283,16 +283,16 @@ true :- true.
 	recordz('$corout','$corout'(main,main,'$corout'([],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[])),_Ref),
 	recorda('$result',going,_).
 
-'$command'(C,VL,Con) :-
+'$command'(C,VL,Pos,Con) :-
 	'$access_yap_flags'(9,1), !,
-	 '$execute_command'(C,VL,Con,C).
-'$command'(C,VL,Con) :-
+	 '$execute_command'(C,VL,Pos,Con,C).
+'$command'(C,VL,Pos,Con) :-
 	( (Con = top ; var(C) ; C = [_|_])  ->  
-	  '$execute_command'(C,VL,Con,C), ! ;
+	  '$execute_command'(C,VL,Pos,Con,C), ! ;
 	  % do term expansion
 	  expand_term(C, EC),
 	  % execute a list of commands
-	  '$execute_commands'(EC,VL,Con,C),
+	  '$execute_commands'(EC,VL,Pos,Con,C),
 	  % succeed only if the *original* was at end of file.
 	  C == end_of_file
 	).
@@ -300,18 +300,18 @@ true :- true.
  %
  % Hack in case expand_term has created a list of commands.
  %
- '$execute_commands'(V,_,_,Source) :- var(V), !,
+ '$execute_commands'(V,_,_,_,Source) :- var(V), !,
 	 '$do_error'(instantiation_error,meta_call(Source)).
- '$execute_commands'([],_,_,_) :- !.
- '$execute_commands'([C|Cs],VL,Con,Source) :- !,
+ '$execute_commands'([],_,_,_,_) :- !.
+ '$execute_commands'([C|Cs],VL,Pos,Con,Source) :- !,
 	 (
-	   '$execute_command'(C,VL,Con,Source),
+	   '$execute_command'(C,VL,Pos,Con,Source),
 	   fail	
 	 ;
-	   '$execute_commands'(Cs,VL,Con,Source)
+	   '$execute_commands'(Cs,VL,Pos,Con,Source)
 	 ).
- '$execute_commands'(C,VL,Con,Source) :-
-	 '$execute_command'(C,VL,Con,Source).
+ '$execute_commands'(C,VL,Pos,Con,Source) :-
+	 '$execute_command'(C,VL,Pos,Con,Source).
 
 
 
@@ -319,27 +319,27 @@ true :- true.
  %
  %
 
- '$execute_command'(C,_,top,Source) :- var(C), !,
+ '$execute_command'(C,_,_,top,Source) :- var(C), !,
 	 '$do_error'(instantiation_error,meta_call(Source)).
- '$execute_command'(C,_,top,Source) :- number(C), !,
+ '$execute_command'(C,_,_,top,Source) :- number(C), !,
 	 '$do_error'(type_error(callable,C),meta_call(Source)).
- '$execute_command'(R,_,top,Source) :- db_reference(R), !,
+ '$execute_command'(R,_,_,top,Source) :- db_reference(R), !,
 	 '$do_error'(type_error(callable,R),meta_call(Source)).
- '$execute_command'(end_of_file,_,_,_) :- !.
- '$execute_command'(Command,_,_,_) :-
+ '$execute_command'(end_of_file,_,_,_,_) :- !.
+ '$execute_command'(Command,_,_,_,_) :-
 	 nb_getval('$if_skip_mode',skip),
 	 \+ '$if_directive'(Command),
 	 !.
- '$execute_command'((:-G),_,Option,_) :- !,
+ '$execute_command'((:-G),_,_,Option,_) :- !,
 	 '$current_module'(M),
 	 % allow user expansion
 	 expand_term((:- G), O),
          O = (:- G1),
 	 '$process_directive'(G1, Option, M).
- '$execute_command'((?-G),V,_,Source) :- !,
-	 '$execute_command'(G,V,top,Source).
- '$execute_command'(G,V,Option,Source) :-
-	 '$continue_with_command'(Option,V,G,Source).
+ '$execute_command'((?-G),V,Pos,_,Source) :- !,
+	 '$execute_command'(G,V,Pos,top,Source).
+ '$execute_command'(G,V,Pos,Option,Source) :-
+	 '$continue_with_command'(Option,V,Pos,G,Source).
 
  %
  % This command is very different depending on the language mode we are in.
@@ -377,34 +377,34 @@ true :- true.
  '$process_directive'(G, _, M) :-
 	 ( '$do_yes_no'(G,M) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
 
- '$continue_with_command'(reconsult,V,G,Source) :-
-	 '$go_compile_clause'(G,V,5,Source),
+ '$continue_with_command'(reconsult,V,Pos,G,Source) :-
+	 '$go_compile_clause'(G,V,Pos,5,Source),
 	 fail.
- '$continue_with_command'(consult,V,G,Source) :-
-	 '$go_compile_clause'(G,V,13,Source),
+ '$continue_with_command'(consult,V,Pos,G,Source) :-
+	 '$go_compile_clause'(G,V,Pos,13,Source),
 	 fail.
- '$continue_with_command'(top,V,G,_) :-
+ '$continue_with_command'(top,V,_,G,_) :-
 	 '$query'(G,V).
 
  %
  % not 100% compatible with SICStus Prolog, as SICStus Prolog would put
  % module prefixes all over the place, although unnecessarily so.
  %
- '$go_compile_clause'(G,V,N,Source) :-
+ '$go_compile_clause'(G,V,Pos,N,Source) :-
 	 '$current_module'(Mod),
-	 '$go_compile_clause'(G,V,N,Mod,Mod,Source).
+	 '$go_compile_clause'(G,V,Pos,N,Mod,Mod,Source).
  
-'$go_compile_clause'(M:G,V,N,_,_,Source) :- !,
-	  '$go_compile_clause'(G,V,N,M,M,Source).
-'$go_compile_clause'((M:H :- B),V,N,_,BodyMod,Source) :- !,
-	  '$go_compile_clause'((H :- B),V,N,M,BodyMod,Source).
-'$go_compile_clause'(G,V,N,HeadMod,BodyMod,Source) :- !,
-	 '$prepare_term'(G, V, G0, G1, BodyMod, HeadMod, Source),
+'$go_compile_clause'(M:G,V,Pos,N,_,_,Source) :- !,
+	  '$go_compile_clause'(G,V,Pos,N,M,M,Source).
+'$go_compile_clause'((M:H :- B),V,Pos,N,_,BodyMod,Source) :- !,
+	  '$go_compile_clause'((H :- B),V,Pos,N,M,BodyMod,Source).
+'$go_compile_clause'(G,V,Pos,N,HeadMod,BodyMod,Source) :- !,
+	 '$prepare_term'(G, V, Pos, G0, G1, BodyMod, HeadMod, Source),
 	 '$$compile'(G1, G0, N, HeadMod).
 
- '$prepare_term'(G, V, G0, G1, BodyMod, SourceMod, Source) :-
+ '$prepare_term'(G, V, Pos, G0, G1, BodyMod, SourceMod, Source) :-
 	 ( get_value('$syntaxcheckflag',on) ->
-		 '$check_term'(Source, V, BodyMod) ; true ),
+		 '$check_term'(Source, V, Pos, BodyMod) ; true ),
 	 '$precompile_term'(G, G0, G1, BodyMod, SourceMod).
 
  % process an input clause
@@ -1006,8 +1006,8 @@ bootstrap(F) :-
 	!.
 
 '$enter_command'(Stream,Status) :-
-	'$read_vars'(Stream,Command,_,_,Vars),
-	'$command'(Command,Vars,Status).
+	'$read_vars'(Stream,Command,_,Pos,Vars),
+	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-
 	'$do_error'(permission_error(input,closed_stream,Stream), loop).

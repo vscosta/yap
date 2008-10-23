@@ -28,7 +28,5 @@ goal(student_intelligence(P,V)) :-
 goal(course_difficulty(P,V)) :-
         pos:course_difficulty(P,V1),
         ( random > 0.1 -> V = V1 ; true).
-/*
 goal(registration_satisfaction(P,V)) :-
         pos:registration_satisfaction(P,V).
-*/

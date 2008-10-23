@@ -120,20 +120,20 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	'$values'('$syntaxcheckmultiple',O,N).
 
 
-'$check_term'(T,_,M) :-
+'$check_term'(T,_,P,M) :-
 	get_value('$syntaxcheckdiscontiguous',on),
 	'$xtract_head'(T,M,NM,_,F,A),
 	'$handle_discontiguous'(F,A,NM), fail.
-'$check_term'(T,_,M) :-
+'$check_term'(T,_,P,M) :-
 	get_value('$syntaxcheckmultiple',on),
 	'$xtract_head'(T,M,NM,_,F,A),
 	'$handle_multiple'(F,A,NM), fail.
-'$check_term'(T,VL,_) :-
+'$check_term'(T,VL,P,_) :-
 	get_value('$syntaxchecksinglevar',on),
 	( '$chk_binding_vars'(T),
 	  '$sv_list'(VL,Sv) ->
 	  '$sv_warning'(Sv,T) ), fail.
-'$check_term'(_,_,_).
+'$check_term'(_,_,_,_).
 
 '$chk_binding_vars'(V) :- var(V), !, V = '$V'(_).
 '$chk_binding_vars'('$V'(off)) :- !.

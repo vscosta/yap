@@ -151,14 +151,14 @@ beautify_hidden_goal('$csult'(Files,Mod),prolog) -->
 	[reconsult(Mod:Files)].
 beautify_hidden_goal('$use_module'(Files,Mod,Is),prolog) -->
 	[use_module(Mod,Files,Is)].
-beautify_hidden_goal('$continue_with_command'(reconsult,V,G,Source),prolog) -->
-	['Assert'(G,V,Source)].
-beautify_hidden_goal('$continue_with_command'(consult,V,G,Source),prolog) -->
-	['Assert'(G,V,Source)].
-beautify_hidden_goal('$continue_with_command'(top,V,G,_),prolog) -->
-	['Query'(G,V)].
-beautify_hidden_goal('$continue_with_command'(Command,V,G,Source),prolog) -->
-	['TopLevel'(Command,G,V,Source)].
+beautify_hidden_goal('$continue_with_command'(reconsult,V,P,G,Source),prolog) -->
+	['Assert'(G,V,P,Source)].
+beautify_hidden_goal('$continue_with_command'(consult,V,P,G,Source),prolog) -->
+	['Assert'(G,V,P,Source)].
+beautify_hidden_goal('$continue_with_command'(top,V,P,G,_),prolog) -->
+	['Query'(G,V,P)].
+beautify_hidden_goal('$continue_with_command'(Command,V,P,G,Source),prolog) -->
+	['TopLevel'(Command,G,V,P,Source)].
 beautify_hidden_goal('$spycall'(G,M,InControl,Redo),prolog) -->
 	['DebuggerCall'(M:G, InControl, Redo)].
 beautify_hidden_goal('$do_spy'(Goal, Mod, CP, InControl),prolog) -->
@@ -167,8 +167,8 @@ beautify_hidden_goal('$system_catch'(G,Mod,Exc,Handler),prolog) -->
 	[catch(Mod:G, Exc, Handler)].
 beautify_hidden_goal('$catch'(G,Exc,Handler),prolog) -->
 	[catch(G, Exc, Handler)].
-beautify_hidden_goal('$execute_command'(Query,V,Option,Source),prolog) -->
-	[toplevel_query(Query, V, Option, Source)].
+beautify_hidden_goal('$execute_command'(Query,V,P,Option,Source),prolog) -->
+	[toplevel_query(Query, V, P, Option, Source)].
 beautify_hidden_goal('$process_directive'(Gs,_,Mod),prolog) -->
 	[(:- Mod:Gs)].
 beautify_hidden_goal('$loop'(Stream,Option),prolog) -->

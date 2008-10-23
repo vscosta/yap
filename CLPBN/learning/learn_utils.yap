@@ -54,8 +54,6 @@ normalise_counts(MAT,NMAT) :-
 	matrix_op_to_lines(MAT, Sum, /, NMAT).
 
 compute_likelihood(Table0, NewTable, DeltaLik) :-
-	matrix:matrix_to_list(Table0,L0), writeln(L0),
-	matrix:matrix_to_list(NewTable,L1), writeln(L1),
 	matrix_to_logs(NewTable, Logs),
 	matrix_op(Table0, Logs, *, Logs),
 	matrix_sum(Logs, DeltaLik).

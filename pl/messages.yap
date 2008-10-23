@@ -31,9 +31,9 @@ file_location(Prefix) -->
 	[ nl ].
 
 file_position(user_input,LN,MsgCodes) -->
-	[ '~a at user_input near line ~d.' - [MsgCodes,LN] ].
+	[ '~a (user_input:~d).' - [MsgCodes,LN] ].
 file_position(FileName,LN,MsgCodes) -->
-	[ '~a at file ~a, near line ~d.' - [MsgCodes,FileName,LN] ].
+	[ '~a (~a:~d).' - [MsgCodes,FileName,LN] ].
 
 generate_message(halt) --> !,
 	['YAP execution halted'].

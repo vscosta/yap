@@ -145,13 +145,13 @@ static Int
 p_stream_to_terms(void)
 {
   int sno = Yap_CheckStream (ARG1, Input_Stream_f, "read_line_to_codes/2");
-  Term t = Deref(ARG3);
+  Term t = Deref(ARG3), tpos = TermNil;
 
   if (sno < 0)
     return FALSE;
   while (!(Stream[sno].status & Eof_Stream_f)) {
     /* skip errors */
-    TokEntry *tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno);
+    TokEntry *tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno, &tpos);
     if (!Yap_ErrorMessage)
     {
       Term th = Yap_Parse();

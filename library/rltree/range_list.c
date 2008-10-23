@@ -56,6 +56,11 @@ static void root_intervals(RL_Tree* tree);
 NUM next_min(RL_Tree *tree,NUM node,NUM node_num,NUM interval,NUM max,NUM min);
 NUM tree_minus(RL_Tree *r1,RL_Tree *r2,NUM node1,NUM node2,NUM node_num,NUM interval,NUM max);
 
+RL_Tree* minus_rl(RL_Tree* range1,RL_Tree* range2);
+void shift_right(RL_Tree *tree,const NUM idx,const long nnodes);
+void shift_left(RL_Tree *tree,const NUM idx, const long nnodes);
+void intersect_leafs(char *storage1,char *storage2);
+
 static void print_nodes(RL_Tree* tree);
 
 //

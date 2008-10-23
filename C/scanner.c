@@ -732,7 +732,7 @@ ch_to_wide(char *base, char *charp)
 }
 
 TokEntry *
-Yap_tokenizer(int inp_stream)
+Yap_tokenizer(int inp_stream, Term *tposp)
 {
   TokEntry *t, *l, *p;
   enum TokenKinds kind;
@@ -753,6 +753,10 @@ Yap_tokenizer(int inp_stream)
   p = NULL;			/* Just to make lint happy */
   LOCK(Stream[inp_stream].streamlock);
   ch = Nxtch(inp_stream);
+  while (chtype(ch) == BS) {
+    ch = Nxtch(inp_stream);
+  }
+  *tposp = Yap_StreamPosition(inp_stream);
   do {
     wchar_t och;
     int quote, isvar;
@@ -789,6 +793,13 @@ Yap_tokenizer(int inp_stream)
       while ((ch = Nxtch(inp_stream)) != 10 && chtype(ch) != EF);
       if (chtype(ch) != EF) {
 	/* blank space */
+	if (t == l) {
+	  /* we found a comment before reading characters */
+	  while (chtype(ch) == BS) {
+	    ch = Nxtch(inp_stream);
+	  }
+	  *tposp = Yap_StreamPosition(inp_stream);
+	}
 	goto restart;
       } else {
 	t->Tok = Ord(kind = eot_tok);
@@ -1114,6 +1125,13 @@ Yap_tokenizer(int inp_stream)
 	  t->Tok = Ord(kind = eot_tok);
 	}
 	ch = Nxtch(inp_stream);
+	if (t == l) {
+	  /* we found a comment before reading characters */
+	  while (chtype(ch) == BS) {
+	    ch = Nxtch(inp_stream);
+	  }
+	  *tposp = Yap_StreamPosition(inp_stream);
+	}
 	goto restart;
       }
     enter_symbol:

@@ -1781,7 +1781,7 @@ YAP_EndConsult(void)
 X_API Term
 YAP_Read(int (*mygetc)(void))
 {
-  Term t;
+  Term t, tpos = TermNil;
   int sno;
   TokEntry *tokstart;
   
@@ -1794,7 +1794,8 @@ YAP_Read(int (*mygetc)(void))
     return TermNil;
   }
   Stream[sno].stream_getc = do_yap_getc;
-  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno);
+  Stream[sno].status |= Tty_Stream_f;
+  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno, &tpos);
   Stream[sno].status = Free_Stream_f;
   if (Yap_ErrorMessage)
     {

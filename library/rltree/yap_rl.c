@@ -116,7 +116,7 @@ static
 int 
 p_rl_size(void) {
 
-  YAP_Term t1=YAP_Deref(YAP_ARG1),t2=YAP_Deref(YAP_ARG2),t_size;
+  YAP_Term t1=YAP_Deref(YAP_ARG1),t_size;
   IDTYPE id;
   RL_Tree* tree;
   unsigned int size;
@@ -129,7 +129,7 @@ p_rl_size(void) {
   
   size=tree->size*sizeof(RL_Node)+sizeof(RL_Tree);
   t_size=YAP_MkIntTerm(size);
-  if(!YAP_Unify(YAP_Deref(YAP_ARG2),t_size) )   
+  if(!YAP_Unify(YAP_ARG2,t_size) )   
     return (FALSE);
   
   return(TRUE);
@@ -207,6 +207,8 @@ p_rl_set_in(void) {
 #endif
   return (TRUE);
 }
+
+#ifdef UNUSED
  /*
  *
  *
@@ -234,6 +236,8 @@ p_rl_in(void) {
     return (TRUE);
   return (FALSE);
 }
+#endif
+
 /*
  *
  *
@@ -372,7 +376,6 @@ int
 p_rl_b_in2(void) {
 
   YAP_Term t1=YAP_Deref(YAP_ARG1);
-  YAP_Term t2=YAP_Deref(YAP_ARG2);
   IDTYPE id;
   NUM val;
   RL_Tree *tree;
@@ -422,7 +425,7 @@ p_rl_b_in1(void) {
   }
 }
 /* ******************************************************* */
-void init_rl(){
+void init_rl(void){
 
      
  YAP_UserCPredicate("rl_new", p_rl_new,2);        //  Maximum -> RangeID
