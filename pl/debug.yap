@@ -280,10 +280,10 @@ debugging :-
 % $spy may be called from user code, so be careful.
 '$spy'([Mod|G]) :-
 	'$debug_on'(F), F = false, !,
-	'$execute'(G,Mod).
+	'$execute_nonstop'(G,Mod).
 '$spy'([Mod|G]) :-
 	nb_getval('$system_mode',on), !,
-	'$execute'(G,Mod).
+	'$execute_nonstop'(G,Mod).
 '$spy'([Mod|G]) :-
 	CP is '$last_choice_pt',	
 	'$do_spy'(G, Mod, CP, no).
