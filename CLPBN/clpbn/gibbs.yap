@@ -517,7 +517,6 @@ update_estimate_for_var(V0,[X|T],[X1|NT]) :-
 	).
 
 
-
 check_if_gibbs_done(Var) :-
 	get_atts(Var, [dist(_)]), !.
 

@@ -65,7 +65,6 @@ init_em(Items, state(AllVars, AllDists, AllDistInstances, MargVars)) :-
 em_loop(Its, Likelihood0, State, MaxError, MaxIts, LikelihoodF, FTables) :-
 	estimate(State, LPs),
 	maximise(State, Tables, LPs, Likelihood),
-	(recorded(clpbn_dist_db, DB, _), writeln(DB), fail ; true),
 	writeln(Likelihood:Tables),
 	(
 	    (

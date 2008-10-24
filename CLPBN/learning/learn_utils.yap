@@ -12,7 +12,8 @@
 	       matrix_op_to_lines/4,
 	       matrix_to_logs/2,
 	       matrix_op/4,
-	       matrix_sum/2]).
+	       matrix_sum/2,
+	       matrix_to_list/2]).
 
 :- meta_predicate run_all(:).
 
@@ -55,7 +56,14 @@ normalise_counts(MAT,NMAT) :-
 
 compute_likelihood(Table0, NewTable, DeltaLik) :-
 	matrix_to_logs(NewTable, Logs),
-	matrix_op(Table0, Logs, *, Logs),
-	matrix_sum(Logs, DeltaLik).
+	matrix_to_list(Table0,L1),
+	matrix_to_list(Logs,L2),
+	sum_prods(L1,L2,0,DeltaLik).
 
+sum_prods([],[],DeltaLik,DeltaLik).
+sum_prods([0.0|L1],[_|L2],DeltaLik0,DeltaLik) :- !,
+	sum_prods(L1,L2,DeltaLik0,DeltaLik).
+sum_prods([Count|L1],[Log|L2],DeltaLik0,DeltaLik) :- !,
+	DeltaLik1 is DeltaLik0+Count*Log,
+	sum_prods(L1,L2,DeltaLik1,DeltaLik).
 
