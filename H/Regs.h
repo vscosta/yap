@@ -770,7 +770,7 @@ extern REGSTORE Yap_standard_regs;
 static inline UInt
 CalculateStackGap(void)
 {
-  UInt gmin = (LCL0-H0)>>3;
+  UInt gmin = (LCL0-H0)>>2;
 
   if (gmin < MinStackGap) gmin = MinStackGap; 
   return gmin;
