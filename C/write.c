@@ -363,6 +363,7 @@ putString(Term string, wrf writewch)		/* writes a string	 */
   while (string != TermNil) {
     int ch = IntOfTerm(HeadOfTerm(string));
     write_quoted(ch, '"', writewch);
+    string = TailOfTerm(string);
   }
   wrputc('"', writewch);
   lastw = alphanum;
