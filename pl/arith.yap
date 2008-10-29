@@ -78,7 +78,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	'$do_c_built_in'(G,M,NG0),
 	'$clean_cuts'(NG0, NG),
 	'$do_c_built_in'(A,M,NA).
-'$do_c_built_in'('C'(A,B.C), _, (A=[B|C])) :- !.
+'$do_c_built_in'('C'(A,B,C), _, (A=[B|C])) :- !.
 '$do_c_built_in'(X is Y, _, P) :-
 	nonvar(Y),		% Don't rewrite variables
 	!,
