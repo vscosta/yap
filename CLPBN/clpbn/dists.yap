@@ -90,12 +90,10 @@ dist(V, Id, Key, Parents) :-
 	var(Key), !,
 	when(Key, dist(V, Id, Key, Parents)).
 dist(p(Type, CPT), Id, Key, FParents) :-
-	functor(Key, Na, Ar),
-	functor(Key0, Na, Ar),
+	copy_structure(Key, Key0),
 	distribution(Type, CPT, Id, Key0, [], FParents).
 dist(p(Type, CPT, Parents), Id, Key, FParents) :-
-	functor(Key, Na, Ar),
-	functor(Key0, Na, Ar),
+	copy_structure(Key, Key0),
 	distribution(Type, CPT, Id, Key0, Parents, FParents).
 
 dist_unbound(V, ground(V)) :-
@@ -237,4 +235,16 @@ dist_new_table(Id, NewMat) :-
 	recorda(clpbn_dist_db, db(Id, Key, List, A, B, C, D), _),
 	fail.
 dist_new_table(_, _).
+
+copy_structure(V, V) :- var(V), !.
+copy_structure(V, _) :- primitive(V), !.
+copy_structure(Key, Key0) :-
+	Key =.. [A|LKey],
+	copy_Lstructure(LKey, LKey0),
+	Key0 =.. [A|LKey0].
+
+copy_Lstructure([], []).
+copy_Lstructure([H|LKey], [NH|LKey0]) :-
+	copy_structure(H, NH),
+	copy_Lstructure(LKey, LKey0).
 
