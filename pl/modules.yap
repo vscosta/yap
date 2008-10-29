@@ -261,6 +261,9 @@ module(N) :-
 '$module_expansion'((A,B),(A1,B1),(AO,BO),M,MM,HM,HVars) :- !,
 	'$module_expansion'(A,A1,AO,M,MM,HM,HVars),
 	'$module_expansion'(B,B1,BO,M,MM,HM,HVars).
+'$module_expansion'((A;B),(A1;B1),(AO;BO),M,MM,HM,HVars) :- var(A), !,
+	'$module_expansion'(A,A1,AO,M,MM,HM,HVars),
+	'$module_expansion'(B,B1,BO,M,MM,HM,HVars).
 '$module_expansion'((A*->B;C),(A1*->B1;C1),(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),M,MM,HM,HVars) :- !,
 	'$module_expansion'(A,A1,AOO,M,MM,HM,HVars),
 	'$clean_cuts'(AOO, AO),
