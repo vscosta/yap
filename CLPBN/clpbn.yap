@@ -63,12 +63,19 @@
 :- use_module('clpbn/evidence',
 	      [
 	       store_evidence/1,
-	       incorporate_evidence/2
+	       incorporate_evidence/2,
+	       check_stored_evidence/2,
+	       add_evidence/2
 	      ]).
 
 :- use_module('clpbn/utils',
 	      [
 	       sort_vars_by_key/3
+	      ]).
+
+:- use_module('clpbn/connected',
+	      [
+	       influences/4
 	      ]).
 
 :- dynamic solver/1,output/1,use/1,suppress_attribute_display/1.
@@ -109,7 +116,7 @@ clpbn_flag(suppress_attribute_display,Before,After) :-
 {Var = Key with Dist} :-
 	put_atts(El,[key(Key),dist(DistInfo,Parents)]),
 	dist(Dist, DistInfo, Key, Parents),
-	add_evidence(Var,DistInfo,El).
+	add_evidence(Var,Key,DistInfo,El).
 
 check_constraint(Constraint, _, _, Constraint) :- var(Constraint), !.
 check_constraint((A->D), _, _, (A->D)) :- var(A), !.
@@ -127,11 +134,13 @@ replace_var([V|_], V0, [NV|_], NV) :- V == V0, !.
 replace_var([_|Vars], V, [_|NVars], NV) :-
 	replace_var(Vars, V, NVars, NV).
 
-add_evidence(V,Distinfo,NV) :-
+add_evidence(V,Key,Distinfo,NV) :-
 	nonvar(V), !,
 	get_evidence_position(V, Distinfo, Pos),
+	check_stored_evidence(Key, Pos),
 	clpbn:put_atts(NV,evidence(Pos)).
-add_evidence(V,_,V).
+add_evidence(V,K,_,V) :-
+	add_evidence(K,V).
 
 clpbn_marginalise(V, Dist) :-
 	attributes:all_attvars(AVars),
@@ -150,19 +159,16 @@ project_attributes(GVars, AVars) :-
 	clpbn_vars(AVars, DiffVars, AllVars),
 	get_clpbn_vars(GVars,CLPBNGVars0),
 	simplify_query_vars(CLPBNGVars0, CLPBNGVars),
-	write_out(Solver,CLPBNGVars, AllVars, DiffVars).
+	(
+	    Solver = graphs
+	->
+	    write_out(Solver, [[]], AllVars, DiffVars)
+	;
+	    influences(AllVars, CLPBNGVars, _, NewAllVars),
+writeln(AllVars:NewAllVars),
+	    write_out(Solver, [CLPBNGVars], NewAllVars, DiffVars)
+	).
 project_attributes(_, _).
-
-call_solver(GVars, AVars) :-
-	AVars = [_|_],
-	solver(Solver),
-	( GVars = [_|_] ; Solver = graphs), !,
-	clpbn_vars(AVars, DiffVars, AllVars),
-	get_clpbn_vars(GVars,CLPBNGVars0),
-	simplify_query_vars(CLPBNGVars0, CLPBNGVars),
-	write_out(Solver,[CLPBNGVars], AllVars, DiffVars).
-
-
 
 clpbn_vars(AVars, DiffVars, AllVars) :-
 	sort_vars_by_key(AVars,SortedAVars,DiffVars),
@@ -192,6 +198,9 @@ get_rid_of_ev_vars([V|LVs0],[V|LVs]) :-
 	get_rid_of_ev_vars(LVs0,LVs).
 
 
+% do nothing if we don't have query variables to compute.
+write_out(graphs, _, AVars, _) :-
+	clpbn2graph(AVars).
 write_out(vel, GVars, AVars, DiffVars) :-
 	vel(GVars, AVars, DiffVars).
 write_out(jt, GVars, AVars, DiffVars) :-
@@ -200,8 +209,6 @@ write_out(gibbs, GVars, AVars, DiffVars) :-
 	gibbs(GVars, AVars, DiffVars).
 write_out(bnt, GVars, AVars, DiffVars) :-
 	do_bnt(GVars, AVars, DiffVars).
-write_out(graphs, _, AVars, _) :-
-	clpbn2graph(AVars).
 
 get_bnode(Var, Goal) :-
 	get_atts(Var, [key(Key),dist(Dist,Parents)]),
