@@ -8,72 +8,81 @@
 
 :- use_module(library(clpbn), [{}/1]).
 
-:- use_module(library(lists), [last/2]).
+:- use_module(library(lists),
+	[last/2,
+	sumlist/2,
+	max_list/2,
+	min_list/2
+    ]).
+
+:- use_module(library(matrix),
+	[matrix_new/3,
+	matrix_to_list/2,
+	matrix_set/3]).
 
 :- use_module(dists, [get_dist_domain_size/2]).
 
 cpt_average(Vars, Key, Els0, CPT) :-
-	check_domain(Els0, Els),
-	length(Els, SDomain),
-	build_avg_table(Vars, Els, SDomain, Els0, Key, 1.0, CPT).
+	build_avg_table(Vars, Els0, Key, 1.0, CPT).
 
 cpt_average(Vars, Key, Els0, Softness, CPT) :-
-	check_domain(Els0, Els),
-	length(Els, SDomain),
-	build_avg_table(Vars, Els, SDomain, Els0, Key, Softness, CPT).
+	build_avg_table(Vars, Els0, Key, Softness, CPT).
 
 cpt_max(Vars, Key, Els0, CPT) :-
-	check_domain(Els0, Els),
-	length(Els, SDomain),
-	build_max_table(Vars, Els, SDomain, Els0, Key, CPT).
+	build_max_table(Vars, Els0, Els0, Key, 1.0, CPT).
 
 cpt_min(Vars, Key, Els0, CPT) :-
-	check_domain(Els0, Els),
-	length(Els, SDomain),
-	build_min_table(Vars, Els, SDomain, Els0, Key, CPT).
+	build_min_table(Vars, Els0, Els0, Key, 1.0, CPT).
 
-build_avg_table(Vars, Domain, SDomain, ODomain, _, 1.0, p(ODomain, CPT, Vars)) :-
+build_avg_table(Vars, Domain, _, Softness, p(Domain, CPT, Vars)) :-
+	length(Domain, SDomain),
 	int_power(Vars, SDomain, 1, TabSize),
 	TabSize =< 16, 
 	/* case gmp is not there !! */
 	TabSize > 0, !,
-	average_cpt(Vars, Domain, CPT).
-build_avg_table(Vars, Domain, _, ODomain, Key, Softness, p(ODomain, CPT, [V1,V2])) :-
+	average_cpt(Vars, Domain, Softness, CPT).
+build_avg_table(Vars, Domain, Key, Softness, p(Domain, CPT, [V1,V2])) :-
 	length(Vars,L),
 	LL1 is L//2,
 	LL2 is L-LL1,
 	list_split(LL1, Vars, L1, L2),
-	Domain = [Min|Els1],
-	last(Els1,Max),
-	build_intermediate_table(LL1, sum(Min,Max), L1, V1, Key,  Softness, 0, I1),
-	build_intermediate_table(LL2, sum(Min,Max), L2, V2, Key, Softness, I1, _),
-	normalised_average_cpt(L, [V1,V2], Domain, Softness, CPT).
+	Min = 0,
+	length(Domain,Max1), Max is Max1-1,
+	build_intermediate_table(LL1, sum(Min,Max), L1, V1, Key,  1.0, 0, I1),
+	build_intermediate_table(LL2, sum(Min,Max), L2, V2, Key, 1.0, I1, _),
+	average_cpt([V1,V2], Domain, Softness, CPT).
 	
-build_max_table(Vars, Domain, SDomain, ODomain, _, p(ODomain, CPT, Vars)) :-
+build_max_table(Vars, Domain, Softness, p(Domain, CPT, Vars)) :-
+	length(Domain, SDomain),
 	int_power(Vars, SDomain, 1, TabSize),
-	TabSize =< 16, !,
-	max_cpt(Vars, Domain, CPT).
-build_max_table(Vars, Domain, _, ODomain, Key, p(ODomain, CPT, [V1,V2])) :-
+	TabSize =< 16, 
+	/* case gmp is not there !! */
+	TabSize > 0, !,
+	max_cpt(Vars, Domain, Softness, CPT).
+build_max_table(Vars, Domain, Softness, p(Domain, CPT, [V1,V2])) :-
 	length(Vars,L),
 	LL1 is L//2,
 	LL2 is L-LL1,
 	list_split(LL1, Vars, L1, L2),
 	build_intermediate_table(LL1, max(Domain,CPT), L1, V1, Key, 1.0,  0, I1),
 	build_intermediate_table(LL2, max(Domain,CPT), L2, V2, Key, 1.0, I1, _),
-	max_cpt([V1,V2], Domain, CPT).
+	max_cpt([V1,V2], Domain, Softness, CPT).
 	
-build_min_table(Vars, Domain, SDomain, ODomain, _, p(ODomain, CPT, Vars)) :-
+build_min_table(Vars, Domain, Softness, p(Domain, CPT, Vars)) :-
+	length(Domain, SDomain),
 	int_power(Vars, SDomain, 1, TabSize),
-	TabSize =< 16, !,
-	min_cpt(Vars, Domain, CPT).
-build_min_table(Vars, Domain, _, ODomain, Key, p(ODomain, CPT, [V1,V2])) :-
+	TabSize =< 16, 
+	/* case gmp is not there !! */
+	TabSize > 0, !,
+	min_cpt(Vars, Domain, Softness, CPT).
+build_min_table(Vars, Domain, Softness, p(Domain, CPT, [V1,V2])) :-
 	length(Vars,L),
 	LL1 is L//2,
 	LL2 is L-LL1,
 	list_split(LL1, Vars, L1, L2),
 	build_intermediate_table(LL1, min(Domain,CPT), L1, V1, Key, 1.0,  0, I1),
 	build_intermediate_table(LL2, min(Domain,CPT), L2, V2, Key, 1.0, I1, _),
-	min_cpt([V1,V2], Domain, CPT).
+	min_cpt([V1,V2], Domain, Softness, CPT).
 	
 int_power([], _, TabSize, TabSize).
 int_power([_|L], X, I0, TabSize) :-
@@ -116,185 +125,93 @@ list_split(I, [H|L], [H|L1], L2) :-
 	I1 is I-1,
 	list_split(I1, L, L1, L2).
 
-% allow quick description for a range.
-check_domain([I0|Is], [I0|Is]) :-
-	integer(I0),
-	check_integer_domain(Is,I0), !.
-check_domain(D, ND) :-
-	normalise_domain(D, 0, ND).
-
-check_integer_domain([],_).
-check_integer_domain([I1|Is],I0) :-
-	I0 < I1,
-	check_integer_domain(Is,I1).
-
-normalise_domain([], _, []).
-normalise_domain([_|D], I0, [I0|ND]) :-
-	I is I0+1,
-	normalise_domain(D, I, ND).
-
-
 %
 % generate actual table, instead of trusting the solver
 %
+
+average_cpt(Vs,Vals,_,CPT) :-
+	get_ds_lengths(Vs,Lengs),
+	sumlist(Lengs, Tot),
+	length(Vals,SVals),
+	Factor is SVals/Tot,
+	matrix_new(floats,[SVals|Lengs],MCPT),
+	fill_in_average(Lengs,Factor,MCPT),
+	matrix_to_list(MCPT,CPT).
+
+get_ds_lengths([],[]).
+get_ds_lengths([V|Vs],[Sz|Lengs]) :-
+	get_vdist_size(V, Sz),
+	get_ds_lengths(Vs,Lengs).
 	
-average_cpt(Vs,Vals,CPT) :-
-	generate_indices(Vals,Inds,0,Av),
-	combine_all(Vs, Inds, Cs),
-	length(Vs, Max),
-	average_possible_cases(0, Av, Max, Cs, 1.0, CPT).
+fill_in_average(Lengs,SVals,MCPT) :-
+	generate(Lengs, Case),
+	average(Case, SVals, Val),
+	matrix_set(MCPT,[Val|Case],1.0),
+	fail.
+fill_in_average(_,_,_).
 
-sum_cpt(Vs, Vals, Softness, CPT) :-
-	length(Vals,Sz),
-	combine_all(Vs, Cs),
-	sum_possible_cases(0, Sz, Cs, Softness, CPT).
+generate([], []).
+generate([N|Lengs], [C|Case]) :-
+	from(0,N,C),
+	generate(Lengs, Case).
 
-normalised_average_cpt(Max, Vs, Vals, Softness, CPT) :-
-	generate_indices(Vals,_,0,Sz),
-	combine_all(Vs, Cs),
-	average_possible_cases(0, Sz, Max, Cs, Softness, CPT).
+from(I,_,I).
+from(I1,M,J) :-
+	I is I1+1,
+	I < M,
+	from(I,M,J).
 
-
-generate_indices([],[],Av,Av).
-generate_indices([_|Ls],[I|Inds],I,Av) :-
-	I1 is I+1,
-	generate_indices(Ls,Inds,I1,Av).
-
-
-combine_all([], [[]]).
-combine_all([V|LV], Cs) :-
-	combine_all(LV, Cs0),
-	get_vdist_size(V,Sz),
-	generate_indices(0, Sz, Vals),
-	add_vals(Vals, Cs0, Cs).
-
-combine_all([], _, [[]]).
-combine_all([_|LV], Vals, Cs) :-
-	combine_all(LV, Vals, Cs0),
-	add_vals(Vals, Cs0, Cs).
-
-generate_indices(Sz,Sz,[]) :- !.
-generate_indices(I0,Sz,[I0|Vals]) :-
-	I is I0+1,
-	generate_indices(I,Sz,Vals).
+average(Case, SVals, Val) :-
+	sumlist(Case, Tot),
+	Val is integer(round(Tot*SVals)).
 
 
-add_vals([], _, []).
-add_vals([V|Vs], Cs0, Csf) :-
-	add_vals(Vs, Cs0, Cs),
-	add_val_to_cases(Cs0, V, Cs, Csf).
+sum_cpt(Vs,Vals,_,CPT) :-
+	get_ds_lengths(Vs,Lengs),
+	length(Vals,SVals),
+	matrix_new(floats,[SVals|Lengs],MCPT),
+	fill_in_sum(Lengs,MCPT),
+	matrix_to_list(MCPT,CPT).
 
-add_val_to_cases([], _, Cs, Cs).
-add_val_to_cases([C|Cs], V, Cs0, [[V|C]|Csf]) :-
-	add_val_to_cases(Cs, V, Cs0, Csf).
+fill_in_sum(Lengs,MCPT) :-
+	generate(Lengs, Case),
+	sumlist(Case, Val),
+	matrix_set(MCPT,[Val|Case],1.0),
+	fail.
+fill_in_sum(_,_).
 
-sum_all([],N,N).
-sum_all([C|Cs],N0,N) :-
-	X is C+N0,
-	sum_all(Cs,X,N).
 
-average_possible_cases(Av,Av,_,_,_,[]) :- !.
-average_possible_cases(I,Av,Max,Cs,Softness,Lf) :-
-	average_cases2(Cs,I,Av,Softness,Lf,L0),
-	I1 is I+1,
-	average_possible_cases(I1,Av,Max,Cs,Softness,L0).
+max_cpt(Vs,Vals,_,CPT) :-
+	get_ds_lengths(Vs,Lengs),
+	length(Vals,SVals),
+	matrix_new(floats,[SVals|Lengs],MCPT),
+	fill_in_max(Lengs,MCPT),
+	matrix_to_list(MCPT,CPT).
 
-average_cases2([], _, _, _, L, L).
-average_cases2([C|Cs], I, Av, Softness, [P|Lf], L0) :-
-	calculate_avg_prob(C, I, Av, Softness, P),
-	average_cases2(Cs, I, Av, Softness, Lf, L0).
+fill_in_max(Lengs,MCPT) :-
+	generate(Lengs, Case),
+	max_list(Case, Val),
+	matrix_set(MCPT,[Val|Case],1.0),
+	fail.
+fill_in_max(_,_).
 
-calculate_avg_prob(C, I, Av, Softness, Softness) :-
-	sum_all(C,0,N),
-	I =:= integer(round(N/Av)), !.
-calculate_avg_prob(_, _, Av, Softness, Comp) :-
-	Comp is (1.0-Softness)/(Av-1).
 
-sum_possible_cases(Av,Av,_, _, []) :- !.
-sum_possible_cases(I,Av,Cs,Softness, Lf) :-
-	sum_cases2(Cs,I, Av, Softness, Lf,L0),
-	I1 is I+1,
-	sum_possible_cases(I1,Av,Cs,Softness, L0).
+min_cpt(Vs,Vals,_,CPT) :-
+	get_ds_lengths(Vs,Lengs),
+	length(Vals,SVals),
+	matrix_new(floats,[SVals|Lengs],MCPT),
+	fill_in_max(Lengs,MCPT),
+	matrix_to_list(MCPT,CPT).
 
-sum_cases2([], _, _, _, L, L).
-sum_cases2([C|Cs], I, Av, Softness, [P|Lf], L0) :-
-	calculate_sum_prob(C, I, Av, Softness, P),
-	sum_cases2(Cs, I, Av, Softness, Lf, L0).
+fill_in_min(Lengs,MCPT) :-
+	generate(Lengs, Case),
+	max_list(Case, Val),
+	matrix_set(MCPT,[Val|Case],1.0),
+	fail.
+fill_in_min(_,_).
 
-calculate_sum_prob(C, I, _, Softness, Softness) :-
-	sum_all(C,0,N),
-	I =:= N, !.
-calculate_sum_prob(_, _, Av, Softness, Comp) :-
-	Comp is (1.0-Softness)/(Av-1).
-
-%
-% generate a CPT for max.
-%
-max_cpt(Vs, Domain, CPT) :-
-	combinations(Vs, Domain, Combinations),
-	cpt_from_domain(Domain, Combinations, Domain, max, CPT).
-
-min_cpt(Vs, Domain, CPT) :-
-	combinations(Vs, Domain, Combinations),
-	cpt_from_domain(Domain, Combinations, Domain, min, CPT).
-
-combinations(Vs, Domain, Combinations) :-
-	mult_domains(Vs, Domain, Domains),
-	cart(Domains, Combinations).
-
-mult_domains([], _, []).
-mult_domains([_|Vs], Domain, [Domain|Domains]) :-
-	mult_domains(Vs, Domain, Domains).
-
-cart([], [[]]).
-cart([L|R], Rf) :-
-	cart(R, R1),
-	add(L, R1, Rf).
-
-add([], _, []).
-add([A|R], R1, RsF) :-
-	add_head(R1, A, RsF, Rs0),
-	add(R, R1, Rs0).
-
-add_head([], _, Rs, Rs).
-add_head([H|L], A, [[A|H]|Rs], Rs0) :-
-	add_head(L, A, Rs, Rs0).
-
-cpt_from_domain([], _, _, _, []).
-cpt_from_domain([El|Domain], Combinations, Domain0, OP, CPT) :-
-	cpt_from_domain_el(Combinations, El, Domain0, OP, CPT, CPT0),
-	cpt_from_domain(Domain, Combinations, Domain0, OP, CPT0).
-
-cpt_from_domain_el([], _, _, _, CPT, CPT).
-cpt_from_domain_el([C|Combinations], El, Domain, OP, [P|CPT], CPT0) :-
-	cpt_for_el(C, OP, El, Domain, 0.0, P),
-	cpt_from_domain_el(Combinations, El, Domain, OP, CPT, CPT0).
-
-cpt_for_el([], _, _, _, P, P).
-cpt_for_el([El|Cs], MAX, El, Domain, _, P) :- !,
-	cpt_for_el(Cs, MAX, El, Domain, 1.0, P).
-cpt_for_el([C|_], MAX, El, Domain, _, 0.0) :-
-	op_broken(MAX, C, El, Domain), !.
-cpt_for_el([_|Cs], MAX, El, Domain, P0, P) :-
-	cpt_for_el(Cs, MAX, El, Domain, P0, P).
-
-op_broken(max, C, El, Domain) :-
-	lg(Domain, C, El).
-op_broken(min, C, El, Domain) :-
-	sm(Domain, C, El).
-
-lg([El|_], _, El) :- !.
-lg([C|_], C, _) :- !, fail.
-lg([_|Vs], C, El) :-
-	lg(Vs, C, El).
-
-sm([El|_], _, El) :- !, fail.
-sm([V|_], V, _) :- !.
-sm([_|Vs], C, El) :-
-	sm(Vs, C, El).
 
 get_vdist_size(V, Sz) :-
 	clpbn:get_atts(V, [dist(Dist,_)]),
 	get_dist_domain_size(Dist, Sz).
-
 
