@@ -43,6 +43,8 @@ static char SccsId[] = "%W% %G%";
 #define HEAP_DELAY_ARENA 3
 #define HEAP_START 4
 
+#define MIN_ARENA_SIZE 2048
+
 #define Global_MkIntegerTerm(I) MkIntegerTerm(I)
 
 static UInt
@@ -458,7 +460,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, CELL *p
 	pt0_end = ap2 + 1;
 	ptf = H;
 	H += 2;
-	if (H > ASP - 128) {
+	if (H > ASP - MIN_ARENA_SIZE) {
 	  goto overflow;
 	}
       } else if (IsApplTerm(d0)) {
@@ -480,7 +482,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, CELL *p
 	    *ptf++ = d0;
 	    break;
 	  case (CELL)FunctorLongInt:
-	    if (H > ASP - (128+3)) {
+	    if (H > ASP - (MIN_ARENA_SIZE+3)) {
 	      goto overflow;
 	    }
 	    *ptf++ = AbsAppl(H);
@@ -488,12 +490,12 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, CELL *p
 	    H[1] = ap2[1];
 	    H[2] = EndSpecials;
 	    H += 3;
-	    if (H > ASP - 128) {
+	    if (H > ASP - MIN_ARENA_SIZE) {
 	      goto overflow;
 	    }
 	    break;
 	  case (CELL)FunctorDouble:
-	    if (H > ASP - (128+(2+SIZEOF_DOUBLE/sizeof(CELL)))) {
+	    if (H > ASP - (MIN_ARENA_SIZE+(2+SIZEOF_DOUBLE/sizeof(CELL)))) {
 	      goto overflow;
 	    }
 	    *ptf++ = AbsAppl(H);
@@ -513,7 +515,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, CELL *p
 	      /* big int */
 	      UInt sz = ArenaSz(d0), i;
 
-	      if (H > ASP - (128+sz)) {
+	      if (H > ASP - (MIN_ARENA_SIZE+sz)) {
 		goto overflow;
 	      }
 	      *ptf++ = AbsAppl(H);
@@ -561,7 +563,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, CELL *p
 	H[0] = (CELL)f;
 	ptf = H+1;
 	H += 1+d0;
-	if (H > ASP - 128) {
+	if (H > ASP - MIN_ARENA_SIZE) {
 	  goto overflow;
 	}
       } else {
@@ -599,13 +601,13 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, CELL *p
 	  if (!CopyAttVar(ptd0, bp, ptf, att_arenap)) {
 	    goto delay_overflow;
 	  }
-	  if (H > ASP - 128) {
+	  if (H > ASP - MIN_ARENA_SIZE) {
 	    goto overflow;
 	  }
 	  to_visit = bp[0];
 	  HB = HLow;
 	  ptf++;
-	  if ((ADDR)TR > Yap_TrailTop-128)
+	  if ((ADDR)TR > Yap_TrailTop-MIN_ARENA_SIZE)
 	    goto trail_overflow;
 	  Bind_and_Trail(ptd0, ptf[-1]);
 	}
@@ -613,7 +615,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, CELL *p
 #endif
 	/* first time we met this term */
 	RESET_VARIABLE(ptf);
-	if ((ADDR)TR > Yap_TrailTop-128)
+	if ((ADDR)TR > Yap_TrailTop-MIN_ARENA_SIZE)
 	  goto trail_overflow;
 	Bind_and_Trail(ptd0, (CELL)ptf);
 	ptf++;
@@ -755,7 +757,7 @@ CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term 
       return t;
     }
     tn = MkVarTerm();
-    if (H > ASP - 128) {
+    if (H > ASP - MIN_ARENA_SIZE) {
       res = -1;
       goto error_handler;
     }
@@ -804,7 +806,7 @@ CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term 
 	CloseArena(oldH, oldHB, oldASP, newarena, old_size);
 	return t;
       case (CELL)FunctorLongInt:
-	if (H > ASP - (128+3)) {
+	if (H > ASP - (MIN_ARENA_SIZE+3)) {
 	  res = -1;
 	  goto error_handler;
 	}
@@ -813,7 +815,7 @@ CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term 
 	H += 3;
 	break;
       case (CELL)FunctorDouble:
-	if (H > ASP - (128+(2+SIZEOF_DOUBLE/sizeof(CELL)))) {
+	if (H > ASP - (MIN_ARENA_SIZE+(2+SIZEOF_DOUBLE/sizeof(CELL)))) {
 	  res = -1;
 	  goto error_handler;
 	}
@@ -831,7 +833,7 @@ CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term 
 	{
 	  UInt sz = ArenaSz(t), i;
 
-	  if (H > ASP - (128+sz)) {
+	  if (H > ASP - (MIN_ARENA_SIZE+sz)) {
 	    res = -1;
 	    goto error_handler;
 	  }
@@ -843,7 +845,7 @@ CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term 
       }
     } else {
       H += 1+ArityOfFunctor(f);
-      if (H > ASP-128) {
+      if (H > ASP-MIN_ARENA_SIZE) {
 	res = -1;
 	goto error_handler;
       } 
@@ -934,7 +936,7 @@ CreateTermInArena(Term arena, Atom Na, UInt Nar, UInt arity, Term *newarena, Ter
   tf = AbsAppl(H);
   H[0] = (CELL)f;
   H += 1+ArityOfFunctor(f);
-  if (H > ASP-128) {
+  if (H > ASP-MIN_ARENA_SIZE) {
     /* overflow */
     H = HB;
     CloseArena(oldH, oldHB, oldASP, newarena, old_size);
@@ -1428,6 +1430,8 @@ p_nb_queue(void)
 #endif
   Term t = Deref(ARG1);
   UInt arena_sz = (H-H0)/16;
+  if (arena_sz < MIN_ARENA_SIZE)
+    arena_sz = MIN_ARENA_SIZE;
 
   if (!IsVarTerm(t)) {
     if (!IsApplTerm(t)) {
@@ -1594,7 +1598,7 @@ p_nb_queue_enqueue(void)
   H = HB = ArenaPt(arena);
   old_sz = ArenaSz(arena);
   qsize = IntegerOfTerm(qd[QUEUE_SIZE]);
-  while (old_sz < 128) {
+  while (old_sz < MIN_ARENA_SIZE) {
     UInt gsiz = H-RepPair(qd[QUEUE_HEAD]);
     H = oldH;
     HB = oldHB;
@@ -1927,7 +1931,7 @@ p_nb_heap_add_to_heap(void)
   oldHB = HB;
   H = HB = ArenaPt(arena);
   old_sz = ArenaSz(arena);
-  while (old_sz < 128) {
+  while (old_sz < MIN_ARENA_SIZE) {
     UInt gsiz = hsize*2;
 
     H = oldH;
@@ -2330,7 +2334,7 @@ p_nb_beam_add_to_beam(void)
   oldHB = HB;
   H = HB = ArenaPt(arena);
   old_sz = ArenaSz(arena);
-  while (old_sz < 128) {
+  while (old_sz < MIN_ARENA_SIZE) {
     UInt gsiz = hsize*2;
 
     H = oldH;
