@@ -7,7 +7,8 @@
 	  [
 	   store_evidence/1,
 	   incorporate_evidence/2,
-	   get_evidence_position/3
+	   check_stored_evidence/2,
+	   add_evidence/2
 	  ]).
 
 :- use_module(library(clpbn), [
@@ -36,15 +37,15 @@
 %
 %
 store_evidence(G) :-
-	clpbn_flag(solver,Solver, graphs),
-	compute_evidence(G, Solver).
+	clpbn_flag(solver,PreviousSolver, graphs),
+	compute_evidence(G, PreviousSolver).
 
 compute_evidence(G, PreviousSolver) :-
 	catch(call_residue(G, Vars), Ball, evidence_error(Ball,PreviousSolver)), !,
 	store_graph(Vars),
-	set_clpbn_flag(solver,PreviousSolver).
-compute_evidence(_, PreviousSolver) :-
-	set_clpbn_flag(solver,PreviousSolver).
+	set_clpbn_flag(solver, PreviousSolver).
+compute_evidence(_,PreviousSolver) :-
+	set_clpbn_flag(solver, PreviousSolver).
 
 
 evidence_error(Ball,PreviousSolver) :-
@@ -106,12 +107,14 @@ extract_vars([], []).
 extract_vars([_-V|Cache], [V|AllVs]) :-
 	extract_vars(Cache, AllVs).
 
+%make sure that we are 
+check_stored_evidence(K, Ev) :-
+	evidence(K, Ev0), !, Ev0 = Ev.
+check_stored_evidence(_, _).
 
 add_evidence(K, V) :-
 	evidence(K, Ev), !,
-	clpbn:get_atts(V, [dist(Id,_)]),
-	get_evidence_position(Ev, Id, EvPos),
-	clpbn:put_atts(V, [evidence(EvPos)]).
+	clpbn:put_atts(V, [evidence(Ev)]).
 add_evidence(_, _).
 
 
