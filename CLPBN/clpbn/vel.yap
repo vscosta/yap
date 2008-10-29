@@ -73,7 +73,7 @@ vel([LVs],Vs0,AllDiffs) :-
 	% from array to list
 	list_from_CPT(Ps, LPs),
 	% bind Probs back to variables so that they can be output.
-	clpbn_bind_vals(LVs,LPs,AllDiffs).
+	clpbn_bind_vals([LVs],[LPs],AllDiffs).
 
 %
 % just get a list of variables plus associated tables

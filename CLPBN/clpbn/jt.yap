@@ -73,7 +73,7 @@
 	clpbn_bind_vals/3]).
 
 jt([[]],_,_) :- !.
-jt(LVs,Vs0,AllDiffs) :-
+jt([LVs],Vs0,AllDiffs) :-
 	get_graph(Vs0, BayesNet, CPTs, Evidence),
 	build_jt(BayesNet, CPTs, JTree),
 	% JTree is a dgraph
@@ -83,7 +83,7 @@ jt(LVs,Vs0,AllDiffs) :-
 	propagate_evidence(Evidence, NewTree, EvTree),
 	message_passing(EvTree, MTree),
 	get_margins(MTree, LVs, LPs),
-	clpbn_bind_vals(LVs,LPs,AllDiffs).
+	clpbn_bind_vals([LVs],[LPs],AllDiffs).
 
 
 get_graph(LVs, BayesNet, CPTs, Evidence) :-
