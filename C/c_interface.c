@@ -669,8 +669,10 @@ YAP_MkBlobTerm(unsigned int sz)
   BACKUP_H();
 
   while (H+(sz+sizeof(MP_INT)/sizeof(CELL)+2) > ASP-1024) {
-    if (!doexpand((sz+sizeof(MP_INT)/sizeof(CELL)+2)*sizeof(CELL)))
+    if (!doexpand((sz+sizeof(MP_INT)/sizeof(CELL)+2)*sizeof(CELL))) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "YAP failed to grow the stack while constructing a blob: %s", Yap_ErrorMessage);
       return TermNil;
+    }
   }
   I = AbsAppl(H);
   H[0] = (CELL)FunctorBigInt;
