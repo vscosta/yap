@@ -37,28 +37,11 @@ rating_prob_table([0.9,0.05,0.01,
 		   0.09,0.9,0.09,
 		   0.01,0.05,0.9]).
 
-/*
-build_sats_table(LSats, Key, Table) :-
-	cpt_average(LSats, Key, [h,m,l], AggTable),
-	{ V = tmp1(Key) with AggTable},
-	rating_prob_table(SatsTable),
-	Table = p([h,m,l], SatsTable, [V]).
-*/
-
 build_rating_table(LSats, Key, Table) :-
 	cpt_average(LSats, Key, [h,m,l], 1.00, Table).
 
 build_grades_table(LGrades, Key, Table) :-
 	cpt_average(LGrades, Key, [a,b,c,d], 1.00, Table).
-
-/*
-build_grades_table(LGrades, Key, Table) :-
-	cpt_average(LGrades, Key, [a,b,c,d], AggTable),
-	{ V = tmp2(Key) with AggTable},
-	rating_prob_table(Tab),
-	Table = p([a,b,c,d], Tab, [V]).
-*/
-
 
 abi_table( _, [0.50, 0.40,  0.10]).
 

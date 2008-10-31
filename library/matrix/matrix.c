@@ -2299,7 +2299,7 @@ matrix_select(void)
 /* given a matrix M and a set of N-1 dims, get the first dimension
 */ 
 static int
-matrix_row(void)
+matrix_column(void)
 {
   int size, i, ndims, newdims[1];
   int indx[MAX_DIMS];
@@ -2956,7 +2956,7 @@ init_matrix(void)
   YAP_UserCPredicate("matrix_shuffle", matrix_transpose, 3);
   YAP_UserCPredicate("matrix_expand", matrix_expand, 3);
   YAP_UserCPredicate("matrix_select", matrix_select, 4);
-  YAP_UserCPredicate("matrix_row", matrix_row, 3);
+  YAP_UserCPredicate("matrix_column", matrix_column, 3);
   YAP_UserCPredicate("matrix_to_logs", matrix_log_all,1);
   YAP_UserCPredicate("matrix_to_exps", matrix_exp_all, 1);
   YAP_UserCPredicate("matrix_to_logs", matrix_log_all2,2);

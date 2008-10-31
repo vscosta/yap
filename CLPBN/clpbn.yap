@@ -78,7 +78,7 @@
 	       influences/4
 	      ]).
 
-:- dynamic solver/1,output/1,use/1,suppress_attribute_display/1.
+:- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1.
 
 solver(jt).
 
@@ -86,6 +86,7 @@ solver(jt).
 %output(gviz(user_error)).
 output(no).
 suppress_attribute_display(false).
+parameter_softening(laplace).
 
 clpbn_flag(Flag,Option) :-
 	clpbn_flag(Flag, Option, Option).
@@ -111,6 +112,9 @@ clpbn_flag(bnt_model,Before,After) :-
 clpbn_flag(suppress_attribute_display,Before,After) :-
 	retract(suppress_attribute_display(Before)),
 	assert(suppress_attribute_display(After)).
+clpbn_flag(parameter_softening,Before,After) :-
+	retract(parameter_softening(Before)),
+	assert(parameter_softening(After)).
 
 
 {Var = Key with Dist} :-

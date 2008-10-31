@@ -32,7 +32,7 @@
 	project_from_CPT/3,
 	reorder_CPT/5,
 	multiply_possibly_deterministic_factors/3,
-	row_from_possibly_deterministic_CPT/3,
+	column_from_possibly_deterministic_CPT/3,
 	normalise_possibly_deterministic_CPT/2,
 	list_from_CPT/2]).
 
@@ -88,6 +88,7 @@ initialise(LVs, Graph, GVs, OutputVars, VarOrder) :-
 	graph_representation(LVs, Graph, 0, Keys, TGraph),
 	compile_graph(Graph),
 	topsort(TGraph, VarOrder),
+%writeln(TGraph:VarOrder),
 %	show_sorted(VarOrder, Graph),
 	add_all_output_vars(GVs, Keys, OutputVars).
 
@@ -108,7 +109,6 @@ graph_representation([V|Vs], Graph, I0, Keys, TGraph) :-
 	clpbn:get_atts(V,[evidence(_)]), !,
 	clpbn:get_atts(V, [dist(Id,Parents)]),
 	get_possibly_deterministic_dist_matrix(Id, Parents, _, Vals, Table),
-matrix:matrix_to_list(Table,T),writeln(T),
 	get_sizes(Parents, Szs),
 	length(Vals,Sz),
 	project_evidence_out([V|Parents],[V|Parents],Table,[Sz|Szs],Variables,NewTable),
@@ -238,7 +238,6 @@ mult_list([Sz|Sizes],Mult0,Mult) :-
 % compile node as set of facts, faster execution 
 compile_var(TotSize,I,_Vals,Sz,CPTs,Parents,_Sizes,Graph) :-
 	TotSize < 1024*64, TotSize > 0, !,
-writeln(I), (I=55->assert(a); retractall(a)),
 	multiply_all(I,Parents,CPTs,Sz,Graph).
 % do it dynamically
 compile_var(_,_,_,_,_,_,_,_).
@@ -247,7 +246,6 @@ multiply_all(I,Parents,CPTs,Sz,Graph) :-
 	markov_blanket_instance(Parents,Graph,Values),
 	(
 	    multiply_all(CPTs,Graph,Probs)
-, (a->writeln(Probs);true)
 	->
 	    store_mblanket(I,Values,Probs)
 	;
@@ -272,12 +270,9 @@ fetch_val([_|Vals],I0,Pos) :-
 	I is I0+1,
 	fetch_val(Vals,I,Pos).
 
-:- dynamic a/0.
-
 multiply_all([tabular(Table,_,Parents)|CPTs],Graph,Probs) :-
 	fetch_parents(Parents, Graph, Vals),
-	row_from_possibly_deterministic_CPT(Table,Vals,Probs0),
-	(a  -> list_from_CPT(Probs0,LProbs0), writeln(s:LProbs0) ; true),
+	column_from_possibly_deterministic_CPT(Table,Vals,Probs0),
 	multiply_more(CPTs,Graph,Probs0,Probs).
 
 fetch_parents([], _, []).
@@ -288,12 +283,10 @@ fetch_parents([P|Parents], Graph, [Val|Vals]) :-
 multiply_more([],_,Probs0,LProbs) :-
 	normalise_possibly_deterministic_CPT(Probs0, Probs),
 	list_from_CPT(Probs, LProbs0),
-	(a  -> writeln(e:LProbs0) ; true),
 	accumulate_up_list(LProbs0, 0.0, LProbs).
 multiply_more([tabular(Table,_,Parents)|CPTs],Graph,Probs0,Probs) :-
 	fetch_parents(Parents, Graph, Vals),
-	row_from_possibly_deterministic_CPT(Table, Vals, P0),
-	(a  -> list_from_CPT(P0, L0), list_from_CPT(Probs0, LI), writeln(m:LI:L0) ; true),
+	column_from_possibly_deterministic_CPT(Table, Vals, P0),
 	multiply_possibly_deterministic_factors(Probs0, P0, ProbsI),
 	multiply_more(CPTs,Graph,ProbsI,Probs).
 
@@ -379,7 +372,7 @@ gen_e0(Sz,[0|E0L]) :-
 
 process_chains(0,_,F,F,_,_,Est,Est) :- !.
 process_chains(ToDo,VarOrder,End,Start,Graph,Len,Est0,Estf) :-
-format('ToDo = ~d~n',[ToDo]),
+%format('ToDo = ~d~n',[ToDo]),
 	process_chains(Start,VarOrder,Int,Graph,Len,Est0,Esti),
 % (ToDo mod 100 =:= 1 -> statistics,cvt2problist(Esti, Probs), Int =[S|_], format('did ~d: ~w~n ~w~n',[ToDo,Probs,S]) ; true),
 	ToDo1 is ToDo-1,
@@ -407,11 +400,9 @@ do_var(I,Sample,Sample0,Graph) :-
 	;
 	  arg(I,Graph,var(_,_,_,_,_,CPTs,Parents,_,_)),
 	  fetch_parents(Parents,I,Sample,Sample0,Bindings),
-CPTs=[tabular(T,_,_)|_], matrix:matrix_dims(T,Dims), writeln(I:1:Bindings:Dims),
 	  multiply_all_in_context(Parents,Bindings,CPTs,Graph,Vals)
 	),
 	X is random,
-writeln(I:X:Vals),
 	pick_new_value(Vals,X,0,Val),
 	arg(I,Sample,Val).
 

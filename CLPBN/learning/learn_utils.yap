@@ -5,15 +5,23 @@
 :- module(clpbn_learn_utils, [run_all/1,
 			      clpbn_vars/2,
 			      normalise_counts/2,
-			      compute_likelihood/3]).
+			      compute_likelihood/3,
+			      soften_sample/2,
+			      soften_sample/3]).
+
+:- use_module(library(clpbn),
+	      [clpbn_flag/2]).
 
 :- use_module(library(matrix),
 	      [matrix_agg_lines/3,
 	       matrix_op_to_lines/4,
+	       matrix_agg_cols/3,
+	       matrix_op_to_cols/4,
 	       matrix_to_logs/2,
 	       matrix_op/4,
 	       matrix_sum/2,
-	       matrix_to_list/2]).
+	       matrix_to_list/2,
+	       matrix_op_to_all/4]).
 
 :- meta_predicate run_all(:).
 
@@ -49,6 +57,25 @@ merge_vars([K-V|KVs],[V|BVars]) :-
 get_var_has_same_key([K-V|KVs],K,V,KVs0)  :- !,
 	get_var_has_same_key(KVs,K,V,KVs0).
 get_var_has_same_key(KVs,_,_,KVs).
+
+soften_sample(T0,T) :-
+	clpbn_flag(parameter_softening, Soften),
+	soften_sample(Soften, T0, T).
+
+soften_sample(no,T,T).
+soften_sample(m_estimate(M), T0, T) :-
+	matrix_agg_cols(T0,+,Cols),matrix:matrix_to_list(Cols), writeln(Cols),
+	matrix_op_to_all(Cols, *, M, R),
+	matrix_op_to_cols(T0,+,R,T).
+soften_sample(auto_m, T0,T) :-
+	matrix_agg_cols(T0,+,Cols),matrix:matrix_to_list(Cols), writeln(Cols),
+	matrix_sum(Cols,TotM),
+	M is sqrt(TotM),
+	matrix_op_to_all(Cols, *, M, R),
+	matrix_op_to_cols(T0,+,R,T).
+soften_sample(laplace,T0,T) :-
+	matrix_op_to_all(T0, +, 1, T).
+
 
 normalise_counts(MAT,NMAT) :-
 	matrix_agg_lines(MAT, +, Sum),

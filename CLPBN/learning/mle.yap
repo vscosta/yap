@@ -14,6 +14,8 @@
 :- use_module(library('clpbn/learning/learn_utils'),
 	      [run_all/1,
 	       clpbn_vars/2,
+	       normalise_counts/2,
+	       soften_table/2,
 	       normalise_counts/2]).
 
 :- use_module(library('clpbn/dists'),
@@ -21,8 +23,7 @@
 	       dist_new_table/2]).
 
 :- use_module(library(matrix),
-	      [matrix_inc/2,
-	       matrix_op_to_all/4]).
+	      [matrix_inc/2]).
 
 
 learn_parameters(Items, Tables) :-
@@ -89,12 +90,14 @@ compute_tables(Parameters, Sample, NewTables) :-
 	add_priors(Parameters, Tables, NewTables).
 
 estimator([], []).
-estimator([val(Id,Sample)|Samples], [NewTable|Tables]) :-
+estimator([val(Id,Sample)|Samples], [NewDist|Tables]) :-
 	empty_dist(Id, NewTable),
 	id_samples(Id, Samples, IdSamples, MoreSamples),
 	mle([Sample|IdSamples], NewTable),
+	soften_table(NewTable, SoftenedTable),
+	normalise_counts(SoftenedTable, NewDist),
 	% replace matrix in distribution
-	dist_new_table(Id, NewTable),
+	dist_new_table(Id, NewDist),
 	estimator(MoreSamples, Tables).
 
 
@@ -107,26 +110,4 @@ mle([Sample|IdSamples], Table) :-
 	matrix_inc(Table, Sample),
 	mle(IdSamples, Table).
 mle([], _).
-
-add_priors([], Tables, NewTables) :-
-	normalise(Tables, NewTables).
-add_priors([laplace|_], Tables, NewTables) :- !,
-	laplace(Tables, TablesI),
-	normalise(TablesI, NewTables).
-add_priors([m_estimate(M)|_], Tables, NewTables) :- !,
-	add_mestimate(Tables, M, TablesI),
-	normalise(TablesI, NewTables).
-add_priors([_|Parms], Tables, NewTables) :-
-	add_priors(Parms, Tables, NewTables).
-
-normalise([], []).
-normalise([T0|TablesI], [T|NewTables]) :-
-	normalise_counts(T0, T),
-	normalise(TablesI, NewTables).
-
-laplace([], []).
-laplace([T0|TablesI], [T|NewTables]) :-
-	matrix_op_to_all(T0, +, 1, T),
-	laplace(TablesI, NewTables).
-
 

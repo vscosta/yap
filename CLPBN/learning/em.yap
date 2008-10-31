@@ -23,7 +23,8 @@
 	      [run_all/1,
 	       clpbn_vars/2,
 	       normalise_counts/2,
-	       compute_likelihood/3]).
+	       compute_likelihood/3,
+	       soften_sample/2]).
 
 :- use_module(library(lists),
 	      [member/2]).
@@ -65,7 +66,7 @@ init_em(Items, state(AllVars, AllDists, AllDistInstances, MargVars)) :-
 em_loop(Its, Likelihood0, State, MaxError, MaxIts, LikelihoodF, FTables) :-
 	estimate(State, LPs),
 	maximise(State, Tables, LPs, Likelihood),
-	writeln(Likelihood:Tables),
+	writeln(Likelihood:Likelihood0:Tables),
 	(
 	    (
 	     (Likelihood - Likelihood0)/Likelihood < MaxError
@@ -152,7 +153,8 @@ compute_parameters([], [], [], Lik, Lik).
 compute_parameters([Id-Samples|Dists], [Id-NewTable|Tables], Ps, Lik0, Lik) :-
 	empty_dist(Id, Table0),
 	add_samples(Samples, Table0, Ps, MorePs),
-	normalise_counts(Table0, NewTable),
+	soften_sample(Table0, SoftenedTable),
+	normalise_counts(SoftenedTable, NewTable),
 	compute_likelihood(Table0, NewTable, DeltaLik),
 	dist_new_table(Id, NewTable),
 	NewLik is Lik0+DeltaLik,

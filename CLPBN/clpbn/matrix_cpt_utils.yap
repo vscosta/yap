@@ -11,10 +11,10 @@
 	   unit_CPT/2,
 	   sum_out_from_CPT/4,
 	   list_from_CPT/2,
-	   row_from_CPT/3,
+	   column_from_CPT/3,
 	   multiply_factors/3,
 	   normalise_possibly_deterministic_CPT/2,
-	   row_from_possibly_deterministic_CPT/3,
+	   column_from_possibly_deterministic_CPT/3,
 	   multiply_possibly_deterministic_factors/3]).
 
 :- use_module(dists,
@@ -40,7 +40,7 @@
 	       matrix_to_list/2,
 	       matrix_agg_lines/3,
 	       matrix_op_to_lines/4,
-	       matrix_row/3]).
+	       matrix_column/3]).
 
 init_CPT(List, Sizes, TAB) :-
 	matrix_new(floats, Sizes, List, TAB),
@@ -212,12 +212,12 @@ zero_map([]).
 zero_map([0|Zeros]) :-
 	zero_map(Zeros).
 
-row_from_CPT(CPT, Parents, Row) :-
-	matrix_row(CPT, Parents, Row),
-	matrix_to_logs(Row).
+col_from_CPT(CPT, Parents, Column) :-
+	matrix_col(CPT, Parents, Column),
+	matrix_to_logs(Column).
 
-row_from_possibly_deterministic_CPT(CPT, Parents, Row) :-
-	matrix_row(CPT, Parents, Row).
+column_from_possibly_deterministic_CPT(CPT, Parents, Column) :-
+	matrix_column(CPT, Parents, Column).
 
 multiply_factors(F1, F2, F) :-
 	matrix_op(F1,F2,+,F).
