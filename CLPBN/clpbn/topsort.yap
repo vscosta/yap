@@ -4,6 +4,7 @@
 :- use_module(library(dgraphs),
 	      [dgraph_new/1,
 	       dgraph_add_edges/3,
+	       dgraph_add_vertices/3,
 	       dgraph_top_sort/2]).
 
 /* simple implementation of a topological sorting algorithm */
@@ -11,9 +12,15 @@
 
 topsort(Graph0, Sorted) :-
 	mkedge_list(Graph0, EdgeList, []),
+	mkvertices_list(Graph0, VList, []),
 	dgraph_new(DGraph0),
-	dgraph_add_edges(DGraph0, EdgeList,  DGraph1),
-	dgraph_top_sort(DGraph1, Sorted).
+	dgraph_add_vertices(DGraph0, VList, DGraph1),
+	dgraph_add_edges(DGraph1, EdgeList,  DGraph2),
+	dgraph_top_sort(DGraph2, Sorted).
+
+mkvertices_list([]) --> [].
+mkvertices_list([V-_|More]) --> [V],
+	mkvertices_list(More).
 
 mkedge_list([]) --> [].
 mkedge_list([V-Parents|More]) -->
