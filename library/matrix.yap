@@ -81,7 +81,8 @@ typedef enum {
 	    matrix_transpose/2,
 	    matrix_set_all_that_disagree/5,
 	    matrix_expand/3,
-	    matrix_select/4
+	    matrix_select/4,
+	    matrix_row/3
 	    ]).
 
 :- load_foreign_files([matrix], [], init_matrix).

@@ -9151,11 +9151,19 @@ Expand @var{Matrix} to occupy new dimensions. The elements in
 positive integer with the size of the new dimension.
 
 @item matrix_select(+@var{Matrix},+@var{Dimension},+@var{Index},-@var{New})
-@findex matrix_select/3
-@snindex matrix_select/3
-@cnindex matrix_select/3
+@findex matrix_select/4
+@snindex matrix_select/4
+@cnindex matrix_select/4
 
 Select from @var{Matrix} the elements who have @var{Index} at
+@var{Dimension}.
+
+@item matrix_row(+@var{Matrix},+@var{Column},-@var{NewMatrix})
+@findex matrix_row/3
+@snindex matrix_row/3
+@cnindex matrix_row/3
+
+Select from @var{Matrix} the row matching @var{Column} as new matrix @var{NewMatrix}. @var{Column} must have one less dimension than the original matrix.
 @var{Dimension}.
 
 @end table

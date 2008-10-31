@@ -139,8 +139,9 @@ new_int_matrix(int ndims, int dims[], long int data[])
   }
   sz = ((MAT_DIMS+1)*sizeof(int)+ndims*sizeof(int)+nelems*sizeof(long int))/sizeof(YAP_CELL);
   blob = YAP_MkBlobTerm(sz);
-  if (blob == YAP_TermNil())
-    return FALSE;
+  if (blob == YAP_TermNil())  {
+    return blob;
+  }
   mat = (int *)YAP_BlobOfTerm(blob);
   mat[MAT_TYPE] = INT_MATRIX;
   mat[MAT_NDIMS] = ndims;
@@ -173,7 +174,7 @@ new_float_matrix(int ndims, int dims[], double data[])
   sz = ((MAT_DIMS+1)*sizeof(int)+ndims*sizeof(int)+(nelems+1)*sizeof(double)+(sizeof(YAP_CELL)-1))/sizeof(YAP_CELL);
   blob = YAP_MkBlobTerm(sz);
   if (blob == YAP_TermNil())
-    return FALSE;
+    return blob;
   mat = YAP_BlobOfTerm(blob);
   mat[MAT_TYPE] = FLOAT_MATRIX;
   mat[MAT_NDIMS] = ndims;
@@ -319,6 +320,8 @@ new_ints_matrix(void)
   if (!scan_dims(ndims, tl, dims))
     return FALSE;
   out = new_int_matrix(ndims, dims, NULL);
+  if (out == YAP_TermNil())
+    return FALSE;
   if (!cp_int_matrix(YAP_ARG3,out))
     return FALSE;
   return YAP_Unify(YAP_ARG4, out);
@@ -353,6 +356,8 @@ new_floats_matrix(void)
   if (!scan_dims(ndims, tl, dims))
     return FALSE;
   out = new_float_matrix(ndims, dims, NULL);
+  if (out == YAP_TermNil())
+    return FALSE;
   if (!cp_float_matrix(YAP_ARG3,out))
     return FALSE;
   return YAP_Unify(YAP_ARG4, out);
@@ -2291,6 +2296,75 @@ matrix_select(void)
   return YAP_Unify(YAP_ARG4, tf);
 }
 
+/* given a matrix M and a set of N-1 dims, get the first dimension
+*/ 
+static int
+matrix_row(void)
+{
+  int size, i, ndims, newdims[1];
+  int indx[MAX_DIMS];
+  int *mat = (int *)YAP_BlobOfTerm(YAP_ARG1), *nmat;
+  YAP_Term tconv, tf;
+
+  if (!mat) {
+    /* Error */
+    return FALSE;
+  }
+  ndims = mat[MAT_NDIMS];
+  /* we now have our target matrix, let us grab our conversion arguments */
+  tconv = YAP_ARG2;
+  for (i=1; i < ndims; i++) {
+    YAP_Term th;
+
+    if (!YAP_IsPairTerm(tconv))
+      return FALSE;
+    th = YAP_HeadOfTerm(tconv);
+    if (!YAP_IsIntTerm(th))
+      return FALSE;
+    indx[i] = YAP_IntOfTerm(th);
+    tconv = YAP_TailOfTerm(tconv);
+  }
+  if (tconv != YAP_TermNil())
+    return FALSE;
+  newdims[0] = size = mat[MAT_DIMS];
+  if (mat[MAT_TYPE] == INT_MATRIX) {
+    long int *data, *ndata;
+
+    /* create a new matrix with the same size */
+    tf = new_int_matrix(1, newdims, NULL);
+    if (tf == YAP_TermNil())
+      return FALSE;
+    /* in case the matrix moved */
+    mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+    nmat = (int *)YAP_BlobOfTerm(tf);  
+    data = matrix_long_data(mat,ndims);
+    ndata = matrix_long_data(nmat,1);
+    /* create a new matrix with smaller size */
+    for (i=0; i< size; i++) {
+      indx[0]=i;
+      ndata[i] = data[matrix_get_offset(mat, indx)];
+    }
+  } else {
+    double *data, *ndata;
+
+    /* create a new matrix with the same size */
+    tf = new_float_matrix(1,newdims,NULL);
+    if (tf == YAP_TermNil())
+      return FALSE;
+    /* in case the matrix moved */
+    mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+    nmat = (int *)YAP_BlobOfTerm(tf);  
+    data = matrix_double_data(mat,ndims);
+    ndata = matrix_double_data(nmat,1);
+    /* create a new matrix with smaller size */
+    for (i=0; i< size; i++) {
+      indx[0]=i;
+      ndata[i] = data[matrix_get_offset(mat, indx)];
+    }
+  }
+  return YAP_Unify(YAP_ARG3, tf);
+}
+
 /* given a matrix M and a set of dims, sum out one of the dimensions
 */ 
 static int
@@ -2882,6 +2956,7 @@ init_matrix(void)
   YAP_UserCPredicate("matrix_shuffle", matrix_transpose, 3);
   YAP_UserCPredicate("matrix_expand", matrix_expand, 3);
   YAP_UserCPredicate("matrix_select", matrix_select, 4);
+  YAP_UserCPredicate("matrix_row", matrix_row, 3);
   YAP_UserCPredicate("matrix_to_logs", matrix_log_all,1);
   YAP_UserCPredicate("matrix_to_exps", matrix_exp_all, 1);
   YAP_UserCPredicate("matrix_to_logs", matrix_log_all2,2);
