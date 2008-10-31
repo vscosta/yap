@@ -852,7 +852,7 @@ rb_partial_map(t(Nil,T0), Map, Goal, t(Nil,TF)) :-
 	partial_map(T0, Map, [], Nil, Goal, TF).
 
 rb_partial_map(t(Nil,T0), Map, Map0, Goal, t(Nil,TF)) :-
-	rb_partial_map(T0, Map, Map0, Nil, Goal, TF).
+	partial_map(T0, Map, Map0, Nil, Goal, TF).
 
 partial_map(T,[],[],_,_,T) :- !.
 partial_map(black('',_,_,_),Map,Map,Nil,_,Nil) :- !.
