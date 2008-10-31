@@ -10,7 +10,12 @@
 	   reset_CPT_that_disagrees/5,
 	   unit_CPT/2,
 	   sum_out_from_CPT/4,
-	   list_from_CPT/2]).
+	   list_from_CPT/2,
+	   row_from_CPT/3,
+	   multiply_factors/3,
+	   normalise_possibly_deterministic_CPT/2,
+	   row_from_possibly_deterministic_CPT/3,
+	   multiply_possibly_deterministic_factors/3]).
 
 :- use_module(dists,
 	      [get_dist_domain_size/2,
@@ -34,11 +39,15 @@
 	       matrix_set_all_that_disagree/5,
 	       matrix_to_list/2,
 	       matrix_agg_lines/3,
-	       matrix_op_to_lines/4]).
+	       matrix_op_to_lines/4,
+	       matrix_row/3]).
 
 init_CPT(List, Sizes, TAB) :-
 	matrix_new(floats, Sizes, List, TAB),
 	matrix_to_logs(TAB).
+
+init_possibly_deterministic_CPT(List, Sizes, TAB) :-
+	matrix_new(floats, Sizes, List, TAB).
 
 project_from_CPT(V,tab(Table,Deps,_),tab(NewTable,NDeps,NSzs)) :-
 	evidence(V,Pos), !,
@@ -113,13 +122,13 @@ split_map([_-M|Is], [M|Map]) :-
 divide_CPTs(Tab1, Tab2, OT) :-
 	matrix_op(Tab1,Tab2,-,OT).
 
-
 multiply_CPTs(tab(Tab1, Deps1, Sz1), tab(Tab2, Deps2, Sz2), tab(OT, NDeps, NSz), NTab2) :-
 	expand_tabs(Deps1, Sz1, Deps2, Sz2, Map1, Map2, NDeps),
-	matrix_expand(Tab1, Map1, NTab1),
-	matrix_expand(Tab2, Map2, NTab2),
+	matrix_expand_compact(Tab1, Map1, NTab1),
+	matrix_expand_compact(Tab2, Map2, NTab2),
 	matrix_op(NTab1,NTab2,+,OT),
 	matrix_dims(OT,NSz).
+
 
 expand_tabs([], [], [], [], [], [], []).
 expand_tabs([V1|Deps1], [S1|Sz1], [], [], [0|Map1], [S1|Map2], [V1|NDeps]) :-
@@ -193,3 +202,30 @@ conversion_matrix([V|Vs], [_|Deps], [1|Conv]) :-
 
 get_CPT_sizes(CPT, Sizes) :-
 	matrix_dims(CPT, Sizes).
+
+matrix_expand_compact(M0,Zeros,M0) :-
+	zero_map(Zeros), !.
+matrix_expand_compact(M0,Map,M) :-
+	matrix_expand(M0, Map, M).
+
+zero_map([]).
+zero_map([0|Zeros]) :-
+	zero_map(Zeros).
+
+row_from_CPT(CPT, Parents, Row) :-
+	matrix_row(CPT, Parents, Row),
+	matrix_to_logs(Row).
+
+row_from_possibly_deterministic_CPT(CPT, Parents, Row) :-
+	matrix_row(CPT, Parents, Row).
+
+multiply_factors(F1, F2, F) :-
+	matrix_op(F1,F2,+,F).
+
+multiply_possibly_deterministic_factors(F1, F2, F) :-
+	matrix_op(F1,F2,*,F).
+
+normalise_possibly_deterministic_CPT(MAT,NMAT) :-
+	matrix_agg_lines(MAT, +, Sum),
+	matrix_op_to_lines(MAT, Sum, /, NMAT).
+
