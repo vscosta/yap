@@ -10,6 +10,7 @@
 	   dist_new_table/2,
 	   get_dist/4,
 	   get_dist_matrix/5,
+	   get_possibly_deterministic_dist_matrix/5,
 	   get_dist_domain/2,
 	   get_dist_params/2,
 	   get_dist_domain_size/2,
@@ -183,6 +184,11 @@ get_dist_matrix(Id, Parents, Type, Domain, Mat) :-
 	get_dsizes(Parents, Sizes, []),
 	matrix_new(floats, [DomainSize|Sizes], Tab, Mat),
 	matrix_to_logs(Mat).
+
+get_possibly_deterministic_dist_matrix(Id, Parents, Type, Domain, Mat) :-
+	recorded(clpbn_dist_db, db(Id, _, Tab, Type, Domain, _, DomainSize), _),
+	get_dsizes(Parents, Sizes, []),
+	matrix_new(floats, [DomainSize|Sizes], Tab, Mat).
 
 get_dsizes([], Sizes, Sizes).
 get_dsizes([P|Parents], [Sz|Sizes], Sizes0) :-
