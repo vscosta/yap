@@ -16,7 +16,9 @@
 	      [get_dist_domain_size/2,
 	       empty_dist/2,
 	       dist_new_table/2,
-	       get_dist_key/2]).
+	       get_dist_key/2,
+	       randomise_all_dists/0,
+	       uniformise_all_dists/0]).
 
 :- use_module(library('clpbn/connected'),
 	      [clpbn_subgraphs/2]).
@@ -62,6 +64,8 @@ em(Items, MaxError, MaxIts, Tables, Likelihood) :-
 % and more detailed info on distributions, namely with a list of all instances for the distribution.
 init_em(Items, state( AllDists, AllDistInstances, MargVars, SolverVars)) :-
 	run_all(Items),
+%	randomise_all_dists,
+	uniformise_all_dists,
 	attributes:all_attvars(AllVars0),
 	sort_vars_by_key(AllVars0,AllVars1,[]),
 	% remove variables that do not have to do with this query.

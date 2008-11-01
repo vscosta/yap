@@ -15,7 +15,9 @@
 	   multiply_factors/3,
 	   normalise_possibly_deterministic_CPT/2,
 	   column_from_possibly_deterministic_CPT/3,
-	   multiply_possibly_deterministic_factors/3]).
+	   multiply_possibly_deterministic_factors/3,
+	   random_CPT/2,
+	   uniform_CPT/2]).
 
 :- use_module(dists,
 	      [get_dist_domain_size/2,
@@ -26,6 +28,7 @@
 	       matrix_new_set/4,
 	       matrix_select/4,
 	       matrix_dims/2,
+	       matrix_size/2,
 	       matrix_shuffle/3,
 	       matrix_expand/3,
 	       matrix_op/4,
@@ -229,3 +232,25 @@ normalise_possibly_deterministic_CPT(MAT,NMAT) :-
 	matrix_agg_lines(MAT, +, Sum),
 	matrix_op_to_lines(MAT, Sum, /, NMAT).
 
+random_CPT(Dims, M) :-
+	mult_all(Dims,1,Size),
+	generate_random_entries(Size, Randoms),
+	matrix_new(floats, Dims, Randoms, M1),
+	normalise_possibly_deterministic_CPT(M1, M).
+
+mult_all([],Size,Size).
+mult_all([D|Dims],Size0,Size) :-
+	Size1 is Size0*D,
+	mult_all(Dims,Size1,Size).
+
+generate_random_entries(0, []) :- !.
+generate_random_entries(Size, [R|Randoms]) :-
+	R is random,
+	Size1 is Size-1,
+	generate_random_entries(Size1, Randoms).
+
+uniform_CPT(Dims, M) :-
+	matrix_new_set(floats,Dims,1.0,M1),
+	normalise_possibly_deterministic_CPT(M1, M).
+
+	

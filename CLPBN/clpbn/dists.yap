@@ -20,8 +20,11 @@
 	   get_evidence_from_position/3,
 	   dist_to_term/2,
 	   empty_dist/2,
-	   dist_new_table/2,
-	   all_dist_ids/1
+	   all_dist_ids/1,
+	   randomise_all_dists/0,
+	   randomise_dist/1,
+	   uniformise_all_dists/0,
+	   uniformise_dist/1
 	]).
 
 :- use_module(library(lists),[is_list/1,nth0/3]).
@@ -31,6 +34,10 @@
 	       matrix_new/3,
 	       matrix_to_list/2,
 	       matrix_to_logs/1]).
+
+:- use_module(library('clpbn/matrix_cpt_utils'),
+	      [random_CPT/2,
+	       uniform_CPT/2]).
 
 /*
 :- mode dist(+, -).
@@ -257,4 +264,25 @@ copy_Lstructure([], []).
 copy_Lstructure([H|LKey], [NH|LKey0]) :-
 	copy_structure(H, NH),
 	copy_Lstructure(LKey, LKey0).
+
+randomise_all_dists :-
+	randomise_dist(_),
+	fail.
+randomise_all_dists.
+
+randomise_dist(Dist) :-
+	recorded(clpbn_dist_psizes, db(Dist,DSizes), _),
+	random_CPT(DSizes, NewCPT),
+	dist_new_table(Dist, NewCPT).
+
+uniformise_all_dists :-
+	uniformise_dist(_),
+	fail.
+uniformise_all_dists.
+
+uniformise_dist(Dist) :-
+	recorded(clpbn_dist_psizes, db(Dist,DSizes), _),
+	uniform_CPT(DSizes, NewCPT),
+	dist_new_table(Dist, NewCPT).
+
 
