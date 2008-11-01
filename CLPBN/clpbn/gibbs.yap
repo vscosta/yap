@@ -10,7 +10,7 @@
 :- module(clpbn_gibbs,
 	  [gibbs/3,
 	   check_if_gibbs_done/1,
-	   init_gibbs_solver/3,
+	   init_gibbs_solver/4,
 	   run_gibbs_solver/3]).
 
 :- use_module(library(rbtrees),
@@ -49,6 +49,11 @@
 :- use_module(library('clpbn/display'), [
 	clpbn_bind_vals/3]).
 
+:- use_module(library('clpbn/connected'),
+	      [
+	       influences/4
+	      ]).
+
 :- dynamic gibbs_params/3.
 
 :- dynamic explicit/1.
@@ -59,19 +64,21 @@
 % list of attributed variables
 %
 gibbs(LVs,Vs0,AllDiffs) :-
-	init_gibbs_solver(LVs, Vs0, Vs),
+	init_gibbs_solver(LVs, Vs0, AllDiffs, Vs),
 	(clpbn:output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
 	(clpbn:output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,vel,Vs,LVs) ; true),
-	run_gibbs_solver(LVs, Vs, LPs),
+	run_gibbs_solver(LVs, LPs, Vs),
 	clpbn_bind_vals(LVs,LPs,AllDiffs),
 	clean_up.
 
-init_gibbs_solver(_, Vs0, Vs) :-
+init_gibbs_solver(GoalVs, Vs0, _, Vs) :-
 	clean_up,
+	term_variables(GoalVs, LVs),
 	check_for_hidden_vars(Vs0, Vs0, Vs1),
-	sort(Vs1,Vs).
+	influences(Vs1, LVs, _, Vs2),
+	sort(Vs2,Vs).
 
-run_gibbs_solver(LVs, Vs, LPs) :-
+run_gibbs_solver(LVs, LPs, Vs) :-
 	initialise(Vs, Graph, LVs, OutputVars, VarOrder),
 %	writeln(Graph),
 %	write_pars(Vs),
