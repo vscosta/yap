@@ -1,7 +1,9 @@
 
 :- module(clpbn_connected,
 	[clpbn_subgraphs/2,
-	influences/4]).
+	influences/4,
+	init_influences/3,
+	influences/5]).
 
 :- use_module(library(dgraphs),
 	[dgraph_new/1,
@@ -67,20 +69,26 @@ same_keys([K1-El|More], K, [El|Els], Rest) :-
 same_keys(Rest, _, [], Rest).
 
 influences_more([], _, _, Is, Is, Evs, Evs, V2, V2).
-influences_more([V|LV], G, RG, Is0, Is, Evs0, Evs, V0, V2) :-
-	rb_lookup(V, _, V0), !,
-	influences_more(LV, G, RG, Is0, Is, Evs0, Evs, V0, V2).
-influences_more([V|LV], G, RG, Is0, Is, Evs0, Evs, V0, V2) :-
-	rb_insert(V0, V, _, V1),
-	follow_dgraph(V, G, RG, [V|Is0], Is1, [V|Evs0], Evs1, V1, V2),
-	influences_more(LV, G, RG, Is1, Is, Evs1, Evs, V1, V2).
+influences_more([V|LV], G, RG, Is0, Is, Evs0, Evs, GV0, GV2) :-
+	rb_lookup(V, _, GV0), !,
+	influences_more(LV, G, RG, Is0, Is, Evs0, Evs, GV0, GV2).
+influences_more([V|LV], G, RG, Is0, Is, Evs0, Evs, GV0, GV3) :-
+	rb_insert(GV0, V, _, GV1),
+	follow_dgraph(V, G, RG, [V|Is0], Is1, [V|Evs0], Evs1, GV1, GV2),
+	influences_more(LV, G, RG, Is1, Is, Evs1, Evs, GV2, GV3).
 
 % search for the set of variables that influence V
-influences(_,[],[], []).
-influences(Vs,[V|LV], Is, Evs) :-
+influences(Vs, LV, Is, Evs) :-
+	init_influences(Vs, G, RG),
+	influences(LV, Is, Evs, G, RG).
+
+init_influences(Vs, G, RG) :-
 	dgraph_new(G0),
 	dgraph_new(RG0),
-	to_dgraph(Vs, G0, G, RG0, RG),
+	to_dgraph(Vs, G0, G, RG0, RG).
+
+influences([], [], [], _, _).
+influences([V|LV], Is, Evs, G, RG) :-
 	rb_new(V0),
 	rb_insert(V0, V, _, V1),
 	follow_dgraph(V, G, RG, [V], Is1, [V], Evs1, V1, V2),
@@ -128,7 +136,7 @@ add_parents([V|Vs], G, RG, Is0, IsF, Evs0, EvsF, Visited0, VisitedF) :-
 % we will need to find its parents.
 add_parents([V|Vs], G, RG, Is0, IsF, Evs0, EvsF, Visited0, VisitedF) :-
 	rb_insert(Visited0, V, _, VisitedI),
-	follow_dgraph(V, G, RG, [V|Is0], IsI, [V|Evs0], EvsI, VisitedI, VisitedII),	
+	follow_dgraph(V, G, RG, [V|Is0], IsI, [V|Evs0], EvsI, VisitedI, VisitedII),
 	add_parents(Vs, G, RG, IsI, IsF, EvsI, EvsF, VisitedII, VisitedF).
 	
 add_kids([], _, _, Is, Is, Evs, Evs, Visited, Visited).
@@ -148,7 +156,7 @@ add_kids([V|Vs], G, RG, Is0, IsF, Evs0, EvsF, Visited0, VisitedF) :-
 	(Is1 = Is0 ->
 	    % ignore whatever we did with this node,
 	    % it didn't lead anywhere (all parents have evidence).
-	    add_kids(Vs, G, RG, Is0, IsF, Evs0, EvsF, Visited1, VisitedF)
+	    add_kids(Vs, G, RG, Is0, IsF, [V|Evs0], EvsF, Visited1, VisitedF)
 	;
 	    % insert parents
 	    add_kids(Vs, G, RG, Is1, IsF, EvsI, EvsF, VisitedI, VisitedF)
