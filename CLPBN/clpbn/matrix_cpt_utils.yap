@@ -160,8 +160,8 @@ expand_tabs([V1|Deps1], [S1|Sz1], [V2|Deps2], [S2|Sz2], Map1, Map2, NDeps) :-
 	
 normalise_CPT(MAT,NMAT) :-
 	matrix_to_exps(MAT),
-	matrix_agg_lines(MAT, +, Sum),
-	matrix_op_to_lines(MAT, Sum, /, NMAT).
+	matrix_sum(MAT, Sum),
+	matrix_op_to_all(MAT, /, Sum, NMAT).
 
 list_from_CPT(MAT, List) :-
 	matrix_to_list(MAT, List).
