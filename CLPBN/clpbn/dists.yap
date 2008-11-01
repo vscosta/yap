@@ -15,6 +15,7 @@
 	   get_dist_params/2,
 	   get_dist_domain_size/2,
 	   get_dist_tparams/2,
+	   get_dist_key/2,
 	   get_evidence_position/3,
 	   get_evidence_from_position/3,
 	   dist_to_term/2,
@@ -204,6 +205,9 @@ get_dist_domain_size(Id, DSize) :-
 
 get_dist_domain(Id, Domain) :-
 	recorded(clpbn_dist_db, db(Id, _, _, _, Domain, _, _), _).
+
+get_dist_key(Id, Key) :-
+	recorded(clpbn_dist_db, db(Id, Key, _, _, _, _, _), _).
 
 get_dist_nparams(Id, NParms) :-
 	recorded(clpbn_dist_db, db(Id, _, _, _, _, NParms, _), _).
