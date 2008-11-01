@@ -15,7 +15,9 @@
 *********************************/
 
 :- module(vel, [vel/3,
-		check_if_vel_done/1]).
+		check_if_vel_done/1,
+		init_vel_solver/4,
+		run_vel_solver/3]).
 
 :- attribute size/1, all_diffs/1.
 
@@ -37,6 +39,12 @@
 :- use_module(library('clpbn/display'), [
 	clpbn_bind_vals/3]).
 
+:- use_module(library('clpbn/connected'),
+	      [
+	       init_influences/3,
+	       influences/5
+	      ]).
+
 :- use_module(library('clpbn/matrix_cpt_utils'),
 	      [project_from_CPT/3,
 	       reorder_CPT/5,
@@ -57,23 +65,40 @@ check_if_vel_done(Var) :-
 %
 vel([[]],_,_) :- !.
 vel([LVs],Vs0,AllDiffs) :-
-	check_for_hidden_vars(Vs0, Vs0, Vs1),
-	sort(Vs1,Vs),
-	% LVi will have a  list of CLPBN variables
-	% Tables0 will have the full data on each variable
-	find_all_clpbn_vars(Vs, LV0, LVi, Tables0),
-	% construct the graph
-	find_all_table_deps(Tables0, LV0),
-	(clpbn:output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
-	(clpbn:output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,vel,Vs,LVs) ; true),
+	init_vel_solver([LVs], Vs0, AllDiffs, State),
 	% variable elimination proper
-	process(LVi, LVs, tab(Dist,_,_)),
-	% move from potentials back to probabilities
-	normalise_CPT(Dist,Ps),
+	run_vel_solver([LVs], [Ps], State),
 	% from array to list
 	list_from_CPT(Ps, LPs),
 	% bind Probs back to variables so that they can be output.
 	clpbn_bind_vals([LVs],[LPs],AllDiffs).
+
+init_vel_solver(Qs, Vs0, _, LVis) :-
+	check_for_hidden_vars(Vs0, Vs0, Vs1),
+	% LVi will have a  list of CLPBN variables
+	% Tables0 will have the full data on each variable
+	init_influences(Vs1, G, RG),
+	init_vel_solver_for_questions(Qs, G, RG, Vs0F, LVis),
+	term_variables(Vs0F, Vs),
+	(clpbn:output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
+	(clpbn:output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,vel,Vs,_) ; true).
+
+init_vel_solver_for_questions([], _, _, [], []).
+init_vel_solver_for_questions([Vs|MVs], G, RG, [NVs0|MNVs0], [NVs0|LVis]) :-
+	influences(Vs, _, NVs0, G, RG),
+	init_vel_solver_for_questions(MVs, G, RG, MNVs0, LVis).
+
+run_vel_solver([], [], []).
+run_vel_solver([LVs|MoreLVs], [Ps|MorePs], [NVs0|MoreLVis]) :-
+	find_all_clpbn_vars(NVs0, LV0, LVi, Tables0),
+	sort(LV0, LV),
+	% construct the graph
+	find_all_table_deps(Tables0, LV),
+	process(LVi, LVs, tab(Dist,_,_)),
+	% move from potentials back to probabilities
+	normalise_CPT(Dist,MPs),
+	list_from_CPT(MPs, Ps),
+	run_vel_solver(MoreLVs, MorePs, MoreLVis).
 
 %
 % just get a list of variables plus associated tables
@@ -105,7 +130,7 @@ find_all_table_deps(Tables0, LV) :-
 	sort(DepGraph0, DepGraph),
 	add_table_deps_to_variables(LV, DepGraph).
 
-find_dep_graph([], []).
+find_dep_graph([], []) :- !.
 find_dep_graph([table(I,Tab,Deps,Sizes)|Tables], DepGraph) :-
 	add_table_deps(Deps, I, Deps, Tab, Sizes, DepGraph0, DepGraph),
 	find_dep_graph(Tables, DepGraph0).
@@ -192,7 +217,8 @@ fetch_tables([], []).
 fetch_tables([var(_,_,_,_,_,_,Deps,_)|LV0], Tables) :-
 	append(Deps,Tables0,Tables),
 	fetch_tables(LV0, Tables0).
-% 
+
+ 
 include([],_,_,[]).
 include([var(V,P,VSz,D,Parents,Ev,Tabs,Est)|LV],tab(T,Vs,Sz),V1,[var(V,P,VSz,D,Parents,Ev,Tabs,Est)|NLV]) :-
 	clpbn_not_var_member(Vs,V), !,
