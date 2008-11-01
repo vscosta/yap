@@ -5,8 +5,10 @@
 		  set_clpbn_flag/2,
 		  clpbn_flag/3,
 		  clpbn_key/2,
-		  clpbn_init_solver/3,
-		  clpbn_run_solver/3]).
+		  clpbn_init_solver/4,
+		  clpbn_run_solver/3,
+		  clpbn_init_solver/5,
+		  clpbn_run_solver/4]).
 
 :- use_module(library(atts)).
 :- use_module(library(lists)).
@@ -28,7 +30,9 @@
 
 :- use_module('clpbn/vel',
 	      [vel/3,
-	       check_if_vel_done/1
+	       check_if_vel_done/1,
+	       init_vel_solver/4,
+	       run_vel_solver/3
 	      ]).
 
 :- use_module('clpbn/jt',
@@ -43,7 +47,7 @@
 :- use_module('clpbn/gibbs',
 	      [gibbs/3,
 	       check_if_gibbs_done/1,
-	       init_gibbs_solver/3,
+	       init_gibbs_solver/4,
 	       run_gibbs_solver/3
 	      ]).
 
@@ -73,14 +77,10 @@
 	       sort_vars_by_key/3
 	      ]).
 
-:- use_module('clpbn/connected',
-	      [
-	       influences/4
-	      ]).
-
-:- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1.
+:- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1, em_solver/1.
 
 solver(jt).
+em_solver(vel).
 
 %output(xbif(user_error)).
 %output(gviz(user_error)).
@@ -100,6 +100,9 @@ clpbn_flag(output,Before,After) :-
 clpbn_flag(solver,Before,After) :-
 	retract(solver(Before)),
 	assert(solver(After)).
+clpbn_flag(em_solver,Before,After) :-
+	retract(em_solver(Before)),
+	assert(em_solver(After)).
 clpbn_flag(bnt_solver,Before,After) :-
 	retract(bnt:bnt_solver(Before)),
 	assert(bnt:bnt_solver(After)).
@@ -168,9 +171,7 @@ project_attributes(GVars, AVars) :-
 	->
 	    write_out(Solver, [[]], AllVars, DiffVars)
 	;
-	    influences(AllVars, CLPBNGVars, _, NewAllVars),
-writeln(AllVars:NewAllVars),
-	    write_out(Solver, [CLPBNGVars], NewAllVars, DiffVars)
+	    write_out(Solver, [CLPBNGVars], AllVars, DiffVars)
 	).
 project_attributes(_, _).
 
@@ -354,13 +355,14 @@ clpbn_key(Var,Key) :-
 % the key. In this case, we assume different instances will be bound to different
 % values at the end of the day.
 %
-clpbn_init_solver(LVs,Vs0,VarsWithUnboundKeys) :-
+clpbn_init_solver(LVs, Vs0, VarsWithUnboundKeys, State) :-
        	solver(Solver),
-	clpbn_init_known_solver(Solver,LVs,Vs0,VarsWithUnboundKeys).
+	clpbn_init_solver(Solver, LVs, Vs0, VarsWithUnboundKeys, State).
 
-clpbn_init_known_solver(gibbs, LVs, Vs0, VarsWithUnboundKeys) :- !,
-	init_gibbs_solver(LVs, Vs0, VarsWithUnboundKeys).
-clpbn_init_known_solver(_, _, _, _).
+clpbn_init_solver(gibbs, LVs, Vs0, VarsWithUnboundKeys, State) :-
+	init_gibbs_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+clpbn_init_solver(vel, LVs, Vs0, VarsWithUnboundKeys, State) :-
+	init_vel_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 
 %
 % LVs is the list of lists of variables to marginalise
@@ -368,9 +370,12 @@ clpbn_init_known_solver(_, _, _, _).
 % Ps are the probabilities on LVs.
 % 
 %
-clpbn_run_solver(LVs,Vs,LPs) :-
-       	solver(Solver),
-	clpbn_run_known_solver(Solver,LVs,Vs,LPs).
+clpbn_run_solver(LVs, LPs, State) :-
+       	solver(Solver, State),
+	clpbn_run_solver(Solver, LVs, LPs, State).
 
-clpbn_run_known_solver(gibbs,LVs, Vs, LPs) :- !,
-	run_gibbs_solver(LVs, Vs, LPs).
+clpbn_run_solver(gibbs, LVs, LPs, State) :-
+	run_gibbs_solver(LVs, LPs, State).
+clpbn_run_solver(vel, LVs, LPs, State) :-
+	run_vel_solver(LVs, LPs, State).
+
