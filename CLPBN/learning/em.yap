@@ -81,7 +81,7 @@ em_loop(Its, Likelihood0, State, MaxError, MaxIts, LikelihoodF, FTables) :-
 	writeln(Likelihood:Likelihood0:Tables),
 	(
 	    (
-	     (Likelihood - Likelihood0)/Likelihood < MaxError
+	     abs((Likelihood - Likelihood0)/Likelihood) < MaxError
 	    ;
 	     Its == MaxIts
 	    )	 
