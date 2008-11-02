@@ -11,7 +11,6 @@
 	   unit_CPT/2,
 	   sum_out_from_CPT/4,
 	   list_from_CPT/2,
-	   column_from_CPT/3,
 	   multiply_factors/3,
 	   normalise_possibly_deterministic_CPT/2,
 	   column_from_possibly_deterministic_CPT/3,
