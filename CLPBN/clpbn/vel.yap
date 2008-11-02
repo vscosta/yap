@@ -21,7 +21,9 @@
 
 :- attribute size/1, all_diffs/1.
 
-:- use_module(library(ordsets), [ord_union/3]).
+:- use_module(library(ordsets),
+	[ord_union/3, 
+	 ord_member/2]).
 
 :- use_module(library('clpbn/xbif'), [clpbn2xbif/3]).
 
@@ -50,6 +52,7 @@
 	       reorder_CPT/5,
 	       multiply_CPTs/4,
 	       normalise_CPT/2,
+	       sum_out_from_CPT/4,
 	       list_from_CPT/2]).
 
 :- use_module(library(lists),
@@ -84,13 +87,14 @@ init_vel_solver(Qs, Vs0, _, LVis) :-
 	(clpbn:output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,vel,Vs,_) ; true).
 
 init_vel_solver_for_questions([], _, _, [], []).
-init_vel_solver_for_questions([Vs|MVs], G, RG, [NVs0|MNVs0], [NVs0|LVis]) :-
+init_vel_solver_for_questions([Vs|MVs], G, RG, [NVs|MNVs0], [NVs|LVis]) :-
 	influences(Vs, _, NVs0, G, RG),
+	sort(NVs0, NVs),
 	init_vel_solver_for_questions(MVs, G, RG, MNVs0, LVis).
 
 run_vel_solver([], [], []).
 run_vel_solver([LVs|MoreLVs], [Ps|MorePs], [NVs0|MoreLVis]) :-
-	find_all_clpbn_vars(NVs0, LV0, LVi, Tables0),
+	find_all_clpbn_vars(NVs0, NVs0, LV0, LVi, Tables0),
 	sort(LV0, LV),
 	% construct the graph
 	find_all_table_deps(Tables0, LV),
@@ -103,9 +107,9 @@ run_vel_solver([LVs|MoreLVs], [Ps|MorePs], [NVs0|MoreLVis]) :-
 %
 % just get a list of variables plus associated tables
 %
-find_all_clpbn_vars([], [], [], []) :- !.
-find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Parents,Sizes)|Tables]) :-
-	var_with_deps(V, Table, Parents, Sizes, Ev, Vals), !,
+find_all_clpbn_vars([], _, [], [], []) :- !.
+find_all_clpbn_vars([V|Vs], NVs0, [Var|LV], ProcessedVars, [table(I,Table,Parents,Sizes)|Tables]) :-
+	var_with_deps(V, NVs0, Table, Parents, Sizes, Ev, Vals), !,
 	% variables with evidence should not be processed.
 	(var(Ev) ->
 	    Var = var(V,I,Sz,Vals,Parents,Ev,_,_),
@@ -114,16 +118,22 @@ find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Parents,Size
 	;
 	    ProcessedVars = ProcessedVars0
 	),
-	find_all_clpbn_vars(Vs, LV, ProcessedVars0, Tables).
+	find_all_clpbn_vars(Vs, NVs0, LV, ProcessedVars0, Tables).
 
-var_with_deps(V, Table, Deps, Sizes, Ev, Vals) :-
+var_with_deps(V, NVs0, Table, Deps, Sizes, Ev, Vals) :-
 	clpbn:get_atts(V, [dist(Id,Parents)]),
 	get_dist_matrix(Id,Parents,_,Vals,TAB0),
-	( clpbn:get_atts(V, [evidence(Ev)]) -> true ; true),
+	( 
+	    clpbn:get_atts(V, [evidence(Ev)])
+	->
+	    true
+	;
+	    true
+	), !,
 	% set CPT in canonical form
 	reorder_CPT([V|Parents],TAB0,Deps0,TAB1,Sizes1),
 	% remove evidence.
-	simplify_evidence(Deps0, TAB1, Deps0, Sizes1, Table, Deps, Sizes).
+	simplify_evidence(Deps0, NVs0, TAB1, Deps0, Sizes1, Table, Deps, Sizes).
 
 find_all_table_deps(Tables0, LV) :-
 	find_dep_graph(Tables0, DepGraph0),
@@ -205,13 +215,17 @@ multiply_tables([TAB1, TAB2| Tables], Out) :-
 	multiply_tables([TAB| Tables], Out).
 
 
-simplify_evidence([], Table, Deps, Sizes, Table, Deps, Sizes).
-simplify_evidence([V|VDeps], Table0, Deps0, Sizes0, Table, Deps, Sizes) :-
+simplify_evidence([], _, Table, Deps, Sizes, Table, Deps, Sizes).
+simplify_evidence([V|VDeps], NVs0, Table0, Deps0, Sizes0, Table, Deps, Sizes) :-
 	clpbn:get_atts(V, [evidence(_)]), !,
 	project_from_CPT(V,tab(Table0,Deps0,Sizes0),tab(NewTable,Deps1,Sizes1)),
-	simplify_evidence(VDeps, NewTable, Deps1, Sizes1, Table, Deps, Sizes).
-simplify_evidence([_|VDeps], Table0, Deps0, Sizes0, Table, Deps, Sizes) :-
-	simplify_evidence(VDeps, Table0, Deps0, Sizes0, Table, Deps, Sizes).
+	simplify_evidence(VDeps, NVs0, NewTable, Deps1, Sizes1, Table, Deps, Sizes).
+simplify_evidence([V|VDeps], NVs0, Table0, Deps0, Sizes0, Table, Deps, Sizes) :-
+	ord_member(V, NVs0), !,
+	simplify_evidence(VDeps, NVs0, Table0, Deps0, Sizes0, Table, Deps, Sizes).
+simplify_evidence([V|VDeps], NVs0, Table0, Deps0, Sizes0, Table, Deps, Sizes) :-
+	project_from_CPT(V,tab(Table0,Deps0,Sizes0),tab(NewTable,Deps1,Sizes1)),
+	simplify_evidence(VDeps, NVs0, NewTable, Deps1, Sizes1, Table, Deps, Sizes).
 
 fetch_tables([], []).
 fetch_tables([var(_,_,_,_,_,_,Deps,_)|LV0], Tables) :-
