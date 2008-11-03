@@ -1,6 +1,4 @@
 
-:- use_module(library('clpbn/aggregates'),[cpt_average/5]).
-
 int_table(_, [0.5,
 	      0.4,
 	      0.1],[h, m, l]).
@@ -36,12 +34,6 @@ satisfaction_table(A, G,
 rating_prob_table([0.9,0.05,0.01,
 		   0.09,0.9,0.09,
 		   0.01,0.05,0.9]).
-
-build_rating_table(LSats, Key, Table) :-
-	cpt_average(LSats, Key, [h,m,l], 1.00, Table).
-
-build_grades_table(LGrades, Key, Table) :-
-	cpt_average(LGrades, Key, [a,b,c,d], 1.00, Table).
 
 abi_table( _, [0.50, 0.40,  0.10]).
 
