@@ -29,6 +29,7 @@
 	   sublist/2,
 	   substitute/4,
 	   sum_list/2,
+	   sum_list/3,
 	   suffix/2,
 	   sumlist/2,
 	   list_concat/2,
@@ -315,6 +316,9 @@ suffix(Suffix, [_|List]) :-
 
 sumlist(Numbers, Total) :-
 	sumlist(Numbers, 0, Total).
+
+sum_list(Numbers, SoFar, Total) :-
+	sumlist(Numbers, SoFar, Total).
 
 sum_list(Numbers, Total) :-
 	sumlist(Numbers, 0, Total).
