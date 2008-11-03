@@ -47,8 +47,7 @@ course_professor(Key, PKey) :-
 	
 course_rating(CKey, Rat) :-
 	setof(Sat, RKey^(registration_course(RKey,CKey), registration_satisfaction(RKey,Sat)), Sats),
-	build_rating_table(Sats, rating(CKey), Table),
-	{ Rat =  rating(CKey) with Table }.
+	{ Rat =  rating(CKey) with avg([h,m,l],Sats) }.
 
 course_difficulty(Key, Dif) :-
 	dif_table(Key, Dist),
@@ -64,8 +63,7 @@ student_intelligence(Key, Int) :-
 student_ranking(Key, Rank) :-
 	setof(Grade, CKey^(registration_student(CKey,Key),
 			 registration_grade(CKey, Grade)), Grades),
-	build_grades_table(Grades, ranking(Key), GradesTable),
-	{ Rank = ranking(Key) with GradesTable }.
+	{ Rank = ranking(Key) with avg([a,b,c,d],Grades) }.
 
 :- ensure_loaded(tables).
 

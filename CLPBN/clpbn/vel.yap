@@ -31,12 +31,12 @@
 
 :- use_module(library('clpbn/dists'),
 	      [
+	       dist/4,
 	       get_dist_domain_size/2,
 	       get_dist_matrix/5]).
 
 :- use_module(library('clpbn/utils'), [
-	clpbn_not_var_member/2,
-	check_for_hidden_vars/3]).
+	clpbn_not_var_member/2]).
 
 :- use_module(library('clpbn/display'), [
 	clpbn_bind_vals/3]).
@@ -60,6 +60,10 @@
 	       append/3
 	      ]).
 
+:- use_module(library('clpbn/aggregates'),
+	      [cpt_average/6]).
+
+
 check_if_vel_done(Var) :-
 	get_atts(Var, [size(_)]), !.
 
@@ -70,14 +74,12 @@ vel([[]],_,_) :- !.
 vel([LVs],Vs0,AllDiffs) :-
 	init_vel_solver([LVs], Vs0, AllDiffs, State),
 	% variable elimination proper
-	run_vel_solver([LVs], [Ps], State),
-	% from array to list
-	list_from_CPT(Ps, LPs),
+	run_vel_solver([LVs], [LPs], State),
 	% bind Probs back to variables so that they can be output.
 	clpbn_bind_vals([LVs],[LPs],AllDiffs).
 
 init_vel_solver(Qs, Vs0, _, LVis) :-
-	check_for_hidden_vars(Vs0, Vs0, Vs1),
+	check_for_special_vars(Vs0, Vs1),
 	% LVi will have a  list of CLPBN variables
 	% Tables0 will have the full data on each variable
 	init_influences(Vs1, G, RG),
@@ -85,6 +87,21 @@ init_vel_solver(Qs, Vs0, _, LVis) :-
 	term_variables(Vs0F, Vs),
 	(clpbn:output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
 	(clpbn:output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,vel,Vs,_) ; true).
+
+check_for_special_vars([], []).
+check_for_special_vars([V|Vs0], [V|Vs1]) :-
+	clpbn:get_atts(V, [key(K), dist(Id,Parents)]), !,
+	simplify_dist(Id, V, K, Parents, Vs0, Vs00),
+	check_for_special_vars(Vs00, Vs1).
+check_for_special_vars([_|Vs0], Vs1) :-
+	check_for_special_vars(Vs0, Vs1).
+
+% transform aggregate distribution into tree
+simplify_dist(avg(Domain), V, Key, Parents, Vs0, VsF) :- !,
+	cpt_average([V|Parents], Key, Domain, NewDist, Vs0, VsF),
+	dist(NewDist, Id, Key, ParentsF),
+	clpbn:put_atts(V, [dist(Id,ParentsF)]).
+simplify_dist(_, _, _, _, Vs0, Vs0).
 
 init_vel_solver_for_questions([], _, _, [], []).
 init_vel_solver_for_questions([Vs|MVs], G, RG, [NVs|MNVs0], [NVs|LVis]) :-

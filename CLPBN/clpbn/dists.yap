@@ -68,6 +68,9 @@ where Id is the id,
   DSize is the domain size,
   Type is
     tab for tabular
+    avg for average
+    max for maximum
+    min for minimum
     trans  for HMMs
     continuous
   Domain is
@@ -98,6 +101,9 @@ dist(V, Id, Key, Parents) :-
 dist(V, Id, Key, Parents) :-
 	var(Key), !,
 	when(Key, dist(V, Id, Key, Parents)).
+dist(avg(Domain, Parents), avg(Domain), _, Parents).
+dist(max(Domain, Parents), max(Domain), _, Parents).
+dist(min(Domain, Parents), min(Domain), _, Parents).
 dist(p(Type, CPT), Id, Key, FParents) :-
 	copy_structure(Key, Key0),
 	distribution(Type, CPT, Id, Key0, [], FParents).
@@ -207,6 +213,8 @@ get_dsizes([P|Parents], [Sz|Sizes], Sizes0) :-
 get_dist_params(Id, Parms) :-
 	recorded(clpbn_dist_db, db(Id, _, Parms, _, _, _, _), _).
 
+get_dist_domain_size(avg(D,_), DSize) :- !,
+	length(D, DSize).
 get_dist_domain_size(Id, DSize) :-
 	recorded(clpbn_dist_db, db(Id, _, _, _, _, _, DSize), _).
 
