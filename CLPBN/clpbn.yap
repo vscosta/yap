@@ -77,14 +77,17 @@
 	       sort_vars_by_key/3
 	      ]).
 
+:- use_module('clpbn/graphviz',
+	[clpbn2gviz/4]).
+
 :- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1, em_solver/1.
 
 solver(jt).
 em_solver(vel).
 
 %output(xbif(user_error)).
-%output(gviz(user_error)).
-output(no).
+output(gviz(user_error)).
+%output(no).
 suppress_attribute_display(false).
 parameter_softening(laplace).
 
@@ -166,6 +169,8 @@ project_attributes(GVars, AVars) :-
 	clpbn_vars(AVars, DiffVars, AllVars),
 	get_clpbn_vars(GVars,CLPBNGVars0),
 	simplify_query_vars(CLPBNGVars0, CLPBNGVars),
+	(output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,AllVars) ; true),
+	(output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,sort,AllVars,GVars) ; true),
 	(
 	    Solver = graphs
 	->

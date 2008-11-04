@@ -227,6 +227,8 @@ get_dist_key(Id, Key) :-
 get_dist_nparams(Id, NParms) :-
 	recorded(clpbn_dist_db, db(Id, _, _, _, _, NParms, _), _).
 
+get_evidence_position(El, avg(Domain), Pos) :- !,
+	nth0(Pos, Domain, El), !.
 get_evidence_position(El, Id, Pos) :-
 	recorded(clpbn_dist_db, db(Id, _, _, _, Domain, _, _), _),
 	nth0(Pos, Domain, El), !.

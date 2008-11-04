@@ -16,7 +16,8 @@
 	   column_from_possibly_deterministic_CPT/3,
 	   multiply_possibly_deterministic_factors/3,
 	   random_CPT/2,
-	   uniform_CPT/2]).
+	   uniform_CPT/2,
+	   normalise_CPT_on_lines/3]).
 
 :- use_module(dists,
 	      [get_dist_domain_size/2,
@@ -41,6 +42,7 @@
 	       matrix_set_all_that_disagree/5,
 	       matrix_to_list/2,
 	       matrix_agg_lines/3,
+	       matrix_agg_cols/3,
 	       matrix_op_to_lines/4,
 	       matrix_column/3]).
 
@@ -252,4 +254,9 @@ uniform_CPT(Dims, M) :-
 	matrix_new_set(floats,Dims,1.0,M1),
 	normalise_possibly_deterministic_CPT(M1, M).
 
-	
+normalise_CPT_on_lines(MAT0, MAT2, L1) :-
+	matrix_agg_cols(MAT0, +, MAT1), 
+	matrix_sum(MAT1, SUM),
+	matrix_op_to_all(MAT1, /, SUM, MAT2),
+	matrix:matrix_to_list(MAT2,L1).
+

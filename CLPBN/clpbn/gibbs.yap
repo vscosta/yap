@@ -65,8 +65,6 @@
 %
 gibbs(LVs,Vs0,AllDiffs) :-
 	init_gibbs_solver(LVs, Vs0, AllDiffs, Vs),
-	(clpbn:output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
-	(clpbn:output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,vel,Vs,LVs) ; true),
 	run_gibbs_solver(LVs, LPs, Vs),
 	clpbn_bind_vals(LVs,LPs,AllDiffs),
 	clean_up.

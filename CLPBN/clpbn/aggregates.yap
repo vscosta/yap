@@ -15,7 +15,8 @@
 	sumlist/2,
 	sum_list/3,
 	max_list/2,
-	min_list/2
+	min_list/2,
+	nth0/3
     ]).
 
 :- use_module(library(matrix),
@@ -23,17 +24,22 @@
 	matrix_to_list/2,
 	matrix_set/3]).
 
+:- use_module(library('clpbn/matrix_cpt_utils'),
+	[normalise_CPT_on_lines/3]).
+
 :- use_module(dists, [get_dist_domain_size/2]).
 
 cpt_average(AllVars, Key, Els0, Tab, Vs, NewVs) :-
 	cpt_average(AllVars, Key, Els0, 1.0, Tab, Vs, NewVs).
 
 % support variables with evidence from domain. This should make everyone's life easier.
-cpt_average([_|Vars], Key, Els0, Softness, p(Els0, CPT, NewEls), Vs, NewVs) :-
+cpt_average([Ev|Vars], Key, Els0, Softness, p(Els0, CPT, NewParents), Vs, NewVs) :-
 	find_evidence(Vars, 0, TotEvidence, RVars),
-	build_avg_table(RVars, Vars, Els0, Key, TotEvidence, Softness, MAT, NewEls, Vs, NewVs),
-	matrix_to_list(MAT, CPT).
+	build_avg_table(RVars, Vars, Els0, Key, TotEvidence, Softness, MAT0, NewParents0, Vs, IVs),
+	include_qevidence(Ev, MAT0, MAT, NewParents0, NewParents, Vs, IVs, NewVs),
+	matrix_to_list(MAT, CPT), writeln(NewParents: Vs: NewVs: CPT).
 
+% find all fixed kids, this simplifies significantly the function.
 find_evidence([], TotEvidence, TotEvidence, []).
 find_evidence([V|Vars], TotEvidence0, TotEvidence, RVars) :-
 	clpbn:get_atts(V,[evidence(Ev)]), !,
@@ -140,6 +146,35 @@ list_split(I, [H|L], [H|L1], L2) :-
 	list_split(I1, L, L1, L2).
 
 %
+% if we have evidence, we need to check if we are always consistent, never consistent, or can be consistent
+%
+include_qevidence(V, MAT0, MAT, NewParents0, NewParents, Vs, IVs, NewVs) :-
+	clpbn:get_atts(V,[evidence(Ev)]), !,
+	normalise_CPT_on_lines(MAT0, MAT1, L1),
+	check_consistency(L1, Ev, MAT0, MAT1, L1, MAT, NewParents0, NewParents, Vs, IVs, NewVs).
+include_qevidence(_, MAT, MAT, NewParents, NewParents, _, Vs, Vs).
+
+check_consistency(L1, Ev, MAT0, MAT1, L1, MAT, NewParents0, NewParents, Vs, IVs, NewVs) :-
+	sumlist(L1, Tot),
+	nth0(Ev, L1, Val),
+	(Val == Tot ->
+writeln(Ev:L1:Val:1),
+	    MAT1 = MAT,
+	    NewParents = [],
+	    Vs = NewVs
+	;
+	 Val == 0.0 ->
+writeln(Ev:L1:Val:2),
+	    throw(error(domain_error(incompatible_evidence),evidence(Ev)))
+	;
+writeln(Ev:L1:Val:3),
+	    MAT0 = MAT,
+	    NewParents = NewParents0,
+	    IVs = NewVs
+	).
+	
+
+%
 % generate actual table, instead of trusting the solver
 %
 
@@ -147,19 +182,17 @@ average_cpt(Vs, OVars, Vals, Base, _, MCPT) :-
 	get_ds_lengths(Vs,Lengs),
 	length(OVars, N),
 	length(Vals, SVals),
-	Tot is (N-1)*SVals,
-	Factor is SVals/Tot,
 	matrix_new(floats,[SVals|Lengs],MCPT),
-	fill_in_average(Lengs,Factor,Base,MCPT).
+	fill_in_average(Lengs,N,Base,MCPT).
 
 get_ds_lengths([],[]).
 get_ds_lengths([V|Vs],[Sz|Lengs]) :-
 	get_vdist_size(V, Sz),
 	get_ds_lengths(Vs,Lengs).
 	
-fill_in_average(Lengs, SVals, Base, MCPT) :-
+fill_in_average(Lengs, N, Base, MCPT) :-
 	generate(Lengs, Case),
-	average(Case, SVals, Base, Val),
+	average(Case, N, Base, Val),
 	matrix_set(MCPT,[Val|Case],1.0),
 	fail.
 fill_in_average(_,_,_,_).
@@ -175,9 +208,9 @@ from(I1,M,J) :-
 	I < M,
 	from(I,M,J).
 
-average(Case, SVals, Base, Val) :-
+average(Case, N, Base, Val) :-
 	sum_list(Case, Base, Tot),
-	Val is integer(round(Tot*SVals)).
+	Val is integer(round(Tot/N)).
 
 
 sum_cpt(Vs,Vals,_,CPT) :-

@@ -83,10 +83,7 @@ init_vel_solver(Qs, Vs0, _, LVis) :-
 	% LVi will have a  list of CLPBN variables
 	% Tables0 will have the full data on each variable
 	init_influences(Vs1, G, RG),
-	init_vel_solver_for_questions(Qs, G, RG, Vs0F, LVis),
-	term_variables(Vs0F, Vs),
-	(clpbn:output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
-	(clpbn:output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,vel,Vs,_) ; true).
+	init_vel_solver_for_questions(Qs, G, RG, _, LVis).
 
 check_for_special_vars([], []).
 check_for_special_vars([V|Vs0], [V|Vs1]) :-
@@ -211,7 +208,7 @@ process(LV0, _, Out) :-
 
 find_best([], V, _TF, V, _, [], _).
 %:-
-%	clpbn:get_atts(V,[key(K)]), write(chosen:K:TF), nl.
+%	clpbn:get_atts(V,[key(K)]), writeln(chosen:K:_TF).
 % root_with_single_child
 %find_best([var(V,I,_,_,[],Ev,[Dep],K)|LV], _, _, V, [Dep], LVF, Inputs) :- !.	
 find_best([var(V,I,Sz,Vals,Parents,Ev,Deps,K)|LV], _, Threshold, VF, NWorktables, LVF, Inputs) :-
@@ -226,8 +223,9 @@ find_best([var(V,I,Sz,Vals,Parents,Ev,Deps,K)|LV], _, Threshold, VF, NWorktables
 find_best([V|LV], V0, Threshold, VF, WorkTables, [V|LVF], Inputs) :-
 	find_best(LV, V0, Threshold, VF, WorkTables, LVF, Inputs).
 
-multiply_tables([Table], Table) :- !.
+multiply_tables([Table], Table) :- !. %, Table = tab(T,D,S),matrix:matrix_to_list(T,L),writeln(D:S:L).
 multiply_tables([TAB1, TAB2| Tables], Out) :-
+%TAB1 = tab(T,_,_),matrix:matrix_to_list(T,L),writeln(doing:L),
 	multiply_CPTs(TAB1, TAB2, TAB, _),
 	multiply_tables([TAB| Tables], Out).
 
