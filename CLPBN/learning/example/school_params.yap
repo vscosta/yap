@@ -1,5 +1,7 @@
 % learn distribution for school database.
 
+% we do not consider the aggregates yet.
+
 :- [pos:train].
 
 :- ['~/Yap/work/CLPBN/clpbn/examples/School/school_32'].
@@ -11,6 +13,9 @@ main :-
         em(L,0.01,10,CPTs,Lik),
         writeln(Lik:CPTs).
 
+%
+% change to 0.05, 0.1, 0.2 to make things simpler/harder
+%
 missing(0.3).
 
 % miss 30% of the examples.

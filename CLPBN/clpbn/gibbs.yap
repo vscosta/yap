@@ -78,13 +78,9 @@ init_gibbs_solver(GoalVs, Vs0, _, Vs) :-
 
 run_gibbs_solver(LVs, LPs, Vs) :-
 	initialise(Vs, Graph, LVs, OutputVars, VarOrder),
-%	writeln(Graph),
-%	write_pars(Vs),
 	process(VarOrder, Graph, OutputVars, Estimates),
-%	writeln(Estimates),
 	sum_up_all(Estimates, LPs),
 	clean_up.
-%	writeln(Estimates).
 
 initialise(LVs, Graph, GVs, OutputVars, VarOrder) :-
 	init_keys(Keys0),

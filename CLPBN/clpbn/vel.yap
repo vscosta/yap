@@ -89,6 +89,7 @@ init_vel_solver_for_questions([], _, _, [], []).
 init_vel_solver_for_questions([Vs|MVs], G, RG, [NVs|MNVs0], [NVs|LVis]) :-
 	influences(Vs, _, NVs0, G, RG),
 	sort(NVs0, NVs),
+%clpbn_gviz:clpbn2gviz(user_error, test, NVs, Vs),
 	init_vel_solver_for_questions(MVs, G, RG, MNVs0, LVis).
 
 run_vel_solver([], [], []).
@@ -102,18 +103,7 @@ run_vel_solver([LVs|MoreLVs], [Ps|MorePs], [NVs0|MoreLVis]) :-
 list_from_CPT(Dist, LPs),
 	normalise_CPT(Dist,MPs),
 	list_from_CPT(MPs, Ps),
-lists:sumlist(Ps,SUM), ((SUM > 0.9 , SUM < 1.1)  -> true ; writeln(LPs:Ps), get_els(LVs),writeln('--'), get_els(NVs0), abort),
 	run_vel_solver(MoreLVs, MorePs, MoreLVis).
-
-get_els([]).
-get_els(V.NVs0) :-
-	clpbn:get_atts(V,[key(K),evidence(El)]), !,
-	writeln(K:El),
-	get_els(NVs0).
-get_els(V.NVs0) :-
-	clpbn:get_atts(V,[key(K)]),
-	writeln(K),
-	get_els(NVs0).
 
 %
 % just get a list of variables plus associated tables
