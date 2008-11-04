@@ -36,7 +36,9 @@
 	      ]).
 
 :- use_module('clpbn/jt',
-	      [jt/3
+	      [jt/3,
+	       init_jt_solver/4,
+	       run_jt_solver/3
 	      ]).
 
 :- use_module('clpbn/bnt',
@@ -82,12 +84,12 @@
 
 :- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1, em_solver/1.
 
-solver(jt).
-em_solver(vel).
+solver(em).
+em_solver(em).
 
 %output(xbif(user_error)).
-output(gviz(user_error)).
-%output(no).
+%output(gviz(user_error)).
+output(no).
 suppress_attribute_display(false).
 parameter_softening(laplace).
 
@@ -368,6 +370,8 @@ clpbn_init_solver(gibbs, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_gibbs_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(vel, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_vel_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+clpbn_init_solver(jt, LVs, Vs0, VarsWithUnboundKeys, State) :-
+	init_jt_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 
 %
 % LVs is the list of lists of variables to marginalise
@@ -383,4 +387,6 @@ clpbn_run_solver(gibbs, LVs, LPs, State) :-
 	run_gibbs_solver(LVs, LPs, State).
 clpbn_run_solver(vel, LVs, LPs, State) :-
 	run_vel_solver(LVs, LPs, State).
+clpbn_run_solver(jt, LVs, LPs, State) :-
+	run_jt_solver(LVs, LPs, State).
 
