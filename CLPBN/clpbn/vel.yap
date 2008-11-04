@@ -61,7 +61,7 @@
 	      ]).
 
 :- use_module(library('clpbn/aggregates'),
-	      [cpt_average/6]).
+	      [check_for_agg_vars/2]).
 
 
 check_if_vel_done(Var) :-
@@ -79,26 +79,11 @@ vel([LVs],Vs0,AllDiffs) :-
 	clpbn_bind_vals([LVs],[LPs],AllDiffs).
 
 init_vel_solver(Qs, Vs0, _, LVis) :-
-	check_for_special_vars(Vs0, Vs1),
+	check_for_agg_vars(Vs0, Vs1),
 	% LVi will have a  list of CLPBN variables
 	% Tables0 will have the full data on each variable
 	init_influences(Vs1, G, RG),
 	init_vel_solver_for_questions(Qs, G, RG, _, LVis).
-
-check_for_special_vars([], []).
-check_for_special_vars([V|Vs0], [V|Vs1]) :-
-	clpbn:get_atts(V, [key(K), dist(Id,Parents)]), !,
-	simplify_dist(Id, V, K, Parents, Vs0, Vs00),
-	check_for_special_vars(Vs00, Vs1).
-check_for_special_vars([_|Vs0], Vs1) :-
-	check_for_special_vars(Vs0, Vs1).
-
-% transform aggregate distribution into tree
-simplify_dist(avg(Domain), V, Key, Parents, Vs0, VsF) :- !,
-	cpt_average([V|Parents], Key, Domain, NewDist, Vs0, VsF),
-	dist(NewDist, Id, Key, ParentsF),
-	clpbn:put_atts(V, [dist(Id,ParentsF)]).
-simplify_dist(_, _, _, _, Vs0, Vs0).
 
 init_vel_solver_for_questions([], _, _, [], []).
 init_vel_solver_for_questions([Vs|MVs], G, RG, [NVs|MNVs0], [NVs|LVis]) :-
@@ -114,6 +99,7 @@ run_vel_solver([LVs|MoreLVs], [Ps|MorePs], [NVs0|MoreLVis]) :-
 	find_all_table_deps(Tables0, LV),
 	process(LVi, LVs, tab(Dist,_,_)),
 	% move from potentials back to probabilities
+list_from_CPT(Dist, LPs),
 	normalise_CPT(Dist,MPs),
 	list_from_CPT(MPs, Ps),
 	run_vel_solver(MoreLVs, MorePs, MoreLVis).
