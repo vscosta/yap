@@ -2,6 +2,7 @@
 % generate explicit CPTs
 %
 :- module(clpbn_aggregates, [
+        check_for_agg_vars/2,
 	cpt_average/6,
 	cpt_average/7,
 	cpt_max/6,
@@ -24,10 +25,28 @@
 	matrix_to_list/2,
 	matrix_set/3]).
 
+:- use_module(library('clpbn/dists'),
+	      [
+	       dist/4,
+	       get_dist_domain_size/2]).
+
 :- use_module(library('clpbn/matrix_cpt_utils'),
 	[normalise_CPT_on_lines/3]).
 
-:- use_module(dists, [get_dist_domain_size/2]).
+check_for_agg_vars([], []).
+check_for_agg_vars([V|Vs0], [V|Vs1]) :-
+	clpbn:get_atts(V, [key(K), dist(Id,Parents)]), !,
+	simplify_dist(Id, V, K, Parents, Vs0, Vs00),
+	check_for_agg_vars(Vs00, Vs1).
+check_for_agg_vars([_|Vs0], Vs1) :-
+	check_for_agg_vars(Vs0, Vs1).
+
+% transform aggregate distribution into tree
+simplify_dist(avg(Domain), V, Key, Parents, Vs0, VsF) :- !,
+	cpt_average([V|Parents], Key, Domain, NewDist, Vs0, VsF),
+	dist(NewDist, Id, Key, ParentsF),
+	clpbn:put_atts(V, [dist(Id,ParentsF)]).
+simplify_dist(_, _, _, _, Vs0, Vs0).
 
 cpt_average(AllVars, Key, Els0, Tab, Vs, NewVs) :-
 	cpt_average(AllVars, Key, Els0, 1.0, Tab, Vs, NewVs).
