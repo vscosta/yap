@@ -11,7 +11,7 @@ main :-
         em(L,0.01,10,CPTs,Lik),
         writeln(Lik:CPTs).
 
-missing(0.1).
+missing(0.3).
 
 % miss 30% of the examples.
 goal(professor_ability(P,V)) :-

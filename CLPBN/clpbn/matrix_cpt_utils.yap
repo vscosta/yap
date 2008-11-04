@@ -37,7 +37,7 @@
 	       matrix_sum_logs_out/3,
 	       matrix_sum_logs_out_several/3,
 	       matrix_op_to_all/4,
-	       matrix_to_exps/1,
+	       matrix_to_exps2/1,
 	       matrix_to_logs/1,
 	       matrix_set_all_that_disagree/5,
 	       matrix_to_list/2,
@@ -163,7 +163,7 @@ expand_tabs([V1|Deps1], [S1|Sz1], [V2|Deps2], [S2|Sz2], Map1, Map2, NDeps) :-
 	).
 	
 normalise_CPT(MAT,NMAT) :-
-	matrix_to_exps(MAT),
+	matrix_to_exps2(MAT),
 	matrix_sum(MAT, Sum),
 	matrix_op_to_all(MAT, /, Sum, NMAT).
 

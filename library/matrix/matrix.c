@@ -1101,6 +1101,34 @@ matrix_exp_all(void)
 }
 
 static int
+matrix_exp2_all(void)
+{
+  int *mat;
+
+  mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+  if (!mat) {
+    /* Error */
+    return FALSE;
+  }
+  if (mat[MAT_TYPE] == INT_MATRIX) {
+    return FALSE;
+  } else {
+    double *data = matrix_double_data(mat, mat[MAT_NDIMS]);
+    int i;
+    double max = data[0];
+
+    for (i=1; i< mat[MAT_SIZE]; i++) {
+      if (data[i] > max) max = data[i];
+    }
+    
+    for (i=0; i< mat[MAT_SIZE]; i++) {
+      data[i] = exp(data[i]-max);
+    }
+  }
+  return TRUE;
+}
+
+static int
 matrix_exp_all2(void)
 {
   int *mat;
@@ -2959,6 +2987,7 @@ init_matrix(void)
   YAP_UserCPredicate("matrix_column", matrix_column, 3);
   YAP_UserCPredicate("matrix_to_logs", matrix_log_all,1);
   YAP_UserCPredicate("matrix_to_exps", matrix_exp_all, 1);
+  YAP_UserCPredicate("matrix_to_exps2", matrix_exp2_all, 1);
   YAP_UserCPredicate("matrix_to_logs", matrix_log_all2,2);
   YAP_UserCPredicate("matrix_to_exps", matrix_exp_all2, 2);
   YAP_UserCPredicate("matrix_sum_out", matrix_sum_out, 3);
