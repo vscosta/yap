@@ -994,7 +994,7 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
 #ifdef __APPLE__
     current_p =(yamop *) CONTEXT_BP;
 #else
-    current_p =(amop *) sc->uc_mcontext.gregs[6]; /* 6= REG_EBP */
+    current_p =(yamop *) sc->uc_mcontext.gregs[6]; /* 6= REG_EBP */
 #endif
 #else
     current_p = P;
