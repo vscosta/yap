@@ -1598,8 +1598,11 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 static void
 mark_att_var(CELL *hp)
 {
-  int relpos = ((CELL *)Yap_GlobalBase-hp)%3;
-  attvar_record *attv = (attvar_record *)(hp-relpos);
+  attvar_record *top = (attvar_record *)Yap_GlobalBase;
+  int relpos = top-(attvar_record *)hp;
+  attvar_record *attv = top-relpos;
+  if (attv != (attvar_record *)hp)
+    attv--;
   mark_external_reference2(&attv->Done);
   mark_external_reference2(&attv->Value);
   mark_external_reference2(&attv->Atts);
