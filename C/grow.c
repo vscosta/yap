@@ -721,6 +721,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   int do_grow = TRUE;
 
   CurrentDelayTop = (CELL *)omax;
+  size0 = size;
   if (hsplit) {
     /* just a little bit of sanity checking */
     if (hsplit < (CELL*)omax ||
@@ -734,9 +735,6 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
       do_grow = FALSE;
     }
   }
-  size0 = size;
-  if (size < ((char *)H0-omax)/8)
-    size = ((char *)H0-omax)/8;
   if (do_grow) {
     if (size < YAP_ALLOC_SIZE)
       size = YAP_ALLOC_SIZE;
