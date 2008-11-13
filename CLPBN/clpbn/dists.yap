@@ -14,7 +14,7 @@
 	   get_dist_domain/2,
 	   get_dist_params/2,
 	   get_dist_domain_size/2,
-	   get_dist_tparams/2,
+	   get_dist_params/2,
 	   get_dist_key/2,
 	   get_evidence_position/3,
 	   get_evidence_from_position/3,
@@ -24,7 +24,8 @@
 	   randomise_all_dists/0,
 	   randomise_dist/1,
 	   uniformise_all_dists/0,
-	   uniformise_dist/1
+	   uniformise_dist/1,
+	   reset_all_dists/0
 	]).
 
 :- use_module(library(lists),[is_list/1,nth0/3]).
@@ -92,6 +93,10 @@ new_id(Id) :-
 	retract(id(Id)),
 	Id1 is Id+1,
 	assert(id(Id1)).
+
+reset_id :-
+	retract(id(_)),
+	assert(id(1)).
 
 dists(X) :- id(X1), X is X1-1.
 
@@ -294,5 +299,19 @@ uniformise_dist(Dist) :-
 	recorded(clpbn_dist_psizes, db(Dist,DSizes), _),
 	uniform_CPT(DSizes, NewCPT),
 	dist_new_table(Dist, NewCPT).
+
+
+reset_all_dists :-
+	recorded(clpbn_dist_psizes, _, R),
+	erase(R),
+	fail.
+reset_all_dists :-
+	recorded(clpbn_dist_db, _, R),
+	erase(R),
+	fail.
+reset_all_dists :-
+	reset_id,
+	fail.
+reset_all_dists.
 
 

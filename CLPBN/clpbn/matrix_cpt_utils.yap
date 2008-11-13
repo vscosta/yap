@@ -17,6 +17,7 @@
 	   multiply_possibly_deterministic_factors/3,
 	   random_CPT/2,
 	   uniform_CPT/2,
+	   uniform_CPT_as_list/2,
 	   normalise_CPT_on_lines/3]).
 
 :- use_module(dists,
@@ -249,6 +250,10 @@ generate_random_entries(Size, [R|Randoms]) :-
 	R is random,
 	Size1 is Size-1,
 	generate_random_entries(Size1, Randoms).
+
+uniform_CPT_as_list(Dims, L) :-
+	uniform_CPT(Dims, M),
+	matrix_to_list(M, L).
 
 uniform_CPT(Dims, M) :-
 	matrix_new_set(floats,Dims,1.0,M1),

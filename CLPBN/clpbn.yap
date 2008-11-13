@@ -84,8 +84,8 @@
 
 :- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1, em_solver/1.
 
-solver(em).
-em_solver(em).
+solver(vel).
+em_solver(vel).
 
 %output(xbif(user_error)).
 %output(gviz(user_error)).
@@ -125,6 +125,8 @@ clpbn_flag(parameter_softening,Before,After) :-
 	assert(parameter_softening(After)).
 
 
+{_} :-
+	solver(none), !.
 {Var = Key with Dist} :-
 	put_atts(El,[key(Key),dist(DistInfo,Parents)]),
 	dist(Dist, DistInfo, Key, Parents),
@@ -323,7 +325,7 @@ bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1) :-
 	->
 	  true
 	;
-	  throw(error(domain_error(bayesian_domain),bind_clpbns(var(Key, Type, Domain, Table, Parents),var(Key1, Type1, Domain1, Table1, Parents1))))
+	  throw(error(domain_error(bayesian_domain),bind_clpbns(var(Dist, Key, Type, Domain, Table, Parents),var(Dist1, Key1, Type1, Domain1, Table1, Parents1))))
 	).
 bind_clpbns(Key, _, _, _, Key1, _, _, _) :-
 	Key\=Key1, !, fail.

@@ -51,7 +51,12 @@
 
 em(Items, MaxError, MaxIts, Tables, Likelihood) :-
 	init_em(Items, State),
-	em_loop(0, 0.0, State, MaxError, MaxIts, Likelihood, Tables).
+	em_loop(0, 0.0, State, MaxError, MaxIts, Likelihood, Tables),
+	assert(em_found(Tables, Likelihood)),
+	fail.
+% get rid of new random variables the easy way :)
+em(_, _, _, Tables, Likelihood) :-
+	retract(em_found(Tables, Likelihood)).
 
 % This gets you an initial configuration. If there is a lot of evidence
 % tables may be filled in close to optimal, otherwise they may be
@@ -78,7 +83,7 @@ init_em(Items, state( AllDists, AllDistInstances, MargVars, SolverVars)) :-
 em_loop(Its, Likelihood0, State, MaxError, MaxIts, LikelihoodF, FTables) :-
 	estimate(State, LPs),
 	maximise(State, Tables, LPs, Likelihood),
-	writeln(Likelihood:Likelihood0:Tables),
+	writeln(Likelihood:Its:Likelihood0:Tables),
 	(
 	    (
 	     abs((Likelihood - Likelihood0)/Likelihood) < MaxError
@@ -170,24 +175,25 @@ estimate(state(_, _, Margs, SolverState), LPs) :-
 
 maximise(state(_,DistInstances,MargVars,_), Tables, LPs, Likelihood) :-
 	rb_new(MDistTable0),
-	create_mdist_table(MargVars,LPs,MDistTable0,MDistTable),
-	compute_parameters(DistInstances, Tables, MDistTable, 0.0, Likelihood).
+	create_mdist_table(MargVars, LPs, MDistTable0, MDistTable),
+	compute_parameters(DistInstances, Tables, MDistTable, 0.0, Likelihood, LPs:MargVars).
 
 create_mdist_table([],[],MDistTable,MDistTable).
 create_mdist_table([Vs|MargVars],[Ps|LPs],MDistTable0,MDistTable) :-
 	rb_insert(MDistTable0, Vs, Ps, MDistTableI),
 	create_mdist_table(MargVars, LPs, MDistTableI ,MDistTable).
 
-compute_parameters([], [], _, Lik, Lik).
-compute_parameters([Id-Samples|Dists], [Id-NewTable|Tables],  MDistTable, Lik0, Lik) :-
+compute_parameters([], [], _, Lik, Lik, _).
+compute_parameters([Id-Samples|Dists], [Id-NewTable|Tables],  MDistTable, Lik0, Lik, LPs:MargVars) :-
 	empty_dist(Id, Table0),
 	add_samples(Samples, Table0, MDistTable),
 	soften_sample(Table0, SoftenedTable),
+	matrix:matrix_sum(Table0,TotM),writeln(Id-TotM),
 	normalise_counts(SoftenedTable, NewTable),
 	compute_likelihood(Table0, NewTable, DeltaLik),
 	dist_new_table(Id, NewTable),
 	NewLik is Lik0+DeltaLik,
-	compute_parameters(Dists, Tables,  MDistTable, NewLik, Lik).
+	compute_parameters(Dists, Tables,  MDistTable, NewLik, Lik, LPs:MargVars).
 
 add_samples([], _, _).
 add_samples([i(_,_,[Case],[])|Samples], Table, MDistTable) :- !,

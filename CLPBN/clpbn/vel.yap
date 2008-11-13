@@ -100,9 +100,9 @@ run_vel_solver([LVs|MoreLVs], [Ps|MorePs], [NVs0|MoreLVis]) :-
 	find_all_table_deps(Tables0, LV),
 	process(LVi, LVs, tab(Dist,_,_)),
 	% move from potentials back to probabilities
-list_from_CPT(Dist, LPs),
 	normalise_CPT(Dist,MPs),
 	list_from_CPT(MPs, Ps),
+length(Ps,_Len), 
 	run_vel_solver(MoreLVs, MorePs, MoreLVis).
 
 %

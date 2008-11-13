@@ -34,7 +34,7 @@ run_all(M:Gs) :-
 
 run_all([],_).
 run_all([G|Gs],M) :-
-	call(M:G),
+	( call(M:G) -> true ; writeln(bad:M:G), break),
 	run_all(Gs,M).
 
 clpbn_vars(Vs,BVars) :-
