@@ -244,3 +244,5 @@ convert_to_goals([A|G],(A,Gs)) :-
 	convert_to_goals(G,Gs).
 
 
+
+	
