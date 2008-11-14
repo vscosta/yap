@@ -1429,7 +1429,7 @@ p_nb_queue(void)
   Term delay_queue_arena;
 #endif
   Term t = Deref(ARG1);
-  UInt arena_sz = (H-H0)/16;
+  UInt arena_sz = (ASP-H)/16;
   if (arena_sz < MIN_ARENA_SIZE)
     arena_sz = MIN_ARENA_SIZE;
 
@@ -1449,17 +1449,19 @@ p_nb_queue(void)
   if (!Yap_unify(queue,ARG1))
     return FALSE;
 #if COROUTINING
-  arena_sz = ((attvar_record *)H0- DelayTop())/16;
-  if (arena_sz <2) 
-    arena_sz = 2;
-  if (arena_sz > 256)
-      arena_sz = 256;
-  delay_queue_arena = NewDelayArena(arena_sz);
-  if (delay_queue_arena == 0L) {
-    return FALSE;
+  {
+    UInt delay_arena_sz = ((attvar_record *)H0- DelayTop())/16;
+    if (delay_arena_sz <2) 
+      delay_arena_sz = 2;
+    if (delay_arena_sz > 256)
+      delay_arena_sz = 256;
+    delay_queue_arena = NewDelayArena(delay_arena_sz);
+    if (delay_queue_arena == 0L) {
+      return FALSE;
+    }
+    nar = RepAppl(Deref(ARG1))+1;
+    nar[QUEUE_DELAY_ARENA] = delay_queue_arena;
   }
-  nar = RepAppl(Deref(ARG1))+1;
-  nar[QUEUE_DELAY_ARENA] = delay_queue_arena;
 #endif
   if (arena_sz < 4*1024)
     arena_sz = 4*1024;
