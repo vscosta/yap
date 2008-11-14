@@ -39,7 +39,7 @@ clpbn_not_var_member([V1|Vs], V) :- V1 \== V,
 
 sort_vars_by_key(AVars, SortedAVars, UnifiableVars) :-
 	get_keys(AVars, KeysVars),
-	keysort(KeysVars, KVars),
+	msort(KeysVars, KVars),
 	merge_same_key(KVars, SortedAVars, [], UnifiableVars).
 
 get_keys([], []).
@@ -51,7 +51,19 @@ get_keys([_|AVars], KeysVars) :-  % may be non-CLPBN vars.
 
 merge_same_key([], [], _, []).
 merge_same_key([K1-V1,K2-V2|Vs], SortedAVars, Ks, UnifiableVars) :-
-	K1 == K2, !, V1 = V2,
+	K1 == K2, !,
+	(clpbn:get_atts(V1, [evidence(E)])
+        ->
+	    clpbn:put_atts(V2, [evidence(E)])
+	;
+	    clpbn:get_atts(V2, [evidence(E)])
+	->
+	    clpbn:put_atts(V1, [evidence(E)])
+	;
+	     true
+	),
+%	V1 = V2,
+	attributes:fast_unify_attributed(V1,V2),
 	merge_same_key([K1-V1|Vs], SortedAVars, Ks, UnifiableVars).
 merge_same_key([K1-V1,K2-V2|Vs], [V1|SortedAVars], Ks, [K1|UnifiableVars]) :-
 	(in_keys(K1, Ks) ; \+ \+ K1 == K2), !, 

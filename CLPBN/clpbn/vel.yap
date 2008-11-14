@@ -14,7 +14,7 @@
   
 *********************************/
 
-:- module(vel, [vel/3,
+:- module(clpbn_vel, [vel/3,
 		check_if_vel_done/1,
 		init_vel_solver/4,
 		run_vel_solver/3]).
@@ -92,8 +92,12 @@ init_vel_solver_for_questions([Vs|MVs], G, RG, [NVs|MNVs0], [NVs|LVis]) :-
 %clpbn_gviz:clpbn2gviz(user_error, test, NVs, Vs),
 	init_vel_solver_for_questions(MVs, G, RG, MNVs0, LVis).
 
-run_vel_solver([], [], []).
-run_vel_solver([LVs|MoreLVs], [Ps|MorePs], [NVs0|MoreLVis]) :-
+% use a findall to recover space without needing for GC
+run_vel_solver(LVs, LPs, LNVs) :-
+	findall(Ps, solve_vel(LVs, LNVs, Ps), LPs).
+
+solve_vel([LVs|_], [NVs0|_], Ps) :-
+	length(NVs0, L), (L > 64 -> clpbn_gviz:clpbn2gviz(user_error,sort,NVs0,LVs) ; true ),
 	find_all_clpbn_vars(NVs0, NVs0, LV0, LVi, Tables0),
 	sort(LV0, LV),
 	% construct the graph
@@ -101,9 +105,19 @@ run_vel_solver([LVs|MoreLVs], [Ps|MorePs], [NVs0|MoreLVis]) :-
 	process(LVi, LVs, tab(Dist,_,_)),
 	% move from potentials back to probabilities
 	normalise_CPT(Dist,MPs),
-	list_from_CPT(MPs, Ps),
-length(Ps,_Len), 
-	run_vel_solver(MoreLVs, MorePs, MoreLVis).
+	list_from_CPT(MPs, Ps).
+solve_vel([_|MoreLVs], [_|MoreLVis], Ps) :-
+	solve_vel(MoreLVs, MoreLVis, Ps).
+
+
+
+keys([],[]).
+keys([V|NVs0],[K:E|Ks]) :-
+	clpbn:get_atts(V,[key(K),evidence(E)]), !,
+	keys(NVs0,Ks).
+keys([V|NVs0],[K|Ks]) :-
+	clpbn:get_atts(V,[key(K)]),
+	keys(NVs0,Ks).
 
 %
 % just get a list of variables plus associated tables

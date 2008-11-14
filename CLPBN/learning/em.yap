@@ -50,13 +50,20 @@
 :- meta_predicate em(:,+,+,-,-), init_em(:,-).
 
 em(Items, MaxError, MaxIts, Tables, Likelihood) :-
-	init_em(Items, State),
+	catch(init_em(Items, State),Error,handle_em(Error)),
 	em_loop(0, 0.0, State, MaxError, MaxIts, Likelihood, Tables),
 	assert(em_found(Tables, Likelihood)),
 	fail.
 % get rid of new random variables the easy way :)
 em(_, _, _, Tables, Likelihood) :-
 	retract(em_found(Tables, Likelihood)).
+
+
+handle_em(error(repeated_parents)) :-
+	assert(em_found(_, -inf)),
+	fail.
+	
+	
 
 % This gets you an initial configuration. If there is a lot of evidence
 % tables may be filled in close to optimal, otherwise they may be
@@ -72,9 +79,9 @@ init_em(Items, state( AllDists, AllDistInstances, MargVars, SolverVars)) :-
 %	randomise_all_dists,
 	uniformise_all_dists,
 	attributes:all_attvars(AllVars0),
-	sort_vars_by_key(AllVars0,AllVars1,[]),
+	sort_vars_by_key(AllVars0,AllVars,[]),
 	% remove variables that do not have to do with this query.
-	check_for_hidden_vars(AllVars1, AllVars1, AllVars),
+%	check_for_hidden_vars(AllVars1, AllVars1, AllVars),
 	different_dists(AllVars, AllDists, AllDistInstances, MargVars),
 	clpbn_flag(em_solver, Solver),
 	clpbn_init_solver(Solver, MargVars, AllVars, _, SolverVars).
@@ -116,6 +123,16 @@ different_dists(AllVars, AllDists, AllInfo, MargVars) :-
 all_dists([], []).
 all_dists([V|AllVars], [i(Id, [V|Parents], Cases, Hiddens)|Dists]) :-
 	clpbn:get_atts(V, [dist(Id,Parents)]),
+	sort([V|Parents], Sorted),
+	length(Sorted, LengSorted),
+        length(Parents, LengParents),
+	(
+	    LengParents+1 =:= LengSorted
+	-> 
+	    true
+	;
+	    throw(error(repeated_parents))
+	),	
 	generate_hidden_cases([V|Parents], CompactCases, Hiddens),
 	uncompact_cases(CompactCases, Cases),
 	all_dists(AllVars, Dists).

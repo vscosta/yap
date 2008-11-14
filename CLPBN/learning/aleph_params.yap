@@ -197,7 +197,7 @@ cpt_score(Lik) :-
 	clpbn_flag(em_solver, EMSolver),
 	set_clpbn_flag(solver, EMSolver),
 	reset_all_dists,
-	em(Exs, 0.1, 10, _Tables, Lik),
+	em(Exs, 0.01, 10, _Tables, Lik),
 	set_clpbn_flag(solver, Solver).
 
 complete_clpbn_cost(_AlephClause).
