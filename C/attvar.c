@@ -922,6 +922,29 @@ p_free_term(void)
   return Yap_unify(ARG1,TermFreeTerm);
 }
 
+static Int
+p_fast_unify(void)
+{
+  /*
+    Case we want to unify two variables, but we do not
+    think there is a point in waking them up
+  */
+  Term t1, t2;
+  CELL *a, *b;
+  if (!IsVarTerm(t1 = Deref(ARG1)))
+    return FALSE;
+  if (!IsVarTerm(t2 = Deref(ARG2)))
+    return FALSE;
+  a = VarOfTerm(t1);
+  b = VarOfTerm(t2);
+  if(a > b) {						 
+    Bind_Global(a,t2);				 
+  } else if((a) < (b)){						 
+    Bind_Global(b,t1);				 
+  }
+  return TRUE;
+}
+
 #else
 
 static Int
@@ -969,6 +992,7 @@ void Yap_InitAttVarPreds(void)
   Yap_InitCPred("modules_with_attributes", 2, p_modules_with_atts, SafePredFlag);
   Yap_InitCPred("void_term", 1, p_void_term, SafePredFlag);
   Yap_InitCPred("free_term", 1, p_free_term, SafePredFlag);
+  Yap_InitCPred("fast_unify_attributed", 2, p_fast_unify, 0);
 #endif /* COROUTINING */
   Yap_InitCPred("all_attvars", 1, p_all_attvars, 0);
   CurrentModule = OldCurrentModule;
