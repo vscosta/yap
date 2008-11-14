@@ -62,7 +62,10 @@ inline EXTERN CELL *PtoDelayAdjust (CELL *);
 inline EXTERN CELL *
 PtoDelayAdjust (CELL * ptr)
 {
-  return (CELL *) (((CELL *) (CharP (ptr) + DelayDiff)));
+  if (!GSplit || ptr < GSplit)
+    return (CELL *) (((CELL *) (CharP (ptr) + DelayDiff)));
+  else
+    return (CELL *) (((CELL *) (CharP (ptr) + GDiff0)));
 }
 
 
@@ -149,7 +152,10 @@ inline EXTERN CELL DelayAdjust (CELL);
 inline EXTERN CELL
 DelayAdjust (CELL val)
 {
-  return (CELL) (val + DelayDiff);
+  if (!GSplit || (CELL *)val < GSplit)
+    return (CELL) (val + DelayDiff);
+  else
+    return (CELL) (val + GDiff0);
 }
 
 
@@ -173,7 +179,10 @@ inline EXTERN ADDR DelayAddrAdjust (ADDR);
 inline EXTERN ADDR
 DelayAddrAdjust (ADDR ptr)
 {
-  return (ADDR) ((ptr + DelayDiff));
+  if (!GSplit || (CELL *)ptr < GSplit)
+    return (ADDR) ((ptr + DelayDiff));
+  else
+    return (ADDR) ((ptr + GDiff0));
 }
 
 
