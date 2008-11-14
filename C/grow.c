@@ -131,7 +131,10 @@ SetHeapRegs(void)
   /* Adjust stack addresses */
   Yap_TrailBase = TrailAddrAdjust(Yap_TrailBase);
   Yap_TrailTop = TrailAddrAdjust(Yap_TrailTop);
-  Yap_GlobalBase = DelayAddrAdjust(Yap_GlobalBase);
+  if (!(GDiff==0 && DelayDiff < 0)) {
+    /* make sure we are not just expanding the delay stack */
+    Yap_GlobalBase = DelayAddrAdjust(Yap_GlobalBase);
+  }
   Yap_LocalBase = LocalAddrAdjust(Yap_LocalBase);
 #if !USE_SYSTEM_MALLOC && !USE_DL_MALLOC
   AuxSp = PtoDelayAdjust(AuxSp);
@@ -254,6 +257,18 @@ MoveHalfGlobal(CELL *OldPt)
   CELL *NewPt = (CELL *)((char*)OldPt+GDiff);
   CELL *IntPt = (CELL *)((char*)OldPt+GDiff0);
   cpcellsd(NewPt, IntPt, diff);
+}
+
+static void
+MoveHalfAttrs(CELL *DTop, CELL *OldPt)
+{
+	/*
+	 * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
+	 * absmi.asm 
+	 */
+  UInt sz = sizeof(CELL)*(OldPt-DTop);
+  char *base = (char *)DTop+DelayDiff;
+  cpcellsd((CELL *)base, DTop, sz);
 }
 
 static inline CELL
@@ -724,13 +739,19 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   size0 = size;
   if (hsplit) {
     /* just a little bit of sanity checking */
-    if (hsplit < (CELL*)omax ||
+    if (hsplit < H0 && hsplit > (CELL *)Yap_GlobalBase) {
+      /* expanding attributed variables */
+      if (omax - size > Yap_GlobalBase+4096*sizeof(CELL)) {
+	size = -size;
+      }
+    } else if (hsplit < (CELL*)omax ||
 	hsplit > H)
       return FALSE;
     else if (hsplit == (CELL *)omax)
       hsplit = NULL;
-    if (size+H < ASP-4096 &&
-	hsplit > H0) {
+    if (size < 0 ||
+	(size+H < ASP-4096 &&
+	 hsplit > H0)) {
       /* don't need to expand stacks */
       do_grow = FALSE;
     }
@@ -787,13 +808,23 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   if (do_grow) {
     DelayDiff = size0;
     TrDiff = LDiff = GDiff = size+size0;  
+    GDiff0 = DelayDiff;
   } else {
-    TrDiff = DelayDiff = LDiff = 0;
-    GDiff = size;  
+    TrDiff = LDiff = 0;
+    if (size > 0) {
+      DelayDiff = 0;
+      GDiff = size;  
+      GDiff0 = DelayDiff;
+    } else {
+      DelayDiff = size;
+      GDiff = 0;  
+      GDiff0 = 0;
+    }
   }
-  GDiff0 = DelayDiff;
   if (hsplit) {
-    GDiff = GDiff0+sz;
+    if (size > 0) {
+      GDiff = GDiff0+sz;
+    }
     GSplit = hsplit;
   } else {
     GSplit = NULL;
@@ -802,7 +833,11 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   if (!do_grow) {
     TrDiff = DelayDiff = LDiff = 0;
     /* don't grow more than what we asked for */
-    GDiff = size-(size0-sz);    
+    if (size > 0) {
+      GDiff = size-(size0-sz);
+    } else {
+      GDiff = 0;
+    }
   } else if (minimal_request) {
     DelayDiff = size-size0;
     TrDiff = LDiff = GDiff = size;
@@ -811,7 +846,12 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
     DelayDiff = 0;
   }
   if (hsplit) {
-    GDiff0 = GDiff-size0;
+    if (size > 0) {
+      GDiff0 = GDiff-size0;
+    } else {
+      DelayDiff = size;
+      GDiff0 = 0;
+    }
     GSplit = hsplit;
   } else {
     GDiff0 = DelayDiff;
@@ -824,7 +864,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   if (do_grow) {
     MoveLocalAndTrail();
     if (hsplit) {
-      MoveGlobalWithHole();
+	MoveGlobalWithHole();
     } else {
       MoveExpandedGlobal();
     }
@@ -840,7 +880,11 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
     *ptr = PtoLocAdjust(*ptr);
   }
   if (hsplit) {
-    MoveHalfGlobal(hsplit);
+    if (!do_grow && size < 0) {
+      MoveHalfAttrs(CurrentDelayTop,hsplit);
+    } else {
+      MoveHalfGlobal(hsplit);
+    }
   }
   YAPLeaveCriticalSection();
   ASP += 256;
