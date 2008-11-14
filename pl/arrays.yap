@@ -20,8 +20,8 @@
 % YAP_ARRAYS is defined in Yap.h.m4.
 %
 
-array(Size, Obj) :-
-	'$create_array'(Size, Obj).
+array(Obj, Size) :-
+	'$create_array'(Obj, Size).
 
 
 % arithmetical optimization
