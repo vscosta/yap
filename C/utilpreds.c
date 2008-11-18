@@ -1338,6 +1338,9 @@ static Int var_in_complex_term(register CELL *pt0,
   var_in_term_nvar:
     {
       if (IsPairTerm(d0)) {
+	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	  goto aux_overflow;
+	}
 #ifdef RATIONAL_TREES
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
@@ -1353,6 +1356,7 @@ static Int var_in_complex_term(register CELL *pt0,
 #endif
 	pt0 = RepPair(d0) - 1;
 	pt0_end = RepPair(d0) + 1;
+	continue;
       } else if (IsApplTerm(d0)) {
 	register Functor f;
 	register CELL *ap2;
@@ -1363,6 +1367,9 @@ static Int var_in_complex_term(register CELL *pt0,
 	if (IsExtensionFunctor(f)) {
 
 	  continue;
+	}
+	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	  goto aux_overflow;
 	}
 #ifdef RATIONAL_TREES
 	to_visit[0] = pt0;
@@ -1412,6 +1419,18 @@ static Int var_in_complex_term(register CELL *pt0,
   }
   clean_tr(TR0);
   return FALSE;
+
+
+ aux_overflow:
+  /* unwind stack */
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    *pt0 = (CELL)to_visit[2];
+  }
+#endif
+  return -1;
 }
  
 static Int 
@@ -1441,83 +1460,287 @@ p_var_in_term(void)
 
 /* This code with max_depth == -1 will loop for infinite trees */
 
-#define GvNht ((UInt *)H)
 
-#define HASHADD(T) (GvNht[k]+=(T), k=(k<2 ? k+1 : 0))
+//-----------------------------------------------------------------------------
+// MurmurHash2, by Austin Appleby
 
-static Int TermHash(Term t1, Int depth_lim, Int k)
+// Note - This code makes a few assumptions about how your machine behaves -
+
+// 1. We can read a 4-byte value from any address without crashing
+// 2. sizeof(int) == 4
+
+// And it has a few limitations -
+
+// 1. It will not work incrementally.
+// 2. It will not produce the same results on little-endian and big-endian
+//    machines.
+
+static unsigned int
+MurmurHashNeutral2 ( const void * key, int len, unsigned int seed )
 {
-  Int i;
-  if (IsVarTerm(t1)) {
-    return(-1);
-  } else if (IsAtomOrIntTerm(t1)) {
-    if (IsAtomTerm(t1)) {
-      register char *s = AtomName(AtomOfTerm(t1));
-      for (i=0; s[i]; i++)
-	HASHADD(s[i]);
-      return k;
-    } else {
-      HASHADD(IntOfTerm(t1));
-      return k;
-    }
-  } else if (IsPairTerm(t1)) {
-    HASHADD('.');
-    depth_lim--;
-    if (depth_lim == 0) return(TRUE);
-    k = TermHash(HeadOfTerm(t1),depth_lim,k);
-    if (k < 0) return k;
-    return TermHash(TailOfTerm(t1),depth_lim,k);
-  } else {
-    Functor f = FunctorOfTerm(t1);
+	const unsigned int m = 0x5bd1e995;
+	const int r = 24;
 
-    if (IsExtensionFunctor(f)) {
-      if (f == FunctorDouble) {
-	Int *iptr = (Int *)(RepAppl(t1)+1);
-	int i;
+	unsigned int h = seed ^ len;
 
-	for (i = 0; i < sizeof(Float) / sizeof(CELL); i++) {
-	  HASHADD(*iptr++);
+	const unsigned char * data = (const unsigned char *)key;
+
+	while(len >= 4)
+	{
+		unsigned int k;
+
+		k  = data[0];
+		k |= data[1] << 8;
+		k |= data[2] << 16;
+		k |= data[3] << 24;
+
+		k *= m; 
+		k ^= k >> r; 
+		k *= m;
+
+		h *= m;
+		h ^= k;
+
+		data += 4;
+		len -= 4;
 	}
-	return(k);
-      } else if (f == FunctorLongInt) {
-	HASHADD(LongIntOfTerm(t1));
-	return(k);
-      } else if (f == FunctorDBRef) {
-	HASHADD((Int)DBRefOfTerm(t1));
-	return(k);
-	/* should never happen */
-      } else {
-	return(-1);
-      }
-    } else {
-      int ar;
-      char *s;
+	
+	switch(len)
+	{
+	case 3: h ^= data[2] << 16;
+	case 2: h ^= data[1] << 8;
+	case 1: h ^= data[0];
+	        h *= m;
+	};
 
-      s = AtomName(NameOfFunctor(f));
-      for (i=0; s[i]; i++) 
-	HASHADD(s[i]);
-      depth_lim--;
-      if (depth_lim == 0) return k;
-      ar = ArityOfFunctor(f);
-      for (i=1; i<=ar; i++) {
-	k = TermHash(ArgOfTerm(i,t1),depth_lim,k);
-	if (k < 0) return k;
-      }
-      return(k);
+	h ^= h >> 13;
+	h *= m;
+	h ^= h >> 15;
+
+	return h;
+} 
+
+static CELL *
+AddAtomToHash(CELL *st, Atom at)
+{
+  unsigned int len;
+  CELL * start;
+
+  if (IsWideAtom(at)) {
+    wchar_t *c = RepAtom(at)->WStrOfAE;
+    int ulen = wcslen(c);
+    len = ulen*sizeof(wchar_t);
+    if (len % CellSize == 0) {
+      len /= CellSize;
+    } else {
+      len /= CellSize;
+      len++;
     }
+    st[len-1] = 0L;
+    wcsncpy((wchar_t *)st, c, ulen);
+  } else {
+    char *c = RepAtom(at)->StrOfAE;
+    int ulen = strlen(c);
+    start = (CELL *)c;
+    if (ulen % CellSize == 0) {
+      len = ulen/CellSize;
+    } else {
+      len = ulen/CellSize;
+      len++;
+    }
+    st[len-1] = 0L;
+    strncpy((char *)st, c, ulen);
   }
+  return st+len;
 }
 
-static Int
-GvNTermHash(void)
+static CELL *
+hash_complex_term(register CELL *pt0,
+		  register CELL *pt0_end,
+		  Int depth,
+		  CELL *st)
 {
-  unsigned int i1,i2,i3;
+
+  register CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
+
+  to_visit0 = to_visit;
+ loop:
+  while (pt0 < pt0_end) {
+    register CELL d0;
+    register CELL *ptd0;
+    ++ pt0;
+    ptd0 = pt0;
+    d0 = *ptd0;
+    deref_head(d0, hash_complex_unk);
+  hash_complex_nvar:
+    {
+      if (st + 1024 >= ASP) {
+	goto global_overflow;
+      }
+      if (IsPrimitiveTerm(d0)) {
+	if (d0 != TermFoundVar) {
+	  if (IsAtomTerm(d0)) {
+	    st = AddAtomToHash(st, AtomOfTerm(d0));
+	  } else {
+	    *st++ = IntOfTerm(d0);
+	  }
+	}
+	continue;
+      } else if (IsPairTerm(d0)) {
+	st = AddAtomToHash(st, AtomDot);
+	if (depth == 1)
+	  continue;
+	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	  goto aux_overflow;
+	}
+#ifdef RATIONAL_TREES
+	to_visit[0] = pt0;
+	to_visit[1] = pt0_end;
+	to_visit[2] = (CELL *)*pt0;
+	to_visit[3] = (CELL *)(depth--);
+	to_visit += 4;
+	*pt0 = TermFoundVar;
+#else
+	if (pt0 < pt0_end) {
+	  to_visit[0] = pt0;
+	  to_visit[1] = pt0_end;
+	  to_visit[2] = (CELL *)(depth--);
+	  to_visit += 3;
+	}
+#endif
+	pt0 = RepPair(d0) - 1;
+	pt0_end = RepPair(d0) + 1;
+	continue;
+      } else if (IsApplTerm(d0)) {
+	register Functor f;
+	register CELL *ap2;
+	/* store the terms to visit */
+	ap2 = RepAppl(d0);
+	f = (Functor)(*ap2);
+
+	if (IsExtensionFunctor(f)) {
+	  CELL fc = (CELL)NameOfFunctor(f);
+
+	  switch(fc) {
+	    
+	  case (CELL)FunctorDBRef:
+	    *st++ = fc;
+	    break;
+	  case (CELL)FunctorLongInt:
+	    *st++ = LongIntOfTerm(d0);
+	    break;
+#ifdef USE_GMP
+	  case (CELL)FunctorBigInt:
+	    {
+	      CELL *pt = RepAppl(d0);
+	      Int sz = 
+		sizeof(MP_INT)+
+		(((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
+
+	      if (st + (1024 + sz/CellSize) >= ASP) {
+		goto global_overflow;
+	      }
+	      /* then the actual number */
+	      memcpy((void *)(st+1), (void *)(pt+1), sz);
+	      st = st+sz/CellSize;
+	    }
+	    break;
+#endif
+	  case (CELL)FunctorDouble:
+	    {
+	      CELL *pt = RepAppl(d0);
+	      *st++ = pt[1];
+#if  SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+	      *st++ = pt[2];
+#endif
+	      break;
+	    }
+	  }
+	  continue;
+	}
+	st = AddAtomToHash(st, NameOfFunctor(f));
+	if (depth == 1)
+	  continue;
+	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	  goto aux_overflow;
+	}
+#ifdef RATIONAL_TREES
+	to_visit[0] = pt0;
+	to_visit[1] = pt0_end;
+	to_visit[2] = (CELL *)*pt0;
+	to_visit[3] = (CELL *)(depth--);
+	to_visit += 4;
+	*pt0 = TermFoundVar;
+#else
+	/* store the terms to visit */
+	if (pt0 < pt0_end) {
+	  to_visit[0] = pt0;
+	  to_visit[1] = pt0_end;
+	  to_visit[2] = depth--;
+	  to_visit += 3;
+	}
+#endif
+	d0 = ArityOfFunctor(f);
+	pt0 = ap2;
+	pt0_end = ap2 + d0;
+      }
+      continue;
+    }
+    
+
+    deref_body(d0, ptd0, hash_complex_unk, hash_complex_nvar);
+    return NULL;
+  }
+  /* Do we still have compound terms to visit */
+  if (to_visit > to_visit0) {
+#ifdef RATIONAL_TREES
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    *pt0 = (CELL)to_visit[2];
+    depth = (CELL)to_visit[3];
+#else
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    depth = (CELL)to_visit[2];
+#endif
+    goto loop;
+  }
+  return st;
+
+ aux_overflow:
+  /* unwind stack */
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    *pt0 = (CELL)to_visit[2];
+  }
+#endif
+  return (CELL *)-1;
+
+ global_overflow:
+  /* unwind stack */
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    *pt0 = (CELL)to_visit[2];
+  }
+#endif
+  return (CELL *) -2;
+}
+ 
+static Int
+p_term_hash(void)
+{
+  unsigned int i1;
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
   Term t3 = Deref(ARG3);
   Term result;
   Int size, depth;
-
 
   if (IsVarTerm(t2)) {
     Yap_Error(INSTANTIATION_ERROR,t2,"term_hash/4");
@@ -1541,16 +1764,28 @@ GvNTermHash(void)
     return(FALSE);
   }
   size = IntegerOfTerm(t3);
-  GvNht[0] = 0;
-  GvNht[1] = 0;
-  GvNht[2] = 0;
-
-  if (TermHash(t1,depth,0) == -1) return(TRUE);
-
-  i1 = GvNht[0];
-  i2 = GvNht[1];
-  i3 = GvNht[2];
-  i2 ^= i3; i1 ^= i2; i1 = (((i3 << 7) + i2) << 7) + i1;
+  while (TRUE) {
+    CELL *ar = hash_complex_term(&t1-1, &t1, depth, H);
+    if (ar == (CELL *)-1) {
+      if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
+	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in term_hash");
+	return FALSE;
+      } 
+      t1 = Deref(ARG1);
+    } else if(ar == (CELL *)-2) {
+      if (!Yap_gcl((ASP-H)*sizeof(CELL), 4, ENV, gc_P(P,CP))) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_hash");
+	return FALSE;
+      }
+      t1 = Deref(ARG1);
+    } else if (ar == NULL) {
+      return FALSE;
+    } else {
+      i1 = MurmurHashNeutral2((const void *)H, CellSize*(ar-H),0x1a3be34a);
+      break;
+    }
+  }
+  /* got the seed and hash from SWI-Prolog */
   result = MkIntegerTerm(i1 % size);
   return Yap_unify(ARG4,result);
 }
@@ -2109,7 +2344,7 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
   CurrentModule = TERMS_MODULE;
   Yap_InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
-  Yap_InitCPred("term_hash", 4, GvNTermHash, SafePredFlag);
+  Yap_InitCPred("term_hash", 4, p_term_hash, SafePredFlag);
   Yap_InitCPred("variant", 2, p_variant, 0);
   Yap_InitCPred("subsumes", 2, p_subsumes, SafePredFlag);
   Yap_InitCPred("protected_unifiable", 3, p_unifiable, 0);
