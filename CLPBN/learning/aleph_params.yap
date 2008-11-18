@@ -10,13 +10,13 @@
 
 :- dynamic rt/2, inited/1.
 
-:- use_module(library('clpbn/learning/em')).
-
 :- use_module(library('clpbn'),
 	[{}/1,
 	 clpbn_flag/2,
 	 clpbn_flag/3,
          set_clpbn_flag/2]).
+
+:- use_module(library('clpbn/learning/em')).
 
 :- use_module(library('clpbn/matrix_cpt_utils'),
 	[uniform_CPT_as_list/2]).
@@ -26,6 +26,16 @@
 	 get_dist_key/2,
 	 get_dist_params/2
      ]).
+
+:- use_module(library('clpbn/table'),
+	[clpbn_tabled_abolish/1,
+	 clpbn_tabled_asserta/1,
+	 clpbn_tabled_asserta/2,
+	 clpbn_tabled_assertz/1,
+	 clpbn_tabled_clause/2,
+	 clpbn_tabled_number_of_clauses/2,
+	 clpbn_is_tabled/1,
+	 clpbn_tabled_dynamic/1]).
 
 %
 % Tell Aleph not to use default solver during saturation
@@ -53,6 +63,10 @@
 :- user:set(reduce_start_hook, clpbn_aleph:disable_solver).
 :- user:set(reduce_stop_hook, clpbn_aleph:enable_solver).
 
+:- user:set(record_testclause_hook, clpbn_aleph:do_nothing).
+
+%:- user:set(newbest_hook, clpbn_aleph:store_theory).
+
 disable_solver(_) :-
 	clpbn_flag(solver, Old, none),
 	nb_setval(old_clpbn_solver, Old).
@@ -67,6 +81,48 @@ enable_solver(_,_) :-
 	nb_getval(old_clpbn_solver, Old),
 	set_clpbn_flag(solver, Old).
 
+do_nothing(_).
+
+% backup current best theory in DB.
+store_theory(_,_,_) :-
+	eraseall(best_theory),
+	fail.
+store_theory(_,(H:-_),_) :-
+	clpbn_is_tabled(user:H), !,
+	store_tabled_theory(H).
+store_theory(_,(H:-_),_) :-
+	store_theory(H).
+
+store_tabled_theory(H) :-
+	clpbn_tabled_clause(user:H,B),
+	add_correct_cpt(B,NB),
+	store_cl((H:-NB)),
+	fail.
+store_tabled_theory(_).
+	
+store_theory(H) :-
+	clause(user:H,B),
+	add_correct_cpt(B,NB),
+	store_cl((H:-NB)),
+	fail.
+store_theory(_).
+
+add_correct_cpt((G,B),(G,NB)) :- !,
+	add_correct_cpt(B,NB).
+add_correct_cpt(({V = K with Tab }), ({V = K with NTab})) :-
+	correct_tab(Tab,K,NTab).
+
+correct_tab(p(Vs,_),K,p(Vs,TDist)) :-
+	get_dist_key(Id, K),
+	get_dist_parms(Id, TDist).
+correct_tab(p(Vs,_,Ps),K,p(Vs,TDist,Ps)) :-
+	get_dist_key(Id, K),
+	get_dist_parms(Id, TDist).
+
+store_cl(Cl) :-
+	recordz(best_theory, Cl, _).
+	
+
 :- user:set(best_clause_hook, clpbn_aleph:add_new_clause).
 
 add_new_clause(_,(_ :- true),_,_) :- !.
@@ -78,7 +134,13 @@ add_new_clause(_,(H :- B),_,_) :-
 	% need to remember which CPT we want
 	get_dist_key(Id, K),
 	get_dist_params(Id, CPTList),
-	asserta(user:(H :- IB)),
+	(
+	    clpbn_is_tabled(user:H)
+	->
+	    clpbn_tabled_asserta(user:(H :- IB))
+	;
+	    asserta(user:(H :- IB))
+	),
 	user:setting(verbosity,V),
 	( V >= 1 -> 
 	    user:p_message('CLP(BN) Theory'),
@@ -94,7 +156,13 @@ user:cost((H :- B),Inf,Score) :- !,
 	check_info(Inf),
 	rewrite_body(B, IB, Vs, Ds, ( !, { V = K with p(D, CPTList, Vs) })),
 	uniform_cpt([D|Ds], CPTList),
-	asserta(user:(H :- IB), R),
+	(
+	    clpbn_is_tabled(user:H)
+	->
+	    clpbn_tabled_asserta(user:(H :- IB), R)
+	;
+	    asserta(user:(H :- IB), R)
+	),
 	(
 	    cpt_score(Score0)
 	->
@@ -118,13 +186,26 @@ init_clpbn_cost(_, Score) :-
 init_clpbn_cost(H, Score) :-
 	functor(H,N,A),
 	% get rid of Aleph crap
-	abolish(user:N/A),
-	% make it easy to add and remove clauses.
-	dynamic(user:N/A),
+	(
+	    clpbn_is_tabled(user:H)
+	->
+	     clpbn_tabled_abolish(user:N/A),
+ 	     clpbn_tabled_dynamic(user:N/A)
+	;
+	     abolish(user:N/A),
+	     % make it easy to add and remove clauses.
+ 	     dynamic(user:N/A)
+	),
 	domain(H, K, V, D),
 	uniform_cpt([D], CPTList),
 	% This will be the default cause, called when the other rules fail.
-	assert(user:(H :- !, { V = K with p(D, CPTList) })),
+	(
+	    clpbn_is_tabled(user:H)
+	->
+	     clpbn_tabled_assertz(user:(H :- !, { V = K with p(D, CPTList) }))
+	 ;
+	     assert(user:(H :- !, { V = K with p(D, CPTList) }))
+	 ),
 	cpt_score(Score),
 	assert(inited(Score)).
 
@@ -149,7 +230,13 @@ domain(H, K, V, D) :-
 
 key_from_head(H,K,V) :-
 	H =.. [Name|Args],
-	predicate_property(user:H,number_of_clauses(NClauses)),
+	(
+	    clpbn_is_tabled(user:H)
+	->
+	    clpbn_tabled_number_of_clauses(user:H,NClauses)
+	;
+	    predicate_property(user:H,number_of_clauses(NClauses))
+	),
 	atomic_concat(Name,NClauses,NName),
 	append(H0L,[V],Args),
 	K =.. [NName|H0L].

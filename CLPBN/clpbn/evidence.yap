@@ -8,13 +8,18 @@
 	   store_evidence/1,
 	   incorporate_evidence/2,
 	   check_stored_evidence/2,
-	   add_evidence/2
+	   add_evidence/2,
+	   put_evidence/2
 	  ]).
 
 :- use_module(library(clpbn), [
 	{}/1,
 	clpbn_flag/3,
 	set_clpbn_flag/2
+    ]).
+
+:- use_module(library('clpbn/dists'), [
+       get_evidence_position/3
     ]).
 
 :- use_module(library(rbtrees), [
@@ -123,3 +128,9 @@ check_for_evidence(_, V, Vf, Vf, C, C) :-
 check_for_evidence(K, _, Vf0, Vff, C0, Ci) :-
 	findall(Rt,edge(Rt,K),Rts),
 	add_variables(Rts, _, Vf0, Vff, C0, Ci).
+
+put_evidence(K, V) :-
+	clpbn:get_atts(V, [dist(Id,_)]),
+	get_evidence_position(K, Id, Ev),
+	clpbn:put_atts(V, [evidence(Ev)]).
+

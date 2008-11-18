@@ -30,6 +30,7 @@ PROGRAMS= $(srcdir)/apply.yap \
 	$(srcdir)/assoc.yap \
 	$(srcdir)/atts.yap \
 	$(srcdir)/avl.yap \
+	$(srcdir)/bhash.yap \
 	$(srcdir)/charsio.yap \
 	$(srcdir)/cleanup.yap \
 	$(srcdir)/clpfd.pl \

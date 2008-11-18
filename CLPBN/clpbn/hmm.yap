@@ -49,8 +49,6 @@ hmm_state(N/A,Mod) :-
 	        ( First > 2 -> 
 		  Last = Key, !
 		;
-%		  hmm:hmm_tabled(Key)
-%		  nb_hash:nb_hash_lookup(hmm_table, Key, [])
 		  nb_getval(trie, Trie), trie_check_entry(Trie, Key, _)
 		->
 		  % leave work for solver!
@@ -58,8 +56,6 @@ hmm_state(N/A,Mod) :-
 		  Last = Key, !
 		;
 		  % first time we saw this entry
-%		  assert(hmm:hmm_tabled(Key)),
-%		  nb_hash:nb_hash_insert(hmm_table,Key,[]),
 		  nb_getval(trie, Trie), trie_put_entry(Trie, Key, _),
 		  fail
 		)

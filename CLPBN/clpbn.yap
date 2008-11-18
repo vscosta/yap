@@ -282,6 +282,8 @@ verify_attributes(Var, T, Goals) :-
 verify_attributes(_, _, []).
 
 
+bind_clpbn(T, Var, _, _, _) :- nonvar(T),
+	!, ( add_evidence(Var,T) -> true ; writeln(T:Var), fail ).
 bind_clpbn(T, Var, Key, Dist, Parents) :- var(T),
 	get_atts(T, [key(Key1),dist(Dist1,Parents1)]), !,
 	bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1),
@@ -345,7 +347,8 @@ same_node(P,P1) :-
 
 
 bind_evidence_from_extra_var(Ev1,Var) :-
-	get_atts(Var, [evidence(Ev0)]),!,Ev0 = Ev1.
+	get_atts(Var, [evidence(Ev0)]), !,
+	Ev0 = Ev1.
 bind_evidence_from_extra_var(Ev1,Var) :-
 	put_atts(Var, [evidence(Ev1)]).
 

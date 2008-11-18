@@ -12,6 +12,9 @@
 :- use_module(library(clpbn),
 	      [clpbn_flag/2]).
 
+:- use_module(library('clpbn/table'),
+	      [clpbn_reset_tables/0]).
+
 :- use_module(library(matrix),
 	      [matrix_agg_lines/3,
 	       matrix_op_to_lines/4,
@@ -30,6 +33,7 @@ run_all([G|Gs]) :-
 	call(G),
 	run_all(Gs).
 run_all(M:Gs) :-
+	clpbn_reset_tables,
 	run_all(Gs,M).
 
 run_all([],_).
