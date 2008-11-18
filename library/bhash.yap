@@ -29,7 +29,7 @@ b_hash_new(hash(Keys, Vals, Size, N, _)) :-
 	array(Vals, Size),
 	create_mutable(0, N).
 
-b_hash_new(hash(Keys,Vals, Size, N, _), Size) :-
+b_hash_new(hash(Keys, Vals, Size, N, _), Size) :-
 	array(Keys, Size),
 	array(Vals, Size),
 	create_mutable(0, N).
@@ -39,9 +39,8 @@ b_hash_new(hash(Keys,Vals, Size, N, HashF), Size, HashF) :-
 	array(Vals, Size),
 	create_mutable(0, N).
 
-b_hash_lookup(Key, Val, hash(Keys, Vals, Size, F)):-
+b_hash_lookup(Key, Val, hash(Keys, Vals, Size, _, F)):-
 	hash_f(Key, Size, Index, F),
-	term_hash(Key,-1,Size,Index),
 	fetch_key(Keys, Index, Size, Key, ActualIndex),
 	array_element(Vals, ActualIndex, Mutable),
 	get_mutable(Val, Mutable).
@@ -90,7 +89,7 @@ find_or_insert(Keys, Index, Size, N, Vals, Key, NewVal, Hash) :-
 	     % do rb_update
 	    array_element(Vals, Index, Mutable),
 	    update_mutable(NewVal, Mutable)
-	;
+        ;
 	    I1 is (Index+1) mod Size,
 	    find_or_insert(Keys, I1, Size, N, Vals, Key, NewVal, Hash)
 	).
@@ -100,7 +99,7 @@ add_element(Keys, Index, Size, N, Vals, Key, NewVal, Hash) :-
 	NN is NEls+1,
 	update_mutable(NN, N),
 	(
-	    NN > 3*Size/4
+	    NN > Size/3
 	->
 	    expand_array(Key, NewVal, Hash)
 	;
@@ -154,7 +153,7 @@ find_free(Index, Size, Keys, NewIndex) :-
 	    NewIndex = Index
 	;
 	    I1 is (Index+1) mod Size,
-	    find_free(I1, Keys, NewIndex)
+	    find_free(I1, Size, Keys, NewIndex)
 	).
 
 hash_f(Key, Size, Index, F) :-
