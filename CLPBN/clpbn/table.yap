@@ -100,10 +100,10 @@ clpbn_tabled_clause(Head, Body) :-
 	clpbn_tabled_clause(Head, M, Body).
 
 clpbn_tabled_clause(M:Head, _, Body) :- !,
-	clpbn_table(Head, M, Body).
+	clpbn_tabled_clause(Head, M, Body).
 clpbn_tabled_clause(Head, M, Body) :-
 	clpbn_table(Head, M, THead),
-	clause(THead, Body).
+	clause(M:THead, Body).
 
 
 clpbn_tabled_assertz(M:Clause) :- !,

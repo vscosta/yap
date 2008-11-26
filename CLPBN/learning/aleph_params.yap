@@ -65,7 +65,7 @@
 
 :- user:set(record_testclause_hook, clpbn_aleph:do_nothing).
 
-%:- user:set(newbest_hook, clpbn_aleph:store_theory).
+:- user:set(newbest_hook, clpbn_aleph:store_theory).
 
 disable_solver(_) :-
 	clpbn_flag(solver, Old, none),
@@ -109,15 +109,17 @@ store_theory(_).
 
 add_correct_cpt((G,B),(G,NB)) :- !,
 	add_correct_cpt(B,NB).
+add_correct_cpt((clpbn:{V = K with Tab }), ({V = K with NTab})) :-
+	correct_tab(Tab,K,NTab).
 add_correct_cpt(({V = K with Tab }), ({V = K with NTab})) :-
 	correct_tab(Tab,K,NTab).
 
 correct_tab(p(Vs,_),K,p(Vs,TDist)) :-
 	get_dist_key(Id, K),
-	get_dist_parms(Id, TDist).
+	get_dist_params(Id, TDist).
 correct_tab(p(Vs,_,Ps),K,p(Vs,TDist,Ps)) :-
 	get_dist_key(Id, K),
-	get_dist_parms(Id, TDist).
+	get_dist_params(Id, TDist).
 
 store_cl(Cl) :-
 	recordz(best_theory, Cl, _).

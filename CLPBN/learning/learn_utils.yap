@@ -68,15 +68,15 @@ soften_sample(T0,T) :-
 
 soften_sample(no,T,T).
 soften_sample(m_estimate(M), T0, T) :-
-	matrix_agg_cols(T0,+,Cols),matrix:matrix_to_list(Cols), writeln(Cols),
+	matrix_agg_cols(T0,+,Cols),
 	matrix_op_to_all(Cols, *, M, R),
-	matrix_op_to_cols(T0,+,R,T).
+	matrix_op_to_cols(T0,R,+,T).
 soften_sample(auto_m, T0,T) :-
-	matrix_agg_cols(T0,+,Cols),matrix:matrix_to_list(Cols), writeln(Cols),
+	matrix_agg_cols(T0,+,Cols),
 	matrix_sum(Cols,TotM),
 	M is sqrt(TotM),
 	matrix_op_to_all(Cols, *, M, R),
-	matrix_op_to_cols(T0,+,R,T).
+	matrix_op_to_cols(T0,R,+,T).
 soften_sample(laplace,T0,T) :-
 	matrix_op_to_all(T0, +, 1, T).
 

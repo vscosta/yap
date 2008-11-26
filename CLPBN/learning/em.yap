@@ -90,7 +90,7 @@ init_em(Items, state( AllDists, AllDistInstances, MargVars, SolverVars)) :-
 em_loop(Its, Likelihood0, State, MaxError, MaxIts, LikelihoodF, FTables) :-
 	estimate(State, LPs),
 	maximise(State, Tables, LPs, Likelihood),
-	writeln(Likelihood:Its:Likelihood0:Tables),
+%	writeln(Likelihood:Its:Likelihood0:Tables),
 	(
 	    (
 	     abs((Likelihood - Likelihood0)/Likelihood) < MaxError
@@ -205,7 +205,7 @@ compute_parameters([Id-Samples|Dists], [Id-NewTable|Tables],  MDistTable, Lik0, 
 	empty_dist(Id, Table0),
 	add_samples(Samples, Table0, MDistTable),
 	soften_sample(Table0, SoftenedTable),
-	matrix:matrix_sum(Table0,TotM),writeln(Id-TotM),
+	matrix:matrix_sum(Table0,TotM),
 	normalise_counts(SoftenedTable, NewTable),
 	compute_likelihood(Table0, NewTable, DeltaLik),
 	dist_new_table(Id, NewTable),

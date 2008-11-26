@@ -91,7 +91,7 @@ em_solver(vel).
 %output(gviz(user_error)).
 output(no).
 suppress_attribute_display(false).
-parameter_softening(laplace).
+parameter_softening(m_estimate(10)).
 
 clpbn_flag(Flag,Option) :-
 	clpbn_flag(Flag, Option, Option).

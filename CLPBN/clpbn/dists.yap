@@ -12,7 +12,6 @@
 	   get_dist_matrix/5,
 	   get_possibly_deterministic_dist_matrix/5,
 	   get_dist_domain/2,
-	   get_dist_params/2,
 	   get_dist_domain_size/2,
 	   get_dist_params/2,
 	   get_dist_key/2,
