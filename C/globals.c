@@ -293,7 +293,7 @@ GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity)
     if (H+size > ASP-1024) {
 
       XREGS[arity+1] = arena;
-      if (!Yap_gcl(size*sizeof(CELL), arity+1, ENV, P)) {
+      if (!Yap_gcl(size*sizeof(CELL), arity+1, ENV, gc_P(P,CP))) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return FALSE;
       }
@@ -308,7 +308,7 @@ GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity)
     XREGS[arity+1] = arena;
     /* try to recover some room  */
     if (arena == GlobalArena && 10*(pt-H0) > 8*(H-H0)) {
-      if (!Yap_gcl(size*sizeof(CELL), arity+1, ENV, P)) {
+      if (!Yap_gcl(size*sizeof(CELL), arity+1, ENV, gc_P(P,CP))) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	return FALSE;
       }

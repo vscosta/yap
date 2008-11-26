@@ -39,6 +39,12 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#if HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+#if HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -807,7 +813,7 @@ InitWorkSpace(Int s)
     return(NULL);
   }
 #else
-  fd = open("/dev/zero", O_RDWR);
+  fd = open("/dev/zero", O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if (fd < 0) {
 #if HAVE_MKSTEMP
     char file[256];
@@ -829,7 +835,7 @@ InitWorkSpace(Int s)
     itos(getpid(), &file[12]);
 #endif /* HAVE_TMPNAM */
 #endif /* HAVE_MKSTEMP */
-    fd = open(file, O_CREAT|O_RDWR);
+    fd = open(file, O_CREAT|O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (fd < 0) {
       Yap_Error(FATAL_ERROR, TermNil, "mmap could not open %s", file);
       return NULL;
@@ -942,7 +948,7 @@ ExtendWorkSpace(Int s, int fixed_allocation)
     itos(getpid(), &file[12]);
 #endif /* HAVE_TMPNAM */
 #endif /* HAVE_MKSTEMP */
-    fd = open(file, O_CREAT|O_RDWR);
+    fd = open(file, O_CREAT|O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (fd < 0) {
       Yap_ErrorMessage = Yap_ErrorSay;
       snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,

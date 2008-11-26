@@ -1715,17 +1715,17 @@ TrueFileName (char *source, char *root, char *result, int in_lib)
 #endif
     if (root) {
       if (!dir_separator(root[0]) && !volume_header(root)) {
-	strncat(ares1, root, YAP_FILENAME_MAX);
+	strncat(ares1, root, YAP_FILENAME_MAX-1);
       } else {
-	strncpy(ares1, root, YAP_FILENAME_MAX);
+	strncpy(ares1, root, YAP_FILENAME_MAX-1);
       }
 #if _MSC_VER || defined(__MINGW32__)
-      strncat (ares1, "\\", YAP_FILENAME_MAX);
+      strncat (ares1, "\\", YAP_FILENAME_MAX-1);
 #else
-      strncat (ares1, "/", YAP_FILENAME_MAX);
+      strncat (ares1, "/", YAP_FILENAME_MAX-1);
 #endif
     }
-    strncat (ares1, result, YAP_FILENAME_MAX);
+    strncat (ares1, result, YAP_FILENAME_MAX-1);
     if (in_lib) {
       int tmpf;
       if ((tmpf = open(ares1, O_RDONLY)) < 0) {
@@ -1750,11 +1750,11 @@ TrueFileName (char *source, char *root, char *result, int in_lib)
 	}
 #endif
 #if _MSC_VER || defined(__MINGW32__)
-	strncat(ares1,"\\", YAP_FILENAME_MAX);
+	strncat(ares1,"\\", YAP_FILENAME_MAX-1);
 #else
-	strncat(ares1,"/", YAP_FILENAME_MAX);
+	strncat(ares1,"/", YAP_FILENAME_MAX-1);
 #endif
-	strncat(ares1,result, YAP_FILENAME_MAX);
+	strncat(ares1,result, YAP_FILENAME_MAX-1);
 	if ((tmpf = open(ares1, O_RDONLY)) >= 0) {
 	  close(tmpf);
 	  strncpy (result, ares1, YAP_FILENAME_MAX);

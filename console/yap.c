@@ -205,7 +205,7 @@ do_bootfile (char *bootfilename)
 	{
 	  char *ErrorMessage = YAP_CompileClause(t);
 	  if (ErrorMessage)
-	    fprintf(stderr, ErrorMessage);
+	    fprintf(stderr, "%s", ErrorMessage);
 	}
       /* do backtrack */
       YAP_Reset();
@@ -708,7 +708,7 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
     strcpy(boot_file, PL_SRC_DIR);
 #endif
 #if HAVE_STRNCAT
-    strncat(boot_file, BootFile, 256);
+    strncat(boot_file, BootFile, 255);
 #else
     strcat(boot_file, BootFile);
 #endif
@@ -762,7 +762,7 @@ exec_top_level(int BootMode, YAP_init_args *iap)
 	strcpy(init_file, PL_SRC_DIR);
 #endif
 #if HAVE_STRNCAT
-	strncat(init_file, InitFile, 256);
+	strncat(init_file, InitFile, 255);
 #else
 	strcat(init_file, InitFile);
 #endif

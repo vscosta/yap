@@ -1881,7 +1881,7 @@ p_atom_split(void)
 static Term
 gen_syntax_error(Atom InpAtom, char *s)
 {
-  Term ts[6], ti[2];
+  Term ts[7], ti[2];
   ti[0] = ARG1;
   ti[1] = ARG2;
   ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(s),2),2,ti);

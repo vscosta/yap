@@ -531,7 +531,7 @@ static Int p_can_unify(void)
 static Int p_non_ground(void)
 {
 #ifdef COROUTINING
-  Term r;
+  Term r = TermNil;
   if (!non_ground(ARG1, &r))
     return(FALSE);
   return (Yap_unify(ARG2, r));

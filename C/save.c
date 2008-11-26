@@ -1434,7 +1434,7 @@ cat_file_name(char *s, char *prefix, char *name, unsigned int max_length)
 #else
   strncat(s,"/", max_length);
 #endif
-  strncat(s, name, max_length);
+  strncat(s, name, max_length-1);
 }
 
 static int 
@@ -1459,8 +1459,8 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   if (getwd (Yap_FileNameBuf) == NULL)
     Yap_FileNameBuf[0] = '\0';
 #endif
-  strncat(Yap_FileNameBuf, "/", YAP_FILENAME_MAX);
-  strncat(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX);
+  strncat(Yap_FileNameBuf, "/", YAP_FILENAME_MAX-1);
+  strncat(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
   if (inpf != NULL && (splfild = open_file(inpf, O_RDONLY)) > 0) {
     if ((mode = commit_to_saved_state(inpf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
       Yap_ErrorMessage = NULL;
@@ -1561,8 +1561,8 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     if (getwd (Yap_FileNameBuf) == NULL)
       Yap_FileNameBuf[0] = '\0';
 #endif
-    strncat(Yap_FileNameBuf, "/", YAP_FILENAME_MAX);
-    strncat(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX);
+    strncat(Yap_FileNameBuf, "/", YAP_FILENAME_MAX-1);
+    strncat(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
     do_system_error(PERMISSION_ERROR_OPEN_SOURCE_SINK,"could not open saved state");
   }
   return FAIL_RESTORE;

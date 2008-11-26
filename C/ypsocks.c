@@ -202,7 +202,7 @@ Yap_init_socks(char *host, long interface_port)
      return;
    }	
    
-   (void) memset((char *) &adr, '\0', sizeof(struct sockaddr_in));
+   (void) memset((void *) &soadr, '\0', sizeof(struct sockaddr_in));
    soadr.sin_family = AF_INET;
    soadr.sin_port = htons((short) interface_port);
   
@@ -887,13 +887,11 @@ p_socket_accept(void)
   domain = Yap_GetSocketDomain(sno);
 #if HAVE_SYS_UN_H
   if (domain == af_unix) {
-    char tmp[sizeof(struct sockaddr_un)+107]; /* hit me with a broomstick */
-    struct sockaddr_in caddr;
+    struct sockaddr_un caddr;
     unsigned int len;
 
-    len = sizeof(struct sockaddr_un)+107;
-    memset((void *)&caddr,(int) 0, len);
-    if ((fd=accept(ofd, (struct sockaddr *)tmp, &len)) < 0) {
+    memset((void *)&caddr,(int) 0, sizeof(caddr));
+    if ((fd=accept(ofd, (struct sockaddr *)&caddr, &len)) < 0) {
 #if HAVE_STRERROR
       Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "socket_accept/3 (accept: %s)", strerror(socket_errno));

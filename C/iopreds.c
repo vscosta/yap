@@ -817,7 +817,19 @@ SocketPutc (int sno, int ch)
 #if _MSC_VER || defined(__MINGW32__)
   send(s->u.socket.fd,  &c, sizeof(c), 0);
 #else
-  write(s->u.socket.fd,  &c, sizeof(c));
+  {
+    int out = 0;
+    while (!out) {
+      out = write(s->u.socket.fd,  &c, sizeof(c));
+      if (out <0) {
+#if HAVE_STRERROR
+	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, TermNil, "error writing stream socket: %s", strerror(errno));
+#else
+	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, TermNil, "error writing stream socket");
+#endif	
+      }
+    }
+  }
 #endif
   console_count_output_char(ch,s);
   return ((int) ch);
@@ -846,7 +858,19 @@ ConsolePipePutc (int sno, int ch)
     }
   }
 #else
-  write(s->u.pipe.fd,  &c, sizeof(c));
+  {
+    int out = 0;
+    while (!out) {
+      out = write(s->u.pipe.fd,  &c, sizeof(c));
+      if (out <0) {
+#if HAVE_STRERROR
+	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, TermNil, "error writing stream pipe: %s", strerror(errno));
+#else
+	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, TermNil, "error writing stream pipe");
+#endif	
+      }
+    }
+  }
 #endif
   count_output_char(ch,s);
   return ((int) ch);
@@ -872,7 +896,19 @@ PipePutc (int sno, int ch)
     }
   }
 #else
-  write(s->u.pipe.fd,  &c, sizeof(c));
+  {
+    int out = 0;
+    while (!out) {
+      out = write(s->u.pipe.fd,  &c, sizeof(c));
+      if (out <0) {
+#if HAVE_STRERROR
+	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, TermNil, "error writing stream pipe: %s", strerror(errno));
+#else
+	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, TermNil, "error writing stream pipe");
+#endif	
+      }
+    }
+  }
 #endif
   console_count_output_char(ch,s);
   return ((int) ch);
@@ -3599,7 +3635,7 @@ syntax_error (TokEntry * tokptr, int sno)
   Term info;
   int count = 0, out = 0;
   Int start, err = 0, end;
-  Term tf[6];
+  Term tf[7];
   Term *error = tf+3;
   CELL *Hi = H;
 
