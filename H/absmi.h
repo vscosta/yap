@@ -1374,7 +1374,7 @@ loop:
 	    return (FALSE);
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
-	    if (IsBigIntTerm(d1) && mpz_cmp((MP_INT *)(ap2+1),Yap_BigIntOfTerm(d1)) == 0) continue;
+	    if (IsBigIntTerm(d1) && mpz_cmp((MP_INT *)(ap2+2),Yap_BigIntOfTerm(d1)) == 0) continue;
 	    UNWIND_CUNIF();
 	    return (FALSE);
 #endif /* USE_GMP */

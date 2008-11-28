@@ -537,9 +537,9 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 	{
 	  MP_INT *big = Yap_BigIntOfTerm(t);
 	  char *s = (char *)TR;
-	  if (s+2+mpz_sizeinbase(big, 10) >= Yap_TrailTop) {
+	  if (s+3+mpz_sizeinbase(big, 10) >= Yap_TrailTop) {
 	    s = (char *)H;
-	    if (s+2+mpz_sizeinbase(big, 10) >= (char *)ASP) {
+	    if (s+3+mpz_sizeinbase(big, 10) >= (char *)ASP) {
 	      return;
 	    }
 	  }

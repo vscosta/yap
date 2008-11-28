@@ -34,7 +34,7 @@ Term
 Yap_MkBigIntTerm(MP_INT *big)
 {
   Int nlimbs;
-  MP_INT *dst = (MP_INT *)(H+1);
+  MP_INT *dst = (MP_INT *)(H+2);
   CELL *ret = H;
 
   if (mpz_fits_slong_p(big)) {
@@ -46,6 +46,7 @@ Yap_MkBigIntTerm(MP_INT *big)
     return TermNil;
   }
   H[0] = (CELL)FunctorBigInt;
+  H[1] = BIG_INT;
 
   dst->_mp_size = big->_mp_size;
   dst->_mp_alloc = big->_mp_alloc;
@@ -59,7 +60,7 @@ Yap_MkBigIntTerm(MP_INT *big)
 MP_INT *
 Yap_BigIntOfTerm(Term t)
 {
-  MP_INT *new = (MP_INT *)(RepAppl(t)+1);
+  MP_INT *new = (MP_INT *)(RepAppl(t)+2);
 
   new->_mp_d = (mp_limb_t *)(new+1);
   return(new);
@@ -98,7 +99,8 @@ p_is_bignum(void)
 {
 #ifdef USE_GMP
   Term t = Deref(ARG1);
-  return(IsNonVarTerm(t) && IsApplTerm(t) && FunctorOfTerm(t) == FunctorBigInt);
+  return(
+	 IsNonVarTerm(t) && IsApplTerm(t) && FunctorOfTerm(t) == FunctorBigInt);
 #else
   return FALSE;
 #endif

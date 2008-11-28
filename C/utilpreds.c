@@ -1164,8 +1164,8 @@ SizeOfExtension(Term t)
     return 0;
   }
   if (f== FunctorBigInt) {
-    CELL *pt = RepAppl(t)+1;
-    return 2+sizeof(MP_INT)+(((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
+    CELL *pt = RepAppl(t)+2;
+    return 3+sizeof(MP_INT)+(((MP_INT *)(pt))->_mp_alloc*sizeof(mp_limb_t));
   }
   return 0;
 }
@@ -1634,8 +1634,8 @@ hash_complex_term(register CELL *pt0,
 	    {
 	      CELL *pt = RepAppl(d0);
 	      Int sz = 
-		sizeof(MP_INT)+
-		(((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
+		sizeof(MP_INT)+1+
+		(((MP_INT *)(pt+2))->_mp_alloc*sizeof(mp_limb_t));
 
 	      if (st + (1024 + sz/CellSize) >= ASP) {
 		goto global_overflow;

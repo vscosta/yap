@@ -89,7 +89,8 @@ CreateNewArena(CELL *ptr, UInt size)
     MP_INT *dst;
 
     ptr[0] = (CELL)FunctorBigInt;
-    dst = (MP_INT *)(ptr+1);
+    ptr[1] = EMPTY_ARENA;
+    dst = (MP_INT *)(ptr+2);
     dst->_mp_size = 0L;
     dst->_mp_alloc = arena2big_sz(size);
     ptr[size-1] = EndSpecials;

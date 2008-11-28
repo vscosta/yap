@@ -56,6 +56,16 @@ blob_type;
 #define   FunctorDouble   ((Functor)(double_e))
 #define   EndSpecials     (double_e+sizeof(Functor *))
 
+typedef enum
+  {
+    BIG_INT =      0x01,
+    BIG_RATIONAL = 0x02,
+    BIG_FLOAT =    0x04,
+    EMPTY_ARENA =  0x10,
+    ARRAY_INT =    0x21,
+    ARRAY_FLOAT =  0x22
+  } 
+big_blob_type;
 
 inline EXTERN blob_type BlobOfFunctor (Functor f);
 
@@ -87,7 +97,7 @@ typedef struct
   /* what to do if someone wants to copy our constraint */
   int (*copy_term_op) (CELL *, struct cp_frame **, CELL *);
   /* copy the constraint into a term and back */
-    Term (*to_term_op) (CELL *);
+  Term (*to_term_op) (CELL *);
   int (*term_to_op) (Term, Term);
   /* op called to do marking in GC */
   void (*mark_op) (CELL *);

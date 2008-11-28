@@ -602,13 +602,14 @@ copy_big_int(CELL *st, CELL *pt)
 {
   Int sz = 
     sizeof(MP_INT)+
-    (((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
+    (((MP_INT *)(pt+2))->_mp_alloc*sizeof(mp_limb_t));
 
   /* first functor */
   st[0] = (CELL)FunctorBigInt;
+  st[1] = pt[1];
   /* then the actual number */
-  memcpy((void *)(st+1), (void *)(pt+1), sz);
-  st = st+1+sz/CellSize;
+  memcpy((void *)(st+2), (void *)(pt+2), sz);
+  st = st+2+sz/CellSize;
   /* then the tail for gc */ 
   st[0] = EndSpecials;
   return st+1;
@@ -703,7 +704,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  continue;
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
-	  CheckDBOverflow(2+Yap_SizeOfBigInt(d0));
+	  CheckDBOverflow(3+Yap_SizeOfBigInt(d0));
 	  /* first thing, store a link to the list before we move on */
 	  *StoPoint++ = AbsAppl(CodeMax);
 	  CodeMax = copy_big_int(CodeMax, ap2);

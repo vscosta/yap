@@ -467,9 +467,9 @@ AdjustGlobal(long sz)
 #if USE_GMP
 	case (CELL)FunctorBigInt:
 	  {
-	    Int sz = 1+
+	    Int sz = 2+
 	      (sizeof(MP_INT)+
-	       (((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
+	       (((MP_INT *)(pt+2))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
 	    pt += sz;
 	  }
 	  break;

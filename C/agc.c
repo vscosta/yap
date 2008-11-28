@@ -312,9 +312,9 @@ mark_global_cell(CELL *pt)
 #endif
     case (CELL)FunctorBigInt:
       {
-	Int sz = 2 +
+	Int sz = 3 +
 	  (sizeof(MP_INT)+
-	   (((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t)))/sizeof(CELL);
+	   (((MP_INT *)(pt+2))->_mp_alloc*sizeof(mp_limb_t)))/sizeof(CELL);
 	return pt + sz;
       }
     case (CELL)FunctorLongInt:

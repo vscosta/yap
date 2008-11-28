@@ -676,7 +676,8 @@ YAP_MkBlobTerm(unsigned int sz)
   }
   I = AbsAppl(H);
   H[0] = (CELL)FunctorBigInt;
-  dst = (MP_INT *)(H+1);
+  H[1] = BIG_INT;
+  dst = (MP_INT *)(H+2);
   dst->_mp_size = 0L;
   dst->_mp_alloc = sz;
   H += (1+sizeof(MP_INT)/sizeof(CELL));
