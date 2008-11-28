@@ -99,3 +99,31 @@ int	STD_PROTO(Yap_ReInitUnaryExps,(void));
 int	STD_PROTO(Yap_ReInitBinaryExps,(void));
 
 blob_type	STD_PROTO(Yap_Eval,(Term, union arith_ret *));
+
+#if USE_GMP
+MP_INT *STD_PROTO(Yap_gmp_add_ints,(Int, Int, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_sub_ints,(Int, Int, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_mul_ints,(Int, Int, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_sll_ints,(Int, Int, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_add_int_big,(Int, MP_INT *, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_sub_int_big,(Int, MP_INT *, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_sub_big_int,(MP_INT *, Int, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_mul_int_big,(Int, MP_INT *, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_div_big_int,(MP_INT *, Int, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_and_int_big,(Int, MP_INT *, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_ior_int_big,(Int, MP_INT *, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_sll_big_int,(MP_INT *, Int, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_add_big_big,(MP_INT *, MP_INT *, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_sub_big_big,(MP_INT *, MP_INT *, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_mul_big_big,(MP_INT *, MP_INT *, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_div_big_big,(MP_INT *, MP_INT *, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_and_big_big,(MP_INT *, MP_INT *, MP_INT *));
+MP_INT *STD_PROTO(Yap_gmp_ior_big_big,(MP_INT *, MP_INT *, MP_INT *));
+
+
+
+Float  STD_PROTO(Yap_gmp_add_float_big,(Float, MP_INT *));
+Float  STD_PROTO(Yap_gmp_sub_float_big,(Float, MP_INT *));
+Float  STD_PROTO(Yap_gmp_sub_big_float,(MP_INT *, Float));
+Float  STD_PROTO(Yap_gmp_mul_float_big,(Float, MP_INT *));
+#endif
