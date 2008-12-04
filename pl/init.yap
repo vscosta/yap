@@ -48,7 +48,8 @@ otherwise.
 
 :- compile_expressions.
 
-:- [	 'yio.yap',
+:- [	 'eval.yap',
+   	 'yio.yap',
 	 'debug.yap',
 	 'checker.yap',
 	 'depth_bound.yap',
