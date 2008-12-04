@@ -509,44 +509,6 @@ Term Yap_XREGS[MaxTemps];	/* 29                                     */
 
 #endif
 
-inline static Functor
-AritFunctorOfTerm(Term t) {
-  if (IsVarTerm(t)) {
-    return(FunctorDBRef);
-  }
-  if (IsApplTerm(t)) {
-    return(FunctorOfTerm(t));
-  } else {
-    if (IsIntTerm(t))
-      return(FunctorLongInt);
-    else
-      return(FunctorDBRef);
-  }
-}
-
-#define TMP_BIG()  Yap_BigTmp
-#define RINT(v)     return(MkIntegerTerm(v))
-#define RFLOAT(v)   return(MkFloatTerm(v))
-#if USE_GMP
-
-#define RBIG(v)     return(rbig(v))
-
-static inline Term rbig(MP_INT *big)
-{
-  Term t = Yap_MkBigIntTerm(big);
-  mpz_clear(big);
-  return t;
-}
-#endif
-
-#define RERROR()    return(TermNil)
-
-#define ArithIEval(t,v)     Yap_Eval(Deref(t),v)
-
-#define E_FUNC   Term
-#define E_ARGS   
-#define USE_E_ARGS   
-
 #include "arith2.h"
 
 /*
@@ -11460,6 +11422,729 @@ Yap_absmi(int inp)
       ENDD(d1);
       ENDD(d0);
       ENDBOp();
+
+#ifdef EXPERIMENTAL
+      Op(eqc_float, sDl);
+      if (!Yap_isint[PREG->u.sDl.s] && Yap_floats[PREG->u.sDl.s] == PREG->u.sDl.D) {
+	PREG = NEXTOP(PREG, sDl);
+	GONext();
+      }
+      PREG = PREG->u.sDl.F;
+      GONext();
+      ENDOp();
+
+      Op(eqc_int, snl);
+      if (Yap_isint[PREG->u.sDl.s] && Yap_int[PREG->u.snl.s] == PREG->u.snl.I) {
+	PREG = NEXTOP(PREG, snl);
+	GONext();
+      }
+      PREG = PREG->u.snl.F;
+      GONext();
+      ENDOp();
+
+      Op(eq, ssl);
+      if (Yap_isint[PREG->u.ssl.s1]) {
+	if (Yap_isint[PREG->u.ssl.s2] &&  Yap_int[PREG->u.ssl.s2] == Yap_int[PREG->u.ssl.s2]) {
+	  PREG = NEXTOP(PREG, ssl);
+	  GONext();
+	}
+	PREG = PREG->u.snl.F;
+	GONext();
+      } else {
+	if (!Yap_isint[PREG->u.ssl.s2] &&  Yap_floats[PREG->u.ssl.s2] == Yap_floats[PREG->u.ssl.s2]) {
+	  PREG = NEXTOP(PREG, ssl);
+	  GONext();
+	}
+	PREG = PREG->u.snl.F;
+	GONext();
+      }
+      ENDOp();
+
+      Op(ltc_float, sDl);
+      {
+	Float d0;
+	if (Yap_isint[PREG->u.sDl.s])
+	  d0 = Yap_int[PREG->u.sDl.s];
+	else
+	  d0 = Yap_floats[PREG->u.sDl.s];
+	if ( d0 > PREG->u.sDl.D) {
+	  PREG = NEXTOP(PREG, sDl);
+	  GONext();
+	}
+	PREG = PREG->u.sDl.F;
+	GONext();
+      }
+      ENDOp();
+
+      Op(ltc_int, snl);
+      {
+	Float d0;
+	if (Yap_isint[PREG->u.snl.s])
+	  d0 = Yap_int[PREG->u.snl.s];
+	else
+	  d0 = Yap_floats[PREG->u.snl.s];
+	if ( d0 > PREG->u.snl.I) {
+	  PREG = NEXTOP(PREG, snl);
+	  GONext();
+	}
+	PREG = PREG->u.snl.F;
+	GONext();
+      }
+      PREG = PREG->u.snl.F;
+      GONext();
+      ENDOp();
+
+      Op(gtc_float, sDl);
+      {
+	Float d0;
+	if (Yap_isint[PREG->u.sDl.s])
+	  d0 = Yap_int[PREG->u.sDl.s];
+	else
+	  d0 = Yap_floats[PREG->u.sDl.s];
+	if ( d0 < PREG->u.sDl.D) {
+	  PREG = NEXTOP(PREG, sDl);
+	  GONext();
+	}
+	PREG = PREG->u.sDl.F;
+	GONext();
+      }
+      ENDOp();
+
+      Op(gtc_int, snl);
+      {
+	Float d0;
+	if (Yap_isint[PREG->u.snl.s])
+	  d0 = Yap_int[PREG->u.snl.s];
+	else
+	  d0 = Yap_floats[PREG->u.snl.s];
+	if ( d0 < PREG->u.snl.I) {
+	  PREG = NEXTOP(PREG, snl);
+	  GONext();
+	}
+	PREG = PREG->u.snl.F;
+	GONext();
+      }
+      PREG = PREG->u.snl.F;
+      GONext();
+      ENDOp();
+
+      Op(lt, ssl);
+      if (Yap_isint[PREG->u.ssl.s1]) {
+	if (Yap_isint[PREG->u.ssl.s2]) {
+	  if (Yap_int[PREG->u.ssl.s2] < Yap_int[PREG->u.ssl.s2]) {
+	    PREG = NEXTOP(PREG, ssl);
+	    GONext();
+	  }
+	  PREG = PREG->u.snl.F;
+	  GONext();
+	} else {
+	  if (Yap_int[PREG->u.ssl.s2] < Yap_floats[PREG->u.ssl.s2]) {
+	    PREG = NEXTOP(PREG, ssl);
+	    GONext();
+	  }
+	  PREG = PREG->u.snl.F;
+	  GONext();
+	}
+      } else {
+	if (Yap_isint[PREG->u.ssl.s2]) {
+	  if (Yap_floats[PREG->u.ssl.s2] < Yap_int[PREG->u.ssl.s2]) {
+	    PREG = NEXTOP(PREG, ssl);
+	    GONext();
+	  }
+	  PREG = PREG->u.snl.F;
+	  GONext();
+	} else {
+	  if (Yap_floats[PREG->u.ssl.s2] < Yap_floats[PREG->u.ssl.s2]) {
+	    PREG = NEXTOP(PREG, ssl);
+	    GONext();
+	  }
+	  PREG = PREG->u.snl.F;
+	  GONext();
+	}
+      }
+      ENDOp();
+
+      Op(add_float_c, ssD);
+      if (Yap_isint[PREG->u.ssD.s1])
+	Yap_floats[PREG->u.ssD.s0] = Yap_int[PREG->u.ssDl.s1]+PREG->u.ssD.D;
+      else
+	Yap_floats[PREG->u.ssD.s0] = Yap_floats[PREG->u.ssDl.s1]+PREG->u.ssD.D;
+      Yap_isint[PREG->u.ssD.s0] = FALSE;
+      PREG = NEXTOP(PREG, ssD);
+      GONext();
+      ENDOp();
+
+      Op(add_int_c, ssn);
+      {
+	int off = PREG->u.ssn.s0;
+	if (Yap_isint[PREG->u.ssn.s1]) {
+	  Yap_floats[off] = Yap_int[PREG->u.ssn.s1]+PREG->u.ssn.I;
+	  Yap_isint[off] = TRUE;
+	  if (add_overflow(Yap_ints[off],Yap_int[PREG->u.ssn.s1],PREG->u.ssn.I)
+	      PREG = Yap_EvalException(PREG);
+	} else {
+	  Yap_floats[off] = Yap_floats[PREG->u.ssn.s1]+PREG->u.ssn.I;
+	  Yap_isint[off] = FALSE;
+	}
+      }
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(add, sss);
+      {
+	int off = PREG->u.sss.s0;
+	if (Yap_isint[PREG->u.sss.s1]) {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]+Yap_int[PREG->u.sss.s2];
+	    Yap_isint[off] = TRUE;
+	    if (add_overflow(Yap_ints[off],Yap_int[PREG->u.sss.s1],PREG->u.sss.s2)
+		PREG = Yap_EvalException(PREG);
+	  } else {
+	    Yap_floats[off] = Yap_int[PREG->u.sss.s1]+Yap_floats[PREG->u.sss.s2];
+	    Yap_isint[off] = FALSE;
+	  }
+	} else {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]+Yap_int[PREG->u.sss.s2];
+	  } else {
+	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]+Yap_floats[PREG->u.sss.s2];
+	  }
+	  Yap_isint[off] = FALSE;
+	}
+      }
+      PREG = NEXTOP(PREG, sss);
+      GONext();
+      ENDOp();
+
+      Op(sub_float_c, ssD);
+      if (Yap_isint[PREG->u.ssD.s1])
+	Yap_floats[PREG->u.ssD.s0] = PREG->u.ssD.D-Yap_int[PREG->u.ssDl.s1];
+      else
+	Yap_floats[PREG->u.ssD.s0] = PREG->u.ssD.D-Yap_floats[PREG->u.ssDl.s1];
+      Yap_isint[PREG->u.ssD.s0] = FALSE;
+      PREG = NEXTOP(PREG, ssD);
+      GONext();
+      ENDOp();
+
+      Op(sub_int_c, ssn);
+      {
+	int off = PREG->u.ssn.s0;
+	if (Yap_isint[PREG->u.ssn.s1]) {
+	  Yap_floats[off] = PREG->u.ssn.I-Yap_int[PREG->u.ssn.s1];
+	  Yap_isint[off] = TRUE;
+	  if (sub_overflow(Yap_ints[off],PREG->u.ssn.I,Yap_int[PREG->u.ssn.s1])
+	      PREG = Yap_EvalException(PREG);
+	} else {
+	  Yap_floats[off] = PREG->u.ssn.I-Yap_floats[PREG->u.ssn.s1];
+	  Yap_isint[off] = FALSE;
+	}
+      }
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(sub, sss);
+      {
+	int off = PREG->u.sss.s0;
+	if (Yap_isint[PREG->u.sss.s1]) {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]-Yap_int[PREG->u.sss.s2];
+	    Yap_isint[off] = TRUE;
+	    if (sub_overflow(Yap_ints[off],Yap_int[PREG->u.sss.s1],Yap_int[PREG->u.sss.s2])
+		PREG = Yap_EvalException(PREG);
+	  } else {
+	    Yap_floats[off] = Yap_int[PREG->u.sss.s1]-Yap_floats[PREG->u.sss.s2];
+	    Yap_isint[off] = FALSE;
+	  }
+	} else {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]-Yap_int[PREG->u.sss.s2];
+	  } else {
+	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]-Yap_floats[PREG->u.sss.s2];
+	  }
+	  Yap_isint[off] = FALSE;
+	}
+      }
+      PREG = NEXTOP(PREG, sss);
+      GONext();
+      ENDOp();
+
+      Op(mul_float_c, ssD);
+      if (Yap_isint[PREG->u.ssD.s1])
+	Yap_floats[PREG->u.ssD.s0] = Yap_int[PREG->u.ssDl.s1]*PREG->u.ssD.D;
+      else
+	Yap_floats[PREG->u.ssD.s0] = Yap_floats[PREG->u.ssDl.s1]*PREG->u.ssD.D;
+      Yap_isint[PREG->u.ssD.s0] = FALSE;
+      PREG = NEXTOP(PREG, ssD);
+      GONext();
+      ENDOp();
+
+      Op(mul_int_c, ssn);
+      {
+	int off = PREG->u.ssn.s0;
+	if (Yap_isint[PREG->u.ssn.s1]) {
+	  Yap_floats[off] = Yap_int[PREG->u.ssn.s1]*PREG->u.ssn.I;
+	  Yap_isint[off] = TRUE;
+	  if (mul_overflow(Yap_ints[off],Yap_int[PREG->u.ssn.s1],PREG->u.ssn.I)
+	      PREG = Yap_EvalException(PREG);
+	} else {
+	  Yap_floats[off] = Yap_floats[PREG->u.ssn.s1]*PREG->u.ssn.I;
+	  Yap_isint[off] = FALSE;
+	}
+      }
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(mul, sss);
+      {
+	int off = PREG->u.sss.s0;
+	if (Yap_isint[PREG->u.sss.s1]) {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]*Yap_int[PREG->u.sss.s2];
+	    Yap_isint[off] = TRUE;
+	    if (mul_overflow(Yap_ints[off],Yap_int[PREG->u.sss.s1],PREG->u.sss.s2)
+		PREG = Yap_EvalException(PREG);
+	  } else {
+	    Yap_floats[off] = Yap_int[PREG->u.sss.s1]*Yap_floats[PREG->u.sss.s2];
+	    Yap_isint[off] = FALSE;
+	  }
+	} else {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]*Yap_int[PREG->u.sss.s2];
+	  } else {
+	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]*Yap_floats[PREG->u.sss.s2];
+	  }
+	  Yap_isint[off] = FALSE;
+	}
+      }
+      PREG = NEXTOP(PREG, sss);
+      GONext();
+      ENDOp();
+
+      Op(fdiv_c1, ssD);
+      if (Yap_isint[PREG->u.ssD.s1])
+	Yap_floats[PREG->u.ssD.s0] = PREG->u.ssD.D/Yap_int[PREG->u.ssDl.s1];
+      else
+	Yap_floats[PREG->u.ssD.s0] = PREG->u.ssD.D/Yap_floats[PREG->u.ssDl.s1];
+      Yap_isint[PREG->u.ssD.s0] = FALSE;
+      PREG = NEXTOP(PREG, ssD);
+      GONext();
+      ENDOp();
+
+      Op(fdiv_c2, ssD);
+      if (Yap_isint[PREG->u.ssD.s1])
+	Yap_floats[PREG->u.ssD.s0] = Yap_int[PREG->u.ssDl.s1]/PREG->u.ssD.D;
+      else
+	Yap_floats[PREG->u.ssD.s0] = Yap_floats[PREG->u.ssDl.s1]/PREG->u.ssD.D;
+      Yap_isint[PREG->u.ssD.s0] = FALSE;
+      PREG = NEXTOP(PREG, ssD);
+      GONext();
+      ENDOp();
+
+      Op(fdiv, sss);
+      {
+	int off = PREG->u.sss.s0;
+	if (Yap_isint[PREG->u.sss.s1]) {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    Yap_floats[off] = ((Float)Yap_int[PREG->u.sss.s1])/Yap_int[PREG->u.sss.s2];
+	  } else {
+	    Yap_floats[off] = ((Float)Yap_int[PREG->u.sss.s1])/Yap_floats[PREG->u.sss.s2];
+	  }
+	} else {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]/Yap_int[PREG->u.sss.s2];
+	  } else {
+	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]/Yap_floats[PREG->u.sss.s2];
+	  }
+	}
+	Yap_isint[off] = FALSE;
+      }
+      PREG = NEXTOP(PREG, sss);
+      GONext();
+      ENDOp();
+
+      Op(idiv_c1, ssn);
+      if (Yap_isint[PREG->u.ssn.s1]) {
+	if (Yap_int[PREG->u.ssn.s1] == 0) {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}	    
+	Yap_int[PREG->u.ssn.s0] = PREG->u.ssn.D/Yap_int[PREG->u.ssn.s1];
+      } else {
+	PREG = Yap_EvalException(PREG);
+	GONext();
+      }
+      Yap_isint[PREG->u.ssn.s0] = TRUE;
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(idiv_c2, ssn);
+      if (Yap_isint[PREG->u.ssn.s1]) {
+	Yap_int[PREG->u.ssn.s0] = Yap_int[PREG->u.ssn.s1]/PREG->u.ssn.D;
+      } else {
+	PREG = Yap_EvalException(PREG);
+	GONext();
+      }
+      Yap_isint[PREG->u.ssD.s0] = TRUE;
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(mod, sss);
+      {
+	int off = PREG->u.sss.s0;
+	if (Yap_isint[PREG->u.sss.s1]) {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    if (Yap_int[PREG->u.sss.s2] == 0) {
+	      PREG = Yap_EvalException(PREG);
+	      GONext();
+	    }	    
+	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]/Yap_int[PREG->u.sss.s2];
+	  } else {
+	    PREG = Yap_EvalException(PREG);
+	    GONext();
+	  }
+	} else {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}
+	Yap_isint[off] = TRUE;
+      }
+      PREG = NEXTOP(PREG, sss);
+      GONext();
+      ENDOp();
+
+      Op(mod_c1, ssn);
+      if (Yap_isint[PREG->u.ssn.s1]) {
+	if (Yap_int[PREG->u.ssn.s1] == 0) {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}	    
+	Yap_int[PREG->u.ssn.s0] = mod(PREG->u.ssn.D,Yap_int[PREG->u.ssn.s1]);
+      } else {
+	PREG = Yap_EvalException(PREG);
+	GONext();
+      }
+      Yap_isint[PREG->u.ssn.s0] = TRUE;
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(mod_c2, ssn);
+      if (Yap_isint[PREG->u.ssn.s1]) {
+	Yap_int[PREG->u.ssn.s0] = mod(Yap_int[PREG->u.ssnl.s1],PREG->u.ssn.D);
+      } else {
+	PREG = Yap_EvalException(PREG);
+	GONext();
+      }
+      Yap_isint[PREG->u.ssD.s0] = TRUE;
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(mod, sss);
+      {
+	int off = PREG->u.sss.s0;
+	if (Yap_isint[PREG->u.sss.s1]) {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    if (Yap_int[PREG->u.sss.s2] == 0) {
+	      PREG = Yap_EvalException(PREG);
+	      GONext();
+	    }	    
+	    Yap_ints[off] = mod(Yap_int[PREG->u.sss.s1],Yap_int[PREG->u.sss.s2]);
+	  } else {
+	    PREG = Yap_EvalException(PREG);
+	    GONext();
+	  }
+	} else {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}
+	Yap_isint[off] = TRUE;
+      }
+      PREG = NEXTOP(PREG, sss);
+      GONext();
+      ENDOp();
+
+      Op(rem_c1, ssn);
+      if (Yap_isint[PREG->u.ssn.s1]) {
+	if (Yap_int[PREG->u.ssn.s1] == 0) {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}	    
+	Yap_int[PREG->u.ssn.s0] = PREG->u.ssn.D%Yap_int[PREG->u.ssn.s1];
+      } else {
+	PREG = Yap_EvalException(PREG);
+	GONext();
+      }
+      Yap_isint[PREG->u.ssn.s0] = TRUE;
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(rem_c2, ssn);
+      if (Yap_isint[PREG->u.ssn.s1]) {
+	Yap_int[PREG->u.ssn.s0] = Yap_int[PREG->u.ssnl.s1]%PREG->u.ssn.D;
+      } else {
+	PREG = Yap_EvalException(PREG);
+	GONext();
+      }
+      Yap_isint[PREG->u.ssD.s0] = TRUE;
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(rem, sss);
+      {
+	int off = PREG->u.sss.s0;
+	if (Yap_isint[PREG->u.sss.s1]) {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    if (Yap_int[PREG->u.sss.s2] == 0) {
+	      PREG = Yap_EvalException(PREG);
+	      GONext();
+	    }	    
+	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]%Yap_int[PREG->u.sss.s2];
+	  } else {
+	    PREG = Yap_EvalException(PREG);
+	    GONext();
+	  }
+	} else {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}
+	Yap_isint[off] = TRUE;
+      }
+      PREG = NEXTOP(PREG, sss);
+      GONext();
+      ENDOp();
+
+      Op(or_c, ssn);
+      if (Yap_isint[PREG->u.ssn.s1]) {
+	Yap_int[PREG->u.ssn.s0] = PREG->u.ssn.D|Yap_int[PREG->u.ssn.s1];
+      } else {
+	PREG = Yap_EvalException(PREG);
+	GONext();
+      }
+      Yap_isint[PREG->u.ssn.s0] = TRUE;
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(or, sss);
+      {
+	int off = PREG->u.sss.s0;
+	if (Yap_isint[PREG->u.sss.s1]) {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]|Yap_int[PREG->u.sss.s2];
+	  } else {
+	    PREG = Yap_EvalException(PREG);
+	    GONext();
+	  }
+	} else {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}
+	Yap_isint[off] = TRUE;
+      }
+      PREG = NEXTOP(PREG, sss);
+      GONext();
+      ENDOp();
+
+      Op(and_c, ssn);
+      if (Yap_isint[PREG->u.ssn.s1]) {
+	Yap_int[PREG->u.ssn.s0] = PREG->u.ssn.D&Yap_int[PREG->u.ssn.s1];
+      } else {
+	PREG = Yap_EvalException(PREG);
+	GONext();
+      }
+      Yap_isint[PREG->u.ssn.s0] = TRUE;
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(and, sss);
+      {
+	int off = PREG->u.sss.s0;
+	if (Yap_isint[PREG->u.sss.s1]) {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]&Yap_int[PREG->u.sss.s2];
+	  } else {
+	    PREG = Yap_EvalException(PREG);
+	    GONext();
+	  }
+	} else {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}
+	Yap_isint[off] = TRUE;
+      }
+      PREG = NEXTOP(PREG, sss);
+      GONext();
+      ENDOp();
+
+      Op(xor_c, ssn);
+      if (Yap_isint[PREG->u.ssn.s1]) {
+	Yap_int[PREG->u.ssn.s0] = PREG->u.ssn.D^Yap_int[PREG->u.ssn.s1];
+      } else {
+	PREG = Yap_EvalException(PREG);
+	GONext();
+      }
+      Yap_isint[PREG->u.ssn.s0] = TRUE;
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(xor, sss);
+      {
+	int off = PREG->u.sss.s0;
+	if (Yap_isint[PREG->u.sss.s1]) {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]^Yap_int[PREG->u.sss.s2];
+	  } else {
+	    PREG = Yap_EvalException(PREG);
+	    GONext();
+	  }
+	} else {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}
+	Yap_isint[off] = TRUE;
+      }
+      PREG = NEXTOP(PREG, sss);
+      GONext();
+      ENDOp();
+
+      Op(uminus, ss);
+      {
+	int off = PREG->u.sss.s0;
+	if (Yap_isint[PREG->u.ss.s1]) {
+	  Yap_ints[off] = -Yap_int[PREG->u.ss.s1];
+	  Yap_isint[off] = TRUE;
+	} else {
+	  Yap_floats[off] = -Yap_floats[PREG->u.ss.s1];
+	  Yap_isint[off] = FALSE;
+	}
+      }
+      PREG = NEXTOP(PREG, ss);
+      GONext();
+      ENDOp();
+
+      Op(sl_c1, ssn);
+      if (Yap_isint[PREG->u.ssn.s1]) {
+	if (sl_overflow(PREG->u.ssn.D,Yap_int[PREG->u.ssn.s1])) {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}
+	Yap_int[PREG->u.ssn.s0] = PREG->u.ssn.D<<Yap_int[PREG->u.ssn.s1];
+      } else {
+	PREG = Yap_EvalException(PREG);
+	GONext();
+      }
+      Yap_isint[PREG->u.ssn.s0] = TRUE;
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(sl_c2, ssn);
+      if (Yap_isint[PREG->u.ssn.s1]) {
+	if (sl_overflow(Yap_int[PREG->u.ssn.s1],PREG->u.ssn.D)) {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}
+	Yap_int[PREG->u.ssn.s0] = Yap_int[PREG->u.ssn.s1]<<PREG->u.ssn.D;
+      } else {
+	PREG = Yap_EvalException(PREG);
+	GONext();
+      }
+      Yap_isint[PREG->u.ssn.s0] = TRUE;
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(sl, sss);
+      {
+	int off = PREG->u.sss.s0;
+	if (Yap_isint[PREG->u.sss.s1]) {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    if (sl_overflow(Yap_int[PREG->u.sss.s1],Yap_int[PREG->u.sss.s2])) {
+	      PREG = Yap_EvalException(PREG);
+	      GONext();
+	    }
+	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]<<Yap_int[PREG->u.sss.s2];
+	  } else {
+	    PREG = Yap_EvalException(PREG);
+	    GONext();
+	  }
+	} else {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}
+	Yap_isint[off] = TRUE;
+      }
+      PREG = NEXTOP(PREG, sss);
+      GONext();
+      ENDOp();
+
+      Op(sr_c1, ssn);
+      if (Yap_isint[PREG->u.ssn.s1]) {
+	if (sr_overflow(PREG->u.ssn.D,Yap_int[PREG->u.ssn.s1])) {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}
+	Yap_int[PREG->u.ssn.s0] = PREG->u.ssn.D>>Yap_int[PREG->u.ssn.s1];
+      } else {
+	PREG = Yap_EvalException(PREG);
+	GONext();
+      }
+      Yap_isint[PREG->u.ssn.s0] = TRUE;
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(sr_c2, ssn);
+      if (Yap_isint[PREG->u.ssn.s1]) {
+	if (sr_overflow(Yap_int[PREG->u.ssn.s1],PREG->u.ssn.D)) {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}
+	Yap_int[PREG->u.ssn.s0] = Yap_int[PREG->u.ssn.s1]>>PREG->u.ssn.D;
+      } else {
+	PREG = Yap_EvalException(PREG);
+	GONext();
+      }
+      Yap_isint[PREG->u.ssn.s0] = TRUE;
+      PREG = NEXTOP(PREG, ssn);
+      GONext();
+      ENDOp();
+
+      Op(sr, sss);
+      {
+	int off = PREG->u.sss.s0;
+	if (Yap_isint[PREG->u.sss.s1]) {
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    if (sr_overflow(Yap_int[PREG->u.sss.s1],Yap_int[PREG->u.sss.s2])) {
+	      PREG = Yap_EvalException(PREG);
+	      GONext();
+	    }
+	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]>>Yap_int[PREG->u.sss.s2];
+	  } else {
+	    PREG = Yap_EvalException(PREG);
+	    GONext();
+	  }
+	} else {
+	  PREG = Yap_EvalException(PREG);
+	  GONext();
+	}
+	Yap_isint[off] = TRUE;
+      }
+      PREG = NEXTOP(PREG, sss);
+      GONext();
+      ENDOp();
+
+#endif /* EXPERIMENTAL */
 
       Op(p_equal, e);
       save_hb();

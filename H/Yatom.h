@@ -499,12 +499,7 @@ typedef struct
   BITS16 ENoOfEE;
   BITS16 FlagsOfEE;
   /* operations that implement the expression */
-  union
-  {
-    blob_type (*constant) (eval_ret);
-    blob_type (*unary) (Term, eval_ret);
-    blob_type (*binary) (Term, Term, eval_ret);
-  } FOfEE;
+  int FOfEE;
 } ExpEntry;
 #if USE_OFFSETS_IN_PROPS
 

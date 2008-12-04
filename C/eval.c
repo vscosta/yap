@@ -29,97 +29,16 @@ static char     SccsId[] = "%W% %G%";
 
 yap_error_number Yap_matherror = YAP_NO_ERROR;
 
-#define E_FUNC   blob_type
-#define E_ARGS   arith_retptr o
-#define USE_E_ARGS   o
-
-#define TMP_BIG()   ((o)->big)
-#define RBIG(v)     return(big_int_e)
-#define RINT(v)     (o)->Int = v; return(long_int_e)
-#define RFLOAT(v)   (o)->dbl = v; return(double_e)
-#define RERROR()    return(db_ref_e)
-
 static Term
-EvalToTerm(blob_type bt, union arith_ret *res)
-{
-  switch (bt) {
-  case long_int_e:
-    return MkIntegerTerm(res->Int);
-  case double_e:
-    return MkFloatTerm(res->dbl);
-#ifdef USE_GMP
-  case big_int_e:
-    {
-      Term t = Yap_MkBigIntTerm(res->big);
-      mpz_clear(res->big);
-      return t;
-    }
-#endif
-  default:
-    return TermNil;
-  }
-}
-
-static E_FUNC
-Eval(Term t, E_ARGS)
+Eval(Term t)
 {
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR,TermNil,"in arithmetic");
     P = (yamop *)FAILCODE;
-    RERROR();
-  }
-  if (IsApplTerm(t)) {
-    Functor fun = FunctorOfTerm(t);
-    switch ((CELL)fun) {
-    case (CELL)FunctorLongInt:
-      RINT(LongIntOfTerm(t));
-    case (CELL)FunctorDouble:
-      RFLOAT(FloatOfTerm(t));
-#ifdef USE_GMP
-    case (CELL)FunctorBigInt:
-      {
-	MP_INT *new = TMP_BIG();
-	mpz_init_set(new, Yap_BigIntOfTerm(t));
-	RBIG(new);
-      }
-#endif
-    default:
-      {
-	Int n = ArityOfFunctor(fun);
-	Atom name  = NameOfFunctor(fun);
-	ExpEntry *p;
-
-	if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, n)))) {
-	  Term ti[2];
-
-	  /* error */
-	  ti[0] = t;
-	  ti[1] = MkIntegerTerm(n);
-	  t = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("/"),2), 2, ti);
-	  Yap_Error(TYPE_ERROR_EVALUABLE, t,
-		"functor %s/%d for arithmetic expression",
-		RepAtom(name)->StrOfAE,n);
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	}
-	if (n == 1)
-	  return(p->FOfEE.unary(ArgOfTerm(1,t), USE_E_ARGS));
-	return(p->FOfEE.binary(ArgOfTerm(1,t),ArgOfTerm(2,t), USE_E_ARGS));
-      }
-    }
-  } else if (IsPairTerm(t)) {
-    if (TailOfTerm(t) != TermNil) {
-      Yap_Error(TYPE_ERROR_EVALUABLE, t,
-		"string must contain a single character to be evaluated as an arithmetic expression");
-      P = (yamop *)FAILCODE;
-      RERROR();
-    }
-    return(Eval(HeadOfTerm(t), USE_E_ARGS));
-  } else if (IsIntTerm(t)) {
-    RINT(IntOfTerm(t));
-  } else {
-    Atom name = AtomOfTerm(t);
+    return 0L;;
+  } else if (IsAtomTerm(t)) {
     ExpEntry *p;
+    Atom name  = AtomOfTerm(t);
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 0)))) {
       Term ti[2], terror;
@@ -133,41 +52,26 @@ Eval(Term t, E_ARGS)
 	    "atom %s for arithmetic expression",
 	    RepAtom(name)->StrOfAE);
       P = (yamop *)FAILCODE;
-      RERROR();
+      return 0L;
     }
-    return(p->FOfEE.constant(USE_E_ARGS));
-  }
-}
-
-E_FUNC
-Yap_Eval(Term t, E_ARGS)
-{
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR,TermNil,"in arithmetic");
-    P = (yamop *)FAILCODE;
-    RERROR();
-  }
-  if (IsApplTerm(t)) {
+    return Yap_eval_atom(p->FOfEE);
+  } else if (IsIntTerm(t)) {
+    return t;
+  } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
-
     switch ((CELL)fun) {
     case (CELL)FunctorLongInt:
-      RINT(LongIntOfTerm(t));
     case (CELL)FunctorDouble:
-      RFLOAT(FloatOfTerm(t));
 #ifdef USE_GMP
     case (CELL)FunctorBigInt:
-      {
-	MP_INT *new = TMP_BIG();
-	mpz_init_set(new, Yap_BigIntOfTerm(t));
-	RBIG(new);
-      }
 #endif
+      return t;
     default:
       {
 	Int n = ArityOfFunctor(fun);
 	Atom name  = NameOfFunctor(fun);
 	ExpEntry *p;
+	Term t1, t2;
 
 	if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, n)))) {
 	  Term ti[2];
@@ -182,43 +86,32 @@ Yap_Eval(Term t, E_ARGS)
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	}
-	if (n == 1) {
-	  return p->FOfEE.unary(ArgOfTerm(1,t), USE_E_ARGS);
-	}
-	return
-	  p->FOfEE.binary(ArgOfTerm(1,t),ArgOfTerm(2,t), USE_E_ARGS);
+	t1 = Eval(ArgOfTerm(1,t));
+	if (t1 == 0L)
+	  return FALSE;
+	if (n == 1)
+	  return Yap_eval_unary(p->FOfEE, t1);
+	t2 = Eval(ArgOfTerm(2,t));
+	if (t2 == 0L)
+	  return FALSE;
+	return Yap_eval_binary(p->FOfEE,t1,t2);
       }
     }
-  } else if (IsPairTerm(t)) {
+  } /* else if (IsPairTerm(t)) */ {
     if (TailOfTerm(t) != TermNil) {
       Yap_Error(TYPE_ERROR_EVALUABLE, t,
 		"string must contain a single character to be evaluated as an arithmetic expression");
       P = (yamop *)FAILCODE;
-      RERROR();
+      return 0L;
     }
-    return(Eval(HeadOfTerm(t), USE_E_ARGS));
-  } else if (IsIntTerm(t)) {
-    RINT(IntOfTerm(t));
-  } else {
-    Atom name = AtomOfTerm(t);
-    ExpEntry *p;
-
-    if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 0)))) {
-      Term ti[2], terror;
-      
-      /* error */
-      ti[0] = t;
-      ti[1] = MkIntegerTerm(0);
-      /* error */
-      terror = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("/"),2), 2, ti);
-      Yap_Error(TYPE_ERROR_EVALUABLE, terror,
-	      "atom %s for arithmetic expression",
-	      RepAtom(name)->StrOfAE);
-      P = (yamop *)FAILCODE;
-      RERROR();
-    }
-    return(p->FOfEE.constant(USE_E_ARGS));
+    return Eval(HeadOfTerm(t));
   }
+}
+
+Term
+Yap_Eval(Term t)
+{
+  return Eval(t);
 }
 
 #ifdef BEAM
@@ -240,13 +133,10 @@ BEAM_is(void)
 static Int
 p_is(void)
 {				/* X is Y	 */
-  union arith_ret res;
-  blob_type bt;
   Term out;
 
-  bt = Eval(Deref(ARG2), &res);
-  out = EvalToTerm(bt,&res);
-  if (out == TermNil) {
+  out = Eval(Deref(ARG2));
+  if (out == 0L) {
     Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, ARG2, "is/2");
     return FALSE;
   }

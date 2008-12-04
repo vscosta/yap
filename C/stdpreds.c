@@ -2996,10 +2996,10 @@ p_flags(void)
     UNLOCK(pe->PELock);
     return (TRUE);
   } else if (!IsIntegerTerm(ARG4)) {
-    union arith_ret v;
+    Term te = Yap_Eval(ARG4);
 
-    if (Yap_Eval(ARG4, &v) == long_int_e) {
-	newFl = v.Int;
+    if (IsIntegerTerm(te)) {
+      newFl = IntegerOfTerm(te);
     } else {
       UNLOCK(pe->PELock);
       Yap_Error(TYPE_ERROR_INTEGER, ARG4, "flags");

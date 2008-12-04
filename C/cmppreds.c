@@ -534,14 +534,9 @@ flt_cmp(Float dif)
 }
 
 
-static Int 
-p_acomp(void)
-{				/* $a_compare(?R,+X,+Y) */
-  register blob_type  bt1;
-  Term t1 = Deref(ARG1);
-  Term t2 = Deref(ARG2);
-  union arith_ret v1;
-
+static inline int
+a_cmp(Term t1, Term t2)
+{
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "=:=/2");
     return(FALSE);
@@ -556,73 +551,81 @@ p_acomp(void)
   if (IsIntegerTerm(t1) && IsIntegerTerm(t2)) {
     return(int_cmp(IntegerOfTerm(t1)-IntegerOfTerm(t2)));
   }
-  bt1 = Yap_Eval(t1, &v1);
-  switch (bt1) {
-  case  long_int_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
+  t1 = Yap_Eval(t1);
+  if (IsIntegerTerm(t1)) {
+    t2 = Yap_Eval(t2);
+    Int i1 = IntegerOfTerm(t1);
 
-      switch (bt2) {
-      case  long_int_e:
-	return(int_cmp(v1.Int-v2.Int));
-      case double_e:
-	return(flt_cmp(v1.Int-v2.dbl));
+    if (IsIntegerTerm(t2)) {
+      Int i2 = IntegerOfTerm(t2);
+      return(int_cmp(i1-i2));
+    } else if (IsFloatTerm(t2)) {
+      Float f2 = FloatOfTerm(2);
+      return(flt_cmp(i1-f2));
+    } else if (IsBigIntTerm(t2)) {
 #ifdef USE_GMP
-      case big_int_e:
-	return(int_cmp(-mpz_cmp_si(v2.big,v1.Int)));
+      MP_INT *b2 = Yap_BigIntOfTerm(t2);
+      return(int_cmp(-mpz_cmp_si(b2,i1)));
 #endif
-      default:
-	return(FALSE);
-      }
+    } else {
+      return(FALSE);
     }
-  case double_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
+  } else if (IsFloatTerm(t1)) {
+    t2 = Yap_Eval(t2);
+    Float f1 = FloatOfTerm(t1);
 
-      switch (bt2) {
-      case  long_int_e:
-	return(flt_cmp(v1.dbl-v2.Int));
-      case double_e:
-	return(flt_cmp(v1.dbl-v2.dbl));
+    if (IsIntegerTerm(t2)) {
+      Int i2 = IntegerOfTerm(t2);
+      return(flt_cmp(f1-i2));
+    } else if (IsFloatTerm(t2)) {
+      Float f2 = FloatOfTerm(2);
+      return(flt_cmp(f1-f2));
+    } else if (IsBigIntTerm(t2)) {
 #ifdef USE_GMP
-      case big_int_e:
-	return(flt_cmp(v1.dbl-mpz_get_d(v2.big)));
+      MP_INT *b2 = Yap_BigIntOfTerm(t2);
+      return(flt_cmp(f1-mpz_get_d(b2)));
 #endif
-      default:
-	return(FALSE);
-      }
+    } else {
+      return(FALSE);
     }
+  } else if (IsBigIntTerm(t1)) {
 #ifdef USE_GMP
-  case big_int_e:
     {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
+    t2 = Yap_Eval(t2);
+    MP_INT *b1 = Yap_BigIntOfTerm(t1);
 
-      switch (bt2) {
-      case  long_int_e:
-	return(int_cmp(mpz_cmp_si(v1.big,v2.Int)));
-      case double_e:
-	return(flt_cmp(mpz_get_d(v1.big)-v2.dbl));
-      case big_int_e:
-	return(int_cmp(mpz_cmp(v1.big,v2.big)));
-      default:
-	return(FALSE);
-      }
+    if (IsIntegerTerm(t2)) {
+      Int i2 = IntegerOfTerm(t2);
+      return(int_cmp(mpz_cmp_si(b1,i2)));
+    } else if (IsFloatTerm(t2)) {
+      Float f2 = FloatOfTerm(2);
+      return(flt_cmp(mpz_get_d(b1)-f2));
+    } else if (IsBigIntTerm(t2)) {
+      MP_INT *b2 = Yap_BigIntOfTerm(2);
+      return(int_cmp(mpz_cmp(b1,b2)));
+    } else {
+      return(FALSE);
+    }
     }
 #endif
-  default:
+  } else {
     return(FALSE);
   }
+}
+
+
+static Int 
+p_acomp(void)
+{				/* $a_compare(?R,+X,+Y) */
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+
+  return a_cmp(t1, t2);
 }
 
 static Int 
 a_eq(Term t1, Term t2)
 {				/* A =:= B		 */
-  blob_type bt1;
-  union arith_ret v1;
-
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "=:=/2");
     return(FALSE);
@@ -635,460 +638,74 @@ a_eq(Term t1, Term t2)
     return (FloatOfTerm(t1) == FloatOfTerm(t2));
   if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
     return (IntegerOfTerm(t1) == IntegerOfTerm(t2));
-  bt1 = Yap_Eval(t1, &v1);
-  switch (bt1) {
-  case  long_int_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
+  t1 = Yap_Eval(t1);
+  if (IsIntegerTerm(t1)) {
+    t2 = Yap_Eval(t2);
+    Int i1 = IntegerOfTerm(t1);
 
-      switch (bt2) {
-      case  long_int_e:
-	return(v1.Int == v2.Int);
-      case double_e:
-	return(v1.Int == v2.dbl);
-#ifdef USE_GMP
-      case big_int_e:
-	return(-mpz_cmp_si(v2.big,v1.Int) == 0);
-#endif
-      default:
-	return(FALSE);
-      }
+    if (IsIntegerTerm(t2)) {
+      Int i2 = IntegerOfTerm(t2);
+      return(i1==i2);
+    } else {
+      return FALSE;
     }
-  case double_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
+  } else if (IsFloatTerm(t1)) {
+    t2 = Yap_Eval(t2);
+    Float f1 = FloatOfTerm(t1);
 
-      switch (bt2) {
-      case  long_int_e:
-	return(v1.dbl == v2.Int);
-      case double_e:
-	return(v1.dbl == v2.dbl);
-#ifdef USE_GMP
-      case big_int_e:
-	return(v1.dbl == mpz_get_d(v2.big));
-#endif
-      default:
-	return(FALSE);
-      }
+    if (IsFloatTerm(t2)) {
+      Float f2 = FloatOfTerm(2);
+      return(f1 == f2);
+    } else {
+      return FALSE;
     }
+  } else if (IsBigIntTerm(t1)) {
 #ifdef USE_GMP
-  case big_int_e:
     {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
+    t2 = Yap_Eval(t2);
+    MP_INT *b1 = Yap_BigIntOfTerm(t1);
 
-      switch (bt2) {
-      case  long_int_e:
-	return(mpz_cmp_si(v1.big,v2.Int) == 0);
-      case double_e:
-	return(mpz_get_d(v1.big) == v2.dbl);
-      case big_int_e:
-	return(mpz_cmp(v1.big,v2.big) == 0);
-      default:
-	return(FALSE);
-      }
+    if (IsBigIntTerm(t2)) {
+      MP_INT *b2 = Yap_BigIntOfTerm(2);
+      return(mpz_cmp(b1,b2) == 0);
+    } else {
+      return(FALSE);
+    }
     }
 #endif
-  default:
+  } else {
     return(FALSE);
   }
 }
 
 static Int 
 a_dif(Term t1, Term t2)
-{				/* A =\\= B		 */
-  blob_type bt1;
-  union arith_ret v1;
-
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "=\\=/2");
-    return(FALSE);
-  }
-  if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "=\\=/2");
-    return(FALSE);
-  }
-  if (IsFloatTerm(t1) && IsFloatTerm(t2))
-    return (FloatOfTerm(t1) != FloatOfTerm(t2));
-  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
-    return (IntegerOfTerm(t1) != IntegerOfTerm(t2));
-  bt1 = Yap_Eval(t1, &v1);
-  switch (bt1) {
-  case  long_int_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(v1.Int != v2.Int);
-      case double_e:
-	return(v1.Int != v2.dbl);
-#ifdef USE_GMP
-      case big_int_e:
-	return(-mpz_cmp_si(v2.big,v1.Int) != 0);
-#endif
-      default:
-	return(FALSE);
-      }
-    }
-  case double_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(v1.dbl != v2.Int);
-      case double_e:
-	return(v1.dbl != v2.dbl);
-#ifdef USE_GMP
-      case big_int_e:
-	return(v1.dbl != mpz_get_d(v2.big));
-#endif
-      default:
-	return(FALSE);
-      }
-    }
-#ifdef USE_GMP
-  case big_int_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(mpz_cmp_si(v1.big,v2.Int) != 0);
-      case double_e:
-	return(mpz_get_d(v1.big) != v2.dbl);
-      case big_int_e:
-	return(mpz_cmp(v1.big,v2.big) != 0);
-      default:
-	return(FALSE);
-      }
-    }
-#endif
-  default:
-    return(FALSE);
-  }
+{
+  return !a_eq(t1,t2);
 }
 
 static Int 
 a_gt(Term t1, Term t2)
 {				/* A > B		 */
-  blob_type bt1;
-  union arith_ret v1;
-
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, ">/2");
-    return(FALSE);
-  }
-  if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t2, ">/2");
-    return(FALSE);
-  }
-  if (IsFloatTerm(t1) && IsFloatTerm(t2))
-    return (FloatOfTerm(t1) > FloatOfTerm(t2));
-  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
-    return (IntegerOfTerm(t1) > IntegerOfTerm(t2));
-  bt1 = Yap_Eval(t1, &v1);
-  switch (bt1) {
-  case  long_int_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(v1.Int > v2.Int);
-      case double_e:
-	return(v1.Int > v2.dbl);
-#ifdef USE_GMP
-      case big_int_e:
-	return(-mpz_cmp_si(v2.big,v1.Int) > 0);
-#endif
-      default:
-	return(FALSE);
-      }
-    }
-  case double_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(v1.dbl > v2.Int);
-      case double_e:
-	return(v1.dbl > v2.dbl);
-#ifdef USE_GMP
-      case big_int_e:
-	return(v1.dbl > mpz_get_d(v2.big));
-#endif
-      default:
-	return(FALSE);
-      }
-    }
-#ifdef USE_GMP
-  case big_int_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(mpz_cmp_si(v1.big,v2.Int) > 0);
-      case double_e:
-	return(mpz_get_d(v1.big) > v2.dbl);
-      case big_int_e:
-	return(mpz_cmp(v1.big,v2.big) > 0);
-      default:
-	return(FALSE);
-      }
-    }
-#endif
-  default:
-    return(FALSE);
-  }
+  return a_cmp(t1,t2) > 0;
 }
 
 static Int 
 a_ge(Term t1, Term t2)
 {				/* A >= B		 */
-  blob_type bt1;
-  union arith_ret v1;
-
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, ">=/2");
-    return(FALSE);
-  }
-  if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, ">=/2");
-    return(FALSE);
-  }
-  if (IsFloatTerm(t1) && IsFloatTerm(t2))
-    return (FloatOfTerm(t1) >= FloatOfTerm(t2));
-  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
-    return (IntegerOfTerm(t1) >= IntegerOfTerm(t2));
-  bt1 = Yap_Eval(t1, &v1);
-  switch (bt1) {
-  case  long_int_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(v1.Int >= v2.Int);
-      case double_e:
-	return(v1.Int >= v2.dbl);
-#ifdef USE_GMP
-      case big_int_e:
-	return(-mpz_cmp_si(v2.big,v1.Int) >= 0);
-#endif
-      default:
-	return(FALSE);
-      }
-    }
-  case double_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(v1.dbl >= v2.Int);
-      case double_e:
-	return(v1.dbl >= v2.dbl);
-#ifdef USE_GMP
-      case big_int_e:
-	return(v1.dbl >= mpz_get_d(v2.big));
-#endif
-      default:
-	return(FALSE);
-      }
-    }
-#ifdef USE_GMP
-  case big_int_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(mpz_cmp_si(v1.big,v2.Int) >= 0);
-      case double_e:
-	return(mpz_get_d(v1.big) >= v2.dbl);
-      case big_int_e:
-	return(mpz_cmp(v1.big,v2.big) >= 0);
-      default:
-	return(FALSE);
-      }
-    }
-#endif
-  default:
-    return(FALSE);
-  }
+  return a_cmp(t1,t2) >= 0;
 }
 
 static Int 
 a_lt(Term t1, Term t2)
 {				/* A < B       */
-  blob_type bt1;
-  union arith_ret v1;
-
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "</2");
-    return(FALSE);
-  }
-  if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "</2");
-    return(FALSE);
-  }
-  if (IsFloatTerm(t1) && IsFloatTerm(t2))
-    return (FloatOfTerm(t1) < FloatOfTerm(t2));
-  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
-    return (IntegerOfTerm(t1) < IntegerOfTerm(t2));
-  bt1 = Yap_Eval(t1, &v1);
-  switch (bt1) {
-  case  long_int_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(v1.Int < v2.Int);
-      case double_e:
-	return(v1.Int < v2.dbl);
-#ifdef USE_GMP
-      case big_int_e:
-	return(-mpz_cmp_si(v2.big,v1.Int) < 0);
-#endif
-      default:
-	return(FALSE);
-      }
-    }
-  case double_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(v1.dbl < v2.Int);
-      case double_e:
-	return(v1.dbl < v2.dbl);
-#ifdef USE_GMP
-      case big_int_e:
-	return(v1.dbl < mpz_get_d(v2.big));
-#endif
-      default:
-	return(FALSE);
-      }
-    }
-#ifdef USE_GMP
-  case big_int_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(mpz_cmp_si(v1.big,v2.Int) < 0);
-      case double_e:
-	return(mpz_get_d(v1.big) < v2.dbl);
-      case big_int_e:
-	return(mpz_cmp(v1.big,v2.big) < 0);
-      default:
-	return(FALSE);
-      }
-    }
-#endif
-  default:
-    return(FALSE);
-  }
+  return a_cmp(t1,t2) < 0;
 }
 
 static Int 
 a_le(Term t1, Term t2)
 {				/* A <= B */
-  blob_type bt1;
-  union arith_ret v1;
-
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "=</2");
-    return(FALSE);
-  }
-  if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "=</2");
-    return(FALSE);
-  }
-  if (IsFloatTerm(t1) && IsFloatTerm(t2))
-    return (FloatOfTerm(t1) <= FloatOfTerm(t2));
-  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
-    return (IntegerOfTerm(t1) <= IntegerOfTerm(t2));
-  bt1 = Yap_Eval(t1, &v1);
-  switch (bt1) {
-  case  long_int_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(v1.Int <= v2.Int);
-      case double_e:
-	return(v1.Int <= v2.dbl);
-#ifdef USE_GMP
-      case big_int_e:
-	return(-mpz_cmp_si(v2.big,v1.Int) <= 0);
-#endif
-      default:
-	return(FALSE);
-      }
-    }
-  case double_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(v1.dbl <= v2.Int);
-      case double_e:
-	return(v1.dbl <= v2.dbl);
-#ifdef USE_GMP
-      case big_int_e:
-	return(v1.dbl <= mpz_get_d(v2.big));
-#endif
-      default:
-	return(FALSE);
-      }
-    }
-#ifdef USE_GMP
-  case big_int_e:
-    {
-      union arith_ret v2;
-      blob_type bt2 = Yap_Eval(t2, &v2);
-
-      switch (bt2) {
-      case  long_int_e:
-	return(mpz_cmp_si(v1.big,v2.Int) <= 0);
-      case double_e:
-	return(mpz_get_d(v1.big) <= v2.dbl);
-      case big_int_e:
-	return(mpz_cmp(v1.big,v2.big) <= 0);
-      default:
-	return(FALSE);
-      }
-    }
-#endif
-  default:
-    return(FALSE);
-  }
+  return a_cmp(t1,t2) <= 0;
 }
 
 

@@ -49,9 +49,9 @@ p_setarg(void)
     if (IsIntTerm(ti))
       i = IntOfTerm(ti);
     else {
-      union arith_ret v;
-      if (Yap_Eval(ti, &v) == long_int_e) {
-	i = v.Int;
+      Term te = Yap_Eval(ti);
+      if (IsIntegerTerm(te)) {
+	i = IntegerOfTerm(te);
       } else {
 	Yap_Error(TYPE_ERROR_INTEGER,ti,"setarg/3");
 	return FALSE;

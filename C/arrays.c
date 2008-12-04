@@ -367,11 +367,9 @@ p_access_array(void)
   Int indx;
 
   if (IsNonVarTerm(ti)) {
-    union arith_ret v;
-    if (IsIntTerm(ti))
-      indx = IntOfTerm(ti);
-    else if (Yap_Eval(ti, &v) == long_int_e)
-      indx = v.Int;
+    Term nti;
+    if (IsIntegerTerm(nti=Yap_Eval(ti)))
+      indx = IntegerOfTerm(nti);
     else {
       Yap_Error(TYPE_ERROR_INTEGER,ti,"access_array");
       return (FALSE);
@@ -413,13 +411,11 @@ p_array_arg(void)
   register Int indx;
 
   if (IsNonVarTerm(ti)) {
-    union arith_ret v;
-    if (IsIntTerm(ti))
-      indx = IntOfTerm(ti);
-    else if (Yap_Eval(ti, &v) == long_int_e)
-      indx =  v.Int;
+    Term nti;
+    if (IsIntegerTerm(nti=Yap_Eval(ti)))
+      indx = IntegerOfTerm(nti);
     else {
-      Yap_Error(TYPE_ERROR_INTEGER,ti,"array_arg");
+      Yap_Error(TYPE_ERROR_INTEGER,ti,"access_array");
       return (FALSE);
     }
   }
@@ -793,11 +789,13 @@ p_create_array(void)
   ti = Deref(ARG2);
   t = Deref(ARG1);
   {
-    union arith_ret v;
-    if (IsIntTerm(ti))
-      size = IntOfTerm(ti);
-    else if (Yap_Eval(ti, &v) == long_int_e)
-      size = v.Int;
+    Term nti;
+    if (IsVarTerm(ti)) {
+      Yap_Error(INSTANTIATION_ERROR,ti,"create_array");
+      return (FALSE);
+    }
+    if (IsIntegerTerm(nti=Yap_Eval(ti)))
+      size = IntegerOfTerm(nti);
     else {
       Yap_Error(TYPE_ERROR_INTEGER,ti,"create_array");
       return (FALSE);
@@ -897,13 +895,11 @@ p_create_static_array(void)
   if (IsVarTerm(ti)) {
     Yap_Error(INSTANTIATION_ERROR,ti,"create static array");
     return (FALSE);
-  } else if (IsIntTerm(ti))
-    size = IntOfTerm(ti);
-  else {
-    union arith_ret v;
-    if (Yap_Eval(ti, &v) == long_int_e) {
-      size = v.Int;
-    }
+  } else {
+    Term nti;
+
+    if (IsIntegerTerm(nti=Yap_Eval(ti)))
+      size = IntegerOfTerm(nti);
     else {
       Yap_Error(TYPE_ERROR_INTEGER,ti,"create static array");
       return (FALSE);
@@ -1059,13 +1055,11 @@ p_resize_static_array(void)
   if (IsVarTerm(ti)) {
     Yap_Error(INSTANTIATION_ERROR,ti,"resize a static array");
     return (FALSE);
-  } else if (IsIntTerm(ti))
-    size = IntOfTerm(ti);
-  else {
-    union arith_ret v;
-    if (Yap_Eval(ti, &v) == long_int_e) {
-      size = v.Int;
-    }
+  } else {
+    Term nti;
+
+    if (IsIntegerTerm(nti=Yap_Eval(ti)))
+      size = IntegerOfTerm(nti);
     else {
       Yap_Error(TYPE_ERROR_INTEGER,ti,"resize a static array");
       return (FALSE);
@@ -1293,13 +1287,11 @@ p_create_mmapped_array(void)
   if (IsVarTerm(ti)) {
     Yap_Error(INSTANTIATION_ERROR,ti,"create_mmapped_array");
     return (FALSE);
-  } else if (IsIntTerm(ti))
-    size = IntOfTerm(ti);
-  else {
-    union arith_ret v;
-    if (Yap_Eval(ti, &v) == long_int_e) {
-      size = v.Int;
-    }
+  } else {
+    Term nti;
+
+    if (IsIntegerTerm(nti=Yap_Eval(ti)))
+      size = IntegerOfTerm(nti);
     else {
       Yap_Error(TYPE_ERROR_INTEGER,ti,"create_mmapped_array");
       return (FALSE);
@@ -1583,16 +1575,13 @@ p_assign_static(void)
 
   t2 = Deref(ARG2);
   if (IsNonVarTerm(t2)) {
-    if (IsIntTerm(t2))
-      indx = IntOfTerm(t2);
-    else  {
-      union arith_ret v;
-      if (Yap_Eval(t2, &v) == long_int_e) {
-	indx = v.Int;
-      } else {
-	Yap_Error(TYPE_ERROR_INTEGER,t2,"update_array");
-	return (FALSE);
-      }
+    Term nti;
+
+    if (IsIntegerTerm(nti=Yap_Eval(t2)))
+      indx = IntegerOfTerm(nti);
+    else {
+      Yap_Error(TYPE_ERROR_INTEGER,t2,"update_array");
+      return (FALSE);
     }
   } else {
     Yap_Error(INSTANTIATION_ERROR,t2,"update_array");
@@ -1680,17 +1669,16 @@ p_assign_static(void)
     case array_of_ints:
       {
 	Int i;
-	union arith_ret v;
+	Term nti;
       
 	if (IsVarTerm(t3)) {
 	  WRITE_UNLOCK(ptr->ArRWLock);
 	  Yap_Error(INSTANTIATION_ERROR,t3,"assign_static");
 	  return FALSE;
 	}
-	if (IsIntTerm(t3))
-	  i = IntOfTerm(t3);
-	else if (Yap_Eval(t3, &v) == long_int_e)
-	  i = v.Int;
+
+	if (IsIntegerTerm(nti=Yap_Eval(t3)))
+	  i = IntegerOfTerm(nti);
 	else {
 	  WRITE_UNLOCK(ptr->ArRWLock);
 	  Yap_Error(TYPE_ERROR_INTEGER,t3,"assign_static");
@@ -1703,17 +1691,15 @@ p_assign_static(void)
     case array_of_chars:
       {
 	Int i;
-	union arith_ret v;
+	Term nti;
       
 	if (IsVarTerm(t3)) {
 	  WRITE_UNLOCK(ptr->ArRWLock);
 	  Yap_Error(INSTANTIATION_ERROR,t3,"assign_static");
 	  return FALSE;
 	}
-	if (IsIntTerm(t3))
-	  i = IntOfTerm(t3);
-	else if (Yap_Eval(t3, &v) == long_int_e)
-	  i = v.Int;
+	if (IsIntegerTerm(nti=Yap_Eval(t3)))
+	  i = IntegerOfTerm(nti);
 	else {
 	  Yap_Error(TYPE_ERROR_INTEGER,t3,"assign_static");
 	  return (FALSE);
@@ -1730,17 +1716,15 @@ p_assign_static(void)
     case array_of_uchars:
       {
 	Int i;
-	union arith_ret v;
+	Term nti;
       
 	if (IsVarTerm(t3)) {
 	  WRITE_UNLOCK(ptr->ArRWLock);
 	  Yap_Error(INSTANTIATION_ERROR,t3,"assign_static");
 	  return FALSE;
 	}
-	if (IsIntTerm(t3))
-	  i = IntOfTerm(t3);
-	else if (Yap_Eval(t3, &v) == long_int_e)
-	  i = v.Int;
+	if (IsIntegerTerm(nti=Yap_Eval(t3)))
+	  i = IntegerOfTerm(nti);
 	else {
 	  WRITE_UNLOCK(ptr->ArRWLock);
 	  Yap_Error(TYPE_ERROR_INTEGER,t3,"assign_static");
@@ -1758,17 +1742,17 @@ p_assign_static(void)
     case array_of_doubles:
       {
 	Float f;
-	union arith_ret v;
+	Term nti;
 
 	if (IsVarTerm(t3)) {
 	  WRITE_UNLOCK(ptr->ArRWLock);
 	  Yap_Error(INSTANTIATION_ERROR,t3,"assign_static");
 	  return FALSE;
 	}
-	if (IsFloatTerm(t3))
-	  f = FloatOfTerm(t3);
-	else if (Yap_Eval(t3, &v) == double_e)
-	  f = v.dbl;
+	if (IsFloatTerm(nti=Yap_Eval(t3)))
+	  f = FloatOfTerm(nti);
+	else if (IsIntegerTerm(nti))
+	  f = IntegerOfTerm(nti);
 	else {
 	  WRITE_UNLOCK(ptr->ArRWLock);
 	  Yap_Error(TYPE_ERROR_FLOAT,t3,"assign_static");
@@ -1923,16 +1907,12 @@ p_assign_dynamic(void)
 
   t2 = Deref(ARG2);
   if (IsNonVarTerm(t2)) {
-    if (IsIntTerm(t2))
-      indx = IntOfTerm(t2);
-    else  {
-      union arith_ret v;
-      if (Yap_Eval(t2, &v) == long_int_e) {
-	indx = v.Int;
-      } else {
-	Yap_Error(TYPE_ERROR_INTEGER,t2,"update_array");
-	return (FALSE);
-      }
+    Term nti;
+    if (IsIntegerTerm(nti=Yap_Eval(t2))) {
+      indx = IntegerOfTerm(nti);
+    } else {
+      Yap_Error(TYPE_ERROR_INTEGER,t2,"update_array");
+      return (FALSE);
     }
   } else {
     Yap_Error(INSTANTIATION_ERROR,t2,"update_array");
@@ -2067,16 +2047,12 @@ p_add_to_array_element(void)
 
   t2 = Deref(ARG2);
   if (IsNonVarTerm(t2)) {
-    if (IsIntTerm(t2))
-      indx = IntOfTerm(t2);
-    else  {
-      union arith_ret v;
-      if (Yap_Eval(t2, &v) == long_int_e) {
-	indx = v.Int;
-      } else {
-	Yap_Error(TYPE_ERROR_INTEGER,t2,"add_to_array_element");
-	return (FALSE);
-      }
+    Term nti;
+    if (IsIntegerTerm(nti=Yap_Eval(t2))) {
+      indx = IntegerOfTerm(nti);
+    } else {
+      Yap_Error(TYPE_ERROR_INTEGER,t2,"add_to_array_element");
+      return (FALSE);
     }
   } else {
     Yap_Error(INSTANTIATION_ERROR,t2,"add_to_array_element");
