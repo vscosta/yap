@@ -1346,7 +1346,7 @@ mark_variable(CELL_PTR current)
 	POP_CONTINUATION();
       case (CELL)FunctorBigInt:
 	{
-	  UInt sz = (sizeof(MP_INT)+1+
+	  UInt sz = (sizeof(MP_INT)+CellSize+
 		     ((MP_INT *)(next+2))->_mp_alloc*sizeof(mp_limb_t))/CellSize;
 	  MARK(next);
 	  /* size is given by functor + friends */

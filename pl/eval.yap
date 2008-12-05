@@ -1,13 +1,11 @@
-:- style_check(all).
-:- yap_flag(unknown,error).
-:- source.
 
-:- module('$eval',
-	  [compile_arithmetic/2]).
+:- module('eval',
+	  ['$compile_arithmetic'/2]).
 
 '$compile_arithmetic'((Head :- Body), (Head :- NBody)) :-
 	term_variables(Head, LVs),
 	process_body(Body, LVs, NBody).
+'$compile_arithmetic'(G, G).
 
 process_body((G,Body), InputVs, NewBody) :-
 	arithmetic_exp(G), !,
@@ -507,7 +505,7 @@ compile_op(fdiv(x(A),F,x(B)), fdiv_c1(A,B,F)) :- float(F), !.
 compile_op(fdiv(x(A),I,x(B)), fdiv_c1(A,B,F)) :- integer(I), !, F is truncate(I).
 compile_op(fdiv(x(A),x(B),F), fdiv_c2(A,B,F)) :- float(F), !.
 compile_op(fdiv(x(A),x(B),I), fdiv_c2(A,B,F)) :- integer(I), !, F is truncate(I).
-`compile_op(fdiv(x(A),x(B),x(C)), fdiv(A,B,C)).
+compile_op(fdiv(x(A),x(B),x(C)), fdiv(A,B,C)).
 compile_op(idiv(x(A),I,x(B)), idiv_c1(A,B,I)) :- integer(I), !.
 compile_op(idiv(x(A),x(B),I), idiv_c2(A,B,I)) :- integer(I), !.
 compile_op(idiv(x(A),x(B),x(C)), idiv(A,B,C)).
@@ -580,3 +578,4 @@ compile_op(msb(x(A),x(B)), msb(A,B)).
 compile_op(random(x(A),x(B)), random(A,B)).
 compile_op(lgamma(x(A),x(B)), lgamma(A,B)).
 */
+

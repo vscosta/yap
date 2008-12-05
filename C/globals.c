@@ -50,13 +50,13 @@ static char SccsId[] = "%W% %G%";
 static UInt
 big2arena_sz(CELL *arena_base)
 {
-  return ((MP_INT*)(arena_base+1))->_mp_alloc + (sizeof(MP_INT) + sizeof(Functor)+sizeof(CELL))/sizeof(CELL);
+  return ((MP_INT*)(arena_base+2))->_mp_alloc + (sizeof(MP_INT) + sizeof(Functor)+2*sizeof(CELL))/sizeof(CELL);
 }
 
 static UInt
 arena2big_sz(UInt sz)
 {
-  return sz - (sizeof(MP_INT) + sizeof(Functor) + sizeof(CELL))/sizeof(CELL);
+  return sz - (sizeof(MP_INT) + sizeof(Functor) + 2*sizeof(CELL))/sizeof(CELL);
 }
 
 
@@ -85,16 +85,16 @@ ArenaSz(Term arena)
 static Term
 CreateNewArena(CELL *ptr, UInt size)
 {
-    Term t = AbsAppl(ptr);
-    MP_INT *dst;
+  Term t = AbsAppl(ptr);
+  MP_INT *dst;
 
-    ptr[0] = (CELL)FunctorBigInt;
-    ptr[1] = EMPTY_ARENA;
-    dst = (MP_INT *)(ptr+2);
-    dst->_mp_size = 0L;
-    dst->_mp_alloc = arena2big_sz(size);
-    ptr[size-1] = EndSpecials;
-    return t;
+  ptr[0] = (CELL)FunctorBigInt;
+  ptr[1] = EMPTY_ARENA;
+  dst = (MP_INT *)(ptr+2);
+  dst->_mp_size = 0L;
+  dst->_mp_alloc = arena2big_sz(size);
+  ptr[size-1] = EndSpecials;
+  return t;
 }
 
 #if COROUTINING

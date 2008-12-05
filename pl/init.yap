@@ -48,7 +48,7 @@ otherwise.
 
 :- compile_expressions.
 
-:- [	 'eval.yap',
+:- [
    	 'yio.yap',
 	 'debug.yap',
 	 'checker.yap',
@@ -60,6 +60,8 @@ otherwise.
 	 % modules must be after preds, otherwise we will have trouble
 	 % with meta-predicate expansion being invoked
 	 'modules.yap',
+	 % must follow grammar
+	 'eval.yap',
 	 'signals.yap',
 	 'profile.yap',
 	 'callcount.yap',
