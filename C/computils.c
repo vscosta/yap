@@ -107,33 +107,53 @@ Yap_AllocCMem (int size, struct intermediates *cip)
   return(AllocCMem(size, cip));
 }
 
-int
-Yap_is_a_test_pred (Term arg, Term mod)
+static int
+is_a_test(Term arg, Term mod)
 {
   if (IsVarTerm (arg)) {
     return FALSE;
-  } else if (IsAtomTerm (arg)) {
+  }
+  if (IsVarTerm (arg) || !IsAtomTerm(mod)) {
+    return FALSE;
+  }
+  if (IsAtomTerm (arg)) {
       Atom At = AtomOfTerm (arg);
       PredEntry *pe = RepPredProp(PredPropByAtom(At, mod));
       if (EndOfPAEntr(pe))
 	return FALSE;
       return pe->PredFlags & TestPredFlag;
-  } else if (IsApplTerm (arg)) {
-    Functor f = FunctorOfTerm (arg);
-    PredEntry *pe = RepPredProp(PredPropByFunc(f, mod));
-    if (EndOfPAEntr(pe))
-      return FALSE;
-    if (pe->PredFlags & AsmPredFlag) {
-      int op = pe->PredFlags & 0x7f;
-      if (op >= _atom && op <= _eq) {
-	return TRUE;
-      }
-      return FALSE;
-    }      
-    return pe->PredFlags & (TestPredFlag|BinaryTestPredFlag);
-  } else {
-    return FALSE;
   }
+  if (IsApplTerm (arg)) {
+    Functor f = FunctorOfTerm (arg);
+
+    if (f == FunctorModule) {
+      return is_a_test(ArgOfTerm(2,arg), ArgOfTerm(1,arg));
+    } else if (f == FunctorComma) {
+      return
+	is_a_test(ArgOfTerm(1,arg), mod) &&
+	is_a_test(ArgOfTerm(2,arg), mod);
+    } else {
+      PredEntry *pe = RepPredProp(PredPropByFunc(f, mod));
+
+      if (EndOfPAEntr(pe))
+	return FALSE;
+      if (pe->PredFlags & AsmPredFlag) {
+	int op = pe->PredFlags & 0x7f;
+	if (op >= _atom && op <= _eq) {
+	  return TRUE;
+	}
+	return FALSE;
+      }      
+      return pe->PredFlags & (TestPredFlag|BinaryTestPredFlag);
+    }
+  }
+  return FALSE;
+}
+
+int
+Yap_is_a_test_pred (Term arg, Term mod)
+{
+  return is_a_test(arg, mod);
 }
 
 void
@@ -709,7 +729,6 @@ static char *opformat[] =
   "prepare_tries",
   "std_base_op %1,%4",
   "direct_safe_call",
-  "commit_op",
   "skip_while_var_op",
   "wait_while_var_op",
   "force_wait_op",

@@ -108,7 +108,6 @@ typedef enum compiler_op {
   if_nonvar_op,
   save_pair_op,
   save_appl_op,
-  commit_opt_op,
   unify_local_op,
   write_local_op,
   unify_last_list_op,

@@ -211,7 +211,6 @@ typedef struct cmp_op_info_struct {
 
 typedef struct clause_info_struct {
   int alloc_found, dealloc_found;
-  CELL commit_lab;
   struct pred_entry *CurrentPred;
 } clause_info;
 
@@ -537,6 +536,16 @@ a_ue(op_numbers opcode, op_numbers opcodew, yamop *code_p, int pass_no)
   }
   GONEXT(o);
   return code_p;
+}
+
+inline static yamop *
+emit_fail(struct intermediates *cip)
+{
+  if (cip->failure_handler) {
+    return emit_a(Unsigned(cip->code_addr) + cip->label_offset[cip->failure_handler]);
+  } else {
+    return FAILCODE;
+  }
 }
 
 inline static yamop *
@@ -1430,9 +1439,9 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
       longjmp(cip->CompilerBotch, 1);
     }
     if (is_test) {
-      if (clinfo->commit_lab) {
-	UInt lab = clinfo->commit_lab;
-	clinfo->commit_lab = 0;
+      UInt lab;
+
+      if ((lab = cip->failure_handler)) {
 	return a_l(lab, op, code_p, pass_no, cip);
       } else {
 	return a_il((CELL)FAILCODE, op, code_p, pass_no, cip);
@@ -1444,7 +1453,7 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
   if (Flags & CPredFlag &&
       opcode == _call) {
     code_p = check_alloc(clinfo, code_p, pass_no, cip);
-    if (clinfo->commit_lab && (Flags & TestPredFlag)) {
+    if (cip->failure_handler && (Flags & TestPredFlag)) {
       if (pass_no) {
 	if (Flags & UserCPredFlag) {
 	  Yap_Error(INTERNAL_COMPILER_ERROR, TermNil,
@@ -1455,13 +1464,11 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
 	  code_p->opc = emit_op(_call_c_wfail);
 	code_p->u.slp.s =
 	  emit_count(-Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2);
-	code_p->u.slp.l =
-	  emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
+	code_p->u.slp.l =  emit_fail(cip);
 	code_p->u.slp.p =
 	  emit_pe(RepPredProp(fe));
       }
       GONEXT(slp);
-      clinfo->commit_lab = 0;
     } else {
       if (pass_no) {
 	if (Flags & UserCPredFlag) {
@@ -1638,33 +1645,21 @@ a_bfunc(CELL pred, clause_info *clinfo, yamop *code_p, int pass_no, struct inter
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_yy);
 	code_p->u.plyys.p = RepPredProp(((Prop)pred));
-	if (clinfo->commit_lab) {
-	  code_p->u.plyys.f = 
-	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
-	} else {
-	  code_p->u.plyys.f = FAILCODE;
-	}
+	code_p->u.plyys.f = emit_fail(cip);
 	code_p->u.plyys.y1 = v1;
 	code_p->u.plyys.y2 = emit_yreg(var_offset);
 	code_p->u.plyys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
-      clinfo->commit_lab = 0;
       GONEXT(plyys);
     } else {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_yx);
 	code_p->u.plxys.p = RepPredProp(((Prop)pred));
-	if (clinfo->commit_lab) {
-	  code_p->u.plxys.f = 
-	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
-	} else {
-	  code_p->u.plxys.f = FAILCODE;
-	}
+	code_p->u.plxys.f = emit_fail(cip);
 	code_p->u.plxys.x = emit_xreg(var_offset);
 	code_p->u.plxys.y = v1;
 	code_p->u.plxys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
-      clinfo->commit_lab = 0;
       GONEXT(plxys);
     }
   } else {
@@ -1679,33 +1674,21 @@ a_bfunc(CELL pred, clause_info *clinfo, yamop *code_p, int pass_no, struct inter
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_xy);
 	code_p->u.plxys.p = RepPredProp(((Prop)pred));
-	if (clinfo->commit_lab) {
-	  code_p->u.plxys.f = 
-	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
-	} else {
-	  code_p->u.plxys.f = FAILCODE;
-	}
+	code_p->u.plxys.f = emit_fail(cip);
 	code_p->u.plxys.x = x1;
 	code_p->u.plxys.y = emit_yreg(var_offset);
 	code_p->u.plxys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
-      clinfo->commit_lab = 0;
       GONEXT(plxys);
     } else {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_xx);
 	code_p->u.plxxs.p = RepPredProp(((Prop)pred));
-	if (clinfo->commit_lab) {
-	  code_p->u.plxxs.f = 
-	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
-	} else {
-	  code_p->u.plxxs.f = FAILCODE;
-	}
+	code_p->u.plxxs.f = emit_fail(cip);
 	code_p->u.plxxs.x1 = x1;
 	code_p->u.plxxs.x2 = emit_xreg(var_offset);
 	code_p->u.plxxs.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
-      clinfo->commit_lab = 0;
       GONEXT(plxxs);
     }
   }
@@ -2521,14 +2504,8 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = opcode(_p_primitive_y);
 	  break;
 	}
-	if (cmp_info->cl_info->commit_lab) {
-	  code_p->u.yl.F = 
-	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[cmp_info->cl_info->commit_lab]);
-	} else {
-	  code_p->u.yl.F = FAILCODE;
-	}
+	code_p->u.yl.F = emit_fail(cip);
       }
-      cmp_info->cl_info->commit_lab = 0;
       GONEXT(yl);
       return code_p;
     } else {
@@ -2569,14 +2546,8 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = opcode(_p_primitive_x);
 	  break;
 	}
-	if (cmp_info->cl_info->commit_lab) {
-	  code_p->u.xl.F = 
-	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[cmp_info->cl_info->commit_lab]);
-	} else {
-	  code_p->u.xl.F = FAILCODE;
-	}
+	code_p->u.xl.F = emit_fail(cip);
       }
-      cmp_info->cl_info->commit_lab = 0;
       GONEXT(xl);
       return code_p;
     }
@@ -2925,20 +2896,38 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 static yamop *
 a_special_label(yamop *code_p, int pass_no, struct intermediates *cip)
 {
-  special_label_id lab_id = cip->cpc->rnd1;
-  UInt             lab_val = cip->cpc->rnd2;
+  special_label_op lab_op = cip->cpc->rnd1;
+  special_label_id lab_id = cip->cpc->rnd2;
+  UInt             lab_val = cip->cpc->rnd3;
 
-  switch (lab_id) {
-  case SPECIAL_LABEL_EXCEPTION:
-    cip->exception_handler = lab_val;
+  switch (lab_op) {
+  case SPECIAL_LABEL_INIT:
+    switch (lab_id) {
+    case SPECIAL_LABEL_EXCEPTION:
+      cip->exception_handler = lab_val;
+      break;
+    case SPECIAL_LABEL_SUCCESS:
+      cip->success_handler = lab_val;
+      break;
+    case SPECIAL_LABEL_FAILURE:
+      cip->failure_handler = lab_val;
+      break;
+    }
+  case SPECIAL_LABEL_SET:
     break;
-  case SPECIAL_LABEL_SUCCESS:
-    cip->success_handler = lab_val;
-    break;
-  case SPECIAL_LABEL_FAILURE:
-    cip->failure_handler = lab_val;
-    break;
-  }
+  case SPECIAL_LABEL_CLEAR:
+    switch (lab_id) {
+    case SPECIAL_LABEL_EXCEPTION:
+      cip->exception_handler = 0;
+      break;
+    case SPECIAL_LABEL_SUCCESS:
+      cip->success_handler = 0;
+      break;
+    case SPECIAL_LABEL_FAILURE:
+      cip->failure_handler = 0;
+      break;
+    }
+  }    
   return code_p;
 }
 
@@ -2975,7 +2964,6 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
   cip->cpc = cip->CodeStart;
   clinfo.alloc_found = 0;
   clinfo.dealloc_found = FALSE;
-  clinfo.commit_lab = 0L;
   clinfo.CurrentPred = cip->CurrentPred;
   cip->current_try_lab = NULL;
   cip->exception_handler = 0;
@@ -3779,9 +3767,6 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	ystop_found = TRUE;
       }
       code_p = a_bregs(code_p, pass_no, cip->cpc);
-      break;
-    case commit_opt_op:
-      clinfo.commit_lab = cip->cpc->rnd1;
       break;
     case fetch_args_vv_op:
       a_fetch_vv(&cmp_info, pass_no, cip);

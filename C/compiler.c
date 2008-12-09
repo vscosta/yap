@@ -649,9 +649,9 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
   if (IsVarTerm(t))
     c_var(t, argno, arity, level, cglobs);
   else if (IsAtomTerm(t)) {
-    if (level == 0)
+    if (level == 0) {      
       Yap_emit((cglobs->onhead ? get_atom_op : put_atom_op), (CELL) t, argno, &cglobs->cint);
-    else
+    } else
       Yap_emit((cglobs->onhead ? (argno == (Int)arity ? unify_last_atom_op
 		      : unify_atom_op) :
 	    write_atom_op), (CELL) t, Zero, &cglobs->cint);
@@ -870,6 +870,7 @@ c_eq(Term t1, Term t2, compiler_struct *cglobs)
       }
     }
   }
+  /* first argument is an unbound var */
   c_var(t1, 0, 0, 0, cglobs);
   cglobs->onhead = TRUE;
   if (IsVarTerm(t2)) {
@@ -1399,7 +1400,7 @@ emit_special_label(Term Goal, compiler_struct *cglobs)
       cglobs->cint.failure_handler = label_name;
       break;
     }
-    Yap_emit(label_ctl_op, lab_op, label_name, &cglobs->cint);
+    Yap_emit_3ops(label_ctl_op, lab_op, lab_id, label_name, &cglobs->cint);
     break;
   case SPECIAL_LABEL_SET:
     switch (lab_id) {
@@ -1598,8 +1599,9 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 	     * let them think they are still the
 	     * first 
 	     */
-	    Yap_emit(commit_opt_op, l, Zero, &cglobs->cint);
+	    //	    Yap_emit(commit_opt_op, l, Zero, &cglobs->cint);
 	    optimizing_commit = TRUE;
+	    Yap_emit_3ops(label_ctl_op, SPECIAL_LABEL_INIT, SPECIAL_LABEL_FAILURE, l, &cglobs->cint);
 	  }
 	  else {
 	    optimizing_commit = FALSE;
@@ -1656,6 +1658,8 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 	  if (!optimizing_commit) {
 	    c_var((Term) commitvar, commit_b_flag,
 		  1, 0, cglobs);
+	  } else {
+	    Yap_emit_3ops(label_ctl_op, SPECIAL_LABEL_CLEAR, SPECIAL_LABEL_FAILURE, l, &cglobs->cint);
 	  }
 	  cglobs->onlast = save;
 	  c_goal(ArgOfTerm(2, arg), mod, cglobs);
@@ -1666,6 +1670,8 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 	}
 	if (!cglobs->onlast) {
 	  Yap_emit(jump_op, m, Zero, &cglobs->cint);
+	} else {
+	  
 	}
 	if (!optimizing_commit || !cglobs->onlast) {
 	  cglobs->goalno = savegoalno + 1;
