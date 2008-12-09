@@ -136,7 +136,56 @@ typedef enum {
   _sll,
   _slr,
   _arg,
-  _functor
+  _functor,
+  _p_put_fi,
+  _p_put_i,
+  _p_put_f,
+  _p_a_eq_float,
+  _p_a_eq_int,
+  _p_a_eq,
+  _p_ltc_float,
+  _p_ltc_int,
+  _p_lt,
+  _p_gtc_float,
+  _p_gtc_int,
+  _p_get_fi,
+  _p_get_i,
+  _p_get_f,
+  _p_add_float_c,
+  _p_add_int_c,
+  _p_add,
+  _p_sub_float_c,
+  _p_sub_int_c,
+  _p_sub,
+  _p_mul_float_c,
+  _p_mul_int_c,
+  _p_mul,
+  _p_fdiv_c1,
+  _p_fdiv_c2,
+  _p_fdiv,
+  _p_idiv_c1,
+  _p_idiv_c2,
+  _p_idiv,
+  _p_mod_c1,
+  _p_mod_c2,
+  _p_mod,
+  _p_rem_c1,
+  _p_rem_c2,
+  _p_rem,
+  _p_land_c,
+  _p_land,
+  _p_lor_c,
+  _p_lor,
+  _p_xor_c,
+  _p_xor,
+  _p_uminus,
+  _p_sr_c1,
+  _p_sr_c2,
+  _p_sr,
+  _p_sl_c1,
+  _p_sl_c2,
+  _p_sl,
+  _p_label_ctl
 } basic_preds;
 
 #if USE_THREADED_CODE
@@ -471,11 +520,75 @@ typedef struct yami {
     } sc;
     struct {
       COUNT               s;
-      CPredicate          d;
+      CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
+      struct yami        *F;
+      struct yami        *T;
+      CELL next;
+    } sdll;
+    struct {
+      COUNT               s;
       struct yami        *l;
       struct pred_entry  *p;
       CELL next;
-    } sdlp;
+    } slp;
+    struct {
+      COUNT               s;
+      Int                 I;
+      struct yami        *F;
+      struct yami        *T;
+      CELL next;
+    } snll;
+    struct {
+      COUNT               s0;
+      COUNT               s1;
+      CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
+      CELL next;
+    } ssd;
+    struct {
+      COUNT               s0;
+      COUNT               s1;
+      Int		  n;
+      CELL next;
+    } ssn;
+    struct {
+      COUNT               s0;
+      COUNT               s1;
+      COUNT               s2;
+      CELL next;
+    } sss;
+    struct {
+      COUNT               s1;
+      COUNT               s2;
+      struct yami        *F;
+      struct yami        *T;
+      CELL next;
+    } ssll;
+    struct {
+      COUNT               s;
+      wamreg              x;
+      struct yami        *l;
+      CELL next;
+    } sxl;
+    struct {
+      COUNT               s;
+      wamreg              x;
+      struct yami        *F;
+      struct yami        *T;
+      CELL next;
+    } sxll;
+    struct {
+      COUNT               s;
+      yslot               y;
+      struct yami        *l;
+      CELL next;
+    } syl;
+    struct {
+      COUNT               s;
+      yslot               y;
+      struct yami        *F;
+      struct yami        *T;
+      CELL next;
+    } syll;
     /* the next 3 instructions must have same size and have fields in same order! */
     /* also check env for yes and trustfail code before making any changes */
     /* last, Osblp is known to the buildops script */

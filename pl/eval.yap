@@ -97,7 +97,7 @@ compile_arith(LGs, InputVs, ExtraVs, Gs, ArithComp) :-
 	FlatExps = [_,_|_],
 	alloc_regs(NewTypedVs,0,Regs),
 	Regs < 32,
-	compile_ops(FlatExps, Gs, ArithComp), !.
+	compile_ops([init_label(exception_label),init_label(success_label)|FlatExps], Gs, ArithComp), !.
 compile_arith(_, _, _, Gs, Gs).
 
 add_type_slots([],[]).
@@ -107,8 +107,12 @@ add_type_slots([V|ExpVs],[t(V,_,_)|TypesVs]) :-
 visit([], TypedVs, TypedVs, _) --> [].
 visit([Exp|Exps], TypedVs, NewTypedVs, ExtraVs) -->
 	visit_pred(Exp, TypedVs, ITypedVs, ExtraVs),
+	add_success_label(Exps),
 	visit(Exps, ITypedVs, NewTypedVs, ExtraVs).
-	
+
+add_success_label([]) --> [].
+add_success_label([_|_]) --> [set_label(success_label)].
+
 visit_pred((X is _), _, _, _) -->
 	{ nonvar(X) }, !,
 	{ fail }.
@@ -126,7 +130,7 @@ visit_pred((X is T), TypedVs, ExtraTypedVs, LeftBodyVars) -->
         ),        
 	% final code
 	( { vmember(X, LeftBodyVars)  } ->
-	    [export(TMP,X,Type)]
+	    [init_label(success_label), export(TMP,X,Type)]
 	;
 	    []
 	).
@@ -136,21 +140,21 @@ visit_pred((X =:= T), TypedVs, NewTypedVs, _) -->
 	visit_exp(T, ITypedVs, NewTypedVs, TMP2, Type),
 	% assign the type to X, if any
 	% final code
-	[eq(TMP1,TMP2)].
+	[init_label(success_label), eq(TMP1,TMP2)].
 visit_pred((X < T), TypedVs, NewTypedVs, _) -->
 	% check the expression
 	visit_exp(X, TypedVs, ITypedVs, TMP1, Type),
 	visit_exp(T, ITypedVs, NewTypedVs, TMP2, Type),
 	% assign the type to X, if any
 	% final code
-	[lt(TMP1,TMP2)].
+	[init_label(success_label), lt(TMP1,TMP2)].
 visit_pred((X > T), TypedVs, NewTypedVs, _) -->
 	% check the expression
 	visit_exp(X, TypedVs, ITypedVs, TMP1, Type),
 	visit_exp(T, ITypedVs, NewTypedVs, TMP2, Type),
 	% assign the type to X, if any
 	% final code
-	[lt(TMP2,TMP1)].
+	[init_label(success_label), lt(TMP2,TMP1)].
 
 visit_exp(V, TypedVs, TypedVs, TMP, Type) -->
 	{ 
@@ -466,72 +470,89 @@ alloc_regs([t(_,_,x(R0))|NewTypedVs], R0, RF) :- !,
 alloc_regs([t(_,_,x(_))|NewTypedVs], R0, RF) :-
 	alloc_regs(NewTypedVs, R0, RF).
 
-compile_ops([], Gs, '$escape'(Gs)).
+compile_ops([], Gs, Tail) :-
+	compile_tail(Gs, Tail).
 compile_ops([Op|Exps], Gs, (COp,More)) :-
 	compile_op(Op , COp),
 	compile_ops(Exps, Gs, More).
 
-compile_op(export(x(A),V,any), get_opres(A,V)) :- !.
-compile_op(export(x(A),V,int), get_opres_int(A,V)).
-compile_op(export(x(A),V,float), get_opres_float(A,V)).
-compile_op(eq(x(A),F), eqc_float(A,F)) :- float(F), !.
-compile_op(eq(x(A),I), eqc_int(A,I)) :- integer(I), !.
-compile_op(eq(x(A),x(B)), eq(A,B)).
-compile_op(lt(x(A),F), ltc_float(A,F)) :-  float(F), !.
-compile_op(lt(x(A),I), ltc_int(A,I)) :- integer(I), !.
-compile_op(lt(F,x(A)), gtc_float(A,F)) :-  float(F), !.
-compile_op(lt(I,x(A)), gtc_int(A,I)) :- integer(I), !.
-compile_op(lt(x(A),x(B)), lt(A,B)).
-compile_op(get(x(A),V,any), get_opinp(A,V)) :- !.
-compile_op(get(x(A),V,int), get_opinp_int(A,V)) :- !.
-compile_op(get(x(A),V,float), get_opinp_float(A,V)).
-compile_op(zerop(x(A),Op), zerop(A,Op)).
-compile_op(add(x(A),F,x(B)), add_float_c(A,B,F)) :- float(F), !.
-compile_op(add(x(A),I,x(B)), add_int_c(A,B,I)) :- integer(I), !.
-compile_op(add(x(A),x(B),F), add_float_c(A,B,F)) :- float(F), !.
-compile_op(add(x(A),x(B),I), add_int_c(A,B,I)) :- integer(I), !.
-compile_op(add(x(A),x(B),x(C)), add(A,B,C)).
-compile_op(sub(x(A),F,x(B)), sub_float_c(A,B,F)) :- float(F), !.
-compile_op(sub(x(A),I,x(B)), sub_int_c(A,B,I)) :- integer(I), !.
-compile_op(sub(x(A),x(B),F), add_float_c(A,B,F1)) :- float(F), !, F1 is -F.
-compile_op(sub(x(A),x(B),I), add_int_c(A,B,I1)) :- integer(I), !, I1 is -I.
-compile_op(sub(x(A),x(B),x(C)), sub(A,B,C)).
-compile_op(mul(x(A),F,x(B)), mul_float_c(A,B,F)) :- float(F), !.
-compile_op(mul(x(A),I,x(B)), mul_int_c(A,B,I)) :- integer(I), !.
-compile_op(mul(x(A),x(B),F), mul_float_c(A,B,F)) :- float(F), !.
-compile_op(mul(x(A),x(B),I), mul_int_c(A,B,I)) :- integer(I), !.
-compile_op(mul(x(A),x(B),x(C)), mul(A,B,C)).
-compile_op(fdiv(x(A),F,x(B)), fdiv_c1(A,B,F)) :- float(F), !.
-compile_op(fdiv(x(A),I,x(B)), fdiv_c1(A,B,F)) :- integer(I), !, F is truncate(I).
-compile_op(fdiv(x(A),x(B),F), fdiv_c2(A,B,F)) :- float(F), !.
-compile_op(fdiv(x(A),x(B),I), fdiv_c2(A,B,F)) :- integer(I), !, F is truncate(I).
-compile_op(fdiv(x(A),x(B),x(C)), fdiv(A,B,C)).
-compile_op(idiv(x(A),I,x(B)), idiv_c1(A,B,I)) :- integer(I), !.
-compile_op(idiv(x(A),x(B),I), idiv_c2(A,B,I)) :- integer(I), !.
-compile_op(idiv(x(A),x(B),x(C)), idiv(A,B,C)).
-compile_op(mod(x(A),I,x(B)), mod_c1(A,B,I)) :- integer(I), !.
-compile_op(mod(x(A),x(B),I), mod_c2(A,B,I)) :- integer(I), !.
-compile_op(mod(x(A),x(B),x(C)), mod(A,B,C)).
-compile_op(rem(x(A),I,x(B)), rem_c1(A,B,I)) :- integer(I), !.
-compile_op(rem(x(A),x(B),I), rem_c2(A,B,I)) :- integer(I), !.
-compile_op(rem(x(A),x(B),x(C)), rem(A,B,C)).
-compile_op(and(x(A),I,x(B)), and_c(A,B,I)) :- integer(I), !.
-compile_op(and(x(A),x(B),I), and_c(A,B,I)) :- integer(I), !.
-compile_op(and(x(A),x(B),x(C)), and(A,B,C)).
-compile_op(or(x(A),I,x(B)), or_c(A,B,I)) :- integer(I), !.
-compile_op(or(x(A),x(B),I), or_c(A,B,I)) :- integer(I), !.
-compile_op(or(x(A),x(B),x(C)), or(A,B,C)).
-compile_op(xor(x(A),I,x(B)), xor_c(A,B,I)) :- integer(I), !.
-compile_op(xor(x(A),x(B),I), xor_c(A,B,I)) :- integer(I), !.
-compile_op(xor(x(A),x(B),x(C)), xor(A,B,C)).
-compile_op(uminus(x(A),x(B)), uminus(A,B)).
-compile_op(sr(x(A),I,x(B)), sr_c1(A,B,I)) :- integer(I), !.
-compile_op(sr(x(A),x(B),I), sr_c2(A,B,I)) :- integer(I), !.
-compile_op(sr(x(A),x(B),x(C)), sr(A,B,C)).
-compile_op(sl(x(A),I,x(B)), sl_c1(A,B,I)) :- integer(I), !.
-compile_op(sl(x(A),x(B),I), sl_c2(A,B,I)) :- integer(I), !.
-compile_op(sl(x(A),x(B),x(C)), sl(A,B,C)).
+compile_tail(Gs,(E1,Gs,E2,E3,E4)) :-
+	compile_op(set_label(exception_label),E1),
+	compile_op(set_label(success_label),E2),
+	compile_op(clear_label(exception_label),E3),
+	compile_op(clear_label(success_label),E4).
+
+
+compile_op(init_label(exception_label), '$label_ctl'(0,2)).
+compile_op(init_label(fail_label), '$label_ctl'(0,1)).
+compile_op(init_label(success_label), '$label_ctl'(0,0)).
+compile_op(set_label(exception_label), '$label_ctl'(1,2)).
+compile_op(set_label(fail_label), '$label_ctl'(1,1)).
+compile_op(set_label(success_label), '$label_ctl'(1,0)).
+compile_op(clear_label(exception_label), '$label_ctl'(2,2)).
+compile_op(clear_label(fail_label), '$label_ctl'(2,1)).
+compile_op(clear_label(success_label), '$label_ctl'(2,0)).
+compile_op(export(x(A),V,any), '$put_fi'(A,V)) :- !.
+compile_op(export(x(A),V,int), '$put_i'(A,V)).
+compile_op(export(x(A),V,float), '$put_f'(A,V)).
+compile_op(eq(x(A),F), '$a_eq_float'(A,F)) :- float(F), !.
+compile_op(eq(x(A),I), '$a_eq_int'(A,I)) :- integer(I), !.
+compile_op(eq(x(A),x(B)), '$a_eq'(A,B)).
+compile_op(lt(x(A),F), '$ltc_float'(A,F)) :-  float(F), !.
+compile_op(lt(x(A),I), '$ltc_int'(A,I)) :- integer(I), !.
+compile_op(lt(F,x(A)), '$gtc_float'(A,F)) :-  float(F), !.
+compile_op(lt(I,x(A)), '$gtc_int'(A,I)) :- integer(I), !.
+compile_op(lt(x(A),x(B)), '$lt'(A,B)).
+compile_op(get(x(A),V,any), '$get_fi'(A,V)) :- !.
+compile_op(get(x(A),V,int), '$get_i'(A,V)) :- !.
+compile_op(get(x(A),V,float), '$get_f'(A,V)).
+compile_op(add(x(A),F,x(B)), '$add_float_c'(A,B,F)) :- float(F), !.
+compile_op(add(x(A),I,x(B)), '$add_int_c'(A,B,I)) :- integer(I), !.
+compile_op(add(x(A),x(B),F), '$add_float_c'(A,B,F)) :- float(F), !.
+compile_op(add(x(A),x(B),I), '$add_int_c'(A,B,I)) :- integer(I), !.
+compile_op(add(x(A),x(B),x(C)), '$add'(A,B,C)).
+compile_op(sub(x(A),F,x(B)), '$sub_float_c'(A,B,F)) :- float(F), !.
+compile_op(sub(x(A),I,x(B)), '$sub_int_c'(A,B,I)) :- integer(I), !.
+compile_op(sub(x(A),x(B),F), '$add_float_c'(A,B,F1)) :- float(F), !, F1 is -F.
+compile_op(sub(x(A),x(B),I), '$add_int_c'(A,B,I1)) :- integer(I), !, I1 is -I.
+compile_op(sub(x(A),x(B),x(C)), '$sub'(A,B,C)).
+compile_op(mul(x(A),F,x(B)), '$mul_float_c'(A,B,F)) :- float(F), !.
+compile_op(mul(x(A),I,x(B)), '$mul_int_c'(A,B,I)) :- integer(I), !.
+compile_op(mul(x(A),x(B),F), '$mul_float_c'(A,B,F)) :- float(F), !.
+compile_op(mul(x(A),x(B),I), '$mul_int_c'(A,B,I)) :- integer(I), !.
+compile_op(mul(x(A),x(B),x(C)), '$mul'(A,B,C)).
+compile_op(fdiv(x(A),F,x(B)), '$fdiv_c1'(A,B,F)) :- float(F), !.
+compile_op(fdiv(x(A),I,x(B)), '$fdiv_c1'(A,B,F)) :- integer(I), !, F is truncate(I).
+compile_op(fdiv(x(A),x(B),F), '$fdiv_c2'(A,B,F)) :- float(F), !.
+compile_op(fdiv(x(A),x(B),I), '$fdiv_c2'(A,B,F)) :- integer(I), !, F is truncate(I).
+compile_op(fdiv(x(A),x(B),x(C)), '$fdiv'(A,B,C)).
+compile_op(idiv(x(A),I,x(B)), '$idiv_c1'(A,B,I)) :- integer(I), !.
+compile_op(idiv(x(A),x(B),I), '$idiv_c2'(A,B,I)) :- integer(I), !.
+compile_op(idiv(x(A),x(B),x(C)), '$idiv'(A,B,C)).
+compile_op(mod(x(A),I,x(B)), '$mod_c1'(A,B,I)) :- integer(I), !.
+compile_op(mod(x(A),x(B),I), '$mod_c2'(A,B,I)) :- integer(I), !.
+compile_op(mod(x(A),x(B),x(C)), '$mod'(A,B,C)).
+compile_op(rem(x(A),I,x(B)), '$rem_c1'(A,B,I)) :- integer(I), !.
+compile_op(rem(x(A),x(B),I), '$rem_c2'(A,B,I)) :- integer(I), !.
+compile_op(rem(x(A),x(B),x(C)), '$rem'(A,B,C)).
+compile_op(and(x(A),I,x(B)), '$land_c'(A,B,I)) :- integer(I), !.
+compile_op(and(x(A),x(B),I), '$land_c'(A,B,I)) :- integer(I), !.
+compile_op(and(x(A),x(B),x(C)), '$land'(A,B,C)).
+compile_op(or(x(A),I,x(B)), '$lor_c'(A,B,I)) :- integer(I), !.
+compile_op(or(x(A),x(B),I), '$lor_c'(A,B,I)) :- integer(I), !.
+compile_op(or(x(A),x(B),x(C)), '$lor'(A,B,C)).
+compile_op(xor(x(A),I,x(B)), '$xor_c'(A,B,I)) :- integer(I), !.
+compile_op(xor(x(A),x(B),I), '$xor_c'(A,B,I)) :- integer(I), !.
+compile_op(xor(x(A),x(B),x(C)), '$xor'(A,B,C)).
+compile_op(uminus(x(A),x(B)), '$uminus'(A,B)).
+compile_op(sr(x(A),I,x(B)), '$sr_c1'(A,B,I)) :- integer(I), !.
+compile_op(sr(x(A),x(B),I), '$sr_c2'(A,B,I)) :- integer(I), !.
+compile_op(sr(x(A),x(B),x(C)), '$sr'(A,B,C)).
+compile_op(sl(x(A),I,x(B)), '$sl_c1'(A,B,I)) :- integer(I), !.
+compile_op(sl(x(A),x(B),I), '$sl_c2'(A,B,I)) :- integer(I), !.
+compile_op(sl(x(A),x(B),x(C)), '$sl'(A,B,C)).
 /*
+compile_op(zerop(x(A),Op), '$zerop'(A,Op)).
 compile_op(exp(x(A),F,x(B)), exp_c(A,B,F)) :- float(F), !.
 compile_op(exp(x(A),I,x(B)), exp_c(A,B,F)) :- integer(I), !, F is truncate(I).
 compile_op(exp(x(A),x(B),F), exp_c(A,B,F)) :- float(F), !.

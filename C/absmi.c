@@ -6913,11 +6913,11 @@ Yap_absmi(int inp)
       GONext();
 
       derefa_body(d0, pt0, w_y_unk, w_y_bound);
+      if (pt0 > H
 #if defined(SBA) && defined(FROZEN_STACKS)
-      if (pt0 > H && pt0<(CELL *)B_FZ) {
-#else
-      if (pt0 > H) {
+	  && pt0<(CELL *)B_FZ
 #endif /* SBA && FROZEN_STACKS */
+	  ) {
 	PREG = NEXTOP(PREG, y);
 	/* local variable: let us bind it to the list */
 #ifdef FROZEN_STACKS
@@ -6929,8 +6929,7 @@ Yap_absmi(int inp)
 	RESET_VARIABLE(SREG);
 	SREG++;
 	GONext();
-      }
-      else {
+      } else {
 	PREG = NEXTOP(PREG, y);
 	*SREG++ = Unsigned(pt0);
 	GONext();
@@ -7482,7 +7481,7 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      BOp(call_c_wfail, sdlp);
+      BOp(call_c_wfail, slp);
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -7493,7 +7492,7 @@ Yap_absmi(int inp)
 #endif /* SBA */
 	else {
 	  BEGD(d0);
-	  d0 = PREG->u.sdlp.s;
+	  d0 = PREG->u.slp.s;
 	  ASP = ((CELL *)YREG) + d0;
 	  ENDD(d0);
 	}
@@ -7503,21 +7502,21 @@ Yap_absmi(int inp)
 	ASP = (CELL *) B;
       else {
 	BEGD(d0);
-	d0 = PREG->u.sdlp.s;
+	d0 = PREG->u.slp.s;
 	ASP = ((CELL *) YREG) + d0;
 	ENDD(d0);
       }
 #endif /* FROZEN_STACKS */
       {
-	CPredicate f = PREG->u.sdlp.p->cs.f_code;
+	CPredicate f = PREG->u.slp.p->cs.f_code;
 	saveregs();
 	SREG = (CELL *)((f)());
 	setregs();
       }
       if (!SREG)
-	PREG = PREG->u.sdlp.l;
+	PREG = PREG->u.slp.l;
       else
-	PREG = NEXTOP(PREG, sdlp);
+	PREG = NEXTOP(PREG, slp);
       CACHE_A1();
       JMPNext();
       ENDBOp();
@@ -9382,13 +9381,14 @@ Yap_absmi(int inp)
       deref_head(d0, cutby_x_unk);
     cutby_x_nvar:
 #if defined(SBA) && defined(FROZEN_STACKS)
-      if (!IsIntegerTerm(d0)) {
+      if (!IsIntegerTerm(d0))
 #else
-      if (!IsIntTerm(d0)) {
+      if (!IsIntTerm(d0))
 #endif /* SBA && FROZEN_STACKS */
-	PREG = NEXTOP(PREG, xl);
-	GONext();
-      }
+	{
+	  PREG = NEXTOP(PREG, xl);
+	  GONext();
+	}
       BEGCHO(pt0);
 #if defined(SBA) && defined(FROZEN_STACKS)
       pt0 = (choiceptr)IntegerOfTerm(d0);
@@ -9442,12 +9442,13 @@ Yap_absmi(int inp)
       deref_head(d0, cutby_y_unk);
     cutby_y_nvar:
 #if defined(SBA) && defined(FROZEN_STACKS)
-      if (!IsIntegerTerm(d0)) {
+      if (!IsIntegerTerm(d0))
 #else
-      if (!IsIntTerm(d0)) {
+      if (!IsIntTerm(d0))
 #endif
-	FAIL();
-      }
+	{
+	  FAIL();
+	}
       /* find where to cut to */
       BEGCHO(pt1);
 #if defined(SBA) && defined(FROZEN_STACKS)
@@ -11423,154 +11424,331 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDBOp();
 
-#ifdef EXPERIMENTAL
-      Op(eqc_float, sDl);
-      if (!Yap_isint[PREG->u.sDl.s] && Yap_floats[PREG->u.sDl.s] == PREG->u.sDl.D) {
-	PREG = NEXTOP(PREG, sDl);
+      Op(get_fi_x, sxl);
+      BEGD(d0);
+      d0 = XREG(PREG->u.sxl.x);
+      ARITH_EXCEPTION = PREG->u.sxl.l;
+      deref_head(d0, get_fi_x_unk);
+    get_fi_x_nvar:
+      BEGD(d1);
+      d1 = PREG->u.sxl.s;
+      PREG = NEXTOP(PREG, sxl);
+      if (IsIntTerm(d0)) {
+	Yap_isint[d1] = TRUE;
+	Yap_Ints[d1] = IntOfTerm(d0);
 	GONext();
-      }
-      PREG = PREG->u.sDl.F;
-      GONext();
-      ENDOp();
-
-      Op(eqc_int, snl);
-      if (Yap_isint[PREG->u.sDl.s] && Yap_int[PREG->u.snl.s] == PREG->u.snl.I) {
-	PREG = NEXTOP(PREG, snl);
-	GONext();
-      }
-      PREG = PREG->u.snl.F;
-      GONext();
-      ENDOp();
-
-      Op(eq, ssl);
-      if (Yap_isint[PREG->u.ssl.s1]) {
-	if (Yap_isint[PREG->u.ssl.s2] &&  Yap_int[PREG->u.ssl.s2] == Yap_int[PREG->u.ssl.s2]) {
-	  PREG = NEXTOP(PREG, ssl);
+      } else if (IsApplTerm(d0)) {
+	Functor f = FunctorOfTerm(d0);
+	if (f == FunctorDouble) {
+	  Yap_isint[d1] = FALSE;
+	  Yap_Floats[d1] = FloatOfTerm(d0);
+	  GONext();
+	} else if (f == FunctorLongInt) {
+	  Yap_isint[d1] = TRUE;
+	  Yap_Ints[d1] = LongIntOfTerm(d0);
 	  GONext();
 	}
-	PREG = PREG->u.snl.F;
+      }
+      ENDD(d1);
+      PREG = ARITH_EXCEPTION;
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, get_fi_x_unk, get_fi_x_nvar);
+      PREG = ARITH_EXCEPTION;
+      GONext();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(get_fi_y, syl);
+      BEGD(d0);
+      d0 = YREG[PREG->u.syl.y];
+      ARITH_EXCEPTION = PREG->u.syl.l;
+      deref_head(d0, get_fi_y_unk);
+    get_fi_y_nvar:
+      BEGD(d1);
+      d1 = PREG->u.syl.s;
+      PREG = NEXTOP(PREG, syl);
+      if (IsIntTerm(d0)) {
+	Yap_isint[d1] = TRUE;
+	Yap_Ints[d1] = IntOfTerm(d0);
+	GONext();
+      } else if (IsApplTerm(d0)) {
+	Functor f = FunctorOfTerm(d0);
+	if (f == FunctorDouble) {
+	  Yap_isint[d1] = FALSE;
+	  Yap_Floats[d1] = FloatOfTerm(d0);
+	  GONext();
+	} else if (f == FunctorLongInt) {
+	  Yap_isint[d1] = TRUE;
+	  Yap_Ints[d1] = LongIntOfTerm(d0);
+	  GONext();
+	}
+      }
+      ENDD(d1);
+      PREG = ARITH_EXCEPTION;
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, get_fi_y_unk, get_fi_y_nvar);
+      PREG = ARITH_EXCEPTION;
+      GONext();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(get_i_x, sxl);
+      BEGD(d0);
+      d0 = XREG(PREG->u.sxl.x);
+      ARITH_EXCEPTION = PREG->u.sxl.l;
+      deref_head(d0, get_i_x_unk);
+    get_i_x_nvar:
+      BEGD(d1);
+      d1 = PREG->u.sxl.s;
+      PREG = NEXTOP(PREG, sxl);
+      Yap_isint[d1] = TRUE;
+      if (IsIntTerm(d0)) {
+	Yap_Ints[d1] = IntOfTerm(d0);
+	GONext();
+      } else if (IsLongIntTerm(d0)) {
+	Yap_Ints[d1] = LongIntOfTerm(d0);
+	GONext();
+      }
+      ENDD(d1);
+      PREG = ARITH_EXCEPTION;
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, get_i_x_unk, get_i_x_nvar);
+      PREG = ARITH_EXCEPTION;
+      GONext();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(get_i_y, syl);
+      BEGD(d0);
+      d0 = YREG[PREG->u.syl.y];
+      ARITH_EXCEPTION = PREG->u.syl.l;
+      deref_head(d0, get_i_y_unk);
+    get_i_y_nvar:
+      BEGD(d1);
+      d1 = PREG->u.syl.s;
+      PREG = NEXTOP(PREG, syl);
+      Yap_isint[d1] = TRUE;
+      if (IsIntTerm(d0)) {
+	Yap_Ints[d1] = IntOfTerm(d0);
+	GONext();
+      } else if (IsLongIntTerm(d0)) {
+	Yap_Ints[d1] = LongIntOfTerm(d0);
+	GONext();
+      }
+      ENDD(d1);
+      PREG = ARITH_EXCEPTION;
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, get_i_y_unk, get_i_y_nvar);
+      PREG = ARITH_EXCEPTION;
+      GONext();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(get_f_x, sxl);
+      BEGD(d0);
+      d0 = XREG(PREG->u.sxl.x);
+      ARITH_EXCEPTION = PREG->u.sxl.l;
+      deref_head(d0, get_f_x_unk);
+    get_f_x_nvar:
+      BEGD(d1);
+      d1 = PREG->u.sxl.s;
+      PREG = NEXTOP(PREG, sxl);
+      Yap_isint[d1] = FALSE;
+      if (IsFloatTerm(d0)) {
+	Yap_Floats[d1] = FloatOfTerm(d0);
+	GONext();
+      }
+      ENDD(d1);
+      PREG = ARITH_EXCEPTION;
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, get_f_x_unk, get_f_x_nvar);
+      PREG = ARITH_EXCEPTION;
+      GONext();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(get_f_y, syl);
+      BEGD(d0);
+      d0 = YREG[PREG->u.syl.y];
+      ARITH_EXCEPTION = PREG->u.syl.l;
+      deref_head(d0, get_f_y_unk);
+    get_f_y_nvar:
+      BEGD(d1);
+      d1 = PREG->u.syl.s;
+      PREG = NEXTOP(PREG, syl);
+      Yap_isint[d1] = FALSE;
+      if (IsFloatTerm(d0)) {
+	Yap_Floats[d1] = FloatOfTerm(d0);
+	GONext();
+      }
+      ENDD(d1);
+      PREG = ARITH_EXCEPTION;
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, get_f_y_unk, get_f_y_nvar);
+      PREG = ARITH_EXCEPTION;
+      GONext();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(a_eqc_float, sdll);
+      if (!Yap_isint[PREG->u.sdll.s] &&
+	  Yap_Floats[PREG->u.sdll.s] == CpFloatUnaligned(PREG->u.sdll.d)) {
+	PREG = PREG->u.sdll.T;
+	GONext();
+      }
+      PREG = PREG->u.sdll.F;
+      GONext();
+      ENDOp();
+
+      Op(a_eqc_int, snll);
+      if (Yap_isint[PREG->u.snll.s] && Yap_Ints[PREG->u.snll.s] == PREG->u.snll.I) {
+	PREG = PREG->u.snll.T;
+	GONext();
+      }
+      PREG = PREG->u.snll.F;
+      GONext();
+      ENDOp();
+
+      Op(a_eq, ssll);
+      if (Yap_isint[PREG->u.ssll.s1]) {
+	if (Yap_isint[PREG->u.ssll.s2] &&  Yap_Ints[PREG->u.ssll.s2] == Yap_Ints[PREG->u.ssll.s2]) {
+	  PREG = NEXTOP(PREG, ssll);
+	  GONext();
+	}
+	PREG = PREG->u.ssll.F;
 	GONext();
       } else {
-	if (!Yap_isint[PREG->u.ssl.s2] &&  Yap_floats[PREG->u.ssl.s2] == Yap_floats[PREG->u.ssl.s2]) {
-	  PREG = NEXTOP(PREG, ssl);
+	if (!Yap_isint[PREG->u.ssll.s2] &&  Yap_Floats[PREG->u.ssll.s2] == Yap_Floats[PREG->u.ssll.s2]) {
+	  PREG = NEXTOP(PREG, ssll);
 	  GONext();
 	}
-	PREG = PREG->u.snl.F;
+	PREG = PREG->u.ssll.F;
 	GONext();
       }
       ENDOp();
 
-      Op(ltc_float, sDl);
+      Op(ltc_float, sdll);
       {
 	Float d0;
-	if (Yap_isint[PREG->u.sDl.s])
-	  d0 = Yap_int[PREG->u.sDl.s];
+	if (Yap_isint[PREG->u.sdll.s])
+	  d0 = Yap_Ints[PREG->u.sdll.s];
 	else
-	  d0 = Yap_floats[PREG->u.sDl.s];
-	if ( d0 > PREG->u.sDl.D) {
-	  PREG = NEXTOP(PREG, sDl);
+	  d0 = Yap_Floats[PREG->u.sdll.s];
+	if ( d0 > CpFloatUnaligned(PREG->u.sdll.d)) {
+	  PREG = PREG->u.sdll.T;
 	  GONext();
 	}
-	PREG = PREG->u.sDl.F;
+	PREG = PREG->u.sdll.F;
 	GONext();
       }
       ENDOp();
 
-      Op(ltc_int, snl);
+      Op(ltc_int, snll);
       {
 	Float d0;
-	if (Yap_isint[PREG->u.snl.s])
-	  d0 = Yap_int[PREG->u.snl.s];
+	if (Yap_isint[PREG->u.snll.s])
+	  d0 = Yap_Ints[PREG->u.snll.s];
 	else
-	  d0 = Yap_floats[PREG->u.snl.s];
-	if ( d0 > PREG->u.snl.I) {
-	  PREG = NEXTOP(PREG, snl);
+	  d0 = Yap_Floats[PREG->u.snll.s];
+	if ( d0 > PREG->u.snll.I) {
+	  PREG = PREG->u.snll.T;
 	  GONext();
 	}
-	PREG = PREG->u.snl.F;
-	GONext();
       }
-      PREG = PREG->u.snl.F;
+      PREG = PREG->u.snll.F;
       GONext();
       ENDOp();
 
-      Op(gtc_float, sDl);
-      {
-	Float d0;
-	if (Yap_isint[PREG->u.sDl.s])
-	  d0 = Yap_int[PREG->u.sDl.s];
-	else
-	  d0 = Yap_floats[PREG->u.sDl.s];
-	if ( d0 < PREG->u.sDl.D) {
-	  PREG = NEXTOP(PREG, sDl);
-	  GONext();
-	}
-	PREG = PREG->u.sDl.F;
-	GONext();
-      }
-      ENDOp();
-
-      Op(gtc_int, snl);
-      {
-	Float d0;
-	if (Yap_isint[PREG->u.snl.s])
-	  d0 = Yap_int[PREG->u.snl.s];
-	else
-	  d0 = Yap_floats[PREG->u.snl.s];
-	if ( d0 < PREG->u.snl.I) {
-	  PREG = NEXTOP(PREG, snl);
-	  GONext();
-	}
-	PREG = PREG->u.snl.F;
-	GONext();
-      }
-      PREG = PREG->u.snl.F;
-      GONext();
-      ENDOp();
-
-      Op(lt, ssl);
-      if (Yap_isint[PREG->u.ssl.s1]) {
-	if (Yap_isint[PREG->u.ssl.s2]) {
-	  if (Yap_int[PREG->u.ssl.s2] < Yap_int[PREG->u.ssl.s2]) {
-	    PREG = NEXTOP(PREG, ssl);
+      Op(lt, ssll);
+      if (Yap_isint[PREG->u.ssll.s1]) {
+	if (Yap_isint[PREG->u.ssll.s2]) {
+	  if (Yap_Ints[PREG->u.ssll.s2] < Yap_Ints[PREG->u.ssll.s2]) {
+	    PREG = PREG->u.snll.T;
 	    GONext();
 	  }
-	  PREG = PREG->u.snl.F;
-	  GONext();
 	} else {
-	  if (Yap_int[PREG->u.ssl.s2] < Yap_floats[PREG->u.ssl.s2]) {
-	    PREG = NEXTOP(PREG, ssl);
+	  if (Yap_Ints[PREG->u.ssll.s2] < Yap_Floats[PREG->u.ssll.s2]) {
+	    PREG = PREG->u.snll.T;
 	    GONext();
 	  }
-	  PREG = PREG->u.snl.F;
-	  GONext();
 	}
       } else {
-	if (Yap_isint[PREG->u.ssl.s2]) {
-	  if (Yap_floats[PREG->u.ssl.s2] < Yap_int[PREG->u.ssl.s2]) {
-	    PREG = NEXTOP(PREG, ssl);
+	if (Yap_isint[PREG->u.ssll.s2]) {
+	  if (Yap_Floats[PREG->u.ssll.s2] < Yap_Ints[PREG->u.ssll.s2]) {
+	    PREG = PREG->u.snll.T;
 	    GONext();
 	  }
-	  PREG = PREG->u.snl.F;
-	  GONext();
 	} else {
-	  if (Yap_floats[PREG->u.ssl.s2] < Yap_floats[PREG->u.ssl.s2]) {
-	    PREG = NEXTOP(PREG, ssl);
+	  if (Yap_Floats[PREG->u.ssll.s2] < Yap_Floats[PREG->u.ssll.s2]) {
+	    PREG = PREG->u.snll.T;
 	    GONext();
 	  }
-	  PREG = PREG->u.snl.F;
-	  GONext();
 	}
       }
       ENDOp();
 
-      Op(add_float_c, ssD);
-      if (Yap_isint[PREG->u.ssD.s1])
-	Yap_floats[PREG->u.ssD.s0] = Yap_int[PREG->u.ssDl.s1]+PREG->u.ssD.D;
-      else
-	Yap_floats[PREG->u.ssD.s0] = Yap_floats[PREG->u.ssDl.s1]+PREG->u.ssD.D;
-      Yap_isint[PREG->u.ssD.s0] = FALSE;
-      PREG = NEXTOP(PREG, ssD);
+      Op(gtc_float, sdll);
+      {
+	Float d0;
+	if (Yap_isint[PREG->u.sdll.s])
+	  d0 = Yap_Ints[PREG->u.sdll.s];
+	else
+	  d0 = Yap_Floats[PREG->u.sdll.s];
+	if ( d0 < CpFloatUnaligned(PREG->u.sdll.d)) {
+	  PREG = PREG->u.sdll.T;
+	  GONext();
+	}
+	PREG = PREG->u.sdll.F;
+	GONext();
+      }
+      ENDOp();
+
+      Op(gtc_int, snll);
+      {
+	Float d0;
+	if (Yap_isint[PREG->u.snll.s])
+	  d0 = Yap_Ints[PREG->u.snll.s];
+	else
+	  d0 = Yap_Floats[PREG->u.snll.s];
+	if ( d0 < PREG->u.snll.I) {
+	  PREG = PREG->u.snll.T;
+	  GONext();
+	}
+      }
+      PREG = PREG->u.snll.F;
+      GONext();
+      ENDOp();
+
+      Op(add_float_c, ssd);
+      {
+	Float fl = CpFloatUnaligned(PREG->u.ssd.d);
+	if (Yap_isint[PREG->u.ssd.s1])
+	  Yap_Floats[PREG->u.ssd.s0] = 
+	    Yap_Ints[PREG->u.ssd.s1]+
+	    fl;
+	else
+	  Yap_Floats[PREG->u.ssd.s0] = Yap_Floats[PREG->u.ssd.s1]+fl;
+      }
+      Yap_isint[PREG->u.ssd.s0] = FALSE;
+      PREG = NEXTOP(PREG, ssd);
       GONext();
       ENDOp();
 
@@ -11578,12 +11756,14 @@ Yap_absmi(int inp)
       {
 	int off = PREG->u.ssn.s0;
 	if (Yap_isint[PREG->u.ssn.s1]) {
-	  Yap_floats[off] = Yap_int[PREG->u.ssn.s1]+PREG->u.ssn.I;
+	  Yap_Floats[off] = Yap_Ints[PREG->u.ssn.s1]+PREG->u.ssn.n;
 	  Yap_isint[off] = TRUE;
-	  if (add_overflow(Yap_ints[off],Yap_int[PREG->u.ssn.s1],PREG->u.ssn.I)
-	      PREG = Yap_EvalException(PREG);
+	  if (add_overflow(Yap_Ints[off],Yap_Ints[PREG->u.ssn.s1],PREG->u.ssn.n)) {
+	    PREG = ARITH_EXCEPTION;
+	    GONext();
+	  }
 	} else {
-	  Yap_floats[off] = Yap_floats[PREG->u.ssn.s1]+PREG->u.ssn.I;
+	  Yap_Floats[off] = Yap_Floats[PREG->u.ssn.s1]+PREG->u.ssn.n;
 	  Yap_isint[off] = FALSE;
 	}
       }
@@ -11596,34 +11776,40 @@ Yap_absmi(int inp)
 	int off = PREG->u.sss.s0;
 	if (Yap_isint[PREG->u.sss.s1]) {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]+Yap_int[PREG->u.sss.s2];
+	    Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]+Yap_Ints[PREG->u.sss.s2];
 	    Yap_isint[off] = TRUE;
-	    if (add_overflow(Yap_ints[off],Yap_int[PREG->u.sss.s1],PREG->u.sss.s2)
-		PREG = Yap_EvalException(PREG);
+	    if (add_overflow(Yap_Ints[off],Yap_Ints[PREG->u.sss.s1],PREG->u.sss.s2)) {
+	      PREG = ARITH_EXCEPTION;
+	      GONext();
+	    } else {
+	      Yap_Floats[off] = Yap_Ints[PREG->u.sss.s1]+Yap_Floats[PREG->u.sss.s2];
+	      Yap_isint[off] = FALSE;
+	    }
 	  } else {
-	    Yap_floats[off] = Yap_int[PREG->u.sss.s1]+Yap_floats[PREG->u.sss.s2];
+	    if (Yap_isint[PREG->u.sss.s2]) {
+	      Yap_Floats[off] = Yap_Floats[PREG->u.sss.s1]+Yap_Ints[PREG->u.sss.s2];
+	    } else {
+	      Yap_Floats[off] = Yap_Floats[PREG->u.sss.s1]+Yap_Floats[PREG->u.sss.s2];
+	    }
 	    Yap_isint[off] = FALSE;
 	  }
-	} else {
-	  if (Yap_isint[PREG->u.sss.s2]) {
-	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]+Yap_int[PREG->u.sss.s2];
-	  } else {
-	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]+Yap_floats[PREG->u.sss.s2];
-	  }
-	  Yap_isint[off] = FALSE;
 	}
       }
       PREG = NEXTOP(PREG, sss);
       GONext();
       ENDOp();
 
-      Op(sub_float_c, ssD);
-      if (Yap_isint[PREG->u.ssD.s1])
-	Yap_floats[PREG->u.ssD.s0] = PREG->u.ssD.D-Yap_int[PREG->u.ssDl.s1];
+      Op(sub_float_c, ssd);
+      if (Yap_isint[PREG->u.ssd.s1])
+	Yap_Floats[PREG->u.ssd.s0] =
+	  CpFloatUnaligned(PREG->u.ssd.d)-
+	  Yap_Ints[PREG->u.ssd.s1];
       else
-	Yap_floats[PREG->u.ssD.s0] = PREG->u.ssD.D-Yap_floats[PREG->u.ssDl.s1];
-      Yap_isint[PREG->u.ssD.s0] = FALSE;
-      PREG = NEXTOP(PREG, ssD);
+	Yap_Floats[PREG->u.ssd.s0] = 
+	  CpFloatUnaligned(PREG->u.ssd.d)-
+	  Yap_Floats[PREG->u.ssd.s1];
+      Yap_isint[PREG->u.ssd.s0] = FALSE;
+      PREG = NEXTOP(PREG, ssd);
       GONext();
       ENDOp();
 
@@ -11631,12 +11817,14 @@ Yap_absmi(int inp)
       {
 	int off = PREG->u.ssn.s0;
 	if (Yap_isint[PREG->u.ssn.s1]) {
-	  Yap_floats[off] = PREG->u.ssn.I-Yap_int[PREG->u.ssn.s1];
+	  Yap_Floats[off] = PREG->u.ssn.n-Yap_Ints[PREG->u.ssn.s1];
 	  Yap_isint[off] = TRUE;
-	  if (sub_overflow(Yap_ints[off],PREG->u.ssn.I,Yap_int[PREG->u.ssn.s1])
-	      PREG = Yap_EvalException(PREG);
+	  if (sub_overflow(Yap_Ints[off],PREG->u.ssn.n,Yap_Ints[PREG->u.ssn.s1])) {
+	    PREG = ARITH_EXCEPTION;
+	    GONext();
+	  }
 	} else {
-	  Yap_floats[off] = PREG->u.ssn.I-Yap_floats[PREG->u.ssn.s1];
+	  Yap_Floats[off] = PREG->u.ssn.n-Yap_Floats[PREG->u.ssn.s1];
 	  Yap_isint[off] = FALSE;
 	}
       }
@@ -11649,19 +11837,21 @@ Yap_absmi(int inp)
 	int off = PREG->u.sss.s0;
 	if (Yap_isint[PREG->u.sss.s1]) {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]-Yap_int[PREG->u.sss.s2];
+	    Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]-Yap_Ints[PREG->u.sss.s2];
 	    Yap_isint[off] = TRUE;
-	    if (sub_overflow(Yap_ints[off],Yap_int[PREG->u.sss.s1],Yap_int[PREG->u.sss.s2])
-		PREG = Yap_EvalException(PREG);
+	    if (sub_overflow(Yap_Ints[off],Yap_Ints[PREG->u.sss.s1],Yap_Ints[PREG->u.sss.s2])) {
+	      PREG = ARITH_EXCEPTION;
+	      GONext();
+	    }
 	  } else {
-	    Yap_floats[off] = Yap_int[PREG->u.sss.s1]-Yap_floats[PREG->u.sss.s2];
+	    Yap_Floats[off] = Yap_Ints[PREG->u.sss.s1]-Yap_Floats[PREG->u.sss.s2];
 	    Yap_isint[off] = FALSE;
 	  }
 	} else {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]-Yap_int[PREG->u.sss.s2];
+	    Yap_Floats[off] = Yap_Floats[PREG->u.sss.s1]-Yap_Ints[PREG->u.sss.s2];
 	  } else {
-	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]-Yap_floats[PREG->u.sss.s2];
+	    Yap_Floats[off] = Yap_Floats[PREG->u.sss.s1]-Yap_Floats[PREG->u.sss.s2];
 	  }
 	  Yap_isint[off] = FALSE;
 	}
@@ -11670,13 +11860,13 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      Op(mul_float_c, ssD);
-      if (Yap_isint[PREG->u.ssD.s1])
-	Yap_floats[PREG->u.ssD.s0] = Yap_int[PREG->u.ssDl.s1]*PREG->u.ssD.D;
+      Op(mul_float_c, ssd);
+      if (Yap_isint[PREG->u.ssd.s1])
+	Yap_Floats[PREG->u.ssd.s0] = Yap_Ints[PREG->u.ssd.s1]*CpFloatUnaligned(PREG->u.ssd.d);
       else
-	Yap_floats[PREG->u.ssD.s0] = Yap_floats[PREG->u.ssDl.s1]*PREG->u.ssD.D;
-      Yap_isint[PREG->u.ssD.s0] = FALSE;
-      PREG = NEXTOP(PREG, ssD);
+	Yap_Floats[PREG->u.ssd.s0] = Yap_Floats[PREG->u.ssd.s1]*CpFloatUnaligned(PREG->u.ssd.d);
+      Yap_isint[PREG->u.ssd.s0] = FALSE;
+      PREG = NEXTOP(PREG, ssd);
       GONext();
       ENDOp();
 
@@ -11684,12 +11874,14 @@ Yap_absmi(int inp)
       {
 	int off = PREG->u.ssn.s0;
 	if (Yap_isint[PREG->u.ssn.s1]) {
-	  Yap_floats[off] = Yap_int[PREG->u.ssn.s1]*PREG->u.ssn.I;
+	  Yap_Floats[off] = Yap_Ints[PREG->u.ssn.s1]*PREG->u.ssn.n;
 	  Yap_isint[off] = TRUE;
-	  if (mul_overflow(Yap_ints[off],Yap_int[PREG->u.ssn.s1],PREG->u.ssn.I)
-	      PREG = Yap_EvalException(PREG);
+	  if (mul_overflow(Yap_Ints[off],Yap_Ints[PREG->u.ssn.s1],PREG->u.ssn.n)) {
+	    PREG = ARITH_EXCEPTION;
+	    GONext();
+	  }
 	} else {
-	  Yap_floats[off] = Yap_floats[PREG->u.ssn.s1]*PREG->u.ssn.I;
+	  Yap_Floats[off] = Yap_Floats[PREG->u.ssn.s1]*PREG->u.ssn.n;
 	  Yap_isint[off] = FALSE;
 	}
       }
@@ -11702,44 +11894,46 @@ Yap_absmi(int inp)
 	int off = PREG->u.sss.s0;
 	if (Yap_isint[PREG->u.sss.s1]) {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]*Yap_int[PREG->u.sss.s2];
+	    Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]*Yap_Ints[PREG->u.sss.s2];
 	    Yap_isint[off] = TRUE;
-	    if (mul_overflow(Yap_ints[off],Yap_int[PREG->u.sss.s1],PREG->u.sss.s2)
-		PREG = Yap_EvalException(PREG);
+	    if (mul_overflow(Yap_Ints[off],Yap_Ints[PREG->u.sss.s1],PREG->u.sss.s2)) {
+	    PREG = ARITH_EXCEPTION;
+	    GONext();
 	  } else {
-	    Yap_floats[off] = Yap_int[PREG->u.sss.s1]*Yap_floats[PREG->u.sss.s2];
+	    Yap_Floats[off] = Yap_Ints[PREG->u.sss.s1]*Yap_Floats[PREG->u.sss.s2];
 	    Yap_isint[off] = FALSE;
 	  }
 	} else {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]*Yap_int[PREG->u.sss.s2];
+	    Yap_Floats[off] = Yap_Floats[PREG->u.sss.s1]*Yap_Ints[PREG->u.sss.s2];
 	  } else {
-	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]*Yap_floats[PREG->u.sss.s2];
+	    Yap_Floats[off] = Yap_Floats[PREG->u.sss.s1]*Yap_Floats[PREG->u.sss.s2];
 	  }
 	  Yap_isint[off] = FALSE;
+	  }
 	}
       }
       PREG = NEXTOP(PREG, sss);
       GONext();
       ENDOp();
 
-      Op(fdiv_c1, ssD);
-      if (Yap_isint[PREG->u.ssD.s1])
-	Yap_floats[PREG->u.ssD.s0] = PREG->u.ssD.D/Yap_int[PREG->u.ssDl.s1];
+      Op(fdiv_c1, ssd);
+      if (Yap_isint[PREG->u.ssd.s1])
+	Yap_Floats[PREG->u.ssd.s0] = CpFloatUnaligned(PREG->u.ssd.d)/Yap_Ints[PREG->u.ssd.s1];
       else
-	Yap_floats[PREG->u.ssD.s0] = PREG->u.ssD.D/Yap_floats[PREG->u.ssDl.s1];
-      Yap_isint[PREG->u.ssD.s0] = FALSE;
-      PREG = NEXTOP(PREG, ssD);
+	Yap_Floats[PREG->u.ssd.s0] = CpFloatUnaligned(PREG->u.ssd.d)/Yap_Floats[PREG->u.ssd.s1];
+      Yap_isint[PREG->u.ssd.s0] = FALSE;
+      PREG = NEXTOP(PREG, ssd);
       GONext();
       ENDOp();
 
-      Op(fdiv_c2, ssD);
-      if (Yap_isint[PREG->u.ssD.s1])
-	Yap_floats[PREG->u.ssD.s0] = Yap_int[PREG->u.ssDl.s1]/PREG->u.ssD.D;
+      Op(fdiv_c2, ssd);
+      if (Yap_isint[PREG->u.ssd.s1])
+	Yap_Floats[PREG->u.ssd.s0] = Yap_Ints[PREG->u.ssd.s1]/CpFloatUnaligned(PREG->u.ssd.d);
       else
-	Yap_floats[PREG->u.ssD.s0] = Yap_floats[PREG->u.ssDl.s1]/PREG->u.ssD.D;
-      Yap_isint[PREG->u.ssD.s0] = FALSE;
-      PREG = NEXTOP(PREG, ssD);
+	Yap_Floats[PREG->u.ssd.s0] = Yap_Floats[PREG->u.ssd.s1]/CpFloatUnaligned(PREG->u.ssd.d);
+      Yap_isint[PREG->u.ssd.s0] = FALSE;
+      PREG = NEXTOP(PREG, ssd);
       GONext();
       ENDOp();
 
@@ -11748,15 +11942,15 @@ Yap_absmi(int inp)
 	int off = PREG->u.sss.s0;
 	if (Yap_isint[PREG->u.sss.s1]) {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    Yap_floats[off] = ((Float)Yap_int[PREG->u.sss.s1])/Yap_int[PREG->u.sss.s2];
+	    Yap_Floats[off] = ((Float)Yap_Ints[PREG->u.sss.s1])/Yap_Ints[PREG->u.sss.s2];
 	  } else {
-	    Yap_floats[off] = ((Float)Yap_int[PREG->u.sss.s1])/Yap_floats[PREG->u.sss.s2];
+	    Yap_Floats[off] = ((Float)Yap_Ints[PREG->u.sss.s1])/Yap_Floats[PREG->u.sss.s2];
 	  }
 	} else {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]/Yap_int[PREG->u.sss.s2];
+	    Yap_Floats[off] = Yap_Floats[PREG->u.sss.s1]/Yap_Ints[PREG->u.sss.s2];
 	  } else {
-	    Yap_floats[off] = Yap_floats[PREG->u.sss.s1]/Yap_floats[PREG->u.sss.s2];
+	    Yap_Floats[off] = Yap_Floats[PREG->u.sss.s1]/Yap_Floats[PREG->u.sss.s2];
 	  }
 	}
 	Yap_isint[off] = FALSE;
@@ -11767,13 +11961,13 @@ Yap_absmi(int inp)
 
       Op(idiv_c1, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	if (Yap_int[PREG->u.ssn.s1] == 0) {
-	  PREG = Yap_EvalException(PREG);
+	if (Yap_Ints[PREG->u.ssn.s1] == 0) {
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}	    
-	Yap_int[PREG->u.ssn.s0] = PREG->u.ssn.D/Yap_int[PREG->u.ssn.s1];
+	Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n/Yap_Ints[PREG->u.ssn.s1];
       } else {
-	PREG = Yap_EvalException(PREG);
+	PREG = ARITH_EXCEPTION;
 	GONext();
       }
       Yap_isint[PREG->u.ssn.s0] = TRUE;
@@ -11783,35 +11977,28 @@ Yap_absmi(int inp)
 
       Op(idiv_c2, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	Yap_int[PREG->u.ssn.s0] = Yap_int[PREG->u.ssn.s1]/PREG->u.ssn.D;
+	Yap_Ints[PREG->u.ssn.s0] = Yap_Ints[PREG->u.ssn.s1]/PREG->u.ssn.n;
       } else {
-	PREG = Yap_EvalException(PREG);
+	PREG = ARITH_EXCEPTION;
 	GONext();
       }
-      Yap_isint[PREG->u.ssD.s0] = TRUE;
+      Yap_isint[PREG->u.ssd.s0] = TRUE;
       PREG = NEXTOP(PREG, ssn);
       GONext();
       ENDOp();
 
-      Op(mod, sss);
+      Op(idiv, sss);
       {
 	int off = PREG->u.sss.s0;
-	if (Yap_isint[PREG->u.sss.s1]) {
-	  if (Yap_isint[PREG->u.sss.s2]) {
-	    if (Yap_int[PREG->u.sss.s2] == 0) {
-	      PREG = Yap_EvalException(PREG);
-	      GONext();
-	    }	    
-	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]/Yap_int[PREG->u.sss.s2];
-	  } else {
-	    PREG = Yap_EvalException(PREG);
-	    GONext();
-	  }
+	if (Yap_isint[PREG->u.sss.s1] &&
+	    Yap_isint[PREG->u.sss.s2] &&
+	    Yap_Ints[PREG->u.sss.s2] != 0) {
+	  Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]/Yap_Ints[PREG->u.sss.s2];
+	  Yap_isint[off] = TRUE;
 	} else {
-	  PREG = Yap_EvalException(PREG);
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
-	Yap_isint[off] = TRUE;
       }
       PREG = NEXTOP(PREG, sss);
       GONext();
@@ -11819,13 +12006,13 @@ Yap_absmi(int inp)
 
       Op(mod_c1, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	if (Yap_int[PREG->u.ssn.s1] == 0) {
-	  PREG = Yap_EvalException(PREG);
+	if (Yap_Ints[PREG->u.ssn.s1] == 0) {
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}	    
-	Yap_int[PREG->u.ssn.s0] = mod(PREG->u.ssn.D,Yap_int[PREG->u.ssn.s1]);
+	Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n % Yap_Ints[PREG->u.ssn.s1];
       } else {
-	PREG = Yap_EvalException(PREG);
+	PREG = ARITH_EXCEPTION;
 	GONext();
       }
       Yap_isint[PREG->u.ssn.s0] = TRUE;
@@ -11835,12 +12022,12 @@ Yap_absmi(int inp)
 
       Op(mod_c2, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	Yap_int[PREG->u.ssn.s0] = mod(Yap_int[PREG->u.ssnl.s1],PREG->u.ssn.D);
+	Yap_Ints[PREG->u.ssn.s0] = Yap_Ints[PREG->u.ssn.s1]%PREG->u.ssn.n;
       } else {
-	PREG = Yap_EvalException(PREG);
+	PREG = ARITH_EXCEPTION;
 	GONext();
       }
-      Yap_isint[PREG->u.ssD.s0] = TRUE;
+      Yap_isint[PREG->u.ssd.s0] = TRUE;
       PREG = NEXTOP(PREG, ssn);
       GONext();
       ENDOp();
@@ -11848,19 +12035,12 @@ Yap_absmi(int inp)
       Op(mod, sss);
       {
 	int off = PREG->u.sss.s0;
-	if (Yap_isint[PREG->u.sss.s1]) {
-	  if (Yap_isint[PREG->u.sss.s2]) {
-	    if (Yap_int[PREG->u.sss.s2] == 0) {
-	      PREG = Yap_EvalException(PREG);
-	      GONext();
-	    }	    
-	    Yap_ints[off] = mod(Yap_int[PREG->u.sss.s1],Yap_int[PREG->u.sss.s2]);
-	  } else {
-	    PREG = Yap_EvalException(PREG);
-	    GONext();
-	  }
+	if (Yap_isint[PREG->u.sss.s1] &&
+	    Yap_isint[PREG->u.sss.s2] &&
+	    Yap_Ints[PREG->u.sss.s2] != 0) {
+	  Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]%Yap_Ints[PREG->u.sss.s2];
 	} else {
-	  PREG = Yap_EvalException(PREG);
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
 	Yap_isint[off] = TRUE;
@@ -11871,13 +12051,13 @@ Yap_absmi(int inp)
 
       Op(rem_c1, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	if (Yap_int[PREG->u.ssn.s1] == 0) {
-	  PREG = Yap_EvalException(PREG);
+	if (Yap_Ints[PREG->u.ssn.s1] == 0) {
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}	    
-	Yap_int[PREG->u.ssn.s0] = PREG->u.ssn.D%Yap_int[PREG->u.ssn.s1];
+	Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n%Yap_Ints[PREG->u.ssn.s1];
       } else {
-	PREG = Yap_EvalException(PREG);
+	PREG = ARITH_EXCEPTION;
 	GONext();
       }
       Yap_isint[PREG->u.ssn.s0] = TRUE;
@@ -11887,12 +12067,12 @@ Yap_absmi(int inp)
 
       Op(rem_c2, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	Yap_int[PREG->u.ssn.s0] = Yap_int[PREG->u.ssnl.s1]%PREG->u.ssn.D;
+	Yap_Ints[PREG->u.ssn.s0] = Yap_Ints[PREG->u.ssn.s1]%PREG->u.ssn.n;
       } else {
-	PREG = Yap_EvalException(PREG);
+	PREG = ARITH_EXCEPTION;
 	GONext();
       }
-      Yap_isint[PREG->u.ssD.s0] = TRUE;
+      Yap_isint[PREG->u.ssn.s0] = TRUE;
       PREG = NEXTOP(PREG, ssn);
       GONext();
       ENDOp();
@@ -11902,17 +12082,17 @@ Yap_absmi(int inp)
 	int off = PREG->u.sss.s0;
 	if (Yap_isint[PREG->u.sss.s1]) {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    if (Yap_int[PREG->u.sss.s2] == 0) {
-	      PREG = Yap_EvalException(PREG);
+	    if (Yap_Ints[PREG->u.sss.s2] == 0) {
+	      PREG = ARITH_EXCEPTION;
 	      GONext();
 	    }	    
-	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]%Yap_int[PREG->u.sss.s2];
+	    Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]%Yap_Ints[PREG->u.sss.s2];
 	  } else {
-	    PREG = Yap_EvalException(PREG);
+	    PREG = ARITH_EXCEPTION;
 	    GONext();
 	  }
 	} else {
-	  PREG = Yap_EvalException(PREG);
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
 	Yap_isint[off] = TRUE;
@@ -11921,11 +12101,11 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      Op(or_c, ssn);
+      Op(a_or_c, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	Yap_int[PREG->u.ssn.s0] = PREG->u.ssn.D|Yap_int[PREG->u.ssn.s1];
+	Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n|Yap_Ints[PREG->u.ssn.s1];
       } else {
-	PREG = Yap_EvalException(PREG);
+	PREG = ARITH_EXCEPTION;
 	GONext();
       }
       Yap_isint[PREG->u.ssn.s0] = TRUE;
@@ -11933,18 +12113,18 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      Op(or, sss);
+      Op(a_or, sss);
       {
 	int off = PREG->u.sss.s0;
 	if (Yap_isint[PREG->u.sss.s1]) {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]|Yap_int[PREG->u.sss.s2];
+	    Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]|Yap_Ints[PREG->u.sss.s2];
 	  } else {
-	    PREG = Yap_EvalException(PREG);
+	    PREG = ARITH_EXCEPTION;
 	    GONext();
 	  }
 	} else {
-	  PREG = Yap_EvalException(PREG);
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
 	Yap_isint[off] = TRUE;
@@ -11953,11 +12133,10 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      Op(and_c, ssn);
+      Op(a_and_c, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	Yap_int[PREG->u.ssn.s0] = PREG->u.ssn.D&Yap_int[PREG->u.ssn.s1];
+	Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n&Yap_Ints[PREG->u.ssn.s1];
       } else {
-	PREG = Yap_EvalException(PREG);
 	GONext();
       }
       Yap_isint[PREG->u.ssn.s0] = TRUE;
@@ -11965,18 +12144,18 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      Op(and, sss);
+      Op(a_and, sss);
       {
 	int off = PREG->u.sss.s0;
 	if (Yap_isint[PREG->u.sss.s1]) {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]&Yap_int[PREG->u.sss.s2];
+	    Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]&Yap_Ints[PREG->u.sss.s2];
 	  } else {
-	    PREG = Yap_EvalException(PREG);
+	    PREG = ARITH_EXCEPTION;
 	    GONext();
 	  }
 	} else {
-	  PREG = Yap_EvalException(PREG);
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
 	Yap_isint[off] = TRUE;
@@ -11987,9 +12166,9 @@ Yap_absmi(int inp)
 
       Op(xor_c, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	Yap_int[PREG->u.ssn.s0] = PREG->u.ssn.D^Yap_int[PREG->u.ssn.s1];
+	Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n^Yap_Ints[PREG->u.ssn.s1];
       } else {
-	PREG = Yap_EvalException(PREG);
+	PREG = ARITH_EXCEPTION;
 	GONext();
       }
       Yap_isint[PREG->u.ssn.s0] = TRUE;
@@ -12002,13 +12181,14 @@ Yap_absmi(int inp)
 	int off = PREG->u.sss.s0;
 	if (Yap_isint[PREG->u.sss.s1]) {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]^Yap_int[PREG->u.sss.s2];
+	    Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]^Yap_Ints[PREG->u.sss.s2];
 	  } else {
-	    PREG = Yap_EvalException(PREG);
+	    PREG = ARITH_EXCEPTION;
 	    GONext();
 	  }
 	} else {
-	  PREG = Yap_EvalException(PREG);
+	    PREG = ARITH_EXCEPTION;
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
 	Yap_isint[off] = TRUE;
@@ -12017,30 +12197,30 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      Op(uminus, ss);
+      Op(uminus, sss);
       {
 	int off = PREG->u.sss.s0;
-	if (Yap_isint[PREG->u.ss.s1]) {
-	  Yap_ints[off] = -Yap_int[PREG->u.ss.s1];
+	if (Yap_isint[PREG->u.sss.s1]) {
+	  Yap_Ints[off] = -Yap_Ints[PREG->u.sss.s1];
 	  Yap_isint[off] = TRUE;
 	} else {
-	  Yap_floats[off] = -Yap_floats[PREG->u.ss.s1];
+	  Yap_Floats[off] = -Yap_Floats[PREG->u.sss.s1];
 	  Yap_isint[off] = FALSE;
 	}
       }
-      PREG = NEXTOP(PREG, ss);
+      PREG = NEXTOP(PREG, sss);
       GONext();
       ENDOp();
 
       Op(sl_c1, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	if (sl_overflow(PREG->u.ssn.D,Yap_int[PREG->u.ssn.s1])) {
-	  PREG = Yap_EvalException(PREG);
+	if (sl_overflow(PREG->u.ssn.n,Yap_Ints[PREG->u.ssn.s1])) {
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
-	Yap_int[PREG->u.ssn.s0] = PREG->u.ssn.D<<Yap_int[PREG->u.ssn.s1];
+	Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n<<Yap_Ints[PREG->u.ssn.s1];
       } else {
-	PREG = Yap_EvalException(PREG);
+	PREG = ARITH_EXCEPTION;
 	GONext();
       }
       Yap_isint[PREG->u.ssn.s0] = TRUE;
@@ -12050,13 +12230,13 @@ Yap_absmi(int inp)
 
       Op(sl_c2, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	if (sl_overflow(Yap_int[PREG->u.ssn.s1],PREG->u.ssn.D)) {
-	  PREG = Yap_EvalException(PREG);
+	if (sl_overflow(Yap_Ints[PREG->u.ssn.s1],PREG->u.ssn.n)) {
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
-	Yap_int[PREG->u.ssn.s0] = Yap_int[PREG->u.ssn.s1]<<PREG->u.ssn.D;
+	Yap_Ints[PREG->u.ssn.s0] = Yap_Ints[PREG->u.ssn.s1]<<PREG->u.ssn.n;
       } else {
-	PREG = Yap_EvalException(PREG);
+	PREG = ARITH_EXCEPTION;
 	GONext();
       }
       Yap_isint[PREG->u.ssn.s0] = TRUE;
@@ -12069,17 +12249,17 @@ Yap_absmi(int inp)
 	int off = PREG->u.sss.s0;
 	if (Yap_isint[PREG->u.sss.s1]) {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    if (sl_overflow(Yap_int[PREG->u.sss.s1],Yap_int[PREG->u.sss.s2])) {
-	      PREG = Yap_EvalException(PREG);
+	    if (sl_overflow(Yap_Ints[PREG->u.sss.s1],Yap_Ints[PREG->u.sss.s2])) {
+	      PREG = ARITH_EXCEPTION;
 	      GONext();
 	    }
-	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]<<Yap_int[PREG->u.sss.s2];
+	    Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]<<Yap_Ints[PREG->u.sss.s2];
 	  } else {
-	    PREG = Yap_EvalException(PREG);
+	    PREG = ARITH_EXCEPTION;
 	    GONext();
 	  }
 	} else {
-	  PREG = Yap_EvalException(PREG);
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
 	Yap_isint[off] = TRUE;
@@ -12090,13 +12270,13 @@ Yap_absmi(int inp)
 
       Op(sr_c1, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	if (sr_overflow(PREG->u.ssn.D,Yap_int[PREG->u.ssn.s1])) {
-	  PREG = Yap_EvalException(PREG);
+	if (sr_overflow(PREG->u.ssn.n,Yap_Ints[PREG->u.ssn.s1])) {
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
-	Yap_int[PREG->u.ssn.s0] = PREG->u.ssn.D>>Yap_int[PREG->u.ssn.s1];
+	Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n>>Yap_Ints[PREG->u.ssn.s1];
       } else {
-	PREG = Yap_EvalException(PREG);
+	PREG = ARITH_EXCEPTION;
 	GONext();
       }
       Yap_isint[PREG->u.ssn.s0] = TRUE;
@@ -12106,13 +12286,13 @@ Yap_absmi(int inp)
 
       Op(sr_c2, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	if (sr_overflow(Yap_int[PREG->u.ssn.s1],PREG->u.ssn.D)) {
-	  PREG = Yap_EvalException(PREG);
+	if (sr_overflow(Yap_Ints[PREG->u.ssn.s1],PREG->u.ssn.n)) {
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
-	Yap_int[PREG->u.ssn.s0] = Yap_int[PREG->u.ssn.s1]>>PREG->u.ssn.D;
+	Yap_Ints[PREG->u.ssn.s0] = Yap_Ints[PREG->u.ssn.s1]>>PREG->u.ssn.n;
       } else {
-	PREG = Yap_EvalException(PREG);
+	PREG = ARITH_EXCEPTION;
 	GONext();
       }
       Yap_isint[PREG->u.ssn.s0] = TRUE;
@@ -12125,17 +12305,17 @@ Yap_absmi(int inp)
 	int off = PREG->u.sss.s0;
 	if (Yap_isint[PREG->u.sss.s1]) {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    if (sr_overflow(Yap_int[PREG->u.sss.s1],Yap_int[PREG->u.sss.s2])) {
-	      PREG = Yap_EvalException(PREG);
+	    if (sr_overflow(Yap_Ints[PREG->u.sss.s1],Yap_Ints[PREG->u.sss.s2])) {
+	      PREG = ARITH_EXCEPTION;
 	      GONext();
 	    }
-	    Yap_ints[off] = Yap_int[PREG->u.sss.s1]>>Yap_int[PREG->u.sss.s2];
+	    Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]>>Yap_Ints[PREG->u.sss.s2];
 	  } else {
-	    PREG = Yap_EvalException(PREG);
+	    PREG = ARITH_EXCEPTION;
 	    GONext();
 	  }
 	} else {
-	  PREG = Yap_EvalException(PREG);
+	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
 	Yap_isint[off] = TRUE;
@@ -12144,7 +12324,301 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-#endif /* EXPERIMENTAL */
+      Op(put_fi_val_x, sxll);
+      BEGD(d0);
+      d0 = XREG(PREG->u.sxll.x);
+      deref_head(d0, put_fi_val_x_unk);
+    put_fi_val_x_nvar:
+      BEGD(d1);
+      d1 = PREG->u.sxll.s;
+      if (Yap_isint[d1]) {
+	if (IsIntegerTerm(d0) &&
+	    IntegerOfTerm(d0) == Yap_Ints[d1])
+	  PREG = PREG->u.sxll.T;
+	else
+	  PREG = PREG->u.sxll.F;
+      } else {
+	if (IsFloatTerm(d0) &&
+	    FloatOfTerm(d0) == Yap_Floats[d1])
+	  PREG = PREG->u.sxll.T;
+	else
+	  PREG = PREG->u.sxll.F;
+      }
+      ENDD(d1);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, put_fi_val_x_unk, put_fi_val_x_nvar);
+      BEGD(d1);
+      if (Yap_isint[PREG->u.syll.s]) {
+	d1 = MkIntegerTerm(Yap_Ints[PREG->u.sxll.s]);
+      } else {
+	d1 = MkFloatTerm(Yap_Floats[PREG->u.sxll.s]);
+      }
+      PREG = PREG->u.sxll.T;
+      BIND(pt0, d1, bind_put_fi_x_val);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) {
+	Yap_WakeUp(pt0);
+      }
+      bind_put_fi_x_val:
+#endif
+      GONext();
+      ENDD(d1);
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(put_fi_val_y, syll);
+      BEGD(d0);
+      d0 = YREG[PREG->u.syll.y];
+      deref_head(d0, put_fi_val_y_unk);
+    put_fi_val_y_nvar:
+      BEGD(d1);
+      d1 = PREG->u.syll.s;
+      if (Yap_isint[d1]) {
+	if (IsIntegerTerm(d0) &&
+	    IntegerOfTerm(d0) == Yap_Ints[d1])
+	  PREG = PREG->u.syll.T;
+	else
+	  PREG = PREG->u.syll.F;
+      } else {
+	if (IsFloatTerm(d0) &&
+	    FloatOfTerm(d0) == Yap_Floats[d1])
+	  PREG = PREG->u.syll.T;
+	else
+	  PREG = PREG->u.syll.F;
+      }
+      ENDD(d1);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, put_fi_val_y_unk, put_fi_val_y_nvar);
+      BEGD(d1);
+      if (Yap_isint[PREG->u.syll.s]) {
+	d1 = MkIntegerTerm(Yap_Ints[PREG->u.syll.s]);
+      } else {
+	d1 = MkFloatTerm(Yap_Floats[PREG->u.syll.s]);
+      }
+      PREG = PREG->u.syll.T;
+      BIND(pt0, d1, bind_put_fi_y_val);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+      bind_put_fi_y_val:
+#endif
+      GONext();
+      ENDD(d1);
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(put_i_val_x, sxll);
+      BEGD(d0);
+      d0 = XREG(PREG->u.sxll.x);
+      deref_head(d0, put_i_val_x_unk);
+    put_i_val_x_nvar:
+      BEGD(d1);
+      d1 = PREG->u.sxll.s;
+      if (Yap_isint[d1]) {
+	if (IsIntegerTerm(d0) &&
+	    IntegerOfTerm(d0) == Yap_Ints[d1])
+	  PREG = PREG->u.sxll.T;
+	else
+	  PREG = PREG->u.sxll.F;
+      } else {
+	PREG = ARITH_EXCEPTION;
+      }
+      ENDD(d1);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, put_i_val_x_unk, put_i_val_x_nvar);
+      BEGD(d1);
+      d1 = MkIntegerTerm(Yap_Ints[PREG->u.sxll.s]);
+      PREG = PREG->u.sxll.T;
+      BIND(pt0, d1, bind_put_i_x_val);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+      bind_put_i_x_val:
+#endif
+      GONext();
+      ENDD(d1);
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(put_i_val_y, syll);
+      BEGD(d0);
+      d0 = YREG[PREG->u.syll.y];
+      deref_head(d0, put_i_val_y_unk);
+    put_i_val_y_nvar:
+      BEGD(d1);
+      d1 = PREG->u.syll.s;
+      if (Yap_isint[d1]) {
+	if (IsIntegerTerm(d0) &&
+	    IntegerOfTerm(d0) == Yap_Ints[d1])
+	  PREG = PREG->u.syll.T;
+	else
+	  PREG = PREG->u.syll.F;
+      } else {
+	PREG = ARITH_EXCEPTION;
+      }
+      ENDD(d1);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, put_i_val_y_unk, put_i_val_y_nvar);
+      BEGD(d1);
+      d1 = MkIntegerTerm(Yap_Ints[PREG->u.syll.s]);
+      PREG = PREG->u.syll.T;
+      BIND(pt0, d1, bind_put_i_y_val);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+      bind_put_i_y_val:
+#endif
+      GONext();
+      ENDD(d1);
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(put_f_val_x, sxll);
+      BEGD(d0);
+      d0 = XREG(PREG->u.sxll.x);
+      deref_head(d0, put_f_val_x_unk);
+    put_f_val_x_nvar:
+      BEGD(d1);
+      d1 = PREG->u.sxll.s;
+      if (!Yap_isint[d1]) {
+	if (IsFloatTerm(d0) &&
+	    FloatOfTerm(d0) == Yap_Floats[d1])
+	  PREG = PREG->u.sxll.T;
+	else
+	  PREG = PREG->u.sxll.F;
+      } else {
+	PREG = ARITH_EXCEPTION;
+      }
+      ENDD(d1);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, put_f_val_x_unk, put_f_val_x_nvar);
+      BEGD(d1);
+      d1 = MkFloatTerm(Yap_Floats[PREG->u.sxll.s]);
+      PREG = PREG->u.sxll.T;
+      BIND(pt0, d1, bind_put_f_x_val);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+      bind_put_f_x_val:
+#endif
+      GONext();
+      ENDD(d1);
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(put_f_val_y, syll);
+      BEGD(d0);
+      d0 = YREG[PREG->u.syll.y];
+      deref_head(d0, put_f_val_y_unk);
+    put_f_val_y_nvar:
+      BEGD(d1);
+      d1 = PREG->u.syll.s;
+      if (!Yap_isint[d1]) {
+	if (IsFloatTerm(d0) &&
+	    FloatOfTerm(d0) == Yap_Floats[d1])
+	  PREG = PREG->u.syll.T;
+	else
+	  PREG = PREG->u.syll.F;
+      } else {
+	PREG = ARITH_EXCEPTION;
+      }
+      ENDD(d1);
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, put_f_val_y_unk, put_f_val_y_nvar);
+      BEGD(d1);
+      d1 = MkFloatTerm(Yap_Floats[PREG->u.syll.s]);
+      PREG = PREG->u.syll.T;
+      BIND(pt0, d1, bind_put_f_y_val);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+      bind_put_f_y_val:
+#endif
+      GONext();
+      ENDD(d1);
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(put_fi_var_x, sxl);
+      BEGD(d0);
+      if (Yap_isint[PREG->u.sxl.s]) {
+	d0 = MkIntegerTerm(Yap_Ints[PREG->u.sxl.s]);
+      } else {
+	d0 = MkFloatTerm(Yap_Floats[PREG->u.sxl.s]);
+      }
+      XREG(PREG->u.sxl.x) = d0;
+      PREG = PREG->u.sxl.l;
+      ENDD(d0);
+      GONext();
+      ENDOp();
+
+      Op(put_fi_var_y, syl);
+      BEGD(d0);
+      if (Yap_isint[PREG->u.syl.s]) {
+	d0 = MkIntegerTerm(Yap_Ints[PREG->u.syl.s]);
+      } else {
+	d0 = MkFloatTerm(Yap_Floats[PREG->u.syl.s]);
+      }
+      YREG[PREG->u.syl.y] = d0;
+      PREG = PREG->u.syl.l;
+      ENDD(d0);
+      GONext();
+      ENDOp();
+
+      Op(put_i_var_x, sxl);
+      BEGD(d0);
+      d0 = MkIntegerTerm(Yap_Ints[PREG->u.sxl.s]);
+      XREG(PREG->u.sxl.x) = d0;
+      PREG = PREG->u.sxl.l;
+      ENDD(d0);
+      GONext();
+      ENDOp();
+
+      Op(put_i_var_y, syl);
+      BEGD(d0);
+      d0 = MkIntegerTerm(Yap_Ints[PREG->u.sxl.s]);
+      YREG[PREG->u.syl.y] = d0;
+      PREG = PREG->u.sxl.l;
+      ENDD(d0);
+      GONext();
+      ENDOp();
+
+      Op(put_f_var_x, sxl);
+      BEGD(d0);
+      d0 = MkFloatTerm(Yap_Floats[PREG->u.sxl.s]);
+      XREG(PREG->u.sxl.x) = d0;
+      PREG = PREG->u.sxl.l;
+      ENDD(d0);
+      GONext();
+      ENDOp();
+
+      Op(put_f_var_y, syl);
+      BEGD(d0);
+      d0 = MkFloatTerm(Yap_Floats[PREG->u.syl.s]);
+      YREG[PREG->u.syl.y] = d0;
+      PREG = PREG->u.syl.l;
+      ENDD(d0);
+      GONext();
+      ENDOp();
 
       Op(p_equal, e);
       save_hb();

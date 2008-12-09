@@ -565,6 +565,185 @@ a_v(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct P
 }
 
 inline static yamop *
+a_fi(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct PSEUDO *cpc, UInt lab, struct intermediates *cip)
+{
+  Ventry *ve = (Ventry *) cpc->rnd1;
+  OPREG var_offset;
+  int is_y_var = (ve->KindOfVE == PermVar);
+
+  var_offset = Var_Ref(ve, is_y_var);
+  if (is_y_var) {
+    if (pass_no) {
+      code_p->opc = emit_op(opcodey);
+      code_p->u.syl.y = emit_yreg(var_offset);
+      code_p->u.syl.l = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab]);
+      code_p->u.syl.s = cpc->rnd2;
+    }
+    GONEXT(syl);
+  }
+  else {
+    if (pass_no) {
+      code_p->opc = emit_op(opcodex);
+      code_p->u.sxl.x = emit_xreg(var_offset);
+      code_p->u.sxl.l = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab]);
+      code_p->u.sxl.s = cpc->rnd2;
+    }
+    GONEXT(sxl);
+  }
+  return code_p;
+}
+
+inline static yamop *
+a_fil(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct PSEUDO *cpc, UInt lab1, UInt lab2, struct intermediates *cip)
+{
+  Ventry *ve = (Ventry *) cpc->rnd1;
+  OPREG var_offset;
+  int is_y_var = (ve->KindOfVE == PermVar);
+
+  var_offset = Var_Ref(ve, is_y_var);
+  if (is_y_var) {
+    if (pass_no) {
+      code_p->opc = emit_op(opcodey);
+      code_p->u.syll.s = cpc->rnd2;
+      code_p->u.syll.y = emit_yreg(var_offset);
+      if (lab1)
+	code_p->u.syll.T = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab1]);
+      else
+	code_p->u.syll.T = emit_a(Unsigned(NEXTOP(code_p,syll)));	
+      if (lab2)
+	code_p->u.syll.F = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab2]);
+      else
+	code_p->u.syll.F = FAILCODE;
+    }
+    GONEXT(syll);
+  }
+  else {
+    if (pass_no) {
+      code_p->opc = emit_op(opcodex);
+      code_p->u.sxll.s = cpc->rnd2;
+      code_p->u.sxll.x = emit_xreg(var_offset);
+      if (lab1)
+	code_p->u.sxll.T = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab1]);
+      else
+	code_p->u.sxll.T = emit_a(Unsigned(NEXTOP(code_p,sxll)));	
+      if (lab2)
+	code_p->u.sxll.F = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab2]);
+      else
+	code_p->u.sxll.F = FAILCODE;
+    }
+    GONEXT(sxll);
+  }
+  return code_p;
+}
+
+static yamop *
+a_sdll(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc, UInt lab1, UInt lab2, struct intermediates *cip)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.sdll.s = cpc->rnd2;
+    code_p->u.sdll.d[0] = (CELL)FunctorDouble;
+    code_p->u.sdll.d[1] = RepAppl(cpc->rnd1)[1];
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
+    code_p->u.sdll.d[2] = RepAppl(cpc->rnd1)[2];
+#endif
+    if (lab1)
+      code_p->u.sdll.T = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab1]);
+    else
+      code_p->u.sdll.T = emit_a(Unsigned(NEXTOP(code_p,sdll)));	
+    if (lab2)
+      code_p->u.sdll.F = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab2]);
+    else
+      code_p->u.sdll.F = FAILCODE;
+  }
+  GONEXT(sdll);
+  return code_p;
+}
+
+static yamop *
+a_snll(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc, UInt lab1, UInt lab2, struct intermediates *cip)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.snll.s = cpc->rnd2;
+    code_p->u.snll.I = IntegerOfTerm(cpc->rnd1);
+    if (lab1)
+      code_p->u.snll.T = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab1]);
+    else
+      code_p->u.snll.T = emit_a(Unsigned(NEXTOP(code_p,snll)));	
+    if (lab2)
+      code_p->u.snll.F = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab2]);
+    else
+      code_p->u.snll.F = FAILCODE;
+  }
+  GONEXT(snll);
+  return code_p;
+}
+
+static yamop *
+a_ssll(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc, UInt lab1, UInt lab2, struct intermediates *cip)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.ssll.s1 = cpc->rnd1;
+    code_p->u.ssll.s2 = cpc->rnd2;
+    if (lab1)
+      code_p->u.ssll.T = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab1]);
+    else
+      code_p->u.ssll.T = emit_a(Unsigned(NEXTOP(code_p,ssll)));	
+    if (lab2)
+      code_p->u.ssll.F = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab2]);
+    else
+      code_p->u.ssll.F = FAILCODE;
+  }
+  GONEXT(ssll);
+  return code_p;
+}
+
+static yamop *
+a_ssd(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.ssd.s0 = cpc->rnd1;
+    code_p->u.ssd.s1 = cpc->rnd2;
+    code_p->u.ssd.d[0] = (CELL)FunctorDouble;
+    code_p->u.ssd.d[1] = RepAppl(cpc->rnd1)[1];
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
+    code_p->u.ssd.d[2] = RepAppl(cpc->rnd1)[2];
+#endif
+  }
+  GONEXT(ssd);
+  return code_p;
+}
+
+static yamop *
+a_ssn(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.ssn.s0 = cpc->rnd1;
+    code_p->u.ssn.s1 = cpc->rnd2;
+    code_p->u.ssn.n = IntegerOfTerm(cpc->rnd1);
+  }
+  GONEXT(ssn);
+  return code_p;
+}
+
+static yamop *
+a_sss(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.sss.s0 = cpc->rnd1;
+    code_p->u.sss.s1 = cpc->rnd2;
+    code_p->u.sss.s2 = cpc->rnd3;
+  }
+  GONEXT(sss);
+  return code_p;
+}
+
+inline static yamop *
 a_vp(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct PSEUDO *cpc, clause_info *clinfo)
 {
   Ventry *ve = (Ventry *) cpc->rnd1;
@@ -927,7 +1106,7 @@ a_ud(op_numbers opcode, op_numbers opcode_w, yamop *code_p, int pass_no, struct 
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.oc.opcw = emit_op(opcode_w);
+    code_p->u.od.opcw = emit_op(opcode_w);
     code_p->u.od.d[0] = (CELL)FunctorDouble;
     code_p->u.od.d[1] = RepAppl(cpc->rnd1)[1];
 #if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
@@ -943,7 +1122,7 @@ a_ui(op_numbers opcode, op_numbers opcode_w, yamop *code_p, int pass_no, struct 
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.oc.opcw = emit_op(opcode_w);
+    code_p->u.oi.opcw = emit_op(opcode_w);
     code_p->u.oi.i[0] = (CELL)FunctorLongInt;
     code_p->u.oi.i[1] = RepAppl(cpc->rnd1)[1];
   }
@@ -1274,14 +1453,14 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
 	  longjmp(cip->CompilerBotch, 1);
 	} else
 	  code_p->opc = emit_op(_call_c_wfail);
-	code_p->u.sdlp.s =
+	code_p->u.slp.s =
 	  emit_count(-Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2);
-	code_p->u.sdlp.l =
+	code_p->u.slp.l =
 	  emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
-	code_p->u.sdlp.p =
+	code_p->u.slp.p =
 	  emit_pe(RepPredProp(fe));
       }
-      GONEXT(sdlp);
+      GONEXT(slp);
       clinfo->commit_lab = 0;
     } else {
       if (pass_no) {
@@ -1462,7 +1641,6 @@ a_bfunc(CELL pred, clause_info *clinfo, yamop *code_p, int pass_no, struct inter
 	if (clinfo->commit_lab) {
 	  code_p->u.plyys.f = 
 	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
-	  clinfo->commit_lab = 0;
 	} else {
 	  code_p->u.plyys.f = FAILCODE;
 	}
@@ -1470,6 +1648,7 @@ a_bfunc(CELL pred, clause_info *clinfo, yamop *code_p, int pass_no, struct inter
 	code_p->u.plyys.y2 = emit_yreg(var_offset);
 	code_p->u.plyys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
+      clinfo->commit_lab = 0;
       GONEXT(plyys);
     } else {
       if (pass_no) {
@@ -1478,7 +1657,6 @@ a_bfunc(CELL pred, clause_info *clinfo, yamop *code_p, int pass_no, struct inter
 	if (clinfo->commit_lab) {
 	  code_p->u.plxys.f = 
 	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
-	  clinfo->commit_lab = 0;
 	} else {
 	  code_p->u.plxys.f = FAILCODE;
 	}
@@ -1486,6 +1664,7 @@ a_bfunc(CELL pred, clause_info *clinfo, yamop *code_p, int pass_no, struct inter
 	code_p->u.plxys.y = v1;
 	code_p->u.plxys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
+      clinfo->commit_lab = 0;
       GONEXT(plxys);
     }
   } else {
@@ -1503,7 +1682,6 @@ a_bfunc(CELL pred, clause_info *clinfo, yamop *code_p, int pass_no, struct inter
 	if (clinfo->commit_lab) {
 	  code_p->u.plxys.f = 
 	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
-	  clinfo->commit_lab = 0;
 	} else {
 	  code_p->u.plxys.f = FAILCODE;
 	}
@@ -1511,6 +1689,7 @@ a_bfunc(CELL pred, clause_info *clinfo, yamop *code_p, int pass_no, struct inter
 	code_p->u.plxys.y = emit_yreg(var_offset);
 	code_p->u.plxys.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
+      clinfo->commit_lab = 0;
       GONEXT(plxys);
     } else {
       if (pass_no) {
@@ -1519,7 +1698,6 @@ a_bfunc(CELL pred, clause_info *clinfo, yamop *code_p, int pass_no, struct inter
 	if (clinfo->commit_lab) {
 	  code_p->u.plxxs.f = 
 	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[clinfo->commit_lab]);
-	  clinfo->commit_lab = 0;
 	} else {
 	  code_p->u.plxxs.f = FAILCODE;
 	}
@@ -1527,6 +1705,7 @@ a_bfunc(CELL pred, clause_info *clinfo, yamop *code_p, int pass_no, struct inter
 	code_p->u.plxxs.x2 = emit_xreg(var_offset);
 	code_p->u.plxxs.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
+      clinfo->commit_lab = 0;
       GONEXT(plxxs);
     }
   }
@@ -2345,11 +2524,11 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	if (cmp_info->cl_info->commit_lab) {
 	  code_p->u.yl.F = 
 	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[cmp_info->cl_info->commit_lab]);
-	  cmp_info->cl_info->commit_lab = 0;
 	} else {
 	  code_p->u.yl.F = FAILCODE;
 	}
       }
+      cmp_info->cl_info->commit_lab = 0;
       GONEXT(yl);
       return code_p;
     } else {
@@ -2393,11 +2572,11 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	if (cmp_info->cl_info->commit_lab) {
 	  code_p->u.xl.F = 
 	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[cmp_info->cl_info->commit_lab]);
-	  cmp_info->cl_info->commit_lab = 0;
 	} else {
 	  code_p->u.xl.F = FAILCODE;
 	}
       }
+      cmp_info->cl_info->commit_lab = 0;
       GONEXT(xl);
       return code_p;
     }
@@ -2743,6 +2922,27 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
   return code_p;
 }
 
+static yamop *
+a_special_label(yamop *code_p, int pass_no, struct intermediates *cip)
+{
+  special_label_id lab_id = cip->cpc->rnd1;
+  UInt             lab_val = cip->cpc->rnd2;
+
+  switch (lab_id) {
+  case SPECIAL_LABEL_EXCEPTION:
+    cip->exception_handler = lab_val;
+    break;
+  case SPECIAL_LABEL_SUCCESS:
+    cip->success_handler = lab_val;
+    break;
+  case SPECIAL_LABEL_FAILURE:
+    cip->failure_handler = lab_val;
+    break;
+  }
+  return code_p;
+}
+
+
 #ifdef YAPOR
 #define TRYCODE(G,P) a_try((G), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], IPredArity, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no, cip)
 #define TABLE_TRYCODE(G) a_try((G), (CELL)emit_ilabel(cip->cpc->rnd1, cip), IPredArity, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no, cip)
@@ -2778,6 +2978,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
   clinfo.commit_lab = 0L;
   clinfo.CurrentPred = cip->CurrentPred;
   cip->current_try_lab = NULL;
+  cip->exception_handler = 0;
+  cip->success_handler = 0;
+  cip->failure_handler = 0;
   cip->try_instructions = NULL;
   cmp_info.c_type = TYPE_XX;
   cmp_info.cl_info = &clinfo;
@@ -2980,6 +3183,168 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case get_float_op:
       *clause_has_blobsp = TRUE;
       code_p = a_rd(_get_float, code_p, pass_no, cip->cpc);
+      break;
+    case get_fi_op:
+      code_p = a_fi(_get_fi_x, _get_fi_y, code_p, pass_no, cip->cpc, cip->exception_handler, cip);
+      break;
+    case get_f_op:
+      code_p = a_fi(_get_f_x, _get_f_y, code_p, pass_no, cip->cpc, cip->exception_handler, cip);
+      break;
+    case get_i_op:
+      code_p = a_fi(_get_i_x, _get_i_y, code_p, pass_no, cip->cpc, cip->exception_handler, cip);
+      break;
+    case put_fi_var_op:
+      code_p = a_fi(_put_fi_var_x, _put_fi_var_y, code_p, pass_no, cip->cpc, cip->success_handler, cip);
+      break;
+    case put_f_var_op:
+      code_p = a_fi(_put_f_var_x, _put_f_var_y, code_p, pass_no, cip->cpc, cip->success_handler, cip);
+      break;
+    case put_i_var_op:
+      code_p = a_fi(_put_i_var_x, _put_i_var_y, code_p, pass_no, cip->cpc, cip->success_handler, cip);
+      break;
+    case put_fi_val_op:
+      code_p = a_fil(_put_fi_val_x, _put_fi_val_y, code_p, pass_no, cip->cpc, cip->success_handler, cip->failure_handler, cip);
+      break;
+    case put_f_val_op:
+      code_p = a_fil(_put_f_val_x, _put_f_val_y, code_p, pass_no, cip->cpc, cip->success_handler, cip->failure_handler, cip);
+      break;
+    case put_i_val_op:
+      code_p = a_fil(_put_i_val_x, _put_i_val_y, code_p, pass_no, cip->cpc, cip->success_handler, cip->failure_handler, cip);
+      break;
+    case a_eqc_float_op:
+      *clause_has_blobsp = TRUE;
+      code_p = a_sdll(_a_eqc_float, code_p, pass_no, cip->cpc, cip->success_handler, cip->failure_handler, cip);
+      break;
+    case a_eqc_int_op:
+      code_p = a_snll(_a_eqc_int, code_p, pass_no, cip->cpc, cip->success_handler, cip->failure_handler, cip);
+      break;
+    case a_eq_op:
+      code_p = a_ssll(_a_eq, code_p, pass_no, cip->cpc, cip->success_handler, cip->failure_handler, cip);
+      break;
+    case ltc_float_op:
+      *clause_has_blobsp = TRUE;
+      code_p = a_sdll(_ltc_float, code_p, pass_no, cip->cpc, cip->success_handler, cip->failure_handler, cip);
+      break;
+    case ltc_int_op:
+      code_p = a_snll(_ltc_int, code_p, pass_no, cip->cpc, cip->success_handler, cip->failure_handler, cip);
+      break;
+    case lt_op:
+      code_p = a_ssll(_lt, code_p, pass_no, cip->cpc, cip->success_handler, cip->failure_handler, cip);
+      break;
+    case gtc_float_op:
+      *clause_has_blobsp = TRUE;
+      code_p = a_sdll(_gtc_float, code_p, pass_no, cip->cpc, cip->success_handler, cip->failure_handler, cip);
+      break;
+    case gtc_int_op:
+      code_p = a_snll(_gtc_int, code_p, pass_no, cip->cpc, cip->success_handler, cip->failure_handler, cip);
+      break;
+    case add_float_c_op:
+      *clause_has_blobsp = TRUE;
+      code_p = a_ssd(_add_float_c, code_p, pass_no, cip->cpc);
+      break;
+    case add_int_c_op:
+      code_p = a_ssn(_add_int_c, code_p, pass_no, cip->cpc);
+      break;
+    case add_op:
+      code_p = a_sss(_add, code_p, pass_no, cip->cpc);
+      break;
+    case sub_float_c_op:
+      *clause_has_blobsp = TRUE;
+      code_p = a_ssd(_sub_float_c, code_p, pass_no, cip->cpc);
+      break;
+    case sub_int_c_op:
+      code_p = a_ssn(_sub_int_c, code_p, pass_no, cip->cpc);
+      break;
+    case sub_op:
+      code_p = a_sss(_sub, code_p, pass_no, cip->cpc);
+      break;
+    case mul_float_c_op:
+      *clause_has_blobsp = TRUE;
+      code_p = a_ssd(_mul_float_c, code_p, pass_no, cip->cpc);
+      break;
+    case mul_int_c_op:
+      code_p = a_ssn(_mul_int_c, code_p, pass_no, cip->cpc);
+      break;
+    case mul_op:
+      code_p = a_sss(_mul, code_p, pass_no, cip->cpc);
+      break;
+    case sr_c1_op:
+      code_p = a_ssn(_sr_c1, code_p, pass_no, cip->cpc);
+      break;
+    case sr_c2_op:
+      code_p = a_ssn(_sr_c2, code_p, pass_no, cip->cpc);
+      break;
+    case sr_op:
+      code_p = a_sss(_sr, code_p, pass_no, cip->cpc);
+      break;
+    case sl_c1_op:
+      code_p = a_ssn(_sl_c1, code_p, pass_no, cip->cpc);
+      break;
+    case sl_c2_op:
+      code_p = a_ssn(_sl_c2, code_p, pass_no, cip->cpc);
+      break;
+    case sl_op:
+      code_p = a_sss(_sl, code_p, pass_no, cip->cpc);
+      break;
+    case rem_c1_op:
+      code_p = a_ssn(_rem_c1, code_p, pass_no, cip->cpc);
+      break;
+    case rem_c2_op:
+      code_p = a_ssn(_rem_c2, code_p, pass_no, cip->cpc);
+      break;
+    case rem_op:
+      code_p = a_sss(_rem, code_p, pass_no, cip->cpc);
+      break;
+    case mod_c1_op:
+      code_p = a_ssn(_mod_c1, code_p, pass_no, cip->cpc);
+      break;
+    case mod_c2_op:
+      code_p = a_ssn(_mod_c2, code_p, pass_no, cip->cpc);
+      break;
+    case mod_op:
+      code_p = a_sss(_mod, code_p, pass_no, cip->cpc);
+      break;
+    case idiv_c1_op:
+      code_p = a_ssn(_idiv_c1, code_p, pass_no, cip->cpc);
+      break;
+    case idiv_c2_op:
+      code_p = a_ssn(_idiv_c2, code_p, pass_no, cip->cpc);
+      break;
+    case idiv_op:
+      code_p = a_sss(_idiv, code_p, pass_no, cip->cpc);
+      break;
+    case fdiv_c1_op:
+      code_p = a_ssd(_fdiv_c1, code_p, pass_no, cip->cpc);
+      break;
+    case fdiv_c2_op:
+      code_p = a_ssd(_fdiv_c2, code_p, pass_no, cip->cpc);
+      break;
+    case fdiv_op:
+      code_p = a_sss(_fdiv, code_p, pass_no, cip->cpc);
+      break;
+    case a_and_c_op:
+      code_p = a_ssn(_a_and_c, code_p, pass_no, cip->cpc);
+      break;
+    case a_and_op:
+      code_p = a_sss(_a_and, code_p, pass_no, cip->cpc);
+      break;
+    case a_or_c_op:
+      code_p = a_ssn(_a_or_c, code_p, pass_no, cip->cpc);
+      break;
+    case a_or_op:
+      code_p = a_sss(_a_or, code_p, pass_no, cip->cpc);
+      break;
+    case xor_c_op:
+      code_p = a_ssn(_xor_c, code_p, pass_no, cip->cpc);
+      break;
+    case xor_op:
+      code_p = a_sss(_xor, code_p, pass_no, cip->cpc);
+      break;
+    case uminus_op:
+      code_p = a_sss(_uminus, code_p, pass_no, cip->cpc);
+      break;
+    case label_ctl_op:
+      code_p = a_special_label(code_p, pass_no, cip);
       break;
     case get_longint_op:
       *clause_has_blobsp = TRUE;

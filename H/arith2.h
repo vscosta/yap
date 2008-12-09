@@ -19,6 +19,12 @@
  *
  */
 
+inline static int
+add_overflow(Int x, Int i, Int j)
+{
+  return (i & j & ~x) | (~i & ~j & x);
+}
+
 inline static Term
 add_int(Int i, Int j)
 {
@@ -36,6 +42,12 @@ add_int(Int i, Int j)
 #else
   RINT(x);
 #endif
+}
+
+inline static int
+sub_overflow(Int x, Int i, Int j)
+{
+  return (i & ~j & ~x) | (~i & j & x);
 }
 
 inline static Term
@@ -72,6 +84,13 @@ sub_int(Int i, Int j)
 #endif
 #endif
 
+
+inline static int
+mul_overflow(Int z, Int i1, Int i2)
+{
+  return (i2 &&  z/i2 != i1);
+}
+
 #ifndef OPTIMIZE_MULTIPLI
 #define DO_MULTI() z = i1*i2;			\
   if (i2 &&  z/i2 != i1) goto overflow
@@ -94,11 +113,30 @@ times_int(Int i1, Int i2) {
 
 
 #if USE_GMP
-static inline Int
-sll_ovflw(Int x,Int i)
+static inline int
+sl_overflow(Int x,Int i)
 {
   CELL t = (1<<x)-1;
   return (t & i) != i;
+}
+
+static inline int
+sr_overflow(Int x,Int i)
+{
+  CELL t = (1>>x)-1;
+  return (t & i) != i;
+}
+#else
+static inline Int
+sl_overflow(Int x,Int i)
+{
+  return FALSE; 
+}
+
+static inline Int
+sr_overflow(Int x,Int i)
+{
+  return FALSE;
 }
 #endif
 
@@ -109,7 +147,7 @@ do_sll(Int i, Int j)
   Int x = (8*sizeof(CELL)-2)-j;
   
   if (x < 0||
-      sll_ovflw(x,i)) {
+      sl_overflow(x,i)) {
     return(Yap_gmp_sll_ints(i, j));
   }
 #endif

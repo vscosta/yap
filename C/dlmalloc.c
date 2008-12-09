@@ -1586,6 +1586,8 @@ Void_t* mALLOc(size_t bytes)
   
   victim = av->top;
   size = chunksize(victim);
+
+  if (size>100000) fprintf(stderr,"victim=%p %d\n",victim, size);
   
   if ((CHUNK_SIZE_T)(size) >= (CHUNK_SIZE_T)(nb + MINSIZE)) {
     remainder_size = size - nb;

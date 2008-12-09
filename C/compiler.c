@@ -312,11 +312,11 @@ adjust_current_commits(compiler_struct *cglobs) {
   }
 }
 
-static void
-c_var(Term t, Int argno, unsigned int arity, unsigned int level, compiler_struct *cglobs)
-{
+
+static int
+check_var(Term t, unsigned int level, Int argno, compiler_struct *cglobs) {
   int flags, new = FALSE;
-  Ventry *v = (Ventry *) Deref(t);
+  Ventry *v = (Ventry *)t;
 
   if (IsNewVar(v)) {		/* new var */
     v = (Ventry *) Yap_AllocCMem(sizeof(*v), &cglobs->cint);
@@ -387,36 +387,61 @@ c_var(Term t, Int argno, unsigned int arity, unsigned int level, compiler_struct
   }
   if (cglobs->onhead)
     v->FlagsOfVE |= OnHeadFlag;
+  return new;
+}
+
+static void
+tag_var(Term t, int new, compiler_struct *cglobs)
+{
+  Ventry *v = (Ventry *) t;
+
+  if (new) {
+    v->FirstOpForV = cglobs->cint.cpc;
+  }
+  v->LastOpForV = cglobs->cint.cpc;
+  ++(v->RCountOfVE);
+  if (cglobs->onlast)
+    v->FlagsOfVE |= OnLastGoal;
+  if (v->AgeOfVE < cglobs->goalno)
+    v->AgeOfVE = cglobs->goalno;
+}
+
+static void
+c_var(Term t, Int argno, unsigned int arity, unsigned int level, compiler_struct *cglobs)
+{
+  int new = check_var(Deref(t), level, argno, cglobs);
+  t = Deref(t);
+
   switch (argno) {
   case save_b_flag:
-    Yap_emit(save_b_op, (CELL) v, Zero, &cglobs->cint);
+    Yap_emit(save_b_op, t, Zero, &cglobs->cint);
     break;
   case commit_b_flag:
-    Yap_emit(commit_b_op, (CELL) v, Zero, &cglobs->cint);
+    Yap_emit(commit_b_op, t, Zero, &cglobs->cint);
     Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
     Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
     break;
   case patch_b_flag:
-    Yap_emit(patch_b_op, (CELL) v, 0, &cglobs->cint);
+    Yap_emit(patch_b_op, t, 0, &cglobs->cint);
     break;
   case save_pair_flag:
-    Yap_emit(save_pair_op, (CELL) v, 0, &cglobs->cint);
+    Yap_emit(save_pair_op, t, 0, &cglobs->cint);
     break;
   case save_appl_flag:
-    Yap_emit(save_appl_op, (CELL) v, 0, &cglobs->cint);
+    Yap_emit(save_appl_op, t, 0, &cglobs->cint);
     break;
   case f_flag:
     if (new) {
       ++cglobs->nvars;
-      Yap_emit(f_var_op, (CELL) v, (CELL)arity, &cglobs->cint);
+      Yap_emit(f_var_op, t, (CELL)arity, &cglobs->cint);
     } else
-      Yap_emit(f_val_op, (CELL) v, (CELL)arity, &cglobs->cint);
+      Yap_emit(f_val_op, t, (CELL)arity, &cglobs->cint);
     break;
   case bt1_flag:
-    Yap_emit(fetch_args_for_bccall, (CELL)v, 0, &cglobs->cint);
+    Yap_emit(fetch_args_for_bccall, t, 0, &cglobs->cint);
     break;
   case bt2_flag:
-    Yap_emit(bccall_op, (CELL)v, (CELL)cglobs->current_p0, &cglobs->cint);
+    Yap_emit(bccall_op, t, (CELL)cglobs->current_p0, &cglobs->cint);
     break;
   default:
 #ifdef SFUNC
@@ -429,31 +454,23 @@ c_var(Term t, Int argno, unsigned int arity, unsigned int level, compiler_struct
 #endif
     if (cglobs->onhead) {
       if (level == 0)
-	Yap_emit((new ? (++cglobs->nvars, get_var_op) : get_val_op), (CELL) v, argno, &cglobs->cint);
+	Yap_emit((new ? (++cglobs->nvars, get_var_op) : get_val_op), t, argno, &cglobs->cint);
       else
 	Yap_emit((new ? (++cglobs->nvars, (argno == (Int)arity ?
 			       unify_last_var_op :
 			       unify_var_op)) :
 	      (argno == (Int)arity ? unify_last_val_op :
 	       unify_val_op)),
-	     (CELL) v, Zero, &cglobs->cint);
+	     t, Zero, &cglobs->cint);
     }
     else {
       if (level == 0)
-	Yap_emit((new ? (++cglobs->nvars, put_var_op) : put_val_op), (CELL) v, argno, &cglobs->cint);
+	Yap_emit((new ? (++cglobs->nvars, put_var_op) : put_val_op), t, argno, &cglobs->cint);
       else
-	Yap_emit((new ? (++cglobs->nvars, write_var_op) : write_val_op), (CELL) v, Zero, &cglobs->cint);
+	Yap_emit((new ? (++cglobs->nvars, write_var_op) : write_val_op), t, Zero, &cglobs->cint);
     }
   }
-  if (new) {
-    v->FirstOpForV = cglobs->cint.cpc;
-  }
-  v->LastOpForV = cglobs->cint.cpc;
-  ++(v->RCountOfVE);
-  if (cglobs->onlast)
-    v->FlagsOfVE |= OnLastGoal;
-  if (v->AgeOfVE < cglobs->goalno)
-    v->AgeOfVE = cglobs->goalno;
+  tag_var(t, new, cglobs);
 }
 
 static void
@@ -1350,6 +1367,58 @@ IsTrueGoal(Term t) {
 }
 
 static void
+c_p_put(Term Goal, op_numbers op_var, op_numbers op_val, compiler_struct * cglobs)
+{
+  Term t = Deref(ArgOfTerm(1, Goal));
+  int new = check_var(t, 1, 0, cglobs);
+  t = Deref(t);
+  Yap_emit((new ?
+	    (++cglobs->nvars,op_var) : op_val), t, IntegerOfTerm(ArgOfTerm(2, Goal)), &cglobs->cint);
+  tag_var(t, new, cglobs);
+}
+
+
+static void
+emit_special_label(Term Goal, compiler_struct *cglobs)
+{
+  special_label_op lab_op = IntOfTerm(ArgOfTerm(1,Goal));
+  special_label_id lab_id = IntOfTerm(ArgOfTerm(2,Goal));
+  UInt label_name;
+
+  switch (lab_op) {
+  case SPECIAL_LABEL_INIT:
+    label_name = ++cglobs->labelno;
+    switch (lab_id) {
+    case SPECIAL_LABEL_EXCEPTION:
+      cglobs->cint.exception_handler = label_name;
+      break;
+    case SPECIAL_LABEL_SUCCESS:
+      cglobs->cint.success_handler = label_name;
+      break;
+    case SPECIAL_LABEL_FAILURE:
+      cglobs->cint.failure_handler = label_name;
+      break;
+    }
+    Yap_emit(label_ctl_op, lab_op, label_name, &cglobs->cint);
+    break;
+  case SPECIAL_LABEL_SET:
+    switch (lab_id) {
+    case SPECIAL_LABEL_EXCEPTION:
+      Yap_emit(label_op, cglobs->cint.exception_handler, Zero, &cglobs->cint);
+      break;
+    case SPECIAL_LABEL_SUCCESS:
+      Yap_emit(label_op, cglobs->cint.success_handler, Zero, &cglobs->cint);
+      break;
+    case SPECIAL_LABEL_FAILURE:
+      Yap_emit(label_op, cglobs->cint.failure_handler, Zero, &cglobs->cint);
+      break;
+    }
+  case SPECIAL_LABEL_CLEAR:
+    return;
+  }
+}
+
+static void
 c_goal(Term Goal, int mod, compiler_struct *cglobs)
 {
   Functor f;
@@ -1764,8 +1833,158 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 #endif
 	}
 	return;
-      }
-      else {
+      } else if (op >= _p_put_fi && op <= _p_sl) {
+	switch(op) {
+	  /* one should never get a new variable here */
+	case  _p_get_fi:
+	  c_p_put(Goal, get_fi_op, get_fi_op, cglobs);
+	  break;
+	case  _p_get_i:
+	  c_p_put(Goal, get_i_op, get_i_op, cglobs);
+	  break;
+	case  _p_get_f:
+	  c_p_put(Goal, get_f_op, get_f_op, cglobs);
+	  break;
+	case  _p_put_fi:
+	  c_p_put(Goal, put_fi_var_op, put_fi_val_op, cglobs);
+	  break;
+	case  _p_put_i:
+	  c_p_put(Goal, put_i_var_op, put_i_val_op, cglobs);
+	  break;
+	case  _p_put_f:
+	  c_p_put(Goal, put_f_var_op, put_f_val_op, cglobs);
+	  break;
+	case  _p_a_eq_float:
+	  Yap_emit(a_eqc_float_op, ArgOfTerm(2, Goal), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
+	  break;
+	case  _p_a_eq_int:
+	  Yap_emit(a_eqc_int_op, ArgOfTerm(2, Goal), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
+	  break;
+	case  _p_a_eq:
+	  Yap_emit(a_eq_op, IntOfTerm(ArgOfTerm(1, Goal)), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
+	  break;
+	case  _p_ltc_float:
+	  Yap_emit(ltc_float_op, ArgOfTerm(2, Goal), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
+	  break;
+	case  _p_ltc_int:
+	  Yap_emit(ltc_int_op, ArgOfTerm(2, Goal), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
+	  break;
+	case  _p_lt:
+	  Yap_emit(lt_op, IntOfTerm(ArgOfTerm(1, Goal)), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
+	  break;
+	case  _p_gtc_float:
+	  Yap_emit(gtc_float_op, ArgOfTerm(2, Goal), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
+	  break;
+	case  _p_gtc_int:
+	  Yap_emit(gtc_int_op, ArgOfTerm(2, Goal), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
+	  break;
+	case  _p_add_float_c:
+	  Yap_emit_3ops(add_float_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_add_int_c:
+	  Yap_emit_3ops(add_int_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_add:
+	  Yap_emit_3ops(add_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_sub_float_c:
+	  Yap_emit_3ops(sub_float_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_sub_int_c:
+	  Yap_emit_3ops(sub_int_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_sub:
+	  Yap_emit_3ops(sub_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_mul_float_c:
+	  Yap_emit_3ops(mul_float_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_mul_int_c:
+	  Yap_emit_3ops(mul_int_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_mul:
+	  Yap_emit_3ops(mul_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_fdiv_c1:
+	  Yap_emit_3ops(fdiv_c1_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_fdiv_c2:
+	  Yap_emit_3ops(fdiv_c2_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_fdiv:
+	  Yap_emit_3ops(fdiv_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_idiv_c1:
+	  Yap_emit_3ops(idiv_c1_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_idiv_c2:
+	  Yap_emit_3ops(idiv_c2_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_idiv:
+	  Yap_emit_3ops(idiv_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_mod_c1:
+	  Yap_emit_3ops(mod_c1_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_mod_c2:
+	  Yap_emit_3ops(mod_c2_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_mod:
+	  Yap_emit_3ops(mod_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_rem_c1:
+	  Yap_emit_3ops(rem_c1_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_rem_c2:
+	  Yap_emit_3ops(rem_c2_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_rem:
+	  Yap_emit_3ops(rem_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_land_c:
+	  Yap_emit_3ops(a_and_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_land:
+	  Yap_emit_3ops(a_and_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_lor_c:
+	  Yap_emit_3ops(a_or_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_lor:
+	  Yap_emit_3ops(a_or_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_xor_c:
+	  Yap_emit_3ops(xor_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_xor:
+	  Yap_emit_3ops(xor_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_uminus:
+	  Yap_emit(uminus_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), &cglobs->cint);
+	  break;
+	case  _p_sr_c1:
+	  Yap_emit_3ops(sr_c1_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_sr_c2:
+	  Yap_emit_3ops(sr_c2_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_sr:
+	  Yap_emit_3ops(sr_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_sl_c1:
+	  Yap_emit_3ops(sl_c1_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_sl_c2:
+	  Yap_emit_3ops(sl_c2_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_sl:
+	  Yap_emit_3ops(sl_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
+	  break;
+	case  _p_label_ctl:
+	  emit_special_label(Goal, cglobs);
+	  break;
+	}
+      } else {
 	c_args(Goal, 0, cglobs);
       }
     }

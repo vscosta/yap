@@ -1310,9 +1310,9 @@ has_cut(yamop *pc)
    case _write_l_struc:
       pc = NEXTOP(pc,f);
       break;
-      /* instructions type sdlp */
+      /* instructions type slp */
     case _call_c_wfail:
-      pc = NEXTOP(pc,sdlp);
+      pc = NEXTOP(pc,slp);
       break;
       /* instructions type lds */
     case _try_c:
@@ -2413,6 +2413,112 @@ add_info(ClauseDef *clause, UInt regno)
 	}
       }
       cl = NEXTOP(cl,yxn);
+      break;
+    case _a_eqc_float:
+    case _ltc_float:
+    case _gtc_float:
+      cl = NEXTOP(cl,sdll);
+      break;
+    case _a_eqc_int:
+    case _ltc_int:
+    case _gtc_int:
+      cl = NEXTOP(cl,snll);
+      break;
+    case _a_eq:
+    case _lt:
+      cl = NEXTOP(cl,snll);
+      break;
+    case _add_float_c:
+    case _sub_float_c:
+    case _mul_float_c:
+    case _fdiv_c1:
+    case _fdiv_c2:
+      cl = NEXTOP(cl,ssd);
+      break;
+    case _add_int_c:
+    case _sub_int_c:
+    case _mul_int_c:
+    case _idiv_c1:
+    case _idiv_c2:
+    case _mod_c1:
+    case _mod_c2:
+    case _rem_c1:
+    case _rem_c2:
+    case _a_or_c:
+    case _a_and_c:
+    case _xor_c:
+    case _sl_c1:
+    case _sl_c2:
+    case _sr_c1:
+    case _sr_c2:
+      cl = NEXTOP(cl,ssn);
+      break;
+    case _add:
+    case _sub:
+    case _mul:
+    case _fdiv:
+    case _idiv:
+    case _mod:
+    case _rem:
+    case _a_or:
+    case _a_and:
+    case _xor:
+    case _uminus:
+    case _sl:
+    case _sr:
+      cl = NEXTOP(cl,sss);
+      break;
+    case _get_fi_x:
+    case _get_i_x:
+    case _get_f_x:
+    case _put_fi_var_x:
+    case _put_i_var_x:
+    case _put_f_var_x:
+      if (regcopy_in(myregs, nofregs, cl->u.sxl.x) &&
+	  (nofregs = delete_regcopy(myregs, nofregs, cl->u.sxl.x)) == 0 &&
+	  !ycopy) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,sxl);
+      break;
+    case _get_fi_y:
+    case _get_i_y:
+    case _get_f_y:
+    case _put_fi_var_y:
+    case _put_i_var_y:
+    case _put_f_var_y:
+      if (cl->u.syl.y == ycopy) {
+	ycopy = 0;	/* weird stuff, let's just reset ycopy */
+	if (nofregs == 0) {
+	  clause->Tag = (CELL)NULL;
+	  return;
+	}
+      }
+      cl = NEXTOP(cl,syl);
+      break;
+    case _put_fi_val_x:
+    case _put_i_val_x:
+    case _put_f_val_x:
+      if (regcopy_in(myregs, nofregs, cl->u.sxll.x) &&
+	  (nofregs = delete_regcopy(myregs, nofregs, cl->u.sxll.x)) == 0 &&
+	  !ycopy) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,sxll);
+      break;
+    case _put_fi_val_y:
+    case _put_i_val_y:
+    case _put_f_val_y:
+      if (cl->u.syll.y == ycopy) {
+	ycopy = 0;	/* weird stuff, let's just reset ycopy */
+	if (nofregs == 0) {
+	  clause->Tag = (CELL)NULL;
+	  return;
+	}
+      }
+      cl = NEXTOP(cl,syll);
       break;
     case _lock_lu:
       cl = NEXTOP(cl,p);

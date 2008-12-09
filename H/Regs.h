@@ -24,6 +24,7 @@
 #endif
 
 #define MaxTemps	512
+#define MaxArithms	32
 
 #ifdef i386
 #define PUSH_REGS 1
@@ -144,6 +145,10 @@ typedef struct
 #ifdef PUSH_X
     Term XTERMS[MaxTemps];	/* 29                                    */
 #endif
+    yamop *ARITH_EXCEPTION_;
+    int isint_[MaxArithms];
+    Int Ints_[MaxArithms];
+    Float Floats_[MaxArithms];
   }
 REGSTORE;
 
@@ -717,6 +722,10 @@ EXTERN inline void restore_B(void) {
 #define DelayedVars   Yap_REGS.DelayedVars_
 #endif
 #define CurrentModule Yap_REGS.CurrentModule_
+#define ARITH_EXCEPTION     Yap_REGS.ARITH_EXCEPTION_
+#define Yap_isint     Yap_REGS.isint_
+#define Yap_Floats    Yap_REGS.Floats_
+#define Yap_Ints      Yap_REGS.Ints_
 
 #define REG_SIZE	sizeof(REGS)/sizeof(CELL *)
 

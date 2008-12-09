@@ -4276,11 +4276,11 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
    case _write_l_struc:
       pc = NEXTOP(pc,fa);
       break;
-      /* instructions type sdlp */
+      /* instructions type slp */
     case _call_c_wfail:
       clause_code = TRUE;
-      pp = pc->u.sdlp.p;
-      pc = NEXTOP(pc,sdlp);
+      pp = pc->u.slp.p;
+      pc = NEXTOP(pc,slp);
       break;
       /* instructions type OtapFs */
     case _try_c:

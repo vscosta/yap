@@ -178,7 +178,59 @@ typedef enum compiler_op {
 #endif
   fetch_args_for_bccall,
   bccall_op,
-  blob_op
+  blob_op,
+  get_fi_op,
+  get_i_op,
+  get_f_op,
+  put_fi_var_op,
+  put_f_var_op,
+  put_i_var_op,
+  put_fi_val_op,
+  put_f_val_op,
+  put_i_val_op,
+  a_eqc_float_op,
+  a_eqc_int_op,
+  a_eq_op,
+  ltc_float_op,
+  ltc_int_op,
+  lt_op,
+  gtc_float_op,
+  gtc_int_op,
+  add_float_c_op,
+  add_int_c_op,
+  add_op,
+  sub_float_c_op,
+  sub_int_c_op,
+  sub_op,
+  mul_float_c_op,
+  mul_int_c_op,
+  mul_op,
+  sr_c1_op,
+  sr_c2_op,
+  sr_op,
+  sl_c1_op,
+  sl_c2_op,
+  sl_op,
+  fdiv_c1_op,
+  fdiv_c2_op,
+  fdiv_op,
+  idiv_c1_op,
+  idiv_c2_op,
+  idiv_op,
+  mod_c1_op,
+  mod_c2_op,
+  mod_op,
+  rem_c1_op,
+  rem_c2_op,
+  rem_op,
+  a_and_c_op,
+  a_and_op,
+  a_or_c_op,
+  a_or_op,
+  xor_c_op,
+  xor_op,
+  uminus_op,
+  label_ctl_op
 #ifdef SFUNC
   ,
   get_s_f_op,
@@ -260,6 +312,7 @@ typedef struct intermediates {
   yamop *code_addr;
   yamop *expand_block;
   UInt  i_labelno;
+  UInt  exception_handler, success_handler, failure_handler;
   /* for expanding code */
   yamop **current_try_lab, **current_trust_lab;
   yamop *try_instructions;
@@ -268,6 +321,18 @@ typedef struct intermediates {
     struct logic_upd_index *lui;
   } current_cl;
 } CIntermediates;
+
+typedef enum special_label_id_enum {
+  SPECIAL_LABEL_SUCCESS = 0,
+  SPECIAL_LABEL_FAILURE = 1,
+  SPECIAL_LABEL_EXCEPTION = 2
+} special_label_id;
+
+typedef enum special_label_op_enum {
+  SPECIAL_LABEL_INIT = 0,
+  SPECIAL_LABEL_SET = 1,
+  SPECIAL_LABEL_CLEAR =2
+} special_label_op;
 
 #define	 SafeVar	0x01
 #define  PermFlag	0x02
