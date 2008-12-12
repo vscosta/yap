@@ -903,6 +903,6 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$fetch_comp_status'(assert_all) :-
 	nb_getval('$assert_all',on), !.
 '$fetch_comp_status'(source) :-
-	 '$get_yap_flags'(11,1).
+	 '$access_yap_flags'(11,1).
 '$fetch_comp_status'(compact).
 
