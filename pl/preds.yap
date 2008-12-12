@@ -790,12 +790,18 @@ hide_predicate(P) :-
 '$hide_predicate2'(PredDesc, M) :-
 	'$do_error'(type_error(predicate_indicator,PredDesc),hide_predicate(M:PredDesc)).
 
+predicate_property(Pred,Prop) :- var(Pred), !,
+	'$current_module'(Mod),
+	'$predicate_property2'(Pred,Prop,Mod).
 predicate_property(Mod:Pred,Prop) :- !,
 	'$predicate_property2'(Pred,Prop,Mod).
 predicate_property(Pred,Prop) :- 
 	'$current_module'(Mod),
 	'$predicate_property2'(Pred,Prop,Mod).
 
+'$predicate_property2'(Pred,Prop,M) :- var(M), !,
+	'$all_current_modules'(M),
+	'$predicate_property2'(Pred,Prop,M).
 '$predicate_property2'(Pred,Prop,M) :- var(Pred), !,
 	'$generate_all_preds_from_mod'(Pred, SourceMod, M),
 	'$predicate_property'(Pred,SourceMod,M,Prop).
