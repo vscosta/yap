@@ -872,19 +872,24 @@ c_eq(Term t1, Term t2, compiler_struct *cglobs)
   }
   /* first argument is an unbound var */
   if (IsNewVar(t1)) {
-    c_var(t1, 0, 0, 0, cglobs);
+    if (IsVarTerm(t2)) {
+      c_var(t2, 1, 0, 0, cglobs);
+    } else {
+      c_arg(1, t2, 0, 0, cglobs);
+    }
+    cglobs->onhead = TRUE;
+    c_var(t1, 1, 0, 0, cglobs);
+    cglobs->onhead = FALSE;    
   } else {
     c_var(t1, 0, 0, 0, cglobs);
     cglobs->onhead = TRUE;
+    if (IsVarTerm(t2)) {
+      c_var(t2, 0, 0, 0, cglobs);
+    } else {
+      c_arg(0, t2, 0, 0, cglobs);
+    }
+    cglobs->onhead = FALSE;
   }
-  if (IsVarTerm(t2)) {
-    cglobs->onhead = TRUE;
-    c_var(t2, 0, 0, 0, cglobs);
-  } else {
-    cglobs->onhead = TRUE;
-    c_arg(0, t2, 0, 0, cglobs);
-  }
-  cglobs->onhead = FALSE;
 }
 
 static void
