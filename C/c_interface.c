@@ -356,6 +356,9 @@
 #include "cut_c.h"
 #endif /* CUT_C */
 
+#if !HAVE_STRNCPY
+#define strncpy(X,Y,Z) strcpy(X,Y)
+#endif
 
 #define YAP_BOOT_FROM_PROLOG       0
 #define YAP_BOOT_FROM_SAVED_CODE   1
@@ -2382,3 +2385,17 @@ YAP_AGCRegisterHook(Agc_hook hook)
   return old;
 } 
 
+X_API char *
+YAP_cwd(void)
+{
+  char *buf;
+  int len;
+  if (!Yap_getcwd(Yap_FileNameBuf, YAP_FILENAME_MAX))
+    return FALSE;
+  len = strlen(Yap_FileNameBuf);
+  buf = malloc(+1);
+  if (!buf)
+    return NULL;
+  strncpy(buf, Yap_FileNameBuf, len);
+  return buf;
+}

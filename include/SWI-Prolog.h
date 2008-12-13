@@ -307,14 +307,35 @@ extern X_API void PL_free(void *);
 
 #define PL_register_foreign(name, arity, function, flags) PL_register_foreign_in_module(NULL, (name), (arity), (function), (flags))
 
-extern X_API int Sprintf(char *,...);
-extern X_API int Sdprintf(char *,...);
+extern X_API int Sprintf(const char * fm,...);
+extern X_API int Sdprintf(const char *,...);
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Output   representation   for   PL_get_chars()     and    friends.   The
+prepresentation type REP_FN is for   PL_get_file_name()  and friends. On
+Windows we use UTF-8 which is translated   by the `XOS' layer to Windows
+UNICODE file functions.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+#define REP_ISO_LATIN_1 0x0000		/* output representation */
+#define REP_UTF8 	0x1000
+#define REP_MB		0x2000
+#ifdef __WINDOWS__
+#define REP_FN		REP_UTF8
+#else
+#define REP_FN		REP_MB
+#endif
+
+#define PL_DIFF_LIST	0x20000		/* PL_unify_chars() */
+
 
 #ifdef SIO_MAGIC			/* defined from <SWI-Stream.h> */
 extern X_API  int PL_unify_stream(term_t t, IOSTREAM *s);
 extern X_API  int PL_open_stream(term_t t, IOSTREAM *s); /* compat */
 extern X_API  int PL_get_stream_handle(term_t t, IOSTREAM **s);
 #endif
+
+extern X_API  char *PL_cwd(void);
 
 void swi_install(void);
 

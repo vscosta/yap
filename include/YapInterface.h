@@ -451,6 +451,9 @@ extern X_API int  PROTO(YAP_AtomReleaseHold,(YAP_Atom));
 /*  void  YAP_AtomReleaseHold(YAP_Atom)  */
 extern X_API YAP_agc_hook  PROTO(YAP_AGCRegisterHook,(YAP_agc_hook));
 
+/*  char *YAP_cwd(void)  */
+extern X_API char *  PROTO(YAP_cwd,(void));
+
 /* thread stuff */
 extern X_API int  PROTO(YAP_ThreadSelf,(void));
 extern X_API YAP_CELL PROTO(YAP_ThreadCreateEngine,(YAP_thread_attr *));

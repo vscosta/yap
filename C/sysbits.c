@@ -1608,6 +1608,34 @@ Yap_volume_header(char *file)
   return volume_header(file);
 }
 
+
+int Yap_getcwd(const char *buf, int len)
+{
+#if __simplescalar__
+  /* does not implement getcwd */
+  strncpy(Yap_buf,yap_pwd,len);
+#elif HAVE_GETCWD
+  if (getcwd ((char *)buf, len) == NULL) {
+#if HAVE_STRERROR
+    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in getcwd/1", strerror(errno));
+#else
+    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "error %d in getcwd/1", errno);
+#endif
+    return FALSE;
+  }
+#else
+  if (getwd (buf) == NULL) {
+#if HAVE_STRERROR
+    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in getcwd/1", strerror(errno));
+#else
+    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "in getcwd/1");
+#endif
+    return FALSE;
+  }
+#endif
+  return TRUE;
+}
+
 /******
       TODO: rewrite to use wordexp
  ****/
@@ -1698,16 +1726,8 @@ TrueFileName (char *source, char *root, char *result, int in_lib)
 #endif
   /* step 3: get the full file name */
   if (!dir_separator(result[0]) && !volume_header(result)) {
-#if __simplescalar__
-    /* does not implement getcwd */
-    strncpy(ares1,yap_pwd,YAP_FILENAME_MAX);
-#elif HAVE_GETCWD
-    if (getcwd (ares1, YAP_FILENAME_MAX) == NULL)
+    if (!Yap_getcwd(ares1, YAP_FILENAME_MAX))
       return FALSE;
-#else
-    if (getwd (ares1) == NULL)
-      return FALSE;
-#endif
 #if _MSC_VER || defined(__MINGW32__)
     strncat (ares1, "\\", YAP_FILENAME_MAX);
 #else
@@ -1858,32 +1878,11 @@ p_true_file_name3 (void)
   return Yap_unify(ARG3, MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
 }
 
-
 static Int
 p_getcwd(void)
 {
-#if __simplescalar__
-  /* does not implement getcwd */
-  strncpy(Yap_FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
-#elif HAVE_GETCWD
-  if (getcwd (Yap_FileNameBuf, YAP_FILENAME_MAX) == NULL) {
-#if HAVE_STRERROR
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in getcwd/1", strerror(errno));
-#else
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "error %d in getcwd/1", errno);
-#endif
+  if (!Yap_getcwd(Yap_FileNameBuf, YAP_FILENAME_MAX))
     return FALSE;
-  }
-#else
-  if (getwd (Yap_FileNameBuf) == NULL) {
-#if HAVE_STRERROR
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in getcwd/1", strerror(errno));
-#else
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "in getcwd/1");
-#endif
-    return FALSE;
-  }
-#endif
   return Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
 }
 
