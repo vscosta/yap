@@ -36,9 +36,9 @@
 #endif
 #endif
 
-typedef	unsigned long    fid_t;
 typedef	unsigned long    term_t;
 typedef	void *module_t;
+typedef	void *record_t;
 typedef unsigned long	atom_t;
 typedef	YAP_Term    *predicate_t;
 typedef struct  open_query_struct *qid_t;
@@ -52,8 +52,11 @@ typedef unsigned __int64 uint64_t;
 #else
 #include <inttypes.h>			/* more portable than stdint.h */
 #endif
+typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
 
 typedef void *function_t;
+
+#define fid_t PL_fid_t			/* avoid AIX name-clash */
 
 typedef struct _PL_extension
 { char 		*predicate_name;	/* Name of the predicate */
@@ -255,7 +258,10 @@ extern X_API  int PL_unify_nil(term_t);
 extern X_API  int PL_unify_pointer(term_t, void *);
 extern X_API  int PL_unify_string_chars(term_t, const char *);
 extern X_API  int PL_unify_term(term_t,...);
+extern X_API  int PL_unify_chars(term_t, int, size_t, const char *);
+extern X_API  int PL_unify_chars_diff(term_t, term_t, int, size_t, const char *);
 extern X_API  int PL_unify_wchars(term_t, int, size_t, const pl_wchar_t *);
+extern X_API  int PL_unify_wchars_diff(term_t, term_t, int, size_t, const pl_wchar_t *);
 /* end PL_unify_* functions =============================*/
 /* begin PL_is_* functions =============================*/
 extern X_API  int PL_is_atom(term_t);
@@ -269,12 +275,14 @@ extern X_API  int PL_is_number(term_t);
 extern X_API  int PL_is_string(term_t);
 extern X_API  int PL_is_variable(term_t);
 extern X_API  int PL_term_type(term_t);
+extern X_API  int PL_is_inf(term_t);
 /* end PL_is_* functions =============================*/
 extern X_API void PL_halt(int);
 extern X_API  int  PL_initialise(int, char **);
 extern X_API  int  PL_is_initialised(int *, char ***);
 extern X_API void PL_close_foreign_frame(fid_t);
 extern X_API void PL_discard_foreign_frame(fid_t);
+extern X_API void PL_rewind_foreign_frame(fid_t);
 extern X_API fid_t PL_open_foreign_frame(void);
 extern X_API int PL_raise_exception(term_t);
 extern X_API void PL_register_atom(atom_t);
@@ -301,6 +309,9 @@ extern X_API PL_engine_t PL_create_engine(const PL_thread_attr_t *);
 extern X_API int PL_destroy_engine(PL_engine_t);
 extern X_API int PL_set_engine(PL_engine_t,PL_engine_t *);
 extern X_API int PL_get_string_chars(term_t, char **, int *);
+extern X_API record_t PL_record(term_t);
+extern X_API void PL_recorded(record_t, term_t);
+extern X_API void PL_erase(record_t);
 extern X_API int PL_action(int,...);
 extern X_API void *PL_malloc(int);
 extern X_API void PL_free(void *);
@@ -335,8 +346,12 @@ extern X_API  int PL_open_stream(term_t t, IOSTREAM *s); /* compat */
 extern X_API  int PL_get_stream_handle(term_t t, IOSTREAM **s);
 #endif
 
-extern X_API  char *PL_cwd(void);
+extern X_API  const char *PL_cwd(void);
 
 void swi_install(void);
 
+X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...);
+
+
 #endif /* _FLI_H_INCLUDED */
+

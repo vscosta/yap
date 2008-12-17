@@ -52,6 +52,7 @@ Term	STD_PROTO(Yap_StringToListOfAtoms,(char *));
 Term	STD_PROTO(Yap_NStringToListOfAtoms,(char *, size_t));
 Term	STD_PROTO(Yap_WideStringToListOfAtoms,(wchar_t *));
 Term	STD_PROTO(Yap_NWideStringToListOfAtoms,(wchar_t *, size_t));
+Term	STD_PROTO(Yap_NWideStringToDiffListOfAtoms,(wchar_t *, Term, size_t));
 struct hold_entry *STD_PROTO(Yap_InitAtomHold,(void));
 int     STD_PROTO(Yap_AtomGetHold,(Atom));
 int     STD_PROTO(Yap_AtomReleaseHold,(Atom));

@@ -431,6 +431,7 @@ X_API Term    STD_PROTO(YAP_BufferToAtomList, (char *));
 X_API Term    STD_PROTO(YAP_NBufferToAtomList, (char *,size_t));
 X_API Term    STD_PROTO(YAP_WideBufferToAtomList, (wchar_t *));
 X_API Term    STD_PROTO(YAP_NWideBufferToAtomList, (wchar_t *, size_t));
+X_API Term    STD_PROTO(YAP_NWideBufferToAtomDiffList, (wchar_t *, Term, size_t));
 X_API Term    STD_PROTO(YAP_BufferToDiffList, (char *, Term));
 X_API Term    STD_PROTO(YAP_NBufferToDiffList, (char *, Term, size_t));
 X_API Term    STD_PROTO(YAP_WideBufferToDiffList, (wchar_t *, Term));
@@ -499,6 +500,7 @@ X_API Term     STD_PROTO(YAP_TermNil,(void));
 X_API int      STD_PROTO(YAP_AtomGetHold,(Atom));
 X_API int      STD_PROTO(YAP_AtomReleaseHold,(Atom));
 X_API Agc_hook STD_PROTO(YAP_AGCRegisterHook,(Agc_hook));
+X_API char    *STD_PROTO(YAP_cwd,(void));
 
 static int (*do_getf)(void);
 
@@ -1358,6 +1360,19 @@ YAP_NWideBufferToAtomList(wchar_t *s, size_t len)
   BACKUP_H();
 
   t = Yap_NWideStringToListOfAtoms(s, len);
+
+  RECOVER_H();
+  return t;
+}
+
+/* copy a string of size len to a buffer */
+X_API Term
+YAP_NWideBufferToAtomDiffList(wchar_t *s, Term t0, size_t len)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = Yap_NWideStringToDiffListOfAtoms(s, t0, len);
 
   RECOVER_H();
   return t;

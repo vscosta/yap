@@ -1180,6 +1180,22 @@ Yap_NWideStringToListOfAtoms(wchar_t *s, size_t len)
 }
 
 Term
+Yap_NWideStringToDiffListOfAtoms(wchar_t *s, Term t0, size_t len)
+{
+  register Term t;
+  wchar_t so[2];
+  wchar_t *cp = s + len;
+
+  so[1] = '\0';
+  t = t0;
+  while (cp > s) {
+    so[0] = *--cp;
+    t = MkPairTerm(MkAtomTerm(LookupWideAtom(so)), t);
+  }
+  return t;
+}
+
+Term
 Yap_ArrayToList(register Term *tp, int nof)
 {
   register Term *pt = tp + nof;

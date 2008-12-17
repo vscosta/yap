@@ -345,6 +345,9 @@ extern X_API YAP_Term PROTO(YAP_WideBufferToAtomList,(CONST wchar_t *));
 extern X_API YAP_Term PROTO(YAP_NWideBufferToAtomList,(CONST wchar_t *, size_t len));
 
 /*  int BufferToDiffList(const char *) */
+extern X_API YAP_Term PROTO(YAP_NWideBufferToAtomDiffList,(CONST wchar_t *, YAP_Term, size_t len));
+
+/*  int BufferToDiffList(const char *) */
 extern X_API YAP_Term PROTO(YAP_BufferToDiffList,(CONST char *));
 
 /*  int BufferToDiffList(const char *) */
@@ -354,7 +357,7 @@ extern X_API YAP_Term PROTO(YAP_NBufferToDiffList,(CONST char *, size_t len));
 extern X_API YAP_Term PROTO(YAP_WideBufferToDiffList,(CONST wchar_t *));
 
 /*  int BufferToDiffList(const char *) */
-extern X_API YAP_Term PROTO(YAP_NWideBufferToDiffList,(CONST wchar_t *, size_t len));
+extern X_API YAP_Term PROTO(YAP_NWideBufferToDiffList,(CONST wchar_t *, YAP_Term, size_t len));
 
 /* YAP_Term BufferToTerm(const char *) */
 extern X_API YAP_Term PROTO(YAP_ReadBuffer,(CONST char *,YAP_Term *));
