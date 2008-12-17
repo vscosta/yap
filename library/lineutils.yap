@@ -3,6 +3,7 @@
 	   search_for/3,
 	   scan_natural/3,
 	   scan_integer/3,
+	   split/2,
 	   split/3,
 	   glue/3,
 	   copy_line/2,
@@ -43,6 +44,9 @@ scan_natural(N0,N) -->
 	{ N1 is N0*10+(C-0'0) }, %'
 	get_natural(N1,N).
 scan_natural(N,N) --> [].
+
+split(String, Strings) :-
+	split_at_blank(" 	", Strings, String, []).
 
 split(String, SplitCodes, Strings) :-
 	split_at_blank(SplitCodes, Strings, String, []).
