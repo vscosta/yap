@@ -157,6 +157,72 @@ typedef void *PL_engine_t;
 #define PL_ACTION_GUIAPP	10	/* Win32: set when this is a gui */
 #define PL_ACTION_ATTACH_CONSOLE 11	/* MT: Attach a console */
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Foreign language interface definitions.  Note that these macros MUST  be
+consistent  with  the  definitions  in  pl-itf.h, which is included with
+users foreign language code.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+typedef enum
+{ FRG_FIRST_CALL = 0,		/* Initial call */
+  FRG_CUTTED     = 1,		/* Context was cutted */
+  FRG_REDO	 = 2		/* Normal redo */
+} frg_code;
+
+struct foreign_context
+{ uintptr_t		context;	/* context value */
+  frg_code		control;	/* FRG_* action */
+  struct PL_local_data *engine;		/* invoking engine */
+};
+
+typedef struct foreign_context *control_t;
+
+#define PRED_IMPL(name, arity, fname, flags) \
+        foreign_t \
+        pl_ ## fname ## _va(term_t PL__t0, int PL__ac, control_t PL__ctx)
+
+#define Arg(N)  (PL__t0+((n)-1))
+#define A1      (PL__t0)
+#define A2      (PL__t0+1)
+#define A3      (PL__t0+2)
+#define A3      (PL__t0+2)
+#define A4      (PL__t0+3)
+#define A5      (PL__t0+4)
+#define A6      (PL__t0+5)
+#define A7      (PL__t0+6)
+#define A8      (PL__t0+7)
+#define A9      (PL__t0+8)
+#define A10     (PL__t0+9)
+
+#define CTX_CNTRL ForeignControl(PL__ctx)
+#define CTX_PTR   ForeignContextPtr(PL__ctx)
+#define CTX_INT   ForeignContextInt(PL__ctx)
+#define CTX_ARITY PL__ac
+
+#define BeginPredDefs(id) \
+        PL_extension PL_predicates_from_ ## id[] = {
+#define PRED_DEF(name, arity, fname, flags) \
+        { name, arity, pl_ ## fname ## _va, (flags)|PL_FA_VARARGS },
+#define EndPredDefs \
+        { NULL, 0, NULL, 0 } \
+        };
+
+#define FRG_REDO_MASK	0x00000003L
+#define FRG_REDO_BITS	2
+#define REDO_INT	0x02		/* Returned an integer */
+#define REDO_PTR	0x03		/* returned a pointer */
+
+#define ForeignRedoIntVal(v)	(((uintptr_t)(v)<<FRG_REDO_BITS)|REDO_INT)
+#define ForeignRedoPtrVal(v)	(((uintptr_t)(v))|REDO_PTR)
+
+#define ForeignRedoInt(v)	return ForeignRedoIntVal(v)
+#define ForeignRedoPtr(v)	return ForeignRedoPtrVal(v)
+
+#define ForeignControl(h)	((h)->control)
+#define ForeignContextInt(h)	((intptr_t)(h)->context)
+#define ForeignContextPtr(h)	((void *)(h)->context)
+#define ForeignEngine(h)	((h)->engine)
+
 /* end from pl-itf.h */
 
 		 /*******************************

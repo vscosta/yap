@@ -172,7 +172,7 @@ X_API int PL_get_arg(int index, term_t ts, term_t a)
 X_API int PL_get_atom(term_t ts, atom_t *a)
 {
   YAP_Term t = Yap_GetFromSlot(ts);
-  if ( !YAP_IsAtomTerm(t))
+  if ( !IsAtomTerm(t))
     return 0;
   *a = AtomToSWIAtom(AtomOfTerm(t));
   return 1;
@@ -183,9 +183,9 @@ X_API int PL_get_atom(term_t ts, atom_t *a)
 X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
 {
   YAP_Term t = Yap_GetFromSlot(ts);
-  if (!YAP_IsAtomTerm(t))
+  if (!IsAtomTerm(t))
     return 0;
-  *a = (char *)YAP_AtomName(YAP_AtomOfTerm(t));
+  *a = RepAtom(AtomOfTerm(t))->StrOfAE;
   return 1;
 }
 
@@ -269,15 +269,15 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     tmp = buffers;
   }
   *sp = tmp;
-  if (YAP_IsAtomTerm(t)) {
-    YAP_Atom at = YAP_AtomOfTerm(t);
+  if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
     if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_ALL)))
       return 0;
-    if (YAP_IsWideAtom(at))
+    if (IsWideAtom(at))
       /* will this always work? */
-      snprintf(*sp,BUF_SIZE,"%ls",YAP_WideAtomName(at));
+      snprintf(*sp,BUF_SIZE,"%ls",RepAtom(at)->WStrOfAE);
     else
-      *sp = (char *)YAP_AtomName(YAP_AtomOfTerm(t));
+      *sp = RepAtom(at)->StrOfAE;
     return 1;
   } else if (YAP_IsIntTerm(t)) {
     if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_ALL)))
@@ -320,7 +320,7 @@ X_API int PL_get_nchars(term_t l, size_t *len, char **sp, unsigned flags)
 /* same as get_chars, but works on buffers of wide chars */
 X_API int PL_get_wchars(term_t l, size_t *len, wchar_t **wsp, unsigned flags)
 {
-  if (YAP_IsAtomTerm(l)) {
+  if (IsAtomTerm(l)) {
     YAP_Atom at = YAP_AtomOfTerm(l);
 
     if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_ALL)))
@@ -378,7 +378,7 @@ X_API int PL_get_wchars(term_t l, size_t *len, wchar_t **wsp, unsigned flags)
 X_API int PL_get_functor(term_t ts, functor_t *f)
 {
   YAP_Term t = Yap_GetFromSlot(ts);
-  if ( YAP_IsAtomTerm(t)) {
+  if ( IsAtomTerm(t)) {
     *f = t;
   } else {
     *f = (functor_t)YAP_FunctorOfTerm(t);
@@ -423,17 +423,17 @@ X_API int PL_get_integer(term_t ts, int *i)
 X_API int PL_get_bool(term_t ts, int *i)
 {
   YAP_Term t = Yap_GetFromSlot(ts);
-  char *sp;
+  Atom at;
 
-  if (!YAP_IsAtomTerm(t) )
+  if (!IsAtomTerm(t) )
     return 0;
-  sp = (char *)YAP_AtomName(YAP_AtomOfTerm(t));
-  if (!strcmp(sp,"true")) {
-    *sp = TRUE;
+  at = AtomOfTerm(t);
+  if (at == AtomTrue) {
+    *i = TRUE;
     return 1;    
   }
-  if (!strcmp(sp,"false")) {
-    *sp = FALSE;
+  if (at == AtomFalse) {
+    *i = FALSE;
     return 1;    
   }
   return 0;
@@ -532,7 +532,7 @@ X_API module_t PL_new_module(atom_t swiat)
 X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity)
 {
   YAP_Term t = Yap_GetFromSlot(ts);
-  if (YAP_IsAtomTerm(t)) {
+  if (IsAtomTerm(t)) {
     *name = AtomToSWIAtom(AtomOfTerm(t));
     *arity = 0;
     return 1;
@@ -687,7 +687,7 @@ X_API atom_t PL_functor_name(functor_t f)
 
 X_API int PL_functor_arity(functor_t f)
 {
-  if (YAP_IsAtomTerm(f)) {
+  if (IsAtomTerm(f)) {
     return 0;
   } else {
     return YAP_ArityOfFunctor((YAP_Functor)f);
@@ -704,7 +704,7 @@ X_API void PL_cons_functor(term_t d, functor_t f,...)
   int arity, i;
   YAP_Term *tmp = (YAP_CELL *)buffers;
 
-  if (YAP_IsAtomTerm((YAP_Term)f)) {
+  if (IsAtomTerm((YAP_Term)f)) {
     Yap_PutInSlot(d, (YAP_Term)f);
     return;
   }
@@ -728,7 +728,7 @@ X_API void PL_cons_functor_v(term_t d, functor_t f,term_t a0)
 {
   int arity;
 
-  if (YAP_IsAtomTerm(f)) {
+  if (IsAtomTerm(f)) {
     Yap_PutInSlot(d,(YAP_Term)f);
     return;
   }
@@ -762,7 +762,7 @@ X_API void PL_put_float(term_t t, double fl)
 X_API void PL_put_functor(term_t t, functor_t f)
 {
   long int  arity;
-  if (YAP_IsAtomTerm(f)) {
+  if (IsAtomTerm(f)) {
     Yap_PutInSlot(t,f);
   } else {
     arity = YAP_ArityOfFunctor((YAP_Functor)f);
@@ -1145,7 +1145,7 @@ get_term(arg_types **buf)
       long int  arity, i;
       term_t loc;
 
-      if (YAP_IsAtomTerm((YAP_Term)f)) {
+      if (IsAtomTerm((YAP_Term)f)) {
 	t = (YAP_Term)f;
 	break;
       }
@@ -1231,7 +1231,7 @@ X_API int PL_unify_term(term_t l,...)
       {
 	functor_t f = va_arg(ap, functor_t);
 	ptr->arg.f = f;
-	if (!YAP_IsAtomTerm((YAP_Term)f)) {
+	if (!IsAtomTerm((YAP_Term)f)) {
 	  nels += YAP_ArityOfFunctor((YAP_Functor)f);
 	}
       }
@@ -1278,7 +1278,7 @@ X_API int PL_term_type(term_t t)
   YAP_Term v = Yap_GetFromSlot(t);
   if (YAP_IsVarTerm(v)) {
     return PL_VARIABLE;
-  } else if (YAP_IsAtomTerm(v)) {
+  } else if (IsAtomTerm(v)) {
     return PL_ATOM;
   } else if (YAP_IsIntTerm(v)) {
     return PL_INTEGER;
@@ -1291,7 +1291,7 @@ X_API int PL_term_type(term_t t)
 
 X_API int PL_is_atom(term_t t)
 {
-  return YAP_IsAtomTerm(Yap_GetFromSlot(t));
+  return IsAtomTerm(Yap_GetFromSlot(t));
 }
 
 X_API int PL_is_atomic(term_t ts)
@@ -1334,7 +1334,7 @@ X_API int PL_is_list(term_t ts)
   YAP_Term t = Yap_GetFromSlot(ts);
   if (YAP_IsPairTerm(t)) {
     return 1;
-  } else if (YAP_IsAtomTerm(t)) {
+  } else if (IsAtomTerm(t)) {
     return t == TermNil;
   } else
     return 0;
@@ -1541,7 +1541,7 @@ X_API atom_t PL_module_name(module_t m)
 
 X_API predicate_t PL_pred(functor_t f, module_t m)
 {
-  if (YAP_IsAtomTerm(f)) {
+  if (IsAtomTerm(f)) {
     return YAP_Predicate(YAP_AtomOfTerm(f),0,(YAP_Module)m);
   } else {
     YAP_Functor tf = (YAP_Functor)f;
