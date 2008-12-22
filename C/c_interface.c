@@ -1065,6 +1065,18 @@ YAP_PutInSlot(long slot, Term t)
 }
 
 
+typedef enum
+{ FRG_FIRST_CALL = 0,		/* Initial call */
+  FRG_CUTTED     = 1,		/* Context was cutted */
+  FRG_REDO	 = 2		/* Normal redo */
+} frg_code;
+
+typedef  struct context
+    { int *		context;	/* context value */
+      frg_code		control;	/* FRG_* action */
+      struct PL_local_data *engine;		/* invoking engine */
+} scontext ;
+
 typedef Int (*CPredicate1)(long);
 typedef Int (*CPredicate2)(long,long);
 typedef Int (*CPredicate3)(long,long,long);
@@ -1073,10 +1085,17 @@ typedef Int (*CPredicate5)(long,long,long,long,long);
 typedef Int (*CPredicate6)(long,long,long,long,long,long);
 typedef Int (*CPredicate7)(long,long,long,long,long,long,long);
 typedef Int (*CPredicate8)(long,long,long,long,long,long,long,long);
+typedef Int (*CPredicateV)(Int,Int,struct context *);
 
 Int
 YAP_Execute(PredEntry *pe, CPredicate exec_code)
 {
+  if (pe->PredFlags & CArgsPredFlag) {
+    CPredicateV codev = exec_code;
+    struct context ctx;
+
+    return ((codev)((&ARG1)-LCL0,0,&ctx));
+  }
   if (pe->PredFlags & CArgsPredFlag) {
     switch (pe->ArityOfPE) {
     case 0:

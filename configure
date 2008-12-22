@@ -8284,7 +8284,8 @@ done
 
 
 
-for ac_header in malloc.h math.h memory.h mpi.h
+
+for ac_header in locale.h malloc.h math.h memory.h mpi.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
@@ -8426,7 +8427,8 @@ done
 
 
 
-for ac_header in netdb.h netinet/in.h regex.h
+
+for ac_header in netdb.h netinet/in.h pwd.h regex.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
@@ -9279,7 +9281,8 @@ done
 
 
 
-for ac_header in sys/ucontext.h sys/un.h
+
+for ac_header in sys/ucontext.h sys/un.h sys/wait.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
@@ -14257,7 +14260,8 @@ done
 
 
 
-for ac_func in fesettrapenable fgetpos finite getcwd getenv
+
+for ac_func in fesettrapenable fgetpos finite ftime getcwd getenv
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 { echo "$as_me:$LINENO: checking for $ac_func" >&5
@@ -16209,12 +16213,13 @@ mkdir -p  LGPL/JPL/src
 mkdir -p  LGPL/clp
 mkdir -p  LGPL/chr
 mkdir -p  LGPL/swi_console
+mkdir -p  LGPL/PLStream
 mkdir -p  GPL
 mkdir -p  GPL/clpqr
 mkdir -p  GPL/http
 mkdir -p  cplint
 
-ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile LGPL/chr/Makefile CLPBN/Makefile LGPL/clp/Makefile GPL/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile cplint/Makefile"
+ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile LGPL/chr/Makefile CLPBN/Makefile LGPL/clp/Makefile GPL/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile cplint/Makefile LGPL/PLStream/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -16796,6 +16801,7 @@ do
     "GPL/http/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/http/Makefile" ;;
     "GPL/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/Makefile" ;;
     "cplint/Makefile") CONFIG_FILES="$CONFIG_FILES cplint/Makefile" ;;
+    "LGPL/PLStream/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/PLStream/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -17449,4 +17455,4 @@ fi
 
 
 make depend
-
+(cd LGPL/PLStream; make depend; cd ../..)

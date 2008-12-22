@@ -665,6 +665,7 @@ typedef enum
   ProfiledPredFlag = 0x00000010L,	/* pred is being profiled   */
   MyddasPredFlag = 0x00000008L,	/* Myddas Imported pred  */
   ModuleTransparentPredFlag = 0x00000004L,	/* ModuleTransparent pred  */
+  SWIEnvPredFlag = 0x00000002L	/* new SWI interface */
 } pred_flag;
 
 /* profile data */

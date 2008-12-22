@@ -904,6 +904,7 @@ restore_codes(void)
   Yap_heap_regs->functor_comma = FuncAdjust(Yap_heap_regs->functor_comma);
   Yap_heap_regs->functor_creep = FuncAdjust(Yap_heap_regs->functor_creep);
   Yap_heap_regs->functor_csult = FuncAdjust(Yap_heap_regs->functor_csult);
+  Yap_heap_regs->functor_dot = FuncAdjust(Yap_heap_regs->functor_dot);
   Yap_heap_regs->functor_eq = FuncAdjust(Yap_heap_regs->functor_eq);
   Yap_heap_regs->functor_execute_in_mod = FuncAdjust(Yap_heap_regs->functor_execute_in_mod);
   Yap_heap_regs->functor_execute2_in_mod = FuncAdjust(Yap_heap_regs->functor_execute2_in_mod);

@@ -463,6 +463,7 @@ typedef struct various_codes {
     functor_creep,
     functor_csult,
     functor_cut_by,
+    functor_dot,
     functor_eq,
     functor_execute_in_mod,
     functor_execute2_in_mod,
@@ -778,6 +779,7 @@ extern struct various_codes *Yap_heap_regs;
 #define  FunctorCreep             Yap_heap_regs->functor_creep
 #define  FunctorCsult             Yap_heap_regs->functor_csult
 #define  FunctorCutBy             Yap_heap_regs->functor_cut_by
+#define  FunctorDot               Yap_heap_regs->functor_dot
 #define  FunctorEq                Yap_heap_regs->functor_eq
 #define  FunctorExecuteInMod      Yap_heap_regs->functor_execute_in_mod
 #define  FunctorExecute2InMod     Yap_heap_regs->functor_execute2_in_mod

@@ -2,17 +2,34 @@
 #ifndef _PL_STREAM_H
 #define _PL_STREAM_H
 
-#ifndef X_API
-#if defined(_MSC_VER) && defined(YAP_EXPORTS)
-#define X_API __declspec(dllexport)
-#else
-#define X_API
-#endif
+#ifndef _PL_EXPORT_DONE
+#define _PL_EXPORT_DONE
+
+#if (defined(__WINDOWS__) || defined(__CYGWIN__)) && !defined(__LCC__)
+#define HAVE_DECLSPEC
 #endif
 
-#ifndef PL_EXPORT
-#define PL_EXPORT(type)		extern X_API type
-#endif
+#ifdef HAVE_DECLSPEC
+# ifdef PL_KERNEL
+#define PL_EXPORT(type)		__declspec(dllexport) type
+#define PL_EXPORT_DATA(type)	__declspec(dllexport) type
+#define install_t	 	void
+# else
+#  ifdef __BORLANDC__
+#define PL_EXPORT(type)	 	type _stdcall
+#define PL_EXPORT_DATA(type)	extern type
+#  else
+#define PL_EXPORT(type)	 	extern type
+#define PL_EXPORT_DATA(type)	__declspec(dllimport) type
+#  endif
+#define install_t	 	__declspec(dllexport) void
+# endif
+#else /*HAVE_DECLSPEC*/
+#define PL_EXPORT(type)	 	extern type
+#define PL_EXPORT_DATA(type)	extern type
+#define install_t	 	void
+#endif /*HAVE_DECLSPEC*/
+#endif /*_PL_EXPORT_DONE*/
 
 /* This appears to make the wide-character support compile and work
    on HPUX 11.23.  There really should be a cleaner way ...

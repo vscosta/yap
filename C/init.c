@@ -1317,6 +1317,7 @@ InitCodes(void)
   Yap_heap_regs->functor_clist = Yap_MkFunctor(Yap_FullLookupAtom("$when"), 4);
   Yap_heap_regs->functor_comma = Yap_MkFunctor(AtomComma, 2);
   Yap_heap_regs->functor_csult = Yap_MkFunctor(AtomCsult, 1);
+  Yap_heap_regs->functor_dot = Yap_MkFunctor(AtomDot, 2);
   Yap_heap_regs->functor_eq = Yap_MkFunctor(AtomEq, 2);
   Yap_heap_regs->functor_execute_in_mod = Yap_MkFunctor(Yap_FullLookupAtom("$execute_in_mod"), 2);
   Yap_heap_regs->functor_execute2_in_mod = Yap_MkFunctor(Yap_FullLookupAtom("$execute_wo_mod"), 2);

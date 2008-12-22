@@ -1020,14 +1020,14 @@ AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(arpa/inet.h ctype.h direct.h dirent.h dlfcn.h)
 AC_CHECK_HEADERS(errno.h fcntl.h)
 AC_CHECK_HEADERS(fenv.h fpu_control.h ieeefp.h io.h limits.h)
-AC_CHECK_HEADERS(malloc.h math.h memory.h mpi.h)
-AC_CHECK_HEADERS(netdb.h netinet/in.h regex.h)
+AC_CHECK_HEADERS(locale.h malloc.h math.h memory.h mpi.h)
+AC_CHECK_HEADERS(netdb.h netinet/in.h pwd.h regex.h)
 AC_CHECK_HEADERS(siginfo.h signal.h stdarg.h string.h stropts.h)
 AC_CHECK_HEADERS(sys/conf.h sys/file.h)
 AC_CHECK_HEADERS(sys/mman.h sys/param.h sys/resource.h sys/select.h)
 AC_CHECK_HEADERS(sys/shm.h sys/socket.h sys/stat.h)
 AC_CHECK_HEADERS(sys/time.h sys/times.h sys/types.h)
-AC_CHECK_HEADERS(sys/ucontext.h sys/un.h)
+AC_CHECK_HEADERS(sys/ucontext.h sys/un.h sys/wait.h)
 AC_CHECK_HEADERS(time.h unistd.h wctype.h winsock.h winsock2.h)
 AC_CHECK_HEADERS(mach-o/dyld.h)
 if test "$yap_cv_gmp" != "no"
@@ -1290,7 +1290,7 @@ fi
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(acosh asinh atanh chdir ctime dlopen dup2)
-AC_CHECK_FUNCS(fesettrapenable fgetpos finite getcwd getenv)
+AC_CHECK_FUNCS(fesettrapenable fgetpos finite ftime getcwd getenv)
 AC_CHECK_FUNCS(gethostbyname gethostid gethostname)
 AC_CHECK_FUNCS(gethrtime getpwnam getrusage gettimeofday getwd)
 AC_CHECK_FUNCS(isatty isnan kill labs link lgamma)
@@ -1450,12 +1450,13 @@ mkdir -p  LGPL/JPL/src
 mkdir -p  LGPL/clp
 mkdir -p  LGPL/chr
 mkdir -p  LGPL/swi_console
+mkdir -p  LGPL/PLStream
 mkdir -p  GPL
 mkdir -p  GPL/clpqr
 mkdir -p  GPL/http
 mkdir -p  cplint
 
-AC_OUTPUT(Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile LGPL/chr/Makefile CLPBN/Makefile LGPL/clp/Makefile GPL/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile  LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile  cplint/Makefile)
+AC_OUTPUT(Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile LGPL/chr/Makefile CLPBN/Makefile LGPL/clp/Makefile GPL/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile  LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile  cplint/Makefile LGPL/PLStream/Makefile)
 
 make depend
-
+(cd LGPL/PLStream; make depend; cd ../..)

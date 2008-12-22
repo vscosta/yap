@@ -13,11 +13,6 @@
 #ifndef _FLI_H_INCLUDED
 #define _FLI_H_INCLUDED
 
-#ifndef __SWI_PROLOG__			/* use this to switch on Prolog dialect */
-#define __SWI_PROLOG__			/* normally defined by the plld compiler driver */
-#endif
-
-
 //=== includes ===============================================================
 #include "config.h"
 #include	<YapInterface.h>
@@ -36,6 +31,46 @@
 #endif
 #endif
 
+
+		 /*******************************
+		 *	       EXPORT		*
+		 *******************************/
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+See SWI-Prolog.h, containing the same code   for  an explanation on this
+stuff.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+#ifndef _PL_EXPORT_DONE
+#define _PL_EXPORT_DONE
+
+#if (defined(__WINDOWS__) || defined(__CYGWIN__)) && !defined(__LCC__)
+#define HAVE_DECLSPEC
+#endif
+
+#ifdef HAVE_DECLSPEC
+# ifdef PL_KERNEL
+#define PL_EXPORT(type)		__declspec(dllexport) type
+#define PL_EXPORT_DATA(type)	__declspec(dllexport) type
+#define install_t	 	void
+# else
+#  ifdef __BORLANDC__
+#define PL_EXPORT(type)	 	type _stdcall
+#define PL_EXPORT_DATA(type)	extern type
+#  else
+#define PL_EXPORT(type)	 	extern type
+#define PL_EXPORT_DATA(type)	__declspec(dllimport) type
+#  endif
+#define install_t	 	__declspec(dllexport) void
+# endif
+#else /*HAVE_DECLSPEC*/
+#define PL_EXPORT(type)	 	extern type
+#define PL_EXPORT_DATA(type)	extern type
+#define install_t	 	void
+#endif /*HAVE_DECLSPEC*/
+#endif /*_PL_EXPORT_DONE*/
+
+typedef	int    bool;
 typedef	unsigned long    term_t;
 typedef	void *module_t;
 typedef	void *record_t;
@@ -83,6 +118,7 @@ typedef void *PL_engine_t;
 #define PL_FA_NONDETERMINISTIC	(0x04)	/* foreign is non-deterministic */
 #define PL_FA_VARARGS		(0x08)	/* call using t0, ac, ctx */
 #define PL_FA_CREF		(0x10)	/* Internal: has clause-reference */
+#define PL_FA_ISO		(0x20)	/* Internal: ISO core predicate */
 
 /* begin from pl-itf.h */
 #define PL_VARIABLE      (1)            /* nothing */
@@ -163,6 +199,13 @@ consistent  with  the  definitions  in  pl-itf.h, which is included with
 users foreign language code.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+#define NOTRACE PL_FA_NOTRACE
+#define META    PL_FA_TRANSPARENT
+#define NDET	PL_FA_NONDETERMINISTIC
+#define VA	PL_FA_VARARGS
+#define CREF	PL_FA_CREF
+#define ISO	PL_FA_ISO
+
 typedef enum
 { FRG_FIRST_CALL = 0,		/* Initial call */
   FRG_CUTTED     = 1,		/* Context was cutted */
@@ -223,6 +266,8 @@ typedef struct foreign_context *control_t;
 #define ForeignContextPtr(h)	((void *)(h)->context)
 #define ForeignEngine(h)	((h)->engine)
 
+#define FRG(n, a, f, flags) { n, a, f, flags }
+
 /* end from pl-itf.h */
 
 		 /*******************************
@@ -239,9 +284,6 @@ typedef struct foreign_context *control_t;
 #ifdef PL_KERNEL
 #define PL_Q_DETERMINISTIC	0x20	/* call was deterministic */
 #endif
-
-/* copied from old SICStus/SWI interface */
-typedef void install_t;
 
 #define PL_fail		return FALSE	/* fail */
 #define PL_succeed	return TRUE	/* success */

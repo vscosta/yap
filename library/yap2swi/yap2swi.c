@@ -52,6 +52,18 @@ SWIAtomToAtom(atom_t at)
   return (Atom)at;
 }
 
+static inline functor_t
+FunctorToSWIFunctor(Functor at)
+{
+  return (functor_t)at;
+}
+
+static inline Functor
+SWIFunctorToFunctor(functor_t at)
+{
+  return (Functor)at;
+}
+
 static void
 PredicateInfo(void *p, Atom* a, unsigned long int* arity, Term* m)
 {
@@ -83,6 +95,23 @@ UserCPredicateWithArgs(char *a, CPredicate def, unsigned long int arity, Term mo
     pe = RepPredProp(PredPropByFunc(f,mod));
   }
   pe->PredFlags |= CArgsPredFlag;
+  CurrentModule = cm;
+} 
+
+static void
+UserCPredicateVarargs(char *a, CPredicate def, unsigned long int arity, Term mod)
+{
+  PredEntry *pe;
+  Term cm = CurrentModule;
+  CurrentModule = mod;
+  Yap_InitCPred(a, arity, def, UserCPredFlag);
+  if (arity == 0) {
+    pe = RepPredProp(PredPropByAtom(Yap_LookupAtom(a),mod));
+  } else {
+    Functor f = Yap_MkFunctor(Yap_LookupAtom(a), arity);
+    pe = RepPredProp(PredPropByFunc(f,mod));
+  }
+  pe->PredFlags |= SWIEnvPredFlag;
   CurrentModule = cm;
 } 
 
@@ -381,7 +410,7 @@ X_API int PL_get_functor(term_t ts, functor_t *f)
   if ( IsAtomTerm(t)) {
     *f = t;
   } else {
-    *f = (functor_t)YAP_FunctorOfTerm(t);
+    *f = FunctorToSWIFunctor(FunctorOfTerm(t));
   }
   return 1;
 }
@@ -669,9 +698,9 @@ X_API functor_t PL_new_functor(atom_t name, int arity)
   functor_t f;
   Atom at = SWIAtomToAtom(name);
   if (arity == 0) {
-    f = (functor_t)MkAtomTerm(at);
+    f = FunctorToSWIFunctor((Functor)MkAtomTerm(at));
   } else {
-    f = (functor_t)Yap_MkFunctor(at,arity);
+    f = FunctorToSWIFunctor(Yap_MkFunctor(at,arity));
   }
   return f;
 }
@@ -679,9 +708,9 @@ X_API functor_t PL_new_functor(atom_t name, int arity)
 X_API atom_t PL_functor_name(functor_t f)
 {
   if (IsAtomTerm(f)) {
-    return AtomToSWIAtom(AtomOfTerm(f));
+    return AtomToSWIAtom(AtomOfTerm((Term)SWIFunctorToFunctor(f)));
   } else {
-    return AtomToSWIAtom(NameOfFunctor((Functor)f));
+    return AtomToSWIAtom(NameOfFunctor(SWIFunctorToFunctor(f)));
   }
 }
 
@@ -690,7 +719,7 @@ X_API int PL_functor_arity(functor_t f)
   if (IsAtomTerm(f)) {
     return 0;
   } else {
-    return YAP_ArityOfFunctor((YAP_Functor)f);
+    return ArityOfFunctor(SWIFunctorToFunctor(f));
   }
 }
 
@@ -703,12 +732,13 @@ X_API void PL_cons_functor(term_t d, functor_t f,...)
   va_list ap;
   int arity, i;
   YAP_Term *tmp = (YAP_CELL *)buffers;
+  Functor ff = SWIFunctorToFunctor(f);
 
-  if (IsAtomTerm((YAP_Term)f)) {
+  if (IsAtomTerm((Term)ff)) {
     Yap_PutInSlot(d, (YAP_Term)f);
     return;
   }
-  arity = YAP_ArityOfFunctor((YAP_Functor)f);
+  arity = ArityOfFunctor(ff);
   if (arity > TMP_BUF_SIZE/sizeof(YAP_CELL)) {
     fprintf(stderr,"PL_cons_functor: arity too large (%d)\n", arity); 
     return;
@@ -718,25 +748,26 @@ X_API void PL_cons_functor(term_t d, functor_t f,...)
     tmp[i] =  Yap_GetFromSlot(va_arg(ap, term_t));
   }
   va_end (ap);
-  if (arity == 2 && (Functor)f == Yap_MkFunctor(AtomDot,2))
+  if (arity == 2 && ff == FunctorDot)
     Yap_PutInSlot(d,YAP_MkPairTerm(tmp[0],tmp[1]));
   else
-    Yap_PutInSlot(d,YAP_MkApplTerm((YAP_Functor)f,arity,tmp));
+    Yap_PutInSlot(d,YAP_MkApplTerm((YAP_Functor)ff,arity,tmp));
 }
 
 X_API void PL_cons_functor_v(term_t d, functor_t f,term_t a0)
 {
   int arity;
+  Functor ff = SWIFunctorToFunctor(f);
 
-  if (IsAtomTerm(f)) {
-    Yap_PutInSlot(d,(YAP_Term)f);
+  if (IsAtomTerm((Term)ff)) {
+    Yap_PutInSlot(d,(Term)ff);
     return;
   }
-  arity = YAP_ArityOfFunctor((YAP_Functor)f);
-  if (arity == 2 && (Functor)f == Yap_MkFunctor(AtomDot,2))
+  arity = ArityOfFunctor(ff);
+  if (arity == 2 && ff == FunctorDot)
     Yap_PutInSlot(d,YAP_MkPairTerm(Yap_GetFromSlot(a0),Yap_GetFromSlot(a0+1)));    
   else
-    Yap_PutInSlot(d,YAP_MkApplTerm((YAP_Functor)f,arity,YAP_AddressFromSlot(a0)));
+    Yap_PutInSlot(d,YAP_MkApplTerm((YAP_Functor)ff,arity,YAP_AddressFromSlot(a0)));
 }
 
 X_API void PL_cons_list(term_t d, term_t h, term_t t)
@@ -762,14 +793,16 @@ X_API void PL_put_float(term_t t, double fl)
 X_API void PL_put_functor(term_t t, functor_t f)
 {
   long int  arity;
-  if (IsAtomTerm(f)) {
-    Yap_PutInSlot(t,f);
+  Functor ff = SWIFunctorToFunctor(f);
+
+  if (IsAtomTerm((Term)ff)) {
+    Yap_PutInSlot(t,(Term)ff);
   } else {
-    arity = YAP_ArityOfFunctor((YAP_Functor)f);
-    if (arity == 2 && (Functor)f == Yap_MkFunctor(AtomDot,2))
+    arity = ArityOfFunctor(ff);
+    if (arity == 2 && ff == FunctorDot)
       Yap_PutInSlot(t,YAP_MkNewPairTerm());    
     else
-      Yap_PutInSlot(t,YAP_MkNewApplTerm((YAP_Functor)f,arity));
+      Yap_PutInSlot(t,YAP_MkNewApplTerm((YAP_Functor)ff,arity));
   }
 }
 
@@ -910,11 +943,14 @@ X_API int PL_unify_integer(term_t t, long n)
 X_API int PL_unify_functor(term_t t, functor_t f)
 {	
   YAP_Term tt = Yap_GetFromSlot(t);
+  Functor ff = SWIFunctorToFunctor(f);
   if (YAP_IsVarTerm(tt))
-    return YAP_Unify(tt, YAP_MkNewApplTerm((YAP_Functor)f,YAP_ArityOfFunctor((YAP_Functor)f)));
+    return YAP_Unify(tt, YAP_MkNewApplTerm((YAP_Functor)ff,YAP_ArityOfFunctor((YAP_Functor)f)));
+  if (YAP_IsPairTerm(tt))
+    return ff == FunctorDot;
   if (!YAP_IsApplTerm(tt))
     return FALSE;
-  return f == (functor_t)YAP_FunctorOfTerm(tt);
+  return ff == FunctorOfTerm(tt);
 }
 
 /* SWI: int PL_unify_integer(term_t ?t, long n)
@@ -1144,18 +1180,19 @@ get_term(arg_types **buf)
       functor_t f = ptr->arg.f;
       long int  arity, i;
       term_t loc;
+      Functor ff = SWIFunctorToFunctor(f);
 
-      if (IsAtomTerm((YAP_Term)f)) {
-	t = (YAP_Term)f;
+      if (IsAtomTerm((Term)ff)) {
+	t = (Term)ff;
 	break;
       }
-      arity = YAP_ArityOfFunctor((YAP_Functor)f);
+      arity = YAP_ArityOfFunctor((YAP_Functor)ff);
       loc = Yap_NewSlots(arity);
       ptr++;
       for (i= 0; i < arity; i++) {
 	Yap_PutInSlot(loc+i,get_term(&ptr));
       }
-      t = YAP_MkApplTerm((YAP_Functor)f,arity,YAP_AddressFromSlot(loc));
+      t = YAP_MkApplTerm((YAP_Functor)ff,arity,YAP_AddressFromSlot(loc));
     }
     break;
   case PL_LIST:
@@ -1230,9 +1267,10 @@ X_API int PL_unify_term(term_t l,...)
     case PL_FUNCTOR:
       {
 	functor_t f = va_arg(ap, functor_t);
+	Functor ff = SWIFunctorToFunctor(f);
 	ptr->arg.f = f;
-	if (!IsAtomTerm((YAP_Term)f)) {
-	  nels += YAP_ArityOfFunctor((YAP_Functor)f);
+	if (!IsAtomTerm((YAP_Term)ff)) {
+	  nels += YAP_ArityOfFunctor((YAP_Functor)ff);
 	}
       }
       break;
@@ -1309,10 +1347,11 @@ X_API int PL_is_compound(term_t ts)
 X_API int PL_is_functor(term_t ts, functor_t f)
 {
   YAP_Term t = Yap_GetFromSlot(ts);
+  Functor ff = SWIFunctorToFunctor(f);
   if (YAP_IsApplTerm(t)) {
-    return YAP_FunctorOfTerm(t) == (YAP_Functor)f;
+    return FunctorOfTerm(t) == (Functor)ff;
   } else if (YAP_IsPairTerm(t)) {
-    return FunctorOfTerm(t) == Yap_MkFunctor(AtomDot,2);
+    return FunctorOfTerm(t) == FunctorDot;
   } else
     return 0;
 }
@@ -1541,11 +1580,11 @@ X_API atom_t PL_module_name(module_t m)
 
 X_API predicate_t PL_pred(functor_t f, module_t m)
 {
-  if (IsAtomTerm(f)) {
-    return YAP_Predicate(YAP_AtomOfTerm(f),0,(YAP_Module)m);
+  Functor ff = SWIFunctorToFunctor(f);
+  if (IsAtomTerm((Term)f)) {
+    return YAP_Predicate(YAP_AtomOfTerm((Term)f),0,(YAP_Module)m);
   } else {
-    YAP_Functor tf = (YAP_Functor)f;
-    return YAP_Predicate(YAP_NameOfFunctor(tf),YAP_ArityOfFunctor(tf),(YAP_Module)m);
+    return YAP_Predicate((YAP_Atom)NameOfFunctor(ff),ArityOfFunctor(ff),(YAP_Module)m);
   }
 }
 
@@ -1670,7 +1709,9 @@ X_API void PL_register_extensions(PL_extension *ptr)
       YAP_Error(0,YAP_MkIntTerm(ptr->flags),"non-implemented flag %x when creating predicates", ptr->flags);
       return;      
     }      
-    if (ptr->flags & PL_FA_TRANSPARENT)
+    if (ptr->flags & PL_FA_VARARGS)
+      UserCPredicateVarargs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,MkAtomTerm(Yap_LookupAtom("prolog")));
+    else if (ptr->flags & PL_FA_TRANSPARENT)
       UserCPredicateWithArgs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,MkAtomTerm(Yap_LookupAtom("prolog")));
     else
       UserCPredicateWithArgs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,YAP_CurrentModule());
@@ -1684,12 +1725,14 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
       YAP_Error(0,YAP_MkIntTerm(flags),"non-implemented flag %x when creating predicates", flags);
       return;      
     }      
-  if (flags & PL_FA_TRANSPARENT)
-    UserCPredicateWithArgs((char *)name,(YAP_Bool (*)(void))function,arity,MkAtomTerm(Yap_LookupAtom("prolog")));
-  else if (module == NULL)
-    UserCPredicateWithArgs((char *)name,(YAP_Bool (*)(void))function,arity,YAP_CurrentModule());
-  else
-    UserCPredicateWithArgs((char *)name,(YAP_Bool (*)(void))function,arity,MkAtomTerm(Yap_LookupAtom((char *)module)));
+    if (flags & PL_FA_VARARGS)
+      UserCPredicateVarargs((char *)name,(YAP_Bool (*)(void))function,arity,MkAtomTerm(Yap_LookupAtom("prolog")));
+    else if (flags & PL_FA_TRANSPARENT)
+      UserCPredicateWithArgs((char *)name,(YAP_Bool (*)(void))function,arity,MkAtomTerm(Yap_LookupAtom("prolog")));
+    else if (module == NULL)
+      UserCPredicateWithArgs((char *)name,(YAP_Bool (*)(void))function,arity,YAP_CurrentModule());
+    else
+      UserCPredicateWithArgs((char *)name,(YAP_Bool (*)(void))function,arity,MkAtomTerm(Yap_LookupAtom((char *)module)));
 }
 
 X_API void PL_load_extensions(PL_extension *ptr)
