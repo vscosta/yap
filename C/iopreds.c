@@ -5130,7 +5130,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 		numb = -numb;
 		f_putc(sno, (int) '-');
 	      }
-	      while (numb/divfactor > radix) {
+	      while (numb/divfactor >= radix) {
 		divfactor *= radix;
 		size++;
 	      }
