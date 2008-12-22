@@ -1,0 +1,119 @@
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+GCC=@GCC@
+prefix = @prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=$(EROOTDIR)/lib/Yap
+#
+#
+CC=@CC@
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SHLIB_CFLAGS=@SHLIB_CFLAGS@
+SHLIB_SUFFIX=@SHLIB_SUFFIX@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+
+HEADERS=$(srcdir)/atoms.h $(srcdir)/pl-buffer.h $(srcdir)/pl-ctype.h  \
+	$(srcdir)/pl-incl.h  $(srcdir)/pl-opts.h  \
+	$(srcdir)/pl-os.h \
+	$(srcdir)/pl-stream.h \
+	$(srcdir)/pl-table.h \
+	$(srcdir)/pl-text.h $(srcdir)/pl-utf8.h \
+	$(srcdir)/pl-yap.h
+C_SOURCES=$(srcdir)/pl-buffer.c $(srcdir)/pl-ctype.c \
+	$(srcdir)/pl-error.c  $(srcdir)/pl-feature.c  \
+	$(srcdir)/pl-file.c   $(srcdir)/pl-os.c \
+	$(srcdir)/pl-stream.c $(srcdir)/pl-string.c \
+	$(srcdir)/pl-table.c \
+	$(srcdir)/pl-text.c $(srcdir)/pl-utf8.c \
+	$(srcdir)/pl-yap.c
+OBJS=pl-buffer.o pl-ctype.o pl-error.o  pl-feature.o  \
+	pl-file.o   pl-os.o \
+	pl-stream.o pl-string.o pl-table.o pl-text.o pl-utf8.o \
+	pl-yap.o
+SOBJS=plstream@SHLIB_SUFFIX@
+
+#in some systems we just create a single object, in others we need to
+# create a libray
+
+all: $(SOBJS) 
+
+pl-buffer.o: $(srcdir)/pl-buffer.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-buffer.c -o pl-buffer.o
+
+pl-ctype.o: $(srcdir)/pl-ctype.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-ctype.c -o pl-ctype.o
+
+pl-error.o: $(srcdir)/pl-error.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-error.c -o pl-error.o
+
+pl-feature.o: $(srcdir)/pl-feature.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-feature.c -o pl-feature.o
+
+pl-file.o: $(srcdir)/pl-file.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-file.c -o pl-file.o
+
+pl-os.o: $(srcdir)/pl-os.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-os.c -o pl-os.o
+
+pl-stream.o: $(srcdir)/pl-stream.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-stream.c -o pl-stream.o
+
+pl-string.o: $(srcdir)/pl-string.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-string.c -o pl-string.o
+
+pl-table.o: $(srcdir)/pl-table.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-table.c -o pl-table.o
+
+pl-text.o: $(srcdir)/pl-text.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-text.c -o pl-text.o
+
+pl-utf8.o: $(srcdir)/pl-utf8.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-utf8.c -o pl-utf8.o
+
+pl-yap.o: $(srcdir)/pl-yap.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-yap.c -o pl-yap.o
+
+@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
+
+@DO_SECOND_LD@plstream@SHLIB_SUFFIX@: $(OBJS)
+@DO_SECOND_LD@	@SHLIB_LD@ -o plstream@SHLIB_SUFFIX@ $(OBJS)
+
+install: all
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
+
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+
+
+depend: $(HEADERS) $(C_SOURCES)
+	-@if test "$(GCC)" = yes; then\
+	  $(CC) -MM -MG $(CFLAGS) -I$(srcdir) -I$(srcdir)/../../include -I$(srcdir)/../../H $(C_SOURCES) > depend;\
+	else\
+          makedepend -f - -- $(CFLAGS) -I$(srcdir)/../../H -I$(srcdir)/../../include -- $(C_SOURCES) |\
+          sed 's|.*/\([^:]*\):|\1:|' > .depend ;\
+	fi
+
+include depend
