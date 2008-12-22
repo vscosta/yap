@@ -1550,12 +1550,16 @@ ConsoleGetc(int sno)
   int ch;
 
  restart:
+  /* keep the prompt around, just in case, but don't actually
+     show it in silent mode */
   if (newline) {
-    char *cptr = Prompt, ch;
+    if (!yap_flags[QUIET_MODE_FLAG]) {
+      char *cptr = Prompt, ch;
 
-    /* use the default routine */
-    while ((ch = *cptr++) != '\0') {
-      Stream[StdErrStream].stream_putc(StdErrStream, ch);
+      /* use the default routine */
+      while ((ch = *cptr++) != '\0') {
+	Stream[StdErrStream].stream_putc(StdErrStream, ch);
+      }
     }
     strncpy (Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
     newline = FALSE;
