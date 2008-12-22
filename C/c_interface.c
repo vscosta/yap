@@ -501,6 +501,9 @@ X_API int      STD_PROTO(YAP_AtomGetHold,(Atom));
 X_API int      STD_PROTO(YAP_AtomReleaseHold,(Atom));
 X_API Agc_hook STD_PROTO(YAP_AGCRegisterHook,(Agc_hook));
 X_API char    *STD_PROTO(YAP_cwd,(void));
+X_API Term     STD_PROTO(YAP_OpenList,(int));
+X_API Term     STD_PROTO(YAP_ExtendList,(Term, Term));
+X_API int      STD_PROTO(YAP_CloseList,(Term, Term));
 
 static int (*do_getf)(void);
 
@@ -2432,4 +2435,46 @@ YAP_cwd(void)
     return NULL;
   strncpy(buf, Yap_FileNameBuf, len);
   return buf;
+}
+
+X_API Term
+YAP_OpenList(int n)
+{
+  Term t;
+  BACKUP_H();
+
+  if (H+2*n < ASP-1024) {
+    if (!dogc())
+      return FALSE;
+  }
+  t = AbsPair(H);
+  H += 2*n;
+
+  RECOVER_H();
+  return t;
+}
+
+X_API Term
+YAP_ExtendList(Term t0, Term inp)
+{
+  Term t;
+  CELL *ptr = RepPair(t0);
+
+  ptr[0] = inp;
+  ptr[1] = AbsPair(ptr+2);
+  t = AbsPair(ptr+2);
+
+  RECOVER_H();
+  return t;
+}
+
+X_API int
+YAP_CloseList(Term t0, Term tail)
+{
+  CELL *ptr = RepPair(t0);
+
+  RESET_VARIABLE(ptr-1);
+  if (!Yap_unify((Term)(ptr-1), tail))
+    return FALSE;
+  return TRUE;
 }

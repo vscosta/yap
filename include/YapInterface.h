@@ -471,6 +471,11 @@ extern X_API void    *PROTO(YAP_BlobOfTerm,(YAP_Term));
 /*  term comparison */
 extern X_API int  PROTO(YAP_CompareTerms,(YAP_Term, YAP_Term));
 
+/*  list construction */
+extern X_API YAP_Term     PROTO(YAP_OpenList,(int));
+extern X_API YAP_Term     PROTO(YAP_ExtendList,(YAP_Term, YAP_Term));
+extern X_API int          PROTO(YAP_CloseList,(YAP_Term, YAP_Term));
+
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 
 __END_DECLS

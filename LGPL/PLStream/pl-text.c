@@ -34,7 +34,7 @@
 #undef LD
 #define LD LOCAL_LD
 
-#ifdef SWI_PROLOG
+#ifdef __SWI_PROLOG__
 static inline word
 valHandle__LD(term_t r ARG_LD)
 { Word p = valTermRef(r);
@@ -254,7 +254,7 @@ textToAtom(PL_chars_t *text)
 }
 
 
-#if SWI_PROLOG
+#if __SWI_PROLOG__
 word
 textToString(PL_chars_t *text)
 { PL_canonise_text(text);
@@ -279,7 +279,7 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
       return rval;
     }
     case PL_STRING:
-#if SWI_PROLOG
+#if __SWI_PROLOG__
     { word w = textToString(text);
 
       return _PL_unify_atomic(term, w);
@@ -297,7 +297,6 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
 	}
       } else
       { GET_LD
-	term_t l = PL_new_term_ref();
 	word p0, p;
       
 	switch(text->encoding)
@@ -305,36 +304,28 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
 	  { const unsigned char *s = (const unsigned char *)text->text.t;
 	    const unsigned char *e = &s[text->length];
 
-#if SWI_PROLOG
-	    p0 = p = allocGlobal(text->length*3);
-	    for( ; s < e; s++)
-	    { *p++ = FUNCTOR_dot2;
-	      if ( type == PL_CODE_LIST )
-		*p++ = consInt(*s);
-	      else
-		*p++ = codeToAtom(*s);
-	      *p = consPtr(p+1, TAG_COMPOUND|STG_GLOBAL);
-	      p++;
+	    p0 = p = INIT_SEQ_CODES(text->length);
+	    if ( type == PL_CODE_LIST ) {
+	      for( ; s < e; s++)
+		p = EXTEND_SEQ_CODES(p, *s);
+	    } else {
+	      for( ; s < e; s++)
+		p = EXTEND_SEQ_ATOMS(p, *s);
 	    }
-#endif
 	    break;
 	  }
 	  case ENC_WCHAR:
 	  { const pl_wchar_t *s = (const pl_wchar_t *)text->text.t;
 	    const pl_wchar_t *e = &s[text->length];
   
-#if SWI_PROLOG
-	    p0 = p = allocGlobal(text->length*3);
-	    for( ; s < e; s++)
-	    { *p++ = FUNCTOR_dot2;
-	      if ( type == PL_CODE_LIST )
-		*p++ = consInt(*s);
-	      else
-		*p++ = codeToAtom(*s);
-	      *p = consPtr(p+1, TAG_COMPOUND|STG_GLOBAL);
-	      p++;
+	    p0 = p = INIT_SEQ_CODES(text->length);
+	    if ( type == PL_CODE_LIST ) {
+	      for( ; s < e; s++)
+		p = EXTEND_SEQ_CODES(p, *s);
+	    } else {
+	      for( ; s < e; s++)
+		p = EXTEND_SEQ_ATOMS(p, *s);
 	    }
-#endif
 	    break;
 	  }
 	  case ENC_UTF8:
@@ -342,21 +333,22 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
 	    const char *e = &s[text->length];
 	    size_t len = utf8_strlen(s, text->length);
 
-#if SWI_PROLOG
-	    p0 = p = allocGlobal(len*3);
-	    while(s<e)
-	    { int chr;
-
-	      s = utf8_get_char(s, &chr);
-	      *p++ = FUNCTOR_dot2;
-	      if ( type == PL_CODE_LIST )
-		*p++ = consInt(chr);
-	      else
-		*p++ = codeToAtom(chr);
-	      *p = consPtr(p+1, TAG_COMPOUND|STG_GLOBAL);
-	      p++;
+	    p0 = p = INIT_SEQ_CODES(len);
+	    if ( type == PL_CODE_LIST ) {
+	      while (s < e) {
+		int chr;
+		 
+		s = utf8_get_char(s, &chr);
+		p = EXTEND_SEQ_CODES(p, chr);
+	      }
+	    } else {
+	      while (s < e) {
+		int chr;
+		 
+		s = utf8_get_char(s, &chr);
+		p = EXTEND_SEQ_ATOMS(p, chr);
+	      }
 	    }
-#endif
 	    break;
 	  }
 	  case ENC_ANSI:
@@ -372,27 +364,21 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
 	      n -= rc;
 	      s += rc;
 	    }
-	    
-#if SWI_PROLOG
-	    p0 = p = allocGlobal(len*3);
+	    p0 = p = INIT_SEQ_CODES(len);
 	    memset(&mbs, 0, sizeof(mbs));
 	    n = text->length;
 
-	    while(n > 0)
-	    { rc = mbrtowc(&wc, s, n, &mbs);
+	    while(n > 0) {
+	      rc = mbrtowc(&wc, s, n, &mbs);
 
-	      *p++ = FUNCTOR_dot2;
 	      if ( type == PL_CODE_LIST )
-		*p++ = consInt(wc);
+		p = EXTEND_SEQ_CODES(p, wc);
 	      else
-		*p++ = codeToAtom(wc);
-	      *p = consPtr(p+1, TAG_COMPOUND|STG_GLOBAL);
-	      p++;
+		p = EXTEND_SEQ_ATOMS(p, wc);
 	      
 	      s += rc;
 	      n -= rc;
 	    }
-#endif
 	    break;
 	  }
 	  default:
@@ -402,22 +388,7 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
 	  }
 	}
 
-#if SWI_PROLOG
-	setHandle(l, consPtr(p0, TAG_COMPOUND|STG_GLOBAL));
-	p--;
-	if ( tail )
-	{ setVar(*p);
-	  if ( PL_unify(l, term) )
-	  { setHandle(tail, makeRefG(p));
-	    return TRUE;
-	  }
-
-	  return FALSE;
-	} else
-	{ *p = ATOM_nil;
-	  return PL_unify(l, term);
-	}
-#endif
+	return CLOSE_SEQ_OF_CODES(p, p0, tail, term );
       }
     }
     default:

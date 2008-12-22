@@ -31,6 +31,25 @@ typedef YAP_Atom		Atom;
 typedef uintptr_t	PL_atomic_t;	/* same a word */
 
 
+#ifdef __SWI_PROLOG__
+
+/* just to make clear how it would look in SWI */
+
+#define INIT_DEF(Type, Name, Size) \
+  static void init_ ## Name (void) {}		\
+  static const Type Name[] {
+
+#define ADD_DEF2(Atom, Type) \
+  { Atom, Type },
+#define ADD_DEF5(Atom, Type, Reverse, Arity, Ctx) \
+  { Atom, Type, Reverse, Arity, Ctx },
+			     \
+#define END_DEFS(Atom, F) \
+  { Atom, F }			 
+}
+
+#endif
+
 #define INIT_DEF(Type, Name, Size) \
   static Type Name[Size];	     \
   static void init_ ## Name (void) { \
@@ -109,20 +128,35 @@ typedef uintptr_t	PL_atomic_t;	/* same a word */
 #define stopItimer()
 
 /* TBD */
+
+extern atom_t codeToAtom(int chrcode);
+
 static inline word
 INIT_SEQ_CODES(size_t n)
 {
-  return 0L;  /* TBD: shift */
+  return (word)YAP_OpenList(n);
 }
 
 static inline word
 EXTEND_SEQ_CODES(word gstore, int c) {
-  return gstore;
+  return (word)YAP_ExtendList((YAP_Term)gstore, YAP_MkIntTerm(c));
+}
+
+static inline word
+EXTEND_SEQ_ATOMS(word gstore, int c) {
+  return (word)YAP_ExtendList((YAP_Term)gstore, codeToAtom(c));
 }
 
 static inline int 
-CLOSE_SEQ_OF_CODES(word gstore, word lp, word t1, word t2) {
-  return TRUE;
+CLOSE_SEQ_OF_CODES(word gstore, word lp, word arg2, word arg3) {
+  if (arg3 == (word)ATOM_nil) {
+    if (!YAP_CloseList((YAP_Term)gstore, YAP_TermNil()))
+      return FALSE;
+  } else {
+    if (!YAP_CloseList((YAP_Term)gstore, YAP_GetFromSlot(arg2)))
+      return FALSE;
+  }
+  return YAP_Unify(YAP_GetFromSlot(arg3), lp);
 }
 
 static inline Word

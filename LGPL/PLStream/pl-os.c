@@ -417,7 +417,7 @@ setOSFeatures(void)
 		 /*******************************
 		 *	       MEMORY		*
 		 *******************************/
-#if SWI_PROLOG
+#if __SWI_PROLOG__
 uintptr_t
 UsedMemory(void)
 {

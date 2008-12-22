@@ -1,6 +1,9 @@
 
 #include "config.h"
 #include <SWI-Prolog.h>
+/* atom_t macro layer */
+#define NULL_ATOM ((atom_t)0)
+#include "atoms.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -262,11 +265,6 @@ PL_local_data_t lds;
 #define TRY(goal)		if ((goal) == FALSE) fail
 
 
-/* atom_t macro layer */
-#define NULL_ATOM ((atom_t)0)
-
-#include "atoms.h"
-
 atom_t source_file_name; /** source name of the current file that we are
 			     consulting */
 int source_line_no; /** guess.... */
@@ -489,7 +487,6 @@ extern int writeAtomToStream(IOSTREAM *so, atom_t at);
 extern int valueExpression(term_t t, Number r ARG_LD);
 extern word lookupAtom(const char *s, size_t len);
 extern atom_t	lookupUCSAtom(const pl_wchar_t *s, size_t len);
-extern atom_t codeToAtom(int chrcode);
 extern int toIntegerNumber(Number n, int flags);
 extern int get_atom_ptr_text(Atom a, PL_chars_t *text);
 

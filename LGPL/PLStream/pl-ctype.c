@@ -218,23 +218,6 @@ mkfunction(iswupper)
 mkfunction(iswpunct)
 mkfunction(iswspace)
 
-#ifdef __SWI_PROLOG__
-
-#define INIT_DEF(Type, Name, Size) \
-  static void init_ ## Name (void) {}		\
-  static const Type Name[] {
-
-#define ADD_DEF2(Atom, Type) \
-  { Atom, Type },
-#define ADD_DEF5(Atom, Type, Reverse, Arity, Ctx) \
-  { Atom, Type, Reverse, Arity, Ctx },
-			     \
-#define END_DEFS(Atom, F) \
-  { Atom, F }			 
-}
-
-#endif
-
 INIT_DEF(char_type, char_types, 26)
 ADD_DEF2(ATOM_alnum, fiswalnum)
 ADD_DEF2(ATOM_csym,	fiscsym )
