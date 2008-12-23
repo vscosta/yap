@@ -1221,16 +1221,16 @@ InitCodes(void)
   Yap_heap_regs->env_for_yes_code.p =
     Yap_heap_regs->env_for_yes_code.p0 =
     RepPredProp(PredPropByAtom(AtomTrue,0));
-  Yap_heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomMetaCall,4),PROLOG_MODULE));
-  Yap_heap_regs->pred_dollar_catch = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomCatch,3),PROLOG_MODULE));
-  Yap_heap_regs->pred_recorded_with_key = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomRecordedWithKey,3),PROLOG_MODULE));
-  Yap_heap_regs->pred_log_upd_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomDoLogUpdClause,6),PROLOG_MODULE));
-  Yap_heap_regs->pred_log_upd_clause_erase = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomDoLogUpdClauseErase,6),PROLOG_MODULE));
-  Yap_heap_regs->pred_log_upd_clause0 = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomDoLogUpdClause0,6),PROLOG_MODULE));
-  Yap_heap_regs->pred_static_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomDoStaticClause,5),PROLOG_MODULE));
+  Yap_heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(FunctorMetaCall,PROLOG_MODULE));
+  Yap_heap_regs->pred_dollar_catch = RepPredProp(PredPropByFunc(FunctorCatch,PROLOG_MODULE));
+  Yap_heap_regs->pred_recorded_with_key = RepPredProp(PredPropByFunc(FunctorRecordedWithKey,PROLOG_MODULE));
+  Yap_heap_regs->pred_log_upd_clause = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));
+  Yap_heap_regs->pred_log_upd_clause_erase = RepPredProp(PredPropByFunc(FunctorDoLogUpdClauseErase,PROLOG_MODULE));
+  Yap_heap_regs->pred_log_upd_clause0 = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));
+  Yap_heap_regs->pred_static_clause = RepPredProp(PredPropByFunc(FunctorDoStaticClause,PROLOG_MODULE));
   Yap_heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,PROLOG_MODULE));
-  Yap_heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomHandleThrow,3),PROLOG_MODULE));
-  Yap_heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomGoalExpansion,3),USER_MODULE));
+  Yap_heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(FunctorHandleThrow,PROLOG_MODULE));
+  Yap_heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(FunctorGoalExpansion,USER_MODULE));
   Yap_heap_regs->env_for_trustfail_code.p =
     Yap_heap_regs->env_for_trustfail_code.p0 =
     RepPredProp(PredPropByAtom(AtomFalse,PROLOG_MODULE));

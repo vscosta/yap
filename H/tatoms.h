@@ -584,12 +584,16 @@
 #define FunctorBraces Yap_heap_regs->FunctorBraces_
   Functor FunctorCall_;
 #define FunctorCall Yap_heap_regs->FunctorCall_
+  Functor FunctorCatch_;
+#define FunctorCatch Yap_heap_regs->FunctorCatch_
   Functor FunctorChangeModule_;
 #define FunctorChangeModule Yap_heap_regs->FunctorChangeModule_
   Functor FunctorClist_;
 #define FunctorClist Yap_heap_regs->FunctorClist_
   Functor FunctorComma_;
 #define FunctorComma Yap_heap_regs->FunctorComma_
+  Functor FunctorConsistencyError_;
+#define FunctorConsistencyError Yap_heap_regs->FunctorConsistencyError_
   Functor FunctorCreep_;
 #define FunctorCreep Yap_heap_regs->FunctorCreep_
   Functor FunctorCsult_;
@@ -600,18 +604,32 @@
 #define FunctorCutBy Yap_heap_regs->FunctorCutBy_
   Functor FunctorDiff_;
 #define FunctorDiff Yap_heap_regs->FunctorDiff_
+  Functor FunctorDoLogUpdClause_;
+#define FunctorDoLogUpdClause Yap_heap_regs->FunctorDoLogUpdClause_
+  Functor FunctorDoLogUpdClause0_;
+#define FunctorDoLogUpdClause0 Yap_heap_regs->FunctorDoLogUpdClause0_
+  Functor FunctorDoLogUpdClauseErase_;
+#define FunctorDoLogUpdClauseErase Yap_heap_regs->FunctorDoLogUpdClauseErase_
+  Functor FunctorDoStaticClause_;
+#define FunctorDoStaticClause Yap_heap_regs->FunctorDoStaticClause_
+  Functor FunctorDomainError_;
+#define FunctorDomainError Yap_heap_regs->FunctorDomainError_
   Functor FunctorDot_;
 #define FunctorDot Yap_heap_regs->FunctorDot_
   Functor FunctorEq_;
 #define FunctorEq Yap_heap_regs->FunctorEq_
   Functor FunctorError_;
 #define FunctorError Yap_heap_regs->FunctorError_
+  Functor FunctorEvaluationError_;
+#define FunctorEvaluationError Yap_heap_regs->FunctorEvaluationError_
   Functor FunctorExecute2InMod_;
 #define FunctorExecute2InMod Yap_heap_regs->FunctorExecute2InMod_
   Functor FunctorExecuteInMod_;
 #define FunctorExecuteInMod Yap_heap_regs->FunctorExecuteInMod_
   Functor FunctorExecuteWithin_;
 #define FunctorExecuteWithin Yap_heap_regs->FunctorExecuteWithin_
+  Functor FunctorExistenceError_;
+#define FunctorExistenceError Yap_heap_regs->FunctorExistenceError_
   Functor FunctorFunctor_;
 #define FunctorFunctor Yap_heap_regs->FunctorFunctor_
   Functor FunctorGAtom_;
@@ -634,6 +652,10 @@
 #define FunctorGVar Yap_heap_regs->FunctorGVar_
   Functor FunctorGeneratePredInfo_;
 #define FunctorGeneratePredInfo Yap_heap_regs->FunctorGeneratePredInfo_
+  Functor FunctorGoalExpansion_;
+#define FunctorGoalExpansion Yap_heap_regs->FunctorGoalExpansion_
+  Functor FunctorHandleThrow_;
+#define FunctorHandleThrow Yap_heap_regs->FunctorHandleThrow_
   Functor FunctorId_;
 #define FunctorId Yap_heap_regs->FunctorId_
   Functor FunctorLastExecuteWithin_;
@@ -642,6 +664,8 @@
 #define FunctorList Yap_heap_regs->FunctorList_
   Functor FunctorMegaClause_;
 #define FunctorMegaClause Yap_heap_regs->FunctorMegaClause_
+  Functor FunctorMetaCall_;
+#define FunctorMetaCall Yap_heap_regs->FunctorMetaCall_
   Functor FunctorModule_;
 #define FunctorModule Yap_heap_regs->FunctorModule_
   Functor FunctorMultiFileClause_;
@@ -654,10 +678,18 @@
 #define FunctorNot Yap_heap_regs->FunctorNot_
   Functor FunctorOr_;
 #define FunctorOr Yap_heap_regs->FunctorOr_
+  Functor FunctorPermissionError_;
+#define FunctorPermissionError Yap_heap_regs->FunctorPermissionError_
   Functor FunctorPortray_;
 #define FunctorPortray Yap_heap_regs->FunctorPortray_
   Functor FunctorQuery_;
 #define FunctorQuery Yap_heap_regs->FunctorQuery_
+  Functor FunctorRecordedWithKey_;
+#define FunctorRecordedWithKey Yap_heap_regs->FunctorRecordedWithKey_
+  Functor FunctorRepresentationError_;
+#define FunctorRepresentationError Yap_heap_regs->FunctorRepresentationError_
+  Functor FunctorResourceError_;
+#define FunctorResourceError Yap_heap_regs->FunctorResourceError_
   Functor FunctorRestoreRegs_;
 #define FunctorRestoreRegs Yap_heap_regs->FunctorRestoreRegs_
   Functor FunctorRestoreRegs1_;
@@ -678,6 +710,8 @@
 #define FunctorThreadRun Yap_heap_regs->FunctorThreadRun_
   Functor FunctorThrow_;
 #define FunctorThrow Yap_heap_regs->FunctorThrow_
+  Functor FunctorTypeError_;
+#define FunctorTypeError Yap_heap_regs->FunctorTypeError_
   Functor FunctorUMinus_;
 #define FunctorUMinus Yap_heap_regs->FunctorUMinus_
   Functor FunctorUPlus_;
