@@ -131,6 +131,7 @@ HEADERS = \
 	$(srcdir)/OPTYap/alpha_locks_funcs.h \
 	$(srcdir)/OPTYap/pthread_locks.h \
 	$(srcdir)/H/cut_c.h \
+	$(srcdir)/H/iatoms.h $(srcdir)/H/ratoms.h $(srcdir)/H/tatoms.h \
 	$(srcdir)/MYDDAS/myddas.h $(srcdir)/MYDDAS/myddas_structs.h \
 	$(srcdir)/MYDDAS/myddas_statistics.h \
 	$(srcdir)/MYDDAS/myddas_statistics_structs.h \

@@ -1214,9 +1214,9 @@ static Int profinit1(void)
 
   if (IsVarTerm(t)) {
     if (Yap_OffLineProfiler) 
-      Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom("offline")));
+      Yap_unify(ARG1,MkAtomTerm(AtomOffline));
     else
-      Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom("online")));
+      Yap_unify(ARG1,MkAtomTerm(AtomOnline));
   } else if (IsAtomTerm(t)) {
     char *name = RepAtom(AtomOfTerm(t))->StrOfAE;
     if (!strcmp(name,"offline"))
@@ -1238,9 +1238,9 @@ static Int profinit1(void)
 static Int proftype(void)
 {
   if (Yap_OffLineProfiler) 
-    return Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom("offline")));
+    return Yap_unify(ARG1,MkAtomTerm(AtomOffline));
   else
-    return Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom("online")));
+    return Yap_unify(ARG1,MkAtomTerm(AtomOnline));
 }
 
 static Int start_profilers(int msec)

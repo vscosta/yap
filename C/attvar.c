@@ -837,7 +837,7 @@ static Int
 p_swi_all_atts(void) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
-  Functor attf = Yap_MkFunctor(Yap_LookupAtom("att"),3);
+  Functor attf = Yap_MkFunctor(AtomAtt1,3);
 
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {

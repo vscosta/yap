@@ -605,7 +605,7 @@ Yap_InitCoroutPreds(void)
   Atom            at;
   PredEntry      *pred;
 
-  at = Yap_FullLookupAtom("$wake_up_goal");
+  at = AtomWakeUpGoal;
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 2),0));
   WakeUpCode = pred;
 #endif

@@ -475,7 +475,7 @@ InitDebug(void)
   }
 #endif
   /* Set at full leash */
-  At = Yap_FullLookupAtom("$leash");
+  At = AtomLeash;
   Yap_PutValue(At, MkIntTerm(15));
 }
 
@@ -963,37 +963,19 @@ InitFlags(void)
 static void 
 InitCodes(void)
 {
-  Atom   
-    AtomAltNot,
-#ifdef COROUTINING
-    AtomArrayAccess,
-#endif
-    AtomArrow,
-    AtomBraces,
-    AtomEq,
-    AtomGVar,
-    AtomNot,
-    AtomQuery,
-    AtomSemic,
-    AtomCreep,
-    AtomStream,
-    AtomStreamPos,
-    AtomVar;
-  Functor
-    FunctorThrow;
-
-  Yap_heap_regs->term_prolog = MkAtomTerm(Yap_LookupAtom("prolog"));
-  Yap_heap_regs->user_module = MkAtomTerm(Yap_LookupAtom("user"));
-  Yap_heap_regs->idb_module = MkAtomTerm(Yap_LookupAtom("idb"));
-  Yap_heap_regs->attributes_module = MkAtomTerm(Yap_LookupAtom("attributes"));
-  Yap_heap_regs->charsio_module = MkAtomTerm(Yap_LookupAtom("charsio"));
-  Yap_heap_regs->terms_module = MkAtomTerm(Yap_LookupAtom("terms"));
-  Yap_heap_regs->system_module = MkAtomTerm(Yap_LookupAtom("system"));
-  Yap_heap_regs->readutil_module = MkAtomTerm(Yap_LookupAtom("readutil"));
-  Yap_heap_regs->hacks_module = MkAtomTerm(Yap_LookupAtom("yap_hacks"));
-  Yap_heap_regs->globals_module = MkAtomTerm(Yap_LookupAtom("nb"));
-  Yap_heap_regs->arg_module = MkAtomTerm(Yap_LookupAtom("arg"));
-  Yap_heap_regs->swi_module = MkAtomTerm(Yap_LookupAtom("swi"));
+#include "iatoms.h"
+  Yap_heap_regs->term_prolog = MkAtomTerm(AtomProlog);
+  Yap_heap_regs->user_module = MkAtomTerm(AtomUser);
+  Yap_heap_regs->idb_module = MkAtomTerm(AtomIDB);
+  Yap_heap_regs->attributes_module = MkAtomTerm(AtomAttributes);
+  Yap_heap_regs->charsio_module = MkAtomTerm(AtomCharsio);
+  Yap_heap_regs->terms_module = MkAtomTerm(AtomTerms);
+  Yap_heap_regs->system_module = MkAtomTerm(AtomSystem);
+  Yap_heap_regs->readutil_module = MkAtomTerm(AtomReadutil);
+  Yap_heap_regs->hacks_module = MkAtomTerm(AtomYapHacks);
+  Yap_heap_regs->globals_module = MkAtomTerm(AtomNb);
+  Yap_heap_regs->arg_module = MkAtomTerm(AtomArg);
+  Yap_heap_regs->swi_module = MkAtomTerm(AtomSwi);
   Yap_InitModules();
 #ifdef BEAM
   Yap_heap_regs->beam_retry_code.opc = Yap_opcode(_retry_eam);
@@ -1161,13 +1143,13 @@ InitCodes(void)
     Atom            at;
     PredEntry      *pred;
 
-    at = Yap_FullLookupAtom("$creep");
+    at = AtomCreep;
     pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),PROLOG_MODULE));
     Yap_heap_regs->creep_code = pred;
-    at = Yap_FullLookupAtom("$undefp");
+    at = AtomUndefp;
     pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),PROLOG_MODULE));
     Yap_heap_regs->undef_code = pred;
-    at = Yap_FullLookupAtom("$spy");
+    at = AtomSpy;
     pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
     Yap_heap_regs->spy_code = pred;
     Yap_heap_regs->env_for_trustfail_code.p =
@@ -1212,156 +1194,10 @@ InitCodes(void)
     don't initialise this here, this is initialised by Yap_InitModules!!!!
      Yap_heap_regs->no_of_modules = 1;
   */
-  Yap_heap_regs->atom_abol = Yap_FullLookupAtom("$abol");
-  AtomAltNot = Yap_LookupAtom("not");
-  Yap_heap_regs->atom_append = Yap_LookupAtom ("append");
-  Yap_heap_regs->atom_array = Yap_FullLookupAtom("$array");
-#ifdef COROUTINING
-  AtomArrayAccess = Yap_FullLookupAtom("$array_arg");
-#endif
-  AtomArrow = Yap_LookupAtom("->");
-  Yap_heap_regs->atom_assert = Yap_LookupAtom(":-");
-  Yap_heap_regs->atom_alarm = Yap_FullLookupAtom("$alarm");
-#if HAVE_SIGACTION
-  Yap_heap_regs->atom_sig_pending = Yap_FullLookupAtom("$sig_pending");
-#endif
-  AtomBraces = Yap_LookupAtom("{}");
-#ifdef COROUTINING
-  Yap_heap_regs->atom_att = Yap_FullLookupAtom("$att");
-#endif
-  Yap_heap_regs->atom_b = Yap_FullLookupAtom("$last_choice_pt");
-  Yap_heap_regs->atom_break = Yap_FullLookupAtom("$break");
-  Yap_heap_regs->atom_call = Yap_LookupAtom("call");
-  Yap_heap_regs->atom_catch = Yap_FullLookupAtom("$catch");
-  Yap_heap_regs->atom_comma = Yap_LookupAtom(",");
-  Yap_heap_regs->atom_cpu_time = Yap_LookupAtom("cputime");
-  Yap_heap_regs->atom_csult = Yap_FullLookupAtom("$csult");
-  Yap_heap_regs->atom_cut = Yap_LookupAtom("!");
-  Yap_heap_regs->atom_cut_by = Yap_FullLookupAtom("$cut_by");
 #ifdef EUROTRA
-#ifdef SFUNC
-  Yap_heap_regs->atom_dollar_undef = MkAtomTerm(Yap_FullLookupAtom("$undef"));
+  Yap_heap_regs->term_dollar_u = MkAtomTerm(AtomDollarU);
 #endif
-#endif
-  Yap_heap_regs->atom_dbref = Yap_FullLookupAtom ("$dbref");
-  Yap_heap_regs->atom_e = Yap_LookupAtom("e");
-  Yap_heap_regs->atom_e_q = Yap_LookupAtom("=");
-  Yap_heap_regs->atom_eof = Yap_LookupAtom ("end_of_file");
-  AtomEq = Yap_LookupAtom("=");
-#ifdef EUROTRA
-  Yap_heap_regs->atom_f_b = Yap_LookupAtom("fb");
-#endif
-  Yap_heap_regs->atom_fail = Yap_LookupAtom("fail");
-  Yap_heap_regs->atom_false = Yap_LookupAtom("false");
-  Yap_heap_regs->atom_fast = Yap_FullLookupAtom("$fast");
-  Yap_heap_regs->atom_g_t = Yap_LookupAtom(">");
-  Yap_heap_regs->atom_gc = Yap_FullLookupAtom("$gc");
-  Yap_heap_regs->atom_gc_margin = Yap_FullLookupAtom("$gc_margin");
-  Yap_heap_regs->atom_gc_trace = Yap_FullLookupAtom("$gc_trace");
-  Yap_heap_regs->atom_gc_verbose = Yap_FullLookupAtom("$gc_verbose");
-  Yap_heap_regs->atom_gc_very_verbose = Yap_FullLookupAtom("$gc_very_verbose");
-  AtomGVar = Yap_LookupAtom("var");
-  Yap_heap_regs->atom_global = Yap_LookupAtom("global_sp");
-  Yap_heap_regs->atom_heap_used = Yap_LookupAtom("heapused");
-  Yap_heap_regs->atom_inf = Yap_LookupAtom("inf");
-  Yap_heap_regs->atom_l_t = Yap_LookupAtom("<");
-  Yap_heap_regs->atom_local = Yap_LookupAtom("local_sp");
-  Yap_heap_regs->atom_meta_call = Yap_FullLookupAtom("$call");
-  Yap_heap_regs->atom_minus = Yap_LookupAtom("-");
-  Yap_heap_regs->atom_multi_file = Yap_FullLookupAtom("$mf");
-  Yap_heap_regs->atom_nan = Yap_LookupAtom("nan");
-  AtomNot = Yap_LookupAtom("\\+");
-  Yap_heap_regs->atom_otherwise = Yap_LookupAtom("otherwise");
-  Yap_heap_regs->atom_pi = Yap_LookupAtom("pi");
-  Yap_heap_regs->atom_plus = Yap_LookupAtom("+");
-  Yap_heap_regs->atom_portray = Yap_FullLookupAtom("$portray");
-  Yap_heap_regs->atom_profile = Yap_FullLookupAtom("$profile");
-  AtomQuery = Yap_LookupAtom("?-");
-  Yap_heap_regs->atom_random = Yap_LookupAtom("random");
-  Yap_heap_regs->atom_read = Yap_LookupAtom("read");
-  Yap_heap_regs->atom_repeat = Yap_LookupAtom("repeat");
-  Yap_heap_regs->atom_restore_regs = Yap_FullLookupAtom("$restore_regs");
-  AtomSemic = Yap_LookupAtom(";");
-  Yap_heap_regs->atom_stack_free = Yap_LookupAtom("stackfree");
-  AtomStream = Yap_FullLookupAtom("$stream");
-  AtomStreamPos = Yap_FullLookupAtom("$stream_position");
-  Yap_heap_regs->atom_true = Yap_LookupAtom("true");
-  AtomCreep = Yap_LookupAtom("$creep");
-  Yap_heap_regs->atom_user = Yap_LookupAtom ("user");
-  Yap_heap_regs->atom_usr_err = Yap_LookupAtom ("user_error");
-  Yap_heap_regs->atom_usr_in = Yap_LookupAtom ("user_input");
-  Yap_heap_regs->atom_usr_out = Yap_LookupAtom ("user_output");
-  AtomVar = Yap_FullLookupAtom("$VAR");
-  Yap_heap_regs->atom_version_number = Yap_FullLookupAtom("$version_name");
-  Yap_heap_regs->atom_write = Yap_LookupAtom ("write");
-  Yap_heap_regs->float_format = Yap_LookupAtom ("\%.15g");
-#ifdef   USE_SOCKET
-  Yap_heap_regs->functor_af_inet = Yap_MkFunctor(Yap_LookupAtom("AF_INET"),2);
-  Yap_heap_regs->functor_af_local = Yap_MkFunctor(Yap_LookupAtom("AF_LOCAL"),1);
-  Yap_heap_regs->functor_af_unix = Yap_MkFunctor(Yap_LookupAtom("AF_UNIX"),1);
-#endif
-  Yap_heap_regs->functor_alt_not = Yap_MkFunctor(AtomAltNot, 1);
-#ifdef COROUTINING
-  Yap_heap_regs->functor_array_entry = Yap_MkFunctor(AtomArrayAccess, 3);
-#endif
-  Yap_heap_regs->functor_arrow = Yap_MkFunctor(AtomArrow, 2);
-  Yap_heap_regs->functor_assert = Yap_MkFunctor(AtomAssert, 2);
-  Yap_heap_regs->functor_at_found_one = Yap_MkFunctor(AtomFoundVar, 2);
-  Yap_heap_regs->functor_atom = Yap_MkFunctor(Yap_LookupAtom("atom"), 1);
-#ifdef COROUTINING
-  Yap_heap_regs->functor_att_goal = Yap_MkFunctor(Yap_FullLookupAtom("$att_do"),2);
-#endif
-  Yap_heap_regs->functor_braces = Yap_MkFunctor(AtomBraces, 1);
-  Yap_heap_regs->functor_call = Yap_MkFunctor(AtomCall, 1);
-  Yap_heap_regs->functor_cut_by = Yap_MkFunctor(AtomCutBy, 1);
-  Yap_heap_regs->functor_clist = Yap_MkFunctor(Yap_FullLookupAtom("$when"), 4);
-  Yap_heap_regs->functor_comma = Yap_MkFunctor(AtomComma, 2);
-  Yap_heap_regs->functor_csult = Yap_MkFunctor(AtomCsult, 1);
-  Yap_heap_regs->functor_dot = Yap_MkFunctor(AtomDot, 2);
-  Yap_heap_regs->functor_eq = Yap_MkFunctor(AtomEq, 2);
-  Yap_heap_regs->functor_execute_in_mod = Yap_MkFunctor(Yap_FullLookupAtom("$execute_in_mod"), 2);
-  Yap_heap_regs->functor_execute2_in_mod = Yap_MkFunctor(Yap_FullLookupAtom("$execute_wo_mod"), 2);
-  Yap_heap_regs->functor_execute_within = Yap_MkFunctor(Yap_FullLookupAtom("$execute_within"), 1);
-  Yap_heap_regs->functor_g_atom = Yap_MkFunctor(Yap_LookupAtom("atom"), 1);
-  Yap_heap_regs->functor_g_atomic = Yap_MkFunctor(Yap_LookupAtom("atomic"), 1);
-  Yap_heap_regs->functor_g_compound = Yap_MkFunctor(Yap_LookupAtom("compound"), 1);
-  Yap_heap_regs->functor_g_float = Yap_MkFunctor(Yap_LookupAtom("float"), 1);
-  Yap_heap_regs->functor_g_format_at = Yap_MkFunctor(Yap_LookupAtom("$format@"), 2);
-  Yap_heap_regs->functor_g_integer = Yap_MkFunctor(Yap_LookupAtom("integer"), 1);
-  Yap_heap_regs->functor_g_number = Yap_MkFunctor(Yap_LookupAtom("number"), 1);
-  Yap_heap_regs->functor_g_primitive = Yap_MkFunctor(Yap_LookupAtom("primitive"), 1);
-  Yap_heap_regs->functor_g_var = Yap_MkFunctor(AtomGVar, 1);
-  Yap_heap_regs->functor_last_execute_within = Yap_MkFunctor(Yap_FullLookupAtom("$last_execute_within"), 1);
-  Yap_heap_regs->functor_list = Yap_MkFunctor(Yap_LookupAtom("."), 2);
-  Yap_heap_regs->functor_mega_clause = Yap_MkFunctor (Yap_FullLookupAtom("$mega_clause"), 2);
-  Yap_heap_regs->functor_module = Yap_MkFunctor(Yap_LookupAtom(":"), 2);
-  Yap_heap_regs->functor_multi_file_clause = Yap_MkFunctor(Yap_FullLookupAtom("$mf_clause"), 5);
-#ifdef MULTI_ASSIGNMENT_VARIABLES
-  Yap_heap_regs->functor_mutable = Yap_MkFunctor(Yap_FullLookupAtom("$mutable_variable"),
-					 sizeof(timed_var)/sizeof(CELL));
-#endif
-  Yap_heap_regs->functor_nb_queue = Yap_MkFunctor(Yap_LookupAtom("queue"), 5);
-  Yap_heap_regs->functor_not = Yap_MkFunctor(AtomNot, 1);
-  Yap_heap_regs->functor_or = Yap_MkFunctor(AtomSemic, 2);
-  Yap_heap_regs->functor_portray = Yap_MkFunctor(AtomPortray, 1);
-  Yap_heap_regs->functor_query = Yap_MkFunctor(AtomQuery, 1);
-  Yap_heap_regs->functor_creep = Yap_MkFunctor(AtomCreep, 1);
-  Yap_heap_regs->functor_static_clause = Yap_MkFunctor (Yap_FullLookupAtom("$static_clause"), 1);
-  Yap_heap_regs->functor_stream = Yap_MkFunctor (AtomStream, 1);
-  Yap_heap_regs->functor_stream_pos = Yap_MkFunctor (AtomStreamPos, 5);
-  Yap_heap_regs->functor_stream_eOS = Yap_MkFunctor (Yap_LookupAtom("end_of_stream"), 1);
-  Yap_heap_regs->functor_thread_run = Yap_MkFunctor (Yap_FullLookupAtom("$top_thread_goal"), 2);
-  Yap_heap_regs->functor_change_module = Yap_MkFunctor (Yap_FullLookupAtom("$change_module"), 1);
-  Yap_heap_regs->functor_current_module = Yap_MkFunctor (Yap_FullLookupAtom("$current_module"), 1);
-  FunctorThrow = Yap_MkFunctor( Yap_FullLookupAtom("throw"), 1);
-  Yap_heap_regs->functor_u_minus = Yap_MkFunctor (Yap_heap_regs->atom_minus, 1);
-  Yap_heap_regs->functor_u_plus = Yap_MkFunctor (Yap_heap_regs->atom_plus, 1);
-  Yap_heap_regs->functor_v_bar = Yap_MkFunctor(Yap_LookupAtom("|"), 2);
-  Yap_heap_regs->functor_var = Yap_MkFunctor(AtomVar, 1);
-#ifdef EUROTRA
-  Yap_heap_regs->term_dollar_u = MkAtomTerm(Yap_FullLookupAtom("$u"));
-#endif
-  Yap_heap_regs->term_refound_var = MkAtomTerm(Yap_FullLookupAtom("$I_FOUND_THE_VARIABLE_AGAIN"));
+  Yap_heap_regs->term_refound_var = MkAtomTerm(AtomRefoundVar);
   Yap_heap_regs->n_of_file_aliases = 0;
   Yap_heap_regs->file_aliases = NULL;
   Yap_heap_regs->foreign_code_loaded = NULL;
@@ -1384,28 +1220,28 @@ InitCodes(void)
   /* predicates can only be defined after this point */
   Yap_heap_regs->env_for_yes_code.p =
     Yap_heap_regs->env_for_yes_code.p0 =
-    RepPredProp(PredPropByAtom(Yap_heap_regs->atom_true,0));
-  Yap_heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_heap_regs->atom_meta_call,4),PROLOG_MODULE));
-  Yap_heap_regs->pred_dollar_catch = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$catch"),3),PROLOG_MODULE));
-  Yap_heap_regs->pred_recorded_with_key = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$recorded_with_key"),3),PROLOG_MODULE));
-  Yap_heap_regs->pred_log_upd_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_log_upd_clause"),6),PROLOG_MODULE));
-  Yap_heap_regs->pred_log_upd_clause_erase = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_log_upd_clause_erase"),6),PROLOG_MODULE));
-  Yap_heap_regs->pred_log_upd_clause0 = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_log_upd_clause0"),6),PROLOG_MODULE));
-  Yap_heap_regs->pred_static_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_static_clause"),5),PROLOG_MODULE));
+    RepPredProp(PredPropByAtom(AtomTrue,0));
+  Yap_heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomMetaCall,4),PROLOG_MODULE));
+  Yap_heap_regs->pred_dollar_catch = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomCatch,3),PROLOG_MODULE));
+  Yap_heap_regs->pred_recorded_with_key = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomRecordedWithKey,3),PROLOG_MODULE));
+  Yap_heap_regs->pred_log_upd_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomDoLogUpdClause,6),PROLOG_MODULE));
+  Yap_heap_regs->pred_log_upd_clause_erase = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomDoLogUpdClauseErase,6),PROLOG_MODULE));
+  Yap_heap_regs->pred_log_upd_clause0 = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomDoLogUpdClause0,6),PROLOG_MODULE));
+  Yap_heap_regs->pred_static_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomDoStaticClause,5),PROLOG_MODULE));
   Yap_heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,PROLOG_MODULE));
-  Yap_heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$handle_throw"),3),PROLOG_MODULE));
-  Yap_heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("goal_expansion"),3),USER_MODULE));
+  Yap_heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomHandleThrow,3),PROLOG_MODULE));
+  Yap_heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomGoalExpansion,3),USER_MODULE));
   Yap_heap_regs->env_for_trustfail_code.p =
     Yap_heap_regs->env_for_trustfail_code.p0 =
-    RepPredProp(PredPropByAtom(Yap_heap_regs->atom_false,PROLOG_MODULE));
+    RepPredProp(PredPropByAtom(AtomFalse,PROLOG_MODULE));
   {
     /* make sure we know about the module predicate */
-    PredEntry *modp = RepPredProp(PredPropByFunc(Yap_heap_regs->functor_module,PROLOG_MODULE));
+    PredEntry *modp = RepPredProp(PredPropByFunc(FunctorModule,PROLOG_MODULE));
     modp->PredFlags |= MetaPredFlag;
   }
 #ifdef YAPOR
-  Yap_heap_regs->getwork_code.u.Otapl.p = RepPredProp(PredPropByAtom(Yap_FullLookupAtom("$getwork"), PROLOG_MODULE));
-  Yap_heap_regs->getwork_seq_code.u.Otapl.p = RepPredProp(PredPropByAtom(Yap_FullLookupAtom("$getwork_seq"), PROLOG_MODULE));
+  Yap_heap_regs->getwork_code.u.Otapl.p = RepPredProp(PredPropByAtom(AtomGetwork, PROLOG_MODULE));
+  Yap_heap_regs->getwork_seq_code.u.Otapl.p = RepPredProp(PredPropByAtom(AtomGetworkSeq, PROLOG_MODULE));
 #endif /* YAPOR */
   Yap_heap_regs->db_erased_marker =
     (DBRef)Yap_AllocCodeSpace(sizeof(DBStruct));
@@ -1424,7 +1260,7 @@ InitCodes(void)
   Yap_heap_regs->logdb_erased_marker->ClFlags = ErasedMask|LogUpdMask;
   Yap_heap_regs->logdb_erased_marker->ClSource = NULL;
   Yap_heap_regs->logdb_erased_marker->ClRefCount = 0;
-  Yap_heap_regs->logdb_erased_marker->ClPred = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_log_upd_clause"),5),PROLOG_MODULE));
+  Yap_heap_regs->logdb_erased_marker->ClPred = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomDoLogUpdClause,5),PROLOG_MODULE));
   Yap_heap_regs->logdb_erased_marker->ClExt = NULL;
   Yap_heap_regs->logdb_erased_marker->ClPrev = NULL;
   Yap_heap_regs->logdb_erased_marker->ClNext = NULL;
@@ -1442,10 +1278,10 @@ InitCodes(void)
 static void 
 InitVersion(void)
 {
-  Yap_PutValue(Yap_FullLookupAtom("$version_name"),
+  Yap_PutValue(AtomVersionNumber,
 	       MkAtomTerm(Yap_LookupAtom(YAP_VERSION)));
 #if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
-  Yap_PutValue(Yap_FullLookupAtom("$myddas_version_name"),
+  Yap_PutValue(AtomMyddasVersionName,
 	       MkAtomTerm(Yap_LookupAtom(MYDDAS_VERSION)));
 #endif  
 }

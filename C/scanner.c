@@ -962,7 +962,7 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 	      t->Tok = Name_tok;
 	      if (ch == '(')
 		solo_flag = FALSE;
-	      t->TokInfo = Unsigned(Yap_LookupAtom("e"));
+	      t->TokInfo = Unsigned(AtomE);
 	      t->TokPos = GetCurInpPos(inp_stream);
 	      e2 = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	      if (e2 == NULL) {

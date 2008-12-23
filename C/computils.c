@@ -349,11 +349,11 @@ write_functor(Functor f)
 {
   if (IsExtensionFunctor(f)) {
     if (f == FunctorDBRef) {
-      Yap_DebugPlWrite(MkAtomTerm(Yap_LookupAtom("DBRef")));
+      Yap_DebugPlWrite(MkAtomTerm(AtomDBREF));
     } else if (f == FunctorLongInt) {
-      Yap_DebugPlWrite(MkAtomTerm(Yap_LookupAtom("LongInt")));
+      Yap_DebugPlWrite(MkAtomTerm(AtomLONGINT));
     } else if (f == FunctorDouble) {
-      Yap_DebugPlWrite(MkAtomTerm(Yap_LookupAtom("Double")));
+      Yap_DebugPlWrite(MkAtomTerm(AtomDOUBLE));
     }
   } else {
     Yap_DebugPlWrite(MkAtomTerm(NameOfFunctor (f)));
@@ -499,11 +499,11 @@ ShowOp (char *f, struct PSEUDO *cpc)
 	      Functor fun = (Functor)*cptr++;
 	      if (IsExtensionFunctor(fun)) {
 		if (fun == FunctorDBRef) {
-		  Yap_DebugPlWrite(MkAtomTerm(Yap_LookupAtom("DBRef")));
+		  Yap_DebugPlWrite(MkAtomTerm(AtomDBREF));
 		} else if (fun == FunctorLongInt) {
-		  Yap_DebugPlWrite(MkAtomTerm(Yap_LookupAtom("LongInt")));
+		  Yap_DebugPlWrite(MkAtomTerm(AtomLONGINT));
 		} else if (fun == FunctorDouble) {
-		  Yap_DebugPlWrite(MkAtomTerm(Yap_LookupAtom("Double")));
+		  Yap_DebugPlWrite(MkAtomTerm(AtomDOUBLE));
 		}
 	      } else {
 		Yap_DebugPlWrite (MkAtomTerm(NameOfFunctor(fun)));

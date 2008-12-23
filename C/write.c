@@ -124,7 +124,7 @@ wrputf(Float f, wrf writewch)		/* writes a float	 */
   }
   lastw = alphanum;
   //  sprintf(s, "%.15g", f);
-  sprintf(s, RepAtom(FloatFormat)->StrOfAE, f);
+  sprintf(s, RepAtom(AtomFloatFormat)->StrOfAE, f);
   while (*pt == ' ')
     pt++;
   if (*pt == 'i' || *pt == 'n')  /* inf or nan */ {
@@ -150,7 +150,7 @@ wrputref(CODEADDR ref, int Quote_illegal, wrf writewch)			/* writes a data base 
 {
   char            s[256];
 
-  putAtom(AtomDBRef, Quote_illegal, writewch);
+  putAtom(AtomDBref, Quote_illegal, writewch);
 #if SHORT_INTS
   sprintf(s, "(0x%p,0)", ref);
 #elif __linux__
@@ -296,7 +296,7 @@ putAtom(Atom atom, int Quote_illegal, wrf writewch)			/* writes an atom	 */
 
   /* #define CRYPT_FOR_STEVE 1*/
 #ifdef CRYPT_FOR_STEVE
-  if (Yap_GetValue(Yap_LookupAtom("crypt_atoms")) != TermNil && Yap_GetAProp(atom, OpProperty) == NIL) {
+  if (Yap_GetValue(AtomCryptAtoms) != TermNil && Yap_GetAProp(atom, OpProperty) == NIL) {
     char s[16];
     sprintf(s,"x%x", (CELL)s);
     wrputs(s, writewch);
@@ -439,7 +439,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 	                      
 {
   if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
-    putAtom(Yap_LookupAtom("..."), wglb->Quote_illegal, wglb->writewch);
+    putAtom(Atom3Dots, wglb->Quote_illegal, wglb->writewch);
     return;
   }
   if (EX != 0)
@@ -481,7 +481,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 	long            sl= 0;
 
 	if (wglb->MaxList && eldepth > wglb->MaxList) {
-	  putAtom(Yap_LookupAtom("..."), wglb->Quote_illegal, wglb->writewch);
+	  putAtom(Atom3Dots, wglb->Quote_illegal, wglb->writewch);
 	  wrputc(']', wglb->writewch);
 	  lastw = separator;
 	  return;

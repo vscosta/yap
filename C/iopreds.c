@@ -308,7 +308,7 @@ unix_upd_stream_info (StreamDesc * s)
   /* isatty does not seem to work with simplescar. I'll assume the first
      three streams will probably be ttys (pipes are not thatg different) */
   if (s-Stream < 3) {
-    s->u.file.name = Yap_LookupAtom("tty");
+    s->u.file.name = AtomTty;
     s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
   }
 #else 
@@ -319,11 +319,11 @@ unix_upd_stream_info (StreamDesc * s)
 #if HAVE_TTYNAME      
 	char *ttys = ttyname(filedes);
 	if (ttys == NULL)
-	  s->u.file.name = Yap_LookupAtom("tty");
+	  s->u.file.name = AtomTty;
 	else
-	  s->u.file.name = Yap_LookupAtom(ttys);
+	  s->u.file.name = AtomTtys;
 #else
-	s->u.file.name = Yap_LookupAtom("tty");
+	s->u.file.name = AtomTty;
 #endif
 	s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
 	return;
@@ -453,13 +453,13 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file)
   InitFileIO(s);
   switch(sno) {
   case 0:
-    s->u.file.name=Yap_LookupAtom("user_input");
+    s->u.file.name=AtomUserIn;
     break;
   case 1:
-    s->u.file.name=Yap_LookupAtom("user_output");
+    s->u.file.name=AtomUserOut;
     break;
   default:
-    s->u.file.name=Yap_LookupAtom("user_error");
+    s->u.file.name=AtomUserErr;
     break;
   }
   s->u.file.user_name = MkAtomTerm (s->u.file.name);
@@ -496,11 +496,11 @@ InitStdStreams (void)
   Yap_c_output_stream = StdOutStream;
   Yap_c_error_stream = StdErrStream;
   /* init standard aliases */
-  FileAliases[0].name = AtomUsrIn;
+  FileAliases[0].name = AtomUserIn;
   FileAliases[0].alias_stream = 0;
-  FileAliases[1].name = AtomUsrOut;
+  FileAliases[1].name = AtomUserOut;
   FileAliases[1].alias_stream = 1;
-  FileAliases[2].name = AtomUsrErr;
+  FileAliases[2].name = AtomUserErr;
   FileAliases[2].alias_stream = 2;
   NOfFileAliases = 3;
   SzOfFileAliases = ALIASES_BLOCK_SIZE;
@@ -534,7 +534,7 @@ Yap_InitPlIO (void)
 static Int
 PlIOError (yap_error_number type, Term culprit, char *who)
 {
-  if (Yap_GetValue(Yap_LookupAtom("fileerrors")) == MkIntTerm(1)) {
+  if (Yap_GetValue(AtomFileerrors) == MkIntTerm(1)) {
     Yap_Error(type, culprit, who);
     /* and fail */
     return FALSE;
@@ -2263,7 +2263,7 @@ p_open (void)
   }
   open_mode = AtomOfTerm (t2);
   if (open_mode == AtomRead || open_mode == AtomCsult) {
-    if (open_mode == AtomCsult && AtomOfTerm(file_name) == AtomUsrIn) {
+    if (open_mode == AtomCsult && AtomOfTerm(file_name) == AtomUserIn) {
       return(Yap_unify(MkStream(FileAliases[0].alias_stream), ARG3));
     }
     strncpy(io_mode,"rb", 8);
@@ -2371,7 +2371,7 @@ p_open (void)
 	  st->stream_gets = PlGetsFunc();
 	}
 	ta[1] = MkAtomTerm(AtomTrue);
-	t = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("reposition"),1),1,ta);
+	t = Yap_MkApplTerm(Yap_MkFunctor(AtomReposition,1),1,ta);
 	Yap_Error(PERMISSION_ERROR_OPEN_SOURCE_SINK,t,"open/4");
 	return FALSE;
       }
@@ -2568,7 +2568,7 @@ p_open_null_stream (void)
   st->stream_gets = PlGetsFunc();
   st->stream_wgetc = get_wchar;
   st->stream_wgetc_for_read = get_wchar;
-  st->u.file.user_name = MkAtomTerm (st->u.file.name = Yap_LookupAtom ("/dev/null"));
+  st->u.file.user_name = MkAtomTerm (st->u.file.name = AtomDevNull);
   t = MkStream (sno);
   return (Yap_unify (ARG1, t));
 }
@@ -3046,9 +3046,9 @@ CheckStream (Term arg, int kind, char *msg)
 		"ambiguous use of 'user' as a stream");
 	  return (-1);	    
 	}
-	sname = AtomUsrIn;
+	sname = AtomUserIn;
       } else {
-	sname = AtomUsrOut;
+	sname = AtomUserOut;
       }
     }
     if ((sno = CheckAlias(sname)) == -1) {
@@ -3130,13 +3130,13 @@ StreamName(int i)
   if (i < 3) return(MkAtomTerm(AtomUser));
 #if USE_SOCKET
   if (Stream[i].status & Socket_Stream_f)
-    return(MkAtomTerm(Yap_LookupAtom("socket")));
+    return(MkAtomTerm(AtomSocket));
   else
 #endif
     if (Stream[i].status & Pipe_Stream_f)
-      return(MkAtomTerm(Yap_LookupAtom("pipe")));
+      return(MkAtomTerm(AtomPipe));
     if (Stream[i].status & InMemory_Stream_f)
-      return(MkAtomTerm(Yap_LookupAtom("charsio")));
+      return(MkAtomTerm(AtomCharsio));
     else {
       if (yap_flags[LANGUAGE_MODE_FLAG] == ISO_CHARACTER_ESCAPES) {
 	return(Stream[i].u.file.user_name);
@@ -3667,11 +3667,11 @@ syntax_error (TokEntry * tokptr, int sno)
       {
 	Term t0[1];
 	t0[0] = MkAtomTerm((Atom)info);
-	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("atom"),1),1,t0);
+	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomAtom,1),1,t0);
       }
       break;
     case Number_tok:
-      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("number"),1),1,&(tokptr->TokInfo));
+      ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomNumber,1),1,&(tokptr->TokInfo));
       break;
     case Var_tok:
       {
@@ -3685,19 +3685,19 @@ syntax_error (TokEntry * tokptr, int sno)
 	} else {
 	  t[2] = varinfo->VarAdr;
 	}
-	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("var"),3),3,t);
+	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomGVar,3),3,t);
       }
       break;
     case String_tok:
       {
 	Term t0 = Yap_StringToList((char *)info);
-	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("string"),1),1,&t0);
+	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString,1),1,&t0);
       }
       break;
     case WString_tok:
       {
 	Term t0 = Yap_WideStringToList((wchar_t *)info);
-	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("string"),1),1,&t0);
+	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString,1),1,&t0);
       }
       break;
     case Error_tok:
@@ -3722,26 +3722,26 @@ syntax_error (TokEntry * tokptr, int sno)
     } else if (tokptr->Tok != Ord (Error_tok)) {
       ts[1] = MkIntegerTerm(tokptr->TokPos);
       *error =
-	MkPairTerm(Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("-"),2),2,ts),TermNil);
+	MkPairTerm(Yap_MkApplTerm(Yap_MkFunctor(AtomMinus,2),2,ts),TermNil);
       error = RepPair(*error)+1;
       count++;
     }
     tokptr = tokptr->TokNext;
   }
-  tf[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("read"),1),1,&ARG2);
+  tf[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomRead,1),1,&ARG2);
   {
     Term t[3];
 
     t[0] = MkIntegerTerm(start);
     t[1] = MkIntegerTerm(err);
     t[2] = MkIntegerTerm(end);
-    tf[1] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("between"),3),3,t);
+    tf[1] = Yap_MkApplTerm(Yap_MkFunctor(AtomBetween,3),3,t);
   }
-  tf[2] = MkAtomTerm(Yap_LookupAtom("\n<==== HERE ====>\n"));
+  tf[2] = MkAtomTerm(AtomHERE);
   tf[4] = MkIntegerTerm(out);
   tf[5] = MkIntegerTerm(err);
   tf[6] = StreamName(sno);
-  return(Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("syntax_error"),7),7,tf));
+  return(Yap_MkApplTerm(Yap_MkFunctor(AtomSyntaxError,7),7,tf));
 }
 
 Int
@@ -3794,16 +3794,16 @@ p_get_read_error_handler(void)
 
   switch (ParserErrorStyle) {
   case FAIL_ON_PARSER_ERROR:
-    t = MkAtomTerm(Yap_LookupAtom("fail"));
+    t = MkAtomTerm(AtomFail);
     break;
   case EXCEPTION_ON_PARSER_ERROR:
-    t = MkAtomTerm(Yap_LookupAtom("error"));
+    t = MkAtomTerm(AtomError);
     break;
   case QUIET_ON_PARSER_ERROR:
-    t = MkAtomTerm(Yap_LookupAtom("quiet"));
+    t = MkAtomTerm(AtomQuiet);
     break;
   case CONTINUE_ON_PARSER_ERROR:
-    t = MkAtomTerm(Yap_LookupAtom("dec10"));
+    t = MkAtomTerm(AtomDec10);
     break;
   default:
     Yap_Error(SYSTEM_ERROR,TermNil,"corrupted syntax_error handler");
@@ -3991,7 +3991,7 @@ static Int
 	  t[1] = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
 	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	  return(Yap_unify(tpos,ARG5) &&
-		 Yap_unify(ARG6,Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("error"),2),2,t)));
+		 Yap_unify(ARG6,Yap_MkApplTerm(Yap_MkFunctor(AtomError,2),2,t)));
 	}
       }
     } else {
@@ -4064,13 +4064,13 @@ p_user_file_name (void)
     return (FALSE);
 #if USE_SOCKET
   if (Stream[sno].status & Socket_Stream_f)
-    tout = MkAtomTerm(Yap_LookupAtom("socket"));
+    tout = MkAtomTerm(AtomSocket);
   else
 #endif
   if (Stream[sno].status & Pipe_Stream_f)
-    tout = MkAtomTerm(Yap_LookupAtom("pipe"));
+    tout = MkAtomTerm(AtomPipe);
   else if (Stream[sno].status & InMemory_Stream_f)
-    tout = MkAtomTerm(Yap_LookupAtom("charsio"));
+    tout = MkAtomTerm(AtomCharsio);
   else
     tout = Stream[sno].u.file.user_name;
   UNLOCK(Stream[sno].streamlock);
@@ -4086,13 +4086,13 @@ p_file_name (void)
     return (FALSE);
 #if USE_SOCKET
   if (Stream[sno].status & Socket_Stream_f)
-    tout = MkAtomTerm(Yap_LookupAtom("socket"));
+    tout = MkAtomTerm(AtomSocket);
   else
 #endif
   if (Stream[sno].status & Pipe_Stream_f)
-    tout = MkAtomTerm(Yap_LookupAtom("pipe"));
+    tout = MkAtomTerm(AtomPipe);
   else if (Stream[sno].status & InMemory_Stream_f)
-    tout = MkAtomTerm(Yap_LookupAtom("charsio"));
+    tout = MkAtomTerm(AtomCharsio);
   else
     tout = MkAtomTerm(Stream[sno].u.file.name);
   UNLOCK(Stream[sno].streamlock);
@@ -4115,14 +4115,14 @@ p_cur_line_no (void)
       Atom my_stream;
 #if USE_SOCKET
       if (Stream[sno].status & Socket_Stream_f)
-	my_stream = Yap_LookupAtom("socket");
+	my_stream = AtomSocket;
       else
 #endif
       if (Stream[sno].status & Pipe_Stream_f)
-	my_stream = Yap_LookupAtom("pipe");
+	my_stream = AtomPipe;
       else
 	if (Stream[sno].status & InMemory_Stream_f)
-	  my_stream = Yap_LookupAtom("charsio");
+	  my_stream = AtomCharsio;
 	else
 	  my_stream = Stream[sno].u.file.name;
       for (i = 0; i < MaxStreams; i++)
@@ -4315,7 +4315,7 @@ p_set_stream_position (void)
       UNLOCK(Stream[sno].streamlock);
       Yap_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
       return (FALSE);    
-    } else if (tp != MkAtomTerm(Yap_LookupAtom("at"))) {
+    } else if (tp != MkAtomTerm(AtomAt)) {
       UNLOCK(Stream[sno].streamlock);
       Yap_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
       return (FALSE);
@@ -5340,7 +5340,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      Term ta[2];
 	      ta[0] = otail;
 	      ta[1] = oargs;
-	      Yap_Error(Yap_Error_TYPE, Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("format"),2),2,ta), "format/2");
+	      Yap_Error(Yap_Error_TYPE, Yap_MkApplTerm(Yap_MkFunctor(AtomFormat,2),2,ta), "format/2");
 	    }
 	    if (Stream[sno].status & InMemory_Stream_f) {
 	      Stream[sno].u.mem_string.error_handler = old_handler;
@@ -5530,7 +5530,7 @@ p_stream_select(void)
     return(FALSE);
   }
   if (IsAtomTerm(t2)) {
-    if (t2 == MkAtomTerm(Yap_LookupAtom("off"))) {
+    if (t2 == MkAtomTerm(AtomOff)) {
       /* wait indefinitely */
       ptime = NULL;
     } else {
@@ -5951,8 +5951,8 @@ p_float_format(void)
 {
   Term in = Deref(ARG1);
   if (IsVarTerm(in))
-    return Yap_unify(ARG1, MkAtomTerm(FloatFormat));
-  FloatFormat = AtomOfTerm(in);
+    return Yap_unify(ARG1, MkAtomTerm(AtomFloatFormat));
+  AtomFloatFormat = AtomOfTerm(in);
   return TRUE;
 }
 
@@ -6025,7 +6025,7 @@ Yap_StringToTerm(char *s,Term *tp)
   tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno, &tpos);
   if (tokstart == NIL && tokstart->Tok == Ord (eot_tok)) {
     if (tp) {
-      *tp = MkAtomTerm(Yap_LookupAtom("end of file found before end of term"));
+      *tp = MkAtomTerm(AtomEOFBeforeEOT);
     }
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
     /* cannot actually use CloseStream, because we didn't allocate the buffer */  

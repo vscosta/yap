@@ -4024,7 +4024,7 @@ Yap_InitComma(void)
   code_p->u.Osbpp.bmap = NULL;
   GONEXT(Osbpp);
   if (PRED_GOAL_EXPANSION_ON) {
-    Functor fp = Yap_MkFunctor(Yap_FullLookupAtom("$generate_pred_info"),4);
+    Functor fp = FunctorGeneratePredInfo;
     code_p->opc = emit_op(_call_cpred);
     code_p->u.Osbpp.s = emit_count(-Signed(RealEnvSize));
     code_p->u.Osbpp.p =  

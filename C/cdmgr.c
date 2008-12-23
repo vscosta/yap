@@ -588,7 +588,7 @@ PredForChoicePt(yamop *p_code) {
     case _or_else:
       if (p_code == p_code->u.Osblp.l) {
 	/* repeat */
-	Atom at = Yap_LookupAtom("repeat ");
+	Atom at = AtomRepeatSpace;
 	return RepPredProp(PredPropByAtom(at, PROLOG_MODULE));
       } else {
 	return p_code->u.Osblp.p0;
@@ -1949,7 +1949,7 @@ addcl_permission_error(AtomEntry *ap, Int Arity, int in_use)
 
   ti[0] = MkAtomTerm(AbsAtom(ap));
   ti[1] = MkIntegerTerm(Arity);
-  t = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("/"),2), 2, ti);
+  t = Yap_MkApplTerm(FunctorSlash, 2, ti);
   Yap_ErrorMessage = Yap_ErrorSay;
   Yap_Error_Term = t;
   Yap_Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
@@ -2544,7 +2544,7 @@ static Atom
 YapConsultingFile (void)
 {
   if (consult_level == 0) {
-    return(Yap_LookupAtom("user"));
+    return(AtomUser);
   } else {
     return(Yap_LookupAtom(ConsultBase[2].filename));
   }
@@ -2694,7 +2694,7 @@ p_setspy(void)
   CELL            fg;
   Term            t, mod;
 
-  at = Yap_FullLookupAtom("$spy");
+  at = AtomSpy;
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
   SpyCode = pred;
   t = Deref(ARG1);
@@ -3487,7 +3487,7 @@ clause_was_found(PredEntry *pp, Atom *pat, UInt *parity) {
   if (pp->ModuleOfPred == IDB_MODULE) {
     if (pp->PredFlags & NumberDBPredFlag) {
       *parity = 0;
-      *pat = Yap_LookupAtom("integer");
+      *pat = AtomInteger;
     } else  if (pp->PredFlags & AtomDBPredFlag) {
       *parity = 0;
       *pat = (Atom)pp->FunctorOfPred;
@@ -4539,8 +4539,8 @@ p_is_profiled(void)
   if (IsVarTerm(t)) {
     Term ta;
 
-    if (PROFILING) ta = MkAtomTerm(Yap_LookupAtom("on"));
-    else ta = MkAtomTerm(Yap_LookupAtom("off"));
+    if (PROFILING) ta = MkAtomTerm(AtomOn);
+    else ta = MkAtomTerm(AtomOff);
     BIND((CELL *)t,ta,bind_is_profiled);
 #ifdef COROUTINING
     DO_TRAIL(CellPtr(t), ta);
@@ -4642,8 +4642,8 @@ p_is_call_counted(void)
   if (IsVarTerm(t)) {
     Term ta;
 
-    if (CALL_COUNTING) ta = MkAtomTerm(Yap_LookupAtom("on"));
-    else ta = MkAtomTerm(Yap_LookupAtom("off"));
+    if (CALL_COUNTING) ta = MkAtomTerm(AtomOn);
+    else ta = MkAtomTerm(AtomOff);
     BIND((CELL *)t,ta,bind_is_call_counted);
 #ifdef COROUTINING
     DO_TRAIL(CellPtr(t), ta);
@@ -6184,7 +6184,7 @@ p_choicepoint_info(void)
       break;
     case _Nstop:
       { 
-	Atom at = Yap_FullLookupAtom("$live");
+	Atom at = AtomLive;
 	t = MkAtomTerm(at);
 	pe = RepPredProp(PredPropByAtom(at, CurrentModule));
       }

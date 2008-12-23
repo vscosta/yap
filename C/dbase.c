@@ -2639,7 +2639,7 @@ new_lu_int_key(Int key)
       return NULL;
     }
   }
-  ae = Yap_FullLookupAtom("$integer");
+  ae = AtomDInteger;
   WRITE_LOCK(ae->ARWLock);
   p0 = Yap_NewPredPropByAtom(ae,IDB_MODULE);
   p = RepPredProp(p0);
@@ -5459,7 +5459,7 @@ Yap_InitBackDB(void)
   Yap_InitCPredBack("$recorded_with_key", 3, 3, in_rded_with_key, co_rded, SyncPredFlag|HiddenPredFlag);
   RETRY_C_RECORDED_K_CODE = NEXTOP(PredRecordedWithKey->cs.p_code.FirstClause,OtapFs);
   Yap_InitCPredBack("$recordedp", 3, 3, in_rdedp, co_rdedp, SyncPredFlag|HiddenPredFlag);
-  RETRY_C_RECORDEDP_CODE = NEXTOP(RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recordedp"), 3),0))->cs.p_code.FirstClause,OtapFs);
+  RETRY_C_RECORDEDP_CODE = NEXTOP(RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomRecordedP, 3),0))->cs.p_code.FirstClause,OtapFs);
   Yap_InitCPredBack("$current_immediate_key", 2, 4, init_current_key, cont_current_key,
 		SyncPredFlag|HiddenPredFlag);
 }

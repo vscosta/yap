@@ -1114,7 +1114,7 @@ TailOfTermCell (Term t)
 
 
 /*************** variables concerned with atoms	table *******************/
-#define	MaxHash	    1001
+#define	MaxHash	    3333
 #define	MaxWideHash (MaxHash/10+1)
 
 #define FAIL_RESTORE  0

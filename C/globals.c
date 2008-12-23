@@ -1564,7 +1564,7 @@ p_nb_queue_close(void)
     out = 
       Yap_unify(ARG3, qp[QUEUE_TAIL]) &&
       Yap_unify(ARG2, qp[QUEUE_HEAD]);
-    qp[-1] = (CELL)Yap_MkFunctor(Yap_LookupAtom("heap"),1);
+    qp[-1] = (CELL)Yap_MkFunctor(AtomHeap,1);
     qp[0] = MkIntegerTerm(0);
     return out;
   }
@@ -1757,7 +1757,7 @@ p_nb_heap(void)
     hsize = IntegerOfTerm(tsize);
   }
 
-  while ((heap = MkZeroApplTerm(Yap_MkFunctor(Yap_LookupAtom("heap"),2*hsize+HEAP_START+1),2*hsize+HEAP_START+1)) == TermNil) {
+  while ((heap = MkZeroApplTerm(Yap_MkFunctor(AtomHeap,2*hsize+HEAP_START+1),2*hsize+HEAP_START+1)) == TermNil) {
     if (!Yap_gcl((2*hsize+HEAP_START+1)*sizeof(CELL), 2, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;
@@ -1809,7 +1809,7 @@ p_nb_heap_close(void)
     if (qp[HEAP_DELAY_ARENA] != MkIntTerm(0))
       RecoverDelayArena(qp[HEAP_DELAY_ARENA]);
 #endif
-    qp[-1] = (CELL)Yap_MkFunctor(Yap_LookupAtom("heap"),1);
+    qp[-1] = (CELL)Yap_MkFunctor(AtomHeap,1);
     qp[0] = MkIntegerTerm(0);
     return TRUE;
   }
@@ -1901,7 +1901,7 @@ p_nb_heap_add_to_heap(void)
     hmsize += extra_size;
     if (!qd)
       return FALSE;
-    qd[-1] = (CELL)Yap_MkFunctor(Yap_LookupAtom("heap"),2*hmsize+HEAP_START)+1;
+    qd[-1] = (CELL)Yap_MkFunctor(AtomHeap,2*hmsize+HEAP_START)+1;
     top = qd+(HEAP_START+2*(hmsize-extra_size));
     while (extra_size) {
       RESET_VARIABLE(top);
@@ -2055,7 +2055,7 @@ p_nb_beam(void)
     }
     hsize = IntegerOfTerm(tsize);
   }
-  while ((beam = MkZeroApplTerm(Yap_MkFunctor(Yap_LookupAtom("heap"),5*hsize+HEAP_START+1),5*hsize+HEAP_START+1)) == TermNil) {
+  while ((beam = MkZeroApplTerm(Yap_MkFunctor(AtomHeap,5*hsize+HEAP_START+1),5*hsize+HEAP_START+1)) == TermNil) {
     if (!Yap_gcl((5*hsize+HEAP_START+1)*sizeof(CELL), 2, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;

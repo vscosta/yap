@@ -2301,8 +2301,8 @@ camacho_dum(void)
 
   /* build output list */
 
-  t1 = MkAtomTerm(Yap_LookupAtom("[]"));
-      t2 = MkPairTerm(MkIntegerTerm(max), t1);
+  t1 = TermNil;
+  t2 = MkPairTerm(MkIntegerTerm(max), t1);
 
   return(Yap_unify(t2, ARG1));
 }

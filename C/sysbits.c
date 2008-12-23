@@ -190,7 +190,7 @@ Yap_InitSysPath(void) {
   {
     char *dir;
     if ((dir = Yap_RegistryGetString("library"))) {
-      Yap_PutValue(Yap_LookupAtom("system_library_directory"),
+      Yap_PutValue(AtomSystemLibraryDir,
 		   MkAtomTerm(Yap_LookupAtom(dir)));
       return;
     }
@@ -244,7 +244,7 @@ Yap_InitSysPath(void) {
   strncat(Yap_FileNameBuf,"/", YAP_FILENAME_MAX);
 #endif
   strncat(Yap_FileNameBuf, "Yap", YAP_FILENAME_MAX);
-  Yap_PutValue(Yap_LookupAtom("system_library_directory"),
+  Yap_PutValue(AtomSystemLibraryDir,
 	   MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
 }
 
@@ -2085,7 +2085,7 @@ p_file_directory_name (void)
   chp = Yap_FileNameBuf+strlen(Yap_FileNameBuf);
   while (!dir_separator(*--chp) && chp != Yap_FileNameBuf);
   if (chp == Yap_FileNameBuf) {
-    return Yap_unify(MkAtomTerm(Yap_LookupAtom(".")),ARG2);
+    return Yap_unify(MkAtomTerm(AtomDot),ARG2);
   }
   *chp = '\0';
   return Yap_unify(MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)),ARG2);
@@ -2532,7 +2532,7 @@ p_first_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_wake_up")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigWakeUp));
   }
   if (ActiveSignals & YAP_ITI_SIGNAL) {
     ActiveSignals &= ~YAP_ITI_SIGNAL;
@@ -2540,7 +2540,7 @@ p_first_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_iti")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigIti));
   }
   if (ActiveSignals & YAP_INT_SIGNAL) {
     ActiveSignals &= ~YAP_INT_SIGNAL;
@@ -2548,7 +2548,7 @@ p_first_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_int")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigInt));
   }
   if (ActiveSignals & YAP_USR2_SIGNAL) {
     ActiveSignals &= ~YAP_USR2_SIGNAL;
@@ -2556,7 +2556,7 @@ p_first_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_usr2")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigUsr2));
   }
   if (ActiveSignals & YAP_USR1_SIGNAL) {
     ActiveSignals &= ~YAP_USR1_SIGNAL;
@@ -2564,7 +2564,7 @@ p_first_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_usr1")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigUsr1));
   }
   if (ActiveSignals & YAP_PIPE_SIGNAL) {
     ActiveSignals &= ~YAP_PIPE_SIGNAL;
@@ -2572,7 +2572,7 @@ p_first_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_pipe")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigPipe));
   }
   if (ActiveSignals & YAP_HUP_SIGNAL) {
     ActiveSignals &= ~YAP_HUP_SIGNAL;
@@ -2580,12 +2580,12 @@ p_first_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_hup")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigHup));
   }
   if (ActiveSignals & YAP_ALARM_SIGNAL) {
     ActiveSignals &= ~YAP_ALARM_SIGNAL;
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_alarm")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigAlarm));
   }
   if (ActiveSignals & YAP_DELAY_CREEP_SIGNAL) {
     ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
@@ -2593,7 +2593,7 @@ p_first_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_delay_creep")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigDelayCreep));
   }
   if (ActiveSignals & YAP_CREEP_SIGNAL) {
     ActiveSignals &= ~YAP_CREEP_SIGNAL;
@@ -2601,7 +2601,7 @@ p_first_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_creep")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigCreep));
   }
   if (ActiveSignals & YAP_TRACE_SIGNAL) {
     ActiveSignals &= ~YAP_TRACE_SIGNAL;
@@ -2609,7 +2609,7 @@ p_first_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_trace")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigTrace));
   }
   if (ActiveSignals & YAP_DEBUG_SIGNAL) {
     ActiveSignals &= ~YAP_DEBUG_SIGNAL;
@@ -2617,7 +2617,7 @@ p_first_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_debug")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigDebug));
   }
   if (ActiveSignals & YAP_BREAK_SIGNAL) {
     ActiveSignals &= ~YAP_BREAK_SIGNAL;
@@ -2625,7 +2625,7 @@ p_first_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_break")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigBreak));
   }
   if (ActiveSignals & YAP_STACK_DUMP_SIGNAL) {
     ActiveSignals &= ~YAP_STACK_DUMP_SIGNAL;
@@ -2633,7 +2633,7 @@ p_first_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_stack_dump")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigStackDump));
   }
   if (ActiveSignals & YAP_STATISTICS_SIGNAL) {
     ActiveSignals &= ~YAP_STATISTICS_SIGNAL;
@@ -2641,7 +2641,7 @@ p_first_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
 #endif  
     UNLOCK(SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_statistics")));
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigStatistics));
   }
 #ifdef THREADS
     pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
@@ -2734,7 +2734,7 @@ p_win32(void)
 static Int
 p_ld_path(void)
 {
-  return Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom("LD_LIBRARY_PATH")));
+  return Yap_unify(ARG1,MkAtomTerm(AtomLDLibraryPath));
 }
 
 

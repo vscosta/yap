@@ -47,7 +47,7 @@ Eval(Term t)
       ti[0] = t;
       ti[1] = MkIntegerTerm(0);
       /* error */
-      terror = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("/"),2), 2, ti);
+      terror = Yap_MkApplTerm(Yap_MkFunctor(AtomSlash,2), 2, ti);
       Yap_Error(TYPE_ERROR_EVALUABLE, terror,
 	    "atom %s for arithmetic expression",
 	    RepAtom(name)->StrOfAE);
@@ -79,7 +79,7 @@ Eval(Term t)
 	  /* error */
 	  ti[0] = t;
 	  ti[1] = MkIntegerTerm(n);
-	  t = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("/"),2), 2, ti);
+	  t = Yap_MkApplTerm(FunctorSlash, 2, ti);
 	  Yap_Error(TYPE_ERROR_EVALUABLE, t,
 		"functor %s/%d for arithmetic expression",
 		RepAtom(name)->StrOfAE,n);

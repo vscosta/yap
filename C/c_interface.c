@@ -2045,7 +2045,7 @@ YAP_Init(YAP_init_args *yap_init)
   RECOVER_MACHINE_REGS();
  }
   if (yap_init->YapPrologRCFile) {
-    Yap_PutValue(Yap_FullLookupAtom("$consult_on_boot"), MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologRCFile)));
+    Yap_PutValue(AtomConsultOnBoot, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologRCFile)));
     /*
       This must be done again after restore, as yap_flags
       has been overwritten ....
@@ -2054,27 +2054,27 @@ YAP_Init(YAP_init_args *yap_init)
   }
 #ifdef MYDDAS_MYSQL
   if (yap_init->myddas) {
-    Yap_PutValue(Yap_FullLookupAtom("$myddas_goal"),MkIntegerTerm(yap_init->myddas));
+    Yap_PutValue(AtomMyddasGoal,MkIntegerTerm(yap_init->myddas));
     
     /* Mandatory Fields */
-    Yap_PutValue(Yap_FullLookupAtom("$myddas_user"),MkAtomTerm(Yap_LookupAtom(yap_init->myddas_user)));
-    Yap_PutValue(Yap_FullLookupAtom("$myddas_db"),MkAtomTerm(Yap_LookupAtom(yap_init->myddas_db)));
+    Yap_PutValue(AtomMyddasUser,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_user)));
+    Yap_PutValue(AtomMyddasDB,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_db)));
     
     /* Non-Mandatory Fields */
     if (yap_init->myddas_pass != NULL)
-      Yap_PutValue(Yap_FullLookupAtom("$myddas_pass"),MkAtomTerm(Yap_LookupAtom(yap_init->myddas_pass)));
+      Yap_PutValue(AtomMyddasPass,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_pass)));
     if (yap_init->myddas_host != NULL)
-      Yap_PutValue(Yap_FullLookupAtom("$myddas_host"),MkAtomTerm(Yap_LookupAtom(yap_init->myddas_host)));
+      Yap_PutValue(AtomMyddasHost,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_host)));
   }
 #endif
   if (yap_init->YapPrologTopLevelGoal) {
-    Yap_PutValue(Yap_FullLookupAtom("$top_level_goal"), MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologTopLevelGoal)));
+    Yap_PutValue(AtomTopLevelGoal, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologTopLevelGoal)));
   }
   if (yap_init->YapPrologGoal) {
-    Yap_PutValue(Yap_FullLookupAtom("$init_goal"), MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologGoal)));
+    Yap_PutValue(AtomInitGoal, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologGoal)));
   }
   if (yap_init->YapPrologAddPath) {
-    Yap_PutValue(Yap_FullLookupAtom("$extend_file_search_path"), MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologAddPath)));
+    Yap_PutValue(AtomExtendFileSearchPath, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologAddPath)));
   }
   if (yap_init->QuietMode) {
     yap_flags[QUIET_MODE_FLAG] = TRUE;

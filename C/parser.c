@@ -352,7 +352,7 @@ ParseArgs(Atom a, JMPBUFF *FailBuff)
   else
     t = Yap_MkApplTerm(Yap_MkFunctor(a, nargs), nargs, p);
 #else
-  if (a == AtomDBRef && nargs == 2) 
+  if (a == AtomDBref && nargs == 2) 
     t = MkDBRefTerm((DBRef)IntegerOfTerm(p[0]));
   else
     t = Yap_MkApplTerm(func, nargs, p);
@@ -674,7 +674,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	NextToken;
 	args[0] = t;
 	args[1] = ParseTerm(1000, FailBuff);
-	t = Yap_MkApplTerm(Yap_MkFunctor(AtomComma, 2), 2, args);
+	t = Yap_MkApplTerm(FunctorComma, 2, args);
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
 	  Yap_ErrorMessage = "Stack Overflow";

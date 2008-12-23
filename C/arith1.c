@@ -806,7 +806,7 @@ p_unary_is(void)
       /* error */
       ti[0] = t;
       ti[1] = MkIntTerm(1);
-      t = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("/"),2), 2, ti);
+      t = Yap_MkApplTerm(FunctorSlash, 2, ti);
       Yap_Error(TYPE_ERROR_EVALUABLE, t,
 		"functor %s/%d for arithmetic expression",
 		RepAtom(name)->StrOfAE,1);

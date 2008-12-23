@@ -1020,23 +1020,23 @@ p_static_array_properties(void)
 	return(FALSE);
       switch(tp) {
       case array_of_ints:
-	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("int"))));
+	return(Yap_unify(ARG3,MkAtomTerm(AtomInt)));
       case array_of_dbrefs:
-	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("dbref"))));
+	return(Yap_unify(ARG3,MkAtomTerm(AtomDBref)));
       case array_of_doubles:
-	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("float"))));
+	return(Yap_unify(ARG3,MkAtomTerm(AtomFloat)));
       case array_of_ptrs:
-	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("ptr"))));
+	return(Yap_unify(ARG3,MkAtomTerm(AtomPtr)));
       case array_of_chars:
-	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("char"))));
+	return(Yap_unify(ARG3,MkAtomTerm(AtomChar)));
       case array_of_uchars:
-	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("unsigned char"))));
+	return(Yap_unify(ARG3,MkAtomTerm(AtomUnsignedChar)));
       case array_of_terms:
-	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("term"))));
+	return(Yap_unify(ARG3,MkAtomTerm(AtomTerm)));
       case array_of_nb_terms:
-	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("nb_term"))));
+	return(Yap_unify(ARG3,MkAtomTerm(AtomNbTerm)));
       case array_of_atoms:
-	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("atom"))));
+	return(Yap_unify(ARG3,MkAtomTerm(AtomAtom)));
       }
     }
   }

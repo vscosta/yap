@@ -11,7 +11,7 @@
 :- yap_flag(write_strings,on).
 
 main :-
-	file_filter('ATOMS','atoms.h',gen_decl).
+	file_filter('ATOMS','../H/atoms.h',gen_decl).
 
 gen_decl(Inp,Out) :-
 	split(Inp," 	",["A",Atom,String]), !,
@@ -29,7 +29,4 @@ counter(I) :-
 	nb_getval(count,I),
 	I1 is I+1,
 	nb_setval(count,I1).
-
-
-	
 

@@ -2696,7 +2696,7 @@ Yap_absmi(int inp)
 	goto do_commit_b_y;
       }
       if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
-	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,2),0));
+	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs,0));
 	XREGS[0] = YREG[PREG->u.yp.y];
 	PREG = NEXTOP(PREG,yp);
 	goto creep_either;
@@ -2712,7 +2712,7 @@ Yap_absmi(int inp)
 	goto do_commit_b_x;
       }
       if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
-	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,2),0));
+	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs,0));
 #if USE_THREADED_CODE
 	if (PREG->opc == (OPCODE)OpAddress[_fcall])
 #else
@@ -2756,7 +2756,7 @@ Yap_absmi(int inp)
 	goto either_notest;
       }
       /* find something to fool S */
-      SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,1),0));
+      SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1,0));
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
@@ -12632,7 +12632,7 @@ Yap_absmi(int inp)
       Op(p_dif, l);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("\\="),2),0)),XREGS+1);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorDiff,0)),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
       BEGD(d1);
@@ -12754,7 +12754,7 @@ Yap_absmi(int inp)
       Op(p_eq, l);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("=="),2),0)),XREGS+1);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorSame,0)),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
       BEGD(d1);
@@ -12911,7 +12911,7 @@ Yap_absmi(int inp)
 	H[0] = XREG(PREG->u.xxx.x1);
 	H[1] = XREG(PREG->u.xxx.x2);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("arg"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -13012,7 +13012,7 @@ Yap_absmi(int inp)
 	H[0] =  t;
 	H[1] = XREG(PREG->u.xxn.xi);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("arg"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),H);
 	H = Ho;
       }
 #endif	/* LOW_LEVEL_TRACE */
@@ -13091,7 +13091,7 @@ Yap_absmi(int inp)
 	H[0] = XREG(PREG->u.yxx.x1);
 	H[1] = XREG(PREG->u.yxx.x2);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("arg"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -13206,7 +13206,7 @@ Yap_absmi(int inp)
 	H[0] =  t;
 	H[1] = XREG(PREG->u.yxn.xi);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("arg"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),H);
 	H = Ho;
       }
 #endif	/* LOW_LEVEL_TRACE */
@@ -13301,7 +13301,7 @@ Yap_absmi(int inp)
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.xxx.x1);
 	H[2] = XREG(PREG->u.xxx.x2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -13423,7 +13423,7 @@ Yap_absmi(int inp)
 	RESET_VARIABLE(H);
 	H[1] = PREG->u.xxn.c;
 	H[2] = XREG(PREG->u.xxn.xi);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -13531,7 +13531,7 @@ Yap_absmi(int inp)
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.xxn.xi);
 	H[2] = ti;
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
 	H = hi;
       }
 #endif	/* LOW_LEVEL_TRACE */
@@ -13627,7 +13627,7 @@ Yap_absmi(int inp)
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.yxx.x1);
 	H[2] = XREG(PREG->u.yxx.x2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -13767,7 +13767,7 @@ Yap_absmi(int inp)
 	RESET_VARIABLE(H);
 	H[1] = PREG->u.yxn.c;
 	H[2] = XREG(PREG->u.yxn.xi);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -13897,7 +13897,7 @@ Yap_absmi(int inp)
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.yxn.xi);
 	H[2] = ti;
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
 	H = hi;
       }
 #endif	/* LOW_LEVEL_TRACE */
@@ -14018,7 +14018,7 @@ Yap_absmi(int inp)
 	H[0] = XREG(PREG->u.xxx.x);
 	RESET_VARIABLE(H+1);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -14066,7 +14066,7 @@ Yap_absmi(int inp)
 	H[0] = XREG(PREG->u.xxy.x);
 	RESET_VARIABLE(H+1);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -14117,7 +14117,7 @@ Yap_absmi(int inp)
 	H[0] = XREG(PREG->u.yxx.x2);
 	RESET_VARIABLE(H+1);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -14168,7 +14168,7 @@ Yap_absmi(int inp)
 	H[0] = XREG(PREG->u.yyx.x);
 	RESET_VARIABLE(H+1);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -14219,7 +14219,7 @@ Yap_absmi(int inp)
       Op(p_functor, e);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),XREGS+1);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       restart_functor:
       BEGD(d0);

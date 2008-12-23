@@ -365,7 +365,7 @@ Int cont_eam(void) {
 
 Int use_eam(void) { 
   if (EAM)  EAM=0;
-    else { Yap_PutValue(Yap_FullLookupAtom("$c_arith"),0); EAM=1; }
+    else { Yap_PutValue(AtomCArith,0); EAM=1; }
   return(TRUE);
 }
 
@@ -495,7 +495,7 @@ p_creep(void)
   Atom            at;
   PredEntry      *pred;
 
-  at = Yap_FullLookupAtom("$creep");
+  at = AtomCreep;
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
   CreepCode = pred;
   do_signal(YAP_CREEP_SIGNAL);
@@ -508,7 +508,7 @@ p_signal_creep(void)
   Atom            at;
   PredEntry      *pred;
 
-  at = Yap_FullLookupAtom("$creep");
+  at = AtomCreep;
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
   CreepCode = pred;
   LOCK(SignalLock);
@@ -971,7 +971,7 @@ p_name(void)
       String + 1024 > (char *)AuxSp) 
     goto expand_auxsp;
   if (!IsVarTerm(t) && t == MkAtomTerm(AtomNil)) {
-    return Yap_unify_constant(ARG1, MkAtomTerm(Yap_LookupAtom("")));
+    return Yap_unify_constant(ARG1, MkAtomTerm(AtomEmptyAtom));
   }
   while (!IsVarTerm(t) && IsPairTerm(t)) {
     Term            Head;
@@ -1112,7 +1112,7 @@ p_atom_chars(void)
       return(FALSE);		
     }
     if (t == TermNil) {
-      return (Yap_unify_constant(t1, MkAtomTerm(Yap_LookupAtom(""))));
+      return (Yap_unify_constant(t1, MkAtomTerm(AtomEmptyAtom)));
     }
     if (!IsPairTerm(t)) {
       Yap_Error(TYPE_ERROR_LIST, t, "atom_chars/2");
@@ -1660,7 +1660,7 @@ p_atom_codes(void)
       return(FALSE);		
     }
     if (t == TermNil) {
-      return (Yap_unify_constant(t1, MkAtomTerm(Yap_LookupAtom(""))));
+      return (Yap_unify_constant(t1, MkAtomTerm(AtomEmptyAtom)));
     }
     if (!IsPairTerm(t)) {
       Yap_Error(TYPE_ERROR_LIST, t, "atom_codes/2");
@@ -1886,10 +1886,10 @@ gen_syntax_error(Atom InpAtom, char *s)
   ti[1] = ARG2;
   ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(s),2),2,ti);
   ts[1] = ts[4] = ts[5] = MkIntTerm(0);
-  ts[2] = MkAtomTerm(Yap_LookupAtom("expected number syntax"));
+  ts[2] = MkAtomTerm(AtomExpectedNumber);
   ts[3] = TermNil;
   ts[6] = MkAtomTerm(InpAtom);
-  return(Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("syntax_error"),7),7,ts));
+  return(Yap_MkApplTerm(Yap_MkFunctor(AtomSyntaxError,7),7,ts));
 }
 
 static Int 
@@ -3493,17 +3493,17 @@ p_access_yap_flags(void)
     int n = 0;
     if (IsMode_CompletedOn(yap_flags[flag])) {
       if (IsMode_LoadAnswers(yap_flags[flag]))
-	tout = MkAtomTerm(Yap_LookupAtom("load_answers"));
+	tout = MkAtomTerm(AtomLoadAnswers);
       else
-	tout = MkAtomTerm(Yap_LookupAtom("exec_answers"));
+	tout = MkAtomTerm(AtomExecAnswers);
       n++;
     }
     if (IsMode_SchedulingOn(yap_flags[flag])) {
       Term taux = tout;
       if (IsMode_Local(yap_flags[flag]))
-	tout = MkAtomTerm(Yap_LookupAtom("local"));
+	tout = MkAtomTerm(Yap_AtomLocalA);
       else
-	tout = MkAtomTerm(Yap_LookupAtom("batched"));
+	tout = MkAtomTerm(AtomBatched);
       if (n) {
 	taux = MkPairTerm(taux, MkAtomTerm(AtomNil));
 	tout = MkPairTerm(tout, taux);
@@ -3511,7 +3511,7 @@ p_access_yap_flags(void)
       n++;
     }
     if (n == 0)
-      tout = MkAtomTerm(Yap_LookupAtom("default"));
+      tout = MkAtomTerm(AtomDefault);
   } else
 #endif /* TABLING */
   tout = MkIntegerTerm(yap_flags[flag]);

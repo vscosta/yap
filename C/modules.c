@@ -313,7 +313,7 @@ Yap_InitModulesC(void)
 void 
 Yap_InitModules(void)
 {
-  LookupModule(MkAtomTerm(Yap_LookupAtom("prolog")));
+  LookupModule(MkAtomTerm(AtomProlog));
   LookupModule(USER_MODULE);
   LookupModule(IDB_MODULE);
   LookupModule(ATTRIBUTES_MODULE);
