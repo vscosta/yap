@@ -1889,7 +1889,7 @@ gen_syntax_error(Atom InpAtom, char *s)
   ts[2] = MkAtomTerm(AtomExpectedNumber);
   ts[3] = TermNil;
   ts[6] = MkAtomTerm(InpAtom);
-  return(Yap_MkApplTerm(Yap_MkFunctor(AtomSyntaxError,7),7,ts));
+  return(Yap_MkApplTerm(FunctorSyntaxError,7,ts));
 }
 
 static Int 
@@ -3585,9 +3585,9 @@ p_set_yap_flags(void)
     if (value < 0 || value > 2)
       return(FALSE);
     if (value == 1) {
-      Yap_heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomMetaCall,4),0));
+      Yap_heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(FunctorMetaCall,0));
     } else {
-      Yap_heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomMetaCall,4),0));
+      Yap_heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(FunctorMetaCall,0));
     }
     yap_flags[LANGUAGE_MODE_FLAG] = value;
     break;

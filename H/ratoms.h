@@ -288,6 +288,7 @@
   FunctorAssert = FuncAdjust(FunctorAssert);
   FunctorAtFoundOne = FuncAdjust(FunctorAtFoundOne);
   FunctorAtom = FuncAdjust(FunctorAtom);
+  FunctorAtt1 = FuncAdjust(FunctorAtt1);
   FunctorAttGoal = FuncAdjust(FunctorAttGoal);
   FunctorBraces = FuncAdjust(FunctorBraces);
   FunctorCall = FuncAdjust(FunctorCall);
@@ -307,6 +308,17 @@
   FunctorDoStaticClause = FuncAdjust(FunctorDoStaticClause);
   FunctorDomainError = FuncAdjust(FunctorDomainError);
   FunctorDot = FuncAdjust(FunctorDot);
+  FunctorDot10 = FuncAdjust(FunctorDot10);
+  FunctorDot11 = FuncAdjust(FunctorDot11);
+  FunctorDot12 = FuncAdjust(FunctorDot12);
+  FunctorDot2 = FuncAdjust(FunctorDot2);
+  FunctorDot3 = FuncAdjust(FunctorDot3);
+  FunctorDot4 = FuncAdjust(FunctorDot4);
+  FunctorDot5 = FuncAdjust(FunctorDot5);
+  FunctorDot6 = FuncAdjust(FunctorDot6);
+  FunctorDot7 = FuncAdjust(FunctorDot7);
+  FunctorDot8 = FuncAdjust(FunctorDot8);
+  FunctorDot9 = FuncAdjust(FunctorDot9);
   FunctorEq = FuncAdjust(FunctorEq);
   FunctorError = FuncAdjust(FunctorError);
   FunctorEvaluationError = FuncAdjust(FunctorEvaluationError);
@@ -332,6 +344,7 @@
   FunctorList = FuncAdjust(FunctorList);
   FunctorMegaClause = FuncAdjust(FunctorMegaClause);
   FunctorMetaCall = FuncAdjust(FunctorMetaCall);
+  FunctorMinus = FuncAdjust(FunctorMinus);
   FunctorModule = FuncAdjust(FunctorModule);
   FunctorMultiFileClause = FuncAdjust(FunctorMultiFileClause);
   FunctorMutable = FuncAdjust(FunctorMutable);
@@ -352,6 +365,7 @@
   FunctorStream = FuncAdjust(FunctorStream);
   FunctorStreamEOS = FuncAdjust(FunctorStreamEOS);
   FunctorStreamPos = FuncAdjust(FunctorStreamPos);
+  FunctorSyntaxError = FuncAdjust(FunctorSyntaxError);
   FunctorThreadRun = FuncAdjust(FunctorThreadRun);
   FunctorThrow = FuncAdjust(FunctorThrow);
   FunctorTypeError = FuncAdjust(FunctorTypeError);

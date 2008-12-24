@@ -3722,7 +3722,7 @@ syntax_error (TokEntry * tokptr, int sno)
     } else if (tokptr->Tok != Ord (Error_tok)) {
       ts[1] = MkIntegerTerm(tokptr->TokPos);
       *error =
-	MkPairTerm(Yap_MkApplTerm(Yap_MkFunctor(AtomMinus,2),2,ts),TermNil);
+	MkPairTerm(Yap_MkApplTerm(FunctorMinus,2,ts),TermNil);
       error = RepPair(*error)+1;
       count++;
     }
@@ -3741,7 +3741,7 @@ syntax_error (TokEntry * tokptr, int sno)
   tf[4] = MkIntegerTerm(out);
   tf[5] = MkIntegerTerm(err);
   tf[6] = StreamName(sno);
-  return(Yap_MkApplTerm(Yap_MkFunctor(AtomSyntaxError,7),7,tf));
+  return(Yap_MkApplTerm(FunctorSyntaxError,7,tf));
 }
 
 Int

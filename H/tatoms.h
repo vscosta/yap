@@ -578,6 +578,8 @@
 #define FunctorAtFoundOne Yap_heap_regs->FunctorAtFoundOne_
   Functor FunctorAtom_;
 #define FunctorAtom Yap_heap_regs->FunctorAtom_
+  Functor FunctorAtt1_;
+#define FunctorAtt1 Yap_heap_regs->FunctorAtt1_
   Functor FunctorAttGoal_;
 #define FunctorAttGoal Yap_heap_regs->FunctorAttGoal_
   Functor FunctorBraces_;
@@ -616,6 +618,28 @@
 #define FunctorDomainError Yap_heap_regs->FunctorDomainError_
   Functor FunctorDot_;
 #define FunctorDot Yap_heap_regs->FunctorDot_
+  Functor FunctorDot10_;
+#define FunctorDot10 Yap_heap_regs->FunctorDot10_
+  Functor FunctorDot11_;
+#define FunctorDot11 Yap_heap_regs->FunctorDot11_
+  Functor FunctorDot12_;
+#define FunctorDot12 Yap_heap_regs->FunctorDot12_
+  Functor FunctorDot2_;
+#define FunctorDot2 Yap_heap_regs->FunctorDot2_
+  Functor FunctorDot3_;
+#define FunctorDot3 Yap_heap_regs->FunctorDot3_
+  Functor FunctorDot4_;
+#define FunctorDot4 Yap_heap_regs->FunctorDot4_
+  Functor FunctorDot5_;
+#define FunctorDot5 Yap_heap_regs->FunctorDot5_
+  Functor FunctorDot6_;
+#define FunctorDot6 Yap_heap_regs->FunctorDot6_
+  Functor FunctorDot7_;
+#define FunctorDot7 Yap_heap_regs->FunctorDot7_
+  Functor FunctorDot8_;
+#define FunctorDot8 Yap_heap_regs->FunctorDot8_
+  Functor FunctorDot9_;
+#define FunctorDot9 Yap_heap_regs->FunctorDot9_
   Functor FunctorEq_;
 #define FunctorEq Yap_heap_regs->FunctorEq_
   Functor FunctorError_;
@@ -666,6 +690,8 @@
 #define FunctorMegaClause Yap_heap_regs->FunctorMegaClause_
   Functor FunctorMetaCall_;
 #define FunctorMetaCall Yap_heap_regs->FunctorMetaCall_
+  Functor FunctorMinus_;
+#define FunctorMinus Yap_heap_regs->FunctorMinus_
   Functor FunctorModule_;
 #define FunctorModule Yap_heap_regs->FunctorModule_
   Functor FunctorMultiFileClause_;
@@ -706,6 +732,8 @@
 #define FunctorStreamEOS Yap_heap_regs->FunctorStreamEOS_
   Functor FunctorStreamPos_;
 #define FunctorStreamPos Yap_heap_regs->FunctorStreamPos_
+  Functor FunctorSyntaxError_;
+#define FunctorSyntaxError Yap_heap_regs->FunctorSyntaxError_
   Functor FunctorThreadRun_;
 #define FunctorThreadRun Yap_heap_regs->FunctorThreadRun_
   Functor FunctorThrow_;

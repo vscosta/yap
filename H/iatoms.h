@@ -285,6 +285,7 @@
   FunctorAssert = Yap_MkFunctor(AtomAssert,2);
   FunctorAtFoundOne = Yap_MkFunctor(AtomFoundVar,2);
   FunctorAtom = Yap_MkFunctor(AtomAtom,1);
+  FunctorAtt1 = Yap_MkFunctor(AtomAtt1,3);
   FunctorAttGoal = Yap_MkFunctor(AtomAttDo,2);
   FunctorBraces = Yap_MkFunctor(AtomBraces,1);
   FunctorCall = Yap_MkFunctor(AtomCall,1);
@@ -304,6 +305,17 @@
   FunctorDoStaticClause = Yap_MkFunctor(AtomDoStaticClause,5);
   FunctorDomainError = Yap_MkFunctor(AtomDomainError,2);
   FunctorDot = Yap_MkFunctor(AtomDot,2);
+  FunctorDot10 = Yap_MkFunctor(AtomDot,10);
+  FunctorDot11 = Yap_MkFunctor(AtomDot,11);
+  FunctorDot12 = Yap_MkFunctor(AtomDot,12);
+  FunctorDot2 = Yap_MkFunctor(AtomDot,2);
+  FunctorDot3 = Yap_MkFunctor(AtomDot,3);
+  FunctorDot4 = Yap_MkFunctor(AtomDot,4);
+  FunctorDot5 = Yap_MkFunctor(AtomDot,5);
+  FunctorDot6 = Yap_MkFunctor(AtomDot,6);
+  FunctorDot7 = Yap_MkFunctor(AtomDot,7);
+  FunctorDot8 = Yap_MkFunctor(AtomDot,8);
+  FunctorDot9 = Yap_MkFunctor(AtomDot,9);
   FunctorEq = Yap_MkFunctor(AtomEq,2);
   FunctorError = Yap_MkFunctor(AtomError,2);
   FunctorEvaluationError = Yap_MkFunctor(AtomEvaluationError,1);
@@ -329,6 +341,7 @@
   FunctorList = Yap_MkFunctor(AtomDot,2);
   FunctorMegaClause = Yap_MkFunctor(AtomMegaClause,2);
   FunctorMetaCall = Yap_MkFunctor(AtomMetaCall,4);
+  FunctorMinus = Yap_MkFunctor(AtomMinus,2);
   FunctorModule = Yap_MkFunctor(AtomColomn,2);
   FunctorMultiFileClause = Yap_MkFunctor(AtomMfClause,5);
   FunctorMutable = Yap_MkFunctor(AtomMutableVariable,(sizeof(timed_var)/sizeof(CELL)));
@@ -349,6 +362,7 @@
   FunctorStream = Yap_MkFunctor(AtomStream,1);
   FunctorStreamEOS = Yap_MkFunctor(AtomEndOfStream,1);
   FunctorStreamPos = Yap_MkFunctor(AtomStreamPos,5);
+  FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,7);
   FunctorThreadRun = Yap_MkFunctor(AtomTopThreadGoal,2);
   FunctorThrow = Yap_MkFunctor(AtomThrow,1);
   FunctorTypeError = Yap_MkFunctor(AtomTypeError,2);

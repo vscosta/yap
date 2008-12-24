@@ -405,7 +405,7 @@ p_ksort(void)
   /* reserve the necessary space */
   pt = H;            /* because of possible garbage collection */
   H += size*2;
-  if (!key_mergesort(pt, size, M_EVEN, Yap_MkFunctor(AtomMinus,2)))
+  if (!key_mergesort(pt, size, M_EVEN, FunctorMinus))
     return(FALSE);
   adjust_vector(pt, size);
   out = AbsPair(pt);

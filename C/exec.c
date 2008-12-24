@@ -805,7 +805,7 @@ p_execute_0(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,2), mod);
+    pe = PredPropByFunc(FunctorDot2, mod);
     ptr = RepPair(t);
     XREGS[1] = ptr[0];
     XREGS[2] = ptr[1];
@@ -850,7 +850,7 @@ p_execute_1(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,3), mod);
+    pe = PredPropByFunc(FunctorDot3, mod);
     ptr = RepPair(t);
     XREGS[3] = ARG2;
     XREGS[1] = ptr[0];
@@ -894,7 +894,7 @@ p_execute_2(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,4), mod);
+    pe = PredPropByFunc(FunctorDot4, mod);
     ptr = RepPair(t);
     XREGS[4] = ARG3;
     XREGS[3] = ARG2;
@@ -941,7 +941,7 @@ p_execute_3(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,5), mod);
+    pe = PredPropByFunc(FunctorDot5, mod);
     ptr = RepPair(t);
     XREGS[5] = ARG4;
     XREGS[4] = ARG3;
@@ -991,7 +991,7 @@ p_execute_4(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,6), mod);
+    pe = PredPropByFunc(FunctorDot6, mod);
     ptr = RepPair(t);
     XREGS[6] = ARG5;
     XREGS[5] = ARG4;
@@ -1044,7 +1044,7 @@ p_execute_5(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,7), mod);
+    pe = PredPropByFunc(FunctorDot7, mod);
     ptr = RepPair(t);
     XREGS[7] = ARG6;
     XREGS[6] = ARG5;
@@ -1100,7 +1100,7 @@ p_execute_6(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,8), mod);
+    pe = PredPropByFunc(FunctorDot8, mod);
     ptr = RepPair(t);
     XREGS[8] = ARG7;
     XREGS[7] = ARG6;
@@ -1159,7 +1159,7 @@ p_execute_7(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,9), mod);
+    pe = PredPropByFunc(FunctorDot9, mod);
     ptr = RepPair(t);
     XREGS[9] = ARG8;
     XREGS[8] = ARG7;
@@ -1221,7 +1221,7 @@ p_execute_8(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,10), mod);
+    pe = PredPropByFunc(FunctorDot10, mod);
     ptr = RepPair(t);
     XREGS[10] = ARG9;
     XREGS[9] = ARG8;
@@ -1286,7 +1286,7 @@ p_execute_9(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,11), mod);
+    pe = PredPropByFunc(FunctorDot11, mod);
     ptr = RepPair(t);
     XREGS[11] = ARG10;
     XREGS[10] = ARG9;
@@ -1354,7 +1354,7 @@ p_execute_10(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,12), mod);
+    pe = PredPropByFunc(FunctorDot12, mod);
     ptr = RepPair(t);
     XREGS[12] = ARG11;
     XREGS[11] = ARG10;

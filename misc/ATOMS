@@ -295,6 +295,7 @@ F Arrow			Arrow		2
 F Assert		Assert		2
 F AtFoundOne		FoundVar	2
 F Atom			Atom		1
+F Att1			Att1		3
 F AttGoal		AttDo		2
 F Braces		Braces		1
 F Call			Call		1
@@ -314,6 +315,17 @@ F DoLogUpdClauseErase	DoLogUpdClauseErase	6
 F DoStaticClause	DoStaticClause	5
 F DomainError		DomainError	2
 F Dot			Dot		2
+F Dot10			Dot		10
+F Dot11			Dot		11
+F Dot12			Dot		12
+F Dot2			Dot		2
+F Dot3			Dot		3
+F Dot4			Dot		4
+F Dot5			Dot		5
+F Dot6			Dot		6
+F Dot7			Dot		7
+F Dot8			Dot		8
+F Dot9			Dot		9
 F Eq			Eq		2
 F Error			Error		2
 F EvaluationError	EvaluationError	1
@@ -339,6 +351,7 @@ F LastExecuteWithin	LastExecuteWithin	1
 F List			Dot		2
 F MegaClause		MegaClause	2
 F MetaCall		MetaCall	4
+F Minus			Minus		2
 F Module		Colomn		2
 F MultiFileClause	MfClause	5
 F Mutable		MutableVariable	(sizeof(timed_var)/sizeof(CELL))
@@ -359,6 +372,7 @@ F StaticClause		StaticClause	1
 F Stream		Stream		1
 F StreamEOS		EndOfStream	1
 F StreamPos		StreamPos	5
+F SyntaxError		SyntaxError	7
 F ThreadRun		TopThreadGoal	2
 F Throw			Throw		1
 F TypeError		TypeError	2

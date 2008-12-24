@@ -837,7 +837,7 @@ static Int
 p_swi_all_atts(void) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
-  Functor attf = Yap_MkFunctor(AtomAtt1,3);
+  Functor attf = FunctorAtt1;
 
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
@@ -962,7 +962,7 @@ p_is_attvar(void)
 static Int
 p_attvar_bound(void)
 {
-  return FALSE;
+b  return FALSE;
 }
 
 #endif /* COROUTINING */
