@@ -231,7 +231,8 @@ output_walk_type(T, C) :-
 	dump_ops(C,Ops),
 	output_walk(C,T,Ops).
 
-% separate a special group for meta-calls
+% separate a special group of instructions, that operate differentely from the
+% rest of the format.
 split_ops([],[],[]).
 split_ops([Op|Ops0],[Op|Ops1],Ops2) :-
 	special_walk_op(Op), !,
@@ -244,7 +245,7 @@ split_ops1("e", Ops, [M]) :- !,
 split_ops1(_, Ops, Ops).
 
 % instructions which require special treatment, relative to
-% other instructions with the same type
+% other instructions with the same format
 special_walk_op("p_execute").
 special_walk_op("p_execute2").
 special_walk_op("p_execute_tail").
@@ -262,15 +263,18 @@ special_walk_op("trust_fail").
 special_walk_op("unify_idb_term").
 special_walk_op("copy_idb_term").
 
-
+% I field gives direct access to LU index block and to all Pred information
 output_walk(C,"Ills",_) :- !,
 	format(C,'      return walk_got_lu_block(pc->u.Ills.I, startp, endp);~n',[]).
-output_walk(C,"L",_) :- !,
-	format(C,'      return walk_got_lu_clause(pc->u.L.ClBase, startp, endp);~n',[]).
 output_walk(C,"OtILl",_) :- !,
 	format(C,'      return walk_got_lu_block(pc->u.OtILl.block, startp, endp);~n',[]).
-output_walk(C,"OtaLl",_) :- !, % do a jump here
+% I field gives direct access to LU index clause and to all Pred information
+output_walk(C,"L",_) :- !,
+	format(C,'      return walk_got_lu_clause(pc->u.L.ClBase, startp, endp);~n',[]).
+ % we cannot jump to clause code.
+output_walk(C,"OtaLl",_) :- !,
 	format(C,'      pc = pc->u.OtaLl.n;~n',[]).
+% ops which point at the clause's predicate.
 output_walk(C,"Osblp",_) :- !,
 	label_in_clause(C,"Osblp","p0").
 output_walk(C,"Osbpp",[Op|_]) :-
@@ -282,6 +286,8 @@ output_walk(C,"pp",_) :- !,
 	label_in_clause(C,"pp","p0").
 output_walk(C,"OtapFs",_) :- !,
 	label_in_clause(C,"OtapFs","p").
+output_walk(C,"Otapl",_) :- !,
+	label_in_clause(C,"Otapl","p").
 output_walk(C,"p",[Op|_]) :-
 	special_walk_op(Op), !,
 	add_pp(C,"p","p"),
@@ -301,6 +307,7 @@ output_walk(C,T,_) :-
 
 % There are so many weird empty instructions that we process
 % each one separately.
+output_ewalks(_,[]).
 output_ewalks(C,["Nstop"|Ops]) :-
 	format(C,'      return NULL;~n',[]),
 	output_ewalks(C,Ops).
@@ -309,9 +316,6 @@ output_ewalks(C,["unify_idb_term"|Ops]) :-
 	output_ewalks(C,Ops).
 output_ewalks(C,["copy_idb_term"|Ops]) :-
 	format(C,'      return found_idb_clause(pc, startp, endp);~n',[]),
-	output_ewalks(C,Ops).
-output_ewalks(C,["expand_index"|Ops]) :-
-	format(C,'      return found_expand_index(pc, startp, endp, codeptr);~n',[]),
 	output_ewalks(C,Ops).
 output_ewalks(C,["undef_p"|Ops]) :-
 	format(C,'      return found_owner_op(pc, startp, endp);~n',[]),
