@@ -1095,7 +1095,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, int mod, compiler_struct *
 	    RESET_VARIABLE(H+1);
 	    H += 2;
 	    c_eq(AbsPair(H-2),t3, cglobs);
-	  } else if (i2 < 256) {
+	  } else if (i2 < 256 && IsAtomTerm(t1)) {
 	    *H++ = (CELL)Yap_MkFunctor(AtomOfTerm(t1),i2);
 	    for (i=0; i < i2; i++) {
 	      if (H >= (CELL *)cglobs->cint.freep0) {
