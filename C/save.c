@@ -1602,7 +1602,8 @@ check_opcodes(OPCODE old_ops[])
 static void 
 RestoreHeap(OPCODE old_ops[])
 {
-  int heap_moved = (OldHeapBase != Yap_HeapBase), opcodes_moved;
+  int heap_moved = (OldHeapBase != Yap_HeapBase ||
+		    XDiff), opcodes_moved;
   Term mod = CurrentModule;
 
   CurrentModule = PROLOG_MODULE;
