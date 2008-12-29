@@ -514,23 +514,17 @@ p_compare(void)
 inline static int
 int_cmp(Int dif)
 {
-    if (dif < 0)
-      return(Yap_unify_constant(ARG1,MkAtomTerm(AtomLT)));
-    else if (dif > 0)
-      return(Yap_unify_constant(ARG1,MkAtomTerm(AtomGT)));
-    else
-      return(Yap_unify_constant(ARG1,MkAtomTerm(AtomEQ)));
+  return dif;
 }
 
 inline static int
 flt_cmp(Float dif)
 {
-    if (dif < 0.0)
-      return(Yap_unify_constant(ARG1,MkAtomTerm(AtomLT)));
-    else if (dif > 0.0)
-      return(Yap_unify_constant(ARG1,MkAtomTerm(AtomGT)));
-    else
-      return(Yap_unify_constant(ARG1,MkAtomTerm(AtomEQ)));
+  if (dif < 0.0)
+    return -1;
+  if (dif > 0.0)
+    return 1;
+  return 0;
 }
 
 
@@ -539,11 +533,11 @@ a_cmp(Term t1, Term t2)
 {
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "=:=/2");
-    return(FALSE);
+    return FALSE;
   }
   if (IsVarTerm(t2)) {
     Yap_Error(INSTANTIATION_ERROR, t2, "=:=/2");
-    return(FALSE);
+    return FALSE;
   }
   if (IsFloatTerm(t1) && IsFloatTerm(t2)) {
     return(flt_cmp(FloatOfTerm(t1)-FloatOfTerm(t2)));
@@ -558,17 +552,17 @@ a_cmp(Term t1, Term t2)
 
     if (IsIntegerTerm(t2)) {
       Int i2 = IntegerOfTerm(t2);
-      return(int_cmp(i1-i2));
+      return int_cmp(i1-i2);
     } else if (IsFloatTerm(t2)) {
-      Float f2 = FloatOfTerm(2);
-      return(flt_cmp(i1-f2));
+      Float f2 = FloatOfTerm(t2);
+      return flt_cmp(i1-f2);
     } else if (IsBigIntTerm(t2)) {
 #ifdef USE_GMP
       MP_INT *b2 = Yap_BigIntOfTerm(t2);
-      return(int_cmp(-mpz_cmp_si(b2,i1)));
+      return int_cmp(-mpz_cmp_si(b2,i1));
 #endif
     } else {
-      return(FALSE);
+      return FALSE;
     }
   } else if (IsFloatTerm(t1)) {
     t2 = Yap_Eval(t2);
@@ -576,17 +570,17 @@ a_cmp(Term t1, Term t2)
 
     if (IsIntegerTerm(t2)) {
       Int i2 = IntegerOfTerm(t2);
-      return(flt_cmp(f1-i2));
+      return flt_cmp(f1-i2);
     } else if (IsFloatTerm(t2)) {
       Float f2 = FloatOfTerm(2);
-      return(flt_cmp(f1-f2));
+      return flt_cmp(f1-f2);
     } else if (IsBigIntTerm(t2)) {
 #ifdef USE_GMP
       MP_INT *b2 = Yap_BigIntOfTerm(t2);
-      return(flt_cmp(f1-mpz_get_d(b2)));
+      return flt_cmp(f1-mpz_get_d(b2));
 #endif
     } else {
-      return(FALSE);
+      return FALSE;
     }
   } else if (IsBigIntTerm(t1)) {
 #ifdef USE_GMP
@@ -596,20 +590,20 @@ a_cmp(Term t1, Term t2)
 
     if (IsIntegerTerm(t2)) {
       Int i2 = IntegerOfTerm(t2);
-      return(int_cmp(mpz_cmp_si(b1,i2)));
+      return int_cmp(mpz_cmp_si(b1,i2));
     } else if (IsFloatTerm(t2)) {
       Float f2 = FloatOfTerm(2);
-      return(flt_cmp(mpz_get_d(b1)-f2));
+      return flt_cmp(mpz_get_d(b1)-f2);
     } else if (IsBigIntTerm(t2)) {
       MP_INT *b2 = Yap_BigIntOfTerm(2);
-      return(int_cmp(mpz_cmp(b1,b2)));
+      return int_cmp(mpz_cmp(b1,b2));
     } else {
-      return(FALSE);
+      return FALSE;
     }
     }
 #endif
   } else {
-    return(FALSE);
+    return FALSE;
   }
 }
 
