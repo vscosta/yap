@@ -6,6 +6,9 @@
 :- use_module(library(readutil),
 	[read_line_to_codes/2]).
 
+:- use_module(library(charsio),
+	[format_to_chars/3]).
+
 :- use_module(library(lists),
 	[member/2]).
 
@@ -26,35 +29,46 @@ main :-
 	open('H/YapOpcodes.h',write,W),
 	open('H/rclause.h',write,C),
 	open('H/walkclause.h',write,L),
+	open('H/findclause.h',write,F),
+	open('H/headclause.h',write,H),
 	header(W),
 	header_rclause(C),
 	header_walk_clause(L),
-	file('C/absmi.c', W, C, L),
-	start_ifdef("YAPOR", W, C, L),
-	file('OPTYap/or.insts.i',W, C, L),
-	end_ifdef(W,C,L),
-	start_ifdef("TABLING",W,C,L),
-	file('OPTYap/tab.insts.i',W,C,L),
+	header_find_clause(F),
+	header_find_clause(H),
+	file('C/absmi.c', W, C, L, F, H),
+	start_ifdef("YAPOR", W, C, L, F, H),
+	file('OPTYap/or.insts.i',W, C, L, F, H),
+	end_ifdef(W, C, L, F, H),
+	start_ifdef("TABLING", W, C, L, F, H),
+	file('OPTYap/tab.insts.i',W,C,L, F, H),
 	retractall(op(_,_)),
-	file('OPTYap/tab.tries.insts.i',W,C,L),
-	end_ifdef(W,C,L),
+	file('OPTYap/tab.tries.insts.i', W, C, L, F, H),
+	end_ifdef(W, C, L, F, H),
 	footer(W),
 	footer_rclause(C),
 	footer_walk_clause(L),
+	footer_find_clause(F),
+	footer_find_clause(H),
+	close(F),
 	close(L),
 	close(W),
 	close(C).
 
-start_ifdef(D,W,C,L) :-
+start_ifdef(D, W, C, L, F, H) :-
 	retractall(op(_,_)),
 	format(W, '#ifdef ~s~n',[D]),
 	format(C, '#ifdef ~s~n',[D]),
-	format(L, '#ifdef ~s~n',[D]).
+	format(L, '#ifdef ~s~n',[D]),
+	format(F, '#ifdef ~s~n',[D]),
+	format(H, '#ifdef ~s~n',[D]).
 	
-end_ifdef(W,C,L) :-
+end_ifdef(W,C,L,F,H) :-
 	format(W, '#endif~n',[]),
 	format(C, '#endif~n',[]),
-	format(L, '#endif~n',[]).
+	format(L, '#endif~n',[]),
+	format(F, '#endif~n',[]),
+	format(H, '#endif~n',[]).
 
 header(W) :-
 	format(W,'~n  /* This file was generated automatically by \"yap -L misc/buildops\"~n     please do not update */~n~n',[]).
@@ -85,12 +99,22 @@ header_walk_clause(W) :-
 ',[]).
 
 
-file(I,W,C,L) :-
+header_find_clause(W) :-
+	format(W,'~n  /* This file was generated automatically by \"yap -L misc/buildops\"~n     please do not update */~n~n
+  while (TRUE) {
+    op_numbers op = Yap_op_from_opcode(cl->opc);
+    switch (op) {
+',[]).
+
+
+file(I,W,C,L,F,H) :-
 	open(I,read,R),
 	process(R,grep_opcode(W)),
 	close(R),
 	output_rclause(C),
-	output_walk_clause(L).
+	output_walk_clause(L),
+	output_find_clause(F),
+	output_head_clause(H).
 
 grep_opcode(W, Line) :-
 	split(Line," 	,();",[OP,Name,Type]),
@@ -199,10 +223,13 @@ get_op(0'y,"Y").
 
 dump_ops(_,[]).
 dump_ops(C,[Op|Ops]) :-
+	dump_op(C,Op),
+	dump_ops(C,Ops).
+
+dump_op(C,Op) :-
 	special(Op,C),
 	format(C,'    case _~s:~n',[Op]),
-	end_special(Op,C),
-	dump_ops(C,Ops).
+	end_special(Op,C).
 
 output_walk_clause(L) :-
 	setof(T,O^op(T,O),Types),
@@ -358,7 +385,235 @@ add_pp(C,Type,Field) :-
 walk_to_meta_call(C) :-
 	format(C,'      return found_meta_call(startp, endp);~n',[]).
 
-	/* or_last requires special handling */
+%
+% find region
+% tries to find out what an instruction touches in the body
+% of a clause
+%
+
+output_find_clause(L) :-
+	setof(T:Op,op(T,Op),Ops),
+	member(T:Op, Ops),
+	output_find_op(Op, T, L),
+	fail.
+output_find_clause(_).
+
+output_find_op(Op, T, L) :-
+	opinfo(Op, Actions),
+	dump_op(L,Op),
+	dump_actions(Actions, Op, T, L).
+
+dump_actions([], _, T, L) :-
+	format(L,'      cl = NEXTOP(cl,~s);~n',[T]),
+	format(L,'      break;~n',[]).
+dump_actions([A|Actions], Op, T, L) :-
+	dump_action(A, Op, T, L),
+	dump_actions(Actions, Op, T, L).
+
+% conditional jumps can 
+dump_action(body, _, _, _).
+dump_action(ifthenelse, _, T, L) :-
+	format(L,'      if (cl->u.~s.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }~n', [T]).
+dump_action(bind(Who,What,Extra), _, T, L) :-
+	integer(Who), !,
+	handle_bind_extra(Extra, T, Command),
+	handle_constant(What, T, Constant),
+	format(L,'      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(~d))) {
+	clause->Tag = ~s;~s
+	return;
+      }~n', [Who,Constant,Command]).
+dump_action(bind(Who,What,Extra), _, T, L) :-
+	handle_bind_extra(Extra, T, Command),
+	handle_constant(What, T, Constant),
+	format(L,'      if (is_regcopy(myregs, nofregs, cl->u.~s.~s)) {
+	clause->Tag = ~s;~s
+	return;
+      }~n', [T,Who,Constant,Command]).
+dump_action(new(Who), _, T, L) :-
+	format(L,'      if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.~s.~s))) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }~n', [T,Who]).
+dump_action(dup(Who1,Who2), _, T, L) :-
+	format(L,'      if (!(nofregs = add_regcopy(myregs, nofregs, cl->u.~s.~s, cl->u.~s.~s))) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }~n', [T,Who1,T,Who2]).
+dump_action(unify(Who1,Who2), _, T, L) :-
+	format(L,'      if (!(nofregs = link_regcopies(myregs, nofregs, cl->u.~s.~s, cl->u.~s.~s))) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }~n', [T,Who1,T,Who2]).
+dump_action(logical, _, _, L) :-
+	format(L,'      if (regno == 2) {
+	LogUpdClause *lcl = ClauseCodeToLogUpdClause(cl);
+	Term t = lcl->ClSource->Entry;
+	if (IsVarTerm(t)) {
+	  clause->Tag = (CELL)NULL;
+	} else if (IsApplTerm(t)) {
+	  CELL *pt = RepAppl(t);
+
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.c_sreg = pt;
+	} else if (IsPairTerm(t)) {
+	  CELL *pt = RepPair(t);
+
+	  clause->Tag = AbsPair(NULL);
+	  clause->u.c_sreg = pt-1;
+	} else {
+	  clause->Tag = t;
+	}
+      } else {
+	clause->Tag = (CELL)NULL;
+      }
+      return;~n', []).
+	
+handle_bind_extra([], _, "").
+handle_bind_extra(t_ptr=[], _,S) :- !,
+	format_to_chars("~n	clause->u.t_ptr = (CELL)NULL;",[],S).
+handle_bind_extra(t_ptr=F, Type, S) :-
+	format_to_chars("~n	clause->u.t_ptr = AbsAppl(cl->u.~s.~s);",[Type,F],S).
+handle_bind_extra(workpc=nextop, T,S) :-
+	format_to_chars("~n	clause->u.WorkPC = NEXTOP(cl,~s);",[T],S).
+handle_bind_extra(workpc=currentop, _,S) :-
+	format_to_chars("~n	clause->u.WorkPC = cl;",[],S).
+
+handle_constant(What, T, Const) :-
+	What = [C|_],
+	(
+	 C == 0'A  % 0'Abs
+	->
+	 Const = What
+	;
+	 C == 0'(  % 0'(
+	->
+	 Const = What
+	;
+	 format_to_chars("cl->u.~s.~s",[T,What],Const)
+	).
+
+%
+% find head, works much faster by not looking inside
+% tries to find out what an instruction touches in the body
+% of a clause
+%
+
+output_head_clause(L) :-
+	setof(T:Op,op(T,Op),Ops),
+	member(T:Op, Ops),
+	output_head_op(Op, T, L),
+	fail.
+output_head_clause(_).
+
+output_head_op(Op, T, L) :-
+	opinfo(Op, Actions),
+	\+ member(body, Actions),
+	dump_op(L,Op),
+	dump_head_actions(Actions, Op, T, L).
+
+dump_head_actions([], _, T, L) :-
+	format(L,'      cl = NEXTOP(cl,~s);~n',[T]),
+	format(L,'      break;~n',[]).
+dump_head_actions([A|Actions], Op, T, L) :-
+	dump_head_action(A, Op, T, L),
+	dump_head_actions(Actions, Op, T, L).
+
+% only simple stuff
+dump_head_action(bind(Who,_,_), _, _, _) :- Who = [0'y|_], !. % 0'y
+dump_head_action(bind(Who,What,Extra), _, T, L) :-
+	integer(Who), !,
+	handle_bind_extra(Extra, T, Command),
+	handle_constant(What, T, Constant),
+	format(L,'      if (iarg == Yap_regnotoreg(~d)) {
+	clause->Tag = ~s;~s
+	return;
+      }~n', [Who,Constant,Command]).
+dump_head_action(bind(Who,What,Extra), _, T, L) :-
+	handle_constant(What, T, Constant),
+	handle_bind_extra(Extra, T, Command),
+	format(L,'      if (iarg == cl->u.~s.~s) {
+	clause->Tag = ~s;~s
+	return;
+      }~n', [T,Who,Constant,Command]).
+dump_head_action(new(Who), _, _, _) :- Who = [0'y|_], !. % 0'y done
+dump_head_action(new(Who), _, T, L) :-
+	format(L,'      if (iarg == cl->u.~s.~s) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }~n', [T,Who]).
+dump_head_action(dup(Who1,Who2), _, T, L) :- Who1 = [0'y|_], !, % 0'y done
+	format(L,'      if (cl->u.~s.~s == iarg) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }~n', [T,Who2]).
+dump_head_action(dup(Who1,Who2), _, T, L) :- Who2 = [0'y|_], !, % 0'y done
+	format(L,'      if (cl->u.~s.~s == iarg) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }~n', [T,Who1]).
+dump_head_action(dup(Who1,Who2), _, T, L) :-
+	format(L,'      if (cl->u.~s.~s == iarg ||
+        cl->u.~s.~s == iarg) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }~n', [T,Who1,T,Who2]).
+dump_head_action(unify(Who1,Who2), _, T, L) :- Who1 = [0'y|_], !, % 0'y done
+	format(L,'      if (cl->u.~s.~s == iarg) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }~n', [T,Who2]).
+dump_head_action(unify(Who1,Who2), _, T, L) :- Who2 = [0'y|_], !, % 0'y done
+	format(L,'      if (cl->u.~s.~s == iarg) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }~n', [T,Who1]).
+dump_head_action(unify(Who1,Who2), _, T, L) :-
+	format(L,'      if (cl->u.~s.~s == iarg ||
+        cl->u.~s.~s == iarg) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }~n', [T,Who1,T,Who2]).
+dump_head_action(logical, _, _, L) :-
+	format(L,'      if (regno != 2) {
+	clause->Tag = (CELL)NULL;
+      } else {
+	LogUpdClause *lcl = ClauseCodeToLogUpdClause(cl);
+	Term t = lcl->ClSource->Entry;
+      
+	if (IsVarTerm(t)) {
+	  clause->Tag = (CELL)NULL;
+	} else if (IsApplTerm(t)) {
+	  CELL *pt = RepAppl(t);
+	
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  if (IsExtensionFunctor(FunctorOfTerm(t))) {
+	    clause->u.t_ptr = t;
+	  } else {
+	    clause->u.c_sreg = pt;
+	  }
+	} else if (IsPairTerm(t)) {
+	  CELL *pt = RepPair(t);
+
+	  clause->Tag = AbsPair(NULL);
+	  clause->u.c_sreg = pt-1;
+	} else {
+	  clause->Tag = t;
+	}
+      }
+      return;~n', []).
+	
+handle_bind_extra([], _, "").
+handle_bind_extra(t_ptr=[], _,S) :- !,
+	format_to_chars("~n	clause->u.t_ptr = (CELL)NULL;",[],S).
+handle_bind_extra(t_ptr=F, Type, S) :-
+	format_to_chars("~n	clause->u.t_ptr = AbsAppl(cl->u.~s.~s);",[Type,F],S).
+handle_bind_extra(workpc=nextop, T,S) :-
+	format_to_chars("~n	clause->u.WorkPC = NEXTOP(cl,~s);",[T],S).
+
+/* or_last requires special handling */
 footer(W) :-
 	format(W,'  /* this instruction is hardwired */~n',[]),
 	format(W,'#ifdef YAPOR~n',[]),
@@ -392,6 +647,13 @@ footer_walk_clause(W) :-
 	format(W,'    }
   }
 ',[]).
+
+footer_find_clause(W) :-
+	format(W,'default:
+	clause->Tag = (CELL)NULL;
+	return;
+     }
+  }~n',[]).
 
 get_field_names(F) :-
 	open(F, read, A),
@@ -463,3 +725,297 @@ clean_statements(["struct"|Statements0], StatementsF) :- !,
 clean_statements(["unsigned"|Statements0], StatementsF) :- !,
 	clean_statements(Statements0, StatementsF).
 clean_statements(Statements, Statements).
+
+opinfo("p_number_x",[body,bind("x","(_number+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+opinfo("p_number_y",[body,bind("y","(_number+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+opinfo("p_atomic_x",[body,bind("x","(_atomic+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+opinfo("p_atomic_y",[body,bind("y","(_atomic+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+opinfo("p_primitive_x",[body,bind("x","(_primitive+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+opinfo("p_primitive_y",[body,bind("y","(_primitive+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+opinfo("p_compound_x",[body,bind("x","(_compound+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+opinfo("p_compound_y",[body,bind("y","(_compound+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+opinfo("p_atom_x",[body,bind("x","(_atom+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+opinfo("p_atom_y",[body,bind("y","(_atom+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+opinfo("p_integer_x",[body,bind("x","(_integer+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+opinfo("p_integer_y",[body,bind("y","(_integer+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+opinfo("p_float_x",[body,bind("x","AbsAppl((CELL *)FunctorDouble)",t_ptr=[]),ifthenelse]).
+opinfo("p_float_y",[body,bind("y","AbsAppl((CELL *)FunctorDouble)",t_ptr=[]),ifthenelse]).
+opinfo("p_db_ref_x",[body,bind("x","AbsAppl((CELL *)FunctorDBRef)",t_ptr=[]),ifthenelse]).
+opinfo("p_db_ref_y",[body,bind("y","AbsAppl((CELL *)FunctorDBRef)",t_ptr=[]),ifthenelse]).
+opinfo("p_var_x",[body,bind("x","(_var+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+opinfo("p_var_y",[body,bind("y","(_var+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+opinfo("p_nonvar_x",[body,ifthenelse]).
+opinfo("p_nonvar_y",[body,ifthenelse]).
+opinfo("save_b_x",[body,new("x")]).
+opinfo("save_b_y",[body,new("y")]).
+opinfo("write_x_val",[body]).
+opinfo("write_x_loc",[body]).
+opinfo("write_x_var",[body,new("x")]).
+opinfo("write_y_var",[body,new("y")]).
+opinfo("write_y_val",[body]).
+opinfo("write_y_loc",[body]).
+opinfo("get_x_var",[dup("xr","xl")]).
+opinfo("get_y_var",[dup("x","y")]).
+opinfo("put_x_var",[new("xl"),new("xr")]).
+opinfo("put_y_var",[new("x"),new("y")]).
+opinfo("get_x_val",[unify("xl","xr")]).
+opinfo("get_y_val",[unify("x","y")]).
+opinfo("put_x_val",[dup("xl","xr")]).
+opinfo("put_y_val",[dup("y","x")]).
+opinfo("put_unsafe",[dup("y","x")]).
+opinfo("put_xx_val",[dup("xl1","xr1"),dup("xl2","xr2")]).
+opinfo("glist_valx",[bind("xl","AbsPair(NULL)",workpc=currentop)]).
+opinfo("get_atom",[bind("x","c",[])]).
+opinfo("get_list",[bind("x","AbsPair(NULL)",workpc=nextop)]).
+opinfo("glist_valy",[bind("x","AbsPair(NULL)",workpc=currentop)]).
+opinfo("gl_void_valx",[bind("xl","AbsPair(NULL)",workpc=currentop)]).
+opinfo("gl_void_valy",[bind("y","AbsPair(NULL)",workpc=currentop)]).
+opinfo("gl_void_varx",[bind("xl","AbsPair(NULL)",workpc=currentop),new("xr")]).
+opinfo("gl_void_vary",[bind("y","AbsPair(NULL)",workpc=currentop),new("y")]).
+opinfo("get_struct",[bind("x","AbsAppl((CELL *)cl->u.xfa.f)",workpc=nextop)]).
+opinfo("get_float",[bind("x","AbsAppl((CELL *)FunctorDouble)",t_ptr="d")]).
+opinfo("get_longint",[bind("x","AbsAppl((CELL *)FunctorLongInt)",t_ptr="i")]).
+opinfo("get_bigint",[bind("x","AbsAppl((CELL *)FunctorBigInt)",t_ptr=[])]).
+opinfo("copy_idb_term",[logical]).
+opinfo("unify_idb_term",[logical]).
+opinfo("put_atom",[new("x")]).
+opinfo("put_float",[new("x")]).
+opinfo("put_longint",[new("x")]).
+opinfo("put_list",[new("x")]).
+opinfo("put_struct",[new("x")]).
+opinfo("get_2atoms",[bind(1,"c1",[]),
+		      bind(2,"c2",[])]).
+opinfo("get_3atoms",[bind(1,"c1",[]),
+		      bind(2,"c2",[]),
+		      bind(3,"c3",[])]).
+opinfo("get_4atoms",[bind(1,"c1",[]),
+		      bind(2,"c2",[]),
+		      bind(3,"c3",[]),
+		      bind(4,"c4",[])]).
+opinfo("get_5atoms",[bind(1,"c1",[]),
+		      bind(2,"c2",[]),
+		      bind(3,"c3",[]),
+		      bind(4,"c4",[]),
+		      bind(5,"c5",[])]).
+opinfo("get_6atoms",[bind(1,"c1",[]),
+		      bind(2,"c2",[]),
+		      bind(3,"c3",[]),
+		      bind(4,"c4",[]),
+		      bind(5,"c5",[]),
+		      bind(6,"c6",[])]).
+opinfo("unify_x_var",[new("x")]).
+opinfo("unify_x_var_write",[new("x")]).
+opinfo("unify_l_x_var",[new("x")]).
+opinfo("unify_l_x_var_write",[new("x")]).
+opinfo("unify_y_var",[new("y")]).
+opinfo("unify_y_var_write",[new("y")]).
+opinfo("unify_l_y_var",[new("y")]).
+opinfo("unify_l_y_var_write",[new("y")]).
+opinfo("save_pair_x_write",[new("x")]).
+opinfo("save_pair_x",[new("x")]).
+opinfo("save_appl_x_write",[new("x")]).
+opinfo("save_appl_x",[new("x")]).
+opinfo("save_pair_y_write",[new("y")]).
+opinfo("save_pair_y",[new("y")]).
+opinfo("save_appl_y_write",[new("y")]).
+opinfo("save_appl_y",[new("y")]).
+opinfo("unify_x_var2",[new("xl"),new("xr")]).
+opinfo("unify_x_var2_write",[new("xl"),new("xr")]).
+opinfo("unify_l_x_var2",[new("xl"),new("xr")]).
+opinfo("unify_l_x_var2_write",[new("xl"),new("xr")]).
+opinfo("p_plus_vv",[body,new("x")]).
+opinfo("p_plus_vc",[body,new("x")]).
+opinfo("p_minus_vv",[body,new("x")]).
+opinfo("p_minus_vc",[body,new("x")]).
+opinfo("p_times_vv",[body,new("x")]).
+opinfo("p_times_vc",[body,new("x")]).
+opinfo("p_div_vv",[body,new("x")]).
+opinfo("p_div_vc",[body,new("x")]).
+opinfo("p_div_cv",[body,new("x")]).
+opinfo("p_and_vv",[body,new("x")]).
+opinfo("p_and_vc",[body,new("x")]).
+opinfo("p_or_vv",[body,new("x")]).
+opinfo("p_or_vc",[body,new("x")]).
+opinfo("p_sll_vv",[body,new("x")]).
+opinfo("p_sll_vc",[body,new("x")]).
+opinfo("p_sll_cv",[body,new("x")]).
+opinfo("p_slr_vv",[body,new("x")]).
+opinfo("p_slr_vc",[body,new("x")]).
+opinfo("p_slr_cv",[body,new("x")]).
+opinfo("p_arg_vv",[body,new("x")]).
+opinfo("p_arg_cv",[body,new("x")]).
+opinfo("p_func2s_vv",[body,new("x")]).
+opinfo("p_func2s_vc",[body,new("x")]).
+opinfo("p_func2s_cv",[body,new("x")]).
+opinfo("p_func2f_vv",[body,new("x")]).
+opinfo("p_func2f_xx",[body,new("x")]).
+opinfo("p_func2f_xy",[body,new("x")]).
+opinfo("p_plus_y_vv",[body,new("y")]).
+opinfo("p_plus_y_vc",[body,new("y")]).
+opinfo("p_minus_y_vv",[body,new("y")]).
+opinfo("p_minus_y_vc",[body,new("y")]).
+opinfo("p_times_y_vv",[body,new("y")]).
+opinfo("p_times_y_vc",[body,new("y")]).
+opinfo("p_div_y_vv",[body,new("y")]).
+opinfo("p_div_y_vc",[body,new("y")]).
+opinfo("p_div_y_cv",[body,new("y")]).
+opinfo("p_and_y_vv",[body,new("y")]).
+opinfo("p_and_y_vc",[body,new("y")]).
+opinfo("p_or_y_vv",[body,new("y")]).
+opinfo("p_or_y_vc",[body,new("y")]).
+opinfo("p_sll_y_vv",[body,new("y")]).
+opinfo("p_sll_y_vc",[body,new("y")]).
+opinfo("p_sll_y_cv",[body,new("y")]).
+opinfo("p_slr_y_vv",[body,new("y")]).
+opinfo("p_slr_y_vc",[body,new("y")]).
+opinfo("p_slr_y_cv",[body,new("y")]).
+opinfo("p_arg_y_vv",[body,new("y")]).
+opinfo("p_arg_y_cv",[body,new("y")]).
+opinfo("p_func2s_y_vv",[body,new("y")]).
+opinfo("p_func2s_y_vc",[body,new("y")]).
+opinfo("p_func2s_y_cv",[body,new("y")]).
+opinfo("p_func2f_yx",[body,new("y")]).
+opinfo("p_func2f_yy",[body,new("x")]).
+opinfo("put_fi_var_x",[body,new("x")]).
+opinfo("put_i_var_x",[body,new("x")]).
+opinfo("put_f_var_x",[body,new("x")]).
+opinfo("put_fi_var_y",[body,new("y")]).
+opinfo("put_i_var_y",[body,new("y")]).
+opinfo("put_f_var_y",[body,new("y")]).
+opinfo("allocate",[body]).
+opinfo("write_void",[body]).
+opinfo("write_list",[body]).
+opinfo("write_l_list",[body]).
+opinfo("enter_a_profiling",[body]).
+opinfo("count_a_call",[body]).
+opinfo("unify_x_val_write",[]).
+opinfo("unify_x_val",[]).
+opinfo("unify_l_x_val_write",[]).
+opinfo("unify_l_x_val",[]).
+opinfo("unify_x_loc_write",[]).
+opinfo("unify_x_loc",[]).
+opinfo("unify_l_x_loc_write",[]).
+opinfo("unify_l_x_loc",[]).
+opinfo("unify_y_val_write",[]).
+opinfo("unify_y_val",[]).
+opinfo("unify_l_y_val_write",[]).
+opinfo("unify_l_y_val",[]).
+opinfo("unify_y_loc_write",[]).
+opinfo("unify_y_loc",[]).
+opinfo("unify_l_y_loc_write",[]).
+opinfo("unify_l_y_loc",[]).
+opinfo("unify_void",[]).
+opinfo("unify_void_write",[]).
+opinfo("unify_l_void",[]).
+opinfo("unify_l_void_write",[]).
+opinfo("unify_n_voids",[]).
+opinfo("unify_n_voids_write",[]).
+opinfo("unify_l_n_voids",[]).
+opinfo("unify_l_n_voids_write",[]).
+opinfo("write_n_voids",[body]).
+opinfo("unify_list",[]).
+opinfo("unify_list_write",[]).
+opinfo("unify_l_list",[]).
+opinfo("unify_l_list_write",[]).
+opinfo("unify_atom",[]).
+opinfo("unify_atom_write",[]).
+opinfo("unify_l_atom",[]).
+opinfo("unify_l_atom_write",[]).
+opinfo("write_atom",[body]).
+opinfo("unify_n_atoms",[]).
+opinfo("unify_n_atoms_write",[]).
+opinfo("unify_l_n_atoms",[]).
+opinfo("unify_l_n_atoms_write",[]).
+opinfo("write_n_atoms",[body]).
+opinfo("unify_struct",[]).
+opinfo("unify_struct_write",[]).
+opinfo("unify_l_struct",[]).
+opinfo("unify_l_struct_write",[]).
+opinfo("write_struct",[body]).
+opinfo("unify_float",[]).
+opinfo("unify_float_write",[]).
+opinfo("unify_l_float",[]).
+opinfo("unify_l_float_write",[]).
+opinfo("write_float",[body]).
+opinfo("unify_longint",[]).
+opinfo("unify_longint_write",[]).
+opinfo("unify_l_longint",[]).
+opinfo("unify_l_longint_write",[]).
+opinfo("write_longint",[body]).
+opinfo("unify_bigint",[]).
+opinfo("unify_bigint_write",[]).
+opinfo("unify_l_bigint",[]).
+opinfo("unify_l_bigint_write",[]).
+opinfo("write_bigint",[body]).
+opinfo("unify_dbterm",[]).
+opinfo("unify_dbterm_write",[]).
+opinfo("unify_l_dbterm",[]).
+opinfo("unify_l_dbterm_write",[]).
+opinfo("write_dbterm",[body]).
+opinfo("pop",[]).
+opinfo("pop_n",[]).
+opinfo("eqc_float",[body]).
+opinfo("ltc_float",[body]).
+opinfo("gtc_float",[body]).
+opinfo("eqc_int",[body]).
+opinfo("ltc_int",[body]).
+opinfo("gtc_int",[body]).
+opinfo("a_eq",[body]).
+opinfo("lt",[body]).
+opinfo("add_float_c",[body]).
+opinfo("sub_float_c",[body]).
+opinfo("mul_float_c",[body]).
+opinfo("fdiv_c1",[body]).
+opinfo("fdiv_c2",[body]).
+opinfo("add_int_c",[body]).
+opinfo("sub_int_c",[body]).
+opinfo("mul_int_c",[body]).
+opinfo("idiv_c1",[body]).
+opinfo("idiv_c2",[body]).
+opinfo("mod_c1",[body]).
+opinfo("mod_c2",[body]).
+opinfo("rem_c1",[body]).
+opinfo("rem_c2",[body]).
+opinfo("a_or_c",[body]).
+opinfo("a_and_c",[body]).
+opinfo("xopr_c",[body]).
+opinfo("sl_c1",[body]).
+opinfo("sl_c2",[body]).
+opinfo("sr_c1",[body]).
+opinfo("sr_c2",[body]).
+opinfo("add",[body]).
+opinfo("sub",[body]).
+opinfo("mul",[body]).
+opinfo("fdiv",[body]).
+opinfo("idiv",[body]).
+opinfo("mod",[body]).
+opinfo("rem",[body]).
+opinfo("a_or",[body]).
+opinfo("a_and",[body]).
+opinfo("xor",[body]).
+opinfo("uminus",[body]).
+opinfo("sl",[body]).
+opinfo("sr",[body]).
+opinfo("get_fi_x",[body]).
+opinfo("get_i_x",[body]).
+opinfo("get_f_x",[body]).
+opinfo("get_fi_y",[body]).
+opinfo("get_i_y",[body]).
+opinfo("get_f_y",[body]).
+opinfo("put_fi_val_x",[body]).
+opinfo("put_f_val_x",[body]).
+opinfo("put_i_val_x",[body]).
+opinfo("put_fi_val_y",[body]).
+opinfo("put_f_val_y",[body]).
+opinfo("put_i_val_y",[body]).
+opinfo("lock_lu",[body]).
+opinfo("call_bfunc_xx",[body]).
+opinfo("call_bfunc_yx",[body]).
+opinfo("call_bfunc_xy",[body]).
+opinfo("call_bfunc_yy",[body]).
+opinfo("run_eam",[body]).
+opinfo("retry_eam",[body]).
+opinfo("alloc_for_logical_pred",[body]).
+opinfo("deallocate",[body]).
+
+
