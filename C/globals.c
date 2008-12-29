@@ -240,31 +240,15 @@ p_default_arena_size(void)
 }
 
 
-static Int
-p_allocate_default_arena(void)
+void
+Yap_AllocateDefaultArena(Int gsize, Int attsize)
 {
-  Term t = Deref(ARG1);
-  Term t2 = Deref(ARG2);
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR,t,"allocate_arena");
-    return FALSE;
-  } else if (!IsIntegerTerm(t)) {
-      Yap_Error(TYPE_ERROR_INTEGER,t,"allocate_arena");
-      return FALSE;
-  }
-  if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR,t2,"allocate_arena");
-    return FALSE;
-  } else if (!IsIntegerTerm(t)) {
-      Yap_Error(TYPE_ERROR_INTEGER,t2,"allocate_arena");
-      return FALSE;
-  }
-  GlobalArena = NewArena(IntegerOfTerm(t), 2, NULL);
+  GlobalArena = NewArena(gsize, 2, NULL);
 #if COROUTINING
-  GlobalDelayArena = NewDelayArena(2);
+  GlobalDelayArena = NewDelayArena(attsize);
 #endif
-  return TRUE;
 }
+
 static void
 adjust_cps(UInt size)
 {
@@ -1186,11 +1170,25 @@ p_nb_linkval(void)
   return TRUE;
 }
 
+int
+Yap_SetGlobalVal(Atom at, Term t0)
+{
+  Term to;
+  GlobalEntry *ge;
+  ge = GetGlobalEntry(at);
+  to = CopyTermToArena(t0, GlobalArena, FALSE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  if (to == 0L)
+    return FALSE;
+  WRITE_LOCK(ge->GRWLock);
+  ge->global=to;
+  WRITE_UNLOCK(ge->GRWLock);
+  return TRUE;
+}
+
 static Int
 p_nb_setval(void)
 {
-  Term t = Deref(ARG1), to;
-  GlobalEntry *ge;
+  Term t = Deref(ARG1);
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR,t,"nb_setval");
     return (TermNil);
@@ -1198,14 +1196,7 @@ p_nb_setval(void)
       Yap_Error(TYPE_ERROR_ATOM,t,"nb_setval");
       return (FALSE);
   }
-  ge = GetGlobalEntry(AtomOfTerm(t));
-  to = CopyTermToArena(ARG2, GlobalArena, FALSE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
-  if (to == 0L)
-    return FALSE;
-  WRITE_LOCK(ge->GRWLock);
-  ge->global=to;
-  WRITE_UNLOCK(ge->GRWLock);
-  return TRUE;
+  return Yap_SetGlobalVal(AtomOfTerm(t), ARG2);
 }
 
 static Int
@@ -2555,7 +2546,6 @@ void Yap_InitGlobals(void)
 {
   Term cm = CurrentModule;
   Yap_InitCPred("$allocate_arena", 2, p_allocate_arena, 0);
-  Yap_InitCPred("$allocate_default_arena", 2, p_allocate_default_arena, 0);
   Yap_InitCPred("arena_size", 1, p_default_arena_size, 0);
   Yap_InitCPred("b_setval", 2, p_b_setval, SafePredFlag);
   Yap_InitCPred("b_getval", 2, p_nb_getval, SafePredFlag);

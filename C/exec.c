@@ -1495,7 +1495,6 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b)
 #endif
   YENV[E_CB] = Unsigned (B);
   CP = YESCODE;
-
 }
 
 static Term
@@ -1506,7 +1505,6 @@ do_goal(Term t, yamop *CodeAdr, int arity, CELL *pt, int top)
 
   init_stack(arity, pt, top, saved_b);
   P = (yamop *) CodeAdr;
-  S = CellPtr (RepPredProp (PredPropByFunc (Yap_MkFunctor(AtomCall, 1),0)));	/* A1 mishaps */
   S = CellPtr (RepPredProp (PredPropByFunc (Yap_MkFunctor(AtomCall, 1),0)));	/* A1 mishaps */
 
   out = exec_absmi(top);
@@ -1879,6 +1877,8 @@ JumpToEnv(Term t) {
   CELL *env;
   choiceptr first_func = NULL, B0 = B;
 
+  if (!Yap_SetGlobalVal(AtomHandleThrow,t))
+    return FALSE;
   do {
     /* find the first choicepoint that may be a catch */
     while (B != NULL && B->cp_ap != pos) {
@@ -1925,8 +1925,6 @@ JumpToEnv(Term t) {
   B->cp_env = (CELL *)env[E_E];
   /* cannot recover Heap because of copy term :-( */
   B->cp_h = H;
-  /* nor can I recover terms */
-  B->cp_tr = TR;
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
   B->cp_a3 = t;
@@ -2036,6 +2034,7 @@ Yap_InitYaamRegs(void)
   WPP = NULL;
   PREG_ADDR = NULL;
 #endif
+  Yap_AllocateDefaultArena(1024, 2);
   Yap_PreAllocCodeSpace();
 #ifdef CUT_C
   cut_c_initialize();
