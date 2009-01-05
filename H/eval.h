@@ -208,8 +208,8 @@ Term  STD_PROTO(Yap_gmp_ior_big_big,(MP_INT *, MP_INT *));
 
 
 
-Float  STD_PROTO(Yap_gmp_add_float_big,(Float, MP_INT *));
-Float  STD_PROTO(Yap_gmp_sub_float_big,(Float, MP_INT *));
-Float  STD_PROTO(Yap_gmp_sub_big_float,(MP_INT *, Float));
-Float  STD_PROTO(Yap_gmp_mul_float_big,(Float, MP_INT *));
+Term   STD_PROTO(Yap_gmp_add_float_big,(Float, MP_INT *));
+Term   STD_PROTO(Yap_gmp_sub_float_big,(Float, MP_INT *));
+Term   STD_PROTO(Yap_gmp_sub_big_float,(MP_INT *, Float));
+Term   STD_PROTO(Yap_gmp_mul_float_big,(Float, MP_INT *));
 #endif
