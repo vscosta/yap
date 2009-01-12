@@ -56,8 +56,8 @@
 #define my_islower(C)	( C >= 'a' && C <= 'z' )
 
 STATIC_PROTO(int my_getch, (int (*) (int)));
-STATIC_PROTO(Term float_send, (char *));
-STATIC_PROTO(Term get_num, (int *, int *, int, int (*) (int), int (*) (int),char *,UInt));
+STATIC_PROTO(Term float_send, (char *, int));
+STATIC_PROTO(Term get_num, (int *, int *, int, int (*) (int), int (*) (int),char *,UInt,int));
 
 /* token table with some help from Richard O'Keefe's PD scanner */
 static char chtype0[NUMBER_OF_CHARS+1] =
@@ -197,7 +197,7 @@ my_getch(int (*Nextch) (int))
 extern double atof(const char *);
 
 static Term
-float_send(char *s)
+float_send(char *s, int sign)
 {
   Float f = (Float)atof(s);
 #if HAVE_FINITE
@@ -208,12 +208,12 @@ float_send(char *s)
     }
   }
 #endif
-  return (MkEvalFl(f));
+  return (MkEvalFl(f*sign));
 }
 
 /* we have an overflow at s */
 static Term
-read_int_overflow(const char *s, Int base, Int val)
+read_int_overflow(const char *s, Int base, Int val, int sign)
 {
 #ifdef USE_GMP
   /* try to scan it as a bignum */
@@ -221,6 +221,8 @@ read_int_overflow(const char *s, Int base, Int val)
   Term t;
 
   mpz_init_set_str (new, s, base);
+  if (sign < 0)
+    mpz_neg(new, new);
   t = Yap_MkBigIntTerm(new);
   mpz_clear(new);
   return t;
@@ -454,7 +456,7 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
 /* reads a number, either integer or float */
 
 static Term
-get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*QuotedNxtch) (int), char *s, UInt max_size)
+get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*QuotedNxtch) (int), char *s, UInt max_size, int sign)
 {
   char *sp = s;
   int ch = *chp;
@@ -499,6 +501,9 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       /* a quick way to represent ASCII */
       if (scan_extra)
 	*chp = Nxtch(inp_stream);
+      if (sign == -1) {
+	return MkIntegerTerm(-ascii);
+      }
       return MkIntegerTerm(ascii);
     } else if (base >= 10 && base <= 36) {
       int upper_case = 'A' - 11 + base;
@@ -566,8 +571,11 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       }
       *sp++ = ch;
     }
-    if (ch - '0' >= base)
+    if (ch - '0' >= base) {
+      if (sign == -1)
+	return MkIntegerTerm(-val);
       return MkIntegerTerm(val);
+    }
     val = val * base + ch - '0';
     if (val/base != oval || val -oval*base != ch-'0') /* overflow */
       has_overflow = TRUE;
@@ -585,7 +593,9 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	*chp = ch;
 	*--sp = '\0';
 	if (has_overflow)
-	  return read_int_overflow(s,base,val);
+	  return read_int_overflow(s,base,val,sign);
+	if (sign == -1)
+	  return MkIntegerTerm(-val);
 	return MkIntegerTerm(val);
       }
       do {
@@ -635,9 +645,9 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	*sp0 = '\0';
 	for (sp = s; sp < sp0; sp++) {
 	  if (*sp == '.')
-	    return float_send(s);
+	    return float_send(s,sign);
 	}
-	return MkIntegerTerm(val);
+	return MkIntegerTerm(sign*val);
       }
       do {
 	if (--max_size == 0) {
@@ -649,21 +659,21 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
     }
     *sp = '\0';
     *chp = ch;
-    return float_send(s);
+    return float_send(s,sign);
   } else if (has_overflow) {
     *sp = '\0';
     /* skip base */
     *chp = ch;
     if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X'))
-      return read_int_overflow(s+2,16,val);
+      return read_int_overflow(s+2,16,val,sign);
     if (s[1] == '\'')
-      return read_int_overflow(s+2,base,val);
+      return read_int_overflow(s+2,base,val,sign);
     if (s[2] == '\'')
-      return read_int_overflow(s+3,base,val);
-    return read_int_overflow(s,base,val);
+      return read_int_overflow(s+3,base,val,sign);
+    return read_int_overflow(s,base,val,sign);
   } else {
     *chp = ch;
-    return MkIntegerTerm(val);
+    return MkIntegerTerm(val*sign);
   }
 }
 
@@ -699,14 +709,8 @@ Yap_scan_num(int (*Nxtch) (int))
   cherr = '\0';
   if (ASP-H < 1024)
     return TermNil;
-  out = get_num(&ch, &cherr, -1, Nxtch, Nxtch, ptr, 4096); /*  */
+  out = get_num(&ch, &cherr, -1, Nxtch, Nxtch, ptr, 4096, sign); /*  */
   PopScannerMemory(ptr, 4096);
-  if (sign == -1) {
-    if (IsIntegerTerm(out))
-      out = MkIntegerTerm(-IntegerOfTerm(out));
-    else if (IsFloatTerm(out))
-      out = MkFloatTerm(-FloatOfTerm(out));
-  }
   Yap_clean_tokenizer(NULL, NULL, NULL);
   if (Yap_ErrorMessage != NULL || ch != -1 || cherr)
     return TermNil;
@@ -889,7 +893,7 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 	  /* serious error now */
 	  return l;
 	}
-	if ((t->TokInfo = get_num(&cha,&cherr,inp_stream,Nxtch,QuotedNxtch,ptr,4096)) == 0L) {
+	if ((t->TokInfo = get_num(&cha,&cherr,inp_stream,Nxtch,QuotedNxtch,ptr,4096,1)) == 0L) {
 	  UNLOCK(Stream[inp_stream].streamlock);
 	  if (p)
 	    p->Tok = Ord(kind = eot_tok);
