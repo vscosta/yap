@@ -605,14 +605,6 @@ dump_head_action(logical, _, _, L) :-
       }
       return;~n', []).
 	
-handle_bind_extra([], _, "").
-handle_bind_extra(t_ptr=[], _,S) :- !,
-	format_to_chars("~n	clause->u.t_ptr = (CELL)NULL;",[],S).
-handle_bind_extra(t_ptr=F, Type, S) :-
-	format_to_chars("~n	clause->u.t_ptr = AbsAppl(cl->u.~s.~s);",[Type,F],S).
-handle_bind_extra(workpc=nextop, T,S) :-
-	format_to_chars("~n	clause->u.WorkPC = NEXTOP(cl,~s);",[T],S).
-
 /* or_last requires special handling */
 footer(W) :-
 	format(W,'  /* this instruction is hardwired */~n',[]),
@@ -1017,5 +1009,6 @@ opinfo("run_eam",[body]).
 opinfo("retry_eam",[body]).
 opinfo("alloc_for_logical_pred",[body]).
 opinfo("deallocate",[body]).
+opinfo("table_try_single",[]).
 
 

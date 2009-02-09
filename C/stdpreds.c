@@ -3511,7 +3511,7 @@ p_access_yap_flags(void)
     if (IsMode_SchedulingOn(yap_flags[flag])) {
       Term taux = tout;
       if (IsMode_Local(yap_flags[flag]))
-	tout = MkAtomTerm(Yap_AtomLocalA);
+	tout = MkAtomTerm(AtomLocalA);
       else
 	tout = MkAtomTerm(AtomBatched);
       if (n) {
