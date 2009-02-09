@@ -476,6 +476,10 @@ extern X_API YAP_Term     PROTO(YAP_OpenList,(int));
 extern X_API YAP_Term     PROTO(YAP_ExtendList,(YAP_Term, YAP_Term));
 extern X_API int          PROTO(YAP_CloseList,(YAP_Term, YAP_Term));
 
+/*  attributed variables */
+extern X_API int	PROTO(YAP_IsAttVar,(YAP_Term));
+extern X_API YAP_Term	PROTO(YAP_AttsOfVar,(YAP_Term));
+
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 
 __END_DECLS

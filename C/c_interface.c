@@ -333,6 +333,7 @@
 #include "Yap.h"
 #include "clause.h"
 #include "yapio.h"
+#include "attvar.h"
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif
@@ -355,6 +356,9 @@
 #ifdef CUT_C
 #include "cut_c.h"
 #endif /* CUT_C */
+#if HAVE_MALLOC_H
+#include <malloc.h>
+#endif
 
 #if !HAVE_STRNCPY
 #define strncpy(X,Y,Z) strcpy(X,Y)
@@ -504,6 +508,8 @@ X_API char    *STD_PROTO(YAP_cwd,(void));
 X_API Term     STD_PROTO(YAP_OpenList,(int));
 X_API Term     STD_PROTO(YAP_ExtendList,(Term, Term));
 X_API int      STD_PROTO(YAP_CloseList,(Term, Term));
+X_API int      STD_PROTO(YAP_IsAttVar,(Term));
+X_API Term      STD_PROTO(YAP_AttsOfVar,(Term));
 
 static int (*do_getf)(void);
 
@@ -2430,7 +2436,7 @@ YAP_cwd(void)
   if (!Yap_getcwd(Yap_FileNameBuf, YAP_FILENAME_MAX))
     return FALSE;
   len = strlen(Yap_FileNameBuf);
-  buf = malloc(+1);
+  buf = Yap_AllocCodeSpace(len+1);
   if (!buf)
     return NULL;
   strncpy(buf, Yap_FileNameBuf, len);
@@ -2478,3 +2484,27 @@ YAP_CloseList(Term t0, Term tail)
     return FALSE;
   return TRUE;
 }
+
+X_API Int
+YAP_IsAttVar(Term t)
+{
+  t = Deref(t);
+  if (!IsVarTerm(t))
+    return FALSE;
+  return (VarOfTerm(t) < H0);
+}
+
+X_API Term
+YAP_AttsOfVar(Term t)
+{
+  attvar_record *attv;
+  
+  t = Deref(t);
+  if (!IsVarTerm(t))
+    return TermNil;
+  if (VarOfTerm(t) >= H0)
+    return TermNil;
+  attv = (attvar_record *)VarOfTerm(t);
+  return attv->Atts;
+}
+
