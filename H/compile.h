@@ -105,6 +105,7 @@ typedef enum compiler_op {
   if_not_op,
   index_dbref_op,
   index_blob_op,
+  index_long_op,
   if_nonvar_op,
   save_pair_op,
   save_appl_op,

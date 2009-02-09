@@ -8854,6 +8854,12 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
       
+      Op(index_long, e);
+      PREG = NEXTOP(PREG, e);
+      I_R = MkIntTerm(SREG[0] & (MAX_ABS_INT-1));
+      GONext();
+      ENDOp();
+      
 
 
 /************************************************************************\
@@ -10969,7 +10975,7 @@ Yap_absmi(int inp)
 	 if (i2 < 0)
 	   d0 = do_sll(d1, -i2);
 	 else
-	   d0 = MkIntTerm(d1 >> i2);
+	   d0 = MkIntegerTerm(d1 >> i2);
 	}
 	else {
 	  saveregs();
@@ -11101,7 +11107,7 @@ Yap_absmi(int inp)
 	 if (i2 < 0)
 	   d0 = do_sll(d1, -i2);
 	 else
-	   d0 = MkIntTerm(d1 >> i2);
+	   d0 = MkIntegerTerm(d1 >> i2);
 	}
 	else {
 	  saveregs();
@@ -11650,7 +11656,7 @@ Yap_absmi(int inp)
 	Float d0;
 	if (Yap_isint[PREG->u.sdll.s])
 	  d0 = Yap_Ints[PREG->u.sdll.s];
-	else
+	else 
 	  d0 = Yap_Floats[PREG->u.sdll.s];
 	if ( d0 > CpFloatUnaligned(PREG->u.sdll.d)) {
 	  PREG = PREG->u.sdll.T;
@@ -11680,29 +11686,31 @@ Yap_absmi(int inp)
       Op(lt, ssll);
       if (Yap_isint[PREG->u.ssll.s1]) {
 	if (Yap_isint[PREG->u.ssll.s2]) {
-	  if (Yap_Ints[PREG->u.ssll.s2] < Yap_Ints[PREG->u.ssll.s2]) {
-	    PREG = PREG->u.snll.T;
+	  if (Yap_Ints[PREG->u.ssll.s1] < Yap_Ints[PREG->u.ssll.s2]) {
+	    PREG = PREG->u.ssll.T;
 	    GONext();
 	  }
 	} else {
-	  if (Yap_Ints[PREG->u.ssll.s2] < Yap_Floats[PREG->u.ssll.s2]) {
-	    PREG = PREG->u.snll.T;
+	  if (Yap_Ints[PREG->u.ssll.s1] < Yap_Floats[PREG->u.ssll.s2]) {
+	    PREG = PREG->u.ssll.T;
 	    GONext();
 	  }
 	}
       } else {
 	if (Yap_isint[PREG->u.ssll.s2]) {
-	  if (Yap_Floats[PREG->u.ssll.s2] < Yap_Ints[PREG->u.ssll.s2]) {
-	    PREG = PREG->u.snll.T;
+	  if (Yap_Floats[PREG->u.ssll.s1] < Yap_Ints[PREG->u.ssll.s2]) {
+	    PREG = PREG->u.ssll.T;
 	    GONext();
 	  }
 	} else {
-	  if (Yap_Floats[PREG->u.ssll.s2] < Yap_Floats[PREG->u.ssll.s2]) {
-	    PREG = PREG->u.snll.T;
+	  if (Yap_Floats[PREG->u.ssll.s1] < Yap_Floats[PREG->u.ssll.s2]) {
+	    PREG = PREG->u.ssll.T;
 	    GONext();
 	  }
 	}
       }
+      PREG = PREG->u.ssll.F;
+      GONext();
       ENDOp();
 
       Op(gtc_float, sdll);
@@ -11756,7 +11764,7 @@ Yap_absmi(int inp)
       {
 	int off = PREG->u.ssn.s0;
 	if (Yap_isint[PREG->u.ssn.s1]) {
-	  Yap_Floats[off] = Yap_Ints[PREG->u.ssn.s1]+PREG->u.ssn.n;
+	  Yap_Ints[off] = Yap_Ints[PREG->u.ssn.s1]+PREG->u.ssn.n;
 	  Yap_isint[off] = TRUE;
 	  if (add_overflow(Yap_Ints[off],Yap_Ints[PREG->u.ssn.s1],PREG->u.ssn.n)) {
 	    PREG = ARITH_EXCEPTION;
@@ -11778,20 +11786,20 @@ Yap_absmi(int inp)
 	  if (Yap_isint[PREG->u.sss.s2]) {
 	    Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]+Yap_Ints[PREG->u.sss.s2];
 	    Yap_isint[off] = TRUE;
-	    if (add_overflow(Yap_Ints[off],Yap_Ints[PREG->u.sss.s1],PREG->u.sss.s2)) {
+	    if (add_overflow(Yap_Ints[off],Yap_Ints[PREG->u.sss.s1],Yap_Ints[PREG->u.sss.s2])) {
 	      PREG = ARITH_EXCEPTION;
 	      GONext();
-	    } else {
-	      Yap_Floats[off] = Yap_Ints[PREG->u.sss.s1]+Yap_Floats[PREG->u.sss.s2];
-	      Yap_isint[off] = FALSE;
-	    }
+	    } 
 	  } else {
-	    if (Yap_isint[PREG->u.sss.s2]) {
-	      Yap_Floats[off] = Yap_Floats[PREG->u.sss.s1]+Yap_Ints[PREG->u.sss.s2];
-	    } else {
-	      Yap_Floats[off] = Yap_Floats[PREG->u.sss.s1]+Yap_Floats[PREG->u.sss.s2];
-	    }
+	    Yap_Floats[off] = Yap_Ints[PREG->u.sss.s1]+Yap_Floats[PREG->u.sss.s2];
 	    Yap_isint[off] = FALSE;
+	  }
+	} else {
+	  Yap_isint[off] = FALSE;
+	  if (Yap_isint[PREG->u.sss.s2]) {
+	    Yap_Floats[off] = Yap_Floats[PREG->u.sss.s1]+Yap_Ints[PREG->u.sss.s2];
+	  } else {
+	    Yap_Floats[off] = Yap_Floats[PREG->u.sss.s1]+Yap_Floats[PREG->u.sss.s2];
 	  }
 	}
       }
@@ -11817,7 +11825,7 @@ Yap_absmi(int inp)
       {
 	int off = PREG->u.ssn.s0;
 	if (Yap_isint[PREG->u.ssn.s1]) {
-	  Yap_Floats[off] = PREG->u.ssn.n-Yap_Ints[PREG->u.ssn.s1];
+	  Yap_Ints[off] = PREG->u.ssn.n-Yap_Ints[PREG->u.ssn.s1];
 	  Yap_isint[off] = TRUE;
 	  if (sub_overflow(Yap_Ints[off],PREG->u.ssn.n,Yap_Ints[PREG->u.ssn.s1])) {
 	    PREG = ARITH_EXCEPTION;
@@ -11874,7 +11882,7 @@ Yap_absmi(int inp)
       {
 	int off = PREG->u.ssn.s0;
 	if (Yap_isint[PREG->u.ssn.s1]) {
-	  Yap_Floats[off] = Yap_Ints[PREG->u.ssn.s1]*PREG->u.ssn.n;
+	  Yap_Ints[off] = Yap_Ints[PREG->u.ssn.s1]*PREG->u.ssn.n;
 	  Yap_isint[off] = TRUE;
 	  if (mul_overflow(Yap_Ints[off],Yap_Ints[PREG->u.ssn.s1],PREG->u.ssn.n)) {
 	    PREG = ARITH_EXCEPTION;
@@ -11896,9 +11904,10 @@ Yap_absmi(int inp)
 	  if (Yap_isint[PREG->u.sss.s2]) {
 	    Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]*Yap_Ints[PREG->u.sss.s2];
 	    Yap_isint[off] = TRUE;
-	    if (mul_overflow(Yap_Ints[off],Yap_Ints[PREG->u.sss.s1],PREG->u.sss.s2)) {
-	    PREG = ARITH_EXCEPTION;
-	    GONext();
+	    if (mul_overflow(Yap_Ints[off],Yap_Ints[PREG->u.sss.s1],Yap_Ints[PREG->u.sss.s2])) {
+	      PREG = ARITH_EXCEPTION;
+	      GONext();
+	    }
 	  } else {
 	    Yap_Floats[off] = Yap_Ints[PREG->u.sss.s1]*Yap_Floats[PREG->u.sss.s2];
 	    Yap_isint[off] = FALSE;
@@ -11910,7 +11919,6 @@ Yap_absmi(int inp)
 	    Yap_Floats[off] = Yap_Floats[PREG->u.sss.s1]*Yap_Floats[PREG->u.sss.s2];
 	  }
 	  Yap_isint[off] = FALSE;
-	  }
 	}
       }
       PREG = NEXTOP(PREG, sss);
@@ -11961,7 +11969,12 @@ Yap_absmi(int inp)
 
       Op(idiv_c1, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	if (Yap_Ints[PREG->u.ssn.s1] == 0) {
+	Int qu0 = Yap_Ints[PREG->u.ssn.s1];
+	if (qu0 == 0) {
+	  PREG = ARITH_EXCEPTION;
+	  GONext();
+	}	    
+	if (Int_MIN == PREG->u.ssn.n && qu0 == -1) {
 	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}	    
@@ -11977,7 +11990,12 @@ Yap_absmi(int inp)
 
       Op(idiv_c2, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	Yap_Ints[PREG->u.ssn.s0] = Yap_Ints[PREG->u.ssn.s1]/PREG->u.ssn.n;
+	Int div = PREG->u.ssn.n;
+	if (Int_MIN == Yap_Ints[PREG->u.ssn.s1] && div == -1) {
+	  PREG = ARITH_EXCEPTION;
+	  GONext();
+	}	    
+	Yap_Ints[PREG->u.ssn.s0] = Yap_Ints[PREG->u.ssn.s1]/div;
       } else {
 	PREG = ARITH_EXCEPTION;
 	GONext();
@@ -11993,7 +12011,13 @@ Yap_absmi(int inp)
 	if (Yap_isint[PREG->u.sss.s1] &&
 	    Yap_isint[PREG->u.sss.s2] &&
 	    Yap_Ints[PREG->u.sss.s2] != 0) {
-	  Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]/Yap_Ints[PREG->u.sss.s2];
+	  Int i1 = Yap_Ints[PREG->u.sss.s1];
+	  Int i2 = Yap_Ints[PREG->u.sss.s2];
+	  if (i1 == Int_MIN && i2 == -1) {
+	    PREG = ARITH_EXCEPTION;
+	    GONext();
+	  }	    
+	  Yap_Ints[off] = i1/i2;
 	  Yap_isint[off] = TRUE;
 	} else {
 	  PREG = ARITH_EXCEPTION;
@@ -12006,11 +12030,19 @@ Yap_absmi(int inp)
 
       Op(mod_c1, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	if (Yap_Ints[PREG->u.ssn.s1] == 0) {
+	Int mod, div = Yap_Ints[PREG->u.ssn.s1];
+	if (div == 0) {
 	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}	    
-	Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n % Yap_Ints[PREG->u.ssn.s1];
+	if (div == -1 && PREG->u.ssn.n == Int_MIN) {
+	  PREG = ARITH_EXCEPTION;
+	  GONext();
+	}	    
+	mod = PREG->u.ssn.n % div;
+	if (mod && (mod ^ div) < 0)
+	  mod += div;
+	Yap_Ints[PREG->u.ssn.s0] = mod;
       } else {
 	PREG = ARITH_EXCEPTION;
 	GONext();
@@ -12022,7 +12054,15 @@ Yap_absmi(int inp)
 
       Op(mod_c2, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	Yap_Ints[PREG->u.ssn.s0] = Yap_Ints[PREG->u.ssn.s1]%PREG->u.ssn.n;
+	Int mod, div = PREG->u.ssn.n;
+	if (div == -1 && Yap_Ints[PREG->u.ssn.s1] == Int_MIN) {
+	  PREG = ARITH_EXCEPTION;
+	  GONext();
+	}	    
+	mod = Yap_Ints[PREG->u.ssn.s1]%div;
+	if (mod && (mod ^ div) < 0)
+	  mod += div;
+	Yap_Ints[PREG->u.ssn.s0] = mod;
       } else {
 	PREG = ARITH_EXCEPTION;
 	GONext();
@@ -12035,10 +12075,19 @@ Yap_absmi(int inp)
       Op(mod, sss);
       {
 	int off = PREG->u.sss.s0;
+	Int mod, div = Yap_Ints[PREG->u.sss.s2];
 	if (Yap_isint[PREG->u.sss.s1] &&
 	    Yap_isint[PREG->u.sss.s2] &&
-	    Yap_Ints[PREG->u.sss.s2] != 0) {
-	  Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]%Yap_Ints[PREG->u.sss.s2];
+	    div != 0) {
+	  Int i1 = Yap_Ints[PREG->u.sss.s1];
+	  if (i1 == Int_MIN && div == -1) {
+	    PREG = ARITH_EXCEPTION;
+	    GONext();
+	  }	    
+	  mod = i1%div;
+	  if (mod && (mod ^ div) < 0)
+	    mod += div;
+	  Yap_Ints[off] = mod;
 	} else {
 	  PREG = ARITH_EXCEPTION;
 	  GONext();
@@ -12051,11 +12100,16 @@ Yap_absmi(int inp)
 
       Op(rem_c1, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	if (Yap_Ints[PREG->u.ssn.s1] == 0) {
+	Int div = Yap_Ints[PREG->u.ssn.s1];
+	if (div == 0) {
 	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}	    
-	Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n%Yap_Ints[PREG->u.ssn.s1];
+	if (PREG->u.ssn.n == Int_MIN && div == -1) {
+	  PREG = ARITH_EXCEPTION;
+	  GONext();
+	}	    
+	Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n%div;
       } else {
 	PREG = ARITH_EXCEPTION;
 	GONext();
@@ -12067,7 +12121,12 @@ Yap_absmi(int inp)
 
       Op(rem_c2, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	Yap_Ints[PREG->u.ssn.s0] = Yap_Ints[PREG->u.ssn.s1]%PREG->u.ssn.n;
+	Int div = PREG->u.ssn.n;
+	if (Yap_Ints[PREG->u.ssn.s1] == Int_MIN && div == -1) {
+	  PREG = ARITH_EXCEPTION;
+	  GONext();
+	}	    
+	Yap_Ints[PREG->u.ssn.s0] = Yap_Ints[PREG->u.ssn.s1]%div;
       } else {
 	PREG = ARITH_EXCEPTION;
 	GONext();
@@ -12086,7 +12145,13 @@ Yap_absmi(int inp)
 	      PREG = ARITH_EXCEPTION;
 	      GONext();
 	    }	    
-	    Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]%Yap_Ints[PREG->u.sss.s2];
+	    Int i1 = Yap_Ints[PREG->u.sss.s1];
+	    Int div = Yap_Ints[PREG->u.sss.s2];
+	    if (i1 == Int_MIN && div == -1) {
+	      PREG = ARITH_EXCEPTION;
+	      GONext();
+	    }	    
+	    Yap_Ints[off] = i1%div;
 	  } else {
 	    PREG = ARITH_EXCEPTION;
 	    GONext();
@@ -12201,6 +12266,11 @@ Yap_absmi(int inp)
       {
 	int off = PREG->u.sss.s0;
 	if (Yap_isint[PREG->u.sss.s1]) {
+	  Int operand = Yap_Ints[PREG->u.sss.s1];
+	  if (operand == Int_MIN) {
+	    PREG = ARITH_EXCEPTION;
+	    GONext();
+	  }
 	  Yap_Ints[off] = -Yap_Ints[PREG->u.sss.s1];
 	  Yap_isint[off] = TRUE;
 	} else {
@@ -12214,11 +12284,15 @@ Yap_absmi(int inp)
 
       Op(sl_c1, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	if (sl_overflow(PREG->u.ssn.n,Yap_Ints[PREG->u.ssn.s1])) {
+	Int sc = Yap_Ints[PREG->u.ssn.s1];
+	if (sl_overflow(PREG->u.ssn.n,sc)) {
 	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
-	Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n<<Yap_Ints[PREG->u.ssn.s1];
+	if (sc < 0) 
+	  Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n>>-sc;
+	else
+	  Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n<<sc;
       } else {
 	PREG = ARITH_EXCEPTION;
 	GONext();
@@ -12249,11 +12323,15 @@ Yap_absmi(int inp)
 	int off = PREG->u.sss.s0;
 	if (Yap_isint[PREG->u.sss.s1]) {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    if (sl_overflow(Yap_Ints[PREG->u.sss.s1],Yap_Ints[PREG->u.sss.s2])) {
+	    Int sc = Yap_Ints[PREG->u.sss.s2];
+	    if (sl_overflow(Yap_Ints[PREG->u.sss.s1],sc)) {
 	      PREG = ARITH_EXCEPTION;
 	      GONext();
 	    }
-	    Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]<<Yap_Ints[PREG->u.sss.s2];
+	    if (sc < 0)
+	      Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]>>-sc;
+	    else
+	      Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]<<sc;
 	  } else {
 	    PREG = ARITH_EXCEPTION;
 	    GONext();
@@ -12270,11 +12348,15 @@ Yap_absmi(int inp)
 
       Op(sr_c1, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	if (sr_overflow(PREG->u.ssn.n,Yap_Ints[PREG->u.ssn.s1])) {
+	Int sc = Yap_Ints[PREG->u.ssn.s1];
+	if (sl_overflow(PREG->u.ssn.n,-sc)) {
 	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
-	Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n>>Yap_Ints[PREG->u.ssn.s1];
+	if (sc < 0)
+	  Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n<<-sc;
+	else
+	  Yap_Ints[PREG->u.ssn.s0] = PREG->u.ssn.n>>sc;
       } else {
 	PREG = ARITH_EXCEPTION;
 	GONext();
@@ -12286,7 +12368,7 @@ Yap_absmi(int inp)
 
       Op(sr_c2, ssn);
       if (Yap_isint[PREG->u.ssn.s1]) {
-	if (sr_overflow(Yap_Ints[PREG->u.ssn.s1],PREG->u.ssn.n)) {
+	if (sl_overflow(Yap_Ints[PREG->u.ssn.s1],-PREG->u.ssn.n)) {
 	  PREG = ARITH_EXCEPTION;
 	  GONext();
 	}
@@ -12302,14 +12384,18 @@ Yap_absmi(int inp)
 
       Op(sr, sss);
       {
-	int off = PREG->u.sss.s0;
+	Int off = PREG->u.sss.s0;
 	if (Yap_isint[PREG->u.sss.s1]) {
 	  if (Yap_isint[PREG->u.sss.s2]) {
-	    if (sr_overflow(Yap_Ints[PREG->u.sss.s1],Yap_Ints[PREG->u.sss.s2])) {
+	    Int sc = Yap_Ints[PREG->u.sss.s2];
+	    if (sl_overflow(Yap_Ints[PREG->u.sss.s1],-sc)) {
 	      PREG = ARITH_EXCEPTION;
 	      GONext();
 	    }
-	    Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]>>Yap_Ints[PREG->u.sss.s2];
+	    if (sc < 0)
+	      Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]<<-sc;
+	    else
+	      Yap_Ints[off] = Yap_Ints[PREG->u.sss.s1]>>sc;
 	  } else {
 	    PREG = ARITH_EXCEPTION;
 	    GONext();

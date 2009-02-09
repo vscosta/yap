@@ -333,6 +333,7 @@ STD_PROTO(static Int p_statistics_trail_info, (void));
 STD_PROTO(static Term mk_argc_list, (void));
 STD_PROTO(static Int p_argv, (void));
 STD_PROTO(static Int p_cputime, (void));
+STD_PROTO(static Int p_systime, (void));
 STD_PROTO(static Int p_runtime, (void));
 STD_PROTO(static Int p_walltime, (void));
 STD_PROTO(static Int p_access_yap_flags, (void));
@@ -813,6 +814,15 @@ p_cputime(void)
 {
   Int now, interval;
   Yap_cputime_interval(&now, &interval);
+  return( Yap_unify_constant(ARG1, MkIntegerTerm(now)) && 
+	 Yap_unify_constant(ARG2, MkIntegerTerm(interval)) );
+}
+
+static Int 
+p_systime(void)
+{
+  Int now, interval;
+  Yap_systime_interval(&now, &interval);
   return( Yap_unify_constant(ARG1, MkIntegerTerm(now)) && 
 	 Yap_unify_constant(ARG2, MkIntegerTerm(interval)) );
 }
@@ -3938,6 +3948,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$argv", 1, p_argv, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$runtime", 2, p_runtime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$cputime", 2, p_cputime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$systime", 2, p_systime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$walltime", 2, p_walltime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$access_yap_flags", 2, p_access_yap_flags, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags, SafePredFlag|SyncPredFlag|HiddenPredFlag);

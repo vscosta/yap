@@ -162,7 +162,7 @@ void verifica_predicados(struct Clauses *clause)
            PredEntry   *p=RepPredProp((Prop) inter_code->new4);
 	   inter_code->op=safe_call_op;
   	   inter_code->new4= (unsigned long) p->cs.f_code;
-	   if (Flags & BinaryTestPredFlag) inter_code->new1=2;
+	   if (Flags & BinaryPredFlag) inter_code->new1=2;
 	   else inter_code->new1=0;
 	}      
     }
@@ -204,7 +204,7 @@ void verifica_predicados(struct Clauses *clause)
 		     } else {/* safe_call */
 		        inter_code->op=safe_call_op;
 			inter_code->new4=  (unsigned long) p->cs.f_code;
-			if (Flags & BinaryTestPredFlag) inter_code->new1=2;
+			if (Flags & BinaryPredFlag) inter_code->new1=2;
 			else inter_code->new1=0;
 		     }
     }

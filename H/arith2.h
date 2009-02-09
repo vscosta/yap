@@ -22,7 +22,7 @@
 inline static int
 add_overflow(Int x, Int i, Int j)
 {
-  return (i & j & ~x) | (~i & ~j & x);
+  return ((i & j & ~x) | (~i & ~j & x)) < 0;
 }
 
 inline static Term
@@ -32,7 +32,7 @@ add_int(Int i, Int j)
 #if USE_GMP
   /* Integer overflow, we need to use big integers */
   Int overflow = (i & j & ~x) | (~i & ~j & x);
-  if (overflow) {
+  if (overflow < 0) {
     return(Yap_gmp_add_ints(i, j));
   }
 #endif
@@ -47,7 +47,7 @@ add_int(Int i, Int j)
 inline static int
 sub_overflow(Int x, Int i, Int j)
 {
-  return (i & ~j & ~x) | (~i & j & x);
+  return ((i & ~j & ~x) | (~i & j & x)) < 0;
 }
 
 inline static Term
@@ -55,7 +55,7 @@ sub_int(Int i, Int j)
 {
   Int x = i-j;
 #if USE_GMP
-  Int overflow = (i & ~j & ~x) | (~i & j & x);
+  Int overflow = ((i & ~j & ~x) | (~i & j & x)) < 0;
   /* Integer overflow, we need to use big integers */
   if (overflow) {
     return(Yap_gmp_sub_ints(i, j));
@@ -88,6 +88,8 @@ sub_int(Int i, Int j)
 inline static int
 mul_overflow(Int z, Int i1, Int i2)
 {
+  if (i1 == Int_MIN && i2 == -1)
+    return TRUE;
   return (i2 &&  z/i2 != i1);
 }
 
@@ -114,18 +116,16 @@ times_int(Int i1, Int i2) {
 
 #if USE_GMP
 static inline int
-sl_overflow(Int x,Int i)
+sl_overflow(Int i,Int j)
 {
+  Int x = (8*sizeof(CELL)-2)-j;
   CELL t = (1<<x)-1;
+
+  if (x < 0) return TRUE;
+  t = (1<<x)-1;
   return (t & i) != i;
 }
 
-static inline int
-sr_overflow(Int x,Int i)
-{
-  CELL t = (1>>x)-1;
-  return (t & i) != i;
-}
 #else
 static inline Int
 sl_overflow(Int x,Int i)
@@ -133,24 +133,14 @@ sl_overflow(Int x,Int i)
   return FALSE; 
 }
 
-static inline Int
-sr_overflow(Int x,Int i)
-{
-  return FALSE;
-}
 #endif
 
 inline static Term
 do_sll(Int i, Int j)
 {
-#if USE_GMP
-  Int x = (8*sizeof(CELL)-2)-j;
-  
-  if (x < 0||
-      sl_overflow(x,i)) {
-    return(Yap_gmp_sll_ints(i, j));
+  if (sl_overflow(i,j)) {
+    return Yap_gmp_sll_ints(i, j);
   }
-#endif
   RINT(i << j);
 }
 
@@ -337,15 +327,18 @@ p_div(Term t1, Term t2) {
     case long_int_e:
       /* two integers */
       {
-	Int i2 = IntegerOfTerm(t2);
+	Int i1 = IntegerOfTerm(t1), i2 = IntegerOfTerm(t2);
       
 	if (i2 == 0) {
 	  Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR, t2, "// /2");
 	  /* make GCC happy */
 	  P = (yamop *)FAILCODE;
 	  RERROR();
+	} else if (i1 == Int_MIN && i2 == -1) {
+	  return Yap_gmp_add_ints(Int_MAX, 1);
+	} else {
+	  RINT(IntegerOfTerm(t1) / i2);
 	}
-	RINT(IntegerOfTerm(t1) / i2);
       }
     case double_e:
       Yap_Error(TYPE_ERROR_INTEGER, t2, "// /2");

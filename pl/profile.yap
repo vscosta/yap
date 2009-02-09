@@ -59,14 +59,14 @@ profile_reset :-
 profile_reset.
 
 showprofres :-
-	  '$proftype'(offline), !,
-	  '$offline_showprofres'.
+	'$proftype'(offline), !,
+	'$offline_showprofres'.
 showprofres :-
-	 showprofres(-1).
+	showprofres(-1).
 
 showprofres(A) :-
-	  '$proftype'(offline), !,
-	  '$offline_showprofres'(A).
+	'$proftype'(offline), !,
+	'$offline_showprofres'(A).
 showprofres(A) :-
 	('$profison' -> profoff, Stop = true ; Stop = false),
 	'$profglobs'(Tot,GCs,HGrows,SGrows,Mallocs,ProfOns),

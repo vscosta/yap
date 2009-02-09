@@ -316,8 +316,9 @@ void	STD_PROTO(Yap_InitSysPath,(void));
 #ifdef MAC
 void	STD_PROTO(Yap_SetTextFile,(char *));
 #endif
-void    STD_PROTO(Yap_cputime_interval,(Int *,Int *));
 int     STD_PROTO(Yap_getcwd,(const char *, int));
+void    STD_PROTO(Yap_cputime_interval,(Int *,Int *));
+void    STD_PROTO(Yap_systime_interval,(Int *,Int *));
 void    STD_PROTO(Yap_walltime_interval,(Int *,Int *));
 void	STD_PROTO(Yap_InitSysbits,(void));
 void	STD_PROTO(Yap_InitSysPreds,(void));

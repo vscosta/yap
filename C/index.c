@@ -499,7 +499,7 @@ static char     SccsId[] = "%W% %G%";
 UInt STATIC_PROTO(do_index, (ClauseDef *,ClauseDef *,struct intermediates *,UInt,UInt,int,int,CELL *));
 UInt STATIC_PROTO(do_compound_index, (ClauseDef *,ClauseDef *,Term *t,struct intermediates *,UInt,UInt,UInt,UInt,int,int,int,CELL *,int));
 UInt STATIC_PROTO(do_dbref_index, (ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *));
-UInt STATIC_PROTO(do_blob_index, (ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *));
+UInt STATIC_PROTO(do_blob_index, (ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *,int));
 
 static UInt
 cleanup_sw_on_clauses(CELL larg, UInt sz, OPCODE ecls)
@@ -555,6 +555,23 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
 
   while (cpc) {
     switch(cpc->op) {
+    case enter_lu_op:
+      if (cpc->rnd4) {
+	yamop *code_p = (yamop *)cpc->rnd4;
+	yamop *first = code_p->u.Ills.l1;
+	yamop *last = code_p->u.Ills.l2;
+	while (first) {
+	  yamop *next = first->u.OtaLl.n;
+	  LogUpdClause *cl = first->u.OtaLl.d;
+	  cl->ClRefCount--;
+	  Yap_FreeCodeSpace((char *)first);
+	  if (first == last) 
+	    break;
+	  first = next;
+	}
+      }
+      cpc->rnd4 = Zero;
+      break;
     case jump_v_op:
     case jump_nv_op:
       sz = cleanup_sw_on_clauses(cpc->rnd1, sz, ecls);
@@ -616,6 +633,10 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
       break;
     }
     cpc = cpc->nextInst;
+  }
+  if (cint->code_addr) {
+    Yap_FreeCodeSpace((char *)cint->code_addr);
+    cint->code_addr = NULL;
   }
   return sz;
 }
@@ -1032,6 +1053,7 @@ has_cut(yamop *pc)
     case _count_a_call:
     case _index_dbref:
     case _index_blob:
+    case _index_long:
 #ifdef YAPOR
     case _getwork_first_time:
 #endif /* YAPOR */
@@ -2303,7 +2325,7 @@ do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, struct intermediates
       ncls = (cf-c0)+1;
     else
       ncls = 0;
-    Yap_emit_3ops(enter_lu_op, labl_dyn0, labl_dynf, ncls, cint);
+    Yap_emit_4ops(enter_lu_op, labl_dyn0, labl_dynf, ncls, Zero, cint);
     Yap_emit(label_op, labl_dyn0, Zero, cint); 
   }
   if (c0 == cf) {
@@ -2655,8 +2677,10 @@ do_funcs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
     if (IsExtensionFunctor(f)) {
       if (f == FunctorDBRef) 
 	ifs->u.Label = do_dbref_index(min, max, t, cint, argno, nxtlbl, first, clleft, top);
+      else if (f == FunctorLongInt) 
+	ifs->u.Label = do_blob_index(min, max, t, cint, argno, nxtlbl, first, clleft, top, FALSE);
       else
-	ifs->u.Label = do_blob_index(min, max, t, cint, argno, nxtlbl, first, clleft, top);
+	ifs->u.Label = do_blob_index(min, max, t, cint, argno, nxtlbl, first, clleft, top, TRUE);
 	
     } else {
       CELL *sreg;
@@ -2726,7 +2750,7 @@ emit_protection_choicepoint(int first, int clleft, UInt nxtlbl, struct intermedi
       if (cint->CurrentPred->PredFlags & LogUpdatePredFlag) {
 	UInt labl = new_label(cint);
 
-	Yap_emit_3ops(enter_lu_op, labl, labl, 0, cint);
+	Yap_emit_4ops(enter_lu_op, labl, labl, 0, Zero, cint);
 	Yap_emit(label_op, labl, Zero, cint);
       }
       Yap_emit(tryme_op, nxtlbl, (clleft << 1), cint);
@@ -3173,7 +3197,7 @@ do_dbref_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cin
 }
 
 static UInt
-do_blob_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cint, UInt argno, UInt fail_l, int first, int clleft, CELL *top)
+do_blob_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cint, UInt argno, UInt fail_l, int first, int clleft, CELL *top, int blob)
 {
   UInt ngroups;
   GroupDef *group;
@@ -3185,13 +3209,16 @@ do_blob_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cint
   while (cl <= max) {
     if (cl->u.t_ptr == (CELL)NULL) { /* check whether it is a builtin */
       cl->Tag = Zero;
-    } else {
+    } else if (blob) {
       CELL *pt = RepAppl(cl->u.t_ptr);
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
       cl->Tag = MkIntTerm(pt[1]^pt[2]);
 #else
       cl->Tag = MkIntTerm(pt[1]);
 #endif
+    } else {
+      CELL *pt = RepAppl(cl->u.t_ptr);
+      cl->Tag = MkIntTerm((pt[1] & (MAX_ABS_INT-1)));
     }
     cl++;
   }
@@ -3202,7 +3229,10 @@ do_blob_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cint
     int labl = new_label(cint);
 
     Yap_emit(label_op, labl, Zero, cint);
-    Yap_emit(index_blob_op, Zero, Zero, cint);
+    if (blob)
+      Yap_emit(index_blob_op, Zero, Zero, cint);
+    else
+      Yap_emit(index_long_op, Zero, Zero, cint);
     sort_group(group,(CELL *)(group+1),cint);
     do_blobs(group, t, cint, argno, first, fail_l, clleft, (CELL *)group+1);
     return labl;
@@ -3993,6 +4023,12 @@ expand_index(struct intermediates *cint) {
 #else
       t = MkIntTerm(s_reg[0]);
 #endif
+      sp[-1].extra = AbsAppl(s_reg-1);
+      s_reg = NULL;
+      ipc = NEXTOP(ipc,e);
+      break;
+    case _index_long:
+      t = MkIntTerm((s_reg[0] & (MAX_ABS_INT-1)));
       sp[-1].extra = AbsAppl(s_reg-1);
       s_reg = NULL;
       ipc = NEXTOP(ipc,e);
@@ -5756,6 +5792,13 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       }
       ipc = NEXTOP(ipc,e);
       break;
+    case _index_long:
+      {
+	CELL *pt = RepAppl(cls->u.t_ptr);
+	cls->Tag = MkIntTerm((pt[1] & (MAX_ABS_INT-1)));
+      }
+      ipc = NEXTOP(ipc,e);
+      break;
     case _switch_on_cons:
     case _if_cons:
     case _go_on_cons:
@@ -6244,6 +6287,13 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 #else
 	cls->Tag = MkIntTerm(pt[1]);
 #endif
+      }
+      ipc = NEXTOP(ipc,e);
+      break;
+    case _index_long:
+      {
+	CELL *pt = RepAppl(cls->u.t_ptr);
+	cls->Tag = MkIntTerm(pt[1] & (MAX_ABS_INT-1));
       }
       ipc = NEXTOP(ipc,e);
       break;
@@ -6900,6 +6950,10 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 #else
       t = MkIntTerm(s_reg[0]);
 #endif
+      ipc = NEXTOP(ipc,e);
+      break;
+    case _index_long:
+      t = MkIntTerm(s_reg[0] & (MAX_ABS_INT-1));
       ipc = NEXTOP(ipc,e);
       break;
     case _switch_on_cons:

@@ -256,6 +256,8 @@
 #define AtomInteger Yap_heap_regs->AtomInteger_
   Atom AtomInternalCompilerError_;
 #define AtomInternalCompilerError Yap_heap_regs->AtomInternalCompilerError_
+  Atom AtomIs_;
+#define AtomIs Yap_heap_regs->AtomIs_
   Atom AtomKey_;
 #define AtomKey Yap_heap_regs->AtomKey_
   Atom AtomLDLibraryPath_;
@@ -682,6 +684,8 @@
 #define FunctorHandleThrow Yap_heap_regs->FunctorHandleThrow_
   Functor FunctorId_;
 #define FunctorId Yap_heap_regs->FunctorId_
+  Functor FunctorIs_;
+#define FunctorIs Yap_heap_regs->FunctorIs_
   Functor FunctorLastExecuteWithin_;
 #define FunctorLastExecuteWithin Yap_heap_regs->FunctorLastExecuteWithin_
   Functor FunctorList_;

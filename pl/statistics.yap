@@ -20,6 +20,7 @@
 statistics :-
 	'$runtime'(Runtime,_), 
 	'$cputime'(CPUtime,_), 
+	'$systime'(SYStime,_), 
 	'$walltime'(Walltime,_), 
 	'$statistics_heap_info'(HpSpa, HpInUse), 
 	'$statistics_heap_max'(HpMax), 
@@ -33,9 +34,9 @@ statistics :-
 	'$inform_trail_overflows'(NOfTO,TotTOTime),
 	'$inform_gc'(NOfGC,TotGCTime,TotGCSize),
 	'$inform_agc'(NOfAGC,TotAGCTime,TotAGCSize),
-	'$statistics'(Runtime,CPUtime,Walltime,HpSpa,HpInUse,HpMax,TrlSpa, TrlInUse,TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize,NOfAGC,TotAGCTime,TotAGCSize).
+	'$statistics'(Runtime,CPUtime,SYStime,Walltime,HpSpa,HpInUse,HpMax,TrlSpa, TrlInUse,TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize,NOfAGC,TotAGCTime,TotAGCSize).
 
-'$statistics'(Runtime,CPUtime,Walltime,HpSpa,HpInUse,HpMax,TrlSpa, TrlInUse,_TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize,NOfAGC,TotAGCTime,TotAGCSize) :-
+'$statistics'(Runtime,CPUtime,SYStime,Walltime,HpSpa,HpInUse,HpMax,TrlSpa, TrlInUse,_TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize,NOfAGC,TotAGCTime,TotAGCSize) :-
 	TotalMemory is HpSpa+StkSpa+TrlSpa,
 	format(user_error,'memory (total)~t~d bytes~35+~n', [TotalMemory]),
 	format(user_error,'   program space~t~d bytes~35+', [HpSpa]),
@@ -71,10 +72,12 @@ statistics :-
 	format(user_error,'~t~3f~12+ sec. runtime~n', [RTime]),
 	CPUTime is float(CPUtime)/1000,
 	format(user_error,'~t~3f~12+ sec. cputime~n', [CPUTime]),
+	SYSTime is float(SYStime)/1000,
+	format(user_error,'~t~3f~12+ sec. systime~n', [SYSTime]),
 	WallTime is float(Walltime)/1000,
 	format(user_error,'~t~3f~12+ sec. elapsed time~n~n', [WallTime]),
 	fail.
-'$statistics'(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_).
+'$statistics'(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_).
 
 statistics(runtime,[T,L]) :-
 	'$runtime'(T,L).

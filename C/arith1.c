@@ -441,6 +441,7 @@ eval1(Int fi, Term t) {
 	} else {
 	  dbl = mpz_get_d(Yap_BigIntOfTerm(t));
 	}
+	break;
 #endif
       case db_ref_e:
 	RERROR();
@@ -474,6 +475,7 @@ eval1(Int fi, Term t) {
 	} else {
 	  dbl = mpz_get_d(Yap_BigIntOfTerm(t));
 	}
+	break;
 #endif
       case db_ref_e:
 	RERROR();
@@ -508,6 +510,7 @@ eval1(Int fi, Term t) {
 	} else {
 	  dbl = mpz_get_d(Yap_BigIntOfTerm(t));
 	}
+	break;
 #endif
       case db_ref_e:
 	RERROR();
@@ -543,6 +546,7 @@ eval1(Int fi, Term t) {
 	} else {
 	  dbl = mpz_get_d(Yap_BigIntOfTerm(t));
 	}
+	break;
 #endif
       case db_ref_e:
 	RERROR();
@@ -629,7 +633,7 @@ eval1(Int fi, Term t) {
       RERROR();
     }
   case op_msb:
-    switch (ETypeOfTerm(f)) {
+    switch (ETypeOfTerm(t)) {
     case long_int_e:
       RINT(msb(IntegerOfTerm(t)));
     case double_e:
@@ -644,7 +648,7 @@ eval1(Int fi, Term t) {
       RERROR();
     }
   case op_ffracp:
-    switch (ETypeOfTerm(f)) {
+    switch (ETypeOfTerm(t)) {
     case long_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	Yap_Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%f)", IntegerOfTerm(t));
@@ -673,7 +677,7 @@ eval1(Int fi, Term t) {
       RERROR();
     }
   case op_fintp:
-    switch (ETypeOfTerm(f)) {
+    switch (ETypeOfTerm(t)) {
     case long_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	Yap_Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%f)", IntegerOfTerm(t));
@@ -698,7 +702,7 @@ eval1(Int fi, Term t) {
       RERROR();
     }
   case op_sign:
-    switch (ETypeOfTerm(f)) {
+    switch (ETypeOfTerm(t)) {
     case long_int_e:
       {
 	Int x = IntegerOfTerm(t);

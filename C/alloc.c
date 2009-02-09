@@ -249,7 +249,7 @@ InitExStacks(int Trail, int Stack)
 
   ScratchPad.ptr = NULL;
   ScratchPad.sz = ScratchPad.msz = SCRATCH_START_SIZE;
-  AuxSp = NULL;
+ AuxSp = NULL;
 
 #ifdef DEBUG
   if (Yap_output_msg) {
@@ -682,7 +682,9 @@ Yap_AllocCodeSpace(unsigned int size)
 /*   int Yap_FreeWorkSpace() - release workspace                            */
 /************************************************************************/
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
+
+#undef DEBUG_WIN32_ALLOC
 
 #include "windows.h"
 
@@ -1413,7 +1415,7 @@ Yap_InitExStacks(int Trail, int Stack)
 #endif
 }
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
 #define WorkSpaceTop brk
 #define MAP_FIXED 1
 #endif
@@ -1433,7 +1435,7 @@ Yap_ExtendWorkSpace(Int s)
 UInt
 Yap_ExtendWorkSpaceThroughHole(UInt s)
 {
-#if USE_MMAP || defined(_WIN32)
+#if USE_MMAP || defined(_WIN32) || defined(__CYGWIN__)
   MALLOC_T WorkSpaceTop0 = WorkSpaceTop;
 #if SIZEOF_INT_P==4
   while (WorkSpaceTop < (MALLOC_T)0xc0000000L) {
@@ -1466,7 +1468,7 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
 void
 Yap_AllocHole(UInt actual_request, UInt total_size)
 {
-#if (USE_MMAP || defined(_WIN32)) && !USE_DL_MALLOC
+#if (USE_MMAP || defined(_WIN32) || defined(__CYGWIN__)) && !USE_DL_MALLOC
   /* where we were when the hole was created,
    also where is the hole store */
   ADDR WorkSpaceTop0 = WorkSpaceTop-total_size;

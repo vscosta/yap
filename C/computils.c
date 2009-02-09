@@ -144,7 +144,7 @@ is_a_test(Term arg, Term mod)
 	}
 	return FALSE;
       }      
-      return pe->PredFlags & (TestPredFlag|BinaryTestPredFlag);
+      return pe->PredFlags & (TestPredFlag|BinaryPredFlag);
     }
   }
   return FALSE;
@@ -664,6 +664,7 @@ static char *opformat[] =
   "if_not_then\t%i\t%h\t%h\t%h",
   "index_on_dbref",
   "index_on_blob",
+  "index_on_long",
   "check_var\t %r",
   "save_pair\t%v",
   "save_appl\t%v",
@@ -735,7 +736,59 @@ static char *opformat[] =
 #endif
   "fetch_args_for_bccall\t%v",
   "binary_cfunc\t\t%v,%P",
-  "blob\t%O"
+  "blob\t%O",
+  "get_number\t",
+  "get_integer\t",
+  "get_float\t",
+  "put_number_on_var\t",
+  "put_float_on_var\t",
+  "put_integer_on_var\t",
+  "put_number_on_val\t",
+  "put_float_on_val\t",
+  "put_integer_on_val\t",
+  "equal_floats\n",
+  "equal_ints\n",
+  "equal_numbers\n",
+  "lt_floats\n",
+  "lt_ints\n",
+  "lt_numbers\n",
+  "gt_floats\n",
+  "gt_ints\n",
+  "add_float\n",
+  "add_int\n",
+  "add\n",
+  "sub_float\n",
+  "sub_int\n",
+  "sub\n",
+  "mul_float\n",
+  "mul_int\n",
+  "mul\n",
+  "shift_right_constant\n",
+  "shift_right_by_constant\n",
+  "shift_right\n",
+  "shift_left_constant\n",
+  "shift_left_by_constant\n",
+  "shift_left\n",
+  "divide_constant\n",
+  "divide_by_constant\n",
+  "divide\n",
+  "integer_divide_constant\n",
+  "integer_divide_by_constant\n",
+  "integer_divide\n",
+  "mod_constant\n",
+  "mod_by_constant\n",
+  "mod\n",
+  "rem_constant\n",
+  "rem_by_constant\n",
+  "rem\n",
+  "and_constant\n",
+  "and\n",
+  "or_constant\n",
+  "or\n",
+  "xor_constant\n",
+  "xor\n",
+  "uminus\n",
+  "label_control\n"
 #ifdef SFUNC
   ,
   "get_s_f_op\t%f,%r",

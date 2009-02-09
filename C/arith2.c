@@ -74,6 +74,9 @@ p_mod(Term t1, Term t2) {
 	Int mod;
 
 	if (i2 == 0) goto zero_divisor;
+	if (i1 == Int_MIN && i2 == -1) {
+	  return Yap_gmp_add_ints(Int_MAX, 1);	  
+	}
 	mod = i1%i2;
 	if (mod && (mod ^ i2) < 0)
 	  mod += i2;
@@ -163,6 +166,9 @@ p_rem(Term t1, Term t2) {
 	Int mod;
 
 	if (i2 == 0) goto zero_divisor;
+	if (i1 == Int_MIN && i2 == -1) {
+	  return Yap_gmp_add_ints(Int_MAX, 1);	  
+	}
 	mod = i1%i2;
 	RINT(i1%i2);
       }
@@ -358,7 +364,7 @@ p_xor(Term t1, Term t2)
       {
 	MP_INT new;
 
-	mpz_init_set_si(&new,IntOfTerm(t1));
+	mpz_init_set_si(&new,IntegerOfTerm(t1));
 	mpz_xor(&new, &new, Yap_BigIntOfTerm(t2));
 	RBIG(&new);
       }
@@ -1072,7 +1078,7 @@ p_binary_is(void)
   if (t2 == 0L)
     return FALSE;
   if (IsIntTerm(t)) {
-    return Yap_unify_constant(ARG1,eval2(IntOfTerm(t), t1, t2));
+    return Yap_unify_constant(ARG1,eval2(IntegerOfTerm(t), t1, t2));
   }
   if (IsAtomTerm(t)) {
     Atom name = AtomOfTerm(t);

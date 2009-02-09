@@ -35,7 +35,7 @@ Eval(Term t)
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR,TermNil,"in arithmetic");
     P = (yamop *)FAILCODE;
-    return 0L;;
+    return 0L;
   } else if (IsAtomTerm(t)) {
     ExpEntry *p;
     Atom name  = AtomOfTerm(t);

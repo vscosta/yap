@@ -585,21 +585,21 @@ a_cmp(Term t1, Term t2)
   } else if (IsBigIntTerm(t1)) {
 #ifdef USE_GMP
     {
-    t2 = Yap_Eval(t2);
-    MP_INT *b1 = Yap_BigIntOfTerm(t1);
+      MP_INT *b1 = Yap_BigIntOfTerm(t1);
+      t2 = Yap_Eval(t2);
 
-    if (IsIntegerTerm(t2)) {
-      Int i2 = IntegerOfTerm(t2);
-      return int_cmp(mpz_cmp_si(b1,i2));
-    } else if (IsFloatTerm(t2)) {
-      Float f2 = FloatOfTerm(2);
-      return flt_cmp(mpz_get_d(b1)-f2);
-    } else if (IsBigIntTerm(t2)) {
-      MP_INT *b2 = Yap_BigIntOfTerm(2);
-      return int_cmp(mpz_cmp(b1,b2));
-    } else {
-      return FALSE;
-    }
+      if (IsIntegerTerm(t2)) {
+	Int i2 = IntegerOfTerm(t2);
+	return int_cmp(mpz_cmp_si(b1,i2));
+      } else if (IsFloatTerm(t2)) {
+	Float f2 = FloatOfTerm(t2);
+	return flt_cmp(mpz_get_d(b1)-f2);
+      } else if (IsBigIntTerm(t2)) {
+	MP_INT *b2 = Yap_BigIntOfTerm(2);
+	return int_cmp(mpz_cmp(b1,b2));
+      } else {
+	return FALSE;
+      }
     }
 #endif
   } else {
@@ -737,17 +737,17 @@ a_gen_ge(Term t1, Term t2)
 void 
 Yap_InitCmpPreds(void)
 {
-  Yap_InitCmpPred("=:=", 2, a_eq, SafePredFlag | BinaryTestPredFlag);
-  Yap_InitCmpPred("=\\=", 2, a_dif, SafePredFlag | BinaryTestPredFlag);
-  Yap_InitCmpPred(">", 2, a_gt,  SafePredFlag | BinaryTestPredFlag);
-  Yap_InitCmpPred("=<", 2, a_le, SafePredFlag | BinaryTestPredFlag);
-  Yap_InitCmpPred("<", 2, a_lt, SafePredFlag | BinaryTestPredFlag);
-  Yap_InitCmpPred(">=", 2, a_ge, SafePredFlag | BinaryTestPredFlag);
+  Yap_InitCmpPred("=:=", 2, a_eq, SafePredFlag | BinaryPredFlag);
+  Yap_InitCmpPred("=\\=", 2, a_dif, SafePredFlag | BinaryPredFlag);
+  Yap_InitCmpPred(">", 2, a_gt,  SafePredFlag | BinaryPredFlag);
+  Yap_InitCmpPred("=<", 2, a_le, SafePredFlag | BinaryPredFlag);
+  Yap_InitCmpPred("<", 2, a_lt, SafePredFlag | BinaryPredFlag);
+  Yap_InitCmpPred(">=", 2, a_ge, SafePredFlag | BinaryPredFlag);
   Yap_InitCPred("$a_compare", 3, p_acomp, TestPredFlag | SafePredFlag|HiddenPredFlag);
-  Yap_InitCmpPred("\\==", 2, a_noteq, BinaryTestPredFlag | SafePredFlag);
-  Yap_InitCmpPred("@<", 2, a_gen_lt, BinaryTestPredFlag | SafePredFlag);
-  Yap_InitCmpPred("@=<", 2, a_gen_le, BinaryTestPredFlag | SafePredFlag);
-  Yap_InitCmpPred("@>", 2, a_gen_gt, BinaryTestPredFlag | SafePredFlag);
-  Yap_InitCmpPred("@>=", 2, a_gen_ge, BinaryTestPredFlag | SafePredFlag);
+  Yap_InitCmpPred("\\==", 2, a_noteq, BinaryPredFlag | SafePredFlag);
+  Yap_InitCmpPred("@<", 2, a_gen_lt, BinaryPredFlag | SafePredFlag);
+  Yap_InitCmpPred("@=<", 2, a_gen_le, BinaryPredFlag | SafePredFlag);
+  Yap_InitCmpPred("@>", 2, a_gen_gt, BinaryPredFlag | SafePredFlag);
+  Yap_InitCmpPred("@>=", 2, a_gen_ge, BinaryPredFlag | SafePredFlag);
   Yap_InitCPred("compare", 3, p_compare, TestPredFlag | SafePredFlag);
 }

@@ -1094,6 +1094,7 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       return;
     case _index_dbref:
     case _index_blob:
+    case _index_long:
       ipc = NEXTOP(ipc,e);
       break;
     case _lock_lu:
@@ -2050,7 +2051,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   LOCK(p->PELock);
   pflags = p->PredFlags;
   /* we are redefining a prolog module predicate */
-  if ((pflags & (UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryTestPredFlag)) ||
+  if ((pflags & (UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) ||
       (p->ModuleOfPred == PROLOG_MODULE && 
        mod != TermProlog && mod) ) {
     addcl_permission_error(RepAtom(at), Arity, FALSE);
@@ -4191,7 +4192,7 @@ p_system_pred(void)
     return FALSE;
   return(!pe->ModuleOfPred || /* any predicate in prolog module */
 	 /* any C-pred */
-	 pe->PredFlags & (UserCPredFlag|CPredFlag|BinaryTestPredFlag|AsmPredFlag|TestPredFlag) ||
+	 pe->PredFlags & (UserCPredFlag|CPredFlag|BinaryPredFlag|AsmPredFlag|TestPredFlag) ||
 	 /* any weird user built-in */
 	 pe->OpcodeOfPred == Yap_opcode(_try_userc));
 }
@@ -4243,7 +4244,7 @@ p_all_system_pred(void)
   } 
   return(!pe->ModuleOfPred || /* any predicate in prolog module */
 	 /* any C-pred */
-	 pe->PredFlags & (UserCPredFlag|CPredFlag|BinaryTestPredFlag|AsmPredFlag|TestPredFlag) ||
+	 pe->PredFlags & (UserCPredFlag|CPredFlag|BinaryPredFlag|AsmPredFlag|TestPredFlag) ||
 	 /* any weird user built-in */
 	 pe->OpcodeOfPred == Yap_opcode(_try_userc));
 }
@@ -5271,7 +5272,7 @@ p_static_pred_statistics(void)
   if (pe == NIL)
     return (FALSE);
   LOCK(pe->PELock);
-  if (pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|UserCPredFlag|AsmPredFlag|CPredFlag|BinaryTestPredFlag)) {
+  if (pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|UserCPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) {
     /* should use '$recordedp' in this case */
     UNLOCK(pe->PELock);
     return FALSE;

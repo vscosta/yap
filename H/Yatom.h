@@ -659,7 +659,7 @@ typedef enum
   CompiledPredFlag = 0x00000400L,	/* is static */
   IndexedPredFlag = 0x00000200L,	/* has indexing code */
   SpiedPredFlag = 0x00000100L,	/* is a spy point */
-  BinaryTestPredFlag = 0x00000080L,	/* test predicate */
+  BinaryPredFlag = 0x00000080L,	/* test predicate */
   TabledPredFlag = 0x00000040L,	/* is tabled */
   SequentialPredFlag = 0x00000020L,	/* may not create parallel choice points! */
   ProfiledPredFlag = 0x00000010L,	/* pred is being profiled   */

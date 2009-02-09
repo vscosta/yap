@@ -179,6 +179,7 @@
 #undef  HAVE_LOCALTIME
 #undef  HAVE_LSTAT
 #undef  HAVE_MALLINFO
+#undef  HAVE_MBSNRTOWCS
 #undef  HAVE_MEMCPY
 #undef  HAVE_MEMMOVE
 #undef  HAVE_MKSTEMP

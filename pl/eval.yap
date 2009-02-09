@@ -1,16 +1,33 @@
+/*************************************************************************
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		eval.yap						 *
+* Last rev:								 *
+* mods:									 *
+* comments:	arithmetical optimization				 *
+*									 *
+*************************************************************************/
 
-:- module('eval',
+
+:- module('$eval',
 	  ['$compile_arithmetic'/2]).
 
 '$compile_arithmetic'((Head :- Body), (Head :- NBody)) :-
 	term_variables(Head, LVs),
-	process_body(Body, LVs, NBody).
+	process_body(Body, LVs, NBody), !.
 '$compile_arithmetic'(G, G).
 
 process_body((G,Body), InputVs, NewBody) :-
 	arithmetic_exp(G), !,
 	term_variables(G, UnsortedExpVs),
-	sort(UnsortedExpVs, ExpVs),
+	'$sort'(UnsortedExpVs, ExpVs),
 	fetch_more(Body, ExpVs, LGs, Gs, _, RBody),
 	term_variables(RBody, ExtraVs),
 	compile_arith([G|LGs], InputVs, ExtraVs, (G,Gs), ArithComp),
@@ -30,13 +47,13 @@ process_body(G, InputVs, NewBody) :-
 	arithmetic_exp(G), !,
 	term_variables(G, _),
 	compile_arith([G], InputVs, [], G, ArithComp),
-	NewBody = ArithComp.
+	NewBody = (ArithComp,true).
 process_body(G, _, G).
 
 fetch_more((G,Gs), ExpVs, [G|LGs], (G,AGs), AllExpVs, RGs) :-
 	arithmetic_exp(G),
 	term_variables(G,Vs),
-	sort(Vs, SVs),
+	'$sort'(Vs, SVs),
 	intersect_vars(SVs,ExpVs), !,
 	join_vars(ExpVs,SVs,MoreExpVs),
 	fetch_more(Gs, MoreExpVs, LGs, AGs, AllExpVs, RGs).
@@ -44,7 +61,7 @@ fetch_more((G,Gs), ExpVs, [], true, ExpVs, (G,Gs)) :- !.
 fetch_more(G, ExpVs, [G], (G), MoreExpVs, true) :-
 	arithmetic_exp(G),
 	term_variables(G,Vs),
-	sort(Vs,SVs),
+	'$sort'(Vs,SVs),
 	intersect_vars(SVs,ExpVs), !,
 	join_vars(ExpVs,SVs,MoreExpVs).
 fetch_more(G, ExpVs, [], true, ExpVs, G).
@@ -90,8 +107,8 @@ join_vars([V1|R1],[V2|R2],O) :-
 
 compile_arith(LGs, InputVs, ExtraVs, Gs, ArithComp) :-
 	add_type_slots(InputVs,TypedVs),
-	sort(InputVs,S1),
-	sort(ExtraVs,S2),
+	'$sort'(InputVs,S1),
+	'$sort'(ExtraVs,S2),
 	join_vars(S1, S2, S),
 	visit(LGs, TypedVs, NewTypedVs, S, FlatExps, []),
 	FlatExps = [_,_|_],
@@ -143,15 +160,15 @@ visit_pred((X =:= T), TypedVs, NewTypedVs, _) -->
 	[init_label(success_label), eq(TMP1,TMP2)].
 visit_pred((X < T), TypedVs, NewTypedVs, _) -->
 	% check the expression
-	visit_exp(X, TypedVs, ITypedVs, TMP1, Type),
-	visit_exp(T, ITypedVs, NewTypedVs, TMP2, Type),
+	visit_exp(X, TypedVs, ITypedVs, TMP1, _),
+	visit_exp(T, ITypedVs, NewTypedVs, TMP2, _),
 	% assign the type to X, if any
 	% final code
 	[init_label(success_label), lt(TMP1,TMP2)].
 visit_pred((X > T), TypedVs, NewTypedVs, _) -->
 	% check the expression
-	visit_exp(X, TypedVs, ITypedVs, TMP1, Type),
-	visit_exp(T, ITypedVs, NewTypedVs, TMP2, Type),
+	visit_exp(X, TypedVs, ITypedVs, TMP1, _),
+	visit_exp(T, ITypedVs, NewTypedVs, TMP2, _),
 	% assign the type to X, if any
 	% final code
 	[init_label(success_label), lt(TMP2,TMP1)].
@@ -496,80 +513,82 @@ compile_op(export(x(A),V,any), '$put_fi'(A,V)) :- !.
 compile_op(export(x(A),V,int), '$put_i'(A,V)).
 compile_op(export(x(A),V,float), '$put_f'(A,V)).
 compile_op(eq(x(A),F), '$a_eq_float'(A,F)) :- float(F), !.
-compile_op(eq(x(A),I), '$a_eq_int'(A,I)) :- integer(I), !.
+compile_op(eq(x(A),I), '$a_eq_int'(A,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(eq(x(A),x(B)), '$a_eq'(A,B)).
 compile_op(lt(x(A),F), '$ltc_float'(A,F)) :-  float(F), !.
-compile_op(lt(x(A),I), '$ltc_int'(A,I)) :- integer(I), !.
+compile_op(lt(x(A),I), '$ltc_int'(A,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(lt(F,x(A)), '$gtc_float'(A,F)) :-  float(F), !.
-compile_op(lt(I,x(A)), '$gtc_int'(A,I)) :- integer(I), !.
+compile_op(lt(I,x(A)), '$gtc_int'(A,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(lt(x(A),x(B)), '$lt'(A,B)).
 compile_op(get(x(A),V,any), '$get_fi'(A,V)) :- !.
 compile_op(get(x(A),V,int), '$get_i'(A,V)) :- !.
 compile_op(get(x(A),V,float), '$get_f'(A,V)).
 compile_op(add(x(A),F,x(B)), '$add_float_c'(A,B,F)) :- float(F), !.
-compile_op(add(x(A),I,x(B)), '$add_int_c'(A,B,I)) :- integer(I), !.
+compile_op(add(x(A),I,x(B)), '$add_int_c'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(add(x(A),x(B),F), '$add_float_c'(A,B,F)) :- float(F), !.
-compile_op(add(x(A),x(B),I), '$add_int_c'(A,B,I)) :- integer(I), !.
+compile_op(add(x(A),x(B),I), '$add_int_c'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(add(x(A),x(B),x(C)), '$add'(A,B,C)).
 compile_op(sub(x(A),F,x(B)), '$sub_float_c'(A,B,F)) :- float(F), !.
-compile_op(sub(x(A),I,x(B)), '$sub_int_c'(A,B,I)) :- integer(I), !.
+compile_op(sub(x(A),I,x(B)), '$sub_int_c'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(sub(x(A),x(B),F), '$add_float_c'(A,B,F1)) :- float(F), !, F1 is -F.
-compile_op(sub(x(A),x(B),I), '$add_int_c'(A,B,I1)) :- integer(I), !, I1 is -I.
+compile_op(sub(x(A),x(B),I), '$add_int_c'(A,B,I1)) :- integer(I), !, I1 is -I, \+ '$bignum'(I1).
 compile_op(sub(x(A),x(B),x(C)), '$sub'(A,B,C)).
 compile_op(mul(x(A),F,x(B)), '$mul_float_c'(A,B,F)) :- float(F), !.
-compile_op(mul(x(A),I,x(B)), '$mul_int_c'(A,B,I)) :- integer(I), !.
+compile_op(mul(x(A),I,x(B)), '$mul_int_c'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(mul(x(A),x(B),F), '$mul_float_c'(A,B,F)) :- float(F), !.
-compile_op(mul(x(A),x(B),I), '$mul_int_c'(A,B,I)) :- integer(I), !.
+compile_op(mul(x(A),x(B),I), '$mul_int_c'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(mul(x(A),x(B),x(C)), '$mul'(A,B,C)).
 compile_op(fdiv(x(A),F,x(B)), '$fdiv_c1'(A,B,F)) :- float(F), !.
-compile_op(fdiv(x(A),I,x(B)), '$fdiv_c1'(A,B,F)) :- integer(I), !, F is truncate(I).
+compile_op(fdiv(x(A),I,x(B)), '$fdiv_c1'(A,B,F)) :- integer(I), !, \+ '$bignum'(I), F is truncate(I).
 compile_op(fdiv(x(A),x(B),F), '$fdiv_c2'(A,B,F)) :- float(F), !.
-compile_op(fdiv(x(A),x(B),I), '$fdiv_c2'(A,B,F)) :- integer(I), !, F is truncate(I).
+compile_op(fdiv(x(A),x(B),I), '$fdiv_c2'(A,B,F)) :- integer(I), !, \+ '$bignum'(I), F is truncate(I).
 compile_op(fdiv(x(A),x(B),x(C)), '$fdiv'(A,B,C)).
-compile_op(idiv(x(A),I,x(B)), '$idiv_c1'(A,B,I)) :- integer(I), !.
-compile_op(idiv(x(A),x(B),I), '$idiv_c2'(A,B,I)) :- integer(I), !.
+compile_op(idiv(x(A),I,x(B)), '$idiv_c1'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
+compile_op(idiv(x(A),x(B),I), '$idiv_c2'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(idiv(x(A),x(B),x(C)), '$idiv'(A,B,C)).
-compile_op(mod(x(A),I,x(B)), '$mod_c1'(A,B,I)) :- integer(I), !.
-compile_op(mod(x(A),x(B),I), '$mod_c2'(A,B,I)) :- integer(I), !.
+compile_op(mod(x(A),I,x(B)), '$mod_c1'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
+compile_op(mod(x(A),x(B),I), '$mod_c2'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(mod(x(A),x(B),x(C)), '$mod'(A,B,C)).
-compile_op(rem(x(A),I,x(B)), '$rem_c1'(A,B,I)) :- integer(I), !.
-compile_op(rem(x(A),x(B),I), '$rem_c2'(A,B,I)) :- integer(I), !.
+compile_op(rem(x(A),I,x(B)), '$rem_c1'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
+compile_op(rem(x(A),x(B),I), '$rem_c2'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(rem(x(A),x(B),x(C)), '$rem'(A,B,C)).
-compile_op(and(x(A),I,x(B)), '$land_c'(A,B,I)) :- integer(I), !.
-compile_op(and(x(A),x(B),I), '$land_c'(A,B,I)) :- integer(I), !.
+compile_op(and(x(A),I,x(B)), '$land_c'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
+compile_op(and(x(A),x(B),I), '$land_c'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(and(x(A),x(B),x(C)), '$land'(A,B,C)).
-compile_op(or(x(A),I,x(B)), '$lor_c'(A,B,I)) :- integer(I), !.
-compile_op(or(x(A),x(B),I), '$lor_c'(A,B,I)) :- integer(I), !.
+compile_op(or(x(A),I,x(B)), '$lor_c'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
+compile_op(or(x(A),x(B),I), '$lor_c'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(or(x(A),x(B),x(C)), '$lor'(A,B,C)).
-compile_op(xor(x(A),I,x(B)), '$xor_c'(A,B,I)) :- integer(I), !.
-compile_op(xor(x(A),x(B),I), '$xor_c'(A,B,I)) :- integer(I), !.
+compile_op(xor(x(A),I,x(B)), '$xor_c'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
+compile_op(xor(x(A),x(B),I), '$xor_c'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(xor(x(A),x(B),x(C)), '$xor'(A,B,C)).
 compile_op(uminus(x(A),x(B)), '$uminus'(A,B)).
-compile_op(sr(x(A),I,x(B)), '$sr_c1'(A,B,I)) :- integer(I), !.
-compile_op(sr(x(A),x(B),I), '$sr_c2'(A,B,I)) :- integer(I), !.
+compile_op(sr(x(A),I,x(B)), '$sr_c1'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
+compile_op(sr(x(A),x(B),I), '$sr_c2'(A,B,I)) :- integer(I), I >=0, !, \+ '$bignum'(I).
+compile_op(sr(x(A),x(B),I), '$sl_c2'(A,B,NI)) :- integer(I), !, NI is -I, \+ '$bignum'(NI).
 compile_op(sr(x(A),x(B),x(C)), '$sr'(A,B,C)).
-compile_op(sl(x(A),I,x(B)), '$sl_c1'(A,B,I)) :- integer(I), !.
-compile_op(sl(x(A),x(B),I), '$sl_c2'(A,B,I)) :- integer(I), !.
+compile_op(sl(x(A),I,x(B)), '$sl_c1'(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
+compile_op(sl(x(A),x(B),I), '$sl_c2'(A,B,I)) :- integer(I), I >= 0, !, \+ '$bignum'(I).
+compile_op(sl(x(A),x(B),I), '$sr_c2'(A,B,NI)) :- integer(I), !, NI is -I, \+ '$bignum'(NI).
 compile_op(sl(x(A),x(B),x(C)), '$sl'(A,B,C)).
 /*
 compile_op(zerop(x(A),Op), '$zerop'(A,Op)).
 compile_op(exp(x(A),F,x(B)), exp_c(A,B,F)) :- float(F), !.
-compile_op(exp(x(A),I,x(B)), exp_c(A,B,F)) :- integer(I), !, F is truncate(I).
+compile_op(exp(x(A),I,x(B)), exp_c(A,B,F)) :- integer(I), !, \+ '$bignum'(I), F is truncate(I).
 compile_op(exp(x(A),x(B),F), exp_c(A,B,F)) :- float(F), !.
-compile_op(exp(x(A),x(B),I), exp_c(A,B,F)) :- integer(I), !, F is truncate(I).
+compile_op(exp(x(A),x(B),I), exp_c(A,B,F)) :- integer(I), !, \+ '$bignum'(I), F is truncate(I).
 compile_op(exp(x(A),x(B),x(C)), exp(A,B,C)).
 compile_op(max(x(A),F,x(B)), max_float_c(A,B,F)) :- float(F), !.
-compile_op(max(x(A),I,x(B)), max_int_c(A,B,I)) :- integer(I), !.
+compile_op(max(x(A),I,x(B)), max_int_c(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(max(x(A),x(B),F), max_float_c(A,B,F)) :- float(F), !.
-compile_op(max(x(A),x(B),I), max_int_c(A,B,I)) :- integer(I), !.
+compile_op(max(x(A),x(B),I), max_int_c(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(max(x(A),x(B),x(C)), max(A,B,C)).
 compile_op(min(x(A),F,x(B)), min_float_c(A,B,F)) :- float(F), !.
-compile_op(min(x(A),I,x(B)), min_int_c(A,B,I)) :- integer(I), !.
+compile_op(min(x(A),I,x(B)), min_int_c(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(min(x(A),x(B),F), min_float_c(A,B,F)) :- float(F), !.
-compile_op(min(x(A),x(B),I), min_int_c(A,B,I)) :- integer(I), !.
+compile_op(min(x(A),x(B),I), min_int_c(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(min(x(A),x(B),x(C)), min(A,B,C)).
-compile_op(gcd(x(A),I,x(B)), gcd_c(A,B,I)) :- integer(I), !.
-compile_op(gcd(x(A),x(B),I), gcd_c(A,B,I)) :- integer(I), !.
+compile_op(gcd(x(A),I,x(B)), gcd_c(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
+compile_op(gcd(x(A),x(B),I), gcd_c(A,B,I)) :- integer(I), !, \+ '$bignum'(I).
 compile_op(gcd(x(A),x(B),x(C)), gcd(A,B,C)).
 compile_op(unot(x(A),x(B)), unot(A,B)).
 compile_op(exp1(x(A),x(B)), exp1(A,B)).

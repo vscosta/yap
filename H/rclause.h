@@ -194,6 +194,7 @@ restore_opcodes(yamop *pc)
     case _expand_index:
     case _index_blob:
     case _index_dbref:
+    case _index_long:
     case _index_pred:
     case _lock_pred:
     case _op_fail:

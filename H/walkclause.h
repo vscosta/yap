@@ -150,6 +150,7 @@
     case _enter_a_profiling:
     case _index_blob:
     case _index_dbref:
+    case _index_long:
     case _p_equal:
     case _p_functor:
     case _pop:

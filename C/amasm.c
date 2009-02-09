@@ -483,8 +483,11 @@ a_lucl(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip,
     LogUpdIndex *lcl = (LogUpdIndex *)cip->code_addr;
     code_p->opc = emit_op(opcode);
     code_p->u.Ills.I = lcl;
+    cip->cpc->rnd4 = (CELL)code_p;
     cip->current_try_lab = &code_p->u.Ills.l1;
     cip->current_trust_lab = &code_p->u.Ills.l2;
+    code_p->u.Ills.l1  = NULL;
+    code_p->u.Ills.l2  = NULL;
     code_p->u.Ills.s  = cip->cpc->rnd3;
   }
   GONEXT(Ills);
@@ -714,12 +717,12 @@ a_ssd(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.ssd.s0 = cpc->rnd1;
-    code_p->u.ssd.s1 = cpc->rnd2;
+    code_p->u.ssd.s0 = IntegerOfTerm(cpc->rnd1);
+    code_p->u.ssd.s1 = IntegerOfTerm(cpc->rnd2);
     code_p->u.ssd.d[0] = (CELL)FunctorDouble;
-    code_p->u.ssd.d[1] = RepAppl(cpc->rnd1)[1];
+    code_p->u.ssd.d[1] = RepAppl(cpc->rnd3)[1];
 #if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
-    code_p->u.ssd.d[2] = RepAppl(cpc->rnd1)[2];
+    code_p->u.ssd.d[2] = RepAppl(cpc->rnd3)[2];
 #endif
   }
   GONEXT(ssd);
@@ -731,9 +734,9 @@ a_ssn(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.ssn.s0 = cpc->rnd1;
-    code_p->u.ssn.s1 = cpc->rnd2;
-    code_p->u.ssn.n = IntegerOfTerm(cpc->rnd1);
+    code_p->u.ssn.s0 = IntegerOfTerm(cpc->rnd1);
+    code_p->u.ssn.s1 = IntegerOfTerm(cpc->rnd2);
+    code_p->u.ssn.n = IntegerOfTerm(cpc->rnd3);
   }
   GONEXT(ssn);
   return code_p;
@@ -744,9 +747,9 @@ a_sss(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.sss.s0 = cpc->rnd1;
-    code_p->u.sss.s1 = cpc->rnd2;
-    code_p->u.sss.s2 = cpc->rnd3;
+    code_p->u.sss.s0 = IntegerOfTerm(cpc->rnd1);
+    code_p->u.sss.s1 = IntegerOfTerm(cpc->rnd2);
+    code_p->u.sss.s2 = IntegerOfTerm(cpc->rnd3);
   }
   GONEXT(sss);
   return code_p;
@@ -1999,18 +2002,8 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
       Yap_NewCps++;
       Yap_LiveCps++;
 #endif
-      if (opcode == try_op) {
-	/*
-	  use the last n field to keep a chain with all 
-	  try-retry-trust
-	  instructions allocated in this run
-	*/
-	newcp->u.OtaLl.n = cip->try_instructions;
-	cip->try_instructions = newcp;
-      } else {
-	newcp->u.OtaLl.n = *cip->current_try_lab;
-	*cip->current_try_lab = newcp;
-      }
+      newcp->u.OtaLl.n = NULL;
+      *cip->current_try_lab = newcp;
       if (opcode == _try_clause) {
 	newcp->opc = emit_op(_try_logical);
 	newcp->u.OtaLl.s = emit_count(opr);
@@ -2023,6 +2016,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
 	  newcp->opc = emit_op(_retry_logical);
 	newcp->u.OtaLl.s = emit_count(opr);
       } else {
+	/* trust */
 	if (ap->PredFlags & CountPredFlag)
 	  newcp->opc = emit_op(_count_trust_logical);
 	else if (ap->PredFlags & ProfiledPredFlag)
@@ -3753,6 +3747,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case index_blob_op:
       code_p = a_e(_index_blob, code_p, pass_no);
+      break;
+    case index_long_op:
+      code_p = a_e(_index_long, code_p, pass_no);
       break;
     case mark_initialised_pvars_op:
       if (!ystop_found) {

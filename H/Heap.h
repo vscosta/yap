@@ -399,6 +399,7 @@ typedef struct various_codes {
   struct pred_entry *pred_static_clause;
   struct pred_entry *pred_throw;
   struct pred_entry *pred_handle_throw;
+  struct pred_entry *pred_is;
   struct DB_STRUCT *db_erased_marker;
   struct logic_upd_clause *logdb_erased_marker;
   struct logic_upd_clause *db_erased_list;
@@ -588,6 +589,7 @@ extern struct various_codes *Yap_heap_regs;
 #define  PredStaticClause         Yap_heap_regs->pred_static_clause
 #define  PredThrow                Yap_heap_regs->pred_throw
 #define  PredHandleThrow          Yap_heap_regs->pred_handle_throw
+#define  PredIs		          Yap_heap_regs->pred_is
 #define  DBErasedMarker           Yap_heap_regs->db_erased_marker
 #define  LogDBErasedMarker        Yap_heap_regs->logdb_erased_marker
 #define  DBErasedList             Yap_heap_regs->db_erased_list

@@ -909,8 +909,9 @@ ExistsFile(const char *path)
 
 bool
 AccessFile(const char *path, int mode)
-{ char tmp[MAXPATHLEN];
+{
 #ifdef HAVE_ACCESS
+  char tmp[MAXPATHLEN];
   int m = 0;
 
   if ( mode == ACCESS_EXIST ) 
@@ -1461,7 +1462,7 @@ utf8_strlwr(char *s)
 }
 
 
-char *
+static char *
 canonisePath(char *path)
 { if ( !trueFeature(FILE_CASE_FEATURE) )
     utf8_strlwr(path);
@@ -1508,7 +1509,7 @@ takeWord(const char **string, char *wrd, int maxlen)
 }
 
 
-bool
+static bool
 expandVars(const char *pattern, char *expanded, int maxlen)
 { int size = 0;
   char wordbuf[MAXPATHLEN];

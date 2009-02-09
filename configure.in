@@ -452,7 +452,6 @@ then
       prefix="\${SYSTEMDRIVE}/Yap"
     fi
   else
-    use_malloc="yes"
     LIBS="-lcygwin"
    fi
   ENABLE_WINCONSOLE="@#"   
@@ -1295,6 +1294,7 @@ AC_CHECK_FUNCS(gethostbyname gethostid gethostname)
 AC_CHECK_FUNCS(gethrtime getpwnam getrusage gettimeofday getwd)
 AC_CHECK_FUNCS(isatty isnan kill labs link lgamma)
 AC_CHECK_FUNCS(localtime lstat mallinfo)
+AC_CHECK_FUNCS(mbsnrtowcs)
 AC_CHECK_FUNCS(memcpy memmove mkstemp mktemp)
 AC_CHECK_FUNCS(nanosleep mktime opendir)
 AC_CHECK_FUNCS(putenv rand random readlink regexec)

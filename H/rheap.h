@@ -881,6 +881,8 @@ restore_codes(void)
     PredEntryAdjust(Yap_heap_regs->pred_throw);
   Yap_heap_regs->pred_handle_throw =
     PredEntryAdjust(Yap_heap_regs->pred_handle_throw);
+  Yap_heap_regs->pred_is =
+    PredEntryAdjust(Yap_heap_regs->pred_is);
   if (Yap_heap_regs->undef_code != NULL)
     Yap_heap_regs->undef_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->undef_code));
   if (Yap_heap_regs->creep_code != NULL)

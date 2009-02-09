@@ -66,7 +66,7 @@
   AtomDoLogUpdClause0 = Yap_FullLookupAtom("$do_log_upd_clause0");
   AtomDoLogUpdClauseErase = Yap_FullLookupAtom("$do_log_upd_clause_erase");
   AtomDoStaticClause = Yap_FullLookupAtom("$do_static_clause");
-  AtomDollarU = Yap_LookupAtom("$u");
+  AtomDollarU = Yap_FullLookupAtom("$u");
   AtomDollarUndef = Yap_FullLookupAtom("$undef");
   AtomDomainError = Yap_LookupAtom("domain_error");
   AtomE = Yap_LookupAtom("e");
@@ -110,7 +110,7 @@
   AtomGetworkSeq = Yap_FullLookupAtom("$getwork_seq");
   AtomGlobal = Yap_LookupAtom("global_sp");
   AtomGoalExpansion = Yap_LookupAtom("goal_expansion");
-  AtomHERE = Yap_LookupAtom("\n<====HERE====>\n");
+  AtomHERE = Yap_LookupAtom("\n   <====HERE====>  \n");
   AtomHandleThrow = Yap_FullLookupAtom("$handle_throw");
   AtomHeap = Yap_LookupAtom("heap");
   AtomHeapUsed = Yap_LookupAtom("heapused");
@@ -125,8 +125,10 @@
   AtomIntOverflow = Yap_LookupAtom("int_overflow");
   AtomInteger = Yap_LookupAtom("integer");
   AtomInternalCompilerError = Yap_LookupAtom("internal_compiler_error");
+  AtomIs = Yap_LookupAtom("is");
   AtomKey = Yap_LookupAtom("key");
   AtomLDLibraryPath = Yap_LookupAtom("LD_LIBRARY_PATH");
+  AtomLONGINT = Yap_LookupAtom("LongInt");
   AtomLT = Yap_LookupAtom("<");
   AtomLastExecuteWithin = Yap_FullLookupAtom("$last_execute_within");
   AtomLeash = Yap_FullLookupAtom("$leash");
@@ -201,7 +203,7 @@
   AtomRecordedWithKey = Yap_FullLookupAtom("$recorded_with_key");
   AtomRefoundVar = Yap_FullLookupAtom("$I_FOUND_THE_VARIABLE_AGAIN");
   AtomRepeat = Yap_LookupAtom("repeat");
-  AtomRepeatSpace = Yap_LookupAtom("repeat");
+  AtomRepeatSpace = Yap_LookupAtom("repeat ");
   AtomReposition = Yap_LookupAtom("reposition");
   AtomRepresentationError = Yap_LookupAtom("representation_error");
   AtomResize = Yap_LookupAtom("resize");
@@ -337,6 +339,7 @@
   FunctorGoalExpansion = Yap_MkFunctor(AtomGoalExpansion,3);
   FunctorHandleThrow = Yap_MkFunctor(AtomHandleThrow,3);
   FunctorId = Yap_MkFunctor(AtomId,1);
+  FunctorIs = Yap_MkFunctor(AtomIs,2);
   FunctorLastExecuteWithin = Yap_MkFunctor(AtomLastExecuteWithin,1);
   FunctorList = Yap_MkFunctor(AtomDot,2);
   FunctorMegaClause = Yap_MkFunctor(AtomMegaClause,2);

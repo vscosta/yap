@@ -320,6 +320,8 @@ static struct timeval StartOfTimes;
 /* since last call to runtime */
 static struct timeval last_time;
 #endif
+static struct timeval last_time_sys;
+static struct timeval StartOfTimes_sys;
 
 /* store user time in this variable */
 static void
@@ -334,6 +336,8 @@ InitTime (void)
   getrusage(RUSAGE_SELF, &rusage);
   last_time.tv_sec = StartOfTimes.tv_sec = rusage.ru_utime.tv_sec;
   last_time.tv_usec = StartOfTimes.tv_usec = rusage.ru_utime.tv_usec;
+  last_time_sys.tv_sec = StartOfTimes_sys.tv_sec = rusage.ru_stime.tv_sec;
+  last_time_sys.tv_usec = StartOfTimes_sys.tv_usec = rusage.ru_stime.tv_usec;
 }
 
 
@@ -358,6 +362,19 @@ void Yap_cputime_interval(Int *now,Int *interval)
     (rusage.ru_utime.tv_usec - last_time.tv_usec) / 1000;
   last_time.tv_usec = rusage.ru_utime.tv_usec;
   last_time.tv_sec = rusage.ru_utime.tv_sec;
+}
+
+void Yap_systime_interval(Int *now,Int *interval)
+{
+  struct rusage   rusage;
+
+  getrusage(RUSAGE_SELF, &rusage);
+  *now = (rusage.ru_stime.tv_sec - StartOfTimes_sys.tv_sec) * 1000 +
+    (rusage.ru_stime.tv_usec - StartOfTimes_sys.tv_usec) / 1000;
+  *interval = (rusage.ru_stime.tv_sec - last_time_sys.tv_sec) * 1000 +
+    (rusage.ru_stime.tv_usec - last_time_sys.tv_usec) / 1000;
+  last_time_sys.tv_usec = rusage.ru_stime.tv_usec;
+  last_time_sys.tv_sec = rusage.ru_stime.tv_sec;
 }
 
 #elif defined(_WIN32)
@@ -389,6 +406,8 @@ void Yap_cputime_interval(Int *now,Int *interval)
 
 static FILETIME StartOfTimes, last_time;
 
+static FILETIME StartOfTimes_sys, last_time_sys;
+
 static clock_t TimesStartOfTimes, Times_last_time;
 
 /* store user time in this variable */
@@ -407,6 +426,10 @@ InitTime (void)
     last_time.dwHighDateTime = UserTime.dwHighDateTime;
     StartOfTimes.dwLowDateTime = UserTime.dwLowDateTime;
     StartOfTimes.dwHighDateTime = UserTime.dwHighDateTime;
+    last_time_sys.dwLowDateTime = KernelTime.dwLowDateTime;
+    last_time_sys.dwHighDateTime = KernelTime.dwHighDateTime;
+    StartOfTimes_sys.dwLowDateTime = KernelTime.dwLowDateTime;
+    StartOfTimes_sys.dwHighDateTime = KernelTime.dwHighDateTime;
   }
 }
 
@@ -477,6 +500,34 @@ void Yap_cputime_interval(Int *now,Int *interval)
   }
 }
 
+void Yap_systime_interval(Int *now,Int *interval)
+{
+  HANDLE hProcess = GetCurrentProcess();
+  FILETIME CreationTime, ExitTime, KernelTime, UserTime;
+  if (!GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime)) {
+    *now = *interval = 0; /* not available */
+  } else {
+#ifdef __GNUC__
+    unsigned long long int t1 =
+      sub_utime(KernelTime, StartOfTimes_sys);
+    unsigned long long int t2 =
+      sub_utime(KernelTime, last_time_sys);
+    do_div(t1,10000);
+    *now = (Int)t1;
+    do_div(t2,10000);
+    *interval = (Int)t2;
+#endif
+#ifdef _MSC_VER
+    __int64 t1 = *(__int64 *)&KernelTime - *(__int64 *)&StartOfTimes_sys;
+    __int64 t2 = *(__int64 *)&KernelTime - *(__int64 *)&last_time_sys;
+    *now = (Int)(t1/10000);
+    *interval = (Int)(t2/10000);
+#endif
+    last_time_sys.dwLowDateTime = KernelTime.dwLowDateTime;
+    last_time_sys.dwHighDateTime = KernelTime.dwHighDateTime;
+  }
+}
+
 #elif HAVE_TIMES
 
 #if defined(_WIN32)
@@ -520,6 +571,8 @@ void Yap_cputime_interval(Int *now,Int *interval)
 
 static clock_t StartOfTimes, last_time;
 
+static clock_t StartOfTimes_sys, last_time_sys;
+
 /* store user time in this variable */
 static void
 InitTime (void)
@@ -527,6 +580,7 @@ InitTime (void)
   struct tms t;
   times (&t);
   last_time = StartOfTimes = t.tms_utime;
+  last_time_sys = StartOfTimes_sys = t.tms_stime;
 }
 
 UInt
@@ -544,6 +598,15 @@ void Yap_cputime_interval(Int *now,Int *interval)
   *now = ((t.tms_utime - StartOfTimes)*1000) / TicksPerSec;
   *interval = (t.tms_utime - last_time) * 1000 / TicksPerSec;
   last_time = t.tms_utime;
+}
+
+void Yap_systime_interval(Int *now,Int *interval)
+{
+  struct tms t;
+  times (&t);
+  *now = ((t.tms_stime - StartOfTimes_sys)*1000) / TicksPerSec;
+  *interval = (t.tms_stime - last_time_sys) * 1000 / TicksPerSec;
+  last_time_sys = t.tms_stime;
 }
 
 #else /* HAVE_TIMES */
@@ -595,6 +658,11 @@ void Yap_cputime_interval(Int *now,Int *interval)
     (tp.tv_usec - last_time.tv_usec) / 1000;
   last_time.tv_usec = tp.tv_usec;
   last_time.tv_sec = tp.tv_sec;
+}
+
+void Yap_systime_interval(Int *now,Int *interval)
+{
+  *now =  *interval = 0; /* not available */
 }
 
 #endif /* SIMICS */

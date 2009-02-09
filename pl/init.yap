@@ -48,6 +48,11 @@ otherwise.
 
 :- compile_expressions.
 
+lists:append([], L, L).
+lists:append([H|T], L, [H|R]) :-
+	lists:append(T, L, R).
+
+
 :- [
    	 'yio.yap',
 	 'debug.yap',
@@ -82,10 +87,6 @@ otherwise.
 :- multifile prolog:debug_action_hook/1.
 
 :- source.
-
-lists:append([], L, L).
-lists:append([H|T], L, [H|R]) :-
-	lists:append(T, L, R).
 
 %   member(?Element, ?Set)
 %   is true when Set is a list, and Element occurs in it.  It may be used

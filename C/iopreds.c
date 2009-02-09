@@ -1056,8 +1056,10 @@ ReadlineGetc(int sno)
 
   while (ttyptr == NULL) {
     /* Only sends a newline if we are at the start of a line */
-    if (myrl_line)
+    if (myrl_line) {
       free (myrl_line);
+      myrl_line = NULL;
+    }
     rl_instream = Stream[sno].u.file.file;
     rl_outstream = Stream[cur_out_sno].u.file.file;
     /* window of vulnerability opened */

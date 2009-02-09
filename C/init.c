@@ -1230,6 +1230,7 @@ InitCodes(void)
   Yap_heap_regs->pred_static_clause = RepPredProp(PredPropByFunc(FunctorDoStaticClause,PROLOG_MODULE));
   Yap_heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,PROLOG_MODULE));
   Yap_heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(FunctorHandleThrow,PROLOG_MODULE));
+  Yap_heap_regs->pred_is = RepPredProp(PredPropByFunc(FunctorIs,PROLOG_MODULE));
   Yap_heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(FunctorGoalExpansion,USER_MODULE));
   Yap_heap_regs->env_for_trustfail_code.p =
     Yap_heap_regs->env_for_trustfail_code.p0 =

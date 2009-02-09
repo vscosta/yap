@@ -5395,7 +5395,7 @@ p_install_thread_local(void)
     return FALSE;
   }
   LOCK(pe->PELock);
-  if (pe->PredFlags & (UserCPredFlag|HiddenPredFlag|CArgsPredFlag|SyncPredFlag|TestPredFlag|AsmPredFlag|StandardPredFlag|CPredFlag|SafePredFlag|IndexedPredFlag|BinaryTestPredFlag) ||
+  if (pe->PredFlags & (UserCPredFlag|HiddenPredFlag|CArgsPredFlag|SyncPredFlag|TestPredFlag|AsmPredFlag|StandardPredFlag|CPredFlag|SafePredFlag|IndexedPredFlag|BinaryPredFlag) ||
       pe->cs.p_code.NOfClauses) {
     return FALSE;
   }

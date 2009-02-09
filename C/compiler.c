@@ -678,9 +678,9 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 	CELL l1 = ++cglobs->labelno;
 	CELL *src = RepAppl(t);
 	PInstr *ocpc = cglobs->cint.cpc, *OCodeStart = cglobs->cint.CodeStart;
-	Int sz = sizeof(CELL)+
+	Int sz = 2*sizeof(CELL)+
 	  sizeof(MP_INT)+
-	   ((((MP_INT *)(RepAppl(t)+1))->_mp_alloc)*sizeof(mp_limb_t));
+	   ((((MP_INT *)(RepAppl(t)+2))->_mp_alloc)*sizeof(mp_limb_t));
 	CELL *dest;
 
 	/* use a special list to store the blobs */
@@ -1381,11 +1381,11 @@ IsTrueGoal(Term t) {
 static void
 c_p_put(Term Goal, op_numbers op_var, op_numbers op_val, compiler_struct * cglobs)
 {
-  Term t = Deref(ArgOfTerm(1, Goal));
+  Term t = Deref(ArgOfTerm(2, Goal));
   int new = check_var(t, 1, 0, cglobs);
   t = Deref(t);
   Yap_emit((new ?
-	    (++cglobs->nvars,op_var) : op_val), t, IntegerOfTerm(ArgOfTerm(2, Goal)), &cglobs->cint);
+	    (++cglobs->nvars,op_var) : op_val), t, IntegerOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
   tag_var(t, new, cglobs);
 }
 
@@ -1426,7 +1426,17 @@ emit_special_label(Term Goal, compiler_struct *cglobs)
       break;
     }
   case SPECIAL_LABEL_CLEAR:
-    return;
+    switch (lab_id) {
+    case SPECIAL_LABEL_EXCEPTION:
+      cglobs->cint.exception_handler = 0L;
+      break;
+    case SPECIAL_LABEL_SUCCESS:
+      cglobs->cint.success_handler = 0L;
+      break;
+    case SPECIAL_LABEL_FAILURE:
+      cglobs->cint.failure_handler = 0L;
+      break;
+    }
   }
 }
 
@@ -1850,165 +1860,165 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 #endif
 	}
 	return;
-      } else if (op >= _p_put_fi && op <= _p_sl) {
+      } else if (op >= _p_put_fi && op <= _p_label_ctl) {
 	switch(op) {
 	  /* one should never get a new variable here */
 	case  _p_get_fi:
 	  c_p_put(Goal, get_fi_op, get_fi_op, cglobs);
-	  break;
+	  return;
 	case  _p_get_i:
 	  c_p_put(Goal, get_i_op, get_i_op, cglobs);
-	  break;
+	  return;
 	case  _p_get_f:
 	  c_p_put(Goal, get_f_op, get_f_op, cglobs);
-	  break;
+	  return;
 	case  _p_put_fi:
 	  c_p_put(Goal, put_fi_var_op, put_fi_val_op, cglobs);
-	  break;
+	  return;
 	case  _p_put_i:
 	  c_p_put(Goal, put_i_var_op, put_i_val_op, cglobs);
-	  break;
+	  return;
 	case  _p_put_f:
 	  c_p_put(Goal, put_f_var_op, put_f_val_op, cglobs);
-	  break;
+	  return;
 	case  _p_a_eq_float:
 	  Yap_emit(a_eqc_float_op, ArgOfTerm(2, Goal), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_a_eq_int:
 	  Yap_emit(a_eqc_int_op, ArgOfTerm(2, Goal), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_a_eq:
 	  Yap_emit(a_eq_op, IntOfTerm(ArgOfTerm(1, Goal)), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_ltc_float:
 	  Yap_emit(ltc_float_op, ArgOfTerm(2, Goal), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_ltc_int:
 	  Yap_emit(ltc_int_op, ArgOfTerm(2, Goal), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_lt:
-	  Yap_emit(lt_op, IntOfTerm(ArgOfTerm(1, Goal)), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
-	  break;
+	  Yap_emit(lt_op, IntOfTerm(ArgOfTerm(1, Goal)), IntOfTerm(ArgOfTerm(2, Goal)), &cglobs->cint);
+	  return;
 	case  _p_gtc_float:
 	  Yap_emit(gtc_float_op, ArgOfTerm(2, Goal), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_gtc_int:
 	  Yap_emit(gtc_int_op, ArgOfTerm(2, Goal), IntOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_add_float_c:
 	  Yap_emit_3ops(add_float_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_add_int_c:
 	  Yap_emit_3ops(add_int_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_add:
 	  Yap_emit_3ops(add_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_sub_float_c:
 	  Yap_emit_3ops(sub_float_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_sub_int_c:
 	  Yap_emit_3ops(sub_int_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_sub:
 	  Yap_emit_3ops(sub_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_mul_float_c:
 	  Yap_emit_3ops(mul_float_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_mul_int_c:
 	  Yap_emit_3ops(mul_int_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_mul:
 	  Yap_emit_3ops(mul_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_fdiv_c1:
 	  Yap_emit_3ops(fdiv_c1_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_fdiv_c2:
 	  Yap_emit_3ops(fdiv_c2_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_fdiv:
 	  Yap_emit_3ops(fdiv_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_idiv_c1:
 	  Yap_emit_3ops(idiv_c1_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_idiv_c2:
 	  Yap_emit_3ops(idiv_c2_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_idiv:
 	  Yap_emit_3ops(idiv_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_mod_c1:
 	  Yap_emit_3ops(mod_c1_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_mod_c2:
 	  Yap_emit_3ops(mod_c2_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_mod:
 	  Yap_emit_3ops(mod_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_rem_c1:
 	  Yap_emit_3ops(rem_c1_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_rem_c2:
 	  Yap_emit_3ops(rem_c2_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_rem:
 	  Yap_emit_3ops(rem_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_land_c:
 	  Yap_emit_3ops(a_and_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_land:
 	  Yap_emit_3ops(a_and_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_lor_c:
 	  Yap_emit_3ops(a_or_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_lor:
 	  Yap_emit_3ops(a_or_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_xor_c:
 	  Yap_emit_3ops(xor_c_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_xor:
 	  Yap_emit_3ops(xor_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_uminus:
 	  Yap_emit(uminus_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_sr_c1:
 	  Yap_emit_3ops(sr_c1_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_sr_c2:
 	  Yap_emit_3ops(sr_c2_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_sr:
 	  Yap_emit_3ops(sr_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_sl_c1:
 	  Yap_emit_3ops(sl_c1_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_sl_c2:
 	  Yap_emit_3ops(sl_c2_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_sl:
 	  Yap_emit_3ops(sl_op, ArgOfTerm(1,Goal), ArgOfTerm(2,Goal), ArgOfTerm(3,Goal), &cglobs->cint);
-	  break;
+	  return;
 	case  _p_label_ctl:
 	  emit_special_label(Goal, cglobs);
-	  break;
+	  return;
 	}
       } else {
 	c_args(Goal, 0, cglobs);
       }
     }
 #ifdef BEAM
-    else if (p->PredFlags & BinaryTestPredFlag && !EAM) {
+    else if (p->PredFlags & BinaryPredFlag && !EAM) {
 #else
-    else if (p->PredFlags & BinaryTestPredFlag) {
+    else if (p->PredFlags & BinaryPredFlag) {
 #endif
       Term a1 = ArgOfTerm(1,Goal);
 
@@ -2184,7 +2194,7 @@ c_body(Term Body, int mod, compiler_struct *cglobs)
   while (IsNonVarTerm(Body) && IsApplTerm(Body)
 	 && FunctorOfTerm(Body) == FunctorComma) {
     Term t2 = ArgOfTerm(2, Body);
-    if (IsTrueGoal(t2)) {
+    if (!cglobs->cint.success_handler && IsTrueGoal(t2)) {
       /* optimise the case where some idiot left trues at the end
 	 of the clause.
       */
@@ -2262,6 +2272,15 @@ usesvar(compiler_vm_op ic)
   case f_var_op:
   case fetch_args_for_bccall:
   case bccall_op:
+  case get_fi_op:
+  case get_i_op:
+  case get_f_op:
+  case put_fi_var_op:
+  case put_i_var_op:
+  case put_f_var_op:
+  case put_fi_val_op:
+  case put_i_val_op:
+  case put_f_val_op:
     return TRUE;
   default:
     break;
@@ -2556,6 +2575,9 @@ CheckUnsafe(PInstr *pc, compiler_struct *cglobs)
     case save_appl_op:
     case save_pair_op:
     case f_var_op:
+    case put_fi_var_op:
+    case put_i_var_op:
+    case put_f_var_op:
       {
 	Ventry *v = (Ventry *) (pc->rnd1);
 
@@ -2995,6 +3017,15 @@ c_layout(compiler_struct *cglobs)
 #endif
     case fetch_args_for_bccall:
     case bccall_op:
+    case get_fi_op:
+    case get_f_op:
+    case get_i_op:
+    case put_fi_var_op:
+    case put_f_var_op:
+    case put_i_var_op:
+    case put_fi_val_op:
+    case put_f_val_op:
+    case put_i_val_op:
       checktemp(arg, rn, ic, cglobs);
       break;
     case get_atom_op:

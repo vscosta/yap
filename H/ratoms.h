@@ -127,6 +127,7 @@
   AtomIntOverflow = AtomAdjust(AtomIntOverflow);
   AtomInteger = AtomAdjust(AtomInteger);
   AtomInternalCompilerError = AtomAdjust(AtomInternalCompilerError);
+  AtomIs = AtomAdjust(AtomIs);
   AtomKey = AtomAdjust(AtomKey);
   AtomLDLibraryPath = AtomAdjust(AtomLDLibraryPath);
   AtomLONGINT = AtomAdjust(AtomLONGINT);
@@ -340,6 +341,7 @@
   FunctorGoalExpansion = FuncAdjust(FunctorGoalExpansion);
   FunctorHandleThrow = FuncAdjust(FunctorHandleThrow);
   FunctorId = FuncAdjust(FunctorId);
+  FunctorIs = FuncAdjust(FunctorIs);
   FunctorLastExecuteWithin = FuncAdjust(FunctorLastExecuteWithin);
   FunctorList = FuncAdjust(FunctorList);
   FunctorMegaClause = FuncAdjust(FunctorMegaClause);

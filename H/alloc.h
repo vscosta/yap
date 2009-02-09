@@ -80,7 +80,7 @@ typedef	struct FREEB {
 #define ALIGN_SIZE(X,SIZE) (((CELL)(X)+((SIZE)-1)) & ~((SIZE)-1))
 
 /* I'll assume page size is always a power of two */
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
 /* in WIN32 VirtualAlloc works in multiples of 64K */
 #define YAP_ALLOC_SIZE (64*1024)
 #define LGPAGE_SIZE YAP_ALLOC_SIZE
@@ -102,7 +102,7 @@ void   STD_PROTO(Yap_InitHeap, (void *));
 UInt   STD_PROTO(Yap_ExtendWorkSpaceThroughHole, (UInt));
 void   STD_PROTO(Yap_AllocHole, (UInt, UInt));
 
-#if USE_MMAP
+#if USE_MMAP && ! defined(__CYGWIN__)
 
 #include <sys/types.h>
 #include <sys/mman.h>

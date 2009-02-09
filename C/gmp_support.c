@@ -135,17 +135,6 @@ Yap_gmp_div_big_int(MP_INT *b, Int i)
   mpz_init_set(&new, b);
   if (yap_flags[INTEGER_ROUNDING_FLAG] == 0) {
     if (i > 0) {
-      mpz_fdiv_q_ui(&new, &new, i);
-    } else if (i == 0) {
-      Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR, MkIntTerm(0), "// /2");
-      return 0L;
-    } else {
-      /* we do not handle MIN_INT */
-      mpz_fdiv_q_ui(&new, &new, -i);
-      mpz_neg(&new, &new);
-    }
-  } else {
-    if (i > 0) {
       mpz_tdiv_q_ui(&new, &new, i);
     } else if (i == 0) {
       Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR, MkIntTerm(0), "// /2");
@@ -153,6 +142,17 @@ Yap_gmp_div_big_int(MP_INT *b, Int i)
     } else {
       /* we do not handle MIN_INT */
       mpz_tdiv_q_ui(&new, &new, -i);
+      mpz_neg(&new, &new);
+    }
+  } else {
+    if (i > 0) {
+      mpz_fdiv_q_ui(&new, &new, i);
+    } else if (i == 0) {
+      Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR, MkIntTerm(0), "// /2");
+      return 0L;
+    } else {
+      /* we do not handle MIN_INT */
+      mpz_fdiv_q_ui(&new, &new, -i);
       mpz_neg(&new, &new);
     }
   }
@@ -241,9 +241,9 @@ Yap_gmp_div_big_big(MP_INT *b1, MP_INT *b2)
 
   mpz_init_set(&new, b1);
   if (yap_flags[INTEGER_ROUNDING_FLAG] == 0) {
-    mpz_fdiv_q(&new, &new, b2);
-  } else {
     mpz_tdiv_q(&new, &new, b2);
+  } else {
+    mpz_fdiv_q(&new, &new, b2);
   }
   return Yap_MkBigIntTerm(&new);
 }
@@ -268,28 +268,28 @@ Yap_gmp_ior_big_big(MP_INT *b1, MP_INT *b2)
   return Yap_MkBigIntTerm(&new);
 }
 
-Float
+Term
 Yap_gmp_add_float_big(Float d, MP_INT *b)
 {
-  return d+mpz_get_d(b);
+  return MkFloatTerm(d+mpz_get_d(b));
 }
 
-Float
+Term
 Yap_gmp_sub_float_big(Float d, MP_INT *b)
 {
-  return d-mpz_get_d(b);
+  return MkFloatTerm(d-mpz_get_d(b));
 }
 
-Float
+Term
 Yap_gmp_sub_big_float(MP_INT *b, Float d)
 {
-  return mpz_get_d(b)-d;
+  return MkFloatTerm(mpz_get_d(b)-d);
 }
 
-Float
+Term
 Yap_gmp_mul_float_big(Float d, MP_INT *b)
 {
-  return d*mpz_get_d(b);
+  return MkFloatTerm(d*mpz_get_d(b));
 }
 
 #endif

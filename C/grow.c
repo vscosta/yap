@@ -1067,6 +1067,7 @@ fix_compiler_instructions(PInstr *pcpc)
     case if_not_op:
     case index_dbref_op:
     case index_blob_op:
+    case index_long_op:
     case if_nonvar_op:
     case unify_last_list_op:
     case write_last_list_op:
