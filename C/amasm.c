@@ -1598,29 +1598,31 @@ static COUNT
 compile_cmp_flags(char *s)
 {
   if (strcmp(s,"=<") == 0)
-    return(EQ_OK_IN_CMP|LT_OK_IN_CMP);
+    return EQ_OK_IN_CMP|LT_OK_IN_CMP;
+  if (strcmp(s,"is") == 0)
+    return EQ_OK_IN_CMP;
   if (strcmp(s,"@=<") == 0)
-    return(EQ_OK_IN_CMP|LT_OK_IN_CMP);
+    return EQ_OK_IN_CMP|LT_OK_IN_CMP;
   if (strcmp(s,"<") == 0)
-    return(LT_OK_IN_CMP);
+    return LT_OK_IN_CMP;
   if (strcmp(s,"@<") == 0)
-    return(LT_OK_IN_CMP);
+    return LT_OK_IN_CMP;
   if (strcmp(s,">=") == 0)
-    return(EQ_OK_IN_CMP|GT_OK_IN_CMP);
+    return EQ_OK_IN_CMP|GT_OK_IN_CMP;
   if (strcmp(s,"@>=") == 0)
-    return(EQ_OK_IN_CMP|GT_OK_IN_CMP);
+    return EQ_OK_IN_CMP|GT_OK_IN_CMP;
   if (strcmp(s,">") == 0)
-    return(GT_OK_IN_CMP);
+    return GT_OK_IN_CMP;
   if (strcmp(s,"@>") == 0)
-    return(GT_OK_IN_CMP);
+    return GT_OK_IN_CMP;
   if (strcmp(s,"=:=") == 0)
-    return(EQ_OK_IN_CMP);
+    return EQ_OK_IN_CMP;
   if (strcmp(s,"=\\=") == 0)
-    return(GT_OK_IN_CMP|LT_OK_IN_CMP);
+    return GT_OK_IN_CMP|LT_OK_IN_CMP;
   if (strcmp(s,"\\==") == 0)
-    return(GT_OK_IN_CMP|LT_OK_IN_CMP);
-  Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "internal assembler error, %s is not recognised", s);
-  return(0);
+    return GT_OK_IN_CMP|LT_OK_IN_CMP;
+  Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "internal assembler error, %s/2 not recognised as binary op", s);
+  return 0;
 }
 
 COUNT

@@ -131,16 +131,16 @@ BEAM_is(void)
 #endif
 
 static Int
-p_is(void)
+p_is(CELL result, CELL in)
 {				/* X is Y	 */
   Term out;
 
-  out = Eval(Deref(ARG2));
+  out = Eval(Deref(in));
   if (out == 0L) {
     Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, ARG2, "is/2");
     return FALSE;
   }
-  return Yap_unify_constant(ARG1,out);
+  return Yap_unify_constant(result,out);
 }
 
 void
@@ -150,6 +150,6 @@ Yap_InitEval(void)
   Yap_InitConstExps();
   Yap_InitUnaryExps();
   Yap_InitBinaryExps();
-  Yap_InitCPred("is", 2, p_is, TestPredFlag | SafePredFlag);
+  Yap_InitCmpPred("is", 2, p_is, BinaryPredFlag | TestPredFlag | SafePredFlag);
 }
 
