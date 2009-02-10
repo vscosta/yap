@@ -1918,6 +1918,9 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
   register consult_obj  *fp;
   Prop                   p0 = AbsProp((PropEntry *)p);
 
+  if (p == LastAssertedPred)
+    return FALSE;
+  LastAssertedPred = p;
   if (p->cs.p_code.NOfClauses) {
     for (fp = ConsultSp; fp < ConsultBase; ++fp)
       if (fp->p == p0)
@@ -1926,7 +1929,7 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
     fp = ConsultBase;
   }
   if (fp != ConsultBase)
-    return (FALSE);
+    return FALSE;
   if (mode) {
     if (ConsultSp == ConsultLow+1) {
       expand_consult();
@@ -2375,7 +2378,7 @@ p_in_this_f_before(void)
     p0 = PredPropByFunc(Yap_MkFunctor(at, arity), mod);
   else
     p0 = PredPropByAtom(at, mod);
-  if (ConsultSp == ConsultBase || (fp = ConsultSp)->p == p0)
+  if (ConsultSp == ConsultBase || LastAssertedPred == RepPredProp(p0) || (fp = ConsultSp)->p == p0)
     return FALSE;
   else
     fp++;
@@ -2413,12 +2416,14 @@ p_first_cl_in_f(void)
     p0 = PredPropByFunc(Yap_MkFunctor(at, arity),mod);
   else
     p0 = PredPropByAtom(at, mod);
+  if (LastAssertedPred == RepPredProp(p0))
+    return FALSE;
   for (fp = ConsultSp; fp < ConsultBase; ++fp)
     if (fp->p == p0)
       break;
   if (fp != ConsultBase)
-    return (FALSE);
-  return (TRUE);
+    return FALSE;
+  return TRUE;
 }
 
 #if EMACS
@@ -2547,6 +2552,7 @@ init_consult(int mode, char *file)
       do_toggle_static_predicates_in_use(TRUE); */
 #endif
   consult_level++;
+  LastAssertedPred = NULL;
 }
 
 void
@@ -2584,6 +2590,7 @@ end_consult(void)
   ConsultBase = ConsultSp+ConsultSp->c;
   ConsultSp += 3;
   consult_level--;
+  LastAssertedPred = NULL;
 #if !defined(YAPOR) && !defined(SBA)
   /*  if (consult_level == 0)
       do_toggle_static_predicates_in_use(FALSE);*/
