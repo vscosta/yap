@@ -2485,7 +2485,7 @@ YAP_CloseList(Term t0, Term tail)
   return TRUE;
 }
 
-X_API Int
+X_API int
 YAP_IsAttVar(Term t)
 {
   t = Deref(t);

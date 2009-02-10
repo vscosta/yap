@@ -144,6 +144,8 @@ typedef struct special_functors_struct
 special_functors;
 #endif
 
+inline EXTERN Float STD_PROTO (CpFloatUnaligned, (CELL *));
+
 #if SIZEOF_DOUBLE == SIZEOF_LONG_INT
 
 inline EXTERN Term MkFloatTerm (Float);
@@ -169,11 +171,15 @@ FloatOfTerm (Term t)
 
 #define InitUnalignedFloat()
 
+inline extern Float
+CpFloatUnaligned(CELL *ptr)
+{
+  return *((Float *)ptr);
+}
+
 #else
 
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-
-inline EXTERN Float STD_PROTO (CpFloatUnaligned, (CELL *));
 
 inline EXTERN void STD_PROTO (AlignGlobalForDouble, (void));
 

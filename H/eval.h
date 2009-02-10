@@ -162,7 +162,7 @@ Term	STD_PROTO(Yap_eval_atom,(Int));
 Term	STD_PROTO(Yap_eval_unary,(Int,Term));
 Term	STD_PROTO(Yap_eval_binary,(Int,Term,Term));
 
-blob_type	STD_PROTO(Yap_Eval,(Term));
+Term	STD_PROTO(Yap_Eval,(Term));
 
 #define RINT(v)       return(MkIntegerTerm(v))
 #define RFLOAT(v)     return(MkFloatTerm(v))
