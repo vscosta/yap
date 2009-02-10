@@ -509,7 +509,6 @@ STATIC_PROTO(Int  p_optimizer_on, (void));
 STATIC_PROTO(Int  p_optimizer_off, (void));
 STATIC_PROTO(Int  p_in_this_f_before, (void));
 STATIC_PROTO(Int  p_first_cl_in_f, (void));
-STATIC_PROTO(Int  p_mk_cl_not_first, (void));
 STATIC_PROTO(Int  p_is_dynamic, (void));
 STATIC_PROTO(Int  p_kill_dynamic, (void));
 STATIC_PROTO(Int  p_compile_mode, (void));
@@ -2377,7 +2376,7 @@ p_in_this_f_before(void)
   else
     p0 = PredPropByAtom(at, mod);
   if (ConsultSp == ConsultBase || (fp = ConsultSp)->p == p0)
-    return (FALSE);
+    return FALSE;
   else
     fp++;
   for (; fp < ConsultBase; ++fp)
@@ -2419,31 +2418,6 @@ p_first_cl_in_f(void)
       break;
   if (fp != ConsultBase)
     return (FALSE);
-  return (TRUE);
-}
-
-static Int 
-p_mk_cl_not_first(void)
-{				/* '$mk_cl_not_first'(+N,+Ar) */
-  unsigned int    arity;
-  Atom            at;
-  Term            t;
-  Prop            p0;
-
-  if (IsVarTerm(t = Deref(ARG1)) && !IsAtomTerm(t))
-    return (FALSE);
-  else
-    at = AtomOfTerm(t);
-  if (IsVarTerm(t = Deref(ARG2)) && !IsIntTerm(t))
-    return (FALSE);
-  else
-    arity = IntOfTerm(t);
-  if (arity)
-    p0 = PredPropByFunc(Yap_MkFunctor(at, arity),CurrentModule);
-  else
-    p0 = PredPropByAtom(at, CurrentModule);
-  --ConsultSp;
-  ConsultSp->p = p0;
   return (TRUE);
 }
 
@@ -5632,7 +5606,6 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$kill_dynamic", 2, p_kill_dynamic, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$in_this_file_before", 3, p_in_this_f_before, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$first_clause_in_file", 3, p_first_cl_in_f, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$mk_cl_not_first", 2, p_mk_cl_not_first, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$new_multifile", 3, p_new_multifile, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$is_multifile", 2, p_is_multifile, TestPredFlag | SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$is_profiled", 1, p_is_profiled, SafePredFlag|SyncPredFlag|HiddenPredFlag);
