@@ -509,6 +509,7 @@ p_put_att_term(void) {
       new = TRUE;
     }
     if (new) {
+      Bind(VarOfTerm(inp), (CELL)attv);
       attv->Atts = Deref(ARG2);
     } else {
       MaBind(&(attv->Atts), Deref(ARG2));
@@ -984,7 +985,7 @@ void Yap_InitAttVarPreds(void)
   Yap_InitCPred("get_all_swi_atts", 2, p_swi_all_atts, SafePredFlag);
   Yap_InitCPred("free_att", 3, p_free_att, SafePredFlag);
   Yap_InitCPred("put_att", 5, p_put_att, 0);
-  Yap_InitCPred("put_att_term", 5, p_put_att_term, 0);
+  Yap_InitCPred("put_att_term", 2, p_put_att_term, 0);
   Yap_InitCPred("put_module_atts", 2, p_put_atts, 0);
   Yap_InitCPred("del_all_module_atts", 2, p_del_atts, 0);
   Yap_InitCPred("rm_att", 4, p_rm_att, 0);
