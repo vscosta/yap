@@ -132,7 +132,7 @@ expand_apply(Maplist, Goal) :-
 	callable(Callable), !,
 	expand_maplist(Callable, Lists, Goal).
 expand_apply(forall(Cond, Action), \+((Cond, \+(Action)))).
-expand_apply(once(Goal), (Goal->true)).
+expand_apply(once(Goal), (Goal->true;fail)).
 expand_apply(ignore(Goal), (Goal->true;true)).
 expand_apply(phrase(NT,Xs), NTXsNil) :-
 	expand_apply(phrase(NT,Xs,[]), NTXsNil).
