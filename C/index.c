@@ -2422,26 +2422,19 @@ count_funcs(GroupDef *grp)
 static UInt
 emit_single_switch_case(ClauseDef *min, struct intermediates *cint, int first, int clleft, UInt nxtlbl)
 {
-#ifdef TABLING
   if (cint->CurrentPred->PredFlags & TabledPredFlag) {
     /* with tabling we don't clean trust at the very end of computation.
     */
-    if (clleft == 0 && !first) {
-      UInt lbl = new_label(cint);
-
-      Yap_emit(label_op, lbl, Zero, cint);
-      /* vsc: should check if this condition is sufficient */
-      emit_trust(min, cint, nxtlbl, clleft);
-      return lbl;
-    } else if (clleft) {
+    if (clleft || !first) {
       /*
 	if we still have clauses left, means we already created a CP,
 	so I should avoid creating again 
       */
-      return (UInt)NEXTOP(min->CurrentCode,Otapl);
-    }
+      return (UInt)NEXTOP(min->Code,Otapl);
+    } else {
+      return (UInt)min->Code;
+    }    
   }
-#endif /* TABLING */
   if (cint->CurrentPred->PredFlags & LogUpdatePredFlag) {
     return (UInt)(min->Code);
   } else {
@@ -2759,15 +2752,6 @@ emit_protection_choicepoint(int first, int clleft, UInt nxtlbl, struct intermedi
     /* !first */
     if (clleft) {
       Yap_emit(retryme_op, nxtlbl, (clleft << 1), cint);
-#ifdef TABLING
-    } else if ((cint->CurrentPred->PredFlags & TabledPredFlag)) {
-      /*
-	we cannot get rid of the choice-point for tabled predicates, all
-	kinds of hell would follow, so we just keep it around: not nice,
-	but should work.
-      */
-      Yap_emit(trustme_op, 0, 0, cint);
-#endif /* TABLING */
     } else {
       Yap_emit(trustme_op, 0, 0, cint);
     }
@@ -3151,7 +3135,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
       found_index = TRUE;
       ret_lab = new_label(cint);
       top = (CELL *)(group+1);
-      if (do_nonvar_group(group, (sreg == NULL ? 0L : Deref(sreg[i])), i+1, (isvt ? NULL : sreg), arity, *newlabp, cint, argno, argno == 1, (last_arg && i+1 == arity), fail_l, clleft, top) == NULL) {
+      if (do_nonvar_group(group, (sreg == NULL ? 0L : Deref(sreg[i])), i+1, (isvt ? NULL : sreg), arity, *newlabp, cint, argno, first, (last_arg && i+1 == arity), fail_l, clleft, top) == NULL) {
 	top = top0;
 	break;
       }
