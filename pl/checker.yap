@@ -184,8 +184,8 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$handle_discontiguous'(F,A,M) :-
 	recorded('$discontiguous_defs','$df'(F,A,M),_), !.
 '$handle_discontiguous'(F,A,M) :-
-	functor(Head, F, A), !,
-	'$is_multifile'(Head, M).
+	functor(Head, F, A),
+	'$is_multifile'(Head, M), !.
 '$handle_discontiguous'(F,A,M) :-
 	'$in_this_file_before'(F,A,M),
 	print_message(warning,clauses_not_together((M:F/A))).
