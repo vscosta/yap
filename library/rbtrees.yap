@@ -773,6 +773,9 @@ visit(black(L,K,V,R),L0,Lf) :-
 	visit(L,[K-V|L1],Lf),
 	visit(R,L0,L1).
 
+:- meta_predicate rb_map(?,:,?). % this is not strictly required
+:- meta_predicate map(?,:,?,?).  % this is required.
+
 %%	rb_map(+T, :Goal) is semidet.
 %
 %	True if call(Goal, Value) is true for all nodes in T.
@@ -790,6 +793,9 @@ map(black(L,K,V,R),Goal,black(NL,K,NV,NR),Nil) :-
 	call(Goal,V,NV), !,
 	map(L,Goal,NL,Nil),
 	map(R,Goal,NR,Nil).
+
+:- meta_predicate rb_map(?,:). % this is not strictly required
+:- meta_predicate map(?,:).  % this is required.
 
 %%	rb_map(+T, :G, -TN) is semidet.
 %
