@@ -2162,6 +2162,10 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _count_trust_me:
       case _retry:
       case _trust:
+	if (IN_BETWEEN(H0,(CELL *)(gc_B->cp_ap),H)) {
+	  fprintf(stderr,"OOPS: gc not supported in this case!!!\n");
+	  exit(1);
+	}
 	nargs = rtp->u.Otapl.s;
 	break;
       default:

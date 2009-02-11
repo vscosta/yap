@@ -63,7 +63,8 @@ typedef enum
     BIG_FLOAT =    0x04,
     EMPTY_ARENA =  0x10,
     ARRAY_INT =    0x21,
-    ARRAY_FLOAT =  0x22
+    ARRAY_FLOAT =  0x22,
+    CLAUSE_LIST =  0x40
   } 
 big_blob_type;
 

@@ -97,7 +97,13 @@ VERSION=Yap-5.1.4
 MYDDAS_VERSION=MYDDAS-0.9.1
 #
 
-INTERFACE_HEADERS = $(srcdir)/include/c_interface.h $(srcdir)/include/yap_structs.h $(srcdir)/include/YapInterface.h $(srcdir)/include/SWI-Prolog.h $(srcdir)/include/SWI-Stream.h
+INTERFACE_HEADERS = \
+	$(srcdir)/include/c_interface.h \
+	$(srcdir)/include/clause_list.h \
+	$(srcdir)/include/yap_structs.h \
+	$(srcdir)/include/YapInterface.h \
+	$(srcdir)/include/SWI-Prolog.h \
+	$(srcdir)/include/SWI-Stream.h
 
 HEADERS = \
 	$(srcdir)/H/TermExt.h $(srcdir)/H/Atoms.h \
@@ -146,6 +152,7 @@ C_SOURCES= \
 	$(srcdir)/C/attvar.c $(srcdir)/C/bb.c \
 	$(srcdir)/C/bignum.c \
 	$(srcdir)/C/c_interface.c $(srcdir)/C/cdmgr.c $(srcdir)/C/cmppreds.c \
+	$(srcdir)/C/clause_list.c \
 	$(srcdir)/C/compiler.c $(srcdir)/C/computils.c \
 	$(srcdir)/C/corout.c $(srcdir)/C/dbase.c $(srcdir)/C/dlmalloc.c \
 	$(srcdir)/C/errors.c \
@@ -241,7 +248,7 @@ ENGINE_OBJECTS = \
 C_INTERFACE_OBJECTS = \
 	load_foreign.o load_dl.o load_dld.o load_dyld.o \
 	load_none.o load_aout.o load_aix.o load_dll.o load_shl.o \
-	c_interface.o
+	c_interface.o clause_list.o
 
 OR_OBJECTS = \
 	opt.memory.o opt.misc.o opt.init.o opt.preds.o   \
@@ -312,6 +319,9 @@ c_interface.o: $(srcdir)/C/c_interface.c $(srcdir)/include/c_interface.h
 
 cdmgr.o: $(srcdir)/C/cdmgr.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/cdmgr.c -o $@
+
+clause_list.o: $(srcdir)/C/clause_list.c $(srcdir)/include/clause_list.h
+	$(CC) $(C_INTERF_FLAGS) -c $(srcdir)/C/clause_list.c -o clause_list.o
 
 cmppreds.o: $(srcdir)/C/cmppreds.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/cmppreds.c -o $@
