@@ -426,6 +426,8 @@
 #define AtomRestoreRegs Yap_heap_regs->AtomRestoreRegs_
   Atom AtomRetryCounter_;
 #define AtomRetryCounter Yap_heap_regs->AtomRetryCounter_
+  Atom AtomRTree_;
+#define AtomRTree Yap_heap_regs->AtomRTree_
   Atom AtomSame_;
 #define AtomSame Yap_heap_regs->AtomSame_
   Atom AtomSemic_;

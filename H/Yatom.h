@@ -635,7 +635,7 @@ IsValProperty (int flags)
 */
 typedef enum
 {
-  MegaClausePredFlag = 0x80000000L,	/* predicate is implemented as a mega-clause */
+  MegaClausePredFlag =   0x80000000L, /* predicate is implemented as a mega-clause */
   ThreadLocalPredFlag = 0x40000000L,	/* local to a thread */
   MultiFileFlag = 0x20000000L,	/* is multi-file */
   UserCPredFlag = 0x10000000L,	/* CPred defined by the user */
@@ -665,7 +665,8 @@ typedef enum
   ProfiledPredFlag = 0x00000010L,	/* pred is being profiled   */
   MyddasPredFlag = 0x00000008L,	/* Myddas Imported pred  */
   ModuleTransparentPredFlag = 0x00000004L,	/* ModuleTransparent pred  */
-  SWIEnvPredFlag = 0x00000002L	/* new SWI interface */
+  SWIEnvPredFlag = 0x00000002L,	/* new SWI interface */
+  UDIPredFlag = 0x00000001L	/* User Defined Indexing */
 } pred_flag;
 
 /* profile data */

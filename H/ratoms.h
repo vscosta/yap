@@ -212,6 +212,7 @@
   AtomResourceError = AtomAdjust(AtomResourceError);
   AtomRestoreRegs = AtomAdjust(AtomRestoreRegs);
   AtomRetryCounter = AtomAdjust(AtomRetryCounter);
+  AtomRTree = AtomAdjust(AtomRTree);
   AtomSame = AtomAdjust(AtomSame);
   AtomSemic = AtomAdjust(AtomSemic);
   AtomShiftCountOverflow = AtomAdjust(AtomShiftCountOverflow);

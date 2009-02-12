@@ -330,6 +330,11 @@ PredEntry *STD_PROTO(Yap_PredEntryForCode,(yamop *, find_pred_type, CODEADDR *, 
 LogUpdClause   *STD_PROTO(Yap_new_ludbe,(Term, PredEntry *, UInt));
 Term            STD_PROTO(Yap_LUInstance,(LogUpdClause *, UInt));
 
+/* udi.c */
+void         STD_PROTO(Yap_udi_init,(void));
+yamop       *STD_PROTO(Yap_udi_search,(PredEntry *));
+int          STD_PROTO(Yap_new_udi_clause,(PredEntry *, yamop *, Term));
+
 #ifdef DEBUG
 void    STD_PROTO(Yap_bug_location,(yamop *));
 #endif

@@ -307,6 +307,7 @@ typedef struct various_codes {
 #if USE_THREADED_CODE
   opentry *op_rtable;
 #endif
+  struct udi_info *udi_control_blocks;
 #ifdef COROUTINING
   int  num_of_atts;            /* max. number of attributes we have for a variable */
   struct pred_entry  *wake_up_code;
@@ -527,6 +528,7 @@ extern struct various_codes *Yap_heap_regs;
 #if USE_THREADED_CODE
 #define  OP_RTABLE                Yap_heap_regs->op_rtable
 #endif
+#define  UdiControlBlocks	  Yap_heap_regs->udi_control_blocks
 #define  PROFILING                Yap_heap_regs->system_profiling
 #define  CALL_COUNTING            Yap_heap_regs->system_call_counting
 #define  PRED_GOAL_EXPANSION_ALL  Yap_heap_regs->system_pred_goal_expansion_all

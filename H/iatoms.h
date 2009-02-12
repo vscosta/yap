@@ -210,6 +210,7 @@
   AtomResourceError = Yap_LookupAtom("resource_error");
   AtomRestoreRegs = Yap_FullLookupAtom("$restore_regs");
   AtomRetryCounter = Yap_LookupAtom("retry_counter");
+  AtomRTree = Yap_LookupAtom("rtree");
   AtomSame = Yap_LookupAtom("==");
   AtomSemic = Yap_LookupAtom(";");
   AtomShiftCountOverflow = Yap_LookupAtom("shift_count_overflow");
