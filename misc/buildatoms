@@ -1,0 +1,48 @@
+
+:- use_module(library(lineutils),
+	[file_filter/3,
+	 split/3]).
+
+:- use_module(library(lists),
+	[append/2]).
+
+:- initialization(main).
+
+:- yap_flag(write_strings,on).
+
+main :-
+	file_filter('misc/ATOMS','H/tatoms.h',gen_fields),
+	file_filter('misc/ATOMS','H/iatoms.h',gen_decl),
+	file_filter('misc/ATOMS','H/ratoms.h',gen_rcov).
+
+gen_fields(Inp,Out) :-
+	split(Inp,"	",["A",Atom,_,_]), !,
+	append(["  Atom Atom",Atom,"_;\n#define Atom",Atom," Yap_heap_regs->Atom",Atom,"_"],Out).
+gen_fields(Inp,Out) :-
+	split(Inp,"	",["F",Name,_,_]), !,
+	append(["  Functor Functor",Name,"_;\n#define Functor",Name," Yap_heap_regs->Functor",Name,"_"],Out).
+
+gen_rcov(Inp,Out) :-
+	split(Inp,"	",["A",Atom,_,_]), !,
+	append(["  Atom",Atom," = AtomAdjust(Atom",Atom,");"],Out).
+gen_rcov(Inp,Out) :-
+	split(Inp,"	",["F",Functor,_,_]), !,
+	append(["  Functor",Functor," = FuncAdjust(Functor",Functor,");"],Out).
+
+gen_decl(Inp,Out) :-
+	split(Inp,"	",["A",Atom,"N",String]), !,
+	append(["  Atom",Atom," = Yap_LookupAtom(",String,");"],Out).
+gen_decl(Inp,Out) :-
+	split(Inp,"	",["A",Atom,"F",String]), !,
+	append(["  Atom",Atom," = Yap_FullLookupAtom(",String,");"],Out).
+gen_decl(Inp,Out) :-
+	split(Inp,"	",["F",Name,Atom,Arity]), !,
+	append(["  Functor",Name," = Yap_MkFunctor(Atom",Atom,",",Arity,");"],Out).
+
+
+
+
+	
+
+
+	
