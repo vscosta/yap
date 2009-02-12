@@ -531,6 +531,18 @@ a_p0(op_numbers opcode, yamop *code_p, int pass_no, PredEntry *p0)
 }
 
 inline static yamop *
+a_lp(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.lp.p = (PredEntry *)cip->cpc->rnd1;
+    code_p->u.lp.l = (yamop *)cip->cpc->rnd2;
+  }
+  GONEXT(lp);  
+  return code_p;
+}
+
+inline static yamop *
 a_ue(op_numbers opcode, op_numbers opcodew, yamop *code_p, int pass_no)
 {
   if (pass_no) {
@@ -3717,6 +3729,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case jump_nv_op:
       code_p = a_xigl(_jump_if_nonvar, code_p, pass_no, cip->cpc);
+      break;
+    case user_switch_op:
+      code_p = a_lp(_user_switch, code_p, pass_no, cip);
       break;
     case switch_on_type_op:
       code_p = a_4sw(_switch_on_type, code_p, pass_no, cip);

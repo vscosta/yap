@@ -656,6 +656,7 @@ static char *opformat[] =
   "jump_if_nonvar\t\t%g",
   "cache_arg\t%r",
   "cache_sub_arg\t%d",
+  "user_index",
   "switch_on_type\t%h\t%h\t%h\t%h",
   "switch_on_constant\t%i\n%c",
   "if_constant\t%i\n%c",

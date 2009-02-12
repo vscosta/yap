@@ -197,6 +197,10 @@
     case _switch_on_type:
       pc = NEXTOP(pc,llll);
       break;
+      /* instructions type lp */
+    case _user_switch:
+      pc = NEXTOP(pc,lp);
+      break;
       /* instructions type o */
     case _unify_l_list:
     case _unify_l_list_write:

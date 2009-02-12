@@ -223,6 +223,7 @@ PL_SOURCES= \
 	$(srcdir)/pl/statistics.yap \
 	$(srcdir)/pl/strict_iso.yap \
 	$(srcdir)/pl/tabling.yap $(srcdir)/pl/threads.yap \
+	$(srcdir)/pl/udi.yap \
 	$(srcdir)/pl/utils.yap \
 	$(srcdir)/pl/yapor.yap $(srcdir)/pl/yio.yap
 

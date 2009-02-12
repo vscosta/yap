@@ -216,6 +216,7 @@
   OPCODE(try_logical                ,OtaLl),
   OPCODE(retry_logical              ,OtaLl),
   OPCODE(trust_logical              ,OtILl),
+  OPCODE(user_switch                ,lp),
   OPCODE(switch_on_type             ,llll),
   OPCODE(switch_list_nl             ,ollll),
   OPCODE(switch_on_arg_type         ,xllll),

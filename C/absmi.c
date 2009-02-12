@@ -8422,6 +8422,18 @@ Yap_absmi(int inp)
 * 	Indexing in ARG1						*
 \************************************************************************/
 
+      BOp(user_switch, lp);
+      {
+	yamop *new = Yap_udi_search(PREG->u.lp.p);
+	if (!new) {
+	  PREG = PREG->u.lp.l;
+	  JMPNext();
+	}
+	PREG = new;
+	JMPNext();
+      }
+      ENDBOp();
+
       BOp(switch_on_type, llll);
       BEGD(d0);
       d0 = CACHED_A1();

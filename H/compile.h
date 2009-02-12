@@ -97,6 +97,7 @@ typedef enum compiler_op {
   jump_nv_op,
   cache_arg_op,
   cache_sub_arg_op,
+  user_switch_op,
   switch_on_type_op,
   switch_c_op,
   if_c_op,

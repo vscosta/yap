@@ -1349,6 +1349,8 @@ has_cut(yamop *pc)
       pc = NEXTOP(pc,c);
       break;
       /* instructions type p */
+    case _user_switch:
+      return FALSE;
     case _deallocate:
     case _procceed:
       pc = NEXTOP(pc,p);
@@ -3286,6 +3288,10 @@ compile_index(struct intermediates *cint)
     /* throw away a label */
     new_label(cint);
     init_log_upd_clauses(cls,ap);
+  } else if (ap->PredFlags & UDIPredFlag) {
+    UInt lbl = new_label(cint);
+    Yap_emit(user_switch_op, Unsigned(ap), Unsigned(&(ap->cs.p_code.ExpandCode)), cint);
+    return lbl;
   } else {
     /* prepare basic data structures */ 
     init_clauses(cls,ap);
@@ -4016,6 +4022,9 @@ expand_index(struct intermediates *cint) {
       sp[-1].extra = AbsAppl(s_reg-1);
       s_reg = NULL;
       ipc = NEXTOP(ipc,e);
+      break;
+    case _user_switch:
+      ipc = NEXTOP(ipc,p);
       break;
       /* instructions type e */
     case _switch_on_type:
@@ -5535,6 +5544,9 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	ipc = NEXTOP(ipc,l);
       }
       break;
+    case _user_switch:
+      ipc = NEXTOP(ipc,p);
+      break;
       /* instructions type e */
     case _switch_on_type:
       sp = push_path(sp, &(ipc->u.llll.l4), cls, cint);
@@ -6077,6 +6089,9 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       sp = push_path(sp, &(ipc->u.xll.l2), cls, cint);
       sp = cross_block(sp, &ipc->u.xll.l1, ap);
       ipc = ipc->u.xll.l1;
+      break;
+    case _user_switch:
+      ipc = NEXTOP(ipc,p);
       break;
       /* instructions type e */
     case _switch_on_type:
@@ -6812,6 +6827,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	}
       }
       break;
+    case _user_switch:
+      ipc = NEXTOP(ipc,p);
+      break;
       /* instructions type e */
     case _switch_on_type:
       t = Deref(ARG1);
@@ -7211,6 +7229,9 @@ Yap_NthClause(PredEntry *ap, Int ncls)
       break;
     case _jump_if_nonvar:
       ipc = NEXTOP(ipc,xll);
+      break;
+    case _user_switch:
+      ipc = NEXTOP(ipc,p);
       break;
       /* instructions type e */
     case _switch_on_type:

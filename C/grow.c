@@ -1059,6 +1059,7 @@ fix_compiler_instructions(PInstr *pcpc)
     case jump_nv_op:
     case cache_arg_op:
     case cache_sub_arg_op:
+    case user_switch_op:
     case switch_on_type_op:
     case switch_c_op:
     case if_c_op:

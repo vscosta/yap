@@ -1181,6 +1181,10 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       ipc->u.xll.l1 = release_wcls(ipc->u.xll.l1, ecs);
       ipc = NEXTOP(ipc,xll);
       break;
+      /* instructions type p */
+    case _user_switch:
+      ipc = NEXTOP(ipc,p);
+      break;
       /* instructions type e */
     case _switch_on_type:
       ipc->u.llll.l1 = release_wcls(ipc->u.llll.l1, ecs);
@@ -2135,6 +2139,9 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   if (Yap_ErrorMessage && Yap_Error_TYPE == PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE) {
     UNLOCK(p->PELock);
     return TermNil;
+  }
+  if (pflags & UDIPredFlag) {
+    Yap_new_udi_clause(p, cp, t);
   }
   if (!is_dynamic(p)) {
     if (pflags & LogUpdatePredFlag) {

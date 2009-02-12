@@ -257,6 +257,12 @@ restore_opcodes(yamop *pc)
       pc->u.llll.l4 = PtoOpAdjust(pc->u.llll.l4);
       pc = NEXTOP(pc,llll);
       break;
+      /* instructions type lp */
+    case _user_switch:
+      pc->u.lp.l = PtoOpAdjust(pc->u.lp.l);
+      pc->u.lp.p = PtoPredAdjust(pc->u.lp.p);
+      pc = NEXTOP(pc,lp);
+      break;
       /* instructions type o */
     case _unify_l_list:
     case _unify_l_list_write:

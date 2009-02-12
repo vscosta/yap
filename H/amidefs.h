@@ -439,6 +439,11 @@ typedef struct yami {
       CELL next;
     } ollll;
     struct {
+      struct yami        *l;
+      struct pred_entry  *p;
+      CELL next;
+    } lp;
+    struct {
       OPCODE              opcw;
       CELL next;
     } o;
