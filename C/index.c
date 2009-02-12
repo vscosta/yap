@@ -4024,7 +4024,7 @@ expand_index(struct intermediates *cint) {
       ipc = NEXTOP(ipc,e);
       break;
     case _user_switch:
-      ipc = NEXTOP(ipc,p);
+      ipc = ipc->u.lp.l;
       break;
       /* instructions type e */
     case _switch_on_type:
@@ -5545,7 +5545,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       }
       break;
     case _user_switch:
-      ipc = NEXTOP(ipc,p);
+      ipc = ipc->u.lp.l;
       break;
       /* instructions type e */
     case _switch_on_type:
@@ -6091,7 +6091,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       ipc = ipc->u.xll.l1;
       break;
     case _user_switch:
-      ipc = NEXTOP(ipc,p);
+      ipc = ipc->u.lp.l;
       break;
       /* instructions type e */
     case _switch_on_type:
@@ -6828,7 +6828,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       }
       break;
     case _user_switch:
-      ipc = NEXTOP(ipc,p);
+      ipc = ipc->u.lp.l;
       break;
       /* instructions type e */
     case _switch_on_type:
@@ -7231,7 +7231,7 @@ Yap_NthClause(PredEntry *ap, Int ncls)
       ipc = NEXTOP(ipc,xll);
       break;
     case _user_switch:
-      ipc = NEXTOP(ipc,p);
+      ipc = ipc->u.lp.l;
       break;
       /* instructions type e */
     case _switch_on_type:

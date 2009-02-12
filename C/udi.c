@@ -6,6 +6,13 @@
 /* we can have this stactic because it is written once */
 static struct udi_control_block RtreeCmd;
 
+/******
+       All the info we need to enter user indexed code:
+        predicate
+	the user control block
+	functions used, in case we have different schema (maybe should part of previous)
+	right now, this is just a linked list....
+******/
 typedef struct udi_info
 {
   PredEntry *p;
@@ -14,6 +21,10 @@ typedef struct udi_info
   struct udi_info *next;
 } *UdiInfo;
 
+/******
+      we now have one extra user indexed predicate. We assume these
+      are few, so we can do with a linked list.
+******/
 static int
 add_udi_block(void *info, PredEntry *p, UdiControlBlock cmd)
 {
@@ -28,6 +39,11 @@ add_udi_block(void *info, PredEntry *p, UdiControlBlock cmd)
   return TRUE;
 }
 
+/******
+      new user indexed predicate;
+      the type right now is just rtrees, but in the future we'll have more.
+      the second argument is the term.
+******/
 static Int
 p_new_udi(void)
 {
@@ -37,6 +53,7 @@ p_new_udi(void)
   Atom udi_t;
   void *info;
 
+  /* get the predicate from the spec, copied from cdmgr.c */
   if (IsVarTerm(spec)) {
     Yap_Error(INSTANTIATION_ERROR,spec,"new user index/1");
     return FALSE;
@@ -62,6 +79,7 @@ p_new_udi(void)
     }
     p = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
   }
+  /* boring, boring, boring! */
   if ((p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) ||
       (p->ModuleOfPred == PROLOG_MODULE)) {
     Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, spec, "udi/2");
@@ -71,6 +89,7 @@ p_new_udi(void)
     Yap_Error(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, spec, "udi/2");
     return FALSE;
   }
+  /* just make sure we're looking at the right user type! */
   if (IsVarTerm(udi_type)) {
     Yap_Error(INSTANTIATION_ERROR,spec,"new user index/1");
     return FALSE;
@@ -85,9 +104,11 @@ p_new_udi(void)
     Yap_Error(TYPE_ERROR_ATOM,spec,"new user index/1");
     return FALSE;
   }
+  /* this is the real work */
   info = cmd->init(spec, (void *)p, p->ArityOfPE);
   if (!info)
     return FALSE;
+  /* add to table */
   if (!add_udi_block(info, p, cmd)) {
     Yap_Error(OUT_OF_HEAP_ERROR, spec, "new user index/1");
     return FALSE;
@@ -96,6 +117,7 @@ p_new_udi(void)
   return TRUE;
 }
 
+/* just pass info to user, called from cdmgr.c */
 int
 Yap_new_udi_clause(PredEntry *p, yamop *cl, Term t)
 {
@@ -108,6 +130,7 @@ Yap_new_udi_clause(PredEntry *p, yamop *cl, Term t)
   return TRUE;
 }
 
+/* index, called from absmi.c */
 yamop *
 Yap_udi_search(PredEntry *p)
 {

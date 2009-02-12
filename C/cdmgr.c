@@ -1183,7 +1183,7 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       break;
       /* instructions type p */
     case _user_switch:
-      ipc = NEXTOP(ipc,p);
+      ipc = NEXTOP(ipc,lp);
       break;
       /* instructions type e */
     case _switch_on_type:
