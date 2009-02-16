@@ -2,6 +2,8 @@
 #include "clause.h"
 #include "clause_list.h"
 
+/* need to fix overflow handling */
+
 static void
 mk_blob(int sz)
 {

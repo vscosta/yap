@@ -13,7 +13,6 @@ git clone git://gitorious.org/yap-git/mainline.git yap
 cd yap
 git branch --track devel origin/devel 
 git checkout devel
-# git submodule add vsc@software.imdea.org:/srv/git/research/prolog-commons.git prolog-commons
 git submodule add git://prolog.cs.vu.nl/home/pl/git/chr.git packages/chr
 ./configure
 

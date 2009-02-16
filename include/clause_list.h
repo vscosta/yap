@@ -23,5 +23,6 @@ X_API void         *Yap_ClauseListToClause(clause_list_t cl);
 X_API void         *Yap_ClauseListCode(clause_list_t cl);
 X_API void         *Yap_FAILCODE(void);
 
-#define ClauseListCount(cl) cl->n
-#define ClauseList(cl) cl->start
+#define Yap_ClauseListCount(cl) ((cl)->n)
+
+

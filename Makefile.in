@@ -57,7 +57,7 @@ YAP_EXTRAS=@YAP_EXTRAS@
 #
 CC=@CC@
 MPI_CC=@MPI_CC@
-CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/H -I$(srcdir)/OPTYap -I$(srcdir)/packages/BEAM -I$(srcdir)/MYDDAS
+CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/H -I$(srcdir)/OPTYap -I$(srcdir)/BEAM -I$(srcdir)/packages/MYDDAS
 CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 C_INTERF_FLAGS= @C_INTERF_FLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS) -I$(srcdir)/include
 C_PARSER_FLAGS= @C_PARSER_FLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
@@ -630,8 +630,6 @@ install_unix: startup libYap.a
 	@INSTALL_DLLS@ $(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
-	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/swi
-	mkdir -p $(DESTDIR)$(SHAREDIR)/PrologCommons
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
 	@INSTALL_DLLS@ (cd library/random; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/regex; $(MAKE) install)
@@ -716,7 +714,7 @@ clean: clean_docs
 	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE) clean)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) clean)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; $(MAKE) clean)
-	@ENABLE_CPLINT@ (cd cplint; $(MAKE) clean)
+	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) clean)
 
 
 
