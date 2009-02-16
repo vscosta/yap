@@ -409,7 +409,7 @@ ShowOp (char *f, struct PSEUDO *cpc)
 	    }
 	    break;
 	  case 'd':
-	    Yap_DebugPlWrite (MkIntTerm (rn));
+	    Yap_DebugPlWrite (MkIntegerTerm (arg));
 	    break;
 	  case 'z':
 	    Yap_DebugPlWrite (MkIntTerm (cpc->rnd3));
@@ -431,6 +431,7 @@ ShowOp (char *f, struct PSEUDO *cpc)
 	      Yap_DebugErrorPutc (v->KindOfVE == PermVar ? 'Y' : 'X');
 	      Yap_DebugPlWrite (MkIntTerm ((v->NoOfVE) & MaskVarAdrs));
 	    }
+	    break;
 	  case 'm':
 	    Yap_DebugPlWrite (MkAtomTerm ((Atom) arg));
 	    Yap_DebugErrorPutc ('/');
