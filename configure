@@ -16295,7 +16295,7 @@ mkdir -p  library/lammpi
 mkdir -p  library/yap2swi
 mkdir -p  CHR
 mkdir -p  CLPQR
-mkdir -p  CLPBN
+mkdir -p  packages/CLPBN
 mkdir -p  LGPL
 mkdir -p  LGPL/JPL
 mkdir -p  LGPL/JPL/java
@@ -16304,15 +16304,15 @@ mkdir -p  LGPL/JPL/java/jpl/fli
 mkdir -p  LGPL/JPL/java/jpl/test
 mkdir -p  LGPL/JPL/src
 mkdir -p  LGPL/clp
-mkdir -p  LGPL/chr
+mkdir -p  packages/chr
 mkdir -p  LGPL/swi_console
-mkdir -p  LGPL/PLStream
+mkdir -p  packages/PLStream
 mkdir -p  GPL
 mkdir -p  GPL/clpqr
 mkdir -p  GPL/http
-mkdir -p  cplint
+mkdir -p  packages/cplint
 
-ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile LGPL/chr/Makefile CLPBN/Makefile LGPL/clp/Makefile GPL/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile cplint/Makefile LGPL/PLStream/Makefile"
+ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile packages/chr/Makefile packages/CLPBN/Makefile LGPL/clp/Makefile GPL/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile pakcgaes/cplint/Makefile LGPL/PLStream/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -16879,8 +16879,8 @@ do
     ".depend") CONFIG_FILES="$CONFIG_FILES .depend" ;;
     "library/Makefile") CONFIG_FILES="$CONFIG_FILES library/Makefile" ;;
     "LGPL/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/Makefile" ;;
-    "LGPL/chr/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/chr/Makefile" ;;
-    "CLPBN/Makefile") CONFIG_FILES="$CONFIG_FILES CLPBN/Makefile" ;;
+    "packages/chr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/chr/Makefile" ;;
+    "packages/CLPBN/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/Makefile" ;;
     "LGPL/clp/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/clp/Makefile" ;;
     "GPL/clpqr/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/clpqr/Makefile" ;;
     "library/lammpi/Makefile") CONFIG_FILES="$CONFIG_FILES library/lammpi/Makefile" ;;
@@ -16893,7 +16893,7 @@ do
     "LGPL/JPL/jpl_paths.yap") CONFIG_FILES="$CONFIG_FILES LGPL/JPL/jpl_paths.yap" ;;
     "GPL/http/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/http/Makefile" ;;
     "GPL/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/Makefile" ;;
-    "cplint/Makefile") CONFIG_FILES="$CONFIG_FILES cplint/Makefile" ;;
+    "pakcgaes/cplint/Makefile") CONFIG_FILES="$CONFIG_FILES pakcgaes/cplint/Makefile" ;;
     "LGPL/PLStream/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/PLStream/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
@@ -17548,4 +17548,4 @@ fi
 
 
 make depend
-(cd LGPL/PLStream; make depend; cd ../..)
+(cd packages/PLStream; make depend; cd ../..)
