@@ -1,0 +1,10 @@
+
+mode(a).
+
+mode(p(int)).
+
+mode(c(int)).
+
+type(int,[1,2,3]).
+
+

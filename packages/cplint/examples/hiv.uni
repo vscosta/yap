@@ -1,0 +1,4 @@
+
+mode(hiv(person)).
+
+type(person,[a,b]).

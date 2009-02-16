@@ -1,0 +1,6 @@
+
+type(person,[mary,john]).
+
+mode(break).
+
+mode(throws(person)).

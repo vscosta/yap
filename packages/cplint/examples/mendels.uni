@@ -1,0 +1,13 @@
+mode(mother(person,person)).
+mode(father(person,person)).
+mode(cg(person,chr,allele)).
+
+type(person,[s,m,f]).
+
+type(chr,[1,2]).
+
+type(allele,[p,w]).
+
+universe(['X'],[s]).
+
+universe(['A','B'],[p,w]).

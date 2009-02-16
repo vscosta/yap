@@ -1,0 +1,4 @@
+mode(death).
+mode(pull_trigger(gun)).
+
+type(gun,[left_gun,right_gun]).
