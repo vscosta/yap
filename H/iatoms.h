@@ -179,6 +179,7 @@
   AtomOutOfStackError = Yap_LookupAtom("out_of_stack_error");
   AtomOutOfTrailError = Yap_LookupAtom("out_of_trail_error");
   AtomOutput = Yap_LookupAtom("output");
+  AtomPrologCommonsDir = Yap_LookupAtom("prolog_commons_directory");
   AtomPastEndOfStream = Yap_LookupAtom("past_end_of_stream");
   AtomPermissionError = Yap_LookupAtom("permission_error");
   AtomPi = Yap_LookupAtom("pi");

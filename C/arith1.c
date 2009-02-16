@@ -524,47 +524,6 @@ eval1(Int fi, Term t) {
       }
     }
   case op_truncate:
-    {
-      Float dbl;
-      switch (ETypeOfTerm(t)) {
-      case long_int_e:
-	if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is truncate(%f)", IntegerOfTerm(t));
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	} else {
-	  RFLOAT(IntegerOfTerm(t));
-	}
-      case double_e:
-	dbl = FloatOfTerm(t);
-	break;
-      case big_int_e:
-#ifdef USE_GMP
-	if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	  process_iso_error(Yap_BigIntOfTerm(t), t, "truncate");
-	  RERROR();
-	} else {
-	  dbl = mpz_get_d(Yap_BigIntOfTerm(t));
-	}
-	break;
-#endif
-      case db_ref_e:
-	RERROR();
-      }
-      if (dbl >= 0 ) {
-	if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	  RBIG_FL(floor(dbl));
-	} else {
-	  RFLOAT(floor(dbl));
-	}
-      } else {
-	if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	  RBIG_FL(ceil(dbl));
-	} else {
-	  RFLOAT(ceil(dbl));
-	}
-      }
-    }
   case op_integer:
     {
       Float dbl;

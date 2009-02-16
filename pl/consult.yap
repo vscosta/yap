@@ -695,6 +695,13 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$system_library_directories'(D),
 	assert(user:library_directory(D)),
 	fail.
+'$find_in_path'(commons(F0),_,_, _) :-
+	'$cat_file_name'(F0,F),
+	% make sure library_directory is open.
+	\+ clause(user:commons_directory(_),_),
+	'$system_commons_directories'(D),
+	assert(user:commons_directory(D)),
+	fail.
 '$find_in_path'(library(File0),Opts,NewFile, Call) :- !,
 	'$dir_separator'(D),
 	'$cat_file_name'(File0,File),
@@ -775,6 +782,11 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	getenv('YAPSHAREDIR', Dir).
 '$system_library_directories'(Dir) :-
 	get_value(system_library_directory,Dir).
+
+'$system_library_directories'(Dir) :-
+	getenv('YAPCOMMONSDIR', Dir).
+'$system_library_directories'(Dir) :-
+	get_value(prolog_commons_directory,Dir).
 
 
 '$extend_path_directory'(Name, D, File, Opts, NewFile, Call) :-

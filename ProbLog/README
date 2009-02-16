@@ -1,7 +1,0 @@
-To compile ProbLog call
-   make
-To clean the directory call
-   make clean
-
-The make file will recursively call the make file of SimpleCudd and Cudd.
-And it will finally copy the binary executable ProblogBDD to the main directory.

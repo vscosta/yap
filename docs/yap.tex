@@ -4687,7 +4687,7 @@ The next argument must be a floating point number. The float @var{F}, the number
 
 @example
     printf("%s.Nc", F)
-@end example
+    @end example
 
 As an example:
 
@@ -5044,11 +5044,18 @@ Writes term @var{T} to stream @var{S} instead of to the current output
 stream.
 
 @item write_canonical(+@var{S},+@var{T}) [ISO]
-@findex display/1
-@syindex display/1
-@cnindex display/1
+@findex write_canonical/2
+@syindex write_canonical/2
+@cnindex write_canonical/2
 Displays term @var{T} on the stream @var{S}. Atoms are quoted when
 necessary, and operators are ignored.
+
+@item write_canonical(+@var{T}) [ISO]
+@findex write_canonical/1
+@syindex write_canonical/1
+@cnindex write_canonical/1
+Displays term @var{T}. Atoms are quoted when necessary, and operators
+are ignored.
 
 @item write_term(+@var{S}, +@var{T}, +@var{Opts}) [ISO]
 @findex write_term/3

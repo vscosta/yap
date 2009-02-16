@@ -2882,7 +2882,7 @@ findExecutable(const char *av0, char *buffer)
 #endif /*__WINDOWS__*/
 
 
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
 static char *
 okToExec(const char *s)
 { struct stat stbuff;

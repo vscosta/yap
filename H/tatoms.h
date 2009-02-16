@@ -364,6 +364,8 @@
 #define AtomOutOfTrailError Yap_heap_regs->AtomOutOfTrailError_
   Atom AtomOutput_;
 #define AtomOutput Yap_heap_regs->AtomOutput_
+  Atom AtomPrologCommonsDir_;
+#define AtomPrologCommonsDir Yap_heap_regs->AtomPrologCommonsDir_
   Atom AtomPastEndOfStream_;
 #define AtomPastEndOfStream Yap_heap_regs->AtomPastEndOfStream_
   Atom AtomPermissionError_;

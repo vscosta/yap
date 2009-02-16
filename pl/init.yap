@@ -88,19 +88,19 @@ lists:append([H|T], L, [H|R]) :-
 
 :- source.
 
-%   member(?Element, ?Set)
-%   is true when Set is a list, and Element occurs in it.  It may be used
-%   to test for an element or to enumerate all the elements by backtracking.
-%   Indeed, it may be used to generate the Set!
+%   memberchk(+Element, +Set)
+%   means the same thing, but may only be used to test whether a known
+%   Element occurs in a known Set.  In return for this limited use, it
+%   is more efficient when it is applicable.
 
 lists:memberchk(X,[X|_]) :- !.
 lists:memberchk(X,[_|L]) :-
 	lists:memberchk(X,L).
 
-%   memberchk(+Element, +Set)
-%   means the same thing, but may only be used to test whether a known
-%   Element occurs in a known Set.  In return for this limited use, it
-%   is more efficient when it is applicable.
+%   member(?Element, ?Set)
+%   is true when Set is a list, and Element occurs in it.  It may be used
+%   to test for an element or to enumerate all the elements by backtracking.
+%   Indeed, it may be used to generate the Set!
 
 lists:member(X,[X|_]).
 lists:member(X,[_|L]) :-
@@ -138,6 +138,10 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 :- multifile user:library_directory/1.
 
 :- dynamic user:library_directory/1.
+
+:- multifile user:commons_directory/1.
+
+:- dynamic user:commons_directory/1.
 
 %
 % cleanup ensure loaded and recover some data-base space.
@@ -187,6 +191,8 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 file_search_path(library, Dir) :-
 	library_directory(Dir).
+file_search_path(commons, Dir) :-
+	commons_directory(Dir0).
 file_search_path(swi, Home) :-
 	current_prolog_flag(home, Home).
 file_search_path(yap, Home) :-

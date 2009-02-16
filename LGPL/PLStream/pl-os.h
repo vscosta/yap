@@ -249,6 +249,7 @@ extern bool  SameFile(const char *f1, const char *f2);
 extern bool  RenameFile(const char *old, const char *new);
 extern bool  ChDir(const char *path);
 extern bool  MarkExecutable(const char *name);
+extern char *PrologPath(const char *ospath, char *path, size_t len);
 
 
 

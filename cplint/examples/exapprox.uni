@@ -1,9 +1,0 @@
-
-universe(['X'],[1,2]).
-
-
-mode(a).
-
-mode(p(int)).
-
-type(int,[1,2]).

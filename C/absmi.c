@@ -11775,16 +11775,22 @@ Yap_absmi(int inp)
       Op(add_int_c, ssn);
       {
 	int off = PREG->u.ssn.s0;
-	if (Yap_isint[PREG->u.ssn.s1]) {
-	  Yap_Ints[off] = Yap_Ints[PREG->u.ssn.s1]+PREG->u.ssn.n;
-	  Yap_isint[off] = TRUE;
-	  if (add_overflow(Yap_Ints[off],Yap_Ints[PREG->u.ssn.s1],PREG->u.ssn.n)) {
+	Int c2 = PREG->u.ssn.n;
+	int isint = Yap_isint[PREG->u.ssn.s1];
+
+	Yap_isint[off] = isint;
+
+	if (isint) {
+	  Int c1 = Yap_Ints[PREG->u.ssn.s1];
+	  Int sum  = c1+c2;
+
+	  if (add_overflow(sum,c1,c2)) {
 	    PREG = ARITH_EXCEPTION;
 	    GONext();
 	  }
+	  Yap_Ints[off] = sum;
 	} else {
-	  Yap_Floats[off] = Yap_Floats[PREG->u.ssn.s1]+PREG->u.ssn.n;
-	  Yap_isint[off] = FALSE;
+	  Yap_Floats[off] = Yap_Floats[PREG->u.ssn.s1]+c2;
 	}
       }
       PREG = NEXTOP(PREG, ssn);
@@ -12671,10 +12677,13 @@ Yap_absmi(int inp)
 
       Op(put_fi_var_y, syl);
       BEGD(d0);
-      if (Yap_isint[PREG->u.syl.s]) {
-	d0 = MkIntegerTerm(Yap_Ints[PREG->u.syl.s]);
-      } else {
-	d0 = MkFloatTerm(Yap_Floats[PREG->u.syl.s]);
+      {
+	COUNT nid = PREG->u.syl.s;
+	if (Yap_isint[nid]) {
+	  d0 = MkIntegerTerm(Yap_Ints[nid]);
+	} else {
+	  d0 = MkFloatTerm(Yap_Floats[nid]);
+	}
       }
       YREG[PREG->u.syl.y] = d0;
       PREG = PREG->u.syl.l;

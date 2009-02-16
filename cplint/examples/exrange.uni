@@ -1,6 +1,0 @@
-
-mode(a(int)).
-
-mode(p(int)).
-
-type(int,[1,2]).

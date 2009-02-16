@@ -85,7 +85,7 @@ typedef struct canonical_dir *	CanonicalDir;	/* pl-os.c */
 typedef struct on_halt *	OnHalt;		/* pl-os.c */
 
 /* The GD global variable */
-struct {
+extern struct {
   int io_initialised;
   cleanup_status cleaning;		/* Inside PL_cleanup() */
 
@@ -237,7 +237,7 @@ typedef struct PL_local_data {
 
 #define features		(LD->feature.mask)
 
-PL_local_data_t lds;
+extern PL_local_data_t lds;
 
 #define exception_term		(LD->exception.term)
 
@@ -265,20 +265,20 @@ PL_local_data_t lds;
 #define TRY(goal)		if ((goal) == FALSE) fail
 
 
-atom_t source_file_name; /** source name of the current file that we are
+extern atom_t source_file_name; /** source name of the current file that we are
 			     consulting */
-int source_line_no; /** guess.... */
+extern int source_line_no; /** guess.... */
 
-IOSTREAM *  Suser_input;
-IOSTREAM *    Suser_output;
-IOSTREAM *    Suser_error;
-IOSTREAM *    Scurin;		/* see/tell */
-IOSTREAM *    Scurout;
-IOSTREAM *    Sprotocol;			/* protocolling */
+extern IOSTREAM *  Suser_input;
+extern IOSTREAM *    Suser_output;
+extern IOSTREAM *    Suser_error;
+extern IOSTREAM *    Scurin;		/* see/tell */
+extern IOSTREAM *    Scurout;
+extern IOSTREAM *    Sprotocol;			/* protocolling */
 
-int fileerrors;
+extern int fileerrors;
 
-int ttymode;
+extern int ttymode;
 
 #define CHARESCAPE_FEATURE	  0x00001 /* handle \ in atoms */
 #define GC_FEATURE		  0x00002 /* do GC */

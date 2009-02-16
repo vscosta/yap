@@ -181,6 +181,7 @@
   AtomOutOfStackError = AtomAdjust(AtomOutOfStackError);
   AtomOutOfTrailError = AtomAdjust(AtomOutOfTrailError);
   AtomOutput = AtomAdjust(AtomOutput);
+  AtomPrologCommonsDir = AtomAdjust(AtomPrologCommonsDir);
   AtomPastEndOfStream = AtomAdjust(AtomPastEndOfStream);
   AtomPermissionError = AtomAdjust(AtomPermissionError);
   AtomPi = AtomAdjust(AtomPi);

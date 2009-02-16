@@ -1,9 +1,0 @@
-universe(['Coin'],[coin1,coin2]).
-
-mode(heads(coin)).
-mode(tails(coin)).
-mode(toss(coin)).
-mode(fair(coin)).
-mode(biased(coin)).
-
-type(coin,[coin1,coin2]).

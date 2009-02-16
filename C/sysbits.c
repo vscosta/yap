@@ -186,15 +186,25 @@ char *libdir = NULL;
 
 void
 Yap_InitSysPath(void) {
+  int len;
 #if _MSC_VER || defined(__MINGW32__)
+  int dir_done = FALSE;
+  int commons_done = FALSE;
   {
     char *dir;
     if ((dir = Yap_RegistryGetString("library"))) {
       Yap_PutValue(AtomSystemLibraryDir,
 		   MkAtomTerm(Yap_LookupAtom(dir)));
-      return;
+      dir_done = TRUE;
+    }
+    if ((dir = Yap_RegistryGetString("prolog_commons"))) {
+      Yap_PutValue(AtomPrologCommonsDir,
+		   MkAtomTerm(Yap_LookupAtom(dir)));
+      commons_done = TRUE;
     }
   }
+  if (dir_done && commons_done)
+    return;
 #endif
   strncpy(Yap_FileNameBuf, SHARE_DIR, YAP_FILENAME_MAX);
 #if _MSC_VER || defined(__MINGW32__)
@@ -243,9 +253,24 @@ Yap_InitSysPath(void) {
 #else
   strncat(Yap_FileNameBuf,"/", YAP_FILENAME_MAX);
 #endif
+  len = strlen(Yap_FileNameBuf);
   strncat(Yap_FileNameBuf, "Yap", YAP_FILENAME_MAX);
-  Yap_PutValue(AtomSystemLibraryDir,
-	   MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
+#if _MSC_VER || defined(__MINGW32__)
+  if (!dir_done) 
+#endif
+    {
+      Yap_PutValue(AtomSystemLibraryDir,
+		   MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
+    }
+#if _MSC_VER || defined(__MINGW32__)
+  if (!commons_done) 
+#endif
+    {
+      Yap_FileNameBuf[len] = '\0';
+      strncat(Yap_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
+      Yap_PutValue(AtomPrologCommonsDir,
+		   MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
+    }
 }
 
 static Int
