@@ -79,7 +79,6 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	'$clean_cuts'(NG0, NG),
 	'$do_c_built_in'(A,M,NA).
 '$do_c_built_in'('C'(A,B,C), _, (A=[B|C])) :- !.
-/*
 '$do_c_built_in'(X is Y, _, P) :-
 	nonvar(Y),		% Don't rewrite variables
 	!,
@@ -98,7 +97,6 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	'$expand_expr'(F, Q, V),
 	'$do_and'(P, Q, R0),
 	'$do_and'(R0, Comp, R).
-*/
 '$do_c_built_in'(P, _, P).
 
 '$do_c_built_metacall'(G1, Mod, '$execute_wo_mod'(G1,Mod)) :- 
@@ -191,9 +189,9 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	'$do_and'(E, '$plus'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
 '$expand_expr'(-, X, Y, O, Q, P) :-
-	var(X), integer(Y), \+ '$bignum'(Y), !,
-	Z is -Y,
-	'$do_and'(Q, '$plus'(X,Z,O), P).
+	var(X), number(Y),
+	Z is -Y, !,
+	'$expand_expr'(+, Z, X, O, Q, P).
 '$expand_expr'(-, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_non_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$minus'(X1,Y1,O), F),
@@ -202,6 +200,10 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$times'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
+'$expand_expr'(//, X, Y, O, Q, P) :-
+	nonvar(Y), Y == 0, !,
+	'$binary_op_as_integer'(//,IOp),
+	'$do_and'(Q, is(O,IOp,X,Y), P).
 '$expand_expr'(//, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_non_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$div'(X1,Y1,O), F),
@@ -214,10 +216,18 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$or'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
+'$expand_expr'(<<, X, Y, O, Q, P) :-
+	var(X), number(Y), Y < 0,
+	Z is -Y, !,
+	'$expand_expr'(>>, X, Z, O, Q, P).
 '$expand_expr'(<<, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_non_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$sll'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
+'$expand_expr'(>>, X, Y, O, Q, P) :-
+	var(X), number(Y), Y < 0,
+	Z is -Y, !,
+	'$expand_expr'(<<, X, Z, O, Q, P).
 '$expand_expr'(>>, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_non_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$slr'(X1,Y1,O), F),
@@ -248,7 +258,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 '$preprocess_args_for_non_commutative'(X, Y, X, Y, true) :-
 	integer(X), \+ '$bignum'(X), var(Y), !.
 '$preprocess_args_for_non_commutative'(X, Y, X, Z, Z = Y) :-
-	integer(X), \+ '$bignum'(Y), !.
+	integer(X), \+ '$bignum'(X), !.
 '$preprocess_args_for_non_commutative'(X, Y, Z, W, E) :-
 	'$do_and'(Z = X, Y = W, E).
 	
@@ -285,6 +295,9 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 '$unaryop'(ceiling(X)	,ceiling,X).
 '$unaryop'(msb(X)	,msb	,X).
 '$unaryop'(sign(X)	,sign	,X).
+'$unaryop'(float_fractional_part(X)	,float_fractional_part	,X).
+'$unaryop'(float_integer_part(X)	,float_integer_part	,X).
+'$unaryop'(lgamma(X)	,lgamma	,X).
 
 % These are the binary arithmetic operators
 '$binaryop'(X+Y		,+	,X,Y).
@@ -305,6 +318,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 '$binaryop'(max(X,Y)	,max	,X,Y).
 '$binaryop'(min(X,Y)	,min	,X,Y).
 '$binaryop'(gcd(X,Y)	,gcd	,X,Y).
+'$binaryop'(atan2(X,Y)	,atan2	,X,Y).
 
 
 % The table number for each operation is given here
