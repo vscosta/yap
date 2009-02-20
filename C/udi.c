@@ -3,6 +3,7 @@
 #include "clause.h"
 #include "udi.h"
 
+
 #include "rtree_udi.h"
 
 /* we can have this stactic because it is written once */
@@ -158,3 +159,4 @@ Yap_udi_init(void)
   RtreeCmd.destroy = RtreeUdiDestroy;
   Yap_InitCPred("$udi_init", 2, p_new_udi, 0);
 }
+
