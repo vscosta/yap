@@ -80,7 +80,8 @@ lists:append([H|T], L, [H|R]) :-
 	 'threads.yap',
 	 'eam.yap',
 	 'chtypes.yap',
-	 'yapor.yap'].
+	 'yapor.yap',
+         'udi.yap'].
 
 :- dynamic prolog:'$user_defined_flag'/2.
 

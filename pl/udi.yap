@@ -22,5 +22,5 @@
 ******************/
 
 udi(Pred) :-
-   '$new_udi'(rtree, Pred).
+   '$udi_init'(rtree, Pred).
 

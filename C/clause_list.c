@@ -54,6 +54,7 @@ Yap_ClauseListExtend(clause_list_t cl, void * clause, void *pred)
 {
   PredEntry *ap = (PredEntry *)pred;
 
+  /*  fprintf(stderr,"cl=%p\n",clause); */
   if (cl->end != H)
     return FALSE;
   if (cl->n == 0) {
@@ -80,7 +81,7 @@ Yap_ClauseListExtend(clause_list_t cl, void * clause, void *pred)
     code_p = NEXTOP(code_p,Otapl);
     code_p->opc = Yap_opcode(_trust);
     code_p->u.Otapl.d = clause;
-    code_p->u.Otapl.s = 0;
+    code_p->u.Otapl.s = ap->ArityOfPE;
     code_p->u.Otapl.p = ap;
 #ifdef TABLING
     code_p->u.Otapl.te = ap->TableOfPred;

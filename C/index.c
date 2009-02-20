@@ -4024,6 +4024,7 @@ expand_index(struct intermediates *cint) {
       ipc = NEXTOP(ipc,e);
       break;
     case _user_switch:
+      labp = &(ipc->u.lp.l);
       ipc = ipc->u.lp.l;
       break;
       /* instructions type e */

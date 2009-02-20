@@ -4032,6 +4032,8 @@ Yap_InitCPreds(void)
 #if defined MYDDAS_TOP_LEVEL && defined MYDDAS_MYSQL // && defined HAVE_LIBREADLINE
   Yap_InitMYDDAS_TopLevelPreds();
 #endif
+  Yap_udi_init();
+
   Yap_InitUserCPreds();
   Yap_InitUtilCPreds();
   Yap_InitSortPreds();

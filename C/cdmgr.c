@@ -778,7 +778,7 @@ Yap_BuildMegaClause(PredEntry *ap)
 #ifdef TABLING
 		       |TabledPredFlag
 #endif /* TABLING */
-		       ) ||
+		       |UDIPredFlag) ||
       ap->cs.p_code.FirstClause == NULL ||
       ap->cs.p_code.NOfClauses < 16) {
     return;

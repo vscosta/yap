@@ -101,6 +101,7 @@ INTERFACE_HEADERS = \
 	$(srcdir)/include/c_interface.h \
 	$(srcdir)/include/clause_list.h \
 	$(srcdir)/include/udi.h \
+	$(srcdir)/include/rtree_udi.h \
 	$(srcdir)/include/yap_structs.h \
 	$(srcdir)/include/YapInterface.h \
 	$(srcdir)/include/SWI-Prolog.h \
@@ -175,6 +176,8 @@ C_SOURCES= \
 	$(srcdir)/C/threads.c \
 	$(srcdir)/C/tracer.c $(srcdir)/C/unify.c $(srcdir)/C/userpreds.c  \
 	$(srcdir)/C/udi.c \
+	$(srcdir)/packages/udi/rtree.c \
+	$(srcdir)/packages/udi/rtree_udi.c \
 	$(srcdir)/C/utilpreds.c $(srcdir)/C/write.c $(srcdir)/console/yap.c \
 	$(srcdir)/C/ypsocks.c $(srcdir)/C/ypstdio.c \
 	$(srcdir)/BEAM/eam_am.c $(srcdir)/BEAM/eam_showcode.c \
@@ -244,7 +247,7 @@ ENGINE_OBJECTS = \
 	myddas_wkb2prolog.o modules.o other.o   \
 	parser.o readutil.o save.o scanner.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
-	udi.o \
+	udi.o rtree.o rtree_udi.o\
 	unify.o userpreds.o utilpreds.o \
 	write.o \
 	yap2swi.o ypsocks.o ypstdio.o @MPI_OBJS@
@@ -452,6 +455,12 @@ tracer.o: $(srcdir)/C/tracer.c
 
 udi.o: $(srcdir)/C/udi.c
 	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/C/udi.c -o $@
+
+rtree.o: $(srcdir)/packages/udi/rtree.c
+	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/packages/udi/rtree.c -o $@
+
+rtree_udi.o: $(srcdir)/packages/udi/rtree_udi.c
+	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/packages/udi/rtree_udi.c -o $@
 
 unify.o: $(srcdir)/C/unify.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/unify.c -o $@

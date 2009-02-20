@@ -3,6 +3,8 @@
 #include "clause.h"
 #include "udi.h"
 
+#include "rtree_udi.h"
+
 /* we can have this stactic because it is written once */
 static struct udi_control_block RtreeCmd;
 
@@ -53,6 +55,7 @@ p_new_udi(void)
   Atom udi_t;
   void *info;
 
+  fprintf(stderr,"new pred babe\n");
   /* get the predicate from the spec, copied from cdmgr.c */
   if (IsVarTerm(spec)) {
     Yap_Error(INSTANTIATION_ERROR,spec,"new user index/1");
@@ -77,8 +80,10 @@ p_new_udi(void)
       spec = ArgOfTerm(2, spec);
       fun = FunctorOfTerm(spec);
     }
-    p = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
+    p = RepPredProp(PredPropByFunc(fun, tmod));
   }
+  if (!p)
+    return FALSE;
   /* boring, boring, boring! */
   if ((p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) ||
       (p->ModuleOfPred == PROLOG_MODULE)) {
@@ -147,8 +152,9 @@ Yap_udi_init(void)
 {
   UdiControlBlocks = NULL;
   /* to be filled in by David */
-  RtreeCmd.init = NULL;
-  RtreeCmd.insert = NULL;
-  RtreeCmd.search = NULL;
-  Yap_InitCPred("$init_udi", 2, p_new_udi, 0);
+  RtreeCmd.init = RtreeUdiInit;
+  RtreeCmd.insert = RtreeUdiInsert;
+  RtreeCmd.search = RtreeUdiSearch;
+  RtreeCmd.destroy = RtreeUdiDestroy;
+  Yap_InitCPred("$udi_init", 2, p_new_udi, 0);
 }
