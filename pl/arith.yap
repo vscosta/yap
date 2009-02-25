@@ -321,62 +321,6 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 '$binaryop'(atan2(X,Y)	,atan2	,X,Y).
 
 
-% The table number for each operation is given here
-% Depends on eval.c
-'$unary_op_as_integer'(+,0).
-'$unary_op_as_integer'(-,1).
-'$unary_op_as_integer'(\,2).
-'$unary_op_as_integer'(exp,3).
-'$unary_op_as_integer'(log,4).
-'$unary_op_as_integer'(log10,5).
-'$unary_op_as_integer'(sqrt,6).
-'$unary_op_as_integer'(sin,7).
-'$unary_op_as_integer'(cos,8).
-'$unary_op_as_integer'(tan,9).
-'$unary_op_as_integer'(sinh,10).
-'$unary_op_as_integer'(cosh,11).
-'$unary_op_as_integer'(tanh,12).
-'$unary_op_as_integer'(asin,13).
-'$unary_op_as_integer'(acos,14).
-'$unary_op_as_integer'(atan,15).
-'$unary_op_as_integer'(asinh,16).
-'$unary_op_as_integer'(acosh,17).
-'$unary_op_as_integer'(atanh,18).
-'$unary_op_as_integer'(floor,19).
-'$unary_op_as_integer'(ceiling,20).
-'$unary_op_as_integer'(round,21).
-'$unary_op_as_integer'(truncate,22).
-'$unary_op_as_integer'(integer,23).
-'$unary_op_as_integer'(float,24).
-'$unary_op_as_integer'(abs,25).
-'$unary_op_as_integer'(msb,26).
-'$unary_op_as_integer'(float_fractional_part,27).
-'$unary_op_as_integer'(float_integer_part,28).
-'$unary_op_as_integer'(sign,29).
-'$unary_op_as_integer'(lgamma,30).
-'$unary_op_as_integer'(random,31).
-
-'$binary_op_as_integer'(+,0).
-'$binary_op_as_integer'(-,1).
-'$binary_op_as_integer'(*,2).
-'$binary_op_as_integer'(/,3).
-'$binary_op_as_integer'(mod,4).
-'$binary_op_as_integer'(rem,5).
-'$binary_op_as_integer'(//,6).
-'$binary_op_as_integer'(<<,7).
-'$binary_op_as_integer'(>>,8).
-'$binary_op_as_integer'(/\,9).
-'$binary_op_as_integer'(\/,10).
-'$binary_op_as_integer'('#',11).
-'$binary_op_as_integer'(atan2,12).
-'$binary_op_as_integer'(^,13).
-'$binary_op_as_integer'('**',14).
-'$binary_op_as_integer'(exp,15).
-'$binary_op_as_integer'(gcd,16).
-'$binary_op_as_integer'(min,17).
-'$binary_op_as_integer'(max,18).
-%'$binary_op_as_integer'(gcdmult,28).
-
 /* Arithmetics					*/
 
 % M and N nonnegative integers, N is the successor of M

@@ -1102,6 +1102,41 @@ p_binary_is(void)
   return(FALSE);
 }
 
+static Int 
+p_binary_op_as_integer(void)
+{				/* X is Y	 */
+  Term t = Deref(ARG1);
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t, "X is Y");
+    return(FALSE);
+  }
+  if (IsIntTerm(t)) {
+    return Yap_unify_constant(ARG2,t);
+  }
+  if (IsAtomTerm(t)) {
+    Atom name = AtomOfTerm(t);
+    ExpEntry *p;
+
+    if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 2)))) {
+      Term ti[2];
+
+      /* error */
+      ti[0] = t;
+      ti[1] = MkIntTerm(1);
+      t = Yap_MkApplTerm(FunctorSlash, 2, ti);
+      Yap_Error(TYPE_ERROR_EVALUABLE, t,
+		"functor %s/%d for arithmetic expression",
+		RepAtom(name)->StrOfAE,2);
+      P = (yamop *)FAILCODE;
+      return(FALSE);
+    }
+    return Yap_unify_constant(ARG2,MkIntTerm(p->FOfEE));
+  }
+  return(FALSE);
+}
+
+
 void
 Yap_InitBinaryExps(void)
 {
@@ -1125,6 +1160,7 @@ Yap_InitBinaryExps(void)
     WRITE_UNLOCK(ae->ARWLock);
   }
   Yap_InitCPred("is", 4, p_binary_is, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$binary_op_as_integer", 2, p_binary_op_as_integer, TestPredFlag|SafePredFlag);
 }
 
 /* This routine is called from Restore to make sure we have the same arithmetic operators */
