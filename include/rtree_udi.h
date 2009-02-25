@@ -13,7 +13,7 @@ extern control_t *RtreeUdiInit (Term spec,
                                 int arity);
 
 /*this is called in each asserted term that was declared to udi_init*/
-extern control_t *RtreeUdiInsert (Term t, /*asserted term*/
+extern control_t *RtreeUdiInsert (Term term, /*asserted term*/
                                   control_t *control,
                                   void *clausule); /*to store in tree and return
                                                      in search*/

@@ -12,7 +12,7 @@
 #include "rtree_udi_i.h"
 #include "rtree_udi.h"
 
-static int YAP_IsNumberTerm (YAP_Term term, YAP_Float *n)
+static int YAP_IsNumberTerm (Term term, YAP_Float *n)
 {
   if (YAP_IsIntTerm (term) != FALSE)
   {
@@ -29,7 +29,7 @@ static int YAP_IsNumberTerm (YAP_Term term, YAP_Float *n)
   return (FALSE);
 }
 
-static rect_t RectOfTerm (YAP_Term term)
+static rect_t RectOfTerm (Term term)
 {
   YAP_Term tmp;
   rect_t rect;
@@ -49,7 +49,7 @@ static rect_t RectOfTerm (YAP_Term term)
   return (rect);
 }
 
-control_t *RtreeUdiInit (YAP_Term spec,
+control_t *RtreeUdiInit (Term spec,
                          void * pred,
                          int arity){
   control_t *control;
@@ -86,7 +86,7 @@ control_t *RtreeUdiInit (YAP_Term spec,
   return control;
 }
 
-control_t *RtreeUdiInsert (YAP_Term term,control_t *control,void *clausule)
+control_t *RtreeUdiInsert (Term term,control_t *control,void *clausule)
 {
   int i;
   rect_t r;

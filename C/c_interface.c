@@ -2508,3 +2508,17 @@ YAP_AttsOfVar(Term t)
   return attv->Atts;
 }
 
+X_API Term
+YAP_TermHash(Term t)
+{
+  attvar_record *attv;
+  
+  t = Deref(t);
+  if (!IsVarTerm(t))
+    return TermNil;
+  if (VarOfTerm(t) >= H0)
+    return TermNil;
+  attv = (attvar_record *)VarOfTerm(t);
+  return attv->Atts;
+}
+
