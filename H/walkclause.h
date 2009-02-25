@@ -49,6 +49,7 @@
     case _retry_logical:
     case _try_logical:
       pc = pc->u.OtaLl.n;
+      break;
       /* instructions type OtapFs */
 #ifdef CUT_C
     case _cut_c:
@@ -80,7 +81,7 @@
     case _try_and_mark:
     case _try_clause:
     case _try_me:
-      clause_code = TRUE;
+      clause_code = FALSE;
       pp = pc->u.Otapl.p;
       pc = NEXTOP(pc,Otapl);
       break;
@@ -122,6 +123,7 @@
     case _copy_idb_term:
       return found_idb_clause(pc, startp, endp);
     case _expand_index:
+      return found_expand(pc, startp, endp);
     case _index_pred:
       return found_owner_op(pc, startp, endp);
     case _lock_pred:
@@ -651,7 +653,7 @@
     case _getwork:
     case _getwork_seq:
     case _sync:
-      clause_code = TRUE;
+      clause_code = FALSE;
       pp = pc->u.Otapl.p;
       pc = NEXTOP(pc,Otapl);
       break;
@@ -673,7 +675,7 @@
     case _table_try_answer:
     case _table_try_me:
     case _table_try_single:
-      clause_code = TRUE;
+      clause_code = FALSE;
       pp = pc->u.Otapl.p;
       pc = NEXTOP(pc,Otapl);
       break;

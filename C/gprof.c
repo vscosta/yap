@@ -939,7 +939,7 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
   void * oldpc= NULL;
 #endif
 #else
-#ifdef __APPLE__
+#if defined(__APPLE__) && defined(i386)
 #ifdef __darwin__
   ucontext_t *sc = (ucontext_t *)scv;
   void * oldpc=(void *) sc->uc_mcontext->ss.srr0; /* 14= POWER PC */
@@ -947,7 +947,7 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
   void * oldpc=(void *) CONTEXT_PC;
 #endif
 #else
-  void *NULL;
+  void *oldpc = NULL;
 #endif
 #endif
   rb_red_blk_node *node = NULL;
@@ -1005,6 +1005,9 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
     if (oop == _call_cpred || oop == _call_usercpred) {
       /* doing C-code */
       current_p = PREVOP(P,Osbpp)->u.Osbpp.p->CodeOfPred;
+    } else if ((oop = Yap_op_from_opcode(PREVOP(P,pp)->opc)) == _execute_cpred) {
+      /* doing C-code */
+      current_p = PREVOP(P,pp)->u.pp.p->CodeOfPred;
     } else {
       current_p = P;
     }
@@ -1037,7 +1040,7 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
     PredEntry *pp = NULL;
     CODEADDR start, end;
 
-    pp = Yap_PredEntryForCode(current_p, FIND_PRED_FROM_ANYWHERE, &start, &end);    
+    pp = Yap_PredEntryForCode(current_p, FIND_PRED_FROM_ANYWHERE, &start, &end);
     if (Yap_OffLineProfiler) fprintf(FProf,"%p\n", pp);
     if (!pp) {
 #if DEBUG
@@ -1051,7 +1054,7 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
     if (start < (CODEADDR)Yap_HeapBase || start > (CODEADDR)HeapTop ||
 	end < (CODEADDR)Yap_HeapBase || end > (CODEADDR)HeapTop) {
 #if DEBUG
-      fprintf(stderr,"Oops2: %p, %p\n", start, end);
+      fprintf(stderr,"Oops2: %p->%d %p, %p\n", current_p, current_p->opc, start, end);
 #endif
       return;
     }

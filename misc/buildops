@@ -300,7 +300,7 @@ output_walk(C,"L",_) :- !,
 	format(C,'      return walk_got_lu_clause(pc->u.L.ClBase, startp, endp);~n',[]).
  % we cannot jump to clause code.
 output_walk(C,"OtaLl",_) :- !,
-	format(C,'      pc = pc->u.OtaLl.n;~n',[]).
+	format(C,'      pc = pc->u.OtaLl.n;~n      break;~n',[]).
 % ops which point at the clause's predicate.
 output_walk(C,"Osblp",_) :- !,
 	label_in_clause(C,"Osblp","p0").
@@ -314,7 +314,10 @@ output_walk(C,"pp",_) :- !,
 output_walk(C,"OtapFs",_) :- !,
 	label_in_clause(C,"OtapFs","p").
 output_walk(C,"Otapl",_) :- !,
-	label_in_clause(C,"Otapl","p").
+	label_in_index(C,"Otapl","p").
+output_walk(C,"p",["retry_profiled"|_]) :- !,
+	add_pi(C,"p","p"),
+	format(C,'      break;~n',[]).
 output_walk(C,"p",[Op|_]) :-
 	special_walk_op(Op), !,
 	add_pp(C,"p","p"),
@@ -350,6 +353,9 @@ output_ewalks(C,["undef_p"|Ops]) :-
 output_ewalks(C,["spy_pred"|Ops]) :-
 	format(C,'      return found_owner_op(pc, startp, endp);~n',[]),
 	output_ewalks(C,Ops).
+output_ewalks(C,["expand_index"|Ops]) :-
+	format(C,'      return found_expand(pc, startp, endp);~n',[]),
+	output_ewalks(C,Ops).
 output_ewalks(C,["index_pred"|Ops]) :-
 	format(C,'      return found_owner_op(pc, startp, endp);~n',[]),
 	output_ewalks(C,Ops).
@@ -374,6 +380,17 @@ label_in_clause(C,Type,Field) :-
 	format(C,'      pp = pc->u.~s.~s;~n',[Type,Field]),
 	format(C,'      pc = NEXTOP(pc,~s);
       break;~n',[Type]).
+
+label_in_index(C,Type,Field) :-
+	format(C,'      clause_code = FALSE;~n',[]),
+	format(C,'      pp = pc->u.~s.~s;~n',[Type,Field]),
+	format(C,'      pc = NEXTOP(pc,~s);
+      break;~n',[Type]).
+
+add_pi(C,Type,Field) :-
+	format(C,'      pp = pc->u.~s.~s;~n',[Type,Field]),
+	format(C,'      clause_code = FALSE;~n',[]),
+	format(C,'      pc = NEXTOP(pc,~s);~n',[Type]).
 
 add_pp(C,Type,Field) :-
 	format(C,'      pp = pc->u.~s.~s;~n',[Type,Field]),

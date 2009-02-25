@@ -3779,10 +3779,10 @@ found_idb_clause(yamop *pc, CODEADDR *startp, CODEADDR *endp)
 static PredEntry *
 found_expand_index(yamop *pc, CODEADDR *startp, CODEADDR *endp, yamop *codeptr)
 {
-  PredEntry *pp = ((PredEntry *)(Unsigned(pc)-(CELL)(&(((PredEntry *)NULL)->cs.p_code.ExpandCode))));
+  PredEntry *pp = codeptr->u.sssllp.p;
   if (pc == codeptr) {
-    *startp = (CODEADDR)&(pp->cs.p_code.ExpandCode);
-    *endp = (CODEADDR)&(pp->cs.p_code.ExpandCode);
+    *startp = (CODEADDR)codeptr;
+    *endp = (CODEADDR)NEXTOP(codeptr,sssllp);
   }
   return pp;
 }
@@ -3803,6 +3803,16 @@ found_owner_op(yamop *pc, CODEADDR *startp, CODEADDR *endp)
   PredEntry *pp = ((PredEntry *)(Unsigned(pc)-(CELL)(&(((PredEntry *)NULL)->OpcodeOfPred))));
   *startp = (CODEADDR)&(pp->OpcodeOfPred);
   *endp = (CODEADDR)NEXTOP((yamop *)&(pp->OpcodeOfPred),e);
+  return pp;
+}
+
+/* we hit a expand_index, no point in going on */
+static PredEntry *
+found_expand(yamop *pc, CODEADDR *startp, CODEADDR *endp)
+{
+  PredEntry *pp = ((PredEntry *)(Unsigned(pc)-(CELL)(&(((PredEntry *)NULL)->cs.p_code.ExpandCode))));
+  *startp = (CODEADDR)&(pp->cs.p_code.ExpandCode);
+  *endp = (CODEADDR)NEXTOP((yamop *)&(pp->cs.p_code.ExpandCode),e);
   return pp;
 }
 
