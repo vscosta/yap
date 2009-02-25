@@ -134,6 +134,7 @@ typedef enum compiler_op {
   fetch_args_vi_op,
   f_var_op,
   f_val_op,
+  f_0_op,
   enter_profiling_op,
   retry_profiled_op,
   count_call_op,
@@ -173,7 +174,6 @@ typedef enum compiler_op {
   wait_while_var_op,
   force_wait_op,
   write_op,
-  is_op,
   equal_op,
   exit_op, 
 #endif
@@ -276,6 +276,7 @@ typedef struct VENTRY {
 	 PInstr *LastOpForV;
 	 BITS16 AgeOfVE;
 	 BITS16 BranchOfVE;
+	 BITS16 LastBranchOfVE;
 	 BITS16 FirstOfVE;
 	 BITS16 RCountOfVE;
 	 BITS16 FlagsOfVE;

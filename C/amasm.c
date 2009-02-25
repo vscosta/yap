@@ -2471,7 +2471,13 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 {
   Int opc = cip->cpc->rnd2;
   Ventry *ve = (Ventry *)(cip->cpc->rnd1);
-  int is_y_var = (ve->KindOfVE == PermVar);
+  int is_y_var = FALSE;
+  Int xpos = 0;
+
+  if (ve) {
+    is_y_var = (ve->KindOfVE == PermVar);
+    xpos = ve->NoOfVE & MaskVarAdrs;
+  }
 
   if (opc <= _primitive) {
     if (is_y_var) {
@@ -2518,7 +2524,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
       return code_p;
     } else {
       if (pass_no) {
-	code_p->u.xl.x = emit_x(ve->NoOfVE & MaskVarAdrs);
+	code_p->u.xl.x = emit_x(xpos);
 	switch (opc) {
 	case _atom:
 	  code_p->opc = opcode(_p_atom_x);
@@ -2560,13 +2566,21 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
       return code_p;
     }
   }
-  if (opc == _functor && cip->cpc->nextInst->op == f_var_op) {
+  if (opc == _functor
+      && (cip->cpc->nextInst->op == f_var_op ||
+	  cip->cpc->nextInst->op == f_0_op)) {
     Ventry *nve;
+    int is_y_nvar = FALSE;
+    Int nxpos = 0;
 
     cip->cpc = cip->cpc->nextInst;
     nve = (Ventry *)(cip->cpc->rnd1);
+    if (nve) {
+      is_y_nvar = (nve->KindOfVE == PermVar);
+      nxpos = nve->NoOfVE & MaskVarAdrs;
+    }
     if (is_y_var) {
-      if (nve->KindOfVE == PermVar) {
+      if (is_y_nvar) {
 	if (pass_no) {
 	  code_p->opc = emit_op(_p_func2f_yy);
 	  code_p->u.yyx.y1 = emit_y(ve);
@@ -2579,17 +2593,17 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	if (pass_no) {
 	  code_p->opc = emit_op(_p_func2f_yx);
 	  code_p->u.yxx.y = emit_y(ve);
-	  code_p->u.yxx.x1 = emit_x(nve->NoOfVE & MaskVarAdrs);
+	  code_p->u.yxx.x1 = emit_x(nxpos);
 	  code_p->u.yxx.x2 = cmp_info->x1_arg;
 	}
 	GONEXT(yxx);
 	return code_p;
       }
     } else {
-      if (nve->KindOfVE == PermVar) {
+      if (is_y_nvar) {
 	if (pass_no) {
 	  code_p->opc = emit_op(_p_func2f_xy);
-	  code_p->u.xxy.x1 = emit_x(ve->NoOfVE & MaskVarAdrs);
+	  code_p->u.xxy.x1 = emit_x(xpos);
 	  code_p->u.xxy.y2 = emit_y(nve);
 	  code_p->u.xxy.x = cmp_info->x1_arg;
 	}
@@ -2598,8 +2612,8 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
       } else {
 	if (pass_no) {
 	  code_p->opc = emit_op(_p_func2f_xx);
-	  code_p->u.xxx.x1 = emit_x(ve->NoOfVE & MaskVarAdrs);
-	  code_p->u.xxx.x2 = emit_x(nve->NoOfVE & MaskVarAdrs);
+	  code_p->u.xxx.x1 = emit_x(xpos);
+	  code_p->u.xxx.x2 = emit_x(nxpos);
 	  code_p->u.xxx.x = cmp_info->x1_arg;
 	}
 	GONEXT(xxx);
@@ -2788,7 +2802,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_func2s_vv);
 	  break;
 	}
-	code_p->u.xxx.x = emit_x(ve->NoOfVE & MaskVarAdrs);
+	code_p->u.xxx.x = emit_x(xpos);
 	code_p->u.xxx.x1 = cmp_info->x1_arg;
 	code_p->u.xxx.x2 = cmp_info->x2_arg;
       }
@@ -2836,7 +2850,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_func2s_cv);
 	  break;
 	}
-	code_p->u.xxn.x = emit_x(ve->NoOfVE & MaskVarAdrs);
+	code_p->u.xxn.x = emit_x(xpos);
 	code_p->u.xxn.c = cmp_info->c_arg;
 	code_p->u.xxn.xi = cmp_info->x1_arg;
       }
@@ -2890,7 +2904,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_func2s_vc);
 	  break;
 	}
-	code_p->u.xxn.x = emit_x(ve->NoOfVE & MaskVarAdrs);
+	code_p->u.xxn.x = emit_x(xpos);
 	code_p->u.xxn.c = cmp_info->c_arg;
 	code_p->u.xxn.xi = cmp_info->x1_arg;
       }
@@ -3797,6 +3811,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_f2(FALSE, &cmp_info, code_p, pass_no, cip);
       break;
     case f_var_op:
+      code_p = a_f2(TRUE, &cmp_info, code_p, pass_no, cip);
+      break;
+    case f_0_op:
       code_p = a_f2(TRUE, &cmp_info, code_p, pass_no, cip);
       break;
     case enter_profiling_op:

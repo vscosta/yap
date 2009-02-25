@@ -332,7 +332,7 @@ check_var(Term t, unsigned int level, Int argno, compiler_struct *cglobs) {
     /* Be careful with eithers. I may make a variable global in a branch,
        and not in another.
        a :- (b([X]) ; c), go(X).
-       This variaiable will not be globalised if we are coming from
+       This variable will not be globalised if we are coming from
        the second branch.
 
        I also need to protect the onhead because Luis uses that to
@@ -872,15 +872,20 @@ c_eq(Term t1, Term t2, compiler_struct *cglobs)
   }
   /* first argument is an unbound var */
   if (IsNewVar(t1)) {
-    Int v = --cglobs->tmpreg;
+    Int v;
     if (IsVarTerm(t2)) {
+      v = 0;
       c_var(t2, v, 0, 0, cglobs);
+      cglobs->onhead = TRUE;
+      c_var(t1, v, 0, 0, cglobs);
+      cglobs->onhead = FALSE;    
     } else {
+      v = --cglobs->tmpreg;
       c_arg(v, t2, 0, 0, cglobs);
+      cglobs->onhead = TRUE;
+      c_var(t1, v, 0, 0, cglobs);
+      cglobs->onhead = FALSE;    
     }
-    cglobs->onhead = TRUE;
-    c_var(t1, v, 0, 0, cglobs);
-    cglobs->onhead = FALSE;    
   } else {
     Int v = --cglobs->tmpreg;
     c_var(t1, v, 0, 0, cglobs);
@@ -1006,7 +1011,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, int mod, compiler_struct *
       /* it has to be either an integer or a floating point */
       } else if (IsIntegerTerm(t2)) {
 	/* first temp */
-	Int v1 = --cglobs->tmpreg;
+	Int v1 = 0;
 
 	Yap_emit(fetch_args_vi_op, IntegerOfTerm(t2), 0L, &cglobs->cint);
 	/* these should be the arguments */
@@ -1248,7 +1253,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, int mod, compiler_struct *
 	  return;
 	} else {
 	  /* first temp */
-	  Int v1 = --cglobs->tmpreg;
+	  Int v1 = 0;
 	  Yap_emit(fetch_args_cv_op, t1, Zero, &cglobs->cint);
 	  /* these should be the arguments */
 	  c_var(t2, v1, 0, 0, cglobs);
@@ -1257,7 +1262,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, int mod, compiler_struct *
       }
     } else if (IsIntegerTerm(t1)) {
       /* first temp */
-      Int v1 = --cglobs->tmpreg;
+      Int v1 = 0;
       Yap_emit(fetch_args_iv_op, IntegerOfTerm(t1), 0L, &cglobs->cint);
       /* these should be the arguments */
       c_var(t2, v1, 0, 0, cglobs);
@@ -1304,19 +1309,15 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, int mod, compiler_struct *
     }
   } else {
     /* generate code for a temp and then unify temp with previous variable */ 
-    Term tmpvar = MkVarTerm();
-    if (H == (CELL *)cglobs->cint.freep0) {
-      /* oops, too many new variables */
-      save_machine_regs();
-      longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
-    }
-    c_var(tmpvar,f_flag,(unsigned int)Op, 0, cglobs);
+    Yap_emit(f_0_op, 0, (unsigned int)Op, &cglobs->cint);
     /* I have to dit here, before I do the unification */
     if (Op == _functor) {
-      Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
+      Yap_emit(empty_call_op, Zero, (unsigned int)Op, &cglobs->cint);
       Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
     }
-    c_eq(tmpvar,t3, cglobs);
+    cglobs->onhead = TRUE;
+    c_var(t3, 0, 0, 0, cglobs);
+    cglobs->onhead = FALSE;
   }
 }
 
@@ -2725,6 +2726,7 @@ checktemp(Int arg, Int rn, compiler_vm_op ic, compiler_struct *cglobs)
   Int vadr;
   Int vreg;
 
+  
   cglobs->vadr = vadr = (v->NoOfVE);
   cglobs->vreg = vreg = vadr & MaskVarAdrs;
   if (v->KindOfVE == PermVar || v->KindOfVE == VoidVar)
@@ -2823,7 +2825,6 @@ checkreg(Int arg, Int rn, compiler_vm_op ic, int var_arg, compiler_struct *cglob
 
   if (rn >= 0)
     return rn;
-  vreg = 0;
   if (var_arg) {
     Ventry *v = (Ventry *) arg;
 
@@ -2832,16 +2833,21 @@ checkreg(Int arg, Int rn, compiler_vm_op ic, int var_arg, compiler_struct *cglob
       vreg = 0;
     else if (vreg == 0) {
       checktemp(arg, rn, ic, cglobs);
+      vreg = (v->NoOfVE) & MaskVarAdrs;
       ++cglobs->Uses[vreg];
     }
-  }
-  if (vreg == 0) {
-    vreg = cglobs->MaxCTemps;
-    do
-      --vreg;
-    while (vreg && cglobs->Uses[vreg] == 0);
-    ++vreg;
-    ++cglobs->Uses[vreg];
+    if (!vreg) {
+      vreg = 1;
+      while (cglobs->Uses[vreg] != 0) {
+	++vreg;
+      }
+      cglobs->Uses[vreg] = v->RCountOfVE;
+    }
+  } else {
+    vreg = 1;
+    while (cglobs->Uses[vreg] != 0) {
+      ++vreg;
+    }
   }
   while (p) {
     if (p->op >= get_var_op && p->op <= put_unsafe_op && p->rnd2 == rn)
@@ -2953,6 +2959,13 @@ c_layout(compiler_struct *cglobs)
     compiler_vm_op ic = cglobs->cint.cpc->op;
     Int arg = cglobs->cint.cpc->rnd1;
     Int rn = cglobs->cint.cpc->rnd2;
+#if LOW_LEVEL_TRACER
+  {
+    extern int Yap_do_low_level_trace;
+    if (0 && Yap_do_low_level_trace)
+      fprintf(stderr,"%d %x uses %d,%d,%d,%d,%d,6:%d,%d,%d,%d,%d\n",ic,cglobs->Contents[10],cglobs->Uses[1],cglobs->Uses[2],cglobs->Uses[3],cglobs->Uses[4],cglobs->Uses[5],cglobs->Uses[6],cglobs->Uses[7],cglobs->Uses[8],cglobs->Uses[9],cglobs->Uses[10]);
+  }
+#endif
     switch (ic) {
     case pop_or_op:
       if (needs_either)
@@ -2999,12 +3012,18 @@ c_layout(compiler_struct *cglobs)
 #endif
 	  cglobs->cint.cpc->op = nop_op;
       }
-      cglobs->Contents[rn] = cglobs->vadr;
+      if (!cglobs->Uses[rn])
+	cglobs->Contents[rn] = cglobs->vadr;
       break;
     case get_val_op:
       --cglobs->Uses[rn];
       checktemp(arg, rn, ic, cglobs);
-      cglobs->Contents[rn] = cglobs->vadr;
+      if (!cglobs->Uses[rn])
+	cglobs->Contents[rn] = cglobs->vadr;
+      break;
+    case f_0_op:
+      if (rn_to_kill[0]) --cglobs->Uses[rn_to_kill[0]];
+      rn_to_kill[1]=rn_to_kill[0]=0;
       break;
     case f_var_op:
       if (rn_to_kill[0]) --cglobs->Uses[rn_to_kill[0]];
@@ -3036,12 +3055,17 @@ c_layout(compiler_struct *cglobs)
     case get_longint_op:
     case get_bigint_op:
       --cglobs->Uses[rn];
-      cglobs->Contents[rn] = arg;
+      /* This is not safe if we are in the middle of a disjunction and there
+	 is something ahead.
+       */
+      if (!cglobs->Uses[rn])
+	cglobs->Contents[rn] = arg;
       break;
     case get_list_op:
     case get_struct_op:
-      cglobs->Contents[rn] = NIL;
       --cglobs->Uses[rn];
+      if (!cglobs->Uses[rn])
+	cglobs->Contents[rn] = NIL;
       break;
     case put_var_op:
     case put_unsafe_op:
@@ -3074,7 +3098,8 @@ c_layout(compiler_struct *cglobs)
       if (cglobs->cint.cpc->nextInst &&
 	  cglobs->cint.cpc->nextInst->op == put_val_op &&
 	  cglobs->cint.cpc->nextInst->nextInst &&
-	  cglobs->cint.cpc->nextInst->nextInst->op == f_var_op)
+	  (cglobs->cint.cpc->nextInst->nextInst->op == f_var_op ||
+	   cglobs->cint.cpc->nextInst->nextInst->op == f_0_op) )
 	rn_kills = 1;
       break;
     case f_val_op:
