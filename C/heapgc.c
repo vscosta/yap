@@ -3907,6 +3907,8 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   }
   if (gc_margin < gc_lim)
     gc_margin = gc_lim;
+  if (gc_margin < CalculateStackGap())
+    gc_margin = CalculateStackGap();
   GcCalls++;
   HGEN = VarOfTerm(Yap_ReadTimedVar(GcGeneration));
   if (gc_on && !(Yap_PrologMode & InErrorMode) &&

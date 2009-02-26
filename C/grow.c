@@ -162,7 +162,7 @@ SetHeapRegs(void)
   if (B)
     B = ChoicePtrAdjust(B);
   if (CurrentDelayTop)
-    CurrentDelayTop = PtoGloAdjust(CurrentDelayTop);
+    CurrentDelayTop = PtoDelayAdjust(CurrentDelayTop);
 #ifdef CUT_C
   if (Yap_REGS.CUT_C_TOP)
     Yap_REGS.CUT_C_TOP = (cut_c_str_ptr)ChoicePtrAdjust((choiceptr)Yap_REGS.CUT_C_TOP);
@@ -743,6 +743,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
       /* expanding attributed variables */
       if (omax - size > Yap_GlobalBase+4096*sizeof(CELL)) {
 	size = -size;
+	do_grow = FALSE;
       }
     } else if (hsplit < (CELL*)omax ||
 	hsplit > H)

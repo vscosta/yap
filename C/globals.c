@@ -150,11 +150,11 @@ NewDelayArena(UInt size)
   UInt howmuch;
 
   while ((ADDR)min < Yap_GlobalBase+1024) {
-    if ((howmuch = Yap_InsertInGlobal((CELL *)max, size*sizeof(attvar_record)))==0) {
+    UInt bsize = size*sizeof(attvar_record);
+    if ((howmuch = Yap_InsertInGlobal((CELL *)max, bsize))==0) {
       Yap_Error(OUT_OF_STACK_ERROR,TermNil,"No Stack Space for Non-Backtrackable terms");
       return TermNil;
     }
-    size = howmuch/sizeof(attvar_record);
     max = DelayTop(), min = max-size;
   }
   out = CreateDelayArena(max, min);
@@ -168,6 +168,7 @@ GrowDelayArena(Term *arenap, UInt old_size, UInt size, UInt arity)
   Term arena = *arenap;
   UInt howmuch;
 
+  DelayArenaOverflows++;
   if (size == 0) {
     if (old_size < 1024) {
       size = old_size*2;
@@ -1442,11 +1443,14 @@ p_nb_queue(void)
     return FALSE;
 #if COROUTINING
   {
-    UInt delay_arena_sz = ((attvar_record *)H0- DelayTop())/16;
-    if (delay_arena_sz <2) 
-      delay_arena_sz = 2;
-    if (delay_arena_sz > 256)
-      delay_arena_sz = 256;
+    UInt delay_arena_sz = 2;
+    if (DelayArenaOverflows) {
+      delay_arena_sz = ((attvar_record *)H0- DelayTop())/16;
+      if (delay_arena_sz <2) 
+	delay_arena_sz = 2;
+      if (delay_arena_sz > 256)
+	delay_arena_sz = 256;
+    }
     delay_queue_arena = NewDelayArena(delay_arena_sz);
     if (delay_queue_arena == 0L) {
       return FALSE;
@@ -1514,6 +1518,7 @@ RecoverDelayArena(Term delay_arena)
     *max = DelayTop();
   if (max == pt-DelayArenaSz(delay_arena)) {
       SetDelayTop(pt);
+  } else {
   }
 }
 #endif

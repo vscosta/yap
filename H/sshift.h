@@ -139,9 +139,9 @@ inline EXTERN CELL
 GlobalAdjust (CELL val)
 {
   if ((CELL *)val < GSplit) {
-    return (CELL) ((val + GDiff0));
+    return (CELL) (val + GDiff0);
   } else {
-    return (CELL) ((val + GDiff));
+    return (CELL) (val + GDiff);
   }
 }
 
@@ -776,6 +776,15 @@ inline EXTERN int
 IsOldGlobal (CELL reg)
 {
   return (int) (IN_BETWEEN (OldGlobalBase, reg, OldH));
+}
+
+
+inline EXTERN int IsOldDelay (CELL);
+
+inline EXTERN int
+IsOldDelay (CELL reg)
+{
+  return (int) (IN_BETWEEN (OldGlobalBase, reg, OldH0));
 }
 
 
