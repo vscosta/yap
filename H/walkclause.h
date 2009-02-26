@@ -27,12 +27,17 @@
       pc = NEXTOP(pc,Osbmp);
       break;
       /* instructions type Osbpp */
+    case _call_cpred:
+      pp = pc->u.Osbpp.p;
+      return walk_found_c_pred(pp, startp, endp);
+    case _call_usercpred:
+      pp = pc->u.Osbpp.p;
+      return walk_found_c_pred(pp, startp, endp);
     case _p_execute2:
+      return found_meta_call(startp, endp);
     case _p_execute_tail:
       return found_meta_call(startp, endp);
     case _call:
-    case _call_cpred:
-    case _call_usercpred:
     case _fcall:
       clause_code = TRUE;
       pp = pc->u.Osbpp.p0;
@@ -340,9 +345,11 @@
       pc = NEXTOP(pc,plyys);
       break;
       /* instructions type pp */
+    case _execute_cpred:
+      pp = pc->u.pp.p;
+      return walk_found_c_pred(pp, startp, endp);
     case _dexecute:
     case _execute:
-    case _execute_cpred:
       clause_code = TRUE;
       pp = pc->u.pp.p0;
       pc = NEXTOP(pc,pp);
@@ -368,8 +375,8 @@
       break;
       /* instructions type slp */
     case _call_c_wfail:
-      pc = NEXTOP(pc,slp);
-      break;
+      pp = pc->u.slp.p;
+      return walk_found_c_pred(pp, startp, endp);
       /* instructions type snll */
     case _a_eqc_int:
     case _gtc_int:

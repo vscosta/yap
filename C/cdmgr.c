@@ -3748,9 +3748,19 @@ walk_got_lu_clause(LogUpdClause *cl, CODEADDR *startp, CODEADDR *endp)
 static PredEntry *
 found_meta_call(CODEADDR *startp, CODEADDR *endp)
 {
-  PredEntry *pp = RepPredProp(Yap_GetPredPropByFunc(FunctorCall, CurrentModule));
+  PredEntry *pp = PredMetaCall;
   *startp = (CODEADDR)&(pp->OpcodeOfPred);
   *endp = (CODEADDR)NEXTOP((yamop *)&(pp->OpcodeOfPred),e);
+  return pp;
+}
+
+/* intruction blocks we found ourselves at */
+static PredEntry *
+walk_found_c_pred(PredEntry *pp, CODEADDR *startp, CODEADDR *endp)
+{
+  StaticClause  *cl = ClauseCodeToStaticClause(pp->CodeOfPred);
+  *startp = (CODEADDR)&(cl->ClCode);
+  *endp = (CODEADDR)&(cl->ClCode)+cl->ClSize;
   return pp;
 }
 
