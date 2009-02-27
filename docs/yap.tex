@@ -9377,6 +9377,13 @@ search. They are allowed through @code{library(nb)}.
 @cnindex nb_queue/1
 Create a @var{Queue}.
 
+@item nb_queue(-@var{Queue},+@var{Size})
+@findex nb_queue/2
+@snindex nb_queue/2
+@cnindex nb_queue/2
+Create a @var{Queue} with initial size @var{Size}, measured in stack
+cells.
+
 @item nb_queue_close(+@var{Queue}, -@var{Head}, ?@var{Tail})
 @findex nb_queue_close/3
 @snindex nb_queue_close/3
