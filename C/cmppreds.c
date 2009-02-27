@@ -572,7 +572,7 @@ a_cmp(Term t1, Term t2)
       Int i2 = IntegerOfTerm(t2);
       return flt_cmp(f1-i2);
     } else if (IsFloatTerm(t2)) {
-      Float f2 = FloatOfTerm(2);
+      Float f2 = FloatOfTerm(t2);
       return flt_cmp(f1-f2);
     } else if (IsBigIntTerm(t2)) {
 #ifdef USE_GMP
@@ -595,7 +595,7 @@ a_cmp(Term t1, Term t2)
 	Float f2 = FloatOfTerm(t2);
 	return flt_cmp(mpz_get_d(b1)-f2);
       } else if (IsBigIntTerm(t2)) {
-	MP_INT *b2 = Yap_BigIntOfTerm(2);
+	MP_INT *b2 = Yap_BigIntOfTerm(t2);
 	return int_cmp(mpz_cmp(b1,b2));
       } else {
 	return FALSE;
@@ -628,48 +628,21 @@ a_eq(Term t1, Term t2)
     Yap_Error(INSTANTIATION_ERROR, t2, "=:=/2");
     return(FALSE);
   }
-  if (IsFloatTerm(t1) && IsFloatTerm(t2))
-    return (FloatOfTerm(t1) == FloatOfTerm(t2));
-  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
-    return (IntegerOfTerm(t1) == IntegerOfTerm(t2));
-  t1 = Yap_Eval(t1);
-  if (IsIntegerTerm(t1)) {
-    t2 = Yap_Eval(t2);
-    Int i1 = IntegerOfTerm(t1);
-
-    if (IsIntegerTerm(t2)) {
-      Int i2 = IntegerOfTerm(t2);
-      return(i1==i2);
-    } else {
-      return FALSE;
+  if (IsFloatTerm(t1)) {
+    if (IsFloatTerm(t2))
+      return (FloatOfTerm(t1) == FloatOfTerm(t2));
+    else if (IsIntegerTerm(t2)) {
+      return (FloatOfTerm(t1) == IntegerOfTerm(t2));
     }
-  } else if (IsFloatTerm(t1)) {
-    t2 = Yap_Eval(t2);
-    Float f1 = FloatOfTerm(t1);
-
-    if (IsFloatTerm(t2)) {
-      Float f2 = FloatOfTerm(2);
-      return(f1 == f2);
-    } else {
-      return FALSE;
-    }
-  } else if (IsBigIntTerm(t1)) {
-#ifdef USE_GMP
-    {
-    t2 = Yap_Eval(t2);
-    MP_INT *b1 = Yap_BigIntOfTerm(t1);
-
-    if (IsBigIntTerm(t2)) {
-      MP_INT *b2 = Yap_BigIntOfTerm(2);
-      return(mpz_cmp(b1,b2) == 0);
-    } else {
-      return(FALSE);
-    }
-    }
-#endif
-  } else {
-    return(FALSE);
   }
+  if (IsIntegerTerm(t1)) {
+    if (IsIntegerTerm(t2)) {
+      return (IntegerOfTerm(t1) == IntegerOfTerm(t2));
+    } else if (IsFloatTerm(t2)) {
+      return (FloatOfTerm(t2) == IntegerOfTerm(t1));
+    }
+  }
+  return (a_cmp(t1,t2) == 0);
 }
 
 static Int 
