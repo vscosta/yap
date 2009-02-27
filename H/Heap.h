@@ -106,6 +106,8 @@ extern struct restore_info rinfo;
 typedef struct worker_local_struct {
   struct format_status *f_info;
   Int delay_arena_overflows;
+  Int arena_overflows;
+  Int depth_arenas;
   char *scanner_stack;
   struct scanner_extra_alloc *scanner_extra_blocks;
 #if defined(YAPOR) || defined(THREADS)
@@ -690,6 +692,8 @@ extern struct various_codes *Yap_heap_regs;
 #define  DebugOn                  Yap_heap_regs->WL.debug_on
 #define  FormatInfo               Yap_heap_regs->WL.f_info
 #define  DelayArenaOverflows      Yap_heap_regs->WL.delay_arena_overflows
+#define  ArenaOverflows		  Yap_heap_regs->WL.arena_overflows
+#define  DepthArenas		  Yap_heap_regs->WL.depth_arenas
 #define  ScannerStack             Yap_heap_regs->WL.scanner_stack
 #define  ScannerExtraBlocks       Yap_heap_regs->WL.scanner_extra_blocks
 #define  Yap_BigTmp               Yap_heap_regs->WL.big_tmp

@@ -24,6 +24,7 @@ static char SccsId[] = "%W% %G%";
 #include "yapio.h"
 #include "iopreds.h"
 #include "attvar.h"
+#include <math.h>
 
 /* Non-backtrackable terms will from now on be stored on arenas, a
    special term on the heap. Arenas automatically contract as we add terms to
@@ -44,6 +45,7 @@ static char SccsId[] = "%W% %G%";
 #define HEAP_START 4
 
 #define MIN_ARENA_SIZE 2048
+#define MAX_ARENA_SIZE (2048*16)
 
 #define Global_MkIntegerTerm(I) MkIntegerTerm(I)
 
@@ -265,6 +267,7 @@ adjust_cps(UInt size)
 static int
 GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity)
 {
+  ArenaOverflows++;
   if (size == 0) {
     if (old_size < 1024*1024) {
       size = old_size;
@@ -1423,8 +1426,13 @@ p_nb_queue(void)
 #endif
   Term t = Deref(ARG1);
   UInt arena_sz = (ASP-H)/16;
+  DepthArenas++;
+  if (DepthArenas > 1)
+    arena_sz /= log(MIN_ARENA_SIZE);
   if (arena_sz < MIN_ARENA_SIZE)
     arena_sz = MIN_ARENA_SIZE;
+  if (arena_sz > MAX_ARENA_SIZE)
+    arena_sz = MAX_ARENA_SIZE;
 
   if (!IsVarTerm(t)) {
     if (!IsApplTerm(t)) {
@@ -1539,6 +1547,7 @@ p_nb_queue_close(void)
   Term t = Deref(ARG1);
   Int out;
 
+  DepthArenas--;
   if (!IsVarTerm(t)) {
     CELL *qp;
 

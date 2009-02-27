@@ -3907,8 +3907,6 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   }
   if (gc_margin < gc_lim)
     gc_margin = gc_lim;
-  if (gc_margin < CalculateStackGap())
-    gc_margin = CalculateStackGap();
   GcCalls++;
   HGEN = VarOfTerm(Yap_ReadTimedVar(GcGeneration));
   if (gc_on && !(Yap_PrologMode & InErrorMode) &&
@@ -3929,7 +3927,9 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   if (ASP - H < gc_margin/sizeof(CELL) ||
       effectiveness < 20) {
     LeaveGCMode();
-    return Yap_growstack(gc_margin);
+    if (gc_margin < 2*CalculateStackGap())
+      gc_margin = 2*CalculateStackGap();
+    return Yap_growstack(gc_margin*sizeof(CELL));
   }
   /*
    * debug for(save_total=1; save_total<=N; ++save_total)

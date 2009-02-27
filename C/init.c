@@ -1416,6 +1416,8 @@ Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size,
   ActiveSignals = 0;
   DoingUndefp = FALSE;
   DelayArenaOverflows = 0;
+  ArenaOverflows = 0;
+  DepthArenas = 0;
   DBErasedList = NULL;
   DBErasedIList = NULL;
   Yap_heap_regs->IntLUKeys = NULL;
