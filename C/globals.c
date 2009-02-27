@@ -1417,23 +1417,16 @@ p_nb_create2(void)
 
 /* a non-backtrackable queue is a term of the form $array(Arena,Start,End,Size) plus an Arena. */
 
-static Int
-p_nb_queue(void)
+static Int 
+nb_queue(UInt arena_sz)
 {
   Term queue_arena, queue, ar[5], *nar;
 #if COROUTINING
   Term delay_queue_arena;
 #endif
   Term t = Deref(ARG1);
-  UInt arena_sz = (ASP-H)/16;
-  DepthArenas++;
-  if (DepthArenas > 1)
-    arena_sz /= log(MIN_ARENA_SIZE);
-  if (arena_sz < MIN_ARENA_SIZE)
-    arena_sz = MIN_ARENA_SIZE;
-  if (arena_sz > MAX_ARENA_SIZE)
-    arena_sz = MAX_ARENA_SIZE;
 
+  DepthArenas++;
   if (!IsVarTerm(t)) {
     if (!IsApplTerm(t)) {
       return FALSE;
@@ -1476,6 +1469,34 @@ p_nb_queue(void)
   nar = RepAppl(Deref(ARG1))+1;
   nar[QUEUE_ARENA] = queue_arena;
   return TRUE;
+}
+
+static Int
+p_nb_queue(void)
+{
+  UInt arena_sz = (ASP-H)/16;
+  if (DepthArenas > 1)
+    arena_sz /= log(MIN_ARENA_SIZE);
+  if (arena_sz < MIN_ARENA_SIZE)
+    arena_sz = MIN_ARENA_SIZE;
+  if (arena_sz > MAX_ARENA_SIZE)
+    arena_sz = MAX_ARENA_SIZE;
+  return nb_queue(arena_sz);
+}
+
+static Int
+p_nb_queue_sized(void)
+{
+  Term t = Deref(ARG2);
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"nb_queue");
+    return FALSE;
+  }
+  if (!IsIntegerTerm(t)) {
+      Yap_Error(TYPE_ERROR_INTEGER,t,"nb_queue");
+      return FALSE;
+  }
+  return nb_queue((UInt)IntegerOfTerm(t));
 }
 
 static CELL *
@@ -2576,6 +2597,7 @@ void Yap_InitGlobals(void)
   Yap_InitCPredBack("$nb_current", 1, 1, init_current_nb, cont_current_nb, SafePredFlag);
   CurrentModule = GLOBALS_MODULE;
   Yap_InitCPred("nb_queue", 1, p_nb_queue, 0L);
+  Yap_InitCPred("nb_queue", 2, p_nb_queue_sized, 0L);
   Yap_InitCPred("nb_queue_close", 3, p_nb_queue_close, SafePredFlag);
   Yap_InitCPred("nb_queue_enqueue", 2, p_nb_queue_enqueue, 0L);
   Yap_InitCPred("nb_queue_dequeue", 2, p_nb_queue_dequeue, SafePredFlag);

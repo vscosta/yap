@@ -17,6 +17,7 @@
 
 :- module(nb, [
 	       nb_queue/1,
+	       nb_queue/2,
 	       nb_queue_close/3,
 	       nb_queue_enqueue/2,
 	       nb_queue_dequeue/2,
