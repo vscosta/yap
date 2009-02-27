@@ -271,6 +271,24 @@ mark_trail(void)
 }
 
 static void
+mark_registers(void)
+{
+  CELL *pt;
+
+  pt = XREGS;
+  /* moving the trail is simple */
+  while (pt != XREGS+MaxTemps) {
+    CELL reg = *pt++;
+
+    if (!IsVarTerm(reg)) {
+      if (IsAtomTerm(reg)) {
+	MarkAtomEntry(RepAtom(AtomOfTerm(reg)));
+      }
+    }
+  }
+}
+
+static void
 mark_local(void)
 {
   CELL   *pt;
@@ -350,6 +368,7 @@ mark_global(void)
 static void
 mark_stacks(void)
 {
+  mark_registers();
   mark_trail();
   mark_local();
   mark_global();
