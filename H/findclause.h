@@ -1559,6 +1559,17 @@
       }
       cl = NEXTOP(cl,yyx);
       break;
+    case _get_yy_var:
+      if (!(nofregs = add_regcopy(myregs, nofregs, cl->u.yyxx.x1, cl->u.yyxx.y1))) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
+      if (!(nofregs = add_regcopy(myregs, nofregs, cl->u.yyxx.x2, cl->u.yyxx.y2))) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,yyxx);
+      break;
 #ifdef YAPOR
 #endif
 #ifdef TABLING

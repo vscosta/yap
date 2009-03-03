@@ -733,19 +733,17 @@ Macros to check the limits of stacks
 #endif
 
 #define store_yaam_regs(AP,I) \
-                 { register yamop *x1 = (yamop *)(AP);           \
-                   register CELL *x2 = ENV;			 \
-                   /* Jump to CP_BASE */                         \
+                 { /* Jump to CP_BASE */                         \
                    S_YREG = (CELL *)((choiceptr)((S_YREG)-(I))-1);     \
                    /* Save Information */                        \
 		   HBREG = H;                                    \
                    B_YREG->cp_tr = TR;				 \
                    B_YREG->cp_h  = H;				 \
                    B_YREG->cp_b  = B;				 \
-                   store_yaam_reg_cpdepth(B_YREG);                  \
-                   B_YREG->cp_cp = CPREG;				 \
-                   B_YREG->cp_ap = x1;				 \
-                   B_YREG->cp_env= x2;				 \
+                   store_yaam_reg_cpdepth(B_YREG);               \
+                   B_YREG->cp_cp = CPREG;			 \
+                   B_YREG->cp_ap = AP;				 \
+                   B_YREG->cp_env= ENV;				 \
                  }
 
 #define store_yaam_regs_for_either(AP,d0) \

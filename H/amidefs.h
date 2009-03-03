@@ -745,6 +745,13 @@ typedef struct yami {
       CELL next;
     } yyx;
     struct {
+      yslot                y1;
+      yslot                y2;
+      wamreg               x1;
+      wamreg               x2;
+      CELL next;
+    } yyxx;
+    struct {
       yslot                y;
       yslot                y1;
       yslot                y2;

@@ -655,6 +655,11 @@
     case _p_func2f_yy:
       pc = NEXTOP(pc,yyx);
       break;
+      /* instructions type yyxx */
+    case _get_yy_var:
+    case _put_y_vals:
+      pc = NEXTOP(pc,yyxx);
+      break;
 #ifdef YAPOR
       /* instructions type Otapl */
     case _getwork:

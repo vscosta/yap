@@ -55,6 +55,7 @@
 #endif
   OPCODE(get_x_var                  ,xx),
   OPCODE(get_y_var                  ,yx),
+  OPCODE(get_yy_var                 ,yyxx),
   OPCODE(get_x_val                  ,xx),
   OPCODE(get_y_val                  ,yx),
   OPCODE(get_atom                   ,xc),
@@ -142,6 +143,7 @@
   OPCODE(put_x_val                  ,xx),
   OPCODE(put_xx_val                 ,xxxx),
   OPCODE(put_y_val                  ,yx),
+  OPCODE(put_y_vals                 ,yyxx),
   OPCODE(put_unsafe                 ,yx),
   OPCODE(put_atom                   ,xc),
   OPCODE(put_float                  ,xd),

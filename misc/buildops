@@ -790,6 +790,7 @@ opinfo("write_y_val",[body]).
 opinfo("write_y_loc",[body]).
 opinfo("get_x_var",[dup("xr","xl")]).
 opinfo("get_y_var",[dup("x","y")]).
+opinfo("get_yy_var",[dup("x1","y1"),dup("x2","y2")]).
 opinfo("put_x_var",[new("xl"),new("xr")]).
 opinfo("put_y_var",[new("x"),new("y")]).
 opinfo("get_x_val",[unify("xl","xr")]).

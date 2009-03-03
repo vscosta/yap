@@ -158,9 +158,17 @@ AlignGlobalForDouble(void)
             ((TERM) < (CELL *)B_FZ))                      \
           goto LAB
 
+#define TrailAndJump(TERM, VAL)                             \
+        if (IN_BETWEEN(HBREG,TERM,B) &&                   \
+            ((TERM) < (CELL *)B_FZ))                      \
+          GONext();
+
 #else
 #define Trail(TERM, VAL, LAB)                             \
           TRAIL(TERM, VAL)
+
+#define Trail(TERM, VAL, LAB)                             \
+          TRAIL_AND_JUMP(TERM, VAL)
 #endif
 
 #else /* BBREG_TRAIL_SCHEME */
@@ -173,9 +181,18 @@ AlignGlobalForDouble(void)
 #define Trail(TERM, VAL, LAB)                             \
         if (IN_BETWEEN(HBREG,TERM,BBREG))                 \
           goto LAB
+
+#define TrailAndJump(TERM, VAL)                             \
+        if (IN_BETWEEN(HBREG,TERM,BBREG))                 \
+          GONext();
+
 #else
 #define Trail(TERM, VAL, LAB)                             \
           TRAIL(TERM, VAL)
+
+#define TrailAndJump(TERM, VAL)                             \
+          TRAIL_AND_JUMP(TERM, VAL)
+
 #endif
 
 #define TRAIL_LOCAL(TERM, VAL)                            \
@@ -224,6 +241,9 @@ AlignGlobalForDouble(void)
 #define TRAIL(A,D)        if (OUTSIDE(HBREG,A,B))             \
 				DO_TRAIL(A,D);
 
+#define TRAIL_AND_JUMP(A,D)        if (!OUTSIDE(HBREG,A,B)) GONext();	\
+				DO_TRAIL(A,D);
+
 #define Trail(A, D, LAB)   TRAIL(A,D)
 
 #define TRAIL_GLOBAL(A,D)	if ((A) < HBREG) DO_TRAIL(A,D);
@@ -241,6 +261,10 @@ AlignGlobalForDouble(void)
                         if (OUTSIDE(HBREG,A,B))                            \
                             TR++
 
+#define TRAIL(A,D)        TrailTerm(TR) = (CELL)(A);                       \
+                        if (!OUTSIDE(HBREG,A,B))                            \
+			  GONext();
+
 #define Trail(A,D,LAB)    TRAIL(A,D)
 
 #define TRAIL_GLOBAL(A,D)	TR[0] = (CELL)(A); if ((A) < HBREG) TR++
@@ -254,6 +278,9 @@ AlignGlobalForDouble(void)
 #define DO_TRAIL(A,D)     TrailTerm(TR++) = (CELL)(A)
 
 #define TRAIL(A,D)        if (OUTSIDE(HBREG,A,B))            \
+                              DO_TRAIL(A,D)
+
+#define TRAIL_AND_JUMP(A,D)        if (IN_BETWEEN(HBREG,A,B)) GONext();	\
                               DO_TRAIL(A,D)
 
 #define Trail(A,D,LAB)    TRAIL(A,D)
@@ -275,6 +302,9 @@ AlignGlobalForDouble(void)
 
 #define Trail(A,D,LAB)    if (IN_BETWEEN(HBREG,A,B))            \
                               goto LAB
+
+#define TrailAndJump(A,D)    if (IN_BETWEEN(HBREG,A,B))            \
+    GONext();
 
 #define TRAIL_GLOBAL(A,D)	if ((A) < HBREG) DO_TRAIL(A,D)
 
@@ -316,6 +346,7 @@ Binding Macros for Multiple Assignment Variables.
 #define Bind_Global(A,D)       TRAIL_GLOBAL(A,D); *(A) = (D)
 #define Bind_and_Trail(A,D)    DO_TRAIL(A,D); *(A) = (D)
 #define BIND(A,D,L)            *(A) = (D); Trail(A,D,L)
+#define BIND_AND_JUMP(A,D)     *(A) = (D); TrailAndJump(A,D)
 #define BIND_GLOBAL(A,D,L)     *(A) = (D); Trail_Global(A,D,L)
 
 #ifdef COROUTINING

@@ -854,13 +854,56 @@ a_vr(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct 
   int is_y_var = (ve->KindOfVE == PermVar);
 
   if (is_y_var) {
-    if (pass_no) {
-      OPREG var_offset;
+      if (opcodey == _put_y_val) {
+	struct PSEUDO *ncpc = cpc->nextInst;
+	if (ncpc->op == put_val_op &&
+	    ((Ventry *) ncpc->rnd1)->KindOfVE == PermVar ) {
+	  /* peephole! two put_y_vars in a row */
+	  if (pass_no) {
+	    OPREG var_offset;
+	    OPREG var_offset2;
+	    Ventry *ve2 = (Ventry *) ncpc->rnd1;
 
-      var_offset = Var_Ref(ve, is_y_var);
-      code_p->opc = emit_op(opcodey);
-      code_p->u.yx.y = emit_yreg(var_offset);
-      code_p->u.yx.x = emit_x(cpc->rnd2);
+	    var_offset = Var_Ref(ve, is_y_var);
+	    code_p->opc = emit_op(_put_y_vals);
+	    code_p->u.yyxx.y1 = emit_yreg(var_offset);
+	    code_p->u.yyxx.x1 = emit_x(cpc->rnd2);
+	    var_offset2 = Var_Ref(ve2, is_y_var);
+	    code_p->u.yyxx.y2 = emit_yreg(var_offset2);
+	    code_p->u.yyxx.x2 = emit_x(ncpc->rnd2);
+	  }
+	  cip->cpc = ncpc;
+	  GONEXT(yyxx);
+	}
+      }
+      if (opcodey == _get_y_var) {
+	struct PSEUDO *ncpc = cpc->nextInst;
+	if (ncpc->op == get_var_op &&
+	    ((Ventry *) ncpc->rnd1)->KindOfVE == PermVar ) {
+	  /* peephole! two put_y_vars in a row */
+	  if (pass_no) {
+	    OPREG var_offset;
+	    OPREG var_offset2;
+	    Ventry *ve2 = (Ventry *) ncpc->rnd1;
+
+	    var_offset = Var_Ref(ve, is_y_var);
+	    code_p->opc = emit_op(_get_yy_var);
+	    code_p->u.yyxx.y1 = emit_yreg(var_offset);
+	    code_p->u.yyxx.x1 = emit_x(cpc->rnd2);
+	    var_offset2 = Var_Ref(ve2, is_y_var);
+	    code_p->u.yyxx.y2 = emit_yreg(var_offset2);
+	    code_p->u.yyxx.x2 = emit_x(ncpc->rnd2);
+	  }
+	  cip->cpc = ncpc;
+	  GONEXT(yyxx);
+	}
+      }
+      if (pass_no) {
+	OPREG var_offset;
+	var_offset = Var_Ref(ve, is_y_var);
+	code_p->opc = emit_op(opcodey);
+	code_p->u.yx.y = emit_yreg(var_offset);
+	code_p->u.yx.x = emit_x(cpc->rnd2);
     }
     GONEXT(yx);
   }
@@ -892,6 +935,12 @@ a_vr(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct 
       code_p->opc = emit_op(opcodex);
       code_p->u.xx.xl = emit_xreg(var_offset);
       code_p->u.xx.xr = emit_x(cpc->rnd2);
+      /* a small trick, usualy the lower argument is the one bound */
+      if (opcodex == _get_x_val && code_p->u.xx.xl > code_p->u.xx.xr) {
+	wamreg x1 = code_p->u.xx.xl;
+	code_p->u.xx.xl = code_p->u.xx.xr;
+	code_p->u.xx.xr = x1;
+      }
     }
     GONEXT(xx);
   }

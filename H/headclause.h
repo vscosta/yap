@@ -642,6 +642,17 @@
       }
       cl = NEXTOP(cl,yx);
       break;
+    case _get_yy_var:
+      if (cl->u.yyxx.x1 == iarg) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
+      if (cl->u.yyxx.x2 == iarg) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,yyxx);
+      break;
 #ifdef YAPOR
 #endif
 #ifdef TABLING

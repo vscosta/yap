@@ -856,6 +856,15 @@ restore_opcodes(yamop *pc)
       pc->u.yyx.x = XAdjust(pc->u.yyx.x);
       pc = NEXTOP(pc,yyx);
       break;
+      /* instructions type yyxx */
+    case _get_yy_var:
+    case _put_y_vals:
+      pc->u.yyxx.y1 = YAdjust(pc->u.yyxx.y1);
+      pc->u.yyxx.y2 = YAdjust(pc->u.yyxx.y2);
+      pc->u.yyxx.x1 = XAdjust(pc->u.yyxx.x1);
+      pc->u.yyxx.x2 = XAdjust(pc->u.yyxx.x2);
+      pc = NEXTOP(pc,yyxx);
+      break;
 #ifdef YAPOR
       /* instructions type Otapl */
     case _getwork:

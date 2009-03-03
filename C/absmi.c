@@ -3215,6 +3215,35 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
+      Op(get_yy_var, yyxx);
+      CACHE_Y(YREG);
+      BEGD(d0);
+      BEGP(pt0);
+      pt0 = S_YREG + PREG->u.yyxx.y1;
+      d0 = XREG(PREG->u.yyxx.x1);
+      BEGD(d1);
+      BEGP(pt1);
+      pt1 = S_YREG + PREG->u.yyx.y2;
+      d1 = XREG(PREG->u.yyxx.x2);
+      PREG = NEXTOP(PREG, yyxx);
+#if defined(SBA) && defined(FROZEN_STACKS)
+      Bind_Local(pt0,d0);
+#else
+      *pt0 = d0;
+#endif /* SBA && FROZEN_STACKS */
+#if defined(SBA) && defined(FROZEN_STACKS)
+      Bind_Local(pt1,d1);
+#else
+      *pt1 = d1;
+#endif /* SBA && FROZEN_STACKS */
+      ENDP(pt1);
+      ENDD(d1);
+      GONext();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDCACHE_Y();
+      ENDOp();
+
       /* The code for get_x_val is hard to follow because I use a
        * lot of jumps. The convention is that in the label
        * gval_X_YREG X refers to the state of the first argument, and
@@ -3241,12 +3270,10 @@ Yap_absmi(int inp)
       /* deref second argument */
       deref_body(d1, pt0, gvalx_nonvar_unk, gvalx_nonvar_nonvar);
       /* first argument bound, second unbound */
-      PREG = NEXTOP(PREG, xx);
-      BIND(pt0, d0, bind_gvalx_nonvar_var);
+      BIND_AND_JUMP(pt0, d0);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
       if (pt0 < H0) Yap_WakeUp(pt0);
-    bind_gvalx_nonvar_var:
 #endif
       GONext();
 
@@ -6710,6 +6737,32 @@ Yap_absmi(int inp)
 	XREG(PREG->u.yx.x) = d0;
       ENDD(d0);
       PREG = NEXTOP(PREG, yx);
+      GONext();
+      ENDOp();
+
+      Op(put_y_vals, yyxx);
+      ALWAYS_START_PREFETCH(yyxx);
+      BEGD(d0);
+      d0 = YREG[PREG->u.yyxx.y1];
+#ifdef SBA
+      if (d0 == 0) /* new variable */
+	XREG(PREG->u.yyxx.x1) = (CELL)(YREG+PREG->u.yyxx.y1);
+      else
+#endif
+	XREG(PREG->u.yyxx.x1) = d0;
+      ENDD(d0);
+      /* allow for some prefetching */
+      PREG = NEXTOP(PREG, yyxx);
+      BEGD(d1);
+      d1 = YREG[PREVOP(PREG,yyxx)->u.yyxx.y2];
+#ifdef SBA
+      if (d1 == 0) /* new variable */
+	XREG(PREVOP(PREG->u.yyxx,yyxx).x2) = (CELL)(YREG+PREG->u.yyxx.y2);
+      else
+#endif
+	XREG(PREVOP(PREG,yyxx)->u.yyxx.x2) = d1;
+      ENDD(d1);
+      ALWAYS_END_PREFETCH();
       GONext();
       ENDOp();
 
