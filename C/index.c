@@ -1178,6 +1178,9 @@ has_cut(yamop *pc)
     case _put_y_var:
     case _put_y_val:
     case _put_unsafe:
+    case _glist_valy:
+    case _gl_void_vary:
+    case _gl_void_valy:
       pc = NEXTOP(pc,yx);
       break;
       /* instructions type xd */
@@ -1222,12 +1225,7 @@ has_cut(yamop *pc)
     case _put_struct:
       pc = NEXTOP(pc,xfa);
       break;
-      /* instructions type xy */
-    case _glist_valy:
-    case _gl_void_vary:
-    case _gl_void_valy:
-      pc = NEXTOP(pc,xy);
-      break;
+      /* instructions type yx */
       /* instructions type ox */
     case _unify_x_var:
     case _unify_x_var_write:
@@ -1622,7 +1620,7 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
 	return;
       }
       argno = 2;
-      cl = NEXTOP(cl,xy);
+      cl = NEXTOP(cl,yx);
       break;
     case _unify_l_x_var:
     case _unify_l_x_val:

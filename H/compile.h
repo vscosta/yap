@@ -32,7 +32,6 @@ typedef enum compiler_op {
   put_float_op,
   get_dbterm_op,
   put_dbterm_op,
-  align_float_op,
   get_longint_op,
   put_longint_op,
   get_bigint_op,
@@ -63,6 +62,25 @@ typedef enum compiler_op {
   unify_struct_op,
   write_struct_op,
   write_unsafe_op,
+  unify_local_op,
+  write_local_op,
+  unify_last_list_op,
+  write_last_list_op,
+  unify_last_struct_op,
+  write_last_struct_op,
+  unify_last_var_op,
+  unify_last_val_op,
+  unify_last_local_op,
+  unify_last_atom_op,
+  unify_last_num_op,
+  unify_last_float_op,
+  unify_last_dbterm_op,
+  unify_last_longint_op,
+  unify_last_bigint_op,
+  f_var_op,
+  f_val_op,
+  f_0_op,
+  align_float_op,
   fail_op,
   cut_op,
   cutexit_op,
@@ -110,21 +128,6 @@ typedef enum compiler_op {
   if_nonvar_op,
   save_pair_op,
   save_appl_op,
-  unify_local_op,
-  write_local_op,
-  unify_last_list_op,
-  write_last_list_op,
-  unify_last_struct_op,
-  write_last_struct_op,
-  unify_last_var_op,
-  unify_last_val_op,
-  unify_last_local_op,
-  unify_last_atom_op,
-  unify_last_num_op,
-  unify_last_float_op,
-  unify_last_dbterm_op,
-  unify_last_longint_op,
-  unify_last_bigint_op,
   mark_initialised_pvars_op,
   mark_live_regs_op,
   fetch_args_vv_op,
@@ -132,9 +135,6 @@ typedef enum compiler_op {
   fetch_args_vc_op,
   fetch_args_iv_op,
   fetch_args_vi_op,
-  f_var_op,
-  f_val_op,
-  f_0_op,
   enter_profiling_op,
   retry_profiled_op,
   count_call_op,
@@ -268,20 +268,20 @@ typedef struct PSEUDO {
 #define rnd4  ops.opseqt[2]
 
 typedef struct VENTRY {
-	 CELL SelfOfVE;
-	 Term AdrsOfVE;
-	 Int  KindOfVE;
-	 CELL NoOfVE;
-	 PInstr *FirstOpForV;
-	 PInstr *LastOpForV;
-	 BITS16 AgeOfVE;
-	 BITS16 BranchOfVE;
-	 BITS16 LastBranchOfVE;
-	 BITS16 FirstOfVE;
-	 BITS16 RCountOfVE;
-	 BITS16 FlagsOfVE;
-	 struct VENTRY *NextOfVE;
-    } Ventry;
+  CELL SelfOfVE;
+  Term AdrsOfVE;
+  Int  KindOfVE;
+  CELL NoOfVE;
+  PInstr *FirstOpForV;
+  PInstr *LastOpForV;
+  BITS16 AgeOfVE;
+  BITS16 BranchOfVE;
+  BITS16 LastBranchOfVE;
+  BITS16 FirstOfVE;
+  BITS16 RCountOfVE;
+  BITS16 FlagsOfVE;
+  struct VENTRY *NextOfVE;
+} Ventry;
 
 typedef struct CEXPENTRY {
          Term   TermOfCE;

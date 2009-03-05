@@ -581,12 +581,6 @@
     case _p_func2f_xy:
       pc = NEXTOP(pc,xxy);
       break;
-      /* instructions type xy */
-    case _gl_void_valy:
-    case _gl_void_vary:
-    case _glist_valy:
-      pc = NEXTOP(pc,xy);
-      break;
       /* instructions type y */
     case _save_b_y:
     case _write_y_loc:
@@ -615,6 +609,9 @@
       /* instructions type yx */
     case _get_y_val:
     case _get_y_var:
+    case _gl_void_valy:
+    case _gl_void_vary:
+    case _glist_valy:
     case _put_unsafe:
     case _put_y_val:
     case _put_y_var:

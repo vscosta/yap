@@ -764,14 +764,6 @@ restore_opcodes(yamop *pc)
       pc->u.xxy.y2 = YAdjust(pc->u.xxy.y2);
       pc = NEXTOP(pc,xxy);
       break;
-      /* instructions type xy */
-    case _gl_void_valy:
-    case _gl_void_vary:
-    case _glist_valy:
-      pc->u.xy.x = XAdjust(pc->u.xy.x);
-      pc->u.xy.y = YAdjust(pc->u.xy.y);
-      pc = NEXTOP(pc,xy);
-      break;
       /* instructions type y */
     case _save_b_y:
     case _write_y_loc:
@@ -805,6 +797,9 @@ restore_opcodes(yamop *pc)
       /* instructions type yx */
     case _get_y_val:
     case _get_y_var:
+    case _gl_void_valy:
+    case _gl_void_vary:
+    case _glist_valy:
     case _put_unsafe:
     case _put_y_val:
     case _put_y_var:

@@ -704,11 +704,6 @@ typedef struct yami {
     } xxn;
     struct {
       wamreg                x;
-      yslot                y;
-      CELL next;
-    } xy;
-    struct {
-      wamreg                x;
       wamreg                x1;
       yslot                y2;
       CELL next;

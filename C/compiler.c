@@ -887,12 +887,14 @@ c_eq(Term t1, Term t2, compiler_struct *cglobs)
       cglobs->onhead = FALSE;    
     }
   } else {
-    Int v = --cglobs->tmpreg;
-    c_var(t1, v, 0, 0, cglobs);
-    cglobs->onhead = TRUE;
     if (IsVarTerm(t2)) {
-      c_var(t2, v, 0, 0, cglobs);
+      c_var(t1, 0, 0, 0, cglobs);
+      cglobs->onhead = TRUE;
+      c_var(t2, 0, 0, 0, cglobs);
     } else {
+      Int v = --cglobs->tmpreg;
+      c_var(t1, v, 0, 0, cglobs);
+      cglobs->onhead = TRUE;
       c_arg(v, t2, 0, 0, cglobs);
     }
     cglobs->onhead = FALSE;
@@ -2260,6 +2262,7 @@ int nperm;
 static int nperm;
 #endif
 
+
 inline static int
 usesvar(compiler_vm_op ic)
 {
@@ -2757,7 +2760,7 @@ checktemp(Int arg, Int rn, compiler_vm_op ic, compiler_struct *cglobs)
   target2 = cglobs->MaxCTemps;
   n = v->RCountOfVE - 1;
   while (q != v->LastOpForV && (q = q->nextInst) != NIL) {
-    if (q->rnd2 <= 0); /* don't try to use REGISTER 0 */
+    if (q->rnd2 <= 0); /* don't try to reuse REGISTER 0 */
     else if (usesvar(ic = q->op) && arg == q->rnd1) {
       --n;
       if (ic == put_val_op) {
@@ -3078,11 +3081,13 @@ c_layout(compiler_struct *cglobs)
       rn = checkreg(arg, rn, ic, TRUE, cglobs);
       checktemp(arg, rn, ic, cglobs);
 #ifdef BEAM
-      if (cglobs->Contents[rn] == (Term)cglobs->vadr && !EAM)
+      if (rn && cglobs->Contents[rn] == (Term)cglobs->vadr && !EAM)
 #else
-      if (cglobs->Contents[rn] == (Term)cglobs->vadr)
+      if (rn && cglobs->Contents[rn] == (Term)cglobs->vadr)
 #endif
-	cglobs->cint.cpc->op = nop_op;
+	{
+	  cglobs->cint.cpc->op = nop_op;
+	}
       cglobs->Contents[rn] = cglobs->vadr;
       ++cglobs->Uses[rn];
       if (rn_kills) {
@@ -3232,12 +3237,77 @@ c_layout(compiler_struct *cglobs)
 }
 
 static void
+push_allocate(PInstr *pc, PInstr *oldpc)
+{
+  /*
+    The idea is to push an allocate forward as much as we can. This
+    delays work in the emulated code, and in the best case we may get rid of 
+    allocates altogether.
+   */
+  /* we can push the allocate */
+  int safe = TRUE;
+  PInstr *initial = oldpc, *dealloc_founds[16];
+  int d_founds = 0;
+  int level = 0;
+  
+  while (pc) {
+    switch (pc->op) {
+    case jump_op:
+      return;
+    case call_op:
+    case safe_call_op:
+      if (!safe)
+	return;
+      else {
+	PInstr *where = initial->nextInst->nextInst;
+	while (d_founds)
+	  dealloc_founds[--d_founds]->op = nop_op;
+	if (where == pc || oldpc == initial->nextInst)
+	  return;
+	oldpc->nextInst = initial->nextInst;
+	initial->nextInst->nextInst = pc;
+	initial->nextInst = where;
+	return;
+      }
+    case push_or_op:
+      /* we cannot just put an allocate here, because it may never be executed */
+      level++;
+      safe = FALSE;
+      break;
+    case pushpop_or_op:
+      /* last branch and we did not need an allocate so far, cool! */
+      level--;
+      if (!level)
+	safe = TRUE;
+      break;
+    case cut_op:
+    case either_op:
+    case execute_op:
+      return;
+    case deallocate_op:
+      dealloc_founds[d_founds++] = pc;
+      if (d_founds == 16)
+	return;
+    default:
+      break;
+    }
+    oldpc = pc;
+    pc = pc->nextInst;
+  }
+}
+
+
+
+static void
 c_optimize(PInstr *pc)
 {
   char onTail;
   Ventry *v;
   PInstr *opc = NULL;
+  PInstr *inpc = pc;
 
+  pc = inpc;
+  opc = NULL;
   /* first reverse the pointers */
   while (pc != NULL) {
     PInstr *tpc = pc->nextInst;
@@ -3252,15 +3322,22 @@ c_optimize(PInstr *pc)
     PInstr *npc = pc->nextInst;
     pc->nextInst = opc;
     switch (pc->op) {
-    case put_val_op:
     case get_var_op:
+      /* handle clumsy either branches */
+      if (npc->op == f_0_op) {
+	npc->rnd1 = pc->rnd1;
+	npc->op = f_var_op;
+	pc->op = nop_op;
+	break;
+      }
+    case put_val_op:
     case get_val_op:
       {
 	Ventry *ve = (Ventry *) pc->rnd1;
 
 	if (ve->KindOfVE == TempVar) {
 	  UInt argno = ve->NoOfVE & MaskVarAdrs;
-	  if (argno == pc->rnd2) {
+	  if (argno && argno == pc->rnd2) {
 	    pc->op = nop_op;
 	  }	  
 	}
@@ -3390,6 +3467,16 @@ c_optimize(PInstr *pc)
     opc = pc;
     pc = npc;
   } while (pc != NULL);
+  pc = inpc;
+  opc = NULL;
+  while (pc != NULL) {
+    if (pc->op == allocate_op) {
+      push_allocate(pc, opc);
+      break;
+    } 
+    opc = pc;
+    pc = pc->nextInst;
+  }
 }
 
 yamop *

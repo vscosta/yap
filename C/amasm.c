@@ -874,9 +874,28 @@ a_vr(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct 
 	  }
 	  cip->cpc = ncpc;
 	  GONEXT(yyxx);
+	  return code_p;
+	  /* simplify unification  code */
+	} else if (FALSE && cpc->rnd2 == 0 && 
+		   ncpc->op == get_var_op &&
+		   ncpc->rnd2 == 0 &&
+		   ((Ventry *) ncpc->rnd1)->KindOfVE != PermVar) {
+	  if (pass_no) {
+	    OPREG var_offset;
+	    OPREG var_offset2;
+	    Ventry *ve2 = (Ventry *) ncpc->rnd1;
+
+	    code_p->opc = emit_op(_put_y_var);
+	    var_offset = Var_Ref(ve, is_y_var);
+	    var_offset2 = Var_Ref(ve2, !is_y_var);
+	    code_p->u.yx.x = emit_xreg(var_offset2);
+	    code_p->u.yx.y = emit_yreg(var_offset);
+	  }
+	  cip->cpc = ncpc;
+	  GONEXT(yx);
+	  return code_p;
 	}
-      }
-      if (opcodey == _get_y_var) {
+      } else if (opcodey == _get_y_var) {
 	struct PSEUDO *ncpc = cpc->nextInst;
 	if (ncpc->op == get_var_op &&
 	    ((Ventry *) ncpc->rnd1)->KindOfVE == PermVar ) {
@@ -896,6 +915,7 @@ a_vr(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct 
 	  }
 	  cip->cpc = ncpc;
 	  GONEXT(yyxx);
+	  return code_p;
 	}
       }
       if (pass_no) {
@@ -904,46 +924,95 @@ a_vr(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct 
 	code_p->opc = emit_op(opcodey);
 	code_p->u.yx.y = emit_yreg(var_offset);
 	code_p->u.yx.x = emit_x(cpc->rnd2);
-    }
-    GONEXT(yx);
-  }
-  else if (opcodex == _put_x_val &&
-	   cpc->nextInst &&
-	   cpc->nextInst->op == put_val_op &&
-	   !(((Ventry *) cpc->nextInst->rnd1)->KindOfVE == PermVar)) {
-    /* peephole! two put_x_vars in a row */
-    if (pass_no) {
+      }
+      GONEXT(yx);
+      return code_p;
+  } 
+  if (opcodex == _put_x_val &&
+      cpc->nextInst) {
+    if (cpc->nextInst->op == put_val_op &&
+	!(((Ventry *) cpc->nextInst->rnd1)->KindOfVE == PermVar)) {
+      PInstr *ncpc = cpc->nextInst;
+      /* peephole! two put_x_vars in a row */
+      if (pass_no) {
+	OPREG var_offset;
+	OPREG var_offset2;
+	Ventry *ve2 = (Ventry *) ncpc->rnd1;
+
+	var_offset = Var_Ref(ve, is_y_var);
+	code_p->opc = emit_op(_put_xx_val);
+	code_p->u.xxxx.xl1 = emit_xreg(var_offset);
+	code_p->u.xxxx.xr1 = emit_x(cpc->rnd2);
+	var_offset2 = Var_Ref(ve2, is_y_var);
+	code_p->u.xxxx.xl2 = emit_xreg(var_offset2);
+	code_p->u.xxxx.xr2 = emit_x(ncpc->rnd2);
+      }
+      cip->cpc = ncpc;
+      GONEXT(xxxx);
+      return code_p;
+      /* simplify unification */
+    } else if (cpc->rnd2 == 0 &&
+	       cpc->nextInst->rnd2 == 0) {
       OPREG var_offset;
       OPREG var_offset2;
-      Ventry *ve2 = (Ventry *) cpc->nextInst->rnd1;
+      Ventry *ve2;
+      int is_y_var2;
+      PInstr *ncpc;
 
-      var_offset = Var_Ref(ve, is_y_var);
-      code_p->opc = emit_op(_put_xx_val);
-      code_p->u.xxxx.xl1 = emit_xreg(var_offset);
-      code_p->u.xxxx.xr1 = emit_x(cpc->rnd2);
-      var_offset2 = Var_Ref(ve2, is_y_var);
-      code_p->u.xxxx.xl2 = emit_xreg(var_offset2);
-      code_p->u.xxxx.xr2 = emit_x(cpc->nextInst->rnd2);
-    }
-    cip->cpc = cpc->nextInst;
-    GONEXT(xxxx);
-  } else {
-    if (pass_no) {
-      OPREG var_offset;
-
-      var_offset = Var_Ref(ve, is_y_var);
-      code_p->opc = emit_op(opcodex);
-      code_p->u.xx.xl = emit_xreg(var_offset);
-      code_p->u.xx.xr = emit_x(cpc->rnd2);
-      /* a small trick, usualy the lower argument is the one bound */
-      if (opcodex == _get_x_val && code_p->u.xx.xl > code_p->u.xx.xr) {
-	wamreg x1 = code_p->u.xx.xl;
-	code_p->u.xx.xl = code_p->u.xx.xr;
-	code_p->u.xx.xr = x1;
+      ncpc = cpc->nextInst;
+      ve2 = (Ventry *) ncpc->rnd1;
+      is_y_var2 = (ve2->KindOfVE == PermVar);
+      /* put + get */
+      if (ncpc->op == get_var_op ||
+	  ncpc->op == get_val_op) {
+	if (is_y_var2) {
+	  if (pass_no) {
+	    var_offset = Var_Ref(ve, is_y_var);
+	    var_offset2 = Var_Ref(ve2, is_y_var2);
+	    if (ncpc->op == get_var_op)
+	      code_p->opc = emit_op(_get_y_var);
+	    else
+	      code_p->opc = emit_op(_get_y_val);
+	    code_p->u.yx.x = emit_xreg(var_offset);
+	    code_p->u.yx.y = emit_yreg(var_offset2);
+	  }
+	  GONEXT(yx);
+	  cip->cpc = ncpc;
+	  return code_p;
+	} else {
+	  if (pass_no) {
+	    var_offset = Var_Ref(ve, is_y_var);
+	    var_offset2 = Var_Ref(ve2, is_y_var2);
+	    code_p->u.xx.xl = emit_xreg(var_offset);
+	    code_p->u.xx.xr = emit_xreg(var_offset2);
+	    if (ncpc->op == get_var_op)
+	      code_p->opc = emit_op(_put_x_var);
+	    else {
+	      code_p->opc = emit_op(_get_x_val);
+	    }
+	  }
+	  GONEXT(xx);
+	  cip->cpc = ncpc;
+	  return code_p;
+	}
       }
     }
-    GONEXT(xx);
   }
+  if (pass_no) {
+    OPREG var_offset;
+
+    var_offset = Var_Ref(ve, is_y_var);
+    code_p->opc = emit_op(opcodex);
+    code_p->u.xx.xl = emit_xreg(var_offset);
+    code_p->u.xx.xr = emit_x(cpc->rnd2);
+    /* a small trick, usualy the lower argument is the one bound */
+    if (opcodex == _get_x_val && code_p->u.xx.xl > code_p->u.xx.xr) {
+      wamreg x1 = code_p->u.xx.xl;
+      code_p->u.xx.xl = code_p->u.xx.xr;
+      code_p->u.xx.xr = x1;
+    }
+  }
+  GONEXT(xx);
   return code_p;
 }
 
@@ -956,10 +1025,10 @@ a_rv(op_numbers opcodex, op_numbers opcodey, OPREG var_offset, yamop *code_p, in
   if (is_y_var) {
     if (pass_no) {
       code_p->opc = emit_op(opcodey);
-      code_p->u.xy.x = emit_x(cpc->rnd2);
-      code_p->u.xy.y = emit_yreg(var_offset);
+      code_p->u.yx.x = emit_x(cpc->rnd2);
+      code_p->u.yx.y = emit_yreg(var_offset);
     }
-    GONEXT(xy);
+    GONEXT(yx);
   }
   else {
     if (pass_no) {

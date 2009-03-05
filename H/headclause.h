@@ -593,20 +593,6 @@
       }
       cl = NEXTOP(cl,xxxx);
       break;
-    case _gl_void_valy:
-      cl = NEXTOP(cl,xy);
-      break;
-    case _gl_void_vary:
-      cl = NEXTOP(cl,xy);
-      break;
-    case _glist_valy:
-      if (iarg == cl->u.xy.x) {
-	clause->Tag = AbsPair(NULL);
-	clause->u.WorkPC = cl;
-	return;
-      }
-      cl = NEXTOP(cl,xy);
-      break;
     case _get_y_val:
       if (cl->u.yx.x == iarg) {
 	clause->Tag = (CELL)NULL;
@@ -617,6 +603,20 @@
     case _get_y_var:
       if (cl->u.yx.x == iarg) {
 	clause->Tag = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,yx);
+      break;
+    case _gl_void_valy:
+      cl = NEXTOP(cl,yx);
+      break;
+    case _gl_void_vary:
+      cl = NEXTOP(cl,yx);
+      break;
+    case _glist_valy:
+      if (iarg == cl->u.yx.x) {
+	clause->Tag = AbsPair(NULL);
+	clause->u.WorkPC = cl;
 	return;
       }
       cl = NEXTOP(cl,yx);

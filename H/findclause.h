@@ -1182,34 +1182,6 @@
       }
       cl = NEXTOP(cl,xxy);
       break;
-    case _gl_void_valy:
-      if (is_regcopy(myregs, nofregs, cl->u.xy.y)) {
-	clause->Tag = AbsPair(NULL);
-	clause->u.WorkPC = cl;
-	return;
-      }
-      cl = NEXTOP(cl,xy);
-      break;
-    case _gl_void_vary:
-      if (is_regcopy(myregs, nofregs, cl->u.xy.y)) {
-	clause->Tag = AbsPair(NULL);
-	clause->u.WorkPC = cl;
-	return;
-      }
-      if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.xy.y))) {
-	clause->Tag = (CELL)NULL;
-	return;
-      }
-      cl = NEXTOP(cl,xy);
-      break;
-    case _glist_valy:
-      if (is_regcopy(myregs, nofregs, cl->u.xy.x)) {
-	clause->Tag = AbsPair(NULL);
-	clause->u.WorkPC = cl;
-	return;
-      }
-      cl = NEXTOP(cl,xy);
-      break;
     case _save_b_y:
       if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.y.y))) {
 	clause->Tag = (CELL)NULL;
@@ -1355,6 +1327,34 @@
     case _get_y_var:
       if (!(nofregs = add_regcopy(myregs, nofregs, cl->u.yx.x, cl->u.yx.y))) {
 	clause->Tag = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,yx);
+      break;
+    case _gl_void_valy:
+      if (is_regcopy(myregs, nofregs, cl->u.yx.y)) {
+	clause->Tag = AbsPair(NULL);
+	clause->u.WorkPC = cl;
+	return;
+      }
+      cl = NEXTOP(cl,yx);
+      break;
+    case _gl_void_vary:
+      if (is_regcopy(myregs, nofregs, cl->u.yx.y)) {
+	clause->Tag = AbsPair(NULL);
+	clause->u.WorkPC = cl;
+	return;
+      }
+      if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.yx.y))) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,yx);
+      break;
+    case _glist_valy:
+      if (is_regcopy(myregs, nofregs, cl->u.yx.x)) {
+	clause->Tag = AbsPair(NULL);
+	clause->u.WorkPC = cl;
 	return;
       }
       cl = NEXTOP(cl,yx);

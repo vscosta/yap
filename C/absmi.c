@@ -3046,6 +3046,7 @@ Yap_absmi(int inp)
 
       BOp(procceed, p);
       CACHE_Y_AS_ENV(YREG);
+      ALWAYS_LOOKAHEAD(CPREG->opc);
       PREG = CPREG;
       /* for profiler */
       save_pc();
@@ -3054,7 +3055,8 @@ Yap_absmi(int inp)
       DEPTH = ENV_YREG[E_DEPTH];
 #endif
       WRITEBACK_Y_AS_ENV();
-      JMPNext();
+      ALWAYS_GONext();
+      ALWAYS_END_PREFETCH();
       ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
@@ -3270,6 +3272,7 @@ Yap_absmi(int inp)
       /* deref second argument */
       deref_body(d1, pt0, gvalx_nonvar_unk, gvalx_nonvar_nonvar);
       /* first argument bound, second unbound */
+      PREG = NEXTOP(PREG, xx);
       BIND_AND_JUMP(pt0, d0);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
@@ -4372,16 +4375,16 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOpRW();
 
-      OpRW(glist_valy, xy);
+      OpRW(glist_valy, yx);
       BEGD(d0);
-      d0 = XREG(PREG->u.xy.x);
+      d0 = XREG(PREG->u.yx.x);
       deref_head(d0, glist_valy_write);
     glist_valy_read:
       BEGP(pt0);
       /* did we find a list? */
       if (!IsPairTerm(d0))
 	FAIL();
-      START_PREFETCH(xy);
+      START_PREFETCH(yx);
       /* enter read mode */
       pt0 = RepPair(d0);
       SREG = pt0 + 1;
@@ -4393,9 +4396,9 @@ Yap_absmi(int inp)
       /* first argument is bound */
       BEGD(d1);
       BEGP(pt1);
-      pt1 = YREG + PREG->u.xy.y;
+      pt1 = YREG + PREG->u.yx.y;
       d1 = *pt1;
-      PREG = NEXTOP(PREG, xy);
+      PREG = NEXTOP(PREG, yx);
       deref_head(d1, glist_valy_nonvar_unk);
 
     glist_valy_nonvar_nonvar:
@@ -4422,12 +4425,12 @@ Yap_absmi(int inp)
       derefa_body(d0, pt0, glist_valy_unk, glist_valy_nonvar);
       /* first argument is unbound */
       BEGP(pt1);
-      pt1 = YREG+PREG->u.xy.y;
+      pt1 = YREG+PREG->u.yx.y;
       d1 = *pt1;
       deref_head(d1, glist_valy_var_unk);
     glist_valy_var_nonvar:
       /* first unbound, second bound */
-      PREG = NEXTOP(PREG, xy);
+      PREG = NEXTOP(PREG, yx);
       BIND_GLOBAL(pt0, d1, bind_glist_valy_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
@@ -4438,7 +4441,7 @@ Yap_absmi(int inp)
 
       derefa_body(d1, pt1, glist_valy_var_unk, glist_valy_var_nonvar);
       /* both arguments are unbound */
-      PREG = NEXTOP(PREG, xy);
+      PREG = NEXTOP(PREG, yx);
       UnifyGlobalRegCells(pt0, pt1, uc7, uc8);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
@@ -4461,7 +4464,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, glist_valy_write, glist_valy_read);
       /* enter write mode */
-      START_PREFETCH_W(xy);
+      START_PREFETCH_W(yx);
       BEGP(pt1);
       pt1 = H;
       d0 = AbsPair(pt1);
@@ -4476,13 +4479,13 @@ Yap_absmi(int inp)
 #endif
       BEGD(d0);
       /* include XREG on it */
-      d0 = YREG[PREG->u.xy.y];
+      d0 = YREG[PREG->u.yx.y];
       pt1[0] = d0;
       ENDD(d0);
       H = pt1 + 2;
       SREG = pt1 + 1;
       ENDP(pt1);
-      PREG = NEXTOP(PREG, xy);
+      PREG = NEXTOP(PREG, yx);
       GONextW();
       END_PREFETCH_W();
       ENDP(pt0);
@@ -4536,9 +4539,9 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(gl_void_vary, xy);
+      Op(gl_void_vary, yx);
       BEGD(d0);
-      d0 = XREG(PREG->u.xy.x);
+      d0 = XREG(PREG->u.yx.x);
       deref_head(d0, glist_void_vary_write);
     glist_void_vary_read:
       /* did we find a list? */
@@ -4550,11 +4553,11 @@ Yap_absmi(int inp)
       d0 = pt0[1];
       ENDP(pt0);
 #if defined(SBA) && defined(FROZEN_STACKS)
-      Bind_Local(YREG+PREG->u.xy.y,d0);
+      Bind_Local(YREG+PREG->u.yx.y,d0);
 #else
-      YREG[PREG->u.xy.y] = d0;
+      YREG[PREG->u.yx.y] = d0;
 #endif /* SBA && FROZEN_STACKS */
-      PREG = NEXTOP(PREG, xy);
+      PREG = NEXTOP(PREG, yx);
       GONext();
 
       BEGP(pt0);
@@ -4564,11 +4567,11 @@ Yap_absmi(int inp)
       pt1 = H;
       /* include XREG on it */
 #if defined(SBA) && defined(FROZEN_STACKS)
-      Bind_Local(YREG+PREG->u.xy.y,Unsigned(pt1 + 1));
+      Bind_Local(YREG+PREG->u.yx.y,Unsigned(pt1 + 1));
 #else
-      YREG[PREG->u.xy.y] = Unsigned(pt1 + 1);
+      YREG[PREG->u.yx.y] = Unsigned(pt1 + 1);
 #endif /* SBA && FROZEN_STACKS */
-      PREG = NEXTOP(PREG, xy);
+      PREG = NEXTOP(PREG, yx);
       RESET_VARIABLE(pt1);
       RESET_VARIABLE(pt1+1);
       d0 = AbsPair(pt1);
@@ -4697,9 +4700,9 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(gl_void_valy, xy);
+      Op(gl_void_valy, yx);
       BEGD(d0);
-      d0 = XREG(PREG->u.xy.x);
+      d0 = XREG(PREG->u.yx.x);
       deref_head(d0, glist_void_valy_write);
     glist_void_valy_read:
       BEGP(pt0);
@@ -4716,20 +4719,20 @@ Yap_absmi(int inp)
       /* first argument is bound */
       BEGD(d1);
       BEGP(pt1);
-      pt1 = YREG+PREG->u.xy.y;
+      pt1 = YREG+PREG->u.yx.y;
       d1 = *pt1;
       deref_head(d1, glist_void_valy_nonvar_unk);
 
     glist_void_valy_nonvar_nonvar:
       /* both arguments are bound */
       /* we may have to bind structures */
-      PREG = NEXTOP(PREG, xy);
+      PREG = NEXTOP(PREG, yx);
       UnifyBound(d0, d1);
 
       /* deref second argument */
       derefa_body(d1, pt1, glist_void_valy_nonvar_unk, glist_void_valy_nonvar_nonvar);
       /* first argument bound, second unbound */
-      PREG = NEXTOP(PREG, xy);
+      PREG = NEXTOP(PREG, yx);
       BIND(pt1, d0, bind_glist_void_valy_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt1, d0);
@@ -4744,13 +4747,13 @@ Yap_absmi(int inp)
       derefa_body(d0, pt0, glist_void_valy_unk, glist_void_valy_nonvar);
       /* first argument is unbound */
       BEGP(pt1);
-      pt1 = YREG+PREG->u.xy.y;
+      pt1 = YREG+PREG->u.yx.y;
       d1 = *pt1;
       deref_head(d1, glist_void_valy_var_unk);
 
     glist_void_valy_var_nonvar:
       /* first unbound, second bound */
-      PREG = NEXTOP(PREG, xy);
+      PREG = NEXTOP(PREG, yx);
       BIND_GLOBAL(pt0, d1, bind_glist_void_valy_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
@@ -4761,7 +4764,7 @@ Yap_absmi(int inp)
 
       deref_body(d1, pt1, glist_void_valy_var_unk, glist_void_valy_var_nonvar);
       /* both arguments are unbound */
-      PREG = NEXTOP(PREG, xy);
+      PREG = NEXTOP(PREG, yx);
       UnifyGlobalRegCells(pt0, pt1, uc11, uc12);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
@@ -4796,11 +4799,11 @@ Yap_absmi(int inp)
 #endif
       /* include XREG on it */
       BEGD(d1);
-      d1 = YREG[PREG->u.xy.y];
+      d1 = YREG[PREG->u.yx.y];
       RESET_VARIABLE(S_SREG);
       S_SREG[1] = d1;
       ENDD(d1);
-      PREG = NEXTOP(PREG, xy);
+      PREG = NEXTOP(PREG, yx);
       H = S_SREG + 2;
       ENDCACHE_S();
       GONext();
@@ -11219,27 +11222,45 @@ Yap_absmi(int inp)
 	flags = PREG->u.plxxs.flags;
 	if (v > 0) {
 	  if (flags & GT_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, plxxs);
-	    JMPNext();
+	    yamop *nextp = NEXTOP(PREG, plxxs);
+	    ALWAYS_LOOKAHEAD(nextp->opc);
+	    PREG = nextp;
+	    ALWAYS_GONext();
+	    ALWAYS_END_PREFETCH();
 	  } else {
-	    PREG = PREG->u.plxxs.f;
-	    JMPNext();
+	    yamop *nextp = PREG->u.plxxs.f;
+	    ALWAYS_LOOKAHEAD(nextp->opc);
+	    PREG = nextp;
+	    ALWAYS_GONext();
+	    ALWAYS_END_PREFETCH();
 	  }    
 	} else if (v < 0) {
 	  if (flags & LT_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, plxxs);
-	    JMPNext();
+	    yamop *nextp = NEXTOP(PREG, plxxs);
+	    ALWAYS_LOOKAHEAD(nextp->opc);
+	    PREG = nextp;
+	    ALWAYS_GONext();
+	    ALWAYS_END_PREFETCH();
 	  } else {
-	    PREG = PREG->u.plxxs.f;
-	    JMPNext();
+	    yamop *nextp = PREG->u.plxxs.f;
+	    ALWAYS_LOOKAHEAD(nextp->opc);
+	    PREG = nextp;
+	    ALWAYS_GONext();
+	    ALWAYS_END_PREFETCH();
 	  }
 	} else /* if (v == 0) */ {
 	  if (flags & EQ_OK_IN_CMP) {
-	    PREG = NEXTOP(PREG, plxxs);
-	    JMPNext();
+	    yamop *nextp = NEXTOP(PREG, plxxs);
+	    ALWAYS_LOOKAHEAD(nextp->opc);
+	    PREG = nextp;
+	    ALWAYS_GONext();
+	    ALWAYS_END_PREFETCH();
 	  } else {
-	    PREG = PREG->u.plxxs.f;
-	    JMPNext();
+	    yamop *nextp = PREG->u.plxxs.f;
+	    ALWAYS_LOOKAHEAD(nextp->opc);
+	    PREG = nextp;
+	    ALWAYS_GONext();
+	    ALWAYS_END_PREFETCH();
 	  }
 	}
       } 

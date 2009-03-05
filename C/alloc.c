@@ -919,6 +919,7 @@ ExtendWorkSpace(Int s, int fixed_allocation)
 
 #elif defined(__APPLE__)
   Yap_PrologMode = ExtendStackMode;
+
   a = mmap(base, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 		    MAP_PRIVATE | MAP_ANON | fixed_allocation, -1, 0);
 #else
