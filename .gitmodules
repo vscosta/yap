@@ -1,9 +1,3 @@
-[submodule "LGPL/chr"]
-	path = LGPL/chr
-	url = /Users/vitor/Yap/newdev/chr
-[submodule "shlib"]
-	path = shlib
-	url = /Users/vitor/Yap/newdev/lib
 [submodule "packages/chr"]
 	path = packages/chr
 	url = git://prolog.cs.vu.nl/home/pl/git/chr.git
