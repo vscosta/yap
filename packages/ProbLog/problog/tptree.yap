@@ -226,6 +226,7 @@ bdd_ptree_map(ID,FileBDD,FileParam,Mapping) :-
 
 add_probs([],[]).
 add_probs([m(A,Name)|Map],[m(A,Name,Prob)|Mapping]) :-
+	% FIXME: Does this work with non-ground facts
 	problog:get_fact_probability(A,Prob),
 	add_probs(Map,Mapping).
 
@@ -236,7 +237,9 @@ bdd_ptree_script(ID,FileBDD,FileParam) :-
 	edges_ptree(ID,Edges), 
 	tell(FileParam),
 	bdd_vars_script(Edges),
+
 	flush_output,
+
 	told,
 	length(Edges,VarCount),
 	assert(c_num(1)),
@@ -246,6 +249,8 @@ bdd_ptree_script(ID,FileBDD,FileParam) :-
 	tell(FileBDD),
 	format('@BDD1~n~w~n~w~n~w~n',[VarCount,0,IntermediateSteps]), 
 	output_compressed_script(CT), 
+
+	
 	told,
 	retractall(c_num(_)),
 	retractall(compression(_,_)).
@@ -254,8 +259,35 @@ bdd_ptree_script(ID,FileBDD,FileParam) :-
 bdd_vars_script(Edges) :-
 	bdd_vars_script(Edges,0).
 bdd_vars_script([],_).
-bdd_vars_script([A|B],N) :-
-	problog:get_fact_probability(A,P),
+%%%% Bernd, changes for negated ground facts
+bdd_vars_script([A0|B],N) :-
+	( A0=not(A) -> true; A=A0 ),
+%%%% Bernd, changes for negated ground facts
+        
+        % check wether it is a non-ground fact ID
+
+	
+	(
+	    number(A)
+	->
+	    A_Number=A;
+	    (
+		atom_chars(A,A_Chars),
+		% 95 = '_'
+		append(Part1,[95|Part2],A_Chars),
+		number_chars(A_Number,Part1),
+		number_chars(Grounding_ID,Part2)
+	    )
+	),
+        (
+	    problog:dynamic_probability_fact(A_Number)
+	->
+            (
+		problog:grounding_is_known(Goal,Grounding_ID),
+		problog:dynamic_probability_fact_extract(Goal,P)
+	    );
+	    problog:get_fact_probability(A_Number,P)
+	),
 	get_var_name(A,NameA),
 	format('@~w~n~12f~n',[NameA,P]),
 	NN is N+1,
@@ -322,8 +354,8 @@ ins_pt([A|B],[],[s(A,NewAT)]) :-
 %%%%%%%%%%%%
 
 % T is completely compressed and contains single variable
-% i.e. T of form x12 
-compress_pt(T,TT) :-
+% i.e. T of form x12 or ~x34
+compress_pt(T,TT) :- 
 	atom(T),
 	test_var_name(T),
 	!,
@@ -331,12 +363,12 @@ compress_pt(T,TT) :-
 	assertz(compression(TT,[T])).
 % T is completely compressed and contains subtrees
 % i.e. T of form 'L56'
-compress_pt(T,T) :-
+compress_pt(T,T) :- 
 	atom(T).
 % T not yet compressed
 % i.e. T is a tree-term (nested list & s/2 structure)	
 % -> execute one layer of compression, then check again
-compress_pt(T,CT) :-
+compress_pt(T,CT) :- 
 	\+ atom(T),
 	and_or_compression(T,IT),
 	compress_pt(IT,CT).
@@ -364,7 +396,7 @@ all_leaves_pt(T,L) :-
 
 some_leaf_pt([s(A,[])|_],s(A,[])).
 some_leaf_pt([s(A,L)|_],s(A,L)) :-
-	atom(L).
+	 not_or_atom(L).
 some_leaf_pt([s(_,L)|_],X) :-
 	some_leaf_pt(L,X).
 some_leaf_pt([_|L],X) :-
@@ -383,9 +415,17 @@ some_leaflist_pt([s(_,L)|_],X) :-
 some_leaflist_pt([_|L],X) :-
 	some_leaflist_pt(L,X).
 
+not_or_atom(T) :-
+	(
+	    T=not(T0)
+	-> 
+	    atom(T0);
+	    atom(T)
+	).
+
 atomlist([]).
 atomlist([A|B]) :-
-	atom(A),
+	 not_or_atom(A),
 	atomlist(B).
 
 % for each subtree that will be compressed, add its name
@@ -393,23 +433,31 @@ atomlist([A|B]) :-
 compression_mapping([],[]).
 compression_mapping([First|B],[N-First|BB]) :-
 	(
-	    First = s(A,[])    % subtree is literal -> use variable's name x17 from map
+	    First = s(A0,[])          % subtree is literal -> use variable's name x17 from map (add ~ for negative case)
 	-> 
-	    recorded(map,m(A,N),_)
+	(
+	    A0=not(A)
+	-> 
+	    (
+      		recorded(map,m(A,Tmp),_), %check
+		atomic_concat(['~',Tmp],N)
+	    );
+    	    recorded(map,m(A0,N),_) %check
+	)
 	;
-	    (First = s(A,L),atom(L)) % subtree is node with single completely reduced child -> use next 'L'-based name
+	    (First = s(A,L),not_or_atom(L)) % subtree is node with single completely reduced child -> use next 'L'-based name
 	    -> (get_next_name(N),
 	        assertz(compression(N,s(A,L))))
 	;
-	    (First = [L],atom(L)) % subtree is an OR with a single completely reduced element -> use element's name
+	    (First = [L],not_or_atom(L)) % subtree is an OR with a single completely reduced element -> use element's name
 	     -> N=L
 	;
-	    (atomlist(First),  % subtree is an OR with only (>1) completely reduced elements -> use next 'L'-based name
+	    (atomlist(First), % subtree is an OR with only (>1) completely reduced elements -> use next 'L'-based name
 	    get_next_name(N),
 	    assertz(compression(N,First)))
 	),
 	compression_mapping(B,BB).
-	    
+
 
 
 % replace_pt(+T,+Map,-NT)
@@ -442,7 +490,7 @@ replace_pt_single(s(A,T),[M|Map],Res) :-
 replace_pt_single(s(A,T),[M|Map],s(A,TT)) :-
 	replace_pt_list(T,[M|Map],TT).
 replace_pt_single(A,_,A) :-
-	atom(A).
+	 not_or_atom(A).
 
 %%%%%%%%%%%%
 % output for script
@@ -467,9 +515,20 @@ output_compressed_script(T) :-
 	    format_compression_script(Long),
 	    output_compressed_script(T)).
 
-format_compression_script(s(A,B)) :-
-	recorded(map,m(A,C),_),
-	format('~w * ~w~n',[C,B]).
+format_compression_script(s(A0,B0)) :-
+	% checkme
+	(
+	    A0=not(A)
+	-> 
+	    (
+		recorded(map,m(A,C),_),
+		format('~~~w * ~w~n',[C,B0])
+	    ) ; 
+	    (
+		recorded(map,m(A0,C),_),
+		format('~w * ~w~n',[C,B0])
+	    )
+	).
 format_compression_script([A]) :-
 	format('~w~n',[A]).
 format_compression_script([A,B|C]) :-
@@ -492,9 +551,17 @@ get_next_name(Name) :-
 % when changing, also adapt test_var_name/1 below
 get_var_name(A,NameA) :-
 	atomic_concat([x,A],NameA),
-	recorda(map,m(A,NameA),_).
+	(
+	    recorded(map,m(A,NameA),_) 
+	-> 
+	    true
+	;
+	    recorda(map,m(A,NameA),_)
+	).
 
 % test used by base case of compression mapping to detect single-variable tree
 % has to match above naming scheme
 test_var_name(T) :-
 	atomic_concat(x,_,T).
+test_var_name(T) :-
+	atomic_concat('~x',_,T).

@@ -28,6 +28,7 @@
 	set_fact_probability/2,
 	get_fact/2,
 	tunable_fact/2,
+	non_ground_fact/1,
 	export_facts/1,
 	problog_help/0,
 	problog_dir/1,
@@ -73,6 +74,7 @@
 :- dynamic problog_predicate/2.
 % global over all inference methods, exported
 :- dynamic tunable_fact/2.
+:- dynamic non_ground_fact/1.
 :- dynamic problog_dir/1.
 % global, manipulated via problog_control/2
 :- dynamic up/0.
@@ -90,6 +92,12 @@
 :- dynamic max_proof/1.
 % local to problog_montecarlo
 :- dynamic mc_prob/1.
+% to keep track of the groundings for non-ground facts
+:- dynamic grounding_is_known/2.
+
+% for fact where the proabability is a variable
+:- dynamic dynamic_probability_fact/1.
+:- dynamic dynamic_probability_fact_extract/2.
 
 % directory where ProblogBDD executable is located
 % automatically set during loading -- assumes it is in same place as this file (problog.yap)
@@ -204,32 +212,88 @@ user:term_expansion(P::Goal,Goal) :-
 	!.
 
 user:term_expansion(P::Goal, problog:ProbFact) :- 
+	copy_term((P,Goal),(P_Copy,Goal_Copy)),
 	functor(Goal, Name, Arity),
         atomic_concat([problog_,Name],ProblogName),
 	Goal =.. [Name|Args],
 	append(Args,[LProb],L1),
-	probclause_id(IDName),
-	term_variables(Goal,GVars),
-	(GVars=[] -> ID=IDName; ID=..[IDName|GVars]),
+	probclause_id(ID),
 	ProbFact =.. [ProblogName,ID|L1],
-	(P = t(TrueProb) -> 
-	    assert(tunable_fact(ID,TrueProb)),
-	    LProb is log(0.5)
-	; 
-	LProb is log(P)
-        ),	
-        problog_predicate(Name, Arity, ProblogName).
+	(
+	    (\+ var(P), P = t(TrueProb))
+	-> 
+	    (
+		assert(tunable_fact(ID,TrueProb)),
+		LProb is log(0.5)
+	    );
+	    (
+		ground(P)
+	    ->
+	        LProb is log(P);
+		(
+		    % Probability is a variable... check wether it appears in the term
+		    (
+			variable_in_term(Goal,P)
+		    ->
+		        true;
+			(
+			    format(user_error,'If you use probabilisitic facts with a variable as probabilility, the variable has to appear inside the fact.~n',[]),
+			    format(user_error,'You used ~q in your program.~2n',[P::Goal]),
+			    throw(non_ground_fact_error(P::Goal))
+			)
+		    ),
+		    LProb=log(P),
+		    assert(dynamic_probability_fact(ID)),
+		    assert(dynamic_probability_fact_extract(Goal_Copy,P_Copy))
+		)
+	    )
+        ),
+	(
+	    ground(Goal)
+	->
+	    true;
+	    assert(non_ground_fact(ID))
+	),
+	problog_predicate(Name, Arity, ProblogName).
+	    
 
 % introduce wrapper clause if predicate seen first time
 problog_predicate(Name, Arity, _) :-
 	problog_predicate(Name, Arity), !.
+
 problog_predicate(Name, Arity, ProblogName) :-
 	functor(OriginalGoal, Name, Arity),
 	OriginalGoal =.. [_|Args],
 	append(Args,[Prob],L1),
 	ProbFact =.. [ProblogName,ID|L1],
 	prolog_load_context(module,Mod),
-	assert((Mod:OriginalGoal :- ProbFact, add_to_proof(ID,Prob))),
+	
+	assert( (Mod:OriginalGoal :- ProbFact, 
+	                             (
+					 non_ground_fact(ID)
+				     ->
+				         (non_ground_fact_grounding_id(OriginalGoal,G_ID),
+					   atomic_concat([ID,'_',G_ID],ID2));
+					 ID2=ID
+				     ),
+				     % take the log of the probability (for non ground facts with variable as probability
+				     ProbEval is Prob,
+				     add_to_proof(ID2,ProbEval)
+		 )),
+
+	assert( (Mod:problog_not(OriginalGoal) :- ProbFact,
+	                                          (
+						      non_ground_fact(ID)
+						  ->
+						     ( non_ground_fact_grounding_id(OriginalGoal,G_ID),
+						        atomic_concat([ID,'_',G_ID],ID2));
+						      ID2=ID
+						  ),
+						% take the log of the probability (for non ground facts with variable as probability
+						  ProbEval is Prob,
+						  add_to_proof_negated(ID2,ProbEval)
+		 )),
+	    
 	assert(problog_predicate(Name, Arity)),
 	ArityPlus2 is Arity+2,
 	dynamic(problog:ProblogName/ArityPlus2).	
@@ -241,6 +305,34 @@ probclause_id(ID) :-
 	nb_setval(probclause_counter,C1), !.
 probclause_id(0) :-
 	nb_setval(probclause_counter,1).
+
+non_ground_fact_grounding_id(Goal,ID) :-
+	(
+	    ground(Goal)
+	->
+	    true;
+	    (
+		format(user_error,'The current program uses non-ground facts.~n', []),
+		format(user_error,'If you query those, you may only query fully-grounded versions of the fact.~n',[]),
+		format(user_error,'Within the current proof, you queried for ~q which is not ground.~n~n', [Goal]),
+		throw(error(non_ground_fact(Goal)))
+	    )
+	),
+	(
+	    grounding_is_known(Goal,ID)
+	->
+	    true;
+	    (
+		nb_getval(non_ground_fact_grounding_id_counter,ID),
+		ID2 is ID+1,
+		nb_setval(non_ground_fact_grounding_id_counter,ID2),
+		assert(grounding_is_known(Goal,ID))
+	    )
+	).
+
+reset_non_ground_facts :-
+	nb_setval(non_ground_fact_grounding_id_counter,0),
+	retractall(grounding_is_known(_,_)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % access/update the probability of ID's fact
@@ -306,7 +398,8 @@ get_fact(ID,OutsideTerm) :-
 
 get_fact_list([],[]).
 get_fact_list([ID|IDs],[Fact|Facts]) :-
-	get_fact(ID,Fact),
+	(ID=not(X) -> Fact=not(Y); Fact=Y, ID=X),
+	get_fact(X,Y),
 	get_fact_list(IDs,Facts).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -317,7 +410,7 @@ get_fact_list([ID|IDs],[Fact|Facts]) :-
 % - problog_probability holds the sum of their log probabilities
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% called "inside" probabilistic facts to update current state of proving:
+% called "inside" probabilistic facts to update current state of proving
 % if number of steps exceeded, fail
 % if fact used before, succeed and keep status as is
 % if not prunable, calculate probability and 
@@ -329,6 +422,11 @@ add_to_proof(ID,Prob) :-
 	b_getval(problog_probability, CurrentP),
 	nb_getval(problog_threshold, CurrentThreshold),
 	b_getval(problog_current_proof, IDs),
+
+%%%% Bernd, changes for negated ground facts
+        \+ memberchk(not(ID),IDs),
+%%%% Bernd, changes for negated ground facts
+
 	( MaxSteps =< 0 -> 
 	    fail
 	;
@@ -348,6 +446,44 @@ add_to_proof(ID,Prob) :-
 	  Steps is MaxSteps-1,
 	  b_setval(problog_steps,Steps)
 	).
+
+%%%% Bernd, changes for negated ground facts
+add_to_proof_negated(ID,Prob) :-
+	(
+	    problog_control(check,mc)
+	->
+	% the sample has to fail if the fact is negated
+	    \+ montecarlo_check(ID);
+	    true
+	),
+	b_getval(problog_steps,MaxSteps),
+	b_getval(problog_probability, CurrentP),
+	nb_getval(problog_threshold, CurrentThreshold),
+	b_getval(problog_current_proof, IDs),
+
+        \+ memberchk(ID,IDs),
+	( MaxSteps =< 0 -> 
+	    fail
+	;
+	  ( memberchk(not(ID), IDs) ->
+	    true
+	  ;
+%	    \+ prune_check([ID|IDs],1),
+	    InverseProb is log(1 - exp(Prob)),
+	    multiply_probabilities(CurrentP, InverseProb, NProb),
+	    ( NProb < CurrentThreshold ->
+	      upper_bound([not(ID)|IDs]),   %% checkme
+	      fail
+	    ;
+	      b_setval(problog_probability, NProb),
+	      b_setval(problog_current_proof, [not(ID)|IDs])
+	    )
+	  ),
+	  Steps is MaxSteps-1,
+	  b_setval(problog_steps,Steps)
+	).
+%%%% Bernd, changes for negated ground facts
+
 
 % if in monte carlo mode, check array to see if fact can be used
 montecarlo_check(ID) :-
@@ -394,6 +530,7 @@ multiply_probabilities(CurrentLogP, LogProb, NLogProb) :-
 % this is called by all inference methods before the actual ProbLog goal
 % to set up environment for proving
 init_problog(Threshold) :-
+	reset_non_ground_facts,
 	LT is log(Threshold),
 	b_setval(problog_probability, 0.0),
 	b_setval(problog_current_proof, []),
@@ -412,6 +549,8 @@ prune_check(Proof,TreeID) :-
 % (as logical part is there, but probabilistic part in problog)
 problog_call(Goal) :-
 	yap_flag(typein_module,Module),
+%%% if user provides init_db, call this before proving goal
+	(current_predicate(_,Module:init_db) -> call(Module:init_db); true),
 	put_module(Goal,Module,ModGoal),
 	call(ModGoal).
 
@@ -446,7 +585,12 @@ put_module(Goal,Module,Module:Goal).
 eval_dnf(ID,Prob,Status) :- 
 	((ID = 1, problog_flag(save_bdd,true)) -> problog_control(on,remember); problog_control(off,remember)),
 	count_ptree(ID,NX),
-	format(user,'~w proofs~n',[NX]),
+	(
+	    NX=1
+	->
+	    format(user,'1 proof~n',[]);
+            format(user,'~w proofs~n',[NX])
+	),
 	problog_flag(dir,DirFlag),
 	problog_flag(bdd_file,BDDFileFlag),
 	atomic_concat([DirFlag,BDDFileFlag],BDDFile),
@@ -703,8 +847,8 @@ problog_max(Goal, Prob, Facts) :-
 	problog_flag(first_threshold,InitT),
 	init_problog_max(InitT),
 	problog_max_id(Goal, Prob, FactIDs),
-	( FactIDs == unprovable -> Facts = unprovable;
-	    get_fact_list(FactIDs,Facts)).
+	( FactIDs = [_|_] -> get_fact_list(FactIDs,Facts);
+	    Facts = FactIDs).
 
 init_problog_max(Threshold) :-
 	retractall(max_probability(_)),
@@ -736,7 +880,10 @@ problog_max_id(Goal, Prob, Clauses) :-
 	nb_getval(problog_threshold, LT),
 	problog_flag(last_threshold_log,ToSmall),
 	((MaxP >= LT ; \+ problog_control(check,limit); LT < ToSmall) ->
-	   max_proof(Clauses),
+	    ((max_proof(unprovable), problog_control(check,limit), LT < ToSmall) ->
+		problog_flag(last_threshold,Stopping),
+		Clauses = unprovable(Stopping) 
+	    ; max_proof(Clauses)),
 	   Prob is exp(MaxP)
        ;
 	problog_flag(id_stepsize_log,Step),
@@ -879,6 +1026,14 @@ problog_exact(Goal,Prob,Status) :-
 % still collects actual proofs found in samples in ptree, though this is no longer used  
 %   by method itself, only to write number to log-file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+problog_montecarlo(_,_,_) :-
+	non_ground_fact(_),
+	!,
+	format(user_error,'Current database contains non-ground facts.',[]),
+	format(user_error,'Monte Carlo inference is not possible in this case. Try k-best instead.',[]),
+	fail.
+	
 
 problog_montecarlo(Goal,Delta,Prob) :-
         nb_getval(probclause_counter,ID), !,
