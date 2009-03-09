@@ -611,6 +611,7 @@ all: startup
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE))
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; $(MAKE))
 	@ENABLE_CPLINT@ (cd cplint; $(MAKE))
+	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE))
 
 startup: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup
@@ -652,6 +653,7 @@ install_unix: startup libYap.a
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 	@ENABLE_CPLINT@ (cd cplint; $(MAKE) install)
+	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
 
 
 install_win32: startup
@@ -679,6 +681,7 @@ install_win32: startup
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
 	(cd library/tries; $(MAKE) install)
 	@ENABLE_CPLINT@ (cd cplint; $(MAKE) install)
+	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
 
 install_library: @YAPLIB@
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
@@ -698,6 +701,7 @@ install_data:
 #	(cd CHR ; $(MAKE) install)
 	@INSTALLCLP@(cd packages/chr ; $(MAKE) install)
 	@INSTALLCLP@(cd packages/CLPBN ; $(MAKE) install)
+	(cd  packages/ProbLog ; $(MAKE) install)
 
 
 ##########
@@ -724,6 +728,7 @@ clean: clean_docs
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) clean)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; $(MAKE) clean)
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) clean)
+	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) clean)
 
 
 
