@@ -939,50 +939,7 @@ fix_compiler_instructions(PInstr *pcpc)
     case fetch_args_vv_op:
     case fetch_args_cv_op:
     case fetch_args_vc_op:
-    case get_fi_op:
-    case get_f_op:
-    case get_i_op:
-    case put_fi_var_op:
-    case put_f_var_op:
-    case put_i_var_op:
-    case put_fi_val_op:
-    case put_f_val_op:
-    case put_i_val_op:
       pcpc->rnd1 = GlobalAdjust(pcpc->rnd1);
-      break;
-    case a_eqc_float_op:
-    case a_eqc_int_op:
-    case ltc_float_op:
-    case ltc_int_op:
-    case gtc_float_op:
-    case gtc_int_op:
-    case add_float_c_op:
-    case sub_float_c_op:
-    case mul_float_c_op:
-    case fdiv_c1_op:
-    case fdiv_c2_op:
-      /* floats might be in the global */
-      pcpc->rnd1 = AdjustAppl(pcpc->rnd1);
-      break;
-    case add_int_c_op:
-    case sub_int_c_op:
-    case mul_int_c_op:
-    case sr_c1_op:
-    case sr_c2_op:
-    case sl_c1_op:
-    case sl_c2_op:
-    case idiv_c1_op:
-    case idiv_c2_op:
-    case rem_c1_op:
-    case rem_c2_op:
-    case mod_c1_op:
-    case mod_c2_op:
-    case a_and_c_op:
-    case a_or_c_op:
-    case xor_c_op:
-      /* floats might be in the global */
-      if (!IsIntTerm(pcpc->rnd1))
-	pcpc->rnd1 = AdjustAppl(pcpc->rnd1);
       break;
     case get_float_op:
     case put_float_op:
@@ -1088,22 +1045,8 @@ fix_compiler_instructions(PInstr *pcpc)
     case blob_op:
     case fetch_args_vi_op:
     case fetch_args_iv_op:
-    case a_eq_op:
-    case lt_op:
-    case add_op:
-    case sub_op:
-    case mul_op:
-    case fdiv_op:
-    case idiv_op:
-    case mod_op:
-    case rem_op:
-    case a_and_op:
-    case a_or_op:
-    case xor_op:
-    case uminus_op:
-    case sr_op:
-    case sl_op:
     case label_ctl_op:
+    case f_0_op:
 #ifdef TABLING
     case table_new_answer_op:
     case table_try_single_op:

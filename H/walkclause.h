@@ -363,12 +363,6 @@
     case _write_n_atoms:
       pc = NEXTOP(pc,sc);
       break;
-      /* instructions type sdll */
-    case _a_eqc_float:
-    case _gtc_float:
-    case _ltc_float:
-      pc = NEXTOP(pc,sdll);
-      break;
       /* instructions type sllll */
     case _switch_on_sub_arg_type:
       pc = NEXTOP(pc,sllll);
@@ -377,60 +371,6 @@
     case _call_c_wfail:
       pp = pc->u.slp.p;
       return walk_found_c_pred(pp, startp, endp);
-      /* instructions type snll */
-    case _a_eqc_int:
-    case _gtc_int:
-    case _ltc_int:
-      pc = NEXTOP(pc,snll);
-      break;
-      /* instructions type ssd */
-    case _add_float_c:
-    case _fdiv_c1:
-    case _fdiv_c2:
-    case _mul_float_c:
-    case _sub_float_c:
-      pc = NEXTOP(pc,ssd);
-      break;
-      /* instructions type ssll */
-    case _a_eq:
-    case _lt:
-      pc = NEXTOP(pc,ssll);
-      break;
-      /* instructions type ssn */
-    case _a_and_c:
-    case _a_or_c:
-    case _add_int_c:
-    case _idiv_c1:
-    case _idiv_c2:
-    case _mod_c1:
-    case _mod_c2:
-    case _mul_int_c:
-    case _rem_c1:
-    case _rem_c2:
-    case _sl_c1:
-    case _sl_c2:
-    case _sr_c1:
-    case _sr_c2:
-    case _sub_int_c:
-    case _xor_c:
-      pc = NEXTOP(pc,ssn);
-      break;
-      /* instructions type sss */
-    case _a_and:
-    case _a_or:
-    case _add:
-    case _fdiv:
-    case _idiv:
-    case _mod:
-    case _mul:
-    case _rem:
-    case _sl:
-    case _sr:
-    case _sub:
-    case _uminus:
-    case _xor:
-      pc = NEXTOP(pc,sss);
-      break;
       /* instructions type sssl */
     case _go_on_cons:
     case _go_on_func:
@@ -444,36 +384,6 @@
     case _expand_clauses:
       return found_expand_index(pc, startp, endp, codeptr);
       pc = NEXTOP(pc,sssllp);
-      break;
-      /* instructions type sxl */
-    case _get_f_x:
-    case _get_fi_x:
-    case _get_i_x:
-    case _put_f_var_x:
-    case _put_fi_var_x:
-    case _put_i_var_x:
-      pc = NEXTOP(pc,sxl);
-      break;
-      /* instructions type sxll */
-    case _put_f_val_x:
-    case _put_fi_val_x:
-    case _put_i_val_x:
-      pc = NEXTOP(pc,sxll);
-      break;
-      /* instructions type syl */
-    case _get_f_y:
-    case _get_fi_y:
-    case _get_i_y:
-    case _put_f_var_y:
-    case _put_fi_var_y:
-    case _put_i_var_y:
-      pc = NEXTOP(pc,syl);
-      break;
-      /* instructions type syll */
-    case _put_f_val_y:
-    case _put_fi_val_y:
-    case _put_i_val_y:
-      pc = NEXTOP(pc,syll);
       break;
       /* instructions type x */
     case _get_list:

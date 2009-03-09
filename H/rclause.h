@@ -456,16 +456,6 @@ restore_opcodes(yamop *pc)
       pc->u.sc.c = ConstantTermAdjust(pc->u.sc.c);
       pc = NEXTOP(pc,sc);
       break;
-      /* instructions type sdll */
-    case _a_eqc_float:
-    case _gtc_float:
-    case _ltc_float:
-      pc->u.sdll.s = ConstantAdjust(pc->u.sdll.s);
-      DoubleInCodeAdjust(pc->u.sdll.d);
-      pc->u.sdll.F = PtoOpAdjust(pc->u.sdll.F);
-      pc->u.sdll.T = PtoOpAdjust(pc->u.sdll.T);
-      pc = NEXTOP(pc,sdll);
-      break;
       /* instructions type sllll */
     case _switch_on_sub_arg_type:
       pc->u.sllll.s = ConstantAdjust(pc->u.sllll.s);
@@ -481,77 +471,6 @@ restore_opcodes(yamop *pc)
       pc->u.slp.l = PtoOpAdjust(pc->u.slp.l);
       pc->u.slp.p = PtoPredAdjust(pc->u.slp.p);
       pc = NEXTOP(pc,slp);
-      break;
-      /* instructions type snll */
-    case _a_eqc_int:
-    case _gtc_int:
-    case _ltc_int:
-      pc->u.snll.s = ConstantAdjust(pc->u.snll.s);
-      pc->u.snll.I = IntegerAdjust(pc->u.snll.I);
-      pc->u.snll.F = PtoOpAdjust(pc->u.snll.F);
-      pc->u.snll.T = PtoOpAdjust(pc->u.snll.T);
-      pc = NEXTOP(pc,snll);
-      break;
-      /* instructions type ssd */
-    case _add_float_c:
-    case _fdiv_c1:
-    case _fdiv_c2:
-    case _mul_float_c:
-    case _sub_float_c:
-      pc->u.ssd.s0 = ConstantAdjust(pc->u.ssd.s0);
-      pc->u.ssd.s1 = ConstantAdjust(pc->u.ssd.s1);
-      DoubleInCodeAdjust(pc->u.ssd.d);
-      pc = NEXTOP(pc,ssd);
-      break;
-      /* instructions type ssll */
-    case _a_eq:
-    case _lt:
-      pc->u.ssll.s1 = ConstantAdjust(pc->u.ssll.s1);
-      pc->u.ssll.s2 = ConstantAdjust(pc->u.ssll.s2);
-      pc->u.ssll.F = PtoOpAdjust(pc->u.ssll.F);
-      pc->u.ssll.T = PtoOpAdjust(pc->u.ssll.T);
-      pc = NEXTOP(pc,ssll);
-      break;
-      /* instructions type ssn */
-    case _a_and_c:
-    case _a_or_c:
-    case _add_int_c:
-    case _idiv_c1:
-    case _idiv_c2:
-    case _mod_c1:
-    case _mod_c2:
-    case _mul_int_c:
-    case _rem_c1:
-    case _rem_c2:
-    case _sl_c1:
-    case _sl_c2:
-    case _sr_c1:
-    case _sr_c2:
-    case _sub_int_c:
-    case _xor_c:
-      pc->u.ssn.s0 = ConstantAdjust(pc->u.ssn.s0);
-      pc->u.ssn.s1 = ConstantAdjust(pc->u.ssn.s1);
-      pc->u.ssn.n = IntegerAdjust(pc->u.ssn.n);
-      pc = NEXTOP(pc,ssn);
-      break;
-      /* instructions type sss */
-    case _a_and:
-    case _a_or:
-    case _add:
-    case _fdiv:
-    case _idiv:
-    case _mod:
-    case _mul:
-    case _rem:
-    case _sl:
-    case _sr:
-    case _sub:
-    case _uminus:
-    case _xor:
-      pc->u.sss.s0 = ConstantAdjust(pc->u.sss.s0);
-      pc->u.sss.s1 = ConstantAdjust(pc->u.sss.s1);
-      pc->u.sss.s2 = ConstantAdjust(pc->u.sss.s2);
-      pc = NEXTOP(pc,sss);
       break;
       /* instructions type sssl */
     case _go_on_cons:
@@ -576,50 +495,6 @@ restore_opcodes(yamop *pc)
       pc->u.sssllp.snext = PtoOpAdjust(pc->u.sssllp.snext);
       pc->u.sssllp.p = PtoPredAdjust(pc->u.sssllp.p);
       pc = NEXTOP(pc,sssllp);
-      break;
-      /* instructions type sxl */
-    case _get_f_x:
-    case _get_fi_x:
-    case _get_i_x:
-    case _put_f_var_x:
-    case _put_fi_var_x:
-    case _put_i_var_x:
-      pc->u.sxl.s = ConstantAdjust(pc->u.sxl.s);
-      pc->u.sxl.x = XAdjust(pc->u.sxl.x);
-      pc->u.sxl.l = PtoOpAdjust(pc->u.sxl.l);
-      pc = NEXTOP(pc,sxl);
-      break;
-      /* instructions type sxll */
-    case _put_f_val_x:
-    case _put_fi_val_x:
-    case _put_i_val_x:
-      pc->u.sxll.s = ConstantAdjust(pc->u.sxll.s);
-      pc->u.sxll.x = XAdjust(pc->u.sxll.x);
-      pc->u.sxll.F = PtoOpAdjust(pc->u.sxll.F);
-      pc->u.sxll.T = PtoOpAdjust(pc->u.sxll.T);
-      pc = NEXTOP(pc,sxll);
-      break;
-      /* instructions type syl */
-    case _get_f_y:
-    case _get_fi_y:
-    case _get_i_y:
-    case _put_f_var_y:
-    case _put_fi_var_y:
-    case _put_i_var_y:
-      pc->u.syl.s = ConstantAdjust(pc->u.syl.s);
-      pc->u.syl.y = YAdjust(pc->u.syl.y);
-      pc->u.syl.l = PtoOpAdjust(pc->u.syl.l);
-      pc = NEXTOP(pc,syl);
-      break;
-      /* instructions type syll */
-    case _put_f_val_y:
-    case _put_fi_val_y:
-    case _put_i_val_y:
-      pc->u.syll.s = ConstantAdjust(pc->u.syll.s);
-      pc->u.syll.y = YAdjust(pc->u.syll.y);
-      pc->u.syll.F = PtoOpAdjust(pc->u.syll.F);
-      pc->u.syll.T = PtoOpAdjust(pc->u.syll.T);
-      pc = NEXTOP(pc,syll);
       break;
       /* instructions type x */
     case _get_list:
