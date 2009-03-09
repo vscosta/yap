@@ -744,8 +744,30 @@ expand_vts(void)
 static Int 
 p_variables_in_term(void)	/* variables in term t		 */
 {
-  Term out;
+  Term out, inp;
+  int count;
+  
 
+ restart:
+  HB = H;
+  count = 0;
+  inp = Deref(ARG2);
+  while (!IsVarTerm(inp) && IsPairTerm(inp)) {
+    Term t = HeadOfTerm(inp);
+    if (IsVarTerm(t)) {
+      Bind_Global(VarOfTerm(t), TermNil);
+      count++;
+      if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+	clean_tr(TR-count);
+	TR -= count;
+	if (!Yap_growtrail(count*sizeof(tr_fr_ptr *), FALSE)) {
+	  return FALSE;
+	}
+	goto restart;
+      }
+    }
+    inp = TailOfTerm(inp);
+  }
   do {
     Term t = Deref(ARG1);
     if (IsVarTerm(t)) {
@@ -772,7 +794,10 @@ p_variables_in_term(void)	/* variables in term t		 */
 	return FALSE;
     }
   } while (out == 0L);
-  return(Yap_unify(ARG3,out));
+  clean_tr(TR-count);
+  TR -= count;
+  HB = B->cp_h;
+  return Yap_unify(ARG3,out);
 }
 
 static Int 
