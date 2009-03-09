@@ -50,6 +50,7 @@
 
 #undef  HAVE_ARPA_INET_H
 #undef  HAVE_CTYPE_H
+#undef  HAVE_CUDD_H
 #undef  HAVE_DIRECT_H
 #undef  HAVE_DIRENT_H
 #undef  HAVE_DLFCN_H
