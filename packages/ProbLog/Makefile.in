@@ -1,14 +1,52 @@
-default:
-	@(cd simplecudd; \
-	echo Making simplecudd...; \
-	make)
-	pwd
-	cp simplecudd/ProblogBDD .
+#
+# default base directory for YAP installation
+#
+ROOTDIR = @prefix@
+#
+# where the binary should be
+#
+BINDIR = $(ROOTDIR)/bin
+#
+# where YAP should look for binary libraries
+#
+LIBDIR=$(ROOTDIR)/lib/Yap
+#
+# where YAP should look for architecture-independent Prolog libraries
+#
+SHAREDIR=$(ROOTDIR)/share
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+srcdir=@srcdir@
+YAP_EXTRAS=@YAP_EXTRAS@ 
 
-clean:
-	@(cd simplecudd; \
-	echo Cleaning simplecudd...; \
-	make clean; \
-	cd ..)
-	rm -rf ProblogBDD output queries
-	
+PROGRAMS= \
+	$(srcdir)/problog.yap \
+	$(srcdir)/problog_learning.yap
+
+PROBLOG_PROGRAMS= \
+	$(srcdir)/problog/flags.yap \
+	$(srcdir)/problog/print.yap \
+	$(srcdir)/problog/tptree.yap
+
+LEARNING_PROGRAMS = \
+	$(srcdir)/problog_learning/logger.yap \
+
+EXAMPLES = \
+	$(srcdir)/problog_examples/graph.pl \
+	$(srcdir)/problog_examples/learn_graph.pl
+
+install: $(PROGRAMS) $(LEARNING_PROGRAMS)  $(EXAMPLE_PROGRAMS) 
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/problog
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/problog_examples
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/problog_learning
+	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
+	for p in $(PROBLOG_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog; done
+	for p in $(LEARNING_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog_learning; done
+	for p in $(EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog_examples; done
+

@@ -101,7 +101,8 @@
 
 % directory where ProblogBDD executable is located
 % automatically set during loading -- assumes it is in same place as this file (problog.yap)
-:- getcwd(PD),retractall(problog_dir(_)),assert(problog_dir(PD)).
+%:- getcwd(PD),retractall(problog_dir(_)),assert(problog_dir(PD)).
+:- yap_flag(shared_object_search_path,PD),retractall(problog_dir(_)),assert(problog_dir(PD)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % help
