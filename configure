@@ -16564,7 +16564,7 @@ mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
 
 
-ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile packages/chr/Makefile packages/CLPBN/Makefile LGPL/clp/Makefile GPL/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile packages/cplint/Makefile packages/PLStream/Makefile packages/ProbLog/Makefile packages/ProbLog/simplecudd/Makefile packages/ProbLog/problog_dir.yap"
+ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile packages/chr/Makefile packages/CLPBN/Makefile LGPL/clp/Makefile GPL/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile packages/cplint/Makefile packages/PLStream/Makefile packages/ProbLog/Makefile packages/ProbLog/simplecudd/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -17149,7 +17149,6 @@ do
     "packages/PLStream/Makefile") CONFIG_FILES="$CONFIG_FILES packages/PLStream/Makefile" ;;
     "packages/ProbLog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/Makefile" ;;
     "packages/ProbLog/simplecudd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd/Makefile" ;;
-    "packages/ProbLog/problog_dir.yap") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/problog_dir.yap" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
