@@ -10859,6 +10859,20 @@ is considered. Otherwise, the term is considered only up to depth
 
 Unify @var{Variables} with a list of all variables in term @var{Term}.
 
+@item variables_within_term(+@var{Variables},?@var{Term}, -@var{OutputVariables})
+@findex  variables_within_term/3
+@snindex variables_within_term/3 
+@cnindex variables_within_term/3  
+
+Unify @var{OutputVariables} with the subset of the variables @var{Variables} that occurs in @var{Term}.
+
+@item new_variables_in_term(+@var{Variables},?@var{Term}, -@var{OutputVariables})
+@findex  new_variables_in_term/3
+@snindex new_variables_in_term/3 
+@cnindex new_variables_in_term/3  
+
+Unify @var{OutputVariables} with all variables occurring in @var{Term} that are not in the list @var{Variables}.
+
 @item variant(?@var{Term1}, ?@var{Term2})
 @findex  variant/2
 @syindex variant/2
