@@ -1,3 +1,6 @@
 [submodule "packages/chr"]
 	path = packages/chr
 	url = git://prolog.cs.vu.nl/home/pl/git/chr.git
+[submodule "packages/clpqr"]
+	path = packages/clpqr
+	url = git://prolog.cs.vu.nl/home/pl/git/clpqr.git
