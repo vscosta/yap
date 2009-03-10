@@ -1384,18 +1384,6 @@ IsTrueGoal(Term t) {
 }
 
 static void
-c_p_put(Term Goal, op_numbers op_var, op_numbers op_val, compiler_struct * cglobs)
-{
-  Term t = Deref(ArgOfTerm(2, Goal));
-  int new = check_var(t, 1, 0, cglobs);
-  t = Deref(t);
-  Yap_emit((new ?
-	    (++cglobs->nvars,op_var) : op_val), t, IntegerOfTerm(ArgOfTerm(1, Goal)), &cglobs->cint);
-  tag_var(t, new, cglobs);
-}
-
-
-static void
 emit_special_label(Term Goal, compiler_struct *cglobs)
 {
   special_label_op lab_op = IntOfTerm(ArgOfTerm(1,Goal));
@@ -1812,6 +1800,12 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 	UNLOCK(cglobs->cint.CurrentPred->PELock);
 #endif
       }
+      return;
+    }
+    else if (f == FunctorSafe) {
+      Ventry *v = (Ventry *)ArgOfTerm(1, Goal);
+      /* This variable must be known before */
+      v->FlagsOfVE |= SafeVar;
       return;
     }
     else if (p->PredFlags & AsmPredFlag) {

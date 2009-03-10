@@ -194,11 +194,16 @@ module(N) :-
 % A6: head module (this is the one used in compiling and accessing).
 %
 %
-'$module_expansion'((H:-B),(H:-B1),(H:-BO),M,HM) :- !,
+'$module_expansion'((H:-B),(H:-B1),(H:-BOO),M,HM) :- !,
 	'$is_mt'(M, H, B, IB, MM),
 	'$module_u_vars'(H,UVars,M),	 % collect head variables in
 					 % expanded positions
-	'$module_expansion'(IB,B1,BO,M,MM,HM,UVars).
+	'$module_expansion'(IB,B1,BO,M,MM,HM,UVars),
+	('$full_clause_optimisation'(H, M, BO, BOO) ->
+	  true
+	  ;
+	  BO = BOO
+	).
 % do not expand bodyless clauses.
 '$module_expansion'(H,H,H,_,_).
 

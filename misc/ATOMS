@@ -223,6 +223,7 @@ A	ResourceError		N	"resource_error"
 A	RestoreRegs		F	"$restore_regs"
 A	RetryCounter		N	"retry_counter"
 A	RTree			N	"rtree"
+A	Safe			F	"$safe"
 A	Same			N	"=="
 A	Semic			N	";"
 A	ShiftCountOverflow	N	"shift_count_overflow"
@@ -372,6 +373,7 @@ F	RepresentationError	RepresentationError	1
 F	ResourceError		ResourceError	1
 F	RestoreRegs		RestoreRegs	2
 F	RestoreRegs1		RestoreRegs	1
+F	Safe			Safe		1
 F	Same			Same		2
 F	Slash			Slash		2
 F	StaticClause		StaticClause	1
