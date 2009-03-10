@@ -14,5 +14,6 @@ cd yap
 git branch --track devel origin/devel 
 git checkout devel
 git submodule add git://prolog.cs.vu.nl/home/pl/git/chr.git packages/chr
+git submodule add git://prolog.cs.vu.nl/home/pl/git/clpqr.git packages/clpqr
 ./configure
 
