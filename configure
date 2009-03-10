@@ -2908,7 +2908,7 @@ if test "${with_cudd+set}" = set; then
 		CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
 	fi
 else
-  yap_cv_cudd=yes
+  yap_cv_cudd=no
 fi
 
 

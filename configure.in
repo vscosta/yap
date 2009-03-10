@@ -109,7 +109,7 @@ AC_ARG_WITH(cudd,
 		CUDD_LDFLAGS="$yap_cv_cudd/cudd/libcudd.a  $yap_cv_cudd/mtr/libmtr.a  $yap_cv_cudd/st/libst.a  $yap_cv_cudd/util/libutil.a  $yap_cv_cudd/epd/libepd.a "
 		CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
 	fi,
-	[yap_cv_cudd=yes])
+	[yap_cv_cudd=no])
 
 AC_ARG_ENABLE(myddas,
 	[ --enable-myddas[[=DIR]]      enable the MYDDAS library],
