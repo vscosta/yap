@@ -879,7 +879,7 @@ a_vr(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct 
 	    code_p->u.xx.xl = emit_xreg(var_offset);
 	    code_p->u.xx.xr = emit_xreg(var_offset2);
 	    if (ncpc->op == get_var_op)
-	      code_p->opc = emit_op(_put_x_var);
+	      code_p->opc = emit_op(_put_x_val);
 	    else {
 	      code_p->opc = emit_op(_get_x_val);
 	    }
