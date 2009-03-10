@@ -16,7 +16,7 @@
 *									 *
 *************************************************************************/
 
-:- module('$message',
+:- module('$messages',
 	  [system_message/4,
 	   prefix/6,
 	   prefix/5,
@@ -79,7 +79,11 @@ stack_dump(error(_,_)) -->
 	'$hacks':display_stack_info(CPs, Envs, 20, CP).
 stack_dump(_) --> [].
 
+prolog_message(X,Y,Z) :-
+	system_message(X,Y,Z).	      
+
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
+system_message(query(_QueryResult,_)) --> [].
 system_message(format(Msg, Args)) -->
 	[Msg - Args].
 system_message(ancestors([])) -->
@@ -484,4 +488,5 @@ prefix(error,	      '     ',   user_error) -->
 prefix(banner,	      '',	   user_error) --> [].
 prefix(informational, '~*|% '-[LC],     user_error) -->
 	{ '$show_consult_level'(LC) }.
+
 

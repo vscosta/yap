@@ -127,7 +127,7 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 :- use_module('messages.yap').
 :- use_module('hacks.yap').
 
-'$system_module'('$message').
+'$system_module'('$messages').
 '$system_module'('$hacks').
 
 yap_hacks:cut_by(CP) :- '$$cut_by'(CP).

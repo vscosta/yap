@@ -246,7 +246,7 @@ print_message(Severity, Term) :-
 	  '$oncenotrace'(prolog:message(Term, Lines, [])) ->
 	  true
 	 ;
-	 '$message':generate_message(Term, Lines, [])
+	 '$messages':generate_message(Term, Lines, [])
 	 )
 	->  (   nonvar(Term),
 		'$oncenotrace'(user:message_hook(Term, Severity, Lines))
@@ -280,19 +280,19 @@ print_message(_, Term) :-
 	Term = error(syntax_error(_,_,_,_,_,_,_),_), !,
 	flush_output(user_output),
 	flush_output(user_error),
-	'$message':prefix(Level, LinePrefix, Stream, _, Lines), !,
+	'$messages':prefix(Level, LinePrefix, Stream, _, Lines), !,
 	% make sure we don't give a PC.
 	print_message_lines(Stream, LinePrefix, Lines).
 '$print_system_message'(Term, Level, Lines) :-
-	'$message':prefix(Level, LinePrefix, Stream, Prefix),
-	'$message':file_location(Prefix, LinesF, Lines), !,
+	'$messages':prefix(Level, LinePrefix, Stream, Prefix),
+	'$messages':file_location(Prefix, LinesF, Lines), !,
 	flush_output(user_output),
 	flush_output(user_error),
 	print_message_lines(Stream, LinePrefix, LinesF).
 '$print_system_message'(Error, Level, Lines) :-
 	flush_output(user_output),
 	flush_output(user_error),
-	'$message':prefix(Level, LinePrefix, Stream, LinesF, Lines), !,
+	'$messages':prefix(Level, LinePrefix, Stream, LinesF, Lines), !,
 	print_message_lines(Stream, LinePrefix, LinesF).
 
 
