@@ -85,7 +85,7 @@ typedef struct canonical_dir *	CanonicalDir;	/* pl-os.c */
 typedef struct on_halt *	OnHalt;		/* pl-os.c */
 
 /* The GD global variable */
-extern struct {
+typedef struct {
   int io_initialised;
   cleanup_status cleaning;		/* Inside PL_cleanup() */
 
@@ -110,8 +110,9 @@ extern struct {
     atom_t     *for_code[256];		/* code --> one-char-atom */
   } atoms;
 
-} gds;
+} gds_t;
 
+extern gds_t gds;
 
 #define GD (&gds)
 #define GLOBAL_LD (&gds)
@@ -251,6 +252,19 @@ extern PL_local_data_t lds;
 #define PRED_LD
 #define PASS_LD
 
+#define Suser_input             (LD->IO.streams[0])
+#define Suser_output            (LD->IO.streams[1])
+#define Suser_error             (LD->IO.streams[2])
+#define Scurin                  (LD->IO.streams[3])
+#define Scurout                 (LD->IO.streams[4])
+#define Sprotocol               (LD->IO.streams[5])
+#define Sdin                    Suser_input             /* not used for now */
+#define Sdout                   Suser_output
+
+#define source_line_no		(LD->read_source.line)
+#define source_file_name	(LD->read_source.file)
+
+
 /* Support PL_LOCK in the interface */
 #define PL_LOCK(X)
 #define PL_UNLOCK(X)
@@ -264,17 +278,6 @@ extern PL_local_data_t lds;
 #define fail			return FALSE
 #define TRY(goal)		if ((goal) == FALSE) fail
 
-
-extern atom_t source_file_name; /** source name of the current file that we are
-			     consulting */
-extern int source_line_no; /** guess.... */
-
-extern IOSTREAM *  Suser_input;
-extern IOSTREAM *    Suser_output;
-extern IOSTREAM *    Suser_error;
-extern IOSTREAM *    Scurin;		/* see/tell */
-extern IOSTREAM *    Scurout;
-extern IOSTREAM *    Sprotocol;			/* protocolling */
 
 extern int fileerrors;
 

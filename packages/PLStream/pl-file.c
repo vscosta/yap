@@ -4612,114 +4612,120 @@ pl_copy_stream_data2(term_t in, term_t out)
 		 *******************************/
 
 BeginPredDefs(file)
-  PRED_DEF("set_prolog_IO", 3, set_prolog_IO, 0)
-  PRED_DEF("read_pending_input", 3, read_pending_input, 0)
-  PRED_DEF("get_code", 2, get_code2, PL_FA_ISO)
-  PRED_DEF("get_code", 1, get_code1, PL_FA_ISO)
-  PRED_DEF("get_char", 2, get_char2, PL_FA_ISO)
-  PRED_DEF("get_char", 1, get_char1, PL_FA_ISO)
-  PRED_DEF("get_byte", 2, get_byte2, PL_FA_ISO)
-  PRED_DEF("get_byte", 1, get_byte1, PL_FA_ISO)
-  PRED_DEF("peek_code", 2, peek_code2, PL_FA_ISO)
-  PRED_DEF("peek_code", 1, peek_code1, PL_FA_ISO)
-  PRED_DEF("peek_char", 2, peek_char2, PL_FA_ISO)
-  PRED_DEF("peek_char", 1, peek_char1, PL_FA_ISO)
-  PRED_DEF("peek_byte", 2, peek_byte2, PL_FA_ISO)
-  PRED_DEF("peek_byte", 1, peek_byte1, PL_FA_ISO)
-  PRED_DEF("put_byte", 2, put_byte2, PL_FA_ISO)
-  PRED_DEF("put_byte", 1, put_byte1, PL_FA_ISO)
-  PRED_DEF("put_code", 2, put_code2, PL_FA_ISO)
-  PRED_DEF("put_code", 1, put_code1, PL_FA_ISO)
-  PRED_DEF("put_char", 2, put_code2, PL_FA_ISO)
-  PRED_DEF("put_char", 1, put_code1, PL_FA_ISO)
-  PRED_DEF("put", 2, put2, 0)
-  PRED_DEF("put", 1, put1, 0)
-  PRED_DEF("skip", 1, skip1, 0)
-  PRED_DEF("skip", 2, skip2, 0)
-  PRED_DEF("get", 1, get1, 0)
-  PRED_DEF("get", 2, get2, 0)
-  PRED_DEF("get0", 2, get_code2, 0)
-  PRED_DEF("get0", 1, get_code1, 0)
-  PRED_DEF("is_stream", 1, is_stream, 0)
-  PRED_DEF("byte_count", 2, byte_count, 0)
-  PRED_DEF("character_count", 2, character_count, 0)
-  PRED_DEF("line_count", 2, line_count, 0)
-  PRED_DEF("line_position", 2, line_position, 0)
-  PRED_DEF("with_output_to", 2, with_output_to, PL_FA_TRANSPARENT)
+  PRED_DEF("swi_set_prolog_IO", 3, set_prolog_IO, 0)
+  PRED_DEF("swi_read_pending_input", 3, read_pending_input, 0)
+  PRED_DEF("swi_get_code", 2, get_code2, PL_FA_ISO)
+  PRED_DEF("swi_get_code", 1, get_code1, PL_FA_ISO)
+  PRED_DEF("swi_get_char", 2, get_char2, PL_FA_ISO)
+  PRED_DEF("swi_get_char", 1, get_char1, PL_FA_ISO)
+  PRED_DEF("swi_get_byte", 2, get_byte2, PL_FA_ISO)
+  PRED_DEF("swi_get_byte", 1, get_byte1, PL_FA_ISO)
+  PRED_DEF("swi_peek_code", 2, peek_code2, PL_FA_ISO)
+  PRED_DEF("swi_peek_code", 1, peek_code1, PL_FA_ISO)
+  PRED_DEF("swi_peek_char", 2, peek_char2, PL_FA_ISO)
+  PRED_DEF("swi_peek_char", 1, peek_char1, PL_FA_ISO)
+  PRED_DEF("swi_peek_byte", 2, peek_byte2, PL_FA_ISO)
+  PRED_DEF("swi_peek_byte", 1, peek_byte1, PL_FA_ISO)
+  PRED_DEF("swi_put_byte", 2, put_byte2, PL_FA_ISO)
+  PRED_DEF("swi_put_byte", 1, put_byte1, PL_FA_ISO)
+  PRED_DEF("swi_put_code", 2, put_code2, PL_FA_ISO)
+  PRED_DEF("swi_put_code", 1, put_code1, PL_FA_ISO)
+  PRED_DEF("swi_put_char", 2, put_code2, PL_FA_ISO)
+  PRED_DEF("swi_put_char", 1, put_code1, PL_FA_ISO)
+  PRED_DEF("swi_put", 2, put2, 0)
+  PRED_DEF("swi_put", 1, put1, 0)
+  PRED_DEF("swi_skip", 1, skip1, 0)
+  PRED_DEF("swi_skip", 2, skip2, 0)
+  PRED_DEF("swi_get", 1, get1, 0)
+  PRED_DEF("swi_get", 2, get2, 0)
+  PRED_DEF("swi_get0", 2, get_code2, 0)
+  PRED_DEF("swi_get0", 1, get_code1, 0)
+  PRED_DEF("swi_is_stream", 1, is_stream, 0)
+  PRED_DEF("swi_byte_count", 2, byte_count, 0)
+  PRED_DEF("swi_character_count", 2, character_count, 0)
+  PRED_DEF("swi_line_count", 2, line_count, 0)
+  PRED_DEF("swi_line_position", 2, line_position, 0)
+  PRED_DEF("swi_with_output_to", 2, with_output_to, PL_FA_TRANSPARENT)
 EndPredDefs
 
 static const PL_extension file_foreigns[] = {
-  FRG("get_single_char",	1, pl_get_single_char,		0),
-  FRG("$push_input_context",	0, pl_push_input_context,	0),
-  FRG("$pop_input_context",	0, pl_pop_input_context,	0),
-  FRG("seeing",			1, pl_seeing,			0),
-  FRG("telling",		1, pl_telling,			0),
-  FRG("seen",			0, pl_seen,			0),
-  FRG("tmp_file",		2, pl_tmp_file,			0),
-  FRG("delete_file",		1, pl_delete_file,		0),
-  FRG("delete_directory",	1, pl_delete_directory,		0),
-  FRG("make_directory",		1, pl_make_directory,		0),
-  FRG("access_file",		2, pl_access_file,		0),
-  FRG("read_link",		3, pl_read_link,		0),
-  FRG("exists_file",		1, pl_exists_file,		0),
-  FRG("exists_directory",	1, pl_exists_directory,		0),
-  FRG("rename_file",		2, pl_rename_file,		0),
-  FRG("same_file",		2, pl_same_file,		0),
-  FRG("time_file",		2, pl_time_file,		0),
-  FRG("told",			0, pl_told,			0),
-  FRG("see",			1, pl_see,			0),
-  FRG("tell",			1, pl_tell,			0),
-  FRG("append",			1, pl_append,			0),
-  FRG("ttyflush",		0, pl_ttyflush,			0),
-  FRG("flush_output",		0, pl_flush_output,		0),
-  FRG("prompt",			2, pl_prompt,			0),
-  FRG("prompt1",		1, pl_prompt1,			0),
-  FRG("$absolute_file_name",	2, pl_absolute_file_name,	0),
-  FRG("is_absolute_file_name",	1, pl_is_absolute_file_name,	0),
-  FRG("file_base_name",		2, pl_file_base_name,		0),
-  FRG("file_directory_name",	2, pl_file_dir_name,		0),
-  FRG("file_name_extension",	3, pl_file_name_extension,	0),
-  FRG("prolog_to_os_filename",	2, pl_prolog_to_os_filename,	0),
-  FRG("set_stream_position",	2, pl_set_stream_position,    ISO),
-  FRG("wait_for_input",		3, pl_wait_for_input,		0),
-  FRG("protocol",		1, pl_protocol,			0),
-  FRG("protocola",		1, pl_protocola,		0),
-  FRG("noprotocol",		0, pl_noprotocol,		0),
-  FRG("protocolling",		1, pl_protocolling,		0),
-  FRG("tab",			1, pl_tab,			0),
-  FRG("open",			3, pl_open,		      ISO),
-  FRG("open",			4, pl_open4,		      ISO),
-  FRG("open_null_stream",	1, pl_open_null_stream,		0),
-  FRG("close",			1, pl_close,		      ISO),
-  FRG("close",			2, pl_close2,		      ISO),
-  FRG("stream_property",	2, pl_stream_property,	 NDET|ISO),
-  FRG("flush_output",		1, pl_flush_output1,	      ISO),
-  FRG("set_stream_position",	2, pl_set_stream_position,    ISO),
-  FRG("seek",			4, pl_seek,			0),
-  FRG("set_input",		1, pl_set_input,	      ISO),
-  FRG("set_output",		1, pl_set_output,	      ISO),
-  FRG("set_stream",		2, pl_set_stream,		0),
-  FRG("current_input",		1, pl_current_input,	      ISO),
-  FRG("current_output",		1, pl_current_output,	      ISO),
-  FRG("source_location",	2, pl_source_location,		0),
-  FRG("at_end_of_stream",	1, pl_at_end_of_stream1,      ISO),
-  FRG("at_end_of_stream",	0, pl_at_end_of_stream0,      ISO),
-  FRG("size_file",		2, pl_size_file,		0),
-  FRG("$size_stream",		2, pl_size_stream,		0),
-  FRG("fileerrors",		2, pl_fileerrors,		0),
-  FRG("working_directory",	2, pl_working_directory,	0),
-  FRG("$mark_executable",	1, pl_mark_executable,		0),
-  FRG("copy_stream_data",	2, pl_copy_stream_data2,	0),
-  FRG("copy_stream_data",	3, pl_copy_stream_data3,	0)
+  FRG("swi_get_single_char",	1, pl_get_single_char,		0),
+  FRG("swi_$push_input_context",	0, pl_push_input_context,	0),
+  FRG("swi_$pop_input_context",	0, pl_pop_input_context,	0),
+  FRG("swi_seeing",			1, pl_seeing,			0),
+  FRG("swi_telling",		1, pl_telling,			0),
+  FRG("swi_seen",			0, pl_seen,			0),
+  FRG("swi_tmp_file",		2, pl_tmp_file,			0),
+  FRG("swi_delete_file",		1, pl_delete_file,		0),
+  FRG("swi_delete_directory",	1, pl_delete_directory,		0),
+  FRG("swi_make_directory",		1, pl_make_directory,		0),
+  FRG("swi_access_file",		2, pl_access_file,		0),
+  FRG("swi_read_link",		3, pl_read_link,		0),
+  FRG("swi_exists_file",		1, pl_exists_file,		0),
+  FRG("swi_exists_directory",	1, pl_exists_directory,		0),
+  FRG("swi_rename_file",		2, pl_rename_file,		0),
+  FRG("swi_same_file",		2, pl_same_file,		0),
+  FRG("swi_time_file",		2, pl_time_file,		0),
+  FRG("swi_told",			0, pl_told,			0),
+  FRG("swi_see",			1, pl_see,			0),
+  FRG("swi_tell",			1, pl_tell,			0),
+  FRG("swi_append",			1, pl_append,			0),
+  FRG("swi_ttyflush",		0, pl_ttyflush,			0),
+  FRG("swi_flush_output",		0, pl_flush_output,		0),
+  FRG("swi_prompt",			2, pl_prompt,			0),
+  FRG("swi_prompt1",		1, pl_prompt1,			0),
+  FRG("swi_$absolute_file_name",	2, pl_absolute_file_name,	0),
+  FRG("swi_is_absolute_file_name",	1, pl_is_absolute_file_name,	0),
+  FRG("swi_file_base_name",		2, pl_file_base_name,		0),
+  FRG("swi_file_directory_name",	2, pl_file_dir_name,		0),
+  FRG("swi_file_name_extension",	3, pl_file_name_extension,	0),
+  FRG("swi_prolog_to_os_filename",	2, pl_prolog_to_os_filename,	0),
+  FRG("swi_set_stream_position",	2, pl_set_stream_position,    ISO),
+  FRG("swi_wait_for_input",		3, pl_wait_for_input,		0),
+  FRG("swi_protocol",		1, pl_protocol,			0),
+  FRG("swi_protocola",		1, pl_protocola,		0),
+  FRG("swi_noprotocol",		0, pl_noprotocol,		0),
+  FRG("swi_protocolling",		1, pl_protocolling,		0),
+  FRG("swi_tab",			1, pl_tab,			0),
+  FRG("swi_open",			3, pl_open,		      ISO),
+  FRG("swi_open",			4, pl_open4,		      ISO),
+  FRG("swi_open_null_stream",	1, pl_open_null_stream,		0),
+  FRG("swi_close",			1, pl_close,		      ISO),
+  FRG("swi_close",			2, pl_close2,		      ISO),
+  FRG("swi_stream_property",	2, pl_stream_property,	 NDET|ISO),
+  FRG("swi_flush_output",		1, pl_flush_output1,	      ISO),
+  FRG("swi_set_stream_position",	2, pl_set_stream_position,    ISO),
+  FRG("swi_seek",			4, pl_seek,			0),
+  FRG("swi_set_input",		1, pl_set_input,	      ISO),
+  FRG("swi_set_output",		1, pl_set_output,	      ISO),
+  FRG("swi_set_stream",		2, pl_set_stream,		0),
+  FRG("swi_current_input",		1, pl_current_input,	      ISO),
+  FRG("swi_current_output",		1, pl_current_output,	      ISO),
+  FRG("swi_source_location",	2, pl_source_location,		0),
+  FRG("swi_at_end_of_stream",	1, pl_at_end_of_stream1,      ISO),
+  FRG("swi_at_end_of_stream",	0, pl_at_end_of_stream0,      ISO),
+  FRG("swi_size_file",		2, pl_size_file,		0),
+  FRG("swi_$size_stream",		2, pl_size_stream,		0),
+  FRG("swi_fileerrors",		2, pl_fileerrors,		0),
+  FRG("swi_working_directory",	2, pl_working_directory,	0),
+  FRG("swi_$mark_executable",	1, pl_mark_executable,		0),
+  FRG("swi_copy_stream_data",	2, pl_copy_stream_data2,	0),
+  FRG("swi_copy_stream_data",	3, pl_copy_stream_data3,	0)
 
 };
+
+static void
+registerBuiltins(const PL_extension *f)
+{
+  PL_register_extensions( f);
+}
 
 void
 initIO(void)
 { GET_LD
   const atom_t *np;
   int i;
-
+  initCharTypes();
   init_standardStreams();
   init_encoding_names();
   init_open4_options();
@@ -4728,6 +4734,8 @@ initIO(void)
   streamAliases = newHTable(16);
   streamContext = newHTable(16);
 
+  registerBuiltins(file_foreigns);
+  registerBuiltins(PL_predicates_from_file);
   fileerrors = TRUE;
 #ifdef __unix__
 { int fd;

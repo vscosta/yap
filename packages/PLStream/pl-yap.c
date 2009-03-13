@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include "pl-incl.h"
 
+int fileerrors;
+
+PL_local_data_t lds;
+
+gds_t gds;
+
 static atom_t
 uncachedCodeToAtom(int chrcode)
 { if ( chrcode < 256 )
@@ -13,7 +19,6 @@ uncachedCodeToAtom(int chrcode)
     return lookupAtom(tmp, 1);
   } else
   { pl_wchar_t tmp[2];
-    int new;
 
     tmp[0] = chrcode;
     tmp[1] = '\0';
@@ -273,7 +278,7 @@ scan_options(term_t options, int flags, atom_t optype,
     }
 
     for( n=0, s = specs; s->name; n++, s++ )
-    { if ( s->name == name )
+      { if ( s->name == name )
       { switch((s->type & OPT_TYPE_MASK))
 	{ case OPT_BOOL:
 	  { atom_t aval;
@@ -537,3 +542,6 @@ ok:
 
   return b;
 }
+
+
+

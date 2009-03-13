@@ -185,4 +185,6 @@ valHandle(term_t tt)
 
 #endif /* __YAP_PROLOG__ */
 
+
+
 #endif /* PL_YAP_H */
