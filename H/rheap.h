@@ -1338,6 +1338,13 @@ RestoreEntries(PropEntry *pp, int int_key)
 	  ve->ValueOfVE = AtomTermAdjust(tv);
       }
       break;
+    case HoldProperty:
+      {
+	HoldEntry *he = (HoldEntry *)pp;
+	he->NextOfPE =
+	  PropAdjust(he->NextOfPE);
+      }
+      break;
     case ArrayProperty:
       {
 	ArrayEntry *ae = (ArrayEntry *)pp;
