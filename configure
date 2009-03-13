@@ -16542,9 +16542,6 @@ mkdir -p  library/tries
 mkdir -p  library/rltree
 mkdir -p  library/lammpi
 mkdir -p  library/yap2swi
-mkdir -p  CHR
-mkdir -p  CLPQR
-mkdir -p  packages/CLPBN
 mkdir -p  LGPL
 mkdir -p  LGPL/JPL
 mkdir -p  LGPL/JPL/java
@@ -16553,18 +16550,20 @@ mkdir -p  LGPL/JPL/java/jpl/fli
 mkdir -p  LGPL/JPL/java/jpl/test
 mkdir -p  LGPL/JPL/src
 mkdir -p  LGPL/clp
-mkdir -p  packages/chr
 mkdir -p  LGPL/swi_console
 mkdir -p  packages/PLStream
 mkdir -p  GPL
-mkdir -p  GPL/clpqr
 mkdir -p  GPL/http
+mkdir -p  packages/chr
+mkdir -p  packages/CLPBN
 mkdir -p  packages/cplint
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
+mkdir -p  packages/clpqr
+mkdir -p  packages/sgml
 
 
-ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile packages/chr/Makefile packages/CLPBN/Makefile LGPL/clp/Makefile GPL/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile packages/cplint/Makefile packages/PLStream/Makefile packages/ProbLog/Makefile packages/ProbLog/simplecudd/Makefile"
+ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile packages/chr/Makefile packages/CLPBN/Makefile LGPL/clp/Makefile packages/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile packages/cplint/Makefile packages/sgml/Makefile packages/PLStream/Makefile packages/ProbLog/Makefile packages/ProbLog/simplecudd/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -17134,7 +17133,7 @@ do
     "packages/chr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/chr/Makefile" ;;
     "packages/CLPBN/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/Makefile" ;;
     "LGPL/clp/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/clp/Makefile" ;;
-    "GPL/clpqr/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/clpqr/Makefile" ;;
+    "packages/clpqr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/clpqr/Makefile" ;;
     "library/lammpi/Makefile") CONFIG_FILES="$CONFIG_FILES library/lammpi/Makefile" ;;
     "library/tries/Makefile") CONFIG_FILES="$CONFIG_FILES library/tries/Makefile" ;;
     "library/rltree/Makefile") CONFIG_FILES="$CONFIG_FILES library/rltree/Makefile" ;;
@@ -17146,6 +17145,7 @@ do
     "GPL/http/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/http/Makefile" ;;
     "GPL/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/Makefile" ;;
     "packages/cplint/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/Makefile" ;;
+    "packages/sgml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/sgml/Makefile" ;;
     "packages/PLStream/Makefile") CONFIG_FILES="$CONFIG_FILES packages/PLStream/Makefile" ;;
     "packages/ProbLog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/Makefile" ;;
     "packages/ProbLog/simplecudd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd/Makefile" ;;

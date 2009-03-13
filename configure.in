@@ -1487,9 +1487,10 @@ mkdir -p  packages/cplint
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
 mkdir -p  packages/clpqr
+mkdir -p  packages/sgml
 
 
-AC_OUTPUT(Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile packages/chr/Makefile packages/CLPBN/Makefile LGPL/clp/Makefile packages/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile  LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile  packages/cplint/Makefile packages/PLStream/Makefile packages/ProbLog/Makefile packages/ProbLog/simplecudd/Makefile)
+AC_OUTPUT(Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile packages/chr/Makefile packages/CLPBN/Makefile LGPL/clp/Makefile packages/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile  LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile  packages/cplint/Makefile packages/sgml/Makefile packages/PLStream/Makefile packages/ProbLog/Makefile packages/ProbLog/simplecudd/Makefile)
 
 make depend
 (cd packages/PLStream; make depend; cd ../..)
