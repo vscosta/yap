@@ -1099,7 +1099,7 @@ typedef Int (*CPredicateV)(Int,Int,struct context *);
 Int
 YAP_Execute(PredEntry *pe, CPredicate exec_code)
 {
-  if (pe->PredFlags & CArgsPredFlag) {
+  if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = exec_code;
     struct context ctx;
 
