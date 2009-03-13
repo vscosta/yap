@@ -776,600 +776,121 @@ p_execute_nonstop(void)
   }
 }
 
+static Term
+slice_module_for_call_with_args(Term tin, Term *modp, int arity)
+{
+  if (IsVarTerm(tin)) {
+    Yap_Error(INSTANTIATION_ERROR,tin,"call_with_args/%d", arity);    
+    return 0L;
+  }
+  while (IsApplTerm(tin)) {
+    Functor f = FunctorOfTerm(tin);
+    Term newmod;
+    if (f != FunctorModule) {
+      Yap_Error(TYPE_ERROR_ATOM,tin,"call_with_args/%d", arity);    
+      return 0L;
+    }
+    newmod = ArgOfTerm(1,tin);
+    if (IsVarTerm(newmod)) {
+      Yap_Error(INSTANTIATION_ERROR,tin,"call_with_args/%d",arity);    
+      return 0L;
+    } else if (!IsAtomTerm(newmod)) {
+      Yap_Error(TYPE_ERROR_ATOM,newmod,"call_with_args/%d",arity);    
+      return 0L;
+    }
+    *modp = newmod;
+    tin = ArgOfTerm(2,tin);
+  }
+  if (!IsAtomTerm(tin)) {
+    Yap_Error(TYPE_ERROR_ATOM,tin,"call_with_args/%d",arity);  
+    return 0L;
+  }
+  return tin;
+}
+
 static Int
 p_execute_0(void)
 {				/* '$execute_0'(Goal)	 */
-  Term            t = Deref(ARG1);
-  Term            mod = Deref(ARG2);
-  Prop            pe;
-
-  if (IsAtomTerm(t)) {
-    Atom            a;
-    a = AtomOfTerm(t);
-    pe = PredPropByAtom(a, mod);
-  } else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    Int Arity, i;
-    CELL *ptr;
-
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/1");
-      return(FALSE);
-    }
-    pe = PredPropByFunc(f, mod);
-    Arity = ArityOfFunctor(f);
-    ptr = RepAppl(t)+1;
-    for (i=1;i<=Arity;i++) {
-      XREGS[i] = *ptr++;
-    }
-  } else {
-    CELL *ptr;
-
-    pe = PredPropByFunc(FunctorDot2, mod);
-    ptr = RepPair(t);
-    XREGS[1] = ptr[0];
-    XREGS[2] = ptr[1];
-  }
-  return (CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred));
+  Term mod = CurrentModule;
+  Term t = slice_module_for_call_with_args(Deref(ARG1),&mod,0);
+  if (!t)
+    return FALSE;
+  return do_execute(t, mod);
 }
+
+static Int
+call_with_args(int i)
+{
+  Term mod = CurrentModule, t;
+  int j;
+
+  t = slice_module_for_call_with_args(Deref(ARG1),&mod,i);
+  if (!t)
+    return FALSE;
+  for (j=0;j<i;j++)
+    heap_store(Deref(XREGS[i+2]));
+  return(do_execute_n(t, mod, i));
+}
+
 
 static Int
 p_execute_1(void)
 {				/* '$execute_0'(Goal)	 */
-  Term            t = Deref(ARG1);
-  Term            mod = Deref(ARG3);
-  Prop            pe;
-
-  if (!IsAtomTerm(t)) {
-    Yap_Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/2");
-    return(FALSE);
-  }
-  if (IsAtomTerm(t)) {
-    Atom            a;
-    a = AtomOfTerm(t);
-    ARG1 = ARG2;
-    pe = PredPropByFunc(Yap_MkFunctor(a,1),mod);
-  } else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    Int Arity, i;
-    Atom a;
-    CELL *ptr;
-
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/2");
-      return(FALSE);
-    }
-    Arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
-    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+1), mod);
-    XREGS[Arity+1] = ARG2;
-    ptr = RepAppl(t)+1;
-    for (i=1;i<=Arity;i++) {
-      XREGS[i] = *ptr++;
-    }
-  } else {
-    CELL *ptr;
-
-    pe = PredPropByFunc(FunctorDot3, mod);
-    ptr = RepPair(t);
-    XREGS[3] = ARG2;
-    XREGS[1] = ptr[0];
-    XREGS[2] = ptr[1];
-  }
-  return (CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred));
+  return call_with_args(1);
 }
 
 static Int
 p_execute_2(void)
 {				/* '$execute_2'(Goal)	 */
-  Term            t = Deref(ARG1);
-  Term            mod = Deref(ARG4);
-  Prop            pe;
-
-  if (IsAtomTerm(t)) {
-    Atom            a;
-    a = AtomOfTerm(t);
-    ARG1 = ARG2;
-    ARG2 = ARG3;
-    pe = PredPropByFunc(Yap_MkFunctor(a,2),mod);
-  } else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    Int Arity, i;
-    Atom a;
-    CELL *ptr;
-
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/3");
-      return(FALSE);
-    }
-    Arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
-    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+2), mod);
-    XREGS[Arity+2] = ARG3;
-    XREGS[Arity+1] = ARG2;
-    ptr = RepAppl(t)+1;
-    for (i=1;i<=Arity;i++) {
-      XREGS[i] = *ptr++;
-    }
-  } else {
-    CELL *ptr;
-
-    pe = PredPropByFunc(FunctorDot4, mod);
-    ptr = RepPair(t);
-    XREGS[4] = ARG3;
-    XREGS[3] = ARG2;
-    XREGS[1] = ptr[0];
-    XREGS[2] = ptr[1];
-  }
-  return (CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred));
+  return call_with_args(2);
 }
 
 static Int
 p_execute_3(void)
 {				/* '$execute_3'(Goal)	 */
-  Term            t = Deref(ARG1);
-  Term            mod = Deref(ARG5);
-  Prop            pe;
-
-  if (IsAtomTerm(t)) {
-    Atom            a;
-    a = AtomOfTerm(t);
-    ARG1 = ARG2;
-    ARG2 = ARG3;
-    ARG3 = ARG4;
-    pe = PredPropByFunc(Yap_MkFunctor(a,3),mod);
-  } else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    Int Arity, i;
-    Atom a;
-    CELL *ptr;
-
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/4");
-      return(FALSE);
-    }
-    Arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
-    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+3), mod);
-    XREGS[Arity+3] = ARG4;
-    XREGS[Arity+2] = ARG3;
-    XREGS[Arity+1] = ARG2;
-    ptr = RepAppl(t)+1;
-    for (i=1;i<=Arity;i++) {
-      XREGS[i] = *ptr++;
-    }
-  } else {
-    CELL *ptr;
-
-    pe = PredPropByFunc(FunctorDot5, mod);
-    ptr = RepPair(t);
-    XREGS[5] = ARG4;
-    XREGS[4] = ARG3;
-    XREGS[3] = ARG2;
-    XREGS[1] = ptr[0];
-    XREGS[2] = ptr[1];
-  }
-  return (CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred));
+  return call_with_args(3);
 }
 
 static Int
 p_execute_4(void)
 {				/* '$execute_4'(Goal)	 */
-  Term            t = Deref(ARG1);
-  Term            mod = Deref(ARG6);
-  Prop            pe;
-
-  if (IsAtomTerm(t)) {
-    Atom            a;
-    a = AtomOfTerm(t);
-    ARG1 = ARG2;
-    ARG2 = ARG3;
-    ARG3 = ARG4;
-    ARG4 = ARG5;
-    pe = PredPropByFunc(Yap_MkFunctor(a,4),mod);
-  } else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    Int Arity, i;
-    Atom a;
-    CELL *ptr;
-
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/5");
-      return(FALSE);
-    }
-    Arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
-    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+4), mod);
-    XREGS[Arity+4] = ARG5;
-    XREGS[Arity+3] = ARG4;
-    XREGS[Arity+2] = ARG3;
-    XREGS[Arity+1] = ARG2;
-    ptr = RepAppl(t)+1;
-    for (i=1;i<=Arity;i++) {
-      XREGS[i] = *ptr++;
-    }
-  } else {
-    CELL *ptr;
-
-    pe = PredPropByFunc(FunctorDot6, mod);
-    ptr = RepPair(t);
-    XREGS[6] = ARG5;
-    XREGS[5] = ARG4;
-    XREGS[4] = ARG3;
-    XREGS[3] = ARG2;
-    XREGS[1] = ptr[0];
-    XREGS[2] = ptr[1];
-  }
-  return (CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred));
+  return call_with_args(4);
 }
 
 static Int
 p_execute_5(void)
 {				/* '$execute_5'(Goal)	 */
-  Term            t = Deref(ARG1);
-  Term            mod = Deref(ARG7);
-  Prop            pe;
-
-  if (IsAtomTerm(t)) {
-    Atom            a;
-    a = AtomOfTerm(t);
-    ARG1 = ARG2;
-    ARG2 = ARG3;
-    ARG3 = ARG4;
-    ARG4 = ARG5;
-    ARG5 = ARG6;
-    pe = PredPropByFunc(Yap_MkFunctor(a,5),mod);
-  } else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    Int Arity, i;
-    Atom a;
-    CELL *ptr;
-
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/6");
-      return(FALSE);
-    }
-    Arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
-    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+5), mod);
-    XREGS[Arity+5] = ARG6;
-    XREGS[Arity+4] = ARG5;
-    XREGS[Arity+3] = ARG4;
-    XREGS[Arity+2] = ARG3;
-    XREGS[Arity+1] = ARG2;
-    ptr = RepAppl(t)+1;
-    for (i=1;i<=Arity;i++) {
-      XREGS[i] = *ptr++;
-    }
-  } else {
-    CELL *ptr;
-
-    pe = PredPropByFunc(FunctorDot7, mod);
-    ptr = RepPair(t);
-    XREGS[7] = ARG6;
-    XREGS[6] = ARG5;
-    XREGS[5] = ARG4;
-    XREGS[4] = ARG3;
-    XREGS[3] = ARG2;
-    XREGS[1] = ptr[0];
-    XREGS[2] = ptr[1];
-  }
-  return (CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred));
+  return call_with_args(5);
 }
 
 static Int
 p_execute_6(void)
 {				/* '$execute_6'(Goal)	 */
-  Term            t = Deref(ARG1);
-  Term            mod = Deref(ARG8);
-  Prop            pe;
-
-  if (IsAtomTerm(t)) {
-    Atom            a;
-    a = AtomOfTerm(t);
-    ARG1 = ARG2;
-    ARG2 = ARG3;
-    ARG3 = ARG4;
-    ARG4 = ARG5;
-    ARG5 = ARG6;
-    ARG6 = ARG7;
-    pe = PredPropByFunc(Yap_MkFunctor(a,6),mod);
-  } else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    Int Arity, i;
-    Atom a;
-    CELL *ptr;
-
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/7");
-      return(FALSE);
-    }
-    Arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
-    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+6), mod);
-    XREGS[Arity+6] = ARG7;
-    XREGS[Arity+5] = ARG6;
-    XREGS[Arity+4] = ARG5;
-    XREGS[Arity+3] = ARG4;
-    XREGS[Arity+2] = ARG3;
-    XREGS[Arity+1] = ARG2;
-    ptr = RepAppl(t)+1;
-    for (i=1;i<=Arity;i++) {
-      XREGS[i] = *ptr++;
-    }
-  } else {
-    CELL *ptr;
-
-    pe = PredPropByFunc(FunctorDot8, mod);
-    ptr = RepPair(t);
-    XREGS[8] = ARG7;
-    XREGS[7] = ARG6;
-    XREGS[6] = ARG5;
-    XREGS[5] = ARG4;
-    XREGS[4] = ARG3;
-    XREGS[3] = ARG2;
-    XREGS[1] = ptr[0];
-    XREGS[2] = ptr[1];
-  }
-  return (CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred));
+  return call_with_args(6);
 }
 
 static Int
 p_execute_7(void)
 {				/* '$execute_7'(Goal)	 */
-  Term            t = Deref(ARG1);
-  Term            mod = Deref(ARG9);
-  Prop            pe;
-
-  if (IsAtomTerm(t)) {
-    Atom            a;
-    a = AtomOfTerm(t);
-    ARG1 = ARG2;
-    ARG2 = ARG3;
-    ARG3 = ARG4;
-    ARG4 = ARG5;
-    ARG5 = ARG6;
-    ARG6 = ARG7;
-    ARG7 = ARG8;
-    pe = PredPropByFunc(Yap_MkFunctor(a,7),mod);
-  } else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    Int Arity, i;
-    Atom a;
-    CELL *ptr;
-
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/8");
-      return(FALSE);
-    }
-    Arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
-    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+7), mod);
-    XREGS[Arity+7] = ARG8;
-    XREGS[Arity+6] = ARG7;
-    XREGS[Arity+5] = ARG6;
-    XREGS[Arity+4] = ARG5;
-    XREGS[Arity+3] = ARG4;
-    XREGS[Arity+2] = ARG3;
-    XREGS[Arity+1] = ARG2;
-    ptr = RepAppl(t)+1;
-    for (i=1;i<=Arity;i++) {
-      XREGS[i] = *ptr++;
-    }
-  } else {
-    CELL *ptr;
-
-    pe = PredPropByFunc(FunctorDot9, mod);
-    ptr = RepPair(t);
-    XREGS[9] = ARG8;
-    XREGS[8] = ARG7;
-    XREGS[7] = ARG6;
-    XREGS[6] = ARG5;
-    XREGS[5] = ARG4;
-    XREGS[4] = ARG3;
-    XREGS[3] = ARG2;
-    XREGS[1] = ptr[0];
-    XREGS[2] = ptr[1];
-  }
-  return (CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred));
+  return call_with_args(7);
 }
 
 static Int
 p_execute_8(void)
 {				/* '$execute_8'(Goal)	 */
-  Term            t = Deref(ARG1);
-  Term            mod = Deref(ARG10);
-  Prop            pe;
-
-  if (IsAtomTerm(t)) {
-    Atom            a;
-    a = AtomOfTerm(t);
-    ARG1 = ARG2;
-    ARG2 = ARG3;
-    ARG3 = ARG4;
-    ARG4 = ARG5;
-    ARG5 = ARG6;
-    ARG6 = ARG7;
-    ARG7 = ARG8;
-    ARG8 = ARG9;
-    pe = PredPropByFunc(Yap_MkFunctor(a,8),mod);
-  } else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    Int Arity, i;
-    Atom a;
-    CELL *ptr;
-
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/9");
-      return(FALSE);
-    }
-    Arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
-    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+8), mod);
-    XREGS[Arity+8] = ARG9;
-    XREGS[Arity+7] = ARG8;
-    XREGS[Arity+6] = ARG7;
-    XREGS[Arity+5] = ARG6;
-    XREGS[Arity+4] = ARG5;
-    XREGS[Arity+3] = ARG4;
-    XREGS[Arity+2] = ARG3;
-    XREGS[Arity+1] = ARG2;
-    ptr = RepAppl(t)+1;
-    for (i=1;i<=Arity;i++) {
-      XREGS[i] = *ptr++;
-    }
-  } else {
-    CELL *ptr;
-
-    pe = PredPropByFunc(FunctorDot10, mod);
-    ptr = RepPair(t);
-    XREGS[10] = ARG9;
-    XREGS[9] = ARG8;
-    XREGS[8] = ARG7;
-    XREGS[7] = ARG6;
-    XREGS[6] = ARG5;
-    XREGS[5] = ARG4;
-    XREGS[4] = ARG3;
-    XREGS[3] = ARG2;
-    XREGS[1] = ptr[0];
-    XREGS[2] = ptr[1];
-  }
-  return (CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred));
+  return call_with_args(8);
 }
 
 static Int
 p_execute_9(void)
 {				/* '$execute_9'(Goal)	 */
-  Term            t = Deref(ARG1);
-  Term            mod = Deref(ARG11);
-  Prop            pe;
-
-  if (IsAtomTerm(t)) {
-    Atom            a;
-    a = AtomOfTerm(t);
-    ARG1 = ARG2;
-    ARG2 = ARG3;
-    ARG3 = ARG4;
-    ARG4 = ARG5;
-    ARG5 = ARG6;
-    ARG6 = ARG7;
-    ARG7 = ARG8;
-    ARG8 = ARG9;
-    ARG9 = ARG10;
-    pe = PredPropByFunc(Yap_MkFunctor(a,9),mod);
-  } else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    Int Arity, i;
-    Atom a;
-    CELL *ptr;
-
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/10");
-      return(FALSE);
-    }
-    Arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
-    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+9), mod);
-    XREGS[Arity+9] = ARG10;
-    XREGS[Arity+8] = ARG9;
-    XREGS[Arity+7] = ARG8;
-    XREGS[Arity+6] = ARG7;
-    XREGS[Arity+5] = ARG6;
-    XREGS[Arity+4] = ARG5;
-    XREGS[Arity+3] = ARG4;
-    XREGS[Arity+2] = ARG3;
-    XREGS[Arity+1] = ARG2;
-    ptr = RepAppl(t)+1;
-    for (i=1;i<=Arity;i++) {
-      XREGS[i] = *ptr++;
-    }
-  } else {
-    CELL *ptr;
-
-    pe = PredPropByFunc(FunctorDot11, mod);
-    ptr = RepPair(t);
-    XREGS[11] = ARG10;
-    XREGS[10] = ARG9;
-    XREGS[9] = ARG8;
-    XREGS[8] = ARG7;
-    XREGS[7] = ARG6;
-    XREGS[6] = ARG5;
-    XREGS[5] = ARG4;
-    XREGS[4] = ARG3;
-    XREGS[3] = ARG2;
-    XREGS[1] = ptr[0];
-    XREGS[2] = ptr[1];
-  }
-  return (CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred));
+  return call_with_args(9);
 }
 
 static Int
 p_execute_10(void)
 {				/* '$execute_10'(Goal)	 */
-  Term            t = Deref(ARG1);
-  Term            mod = Deref(ARG12);
-  Prop            pe;
-
-  if (IsAtomTerm(t)) {
-    Atom            a;
-    a = AtomOfTerm(t);
-    ARG1 = ARG2;
-    ARG2 = ARG3;
-    ARG3 = ARG4;
-    ARG4 = ARG5;
-    ARG5 = ARG6;
-    ARG6 = ARG7;
-    ARG7 = ARG8;
-    ARG8 = ARG9;
-    ARG9 = ARG10;
-    ARG10 = ARG11;
-    pe = PredPropByFunc(Yap_MkFunctor(a,10),mod);
-  } else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    Int Arity, i;
-    Atom a;
-    CELL *ptr;
-
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/11");
-      return(FALSE);
-    }
-    Arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
-    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+10), mod);
-    XREGS[Arity+10] = ARG11;
-    XREGS[Arity+9] = ARG10;
-    XREGS[Arity+8] = ARG9;
-    XREGS[Arity+7] = ARG8;
-    XREGS[Arity+6] = ARG7;
-    XREGS[Arity+5] = ARG6;
-    XREGS[Arity+4] = ARG5;
-    XREGS[Arity+3] = ARG4;
-    XREGS[Arity+2] = ARG3;
-    XREGS[Arity+1] = ARG2;
-    ptr = RepAppl(t)+1;
-    for (i=1;i<=Arity;i++) {
-      XREGS[i] = *ptr++;
-    }
-  } else {
-    CELL *ptr;
-
-    pe = PredPropByFunc(FunctorDot12, mod);
-    ptr = RepPair(t);
-    XREGS[12] = ARG11;
-    XREGS[11] = ARG10;
-    XREGS[10] = ARG9;
-    XREGS[9] = ARG8;
-    XREGS[8] = ARG7;
-    XREGS[7] = ARG6;
-    XREGS[6] = ARG5;
-    XREGS[5] = ARG4;
-    XREGS[4] = ARG3;
-    XREGS[3] = ARG2;
-    XREGS[1] = ptr[0];
-    XREGS[2] = ptr[1];
-  }
-  return (CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred));
+  return call_with_args(10);
 }
 
 #ifdef DEPTH_LIMIT
@@ -2106,17 +1627,17 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$execute", 12, p_execute12, HiddenPredFlag);
   Yap_InitCPred("$execute_in_mod", 2, p_execute_in_mod, HiddenPredFlag);
   Yap_InitCPred("$execute_wo_mod", 2, p_execute_in_mod, HiddenPredFlag);
-  Yap_InitCPred("$call_with_args", 2, p_execute_0, HiddenPredFlag);
-  Yap_InitCPred("$call_with_args", 3, p_execute_1, HiddenPredFlag);
-  Yap_InitCPred("$call_with_args", 4, p_execute_2, HiddenPredFlag);
-  Yap_InitCPred("$call_with_args", 5, p_execute_3, HiddenPredFlag);
-  Yap_InitCPred("$call_with_args", 6, p_execute_4, HiddenPredFlag);
-  Yap_InitCPred("$call_with_args", 7, p_execute_5, HiddenPredFlag);
-  Yap_InitCPred("$call_with_args", 8, p_execute_6, HiddenPredFlag);
-  Yap_InitCPred("$call_with_args", 9, p_execute_7, HiddenPredFlag);
-  Yap_InitCPred("$call_with_args", 10, p_execute_8, HiddenPredFlag);
-  Yap_InitCPred("$call_with_args", 11, p_execute_9, HiddenPredFlag);
-  Yap_InitCPred("$call_with_args", 12, p_execute_10, HiddenPredFlag);
+  Yap_InitCPred("call_with_args", 1, p_execute_0, HiddenPredFlag);
+  Yap_InitCPred("call_with_args", 2, p_execute_1, HiddenPredFlag);
+  Yap_InitCPred("call_with_args", 3, p_execute_2, HiddenPredFlag);
+  Yap_InitCPred("call_with_args", 4, p_execute_3, HiddenPredFlag);
+  Yap_InitCPred("call_with_args", 5, p_execute_4, HiddenPredFlag);
+  Yap_InitCPred("call_with_args", 6, p_execute_5, HiddenPredFlag);
+  Yap_InitCPred("call_with_args", 7, p_execute_6, HiddenPredFlag);
+  Yap_InitCPred("call_with_args", 8, p_execute_7, HiddenPredFlag);
+  Yap_InitCPred("call_with_args", 9, p_execute_8, HiddenPredFlag);
+  Yap_InitCPred("call_with_args", 10, p_execute_9, HiddenPredFlag);
+  Yap_InitCPred("call_with_args", 11, p_execute_10, HiddenPredFlag);
   Yap_InitCPred("$debug_on", 1, p_debug_on, HiddenPredFlag);
 #ifdef DEPTH_LIMIT
   Yap_InitCPred("$execute_under_depth_limit", 2, p_execute_depth_limit, HiddenPredFlag);
