@@ -15,6 +15,9 @@
 *									 *
 *************************************************************************/
 
+#ifndef ATOMS_H
+#define ATOMS_H 1
+
 #undef EXTERN
 #ifndef ADTDEFS_C
 #define EXTERN  static
@@ -114,3 +117,5 @@ typedef struct FunctorEntryStruct
 } FunctorEntry;
 
 typedef FunctorEntry *Functor;
+
+#endif /* ATOMS_H */

@@ -811,12 +811,13 @@ Yap_PreAllocCodeSpace(void)
   return Yap_InitPreAllocCodeSpace();
 }
 
+#ifdef ATOMS_H
 #ifdef THREADS
-Prop STD_PROTO(Yap_NewThreadPred, (PredEntry *));
+Prop STD_PROTO(Yap_NewThreadPred, (struct pred_entry *));
 Prop STD_PROTO(Yap_NewPredPropByFunctor, (Functor, Term));
 
 EXTERN inline PredEntry *
-Yap_GetThreadPred(PredEntry *ap)
+Yap_GetThreadPred(struct pred_entry *ap)
 {
   Functor f = ap->FunctorOfPred;
   Term  mod = ap->ModuleOfPred;
@@ -830,6 +831,7 @@ Yap_GetThreadPred(PredEntry *ap)
   }
   return RepPredProp(Yap_NewThreadPred(ap));
 }
+#endif
 #endif
 
 #endif /* HEAP_H */
