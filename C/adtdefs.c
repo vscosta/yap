@@ -286,6 +286,7 @@ Yap_LookupMaybeWideAtom(wchar_t *atom)
     len++;
   }
   /* not really a wide atom */
+  p = atom;
   ptr0 = ptr = Yap_AllocCodeSpace(len+1);
   if (!ptr)
     return NIL;
