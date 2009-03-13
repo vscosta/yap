@@ -164,6 +164,8 @@ typedef struct io_stream
   struct io_stream *	upstream;	/* stream providing our input */
   struct io_stream *	downstream;	/* stream providing our output */
   unsigned		newline : 2;	/* Newline mode */
+  int			io_errno;	/* Save errno value */
+  void *		exception;	/* pending exception (record_t) */
   intptr_t		reserved[3];	/* reserved for extension */
 } IOSTREAM;
 
@@ -224,6 +226,8 @@ typedef struct io_stream
 #define SIO_GETSIZE	(1)		/* get size of underlying object */
 #define SIO_GETFILENO	(2)		/* get underlying file (if any) */
 #define SIO_SETENCODING	(3)		/* modify encoding of stream */
+#define SIO_FLUSHOUTPUT	(4)		/* flush output */
+#define SIO_LASTERROR	(5)		/* string holding last error */
 
 /* Sread_pending() */
 #define SIO_RP_BLOCK 0x1		/* wait for new input */

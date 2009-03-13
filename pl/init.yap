@@ -144,6 +144,8 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- dynamic user:commons_directory/1.
 
+:- recorda('$dialect',yap,_).
+
 %
 % cleanup ensure loaded and recover some data-base space.
 %

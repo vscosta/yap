@@ -82,7 +82,7 @@ PredicateInfo(void *p, Atom* a, unsigned long int* arity, Term* m)
 } 
 
 static void
-UserCPredicateWithArgs(char *a, CPredicate def, unsigned long int arity, Term mod)
+UserCPredicateWithArgs(char *a, CPredicate def, unsigned long int arity, Term mod, int flags)
 {
   PredEntry *pe;
   Term cm = CurrentModule;
@@ -94,7 +94,7 @@ UserCPredicateWithArgs(char *a, CPredicate def, unsigned long int arity, Term mo
     Functor f = Yap_MkFunctor(Yap_LookupAtom(a), arity);
     pe = RepPredProp(PredPropByFunc(f,mod));
   }
-  pe->PredFlags |= CArgsPredFlag;
+  pe->PredFlags |= (CArgsPredFlag|flags);
   CurrentModule = cm;
 } 
 
@@ -349,52 +349,66 @@ X_API int PL_get_nchars(term_t l, size_t *len, char **sp, unsigned flags)
 /* same as get_chars, but works on buffers of wide chars */
 X_API int PL_get_wchars(term_t l, size_t *len, wchar_t **wsp, unsigned flags)
 {
-  if (IsAtomTerm(l)) {
-    YAP_Atom at = YAP_AtomOfTerm(l);
+  Term t = Yap_GetFromSlot(l);
 
-    if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_ALL)))
-      return 0;
-    if (YAP_IsWideAtom(at))
-      /* will this always work? */
-      *wsp = (wchar_t *)YAP_WideAtomName(at);
-  } else {
-    char *sp;
-    int res = PL_get_chars(l, &sp, ((flags & ~(BUF_MALLOC|BUF_DISCARDABLE))|BUF_RING));
-    size_t sz;
+  if (IsVarTerm(t)) {
+    if (flags & CVT_EXCEPTION)
+      YAP_Error(0, 0L, "PL_get_wchars");
+    return 0;
+  }
+  if (flags & CVT_ATOM) {
+    if (IsAtomTerm(t)) {
+      Atom at = AtomOfTerm(t);
 
-    if (!res) {
-      if (flags & CVT_EXCEPTION)
-	YAP_Error(0, 0L, "PL_get_wchars");
-      return 0;
+      if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_ALL)))
+	return 0;
+      if (IsWideAtom(at)) {
+	/* will this always work? */
+	*wsp = RepAtom(at)->WStrOfAE;
+      } else {
+	char *sp = RepAtom(at)->StrOfAE;
+	size_t sz;
+
+	sz = strlen(sp);
+	if (flags & BUF_MALLOC) {
+	  int i;
+	  wchar_t *nbf = (wchar_t *)YAP_AllocSpaceFromYap((sz+1)*sizeof(wchar_t));
+	  if (nbf == NULL) {
+	    if (flags & CVT_EXCEPTION)
+	      YAP_Error(0, 0L, "PL_get_wchars: lack of memory");
+	    return 0;
+	  }
+	  *wsp = nbf;
+	  for (i=0; i<= sz; i++)
+	    *nbf++ = *sp++;
+	} else if (flags & BUF_DISCARDABLE) {
+	  wchar_t *buf = (wchar_t *)buffers;
+	  int i;
+	
+	  if ((sz+1)*sizeof(wchar_t) >= BUF_SIZE) {
+	    if (flags & CVT_EXCEPTION)
+	      YAP_Error(0, 0L, "PL_get_wchars: wcstombs");
+	    return 0;
+	  }
+	  *wsp = buf;
+	  for (i=0; i<= sz; i++)
+	    *buf++ = *sp++;
+	} else {
+	  wchar_t *tmp = (wchar_t *)alloc_ring_buf();
+	  int i;
+
+	  if ((sz+1)*sizeof(wchar_t) >= BUF_SIZE) {
+	    if (flags & CVT_EXCEPTION)
+	      YAP_Error(0, 0L, "PL_get_wchars: wcstombs");
+	    return 0;
+	  }
+	  *wsp = tmp;
+	  for (i=0; i<= sz; i++)
+	    *tmp++ = *sp++;
+	}
+	return 1;
+      }
     }
-    sz = wcstombs(sp,NULL,BUF_SIZE);
-    if (flags & BUF_MALLOC) {
-      wchar_t *nbf = (wchar_t *)YAP_AllocSpaceFromYap(sz+1);
-      if (nbf == NULL) {
-	if (flags & CVT_EXCEPTION)
-	  YAP_Error(0, 0L, "PL_get_wchars: lack of memory");
-	return 0;
-      }
-      *wsp = nbf;
-    } else if (flags & BUF_DISCARDABLE) {
-      wchar_t *buf = (wchar_t *)buffers;
-
-      if (wcstombs(sp,buf,BUF_SIZE) == -1) {
-	if (flags & CVT_EXCEPTION)
-	  YAP_Error(0, 0L, "PL_get_wchars: wcstombs");
-	return 0;
-      }
-      *wsp = buf;
-    } else {
-      wchar_t *tmp = (wchar_t *)alloc_ring_buf();
-      if (wcstombs(sp, tmp, BUF_SIZE) == -1) {
-	if (flags & CVT_EXCEPTION)
-	  YAP_Error(0, 0L, "PL_get_wchars: wcstombs");
-	return 0;
-      }
-      *wsp = tmp;
-    }
-    return res;
   }
   if (flags & CVT_EXCEPTION)
     YAP_Error(0, 0L, "PL_get_wchars");
@@ -973,10 +987,20 @@ X_API int PL_unify_int64(term_t t, int64_t n)
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
    YAP long int  unify(YAP_Term* a, Term* b) */
-X_API int PL_unify_list(term_t t, term_t h, term_t tail)
+X_API int PL_unify_list(term_t tt, term_t h, term_t tail)
 {
-  YAP_Term pairterm = YAP_MkPairTerm(Yap_GetFromSlot(h),Yap_GetFromSlot(tail));
-  return YAP_Unify(Yap_GetFromSlot(t), pairterm);
+  Term t = Deref(Yap_GetFromSlot(tt));
+  if (IsVarTerm(t)) {
+    Term pairterm = Yap_MkNewPairTerm();
+    Yap_unify(t, pairterm);
+    /* avoid calling deref */
+    t = pairterm;
+  } else if (!IsPairTerm(t)) {
+    return FALSE;
+  }
+  Yap_PutInSlot(h,HeadOfTerm(t));
+  Yap_PutInSlot(tail,TailOfTerm(t));
+  return TRUE;
 }
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
@@ -1090,14 +1114,14 @@ static Atom
 LookupMaxAtom(size_t n, char *s)
 {
   Atom catom;
-  char *buf = (char *)YAP_AllocSpaceFromYap(n+1);
+  char *buf = (char *)Yap_AllocCodeSpace(n+1);
   
   if (!buf)
     return FALSE;
   strncpy(buf, s, n);
   buf[n] = '\0';
   catom = Yap_LookupAtom(buf);
-  free(buf);
+  Yap_FreeCodeSpace(buf);
   return catom;
 }
 
@@ -1105,14 +1129,14 @@ static Atom
 LookupMaxWideAtom(size_t n, wchar_t *s)
 {
   Atom catom;
-  wchar_t *buf = (wchar_t *)YAP_AllocSpaceFromYap((n+1)*sizeof(wchar_t));
+  wchar_t *buf = (wchar_t *)Yap_AllocCodeSpace((n+1)*sizeof(wchar_t));
   
   if (!buf)
     return FALSE;
   wcsncpy(buf, s, n);
   buf[n] = '\0';
   catom = Yap_LookupMaybeWideAtom(buf);
-  free(buf);
+  Yap_FreeAtomSpace((ADDR)buf);
   return catom;
 }
 
@@ -1125,94 +1149,12 @@ MkBoolTerm(int b)
     return MkAtomTerm(AtomFalse);
 }
 
-static YAP_Term
-get_term(arg_types **buf)
-{
-  arg_types *ptr = *buf;
-  int type = ptr->type;
-  YAP_Term t;
+#define MAX_DEPTH 64
 
-  switch (type) {
-  /* now build the error string */
-  case PL_VARIABLE:
-    t = YAP_MkVarTerm();
-    ptr++;
-    break;
-  case PL_BOOL:
-    t = MkBoolTerm(ptr->arg.i);
-    ptr++;
-    break;
-  case PL_ATOM:
-    t = MkAtomTerm(SWIAtomToAtom(ptr->arg.a));
-    ptr++;
-    break;
-  case PL_CHARS:
-    t = MkAtomTerm(Yap_LookupAtom(ptr->arg.s));
-    break;
-  case PL_NCHARS:
-    t = MkAtomTerm(LookupMaxAtom(ptr->arg.ns.n, ptr->arg.ns.s));
-    break;
-  case PL_NWCHARS:
-    t = MkAtomTerm(LookupMaxWideAtom(ptr->arg.nw.n, ptr->arg.nw.w));
-    break;
-  case PL_INTEGER:
-    t = YAP_MkIntTerm(ptr->arg.l);
-    ptr++;
-    break;
-  case PL_FLOAT:
-    t = YAP_MkFloatTerm(ptr->arg.dbl);
-    ptr++;
-    break;
-  case PL_POINTER:
-    t = YAP_MkIntTerm((long int)(ptr->arg.p));
-    ptr++;
-    break;
-  case PL_STRING:
-    t = YAP_BufferToString(ptr->arg.s);
-    ptr++;
-    break;
-  case PL_TERM:
-    t = Yap_GetFromSlot(ptr->arg.t);
-    ptr++;
-    break;
-  case PL_FUNCTOR:
-    {
-      functor_t f = ptr->arg.f;
-      long int  arity, i;
-      term_t loc;
-      Functor ff = SWIFunctorToFunctor(f);
-
-      if (IsAtomTerm((Term)ff)) {
-	t = (Term)ff;
-	break;
-      }
-      arity = YAP_ArityOfFunctor((YAP_Functor)ff);
-      loc = Yap_NewSlots(arity);
-      ptr++;
-      for (i= 0; i < arity; i++) {
-	Yap_PutInSlot(loc+i,get_term(&ptr));
-      }
-      t = YAP_MkApplTerm((YAP_Functor)ff,arity,YAP_AddressFromSlot(loc));
-    }
-    break;
-  case PL_LIST:
-    {
-      term_t loc;
-
-      loc = Yap_NewSlots(2);
-      ptr++;
-      Yap_PutInSlot(loc,get_term(&ptr));
-      Yap_PutInSlot(loc+1,get_term(&ptr));
-      t = YAP_MkPairTerm(Yap_GetFromSlot(loc),Yap_GetFromSlot(loc+1));
-    }
-    break;
-  default:
-    fprintf(stderr, "type %d not implemented yet\n", type);
-    exit(1);
-  }
-  *buf = ptr;
-  return t;
-}
+typedef struct {
+  int nels;
+  CELL *ptr;
+} stack_el;
 
 /* SWI: int PL_unify_term(term_t ?t1, term_t ?t2)
    YAP long int  YAP_Unify(YAP_Term* a, Term* b) */
@@ -1221,71 +1163,159 @@ X_API int PL_unify_term(term_t l,...)
   va_list ap;
   int type;
   int nels = 1;
-  arg_types *ptr = (arg_types *)buffers;
+  int depth = 1;
+  Term a[1], *pt;
+  stack_el stack[MAX_DEPTH];
+  
 
   va_start (ap, l);
-  while (nels > 0) {
-    type = va_arg(ap, int);
-    nels --;
-    
-    ptr->type = type;
-    switch(type) {
-    case PL_VARIABLE:
-      break;
-    case PL_BOOL:
-      ptr->arg.i = va_arg(ap, int);
-      break;
-    case PL_ATOM:
-      ptr->arg.a = va_arg(ap, atom_t);
-      break;
-    case PL_INTEGER:
-      ptr->arg.l = va_arg(ap, long);
-      break;
-    case PL_FLOAT:
-      ptr->arg.dbl = va_arg(ap, double);
-      break;
-    case PL_STRING:
-      ptr->arg.s = va_arg(ap, char *);
-      break;
-    case PL_TERM:
-      ptr->arg.t = va_arg(ap, term_t);
-      break;
-    case PL_POINTER:
-      ptr->arg.p = va_arg(ap, void *);
-      break;
-    case PL_CHARS:
-      ptr->arg.s = va_arg(ap, char *);
-      break;
-    case PL_NCHARS:
-      ptr->arg.ns.n = va_arg(ap, size_t);
-      ptr->arg.ns.s = va_arg(ap, char *);
-      break;
-    case PL_NWCHARS:
-      ptr->arg.nw.n = va_arg(ap, size_t);
-      ptr->arg.nw.w = va_arg(ap, wchar_t *);
-      break;
-    case PL_FUNCTOR:
-      {
-	functor_t f = va_arg(ap, functor_t);
-	Functor ff = SWIFunctorToFunctor(f);
-	ptr->arg.f = f;
-	if (!IsAtomTerm((YAP_Term)ff)) {
-	  nels += YAP_ArityOfFunctor((YAP_Functor)ff);
+  pt = a;
+  while (depth > 0) {
+    while (nels > 0) {
+      type = va_arg(ap, int);
+      nels--;
+      switch(type) {
+      case PL_VARIABLE:
+	*pt++ = MkVarTerm();
+	break;
+      case PL_BOOL:
+	*pt++ = MkBoolTerm(va_arg(ap, int));
+	break;
+      case PL_ATOM:
+	*pt++ = MkAtomTerm(SWIAtomToAtom(va_arg(ap, atom_t)));
+	break;
+      case PL_INTEGER:
+	*pt++ = MkIntegerTerm(va_arg(ap, long));
+	break;
+      case PL_SHORT:
+	*pt++ = MkIntegerTerm(va_arg(ap, int));
+	break;
+      case PL_INT:
+	*pt++ = MkIntegerTerm(va_arg(ap, int));
+	break;
+      case PL_FLOAT:
+	*pt++ = MkFloatTerm(va_arg(ap, double));
+	break;
+      case PL_STRING:
+	*pt++ = YAP_BufferToString(va_arg(ap, char *));
+	break;
+      case PL_CHARS:
+	*pt++ = MkAtomTerm(Yap_LookupAtom(va_arg(ap, char *)));
+	break;
+      case PL_NCHARS:
+	{
+	  size_t sz = va_arg(ap, size_t);
+	  *pt++ = MkAtomTerm(LookupMaxAtom(sz,va_arg(ap, char *)));
 	}
+	break;
+      case PL_NWCHARS:
+	{
+	  size_t sz = va_arg(ap, size_t);
+	  *pt++ = MkAtomTerm(LookupMaxWideAtom(sz,va_arg(ap, wchar_t *)));
+	}
+	break;
+      case PL_TERM:
+	{
+	  Term t = Yap_GetFromSlot(va_arg(ap, size_t));
+	  if (IsVarTerm(t) && VarOfTerm(t) >= ASP && VarOfTerm(t) < LCL0) {
+	    Yap_unify(*pt++, t);
+	  }
+	  else {
+	    *pt++ = t;
+	  }
+	}
+	break;
+      case PL_POINTER:
+	*pt++ = MkIntegerTerm((Int)va_arg(ap, void *));
+	break;
+      case PL_FUNCTOR:
+	{
+	  functor_t f = va_arg(ap, functor_t);
+	  Functor ff = SWIFunctorToFunctor(f);
+	  UInt arity = ArityOfFunctor(ff);
+
+	  if (!arity) {
+	    *pt++ = MkAtomTerm((Atom)f);
+	  } else {
+	    Term t = Yap_MkNewApplTerm(ff, arity);
+	    if (nels) {
+	      if (depth == MAX_DEPTH) {
+		fprintf(stderr,"ERROR: very deep term in PL_unify_term, change MAX_DEPTH from %d\n", MAX_DEPTH);
+		return FALSE;
+	      }
+	      stack[depth].nels = nels;
+	      stack[depth].ptr = pt+1;
+	      depth++;
+	    }
+	    *pt = t;
+	    if (ff == FunctorDot)
+	      pt = RepPair(t);
+	    else
+	      pt = RepAppl(t)+1;
+	    nels = arity;
+	  }
+	}
+	break;
+      case PL_FUNCTOR_CHARS:
+	{
+	  char *fname = va_arg(ap, char *);
+	  size_t arity = va_arg(ap, size_t);
+
+	  if (!arity) {
+	    *pt++ = MkAtomTerm(Yap_LookupAtom(fname));
+	  } else {
+	    Functor ff = Yap_MkFunctor(Yap_LookupAtom(fname),arity);
+	    Term t = Yap_MkNewApplTerm(ff, arity);
+
+	    if (nels) {
+	      if (depth == MAX_DEPTH) {
+		fprintf(stderr,"very deep term in PL_unify_term\n");
+		return FALSE;
+	      }
+	      stack[depth].nels = nels;
+	      stack[depth].ptr = pt+1;
+	      depth++;
+	    }
+	    *pt = t;
+	    if (ff == FunctorDot)
+	      pt = RepPair(t);
+	    else
+	      pt = RepAppl(t)+1;
+	    nels = arity;
+	  }
+	}
+	break;
+      case PL_LIST:
+	{
+	  Term t = Yap_MkNewPairTerm();
+
+	  if (nels) {
+	    if (depth == MAX_DEPTH) {
+	      fprintf(stderr,"very deep term in PL_unify_term\n");
+	      return FALSE;
+	    }
+	    stack[depth].nels = nels;
+	    stack[depth].ptr = pt+1;
+	    depth++;
+	  }
+	  *pt = t;
+	  pt = RepPair(t);
+	  nels = 2;
+	}
+	break;
+      default:
+	fprintf(stderr, "PL_unify_term: %d not supported\n", type);
+	exit(1);
       }
-      break;
-    case PL_LIST:
-      nels += 2;
-      break;
-    default:
-      fprintf(stderr, "%d not supported\n", type);
-      exit(1);
     }
-    ptr++;
+    depth--;
+    if (depth) {
+      pt = stack[depth-1].ptr;
+      nels = stack[depth-1].nels;
+    }
   }
   va_end (ap);
-  ptr = (arg_types *)buffers;
-    return YAP_Unify(Yap_GetFromSlot(l),get_term(&ptr));
+  return YAP_Unify(Yap_GetFromSlot(l),a[0]);
 }
 
 /* end PL_unify_* functions =============================*/
@@ -1508,7 +1538,8 @@ PL_rewind_foreign_frame(fid_t f)
 X_API void
 PL_discard_foreign_frame(fid_t f)
 {
-  fprintf(stderr,"WARNING: PL_discard_foreign_frame not fully implemented!!");
+  if (f)
+    fprintf(stderr,"WARNING: PL_discard_foreign_frame not fully implemented!!\n");
   /* Missing: undo Trail!! */
 }
 
@@ -1702,51 +1733,45 @@ X_API int PL_call(term_t tp, module_t m)
   return YAP_RunGoal(g);
 }
 
+X_API void PL_register_foreign_in_module(const char *module, const char *name, int arity, foreign_t (*function)(void), int flags)
+{
+  Term tmod;
+  if (flags & (PL_FA_NOTRACE|PL_FA_NONDETERMINISTIC|PL_FA_CREF)) {
+    fprintf(stderr,"PL_register_foreign_in_module called with non-implemented flag %x when creating predicate %s:%s/%d\n", flags, module, name, arity);
+  }      
+  if (module == NULL) {
+    tmod = CurrentModule;
+  } else {
+    tmod = MkAtomTerm(Yap_LookupAtom((char *)module));
+  }
+  if (flags & PL_FA_VARARGS)
+    UserCPredicateVarargs((char *)name,(YAP_Bool (*)(void))function,arity,tmod);
+  else if (flags & PL_FA_TRANSPARENT)
+    UserCPredicateWithArgs((char *)name,(YAP_Bool (*)(void))function,arity,tmod,ModuleTransparentPredFlag);
+  else
+    UserCPredicateWithArgs((char *)name,(YAP_Bool (*)(void))function,arity,tmod,0);
+}
+
 X_API void PL_register_extensions(PL_extension *ptr)
 {
   while(ptr->predicate_name != NULL) {
-    if (ptr->flags & (PL_FA_NOTRACE|PL_FA_NONDETERMINISTIC|PL_FA_VARARGS|PL_FA_CREF)) {
-      YAP_Error(0,YAP_MkIntTerm(ptr->flags),"non-implemented flag %x when creating predicates", ptr->flags);
-      return;      
-    }      
-    if (ptr->flags & PL_FA_VARARGS)
-      UserCPredicateVarargs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,MkAtomTerm(Yap_LookupAtom("prolog")));
-    else if (ptr->flags & PL_FA_TRANSPARENT)
-      UserCPredicateWithArgs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,MkAtomTerm(Yap_LookupAtom("prolog")));
-    else
-      UserCPredicateWithArgs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,YAP_CurrentModule());
+    PL_register_foreign_in_module(NULL, ptr->predicate_name, ptr->arity, ptr->function, ptr->flags);
     ptr++;
   }
-}
-
-X_API void PL_register_foreign_in_module(const char *module, const char *name, int arity, foreign_t (*function)(void), int flags)
-{
-    if (flags & (PL_FA_NOTRACE|PL_FA_NONDETERMINISTIC|PL_FA_VARARGS|PL_FA_CREF)) {
-      YAP_Error(0,YAP_MkIntTerm(flags),"non-implemented flag %x when creating predicates", flags);
-      return;      
-    }      
-    if (flags & PL_FA_VARARGS)
-      UserCPredicateVarargs((char *)name,(YAP_Bool (*)(void))function,arity,MkAtomTerm(Yap_LookupAtom("prolog")));
-    else if (flags & PL_FA_TRANSPARENT)
-      UserCPredicateWithArgs((char *)name,(YAP_Bool (*)(void))function,arity,MkAtomTerm(Yap_LookupAtom("prolog")));
-    else if (module == NULL)
-      UserCPredicateWithArgs((char *)name,(YAP_Bool (*)(void))function,arity,YAP_CurrentModule());
-    else
-      UserCPredicateWithArgs((char *)name,(YAP_Bool (*)(void))function,arity,MkAtomTerm(Yap_LookupAtom((char *)module)));
 }
 
 X_API void PL_load_extensions(PL_extension *ptr)
 {
   /* ignore flags for now */
   while(ptr->predicate_name != NULL) {
-    UserCPredicateWithArgs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,YAP_CurrentModule());
+    UserCPredicateWithArgs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,YAP_CurrentModule(),0);
     ptr++;
   }
 }
 
 X_API int PL_handle_signals(void)
 {
-  fprintf(stderr,"not implemented\n");
+  fprintf(stderr,"PL_handle_signals not implemented\n");
   return 0;
 }
 
@@ -1867,6 +1892,7 @@ PL_free(void *obj)
 {
   return YAP_FreeSpaceFromYap(obj);
 }
+
 
 static int
 SWI_ctime(void)

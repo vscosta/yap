@@ -1078,8 +1078,11 @@ user_defined_flag(Atom) :-
 '$user_flag_value'(F, Val) :-
 	'$do_error'(type_error(atomic,Val),yap_flag(F,Val)).
 
-
 '$expects_dialect'(swi) :-
+	eraseall('$dialect'),
+	recorda('$dialect',swi,_),
 	load_files(library('dialect/swi'),[silent(true),if(not_loaded)]).
-'$expects_dialect'(yap).
+'$expects_dialect'(yap) :-
+	eraseall('$dialect'),
+	recorda('$dialect',yap,_).
 

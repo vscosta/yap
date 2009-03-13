@@ -241,6 +241,7 @@ use_module(M,F,Is) :-
 	    true
 	),
 	'$loop'(Stream,Reconsult),
+	( recorded('$dialect',swi,_) -> '$exec_initialisation_goals' ; true ),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	'$current_module'(Mod,OldModule),
 	print_message(InfLevel, loaded(EndMsg, File, Mod, T, H)),
@@ -313,7 +314,8 @@ use_module(M,F,Is) :-
 	call(G),
 	fail.
 '$exec_initialisation_goals' :-
-	'$show_consult_level'(Level),
+	'$show_consult_level'(Level1),
+	( recorded('$dialect',swi,_) -> Level is Level1-1 ; Level = Level1),
 	recorded('$initialisation',do(Level,G),R),
 	erase(R),
 	G \= '$',
@@ -608,7 +610,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$process_fn_opt'(Opt,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- var(Opt), !,
 	'$do_error'(instantiation_error, G).
 '$process_fn_opt'(extensions(Extensions),Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,_,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
-	'$check_fn_extensions'(L,G).
+	'$check_fn_extensions'(Extensions,G).
 '$process_fn_opt'(relative_to(RelTo),Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,_,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
 	'$check_atom'(RelTo,G).
 '$process_fn_opt'(access(Access),Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,RelTo,Type,_,FErrors,Solutions,Expand,Debug,G) :- !,

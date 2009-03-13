@@ -19,6 +19,7 @@
 #include	<stdarg.h>
 #include	<stdlib.h>
 #include        <stddef.h>
+#include        <wchar.h>
 #if HAVE_TIME_H
 #include <time.h>
 #endif
@@ -450,9 +451,15 @@ UNICODE file functions.
 
 #ifdef SIO_MAGIC			/* defined from <SWI-Stream.h> */
 extern X_API  int PL_unify_stream(term_t t, IOSTREAM *s);
-extern X_API  int PL_open_stream(term_t t, IOSTREAM *s); /* compat */
-extern X_API  int PL_get_stream_handle(term_t t, IOSTREAM **s);
+#define PL_open_stream PL_unify_stream
+extern X_API  int PL_get_stream_handle(term_t t, IOSTREAM **s);\
+extern X_API  IOSTREAM *Snew(void *handle,int flags,IOFUNCTIONS *functions);
+extern X_API  int Sgetcode(IOSTREAM *);
+extern X_API  int Sfeof(IOSTREAM *);
 #endif
+
+#define succeed			return TRUE
+#define fail			return FALSE
 
 extern X_API  const char *PL_cwd(void);
 

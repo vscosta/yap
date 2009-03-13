@@ -11,6 +11,8 @@
 
 :- module(swi, []).
 
+:- load_foreign_files([plstream], [], initIO).
+
 :- ensure_loaded(library(atts)).
 
 :- use_module(library(charsio),[write_to_chars/2,read_from_chars/2]).
@@ -191,7 +193,7 @@ prolog:load_foreign_library(P,Command) :-
 prolog:load_foreign_library(P) :-
 	prolog:load_foreign_library(P,install).
 
-do_volatile(_,_).
+do_volatile(P,M) :- dynamic(M:P).
 
 :- use_module(library(lists)).
 
