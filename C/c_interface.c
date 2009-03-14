@@ -509,7 +509,8 @@ X_API Term     STD_PROTO(YAP_OpenList,(int));
 X_API Term     STD_PROTO(YAP_ExtendList,(Term, Term));
 X_API int      STD_PROTO(YAP_CloseList,(Term, Term));
 X_API int      STD_PROTO(YAP_IsAttVar,(Term));
-X_API Term      STD_PROTO(YAP_AttsOfVar,(Term));
+X_API Term     STD_PROTO(YAP_AttsOfVar,(Term));
+X_API Term     STD_PROTO(YAP_TermHash,(Term));
 
 static int (*do_getf)(void);
 
@@ -694,7 +695,7 @@ YAP_MkBlobTerm(unsigned int sz)
   dst = (MP_INT *)(H+2);
   dst->_mp_size = 0L;
   dst->_mp_alloc = sz;
-  H += (1+sizeof(MP_INT)/sizeof(CELL));
+  H += (2+sizeof(MP_INT)/sizeof(CELL));
   H[sz] = EndSpecials;
   H += sz+1;
   RECOVER_H();
@@ -711,7 +712,7 @@ YAP_BlobOfTerm(Term t)
     return NULL;
   if (!IsBigIntTerm(t))
     return NULL;
-  src = (MP_INT *)(RepAppl(t)+1);
+  src = (MP_INT *)(RepAppl(t)+2);
   return (void *)(src+1);
 }
 
