@@ -3,7 +3,7 @@
 % (running example from ProbLog presentations)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module('../problog').
+:- use_module(library(problog)).
 
 %%%%
 % background knowledge
