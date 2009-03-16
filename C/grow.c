@@ -131,18 +131,18 @@ SetHeapRegs(void)
   /* Adjust stack addresses */
   Yap_TrailBase = TrailAddrAdjust(Yap_TrailBase);
   Yap_TrailTop = TrailAddrAdjust(Yap_TrailTop);
-  if (!(GDiff==0 && DelayDiff < 0)) {
+  if (GDiff) {
     /* make sure we are not just expanding the delay stack */
-    Yap_GlobalBase = DelayAddrAdjust(Yap_GlobalBase);
+    Yap_GlobalBase = BaseAddrAdjust(Yap_GlobalBase);
   }
   Yap_LocalBase = LocalAddrAdjust(Yap_LocalBase);
 #if !USE_SYSTEM_MALLOC && !USE_DL_MALLOC
-  AuxSp = PtoDelayAdjust(AuxSp);
-  AuxTop = (ADDR)PtoDelayAdjust((CELL *)AuxTop);
+  AuxSp = PtoBaseAdjust(AuxSp);
+  AuxTop = (ADDR)PtoBaseAdjust((CELL *)AuxTop);
 #endif
 #if !USE_SYSTEM_MALLOC
   if (HeapLim)
-    HeapLim = DelayAddrAdjust(HeapLim);
+    HeapLim = BaseAddrAdjust(HeapLim);
 #endif
   /* The registers pointing to one of the stacks */
   if (ENV)
@@ -206,7 +206,7 @@ MoveLocalAndTrail(void)
 {
 	/* cpcellsd(To,From,NOfCells) - copy the cells downwards  */
 #if USE_SYSTEM_MALLOC
-  cpcellsd(ASP, (CELL *)((char *)OldASP+DelayDiff), (CELL *)OldTR - OldASP);
+  cpcellsd(ASP, (CELL *)((char *)OldASP+BaseDiff), (CELL *)OldTR - OldASP);
 #else
   cpcellsd(ASP, OldASP, (CELL *)OldTR - OldASP);
 #endif
@@ -229,7 +229,7 @@ MoveExpandedGlobal(void)
    * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
    * absmi.asm 
    */
-  cpcellsd((CELL *)(Yap_GlobalBase+(GDiff-DelayDiff)), (CELL *)Yap_GlobalBase, OldH - (CELL *)OldGlobalBase);  
+  cpcellsd((CELL *)(Yap_GlobalBase+(GDiff-BaseDiff)), (CELL *)Yap_GlobalBase, OldH - (CELL *)OldGlobalBase);  
 }
 
 static void
@@ -240,7 +240,7 @@ MoveGlobalWithHole(void)
    * absmi.asm 
    */
 #if USE_SYSTEM_MALLOC
-  cpcellsd((CELL *)((char *)Yap_GlobalBase+(GDiff0-DelayDiff)), (CELL *)Yap_GlobalBase, OldH - (CELL *)OldGlobalBase);  
+  cpcellsd((CELL *)((char *)Yap_GlobalBase+(GDiff0-BaseDiff)), (CELL *)Yap_GlobalBase, OldH - (CELL *)OldGlobalBase);  
 #else
   cpcellsd((CELL *)((char *)OldGlobalBase+GDiff0), (CELL *)OldGlobalBase, OldH - (CELL *)OldGlobalBase);  
 #endif
@@ -257,18 +257,6 @@ MoveHalfGlobal(CELL *OldPt)
   CELL *NewPt = (CELL *)((char*)OldPt+GDiff);
   CELL *IntPt = (CELL *)((char*)OldPt+GDiff0);
   cpcellsd(NewPt, IntPt, diff);
-}
-
-static void
-MoveHalfAttrs(CELL *DTop, CELL *OldPt)
-{
-	/*
-	 * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
-	 * absmi.asm 
-	 */
-  UInt sz = sizeof(CELL)*(OldPt-DTop);
-  char *base = (char *)DTop+DelayDiff;
-  cpcellsd((CELL *)base, DTop, sz);
 }
 
 static inline CELL
@@ -682,8 +670,8 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
   }
   ASP -= 256;
   YAPEnterCriticalSection();
-  TrDiff = LDiff = GDiff = DelayDiff = size;
-  XDiff = HDiff = GDiff0 = 0;
+  TrDiff = LDiff = GDiff = GDiff0 = DelayDiff = BaseDiff = size;
+  XDiff = HDiff = 0;
   GSplit = NULL;
   SetHeapRegs();
   MoveLocalAndTrail();
@@ -724,25 +712,34 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
 /* Used when we're short of heap, usually because of an overflow in
    the attributed stack, but also because we allocated a zone  */
 static int
-static_growglobal(long size, CELL **ptr, CELL *hsplit)
+static_growglobal(long request, CELL **ptr, CELL *hsplit)
 {
   UInt start_growth_time, growth_time;
   int gc_verbose;
   char *omax = (ADDR)DelayTop();
   ADDR old_GlobalBase = Yap_GlobalBase;
   UInt minimal_request = 0L;
-  long size0, sz = size;
+  long size = request;
   char vb_msg1 = '\0', *vb_msg2;
   int do_grow = TRUE;
+  int insert_in_delays = FALSE;
+  /*
+    request is the amount of memory we requested, in bytes;
+    base_move is the shift in global stacks we had to do
+    size is how much space we allocate: it's negative if we just expand
+	the delay stack.
+    do_grow is whether we expand stacks
+  */
 
   CurrentDelayTop = (CELL *)omax;
-  size0 = size;
   if (hsplit) {
     /* just a little bit of sanity checking */
     if (hsplit < H0 && hsplit > (CELL *)Yap_GlobalBase) {
+      insert_in_delays = TRUE;
       /* expanding attributed variables */
       if (omax - size > Yap_GlobalBase+4096*sizeof(CELL)) {
-	size = -size;
+	/* we can just ask for more room */
+	size = 0;
 	do_grow = FALSE;
       }
     } else if (hsplit < (CELL*)omax ||
@@ -754,6 +751,7 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
 	(size+H < ASP-4096 &&
 	 hsplit > H0)) {
       /* don't need to expand stacks */
+      insert_in_delays = TRUE;
       do_grow = FALSE;
     }
   }
@@ -803,76 +801,43 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   }
   ASP -= 256;
   YAPEnterCriticalSection();
-#if USE_SYSTEM_MALLOC
-  /* we always run the risk of shifting memory */
-  size0 = Yap_GlobalBase-old_GlobalBase;
+  /* we always shift the local and the stack by the same amount */
   if (do_grow) {
-    DelayDiff = size0;
-    TrDiff = LDiff = GDiff = size+size0;  
-    GDiff0 = DelayDiff;
+    /* if we grow, we need to move the stacks */
+    LDiff = TrDiff = size;
+    /* This is what happens to the base of the stack */
+    BaseDiff = Yap_GlobalBase-old_GlobalBase;
   } else {
-    TrDiff = LDiff = 0;
-    if (size > 0) {
-      DelayDiff = 0;
-      GDiff = size;  
-      GDiff0 = DelayDiff;
-    } else {
-      DelayDiff = size;
-      GDiff = 0;  
-      GDiff0 = 0;
-    }
+    /* stay still */
+    LDiff = TrDiff = 0;
+    BaseDiff = 0;
   }
-  if (hsplit) {
-    if (size > 0) {
-      GDiff = GDiff0+sz;
-    }
-    GSplit = hsplit;
+  /* now, remember we have delay -- global with a hole in delay or a 
+     hole in global */
+  if (insert_in_delays) {
+    /* we want to expand a hole for the delay stack */
+    DelayDiff = size-request;
+    GDiff = GDiff0 = size;
   } else {
-    GSplit = NULL;
+    /* we want to expand a hole for the delay stack */
+    GDiff0 = DelayDiff = BaseDiff;
+    GDiff = BaseDiff+request;
   }
-#else
-  if (!do_grow) {
-    TrDiff = DelayDiff = LDiff = 0;
-    /* don't grow more than what we asked for */
-    if (size > 0) {
-      GDiff = size-(size0-sz);
-    } else {
-      GDiff = 0;
-    }
-  } else if (minimal_request) {
-    DelayDiff = size-size0;
-    TrDiff = LDiff = GDiff = size;
-  } else {
-    TrDiff = LDiff = GDiff = size;
-    DelayDiff = 0;
-  }
-  if (hsplit) {
-    if (size > 0) {
-      GDiff0 = GDiff-size0;
-    } else {
-      DelayDiff = size;
-      GDiff0 = 0;
-    }
-    GSplit = hsplit;
-  } else {
-    GDiff0 = DelayDiff;
-    GSplit = NULL;
-  }
-#endif
+  GSplit = hsplit;
   XDiff = HDiff = 0;
   Yap_GlobalBase = old_GlobalBase;
   SetHeapRegs();
   if (do_grow) {
     MoveLocalAndTrail();
     if (hsplit) {
-	MoveGlobalWithHole();
+      MoveGlobalWithHole();
     } else {
       MoveExpandedGlobal();
     }
   }
   /* don't run through garbage */
   if (hsplit && (OldH != hsplit)) {
-    AdjustStacksAndTrail(sz);
+    AdjustStacksAndTrail(request);
   } else {
     AdjustStacksAndTrail(0);
   }
@@ -881,8 +846,9 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
     *ptr = PtoLocAdjust(*ptr);
   }
   if (hsplit) {
-    if (!do_grow && size < 0) {
-      MoveHalfAttrs(CurrentDelayTop,hsplit);
+    if (insert_in_delays) {
+      /* we have things not quite where we want to have them */
+      cpcellsd((CELL *)(omax+DelayDiff), (CELL *)(omax+GDiff0), (ADDR)hsplit-omax);
     } else {
       MoveHalfGlobal(hsplit);
     }
@@ -900,9 +866,9 @@ static_growglobal(long size, CELL **ptr, CELL *hsplit)
   }
   LeaveGrowMode(GrowStackMode);
   if (hsplit) {
-    return size0;
+    return request;
   } else
-    return GDiff-DelayDiff;
+    return GDiff-BaseDiff;
 }
 
 static void
@@ -1368,14 +1334,14 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
       return FALSE;
     }
     YAPEnterCriticalSection();
-    GDiff = DelayDiff = size-size0;
+    GDiff = DelayDiff = BaseDiff = size-size0;
   } else {
     YAPEnterCriticalSection();
     if (Yap_GlobalBase != old_Yap_GlobalBase) {
-      GDiff = DelayDiff = Yap_GlobalBase-old_Yap_GlobalBase;
+      GDiff = BaseDiff = DelayDiff = Yap_GlobalBase-old_Yap_GlobalBase;
       Yap_GlobalBase=old_Yap_GlobalBase;
     } else {
-      GDiff = DelayDiff = 0;
+      GDiff = BaseDiff = DelayDiff = 0;
     }
   }
   XDiff = HDiff = 0;
@@ -1572,7 +1538,7 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
   } else {
     YAPEnterCriticalSection();
     if (in_parser) {
-      TrDiff = LDiff = GDiff = DelayDiff = XDiff = HDiff = GDiff0 = 0;
+      TrDiff = LDiff = GDiff = BaseDiff = DelayDiff = XDiff = HDiff = GDiff0 = 0;
       AdjustScannerStacks(tksp, vep);
     }
     Yap_TrailTop += size;

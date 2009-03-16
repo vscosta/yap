@@ -80,7 +80,9 @@ typedef struct scratch_block_struct {
 } scratch_block;
 
 typedef struct restore_info {
-  Int cl_diff,
+  Int
+  base_diff,
+    cl_diff,
     g_diff,
     g_diff0,
     h_diff,
@@ -680,6 +682,7 @@ extern struct various_codes *Yap_heap_regs;
 #define  TrDiff                   RINFO.tr_diff
 #define  XDiff                    RINFO.x_diff
 #define  DelayDiff                RINFO.delay_diff
+#define  BaseDiff	          RINFO.base_diff
 /* current consult stack */
 #define  ConsultSp                Yap_heap_regs->WL.consultsp
 /* top of consult stack  */

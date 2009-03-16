@@ -49,7 +49,10 @@ inline EXTERN CELL *
 PtoGloAdjust (CELL * ptr)
 {
   if (ptr < GSplit) {
-    return (CELL *) (((CELL *) (CharP (ptr) + GDiff0)));
+    if (ptr < H0) 
+      return (CELL *) (((CELL *) (CharP (ptr) + DelayDiff)));
+    else
+      return (CELL *) (((CELL *) (CharP (ptr) + GDiff0)));
   } else {
     return (CELL *) (((CELL *) (CharP (ptr) + GDiff)));
   }
@@ -66,6 +69,14 @@ PtoDelayAdjust (CELL * ptr)
     return (CELL *) (((CELL *) (CharP (ptr) + DelayDiff)));
   else
     return (CELL *) (((CELL *) (CharP (ptr) + GDiff0)));
+}
+
+inline EXTERN CELL *PtoBaseAdjust (CELL *);
+
+inline EXTERN CELL *
+PtoBaseAdjust (CELL * ptr)
+{
+    return (CELL *) (((CELL *) (CharP (ptr) + BaseDiff)));
 }
 
 
@@ -139,7 +150,10 @@ inline EXTERN CELL
 GlobalAdjust (CELL val)
 {
   if ((CELL *)val < GSplit) {
-    return (CELL) (val + GDiff0);
+    if ((CELL *)val < H0) 
+      return (CELL) (val + DelayDiff);
+    else
+      return (CELL) (val + GDiff0);
   } else {
     return (CELL) (val + GDiff);
   }
@@ -165,7 +179,10 @@ inline EXTERN ADDR
 GlobalAddrAdjust (ADDR ptr)
 {
   if ((CELL *)ptr < GSplit) {
-    return (ADDR) ((ptr + GDiff0));
+    if ((CELL *)ptr < H0) 
+      return (ADDR) (ptr + DelayDiff);
+    else
+      return (ADDR) ((ptr + GDiff0));
   } else {
     return (ADDR) ((ptr + GDiff));
   }
@@ -183,6 +200,15 @@ DelayAddrAdjust (ADDR ptr)
     return (ADDR) ((ptr + DelayDiff));
   else
     return (ADDR) ((ptr + GDiff0));
+}
+
+
+inline EXTERN ADDR BaseAddrAdjust (ADDR);
+
+inline EXTERN ADDR
+BaseAddrAdjust (ADDR ptr)
+{
+  return (ADDR) ((ptr + BaseDiff));
 }
 
 
