@@ -751,7 +751,7 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
 	(size+H < ASP-4096 &&
 	 hsplit > H0)) {
       /* don't need to expand stacks */
-      insert_in_delays = TRUE;
+      insert_in_delays = FALSE;
       do_grow = FALSE;
     }
   }
