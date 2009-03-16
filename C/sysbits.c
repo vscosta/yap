@@ -2827,7 +2827,7 @@ p_win32(void)
 static Int
 p_ld_path(void)
 {
-  return Yap_unify(ARG1,MkAtomTerm(AtomLDLibraryPath));
+  return Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom(LIB_DIR)));
 }
 
 
