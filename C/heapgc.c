@@ -2130,8 +2130,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	break;
       case _try_logical:
       case _retry_logical:
-      case _count_retry_logical:
-      case _profiled_retry_logical:
 	{
 	  /* find out who owns this sequence of try-retry-trust */
 	  /* I don't like this code, it's a bad idea to do a linear scan,
@@ -2145,6 +2143,36 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	}
 	/* mark timestamp */
 	nargs = rtp->u.OtaLl.s+1;
+	break;
+      case _count_retry_logical:
+	{
+	  /* find out who owns this sequence of try-retry-trust */
+	  /* I don't like this code, it's a bad idea to do a linear scan,
+	     on the other hand it's the only way we can be sure we can reclaim
+	     space
+	  */
+	  yamop *end = rtp->u.lld.n;
+	  while (Yap_op_from_opcode(end->opc) != _count_trust_logical)
+	    end = end->u.lld.n;
+	  mark_ref_in_use((DBRef)end->u.lld.t.block);
+	}
+	/* mark timestamp */
+	nargs = rtp->u.lld.t.s+1;
+	break;
+      case _profiled_retry_logical:
+	{
+	  /* find out who owns this sequence of try-retry-trust */
+	  /* I don't like this code, it's a bad idea to do a linear scan,
+	     on the other hand it's the only way we can be sure we can reclaim
+	     space
+	  */
+	  yamop *end = rtp->u.lld.n;
+	  while (Yap_op_from_opcode(end->opc) != _profiled_trust_logical)
+	    end = end->u.lld.n;
+	  mark_ref_in_use((DBRef)end->u.lld.t.block);
+	}
+	/* mark timestamp */
+	nargs = rtp->u.lld.t.s+1;
 	break;
       case _trust_logical:
       case _count_trust_logical:
