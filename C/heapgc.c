@@ -2151,13 +2151,13 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	     on the other hand it's the only way we can be sure we can reclaim
 	     space
 	  */
-	  yamop *end = rtp->u.lld.n;
+	  yamop *end = rtp->u.OtaLl.n;
 	  while (Yap_op_from_opcode(end->opc) != _count_trust_logical)
-	    end = end->u.lld.n;
-	  mark_ref_in_use((DBRef)end->u.lld.t.block);
+	    end = end->u.OtaLl.n;
+	  mark_ref_in_use((DBRef)end->u.OtILl.block);
 	}
 	/* mark timestamp */
-	nargs = rtp->u.lld.t.s+1;
+	nargs = rtp->u.OtaLl.s+1;
 	break;
       case _profiled_retry_logical:
 	{
@@ -2166,13 +2166,13 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	     on the other hand it's the only way we can be sure we can reclaim
 	     space
 	  */
-	  yamop *end = rtp->u.lld.n;
+	  yamop *end = rtp->u.OtaLl.n;
 	  while (Yap_op_from_opcode(end->opc) != _profiled_trust_logical)
-	    end = end->u.lld.n;
-	  mark_ref_in_use((DBRef)end->u.lld.t.block);
+	    end = end->u.OtaLl.n;
+	  mark_ref_in_use((DBRef)end->u.OtILl.block);
 	}
 	/* mark timestamp */
-	nargs = rtp->u.lld.t.s+1;
+	nargs = rtp->u.OtaLl.s+1;
 	break;
       case _trust_logical:
       case _count_trust_logical:
