@@ -103,13 +103,18 @@ solve_vel([LVs|_], [NVs0|_], Ps) :-
 	% construct the graph
 	find_all_table_deps(Tables0, LV),
 	process(LVi, LVs, tab(Dist,_,_)),
+%writeln(m:Dist),matrix:matrix_to_list(Dist,LD),writeln(LD),
+%exps(LD,LDE),writeln(LDE),
 	% move from potentials back to probabilities
 	normalise_CPT(Dist,MPs),
 	list_from_CPT(MPs, Ps).
 solve_vel([_|MoreLVs], [_|MoreLVis], Ps) :-
 	solve_vel(MoreLVs, MoreLVis, Ps).
 
-
+exps([],[]).
+exps([L|LD],[O|LDE]) :-
+	O is exp(L),
+	exps(LD,LDE).
 
 keys([],[]).
 keys([V|NVs0],[K:E|Ks]) :-
@@ -193,18 +198,28 @@ multiply_sizes([V|Vs],K0,K) :-
 process(LV0, InputVs, Out) :-
 	find_best(LV0, V0, -1, V, WorkTables, LVI, InputVs),
 	V \== V0, !,
-% format('1 ~w: ~w~n',[V,WorkTables]),
+%	clpbn:get_atts(V,[key(K)]), writeln(chosen:K),
+% format('1 ~w: ~w~n',[V,WorkTables]), write_tables(WorkTables),
 	multiply_tables(WorkTables, tab(Tab0,Deps0,_)),
 	reorder_CPT(Deps0,Tab0,Deps,Tab,Sizes),
 	Table = tab(Tab,Deps,Sizes),
 % format('2 ~w: ~w~n',[V,Table]),
 	project_from_CPT(V,Table,NewTable),
-% format('3 ~w: ~w~n',[V,NewTable]),
+% format('3 ~w: ~w~n',[V,NewTable]), write_tables([NewTable]),
 	include(LVI,NewTable,V,LV2),
 	process(LV2, InputVs, Out).
 process(LV0, _, Out) :-
-	fetch_tables(LV0, WorkTables),
+	fetch_tables(LV0, WorkTables0),
+	sort(WorkTables0, WorkTables),
+% format('4 ~w: ~w~n',[LV0,WorkTables]), write_tables(WorkTables),
 	multiply_tables(WorkTables, Out).
+
+
+ write_tables([]).
+ write_tables([tab(Mat,_,_)|WorkTables]) :-
+	     matrix:matrix_to_list(Mat,L),
+	      writeln(L),
+	     write_tables(WorkTables).
 
 
 find_best([], V, _TF, V, _, [], _).
