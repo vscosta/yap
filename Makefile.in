@@ -610,7 +610,7 @@ all: startup
 	@INSTALL_DLLS@ (cd packages/PLStream; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE))
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE))
-	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; $(MAKE))
+	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))
 	@ENABLE_CPLINT@ (cd cplint; $(MAKE))
 	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE))
 
@@ -652,7 +652,7 @@ install_unix: startup libYap.a
 	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE) install)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
-	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; $(MAKE) install)
+	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) install)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 	@ENABLE_CPLINT@ (cd cplint; $(MAKE) install)
@@ -696,17 +696,17 @@ install_data:
 	(cd library ; $(MAKE) install)
 	(cd LGPL ; $(MAKE) install)
 	(cd GPL ; $(MAKE) install)
-	@ENABLE_JPL@ (cd LGPL/JPL ; $(MAKE) install)
-	@ENABLE_JPL@ (cd LGPL/JPL/java; $(MAKE) install)
+	@ENABLE_JPL@ (cd packages/jpl ; $(MAKE) install)
+	@ENABLE_JPL@ (cd packages/jpl; $(MAKE) install)
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(SHAREDIR)/Yap/
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(SHAREDIR)/Yap/
 #	(cd CLPQR ; $(MAKE) install)
 	@INSTALLCLP@(cd LGPL/clp ; $(MAKE) install)
 #	(cd CHR ; $(MAKE) install)
-	@INSTALLCLP@(cd packages/chr ; $(MAKE) install)
-	@INSTALLCLP@(cd packages/clpqr ; $(MAKE) install)
-	@INSTALLCLP@(cd packages/CLPBN ; $(MAKE) install)
+	@ENABLE_CLPQR@(cd packages/clpqr ; $(MAKE) install)
+	(cd packages/CLPBN ; $(MAKE) install)
 	(cd  packages/ProbLog ; $(MAKE) install)
+	@ENABLE_CHR@ (cd packages/chr ; $(MAKE) install)
 
 
 ##########
@@ -732,7 +732,7 @@ clean: clean_docs
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE) clean)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) clean)
-	@ENABLE_JPL@ @INSTALL_DLLS@ (cd LGPL/JPL/src; $(MAKE) clean)
+	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) clean)
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) clean)
 	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) clean)
 

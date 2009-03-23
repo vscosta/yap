@@ -705,9 +705,14 @@ YAPLIB
 DYNYAPLIB
 YAP_EXTRAS
 NO_BUILTIN_REGEXP
+ENABLE_CHR
+ENABLE_CLPQR
 ENABLE_JPL
 JAVA_HOME
+JUNIT
 JAVAC
+JAVADOC
+JAVALIBS
 JAR
 IN_UNIX
 YAPMPILIB
@@ -1336,6 +1341,7 @@ Optional Features:
  --enable-use-malloc        use malloc to allocate memory
  --enable-condor            allow Yap to be used from condor
  --enable-chr            install chr library
+ --enable-clpqr            install clpqr library
  --enable-april             compile Yap to support April ILP system
  --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
  --enable-cplint=DIR       enable the cplint library using the glu library in DIR/lib
@@ -1359,6 +1365,7 @@ Optional Packages:
  --with-trail-space=space default trail size in Kbytes
  --with-max-workers=integer maximum number of or-parallel processes
  --with-max-threads=integer maximum number of or-parallel processes
+  --with-junit=PATH	  Specify location of the junit JAR file
 
 Some influential environment variables:
   CC          C compiler command
@@ -2853,6 +2860,13 @@ else
   use_chr=yes
 fi
 
+# Check whether --enable-clpqr was given.
+if test "${enable_clpqr+set}" = set; then
+  enableval=$enable_clpqr; use_clpqr="$enableval"
+else
+  use_clpqr=yes
+fi
+
 
 # Check whether --enable-april was given.
 if test "${enable_april+set}" = set; then
@@ -3128,6 +3142,20 @@ if test "${with_max_threads+set}" = set; then
 	fi
 else
   yap_cv_max_threads="1024"
+fi
+
+
+
+# Check whether --with-junit was given.
+if test "${with_junit+set}" = set; then
+  withval=$with_junit; case "$withval" in
+		 yes) JUNIT=/usr/share/java/junit.jar
+			;;
+		 no) JUNIT=""
+			;;
+		 *) JUNIT="$withval"
+			;;
+	     esac
 fi
 
 
@@ -6096,14 +6124,55 @@ _ACEOF
   use_malloc=yes
 fi
 
-if test "$yap_cv_jpl" = no
-then
-	ENABLE_JPL="@#"
+if test ! -z "$GCC"; then
+    COFLAGS="${COFLAGS--O2 -cc-options,-fno-strict-aliasing}"
+    CWFLAGS="${CWFLAGS--Wall}"
 else
+    COFLAGS="${COFLAGS--O}"
+    CWFLAGS="${CWFLAGS-}"
+fi
+CMFLAGS=-fpic
+CIFLAGS=-I.
+
+if test "$use_chr" = no; then
+  ENABLE_CHR="@# "
+elif test -d "$srcdir"/packages/chr; then
+  ENABLE_CHR=""
+else
+  ENABLE_CHR="@# "
+fi
+
+if test "$use_clpqr" = no; then
+  ENABLE_CLPQR="@# "
+elif test -d "$srcdir"/packages/clpqr; then
+  ENABLE_CLPQR=""
+else
+  ENABLE_CLPQR="@# "
+fi
+
+if test "$yap_cv_jpl" = no; then
+	ENABLE_JPL="@#"
+elif test -d "$srcdir"/packages/clpqr; then
 	ENABLE_JPL=""
 	JAVA_HOME="$yap_cv_jpl"
-	JAVAC="$yap_cv_jpl"/bin/javac
+	if test "x$JAVALIBS" = "x"; then
+	  case "$PLARCH" in
+	       *darwin*)
+	       JAVALIBS="-Wl,-framework,JavaVM"
+	       	  ;;
+	       *powerpc-linux*)
+	       JAVALIBS="-ljava -ljvm"
+	       	  ;;
+	       *)
+	       JAVALIBS="-ljava -lverify -ljvm"
+	       	  ;;
+	    esac
+        fi
 	JAR="$yap_cv_jpl"/bin/jar
+	JAVAC="$yap_cv_jpl"/bin/javac
+	JAVADOC="$yap_cv_jpl"/bin/javadoc
+else
+      ENABLE_JPL="@#"
 fi
 
 LAM_MPI_CC=${MPI_CC}
@@ -13811,6 +13880,11 @@ EXEC_SUFFIX=""
 
 
 
+
+
+
+
+
 { echo "$as_me:$LINENO: checking for gcc threaded code" >&5
 echo $ECHO_N "checking for gcc threaded code... $ECHO_C" >&6; }
 if test "${yap_cv_threaded_code+set}" = set; then
@@ -16542,28 +16616,27 @@ mkdir -p  library/tries
 mkdir -p  library/rltree
 mkdir -p  library/lammpi
 mkdir -p  library/yap2swi
-mkdir -p  LGPL
-mkdir -p  LGPL/JPL
-mkdir -p  LGPL/JPL/java
-mkdir -p  LGPL/JPL/java/jpl
-mkdir -p  LGPL/JPL/java/jpl/fli
-mkdir -p  LGPL/JPL/java/jpl/test
-mkdir -p  LGPL/JPL/src
 mkdir -p  LGPL/clp
 mkdir -p  LGPL/swi_console
-mkdir -p  packages/PLStream
 mkdir -p  GPL
-mkdir -p  GPL/http
 mkdir -p  packages/chr
 mkdir -p  packages/CLPBN
+mkdir -p  packages/clpqr
 mkdir -p  packages/cplint
+mkdir -p  packages/jpl
+mkdir -p  packages/jpl/src/java
+mkdir -p  packages/jpl/src/java/jpl
+mkdir -p  packages/jpl/src/java/jpl/fli
+mkdir -p  packages/jpl/src/java/jpl/test
+mkdir -p  packages/jpl/examples
+mkdir -p  packages/jpl/examples/java
+mkdir -p  packages/PLStream
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
-mkdir -p  packages/clpqr
 mkdir -p  packages/sgml
 
 
-ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile packages/chr/Makefile packages/CLPBN/Makefile LGPL/clp/Makefile packages/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile packages/cplint/Makefile packages/sgml/Makefile packages/PLStream/Makefile packages/ProbLog/Makefile packages/ProbLog/simplecudd/Makefile"
+ac_config_files="$ac_config_files Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile packages/chr/Makefile packages/CLPBN/Makefile LGPL/clp/Makefile packages/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile packages/jpl/Makefile packages/jpl/src/java/Makefile GPL/Makefile packages/cplint/Makefile packages/sgml/Makefile packages/PLStream/Makefile packages/ProbLog/Makefile packages/ProbLog/simplecudd/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -17138,11 +17211,8 @@ do
     "library/tries/Makefile") CONFIG_FILES="$CONFIG_FILES library/tries/Makefile" ;;
     "library/rltree/Makefile") CONFIG_FILES="$CONFIG_FILES library/rltree/Makefile" ;;
     "LGPL/swi_console/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/swi_console/Makefile" ;;
-    "LGPL/JPL/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/JPL/Makefile" ;;
-    "LGPL/JPL/src/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/JPL/src/Makefile" ;;
-    "LGPL/JPL/java/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/JPL/java/Makefile" ;;
-    "LGPL/JPL/jpl_paths.yap") CONFIG_FILES="$CONFIG_FILES LGPL/JPL/jpl_paths.yap" ;;
-    "GPL/http/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/http/Makefile" ;;
+    "packages/jpl/Makefile") CONFIG_FILES="$CONFIG_FILES packages/jpl/Makefile" ;;
+    "packages/jpl/src/java/Makefile") CONFIG_FILES="$CONFIG_FILES packages/jpl/src/java/Makefile" ;;
     "GPL/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/Makefile" ;;
     "packages/cplint/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/Makefile" ;;
     "packages/sgml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/sgml/Makefile" ;;
@@ -17302,11 +17372,11 @@ YAPLIB!$YAPLIB$ac_delim
 DYNYAPLIB!$DYNYAPLIB$ac_delim
 YAP_EXTRAS!$YAP_EXTRAS$ac_delim
 NO_BUILTIN_REGEXP!$NO_BUILTIN_REGEXP$ac_delim
+ENABLE_CHR!$ENABLE_CHR$ac_delim
+ENABLE_CLPQR!$ENABLE_CLPQR$ac_delim
 ENABLE_JPL!$ENABLE_JPL$ac_delim
 JAVA_HOME!$JAVA_HOME$ac_delim
-JAVAC!$JAVAC$ac_delim
-JAR!$JAR$ac_delim
-IN_UNIX!$IN_UNIX$ac_delim
+JUNIT!$JUNIT$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -17348,6 +17418,11 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+JAVAC!$JAVAC$ac_delim
+JAVADOC!$JAVADOC$ac_delim
+JAVALIBS!$JAVALIBS$ac_delim
+JAR!$JAR$ac_delim
+IN_UNIX!$IN_UNIX$ac_delim
 YAPMPILIB!$YAPMPILIB$ac_delim
 LAM_MPI_CC!$LAM_MPI_CC$ac_delim
 MPI_OBJS!$MPI_OBJS$ac_delim
@@ -17374,7 +17449,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 24; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 29; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

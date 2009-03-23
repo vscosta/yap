@@ -2,7 +2,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 dnl
 
-AC_PREREQ(2.13)
+AC_PREREQ([2.50])
 
 AC_INIT(console/yap.c)
 AC_CONFIG_HEADER(config.h)
@@ -72,6 +72,9 @@ AC_ARG_ENABLE(condor,
 AC_ARG_ENABLE(chr,
 	[ --enable-chr            install chr library ],
 	use_chr="$enableval", use_chr=yes)
+AC_ARG_ENABLE(clpqr,
+	[ --enable-clpqr            install clpqr library ],
+	use_clpqr="$enableval", use_clpqr=yes)
 	
 AC_ARG_ENABLE(april,
 	[ --enable-april             compile Yap to support April ILP system],
@@ -276,6 +279,16 @@ AC_ARG_WITH(max-threads,
 	  yap_cv_max_threads=$withval
 	fi,
 	[yap_cv_max_threads="1024"])
+
+AC_ARG_WITH(junit, [  --with-junit=PATH	  Specify location of the junit JAR file],
+	    [case "$withval" in
+		 yes) JUNIT=/usr/share/java/junit.jar
+			;;
+		 no) JUNIT=""
+			;;
+		 *) JUNIT="$withval"
+			;;
+	     esac])
 
 if test "$tabling" = yes -o "$orparallelism" = yes -o "$threads" = yes
 then
@@ -610,14 +623,55 @@ then
   use_malloc=yes
 fi
 
-if test "$yap_cv_jpl" = no
-then
-	ENABLE_JPL="@#"   
+if test ! -z "$GCC"; then
+    COFLAGS="${COFLAGS--O2 -cc-options,-fno-strict-aliasing}"
+    CWFLAGS="${CWFLAGS--Wall}"
 else
+    COFLAGS="${COFLAGS--O}"
+    CWFLAGS="${CWFLAGS-}"
+fi
+CMFLAGS=-fpic
+CIFLAGS=-I.
+
+if test "$use_chr" = no; then
+  ENABLE_CHR="@# "
+elif test -d "$srcdir"/packages/chr; then
+  ENABLE_CHR=""
+else
+  ENABLE_CHR="@# "
+fi
+
+if test "$use_clpqr" = no; then
+  ENABLE_CLPQR="@# "
+elif test -d "$srcdir"/packages/clpqr; then
+  ENABLE_CLPQR=""
+else
+  ENABLE_CLPQR="@# "
+fi
+
+if test "$yap_cv_jpl" = no; then
+	ENABLE_JPL="@#"   
+elif test -d "$srcdir"/packages/clpqr; then
 	ENABLE_JPL=""
 	JAVA_HOME="$yap_cv_jpl"
-	JAVAC="$yap_cv_jpl"/bin/javac
+	if test "x$JAVALIBS" = "x"; then
+	  case "$PLARCH" in
+	       *darwin*)
+	       JAVALIBS="-Wl,-framework,JavaVM"
+	       	  ;;
+	       *powerpc-linux*)
+	       JAVALIBS="-ljava -ljvm"
+	       	  ;;
+	       *)
+	       JAVALIBS="-ljava -lverify -ljvm"
+	       	  ;;
+	    esac
+        fi
 	JAR="$yap_cv_jpl"/bin/jar
+	JAVAC="$yap_cv_jpl"/bin/javac
+	JAVADOC="$yap_cv_jpl"/bin/javadoc
+else
+      ENABLE_JPL="@#"
 fi
 
 LAM_MPI_CC=${MPI_CC}
@@ -1152,9 +1206,14 @@ AC_SUBST(INSTALL_INFO)
 dnl let YAP_EXTRAS fall through configure, from the env into Makefile
 AC_SUBST(YAP_EXTRAS)
 AC_SUBST(NO_BUILTIN_REGEXP)
+AC_SUBST(ENABLE_CHR)
+AC_SUBST(ENABLE_CLPQR)
 AC_SUBST(ENABLE_JPL)
 AC_SUBST(JAVA_HOME)
+AC_SUBST(JUNIT)
 AC_SUBST(JAVAC)
+AC_SUBST(JAVADOC)
+AC_SUBST(JAVALIBS)
 AC_SUBST(JAR)
 AC_SUBST(IN_UNIX)
 AC_SUBST(YAPMPILIB)
@@ -1469,28 +1528,27 @@ mkdir -p  library/tries
 mkdir -p  library/rltree
 mkdir -p  library/lammpi
 mkdir -p  library/yap2swi
-mkdir -p  LGPL
-mkdir -p  LGPL/JPL
-mkdir -p  LGPL/JPL/java
-mkdir -p  LGPL/JPL/java/jpl
-mkdir -p  LGPL/JPL/java/jpl/fli
-mkdir -p  LGPL/JPL/java/jpl/test
-mkdir -p  LGPL/JPL/src
 mkdir -p  LGPL/clp
 mkdir -p  LGPL/swi_console
-mkdir -p  packages/PLStream
 mkdir -p  GPL
-mkdir -p  GPL/http
 mkdir -p  packages/chr
 mkdir -p  packages/CLPBN
+mkdir -p  packages/clpqr
 mkdir -p  packages/cplint
+mkdir -p  packages/jpl
+mkdir -p  packages/jpl/src/java
+mkdir -p  packages/jpl/src/java/jpl
+mkdir -p  packages/jpl/src/java/jpl/fli
+mkdir -p  packages/jpl/src/java/jpl/test
+mkdir -p  packages/jpl/examples
+mkdir -p  packages/jpl/examples/java
+mkdir -p  packages/PLStream
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
-mkdir -p  packages/clpqr
 mkdir -p  packages/sgml
 
 
-AC_OUTPUT(Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile packages/chr/Makefile packages/CLPBN/Makefile LGPL/clp/Makefile packages/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile  LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap GPL/http/Makefile GPL/Makefile  packages/cplint/Makefile packages/sgml/Makefile packages/PLStream/Makefile packages/ProbLog/Makefile packages/ProbLog/simplecudd/Makefile)
+AC_OUTPUT(Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile packages/chr/Makefile packages/CLPBN/Makefile LGPL/clp/Makefile packages/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile  packages/jpl/Makefile packages/jpl/src/java/Makefile GPL/Makefile  packages/cplint/Makefile packages/sgml/Makefile packages/PLStream/Makefile packages/ProbLog/Makefile packages/ProbLog/simplecudd/Makefile)
 
 make depend
 (cd packages/PLStream; make depend; cd ../..)
