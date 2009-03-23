@@ -1548,7 +1548,23 @@ mkdir -p  packages/ProbLog/simplecudd
 mkdir -p  packages/sgml
 
 
-AC_OUTPUT(Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile packages/chr/Makefile packages/CLPBN/Makefile LGPL/clp/Makefile packages/clpqr/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile  packages/jpl/Makefile packages/jpl/src/java/Makefile GPL/Makefile  packages/cplint/Makefile packages/sgml/Makefile packages/PLStream/Makefile packages/ProbLog/Makefile packages/ProbLog/simplecudd/Makefile)
+AC_OUTPUT(Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile packages/CLPBN/Makefile LGPL/clp/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile GPL/Makefile  packages/cplint/Makefile packages/sgml/Makefile packages/PLStream/Makefile packages/ProbLog/Makefile )
+
+if test "$ENABLE_CHR" = ""; then
+AC_OUTPUT(packages/chr/Makefile)
+fi
+
+if test "$ENABLE_CLPQR" = ""; then
+AC_OUTPUT(packages/clpqr/Makefile)
+fi
+
+if test "$ENABLE_JPL" = ""; then
+AC_OUTPUT(packages/jpl/Makefile packages/jpl/src/java/Makefile)
+fi
+
+if test "$USE_CUDD" = ""; then
+AC_OUTPUT(packages/ProbLog/simplecudd/Makefile)
+fi
 
 make depend
 (cd packages/PLStream; make depend; cd ../..)
