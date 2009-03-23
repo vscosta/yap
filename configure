@@ -6136,7 +6136,7 @@ CIFLAGS=-I.
 
 if test "$use_chr" = no; then
   ENABLE_CHR="@# "
-elif test -d "$srcdir"/packages/chr; then
+elif test -e "$srcdir"/packages/chr/Makefile.in; then
   ENABLE_CHR=""
 else
   ENABLE_CHR="@# "
@@ -6144,7 +6144,7 @@ fi
 
 if test "$use_clpqr" = no; then
   ENABLE_CLPQR="@# "
-elif test -d "$srcdir"/packages/clpqr; then
+elif test -e "$srcdir"/packages/clpqr/Makefile.in; then
   ENABLE_CLPQR=""
 else
   ENABLE_CLPQR="@# "
@@ -6152,7 +6152,7 @@ fi
 
 if test "$yap_cv_jpl" = no; then
 	ENABLE_JPL="@#"
-elif test -d "$srcdir"/packages/clpqr; then
+elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	ENABLE_JPL=""
 	JAVA_HOME="$yap_cv_jpl"
 	if test "x$JAVALIBS" = "x"; then
