@@ -71,7 +71,6 @@ stuff.
 #endif /*HAVE_DECLSPEC*/
 #endif /*_PL_EXPORT_DONE*/
 
-typedef	int    bool;
 typedef	unsigned long    term_t;
 typedef	void *module_t;
 typedef	void *record_t;
