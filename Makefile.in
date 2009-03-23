@@ -697,7 +697,6 @@ install_data:
 	(cd LGPL ; $(MAKE) install)
 	(cd GPL ; $(MAKE) install)
 	@ENABLE_JPL@ (cd packages/jpl ; $(MAKE) install)
-	@ENABLE_JPL@ (cd packages/jpl; $(MAKE) install)
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(SHAREDIR)/Yap/
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(SHAREDIR)/Yap/
 #	(cd CLPQR ; $(MAKE) install)
