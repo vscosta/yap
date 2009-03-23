@@ -1,6 +1,8 @@
 
 #include "config.h"
 #include <SWI-Prolog.h>
+typedef int bool;
+
 /* atom_t macro layer */
 #define NULL_ATOM ((atom_t)0)
 #include "atoms.h"
