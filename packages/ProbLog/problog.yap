@@ -151,13 +151,14 @@ init_global_params :-
 	set_problog_flag(bdd_file,example_bdd),
 	set_problog_flag(dir,output),
 	set_problog_flag(save_bdd,false),
+	set_problog_flag(verbose,true).
 %	problog_flags,
-	print_sep_line,
-	format('~n     use problog_help/0 for information~n',[]),
-	format('~n     use problog_flags/0 to display current parameter values~2n',[]),
-	print_sep_line,
-	nl,
-	flush_output.
+%	print_sep_line,
+%	format('~n     use problog_help/0 for information~n',[]),
+%	format('~n     use problog_flags/0 to display current parameter values~2n',[]),
+%	print_sep_line,
+%	nl,
+%	flush_output.
 
 % parameter initialization to be called after returning to user's directory:
 :- initialization(init_global_params).
@@ -337,10 +338,17 @@ reset_non_ground_facts :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % access/update the probability of ID's fact
-% hardware-access version: naively scan all problog-predicates
+% hardware-access version: naively scan all problog-predicates,
+% cut choice points if ID is ground (they'll all fail as ID is unique),
+% but not if it isn't (used to iterate over all facts when writing out probabilities for learning)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 get_fact_probability(ID,Prob) :-
-	get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity),
+	(
+	ground(ID) -> 
+		get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity),!
+	;
+	get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity)
+	),
 	arg(ProblogArity,ProblogTerm,Log),
 	Prob is exp(Log).
 set_fact_probability(ID,Prob) :-
@@ -389,13 +397,30 @@ write_tunable_fact(ID) :-
 % recover fact for given id
 % list version not exported (yet?)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ID of ground fact
 get_fact(ID,OutsideTerm) :-
 	get_internal_fact(ID,ProblogTerm,ProblogName,ProblogArity),
+	!,
 	ProblogTerm =.. [_Functor,ID|Args],
 	atomic_concat('problog_',OutsideFunctor,ProblogName),
 	Last is ProblogArity-1,
 	nth(Last,Args,_LogProb,OutsideArgs),
 	OutsideTerm =.. [OutsideFunctor|OutsideArgs].
+% ID of instance of non-ground fact: get fact from grounding table
+get_fact(ID,OutsideTerm) :-
+	recover_grounding_id(ID,GID),
+	grounding_is_known(OutsideTerm,GID).
+
+recover_grounding_id(Atom,ID) :-
+	name(Atom,List),
+	reverse(List,Rev),
+	recover_number(Rev,NumRev),
+	reverse(NumRev,Num),
+	name(ID,Num).
+recover_number([95|_],[]) :- !.  % name('_',[95])
+recover_number([A|B],[A|C]) :-
+	recover_number(B,C).
+
 
 get_fact_list([],[]).
 get_fact_list([ID|IDs],[Fact|Facts]) :-
@@ -587,11 +612,16 @@ eval_dnf(ID,Prob,Status) :-
 	((ID = 1, problog_flag(save_bdd,true)) -> problog_control(on,remember); problog_control(off,remember)),
 	count_ptree(ID,NX),
 	(
+	    problog_flag(verbose,true)
+	->
+	(
 	    NX=1
 	->
 	    format(user,'1 proof~n',[]);
             format(user,'~w proofs~n',[NX])
-	),
+	);
+	true
+        ),
 	problog_flag(dir,DirFlag),
 	problog_flag(bdd_file,BDDFileFlag),
 	atomic_concat([DirFlag,BDDFileFlag],BDDFile),
@@ -621,7 +651,7 @@ eval_dnf(ID,Prob,Status) :-
 	;
 	    (
 		statistics(walltime,[_,E3]),
-		format(user,'~w ms BDD processing~n',[E3]),
+		(problog_flag(verbose,true) -> format(user,'~w ms BDD processing~n',[E3]);true),
 		see(ResultFile),
 		read(probability(Prob)),
 		seen,
@@ -772,7 +802,7 @@ evalStep(Ans,Status) :-
 	stopDiff(Delta),
 	count_ptree(1,NProofs),
 	count_ptree(2,NCands),
-	format(user,'~w proofs, ~w stopped derivations~n',[NProofs,NCands]),
+	(problog_flag(verbose,true) -> format(user,'~w proofs, ~w stopped derivations~n',[NProofs,NCands]);true),
 	flush_output(user),
 	eval_lower(NProofs,Low,StatusLow),
 	(StatusLow \== ok ->
@@ -792,7 +822,7 @@ evalStep(Ans,Status) :-
 		Status = StatusUp
 	    ;
 	        Diff is Up-Low,
-		format(user,'difference:  ~6f~n',[Diff]),
+		(problog_flag(verbose,true) -> format(user,'difference:  ~6f~n',[Diff]);true),
 		flush_output(user),
 		((Diff < Delta; Diff =:= 0) -> Ans = 1; Ans = 0),
 		Status = ok)).
@@ -809,7 +839,7 @@ eval_lower(N,P,Status) :-
 	(Status = ok -> 
 	    retract(low(_,_)),
 	    assert(low(N,P)),
-	    format(user,'lower bound: ~6f~n',[P]),
+	    (problog_flag(verbose,true) -> format(user,'lower bound: ~6f~n',[P]);true),
 	    flush_output(user)
 	;
 	true).
@@ -829,7 +859,7 @@ eval_upper(N,UpP,ok) :-
 	    retract(up(_,_)),
 	    assert(up(N,UpP))
 	;
-	format(user,'~w - continue using old up~n',[StatusUp]),
+	(problog_flag(verbose,true) -> format(user,'~w - continue using old up~n',[StatusUp]);true),
 	flush_output(user),
 	up(_,UpP)).
 
@@ -1057,7 +1087,7 @@ montecarlo(Goal,Delta,K,File) :-
 	close(Log),
 	statistics(walltime,[T1,_]),
 	init_ptree(1),
-	format('search for ~q~n',[Goal]),
+	(problog_flag(verbose,true) -> format('search for ~q~n',[Goal]);true),
 	montecarlo(Goal,Delta,K,0,File,0,T1),
 	problog_control(off,mc),
 	delete_ptree(1).
@@ -1077,11 +1107,11 @@ montecarlo(Goal,Delta,K,SamplesSoFar,File,PositiveSoFar,InitialTime) :-
 	statistics(walltime,[T2,_]),
 	Time is (T2-InitialTime)/1000,
 	count_ptree(1,CacheSize),
-	format('~n~w samples~nestimated probability ~w~n95 percent confidence interval [~w,~w]~n',[SamplesNew,Prob,Low,High]),
+	(problog_flag(verbose,true) -> format('~n~w samples~nestimated probability ~w~n95 percent confidence interval [~w,~w]~n',[SamplesNew,Prob,Low,High]);true),
 	open(File,append,Log),
 	format(Log,'~w  ~8f  ~8f  ~8f  ~8f  ~3f  ~w  ~w~n',[SamplesNew,Prob,Low,High,Diff,Time,CacheSize,Next]),
 	close(Log),
-	((Diff<Delta; Diff =:= 0) -> 	format('Runtime ~w sec~2n',[Time]),assert(mc_prob(Prob))
+	((Diff<Delta; Diff =:= 0) -> 	(problog_flag(verbose,true) -> format('Runtime ~w sec~2n',[Time]);true),assert(mc_prob(Prob))
 		    ;	
 	                montecarlo(Goal,Delta,K,SamplesNew,File,Next,InitialTime)).
 

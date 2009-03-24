@@ -28,6 +28,7 @@
 			       file_property/2,
 			       delete_file/1,
 			       make_directory/1,
+			       working_directory/2,
 			       shell/1,
 	                       shell/2]).
 
@@ -132,7 +133,8 @@ set_learning_flag(output_directory,Directory) :-
 	    make_directory(Directory)
 	),
 
-	atomic_concat([Directory,'/'],Path),
+	working_directory(PWD,PWD),
+	atomic_concat([PWD,'/',Directory,'/'],Path),
 	atomic_concat([Directory,'/log.dat'],Logfile),
 	
 	retractall(output_directory(_)),

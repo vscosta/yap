@@ -12,7 +12,7 @@
 
 :- ensure_loaded(library(system)).
 
-:- dynamic bdd_time/1, first_threshold/1, last_threshold/1, id_stepsize/1, prunecheck/1, maxsteps/1, mc_batchsize/1, mc_logfile/1, bdd_file/1, bdd_par_file/1, bdd_result/1, work_dir/1, save_bdd/1.
+:- dynamic bdd_time/1, first_threshold/1, last_threshold/1, id_stepsize/1, prunecheck/1, maxsteps/1, mc_batchsize/1, mc_logfile/1, bdd_file/1, bdd_par_file/1, bdd_result/1, work_dir/1, save_bdd/1, problog_verbose/1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % global parameters that can be set using set_problog_flag/2
@@ -52,6 +52,9 @@ get_problog_flag(dir,X) :-
 	work_dir(X).
 get_problog_flag(save_bdd,X) :-
 	save_bdd(X).
+get_problog_flag(verbose,X) :-
+	problog_verbose(X).
+
 
 %%%%%%%%%%%%
 % BDD timeout in seconds, used as option in BDD tool
@@ -211,6 +214,8 @@ set_problog_flag(bdd_result,X) :-
 
 %%%%%%%%%%%%
 % working directory: all the temporary and output files will be located there
+% it assumes a subdirectory of the current working dir
+% on initialization, the current dir is the one where the user's file is located
 %%%%%%%%%%%%
 set_problog_flag(dir,X) :-
 	\+ atom(X),
@@ -220,7 +225,8 @@ set_problog_flag(dir,X) :-
 	fail.
 set_problog_flag(dir,X) :-
 	retractall(work_dir(_)),
-	atomic_concat([X,'/'],D),
+	working_directory(PWD,PWD),
+	atomic_concat([PWD,'/',X,'/'],D),
 	atomic_concat(['mkdir ',D],Mkdir),
 	(file_exists(X) -> true; shell(Mkdir)),
 	assert(work_dir(D)).
@@ -240,6 +246,24 @@ set_problog_flag(save_bdd,false) :-
 	retractall(save_bdd(_)),
 	assert(save_bdd(false)).
 set_problog_flag(save_bdd,_) :-
+	format(user,'\% ERROR: value must be \'true\' or \'false\'!~n',[]),
+	flush_output(user),
+	fail.
+
+%%%%%%%%%%%%
+% determine whether ProbLog outputs information (number of proofs, intermediate results, ...) 
+% default is true, as otherwise problog_delta won't output intermediate bounds
+%%%%%%%%%%%%
+
+set_problog_flag(verbose,true) :-
+	!,
+	retractall(problog_verbose(_)),
+	assert(problog_verbose(true)).
+set_problog_flag(verbose,false) :-
+	!,
+	retractall(problog_verbose(_)),
+	assert(problog_verbose(false)).
+set_problog_flag(verbose,_) :-
 	format(user,'\% ERROR: value must be \'true\' or \'false\'!~n',[]),
 	flush_output(user),
 	fail.
@@ -278,6 +302,8 @@ problog_flags :-
 	print_param('directory for files',WorkDir,'dir','atom'),
 	problog_flag(save_bdd,Save),
 	print_param('save BDD files for (last) lower bound',Save,'save_bdd','true/false'),
+	problog_flag(verbose,Verbose),
+	print_param('output intermediate information',Verbose,'verbose','true/false'),
 	print_sep_line,
 	format('~n',[]),
 	flush_output.

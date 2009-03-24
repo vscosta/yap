@@ -274,7 +274,7 @@ bdd_vars_script([A0|B],N) :-
 	    (
 		atom_chars(A,A_Chars),
 		% 95 = '_'
-		append(Part1,[95|Part2],A_Chars),
+		append(Part1,[95|Part2],A_Chars),!,  % eliminate append's choice point
 		number_chars(A_Number,Part1),
 		number_chars(Grounding_ID,Part2)
 	    )
@@ -488,6 +488,7 @@ replace_pt_single(s(A,T),[M|Map],Res) :-
 	member(Res-s(A,T),[M|Map]),
 	!.
 replace_pt_single(s(A,T),[M|Map],s(A,TT)) :-
+	!,
 	replace_pt_list(T,[M|Map],TT).
 replace_pt_single(A,_,A) :-
 	 not_or_atom(A).
