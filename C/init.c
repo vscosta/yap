@@ -963,6 +963,9 @@ InitFlags(void)
 static void 
 InitCodes(void)
 {
+  /* initialise invisible chain */
+  Yap_heap_regs->invisiblechain.Entry = NIL;
+  INIT_RWLOCK(Yap_heap_regs->invisiblechain.AERWLock);
 #include "iatoms.h"
   Yap_heap_regs->term_prolog = MkAtomTerm(AtomProlog);
   Yap_heap_regs->user_module = MkAtomTerm(AtomUser);
@@ -1136,9 +1139,6 @@ InitCodes(void)
   Yap_heap_regs->clausecode->clause = NULL;
   Yap_heap_regs->clausecode->func = NIL;
 
-  Yap_heap_regs->invisiblechain.Entry = NIL;
-  INIT_RWLOCK(Yap_heap_regs->invisiblechain.AERWLock);
-  
   {
     Atom            at;
     PredEntry      *pred;

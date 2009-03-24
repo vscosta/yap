@@ -14,7 +14,6 @@
 *************************************************************************/
 
 /* information that can be stored in Code Space */
-#include <stdio.h>
 
 #ifndef HEAP_H
 #define HEAP_H 1
@@ -813,28 +812,5 @@ Yap_PreAllocCodeSpace(void)
   if (ptr) return ptr;
   return Yap_InitPreAllocCodeSpace();
 }
-
-#ifdef ATOMS_H
-#ifdef THREADS
-Prop STD_PROTO(Yap_NewThreadPred, (struct pred_entry *));
-Prop STD_PROTO(Yap_NewPredPropByFunctor, (Functor, Term));
-
-EXTERN inline PredEntry *
-Yap_GetThreadPred(struct pred_entry *ap)
-{
-  Functor f = ap->FunctorOfPred;
-  Term  mod = ap->ModuleOfPred;
-  Prop p0 = AbsPredProp(Yap_heap_regs->thread_handle[worker_id].local_preds);
-
-  while(p0) {
-    PredEntry *ap = RepPredProp(p0);
-    if (ap->FunctorOfPred == f &&
-	ap->ModuleOfPred == mod) return ap;
-    p0 = ap->NextOfPE;
-  }
-  return RepPredProp(Yap_NewThreadPred(ap));
-}
-#endif
-#endif
 
 #endif /* HEAP_H */

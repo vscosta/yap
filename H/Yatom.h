@@ -17,6 +17,9 @@
 
 /* This code can only be defined *after* including Regs.h!!! */
 
+#ifndef YATOM_H
+#define YATOM_H 1
+
 #ifdef USE_OFFSETS
 
 inline EXTERN Atom AbsAtom (AtomEntry * p);
@@ -1369,10 +1372,6 @@ Atom STD_PROTO (Yap_GetOp, (OpEntry *, int *, int));
 Prop STD_PROTO (Yap_GetAProp, (Atom, PropFlags));
 Prop STD_PROTO (Yap_GetAPropHavingLock, (AtomEntry *, PropFlags));
 
-#ifdef THREADS
-EXTERN inline PredEntry *STD_PROTO (Yap_GetThreadPred, (PredEntry *));
-#endif
-
 typedef enum
 {
   PROLOG_MODULE = 0,
@@ -1394,6 +1393,30 @@ PRED_HASH(FunctorEntry *fe, Term cur_mod, UInt size)
 }
 
 EXTERN inline Prop STD_PROTO(GetPredPropByFuncHavingLock, (FunctorEntry *, Term));
+
+#ifdef THREADS
+
+Prop STD_PROTO(Yap_NewThreadPred, (struct pred_entry *));
+Prop STD_PROTO(Yap_NewPredPropByFunctor, (Functor, Term));
+EXTERN inline struct pred_entry *STD_PROTO(Yap_GetThreadPred, (struct pred_entry *));
+
+EXTERN inline struct pred_entry *
+Yap_GetThreadPred(struct pred_entry *ap)
+{
+  Functor f = ap->FunctorOfPred;
+  Term  mod = ap->ModuleOfPred;
+  Prop p0 = AbsPredProp(Yap_heap_regs->thread_handle[worker_id].local_preds);
+
+  while(p0) {
+    PredEntry *ap = RepPredProp(p0);
+    if (ap->FunctorOfPred == f &&
+	ap->ModuleOfPred == mod) return ap;
+    p0 = ap->NextOfPE;
+  }
+  return RepPredProp(Yap_NewThreadPred(ap));
+}
+#endif
+
 
 EXTERN inline Prop
 GetPredPropByFuncHavingLock (FunctorEntry *fe, Term cur_mod)
@@ -1484,3 +1507,4 @@ PredPropByAtom (Atom at, Term cur_mod)
   return Yap_NewPredPropByAtom (ae, cur_mod);
 }
 
+#endif
