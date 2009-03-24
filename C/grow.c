@@ -803,10 +803,10 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
   YAPEnterCriticalSection();
   /* we always shift the local and the stack by the same amount */
   if (do_grow) {
-    /* if we grow, we need to move the stacks */
-    LDiff = TrDiff = size;
     /* This is what happens to the base of the stack */
     BaseDiff = Yap_GlobalBase-old_GlobalBase;
+    /* if we grow, we need to move the stacks */
+    LDiff = TrDiff = size+BaseDiff;
   } else {
     /* stay still */
     LDiff = TrDiff = 0;
@@ -814,7 +814,10 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
   }
   /* now, remember we have delay -- global with a hole in delay or a 
      hole in global */
-  if (insert_in_delays) {
+  if (!hsplit) {
+    /* expand delay stack */
+    DelayDiff = GDiff = GDiff0 = LDiff;
+  } else if (insert_in_delays) {
     /* we want to expand a hole for the delay stack */
     DelayDiff = size-request;
     GDiff = GDiff0 = size;
