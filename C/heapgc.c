@@ -1186,7 +1186,7 @@ mark_variable(CELL_PTR current)
       if (!MARKED_PTR(next)) {
 	if (IsVarTerm(cnext) && (CELL)next == cnext) {
 	  /* new global variable to new global variable */
-	  if (current < prev_HB && current >= HB && next >= HB && next < prev_HB) {
+	  if (next > current && current < prev_HB && current >= HB && next >= HB && next < prev_HB) {
 #ifdef INSTRUMENT_GC
 	    inc_var(current, current);
 #endif	      
