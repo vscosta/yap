@@ -4578,8 +4578,12 @@ push_path(path_stack_entry *sp, yamop **pipc, ClauseDef *clp, struct intermediat
 }
 		 
 static path_stack_entry *
-fetch_new_block(path_stack_entry *sp, yamop **pipc, PredEntry *ap)
+fetch_new_block(path_stack_entry *sp, yamop **pipc, PredEntry *ap, struct intermediates *cint)
 {
+  if (sp+1 > (path_stack_entry *)Yap_TrailTop) {
+    save_machine_regs();
+    longjmp(cint->CompilerBotch,4);    
+  }
   /* add current position */
   sp->flag = block_entry;
   sp->u.cle.entry_code = pipc;
@@ -4607,7 +4611,7 @@ init_block_stack(path_stack_entry *sp, yamop *ipc, PredEntry *ap)
 }
 
 static path_stack_entry  *
-cross_block(path_stack_entry *sp, yamop **pipc, PredEntry *ap)
+cross_block(path_stack_entry *sp, yamop **pipc, PredEntry *ap, struct intermediates *cint)
 {
   yamop *ipc = *pipc;
   path_stack_entry *tsp = sp;
@@ -4641,12 +4645,12 @@ cross_block(path_stack_entry *sp, yamop **pipc, PredEntry *ap)
     }
   } while (tsp->u.cle.entry_code != NULL);
   /* moved to a new block */
-  return fetch_new_block(sp, pipc, ap);
+  return fetch_new_block(sp, pipc, ap, cint);
 }
 
 
 static yamop *
-pop_path(path_stack_entry **spp, ClauseDef *clp, PredEntry *ap)
+pop_path(path_stack_entry **spp, ClauseDef *clp, PredEntry *ap, struct intermediates *cint)
 {
   path_stack_entry *sp = *spp;
   yamop *nipc;
@@ -4662,7 +4666,7 @@ pop_path(path_stack_entry **spp, ClauseDef *clp, PredEntry *ap)
     return NULL;
   }
   nipc = *(sp->u.pce.pi_pc);
-  *spp = cross_block(sp, sp->u.pce.pi_pc, ap);
+  *spp = cross_block(sp, sp->u.pce.pi_pc, ap, cint);
   return nipc;
 }
 
@@ -5272,7 +5276,7 @@ compactz_expand_clauses(yamop *ipc)
 
 /* this code should be called when we jumped to clauses */
 static yamop *
-add_to_expand_clauses(path_stack_entry **spp, yamop *ipc, ClauseDef *cls, PredEntry *ap, int first)
+add_to_expand_clauses(path_stack_entry **spp, yamop *ipc, ClauseDef *cls, PredEntry *ap, int first, struct intermediates *cint)
 {
   path_stack_entry *sp = *spp;
   yamop **clar;
@@ -5288,7 +5292,7 @@ add_to_expand_clauses(path_stack_entry **spp, yamop *ipc, ClauseDef *cls, PredEn
 	  clar[-1] = cls->Code;
 	  ipc->u.sssllp.s2++;
 	}
-	return pop_path(spp, cls, ap);
+	return pop_path(spp, cls, ap, cint);
       }
     } while (compacta_expand_clauses(ipc));
   } else {
@@ -5300,7 +5304,7 @@ add_to_expand_clauses(path_stack_entry **spp, yamop *ipc, ClauseDef *cls, PredEn
 	  clar[1] = cls->Code;
 	  ipc->u.sssllp.s2++;
 	}
-	return pop_path(spp, cls, ap);
+	return pop_path(spp, cls, ap, cint);
       }
     } while (compactz_expand_clauses(ipc));
   }
@@ -5309,7 +5313,7 @@ add_to_expand_clauses(path_stack_entry **spp, yamop *ipc, ClauseDef *cls, PredEn
     *sp->u.cle.entry_code = (yamop *)&(ap->cs.p_code.ExpandCode);
   }
   recover_ecls_block(ipc);
-  return pop_path(spp, cls, ap);
+  return pop_path(spp, cls, ap, cint);
 }
 
 /* this code should be called when we jumped to clauses */
@@ -5452,7 +5456,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	old->u.OtaLl.s = ap->ArityOfPE;
 	ipc->u.Ills.l2 = end;
       }
-      ipc = pop_path(&sp, cls, ap);
+      ipc = pop_path(&sp, cls, ap, cint);
       break;
     case _try_clause:
       /* I cannot expand a predicate that starts on a variable,
@@ -5460,7 +5464,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       */
       if (first) {
 	sp = expanda_block(sp, ap, cls, group1, alt, cint);
-	ipc = pop_path(&sp, cls, ap);
+	ipc = pop_path(&sp, cls, ap, cint);
       } else {
 	/* just go to next instruction */
 	ipc = NEXTOP(ipc,Otapl);
@@ -5474,7 +5478,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       */
       if (first) {
 	sp = expanda_block(sp, ap, cls, group1, alt, cint);
-	ipc = pop_path(&sp, cls, ap);
+	ipc = pop_path(&sp, cls, ap, cint);
       } else {
 	/* just go to next instruction */
 	ipc = NEXTOP(ipc,l);
@@ -5517,10 +5521,10 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       break;
     case _trust:
       sp = expandz_block(sp, ap, cls, group1, alt, cint);
-      ipc = pop_path(&sp, cls, ap);
+      ipc = pop_path(&sp, cls, ap, cint);
       break;
     case _jump:
-      sp = cross_block(sp, &ipc->u.l.l, ap);
+      sp = cross_block(sp, &ipc->u.l.l, ap, cint);
       /* just skip for now, but should worry about memory management */
       ipc = ipc->u.l.l;
       break;
@@ -5530,7 +5534,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       break;
     case _jump_if_nonvar:
       sp = push_path(sp, &(ipc->u.xll.l2), cls, cint);
-      sp = cross_block(sp, &ipc->u.xll.l1, ap);
+      sp = cross_block(sp, &ipc->u.xll.l1, ap, cint);
       ipc = ipc->u.xll.l1;
       break;
       /* instructions type EC */
@@ -5538,7 +5542,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       /* we are done */
       if (first) {
 	sp = kill_block(sp, ap);
-	ipc = pop_path(&sp, cls, ap);
+	ipc = pop_path(&sp, cls, ap, cint);
       } else {
 	ipc = NEXTOP(ipc,l);
       }
@@ -5566,10 +5570,10 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	  } else {
 	    ipc->u.llll.l1 = cls->CurrentCode;
 	  }
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* go on */
-	  sp = cross_block(sp, &ipc->u.llll.l1, ap);
+	  sp = cross_block(sp, &ipc->u.llll.l1, ap, cint);
 	  ipc = nipc;	
 	}
       } else if (IsAtomOrIntTerm(cls->Tag)) {
@@ -5578,7 +5582,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	if (nipc == FAILCODE) {
 	  /* need to expand the block */
 	  sp = kill_block(sp, ap);
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* I do not have to worry about crossing a block here */
 	  ipc = nipc;	
@@ -5588,7 +5592,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	if (nipc == FAILCODE) {
 	  /* need to expand the block */
 	  sp = kill_block(sp, ap);
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* I do not have to worry about crossing a block here */
 	  ipc = nipc;	
@@ -5598,12 +5602,12 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	   need to restart.
 	*/
 	sp = kill_block(sp, ap);
-	ipc = pop_path(&sp, cls, ap);
+	ipc = pop_path(&sp, cls, ap, cint);
       }
       break;
     case _switch_list_nl:
       sp = kill_block(sp, ap);
-      ipc = pop_path(&sp, cls, ap);
+      ipc = pop_path(&sp, cls, ap, cint);
       break;
     case _switch_on_arg_type:
       sp = push_path(sp, &(ipc->u.xllll.l4), cls, cint);
@@ -5624,10 +5628,10 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	  } else {
 	    ipc->u.xllll.l1 = cls->CurrentCode;
 	  }
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* go on */
-	  sp = cross_block(sp, &ipc->u.xllll.l1, ap);
+	  sp = cross_block(sp, &ipc->u.xllll.l1, ap, cint);
 	  ipc = nipc;	
 	}
       } else if (IsAtomOrIntTerm(cls->Tag)) {
@@ -5636,7 +5640,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	if (nipc == FAILCODE) {
 	  /* need to expand the block */
 	  sp = kill_block(sp, ap);
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* I do not have to worry about crossing a block here */
 	  ipc = nipc;	
@@ -5647,7 +5651,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	if (nipc == FAILCODE) {
 	  /* need to expand the block */
 	  sp = kill_block(sp, ap);
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* I do not have to worry about crossing a block here */
 	  ipc = nipc;	
@@ -5657,7 +5661,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	   need to restart.
 	*/
 	sp = kill_block(sp, ap);
-	ipc = pop_path(&sp, cls, ap);
+	ipc = pop_path(&sp, cls, ap, cint);
       }
       break;
     case _switch_on_sub_arg_type:
@@ -5677,10 +5681,10 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	  } else {
 	    ipc->u.sllll.l1 = cls->CurrentCode;
 	  }
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* go on */
-	  sp = cross_block(sp, &ipc->u.sllll.l1, ap);
+	  sp = cross_block(sp, &ipc->u.sllll.l1, ap, cint);
 	  ipc = nipc;	
 	}
       } else if (IsAtomOrIntTerm(cls->Tag)) {
@@ -5692,7 +5696,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	if (nipc == FAILCODE) {
 	  /* need to expand the block */
 	  sp = kill_block(sp, ap);
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* I do not have to worry about crossing a block here */
 	  ipc = nipc;	
@@ -5706,7 +5710,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	if (nipc == FAILCODE) {
 	  /* need to expand the block */
 	  sp = kill_block(sp, ap);
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* I do not have to worry about crossing a block here */
 	  ipc = nipc;	
@@ -5716,11 +5720,11 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	   need to restart.
 	*/
 	sp = kill_block(sp, ap);
-	ipc = pop_path(&sp, cls, ap);
+	ipc = pop_path(&sp, cls, ap, cint);
       }
       break;
     case _if_not_then:
-      ipc = pop_path(&sp, cls, ap);
+      ipc = pop_path(&sp, cls, ap, cint);
       break;
       /* instructions type ollll */
     case _switch_on_func:
@@ -5743,13 +5747,13 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 
 	if (newpc == (yamop *)&(ap->cs.p_code.ExpandCode)) {
 	  /* we found it */
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else if (newpc == FAILCODE) {
 	  /* oops, nothing there */
 	  if (fe->Tag != f) {
 	    if (IsExtensionFunctor(f)) {
 	      sp = kill_unsafe_block(sp, op, ap, first, FALSE, cls);
-	      ipc = pop_path(&sp, cls, ap);
+	      ipc = pop_path(&sp, cls, ap, cint);
 	      break;
 	    }
 	    if (table_fe_overflow(ipc, f)) {
@@ -5763,11 +5767,11 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	  } else {
 	    fe->u.labp = cls->CurrentCode;
 	  }
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  yamop *newpc = fe->u.labp;
-	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap);
-	  sp = cross_block(sp, &(fe->u.labp), ap);
+	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap, cint);
+	  sp = cross_block(sp, &(fe->u.labp), ap, cint);
 	  ipc = newpc;
 	}
       }
@@ -5811,7 +5815,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 
 	if (newpc == (yamop *)&(ap->cs.p_code.ExpandCode)) {
 	  /* nothing more to do */
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else if (newpc == FAILCODE) {
 	  /* oops, nothing there */
 	  if (ae->Tag != at) {
@@ -5826,21 +5830,21 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	  } else {
 	    ae->u.labp = cls->CurrentCode;
 	  }
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  yamop *newpc = ae->u.labp;
 
-	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap);
-	  sp = cross_block(sp, &(ae->u.labp), ap);
+	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap, cint);
+	  sp = cross_block(sp, &(ae->u.labp), ap, cint);
 	  ipc = newpc;
 	}
       }
       break;
     case _expand_clauses:
-      ipc = add_to_expand_clauses(&sp, ipc, cls, ap, first);
+      ipc = add_to_expand_clauses(&sp, ipc, cls, ap, first, cint);
       break;
     case _expand_index:
-      ipc = pop_path(&sp, cls, ap);
+      ipc = pop_path(&sp, cls, ap, cint);
       break;
     case _lock_lu:
       ipc = NEXTOP(ipc,p);
@@ -5851,11 +5855,11 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
     case _op_fail:
       while ((--sp)->flag != block_entry);
       *sp->u.cle.entry_code = cls->Code;
-      ipc = pop_path(&sp, cls, ap);
+      ipc = pop_path(&sp, cls, ap, cint);
       break;
     default:
       sp = kill_unsafe_block(sp, op, ap, first, FALSE, cls);
-      ipc = pop_path(&sp, cls, ap);
+      ipc = pop_path(&sp, cls, ap, cint);
     }
   }
 }
@@ -6013,7 +6017,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       */
       if (IN_BETWEEN(bg,ipc->u.l.l,lt)) {
 	sp = kill_clause(ipc, bg, lt, sp, ap);
-	ipc = pop_path(&sp, cls, ap);
+	ipc = pop_path(&sp, cls, ap, cint);
       } else {
 	/* just go to next instruction */
 	ipc = NEXTOP(ipc,l);
@@ -6026,7 +6030,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       */
       if (IN_BETWEEN(bg,ipc->u.Otapl.d,lt)) {
 	sp = kill_clause(ipc, bg, lt, sp, ap);
-	ipc = pop_path(&sp, cls, ap);
+	ipc = pop_path(&sp, cls, ap, cint);
       } else {
 	/* just go to next instruction */
 	ipc = NEXTOP(ipc,Otapl);
@@ -6043,7 +6047,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       */
       if (IN_BETWEEN(bg,ipc->u.l.l,lt)) {
 	sp = kill_clause(ipc, bg, lt, sp, ap);
-	ipc = pop_path(&sp, cls, ap);
+	ipc = pop_path(&sp, cls, ap, cint);
       } else {
 	/* just go to next instruction */
 	ipc = NEXTOP(ipc,l);
@@ -6053,7 +6057,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       if (IN_BETWEEN(bg,ipc->u.Otapl.d,lt)) {
 	sp = kill_clause(ipc, bg, lt, sp, ap);
       }
-      ipc = pop_path(&sp, cls, ap);
+      ipc = pop_path(&sp, cls, ap, cint);
       break;
     case _enter_lu_pred:
       ipc->u.Ills.s--;
@@ -6062,7 +6066,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       Yap_LiveCps--;
 #endif
       sp = kill_clause(ipc, bg, lt, sp, ap);
-      ipc = pop_path(&sp, cls, ap);
+      ipc = pop_path(&sp, cls, ap, cint);
       break;
       /* instructions type l */
     case _try_me:
@@ -6076,7 +6080,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       ipc = NEXTOP(ipc,Otapl);
       break;
     case _jump:
-      sp = cross_block(sp, &ipc->u.l.l, ap);
+      sp = cross_block(sp, &ipc->u.l.l, ap, cint);
       /* just skip for now, but should worry about memory management */
       ipc = ipc->u.l.l;
       break;
@@ -6086,7 +6090,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       break;
     case _jump_if_nonvar:
       sp = push_path(sp, &(ipc->u.xll.l2), cls, cint);
-      sp = cross_block(sp, &ipc->u.xll.l1, ap);
+      sp = cross_block(sp, &ipc->u.xll.l1, ap, cint);
       ipc = ipc->u.xll.l1;
       break;
     case _user_switch:
@@ -6106,10 +6110,10 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.llll.l1 = FAILCODE;
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* go on */
-	  sp = cross_block(sp, &ipc->u.llll.l1, ap);
+	  sp = cross_block(sp, &ipc->u.llll.l1, ap, cint);
 	  ipc = nipc;	
 	}
       } else if (IsAtomOrIntTerm(cls->Tag)) {
@@ -6117,7 +6121,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.llll.l2 = FAILCODE;
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* I do not have to worry about crossing a block here */
 	  ipc = nipc;	
@@ -6127,7 +6131,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.llll.l3 = FAILCODE;
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* I do not have to worry about crossing a block here */
 	  ipc = nipc;	
@@ -6137,12 +6141,12 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	   need to restart.
 	*/
 	sp = kill_block(sp, ap);
-	ipc = pop_path(&sp, cls, ap);
+	ipc = pop_path(&sp, cls, ap, cint);
       }
       break;
     case _switch_list_nl:
       sp = kill_block(sp, ap);
-      ipc = pop_path(&sp, cls, ap);
+      ipc = pop_path(&sp, cls, ap, cint);
       break;
     case _switch_on_arg_type:
       sp = push_path(sp, &(ipc->u.xllll.l4), cls, cint);
@@ -6157,10 +6161,10 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.xllll.l1 = FAILCODE;
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* go on */
-	  sp = cross_block(sp, &ipc->u.xllll.l1, ap);
+	  sp = cross_block(sp, &ipc->u.xllll.l1, ap, cint);
 	  ipc = nipc;	
 	}
       } else if (IsAtomOrIntTerm(cls->Tag)) {
@@ -6168,7 +6172,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.xllll.l2 = FAILCODE;
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* I do not have to worry about crossing a block here */
 	  ipc = nipc;	
@@ -6178,7 +6182,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.xllll.l3 = FAILCODE;
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* I do not have to worry about crossing a block here */
 	  ipc = nipc;	
@@ -6188,7 +6192,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	   need to restart.
 	*/
 	sp = kill_block(sp, ap);
-	ipc = pop_path(&sp, cls, ap);
+	ipc = pop_path(&sp, cls, ap, cint);
       }
       break;
     case _switch_on_sub_arg_type:
@@ -6200,10 +6204,10 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.sllll.l1 = FAILCODE;
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* go on */
-	  sp = cross_block(sp, &ipc->u.sllll.l1, ap);
+	  sp = cross_block(sp, &ipc->u.sllll.l1, ap, cint);
 	  ipc = nipc;	
 	}
       } else if (IsAtomOrIntTerm(cls->Tag)) {
@@ -6211,7 +6215,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.sllll.l2 = FAILCODE;
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* I do not have to worry about crossing a block here */
 	  ipc = nipc;	
@@ -6221,7 +6225,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.sllll.l3 = FAILCODE;
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  /* I do not have to worry about crossing a block here */
 	  ipc = nipc;	
@@ -6231,11 +6235,11 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	   need to restart.
 	*/
 	sp = kill_block(sp, ap);
-	ipc = pop_path(&sp, cls, ap);
+	ipc = pop_path(&sp, cls, ap, cint);
       }
       break;
     case _if_not_then:
-      ipc = pop_path(&sp, cls, ap);
+      ipc = pop_path(&sp, cls, ap, cint);
       break;
       /* instructions type ollll */
     case _switch_on_func:
@@ -6258,17 +6262,17 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 
 	if (newpc == (yamop *)&(ap->cs.p_code.ExpandCode)) {
 	  /* we found it */
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else if (newpc == FAILCODE) {
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else if (IN_BETWEEN(bg,fe->u.Label,lt)) {
 	  /* oops, nothing there */
 	  contract_ftable(ipc, current_block(sp), ap, f);
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  yamop *newpc = fe->u.labp;
-	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap);
-	  sp = cross_block(sp, &(fe->u.labp), ap);
+	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap, cint);
+	  sp = cross_block(sp, &(fe->u.labp), ap, cint);
 	  ipc = newpc;
 	}
       }
@@ -6312,28 +6316,28 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 
 	if (newpc == (yamop *)&(ap->cs.p_code.ExpandCode)) {
 	  /* we found it */
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else if (newpc == FAILCODE) {
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else if (IN_BETWEEN(bg,ae->u.Label,lt)) {
 	  /* oops, nothing there */
 	  contract_ctable(ipc, current_block(sp), ap, at);
-	  ipc = pop_path(&sp, cls, ap);
+	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
 	  yamop *newpc = ae->u.labp;
 
-	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap);
-	  sp = cross_block(sp, &(ae->u.labp), ap);
+	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap, cint);
+	  sp = cross_block(sp, &(ae->u.labp), ap, cint);
 	  ipc = newpc;
 	}
       }
       break;
     case _expand_index:
-      ipc = pop_path(&sp, cls, ap);
+      ipc = pop_path(&sp, cls, ap, cint);
       break;
     case _expand_clauses:
       nullify_expand_clause(ipc, sp, cls);
-      ipc = pop_path(&sp, cls, ap);
+      ipc = pop_path(&sp, cls, ap, cint);
       break;
     case _lock_lu:
       ipc = NEXTOP(ipc,p);
@@ -6342,7 +6346,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       if (IN_BETWEEN(bg,ipc,lt)) {
 	sp = kill_unsafe_block(sp, op, ap, TRUE, TRUE, cls);
       }
-      ipc = pop_path(&sp, cls, ap);
+      ipc = pop_path(&sp, cls, ap, cint);
     }
   }
 }
