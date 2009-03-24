@@ -3,7 +3,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include <Yap/YapInterface.h>
+#include <YapInterface.h>
 
 #include "Yap.h"
 
