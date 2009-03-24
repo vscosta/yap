@@ -953,7 +953,6 @@ break :-
 	nb_setval('$break',BL).
 
 '$silent_bootstrap'(F) :-
-	'$allocate_default_arena'(1024, 64),
 	'$init_consult',
 	nb_setval('$if_level',0),
 	nb_getval('$lf_verbose',OldSilent),
