@@ -3393,7 +3393,7 @@ fi
 
 if test "$yap_cv_matlab" = no
 then
-  INSTALL_MATLAB="# "
+  INSTALL_MATLAB="@# "
 elif test "$yap_cv_matlab" = yes
 then
   INSTALL_MATLAB=""
@@ -3414,7 +3414,7 @@ fi
 
 if test "$yap_cv_cudd" = no
 then
-  USE_CUDD="# "
+  USE_CUDD="@# "
 else
   USE_CUDD=""
 fi
@@ -6843,7 +6843,7 @@ fi
 
 INSTALL_DLLS="#"
 EXTRA_OBJS=""
-SHLIB_LD="@#"
+SHLIB_LD="#"
 DO_SECOND_LD="#"
 M4="m4"
 MERGE_DLL_OBJS="#"
@@ -7357,7 +7357,7 @@ if test "$rationaltrees" = "yes" -a "$coroutining" = "yes"
   then
   INSTALLCLP=""
   else
-  INSTALLCLP="#"
+  INSTALLCLP="@#"
 fi
 
 if test "$debugyap" = "yes"
@@ -7709,7 +7709,7 @@ fi
 
 
 else
-	ENABLE_CPLINT="#"
+	ENABLE_CPLINT="@#"
 fi
 
 
@@ -20358,7 +20358,7 @@ fi
 fi
 
 if test "$ENABLE_JPL" = ""; then
-ac_config_files="$ac_config_files packages/jpl/Makefile packages/jpl/src/java/Makefile"
+ac_config_files="$ac_config_files packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -20939,6 +20939,7 @@ do
     "packages/chr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/chr/Makefile" ;;
     "packages/clpqr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/clpqr/Makefile" ;;
     "packages/jpl/Makefile") CONFIG_FILES="$CONFIG_FILES packages/jpl/Makefile" ;;
+    "packages/jpl/jpl_paths.yap") CONFIG_FILES="$CONFIG_FILES packages/jpl/jpl_paths.yap" ;;
     "packages/jpl/src/java/Makefile") CONFIG_FILES="$CONFIG_FILES packages/jpl/src/java/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
@@ -22183,6 +22184,7 @@ do
     "packages/chr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/chr/Makefile" ;;
     "packages/clpqr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/clpqr/Makefile" ;;
     "packages/jpl/Makefile") CONFIG_FILES="$CONFIG_FILES packages/jpl/Makefile" ;;
+    "packages/jpl/jpl_paths.yap") CONFIG_FILES="$CONFIG_FILES packages/jpl/jpl_paths.yap" ;;
     "packages/jpl/src/java/Makefile") CONFIG_FILES="$CONFIG_FILES packages/jpl/src/java/Makefile" ;;
     "packages/ProbLog/simplecudd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd/Makefile" ;;
 

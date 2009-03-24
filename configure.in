@@ -327,7 +327,7 @@ fi
 dnl condor does not like dynamic linking on Linux, DEC, and HP-UX platforms.
 if test "$yap_cv_matlab" = no 
 then
-  INSTALL_MATLAB="# "
+  INSTALL_MATLAB="@# "
 elif test "$yap_cv_matlab" = yes 
 then
   INSTALL_MATLAB=""
@@ -348,7 +348,7 @@ fi
 
 if test "$yap_cv_cudd" = no 
 then
-  USE_CUDD="# "
+  USE_CUDD="@# "
 else
   USE_CUDD=""
 fi
@@ -736,7 +736,7 @@ fi
 dnl defaults
 INSTALL_DLLS="#"
 EXTRA_OBJS=""
-SHLIB_LD="@#"
+SHLIB_LD="#"
 DO_SECOND_LD="#"
 M4="m4"
 MERGE_DLL_OBJS="#"
@@ -984,7 +984,7 @@ if test "$rationaltrees" = "yes" -a "$coroutining" = "yes"
   then
   INSTALLCLP=""
   else
-  INSTALLCLP="#"
+  INSTALLCLP="@#"
 fi
   
 if test "$debugyap" = "yes"
@@ -1078,7 +1078,7 @@ if test ! "$yap_cv_cplint" = "no"
 	AC_SUBST(CPLINT_LDFLAGS)
 	AC_SUBST(CPLINT_SHLIB_LD)
 else
-	ENABLE_CPLINT="#"
+	ENABLE_CPLINT="@#"
 fi
 AC_SUBST(ENABLE_CPLINT)
 AC_SUBST(PRE_DYNLOADER_PATH)
@@ -1559,7 +1559,7 @@ AC_OUTPUT(packages/clpqr/Makefile)
 fi
 
 if test "$ENABLE_JPL" = ""; then
-AC_OUTPUT(packages/jpl/Makefile packages/jpl/src/java/Makefile)
+AC_OUTPUT(packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile)
 fi
 
 if test "$USE_CUDD" = ""; then
