@@ -4626,116 +4626,6 @@ p_continue_log_update_clause_erase(void)
   return fetch_next_lu_clause_erase(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_cp, FALSE);
 }
 
-static Int
-fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_ptr, int first_time)
-{
-  LogUpdClause *cl;
-  Term Terms[3];
-
-  Terms[0] = th;
-  Terms[1] = tb;
-  Terms[2] = TermNil;
-  cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClause0->CodeOfPred,Otapl), cp_ptr);
-  th = Terms[0];
-  tb = Terms[1];
-  /* don't do this!! I might have stored a choice-point and changed ASP
-     Yap_RecoverSlots(2);
-  */
-  if (cl == NULL) {
-    UNLOCK(pe->PELock);
-    return FALSE;
-  }
-  if (cl->ClFlags & FactMask) {
-    UNLOCK(pe->PELock);
-    if (!Yap_unify(tb, MkAtomTerm(AtomTrue)))
-      return FALSE;
-    if (pe->ArityOfPE) {
-      Functor f = FunctorOfTerm(th);
-      UInt arity = ArityOfFunctor(f), i;
-      CELL *pt = RepAppl(th)+1;
-
-      for (i=0; i<arity; i++) {
-	XREGS[i+1] = pt[i];
-      }
-      /* don't need no ENV */
-      if (first_time &&
-	  P->opc != EXECUTE_CPRED_OP_CODE) {
-	CP = P;
-	ENV = YENV;
-	YENV = ASP;
-	YENV[E_CB] = (CELL) B;
-      }
-      P = cl->ClCode;
-#if defined(YAPOR) || defined(THREADS)
-      PP = pe;
-#endif
-    } else {
-      /* we don't actually need to execute code */
-      UNLOCK(pe->PELock);
-    }
-    return TRUE;
-  } else {
-    Term t;
-
-    UNLOCK(pe->PELock);
-    while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
-      if (first_time) {
-	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_growglobal(NULL)) {
-	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
-	    return FALSE;
-	  }
-	} else {
-	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(Yap_Error_Size, 4, ENV, gc_P(P,CP))) {
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	    return FALSE;
-	  }
-	}
-      } else {
-	if (!Yap_gcl(Yap_Error_Size, 5, ENV, CP)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return FALSE;
-	}
-      }
-    }
-    return(Yap_unify(th, ArgOfTerm(1,t)) &&
-	   Yap_unify(tb, ArgOfTerm(2,t)));
-  }
-}
-
-static Int			/* $hidden_predicate(P) */
-p_log_update_clause0(void)
-{
-  PredEntry      *pe;
-  Term           t1 = Deref(ARG1);
-  Int ret;
-  yamop *new_cp;
-
-  if (P->opc == EXECUTE_CPRED_OP_CODE) {
-    new_cp = CP;
-  } else {
-    new_cp = P;
-  }
-  pe = get_pred(t1, Deref(ARG2), "clause/3");
-  if (pe == NULL || EndOfPAEntr(pe))
-    return FALSE;
-  LOCK(pe->PELock);
-  ret = fetch_next_lu_clause0(pe, pe->CodeOfPred, t1, ARG3, new_cp, TRUE);
-  return ret;
-}
-
-static Int			/* $hidden_predicate(P) */
-p_continue_log_update_clause0(void)
-{
-  PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
-  yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
-
-  LOCK(pe->PELock);
-  return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_cp, FALSE);
-}
-
 static void
 adjust_cl_timestamp(LogUpdClause *cl, UInt *arp, UInt *base)
 {
@@ -5662,8 +5552,6 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$continue_log_update_clause", 5, p_continue_log_update_clause, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$log_update_clause_erase", 4, p_log_update_clause_erase, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$continue_log_update_clause_erase", 5, p_continue_log_update_clause_erase, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$log_update_clause", 3, p_log_update_clause0, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$continue_log_update_clause", 4, p_continue_log_update_clause0, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$static_clause", 4, p_static_clause, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$continue_static_clause", 5, p_continue_static_clause, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$static_pred_statistics", 5, p_static_pred_statistics, SyncPredFlag|HiddenPredFlag);

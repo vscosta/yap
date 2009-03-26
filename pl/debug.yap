@@ -474,7 +474,7 @@ debugging :-
 	F /\ 0x18402000 =\= 0, !, % dynamic procedure, logical semantics, user-C, or source
 	% use the interpreter
 	CP is '$last_choice_pt',
-	'$clause'(G, M, Cl),
+	'$clause'(G, M, Cl, _),
 	( '$do_spy'(Cl, M, CP, CalledFromDebugger) ; InRedo = true ).
 '$spycall'(G, M, CalledFromDebugger, InRedo) :-
 	'$undefined'(G, M), !,

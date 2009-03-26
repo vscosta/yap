@@ -59,7 +59,7 @@ listing(V) :-
 	'$flags'(Pred,M,Flags,Flags),
 	% has to be dynamic, source, or log update.
 	Flags /\ 0x08402000 =\= 0,
-	'$clause'(Pred, M, Body),
+	'$clause'(Pred, M, Body, _),
 	'$portray_clause'(Stream,(Pred:-Body)),
         fail.
 

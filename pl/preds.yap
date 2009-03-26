@@ -262,20 +262,6 @@ clause(V,Q) :-
 	'$current_module'(M),
 	'$clause'(V,M,Q,_).
 
-'$clause'(V,M,Q) :- var(V), !, 
-	'$do_error'(instantiation_error,M:clause(V,Q)).
-'$clause'(C,M,Q) :- number(C), !,
-	'$do_error'(type_error(callable,C),M:clause(C,Q)).
-'$clause'(R,M,Q) :- db_reference(R), !,
-	'$do_error'(type_error(callable,R),M:clause(R,Q)).
-'$clause'(M:P,_,Q) :- !,
-	'$clause'(P,M,Q).
-'$clause'(P,M,Q) :-
-	'$is_log_updatable'(P, M), !,
-	'$log_update_clause'(P,M,Q).
-'$clause'(P,M,Q) :-
-	'$clause'(P,M,Q,_).
-
 clause(P,Q,R) :- var(P), !,
 	'$current_module'(M),
 	'$clause'(P,M,Q,R).
