@@ -3,15 +3,15 @@
 
 #define THREADS_H 1
 
-#ifdef THREADS
-
-typedef struct{
+typedef struct thread_attr_struct {
   UInt		    ssize;
   UInt		    tsize;
   UInt		    sysize;
   int		   (*cancel)(int thread);
   Term              egoal;
 } thread_attr;
+
+#ifdef THREADS
 
 Int STD_PROTO(Yap_thread_self,(void));
 int STD_PROTO(Yap_get_thread_ref_count,(int));
