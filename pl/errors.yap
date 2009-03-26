@@ -223,7 +223,7 @@
 	'$set_fpu_exceptions',
 	print_message(error,error(Msg, Where)).
 '$process_error'(Throw, _) :-
-	print_message(error,Throw).
+	print_message(error,error(unhandled_exception,Throw)).
 
 print_message(force(_Severity), Msg) :- !,
 	print(user_error,Msg).

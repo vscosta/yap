@@ -270,6 +270,8 @@ system_message(error(type_error(TE,W), Where)) -->
 	[ 'TYPE ERROR- ~w: expected ~q, got ~w' - [Where,TE,W] ].
 system_message(error(unknown, Where)) -->
 	[ 'EXISTENCE ERROR- procedure ~w undefined' - [Where] ].
+system_message(error(unhandled_exception,Throw)) -->
+	[ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
 system_message(Messg) -->
 	[ '~q' - Messg ].
 
