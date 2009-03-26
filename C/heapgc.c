@@ -1599,7 +1599,7 @@ static void
 mark_att_var(CELL *hp)
 {
   attvar_record *top = (attvar_record *)Yap_GlobalBase;
-  int relpos = top-(attvar_record *)hp;
+  Int relpos = top-(attvar_record *)hp;
   attvar_record *attv = top-relpos;
   if (attv != (attvar_record *)hp)
     attv--;
