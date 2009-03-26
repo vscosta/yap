@@ -494,7 +494,7 @@ X_API Term     STD_PROTO(YAP_StripModule,(Term, Term *));
 X_API int      STD_PROTO(YAP_ThreadSelf,(void));
 X_API int      STD_PROTO(YAP_GetThreadRefCount,(int));
 X_API void     STD_PROTO(YAP_SetThreadRefCount,(int,int));
-X_API CELL     STD_PROTO(YAP_ThreadCreateEngine,(thread_attr *));
+X_API CELL     STD_PROTO(YAP_ThreadCreateEngine,(struct thread_attr_struct *));
 X_API int      STD_PROTO(YAP_ThreadAttachEngine,(int));
 X_API int      STD_PROTO(YAP_ThreadDetachEngine,(int));
 X_API int      STD_PROTO(YAP_ThreadDestroyEngine,(int));
@@ -1101,7 +1101,7 @@ Int
 YAP_Execute(PredEntry *pe, CPredicate exec_code)
 {
   if (pe->PredFlags & SWIEnvPredFlag) {
-    CPredicateV codev = exec_code;
+    CPredicateV codev = (CPredicateV)exec_code;
     struct context ctx;
 
     return ((codev)((&ARG1)-LCL0,0,&ctx));
@@ -2364,7 +2364,7 @@ YAP_ThreadSelf(void)
 } 
 
 X_API CELL
-YAP_ThreadCreateEngine(thread_attr *attr)
+YAP_ThreadCreateEngine(struct thread_attr_struct *attr)
 {
 #if USE_THREADS
   return Yap_thread_create_engine(attr);
