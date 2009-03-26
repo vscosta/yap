@@ -11271,7 +11271,7 @@ Yap_absmi(int inp)
 	 d0 = (CELL) (f) (d0,d1);
 	 setregs();
       }
-      if (!d0) {
+      if (!d0 || PREG == FAILCODE) {
 	if (PREG != FAILCODE)
 	  PREG = PREG->u.plxxs.f;
 	JMPNext();
@@ -11344,7 +11344,7 @@ Yap_absmi(int inp)
 	d0 = (CELL) (f) (d0,d1);
 	setregs();
       }
-      if (!d0) {
+      if (!d0 || PREG == FAILCODE) {
 	if (PREG != FAILCODE)
 	  PREG = PREG->u.plxys.f;
 	JMPNext();
@@ -11417,7 +11417,7 @@ Yap_absmi(int inp)
 	d0 = (CELL) (f) (d0,d1);
 	setregs();
       }
-      if (!d0) {
+      if (!d0 || PREG == FAILCODE) {
 	if (PREG != FAILCODE)
 	  PREG = PREG->u.plxys.f;
 	JMPNext();
@@ -11491,9 +11491,9 @@ Yap_absmi(int inp)
 	CmpPredicate f = PREG->u.plyys.p->cs.d_code;
 	saveregs();
 	d0 = (CELL) (f) (d0,d1);
+	setregs();
       }
-      setregs();
-      if (!d0) {
+      if (!d0 || PREG == FAILCODE) {
 	if (PREG != FAILCODE)
 	  PREG = PREG->u.plyys.f;
 	JMPNext();
