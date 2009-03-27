@@ -3305,7 +3305,9 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots)
   int setjres;
   struct intermediates cint;
 
+
   cint.CurrentPred = ap;
+  cint.code_addr = NULL;
   Yap_Error_Size = 0;
 
   if ((setjres = setjmp(cint.CompilerBotch)) == 3) {
@@ -4371,6 +4373,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
   int cb;
   struct intermediates cint;
 
+  cint.code_addr = NULL;
   if ((cb = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     /* grow stack */
