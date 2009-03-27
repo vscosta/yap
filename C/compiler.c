@@ -2796,13 +2796,6 @@ c_layout(compiler_struct *cglobs)
     compiler_vm_op ic = cglobs->cint.cpc->op;
     Int arg = cglobs->cint.cpc->rnd1;
     Int rn = cglobs->cint.cpc->rnd2;
-#if LOW_LEVEL_TRACER
-  {
-    extern int Yap_do_low_level_trace;
-    if (0 && Yap_do_low_level_trace)
-      fprintf(stderr,"%d %x uses %d,%d,%d,%d,%d,6:%d,%d,%d,%d,%d\n",ic,cglobs->Contents[10],cglobs->Uses[1],cglobs->Uses[2],cglobs->Uses[3],cglobs->Uses[4],cglobs->Uses[5],cglobs->Uses[6],cglobs->Uses[7],cglobs->Uses[8],cglobs->Uses[9],cglobs->Uses[10]);
-  }
-#endif
     switch (ic) {
     case pop_or_op:
       if (needs_either)
