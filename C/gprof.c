@@ -1054,13 +1054,13 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
     if (start < (CODEADDR)Yap_HeapBase || start > (CODEADDR)HeapTop ||
 	end < (CODEADDR)Yap_HeapBase || end > (CODEADDR)HeapTop) {
 #if DEBUG
-      fprintf(stderr,"Oops2: %p->%d %p, %p\n", current_p, current_p->opc, start, end);
+      fprintf(stderr,"Oops2: %p->%lu %p, %p\n", current_p, (unsigned long int)(current_p->opc), start, end);
 #endif
       return;
     }
     if (pp->ArityOfPE > 100) {
 #if DEBUG
-     fprintf(stderr,"%p:%p(%d)-->%p\n",oldpc,current_p,Yap_op_from_opcode(current_p->opc),pp);
+      fprintf(stderr,"%p:%p(%lu)-->%p\n",oldpc,current_p,(unsigned long int)Yap_op_from_opcode(current_p->opc),pp);
 #endif
      return;
     }
