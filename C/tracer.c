@@ -54,7 +54,7 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
       if (args)
 	fprintf(Yap_stderr, "%s %s:%s(", start, mname, name);
       else
-	fprintf(Yap_stderr, "%s %s:%s/%d", start, mname, name, arity);
+	fprintf(Yap_stderr, "%s %s:%s/%ul", start, mname, name, (unsigned long int)arity);
     } else {
       fprintf(Yap_stderr, "%s %s:%s", start, mname, name);
     }
