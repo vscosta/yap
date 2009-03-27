@@ -338,6 +338,9 @@ void   STD_PROTO(Yap_InitThreadPreds,(void));
 void	STD_PROTO(Yap_InitLowLevelTrace,(void));
 #endif
 
+/* udi.c */
+void	STD_PROTO(Yap_udi_init,(void));
+
 /* unify.c */
 void         STD_PROTO(Yap_InitAbsmi,(void));
 void         STD_PROTO(Yap_InitUnify,(void));
