@@ -1509,7 +1509,6 @@ Yap_InitYaamRegs(void)
   TR = (tr_fr_ptr)Yap_TrailBase;
   if (Yap_AttsSize > (Yap_LocalBase-Yap_GlobalBase)/8)
     Yap_AttsSize = (Yap_LocalBase-Yap_GlobalBase)/8;
-  fprintf(stderr, "Atts=%ld\n",Yap_AttsSize);
   H = H0 = ((CELL *) Yap_GlobalBase)+ Yap_AttsSize/sizeof(CELL);
   LCL0 = ASP = (CELL *) Yap_LocalBase;
   /* notice that an initial choice-point and environment
