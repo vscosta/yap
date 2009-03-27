@@ -402,8 +402,8 @@ p_div(Term t1, Term t2) {
       RERROR();
     }
   case db_ref_e:
-    RERROR();
 #endif
+    RERROR();
   }
   RERROR();
 }
