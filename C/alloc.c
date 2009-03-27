@@ -293,7 +293,7 @@ Yap_KillStacks(void)
 #endif
 
 void
-Yap_InitMemory(int Trail, int Heap, int Stack)
+Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack)
 {
   InitHeap();
 }
