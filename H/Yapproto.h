@@ -221,7 +221,7 @@ void	STD_PROTO(Yap_InitCPredBack,(char *, unsigned long int, unsigned int, CPred
 void	STD_PROTO(Yap_InitCPredBackCut,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,int));
 void    STD_PROTO(Yap_InitCPredBack_,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,int));
 #endif
-void	STD_PROTO(Yap_InitWorkspace,(UInt,UInt,UInt,UInt,int,int,int));
+void	STD_PROTO(Yap_InitWorkspace,(UInt,UInt,UInt,UInt,UInt,int,int,int));
 
 #if defined(YAPOR) || defined(THREADS)
 void	STD_PROTO(Yap_KillStacks,(int));

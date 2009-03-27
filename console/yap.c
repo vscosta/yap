@@ -305,7 +305,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 #ifdef MYDDAS_MYSQL
   char *myddas_temp;
 #endif
-  int *ssize;
+  unsigned long int *ssize;
   while (--argc > 0)
     {
       p = *++argv;
@@ -434,6 +434,10 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    }
 #endif /* ENV_COPY || ACOW || SBA */
 	    goto GetSize;
+	  case 'a':
+	  case 'A':
+	    ssize = &(iap->AttsSize);
+	    goto GetSize;
 	  case 't':
 	  case 'T':
 	    ssize = &(iap->TrailSize);
@@ -455,7 +459,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 		  }
 	      }
 	    {
-	      int i = 0, ch;
+	      unsigned long int i = 0, ch;
 	      while ((ch = *p++) >= '0' && ch <= '9')
 		i = i * 10 + ch - '0';
 	      switch(ch) {
@@ -497,7 +501,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 		  }
 	      }
 	    {
-	      int i = 0, ch;
+	      unsigned long int i = 0, ch;
 	      while ((ch = *p++) >= '0' && ch <= '9')
 		i = i * 10 + ch - '0';
 	      switch(ch) {

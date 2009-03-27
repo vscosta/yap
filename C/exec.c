@@ -1507,11 +1507,10 @@ Yap_InitYaamRegs(void)
 #endif /* PUSH_REGS */
   Yap_PutValue (AtomBreak, MkIntTerm (0));
   TR = (tr_fr_ptr)Yap_TrailBase;
-#ifdef COROUTINING
-  H = H0 = ((CELL *) Yap_GlobalBase)+ 2048;
-#else
-  H = H0 = (CELL *) Yap_GlobalBase;
-#endif
+  if (Yap_AttsSize > (Yap_LocalBase-Yap_GlobalBase)/8)
+    Yap_AttsSize = (Yap_LocalBase-Yap_GlobalBase)/8;
+  fprintf(stderr, "Atts=%ld\n",Yap_AttsSize);
+  H = H0 = ((CELL *) Yap_GlobalBase)+ Yap_AttsSize/sizeof(CELL);
   LCL0 = ASP = (CELL *) Yap_LocalBase;
   /* notice that an initial choice-point and environment
    *must* be created since for the garbage collector to work */

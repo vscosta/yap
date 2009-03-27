@@ -224,6 +224,7 @@ typedef struct various_codes {
   UInt hole_size;
   struct malloc_state *av_;
 
+  UInt atts_size;
   UInt clause_space, index_space_Tree, index_space_EXT, index_space_SW;
   UInt lu_clause_space, lu_index_space_Tree, lu_index_space_CP, lu_index_space_EXT, lu_index_space_SW;
 #if USE_DL_MALLOC
@@ -470,6 +471,7 @@ extern struct various_codes *Yap_heap_regs;
 
 #define  Yap_HoleSize            Yap_heap_regs->hole_size
 #define  Yap_av                  Yap_heap_regs->av_
+#define  Yap_AttsSize            Yap_heap_regs->atts_size
 #define  Yap_ClauseSpace         Yap_heap_regs->clause_space
 #define  Yap_IndexSpace_Tree     Yap_heap_regs->index_space_Tree
 #define  Yap_IndexSpace_EXT      Yap_heap_regs->index_space_EXT

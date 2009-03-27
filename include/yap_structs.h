@@ -73,11 +73,13 @@ typedef struct {
   /* if NON-NULL, path where we can find the saved state */
   char *SavedState;
   /* if NON-0, minimal size for Heap or Code Area */
-  int HeapSize;
+  unsigned long int HeapSize;
   /* if NON-0, minimal size for Local+Global Stack */
-  int StackSize;
+  unsigned long int StackSize;
   /* if NON-0, minimal size for Trail */
-  int TrailSize;
+  unsigned long int TrailSize;
+  /* if NON-0, minimal size for AttributeVarStack */
+  unsigned long int AttsSize;
   /* if NON-NULL, value for YAPLIBDIR */
   char *YapLibDir;
   /* if NON-NULL, name for a Prolog file to use when booting  */
@@ -98,7 +100,7 @@ typedef struct {
   int FastBoot;
   /* the next field only interest YAPTAB */
   /* if NON-0, maximum size for Table Space */
-  int MaxTableSpaceSize;
+  unsigned long int MaxTableSpaceSize;
   /* the next three fields only interest YAPOR, but we keep them so that
      users don't need to recompile DLL in order to use YAPOR */
   /* if NON-0, number of workers we want to have (default=1) */

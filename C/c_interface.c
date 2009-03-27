@@ -1932,7 +1932,7 @@ X_API Int
 YAP_Init(YAP_init_args *yap_init)
 {
   int restore_result;
-  CELL Trail = 0, Stack = 0, Heap = 0;
+  CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
 
   Yap_argv = yap_init->Argv;
   Yap_argc = yap_init->Argc;
@@ -1956,6 +1956,7 @@ YAP_Init(YAP_init_args *yap_init)
   } else {
     Trail = yap_init->TrailSize;
   }
+  Atts = yap_init->AttsSize;
   if (yap_init->StackSize == 0) {
     if (Stack == 0)
       Stack = DefStackSpace;
@@ -1970,7 +1971,7 @@ YAP_Init(YAP_init_args *yap_init)
   }
   /* tell the system who should cope with interruptions */
   Yap_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
-  Yap_InitWorkspace(Heap, Stack, Trail,
+  Yap_InitWorkspace(Heap, Stack, Trail, Atts,
 	      yap_init->MaxTableSpaceSize,
 	      yap_init->NumberWorkers,
 	      yap_init->SchedulerLoop,
@@ -2093,6 +2094,10 @@ YAP_Init(YAP_init_args *yap_init)
       yap_init->ErrorCause = Yap_ErrorMessage;
       return YAP_BOOT_FROM_SAVED_ERROR;
     }
+    if (Atts && Atts > 2048*sizeof(CELL))
+      Yap_AttsSize = Atts;
+    else
+      Yap_AttsSize = 2048*sizeof(CELL);
     if (restore_result == DO_ONLY_CODE) {
       return YAP_BOOT_FROM_SAVED_CODE;
     } else {
@@ -2109,6 +2114,7 @@ YAP_FastInit(char saved_state[])
   Int out;
 
   init_args.SavedState = saved_state;
+  init_args.AttsSize = 0;
   init_args.HeapSize = 0;
   init_args.StackSize = 0;
   init_args.TrailSize = 0;

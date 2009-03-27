@@ -1289,7 +1289,7 @@ InitVersion(void)
 
 
 void
-Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt max_table_size, 
+Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_size, 
                   int n_workers, int sch_loop, int delay_load)
 {
   int             i;
@@ -1337,10 +1337,11 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt max_table_size,
 #else /* SBA */
   INFORMATION_MESSAGE("YapOr: sba model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
 #endif /* ENV_COPY - ACOW - SBA */
-  map_memory(Heap, Stack, Trail, n_workers);
+  map_memory(Heap, Stack+Atts, Trail, n_workers);
 #else
-  Yap_InitMemory (Trail, Heap, Stack);
+  Yap_InitMemory (Trail, Heap, Stack+Atts);
 #endif /* YAPOR */
+  Yap_AttsSize = 2048*sizeof(CELL);
   Yap_ClauseSpace = 0;
   Yap_IndexSpace_Tree = 0;
   Yap_IndexSpace_EXT = 0;
