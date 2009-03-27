@@ -88,7 +88,7 @@ minfo(char mtype)
 #endif
 
 static inline char *
-call_malloc(unsigned int size)
+call_malloc(unsigned long int size)
 {
   char *out;
 #if INSTRUMENT_MALLOC
@@ -104,7 +104,7 @@ call_malloc(unsigned int size)
 }
 
 char *
-Yap_AllocCodeSpace(unsigned int size)
+Yap_AllocCodeSpace(unsigned long int size)
 {
   return  call_malloc(size);
 }
@@ -124,7 +124,7 @@ Yap_FreeCodeSpace(char *p)
 }
 
 char *
-Yap_AllocAtomSpace(unsigned int size)
+Yap_AllocAtomSpace(unsigned long int size)
 {
   return call_malloc(size);
 }
@@ -353,8 +353,8 @@ Yap_givemallinfo(void)
 #if !USE_DL_MALLOC
 
 STATIC_PROTO(void FreeBlock, (BlockHeader *));
-STATIC_PROTO(BlockHeader *GetBlock, (unsigned int));
-STATIC_PROTO(char *AllocHeap, (unsigned int));
+STATIC_PROTO(BlockHeader *GetBlock, (unsigned long int));
+STATIC_PROTO(char *AllocHeap, (unsigned long int));
 STATIC_PROTO(void RemoveFromFreeList, (BlockHeader *));
 STATIC_PROTO(void AddToFreeList, (BlockHeader *));
 
@@ -480,7 +480,7 @@ FreeBlock(BlockHeader *b)
 }
 
 static BlockHeader *
-GetBlock(unsigned int n)
+GetBlock(unsigned long int n)
 {				/* get free block with size at least n */
   register BlockHeader **p, *b, *r;
 
@@ -509,7 +509,7 @@ GetBlock(unsigned int n)
 }
 
 static char *
-AllocHeap(unsigned int size)
+AllocHeap(unsigned long int size)
 {
   BlockHeader *b, *n;
   YAP_SEG_SIZE *sp;
@@ -609,7 +609,7 @@ FreeCodeSpace(char *p)
 }
 
 static char *
-AllocCodeSpace(unsigned int size)
+AllocCodeSpace(unsigned long int size)
 {
   if (size < SmallSize + 2 * OpCodeSize + 3 * CellSize)
     return (AllocHeap(SmallSize + 2 * OpCodeSize + 3 * CellSize));
@@ -634,7 +634,7 @@ Yap_FreeCodeSpace(char *p)
 }
 
 char *
-Yap_AllocAtomSpace(unsigned int size)
+Yap_AllocAtomSpace(unsigned long int size)
 {
   char *out = AllocHeap(size);
 #if DEBUG_ALLOC
@@ -654,7 +654,7 @@ Yap_FreeAtomSpace(char *p)
 }
 
 char *
-Yap_AllocCodeSpace(unsigned int size)
+Yap_AllocCodeSpace(unsigned long int size)
 {
   char *out = AllocCodeSpace(size);
 #if DEBUG_ALLOC
@@ -1361,9 +1361,9 @@ Yap_InitHeap(void *heap_addr)
 }
 
 void
-Yap_InitMemory(int Trail, int Heap, int Stack)
+Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack)
 {
-  Int pm, sa, ta;
+  UInt pm, sa, ta;
 
   pm = (Trail + Heap + Stack);	/* memory to be
 				 * requested         */

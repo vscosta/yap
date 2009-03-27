@@ -1289,7 +1289,7 @@ InitVersion(void)
 
 
 void
-Yap_InitWorkspace(int Heap, int Stack, int Trail, int max_table_size, 
+Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt max_table_size, 
                   int n_workers, int sch_loop, int delay_load)
 {
   int             i;

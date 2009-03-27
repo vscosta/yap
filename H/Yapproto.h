@@ -87,13 +87,13 @@ void    STD_PROTO(Yap_init_agc, (void));
 
 /* alloc.c */
 void	STD_PROTO(Yap_FreeCodeSpace,(char *));
-char   *STD_PROTO(Yap_AllocAtomSpace,(unsigned int));
-char   *STD_PROTO(Yap_AllocCodeSpace,(unsigned int));
+char   *STD_PROTO(Yap_AllocAtomSpace,(unsigned long int));
+char   *STD_PROTO(Yap_AllocCodeSpace,(unsigned long int));
 ADDR	STD_PROTO(Yap_AllocFromForeignArea,(Int));
 int     STD_PROTO(Yap_ExtendWorkSpace,(Int));
 void	STD_PROTO(Yap_FreeAtomSpace,(char *));
 int     STD_PROTO(Yap_FreeWorkSpace, (void));
-void	STD_PROTO(Yap_InitMemory,(int,int,int));
+void	STD_PROTO(Yap_InitMemory,(UInt,UInt,UInt));
 void	STD_PROTO(Yap_InitExStacks,(int,int));
 
 /* amasm.c */
@@ -221,7 +221,7 @@ void	STD_PROTO(Yap_InitCPredBack,(char *, unsigned long int, unsigned int, CPred
 void	STD_PROTO(Yap_InitCPredBackCut,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,int));
 void    STD_PROTO(Yap_InitCPredBack_,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,int));
 #endif
-void	STD_PROTO(Yap_InitWorkspace,(int,int,int,int,int,int,int));
+void	STD_PROTO(Yap_InitWorkspace,(UInt,UInt,UInt,UInt,int,int,int));
 
 #if defined(YAPOR) || defined(THREADS)
 void	STD_PROTO(Yap_KillStacks,(int));
