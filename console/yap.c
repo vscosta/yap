@@ -676,6 +676,7 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
   iap->HeapSize = 0;
   iap->StackSize = 0;
   iap->TrailSize = 0;
+  iap->AttsSize = 0;
   iap->YapLibDir = NULL;
   iap->YapPrologBootFile = NULL;
   iap->YapPrologInitFile = NULL;
