@@ -121,8 +121,15 @@ p_setarg(void)
 static Term
 NewTimedVar(CELL val)
 {
-  Term out = AbsAppl(H);
+  Term out;
   timed_var *tv;
+  if (IsVarTerm((val = Deref(val))) &&
+      VarOfTerm(val) > H) {
+    Term nval = MkVarTerm();
+    Bind_Local(VarOfTerm(val), nval);
+    val = nval;
+  }
+  out = AbsAppl(H);
   *H++ = (CELL)FunctorMutable;
   tv = (timed_var *)H;
   RESET_VARIABLE(&(tv->clock));
@@ -171,7 +178,12 @@ UpdateTimedVar(Term inv, Term new)
   timed_var *tv = (timed_var *)(RepAppl(inv)+1);
   CELL t = tv->value;
   CELL* timestmp = (CELL *)(tv->clock);
-
+  if (IsVarTerm((new = Deref(new))) &&
+      VarOfTerm(new) > H) {
+    Term nnew = MkVarTerm();
+    Bind_Local(VarOfTerm(new), nnew);
+    new = nnew;
+  }
   if (timestmp > B->cp_h
 #if FROZEN_STACKS
       && timestmp > H_FZ
