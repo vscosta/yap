@@ -1986,7 +1986,8 @@ static CELL *
 hash_complex_term(register CELL *pt0,
 		  register CELL *pt0_end,
 		  Int depth,
-		  CELL *st)
+		  CELL *st,
+		  int variant)
 {
 
   register CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
@@ -2117,7 +2118,10 @@ hash_complex_term(register CELL *pt0,
     
 
     deref_body(d0, ptd0, hash_complex_unk, hash_complex_nvar);
-    return NULL;
+    if (!variant)
+      return NULL;
+    else
+      continue;
   }
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
@@ -2193,7 +2197,65 @@ p_term_hash(void)
   }
   size = IntegerOfTerm(t3);
   while (TRUE) {
-    CELL *ar = hash_complex_term(&t1-1, &t1, depth, H);
+    CELL *ar = hash_complex_term(&t1-1, &t1, depth, H, FALSE);
+    if (ar == (CELL *)-1) {
+      if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
+	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in term_hash");
+	return FALSE;
+      } 
+      t1 = Deref(ARG1);
+    } else if(ar == (CELL *)-2) {
+      if (!Yap_gcl((ASP-H)*sizeof(CELL), 4, ENV, gc_P(P,CP))) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_hash");
+	return FALSE;
+      }
+      t1 = Deref(ARG1);
+    } else if (ar == NULL) {
+      return FALSE;
+    } else {
+      i1 = MurmurHashNeutral2((const void *)H, CellSize*(ar-H),0x1a3be34a);
+      break;
+    }
+  }
+  /* got the seed and hash from SWI-Prolog */
+  result = MkIntegerTerm(i1 % size);
+  return Yap_unify(ARG4,result);
+}
+
+static Int
+p_instantiated_term_hash(void)
+{
+  unsigned int i1;
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  Term t3 = Deref(ARG3);
+  Term result;
+  Int size, depth;
+
+  if (IsVarTerm(t2)) {
+    Yap_Error(INSTANTIATION_ERROR,t2,"term_hash/4");
+    return(FALSE);
+  }
+  if (!IsIntegerTerm(t2)) {
+    Yap_Error(TYPE_ERROR_INTEGER,t2,"term_hash/4");
+    return(FALSE);
+  }
+  depth = IntegerOfTerm(t2);
+  if (depth == 0) {
+    if (IsVarTerm(t1)) return(TRUE);
+    return(Yap_unify(ARG4,MkIntTerm(0)));
+  }
+  if (IsVarTerm(t3)) {
+    Yap_Error(INSTANTIATION_ERROR,t3,"term_hash/4");
+    return(FALSE);
+  }
+  if (!IsIntegerTerm(t3)) {
+    Yap_Error(TYPE_ERROR_INTEGER,t3,"term_hash/4");
+    return(FALSE);
+  }
+  size = IntegerOfTerm(t3);
+  while (TRUE) {
+    CELL *ar = hash_complex_term(&t1-1, &t1, depth, H, TRUE);
     if (ar == (CELL *)-1) {
       if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
 	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in term_hash");
@@ -2773,6 +2835,7 @@ void Yap_InitUtilCPreds(void)
   CurrentModule = TERMS_MODULE;
   Yap_InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
   Yap_InitCPred("term_hash", 4, p_term_hash, SafePredFlag);
+  Yap_InitCPred("instantiated_term_hash", 4, p_instantiated_term_hash, SafePredFlag);
   Yap_InitCPred("variant", 2, p_variant, 0);
   Yap_InitCPred("subsumes", 2, p_subsumes, SafePredFlag);
   Yap_InitCPred("protected_unifiable", 3, p_unifiable, 0);
