@@ -56,7 +56,7 @@ p_new_udi(void)
   Atom udi_t;
   void *info;
 
-  fprintf(stderr,"new pred babe\n");
+/*  fprintf(stderr,"new pred babe\n");*/
   /* get the predicate from the spec, copied from cdmgr.c */
   if (IsVarTerm(spec)) {
     Yap_Error(INSTANTIATION_ERROR,spec,"new user index/1");

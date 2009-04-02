@@ -79,9 +79,9 @@ control_t *RtreeUdiInit (Term spec,
         }
     }
 
-  for (i = 0; i < NARGS; i++)
+/*  for (i = 0; i < NARGS; i++)
     printf("%d,%p\t",(*control)[i].arg,(*control)[i].tree);
-  printf("\n");
+  printf("\n"); */
   
   return control;
 }

@@ -1,0 +1,7 @@
+This directory contains support for user defined indexers, currently:
+
+- RTrees
+
+For Examples and Tests proceed as follows:
+
+git clone git://yap.dcc.fc.up.pt/udi-examples 
