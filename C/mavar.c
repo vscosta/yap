@@ -123,7 +123,7 @@ NewTimedVar(CELL val)
 {
   Term out;
   timed_var *tv;
-  if (IsVarTerm((val = Deref(val))) &&
+  if (IsVarTerm(val) &&
       VarOfTerm(val) > H) {
     Term nval = MkVarTerm();
     Bind_Local(VarOfTerm(val), nval);
@@ -178,7 +178,7 @@ UpdateTimedVar(Term inv, Term new)
   timed_var *tv = (timed_var *)(RepAppl(inv)+1);
   CELL t = tv->value;
   CELL* timestmp = (CELL *)(tv->clock);
-  if (IsVarTerm((new = Deref(new))) &&
+  if (IsVarTerm(new) &&
       VarOfTerm(new) > H) {
     Term nnew = MkVarTerm();
     Bind_Local(VarOfTerm(new), nnew);
