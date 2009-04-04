@@ -10,116 +10,136 @@ It relies on dynamic array code.
 :- yap_flag(unknown,error).
 :- style_check(all).
 
-:- module(b_hash, [    b_hash_new/1,
+:- module(b_hash, [   b_hash_new/1,
 		      b_hash_new/2,
-		      b_hash_new/3,
+		      b_hash_new/4,
 		      b_hash_lookup/3,
 		      b_hash_update/3,
 		      b_hash_update/4,
-		      b_hash_insert/3
+		      b_hash_insert_new/4,
+		      b_hash_insert/4
 		    ]).
 
 :- use_module(library(terms), [ term_hash/4 ]).
 
-array_default_size(4).
 
-b_hash_new(hash(Keys, Vals, Size, N, _)) :-
+:- meta_predicate(b_hash_new(-,+,3,2)).
+
+array_default_size(2048).
+
+b_hash_new(hash(Keys, Vals, Size, N, _, _)) :-
 	array_default_size(Size),
 	array(Keys, Size),
 	array(Vals, Size),
 	create_mutable(0, N).
 
-b_hash_new(hash(Keys, Vals, Size, N, _), Size) :-
+b_hash_new(hash(Keys, Vals, Size, N, _, _), Size) :-
 	array(Keys, Size),
 	array(Vals, Size),
 	create_mutable(0, N).
 
-b_hash_new(hash(Keys,Vals, Size, N, HashF), Size, HashF) :-
+b_hash_new(hash(Keys,Vals, Size, N, HashF, CmpF), Size, HashF, CmpF) :-
 	array(Keys, Size),
 	array(Vals, Size),
 	create_mutable(0, N).
 
-b_hash_lookup(Key, Val, hash(Keys, Vals, Size, _, F)):-
+b_hash_lookup(Key, Val, hash(Keys, Vals, Size, _, F, CmpF)):-
 	hash_f(Key, Size, Index, F),
-	fetch_key(Keys, Index, Size, Key, ActualIndex),
+	fetch_key(Keys, Index, Size, Key, CmpF, ActualIndex),
 	array_element(Vals, ActualIndex, Mutable),
 	get_mutable(Val, Mutable).
 
-fetch_key(Keys, Index, Size, Key, ActualIndex) :-
+fetch_key(Keys, Index, Size, Key, CmpF, ActualIndex) :-
 	array_element(Keys, Index, El),
 	nonvar(El),
 	(
-	    El == Key
+	    cmp_f(CmpF, El, Key)
 	->
 	    Index = ActualIndex
 	;
 	    I1 is (Index+1) mod Size,
-	    fetch_key(Keys, I1, Size, Key, ActualIndex)
+	    fetch_key(Keys, I1, Size, Key, CmpF, ActualIndex)
 	).
 
 b_hash_update(Hash, Key, NewVal):-
-	Hash = hash(Keys, Vals, Size, _, F),
+	Hash = hash(Keys, Vals, Size, _, F, CmpF),
 	hash_f(Key,Size,Index,F),
-	fetch_key(Keys, Index, Size, Key, ActualIndex),
+	fetch_key(Keys, Index, Size, Key, CmpF, ActualIndex),
 	array_element(Vals, ActualIndex, Mutable),
 	update_mutable(NewVal, Mutable).
 
 b_hash_update(Hash, Key, OldVal, NewVal):-
-	Hash = hash(Keys, Vals, Size, _, F),
+	Hash = hash(Keys, Vals, Size, _, F, CmpF),
 	hash_f(Key,Size,Index,F),
-	fetch_key(Keys, Index, Size, Key, ActualIndex),
+	fetch_key(Keys, Index, Size, Key, CmpF, ActualIndex),
 	array_element(Vals, ActualIndex, Mutable),
 	get_mutable(OldVal, Mutable),
 	update_mutable(NewVal, Mutable).
 
-b_hash_insert(Hash, Key, NewVal):-
-	Hash = hash(Keys, Vals, Size, N, F),
+b_hash_insert(Hash, Key, NewVal, NewHash):-
+	Hash = hash(Keys, Vals, Size, N, F, CmpF),
 	hash_f(Key,Size,Index,F),
-	find_or_insert(Keys, Index, Size, N, Vals, Key, NewVal, Hash).
+	find_or_insert(Keys, Index, Size, N, CmpF, Vals, Key, NewVal, Hash, NewHash).
 
-find_or_insert(Keys, Index, Size, N, Vals, Key, NewVal, Hash) :-
+find_or_insert(Keys, Index, Size, N, CmpF, Vals, Key, NewVal, Hash, NewHash) :-
 	array_element(Keys, Index, El),
 	(
 	    var(El)
 	->
-	    add_element(Keys, Index, Size, N, Vals, Key, NewVal, Hash)
+	    add_element(Keys, Index, Size, N, Vals, Key, NewVal, Hash, NewHash)
 	;
-	    El == Key
+	    cmp_f(CmpF, El, Key)
 	->
 	     % do rb_update
 	    array_element(Vals, Index, Mutable),
 	    update_mutable(NewVal, Mutable)
         ;
 	    I1 is (Index+1) mod Size,
-	    find_or_insert(Keys, I1, Size, N, Vals, Key, NewVal, Hash)
+	    find_or_insert(Keys, I1, Size, N, CmpF, Vals, Key, NewVal, Hash, NewHash)
 	).
 
-add_element(Keys, Index, Size, N, Vals, Key, NewVal, Hash) :-
+b_hash_insert_new(Hash, Key, NewVal, NewHash):-
+	Hash = hash(Keys, Vals, Size, N, F, CmpF),
+	hash_f(Key,Size,Index,F),
+	find_or_insert_new(Keys, Index, Size, N, CmpF, Vals, Key, NewVal, Hash, NewHash).
+
+find_or_insert_new(Keys, Index, Size, N, CmpF, Vals, Key, NewVal, Hash, NewHash) :-
+	array_element(Keys, Index, El),
+	(
+	    var(El)
+	->
+	    add_element(Keys, Index, Size, N, Vals, Key, NewVal, Hash, NewHash)
+	;
+	    cmp_f(CmpF, El, Key)
+	->
+	    fail
+        ;
+	    I1 is (Index+1) mod Size,
+	    find_or_insert_new(Keys, I1, Size, N, CmpF, Vals, Key, NewVal, Hash, NewHash)
+	).
+
+add_element(Keys, Index, Size, N, Vals, Key, NewVal, Hash, NewHash) :-
 	get_mutable(NEls, N),
 	NN is NEls+1,
 	update_mutable(NN, N),
 	(
 	    NN > Size/3
 	->
-	    expand_array(Key, NewVal, Hash)
+	    expand_array(Hash, NewHash)
 	;
-	    array_element(Keys, Index, Key),
-	    update_mutable(NN, N),
-	    array_element(Vals, Index, Mutable),
-	    create_mutable(NewVal, Mutable)
-	).
+	    Hash = NewHash
+	),
+	array_element(Keys, Index, Key),
+	update_mutable(NN, N),
+	array_element(Vals, Index, Mutable),
+	create_mutable(NewVal, Mutable).
 
-expand_array(Key, NewVal, Hash) :-
-	Hash = hash(Keys, Vals, Size, _, F),
+expand_array(Hash, hash(NewKeys, NewVals, NewSize, X, F, CmpF)) :-
+	Hash = hash(Keys, Vals, Size, X, F, CmpF),
 	new_size(Size, NewSize),
 	array(NewKeys, NewSize),
 	array(NewVals, NewSize),
-	copy_hash_table(Size, Keys, Vals, F, NewSize, NewKeys, NewVals),
-	setarg(1, Hash, NewKeys),
-	setarg(2, Hash, NewVals),
-	setarg(3, Hash, NewSize),
-	create_mutable(NewVal, Mut),
-	insert_el(Key, Mut, NewSize, F, NewKeys, NewVals).
+	copy_hash_table(Size, Keys, Vals, F, NewSize, NewKeys, NewVals).
 
 new_size(Size, NewSize) :-
 	Size > 1048576, !,
@@ -158,7 +178,13 @@ find_free(Index, Size, Keys, NewIndex) :-
 
 hash_f(Key, Size, Index, F) :-
 	var(F), !,
-	term_hash(Key,-1,Size,Index).
+	term_hash(Key,-1,Size,Index), writeln(Key:Index).
 hash_f(Key, Size, Index, F) :-
 	call(F, Key, Size, Index).
+
+cmp_f(F, A, B) :-
+	var(F), !,
+	A == B.
+cmp_f(F, A, B) :-
+	call(F, A, B).
 
