@@ -8931,6 +8931,28 @@ Yap_absmi(int inp)
 
 
 /************************************************************************\
+*	Native Code Execution						 *
+\************************************************************************/
+ 
+      /* native_me  */
+      BOp(native_me, aFlp); 
+
+	if (PREG->u.aFlp.n) 
+	  EXEC_NATIVE(PREG->u.aFlp.n);
+	else {
+	  PREG->u.aFlp.n++;
+	  if (PREG->u.aFlp.n == MAX_INVOCATION)
+	    PREG->u.aFlp.n = Yapc_Compile(PREG->u.aFlp.p);
+        }
+
+      PREG = NEXTOP(PREG, aFlp);
+      GONext();
+      
+      ENDBOp();
+
+
+ 
+/************************************************************************\
 *	Basic Primitive Predicates					 *
 \************************************************************************/
 
@@ -11271,7 +11293,7 @@ Yap_absmi(int inp)
 	 d0 = (CELL) (f) (d0,d1);
 	 setregs();
       }
-      if (!d0 || PREG == FAILCODE) {
+      if (!d0) {
 	if (PREG != FAILCODE)
 	  PREG = PREG->u.plxxs.f;
 	JMPNext();

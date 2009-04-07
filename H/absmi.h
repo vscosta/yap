@@ -20,6 +20,14 @@ static char SccsId[] = "%W% %G%";
 
 #endif /* SCCS */
 
+#if NATIVE_EXECUTION
+/* just a stub */
+#else
+#define	  EXEC_NATIVE(X)
+#define	  MAX_INVOCATION 1024
+#define	  Yapc_Compile(P) 0
+#endif
+
 /***************************************************************
 * Macros for register manipulation                             *
 ***************************************************************/

@@ -235,6 +235,7 @@
   OPCODE(index_dbref                ,e),
   OPCODE(index_blob                 ,e),
   OPCODE(index_long                 ,e),
+  OPCODE(native_me                  ,aFlp),
   OPCODE(p_atom_x                   ,xl),
   OPCODE(p_atom_y                   ,yl),
   OPCODE(p_atomic_x                 ,xl),

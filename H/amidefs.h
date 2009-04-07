@@ -330,6 +330,15 @@ typedef struct yami {
       struct yami              *d;
       CELL next;
     } Otapl;
+    struct {
+      COUNT                n; /* call counter */
+      CPredicate           native; /* native code pointer */
+      struct yami *native_next; /* next instruction to execute
+				 after native code
+                                 if the predicate was not fully compiled */
+      struct pred_entry   *p; /* Pointer to pred */
+      CELL next;              
+    } aFlp;
     /* The next two instructions are twin: they both correspond to the old ldd. */
     /* The first one, aLl, handles try_logical and retry_logical, */
     /* Ill handles trust_logical. */

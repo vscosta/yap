@@ -124,6 +124,14 @@ restore_opcodes(yamop *pc)
       pc->u.Otapl.d = PtoOpAdjust(pc->u.Otapl.d);
       pc = NEXTOP(pc,Otapl);
       break;
+      /* instructions type aFlp */
+    case _native_me:
+      pc->u.aFlp.n = ArityAdjust(pc->u.aFlp.n);
+      pc->u.aFlp.native = ExternalFunctionAdjust(pc->u.aFlp.native);
+      pc->u.aFlp.native_next = PtoOpAdjust(pc->u.aFlp.native_next);
+      pc->u.aFlp.native = PtoPredAdjust(pc->u.aFlp.native);
+      pc = NEXTOP(pc,aFlp);
+      break;
       /* instructions type c */
     case _write_atom:
       pc->u.c.c = ConstantTermAdjust(pc->u.c.c);

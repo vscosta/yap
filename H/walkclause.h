@@ -90,6 +90,10 @@
       pp = pc->u.Otapl.p;
       pc = NEXTOP(pc,Otapl);
       break;
+      /* instructions type aFlp */
+    case _native_me:
+      pc = NEXTOP(pc,aFlp);
+      break;
       /* instructions type c */
     case _write_atom:
       pc = NEXTOP(pc,c);
