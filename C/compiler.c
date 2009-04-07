@@ -229,9 +229,9 @@ STATIC_PROTO(void c_arg, (Int, Term, unsigned int, unsigned int, compiler_struct
 STATIC_PROTO(void c_args, (Term, unsigned int, compiler_struct *));
 STATIC_PROTO(void c_eq, (Term, Term, compiler_struct *));
 STATIC_PROTO(void c_test, (Int, Term, compiler_struct *));
-STATIC_PROTO(void c_bifun, (Int, Term, Term, Term, Term, int, compiler_struct *));
-STATIC_PROTO(void c_goal, (Term, int, compiler_struct *));
-STATIC_PROTO(void c_body, (Term, int, compiler_struct *));
+STATIC_PROTO(void c_bifun, (Int, Term, Term, Term, Term, Term, compiler_struct *));
+STATIC_PROTO(void c_goal, (Term, Term, compiler_struct *));
+STATIC_PROTO(void c_body, (Term, Term, compiler_struct *));
 STATIC_PROTO(void c_head, (Term, compiler_struct *));
 STATIC_PROTO(int usesvar, (compiler_vm_op));
 STATIC_PROTO(CELL *init_bvarray, (int, compiler_struct *));
@@ -954,7 +954,7 @@ bip_cons	   Op,Xk,Ri,C
 
  */
 static void
-c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, int mod, compiler_struct *cglobs)
+c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler_struct *cglobs)
 {
   /* compile Z = X Op Y  arithmetic function */
   /* first we fetch the arguments */
@@ -1324,7 +1324,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, int mod, compiler_struct *
 }
 
 static void
-c_functor(Term Goal, int mod, compiler_struct *cglobs)
+c_functor(Term Goal, Term mod, compiler_struct *cglobs)
 {
   Term t1 = ArgOfTerm(1, Goal);
   Term t2 = ArgOfTerm(2, Goal);
@@ -1434,7 +1434,7 @@ emit_special_label(Term Goal, compiler_struct *cglobs)
 }
 
 static void
-c_goal(Term Goal, int mod, compiler_struct *cglobs)
+c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 {
   Functor f;
   PredEntry *p;
@@ -2037,7 +2037,7 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
 }
 
 static void
-c_body(Term Body, int mod, compiler_struct *cglobs)
+c_body(Term Body, Term mod, compiler_struct *cglobs)
 {
   cglobs->onhead = FALSE;
   cglobs->BodyStart = cglobs->cint.cpc;
@@ -3298,7 +3298,7 @@ c_optimize(PInstr *pc)
 }
 
 yamop *
-Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
+Yap_cclause(volatile Term inp_clause, int NOfArgs, Term mod, volatile Term src)
 {				/* compile a prolog clause, copy of clause myst be in ARG1 */
   /* returns address of code for clause */
   Term head, body;

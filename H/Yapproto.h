@@ -140,7 +140,7 @@ int	STD_PROTO(Yap_compare_terms,(Term,Term));
 void	STD_PROTO(Yap_InitCmpPreds,(void));
 
 /* compiler.c */
-yamop  *STD_PROTO(Yap_cclause,(Term, int, int, Term));
+yamop  *STD_PROTO(Yap_cclause,(Term, int, Term, Term));
 
 /* computils.c */
 
