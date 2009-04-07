@@ -331,12 +331,14 @@ typedef struct yami {
       CELL next;
     } Otapl;
     struct {
-      COUNT                n; /* call counter */
-      CPredicate           native; /* native code pointer */
-      struct yami *native_next; /* next instruction to execute
-				 after native code
-                                 if the predicate was not fully compiled */
-      struct pred_entry   *p; /* Pointer to pred */
+      /* call counter */
+      COUNT                n;
+      /* native code pointer */
+      CPredicate           native;
+      /* next instruction to execute after native code if the predicate was not fully compiled */
+      struct yami *native_next;
+      /* Pointer to pred */
+      struct pred_entry   *p;
       CELL next;              
     } aFlp;
     /* The next two instructions are twin: they both correspond to the old ldd. */

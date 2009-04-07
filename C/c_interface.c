@@ -1969,7 +1969,6 @@ YAP_Init(YAP_init_args *yap_init)
   } else {
     Heap = yap_init->HeapSize;
   }
-  /* tell the system who should cope with interruptions */
   Yap_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
   Yap_InitWorkspace(Heap, Stack, Trail, Atts,
 	      yap_init->MaxTableSpaceSize,
@@ -2010,6 +2009,8 @@ YAP_Init(YAP_init_args *yap_init)
     */
     yap_flags[HALT_AFTER_CONSULT_FLAG] = yap_init->HaltAfterConsult;
   }
+  /* tell the system who should cope with interruptions */
+  Yap_ExecutionMode = yap_init->ExecutionMode;
   if (yap_init->SavedState != NULL ||
       yap_init->YapPrologBootFile == NULL) {
 #if SUPPORT_CONDOR || SUPPORT_THREADS
@@ -2131,6 +2132,7 @@ YAP_FastInit(char saved_state[])
   init_args.SchedulerLoop = 10;
   init_args.DelayedReleaseLoad = 3;
   init_args.PrologShouldHandleInterrupts = FALSE;
+  init_args.ExecutionMode = INTERPRETED;
   init_args.Argc = 0;
   init_args.Argv = NULL;
   init_args.ErrorNo = 0;

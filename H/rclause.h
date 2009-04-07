@@ -129,7 +129,7 @@ restore_opcodes(yamop *pc)
       pc->u.aFlp.n = ArityAdjust(pc->u.aFlp.n);
       pc->u.aFlp.native = ExternalFunctionAdjust(pc->u.aFlp.native);
       pc->u.aFlp.native_next = PtoOpAdjust(pc->u.aFlp.native_next);
-      pc->u.aFlp.native = PtoPredAdjust(pc->u.aFlp.native);
+      pc->u.aFlp.p = PtoPredAdjust(pc->u.aFlp.p);
       pc = NEXTOP(pc,aFlp);
       break;
       /* instructions type c */

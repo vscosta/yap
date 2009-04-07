@@ -237,6 +237,13 @@ print_usage(void)
 	  DefStackSpace, MinStackSpace);
   fprintf(stderr,"  -t   Trail area in Kbytes (default: %d, minimum: %d)\n",
 	  DefTrailSpace, MinTrailSpace);
+  fprintf(stderr,"\n[Execution Modes]\n");
+  fprintf(stderr,"  -J0  Interpreted mode (default)\n");
+  fprintf(stderr,"  -J1  Mixed mode only for user predicates\n");
+  fprintf(stderr,"  -J2  Mixed mode for all predicates\n");
+  fprintf(stderr,"  -J3  Compile all user predicates\n");
+  fprintf(stderr,"  -J4  Compile all predicates\n");
+
 #ifdef TABLING
   fprintf(stderr,"  -ts  Maximum table space area in Mbytes (default: unlimited)\n");
 #endif /* TABLING */
@@ -422,6 +429,30 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      mpwshell = TRUE;
 	    break;
 #endif
+         // execution mode
+          case 'J':
+	    switch (p[1]) {
+	    case '0':
+	      iap->ExecutionMode = YAPC_INTERPRETED;
+	      break;
+	    case '1':
+	      iap->ExecutionMode = YAPC_MIXED_MODE_USER;
+	      break;
+	    case '2':
+	      iap->ExecutionMode = YAPC_MIXED_MODE_ALL;
+	      break;
+	    case '3':
+	      iap->ExecutionMode = YAPC_COMPILE_USER;
+	      break;
+	    case '4':
+	      iap->ExecutionMode = YAPC_COMPILE_ALL;
+	      break;
+	    default:
+	      fprintf(stderr,"[ YAP unrecoverable error: unknown switch -%c%c ]\n", *p, p[1]);
+	      exit(EXIT_FAILURE);
+	    }
+	    p++;
+	    break;
 	  case 's':
 	  case 'S':
 	  case 'G':
@@ -691,6 +722,7 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
   iap->SchedulerLoop = DEFAULT_SCHEDULERLOOP;
   iap->DelayedReleaseLoad = DEFAULT_DELAYEDRELEASELOAD;
   iap->PrologShouldHandleInterrupts = TRUE;
+  iap->ExecutionMode = YAPC_INTERPRETED;
   iap->Argc = argc;
   iap->Argv = argv;
 #ifdef MYDDAS_MYSQL

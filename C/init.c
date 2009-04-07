@@ -964,6 +964,7 @@ static void
 InitCodes(void)
 {
   /* initialise invisible chain */
+  Yap_heap_regs->execution_mode = INTERPRETED;
   Yap_heap_regs->invisiblechain.Entry = NIL;
   INIT_RWLOCK(Yap_heap_regs->invisiblechain.AERWLock);
 #include "iatoms.h"

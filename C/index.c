@@ -998,6 +998,13 @@ has_cut(yamop *pc)
     case _p_execute_cpred:
       pc = NEXTOP(pc,pp);
       break;
+    case _native_me:
+      pc = NEXTOP(pc,aFlp);
+      break;
+    case _dexecute:
+    case _p_execute_cpred:
+      pc = NEXTOP(pc,pp);
+      break;
       /* instructions type l */
     case _enter_profiling:
     case _count_call:
@@ -1539,6 +1546,8 @@ move_next(ClauseDef *clause, UInt regno)
   op_numbers op = Yap_op_from_opcode(cl->opc);
 
   switch (op) {
+  case _native_me:
+    return;
   case _p_db_ref_x:
   case _p_float_x:
     if (wreg == cl->u.xl.x) {

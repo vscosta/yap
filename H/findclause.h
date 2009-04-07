@@ -9,6 +9,9 @@
     case _alloc_for_logical_pred:
       cl = NEXTOP(cl,L);
       break;
+    case _native_me:
+      cl = NEXTOP(cl,aFlp);
+      break;
     case _write_atom:
       cl = NEXTOP(cl,c);
       break;

@@ -6,6 +6,9 @@
   while (TRUE) {
     op_numbers op = Yap_op_from_opcode(cl->opc);
     switch (op) {
+    case _native_me:
+      cl = NEXTOP(cl,aFlp);
+      break;
     case _get_2atoms:
       if (iarg == Yap_regnotoreg(1)) {
 	clause->Tag = cl->u.cc.c1;

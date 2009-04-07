@@ -1284,3 +1284,15 @@ extern char emacs_tmp[], emacs_tmp2[];
 #include "sbaunify.h"
 #endif
 
+/********* execution mode ***********************/
+
+typedef enum
+  {
+    INTERPRETED,         /* interpreted */
+    MIXED_MODE_USER,       /* mixed mode only for user predicates */
+    MIXED_MODE_ALL,        /* mixed mode for all predicates */
+    COMPILE_USER,          /* compile all user predicates*/
+    COMPILE_ALL          /* compile all predicates */
+  } yap_exec_mode;
+
+

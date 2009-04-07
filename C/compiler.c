@@ -2098,6 +2098,8 @@ c_head(Term t, compiler_struct *cglobs)
      Yap_emit(run_op,Zero,(unsigned long) cglobs->cint.CurrentPred,&cglobs->cint);
    }
 #endif
+   if (Yap_ExecutionMode == MIXED_MODE_USER)
+     Yap_emit(native_op, 0, 0, &cglobs->cint);
   c_args(t, 0, cglobs);
 }
 

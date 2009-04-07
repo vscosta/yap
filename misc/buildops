@@ -1053,5 +1053,4 @@ opinfo("retry_eam",[body]).
 opinfo("alloc_for_logical_pred",[body]).
 opinfo("deallocate",[body]).
 opinfo("table_try_single",[]).
-
-
+opinfo("native_me",[]).
