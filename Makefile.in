@@ -93,7 +93,7 @@ TEXI2PDF=texi2pdf
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #
-VERSION=Yap-5.1.4
+VERSION=Yap-6.0.0
 MYDDAS_VERSION=MYDDAS-0.9.1
 #
 
