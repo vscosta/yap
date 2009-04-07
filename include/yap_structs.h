@@ -112,6 +112,8 @@ typedef struct {
   /* end of YAPOR fields */
   /* whether Prolog should handle interrupts */
   int PrologShouldHandleInterrupts;
+  /* flag for JIT mode */
+  int ExecutionMode;
   /* number of arguments that Prolog will see */
   int Argc;
   /* array of arguments as seen by Prolog */
@@ -151,4 +153,15 @@ typedef struct {
 } YAP_dogoalinfo;
 
 typedef int   (*YAP_agc_hook)(YAP_Atom);
+
+/********* execution mode ***********************/
+
+typedef enum
+  {
+    YAPC_INTERPRETED,         /* interpreted */
+    YAPC_MIXED_MODE_USER,       /* mixed mode only for user predicates */
+    YAPC_MIXED_MODE_ALL,        /* mixed mode for all predicates */
+    YAPC_COMPILE_USER,          /* compile all user predicates*/
+    YAPC_COMPILE_ALL          /* compile all predicates */
+  } yapc_exec_mode;
 
