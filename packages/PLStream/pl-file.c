@@ -4710,8 +4710,10 @@ static const PL_extension file_foreigns[] = {
   FRG("swi_working_directory",	2, pl_working_directory,	0),
   FRG("swi_$mark_executable",	1, pl_mark_executable,		0),
   FRG("swi_copy_stream_data",	2, pl_copy_stream_data2,	0),
-  FRG("swi_copy_stream_data",	3, pl_copy_stream_data3,	0)
+  FRG("swi_copy_stream_data",	3, pl_copy_stream_data3,	0),
 
+  /* DO NOT ADD ENTRIES BELOW THIS ONE */
+  FRG((char *)NULL,		0, NULL,			0)
 };
 
 static void
