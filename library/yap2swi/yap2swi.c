@@ -1736,6 +1736,7 @@ X_API int PL_call(term_t tp, module_t m)
 X_API void PL_register_foreign_in_module(const char *module, const char *name, int arity, foreign_t (*function)(void), int flags)
 {
   Term tmod;
+
   if (flags & (PL_FA_NOTRACE|PL_FA_NONDETERMINISTIC|PL_FA_CREF)) {
     fprintf(stderr,"PL_register_foreign_in_module called with non-implemented flag %x when creating predicate %s:%s/%d\n", flags, module, name, arity);
   }      
@@ -1745,16 +1746,16 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
     tmod = MkAtomTerm(Yap_LookupAtom((char *)module));
   }
   if (flags & PL_FA_VARARGS)
-    UserCPredicateVarargs((char *)name,(YAP_Bool (*)(void))function,arity,tmod);
+    UserCPredicateVarargs((char *)name,(CPredicate)function,arity,tmod);
   else if (flags & PL_FA_TRANSPARENT)
-    UserCPredicateWithArgs((char *)name,(YAP_Bool (*)(void))function,arity,tmod,ModuleTransparentPredFlag);
+    UserCPredicateWithArgs((char *)name,(CPredicate)function,arity,tmod,ModuleTransparentPredFlag);
   else
-    UserCPredicateWithArgs((char *)name,(YAP_Bool (*)(void))function,arity,tmod,0);
+    UserCPredicateWithArgs((char *)name,(CPredicate)function,arity,tmod,0);
 }
 
 X_API void PL_register_extensions(PL_extension *ptr)
 {
-  while(ptr->predicate_name != NULL) {
+  while (ptr->predicate_name) {
     PL_register_foreign_in_module(NULL, ptr->predicate_name, ptr->arity, ptr->function, ptr->flags);
     ptr++;
   }
@@ -1764,7 +1765,7 @@ X_API void PL_load_extensions(PL_extension *ptr)
 {
   /* ignore flags for now */
   while(ptr->predicate_name != NULL) {
-    UserCPredicateWithArgs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,YAP_CurrentModule(),0);
+    UserCPredicateWithArgs(ptr->predicate_name,(CPredicate)ptr->function,ptr->arity,YAP_CurrentModule(),0);
     ptr++;
   }
 }

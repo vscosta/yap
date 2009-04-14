@@ -209,11 +209,11 @@ extern X_API YAP_Bool PROTO(YAP_Unify,(YAP_Term, YAP_Term));
 extern X_API void PROTO(YAP_UserCPredicate,(CONST char *, YAP_Bool (*)(void), unsigned int));
 
 /*  void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int arity) */
-extern X_API void PROTO(YAP_UserCPredicateWithArgs,(CONST char *, YAP_Bool (*)(void), unsigned int,unsigned int));
+extern X_API void PROTO(YAP_UserCPredicateWithArgs,(CONST char *, YAP_Bool (*)(void), unsigned long int, unsigned long int));
 
 /*  void UserBackCPredicate(const char *name, int *init(), int *cont(), int
     arity, int extra) */
-extern X_API void PROTO(YAP_UserBackCPredicate,(CONST char *, YAP_Bool (*)(void), YAP_Bool (*)(void), unsigned int, unsigned int));
+extern X_API void PROTO(YAP_UserBackCPredicate,(CONST char *, YAP_Bool (*)(void), YAP_Bool (*)(void), unsigned long int, unsigned int));
 
 /*  void UserBackCPredicate(char *name, int *init(), int *cont(), int *cut(), int
     arity, int extra) */
