@@ -5399,7 +5399,7 @@ p_install_thread_local(void)
       pe->cs.p_code.NOfClauses) {
     return FALSE;
   }
-  pe->PredFlags |= ThreadLocalPredFlag;
+  pe->PredFlags |= ThreadLocalPredFlag|LogUpdatePredFlag;
   pe->OpcodeOfPred = Yap_opcode(_thread_local);
   pe->CodeOfPred = (yamop *)&pe->OpcodeOfPred;
   UNLOCK(pe->PELock);
