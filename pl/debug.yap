@@ -475,6 +475,8 @@ debugging :-
 	% use the interpreter
 	CP is '$last_choice_pt',
 	'$clause'(G, M, Cl, _),
+	% I may backtrack to here from far away
+	'$disable_docreep',	
 	( '$do_spy'(Cl, M, CP, CalledFromDebugger) ; InRedo = true ).
 '$spycall'(G, M, CalledFromDebugger, InRedo) :-
 	'$undefined'(G, M), !,
@@ -492,6 +494,8 @@ debugging :-
 	% I lost control here.
 	CP is '$last_choice_pt',
 	'$static_clause'(G,M,_,R),
+	% I may backtrack to here from far away
+	 '$disable_docreep',	
 	(
 	 '$continue_debugging'(no, '$execute_clause'(G, M, R, CP))
 	;
