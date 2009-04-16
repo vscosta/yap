@@ -624,11 +624,9 @@ p_execute_clause(void)
   } else {
     code = Yap_ClauseFromTerm(clt)->ClCode;
   }
-  LOCK(SignalLock);
   if (ActiveSignals & YAP_CREEP_SIGNAL) {
     Yap_signal(YAP_CREEP_SIGNAL);
   }
-  UNLOCK(SignalLock);
   return CallPredicate(RepPredProp(pe), cut_cp, code);
 }
 
@@ -751,11 +749,9 @@ p_execute_nonstop(void)
   }
   /*	N = arity; */
   /* call may not define new system predicates!! */
-  LOCK(SignalLock);
   if (ActiveSignals & YAP_CREEP_SIGNAL) {
     Yap_signal(YAP_CREEP_SIGNAL);
   }
-  UNLOCK(SignalLock);
   if (RepPredProp(pe)->PredFlags & SpiedPredFlag) {
     return CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->cs.p_code.TrueCodeOfPred);
   }  else if ((RepPredProp(pe)->PredFlags & (AsmPredFlag|CPredFlag)) &&

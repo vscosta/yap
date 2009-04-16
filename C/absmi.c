@@ -3032,8 +3032,8 @@ Yap_absmi(int inp)
 	{
 	  CreepFlag = CalculateStackGap();
 	  SREG = (CELL *) CreepCode;
+	  UNLOCK(SignalLock);
 	}
-      UNLOCK(SignalLock);
       PREG = ((PredEntry *)SREG)->CodeOfPred;
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
@@ -14012,7 +14012,6 @@ Yap_absmi(int inp)
 	    FAIL();
 	  }
 	  setregs_and_ycache();
-	  LOCK(SignalLock);
 	  ActiveSignals &= ~YAP_TROVF_SIGNAL;
 	  CreepFlag = CalculateStackGap();
 	  if (!ActiveSignals) {
