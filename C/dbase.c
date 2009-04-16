@@ -3449,6 +3449,13 @@ lu_recorded(PredEntry *pe) {
       YENV[E_CB] = (CELL) B;
     }
     P = pe->CodeOfPred;
+#if defined(YAPOR) || defined(THREADS)
+    /* avoid holding a lock if we don't have anything in the database */
+    if (P == FAILCODE) {
+      UNLOCK(pe->PELock);
+      PP = NULL;
+    }
+#endif
   }
   if (pe->PredFlags & ProfiledPredFlag) {
     LOCK(pe->StatisticsForPred.lock);
