@@ -899,7 +899,7 @@ current_predicate(A,T) :-
 	functor(T,A,_),
 	current_module(M),
 	M \= prolog,
-	'$pred_exists'(M,A,T).
+	'$pred_exists'(T,M).
 
 current_predicate(A) :-
 	'$current_predicate_inside'(A).
