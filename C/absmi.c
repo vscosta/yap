@@ -1857,6 +1857,10 @@ Yap_absmi(int inp)
       /* fail                             */
       PBOp(op_fail, e);
 
+      if (PP) {
+	UNLOCK(PP->PELock);
+	PP = NULL;
+      }      
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackFail, H);
@@ -2737,7 +2741,6 @@ Yap_absmi(int inp)
 
       /* Problem: have I got an environment or not? */
     NoStackFail:
-      PP = NULL;
       /* find something to fool S */
       if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto fail;
