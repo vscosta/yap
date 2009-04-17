@@ -868,38 +868,54 @@ predicate_erased_statistics(P,NCls,Sz,ISz) :-
 	'$current_module'(M),
 	'$predicate_erased_statistics'(M:P,NCls,Sz,_,ISz).
 
-current_predicate(A,T) :- var(T), !,		% only for the predicate
+current_predicate(A,T) :-
+	'$current_predicate_inside'(A,T).
+
+'$current_predicate_inside'(A,T) :-
+	var(T), !,		% only for the predicate
 	'$current_module'(M),
 	'$current_predicate_no_modules'(M,A,T).
-current_predicate(A,M:T) :-			% module specified
+'$current_predicate_inside'(A,M:T) :-			% module specified
 	var(M), !,
-	current_module(M),
-	M \= prolog,
-	'$current_predicate_no_modules'(M,A,T).
-current_predicate(A,M:T) :- % module specified
+	'$current_predicate_var'(A,M,T).
+'$current_predicate_inside'(A,M:T) :- % module specified
 	nonvar(T),
 	!,
 	functor(T,A,_),
 	'$pred_exists'(T,M).
-current_predicate(A,M:T) :- % module specified
+'$current_predicate_inside'(A,M:T) :- % module specified
 	!,
 	'$current_predicate_no_modules'(M,A,T).
-current_predicate(A,T) :-			% only for the predicate
+'$current_predicate_inside'(A,T) :-			% only for the predicate
 	'$current_module'(M),
 	'$current_predicate_no_modules'(M,A,T).
 
-current_predicate(F) :-	var(F), !,		% only for the predicate
+'$current_predicate_var'(A,M,T) :-
+	var(T), !,
+	current_module(M),
+	M \= prolog,
+	'$current_predicate_no_modules'(M,A,T).
+'$current_predicate_var'(A,M,T) :-
+	functor(T,A,_),
+	current_module(M),
+	M \= prolog,
+	'$pred_exists'(M,A,T).
+
+current_predicate(A) :-
+	'$current_predicate_inside'(A).
+
+'$current_predicate_inside'(F) :-	var(F), !,		% only for the predicate
 	'$current_module'(M),
 	'$current_predicate3'(M,F).
-current_predicate(M:F) :-			% module specified
+'$current_predicate_inside'(M:F) :-			% module specified
 	var(M), !,
 	'$current_module'(M),
 	M \= prolog,
 	'$current_predicate3'(M,F).
-current_predicate(M:F) :- % module specified
+'$current_predicate_inside'(M:F) :- % module specified
 	!,
 	'$current_predicate3'(M,F).
-current_predicate(S) :-			% only for the predicate
+'$current_predicate_inside'(S) :-			% only for the predicate
 	'$current_module'(M),
 	'$current_predicate3'(M,S).
 	
@@ -936,7 +952,7 @@ system_predicate(P) :-
 	(
 	 '$current_predicate'(M,A,Arity),
 	 '$ifunctor'(T,A,Arity),
-	'$pred_exists'(T,M)
+	 '$pred_exists'(T,M)
 %	;
 %	 '$current_predicate'(prolog,A,Arity),
 %	 functor(T,A,Arity),
