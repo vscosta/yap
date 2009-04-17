@@ -466,6 +466,9 @@ debugging :-
 	\+ '$is_metapredicate'(G,M), !,
 	'$execute'(M:G).
 '$spycall'(G, M, _, _) :-
+        '$system_module'(M), !,
+	'$execute'(M:G).
+'$spycall'(G, M, _, _) :-
         '$tabled_predicate'(G,M),
 	 !,
 	'$continue_debugging'(no, '$execute_nonstop'(G,M)).

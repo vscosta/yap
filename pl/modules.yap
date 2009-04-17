@@ -661,4 +661,3 @@ abolish_module(_).
 	'$conj_has_cuts'(G3, DCP, NG3, OK).
 '$conj_has_cuts'(G,_,G, _).
 
-

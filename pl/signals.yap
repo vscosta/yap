@@ -35,7 +35,31 @@
 % don't creep on meta-call.
 '$do_signal'(sig_creep, [M|G]) :-
 	'$creep_allowed', !,
-        '$start_creep'([M|G]).
+	(
+	 ( G = '$notrace'(G0) ;  G = '$oncenotrace'(G0) ; G = '$execute0'(G0) ; '$system_module'(M), G = G0 )
+	->
+	 (
+	  '$execute_nonstop'(G0,M),
+	  '$signal_creep'
+	 ;
+	  '$signal_creep',
+	  fail
+	 )
+	;
+	 '$start_creep'([M|G])
+	).
+% 
+'$do_signal'(sig_creep, [M|G]) :-
+	( G = '$notrace'(G0) ;  G = '$oncenotrace'(G0) ; G = '$execute0'(G0) ; '$system_module'(M), G = G0 ),
+	!,
+	(
+	 '$execute_nonstop'(G0,M),
+	 '$signal_creep'
+	;
+	 '$signal_creep',
+	 fail
+	).
+% 
 '$do_signal'(sig_creep, [M|G]) :-
         '$signal_creep',
 	'$execute_nonstop'(G,M).

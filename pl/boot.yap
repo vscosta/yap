@@ -1170,7 +1170,7 @@ throw(Ball) :-
 % just leave this around to show  the debugger.
 %
 '$notrace'(M:G) :-
-	'$execute0'(G, M).
+	'$execute_nonstop'(G, M).
 
 '$oncenotrace'(M:G) :-
-	'$execute0'(G, M), !.
+	'$execute_nonstop'(G, M), !.
