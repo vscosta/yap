@@ -1243,8 +1243,8 @@ X_API int PL_unify_term(term_t l,...)
 		fprintf(stderr,"ERROR: very deep term in PL_unify_term, change MAX_DEPTH from %d\n", MAX_DEPTH);
 		return FALSE;
 	      }
-	      stack[depth].nels = nels;
-	      stack[depth].ptr = pt+1;
+	      stack[depth-1].nels = nels;
+	      stack[depth-1].ptr = pt+1;
 	      depth++;
 	    }
 	    *pt = t;
@@ -1272,8 +1272,8 @@ X_API int PL_unify_term(term_t l,...)
 		fprintf(stderr,"very deep term in PL_unify_term\n");
 		return FALSE;
 	      }
-	      stack[depth].nels = nels;
-	      stack[depth].ptr = pt+1;
+	      stack[depth-1].nels = nels;
+	      stack[depth-1].ptr = pt+1;
 	      depth++;
 	    }
 	    *pt = t;
@@ -1294,7 +1294,7 @@ X_API int PL_unify_term(term_t l,...)
 	      fprintf(stderr,"very deep term in PL_unify_term\n");
 	      return FALSE;
 	    }
-	    stack[depth].nels = nels;
+	    stack[depth-1].nels = nels;
 	    stack[depth].ptr = pt+1;
 	    depth++;
 	  }
