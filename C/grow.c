@@ -1016,6 +1016,7 @@ fix_compiler_instructions(PInstr *pcpc)
     case fetch_args_iv_op:
     case label_ctl_op:
     case f_0_op:
+    case native_op:
 #ifdef TABLING
     case table_new_answer_op:
     case table_try_single_op:
