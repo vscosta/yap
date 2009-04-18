@@ -32,6 +32,12 @@ MKINDEX=true
 
 LD=$(CC)
 
+SHLIB_CFLAGS=@SHLIB_CFLAGS@
+SHLIB_SUFFIX=@SHLIB_SUFFIX@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+
 TARGETS=	sgml2pl@SHLIB_SUFFIX@
 
 else	# SWI
