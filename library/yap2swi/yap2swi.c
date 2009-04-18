@@ -1772,6 +1772,9 @@ X_API void PL_load_extensions(PL_extension *ptr)
 
 X_API int PL_handle_signals(void)
 {
+  if (EX) {
+    return -1;
+  }
   fprintf(stderr,"PL_handle_signals not implemented\n");
   return 0;
 }
