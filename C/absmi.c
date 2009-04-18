@@ -794,6 +794,9 @@ Yap_absmi(int inp)
       {
 	CELL cut_b = LCL0-(CELL *)(SREG[E_CB]);
 
+#ifdef SHADOW_S
+	S = SREG;
+#endif
 	saveregs();
 	/* do a garbage collection first to check if we can recover memory */
 	if (!Yap_growheap(FALSE, 0, NULL)) {
@@ -803,8 +806,12 @@ Yap_absmi(int inp)
 	}
 	setregs();
 	CACHE_A1();
-	SREG = ASP;
-	SREG[E_CB] = (CELL)(LCL0-cut_b);
+#ifdef SHADOW_S
+	SREG = S;
+#endif
+	if (SREG == ASP) {
+	  SREG[E_CB] = (CELL)(LCL0-cut_b);
+	}
       }
       goto reset_absmi;
 
@@ -834,8 +841,12 @@ Yap_absmi(int inp)
 	  FAIL();
 	}
 	setregs();
-	SREG = ASP;
-	SREG[E_CB] = (CELL)(LCL0-cut_b);
+#ifdef SHADOW_S
+	SREG = S;
+#endif
+	if (SREG == ASP) {
+	  SREG[E_CB] = (CELL)(LCL0-cut_b);
+	}
       }
       goto reset_absmi;
 
