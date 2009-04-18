@@ -655,7 +655,7 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	ENABLE_JPL=""
 	JAVA_HOME="$yap_cv_jpl"
 	if test "x$JAVALIBS" = "x"; then
-	  case "$PLARCH" in
+	  case "$target_os" in
 	       *darwin*)
 	       JAVALIBS="-Wl,-framework,JavaVM"
 	       	  ;;
@@ -667,9 +667,15 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	       	  ;;
 	    esac
         fi
-	JAR="$yap_cv_jpl"/bin/jar
-	JAVAC="$yap_cv_jpl"/bin/javac
-	JAVADOC="$yap_cv_jpl"/bin/javadoc
+	if test "$yap_cv_jpl" = ""; then
+          JAR=jar
+          JAVAC=javac
+          JAVADOC=javadoc
+        else
+	  JAR="$yap_cv_jpl"/bin/jar
+	  JAVAC="$yap_cv_jpl"/bin/javac
+	  JAVADOC="$yap_cv_jpl"/bin/javadoc
+        fi
 else
       ENABLE_JPL="@#"
 fi
@@ -1547,24 +1553,46 @@ mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
 mkdir -p  packages/sgml
 
-
-AC_OUTPUT(Makefile library/matrix/Makefile library/matlab/Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile LGPL/Makefile packages/CLPBN/Makefile LGPL/clp/Makefile library/lammpi/Makefile library/tries/Makefile library/rltree/Makefile LGPL/swi_console/Makefile GPL/Makefile  packages/cplint/Makefile packages/sgml/Makefile packages/PLStream/Makefile packages/ProbLog/Makefile )
+AC_CONFIG_FILES([.depend])
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([GPL/Makefile])
+AC_CONFIG_FILES([library/Makefile])
+AC_CONFIG_FILES([library/lammpi/Makefile])
+AC_CONFIG_FILES([library/matlab/Makefile])
+AC_CONFIG_FILES([library/matrix/Makefile])
+AC_CONFIG_FILES([library/mpi/Makefile])
+AC_CONFIG_FILES([library/random/Makefile])
+AC_CONFIG_FILES([library/regex/Makefile])
+AC_CONFIG_FILES([library/rltree/Makefile])
+AC_CONFIG_FILES([library/system/Makefile])
+AC_CONFIG_FILES([library/tries/Makefile])
+AC_CONFIG_FILES([library/yap2swi/Makefile])
+AC_CONFIG_FILES([LGPL/Makefile])
+AC_CONFIG_FILES([LGPL/clp/Makefile])
+AC_CONFIG_FILES([LGPL/swi_console/Makefile])
+AC_CONFIG_FILES([packages/CLPBN/Makefile])
+AC_CONFIG_FILES([packages/cplint/Makefile])
+AC_CONFIG_FILES([packages/sgml/Makefile])
+AC_CONFIG_FILES([packages/PLStream/Makefile])
+AC_CONFIG_FILES([packages/ProbLog/Makefile ])
 
 if test "$ENABLE_CHR" = ""; then
-AC_OUTPUT(packages/chr/Makefile)
+AC_CONFIG_FILES([packages/chr/Makefile])
 fi
 
 if test "$ENABLE_CLPQR" = ""; then
-AC_OUTPUT(packages/clpqr/Makefile)
+AC_CONFIG_FILES([packages/clpqr/Makefile])
 fi
 
 if test "$ENABLE_JPL" = ""; then
-AC_OUTPUT(packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile)
+AC_CONFIG_FILES([packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile])
 fi
 
 if test "$USE_CUDD" = ""; then
-AC_OUTPUT(packages/ProbLog/simplecudd/Makefile)
+AC_CONFIG_FILES([packages/ProbLog/simplecudd/Makefile])
 fi
+
+AC_OUTPUT()
 
 make depend
 (cd packages/PLStream; make depend; cd ../..)
