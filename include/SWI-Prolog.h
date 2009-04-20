@@ -447,14 +447,13 @@ UNICODE file functions.
 
 #define PL_DIFF_LIST	0x20000		/* PL_unify_chars() */
 
-
 #ifdef SIO_MAGIC			/* defined from <SWI-Stream.h> */
-extern X_API  int PL_unify_stream(term_t t, IOSTREAM *s);
-#define PL_open_stream PL_unify_stream
-extern X_API  int PL_get_stream_handle(term_t t, IOSTREAM **s);\
-extern X_API  IOSTREAM *Snew(void *handle,int flags,IOFUNCTIONS *functions);
-extern X_API  int Sgetcode(IOSTREAM *);
-extern X_API  int Sfeof(IOSTREAM *);
+					/* Make IOSTREAM known to Prolog */
+#define PL_open_stream  PL_unify_stream	/* compatibility */
+PL_EXPORT(int)  	PL_unify_stream(term_t t, IOSTREAM *s);
+PL_EXPORT(int)  	PL_get_stream_handle(term_t t, IOSTREAM **s);
+PL_EXPORT(int) 		PL_release_stream(IOSTREAM *s);
+
 #endif
 
 #define succeed			return TRUE
