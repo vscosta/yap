@@ -487,12 +487,12 @@ then
   else
     LIBS="-lcygwin"
    fi
-  ENABLE_WINCONSOLE="@#"   
+  ENABLE_WINCONSOLE=""   
 elif test "$target_os" = "mingw32" 
 then
   yap_cv_readline=no
-  ENABLE_WINCONSOLE=""   
   INSTALL_COMMAND=install_win32
+  ENABLE_WINCONSOLE="#"   
   AC_CHECK_LIB(wsock32,main)
   AC_CHECK_LIB(psapi,main)
     if test "$prefix" = "NONE"
@@ -501,6 +501,7 @@ then
     fi
 else
   INSTALL_COMMAND="install_unix"
+  ENABLE_WINCONSOLE="#"
   AC_CHECK_LIB(m,sin)
   AC_CHECK_LIB(socket,socket)
   dnl X/Open Networking is sometimes a separate library
