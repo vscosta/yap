@@ -1,5 +1,8 @@
 
 #include "config.h"
+
+#define PL_KERNEL 1
+
 #include <SWI-Prolog.h>
 typedef int bool;
 
@@ -389,6 +392,24 @@ typedef double			real;
 
 #define forwards static		/* forwards function declarations */
 
+/* uxnt package interface */
+#if defined(__YAP_PROLOG__) && defined(__MINGW32__)
+#define O_XOS 1
+
+#define _XOS_ISFILE	0x01
+#define _XOS_ISDIR	0x02
+
+#define _XOS_FILE	0x0001		/* is a file */
+#define _XOS_DIR	0x0002		/* is a directory */
+
+#define XOS_DOWNCASE	0x01		/* _xos_canonical_filename() */
+
+#ifndef __WINDOWS__
+#define __WINDOWS__ 1
+#endif
+
+#endif
+
 #define PL_dispatch(FD, COM)
 extern int PL_unify_char(term_t chr, int c, int how);
 extern int PL_get_char(term_t chr, int *c, int eof);
@@ -460,10 +481,7 @@ word pl_noprotocol(void);
 
 IOSTREAM *PL_current_input(void);
 IOSTREAM *PL_current_output(void);
-extern int PL_release_stream(IOSTREAM *s);
-extern int PL_get_stream_handle(term_t t, IOSTREAM **s);
 extern int PL_unify_stream_or_alias(term_t t, IOSTREAM *s);
-extern int PL_unify_stream(term_t t, IOSTREAM *s);
 extern bool PL_open_stream(term_t handle, IOSTREAM *s);
 extern void PL_write_prompt(int dowrite);
 

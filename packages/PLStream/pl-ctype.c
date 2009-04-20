@@ -837,7 +837,7 @@ static const enc_map map[] =
   { NULL, ENC_UNKNOWN }
 };
 
-static IOENC
+IOENC
 initEncoding(void)
 { if ( LD )
   { if ( !LD->encoding )

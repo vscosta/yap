@@ -34,6 +34,12 @@
 #endif
 
 #include "pl-incl.h"
+#ifdef __YAP_PROLOG__
+#ifdef __MINGW32__
+#define O_XOS 1
+#define statfunc _xos_stat
+#endif
+#endif
 #include "pl-ctype.h"
 #include "pl-utf8.h"
 #undef abs
@@ -485,7 +491,8 @@ static void
 initRandom(void)
 { unsigned int seed;
 
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__) && !defined(__MINGW32__)
+
   seed = (unsigned int)GetTickCount();
 #else
 #ifdef HAVE_GETTIMEOFDAY
@@ -810,6 +817,7 @@ OsPath(const char *p, char *buf)
 #endif /*__unix__*/
 
 #if O_XOS
+
 char *
 PrologPath(const char *p, char *buf, size_t len)
 { int flags = (trueFeature(FILE_CASE_FEATURE) ? 0 : XOS_DOWNCASE);

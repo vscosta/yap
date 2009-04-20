@@ -22,12 +22,21 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#ifdef __MINGW32__
+#define __WINDOWS__ 1
+#endif
+
 #ifdef __WINDOWS__
 #include <uxnt.h>
+#ifdef __MINGW32__
+#include "config.h"
+#include <windows.h>
+#else
 #ifdef WIN64
 #define MD "config/win64.h"
 #else
 #define MD "config/win32.h"
+#endif
 #endif
 #include <winsock2.h>
 #include "pl-mswchar.h"

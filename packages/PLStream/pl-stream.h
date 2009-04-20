@@ -32,14 +32,14 @@
 #include <sys/_mbstate_t.h>
 #endif
 
-#if defined(_MSC_VER) && !defined(__WINDOWS__)
+#if (defined(_MSC_VER) || defined(__MINGW32__)) && !defined(__WINDOWS__)
 #define __WINDOWS__ 1
 #endif
 
 #include <stdarg.h>
 #include <wchar.h>
 #include <stddef.h>
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__) && !defined(__MINGW32__)
 typedef __int64 int64_t;
 #if (_MSC_VER < 1300)
 typedef long intptr_t;

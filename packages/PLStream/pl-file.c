@@ -348,7 +348,7 @@ releaseStream(IOSTREAM *s)
 
 #endif /*O_PLMT*/
 
-int
+ int
 PL_release_stream(IOSTREAM *s)
 { if ( Sferror(s) )
     return streamStatus(s);
@@ -446,14 +446,14 @@ noent:
 #define get_stream_handle(t, sp, flags) \
 	get_stream_handle__LD(t, sp, flags PASS_LD)
 
-int
+ int
 PL_get_stream_handle(term_t t, IOSTREAM **s)
 { GET_LD
   return get_stream_handle(t, s, SH_ERRORS|SH_ALIAS);
 }
 
 
-int
+ int
 PL_unify_stream_or_alias(term_t t, IOSTREAM *s)
 { GET_LD
   int rval;
@@ -481,7 +481,7 @@ PL_unify_stream_or_alias(term_t t, IOSTREAM *s)
 }
 
 
-int
+ int
 PL_unify_stream(term_t t, IOSTREAM *s)
 { GET_LD
   stream_context *ctx;
@@ -503,7 +503,7 @@ PL_unify_stream(term_t t, IOSTREAM *s)
 }
 
 
-bool					/* old FLI name (compatibility) */
+ bool					/* old FLI name (compatibility) */
 PL_open_stream(term_t handle, IOSTREAM *s)
 { return PL_unify_stream(handle, s);
 }
@@ -609,7 +609,7 @@ isConsoleStream(IOSTREAM *s)
 #endif
 
 
-static bool
+bool
 reportStreamError(IOSTREAM *s)
 { if ( GD->cleaning == CLN_NORMAL &&
        !isConsoleStream(s) &&
@@ -782,7 +782,7 @@ closeFiles(int all)
 }
 
 
-void
+ void
 PL_cleanup_fork(void)
 { TableEnum e;
   Symbol symb;
@@ -1030,7 +1030,7 @@ PRED_IMPL("with_output_to", 2, with_output_to, PL_FA_TRANSPARENT)
 
 
 
-void
+ void
 PL_write_prompt(int dowrite)
 { GET_LD
   IOSTREAM *s = getStream(Suser_output);
@@ -1169,14 +1169,14 @@ readLine(IOSTREAM *in, IOSTREAM *out, char *buffer)
 }
 
 
-IOSTREAM *
+ IOSTREAM *
 PL_current_input()
 { GET_LD
   return getStream(Scurin);
 }
 
 
-IOSTREAM *
+ IOSTREAM *
 PL_current_output()
 { GET_LD
   return getStream(Scurout);
@@ -1951,7 +1951,7 @@ PRED_IMPL("read_pending_input", 3, read_pending_input, 0)
   fail;
 }
 
-int
+ int
 PL_get_char(term_t c, int *p, int eof)
 { GET_LD
   int chr;
@@ -1988,7 +1988,7 @@ PL_unify_char(term_t chr, int c, int how)
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 int
-PL_unify_char(term_t chr, int c, int how)
+ PL_unify_char(term_t chr, int c, int how)
 { GET_LD
   int c2 = -1;
 
@@ -3355,7 +3355,7 @@ pl_stream_property(term_t stream, term_t property, control_t h)
 
 	  break;
 	}
-
+	
 	if ( PL_get_functor(property, &f) )
 	{ const sprop *p = sprop_list;
 
@@ -4270,6 +4270,11 @@ pl_delete_directory(term_t name)
 		    ATOM_delete, ATOM_directory, name);
 }
 
+
+/* mkdir/2 works in SWI, and not in YAP, why? */ 
+#ifdef __WINDOWS__
+#define mkdir(X,Y) mkdir(X)
+#endif
 
 static word
 pl_make_directory(term_t name)
