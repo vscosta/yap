@@ -24,6 +24,8 @@
 #include	<math.h>
 #endif
 
+#define PL_KERNEL 1
+
 #include	<SWI-Stream.h>
 #include	<SWI-Prolog.h>
 
