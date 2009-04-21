@@ -102,6 +102,7 @@ true :- true.
 	nb_setval('$if_level',0),
 	nb_setval('$endif',off),
 	nb_setval('$consulting_file',[]),
+	nb_setval('$initialization_goals',off),
 	nb_setval('$consulting',false),
 	nb_setval('$included_file',[]).
 	

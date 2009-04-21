@@ -303,6 +303,9 @@ use_module(M,F,Is) :-
 '$initialization'(_).
 
 '$exec_initialisation_goals' :-
+	nb_setval('$initialization_goals',on),
+	fail.
+'$exec_initialisation_goals' :-
 	recorded('$blocking_code',_,R),
 	erase(R),
 	fail.
@@ -331,7 +334,8 @@ use_module(M,F,Is) :-
 	  '$enter_system_mode',
 	  fail
 	).
-'$exec_initialisation_goals'.
+'$exec_initialisation_goals' :-
+	nb_setval('$initialization_goals',off).
 
 '$include'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,include(V)).

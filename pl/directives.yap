@@ -244,8 +244,10 @@ yap_flag(generate_debug_info,false) :- !,
 yap_flag(generate_debug_info,X) :-
 	'$do_error'(domain_error(flag_value,generate_debug_info+X),yap_flag(generate_debug_info,X)).
 
-'$enable_restore_flag_info'(_Flag) :-
+'$enable_restore_flag_info'(_) :-
 	nb_getval('$consulting_file',[]), !.
+'$enable_restore_flag_info'(_) :-
+	nb_getval('$initialization_goals',on), !.
 '$enable_restore_flag_info'(Flag) :-
 	'$show_consult_level'(Level1),
 	yap_flag(Flag, Info),
