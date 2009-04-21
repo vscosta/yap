@@ -1830,10 +1830,7 @@ assertz_stat_clause(PredEntry *p, yamop *cp, int spy_flag)
     clp->ClPrev = clq;
     clp->ClNext = NULL;
     p->cs.p_code.LastClause = cp;
-    if (p->PredFlags & SpiedPredFlag) {
-      p->OpcodeOfPred = Yap_opcode(_spy_pred);
-      p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
-    } else if (!(p->PredFlags & IndexedPredFlag)) {
+    if (!(p->PredFlags & IndexedPredFlag)) {
       p->OpcodeOfPred = INDEX_OPCODE;
       p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
@@ -1843,6 +1840,10 @@ assertz_stat_clause(PredEntry *p, yamop *cp, int spy_flag)
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
 #endif
+    if (p->PredFlags & SpiedPredFlag) {
+      p->OpcodeOfPred = Yap_opcode(_spy_pred);
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+    } 
     return;
   } else {
     StaticClause *cl =   ClauseCodeToStaticClause(pt);
