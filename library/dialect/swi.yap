@@ -184,7 +184,8 @@ prolog:volatile((G1,G2)) :-
 	prolog:volatile(G1),
 	prolog:volatile(G2).
 prolog:volatile(P) :-
-	do_volatile(P,_).
+	prolog_load_context(module, M),
+	do_volatile(P,M).
 
 prolog:load_foreign_library(P,Command) :-
 	absolute_file_name(P,[file_type(executable),solutions(first),file_errors(fail)],Lib),
