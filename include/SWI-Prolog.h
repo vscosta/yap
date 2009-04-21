@@ -25,7 +25,7 @@
 #endif
 
 #ifndef X_API
-#if defined(_MSC_VER) && defined(YAP_EXPORTS)
+#if (defined(_MSC_VER) || defined(__MINGW32__)) && defined(PL_KERNEL)
 #define X_API __declspec(dllexport)
 #else
 #define X_API
@@ -45,7 +45,7 @@ stuff.
 #ifndef _PL_EXPORT_DONE
 #define _PL_EXPORT_DONE
 
-#if (defined(__WINDOWS__) || defined(__CYGWIN__)) && !defined(__LCC__)
+#if (defined(__WINDOWS__) || defined(__CYGWIN__) || defined(__MINGW32__)) && !defined(__LCC__)
 #define HAVE_DECLSPEC
 #endif
 
@@ -449,7 +449,7 @@ UNICODE file functions.
 
 #ifdef SIO_MAGIC			/* defined from <SWI-Stream.h> */
 					/* Make IOSTREAM known to Prolog */
-#define PL_open_stream  PL_unify_stream	/* compatibility */
+PL_EXPORT(int)  	PL_open_stream(term_t t, IOSTREAM *s);
 PL_EXPORT(int)  	PL_unify_stream(term_t t, IOSTREAM *s);
 PL_EXPORT(int)  	PL_get_stream_handle(term_t t, IOSTREAM **s);
 PL_EXPORT(int) 		PL_release_stream(IOSTREAM *s);
