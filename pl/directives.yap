@@ -234,13 +234,26 @@ yap_flag(generate_debug_info,X) :-
         '$access_yap_flags'(18,Options),
 	(Options =:= 0 -> X = false ; X = true ).
 yap_flag(generate_debug_info,true) :- !,
+	'$enable_restore_flag_info'(generate_debug_info),
 	'$set_yap_flags'(18,1),
 	source.
 yap_flag(generate_debug_info,false) :- !,
+	'$enable_restore_flag_info'(generate_debug_info),
 	'$set_yap_flags'(18,0),
 	no_source.
 yap_flag(generate_debug_info,X) :-
 	'$do_error'(domain_error(flag_value,generate_debug_info+X),yap_flag(generate_debug_info,X)).
+
+'$enable_restore_flag_info'(_Flag) :-
+	nb_getval('$consulting_file',[]), !.
+'$enable_restore_flag_info'(Flag) :-
+	'$show_consult_level'(Level1),
+	yap_flag(Flag, Info),
+	% it will be done after we leave the current consult level.
+	Level is Level1-1,
+	recorda('$initialisation',do(Level,yap_flag(Flag,Info)),_),
+	fail.
+'$enable_restore_flag_info'(_).
 
 %
 % show state of $
