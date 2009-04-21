@@ -792,7 +792,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 	wrputc(')', wglb->writewch);
 	lastw = separator;
       }
-    } else if (functor == FunctorBraces) {
+    } else if (!wglb->Ignore_ops && functor == FunctorBraces) {
       wrputc('{', wglb->writewch);
       lastw = separator;
       writeTerm(ArgOfTermCell(1, t), 1200, depth + 1, FALSE, wglb);
