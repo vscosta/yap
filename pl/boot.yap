@@ -1160,7 +1160,8 @@ throw(Ball) :-
 'catch_ball'(Ball, V) :-
 	var(V),
 	nonvar(Ball),
-	functor(Ball, Name, _),
+	Ball = error(Type,_), % internal error ??
+	functor(Type, Name, _),
 	atom_codes(Name, [0'$|_]), %'0
 	!, fail.
 'catch_ball'(C, C).
