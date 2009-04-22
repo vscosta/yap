@@ -4224,12 +4224,12 @@ fi
   else
     LIBS="-lcygwin"
    fi
-  ENABLE_WINCONSOLE=""
+  ENABLE_WINCONSOLE="#"
 elif test "$target_os" = "mingw32"
 then
   yap_cv_readline=no
   INSTALL_COMMAND=install_win32
-  ENABLE_WINCONSOLE="#"
+  ENABLE_WINCONSOLE=""
 
 { echo "$as_me:$LINENO: checking for main in -lwsock32" >&5
 echo $ECHO_N "checking for main in -lwsock32... $ECHO_C" >&6; }
@@ -4366,7 +4366,7 @@ fi
     fi
 else
   INSTALL_COMMAND="install_unix"
-  ENABLE_WINCONSOLE="#"
+  ENABLE_WINCONSOLE=""
 
 { echo "$as_me:$LINENO: checking for sin in -lm" >&5
 echo $ECHO_N "checking for sin in -lm... $ECHO_C" >&6; }
