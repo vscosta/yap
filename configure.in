@@ -1575,6 +1575,7 @@ AC_CONFIG_FILES([LGPL/swi_console/Makefile])
 AC_CONFIG_FILES([packages/CLPBN/Makefile])
 AC_CONFIG_FILES([packages/cplint/Makefile])
 AC_CONFIG_FILES([packages/sgml/Makefile])
+AC_CONFIG_FILES([packages/PLStream/depend])
 AC_CONFIG_FILES([packages/PLStream/Makefile])
 AC_CONFIG_FILES([packages/ProbLog/Makefile ])
 
