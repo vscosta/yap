@@ -481,7 +481,7 @@ PL_unify_stream_or_alias(term_t t, IOSTREAM *s)
 }
 
 
- int
+int
 PL_unify_stream(term_t t, IOSTREAM *s)
 { GET_LD
   stream_context *ctx;
@@ -503,7 +503,7 @@ PL_unify_stream(term_t t, IOSTREAM *s)
 }
 
 
- bool					/* old FLI name (compatibility) */
+bool					/* old FLI name (compatibility) */
 PL_open_stream(term_t handle, IOSTREAM *s)
 { return PL_unify_stream(handle, s);
 }

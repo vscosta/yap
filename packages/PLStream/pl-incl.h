@@ -481,9 +481,13 @@ word pl_noprotocol(void);
 
 IOSTREAM *PL_current_input(void);
 IOSTREAM *PL_current_output(void);
-extern int PL_unify_stream_or_alias(term_t t, IOSTREAM *s);
-extern bool PL_open_stream(term_t handle, IOSTREAM *s);
-extern void PL_write_prompt(int dowrite);
+
+PL_EXPORT(int)  	PL_open_stream(term_t t, IOSTREAM *s);
+PL_EXPORT(int)  	PL_unify_stream(term_t t, IOSTREAM *s);
+PL_EXPORT(int)  	PL_unify_stream_or_alias(term_t t, IOSTREAM *s);
+PL_EXPORT(int)  	PL_get_stream_handle(term_t t, IOSTREAM **s);
+PL_EXPORT(void)  	PL_write_prompt(int);
+PL_EXPORT(int) 		PL_release_stream(IOSTREAM *s);
 
 /**** stuff from pl-error.c ****/
 extern void		outOfCore(void);
