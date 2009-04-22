@@ -1,6 +1,9 @@
 [submodule "packages/chr"]
 	path = packages/chr
-	url = git://prolog.cs.vu.nl/home/pl/git/chr.git
+	url = git://yap.dcc.fc.up.pt/chr
 [submodule "packages/clpqr"]
 	path = packages/clpqr
-	url = git://prolog.cs.vu.nl/home/pl/git/clpqr.git
+	url = git://yap.dcc.fc.up.pt/clpqr
+[submodule "packages/jpl"]
+	path = packages/jpl
+	url = git://yap.dcc.fc.up.pt/jpl
