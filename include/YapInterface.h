@@ -480,6 +480,9 @@ extern X_API int          PROTO(YAP_CloseList,(YAP_Term, YAP_Term));
 extern X_API int	PROTO(YAP_IsAttVar,(YAP_Term));
 extern X_API YAP_Term	PROTO(YAP_AttsOfVar,(YAP_Term));
 
+/*  stream info */
+extern X_API void      *PROTO(YAP_FileDescriptorFromStream,(YAP_Term));
+
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 
 __END_DECLS

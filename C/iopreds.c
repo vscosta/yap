@@ -6104,6 +6104,21 @@ Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
   return EX;
 }
 
+FILE *
+Yap_FileDescriptorFromStream(Term t)
+{
+  int sno = CheckStream (ARG1, Input_Stream_f, "get0/2");
+  if (sno < 0)
+    return(FALSE);
+  if (Stream[sno].status & (Null_Stream_f|
+		InMemory_Stream_f|
+		Socket_Stream_f|
+		Pipe_Stream_f|
+		Free_Stream_f))
+    return NULL;
+  return Stream[sno].u.file.file;
+}
+
 void
 Yap_InitBackIO (void)
 {

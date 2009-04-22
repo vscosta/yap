@@ -511,6 +511,7 @@ X_API int      STD_PROTO(YAP_CloseList,(Term, Term));
 X_API int      STD_PROTO(YAP_IsAttVar,(Term));
 X_API Term     STD_PROTO(YAP_AttsOfVar,(Term));
 X_API Term     STD_PROTO(YAP_TermHash,(Term));
+X_API void    *STD_PROTO(YAP_FileDescriptorFromStream,(Term));
 
 static int (*do_getf)(void);
 
@@ -2529,5 +2530,15 @@ YAP_TermHash(Term t)
     return TermNil;
   attv = (attvar_record *)VarOfTerm(t);
   return attv->Atts;
+}
+
+X_API void *
+YAP_FileDescriptorFromStream(Term t)
+{
+ 
+  t = Deref(t);
+  if (IsVarTerm(t))
+    return NULL;
+  return Yap_FileDescriptorFromStream(t);
 }
 
