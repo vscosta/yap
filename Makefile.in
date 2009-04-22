@@ -714,10 +714,10 @@ TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
 
 depend: $(HEADERS) $(C_SOURCES)
 	-@if test "$(GCC)" = yes; then\
-	  $(CC) -MM $(CFLAGS) -I$(srcdir)/include $(C_SOURCES) > .depend;\
+	  $(CC) -MM $(CFLAGS) -I$(srcdir)/include $(C_SOURCES) > depend;\
 	else\
           makedepend -f - -- $(CFLAGS) -I$(srcdir)/include -- $(C_SOURCES) |\
-          sed 's|.*/\([^:]*\):|\1:|' > .depend ;\
+          sed 's|.*/\([^:]*\):|\1:|' > depend ;\
 	fi
 
 clean: clean_docs
@@ -823,4 +823,4 @@ installcheck:
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
-include .depend
+include depend
