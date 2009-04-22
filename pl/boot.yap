@@ -1147,12 +1147,23 @@ throw(Ball) :-
 
 '$handle_throw'(_, _, _).
 '$handle_throw'(C, A, Ball) :-
-        % reset info 
-	(Ball \== '$abort', C = Ball ->
+        % reset info
+	('catch_ball'(Ball, C) ->
 	    '$execute'(A)
 	    ;
 	    throw(Ball)
 	).
+
+'catch_ball'('$abort', _, _) :- !, fail.
+% system defined throws should be ignored by used, unless the
+% user is hacking away.
+'catch_ball'(Ball, V) :-
+	var(V),
+	nonvar(Ball),
+	functor(Ball, Name, _),
+	atom_codes(Name, [0'$|_]), %'0
+	!, fail.
+'catch_ball'(C, C).
 
 '$run_toplevel_hooks' :-
 	nb_getval('$break',0),
