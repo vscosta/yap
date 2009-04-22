@@ -340,7 +340,7 @@ debugging :-
 '$loop_spy'(GoalNumber, G, Module, CalledFromDebugger) :-
 	yap_hacks:current_choice_point(CP),
 	'$system_catch'('$loop_spy2'(GoalNumber, G, Module, CalledFromDebugger, CP),
-		    Module, Event,
+		    Module, '$debug_event'(Event),
 		    '$loop_spy_event'(Event, GoalNumber, G, Module, CalledFromDebugger)).
 
 % handle weird things happening in the debugger.		    
@@ -348,24 +348,24 @@ debugging :-
      G0 >= GoalNumber, !,
      '$loop_spy'(GoalNumber, G, Module, CalledFromDebugger).
 '$loop_spy_event'('$retry_spy'(GoalNumber), _, _, _, _) :- !,
-     throw('$retry_spy'(GoalNumber)).
+     throw('$debug_event'('$retry_spy'(GoalNumber))).
 '$loop_spy_event'('$fail_spy'(G0), GoalNumber, G, Module, CalledFromDebugger) :-
      G0 >= GoalNumber, !,
     '$loop_fail'(GoalNumber, G, Module, CalledFromDebugger).
 '$loop_spy_event'('$fail_spy'(GoalNumber), _, _, _, _) :- !,
-     throw('$fail_spy'(GoalNumber)).
+     throw('$debug_event'('$fail_spy'(GoalNumber))).
 '$loop_spy_event'('$done_spy'(G0,G), GoalNumber, G, _, CalledFromDebugger) :-
      G0 >= GoalNumber, !,
      '$continue_debugging'(CalledFromDebugger).
 '$loop_spy_event'('$done_spy'(GoalNumber), _, _, _, _) :- !,
-     throw('$done_spy'(GoalNumber)).
+     throw('$debug_event'('$done_spy'(GoalNumber))).
 '$loop_spy_event'(abort, _, _, _, _) :- !,
      throw('$abort').
 '$loop_spy_event'(Event, GoalNumber, G, Module, CalledFromDebugger) :-
      '$debug_error'(Event),     
      '$system_catch'(
 		     ('$trace'(exception,G,Module,GoalNumber,_),fail),
-		     Module,NewEvent,
+		     Module,'$debug_event'(NewEvent),
 		     '$loop_spy_event'(NewEvent, GoalNumber, G, Module, CalledFromDebugger)).
 
 
@@ -602,8 +602,8 @@ debugging :-
 	'$skipeol'(0'e),
 	halt.
 '$action'(0'f,_,CallId,_,_,_) :- !,		% 'f		fail
-	'$scan_number'(0'f, CallId, GoalId),
-	throw('$fail_spy'(GoalId)).
+	'$scan_number'(0'f, CallId, GoalId),    %'f
+	throw('$debug_event'('$fail_spy'(GoalId))).
 '$action'(0'h,_,_,_,_,_) :- !,			% 'h		help
 	'$action_help',
 	'$skipeol'(104),
@@ -653,7 +653,7 @@ debugging :-
 '$action'(0'r,_,CallId,_,_,_) :- !,		        % 'r		retry
         '$scan_number'(0'r,CallId,ScanNumber),		% '
         '$debug_on'(true),
-	throw('$retry_spy'(ScanNumber)).
+	throw('$debug_event'('$retry_spy'(ScanNumber))).
 '$action'(0's,P,CallNumber,_,_,on) :- !,		% 's		skip
 	'$skipeol'(0's),				% '		
 	( (P=call; P=redo) ->
