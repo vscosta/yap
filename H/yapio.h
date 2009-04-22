@@ -289,6 +289,7 @@ Term     STD_PROTO(Yap_scan_num,(int (*)(int)));
 char	 STD_PROTO(*Yap_AllocScannerMemory,(unsigned int));
 
 /* routines in iopreds.c */
+FILE  *STD_PROTO(Yap_FileDescriptorFromStream,(Term));
 Int   STD_PROTO(Yap_FirstLineInParse,(void));
 int   STD_PROTO(Yap_CheckIOStream,(Term, char *));
 #if  defined(YAPOR) || defined(THREADS)
