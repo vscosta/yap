@@ -9,7 +9,7 @@
   AtomAltNot = Yap_LookupAtom("not");
   AtomAppend = Yap_LookupAtom("append");
   AtomArg = Yap_LookupAtom("arg");
-  AtomArray = Yap_LookupAtom("array");
+  AtomArray = Yap_FullLookupAtom("$array");
   AtomArrayAccess = Yap_FullLookupAtom("$array_arg");
   AtomArrayOverflow = Yap_LookupAtom("array_overflow");
   AtomArrayType = Yap_LookupAtom("array_type");
