@@ -16736,8 +16736,6 @@ mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
 mkdir -p  packages/sgml
 
-ac_config_files="$ac_config_files depend"
-
 ac_config_files="$ac_config_files Makefile"
 
 ac_config_files="$ac_config_files GPL/Makefile"
@@ -16775,8 +16773,6 @@ ac_config_files="$ac_config_files packages/CLPBN/Makefile"
 ac_config_files="$ac_config_files packages/cplint/Makefile"
 
 ac_config_files="$ac_config_files packages/sgml/Makefile"
-
-ac_config_files="$ac_config_files packages/PLStream/depend"
 
 ac_config_files="$ac_config_files packages/PLStream/Makefile"
 
@@ -17357,7 +17353,6 @@ for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
-    "depend") CONFIG_FILES="$CONFIG_FILES depend" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "GPL/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/Makefile" ;;
     "library/Makefile") CONFIG_FILES="$CONFIG_FILES library/Makefile" ;;
@@ -17377,7 +17372,6 @@ do
     "packages/CLPBN/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/Makefile" ;;
     "packages/cplint/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/Makefile" ;;
     "packages/sgml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/sgml/Makefile" ;;
-    "packages/PLStream/depend") CONFIG_FILES="$CONFIG_FILES packages/PLStream/depend" ;;
     "packages/PLStream/Makefile") CONFIG_FILES="$CONFIG_FILES packages/PLStream/Makefile" ;;
     "packages/ProbLog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/Makefile" ;;
     "packages/chr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/chr/Makefile" ;;
