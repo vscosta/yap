@@ -1555,7 +1555,7 @@ mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
 mkdir -p  packages/sgml
 
-AC_CONFIG_FILES([.depend])
+AC_CONFIG_FILES([depend])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([GPL/Makefile])
 AC_CONFIG_FILES([library/Makefile])
@@ -1597,5 +1597,3 @@ fi
 
 AC_OUTPUT()
 
-make depend
-(cd packages/PLStream; make depend; cd ../..)

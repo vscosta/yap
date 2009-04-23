@@ -16736,7 +16736,7 @@ mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
 mkdir -p  packages/sgml
 
-ac_config_files="$ac_config_files .depend"
+ac_config_files="$ac_config_files depend"
 
 ac_config_files="$ac_config_files Makefile"
 
@@ -17357,7 +17357,7 @@ for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
-    ".depend") CONFIG_FILES="$CONFIG_FILES .depend" ;;
+    "depend") CONFIG_FILES="$CONFIG_FILES depend" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "GPL/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/Makefile" ;;
     "library/Makefile") CONFIG_FILES="$CONFIG_FILES library/Makefile" ;;
@@ -18046,5 +18046,3 @@ if test "$no_create" != yes; then
 fi
 
 
-make depend
-(cd packages/PLStream; make depend; cd ../..)

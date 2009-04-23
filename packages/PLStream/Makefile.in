@@ -118,10 +118,8 @@ clean:
 
 depend: $(HEADERS) $(C_SOURCES)
 	-@if test "$(GCC)" = yes; then\
-	  $(CC) -MM -MG $(CFLAGS) -I$(srcdir) -I$(srcdir)/../../include -I$(srcdir)/../../H $(C_SOURCES) > depend;\
+	  $(CC) -MM -MG $(CFLAGS) -I$(srcdir) -I$(srcdir)/../../include -I$(srcdir)/../../H $(C_SOURCES) >> Makefile;\
 	else\
           makedepend -f - -- $(CFLAGS) -I$(srcdir)/../../H -I$(srcdir)/../../include -- $(C_SOURCES) |\
-          sed 's|.*/\([^:]*\):|\1:|' > .depend ;\
+          sed 's|.*/\([^:]*\):|\1:|' >> Makefile ;\
 	fi
-
-include depend
