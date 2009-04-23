@@ -760,24 +760,27 @@ clean_statements(["unsigned"|Statements0], StatementsF) :- !,
 	clean_statements(Statements0, StatementsF).
 clean_statements(Statements, Statements).
 
-opinfo("p_number_x",[body,bind("x","(_number+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
-opinfo("p_number_y",[body,bind("y","(_number+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
-opinfo("p_atomic_x",[body,bind("x","(_atomic+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
-opinfo("p_atomic_y",[body,bind("y","(_atomic+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
-opinfo("p_primitive_x",[body,bind("x","(_primitive+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
-opinfo("p_primitive_y",[body,bind("y","(_primitive+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
-opinfo("p_compound_x",[body,bind("x","(_compound+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
-opinfo("p_compound_y",[body,bind("y","(_compound+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
-opinfo("p_atom_x",[body,bind("x","(_atom+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
-opinfo("p_atom_y",[body,bind("y","(_atom+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
-opinfo("p_integer_x",[body,bind("x","(_integer+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
-opinfo("p_integer_y",[body,bind("y","(_integer+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
-opinfo("p_float_x",[body,bind("x","AbsAppl((CELL *)FunctorDouble)",t_ptr=[]),ifthenelse]).
-opinfo("p_float_y",[body,bind("y","AbsAppl((CELL *)FunctorDouble)",t_ptr=[]),ifthenelse]).
-opinfo("p_db_ref_x",[body,bind("x","AbsAppl((CELL *)FunctorDBRef)",t_ptr=[]),ifthenelse]).
-opinfo("p_db_ref_y",[body,bind("y","AbsAppl((CELL *)FunctorDBRef)",t_ptr=[]),ifthenelse]).
-opinfo("p_var_x",[body,bind("x","(_var+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
-opinfo("p_var_y",[body,bind("y","(_var+1)*sizeof(CELL)",t_ptr=[]),ifthenelse]).
+%
+% Notice that order matters: for example ifthenelse should be tested before a bind
+%
+opinfo("p_number_x",[body,ifthenelse,bind("x","(_number+1)*sizeof(CELL)",t_ptr=[])]).
+opinfo("p_number_y",[body,ifthenelse,bind("y","(_number+1)*sizeof(CELL)",t_ptr=[])]).
+opinfo("p_atomic_x",[body,ifthenelse,bind("x","(_atomic+1)*sizeof(CELL)",t_ptr=[])]).
+opinfo("p_atomic_y",[body,ifthenelse,bind("y","(_atomic+1)*sizeof(CELL)",t_ptr=[])]).
+opinfo("p_primitive_x",[body,ifthenelse,bind("x","(_primitive+1)*sizeof(CELL)",t_ptr=[])]).
+opinfo("p_primitive_y",[body,ifthenelse,bind("y","(_primitive+1)*sizeof(CELL)",t_ptr=[])]).
+opinfo("p_compound_x",[body,ifthenelse,bind("x","(_compound+1)*sizeof(CELL)",t_ptr=[])]).
+opinfo("p_compound_y",[body,ifthenelse,bind("y","(_compound+1)*sizeof(CELL)",t_ptr=[])]).
+opinfo("p_atom_x",[body,ifthenelse,bind("x","(_atom+1)*sizeof(CELL)",t_ptr=[])]).
+opinfo("p_atom_y",[body,ifthenelse,bind("y","(_atom+1)*sizeof(CELL)",t_ptr=[])]).
+opinfo("p_integer_x",[body,ifthenelse,bind("x","(_integer+1)*sizeof(CELL)",t_ptr=[])]).
+opinfo("p_integer_y",[body,ifthenelse,bind("y","(_integer+1)*sizeof(CELL)",t_ptr=[])]).
+opinfo("p_float_x",[body,ifthenelse,bind("x","AbsAppl((CELL *)FunctorDouble)",t_ptr=[])]).
+opinfo("p_float_y",[body,ifthenelse,bind("y","AbsAppl((CELL *)FunctorDouble)",t_ptr=[])]).
+opinfo("p_db_ref_x",[body,ifthenelse,bind("x","AbsAppl((CELL *)FunctorDBRef)",t_ptr=[])]).
+opinfo("p_db_ref_y",[body,ifthenelse,bind("y","AbsAppl((CELL *)FunctorDBRef)",t_ptr=[])]).
+opinfo("p_var_x",[body,ifthenelse,bind("x","(_var+1)*sizeof(CELL)",t_ptr=[])]).
+opinfo("p_var_y",[body,ifthenelse,bind("y","(_var+1)*sizeof(CELL)",t_ptr=[])]).
 opinfo("p_nonvar_x",[body,ifthenelse]).
 opinfo("p_nonvar_y",[body,ifthenelse]).
 opinfo("save_b_x",[body,new("x")]).

@@ -630,73 +630,73 @@
       cl = NEXTOP(cl,xi);
       break;
     case _p_atom_x:
+      if (cl->u.xl.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = (_atom+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
+      cl = NEXTOP(cl,xl);
+      break;
+    case _p_atomic_x:
       if (cl->u.xl.F != FAILCODE) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,xl);
-      break;
-    case _p_atomic_x:
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = (_atomic+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
+      cl = NEXTOP(cl,xl);
+      break;
+    case _p_compound_x:
       if (cl->u.xl.F != FAILCODE) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,xl);
-      break;
-    case _p_compound_x:
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = (_compound+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
+      cl = NEXTOP(cl,xl);
+      break;
+    case _p_db_ref_x:
       if (cl->u.xl.F != FAILCODE) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,xl);
-      break;
-    case _p_db_ref_x:
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = AbsAppl((CELL *)FunctorDBRef);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
+      cl = NEXTOP(cl,xl);
+      break;
+    case _p_float_x:
       if (cl->u.xl.F != FAILCODE) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,xl);
-      break;
-    case _p_float_x:
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      if (cl->u.xl.F != FAILCODE) {
-	clause->Tag = (CELL)NULL;
-	return;
-      }
       cl = NEXTOP(cl,xl);
       break;
     case _p_integer_x:
+      if (cl->u.xl.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = (_integer+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
-	return;
-      }
-      if (cl->u.xl.F != FAILCODE) {
-	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xl);
@@ -709,37 +709,37 @@
       cl = NEXTOP(cl,xl);
       break;
     case _p_number_x:
+      if (cl->u.xl.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = (_number+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
+      cl = NEXTOP(cl,xl);
+      break;
+    case _p_primitive_x:
       if (cl->u.xl.F != FAILCODE) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,xl);
-      break;
-    case _p_primitive_x:
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = (_primitive+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      if (cl->u.xl.F != FAILCODE) {
-	clause->Tag = (CELL)NULL;
-	return;
-      }
       cl = NEXTOP(cl,xl);
       break;
     case _p_var_x:
+      if (cl->u.xl.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = (_var+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
-	return;
-      }
-      if (cl->u.xl.F != FAILCODE) {
-	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xl);
@@ -1011,73 +1011,73 @@
       cl = NEXTOP(cl,y);
       break;
     case _p_atom_y:
+      if (cl->u.yl.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = (_atom+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
+      cl = NEXTOP(cl,yl);
+      break;
+    case _p_atomic_y:
       if (cl->u.yl.F != FAILCODE) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,yl);
-      break;
-    case _p_atomic_y:
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = (_atomic+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
+      cl = NEXTOP(cl,yl);
+      break;
+    case _p_compound_y:
       if (cl->u.yl.F != FAILCODE) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,yl);
-      break;
-    case _p_compound_y:
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = (_compound+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
+      cl = NEXTOP(cl,yl);
+      break;
+    case _p_db_ref_y:
       if (cl->u.yl.F != FAILCODE) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,yl);
-      break;
-    case _p_db_ref_y:
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = AbsAppl((CELL *)FunctorDBRef);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
+      cl = NEXTOP(cl,yl);
+      break;
+    case _p_float_y:
       if (cl->u.yl.F != FAILCODE) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,yl);
-      break;
-    case _p_float_y:
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      if (cl->u.yl.F != FAILCODE) {
-	clause->Tag = (CELL)NULL;
-	return;
-      }
       cl = NEXTOP(cl,yl);
       break;
     case _p_integer_y:
+      if (cl->u.yl.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = (_integer+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
-	return;
-      }
-      if (cl->u.yl.F != FAILCODE) {
-	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yl);
@@ -1090,37 +1090,37 @@
       cl = NEXTOP(cl,yl);
       break;
     case _p_number_y:
+      if (cl->u.yl.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = (_number+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
+      cl = NEXTOP(cl,yl);
+      break;
+    case _p_primitive_y:
       if (cl->u.yl.F != FAILCODE) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,yl);
-      break;
-    case _p_primitive_y:
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = (_primitive+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      if (cl->u.yl.F != FAILCODE) {
-	clause->Tag = (CELL)NULL;
-	return;
-      }
       cl = NEXTOP(cl,yl);
       break;
     case _p_var_y:
+      if (cl->u.yl.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = (_var+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
-	return;
-      }
-      if (cl->u.yl.F != FAILCODE) {
-	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yl);
