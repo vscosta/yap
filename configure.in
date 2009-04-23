@@ -501,7 +501,7 @@ then
     fi
 else
   INSTALL_COMMAND="install_unix"
-  ENABLE_WINCONSOLE=""
+  ENABLE_WINCONSOLE="#"
   AC_CHECK_LIB(m,sin)
   AC_CHECK_LIB(socket,socket)
   dnl X/Open Networking is sometimes a separate library

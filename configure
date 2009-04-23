@@ -4366,7 +4366,7 @@ fi
     fi
 else
   INSTALL_COMMAND="install_unix"
-  ENABLE_WINCONSOLE=""
+  ENABLE_WINCONSOLE="#"
 
 { echo "$as_me:$LINENO: checking for sin in -lm" >&5
 echo $ECHO_N "checking for sin in -lm... $ECHO_C" >&6; }
