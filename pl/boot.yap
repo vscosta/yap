@@ -932,6 +932,7 @@ not(G) :-    \+ '$execute'(G).
 	debugger state */
 
 break :-
+	nb_getval('$system_mode',SystemMode),
 	nb_getval('$trace',Trace),
 	nb_setval('$trace',off),
 	'$debug_on'(Debug),
@@ -951,7 +952,8 @@ break :-
 	'$set_input'(InpStream), '$set_output'(OutStream),
 	'$debug_on'(Debug),
 	nb_setval('$trace',Trace),
-	nb_setval('$break',BL).
+	nb_setval('$break',BL),
+	nb_setval('$system_mode',SystemMode).
 
 '$silent_bootstrap'(F) :-
 	'$init_consult',
