@@ -12,13 +12,25 @@
 %            of a list or to all sub-terms of a term.
 
 
-:- module(maplist,
-	  [ maplist/2,			% :Goal, +List
-	    maplist/3,			% :Goal, ?List1, ?List2
-	    maplist/4,			% :Goal, ?List1, ?List2, ?List3
-	    maplist/5,			% :Goal, ?List1, ?List2, ?List3, List4
-	    forall/2			% :Goal, :Goal
-	  ]).
+:- module(maplist, [selectlist/3,
+			 checklist/2,
+			 maplist/2,			% :Goal, +List
+			 maplist/3,			% :Goal, ?List1, ?List2
+			 maplist/4,			% :Goal, ?List1, ?List2, ?List
+			 maplist/5,			% :Goal, ?List1, ?List2, ?List3, List4
+			 convlist/3,
+			 mapargs/3,
+			 sumargs/4,
+			 mapnodes/3,
+			 checknodes/2,
+			 sumlist/4,
+			 sumnodes/4,
+			 include/3,
+			 exclude/3,
+			 partition/4,
+			 partition/5			
+			]).
+
 
 :- meta_predicate
 	selectlist(:,+,-),
