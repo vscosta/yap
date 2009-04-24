@@ -84,10 +84,6 @@ swi_predicate_table(_,unifiable(X,Y,Z),terms,unifiable(X,Y,Z)).
 swi_predicate_table(_,genarg(X,Y,Z),arg,genarg(X,Y,Z)).
 swi_predicate_table(_,tmp_file(X,Y),system,tmp_file(X,Y)).
 
-swi_isl(X) :- lists:is_list(X).
-
-prolog:is_list(X) :- swi_isl(X).
-
 swi_mchk(X,Y) :- lists:memberchk(X,Y).
 
 prolog:memberchk(X,Y) :- swi_mchk(X,Y).
