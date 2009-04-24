@@ -33,6 +33,9 @@
 :- use_module(library(arg),
 	      [genarg/3]).
 
+:- use_module(library(apply_macros),
+	      []).
+
 :- use_module(library(terms),
 	      [subsumes/2,
 	       term_hash/2,
@@ -54,6 +57,9 @@
 
 :- multifile user:term_expansion/2.
 :- multifile user:goal_expansion/3.
+:- multifile user:goal_expansion/2.
+
+:- dynamic user:goal_expansion/2.
 
 :- multifile swi_predicate_table/4.
 
@@ -344,12 +350,7 @@ prolog:(Term1 =@= Term2) :-
 %	the predicate deterministic under normal circumstances.
 
 prolog:maplist(Goal, List) :-
-	maplist2(List, Goal).
-
-maplist2([], _).
-maplist2([Elem|Tail], Goal) :-
-	call(Goal, Elem), 
-	maplist2(Tail, Goal).
+	apply_macros:maplist(List, Goal).
 
 %	maplist(:Goal, ?List1, ?List2)
 %
@@ -357,12 +358,7 @@ maplist2([Elem|Tail], Goal) :-
 %	of elements of List1 and List2.
 
 prolog:maplist(Goal, List1, List2) :-
-	maplist2(List1, List2, Goal).
-
-maplist2([], [], _).
-maplist2([Elem1|Tail1], [Elem2|Tail2], Goal) :-
-	call(Goal, Elem1, Elem2), 
-	maplist2(Tail1, Tail2, Goal).
+	apply_macros:maplist(List1, Goal, List2).
 
 %	maplist(:Goal, ?List1, ?List2, ?List3)
 %
@@ -370,12 +366,7 @@ maplist2([Elem1|Tail1], [Elem2|Tail2], Goal) :-
 %	of elements of List1..List3.
 
 prolog:maplist(Goal, List1, List2, List3) :-
-	maplist2(List1, List2, List3, Goal).
-
-maplist2([], [], [], _).
-maplist2([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], Goal) :-
-	call(Goal, Elem1, Elem2, Elem3), 
-	maplist2(Tail1, Tail2, Tail3, Goal).
+	apply_macros:maplist(List1, Goal, List2, List3).
 
 %	maplist(:Goal, ?List1, ?List2, ?List3, List4)
 %
@@ -383,12 +374,7 @@ maplist2([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], Goal) :-
 %	quadruples of elements of List1..List4
 
 prolog:maplist(Goal, List1, List2, List3, List4) :-
-	maplist2(List1, List2, List3, List4, Goal).
-
-maplist2([], [], [], [], _).
-maplist2([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], [Elem4|Tail4], Goal) :-
-	call(Goal, Elem1, Elem2, Elem3, Elem4), 
-	maplist2(Tail1, Tail2, Tail3, Tail4, Goal).
+	apply_macros:maplist(List1, Goal, List2, List3, List4).
 
 prolog:compile_aux_clauses([]).
 prolog:compile_aux_clauses([(:- G)|Cls]) :-

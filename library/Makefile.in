@@ -38,6 +38,7 @@ PROGRAMS= \
 	$(srcdir)/dbqueues.yap \
 	$(srcdir)/dbusage.yap \
 	$(srcdir)/dgraphs.yap \
+	$(srcdir)/expand_macros.yap \
 	$(srcdir)/gensym.yap \
 	$(srcdir)/hacks.yap \
 	$(srcdir)/heaps.yap \
@@ -46,6 +47,7 @@ PROGRAMS= \
 	$(srcdir)/lists.yap \
 	$(srcdir)/nb.yap \
 	$(srcdir)/ordsets.yap \
+	$(srcdir)/maplist.yap \
 	$(srcdir)/matlab.yap \
 	$(srcdir)/matrix.yap \
 	$(srcdir)/prandom.yap \
