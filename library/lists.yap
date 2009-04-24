@@ -8,7 +8,6 @@
 	   append/3,
 	   append/2,
 	   delete/3,
-	   is_list/1,
 	   last/2,
 	   member/2,
 	   memberchk/2,
@@ -83,14 +82,6 @@ delete([Head|List], Elem, [Head|Residue]) :-
 	delete(List, Elem, Residue).
 
 
-% is_list(List)
-% is true when List is a proper List
-%
-is_list(L) :- var(L), !, fail.
-is_list([]).
-is_list([_|List]) :- is_list(List).
-
- 
 %   last(List, Last)
 %   is true when List is a List and Last is identical to its last element.
 %   This could be defined as last(L, X) :- append(_, [X], L).

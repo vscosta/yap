@@ -1403,12 +1403,7 @@ X_API int PL_is_integer(term_t ts)
 X_API int PL_is_list(term_t ts)
 {
   YAP_Term t = Yap_GetFromSlot(ts);
-  if (YAP_IsPairTerm(t)) {
-    return 1;
-  } else if (IsAtomTerm(t)) {
-    return t == TermNil;
-  } else
-    return 0;
+  return Yap_IsListTerm(t);
 }
 
 X_API int PL_is_number(term_t ts)

@@ -2821,6 +2821,23 @@ p_unifiable(void)
   return Yap_unify(ARG3, tf);
 }
 
+int
+Yap_IsListTerm(Term t)
+{
+  while (!IsVarTerm(t) && IsPairTerm(t)) {
+    t = TailOfTerm(t);
+  }
+  return t == TermNil;
+}
+
+static Int
+p_is_list(void)
+{
+  return Yap_IsListTerm(Deref(ARG1));
+}
+
+
+
 void Yap_InitUtilCPreds(void)
 {
   Term cm = CurrentModule;
@@ -2832,6 +2849,7 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("term_variables", 2, p_term_variables, 0);
   Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
+  Yap_InitCPred("is_list", 1, p_is_list, SafePredFlag);
   CurrentModule = TERMS_MODULE;
   Yap_InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
   Yap_InitCPred("term_hash", 4, p_term_hash, SafePredFlag);
