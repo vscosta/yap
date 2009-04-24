@@ -64,7 +64,8 @@ call_cleanup(Goal, Catcher, Cleanup) :-
 	      '$cleanup_exception'(Exception,Catcher,Cleanup)).
 
 '$cleanup_exception'(Exception, exception(Exception), Cleanup) :- !,
-	'$clean_call'(Cleanup),
+	% whatever happens, let exception go through 
+	catch('$clean_call'(Cleanup),_,true),
 	throw(Exception).
 '$cleanup_exception'(Exception, _, _) :-
 	throw(Exception).
