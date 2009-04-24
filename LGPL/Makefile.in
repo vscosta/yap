@@ -31,7 +31,7 @@ PROGRAMS= $(srcdir)/debug.pl \
 	$(srcdir)/prolog_source.pl \
 	$(srcdir)/prolog_xref.pl
 
-SWI_PROGRAMS= $(srcdir)/apply_macros.pl
+SWI_PROGRAMS=
 
 
 install: $(PROGRAMS)
