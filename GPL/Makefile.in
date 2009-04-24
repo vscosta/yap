@@ -26,7 +26,6 @@ YAP_EXTRAS=@YAP_EXTRAS@
 
 PROGRAMS= \
 	$(srcdir)/aggregate.pl \
-	$(srcdir)/apply.pl \
 	$(srcdir)/error.pl \
 	$(srcdir)/occurs.yap \
 	$(srcdir)/pairs.pl
