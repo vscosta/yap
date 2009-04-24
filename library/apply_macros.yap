@@ -263,6 +263,7 @@ sumnodes_body(Pred, Term, A1, A3, N0, Ar) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 user:goal_expansion(maplist(Meta, ListIn, ListOut), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -282,6 +283,7 @@ user:goal_expansion(maplist(Meta, ListIn, ListOut), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(checklist(Meta, List), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -301,6 +303,7 @@ user:goal_expansion(checklist(Meta, List), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(maplist(Meta, List), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -320,6 +323,7 @@ user:goal_expansion(maplist(Meta, List), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(maplist(Meta, L1, L2, L3), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -339,6 +343,7 @@ user:goal_expansion(maplist(Meta, L1, L2, L3), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -358,6 +363,7 @@ user:goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(selectlist(Meta, ListIn, ListOut), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -380,6 +386,7 @@ user:goal_expansion(selectlist(Meta, ListIn, ListOut), Mod, Goal) :-
 
 % same as selectlist
 user:goal_expansion(include(Meta, ListIn, ListOut), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -401,6 +408,7 @@ user:goal_expansion(include(Meta, ListIn, ListOut), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(exclude(Meta, ListIn, ListOut), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -422,6 +430,7 @@ user:goal_expansion(exclude(Meta, ListIn, ListOut), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(partition(Meta, ListIn, List1, List2), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -443,6 +452,7 @@ user:goal_expansion(partition(Meta, ListIn, List1, List2), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -481,6 +491,7 @@ user:goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(convlist(Meta, ListIn, ListOut), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -502,6 +513,7 @@ user:goal_expansion(convlist(Meta, ListIn, ListOut), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -521,6 +533,7 @@ user:goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(mapargs(Meta, In, Out), _Module, NewGoal) :-
+	goal_expansion_allowed,
 	( var(Out)
 	->
 	    NewGoal = (
@@ -537,12 +550,14 @@ user:goal_expansion(mapargs(Meta, In, Out), _Module, NewGoal) :-
 	).	    
 
 user:goal_expansion(sumargs(Meta, Term, AccIn, AccOut), _Module, Goal) :-
+	goal_expansion_allowed,
 	Goal = (
 		 Term =.. [_|TermArgs],
 		 sumlist(Meta, TermArgs, AccIn, AccOut)
 	       ).
 
 user:goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -573,6 +588,7 @@ user:goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(checknodes(Meta, Term), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -601,6 +617,7 @@ user:goal_expansion(checknodes(Meta, Term), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod, Goal) :-
+	goal_expansion_allowed,
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -627,6 +644,31 @@ user:goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod, Goal) :-
 			 ),
 			 RecursiveCall)
 		    ], Module).
+% stolen from SWI-Prolog
+user:goal_expansion(phrase(NT,Xs), NTXsNil) :-
+	user:goal_expansion(phrase(NT,Xs,[]), NTXsNil).
+user:goal_expansion(phrase(NT,Xs0,Xs), _Mod, NewGoal) :-
+	goal_expansion_allowed,
+	Goal = phrase(NT,Xs0,Xs),
+	nonvar(NT),
+	catch('$translate_rule'((pseudo_nt --> NT), Rule),
+	      error(Pat,ImplDep),
+	      ( \+ harmless_dcgexception(Pat), 
+		throw(error(Pat,ImplDep))
+	      )),
+	Rule = (pseudo_nt(Xs0c,Xsc) :- NewGoal0),
+	Goal \== NewGoal0,
+	% apply translation only if we are safe
+	\+ contains_illegal_dcgnt(NT), !,
+	(   var(Xsc), Xsc \== Xs0c
+	->  Xs = Xsc, NewGoal1 = NewGoal0
+	;   NewGoal1 = (NewGoal0, Xsc = Xs)
+	),
+	(   var(Xs0c)
+	-> Xs0 = Xs0c,
+	   NewGoal = NewGoal1
+	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal
+	).
 
 %%%%%%%%%%%%%%%%%%%%
 % utilities
@@ -677,3 +719,21 @@ pred_name(Macro, Arity, Proto, Name) :-
 	format_to_chars('\'~a(~d,~w)\'.',[Macro, Arity, Proto], Chars),
 	read_from_chars(Chars, Name).
 
+harmless_dcgexception(instantiation_error).	% ex: phrase(([1],x:X,[3]),L)
+harmless_dcgexception(type_error(callable,_)).	% ex: phrase(27,L)
+
+
+%%	contains_illegal_dcgnt(+Term) is semidet.
+%
+%	True if Term contains a non-terminal   we cannot deal with using
+%	goal-expansion. The test is too general approximation, but safe.
+
+contains_illegal_dcgnt(NT) :-
+	sub_term(I, NT),
+	nonvar(I),
+	( I = ! ; I = phrase(_,_,_) ), !.
+%	write(contains_illegal_nt(NT)),		% JW: we do not want to write
+%	nl.
+
+goal_expansion_allowed :-
+	\+ current_prolog_flag(xref, true).
