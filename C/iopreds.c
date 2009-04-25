@@ -6107,7 +6107,7 @@ Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
 FILE *
 Yap_FileDescriptorFromStream(Term t)
 {
-  int sno = CheckStream (ARG1, Input_Stream_f, "get0/2");
+  int sno = CheckStream (t, Input_Stream_f, "get0/2");
   if (sno < 0)
     return(FALSE);
   if (Stream[sno].status & (Null_Stream_f|
