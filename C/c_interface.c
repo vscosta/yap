@@ -2534,7 +2534,7 @@ YAP_TermHash(Term t)
 }
 
 X_API int
-YAP_IntFileNoFromStream(Term t)
+YAP_FileNoFromStream(Term t)
 {
 
  t = Deref(t);
