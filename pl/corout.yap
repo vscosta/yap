@@ -608,7 +608,8 @@ call_residue(Goal,Residue) :-
 	'$pick_vars_for_project'(LIV, NLIV),
 	'$project_module'(LMods, NLIV, [V|LAV]),
 	'$convert_att_vars'(NLIV, LGs),
-	'$fetch_delays'([V|LAV], LDs, LGs).
+	'$call_attribute_goals'(NLIV, LGs1, LGs),
+	'$fetch_delays'([V|LAV], LDs, LGs1).
 
 '$pick_vars_for_project'([],[]).
 '$pick_vars_for_project'([V|L],[V|NL]) :- attvar(V), !,
@@ -728,3 +729,18 @@ call_residue(Goal,Residue) :-
 	attributes:get_att(V, prolog, 2, Gs), nonvar(Gs).
 
 
+'$call_attribute_goals'(NLIV, LGsF, LGs0) :-
+	findall(Mod, ('$all_current_modules'(Mod),current_predicate(Mod:attribute_goals/3)), LMs),
+	'$call_attribute_goals'(NLIV, LMs, LGsF, LGs0).
+
+'$call_attribute_goals'([], _, LGs, LGs).
+'$call_attribute_goals'([V|NLIV], LMs, LGsF, LGs0) :-
+	'$call_attribute_goals_for_module'(LMs, V, LGsF, LGsI),
+	'$call_attribute_goals'(NLIV, LMs, LGsI, LGs0).
+
+'$call_attribute_goals_for_module'([], _, LGs, LGs).
+'$call_attribute_goals_for_module'([M|LMs], V, LGsF, LGs0) :-
+	'$notrace'(M:attribute_goals(V,LGsF,LGsI)), !,
+	'$call_attribute_goals_for_module'(LMs, V, LGsI, LGs0).
+'$call_attribute_goals_for_module'([_|LMs], V, LGsF, LGs0) :-
+	'$call_attribute_goals_for_module'(LMs, V, LGsF, LGs0).
