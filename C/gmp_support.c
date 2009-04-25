@@ -292,6 +292,34 @@ Yap_gmp_mul_float_big(Float d, MP_INT *b)
   return MkFloatTerm(d*mpz_get_d(b));
 }
 
+Term
+Yap_gmp_exp_ints(Int i1, Int i2)
+{
+  MP_INT new;
+  
+  mpz_init_set_si(&new, i1);
+  mpz_pow_ui (&new, &new, (unsigned long int)i2);
+  return Yap_MkBigIntTerm(&new);  
+}
+
+Term
+Yap_gmp_exp_big_int(MP_INT *b, Int i)
+{
+  MP_INT new;
+  
+  if (b > 0) {
+    mpz_init(&new);
+    mpz_pow_ui (&new, b, (unsigned long int)i);
+  } else {
+    MP_INT new;
+    if (b==0) return MkIntTerm(1);
+
+    mpz_init_set_si(&new, i);
+    mpz_powm (&new, b, &new, b);
+  }
+  return Yap_MkBigIntTerm(&new);  
+}
+
 #endif
 
 

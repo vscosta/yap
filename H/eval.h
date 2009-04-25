@@ -108,6 +108,7 @@ typedef enum {
   op_power,
   /* ISO-Prolog exponentiation */
   /*  op_power, */
+  op_power2,
   /* Quintus exponentiation */
   /* op_power, */
   op_gcd,
@@ -205,6 +206,8 @@ Term  STD_PROTO(Yap_gmp_mul_big_big,(MP_INT *, MP_INT *));
 Term  STD_PROTO(Yap_gmp_div_big_big,(MP_INT *, MP_INT *));
 Term  STD_PROTO(Yap_gmp_and_big_big,(MP_INT *, MP_INT *));
 Term  STD_PROTO(Yap_gmp_ior_big_big,(MP_INT *, MP_INT *));
+Term  STD_PROTO(Yap_gmp_exp_ints,(Int,Int));
+Term  STD_PROTO(Yap_gmp_exp_big_int,(MP_INT *,Int));
 
 
 

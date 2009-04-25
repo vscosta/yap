@@ -52,6 +52,8 @@
 #define AtomBatched Yap_heap_regs->AtomBatched_
   Atom AtomBetween_;
 #define AtomBetween Yap_heap_regs->AtomBetween_
+  Atom AtomHugeInt_;
+#define AtomHugeInt Yap_heap_regs->AtomHugeInt_
   Atom AtomBinaryStream_;
 #define AtomBinaryStream Yap_heap_regs->AtomBinaryStream_
   Atom AtomBraces_;

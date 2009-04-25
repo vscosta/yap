@@ -572,6 +572,133 @@ p_power(Term t1, Term t2)
   RERROR();
 }
 
+/* next function is adapted from:
+   Inline C++ integer exponentiation routines 
+   Version 1.01
+   Copyright (C) 1999-2004 John C. Bowman <bowman@math.ualberta.ca>
+*/
+static inline Int
+ipow(Int x, Int p)
+{
+  if (p == 0) return 1L;
+  if (x == 0 && p > 0) return 0L;
+  if(p < 0) 
+    return (-p % 2) ? x : 1L;
+	
+  Int r = 1L;
+  for(;;) {
+    if(p & 1) {
+      if (mul_overflow((r*x), r, x)) {
+	return 0;
+      }
+      r *= x;
+    }
+    if((p >>= 1) == 0)	return r;
+    if (mul_overflow((x*x), x, x)) {
+      return 0;
+    }
+    x *= x;
+  }
+}
+
+
+/*
+  power: x^y
+*/
+static Term
+p_exp(Term t1, Term t2)
+{
+  switch (ETypeOfTerm(t1)) {
+  case long_int_e:
+    switch (ETypeOfTerm(t2)) {
+    case long_int_e:
+      {
+	Int i1 = IntegerOfTerm(t1);
+	Int i2 = IntegerOfTerm(t2);
+	Int pow = ipow(i1,i2);
+
+#ifdef USE_GMP
+	/* two integers */
+	if (i1 && !pow) {
+	  /* overflow */
+	  return Yap_gmp_exp_ints(i1, i2);
+	}
+#endif
+	RINT(pow);
+      }
+    case double_e:
+      {
+	/* integer, double */
+	Float fl1 = (Float)IntegerOfTerm(t1);
+	Float fl2 = FloatOfTerm(t2);
+	RFLOAT(pow(fl1,fl2));
+      }
+#ifdef USE_GMP
+    case big_int_e:
+      {
+	Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, "^/2");
+	P = (yamop *)FAILCODE;
+	RERROR();
+      }
+#endif
+    case db_ref_e:
+      RERROR();
+    }
+    break;
+  case double_e:
+    switch (ETypeOfTerm(t2)) {
+    case long_int_e:
+      /* float / integer */
+      {
+	Int i2 = IntegerOfTerm(t2);
+	RFLOAT(pow(FloatOfTerm(t1),i2));
+      }
+    case double_e:
+      {
+	Float f2 = FloatOfTerm(t2);
+	RFLOAT(pow(FloatOfTerm(t1),f2));
+      }
+#ifdef USE_GMP
+    case big_int_e:
+      {
+	Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, "^/2");
+	P = (yamop *)FAILCODE;
+	RERROR();
+      }
+#endif
+    case db_ref_e:
+      RERROR();
+    }
+    break;
+  case big_int_e:
+#ifdef USE_GMP
+    switch (ETypeOfTerm(t2)) {
+    case long_int_e:
+      {
+	Int i = IntegerOfTerm(t2);
+	return Yap_gmp_exp_big_int(Yap_BigIntOfTerm(t1),i);
+      }
+    case big_int_e:
+      /* two bignums, makes no sense */
+      //
+      Yap_Error(RESOURCE_ERROR_HUGE_INT, t1, "^/2");
+      P = (yamop *)FAILCODE;
+      RERROR();
+    case double_e:
+      {
+	Float dbl = FloatOfTerm(t2);
+	RFLOAT(pow(mpz_get_d(Yap_BigIntOfTerm(t1)),dbl));
+      }
+    case db_ref_e:
+      RERROR();
+    }
+#endif
+  case db_ref_e:
+    RERROR();
+  }
+  RERROR();
+}
+
 static Int
 gcd(Int m11,Int m21)
 {
@@ -1019,8 +1146,10 @@ eval2(Int fi, Term t1, Term t2) {
     return p_xor(t1, t2);
   case op_atan2:
     return p_atan2(t1, t2);
-  case op_power:
+  case op_power2:
     return p_power(t1, t2);
+  case op_power:
+    return p_exp(t1, t2);
   case op_gcd:
     return p_gcd(t1, t2);
   case op_min:
@@ -1053,9 +1182,9 @@ static InitBinEntry InitBinTab[] = {
   /* C-Prolog exponentiation */
   {"^", op_power},
   /* ISO-Prolog exponentiation */
-  {"**", op_power},
+  {"**", op_power2},
   /* Quintus exponentiation */
-  {"exp", op_power},
+  {"exp", op_power2},
   {"gcd", op_gcd},
   {"min", op_min},
   {"max", op_max}

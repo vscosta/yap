@@ -242,6 +242,8 @@ system_message(error(representation_error(character_code), Where)) -->
 	[ 'REPRESENTATION ERROR- ~w: expected character code' - [Where] ].
 system_message(error(representation_error(max_arity), Where)) -->
 	[ 'REPRESENTATION ERROR- ~w: number too big' - [Where] ].
+system_message(error(resource_error(huge_int), Where)) -->
+	[ 'RESOURCE ERROR- too large an integer in absolute value' - [Where] ].
 system_message(error(resource_error(threads), Where)) -->
 	[ 'RESOURCE ERROR- too many open threads' - [Where] ].
 system_message(error(resource_error(memory), Where)) -->

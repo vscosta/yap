@@ -25,6 +25,7 @@
   AtomB = Yap_FullLookupAtom("$last_choice_pt");
   AtomBatched = Yap_LookupAtom("batched");
   AtomBetween = Yap_LookupAtom("between");
+  AtomHugeInt = Yap_LookupAtom("huge_int");
   AtomBinaryStream = Yap_LookupAtom("binary_stream");
   AtomBraces = Yap_LookupAtom("{}");
   AtomBreak = Yap_FullLookupAtom("$break");
