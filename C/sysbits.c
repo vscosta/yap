@@ -1421,7 +1421,7 @@ InteractSIGINT(int ch) {
     if (Yap_PrologMode & (GCMode|ConsoleGetcMode|GrowStackMode|GrowHeapMode)) {
       Yap_PrologMode |= AbortMode;
     } else {
-      Yap_Error(PURE_ABORT, TermNil, "");
+      Yap_Error(PURE_ABORT, TermNil, "abort from console");
       /* in case someone mangles the P register */
       save_machine_regs();
 #if  _MSC_VER || defined(__MINGW32__)
