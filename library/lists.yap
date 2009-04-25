@@ -384,7 +384,7 @@ numlist(L, U, Ns) :-
         L =< U,
         numlist_(L, U, Ns).
 
-numlist_(U, U, [U]) :- !.
+numlist_(U, U, OUT) :- !, OUT = [U].
 numlist_(L, U, [L|Ns]) :-
         succ(L, L2),
         numlist_(L2, U, Ns).
