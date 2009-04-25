@@ -212,10 +212,14 @@
 	flush_all_streams,
 	fail.
 
+'$process_error'('$abort', top) :- !,
+	print_message(informational,abort(user)).
+'$process_error'('$abort', _) :- !,
+	throw('$abort').
 '$process_error'(abort, top) :- !,
 	print_message(informational,abort(user)).
 '$process_error'(abort, _) :- !,
-	throw('$abort').
+	throw(abort).
 '$process_error'(error(thread_cancel(Id), G),top) :- !.
 '$process_error'(error(thread_cancel(Id), G), _) :- !,
 	throw(error(thread_cancel(Id), G)).

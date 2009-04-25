@@ -239,6 +239,7 @@
   AtomSocket = AtomAdjust(AtomSocket);
   AtomSourceSink = AtomAdjust(AtomSourceSink);
   AtomSpy = AtomAdjust(AtomSpy);
+  AtomStack = AtomAdjust(AtomStack);
   AtomStackFree = AtomAdjust(AtomStackFree);
   AtomStaticClause = AtomAdjust(AtomStaticClause);
   AtomStaticProcedure = AtomAdjust(AtomStaticProcedure);

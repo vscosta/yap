@@ -492,7 +492,7 @@ p_or(Term t1, Term t2) {
       return(Yap_gmp_ior_int_big(IntegerOfTerm(t2),Yap_BigIntOfTerm(t1)));
     case big_int_e:
       /* two bignums */
-      return(Yap_gmp_ior_big_big(Yap_BigIntOfTerm(t2), Yap_BigIntOfTerm(t1)));
+      return Yap_gmp_ior_big_big(Yap_BigIntOfTerm(t2), Yap_BigIntOfTerm(t1));
     case double_e:
       Yap_Error(TYPE_ERROR_INTEGER, t2, "\\/ /2");
       /* make GCC happy */
@@ -520,7 +520,7 @@ p_sll(Term t1, Term t2) {
       if (IntegerOfTerm(t2) < 0) {
 	Int i2 = IntegerOfTerm(t2);
 	if (i2 == Int_MIN) {
-	  Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, t2, ">>/2");
+	  Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	}
@@ -533,7 +533,7 @@ p_sll(Term t1, Term t2) {
       RERROR();
     case big_int_e:
 #ifdef USE_GMP
-      Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, t2, "<</2");
+      Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, "<</2");
       P = (yamop *)FAILCODE;
       RERROR();
 #endif
@@ -552,14 +552,14 @@ p_sll(Term t1, Term t2) {
       {
 	Term t = Yap_gmp_sll_big_int(Yap_BigIntOfTerm(t1),  IntegerOfTerm(t2));
 	if (t == 0L) {
-	  Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, t2, ">>/2");
+	  Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, "<</2");
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	}
-	return(t);
+	return t;
       }
     case big_int_e:
-      Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, t2, "<</2");
+      Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
       P = (yamop *)FAILCODE;
       RERROR();
     case double_e:
@@ -589,7 +589,7 @@ p_slr(Term t1, Term t2) {
       if (IntegerOfTerm(t2) < 0) {
 	Int i2 = IntegerOfTerm(t2);
 	if (i2 == Int_MIN) {
-	  Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, t2, ">>/2");
+	  Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	}
@@ -602,7 +602,7 @@ p_slr(Term t1, Term t2) {
       RERROR();
     case big_int_e:
 #ifdef USE_GMP
-      Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, t2, ">>/2");
+      Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
       P = (yamop *)FAILCODE;
       RERROR();
 #endif
@@ -623,14 +623,14 @@ p_slr(Term t1, Term t2) {
 
 	t = Yap_gmp_sll_big_int(Yap_BigIntOfTerm(t1),  -IntegerOfTerm(t2));
 	if (t == 0L) {
-	  Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, t2, ">>/2");
+	  Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	}
 	return(t);
       }
     case big_int_e:
-      Yap_Error(DOMAIN_ERROR_SHIFT_COUNT_OVERFLOW, t2, ">>/2");
+      Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
       P = (yamop *)FAILCODE;
       RERROR();
     case double_e:

@@ -480,6 +480,8 @@
 #define AtomSourceSink Yap_heap_regs->AtomSourceSink_
   Atom AtomSpy_;
 #define AtomSpy Yap_heap_regs->AtomSpy_
+  Atom AtomStack_;
+#define AtomStack Yap_heap_regs->AtomStack_
   Atom AtomStackFree_;
 #define AtomStackFree Yap_heap_regs->AtomStackFree_
   Atom AtomStaticClause_;

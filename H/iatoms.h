@@ -237,6 +237,7 @@
   AtomSocket = Yap_LookupAtom("socket");
   AtomSourceSink = Yap_LookupAtom("source_sink");
   AtomSpy = Yap_FullLookupAtom("$spy");
+  AtomStack = Yap_LookupAtom("stack");
   AtomStackFree = Yap_LookupAtom("stackfree");
   AtomStaticClause = Yap_FullLookupAtom("$static_clause");
   AtomStaticProcedure = Yap_LookupAtom("static_procedure");
