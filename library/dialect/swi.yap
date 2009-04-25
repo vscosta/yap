@@ -87,6 +87,8 @@ swi_predicate_table(_,hash_term(X,Y),terms,term_hash(X,Y)).
 swi_predicate_table(_,term_hash(X,Y),terms,term_hash(X,Y)).
 swi_predicate_table(_,subsumes(X,Y),terms,subsumes(X,Y)).
 swi_predicate_table(_,unifiable(X,Y,Z),terms,unifiable(X,Y,Z)).
+swi_predicate_table(_,cyclic_term(X),terms,cyclic_term(X)).
+swi_predicate_table(_,acyclic_term(X),terms,acyclic_term(X)).
 swi_predicate_table(_,genarg(X,Y,Z),arg,genarg(X,Y,Z)).
 swi_predicate_table(_,tmp_file(X,Y),system,tmp_file(X,Y)).
 
@@ -402,6 +404,6 @@ user:term_expansion(user:goal_expansion(A,B),O) :- !,
 user:term_expansion((goal_expansion(A,B) :- G), O) :-
 	prolog_load_context(module, user), !,
 	O = (goal_expansion(A,user,B) :- G).
-user:term_expansion((user:goal_expansion(A,B) :- G),O) :-
+user:term_expansion((goal_expansion(A,B) :- G),O) :-
 	O = (user:goal_expansion(A,_,B) :- G).
 
