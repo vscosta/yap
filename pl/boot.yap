@@ -95,7 +95,8 @@ true :- true.
 	'$db_clean_queues'(0),
 	'$startup_reconsult',
 	'$startup_goals',
-	'$set_input'(user_input),'$set_output'(user).
+	'$set_input'(user_input),'$set_output'(user),
+	'$run_at_thread_start'.
 
 '$init_consult' :-
 	nb_setval('$lf_verbose',informational),
@@ -673,6 +674,12 @@ true :- true.
 	   write_term(user_error,G,Opts) ;
 	   format(user_error,'~w',[G])
         ).
+'$write_goal_output'(_M:G, First, [G|NG], next, NG) :-
+        ( First = first -> true ; format(user_error,',~n',[]) ),
+        ( recorded('$print_options','$toplevel'(Opts),_) ->
+	   write_term(user_error,G,Opts) ;
+	   format(user_error,'~w',[G])
+        ).
 
 '$name_vars_in_goals'(G, VL0, NG) :-
 	copy_term_nat(G+VL0, NG+NVL0),
@@ -1189,3 +1196,11 @@ throw(Ball) :-
 
 '$oncenotrace'(M:G) :-
 	'$execute_nonstop'(G, M), !.
+
+'$run_at_thread_start' :-
+	recorded('$thread_initialization',M:D,_),
+	'$notrace'(M:D),
+	fail.
+'$run_at_thread_start'.
+
+

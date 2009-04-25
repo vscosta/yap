@@ -38,6 +38,7 @@
 	'$thread_self'(Id),
 	(Detached == true -> '$detach_thread'(Id) ; true),
 	'$current_module'(Module),
+	'$run_at_thread_start',
 	% always finish with a throw to make sure we clean stacks.
 	'$system_catch'((G -> throw('$thread_finished'(true)) ; throw('$thread_finished'(false))),Module,Exception,'$close_thread'(Exception,Detached)),
 	% force backtracking and handling exceptions

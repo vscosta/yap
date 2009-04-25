@@ -53,6 +53,7 @@
 '$directive'(reexport(_,_)).
 '$directive'(sequential).
 '$directive'(sequential(_)).
+'$directive'(thread_initialization(_)).
 '$directive'(thread_local(_)).
 '$directive'(uncutable(_)).
 '$directive'(use_module(_)).
@@ -74,6 +75,8 @@
 	'$discontiguous'(D,M).
 '$exec_directive'(initialization(D), _, M) :-
 	'$initialization'(M:D).
+'$exec_directive'(thread_initialization(D), _, M) :-
+	'$thread_initialization'(M:D).
 '$exec_directive'(expects_dialect(D), _, _) :-
 	'$expects_dialect'(D).
 '$exec_directive'(encoding(Enc), _, _) :-
@@ -1100,4 +1103,12 @@ user_defined_flag(Atom) :-
 '$expects_dialect'(yap) :-
 	eraseall('$dialect'),
 	recorda('$dialect',yap,_).
+
+'$thread_initialization'(M:D) :-
+	eraseall('$thread_initialization'),
+	recorda('$thread_initialization',M:D,_),
+	fail.
+'$thread_initialization'(M:D) :-
+	'$initialization'(M:D).
+
 
