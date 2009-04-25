@@ -408,7 +408,7 @@ Christian Holzbaur, and Jan Wielemaker.
 
 @item The CLP(R) package developed by Leslie De Koninck, Bart Demoen, Tom
 Schrijvers, and Jan Wielemaker, based on the CLP(Q,R) implementation
-by Christian Holzbauer.
+by Christian Holzbaur.
 
 @item The Logtalk Object-Oriented system is developed at the University 
 of Beira Interior, Portugal, by Paulo Moura:
@@ -1931,7 +1931,7 @@ directories are the places where files specified in the form
 Unify @var{FullPath} with the absolute path YAP would use to consult
 file @var{Name}.
 
-@item public @var{P} [ISO]
+@item public @var{P} [ISO extension]
 @findex public/1 (directive)
 @snindex public/1 (directive)
 @cnindex public/1 (directive)
@@ -2086,11 +2086,11 @@ The YAP module system is predicate-based. This means a module consists
 of a set of predicates (or procedures), such that some predicates are
 public and the others are local to a module. Atoms and terms in general
 are global to the system. Moreover, the module system is flat, meaning
-that we do not support an hierarchy of modules. Modules can
+that we do not support a hierarchy of modules. Modules can
 automatically import other modules, though. For compatibility with other
 module systems the YAP module system is non-strict, meaning both that
-there is both a way to access predicates private to a module and that is
-possible to declare predicates for a module from some other module.
+there is both a way to access predicates private to a module and that it
+is possible to declare predicates for a module from some other module.
 
 YAP allows one to ignore the module system if one does not want to use
 it. Last note that using the module system does not introduce any
@@ -2212,7 +2212,7 @@ The last argument @var{Options} must be a list of options, which can be:
 @syindex module/1
 @cnindex module/1
 Defines @var{M} to be the current working or type-in module. All files
-which are not binded to a module are assumed to belong to the working
+which are not bound to a module are assumed to belong to the working
 module (also referred to as type-in module). To compile a non-module
 file into a module which is not the working one, prefix the file name
 with the module name, in the form @code{@var{Module}:@var{File}}, when
@@ -3246,7 +3246,7 @@ in term @var{TF}. Notice that:
 If you do not want any sharing to occur please use
 @code{duplicate_term/2}.
 
-@item duplicate_term(?@var{TI},-@var{TF}) [ISO]
+@item duplicate_term(?@var{TI},-@var{TF})
 @findex duplicate_term/2
 @syindex duplicate_term/2
 @cnindex duplicate_term/2
@@ -3471,7 +3471,7 @@ the call.
         '6'}. Useful for parsing numbers.
 
 @item    xdigit(@var{Weigth})
-        @var{Char} is a haxe-decimal digit with value @var{Weigth}. I.e. char_type(a, xdigit(X) yields X = '10'. Useful for parsing numbers.
+        @var{Char} is a hexa-decimal digit with value @var{Weigth}. I.e. char_type(a, xdigit(X) yields X = '10'. Useful for parsing numbers.
 
 @item    graph
         @var{Char} produces a visible mark on a page when printed. Note that the space is not included!
@@ -6682,9 +6682,9 @@ value other than @code{[]} prior to backtrackable assignment.
 @cnindex nb_getval/2
 The @code{nb_getval/2} predicate is a synonym for @code{b_getval/2},
 introduced for compatibility and symmetry. As most scenarios will use
-a particular global variable either using non-backtracable or
+a particular global variable either using non-backtrackable or
 backtrackable assignment, using @code{nb_getval/2} can be used to
-document that the variable is used non-backtracable.
+document that the variable is used non-backtrackable.
 
 @item nb_linkval(+@var{Name}, +@var{Value}) 
 @findex nb_linkval/2
@@ -7687,7 +7687,7 @@ language mode to @code{iso} and enable strict mode. If @var{Value} is
 bound to @code{off} disable strict mode, and keep the current language
 mode. The default for YAP is @code{off}.
 
-Under strict ISO prolog mode all calls to non-ISO built-ins generate an
+Under strict ISO Prolog mode all calls to non-ISO built-ins generate an
 error. Compilation of clauses that would call non-ISO built-ins will
 also generate errors. Pre-processing for grammar rules is also
 disabled. Module expansion is still performed.
@@ -7773,7 +7773,7 @@ working module.
 
 @item  unix
 @findex unix (yap_flag/2 option)
-@* Read-only boolean flag that unifies with tr @code{true} if YAP is
+@* Read-only Boolean flag that unifies with @code{true} if YAP is
 running on an Unix system.  Defined if the C-compiler used to compile
 this version of YAP either defines @code{__unix__} or @code{unix}.
 
@@ -8753,7 +8753,7 @@ True when @var{Numbers} is a list of numbers, and @var{Min} is the minimum.
 @findex numlist/3
 @syindex numlist/3
 @cnindex numlist/3
-If @var{Low} and @var{High} are integers with @var{Low} lesser or equal than
+If @var{Low} and @var{High} are integers with @var{Low} =<
 @var{High}, unify @var{List} to a list @code{[Low, Low+1, ...High]}. See
 also @code{between/3}.
 
@@ -9377,13 +9377,6 @@ search. They are allowed through @code{library(nb)}.
 @cnindex nb_queue/1
 Create a @var{Queue}.
 
-@item nb_queue(-@var{Queue},+@var{Size})
-@findex nb_queue/2
-@snindex nb_queue/2
-@cnindex nb_queue/2
-Create a @var{Queue} with initial size @var{Size}, measured in stack
-cells.
-
 @item nb_queue_close(+@var{Queue}, -@var{Head}, ?@var{Tail})
 @findex nb_queue_close/3
 @snindex nb_queue_close/3
@@ -9867,10 +9860,10 @@ On end-of-file the atom @code{end_of_file} is returned.  See also
 @findex read_line_to_codes/3
 @snindex read_line_to_codes/3
 @cnindex read_line_to_codes/3
-Diference-list version to read an input line to a list of character
+Difference-list version to read an input line to a list of character
 codes.  Reading stops at the newline or end-of-file character, but
 unlike @code{read_line_to_codes/2}, the newline is retained in the
-output.  This predicate is especially useful for readine a block of
+output.  This predicate is especially useful for reading a block of
 lines upto some delimiter.  The following example reads an HTTP header
 ended by a blank line:
 
@@ -9916,7 +9909,7 @@ Read a file to a list of character codes. Currently ignores
 @findex read_file_to_terms/3
 @snindex read_file_to_terms/3
 @cnindex read_file_to_terms/3
-Read a file to a list of prolog terms (see read/1). @c @var{Spec} is a
+Read a file to a list of Prolog terms (see read/1). @c @var{Spec} is a
 @c file-specification for absolute_file_name/3.  @var{Terms} is the
 @c resulting list of Prolog terms.  @var{Options} is a list of options for
 @c absolute_file_name/3 and open/4.  In addition, the option
@@ -10655,7 +10648,7 @@ Unify @var{Name} with a name for the current host. YAP uses the
 Send signal @var{SIGNAL} to process @var{Id}. In Unix this predicate is
 a direct interface to @code{kill} so one can send signals to groups of
 processes. In WIN32 the predicate is an interface to
-@code{TerminateProcess}, so it kills @var{Id} indepent of @var{SIGNAL}.
+@code{TerminateProcess}, so it kills @var{Id} independently of @var{SIGNAL}.
 
 @item mktemp(@var{Spec},-@var{File})
 @findex  mktemp/2
@@ -10857,7 +10850,9 @@ is considered. Otherwise, the term is considered only up to depth
 @syindex term_variables/2
 @cnindex term_variables/2
 
-Unify @var{Variables} with a list of all variables in term @var{Term}.
+Unify @var{Variables} with the list of all variables of term
+@var{Term}.  The variables occur in the order of their first
+appearance when traversing the term depth-first, left-to-right.
 
 @item variables_within_term(+@var{Variables},?@var{Term}, -@var{OutputVariables})
 @findex  variables_within_term/3
@@ -11230,7 +11225,7 @@ Given a graph with a set of vertices @var{Vertices} and a set of edges
 @var{Edges}, @var{Graph} must unify with the corresponding
 s-representation. Note that the vertices without edges will appear in
 @var{Vertices} but not in @var{Edges}. Moreover, it is sufficient for a
-vertice to appear in @var{Edges}.
+vertex to appear in @var{Edges}.
 @example
 ?- vertices_edges_to_ugraph([],[1-3,2-4,4-5,1-5],L).
 
@@ -11673,7 +11668,7 @@ The path @var{Path} is a path starting at vertex @var{Vertex} in graph
 
 @node UnDGraphs, LAM , DGraphs, Library
 @section Undirected Graphs
-@cindex undrected graphs
+@cindex undirected graphs
 
 The following graph manipulation routines use the red-black tree graph
 library to implement undirected graphs. Mostly, this is done by having
@@ -11762,7 +11757,7 @@ Unify @var{NewGraph} with the graph complementary to @var{Graph}.
 @findex  dgraph_to_undgraph/2
 @snindex dgraph_to_undgraph/2
 @cnindex dgraph_to_undgraph/2
-Unify @var{UndGraph} with teh undirected graph obtained from the
+Unify @var{UndGraph} with the undirected graph obtained from the
 directed graph @var{DGraph}.
 
 @end table
@@ -12325,7 +12320,7 @@ typically this will involve expressing all constraints in terms of
 quantified.
 @end table
 
-Projection interacts with @code{attribute_goal/2} at the prolog top
+Projection interacts with @code{attribute_goal/2} at the Prolog top
 level. When the query succeeds, the system first calls
 @code{project_attributes/2}. The system then calls
 @code{attribute_goal/2} to get a user-level representation of the
@@ -12577,19 +12572,19 @@ Subnodes of Thread Communication
 @cnindex thread_create/3
 
 Create a new Prolog thread (and underlying C-thread) and start it
-by executing @var{Goal}.  If the thread is created succesfully, the
+by executing @var{Goal}.  If the thread is created successfully, the
 thread-identifier of the created thread is unified to @var{Id}.
 @var{Options} is a list of options.  Currently defined options are:
 
 @table @code
     @item stack
 Set the limit in K-Bytes to which the Prolog stacks of
-this thread may grow.  If omited, the limit of the calling thread is
+this thread may grow.  If omitted, the limit of the calling thread is
 used.  See also the  commandline @code{-S} option.
 
     @item trail
 Set the limit in K-Bytes to which the trail stack of this thread may
-grow.  If omited, the limit of the calling thread is used. See also the
+grow.  If omitted, the limit of the calling thread is used. See also the
 commandline option @code{-T}.
 
     @item alias
@@ -12834,7 +12829,7 @@ Print usage statistics on internal mutexes and mutexes associated
 with dynamic predicates.  For each mutex two numbers are printed:
 the number of times the mutex was acquired and the number of
 collisions: the number times the calling thread has to
-wait for the mutex.  The collistion-count is not available on
+wait for the mutex.  The collision-count is not available on
 Windows as this would break portability to Windows-95/98/ME or
 significantly harm performance.  Generally collision count is
 close to zero on single-CPU hardware.
@@ -12943,7 +12938,7 @@ created and @var{Queue} is unified to its identifier.
 Destroy a message queue created with @code{message_queue_create/1}.  It is
 @emph{not} allows to destroy the queue of a thread.  Neither is it
 allowed to destroy a queue other threads are waiting for or, for
-anynymous message queues, may try to wait for later.
+anonymous message queues, may try to wait for later.
 
 @item thread_get_message(+@var{Queue}, ?@var{Term})
 @findex thread_get_message/2
@@ -13056,7 +13051,7 @@ assert, retract and run the dynamic predicate. Synchronisation inside
 Prolog guarantees the consistency of the predicate. Updates are
 @emph{logical}: visible clauses are not affected by assert/retract
 after a query started on the predicate. In many cases primitive from
-thread synchronysation should be used to ensure application invariants on
+thread synchronisation should be used to ensure application invariants on
 the predicate are maintained.
 
 Besides shared predicates, dynamic predicates can be declared with the
@@ -13176,7 +13171,7 @@ implies named mutexes need not be declared explicitly.
 Please note that locking and unlocking mutexes should be paired
 carefully. Especially make sure to unlock mutexes even if the protected
 code fails or raises an exception. For most common cases use
-@code{with_mutex/2}, wich provides a safer way for handling prolog-level
+@code{with_mutex/2}, which provides a safer way for handling Prolog-level
 mutexes.
 
 @item mutex_trylock(+@var{MutexId})
@@ -13207,7 +13202,7 @@ also @code{thread_signal/2}.
 @snindex current_mutex/3
 @cnindex current_mutex/3
 Enumerates all existing mutexes.  If the mutex is held by some thread,
-@var{ThreadId} is unified with the identifier of te holding thread and
+@var{ThreadId} is unified with the identifier of the holding thread and
 @var{Count} with the recursive count of the mutex. Otherwise,
 @var{ThreadId} is @code{[]} and @var{Count} is 0.
 @end table
@@ -13847,7 +13842,7 @@ Indexation is also very important for predicates with a large number
 of clauses that are used like tables:
 
 @example
-logician(aristhoteles,greek).
+logician(aristoteles,greek).
 logician(frege,german).
 logician(russel,english).
 logician(godel,german).
@@ -13934,7 +13929,7 @@ type_of_verb(rest,passive).
 @chapter C Language interface to YAP
 
 YAP provides the user with the necessary facilities for writing
-predicates in a language other than prolog. Since, under Unix systems,
+predicates in a language other than Prolog. Since, under Unix systems,
 most language implementations are link-able to C, we will describe here
 only the YAP interface to the C language.
 
@@ -14005,7 +14000,7 @@ Under Digital Unix you need to create a @code{so} file. Use:
 and replace my @code{process.so} for my @code{process.o} in the
 remainder of the example.
 @noindent
-And could be loaded, under YAP, by executing the following prolog goal
+And could be loaded, under YAP, by executing the following Prolog goal
 @example
       load_foreign_files(['my_process'],[],init_my_predicates).
 @end example
@@ -14013,7 +14008,7 @@ Note that since YAP4.3.3 you should not give the suffix for object
 files. YAP will deduce the correct suffix from the operating system it
 is running under.
 
-After loading that file the following prolog goal 
+After loading that file the following Prolog goal
 @example
        my_process_id(N)
 @end example
@@ -14025,14 +14020,14 @@ Having presented a full example, we will now examine in more detail the
 contents of the C source code file presented above.
 
 The include statement is used to make available to the C source code the
-macros for the handling of prolog terms and also some YAP public
+macros for the handling of Prolog terms and also some YAP public
 definitions.
 
 The function @code{my_process_id} is the implementation, in C, of the
 desired predicate.  Note that it returns an integer denoting the success
 of failure of the goal and also that it has no arguments even though the
 predicate being defined has one.
- In fact the arguments of a prolog predicate written in C are accessed
+ In fact the arguments of a Prolog predicate written in C are accessed
 through macros, defined in the include file, with names @var{YAP_ARG1},
 @var{YAP_ARG2}, ..., @var{YAP_ARG16} or with @var{YAP_A}(@var{N})
 where @var{N} is the argument number (starting with 1).  In the present
@@ -14069,16 +14064,16 @@ The rest of this appendix describes exhaustively how to interface C to YAP.
 @section Terms
 
 This section provides information about the primitives available to the C
-programmer for manipulating prolog terms.
+programmer for manipulating Prolog terms.
 
 Several C typedefs are included in the header file @code{yap/YAPInterface.h} to
-describe, in a portable way, the C representation of prolog terms.
+describe, in a portable way, the C representation of Prolog terms.
 The user should write is programs using this macros to ensure portability of
 code across different versions of YAP.
 
 
 The more important typedef is @var{YAP_Term} which is used to denote the
-type of a prolog term.
+type of a Prolog term.
 
 Terms, from a point of view of the C-programmer,  can be classified as
 follows
@@ -14202,7 +14197,7 @@ references.
 
 @findex YAP_MkAtomTerm (C-Interface function)
 @findex YAP_AtomOfTerm (C-Interface function)
-A special typedef @code{YAP_Atom} is provided to describe prolog
+A special typedef @code{YAP_Atom} is provided to describe Prolog
 @i{atoms} (symbolic constants). The two following primitives can be used
 to manipulate atom terms
 @example
@@ -14272,7 +14267,7 @@ hook on garbage collection:
 @findex YAP_MkNewPairTerm (C-Interface function)
 @findex YAP_HeadOfTerm (C-Interface function)
 @findex YAP_TailOfTerm (C-Interface function)
-A @i{pair} is a Prolog term which consists of a tuple of two prolog
+A @i{pair} is a Prolog term which consists of a tuple of two Prolog
 terms designated as the @i{head} and the @i{tail} of the term. Pairs are
 most often used to build @emph{lists}. The following primitives can be
 used to manipulate pairs:
@@ -14311,7 +14306,7 @@ functor. @code{YAP_MkNewApplTerm} builds up a compound term whose
 arguments are unbound variables. @code{YAP_ArgOfTerm} gives an argument
 to a compound term. @code{argno} should be greater or equal to 1 and
 less or equal to the arity of the functor.  @code{YAP_ArgsOfTerm}
-returns a pinter to an array of arguments.
+returns a pointer to an array of arguments.
 
 YAP allows one to manipulate the functors of compound term. The function
 @code{YAP_FunctorOfTerm} allows one to obtain a variable of type
@@ -14335,7 +14330,7 @@ arity.
 @section Unification
 
 @findex YAP_Unify (C-Interface function)
-YAP provides a single routine to attempt the unification of two prolog
+YAP provides a single routine to attempt the unification of two Prolog
 terms. The routine may succeed or fail:
 @example
       Int      YAP_Unify(YAP_Term @var{a}, YAP_Term @var{b})
@@ -14528,7 +14523,7 @@ system. The slot functions are as follows:
 @item long int YAP_NewSlots(int @var{NumberOfSlots})
 @findex YAP_NewSlots (C-Interface function)
 Allocate @var{NumberOfSlots} from the stack and return an handle to the
-last one. Th eother hand can be obtained by decrementing the handle.
+last one. The other handle can be obtained by decrementing the handle.
 
 @item long int YAP_CurrentSlot(void)
 @findex YAP_CurrentSlot (C-Interface function)
@@ -14670,7 +14665,7 @@ that it is not the current module. To find the current module, you can call:
 @end example
 
 Given a module, you may want to obtain the corresponding name. This is
-possioble by using:
+possible by using:
 @example
       YAP_Term      YAP_ModuleName(YAP_Module mod)
 @end example
@@ -14713,7 +14708,7 @@ also that we normally also need to preserve some information to find out
 the next solution.
 
 In fact the role of the two functions can be better understood from the
-following prolog definition
+following Prolog definition
 @example
        p :- start.
        p :- repeat,
@@ -14731,7 +14726,7 @@ uninstantiated argument, should provide, by backtracking, all the positive
 integers less or equal to 100.
 
    To do that we first declare a structure, which can only consist
-of prolog terms, containing the information to be preserved on backtracking
+of Prolog terms, containing the information to be preserved on backtracking
 and a pointer variable to a structure of that type.
 
 @example
@@ -14913,7 +14908,7 @@ available if you cannot port the code to the new interface.
 
 @item The use of @code{Deref} is deprecated. All functions that return
 Prolog terms, including the ones that access arguments, already
-dereferenciate their arguments.
+dereference their arguments.
 
 @item Space allocated with PRESERVE_DATA is ignored by garbage
 collection and stack shifting. As a result, any pointers to a Prolog
