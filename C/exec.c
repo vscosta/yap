@@ -1326,6 +1326,8 @@ p_restore_regs2(void)
 static Int
 p_clean_ifcp(void) {
   Term t = Deref(ARG1);
+  choiceptr pt0;
+
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "cut_at/1");
     return FALSE;    
@@ -1335,9 +1337,9 @@ p_clean_ifcp(void) {
     return FALSE;    
   }
 #if SBA
-  choiceptr pt0 = (choiceptr)IntegerOfTerm(t);
+  pt0 = (choiceptr)IntegerOfTerm(t);
 #else
-  choiceptr pt0 = cp_from_integer(t);
+  pt0 = cp_from_integer(t);
 #endif
   if (pt0 < B) {
     /* this should never happen */ 
