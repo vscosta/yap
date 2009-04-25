@@ -8,6 +8,7 @@
 :- use_module(library(lists), [append/3]).
 :- use_module(library(charsio), [format_to_chars/3, read_from_chars/2]).
 :- use_module(library(error), [must_be/2]).
+:- use_module(library(occurs), [sub_term/2]).
 
 :- multifile user:goal_expansion/3.
 
@@ -393,6 +394,7 @@ user:goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod, Goal) :-
 			 ),
 			 RecursiveCall)
 		    ], Module).
+:- unhide('$translate_rule').
 % stolen from SWI-Prolog
 user:goal_expansion(phrase(NT,Xs), Mod, NTXsNil) :-
 	user:goal_expansion(phrase(NT,Xs,[]), Mod, NTXsNil).
@@ -418,6 +420,7 @@ user:goal_expansion(phrase(NT,Xs0,Xs), _Mod, NewGoal) :-
 	   NewGoal = NewGoal1
 	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal
 	).
+:- hide('$translate_rule').
 
 %%%%%%%%%%%%%%%%%%%%
 % utilities

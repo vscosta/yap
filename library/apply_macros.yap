@@ -4,7 +4,7 @@
 %   Purpose: Macros to apply a predicate to all elements
 %            of a list or to all sub-terms of a term.
 
-:- reexport(library(maplist), [selectlist/3,
+:- reexport(maplist, [selectlist/3,
 			 checklist/2,
 			 maplist/2,
 			 maplist/3,
@@ -24,6 +24,6 @@
 			]).
 
 
-:- use_module(library(expand_macros)).
+:- use_module(expand_macros,[]).
 
 
