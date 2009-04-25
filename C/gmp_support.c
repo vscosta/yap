@@ -26,6 +26,7 @@ Term
 Yap_gmp_add_ints(Int i, Int j)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set_si(&new,i);
   if (j > 0) {
@@ -38,13 +39,16 @@ Yap_gmp_add_ints(Int i, Int j)
       mpz_sub_ui(&new, &new, -j);
     }
   }
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 Term
 Yap_gmp_sub_ints(Int i, Int j)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set_si(&new,i);
   if (j > 0) {
@@ -57,27 +61,35 @@ Yap_gmp_sub_ints(Int i, Int j)
       mpz_add_ui(&new, &new, -j);
     }
   }
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 Term
 Yap_gmp_mul_ints(Int i, Int j)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set_si(&new,i);
   mpz_mul_si(&new, &new, j);
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 Term 
 Yap_gmp_sll_ints(Int i, Int j)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set_si(&new,i);
   mpz_mul_2exp(&new, &new, j);
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 /* add i + b using temporary bigint new */
@@ -85,10 +97,13 @@ Term
 Yap_gmp_add_int_big(Int i, MP_INT *b)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set_si(&new, i);
   mpz_add(&new, &new, b);
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 /* sub i - b using temporary bigint new */
@@ -96,10 +111,13 @@ Term
 Yap_gmp_sub_int_big(Int i, MP_INT *b)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set_si(&new, i);
   mpz_sub(&new, &new, b);
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 /* add i + b using temporary bigint new */
@@ -107,10 +125,13 @@ Term
 Yap_gmp_mul_int_big(Int i, MP_INT *b)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set_si(&new, i);
   mpz_mul(&new, &new, b);
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 /* sub i - b using temporary bigint new */
@@ -118,11 +139,14 @@ Term
 Yap_gmp_sub_big_int(MP_INT *b, Int i)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set_si(&new, i);
   mpz_neg(&new, &new);
   mpz_add(&new, &new, b);
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 /* div i / b using temporary bigint new */
@@ -130,7 +154,7 @@ Term
 Yap_gmp_div_big_int(MP_INT *b, Int i)
 {
   MP_INT new;
-
+  Term t;
 
   mpz_init_set(&new, b);
   if (yap_flags[INTEGER_ROUNDING_FLAG] == 0) {
@@ -156,7 +180,9 @@ Yap_gmp_div_big_int(MP_INT *b, Int i)
       mpz_neg(&new, &new);
     }
   }
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 /* sub i - b using temporary bigint new */
@@ -164,10 +190,13 @@ Term
 Yap_gmp_and_int_big(Int i, MP_INT *b)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set_si(&new, i);
   mpz_and(&new, &new, b);
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 /* sub i - b using temporary bigint new */
@@ -175,10 +204,13 @@ Term
 Yap_gmp_ior_int_big(Int i, MP_INT *b)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set_si(&new, i);
   mpz_ior(&new, &new, b);
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 /* add i + b using temporary bigint new */
@@ -186,6 +218,7 @@ Term
 Yap_gmp_sll_big_int(MP_INT *b, Int i)
 {
   MP_INT new;
+  Term t;
 
   if (i > 0) {
     mpz_init_set(&new, b);
@@ -199,37 +232,48 @@ Yap_gmp_sll_big_int(MP_INT *b, Int i)
     }
     mpz_tdiv_q_2exp(&new, &new, -i);
   }
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 Term 
 Yap_gmp_add_big_big(MP_INT *b1, MP_INT *b2)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set(&new, b1);
   mpz_add(&new, &new, b2);
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 Term 
 Yap_gmp_sub_big_big(MP_INT *b1, MP_INT *b2)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set(&new, b1);
   mpz_sub(&new, &new, b2);
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 Term 
 Yap_gmp_mul_big_big(MP_INT *b1, MP_INT *b2)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set(&new, b1);
   mpz_mul(&new, &new, b2);
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 /* div i / b using temporary bigint new */
@@ -237,7 +281,7 @@ Term
 Yap_gmp_div_big_big(MP_INT *b1, MP_INT *b2)
 {
   MP_INT new;
-
+  Term t;
 
   mpz_init_set(&new, b1);
   if (yap_flags[INTEGER_ROUNDING_FLAG] == 0) {
@@ -245,27 +289,35 @@ Yap_gmp_div_big_big(MP_INT *b1, MP_INT *b2)
   } else {
     mpz_fdiv_q(&new, &new, b2);
   }
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 Term 
 Yap_gmp_and_big_big(MP_INT *b1, MP_INT *b2)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set(&new, b1);
   mpz_and(&new, &new, b2);
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 Term 
 Yap_gmp_ior_big_big(MP_INT *b1, MP_INT *b2)
 {
   MP_INT new;
+  Term t;
 
   mpz_init_set(&new, b1);
   mpz_ior(&new, &new, b2);
-  return Yap_MkBigIntTerm(&new);
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 Term
@@ -296,16 +348,20 @@ Term
 Yap_gmp_exp_ints(Int i1, Int i2)
 {
   MP_INT new;
+  Term t;
   
   mpz_init_set_si(&new, i1);
   mpz_pow_ui (&new, &new, (unsigned long int)i2);
-  return Yap_MkBigIntTerm(&new);  
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 Term
 Yap_gmp_exp_big_int(MP_INT *b, Int i)
 {
   MP_INT new;
+  Term t;
   
   if (b > 0) {
     mpz_init(&new);
@@ -317,7 +373,9 @@ Yap_gmp_exp_big_int(MP_INT *b, Int i)
     mpz_init_set_si(&new, i);
     mpz_powm (&new, b, &new, b);
   }
-  return Yap_MkBigIntTerm(&new);  
+  t = Yap_MkBigIntTerm(&new);
+  mpz_clear(&new);
+  return t;
 }
 
 #endif
