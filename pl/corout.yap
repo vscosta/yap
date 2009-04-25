@@ -597,48 +597,21 @@ call_residue(Goal,Residue) :-
 	'$variables_in_term'(Goal,[],LIV),
 	'$show_frozen'(Goal,LIV,Residue).
 
-'$purge_and_set_done_goals'([], L, L).
-'$purge_and_set_done_goals'([AttV|G0], [_-GS|GF], Atts) :-
-	attvar(AttV), !,
-	attributes:convert_att_var(AttV, GS),
-	'$purge_and_set_done_goals'(G0, GF, Atts).
-'$purge_and_set_done_goals'(['$redo_dif'(Done, X , Y)|G0], [LVars-dif(X,Y)|GF], Atts) :-
-	var(Done), !,
-	Done = '$done',
-	'$can_unify'(X, Y, LVars),
-	'$purge_and_set_done_goals'(G0, GF, Atts).
-'$purge_and_set_done_goals'(['$redo_freeze'(Done, V, G)|G0], [[V]-freeze(G)|GF], Atts) :-
-        var(Done), !,
-	Done = '$done',
-	'$purge_and_set_done_goals'(G0, GF, Atts).
-'$purge_and_set_done_goals'(['$redo_eq'(Done, X, Y, G)|G0], [[X,Y]-G|GF], Atts) :-
-	var(Done), !,
-	Done = '$done',
-	'$purge_and_set_done_goals'(G0, GF, Atts).
-'$purge_and_set_done_goals'(['$redo_ground'(Done, X, G)|G0], [[X]-G|GF], Atts) :-
-	var(Done), !,
-	Done = '$done',
-	'$purge_and_set_done_goals'(G0, GF, Atts).
-'$purge_and_set_done_goals'([_|G0], GF, Atts) :-
-	'$purge_and_set_done_goals'(G0, GF, Atts).
-
-
 '$project'([],_,[]).
 '$project'(Vs,_,LGs) :-
 	% we don't have constraints yet, so we must be talking about delays.
 	'$undefined'(modules_with_attributes(_),attributes), !,
 	'$fetch_delays'(Vs, LGs, []).
-'$project'([V|LAV],LIV,LDs) :-
+'$project'([V|LAV], LIV, LDs) :-
 	attvar(V), !,
 	attributes:modules_with_attributes(LMods),
-	'$pick_vars_for_project'(LIV,NLIV),
-	'$project_module'(LMods,NLIV,[V|LAV]),
-	attributes:all_attvars(NLAV),
-	'$convert_att_vars'(NLAV, LIV, LGs),
-	'$fetch_delays'(NLAV, LDs, LGs).
+	'$pick_vars_for_project'(LIV, NLIV),
+	'$project_module'(LMods, NLIV, [V|LAV]),
+	'$convert_att_vars'(NLIV, LGs),
+	'$fetch_delays'([V|LAV], LDs, LGs).
 
 '$pick_vars_for_project'([],[]).
-'$pick_vars_for_project'([V|L],[V|NL]) :- var(V), !,
+'$pick_vars_for_project'([V|L],[V|NL]) :- attvar(V), !,
 	'$pick_vars_for_project'(L,NL).
 '$pick_vars_for_project'([_|L],NL) :-
 	'$pick_vars_for_project'(L,NL).
@@ -653,23 +626,23 @@ call_residue(Goal,Residue) :-
 	'$project_module'(LMods,LIV,LAV).
 
 
-'$convert_att_vars'(Vs, LIV, []) :-
+'$convert_att_vars'(_, []) :-
 	% do nothing
 	'$undefined'(convert_att_var(Vs,LIV),attributes), !.
-'$convert_att_vars'(Vs0, LIV, LGs) :-
+'$convert_att_vars'(Vs0, LGs) :-
 	'$sort'(Vs0, Vs),
-	'$do_convert_att_vars'(Vs, LIV, LGs).
+	'$do_convert_att_vars'(Vs0, LGs).
 	
-'$do_convert_att_vars'([], _, []).
-'$do_convert_att_vars'([V|LAV], LIV, NGs) :-
+'$do_convert_att_vars'([],[]).
+'$do_convert_att_vars'([V|LAV], NGs) :-
 	attvar(V),
 	attributes:convert_att_var(V,G),
 	G \= true,
 	!,
 	'$split_goals_for_catv'(G,V,NGs,IGs),
-	'$do_convert_att_vars'(LAV, LIV, IGs).
-'$do_convert_att_vars'([_|LAV], LIV, Gs) :-
-	'$do_convert_att_vars'(LAV, LIV, Gs).
+	'$do_convert_att_vars'(LAV, IGs).
+'$do_convert_att_vars'([_|LAV], Gs) :-
+	'$do_convert_att_vars'(LAV, Gs).
 
 '$split_goals_for_catv'((G,NG),V,[V-G|Gs],Gs0) :- !,
 	'$split_goals_for_catv'(NG,V,Gs,Gs0).
