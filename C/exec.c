@@ -194,10 +194,12 @@ do_execute(Term t, Term mod)
 
     f = FunctorOfTerm(t);
     if (IsExtensionFunctor(f)) {
-      return CallError(TYPE_ERROR_CALLABLE, mod);
+      return CallError(TYPE_ERROR_CALLABLE, t);
     }
     arity = ArityOfFunctor(f);
-    
+    if (arity > MaxTemps) {
+      return CallError(TYPE_ERROR_CALLABLE, t);
+    }    
     pen = RepPredProp(PredPropByFunc(f, mod));
     /* You thought we would be over by now */
     /* but no meta calls require special preprocessing */
@@ -328,7 +330,6 @@ do_execute_n(Term t, Term mod, unsigned int n)
   if (IsExtensionFunctor(f)) {
     return CallError(TYPE_ERROR_CALLABLE, mod);
   }
-    
   if (PRED_GOAL_EXPANSION_ALL) {
     LOCK(SignalLock);
     /* disable creeping when we do goal expansion */
@@ -341,6 +342,9 @@ do_execute_n(Term t, Term mod, unsigned int n)
     return CallMetaCall(mod);
   } else if (ActiveSignals) {
     return EnterCreepMode(copy_execn_to_heap(f, pt, n, arity, CurrentModule), mod);
+  }
+  if (arity > MaxTemps) {
+    return CallError(TYPE_ERROR_CALLABLE, t);
   }
   pen = RepPredProp(PredPropByFunc(f, mod));
   /* You thought we would be over by now */
@@ -598,6 +602,9 @@ p_execute_clause(void)
     }
     pe = PredPropByFunc(f, mod);
     arity = ArityOfFunctor(f);
+    if (arity > MaxTemps) {
+      return CallError(TYPE_ERROR_CALLABLE, t);
+    }
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
@@ -660,7 +667,7 @@ p_execute0(void)
     register CELL *pt;
 
     if (IsExtensionFunctor(f))
-      return(FALSE);
+      return FALSE;
     if (f == FunctorModule) {
       Term tmod = ArgOfTerm(1,t);
       if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
@@ -672,6 +679,9 @@ p_execute0(void)
     pe = PredPropByFunc(f, mod);
     //    Yap_DebugPlWrite(mod);fprintf(stderr,"\n");
     arity = ArityOfFunctor(f);
+    if (arity > MaxTemps) {
+      return CallError(TYPE_ERROR_CALLABLE, t);
+    }
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
@@ -728,6 +738,9 @@ p_execute_nonstop(void)
     }
     pe = PredPropByFunc(f, mod);
     arity = ArityOfFunctor(f);
+    if (arity > MaxTemps) {
+      return CallError(TYPE_ERROR_CALLABLE, t);
+    }
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
