@@ -269,10 +269,10 @@ GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity)
 {
   ArenaOverflows++;
   if (size == 0) {
-    if (old_size < 1024*1024) {
+    if (old_size < 128*1024) {
       size = old_size;
     } else {
-      size = old_size+1024*1024;
+      size = old_size+128*1024;
     }
   }
   if (size < 4096) {
@@ -1030,11 +1030,11 @@ GetGlobalEntry(Atom at)
 static UInt
 garena_overflow_size(CELL *arena)
 {
-  UInt dup = ((CELL *)arena-H0)*sizeof(CELL);
+  UInt dup = (((CELL *)arena-H0)*sizeof(CELL))>>3;
   if (dup < 64*1024*GlobalArenaOverflows)
     dup = 64*1024*GlobalArenaOverflows;
-  if (dup > 16*1024*1024)
-    return 16*1024*1024;
+  if (dup > 1024*1024)
+    return 1024*1024;
   return dup;
 }
 
