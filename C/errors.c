@@ -1769,13 +1769,15 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     /* disable active signals at this point */
     ActiveSignals = 0;
     CreepFlag = CalculateStackGap();
+    Yap_PrologMode &= ~InErrorMode;
     if (type == PURE_ABORT)
       Yap_JumpToEnv(MkAtomTerm(AtomDAbort));
     else
       Yap_JumpToEnv(Yap_MkApplTerm(fun, 2, nt));
     P = (yamop *)FAILCODE;
+  } else {
+    Yap_PrologMode &= ~InErrorMode;
   }
-  Yap_PrologMode &= ~InErrorMode;
   return P;
 }
 
