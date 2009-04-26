@@ -61,7 +61,6 @@ user:goal_expansion(maplist(Meta, ListIn, ListOut), Mod, Goal) :-
 	pred_name(maplist, 3, Proto, GoalName),
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
-	writeln(g:Goal),
 	% the new predicate declaration
 	HeadPrefix =.. [GoalName|PredVars],	
 	append_args(HeadPrefix, [[], []], Base),
