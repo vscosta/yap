@@ -12,26 +12,6 @@
 
 :- multifile user:goal_expansion/3.
 
-user:goal_expansion(maplist(Meta, ListIn, ListOut), Mod, Goal) :-
-	goal_expansion_allowed,
-	callable(Meta),
-	!,
-	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
-	% the new goal
-	pred_name(maplist, 3, Proto, GoalName),
-	append(MetaVars, [ListIn, ListOut], GoalArgs),
-	Goal =.. [GoalName|GoalArgs],
-	% the new predicate declaration
-	HeadPrefix =.. [GoalName|PredVars],	
-	append_args(HeadPrefix, [[], []], Base),
-	append_args(HeadPrefix, [[In|Ins], [Out|Outs]], RecursionHead),
-	append_args(Pred, [In, Out], Apply),
-	append_args(HeadPrefix, [Ins, Outs], RecursiveCall),
-	compile_aux([
-		     Base,
-		     (RecursionHead :- Apply, RecursiveCall)
-		    ], Module).
-
 user:goal_expansion(checklist(Meta, List), Mod, Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
@@ -67,6 +47,27 @@ user:goal_expansion(maplist(Meta, List), Mod, Goal) :-
 	append_args(HeadPrefix, [[In|Ins]], RecursionHead),
 	append_args(Pred, [In], Apply),
 	append_args(HeadPrefix, [Ins], RecursiveCall),
+	compile_aux([
+		     Base,
+		     (RecursionHead :- Apply, RecursiveCall)
+		    ], Module).
+
+user:goal_expansion(maplist(Meta, ListIn, ListOut), Mod, Goal) :-
+	goal_expansion_allowed,
+	callable(Meta),
+	!,
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
+	% the new goal
+	pred_name(maplist, 3, Proto, GoalName),
+	append(MetaVars, [ListIn, ListOut], GoalArgs),
+	Goal =.. [GoalName|GoalArgs],
+	writeln(g:Goal),
+	% the new predicate declaration
+	HeadPrefix =.. [GoalName|PredVars],	
+	append_args(HeadPrefix, [[], []], Base),
+	append_args(HeadPrefix, [[In|Ins], [Out|Outs]], RecursionHead),
+	append_args(Pred, [In, Out], Apply),
+	append_args(HeadPrefix, [Ins, Outs], RecursiveCall),
 	compile_aux([
 		     Base,
 		     (RecursionHead :- Apply, RecursiveCall)
@@ -460,11 +461,10 @@ aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Module, Module) :-
 	Proto =.. [F|ProtoArgs].
 
 aux_args([], [], [], [], []).
-aux_args([Arg|Args], [Arg|MVars], [PVar|PArgs], [PVar|PVars], ['_'|ProtoArgs]) :-
-	var(Arg),
-	!,
-	aux_args(Args, MVars, PArgs, PVars, ProtoArgs).
 aux_args([Arg|Args], MVars, [Arg|PArgs], PVars, [Arg|ProtoArgs]) :-
+	ground(Arg), !,
+	aux_args(Args, MVars, PArgs, PVars, ProtoArgs).
+aux_args([Arg|Args], [Arg|MVars], [PVar|PArgs], [PVar|PVars], ['_'|ProtoArgs]) :-
 	aux_args(Args, MVars, PArgs, PVars, ProtoArgs).
 
 pred_name(Macro, Arity, Proto, Name) :-
