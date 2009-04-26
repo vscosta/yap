@@ -786,5 +786,6 @@ CalculateStackGap(void)
   UInt gmin = (LCL0-H0)>>2;
 
   if (gmin < MinStackGap) gmin = MinStackGap; 
+  //  if (gmin > 1024*1024) return 1024*1024; 
   return gmin;
 }
