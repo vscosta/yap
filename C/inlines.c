@@ -712,7 +712,7 @@ p_functor(void)			/* functor(?,?,?) */
     *pt1++ = d0;
     d0 = AbsAppl(H);
     if (pt1+d1 > ENV - CreepFlag) {
-      if (!Yap_gcl((1+d1)*sizeof(CELL), 3, ENV, gc_P(P,CP))) {
+      if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YENV, gc_P(P,CP))) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return FALSE;
       }
@@ -916,7 +916,7 @@ Yap_InitInlines(void)
   Yap_InitAsmPred("\\=", 2, _dif, p_dif, SafePredFlag);
   Yap_InitAsmPred("==", 2, _eq, p_eq, SafePredFlag);
   Yap_InitAsmPred("arg", 3, _arg, p_arg, SafePredFlag);
-  Yap_InitAsmPred("functor", 3, _functor, p_functor, SafePredFlag);
+  Yap_InitAsmPred("functor", 3, _functor, p_functor, 0);
   Yap_InitAsmPred("$plus", 3, _plus, p_erroneous_call, SafePredFlag);
   Yap_InitAsmPred("$minus", 3, _minus, p_erroneous_call, SafePredFlag);
   Yap_InitAsmPred("$times", 3, _times, p_erroneous_call, SafePredFlag);
