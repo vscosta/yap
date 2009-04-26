@@ -3957,7 +3957,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
     LeaveGCMode();
     if (gc_margin < 2*CalculateStackGap())
       gc_margin = 2*CalculateStackGap();
-    return Yap_growstack(gc_margin*sizeof(CELL));
+    return Yap_growstack(gc_margin);
   }
   /*
    * debug for(save_total=1; save_total<=N; ++save_total)
@@ -4003,8 +4003,12 @@ int
 Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 {
   int res;
+  UInt min = CalculateStackGap()*sizeof(CELL);
+
   Yap_PrologMode |= GCMode;
-  res = call_gc(gc_lim+CalculateStackGap()*sizeof(CELL), predarity, current_env, nextop);
+  if (gc_lim < min)
+    gc_lim = min;
+  res = call_gc(gc_lim, predarity, current_env, nextop);
   LeaveGCMode();
   return res;
 }
