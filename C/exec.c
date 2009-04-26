@@ -837,7 +837,7 @@ call_with_args(int i)
   if (!t)
     return FALSE;
   for (j=0;j<i;j++)
-    heap_store(Deref(XREGS[i+2]));
+    heap_store(Deref(XREGS[j+2]));
   return(do_execute_n(t, mod, i));
 }
 
