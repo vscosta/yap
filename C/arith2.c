@@ -75,7 +75,14 @@ p_mod(Term t1, Term t2) {
 
 	if (i2 == 0) goto zero_divisor;
 	if (i1 == Int_MIN && i2 == -1) {
+#ifdef USE_GMP
 	  return Yap_gmp_add_ints(Int_MAX, 1);	  
+#else
+	  Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, t1,
+		    "// /2 with %d and %d", i1, i2);
+	  P = (yamop *)FAILCODE;
+	  RERROR();	  
+#endif
 	}
 	mod = i1%i2;
 	if (mod && (mod ^ i2) < 0)
@@ -167,7 +174,14 @@ p_rem(Term t1, Term t2) {
 
 	if (i2 == 0) goto zero_divisor;
 	if (i1 == Int_MIN && i2 == -1) {
+#ifdef USE_GMP
 	  return Yap_gmp_add_ints(Int_MAX, 1);	  
+#else
+	  Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, t1,
+		    "rem/2 with %d and %d", i1, i2);
+	  P = (yamop *)FAILCODE;
+	  RERROR();	  
+#endif
 	}
 	mod = i1%i2;
 	RINT(i1%i2);
