@@ -125,14 +125,6 @@ sl_overflow(Int i,Int j)
   t = (1<<x)-1;
   return (t & i) != i;
 }
-
-#else
-static inline Int
-sl_overflow(Int x,Int i)
-{
-  return FALSE; 
-}
-
 #endif
 
 inline static Term
