@@ -139,7 +139,14 @@ inline static Term
 do_sll(Int i, Int j)
 {
   if (sl_overflow(i,j)) {
+#ifdef USE_GMP
     return Yap_gmp_sll_ints(i, j);
+#else
+    Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, t1,
+	      "rem/2 with %d and %d", i1, i2);
+    P = (yamop *)FAILCODE;
+    RERROR();	  
+#endif
   }
   RINT(i << j);
 }
@@ -343,7 +350,14 @@ p_div(Term t1, Term t2) {
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else if (i1 == Int_MIN && i2 == -1) {
+#ifdef USE_GMP
 	  return Yap_gmp_add_ints(Int_MAX, 1);
+#else
+	  Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, t1,
+		    "rem/2 with %d and %d", i1, i2);
+	  P = (yamop *)FAILCODE;
+	  RERROR();	  
+#endif
 	} else {
 	  RINT(IntegerOfTerm(t1) / i2);
 	}
