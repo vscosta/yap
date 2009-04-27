@@ -138,14 +138,9 @@ sl_overflow(Int x,Int i)
 inline static Term
 do_sll(Int i, Int j)
 {
-  if (sl_overflow(i,j)) {
 #ifdef USE_GMP
+  if (sl_overflow(i,j)) {
     return Yap_gmp_sll_ints(i, j);
-#else
-    Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, t1,
-	      "rem/2 with %d and %d", i1, i2);
-    P = (yamop *)FAILCODE;
-    RERROR();	  
 #endif
   }
   RINT(i << j);
