@@ -778,7 +778,7 @@ install_info:
 	  gzip --quiet --force $(DESTDIR)$(INFODIR)/pillow_doc.info; \
 	  fi \
 	fi; \
-	$(INSTALL_INFO) --quiet --section "Programming Languages" --entry="`cat pillow_doc.infoindex`" pillow_doc.info $(DESTDIR)$(INFODIR)/dir
+	$(INSTALL_INFO) --quiet --section "Programming Languages" --entry="`cat pillow_doc.infoindex`" --info-dir=$(DESTDIR)$(INFODIR) pillow_doc.info
 
 install_docs:
 	$(MAKE) pdf
