@@ -1242,7 +1242,16 @@ p_b_setval(void)
   WRITE_LOCK(ge->GRWLock);
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   /* the evil deed is to be done now */
-  MaBind(&ge->global, ARG2);
+  {
+    /* but first make sure we are doing on a global object, or a constant! */
+    Term t = Deref(ARG2);
+    if (IsVarTerm(t) && VarOfTerm(t) > H && VarOfTerm(t) < ASP) {
+      Term tn = MkVarTerm();
+      Bind_Local(VarOfTerm(t), tn);
+      t = tn;
+    }
+    MaBind(&ge->global, t);
+  }
   WRITE_UNLOCK(ge->GRWLock);
   return TRUE;
 #else
