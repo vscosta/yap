@@ -893,37 +893,22 @@ InitWorkSpace(Int s)
   return (void *) a;
 }
 
-static int
-ExtendWorkSpace(Int s, int fixed_allocation)
+static MALLOC_T
+mmap_extension(Int s, MALLOC_T base, int fixed_allocation)
 {
-#ifdef YAPOR
-  Yap_Error(INTERNAL_ERROR, TermNil, "cannot extend stacks (ExtendWorkSpace)");
-  return(FALSE);
-#else
   MALLOC_T a;
-  prolog_exec_mode OldPrologMode = Yap_PrologMode;
-  MALLOC_T base = WorkSpaceTop;
+
 #if !defined(_AIX) && !defined(__hpux) && !defined(__APPLE__)
    int fd;  
 #endif
-
-  if (fixed_allocation == MAP_FIXED)
-    base = WorkSpaceTop;
-  else
-    base = 0L;
-
 #if defined(_AIX) || defined(__hpux)
-  Yap_PrologMode = ExtendStackMode;
-  a = mmap(base, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
+   a = mmap(base, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 		    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
 #elif defined(__APPLE__)
-  Yap_PrologMode = ExtendStackMode;
-
-  a = mmap(base, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
-		    MAP_PRIVATE | MAP_ANON | fixed_allocation, -1, 0);
+   a = mmap(base, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
+	    MAP_PRIVATE | MAP_ANON | fixed_allocation, -1, 0);
 #else
-   Yap_PrologMode = ExtendStackMode;
    fd = open("/dev/zero", O_RDWR);
    if (fd < 0) {
 #if HAVE_MKSTEMP
@@ -939,8 +924,7 @@ ExtendWorkSpace(Int s, int fixed_allocation)
        snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		 "mkstemp could not create temporary file %s", file);
 #endif /* HAVE_STRERROR */
-       Yap_PrologMode = OldPrologMode;
-       return FALSE;
+       return (MALLOC_T)-1;
      }
 #else
 #if HAVE_TMPNAM
@@ -956,32 +940,28 @@ ExtendWorkSpace(Int s, int fixed_allocation)
       Yap_ErrorMessage = Yap_ErrorSay;
       snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mmap could not open %s", file);
-      Yap_PrologMode = OldPrologMode;
-      return FALSE;
+      return (MALLOC_T)-1;
     }
     if (lseek(fd, s, SEEK_SET) < 0) {
       Yap_ErrorMessage = Yap_ErrorSay;
       snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mmap could not lseek in mmapped file %s", file);
-      Yap_PrologMode = OldPrologMode;
       close(fd);
-      return FALSE;
+      return (MALLOC_T)-1;
     }
     if (write(fd, "", 1) < 0) {
       Yap_ErrorMessage = Yap_ErrorSay;
       snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mmap could not write in mmapped file %s", file);
-      Yap_PrologMode = OldPrologMode;
       close(fd);
-      return FALSE;
+      return (MALLOC_T)-1;
     }
     if (unlink(file) < 0) {
       Yap_ErrorMessage = Yap_ErrorSay;
       snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mmap could not unlink mmapped file %s", file);
-      Yap_PrologMode = OldPrologMode;
       close(fd);
-      return FALSE;
+      return (MALLOC_T)-1;
     }
   }
   a = mmap(base, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
@@ -1000,10 +980,30 @@ ExtendWorkSpace(Int s, int fixed_allocation)
     snprintf3(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "mmap could not close file ]\n");
 #endif
-    Yap_PrologMode = OldPrologMode;
-    return FALSE;
+    return (MALLOC_T)-1;
   }
 #endif
+  return a;
+}
+
+static int
+ExtendWorkSpace(Int s, int fixed_allocation)
+{
+#ifdef YAPOR
+  Yap_Error(INTERNAL_ERROR, TermNil, "cannot extend stacks (ExtendWorkSpace)");
+  return(FALSE);
+#else
+  MALLOC_T a;
+  prolog_exec_mode OldPrologMode = Yap_PrologMode;
+  MALLOC_T base = WorkSpaceTop;
+
+  if (fixed_allocation == MAP_FIXED)
+    base = WorkSpaceTop;
+  else
+    base = 0L;
+  Yap_PrologMode = ExtendStackMode;
+  a = mmap_extension(s, base, fixed_allocation);
+  Yap_PrologMode = OldPrologMode;
   if (a == (MALLOC_T) - 1) {
     Yap_ErrorMessage = Yap_ErrorSay;
 #if HAVE_STRERROR
@@ -1013,7 +1013,6 @@ ExtendWorkSpace(Int s, int fixed_allocation)
     snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not allocate %d bytes", (int)s);
 #endif
-    Yap_PrologMode = OldPrologMode;
     return FALSE;
   }
   if (fixed_allocation) {
