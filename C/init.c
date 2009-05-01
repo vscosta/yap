@@ -1326,7 +1326,10 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   if (Stack < MinStackSpace)
     Stack = MinStackSpace;
   Stack = AdjustPageSize(Stack * K);
-
+  if (!Atts)
+    Atts = 2048*sizeof(CELL);
+  else
+    Atts = AdjustPageSize(Atts * K);
 #ifdef YAPOR
   worker_id = 0;
   if (n_workers > MAX_WORKERS)
@@ -1342,7 +1345,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 #else
   Yap_InitMemory (Trail, Heap, Stack+Atts);
 #endif /* YAPOR */
-  Yap_AttsSize = 2048*sizeof(CELL);
+  Yap_AttsSize = Atts;
   Yap_ClauseSpace = 0;
   Yap_IndexSpace_Tree = 0;
   Yap_IndexSpace_EXT = 0;

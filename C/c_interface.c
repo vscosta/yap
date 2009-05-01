@@ -2097,8 +2097,8 @@ YAP_Init(YAP_init_args *yap_init)
       yap_init->ErrorCause = Yap_ErrorMessage;
       return YAP_BOOT_FROM_SAVED_ERROR;
     }
-    if (Atts && Atts > 2048*sizeof(CELL))
-      Yap_AttsSize = Atts;
+    if (Atts && Atts*1024 > 2048*sizeof(CELL))
+      Yap_AttsSize = Atts*1024;
     else
       Yap_AttsSize = 2048*sizeof(CELL);
     if (restore_result == DO_ONLY_CODE) {
