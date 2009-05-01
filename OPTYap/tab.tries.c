@@ -885,7 +885,7 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
 	for (i = var_index; i > n_vars; i--)
 	  stack_vars_base[i] = 0; 
 	n_vars = var_index;
-	stack_vars = stack_terms_base + n_vars;
+	stack_vars = stack_vars_base + (n_vars+1);
 	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
       }  
       if (stack_vars_base[var_index] == 0)
