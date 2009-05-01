@@ -2169,8 +2169,8 @@ Yap_absmi(int inp)
 	  /* multi-assignment variable */
 	  /* so the next cell is the old value */ 
 #ifdef FROZEN_STACKS
-	  pt[0] = TrailVal(pt0-1);
-	  pt0 -= 1;
+	  --pt0;
+	  pt[0] = TrailVal(pt0);
 #else
 	  pt[0] = TrailTerm(pt0-1);
 	  pt0 -= 2;

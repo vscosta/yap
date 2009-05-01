@@ -86,12 +86,13 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
           CELL *NEW_STACK;                                                       \
           INFORMATION_MESSAGE("Expanding trail in 64 Kbytes");                   \
           old_top = Yap_TrailTop;                                                \
-          Yap_growtrail(64 * 1024L, TRUE);                                       \
-          diff = (void *)Yap_TrailTop - old_top;                                 \
-          NEW_STACK = (CELL *)((void *)STACK + diff);                            \
-          memmove((void *)NEW_STACK, (void *)STACK, old_top - (void *)STACK);    \
-          STACK = NEW_STACK;                                                     \
-          STACK_BASE = (CELL *)((void *)STACK_BASE + diff);                      \
+          if (!Yap_growtrail(64 * 1024L, TRUE)) {Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"trie loading"); P=FAILCODE; } else { \
+            diff = (void *)Yap_TrailTop - old_top;                                 \
+            NEW_STACK = (CELL *)((void *)STACK + diff);                            \
+            memmove((void *)NEW_STACK, (void *)STACK, old_top - (void *)STACK);    \
+            STACK = NEW_STACK;                                                     \
+            STACK_BASE = (CELL *)((void *)STACK_BASE + diff);                      \
+          }\
         }
 #endif /* YAPOR */
 
@@ -398,8 +399,9 @@ void unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr) {
       }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     } else {
-      Term aux_val = TrailTerm(--unbind_tr);
       CELL *aux_ptr = RepAppl(ref);
+      --unbind_tr;
+      Term aux_val = TrailVal(unbind_tr);
       *aux_ptr = aux_val;
 #endif /* MULTI_ASSIGNMENT_VARIABLES */
     }
@@ -441,8 +443,7 @@ void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
 	/* first time we found the variable, let's put the new value */
 	*cell_ptr = TrailVal(rebind_tr);
       }
-      /* skip the old value */
-      rebind_tr--;
+      --rebind_tr;
 #endif /* MULTI_ASSIGNMENT_VARIABLES */
     }
   }
@@ -475,6 +476,16 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
             TABLING_ERROR_MESSAGE("unbind_tr > Yap_TrailTop (function restore_bindings)");
 #endif /* TABLING_ERRORS */
         }
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+      }	else if (IsApplTerm(ref)) {
+	CELL *pt = RepAppl(ref);
+
+	/* AbsAppl means */
+	/* multi-assignment variable */
+	/* so the next cell is the old value */ 
+	--unbind_tr;
+	pt[0] = TrailVal(unbind_tr);
+#endif
       }
     }
     /* look for end */
@@ -492,7 +503,9 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
       }
     }
   }
+
   /* rebind loop */
+  Yap_NEW_MAHASH((ma_h_inner_struct *)H);
   while (rebind_tr != end_tr) {
     ref = (CELL) TrailTerm(--rebind_tr);
     if (IsVarTerm(ref)) {
@@ -508,6 +521,15 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
           TABLING_ERROR_MESSAGE("rebind_tr < end_tr (function restore_bindings)");
 #endif /* TABLING_ERRORS */
       }
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+    } else {
+      CELL *cell_ptr = RepAppl(ref);
+      if (!Yap_lookup_ma_var(cell_ptr)) {
+	/* first time we found the variable, let's put the new value */
+	*cell_ptr = TrailVal(rebind_tr);
+      }
+      --rebind_tr;
+#endif /* MULTI_ASSIGNMENT_VARIABLES */
     }
   }
   return;
