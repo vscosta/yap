@@ -322,7 +322,8 @@ dump_stack(void)
 	env_ptr = (CELL *)(env_ptr[E_E]);
       }
       if (b_ptr) {
-	if (b_ptr->cp_ap->opc != Yap_opcode(_or_else) &&
+	if (b_ptr->cp_ap && /* tabling */
+	    b_ptr->cp_ap->opc != Yap_opcode(_or_else) &&
 	    b_ptr->cp_ap->opc != Yap_opcode(_or_last) &&
 	    b_ptr->cp_ap->opc != Yap_opcode(_Nstop)) {
 	  /* we can safely ignore ; because there is always an upper env */
