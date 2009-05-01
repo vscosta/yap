@@ -1532,7 +1532,7 @@ Yap_InitYaamRegs(void)
 #endif
   STATIC_PREDICATES_MARKED = FALSE;
 #ifdef FROZEN_STACKS
-  H = HB = H0 = H_FZ = H_BASE;
+  H_FZ = H;
 #ifdef SBA
   BSEG =
 #endif /* SBA */
