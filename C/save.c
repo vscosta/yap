@@ -56,7 +56,7 @@ static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 
 /*********  hack for accesing several kinds of terms. Should be cleaned **/
 
-static char StartUpFile[] = "startup";
+static char StartUpFile[] = "startup.yss";
 
 static char end_msg[256] ="*** End of YAP saved state *****";
 
@@ -1537,7 +1537,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
       }
       /* now, this is a possible location for the ROOT_DIR, let's look for a share directory here */
       pt[1] = '\0';
-      strncat(Yap_FileNameBuf,"lib/Yap/startup",YAP_FILENAME_MAX);
+      strncat(Yap_FileNameBuf,"lib/Yap/startup.yss",YAP_FILENAME_MAX);
     }
     if ((splfild = open_file(Yap_FileNameBuf, O_RDONLY)) > 0) {
       if ((mode = commit_to_saved_state(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {

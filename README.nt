@@ -141,7 +141,7 @@ o Build the system.
 o Use Build.Start Debug to boot the system, and then create the saved state with
 
 ['$YAPSRC\\pl\\init'].
-save_program(startup).
+save_program('startup.yss').
 ^Z
 
 That's it, you've got YAP and the saved state!

@@ -37,7 +37,7 @@ if {[file exists /vmlinuz]} {
    } else {
 	set homeyap .
    }
-   set PrologCommand "$homeyap/yap $homeyap/startup -c localhost $service $YapOptions"
+   set PrologCommand "$homeyap/yap $homeyap/startup.yss -c localhost $service $YapOptions"
    set SolarisBug 0
 } else {
    set PrologCommand "ny -h8000 -s1000"

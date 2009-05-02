@@ -70,7 +70,7 @@ Section "Base system (required)"
 
   SetOutPath $INSTDIR\lib
 ; SYSTEM STUFF
-  File c:\Yap\lib\Yap\startup
+  File c:\Yap\lib\Yap\startup.yss
 
   SetOutPath $INSTDIR\share
 ; SYSTEM STUFF
@@ -84,7 +84,7 @@ Section "Base system (required)"
   File c:\Yap\share\docs\COPYING.TXT
 
   WriteRegStr HKLM ${REGKEY} "home" "$INSTDIR"
-  WriteRegStr HKLM ${REGKEY} "startup" "$INSTDIR\lib\startup"
+  WriteRegStr HKLM ${REGKEY} "startup" "$INSTDIR\lib\startup.yss"
   WriteRegStr HKLM ${REGKEY} "library" "$INSTDIR\share"
 
   ; Write uninstaller

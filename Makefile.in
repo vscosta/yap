@@ -274,7 +274,7 @@ OBJECTS = yap.o $(LIB_OBJECTS)
 
 
 
-all: Makefile startup
+all: Makefile startup.yss
 
 
 Makefile: $(srcdir)/Makefile.in
@@ -375,12 +375,6 @@ tab.tries.o: $(srcdir)/OPTYap/tab.tries.c
 tab.suspend.o: $(srcdir)/OPTYap/tab.suspend.c
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/tab.suspend.c -o $@
 
-mpi.o: $(srcdir)/library/mpi/mpi.c
-	$(MPI_CC) -c $(CFLAGS) $(srcdir)/library/mpi/mpi.c -o $@
-
-mpe.o: $(srcdir)/library/mpi/mpe.c
-	$(MPI_CC) -c $(CFLAGS) $(srcdir)/library/mpi/mpe.c -o $@
-
 eam_showcode.o:  $(srcdir)/BEAM/eam_showcode.c
 	$(CC) -c $(CFLAGS) $(srcdir)/BEAM/eam_showcode.c -o $@
 
@@ -437,7 +431,7 @@ c_interface.i: $(srcdir)/C/c_interface.c $(srcdir)/include/c_interface.h
 mycb: $(srcdir)/mycb.c
 	$(CC) $(CFLAGS) $(srcdir)/mycb.c -o mycb
 
-all: startup
+all: startup.yss
 	@INSTALL_DLLS@ (cd library/random; $(MAKE))
 	@INSTALL_DLLS@ (cd library/regex; $(MAKE))
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE))
@@ -453,9 +447,9 @@ all: startup
 	@ENABLE_CPLINT@ (cd cplint; $(MAKE))
 	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE))
 
-startup: yap@EXEC_SUFFIX@ $(PL_SOURCES)
-	-rm -f startup
-	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). save_program(startup)." |  @PRE_DYNLOADER_PATH@ ./yap -b $(srcdir)/pl/boot.yap
+startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
+	-rm -f startup.yss
+	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). save_program('startup.yss')." |  @PRE_DYNLOADER_PATH@ ./yap -b $(srcdir)/pl/boot.yap
 
 yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
 	$(MPI_CC) $(STANDARD_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS) @MPI_LIBS@
@@ -472,11 +466,11 @@ install: install_bin install_data
 
 install_bin: @INSTALL_COMMAND@
 
-install_unix: startup libYap.a
+install_unix: startup.yss libYap.a
 	mkdir -p $(DESTDIR)$(BINDIR)
 	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
-	$(INSTALL_DATA) startup $(DESTDIR)$(YAPLIBDIR)/startup
+	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
 	@INSTALL_DLLS@ $(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
@@ -498,7 +492,7 @@ install_unix: startup libYap.a
 	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
 
 
-install_win32: startup
+install_win32: startup.yss
 	mkdir -p $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(LIBDIR)
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
@@ -506,7 +500,7 @@ install_win32: startup
 	$(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
 	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
 	$(INSTALL_PROGRAM) -m 755 libWYap.a $(DESTDIR)$(YAPLIBDIR)/libWYap.a
-	$(INSTALL_PROGRAM) -m 755 startup $(DESTDIR)$(YAPLIBDIR)/startup
+	$(INSTALL_PROGRAM) -m 755 startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/swi
@@ -577,7 +571,7 @@ clean: clean_docs
 
 
 realclean: clean realclean_docs
-	rm -f yap@EXEC_SUFFIX@ startup config.log config.cache config.h
+	rm -f yap@EXEC_SUFFIX@ startup.yss config.log config.cache config.h
 
 dist:
 

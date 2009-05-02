@@ -817,7 +817,7 @@ $YAPSRC\VC\include, $YAPSRC\include
 
 @example
 ['$YAPSRC\\pl\\init'].
-save_program(startup).
+save_program('startup.yss').
 ^Z
 @end example
 
@@ -915,7 +915,7 @@ the allocated memory is not enough to restore the state.
 When restoring a saved state, YAP will allocate the
 same amount of memory as that in use when the state was saved, unless a
 different amount is specified by flags in the command line. By default,
-YAP restores the file @samp{startup} from the current directory or from
+YAP restores the file @samp{startup.yss} from the current directory or from
 the YAP library.
 @cindex environment variables
 
