@@ -1560,7 +1560,7 @@ PL_initialise(int myargc, char **myargv)
 
   init_args.Argv = myargv;
   init_args.Argc = myargc;
-  init_args.SavedState = "startup";
+  init_args.SavedState = "startup.yss";
   init_args.HeapSize = 0;
   init_args.StackSize = 0;
   init_args.TrailSize = 0;

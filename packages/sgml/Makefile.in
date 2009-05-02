@@ -11,6 +11,7 @@ ifeq (@PROLOG_SYSTEM@,yap)
 prefix = @prefix@
 ROOTDIR = $(prefix)
 EROOTDIR = @exec_prefix@
+abs_top_builddir = @abs_top_builddir@
 
 srcdir=@srcdir@
 
@@ -20,7 +21,7 @@ YAPLIBDIR=$(EROOTDIR)/lib/Yap
 SHAREDIR=$(ROOTDIR)/share/Yap
 
 SHELL=@SHELL@
-PL=@EXTEND_DYNLOADER_PATH@ $(DESTDIR)$(BINDIR)/yap $(DESTDIR)$(YAPLIBDIR)/startup 
+PL=@EXTEND_DYNLOADER_PATH@ $(DESTDIR)$(BINDIR)/yap $(DESTDIR)$(YAPLIBDIR)/startup.yss
 CHRDIR=$(SHAREDIR)/chr
 EXDIR=$(CHRDIR)/examples/chr
 LN_S=@LN_S@

@@ -7186,8 +7186,8 @@ fi
 	SHLIB_CFLAGS="-fno-common"
 	SHLIB_SUFFIX=".dylib"
         DO_SECOND_LD=""
- 	SHLIB_LD="$CC -bundle -bundle_loader $abs_top_builddir/yap -L$abs_top_builddir -lYap -undefined dynamic_lookup -Wl,-x -dead-strip -dead_strip_dylibs"
- 	LDFLAGS="-Wl,-x -dead_strip $LDFLAGS"
+# 	SHLIB_LD="$CC -bundle -bundle_loader \$(abs_top_builddir)/yap -L\$(abs_top_builddir) -lYap -undefined dynamic_lookup -Wl,-x -dead-strip -dead_strip_dylibs"
+# 	LDFLAGS="-Wl,-x -dead_strip -dead_strip_dylibs $LDFLAGS"
 	SHLIB_LD="$CC -bundle -flat_namespace -undefined suppress"
 	INSTALL_DLLS=""
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall -Wstrict-aliasing=2"
@@ -7325,6 +7325,7 @@ then
     DYNLIB_LD="$CC -dynamiclib"
     PRE_DYNLOADER_PATH="DYLD_LIBRARY_PATH=\$(abs_top_builddir)"
     EXTEND_DYNLOADER_PATH="DYLD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR)/Yap YAPBOOTDIR=\$(DESTDIR)\$(SHAREDIR)/Yap/pl  YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
+#    CROSS_SIMULATOR="DYLD_LIBRARY_PATH=."
     ;;
   *)
        case "$target_cpu" in

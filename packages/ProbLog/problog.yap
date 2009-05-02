@@ -24,6 +24,7 @@
 	problog_max/3,
 	problog_exact/3,
 	problog_montecarlo/3,
+	problog_table/1,
 	get_fact_probability/2,
 	set_fact_probability/2,
 	get_fact/2,
@@ -65,7 +66,10 @@
 
 % op attaching probabilities to facts
 :- op( 550, yfx, :: ).
+:- op( 1150, fx, problog_table ).
 
+:- meta_predicate problog_table(:).
+	
 %%%%%%%%%%%%%%%%%%%%%%%%
 % control predicates on various levels
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -98,6 +102,10 @@
 % for fact where the proabability is a variable
 :- dynamic dynamic_probability_fact/1.
 :- dynamic dynamic_probability_fact_extract/2.
+
+
+% keep a tab on tabling
+:- dynamic problog_tabled/1.
 
 % directory where ProblogBDD executable is located
 % automatically set during loading -- assumes it is in same place as this file (problog.yap)
@@ -221,8 +229,9 @@ user:term_expansion(P::Goal, problog:ProbFact) :-
 	append(Args,[LProb],L1),
 	probclause_id(ID),
 	ProbFact =.. [ProblogName,ID|L1],
+	assert_static(prob_for_id(ID,P)),
 	(
-	    (\+ var(P), P = t(TrueProb))
+	    (nonvar(P), P = t(TrueProb))
 	-> 
 	    (
 		assert(tunable_fact(ID,TrueProb)),
@@ -257,7 +266,7 @@ user:term_expansion(P::Goal, problog:ProbFact) :-
 	    assert(non_ground_fact(ID))
 	),
 	problog_predicate(Name, Arity, ProblogName).
-	    
+
 
 % introduce wrapper clause if predicate seen first time
 problog_predicate(Name, Arity, _) :-
@@ -269,7 +278,6 @@ problog_predicate(Name, Arity, ProblogName) :-
 	append(Args,[Prob],L1),
 	ProbFact =.. [ProblogName,ID|L1],
 	prolog_load_context(module,Mod),
-	
 	assert( (Mod:OriginalGoal :- ProbFact, 
 	                             (
 					 non_ground_fact(ID)
@@ -343,11 +351,14 @@ reset_non_ground_facts :-
 % but not if it isn't (used to iterate over all facts when writing out probabilities for learning)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 get_fact_probability(ID,Prob) :-
+	ground(ID), !,
+	prob_for_id(ID,Prob).
+get_fact_probability(ID,Prob) :-
 	(
-	ground(ID) -> 
-		get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity),!
+	 ground(ID) -> 
+	 get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity),!
 	;
-	get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity)
+	 get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity)
 	),
 	arg(ProblogArity,ProblogTerm,Log),
 	Prob is exp(Log).
@@ -1131,6 +1142,8 @@ mc_prove(A) :- !,
 
 clean_sample :-
         reset_static_array(mc_sample),
+	problog_tabled(P),
+	abolish_table(P),
 	fail.
 clean_sample.
 
@@ -1141,4 +1154,19 @@ get_some_proof(Goal) :-
 	b_getval(problog_current_proof,Used),
 	(Used == [] -> Proof=true; reverse(Used,Proof)),
 	insert_ptree(Proof,1).
+
+problog_table(M:P) :- !,
+	problog_table(P,M).
+problog_table(P) :-
+	prolog_load_context(module,M),
+	problog_table(P,M).
+
+problog_table(M:P,_) :-
+	problog_table(P,M).
+problog_table((P1,P2),M) :-
+	problog_table(P1,M),
+	problog_table(P2,M).
+problog_table(P,M) :-
+	table(M:P),
+	assert(problog_tabled(M:P)).
 

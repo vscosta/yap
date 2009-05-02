@@ -36,8 +36,7 @@ info_ouput(Stream, [V|Output]) :-
 
 
 output_parents(Stream, [V]) :- !,
-	clpbn:get_atts(V,[key(Key)]),
-	output_key(Stream,Key).
+	output_v(V,Stream).
 output_parents(Stream, L) :-
 	format(Stream,'{ ',[]),
 	output_parents1(Stream,L),
@@ -45,11 +44,13 @@ output_parents(Stream, L) :-
 
 output_parents1(_,[]).
 output_parents1(Stream,[V|L]) :-
-	clpbn:get_atts(V,[key(Key)]),
-	output_key(Stream,Key),
-	put_code(Stream, 0' ),
+	output_v(V,Stream),
+	put_code(Stream, 0' ), %'
 	output_parents1(Stream,L).
 
+output_v(V,Stream) :- 
+	clpbn:get_atts(V,[key(Key)]),
+	output_key(Stream,Key).
 
 output_key(Stream, Key) :-
 	output_key(Stream, 0, Key).
@@ -57,11 +58,8 @@ output_key(Stream, Key) :-
 output_key(Stream, _, Key) :-
 	primitive(Key), !,
 	write(Stream, Key).
-output_key(Stream, I0, Key) :-
-	Key =.. [Name|Args],
-	write(Stream, Name),
-	I is I0+1,
-	output_key_args(Stream, I, Args).
+output_key(Stream, _, Key) :-
+	format(Stream, '"~w"', [Key]).
 
 output_key_args(_, _, []).
 output_key_args(Stream, I, [Arg|Args]) :-

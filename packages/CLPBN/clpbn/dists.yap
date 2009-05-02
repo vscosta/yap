@@ -24,10 +24,11 @@
 	   randomise_dist/1,
 	   uniformise_all_dists/0,
 	   uniformise_dist/1,
-	   reset_all_dists/0
+	   reset_all_dists/0,
+	   additive_dists/6
 	]).
 
-:- use_module(library(lists),[is_list/1,nth0/3]).
+:- use_module(library(lists),[is_list/1,nth0/3,append/3]).
 
 :- use_module(library(matrix),
 	      [matrix_new/4,
@@ -106,8 +107,10 @@ dist(V, Id, Key, Parents) :-
 	var(Key), !,
 	when(Key, dist(V, Id, Key, Parents)).
 dist(avg(Domain, Parents), avg(Domain), _, Parents).
+dist(ip(Domain, Tabs, Parents), ip(Domain,Tabs), _, Parents).
 dist(max(Domain, Parents), max(Domain), _, Parents).
 dist(min(Domain, Parents), min(Domain), _, Parents).
+dist(cons(Domain, Parent), cons(Domain), _, Parent).
 dist(p(Type, CPT), Id, Key, FParents) :-
 	copy_structure(Key, Key0),
 	distribution(Type, CPT, Id, Key0, [], FParents).
@@ -219,6 +222,8 @@ get_dist_params(Id, Parms) :-
 
 get_dist_domain_size(avg(D,_), DSize) :- !,
 	length(D, DSize).
+get_dist_domain_size(ip(D,_,_), DSize) :- !,
+	length(D, DSize).
 get_dist_domain_size(Id, DSize) :-
 	recorded(clpbn_dist_db, db(Id, _, _, _, _, _, DSize), _).
 
@@ -231,6 +236,8 @@ get_dist_key(Id, Key) :-
 get_dist_nparams(Id, NParms) :-
 	recorded(clpbn_dist_db, db(Id, _, _, _, _, NParms, _), _).
 
+get_evidence_position(El, ip(Domain,_,_), Pos) :- !,
+	nth0(Pos, Domain, El), !.
 get_evidence_position(El, avg(Domain), Pos) :- !,
 	nth0(Pos, Domain, El), !.
 get_evidence_position(El, Id, Pos) :-
@@ -267,6 +274,7 @@ dist_new_table(Id, NewMat) :-
 	fail.
 dist_new_table(_, _).
 
+copy_structure(V, _) :- attvar(V), !.
 copy_structure(V, V) :- var(V), !.
 copy_structure(V, _) :- primitive(V), !.
 copy_structure(Key, Key0) :-
@@ -314,3 +322,6 @@ reset_all_dists :-
 reset_all_dists.
 
 
+additive_dists(ip(Domain,Tabs1), ip(Domain,Tabs2), Parents1, Parents2, ip(Domain,Tabs), Parents) :-
+	append(Tabs1, Tabs2, Tabs),
+	append(Parents1, Parents2, Parents).

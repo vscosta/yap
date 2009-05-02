@@ -9,6 +9,7 @@
 prefix = @prefix@
 ROOTDIR = $(prefix)
 EROOTDIR = @exec_prefix@
+abs_top_builddir = @abs_top_builddir@
 #
 # where the binary should be
 #

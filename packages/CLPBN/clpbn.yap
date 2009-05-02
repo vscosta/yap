@@ -63,7 +63,8 @@
 	       dist/4,
 	       get_dist/4,
 	       get_evidence_position/3,
-	       get_evidence_from_position/3
+	       get_evidence_from_position/3,
+	       additive_dists/6
 	      ]).
 
 :- use_module('clpbn/evidence',
@@ -130,7 +131,9 @@ clpbn_flag(parameter_softening,Before,After) :-
 {Var = Key with Dist} :-
 	put_atts(El,[key(Key),dist(DistInfo,Parents)]),
 	dist(Dist, DistInfo, Key, Parents),
-	add_evidence(Var,Key,DistInfo,El).
+	add_evidence(Var,Key,DistInfo,El)
+%	,writeln({Var = Key with Dist})
+.
 
 check_constraint(Constraint, _, _, Constraint) :- var(Constraint), !.
 check_constraint((A->D), _, _, (A->D)) :- var(A), !.
@@ -285,16 +288,23 @@ verify_attributes(_, _, []).
 bind_clpbn(T, Var, _, _, _) :- nonvar(T),
 	!, ( add_evidence(Var,T) -> true ; writeln(T:Var), fail ).
 bind_clpbn(T, Var, Key, Dist, Parents) :- var(T),
-	get_atts(T, [key(Key1),dist(Dist1,Parents1)]), !,
-	bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1),
-	(
+	get_atts(T, [key(Key1),dist(Dist1,Parents1)]),
+writeln(eq:Key:Key1),
+(
+	 bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1)
+	->
+	 (
 	  get_atts(T, [evidence(Ev1)]) ->
 	    bind_evidence_from_extra_var(Ev1,Var)
-	;
+	 ;
 	  get_atts(Var, [evidence(Ev)]) ->
 	    bind_evidence_from_extra_var(Ev,T)
+	 ;
+	  true
+	 )
 	;
-	  true).
+	 fail
+	).
 bind_clpbn(_, Var, _, _, _, _) :-
 	use(bnt),
 	check_if_bnt_done(Var), !.
@@ -309,6 +319,7 @@ bind_clpbn(T, Var, Key0, _, _, _) :-
 	(
 	  Key = Key0 -> true
 	;
+	 % let us not loose whatever we had.
 	  add_evidence(Var,T)
 	).
 
@@ -318,17 +329,11 @@ fresh_attvar(Var, NVar) :-
 
 % I will now allow two CLPBN variables to be bound together.
 %bind_clpbns(Key, Dist, Parents, Key, Dist, Parents).
-bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1) :- 
+bind_clpbns(Key, Dist, _Parents, Key1, Dist1, _Parents1) :- 
 	Key == Key1, !,
-	get_dist(Dist,Type,Domain,Table),
-	get_dist(Dist1,Type1,Domain1,Table1),
-	( Dist == Dist1,
-	  same_parents(Parents,Parents1)
-	->
-	  true
-	;
-	  throw(error(domain_error(bayesian_domain),bind_clpbns(var(Dist, Key, Type, Domain, Table, Parents),var(Dist1, Key1, Type1, Domain1, Table1, Parents1))))
-	).
+	get_dist(Dist,_Type,_Domain,_Table),
+	get_dist(Dist1,_Type1,_Domain1,_Table1),
+	Dist = Dist1.
 bind_clpbns(Key, _, _, _, Key1, _, _, _) :-
 	Key\=Key1, !, fail.
 bind_clpbns(_, _, _, _, _, _, _, _) :-
@@ -394,4 +399,6 @@ clpbn_run_solver(vel, LVs, LPs, State) :-
 	run_vel_solver(LVs, LPs, State).
 clpbn_run_solver(jt, LVs, LPs, State) :-
 	run_jt_solver(LVs, LPs, State).
+
+add_keys(Key1+V1,_Key2,Key1+V1).
 
