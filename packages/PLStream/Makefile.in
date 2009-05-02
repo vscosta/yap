@@ -49,11 +49,11 @@ C_SOURCES=$(srcdir)/pl-buffer.c $(srcdir)/pl-ctype.c \
 	$(srcdir)/pl-stream.c $(srcdir)/pl-string.c \
 	$(srcdir)/pl-table.c \
 	$(srcdir)/pl-text.c $(srcdir)/pl-utf8.c \
-	$(srcdir)/pl-yap.c @ENABLE_WINCONSOLE@ $(srcdir)/uxnt/utf8.c $(srcdir)/uxnt/uxnt.c
+	$(srcdir)/pl-yap.c @ENABLE_WINCONSOLE@ $(srcdir)/popen.c $(srcdir)/uxnt/utf8.c $(srcdir)/uxnt/uxnt.c
 OBJS=pl-buffer.o pl-ctype.o pl-error.o  pl-feature.o  \
 	pl-file.o   pl-os.o \
 	pl-stream.o pl-string.o pl-table.o pl-text.o pl-utf8.o \
-	pl-yap.o @ENABLE_WINCONSOLE@ utf8.o uxnt.o
+	pl-yap.o @ENABLE_WINCONSOLE@ popen.o utf8.o uxnt.o
 SOBJS=plstream@SHLIB_SUFFIX@
 
 #in some systems we just create a single object, in others we need to
@@ -61,47 +61,15 @@ SOBJS=plstream@SHLIB_SUFFIX@
 
 all: $(SOBJS) 
 
-pl-buffer.o: $(srcdir)/pl-buffer.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-buffer.c -o pl-buffer.o
-
-pl-ctype.o: $(srcdir)/pl-ctype.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-ctype.c -o pl-ctype.o
-
-pl-error.o: $(srcdir)/pl-error.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-error.c -o pl-error.o
-
-pl-feature.o: $(srcdir)/pl-feature.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-feature.c -o pl-feature.o
-
-pl-file.o: $(srcdir)/pl-file.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-file.c -o pl-file.o
-
-pl-os.o: $(srcdir)/pl-os.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-os.c -o pl-os.o
-
-pl-stream.o: $(srcdir)/pl-stream.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-stream.c -o pl-stream.o
-
-pl-string.o: $(srcdir)/pl-string.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-string.c -o pl-string.o
-
-pl-table.o: $(srcdir)/pl-table.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-table.c -o pl-table.o
-
-pl-text.o: $(srcdir)/pl-text.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-text.c -o pl-text.o
-
-pl-utf8.o: $(srcdir)/pl-utf8.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-utf8.c -o pl-utf8.o
-
-pl-yap.o: $(srcdir)/pl-yap.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/pl-yap.c -o pl-yap.o
-
 uxnt.o: $(srcdir)/uxnt/uxnt.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/uxnt/uxnt.c -o uxnt.o
 
 utf8.o: $(srcdir)/uxnt/utf8.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/uxnt/utf8.c -o utf8.o
+
+# default rule
+%.o : $(srcdir)/C/%.c
+	$(CC) -c $(CFLAGS)  $(SHLIB_CFLAGS) $< -o $@
 
 @DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
@@ -123,3 +91,6 @@ depend: $(HEADERS) $(C_SOURCES)
           makedepend -f - -- $(CFLAGS) -I$(srcdir)/../../H -I$(srcdir)/../../include -- $(C_SOURCES) |\
           sed 's|.*/\([^:]*\):|\1:|' >> Makefile ;\
 	fi
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
