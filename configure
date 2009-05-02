@@ -7186,9 +7186,11 @@ fi
 	SHLIB_CFLAGS="-fno-common"
 	SHLIB_SUFFIX=".dylib"
         DO_SECOND_LD=""
+ 	SHLIB_LD="$CC -bundle -bundle_loader $abs_top_builddir/yap -L$abs_top_builddir -lYap -undefined dynamic_lookup -Wl,-x -dead-strip -dead_strip_dylibs"
+ 	LDFLAGS="-Wl,-x -dead_strip $LDFLAGS"
 	SHLIB_LD="$CC -bundle -flat_namespace -undefined suppress"
 	INSTALL_DLLS=""
-        CC="$CC -no-cpp-precomp"
+        CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall -Wstrict-aliasing=2"
 	JAVALIBPATH="-L/System/Library/Frameworks/JavaVM.framework/Libraries"
 	JAVAINCPATH="-I/System/Library/Frameworks/JavaVM.framework/Headers"
 	;;

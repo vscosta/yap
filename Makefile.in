@@ -280,178 +280,25 @@ all: Makefile startup
 Makefile: $(srcdir)/Makefile.in
 
 
-absmi.o: $(srcdir)/C/absmi.c
-	$(CC) -c $(CFLAGS) $(ABSMI_FLAGS) $(srcdir)/C/absmi.c -o $@
-
-adtdefs.o: $(srcdir)/C/adtdefs.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/adtdefs.c -o $@
-
-agc.o: $(srcdir)/C/agc.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/agc.c -o $@
-
-alloc.o: $(srcdir)/C/alloc.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/alloc.c -o $@
-
-amasm.o: $(srcdir)/C/amasm.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/amasm.c -o $@
-
-analyst.o: $(srcdir)/C/analyst.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/analyst.c -o $@
-
-arith0.o: $(srcdir)/C/arith0.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/arith0.c -o $@
-
-arith1.o: $(srcdir)/C/arith1.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/arith1.c -o $@
-
-arith2.o: $(srcdir)/C/arith2.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/arith2.c -o $@
-
-arrays.o: $(srcdir)/C/arrays.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/arrays.c -o $@
-
-attvar.o: $(srcdir)/C/attvar.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/attvar.c -o $@
-
-bb.o: $(srcdir)/C/bb.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/bb.c -o $@
-
-bignum.o: $(srcdir)/C/bignum.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/bignum.c -o $@
-
 #special rule for this one: we cannot use -fomit-frame-pointer because this will
 # interface with the outside world.
 c_interface.o: $(srcdir)/C/c_interface.c $(srcdir)/include/c_interface.h
 	$(CC) $(C_INTERF_FLAGS) -c $(srcdir)/C/c_interface.c -o c_interface.o
 
-cdmgr.o: $(srcdir)/C/cdmgr.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/cdmgr.c -o $@
-
 clause_list.o: $(srcdir)/C/clause_list.c $(srcdir)/include/clause_list.h
 	$(CC) $(C_INTERF_FLAGS) -c $(srcdir)/C/clause_list.c -o clause_list.o
-
-cmppreds.o: $(srcdir)/C/cmppreds.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/cmppreds.c -o $@
-
-compiler.o: $(srcdir)/C/compiler.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/compiler.c -o $@
-
-computils.o: $(srcdir)/C/computils.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/computils.c -o $@
-
-corout.o: $(srcdir)/C/corout.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/corout.c -o $@
-
-cut_c.o: $(srcdir)/C/cut_c.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/cut_c.c -o $@
-
-dbase.o: $(srcdir)/C/dbase.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/dbase.c -o $@
-
-dlmalloc.o: $(srcdir)/C/dlmalloc.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/dlmalloc.c -o $@
-
-errors.o: $(srcdir)/C/errors.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/errors.c -o $@
-
-eval.o: $(srcdir)/C/eval.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/eval.c -o $@
-
-exec.o: $(srcdir)/C/exec.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/exec.c -o $@
-
-globals.o: $(srcdir)/C/globals.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/globals.c -o $@
-
-gmp_support.o: $(srcdir)/C/gmp_support.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/gmp_support.c -o $@
-
-gprof.o: $(srcdir)/C/gprof.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/gprof.c -o $@
-
-grow.o: $(srcdir)/C/grow.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/grow.c -o $@
-
-heapgc.o: $(srcdir)/C/heapgc.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/heapgc.c -o $@
-
-index.o: $(srcdir)/C/index.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/index.c -o $@
 
 init.o: $(srcdir)/C/init.c
 	$(CC) -c $(CFLAGS) -DMYDDAS_VERSION=\"$(MYDDAS_VERSION)\" -DYAP_VERSION=\"$(VERSION)\" $(srcdir)/C/init.c -o $@
 
-inlines.o: $(srcdir)/C/inlines.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/inlines.c -o $@
-
-iopreds.o: $(srcdir)/C/iopreds.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/iopreds.c -o $@
-
-depth_bound.o: $(srcdir)/C/depth_bound.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/depth_bound.c -o $@
-
 load_foreign.o: $(srcdir)/C/load_foreign.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/load_foreign.c -DSHLIB_SUFFIX=\"$(SHLIB_SUFFIX)\" -o $@
-
-load_dl.o: $(srcdir)/C/load_dl.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/load_dl.c -o $@
-
-load_aout.o: $(srcdir)/C/load_aout.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/load_aout.c -o $@
-
-load_aix.o: $(srcdir)/C/load_aix.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/load_aix.c -o $@
-
-load_dld.o: $(srcdir)/C/load_dld.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/load_dld.c -o $@
-
-load_dll.o: $(srcdir)/C/load_dll.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/load_dll.c -o $@
-
-load_dyld.o: $(srcdir)/C/load_dyld.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/load_dyld.c -o $@
-
-load_shl.o: $(srcdir)/C/load_shl.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/load_shl.c -o $@
-
-load_none.o: $(srcdir)/C/load_none.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/load_none.c -o $@
-
-mavar.o: $(srcdir)/C/mavar.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/mavar.c -o $@
-
-modules.o: $(srcdir)/C/modules.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/modules.c -o $@
-
-other.o: $(srcdir)/C/other.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/other.c -o $@
-
-parser.o: $(srcdir)/C/parser.c
-	$(CC) -c $(C_PARSER_FLAGS) $(srcdir)/C/parser.c -o $@
-
-readutil.o: $(srcdir)/C/readutil.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/readutil.c -o $@
 
 save.o: $(srcdir)/C/save.c
 	$(CC) -c $(CFLAGS) -DYAP_VERSION=\"$(VERSION)\" -DBIN_DIR=\"$(BINDIR)\" -DLIB_DIR=\"$(YAPLIBDIR)\" $(srcdir)/C/save.c -o $@
 
-scanner.o: $(srcdir)/C/scanner.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/scanner.c -o $@
-
-sort.o: $(srcdir)/C/sort.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/sort.c -o $@
-
-stdpreds.o: $(srcdir)/C/stdpreds.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/stdpreds.c -o $@
-
 sysbits.o: $(srcdir)/C/sysbits.c
 	$(CC) -c $(CFLAGS) -DYAP_HOME_DIR=\"$(ROOTDIR)\" -DLIB_DIR=\"$(YAPLIBDIR)\" -DSHARE_DIR=\"$(SHAREDIR)\" $(srcdir)/C/sysbits.c -o $@
-
-threads.o: $(srcdir)/C/threads.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/threads.c -o $@
-
-tracer.o: $(srcdir)/C/tracer.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/tracer.c -o $@
 
 udi.o: $(srcdir)/C/udi.c
 	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/C/udi.c -o $@
@@ -462,26 +309,14 @@ rtree.o: $(srcdir)/packages/udi/rtree.c
 rtree_udi.o: $(srcdir)/packages/udi/rtree_udi.c
 	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/packages/udi/rtree_udi.c -o $@
 
-unify.o: $(srcdir)/C/unify.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/unify.c -o $@
-
-userpreds.o: $(srcdir)/C/userpreds.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/userpreds.c -o $@
-
-utilpreds.o: $(srcdir)/C/utilpreds.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/utilpreds.c -o $@
-
-write.o: $(srcdir)/C/write.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/write.c -o $@
-
 yap.o: $(srcdir)/console/yap.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -DYAP_VERSION=\"$(VERSION)\"  -DPL_SRC_DIR=\"$(SHAREDIR)/Yap/pl/\" $(srcdir)/console/yap.c -o $@
 
-ypsocks.o: $(srcdir)/C/ypsocks.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/ypsocks.c -o $@
+mpi.o: $(srcdir)/library/mpi/mpi.c
+	$(MPI_CC) -c $(CFLAGS) $(srcdir)/library/mpi/mpi.c -o $@
 
-ypstdio.o: $(srcdir)/C/ypstdio.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/ypstdio.c -o $@
+mpe.o: $(srcdir)/library/mpi/mpe.c
+	$(MPI_CC) -c $(CFLAGS) $(srcdir)/library/mpi/mpe.c -o $@
 
 myddas_mysql.o: $(srcdir)/MYDDAS/myddas_mysql.c
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_mysql.c -o $@
@@ -582,6 +417,10 @@ regfree.o: $(srcdir)/library/regex/regfree.c $(srcdir)/library/regex/regex2.h
 regexec.o: $(srcdir)/library/regex/regexec.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regexec.c -o regexec.o
 
+# default rule
+%.o : $(srcdir)/C/%.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
 
 ## CPP'ed files (for macro debugging)
 
@@ -627,7 +466,7 @@ libYap.a: $(LIB_OBJECTS)
 	$(RANLIB) libYap.a
 
 @DYNYAPLIB@: $(LIB_OBJECTS)
-	@DYNLIB_LD@ -o @YAPLIB@  $(LDFLAGS) $(LIB_OBJECTS) $(LIBS)
+	@DYNLIB_LD@ -install_name $(LIBDIR)/@YAPLIB@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLGS)
 
 install: install_bin install_data
 
