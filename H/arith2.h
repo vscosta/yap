@@ -133,8 +133,8 @@ do_sll(Int i, Int j)
 #ifdef USE_GMP
   if (sl_overflow(i,j)) {
     return Yap_gmp_sll_ints(i, j);
-#endif
   }
+#endif
   RINT(i << j);
 }
 
