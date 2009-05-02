@@ -68,7 +68,7 @@ utf8.o: $(srcdir)/uxnt/utf8.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/uxnt/utf8.c -o utf8.o
 
 # default rule
-%.o : $(srcdir)/C/%.c
+%.o : $(srcdir)/%.c
 	$(CC) -c $(CFLAGS)  $(SHLIB_CFLAGS) $< -o $@
 
 @DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
