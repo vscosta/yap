@@ -184,10 +184,12 @@ static encoding_t
 DefaultEncoding(void)
 {
   char *s = getenv("LANG");
+  size_t sz;
+
   /* if we don't have a LNAG then just use ISO_LATIN1 */
   if (s == NULL)
     return ENC_ISO_LATIN1;
-  int sz = strlen(s);
+  sz = strlen(s);
   if (sz > 5) {
     if (s[sz-5] == 'U' &&
 	s[sz-4] == 'T' &&
@@ -3490,11 +3492,13 @@ p_has_bom (void)
 
 static Int
 p_representation_error (void)
-{				/* '$representation_error'(+Stream,-ErrorMessage)  */
+{
+  /* '$representation_error'(+Stream,-ErrorMessage)  */
+  Term t;
   Int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "representation_errors/1");
   if (sno < 0)
     return (FALSE);
-  Term t = Deref(ARG2);
+  t = Deref(ARG2);
 
   if (IsVarTerm(t)) {
     UNLOCK(Stream[sno].streamlock);
@@ -5883,6 +5887,8 @@ static Int
 p_same_file(void) {
   char *f1 = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
   char *f2 = RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE;
+  int out;
+
   if (strcmp(f1,f2) == 0)
     return TRUE;
 #if HAVE_LSTAT 
@@ -5934,7 +5940,7 @@ p_same_file(void) {
       /* file does not exist, but was opened? Return -1 */
       return FALSE;
     }
-    int out = (b1->st_ino == b2->st_ino
+    out = (b1->st_ino == b2->st_ino
 #ifdef __LCC__
 	   && memcmp((const void *)&(b1->st_dev),(const void *)&(b2->st_dev),sizeof(buf1.st_dev)) == 0
 #else

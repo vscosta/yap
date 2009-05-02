@@ -2354,6 +2354,8 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
     /* next, clean trail */
     source = dest = (tr_fr_ptr)Yap_TrailBase;
     while (source < old_TR) {
+      CELL trail_cell;
+
       while (next && source == next->cp_tr) {
 	choiceptr b = next;
 	b->cp_tr = dest;
@@ -2361,7 +2363,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	b->cp_b = current;
 	current = b;	
       }
-      CELL trail_cell = TrailTerm(source);
+      trail_cell = TrailTerm(source);
       if (trail_cell != (CELL)source) {
 	dest++;
       }

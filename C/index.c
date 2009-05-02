@@ -6744,6 +6744,10 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       }
       update_clause_choice_point(ipc->u.OtILl.n,ap_pc);
       return ipc->u.OtILl.d;
+#if TABLING
+    case _table_try_single:
+      return (LogUpdClause *)ClauseCodeToStaticClause(ipc);
+#endif
     case _trust_logical:
     case _count_trust_logical:
     case _profiled_trust_logical:

@@ -547,8 +547,8 @@ a_cmp(Term t1, Term t2)
   }
   t1 = Yap_Eval(t1);
   if (IsIntegerTerm(t1)) {
-    t2 = Yap_Eval(t2);
     Int i1 = IntegerOfTerm(t1);
+    t2 = Yap_Eval(t2);
 
     if (IsIntegerTerm(t2)) {
       Int i2 = IntegerOfTerm(t2);
@@ -565,8 +565,8 @@ a_cmp(Term t1, Term t2)
       return FALSE;
     }
   } else if (IsFloatTerm(t1)) {
-    t2 = Yap_Eval(t2);
     Float f1 = FloatOfTerm(t1);
+    t2 = Yap_Eval(t2);
 
     if (IsIntegerTerm(t2)) {
       Int i2 = IntegerOfTerm(t2);

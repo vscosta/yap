@@ -594,12 +594,14 @@ p_power(Term t1, Term t2)
 static inline Int
 ipow(Int x, Int p)
 {
+  Int r;
+
   if (p == 0) return 1L;
   if (x == 0 && p > 0) return 0L;
   if(p < 0) 
     return (-p % 2) ? x : 1L;
 	
-  Int r = 1L;
+  r = 1L;
   for(;;) {
     if(p & 1) {
       if (mul_overflow((r*x), r, x)) {
