@@ -510,17 +510,17 @@ true :- true.
 	 ),
 	 fail.
 
- '$do_yes_no'([X|L], M) :- !, '$csult'([X|L], M).
- '$do_yes_no'(G, M) :-
-         '$exit_system_mode',
-	 '$execute'(M:G),
-         ( '$enter_system_mode' ; '$exit_system_mode', fail).
+'$do_yes_no'([X|L], M) :- !, '$csult'([X|L], M).
+'$do_yes_no'(G, M) :-
+	'$exit_system_mode',
+	'$execute'(M:G),
+	( '$enter_system_mode' ; '$exit_system_mode', fail).
 
- '$write_query_answer_true'([]) :- !,
-	 format(user_error,'~ntrue',[]).
- '$write_query_answer_true'(_).
+'$write_query_answer_true'([]) :- !,
+	format(user_error,'~ntrue',[]).
+'$write_query_answer_true'(_).
 
- '$output_frozen'(_,V,LGs) :-
+'$output_frozen'(_,V,LGs) :-
 	\+ '$undefined'(bindings_message(_,_,_), swi),
 	swi:bindings_message(V, LGs, []), !.
 '$output_frozen'(G,V,LGs) :-
@@ -1124,8 +1124,10 @@ expand_term(Term,Expanded) :-
 % where was the previous catch	
 catch(G, C, A) :-
 	'$catch'(C,A,_),
+	yap_hacks:current_choice_point(CP0),
 	'$execute'(G),
-	'$true'.
+	yap_hacks:current_choice_point(CP1),
+	(CP0 == CP1 -> !; true ).
 
 % makes sure we have an environment.
 '$true'.
@@ -1139,8 +1141,10 @@ catch(G, C, A) :-
 '$system_catch'(G, M, C, A) :-
 	% check current trail
 	'$catch'(C,A,_),
+	yap_hacks:current_choice_point(CP0),
 	'$execute_nonstop'(G, M),
-	'$true'.
+	yap_hacks:current_choice_point(CP1),
+	(CP0 == CP1 -> !; true ).
 
 %
 % throw has to be *exactly* after system catch!
