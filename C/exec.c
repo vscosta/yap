@@ -1401,6 +1401,57 @@ p_cut_up_to_next_disjunction(void) {
   return TRUE;
 }
 
+static void
+clean_trail(Term t)
+{
+  tr_fr_ptr pt1, pbase;
+
+  pbase = B->cp_tr;
+  pt1 = TR - 1;
+  while (pt1 >= pbase) {
+    Term d1 = TrailTerm(pt1);
+    if (IsVarTerm(d1)) {
+#if defined(SBA) && defined(YAPOR)
+      /* clean up the trail when we backtrack */
+      if (Unsigned((Int)(d1)-(Int)(H_FZ)) >
+	  Unsigned((Int)(B_FZ)-(Int)(H_FZ))) {
+	RESET_VARIABLE(STACK_TO_SBA(d1));
+      } else
+#endif
+	/* normal variable */
+	RESET_VARIABLE(d1);
+      pt1--;
+    } else if (IsPairTerm(d1)) {
+      CELL *pt = RepPair(d1);
+      if ((ADDR) pt >= Yap_TrailBase) {
+	/* skip, this is a problem because we lose information,
+	   namely active references */
+	pt1 = (tr_fr_ptr)pt;
+      } else if (IN_BETWEEN(Yap_GlobalBase, pt, H0)) {
+	CELL val = Deref(*pt);
+	if (IsVarTerm(val)) {
+	  Bind(pt, t);
+	  Yap_WakeUp(pt);
+	}
+	return;
+      }
+      pt1--;
+    } else if (IsApplTerm(d1)) {
+      CELL *pt = RepAppl(d1);
+      /* AbsAppl means */
+      /* multi-assignment variable */
+      /* so the next cell is the old value */ 
+#ifdef FROZEN_STACKS
+      --pt1;
+      pt[0] = TrailVal(pt0);
+#else
+      pt[0] = TrailTerm(pt1-1);
+      pt1 -= 3;
+#endif /* FROZEN_STACKS */
+    }
+  }
+}
+
 
 static Int
 JumpToEnv(Term t) {
@@ -1442,25 +1493,29 @@ JumpToEnv(Term t) {
     }
     /* is it a continuation? */
     env = B->cp_env;
-    while (env > ENV)
+    while (env > ENV) {
       ENV = ENV_Parent(ENV);
+    }
     /* yes, we found it ! */
-    while (env < ENV)
-      env = ENV_Parent(env);
-    if (env == ENV) break;
+    //    while (env < ENV)
+    //      env = ENV_Parent(env);
+    if (env == ENV) {
+      break;
+    }
     /* oops, try next */
     B = B->cp_b;
   } while (TRUE);
-  /* step one environment above */
+  /* step one environment above, otherwise we'll redo the original goal */
   B->cp_cp = (yamop *)env[E_CP];
-  B->cp_ap = NEXTOP(PredHandleThrow->CodeOfPred,l);
   B->cp_env = (CELL *)env[E_E];
+  B->cp_ap = NEXTOP(PredHandleThrow->CodeOfPred,l);
   /* cannot recover Heap because of copy term :-( */
   B->cp_h = H;
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
   B->cp_a3 = t;
   P = (yamop *)FAILCODE;
+  clean_trail(t);
   if (first_func != NULL) {
     B = first_func;
   }
@@ -1472,7 +1527,8 @@ JumpToEnv(Term t) {
     abolish_incomplete_subgoals(B0);
   }
 #endif /* TABLING */
-  return FALSE;
+  /* so that I will execute op_fail */
+  return TRUE;
 }
 
 Int
