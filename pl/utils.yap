@@ -59,37 +59,33 @@ call_cleanup(Goal, Cleanup) :-
 	call_cleanup(Goal, _Catcher, Cleanup).
 
 call_cleanup(Goal, Catcher, Cleanup) :-
-	catch('$call_cleanup'(Goal,Cleanup,_),
+	catch('$call_cleanup'(Goal,Cleanup,Catcher),
 	      Exception,
 	      '$cleanup_exception'(Exception,Catcher,Cleanup)).
 
 '$cleanup_exception'(Exception, exception(Exception), Cleanup) :- !,
 	% whatever happens, let exception go through 
-	(
-	 catch('$clean_call'(Cleanup),_,fail),
-	 fail
-	;
-	 throw(Exception)
-	).
+	catch('$clean_call'(Cleanup),_,true),
+	throw(Exception).
 '$cleanup_exception'(Exception, _, _) :-
 	throw(Exception).
 
-'$call_cleanup'(Goal, Cleanup, Result) :-
-	'$freeze_goal'(Result, '$clean_call'(Cleanup)),
-	yap_hacks:trail_suspension_marker(Result),
+'$call_cleanup'(Goal, Cleanup, Catcher) :-
+	'$freeze_goal'(Catcher, '$clean_call'(Cleanup)),
+	yap_hacks:trail_suspension_marker(Catcher),
 	(
 	 yap_hacks:current_choice_point(CP0),
 	 '$execute'(Goal),
 	 yap_hacks:current_choice_point(CPF),
 	 (
 	  CP0 =:= CPF ->
-	  Result = exit,
+	  Catcher = exit,
 	  !
 	 ;
 	  true
 	 )
 	;
-	 Result = fail,
+	 Catcher = fail,
 	 fail
 	).
 
