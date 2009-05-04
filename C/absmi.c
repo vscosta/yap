@@ -2757,6 +2757,8 @@ Yap_absmi(int inp)
       }
       if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
 	SREG = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomFail,0));
+	/* make sure we have the correct environment for continuation */
+	ENV = B->cp_env;
 	goto creep;
       }
       /* don't do debugging and friends here */
