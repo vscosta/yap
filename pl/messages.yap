@@ -37,10 +37,10 @@ file_position(FileName,LN,MsgCodes) -->
 
 generate_message(halt) --> !,
 	['YAP execution halted'].
-generate_message('$abort') :- !,
+generate_message('$abort') --> !,
 	['YAP execution aborted'].
-generate_message(abort(user)) :- !,
-	['YAP execution aborted: user request'].
+generate_message(abort(user)) --> !,
+	['YAP execution aborted'].
 generate_message(loading(_,user)) --> !.
 generate_message(loading(What,AbsoluteFileName)) --> !,
 	[ '~a ~a...' - [What, AbsoluteFileName] ].
