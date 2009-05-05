@@ -1408,6 +1408,7 @@ clean_trail(Term t)
 
   pbase = B->cp_tr;
   pt1 = TR - 1;
+  fprintf(stderr,"pbase=%p TR=%p\n",pbase,TR);
   while (pt1 >= pbase) {
     Term d1 = TrailTerm(pt1);
     if (IsVarTerm(d1)) {
@@ -1423,7 +1424,7 @@ clean_trail(Term t)
       pt1--;
     } else if (IsPairTerm(d1)) {
       CELL *pt = RepPair(d1);
-      if ((ADDR) pt >= Yap_TrailBase) {
+      if ((ADDR) pt >= Yap_TrailBase && (ADDR)pt < Yap_TrailTop) {
 	/* skip, this is a problem because we lose information,
 	   namely active references */
 	pt1 = (tr_fr_ptr)pt;
