@@ -506,7 +506,6 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       error_exit_yap (1);
     }
   case PURE_ABORT:
-    fprintf(stderr,"%% YAP execution aborted.\n");
     fun = FunctorVar;
     serious = TRUE;
     break;
