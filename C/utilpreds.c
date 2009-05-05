@@ -360,7 +360,7 @@ trail_overflow:
   {
     tr_fr_ptr oTR =  TR;
     reset_trail(TR0);
-    if (!Yap_growtrail((oTR-TR0)*sizeof(tr_fr_ptr *), FALSE)) {
+    if (!Yap_growtrail((oTR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
       return -4;
     }
     return -2;
@@ -388,7 +388,7 @@ trail_overflow:
 
 
 static Term
-handle_cp_overflow(int res, UInt arity, Term t)
+handle_cp_overflow(int res, tr_fr_ptr TR0, UInt arity, Term t)
 {
   XREGS[arity+1] = t;
   switch(res) {
@@ -412,6 +412,12 @@ handle_cp_overflow(int res, UInt arity, Term t)
       }
     }
     return Deref(XREGS[arity+1]);
+  case -4:
+    if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), FALSE)) {
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, Yap_ErrorMessage);
+      return 0L;
+    }
+    return Deref(XREGS[arity+1]);
   default:
     return 0L;
   }
@@ -420,6 +426,7 @@ handle_cp_overflow(int res, UInt arity, Term t)
 static Term
 CopyTerm(Term inp, UInt arity, int share, int newattvs) {
   Term t = Deref(inp);
+  tr_fr_ptr TR0 = TR;
 
   if (IsVarTerm(t)) {
 #if COROUTINING
@@ -433,7 +440,7 @@ CopyTerm(Term inp, UInt arity, int share, int newattvs) {
       H += 2;
       if ((res = copy_complex_term(Hi-2, Hi-1, share, newattvs, Hi, Hi)) < 0) {
 	H = Hi-1;
-	if ((t = handle_cp_overflow(res,arity,t))== 0L)
+	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
 	  return FALSE;
 	goto restart_attached;
       }
@@ -457,7 +464,7 @@ CopyTerm(Term inp, UInt arity, int share, int newattvs) {
       int res;
       if ((res = copy_complex_term(ap-1, ap+1, share, newattvs, Hi, Hi)) < 0) {
 	H = Hi;
-	if ((t = handle_cp_overflow(res,arity,t))== 0L)
+	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
 	  return FALSE;
 	goto restart_list;
       } else if (res && share && FunctorOfTerm(t) != FunctorMutable) {
@@ -481,7 +488,7 @@ CopyTerm(Term inp, UInt arity, int share, int newattvs) {
     H += 1+ArityOfFunctor(f);
     if (H > ASP-128) {
       H = HB0;
-      if ((t = handle_cp_overflow(-1,arity,t))== 0L)
+      if ((t = handle_cp_overflow(-1, TR0, arity, t))== 0L)
 	return FALSE;
       goto restart_appl;
     } else {
@@ -489,7 +496,7 @@ CopyTerm(Term inp, UInt arity, int share, int newattvs) {
 
       if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), share, newattvs, HB0+1, HB0)) < 0) {
 	H = HB0;
-	if ((t = handle_cp_overflow(res,arity,t))== 0L)
+	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
 	  return FALSE;
 	goto restart_appl;
       } else if (res && share) {
