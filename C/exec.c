@@ -1408,7 +1408,6 @@ clean_trail(Term t)
 
   pbase = B->cp_tr;
   pt1 = TR - 1;
-  fprintf(stderr,"pbase=%p TR=%p\n",pbase,TR);
   while (pt1 >= pbase) {
     Term d1 = TrailTerm(pt1);
     if (IsVarTerm(d1)) {
