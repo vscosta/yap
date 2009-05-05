@@ -530,7 +530,7 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
     if (flags & SafePredFlag) {
       sz = (CELL)NEXTOP(NEXTOP(NEXTOP(p_code,Osbpp),p),l);
     } else {
-      sz = (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(NEXTOP(p_code,e),Osbpp),p),p),l);
+      sz = (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(NEXTOP(p_code,e),p),Osbpp),p),l);
     }
     cl = (StaticClause *)Yap_AllocCodeSpace(sz);
     if (!cl) {
@@ -547,7 +547,6 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
       p_code = cl->ClCode;
     }
   }
-
   pe->CodeOfPred = p_code;
   pe->PredFlags = flags | StandardPredFlag | CPredFlag;
   pe->cs.f_code = code;
@@ -695,7 +694,11 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
     StaticClause     *cl;
 
     if (pe->CodeOfPred == (yamop *)(&(pe->OpcodeOfPred))) {
-      cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),Osbpp),p),l)); 
+      if (flags & SafePredFlag) {
+	cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),Osbpp),p),l));
+      } else {
+	cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),e),Osbpp),p),p),l));
+      }	
       if (!cl) {
 	Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitAsmPred");
 	return;
@@ -706,15 +709,28 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
     }
     cl->ClFlags = StaticMask;
     cl->ClNext = NULL;
-    cl->ClSize = (CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),Osbpp),e),e);
+    if (flags & SafePredFlag) {
+      cl->ClSize = (CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),Osbpp),e),e);
+    } else {
+      cl->ClSize = (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),e),Osbpp),p),e),e);
+    }
     cl->usc.ClPred = pe;
     p_code = cl->ClCode;
     pe->CodeOfPred = p_code;
+    if (!(flags & SafePredFlag)) {
+      p_code->opc = Yap_opcode(_allocate);
+      p_code = NEXTOP(p_code,e);
+    }
     p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_cpred);
     p_code->u.Osbpp.bmap = NULL;
     p_code->u.Osbpp.s = -Signed(RealEnvSize);
     p_code->u.Osbpp.p = p_code->u.Osbpp.p0 = pe;
     p_code = NEXTOP(p_code,Osbpp);
+    if (!(flags & SafePredFlag)) {
+      p_code->opc = Yap_opcode(_deallocate);
+      p_code->u.p.p = pe;
+      p_code = NEXTOP(p_code,p);
+    }
     p_code->opc = Yap_opcode(_procceed);
     p_code->u.p.p = pe;
     p_code = NEXTOP(p_code,p);
