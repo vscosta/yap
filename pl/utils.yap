@@ -372,8 +372,8 @@ unknown(V0,V) :-
 
 
 '$ask_unknown_flag'(Old) :-
-	recorded('$unknown','$unkonwn'(_,MyOld),_), !,
-	'$cleanup_unknwon_handler'(MyOld,Old).
+	recorded('$unknown','$unknown'(_,MyOld),_), !,
+	'$cleanup_unknown_handler'(MyOld,Old).
 '$ask_unknown_flag'(fail).
 
 '$cleanup_unknown_handler'('$unknown_error'(_),error) :- !.
