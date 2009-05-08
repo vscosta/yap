@@ -210,6 +210,12 @@ do_execute(Term t, Term mod)
 	  mod = tmod;
 	  t = ArgOfTerm(2,t);
 	  goto restart_exec;
+	} else {
+	  if (IsVarTerm(tmod)) {
+	    return CallError(INSTANTIATION_ERROR,t);
+	  } else {
+	    return CallError(TYPE_ERROR_ATOM,t);
+	  }
 	}
       } else {
 	return CallMetaCall(mod);
@@ -320,6 +326,12 @@ do_execute_n(Term t, Term mod, unsigned int n)
 	mod = tmod;
 	t = ArgOfTerm(2,t);
 	goto restart_exec;
+      } else {
+	if (IsVarTerm(tmod)) {
+	  return CallError(INSTANTIATION_ERROR,t);
+	} else {
+	  return CallError(TYPE_ERROR_ATOM,t);
+	}
       }
     }
     arity = ArityOfFunctor(f)+n;
@@ -674,6 +686,12 @@ p_execute0(void)
 	mod = tmod;
 	t = ArgOfTerm(2,t);
 	goto restart_exec;
+      } else {
+	if (IsVarTerm(tmod)) {
+	  return CallError(INSTANTIATION_ERROR,t);
+	} else {
+	  return CallError(TYPE_ERROR_ATOM,t);
+	}
       }
     }
     pe = PredPropByFunc(f, mod);
@@ -734,6 +752,12 @@ p_execute_nonstop(void)
 	mod = tmod;
 	t = ArgOfTerm(2,t);
 	goto restart_exec;
+      } else {
+	if (IsVarTerm(tmod)) {
+	  return CallError(INSTANTIATION_ERROR,t);
+	} else {
+	  return CallError(TYPE_ERROR_ATOM,t);
+	}
       }
     }
     pe = PredPropByFunc(f, mod);
@@ -1221,6 +1245,13 @@ Yap_RunTopGoal(Term t)
 	mod = tmod;
 	t = ArgOfTerm(2,t);
 	goto restart_runtopgoal;
+      } else {
+	if (IsVarTerm(tmod)) {
+	  Yap_Error(INSTANTIATION_ERROR,t,"call/1");
+	} else {
+	  Yap_Error(TYPE_ERROR_ATOM,t,"call/1");
+	}
+	return FALSE;
       }
     }
     /* I cannot use the standard macro here because
