@@ -524,7 +524,8 @@ frozen(V, LG) :-
 	'$purge_done_goals'(G0, GF).
 '$purge_done_goals'(['$redo_freeze'(_Done, _, CallCleanup)|G0], GF) :-
 	nonvar(CallCleanup),
-	CallCleanup = _:'$clean_call'(_), !,
+	% be careful about possibly adding extra binding at this point.
+	CallCleanup = _:T, nonvar(T), T = '$clean_call'(_), !,
 	'$purge_done_goals'(G0, GF).
 '$purge_done_goals'(['$redo_eq'(Done, _, _, _)|G0], GF) :- nonvar(Done), !,
 	'$purge_done_goals'(G0, GF).
