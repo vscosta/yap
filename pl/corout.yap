@@ -609,7 +609,8 @@ call_residue(Goal,Residue) :-
 	'$pick_vars_for_project'(LIV, NLIV),
 	'$project_module'(LMods, NLIV, [V|LAV]),
 	'$convert_att_vars'(NLIV, LGs),
-	'$call_attribute_goals'(NLIV, LGs1, LGs),
+	attributes:all_attvars(NLAV),
+	'$call_attribute_goals'(NLAV, LGs1, LGs),
 	'$fetch_delays'([V|LAV], LDs, LGs1).
 
 '$pick_vars_for_project'([],[]).
