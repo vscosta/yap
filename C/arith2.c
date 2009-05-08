@@ -633,9 +633,13 @@ p_exp(Term t1, Term t2)
 	Int i2 = IntegerOfTerm(t2);
 	Int pow = ipow(i1,i2);
 
+	if (i2 < 0) {
+	  Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2,
+		    "%d ^ %d", i1, i2);
+	}
 #ifdef USE_GMP
 	/* two integers */
-	if (i1 && !pow) {
+	if ((i1 && !pow)) {
 	  /* overflow */
 	  return Yap_gmp_exp_ints(i1, i2);
 	}
