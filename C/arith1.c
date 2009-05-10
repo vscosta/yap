@@ -757,11 +757,15 @@ p_unary_is(void)
   if (top == 0L)
     return FALSE;
   if (IsIntTerm(t)) {
-    return Yap_unify_constant(ARG1,eval1(IntOfTerm(t), top));
+    Term tout = eval1(IntegerOfTerm(t), top);
+    if (!tout)
+      return FALSE;
+    return Yap_unify_constant(ARG1,tout);
   }
   if (IsAtomTerm(t)) {
     Atom name = AtomOfTerm(t);
     ExpEntry *p;
+    Term out;
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 1)))) {
       Term ti[2];
@@ -776,7 +780,9 @@ p_unary_is(void)
       P = (yamop *)FAILCODE;
       return(FALSE);
     }
-    return Yap_unify_constant(ARG1,eval1(p->FOfEE, top));
+    if (!(out=eval1(p->FOfEE, top)))
+      return FALSE;
+    return Yap_unify_constant(ARG1,out);
   }
   return(FALSE);
 }

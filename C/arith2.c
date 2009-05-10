@@ -636,6 +636,8 @@ p_exp(Term t1, Term t2)
 	if (i2 < 0) {
 	  Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2,
 		    "%d ^ %d", i1, i2);
+	  P = (yamop *)FAILCODE;
+	  RERROR();
 	}
 #ifdef USE_GMP
 	/* two integers */
@@ -1227,11 +1229,15 @@ p_binary_is(void)
   if (t2 == 0L)
     return FALSE;
   if (IsIntTerm(t)) {
-    return Yap_unify_constant(ARG1,eval2(IntegerOfTerm(t), t1, t2));
+    Term tout = eval2(IntegerOfTerm(t), t1, t2);
+    if (!tout)
+      return FALSE;
+    return Yap_unify_constant(ARG1,tout);
   }
   if (IsAtomTerm(t)) {
     Atom name = AtomOfTerm(t);
     ExpEntry *p;
+    Term out;
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 2)))) {
       Term ti[2];
@@ -1246,9 +1252,11 @@ p_binary_is(void)
       P = (yamop *)FAILCODE;
       return(FALSE);
     }
-    return Yap_unify_constant(ARG1,eval2(p->FOfEE, t1, t2));
+    if (!(out=eval2(p->FOfEE, t1, t2)))
+      return FALSE;
+    return Yap_unify_constant(ARG1,out);
   }
-  return(FALSE);
+  return FALSE;
 }
 
 static Int 
