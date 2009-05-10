@@ -7598,10 +7598,13 @@ Yap_absmi(int inp)
 	SREG = (CELL *)((f)());
 	setregs();
       }
-      if (!SREG)
-	PREG = PREG->u.slp.l;
-      else
+      if (!SREG) {
+	/* be careful about error handling */
+	if (PREG != FAILCODE)
+	  PREG = PREG->u.slp.l;
+      } else {
 	PREG = NEXTOP(PREG, slp);
+      }
       CACHE_A1();
       JMPNext();
       ENDBOp();
