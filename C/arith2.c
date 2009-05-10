@@ -1168,10 +1168,10 @@ eval2(Int fi, Term t1, Term t2) {
     return p_xor(t1, t2);
   case op_atan2:
     return p_atan2(t1, t2);
-  case op_power2:
-    return p_power(t1, t2);
   case op_power:
     return p_exp(t1, t2);
+  case op_power2:
+    return p_power(t1, t2);
   case op_gcd:
     return p_gcd(t1, t2);
   case op_min:
