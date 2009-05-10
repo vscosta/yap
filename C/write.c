@@ -181,7 +181,7 @@ legalAtom(unsigned char *s)			/* Is this a legal atom ? */
       return FALSE;
     else
       while (ch) {
-	if (Yap_chtype[ch] != SY || ch == '\\')
+	if (Yap_chtype[ch] != SY)
 	  return FALSE;
 	ch = *++s;
       }
