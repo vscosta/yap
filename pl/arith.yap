@@ -313,8 +313,8 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 '$binaryop'(X<<Y	,<<	,X,Y).
 '$binaryop'(X>>Y	,>>	,X,Y).
 '$binaryop'(X^Y		,^	,X,Y).
-'$binaryop'(X**Y	,^	,X,Y).
-'$binaryop'(exp(X,Y)	,^	,X,Y).
+'$binaryop'(X**Y	,**	,X,Y).
+'$binaryop'(exp(X,Y)	,exp	,X,Y).
 '$binaryop'(max(X,Y)	,max	,X,Y).
 '$binaryop'(min(X,Y)	,min	,X,Y).
 '$binaryop'(gcd(X,Y)	,gcd	,X,Y).
