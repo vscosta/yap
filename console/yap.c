@@ -313,6 +313,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
   char *myddas_temp;
 #endif
   unsigned long int *ssize;
+
   while (--argc > 0)
     {
       p = *++argv;
@@ -453,10 +454,12 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    }
 	    p++;
 	    break;
+	  case 'G':
+	    ssize = &(iap->MaxGlobalSize);
+	    goto GetSize;
+	    break;
 	  case 's':
 	  case 'S':
-	  case 'G':
-	  stack_mode:
 	    ssize = &(iap->StackSize);
 #if defined(ENV_COPY) || defined(ACOW) || defined(SBA)
 	    if (p[1] == 'l') {
@@ -469,8 +472,10 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	  case 'A':
 	    ssize = &(iap->AttsSize);
 	    goto GetSize;
-	  case 't':
 	  case 'T':
+	    ssize = &(iap->MaxTrailSize);
+	    goto get_trail_size;
+	  case 't':
 	    ssize = &(iap->TrailSize);
 #ifdef TABLING
 	    if (p[1] == 's') {
@@ -478,6 +483,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      ssize = &(iap->MaxTableSpaceSize);
 	    }
 #endif /* TABLING */
+	  get_trail_size:
 	    if (*++p == '\0')
 	      {
 		if (argc > 1)
@@ -500,7 +506,6 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 		ch = *p++;
 		break;
 	      case 'g':
-	      case 'G':
 		i *= 1024*1024;
 		ch = *p++;
 		break;
@@ -567,7 +572,10 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 #endif
 	  case 'L':
 	    if (p[1] && p[1] >= '0' && p[1] <= '9') /* hack to emulate SWI's L local option */
-	      goto stack_mode;
+	      {
+		ssize = &(iap->MaxStackSize);
+		goto GetSize;
+	      }
 	    iap->QuietMode = TRUE;
 	    iap->HaltAfterConsult = TRUE;
 	  case 'l':
@@ -654,11 +662,9 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      ++p;
 	      value=p;
 	      if ( *value == '\0' ) break;
-	      //
 	      ++def_c;
 	      def_var[def_c-1]=var;
 	      def_value[def_c-1]=value;
-	      //printf("var=value--->%s=%s\n",var,value); 
 	      break;
 	    }
 	    /* End preprocessor code */
@@ -708,6 +714,11 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
   iap->StackSize = 0;
   iap->TrailSize = 0;
   iap->AttsSize = 0;
+  iap->MaxAttsSize = 0;
+  iap->MaxHeapSize = 0;
+  iap->MaxStackSize = 0;
+  iap->MaxGlobalSize = 0;
+  iap->MaxTrailSize = 0;
   iap->YapLibDir = NULL;
   iap->YapPrologBootFile = NULL;
   iap->YapPrologInitFile = NULL;

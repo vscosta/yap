@@ -370,6 +370,7 @@ typedef struct various_codes {
   lockvar  low_level_trace_lock;
 #endif
 #endif
+  int    allow_local_expansion, allow_global_expansion, allow_trail_expansion;
   unsigned int size_of_overflow;
   struct mod_entry *current_modules;
   struct operator_entry *op_list;
@@ -753,6 +754,9 @@ extern struct various_codes *Yap_heap_regs;
 #define  DeadMegaClauses          Yap_heap_regs->dead_mega_clauses
 #define  DBTermsList              Yap_heap_regs->dbterms_list
 #define  DeadStaticIndices        Yap_heap_regs->dead_static_indices
+#define  Yap_AllowLocalExpansion  Yap_heap_regs->allow_local_expansion
+#define  Yap_AllowGlobalExpansion Yap_heap_regs->allow_global_expansion
+#define  Yap_AllowTrailExpansion  Yap_heap_regs->allow_trail_expansion
 #define  SizeOfOverflow           Yap_heap_regs->size_of_overflow
 #define  LastWtimePtr             Yap_heap_regs->last_wtime
 #define  BGL			  Yap_heap_regs->bgl

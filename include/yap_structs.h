@@ -74,12 +74,21 @@ typedef struct {
   char *SavedState;
   /* if NON-0, minimal size for Heap or Code Area */
   unsigned long int HeapSize;
+  /* if NON-0, maximal size for Heap or Code Area */
+  unsigned long int MaxHeapSize;
   /* if NON-0, minimal size for Local+Global Stack */
   unsigned long int StackSize;
+  /* if NON-0, maximal size for Local+Global Stack */
+  unsigned long int MaxStackSize;
+  unsigned long int MaxGlobalSize;
   /* if NON-0, minimal size for Trail */
   unsigned long int TrailSize;
+  /* if NON-0, maximal size for Trail */
+  unsigned long int MaxTrailSize;
   /* if NON-0, minimal size for AttributeVarStack */
   unsigned long int AttsSize;
+  /* if NON-0, maximal size for AttributeVarStack */
+  unsigned long int MaxAttsSize;
   /* if NON-NULL, value for YAPLIBDIR */
   char *YapLibDir;
   /* if NON-NULL, name for a Prolog file to use when booting  */

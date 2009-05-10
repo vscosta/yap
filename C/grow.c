@@ -765,7 +765,12 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
   Yap_PrologMode |= GrowStackMode;
   start_growth_time = Yap_cputime();
   if (do_grow) {
-    if (!Yap_ExtendWorkSpace(size)) {
+    if (!Yap_AllowGlobalExpansion) {
+      Yap_ErrorMessage = "Global Stack crashed against Local Stack";
+      LeaveGrowMode(GrowStackMode);
+      return 0;
+    }
+    if (!Yap_AllowGlobalExpansion || !Yap_ExtendWorkSpace(size)) {
       /* always fails when using malloc */
       Yap_ErrorMessage = NULL;
       size += AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+MinHeapGap);   
@@ -1326,6 +1331,10 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
   ADDR old_Yap_GlobalBase = Yap_GlobalBase;
   
   CurrentDelayTop = (CELL *)DelayTop();
+  if (!Yap_AllowGlobalExpansion) {
+    Yap_ErrorMessage = "Database crashed against stacks";
+    return FALSE;
+  }
   if (!Yap_ExtendWorkSpace(size)) {
     /* make sure stacks and trail are contiguous */
 
@@ -1528,6 +1537,10 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
     fprintf(Yap_stderr, "%% growing the trail %ld bytes\n", size);
   }
   Yap_ErrorMessage = NULL;
+  if (!Yap_AllowTrailExpansion) {
+    Yap_ErrorMessage = "Trail Overflow";
+    return FALSE;
+  }
 #if USE_SYSTEM_MALLOC
   execute_growstack(size, TRUE, in_parser, old_trp, tksp, vep);
 #else

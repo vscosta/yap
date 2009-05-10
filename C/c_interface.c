@@ -1953,14 +1953,26 @@ YAP_Init(YAP_init_args *yap_init)
     }
   }
   if (yap_init->TrailSize == 0) {
-    if (Trail == 0)
+    if (yap_init->MaxTrailSize) {
+      Trail = yap_init->MaxTrailSize;
+    } else if (Trail == 0)
       Trail = DefTrailSpace;
   } else {
     Trail = yap_init->TrailSize;
   }
   Atts = yap_init->AttsSize;
   if (yap_init->StackSize == 0) {
-    if (Stack == 0)
+    if (yap_init->MaxStackSize || yap_init->MaxGlobalSize) {
+      if (yap_init->MaxStackSize) {
+	if (yap_init->MaxGlobalSize) {
+	  Stack = yap_init->MaxStackSize+yap_init->MaxGlobalSize;
+	} else {
+	  Stack = yap_init->MaxStackSize+DefStackSpace/2;
+	}
+      } else {
+	Stack = yap_init->MaxGlobalSize+DefStackSpace/2;
+      }
+    } else if (Stack == 0)
       Stack = DefStackSpace;
   } else {
     Stack = yap_init->StackSize;
@@ -1989,6 +2001,21 @@ YAP_Init(YAP_init_args *yap_init)
     return YAP_BOOT_FROM_SAVED_ERROR;;
   }
 #endif
+  if (yap_init->MaxStackSize) {
+    Yap_AllowLocalExpansion = FALSE;
+  } else {
+    Yap_AllowLocalExpansion = TRUE;
+  }
+  if (yap_init->MaxGlobalSize) {
+    Yap_AllowGlobalExpansion = FALSE;
+  } else {
+    Yap_AllowGlobalExpansion = TRUE;
+  }
+  if (yap_init->MaxTrailSize) {
+    Yap_AllowTrailExpansion = FALSE;
+  } else {
+    Yap_AllowTrailExpansion = TRUE;
+  }
   Yap_InitExStacks (Trail, Stack);
   if (yap_init->QuietMode) {
     yap_flags[QUIET_MODE_FLAG] = TRUE;
@@ -2121,6 +2148,11 @@ YAP_FastInit(char saved_state[])
   init_args.HeapSize = 0;
   init_args.StackSize = 0;
   init_args.TrailSize = 0;
+  init_args.MaxAttsSize = 0;
+  init_args.MaxHeapSize = 0;
+  init_args.MaxStackSize = 0;
+  init_args.MaxGlobalSize = 0;
+  init_args.MaxTrailSize = 0;
   init_args.YapLibDir = NULL;
   init_args.YapPrologBootFile = NULL;
   init_args.YapPrologInitFile = NULL;
