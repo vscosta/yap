@@ -7513,6 +7513,11 @@ Yap_absmi(int inp)
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCall, H);
       ENDCACHE_Y_AS_ENV();
+#ifdef LOW_LEVEL_TRACER
+	if (Yap_do_low_level_trace) {
+	  low_level_trace(enter_pred,PREG->u.Osbpp.p0,XREGS+1);
+	}
+#endif	/* LOW_LEVEL_TRACE */
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -7557,6 +7562,11 @@ Yap_absmi(int inp)
       ENDBOp();
 
       BOp(call_c_wfail, slp);
+#ifdef LOW_LEVEL_TRACER
+	if (Yap_do_low_level_trace) {
+	  low_level_trace(enter_pred,PREG->u.slp.p,XREGS+1);
+	}
+#endif	/* LOW_LEVEL_TRACE */
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
