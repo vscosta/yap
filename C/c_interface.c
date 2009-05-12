@@ -1905,6 +1905,7 @@ YAP_CompileClause(Term t)
 
   BACKUP_MACHINE_REGS();
 
+  /* allow expansion during stack initialization */
   Yap_ErrorMessage = NULL;
   ARG1 = t;
   YAPEnterCriticalSection();
@@ -2001,21 +2002,9 @@ YAP_Init(YAP_init_args *yap_init)
     return YAP_BOOT_FROM_SAVED_ERROR;;
   }
 #endif
-  if (yap_init->MaxStackSize) {
-    Yap_AllowLocalExpansion = FALSE;
-  } else {
-    Yap_AllowLocalExpansion = TRUE;
-  }
-  if (yap_init->MaxGlobalSize) {
-    Yap_AllowGlobalExpansion = FALSE;
-  } else {
-    Yap_AllowGlobalExpansion = TRUE;
-  }
-  if (yap_init->MaxTrailSize) {
-    Yap_AllowTrailExpansion = FALSE;
-  } else {
-    Yap_AllowTrailExpansion = TRUE;
-  }
+  Yap_AllowGlobalExpansion = TRUE;
+  Yap_AllowLocalExpansion = TRUE;
+  Yap_AllowTrailExpansion = TRUE;
   Yap_InitExStacks (Trail, Stack);
   if (yap_init->QuietMode) {
     yap_flags[QUIET_MODE_FLAG] = TRUE;
@@ -2082,6 +2071,22 @@ YAP_Init(YAP_init_args *yap_init)
 #endif /* YAPOR || TABLING */
   RECOVER_MACHINE_REGS();
  }
+  /* make sure we do this after restore */
+  if (yap_init->MaxStackSize) {
+    Yap_AllowLocalExpansion = FALSE;
+  } else {
+    Yap_AllowLocalExpansion = TRUE;
+  }
+  if (yap_init->MaxGlobalSize) {
+    Yap_AllowGlobalExpansion = FALSE;
+  } else {
+    Yap_AllowGlobalExpansion = TRUE;
+  }
+  if (yap_init->MaxTrailSize) {
+    Yap_AllowTrailExpansion = FALSE;
+  } else {
+    Yap_AllowTrailExpansion = TRUE;
+  }
   if (yap_init->YapPrologRCFile) {
     Yap_PutValue(AtomConsultOnBoot, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologRCFile)));
     /*
