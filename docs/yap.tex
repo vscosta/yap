@@ -11126,11 +11126,11 @@ terminates, unify @var{Result} with @t{timeout}.
 
 This command is implemented by activating an alarm at procedure
 entry. If the timer expires before the goal completes, the alarm will
-through an exception @var{timeout}.
+throw an exception @var{timeout}.
 
 One should note that @code{time_out/3} is not reentrant, that is, a goal
 called from @code{time_out} should never itself call
-@t{time_out}. Moreover, @code{time_out/3} will deactivate any previous
+@code{time_out/3}. Moreover, @code{time_out/3} will deactivate any previous
 alarms set by @code{alarm/3} and vice-versa, hence only one of these
 calls should be used in a program.
 
