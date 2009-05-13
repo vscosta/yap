@@ -1474,7 +1474,7 @@ clean_trail(Term t)
       /* so the next cell is the old value */ 
 #ifdef FROZEN_STACKS
       --pt1;
-      pt[0] = TrailVal(pt0);
+      pt[0] = TrailVal(pt1);
 #else
       pt[0] = TrailTerm(pt1-1);
       pt1 -= 3;
