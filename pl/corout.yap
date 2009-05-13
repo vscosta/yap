@@ -583,6 +583,22 @@ call_residue_vars(Goal,Residue) :-
 	  '$ord_remove'([V1|Vss], Vs0s, Residue)
 	).
 
+copy_term(Term, Copy, Goals) :-
+	term_variables(Term, TVars),
+	'$pick_vars_for_project'(TVars,AttVars),
+	'$call_attribute_goals'(AttVars, Goals0, LDs),
+	'$fetch_delays_and_simplify'(AttVars, LDs, LGs),
+	'$convert_att_vars'(AttVars, LGs),
+	copy_term_nat([Term|Goals0], [Copy|Goals]).
+
+'$fetch_delays_and_simplify'(AttVars, LDs, LGs) :-
+	'$fetch_delays'(AttVars, LDs0, LGs),
+	'$fetch_delays_simplify'(LDs0, LDs).
+
+'$fetch_delays_simplify'(LDs0, LDs0) :- var(LDs0), !.
+'$fetch_delays_simplify'([_-G|LDs0], [G|LDs0]) :-
+	'$fetch_delays_simplify'(LDs0, LDs0).
+
 call_residue(Goal,Residue) :-
 	var(Goal), !,
 	'$do_error'(instantiation_error,call_residue(Goal,Residue)).

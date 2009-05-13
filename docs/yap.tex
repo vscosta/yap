@@ -3257,6 +3257,15 @@ structure. All suspended goals and attributes for attributed variables
 in @var{TI} are also duplicated.
 
 Also refer to @code{copy_term/2}.
+
+@item copy_term(?@var{TI},-@var{TF},-@var{Goals}) 
+@findex copy_term/3
+@syindex copy_term/3
+@cnindex copy_term/3
+Term @var{TF} is a variant of the original term @var{TI}, such that for
+each variable @var{V} in the term @var{TI} there is a new variable @var{V'}
+in term @var{TF}. Attributed variables are converted to standard variables and the list @var{Goals} is unified with a set of goals that can be used to restore the constraints, by calling @code{attribute_goals/3} before copying is performed.
+
 @end table
 
 @node Predicates on Atoms, Predicates on Characters, Testing Terms, Top
