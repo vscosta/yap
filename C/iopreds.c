@@ -5887,12 +5887,12 @@ static Int
 p_same_file(void) {
   char *f1 = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
   char *f2 = RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE;
-  int out;
 
   if (strcmp(f1,f2) == 0)
     return TRUE;
 #if HAVE_LSTAT 
   {
+    int out;
     struct stat *b1, *b2;
     while ((char *)H+sizeof(struct stat)*2 > (char *)(ASP-1024)) {
       if (!Yap_gcl(2*sizeof(struct stat), 2, ENV, gc_P(P,CP))) {
