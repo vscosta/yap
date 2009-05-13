@@ -560,6 +560,29 @@ frozen(V, LG) :-
 	'$fetch_same_done_goals'(G0, D0, LV, GF).
 
 
+call_residue_vars(Goal,Residue) :-
+	attributes:all_attvars(Vs0),
+	call(Goal),
+	attributes:all_attvars(Vs),
+	% this should not be actually strictly necessary right now.
+	% but it makes it a safe bet.
+	sort(Vs, Vss),
+	sort(Vs0, Vs0s),
+	'$ord_remove'(Vss, Vs0s, Residue).
+
+'$ord_remove'([], _, []).
+'$ord_remove'([V|Vs], [], [V|Vs]).
+'$ord_remove'([V1|Vss], [V2|Vs0s], Residue) :-
+	( V1 == V2 ->
+	  '$ord_remove'(Vss, Vs0s, Residue)
+	;
+	  V1 @< V2 ->
+	  Residue = [V1|ResidueF],
+	  '$ord_remove'(Vss, [V2|Vs0s], ResidueF)
+	;
+	  '$ord_remove'([V1|Vss], Vs0s, Residue)
+	).
+
 call_residue(Goal,Residue) :-
 	var(Goal), !,
 	'$do_error'(instantiation_error,call_residue(Goal,Residue)).
@@ -569,7 +592,7 @@ call_residue(Module:Goal,Residue) :-
 call_residue(Goal,Residue) :-
 	'$current_module'(Module),
 	'$call_residue'(Goal,Module,Residue).
-	
+
 '$call_residue'(Goal,Module,Residue) :-
 	'$read_svar_list'(OldAttsList),
 	copy_term_nat(Goal, NGoal),

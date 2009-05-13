@@ -512,6 +512,7 @@ source_module(Mod) :-
 	call_cleanup(:,:),
 	call_cleanup(:,?,:),
 	call_residue(:,?),
+	call_residue_vars(:,?),
 	catch(:,+,:),
 	clause(:,?),
 	clause(:,?,?),

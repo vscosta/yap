@@ -12097,6 +12097,23 @@ no
 The system only reports one invocation of @code{dif/2} as having
 suspended. 
 
+@item call_residue_vars(:@var{G},@var{L})
+@findex call_residue_vars/2
+@syindex call_residue_vars/2
+@cnindex call_residue_vars/2
+
+Call goal @var{G} and unify @var{L} with a list of all constrained variables created @emph{during} execution of @var{G}:
+
+@example
+  ?- dif(X,Z), call_residue_vars(dif(X,Y),L).
+dif(X,Z), call_residue_vars(dif(X,Y),L).
+L = [Y],
+dif(X,Z),
+dif(X,Y) ? ;
+
+no
+@end example
+
 @end table
 
 @node Attributed Variables, CLPR, Co-routining, Extensions
