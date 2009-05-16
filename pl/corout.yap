@@ -673,54 +673,6 @@ call_residue(Goal,Residue) :-
 '$vars_interset_for_constr'([V1|GV],[_|LIV]) :-
 	'$vars_interset_for_constr'([V1|GV],LIV).
 
-%'$fetch_delays'(_, L, L) :-
-%	'$no_delayed_goals', !.
-'$fetch_delays'(Vs, LDs, LAs) :-
-	'$do_fetch_delays'(Vs, LGs0),
-	'$sort'(LGs0, LGs),
-	'$purge_done_goals'(LGs, LG),
-	'$clean_list_of_frozen_goals'(LG, LDs, LAs).
-	
-	
-'$do_fetch_delays'([], []).
-'$do_fetch_delays'([V|NLAV], GF) :-
-	'$frozen_goals'(V,G), !,
-	'$hole_in_frozen_goals'(G,GF,G1),
-	'$do_fetch_delays'(NLAV, G1).
-'$do_fetch_delays'([_|NLAV], GF) :-
-	'$do_fetch_delays'(NLAV, GF).
-
-
-'$hole_in_frozen_goals'([],V,V).
-'$hole_in_frozen_goals'([G|Gs],[G|GF],G1) :-
-	'$hole_in_frozen_goals'(Gs,GF,G1).
-
-'$clean_list_of_frozen_goals'([], L, L).
-'$clean_list_of_frozen_goals'([A|B], Gs, Gs0) :-
-	'$convert_list_of_frozen_goals_into_list'([A|B], Gs, Gs0).
-
-'$convert_list_of_frozen_goals_into_list'([A], [LV-G|L], L) :- !,
-	'$convert_frozen_goal'(A, [], _, LV0, G0),
-	'$clean_bound_args'(LV0, LV1),
-	'$sort'(LV1, LV),
-	'$process_when'(G0, G).
-'$convert_list_of_frozen_goals_into_list'([A|L], OUT, Gs0) :- !,
-	'$convert_frozen_goal'(A, LV, Done, NA, G0),
-	'$process_when'(G0, Gf),
-	'$fetch_same_done_goals'(L, Done, LV, NL),
-	'$clean_bound_args'(NA, NA1),
-	'$sort'(NA1, LVf),
-	( NL = [] -> OUT = [LVf-Gf|Gs0];
-	  OUT = [(LVf-Gf)|Gs],
-	'$convert_list_of_frozen_goals_into_list'(NL, Gs, Gs0)).
-
-
-'$clean_bound_args'([], []).
-'$clean_bound_args'([NV|L], NL) :- nonvar(NV), !,
-	'$clean_bound_args'(L,NL).
-'$clean_bound_args'([V|L], [V|NL]) :-
-	'$clean_bound_args'(L,NL).
-
 '$process_when'('$when'(_,G,_), NG) :- !,
 	'$process_when'(G, NG).
 '$process_when'(G, G).
@@ -744,22 +696,6 @@ call_residue(Goal,Residue) :-
 	var(V),
 	attributes:get_att(V, prolog, 2, Gs), nonvar(Gs).
 
-'$call_attribute_goals'(NLIV, LGsF, LGs0) :-
-	findall(Mod, ('$all_current_modules'(Mod),current_predicate(Mod:attribute_goals/3)), LMs),
-	'$call_attribute_goals'(NLIV, LMs, LGsF, LGs0).
-
-'$call_attribute_goals'([], _, LGs, LGs).
-'$call_attribute_goals'([V|NLIV], LMs, LGsF, LGs0) :-
-	'$call_attribute_goals_for_module'(LMs, V, LGsF, LGsI),
-	'$call_attribute_goals'(NLIV, LMs, LGsI, LGs0).
-
-'$call_attribute_goals_for_module'([], _, LGs, LGs).
-'$call_attribute_goals_for_module'([M|LMs], V, LGsF, LGs0) :-
-	'$notrace'(M:attribute_goals(V,LGsF,LGsI)), !,
-	'$call_attribute_goals_for_module'(LMs, V, LGsI, LGs0).
-'$call_attribute_goals_for_module'([_|LMs], V, LGsF, LGs0) :-
-	'$call_attribute_goals_for_module'(LMs, V, LGsF, LGs0).
-
 %
 % given a list of attributed variables, generate a conjunction of goals.
 %
@@ -767,6 +703,9 @@ call_residue(Goal,Residue) :-
 	'$get_goalist_from_attvars'(TVars, [], GoalList, []),
 	'$list_to_conjunction'(GoalList, Goals).
 
+%
+% same, but generate list
+%
 '$get_goalist_from_attvars'(TVars, GoalList) :-
 	'$get_goalist_from_attvars'(TVars, [], GoalList, []).
 
@@ -787,6 +726,9 @@ call_residue(Goal,Residue) :-
 	'$attgoals_for_module'(Mod, V, AllAtts, DonesSoFar, IDonesSoFar, GoalListF, GoalListI),
 	'$all_atts_to_goals'(MoreAtts, V, IDonesSoFar, MoreDonesSoFar, GoalListI, GoalList0).
 
+%
+% check constraints for variable
+%
 '$attgoals_for_module'(prolog, V, prolog(_,Gs), DonesSoFar, MoreDonesSoFar, GoalListF, GoalList0) :- !,
 	 % dif, when, freeze
 	'$attgoals_for_prolog'(Gs, V, DonesSoFar, MoreDonesSoFar, GoalListF, GoalList0).
