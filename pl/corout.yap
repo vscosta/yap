@@ -36,22 +36,18 @@
 :- assert((extensions_to_present_answer(Level) :-
 	   '$show_frozen_goals'(Level))).
 
-'$show_frozen'(G,V,LGs) :-
-	\+ '$undefined'(all_attvars(LAV), attributes),
+'$project_and_delayed_goals'(G,LGs) :-
 	attributes:all_attvars(LAV),
 	LAV = [_|_], !,
-	'$convert_to_list_of_frozen_goals'(V,LAV,G,LGs).
-'$show_frozen'(_,_,[]).
+	% SICStus compatible step,
+	% just try to simplify store  by projecting constraints
+	% over query variables.
+	'$project_attributes'(LAV, G),
+	% now get a list of frozen goals.
+	attributes:all_attvars(NLAV),
+	'$get_goalist_from_attvars'(NLAV, LGs).
+'$project_and_delayed_goals'(_,[]).
 
-
-'$convert_to_list_of_frozen_goals'(LIV,LAV,_,NLG) :-
-	'$project'(LAV,LIV,NLG).
-
-
-'$get_rid_of_vls'((_-G),G).
-'$get_rid_of_vls'((A,B),(NA,NB)) :-
-	'$get_rid_of_vls'(A,NA),
-	'$get_rid_of_vls'(B,NB).
 
 %
 % wake_up_goal is called by the system whenever a suspended goal
@@ -502,12 +498,7 @@ when(_,Goal) :-
 frozen(V, G) :- nonvar(V), !,
 	'$do_error'(type_error(variable,V),frozen(V,G)).
 frozen(V, LG) :-
-	'$project'([V],[V],Gs),
-	'$simplify_list_of_frozen_goals'(Gs,LG).
-
-'$simplify_list_of_frozen_goals'([],[]).
-'$simplify_list_of_frozen_goals'([(_-G)|Gs],[G|NGs]) :-
-	'$simplify_list_of_frozen_goals'(Gs,NGs).
+	'$get_goalist_from_attvars'([V], LG).
 
 '$find_att_vars'([], []).
 '$find_att_vars'([V|LGs], [V|AttVars]) :- attvar(V), !,
@@ -585,19 +576,9 @@ call_residue_vars(Goal,Residue) :-
 
 copy_term(Term, Copy, Goals) :-
 	term_variables(Term, TVars),
-	'$pick_vars_for_project'(TVars,AttVars),
-	'$call_attribute_goals'(AttVars, Goals0, LDs),
-	'$fetch_delays_and_simplify'(AttVars, LDs, LGs),
-	'$convert_att_vars'(AttVars, LGs),
+	'$get_conj_from_attvars'(TVars, Goals0),
 	copy_term_nat([Term|Goals0], [Copy|Goals]).
 
-'$fetch_delays_and_simplify'(AttVars, LDs, LGs) :-
-	'$fetch_delays'(AttVars, LDs0, LGs),
-	'$fetch_delays_simplify'(LDs0, LDs).
-
-'$fetch_delays_simplify'(LDs0, LDs0) :- var(LDs0), !.
-'$fetch_delays_simplify'([_-G|LDs0], [G|LDs0]) :-
-	'$fetch_delays_simplify'(LDs0, LDs0).
 
 call_residue(Goal,Residue) :-
 	var(Goal), !,
@@ -614,54 +595,48 @@ call_residue(Goal,Residue) :-
 	copy_term_nat(Goal, NGoal),
 	( '$set_svar_list'(CurrentAttsList),
 	  '$system_catch'(NGoal,Module,Error,'$residue_catch_trap'(Error,OldAttsList)),
-
-	    '$call_residue_continuation'(NGoal,NResidue),
-	    ( '$set_svar_list'(OldAttsList),
-		copy_term_nat(NGoal+NResidue, Goal+Residue)
-		;
-		'$set_svar_list'(CurrentAttsList), fail
-	    )
-           ;
+	  '$project_and_delayed_goals'(NGoal,Residue0),
+	  '$add_vs_to_vlist'(Residue0, Residue),
+	  ( '$set_svar_list'(OldAttsList),
+	    copy_term_nat(NGoal+NResidue, Goal+Residue)
+	  ;
+	    '$set_svar_list'(CurrentAttsList), fail
+	  )
+	;
           '$set_svar_list'(OldAttsList), fail
         ).
+
+'$add_vs_to_vlist'([], []).
+'$add_vs_to_vlist'([G|Residue0], [Vs-G|Residue]) :-
+	term_variables(G, TVs),
+	'$pick_att_vars'(TVs, Vs),
+	'$add_vs_to_vlist'(Residue0, Residue).
+
 
 % make sure we set the suspended goal list to its previous state!
 '$residue_catch_trap'(Error,OldAttsList) :-
 	'$set_svar_list'(OldAttsList),
 	throw(Error).
 
-%
-% goal needs to be in a different procedure to catch suspended goals.
-%
-'$call_residue_continuation'(Goal,Residue) :-
-	'$variables_in_term'(Goal,[],LIV),
-	'$show_frozen'(Goal,LIV,Residue).
-
-'$project'([],_,[]).
-'$project'(Vs,_,LGs) :-
-	% we don't have constraints yet, so we must be talking about delays.
-	'$undefined'(modules_with_attributes(_),attributes), !,
-	'$fetch_delays'(Vs, LGs, []).
-'$project'([V|LAV], LIV, LDs) :-
-	attvar(V), !,
+% make sure we have installed a SICStus like constraint solver.
+'$project_attributes'(_, _) :-
+	'$undefined'(modules_with_attributes(_),attributes), !.
+'$project_attributes'(AllVs, G) :-
 	attributes:modules_with_attributes(LMods),
-	'$pick_vars_for_project'(LIV, NLIV),
-	'$project_module'(LMods, NLIV, [V|LAV]),
-	'$convert_att_vars'(NLIV, LGs),
-	attributes:all_attvars(NLAV),
-	'$call_attribute_goals'(NLAV, LGs1, LGs),
-	'$fetch_delays'([V|LAV], LDs, LGs1).
+	term_variables(G, InputVs),
+	'$pick_att_vars'(InputVs, AttIVs),
+	'$project_module'(LMods, AttIVs, AllVs).
 
-'$pick_vars_for_project'([],[]).
-'$pick_vars_for_project'([V|L],[V|NL]) :- attvar(V), !,
-	'$pick_vars_for_project'(L,NL).
-'$pick_vars_for_project'([_|L],NL) :-
-	'$pick_vars_for_project'(L,NL).
+'$pick_att_vars'([],[]).
+'$pick_att_vars'([V|L],[V|NL]) :- attvar(V), !,
+	'$pick_att_vars'(L,NL).
+'$pick_att_vars'([_|L],NL) :-
+	'$pick_att_vars'(L,NL).
 
 '$project_module'([], _, _).
 '$project_module'([Mod|LMods], LIV, LAV) :-
-	\+ '$undefined'(project_attributes(LIV, LAV), Mod),
-	'$execute'(Mod:project_attributes(LIV, LAV)), !,
+	current_predicate(Mod:project_attributes/2),
+	'$notrace'(Mod:project_attributes(LIV, LAV)), !,
 	attributes:all_attvars(NLAV),
 	'$project_module'(LMods,LIV,NLAV).
 '$project_module'([_|LMods], LIV, LAV) :-
@@ -756,8 +731,8 @@ call_residue(Goal,Residue) :-
 	'$update_att'(V, G).
 
 '$update_att'(V, G) :-
-	  attributes:get_module_atts(V, prolog(_,Gs)), !,
-	  attributes:put_module_atts(V, prolog(_,[G|Gs])).
+	attributes:get_module_atts(V, prolog(_,Gs)), !,
+	attributes:put_module_atts(V, prolog(_,[G|Gs])).
 '$update_att'(V, G) :-
 	attributes:put_module_atts(V, prolog(_,[G])).
 	  
@@ -768,7 +743,6 @@ call_residue(Goal,Residue) :-
 '$frozen_goals'(V,Gs) :-
 	var(V),
 	attributes:get_att(V, prolog, 2, Gs), nonvar(Gs).
-
 
 '$call_attribute_goals'(NLIV, LGsF, LGs0) :-
 	findall(Mod, ('$all_current_modules'(Mod),current_predicate(Mod:attribute_goals/3)), LMs),
@@ -785,3 +759,78 @@ call_residue(Goal,Residue) :-
 	'$call_attribute_goals_for_module'(LMs, V, LGsI, LGs0).
 '$call_attribute_goals_for_module'([_|LMs], V, LGsF, LGs0) :-
 	'$call_attribute_goals_for_module'(LMs, V, LGsF, LGs0).
+
+%
+% given a list of attributed variables, generate a conjunction of goals.
+%
+'$get_conj_from_attvars'(TVars, Goals) :-
+	'$get_goalist_from_attvars'(TVars, [], GoalList, []),
+	'$list_to_conjunction'(GoalList, Goals).
+
+'$get_goalist_from_attvars'(TVars, GoalList) :-
+	'$get_goalist_from_attvars'(TVars, [], GoalList, []).
+
+'$get_goalist_from_attvars'([], _, GoalList, GoalList).
+'$get_goalist_from_attvars'([V|TVars], DonesSoFar, GoalListF, GoalList0) :-
+	'$get_goalist_from_attvar'(V, DonesSoFar, MoreDonesSoFar, GoalListF, GoalListI),
+	'$get_goalist_from_attvars'(TVars, MoreDonesSoFar, GoalListI, GoalList0).
+
+'$get_goalist_from_attvar'(V, DonesSoFar, MoreDonesSoFar, GoalListF, GoalList0) :- attvar(V), !,
+	attributes:get_all_atts(V, AllAtts),
+	'$all_atts_to_goals'(AllAtts, V, DonesSoFar, MoreDonesSoFar, GoalListF, GoalList0).
+'$get_goalist_from_attvar'(_, DonesSoFar, DonesSoFar, GoalList, GoalList).
+
+'$all_atts_to_goals'(AllAtts, _, DonesSoFar, DonesSoFar, GoalList, GoalList) :- var(AllAtts), !.
+'$all_atts_to_goals'(AllAtts, V, DonesSoFar, MoreDonesSoFar, GoalListF, GoalList0) :-
+	functor(AllAtts, Mod, _),
+	arg(1, AllAtts, MoreAtts),
+	'$attgoals_for_module'(Mod, V, AllAtts, DonesSoFar, IDonesSoFar, GoalListF, GoalListI),
+	'$all_atts_to_goals'(MoreAtts, V, IDonesSoFar, MoreDonesSoFar, GoalListI, GoalList0).
+
+'$attgoals_for_module'(prolog, V, prolog(_,Gs), DonesSoFar, MoreDonesSoFar, GoalListF, GoalList0) :- !,
+	 % dif, when, freeze
+	'$attgoals_for_prolog'(Gs, V, DonesSoFar, MoreDonesSoFar, GoalListF, GoalList0).
+'$attgoals_for_module'(Mod, V, _Gs, DonesSoFar, DonesSoFar, GoalListF, GoalList0) :-
+	 % SWI, HProlog
+	current_predicate(Mod:attribute_goals/3), !,
+	(
+	 '$notrace'(Mod:attribute_goals(V,GoalListF,GoalList0))
+	->
+	 true
+	;
+	 GoalListF = GoalList0
+	).
+'$attgoals_for_module'(Mod, V, _, DonesSoFar, DonesSoFar, GoalListF, GoalList0) :-
+	 % SICStus
+	current_predicate(Mod:attribute_goal/2), !,
+	(
+	 '$notrace'(Mod:attribute_goal(V,G))
+	->
+	 GoalListF = [G|GoalList0]
+	;
+	 GoalListF = GoalList0
+	).
+'$attgoals_for_module'(Mod, V, _, DonesSoFar, DonesSoFar, GoalList, GoalList).
+
+'$attgoals_for_prolog'([], _, DonesSoFar, DonesSoFar, GoalList, GoalList).
+'$attgoals_for_prolog'([G|AllAtts], V, DonesSoFar, MoreDonesSoFar, [AttGoal|GoalListI], GoalList0) :-
+	'$attgoal_for_prolog'(G, Done, AttGoal),
+	'$not_vmember'(Done, DonesSoFar), !,
+	'$attgoals_for_prolog'(AllAtts, V, [Done|DonesSoFar], MoreDonesSoFar, GoalListI, GoalList0).
+'$attgoals_for_prolog'([_|AllAtts], V, DonesSoFar, MoreDonesSoFar, GoalListI, GoalList0) :-
+	'$attgoals_for_prolog'(AllAtts, V, DonesSoFar, MoreDonesSoFar, GoalListI, GoalList0).
+	
+'$attgoal_for_prolog'('$redo_dif'(Done, X, Y), Done, prolog:dif(X,Y)).
+'$attgoal_for_prolog'('$redo_freeze'(Done, V, Goal), Done, prolog:freeze(V,Goal)).
+'$attgoal_for_prolog'('$redo_eq'(Done, X, Y, Goal), Done, prolog:when(X=Y,Goal)).
+'$attgoal_for_prolog'('$redo_ground'(Done, X, Goal), Done, prolog:when(ground(X),Goal)).
+
+'$not_vmember'(_, []).
+'$not_vmember'(V, [V1|DonesSoFar]) :-
+	V \== V1,
+	'$not_vmember'(V, DonesSoFar).
+
+'$list_to_conjunction'([], true).
+'$list_to_conjunction'([G], G)  :- !.
+'$list_to_conjunction'([G|GoalList], (G,Goals0))  :-
+	'$list_to_conjunction'(GoalList, Goals0).

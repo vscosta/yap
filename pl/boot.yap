@@ -524,12 +524,7 @@ true :- true.
 	\+ '$undefined'(bindings_message(_,_,_), swi),
 	swi:bindings_message(V, LGs, []), !.
 '$output_frozen'(G,V,LGs) :-
-	'$extract_goal_vars_for_dump'(V,LIV),
-	'$show_frozen'(G,LIV,LGs).
-
-'$extract_goal_vars_for_dump'([],[]).
-'$extract_goal_vars_for_dump'([[_|V]|VL],[V|LIV]) :-
-	'$extract_goal_vars_for_dump'(VL,LIV).
+	'$project_and_delayed_goals'(G,LGs).
 
 %
 % present_answer has three components. First it flushes the streams,
