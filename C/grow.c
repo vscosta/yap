@@ -1600,6 +1600,10 @@ Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
   Int sz0 = AuxTop - (ADDR)to_visit_maxp, sz, dsz;
   char *newb = Yap_ExpandPreAllocCodeSpace(0, NULL);
 
+  if (newb == NULL) {
+    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot allocate temporary space for unification (%p)", to_visit);       
+    return to_visit;
+  }
   /* check new size */
   sz = AuxTop-newb;
   /* how much we grew */
