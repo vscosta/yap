@@ -1651,7 +1651,7 @@ Yap_InitYaamRegs(void)
   WPP = NULL;
   PREG_ADDR = NULL;
 #endif
-  Yap_AllocateDefaultArena(1024*1024, 2);
+  Yap_AllocateDefaultArena(128*1024, 2);
   Yap_PreAllocCodeSpace();
 #ifdef CUT_C
   cut_c_initialize();
