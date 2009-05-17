@@ -46,13 +46,12 @@ int STD_PROTO(rational_tree_loop,(CELL *, CELL *, CELL **));
 #endif
 
 int
-rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0
+rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit
 #if USE_SYSTEM_MALLOC
 		   , CELL **to_visit_max
 #endif
 		   )
 {
-  CELL **to_visit = to_visit0;
 
 loop:
   while (pt0 < pt0_end) {
@@ -109,7 +108,7 @@ loop:
     derefa_body(d0, ptd0, rtree_loop_unk, rtree_loop_nvar);
   }
   /* Do we still have compound terms to visit */
-  if (to_visit < to_visit0) {
+  if (to_visit < to_visit_max) {
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
     *pt0 = (CELL)to_visit[2];
@@ -120,7 +119,7 @@ loop:
 
 cufail:
   /* we found an infinite term */
-  while (to_visit < to_visit0) {
+  while (to_visit < to_visit_max) {
     CELL *pt0;
     pt0 = to_visit[0];
     *pt0 = (CELL)to_visit[2];
@@ -415,6 +414,9 @@ oc_unify_nvar_nvar:
   if (pt1 < H0) Yap_WakeUp(pt1);
  bind_ocunify4:
 #endif
+  /* local variables cannot be in a term */
+  if (pt1 > H && pt1 < LCL0)
+    return TRUE;
   if (rational_tree(d0))
     return(FALSE);
   return (TRUE);
@@ -430,6 +432,9 @@ oc_unify_var_nvar:
   if (pt0 < H0) Yap_WakeUp(pt0);
  bind_ocunify5:
 #endif
+  /* local variables cannot be in a term */
+  if (pt0 > H && pt0 < LCL0)
+    return TRUE;
   if (rational_tree(d1))
     return(FALSE);
   return (TRUE);
