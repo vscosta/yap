@@ -38,10 +38,11 @@
   AtomCatch = Yap_FullLookupAtom("$catch");
   AtomChangeModule = Yap_FullLookupAtom("$change_module");
   AtomChar = Yap_LookupAtom("char");
+  AtomCharsio = Yap_LookupAtom("charsio");
   AtomCharacter = Yap_LookupAtom("character");
   AtomCharacterCode = Yap_LookupAtom("character_code");
-  AtomCharsio = Yap_LookupAtom("charsio");
   AtomColomn = Yap_LookupAtom(":");
+  AtomCodeSpace = Yap_LookupAtom("code_space");
   AtomComma = Yap_LookupAtom(",");
   AtomCompound = Yap_LookupAtom("compound");
   AtomConsistencyError = Yap_LookupAtom("consistency_error");
@@ -260,6 +261,7 @@
   AtomTimeOutSpec = Yap_LookupAtom("time_out_spec");
   AtomTopLevelGoal = Yap_FullLookupAtom("$top_level_goal");
   AtomTopThreadGoal = Yap_FullLookupAtom("$top_thread_goal");
+  AtomTrail = Yap_LookupAtom("trail");
   AtomTrue = Yap_LookupAtom("true");
   AtomTty = Yap_LookupAtom("tty");
   AtomTtys = Yap_LookupAtom("ttys");
@@ -267,6 +269,7 @@
   AtomUndefined = Yap_LookupAtom("undefined");
   AtomUndefp = Yap_FullLookupAtom("$undefp");
   AtomUnderflow = Yap_LookupAtom("underflow");
+  AtomUnificationStack = Yap_LookupAtom("unification_stack");
   AtomUnsignedByte = Yap_LookupAtom("unsigned_byte");
   AtomUnsignedChar = Yap_LookupAtom("unsigned_char");
   AtomUser = Yap_LookupAtom("user");

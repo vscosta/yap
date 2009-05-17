@@ -196,65 +196,31 @@ detect_bug_location(yamop *yap_pc, find_pred_type where_from, char *tp, int psiz
   } else if (pred_module == 0) {
     /* don't give info on system predicates */
 #if   HAVE_SNPRINTF
-#if SHORT_INTS
-    snprintf(tp, psize, "prolog:%s/%ld",
-	     RepAtom(pred_name)->StrOfAE, pred_arity);
+    snprintf(tp, psize, "prolog:%s/%lu",
+	     RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity);
 #else
-    snprintf(tp, psize, "prolog:%s/%d",
-	     RepAtom(pred_name)->StrOfAE, pred_arity);
-#endif
-#else
-#if SHORT_INTS
-    sprintf(tp, "in prolog:%s/%ld",
-	    RepAtom(pred_name)->StrOfAE, pred_arity);
-#else
-    sprintf(tp, "in prolog:%s/%d",
-	    RepAtom(pred_name)->StrOfAE, pred_arity);
-#endif
+    sprintf(tp, "in prolog:%s/%lu",
+	    RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity);
 #endif
   } else if (cl < 0) {
 #if   HAVE_SNPRINTF
-#if SHORT_INTS
-    snprintf(tp, psize, "indexing code of %s:%s/%ld",
+    snprintf(tp, psize, "%s:%s/%lu",
 	     RepAtom(AtomOfTerm(pred_module))->StrOfAE,
-	     RepAtom(pred_name)->StrOfAE, pred_arity);
+	     RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity);
 #else
-    snprintf(tp, psize, "indexing code of %s:%s/%d",
-	     RepAtom(AtomOfTerm(pred_module))->StrOfAE,
-	     RepAtom(pred_name)->StrOfAE, pred_arity);
-#endif
-#else
-#if SHORT_INTS
-    sprintf(tp, "indexing code of %s:%s/%ld",
+    sprintf(tp, "%s:%s/%lu",
 	    RepAtom(AtomOfTerm(pred_module))->StrOfAE,
-	    RepAtom(pred_name)->StrOfAE, pred_arity);
-#else 
-    sprintf(tp, "indexing code of %s:%s/%d",
-	    RepAtom(AtomOfTerm(pred_module))->StrOfAE,
-	    RepAtom(pred_name)->StrOfAE, pred_arity);
-#endif
+	    RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity);
 #endif
   } else {
 #if   HAVE_SNPRINTF
-#if SHORT_INTS
-    snprintf(tp, psize, "clause %ld of %s:%s/%ld", cl,
+    snprintf(tp, psize, "%s:%s/%lu at clause %lu ",
 	     RepAtom(AtomOfTerm(pred_module))->StrOfAE,
-	     RepAtom(pred_name)->StrOfAE, pred_arity);
+	     RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity, (unsigned long int)cl);
 #else
-    snprintf(tp, psize, "clause %d of %s:%s/%d", cl,
-	     RepAtom(AtomOfTerm(pred_module))->StrOfAE,
-	     RepAtom(pred_name)->StrOfAE, pred_arity);
-#endif
-#else
-#if SHORT_INTS
-    sprintf(tp, "clause %ld of %s:%s/%ld", cl,
+    sprintf(tp, "%s:%s/%lu at clause %lu",
 	    RepAtom(AtomOfTerm(pred_module))->StrOfAE,
-	    RepAtom(pred_name)->StrOfAE, pred_arity);
-#else
-    sprintf(tp, "clause %d of %s:%s/%d", cl,
-	    RepAtom(AtomOfTerm(pred_module))->StrOfAE,
-	    RepAtom(pred_name)->StrOfAE, pred_arity);
-#endif
+	    RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity, (unsigned long int)cl);
 #endif
   }
 }
@@ -291,10 +257,14 @@ dump_stack(void)
     }
 #endif
 #endif
-    fprintf (stderr,"%ldKB of Global Stack (%p--%p)\n",(long int)(sizeof(CELL)*(H-H0))/1024,H0,H); 
-    fprintf (stderr,"%ldKB of Local Stack (%p--%p)\n",(long int)(sizeof(CELL)*(LCL0-ASP))/1024,ASP,LCL0); 
-    fprintf (stderr,"%ldKB of Trail (%p--%p)\n",(long int)((ADDR)TR-Yap_TrailBase)/1024,Yap_TrailBase,TR); 
-    fprintf (stderr,"Performed %d garbage collections\n", GcCalls);
+    detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
+    fprintf (stderr,"%%\n%% PC: %s\n",(char *)H); 
+    detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
+    fprintf (stderr,"%%   Continuation: %s\n",(char *)H); 
+    fprintf (stderr,"%%    %ldKB of Global Stack (%p--%p)\n",(long int)(sizeof(CELL)*(H-H0))/1024,H0,H); 
+    fprintf (stderr,"%%    %ldKB of Local Stack (%p--%p)\n",(long int)(sizeof(CELL)*(LCL0-ASP))/1024,ASP,LCL0); 
+    fprintf (stderr,"%%    %ldKB of Trail (%p--%p)\n",(long int)((ADDR)TR-Yap_TrailBase)/1024,Yap_TrailBase,TR); 
+    fprintf (stderr,"%%    Performed %d garbage collections\n", GcCalls);
 #if LOW_LEVEL_TRACER
     {
       extern long long vsc_count;
@@ -304,19 +274,17 @@ dump_stack(void)
       }
     }
 #endif
-    detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
-    fprintf (stderr,"Running code at %s\n",(char *)H); 
-    detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
-    fprintf (stderr,"Continuation is at %s\n",(char *)H); 
+    fprintf (stderr,"%% All Active Calls and\n"); 
+    fprintf (stderr,"%%         Goals With Alternatives Open  (Global In Use--Local In Use)\n%%\n");
     while (b_ptr != NULL) {
       while (env_ptr && env_ptr <= (CELL *)b_ptr) {
 	detect_bug_location(ipc, FIND_PRED_FROM_ENV, tp, 256);
 	if (env_ptr == (CELL *)b_ptr &&
 	    (choiceptr)env_ptr[E_CB] > b_ptr) {
 	  b_ptr = b_ptr->cp_b;
-	  fprintf(stderr,"  %s (*)\n", tp);
+	  fprintf(stderr,"%%  %s\n", tp);
 	} else {
-	  fprintf(stderr,"  %s\n", tp);
+	  fprintf(stderr,"%%  %s\n", tp);
 	}
 	ipc = (yamop *)(env_ptr[E_CP]);
 	env_ptr = (CELL *)(env_ptr[E_E]);
@@ -328,7 +296,9 @@ dump_stack(void)
 	    b_ptr->cp_ap->opc != Yap_opcode(_Nstop)) {
 	  /* we can safely ignore ; because there is always an upper env */
 	  detect_bug_location(b_ptr->cp_ap, FIND_PRED_FROM_CP, tp, 256);
-	  fprintf(stderr,"     %s (*)\n", tp);
+	  fprintf(stderr,"%%         %s (%luKB--%luKB)\n", tp,
+		  (unsigned long int)((b_ptr->cp_h-H0)*sizeof(CELL)/1024), 
+		  (unsigned long int)((ADDR)LCL0-(ADDR)b_ptr)/1024);
 	}
 	b_ptr = b_ptr->cp_b;
       }
@@ -999,10 +969,12 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   case OUT_OF_HEAP_ERROR:
     {
       int i;
+      Term ti[1];
 
       dump_stack();
+      ti[0] = MkAtomTerm(AtomCodeSpace);
       i = strlen(tmpbuf);
-      nt[0] = MkAtomTerm(AtomOutOfHeapError);
+      nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
       tp = tmpbuf+i;
       psize -= i;
       fun = FunctorError;
@@ -1012,10 +984,12 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   case OUT_OF_STACK_ERROR:
     {
       int i;
+      Term ti[1];
 
       dump_stack();
       i = strlen(tmpbuf);
-      nt[0] = MkAtomTerm(AtomOutOfStackError);
+      ti[0] = MkAtomTerm(AtomStack);
+      nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
       tp = tmpbuf+i;
       psize -= i;
       fun = FunctorError;
@@ -1025,10 +999,12 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   case OUT_OF_ATTVARS_ERROR:
     {
       int i;
+      Term ti[1];
 
       dump_stack();
       i = strlen(tmpbuf);
-      nt[0] = MkAtomTerm(AtomOutOfAttvarsError);
+      ti[0] = MkAtomTerm(AtomAttributes);
+      nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
       tp = tmpbuf+i;
       psize -= i;
       fun = FunctorError;
@@ -1038,11 +1014,13 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   case OUT_OF_AUXSPACE_ERROR:
     {
       int i;
+      Term ti[1];
 
       dump_stack();
       i = strlen(tmpbuf);
-      nt[0] = MkAtomTerm(AtomOutOfAuxspaceError);
       tp = tmpbuf+i;
+      ti[0] = MkAtomTerm(AtomUnificationStack);
+      nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
       psize -= i;
       fun = FunctorError;
       serious = TRUE;
@@ -1051,10 +1029,12 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   case OUT_OF_TRAIL_ERROR:
     {
       int i;
+      Term ti[1];
 
       dump_stack();
       i = strlen(tmpbuf);
-      nt[0] = MkAtomTerm(AtomOutOfTrailError);
+      ti[0] = MkAtomTerm(AtomTrail);
+      nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
       tp = tmpbuf+i;
       psize -= i;
       fun = FunctorError;

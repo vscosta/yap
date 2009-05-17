@@ -38,10 +38,11 @@
   AtomCatch = AtomAdjust(AtomCatch);
   AtomChangeModule = AtomAdjust(AtomChangeModule);
   AtomChar = AtomAdjust(AtomChar);
+  AtomCharsio = AtomAdjust(AtomCharsio);
   AtomCharacter = AtomAdjust(AtomCharacter);
   AtomCharacterCode = AtomAdjust(AtomCharacterCode);
-  AtomCharsio = AtomAdjust(AtomCharsio);
   AtomColomn = AtomAdjust(AtomColomn);
+  AtomCodeSpace = AtomAdjust(AtomCodeSpace);
   AtomComma = AtomAdjust(AtomComma);
   AtomCompound = AtomAdjust(AtomCompound);
   AtomConsistencyError = AtomAdjust(AtomConsistencyError);
@@ -262,6 +263,7 @@
   AtomTimeOutSpec = AtomAdjust(AtomTimeOutSpec);
   AtomTopLevelGoal = AtomAdjust(AtomTopLevelGoal);
   AtomTopThreadGoal = AtomAdjust(AtomTopThreadGoal);
+  AtomTrail = AtomAdjust(AtomTrail);
   AtomTrue = AtomAdjust(AtomTrue);
   AtomTty = AtomAdjust(AtomTty);
   AtomTtys = AtomAdjust(AtomTtys);
@@ -269,6 +271,7 @@
   AtomUndefined = AtomAdjust(AtomUndefined);
   AtomUndefp = AtomAdjust(AtomUndefp);
   AtomUnderflow = AtomAdjust(AtomUnderflow);
+  AtomUnificationStack = AtomAdjust(AtomUnificationStack);
   AtomUnsignedByte = AtomAdjust(AtomUnsignedByte);
   AtomUnsignedChar = AtomAdjust(AtomUnsignedChar);
   AtomUser = AtomAdjust(AtomUser);

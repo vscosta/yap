@@ -78,14 +78,16 @@
 #define AtomChangeModule Yap_heap_regs->AtomChangeModule_
   Atom AtomChar_;
 #define AtomChar Yap_heap_regs->AtomChar_
+  Atom AtomCharsio_;
+#define AtomCharsio Yap_heap_regs->AtomCharsio_
   Atom AtomCharacter_;
 #define AtomCharacter Yap_heap_regs->AtomCharacter_
   Atom AtomCharacterCode_;
 #define AtomCharacterCode Yap_heap_regs->AtomCharacterCode_
-  Atom AtomCharsio_;
-#define AtomCharsio Yap_heap_regs->AtomCharsio_
   Atom AtomColomn_;
 #define AtomColomn Yap_heap_regs->AtomColomn_
+  Atom AtomCodeSpace_;
+#define AtomCodeSpace Yap_heap_regs->AtomCodeSpace_
   Atom AtomComma_;
 #define AtomComma Yap_heap_regs->AtomComma_
   Atom AtomCompound_;
@@ -526,6 +528,8 @@
 #define AtomTopLevelGoal Yap_heap_regs->AtomTopLevelGoal_
   Atom AtomTopThreadGoal_;
 #define AtomTopThreadGoal Yap_heap_regs->AtomTopThreadGoal_
+  Atom AtomTrail_;
+#define AtomTrail Yap_heap_regs->AtomTrail_
   Atom AtomTrue_;
 #define AtomTrue Yap_heap_regs->AtomTrue_
   Atom AtomTty_;
@@ -540,6 +544,8 @@
 #define AtomUndefp Yap_heap_regs->AtomUndefp_
   Atom AtomUnderflow_;
 #define AtomUnderflow Yap_heap_regs->AtomUnderflow_
+  Atom AtomUnificationStack_;
+#define AtomUnificationStack Yap_heap_regs->AtomUnificationStack_
   Atom AtomUnsignedByte_;
 #define AtomUnsignedByte Yap_heap_regs->AtomUnsignedByte_
   Atom AtomUnsignedChar_;
