@@ -1491,7 +1491,7 @@ JumpToEnv(Term t) {
   CELL *env;
   choiceptr first_func = NULL, B0 = B;
 
-  if (!Yap_SetGlobalVal(AtomHandleThrow,t))
+  if (!(t = Yap_SetGlobalVal(AtomHandleThrow,t)))
     return FALSE;
   do {
     /* find the first choicepoint that may be a catch */
