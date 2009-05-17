@@ -1285,6 +1285,8 @@ p_nb_getval(void)
     to = t;
   }
   READ_UNLOCK(ge->GRWLock);
+  if (to == TermFoundVar)
+    return FALSE;
   return Yap_unify(ARG2, to);
 }
 

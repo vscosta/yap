@@ -106,6 +106,7 @@ static void
 kill_thread_engine (int wid, int always_die)
 {
   Prop p0 = AbsPredProp(Yap_heap_regs->thread_handle[wid].local_preds);
+  GlobalEntry *gl = GlobalVariables;
 
   /* kill all thread local preds */
   while(p0) {
@@ -113,6 +114,10 @@ kill_thread_engine (int wid, int always_die)
     p0 = ap->NextOfPE;
     Yap_Abolish(ap);
     Yap_FreeCodeSpace((char *)ap);
+  }
+  while (gl) {
+    gl->global = TermFoundVar;
+    gl = gl->NextGE;
   }
   Yap_KillStacks(wid);
   Yap_heap_regs->wl[wid].active_signals = 0L;
