@@ -315,6 +315,8 @@ when(_,Goal) :-
 % $when/5 and $when_suspend succeds when there is need to suspend a goal
 %
 %
+'$when'(V, G, Done, LG0, LGF) :- var(V), !,
+	'$do_error'(instantiation_error,when(V,G)).
 '$when'(nonvar(V), G, Done, LG0, LGF) :-
 	'$when_suspend'(nonvar(V), G, Done, LG0, LGF).
 '$when'(?=(X,Y), G, Done, LG0, LGF) :-
