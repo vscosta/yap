@@ -246,12 +246,16 @@ system_message(error(representation_error(max_arity), Where)) -->
 	[ 'REPRESENTATION ERROR- ~w: number too big' - [Where] ].
 system_message(error(resource_error(huge_int), Where)) -->
 	[ 'RESOURCE ERROR- too large an integer in absolute value' - [Where] ].
-system_message(error(resource_error(stack), Where)) -->
-	[ 'RESOURCE ERROR- not enough stack' - [Where] ].
-system_message(error(resource_error(threads), Where)) -->
-	[ 'RESOURCE ERROR- too many open threads' - [Where] ].
 system_message(error(resource_error(memory), Where)) -->
 	[ 'RESOURCE ERROR- not enough virtual memory' - [Where] ].
+system_message(error(resource_error(stack), Where)) -->
+	[ 'RESOURCE ERROR- not enough stack' - [Where] ].
+system_message(error(resource_error(code_space), Where)) -->
+	[ 'RESOURCE ERROR- not enough code space' - [Where] ].
+system_message(error(resource_error(threads), Where)) -->
+	[ 'RESOURCE ERROR- too many open threads' - [Where] ].
+system_message(error(resource_error(trail), Where)) -->
+	[ 'RESOURCE ERROR- not enough trail space' - [Where] ].
 system_message(error(signal(SIG,_), _)) -->
 	[ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].
 system_message(error(syntax_error(G,0,Msg,[],0,0,File), _)) -->
