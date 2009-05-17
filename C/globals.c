@@ -1182,11 +1182,11 @@ Yap_SetGlobalVal(Atom at, Term t0)
   ge = GetGlobalEntry(at);
   to = CopyTermToArena(t0, GlobalArena, FALSE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
-    return FALSE;
+    return to;
   WRITE_LOCK(ge->GRWLock);
   ge->global=to;
   WRITE_UNLOCK(ge->GRWLock);
-  return TRUE;
+  return to;
 }
 
 static Int
