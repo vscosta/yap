@@ -9638,7 +9638,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_plus(d0, d1);
+	d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
 	if (PREG == (yamop *)FAILCODE)
 	  FAIL();
@@ -9679,7 +9679,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_plus(d0, MkIntegerTerm(d1));
+	  d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1));
 	  setregs();
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
@@ -9716,7 +9716,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_plus(d0, d1);
+	d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
 	if (PREG == (yamop *)FAILCODE)
 	  FAIL();
@@ -9764,7 +9764,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_plus(d0, MkIntegerTerm(d1));
+	  d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1));
 	  setregs();
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
@@ -9808,7 +9808,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_minus(d0, d1);
+	d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
 	if (PREG == (yamop *)FAILCODE)
 	  FAIL();
@@ -9849,7 +9849,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_minus(MkIntegerTerm(d1),d0);
+	  d0 = p_minus(MkIntegerTerm(d1),Yap_Eval(d0));
 	  setregs();
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
@@ -9886,7 +9886,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_minus(d0, d1);
+	d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
 	if (PREG == (yamop *)FAILCODE)
 	  FAIL();
@@ -9934,7 +9934,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_minus(MkIntegerTerm(d1), d0);
+	  d0 = p_minus(MkIntegerTerm(d1), Yap_Eval(d0));
 	  setregs();
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
@@ -9978,7 +9978,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_times(d0, d1);
+	d0 = p_times(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
 	if (PREG == (yamop *)FAILCODE)
 	  FAIL();
@@ -10019,7 +10019,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_times(d0, MkIntegerTerm(d1));
+	  d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1));
 	  setregs();
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
@@ -10056,7 +10056,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_times(d0, d1);
+	d0 = p_times(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
 	if (PREG == (yamop *)FAILCODE)
 	  FAIL();
@@ -10104,7 +10104,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_times(d0, MkIntegerTerm(d1));
+	  d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1));
 	  setregs();
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
@@ -10155,7 +10155,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_div(d0, d1);
+	d0 = p_div(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
 	if (PREG == (yamop *)FAILCODE)
 	  FAIL();
@@ -10196,7 +10196,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_div(d0,MkIntegerTerm(d1));
+	  d0 = p_div(Yap_Eval(d0),MkIntegerTerm(d1));
 	  setregs();
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
@@ -10236,7 +10236,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_div(MkIntegerTerm(d1),d0);
+	  d0 = p_div(MkIntegerTerm(d1),Yap_Eval(d0));
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
 	}
@@ -10279,7 +10279,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_div(d0, d1);
+	d0 = p_div(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
 	if (PREG == (yamop *)FAILCODE)
 	  FAIL();
@@ -10327,7 +10327,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_div(d0,MkIntegerTerm(d1));
+	  d0 = p_div(Yap_Eval(d0),MkIntegerTerm(d1));
 	  setregs();
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
@@ -10374,7 +10374,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_div(MkIntegerTerm(d1), d0);
+	  d0 = p_div(MkIntegerTerm(d1), Yap_Eval(d0));
 	  setregs();
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
@@ -10419,7 +10419,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_and(d0, d1);
+	d0 = p_and(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
 	if (PREG == (yamop *)FAILCODE)
 	  FAIL();
@@ -10460,7 +10460,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_and(d0, MkIntegerTerm(d1));
+	  d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1));
 	  setregs();
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
@@ -10497,7 +10497,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_and(d0, d1);
+	d0 = p_and(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
 	if (PREG == (yamop *)FAILCODE)
 	  FAIL();
@@ -10545,7 +10545,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_and(d0, MkIntegerTerm(d1));
+	  d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1));
 	  setregs();
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
@@ -10590,7 +10590,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_or(d0, d1);
+	d0 = p_or(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
 	if (PREG == (yamop *)FAILCODE)
 	  FAIL();
@@ -10631,7 +10631,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_or(d0, MkIntegerTerm(d1));
+	  d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1));
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
 	}
@@ -10667,7 +10667,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_or(d0, d1);
+	d0 = p_or(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
 	if (PREG == (yamop *)FAILCODE)
 	  FAIL();
@@ -10715,7 +10715,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_or(d0, MkIntegerTerm(d1));
+	  d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1));
 	  setregs();
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
@@ -10763,7 +10763,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_sll(d0, d1);
+	d0 = p_sll(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
       }
       if (PREG == (yamop *)FAILCODE)
@@ -10804,7 +10804,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_sll(d0, MkIntegerTerm(d1));
+	  d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1));
 	  setregs();
 	}
       }
@@ -10841,7 +10841,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_sll(MkIntegerTerm(d1), d0);
+	  d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(d0));
 	  setregs();
 	}
       }
@@ -10882,7 +10882,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_sll(d0, d1);
+	d0 = p_sll(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
       }
       if (PREG == (yamop *)FAILCODE)
@@ -10926,11 +10926,11 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
-	  d0 = do_sll(IntOfTerm(d0), d1);
+	  d0 = do_sll(IntOfTerm(d0), Yap_Eval(d1));
 	}
 	else {
 	  saveregs();
-	  d0 = p_sll(d0, MkIntegerTerm(d1));
+	  d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1));
 	  setregs();
 	}
       }
@@ -10975,7 +10975,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_sll(MkIntegerTerm(d1), d0);
+	  d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(0));
 	  setregs();
 	}
       }
@@ -11023,7 +11023,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_slr(d0, d1);
+	d0 = p_slr(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
       }
       if (PREG == (yamop *)FAILCODE)
@@ -11064,7 +11064,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_slr(d0, MkIntegerTerm(d1));
+	  d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1));
 	  setregs();
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
@@ -11101,7 +11101,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_slr(MkIntegerTerm(d1), d0);
+	  d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0));
 	  setregs();
 	}
       }
@@ -11142,7 +11142,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_slr(d0, d1);
+	d0 = p_slr(Yap_Eval(d0), Yap_Eval(d1));
 	setregs();
       }
       BEGP(pt0);
@@ -11190,7 +11190,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_slr(d0, MkIntegerTerm(d1));
+	  d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1));
 	  setregs();
 	  if (PREG == (yamop *)FAILCODE)
 	    FAIL();
@@ -11233,7 +11233,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_slr(MkIntegerTerm(d1), d0);
+	  d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0));
 	  setregs();
 	}
       }

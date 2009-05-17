@@ -141,8 +141,6 @@ do_sll(Int i, Int j)
 
 static inline Term
 p_plus(Term t1, Term t2) {
-  t1 = Yap_Eval(t1);
-  t2 = Yap_Eval(t2);
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -199,8 +197,6 @@ p_plus(Term t1, Term t2) {
 
 static Term
 p_minus(Term t1, Term t2) {
-  t1 = Yap_Eval(t1);
-  t2 = Yap_Eval(t2);
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -261,8 +257,6 @@ p_minus(Term t1, Term t2) {
 
 static Term
 p_times(Term t1, Term t2) {
-  t1 = Yap_Eval(t1);
-  t2 = Yap_Eval(t2);
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -321,8 +315,6 @@ p_times(Term t1, Term t2) {
 
 static Term
 p_div(Term t1, Term t2) {
-  t1 = Yap_Eval(t1);
-  t2 = Yap_Eval(t2);
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -411,8 +403,6 @@ p_div(Term t1, Term t2) {
 
 static Term
 p_and(Term t1, Term t2) {
-  t1 = Yap_Eval(t1);
-  t2 = Yap_Eval(t2);
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -461,8 +451,6 @@ p_and(Term t1, Term t2) {
 
 static Term
 p_or(Term t1, Term t2) {
-  t1 = Yap_Eval(t1);
-  t2 = Yap_Eval(t2);
   switch(ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -511,8 +499,6 @@ p_or(Term t1, Term t2) {
 
 static Term
 p_sll(Term t1, Term t2) {
-  t1 = Yap_Eval(t1);
-  t2 = Yap_Eval(t2);
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -580,8 +566,6 @@ p_sll(Term t1, Term t2) {
 
 static Term
 p_slr(Term t1, Term t2) {
-  t1 = Yap_Eval(t1);
-  t2 = Yap_Eval(t2);
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
