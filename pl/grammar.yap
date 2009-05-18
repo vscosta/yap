@@ -85,6 +85,9 @@
 '$t_body'((T;R), _ToFill, _, S, SR, (Tt;Rt)) :- !,
 	'$t_body'(T, _, last, S, SR, Tt),
 	'$t_body'(R, _, last, S, SR, Rt).
+'$t_body'((T|R), _ToFill, _, S, SR, (Tt;Rt)) :- !,
+       '$t_body'(T, _, last, S, SR, Tt),
+       '$t_body'(R, _, last, S, SR, Rt).
 '$t_body'(M:G, ToFill, Last, S, SR, M:NG) :- !,
 	'$t_body'(G, ToFill, Last, S, SR, NG).
 '$t_body'(T, filled_in, _, S, SR, Tt) :-
