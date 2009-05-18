@@ -3264,7 +3264,15 @@ Also refer to @code{copy_term/2}.
 @cnindex copy_term/3
 Term @var{TF} is a variant of the original term @var{TI}, such that for
 each variable @var{V} in the term @var{TI} there is a new variable @var{V'}
-in term @var{TF}. Attributed variables are converted to standard variables and the list @var{Goals} is unified with a set of goals that can be used to restore the constraints, by calling @code{attribute_goals/3} before copying is performed.
+in term @var{TF} without any attributes attached.  Attributed
+variables are thus converted to standard variables.  @var{Goals} is
+unified with a list that represents the attributes.  The goal
+@code{maplist(call,@var{Goals})} can be called to recreate the
+attributes.
+
+Before the actual copying, @code{copy_term/3} calls
+@code{attribute_goals/1} in the module where the attribute is
+defined.
 
 @end table
 
@@ -7706,7 +7714,7 @@ from a modern Prolog system. Moreover, because most Prolog
 implementations do not fully implement the standard and because the
 standard itself gives the implementor latitude in a few important
 questions, such as the unification algorithm and maximum size for
-numbers there is not guarantee that programs compliant with this mode
+numbers there is no guarantee that programs compliant with this mode
 will work the same way in every Prolog and in every platform. We thus
 believe this mode is mostly useful when investigating how a program
 depends on a Prolog's platform specific features.
@@ -11988,7 +11996,7 @@ unifying terms. As an example, @code{X = a(X)} will not fail but instead
 will create an infinite term of the form @code{a(a(a(a(a(...)))))}, or
 @emph{rational tree}.
 
-Rational trees are no supported by default in YAP. In previous
+Rational trees are now supported by default in YAP. In previous
 versions, this was not the default and these terms could easily lead
 to infinite computation. For example, @code{X = a(X), X = X} would
 enter an infinite loop.
@@ -15340,7 +15348,7 @@ compatible built-in.
 
 @item The following SICStus Prolog v3 built-ins are not (currently)
 implemented in YAP (note that this is only a partial list):
-@code{call_cleanup/1}, @code{file_search_path/2},
+@code{file_search_path/2},
 @code{stream_interrupt/3}, @code{reinitialize/0}, @code{help/0},
 @code{help/1}, @code{trimcore/0}, @code{load_files/1},
 @code{load_files/2}, and @code{require/1}.
@@ -15354,12 +15362,6 @@ releases of SICStus Prolog.
 @item YAP allows asserting and abolishing static code during
 execution through the @code{assert_static/1} and @code{abolish/1}
 built-ins. This is not allowed in Quintus Prolog or SICStus Prolog.
-
-@item YAP implements rational trees and co-routining but they
-are not included by default in the system. You must enable these
-extensions when compiling the system.
-
-@item YAP does not currently implement constraints.
 
 @item The socket predicates, although designed to be compatible with
 SICStus Prolog, are built-ins, not library predicates, in YAP.
