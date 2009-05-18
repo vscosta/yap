@@ -748,12 +748,17 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
     else if (hsplit == (CELL *)omax)
       hsplit = NULL;
     if (size < 0 ||
-	(size+H < ASP-4096 &&
+	(Unsigned(H)+size < Unsigned(ASP)-CreepFlag &&
 	 hsplit > H0)) {
       /* don't need to expand stacks */
       insert_in_delays = FALSE;
       do_grow = FALSE;
     }
+  } else {
+    if (Unsigned(H)+size < Unsigned(ASP)-CreepFlag) {
+      /* we can just ask for more room */
+      do_grow = FALSE;
+    }    
   }
   if (do_grow) {
     if (size < YAP_ALLOC_SIZE)
@@ -820,8 +825,13 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
   /* now, remember we have delay -- global with a hole in delay or a 
      hole in global */
   if (!hsplit) {
-    /* expand delay stack */
-    DelayDiff = GDiff = GDiff0 = LDiff;
+    if (!do_grow) {
+      DelayDiff = GDiff = GDiff0 = size;
+      request = 0L;
+    } else {
+      /* expand delay stack */
+      DelayDiff = GDiff = GDiff0 = LDiff;
+    }
   } else if (insert_in_delays) {
     /* we want to expand a hole for the delay stack */
     DelayDiff = size-request;
@@ -842,6 +852,8 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
     } else {
       MoveExpandedGlobal();
     }
+  } else if (!hsplit) {
+    MoveExpandedGlobal();
   }
   /* don't run through garbage */
   if (hsplit && (OldH != hsplit)) {
