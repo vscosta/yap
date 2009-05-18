@@ -500,7 +500,7 @@ when(_,Goal) :-
 frozen(V, G) :- nonvar(V), !,
 	'$do_error'(type_error(variable,V),frozen(V,G)).
 frozen(V, LG) :-
-	'$get_goalist_from_attvars'([V], LG).
+	'$get_conj_from_attvars'([V], LG).
 
 '$find_att_vars'([], []).
 '$find_att_vars'([V|LGs], [V|AttVars]) :- attvar(V), !,
@@ -578,7 +578,7 @@ call_residue_vars(Goal,Residue) :-
 
 copy_term(Term, Copy, Goals) :-
 	term_variables(Term, TVars),
-	'$get_conj_from_attvars'(TVars, Goals0),
+	'$get_goalist_from_attvars'(TVars, Goals0),
 	copy_term_nat([Term|Goals0], [Copy|Goals]).
 
 
