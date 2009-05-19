@@ -30,14 +30,9 @@ time_out(Goal, Time, Result) :-
 	% enable alarm
 	alarm(T.UT,throw(time_out),_),
 	% launch goal and wait for signal
-	( catch(Goal, time_out, Result = time_out)
-        % make sure to disable alarm
-          ->
-	    alarm(0,_,_)
-	  ;
-	    alarm(0,_,_),
-	    fail
-	),
-	% just couldn't resist...
-	(Result = success -> true ; true).
-
+	call_cleanup(
+		catch( ( Result0 = success, once(Goal) ),
+		       time_out,
+		       Result0 = time_out ),
+		alarm(0,_,_) ),
+	Result = Result0.
