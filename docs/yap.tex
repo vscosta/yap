@@ -10351,7 +10351,7 @@ Execute the built-in procedure @code{format/2} with form @var{Form} and
 arguments @var{Args} outputting the result to the string of character
 codes @var{Result}.
 
-@item format_to_chars(+@var{Form}, +@var{Args}, -@var{Result0}, -@var{Result})
+@item format_to_chars(+@var{Form}, +@var{Args}, -@var{Result}, -@var{Result0})
 @findex format_to_chars/4
 @syindex format_to_chars/4
 @cnindex format_to_chars/4
@@ -11150,10 +11150,10 @@ Det = yes ;
 This predicate is under consideration for inclusion into the ISO standard.
 For compatibility with other Prolog implementations see @code{call_cleanup/2}.
 
- @item setup_call_cleanup(:@var{Setup},:@var{Goal}, +@var{Catcher},:@var{CleanUpGoal})
-@findex setup_call_cleanup/3
-@snindex setup_call_cleanup/3
-@cnindex setup_call_cleanup/3
+ @item setup_call_catcher_cleanup(:@var{Setup},:@var{Goal}, +@var{Catcher},:@var{CleanUpGoal})
+@findex setup_call_catcher_cleanup/4
+@snindex setup_call_catcher_cleanup/4
+@cnindex setup_call_catcher_cleanup/4
 Similar to @code{setup_call_cleanup}{@var{Setup},@var{ Goal}, @var{Cleanup}} with
 additional information on the reason of calling @var{Cleanup}.  Prior
 to calling @var{Cleanup}, @var{Catcher} unifies with the termination

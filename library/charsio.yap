@@ -32,9 +32,9 @@
     ]).
 
 format_to_chars(Form, Args, OUT) :-
-	format_to_chars(Form, Args, [], OUT).
+	format_to_chars(Form, Args, OUT, []).
 
-format_to_chars(Form, Args, L0, OUT) :-
+format_to_chars(Form, Args, OUT, []) :-
 	open_mem_write_stream(Stream),
 	format(Stream,Form,Args),
 	peek_mem_write_stream(Stream, L0, O),
