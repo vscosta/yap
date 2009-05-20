@@ -56,7 +56,10 @@ call(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7,A8,A
 call(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11).
 
 call_cleanup(Goal, Cleanup) :-
-	setup_call_cleanup(true, Goal, _Catcher, Cleanup).
+	setup_call_catcher_cleanup(true, Goal, _Catcher, Cleanup).
+
+call_cleanup(Goal, Catcher, Cleanup) :-
+	setup_call_catcher_cleanup(true, Goal, Catcher, Cleanup).
 
 setup_call_cleanup(Setup, Goal, Cleanup) :-
 	setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup).
