@@ -11078,7 +11078,7 @@ it will be called through call_cleanup/1.
 :- fragile foo/1,bar:baz/2.
 @end example
 
-@item call_cleanup(+@var{Goal})
+@item call_cleanup(:@var{Goal})
 @findex call_cleanup/1
 @syindex call_cleanup/1
 @cnindex call_cleanup/1
@@ -11087,12 +11087,79 @@ might register cleanup Goals which are called right after the end of
 the call to @var{Goal}. Cuts and exceptions inside Goal do not prevent the
 execution of the cleanup calls. @t{call_cleanup} might be nested.
 
-@item call_cleanup(+@var{Goal}, +@var{CleanUpGoal})
+@item call_cleanup(:@var{Goal}, :@var{CleanUpGoal})
 @findex call_cleanup/2
 @syindex call_cleanup/2
 @cnindex call_cleanup/2
 This is similar to @t{call_cleanup/1} with an additional
 @var{CleanUpGoal} which gets called after @var{Goal} is finished.
+
+@item setup_call_cleanup(:@var{Setup},:@var{Goal}, :@var{CleanUpGoal})
+@findex setup_call_cleanup/3
+@snindex setup_call_cleanup/3
+@cnindex setup_call_cleanup/3
+Calls @code{(Setup, Goal)}. For each sucessful execution of @var{Setup}, calling @var{Goal}, the
+cleanup handler @var{Cleanup} is guaranteed to be called exactly once.
+This will happen after @var{Goal} completes, either through failure,
+deterministic success, commit, or an exception.  @var{Setup} will
+contain the goals that need to be protected from asynchronous interrupts
+such as the ones received from @code{call_with_time_limit/2} or @code{thread_signal/2}.  In
+most uses, @var{Setup} will perform temporary side-effects required by
+@var{Goal} that are finally undone by \arg{Cleanup}.
+
+Success or failure of @var{Cleanup} is ignored and choice-points it
+created are destroyed (as @code{once/1}). If @var{Cleanup} throws an exception,
+this is executed as normal.
+
+Typically, this predicate is used to cleanup permanent data storage
+required to execute @var{Goal}, close file-descriptors, etc. The example
+below provides a non-deterministic search for a term in a file, closing
+the stream as needed.
+
+@example
+term_in_file(Term, File) :-
+	setup_call_cleanup(open(File, read, In),
+			   term_in_stream(Term, In),
+			   close(In) ).
+
+term_in_stream(Term, In) :-
+	repeat,
+	read(In, T),
+	(   T == end_of_file
+	->  !, fail
+	;   T = Term
+	).
+@end example
+
+Note that it is impossible to implement this predicate in Prolog other than
+by reading all terms into a list, close the file and call @code{member/2}.
+Without @code{setup_call_cleanup/3} there is no way to gain control if the
+choice-point left by code{repeat} is removed by a cut or an exception.
+
+@code{setup_call_cleanup/2} can also be used to test determinism of a goal:
+
+@example
+?- setup_call_cleanup(true,(X=1;X=2), Det=yes).
+
+X = 1 ;
+
+X = 2,
+Det = yes ;
+@end example
+
+This predicate is under consideration for inclusion into the ISO standard.
+For compatibility with other Prolog implementations see @code{call_cleanup/2}.
+
+ @item setup_call_cleanup(:@var{Setup},:@var{Goal}, +@var{Catcher},:@var{CleanUpGoal})
+@findex setup_call_cleanup/3
+@snindex setup_call_cleanup/3
+@cnindex setup_call_cleanup/3
+Similar to @code{setup_call_cleanup}{@var{Setup},@var{ Goal}, @var{Cleanup}} with
+additional information on the reason of calling @var{Cleanup}.  Prior
+to calling @var{Cleanup}, @var{Catcher} unifies with the termination
+code.  If this unification fails, @var{Cleanup} is
+@strong{not} called.
+
 
 @item on_cleanup(+@var{CleanUpGoal})
 @findex on_cleanup/1

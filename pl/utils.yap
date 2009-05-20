@@ -56,12 +56,36 @@ call(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7,A8,A
 call(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11).
 
 call_cleanup(Goal, Cleanup) :-
-	call_cleanup(Goal, _Catcher, Cleanup).
+	setup_call_cleanup(true, Goal, _Catcher, Cleanup).
 
-call_cleanup(Goal, Catcher, Cleanup) :-
-	catch('$call_cleanup'(Goal,Cleanup,Catcher),
+setup_call_cleanup(Setup, Goal, Cleanup) :-
+	setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup).
+
+setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
+	'$disable_interrupts',
+	'$do_setup'(Setup),
+	catch('$safe_call_cleanup'(Goal,Cleanup,Catcher),
 	      Exception,
 	      '$cleanup_exception'(Exception,Catcher,Cleanup)).
+
+% this is simple, do nothing
+'$do_setup'(A:true) :- atom(A), !.
+% this is tricky: please don't forget that interrupts are disabled at this point
+% and that they will only be enabled after setting up Cleanup
+'$do_setup'(Setup) :-
+	(
+	 yap_hacks:current_choice_point(CP0),
+	 '$execute'(Setup),
+	 yap_hacks:current_choice_point(CP1),
+	 % are we looking at a deterministic goal?
+	 % we don't need to care about enabling interrupts
+	 (CP1 == CP0 -> ! ; true)
+	;
+	 % reenable interrupts if Setup failed
+	'$enable_interrupts',
+	 fail
+	).
+	 
 
 '$cleanup_exception'(Exception, exception(Exception), Cleanup) :- !,
 	% whatever happens, let exception go through 
@@ -70,11 +94,13 @@ call_cleanup(Goal, Catcher, Cleanup) :-
 '$cleanup_exception'(Exception, _, _) :-
 	throw(Exception).
 
-'$call_cleanup'(Goal, Cleanup, Catcher) :-
+'$safe_call_cleanup'(Goal, Cleanup, Catcher) :-
+	 yap_hacks:current_choice_point(MyCP1),
 	'$freeze_goal'(Catcher, '$clean_call'(Cleanup)),
 	yap_hacks:trail_suspension_marker(Catcher),
 	(
 	 yap_hacks:current_choice_point(CP0),
+	 '$enable_interrupts',
 	 '$execute'(Goal),
 	 yap_hacks:current_choice_point(CPF),
 	 (

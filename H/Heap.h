@@ -123,6 +123,7 @@ typedef struct worker_local_struct {
   union CONSULT_OBJ *consultlow;
   struct pred_entry *last_asserted_pred;
   int    debug_on;
+  int    interrupts_enabled;
   UInt   consultcapacity;
   UInt   active_signals;
   UInt   i_pred_arity;
@@ -687,6 +688,7 @@ extern struct various_codes *Yap_heap_regs;
 #define  XDiff                    RINFO.x_diff
 #define  DelayDiff                RINFO.delay_diff
 #define  BaseDiff	          RINFO.base_diff
+#define  Yap_InterruptsEnabled    Yap_heap_regs->WL.interrupts_enabled
 /* current consult stack */
 #define  ConsultSp                Yap_heap_regs->WL.consultsp
 /* top of consult stack  */

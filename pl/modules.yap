@@ -511,6 +511,8 @@ source_module(Mod) :-
 	format(+,+,:),
 	call_cleanup(:,:),
 	call_cleanup(:,?,:),
+	setup_call_cleanup(:,:,:),
+	setup_call_catcher_cleanup(:,:,?,:),
 	call_residue(:,?),
 	call_residue_vars(:,?),
 	catch(:,+,:),

@@ -1107,6 +1107,7 @@ HandleMatherr(int  sig, siginfo_t *sip, ucontext_t *uap)
 }
 
 
+#if HAVE_SIGSEGV && !defined(THREADS) 
 static void
 my_signal_info(int sig, void (*handler)(int, siginfo_t  *, ucontext_t *))
 {
@@ -1118,6 +1119,7 @@ my_signal_info(int sig, void (*handler)(int, siginfo_t  *, ucontext_t *))
 
   sigaction(sig,&sigact,NULL);
 }
+#endif
 
 static void
 my_signal(int sig, void (*handler)(int, siginfo_t *, ucontext_t *))
@@ -1221,6 +1223,7 @@ SearchForTrailFault(siginfo_t *siginfo)
   }
 }
 
+#if HAVE_SIGSEGV && !defined(THREADS) 
 static RETSIGTYPE
 HandleSIGSEGV(int   sig, siginfo_t *siginfo, void *context)
 {
@@ -1229,6 +1232,7 @@ HandleSIGSEGV(int   sig, siginfo_t *siginfo, void *context)
   }
   SearchForTrailFault(siginfo);
 }
+#endif
 
 static void
 my_signal_info(int sig, void (*handler)(int,siginfo_t *,void *))
@@ -1509,13 +1513,20 @@ HandleSIGINT (int sig, siginfo_t   *x, ucontext_t *y)
 HandleSIGINT (int sig)
 #endif
 {
+  LOCK(SignalLock);
   my_signal(SIGINT, HandleSIGINT);
   /* do this before we act */
 #if HAVE_ISATTY
   if (!isatty(0)  && !Yap_sockets_io) {
+    UNLOCK(SignalLock);
     Yap_Error(INTERRUPT_ERROR,MkIntTerm(SIGINT),NULL);
+    return;
   }
 #endif
+  if (!Yap_InterruptsEnabled) {
+    UNLOCK(SignalLock);
+    return;
+  }
   if (Yap_PrologMode & (CritMode|ConsoleGetcMode)) {
     Yap_PrologMode |= InterruptMode;
 #if HAVE_LIBREADLINE
@@ -1527,6 +1538,7 @@ HandleSIGINT (int sig)
 #endif
     }
 #endif
+    UNLOCK(SignalLock);
     return;
   }
 #ifdef HAVE_SETBUF
@@ -1535,9 +1547,11 @@ HandleSIGINT (int sig)
 #endif
   if (snoozing) {
     snoozing = FALSE;
+    UNLOCK(SignalLock);
     return;
   }
   ProcessSIGINT();
+  UNLOCK(SignalLock);
 }
 
 #if !defined(_WIN32)
@@ -1619,6 +1633,8 @@ ReceiveSignal (int s)
 #if (_MSC_VER || defined(__MINGW32__))
 static BOOL WINAPI
 MSCHandleSignal(DWORD dwCtrlType) {
+  if (!Yap_InterruptsEnabled) {
+    return FALSE;
   switch(dwCtrlType) {
   case CTRL_C_EVENT:
   case CTRL_BREAK_EVENT:
@@ -2824,6 +2840,27 @@ p_win32(void)
 #endif
 }
 
+
+static Int
+p_enable_interrupts(void)
+{
+  LOCK(SignalLock);
+  Yap_InterruptsEnabled = TRUE;
+  UNLOCK(SignalLock);
+  return TRUE;
+}
+
+static Int
+p_disable_interrupts(void)
+{
+  LOCK(SignalLock);
+  if (ActiveSignals)
+    CreepFlag = Unsigned(LCL0);
+  Yap_InterruptsEnabled = FALSE;
+  UNLOCK(SignalLock);
+  return TRUE;
+}
+
 static Int
 p_ld_path(void)
 {
@@ -3047,6 +3084,8 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$env_separator", 1, p_env_separator, SafePredFlag);
   Yap_InitCPred ("$unix", 0, p_unix, SafePredFlag);
   Yap_InitCPred ("$win32", 0, p_win32, SafePredFlag);
+  Yap_InitCPred ("$enable_interrupts", 0, p_enable_interrupts, SafePredFlag);
+  Yap_InitCPred ("$disable_interrupts", 0, p_disable_interrupts, SafePredFlag);
   Yap_InitCPred ("$ld_path", 1, p_ld_path, SafePredFlag);
 #ifdef _WIN32
   Yap_InitCPred ("win_registry_get_value", 3, p_win_registry_get_value,0);
