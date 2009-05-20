@@ -536,11 +536,30 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 #ifdef USE_GMP
 	{
 	  MP_INT *big = Yap_BigIntOfTerm(t);
-	  char *s = (char *)TR;
-	  if (s+3+mpz_sizeinbase(big, 10) >= Yap_TrailTop) {
+	  char *s;
+	  s = (char *) Yap_PreAllocCodeSpace();
+	  while (s+3+mpz_sizeinbase(big, 10) >= (char *)AuxSp) {
+	    if (!Yap_ExpandPreAllocCodeSpace(mpz_sizeinbase(big, 10),NULL)) {
+	      s = NULL;
+	      break;
+	    }
+	    s = (char *) Yap_PreAllocCodeSpace();
+	  }
+	  if (!s) {
+	    s = (char *)TR;
+	    while (s+3+mpz_sizeinbase(big, 10) >= Yap_TrailTop) {
+	      if (!Yap_growtrail(mpz_sizeinbase(big, 10)/sizeof(CELL), FALSE)) {
+		s = NULL;
+		break;
+	      }
+	      s = (char *)TR;
+	    }
+	  }
+	  if (!s) {
 	    s = (char *)H;
 	    if (s+3+mpz_sizeinbase(big, 10) >= (char *)ASP) {
-	      return;
+	      Yap_Error(OUT_OF_STACK_ERROR,TermNil,"not enough space to write bignum: it requires %d bytes", 3+mpz_sizeinbase(big, 10));
+	      s = NULL;
 	    }
 	  }
 	  if (!s)
