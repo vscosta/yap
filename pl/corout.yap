@@ -581,7 +581,6 @@ copy_term(Term, Copy, Goals) :-
 	'$get_goalist_from_attvars'(TVars, Goals0),
 	copy_term_nat([Term|Goals0], [Copy|Goals]).
 
-
 call_residue(Goal,Residue) :-
 	var(Goal), !,
 	'$do_error'(instantiation_error,call_residue(Goal,Residue)).
@@ -765,6 +764,7 @@ call_residue(Goal,Residue) :-
 	'$attgoals_for_prolog'(AllAtts, V, DonesSoFar, MoreDonesSoFar, GoalListI, GoalList0).
 	
 '$attgoal_for_prolog'('$redo_dif'(Done, X, Y), Done, prolog:dif(X,Y)).
+'$attgoal_for_prolog'('$redo_freeze'(_, _, _:'$clean_call'(_)), _, _) :- !, fail.
 '$attgoal_for_prolog'('$redo_freeze'(Done, V, Goal), Done, prolog:freeze(V,Goal)).
 '$attgoal_for_prolog'('$redo_eq'(Done, X, Y, Goal), Done, prolog:when(X=Y,Goal)).
 '$attgoal_for_prolog'('$redo_ground'(Done, X, Goal), Done, prolog:when(ground(X),Goal)).
