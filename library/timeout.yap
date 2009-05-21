@@ -44,12 +44,24 @@ run_goal(Goal, Result0) :-
 	% we can only enable interrupts after alarm was been enabled.
 	yap_hacks:enable_interrupts,
 	Result0 = success,
+	yap_hacks:current_choice_point(CP0),
 	call(Goal),
-	!,
+	yap_hacks:current_choice_point(CP1),
 	% make sure we're not getting an extraneous interrupt if we terminate early....
-	yap_hacks:disable_interrupts,
-	alarm(0,_,_),
-	true.
+	alarm(0,_,RT),
+	(
+	 CP0 == CP1
+	->
+	 true
+	;
+	 (
+	  true
+	 ;
+	  alarm(RT,throw(time_out),_),
+	  fail
+	 )
+	).
+	  
 run_goal(Goal, Result0) :-
 	yap_hacks:disable_interrupts,
 	% make sure we're not getting an extraneous interrupt if we terminate early....
