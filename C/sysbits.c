@@ -1523,7 +1523,7 @@ HandleSIGINT (int sig)
     return;
   }
 #endif
-  if (!Yap_InterruptsEnabled) {
+  if (Yap_InterruptsDisabled) {
     UNLOCK(SignalLock);
     return;
   }
@@ -2845,7 +2845,10 @@ static Int
 p_enable_interrupts(void)
 {
   LOCK(SignalLock);
-  Yap_InterruptsEnabled = TRUE;
+  Yap_InterruptsDisabled--;
+  if (ActiveSignals && !Yap_InterruptsDisabled) {
+    CreepFlag = Unsigned(LCL0);
+  }
   UNLOCK(SignalLock);
   return TRUE;
 }
@@ -2854,9 +2857,10 @@ static Int
 p_disable_interrupts(void)
 {
   LOCK(SignalLock);
-  if (ActiveSignals)
-    CreepFlag = Unsigned(LCL0);
-  Yap_InterruptsEnabled = FALSE;
+  Yap_InterruptsDisabled++;
+  if (ActiveSignals) {
+    CreepFlag = CalculateStackGap();
+  }
   UNLOCK(SignalLock);
   return TRUE;
 }
@@ -3084,12 +3088,13 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$env_separator", 1, p_env_separator, SafePredFlag);
   Yap_InitCPred ("$unix", 0, p_unix, SafePredFlag);
   Yap_InitCPred ("$win32", 0, p_win32, SafePredFlag);
-  Yap_InitCPred ("$enable_interrupts", 0, p_enable_interrupts, SafePredFlag);
-  Yap_InitCPred ("$disable_interrupts", 0, p_disable_interrupts, SafePredFlag);
   Yap_InitCPred ("$ld_path", 1, p_ld_path, SafePredFlag);
 #ifdef _WIN32
   Yap_InitCPred ("win_registry_get_value", 3, p_win_registry_get_value,0);
 #endif
+  CurrentModule = HACKS_MODULE;
+  Yap_InitCPred ("enable_interrupts", 0, p_enable_interrupts, SafePredFlag);
+  Yap_InitCPred ("disable_interrupts", 0, p_disable_interrupts, SafePredFlag);
   CurrentModule = SYSTEM_MODULE;
   Yap_InitCPred ("true_file_name", 2, p_true_file_name, SyncPredFlag);
   Yap_InitCPred ("true_file_name", 3, p_true_file_name3, SyncPredFlag);
