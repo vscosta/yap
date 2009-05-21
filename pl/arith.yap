@@ -328,3 +328,74 @@ succ(M,N) :- integer(M), !, '$plus'(M,1,N).
 succ(M,N) :- integer(N), !,  N > 0, '$plus'(N,-1,M).
 succ(0,1).
 
+
+between(I,M,J) :-
+	(
+	 var(I)
+	->
+	 '$do_error'(instantiation_error,between(I,M,J))
+	;
+	 integer(I)
+	->
+	 (
+	  var(M)
+	 ->
+	  '$do_error'(instantiation_error,between(I,M,J))
+	 ;
+	  integer(M)
+	 ->
+	  (
+	   var(J)
+	  ->
+	   '$between'(I,M,J)
+	  ;
+	   integer(J)
+	  ->
+	   J >= I, J =< M
+	  ;
+	   '$do_error'(type_error(integer, J),between(I,M,J))
+	   )
+	 ;
+	  M == inf ->
+	  (
+	   var(J)
+	  ->
+	   '$between_inf'(I,J)
+	  ;
+	   integer(J)
+	  ->
+	   J >= I
+	  ->
+	   '$do_error'(type_error(integer, J),between(I,M,J))
+	  )
+	 ;
+	  M == infinity ->
+	  (
+	   var(J)
+	  ->
+	   '$between_inf'(I,J)
+	  ;
+	   integer(J)
+	  ->
+	   J >= I
+	  ;
+	   '$do_error'(type_error(integer, J),between(I,M,J))
+	  )
+	 ;
+	  '$do_error'(type_error(integer, M),between(I,M,J))
+	 )
+	;
+	 '$do_error'(type_error(integer, I),between(I,M,J))		
+	).
+
+'$between'(I,M,I) :- (I == M -> ! ; true ).
+'$between'(I0,I,J) :- I0 < I, 
+	I1 is I0+1,
+	'$between'(I1,I,J).
+
+'$between_inf'(I,I).
+'$between_inf'(I,J) :-
+	I1 is I+1,
+	'$between_inf'(I1,J).
+
+
