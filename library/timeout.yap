@@ -47,7 +47,7 @@ run_goal(Goal, Result0) :-
 	call(Goal),
 	!,
 	% make sure we're not getting an extraneous interrupt if we terminate early....
-	yap_hacks:disable_interrupts.
+	yap_hacks:disable_interrupts,
 	alarm(0,_,_),
 	true.
 run_goal(Goal, Result0) :-
