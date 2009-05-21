@@ -65,7 +65,7 @@ setup_call_cleanup(Setup, Goal, Cleanup) :-
 	setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup).
 
 setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
-	'$disable_interrupts',
+	yap_hacks:disable_interrupts,
 	'$do_setup'(Setup),
 	catch('$safe_call_cleanup'(Goal,Cleanup,Catcher),
 	      Exception,
@@ -85,7 +85,7 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	 (CP1 == CP0 -> ! ; true)
 	;
 	 % reenable interrupts if Setup failed
-	'$enable_interrupts',
+	 yap_hacks:enable_interrupts,
 	 fail
 	).
 	 
@@ -102,8 +102,8 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	'$freeze_goal'(Catcher, '$clean_call'(Cleanup)),
 	yap_hacks:trail_suspension_marker(Catcher),
 	(
+	 yap_hacks:enable_interrupts,
 	 yap_hacks:current_choice_point(CP0),
-	 '$enable_interrupts',
 	 '$execute'(Goal),
 	 yap_hacks:current_choice_point(CPF),
 	 (
@@ -733,7 +733,7 @@ nth_instance(X,Y,Z) :-
 	),
 	'$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)).
 
-'$add_dot_to_atom_goal'([],[0'.]) :- !.
+'$add_dot_to_atom_goal'([],[0'.]) :- !. %'
 '$add_dot_to_atom_goal'([0'.],[0'.]) :- !.
 '$add_dot_to_atom_goal'([C|Gs0],[C|Gs]) :-
 	'$add_dot_to_atom_goal'(Gs0,Gs).
@@ -748,11 +748,4 @@ nb_current(GlobalVariable, Val) :-
 	nb_getval(GlobalVariable, Val).
 nb_current(GlobalVariable, Val) :-
 	nb_getval(GlobalVariable, Val).
-
-
-between(I,M,I) :- I =< M.
-between(I0,I,J) :- I0 < I, 
-	I1 is I0+1,
-	between(I1,I,J).
-
 
