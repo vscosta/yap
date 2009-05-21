@@ -820,12 +820,6 @@ thread_property(Id, Prop) :-
 	'$between'(0,Max1,Id),
 	'$thread_stacks'(Id, _, _, _).
 
-'$between'(I,_,I).
-'$between'(I0,I,J) :-
-	I0 < I, 
-	I1 is I0+1,
-	'$between'(I1,I,J).
-	
 '$thread_property'(Id, alias(Alias)) :-
 	recorded('$thread_alias', [Id|Alias], _).
 '$thread_property'(Id, status(Status)) :-
