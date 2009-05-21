@@ -174,13 +174,13 @@ do_execute(Term t, Term mod)
   if (PRED_GOAL_EXPANSION_ALL) {
     LOCK(SignalLock);
     /* disable creeping when we do goal expansion */
-    if (ActiveSignals & YAP_CREEP_SIGNAL) {
+    if (ActiveSignals & YAP_CREEP_SIGNAL && !Yap_InterruptsDisabled) {
       ActiveSignals &= ~YAP_CREEP_SIGNAL;
       CreepFlag = CalculateStackGap();
     }
     UNLOCK(SignalLock);
     return CallMetaCall(mod);
-  } else if (ActiveSignals) {
+  } else if (ActiveSignals  && !Yap_InterruptsDisabled) {
     return EnterCreepMode(t, mod);
   }
  restart_exec:
@@ -345,14 +345,14 @@ do_execute_n(Term t, Term mod, unsigned int n)
   if (PRED_GOAL_EXPANSION_ALL) {
     LOCK(SignalLock);
     /* disable creeping when we do goal expansion */
-    if (ActiveSignals & YAP_CREEP_SIGNAL) {
+    if (ActiveSignals & YAP_CREEP_SIGNAL && !Yap_InterruptsDisabled) {
       ActiveSignals &= ~YAP_CREEP_SIGNAL;
       CreepFlag = CalculateStackGap();
     }
     UNLOCK(SignalLock);
     ARG1 = copy_execn_to_heap(f, pt, n, arity, mod);
     return CallMetaCall(mod);
-  } else if (ActiveSignals) {
+  } else if (ActiveSignals  && !Yap_InterruptsDisabled) {
     return EnterCreepMode(copy_execn_to_heap(f, pt, n, arity, CurrentModule), mod);
   }
   if (arity > MaxTemps) {
@@ -663,7 +663,7 @@ p_execute0(void)
   unsigned int    arity;
   Prop            pe;
 
-  if (ActiveSignals) {
+  if (ActiveSignals  && !Yap_InterruptsDisabled) {
     return EnterCreepMode(t, mod);
   }
  restart_exec:
@@ -786,7 +786,7 @@ p_execute_nonstop(void)
   }
   /*	N = arity; */
   /* call may not define new system predicates!! */
-  if (ActiveSignals & YAP_CREEP_SIGNAL) {
+  if (ActiveSignals & YAP_CREEP_SIGNAL  && !Yap_InterruptsDisabled) {
     Yap_signal(YAP_CREEP_SIGNAL);
   }
   if (RepPredProp(pe)->PredFlags & SpiedPredFlag) {
@@ -1674,7 +1674,7 @@ p_creep_allowed(void)
 {
   if (PP != NULL) {
     LOCK(SignalLock);
-    if (ActiveSignals & YAP_CREEP_SIGNAL) {
+    if (ActiveSignals & YAP_CREEP_SIGNAL  && !Yap_InterruptsDisabled) {
       ActiveSignals &= ~YAP_CREEP_SIGNAL;    
       if (!ActiveSignals)
 	CreepFlag = CalculateStackGap();

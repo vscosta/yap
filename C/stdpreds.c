@@ -473,7 +473,7 @@ inline static void
 do_signal(yap_signals sig)
 {
   LOCK(SignalLock);
-  if (Yap_InterruptsEnabled)
+  if (!Yap_InterruptsDisabled)
     CreepFlag = Unsigned(LCL0);
   ActiveSignals |= sig;
   UNLOCK(SignalLock);
