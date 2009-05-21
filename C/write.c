@@ -539,16 +539,21 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 	  char *s;
 	  s = (char *) Yap_PreAllocCodeSpace();
 	  while (s+3+mpz_sizeinbase(big, 10) >= (char *)AuxSp) {
-	    if (!Yap_ExpandPreAllocCodeSpace(mpz_sizeinbase(big, 10),NULL)) {
+#if USE_SYSTEM_MALLOC
+	    /* may require stack expansion */
+	    if (!Yap_ExpandPreAllocCodeSpace(3+mpz_sizeinbase(big, 10),NULL)) {
 	      s = NULL;
 	      break;
 	    }
 	    s = (char *) Yap_PreAllocCodeSpace();
+#else
+	    s = NULL;
+#endif
 	  }
 	  if (!s) {
 	    s = (char *)TR;
 	    while (s+3+mpz_sizeinbase(big, 10) >= Yap_TrailTop) {
-	      if (!Yap_growtrail(mpz_sizeinbase(big, 10)/sizeof(CELL), FALSE)) {
+	      if (!Yap_growtrail((3+mpz_sizeinbase(big, 10))/sizeof(CELL), FALSE)) {
 		s = NULL;
 		break;
 	      }
@@ -562,8 +567,6 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 	      s = NULL;
 	    }
 	  }
-	  if (!s)
-	    return;
 	  if (mpz_sgn(big) < 0) {
 	    if (lastw == symbol)
 	      wrputc(' ', wglb->writewch);  
@@ -571,8 +574,16 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 	    if (lastw == alphanum)
 	      wrputc(' ', wglb->writewch);
 	  }
-	  mpz_get_str(s, 10, big);
-	  wrputs(s,wglb->writewch);
+	  if (!s) {
+	    s = mpz_get_str(NULL, 10, big);
+	    if (!s)
+	      return;
+	    wrputs(s,wglb->writewch);
+	    free(s);
+	  } else {
+	    mpz_get_str(s, 10, big);
+	    wrputs(s,wglb->writewch);
+	  }
 	}
 #else
 	{
