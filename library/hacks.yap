@@ -4,15 +4,17 @@
 %   Purpose: Prolog hacking
 
 :- module(yap_hacks, [
-		  current_choicepoint/1,
-		  cut_by/1,
-		  cut_at/1,
-		  current_choicepoints/1,
-		  choicepoint/7,
-		  current_continuations/1,
-		  continuation/4,
-		  stack_dump/0,
-		  stack_dump/1
+		      current_choicepoint/1,
+		      cut_by/1,
+		      cut_at/1,
+		      current_choicepoints/1,
+		      choicepoint/7,
+		      current_continuations/1,
+		      continuation/4,
+		      stack_dump/0,
+		      stack_dump/1,
+		      enable_interrupts/0,
+		      disable_interrupts/0
               ]).
 
 stack_dump :-
