@@ -34,7 +34,7 @@
 format_to_chars(Form, Args, OUT) :-
 	format_to_chars(Form, Args, OUT, []).
 
-format_to_chars(Form, Args, OUT, []) :-
+format_to_chars(Form, Args, OUT, L0) :-
 	open_mem_write_stream(Stream),
 	format(Stream,Form,Args),
 	peek_mem_write_stream(Stream, L0, O),
