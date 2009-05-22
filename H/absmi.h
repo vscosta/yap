@@ -1085,6 +1085,13 @@ Macros to check the limits of stacks
 
 #if defined(IN_ABSMI_C) || defined(IN_UNIFY_C)
 
+typedef struct u_record {
+  CELL *start0;
+  CELL *end0;
+  CELL *start1;
+  Term old;
+} unif_record;
+
 static int 
 
 IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
@@ -1106,14 +1113,14 @@ IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 #endif /* SHADOW_HB */
 
 #ifdef USE_SYSTEM_MALLOC
-  CELL  **to_visit_max = (CELL **)Yap_PreAllocCodeSpace(), **to_visit  = (CELL **)AuxSp;
+  struct u_record  *to_visit_max = (struct u_record *)Yap_PreAllocCodeSpace(), *to_visit  = (struct u_record *)AuxSp;
 #define address_to_visit_max (&to_visit_max)
 #define to_visit_base ((CELL **)AuxSp)
 #else
-  CELL  **to_visit  = (CELL **)Yap_TrailTop;
-#define to_visit_max ((CELL **)TR+16)
+  struct u_record *to_visit  = (struct u_record *)Yap_TrailTop;
+#define to_visit_max ((struct u_record *)TR+16)
 #define address_to_visit_max NULL
-#define to_visit_base ((CELL **)Yap_TrailTop)
+#define to_visit_base ((struct u_record *)Yap_TrailTop)
 #endif
 
 loop:
@@ -1141,25 +1148,25 @@ loop:
 #ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
 	/* come here */
-	to_visit -= 4;
+	to_visit -- ;
 	if (to_visit < to_visit_max) {
-	  to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	  to_visit = (struct u_record *)Yap_shift_visit((CELL **)to_visit, (CELL ***)address_to_visit_max);
 	}
-	to_visit[0] = pt0;
-	to_visit[1] = pt0_end;
-	to_visit[2] = pt1;
-	to_visit[3] = (CELL *)*pt0;
+	to_visit->start0 = pt0;
+	to_visit->end0 = pt0_end;
+	to_visit->start1 = pt1;
+	to_visit->old = *pt0;
 	*pt0 = d1;
 #else
 	/* store the terms to visit */
 	if (pt0 < pt0_end) {
-	  to_visit -= 3;
+	  to_visit --;
 	  if (to_visit < to_visit_max) {
-	    to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	    to_visit = (struct u_record *)Yap_shift_visit((CELL **)to_visit, (CELL ***)address_to_visit_max);
 	  }
-	  to_visit[0] = pt0;
-	  to_visit[1] = pt0_end;
-	  to_visit[2] = pt1;
+	  to_visit->start0 = pt0;
+	  to_visit->end0 = pt0_end;
+	  to_visit->start1 = pt1;
 	}
 
 #endif
@@ -1189,25 +1196,25 @@ loop:
 #ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
 	/* come here */
-	to_visit -= 4;
+	to_visit --;
 	if (to_visit < to_visit_max) {
-	  to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	  to_visit = (struct u_record *)Yap_shift_visit((CELL **)to_visit, (CELL ***)address_to_visit_max);
 	}
-	to_visit[0] = pt0;
-	to_visit[1] = pt0_end;
-	to_visit[2] = pt1;
-	to_visit[3] = (CELL *)*pt0;
+	to_visit->start0 = pt0;
+	to_visit->end0 = pt0_end;
+	to_visit->start1 = pt1;
+	to_visit->old = *pt0;
 	*pt0 = d1;
 #else
 	/* store the terms to visit */
 	if (pt0 < pt0_end) {
-	  to_visit -= 3;
+	  to_visit --;
 	  if (to_visit < to_visit_max) {
 	    to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
 	  }
-	  to_visit[0] = pt0;
-	  to_visit[1] = pt0_end;
-	  to_visit[2] = pt1;
+	  to_visit->start0 = pt0;
+	  to_visit->end0 = pt0_end;
+	  to_visit->start1 = pt1;
 	}
 #endif
 	d0 = ArityOfFunctor(f);
@@ -1244,33 +1251,29 @@ loop:
   }
   /* Do we still have compound terms to visit */
   if (to_visit < to_visit_base) {
+    pt0 = to_visit->start0;
+    pt0_end = to_visit->end0;
+    pt1 = to_visit->start1;
 #ifdef RATIONAL_TREES
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    pt1 = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
-    to_visit += 4;
-#else
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    pt1 = to_visit[2];
-    to_visit += 3;
+    *pt0 = to_visit->old;
 #endif
+    to_visit ++;
     goto loop;
   }
-  return (TRUE);
+  return TRUE;
 
 cufail:
 #ifdef RATIONAL_TREES
   /* failure */
   while (to_visit < to_visit_base) {
     CELL *pt0;
-    pt0 = to_visit[0];
-    *pt0 = (CELL)to_visit[3];
-    to_visit += 4;
+
+    pt0 = to_visit->start0;
+    *pt0 = to_visit->old;
+    to_visit ++;
   }
 #endif
-  return (FALSE);
+  return FALSE;
 #ifdef THREADS
 #undef Yap_REGS
 #define Yap_REGS (*Yap_regp)  
