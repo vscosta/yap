@@ -4447,42 +4447,42 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
     Yap_LockStream(Yap_c_error_stream);
     if (!tmod) tmod = TermProlog;
 #if THREADS
-    Yap_plwrite(MkIntegerTerm(worker_id), Yap_DebugPutc, 0);
+    Yap_DebugPlWrite(MkIntegerTerm(worker_id));
     Yap_DebugPutc(Yap_c_error_stream,' ');
 #endif
     Yap_DebugPutc(Yap_c_error_stream,'>');
     Yap_DebugPutc(Yap_c_error_stream,'\t');
-    Yap_plwrite(tmod, Yap_DebugPutc, 0);
+    Yap_DebugPlWrite(tmod);
     Yap_DebugPutc(Yap_c_error_stream,':');
     if (ap->ModuleOfPred == IDB_MODULE) {
       Term t = Deref(ARG1);
       if (IsAtomTerm(t)) {
-	Yap_plwrite(t, Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(t);
       } else if (IsIntegerTerm(t)) {
-	Yap_plwrite(t, Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(t);
       } else {
 	Functor f = FunctorOfTerm(t);
 	Atom At = NameOfFunctor(f);
-	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkAtomTerm(At));
 	Yap_DebugPutc(Yap_c_error_stream,'/');
-	Yap_plwrite(MkIntegerTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
     } else {
       if (ap->ArityOfPE == 0) {
 	Atom At = (Atom)ap->FunctorOfPred;
-	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkAtomTerm(At));
       } else {
 	Functor f = ap->FunctorOfPred;
 	Atom At = NameOfFunctor(f);
-	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkAtomTerm(At));
 	Yap_DebugPutc(Yap_c_error_stream,'/');
-	Yap_plwrite(MkIntegerTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
       Yap_UnLockStream(Yap_c_error_stream);
     }
     Yap_DebugPutc(Yap_c_error_stream,'\n');
 #if THREADS
-    Yap_plwrite(MkIntegerTerm(worker_id), Yap_DebugPutc, 0);
+    Yap_DebugPlWrite(MkIntegerTerm(worker_id));
     Yap_DebugPutc(Yap_c_error_stream,' ');
 #endif
     Yap_UnLockStream(Yap_c_error_stream);
@@ -5919,31 +5919,31 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
     if (!tmod) tmod = TermProlog;
     Yap_DebugPutc(Yap_c_error_stream,'+');
     Yap_DebugPutc(Yap_c_error_stream,'\t');
-    Yap_plwrite(tmod, Yap_DebugPutc, 0);
+    Yap_DebugPlWrite(tmod);
     Yap_DebugPutc(Yap_c_error_stream,':');
     if (ap->ModuleOfPred == IDB_MODULE) {
       Term t = Deref(ARG1);
       if (IsAtomTerm(t)) {
-	Yap_plwrite(t, Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(t);
       } else if (IsIntegerTerm(t)) {
-	Yap_plwrite(t, Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(t);
       } else {
 	Functor f = FunctorOfTerm(t);
 	Atom At = NameOfFunctor(f);
-	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkAtomTerm(At));
 	Yap_DebugPutc(Yap_c_error_stream,'/');
-	Yap_plwrite(MkIntegerTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
     } else {
       if (ap->ArityOfPE == 0) {
 	Atom At = (Atom)ap->FunctorOfPred;
-	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkAtomTerm(At));
       } else {
 	Functor f = ap->FunctorOfPred;
 	Atom At = NameOfFunctor(f);
-	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkAtomTerm(At));
 	Yap_DebugPutc(Yap_c_error_stream,'/');
-	Yap_plwrite(MkIntegerTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
     }
     Yap_DebugPutc(Yap_c_error_stream,'\n');
@@ -6414,32 +6414,32 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     Yap_LockStream(Yap_c_error_stream);
     Yap_DebugPutc(Yap_c_error_stream,'-');
     Yap_DebugPutc(Yap_c_error_stream,'\t');
-    Yap_plwrite(tmod, Yap_DebugPutc, 0);
+    Yap_DebugPlWrite(tmod);
     Yap_DebugPutc(Yap_c_error_stream,':');
     if (ap->ModuleOfPred != IDB_MODULE) {
       if (ap->ArityOfPE == 0) {
 	Atom At = (Atom)ap->FunctorOfPred;
-	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkAtomTerm(At));
       } else {
 	Functor f = ap->FunctorOfPred;
 	Atom At = NameOfFunctor(f);
-	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkAtomTerm(At));
 	Yap_DebugPutc(Yap_c_error_stream,'/');
-	Yap_plwrite(MkIntegerTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
     } else {
       if (ap->PredFlags & NumberDBPredFlag) {
 	Int id = ap->src.IndxId;
-	Yap_plwrite(MkIntegerTerm(id), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkIntegerTerm(id));
       } else if (ap->PredFlags & AtomDBPredFlag) {
 	Atom At = (Atom)ap->FunctorOfPred;
-	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkAtomTerm(At));
       } else {
 	Functor f = ap->FunctorOfPred;
 	Atom At = NameOfFunctor(f);
-	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkAtomTerm(At));
 	Yap_DebugPutc(Yap_c_error_stream,'/');
-	Yap_plwrite(MkIntegerTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
     }
     Yap_DebugPutc(Yap_c_error_stream,'\n');

@@ -117,14 +117,14 @@ DumpActiveGoals (void)
 	  if (first++ == 1)
 	    fprintf(stderr,"Active ancestors:\n");
 	  if (pe->ModuleOfPred) mod = pe->ModuleOfPred;
-	  Yap_plwrite (mod, Yap_DebugPutc, 0);
+	  Yap_DebugPlWrite (mod);
 	  Yap_DebugPutc (Yap_c_error_stream,':');
 	  if (pe->ArityOfPE == 0) {
-	    Yap_plwrite (MkAtomTerm ((Atom)f), Yap_DebugPutc, 0);
+	    Yap_DebugPlWrite (MkAtomTerm ((Atom)f));
 	  } else {
-	    Yap_plwrite (MkAtomTerm (NameOfFunctor (f)), Yap_DebugPutc, 0);
+	    Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor (f)));
 	    Yap_DebugPutc (Yap_c_error_stream,'/');
-	    Yap_plwrite (MkIntTerm (ArityOfFunctor (f)), Yap_DebugPutc, 0);
+	    Yap_DebugPlWrite (MkIntTerm (ArityOfFunctor (f)));
 	  }
 	  Yap_DebugPutc (Yap_c_error_stream,'\n');
 	} else {
@@ -151,18 +151,18 @@ DumpActiveGoals (void)
 	if (pe->ModuleOfPred)
 	  mod = pe->ModuleOfPred;
 	else mod = TermProlog;
-	Yap_plwrite (mod, Yap_DebugPutc, 0);
+	Yap_DebugPlWrite (mod);
 	Yap_DebugPutc (Yap_c_error_stream,':');
 	if (pe->ArityOfPE == 0) {
-	  Yap_plwrite (MkAtomTerm (NameOfFunctor(f)), Yap_DebugPutc, 0);
+	  Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor(f)));
 	} else {
 	  Int i = 0, arity = pe->ArityOfPE;
 	  Term *args = &(b_ptr->cp_a1);
-	  Yap_plwrite (MkAtomTerm (NameOfFunctor (f)), Yap_DebugPutc, 0);
+	  Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor (f)));
 	  Yap_DebugPutc (Yap_c_error_stream,'(');
 	  for (i= 0; i < arity; i++) {
 	    if (i > 0) Yap_DebugPutc (Yap_c_error_stream,',');
-	    Yap_plwrite(args[i], Yap_DebugPutc, Handle_vars_f);
+	    Yap_DebugPlWrite(args[i]);
 	  }
 	  Yap_DebugPutc (Yap_c_error_stream,')');
 	}
