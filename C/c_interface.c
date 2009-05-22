@@ -330,6 +330,7 @@
 #define YAP_Term Term
 #define C_INTERFACE
 
+#include <stdlib.h>
 #include "Yap.h"
 #include "clause.h"
 #include "yapio.h"
