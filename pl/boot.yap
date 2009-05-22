@@ -1190,8 +1190,28 @@ throw(Ball) :-
 %
 % just leave this around to show  the debugger.
 %
-'$notrace'(M:G) :-
-	'$execute_nonstop'(G, M).
+'$notrace'(G) :-
+	yap_hacks:disable_interrupts,
+	(
+	 yap_hacks:current_choice_point(CP0),
+	 '$execute'(G),
+	 yap_hacks:current_choice_point(CP1),
+	 ( CP0 == CP1 ->
+	   !,
+	   yap_hacks:enable_interrupts
+	 ;
+	   (
+	    yap_hacks:enable_interrupts
+	   ;
+	    yap_hacks:disable_interrupts,
+	    fail
+	   )
+	 )
+	;
+	 yap_hacks:enable_interrupts,
+	 fail
+	). 
+	    
 
 '$oncenotrace'(M:G) :-
 	'$execute_nonstop'(G, M), !.
