@@ -46,11 +46,9 @@ Eval(Term t)
       ti[1] = MkIntegerTerm(0);
       /* error */
       terror = Yap_MkApplTerm(FunctorSlash, 2, ti);
-      Yap_ArithError(TYPE_ERROR_EVALUABLE, terror,
-	    "atom %s for arithmetic expression",
-	    RepAtom(name)->StrOfAE);
-      P = (yamop *)FAILCODE;
-      return 0L;
+      return Yap_ArithError(TYPE_ERROR_EVALUABLE, terror,
+			    "atom %s for arithmetic expression",
+			    RepAtom(name)->StrOfAE);
     }
     return Yap_eval_atom(p->FOfEE);
   } else if (IsIntTerm(t)) {
@@ -67,10 +65,8 @@ Eval(Term t)
     default:
       {
 	if ((Atom)fun == AtomFoundVar) {
-	  Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil,
+	  return Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil,
 		    "cyclic term in arithmetic expression");
-	  P = (yamop *)FAILCODE;
-	  RERROR();
 	} else {
 	  Int n = ArityOfFunctor(fun);
 	  Atom name  = NameOfFunctor(fun);
@@ -84,11 +80,9 @@ Eval(Term t)
 	    ti[0] = t;
 	    ti[1] = MkIntegerTerm(n);
 	    t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-	    Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
-		      "functor %s/%d for arithmetic expression",
-		      RepAtom(name)->StrOfAE,n);
-	    P = (yamop *)FAILCODE;
-	    RERROR();
+	    return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
+				  "functor %s/%d for arithmetic expression",
+				  RepAtom(name)->StrOfAE,n);
 	  }
 	  *RepAppl(t) = (CELL)AtomFoundVar;
 	  t1 = Eval(ArgOfTerm(1,t));
@@ -110,10 +104,8 @@ Eval(Term t)
     }
   } /* else if (IsPairTerm(t)) */ {
     if (TailOfTerm(t) != TermNil) {
-      Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
-		"string must contain a single character to be evaluated as an arithmetic expression");
-      P = FAILCODE;
-      return 0L;
+      return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
+			    "string must contain a single character to be evaluated as an arithmetic expression");
     }
     return Eval(HeadOfTerm(t));
   }
