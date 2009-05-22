@@ -26,6 +26,13 @@ static char     SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "Heap.h"
 #include "eval.h"
+#if HAVE_STDARG_H
+#include <stdarg.h>
+#endif
+#include <stdlib.h>
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 yap_error_number Yap_matherror = YAP_NO_ERROR;
 
