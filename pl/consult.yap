@@ -206,7 +206,7 @@ use_module(M,F,Is) :-
 '$do_lf'(ContextModule, Stream, InfLevel, _, Imports, SkipUnixComments, CompMode, Reconsult, UseModule) :-
 	nb_getval('$if_level',OldIncludeLevel),
 	nb_setval('$if_level',0),
-	nb_getval('$system_mode', OldMode),
+	( nb_getval('$system_mode', OldMode) -> true ; OldMode = off),
         ( OldMode == off -> '$enter_system_mode' ; true ),
 	'$record_loaded'(Stream, ContextModule),
 	'$current_module'(OldModule,ContextModule),
