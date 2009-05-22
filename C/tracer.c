@@ -72,7 +72,7 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
 	max_depth = 5;
 	max_list = 5;
 	max_write_args = 10;
-	Yap_plwrite(args[i], TracePutchar, Handle_vars_f);
+	Yap_plwrite(args[i], TracePutchar, Handle_vars_f, 1200);
 	max_depth = omax_depth;
 	max_list = omax_list;
 	max_write_args = omax_write_args;

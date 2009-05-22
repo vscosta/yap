@@ -324,7 +324,7 @@ write_address(CELL address)
 {
   if (address < (CELL)AtomBase) {
     Yap_DebugErrorPutc('L');
-    Yap_DebugPlWrite (MkIntTerm (address));
+    Yap_DebugPlWrite(MkIntTerm (address));
   } else if (address == (CELL) FAILCODE) {
     Yap_DebugPlWrite (MkAtomTerm (AtomFail));
   } else {

@@ -338,9 +338,10 @@ extern int
 #define	Handle_vars_f		4
 #define	Use_portray_f		8
 #define	To_heap_f	       16
+#define	Unfold_cyclics_f       32
 
 /* write.c */
-void	STD_PROTO(Yap_plwrite,(Term,int (*)(int, wchar_t),int));
+void	STD_PROTO(Yap_plwrite,(Term,int (*)(int, wchar_t), int, int));
 
 /* grow.c */
 int  STD_PROTO(Yap_growheap_in_parser,   (tr_fr_ptr *, TokEntry **, VarEntry **));

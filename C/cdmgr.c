@@ -926,31 +926,31 @@ IPred(PredEntry *ap, UInt NSlots)
     if (!tmod)
       tmod = TermProlog;
     Yap_DebugPutc(Yap_c_error_stream,'\t');
-    Yap_plwrite(tmod, Yap_DebugPutc, 0);
+    Yap_DebugPlWrite(tmod);
     Yap_DebugPutc(Yap_c_error_stream,':');
     if (ap->ModuleOfPred == IDB_MODULE) {
       Term t = Deref(ARG1);
       if (IsAtomTerm(t)) {
-	Yap_plwrite(t, Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(t);
       } else if (IsIntegerTerm(t)) {
-	Yap_plwrite(t, Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(t);
       } else {
 	Functor f = FunctorOfTerm(t);
 	Atom At = NameOfFunctor(f);
-	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkAtomTerm(At));
 	Yap_DebugPutc(Yap_c_error_stream,'/');
-	Yap_plwrite(MkIntTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkIntTerm(ArityOfFunctor(f)));
       }
     } else {
       if (ap->ArityOfPE == 0) {
 	Atom At = (Atom)ap->FunctorOfPred;
-	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkAtomTerm(At));
       } else {
 	Functor f = ap->FunctorOfPred;
 	Atom At = NameOfFunctor(f);
-	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkAtomTerm(At));
 	Yap_DebugPutc(Yap_c_error_stream,'/');
-	Yap_plwrite(MkIntTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+	Yap_DebugPlWrite(MkIntTerm(ArityOfFunctor(f)));
       }
     }
     Yap_DebugPutc(Yap_c_error_stream,'\n');

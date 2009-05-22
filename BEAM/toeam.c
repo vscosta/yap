@@ -742,10 +742,10 @@ void ShowCode_new2(int op, int new1,CELL new4)
 	switch (ch = *f++)
 	  {
 	case '1':
-	        Yap_plwrite(MkIntTerm(new1), Yap_DebugPutc, 0);
+	        Yap_plwrite(MkIntTerm(new1), Yap_DebugPutc, 0, 1200);
 		break;
 	case '4':
-	        Yap_plwrite(MkIntTerm(new4), Yap_DebugPutc, 0);
+	        Yap_plwrite(MkIntTerm(new4), Yap_DebugPutc, 0, 1200);
 		break;
 	  default:
 	    Yap_DebugPutc (Yap_c_error_stream,'%');

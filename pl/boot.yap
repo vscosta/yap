@@ -644,8 +644,8 @@ true :- true.
 	'$write_output_vars'(VL),
 	format(user_error,' = ', []),
         ( recorded('$print_options','$toplevel'(Opts),_) ->
-	   write_term(user_error,B,Opts) ;
-	   format(user_error,'~w',[B])
+	   write_term(user_error,B,[priority(699)|Opts]) ;
+	   write_term(user_error,B,[priority(699)])
         ).
 '$write_goal_output'(nl, First, NG, First, NG) :- !,
 	format(user_error,'~n',[]).

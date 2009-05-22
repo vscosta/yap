@@ -1868,7 +1868,7 @@ YAP_Write(Term t, int (*myputc)(wchar_t), int flags)
   BACKUP_MACHINE_REGS();
 
   do_putcf = myputc;		/*  */
-  Yap_plwrite (t, do_yap_putc, flags);
+  Yap_plwrite (t, do_yap_putc, flags, 1200);
 
   RECOVER_MACHINE_REGS();
 }

@@ -696,7 +696,7 @@ Yap_DebugPutc(int sno, wchar_t ch)
 void
 Yap_DebugPlWrite(Term t)
 {
-  Yap_plwrite(t, Yap_DebugPutc, 0);
+  Yap_plwrite(t, Yap_DebugPutc, 0, 1200);
 }
 
 void 
@@ -3578,7 +3578,7 @@ p_current_output (void)
 int beam_write (void)
 {
   Yap_StartSlots();
-  Yap_plwrite (ARG1, Stream[Yap_c_output_stream].stream_wputc, 0);
+  Yap_plwrite (ARG1, Stream[Yap_c_output_stream].stream_wputc, 0, 1200);
   if (EX != 0L) {
     Term ball = EX;
     EX = 0L;
@@ -3591,12 +3591,55 @@ int beam_write (void)
 
 static Int
 p_write (void)
-{				/* '$write'(+Flags,?Term) */
+{
+    /* '$write'(+Flags,?Term) */
   int flags = (int) IntOfTerm (Deref (ARG1));
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   Yap_StartSlots();
-  Yap_plwrite (ARG2, Stream[Yap_c_output_stream].stream_wputc, flags);
+  Yap_plwrite (ARG2, Stream[Yap_c_output_stream].stream_wputc, flags, 1200);
+  if (EX != 0L) {
+    Term ball = EX;
+    EX = 0L;
+    Yap_JumpToEnv(ball);
+    return(FALSE);
+  }
+  return (TRUE);
+}
+
+static Int
+p_write_prio (void)
+{
+    /* '$write'(+Flags,?Term) */
+  int flags = (int) IntOfTerm (Deref (ARG1));
+  /* notice: we must have ASP well set when using portray, otherwise
+     we cannot make recursive Prolog calls */
+  Yap_StartSlots();
+  Yap_plwrite (ARG3, Stream[Yap_c_output_stream].stream_wputc, flags, (int)IntOfTerm(Deref(ARG2)));
+  if (EX != 0L) {
+    Term ball = EX;
+    EX = 0L;
+    Yap_JumpToEnv(ball);
+    return(FALSE);
+  }
+  return (TRUE);
+}
+
+static Int
+p_write2_prio (void)
+{				/* '$write'(+Stream,+Flags,?Term) */
+  int old_output_stream = Yap_c_output_stream;
+  Yap_c_output_stream = CheckStream (ARG1, Output_Stream_f, "write/2");
+  if (Yap_c_output_stream == -1) {
+    Yap_c_output_stream = old_output_stream;
+    return(FALSE);
+  }
+  UNLOCK(Stream[Yap_c_output_stream].streamlock);
+  /* notice: we must have ASP well set when using portray, otherwise
+     we cannot make recursive Prolog calls */
+  Yap_StartSlots();
+  Yap_plwrite (ARG4, Stream[Yap_c_output_stream].stream_wputc, (int) IntOfTerm (Deref (ARG2)), (int) IntOfTerm (Deref (ARG3)));
+  Yap_c_output_stream = old_output_stream;
   if (EX != 0L) {
     Term ball = EX;
     EX = 0L;
@@ -3619,7 +3662,7 @@ p_write2 (void)
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   Yap_StartSlots();
-  Yap_plwrite (ARG3, Stream[Yap_c_output_stream].stream_wputc, (int) IntOfTerm (Deref (ARG2)));
+  Yap_plwrite (ARG3, Stream[Yap_c_output_stream].stream_wputc, (int) IntOfTerm (Deref (ARG2)), 1200);
   Yap_c_output_stream = old_output_stream;
   if (EX != 0L) {
     Term ball = EX;
@@ -4950,7 +4993,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	  goto do_instantiation_error;
 	if (!IsAtomTerm(t))
 	  goto do_type_atom_error;
-	Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f);
+	Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f, 1200);
 	FormatInfo = &finfo;
 	break;
       case 'c':
@@ -5173,7 +5216,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      goto do_consistency_error;
 	    t = targs[targ++];
 	    Yap_StartSlots();
-	    Yap_plwrite (t, f_putc, Quote_illegal_f|Ignore_ops_f|To_heap_f );
+	    Yap_plwrite (t, f_putc, Quote_illegal_f|Ignore_ops_f|To_heap_f , 1200);
 	    FormatInfo = &finfo;
 	    ASP++;
 	    break;
@@ -5212,7 +5255,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    Yap_StartSlots();
 	    { 
 	      long sl = Yap_InitSlot(args);
-	      Yap_plwrite(t, f_putc, Handle_vars_f|Use_portray_f|To_heap_f);
+	      Yap_plwrite(t, f_putc, Handle_vars_f|Use_portray_f|To_heap_f, 1200);
 	      FormatInfo = &finfo;
 	      args = Yap_GetFromSlot(sl);
 	      Yap_RecoverSlots(1);
@@ -5242,7 +5285,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      goto do_consistency_error;
 	    t = targs[targ++];
 	    Yap_StartSlots();
-	    Yap_plwrite (t, f_putc, Handle_vars_f|Quote_illegal_f|To_heap_f);
+	    Yap_plwrite (t, f_putc, Handle_vars_f|Quote_illegal_f|To_heap_f, 1200);
 	    FormatInfo = &finfo;
 	    ASP++;
 	    break;
@@ -5251,7 +5294,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      goto do_consistency_error;
 	    t = targs[targ++];
 	    Yap_StartSlots();
-	    Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f);
+	    Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f, 1200);
 	    FormatInfo = &finfo;
 	    ASP++;
 	    break;
@@ -6102,7 +6145,7 @@ Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
     return FALSE;
   Yap_StartSlots();
   Yap_c_output_stream = sno;
-  Yap_plwrite (t, Stream[sno].stream_wputc, flags);
+  Yap_plwrite (t, Stream[sno].stream_wputc, flags, 1200);
   s[Stream[sno].u.mem_string.pos] = '\0';
   Stream[sno].status = Free_Stream_f;
   Yap_c_output_stream = old_output_stream;
@@ -6174,6 +6217,8 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$skip", 2, p_skip, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$write", 2, p_write, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$write", 3, p_write2, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$write_with_prio", 3, p_write_prio, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$write_with_prio", 4, p_write2_prio, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("format", 2, p_format, SyncPredFlag);
   Yap_InitCPred ("format", 3, p_format2, SyncPredFlag);
   Yap_InitCPred ("$current_line_number", 2, p_cur_line_no, SafePredFlag|SyncPredFlag|HiddenPredFlag);

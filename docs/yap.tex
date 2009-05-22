@@ -4653,6 +4653,12 @@ If @code{Depth} is a positive integer, use @t{Depth} as
 the maximum depth to portray a term. The default is @code{0}, that is,
 unlimited depth.
 
+@item priority(+@var{Piority})
+If @code{Priority} is a positive integer smaller than @code{1200}, 
+give the context priority. The default is @code{1200}.
+
+@item cycles(+@var{Bool})
+Do not loop in rational trees (default).
 @end table
 
 @item writeq(@var{T}) [ISO]

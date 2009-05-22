@@ -226,6 +226,8 @@ open(F,T,S,Opts) :-
 '$check_opt_sp'(A, G) :-
 	'$do_error'(domain_error(stream_property,A),G).
 
+'$check_opt_write'(cycles(T), G) :- !,
+	'$check_cycles_arg'(T, G).
 '$check_opt_write'(quoted(T), G) :- !,
 	'$check_write_quoted_arg'(T, G).
 '$check_opt_write'(ignore_ops(T), G) :- !,
@@ -234,6 +236,8 @@ open(F,T,S,Opts) :-
 	'$check_write_numbervars_arg'(T, G).
 '$check_opt_write'(portrayed(T), G) :- !,
 	'$check_write_portrayed'(T, G).
+'$check_opt_write'(priority(T), G) :- !,
+	'$check_priority_arg'(T, G).
 '$check_opt_write'(max_depth(T), G) :- !,
 	'$check_write_max_depth'(T, G).
 '$check_opt_write'(A, G) :-
@@ -319,6 +323,13 @@ open(F,T,S,Opts) :-
 '$check_write_quoted_arg'(X,G) :-
 	'$do_error'(domain_error(write_option,write_quoted(X)),G).
 
+'$check_cycles_arg'(X, G) :- var(X), !,
+	'$do_error'(instantiation_error,G).
+'$check_cycles_arg'(true,_) :- !.
+'$check_cycles_arg'(false,_) :- !.
+'$check_cycles_arg'(X,G) :-
+	'$do_error'(domain_error(write_option,cycles(X)),G).
+
 '$check_write_ignore_ops_arg'(X, G) :- var(X), !,
 	'$do_error'(instantiation_error,G).
 '$check_write_ignore_ops_arg'(true,_) :- !.
@@ -345,6 +356,12 @@ open(F,T,S,Opts) :-
 '$check_write_max_depth'(I,_) :- integer(I), I >= 0, !.
 '$check_write_max_depth'(X,G) :-
 	'$do_error'(domain_error(write_option,max_depth(X)),G).
+
+'$check_priority_arg'(X, G) :- var(X), !,
+	'$do_error'(instantiation_error,G).
+'$check_priority_arg'(I,_) :- integer(I), I >= 0, I =< 1200, !.
+'$check_priority_arg'(X,G) :-
+	'$do_error'(domain_error(write_option,priority(X)),G).
 
 set_input(Stream) :-
 	'$set_input'(Stream).
@@ -536,50 +553,58 @@ write_canonical(_,_).
 
 write_term(T,Opts) :-
 	'$check_io_opts'(Opts, write_term(T,Opts)),
-	'$process_wt_opts'(Opts, 0, Flag, Callbacks),
-	'$write'(Flag, T),
+	'$process_wt_opts'(Opts, 0, Flag, Priority, Callbacks),
+	'$write_with_prio'(Flag, Priority, T),
 	'$process_wt_callbacks'(Callbacks),
 	fail.
 write_term(_,_).
 
 write_term(S, T, Opts) :-
 	'$check_io_opts'(Opts, write_term(T,Opts)),
-	'$process_wt_opts'(Opts, 0, Flag, Callbacks),
-	'$write'(S, Flag, T),
+	'$process_wt_opts'(Opts, 0, Flag, Priority, Callbacks),
+	'$write_with_prio'(S, Flag, Priority, T),
 	'$process_wt_callbacks'(Callbacks),
 	fail.
 write_term(_,_,_).
 
-'$process_wt_opts'([], Flag, Flag, []).
-'$process_wt_opts'([quoted(true)|Opts], Flag0, Flag, CallBacks) :-
+'$process_wt_opts'([], Flag, Flag, 1200, []).
+'$process_wt_opts'([quoted(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
 	FlagI is Flag0 \/ 1,
-	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
-'$process_wt_opts'([quoted(false)|Opts], Flag0, Flag, CallBacks) :-
-	FlagI is Flag0 /\ 14,
-	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
-'$process_wt_opts'([ignore_ops(true)|Opts], Flag0, Flag, CallBacks) :-
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([quoted(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
+	FlagI is Flag0 /\ 30,
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([cycles(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
+	FlagI is Flag0 \/ 16,
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([cycles(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
+	FlagI is Flag0 /\ 15,
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([ignore_ops(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
 	FlagI is Flag0 \/ 2,
-	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
-'$process_wt_opts'([ignore_ops(false)|Opts], Flag0, Flag, CallBacks) :-
-	FlagI is Flag0 /\ 13,
-	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
-'$process_wt_opts'([numbervars(true)|Opts], Flag0, Flag, CallBacks) :-
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([ignore_ops(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
+	FlagI is Flag0 /\ 39,
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([numbervars(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
 	FlagI is Flag0 \/ 4,
-	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
-'$process_wt_opts'([numbervars(false)|Opts], Flag0, Flag, CallBacks) :-
-	FlagI is Flag0 /\ 11,
-	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
-'$process_wt_opts'([portrayed(true)|Opts], Flag0, Flag, CallBacks) :-
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([numbervars(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
+	FlagI is Flag0 /\ 27,
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([portrayed(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
 	FlagI is Flag0 \/ 8,
-	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
-'$process_wt_opts'([portrayed(false)|Opts], Flag0, Flag, CallBacks) :-
-	FlagI is Flag0 /\ 7,
-	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
-'$process_wt_opts'([max_depth(D)|Opts], Flag0, Flag, [max_depth(D1,D0,D2)|CallBacks]) :-
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([portrayed(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
+	FlagI is Flag0 /\ 23,
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([priority(Priority)|Opts], Flag0, Flag, Priority, CallBacks) :-
+	'$process_wt_opts'(Opts, Flag0, Flag, _, CallBacks).
+'$process_wt_opts'([max_depth(D)|Opts], Flag0, Flag, Priority, [max_depth(D1,D0,D2)|CallBacks]) :-
 	write_depth(D1,D0,D2),
 	D10 is D*10,
 	write_depth(D,D,D10),
-	'$process_wt_opts'(Opts, Flag0, Flag, CallBacks).
+	'$process_wt_opts'(Opts, Flag0, Flag, Priority, CallBacks).
 
 '$process_wt_callbacks'([]).
 '$process_wt_callbacks'([max_depth(D1,D0,D2)|Cs]) :-
