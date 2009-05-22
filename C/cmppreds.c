@@ -546,6 +546,7 @@ a_cmp(Term t1, Term t2)
     return(int_cmp(IntegerOfTerm(t1)-IntegerOfTerm(t2)));
   }
   t1 = Yap_Eval(t1);
+  if (!t1) return FALSE;
   if (IsIntegerTerm(t1)) {
     Int i1 = IntegerOfTerm(t1);
     t2 = Yap_Eval(t2);

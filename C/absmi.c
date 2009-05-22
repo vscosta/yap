@@ -11325,8 +11325,10 @@ Yap_absmi(int inp)
 	 d0 = (CELL) (f) (d0,d1);
 	 setregs();
       }
+      if (PREG == FAILCODE) {
+	JMPNext();
+      }
       if (!d0) {
-	if (PREG != FAILCODE)
 	  PREG = PREG->u.plxxs.f;
 	JMPNext();
       }
