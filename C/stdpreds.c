@@ -1065,7 +1065,7 @@ p_name(void)
 
   /* error handling */
  expand_auxsp:
-  String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+  String = Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE);
   if (String + 1024 > (char *)AuxSp) {
     /* crash in flames */
     Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in name/2");
@@ -1246,7 +1246,7 @@ p_atom_chars(void)
   }
   /* error handling */
  expand_auxsp:
-  String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+  String = Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE);
   if (String + 1024 > (char *)AuxSp) {
     /* crash in flames */
     Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in atom_chars/2");
@@ -1407,7 +1407,7 @@ p_atomic_concat(void)
  restart:
   base = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
   while (base+1024 > (char *)AuxSp) {
-    base = Yap_ExpandPreAllocCodeSpace(0,NULL);
+    base = Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE);
     if (base + 1024 > (char *)AuxSp) {
       /* crash in flames */
       Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in atomic_concat/2");
@@ -1727,7 +1727,7 @@ p_atom_codes(void)
   /* error handling */
  expand_auxsp:
   if (String + 1024 > (char *)AuxSp) { 
-    String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+    String = Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE);
   
     if (String + 1024 > (char *)AuxSp) {
       /* crash in flames */
@@ -1914,7 +1914,7 @@ p_number_chars(void)
  restart_aux:
   String = Yap_PreAllocCodeSpace();
   if (String+1024 > (char *)AuxSp) {
-    String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+    String = Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE);
     if (String + 1024 > (char *)AuxSp) {
       /* crash in flames */
       Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in number_chars/2");
@@ -1980,7 +1980,7 @@ p_number_chars(void)
       }
       if (s+1024 > (char *)AuxSp) {
 	int offs = (s-String);
-	String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+	String = Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE);
 	if (String + (offs+1024) > (char *)AuxSp) {
 	  /* crash in flames */
 	  Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in number_chars/2");
@@ -2021,7 +2021,7 @@ p_number_chars(void)
 	char *nString;
 
 	*H++ = t;
-	nString = Yap_ExpandPreAllocCodeSpace(0,NULL);
+	nString = Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE);
 	t = *--H;
 	s = nString+(s-String);
 	String = nString;
@@ -2055,7 +2055,7 @@ p_number_atom(void)
 
   s = String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
   if (String+1024 > (char *)AuxSp) {
-    s = String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+    s = String = Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE);
     if (String + 1024 > (char *)AuxSp) {
       /* crash in flames */
       Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in number_atom/2");
@@ -2124,7 +2124,7 @@ p_number_codes(void)
 
   String = Yap_PreAllocCodeSpace();
   if (String+1024 > (char *)AuxSp) {
-    s = String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+    s = String = Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE);
     if (String + 1024 > (char *)AuxSp) {
       /* crash in flames */
       Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in number_codes/2");
@@ -2186,7 +2186,7 @@ p_number_codes(void)
       char *nString;
 
       *H++ = t;
-      nString = Yap_ExpandPreAllocCodeSpace(0,NULL);
+      nString = Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE);
       t = *--H;
       s = nString+(s-String);
       String = nString;
@@ -2224,7 +2224,7 @@ p_atom_number(void)
     }
     String = Yap_PreAllocCodeSpace();
     if (String+1024 > (char *)AuxSp) {
-      s = String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+      s = String = Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE);
       if (String + 1024 > (char *)AuxSp) {
 	/* crash in flames */
 	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in number_codes/2");
@@ -2493,7 +2493,7 @@ p_sub_atom_extract(void)
 
  expand_auxsp:
   {
-    char *String = Yap_ExpandPreAllocCodeSpace(len,NULL);
+    char *String = Yap_ExpandPreAllocCodeSpace(len, NULL, TRUE);
     if (String + 1024 > (char *)AuxSp) {
       /* crash in flames */
       Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in sub_atom/5");

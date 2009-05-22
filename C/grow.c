@@ -1606,41 +1606,39 @@ Yap_growtrail_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 CELL **
 Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
 {
-#if USE_SYSTEM_MALLOC
   CELL **to_visit_max = *to_visit_maxp;
-  Int sz1 = (CELL)to_visit-(CELL)to_visit_max;
-  Int sz0 = AuxTop - (ADDR)to_visit_max, sz, dsz;
-  char *newb = Yap_ExpandPreAllocCodeSpace(0, NULL);
+  /* relative position of top of stack */
+  Int off = (ADDR)to_visit-AuxBase;
+  /* how much space the top stack was using */
+  Int sz = AuxTop - (ADDR)to_visit_max;
+  /* how much space the bottom stack was using */
+  Int szlow = (ADDR)to_visit_max-AuxBase;
+  /* original size for AuxSpace */
+  Int totalsz0 = AuxTop - AuxBase; /* totalsz0 == szlow+sz */
+  /* new size for AuxSpace */
+  Int totalsz;
+  /* how much we grow */
+  Int dsz; /* totalsz == szlow+dsz+sz */
+  char *newb = Yap_ExpandPreAllocCodeSpace(0, NULL, FALSE);
 
   if (newb == NULL) {
     Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot allocate temporary space for unification (%p)", to_visit);       
     return to_visit;
   }
   /* check new size */
-  sz = AuxTop-newb;
+  totalsz  = AuxTop-AuxBase;
   /* how much we grew */
-  dsz = sz-sz0;
+  dsz = totalsz-totalsz0;
   if (dsz == 0) {
     Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot allocate temporary space for unification (%p)", to_visit);       
     return to_visit;
   }
   /* copy whole block to end */
-  cpcellsd((CELL *)newb, (CELL *)(newb+dsz), sz0/sizeof(CELL));
+  cpcellsd((CELL *)(newb+(dsz+szlow)), (CELL *)(newb+szlow), sz/sizeof(CELL));
   /* base pointer is block start */
-  *to_visit_maxp = (CELL **)newb;
+  *to_visit_maxp = (CELL **)(newb+szlow);
   /* current top is originall diff + diff size */
-  return (CELL **)((char *)newb+(sz1+dsz));
-#else
-  CELL **old_top = (CELL **)Yap_TrailTop;
-  if (do_growtrail(64 * 1024L, FALSE, FALSE, NULL, NULL, NULL)) {
-    CELL **dest = (CELL **)((char *)to_visit+(Yap_TrailTop-(ADDR)old_top));
-    cpcellsd((CELL *)dest, (CELL *)to_visit, (CELL)((CELL *)old_top-(CELL *)to_visit));
-    return dest;
-  } else {
-    Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"cannot grow temporary stack for unification (%p)", Yap_TrailTop);    
-    return to_visit;
-  }
-#endif
+  return (CELL **)(newb+(off+dsz));
 }
 
 static Int

@@ -18,7 +18,9 @@
 
 #include "absmi.h"
 
-STATIC_PROTO(Int    OCUnify_complex, (register CELL *, register CELL *, register CELL *));
+STD_PROTO(int   Yap_rational_tree_loop, (CELL *, CELL *, CELL **, CELL **));
+
+STATIC_PROTO(int    OCUnify_complex, (CELL *, CELL *, CELL *));
 STATIC_PROTO(int    OCUnify, (register CELL, register CELL));
 STATIC_PROTO(Int   p_ocunify, (void));
 #ifdef THREADED_CODE
@@ -28,32 +30,13 @@ STATIC_PROTO(void   InitReverseLookupOpcode, (void));
 
 /* support for rational trees and unification with occur checking */
 
-#if USE_SYSTEM_MALLOC
-#define address_to_visit_max (&to_visit_max)
-#define to_visit_base ((CELL **)AuxSp)
-
-#define TO_VISIT to_visit, to_visit_max
-int STD_PROTO(rational_tree_loop,(CELL *, CELL *, CELL **, CELL **));
-
-#else
-#define to_visit_max ((CELL **)TR+16)
-#define address_to_visit_max NULL
-#define to_visit_base ((CELL **)Yap_TrailTop)
-
-#define TO_VISIT to_visit
-int STD_PROTO(rational_tree_loop,(CELL *, CELL *, CELL **));
-
-#endif
+#define to_visit_base ((struct v_record *)AuxSp)
 
 int
-rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit
-#if USE_SYSTEM_MALLOC
-		   , CELL **to_visit_max
-#endif
-		   )
+Yap_rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit, CELL **to_visit_max)
 {
 
-loop:
+rtree_loop:
   while (pt0 < pt0_end) {
     register CELL *ptd0;
     register CELL d0;
@@ -69,7 +52,9 @@ loop:
       if (IsPairTerm(d0)) {
 	to_visit -= 3;
 	if (to_visit < to_visit_max) {
-	  to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	  to_visit = Yap_shift_visit(to_visit, &to_visit_max);
+
+
 	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
@@ -91,7 +76,7 @@ loop:
 	}
 	to_visit -= 3;
 	if (to_visit < to_visit_max) {
-	  to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	  to_visit = Yap_shift_visit(to_visit, &to_visit_max);
 	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
@@ -108,12 +93,12 @@ loop:
     derefa_body(d0, ptd0, rtree_loop_unk, rtree_loop_nvar);
   }
   /* Do we still have compound terms to visit */
-  if (to_visit < to_visit_max) {
+  if (to_visit < (CELL **)to_visit_base) {
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
     *pt0 = (CELL)to_visit[2];
     to_visit += 3;
-    goto loop;
+    goto rtree_loop;
   }
   return FALSE;
 
@@ -125,56 +110,60 @@ cufail:
     *pt0 = (CELL)to_visit[2];
     to_visit += 3;
   }
-  return (TRUE);
+  return TRUE;
   
 }
 
 static inline int
 rational_tree(Term d0) {
-#if USE_SYSTEM_MALLOC
-  CELL  **to_visit_max = (CELL **)Yap_PreAllocCodeSpace(), **to_visit  = (CELL **)AuxSp;
-#else
-  CELL  **to_visit  = (CELL **)Yap_TrailTop;
-#endif
+  CELL  **to_visit_max = (CELL **)AuxBase, **to_visit  = (CELL **)AuxSp;
 
   if (IsPairTerm(d0)) {
     CELL *pt0 = RepPair(d0);
 
-    return rational_tree_loop(pt0-1, pt0+1, TO_VISIT);
+    return Yap_rational_tree_loop(pt0-1, pt0+1, to_visit, to_visit_max);
   } else if (IsApplTerm(d0)) {
     CELL *pt0 = RepAppl(d0);
     Functor f = (Functor)(*pt0);
 
     if (IsExtensionFunctor(f))
       return FALSE;
-    return rational_tree_loop(pt0, pt0+ArityOfFunctor(f), TO_VISIT);
+    return Yap_rational_tree_loop(pt0, pt0+ArityOfFunctor(f), to_visit, to_visit_max);
   } else
     return FALSE;
 }
 
-static Int 
-OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
-	       register CELL *pt1
-)
+static int 
+OCUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 {
+#ifdef THREADS
+#undef Yap_REGS
+  register REGSTORE *regp = Yap_regp;
+#define Yap_REGS (*regp)
+#elif defined(SHADOW_REGS)
+#if defined(B) || defined(TR)
+  register REGSTORE *regp = &Yap_REGS;
 
-#if USE_SYSTEM_MALLOC
-  CELL  **to_visit_max = (CELL **)Yap_PreAllocCodeSpace(), **to_visit  = (CELL **)AuxSp;
-#else
-  CELL  **to_visit  = (CELL **)Yap_TrailTop;
+#define Yap_REGS (*regp)
+#endif /* defined(B) || defined(TR) || defined(HB) */
 #endif
 
-#if SHADOW_HB
-  register CELL *HBREG;
-  HBREG = HB;
-#endif
+#ifdef SHADOW_HB
+  register CELL *HBREG = HB;
+#endif /* SHADOW_HB */
 
- loop:
+  struct unif_record  *unif = (struct unif_record *)AuxBase;
+  struct v_record *to_visit  = (struct v_record *)AuxSp;
+#define unif_base ((struct unif_record *)AuxBase)
+
+loop:
   while (pt0 < pt0_end) {
-    register CELL *ptd0 = ++pt0;
-    register CELL d0 = *ptd0;
+    register CELL *ptd0 = pt0+1; 
+    register CELL d0;
 
     ++pt1;
+    pt0 = ptd0;
+    d0 = *ptd0;
     deref_head(d0, unify_comp_unk);
   unify_comp_nvar:
     {
@@ -184,93 +173,90 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
       deref_head(d1, unify_comp_nvar_unk);
     unify_comp_nvar_nvar:
       if (d0 == d1) {
-	if (rational_tree_loop(pt0-1, pt0, TO_VISIT))
+	if (Yap_rational_tree_loop(pt0-1, pt0, (CELL **)to_visit, (CELL **)unif))
 	  goto cufail;
 	continue;
-      } if (IsPairTerm(d0)) {
+      }
+      if (IsPairTerm(d0)) {
 	if (!IsPairTerm(d1)) {
 	  goto cufail;
 	}
 	/* now link the two structures so that no one else will */
 	/* come here */
-	to_visit -= 5;
-	if (to_visit < to_visit_max) {
-	  to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	/* store the terms to visit */
+	if (RATIONAL_TREES || pt0 < pt0_end) {
+	  to_visit --;
+#ifdef RATIONAL_TREES
+	  unif++;
+#endif
+	  if ((void *)to_visit < (void *)unif) {
+	    struct unif_record *urec = unif;
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, (CELL ***)&urec);
+	    unif = urec;
+	  }
+	  to_visit->start0 = pt0;
+	  to_visit->end0 = pt0_end;
+	  to_visit->start1 = pt1;
+#ifdef RATIONAL_TREES
+	  unif[-1].old = *pt0;
+	  unif[-1].ptr = pt0;
+	  *pt0 = d1;
+#endif
 	}
-	to_visit[0] = pt0;
-	to_visit[1] = pt0_end;
-	to_visit[2] = pt1;
-	/* we want unification of rational trees to fail */
-	to_visit[3] = (CELL *)*pt0;
-	to_visit[4] = (CELL *)*pt1;
-	*pt0 = TermFoundVar;
-	*pt1 = TermFoundVar;
 	pt0_end = (pt0 = RepPair(d0) - 1) + 2;
-	pt0_end = RepPair(d0) + 1;
 	pt1 = RepPair(d1) - 1;
 	continue;
       }
-      else if (IsApplTerm(d0)) {
+      if (IsApplTerm(d0)) {
 	register Functor f;
 	register CELL *ap2, *ap3;
 
-	/* store the terms to visit */
-	ap2 = RepAppl(d0);
-	f = (Functor) (*ap2);
 	if (!IsApplTerm(d1)) {
 	  goto cufail;
 	}
+	/* store the terms to visit */
+	ap2 = RepAppl(d0);
 	ap3 = RepAppl(d1);
+	f = (Functor) (*ap2);
 	/* compare functors */
-	if (f != (Functor) *ap3) {
+	if (f != (Functor) *ap3)
 	  goto cufail;
-	}
 	if (IsExtensionFunctor(f)) {
-	  switch((CELL)f) {
-	  case (CELL)FunctorDBRef:
-	    if (d0 == d1) continue;
-	    goto cufail;
-	  case (CELL)FunctorLongInt:
-	    if (ap2[1] == ap3[1]) continue;
-	    goto cufail;
-	  case (CELL)FunctorDouble:
-	    if (FloatOfTerm(d0) == FloatOfTerm(d1)) continue;
-	    goto cufail;
-#ifdef USE_GMP
-	  case (CELL)FunctorBigInt:
-	    if (mpz_cmp(Yap_BigIntOfTerm(d0),Yap_BigIntOfTerm(d1)) == 0) continue;
-	    goto cufail;
-#endif /* USE_GMP */
-	  default:
-	    goto cufail;
-	  }
+	  if (unify_extension(f, d0, ap2, d1))
+	    continue;
+	  goto cufail;
 	}
 	/* now link the two structures so that no one else will */
 	/* come here */
-	to_visit -= 5;
-	if (to_visit < to_visit_max) {
-	  to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	/* store the terms to visit */
+	if (RATIONAL_TREES || pt0 < pt0_end) {
+	  to_visit --;
+#ifdef RATIONAL_TREES
+	  unif++;
+#endif
+	  if ((void *)to_visit < (void *)unif) {
+	    struct unif_record *urec = unif;
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, (CELL ***)&urec);
+	    unif = urec;
+	  }
+	  to_visit->start0 = pt0;
+	  to_visit->end0 = pt0_end;
+	  to_visit->start1 = pt1;
+#ifdef RATIONAL_TREES
+	  unif[-1].old = *pt0;
+	  unif[-1].ptr = pt0;
+	  *pt0 = d1;
+#endif
 	}
-	to_visit[0] = pt0;
-	to_visit[1] = pt0_end;
-	to_visit[2] = pt1;
-	to_visit[3] = (CELL *)*pt0;
-	to_visit[4] = (CELL *)*pt1;
-	*pt0 = TermFoundVar;
-	*pt1 = TermFoundVar;
 	d0 = ArityOfFunctor(f);
 	pt0 = ap2;
 	pt0_end = ap2 + d0;
 	pt1 = ap3;
 	continue;
-      } else {
-	if (d0 == d1)
-	  continue;
-	else goto cufail;
       }
+      goto cufail;
 
       derefa_body(d1, ptd1, unify_comp_nvar_unk, unify_comp_nvar_nvar);
-      
       /* d1 and pt2 have the unbound value, whereas d0 is bound */
       BIND_GLOBAL(ptd1, d0, bind_ocunify1);
 #ifdef COROUTINING
@@ -278,18 +264,19 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
       if (ptd1 < H0) Yap_WakeUp(ptd1);
     bind_ocunify1:
 #endif
-      if (rational_tree_loop(ptd1-1, ptd1, TO_VISIT))
+      if (Yap_rational_tree_loop(ptd1-1, ptd1, (CELL **)to_visit, (CELL **)unif))
 	goto cufail;
       continue;
-
     }
 
     derefa_body(d0, ptd0, unify_comp_unk, unify_comp_nvar);
+    /* first arg var */
     {
       register CELL d1;
-      register CELL *ptd1 = NULL;
+      register CELL *ptd1;
 
-      d1 = *(ptd1 = pt1);
+      ptd1 = pt1;
+      d1 = ptd1[0];
       /* pt2 is unbound */
       deref_head(d1, unify_comp_var_unk);
     unify_comp_var_nvar:
@@ -300,7 +287,7 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
       if (ptd0 < H0) Yap_WakeUp(ptd0);
     bind_ocunify2:
 #endif
-      if (rational_tree_loop(ptd0-1, ptd0, TO_VISIT))
+      if (Yap_rational_tree_loop(ptd0-1, ptd0, (CELL **)to_visit, (CELL **)unif))
 	goto cufail;
       continue;
 
@@ -311,37 +298,44 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
   }
   /* Do we still have compound terms to visit */
   if (to_visit < to_visit_base) {
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    pt1 = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
-    *pt1 = (CELL)to_visit[4];
-    to_visit += 5;
+    pt0 = to_visit->start0;
+    pt0_end = to_visit->end0;
+    pt1 = to_visit->start1;
+    to_visit++;
     goto loop;
   }
-  /* successful exit */
-  return (TRUE);
+#ifdef RATIONAL_TREES
+  /* restore bindigs */
+  while (unif-- != unif_base) {
+    CELL *pt0;
+
+    pt0 = unif->ptr;
+    *pt0 = unif->old;
+  }
+#endif
+  return TRUE;
 
 cufail:
-  /* failure */
-  while (to_visit < to_visit_base) {
+#ifdef RATIONAL_TREES
+  /* restore bindigs */
+  while (unif-- != unif_base) {
     CELL *pt0;
-    pt0 = to_visit[0];
-    pt1 = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
-    *pt1 = (CELL)to_visit[4];
-    to_visit += 5;
+
+    pt0 = unif->ptr;
+    *pt0 = unif->old;
   }
-  /* failure */
-  return (FALSE);
-#if SHADOW_REGS
+#endif
+  return FALSE;
+#ifdef THREADS
+#undef Yap_REGS
+#define Yap_REGS (*Yap_regp)  
+#elif defined(SHADOW_REGS)
 #if defined(B) || defined(TR)
 #undef Yap_REGS
-#if PUSH_REGS
-#define Yap_REGS (*Yap_regp)
-#endif
 #endif /* defined(B) || defined(TR) */
 #endif
+#undef unif_base
+#undef to_visit_base
 }
 
 static int 

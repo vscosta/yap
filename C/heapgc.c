@@ -3772,7 +3772,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   while (Yap_bp+alloc_sz > (char *)AuxSp) {
     /* not enough space */
     *--ASP = (CELL)current_env;
-    Yap_bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz, NULL);
+    Yap_bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz, NULL, TRUE);
     if (!Yap_bp)
       return -1;
     current_env = (CELL *)*ASP;

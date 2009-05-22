@@ -105,6 +105,7 @@ typedef struct
     CELL  *ENV_;		/* 1 current environment                      */
     CELL  *ASP_;		/* 8 top of local       stack                 */
     CELL  *LCL0_;		/* 3 local stack base                         */
+    ADDR   AuxBase_;		/* 9 Auxiliary base  pointer                  */
     CELL  *AuxSp_;		/* 9 Auxiliary stack pointer                  */
     ADDR   AuxTop_;		/* 10 Auxiliary stack top                     */
 /* visualc*/
@@ -697,6 +698,7 @@ EXTERN inline void restore_B(void) {
 
 #endif
 
+#define	AuxBase       Yap_REGS.AuxBase_
 #define	AuxSp         Yap_REGS.AuxSp_
 #define	AuxTop        Yap_REGS.AuxTop_
 #define TopB          Yap_REGS.TopB_

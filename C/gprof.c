@@ -732,7 +732,7 @@ search_pc_pred(yamop *pc_ptr,clauseentry *beg, clauseentry *end) {
 }
 
 extern void Yap_InitAbsmi(void);
-extern int rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0);
+extern int Yap_rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0, CELL **to_visit_max);
 
 static Int profend(void); 
 
@@ -788,7 +788,7 @@ showprofres(UInt type) {
         if ((unsigned long)oldpc & GCMode) { InGC++; continue; }
         if ((unsigned long)oldpc & (ErrorHandlingMode | InErrorMode)) { InError++; continue; }
       }
-      if (oldpc>(void *) rational_tree_loop && oldpc<(void *) Yap_InitAbsmi) { InUnify++; continue; }
+      if (oldpc>(void *) Yap_rational_tree_loop && oldpc<(void *) Yap_InitAbsmi) { InUnify++; continue; }
       y=(yamop *) ((long) pc_ptr-20);
       if (y->opc==Yap_opcode(_call_cpred) || y->opc==Yap_opcode(_call_usercpred)) {
              InCCall++;  /* I Was in a C Call */

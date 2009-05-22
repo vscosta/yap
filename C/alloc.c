@@ -61,14 +61,57 @@ static char SccsId[] = "%W% %G%";
 /************************************************************************/
 /* Yap workspace management                                             */
 
-#if USE_DL_MALLOC
-#define malloc Yap_dlmalloc
-#define free Yap_dlfree
-#define realloc Yap_dlrealloc
+#if USE_SYSTEM_MALLOC
+#define my_malloc(sz) malloc(sz)
+#define my_realloc(ptr, sz, safe) realloc(ptr, sz)
+#define my_free(ptr) free(ptr)
 #else
-void Yap_add_memory_hole(ADDR Start, ADDR End)
+#define my_malloc(sz) Yap_dlmalloc(sz)
+#define my_free(sz) Yap_dlfree(sz)
+
+static char * my_realloc(char *ptr, UInt sz, UInt osz, int safe)
 {
-  Yap_HoleSize += Start-End;
+  char *nptr;
+
+ restart:
+  /* simple case */
+  if (ptr < Yap_HeapBase || ptr > HeapTop) {
+    /* we have enough room */
+    nptr = Yap_dlmalloc(sz);
+    if (nptr) {
+      memmove(nptr, ptr, osz);
+      free(ptr);
+    }
+  } else {
+    nptr = Yap_dlrealloc(ptr, sz);
+  }
+  if (nptr) {
+    return nptr;
+  }
+  /* we do not have enough room */
+  if (safe) {
+    if (Yap_growheap(FALSE, sz, NULL)) {
+      /* now, we have room */
+      goto restart;
+    }
+  }
+  /* no room in Heap, gosh */
+  if (ptr < Yap_HeapBase || ptr > HeapTop) {
+    /* try expanding outside the heap */
+    nptr = realloc(ptr, sz);
+    if (nptr) {
+      memmove(nptr, ptr, osz);
+    }
+  } else {
+    /* try calling the outside world for help */
+    nptr = malloc(sz);
+    if (!nptr)
+      return NULL;
+    memmove(nptr, ptr, osz);
+    Yap_dlfree(ptr);
+  }
+  /* did we suceed? at this point we could not care less */
+  return nptr;
 }
 #endif
 
@@ -98,7 +141,7 @@ call_malloc(unsigned long int size)
   tmalloc += size;
 #endif
   Yap_PrologMode |= MallocMode;
-  out = (char *) malloc(size);
+  out = (char *) my_malloc(size);
   Yap_PrologMode &= ~MallocMode;
   return out;
 }
@@ -119,7 +162,7 @@ Yap_FreeCodeSpace(char *p)
     minfo('F');
   frees++;
 #endif
-  free (p);
+  my_free (p);
   Yap_PrologMode &= ~MallocMode;
 }
 
@@ -138,7 +181,7 @@ Yap_FreeAtomSpace(char *p)
     minfo('F');
   frees++;
 #endif
-  free (p);
+  my_free (p);
   Yap_PrologMode &= ~MallocMode;
 }
 
@@ -153,7 +196,7 @@ Yap_InitPreAllocCodeSpace(void)
   UInt sz = ScratchPad.msz;
   if (ScratchPad.ptr == NULL) {
     Yap_PrologMode |= MallocMode;
-    while (!(ptr = malloc(sz))) {
+    while (!(ptr = my_malloc(sz))) {
       Yap_PrologMode &= ~MallocMode;
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
@@ -166,12 +209,13 @@ Yap_InitPreAllocCodeSpace(void)
   } else {
     ptr = ScratchPad.ptr;
   }
-  AuxSp = (CELL *)(AuxTop = (ADDR)(ptr+ScratchPad.sz));
+  AuxBase = (ADDR)(ptr);
+  AuxSp = (CELL *)(AuxTop = AuxBase+ScratchPad.sz);
   return ptr;
 }
 
 ADDR
-Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip)
+Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip, int safe)
 {
   char *ptr;
   UInt sz = ScratchPad.msz;
@@ -189,20 +233,14 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip)
   reallocs++;
 #endif
   Yap_PrologMode |= MallocMode;
-  while (!(ptr = realloc(ScratchPad.ptr, sz))) {
+  if (!(ptr = my_realloc(ScratchPad.ptr, sz, ScratchPad.sz, safe))) {
     Yap_PrologMode &= ~MallocMode;
-#if USE_DL_MALLOC
-    if (!Yap_growheap((cip!=NULL), sz, cip)) {
-      return NULL;
-    }
-#else
     return NULL;
-#endif
-    Yap_PrologMode |= MallocMode;
   }
   Yap_PrologMode &= ~MallocMode;
   ScratchPad.sz = ScratchPad.msz = sz;
   ScratchPad.ptr = ptr;
+  AuxBase = ptr;
   AuxSp = (CELL *)(AuxTop = ptr+sz);
   return ptr;
 }
@@ -1418,6 +1456,14 @@ Yap_InitExStacks(int Trail, int Stack)
 #if defined(_WIN32) || defined(__CYGWIN__)
 #define WorkSpaceTop brk
 #define MAP_FIXED 1
+#endif
+
+#if !USE_DL_MALLOC
+/* dead code */
+void Yap_add_memory_hole(ADDR Start, ADDR End)
+{
+  Yap_HoleSize += Start-End;
+}
 #endif
 
 int

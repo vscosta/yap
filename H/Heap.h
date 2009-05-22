@@ -812,15 +812,13 @@ extern struct various_codes *Yap_heap_regs;
 UInt STD_PROTO(Yap_givemallinfo, (void));
 #endif
 
-ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt, void *));
+ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt, void *, int));
 #define Yap_ReleasePreAllocCodeSpace(x)
 ADDR    STD_PROTO(Yap_InitPreAllocCodeSpace, (void));
 EXTERN inline ADDR
-Yap_PreAllocCodeSpace(void)
+Yap_PreAllocCodeSpace(void) 
 {
-  ADDR ptr = ScratchPad.ptr;
-  if (ptr) return ptr;
-  return Yap_InitPreAllocCodeSpace();
+  return AuxBase;
 }
 
 #endif /* HEAP_H */

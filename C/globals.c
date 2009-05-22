@@ -889,7 +889,7 @@ CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term 
       }
       break;
     default: /* temporary space overflow */
-      if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
+      if (!Yap_ExpandPreAllocCodeSpace(0,NULL,TRUE)) {
 	Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
 	return 0L;
       }

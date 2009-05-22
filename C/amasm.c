@@ -3780,7 +3780,7 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep)
       break;
     case OUT_OF_AUXSPACE_ERROR:
       ARG1 = *tp;
-      if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size, (void *)cip)) {
+      if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size, (void *)cip, TRUE)) {
 	return NULL;
       }
       Yap_Error_TYPE = YAP_NO_ERROR;

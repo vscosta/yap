@@ -1083,17 +1083,21 @@ Macros to check the limits of stacks
 #define save_hb()
 #endif
 
-#if defined(IN_ABSMI_C) || defined(IN_UNIFY_C)
+typedef struct unif_record {
+  CELL *ptr;
+  Term old;
+} unif_record;
 
-typedef struct u_record {
+typedef struct v_record {
   CELL *start0;
   CELL *end0;
   CELL *start1;
   Term old;
-} unif_record;
+} v_record;
+
+#if defined(IN_ABSMI_C) || defined(IN_UNIFY_C)
 
 static int 
-
 IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 {
 #ifdef THREADS
@@ -1112,16 +1116,10 @@ IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
   register CELL *HBREG = HB;
 #endif /* SHADOW_HB */
 
-#ifdef USE_SYSTEM_MALLOC
-  struct u_record  *to_visit_max = (struct u_record *)Yap_PreAllocCodeSpace(), *to_visit  = (struct u_record *)AuxSp;
-#define address_to_visit_max (&to_visit_max)
-#define to_visit_base ((CELL **)AuxSp)
-#else
-  struct u_record *to_visit  = (struct u_record *)Yap_TrailTop;
-#define to_visit_max ((struct u_record *)TR+16)
-#define address_to_visit_max NULL
-#define to_visit_base ((struct u_record *)Yap_TrailTop)
-#endif
+  struct unif_record  *unif = (struct unif_record *)AuxBase;
+  struct v_record *to_visit  = (struct v_record *)AuxSp;
+#define unif_base ((struct unif_record *)AuxBase)
+#define to_visit_base ((struct v_record *)AuxSp)
 
 loop:
   while (pt0 < pt0_end) {
@@ -1145,31 +1143,28 @@ loop:
 	if (!IsPairTerm(d1)) {
 	  goto cufail;
 	}
-#ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
 	/* come here */
-	to_visit -- ;
-	if (to_visit < to_visit_max) {
-	  to_visit = (struct u_record *)Yap_shift_visit((CELL **)to_visit, (CELL ***)address_to_visit_max);
-	}
-	to_visit->start0 = pt0;
-	to_visit->end0 = pt0_end;
-	to_visit->start1 = pt1;
-	to_visit->old = *pt0;
-	*pt0 = d1;
-#else
 	/* store the terms to visit */
-	if (pt0 < pt0_end) {
+	if (RATIONAL_TREES || pt0 < pt0_end) {
 	  to_visit --;
-	  if (to_visit < to_visit_max) {
-	    to_visit = (struct u_record *)Yap_shift_visit((CELL **)to_visit, (CELL ***)address_to_visit_max);
+#ifdef RATIONAL_TREES
+	  unif++;
+#endif
+	  if ((void *)to_visit < (void *)unif) {
+	    struct unif_record *urec = unif;
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, (CELL ***)&urec);
+	    unif = urec;
 	  }
 	  to_visit->start0 = pt0;
 	  to_visit->end0 = pt0_end;
 	  to_visit->start1 = pt1;
-	}
-
+#ifdef RATIONAL_TREES
+	  unif[-1].old = *pt0;
+	  unif[-1].ptr = pt0;
+	  *pt0 = d1;
 #endif
+	}
 	pt0_end = (pt0 = RepPair(d0) - 1) + 2;
 	pt1 = RepPair(d1) - 1;
 	continue;
@@ -1193,30 +1188,28 @@ loop:
 	    continue;
 	  goto cufail;
 	}
-#ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
 	/* come here */
-	to_visit --;
-	if (to_visit < to_visit_max) {
-	  to_visit = (struct u_record *)Yap_shift_visit((CELL **)to_visit, (CELL ***)address_to_visit_max);
-	}
-	to_visit->start0 = pt0;
-	to_visit->end0 = pt0_end;
-	to_visit->start1 = pt1;
-	to_visit->old = *pt0;
-	*pt0 = d1;
-#else
 	/* store the terms to visit */
-	if (pt0 < pt0_end) {
+	if (RATIONAL_TREES || pt0 < pt0_end) {
 	  to_visit --;
-	  if (to_visit < to_visit_max) {
-	    to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+#ifdef RATIONAL_TREES
+	  unif++;
+#endif
+	  if ((void *)to_visit < (void *)unif) {
+	    struct unif_record *urec = unif;
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, (CELL ***)&urec);
+	    unif = urec;
 	  }
 	  to_visit->start0 = pt0;
 	  to_visit->end0 = pt0_end;
 	  to_visit->start1 = pt1;
-	}
+#ifdef RATIONAL_TREES
+	  unif[-1].old = *pt0;
+	  unif[-1].ptr = pt0;
+	  *pt0 = d1;
 #endif
+	}
 	d0 = ArityOfFunctor(f);
 	pt0 = ap2;
 	pt0_end = ap2 + d0;
@@ -1254,23 +1247,28 @@ loop:
     pt0 = to_visit->start0;
     pt0_end = to_visit->end0;
     pt1 = to_visit->start1;
-#ifdef RATIONAL_TREES
-    *pt0 = to_visit->old;
-#endif
-    to_visit ++;
+    to_visit++;
     goto loop;
   }
+#ifdef RATIONAL_TREES
+  /* restore bindigs */
+  while (unif-- != unif_base) {
+    CELL *pt0;
+
+    pt0 = unif->ptr;
+    *pt0 = unif->old;
+  }
+#endif
   return TRUE;
 
 cufail:
 #ifdef RATIONAL_TREES
-  /* failure */
-  while (to_visit < to_visit_base) {
+  /* restore bindigs */
+  while (unif-- != unif_base) {
     CELL *pt0;
 
-    pt0 = to_visit->start0;
-    *pt0 = to_visit->old;
-    to_visit ++;
+    pt0 = unif->ptr;
+    *pt0 = unif->old;
   }
 #endif
   return FALSE;
@@ -1285,14 +1283,8 @@ cufail:
 }
 
 /*  don't pollute name space */
-#if USE_SYSTEM_MALLOC
-#undef address_to_visit_max
 #undef to_visit_base
-#else
-#undef to_visit_max
-#undef address_to_visit_max
-#undef to_visit_base
-#endif
+#undef unif_base
 
 
 #endif

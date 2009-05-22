@@ -3936,7 +3936,7 @@ static Int
 	  }
 	} else if (Yap_Error_TYPE == OUT_OF_AUXSPACE_ERROR) {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
+	  if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
 	    return FALSE;
 	  }
 	} else if (Yap_Error_TYPE == OUT_OF_HEAP_ERROR) {

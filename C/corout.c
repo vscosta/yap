@@ -503,7 +503,7 @@ non_ground(Term t, Term *Var)
       if (out >= 0)
 	return out;
     }
-    if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
+    if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
       Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in ground");
       return FALSE;
     }      

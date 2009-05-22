@@ -279,7 +279,7 @@ recover_from_record_error(int nargs)
     }
     goto recover_record;
   case OUT_OF_AUXSPACE_ERROR:
-    if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size, NULL)) {
+    if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size, NULL, TRUE)) {
       Yap_Error(OUT_OF_AUXSPACE_ERROR, Yap_Error_Term, Yap_ErrorMessage);
       return FALSE;
     }

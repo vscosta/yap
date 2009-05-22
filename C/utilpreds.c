@@ -406,7 +406,7 @@ handle_cp_overflow(int res, tr_fr_ptr TR0, UInt arity, Term t)
       Yap_Error_Size = 0L;
       if (size > 4*1024*1024)
 	size = 4*1024*1024;
-      if (!Yap_ExpandPreAllocCodeSpace(size,NULL)) {
+      if (!Yap_ExpandPreAllocCodeSpace(size, NULL, TRUE)) {
 	Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
 	return 0L;
       }
@@ -736,7 +736,7 @@ expand_vts(void)
     /* Aux space overflow */
     if (expand > 4*1024*1024)
       expand = 4*1024*1024;
-    if (!Yap_ExpandPreAllocCodeSpace(expand, NULL)) {
+    if (!Yap_ExpandPreAllocCodeSpace(expand, NULL, TRUE)) {
       return FALSE;
     }
   } else {
@@ -1429,7 +1429,7 @@ p_non_singletons_in_term(void)	/* non_singletons in term t		 */
     if (out != 0L) {
       return Yap_unify(ARG3,out);
     } else {
-      if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
+      if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
 	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in singletons");
 	return FALSE;
       }
@@ -1577,7 +1577,7 @@ p_ground(void)			/* ground(+T)		 */
       }
     }
     if (out < 0) {
-      if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
+      if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
 	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in ground");
 	return FALSE;
       }      
@@ -2206,7 +2206,7 @@ p_term_hash(void)
   while (TRUE) {
     CELL *ar = hash_complex_term(&t1-1, &t1, depth, H, FALSE);
     if (ar == (CELL *)-1) {
-      if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
+      if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
 	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in term_hash");
 	return FALSE;
       } 
@@ -2264,7 +2264,7 @@ p_instantiated_term_hash(void)
   while (TRUE) {
     CELL *ar = hash_complex_term(&t1-1, &t1, depth, H, TRUE);
     if (ar == (CELL *)-1) {
-      if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
+      if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
 	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in term_hash");
 	return FALSE;
       } 

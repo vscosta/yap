@@ -1230,10 +1230,17 @@ RestoreFreeSpace(void)
 #if USE_DL_MALLOC
   Yap_av = (struct malloc_state *)AddrAdjust((ADDR)Yap_av);
   Yap_RestoreDLMalloc();
-  if (AuxSp != NULL)
-    AuxSp = PtoHeapCellAdjust(AuxSp);
-  if (AuxTop != NULL)
-    AuxTop = AddrAdjust(AuxTop);
+  if (AuxSp != NULL) {
+    if (AuxBase < OldHeapBase || AuxBase > OldHeapTop) {
+      AuxSp = NULL;
+      AuxBase = NULL;
+      AuxTop = NULL;
+    } else {
+      AuxSp = PtoHeapCellAdjust(AuxSp);
+      AuxBase = AddrAdjust(AuxBase);
+      AuxTop = AddrAdjust(AuxTop);
+    }
+  }
 #else
   /* restores the list of free space, with its curious structure */
   BlockHeader *bpt, *bsz;
@@ -1765,6 +1772,11 @@ Restore(char *s, char *lib_dir)
   /* reset time */
   Yap_ReInitWallTime();
   Yap_InitSysPath();
+#if USE_DL_MALLOC || USE_SYSTEM_MALLOC
+  if (!AuxSp) {
+    Yap_InitPreAllocCodeSpace();
+  }
+#endif
   CloseRestore();
   if (which_save == 2) {
     Yap_unify(ARG2, MkIntTerm(0));

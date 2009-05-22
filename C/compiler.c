@@ -3347,7 +3347,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, Term mod, volatile Term src)
       YAPLeaveCriticalSection();
       ARG1 = inp_clause;
       ARG3 = src;
-      if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size, NULL)) {
+      if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size, NULL, TRUE)) {
 	Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
 	Yap_Error_Term = inp_clause;
       }

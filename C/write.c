@@ -570,7 +570,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  while (s+3+mpz_sizeinbase(big, 10) >= (char *)AuxSp) {
 #if USE_SYSTEM_MALLOC
 	    /* may require stack expansion */
-	    if (!Yap_ExpandPreAllocCodeSpace(3+mpz_sizeinbase(big, 10),NULL)) {
+	    if (!Yap_ExpandPreAllocCodeSpace(3+mpz_sizeinbase(big, 10), NULL, TRUE)) {
 	      s = NULL;
 	      break;
 	    }
