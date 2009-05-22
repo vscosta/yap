@@ -33,9 +33,7 @@ static Term
 Eval(Term t)
 {
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR,TermNil,"in arithmetic");
-    P = (yamop *)FAILCODE;
-    return 0L;
+    return Yap_ArithError(INSTANTIATION_ERROR,t,"in arithmetic");
   } else if (IsAtomTerm(t)) {
     ExpEntry *p;
     Atom name  = AtomOfTerm(t);
@@ -48,7 +46,7 @@ Eval(Term t)
       ti[1] = MkIntegerTerm(0);
       /* error */
       terror = Yap_MkApplTerm(FunctorSlash, 2, ti);
-      Yap_Error(TYPE_ERROR_EVALUABLE, terror,
+      Yap_ArithError(TYPE_ERROR_EVALUABLE, terror,
 	    "atom %s for arithmetic expression",
 	    RepAtom(name)->StrOfAE);
       P = (yamop *)FAILCODE;
@@ -68,40 +66,53 @@ Eval(Term t)
       return t;
     default:
       {
-	Int n = ArityOfFunctor(fun);
-	Atom name  = NameOfFunctor(fun);
-	ExpEntry *p;
-	Term t1, t2;
-
-	if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, n)))) {
-	  Term ti[2];
-
-	  /* error */
-	  ti[0] = t;
-	  ti[1] = MkIntegerTerm(n);
-	  t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-	  Yap_Error(TYPE_ERROR_EVALUABLE, t,
-		"functor %s/%d for arithmetic expression",
-		RepAtom(name)->StrOfAE,n);
+	if ((Atom)fun == AtomFoundVar) {
+	  Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil,
+		    "cyclic term in arithmetic expression");
 	  P = (yamop *)FAILCODE;
 	  RERROR();
+	} else {
+	  Int n = ArityOfFunctor(fun);
+	  Atom name  = NameOfFunctor(fun);
+	  ExpEntry *p;
+	  Term t1, t2;
+
+	  if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, n)))) {
+	    Term ti[2];
+
+	    /* error */
+	    ti[0] = t;
+	    ti[1] = MkIntegerTerm(n);
+	    t = Yap_MkApplTerm(FunctorSlash, 2, ti);
+	    Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
+		      "functor %s/%d for arithmetic expression",
+		      RepAtom(name)->StrOfAE,n);
+	    P = (yamop *)FAILCODE;
+	    RERROR();
+	  }
+	  *RepAppl(t) = (CELL)AtomFoundVar;
+	  t1 = Eval(ArgOfTerm(1,t));
+	  if (t1 == 0L) {
+	    *RepAppl(t) = (CELL)fun;
+	    return FALSE;
+	  }
+	  if (n == 1) {
+	    *RepAppl(t) = (CELL)fun;
+	    return Yap_eval_unary(p->FOfEE, t1);
+	  }
+	  t2 = Eval(ArgOfTerm(2,t));
+	  *RepAppl(t) = (CELL)fun;
+	  if (t2 == 0L)
+	    return FALSE;
+	  return Yap_eval_binary(p->FOfEE,t1,t2);
 	}
-	t1 = Eval(ArgOfTerm(1,t));
-	if (t1 == 0L)
-	  return FALSE;
-	if (n == 1)
-	  return Yap_eval_unary(p->FOfEE, t1);
-	t2 = Eval(ArgOfTerm(2,t));
-	if (t2 == 0L)
-	  return FALSE;
-	return Yap_eval_binary(p->FOfEE,t1,t2);
       }
     }
   } /* else if (IsPairTerm(t)) */ {
     if (TailOfTerm(t) != TermNil) {
-      Yap_Error(TYPE_ERROR_EVALUABLE, t,
+      Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
 		"string must contain a single character to be evaluated as an arithmetic expression");
-      P = (yamop *)FAILCODE;
+      P = FAILCODE;
       return 0L;
     }
     return Eval(HeadOfTerm(t));
@@ -111,7 +122,7 @@ Eval(Term t)
 Term
 Yap_Eval(Term t)
 {
-  return Eval(t);
+  return Yap_FoundArithError(Eval(t), t);
 }
 
 #ifdef BEAM
@@ -133,14 +144,35 @@ BEAM_is(void)
 static Int
 p_is(void)
 {				/* X is Y	 */
-  Term out;
-
-  out = Eval(Deref(ARG2));
-  if (out == 0L) {
-    Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, ARG2, "is/2");
-    return FALSE;
-  }
+  Term out, t;
+  
+  t = Deref(ARG2);
+  out = Yap_FoundArithError(Eval(t), t);
+  if (!out) return FALSE;
   return Yap_unify_constant(ARG1,out);
+}
+
+Int
+Yap_ArithError(yap_error_number type, Term where, char *format,...)
+{
+  va_list ap;
+
+  Yap_Error_TYPE = type;
+  Yap_Error_Term = where;
+  if (!Yap_ErrorMessage)
+    Yap_ErrorMessage = Yap_ErrorSay;
+  va_start (ap, format);
+  if (format != NULL) {
+#if   HAVE_VSNPRINTF
+    (void) vsnprintf(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE, format, ap);
+#else
+    (void) vsprintf(Yap_ErrorMessage, format, ap);
+#endif
+  } else {
+    Yap_ErrorMessage[0] = '\0';
+  }
+  va_end (ap);
+  return 0L;
 }
 
 void

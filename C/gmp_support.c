@@ -28,9 +28,7 @@ MkBigAndClose(MP_INT *new)
   Term t = Yap_MkBigIntTerm(new);
   mpz_clear(new);
   if (t == TermNil) {
-    Yap_Error(RESOURCE_ERROR_STACK, t, ">>/2");
-    P = (yamop *)FAILCODE;
-    RERROR();
+    return Yap_ArithError(RESOURCE_ERROR_STACK, t, ">>/2");
   }
   return t;
 }
@@ -154,8 +152,7 @@ Yap_gmp_div_big_int(MP_INT *b, Int i)
     if (i > 0) {
       mpz_tdiv_q_ui(&new, &new, i);
     } else if (i == 0) {
-      Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR, MkIntTerm(0), "// /2");
-      return 0L;
+      return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, MkIntTerm(0), "// /2");
     } else {
       /* we do not handle MIN_INT */
       mpz_tdiv_q_ui(&new, &new, -i);
@@ -165,8 +162,7 @@ Yap_gmp_div_big_int(MP_INT *b, Int i)
     if (i > 0) {
       mpz_fdiv_q_ui(&new, &new, i);
     } else if (i == 0) {
-      Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR, MkIntTerm(0), "// /2");
-      return 0L;
+      return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, MkIntTerm(0), "// /2");
     } else {
       /* we do not handle MIN_INT */
       mpz_fdiv_q_ui(&new, &new, -i);
@@ -212,7 +208,7 @@ Yap_gmp_sll_big_int(MP_INT *b, Int i)
   } else {
     mpz_init_set(&new, b);
     if (i == Int_MIN) {
-      return 0L;
+      return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, MkIntegerTerm(i), "<</2");
     }
     mpz_tdiv_q_2exp(&new, &new, -i);
   }

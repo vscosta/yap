@@ -324,28 +324,20 @@ p_div(Term t1, Term t2) {
 	Int i1 = IntegerOfTerm(t1), i2 = IntegerOfTerm(t2);
       
 	if (i2 == 0) {
-	  Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR, t2, "// /2");
-	  /* make GCC happy */
-	  P = (yamop *)FAILCODE;
-	  RERROR();
+	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "// /2");
 	} else if (i1 == Int_MIN && i2 == -1) {
 #ifdef USE_GMP
 	  return Yap_gmp_add_ints(Int_MAX, 1);
 #else
-	  Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, t1,
+	  return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, t1,
 		    "rem/2 with %d and %d", i1, i2);
-	  P = (yamop *)FAILCODE;
-	  RERROR();	  
 #endif
 	} else {
 	  RINT(IntegerOfTerm(t1) / i2);
 	}
       }
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "// /2");
-      /* make GCC happy */
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "// /2");
     case big_int_e:
 #ifdef USE_GMP
       /* Cool */
@@ -356,41 +348,18 @@ p_div(Term t1, Term t2) {
     }
     break;
   case double_e:
-    Yap_Error(TYPE_ERROR_INTEGER, t1, "// /2");
-    P = (yamop *)FAILCODE;
-    RERROR();
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "// /2");
   case big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       /* dividing a bignum by an integer */
-      {
-	Term t= Yap_gmp_div_big_int(Yap_BigIntOfTerm(t1), IntegerOfTerm(t2));
-	if (t==0L) {
-	  /* make GCC happy */
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	}
-	return(t);
-      }
+      return Yap_gmp_div_big_int(Yap_BigIntOfTerm(t1), IntegerOfTerm(t2));
     case big_int_e:
       /* two bignums */
-      {
-	Term t;
-
-	t = Yap_gmp_div_big_big(Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2));
-	if (t==0L) {
-	  /* make GCC happy */
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	}
-	return(t);
-      }
+      return Yap_gmp_div_big_big(Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2));
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "// /2");
-      /* make GCC happy */
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "// /2");
     case db_ref_e:
       RERROR();
     }
@@ -410,9 +379,7 @@ p_and(Term t1, Term t2) {
       /* two integers */
       RINT(IntegerOfTerm(t1) & IntegerOfTerm(t2));
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "/\\ /2");
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "/\\ /2");
     case big_int_e:
 #ifdef USE_GMP
       return(Yap_gmp_and_int_big(IntegerOfTerm(t1),Yap_BigIntOfTerm(t2)));
@@ -422,9 +389,7 @@ p_and(Term t1, Term t2) {
     }
     break;
   case double_e:
-    Yap_Error(TYPE_ERROR_INTEGER, t1, "/\\ /2");
-    P = (yamop *)FAILCODE;
-    RERROR();
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "/\\ /2");
   case big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
@@ -435,10 +400,7 @@ p_and(Term t1, Term t2) {
       /* two bignums */
       return(Yap_gmp_and_big_big(Yap_BigIntOfTerm(t2), Yap_BigIntOfTerm(t1)));
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "/\\ /2");
-      /* make GCC happy */
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "/\\ /2");
     case db_ref_e:
       RERROR();
     }
@@ -458,9 +420,7 @@ p_or(Term t1, Term t2) {
       /* two integers */
       RINT(IntegerOfTerm(t1) | IntegerOfTerm(t2));
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "\\/ /2");
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");
     case big_int_e:
 #ifdef USE_GMP
       return(Yap_gmp_ior_int_big(IntegerOfTerm(t1),Yap_BigIntOfTerm(t2)));
@@ -470,9 +430,7 @@ p_or(Term t1, Term t2) {
     }
     break;
   case double_e:
-    Yap_Error(TYPE_ERROR_INTEGER, t1, "\\/ /2");
-    P = (yamop *)FAILCODE;
-    RERROR();
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "\\/ /2");
   case big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
@@ -483,10 +441,7 @@ p_or(Term t1, Term t2) {
       /* two bignums */
       return Yap_gmp_ior_big_big(Yap_BigIntOfTerm(t2), Yap_BigIntOfTerm(t1));
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "\\/ /2");
-      /* make GCC happy */
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");
     case db_ref_e:
       RERROR();
     }
@@ -507,53 +462,32 @@ p_sll(Term t1, Term t2) {
       if (IntegerOfTerm(t2) < 0) {
 	Int i2 = IntegerOfTerm(t2);
 	if (i2 == Int_MIN) {
-	  Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
-	  P = (yamop *)FAILCODE;
-	  RERROR();
+	  return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
 	}
 	RINT(IntegerOfTerm(t1) >> -i2);
       }
       return do_sll(IntegerOfTerm(t1),IntegerOfTerm(t2));
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "<</2");
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "<</2");
     case big_int_e:
 #ifdef USE_GMP
-      Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, "<</2");
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, "<</2");
 #endif
     case db_ref_e:
       RERROR();
     }
     break;
   case double_e:
-    Yap_Error(TYPE_ERROR_INTEGER, t1, "<< /2");
-    P = (yamop *)FAILCODE;
-    RERROR();
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "<< /2");
   case big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
-      {
-	Term t = Yap_gmp_sll_big_int(Yap_BigIntOfTerm(t1),  IntegerOfTerm(t2));
-	if (t == 0L) {
-	  Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, "<</2");
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	}
-	return t;
-      }
+      return Yap_gmp_sll_big_int(Yap_BigIntOfTerm(t1),  IntegerOfTerm(t2));
     case big_int_e:
-      Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "<</2");
-      /* make GCC happy */
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "<</2");
     case db_ref_e:
       RERROR();
     }
@@ -574,55 +508,32 @@ p_slr(Term t1, Term t2) {
       if (IntegerOfTerm(t2) < 0) {
 	Int i2 = IntegerOfTerm(t2);
 	if (i2 == Int_MIN) {
-	  Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
-	  P = (yamop *)FAILCODE;
-	  RERROR();
+	  return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
 	}
 	return do_sll(IntegerOfTerm(t1), -i2);
       }
       RINT(IntegerOfTerm(t1) >> IntegerOfTerm(t2));
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, ">>/2");
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, ">>/2");
     case big_int_e:
 #ifdef USE_GMP
-      Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
 #endif
     case db_ref_e:
       RERROR();
     }
     break;
   case double_e:
-    Yap_Error(TYPE_ERROR_INTEGER, t1, ">>/2");
-    P = (yamop *)FAILCODE;
-    RERROR();
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, ">>/2");
   case big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
-      {
-	Term t;
-
-	t = Yap_gmp_sll_big_int(Yap_BigIntOfTerm(t1),  -IntegerOfTerm(t2));
-	if (t == 0L) {
-	  Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
-	  P = (yamop *)FAILCODE;
-	  RERROR();
-	}
-	return(t);
-      }
+      return Yap_gmp_sll_big_int(Yap_BigIntOfTerm(t1),  -IntegerOfTerm(t2));
     case big_int_e:
-      Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, ">>/2");
-      /* make GCC happy */
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, ">>/2");
     case db_ref_e:
       RERROR();
     }

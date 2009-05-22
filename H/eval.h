@@ -164,6 +164,19 @@ Term	STD_PROTO(Yap_eval_unary,(Int,Term));
 Term	STD_PROTO(Yap_eval_binary,(Int,Term,Term));
 
 Term	STD_PROTO(Yap_Eval,(Term));
+Int     STD_PROTO(Yap_ArithError,(yap_error_number,Term,char *msg, ...));
+
+inline static Term
+Yap_FoundArithError(Term t, Term inp)
+{
+  if (Yap_Error_TYPE) {
+    Yap_Error(Yap_Error_TYPE, (inp ? inp : Yap_Error_Term), Yap_ErrorMessage);
+     P = FAILCODE;
+     return 0L;
+  }
+  return t;
+}
+
 
 #define RINT(v)       return(MkIntegerTerm(v))
 #define RFLOAT(v)     return(MkFloatTerm(v))

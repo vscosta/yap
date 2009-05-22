@@ -48,7 +48,7 @@ float_to_int(Float v)
 #define RBIG_FL(v)  return(float_to_int(v))
 
 #if USE_GMP
-static void
+static Term
 process_iso_error(MP_INT *big, Term t, char *operation)
 { /* iso */
   Int sz = 2+mpz_sizeinbase(big,10);
@@ -56,12 +56,11 @@ process_iso_error(MP_INT *big, Term t, char *operation)
 
   if (s != NULL) {
     mpz_get_str(s, 10, big);
-    Yap_Error(TYPE_ERROR_FLOAT, t, "X is %s(%s)", operation, s);
+    Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is %s(%s)", operation, s);
     Yap_FreeCodeSpace(s);
-    P = (yamop *)FAILCODE;
+    RERROR();
   } else {
-    Yap_Error(TYPE_ERROR_FLOAT, t, "X is %s(t)",operation);
-    P = (yamop *)FAILCODE;
+    return Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is %s(t)",operation);
   }
 }
 #endif
@@ -145,10 +144,8 @@ msb(Int inp)	/* calculate the most significant bit for an integer */
   int off = sizeof(CELL)*4;
 
   if (inp < 0) {
-    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(inp),
+    return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(inp),
 	      "msb/1 received %d", inp);
-    P = (yamop *)FAILCODE;
-    return(0);
   }
 
   while (off) {
@@ -206,9 +203,7 @@ eval1(Int fi, Term t) {
     case long_int_e:
       RINT(~IntegerOfTerm(t));
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t, "\\(f)", FloatOfTerm(t));
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t, "\\(f)", FloatOfTerm(t));
     case big_int_e:
 #ifdef USE_GMP
       {
@@ -230,9 +225,7 @@ eval1(Int fi, Term t) {
       if (dbl >= 0) {
 	RFLOAT(log(dbl));
       } else {
-	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "log(%f)", dbl);
-	P = (yamop *)FAILCODE;
-	RERROR();
+	return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "log(%f)", dbl);
       }
     }
   case op_log10:
@@ -241,9 +234,7 @@ eval1(Int fi, Term t) {
       if (dbl >= 0) {
 	RFLOAT(log10(dbl));
       } else {
-	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "log(%f)", dbl);
-	P = (yamop *)FAILCODE;
-	RERROR();
+	return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "log(%f)", dbl);
       }
     }
   case op_sqrt:
@@ -252,9 +243,7 @@ eval1(Int fi, Term t) {
       out = sqrt(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "acos(%f)", dbl);
-	P = (yamop *)FAILCODE;
-	RERROR();
+	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "acos(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -303,9 +292,7 @@ eval1(Int fi, Term t) {
       out = asin(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
-	P = (yamop *)FAILCODE;
-	RERROR();
+	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -318,9 +305,7 @@ eval1(Int fi, Term t) {
       out = acos(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
-	P = (yamop *)FAILCODE;
-	RERROR();
+	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -333,9 +318,7 @@ eval1(Int fi, Term t) {
       out = atan(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
-	P = (yamop *)FAILCODE;
-	RERROR();
+	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -348,9 +331,7 @@ eval1(Int fi, Term t) {
       out = asinh(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
-	P = (yamop *)FAILCODE;
-	RERROR();
+	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -363,9 +344,7 @@ eval1(Int fi, Term t) {
       out = acosh(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
-	P = (yamop *)FAILCODE;
-	RERROR();
+	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -378,9 +357,7 @@ eval1(Int fi, Term t) {
       out = atanh(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
-	P = (yamop *)FAILCODE;
-	RERROR();
+	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -411,9 +388,7 @@ eval1(Int fi, Term t) {
       switch (ETypeOfTerm(t)) {
       case long_int_e:
 	if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is floor(%f)", IntegerOfTerm(t));
-	  P = (yamop *)FAILCODE;
-	  RERROR();
+	  return Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is floor(%f)", IntegerOfTerm(t));
 	} else {
 	  RFLOAT(IntegerOfTerm(t));
 	}
@@ -429,14 +404,11 @@ eval1(Int fi, Term t) {
 
 	  if (s != NULL) {
 	    mpz_get_str(s, 10, big);
-	    Yap_Error(TYPE_ERROR_FLOAT, t, "X is floor(%s)", s);
-	    P = (yamop *)FAILCODE;
+	    Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is floor(%s)", s);
 	    Yap_FreeCodeSpace(s);
 	    RERROR();
 	  } else {
-	    Yap_Error(TYPE_ERROR_FLOAT, t, "X is floor(t)");
-	    P = (yamop *)FAILCODE;
-	    RERROR();
+	    return Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is floor(t)");
 	  }
 	} else {
 	  dbl = mpz_get_d(Yap_BigIntOfTerm(t));
@@ -458,9 +430,7 @@ eval1(Int fi, Term t) {
       switch (ETypeOfTerm(t)) {
       case long_int_e:
 	if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is ceiling(%f)", IntegerOfTerm(t));
-	  P = (yamop *)FAILCODE;
-	  RERROR();
+	  return Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is ceiling(%f)", IntegerOfTerm(t));
 	} else {
 	  RFLOAT(IntegerOfTerm(t));
 	}
@@ -470,8 +440,7 @@ eval1(Int fi, Term t) {
       case big_int_e:
 #ifdef USE_GMP
 	if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	  process_iso_error(Yap_BigIntOfTerm(t), t, "ceiling");
-	  RERROR();
+	  return process_iso_error(Yap_BigIntOfTerm(t), t, "ceiling");
 	} else {
 	  dbl = mpz_get_d(Yap_BigIntOfTerm(t));
 	}
@@ -493,9 +462,7 @@ eval1(Int fi, Term t) {
       switch (ETypeOfTerm(t)) {
       case long_int_e:
 	if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	  Yap_Error(TYPE_ERROR_FLOAT, t, "X is round(%f)", IntegerOfTerm(t));
-	  P = (yamop *)FAILCODE;
-	  RERROR();
+	  return Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is round(%f)", IntegerOfTerm(t));
 	} else {
 	  RFLOAT(IntegerOfTerm(t));
 	}
@@ -505,8 +472,7 @@ eval1(Int fi, Term t) {
       case big_int_e:
 #ifdef USE_GMP
 	if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {
-	  process_iso_error(Yap_BigIntOfTerm(t), t, "round");
-	  RERROR();      
+	  return process_iso_error(Yap_BigIntOfTerm(t), t, "round");
 	} else {
 	  dbl = mpz_get_d(Yap_BigIntOfTerm(t));
 	}
@@ -553,9 +519,7 @@ eval1(Int fi, Term t) {
 	mpz_init_set_d(&new, dbl);
 	RBIG(&new);
 #else
-	Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer/1");
-	P = (yamop *)FAILCODE;
-	RERROR();	    
+	return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer/1");
 #endif
       }
     }
@@ -596,9 +560,7 @@ eval1(Int fi, Term t) {
     case long_int_e:
       RINT(msb(IntegerOfTerm(t)));
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t, "msb(%f)", FloatOfTerm(t));
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t, "msb(%f)", FloatOfTerm(t));
     case big_int_e:
 #ifdef USE_GMP
       RINT(mpz_sizeinbase(Yap_BigIntOfTerm(t),2));
@@ -610,9 +572,7 @@ eval1(Int fi, Term t) {
     switch (ETypeOfTerm(t)) {
     case long_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	Yap_Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%f)", IntegerOfTerm(t));
-	P = (yamop *)FAILCODE;
-	RERROR();
+	return Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%f)", IntegerOfTerm(t));
       } else {
 	RFLOAT(0.0);
       }
@@ -626,8 +586,7 @@ eval1(Int fi, Term t) {
     case big_int_e:
 #ifdef USE_GMP
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	process_iso_error(Yap_BigIntOfTerm(t), t, "float_fractional_part");
-	RERROR();
+	return process_iso_error(Yap_BigIntOfTerm(t), t, "float_fractional_part");
       } else {
 	RFLOAT(0.0);
       }
@@ -639,9 +598,7 @@ eval1(Int fi, Term t) {
     switch (ETypeOfTerm(t)) {
     case long_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	Yap_Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%f)", IntegerOfTerm(t));
-	P = (yamop *)FAILCODE;
-	RERROR();
+	return Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%f)", IntegerOfTerm(t));
       } else {
 	RFLOAT(IntegerOfTerm(t));
       }
@@ -651,8 +608,7 @@ eval1(Int fi, Term t) {
     case big_int_e:
 #ifdef USE_GMP
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	process_iso_error(Yap_BigIntOfTerm(t), t, "float_integer_part");
-	RERROR();
+	return process_iso_error(Yap_BigIntOfTerm(t), t, "float_integer_part");
       } else {
 	RFLOAT(mpz_get_d(Yap_BigIntOfTerm(t)));
       }
@@ -687,14 +643,10 @@ eval1(Int fi, Term t) {
     case long_int_e:
       RINT(Yap_random()*IntegerOfTerm(t));
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t, "random(%f)", FloatOfTerm(t));
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t, "random(%f)", FloatOfTerm(t));
     case big_int_e:
 #ifdef USE_GMP
-      Yap_Error(TYPE_ERROR_INTEGER, t, "random(%f)", FloatOfTerm(t));
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t, "random(%f)", FloatOfTerm(t));
 #endif
     case db_ref_e:
       RERROR();
@@ -705,7 +657,7 @@ eval1(Int fi, Term t) {
 
 Term Yap_eval_unary(Int f, Term t)
 {
-  return eval1(f,t);
+  return Yap_FoundArithError(eval1(f,t), t);
 }
 
 static InitUnEntry InitUnTab[] = {
@@ -751,13 +703,13 @@ p_unary_is(void)
 
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, ARG2, "X is Y");
-    return(FALSE);
+    return FALSE;
   }
   top = Yap_Eval(Deref(ARG3));
   if (top == 0L)
     return FALSE;
   if (IsIntTerm(t)) {
-    Term tout = eval1(IntegerOfTerm(t), top);
+    Term tout = Yap_FoundArithError(eval1(IntegerOfTerm(t), top), Deref(ARG3));
     if (!tout)
       return FALSE;
     return Yap_unify_constant(ARG1,tout);
@@ -777,10 +729,10 @@ p_unary_is(void)
       Yap_Error(TYPE_ERROR_EVALUABLE, t,
 		"functor %s/%d for arithmetic expression",
 		RepAtom(name)->StrOfAE,1);
-      P = (yamop *)FAILCODE;
+      P = FAILCODE;
       return(FALSE);
     }
-    if (!(out=eval1(p->FOfEE, top)))
+    if (!(out=Yap_FoundArithError(eval1(p->FOfEE, top),Deref(ARG3))))
       return FALSE;
     return Yap_unify_constant(ARG1,out);
   }
@@ -813,7 +765,7 @@ p_unary_op_as_integer(void)
       Yap_Error(TYPE_ERROR_EVALUABLE, t,
 		"functor %s/%d for arithmetic expression",
 		RepAtom(name)->StrOfAE,2);
-      P = (yamop *)FAILCODE;
+      P = FAILCODE;
       return(FALSE);
     }
     return Yap_unify_constant(ARG2,MkIntTerm(p->FOfEE));

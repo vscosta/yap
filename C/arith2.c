@@ -78,10 +78,8 @@ p_mod(Term t1, Term t2) {
 #ifdef USE_GMP
 	  return Yap_gmp_add_ints(Int_MAX, 1);	  
 #else
-	  Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, t1,
+	  return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, t1,
 		    "// /2 with %d and %d", i1, i2);
-	  P = (yamop *)FAILCODE;
-	  RERROR();	  
 #endif
 	}
 	mod = i1%i2;
@@ -90,10 +88,7 @@ p_mod(Term t1, Term t2) {
 	RINT(mod);
       }
     case (CELL)double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "mod/2");
-      /* make GCC happy */
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
 #ifdef USE_GMP
     case (CELL)big_int_e:
       /* I know the term is much larger, so: */
@@ -111,10 +106,7 @@ p_mod(Term t1, Term t2) {
       break;
     }
   case (CELL)double_e:
-    Yap_Error(TYPE_ERROR_INTEGER, t2, "mod/2");
-    /* make GCC happy */
-    P = (yamop *)FAILCODE;
-    RERROR();
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
   case (CELL)big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
@@ -142,10 +134,7 @@ p_mod(Term t1, Term t2) {
 	RBIG(&new);
       }
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "mod/2");
-      /* make GCC happy */
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
     case db_ref_e:
       RERROR();
     }
@@ -154,10 +143,7 @@ p_mod(Term t1, Term t2) {
     RERROR();
   }
 zero_divisor:
-  Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is mod 0");
-  /* make GCC happy */
-  P = (yamop *)FAILCODE;
-  RERROR();
+  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is mod 0");
 }
 
 static Term
@@ -177,20 +163,15 @@ p_rem(Term t1, Term t2) {
 #ifdef USE_GMP
 	  return Yap_gmp_add_ints(Int_MAX, 1);	  
 #else
-	  Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, t1,
+	  return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, t1,
 		    "rem/2 with %d and %d", i1, i2);
-	  P = (yamop *)FAILCODE;
-	  RERROR();	  
 #endif
 	}
 	mod = i1%i2;
 	RINT(i1%i2);
       }
     case (CELL)double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "mod/2");
-      /* make GCC happy */
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
 #ifdef USE_GMP
     case (CELL)big_int_e:
       /* I know the term is much larger, so: */
@@ -201,9 +182,7 @@ p_rem(Term t1, Term t2) {
     }
     break;
   case (CELL)double_e:
-    Yap_Error(TYPE_ERROR_INTEGER, t1, "mod/2");
-    P = (yamop *)FAILCODE;
-    RERROR();
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "mod/2");
 #ifdef USE_GMP
   case (CELL)big_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -231,10 +210,7 @@ p_rem(Term t1, Term t2) {
 	RBIG(&new);
       }
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "mod/2");
-      /* make GCC happy */
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
     case db_ref_e:
       RERROR();
     }
@@ -243,10 +219,7 @@ p_rem(Term t1, Term t2) {
     RERROR();
   }
  zero_divisor:
-  Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is mod 0");
-  /* make GCC happy */
-  P = (yamop *)FAILCODE;
-  RERROR();
+  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is mod 0");
 }
 
 
@@ -370,9 +343,7 @@ p_xor(Term t1, Term t2)
       /* two integers */
       RINT(IntegerOfTerm(t1) ^ IntegerOfTerm(t2));
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "#/2");
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "#/2");
 #ifdef USE_GMP
     case big_int_e:
       {
@@ -388,9 +359,7 @@ p_xor(Term t1, Term t2)
     }
     break;
   case double_e:
-    Yap_Error(TYPE_ERROR_INTEGER, t1, "#/2");
-    P = (yamop *)FAILCODE;
-    RERROR();
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "#/2");
 #ifdef USE_GMP
   case big_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -412,10 +381,7 @@ p_xor(Term t1, Term t2)
 	RBIG(&new);
       }
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "#/2");
-      /* make GCC happy */
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "#/2");
     case db_ref_e:
       RERROR();
     }
@@ -634,10 +600,8 @@ p_exp(Term t1, Term t2)
 	Int pow = ipow(i1,i2);
 
 	if (i2 < 0) {
-	  Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2,
+	  return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2,
 		    "%d ^ %d", i1, i2);
-	  P = (yamop *)FAILCODE;
-	  RERROR();
 	}
 #ifdef USE_GMP
 	/* two integers */
@@ -658,9 +622,7 @@ p_exp(Term t1, Term t2)
 #ifdef USE_GMP
     case big_int_e:
       {
-	Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, "^/2");
-	P = (yamop *)FAILCODE;
-	RERROR();
+	return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, "^/2");
       }
 #endif
     case db_ref_e:
@@ -683,9 +645,7 @@ p_exp(Term t1, Term t2)
 #ifdef USE_GMP
     case big_int_e:
       {
-	Yap_Error(RESOURCE_ERROR_HUGE_INT, t2, "^/2");
-	P = (yamop *)FAILCODE;
-	RERROR();
+	return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, "^/2");
       }
 #endif
     case db_ref_e:
@@ -703,9 +663,7 @@ p_exp(Term t1, Term t2)
     case big_int_e:
       /* two bignums, makes no sense */
       //
-      Yap_Error(RESOURCE_ERROR_HUGE_INT, t1, "^/2");
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t1, "^/2");
     case double_e:
       {
 	Float dbl = FloatOfTerm(t2);
@@ -735,9 +693,8 @@ gcd(Int m11,Int m21)
     }
   if (m11<0 || m21<0) {		/* overflow? */
     /*    Oflow = 1; */
-    Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, MkIntegerTerm(m11),
+    Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkIntegerTerm(m11),
 	      "gcd/2 with %d and %d", m11, m21);
-    P = (yamop *)FAILCODE;
     return(1);
   }
   if (m11)  return(m11);
@@ -757,9 +714,8 @@ Int gcdmult(Int m11,Int m21,Int *pm11)	/* *pm11 gets multiplier of m11 */
     }
   if (m11<0 || m21<0) {		/* overflow? */
     /*    Oflow = 1; */
-    Yap_Error(EVALUATION_ERROR_INT_OVERFLOW, MkIntegerTerm(m11),
+    Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkIntegerTerm(m11),
 	      "gcdmult/2 with %d and %d", m11, m21);
-    P = (yamop *)FAILCODE;
     return(1);
   }
   if (m11) {
@@ -789,10 +745,7 @@ p_gcd(Term t1, Term t2)
 	RINT(gcd(i1,i2));
       }
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "gcd/2");
-      /* make GCC happy */
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "gcd/2");
 #ifdef USE_GMP
     case big_int_e:
       /* I know the term is much larger, so: */
@@ -813,9 +766,7 @@ p_gcd(Term t1, Term t2)
     }
     break;
   case double_e:
-    Yap_Error(TYPE_ERROR_INTEGER, t1, "gcd/2");
-    P = (yamop *)FAILCODE;
-    RERROR();
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "gcd/2");
 #ifdef USE_GMP
   case big_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -842,10 +793,7 @@ p_gcd(Term t1, Term t2)
 	RBIG(&new);
       }
     case double_e:
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "gcd/2");
-      /* make GCC happy */
-      P = (yamop *)FAILCODE;
-      RERROR();
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "gcd/2");
     case db_ref_e:
       RERROR();
     }
@@ -1184,7 +1132,7 @@ eval2(Int fi, Term t1, Term t2) {
 
 Term Yap_eval_binary(Int f, Term t1, Term t2)
 {
-  return eval2(f,t1,t2);
+  return Yap_FoundArithError(eval2(f,t1,t2), 0L);
 }
 
 static InitBinEntry InitBinTab[] = {
@@ -1219,7 +1167,7 @@ p_binary_is(void)
   Term t1, t2;
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR,t, "X is Y");
+    Yap_ArithError(INSTANTIATION_ERROR,t, "X is Y");
     return(FALSE);
   }
   t1 = Yap_Eval(Deref(ARG3));
@@ -1229,7 +1177,7 @@ p_binary_is(void)
   if (t2 == 0L)
     return FALSE;
   if (IsIntTerm(t)) {
-    Term tout = eval2(IntegerOfTerm(t), t1, t2);
+    Term tout = Yap_FoundArithError(eval2(IntegerOfTerm(t), t1, t2), 0L);
     if (!tout)
       return FALSE;
     return Yap_unify_constant(ARG1,tout);
@@ -1249,10 +1197,10 @@ p_binary_is(void)
       Yap_Error(TYPE_ERROR_EVALUABLE, t,
 		"functor %s/%d for arithmetic expression",
 		RepAtom(name)->StrOfAE,2);
-      P = (yamop *)FAILCODE;
+      P = FAILCODE;
       return(FALSE);
     }
-    if (!(out=eval2(p->FOfEE, t1, t2)))
+    if (!(out=Yap_FoundArithError(eval2(p->FOfEE, t1, t2), 0L)))
       return FALSE;
     return Yap_unify_constant(ARG1,out);
   }
@@ -1285,7 +1233,7 @@ p_binary_op_as_integer(void)
       Yap_Error(TYPE_ERROR_EVALUABLE, t,
 		"functor %s/%d for arithmetic expression",
 		RepAtom(name)->StrOfAE,2);
-      P = (yamop *)FAILCODE;
+      P = FAILCODE;
       return(FALSE);
     }
     return Yap_unify_constant(ARG2,MkIntTerm(p->FOfEE));
@@ -1302,6 +1250,10 @@ Yap_InitBinaryExps(void)
 
   for (i = 0; i < sizeof(InitBinTab)/sizeof(InitBinEntry); ++i) {
     AtomEntry *ae = RepAtom(Yap_LookupAtom(InitBinTab[i].OpName));
+    if (ae == NULL) {
+      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"at InitBinaryExps");
+      return;
+    }
     WRITE_LOCK(ae->ARWLock);
     if (Yap_GetExpPropHavingLock(ae, 2)) {
       WRITE_UNLOCK(ae->ARWLock);
