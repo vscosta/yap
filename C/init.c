@@ -1410,14 +1410,14 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   NOfWideAtoms = 0;
   PredsInHashTable = 0;
 #if THREADS
-  SF_STORE->AtFoundVar = Yap_LookupAtom(".");
+  SF_STORE->AtFoundVar = Yap_LookupAtom("**");
   Yap_ReleaseAtom(AtomFoundVar);
   SF_STORE->AtFreeTerm = Yap_LookupAtom("?");
   Yap_ReleaseAtom(AtomFreeTerm);
   SF_STORE->AtNil = Yap_LookupAtom("[]");
   SF_STORE->AtDot = Yap_LookupAtom(".");
 #else
-  Yap_LookupAtomWithAddress(".",&(SF_STORE->AtFoundVar));
+  Yap_LookupAtomWithAddress("**",&(SF_STORE->AtFoundVar));
   Yap_ReleaseAtom(AtomFoundVar);
   Yap_LookupAtomWithAddress("?",&(SF_STORE->AtFreeTerm));
   Yap_ReleaseAtom(AtomFreeTerm);
