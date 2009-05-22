@@ -376,7 +376,7 @@ true :- true.
  % but YAP and SICStus does.
  %
  '$process_directive'(G, _, M) :-
-	 ( '$do_yes_no'(G,M) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
+	 ( '$notrace'(M:G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
 
  '$continue_with_command'(reconsult,V,Pos,G,Source) :-
 	 '$go_compile_clause'(G,V,Pos,5,Source),
@@ -1177,7 +1177,7 @@ throw(Ball) :-
 '$run_toplevel_hooks' :-
 	nb_getval('$break',0),
 	recorded('$toplevel_hooks',H,_), !,
-	( '$execute'(H) -> true ; true).
+	( '$oncenotrace'(H) -> true ; true).
 '$run_toplevel_hooks'.
 
 '$enter_system_mode' :-
@@ -1214,7 +1214,15 @@ throw(Ball) :-
 	    
 
 '$oncenotrace'(M:G) :-
-	'$execute_nonstop'(G, M), !.
+	yap_hacks:disable_interrupts,
+	(
+	 '$execute'(G),
+	 !,
+	 yap_hacks:enable_interrupts
+	;
+	 yap_hacks:enable_interrupts,
+	 fail
+	). 
 
 '$run_at_thread_start' :-
 	recorded('$thread_initialization',M:D,_),

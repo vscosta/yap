@@ -314,7 +314,7 @@ use_module(M,F,Is) :-
 	recorded('$system_initialisation',G,R),
 	erase(R),
 	G \= '$',
-	call(G),
+	'$notrace'(G),
 	fail.
 '$exec_initialisation_goals' :-
 	'$show_consult_level'(Level1),
@@ -327,7 +327,7 @@ use_module(M,F,Is) :-
         ( OldMode == on -> '$exit_system_mode' ; true ),
 	% run initialization under user control (so allow debugging this stuff).
 	(
-	  '$system_catch'(once(M:G), M, Error, user:'$LoopError'(Error, top)),
+	  '$system_catch'('$oncenotrace'(M:G), M, Error, user:'$LoopError'(Error, top)),
 	  fail
 	;
           OldMode = on,
