@@ -62,7 +62,7 @@ run_goal(Goal, Result0) :-
 	 )
 	).
 	  
-run_goal(Goal, Result0) :-
+run_goal(_, _) :-
 	yap_hacks:disable_interrupts,
 	% make sure we're not getting an extraneous interrupt if we terminate early....
 	alarm(0,_,_),
