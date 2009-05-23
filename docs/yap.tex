@@ -6520,7 +6520,8 @@ execute_once_with_alarm(Time, Goal) :-
         ( call(Goal) -> alarm(0, alarm, _) ; alarm(0, alarm, _), fail).
 @end example
 
-The procedure has three arguments: the @var{Time} before the alarm is
+The procedure @code{once_with_alarm/3} has three arguments:
+the @var{Time} to wait before the alarm is
 sent; the @var{Goal} to execute; and the goal @var{DoOnAlarm} to execute
 if the alarm is sent. It uses @code{catch/3} to handle the case the
 @code{alarm} is sent. Then it starts the alarm, calls the goal
