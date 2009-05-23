@@ -215,7 +215,7 @@ POP_POINTER(void) {
 
 inline static void
 POPSWAP_POINTER(CELL_PTR *vp, CELL_PTR v) {
-  if (iptop >= (CELL_PTR *)ASP) return;
+  if (iptop >= (CELL_PTR *)ASP || iptop == vp) return;
   if (*vp != v)
     return;
   --iptop;
@@ -1625,7 +1625,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     register CELL trail_cell;
     
     trail_cell = TrailTerm(trail_base);
-
     if (IsVarTerm(trail_cell)) {
       CELL *hp = (CELL *)trail_cell;
       /* if a variable older than the current CP has not been marked yet,
@@ -1669,7 +1668,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif
 	}
 #ifdef EASY_SHUNTING
-	if (hp < gc_H   && hp >= H0) {
+	if (hp < gc_H   && hp >= H0 && !MARKED_PTR(hp)) {
 	  tr_fr_ptr nsTR = (tr_fr_ptr)cont_top0;
           CELL *cptr = (CELL *)trail_cell;
 
@@ -1713,10 +1712,10 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
       if (cptr < (CELL *)gc_B && cptr >= gc_H) {
 	goto remove_trash_entry;
       } else if (!detatt && cptr == RepAppl(DelayedVars)+1) {
-	detatt = cptr;
+	//detatt = cptr;
       } else if (cptr > (CELL*)Yap_GlobalBase && cptr < H0) {
 	/* MABINDING that should be recovered */
-	if (detatt && cptr >= detatt) {
+	if (detatt && cptr < detatt) {
 	  goto remove_trash_entry;
 	} else {
 	  /* This attributed variable is still in play */
