@@ -2291,7 +2291,7 @@ p_open (void)
     return (PlIOError (SYSTEM_ERROR,file_name,"file name is too long in open/3"));
   sno = GetFreeStreamD();
   if (sno < 0)
-    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open/3"));
+    return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "all streams in use"));
   st = &Stream[sno];
   /* can never happen */
   tenc = Deref(ARG5);

@@ -244,14 +244,16 @@ system_message(error(representation_error(character_code), Where)) -->
 	[ 'REPRESENTATION ERROR- ~w: expected character code' - [Where] ].
 system_message(error(representation_error(max_arity), Where)) -->
 	[ 'REPRESENTATION ERROR- ~w: number too big' - [Where] ].
+system_message(error(resource_error(code_space), Where)) -->
+	[ 'RESOURCE ERROR- not enough code space' - [Where] ].
 system_message(error(resource_error(huge_int), Where)) -->
 	[ 'RESOURCE ERROR- too large an integer in absolute value' - [Where] ].
 system_message(error(resource_error(memory), Where)) -->
 	[ 'RESOURCE ERROR- not enough virtual memory' - [Where] ].
 system_message(error(resource_error(stack), Where)) -->
 	[ 'RESOURCE ERROR- not enough stack' - [Where] ].
-system_message(error(resource_error(code_space), Where)) -->
-	[ 'RESOURCE ERROR- not enough code space' - [Where] ].
+system_message(error(resource_error(streams), Where)) -->
+	[ 'RESOURCE ERROR- could not find a free stream' - [Where] ].
 system_message(error(resource_error(threads), Where)) -->
 	[ 'RESOURCE ERROR- too many open threads' - [Where] ].
 system_message(error(resource_error(trail), Where)) -->

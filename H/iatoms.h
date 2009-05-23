@@ -243,6 +243,7 @@
   AtomStaticClause = Yap_FullLookupAtom("$static_clause");
   AtomStaticProcedure = Yap_LookupAtom("static_procedure");
   AtomStream = Yap_FullLookupAtom("$stream");
+  AtomStreams = Yap_FullLookupAtom("streams");
   AtomStreamOrAlias = Yap_LookupAtom("stream_or_alias");
   AtomStreamPos = Yap_FullLookupAtom("$stream_position");
   AtomStreamPosition = Yap_LookupAtom("stream_position");

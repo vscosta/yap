@@ -1337,6 +1337,20 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       serious = TRUE;
     }
     break;
+  case RESOURCE_ERROR_MAX_STREAMS:
+    {
+      int i;
+      Term ti[1];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(AtomStreams);
+      nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
+      tp = tmpbuf+i;
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
   case RESOURCE_ERROR_STACK:
     {
       int i;

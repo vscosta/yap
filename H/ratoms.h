@@ -245,6 +245,7 @@
   AtomStaticClause = AtomAdjust(AtomStaticClause);
   AtomStaticProcedure = AtomAdjust(AtomStaticProcedure);
   AtomStream = AtomAdjust(AtomStream);
+  AtomStreams = AtomAdjust(AtomStreams);
   AtomStreamOrAlias = AtomAdjust(AtomStreamOrAlias);
   AtomStreamPos = AtomAdjust(AtomStreamPos);
   AtomStreamPosition = AtomAdjust(AtomStreamPosition);
