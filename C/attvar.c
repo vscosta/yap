@@ -723,7 +723,6 @@ p_get_atts(void) {
       return FALSE;
     }
   } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE,inp,"first argument of get_att/2");
     return(FALSE);
   }
 }
