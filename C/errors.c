@@ -232,6 +232,7 @@ dump_stack(void)
   CELL *env_ptr = ENV;
   char tp[256];
   yamop *ipc = CP;
+  int max_count = 200;
   
 #if DEBUG
   fprintf(stderr,"%% YAP regs: P=%p, CP=%p, ASP=%p, H=%p, TR=%p, HeapTop=%p\n",P,CP,ASP,H,TR,HeapTop);
@@ -286,10 +287,18 @@ dump_stack(void)
 	} else {
 	  fprintf(stderr,"%%  %s\n", tp);
 	}
+	if (!max_count--) {
+	  fprintf(stderr,"%%  .....\n");
+	  return;
+	}
 	ipc = (yamop *)(env_ptr[E_CP]);
 	env_ptr = (CELL *)(env_ptr[E_E]);
       }
       if (b_ptr) {
+	if (!max_count--) {
+	  fprintf(stderr,"%%  .....\n");
+	  return;
+	}
 	if (b_ptr->cp_ap && /* tabling */
 	    b_ptr->cp_ap->opc != Yap_opcode(_or_else) &&
 	    b_ptr->cp_ap->opc != Yap_opcode(_or_last) &&
@@ -1764,6 +1773,17 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     ActiveSignals = 0;
     CreepFlag = CalculateStackGap();
     Yap_PrologMode &= ~InErrorMode;
+    LOCK(SignalLock);
+    /* we might be in the middle of a critical region */
+    if (!Yap_InterruptsDisabled) {
+      UncaughtThrow = TRUE;
+      UNLOCK(SignalLock);
+#if PUSH_REGS
+      restore_absmi_regs(&Yap_standard_regs);
+#endif
+      siglongjmp(Yap_RestartEnv,1);      
+    }
+    UNLOCK(SignalLock);
     if (type == PURE_ABORT)
       Yap_JumpToEnv(MkAtomTerm(AtomDAbort));
     else
