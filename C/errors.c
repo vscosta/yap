@@ -1323,14 +1323,14 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       serious = TRUE;
     }
     break;
-  case RESOURCE_ERROR_MAX_THREADS:
+  case REPRESENTATION_ERROR_VARIABLE:
     {
       int i;
       Term ti[1];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(AtomThreads);
-      nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
+      ti[0] = MkAtomTerm(AtomVariable);
+      nt[0] = Yap_MkApplTerm(FunctorRepresentationError, 1, ti);
       tp = tmpbuf+i;
       psize -= i;
       fun = FunctorError;

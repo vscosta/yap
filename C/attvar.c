@@ -482,8 +482,8 @@ p_put_att(void) {
     PutAtt(IntegerOfTerm(Deref(ARG4)), tatts, Deref(ARG5));
     return TRUE;
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
-    return(FALSE);
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE,inp,"first argument of put_attributes/2");
+    return FALSE;
   }
 }
 
@@ -516,7 +516,7 @@ p_put_att_term(void) {
     }
     return TRUE;
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE,inp,"first argument of put_att_term/2");
     return(FALSE);
   }
 }
@@ -561,7 +561,7 @@ p_rm_att(void) {
     }
     return TRUE;
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE,inp,"first argument of rm_att/2");
     return(FALSE);
   }
 }
@@ -599,7 +599,7 @@ p_put_atts(void) {
     }
     return TRUE;
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE,inp,"first argument of put_att/2");
     return FALSE;
   }
 }
@@ -655,7 +655,7 @@ p_get_att(void) {
       return FALSE;
     }
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE,inp,"first argument of get_att/2");
     return(FALSE);
   }
 }
@@ -682,7 +682,7 @@ p_free_att(void) {
       return TRUE;
     }
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE,inp,"first argument of free_att/2");
     return(FALSE);
   }
 }
@@ -723,7 +723,7 @@ p_get_atts(void) {
       return FALSE;
     }
   } else {
-    //    Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_attributes/2");
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE,inp,"first argument of get_att/2");
     return(FALSE);
   }
 }
@@ -747,7 +747,7 @@ p_has_atts(void) {
       return FALSE;
     }
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"has_attributes/2");
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE,inp,"first argument of has_atts/2");
     return(FALSE);
   }
 }
@@ -764,7 +764,7 @@ p_bind_attvar(void) {
     }
     return(TRUE);
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"bind_att/2");
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE,inp,"first argument of bind_attvar/2");
     return(FALSE);
   }
 }
@@ -781,7 +781,7 @@ p_get_all_atts(void) {
     }
     return TRUE;
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE,inp,"first argument of get_all_atts/2");
     return FALSE;
   }
 }
@@ -829,7 +829,7 @@ p_modules_with_atts(void) {
     }
     return Yap_unify(ARG2,TermNil);
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE,inp,"first argument of modules_with_attributes/2");
     return FALSE;
   }
 }
@@ -869,7 +869,7 @@ p_swi_all_atts(void) {
     }
     return Yap_unify(ARG2,TermNil);
   } else {
-    Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE,inp,"first argument of get_all_swi_atts/2");
     return FALSE;
   }
 }

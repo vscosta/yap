@@ -1540,8 +1540,8 @@ JumpToEnv(Term t) {
   B->cp_cp = (yamop *)env[E_CP];
   B->cp_env = (CELL *)env[E_E];
   B->cp_ap = NEXTOP(PredHandleThrow->CodeOfPred,l);
-  /* cannot recover Heap because of copy term :-( */
-  B->cp_h = H;
+  /* can recover Heap thanks to copy term :-( */
+  /* B->cp_h = H; */
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
   B->cp_a3 = t;

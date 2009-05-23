@@ -244,6 +244,8 @@ system_message(error(representation_error(character_code), Where)) -->
 	[ 'REPRESENTATION ERROR- ~w: expected character code' - [Where] ].
 system_message(error(representation_error(max_arity), Where)) -->
 	[ 'REPRESENTATION ERROR- ~w: number too big' - [Where] ].
+system_message(error(representation_error(variable), Where)) -->
+	[ 'REPRESENTATION ERROR- ~w: should be a variable' - [Where] ].
 system_message(error(resource_error(code_space), Where)) -->
 	[ 'RESOURCE ERROR- not enough code space' - [Where] ].
 system_message(error(resource_error(huge_int), Where)) -->
