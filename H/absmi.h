@@ -1152,9 +1152,9 @@ loop:
 	  unif++;
 #endif
 	  if ((void *)to_visit < (void *)unif) {
-	    struct unif_record *urec = unif;
-	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, (CELL ***)&urec);
-	    unif = urec;
+	    CELL **urec = (CELL **)unif;
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec);
+	    unif = (struct unif_record *)urec;
 	  }
 	  to_visit->start0 = pt0;
 	  to_visit->end0 = pt0_end;
@@ -1197,9 +1197,9 @@ loop:
 	  unif++;
 #endif
 	  if ((void *)to_visit < (void *)unif) {
-	    struct unif_record *urec = unif;
-	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, (CELL ***)&urec);
-	    unif = urec;
+	    CELL **urec = (CELL **)unif;
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec);
+	    unif = (struct unif_record *)urec;
 	  }
 	  to_visit->start0 = pt0;
 	  to_visit->end0 = pt0_end;

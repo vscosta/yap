@@ -63,7 +63,7 @@ static char SccsId[] = "%W% %G%";
 
 #if USE_SYSTEM_MALLOC
 #define my_malloc(sz) malloc(sz)
-#define my_realloc(ptr, sz, safe) realloc(ptr, sz)
+#define my_realloc(ptr, sz, osz, safe) realloc(ptr, sz)
 #define my_free(ptr) free(ptr)
 #else
 #define my_malloc(sz) Yap_dlmalloc(sz)
