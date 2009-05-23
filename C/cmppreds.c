@@ -511,13 +511,13 @@ p_compare(void)
   return Yap_unify_constant(ARG1, MkAtomTerm(p));
 }
 
-inline static int
+inline static Int
 int_cmp(Int dif)
 {
   return dif;
 }
 
-inline static int
+inline static Int
 flt_cmp(Float dif)
 {
   if (dif < 0.0)
@@ -528,7 +528,7 @@ flt_cmp(Float dif)
 }
 
 
-static inline int
+static inline Int
 a_cmp(Term t1, Term t2)
 {
   if (IsVarTerm(t1)) {
@@ -540,10 +540,10 @@ a_cmp(Term t1, Term t2)
     return FALSE;
   }
   if (IsFloatTerm(t1) && IsFloatTerm(t2)) {
-    return(flt_cmp(FloatOfTerm(t1)-FloatOfTerm(t2)));
+    return flt_cmp(FloatOfTerm(t1)-FloatOfTerm(t2));
   }
   if (IsIntegerTerm(t1) && IsIntegerTerm(t2)) {
-    return(int_cmp(IntegerOfTerm(t1)-IntegerOfTerm(t2)));
+    return int_cmp(IntegerOfTerm(t1)-IntegerOfTerm(t2));
   }
   t1 = Yap_Eval(t1);
   if (!t1) return FALSE;
