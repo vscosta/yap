@@ -2759,6 +2759,7 @@ Yap_absmi(int inp)
 	SREG = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomFail,0));
 	/* make sure we have the correct environment for continuation */
 	ENV = B->cp_env;
+	YENV  = (CELL *)B;
 	goto creep;
       }
       /* don't do debugging and friends here */
