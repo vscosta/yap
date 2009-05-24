@@ -63,7 +63,7 @@ long    STD_PROTO(Yap_InitSlot,(Term));
 long    STD_PROTO(Yap_NewSlots,(int));
 Term    STD_PROTO(Yap_GetFromSlot,(long));
 int     STD_PROTO(Yap_RecoverSlots,(int));
-Term    STD_PROTO(Yap_GetFromSlot,(long));
+Term    STD_PROTO(Yap_GetPtrFromSlot,(long));
 Term   *STD_PROTO(Yap_AddressFromSlot,(long));
 void    STD_PROTO(Yap_PutInSlot,(long, Term));
 

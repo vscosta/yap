@@ -1315,6 +1315,12 @@ Yap_GetFromSlot(long slot)
   return(Deref(LCL0[slot]));
 }
 
+Term
+Yap_GetPtrFromSlot(long slot)
+{
+  return(LCL0[slot]);
+}
+
 Term *
 Yap_AddressFromSlot(long slot)
 {
