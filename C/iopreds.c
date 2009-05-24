@@ -4993,6 +4993,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	  goto do_instantiation_error;
 	if (!IsAtomTerm(t))
 	  goto do_type_atom_error;
+	Yap_StartSlots();
 	Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f, 1200);
 	FormatInfo = &finfo;
 	break;
@@ -6145,6 +6146,7 @@ Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
     return FALSE;
   Yap_StartSlots();
   Yap_c_output_stream = sno;
+  Yap_StartSlots();
   Yap_plwrite (t, Stream[sno].stream_wputc, flags, 1200);
   s[Stream[sno].u.mem_string.pos] = '\0';
   Stream[sno].status = Free_Stream_f;
