@@ -45,10 +45,23 @@ static wtype lastw;
 
 typedef  int      (*wrf) (int, wchar_t);
 
-typedef  struct  rewind_term {
-  struct rewind_term *parent;
+typedef struct union_slots {
+  long old;
+  long ptr;
+} uslots;
+
+typedef struct union_direct {
   Term old;
   CELL *ptr;
+} udirect;
+
+
+typedef  struct  rewind_term {
+  struct rewind_term *parent;
+  union {
+    struct union_slots s;
+    struct union_direct d;
+  } u;
 } rwts;
 
 typedef struct write_globs {
@@ -441,29 +454,113 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
 }
 
 static Term
-from_pointer(CELL *ptr, struct rewind_term *rwt)
+from_pointer(CELL *ptr, struct rewind_term *rwt, struct write_globs *wglb)
 {
   Term t;
+
   while (IsVarTerm(*ptr) && !IsUnboundVar(ptr))
     ptr = (CELL *)*ptr;
   t = *ptr;
   if (!IsVarTerm(t)) {
-    rwt->ptr = ptr;
-    rwt->old = t;
+    if (wglb->keep_terms) {
+      rwt->u.s.old = Yap_InitSlot(t);
+      rwt->u.s.ptr = Yap_InitSlot((CELL)ptr);
+    } else {
+      rwt->u.d.old = t;
+      rwt->u.d.ptr = ptr;
+    }
     *ptr = TermFoundVar;
   }
   return t;
 }
 
+static void
+restore_from_write(struct rewind_term *rwt, struct write_globs *wglb)
+{
+  Term t;
+  if (rwt->u.s.ptr) {
+    CELL *ptr;
+    if (wglb->keep_terms) {
+      ptr = (CELL *)Yap_GetPtrFromSlot(rwt->u.s.ptr);
+      t = Yap_GetPtrFromSlot(rwt->u.s.old);
+      Yap_RecoverSlots(2);
+    } else {
+      ptr = rwt->u.d.ptr;
+      t = rwt->u.d.old;
+    }
+    *ptr = t;
+  }
+  rwt->u.s.ptr = 0;
+}
+
+static void
+write_list(Term t, int direction, int depth, struct write_globs *wglb, struct rewind_term *rwt)
+{
+  Term ti;
+  struct rewind_term nrwt;
+  nrwt.parent = rwt;
+  nrwt.u.s.ptr = 0;
+
+  while (1) {
+    int             new_depth = depth + 1;
+    long            sl= 0;
+    int ndirection;
+    int do_jump;
+
+    if (wglb->keep_terms) {
+      /* garbage collection may be called */
+      sl = Yap_InitSlot(t);
+    }
+    writeTerm(from_pointer(RepPair(t), &nrwt, wglb), 999, new_depth, FALSE, wglb, &nrwt);
+    restore_from_write(&nrwt, wglb);
+    if (wglb->keep_terms) {
+      t = Yap_GetFromSlot(sl);
+      Yap_RecoverSlots(1);
+    }
+    ti = TailOfTerm(t);
+    if (IsVarTerm(ti))
+      break;
+    if (!IsPairTerm(ti))
+      break;
+    ndirection = RepPair(ti)-RepPair(t);
+    /* make sure we're not trapped in loops */
+    if (ndirection > 0) {
+      do_jump = (direction < 0);
+    } else if (ndirection == 0) {
+      wrputc(',', wglb->writewch);
+      putAtom(AtomFoundVar, wglb->Quote_illegal, wglb->writewch);
+      lastw = separator;
+      return;
+    } else {
+      do_jump = (direction > 0);
+    }
+    wrputc(',', wglb->writewch);
+    lastw = separator;
+    direction = ndirection;
+    if (do_jump)
+      break;
+    t = ti;
+  }
+  if (IsPairTerm(ti)) {
+    write_list(from_pointer(RepPair(t)+1, &nrwt, wglb), direction, depth+1, wglb, &nrwt);
+    restore_from_write(&nrwt, wglb);
+  } else if (ti != MkAtomTerm(AtomNil)) {
+    wrputc('|', wglb->writewch);
+    lastw = separator;
+    writeTerm(from_pointer(RepPair(t)+1, &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
+    restore_from_write(&nrwt, wglb);
+  }
+ }
+
 static void 
 writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, struct rewind_term *rwt)
-	                  	/* term to write			 */
-	                  	/* context priority			 */
-	                      
+/* term to write			 */
+/* context priority			 */
+                     
 {
   struct rewind_term nrwt;
   nrwt.parent = rwt;
-  nrwt.ptr = NULL;
+  nrwt.u.s.ptr = 0;
 
   if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
     putAtom(Atom3Dots, wglb->Quote_illegal, wglb->writewch);
@@ -479,9 +576,6 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
   } else if (IsAtomTerm(t)) {
     putAtom(AtomOfTerm(t), wglb->Quote_illegal, wglb->writewch);
   } else if (IsPairTerm(t)) {
-    int             eldepth = 1;
-    Term ti;
-
     if (wglb->Use_portray) {
       Term targs[1];
       Term old_EX = 0L;
@@ -501,45 +595,11 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     if (yap_flags[WRITE_QUOTED_STRING_FLAG] && IsStringTerm(t)) {
       putString(t, wglb->writewch);
     } else {
+      Term ls  = t;
       wrputc('[', wglb->writewch);
       lastw = separator;
-      while (1) {
-	int             new_depth = depth + 1;
-	long            sl= 0;
-
-	if (wglb->MaxList && eldepth > wglb->MaxList) {
-	  putAtom(Atom3Dots, wglb->Quote_illegal, wglb->writewch);
-	  wrputc(']', wglb->writewch);
-	  lastw = separator;
-	  return;
-	} else {
-	  eldepth++;
-	}
-	if (wglb->keep_terms) {
-	  /* garbage collection may be called */
-	  sl = Yap_InitSlot(t);
-	}
-	writeTerm(from_pointer(RepPair(t), &nrwt), 999, new_depth, FALSE, wglb, &nrwt);
-	if (nrwt.ptr) { *nrwt.ptr = nrwt.old; nrwt.ptr = NULL; };
-	if (wglb->keep_terms) {
-	  t = Yap_GetFromSlot(sl);
-	  Yap_RecoverSlots(1);
-	}
-	ti = TailOfTerm(t);
-	if (IsVarTerm(ti))
-	  break;
-	if (!IsPairTerm(ti))
-	  break;
-	t = ti;
-	wrputc(',', wglb->writewch);
-	lastw = separator;
-      }
-      if (ti != MkAtomTerm(AtomNil)) {
-	wrputc('|', wglb->writewch);
-	lastw = separator;
-	writeTerm(from_pointer(RepPair(t)+1, &nrwt), 999, depth + 1, FALSE, wglb, &nrwt);
-	if (nrwt.ptr) { *nrwt.ptr = nrwt.old; nrwt.ptr = NULL; };
-      }
+      write_list(from_pointer(&ls, &nrwt, wglb), 0, depth+1, wglb, &nrwt);
+      restore_from_write(&nrwt, wglb);
       wrputc(']', wglb->writewch);
       lastw = separator;
     }
@@ -646,8 +706,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot((CELL)p);
 	}
-	writeTerm(from_pointer(p++, &nrwt), 999, depth + 1, FALSE, wglb, &nrwt);
-	if (nrwt.ptr) { *nrwt.ptr = nrwt.old; nrwt.ptr = NULL; };
+	writeTerm(from_pointer(p++, &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
+	restore_from_write(&nrwt, wglb);
 	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  p = (CELL *)Yap_GetFromSlot(sl);
@@ -706,8 +766,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	wrputc('(', wglb->writewch);
 	lastw = separator;
       }
-      writeTerm(from_pointer(RepAppl(t)+1, &nrwt), rp, depth + 1, FALSE, wglb, &nrwt);
-      if (nrwt.ptr) { *nrwt.ptr = nrwt.old; nrwt.ptr = NULL; };
+      writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), rp, depth + 1, FALSE, wglb, &nrwt);
+      restore_from_write(&nrwt, wglb);
       if (bracket_right) {
 	wrputc(')', wglb->writewch);
 	lastw = separator;
@@ -738,8 +798,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	/* garbage collection may be called */
 	sl = Yap_InitSlot(t);      
       }
-      writeTerm(from_pointer(RepAppl(t)+1, &nrwt), lp, depth + 1, rinfixarg, wglb, &nrwt);
-      if (nrwt.ptr) { *nrwt.ptr = nrwt.old; nrwt.ptr = NULL; };
+      writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), lp, depth + 1, rinfixarg, wglb, &nrwt);
+      restore_from_write(&nrwt, wglb);
       if (wglb->keep_terms) {
 	/* garbage collection may be called */
 	t = Yap_GetFromSlot(sl);
@@ -782,8 +842,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	/* garbage collection may be called */
 	sl = Yap_InitSlot(t);      
       }
-      writeTerm(from_pointer(RepAppl(t)+1, &nrwt), lp, depth + 1, rinfixarg, wglb, &nrwt);
-      if (nrwt.ptr) { *nrwt.ptr = nrwt.old; nrwt.ptr = NULL; };
+      writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), lp, depth + 1, rinfixarg, wglb, &nrwt);
+      restore_from_write(&nrwt, wglb);
       if (wglb->keep_terms) {
 	/* garbage collection may be called */
 	t = Yap_GetFromSlot(sl);
@@ -804,8 +864,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	wrputc('(', wglb->writewch);
 	lastw = separator;
       }
-      writeTerm(from_pointer(RepAppl(t)+2, &nrwt), rp, depth + 1, TRUE, wglb, &nrwt);
-      if (nrwt.ptr) { *nrwt.ptr = nrwt.old; nrwt.ptr = NULL; };
+      writeTerm(from_pointer(RepAppl(t)+2, &nrwt, wglb), rp, depth + 1, TRUE, wglb, &nrwt);
+      restore_from_write(&nrwt, wglb);
       if (bracket_right) {
 	wrputc(')', wglb->writewch);
 	lastw = separator;
@@ -847,8 +907,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot(t);      
 	}
-	writeTerm(from_pointer(RepAppl(t)+1, &nrwt), 999, depth + 1, FALSE, wglb, &nrwt);
-	if (nrwt.ptr) { *nrwt.ptr = nrwt.old; nrwt.ptr = NULL; };
+	writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
+	restore_from_write(&nrwt, wglb);
 	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  t = Yap_GetFromSlot(sl);
@@ -860,8 +920,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     } else if (!wglb->Ignore_ops && functor == FunctorBraces) {
       wrputc('{', wglb->writewch);
       lastw = separator;
-      writeTerm(from_pointer(RepAppl(t)+1, &nrwt), 1200, depth + 1, FALSE, wglb, &nrwt);
-      if (nrwt.ptr) { *nrwt.ptr = nrwt.old; nrwt.ptr = NULL; };
+      writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), 1200, depth + 1, FALSE, wglb, &nrwt);
+      restore_from_write(&nrwt, wglb);
       wrputc('}', wglb->writewch);
       lastw = separator;
     } else  if (atom == AtomArray) {
@@ -880,8 +940,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot(t);      
 	}
-	writeTerm(from_pointer(RepAppl(t)+op, &nrwt), 999, depth + 1, FALSE, wglb, &nrwt);
-	if (nrwt.ptr) { *nrwt.ptr = nrwt.old; nrwt.ptr = NULL; };
+	writeTerm(from_pointer(RepAppl(t)+op, &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
+	restore_from_write(&nrwt, wglb);
 	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  t = Yap_GetFromSlot(sl);
@@ -911,8 +971,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot(t);      
 	}
-	writeTerm(from_pointer(RepAppl(t)+op, &nrwt), 999, depth + 1, FALSE, wglb, &nrwt);
-	if (nrwt.ptr) { *nrwt.ptr = nrwt.old; nrwt.ptr = NULL; };
+	writeTerm(from_pointer(RepAppl(t)+op, &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
+	restore_from_write(&nrwt, wglb);
 	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  t = Yap_GetFromSlot(sl);
@@ -938,7 +998,7 @@ Yap_plwrite(Term t, int (*mywrite) (int, wchar_t), int flags, int priority)
   struct write_globs wglb;
   struct rewind_term rwt;
   rwt.parent = NULL;
-  rwt.ptr = NULL;
+  rwt.u.s.ptr = 0;
 
   wglb.writewch = mywrite;
   lastw = separator;
@@ -953,7 +1013,7 @@ Yap_plwrite(Term t, int (*mywrite) (int, wchar_t), int flags, int priority)
   wglb.keep_terms = (flags & (Use_portray_f|To_heap_f)); 
   wglb.Ignore_ops = flags & Ignore_ops_f;
   /* protect slots for portray */
-  writeTerm(from_pointer(&t, &rwt), priority, 1, FALSE, &wglb, &rwt);
-  if (rwt.ptr) { *rwt.ptr = rwt.old; rwt.ptr = NULL; };
+  writeTerm(from_pointer(&t, &rwt, &wglb), priority, 1, FALSE, &wglb, &rwt);
+  restore_from_write(&rwt, &wglb);
 }
 
