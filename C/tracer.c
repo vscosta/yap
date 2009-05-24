@@ -191,7 +191,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     }
    } else
   return;
-  Yap_DebugPlWrite(Yap_XREGS[2]);
   if (worker_id != 04 || worker_id != 03) return;
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;
