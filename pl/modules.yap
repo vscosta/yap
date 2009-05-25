@@ -298,7 +298,18 @@ module(N) :-
 	'$module_expansion'(G,G1,GO,M,M,HM,HVars).
 '$module_expansion'(G, G1, GO, CurMod, MM, HM, HVars) :-
 	'$pred_goal_expansion_on',
-	user:goal_expansion(G, CurMod, GI), !,
+	( user:goal_expansion(G, CurMod, GI)
+	->
+	  true
+	;
+	  (
+	   '$pred_exists'(goal_expansion(G,GI), CurMod)
+	  ->
+	   call(CurMod:goal_expansion(G, GI))
+	  )
+	;
+	  user:goal_expansion(G, GI)
+	), !,
 	'$module_expansion'(GI, G1, GO, CurMod, MM, HM, HVars).
 '$module_expansion'(G, G1, GO, CurMod, MM, HM,HVars) :-
 	% is this imported from some other module M1?

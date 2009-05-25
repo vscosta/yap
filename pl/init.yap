@@ -174,6 +174,10 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- dynamic goal_expansion/3.
 
+:- multifile goal_expansion/2.
+
+:- dynamic goal_expansion/2.
+
 :- multifile term_expansion/2.
 
 :- dynamic term_expansion/2.

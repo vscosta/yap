@@ -389,21 +389,5 @@ prolog:compile_aux_clauses([Cl|Cls]) :-
 	prolog:compile_aux_clauses(Cls).
 
 % fix different semantics for arg/3.
-user:goal_expansion(arg(X,Y,Z),_,arg:genarg(X,Y,Z)) :-
+user:goal_expansion(arg(X,Y,Z),arg:genarg(X,Y,Z)) :-
 	nonvar(X), !.
-
-%
-% convert from SWI's goal expansion to YAP/SICStus old style goal
-% expansion.
-%
-user:term_expansion(goal_expansion(A,B),O) :-
-	prolog_load_context(module, user), !,
-	O = goal_expansion(A,user,B).
-user:term_expansion(user:goal_expansion(A,B),O) :- !,
-	O = user:goal_expansion(A,_,B).
-user:term_expansion((goal_expansion(A,B) :- G), O) :-
-	prolog_load_context(module, user), !,
-	O = (goal_expansion(A,user,B) :- G).
-user:term_expansion((goal_expansion(A,B) :- G),O) :-
-	O = (user:goal_expansion(A,_,B) :- G).
-
