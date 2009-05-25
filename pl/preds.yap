@@ -813,7 +813,7 @@ predicate_property(Pred,Prop) :-
 
 
 '$predicate_property'(P,M,_,built_in) :- 
-	'$system_predicate'(P,M), !.
+	'$system_predicate'(P,M).
 '$predicate_property'(P,M,_,source) :- 
 	'$flags'(P,M,F,F),
 	F /\ 0x00400000 =\= 0.
