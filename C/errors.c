@@ -1775,7 +1775,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     Yap_PrologMode &= ~InErrorMode;
     LOCK(SignalLock);
     /* we might be in the middle of a critical region */
-    if (!Yap_InterruptsDisabled) {
+    if (Yap_InterruptsDisabled) {
       UncaughtThrow = TRUE;
       UNLOCK(SignalLock);
 #if PUSH_REGS
