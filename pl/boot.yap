@@ -1189,41 +1189,46 @@ throw(Ball) :-
 	( nb_getval('$trace',on) -> '$creep' ; true).
 
 %
-% just leave this around to show  the debugger.
+% just prevent creeping from going on...
 %
 '$notrace'(G) :-
-	yap_hacks:disable_interrupts,
+	'$disable_creep', !,
 	(
+		% creep was going on...
 	 yap_hacks:current_choice_point(CP0),
 	 '$execute'(G),
 	 yap_hacks:current_choice_point(CP1),
 	 ( CP0 == CP1 ->
 	   !,
-	   yap_hacks:enable_interrupts
+	   '$creep'
 	 ;
 	   (
-	    yap_hacks:enable_interrupts
+	    '$creep'
 	   ;
-	    yap_hacks:disable_interrupts,
+	    '$disable_docreep',
 	    fail
 	   )
 	 )
 	;
-	 yap_hacks:enable_interrupts,
+	 '$creep',
 	 fail
-	). 
-	    
+	).
+'$notrace'(G) :-
+	'$execute'(G).
 
 '$oncenotrace'(M:G) :-
-	yap_hacks:disable_interrupts,
+	'$disable_creep', !,
 	(
-	 '$execute'(G),
-	 !,
-	 yap_hacks:enable_interrupts
+	 '$execute'(G)
+	->
+	 '$creep'
 	;
-	 yap_hacks:enable_interrupts,
+	 '$creep',
 	 fail
-	). 
+	).	
+'$oncenotrace'(G) :-
+	'$execute'(G), !.
+
 
 '$run_at_thread_start' :-
 	recorded('$thread_initialization',M:D,_),
