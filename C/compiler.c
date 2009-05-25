@@ -906,23 +906,11 @@ c_test(Int Op, Term t1, compiler_struct *cglobs) {
   Term t = Deref(t1);
 
   if (!IsVarTerm(t)) {
-    char s[32];
-
-    Yap_Error_TYPE = TYPE_ERROR_VARIABLE;
-    Yap_Error_Term = t;
-    Yap_ErrorMessage = Yap_ErrorSay;
-    Yap_bip_name(Op, s);
-    sprintf(Yap_ErrorMessage, "when compiling %s/1", s);
-    save_machine_regs();
-    longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
+    Term tn = MkVarTerm();
+    c_eq(t, tn, cglobs);
+    t = tn;
   }
-  if (IsNewVar(t)) {
-    /* in this case, var trivially succeeds and the others trivially fail */
-    if (Op != _var)
-      Yap_emit(fail_op, Zero, Zero, &cglobs->cint);
-  } else {
-    c_var(t,f_flag,(unsigned int)Op, 0, cglobs);
-  }
+  c_var(t,f_flag,(unsigned int)Op, 0, cglobs);
 }
 
 /* Arithmetic builtins will be compiled in the form:
@@ -960,28 +948,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler_struct 
   /* first we fetch the arguments */
 
   if (IsVarTerm(t1)) {
-    if (IsNewVar(t1)) {
-      char s[32];
-
-      Yap_Error_TYPE = INSTANTIATION_ERROR;
-      Yap_Error_Term = t1;
-      Yap_ErrorMessage = Yap_ErrorSay;
-      Yap_bip_name(Op, s);
-      sprintf(Yap_ErrorMessage, "when compiling %s/2",  s);
-      save_machine_regs();
-      longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
-    } else if (IsVarTerm(t2)) {
-      if (IsNewVar(t2)) {
-	char s[32];
-
-	Yap_Error_TYPE = INSTANTIATION_ERROR;
-	Yap_Error_Term = t2;
-	Yap_ErrorMessage = Yap_ErrorSay;
-	Yap_bip_name(Op, s);
-	sprintf(Yap_ErrorMessage, "when compiling %s/2",  s);
-	save_machine_regs();
-	longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
-      } else {
+    if (IsVarTerm(t2)) {
 	/* first temp */
 	Int v1 = --cglobs->tmpreg;
 	/* second temp */
@@ -992,7 +959,6 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler_struct 
 	c_var(t1, v1, 0, 0, cglobs);
 	c_var(t2, v2, 0, 0, cglobs);
 	/* now we know where the arguments are */
-      }
     } else {
       if (Op == _arg) {
 	/* we know the second argument is bound */
