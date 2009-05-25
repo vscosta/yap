@@ -69,7 +69,7 @@ typedef struct write_globs {
   int      Quote_illegal, Ignore_ops, Handle_vars, Use_portray;
   int      keep_terms;
   int      Write_Loops;
-  UInt     MaxDepth, MaxList, MaxArgs;
+  UInt     MaxDepth, MaxArgs;
 } wglbs;
 
 STATIC_PROTO(void wrputn, (Int, wrf));
@@ -502,7 +502,6 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
   nrwt.u.s.ptr = 0;
 
   while (1) {
-    int             new_depth = depth + 1;
     long            sl= 0;
     int ndirection;
     int do_jump;
@@ -511,7 +510,7 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
       /* garbage collection may be called */
       sl = Yap_InitSlot(t);
     }
-    writeTerm(from_pointer(RepPair(t), &nrwt, wglb), 999, new_depth, FALSE, wglb, &nrwt);
+    writeTerm(from_pointer(RepPair(t), &nrwt, wglb), 999, depth+1, FALSE, wglb, &nrwt);
     restore_from_write(&nrwt, wglb);
     if (wglb->keep_terms) {
       t = Yap_GetFromSlot(sl);
@@ -537,17 +536,18 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
     wrputc(',', wglb->writewch);
     lastw = separator;
     direction = ndirection;
+    depth++;
     if (do_jump)
       break;
     t = ti;
   }
   if (IsPairTerm(ti)) {
-    write_list(from_pointer(RepPair(t)+1, &nrwt, wglb), direction, depth+1, wglb, &nrwt);
+    write_list(from_pointer(RepPair(t)+1, &nrwt, wglb), direction, depth, wglb, &nrwt);
     restore_from_write(&nrwt, wglb);
   } else if (ti != MkAtomTerm(AtomNil)) {
     wrputc('|', wglb->writewch);
     lastw = separator;
-    writeTerm(from_pointer(RepPair(t)+1, &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
+    writeTerm(from_pointer(RepPair(t)+1, &nrwt, wglb), 999, depth, FALSE, wglb, &nrwt);
     restore_from_write(&nrwt, wglb);
   }
  }
@@ -598,7 +598,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       Term ls  = t;
       wrputc('[', wglb->writewch);
       lastw = separator;
-      write_list(from_pointer(&ls, &nrwt, wglb), 0, depth+1, wglb, &nrwt);
+      write_list(from_pointer(&ls, &nrwt, wglb), 0, depth, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       wrputc(']', wglb->writewch);
       lastw = separator;
@@ -1006,7 +1006,6 @@ Yap_plwrite(Term t, int (*mywrite) (int, wchar_t), int flags, int priority)
   wglb.Handle_vars = flags & Handle_vars_f;
   wglb.Use_portray = flags & Use_portray_f;
   wglb.MaxDepth = max_depth;
-  wglb.MaxList = max_list;
   wglb.MaxArgs = max_write_args;
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
