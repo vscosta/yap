@@ -1776,6 +1776,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     LOCK(SignalLock);
     /* we might be in the middle of a critical region */
     if (Yap_InterruptsDisabled) {
+      Yap_InterruptsDisabled = 0;
       UncaughtThrow = TRUE;
       UNLOCK(SignalLock);
 #if PUSH_REGS
