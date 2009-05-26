@@ -53,6 +53,7 @@ typedef enum {
 	    matrix_add/3,
 	    matrix_inc/2,
 	    matrix_dec/2,
+	    matrix_mult/2,
 	    matrix_inc/3,
 	    matrix_dec/3,
 	    matrix_arg_to_offset/3,
