@@ -2,8 +2,12 @@
 
 :- style_check(all).
 
-:- module(clpbn_pgrammar,[grammar_prob/2,
-			  grammar_mle/2]).
+:- module(clpbn_pgrammar,[grammar_to_atts/1,
+			  grammar_prob/2,
+			  grammar_mle/2,
+			  init_pcg_solver/4,
+			  run_pcg_solver/3,
+			  pcg_init_graph/0]).
 
 :- load_files([library(clpbn)],
 	      [ if(not_loaded),
@@ -14,11 +18,20 @@
 	      [ sum_list/2
 	      ]).
 
+:- use_module([library(matrix)],
+	      [ matrix_new/3,
+		matrix_add/3,
+		matrix_get/3,
+		matrix_op/4,
+		matrix_op_to_all/4,
+		matrix_set_all/2
+	      ]).
+
 :- op(600, xfy,'::').
 
-:- dynamic id/4.
+:- dynamic id/4, dist_id/2, new_proof/2.
 
-:- meta_predicate grammar_prob(:,-).
+:- meta_predicate grammar_prob(:,-), grammar_mle(:,-), grammar_to_atts(:).
 
 grammar_prob(M:S, P) :- !,
 	grammar_prob(S, M, P).
@@ -94,10 +107,11 @@ add_to_predicate(M:EH1,M:EH,M:H0,NH,NB,Key,Choice,P,Id,(EH1:-NB)) :-
 	EH=NH.
 
 p_rule(_,_,_,_) :-
-	nb_setval(grammar_fast,on), !.
+	nb_getval(grammar_fast,on), !.
 p_rule(M,EH,Key,Choice) :-
 	all_tabs(M,EH,Dom,Opt),
-	{ Choice = Key with p(Dom,Opt) }.
+	{ AttVar = Key with p(Dom,Opt) },
+	Choice = AttVar.
 
 ensure_tabled(M,H0,EH) :-
 	predicate_property(M:H0, tabled), !,
@@ -177,4 +191,113 @@ extract_logprobability([P1|Ps], LogP0, LogP) :-
 	extract_logprobability(P1, LogDP),
 	LogPI is LogDP+LogP0,
 	extract_logprobability(Ps, LogPI, LogP).
+
+grammar_to_atts(M:S) :- !,
+	grammar_to_atts(S, M).
+grammar_to_atts(S) :-
+	source_module(M),
+	grammar_to_atts(S, M).
+
+grammar_to_atts(S, M) :-
+	nb_setval(grammar_fast,on),
+	get_internal(S, InternalS, Proof),
+	path_choices(M:InternalS,Proof).
+
+path_choices(InternalS, Proof) :-
+	new_id(Id),
+	call(InternalS),
+	/* use Ids because we may have repeated examples */
+	assert(new_proof(Id,Proof)).
+
+new_id(Id) :-
+	(nb_getval(grammar_id,Id) ->
+	 I1 is Id+1,
+	 nb_setval(grammar_id,I1)
+	;
+	 nb_setval(grammar_id,1),
+	 Id = 0
+	).
+
+find_dom(K, Vs, Ps) :-
+	findall(V,id(_,K,_,V),Vs),
+	gen_ps(Vs, Ps).
+
+gen_ps([], []).
+gen_ps([_|Vs], [1.0|Ps]) :-
+	gen_ps(Vs, Ps).
+
+init_pcg_solver(_, _, _, _).
+
+run_pcg_solver(LVs, LPs, _) :-
+	init_prob_array(Array, ExArray),
+	add_proofs_to_array(Array, ExArray),
+	matrix:matrix_to_list(Array,L), writeln(L),
+	out_to_vs(LVs, LPs, Array).
+
+add_proofs_to_array(Array, ExArray) :-
+	nb_getval(grammar_id,IdMax),
+	from(0,IdMax,Id),
+	matrix_set_all(ExArray,0.0),
+	sum_proofs(Id, ExArray),
+%	matrix:matrix_to_list(ExArray,L0), writeln(Id:L0),
+	matrix_op(ExArray, Array, +, Array),
+%	matrix:matrix_to_list(Array,L0),writeln(i:L0),
+	fail.
+add_proofs_to_array(_,_).
+
+from(I,_,I).
+from(I0,Id,I) :-
+	I1 is I0+1,
+	I1 < Id,
+	from(I1,Id,I).
+
+sum_proofs(Id, ExArray) :-
+	findall(P, add_proof(Id, ExArray, P), Ps),
+	sum_list(Ps,TotP),
+	matrix_op_to_all(ExArray,/,TotP,ExArray).
+
+add_proof(Id, ExArray, P) :-
+	new_proof(Id,Proof),
+	extract_probability(Proof, P),
+	add_to_array(Proof, P, ExArray).
+
+add_to_array(p(Id, Goals), P, Array) :-
+	add(Id, P, Array),
+	add_to_array_goals(Goals, P, Array).
+
+add_to_array_goals([], _, _).
+add_to_array_goals([G|Goals], P, Array) :-
+	add_to_array(G, P, Array),
+	add_to_array_goals(Goals, P, Array).
+
+init_prob_array(Array, ExArray) :-
+	predicate_property(id(_,_,_,_),number_of_clauses(Cls)),
+	matrix_new(floats, [Cls], Array),
+	matrix_new(floats, [Cls], ExArray).
+
+add(Id, P, Array) :-
+	matrix_add(Array, [Id], P).
+
+out_to_vs([], [], _).
+out_to_vs([[V]|LVs], [Ps|LPs], Array) :-
+	clpbn:get_atts(V, [key(Key)]),
+	findall(P,count_for_key(Key,P,Array),Ps),
+	out_to_vs(LVs, LPs, Array).
+
+count_for_key(Key,P,Array) :-
+	id(Id,Key,_,_),
+	matrix_get(Array, [Id], P).
+
+% generate attributed variables to make EM happy.
+% just as few as possible
+%
+pcg_init_graph :-
+	setof(K,I^P^S^id(I,K,P,S),Ks),
+	generate_atts(Ks).
+
+generate_atts([]).
+generate_atts([Key|KVs]) :-
+	find_dom(Key, Dom, Ps),
+	{ _ = Key with p(Dom,Ps) },
+	generate_atts(KVs).
 

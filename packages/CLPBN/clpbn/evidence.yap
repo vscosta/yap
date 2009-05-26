@@ -119,9 +119,9 @@ check_stored_evidence(_, _).
 
 add_evidence(K, V) :-
 	evidence(K, Ev), !,
+	store_evidence(V, Ev),
 	clpbn:put_atts(V, [evidence(Ev)]).
 add_evidence(_, _).
-
 
 check_for_evidence(_, V, Vf, Vf, C, C) :-
 	clpbn:get_atts(V, [evidence(_)]), !.

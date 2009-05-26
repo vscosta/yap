@@ -8,7 +8,8 @@
 	      [append/3]).
 
 :- use_module(library(clpbn),
-	      [clpbn_init_solver/5,
+	      [clpbn_init_graph/1,
+	       clpbn_init_solver/5,
 	       clpbn_run_solver/4,
 	       clpbn_flag/2]).
 
@@ -61,9 +62,7 @@ em(_, _, _, Tables, Likelihood) :-
 
 handle_em(error(repeated_parents)) :-
 	assert(em_found(_, -inf)),
-	fail.
-	
-	
+	fail.	
 
 % This gets you an initial configuration. If there is a lot of evidence
 % tables may be filled in close to optimal, otherwise they may be
@@ -75,7 +74,9 @@ handle_em(error(repeated_parents)) :-
 % the list of distributions for which we want to compute parameters,
 % and more detailed info on distributions, namely with a list of all instances for the distribution.
 init_em(Items, state( AllDists, AllDistInstances, MargVars, SolverVars)) :-
-	run_all(Items),
+	clpbn_flag(em_solver, Solver),
+	clpbn_init_graph(Solver),
+	call_run_all(Items),
 %	randomise_all_dists,
 	uniformise_all_dists,
 	attributes:all_attvars(AllVars0),
@@ -83,14 +84,13 @@ init_em(Items, state( AllDists, AllDistInstances, MargVars, SolverVars)) :-
 	% remove variables that do not have to do with this query.
 %	check_for_hidden_vars(AllVars1, AllVars1, AllVars),
 	different_dists(AllVars, AllDists, AllDistInstances, MargVars),
-	clpbn_flag(em_solver, Solver),
 	clpbn_init_solver(Solver, MargVars, AllVars, _, SolverVars).
 
 % loop for as long as you want.
 em_loop(Its, Likelihood0, State, MaxError, MaxIts, LikelihoodF, FTables) :-
 	estimate(State, LPs),
 	maximise(State, Tables, LPs, Likelihood),
-%	writeln(Likelihood:Its:Likelihood0:Tables),
+	writeln(Likelihood:Its:Likelihood0:Tables),
 	(
 	    (
 	     abs((Likelihood - Likelihood0)/Likelihood) < MaxError
@@ -226,4 +226,16 @@ run_sample([C|Cases], [P|Ps], Table) :-
 	matrix_add(Table, C, P),
 	run_sample(Cases, Ps, Table).
 
+call_run_all(Mod:Items) :-
+	clpbn_flag(em_solver, pcg),
+	backtrack_run_all(Items, Mod).
+call_run_all(Items) :-
+	clpbn_flag(em_solver, pcg),
+	run_all(Items).
 
+backtrack_run_all([Item|_], Mod) :-
+	call(Mod:Item),
+	fail.
+backtrack_run_all([_|Items], Mod) :-
+	backtrack_run_all(Items, Mod).
+backtrack_run_all([], _).
