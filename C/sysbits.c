@@ -2420,6 +2420,7 @@ p_alarm(void)
 {
   Term t = Deref(ARG1);
   Term t2 = Deref(ARG2);
+  Int i1, i2;
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "alarm/2");
     return(FALSE);
@@ -2436,13 +2437,25 @@ p_alarm(void)
     Yap_Error(TYPE_ERROR_INTEGER, t2, "alarm/2");
     return(FALSE);
   }
+  i1 = IntegerOfTerm(t);
+  i2 = IntegerOfTerm(t2);
+  if (i1 == 0 && i2 == 0) {
+    LOCK(SignalLock);
+    if (ActiveSignals & YAP_ALARM_SIGNAL) {
+      ActiveSignals &= ~YAP_ALARM_SIGNAL;
+      if (!ActiveSignals) {
+	CreepFlag = CalculateStackGap();
+      }
+    }
+    UNLOCK(SignalLock);
+  }    
 #if _MSC_VER || defined(__MINGW32__)
   {
     Term tout;
     Int time[2];
 
-    time[0] = IntegerOfTerm(t);
-    time[1] = IntegerOfTerm(t2);
+    time[0] = i1;
+    time[1] = i2;
     
     if (time[0] != 0 && time[1] != 0) {
       DWORD dwThreadId; 
@@ -2470,8 +2483,8 @@ p_alarm(void)
 
     new.it_interval.tv_sec = 0;
     new.it_interval.tv_usec = 0;
-    new.it_value.tv_sec = IntegerOfTerm(t);
-    new.it_value.tv_usec = IntegerOfTerm(t2);
+    new.it_value.tv_sec = i1;
+    new.it_value.tv_usec = i2;
     if (setitimer(ITIMER_REAL, &new, &old) < 0) {
 #if HAVE_STRERROR
       Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "setitimer: %s", strerror(errno));
@@ -2488,7 +2501,7 @@ p_alarm(void)
     Int left;
     Term tout;
 
-    left = alarm(IntegerOfTerm(t));
+    left = alarm(i1);
     tout = MkIntegerTerm(left);
     return Yap_unify(ARG3,tout) && Yap_unify(ARG4,MkIntTerm(0)) ;
   }
