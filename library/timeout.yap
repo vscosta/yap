@@ -36,8 +36,8 @@ time_out(Goal, Time, Result) :-
 	alarm(T.UT,throw(time_out),_),
 	% launch goal and wait for signal
 	catch( run_goal(Goal, Result0),
-	       time_out,
-	       Result0 = time_out ),
+	       Exception,
+	       handle_exception(Exception) ),
 	Result = Result0.
 
 run_goal(Goal, Result0) :-
@@ -63,9 +63,28 @@ run_goal(Goal, Result0) :-
 	).
 	  
 run_goal(_, _) :-
+	yap_hacks:disable_interrupts,
 	% make sure we're not getting an extraneous interrupt if we terminate early....
 	alarm(0,_,_),
+	yap_hacks:enable_interrupts,
 	fail.
 
 complete_time_out :-
-	alarm(0,_,_).
+	yap_hacks:disable_interrupts,
+	alarm(0,_,_),
+	yap_hacks:enable_interrupts.
+
+
+handle_exception(Exception) :-
+	yap_hacks:disable_interrupts,
+	(
+	  Exception = time_out
+	->
+	  yap_hacks:enable_interrupts,
+	  Result0 = time_out
+	;
+	  alarm(0,_,_),
+	  yap_hacks:enable_interrupts,
+	  throw(Exception)
+	).
+  
