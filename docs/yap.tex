@@ -11112,7 +11112,7 @@ deterministic success, commit, or an exception.  @var{Setup} will
 contain the goals that need to be protected from asynchronous interrupts
 such as the ones received from @code{call_with_time_limit/2} or @code{thread_signal/2}.  In
 most uses, @var{Setup} will perform temporary side-effects required by
-@var{Goal} that are finally undone by \arg{Cleanup}.
+@var{Goal} that are finally undone by @var{Cleanup}.
 
 Success or failure of @var{Cleanup} is ignored and choice-points it
 created are destroyed (as @code{once/1}). If @var{Cleanup} throws an exception,
@@ -11141,7 +11141,7 @@ term_in_stream(Term, In) :-
 Note that it is impossible to implement this predicate in Prolog other than
 by reading all terms into a list, close the file and call @code{member/2}.
 Without @code{setup_call_cleanup/3} there is no way to gain control if the
-choice-point left by code{repeat} is removed by a cut or an exception.
+choice-point left by @code{repeat} is removed by a cut or an exception.
 
 @code{setup_call_cleanup/2} can also be used to test determinism of a goal:
 
@@ -11161,7 +11161,7 @@ For compatibility with other Prolog implementations see @code{call_cleanup/2}.
 @findex setup_call_catcher_cleanup/4
 @snindex setup_call_catcher_cleanup/4
 @cnindex setup_call_catcher_cleanup/4
-Similar to @code{setup_call_cleanup}{@var{Setup},@var{ Goal}, @var{Cleanup}} with
+Similar to @code{setup_call_cleanup(@var{Setup}, @var{Goal}, @var{Cleanup})} with
 additional information on the reason of calling @var{Cleanup}.  Prior
 to calling @var{Cleanup}, @var{Catcher} unifies with the termination
 code.  If this unification fails, @var{Cleanup} is
