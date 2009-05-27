@@ -24,67 +24,21 @@
 %
 % not the nicest program I've ever seen.
 %
-%
-% I cannot use setup_call_cleanup because I can only take interrupts *after* I set up
-% the catcher, so I have to do the dirty deed myself.
-%
+
 time_out(Goal, Time, Result) :-
 	T is Time//1000,
 	UT is (Time mod 1000)*1000,
-	yap_hacks:disable_interrupts,
-	% enable alarm
-	alarm(T.UT,throw(time_out),_),
-	% launch goal and wait for signal
-	catch( run_goal(Goal, Result0),
-	       Exception,
-	       handle_exception(Exception) ),
+	catch( ( Result0 = success,
+	       	 setup_call_cleanup(
+			alarm(T.UT,throw(time_out),_),
+			Goal,
+			alarm(0,_,RT)),
+		 (  var(RT)
+		 -> alarm(0,_,RT),
+		    ( true ; alarm(RT,throw(time_out),_) )
+		 ;  true
+		 )
+	       ),
+	       time_out,
+	       Result0 = time_out ),
 	Result = Result0.
-
-run_goal(Goal, Result0) :-
-	% we can only enable interrupts after alarm was been enabled.
-	yap_hacks:enable_interrupts,
-	Result0 = success,
-	yap_hacks:current_choice_point(CP0),
-	call(Goal),
-	yap_hacks:current_choice_point(CP1),
-	% make sure we're not getting an extraneous interrupt if we terminate early....
-	alarm(0,_,RT),
-	(
-	 CP0 == CP1
-	->
-	 true
-	;
-	 (
-	  true
-	 ;
-	  alarm(RT,throw(time_out),_),
-	  fail
-	 )
-	).
-	  
-run_goal(_, _) :-
-	yap_hacks:disable_interrupts,
-	% make sure we're not getting an extraneous interrupt if we terminate early....
-	alarm(0,_,_),
-	yap_hacks:enable_interrupts,
-	fail.
-
-complete_time_out :-
-	yap_hacks:disable_interrupts,
-	alarm(0,_,_),
-	yap_hacks:enable_interrupts.
-
-
-handle_exception(Exception) :-
-	yap_hacks:disable_interrupts,
-	(
-	  Exception = time_out
-	->
-	  yap_hacks:enable_interrupts,
-	  Result0 = time_out
-	;
-	  alarm(0,_,_),
-	  yap_hacks:enable_interrupts,
-	  throw(Exception)
-	).
-  
