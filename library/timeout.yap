@@ -29,13 +29,13 @@ time_out(Goal, Time, Result) :-
 	T is Time//1000,
 	UT is (Time mod 1000)*1000,
 	catch( ( Result0 = success,
-	       	 setup_call_cleanup(
+	         setup_call_cleanup(
 			alarm(T.UT,throw(time_out),_),
 			Goal,
 			alarm(0,_,RT)),
 		 (  var(RT)
-		 -> alarm(0,_,RT),
-		    ( true ; alarm(RT,throw(time_out),_) )
+		 -> alarm(0,_,_),
+		    ( true ; alarm(T.UT,throw(time_out),_) )
 		 ;  true
 		 )
 	       ),
