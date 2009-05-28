@@ -35,7 +35,7 @@ time_out(Goal, Time, Result) :-
 			alarm(0,_,RT)),
 		 (  var(RT)
 		 -> alarm(0,_,_),
-		    ( true ; alarm(T.UT,throw(time_out),_) )
+		    ( true ; alarm(T.UT,throw(time_out),_), fail )
 		 ;  true
 		 )
 	       ),
