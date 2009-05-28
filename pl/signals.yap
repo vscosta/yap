@@ -211,6 +211,10 @@ on_signal(Signal,OldAction,default) :-
 	'$reset_signal'(Signal, OldAction).
 on_signal(Signal,OldAction,Action) :-
 	var(Action), !,
+	throw(error(system_error,'Somehow the meta_predicate declarations of on_signal are subverted!')).
+on_signal(Signal,OldAction,Action) :-
+	Action = (_:Goal),
+	var(Goal), !,
 	'$check_signal'(Signal, OldAction),
 	Action = OldAction.
 on_signal(Signal,OldAction,Action) :-
@@ -234,6 +238,10 @@ on_signal(Signal,OldAction,Action) :-
 '$check_signal'(_, default).
 
 
+alarm(Interval, Goal, Left) :-
+	Interval == 0, !,
+	on_signal(sig_alarm, _, Goal),
+	'$alarm'(Interval, 0, Left, _).
 alarm(Interval, Goal, Left) :-
 	integer(Interval), !,
 	on_signal(sig_alarm, _, Goal),
