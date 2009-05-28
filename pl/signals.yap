@@ -215,8 +215,14 @@ on_signal(Signal,OldAction,Action) :-
 	Action = OldAction.
 on_signal(Signal,OldAction,Action) :-
 	'$reset_signal'(Signal, OldAction),
-	'$current_module'(M),
-	recordz('$signal_handler', action(Signal,M:Action), _).
+        % 13211-2 speaks only about callable
+	( Action = M:Goal -> true ; throw(error(type_error(callable,Action),on_signal/3)) ),
+	% the following disagrees with 13211-2:6.7.1.4 which disagrees with 13211-1:7.12.2a
+	% but the following agrees with 13211-1:7.12.2a
+	( nonvar(M) -> true ; throw(error(instantiation_error,on_signal/3)) ),
+	( atom(M) -> true ; throw(error(type_error(callable,Action),on_signal/3)) ),
+	( nonvar(Goal) -> true ; throw(error(instantiation_error,on_signal/3)) ),
+	recordz('$signal_handler', action(Signal,Action), _).
 
 '$reset_signal'(Signal, OldAction) :-
 	recorded('$signal_handler', action(Signal,OldAction), Ref), !,
