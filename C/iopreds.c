@@ -4826,7 +4826,7 @@ base_dig(Int dig, Int ch)
 static Int
 format(volatile Term otail, volatile Term oargs, int sno)
 {
-  char tmp1[256], tmp2[256];
+  char tmp1[256];
   int ch;
   int column_boundary;
   Term mytargs[8], *targs;
@@ -5047,14 +5047,28 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	  tmp1[0] = '%';
 	  tmp1[1] = '.';
 	  ptr = tmp1+2;
+#if HAVE_SNPRINTF
+	  snprintf(ptr,256-5,"%d",repeats);
+#else
 	  sprintf(ptr,"%d",repeats);
+#endif
 	  while (*ptr) ptr++;
 	  ptr[0] = ch;
 	  ptr[1] = '\0';
-	  sprintf (tmp2, tmp1, fl);
-	  ptr = tmp2;
-	  while ((ch = *ptr++) != 0)
-	    f_putc(sno, ch);
+	  {
+	    char *tmp2;
+	    if (!(tmp2 = Yap_AllocCodeSpace(repeats+10)))
+	      goto do_type_int_error;
+#if HAVE_SNPRINTF
+	    snprintf (tmp2, repeats+10, tmp1, fl);
+#else
+	    sprintf (tmp2, tmp1, fl);
+#endif
+	    ptr = tmp2;
+	    while ((ch = *ptr++) != 0)
+	      f_putc(sno, ch);
+	    Yap_FreeCodeSpace(tmp2);
+	  }
 	  break;
 	case 'd':
 	case 'D':
