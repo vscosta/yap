@@ -788,7 +788,8 @@ predicate_property(Pred,Prop) :-
 '$predicate_property2'(Pred,Prop,M) :- var(M), !,
 	'$all_current_modules'(M),
 	'$predicate_property2'(Pred,Prop,M).
-'$predicate_property2'(Pred,Prop,M) :- var(Pred), !,
+'$predicate_property2'(Pred,Prop,M0) :- var(Pred), !,
+	(M = M0 ; M = prolog), % prolog mode is automatically incorporate in every other module
 	'$generate_all_preds_from_mod'(Pred, SourceMod, M),
 	'$predicate_property'(Pred,SourceMod,M,Prop).
 '$predicate_property2'(M:Pred,Prop,_) :- !,
