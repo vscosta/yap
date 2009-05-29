@@ -1633,8 +1633,9 @@ ReceiveSignal (int s)
 #if (_MSC_VER || defined(__MINGW32__))
 static BOOL WINAPI
 MSCHandleSignal(DWORD dwCtrlType) {
-  if (!Yap_InterruptsEnabled) {
+  if (Yap_InterruptsDisabled) {
     return FALSE;
+  }
   switch(dwCtrlType) {
   case CTRL_C_EVENT:
   case CTRL_BREAK_EVENT:

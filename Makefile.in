@@ -432,6 +432,7 @@ mycb: $(srcdir)/mycb.c
 	$(CC) $(CFLAGS) $(srcdir)/mycb.c -o mycb
 
 all: startup.yss
+	@INSTALL_DLLS@ (cd packages/PLStream; $(MAKE))
 	@INSTALL_DLLS@ (cd library/random; $(MAKE))
 	@INSTALL_DLLS@ (cd library/regex; $(MAKE))
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE))
@@ -440,7 +441,6 @@ all: startup.yss
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE))
 	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE))
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE))
-	@INSTALL_DLLS@ (cd packages/PLStream; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE))
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE))
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))

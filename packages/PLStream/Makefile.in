@@ -54,7 +54,7 @@ C_SOURCES=$(srcdir)/pl-buffer.c $(srcdir)/pl-ctype.c \
 OBJS=pl-buffer.o pl-ctype.o pl-error.o  pl-feature.o  \
 	pl-file.o   pl-os.o \
 	pl-stream.o pl-string.o pl-table.o pl-text.o pl-utf8.o \
-	pl-yap.o @ENABLE_WINCONSOLE@ popen.o utf8.o uxnt.o
+	pl-yap.o @ENABLE_WINCONSOLE@ utf8.o uxnt.o
 SOBJS=plstream@SHLIB_SUFFIX@
 
 #in some systems we just create a single object, in others we need to

@@ -484,10 +484,11 @@ then
     then
       prefix="\${SYSTEMDRIVE}/Yap"
     fi
+    ENABLE_WINCONSOLE=""   
   else
+    ENABLE_WINCONSOLE="#"   
     LIBS="-lcygwin"
    fi
-  ENABLE_WINCONSOLE="#"   
 elif test "$target_os" = "mingw32" 
 then
   yap_cv_readline=no
@@ -744,6 +745,7 @@ dnl defaults
 INSTALL_DLLS="#"
 EXTRA_OBJS=""
 SHLIB_LD="#"
+SHLIB_SWI_LD="#"
 DO_SECOND_LD="#"
 M4="m4"
 MERGE_DLL_OBJS="#"
@@ -764,6 +766,7 @@ case "$target_os" in
 	  then
 	    SHLIB_SUFFIX=".so"
             SHLIB_LD="gcc -shared -export-dynamic"
+            SHLIB_SWI_LD="gcc -shared -export-dynamic"
             DO_SECOND_LD=""
 	    LIBS="$LIBS -ldl"
 	    case "$host_cpu" in
@@ -812,7 +815,8 @@ case "$target_os" in
 	  then
 	    #this tells ld to export all non-static symbols,
 	    #otherwise no external predicates.
-	    SHLIB_LD="ld -b -E ${LDFLAGS}"
+            SHLIB_LD="gcc -shared -export-dynamic"
+            SHLIB_SWI_LD="gcc -shared -export-dynamic"
             DO_SECOND_LD=""
             SHLIB_SUFFIX=".sl"
 	    SHLIB_CFLAGS="+z"
@@ -851,6 +855,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	     have_dl=no)
           SHLIB_SUFFIX=".so"
           SHLIB_LD="ld -shared -expect_unresolved '*'"
+          SHLIB_SWI_LD="ld -shared -expect_unresolved '*'"
           DO_SECOND_LD=""
         fi
 	;;
@@ -859,6 +864,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	SHLIB_SUFFIX=".so"
         DO_SECOND_LD=""
 	SHLIB_LD="ld -n32 -shared -rdata_shared"
+	SHLIB_SWI_LD="ld -n32 -shared -rdata_shared"
 	INSTALL_DLLS=""
 	;;
       *darwin*)
@@ -880,6 +886,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 # 	SHLIB_LD="$CC -bundle -bundle_loader \$(abs_top_builddir)/yap -L\$(abs_top_builddir) -lYap -undefined dynamic_lookup -Wl,-x -dead-strip -dead_strip_dylibs"
 # 	LDFLAGS="-Wl,-x -dead_strip -dead_strip_dylibs $LDFLAGS"
 	SHLIB_LD="$CC -bundle -flat_namespace -undefined suppress"
+	SHLIB_SWI_LD="$CC -bundle -flat_namespace -undefined suppress"
 	INSTALL_DLLS=""
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall -Wstrict-aliasing=2"
 	JAVALIBPATH="-L/System/Library/Frameworks/JavaVM.framework/Libraries"
@@ -896,6 +903,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	  LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
 	  SHLIB_CFLAGS="-fPIC"
 	  SHLIB_LD="ld -Bshareable -x"
+	  SHLIB_SWI_LD="ld -Bshareable -x"
           DO_SECOND_LD=""
 	  SHLIB_SUFFIX=".so"
 	  INSTALL_DLLS=""
@@ -907,6 +915,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	YAPLIB="libWYap.a"
 	SHLIB_CFLAGS=""
         SHLIB_LD="\$(CC) -shared ../../yap.dll"
+        SHLIB_SWI_LD="\$(CC) -shared ../../yap.dll  ../../packages/PLStream/plstream.dll"
 	SHLIB_SUFFIX=".dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
 	LDFLAGS="-Wl,--large-address-aware $LDFLAGS"
@@ -1206,6 +1215,7 @@ AC_SUBST(EXEC_SUFFIX)
 dnl how to call the loader
 AC_SUBST(DO_SECOND_LD)
 AC_SUBST(SHLIB_LD)
+AC_SUBST(SHLIB_SWI_LD)
 AC_SUBST(DYNLIB_LD)
 dnl objects in YAP library
 AC_SUBST(YAPLIB)

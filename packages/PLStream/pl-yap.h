@@ -186,5 +186,16 @@ valHandle(term_t tt)
 #endif /* __YAP_PROLOG__ */
 
 
+static int
+stripostfix(const char *s, const char *e)
+{ size_t ls = strlen(s);
+  size_t le = strlen(e);
+
+  if ( ls >= le )
+    return strcasecmp(&s[ls-le], e) == 0;
+
+  return FALSE;
+} 
+
 
 #endif /* PL_YAP_H */
