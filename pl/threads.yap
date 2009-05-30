@@ -16,7 +16,7 @@
 *************************************************************************/
 
 :- meta_predicate
-	thread_create(:,-,+),
+	thread_create(:,-,:),
 	thread_create(:,-),
 	thread_create(:),
 	thread_at_exit(:),
@@ -128,35 +128,54 @@ thread_create(Goal, Id, Options) :-
 '$erase_thread_info'(_).
 
 
-'$thread_options'(V, _, _, _, _, _, _, G) :- var(V), !,
-	'$do_error'(instantiation_error,G).
-'$thread_options'([], _, Stack, Trail, System, Detached, AtExit, _) :-
+'$thread_options'(Opts, Alias, Stack, Trail, System, Detached, AtExit, G) :-
+	strip_module(Opts, Mod, LOpts),
+	(
+	 var(Opts)
+	->
+	 '$do_error'(instantiation_error,G)
+	;
+	 var(Mod)
+	->
+	 '$do_error'(instantiation_error,G)
+	;
+	 \+ atom(Mod)
+	->
+	 '$do_error'(type_error(atom,Mod),G)
+	;
+	 var(LOpts)
+	->
+	 '$do_error'(instantiation_error,G)
+	;
+	 '$thread_options'(LOpts, Alias, Stack, Trail, System, Detached, AtExit, Mod, G)
+	).
+
+'$thread_options'([], _, Stack, Trail, System, Detached, AtExit, M, _) :-
 	recorded('$thread_defaults', [DefaultStack, DefaultTrail, DefaultSystem, DefaultDetached, DefaultAtExit], _),
 	( var(Stack) -> Stack = DefaultStack; true ),
 	( var(Trail) -> Trail = DefaultTrail; true ),
 	( var(System) -> System = DefaultSystem; true ),
 	( var(Detached) -> Detached = DefaultDetached; true ),
 	( var(AtExit) -> AtExit = DefaultAtExit; true ).
-'$thread_options'([Opt|Opts], Alias, Stack, Trail, System, Detached, AtExit, G0) :-
-	'$thread_option'(Opt, Alias, Stack, Trail, System, Detached, AtExit, G0),
-	'$thread_options'(Opts, Alias, Stack, Trail, System, Detached, AtExit, G0).
+'$thread_options'([Opt|Opts], Alias, Stack, Trail, System, Detached, AtExit, M, G0) :-
+	'$thread_option'(Opt, Alias, Stack, Trail, System, Detached, AtExit, M, G0),
+	'$thread_options'(Opts, Alias, Stack, Trail, System, Detached, AtExit, M, G0).
 
-'$thread_option'(Option, _, _, _, _, _, _, G0) :- var(Option), !,
+'$thread_option'(Option, _, _, _, _, _, _, _, G0) :- var(Option), !,
 	'$do_error'(instantiation_error,G0).
-'$thread_option'(alias(Alias), Alias, _, _, _, _, _, G0) :- !,
+'$thread_option'(alias(Alias), Alias, _, _, _, _, _, _, G0) :- !,
 	( \+ atom(Alias) -> '$do_error'(type_error(atom,Alias),G0) ; true ).
-'$thread_option'(stack(Stack), _, Stack, _, _, _, _, G0) :- !,
+'$thread_option'(stack(Stack), _, Stack, _, _, _, _, _, G0) :- !,
 	( \+ integer(Stack) -> '$do_error'(type_error(integer,Stack),G0) ; true ).
-'$thread_option'(trail(Trail), _, _, Trail, _, _, _, G0) :- !,
+'$thread_option'(trail(Trail), _, _, Trail, _, _, _, _, G0) :- !,
 	( \+ integer(Trail) -> '$do_error'(type_error(integer,Trail),G0) ; true ).
-'$thread_option'(system(System), _, _, _, System, _, _, G0) :- !,
+'$thread_option'(system(System), _, _, _, System, _, _, _, G0) :- !,
 	( \+ integer(System) -> '$do_error'(type_error(integer,System),G0) ; true ).
-'$thread_option'(detached(Detached), _, _, _, _, Detached, _, G0) :- !,
+'$thread_option'(detached(Detached), _, _, _, _, Detached, _, _, G0) :- !,
 	( Detached \== true, Detached \== false -> '$do_error'(domain_error(thread_option,Detached+[true,false]),G0) ; true ).
-'$thread_option'(at_exit(AtExit), _, _, _, _, _, M:AtExit, G0) :- !,
-	'$current_module'(M),
+'$thread_option'(at_exit(AtExit), _, _, _, _, _, AtExit, M, G0) :- !,
 	( \+ callable(AtExit) -> '$do_error'(type_error(callable,AtExit),G0) ; true ).
-'$thread_option'(Option, _, _, _, _, _, _, G0) :-
+'$thread_option'(Option, _, _, _, _, _, _, _, G0) :-
 	'$do_error'(domain_error(thread_option,Option),G0).
 
 '$record_alias_info'(_, Alias) :-
