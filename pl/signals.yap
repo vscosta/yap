@@ -240,8 +240,9 @@ on_signal(Signal,OldAction,Action) :-
 
 alarm(Interval, Goal, Left) :-
 	Interval == 0, !,
+	'$alarm'(0, 0, Left0, _),
 	on_signal(sig_alarm, _, Goal),
-	'$alarm'(Interval, 0, Left, _).
+	Left = Left0.
 alarm(Interval, Goal, Left) :-
 	integer(Interval), !,
 	on_signal(sig_alarm, _, Goal),
