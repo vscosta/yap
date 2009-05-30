@@ -678,10 +678,14 @@ p_functor(void)			/* functor(?,?,?) */
   deref_head(d1, func_var_3unk);
  func_var_3nvar:
   /* Uuuff, the second and third argument are bound */
-  if (IsIntTerm(d1))
+  if (IsIntegerTerm(d1))
     d1 = IntOfTerm(d1);
   else {
-    Yap_Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
+    if (IsBigIntTerm(d1)) {
+      Yap_Error(RESOURCE_ERROR_STACK, ARG3, "functor/3");
+    } else {
+      Yap_Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
+    }
     return(FALSE);
   }
   if (!IsAtomicTerm(d0)) {

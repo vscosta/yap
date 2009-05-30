@@ -12272,7 +12272,11 @@ Yap_absmi(int inp)
 	d1 = IntegerOfTerm(d1);
       else {
 	saveregs();
-	Yap_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	if (IsBigIntTerm(d1)) {
+	  Yap_Error(RESOURCE_ERROR_STACK, d1, "functor/3");
+	} else {
+	  Yap_Error(TYPE_ERROR_INTEGER, d1, "functor/3");
+	}
 	setregs();
 	FAIL();
       }
@@ -12392,7 +12396,11 @@ Yap_absmi(int inp)
 	d1 = IntegerOfTerm(d1);
       else {
 	saveregs();
-	Yap_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	if (IsBigIntTerm(d1)) {
+	  Yap_Error(RESOURCE_ERROR_STACK, d1, "functor/3");
+	} else {
+	  Yap_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	}
 	setregs();
 	FAIL();
       }
@@ -12598,7 +12606,11 @@ Yap_absmi(int inp)
 	d1 = IntegerOfTerm(d1);
       else {
 	saveregs();
-	Yap_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	if (IsBigIntTerm(d1)) {
+	  Yap_Error(RESOURCE_ERROR_STACK, d1, "functor/3");
+	} else {
+	  Yap_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	}
 	setregs();
 	FAIL();
       }
@@ -12736,7 +12748,11 @@ Yap_absmi(int inp)
 	d1 = IntegerOfTerm(d1);
       } else {
 	saveregs();
-	Yap_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	if (IsBigIntTerm(d1)) {
+	  Yap_Error(RESOURCE_ERROR_STACK, d1, "functor/3");
+	} else {
+	  Yap_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	}
 	setregs();
 	FAIL();
       }
@@ -13321,7 +13337,7 @@ Yap_absmi(int inp)
 	  } else {
 	    setregs();
 	  }
-	  goto restart_functor;
+	  goto restart_functor;	/*  */
 	}
 	while ((Int)d1--) {
 	  RESET_VARIABLE(pt1);
