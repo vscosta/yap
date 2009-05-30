@@ -47,6 +47,7 @@
   AtomCompound = Yap_LookupAtom("compound");
   AtomConsistencyError = Yap_LookupAtom("consistency_error");
   AtomConsultOnBoot = Yap_FullLookupAtom("$consult_on_boot");
+  AtomContext = Yap_LookupAtom("context");
   AtomCputime = Yap_LookupAtom("cputime");
   AtomCreate = Yap_LookupAtom("create");
   AtomCreep = Yap_FullLookupAtom("$creep");
@@ -140,6 +141,7 @@
   AtomLocal = Yap_LookupAtom("local_sp");
   AtomLocalA = Yap_LookupAtom("local");
   AtomMaxArity = Yap_LookupAtom("max_arity");
+  AtomMaxFiles = Yap_LookupAtom("max_files");
   AtomMegaClause = Yap_FullLookupAtom("$mega_clause");
   AtomMetaCall = Yap_FullLookupAtom("$call");
   AtomMfClause = Yap_FullLookupAtom("$mf_clause");
@@ -158,8 +160,10 @@
   AtomNb = Yap_LookupAtom("nb");
   AtomNbTerm = Yap_LookupAtom("nb_term");
   AtomNew = Yap_LookupAtom("new");
+  AtomNoMemory = Yap_LookupAtom("no_memory");
   AtomNonEmptyList = Yap_LookupAtom("non_empty_list");
   AtomNot = Yap_LookupAtom("\\+");
+  AtomNotImplemented = Yap_LookupAtom("not_implemented");
   AtomNotLessThanZero = Yap_LookupAtom("not_less_than_zero");
   AtomNotNewline = Yap_LookupAtom("not_newline");
   AtomNotZero = Yap_LookupAtom("not_zero");
@@ -192,6 +196,7 @@
   AtomPredicateIndicator = Yap_LookupAtom("predicate_indicator");
   AtomPrimitive = Yap_LookupAtom("primitive");
   AtomPrivateProcedure = Yap_LookupAtom("private_procedure");
+  AtomProcedure = Yap_LookupAtom("procedure");
   AtomProfile = Yap_FullLookupAtom("$profile");
   AtomProlog = Yap_LookupAtom("prolog");
   AtomPtr = Yap_LookupAtom("ptr");
@@ -260,6 +265,7 @@
   AtomThreads = Yap_LookupAtom("threads");
   AtomThrow = Yap_LookupAtom("throw");
   AtomTimeOutSpec = Yap_LookupAtom("time_out_spec");
+  AtomTimeoutError = Yap_LookupAtom("timeout_error");
   AtomTopLevelGoal = Yap_FullLookupAtom("$top_level_goal");
   AtomTopThreadGoal = Yap_FullLookupAtom("$top_thread_goal");
   AtomTrail = Yap_LookupAtom("trail");
@@ -304,6 +310,7 @@
   FunctorChangeModule = Yap_MkFunctor(AtomChangeModule,1);
   FunctorClist = Yap_MkFunctor(AtomWhen,4);
   FunctorComma = Yap_MkFunctor(AtomComma,2);
+  FunctorContext2 = Yap_MkFunctor(AtomContext,2);
   FunctorConsistencyError = Yap_MkFunctor(AtomConsistencyError,1);
   FunctorCreep = Yap_MkFunctor(AtomCreep,1);
   FunctorCsult = Yap_MkFunctor(AtomCsult,1);
@@ -357,6 +364,7 @@
   FunctorModule = Yap_MkFunctor(AtomColomn,2);
   FunctorMultiFileClause = Yap_MkFunctor(AtomMfClause,5);
   FunctorMutable = Yap_MkFunctor(AtomMutableVariable,(sizeof(timed_var)/sizeof(CELL)));
+  FunctorNotImplemented = Yap_MkFunctor(AtomNotImplemented,2);
   FunctorNBQueue = Yap_MkFunctor(AtomQueue,5);
   FunctorNot = Yap_MkFunctor(AtomNot,1);
   FunctorOr = Yap_MkFunctor(AtomSemic,2);
@@ -378,6 +386,7 @@
   FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,7);
   FunctorThreadRun = Yap_MkFunctor(AtomTopThreadGoal,2);
   FunctorThrow = Yap_MkFunctor(AtomThrow,1);
+  FunctorTimeoutError = Yap_MkFunctor(AtomTimeoutError,2);
   FunctorTypeError = Yap_MkFunctor(AtomTypeError,2);
   FunctorUMinus = Yap_MkFunctor(AtomMinus,1);
   FunctorUPlus = Yap_MkFunctor(AtomPlus,1);

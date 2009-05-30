@@ -96,6 +96,8 @@
 #define AtomConsistencyError Yap_heap_regs->AtomConsistencyError_
   Atom AtomConsultOnBoot_;
 #define AtomConsultOnBoot Yap_heap_regs->AtomConsultOnBoot_
+  Atom AtomContext_;
+#define AtomContext Yap_heap_regs->AtomContext_
   Atom AtomCputime_;
 #define AtomCputime Yap_heap_regs->AtomCputime_
   Atom AtomCreate_;
@@ -286,6 +288,8 @@
 #define AtomLocalA Yap_heap_regs->AtomLocalA_
   Atom AtomMaxArity_;
 #define AtomMaxArity Yap_heap_regs->AtomMaxArity_
+  Atom AtomMaxFiles_;
+#define AtomMaxFiles Yap_heap_regs->AtomMaxFiles_
   Atom AtomMegaClause_;
 #define AtomMegaClause Yap_heap_regs->AtomMegaClause_
   Atom AtomMetaCall_;
@@ -322,10 +326,14 @@
 #define AtomNbTerm Yap_heap_regs->AtomNbTerm_
   Atom AtomNew_;
 #define AtomNew Yap_heap_regs->AtomNew_
+  Atom AtomNoMemory_;
+#define AtomNoMemory Yap_heap_regs->AtomNoMemory_
   Atom AtomNonEmptyList_;
 #define AtomNonEmptyList Yap_heap_regs->AtomNonEmptyList_
   Atom AtomNot_;
 #define AtomNot Yap_heap_regs->AtomNot_
+  Atom AtomNotImplemented_;
+#define AtomNotImplemented Yap_heap_regs->AtomNotImplemented_
   Atom AtomNotLessThanZero_;
 #define AtomNotLessThanZero Yap_heap_regs->AtomNotLessThanZero_
   Atom AtomNotNewline_;
@@ -390,6 +398,8 @@
 #define AtomPrimitive Yap_heap_regs->AtomPrimitive_
   Atom AtomPrivateProcedure_;
 #define AtomPrivateProcedure Yap_heap_regs->AtomPrivateProcedure_
+  Atom AtomProcedure_;
+#define AtomProcedure Yap_heap_regs->AtomProcedure_
   Atom AtomProfile_;
 #define AtomProfile Yap_heap_regs->AtomProfile_
   Atom AtomProlog_;
@@ -526,6 +536,8 @@
 #define AtomThrow Yap_heap_regs->AtomThrow_
   Atom AtomTimeOutSpec_;
 #define AtomTimeOutSpec Yap_heap_regs->AtomTimeOutSpec_
+  Atom AtomTimeoutError_;
+#define AtomTimeoutError Yap_heap_regs->AtomTimeoutError_
   Atom AtomTopLevelGoal_;
 #define AtomTopLevelGoal Yap_heap_regs->AtomTopLevelGoal_
   Atom AtomTopThreadGoal_;
@@ -614,6 +626,8 @@
 #define FunctorClist Yap_heap_regs->FunctorClist_
   Functor FunctorComma_;
 #define FunctorComma Yap_heap_regs->FunctorComma_
+  Functor FunctorContext2_;
+#define FunctorContext2 Yap_heap_regs->FunctorContext2_
   Functor FunctorConsistencyError_;
 #define FunctorConsistencyError Yap_heap_regs->FunctorConsistencyError_
   Functor FunctorCreep_;
@@ -720,6 +734,8 @@
 #define FunctorMultiFileClause Yap_heap_regs->FunctorMultiFileClause_
   Functor FunctorMutable_;
 #define FunctorMutable Yap_heap_regs->FunctorMutable_
+  Functor FunctorNotImplemented_;
+#define FunctorNotImplemented Yap_heap_regs->FunctorNotImplemented_
   Functor FunctorNBQueue_;
 #define FunctorNBQueue Yap_heap_regs->FunctorNBQueue_
   Functor FunctorNot_;
@@ -762,6 +778,8 @@
 #define FunctorThreadRun Yap_heap_regs->FunctorThreadRun_
   Functor FunctorThrow_;
 #define FunctorThrow Yap_heap_regs->FunctorThrow_
+  Functor FunctorTimeoutError_;
+#define FunctorTimeoutError Yap_heap_regs->FunctorTimeoutError_
   Functor FunctorTypeError_;
 #define FunctorTypeError Yap_heap_regs->FunctorTypeError_
   Functor FunctorUMinus_;

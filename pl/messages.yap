@@ -179,6 +179,8 @@ system_message(error(evaluation_error(zero_divisor), Where)) -->
 	[ 'ZERO DIVISOR ERROR- ~w' - [Where] ].
 system_message(error(instantiation_error, Where)) -->
 	[ 'INSTANTIATION ERROR- ~w: expected bound value' - [Where] ].
+system_message(error(not_implemented(Type, What), Where)) -->
+	[ '~w not implemented- ~w' - [Type, What] ].
 system_message(error(operating_system_error, Where)) -->
 	[ 'OPERATING SYSTEM ERROR- ~w' - [Where] ].
 system_message(error(out_of_heap_error, Where)) -->
@@ -275,6 +277,8 @@ system_message(error(internal_compiler_error, Where)) -->
 	[ 'INTERNAL COMPILER ERROR- ~w' - [Where] ].
 system_message(error(system_error(Message), Where)) -->
 	[ 'SYSTEM ERROR- ~w at ~w]' - [Message,Where] ].
+system_message(error(timeout_error(T,Obj), _Where)) -->
+	[ 'TIMEOUT ERROR- operation ~w on object ~w' - [T,Obj] ].
 system_message(error(type_error(T,_,Err,M), _Where)) -->
 	[ 'TYPE ERROR- ~w: expected ~w, got ~w' - [T,Err,M] ].
 system_message(error(type_error(TE,W), Where)) -->

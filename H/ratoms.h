@@ -47,6 +47,7 @@
   AtomCompound = AtomAdjust(AtomCompound);
   AtomConsistencyError = AtomAdjust(AtomConsistencyError);
   AtomConsultOnBoot = AtomAdjust(AtomConsultOnBoot);
+  AtomContext = AtomAdjust(AtomContext);
   AtomCputime = AtomAdjust(AtomCputime);
   AtomCreate = AtomAdjust(AtomCreate);
   AtomCreep = AtomAdjust(AtomCreep);
@@ -142,6 +143,7 @@
   AtomLocal = AtomAdjust(AtomLocal);
   AtomLocalA = AtomAdjust(AtomLocalA);
   AtomMaxArity = AtomAdjust(AtomMaxArity);
+  AtomMaxFiles = AtomAdjust(AtomMaxFiles);
   AtomMegaClause = AtomAdjust(AtomMegaClause);
   AtomMetaCall = AtomAdjust(AtomMetaCall);
   AtomMfClause = AtomAdjust(AtomMfClause);
@@ -160,8 +162,10 @@
   AtomNb = AtomAdjust(AtomNb);
   AtomNbTerm = AtomAdjust(AtomNbTerm);
   AtomNew = AtomAdjust(AtomNew);
+  AtomNoMemory = AtomAdjust(AtomNoMemory);
   AtomNonEmptyList = AtomAdjust(AtomNonEmptyList);
   AtomNot = AtomAdjust(AtomNot);
+  AtomNotImplemented = AtomAdjust(AtomNotImplemented);
   AtomNotLessThanZero = AtomAdjust(AtomNotLessThanZero);
   AtomNotNewline = AtomAdjust(AtomNotNewline);
   AtomNotZero = AtomAdjust(AtomNotZero);
@@ -194,6 +198,7 @@
   AtomPredicateIndicator = AtomAdjust(AtomPredicateIndicator);
   AtomPrimitive = AtomAdjust(AtomPrimitive);
   AtomPrivateProcedure = AtomAdjust(AtomPrivateProcedure);
+  AtomProcedure = AtomAdjust(AtomProcedure);
   AtomProfile = AtomAdjust(AtomProfile);
   AtomProlog = AtomAdjust(AtomProlog);
   AtomPtr = AtomAdjust(AtomPtr);
@@ -262,6 +267,7 @@
   AtomThreads = AtomAdjust(AtomThreads);
   AtomThrow = AtomAdjust(AtomThrow);
   AtomTimeOutSpec = AtomAdjust(AtomTimeOutSpec);
+  AtomTimeoutError = AtomAdjust(AtomTimeoutError);
   AtomTopLevelGoal = AtomAdjust(AtomTopLevelGoal);
   AtomTopThreadGoal = AtomAdjust(AtomTopThreadGoal);
   AtomTrail = AtomAdjust(AtomTrail);
@@ -306,6 +312,7 @@
   FunctorChangeModule = FuncAdjust(FunctorChangeModule);
   FunctorClist = FuncAdjust(FunctorClist);
   FunctorComma = FuncAdjust(FunctorComma);
+  FunctorContext2 = FuncAdjust(FunctorContext2);
   FunctorConsistencyError = FuncAdjust(FunctorConsistencyError);
   FunctorCreep = FuncAdjust(FunctorCreep);
   FunctorCsult = FuncAdjust(FunctorCsult);
@@ -359,6 +366,7 @@
   FunctorModule = FuncAdjust(FunctorModule);
   FunctorMultiFileClause = FuncAdjust(FunctorMultiFileClause);
   FunctorMutable = FuncAdjust(FunctorMutable);
+  FunctorNotImplemented = FuncAdjust(FunctorNotImplemented);
   FunctorNBQueue = FuncAdjust(FunctorNBQueue);
   FunctorNot = FuncAdjust(FunctorNot);
   FunctorOr = FuncAdjust(FunctorOr);
@@ -380,6 +388,7 @@
   FunctorSyntaxError = FuncAdjust(FunctorSyntaxError);
   FunctorThreadRun = FuncAdjust(FunctorThreadRun);
   FunctorThrow = FuncAdjust(FunctorThrow);
+  FunctorTimeoutError = FuncAdjust(FunctorTimeoutError);
   FunctorTypeError = FuncAdjust(FunctorTypeError);
   FunctorUMinus = FuncAdjust(FunctorUMinus);
   FunctorUPlus = FuncAdjust(FunctorUPlus);
