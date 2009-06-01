@@ -119,6 +119,9 @@ void   STD_PROTO(Yap_InitBigNums,(void));
 
 /* c_interface.c */
 Int    STD_PROTO(YAP_Execute,(struct pred_entry *, CPredicate));
+Int    STD_PROTO(YAP_ExecuteFirst,(struct pred_entry *, CPredicate));
+Int    STD_PROTO(YAP_ExecuteNext,(struct pred_entry *, CPredicate));
+Int    STD_PROTO(YAP_ExecuteOnCut,(struct pred_entry *, CPredicate));
 
 /* cdmgr.c */
 Term	STD_PROTO(Yap_all_calls,(void));
@@ -213,13 +216,13 @@ void	STD_PROTO(Yap_DebugEndline,(void));
 int	STD_PROTO(Yap_DebugGetc,(void));
 #endif
 int	STD_PROTO(Yap_IsOpType,(char *));
-void	STD_PROTO(Yap_InitCPred,(char *, unsigned long int, CPredicate, int));
-void	STD_PROTO(Yap_InitAsmPred,(char *, unsigned long int, int, CPredicate, int));
-void	STD_PROTO(Yap_InitCmpPred,(char *, unsigned long int, CmpPredicate, int));
-void	STD_PROTO(Yap_InitCPredBack,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,int));
+void	STD_PROTO(Yap_InitCPred,(char *, unsigned long int, CPredicate, UInt));
+void	STD_PROTO(Yap_InitAsmPred,(char *, unsigned long int, int, CPredicate, UInt));
+void	STD_PROTO(Yap_InitCmpPred,(char *, unsigned long int, CmpPredicate, UInt));
+void	STD_PROTO(Yap_InitCPredBack,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,UInt));
 #ifdef CUT_C
-void	STD_PROTO(Yap_InitCPredBackCut,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,int));
-void    STD_PROTO(Yap_InitCPredBack_,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,int));
+void	STD_PROTO(Yap_InitCPredBackCut,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,UInt));
+void    STD_PROTO(Yap_InitCPredBack_,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,UInt));
 #endif
 void	STD_PROTO(Yap_InitWorkspace,(UInt,UInt,UInt,UInt,UInt,int,int,int));
 
