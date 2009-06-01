@@ -1189,7 +1189,7 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
   if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context ctx;
-    ctx.engine = (struct PL_local_data *)Yap_regp;
+    ctx.engine = NULL;
 
     return ((codev)((&ARG1)-LCL0,0,&ctx));
   }
