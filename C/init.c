@@ -480,7 +480,7 @@ InitDebug(void)
 }
 
 void 
-Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
+Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, UInt flags)
 {
   Atom              atom = NIL;
   PredEntry        *pe = NULL;
@@ -578,7 +578,7 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
 }
 
 void 
-Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int flags)
+Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, UInt flags)
 {
   Atom              atom = NIL;
   PredEntry        *pe = NULL;
@@ -654,7 +654,7 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int 
 }
 
 void 
-Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, int flags)
+Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, UInt flags)
 {
   Atom            atom = NIL;
   PredEntry      *pe = NULL;
@@ -793,14 +793,14 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont)
 void 
 Yap_InitCPredBack(char *Name, unsigned long int Arity,
 		  unsigned int Extra, CPredicate Start,
-		  CPredicate Cont,int flags){
+		  CPredicate Cont, UInt flags){
   Yap_InitCPredBack_(Name,Arity,Extra,Start,Cont,NULL,flags);
 }
 
 void
 Yap_InitCPredBackCut(char *Name, unsigned long int Arity,
 		     unsigned int Extra, CPredicate Start,
-		     CPredicate Cont,CPredicate Cut,int flags){
+		     CPredicate Cont,CPredicate Cut, UInt flags){
   Yap_InitCPredBack_(Name,Arity,Extra,Start,Cont,Cut,flags);
 }
 #endif /* CUT_C */
@@ -809,11 +809,11 @@ void
 #ifdef CUT_C 
 Yap_InitCPredBack_(char *Name, unsigned long int Arity,
 		  unsigned int Extra, CPredicate Start,
-		  CPredicate Cont, CPredicate Cut,int flags)
+		  CPredicate Cont, CPredicate Cut, UInt flags)
 #else
 Yap_InitCPredBack(char *Name, unsigned long int Arity,
 		  unsigned int Extra, CPredicate Start,
-		  CPredicate Cont, int flags)
+		  CPredicate Cont, UInt flags)
 #endif 
 {
   PredEntry      *pe = NULL;
@@ -858,7 +858,7 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
     StaticClause *cl;
     yamop      *code = ((StaticClause *)NULL)->ClCode;
     if (flags &  UserCPredFlag) 
-      pe->PredFlags = UserCPredFlag | CompiledPredFlag | StandardPredFlag;
+      pe->PredFlags = UserCPredFlag | CompiledPredFlag | StandardPredFlag | flags;
     else
       pe->PredFlags = CompiledPredFlag | StandardPredFlag;
 
