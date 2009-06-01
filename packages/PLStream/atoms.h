@@ -342,6 +342,7 @@
 #define ATOM_natural MK_ATOM("natural")
 #define ATOM_newline MK_ATOM("newline")
 #define ATOM_nil MK_ATOM("[]")
+#define ATOM_nlink MK_ATOM("nlink")
 #define ATOM_no_memory MK_ATOM("no_memory")
 #define ATOM_nodebug MK_ATOM("nodebug")
 #define ATOM_non_empty_list MK_ATOM("non_empty_list")
@@ -593,6 +594,8 @@
 #define ATOM_yfx MK_ATOM("yfx")
 #define ATOM_yfy MK_ATOM("yfy")
 #define ATOM_zero_divisor MK_ATOM("zero_divisor")
+
+
 #define FUNCTOR_abs1 MKFUNCTOR(ATOM_abs,1)
 #define FUNCTOR_access1 MKFUNCTOR(ATOM_access,1)
 #define FUNCTOR_acos1 MKFUNCTOR(ATOM_acos,1)
@@ -714,6 +717,7 @@
 #define FUNCTOR_mode1 MKFUNCTOR(ATOM_mode,1)
 #define FUNCTOR_msb1 MKFUNCTOR(ATOM_msb,1)
 #define FUNCTOR_newline1 MKFUNCTOR(ATOM_newline,1)
+#define FUNCTOR_nlink1 MKFUNCTOR(ATOM_nlink,1)
 #define FUNCTOR_not_implemented2 MKFUNCTOR(ATOM_not_implemented,2)
 #define FUNCTOR_not_provable1 MKFUNCTOR(ATOM_not_provable,1)
 #define FUNCTOR_occurs_check2 MKFUNCTOR(ATOM_occurs_check,2)
