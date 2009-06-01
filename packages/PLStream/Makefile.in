@@ -40,6 +40,7 @@ HEADERS=$(srcdir)/atoms.h $(srcdir)/pl-buffer.h $(srcdir)/pl-ctype.h  \
 	$(srcdir)/pl-mswchar.h \
 	$(srcdir)/pl-opts.h  \
 	$(srcdir)/pl-os.h \
+	$(srcdir)/pl-privit.h \
 	$(srcdir)/pl-stream.h \
 	$(srcdir)/pl-table.h \
 	$(srcdir)/pl-text.h $(srcdir)/pl-utf8.h \
@@ -47,6 +48,7 @@ HEADERS=$(srcdir)/atoms.h $(srcdir)/pl-buffer.h $(srcdir)/pl-ctype.h  \
 C_SOURCES=$(srcdir)/pl-buffer.c $(srcdir)/pl-ctype.c \
 	$(srcdir)/pl-error.c  $(srcdir)/pl-feature.c  \
 	$(srcdir)/pl-file.c   $(srcdir)/pl-os.c \
+	$(srcdir)/pl-privit.c \
 	$(srcdir)/pl-stream.c $(srcdir)/pl-string.c \
 	$(srcdir)/pl-table.c \
 	$(srcdir)/pl-text.c $(srcdir)/pl-utf8.c \
