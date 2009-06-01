@@ -548,7 +548,7 @@ extern void  initCharTypes(void);
 
 /**** stuff from pl-os.c ****/
 extern void cleanupOs(void);
-extern void PL_clock_wait_ticks(intptr_t waited);
+extern void PL_clock_wait_ticks(long waited);
 extern void setOSFeatures(void);
 extern uintptr_t FreeMemory(void);
 extern uint64_t _PL_Random(void);
