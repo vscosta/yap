@@ -37,7 +37,7 @@ typedef int bool;
 		*********************************/
 
 #include "pl-table.h"
-#include "pl-stream.h"
+#include "SWI-Stream.h"
 #include "pl-os.h"
 #include "pl-error.h"
 
@@ -52,6 +52,12 @@ typedef int bool;
 		 *******************************/
 
 #include "pl-opts.h"
+
+		 /*******************************
+		 *	   LIST BUILDING	*
+		 *******************************/
+
+#include "pl-privitf.h"
 
 // numbers
 
@@ -94,6 +100,10 @@ typedef struct {
   int io_initialised;
   cleanup_status cleaning;		/* Inside PL_cleanup() */
 
+ struct
+  { Table       table;                  /* global (read-only) features */
+  } prolog_flag;
+
   struct
   { TempFile		_tmpfile_head;
     TempFile		_tmpfile_tail;
@@ -122,6 +132,15 @@ extern gds_t gds;
 #define GD (&gds)
 #define GLOBAL_LD (&gds)
 
+typedef struct
+{ unsigned long flags;                  /* Fast access to some boolean Prolog flags */
+} pl_features_t;
+
+#define truePrologFlag(flag)      true(&LD->prolog_flag.mask, flag)
+#define setPrologFlagMask(flag)   set(&LD->prolog_flag.mask, flag)
+#define clearPrologFlagMask(flag) clear(&LD->prolog_flag.mask, flag)
+
+
 // LOCAL variables (heap will get this form LOCAL
 
 #define FT_ATOM		0		/* atom feature */
@@ -134,9 +153,28 @@ extern gds_t gds;
 #define FF_READONLY	0x10		/* feature is read-only */
 #define FF_KEEP		0x20		/* keep value it already set */
 
-typedef struct
-{ unsigned long flags;			/* the feature flags */
-} pl_features_t;
+#define PLFLAG_CHARESCAPE           0x000001 /* handle \ in atoms */
+#define PLFLAG_GC                   0x000002 /* do GC */
+#define PLFLAG_TRACE_GC             0x000004 /* verbose gc */
+#define PLFLAG_TTY_CONTROL          0x000008 /* allow for tty control */
+#define PLFLAG_READLINE             0x000010 /* readline is loaded */
+#define PLFLAG_DEBUG_ON_ERROR       0x000020 /* start tracer on error */
+#define PLFLAG_REPORT_ERROR         0x000040 /* print error message */
+#define PLFLAG_FILE_CASE            0x000080 /* file names are case sensitive */
+#define PLFLAG_FILE_CASE_PRESERVING 0x000100 /* case preserving file names */
+#define PLFLAG_DOS_FILE_NAMES       0x000200 /* dos (8+3) file names */
+#define ALLOW_VARNAME_FUNCTOR       0x000400 /* Read Foo(x) as 'Foo'(x) */
+#define PLFLAG_ISO                  0x000800 /* Strict ISO compliance */
+#define PLFLAG_OPTIMISE             0x001000 /* -O: optimised compilation */
+#define PLFLAG_FILEVARS             0x002000 /* Expand $var and ~ in filename */
+#define PLFLAG_AUTOLOAD             0x004000 /* do autoloading */
+#define PLFLAG_CHARCONVERSION       0x008000 /* do character-conversion */
+#define PLFLAG_LASTCALL             0x010000 /* Last call optimization enabled?  */
+#define PLFLAG_EX_ABORT             0x020000 /* abort with exception */
+#define PLFLAG_BACKQUOTED_STRING    0x040000 /* `a string` */
+#define PLFLAG_SIGNALS              0x080000 /* Handle signals */
+#define PLFLAG_DEBUGINFO            0x100000 /* generate debug info */
+#define PLFLAG_FILEERRORS           0x200000 /* Edinburgh file errors */
 
 typedef enum
 { OCCURS_CHECK_FALSE = 0,
@@ -212,6 +250,13 @@ typedef struct PL_local_data {
     int		first_used;		/* did we do the first line? */
     int		next;			/* prompt on next read operation */
   } prompt;
+
+  struct
+  { Table         table;                /* Feature table */
+    pl_features_t mask;                 /* Masked access to booleans */
+    int           write_attributes;     /* how to write attvars? */
+    occurs_check_t occurs_check;        /* Unify and occurs check */
+  } prolog_flag;
 
   IOENC		encoding;		/* default I/O encoding */
 
@@ -298,7 +343,6 @@ extern int ttymode;
 #define FILE_CASE_FEATURE	  0x00080 /* file names are case sensitive */
 #define FILE_CASE_PRESERVING_FEATURE 0x0100 /* case preserving file names */
 #define DOS_FILE_NAMES_FEATURE    0x00200 /* dos (8+3) file names */
-#define ALLOW_VARNAME_FUNCTOR	  0x00400 /* Read Foo(x) as 'Foo'(x) */
 #define ISO_FEATURE		  0x00800 /* Strict ISO compliance */
 #define OPTIMISE_FEATURE	  0x01000 /* -O: optimised compilation */
 #define FILEVARS_FEATURE	  0x02000 /* Expand $var and ~ in filename */
