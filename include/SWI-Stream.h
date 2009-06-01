@@ -374,6 +374,7 @@ PL_EXPORT(int)		Sseek64(IOSTREAM *s, int64_t pos, int whence);
 
 PL_EXPORT(int)		ScheckBOM(IOSTREAM *s);
 PL_EXPORT(int)		SwriteBOM(IOSTREAM *s);
+PL_EXPORT(ssize_t)	Sread_user(void *handle, char *buf, size_t size);
 
 #ifdef __cplusplus
 }

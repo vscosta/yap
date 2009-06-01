@@ -2827,7 +2827,7 @@ ok:
   return TRUE;
 }
 
-int
+static int
 pl_seen(void)
 { GET_LD
   IOSTREAM *s = getStream(Scurin);

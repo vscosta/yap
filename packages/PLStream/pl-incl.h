@@ -475,6 +475,9 @@ extern int get_atom_text(atom_t atom, PL_chars_t *text);
 extern int get_string_text(word w, PL_chars_t *text);
 extern char *format_float(double f, char *buf, const char *format);
 
+/**** stuff from pl-ctype.c ****/
+extern IOENC initEncoding(void);
+
 /**** stuff from pl-error.c ****/
 extern int PL_get_bool_ex(term_t t, int *i);
 extern int PL_get_nchars_ex(term_t t, size_t *len, char **s, unsigned int flags);
@@ -506,6 +509,7 @@ extern bool readLine(IOSTREAM *in, IOSTREAM *out, char *buffer);
 extern bool tellString(char **s, size_t *size, IOENC enc);
 extern bool tellString(char **s, size_t *size, IOENC enc);
 extern bool toldString(void);
+ssize_t Sread_user(void *handle, char *buf, size_t size);
 
 extern int setupOutputRedirect(term_t to, redir_context *ctx, int redir);
 extern void discardOutputRedirect(redir_context *ctx);
@@ -552,6 +556,18 @@ extern uint64_t _PL_Random(void);
 extern void RemoveTemporaryFiles(void);
 extern int Pause(real t);
 char *findExecutable(const char *av0, char *buffer);
+
+void setOSPrologFlags(void);
+void setRandom(unsigned int *seedp);
+char *canoniseFileName(char *path);
+char *canonisePath(char *path);
+void PL_changed_cwd(void);
+struct tm *LocalTime(long *t, struct tm *r);
+size_t getenv3(const char *name, char *buf, size_t len);
+int Setenv(char *name, char *value);
+int Unsetenv(char *name);
+int System(char *cmd);
+bool expandVars(const char *pattern, char *expanded, int maxlen);
 
 /**** SWI stuff (emulated in pl-yap.c) ****/
 extern int writeAtomToStream(IOSTREAM *so, atom_t at);

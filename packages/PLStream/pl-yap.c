@@ -112,7 +112,7 @@ int
 PL_write_term(IOSTREAM *s, term_t term, int precedence, int flags)
 {
 
-  YAP_Write(YAP_GetFromSlot(term), Sputc, flags);
+  YAP_Write(YAP_GetFromSlot(term), (void (*)(int))Sputc, flags);
   return TRUE;
 }
 
@@ -120,7 +120,7 @@ int
 writeAtomToStream(IOSTREAM *so, atom_t at)
 {
 
-  YAP_Write(YAP_MkAtomTerm((YAP_Atom)at), Sputc, 0);
+  YAP_Write(YAP_MkAtomTerm((YAP_Atom)at), (void (*)(int))Sputc, 0);
   return TRUE;
 }
 
@@ -195,7 +195,7 @@ switch(n->type)
 int
 _PL_unify_atomic(term_t t, PL_atomic_t a)
 {
-  return YAP_Unify(Yap_GetFromSlot(t), (YAP_Term)a);
+  return YAP_Unify(YAP_GetFromSlot(t), (YAP_Term)a);
 }
 
 word lookupAtom(const char *s, size_t len)
