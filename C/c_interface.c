@@ -1084,7 +1084,7 @@ typedef enum
   FRG_REDO	 = 2		/* Normal redo */
 } frg_code;
 
-typedef  struct context
+typedef  struct foreign_context
     { int *		context;	/* context value */
       frg_code		control;	/* FRG_* action */
       struct PL_local_data *engine;		/* invoking engine */
@@ -1098,97 +1098,169 @@ typedef Int (*CPredicate5)(long,long,long,long,long);
 typedef Int (*CPredicate6)(long,long,long,long,long,long);
 typedef Int (*CPredicate7)(long,long,long,long,long,long,long);
 typedef Int (*CPredicate8)(long,long,long,long,long,long,long,long);
-typedef Int (*CPredicateV)(Int,Int,struct context *);
+typedef Int (*CPredicateV)(Int,Int,struct foreign_context *);
+
+static Int
+execute_cargs(PredEntry *pe, CPredicate exec_code)
+{
+  switch (pe->ArityOfPE) {
+  case 0:
+    {
+      CPredicate code0 = exec_code;
+      return ((code0)());
+    }
+  case 1:
+    {
+      CPredicate1 code1 = (CPredicate1)exec_code;
+      return ((code1)(Yap_InitSlot(Deref(ARG1))));
+    }
+  case 2:
+    {
+      CPredicate2 code2 = (CPredicate2)exec_code;
+      return ((code2)(Yap_InitSlot(Deref(ARG1)),
+		      Yap_InitSlot(Deref(ARG2))));
+    }
+  case 3:
+    {
+      CPredicate3 code3 = (CPredicate3)exec_code;
+      return ((code3)(Yap_InitSlot(Deref(ARG1)),
+		      Yap_InitSlot(Deref(ARG2)),
+		      Yap_InitSlot(Deref(ARG3))));
+    }
+  case 4:
+    {
+      CPredicate4 code4 = (CPredicate4)exec_code;
+      return ((code4)(Yap_InitSlot(Deref(ARG1)),
+		      Yap_InitSlot(Deref(ARG2)),
+		      Yap_InitSlot(Deref(ARG3)),
+		      Yap_InitSlot(Deref(ARG4))));
+    }
+  case 5:
+    {
+      CPredicate5 code5 = (CPredicate5)exec_code;
+      return ((code5)(Yap_InitSlot(Deref(ARG1)),
+		      Yap_InitSlot(Deref(ARG2)),
+		      Yap_InitSlot(Deref(ARG3)),
+		      Yap_InitSlot(Deref(ARG4)),
+		      Yap_InitSlot(Deref(ARG5))));
+    }
+  case 6:
+    {
+      CPredicate6 code6 = (CPredicate6)exec_code;
+      return ((code6)(Yap_InitSlot(Deref(ARG1)),
+		      Yap_InitSlot(Deref(ARG2)),
+		      Yap_InitSlot(Deref(ARG3)),
+		      Yap_InitSlot(Deref(ARG4)),
+		      Yap_InitSlot(Deref(ARG5)),
+		      Yap_InitSlot(Deref(ARG6))));
+    }
+  case 7:
+    {
+      CPredicate7 code7 = (CPredicate7)exec_code;
+      return ((code7)(Yap_InitSlot(Deref(ARG1)),
+		      Yap_InitSlot(Deref(ARG2)),
+		      Yap_InitSlot(Deref(ARG3)),
+		      Yap_InitSlot(Deref(ARG4)),
+		      Yap_InitSlot(Deref(ARG5)),
+		      Yap_InitSlot(Deref(ARG6)),
+		      Yap_InitSlot(Deref(ARG7))));
+    }
+  case 8:
+    {
+      CPredicate8 code8 = (CPredicate8)exec_code;
+      return ((code8)(Yap_InitSlot(Deref(ARG1)),
+		      Yap_InitSlot(Deref(ARG2)),
+		      Yap_InitSlot(Deref(ARG3)),
+		      Yap_InitSlot(Deref(ARG4)),
+		      Yap_InitSlot(Deref(ARG5)),
+		      Yap_InitSlot(Deref(ARG6)),
+		      Yap_InitSlot(Deref(ARG7)),
+		      Yap_InitSlot(Deref(ARG8))));
+    }
+  default:
+    return(FALSE);
+  }
+}
+
 
 Int
 YAP_Execute(PredEntry *pe, CPredicate exec_code)
 {
   if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = (CPredicateV)exec_code;
-    struct context ctx;
+    struct foreign_context ctx;
+    ctx.engine = (struct PL_local_data *)Yap_regp;
 
     return ((codev)((&ARG1)-LCL0,0,&ctx));
   }
   if (pe->PredFlags & CArgsPredFlag) {
-    switch (pe->ArityOfPE) {
-    case 0:
-      {
-	CPredicate code0 = exec_code;
-	return ((code0)());
-      }
-    case 1:
-      {
-	CPredicate1 code1 = (CPredicate1)exec_code;
-	return ((code1)(YAP_InitSlot(Deref(ARG1))));
-      }
-    case 2:
-      {
-	CPredicate2 code2 = (CPredicate2)exec_code;
-	return ((code2)(YAP_InitSlot(Deref(ARG1)),
-			YAP_InitSlot(Deref(ARG2))));
-      }
-    case 3:
-      {
-	CPredicate3 code3 = (CPredicate3)exec_code;
-	return ((code3)(YAP_InitSlot(Deref(ARG1)),
-			YAP_InitSlot(Deref(ARG2)),
-			YAP_InitSlot(Deref(ARG3))));
-      }
-    case 4:
-      {
-	CPredicate4 code4 = (CPredicate4)exec_code;
-	return ((code4)(YAP_InitSlot(Deref(ARG1)),
-			YAP_InitSlot(Deref(ARG2)),
-			YAP_InitSlot(Deref(ARG3)),
-			YAP_InitSlot(Deref(ARG4))));
-      }
-    case 5:
-      {
-	CPredicate5 code5 = (CPredicate5)exec_code;
-	return ((code5)(YAP_InitSlot(Deref(ARG1)),
-			YAP_InitSlot(Deref(ARG2)),
-			YAP_InitSlot(Deref(ARG3)),
-			YAP_InitSlot(Deref(ARG4)),
-			YAP_InitSlot(Deref(ARG5))));
-      }
-    case 6:
-      {
-	CPredicate6 code6 = (CPredicate6)exec_code;
-	return ((code6)(YAP_InitSlot(Deref(ARG1)),
-			YAP_InitSlot(Deref(ARG2)),
-			YAP_InitSlot(Deref(ARG3)),
-			YAP_InitSlot(Deref(ARG4)),
-			YAP_InitSlot(Deref(ARG5)),
-			YAP_InitSlot(Deref(ARG6))));
-      }
-    case 7:
-      {
-	CPredicate7 code7 = (CPredicate7)exec_code;
-	return ((code7)(YAP_InitSlot(Deref(ARG1)),
-			YAP_InitSlot(Deref(ARG2)),
-			YAP_InitSlot(Deref(ARG3)),
-			YAP_InitSlot(Deref(ARG4)),
-			YAP_InitSlot(Deref(ARG5)),
-			YAP_InitSlot(Deref(ARG6)),
-			YAP_InitSlot(Deref(ARG7))));
-      }
-    case 8:
-      {
-	CPredicate8 code8 = (CPredicate8)exec_code;
-	return ((code8)(YAP_InitSlot(Deref(ARG1)),
-			YAP_InitSlot(Deref(ARG2)),
-			YAP_InitSlot(Deref(ARG3)),
-			YAP_InitSlot(Deref(ARG4)),
-			YAP_InitSlot(Deref(ARG5)),
-			YAP_InitSlot(Deref(ARG6)),
-			YAP_InitSlot(Deref(ARG7)),
-			YAP_InitSlot(Deref(ARG8))));
-      }
-    default:
-      return(FALSE);
-    }
+    return execute_cargs(pe, exec_code);
   } else {
     return((exec_code)());
+  }
+}
+
+#define FRG_REDO_MASK	0x00000003L
+#define FRG_REDO_BITS	2
+#define REDO_INT	0x02		/* Returned an integer */
+#define REDO_PTR	0x03		/* returned a pointer */
+
+Int
+YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
+{
+  if (pe->PredFlags & SWIEnvPredFlag) {
+    Int val;
+    CPredicateV codev = (CPredicateV)exec_code;
+    struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
+    
+    ctx->control = FRG_FIRST_CALL;
+    ctx->engine = NULL; //(PL_local_data *)Yap_regp;
+    ctx->context = NULL;
+    val = ((codev)((&ARG1)-LCL0,0,ctx));
+    if (val == 0) {
+      cut_fail();
+    } else if (val == 1) { /* TRUE */
+      cut_succeed();
+    } else {
+      if ((val & REDO_PTR) == REDO_PTR)
+	ctx->context = (int *)(val & ~REDO_PTR);
+      else
+	ctx->context = (int *)((val & ~REDO_PTR)>>FRG_REDO_BITS);
+    }
+  }
+  if (pe->PredFlags & CArgsPredFlag) {
+    return execute_cargs(pe, exec_code);
+  } else {
+    return (exec_code)();
+  }
+}
+
+
+Int
+YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
+{
+  if (pe->PredFlags & SWIEnvPredFlag) {
+    Int val;
+    CPredicateV codev = (CPredicateV)exec_code;
+    struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
+    
+    ctx->control = FRG_REDO;
+    val = ((codev)((&ARG1)-LCL0,0,ctx));
+    if (val == 0) {
+      cut_fail();
+    } else if (val == 1) { /* TRUE */
+      cut_succeed();
+    } else {
+      if ((val & REDO_PTR) == REDO_PTR)
+	ctx->context = (int *)(val & ~REDO_PTR);
+      else
+	ctx->context = (int *)((val & ~REDO_PTR)>>FRG_REDO_BITS);
+    }
+  }
+  if (pe->PredFlags & CArgsPredFlag) {
+    return execute_cargs(pe, exec_code);
+  } else {
+    return (exec_code)();
   }
 }
 
