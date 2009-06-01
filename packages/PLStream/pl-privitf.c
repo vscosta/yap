@@ -26,6 +26,8 @@
 #undef LD
 #define LD LOCAL_LD
 
+#ifdef __SWI_PROLOG__
+
 #define setHandle(h, w)		(*valTermRef(h) = (w))
 #define valHandleP(h)		valTermRef(h)
 
@@ -39,6 +41,7 @@ valHandle__LD(term_t r ARG_LD)
   return *p;
 }
 
+#endif
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 This module defines extensions to pl-fli.c that are used internally, but
@@ -125,6 +128,33 @@ PL_unify_char(term_t chr, int c, int how)
 		 *	  LIST BUILDING		*
 		 *******************************/
 
+#if __YAP_PROLOG__
+
+int
+allocList(size_t maxcells, list_ctx *ctx)
+{
+  ctx->gstore = ctx->start = YAP_OpenList(maxcells);
+  return (ctx->gstore != 0L);
+}
+
+int
+unifyList(term_t term, list_ctx *ctx)
+{
+  if (!YAP_CloseList(ctx->gstore, YAP_TermNil()))
+    return FALSE;
+  return YAP_Unify(YAP_GetFromSlot(term), ctx->start);
+}
+
+int
+unifyDiffList(term_t head, term_t tail, list_ctx *ctx)
+{
+  if (!YAP_CloseList(ctx->gstore, YAP_GetFromSlot(tail)))
+    return FALSE;
+  return YAP_Unify(YAP_GetFromSlot(head), ctx->start);
+}
+
+#else
+
 int
 allocList(size_t maxcells, list_ctx *ctx)
 { GET_LD
@@ -174,3 +204,5 @@ unifyDiffList(term_t head, term_t tail, list_ctx *ctx)
 
   return TRUE;
 }
+
+#endif

@@ -59,14 +59,15 @@ avoid using term-references to address the list.
 #if __YAP_PROLOG__
 
 typedef struct list_ctx
-{ Word lp;
-  Word gstore;
+{ 
+  YAP_Term gstore;
+  YAP_Term start;
 } list_ctx;
 
 static inline void
 addSmallIntList(list_ctx *ctx, int value)
 {
- ctx->gstore = YAP_AddSmallIntToList(value);
+  ctx->gstore = YAP_ExtendList(YAP_MkIntTerm(value),ctx->gstore);
 }
 
 #else
