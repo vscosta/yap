@@ -7635,14 +7635,14 @@ Yap_absmi(int inp)
 	CPredicate f = (CPredicate)(PREG->u.OtapFs.f);
 	saveregs();
 	SREG = (CELL *) ((f) ());
-	/* This last instruction changes B B*/
+      	/* This last instruction changes B B*/
 #ifdef CUT_C
 	while (POP_CHOICE_POINT(B)){ 
 	  cut_c_pop();
 	}
 #endif 
+	setregs();
       }
-      setregs();
       if (!SREG) {
 #ifdef CUT_C
 	/* Removes the cut functions from the stack
@@ -7712,13 +7712,13 @@ Yap_absmi(int inp)
 #endif
       SET_BB(B_YREG);
       ENDCACHE_Y();
-
-    TRYUSERCC:
       Yap_PrologMode = UserCCallMode;
       ASP = YENV;
+      /* for slots to work */
+      Yap_StartSlots();
       saveregs();
       save_machine_regs();
-      SREG = (CELL *) YAP_Execute(PREG->u.OtapFs.p, (CPredicate)(PREG->u.OtapFs.f));
+      SREG = (CELL *) YAP_ExecuteFirst(PREG->u.OtapFs.p, (CPredicate)(PREG->u.OtapFs.f));
       EX = 0L;
       restore_machine_regs();
       setregs();
@@ -7760,7 +7760,39 @@ Yap_absmi(int inp)
       HBREG = H;
       restore_args(PREG->u.OtapFs.s);
       ENDCACHE_Y();
-      goto TRYUSERCC;
+
+      Yap_PrologMode = UserCCallMode;
+      ASP = YENV;
+      /* for slots to work */
+      Yap_StartSlots();
+      saveregs();
+      save_machine_regs();
+      SREG = (CELL *) YAP_ExecuteNext(PREG->u.OtapFs.p, (CPredicate)(PREG->u.OtapFs.f));
+      EX = 0L;
+      restore_machine_regs();
+      setregs();
+      Yap_PrologMode = UserMode;
+      if (!SREG) {
+#ifdef CUT_C
+	/* Removes the cut functions from the stack
+	 without executing them because we have fail 
+	 and not cuted the predicate*/
+	while(POP_CHOICE_POINT(B))
+	  cut_c_pop();
+#endif 
+	FAIL();
+      }
+      if ((CELL *) B == YREG && ASP != (CELL *) B) {
+	/* as Luis says, the predicate that did the try C might
+	 * have left some data on the stack. We should preserve
+	 * it, unless the builtin also did cut */
+	YREG = ASP;
+	HBREG = PROTECT_FROZEN_H(B);
+      }
+      PREG = CPREG;
+      YREG = ENV;
+      CACHE_A1();
+      JMPNext();
       ENDBOp();
 
 #ifdef CUT_C
