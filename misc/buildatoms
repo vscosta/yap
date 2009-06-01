@@ -14,20 +14,34 @@ main :-
 	file_filter('misc/ATOMS','H/tatoms.h',gen_fields),
 	file_filter('misc/ATOMS','H/iatoms.h',gen_decl),
 	file_filter('misc/ATOMS','H/ratoms.h',gen_rcov).
+%	file_filter('misc/ATOMS','packages/PLStream/natoms.h',gen_swiatoms).
+
 
 gen_fields(Inp,Out) :-
 	split(Inp,"	",["A",Atom,_,_]), !,
 	append(["  Atom Atom",Atom,"_;\n#define Atom",Atom," Yap_heap_regs->Atom",Atom,"_"],Out).
+%gen_fields(Inp,Out) :-
+%	split(Inp," 	",["A",Atom,_]), !,
+%	append(["  Atom Atom_",Atom,"_;\n#define Atom_",Atom," Yap_heap_regs->Atom_",Atom,"_"],Out).
 gen_fields(Inp,Out) :-
 	split(Inp,"	",["F",Name,_,_]), !,
 	append(["  Functor Functor",Name,"_;\n#define Functor",Name," Yap_heap_regs->Functor",Name,"_"],Out).
+%gen_fields(Inp,Out) :-
+%	split(Inp," 	",["F",Name,Arity]), !,
+%	append(["  Functor Functor_",Name,Arity,"_;\n#define Functor_",Name,Arity," Yap_heap_regs->Functor_",Name,Arity,"_"],Out).
 
 gen_rcov(Inp,Out) :-
 	split(Inp,"	",["A",Atom,_,_]), !,
 	append(["  Atom",Atom," = AtomAdjust(Atom",Atom,");"],Out).
+%gen_rcov(Inp,Out) :-
+%	split(Inp," 	",["A",Atom,_]), !,
+%	append(["  Atom_",Atom," = AtomAdjust(Atom_",Atom,");"],Out).
 gen_rcov(Inp,Out) :-
 	split(Inp,"	",["F",Functor,_,_]), !,
 	append(["  Functor",Functor," = FuncAdjust(Functor",Functor,");"],Out).
+%gen_rcov(Inp,Out) :-
+%	split(Inp," 	",["F",Functor,Arity]), !,
+%	append(["  Functor_",Functor,Arity," = FuncAdjust(Functor_",Functor,Arity,");"],Out).
 
 gen_decl(Inp,Out) :-
 	split(Inp,"	",["A",Atom,"N",String]), !,
@@ -35,9 +49,25 @@ gen_decl(Inp,Out) :-
 gen_decl(Inp,Out) :-
 	split(Inp,"	",["A",Atom,"F",String]), !,
 	append(["  Atom",Atom," = Yap_FullLookupAtom(",String,");"],Out).
+%gen_decl(Inp,Out) :-
+%	split(Inp," 	",["A",Atom,String]), String = [0'",0'$|_], !,
+%	append(["  Atom_",Atom," = Yap_FullLookupAtom(",String,");"],Out).
+%gen_decl(Inp,Out) :-
+%	split(Inp," 	",["A",Atom,String]), !,
+%	append(["  Atom_",Atom," = Yap_LookupAtom(",String,");"],Out).
 gen_decl(Inp,Out) :-
 	split(Inp,"	",["F",Name,Atom,Arity]), !,
 	append(["  Functor",Name," = Yap_MkFunctor(Atom",Atom,",",Arity,");"],Out).
+%gen_decl(Inp,Out) :-
+%	split(Inp," 	",["F",Name,Arity]), !,
+%	append(["  Functor_",Name,Arity," = Yap_MkFunctor(Atom_",Name,",",Arity,");"],Out).
+
+gen_swi(Inp,Out) :-
+	split(Inp," 	",["A",Atom,String]), !,
+	append(["#define  ATOM_",Atom," YAP_AtomToSWIAtom(Atom_",Atom,")"],Out).
+gen_swi(Inp,Out) :-
+	split(Inp," 	",["F",Name,Arity]), !,
+	append(["#define  FUNCTOR_",Name,Arity," YAP_FunctorToSWIFunctor(Functor_",Name,Arity,")"],Out).
 
 
 
