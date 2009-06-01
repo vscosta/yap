@@ -509,7 +509,6 @@ extern bool readLine(IOSTREAM *in, IOSTREAM *out, char *buffer);
 extern bool tellString(char **s, size_t *size, IOENC enc);
 extern bool tellString(char **s, size_t *size, IOENC enc);
 extern bool toldString(void);
-ssize_t Sread_user(void *handle, char *buf, size_t size);
 
 extern int setupOutputRedirect(term_t to, redir_context *ctx, int redir);
 extern void discardOutputRedirect(redir_context *ctx);
@@ -576,6 +575,10 @@ extern word lookupAtom(const char *s, size_t len);
 extern atom_t	lookupUCSAtom(const pl_wchar_t *s, size_t len);
 extern int toIntegerNumber(Number n, int flags);
 extern int get_atom_ptr_text(Atom a, PL_chars_t *text);
+
+/* empty stub */
+void setPrologFlag(const char *name, int flags, ...);
+void PL_set_prolog_flag(const char *name, int flags, ...);
 
 static inline word
 setBoolean(int *flag, term_t old, term_t new)

@@ -44,3 +44,4 @@ typedef enum
 int		sgml2pl_error(plerrorid, ...);
 
 #endif /*H_ERROR_INCLUDED*/
+

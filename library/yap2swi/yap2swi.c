@@ -19,6 +19,7 @@
 
 #include	<Yap.h>
 #include	<Yatom.h>
+#include	<eval.h>
 
 #if HAVE_MATH_H
 #include	<math.h>
@@ -425,7 +426,7 @@ X_API int PL_get_wchars(term_t l, size_t *len, wchar_t **wsp, unsigned flags)
    YAP: YAP_Functor YAP_FunctorOfTerm(Term) */
 X_API int PL_get_functor(term_t ts, functor_t *f)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  Term t = Yap_GetFromSlot(ts);
   if ( IsAtomTerm(t)) {
     *f = t;
   } else {
@@ -915,6 +916,46 @@ X_API int PL_raise_exception(term_t exception)
 #define FUNCTOR_resource_error1 FunctorToSWIFunctor(FunctorResourceError)
 #define FUNCTOR_timeout_error2 FunctorToSWIFunctor(FunctorTimeoutError)
 #define FUNCTOR_type_error2 FunctorToSWIFunctor(FunctorTypeError)
+
+#define ERR_NO_ERROR		0
+#define ERR_INSTANTIATION	1	/* void */
+#define ERR_TYPE		2	/* atom_t expected, term_t value */
+#define ERR_DOMAIN		3	/* atom_t domain, term_t value */
+#define ERR_REPRESENTATION	4	/* atom_t what */
+#define ERR_MODIFY_STATIC_PROC	5	/* predicate_t proc */
+#define ERR_EVALUATION		6	/* atom_t what */
+#define ERR_AR_TYPE		7	/* atom_t expected, Number value */
+#define ERR_NOT_EVALUABLE	8	/* functor_t func */
+#define ERR_DIV_BY_ZERO		9	/* void */
+#define ERR_FAILED	       10	/* predicate_t proc */
+#define ERR_FILE_OPERATION     11	/* atom_t action, atom_t type, term_t */
+#define ERR_PERMISSION	       12	/* atom_t type, atom_t op, term_t obj*/
+#define ERR_NOT_IMPLEMENTED 13	/* const char *what */
+#define ERR_EXISTENCE	       14	/* atom_t type, term_t obj */
+#define ERR_STREAM_OP	       15	/* atom_t action, term_t obj */
+#define ERR_RESOURCE	       16	/* atom_t resource */
+#define ERR_NOMEM	       17	/* void */
+#define ERR_SYSCALL	       18	/* void */
+#define ERR_SHELL_FAILED       19	/* term_t command */
+#define ERR_SHELL_SIGNALLED    20	/* term_t command, int signal */
+#define ERR_AR_UNDEF	       21	/* void */
+#define ERR_AR_OVERFLOW	       22	/* void */
+#define ERR_AR_UNDERFLOW       23	/* void */
+#define ERR_UNDEFINED_PROC     24	/* Definition def */
+#define ERR_SIGNALLED	       25	/* int sig, char *name */
+#define ERR_CLOSED_STREAM      26	/* IOSTREAM * */
+#define ERR_BUSY	       27	/* mutexes */
+#define ERR_PERMISSION_PROC    28	/* op, type, Definition */
+#define ERR_DDE_OP	       29	/* op, error */
+#define ERR_SYNTAX	       30	/* what */
+#define ERR_SHARED_OBJECT_OP   31	/* op, error */
+#define ERR_TIMEOUT	       32	/* op, object */
+#define ERR_NOT_IMPLEMENTED_PROC 33	/* name, arity */
+#define ERR_FORMAT	       34	/* message */
+#define ERR_FORMAT_ARG	       35	/* seq, term */
+#define ERR_OCCURS_CHECK       36	/* Word, Word */
+#define ERR_CHARS_TYPE	       37	/* char *, term */
+#define ERR_MUST_BE_VAR	       38	/* int argn, term_t term */
 
 X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...)
 {
@@ -2125,6 +2166,32 @@ X_API void
 PL_free(void *obj)
 {
   return YAP_FreeSpaceFromYap(obj);
+}
+
+X_API int
+PL_eval_expression_to_int_64_ex(term_t t, int64_t *val)
+{
+  Term res = Yap_Eval(Yap_GetFromSlot(t));
+  if (!res) {
+    return FALSE;
+  }
+  if (IsIntegerTerm(res)) {
+    *val = IntegerOfTerm(res);
+    return TRUE;
+  } else if (YAP_IsBigNumTerm(res)) {
+    MP_INT g;
+    char s[64];
+    
+    YAP_BigNumOfTerm(t, (void *)&g);
+    if (mpz_sizeinbase(&g,2) > 64) {
+      return PL_error(NULL,0,NULL, ERR_EVALUATION, AtomToSWIAtom(Yap_LookupAtom("int_overflow")));
+    }
+    mpz_get_str (s, 10, &g);
+    sscanf(s, "%lld", (long long int *)val);
+    return 1;
+  }
+  PL_error(NULL,0,NULL, ERR_TYPE, AtomToSWIAtom(Yap_LookupAtom("integer_expression")));
+  return FALSE;
 }
 
 
