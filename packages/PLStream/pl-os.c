@@ -24,6 +24,9 @@
 
 /*  Modified (M) 1993 Dave Sherratt  */
 
+#ifdef __YAP_PROLOG__
+#define IN_PL_OS_C 1
+#endif
 /*#define O_DEBUG 1*/
 
 #if __TOS__

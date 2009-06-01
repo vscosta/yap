@@ -220,6 +220,7 @@ mkfunction(iswspace)
 
 INIT_DEF(char_type, char_types, 26)
 ADD_DEF2(ATOM_alnum, fiswalnum)
+ADD_DEF2(ATOM_alpha, fiswalpha)
 ADD_DEF2(ATOM_csym,	fiscsym )
 ADD_DEF2(ATOM_csymf,	fiscsymf )
 ADD_DEF2(ATOM_ascii,	fisascii )

@@ -185,7 +185,7 @@ valHandle(term_t tt)
 
 #endif /* __YAP_PROLOG__ */
 
-
+#if IN_PL_OS_C
 static int
 stripostfix(const char *s, const char *e)
 { size_t ls = strlen(s);
@@ -196,6 +196,6 @@ stripostfix(const char *s, const char *e)
 
   return FALSE;
 } 
-
+#endif
 
 #endif /* PL_YAP_H */
