@@ -156,6 +156,10 @@ typedef void *PL_engine_t;
 #define PL_MBCHARS	 (34)		/* const char * */
 #define PL_MBCODES	 (35)		/* const char * */
 #define PL_MBSTRING	 (36)		/* const char * */
+#define PL_INTPTR        (37)           /* intptr_t */
+#define PL_CHAR          (38)           /* int */
+#define PL_CODE          (39)           /* int */
+#define PL_BYTE          (40)           /* int */
 
 #define CVT_ATOM	0x0001
 #define CVT_STRING	0x0002

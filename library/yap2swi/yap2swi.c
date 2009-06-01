@@ -507,6 +507,9 @@ X_API int PL_get_long(term_t ts, long *i)
 
 X_API int PL_get_int64(term_t ts, int64_t *i)
 {
+#if SIZE_OF_LONG_INT==8
+  return PL_get_long(ts, (long *)i);
+#else
   YAP_Term t = Yap_GetFromSlot(ts);
   if (!YAP_IsIntTerm(t) ) {
     if (YAP_IsFloatTerm(t)) {
@@ -532,6 +535,7 @@ X_API int PL_get_int64(term_t ts, int64_t *i)
   }
   *i = YAP_IntOfTerm(t);
   return 1;
+#endif
 }
 
 
@@ -1440,6 +1444,23 @@ X_API int PL_unify_term(term_t l,...)
       case PL_POINTER:
 	*pt++ = MkIntegerTerm((Int)va_arg(ap, void *));
 	break;
+      case PL_INT64:
+#if SIZE_OF_LONG_INT==8
+	*pt++ = MkIntegerTerm((Int)va_arg(ap, long int));
+#elif USE_GMP
+	{
+	  char s[64];
+	  MP_INT rop;
+
+	  sprintf(s, "%lld", va_arg(ap, long long int));
+	  mpz_init_set_str (&rop, s, 10);
+	  *pt++ = YAP_MkBigNumTerm((void *)&rop);
+	}
+#else
+	fprintf(stderr, "PL_unify_term: PL_int64 not supported\n");
+	exit(1);
+#endif
+	break;
       case PL_FUNCTOR:
 	{
 	  functor_t f = va_arg(ap, functor_t);
@@ -1944,7 +1965,7 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
 {
   Term tmod;
 
-  if (flags & (PL_FA_NOTRACE|PL_FA_NONDETERMINISTIC|PL_FA_CREF)) {
+  if (flags & (PL_FA_NOTRACE|PL_FA_CREF)) {
     fprintf(stderr,"PL_register_foreign_in_module called with non-implemented flag %x when creating predicate %s:%s/%d\n", flags, module, name, arity);
   }      
   if (module == NULL) {
@@ -1954,7 +1975,9 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
   }
   if (flags & PL_FA_VARARGS)
     UserCPredicateVarargs((char *)name,(CPredicate)function,arity,tmod);
-  else if (flags & PL_FA_TRANSPARENT)
+  if (flags & PL_FA_NONDETERMINISTIC) {
+    Yap_InitCPredBack((char *)name, arity, sizeof(struct foreign_context)/sizeof(CELL), (CPredicate)function, (CPredicate)function, UserCPredFlag|SWIEnvPredFlag);
+  } else if (flags & PL_FA_TRANSPARENT)
     UserCPredicateWithArgs((char *)name,(CPredicate)function,arity,tmod,ModuleTransparentPredFlag);
   else
     UserCPredicateWithArgs((char *)name,(CPredicate)function,arity,tmod,0);
