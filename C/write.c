@@ -533,6 +533,11 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
     } else {
       do_jump = (direction > 0);
     }
+    if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
+      wrputc('|', wglb->writewch);
+      putAtom(Atom3Dots, wglb->Quote_illegal, wglb->writewch);
+      return;
+    }
     wrputc(',', wglb->writewch);
     lastw = separator;
     direction = ndirection;
