@@ -110,7 +110,7 @@ UserCPredicateVarargs(char *a, CPredicate def, unsigned long int arity, Term mod
   PredEntry *pe;
   Term cm = CurrentModule;
   CurrentModule = mod;
-  Yap_InitCPred(a, arity, def, UserCPredFlag);
+  Yap_InitCPred(a, arity, def, UserCPredFlag|SWIEnvPredFlag);
   if (arity == 0) {
     pe = RepPredProp(PredPropByAtom(Yap_LookupAtom(a),mod));
   } else {
@@ -2014,9 +2014,9 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
   } else {
     tmod = MkAtomTerm(Yap_LookupAtom((char *)module));
   }
-  if (flags & PL_FA_VARARGS)
+  if (flags & PL_FA_VARARGS) {
     UserCPredicateVarargs((char *)name,(CPredicate)function,arity,tmod);
-  if (flags & PL_FA_NONDETERMINISTIC) {
+  } else if (flags & PL_FA_NONDETERMINISTIC) {
     Yap_InitCPredBack((char *)name, arity, sizeof(struct foreign_context)/sizeof(CELL), (CPredicate)function, (CPredicate)function, UserCPredFlag|SWIEnvPredFlag);
   } else if (flags & PL_FA_TRANSPARENT)
     UserCPredicateWithArgs((char *)name,(CPredicate)function,arity,tmod,ModuleTransparentPredFlag);
