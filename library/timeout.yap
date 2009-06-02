@@ -30,12 +30,17 @@ time_out(Goal, Time, Result) :-
 	UT is (Time mod 1000)*1000,
 	catch( ( Result0 = success,
 	         setup_call_cleanup(
-			alarm(T.UT,throw(time_out),_),
+			yap_hacks:virtual_alarm(T.UT,throw(time_out),_),
 			Goal,
-			alarm(0,_,RT)),
+			yap_hacks:virtual_alarm(0,_,RT)),
 		 (  var(RT)
-		 -> alarm(0,_,_),
-		    ( true ; alarm(T.UT,throw(time_out),_), fail )
+		 -> yap_hacks:virtual_alarm(0,_,_),
+		    (
+		      true
+		    ;
+		      yap_hacks:virtual_alarm(T.UT,throw(time_out),_),
+		      fail
+		    )
 		 ;  true
 		 )
 	       ),

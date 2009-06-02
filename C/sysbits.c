@@ -2516,6 +2516,84 @@ p_alarm(void)
 #endif
 }
 
+static Int
+p_virtual_alarm(void)
+{
+  Term t = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, "alarm/2");
+    return(FALSE);
+  }
+  if (!IsIntegerTerm(t)) {
+    Yap_Error(TYPE_ERROR_INTEGER, t, "alarm/2");
+    return(FALSE);
+  }
+  if (IsVarTerm(t2)) {
+    Yap_Error(INSTANTIATION_ERROR, t2, "alarm/2");
+    return(FALSE);
+  }
+  if (!IsIntegerTerm(t2)) {
+    Yap_Error(TYPE_ERROR_INTEGER, t2, "alarm/2");
+    return(FALSE);
+  }
+#if _MSC_VER || defined(__MINGW32__)
+  {
+    Term tout;
+    Int time[2];
+
+    time[0] = IntegerOfTerm(t);
+    time[1] = IntegerOfTerm(t2);
+    
+    if (time[0] != 0 && time[1] != 0) {
+      DWORD dwThreadId; 
+      HANDLE hThread; 
+
+      hThread = CreateThread( 
+			     NULL,     /* no security attributes */
+			     0,        /* use default stack size */ 
+			     DoTimerThread, /* thread function */
+			     (LPVOID)time,  /* argument to thread function */
+			     0,        /* use default creation flags  */
+			     &dwThreadId);  /* returns the thread identifier */
+ 
+      /* Check the return value for success. */
+      if (hThread == NULL) {
+	Yap_WinError("trying to use alarm");
+      }
+    }
+    tout = MkIntegerTerm(0);
+    return Yap_unify(ARG3,tout) && Yap_unify(ARG4,MkIntTerm(0));
+  }
+#elif HAVE_SETITIMER && !SUPPORT_CONDOR
+  {
+    struct itimerval new, old;
+
+    new.it_interval.tv_sec = 0;
+    new.it_interval.tv_usec = 0;
+    new.it_value.tv_sec = IntegerOfTerm(t);
+    new.it_value.tv_usec = IntegerOfTerm(t2);
+    if (setitimer(ITIMER_VIRTUAL, &new, &old) < 0) {
+#if HAVE_STRERROR
+      Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "setitimer: %s", strerror(errno));
+#else
+      Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "setitimer %d", errno);
+#endif
+      return FALSE;
+    }
+    return Yap_unify(ARG3,MkIntegerTerm(old.it_value.tv_sec)) &&
+      Yap_unify(ARG4,MkIntegerTerm(old.it_value.tv_usec));
+  }
+#else
+  /* not actually trying to set the alarm */
+  if (IntegerOfTerm(t) == 0)
+    return TRUE;
+  Yap_Error(SYSTEM_ERROR, TermNil,
+	"virtual_alarm not available in this configuration");
+  return FALSE;
+#endif
+}
+
 #if HAVE_FPU_CONTROL_H
 #include <fpu_control.h>
 #endif
@@ -3107,6 +3185,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("win_registry_get_value", 3, p_win_registry_get_value,0);
 #endif
   CurrentModule = HACKS_MODULE;
+  Yap_InitCPred ("virtual_alarm", 4, p_virtual_alarm, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("enable_interrupts", 0, p_enable_interrupts, SafePredFlag);
   Yap_InitCPred ("disable_interrupts", 0, p_disable_interrupts, SafePredFlag);
   CurrentModule = SYSTEM_MODULE;
