@@ -3974,17 +3974,8 @@ LeaveGCMode()
     Yap_PrologMode &= ~GCMode;
   if (Yap_PrologMode & AbortMode) {
     Yap_PrologMode &= ~AbortMode;
-      Yap_Error(PURE_ABORT, TermNil, "");
-      /* in case someone mangles the P register */
-      save_machine_regs();
-#if  _MSC_VER || defined(__MINGW32__)
-      /* don't even think about trying this */
-#else
-#if PUSH_REGS
-      restore_absmi_regs(&Yap_standard_regs);
-#endif
-      siglongjmp (Yap_RestartEnv, 1);
-#endif
+    Yap_Error(PURE_ABORT, TermNil, "");
+    P = FAILCODE;
   }
 }
 
