@@ -67,7 +67,7 @@ typedef struct list_ctx
 static inline void
 addSmallIntList(list_ctx *ctx, int value)
 {
-  ctx->gstore = YAP_ExtendList(YAP_MkIntTerm(value),ctx->gstore);
+  ctx->gstore = YAP_ExtendList(ctx->gstore,YAP_MkIntTerm(value));
 }
 
 #else
