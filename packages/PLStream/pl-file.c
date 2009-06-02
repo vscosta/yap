@@ -4311,5 +4311,6 @@ init_yap_extras()
   init_sprop_list();
   PL_register_extensions(PL_predicates_from_file);
   fileerrors = TRUE;
+  SinitStreams();
 }
 #endif
