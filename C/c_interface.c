@@ -2570,9 +2570,11 @@ YAP_OpenList(int n)
   Term t;
   BACKUP_H();
 
-  if (H+2*n < ASP-1024) {
-    if (!dogc())
+  if (H+2*n > ASP-1024) {
+    if (!dogc()) {
+      RECOVER_H();
       return FALSE;
+    }
   }
   t = AbsPair(H);
   H += 2*n;
