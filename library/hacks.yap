@@ -44,7 +44,7 @@ virtual_alarm(Interval, Goal, Left) :-
 virtual_alarm(Interval, Goal, Left) :-
 	integer(Interval), !,
 	on_signal(sig_alarm, _, Goal),
-	alarm(Interval, 0, Left, _).
+	virtual_alarm(Interval, 0, Left, _).
 virtual_alarm(Interval.USecs, Goal, Left.LUSecs) :-
 	on_signal(sig_alarm, _, Goal),
 	virtual_alarm(Interval, USecs, Left, LUSecs).
