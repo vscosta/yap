@@ -1471,6 +1471,10 @@ RestoreEntries(PropEntry *pp, int int_key)
       pp->NextOfPE =
 	PropAdjust(pp->NextOfPE);
       break;
+    case WideAtomProperty:
+      pp->NextOfPE =
+	PropAdjust(pp->NextOfPE);
+      break;
     default:
       /* OOPS */
       Yap_Error(SYSTEM_ERROR, TermNil,
