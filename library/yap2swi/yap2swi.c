@@ -940,6 +940,34 @@ X_API int PL_raise_exception(term_t exception)
 #define ERR_CHARS_TYPE	       37	/* char *, term */
 #define ERR_MUST_BE_VAR	       38	/* int argn, term_t term */
 
+char *
+OsError(void)
+{
+#ifdef HAVE_STRERROR
+#ifdef __WINDOWS__
+  return NULL;
+#else
+  return strerror(errno);
+#endif
+#else /*HAVE_STRERROR*/
+static char errmsg[64];
+
+#ifdef __unix__
+  extern int sys_nerr;
+#if !EMX
+  extern char *sys_errlist[];
+#endif
+  extern int errno;
+
+  if ( errno < sys_nerr )
+    return sys_errlist[errno];
+#endif
+
+  Ssprintf(errmsg, "Unknown Error (%d)", errno);
+  return errmsg;
+#endif /*HAVE_STRERROR*/
+}
+
 X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...)
 {
   term_t formal, swi, predterm, msgterm, except;
@@ -950,6 +978,12 @@ X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...)
   predterm    = PL_new_term_ref();
   msgterm    = PL_new_term_ref();
   except    = PL_new_term_ref();
+
+  if ( msg == ((char *)(-1)) )
+    { if ( errno == EPLEXCEPTION )
+	return FALSE;
+      msg = OsError();
+    }
 
   /* This would really require having pl-error.c, but we'll make do so as */
   va_start(args, id);
