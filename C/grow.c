@@ -813,10 +813,17 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
   YAPEnterCriticalSection();
   /* we always shift the local and the stack by the same amount */
   if (do_grow) {
-    /* This is what happens to the base of the stack */
-    BaseDiff = Yap_GlobalBase-old_GlobalBase;
-    /* if we grow, we need to move the stacks */
-    LDiff = TrDiff = size+BaseDiff;
+    /* we got over a hole */
+    if (minimal_request) {
+      /* we went over a hole */
+      BaseDiff = size+((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)-minimal_request;
+      LDiff = TrDiff = size;
+    } else {
+      /* we may still have an overflow */
+      BaseDiff = Yap_GlobalBase != old_GlobalBase;
+      /* if we grow, we need to move the stacks */
+      LDiff = TrDiff = BaseDiff+size;
+    }
   } else {
     /* stay still */
     LDiff = TrDiff = 0;
