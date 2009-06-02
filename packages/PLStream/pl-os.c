@@ -2368,7 +2368,7 @@ findExecutable(const char *av0, char *buffer)
     return NULL;
   file = Which(buf, tmp);
 
-#if __unix__				/* argv[0] can be an #! script! */
+#if __unix__ || __APPLE__				/* argv[0] can be an #! script! */
   if ( file )
   { int n, fd;
     char buf[MAXPATHLEN];
@@ -2403,7 +2403,7 @@ findExecutable(const char *av0, char *buffer)
 #endif /*__WINDOWS__*/
 
 
-#ifdef __unix__
+#if __unix__ || __APPLE__
 static char *
 okToExec(const char *s)
 { struct stat stbuff;
