@@ -105,6 +105,8 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	 yap_hacks:enable_interrupts,
 	 yap_hacks:current_choice_point(CP0),
 	 '$execute'(Goal),
+	 % ensure environment for delayed variables in Goal
+	 '$true',
 	 yap_hacks:current_choice_point(CPF),
 	 (
 	  CP0 =:= CPF ->
