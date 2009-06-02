@@ -88,7 +88,7 @@ PredicateInfo(void *p, Atom* a, unsigned long int* arity, Term* m)
 } 
 
 static void
-UserCPredicateWithArgs(char *a, CPredicate def, unsigned long int arity, Term mod, int flags)
+UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int flags)
 {
   PredEntry *pe;
   Term cm = CurrentModule;
@@ -101,23 +101,6 @@ UserCPredicateWithArgs(char *a, CPredicate def, unsigned long int arity, Term mo
     pe = RepPredProp(PredPropByFunc(f,mod));
   }
   pe->PredFlags |= (CArgsPredFlag|flags);
-  CurrentModule = cm;
-} 
-
-static void
-UserCPredicateVarargs(char *a, CPredicate def, unsigned long int arity, Term mod)
-{
-  PredEntry *pe;
-  Term cm = CurrentModule;
-  CurrentModule = mod;
-  Yap_InitCPred(a, arity, def, UserCPredFlag|SWIEnvPredFlag);
-  if (arity == 0) {
-    pe = RepPredProp(PredPropByAtom(Yap_LookupAtom(a),mod));
-  } else {
-    Functor f = Yap_MkFunctor(Yap_LookupAtom(a), arity);
-    pe = RepPredProp(PredPropByFunc(f,mod));
-  }
-  pe->PredFlags |= SWIEnvPredFlag;
   CurrentModule = cm;
 } 
 
@@ -2005,6 +1988,7 @@ X_API int PL_call(term_t tp, module_t m)
 X_API void PL_register_foreign_in_module(const char *module, const char *name, int arity, foreign_t (*function)(void), int flags)
 {
   Term tmod;
+  Int nflags = 0;
 
   if (flags & (PL_FA_NOTRACE|PL_FA_CREF)) {
     fprintf(stderr,"PL_register_foreign_in_module called with non-implemented flag %x when creating predicate %s:%s/%d\n", flags, module, name, arity);
@@ -2014,29 +1998,31 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
   } else {
     tmod = MkAtomTerm(Yap_LookupAtom((char *)module));
   }
-  if (flags & PL_FA_VARARGS) {
-    UserCPredicateVarargs((char *)name,(CPredicate)function,arity,tmod);
-  } else if (flags & PL_FA_NONDETERMINISTIC) {
-    Yap_InitCPredBack((char *)name, arity, sizeof(struct foreign_context)/sizeof(CELL), (CPredicate)function, (CPredicate)function, UserCPredFlag|SWIEnvPredFlag);
-  } else if (flags & PL_FA_TRANSPARENT)
-    UserCPredicateWithArgs((char *)name,(CPredicate)function,arity,tmod,ModuleTransparentPredFlag);
-  else
-    UserCPredicateWithArgs((char *)name,(CPredicate)function,arity,tmod,0);
+  if (flags & PL_FA_VARARGS) { 
+    nflags = SWIEnvPredFlag;
+  }
+  if (flags & PL_FA_TRANSPARENT) {
+    nflags |= ModuleTransparentPredFlag;
+  } else {
+    nflags |= CArgsPredFlag;
+  }
+  if (flags & PL_FA_NONDETERMINISTIC) {
+    Yap_InitCPredBack((char *)name, arity, sizeof(struct foreign_context)/sizeof(CELL), (CPredicate)function, (CPredicate)function, UserCPredFlag|nflags);
+  } else {
+    UserCPredicate((char *)name,(CPredicate)function,arity,tmod,nflags);
+  }
 }
 
 X_API void PL_register_extensions(PL_extension *ptr)
 {
-  while (ptr->predicate_name) {
-    PL_register_foreign_in_module(NULL, ptr->predicate_name, ptr->arity, ptr->function, ptr->flags);
-    ptr++;
-  }
+  PL_load_extensions(ptr);
 }
 
 X_API void PL_load_extensions(PL_extension *ptr)
 {
   /* ignore flags for now */
   while(ptr->predicate_name != NULL) {
-    UserCPredicateWithArgs(ptr->predicate_name,(CPredicate)ptr->function,ptr->arity,YAP_CurrentModule(),0);
+    PL_register_foreign_in_module(NULL, ptr->predicate_name, ptr->arity, ptr->function, ptr->flags);
     ptr++;
   }
 }
