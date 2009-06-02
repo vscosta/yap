@@ -21,6 +21,11 @@
 
 :- meta_predicate time_out(:,+,-).
 
+:- use_module(library(hacks), [
+	virtual_alarm/3
+    ]).
+
+
 %
 % not the nicest program I've ever seen.
 %
@@ -30,15 +35,15 @@ time_out(Goal, Time, Result) :-
 	UT is (Time mod 1000)*1000,
 	catch( ( Result0 = success,
 	         setup_call_cleanup(
-			yap_hacks:virtual_alarm(T.UT,throw(time_out),_),
+			virtual_alarm(T.UT,throw(time_out),_),
 			Goal,
-			yap_hacks:virtual_alarm(0,_,RT)),
+			virtual_alarm(0,_,RT)),
 		 (  var(RT)
-		 -> yap_hacks:virtual_alarm(0,_,_),
+		 -> virtual_alarm(0,_,_),
 		    (
 		      true
 		    ;
-		      yap_hacks:virtual_alarm(T.UT,throw(time_out),_),
+		      virtual_alarm(T.UT,throw(time_out),_),
 		      fail
 		    )
 		 ;  true
