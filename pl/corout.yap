@@ -518,7 +518,7 @@ frozen(V, LG) :-
 '$purge_done_goals'(['$redo_freeze'(_Done, _, CallCleanup)|G0], GF) :-
 	nonvar(CallCleanup),
 	% be careful about possibly adding extra binding at this point.
-	CallCleanup = _:T, nonvar(T), T = '$clean_call'(_), !,
+	CallCleanup = _:T, nonvar(T), T = '$clean_call'(_,_), !,
 	'$purge_done_goals'(G0, GF).
 '$purge_done_goals'(['$redo_eq'(Done, _, _, _)|G0], GF) :- nonvar(Done), !,
 	'$purge_done_goals'(G0, GF).
@@ -764,7 +764,7 @@ call_residue(Goal,Residue) :-
 	'$attgoals_for_prolog'(AllAtts, V, DonesSoFar, MoreDonesSoFar, GoalListI, GoalList0).
 	
 '$attgoal_for_prolog'('$redo_dif'(Done, X, Y), Done, prolog:dif(X,Y)).
-'$attgoal_for_prolog'('$redo_freeze'(_, _, _:'$clean_call'(_)), _, _) :- !, fail.
+'$attgoal_for_prolog'('$redo_freeze'(_, _, _:'$clean_call'(_,_)), _, _) :- !, fail.
 '$attgoal_for_prolog'('$redo_freeze'(Done, V, Goal), Done, prolog:freeze(V,Goal)).
 '$attgoal_for_prolog'('$redo_eq'(Done, X, Y, Goal), Done, prolog:when(X=Y,Goal)).
 '$attgoal_for_prolog'('$redo_ground'(Done, X, Goal), Done, prolog:when(ground(X),Goal)).
