@@ -67,7 +67,7 @@ setup_call_cleanup(Setup, Goal, Cleanup) :-
 setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	yap_hacks:disable_interrupts,
 	'$do_setup'(Setup),
-	catch('$safe_call_cleanup'(Goal,Cleanup,Catcher),
+	catch('$safe_call_cleanup'(Goal,Cleanup,Catcher,Exception),
 	      Exception,
 	      '$cleanup_exception'(Exception,Catcher,Cleanup)).
 
@@ -92,14 +92,14 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 
 '$cleanup_exception'(Exception, exception(Exception), Cleanup) :- !,
 	% whatever happens, let exception go through 
-	catch('$clean_call'(Cleanup),_,true),
+	catch('$clean_call'(_,Cleanup),_,true),
 	throw(Exception).
 '$cleanup_exception'(Exception, _, _) :-
 	throw(Exception).
 
-'$safe_call_cleanup'(Goal, Cleanup, Catcher) :-
+'$safe_call_cleanup'(Goal, Cleanup, Catcher, Exception) :-
 	 yap_hacks:current_choice_point(MyCP1),
-	'$freeze_goal'(Catcher, '$clean_call'(Cleanup)),
+	'$freeze_goal'(Catcher, '$clean_call'(Exception, Cleanup)),
 	yap_hacks:trail_suspension_marker(Catcher),
 	(
 	 yap_hacks:enable_interrupts,
@@ -109,22 +109,26 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	 '$true',
 	 yap_hacks:current_choice_point(CPF),
 	 (
-	  CP0 =:= CPF ->
-	  Catcher = exit,
-	  !
+	  CP0 =:= CPF
+	 ->
+	   Catcher = exit,
+	   !
 	 ;
-	  true
+	   true
 	 )
 	;
-	 Catcher = fail,
-	 fail
+	  Catcher = fail,
+	  fail
 	).
 
 '$holds_true'.
 
-'$clean_call'(Cleanup) :-
+% The first argument is used by JumpEnv to verify if a throw
+% is going to be handled by the cleanup catcher. If it is so,
+% clean_call will not be called from JumpToEnv.
+'$clean_call'(_,Cleanup) :-
 	'$execute'(Cleanup), !.
-'$clean_call'(_).
+'$clean_call'(_,_).
 
 op(P,T,V) :-
 	'$check_op'(P,T,V,op(P,T,V)),

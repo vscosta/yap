@@ -20,6 +20,7 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 
 #include "absmi.h"
 #include "yapio.h"
+#include "attvar.h"
 #ifdef CUT_C
 #include "cut_c.h"
 #endif
@@ -1432,8 +1433,38 @@ p_cut_up_to_next_disjunction(void) {
   return TRUE;
 }
 
+static int
+suspended_on_current_execution(Term t, Term t0)
+{
+  attvar_record *susp = (attvar_record *)VarOfTerm(t);
+  Term t1 = susp->Atts;
+  /* should be prolog(_,Something) */
+  if(IsVarTerm(t1) || !IsApplTerm(t1))
+    return FALSE;
+  t1 = ArgOfTerm(2, t1);
+  /* Something = [Goal] */
+  if (IsVarTerm(t1) || !IsPairTerm(t1))
+    return FALSE;
+  if (TailOfTerm(t1) != TermNil)
+    return FALSE;
+  t1 = HeadOfTerm(t1);
+  /* Goal = $redo_freeze(_,_,Suspended) */
+  if(IsVarTerm(t1) || !IsApplTerm(t1))
+    return FALSE;
+  t1 = ArgOfTerm(3,t1);
+  /* Suspended = Mod:Cod */
+  if(IsVarTerm(t1) || !IsApplTerm(t1))
+    return FALSE;
+  t1 = ArgOfTerm(2,t1);
+  /* Cod = $clean_call(t0,_) */
+  if(IsVarTerm(t1) || !IsApplTerm(t1))
+    return FALSE;
+  /* we found what was on the cp */
+  return t0 == ArgOfTerm(1, t1);
+}
+
 static void
-clean_trail(Term t)
+clean_trail(Term t, Term t0)
 {
   tr_fr_ptr pt1, pbase;
 
@@ -1461,8 +1492,12 @@ clean_trail(Term t)
       } else if (IN_BETWEEN(Yap_GlobalBase, pt, H0)) {
 	CELL val = Deref(*pt);
 	if (IsVarTerm(val)) {
-	  Bind(pt, t);
-	  Yap_WakeUp(pt);
+	  if (suspended_on_current_execution(val, t0)) {
+	    RESET_VARIABLE(&TrailTerm(pt1));
+	  } else {
+	    Bind(pt, t);
+	    Yap_WakeUp(pt);
+	  }
 	}
 	return;
       }
@@ -1546,7 +1581,7 @@ JumpToEnv(Term t) {
      to the emulator */
   B->cp_a3 = t;
   P = (yamop *)FAILCODE;
-  clean_trail(t);
+  clean_trail(t, B->cp_a1);
   if (first_func != NULL) {
     B = first_func;
   }
