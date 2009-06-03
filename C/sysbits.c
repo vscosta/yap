@@ -1563,6 +1563,24 @@ HandleALRM(int s)
 #endif
 
 
+#if !defined(_WIN32)
+/* this routine is called if the system activated the alarm */
+static RETSIGTYPE
+#if (defined(__svr4__) || defined(__SVR4))
+HandleVTALRM (int s, siginfo_t   *x, ucontext_t *y)
+#else
+HandleVTALRM(int s)
+#endif
+{
+  my_signal (SIGVTALRM, HandleVTALRM);
+  /* force the system to creep */
+  Yap_signal (YAP_VTALARM_SIGNAL);
+  /* now, say what is going on */
+  Yap_PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
+}
+#endif
+
+
 /*
  * This function is called after a normal interrupt had been caught.
  * It allows 6 possibilities: abort, continue, trace, debug, help, exit.
@@ -1651,6 +1669,7 @@ InitSignals (void)
     my_signal (SIGUSR2, ReceiveSignal);
     my_signal (SIGHUP,  ReceiveSignal);
     my_signal (SIGALRM, HandleALRM);
+    my_signal (SIGVTALRM, HandleVTALRM);
 #endif
 #ifdef SIGPIPE
     my_signal (SIGPIPE, ReceiveSignal);
@@ -2779,6 +2798,11 @@ p_first_signal(void)
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigAlarm));
   }
+  if (ActiveSignals & YAP_VTALARM_SIGNAL) {
+    ActiveSignals &= ~YAP_VTALARM_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(AtomSigVTAlarm));
+  }
   if (ActiveSignals & YAP_DELAY_CREEP_SIGNAL) {
     ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
 #ifdef THREADS
@@ -2863,6 +2887,9 @@ p_continue_signals(void)
   }
   if (ActiveSignals & YAP_ALARM_SIGNAL) {
     Yap_signal(YAP_ALARM_SIGNAL);
+  }
+  if (ActiveSignals & YAP_VTALARM_SIGNAL) {
+    Yap_signal(YAP_VTALARM_SIGNAL);
   }
   if (ActiveSignals & YAP_CREEP_SIGNAL) {
     Yap_signal(YAP_CREEP_SIGNAL);

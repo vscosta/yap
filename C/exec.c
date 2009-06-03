@@ -1497,9 +1497,9 @@ clean_trail(Term t, Term t0)
 	  } else {
 	    Bind(pt, t);
 	    Yap_WakeUp(pt);
+	    return;
 	  }
 	}
-	return;
       }
       pt1--;
     } else if (IsApplTerm(d1)) {

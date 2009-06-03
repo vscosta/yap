@@ -39,13 +39,13 @@ run_formats([Com-Args|StackInfo], Stream) :-
 virtual_alarm(Interval, Goal, Left) :-
 	Interval == 0, !,
 	virtual_alarm(0, 0, Left0, _),
-	on_signal(sig_alarm, _, Goal),
+	on_signal(sig_vtalarm, _, Goal),
 	Left = Left0.
 virtual_alarm(Interval, Goal, Left) :-
 	integer(Interval), !,
-	on_signal(sig_alarm, _, Goal),
+	on_signal(sig_vtalarm, _, Goal),
 	virtual_alarm(Interval, 0, Left, _).
 virtual_alarm(Interval.USecs, Goal, Left.LUSecs) :-
-	on_signal(sig_alarm, _, Goal),
+	on_signal(sig_vtalarm, _, Goal),
 	virtual_alarm(Interval, USecs, Left, LUSecs).
 
