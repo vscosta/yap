@@ -119,7 +119,7 @@ static void
 wrputs(char *s, wrf writewch)		/* writes a string	 */
 {
   while (*s) {
-    wrputc(*s++, writewch);
+    wrputc((unsigned char)(*s++), writewch);
   }
 }
 
