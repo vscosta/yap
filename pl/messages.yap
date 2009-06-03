@@ -316,7 +316,7 @@ domain_error(mutable, Opt) --> !,
 	[ 'invalid id mutable ~w' - [Opt] ].
 domain_error(module_decl_options, Opt) --> !,
 	[ 'expect module declaration options, found ~w' - [Opt] ].
-domain_error(not_empty_list, Opt) --> !,
+domain_error(non_empty_list, Opt) --> !,
 	[ 'found empty list' - [Opt] ].
 domain_error(not_less_than_zero, Opt) --> !,
 	[ 'number ~w less than zero' - [Opt] ].
