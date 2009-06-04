@@ -2198,6 +2198,7 @@ PL_eval_expression_to_int_64_ex(term_t t, int64_t *val)
   if (IsIntegerTerm(res)) {
     *val = IntegerOfTerm(res);
     return TRUE;
+#if  SIZEOF_LONG_INT==4 && USE_GMP
   } else if (YAP_IsBigNumTerm(res)) {
     MP_INT g;
     char s[64];
@@ -2210,6 +2211,7 @@ PL_eval_expression_to_int_64_ex(term_t t, int64_t *val)
     sscanf(s, "%lld", (long long int *)val);
     return 1;
   }
+#endif
   PL_error(NULL,0,NULL, ERR_TYPE, AtomToSWIAtom(Yap_LookupAtom("integer_expression")));
   return FALSE;
 }
