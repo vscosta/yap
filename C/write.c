@@ -413,7 +413,7 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
   /* make sure we don't get no creepy spaces where they shouldn't be */
   lastw = separator;
   if (CellPtr(t) < H0) {
-    Int vcount = (H0-t)/(sizeof(attvar_record)/sizeof(CELL));
+    Int vcount = (H0-t);
 #if COROUTINING
 #if DEBUG
     if (Yap_Portray_delays) {
