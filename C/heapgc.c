@@ -3663,6 +3663,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   gc_verbose = is_gc_verbose();
   effectiveness = 0;
   gc_trace = FALSE;
+  GcCalls++;
 #ifdef INSTRUMENT_GC
   {
     int i;
@@ -3936,7 +3937,6 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   }
   if (gc_margin < gc_lim)
     gc_margin = gc_lim;
-  GcCalls++;
   HGEN = VarOfTerm(Yap_ReadTimedVar(GcGeneration));
   if (gc_on && !(Yap_PrologMode & InErrorMode) &&
       /* make sure there is a point in collecting the heap */
