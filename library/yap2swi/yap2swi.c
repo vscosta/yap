@@ -940,7 +940,7 @@ X_API int PL_raise_exception(term_t exception)
 #define ERR_CHARS_TYPE	       37	/* char *, term */
 #define ERR_MUST_BE_VAR	       38	/* int argn, term_t term */
 
-char *
+static char *
 OsError(void)
 {
 #ifdef HAVE_STRERROR
