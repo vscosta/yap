@@ -24,7 +24,7 @@ static char     SccsId[] = "%W% %G%";
 #include "attvar.h"
 
 #if !defined(TABLING)
-#define EASY_SHUNTING 1
+/* #define EASY_SHUNTING 1 */
 #endif /* !TABLING */
 #define HYBRID_SCHEME 1
 
