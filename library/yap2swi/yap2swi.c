@@ -2210,8 +2210,8 @@ PL_eval_expression_to_int_64_ex(term_t t, int64_t *val)
     mpz_get_str (s, 10, &g);
     sscanf(s, "%lld", (long long int *)val);
     return 1;
-  }
 #endif
+  }
   PL_error(NULL,0,NULL, ERR_TYPE, AtomToSWIAtom(Yap_LookupAtom("integer_expression")));
   return FALSE;
 }
