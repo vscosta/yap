@@ -578,7 +578,8 @@ typedef enum
   YAP_STATISTICS_SIGNAL = 0x8000,	/* received statistics */
   YAP_DELAY_CREEP_SIGNAL = 0x10000,	/* received a creep but should not do it */
   YAP_AGC_SIGNAL = 0x20000,	/* call atom garbage collector asap */
-  YAP_PIPE_SIGNAL = 0x40000	/* call atom garbage collector asap */
+  YAP_PIPE_SIGNAL = 0x40000,	/* call atom garbage collector asap */
+  YAP_VTALARM_SIGNAL = 0x80000	/* received SIGVTALARM */
 } yap_signals;
 
 #define NUMBER_OF_YAP_FLAGS  LAST_FLAG

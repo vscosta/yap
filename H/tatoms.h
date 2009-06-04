@@ -482,6 +482,8 @@
 #define AtomSigUsr1 Yap_heap_regs->AtomSigUsr1_
   Atom AtomSigUsr2_;
 #define AtomSigUsr2 Yap_heap_regs->AtomSigUsr2_
+  Atom AtomSigVTAlarm_;
+#define AtomSigVTAlarm Yap_heap_regs->AtomSigVTAlarm_
   Atom AtomSigWakeUp_;
 #define AtomSigWakeUp Yap_heap_regs->AtomSigWakeUp_
   Atom AtomSlash_;

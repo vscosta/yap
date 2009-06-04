@@ -96,6 +96,8 @@
 % Unix signals
 '$do_signal'(sig_alarm, G) :-
 	'$signal_handler'(sig_alarm, G).
+'$do_signal'(sig_vtalarm, G) :-
+	'$signal_handler'(sig_vtalarm, G).
 '$do_signal'(sig_hup, G) :-
 	'$signal_handler'(sig_hup, G).
 '$do_signal'(sig_usr1, G) :-

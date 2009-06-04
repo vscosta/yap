@@ -240,6 +240,7 @@
   AtomSigTrace = AtomAdjust(AtomSigTrace);
   AtomSigUsr1 = AtomAdjust(AtomSigUsr1);
   AtomSigUsr2 = AtomAdjust(AtomSigUsr2);
+  AtomSigVTAlarm = AtomAdjust(AtomSigVTAlarm);
   AtomSigWakeUp = AtomAdjust(AtomSigWakeUp);
   AtomSlash = AtomAdjust(AtomSlash);
   AtomSocket = AtomAdjust(AtomSocket);

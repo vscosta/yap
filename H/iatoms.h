@@ -238,6 +238,7 @@
   AtomSigTrace = Yap_LookupAtom("sig_trace");
   AtomSigUsr1 = Yap_LookupAtom("sig_usr1");
   AtomSigUsr2 = Yap_LookupAtom("sig_usr2");
+  AtomSigVTAlarm = Yap_LookupAtom("sig_vtalarm");
   AtomSigWakeUp = Yap_LookupAtom("sig_wake_up");
   AtomSlash = Yap_LookupAtom("/");
   AtomSocket = Yap_LookupAtom("socket");

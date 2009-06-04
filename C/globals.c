@@ -1174,7 +1174,7 @@ p_nb_linkval(void)
   return TRUE;
 }
 
-int
+Term
 Yap_SetGlobalVal(Atom at, Term t0)
 {
   Term to;
