@@ -219,6 +219,9 @@ Term  STD_PROTO(Yap_gmp_mul_big_big,(MP_INT *, MP_INT *));
 Term  STD_PROTO(Yap_gmp_div_big_big,(MP_INT *, MP_INT *));
 Term  STD_PROTO(Yap_gmp_and_big_big,(MP_INT *, MP_INT *));
 Term  STD_PROTO(Yap_gmp_ior_big_big,(MP_INT *, MP_INT *));
+Term  STD_PROTO(Yap_gmp_mod_big_big,(MP_INT *, MP_INT *));
+Term  STD_PROTO(Yap_gmp_mod_big_int,(MP_INT *, Int));
+Term  STD_PROTO(Yap_gmp_mod_int_big,(Int, MP_INT *));
 Term  STD_PROTO(Yap_gmp_exp_ints,(Int,Int));
 Term  STD_PROTO(Yap_gmp_exp_big_int,(MP_INT *,Int));
 

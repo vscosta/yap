@@ -280,6 +280,36 @@ Yap_gmp_ior_big_big(MP_INT *b1, MP_INT *b2)
   return MkBigAndClose(&new);
 }
 
+Term 
+Yap_gmp_mod_big_big(MP_INT *b1, MP_INT *b2)
+{
+  MP_INT new;
+
+  mpz_init(&new);
+  mpz_fdiv_r(&new, b1, b2);
+  return MkBigAndClose(&new);
+}
+
+Term 
+Yap_gmp_mod_big_int(MP_INT *b, Int i2)
+{
+  MP_INT new;
+
+  mpz_init_set_si(&new, i2);
+  mpz_fdiv_r(&new, b, &new);
+  return MkBigAndClose(&new);
+}
+
+Term 
+Yap_gmp_mod_int_big(Int i1, MP_INT *b)
+{
+  MP_INT new;
+
+  mpz_init_set_si(&new, i1);
+  mpz_fdiv_r(&new, &new, b);
+  RBIG(&new);
+}
+
 Term
 Yap_gmp_add_float_big(Float d, MP_INT *b)
 {

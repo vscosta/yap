@@ -91,15 +91,7 @@ p_mod(Term t1, Term t2) {
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
 #ifdef USE_GMP
     case (CELL)big_int_e:
-      /* I know the term is much larger, so: */
-      {
-	MP_INT new;
-	Int i1 = IntegerOfTerm(t1);
-
-	mpz_init_set_si(&new, i1);
-	mpz_fdiv_r(&new, &new, Yap_BigIntOfTerm(t2));
-	RBIG(&new);
-      }
+      return Yap_gmp_mod_int_big(IntegerOfTerm(t1), Yap_BigIntOfTerm(t2));
 #endif
     case db_ref_e:
       RERROR();
@@ -113,26 +105,14 @@ p_mod(Term t1, Term t2) {
     case long_int_e:
       /* modulo between bignum and integer */
       {
-	mpz_t tmp;
-	MP_INT new;
 	Int i2 = IntegerOfTerm(t2);
 
 	if (i2 == 0) goto zero_divisor;
-	mpz_init(&new);
-	mpz_init_set_si(tmp, i2);
-	mpz_fdiv_r(&new, Yap_BigIntOfTerm(t1), tmp);
-	mpz_clear(tmp);
-	RBIG(&new);
+	return Yap_gmp_mod_big_int(Yap_BigIntOfTerm(t1), i2);
       }
     case (CELL)big_int_e:
       /* two bignums */
-      {
-	MP_INT new;
-
-	mpz_init(&new);
-	mpz_fdiv_r(&new, Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2));
-	RBIG(&new);
-      }
+      return Yap_gmp_mod_big_big(Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2));
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
     case db_ref_e:
