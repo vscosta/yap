@@ -256,16 +256,18 @@ prolog:sleep(T) :-
 % SWI has a dynamic attribute scheme
 
 prolog:get_attr(Var, Mod, Att) :-
-	      AttTerm =.. [Mod,_,Att],
-	      attributes:get_module_atts(Var, AttTerm).
+	functor(AttTerm, Mod, 2),
+	arg(2, AttTerm, Att),
+	attributes:get_module_atts(Var, AttTerm).
 
 prolog:put_attr(Var, Mod, Att) :-
-	      AttTerm =.. [Mod,_,Att],
-	      attributes:put_module_atts(Var, AttTerm).
+	functor(AttTerm, Mod, 2),
+	arg(2, AttTerm, Att),
+	attributes:put_module_atts(Var, AttTerm).
 
 prolog:del_attr(Var, Mod) :-
-	      AttTerm =.. [Mod,_,_],
-	      attributes:del_all_module_atts(Var, AttTerm).
+	functor(AttTerm, Mod, 2),
+	attributes:del_all_module_atts(Var, AttTerm).
 
 prolog:get_attrs(AttVar, SWIAtts) :-
 	get_all_swi_atts(AttVar,SWIAtts).
