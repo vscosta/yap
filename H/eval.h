@@ -238,7 +238,7 @@ inline EXTERN Term Yap_Mk64IntegerTerm(YAP_LONG_LONG);
 inline EXTERN Term
 Yap_Mk64IntegerTerm(YAP_LONG_LONG i)
 {
-  if (i <= Int_MAX || i >= Int_MIN) {
+  if (i <= Int_MAX && i >= Int_MIN) {
     return MkIntegerTerm((Int)i);
   } else {
 #if USE_GMP
