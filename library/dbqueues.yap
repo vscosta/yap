@@ -1,11 +1,11 @@
 % A library to implement queues of NB Terms
 
 :- module(nbqueue, [
-	nb_enqueue/2,
-	nb_dequeue/2,
-	nb_clean_queue/1	  
-	nb_size/2	  
-		 ]).
+		    nb_enqueue/2,
+		    nb_dequeue/2,
+		    nb_clean_queue/1,	  
+		    nb_size/2	  
+		   ]).
 
 
 :- unhide('$init_nb_queue').
