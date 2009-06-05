@@ -92,8 +92,8 @@
 
 '$execute_woken_system_goals'([]).
 '$execute_woken_system_goals'([G|LG]) :-
-	'$execute_woken_system_goal'(G),
-	'$execute_woken_system_goals'(LG).
+	'$execute_woken_system_goals'(LG),
+	'$execute_woken_system_goal'(G).
 
 %
 % X surely was bound, otherwise we would not be awaken.
