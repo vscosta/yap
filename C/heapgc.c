@@ -24,7 +24,7 @@ static char     SccsId[] = "%W% %G%";
 #include "attvar.h"
 
 #if !defined(TABLING)
-/* #define EASY_SHUNTING 1 */
+#define EASY_SHUNTING 1
 #endif /* !TABLING */
 #define HYBRID_SCHEME 1
 
@@ -1221,13 +1221,15 @@ mark_variable(CELL_PTR current)
 	    current = next;
 	  }
 	}
-      } else if (IsVarTerm(cnext) &&
+	/* try to shorten chains if they go through the current CP */
+      } else if (next > HB && 
+		 IsVarTerm(cnext) &&
 		 UNMARK_CELL(cnext) != (CELL)next &&
 		 current < LCL0) {
 	/* This step is possible because we clean up the trail */
 	*current = UNMARK_CELL(cnext);
 	UNMARK(current);
-	if (current >= H0 && current < H) {
+	if (current >= H0 && current < H ) {
 	  total_marked--;
 	  if (current < HGEN) {
 	    total_oldies--;
