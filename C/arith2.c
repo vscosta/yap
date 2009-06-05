@@ -817,7 +817,7 @@ p_min(Term t1, Term t2)
       {
 	Int i1 = IntegerOfTerm(t1);
 	Int i2 = IntegerOfTerm(t2);
-	RINT((i1 < i2 ? i1 : i2));
+	return((i1 < i2 ? t1 : t2));
       }
     case double_e:
       {
@@ -825,9 +825,9 @@ p_min(Term t1, Term t2)
 	Int i = IntegerOfTerm(t1);
 	Float fl = FloatOfTerm(t2);
 	if (i <= fl) {
-	  RINT(i);
+	  return t1;
 	}
-	RFLOAT(fl);
+	return t2;
       }
 #ifdef USE_GMP
     case big_int_e:
@@ -836,12 +836,9 @@ p_min(Term t1, Term t2)
 	MP_INT *b = Yap_BigIntOfTerm(t2);
 
 	if (mpz_cmp_si(b,i) < 0) {
-	  MP_INT new;
-
-	  mpz_init_set(&new, b);
-	  RBIG(&new);
+	  return t2;
 	}
-	RINT(i);
+	return t1;
       }
 #endif
     case db_ref_e:
@@ -856,18 +853,18 @@ p_min(Term t1, Term t2)
 	Int i = IntegerOfTerm(t2);
 	Float fl = FloatOfTerm(t1);
 	if (i <= fl) {
-	  RINT(i);
+	  return t2;
 	}
-	RFLOAT(fl);
+	return t1;
       }
     case double_e:
       {
 	Float fl1 = FloatOfTerm(t1);
 	Float fl2 = FloatOfTerm(t2);
 	if (fl1 <= fl2) {
-	  RFLOAT(fl1);
+	  return t1;
 	}
-	RFLOAT(fl2);
+	return t2;
       }
 #ifdef USE_GMP
     case big_int_e:
@@ -875,12 +872,9 @@ p_min(Term t1, Term t2)
 	Float fl1 = FloatOfTerm(t1);
 	Float fl2 = mpz_get_d(Yap_BigIntOfTerm(t2));
 	if (fl1 <= fl2) {
-	  RFLOAT(fl1);
+	  return t1;
 	} else {
-	  MP_INT new;
-
-	  mpz_init_set(&new, Yap_BigIntOfTerm(t2));
-	  RBIG(&new);
+	  return t2;
 	}
       }
 #endif
@@ -897,12 +891,9 @@ p_min(Term t1, Term t2)
 	MP_INT *b = Yap_BigIntOfTerm(t1);
 
 	if (mpz_cmp_si(b,i) < 0) {
-	  MP_INT new;
-
-	  mpz_init_set(&new, b);
-	  RBIG(&new);
+	  return t1;
 	}
-	RINT(i);
+	return t2;
       }
     case big_int_e:
       /* two bignums */
@@ -911,15 +902,9 @@ p_min(Term t1, Term t2)
 	MP_INT *b2 = Yap_BigIntOfTerm(t2);
 
 	if (mpz_cmp(b1,b2) < 0) {
-	  MP_INT new;
-
-	  mpz_init_set(&new, b1);
-	  RBIG(&new);
+	  return t1;
 	} else {
-	  MP_INT new;
-
-	  mpz_init_set(&new, b2);
-	  RBIG(&new);
+	  return t2;
 	}
       }
     case double_e:
@@ -927,12 +912,9 @@ p_min(Term t1, Term t2)
 	Float fl1 = FloatOfTerm(t2);
 	Float fl2 = mpz_get_d(Yap_BigIntOfTerm(t1));
 	if (fl1 <= fl2) {
-	  RFLOAT(fl1);
+	  return t2;
 	} else {
-	  MP_INT new;
-
-	  mpz_init_set(&new, Yap_BigIntOfTerm(t1));
-	  RBIG(&new);
+	  return t1;
 	}
       }
     case db_ref_e:
@@ -958,7 +940,7 @@ p_max(Term t1, Term t2)
       {
 	Int i1 = IntegerOfTerm(t1);
 	Int i2 = IntegerOfTerm(t2);
-	RINT((i1 > i2 ? i1 : i2));
+	return((i1 > i2 ? t1 : t2));
       }
     case double_e:
       {
@@ -966,9 +948,9 @@ p_max(Term t1, Term t2)
 	Int i = IntegerOfTerm(t1);
 	Float fl = FloatOfTerm(t2);
 	if (i >= fl) {
-	  RINT(i);
+	  return t1;
 	}
-	RFLOAT(fl);
+	return t2;
       }
 #ifdef USE_GMP
     case big_int_e:
@@ -977,12 +959,9 @@ p_max(Term t1, Term t2)
 	MP_INT *b = Yap_BigIntOfTerm(t2);
 
 	if (mpz_cmp_si(b,i) > 0) {
-	  MP_INT new;
-
-	  mpz_init_set(&new, b);
-	  RBIG(&new);
+	  return t2;
 	}
-	RINT(i);
+	return t1;
       }
 #endif
     case db_ref_e:
@@ -997,18 +976,18 @@ p_max(Term t1, Term t2)
 	Int i = IntegerOfTerm(t2);
 	Float fl = FloatOfTerm(t1);
 	if (i >= fl) {
-	  RINT(i);
+	  return t2;
 	}
-	RFLOAT(fl);
+	return t1;
       }
     case double_e:
       {
 	Float fl1 = FloatOfTerm(t1);
 	Float fl2 = FloatOfTerm(t2);
 	if (fl1 >= fl2) {
-	  RFLOAT(fl1);
+	  return t1;
 	}
-	RFLOAT(fl2);
+	return t2;
       }
 #ifdef USE_GMP
     case big_int_e:
@@ -1016,12 +995,9 @@ p_max(Term t1, Term t2)
 	Float fl1 = FloatOfTerm(t1);
 	Float fl2 = mpz_get_d(Yap_BigIntOfTerm(t2));
 	if (fl1 >= fl2) {
-	  RFLOAT(fl1);
+	  return t1;
 	} else {
-	  MP_INT new;
-
-	  mpz_init_set(&new, Yap_BigIntOfTerm(t2));
-	  RBIG(&new);
+	  return t2;
 	}
       }
 #endif
@@ -1038,12 +1014,9 @@ p_max(Term t1, Term t2)
 	MP_INT *b = Yap_BigIntOfTerm(t1);
 
 	if (mpz_cmp_si(b,i) > 0) {
-	  MP_INT new;
-
-	  mpz_init_set(&new, b);
-	  RBIG(&new);
+	  return t1;
 	}
-	RINT(i);
+	return t2;
       }
     case big_int_e:
       /* two bignums */
@@ -1052,15 +1025,9 @@ p_max(Term t1, Term t2)
 	MP_INT *b2 = Yap_BigIntOfTerm(t2);
 
 	if (mpz_cmp(b1,b2) > 0) {
-	  MP_INT new;
-
-	  mpz_init_set(&new, b1);
-	  RBIG(&new);
+	  return t1;
 	} else {
-	  MP_INT new;
-
-	  mpz_init_set(&new, b2);
-	  RBIG(&new);
+	  return t2;
 	}
       }
     case double_e:
@@ -1068,12 +1035,9 @@ p_max(Term t1, Term t2)
 	Float fl1 = FloatOfTerm(t2);
 	Float fl2 = mpz_get_d(Yap_BigIntOfTerm(t1));
 	if (fl1 >= fl2) {
-	  RFLOAT(fl1);
+	  return t2;
 	} else {
-	  MP_INT new;
-
-	  mpz_init_set(&new, Yap_BigIntOfTerm(t1));
-	  RBIG(&new);
+	  return t1;
 	}
       }
     case db_ref_e:
