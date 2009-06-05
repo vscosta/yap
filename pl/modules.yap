@@ -400,6 +400,9 @@ module(N) :-
 
 :- multifile '$meta_predicate'/4.
 
+'$meta_predicate'(P, M) :-
+	var(P),
+	'$do_error'(instantiation_error,module(M)).
 '$meta_predicate'((P,Ps), M) :- !, 
 	'$meta_predicate'(P, M),
 	'$meta_predicate'(Ps, M).
