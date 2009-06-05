@@ -135,10 +135,10 @@ bst(Op, Item, Val, Tree, NewTree):-
  
 % The base clauses are:
  
-bst(access(Null), Item, _, L, null, R, Tree):- !, Null = null.
+bst(access(Null), _Item, _, _L, null, _R, _Tree):- !, Null = null.
 bst(access(true), Item, Val, Left-A, n(Item0, Val0, A, B), Right-B, n(Item, Val, Left, Right)) :- Item == Item0, !, Val = Val0.
 bst(insert, Item, Val, Left-A, T, Right-B, n(Item0, Val, Left, Right)) :-
-	(var(T) ; T = n(Item0, Val0, A, B), Item == Item0), !, Item = Item0.
+	(var(T) ; T = n(Item0, _Val0, A, B), Item == Item0), !, Item = Item0.
 % We now consider the zig case, namely that we have reached a node such
 % that the required Item is either to the left of the current node and
 % the current node is a leaf, or the required item is the left son of
@@ -155,14 +155,14 @@ bst(Op, Item, Val, Left, n(X, VX, n(Y, VY, Z, B), C), R-n(Y, VY, NR, n(X, VX, B,
 	Item @< X, Item @< Y, !,
 	bst(Op, Item, Val, Left, Z, R-NR, New).
 % Zig-Zag:
-bst(Op, Item, Val, L-n(Y, VY, A, NL), n(X, VX, n(Y, VY, A, Z), C), R-n(X, NX, NR, C), New):-
+bst(Op, Item, Val, L-n(Y, VY, A, NL), n(X, _VX, n(Y, VY, A, Z), C), R-n(X, _NX, NR, C), New):-
 	Item @< X, Y @< Item,!,
 	bst(Op, Item, Val, L-NL, Z, R-NR, New).
 % The symmetric cases for the right sons of the current node
 % are straightforward too:
 
 % Zag
-bst(access(Null), Item, _, Left-B, n(X, VX, B, null), Right-R, n(X, VX, Left, Right)):-
+bst(access(Null), Item, _, Left-B, n(X, VX, B, null), Right-_R, n(X, VX, Left, Right)):-
 	X @< Item, !, Null = null.  % end of the road.
 bst(Op, Item, Val, L-n(X, VX, B, NL), n(X, VX, B, n(Item, Val, A1, A2)), Right, New):-
 	X @< Item, !,
