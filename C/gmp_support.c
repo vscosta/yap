@@ -362,6 +362,17 @@ Yap_gmp_exp_big_int(MP_INT *b, Int i)
   return MkBigAndClose(&new);
 }
 
+Term
+Yap_gmp_big_from_64bits(YAP_LONG_LONG i)
+{
+  char s[64];
+  MP_INT new;
+
+  sprintf(s, "%lld", (long long int)i);
+  mpz_init_set_str (&new, s, 10);
+  return MkBigAndClose(&new);
+}
+
 #endif
 
 

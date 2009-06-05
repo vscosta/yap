@@ -225,10 +225,28 @@ Term  STD_PROTO(Yap_gmp_mod_int_big,(Int, MP_INT *));
 Term  STD_PROTO(Yap_gmp_exp_ints,(Int,Int));
 Term  STD_PROTO(Yap_gmp_exp_big_int,(MP_INT *,Int));
 
-
+Term  STD_PROTO(Yap_gmp_big_from_64bits,(YAP_LONG_LONG));
 
 Term   STD_PROTO(Yap_gmp_add_float_big,(Float, MP_INT *));
 Term   STD_PROTO(Yap_gmp_sub_float_big,(Float, MP_INT *));
 Term   STD_PROTO(Yap_gmp_sub_big_float,(MP_INT *, Float));
 Term   STD_PROTO(Yap_gmp_mul_float_big,(Float, MP_INT *));
 #endif
+
+inline EXTERN Term Yap_Mk64IntegerTerm(YAP_LONG_LONG);
+
+inline EXTERN Term
+Yap_Mk64IntegerTerm(YAP_LONG_LONG i)
+{
+  if (i <= Int_MAX || i >= Int_MIN) {
+    return MkIntegerTerm((Int)i);
+  } else {
+#if USE_GMP
+    return Yap_gmp_big_from_64bits(i);
+#else
+    return MkIntTerm(-1);
+#endif
+  }
+}
+
+

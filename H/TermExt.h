@@ -431,8 +431,6 @@ IsPrimitiveTerm (Term t)
 		 || (IsApplTerm (t) && IsBlobFunctor (FunctorOfTerm (t)))));
 }
 
-
-
 #ifdef TERM_EXTENSIONS
 
 

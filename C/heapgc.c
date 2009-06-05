@@ -3904,7 +3904,7 @@ p_inform_gc(void)
 {
   Term tn = MkIntegerTerm(TotGcTime);
   Term tt = MkIntegerTerm(GcCalls);
-  Term ts = MkIntegerTerm((TotGcRecovered*sizeof(CELL)));
+  Term ts = Yap_Mk64IntegerTerm((TotGcRecovered*sizeof(CELL)));
  
   return(Yap_unify(tn, ARG2) && Yap_unify(tt, ARG1) && Yap_unify(ts, ARG3));
 
