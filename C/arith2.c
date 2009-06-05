@@ -1059,7 +1059,7 @@ p_max(Term t1, Term t2)
 	} else {
 	  MP_INT new;
 
-	  mpz_init_set(&new, b1);
+	  mpz_init_set(&new, b2);
 	  RBIG(&new);
 	}
       }
