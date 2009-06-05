@@ -41,6 +41,7 @@
   AtomCharsio = Yap_LookupAtom("charsio");
   AtomCharacter = Yap_LookupAtom("character");
   AtomCharacterCode = Yap_LookupAtom("character_code");
+  AtomCleanCall = Yap_FullLookupAtom("$clean_call");
   AtomColomn = Yap_LookupAtom(":");
   AtomCodeSpace = Yap_LookupAtom("code_space");
   AtomComma = Yap_LookupAtom(",");
@@ -209,6 +210,7 @@
   AtomReadutil = Yap_LookupAtom("readutil");
   AtomRecordedP = Yap_FullLookupAtom("$recordep");
   AtomRecordedWithKey = Yap_FullLookupAtom("$recorded_with_key");
+  AtomRedoFreeze = Yap_FullLookupAtom("$redo_freeze");
   AtomRefoundVar = Yap_FullLookupAtom("$I_FOUND_THE_VARIABLE_AGAIN");
   AtomRepeat = Yap_LookupAtom("repeat");
   AtomRepeatSpace = Yap_LookupAtom("repeat ");
@@ -309,6 +311,7 @@
   FunctorCall = Yap_MkFunctor(AtomCall,1);
   FunctorCatch = Yap_MkFunctor(AtomCatch,3);
   FunctorChangeModule = Yap_MkFunctor(AtomChangeModule,1);
+  FunctorCleanCall = Yap_MkFunctor(AtomCleanCall,2);
   FunctorClist = Yap_MkFunctor(AtomWhen,4);
   FunctorComma = Yap_MkFunctor(AtomComma,2);
   FunctorContext2 = Yap_MkFunctor(AtomContext,2);
@@ -371,8 +374,10 @@
   FunctorOr = Yap_MkFunctor(AtomSemic,2);
   FunctorPermissionError = Yap_MkFunctor(AtomPermissionError,3);
   FunctorPortray = Yap_MkFunctor(AtomPortray,1);
+  FunctorPrologConstraint = Yap_MkFunctor(AtomProlog,2);
   FunctorQuery = Yap_MkFunctor(AtomQuery,1);
   FunctorRecordedWithKey = Yap_MkFunctor(AtomRecordedWithKey,6);
+  FunctorRedoFreeze = Yap_MkFunctor(AtomRedoFreeze,3);
   FunctorRepresentationError = Yap_MkFunctor(AtomRepresentationError,1);
   FunctorResourceError = Yap_MkFunctor(AtomResourceError,1);
   FunctorRestoreRegs = Yap_MkFunctor(AtomRestoreRegs,2);

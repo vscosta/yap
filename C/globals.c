@@ -387,7 +387,7 @@ CopyAttVar(CELL *orig, struct cp_frame **to_visit_ptr, CELL *res, Term *att_aren
 #endif
 
 static int
-copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, CELL *ptf, CELL *HLow, Term *att_arenap)
+copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int copy_att_vars, CELL *ptf, CELL *HLow, Term *att_arenap)
 {
 
   struct cp_frame *to_visit0, *to_visit = (struct cp_frame *)Yap_PreAllocCodeSpace();
@@ -571,7 +571,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, CELL *p
       *ptf++ = (CELL) ptd0;
     } else {
 #if COROUTINING
-      if (IsAttachedTerm((CELL)ptd0)) {
+      if (IsAttachedTerm((CELL)ptd0) && copy_att_vars) {
 	/* if unbound, call the standard copy term routine */
 	struct cp_frame *bp[1];
 
@@ -708,7 +708,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, CELL *p
 }
 
 static Term
-CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term *att_arenap, UInt min_grow)
+CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Term *newarena, Term *att_arenap, UInt min_grow)
 {
   UInt old_size = ArenaSz(arena);
   CELL *oldH = H;
@@ -735,7 +735,7 @@ CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term 
       *H = t;
       Hi = H+1;
       H += 2;
-      if ((res = copy_complex_term(Hi-2, Hi-1, share, Hi, Hi, att_arenap)) < 0) 
+      if ((res = copy_complex_term(Hi-2, Hi-1, share, copy_att_vars, Hi, Hi, att_arenap)) < 0) 
 	goto error_handler;
       CloseArena(oldH, oldHB, oldASP, newarena, old_size);
       return Hi[0];
@@ -768,7 +768,7 @@ CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term 
     Hi = H;
     tf = AbsPair(H);
     H += 2;
-    if ((res = copy_complex_term(ap-1, ap+1, share, Hi, Hi, att_arenap)) < 0) {
+    if ((res = copy_complex_term(ap-1, ap+1, share, copy_att_vars, Hi, Hi, att_arenap)) < 0) {
 	goto error_handler;
     }
     CloseArena(oldH, oldHB, oldASP, newarena, old_size);
@@ -838,7 +838,7 @@ CopyTermToArena(Term t, Term arena, int share, UInt arity, Term *newarena, Term 
 	res = -1;
 	goto error_handler;
       } 
-      if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), share, HB0+1, HB0, att_arenap)) < 0) {
+      if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), share, copy_att_vars, HB0+1, HB0, att_arenap)) < 0) {
 	goto error_handler;
       }
     }
@@ -1071,7 +1071,7 @@ p_nb_setarg(void)
   }
   if (pos < 1 || pos > arity)
     return FALSE;
-  to = CopyTermToArena(ARG3, GlobalArena, FALSE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  to = CopyTermToArena(ARG3, GlobalArena, FALSE, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
     return FALSE;
   destp[pos] = to;
@@ -1111,7 +1111,7 @@ p_nb_set_shared_arg(void)
   }
   if (pos < 1 || pos > arity)
     return FALSE;
-  to = CopyTermToArena(ARG3, GlobalArena, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  to = CopyTermToArena(ARG3, GlobalArena, TRUE, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
     return FALSE;
   destp[pos] = to;
@@ -1180,12 +1180,22 @@ Yap_SetGlobalVal(Atom at, Term t0)
   Term to;
   GlobalEntry *ge;
   ge = GetGlobalEntry(at);
-  to = CopyTermToArena(t0, GlobalArena, FALSE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  to = CopyTermToArena(t0, GlobalArena, FALSE, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
     return to;
   WRITE_LOCK(ge->GRWLock);
   ge->global=to;
   WRITE_UNLOCK(ge->GRWLock);
+  return to;
+}
+
+Term
+Yap_SaveTerm(Term t0)
+{
+  Term to;
+  to = CopyTermToArena(t0, GlobalArena, FALSE, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  if (to == 0L)
+    return to;
   return to;
 }
 
@@ -1216,7 +1226,7 @@ p_nb_set_shared_val(void)
       return (FALSE);
   }
   ge = GetGlobalEntry(AtomOfTerm(t));
-  to = CopyTermToArena(ARG2, GlobalArena, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  to = CopyTermToArena(ARG2, GlobalArena, TRUE, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
     return FALSE;
   WRITE_LOCK(ge->GRWLock);
@@ -1627,7 +1637,7 @@ p_nb_queue_enqueue(void)
   } else {
     min_size = 0L;
   }
-  to = CopyTermToArena(ARG2, arena, FALSE, 2, qd+QUEUE_ARENA, qd+QUEUE_DELAY_ARENA, min_size);
+  to = CopyTermToArena(ARG2, arena, FALSE, TRUE, 2, qd+QUEUE_ARENA, qd+QUEUE_DELAY_ARENA, min_size);
   if (to == 0L)
     return FALSE;
   qd = GetQueue(ARG1,"enqueue");
@@ -1959,9 +1969,9 @@ p_nb_heap_add_to_heap(void)
   if (arena == 0L)
     return FALSE;
   mingrow = garena_overflow_size(ArenaPt(arena));
-  key = CopyTermToArena(ARG2, arena, FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
+  key = CopyTermToArena(ARG2, arena, FALSE, TRUE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
   arena = qd[HEAP_ARENA];
-  to = CopyTermToArena(ARG3, arena, FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
+  to = CopyTermToArena(ARG3, arena, FALSE, TRUE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
   if (key == 0 || to == 0L)
     return FALSE;
   qd = GetHeap(ARG1,"add_to_heap");
@@ -2362,9 +2372,9 @@ p_nb_beam_add_to_beam(void)
   if (arena == 0L)
     return FALSE;
   mingrow = garena_overflow_size(ArenaPt(arena));
-  key = CopyTermToArena(ARG2, qd[HEAP_ARENA], FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
+  key = CopyTermToArena(ARG2, qd[HEAP_ARENA], FALSE, TRUE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
   arena = qd[HEAP_ARENA];
-  to = CopyTermToArena(ARG3, arena, FALSE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
+  to = CopyTermToArena(ARG3, arena, FALSE, TRUE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
   if (key == 0 || to == 0L)
     return FALSE;
   qd = GetHeap(ARG1,"add_to_beam");

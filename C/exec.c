@@ -1439,7 +1439,7 @@ suspended_on_current_execution(Term t, Term t0)
   attvar_record *susp = (attvar_record *)VarOfTerm(t);
   Term t1 = susp->Atts;
   /* should be prolog(_,Something) */
-  if(IsVarTerm(t1) || !IsApplTerm(t1))
+  if(IsVarTerm(t1) || !IsApplTerm(t1) || FunctorOfTerm(t1) != FunctorPrologConstraint)
     return FALSE;
   t1 = ArgOfTerm(2, t1);
   /* Something = [Goal] */
@@ -1449,15 +1449,15 @@ suspended_on_current_execution(Term t, Term t0)
     return FALSE;
   t1 = HeadOfTerm(t1);
   /* Goal = $redo_freeze(_,_,Suspended) */
-  if(IsVarTerm(t1) || !IsApplTerm(t1))
+  if(IsVarTerm(t1) || !IsApplTerm(t1) || FunctorOfTerm(t1) != FunctorRedoFreeze)
     return FALSE;
   t1 = ArgOfTerm(3,t1);
   /* Suspended = Mod:Cod */
-  if(IsVarTerm(t1) || !IsApplTerm(t1))
+  if(IsVarTerm(t1) || !IsApplTerm(t1) || FunctorOfTerm(t1) != FunctorModule)
     return FALSE;
   t1 = ArgOfTerm(2,t1);
   /* Cod = $clean_call(t0,_) */
-  if(IsVarTerm(t1) || !IsApplTerm(t1))
+  if(IsVarTerm(t1) || !IsApplTerm(t1) || FunctorOfTerm(t1) != FunctorCleanCall)
     return FALSE;
   /* we found what was on the cp */
   return t0 == ArgOfTerm(1, t1);
@@ -1526,7 +1526,7 @@ JumpToEnv(Term t) {
   CELL *env;
   choiceptr first_func = NULL, B0 = B;
 
-  if (!(t = Yap_SetGlobalVal(AtomHandleThrow,t)))
+  if (!(t = Yap_SaveTerm(t)))
     return FALSE;
   do {
     /* find the first choicepoint that may be a catch */

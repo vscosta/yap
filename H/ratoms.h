@@ -41,6 +41,7 @@
   AtomCharsio = AtomAdjust(AtomCharsio);
   AtomCharacter = AtomAdjust(AtomCharacter);
   AtomCharacterCode = AtomAdjust(AtomCharacterCode);
+  AtomCleanCall = AtomAdjust(AtomCleanCall);
   AtomColomn = AtomAdjust(AtomColomn);
   AtomCodeSpace = AtomAdjust(AtomCodeSpace);
   AtomComma = AtomAdjust(AtomComma);
@@ -211,6 +212,7 @@
   AtomReadutil = AtomAdjust(AtomReadutil);
   AtomRecordedP = AtomAdjust(AtomRecordedP);
   AtomRecordedWithKey = AtomAdjust(AtomRecordedWithKey);
+  AtomRedoFreeze = AtomAdjust(AtomRedoFreeze);
   AtomRefoundVar = AtomAdjust(AtomRefoundVar);
   AtomRepeat = AtomAdjust(AtomRepeat);
   AtomRepeatSpace = AtomAdjust(AtomRepeatSpace);
@@ -311,6 +313,7 @@
   FunctorCall = FuncAdjust(FunctorCall);
   FunctorCatch = FuncAdjust(FunctorCatch);
   FunctorChangeModule = FuncAdjust(FunctorChangeModule);
+  FunctorCleanCall = FuncAdjust(FunctorCleanCall);
   FunctorClist = FuncAdjust(FunctorClist);
   FunctorComma = FuncAdjust(FunctorComma);
   FunctorContext2 = FuncAdjust(FunctorContext2);
@@ -373,8 +376,10 @@
   FunctorOr = FuncAdjust(FunctorOr);
   FunctorPermissionError = FuncAdjust(FunctorPermissionError);
   FunctorPortray = FuncAdjust(FunctorPortray);
+  FunctorPrologConstraint = FuncAdjust(FunctorPrologConstraint);
   FunctorQuery = FuncAdjust(FunctorQuery);
   FunctorRecordedWithKey = FuncAdjust(FunctorRecordedWithKey);
+  FunctorRedoFreeze = FuncAdjust(FunctorRedoFreeze);
   FunctorRepresentationError = FuncAdjust(FunctorRepresentationError);
   FunctorResourceError = FuncAdjust(FunctorResourceError);
   FunctorRestoreRegs = FuncAdjust(FunctorRestoreRegs);

@@ -84,6 +84,8 @@
 #define AtomCharacter Yap_heap_regs->AtomCharacter_
   Atom AtomCharacterCode_;
 #define AtomCharacterCode Yap_heap_regs->AtomCharacterCode_
+  Atom AtomCleanCall_;
+#define AtomCleanCall Yap_heap_regs->AtomCleanCall_
   Atom AtomColomn_;
 #define AtomColomn Yap_heap_regs->AtomColomn_
   Atom AtomCodeSpace_;
@@ -424,6 +426,8 @@
 #define AtomRecordedP Yap_heap_regs->AtomRecordedP_
   Atom AtomRecordedWithKey_;
 #define AtomRecordedWithKey Yap_heap_regs->AtomRecordedWithKey_
+  Atom AtomRedoFreeze_;
+#define AtomRedoFreeze Yap_heap_regs->AtomRedoFreeze_
   Atom AtomRefoundVar_;
 #define AtomRefoundVar Yap_heap_regs->AtomRefoundVar_
   Atom AtomRepeat_;
@@ -624,6 +628,8 @@
 #define FunctorCatch Yap_heap_regs->FunctorCatch_
   Functor FunctorChangeModule_;
 #define FunctorChangeModule Yap_heap_regs->FunctorChangeModule_
+  Functor FunctorCleanCall_;
+#define FunctorCleanCall Yap_heap_regs->FunctorCleanCall_
   Functor FunctorClist_;
 #define FunctorClist Yap_heap_regs->FunctorClist_
   Functor FunctorComma_;
@@ -748,10 +754,14 @@
 #define FunctorPermissionError Yap_heap_regs->FunctorPermissionError_
   Functor FunctorPortray_;
 #define FunctorPortray Yap_heap_regs->FunctorPortray_
+  Functor FunctorPrologConstraint_;
+#define FunctorPrologConstraint Yap_heap_regs->FunctorPrologConstraint_
   Functor FunctorQuery_;
 #define FunctorQuery Yap_heap_regs->FunctorQuery_
   Functor FunctorRecordedWithKey_;
 #define FunctorRecordedWithKey Yap_heap_regs->FunctorRecordedWithKey_
+  Functor FunctorRedoFreeze_;
+#define FunctorRedoFreeze Yap_heap_regs->FunctorRedoFreeze_
   Functor FunctorRepresentationError_;
 #define FunctorRepresentationError Yap_heap_regs->FunctorRepresentationError_
   Functor FunctorResourceError_;
