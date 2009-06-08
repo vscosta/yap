@@ -38,7 +38,7 @@
 	   numlist/3
 	  ]).
 
-:- ensure_loaded(library(error),
+:- use_module(library(error),
 		 [must_be/2]).
 
 
