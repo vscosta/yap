@@ -2089,13 +2089,12 @@ are global to the system. Moreover, the module system is flat, meaning
 that we do not support a hierarchy of modules. Modules can
 automatically import other modules, though. For compatibility with other
 module systems the YAP module system is non-strict, meaning both that
-there is both a way to access predicates private to a module and that it
+there is a way to access predicates private to a module and that it
 is possible to declare predicates for a module from some other module.
 
 YAP allows one to ignore the module system if one does not want to use
 it. Last note that using the module system does not introduce any
-significant overheads: only meta-calls that cross module boundaries are
-slowed down by the presence of modules.
+significant overheads.
 
 @menu
 
@@ -2145,7 +2144,7 @@ module. Otherwise, it is the module the file is being loaded into or the
 type-in module.
 
 One can override this rule by prefixing a goal with the module it is
-supposed to be executed into, say:
+supposed to be executed in, say:
 @example
 nasa:launch(apollo,13).
 @end example
@@ -2165,17 +2164,18 @@ A new module is defined by a @code{module} declaration:
 @findex module/2 (directive)
 @syindex module/2 (directive)
 @cnindex module/2 (directive)
-This predicate defines the file where it appears as a module file; it
+This directive defines the file where it appears as a module file; it
 must be the first declaration in the file.
 @var{M} must be an atom specifying the module name; @var{L} must be a list
 containing the module's public predicates specification, in the form
 @code{[predicate_name/arity,...]}.
 
 The public predicates of a module file can be made accessible by other
-files through the predicates @code{consult/1}, @code{reconsult/1},
-@code{ensure_loaded/1} or @code{use_module/2}. The non-public predicates
+files through the directives @code{use_module/1}, @code{use_module/2},
+@code{ensure_loaded/1} and the predicates @code{consult/1} or
+@code{reconsult/1}. The non-public predicates
 of a module file are not visible by other files; they can, however, be
-accessed if the module name is prefixed to the file name through the
+accessed by prefixing the module name with the
 @code{:/2} operator.
 
 @end table
@@ -2187,8 +2187,8 @@ The built-in @code{module/1} sets the current source module:
 @findex module/3 (directive)
 @syindex module/3 (directive)
 @cnindex module/3 (directive)
-Similar to @code{module/2}, this predicate defines the file where it
-appears as a module file; it must be the first declaration in the file.
+Similar to @code{module/2}, this directive defines the file where it
+appears in as a module file; it must be the first declaration in the file.
 @var{M} must be an atom specifying the module name; @var{L} must be a
 list containing the module's public predicates specification, in the
 form @code{[predicate_name/arity,...]}.
@@ -2264,27 +2264,22 @@ importing the predicates specified in the list @var{L}.
 The module system must know whether predicates operate on goals or
 clauses. Otherwise, such predicates would call a goal in the module they
 were defined, instead of calling it in the module they are currently
-executing. So, for instance:
+executing. So, for instance, consider a file example.pl:
 @example
 :- module(example,[a/1]).
 
-...
-
 a(G) :- call(G)
-
-...
-
 @end example
-The expected behavior for this procedure is to execute goal @var{G}
-within  the current module, that is, within @code{example}.
-On the other hand, when executing @code{call/1} the system only knows
-where @code{call/1} was defined, that is, it only knows of
-@code{primitives}. A similar problem arises for @code{assert/1} and
-friends.
+
+We import this module with @code{use_module(example)} into module
+@code{user}.  The expected behavior for a goal @code{a(p)} is to
+execute goal @code{p} within the module @code{user}. However,
+@code{a/1} will call @code{p} within module @code{example}.
 
 The @code{meta_predicate/1} declaration informs the system that some
-arguments of a procedure are goals, clauses or clauses heads, and that
-these arguments must be expanded to receive the current source module:
+arguments of a predicate are goals, clauses, clauses heads or other
+terms related to a module, and that these arguments must be prefixed
+with the current source module:
 
 @table @code
 
@@ -2292,35 +2287,44 @@ these arguments must be expanded to receive the current source module:
 @findex meta_predicate/1 (directive)
 @syindex meta_predicate/1 (directive)
 @cnindex meta_predicate/1 (directive)
-Each @var{Gi} is a mode specification. For example, a declaration for
-@code{call/1} and @code{setof/3} would be of the form:
+Each @var{Gi} is a mode specification.
+
+If the argument is @code{:} or an integer, the argument is a call and
+must be expanded. Otherwise, the argument is not expanded. Note
+that the system already includes declarations for all built-ins.
+
+For example, the declaration for @code{call/1} and @code{setof/3} are:
 
 @example
 :- meta_predicate call(:), setof(?,:,?).
 @end example
 
-If the argument is @code{:} or an integer, the argument is a call and
-must be expanded. Otherwise, the argument should not be expanded. Note
-that the system already includes declarations for all built-ins.
-
 @end table
 
-
-In the previous example, the only argument to @code{call/1} must be
-expanded, resulting in the following code:
+The previous example is expanded to the following code which explains,
+why the goal @code{a(p)} calls @code{p} in @code{example} and not in
+@code{user}.  The goal @code{call(G)} is expanded because of the
+meta-predicate declaration for @code{call/1}.
 
 @example
 :- module(example,[a/1]).
 
-...
-
 a(G) :- call(example:G)
-
-...
-
 @end example
 
-You can avoid goal expansion by using @code{module_transparent/1}.
+By adding a meta-predicate declaration for @code{a/1}, the goal
+@code{a(p)} in module user will be expanded to @code{a(user:p)}
+thereby preserving the module information.
+
+@example
+:- module(example,[a/1]).
+
+:- meta_predicate a(:).
+a(G) :- call(G)
+@end example
+
+An alternate mechanism is the directive @code{module_transparent/1}
+offered for compatibility with SWI-Prolog.
 
 @table @code
 
@@ -2328,7 +2332,8 @@ You can avoid goal expansion by using @code{module_transparent/1}.
 @findex module_transparent/1 (directive)
 @syindex module_transparent/1 (directive)
 @cnindex module_transparent/1 (directive)
-     @var{Preds} is a comma separated list of name/arity pairs (like
+     @var{Preds} is a comma separated sequence of name/arity predicate
+     indicators (like
     @code{dynamic/1}). Each goal associated with a transparent declared
     predicate will inherit the context module from its parent goal.
 @end table
