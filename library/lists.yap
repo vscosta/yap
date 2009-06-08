@@ -38,7 +38,8 @@
 	   numlist/3
 	  ]).
 
-:- ensure_loaded(library(error)).
+:- ensure_loaded(library(error),
+		 [must_be/2]).
 
 
 %   append(Prefix, Suffix, Combined)

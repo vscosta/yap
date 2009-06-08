@@ -5,6 +5,8 @@
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+:- module(expand_macros, []).
+
 :- use_module(library(lists), [append/3]).
 :- use_module(library(charsio), [format_to_chars/3, read_from_chars/2]).
 :- use_module(library(error), [must_be/2]).
@@ -394,6 +396,7 @@ user:goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod, Goal) :-
 			 ),
 			 RecursiveCall)
 		    ], Module).
+
 :- unhide('$translate_rule').
 % stolen from SWI-Prolog
 user:goal_expansion(phrase(NT,Xs), Mod, NTXsNil) :-

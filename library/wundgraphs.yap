@@ -15,8 +15,6 @@
 	    wundgraph_neighbours/3,
 	    wundgraph_wneighbors/3,
 	    wundgraph_wneighbours/3,
-	    wdgraph_to_wundgraph/2,
-	    wundgraph_to_undgraph/2,
 	    wundgraph_min_tree/3,
 	    wundgraph_max_tree/3]).
 
@@ -46,7 +44,8 @@
 	    wdgraph_del_edges/3,
 	    wdgraph_del_vertex/3,
 	    wdgraph_edges/2,
-	    wdgraph_neighbors/3,
+	    wdgraph_neighbours/3,
+	    wdgraph_wneighbours/3,
 	    wdgraph_symmetric_closure/2
 	   ]).
 
@@ -98,7 +97,7 @@ wundgraph_neighbours(V,Vertices,Children) :-
 	    Children = Children0
 	).
 wundgraph_neighbors(V,Vertices,Children) :-
-	wdgraph_neighbors(V,Vertices,Children0),
+	wdgraph_neighbours(V,Vertices,Children0),
 	(
 	    wdel_me(Children0,V,Children)
 	->
@@ -117,7 +116,7 @@ wundgraph_wneighbours(V,Vertices,Children) :-
 	    Children = Children0
 	).
 wundgraph_wneighbors(V,Vertices,Children) :-
-	wdgraph_wneighbors(V,Vertices,Children0),
+	wdgraph_wneighbours(V,Vertices,Children0),
 	(
 	    del_me(Children0,V,Children)
 	->

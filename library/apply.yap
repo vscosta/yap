@@ -1,4 +1,6 @@
 
+:- module(apply,[]).
+
 :- reexport(library(apply_macros),
 	    [maplist/3,
 	     include/3,

@@ -5,7 +5,6 @@
 
 :- module( undgraphs,
 	   [
-	    undgraph_new/1,
 	    undgraph_add_edge/4,
 	    undgraph_add_edges/3,
 	    undgraph_add_vertices/3,
@@ -13,13 +12,10 @@
 	    undgraph_del_edges/3,
 	    undgraph_del_vertex/3,
 	    undgraph_del_vertices/3,
-	    undgraph_edge/3,
 	    undgraph_edges/2,
 	    undgraph_neighbors/3,
 	    undgraph_neighbours/3,
-	    undgraph_complement/2,
 	    undgraph_components/2,
-	    dgraph_to_undgraph/2,
 	    undgraph_min_tree/2]).
 
 :- reexport( library(dgraphs),
@@ -60,6 +56,7 @@
 
 :- use_module(library(rbtrees),
 	[  rb_delete/4,
+	   rb_delete/3,
 	   rb_insert/4,
 	   rb_in/3,
 	   rb_partial_map/4
