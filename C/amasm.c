@@ -2407,34 +2407,24 @@ a_fetch_vv(cmp_op_info *cmp_info, int pass_no, struct intermediates *cip)
     PInstr *p = cip->cpc->nextInst;
     Ventry *ve;
     ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE != PermVar)
+    if (ve->KindOfVE != PermVar && p->op != nop_op) {
+      p->rnd2 = ve->NoOfVE & MaskVarAdrs;
       p->op = nop_op;
+    }
     p = p->nextInst;
     ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE != PermVar)
+    if (ve->KindOfVE != PermVar && p->op != nop_op) {
+      p->rnd2 = ve->NoOfVE & MaskVarAdrs;
       p->op = nop_op;
+    }
   } else {
     PInstr *p = cip->cpc->nextInst;
-    Ventry *ve;
 
     cmp_info->c_type = TYPE_XX;
-    ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE == PermVar) {
-      /* don't get rid of get_val_op */
-      cmp_info->x1_arg = emit_x(p->rnd2);
-    } else {
-      /* and use it directly as a second argument */
-      cmp_info->x1_arg = emit_x(ve->NoOfVE & MaskVarAdrs);
-    }
+    /* don't get rid of get_val_op */
+    cmp_info->x1_arg = emit_x(p->rnd2);
     p = p->nextInst;
-    ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE == PermVar) {
-      /* don't get rid of get_val_op */
-      cmp_info->x2_arg = emit_x(p->rnd2);
-    } else {
-      /* and use it directly as a second argument */
-      cmp_info->x2_arg = emit_x(ve->NoOfVE & MaskVarAdrs);
-    }
+    cmp_info->x2_arg = emit_x(p->rnd2);
   }
 }
 
@@ -2446,22 +2436,16 @@ a_fetch_vc(cmp_op_info *cmp_info, int pass_no, struct intermediates *cip)
     PInstr *p = cip->cpc->nextInst;
     Ventry *ve;
     ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE != PermVar)
+    if (ve->KindOfVE != PermVar && p->op != nop_op) {
+      p->rnd2 = ve->NoOfVE & MaskVarAdrs;
       p->op = nop_op;
+    }
   } else {
     PInstr *p = cip->cpc->nextInst;
-    Ventry *ve;
 
     cmp_info->c_type = TYPE_XC;
     cmp_info->c_arg = cip->cpc->rnd1;
-    ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE == PermVar) {
-      /* don't get rid of get_val_op */
-      cmp_info->x1_arg = emit_x(p->rnd2);
-    } else {
-      /* and use it directly as a second argument */
-      cmp_info->x1_arg = emit_x(ve->NoOfVE & MaskVarAdrs);
-    }
+    cmp_info->x1_arg = emit_x(p->rnd2);
   }
 }
 
@@ -2473,22 +2457,16 @@ a_fetch_cv(cmp_op_info *cmp_info, int pass_no, struct intermediates *cip)
     PInstr *p = cip->cpc->nextInst;
     Ventry *ve;
     ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE != PermVar)
+    if (ve->KindOfVE != PermVar && p->op != nop_op) {
+      p->rnd2 = ve->NoOfVE & MaskVarAdrs;
       p->op = nop_op;
+    }
   } else {
     PInstr *p = cip->cpc->nextInst;
-    Ventry *ve;
 
     cmp_info->c_type = TYPE_CX;
     cmp_info->c_arg = cip->cpc->rnd1;
-    ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE == PermVar) {
-      /* don't get rid of get_val_op */
-      cmp_info->x1_arg = emit_x(p->rnd2);
-    } else {
-      /* and use it directly as a second argument */
-      cmp_info->x1_arg = emit_x(ve->NoOfVE & MaskVarAdrs);
-    }
+    cmp_info->x1_arg = emit_x(p->rnd2);
   }
 }
 
