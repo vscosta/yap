@@ -50,6 +50,7 @@ A	Char			N	"char"
 A	Charsio			N	"charsio"
 A	Character		N	"character"
 A	CharacterCode		N	"character_code"
+A	CleanCall		F	"$clean_call"
 A	Colomn			N	":"
 A	CodeSpace		N	"code_space"
 A	Comma			N	","
@@ -220,6 +221,7 @@ A	Read			N	"read"
 A	Readutil		N	"readutil"
 A	RecordedP		F	"$recordep"
 A	RecordedWithKey		F	"$recorded_with_key"
+A	RedoFreeze		F	"$redo_freeze"
 A	RefoundVar		F	"$I_FOUND_THE_VARIABLE_AGAIN"
 A	Repeat			N	"repeat"
 A	RepeatSpace		N	"repeat "
@@ -320,6 +322,7 @@ F	Braces			Braces		1
 F	Call			Call		1
 F	Catch			Catch		3
 F	ChangeModule		ChangeModule	1
+F	CleanCall		CleanCall	2
 F	Clist			When		4
 F	Comma			Comma		2
 F	Context2		Context		2
@@ -382,8 +385,10 @@ F	Not			Not		1
 F	Or			Semic		2
 F	PermissionError		PermissionError	3
 F	Portray			Portray		1
+F	PrologConstraint	Prolog		2
 F	Query			Query		1
 F	RecordedWithKey		RecordedWithKey	6
+F	RedoFreeze		RedoFreeze	3
 F	RepresentationError	RepresentationError	1
 F	ResourceError		ResourceError	1
 F	RestoreRegs		RestoreRegs	2
