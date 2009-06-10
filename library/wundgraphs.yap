@@ -11,9 +11,7 @@
 	    wundgraph_del_edges/3,
 	    wundgraph_del_vertex/3,
 	    wundgraph_edges/2,
-	    wundgraph_neighbors/3,
 	    wundgraph_neighbours/3,
-	    wundgraph_wneighbors/3,
 	    wundgraph_wneighbours/3,
 	    wundgraph_min_tree/3,
 	    wundgraph_max_tree/3]).
