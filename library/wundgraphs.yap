@@ -44,7 +44,8 @@
 	    wdgraph_del_edges/3,
 	    wdgraph_del_vertex/3,
 	    wdgraph_edges/2,
-	    wdgraph_neighbors/3
+	    wdgraph_neighbors/3,
+	    wdgraph_wneighbors/3
 	   ]).
 
 :- use_module(library(rbtrees),
@@ -105,7 +106,7 @@ wundgraph_neighbors(V,Vertices,Children) :-
 	).
 
 wundgraph_wneighbours(V,Vertices,Children) :-
-	wdgraph_wneighbours(V,Vertices,Children0),
+	wdgraph_wneighbors(V,Vertices,Children0),
 	(
 	    wdel_me(Children0,V,Children)
 	->
