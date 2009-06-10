@@ -46,8 +46,7 @@
 	    wdgraph_del_edges/3,
 	    wdgraph_del_vertex/3,
 	    wdgraph_edges/2,
-	    wdgraph_neighbors/3,
-	    wdgraph_symmetric_closure/2
+	    wdgraph_neighbors/3
 	   ]).
 
 :- use_module(library(rbtrees),
