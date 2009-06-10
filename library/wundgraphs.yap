@@ -15,8 +15,6 @@
 	    wundgraph_neighbours/3,
 	    wundgraph_wneighbors/3,
 	    wundgraph_wneighbours/3,
-	    wdgraph_to_wundgraph/2,
-	    wundgraph_to_undgraph/2,
 	    wundgraph_min_tree/3,
 	    wundgraph_max_tree/3]).
 
@@ -88,7 +86,7 @@ remove_dups([_|DupEdges],Edges) :-
 	remove_dups(DupEdges,Edges).
 
 wundgraph_neighbours(V,Vertices,Children) :-
-	wdgraph_neighbours(V,Vertices,Children0),
+	wdgraph_neighbors(V,Vertices,Children0),
 	(
 	    del_me(Children0,V,Children)
 	->
