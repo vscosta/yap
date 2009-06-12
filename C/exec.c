@@ -1463,8 +1463,8 @@ suspended_on_current_execution(Term t, Term t0)
   return t0 == ArgOfTerm(1, t1);
 }
 
-static void
-clean_trail(Term t, Term t0)
+static Term
+clean_trail(Term t, DBTerm *dbt, Term t0)
 {
   tr_fr_ptr pt1, pbase;
 
@@ -1495,9 +1495,17 @@ clean_trail(Term t, Term t0)
 	  if (suspended_on_current_execution(val, t0)) {
 	    RESET_VARIABLE(&TrailTerm(pt1));
 	  } else {
+	    if (dbt) {
+	      t = Yap_FetchTermFromDB(dbt);
+	      if (t) {
+		B->cp_h = H;
+	      } else {
+		t = MkAtomTerm(AtomDAbort);
+	      }
+	    }
 	    Bind(pt, t);
 	    Yap_WakeUp(pt);
-	    return;
+	    return t;
 	  }
 	}
       }
@@ -1516,6 +1524,15 @@ clean_trail(Term t, Term t0)
 #endif /* FROZEN_STACKS */
     }
   }
+  if (dbt) {
+    t = Yap_FetchTermFromDB(dbt);
+    if (t) {
+      B->cp_h = H;
+    } else {
+      t = MkAtomTerm(AtomDAbort);
+    }
+  }
+  return t;
 }
 
 
@@ -1525,9 +1542,12 @@ JumpToEnv(Term t) {
     *catchpos = NEXTOP(PredHandleThrow->cs.p_code.TrueCodeOfPred,l);
   CELL *env;
   choiceptr first_func = NULL, B0 = B;
+  DBTerm *dbt;
 
-  if (!(t = Yap_SaveTerm(t)))
-    return FALSE;
+  if (!(dbt = Yap_StoreTermInDB(t, -1))) {
+    if (!(t = Yap_SaveTerm(t)))
+      return FALSE;
+  }
   do {
     /* find the first choicepoint that may be a catch */
     while (B != NULL && B->cp_ap != pos) {
@@ -1579,9 +1599,9 @@ JumpToEnv(Term t) {
   B->cp_h = H;
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
-  B->cp_a3 = t;
   P = (yamop *)FAILCODE;
-  clean_trail(t, B->cp_a1);
+  t = clean_trail(t, dbt, B->cp_a1);
+  B->cp_a3 = t;
   if (first_func != NULL) {
     B = first_func;
   }
