@@ -15,6 +15,12 @@
 *									 *
 *************************************************************************/
 
+:- meta_predicate ^(?,0,?).
+^(Xs, Goal, Xs) :- call(Goal).
+
+:- meta_predicate ^(?,1,?,?).
+^(Xs0, Goal, Xs0, Xs) :- call(Goal, Xs).
+
 /*
     Variables X in grammar rule bodies are translated as
     if phrase(X) had been written, where phrase/3 is obvious.
