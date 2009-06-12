@@ -536,7 +536,8 @@ Yap_InitPlIO (void)
 static Int
 PlIOError (yap_error_number type, Term culprit, char *who)
 {
-  if (Yap_GetValue(AtomFileerrors) == MkIntTerm(1)) {
+  if (Yap_GetValue(AtomFileerrors) == MkIntTerm(1) ||
+      type == RESOURCE_ERROR_MAX_STREAMS /* do not catch resource errors */) {
     Yap_Error(type, culprit, who);
     /* and fail */
     return FALSE;
