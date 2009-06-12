@@ -934,7 +934,7 @@ yap_flag(dialect,yap).
 '$trans_to_lang_flag'(2,sicstus).
 
 '$adjust_language'(cprolog) :-
-	'$switch_log_upd'(0),
+%	'$switch_log_upd'(0),
 	'$syntax_check_mode'(_,off),
 	'$syntax_check_single_var'(_,off),
 	'$syntax_check_discontiguous'(_,off),
