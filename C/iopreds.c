@@ -2291,7 +2291,7 @@ p_open (void)
     return (PlIOError (SYSTEM_ERROR,file_name,"file name is too long in open/3"));
   sno = GetFreeStreamD();
   if (sno < 0)
-    return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "all streams in use"));
+    return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "open/3"));
   st = &Stream[sno];
   /* can never happen */
   tenc = Deref(ARG5);
@@ -2586,7 +2586,7 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
 
   sno = GetFreeStreamD();
   if (sno  < 0)
-    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_null_stream/1"));
+    return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "new stream not available for open_null_stream/1"));
   st = &Stream[sno];
   st->status = 0;
   if (flags & YAP_INPUT_STREAM)
@@ -2665,7 +2665,7 @@ p_open_pipe_stream (void)
 #endif
   sno = GetFreeStreamD();
   if (sno < 0)
-    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_pipe_stream/2"));
+    return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "new stream not available for open_pipe_stream/2"));
   t1 = MkStream (sno);
   st = &Stream[sno];
   st->status = Input_Stream_f | Pipe_Stream_f;
@@ -2688,7 +2688,7 @@ p_open_pipe_stream (void)
 #endif
   sno = GetFreeStreamD();
   if (sno < 0)
-    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_pipe_stream/2"));
+    return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "new stream not available for open_pipe_stream/2"));
   st = &Stream[sno];
   st->status = Output_Stream_f | Pipe_Stream_f;
   st->linepos = 0;
@@ -2721,7 +2721,7 @@ open_buf_read_stream(char *nbuf, Int nchars)
 
   sno = GetFreeStreamD();
   if (sno < 0)
-    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_mem_read_stream/1"));
+    return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "new stream not available for open_mem_read_stream/1"));
   st = &Stream[sno];
   /* currently these streams are not seekable */
   st->status = Input_Stream_f | InMemory_Stream_f;
