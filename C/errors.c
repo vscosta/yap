@@ -225,6 +225,31 @@ detect_bug_location(yamop *yap_pc, find_pred_type where_from, char *tp, int psiz
   }
 }
 
+static int
+handled_exception(void)
+{
+  yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,l);
+  int found_handler = FALSE;
+  choiceptr gc_b;
+
+  gc_b = B;
+  while (gc_b) {
+    yamop *ap = gc_b->cp_ap;
+    if (ap == NOCODE) {
+      /* C-code: let they deal with that */
+      return FALSE;
+    } else if (ap == pos) {
+      if (found_handler)
+	return TRUE; /* we have two handlers */
+      found_handler = TRUE;
+    }
+    gc_b = gc_b->cp_b;
+  }
+  /* handled by Top c-code? */
+  return !found_handler;
+}
+
+
 static void
 dump_stack(void)
 {
@@ -234,6 +259,9 @@ dump_stack(void)
   yamop *ipc = CP;
   int max_count = 200;
   
+  /* check if handled */
+  if (handled_exception())
+    return;
 #if DEBUG
   fprintf(stderr,"%% YAP regs: P=%p, CP=%p, ASP=%p, H=%p, TR=%p, HeapTop=%p\n",P,CP,ASP,H,TR,HeapTop);
   fprintf(stderr,"%% YAP mode: %ux\n",(unsigned int)Yap_PrologMode);
