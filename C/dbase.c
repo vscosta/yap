@@ -4944,6 +4944,42 @@ Yap_FetchTermFromDB(DBTerm *ref)
   return GetDBTerm(ref);
 }
 
+Term 
+Yap_PopTermFromDB(DBTerm *ref)
+{
+  Term t = GetDBTerm(ref);
+  DBRef *cp = ref->DBRefs;
+
+  if (cp) {
+    DBRef eref;
+
+    while ((eref = *--cp) != NIL) {
+      if (eref->Flags & LogUpdMask) {
+	LogUpdClause *cl = (LogUpdClause *)eref;
+	cl->ClRefCount--;
+	if (cl->ClFlags & ErasedMask &&
+	    !(cl->ClFlags & InUseMask) &&
+	    !(cl->ClRefCount)) {
+	  EraseLogUpdCl(cl);
+	}
+      } else {
+	LOCK(eref->lock);
+	eref->NOfRefsTo--;
+	if (eref->Flags & ErasedMask &&
+	    !(eref->Flags & InUseMask) &&
+	    eref->NOfRefsTo) {
+	  UNLOCK(eref->lock);
+	  ErDBE(eref);
+	} else {
+	  UNLOCK(ref->lock);
+	}
+      }
+    }
+  }
+  Yap_FreeCodeSpace((char *)ref);
+  return t;
+}
+
 static DBTerm *
 StoreTermInDB(Term t, int nargs)
 {

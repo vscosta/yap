@@ -185,7 +185,7 @@ thread_run(void *widp)
 
   start_thread(myworker_id);
   do {
-    t = tgs[0] = Yap_FetchTermFromDB(ThreadHandle[worker_id].tgoal);
+    t = tgs[0] = Yap_PopTermFromDB(ThreadHandle[worker_id].tgoal);
     if (t == 0) {
       if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	Yap_Error_TYPE = YAP_NO_ERROR;
@@ -204,7 +204,6 @@ thread_run(void *widp)
       }
     }
   } while (t == 0);
-  Yap_ReleaseTermFromDB(ThreadHandle[myworker_id].tgoal);
   ThreadHandle[myworker_id].tgoal = NULL;
   tgs[1] = ThreadHandle[worker_id].tdetach;
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
@@ -716,7 +715,8 @@ p_thread_atexit(void)
     return FALSE;
   }
   do {
-    t = Yap_FetchTermFromDB(ThreadHandle[worker_id].texit);
+    t = Yap_PopTermFromDB(ThreadHandle[worker_id].texit);
+    ThreadHandle[worker_id].texit = NULL;
     if (t == 0) {
       if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	Yap_Error_TYPE = YAP_NO_ERROR;

@@ -1464,6 +1464,31 @@ suspended_on_current_execution(Term t, Term t0)
 }
 
 static Term
+get_term(DBTerm *dbt, Term t)
+{
+  if (dbt) {
+    while (!(t = Yap_PopTermFromDB(dbt))) {
+      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growglobal(NULL)) {
+	  t = MkAtomTerm(AtomOutOfStackError);
+	}
+      } else {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growstack(dbt->NOfCells*CellSize)) {
+	  t = MkAtomTerm(AtomOutOfStackError);
+	}
+      }
+    }
+    if (t) {
+      B->cp_h = H;
+    }
+  }
+  return t;
+}
+
+
+static Term
 clean_trail(Term t, DBTerm *dbt, Term t0)
 {
   tr_fr_ptr pt1, pbase;
@@ -1495,14 +1520,7 @@ clean_trail(Term t, DBTerm *dbt, Term t0)
 	  if (suspended_on_current_execution(val, t0)) {
 	    RESET_VARIABLE(&TrailTerm(pt1));
 	  } else {
-	    if (dbt) {
-	      t = Yap_FetchTermFromDB(dbt);
-	      if (t) {
-		B->cp_h = H;
-	      } else {
-		t = MkAtomTerm(AtomDAbort);
-	      }
-	    }
+	    t = get_term(dbt, t);
 	    Bind(pt, t);
 	    Yap_WakeUp(pt);
 	    return t;
@@ -1524,14 +1542,7 @@ clean_trail(Term t, DBTerm *dbt, Term t0)
 #endif /* FROZEN_STACKS */
     }
   }
-  if (dbt) {
-    t = Yap_FetchTermFromDB(dbt);
-    if (t) {
-      B->cp_h = H;
-    } else {
-      t = MkAtomTerm(AtomDAbort);
-    }
-  }
+  t = get_term(dbt, t);
   return t;
 }
 

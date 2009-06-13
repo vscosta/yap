@@ -1363,6 +1363,7 @@ void STD_PROTO (Yap_ErDBE, (DBRef));
 DBTerm *STD_PROTO (Yap_StoreTermInDB, (Term, int));
 DBTerm *STD_PROTO (Yap_StoreTermInDBPlusExtraSpace, (Term, UInt, UInt *));
 Term STD_PROTO (Yap_FetchTermFromDB, (DBTerm *));
+Term STD_PROTO (Yap_PopTermFromDB, (DBTerm *));
 void STD_PROTO (Yap_ReleaseTermFromDB, (DBTerm *));
 
 /* init.c */
