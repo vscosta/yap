@@ -4971,7 +4971,7 @@ Yap_PopTermFromDB(DBTerm *ref)
 	  UNLOCK(eref->lock);
 	  ErDBE(eref);
 	} else {
-	  UNLOCK(ref->lock);
+	  UNLOCK(eref->lock);
 	}
       }
     }
