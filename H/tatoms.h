@@ -252,6 +252,8 @@
 #define AtomInf Yap_heap_regs->AtomInf_
   Atom AtomInitGoal_;
 #define AtomInitGoal Yap_heap_regs->AtomInitGoal_
+  Atom AtomInStackExpansion_;
+#define AtomInStackExpansion Yap_heap_regs->AtomInStackExpansion_
   Atom AtomInput_;
 #define AtomInput Yap_heap_regs->AtomInput_
   Atom AtomInstantiationError_;

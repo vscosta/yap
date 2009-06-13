@@ -123,6 +123,7 @@
   AtomId = Yap_LookupAtom("id");
   AtomInf = Yap_LookupAtom("inf");
   AtomInitGoal = Yap_FullLookupAtom("$init_goal");
+  AtomInStackExpansion = Yap_LookupAtom("in stack expansion");
   AtomInput = Yap_LookupAtom("input");
   AtomInstantiationError = Yap_LookupAtom("instantiation_error");
   AtomInt = Yap_LookupAtom("int");
