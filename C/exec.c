@@ -1464,6 +1464,17 @@ suspended_on_current_execution(Term t, Term t0)
 }
 
 static Term
+build_error(void)
+{
+  Term ti[1], nt[2];
+  ti[0] = MkAtomTerm(AtomStack);
+  nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
+  nt[1] = MkAtomTerm(AtomInStackExpansion);
+  return Yap_MkApplTerm(FunctorError, 2, nt);
+}
+
+
+static Term
 get_term(DBTerm *dbt, Term t)
 {
   if (dbt) {
@@ -1471,12 +1482,14 @@ get_term(DBTerm *dbt, Term t)
       if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	Yap_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
-	  t = MkAtomTerm(AtomOutOfStackError);
+	  t = build_error();
+	  break;
 	}
       } else {
 	Yap_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growstack(dbt->NOfCells*CellSize)) {
-	  t = MkAtomTerm(AtomOutOfStackError);
+	  t = build_error();
+	  break;
 	}
       }
     }
