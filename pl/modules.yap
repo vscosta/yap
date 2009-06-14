@@ -602,9 +602,10 @@ abolish_module(_).
 	 Goal =	reexport(ModuleSource,Spec)
 	),
 	absolute_file_name(ModuleSource, File),
-	'$load_files'(File, [if(not_loaded)], Goal),
+	'$load_files'(File, [if(not_loaded),imports([])], Goal),
 	recorded('$module', '$module'(FullFile, Mod, Exports),_),
 	atom_concat(File, _, FullFile), !,
+	(recorded('$import','$import'(Mod,Module,G,G1,N0,K0),_), writeln('$import'(Mod,Module,G,G1,N0,K0)), fail; true),
 	'$convert_for_reexport'(Spec, Exports, Tab, MyExports, Goal),
 	'$add_to_imports'(Tab, Module, Mod),
 	recorded('$lf_loaded','$lf_loaded'(TopFile,TopModule,_),_),
@@ -632,7 +633,7 @@ abolish_module(_).
 '$clean_conversion'([(N1/A1 as N2)|Ps], List, [N1/A1-N2/A1|Tab], [N2/A1|MyExports], Goal) :-
 	lists:memberchk(N1/A1, List), !,
 	'$clean_conversion'(Ps, List, Tab, MyExports, Goal).
-'$clean_conversion'([P|_], _, _, _, Goal) :-
+'$clean_conversion'([P|_], _List, _, _, Goal) :-
 	'$do_error'(domain_error(module_reexport_predicates,P), Goal).
 	
 '$neg_conversion'([], _, [], [], _).
@@ -646,11 +647,11 @@ abolish_module(_).
 	'$neg_conversion'(Ps, List, Tab, MyExports, Goal).
 	
 '$add_to_imports'([], _, _).
-'$add_to_imports'([N0/K0-N1/_|Tab], Mod, ModR) :-
+'$add_to_imports'([N0/K0-N1/K1|Tab], Mod, ModR) :-
 	functor(G,N0,K0),
 	G=..[N0|Args],
 	G1=..[N1|Args],
-	recordaifnot('$import','$import'(ModR,Mod,G,G1,N0,K0),_),
+	recordaifnot('$import','$import'(ModR,Mod,G,G1,N0,K0),_), !,
 	'$add_to_imports'(Tab, Mod, ModR).
 
 % I assume the clause has been processed, so the
