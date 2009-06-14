@@ -14,6 +14,10 @@
 
 :- multifile user:goal_expansion/3.
 
+:- dynamic number_of_expansions/1.
+
+number_of_expansions(0).
+
 user:goal_expansion(checklist(Meta, List), Mod, Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
@@ -469,9 +473,15 @@ aux_args([Arg|Args], MVars, [Arg|PArgs], PVars, [Arg|ProtoArgs]) :-
 aux_args([Arg|Args], [Arg|MVars], [PVar|PArgs], [PVar|PVars], ['_'|ProtoArgs]) :-
 	aux_args(Args, MVars, PArgs, PVars, ProtoArgs).
 
-pred_name(Macro, Arity, Proto, Name) :-
-	format_to_chars('\'~a(~d,~w)\'.',[Macro, Arity, Proto], Chars),
-	read_from_chars(Chars, Name).
+pred_name(Macro, Arity, _ , Name) :-
+	transformation_id(Id),
+	atomic_concat(['$$$__Auxiliary_predicate__ for',Macro,'/',Arity,'    ',Id], Name).
+
+transformation_id(Id) :-
+	retract(number_of_expansions(Id)),
+	Id1 is Id+1,
+	assert(number_of_expansions(Id1)).
+	
 
 harmless_dcgexception(instantiation_error).	% ex: phrase(([1],x:X,[3]),L)
 harmless_dcgexception(type_error(callable,_)).	% ex: phrase(27,L)
