@@ -14611,7 +14611,8 @@ done
 
 
 
-for ac_func in fesettrapenable fgetpos finite ftime getcwd getenv
+
+for ac_func in fesettrapenable fgetpos finite fpclass ftime getcwd getenv
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
@@ -15030,7 +15031,8 @@ done
 
 
 
-for ac_func in isatty isnan kill labs link lgamma
+
+for ac_func in isatty isnan isinf kill labs link lgamma
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5

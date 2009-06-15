@@ -161,6 +161,7 @@
 #undef  HAVE_FETESTEXCEPT
 #undef  HAVE_FGETPOS
 #undef  HAVE_FINITE
+#undef  HAVE_FPCLASS
 #undef  HAVE_FTIME
 #undef  HAVE_GETCWD
 #undef  HAVE_GETENV
@@ -174,6 +175,7 @@
 #undef  HAVE_GETTIMEOFDAY
 #undef  HAVE_GETWD
 #undef  HAVE_ISATTY
+#undef  HAVE_ISINF
 #undef  HAVE_ISNAN
 #undef  HAVE_KILL
 #undef  HAVE_LABS

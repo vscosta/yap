@@ -1401,11 +1401,11 @@ dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(acosh asinh atanh chdir ctime dlopen dup2)
 AC_CHECK_FUNCS(feclearexcept)
-AC_CHECK_FUNCS(fesettrapenable fgetpos finite ftime getcwd getenv)
+AC_CHECK_FUNCS(fesettrapenable fgetpos finite fpclass ftime getcwd getenv)
 AC_CHECK_FUNCS(gethostbyname gethostid gethostname)
 AC_CHECK_FUNCS(gethrtime getpagesize)
 AC_CHECK_FUNCS(getpwnam getrusage gettimeofday getwd)
-AC_CHECK_FUNCS(isatty isnan kill labs link lgamma)
+AC_CHECK_FUNCS(isatty isnan isinf kill labs link lgamma)
 AC_CHECK_FUNCS(localtime lstat mallinfo)
 AC_CHECK_FUNCS(mbsnrtowcs)
 AC_CHECK_FUNCS(memcpy memmove mkstemp mktemp)
