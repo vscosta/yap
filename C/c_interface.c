@@ -1584,6 +1584,7 @@ run_emulator(YAP_dogoalinfo *dgi)
 {
   choiceptr myB;
   int out;
+  BACKUP_MACHINE_REGS();
 
   Yap_PrologMode = UserMode;
   out = Yap_absmi(0);
@@ -1656,6 +1657,7 @@ X_API int
 YAP_RetryGoal(YAP_dogoalinfo *dgi)
 {
   choiceptr myB;
+  int out;
 
   BACKUP_MACHINE_REGS();
   myB = (choiceptr)(LCL0-dgi->b);
@@ -1665,7 +1667,9 @@ YAP_RetryGoal(YAP_dogoalinfo *dgi)
     return FALSE;
   }
   P = FAILCODE;
-  return run_emulator(dgi);
+  out = run_emulator(dgi);
+  RECOVER_MACHINE_REGS();
+  return out;
 }
 
 X_API int
@@ -1673,6 +1677,7 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
 {
   choiceptr myB;
 
+  BACKUP_MACHINE_REGS();
   myB = (choiceptr)(LCL0-dgi->b);
   if (B > myB) {
     /* someone cut us */
@@ -2588,6 +2593,7 @@ YAP_ExtendList(Term t0, Term inp)
 {
   Term t;
   CELL *ptr = RepPair(t0);
+  BACKUP_H();
 
   ptr[0] = inp;
   ptr[1] = AbsPair(ptr+2);

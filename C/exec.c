@@ -1506,6 +1506,10 @@ clean_trail(Term t, DBTerm *dbt, Term t0)
 {
   tr_fr_ptr pt1, pbase;
 
+#ifdef SHADOW_HB
+  register CELL *HBREG = HB;
+#endif /* SHADOW_HB */
+
   pbase = B->cp_tr;
   pt1 = TR - 1;
   while (pt1 >= pbase) {
