@@ -636,7 +636,7 @@ call_residue(Goal,Residue) :-
 
 '$project_module'([], _, _).
 '$project_module'([Mod|LMods], LIV, LAV) :-
-	current_predicate(Mod:project_attributes/2),
+	'$pred_exists'(project_attributes(LIV, LAV),Mod),
 	'$notrace'(Mod:project_attributes(LIV, LAV)), !,
 	attributes:all_attvars(NLAV),
 	'$project_module'(LMods,LIV,NLAV).
