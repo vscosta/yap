@@ -1,4 +1,4 @@
-
+e
 :- source.
 
 :- style_check(all).
@@ -35,6 +35,12 @@
 
 :- use_module(library(apply_macros),
 	      []).
+
+:- use_module(library(maplist),
+	      [maplist/2,
+	       maplist/3,
+	       maplist/4,
+	       maplist/5]).
 
 :- use_module(library(terms),
 	      [subsumes/2,
@@ -336,6 +342,18 @@ lists:intersection([_|T], L, R) :-
 prolog:(Term1 =@= Term2) :-
 	variant(Term1, Term2), !.
 
+mpl(Goal, List) :-
+	maplist:maplist(Goal, List).
+
+mpl(Goal, List1, List2) :-
+	maplist:maplist(Goal, List1, List2).
+
+mpl(Goal, List1, List2, List3) :-
+	maplist:maplist(Goal, List1, List2, List3).
+
+mpl(Goal, List1, List2, List3, List4) :-
+	maplist:maplist(Goal, List1, List2, List3, List4).
+
 % copied from SWI's boot/apply library
 :- module_transparent
 	prolog:maplist/2, 
@@ -347,6 +365,7 @@ prolog:(Term1 =@= Term2) :-
 	prolog:maplist/5, 
 	maplist2/5.
 
+
 %	maplist(:Goal, +List)
 %
 %	True if Goal can succesfully be applied on all elements of List.
@@ -354,7 +373,7 @@ prolog:(Term1 =@= Term2) :-
 %	the predicate deterministic under normal circumstances.
 
 prolog:maplist(Goal, List) :-
-	apply_macros:maplist(List, Goal).
+	mpl(Goal, List).
 
 %	maplist(:Goal, ?List1, ?List2)
 %
@@ -362,7 +381,7 @@ prolog:maplist(Goal, List) :-
 %	of elements of List1 and List2.
 
 prolog:maplist(Goal, List1, List2) :-
-	apply_macros:maplist(List1, Goal, List2).
+	mpl(Goal, List1, List2).
 
 %	maplist(:Goal, ?List1, ?List2, ?List3)
 %
@@ -370,7 +389,7 @@ prolog:maplist(Goal, List1, List2) :-
 %	of elements of List1..List3.
 
 prolog:maplist(Goal, List1, List2, List3) :-
-	apply_macros:maplist(List1, Goal, List2, List3).
+	mpl(Goal, List1, List2, List3).
 
 %	maplist(:Goal, ?List1, ?List2, ?List3, List4)
 %
@@ -378,7 +397,7 @@ prolog:maplist(Goal, List1, List2, List3) :-
 %	quadruples of elements of List1..List4
 
 prolog:maplist(Goal, List1, List2, List3, List4) :-
-	apply_macros:maplist(List1, Goal, List2, List3, List4).
+	mpl(Goal, List1, List2, List3, List4).
 
 prolog:compile_aux_clauses([]).
 prolog:compile_aux_clauses([(:- G)|Cls]) :-
