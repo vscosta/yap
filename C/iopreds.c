@@ -117,7 +117,7 @@ STATIC_PROTO (int ConsolePipeGetc, (int));
 STATIC_PROTO (int SocketGetc, (int));
 STATIC_PROTO (int ConsoleSocketGetc, (int));
 #endif
-#if HAVE_LIBREADLINE
+#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
 STATIC_PROTO (int ReadlineGetc, (int));
 STATIC_PROTO (int ReadlinePutc, (int,int));
 #endif
@@ -247,7 +247,7 @@ Yap_GetFreeStreamDForReading(void)
 static int
 yap_fflush(int sno)
 {
-#if HAVE_LIBREADLINE
+#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
   if (Stream[sno].status & Tty_Stream_f &&
       Stream[sno].status & Output_Stream_f) {
     if (ReadlinePos != ReadlineBuf) {
@@ -349,7 +349,7 @@ p_always_prompt_user(void)
     s->stream_getc = ConsoleSocketGetc;
   } else
 #endif
-#if HAVE_LIBREADLINE
+#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
      if (s->status & Tty_Stream_f) {
        s->stream_getc = ReadlineGetc;
        if (Stream[0].status & Tty_Stream_f &&
@@ -412,7 +412,7 @@ InitFileIO(StreamDesc *s)
       s->stream_putc = ConsolePutc;
       s->stream_wputc = put_wchar;
       /* if a tty have a special routine to call readline */
-#if HAVE_LIBREADLINE
+#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
       if (s->status & Tty_Stream_f) {
 	if (Stream[0].status & Tty_Stream_f &&
 	    is_same_tty(s->u.file.file,Stream[0].u.file.file))
@@ -990,12 +990,10 @@ p_prompt (void)
   return (TRUE);
 }
 
-#if HAVE_LIBREADLINE
+#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
 
-#if HAVE_READLINE_READLINE_H
 #include <readline/readline.h>
 #include <readline/history.h>
-#endif
 
 static char *ttyptr = NULL;
 
@@ -1130,7 +1128,7 @@ ReadlineGetc(int sno)
 static Int
 p_has_readline(void)
 {
-#if HAVE_LIBREADLINE
+#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
   return TRUE;
 #else
   return FALSE;
@@ -1142,7 +1140,7 @@ int
 Yap_GetCharForSIGINT(void)
 {
   int ch;
-#if  HAVE_LIBREADLINE
+#if  HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
   if ((Yap_PrologMode & ConsoleGetcMode) && myrl_line != (char *) NULL) {
     ch = myrl_line[0];
     free(myrl_line);
@@ -1209,7 +1207,7 @@ EOFGetc(int sno)
     } else if (s->status & Promptable_Stream_f) {
       s->stream_putc = ConsolePutc;
       s->stream_wputc = put_wchar;
-#if HAVE_LIBREADLINE
+#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
       if (s->status & Tty_Stream_f) {
 	s->stream_getc = ReadlineGetc;
 	if (Stream[0].status & Tty_Stream_f &&
@@ -1617,7 +1615,7 @@ PlUnGetc (int sno)
   } else if (s->status & Promptable_Stream_f) {
     s->stream_putc = ConsolePutc;
     s->stream_wputc = put_wchar;
-#if HAVE_LIBREADLINE
+#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
     if (s->status & Tty_Stream_f) {
       s->stream_getc = ReadlineGetc;
       if (Stream[0].status & Tty_Stream_f &&
@@ -6288,7 +6286,7 @@ Yap_InitIOPreds(void)
   Yap_InitSockets ();
 #endif
   InitPlIO ();
-#if HAVE_LIBREADLINE
+#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
   InitReadline();
 #endif
 }
