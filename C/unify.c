@@ -690,5 +690,9 @@ Yap_TrimTrail(void)
 #undef setregs
 #define setregs()
 #endif
+#if SHADOW_HB
+  register CELL *HBREG = HB;
+#endif
+
 #include "trim_trail.h"
 }
