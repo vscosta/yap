@@ -31,8 +31,9 @@ static char     SccsId[] = "%W% %G%";
 static Term
 float_to_int(Float v)
 {
-  Int i = (Int)v;
 #if  USE_GMP
+  Int i = (Int)v;
+
   if (i-v == 0.0) {
     return MkIntegerTerm(i);
   } else {
@@ -185,8 +186,8 @@ eval1(Int fi, Term t) {
       }
     case double_e:
       RFLOAT(-FloatOfTerm(t));
-#ifdef USE_GMP
     case big_int_e:
+#ifdef USE_GMP
       {
 	MP_INT new;
 

@@ -363,8 +363,8 @@ p_div(Term t1, Term t2) {
     case db_ref_e:
       RERROR();
     }
-  case db_ref_e:
 #endif
+  case db_ref_e:
     RERROR();
   }
   RERROR();
