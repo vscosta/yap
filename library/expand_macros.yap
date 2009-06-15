@@ -500,4 +500,5 @@ contains_illegal_dcgnt(NT) :-
 %	nl.
 
 goal_expansion_allowed :-
+	prolog_load_context(_, _), % make sure we are compiling.
 	\+ current_prolog_flag(xref, true).
