@@ -294,8 +294,8 @@ module(N) :-
 % if I don't know what the module is, I cannot do anything to the goal,
 % so I just put a call for later on.
 '$module_expansion'(M:G,call(M:G),'$execute_wo_mod'(G,M),_,_,_,_) :- var(M), !.
-'$module_expansion'(M:G,G1,GO,_,_,HM,HVars) :- !,
-	'$module_expansion'(G,G1,GO,M,M,HM,HVars).
+'$module_expansion'(M:G,G1,GO,_,CM,HM,HVars) :- !,
+	'$module_expansion'(G,G1,GO,M,CM,HM,HVars).
 '$module_expansion'(G, G1, GO, CurMod, MM, HM, HVars) :-
 	'$pred_goal_expansion_on',
 	( user:goal_expansion(G, CurMod, GI)
@@ -387,9 +387,9 @@ module(N) :-
 	NFlags is Fl \/ 0x200004,
 	'$flags'(P, M, Fl, NFlags).
 
-'$is_mt'(M,H0,B,(context_module(CM),B),CM) :-
-	'$module_transparent'(_,M,_,H), !.
-'$is_mt'(M,_,B,B,M).
+'$is_mt'(M, H0, B, (context_module(CM),B), CM) :-
+	'$module_transparent'(_, M, _, H), !.
+'$is_mt'(M, _, B, B, M).
 
 % meta_predicate declaration
 % records $meta_predicate(SourceModule,Functor,Arity,Declaration)
