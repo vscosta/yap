@@ -342,6 +342,13 @@ lists:intersection([_|T], L, R) :-
 prolog:(Term1 =@= Term2) :-
 	variant(Term1, Term2), !.
 
+% copied from SWI's boot/apply library
+:- module_transparent
+	mpl/2, 
+	mpl/3, 
+	mpl/4, 
+	mpl/5.
+
 mpl(Goal, List) :-
 	maplist:maplist(Goal, List).
 
@@ -354,16 +361,11 @@ mpl(Goal, List1, List2, List3) :-
 mpl(Goal, List1, List2, List3, List4) :-
 	maplist:maplist(Goal, List1, List2, List3, List4).
 
-% copied from SWI's boot/apply library
 :- module_transparent
 	prolog:maplist/2, 
-	maplist2/2, 
 	prolog:maplist/3, 
-	maplist2/3, 
 	prolog:maplist/4, 
-	maplist2/4, 
-	prolog:maplist/5, 
-	maplist2/5.
+	prolog:maplist/5.
 
 
 %	maplist(:Goal, +List)
