@@ -655,6 +655,7 @@ if test "$yap_cv_jpl" = no; then
 	ENABLE_JPL="@#"   
 elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	ENABLE_JPL=""
+	JAVA=java
 	JAVA_HOME="$yap_cv_jpl"
 	if test "x$JAVALIBS" = "x"; then
 	  case "$target_os" in
@@ -670,10 +671,12 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	    esac
         fi
 	if test "$yap_cv_jpl" = ""; then
+	  JAVA=java
           JAR=jar
           JAVAC=javac
           JAVADOC=javadoc
         else
+	  JAVA="$yap_cv_jpl"/bin/java
 	  JAR="$yap_cv_jpl"/bin/jar
 	  JAVAC="$yap_cv_jpl"/bin/javac
 	  JAVADOC="$yap_cv_jpl"/bin/javadoc
@@ -769,12 +772,20 @@ case "$target_os" in
             SHLIB_SWI_LD="gcc -shared -export-dynamic"
             DO_SECOND_LD=""
 	    LIBS="$LIBS -ldl"
-	    case "$host_cpu" in
+	    case "$target_cpu" in
 	      alpha*)
 	        LDFLAGS="-dynamic $LDFLAGS"
               ;;
+	      x86*)
+	      	JAVALIBPATH="-L$JAVA_HOME/jre/lib/amd64 -L$JAVA_HOME/jre/lib/amd64/client -L$JAVA_HOME/jre/lib/amd64/server"
+		JAVAINCPATH="-I$JAVA_HOME/include -I$JAVA_HOME/include/linux"
+	        if test "$CC" != "lcc"
+                then
+	          LDFLAGS="-rdynamic $LDFLAGS"
+                fi
+              ;;
               *)
-	      	JAVALIBPATH="-L$JAVA_HOME/jre/lib/i386 -L$JAVA_HOME/jre/lib/i386/client"
+	      	JAVALIBPATH="-L$JAVA_HOME/jre/lib/i386 -L$JAVA_HOME/jre/lib/i386/client -L$JAVA_HOME/jre/lib/i386/server"
 		JAVAINCPATH="-I$JAVA_HOME/include -I$JAVA_HOME/include/linux"
 	        if test "$CC" != "lcc"
                 then
@@ -1229,6 +1240,7 @@ AC_SUBST(NO_BUILTIN_REGEXP)
 AC_SUBST(ENABLE_CHR)
 AC_SUBST(ENABLE_CLPQR)
 AC_SUBST(ENABLE_JPL)
+AC_SUBST(JAVA)
 AC_SUBST(JAVA_HOME)
 AC_SUBST(JUNIT)
 AC_SUBST(JAVAC)

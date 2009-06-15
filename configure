@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT GCC C_INTERF_FLAGS C_PARSER_FLAGS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os LN_S INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA RANLIB ac_ct_RANLIB INDENT ac_ct_INDENT AR ac_ct_AR MPI_CC ac_ct_MPI_CC INSTALL_INFO CPP EGREP CPLINT_LIBS CPLINT_CFLAGS CPLINT_LDFLAGS CPLINT_SHLIB_LD ENABLE_CPLINT PRE_DYNLOADER_PATH EXTEND_DYNLOADER_PATH M4 M4GENHDRS INSTALL_DLLS MERGE_DLL_OBJS SHLIB_CFLAGS SHLIB_SUFFIX EXEC_SUFFIX DO_SECOND_LD SHLIB_LD SHLIB_SWI_LD DYNLIB_LD YAPLIB DYNYAPLIB YAP_EXTRAS NO_BUILTIN_REGEXP ENABLE_CHR ENABLE_CLPQR ENABLE_JPL JAVA_HOME JUNIT JAVAC JAVADOC JAVALIBS JAR IN_UNIX YAPMPILIB LAM_MPI_CC MPI_OBJS MPI_LIBS INSTALL_COMMAND INSTALLCLP JAVALIBPATH JAVAINCPATH LAMOBJS MAX_WORKERS STATIC_MODE ENABLE_WINCONSOLE USE_CUDD CUDD_LDFLAGS CUDD_CPPFLAGS INSTALL_MATLAB MATLAB_INCLUDE M4GENABSMI PROLOG_SYSTEM IN_YAP IN_SWI CHR_TARGETS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT GCC C_INTERF_FLAGS C_PARSER_FLAGS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os LN_S INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA RANLIB ac_ct_RANLIB INDENT ac_ct_INDENT AR ac_ct_AR MPI_CC ac_ct_MPI_CC INSTALL_INFO CPP EGREP CPLINT_LIBS CPLINT_CFLAGS CPLINT_LDFLAGS CPLINT_SHLIB_LD ENABLE_CPLINT PRE_DYNLOADER_PATH EXTEND_DYNLOADER_PATH M4 M4GENHDRS INSTALL_DLLS MERGE_DLL_OBJS SHLIB_CFLAGS SHLIB_SUFFIX EXEC_SUFFIX DO_SECOND_LD SHLIB_LD SHLIB_SWI_LD DYNLIB_LD YAPLIB DYNYAPLIB YAP_EXTRAS NO_BUILTIN_REGEXP ENABLE_CHR ENABLE_CLPQR ENABLE_JPL JAVA JAVA_HOME JUNIT JAVAC JAVADOC JAVALIBS JAR IN_UNIX YAPMPILIB LAM_MPI_CC MPI_OBJS MPI_LIBS INSTALL_COMMAND INSTALLCLP JAVALIBPATH JAVAINCPATH LAMOBJS MAX_WORKERS STATIC_MODE ENABLE_WINCONSOLE USE_CUDD CUDD_LDFLAGS CUDD_CPPFLAGS INSTALL_MATLAB MATLAB_INCLUDE M4GENABSMI PROLOG_SYSTEM IN_YAP IN_SWI CHR_TARGETS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -5508,6 +5508,7 @@ if test "$yap_cv_jpl" = no; then
 	ENABLE_JPL="@#"
 elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	ENABLE_JPL=""
+	JAVA=java
 	JAVA_HOME="$yap_cv_jpl"
 	if test "x$JAVALIBS" = "x"; then
 	  case "$target_os" in
@@ -5523,10 +5524,12 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	    esac
         fi
 	if test "$yap_cv_jpl" = ""; then
+	  JAVA=java
           JAR=jar
           JAVAC=javac
           JAVADOC=javadoc
         else
+	  JAVA="$yap_cv_jpl"/bin/java
 	  JAR="$yap_cv_jpl"/bin/jar
 	  JAVAC="$yap_cv_jpl"/bin/javac
 	  JAVADOC="$yap_cv_jpl"/bin/javadoc
@@ -6453,12 +6456,20 @@ fi
             SHLIB_SWI_LD="gcc -shared -export-dynamic"
             DO_SECOND_LD=""
 	    LIBS="$LIBS -ldl"
-	    case "$host_cpu" in
+	    case "$target_cpu" in
 	      alpha*)
 	        LDFLAGS="-dynamic $LDFLAGS"
               ;;
+	      x86*)
+	      	JAVALIBPATH="-L$JAVA_HOME/jre/lib/amd64 -L$JAVA_HOME/jre/lib/amd64/client -L$JAVA_HOME/jre/lib/amd64/server"
+		JAVAINCPATH="-I$JAVA_HOME/include -I$JAVA_HOME/include/linux"
+	        if test "$CC" != "lcc"
+                then
+	          LDFLAGS="-rdynamic $LDFLAGS"
+                fi
+              ;;
               *)
-	      	JAVALIBPATH="-L$JAVA_HOME/jre/lib/i386 -L$JAVA_HOME/jre/lib/i386/client"
+	      	JAVALIBPATH="-L$JAVA_HOME/jre/lib/i386 -L$JAVA_HOME/jre/lib/i386/client -L$JAVA_HOME/jre/lib/i386/server"
 		JAVAINCPATH="-I$JAVA_HOME/include -I$JAVA_HOME/include/linux"
 	        if test "$CC" != "lcc"
                 then
@@ -13791,6 +13802,7 @@ EXEC_SUFFIX=""
 
 
 
+
 echo "$as_me:$LINENO: checking for gcc threaded code" >&5
 echo $ECHO_N "checking for gcc threaded code... $ECHO_C" >&6
 if test "${yap_cv_threaded_code+set}" = set; then
@@ -17685,6 +17697,7 @@ s,@NO_BUILTIN_REGEXP@,$NO_BUILTIN_REGEXP,;t t
 s,@ENABLE_CHR@,$ENABLE_CHR,;t t
 s,@ENABLE_CLPQR@,$ENABLE_CLPQR,;t t
 s,@ENABLE_JPL@,$ENABLE_JPL,;t t
+s,@JAVA@,$JAVA,;t t
 s,@JAVA_HOME@,$JAVA_HOME,;t t
 s,@JUNIT@,$JUNIT,;t t
 s,@JAVAC@,$JAVAC,;t t
