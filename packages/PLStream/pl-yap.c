@@ -3,6 +3,9 @@
 
 #include <stdio.h>
 #include "pl-incl.h"
+#ifdef HAVE_LIMITS_H
+#include <limits.h>
+#endif
 
 int fileerrors;
 

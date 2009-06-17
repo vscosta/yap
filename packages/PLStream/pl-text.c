@@ -30,6 +30,9 @@
 #ifdef __WINDOWS__
 #include "pl-mswchar.h"			/* Terrible hack */
 #endif
+#if HAVE_LIMITS_H
+#include <limits.h>			/* solaris compatibility */
+#endif
 
 #undef LD
 #define LD LOCAL_LD
