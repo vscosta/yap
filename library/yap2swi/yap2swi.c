@@ -2077,7 +2077,13 @@ X_API  int PL_is_inf(term_t st)
   if (IsVarTerm(t)) return FALSE;
   if (!IsFloatTerm(t)) return FALSE;
   fl = FloatOfTerm(t);
+#if HAVE_ISINF
   return isinf(fl);
+#elif HAVE_FPCLASS
+  return (fpclass(fl) == FP_NINF || fpclass(fl) == FP_PINF);
+#else
+  return FALSE;
+#endif
 }
 
 X_API int PL_thread_self(void)

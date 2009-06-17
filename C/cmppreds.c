@@ -583,8 +583,8 @@ a_cmp(Term t1, Term t2)
     } else {
       return FALSE;
     }
-  } else if (IsBigIntTerm(t1)) {
 #ifdef USE_GMP
+  } else if (IsBigIntTerm(t1)) {
     {
       MP_INT *b1 = Yap_BigIntOfTerm(t1);
       t2 = Yap_Eval(t2);

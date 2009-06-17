@@ -81,7 +81,10 @@ static char SccsId[] = "%W% %G%";
 #include <sys/param.h>
 #endif
 #endif
-#if HAVE_LIBREADLINE
+#if HAVE_FENV_H
+#include <fenv.h>
+#endif
+#if HAVE_READLINE_READLINE_H
 #include <readline/readline.h>
 #endif
 
@@ -1168,10 +1171,6 @@ STATIC_PROTO (void my_signal, (int, void (*)(int)));
   */
 
 
-#if HAVE_FENV_H
-#include <fenv.h>
-#endif
-
 static RETSIGTYPE
 HandleMatherr(int sig)
 {
@@ -1520,7 +1519,7 @@ HandleSIGINT (int sig)
   }
   if (Yap_PrologMode & (CritMode|ConsoleGetcMode)) {
     Yap_PrologMode |= InterruptMode;
-#if HAVE_LIBREADLINE
+#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
     if (Yap_PrologMode & ConsoleGetcMode) {
       fprintf(stderr, "Action (h for help): ");
       rl_point = rl_end = 0;

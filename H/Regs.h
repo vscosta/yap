@@ -216,44 +216,28 @@ extern int Yap_stack_overflows;
 #define YENV Yap_REGS.YENV_	/* current environment (may differ from   ENV)*/
 #define S    Yap_REGS.S_		/* structure pointer                      */
 
-register CELL *H asm ("g6");
-register tr_fr_ptr TR asm ("g7");
-#if defined(__svr4__) 
-register choiceptr B asm ("g5");
-#else
+register CELL *H asm ("g5");
+#define TR         Yap_REGS.TR_	/* latest choice point            */
 #define  B         Yap_REGS.B_	/* latest choice point            */
-#endif
 #define CP         Yap_REGS.CP_	/* continuation   program counter         */
 #define HB         Yap_REGS.HB_	/* heap (global) stack top at time of latest c.p. */
 #define CreepFlag  Yap_REGS.CreepFlag_
 
 EXTERN inline void save_machine_regs(void) {
   Yap_REGS.H_   = H;
-  Yap_REGS.TR_  = TR;
-#if defined(__svr4__)
-  Yap_REGS.B_  = B;
-#endif
 }
 
 EXTERN inline void restore_machine_regs(void) {
   H = Yap_REGS.H_;
-  TR = Yap_REGS.TR_;
-#if defined(__svr4__)
-  B = Yap_REGS.B_;
-#endif
 }
 
 #define BACKUP_MACHINE_REGS()           \
   CELL     *BK_H = H;                   \
-  choiceptr BK_B = B;                   \
-  tr_fr_ptr BK_TR = TR;                 \
   restore_machine_regs()
 
 #define RECOVER_MACHINE_REGS()          \
   save_machine_regs();                  \
-  H = BK_H;                             \
-  B = BK_B;                             \
-  TR = BK_TR
+  H = BK_H
 
 EXTERN inline void save_H(void) {
   Yap_REGS.H_   = H;
@@ -268,21 +252,15 @@ EXTERN inline void restore_H(void) {
 #define RECOVER_H()   save_H(); H = BK_H
 
 EXTERN inline void save_B(void) {
-#if defined(__svr4__)
-  Yap_REGS.B_   = B;
-#endif
 }
 
 EXTERN inline void restore_B(void) {
-#if defined(__svr4__)
-  B = Yap_REGS.B_;
-#endif
 }
 
 #if defined(__svr4__)
-#define BACKUP_B()  choiceptr BK_B = B; restore_B()
+#define BACKUP_B()
 
-#define RECOVER_B()   save_B(); B = BK_B
+#define RECOVER_B()
 #else
 #define BACKUP_B()  
 

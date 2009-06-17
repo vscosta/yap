@@ -31,11 +31,8 @@ PROGRAMS= $(srcdir)/debug.pl \
 	$(srcdir)/prolog_source.pl \
 	$(srcdir)/prolog_xref.pl
 
-SWI_PROGRAMS=
-
 
 install: $(PROGRAMS)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
-	for p in $(SWI_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/swi; done
 

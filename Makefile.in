@@ -460,7 +460,7 @@ libYap.a: $(LIB_OBJECTS)
 	$(RANLIB) libYap.a
 
 @DYNYAPLIB@: $(LIB_OBJECTS)
-	@DYNLIB_LD@ -install_name $(LIBDIR)/@YAPLIB@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLGS)
+	@DYNLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLGS)
 
 install: install_bin install_data
 
