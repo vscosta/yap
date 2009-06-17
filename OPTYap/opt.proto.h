@@ -70,7 +70,7 @@ void private_completion(sg_fr_ptr sg_fr);
 void free_subgoal_trie_branch(sg_node_ptr node, int missing_nodes);
 void free_answer_trie_branch(ans_node_ptr node);
 void update_answer_trie(sg_fr_ptr sg_fr);
-int traverse_table(tab_ent_ptr tab_ent, Atom pred_atom, int show_table);
+void traverse_table(tab_ent_ptr tab_ent, int show_table);
 void table_stats(void);
 #endif /* TABLING */
 
