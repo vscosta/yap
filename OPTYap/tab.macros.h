@@ -30,6 +30,8 @@ STD_PROTO(static inline void restore_bindings, (tr_fr_ptr, tr_fr_ptr));
 STD_PROTO(static inline void abolish_incomplete_subgoals, (choiceptr));
 STD_PROTO(static inline void free_subgoal_hash_chain, (sg_hash_ptr));
 STD_PROTO(static inline void free_answer_hash_chain, (ans_hash_ptr));
+STD_PROTO(static inline choiceptr freeze_current_cp, (void));
+STD_PROTO(static inline void resume_frozen_cp, (choiceptr));
 
 #ifdef YAPOR
 STD_PROTO(static inline void pruning_over_tabling_data_structures, (void));
@@ -79,26 +81,31 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
         if (STACK_LIMIT >= STACK) {                                              \
           Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)")
 #else
-#define STACK_CHECK_EXPAND(STACK, STACK_LIMIT, STACK_BASE)                       \
-        if (STACK_LIMIT >= STACK) {                                              \
-          void *old_top;                                                         \
-          UInt diff;                                                             \
-          CELL *NEW_STACK;                                                       \
-          INFORMATION_MESSAGE("Expanding trail in 64 Kbytes");                   \
-          old_top = Yap_TrailTop;                                                \
-          if (!Yap_growtrail(64 * 1024L, TRUE)) {Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"trie loading"); P=FAILCODE; } else { \
-            diff = (void *)Yap_TrailTop - old_top;                                 \
-            NEW_STACK = (CELL *)((void *)STACK + diff);                            \
-            memmove((void *)NEW_STACK, (void *)STACK, old_top - (void *)STACK);    \
-            STACK = NEW_STACK;                                                     \
-            STACK_BASE = (CELL *)((void *)STACK_BASE + diff);                      \
-          }\
+#define STACK_CHECK_EXPAND(STACK, STACK_LIMIT, STACK_BASE)                              \
+        if (STACK_LIMIT >= STACK) {                                                     \
+          void *old_top;                                                                \
+          UInt diff;                                                                    \
+          CELL *NEW_STACK;                                                              \
+          INFORMATION_MESSAGE("Expanding trail in 64 Kbytes");                          \
+          old_top = Yap_TrailTop;                                                       \
+          if (!Yap_growtrail(64 * 1024L, TRUE)) {                                       \
+            Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");  \
+            P = FAILCODE;                                                               \
+          } else {                                                                      \
+            diff = (void *)Yap_TrailTop - old_top;                                      \
+            NEW_STACK = (CELL *)((void *)STACK + diff);                                 \
+            memmove((void *)NEW_STACK, (void *)STACK, old_top - (void *)STACK);         \
+            STACK = NEW_STACK;                                                          \
+            STACK_BASE = (CELL *)((void *)STACK_BASE + diff);                           \
+          }                                                                             \
         }
 #endif /* YAPOR */
 
 
-#define MakeTableVarTerm(INDEX)    (INDEX << LowTagBits)
-#define VarIndexOfTableTerm(TERM)  (TERM >> LowTagBits)
+/* LowTagBits is 3 for 32 bit-machines and 7 for 64 bit-machines */
+#define NumberOfLowTagBits (LowTagBits == 3 ? 2 : 3)
+#define MakeTableVarTerm(INDEX)    (INDEX << NumberOfLowTagBits)
+#define VarIndexOfTableTerm(TERM)  (TERM >> NumberOfLowTagBits)
 #define VarIndexOfTerm(TERM)                                               \
         ((((CELL) TERM) - GLOBAL_table_var_enumerator(0)) / sizeof(CELL))
 #define IsTableVarTerm(TERM)                                               \
@@ -261,15 +268,16 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
         DepFr_next(DEP_FR) = NEXT
 
 
-#define new_table_entry(TAB_ENT, PRED_ENTRY, ARITY, SUBGOAL_TRIE)  \
-        ALLOC_TABLE_ENTRY(TAB_ENT);                                \
-        TabEnt_init_lock_field(TAB_ENT);                           \
-        TabEnt_pe(TAB_ENT) = PRED_ENTRY;                           \
-        TabEnt_arity(TAB_ENT) = ARITY;                             \
-        TabEnt_mode(TAB_ENT) = 0;                                  \
-        TabEnt_subgoal_trie(TAB_ENT) = SUBGOAL_TRIE;               \
-        TabEnt_hash_chain(TAB_ENT) = NULL;                         \
-        TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;                \
+#define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY, SUBGOAL_TRIE)  \
+        ALLOC_TABLE_ENTRY(TAB_ENT);                                      \
+        TabEnt_init_lock_field(TAB_ENT);                                 \
+        TabEnt_pe(TAB_ENT) = PRED_ENTRY;                                 \
+        TabEnt_atom(TAB_ENT) = ATOM;                                     \
+        TabEnt_arity(TAB_ENT) = ARITY;                                   \
+        TabEnt_mode(TAB_ENT) = 0;                                        \
+        TabEnt_subgoal_trie(TAB_ENT) = SUBGOAL_TRIE;                     \
+        TabEnt_hash_chain(TAB_ENT) = NULL;                               \
+        TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;                      \
         GLOBAL_root_tab_ent = TAB_ENT
 
 
@@ -299,7 +307,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #define ANSWER_HASH_MARK          0
 #define IS_SUBGOAL_HASH(NODE)     (TrNode_entry(NODE) == SUBGOAL_HASH_MARK)
 #define IS_ANSWER_HASH(NODE)      (TrNode_instr(NODE) == ANSWER_HASH_MARK)
-#define HASH_TERM(TERM, SEED)     (((TERM) >> LowTagBits) & (SEED))
+#define HASH_TERM(TERM, SEED)     (((TERM) >> NumberOfLowTagBits) & (SEED))
 
 
 #define new_subgoal_hash(HASH, NUM_NODES, TAB_ENT)                  \
@@ -503,7 +511,6 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
       }
     }
   }
-
   /* rebind loop */
   Yap_NEW_MAHASH((ma_h_inner_struct *)H);
   while (rebind_tr != end_tr) {
@@ -658,7 +665,9 @@ void free_answer_hash_chain(ans_hash_ptr hash) {
   return;
 }
 
+
 /*
+static inline
 choiceptr create_cp_and_freeze(void) {
   choiceptr freeze_cp;
 
@@ -684,8 +693,9 @@ choiceptr create_cp_and_freeze(void) {
 }
 */
 
-static inline choiceptr 
-freeze_current_cp(void) {
+
+static inline
+choiceptr freeze_current_cp(void) {
   choiceptr freeze_cp = B;
 
   B_FZ  = freeze_cp;
@@ -697,14 +707,15 @@ freeze_current_cp(void) {
 }
 
 
-static inline void
-resume_frozen_cp(choiceptr frozen_cp) {
+static inline
+void resume_frozen_cp(choiceptr frozen_cp) {
   restore_bindings(TR, frozen_cp->cp_tr);
   B = frozen_cp;
   TR = TR_FZ;
   TRAIL_LINK(B->cp_tr);
   return;
 }
+
 
 #ifdef YAPOR
 static inline

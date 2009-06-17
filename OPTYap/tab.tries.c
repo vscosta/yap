@@ -51,8 +51,8 @@ static int update_answer_trie_branch(ans_node_ptr node);
 #else
 static void update_answer_trie_branch(ans_node_ptr node);
 #endif /* YAPOR */
-static int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *arity, int depth, int mode);
-static int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *arity, int var_index, int depth, int mode);
+static void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *arity, int depth, int mode);
+static void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *arity, int var_index, int depth, int mode);
 
 
 
@@ -694,8 +694,8 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
   LOCK(TabEnt_lock(tab_ent));
 #endif /* TABLE_LOCK_LEVEL */
   for (i = 1; i <= arity; i++) {
-    STACK_PUSH_UP(XREGS[i], stack_terms);
     STACK_CHECK_EXPAND(stack_terms, stack_terms_limit, stack_terms_base);
+    STACK_PUSH_UP(XREGS[i], stack_terms);
     do {
       Term t = Deref(STACK_POP_DOWN(stack_terms));
       if (IsVarTerm(t)) {
@@ -715,10 +715,9 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 	current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, t);
       } else if (IsPairTerm(t)) {
 	current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsPair(NULL));
+	STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 1, stack_terms_base);
 	STACK_PUSH_UP(*(RepPair(t) + 1), stack_terms);
-	STACK_CHECK_EXPAND(stack_terms, stack_terms_limit, stack_terms_base);
 	STACK_PUSH_UP(*(RepPair(t)), stack_terms);
-	STACK_CHECK_EXPAND(stack_terms, stack_terms_limit, stack_terms_base);
       } else if (IsApplTerm(t)) {
 	Functor f = FunctorOfTerm(t);
 	current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsAppl((Term *)f));
@@ -733,10 +732,9 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 	  Int li = LongIntOfTerm(t);
 	  current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, li);
 	} else {
-	  for (j = ArityOfFunctor(f); j >= 1; j--) {
+          STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + ArityOfFunctor(f) - 1, stack_terms_base);
+	  for (j = ArityOfFunctor(f); j >= 1; j--)
 	    STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
-	    STACK_CHECK_EXPAND(stack_terms, stack_terms_limit, stack_terms_base);
-	  }
 	}
       } else {
 	Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (subgoal_search)");
@@ -792,8 +790,8 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
   current_ans_node = SgFr_answer_trie(sg_fr);
 
   for (i = subs_arity; i >= 1; i--) {
-    STACK_PUSH_UP(*(subs_ptr + i), stack_terms);
     STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
+    STACK_PUSH_UP(*(subs_ptr + i), stack_terms);
 #ifdef TABLING_ERRORS
     if (IsNonVarTerm(*stack_terms))
       TABLING_ERROR_MESSAGE("IsNonVarTem(*stack_terms) (answer_search)");
@@ -808,7 +806,6 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  if (count_vars == MAX_TABLE_VARS)
 	    Yap_Error(INTERNAL_ERROR, TermNil, "MAX_TABLE_VARS exceeded (answer_search)");
 	  STACK_PUSH_DOWN(t, stack_vars);
-	  STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
 	  *((CELL *)t) = GLOBAL_table_var_enumerator(count_vars);
 	  t = MakeTableVarTerm(count_vars);
 	  count_vars++;
@@ -818,10 +815,9 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_atom);
       } else if (IsPairTerm(t)) {
 	current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsPair(NULL), _trie_retry_list);
+	STACK_CHECK_EXPAND(stack_terms, stack_vars + 1, stack_terms_base);
 	STACK_PUSH_UP(*(RepPair(t) + 1), stack_terms);
-	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
 	STACK_PUSH_UP(*(RepPair(t)), stack_terms);
-	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
       } else if (IsApplTerm(t)) {
 	Functor f = FunctorOfTerm(t);
 	if (f == FunctorDouble) {
@@ -840,10 +836,9 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_long);
 	} else {
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_struct);
-	  for (j = ArityOfFunctor(f); j >= 1; j--) {
+          STACK_CHECK_EXPAND(stack_terms, stack_vars + ArityOfFunctor(f) - 1, stack_terms_base);
+	  for (j = ArityOfFunctor(f); j >= 1; j--)
 	    STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
-	    STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
-	  }
 	}
       } else {
 	Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (answer_search)");
@@ -881,20 +876,19 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
   do {
     if (IsVarTerm(t)) {
       int var_index = VarIndexOfTableTerm(t);
+      STACK_CHECK_EXPAND(stack_terms, stack_vars_base + var_index + 1, stack_terms_base);
       if(var_index > n_vars) {
 	for (i = var_index; i > n_vars; i--)
 	  stack_vars_base[i] = 0; 
 	n_vars = var_index;
-	stack_vars = stack_vars_base + (n_vars+1);
-	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
+	stack_vars = stack_vars_base + var_index;
       }  
       if (stack_vars_base[var_index] == 0)
 	stack_vars_base[var_index] = MkVarTerm(); 
       STACK_PUSH_UP(stack_vars_base[var_index], stack_terms);
-      STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
     } else if (IsAtomOrIntTerm(t)) {
-      STACK_PUSH_UP(t, stack_terms);
       STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
+      STACK_PUSH_UP(t, stack_terms);
     } else if (IsPairTerm(t)) {
       Term head = STACK_POP_DOWN(stack_terms);
       Term tail = STACK_POP_DOWN(stack_terms);
@@ -915,17 +909,20 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
 	ans_node = TrNode_parent(ans_node);
 	t = MkFloatTerm(dbl);
+	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
 	STACK_PUSH_UP(t, stack_terms);
       } else if (f == FunctorLongInt) {
 	Int li = TrNode_entry(ans_node);
 	ans_node = TrNode_parent(ans_node);
 	ans_node = TrNode_parent(ans_node);
 	t = MkLongIntTerm(li);
+	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
 	STACK_PUSH_UP(t, stack_terms);
       } else {
 	int f_arity = ArityOfFunctor(f);
 	t = Yap_MkApplTerm(f, f_arity, stack_terms);
 	stack_terms += f_arity;
+	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
 	STACK_PUSH_UP(t, stack_terms);
       }
     } else {
@@ -1091,12 +1088,12 @@ static struct trie_statistics{
 #define TrStat_ans_max_depth     trie_stats.answer_trie_max_depth
 #define TrStat_ans_min_depth     trie_stats.answer_trie_min_depth
 
-#define STR_ARRAY_SIZE  1000
-#define ARITY_ARRAY_SIZE 100
-#define SHOW_TABLE(MESG, ARGS...)  if (TrStat_show) fprintf(Yap_stderr, MESG, ##ARGS)
+#define STR_ARRAY_SIZE  10000
+#define ARITY_ARRAY_SIZE 1000
+#define SHOW_TABLE(MESG, ARGS...)  if (TrStat_show) fprintf(Yap_stdout, MESG, ##ARGS)
 
 
-int traverse_table(tab_ent_ptr tab_ent, Atom pred_atom, int show_table) {
+void traverse_table(tab_ent_ptr tab_ent, int show_table) {
   sg_node_ptr sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
 
   TrStat_show = show_table;
@@ -1116,17 +1113,19 @@ int traverse_table(tab_ent_ptr tab_ent, Atom pred_atom, int show_table) {
   TrStat_ans_min_depth = -1;
   if (sg_node) {
     if (TabEnt_arity(tab_ent)) {
-      char str[STR_ARRAY_SIZE];
-      int str_index = sprintf(str, "  ?- %s(", AtomName(pred_atom));
-      int arity[ARITY_ARRAY_SIZE];
+      char *str = (char *) malloc(sizeof(char) * STR_ARRAY_SIZE);
+      int str_index = sprintf(str, "  ?- %s(", AtomName(TabEnt_atom(tab_ent)));
+      int *arity = (int *) malloc(sizeof(int) * ARITY_ARRAY_SIZE);
       arity[0] = 1;
       arity[1] = TabEnt_arity(tab_ent);
-      return traverse_subgoal_trie(sg_node, str, str_index, arity, 1, TRAVERSE_NORMAL);
+      traverse_subgoal_trie(sg_node, str, str_index, arity, 1, TRAVERSE_NORMAL);
+      free(str);
+      free(arity);
     } else {
       sg_fr_ptr sg_fr = (sg_fr_ptr) sg_node;
       TrStat_subgoals++;
       TrStat_sg_linear_nodes = TrStat_sg_min_depth = TrStat_sg_max_depth = 0;
-      SHOW_TABLE("  ?- %s.\n", AtomName(pred_atom));
+      SHOW_TABLE("  ?- %s.\n", AtomName(TabEnt_atom(tab_ent)));
       TrStat_ans_nodes++;
       TrStat_ans_max_depth = TrStat_ans_min_depth = 0;
       if (SgFr_first_answer(sg_fr) == NULL) {
@@ -1137,45 +1136,44 @@ int traverse_table(tab_ent_ptr tab_ent, Atom pred_atom, int show_table) {
 	  TrStat_answers_no++;
 	  SHOW_TABLE("    NO\n");
 	}
-      } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+      } else {  /* SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr) */
 	TrStat_answers_yes++;
 	TrStat_answers++;
 	SHOW_TABLE("    TRUE\n");
       }
     }
-    return TRUE;
-  }
-  SHOW_TABLE("  empty\n");
-  return TRUE;
+  } else
+    SHOW_TABLE("  empty\n");
+  return;
 }
 
 
 void table_stats(void) {
-  fprintf(Yap_stderr, "\n  Subgoal trie structure");
-  fprintf(Yap_stderr, "\n    subgoals: %ld", TrStat_subgoals);
-  fprintf(Yap_stderr, "\n    subgoals incomplete: %ld", TrStat_sg_incomplete);
-  fprintf(Yap_stderr, "\n    nodes: %ld (%ld%c saving)", 
+  fprintf(Yap_stdout, "\n  Subgoal trie structure");
+  fprintf(Yap_stdout, "\n    subgoals: %ld", TrStat_subgoals);
+  fprintf(Yap_stdout, "\n    subgoals incomplete: %ld", TrStat_sg_incomplete);
+  fprintf(Yap_stdout, "\n    nodes: %ld (%ld%c saving)", 
           TrStat_sg_nodes,
 	  TrStat_sg_linear_nodes == 0 ? 0 : (TrStat_sg_linear_nodes - TrStat_sg_nodes + 1) * 100 / TrStat_sg_linear_nodes,
 	  '%');
-  fprintf(Yap_stderr, "\n    average depth: %.2f (%d min - %d max)", 
+  fprintf(Yap_stdout, "\n    average depth: %.2f (%d min - %d max)", 
 	  TrStat_subgoals == 0 ? 0 : (float)TrStat_sg_linear_nodes / (float)TrStat_subgoals,
 	  TrStat_sg_min_depth < 0 ? 0 : TrStat_sg_min_depth,
 	  TrStat_sg_max_depth < 0 ? 0 : TrStat_sg_max_depth);
-  fprintf(Yap_stderr, "\n  Answer trie structure");
-  fprintf(Yap_stderr, "\n    answers: %ld", TrStat_answers);
-  fprintf(Yap_stderr, "\n    yes answers: %ld", TrStat_answers_yes);
-  fprintf(Yap_stderr, "\n    no answers: %ld", TrStat_answers_no);
-  fprintf(Yap_stderr, "\n    pruned answers: %ld", TrStat_ans_pruned);
-  fprintf(Yap_stderr, "\n    nodes: %ld (%ld%c saving)",
+  fprintf(Yap_stdout, "\n  Answer trie structure");
+  fprintf(Yap_stdout, "\n    answers: %ld", TrStat_answers);
+  fprintf(Yap_stdout, "\n    yes answers: %ld", TrStat_answers_yes);
+  fprintf(Yap_stdout, "\n    no answers: %ld", TrStat_answers_no);
+  fprintf(Yap_stdout, "\n    pruned answers: %ld", TrStat_ans_pruned);
+  fprintf(Yap_stdout, "\n    nodes: %ld (%ld%c saving)",
 	  TrStat_ans_nodes,
 	  TrStat_ans_linear_nodes == 0 ? 0 : (TrStat_ans_linear_nodes - TrStat_ans_nodes + TrStat_subgoals) * 100 / TrStat_ans_linear_nodes,
 	    '%');
-  fprintf(Yap_stderr, "\n    average depth: %.2f (%d min - %d max)",
+  fprintf(Yap_stdout, "\n    average depth: %.2f (%d min - %d max)",
 	  TrStat_answers == 0 ? 0 : (float)TrStat_ans_linear_nodes / (float)TrStat_answers,
 	  TrStat_ans_min_depth < 0 ? 0 : TrStat_ans_min_depth,
 	  TrStat_ans_max_depth < 0 ? 0 : TrStat_ans_max_depth);
-  fprintf(Yap_stderr, "\n  Total memory in use\n    %ld bytes\n",
+  fprintf(Yap_stdout, "\n  Total memory in use\n    %ld bytes\n",
 	  sizeof(struct table_entry) + 
           TrStat_sg_nodes * sizeof(struct subgoal_trie_node) +
 	  TrStat_ans_nodes * sizeof(struct answer_trie_node) +
@@ -1271,35 +1269,42 @@ void update_answer_trie_branch(ans_node_ptr node) {
 
 
 static
-int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *arity, int depth, int mode) {
-  int old_str_index, old_arity[ARITY_ARRAY_SIZE], old_mode;
+void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *arity, int depth, int mode) {
   Term t;
-
-  /* save the current state */
-  old_mode = mode;
-  old_str_index = str_index;
-  memcpy(old_arity, arity, sizeof(int) * (arity[0] + 1));
-  t = TrNode_entry(sg_node);
 
   /* test if hashing */
   if (IS_SUBGOAL_HASH(sg_node)) {
     sg_node_ptr *bucket, *last_bucket;
     sg_hash_ptr hash;
+    int *current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
     hash = (sg_hash_ptr) sg_node;
     bucket = Hash_buckets(hash);
     last_bucket = bucket + Hash_num_buckets(hash);
     do {
       if (*bucket) {
         sg_node = *bucket;
-        if (! traverse_subgoal_trie(sg_node, str, str_index, arity, depth, mode))
-          return FALSE;
-	memcpy(arity, old_arity, sizeof(int) * (old_arity[0] + 1));
+        traverse_subgoal_trie(sg_node, str, str_index, arity, depth, mode);
+	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
       }
     } while (++bucket != last_bucket);
-    return TRUE;
+    free(current_arity);
+    return;
+  }
+
+  /* test if sibling node */
+  if (TrNode_next(sg_node)) {
+    int *current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    traverse_subgoal_trie(TrNode_next(sg_node), str, str_index, arity, depth, mode);
+    memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+    free(current_arity);
+    if (arity[arity[0]] == -1)
+      str[str_index - 1] = '|';
   }
 
   /* test the node type */
+  t = TrNode_entry(sg_node);
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
   if (mode == TRAVERSE_FLOAT) {
     arity[0]++;
@@ -1331,12 +1336,12 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
       } else {
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
-	  str[str_index] = 0;
-	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-	  return FALSE;
+	  str_index += sprintf(& str[str_index], "]");
+	  arity[0]--;
+	} else {
+	  str_index += sprintf(& str[str_index], "|");
+	  break;
 	}
-	str_index += sprintf(& str[str_index], "|");
-	break;
       }
     }
     mode = TRAVERSE_NORMAL;
@@ -1360,12 +1365,12 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
       } else {
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
-	  str[str_index] = 0;
-	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-	  return FALSE;
+	  str_index += sprintf(& str[str_index], "]");
+	  arity[0]--;
+	} else {
+	  str_index += sprintf(& str[str_index], "|");
+	  break;
 	}
-	str_index += sprintf(& str[str_index], "|");
-	break;
       }
     }
     mode = TRAVERSE_NORMAL;
@@ -1415,26 +1420,20 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
       } else {
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
-	  str[str_index] = 0;
-	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-	  return FALSE;
+	  str_index += sprintf(& str[str_index], "]");
+	  arity[0]--;
+	} else {
+	  str_index += sprintf(& str[str_index], "|");
+	  break;
 	}
-	str_index += sprintf(& str[str_index], "|");
-	break;
       }
     }
   } else if (IsAtomTerm(t)) {
-    if (arity[arity[0]] == -1) {
-      if (strcmp("[]", AtomName(AtomOfTerm(t)))) {
-	str[str_index] = 0;
-	fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-	return FALSE;
-      }
+    if (arity[arity[0]] == -1 && !strcmp("[]", AtomName(AtomOfTerm(t)))) {
       str[str_index - 1] = ']';
       arity[0]--;
-    } else {
+    } else
       str_index += sprintf(& str[str_index], "%s", AtomName(AtomOfTerm(t)));
-    }
     while (arity[0]) {
       if (arity[arity[0]] > 0) {
 	arity[arity[0]]--;
@@ -1448,12 +1447,12 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
       } else {
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
-	  str[str_index] = 0;
-	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-	  return FALSE;
+	  str_index += sprintf(& str[str_index], "]");
+	  arity[0]--;
+	} else {
+	  str_index += sprintf(& str[str_index], "|");
+	  break;
 	}
-	str_index += sprintf(& str[str_index], "|");
-	break;
       }
     }
   } else if (IsPairTerm(t)) {    
@@ -1515,11 +1514,8 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
       TrStat_answers++;
       SHOW_TABLE("    TRUE\n");
     } else {
-      char answer_str[STR_ARRAY_SIZE];
-      int answer_arity[ARITY_ARRAY_SIZE];
-      answer_arity[0] = 0;
-      if (! traverse_answer_trie(TrNode_child(SgFr_answer_trie(sg_fr)), answer_str, 0, answer_arity, 0, 1, TRAVERSE_NORMAL))
-	return FALSE;
+      arity[0] = 0;
+      traverse_answer_trie(TrNode_child(SgFr_answer_trie(sg_fr)), &str[str_index], 0, arity, 0, 1, TRAVERSE_NORMAL);
       if (SgFr_state(sg_fr) < complete) {
 	TrStat_sg_incomplete++;
 	SHOW_TABLE("    ---> INCOMPLETE\n");
@@ -1528,46 +1524,46 @@ int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *ar
   }
 
   /* ... or continue with child node */
-  else if (! traverse_subgoal_trie(TrNode_child(sg_node), str, str_index, arity, depth + 1, mode))
-    return FALSE;
+  else
+    traverse_subgoal_trie(TrNode_child(sg_node), str, str_index, arity, depth + 1, mode);
 
-  /* continue with sibling node */
-  if (TrNode_next(sg_node))
-    if (! traverse_subgoal_trie(TrNode_next(sg_node), str, old_str_index, old_arity, depth, old_mode))
-      return FALSE;
-
-  return TRUE;
+  return;
 }
 
 
 static
-int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *arity, int var_index, int depth, int mode) {
-  int old_str_index, old_arity[ARITY_ARRAY_SIZE], old_var_index, old_mode;
+void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *arity, int var_index, int depth, int mode) {
   Term t;
-
-  /* save the current state */
-  old_mode = mode;
-  old_var_index = var_index;
-  old_str_index = str_index;
-  memcpy(old_arity, arity, sizeof(int) * (arity[0] + 1));
-  t = TrNode_entry(ans_node);
 
   /* test if hashing */
   if (IS_ANSWER_HASH(ans_node)) {
     ans_node_ptr *bucket, *last_bucket;
     ans_hash_ptr hash;
+    int *current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
     hash = (ans_hash_ptr) ans_node;
     bucket = Hash_buckets(hash);
     last_bucket = bucket + Hash_num_buckets(hash);
     do {
       if (*bucket) {
         ans_node = *bucket;
-        if (! traverse_answer_trie(ans_node, str, str_index, arity, var_index, depth, mode))
-          return FALSE;
-	memcpy(arity, old_arity, sizeof(int) * (old_arity[0] + 1));
+        traverse_answer_trie(ans_node, str, str_index, arity, var_index, depth, mode);
+	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
       }
     } while (++bucket != last_bucket);
-    return TRUE;
+    free(current_arity);
+    return;
+  }
+
+  /* test if sibling node */
+  if (TrNode_next(ans_node)) {
+    int *current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    traverse_answer_trie(TrNode_next(ans_node), str, str_index, arity, var_index, depth, mode);
+    memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+    free(current_arity);
+    if (arity[arity[0]] == -1)
+      str[str_index - 1] = '|';
   }
 
   /* print VAR when starting a term */
@@ -1577,6 +1573,7 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
   }
 
   /* test the node type */
+  t = TrNode_entry(ans_node);
   if (mode == TRAVERSE_FLOAT) {
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
     arity[0]++;
@@ -1607,12 +1604,12 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
       } else {
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
-	  str[str_index] = 0;
-	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-	  return FALSE;
+	  str_index += sprintf(& str[str_index], "]");
+	  arity[0]--;
+	} else {
+	  str_index += sprintf(& str[str_index], "|");
+	  break;
 	}
-	str_index += sprintf(& str[str_index], "|");
-	break;
       }
     }
     mode = TRAVERSE_FLOAT_END;
@@ -1638,12 +1635,12 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
       } else {
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
-	  str[str_index] = 0;
-	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-	  return FALSE;
+	  str_index += sprintf(& str[str_index], "]");
+	  arity[0]--;
+	} else {
+	  str_index += sprintf(& str[str_index], "|");
+	  break;
 	}
-	str_index += sprintf(& str[str_index], "|");
-	break;
       }
     }
     mode = TRAVERSE_LONG_END;
@@ -1695,26 +1692,20 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
       } else {
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
-	  str[str_index] = 0;
-	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-	  return FALSE;
+	  str_index += sprintf(& str[str_index], "]");
+	  arity[0]--;
+	} else {
+	  str_index += sprintf(& str[str_index], "|");
+	  break;
 	}
-	str_index += sprintf(& str[str_index], "|");
-	break;
       }
     }
   } else if (IsAtomTerm(t)) {
-    if (arity[arity[0]] == -1) {
-      if (strcmp("[]", AtomName(AtomOfTerm(t)))) {
-	str[str_index] = 0;
-	fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-	return FALSE;
-      }
+    if (arity[arity[0]] == -1 && !strcmp("[]", AtomName(AtomOfTerm(t)))) {
       str[str_index - 1] = ']';
       arity[0]--;
-    } else {
+    } else
       str_index += sprintf(& str[str_index], "%s", AtomName(AtomOfTerm(t)));
-    }
     while (arity[0]) {
       if (arity[arity[0]] > 0) {
 	arity[arity[0]]--;
@@ -1728,12 +1719,12 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
       } else {
 	arity[arity[0]]++;
 	if (arity[arity[0]] == 0) {
-	  str[str_index] = 0;
-	  fprintf(Yap_stderr, "%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-	  return FALSE;
+	  str_index += sprintf(& str[str_index], "]");
+	  arity[0]--;
+	} else {
+	  str_index += sprintf(& str[str_index], "|");
+	  break;
 	}
-	str_index += sprintf(& str[str_index], "|");
-	break;
       }
     }
   } else if (IsPairTerm(t)) {
@@ -1782,14 +1773,9 @@ int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *a
 #endif /* TABLING_INNER_CUTS */
 
   /* ... or continue with child node */
-  else if (! traverse_answer_trie(TrNode_child(ans_node), str, str_index, arity, var_index, depth + 1, mode))
-    return FALSE;
+  else
+    traverse_answer_trie(TrNode_child(ans_node), str, str_index, arity, var_index, depth + 1, mode);
 
-  /* continue with sibling node */
-  if (TrNode_next(ans_node))
-    if (! traverse_answer_trie(TrNode_next(ans_node), str, old_str_index, old_arity, old_var_index, depth, old_mode))
-      return FALSE;
-
-  return TRUE;
+  return;
 }
 #endif /* TABLING */

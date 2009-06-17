@@ -110,7 +110,7 @@
 
   PBOp(sync,Otapl)
     CUT_wait_leftmost();
-    PREG = NEXTOP(PREG, Otapl);
+    PREG = NEXTOP(PREG,Otapl);
     PREFETCH_OP(PREG);
     GONext();
   ENDPBOp();

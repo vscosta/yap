@@ -54,6 +54,7 @@ typedef struct table_entry {
   lockvar lock;
 #endif /* YAPOR */
   struct pred_entry *pred_entry;
+  Atom pred_atom;
   int pred_arity;
   int mode_flags;
   struct subgoal_trie_node *subgoal_trie;
@@ -63,6 +64,7 @@ typedef struct table_entry {
 
 #define TabEnt_lock(X)          ((X)->lock)
 #define TabEnt_pe(X)            ((X)->pred_entry)
+#define TabEnt_atom(X)          ((X)->pred_atom)
 #define TabEnt_arity(X)         ((X)->pred_arity)
 #define TabEnt_mode(X)          ((X)->mode_flags)
 #define TabEnt_subgoal_trie(X)  ((X)->subgoal_trie)
