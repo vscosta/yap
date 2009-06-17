@@ -1628,7 +1628,7 @@ Yap_absmi(int inp)
 	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
 
 	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)Yap_TrailBase;
-	  PREG->u.EC.ClENV = LCL0-YENV;*/
+	  PREG->u.EC.ClENV = LCL0-YREG;*/
 	  cl->ClFlags |= InUseMask;
 	  TRAIL_CLREF(cl);
 	}
@@ -1680,7 +1680,7 @@ Yap_absmi(int inp)
 	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
 
 	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)Yap_TrailBase;
-	  PREG->u.EC.ClENV = LCL0-YENV;*/
+	  PREG->u.EC.ClENV = LCL0-YREG;*/
 	  cl->ClFlags |= InUseMask;
 	  TRAIL_CLREF(cl);
 	}
@@ -2759,7 +2759,7 @@ Yap_absmi(int inp)
 	SREG = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomFail,0));
 	/* make sure we have the correct environment for continuation */
 	ENV = B->cp_env;
-	YENV  = (CELL *)B;
+	YREG  = (CELL *)B;
 	goto creep;
       }
       /* don't do debugging and friends here */
@@ -3185,8 +3185,8 @@ Yap_absmi(int inp)
 	  /* initialize ccp */
 #define NORM_CP(CP)            ((choiceptr)(CP))
 
-          YENV = (CELL *) (NORM_CP(YENV) - 1);
-          ccp = NORM_CP(YENV);
+          YREG = (CELL *) (NORM_CP(YREG) - 1);
+          ccp = NORM_CP(YREG);
           store_yaam_reg_cpdepth(ccp);
           ccp->cp_tr = TR;
           ccp->cp_ap = BEAM_RETRY_CODE;
@@ -7713,7 +7713,7 @@ Yap_absmi(int inp)
       SET_BB(B_YREG);
       ENDCACHE_Y();
       Yap_PrologMode = UserCCallMode;
-      ASP = YENV;
+      ASP = YREG;
       /* for slots to work */
       Yap_StartSlots();
       saveregs();
@@ -7762,7 +7762,7 @@ Yap_absmi(int inp)
       ENDCACHE_Y();
 
       Yap_PrologMode = UserCCallMode;
-      ASP = YENV;
+      ASP = YREG;
       /* for slots to work */
       Yap_StartSlots();
       saveregs();
@@ -8345,7 +8345,7 @@ Yap_absmi(int inp)
 	  ap->LastCallOfPred = LUCALL_EXEC;
 	  /*	  fprintf(stderr,"R %x--%d--%ul\n",ap,ap->TimeStampOfPred,ap->ArityOfPE);*/
 	}
-	*--YENV = MkIntegerTerm(ap->TimeStampOfPred);
+	*--YREG = MkIntegerTerm(ap->TimeStampOfPred);
 	/* fprintf(stderr,"> %p/%p %d %d\n",cl,ap,ap->TimeStampOfPred,PREG->u.Ills.s);*/
 	PREG = PREG->u.Ills.l1;
 	/* indicate the indexing code is being used */
@@ -8369,7 +8369,6 @@ Yap_absmi(int inp)
 	UInt timestamp;
 	
 	CACHE_Y(YREG);
-
 	timestamp = IntegerOfTerm(S_YREG[0]);
 	/* fprintf(stderr,"+ %p/%p %d %d %d--%u\n",PREG,PREG->u.OtaLl.d->ClPred,timestamp,PREG->u.OtaLl.d->ClPred->TimeStampOfPred,PREG->u.OtaLl.d->ClTimeStart,PREG->u.OtaLl.d->ClTimeEnd);*/
 	/* Point AP to the code that follows this instruction */
