@@ -920,6 +920,16 @@ dnl Linux has both elf and a.out, in this case we found elf
 	  INSTALL_DLLS=""
         fi
 	;;
+      *solaris*)
+       #an elf system
+        LDFLAGS="-dynamic $LDFLAGS"
+	SHLIB_CFLAGS="-fPIC"
+	SHLIB_LD="gcc -shared"
+	SHLIB_SWI_LD="gcc -shared"
+        DO_SECOND_LD=""
+	SHLIB_SUFFIX=".so"
+	INSTALL_DLLS=""
+	;;
       *cyg*|*mingw*)
 	# gcc on cygwin seems to have trouble with longjmp
         # and -fomit-frame-point -DBP_FREE
