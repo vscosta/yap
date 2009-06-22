@@ -2503,6 +2503,70 @@ p_sub_atom_extract(void)
   goto start;
 }
 
+/* $sub_atom_extract(A,Bef,Size,After,SubAt).*/
+static Int
+p_sub_atom_fetch(void)
+{
+  Atom at = AtomOfTerm(Deref(ARG1));
+  Atom subatom = AtomOfTerm(Deref(ARG5));
+  Int offset = IntegerOfTerm(Deref(ARG6));
+
+  if (IsWideAtom(at)) {
+    wchar_t *s = RepAtom(at)->WStrOfAE;
+    wchar_t *ins, *where;
+    Int start, sz, after;
+
+    
+    if (!IsWideAtom(subatom)) {
+      /* first convert to wchar_t */
+      char *inschars = RepAtom(subatom)->StrOfAE;
+      Int i;
+
+      sz = strlen(inschars);
+      ins = (wchar_t *)Yap_PreAllocCodeSpace();
+      while ((ins = (wchar_t *)Yap_PreAllocCodeSpace()) + (sz+1) > (wchar_t *)AuxSp) {
+	if (!Yap_ExpandPreAllocCodeSpace(sizeof(wchar_t)*(sz+1), NULL, TRUE)) {
+	  Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG5, "allocating temp space in sub_atom/2");
+	  return FALSE;
+	}
+      }
+      for (i=0;i<=sz;i++)
+	ins[i] = inschars[i];
+    } else {
+      ins = RepAtom(subatom)->WStrOfAE;
+      sz = wcslen(ins);
+    }
+    if (!Yap_unify(MkIntegerTerm(sz), ARG3))
+      return FALSE;
+    if (!(where = wcsstr(s+offset, ins))) {
+      return FALSE;
+    }
+    if (!Yap_unify(MkIntegerTerm((start = (where-s))), ARG2))
+      return FALSE;
+    after = wcslen(s)-(start+sz);
+    return Yap_unify(MkIntegerTerm(after), ARG4);
+  } else {
+    char *s = RepAtom(at)->StrOfAE;
+    char *ins, *where;
+    Int start, sz, after;
+
+    if (IsWideAtom(subatom)) {
+      return FALSE;
+    }
+    ins = subatom->StrOfAE;
+    sz = strlen(ins);
+    if (!Yap_unify(MkIntegerTerm(sz), ARG3))
+      return FALSE;
+    if (!(where = strstr(s+offset, ins))) {
+      return FALSE;
+    }
+    if (!Yap_unify(MkIntegerTerm((start = (where-s))), ARG2))
+      return FALSE;
+    after = strlen(s)-(start+sz);
+    return Yap_unify(MkIntegerTerm(after), ARG4);
+  }
+}
+
 
 static Int 
 p_abort(void)
@@ -3929,6 +3993,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("atom_length", 2, p_atom_length, SafePredFlag);
   Yap_InitCPred("$atom_split", 4, p_atom_split, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$sub_atom_extract", 5, p_sub_atom_extract, HiddenPredFlag);
+  Yap_InitCPred("$sub_atom_fetch", 6, p_sub_atom_fetch, HiddenPredFlag);
   Yap_InitCPred("number_chars", 2, p_number_chars, 0);
   Yap_InitCPred("number_atom", 2, p_number_atom, 0);
   Yap_InitCPred("number_codes", 2, p_number_codes, 0);
