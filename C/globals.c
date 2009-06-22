@@ -44,7 +44,7 @@ static char SccsId[] = "%W% %G%";
 #define HEAP_DELAY_ARENA 3
 #define HEAP_START 4
 
-#define MIN_ARENA_SIZE 2048
+#define MIN_ARENA_SIZE 1048
 #define MAX_ARENA_SIZE (2048*16)
 
 #define Global_MkIntegerTerm(I) MkIntegerTerm(I)
@@ -1497,7 +1497,7 @@ p_nb_queue(void)
 {
   UInt arena_sz = (ASP-H)/16;
   if (DepthArenas > 1)
-    arena_sz /= log(MIN_ARENA_SIZE);
+    arena_sz /= DepthArenas;
   if (arena_sz < MIN_ARENA_SIZE)
     arena_sz = MIN_ARENA_SIZE;
   if (arena_sz > MAX_ARENA_SIZE)
@@ -1579,8 +1579,9 @@ RecoverArena(Term arena)
   CELL *pt = ArenaPt(arena),
     *max = ArenaLimit(arena);
   
-  if (max == H)
+  if (max == H) {
     H = pt;
+  }
 }
 
 static Int
@@ -1612,7 +1613,10 @@ p_nb_queue_close(void)
       Yap_unify(ARG3, qp[QUEUE_TAIL]) &&
       Yap_unify(ARG2, qp[QUEUE_HEAD]);
     qp[-1] = (CELL)Yap_MkFunctor(AtomHeap,1);
-    qp[0] = MkIntegerTerm(0);
+    qp[QUEUE_ARENA] =
+    qp[QUEUE_DELAY_ARENA] =
+    qp[QUEUE_HEAD] = 
+    qp[QUEUE_TAIL] = MkIntegerTerm(0);
     return out;
   }
   Yap_Error(INSTANTIATION_ERROR,t,"queue/3");
