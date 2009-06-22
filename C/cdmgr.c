@@ -1587,6 +1587,10 @@ retract_all(PredEntry *p, int in_use)
     p->PredFlags |= ProfiledPredFlag;
   } else
     p->PredFlags &= ~ProfiledPredFlag;
+  if (CALL_COUNTING) {
+    p->PredFlags |= CountPredFlag;
+  } else
+    p->PredFlags &= ~CountPredFlag;
 #ifdef YAPOR
   if (SEQUENTIAL_IS_DEFAULT) {
     p->PredFlags |= SequentialPredFlag;
@@ -1636,8 +1640,16 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
   p->StatisticsForPred.NOfRetries = 0;
   if (PROFILING) {
     p->PredFlags |= ProfiledPredFlag;
-  } else
+    spy_flag = TRUE;
+  } else {
     p->PredFlags &= ~ProfiledPredFlag;
+  }
+  if (CALL_COUNTING) {
+    p->PredFlags |= CountPredFlag;
+    spy_flag = TRUE;
+  } else {
+    p->PredFlags &= ~CountPredFlag;
+  }
   if (spy_flag) {
     p->OpcodeOfPred = Yap_opcode(_spy_pred);
     p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
@@ -1666,8 +1678,16 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
   p->StatisticsForPred.NOfRetries = 0;
   if (PROFILING) {
     p->PredFlags |= ProfiledPredFlag;
-  } else
+    spy_flag = TRUE;
+  } else {
     p->PredFlags &= ~ProfiledPredFlag;
+  }
+  if (CALL_COUNTING) {
+    p->PredFlags |= CountPredFlag;
+    spy_flag = TRUE;
+  } else {
+    p->PredFlags &= ~CountPredFlag;
+  }
 #ifdef YAPOR
   p->PredFlags |= SequentialPredFlag;
 #endif /* YAPOR */

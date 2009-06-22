@@ -3664,8 +3664,26 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case f_0_op:
       code_p = a_f2(TRUE, &cmp_info, code_p, pass_no, cip);
       break;
+    case enter_profiling_op:
+      {
+	PredEntry *pe = (PredEntry *)(cip->cpc->rnd1);
+	if ((pe->PredFlags & (CPredFlag|UserCPredFlag|AsmPredFlag)) ||
+	    !pe->ModuleOfPred) {
+	  code_p = a_pl(_enter_profiling, pe, code_p, pass_no);
+	}
+      }
+      break;
     case retry_profiled_op:
       code_p = a_pl(_retry_profiled, (PredEntry *)(cip->cpc->rnd1), code_p, pass_no);
+      break;
+    case count_call_op:
+      {
+	PredEntry *pe = (PredEntry *)(cip->cpc->rnd1);
+	if ((pe->PredFlags & (CPredFlag|UserCPredFlag|AsmPredFlag)) ||
+	    !pe->ModuleOfPred) {
+	  code_p = a_pl(_count_call, (PredEntry *)(cip->cpc->rnd1), code_p, pass_no);
+	}
+      }
       break;
     case count_retry_op:
       code_p = a_pl(_count_retry, (PredEntry *)(cip->cpc->rnd1), code_p, pass_no);

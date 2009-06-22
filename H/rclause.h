@@ -404,8 +404,10 @@ restore_opcodes(yamop *pc)
       pc = NEXTOP(pc,oy);
       break;
       /* instructions type p */
+    case _count_call:
     case _count_retry:
     case _deallocate:
+    case _enter_profiling:
     case _lock_lu:
     case _procceed:
     case _retry_profiled:

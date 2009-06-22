@@ -326,8 +326,10 @@
       clause_code = TRUE;
       pc = NEXTOP(pc,p);
       break;
+    case _count_call:
     case _count_retry:
     case _deallocate:
+    case _enter_profiling:
     case _retry_profiled:
       pc = NEXTOP(pc,p);
       break;

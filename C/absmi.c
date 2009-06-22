@@ -968,7 +968,16 @@ Yap_absmi(int inp)
 *        Profiled try - retry - trust instructions               *
 *****************************************************************/
 
-      /* profiled_retry    Label,NArgs */
+      /* profiled_enter_me    Pred */
+      Op(enter_profiling, p);
+      LOCK(PREG->u.p.p->StatisticsForPred.lock);
+      PREG->u.p.p->StatisticsForPred.NOfEntries++;
+      UNLOCK(PREG->u.p.p->StatisticsForPred.lock);
+      PREG = NEXTOP(PREG, p);
+      GONext();
+      ENDOp();
+
+     /* profiled_retry    Label,NArgs */
       Op(retry_profiled, p);
       LOCK(PREG->u.p.p->StatisticsForPred.lock);
       PREG->u.p.p->StatisticsForPred.NOfRetries++;
@@ -1169,6 +1178,29 @@ Yap_absmi(int inp)
 /*****************************************************************
 *        Call count instructions                                 *
 *****************************************************************/
+
+      /* count_enter_me    Label,NArgs */
+      Op(count_call, p);
+      LOCK(PREG->u.p.p->StatisticsForPred.lock);
+      PREG->u.p.p->StatisticsForPred.NOfEntries++;
+      UNLOCK(PREG->u.p.p->StatisticsForPred.lock);
+      ReductionsCounter--;
+      if (ReductionsCounter == 0 && ReductionsCounterOn) {
+	saveregs();
+	Yap_Error(CALL_COUNTER_UNDERFLOW,TermNil,"");
+	setregs();
+	JMPNext();
+      } 
+      PredEntriesCounter--;
+      if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+	saveregs();
+	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	setregs();
+	JMPNext();
+      } 
+      PREG = NEXTOP(PREG, p);
+      GONext();
+      ENDOp();
 
       /* count_retry    Label,NArgs */
       Op(count_retry, p);
@@ -8019,8 +8051,8 @@ Yap_absmi(int inp)
 	  UNLOCK(pe->StatisticsForPred.lock);
 	  if (!(pe->PredFlags & SpiedPredFlag)) {
 	    PREG = pe->cs.p_code.TrueCodeOfPred;
+	    JMPNext();
 	  }
-	  JMPNext();
 	}
 	if (!DebugOn) {
 	  PREG = pe->cs.p_code.TrueCodeOfPred;
