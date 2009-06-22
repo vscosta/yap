@@ -154,11 +154,9 @@
     case _unify_idb_term:
       return found_idb_clause(pc, startp, endp);
     case _allocate:
-    case _count_a_call:
     case _cut:
     case _cut_e:
     case _cut_t:
-    case _enter_a_profiling:
     case _index_blob:
     case _index_dbref:
     case _index_long:
@@ -328,10 +326,8 @@
       clause_code = TRUE;
       pc = NEXTOP(pc,p);
       break;
-    case _count_call:
     case _count_retry:
     case _deallocate:
-    case _enter_profiling:
     case _retry_profiled:
       pc = NEXTOP(pc,p);
       break;

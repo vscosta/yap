@@ -4253,7 +4253,7 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
       code_p = p->cs.p_code.FirstClause;
       code_p->u.Otapl.d = p->cs.p_code.FirstClause;
       p->cs.p_code.TrueCodeOfPred = NEXTOP(code_p, Otapl);
-      if (p->PredFlags & SpiedPredFlag) {
+      if (p->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
 	p->OpcodeOfPred = Yap_opcode(_spy_pred);
 	p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
 #if defined(YAPOR) || defined(THREADS)
@@ -4275,7 +4275,7 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
       p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
   } else {
-    if (p->PredFlags & SpiedPredFlag) {
+    if (p->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
       p->OpcodeOfPred = Yap_opcode(_spy_pred);
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
 #if defined(YAPOR) || defined(THREADS)

@@ -965,7 +965,7 @@ IPred(PredEntry *ap, UInt NSlots)
     ap->cs.p_code.TrueCodeOfPred = BaseAddr;
     ap->PredFlags |= IndexedPredFlag;
   }
-  if (ap->PredFlags & SpiedPredFlag) {
+  if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
     ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
 #if defined(YAPOR) || defined(THREADS)
@@ -996,7 +996,7 @@ static void
 RemoveMainIndex(PredEntry *ap)
 {
   yamop *First = ap->cs.p_code.FirstClause;
-  int spied = ap->PredFlags & SpiedPredFlag;
+  int spied = ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag);
 
   ap->PredFlags &= ~IndexedPredFlag;
   if (First == NULL) {
@@ -1753,7 +1753,7 @@ asserta_stat_clause(PredEntry *p, yamop *q, int spy_flag)
     clq->ClNext = clp;
     clp->ClPrev = clq;
     p->cs.p_code.FirstClause = q;
-    if (p->PredFlags & SpiedPredFlag) {
+    if (p->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
       p->OpcodeOfPred = Yap_opcode(_spy_pred);
       p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     } else if (!(p->PredFlags & IndexedPredFlag)) {
@@ -1771,7 +1771,7 @@ asserta_stat_clause(PredEntry *p, yamop *q, int spy_flag)
   cl->ClNext = ClauseCodeToStaticClause(p->cs.p_code.FirstClause);
   p->cs.p_code.FirstClause = q;
   p->cs.p_code.TrueCodeOfPred = q;
-  if (p->PredFlags & SpiedPredFlag) {
+  if (p->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
     p->OpcodeOfPred = Yap_opcode(_spy_pred);
     p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
   } else if (!(p->PredFlags & IndexedPredFlag)) {
@@ -1840,7 +1840,7 @@ assertz_stat_clause(PredEntry *p, yamop *cp, int spy_flag)
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
 #endif
-    if (p->PredFlags & SpiedPredFlag) {
+    if (p->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
       p->OpcodeOfPred = Yap_opcode(_spy_pred);
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     } 
@@ -1851,7 +1851,7 @@ assertz_stat_clause(PredEntry *p, yamop *cp, int spy_flag)
     cl->ClNext = ClauseCodeToStaticClause(cp);
   }
   if (p->cs.p_code.FirstClause == p->cs.p_code.LastClause) {
-    if (!(p->PredFlags & SpiedPredFlag)) {
+    if (!(p->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag))) {
       p->OpcodeOfPred = INDEX_OPCODE;
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
@@ -2075,7 +2075,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   if (pflags & IndexedPredFlag) {
     Yap_AddClauseToIndex(p, cp, mode == asserta);
   }
-  if (pflags & SpiedPredFlag)
+  if (pflags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag))
     spy_flag = TRUE;
   if (p == PredGoalExpansion) {
     Term tg = ArgOfTerm(1, tf);
@@ -2315,7 +2315,7 @@ Yap_EraseStaticClause(StaticClause *cl, Term mod) {
   } else if (ap->cs.p_code.NOfClauses > 1) {
     ap->OpcodeOfPred = INDEX_OPCODE;
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
-  } else if (ap->PredFlags & SpiedPredFlag) {
+  } else if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
       ap->OpcodeOfPred = Yap_opcode(_spy_pred);
       ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
   } else {
@@ -2770,24 +2770,26 @@ p_rmspy(void)
     return TRUE;
   } 
 #endif
-  if (!(pred->PredFlags & DynamicPredFlag)) {
+  if (!(pred->PredFlags & (CountPredFlag|ProfiledPredFlag))) {
+    if (!(pred->PredFlags & DynamicPredFlag)) {
 #if defined(YAPOR) || defined(THREADS)
-    if (pred->PredFlags & LogUpdatePredFlag &&
-	     pred->ModuleOfPred != IDB_MODULE) {
-      pred->OpcodeOfPred = LOCKPRED_OPCODE;
-      pred->CodeOfPred = (yamop *)(&(pred->OpcodeOfPred)); 
+      if (pred->PredFlags & LogUpdatePredFlag &&
+	  pred->ModuleOfPred != IDB_MODULE) {
+	pred->OpcodeOfPred = LOCKPRED_OPCODE;
+	pred->CodeOfPred = (yamop *)(&(pred->OpcodeOfPred)); 
+      } else {
+#endif
+	pred->CodeOfPred = pred->cs.p_code.TrueCodeOfPred;
+	pred->OpcodeOfPred = pred->CodeOfPred->opc;
+#if defined(YAPOR) || defined(THREADS)
+      }
+#endif
+    } else if (pred->OpcodeOfPred == Yap_opcode(_spy_or_trymark)) {
+      pred->OpcodeOfPred = Yap_opcode(_try_and_mark);
     } else {
-#endif
-      pred->CodeOfPred = pred->cs.p_code.TrueCodeOfPred;
-      pred->OpcodeOfPred = pred->CodeOfPred->opc;
-#if defined(YAPOR) || defined(THREADS)
+      UNLOCK(pred->PELock);
+      return FALSE;
     }
-#endif
-  } else if (pred->OpcodeOfPred == Yap_opcode(_spy_or_trymark)) {
-    pred->OpcodeOfPred = Yap_opcode(_try_and_mark);
-  } else {
-    UNLOCK(pred->PELock);
-    return FALSE;
   }
   pred->PredFlags ^= SpiedPredFlag;
   UNLOCK(pred->PELock);

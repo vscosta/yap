@@ -1090,10 +1090,6 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler_struct 
 	      save_machine_regs();
 	      longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
 	    }
-	    if (profiling)
-	      Yap_emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero, &cglobs->cint);
-	    else if (call_counting)
-	      Yap_emit(count_call_op, (CELL)RepPredProp(p0), Zero, &cglobs->cint);
 	    c_args(Goal, 0, cglobs);
 	    Yap_emit(safe_call_op, (CELL)p0 , Zero, &cglobs->cint);
 	    Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
@@ -1329,10 +1325,6 @@ c_functor(Term Goal, Term mod, compiler_struct *cglobs)
       save_machine_regs();
       longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
     }
-    if (profiling)
-      Yap_emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero, &cglobs->cint);
-    else if (call_counting)
-      Yap_emit(count_call_op, (CELL)RepPredProp(p0), Zero, &cglobs->cint);
     c_args(Goal, 0, cglobs);
     Yap_emit(safe_call_op, (CELL)p0 , Zero, &cglobs->cint);
     Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
@@ -1469,10 +1461,6 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       return;
     }
     else if (atom == AtomCut) {
-      if (profiling)
-	Yap_emit(enter_profiling_op, (CELL)RepPredProp(PredPropByAtom(AtomCut,0)), Zero, &cglobs->cint);
-      else if (call_counting)
-	Yap_emit(count_call_op, (CELL)RepPredProp(PredPropByAtom(AtomCut,0)), Zero, &cglobs->cint);
       if (cglobs->onlast) {
 	/* never a problem here with a -> b, !, c ; d */
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
@@ -1505,10 +1493,6 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 
       /* I need an either_me */
       cglobs->needs_env = TRUE;
-      if (profiling)
-	Yap_emit(enter_profiling_op, (CELL)RepPredProp(PredPropByAtom(AtomRepeat,0)), Zero, &cglobs->cint);
-      else if (call_counting)
-	Yap_emit(count_call_op, (CELL)RepPredProp(PredPropByAtom(AtomRepeat,0)), Zero, &cglobs->cint);
       cglobs->or_found = TRUE;
       push_branch(cglobs->onbranch, TermNil, cglobs);
       cglobs->curbranch++;
@@ -1548,11 +1532,6 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       save_machine_regs();
       longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
     }
-    /* if we are profiling, make sure we register we entered this predicate */
-    if (profiling)
-      Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
-    if (call_counting)
-      Yap_emit(count_call_op, (CELL)p, Zero, &cglobs->cint);
   }
   else {
     f = FunctorOfTerm(Goal);
@@ -1763,10 +1742,6 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       return;
     }
     else if (f == FunctorEq) {
-      if (profiling)
-	Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
-      else if (call_counting)
-	Yap_emit(count_call_op, (CELL)p, Zero, &cglobs->cint);
       c_eq(ArgOfTerm(1, Goal), ArgOfTerm(2, Goal), cglobs);
       if (cglobs->onlast) {
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
@@ -1792,10 +1767,6 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
     else if (p->PredFlags & AsmPredFlag) {
       int op = p->PredFlags & 0x7f;
 
-      if (profiling)
-	Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
-      else if (call_counting)
-	Yap_emit(count_call_op, (CELL)p, Zero, &cglobs->cint);
       if (op >= _atom && op <= _primitive) {
 	c_test(op, ArgOfTerm(1, Goal), cglobs);
 	if (cglobs->onlast) {
@@ -1924,10 +1895,6 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       }
       return;
     } else {
-      if (profiling)
-	Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
-      else if (call_counting)
-	Yap_emit(count_call_op, (CELL)p, Zero, &cglobs->cint);
       if (f == FunctorExecuteInMod) {
 	/* compile the first argument only */
 	c_arg(1, ArgOfTerm(1,Goal), 1, 0, cglobs);

@@ -141,12 +141,6 @@
       return;
       cl = NEXTOP(cl,e);
       break;
-    case _count_a_call:
-      cl = NEXTOP(cl,e);
-      break;
-    case _enter_a_profiling:
-      cl = NEXTOP(cl,e);
-      break;
     case _pop:
       cl = NEXTOP(cl,e);
       break;

@@ -194,11 +194,9 @@ restore_opcodes(yamop *pc)
     case _Nstop:
     case _allocate:
     case _copy_idb_term:
-    case _count_a_call:
     case _cut:
     case _cut_e:
     case _cut_t:
-    case _enter_a_profiling:
     case _expand_index:
     case _index_blob:
     case _index_dbref:
@@ -406,10 +404,8 @@ restore_opcodes(yamop *pc)
       pc = NEXTOP(pc,oy);
       break;
       /* instructions type p */
-    case _count_call:
     case _count_retry:
     case _deallocate:
-    case _enter_profiling:
     case _lock_lu:
     case _procceed:
     case _retry_profiled:

@@ -1027,9 +1027,7 @@ fix_compiler_instructions(PInstr *pcpc)
     case write_last_struct_op:
     case mark_initialised_pvars_op:
     case mark_live_regs_op:
-    case enter_profiling_op:
     case retry_profiled_op:
-    case count_call_op:
     case count_retry_op:
     case restore_tmps_op:
     case restore_tmps_and_skip_op:

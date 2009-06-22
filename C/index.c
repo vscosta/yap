@@ -5997,7 +5997,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       return;
     }
     ap->cs.p_code.TrueCodeOfPred = ap->cs.p_code.FirstClause;
-    if (ap->PredFlags & SpiedPredFlag) {
+    if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
       ap->OpcodeOfPred = Yap_opcode(_spy_pred);
       ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
 #if defined(YAPOR) || defined(THREADS)
