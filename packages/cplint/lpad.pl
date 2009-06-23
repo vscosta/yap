@@ -34,7 +34,7 @@
 		  p/1,
 		  slg/3,setting/2,set/2
 			]).
-
+:-source.
  :- dynamic wfs_trace/0.
  :-use_module(library(ugraphs)).
  :-use_module(library(lists)).
@@ -432,9 +432,16 @@ consistent(N,R,S,[(N1,R,S1)|T]):-
 map_oldt([],_Ggoal,Tab,Tab,S,S,Dfn,Dfn,Dep,Dep,TP,TP,C,C,D,D).
 map_oldt([Clause|Frames],Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,
 	C0,C,D0,D) :-
-  edge_oldt(Clause,Ggoal,Tab0,Tab1,S0,S1,Dfn0,Dfn1,Dep0,Dep1,TP0,TP1,
+	edge_oldt(Clause,Ggoal,Tab0,Tab1,S0,S1,Dfn0,Dfn1,Dep0,Dep1,TP0,TP1,
 		C0,C1,D0,D1),
-  map_oldt(Frames,Ggoal,Tab1,Tab,S1,S,Dfn1,Dfn,Dep1,Dep,TP1,TP,C1,C,D1,D).
+	find(Tab0,Ggoal,Ent),
+	ent_to_comp(Ent,Comp),
+	(Comp \== true->
+  		map_oldt(Frames,Ggoal,Tab1,Tab,S1,S,Dfn1,Dfn,
+		Dep1,Dep,TP1,TP,C1,C,D1,D)
+  	;
+  		Tab=Tab1,S=S1,Dfn=Dfn1,Dep=Dep1,TP=TP1,C=C1,D=D1
+	).
 
 /* edge_oldt(Clause,Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP)
    Clause may be one of the following forms:
@@ -470,9 +477,25 @@ edge_oldt(Clause,Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D) :-
 	 or to the D set if it is definite. The rule is added only if it is consistent
 	 with the current C set
 */
-add_ans_to_C(rule(_,_,def(N),_,S,_),C,C,D,[(N,S)|D],true):-!.
+add_ans_to_C(rule(_,_,def(N),_,S,_),Tab,C,C,D,[(N,S)|D],true):-!.
 
-add_ans_to_C(rule(_Ans,_B,R,N,S,LH),C0,C,D,D,HeadSelected):-
+add_ans_to_C(rule(Goal,_B,R,N,S,LH),Tab,C0,C,D,D,HeadSelected):-
+	Goal=d(G,_D),
+  (find(Tab,G,Ent)->
+	  ent_to_anss(Ent,Anss),
+  	(member_anss(d(G,[]),Anss)->
+			C=C0,
+			HeadSelected=false
+		;
+			add_to_C(R,N,S,LH,C0,C,HeadSelected)
+		)
+	;
+		add_to_C(R,N,S,LH,C0,C,HeadSelected)
+	).
+			
+			
+			
+add_to_C(R,N,S,LH,C0,C,HeadSelected):-
 	member(N1,LH),
 	(N1=N->
 		HeadSelected=true
@@ -518,7 +541,7 @@ add_PC_to_C([rule(H,B,R,N,S)|T],C0,C):-
 	add_PC_to_C(T,C1,C).
 
 ans_edge(rule(Ans,B,Rule,Number,Sub,LH),Ggoal,Tab0,Tab,S0,S,Dfn0,Dfn,Dep0,Dep,TP0,TP,C0,C,D0,D) :-
-	add_ans_to_C(rule(Ans,B,Rule,Number,Sub,LH),C0,C1,D0,D1,HeadSelected),
+	add_ans_to_C(rule(Ans,B,Rule,Number,Sub,LH),Tab0,C0,C1,D0,D1,HeadSelected),
 	(HeadSelected=false->
 		Tab = Tab0, S = S0, Dfn = Dfn0, Dep = Dep0, TP = TP0, C=C1, D=D1
 	;
@@ -1348,6 +1371,14 @@ succeeded(l(_,Lanss)) :-
       fail.
 */
 add_ans(Tab0,Ggoal,Ans,Nodes,Mode,Tab) :-
+	Ans = d(H,[]),
+	ground(H),
+	H=Ggoal,!,
+    updatevs(Tab0,Ggoal,Ent0,Ent,Tab),
+      new_ans_ent1(Ent0,Ent,Ans,Nodes,Mode).
+
+
+add_ans(Tab0,Ggoal,Ans,Nodes,Mode,Tab) :-
     updatevs(Tab0,Ggoal,Ent0,Ent,Tab),
     Ans = d(H,Ds),
     ( Ds == [] ->
@@ -1355,6 +1386,20 @@ add_ans(Tab0,Ggoal,Ans,Nodes,Mode,Tab) :-
     ; setof(X,member(X,Ds),NewDs),
       new_ans_ent(Ent0,Ent,d(H,NewDs),Nodes,Mode)
     ).
+
+new_ans_ent1(Ent0,Ent,Ans,Nodes,Mode) :-
+    Ent0 = e(Nodes,ANegs,Anss0,Delay0,Comp,Dfn,Slist),
+    Ent = e(Nodes,ANegs,Anss,Delay,true,Dfn,Slist),
+    Ans = d(H,[]),
+    ( updatevs(Anss0,H,Lanss0,Lanss,Anss) ->
+        Lanss = [Ans],
+      Mode = no_new_head
+    ; addkey(Anss0,H,[Ans],Anss),
+      Mode = new_head
+    ),
+      Delay = Delay0
+    .
+
 
 new_ans_ent(Ent0,Ent,Ans,Nodes,Mode) :-
     Ent0 = e(Nodes,ANegs,Anss0,Delay0,Comp,Dfn,Slist),
@@ -1763,7 +1808,7 @@ cmb5(t(NT2a,Mb,NT2b),T1,M2,M3,T3,t(n2(T1,M2,NT2a),Mb,n2(NT2b,M3,T3))).
 set(Parameter,Value) */
 setting(epsilon_parsing,0.00001).
 setting(save_dot,false).
-setting(ground_body,false).
+setting(ground_body,true).
 
 /* find_rule(G,(R,S,N),Body,C) takes a goal G and the current C set and
 returns the index R of a disjunctive rule resolving with G together with
