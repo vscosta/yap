@@ -1775,10 +1775,10 @@ asserta_stat_clause(PredEntry *p, yamop *q, int spy_flag)
     p->cs.p_code.FirstClause = q;
     if (p->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
       p->OpcodeOfPred = Yap_opcode(_spy_pred);
-      p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     } else if (!(p->PredFlags & IndexedPredFlag)) {
       p->OpcodeOfPred = INDEX_OPCODE;
-      p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
 #if defined(YAPOR) || defined(THREADS)
     if (p->ModuleOfPred != IDB_MODULE) {
