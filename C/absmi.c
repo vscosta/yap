@@ -8038,9 +8038,9 @@ Yap_absmi(int inp)
 	    setregs();
 	    JMPNext();
 	  } 
-	  PREG = pe->cs.p_code.TrueCodeOfPred;
 	  if ((pe->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) == 
 	    CountPredFlag) {
+	    PREG = pe->cs.p_code.TrueCodeOfPred;
 	    JMPNext();
 	  }
 	}
