@@ -194,11 +194,9 @@ restore_opcodes(yamop *pc)
     case _Nstop:
     case _allocate:
     case _copy_idb_term:
-    case _count_a_call:
     case _cut:
     case _cut_e:
     case _cut_t:
-    case _enter_a_profiling:
     case _expand_index:
     case _index_blob:
     case _index_dbref:

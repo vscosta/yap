@@ -467,7 +467,7 @@ CopyTerm(Term inp, UInt arity, int share, int newattvs) {
 	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
 	  return FALSE;
 	goto restart_list;
-      } else if (res && share && FunctorOfTerm(t) != FunctorMutable) {
+      } else if (res && share) {
 	H = Hi;
 	return t;
       }
@@ -499,7 +499,7 @@ CopyTerm(Term inp, UInt arity, int share, int newattvs) {
 	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
 	  return FALSE;
 	goto restart_appl;
-      } else if (res && share) {
+      } else if (res && share && FunctorOfTerm(t) != FunctorMutable) {
 	H = HB0;
 	return t;
       }

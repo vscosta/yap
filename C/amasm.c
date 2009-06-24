@@ -3665,13 +3665,25 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_f2(TRUE, &cmp_info, code_p, pass_no, cip);
       break;
     case enter_profiling_op:
-      code_p = a_pl(_enter_profiling, (PredEntry *)(cip->cpc->rnd1), code_p, pass_no);
+      {
+	PredEntry *pe = (PredEntry *)(cip->cpc->rnd1);
+	if ((pe->PredFlags & (CPredFlag|UserCPredFlag|AsmPredFlag)) ||
+	    !pe->ModuleOfPred) {
+	  code_p = a_pl(_enter_profiling, pe, code_p, pass_no);
+	}
+      }
       break;
     case retry_profiled_op:
       code_p = a_pl(_retry_profiled, (PredEntry *)(cip->cpc->rnd1), code_p, pass_no);
       break;
     case count_call_op:
-      code_p = a_pl(_count_call, (PredEntry *)(cip->cpc->rnd1), code_p, pass_no);
+      {
+	PredEntry *pe = (PredEntry *)(cip->cpc->rnd1);
+	if ((pe->PredFlags & (CPredFlag|UserCPredFlag|AsmPredFlag)) ||
+	    !pe->ModuleOfPred) {
+	  code_p = a_pl(_count_call, (PredEntry *)(cip->cpc->rnd1), code_p, pass_no);
+	}
+      }
       break;
     case count_retry_op:
       code_p = a_pl(_count_retry, (PredEntry *)(cip->cpc->rnd1), code_p, pass_no);
@@ -3925,14 +3937,6 @@ Yap_InitComma(void)
     code_p->u.p.p =  PredMetaCall;
     GONEXT(p);
   } else {
-    if (PROFILING) {
-      code_p->opc = opcode(_enter_a_profiling);
-      GONEXT(e);
-    }
-    if (CALL_COUNTING) {
-      code_p->opc = opcode(_count_a_call);
-      GONEXT(e);
-    }
     code_p->opc = opcode(_p_execute_tail);
     code_p->u.Osbpp.s = emit_count(-Signed(RealEnvSize)-3*sizeof(CELL));
     code_p->u.Osbpp.bmap = NULL;

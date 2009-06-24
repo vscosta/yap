@@ -977,19 +977,7 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      /* profiled_enter     */
-      Op(enter_a_profiling, e);
-      {
-	PredEntry *pen = RepPredProp((Prop)IntegerOfTerm(ENV[-EnvSizeInCells-2]));
-	PREG = NEXTOP(PREG, e);
-	LOCK(pen->StatisticsForPred.lock);
-	pen->StatisticsForPred.NOfEntries++;
-	UNLOCK(pen->StatisticsForPred.lock);
-      }
-      GONext();
-      ENDOp();
-
-      /* profiled_retry    Label,NArgs */
+     /* profiled_retry    Label,NArgs */
       Op(retry_profiled, p);
       LOCK(PREG->u.p.p->StatisticsForPred.lock);
       PREG->u.p.p->StatisticsForPred.NOfRetries++;
@@ -1211,32 +1199,6 @@ Yap_absmi(int inp)
 	JMPNext();
       } 
       PREG = NEXTOP(PREG, p);
-      GONext();
-      ENDOp();
-
-      /* count_enter_me    Label,NArgs */
-      Op(count_a_call, e);
-      {
-	PredEntry *pen = RepPredProp((Prop)IntegerOfTerm(ENV[-EnvSizeInCells-2]));
-	PREG = NEXTOP(PREG, e);
-	LOCK(pen->StatisticsForPred.lock);
-	pen->StatisticsForPred.NOfEntries++;
-	UNLOCK(pen->StatisticsForPred.lock);
-	ReductionsCounter--;
-	if (ReductionsCounter == 0 && ReductionsCounterOn) {
-	  saveregs();
-	  Yap_Error(CALL_COUNTER_UNDERFLOW,TermNil,"");
-	  setregs();
-	  JMPNext();
-	} 
-	PredEntriesCounter--;
-	if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
-	  saveregs();
-	  Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
-	  setregs();
-	  JMPNext();
-	} 
-      }
       GONext();
       ENDOp();
 
@@ -8056,6 +8018,41 @@ Yap_absmi(int inp)
 	  Yap_IPred(pe, 0);
 	  /* IPred can generate errors, it thus must get rid of the lock itself */
 	  setregs();
+	}
+	/* first check if we need to increase the counter */
+	if ((pe->PredFlags & CountPredFlag)) {
+	  LOCK(pe->StatisticsForPred.lock);
+	  pe->StatisticsForPred.NOfEntries++;
+	  UNLOCK(pe->StatisticsForPred.lock);
+	  ReductionsCounter--;
+	  if (ReductionsCounter == 0 && ReductionsCounterOn) {
+	    saveregs();
+	    Yap_Error(CALL_COUNTER_UNDERFLOW,TermNil,"");
+	    setregs();
+	    JMPNext();
+	  } 
+	  PredEntriesCounter--;
+	  if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+	    saveregs();
+	    Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	    setregs();
+	    JMPNext();
+	  } 
+	  if ((pe->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) == 
+	    CountPredFlag) {
+	    PREG = pe->cs.p_code.TrueCodeOfPred;
+	    JMPNext();
+	  }
+	}
+	/* standard profiler */
+	if ((pe->PredFlags & ProfiledPredFlag)) {
+	  LOCK(pe->StatisticsForPred.lock);
+	  pe->StatisticsForPred.NOfEntries++;
+	  UNLOCK(pe->StatisticsForPred.lock);
+	  if (!(pe->PredFlags & SpiedPredFlag)) {
+	    PREG = pe->cs.p_code.TrueCodeOfPred;
+	    JMPNext();
+	  }
 	}
 	if (!DebugOn) {
 	  PREG = pe->cs.p_code.TrueCodeOfPred;

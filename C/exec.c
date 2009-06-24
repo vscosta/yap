@@ -77,12 +77,6 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt, yamop *code) {
     YENV[E_CB] = (CELL) cut_pt;
   }
   P = code;
-  /* vsc: increment reduction counter at meta-call entry */
-  if (pen->PredFlags & ProfiledPredFlag) {
-    LOCK(pen->StatisticsForPred.lock);
-    pen->StatisticsForPred.NOfEntries++;
-    UNLOCK(pen->StatisticsForPred.lock);
-  }
   return TRUE;
 }
 

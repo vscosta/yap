@@ -1090,10 +1090,6 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler_struct 
 	      save_machine_regs();
 	      longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
 	    }
-	    if (profiling)
-	      Yap_emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero, &cglobs->cint);
-	    else if (call_counting)
-	      Yap_emit(count_call_op, (CELL)RepPredProp(p0), Zero, &cglobs->cint);
 	    c_args(Goal, 0, cglobs);
 	    Yap_emit(safe_call_op, (CELL)p0 , Zero, &cglobs->cint);
 	    Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
@@ -1814,6 +1810,10 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	return;
       }
       else if (op >= _plus && op <= _functor) {
+	if (profiling)
+	  Yap_emit(enter_profiling_op, (CELL)RepPredProp(p), Zero, &cglobs->cint);
+	else if (call_counting)
+	  Yap_emit(count_call_op, (CELL)RepPredProp(p), Zero, &cglobs->cint);
 	if (op == _functor) {
 	  c_functor(Goal, mod, cglobs);
 	}
