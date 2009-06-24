@@ -1006,7 +1006,7 @@ RemoveMainIndex(PredEntry *ap)
   }
   if (First != NULL && spied) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
-    ap->cs.p_code.TrueCodeOfPred = ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+    ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
   } else if (ap->cs.p_code.NOfClauses > 1
 #ifdef TABLING
 	     ||ap->PredFlags & TabledPredFlag
