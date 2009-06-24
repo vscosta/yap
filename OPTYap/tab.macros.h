@@ -111,6 +111,11 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #define IsTableVarTerm(TERM)                                               \
         ((CELL) TERM) >= GLOBAL_table_var_enumerator(0) &&                 \
         ((CELL) TERM) <= GLOBAL_table_var_enumerator(MAX_TABLE_VARS - 1)
+#ifdef TRIE_COMPACT_LISTS
+#define PairTermMark  NULL
+#define PairTermInit  ((Term *) 0)
+#define PairTermLast  ((Term *) (LowTagBits + 1))
+#endif /* TRIE_COMPACT_LISTS */
 
 #define HASH_TABLE_LOCK(NODE)  ((((unsigned long int)NODE) >> 5) & (TABLE_LOCK_BUCKETS - 1))
 #define LOCK_TABLE(NODE)         LOCK(GLOBAL_table_lock(HASH_TABLE_LOCK(NODE)))

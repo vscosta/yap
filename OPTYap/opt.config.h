@@ -73,6 +73,11 @@
 ** ----------------------------------------------- */
 /* #define INCOMPLETE_TABLING 1 */
 
+/* ----------------------------------------------- **
+**      support trie compact lists? (optional)     **
+** ----------------------------------------------- */
+/* #define TRIE_COMPACT_LISTS 1 */
+
 /* --------------------------------------- **
 **      support inner cuts? (optional)     **
 ** --------------------------------------- */
@@ -169,6 +174,7 @@
 #undef BBREG_TRAIL_SCHEME
 #undef LIMIT_TABLING
 #undef INCOMPLETE_TABLING
+#undef TRIE_COMPACT_LISTS
 #undef TABLING_ERRORS
 #endif /* !TABLING */
 
