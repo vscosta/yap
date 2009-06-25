@@ -684,7 +684,7 @@ Int p_abolish_table(void) {
   sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
   if (sg_node) {
     TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
-    free_subgoal_trie_branch(sg_node, TabEnt_arity(tab_ent));
+    free_subgoal_trie_branch(sg_node, TabEnt_arity(tab_ent), 0);
   }
   return (TRUE);
 }
@@ -704,7 +704,7 @@ Int p_abolish_all_tables(void) {
     sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
     if (sg_node) {
       TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
-      free_subgoal_trie_branch(sg_node, TabEnt_arity(tab_ent));
+      free_subgoal_trie_branch(sg_node, TabEnt_arity(tab_ent), 0);
     }
     tab_ent = TabEnt_next(tab_ent);
   }

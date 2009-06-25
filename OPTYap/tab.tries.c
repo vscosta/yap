@@ -756,6 +756,10 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 	} else if (f == FunctorLongInt) {
 	  Int li = LongIntOfTerm(t);
 	  current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, li);
+	} else if (f == FunctorDBRef) {
+	  Yap_Error(INTERNAL_ERROR, TermNil, "unsupported type tag (FunctorDBRef in subgoal_search)");
+	} else if (f == FunctorBigInt) {
+	  Yap_Error(INTERNAL_ERROR, TermNil, "unsupported type tag (FunctorBigInt in subgoal_search)");	  
 	} else {
           STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + ArityOfFunctor(f) - 1, stack_terms_base);
 	  for (j = ArityOfFunctor(f); j >= 1; j--)
@@ -897,6 +901,10 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_null + in_new_list);
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, li, _trie_retry_extension);
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_long);
+	} else if (f == FunctorDBRef) {
+	  Yap_Error(INTERNAL_ERROR, TermNil, "unsupported type tag (FunctorDBRef in answer_search)");
+	} else if (f == FunctorBigInt) {
+	  Yap_Error(INTERNAL_ERROR, TermNil, "unsupported type tag (FunctorBigInt in answer_search)");
 	} else {
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_struct + in_new_list);
           STACK_CHECK_EXPAND(stack_terms, stack_vars + ArityOfFunctor(f) - 1, stack_terms_base);
@@ -1015,8 +1023,6 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
 	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
 	STACK_PUSH_UP(t, stack_terms);
       }
-    } else {
-      Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (load_answer_trie)");
     }
     t = TrNode_entry(ans_node);
     ans_node = TrNode_parent(ans_node);
@@ -1074,25 +1080,52 @@ void private_completion(sg_fr_ptr sg_fr) {
 }
 
 
-void free_subgoal_trie_branch(sg_node_ptr node, int missing_nodes) {
-  Term t;
-
+void free_subgoal_trie_branch(sg_node_ptr node, int nodes_left, int nodes_extra) {
   if (TrNode_next(node))
-    free_subgoal_trie_branch(TrNode_next(node), missing_nodes);
+    free_subgoal_trie_branch(TrNode_next(node), nodes_left, nodes_extra);
 
-  t = TrNode_entry(node);
-  if (IsVarTerm(t) || IsAtomOrIntTerm(t)) {
-    missing_nodes -= 1;
-  } else if (IsPairTerm(t)) {
-    missing_nodes += 1;
-  } else if (IsApplTerm(t)) {
-    missing_nodes += ArityOfFunctor((Functor)RepAppl(t)) - 1;
+  if (nodes_extra) {
+#ifdef TRIE_COMPACT_LISTS
+    if (nodes_extra < 0) {
+      Term t = TrNode_entry(node);
+      if (IsPairTerm(t)) {
+	if (t == AbsPair(PairTermInit))
+	  nodes_extra--;
+	else  /* AbsPair(PairTermLast) */
+	  nodes_extra++;
+      }
+    } else 
+#endif /* TRIE_COMPACT_LISTS */
+    if (--nodes_extra == 0)
+      nodes_left--;
   } else {
-    Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (chain_subgoal_frames)");
+    Term t = TrNode_entry(node);
+    if (IsVarTerm(t) || IsAtomOrIntTerm(t))
+      nodes_left--;
+    else if (IsPairTerm(t))
+#ifdef TRIE_COMPACT_LISTS
+      /* AbsPair(PairTermInit) */
+      nodes_extra = -1;
+#else
+      nodes_left++;
+#endif /* TRIE_COMPACT_LISTS */
+    else if (IsApplTerm(t)) {
+      Functor f = (Functor) RepAppl(t);
+      if (f == FunctorDouble)
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+	nodes_extra = 2;
+#else
+        nodes_extra = 1;
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+      else if (f == FunctorLongInt)
+	nodes_extra = 1;
+      else
+	nodes_left += ArityOfFunctor(f) - 1;
+    }
   }
-  if (missing_nodes) {
-    free_subgoal_trie_branch(TrNode_child(node), missing_nodes);
-  } else {
+  if (nodes_left)
+    free_subgoal_trie_branch(TrNode_child(node), nodes_left, nodes_extra);
+  else {
     sg_fr_ptr sg_fr;
     ans_node_ptr ans_node;
     sg_fr = (sg_fr_ptr) TrNode_sg_fr(node);
@@ -1601,8 +1634,6 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
       arity[0]++;
       arity[arity[0]] = ArityOfFunctor(f);
     }
-  } else {
-    Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (traverse_subgoal_trie)");
   }
 
   TrStat_sg_nodes++;
@@ -1909,8 +1940,6 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
       arity[0]++;
       arity[arity[0]] = ArityOfFunctor(f);
     }
-  } else {
-    Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (traverse_answer_trie)");
   }
 
   TrStat_ans_nodes++;
