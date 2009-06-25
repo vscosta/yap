@@ -811,8 +811,7 @@ Int p_tabling_statistics(void) {
   bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_ans_node) * sizeof(struct answer_trie_node);
   fprintf(Yap_stdout, "  subgoal hashes:                %10ld structs in use\n", Pg_str_in_use(GLOBAL_PAGES_sg_hash));
   bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_sg_hash) * sizeof(struct subgoal_hash);
-  fprintf(Yap_stdout, "%s answer hashes:                 %10ld structs in use\n",
-          Pg_str_in_use(GLOBAL_PAGES_ans_hash) == 0 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_ans_hash));
+  fprintf(Yap_stdout, "  answer hashes:                 %10ld structs in use\n", Pg_str_in_use(GLOBAL_PAGES_ans_hash));
   bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_ans_hash) * sizeof(struct answer_hash);
   fprintf(Yap_stdout, "%s dependency frames:             %10ld structs in use\n",
           Pg_str_in_use(GLOBAL_PAGES_dep_fr) == 1 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_dep_fr));
@@ -880,8 +879,7 @@ int p_opt_statistics(void) {
   bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_ans_node) * sizeof(struct answer_trie_node);
   fprintf(Yap_stdout, "  subgoal hashes:                %10ld structs in use\n", Pg_str_in_use(GLOBAL_PAGES_sg_hash));
   bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_sg_hash) * sizeof(struct subgoal_hash);
-  fprintf(Yap_stdout, "%s answer hashes:                 %10ld structs in use\n",
-          Pg_str_in_use(GLOBAL_PAGES_ans_hash) == 0 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_ans_hash));
+  fprintf(Yap_stdout, "  answer hashes:                 %10ld structs in use\n", Pg_str_in_use(GLOBAL_PAGES_ans_hash));
   bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_ans_hash) * sizeof(struct answer_hash);
   fprintf(Yap_stdout, "%s dependency frames:             %10ld structs in use\n",
           Pg_str_in_use(GLOBAL_PAGES_dep_fr) == 1 ? " ": "*", Pg_str_in_use(GLOBAL_PAGES_dep_fr));
@@ -1225,8 +1223,7 @@ void shm_answer_hashes(long *pages_in_use, long *bytes_in_use) {
     pg_hd = PgHd_next(pg_hd);
   }
   fprintf(Yap_stdout, "%s answer hashes:                 %8ld pages %10ld structs in use\n",
-          Pg_str_free(GLOBAL_PAGES_ans_hash) == cont &&
-          Pg_str_in_use(GLOBAL_PAGES_ans_hash) == 0 ? " ": "*",
+          Pg_str_free(GLOBAL_PAGES_ans_hash) == cont ? " ": "*",
           Pg_pg_alloc(GLOBAL_PAGES_ans_hash), Pg_str_in_use(GLOBAL_PAGES_ans_hash));
   *pages_in_use += Pg_pg_alloc(GLOBAL_PAGES_ans_hash);
   *bytes_in_use += Pg_str_in_use(GLOBAL_PAGES_ans_hash) * sizeof(struct answer_hash);
