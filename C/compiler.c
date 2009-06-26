@@ -1811,9 +1811,9 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       }
       else if (op >= _plus && op <= _functor) {
 	if (profiling)
-	  Yap_emit(enter_profiling_op, (CELL)RepPredProp(p), Zero, &cglobs->cint);
+	  Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
 	else if (call_counting)
-	  Yap_emit(count_call_op, (CELL)RepPredProp(p), Zero, &cglobs->cint);
+	  Yap_emit(count_call_op, (CELL)p, Zero, &cglobs->cint);
 	if (op == _functor) {
 	  c_functor(Goal, mod, cglobs);
 	}
