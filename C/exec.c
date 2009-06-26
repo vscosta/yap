@@ -1570,49 +1570,36 @@ JumpToEnv(Term t) {
     if (!(t = Yap_SaveTerm(t)))
       return FALSE;
   }
-  do {
-    /* find the first choicepoint that may be a catch */
-    while (B != NULL && B->cp_ap != pos) {
-      /* we are already doing a catch */
-      if (B->cp_ap == catchpos) {
-	P = (yamop *)FAILCODE;
-	if (first_func != NULL) {
-	  B = first_func;
-	}
-	return(FALSE);
+  /* find the first choicepoint that may be a catch */
+  while (B != NULL && B->cp_ap != pos) {
+    /* we are already doing a catch */
+    if (B->cp_ap == catchpos) {
+      P = (yamop *)FAILCODE;
+      if (first_func != NULL) {
+	B = first_func;
       }
-      if (B->cp_ap == NOCODE) {
-	/* up to the C-code to deal with this! */
-	UncaughtThrow = TRUE;
-	B->cp_h = H;
-	EX = t;
-	return FALSE;
-      }
-      B = B->cp_b;
+      return(FALSE);
     }
-    /* uncaught throw */
-    if (B == NULL) {
+    if (B->cp_ap == NOCODE) {
+      /* up to the C-code to deal with this! */
       UncaughtThrow = TRUE;
-      B = B0;
-#if PUSH_REGS
-      restore_absmi_regs(&Yap_standard_regs);
-#endif
-      siglongjmp(Yap_RestartEnv,1);
+      B->cp_h = H;
+      EX = t;
+      return FALSE;
     }
-    /* is it a continuation? */
-    env = B->cp_env;
-    while (env > ENV) {
-      ENV = ENV_Parent(ENV);
-    }
-    /* yes, we found it ! */
-    //    while (env < ENV)
-    //      env = ENV_Parent(env);
-    if (env == ENV) {
-      break;
-    }
-    /* oops, try next */
     B = B->cp_b;
-  } while (TRUE);
+  }
+  /* uncaught throw */
+  if (B == NULL) {
+    UncaughtThrow = TRUE;
+    B = B0;
+#if PUSH_REGS
+    restore_absmi_regs(&Yap_standard_regs);
+#endif
+    siglongjmp(Yap_RestartEnv,1);
+  }
+  /* is it a continuation? */
+  env = ENV = B->cp_env;
   /* step one environment above, otherwise we'll redo the original goal */
   B->cp_cp = (yamop *)env[E_CP];
   B->cp_env = (CELL *)env[E_E];
