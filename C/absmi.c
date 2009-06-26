@@ -7339,7 +7339,7 @@ Yap_absmi(int inp)
 \************************************************************************/
 
       BOp(call_cpred, Osbpp);
-     
+      check_trail(TR);
       if (!(PREG->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) {
 	CACHE_Y_AS_ENV(YREG);
 	check_stack(NoStackCall, H);
@@ -7387,6 +7387,7 @@ Yap_absmi(int inp)
       
       /* execute     Label               */
       BOp(execute_cpred, pp);
+      check_trail(TR);
       {
 	PredEntry *pt0;
 
