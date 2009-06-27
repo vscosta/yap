@@ -17,7 +17,7 @@
 **      default sizes      **
 ** ----------------------- */
 #define MAX_LENGTH_ANSWER  500
-#define MAX_DEPTH          1000
+#define MAX_BRANCH_DEPTH   1000
 #define MAX_BEST_TIMES     21
 #define MAX_TABLE_VARS     100
 #define TABLE_LOCK_BUCKETS 512
@@ -72,6 +72,11 @@
 **      support incomplete tabling? (optional)     **
 ** ----------------------------------------------- */
 /* #define INCOMPLETE_TABLING 1 */
+
+/* ----------------------------------------------- **
+**      support trie compact lists? (optional)     **
+** ----------------------------------------------- */
+/* #define TRIE_COMPACT_LISTS 1 */
 
 /* --------------------------------------- **
 **      support inner cuts? (optional)     **
@@ -169,6 +174,7 @@
 #undef BBREG_TRAIL_SCHEME
 #undef LIMIT_TABLING
 #undef INCOMPLETE_TABLING
+#undef TRIE_COMPACT_LISTS
 #undef TABLING_ERRORS
 #endif /* !TABLING */
 

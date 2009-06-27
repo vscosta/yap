@@ -204,7 +204,7 @@ void share_private_nodes(int worker_q) {
     OrFr_nearest_livenode(previous_or_frame) = OrFr_next(previous_or_frame) = or_frame;
   }
   /* update depth */
-  if (depth >= MAX_DEPTH)
+  if (depth >= MAX_BRANCH_DEPTH)
     Yap_Error(INTERNAL_ERROR, TermNil, "maximum depth exceded (share_private_nodes)");
   or_frame = B->cp_or_fr;
   while (or_frame != LOCAL_top_or_fr) {

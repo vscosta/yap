@@ -1209,13 +1209,16 @@ Yap_absmi(int inp)
       UNLOCK(PREG->u.p.p->StatisticsForPred.lock);
       RetriesCounter--;
       if (RetriesCounter == 0 && RetriesCounterOn) {
+	/* act as if we had backtracked */
+	ENV = B->cp_env;
 	saveregs();
 	Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
-	JMPNext();
 	setregs();
+	JMPNext();
       } 
       PredEntriesCounter--;
       if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+	ENV = B->cp_env;
 	saveregs();
 	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
@@ -1228,8 +1231,18 @@ Yap_absmi(int inp)
       /* count_retry_me    Label,NArgs */
       Op(count_retry_me, Otapl);
       CACHE_Y(B);
+      restore_yaam_regs(PREG->u.Otapl.d);
+      restore_args(PREG->u.Otapl.s);
       /* After retry, cut should be pointing at the parent
        * choicepoint for the current B */
+#ifdef FROZEN_STACKS
+      S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+      set_cut(S_YREG, B->cp_b);
+#else
+      set_cut(S_YREG, B_YREG->cp_b);
+#endif /* FROZEN_STACKS */
+      SET_BB(B_YREG);
+      ENDCACHE_Y();
       LOCK(((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.lock);
       ((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.NOfRetries++;
       UNLOCK(((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.lock);
@@ -1247,16 +1260,6 @@ Yap_absmi(int inp)
 	setregs();
 	JMPNext();
       } 
-      restore_yaam_regs(PREG->u.Otapl.d);
-      restore_args(PREG->u.Otapl.s);
-#ifdef FROZEN_STACKS
-      S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
-      set_cut(S_YREG, B->cp_b);
-#else
-      set_cut(S_YREG, B_YREG->cp_b);
-#endif /* FROZEN_STACKS */
-      SET_BB(B_YREG);
-      ENDCACHE_Y();
       PREG = NEXTOP(PREG, Otapl);
       GONext();
       ENDOp();
@@ -7336,7 +7339,7 @@ Yap_absmi(int inp)
 \************************************************************************/
 
       BOp(call_cpred, Osbpp);
-     
+      check_trail(TR);
       if (!(PREG->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) {
 	CACHE_Y_AS_ENV(YREG);
 	check_stack(NoStackCall, H);
@@ -7384,6 +7387,7 @@ Yap_absmi(int inp)
       
       /* execute     Label               */
       BOp(execute_cpred, pp);
+      check_trail(TR);
       {
 	PredEntry *pt0;
 
@@ -8038,9 +8042,9 @@ Yap_absmi(int inp)
 	    setregs();
 	    JMPNext();
 	  } 
-	  PREG = pe->cs.p_code.TrueCodeOfPred;
 	  if ((pe->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) == 
 	    CountPredFlag) {
+	    PREG = pe->cs.p_code.TrueCodeOfPred;
 	    JMPNext();
 	  }
 	}

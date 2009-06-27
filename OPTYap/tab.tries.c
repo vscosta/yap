@@ -714,10 +714,35 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
       } else if (IsAtomOrIntTerm(t)) {
 	current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, t);
       } else if (IsPairTerm(t)) {
+#ifdef TRIE_COMPACT_LISTS
+	CELL *aux = RepPair(t);
+	if (aux == PairTermMark) {
+	  t = Deref(STACK_POP_DOWN(stack_terms));
+	  if (IsPairTerm(t)) {
+	    aux = RepPair(t);
+            /* STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2, stack_terms_base); */
+            /* STACK_CHECK_EXPAND is not necessary here because the situation of pushing **
+	    ** up 3 terms has already initially checked for the PairTermInit term */
+	    STACK_PUSH_UP(*(aux + 1), stack_terms);
+	    STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+	    STACK_PUSH_UP(*(aux), stack_terms);
+	  } else {
+            current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsPair(PairTermLast));
+	    STACK_PUSH_UP(t, stack_terms);
+	  }
+	} else {
+	  current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsPair(PairTermInit));
+	  STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2, stack_terms_base);
+	  STACK_PUSH_UP(*(aux + 1), stack_terms);
+	  STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+	  STACK_PUSH_UP(*(aux), stack_terms);
+	}
+#else
 	current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsPair(NULL));
 	STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 1, stack_terms_base);
 	STACK_PUSH_UP(*(RepPair(t) + 1), stack_terms);
 	STACK_PUSH_UP(*(RepPair(t)), stack_terms);
+#endif /* TRIE_COMPACT_LISTS */
       } else if (IsApplTerm(t)) {
 	Functor f = FunctorOfTerm(t);
 	current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsAppl((Term *)f));
@@ -731,6 +756,10 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 	} else if (f == FunctorLongInt) {
 	  Int li = LongIntOfTerm(t);
 	  current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, li);
+	} else if (f == FunctorDBRef) {
+	  Yap_Error(INTERNAL_ERROR, TermNil, "unsupported type tag (FunctorDBRef in subgoal_search)");
+	} else if (f == FunctorBigInt) {
+	  Yap_Error(INTERNAL_ERROR, TermNil, "unsupported type tag (FunctorBigInt in subgoal_search)");	  
 	} else {
           STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + ArityOfFunctor(f) - 1, stack_terms_base);
 	  for (j = ArityOfFunctor(f); j >= 1; j--)
@@ -782,6 +811,11 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
   int i, j, count_vars, subs_arity;
   CELL *stack_vars, *stack_terms_base, *stack_terms;
   ans_node_ptr current_ans_node;
+#ifdef TRIE_COMPACT_LISTS
+  int in_new_list = 0;
+#else
+#define in_new_list 0
+#endif /* TRIE_COMPACT_LISTS */
 
   count_vars = 0;
   subs_arity = *subs_ptr;
@@ -801,7 +835,7 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
       if (IsVarTerm(t)) {
 	if (IsTableVarTerm(t)) {
 	  t = MakeTableVarTerm(VarIndexOfTerm(t));
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_val);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_val + in_new_list);
 	} else {
 	  if (count_vars == MAX_TABLE_VARS)
 	    Yap_Error(INTERNAL_ERROR, TermNil, "MAX_TABLE_VARS exceeded (answer_search)");
@@ -809,21 +843,54 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  *((CELL *)t) = GLOBAL_table_var_enumerator(count_vars);
 	  t = MakeTableVarTerm(count_vars);
 	  count_vars++;
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_var);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_var + in_new_list);
 	}
+#ifdef TRIE_COMPACT_LISTS
+	in_new_list = 0;
+#endif /* TRIE_COMPACT_LISTS */
       } else if (IsAtomOrIntTerm(t)) {
-	current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_atom);
+	current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_atom + in_new_list);
+#ifdef TRIE_COMPACT_LISTS
+	in_new_list = 0;
+#endif /* TRIE_COMPACT_LISTS */
       } else if (IsPairTerm(t)) {
+#ifdef TRIE_COMPACT_LISTS
+	CELL *aux = RepPair(t);
+	if (aux == PairTermMark) {
+	  t = Deref(STACK_POP_DOWN(stack_terms));
+	  if (IsPairTerm(t)) {
+	    aux = RepPair(t);
+            /* STACK_CHECK_EXPAND(stack_terms, stack_vars + 2, stack_terms_base); */
+            /* STACK_CHECK_EXPAND is not necessary here because the situation of pushing **
+	    ** up 3 terms has already initially checked for the PairTermInit term */
+	    STACK_PUSH_UP(*(aux + 1), stack_terms);
+	    STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+	    STACK_PUSH_UP(*(aux), stack_terms);
+	    in_new_list = 4;
+	  } else {
+	    current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsPair(PairTermLast), _trie_retry_null);
+	    STACK_PUSH_UP(t, stack_terms);
+	  }         
+	} else {
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsPair(PairTermInit), _trie_retry_list + in_new_list);
+	  STACK_CHECK_EXPAND(stack_terms, stack_vars + 2, stack_terms_base);
+	  STACK_PUSH_UP(*(aux + 1), stack_terms);
+	  STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+	  STACK_PUSH_UP(*(aux), stack_terms);
+	  in_new_list = 0;
+	}
+#else
 	current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsPair(NULL), _trie_retry_list);
 	STACK_CHECK_EXPAND(stack_terms, stack_vars + 1, stack_terms_base);
 	STACK_PUSH_UP(*(RepPair(t) + 1), stack_terms);
 	STACK_PUSH_UP(*(RepPair(t)), stack_terms);
+#endif /* TRIE_COMPACT_LISTS */
       } else if (IsApplTerm(t)) {
 	Functor f = FunctorOfTerm(t);
 	if (f == FunctorDouble) {
 	  volatile Float dbl = FloatOfTerm(t);
 	  volatile Term *t_dbl = (Term *)((void *) &dbl);
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_null);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_null + in_new_list);
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, *(t_dbl + 1), _trie_retry_extension);
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
@@ -831,15 +898,22 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_float);
 	} else if (f == FunctorLongInt) {
 	  Int li = LongIntOfTerm (t);
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_null);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_null + in_new_list);
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, li, _trie_retry_extension);
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_long);
+	} else if (f == FunctorDBRef) {
+	  Yap_Error(INTERNAL_ERROR, TermNil, "unsupported type tag (FunctorDBRef in answer_search)");
+	} else if (f == FunctorBigInt) {
+	  Yap_Error(INTERNAL_ERROR, TermNil, "unsupported type tag (FunctorBigInt in answer_search)");
 	} else {
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_struct);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_struct + in_new_list);
           STACK_CHECK_EXPAND(stack_terms, stack_vars + ArityOfFunctor(f) - 1, stack_terms_base);
 	  for (j = ArityOfFunctor(f); j >= 1; j--)
 	    STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
 	}
+#ifdef TRIE_COMPACT_LISTS
+	in_new_list = 0;
+#endif /* TRIE_COMPACT_LISTS */
       } else {
 	Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (answer_search)");
       }
@@ -860,6 +934,9 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
   CELL *stack_vars_base, *stack_vars, *stack_terms_base, *stack_terms;
   int subs_arity, i, n_vars = -1;
   Term t;
+#ifdef TRIE_COMPACT_LISTS
+  int stack_terms_pair_offset = 0;
+#endif /* TRIE_COMPACT_LISTS */
 
   if ((subs_arity = *subs_ptr) == 0)
     return;
@@ -890,10 +967,31 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
       STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
       STACK_PUSH_UP(t, stack_terms);
     } else if (IsPairTerm(t)) {
+#ifdef TRIE_COMPACT_LISTS
+      if (t == AbsPair(PairTermInit)) { 
+	Term *stack_aux = stack_terms_base - stack_terms_pair_offset;
+	Term head, tail = STACK_POP_UP(stack_aux);
+	while (STACK_NOT_EMPTY(stack_aux, stack_terms)) {
+	  head = STACK_POP_UP(stack_aux);
+	  tail = MkPairTerm(head, tail);
+	}
+	stack_terms = stack_terms_base - stack_terms_pair_offset;
+	stack_terms_pair_offset = (int) STACK_POP_DOWN(stack_terms);
+	STACK_PUSH_UP(tail, stack_terms);
+      } else {  /* AbsPair(PairTermLast)) */
+	Term last;
+	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
+	last = STACK_POP_DOWN(stack_terms);
+	STACK_PUSH_UP(stack_terms_pair_offset, stack_terms);
+	stack_terms_pair_offset = (int) (stack_terms_base - stack_terms);
+	STACK_PUSH_UP(last, stack_terms);
+      }
+#else
       Term head = STACK_POP_DOWN(stack_terms);
       Term tail = STACK_POP_DOWN(stack_terms);
       t = MkPairTerm(head, tail);
       STACK_PUSH_UP(t, stack_terms);
+#endif /* TRIE_COMPACT_LISTS */
     } else if (IsApplTerm(t)) {
       Functor f = (Functor) RepAppl(t);
       if (f == FunctorDouble) {
@@ -925,8 +1023,6 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
 	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
 	STACK_PUSH_UP(t, stack_terms);
       }
-    } else {
-      Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (load_answer_trie)");
     }
     t = TrNode_entry(ans_node);
     ans_node = TrNode_parent(ans_node);
@@ -984,25 +1080,52 @@ void private_completion(sg_fr_ptr sg_fr) {
 }
 
 
-void free_subgoal_trie_branch(sg_node_ptr node, int missing_nodes) {
-  Term t;
-
+void free_subgoal_trie_branch(sg_node_ptr node, int nodes_left, int nodes_extra) {
   if (TrNode_next(node))
-    free_subgoal_trie_branch(TrNode_next(node), missing_nodes);
+    free_subgoal_trie_branch(TrNode_next(node), nodes_left, nodes_extra);
 
-  t = TrNode_entry(node);
-  if (IsVarTerm(t) || IsAtomOrIntTerm(t)) {
-    missing_nodes -= 1;
-  } else if (IsPairTerm(t)) {
-    missing_nodes += 1;
-  } else if (IsApplTerm(t)) {
-    missing_nodes += ArityOfFunctor((Functor)RepAppl(t)) - 1;
+  if (nodes_extra) {
+#ifdef TRIE_COMPACT_LISTS
+    if (nodes_extra < 0) {
+      Term t = TrNode_entry(node);
+      if (IsPairTerm(t)) {
+	if (t == AbsPair(PairTermInit))
+	  nodes_extra--;
+	else  /* AbsPair(PairTermLast) */
+	  nodes_extra++;
+      }
+    } else 
+#endif /* TRIE_COMPACT_LISTS */
+    if (--nodes_extra == 0)
+      nodes_left--;
   } else {
-    Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (chain_subgoal_frames)");
+    Term t = TrNode_entry(node);
+    if (IsVarTerm(t) || IsAtomOrIntTerm(t))
+      nodes_left--;
+    else if (IsPairTerm(t))
+#ifdef TRIE_COMPACT_LISTS
+      /* AbsPair(PairTermInit) */
+      nodes_extra = -1;
+#else
+      nodes_left++;
+#endif /* TRIE_COMPACT_LISTS */
+    else if (IsApplTerm(t)) {
+      Functor f = (Functor) RepAppl(t);
+      if (f == FunctorDouble)
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+	nodes_extra = 2;
+#else
+        nodes_extra = 1;
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+      else if (f == FunctorLongInt)
+	nodes_extra = 1;
+      else
+	nodes_left += ArityOfFunctor(f) - 1;
+    }
   }
-  if (missing_nodes) {
-    free_subgoal_trie_branch(TrNode_child(node), missing_nodes);
-  } else {
+  if (nodes_left)
+    free_subgoal_trie_branch(TrNode_child(node), nodes_left, nodes_extra);
+  else {
     sg_fr_ptr sg_fr;
     ans_node_ptr ans_node;
     sg_fr = (sg_fr_ptr) TrNode_sg_fr(node);
@@ -1286,6 +1409,12 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
         sg_node = *bucket;
         traverse_subgoal_trie(sg_node, str, str_index, arity, depth, mode);
 	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+	if (arity[arity[0]] == -1)
+	  str[str_index - 1] = '|';
+#ifdef TRIE_COMPACT_LISTS
+	else if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	  str[str_index - 1] = ',';
+#endif /* TRIE_COMPACT_LISTS */
       }
     } while (++bucket != last_bucket);
     free(current_arity);
@@ -1301,6 +1430,10 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
     free(current_arity);
     if (arity[arity[0]] == -1)
       str[str_index - 1] = '|';
+#ifdef TRIE_COMPACT_LISTS
+    else if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+      str[str_index - 1] = ',';
+#endif /* TRIE_COMPACT_LISTS */
   }
 
   /* test the node type */
@@ -1334,13 +1467,17 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
 	  break;
 	}
       } else {
-	arity[arity[0]]++;
-	if (arity[arity[0]] == 0) {
+	if (arity[arity[0]] == -2) {
+#ifdef TRIE_COMPACT_LISTS
+	  str_index += sprintf(& str[str_index], ",");
+#else
+	  str_index += sprintf(& str[str_index], "|");
+	  arity[arity[0]] = -1;
+#endif /* TRIE_COMPACT_LISTS */
+	  break;
+	} else {
 	  str_index += sprintf(& str[str_index], "]");
 	  arity[0]--;
-	} else {
-	  str_index += sprintf(& str[str_index], "|");
-	  break;
 	}
       }
     }
@@ -1363,13 +1500,17 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
 	  break;
 	}
       } else {
-	arity[arity[0]]++;
-	if (arity[arity[0]] == 0) {
+	if (arity[arity[0]] == -2) {
+#ifdef TRIE_COMPACT_LISTS
+	  str_index += sprintf(& str[str_index], ",");
+#else
+	  str_index += sprintf(& str[str_index], "|");
+	  arity[arity[0]] = -1;
+#endif /* TRIE_COMPACT_LISTS */
+	  break;
+	} else {
 	  str_index += sprintf(& str[str_index], "]");
 	  arity[0]--;
-	} else {
-	  str_index += sprintf(& str[str_index], "|");
-	  break;
 	}
       }
     }
@@ -1391,13 +1532,17 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
 	  break;
 	}
       } else {
-	arity[arity[0]]++;
-	if (arity[arity[0]] == 0) {
+	if (arity[arity[0]] == -2) {
+#ifdef TRIE_COMPACT_LISTS
+	  str_index += sprintf(& str[str_index], ",");
+#else
+	  str_index += sprintf(& str[str_index], "|");
+	  arity[arity[0]] = -1;
+#endif /* TRIE_COMPACT_LISTS */
+	  break;
+	} else {
 	  str_index += sprintf(& str[str_index], "]");
 	  arity[0]--;
-	} else {
-	  str_index += sprintf(& str[str_index], "|");
-	  break;
 	}
       }
     }
@@ -1418,13 +1563,17 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
 	  break;
 	}
       } else {
-	arity[arity[0]]++;
-	if (arity[arity[0]] == 0) {
+	if (arity[arity[0]] == -2) {
+#ifdef TRIE_COMPACT_LISTS
+	  str_index += sprintf(& str[str_index], ",");
+#else
+	  str_index += sprintf(& str[str_index], "|");
+	  arity[arity[0]] = -1;
+#endif /* TRIE_COMPACT_LISTS */
+	  break;
+	} else {
 	  str_index += sprintf(& str[str_index], "]");
 	  arity[0]--;
-	} else {
-	  str_index += sprintf(& str[str_index], "|");
-	  break;
 	}
       }
     }
@@ -1445,20 +1594,30 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
 	  break;
 	}
       } else {
-	arity[arity[0]]++;
-	if (arity[arity[0]] == 0) {
+	if (arity[arity[0]] == -2) {
+#ifdef TRIE_COMPACT_LISTS
+	  str_index += sprintf(& str[str_index], ",");
+#else
+	  str_index += sprintf(& str[str_index], "|");
+	  arity[arity[0]] = -1;
+#endif /* TRIE_COMPACT_LISTS */
+	  break;
+	} else {
 	  str_index += sprintf(& str[str_index], "]");
 	  arity[0]--;
-	} else {
-	  str_index += sprintf(& str[str_index], "|");
-	  break;
 	}
       }
     }
-  } else if (IsPairTerm(t)) {    
+  } else if (IsPairTerm(t)) {
+#ifdef TRIE_COMPACT_LISTS
+    if (t == AbsPair(PairTermLast)) {
+      str[str_index - 1] = '|';
+      arity[arity[0]] = -1;
+#else
     if (arity[arity[0]] == -1) {
       str[str_index - 1] = ',';
       arity[arity[0]] = -2;
+#endif /* TRIE_COMPACT_LISTS */
     } else {
       str_index += sprintf(& str[str_index], "[");
       arity[0]++;
@@ -1475,8 +1634,6 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
       arity[0]++;
       arity[arity[0]] = ArityOfFunctor(f);
     }
-  } else {
-    Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (traverse_subgoal_trie)");
   }
 
   TrStat_sg_nodes++;
@@ -1549,6 +1706,12 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
         ans_node = *bucket;
         traverse_answer_trie(ans_node, str, str_index, arity, var_index, depth, mode);
 	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+	if (arity[arity[0]] == -1)
+	  str[str_index - 1] = '|';
+#ifdef TRIE_COMPACT_LISTS
+	else if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	  str[str_index - 1] = ',';
+#endif /* TRIE_COMPACT_LISTS */
       }
     } while (++bucket != last_bucket);
     free(current_arity);
@@ -1564,6 +1727,10 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
     free(current_arity);
     if (arity[arity[0]] == -1)
       str[str_index - 1] = '|';
+#ifdef TRIE_COMPACT_LISTS
+    else if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+      str[str_index - 1] = ',';
+#endif /* TRIE_COMPACT_LISTS */
   }
 
   /* print VAR when starting a term */
@@ -1602,13 +1769,17 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
 	  break;
 	}
       } else {
-	arity[arity[0]]++;
-	if (arity[arity[0]] == 0) {
+	if (arity[arity[0]] == -2) {
+#ifdef TRIE_COMPACT_LISTS
+	  str_index += sprintf(& str[str_index], ",");
+#else
+	  str_index += sprintf(& str[str_index], "|");
+	  arity[arity[0]] = -1;
+#endif /* TRIE_COMPACT_LISTS */
+	  break;
+	} else {
 	  str_index += sprintf(& str[str_index], "]");
 	  arity[0]--;
-	} else {
-	  str_index += sprintf(& str[str_index], "|");
-	  break;
 	}
       }
     }
@@ -1633,13 +1804,17 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
 	  break;
 	}
       } else {
-	arity[arity[0]]++;
-	if (arity[arity[0]] == 0) {
+	if (arity[arity[0]] == -2) {
+#ifdef TRIE_COMPACT_LISTS
+	  str_index += sprintf(& str[str_index], ",");
+#else
+	  str_index += sprintf(& str[str_index], "|");
+	  arity[arity[0]] = -1;
+#endif /* TRIE_COMPACT_LISTS */
+	  break;
+	} else {
 	  str_index += sprintf(& str[str_index], "]");
 	  arity[0]--;
-	} else {
-	  str_index += sprintf(& str[str_index], "|");
-	  break;
 	}
       }
     }
@@ -1663,13 +1838,17 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
 	  break;
 	}
       } else {
-	arity[arity[0]]++;
-	if (arity[arity[0]] == 0) {
+	if (arity[arity[0]] == -2) {
+#ifdef TRIE_COMPACT_LISTS
+	  str_index += sprintf(& str[str_index], ",");
+#else
+	  str_index += sprintf(& str[str_index], "|");
+	  arity[arity[0]] = -1;
+#endif /* TRIE_COMPACT_LISTS */
+	  break;
+	} else {
 	  str_index += sprintf(& str[str_index], "]");
 	  arity[0]--;
-	} else {
-	  str_index += sprintf(& str[str_index], "|");
-	  break;
 	}
       }
     }
@@ -1690,13 +1869,17 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
 	  break;
 	}
       } else {
-	arity[arity[0]]++;
-	if (arity[arity[0]] == 0) {
+	if (arity[arity[0]] == -2) {
+#ifdef TRIE_COMPACT_LISTS
+	  str_index += sprintf(& str[str_index], ",");
+#else
+	  str_index += sprintf(& str[str_index], "|");
+	  arity[arity[0]] = -1;
+#endif /* TRIE_COMPACT_LISTS */
+	  break;
+	} else {
 	  str_index += sprintf(& str[str_index], "]");
 	  arity[0]--;
-	} else {
-	  str_index += sprintf(& str[str_index], "|");
-	  break;
 	}
       }
     }
@@ -1717,20 +1900,30 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
 	  break;
 	}
       } else {
-	arity[arity[0]]++;
-	if (arity[arity[0]] == 0) {
+	if (arity[arity[0]] == -2) {
+#ifdef TRIE_COMPACT_LISTS
+	  str_index += sprintf(& str[str_index], ",");
+#else
+	  str_index += sprintf(& str[str_index], "|");
+	  arity[arity[0]] = -1;
+#endif /* TRIE_COMPACT_LISTS */
+	  break;
+	} else {
 	  str_index += sprintf(& str[str_index], "]");
 	  arity[0]--;
-	} else {
-	  str_index += sprintf(& str[str_index], "|");
-	  break;
 	}
       }
     }
   } else if (IsPairTerm(t)) {
+#ifdef TRIE_COMPACT_LISTS
+    if (t == AbsPair(PairTermLast)) {
+      str[str_index - 1] = '|';
+      arity[arity[0]] = -1;
+#else
     if (arity[arity[0]] == -1) {
       str[str_index - 1] = ',';
       arity[arity[0]] = -2;
+#endif /* TRIE_COMPACT_LISTS */
     } else {
       str_index += sprintf(& str[str_index], "[");
       arity[0]++;
@@ -1747,8 +1940,6 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
       arity[0]++;
       arity[arity[0]] = ArityOfFunctor(f);
     }
-  } else {
-    Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (traverse_answer_trie)");
   }
 
   TrStat_ans_nodes++;

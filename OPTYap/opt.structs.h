@@ -158,7 +158,7 @@ struct global_data{
   volatile bitmap pruning_workers;
 #endif /* TABLING_INNER_CUTS */
   struct global_locks locks;
-  volatile unsigned int branch[MAX_WORKERS][MAX_DEPTH];
+  volatile unsigned int branch[MAX_WORKERS][MAX_BRANCH_DEPTH];
   volatile char parallel_execution_mode;  /* TRUE / FALSE */
   volatile int answers;
 #endif /* YAPOR */

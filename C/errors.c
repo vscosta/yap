@@ -518,20 +518,27 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     break;
   case CALL_COUNTER_UNDERFLOW:
     /* Do a long jump */
-    PredEntriesCounter--;
+    ReductionsCounterOn = FALSE;
+    PredEntriesCounterOn = FALSE;
+    RetriesCounterOn = FALSE;
     Yap_JumpToEnv(MkAtomTerm(AtomCallCounter));
     P = (yamop *)FAILCODE;
     Yap_PrologMode &= ~InErrorMode;
     return(P);
   case PRED_ENTRY_COUNTER_UNDERFLOW:
     /* Do a long jump */
+    ReductionsCounterOn = FALSE;
+    PredEntriesCounterOn = FALSE;
+    RetriesCounterOn = FALSE;
     Yap_JumpToEnv(MkAtomTerm(AtomCallAndRetryCounter));
     P = (yamop *)FAILCODE;
     Yap_PrologMode &= ~InErrorMode;
     return(P);
   case RETRY_COUNTER_UNDERFLOW:
     /* Do a long jump */
-    PredEntriesCounter--;
+    ReductionsCounterOn = FALSE;
+    PredEntriesCounterOn = FALSE;
+    RetriesCounterOn = FALSE;
     Yap_JumpToEnv(MkAtomTerm(AtomRetryCounter));
     P = (yamop *)FAILCODE;
     Yap_PrologMode &= ~InErrorMode;
