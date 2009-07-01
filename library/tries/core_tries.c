@@ -507,7 +507,7 @@ void core_trie_print(TrNode node, void (*print_function)(TrNode)) {
   DATA_PRINT_FUNCTION = print_function;
   if (TrNode_child(node)) {
     YAP_Int arity[100];
-    char str[1000];
+    char str[10000];
     arity[0] = 0;
     traverse_and_print(TrNode_child(node), arity, str, 0, TRIE_PRINT_NORMAL);
   } else
