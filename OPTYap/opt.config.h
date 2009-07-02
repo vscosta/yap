@@ -9,32 +9,29 @@
                                                                      
 **********************************************************************/
 
+/* ----------------------------------------------------------------- **
+**                  General Configuration Parameters                 **
+** ----------------------------------------------------------------- */
+
+/* ------------------------------------------ **
+**      memory alloc scheme (define one)      **
+** ------------------------------------------ */
+#define YAP_MEMORY_ALLOC_SCHEME 1
+/* #define SHM_MEMORY_ALLOC_SCHEME 1 */
+/* #define MALLOC_MEMORY_ALLOC_SCHEME 1 */
+
+
+
+
+
 /* ---------------------------------------------------------------- **
-**                     Configuration Parameters                     **
+**                 TABLING Configuration Parameters                 **
 ** ---------------------------------------------------------------- */
 
 /* ----------------------- **
 **      default sizes      **
 ** ----------------------- */
-#define MAX_LENGTH_ANSWER  500
-#define MAX_BRANCH_DEPTH   1000
-#define MAX_BEST_TIMES     21
-#define MAX_TABLE_VARS     100
-#define TABLE_LOCK_BUCKETS 512
-#define TG_ANSWER_SLOTS    20
-
-/* ----------------------------------------- **
-**      memory alloc scheme (define one)     **
-** ----------------------------------------- */
-/* #define SHM_MEMORY_ALLOC_SCHEME 1 */
-#define YAP_MEMORY_ALLOC_SCHEME 1
-/* #define MALLOC_MEMORY_ALLOC_SCHEME 1 */
-
-/* ------------------------------------------- **
-**      memory mapping scheme (define one)     **
-** ------------------------------------------- */
-#define MMAP_MEMORY_MAPPING_SCHEME 1
-/* #define SHM_MEMORY_MAPPING_SCHEME  1 */
+#define MAX_TABLE_VARS  100
 
 /* ------------------------------------------ **
 **      trail freeze scheme (define one)      **
@@ -42,63 +39,114 @@
 #define BFZ_TRAIL_SCHEME   1
 /* #define BBREG_TRAIL_SCHEME 1 */
 
-/* ------------------------------------------------------------------ **
-**                  tries locking scheme (define one)                 **
-** ------------------------------------------------------------------ **
-** The TABLE_LOCK_AT_ENTRY_LEVEL scheme locks the access to the table **
-** space in the entry data structure. It restricts the number of lock **
-** operations needed to go through the table data structures.         **
-**                                                                    **
-** The TABLE_LOCK_AT_NODE_LEVEL scheme locks each data structure      **
-** before accessing it. It decreases concurrrency for workers         **
-** accessing commom parts of the table space.                         **
-**                                                                    **
-** The TABLE_LOCK_AT_WRITE_LEVEL scheme is an hibrid scheme, it only  **
-** locks a table data structure when it is going to update it. You    **
-** can use ALLOC_BEFORE_CHECK with this scheme to allocate a node     **
-** before checking if it will be necessary.                           **
-** ------------------------------------------------------------------ */
-#define TABLE_LOCK_AT_WRITE_LEVEL 1
-/* #define TABLE_LOCK_AT_ENTRY_LEVEL 1 */
-/* #define TABLE_LOCK_AT_NODE_LEVEL  1 */
-/* #define ALLOC_BEFORE_CHECK        1 */
-
-/* ----------------------------------------------- **
-**      limit the table space size? (optional)     **
-** ----------------------------------------------- */
+/* ------------------------------------------------ **
+**      limit the table space size? (optional)      **
+** ------------------------------------------------ */
 /* #define LIMIT_TABLING 1 */
 
-/* ----------------------------------------------- **
-**      support incomplete tabling? (optional)     **
-** ----------------------------------------------- */
+/* ------------------------------------------------ **
+**      support incomplete tabling? (optional)      **
+** ------------------------------------------------ */
 /* #define INCOMPLETE_TABLING 1 */
 
-/* ----------------------------------------------- **
-**      support trie compact lists? (optional)     **
-** ----------------------------------------------- */
+/* ------------------------------------------------ **
+**      support trie compact lists? (optional)      **
+** ------------------------------------------------ */
 /* #define TRIE_COMPACT_LISTS 1 */
 
-/* --------------------------------------- **
-**      support inner cuts? (optional)     **
-** --------------------------------------- */
-#define TABLING_INNER_CUTS 1
+/* --------------------------------------------------- **
+**      support deterministic tabling? (optional)      **
+** --------------------------------------------------- */
+/* #define DETERMINISTIC_TABLING 1 */
 
-/* -------------------------------------------------- **
-**      use timestamps for suspension? (optional)     **
-** -------------------------------------------------- */
-#define TIMESTAMP_CHECK 1
-
-/* ------------------------------------------ **
-**      enable error checking? (optional)     **
-** ------------------------------------------ */
-/* #define YAPOR_ERRORS   1 */
+/* ---------------------------------------- -- **
+**      enable error checking? (optional)      **
+** ------------------------------------------- */
 /* #define TABLING_ERRORS 1 */
 
 
 
-/* -------------------------------------------------------- **
-**                     Parameter Checks                     **
-** -------------------------------------------------------- */
+
+
+/* ---------------------------------------------------------------- **
+**                  YAPOR Configuration Parameters                  **
+** ---------------------------------------------------------------- */
+
+/* ----------------------- **
+**      default sizes      **
+** ----------------------- */
+#define MAX_LENGTH_ANSWER  1000
+#define MAX_BRANCH_DEPTH   1000
+#define MAX_BEST_TIMES     21
+
+/* -------------------------------------------- **
+**      memory mapping scheme (define one)      **
+** -------------------------------------------- */
+#define MMAP_MEMORY_MAPPING_SCHEME 1
+/* #define SHM_MEMORY_MAPPING_SCHEME  1 */
+
+/* ---------------------------------------- -- **
+**      enable error checking? (optional)      **
+** ------------------------------------------- */
+/* #define YAPOR_ERRORS   1 */
+
+
+
+
+
+/* ---------------------------------------------------------------- **
+**                   OPTYAP Configuration Parameters                **
+** ---------------------------------------------------------------- */
+
+/* ----------------------- **
+**      default sizes      **
+** ----------------------- */
+#define TABLE_LOCK_BUCKETS 512
+#define TG_ANSWER_SLOTS    20
+
+/* ------------------------------------------- **
+**      tries locking scheme (define one)      **
+** ------------------------------------------- **
+** The TABLE_LOCK_AT_ENTRY_LEVEL scheme locks  **
+** the access to the table space in the entry  **
+** data structure. It restricts the number of  **
+** lock operations needed to go through the    **
+** table data structures.                      **
+**                                             **
+** The TABLE_LOCK_AT_NODE_LEVEL scheme locks   **
+** each data structure before accessing it. It **
+** decreases concurrrency for workers          **
+** accessing commom parts of the table space.  **
+**                                             **
+** The TABLE_LOCK_AT_WRITE_LEVEL scheme is an  **
+** hibrid scheme, it only locks a table data   **
+** structure when it is going to update it.    **
+** You can use ALLOC_BEFORE_CHECK with this    **
+** scheme to allocate a node before checking   **
+** if it will be necessary.                    **
+** ------------------------------------------- */
+/* #define TABLE_LOCK_AT_ENTRY_LEVEL 1 */
+/* #define TABLE_LOCK_AT_NODE_LEVEL  1 */
+#define TABLE_LOCK_AT_WRITE_LEVEL 1
+/* #define ALLOC_BEFORE_CHECK        1 */
+
+/* ---------------------------------------- **
+**      support inner cuts? (optional)      **
+** ---------------------------------------- */
+#define TABLING_INNER_CUTS 1
+
+/* --------------------------------------------------- **
+**      use timestamps for suspension? (optional)      **
+** --------------------------------------------------- */
+#define TIMESTAMP_CHECK 1
+
+
+
+
+
+/* ---------------------------------------------------------------- **
+**                          Parameter Checks                        **
+** ---------------------------------------------------------------- */
 
 #if !defined(SHM_MEMORY_ALLOC_SCHEME) && !defined(MALLOC_MEMORY_ALLOC_SCHEME) && !defined(YAP_MEMORY_ALLOC_SCHEME)
 #error Define a memory alloc scheme
@@ -175,6 +223,7 @@
 #undef LIMIT_TABLING
 #undef INCOMPLETE_TABLING
 #undef TRIE_COMPACT_LISTS
+#undef DETERMINISTIC_TABLING
 #undef TABLING_ERRORS
 #endif /* !TABLING */
 

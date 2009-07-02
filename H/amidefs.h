@@ -802,8 +802,36 @@ typedef Term *tr_fr_ptr;
   Choice Point Structure
 
   6 fixed fields (TR,AP,H,B,ENV,CP) plus arguments
-
 */
+
+#ifdef DETERMINISTIC_TABLING
+struct deterministic_choicept {
+  yamop *cp_ap;
+  struct choicept *cp_b;
+  tr_fr_ptr cp_tr;  
+#ifdef DEPTH_LIMIT
+  CELL cp_depth;
+#endif /* DEPTH_LIMIT */
+#ifdef YAPOR
+  int cp_lub;           /* local untried branches */
+  struct or_frame *cp_or_fr;  /* or-frame pointer */
+#endif /* YAPOR */
+};
+
+typedef struct choicept {
+  yamop *cp_ap;
+  struct choicept *cp_b;
+  tr_fr_ptr cp_tr;  
+#ifdef DEPTH_LIMIT
+  CELL cp_depth;
+#endif /* DEPTH_LIMIT */
+#ifdef YAPOR
+  int cp_lub;           /* local untried branches */
+  struct or_frame *cp_or_fr;  /* or-frame pointer */
+#endif /* YAPOR */
+  CELL *cp_h;
+  yamop *cp_cp;
+#else
 typedef struct choicept {
   tr_fr_ptr cp_tr;
   CELL *cp_h;
@@ -817,6 +845,7 @@ typedef struct choicept {
   struct or_frame *cp_or_fr;  /* or-frame pointer */
 #endif /* YAPOR */
   yamop *cp_ap;
+#endif /* DETERMINISTIC_TABLING */
 #if MIN_ARRAY == 0
   CELL *cp_env;
   /* GNUCC understands empty arrays */

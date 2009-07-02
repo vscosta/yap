@@ -14,6 +14,9 @@
 *************************************************************************/
 
 #include "config.h"
+#if defined(YAPOR) || defined(TABLING)
+#include "opt.config.h"
+#endif /* YAPOR || TABLING */
 
 /*
 
@@ -587,13 +590,6 @@ typedef enum
 /************************  prototypes **********************************/
 
 #include "Yapproto.h"
-
-/************************  OPTYap configuration ************************/
-
-/* These must be included before unification handlers */
-#if defined(YAPOR) || defined(TABLING)
-#include "opt.config.h"
-#endif /* YAPOR || TABLING */
 
 /***********************************************************************/
 

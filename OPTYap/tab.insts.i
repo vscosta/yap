@@ -85,6 +85,30 @@
         }
 
 
+#ifdef DETERMINISTIC_TABLING
+#define store_deterministic_generator_node(TAB_ENT, SG_FR)            \
+        { register choiceptr gcp;                                     \
+          /* initialize gcp and adjust subgoal frame field */         \
+          YENV = (CELL *) (DET_GEN_CP(YENV) - 1);                     \
+	  gcp = NORM_CP(YENV);                                        \
+          SgFr_gen_cp(SG_FR) = gcp;                                   \
+          /* store deterministic generator choice point */            \
+          HBREG = H;                                                  \
+          store_yaam_reg_cpdepth(gcp);                                \
+          gcp->cp_tr = TR;           	  	                      \
+          gcp->cp_ap = COMPLETION;                                    \
+          gcp->cp_b  = B;                                             \
+	  DET_GEN_CP(gcp)->cp_sg_fr = SG_FR;                          \
+          store_low_level_trace_info(DET_GEN_CP(gcp), TAB_ENT);       \
+          set_cut((CELL *)gcp, B);                                    \
+          B = gcp;                                                    \
+          YAPOR_SET_LOAD(B);                                          \
+          SET_BB(B);                                                  \
+          TABLING_ERRORS_check_stack;                                 \
+	}
+#endif /* DETERMINISTIC_TABLING */
+
+
 #define restore_generator_node(ARITY, AP)               \
         { register CELL *pt_args, *x_args;              \
           register choiceptr gcp = B;                   \
@@ -372,7 +396,14 @@
       /* subgoal new */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
-      store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, COMPLETION);
+#ifdef DETERMINISTIC_TABLING
+      if (IsMode_Batched(TabEnt_mode(tab_ent))) {
+	store_deterministic_generator_node(tab_ent, sg_fr);
+      } else
+#endif /* DETERMINISTIC_TABLING */
+      {
+	store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, COMPLETION);
+      }
       PREG = PREG->u.Otapl.d;  /* should work also with PREG = NEXTOP(PREG,Otapl); */
       PREFETCH_OP(PREG);
       allocate_environment();
@@ -711,6 +742,21 @@
 
   Op(table_trust_me, Otapl)
     restore_generator_node(PREG->u.Otapl.s, COMPLETION);
+#ifdef DETERMINISTIC_TABLING
+    if (B_FZ > B && IS_BATCHED_NORM_GEN_CP(B)) {   
+      CELL *subs_ptr = (CELL *)(GEN_CP(B) + 1) + PREG->u.Otapl.s;
+      choiceptr gcp = NORM_CP(DET_GEN_CP(subs_ptr) - 1);
+      sg_fr_ptr sg_fr = GEN_CP(B)->cp_sg_fr; 
+      DET_GEN_CP(gcp)->cp_sg_fr = sg_fr;         
+#ifdef DEPTH_LIMIT
+      gcp->cp_depth = B->cp_depth;
+#endif /* DEPTH_LIMIT */
+      gcp->cp_tr    = B->cp_tr;
+      gcp->cp_b     = B->cp_b;
+      gcp->cp_ap    = B->cp_ap;
+      SgFr_gen_cp(sg_fr) = B = gcp;       
+    }
+#endif /* DETERMINISTIC_TABLING */
     YENV = (CELL *) PROTECT_FROZEN_B(B);
     set_cut(YENV, B->cp_b);
     SET_BB(NORM_CP(YENV));
@@ -723,6 +769,21 @@
 
   Op(table_trust, Otapl)
     restore_generator_node(PREG->u.Otapl.s, COMPLETION);
+#ifdef DETERMINISTIC_TABLING
+  if (B_FZ > B && IS_BATCHED_NORM_GEN_CP(B)) {    
+      CELL *subs_ptr = (CELL *)(GEN_CP(B) + 1) + PREG->u.Otapl.s;
+      choiceptr gcp = NORM_CP(DET_GEN_CP(subs_ptr) - 1);
+      sg_fr_ptr sg_fr = GEN_CP(B)->cp_sg_fr; 
+      DET_GEN_CP(gcp)->cp_sg_fr = sg_fr;         
+#ifdef DEPTH_LIMIT
+      gcp->cp_depth = B->cp_depth;
+#endif /* DEPTH_LIMIT */
+      gcp->cp_tr    = B->cp_tr;
+      gcp->cp_b     = B->cp_b;
+      gcp->cp_ap    = B->cp_ap;
+      SgFr_gen_cp(sg_fr) = B = gcp;
+    }
+#endif /* DETERMINISTIC_TABLING */
     YENV = (CELL *) PROTECT_FROZEN_B(B);
     set_cut(YENV, B->cp_b);
     SET_BB(NORM_CP(YENV));
@@ -740,8 +801,16 @@
     ans_node_ptr ans_node;
 
     gcp = NORM_CP(YENV[E_B]);
-    sg_fr = GEN_CP(gcp)->cp_sg_fr;
-    subs_ptr = (CELL *)(GEN_CP(gcp) + 1) + PREG->u.s.s;
+#ifdef DETERMINISTIC_TABLING
+    if (IS_DET_GEN_CP(gcp)){  
+      sg_fr = DET_GEN_CP(gcp)->cp_sg_fr;
+      subs_ptr = (CELL *)(DET_GEN_CP(gcp) + 1) ; 
+    } else
+#endif /* DETERMINISTIC_TABLING */
+    {
+      sg_fr = GEN_CP(gcp)->cp_sg_fr;
+      subs_ptr = (CELL *)(GEN_CP(gcp) + 1) + PREG->u.s.s;
+    }
 #ifdef TABLING_ERRORS
     {
       sg_fr_ptr aux_sg_fr;
@@ -934,6 +1003,13 @@
       if (IS_BATCHED_GEN_CP(gcp)) {
 	/* if the number of substitution variables is zero, 
            an answer is sufficient to perform an early completion  */
+#ifdef DETERMINISTIC_TABLING
+	if (IS_DET_GEN_CP(gcp) && gcp == B) {
+	  private_completion(sg_fr);
+	  B = B->cp_b;
+	  SET_BB(PROTECT_FROZEN_B(B));
+	} else
+#endif /* DETERMINISTIC_TABLING */
 	if (*subs_ptr == 0 && gcp->cp_ap != NULL) {
 	  gcp->cp_ap = COMPLETION;
 	  mark_as_completed(sg_fr);
@@ -1555,7 +1631,12 @@
       /* complete all */
       sg_fr_ptr sg_fr;
 
-      sg_fr = GEN_CP(B)->cp_sg_fr;
+#ifdef DETERMINISTIC_TABLING
+      if (IS_DET_GEN_CP(B))
+	sg_fr = DET_GEN_CP(B)->cp_sg_fr;
+      else	 
+#endif /* DETERMINISTIC_TABLING */
+	sg_fr = GEN_CP(B)->cp_sg_fr;
       private_completion(sg_fr);
       if (IS_BATCHED_GEN_CP(B)) {
         /* backtrack */

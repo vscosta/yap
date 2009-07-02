@@ -34,14 +34,18 @@
 #define SetMode_LoadAnswers(X)         (X) |= Mode_LoadAnswers
 #define SetMode_ExecAnswers(X)         (X) &= ~Mode_LoadAnswers
 #define IsMode_Local(X)                ((X) & Mode_Local)
+#define IsMode_Batched(X)              (!IsMode_Local(X))
 #define IsMode_LoadAnswers(X)          ((X) & Mode_LoadAnswers)
+#define IsMode_ExecAnswers(X)          (!IsMode_LoadAnswers(X))
 
 #define SetDefaultMode_Local(X)        (X) |= DefaultMode_Local
 #define SetDefaultMode_Batched(X)      (X) &= ~DefaultMode_Local
 #define SetDefaultMode_LoadAnswers(X)  (X) |= DefaultMode_LoadAnswers
 #define SetDefaultMode_ExecAnswers(X)  (X) &= ~DefaultMode_LoadAnswers
 #define IsDefaultMode_Local(X)         ((X) & DefaultMode_Local)
+#define IsDefaultMode_Batched(X)       (!IsDefaultMode_Local(X))
 #define IsDefaultMode_LoadAnswers(X)   ((X) & DefaultMode_LoadAnswers)
+#define IsDefaultMode_ExecAnswers(X)   (!IsDefaultMode_LoadAnswers(X))
 
 
 
@@ -307,18 +311,28 @@ typedef struct suspension_frame {
 
 
 
-/* --------------------------------------------------------------------------- **
-**      Structs generator_choicept, consumer_choicept and loader_choicept      **
-** --------------------------------------------------------------------------- */
+/* ------------------------------- **
+**      Structs choice points      **
+** ------------------------------- */
 
 struct generator_choicept {
   struct choicept cp;
-  struct dependency_frame *cp_dep_fr;  /* NULL if batched scheduling */
+  struct dependency_frame *cp_dep_fr;  /* always NULL if batched scheduling */
   struct subgoal_frame *cp_sg_fr;
 #ifdef LOW_LEVEL_TRACER
   struct pred_entry *cp_pred_entry;
 #endif /* LOW_LEVEL_TRACER */
 };
+
+#ifdef DETERMINISTIC_TABLING
+struct deterministic_generator_choicept {
+  struct deterministic_choicept cp;
+  struct subgoal_frame *cp_sg_fr;
+#ifdef LOW_LEVEL_TRACER
+  struct pred_entry *cp_pred_entry;
+#endif /* LOW_LEVEL_TRACER */
+};
+#endif /* DETERMINISTIC_TABLING */
 
 struct consumer_choicept {
   struct choicept cp;

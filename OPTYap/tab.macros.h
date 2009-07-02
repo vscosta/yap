@@ -61,11 +61,18 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 **     Tabling Macros      **
 ** ----------------------- */
 
-#define NORM_CP(CP)            ((choiceptr)(CP))
-#define CONS_CP(CP)            ((struct consumer_choicept *)(CP))
-#define GEN_CP(CP)             ((struct generator_choicept *)(CP))
-#define LOAD_CP(CP)            ((struct loader_choicept *)(CP))
-#define IS_BATCHED_GEN_CP(CP)  (GEN_CP(CP)->cp_dep_fr == NULL)
+#define NORM_CP(CP)                 ((choiceptr)(CP))
+#define GEN_CP(CP)                  ((struct generator_choicept *)(CP))
+#define CONS_CP(CP)                 ((struct consumer_choicept *)(CP))
+#define LOAD_CP(CP)                 ((struct loader_choicept *)(CP))
+#ifdef DETERMINISTIC_TABLING
+#define DET_GEN_CP(CP)              ((struct deterministic_generator_choicept *)(CP))
+#define IS_DET_GEN_CP(CP)           (*(CELL*)(DET_GEN_CP(CP) + 1) <= MAX_TABLE_VARS)
+#define IS_BATCHED_NORM_GEN_CP(CP)  (GEN_CP(CP)->cp_dep_fr == NULL)
+#define IS_BATCHED_GEN_CP(CP)       (IS_DET_GEN_CP(CP) || IS_BATCHED_NORM_GEN_CP(CP))
+#else
+#define IS_BATCHED_GEN_CP(CP)       (GEN_CP(CP)->cp_dep_fr == NULL)
+#endif /* DETERMINISTIC_TABLING */
 
 #define TAG_AS_ANSWER_LEAF_NODE(NODE)  TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int)TrNode_parent(NODE) | 0x1)
 #define UNTAG_ANSWER_LEAF_NODE(NODE)   ((ans_node_ptr)((unsigned long int)NODE & ~(0x1)))
@@ -103,7 +110,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 
 
 /* LowTagBits is 3 for 32 bit-machines and 7 for 64 bit-machines */
-#define NumberOfLowTagBits (LowTagBits == 3 ? 2 : 3)
+#define NumberOfLowTagBits         (LowTagBits == 3 ? 2 : 3)
 #define MakeTableVarTerm(INDEX)    (INDEX << NumberOfLowTagBits)
 #define VarIndexOfTableTerm(TERM)  (TERM >> NumberOfLowTagBits)
 #define VarIndexOfTerm(TERM)                                               \

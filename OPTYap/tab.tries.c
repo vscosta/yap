@@ -1211,8 +1211,8 @@ static struct trie_statistics{
 #define TrStat_ans_max_depth     trie_stats.answer_trie_max_depth
 #define TrStat_ans_min_depth     trie_stats.answer_trie_min_depth
 
-#define STR_ARRAY_SIZE  10000
-#define ARITY_ARRAY_SIZE 1000
+#define STR_ARRAY_SIZE  100000
+#define ARITY_ARRAY_SIZE 10000
 #define SHOW_TABLE(MESG, ARGS...)  if (TrStat_show) fprintf(Yap_stdout, MESG, ##ARGS)
 
 
