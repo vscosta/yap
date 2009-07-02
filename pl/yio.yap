@@ -520,8 +520,7 @@ nl(Stream) :- '$put'(Stream,10).
 nl :- current_output(Stream), '$put'(Stream,10), fail.
 nl.
 
-write(T) :-
-	'$write'(4, T).
+write(T) :- '$write'(4, T).
 
 writeln(T) :-
 	'$write'(4, T),
@@ -1114,3 +1113,13 @@ stream_position_data(byte_count, '$stream_position'(Data,_,_,_,_), Data).
 	nb_setval('$open_expands_filename',false).
 '$set_default_expand'(V) :- !,
 	'$do_error'(domain_error(flag_value,V),yap_flag(open_expands_file_name,X)).
+
+prolog_file_name(File, PrologFileName) :-
+	var(File), !,
+	'$do_error'(instantiation_error, prolog_file_name(File, PrologFileName)).
+prolog_file_name(user, Out) :- !, Out = user.
+prolog_file_name(File, PrologFileName) :-
+	atom(File), !,
+	system:true_file_name(File, PrologFileName).
+prolog_file_name(File, PrologFileName) :-
+	'$do_error'(type_error(atom,T), prolog_file_name(File, PrologFileName)).

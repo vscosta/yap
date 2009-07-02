@@ -148,7 +148,7 @@ bagof(Template, Generator, Bag) :-
 	'$variables_in_term'(X+Y, [], NY),
 	'$excess_vars'((P,S), _,  NY, L0, L).
 '$excess_vars'(findall(X,P,S), findall(X,P,S), Y, L0, L) :- !,
-	'$excess_vars'(S, Y, L0, L).
+	'$excess_vars'(S, _, Y, L0, L).
 '$excess_vars'(findall(X,P,S0,S), (X,P,S0,S), Y, L0, L) :- !,
 	'$excess_vars'(S, _, Y, L0, L).
 '$excess_vars'(\+G, \+G, _, L0, LF) :- !,
