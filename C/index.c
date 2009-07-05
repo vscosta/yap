@@ -1069,26 +1069,46 @@ has_cut(yamop *pc)
     case _trie_trust_null:
     case _trie_try_null:
     case _trie_retry_null:
+    case _trie_do_null_in_new_pair:
+    case _trie_trust_null_in_new_pair:
+    case _trie_try_null_in_new_pair:
+    case _trie_retry_null_in_new_pair:
     case _trie_do_var:
     case _trie_trust_var:
     case _trie_try_var:
     case _trie_retry_var:
+    case _trie_do_var_in_new_pair:
+    case _trie_trust_var_in_new_pair:
+    case _trie_try_var_in_new_pair:
+    case _trie_retry_var_in_new_pair:
     case _trie_do_val:
     case _trie_trust_val:
     case _trie_try_val:
     case _trie_retry_val:
+    case _trie_do_val_in_new_pair:
+    case _trie_trust_val_in_new_pair:
+    case _trie_try_val_in_new_pair:
+    case _trie_retry_val_in_new_pair:
     case _trie_do_atom:
     case _trie_trust_atom:
     case _trie_try_atom:
     case _trie_retry_atom:
-    case _trie_do_list:
-    case _trie_trust_list:
-    case _trie_try_list:
-    case _trie_retry_list:
+    case _trie_do_atom_in_new_pair:
+    case _trie_trust_atom_in_new_pair:
+    case _trie_try_atom_in_new_pair:
+    case _trie_retry_atom_in_new_pair:
+    case _trie_do_pair:
+    case _trie_trust_pair:
+    case _trie_try_pair:
+    case _trie_retry_pair:
     case _trie_do_struct:
     case _trie_trust_struct:
     case _trie_try_struct:
     case _trie_retry_struct:
+    case _trie_do_struct_in_new_pair:
+    case _trie_trust_struct_in_new_pair:
+    case _trie_try_struct_in_new_pair:
+    case _trie_retry_struct_in_new_pair:
     case _trie_do_extension:
     case _trie_trust_extension:
     case _trie_try_extension:

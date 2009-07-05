@@ -50,9 +50,9 @@
 /* #define INCOMPLETE_TABLING 1 */
 
 /* ------------------------------------------------ **
-**      support trie compact lists? (optional)      **
+**      support trie compact pairs? (optional)      **
 ** ------------------------------------------------ */
-/* #define TRIE_COMPACT_LISTS 1 */
+#define TRIE_COMPACT_PAIRS 1
 
 /* --------------------------------------------------- **
 **      support deterministic tabling? (optional)      **
@@ -222,7 +222,7 @@
 #undef BBREG_TRAIL_SCHEME
 #undef LIMIT_TABLING
 #undef INCOMPLETE_TABLING
-#undef TRIE_COMPACT_LISTS
+#undef TRIE_COMPACT_PAIRS
 #undef DETERMINISTIC_TABLING
 #undef TABLING_ERRORS
 #endif /* !TABLING */

@@ -2065,24 +2065,34 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	}
 	nargs = 0;
 	break;
-      case _trie_retry_null:
       case _trie_trust_null:
-      case _trie_retry_var:
+      case _trie_retry_null:
+      case _trie_trust_null_in_new_pair:
+      case _trie_retry_null_in_new_pair:
       case _trie_trust_var:
-      case _trie_retry_val:
+      case _trie_retry_var:
+      case _trie_trust_var_in_new_pair:
+      case _trie_retry_var_in_new_pair:
       case _trie_trust_val:
-      case _trie_retry_atom:
+      case _trie_retry_val:
+      case _trie_trust_val_in_new_pair:
+      case _trie_retry_val_in_new_pair:
       case _trie_trust_atom:
-      case _trie_retry_list:
-      case _trie_trust_list:
-      case _trie_retry_struct:
+      case _trie_retry_atom:
+      case _trie_trust_atom_in_new_pair:
+      case _trie_retry_atom_in_new_pair:
+      case _trie_trust_pair:
+      case _trie_retry_pair:
       case _trie_trust_struct:
-      case _trie_retry_extension:
+      case _trie_retry_struct:
+      case _trie_trust_struct_in_new_pair:
+      case _trie_retry_struct_in_new_pair:
       case _trie_trust_extension:
-      case _trie_retry_float:
+      case _trie_retry_extension:
       case _trie_trust_float:
-      case _trie_retry_long:
+      case _trie_retry_float:
       case _trie_trust_long:
+      case _trie_retry_long:
 	{
 	  CELL *vars_ptr;
 	  int heap_arity, vars_arity, subs_arity;
@@ -2945,24 +2955,34 @@ sweep_choicepoints(choiceptr gc_B)
 	}
       }
       break;
-    case _trie_retry_null:
     case _trie_trust_null:
-    case _trie_retry_var:
+    case _trie_retry_null:
+    case _trie_trust_null_in_new_pair:
+    case _trie_retry_null_in_new_pair:
     case _trie_trust_var:
-    case _trie_retry_val:
+    case _trie_retry_var:
+    case _trie_trust_var_in_new_pair:
+    case _trie_retry_var_in_new_pair:
     case _trie_trust_val:
-    case _trie_retry_atom:
+    case _trie_retry_val:
+    case _trie_trust_val_in_new_pair:
+    case _trie_retry_val_in_new_pair:
     case _trie_trust_atom:
-    case _trie_retry_list:
-    case _trie_trust_list:
-    case _trie_retry_struct:
+    case _trie_retry_atom:
+    case _trie_trust_atom_in_new_pair:
+    case _trie_retry_atom_in_new_pair:
+    case _trie_trust_pair:
+    case _trie_retry_pair:
     case _trie_trust_struct:
-    case _trie_retry_extension:
+    case _trie_retry_struct:
+    case _trie_trust_struct_in_new_pair:
+    case _trie_retry_struct_in_new_pair:
     case _trie_trust_extension:
-    case _trie_retry_float:
+    case _trie_retry_extension:
     case _trie_trust_float:
-    case _trie_retry_long:
+    case _trie_retry_float:
     case _trie_trust_long:
+    case _trie_retry_long:
       {
 	CELL *vars_ptr;
 	int heap_arity, vars_arity, subs_arity;

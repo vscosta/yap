@@ -695,9 +695,9 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 #endif /* TABLE_LOCK_LEVEL */
   for (i = 1; i <= arity; i++) {
     STACK_CHECK_EXPAND(stack_terms, stack_terms_limit, stack_terms_base);
-    STACK_PUSH_UP(XREGS[i], stack_terms);
+    STACK_PUSH_UP(Deref(XREGS[i]), stack_terms);
     do {
-      Term t = Deref(STACK_POP_DOWN(stack_terms));
+      Term t = STACK_POP_DOWN(stack_terms);
       if (IsVarTerm(t)) {
 	if (IsTableVarTerm(t)) {
 	  t = MakeTableVarTerm(VarIndexOfTerm(t));
@@ -714,35 +714,45 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
       } else if (IsAtomOrIntTerm(t)) {
 	current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, t);
       } else if (IsPairTerm(t)) {
-#ifdef TRIE_COMPACT_LISTS
+#ifdef TRIE_COMPACT_PAIRS
 	CELL *aux = RepPair(t);
 	if (aux == PairTermMark) {
-	  t = Deref(STACK_POP_DOWN(stack_terms));
+	  t = STACK_POP_DOWN(stack_terms);
 	  if (IsPairTerm(t)) {
 	    aux = RepPair(t);
-            /* STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2, stack_terms_base); */
-            /* STACK_CHECK_EXPAND is not necessary here because the situation of pushing **
-	    ** up 3 terms has already initially checked for the PairTermInit term */
-	    STACK_PUSH_UP(*(aux + 1), stack_terms);
-	    STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
-	    STACK_PUSH_UP(*(aux), stack_terms);
+	    t = Deref(*(aux + 1));
+	    if (t == TermNil) {
+	      current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, CompactPairEndList);
+	    } else {
+	      /* STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2, stack_terms_base); */
+	      /* STACK_CHECK_EXPAND is not necessary here because the situation of pushing **
+	      ** up 3 terms has already initially checked for the CompactPairInit term */
+	      STACK_PUSH_UP(t, stack_terms);
+	      STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+	    }
+	    STACK_PUSH_UP(Deref(*aux), stack_terms);
 	  } else {
-            current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsPair(PairTermLast));
+            current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, CompactPairEndTerm);
 	    STACK_PUSH_UP(t, stack_terms);
 	  }
 	} else {
-	  current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsPair(PairTermInit));
-	  STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2, stack_terms_base);
-	  STACK_PUSH_UP(*(aux + 1), stack_terms);
-	  STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
-	  STACK_PUSH_UP(*(aux), stack_terms);
+	  current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, CompactPairInit);
+	  t = Deref(*(aux + 1));
+	  if (t == TermNil) {
+	    current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, CompactPairEndList);
+	  } else {
+	    STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2, stack_terms_base);
+	    STACK_PUSH_UP(t, stack_terms);
+	    STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+	  }
+	  STACK_PUSH_UP(Deref(*aux), stack_terms);
 	}
 #else
 	current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsPair(NULL));
 	STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 1, stack_terms_base);
-	STACK_PUSH_UP(*(RepPair(t) + 1), stack_terms);
-	STACK_PUSH_UP(*(RepPair(t)), stack_terms);
-#endif /* TRIE_COMPACT_LISTS */
+	STACK_PUSH_UP(Deref(*(RepPair(t) + 1)), stack_terms);
+	STACK_PUSH_UP(Deref(*(RepPair(t))), stack_terms);
+#endif /* TRIE_COMPACT_PAIRS */
       } else if (IsApplTerm(t)) {
 	Functor f = FunctorOfTerm(t);
 	current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsAppl((Term *)f));
@@ -763,7 +773,7 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 	} else {
           STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + ArityOfFunctor(f) - 1, stack_terms_base);
 	  for (j = ArityOfFunctor(f); j >= 1; j--)
-	    STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
+	    STACK_PUSH_UP(Deref(*(RepAppl(t) + j)), stack_terms);
 	}
       } else {
 	Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (subgoal_search)");
@@ -811,11 +821,11 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
   int i, j, count_vars, subs_arity;
   CELL *stack_vars, *stack_terms_base, *stack_terms;
   ans_node_ptr current_ans_node;
-#ifdef TRIE_COMPACT_LISTS
-  int in_new_list = 0;
+#ifdef TRIE_COMPACT_PAIRS
+  int in_new_pair = 0;
 #else
-#define in_new_list 0
-#endif /* TRIE_COMPACT_LISTS */
+#define in_new_pair 0
+#endif /* TRIE_COMPACT_PAIRS */
 
   count_vars = 0;
   subs_arity = *subs_ptr;
@@ -825,17 +835,18 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 
   for (i = subs_arity; i >= 1; i--) {
     STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
-    STACK_PUSH_UP(*(subs_ptr + i), stack_terms);
+    STACK_PUSH_UP(Deref(*(subs_ptr + i)), stack_terms);
 #ifdef TABLING_ERRORS
     if (IsNonVarTerm(*stack_terms))
       TABLING_ERROR_MESSAGE("IsNonVarTem(*stack_terms) (answer_search)");
 #endif /* TABLING_ERRORS */
     do {
-      Term t = Deref(STACK_POP_DOWN(stack_terms));
+      Term t = STACK_POP_DOWN(stack_terms);
       if (IsVarTerm(t)) {
+	t = Deref(t);
 	if (IsTableVarTerm(t)) {
 	  t = MakeTableVarTerm(VarIndexOfTerm(t));
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_val + in_new_list);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_val + in_new_pair);
 	} else {
 	  if (count_vars == MAX_TABLE_VARS)
 	    Yap_Error(INTERNAL_ERROR, TermNil, "MAX_TABLE_VARS exceeded (answer_search)");
@@ -843,54 +854,65 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  *((CELL *)t) = GLOBAL_table_var_enumerator(count_vars);
 	  t = MakeTableVarTerm(count_vars);
 	  count_vars++;
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_var + in_new_list);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_var + in_new_pair);
 	}
-#ifdef TRIE_COMPACT_LISTS
-	in_new_list = 0;
-#endif /* TRIE_COMPACT_LISTS */
+#ifdef TRIE_COMPACT_PAIRS
+	in_new_pair = 0;
+#endif /* TRIE_COMPACT_PAIRS */
       } else if (IsAtomOrIntTerm(t)) {
-	current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_atom + in_new_list);
-#ifdef TRIE_COMPACT_LISTS
-	in_new_list = 0;
-#endif /* TRIE_COMPACT_LISTS */
+	current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_atom + in_new_pair);
+#ifdef TRIE_COMPACT_PAIRS
+	in_new_pair = 0;
+#endif /* TRIE_COMPACT_PAIRS */
       } else if (IsPairTerm(t)) {
-#ifdef TRIE_COMPACT_LISTS
+#ifdef TRIE_COMPACT_PAIRS
 	CELL *aux = RepPair(t);
 	if (aux == PairTermMark) {
-	  t = Deref(STACK_POP_DOWN(stack_terms));
+	  t = STACK_POP_DOWN(stack_terms);
 	  if (IsPairTerm(t)) {
 	    aux = RepPair(t);
-            /* STACK_CHECK_EXPAND(stack_terms, stack_vars + 2, stack_terms_base); */
-            /* STACK_CHECK_EXPAND is not necessary here because the situation of pushing **
-	    ** up 3 terms has already initially checked for the PairTermInit term */
-	    STACK_PUSH_UP(*(aux + 1), stack_terms);
-	    STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
-	    STACK_PUSH_UP(*(aux), stack_terms);
-	    in_new_list = 4;
+	    t = Deref(*(aux + 1));
+	    if (t == TermNil) {
+	      current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, CompactPairEndList, _trie_retry_pair);
+	    } else {
+	      /* STACK_CHECK_EXPAND(stack_terms, stack_vars + 2, stack_terms_base); */
+	      /* STACK_CHECK_EXPAND is not necessary here because the situation of pushing **
+	      ** up 3 terms has already initially checked for the CompactPairInit term */
+	      STACK_PUSH_UP(t, stack_terms);
+	      STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+	      in_new_pair = 4;
+	    }
+	    STACK_PUSH_UP(Deref(*aux), stack_terms);
 	  } else {
-	    current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsPair(PairTermLast), _trie_retry_null);
+	    current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, CompactPairEndTerm, _trie_retry_null);
 	    STACK_PUSH_UP(t, stack_terms);
 	  }         
 	} else {
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsPair(PairTermInit), _trie_retry_list + in_new_list);
-	  STACK_CHECK_EXPAND(stack_terms, stack_vars + 2, stack_terms_base);
-	  STACK_PUSH_UP(*(aux + 1), stack_terms);
-	  STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
-	  STACK_PUSH_UP(*(aux), stack_terms);
-	  in_new_list = 0;
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, CompactPairInit, _trie_retry_null + in_new_pair);
+	  t = Deref(*(aux + 1));
+	  if (t == TermNil) {
+	    current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, CompactPairEndList, _trie_retry_pair);
+	    in_new_pair = 0;
+	  } else {
+	    STACK_CHECK_EXPAND(stack_terms, stack_vars + 2, stack_terms_base);
+	    STACK_PUSH_UP(t, stack_terms);
+	    STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+	    in_new_pair = 4;
+	  }
+	  STACK_PUSH_UP(Deref(*aux), stack_terms);
 	}
 #else
-	current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsPair(NULL), _trie_retry_list);
+	current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsPair(NULL), _trie_retry_pair);
 	STACK_CHECK_EXPAND(stack_terms, stack_vars + 1, stack_terms_base);
-	STACK_PUSH_UP(*(RepPair(t) + 1), stack_terms);
-	STACK_PUSH_UP(*(RepPair(t)), stack_terms);
-#endif /* TRIE_COMPACT_LISTS */
+	STACK_PUSH_UP(Deref(*(RepPair(t) + 1)), stack_terms);
+	STACK_PUSH_UP(Deref(*(RepPair(t))), stack_terms);
+#endif /* TRIE_COMPACT_PAIRS */
       } else if (IsApplTerm(t)) {
 	Functor f = FunctorOfTerm(t);
 	if (f == FunctorDouble) {
 	  volatile Float dbl = FloatOfTerm(t);
 	  volatile Term *t_dbl = (Term *)((void *) &dbl);
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_null + in_new_list);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_null + in_new_pair);
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, *(t_dbl + 1), _trie_retry_extension);
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
@@ -898,7 +920,7 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_float);
 	} else if (f == FunctorLongInt) {
 	  Int li = LongIntOfTerm (t);
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_null + in_new_list);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_null + in_new_pair);
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, li, _trie_retry_extension);
 	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_long);
 	} else if (f == FunctorDBRef) {
@@ -906,14 +928,14 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	} else if (f == FunctorBigInt) {
 	  Yap_Error(INTERNAL_ERROR, TermNil, "unsupported type tag (FunctorBigInt in answer_search)");
 	} else {
-	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_struct + in_new_list);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_struct + in_new_pair);
           STACK_CHECK_EXPAND(stack_terms, stack_vars + ArityOfFunctor(f) - 1, stack_terms_base);
 	  for (j = ArityOfFunctor(f); j >= 1; j--)
-	    STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
+	    STACK_PUSH_UP(Deref(*(RepAppl(t) + j)), stack_terms);
 	}
-#ifdef TRIE_COMPACT_LISTS
-	in_new_list = 0;
-#endif /* TRIE_COMPACT_LISTS */
+#ifdef TRIE_COMPACT_PAIRS
+	in_new_pair = 0;
+#endif /* TRIE_COMPACT_PAIRS */
       } else {
 	Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (answer_search)");
       }
@@ -934,9 +956,9 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
   CELL *stack_vars_base, *stack_vars, *stack_terms_base, *stack_terms;
   int subs_arity, i, n_vars = -1;
   Term t;
-#ifdef TRIE_COMPACT_LISTS
+#ifdef TRIE_COMPACT_PAIRS
   int stack_terms_pair_offset = 0;
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
 
   if ((subs_arity = *subs_ptr) == 0)
     return;
@@ -967,8 +989,8 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
       STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
       STACK_PUSH_UP(t, stack_terms);
     } else if (IsPairTerm(t)) {
-#ifdef TRIE_COMPACT_LISTS
-      if (t == AbsPair(PairTermInit)) { 
+#ifdef TRIE_COMPACT_PAIRS
+      if (t == CompactPairInit) { 
 	Term *stack_aux = stack_terms_base - stack_terms_pair_offset;
 	Term head, tail = STACK_POP_UP(stack_aux);
 	while (STACK_NOT_EMPTY(stack_aux, stack_terms)) {
@@ -978,12 +1000,14 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
 	stack_terms = stack_terms_base - stack_terms_pair_offset;
 	stack_terms_pair_offset = (int) STACK_POP_DOWN(stack_terms);
 	STACK_PUSH_UP(tail, stack_terms);
-      } else {  /* AbsPair(PairTermLast)) */
+      } else {  /* CompactPairEndList / CompactPairEndTerm */
 	Term last;
-	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
+	STACK_CHECK_EXPAND(stack_terms, stack_vars + 1, stack_terms_base);
 	last = STACK_POP_DOWN(stack_terms);
 	STACK_PUSH_UP(stack_terms_pair_offset, stack_terms);
 	stack_terms_pair_offset = (int) (stack_terms_base - stack_terms);
+	if (t == CompactPairEndList)
+	  STACK_PUSH_UP(TermNil, stack_terms);
 	STACK_PUSH_UP(last, stack_terms);
       }
 #else
@@ -991,7 +1015,7 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
       Term tail = STACK_POP_DOWN(stack_terms);
       t = MkPairTerm(head, tail);
       STACK_PUSH_UP(t, stack_terms);
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
     } else if (IsApplTerm(t)) {
       Functor f = (Functor) RepAppl(t);
       if (f == FunctorDouble) {
@@ -1085,17 +1109,17 @@ void free_subgoal_trie_branch(sg_node_ptr node, int nodes_left, int nodes_extra)
     free_subgoal_trie_branch(TrNode_next(node), nodes_left, nodes_extra);
 
   if (nodes_extra) {
-#ifdef TRIE_COMPACT_LISTS
+#ifdef TRIE_COMPACT_PAIRS
     if (nodes_extra < 0) {
       Term t = TrNode_entry(node);
       if (IsPairTerm(t)) {
-	if (t == AbsPair(PairTermInit))
+	if (t == CompactPairInit)
 	  nodes_extra--;
-	else  /* AbsPair(PairTermLast) */
+	else  /* CompactPairEndList / CompactPairEndTerm */
 	  nodes_extra++;
       }
     } else 
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
     if (--nodes_extra == 0)
       nodes_left--;
   } else {
@@ -1103,12 +1127,12 @@ void free_subgoal_trie_branch(sg_node_ptr node, int nodes_left, int nodes_extra)
     if (IsVarTerm(t) || IsAtomOrIntTerm(t))
       nodes_left--;
     else if (IsPairTerm(t))
-#ifdef TRIE_COMPACT_LISTS
-      /* AbsPair(PairTermInit) */
+#ifdef TRIE_COMPACT_PAIRS
+      /* CompactPairInit */
       nodes_extra = -1;
 #else
       nodes_left++;
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
     else if (IsApplTerm(t)) {
       Functor f = (Functor) RepAppl(t);
       if (f == FunctorDouble)
@@ -1409,12 +1433,13 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
         sg_node = *bucket;
         traverse_subgoal_trie(sg_node, str, str_index, arity, depth, mode);
 	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+#ifdef TRIE_COMPACT_PAIRS
+	if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	  str[str_index - 1] = ',';
+#else
 	if (arity[arity[0]] == -1)
 	  str[str_index - 1] = '|';
-#ifdef TRIE_COMPACT_LISTS
-	else if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-	  str[str_index - 1] = ',';
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
       }
     } while (++bucket != last_bucket);
     free(current_arity);
@@ -1428,12 +1453,13 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
     traverse_subgoal_trie(TrNode_next(sg_node), str, str_index, arity, depth, mode);
     memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
     free(current_arity);
+#ifdef TRIE_COMPACT_PAIRS
+    if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+      str[str_index - 1] = ',';
+#else
     if (arity[arity[0]] == -1)
       str[str_index - 1] = '|';
-#ifdef TRIE_COMPACT_LISTS
-    else if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-      str[str_index - 1] = ',';
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
   }
 
   /* test the node type */
@@ -1468,12 +1494,12 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
 	}
       } else {
 	if (arity[arity[0]] == -2) {
-#ifdef TRIE_COMPACT_LISTS
+#ifdef TRIE_COMPACT_PAIRS
 	  str_index += sprintf(& str[str_index], ",");
 #else
 	  str_index += sprintf(& str[str_index], "|");
 	  arity[arity[0]] = -1;
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
 	  break;
 	} else {
 	  str_index += sprintf(& str[str_index], "]");
@@ -1501,12 +1527,12 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
 	}
       } else {
 	if (arity[arity[0]] == -2) {
-#ifdef TRIE_COMPACT_LISTS
+#ifdef TRIE_COMPACT_PAIRS
 	  str_index += sprintf(& str[str_index], ",");
 #else
 	  str_index += sprintf(& str[str_index], "|");
 	  arity[arity[0]] = -1;
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
 	  break;
 	} else {
 	  str_index += sprintf(& str[str_index], "]");
@@ -1533,12 +1559,12 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
 	}
       } else {
 	if (arity[arity[0]] == -2) {
-#ifdef TRIE_COMPACT_LISTS
+#ifdef TRIE_COMPACT_PAIRS
 	  str_index += sprintf(& str[str_index], ",");
 #else
 	  str_index += sprintf(& str[str_index], "|");
 	  arity[arity[0]] = -1;
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
 	  break;
 	} else {
 	  str_index += sprintf(& str[str_index], "]");
@@ -1564,12 +1590,12 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
 	}
       } else {
 	if (arity[arity[0]] == -2) {
-#ifdef TRIE_COMPACT_LISTS
+#ifdef TRIE_COMPACT_PAIRS
 	  str_index += sprintf(& str[str_index], ",");
 #else
 	  str_index += sprintf(& str[str_index], "|");
 	  arity[arity[0]] = -1;
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
 	  break;
 	} else {
 	  str_index += sprintf(& str[str_index], "]");
@@ -1578,10 +1604,12 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
       }
     }
   } else if (IsAtomTerm(t)) {
-    if (arity[arity[0]] == -1 && !strcmp("[]", AtomName(AtomOfTerm(t)))) {
+#ifndef TRIE_COMPACT_PAIRS
+    if (arity[arity[0]] == -1 && t == TermNil) {
       str[str_index - 1] = ']';
       arity[0]--;
     } else
+#endif /* TRIE_COMPACT_PAIRS */
       str_index += sprintf(& str[str_index], "%s", AtomName(AtomOfTerm(t)));
     while (arity[0]) {
       if (arity[arity[0]] > 0) {
@@ -1595,12 +1623,12 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
 	}
       } else {
 	if (arity[arity[0]] == -2) {
-#ifdef TRIE_COMPACT_LISTS
+#ifdef TRIE_COMPACT_PAIRS
 	  str_index += sprintf(& str[str_index], ",");
 #else
 	  str_index += sprintf(& str[str_index], "|");
 	  arity[arity[0]] = -1;
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
 	  break;
 	} else {
 	  str_index += sprintf(& str[str_index], "]");
@@ -1609,15 +1637,17 @@ void traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *a
       }
     }
   } else if (IsPairTerm(t)) {
-#ifdef TRIE_COMPACT_LISTS
-    if (t == AbsPair(PairTermLast)) {
+#ifdef TRIE_COMPACT_PAIRS
+    if (t == CompactPairEndList)
+      arity[arity[0]] = -1;
+    else if (t == CompactPairEndTerm) {
       str[str_index - 1] = '|';
       arity[arity[0]] = -1;
 #else
     if (arity[arity[0]] == -1) {
       str[str_index - 1] = ',';
       arity[arity[0]] = -2;
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
     } else {
       str_index += sprintf(& str[str_index], "[");
       arity[0]++;
@@ -1706,12 +1736,13 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
         ans_node = *bucket;
         traverse_answer_trie(ans_node, str, str_index, arity, var_index, depth, mode);
 	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+#ifdef TRIE_COMPACT_PAIRS
+	if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	  str[str_index - 1] = ',';
+#else
 	if (arity[arity[0]] == -1)
 	  str[str_index - 1] = '|';
-#ifdef TRIE_COMPACT_LISTS
-	else if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-	  str[str_index - 1] = ',';
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
       }
     } while (++bucket != last_bucket);
     free(current_arity);
@@ -1725,12 +1756,13 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
     traverse_answer_trie(TrNode_next(ans_node), str, str_index, arity, var_index, depth, mode);
     memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
     free(current_arity);
+#ifdef TRIE_COMPACT_PAIRS
+    if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+      str[str_index - 1] = ',';
+#else
     if (arity[arity[0]] == -1)
       str[str_index - 1] = '|';
-#ifdef TRIE_COMPACT_LISTS
-    else if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-      str[str_index - 1] = ',';
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
   }
 
   /* print VAR when starting a term */
@@ -1770,12 +1802,12 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
 	}
       } else {
 	if (arity[arity[0]] == -2) {
-#ifdef TRIE_COMPACT_LISTS
+#ifdef TRIE_COMPACT_PAIRS
 	  str_index += sprintf(& str[str_index], ",");
 #else
 	  str_index += sprintf(& str[str_index], "|");
 	  arity[arity[0]] = -1;
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
 	  break;
 	} else {
 	  str_index += sprintf(& str[str_index], "]");
@@ -1805,12 +1837,12 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
 	}
       } else {
 	if (arity[arity[0]] == -2) {
-#ifdef TRIE_COMPACT_LISTS
+#ifdef TRIE_COMPACT_PAIRS
 	  str_index += sprintf(& str[str_index], ",");
 #else
 	  str_index += sprintf(& str[str_index], "|");
 	  arity[arity[0]] = -1;
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
 	  break;
 	} else {
 	  str_index += sprintf(& str[str_index], "]");
@@ -1839,12 +1871,12 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
 	}
       } else {
 	if (arity[arity[0]] == -2) {
-#ifdef TRIE_COMPACT_LISTS
+#ifdef TRIE_COMPACT_PAIRS
 	  str_index += sprintf(& str[str_index], ",");
 #else
 	  str_index += sprintf(& str[str_index], "|");
 	  arity[arity[0]] = -1;
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
 	  break;
 	} else {
 	  str_index += sprintf(& str[str_index], "]");
@@ -1870,12 +1902,12 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
 	}
       } else {
 	if (arity[arity[0]] == -2) {
-#ifdef TRIE_COMPACT_LISTS
+#ifdef TRIE_COMPACT_PAIRS
 	  str_index += sprintf(& str[str_index], ",");
 #else
 	  str_index += sprintf(& str[str_index], "|");
 	  arity[arity[0]] = -1;
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
 	  break;
 	} else {
 	  str_index += sprintf(& str[str_index], "]");
@@ -1884,10 +1916,12 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
       }
     }
   } else if (IsAtomTerm(t)) {
-    if (arity[arity[0]] == -1 && !strcmp("[]", AtomName(AtomOfTerm(t)))) {
+#ifndef TRIE_COMPACT_PAIRS
+    if (arity[arity[0]] == -1 && t == TermNil) {
       str[str_index - 1] = ']';
       arity[0]--;
     } else
+#endif /* TRIE_COMPACT_PAIRS */
       str_index += sprintf(& str[str_index], "%s", AtomName(AtomOfTerm(t)));
     while (arity[0]) {
       if (arity[arity[0]] > 0) {
@@ -1901,12 +1935,12 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
 	}
       } else {
 	if (arity[arity[0]] == -2) {
-#ifdef TRIE_COMPACT_LISTS
+#ifdef TRIE_COMPACT_PAIRS
 	  str_index += sprintf(& str[str_index], ",");
 #else
 	  str_index += sprintf(& str[str_index], "|");
 	  arity[arity[0]] = -1;
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
 	  break;
 	} else {
 	  str_index += sprintf(& str[str_index], "]");
@@ -1915,15 +1949,17 @@ void traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *
       }
     }
   } else if (IsPairTerm(t)) {
-#ifdef TRIE_COMPACT_LISTS
-    if (t == AbsPair(PairTermLast)) {
+#ifdef TRIE_COMPACT_PAIRS
+    if (t == CompactPairEndList)
+      arity[arity[0]] = -1;
+    else if (t == CompactPairEndTerm) {
       str[str_index - 1] = '|';
       arity[arity[0]] = -1;
 #else
     if (arity[arity[0]] == -1) {
       str[str_index - 1] = ',';
       arity[arity[0]] = -2;
-#endif /* TRIE_COMPACT_LISTS */
+#endif /* TRIE_COMPACT_PAIRS */
     } else {
       str_index += sprintf(& str[str_index], "[");
       arity[0]++;
