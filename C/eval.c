@@ -40,6 +40,7 @@ static Term
 Eval(Term t)
 {
   if (IsVarTerm(t)) {
+    ArithError = TRUE;
     return Yap_ArithError(INSTANTIATION_ERROR,t,"in arithmetic");
   } else if (IsAtomTerm(t)) {
     ExpEntry *p;
@@ -156,6 +157,7 @@ Yap_ArithError(yap_error_number type, Term where, char *format,...)
 {
   va_list ap;
 
+  ArithError = TRUE;
   Yap_Error_TYPE = type;
   Yap_Error_Term = where;
   if (!Yap_ErrorMessage)

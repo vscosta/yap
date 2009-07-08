@@ -131,6 +131,7 @@ typedef struct worker_local_struct {
   Int    start_line;
   int    uncaught_throw;
   int    doing_undefp;
+  int    arith_error;
   scratch_block scratchpad;
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   Term   woken_goals;
@@ -695,6 +696,7 @@ extern struct various_codes *Yap_heap_regs;
 #define  ConsultBase              Yap_heap_regs->WL.consultbase
 /* low-water mark for consult  */
 #define  ConsultLow               Yap_heap_regs->WL.consultlow
+#define  ArithError               Yap_heap_regs->WL.arith_error
 #define  LastAssertedPred         Yap_heap_regs->WL.last_asserted_pred
 /* current maximum number of cells in consult stack */
 #define  ConsultCapacity          Yap_heap_regs->WL.consultcapacity
