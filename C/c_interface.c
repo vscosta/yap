@@ -857,11 +857,18 @@ YAP_MkPairTerm(Term t1, Term t2)
   Term t; 
   BACKUP_H();
 
-  if (H > ASP-1024)
-    t = TermNil;
-  else
-    t = MkPairTerm(t1, t2);
-  
+  if (H > ASP-1024) {
+    long sl1 = Yap_InitSlot(t1);
+    long sl2 = Yap_InitSlot(t2);
+    if (!dogc()) {
+      RECOVER_H();
+      return TermNil;
+    }
+    t1 =  Yap_GetFromSlot(sl1);
+    t2 =  Yap_GetFromSlot(sl2);
+    Yap_RecoverSlots(2);
+  }
+  t = MkPairTerm(t1, t2);
   RECOVER_H();
   return t;
 }
