@@ -387,13 +387,13 @@ static YAP_Term
 float_matrix_to_list(int *mat) {
   double *data = matrix_double_data(mat, mat[MAT_NDIMS]);
   int i = 0;
-  YAP_Term tf = YAP_TermNil();
+  YAP_Term tf = YAP_TermNil(), tnil = tf;
 
   for (i = mat[MAT_SIZE]-1; i>= 0; i--) {
     tf = YAP_MkPairTerm(YAP_MkFloatTerm(data[i]),tf);
-    if (tf == YAP_TermNil()) {
+    if (tf == tnil) {
       /* error */
-      return YAP_TermNil();
+      return tnil;
     }
   }
   return tf;
