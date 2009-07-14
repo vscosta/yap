@@ -524,18 +524,21 @@ flt_cmp(Float dif)
     return -1;
   if (dif > 0.0)
     return 1;
-  return 0;
+  return dif = 0.0;
 }
 
 
 static inline Int
 a_cmp(Term t1, Term t2)
 {
+  ArithError = FALSE;
   if (IsVarTerm(t1)) {
+    ArithError = TRUE;
     Yap_Error(INSTANTIATION_ERROR, t1, "=:=/2");
     return FALSE;
   }
   if (IsVarTerm(t2)) {
+    ArithError = TRUE;
     Yap_Error(INSTANTIATION_ERROR, t2, "=:=/2");
     return FALSE;
   }
@@ -546,7 +549,9 @@ a_cmp(Term t1, Term t2)
     return int_cmp(IntegerOfTerm(t1)-IntegerOfTerm(t2));
   }
   t1 = Yap_Eval(t1);
-  if (!t1) return FALSE;
+  if (!t1) {
+    return FALSE;
+  }
   if (IsIntegerTerm(t1)) {
     Int i1 = IntegerOfTerm(t1);
     t2 = Yap_Eval(t2);
@@ -556,6 +561,11 @@ a_cmp(Term t1, Term t2)
       return int_cmp(i1-i2);
     } else if (IsFloatTerm(t2)) {
       Float f2 = FloatOfTerm(t2);
+#if HAVE_ISNAN
+      if (isnan(f2)) {
+	ArithError = TRUE;
+      }
+#endif      
       return flt_cmp(i1-f2);
     } else if (IsBigIntTerm(t2)) {
 #ifdef USE_GMP
@@ -567,13 +577,27 @@ a_cmp(Term t1, Term t2)
     }
   } else if (IsFloatTerm(t1)) {
     Float f1 = FloatOfTerm(t1);
+#if HAVE_ISNAN
+    if (isnan(f1)) {
+      ArithError = TRUE;
+    }
+#endif      
     t2 = Yap_Eval(t2);
+#if HAVE_ISNAN
+      if (isnan(f1))
+	return -1;
+#endif      
 
     if (IsIntegerTerm(t2)) {
       Int i2 = IntegerOfTerm(t2);
       return flt_cmp(f1-i2);
     } else if (IsFloatTerm(t2)) {
       Float f2 = FloatOfTerm(t2);
+#if HAVE_ISNAN
+      if (isnan(f2)) {
+	ArithError = TRUE;
+      }
+#endif      
       return flt_cmp(f1-f2);
     } else if (IsBigIntTerm(t2)) {
 #ifdef USE_GMP
@@ -594,6 +618,11 @@ a_cmp(Term t1, Term t2)
 	return int_cmp(mpz_cmp_si(b1,i2));
       } else if (IsFloatTerm(t2)) {
 	Float f2 = FloatOfTerm(t2);
+#if HAVE_ISNAN
+	if (isnan(f2)) {
+	  ArithError = TRUE;
+	}
+#endif      
 	return flt_cmp(mpz_get_d(b1)-f2);
       } else if (IsBigIntTerm(t2)) {
 	MP_INT *b2 = Yap_BigIntOfTerm(t2);
@@ -621,6 +650,8 @@ p_acomp(void)
 static Int 
 a_eq(Term t1, Term t2)
 {				/* A =:= B		 */
+  int out;
+
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "=:=/2");
     return(FALSE);
@@ -643,37 +674,43 @@ a_eq(Term t1, Term t2)
       return (FloatOfTerm(t2) == IntegerOfTerm(t1));
     }
   }
-  return (a_cmp(t1,t2) == 0);
+  out = a_cmp(t1,t2);
+  return !ArithError && (out == 0);
 }
 
 static Int 
 a_dif(Term t1, Term t2)
 {
-  return !a_eq(t1,t2);
+  int out = a_cmp(t1,t2);
+  return !ArithError && out != 0;
 }
 
 static Int 
 a_gt(Term t1, Term t2)
 {				/* A > B		 */
-  return a_cmp(t1,t2) > 0;
+  int out = a_cmp(t1,t2);
+  return !ArithError && out > 0;
 }
 
 static Int 
 a_ge(Term t1, Term t2)
 {				/* A >= B		 */
-  return a_cmp(t1,t2) >= 0;
+  int out = a_cmp(t1,t2);
+  return !ArithError && out >= 0;
 }
 
 static Int 
 a_lt(Term t1, Term t2)
 {				/* A < B       */
-  return a_cmp(t1,t2) < 0;
+  int out = a_cmp(t1,t2);
+  return !ArithError && out < 0;
 }
 
 static Int 
 a_le(Term t1, Term t2)
 {				/* A <= B */
-  return a_cmp(t1,t2) <= 0;
+  int out = a_cmp(t1,t2);
+  return !ArithError && out <= 0;
 }
 
 
