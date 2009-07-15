@@ -1003,7 +1003,11 @@ Yap_tokenizer(int inp_stream, Term *tposp)
       wcharp = NULL;
 
       while (TRUE) {
-	if (charp + 1024 > (char *)AuxSp) {
+	if (wcharp && wcharp + 1024 > (wchar_t *)AuxSp) {
+	  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
+	  Yap_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
+	  break;
+	} else if (charp + 1024 > (char *)AuxSp) {
 	  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
 	  Yap_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	  break;
