@@ -5,6 +5,8 @@
 	   scan_integer/3,
 	   split/2,
 	   split/3,
+	   fields/2,
+	   fields/3,
 	   glue/3,
 	   copy_line/2,
 	   filter/3,
@@ -68,6 +70,28 @@ split(SplitCodes, [C|New], Set) -->
 	[C], !,
 	split(SplitCodes, New, Set).
 split(_, [], []) --> [].
+
+fields(String, Strings) :-
+	fields(" 	", Strings, String, []).
+
+fields(String, FieldsCodes, Strings) :-
+	dofields(FieldsCodes, First, More, String, []),
+	(
+	  First = [], More = []
+	->
+	  Strings = []
+	;
+	  Strings = [First|More]
+	).
+
+dofields(FieldsCodes, [], New.More) -->
+	[C],
+	{ member(C, FieldsCodes) }, !,
+	dofields(FieldsCodes, New, More).
+dofields(FieldsCodes, [C|New], Set) -->
+	[C], !,
+	dofields(FieldsCodes, New, Set).
+dofields(_, [], []) --> [].
 
 glue([], _, []).
 glue([A], _, A) :- !.

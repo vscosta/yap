@@ -8854,6 +8854,37 @@ S = ["Hello","I","am","free"] ?
 no
 @end example
 
+@item split(+@var{Line},-@var{Split})
+@findex split/2
+@snindex split/2
+@cnindex split/2
+
+Unify @var{Words} with a set of strings obtained from @var{Line} by
+using the blank characters  as separators.
+
+@item fields(+@var{Line},+@var{Separators},-@var{Split})
+@findex fields/3
+@snindex fields/3
+@cnindex fields/3
+
+Unify @var{Words} with a set of strings obtained from @var{Line} by
+using the character codes in @var{Separators} as separators for
+fields. If two separators occur in a row, the field is considered
+empty. As an example, consider:
+@example
+?- fields("Hello  I am  free"," *",S).
+
+S = ["Hello","","I","am","","free"] ?
+@end example
+
+@item fields(+@var{Line},-@var{Split})
+@findex fields/2
+@snindex fields/2
+@cnindex fields/2
+
+Unify @var{Words} with a set of strings obtained from @var{Line} by
+using the blank characters  as field separators.
+
 @item glue(+@var{Words},+@var{Separator},-@var{Line})
 @findex glue/3
 @snindex glue/3
