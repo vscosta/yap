@@ -3389,6 +3389,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, Term mod, volatile Term src)
   cglobs.cint.freep =
     cglobs.cint.freep0 =
     (char *) (H + maxvnum+(sizeof(Int)/sizeof(CELL))*MaxTemps+MaxTemps);
+  cglobs.cint.success_handler = 0L;
   if (ASP <= CellPtr (cglobs.cint.freep) + 256) {
     cglobs.vtable = NULL;
     Yap_Error_Size = (256+maxvnum)*sizeof(CELL);
