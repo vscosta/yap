@@ -1863,7 +1863,10 @@ mark_delays(attvar_record *top, attvar_record *bottom)
 static void 
 mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 {
-  OPCODE trust_lu = Yap_opcode(_trust_logical);
+  OPCODE 
+    trust_lu = Yap_opcode(_trust_logical),
+    count_trust_lu = Yap_opcode(_count_trust_logical),
+    profiled_trust_lu = Yap_opcode(_profiled_trust_logical);
   
   yamop *lu_cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,Otapl),
     *lu_cl = NEXTOP(PredLogUpdClause->CodeOfPred,Otapl),
@@ -2148,7 +2151,9 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	     space
 	  */
 	  yamop *end = rtp->u.OtaLl.n;
-	  while (end->opc != trust_lu)
+	  while (end->opc != trust_lu &&
+		 end->opc != count_trust_lu &&
+		 end->opc != profiled_trust_lu )
 	    end = end->u.OtaLl.n;
 	  mark_ref_in_use((DBRef)end->u.OtILl.block);
 	}
@@ -2225,7 +2230,10 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	if (gc_B->cp_ap == su_cl) {
 	  mark_db_fixed((CELL *)pt);
 	} else {
-	  while (pt->opc != trust_lu)
+	  while (pt->opc != trust_lu  &&
+		 pt->opc != count_trust_lu &&
+		 pt->opc != profiled_trust_lu
+		 )
 	    pt = pt->u.OtaLl.n;
 	  mark_ref_in_use((DBRef)pt->u.OtILl.block);
 	}
