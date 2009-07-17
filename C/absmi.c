@@ -7512,9 +7512,9 @@ Yap_absmi(int inp)
 	ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
       }
       /* for slots to work */
+#endif /* FROZEN_STACKS */
       Yap_StartSlots();
       Yap_PrologMode = UserCCallMode;
-#endif /* FROZEN_STACKS */
       {
 	PredEntry *p = PREG->u.Osbpp.p;
 #ifdef LOW_LEVEL_TRACER
