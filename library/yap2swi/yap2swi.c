@@ -2195,7 +2195,7 @@ PL_free(void *obj)
 }
 
 X_API int
-PL_eval_expression_to_int_64_ex(term_t t, int64_t *val)
+PL_eval_expression_to_int64_ex(term_t t, int64_t *val)
 {
   Term res = Yap_Eval(Yap_GetFromSlot(t));
   if (!res) {

@@ -87,7 +87,9 @@ typedef unsigned __int64 uint64_t;
 #else
 #include <inttypes.h>			/* more portable than stdint.h */
 #endif
+#if  !defined(_MSC_VER) 
 typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
+#endif
 
 typedef void *function_t;
 
@@ -425,7 +427,7 @@ extern X_API void PL_erase(record_t);
 extern X_API int PL_action(int,...);
 extern X_API void *PL_malloc(int);
 extern X_API void PL_free(void *);
-extern X_API int  PL_eval_expression_to_int_64_ex(term_t t, int64_t *val);
+extern X_API int  PL_eval_expression_to_int64_ex(term_t t, int64_t *val);
 
 #define PL_register_foreign(name, arity, function, flags) PL_register_foreign_in_module(NULL, (name), (arity), (function), (flags))
 

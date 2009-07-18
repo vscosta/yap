@@ -47,7 +47,7 @@
 #include <stddef.h>
 #ifdef __WINDOWS__
 typedef __int64 int64_t;
-#if (_MSC_VER < 1300)
+#if (_MSC_VER < 1300) && !defined(__MINGW32__)
 typedef long intptr_t;
 typedef unsigned long uintptr_t;
 #endif
