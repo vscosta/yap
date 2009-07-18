@@ -1518,6 +1518,7 @@ clean_trail(Term t, DBTerm *dbt, Term t0)
 #endif
 	/* normal variable */
 	RESET_VARIABLE(d1);
+      RESET_VARIABLE(&TrailTerm(pt1));
       pt1--;
     } else if (IsPairTerm(d1)) {
       CELL *pt = RepPair(d1);
@@ -1545,10 +1546,16 @@ clean_trail(Term t, DBTerm *dbt, Term t0)
       /* multi-assignment variable */
       /* so the next cell is the old value */ 
 #ifdef FROZEN_STACKS
+      RESET_VARIABLE(&TrailTerm(pt1));
       --pt1;
       pt[0] = TrailVal(pt1);
+      RESET_VARIABLE(&TrailTerm(pt1));
+      --pt1;
 #else
       pt[0] = TrailTerm(pt1-1);
+      RESET_VARIABLE(&TrailTerm(pt1));
+      RESET_VARIABLE(&TrailTerm(pt1-1));
+      RESET_VARIABLE(&TrailTerm(pt1-2));
       pt1 -= 3;
 #endif /* FROZEN_STACKS */
     }
