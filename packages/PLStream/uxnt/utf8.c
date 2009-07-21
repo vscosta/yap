@@ -31,7 +31,7 @@ UTF-8 Decoding, based on http://www.cl.cam.ac.uk/~mgk25/unicode.html
 #define CONT(i)   ISUTF8_CB(in[1])
 #define VAL(i, s) ((in[i]&0x3f) << s)
 
-static char *
+char *
 _xos_utf8_get_char(const char *in, int *chr)
 { 					/* 2-byte, 0x80-0x7ff */
   if ( (in[0]&0xe0) == 0xc0 && CONT(1) )
@@ -65,7 +65,7 @@ _xos_utf8_get_char(const char *in, int *chr)
 }
 
 
-static char *
+char *
 _xos_utf8_put_char(char *out, int chr)
 { if ( chr < 0x80 )
   { *out++ = chr;

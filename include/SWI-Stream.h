@@ -50,8 +50,8 @@ typedef __int64 int64_t;
 #if (_MSC_VER < 1300) && !defined(__MINGW32__)
 typedef long intptr_t;
 typedef unsigned long uintptr_t;
-#endif
 typedef intptr_t ssize_t;		/* signed version of size_t */
+#endif
 #else
 #include <unistd.h>
 #include <inttypes.h>			/* more portable than stdint.h */

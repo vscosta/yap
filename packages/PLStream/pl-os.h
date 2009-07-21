@@ -36,6 +36,10 @@
 #include <sys/param.h>
 #endif
 
+#ifdef __MINGW32__
+__stdcall unsigned long GetTickCount(void);
+#endif
+
 
 		/********************************
 		*        MEMORY MANAGEMENT      *
@@ -240,7 +244,7 @@ extern bool  AccessFile(const char *path, int mode);
 extern char *OsPath(const char *plpath, char *path);
 extern char *Getenv(const char *, char *buf, size_t buflen);
 extern char *BaseName(const char *f);
-extern intptr_t LastModifiedFile(char *f);
+extern time_t LastModifiedFile(const char *f);
 extern int64_t SizeFile(const char *path);
 extern bool  ExistsFile(const char *path);
 extern atom_t TemporaryFile(const char *id);

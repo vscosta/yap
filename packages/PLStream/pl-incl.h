@@ -3,6 +3,10 @@
 
 #define PL_KERNEL 1
 
+#ifdef __MINGW32__
+#define O_XOS 1
+#endif
+
 #include <SWI-Prolog.h>
 typedef int bool;
 
@@ -529,7 +533,8 @@ word pl_noprotocol(void);
 IOSTREAM *PL_current_input(void);
 IOSTREAM *PL_current_output(void);
 
-PL_EXPORT(int)  	PL_open_stream(term_t t, IOSTREAM *s);
+int reportStreamError(IOSTREAM *s);
+
 PL_EXPORT(int)  	PL_unify_stream(term_t t, IOSTREAM *s);
 PL_EXPORT(int)  	PL_unify_stream_or_alias(term_t t, IOSTREAM *s);
 PL_EXPORT(int)  	PL_get_stream_handle(term_t t, IOSTREAM **s);
@@ -575,6 +580,9 @@ extern word lookupAtom(const char *s, size_t len);
 extern atom_t	lookupUCSAtom(const pl_wchar_t *s, size_t len);
 extern int toIntegerNumber(Number n, int flags);
 extern int get_atom_ptr_text(Atom a, PL_chars_t *text);
+
+/**** stuff from pl-files.c ****/
+void initFiles(void);
 
 /* empty stub */
 void setPrologFlag(const char *name, int flags, ...);

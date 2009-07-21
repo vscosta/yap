@@ -475,6 +475,8 @@ FreeMemory(void)
 	manpage.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+__stdcall unsigned long GetTickCount(void);
+
 void
 setRandom(unsigned int *seedp)
 { unsigned int seed;

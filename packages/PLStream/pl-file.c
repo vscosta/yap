@@ -73,7 +73,6 @@ static int	bad_encoding(atom_t name);
 static int	noprotocol(void);
 
 static int streamStatus(IOSTREAM *s);
-static int reportStreamError(IOSTREAM *s);
 
 #if __YAP_PROLOG__
 INIT_DEF(atom_t, standardStreams, 6)
@@ -312,7 +311,6 @@ fileNameStream(IOSTREAM *s)
 static void
 init_yap_extras(void);
 #endif
-
 
 void
 initIO()
@@ -642,7 +640,7 @@ that ignores the error. This might get hairy if the user is playing with
 these streams too.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__) || defined(__MINGW32__)
 static int
 isConsoleStream(IOSTREAM *s)
 { int i = standardStreamIndexFromStream(s);
@@ -654,7 +652,7 @@ isConsoleStream(IOSTREAM *s)
 #endif
 
 
-static int 
+int 
 reportStreamError(IOSTREAM *s)
 { if ( GD->cleaning == CLN_NORMAL &&
        !isConsoleStream(s) &&
@@ -4313,4 +4311,27 @@ init_yap_extras()
   fileerrors = TRUE;
   SinitStreams();
 }
+
+#ifdef _WIN32
+
+#include <windows.h>
+
+int WINAPI PROTO(win_plstream, (HANDLE, DWORD, LPVOID));
+
+int WINAPI win_plstream(HANDLE hinst, DWORD reason, LPVOID reserved)
+{
+  switch (reason) 
+    {
+    case DLL_PROCESS_ATTACH:
+      break;
+    case DLL_PROCESS_DETACH:
+      break;
+    case DLL_THREAD_ATTACH:
+      break;
+    case DLL_THREAD_DETACH:
+      break;
+    }
+  return 1;
+}
+#endif
 #endif

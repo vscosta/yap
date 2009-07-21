@@ -456,6 +456,7 @@ UNICODE file functions.
 					/* Make IOSTREAM known to Prolog */
 PL_EXPORT(int)  	PL_open_stream(term_t t, IOSTREAM *s);
 PL_EXPORT(int)  	PL_unify_stream(term_t t, IOSTREAM *s);
+#define PL_open_stream  PL_unify_stream
 PL_EXPORT(int)  	PL_get_stream_handle(term_t t, IOSTREAM **s);
 PL_EXPORT(int) 		PL_release_stream(IOSTREAM *s);
 

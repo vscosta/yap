@@ -44,19 +44,19 @@ HEADERS=$(srcdir)/atoms.h $(srcdir)/pl-buffer.h $(srcdir)/pl-ctype.h  \
 	$(srcdir)/pl-stream.h \
 	$(srcdir)/pl-table.h \
 	$(srcdir)/pl-text.h $(srcdir)/pl-utf8.h \
-	$(srcdir)/pl-yap.h @ENABLE_WINCONSOLE@ $(srcdir)/uxnt/dirent.h $(srcdir)/uxnt/utf8.h $(srcdir)/uxnt/uxnt.h
+	$(srcdir)/pl-yap.h @ENABLE_WINCONSOLE@ $(srcdir)/uxnt/dirent.h $(srcdir)/uxnt/utf8.h $(srcdir)/pl-utf8.c $(srcdir)/uxnt/uxnt.h
 C_SOURCES=$(srcdir)/pl-buffer.c $(srcdir)/pl-ctype.c \
 	$(srcdir)/pl-error.c  $(srcdir)/pl-feature.c  \
-	$(srcdir)/pl-file.c   $(srcdir)/pl-os.c \
+	$(srcdir)/pl-file.c $(srcdir)/pl-files.c   $(srcdir)/pl-os.c \
 	$(srcdir)/pl-privitf.c \
 	$(srcdir)/pl-stream.c $(srcdir)/pl-string.c \
 	$(srcdir)/pl-table.c \
-	$(srcdir)/pl-text.c $(srcdir)/pl-utf8.c \
-	$(srcdir)/pl-yap.c @ENABLE_WINCONSOLE@ $(srcdir)/popen.c $(srcdir)/uxnt/utf8.c $(srcdir)/uxnt/uxnt.c
+	$(srcdir)/pl-text.c \
+	$(srcdir)/pl-yap.c @ENABLE_WINCONSOLE@ $(srcdir)/popen.c $(srcdir)/uxnt/uxnt.c
 OBJS=pl-buffer.o pl-ctype.o pl-error.o  pl-feature.o  \
-	pl-file.o   pl-os.o pl-privitf.o \
+	pl-file.o pl-files.o pl-os.o pl-privitf.o \
 	pl-stream.o pl-string.o pl-table.o pl-text.o pl-utf8.o \
-	pl-yap.o @ENABLE_WINCONSOLE@ utf8.o uxnt.o
+	pl-yap.o @ENABLE_WINCONSOLE@ uxnt.o
 SOBJS=plstream@SHLIB_SUFFIX@
 
 #in some systems we just create a single object, in others we need to
@@ -66,9 +66,6 @@ all: $(SOBJS)
 
 uxnt.o: $(srcdir)/uxnt/uxnt.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/uxnt/uxnt.c -o uxnt.o
-
-utf8.o: $(srcdir)/uxnt/utf8.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/uxnt/utf8.c -o utf8.o
 
 # default rule
 %.o : $(srcdir)/%.c
