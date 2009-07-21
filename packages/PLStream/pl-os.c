@@ -474,8 +474,9 @@ FreeMemory(void)
 	Depreciated according to Linux manpage, suggested by Solaris
 	manpage.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
+#ifdef __MINGW32__
 __stdcall unsigned long GetTickCount(void);
+#endif
 
 void
 setRandom(unsigned int *seedp)

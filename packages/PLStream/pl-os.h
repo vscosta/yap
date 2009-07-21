@@ -236,7 +236,6 @@ extern int System(char *command);
 extern char *ExpandOneFile(const char *spec, char *file);
 extern char *AbsoluteFile(const char *spec, char *path);
 extern int   IsAbsolutePath(const char *spec);
-extern char *ReadLink(const char *f, char *buf);
 extern char *DeRefLink(const char *link, char *buf);
 extern bool  ExistsDirectory(const char *path);
 extern bool  AccessFile(const char *path, int mode);
@@ -245,14 +244,10 @@ extern char *OsPath(const char *plpath, char *path);
 extern char *Getenv(const char *, char *buf, size_t buflen);
 extern char *BaseName(const char *f);
 extern time_t LastModifiedFile(const char *f);
-extern int64_t SizeFile(const char *path);
 extern bool  ExistsFile(const char *path);
 extern atom_t TemporaryFile(const char *id);
 extern int   RemoveFile(const char *path);
-extern bool  SameFile(const char *f1, const char *f2);
-extern bool  RenameFile(const char *old, const char *new);
 extern bool  ChDir(const char *path);
-extern bool  MarkExecutable(const char *name);
 extern char *PrologPath(const char *ospath, char *path, size_t len);
 
 
