@@ -935,8 +935,8 @@ dnl Linux has both elf and a.out, in this case we found elf
         # and -fomit-frame-point -DBP_FREE
 	YAPLIB="libWYap.a"
 	SHLIB_CFLAGS=""
-        SHLIB_LD="\$(CC) -shared ../../yap.dll"
-        SHLIB_SWI_LD="\$(CC) -shared ../../yap.dll  ../../packages/PLStream/plstream.dll"
+        SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll"
+        SHLIB_SWI_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll  ../../packages/PLStream/plstream.dll"
 	SHLIB_SUFFIX=".dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
 	LDFLAGS="-Wl,--large-address-aware $LDFLAGS"
@@ -1421,6 +1421,7 @@ fi
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
+AC_CHECK_FUNCS(access)
 AC_CHECK_FUNCS(acosh asinh atanh chdir ctime dlopen dup2)
 AC_CHECK_FUNCS(feclearexcept)
 AC_CHECK_FUNCS(fesettrapenable fgetpos finite fpclass ftime getcwd getenv)
