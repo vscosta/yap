@@ -47,13 +47,18 @@ LoadForeign(StringList ofiles, StringList libs,
 
     if (Yap_TrueFileName(ofiles->s, Yap_FileNameBuf, TRUE) &&
 	(handle=LoadLibrary(Yap_FileNameBuf)) != 0)
-	{
-	  if (*init_proc == NULL)
-	    *init_proc = (YapInitProc)GetProcAddress((HMODULE)handle, proc_name);
-	}
+      {
+	Yap_ErrorSay[0]=~'\0';
+	if (*init_proc == NULL)
+	  *init_proc = (YapInitProc)GetProcAddress((HMODULE)handle, proc_name);
+      } else {
+	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		      NULL, GetLastError(), 
+		      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), Yap_ErrorSay, 256,
+		      NULL);
+      }
     ofiles = ofiles->next;
   }
-
   /* load libraries first so that their symbols are available to
      other routines */
   while (libs) {
