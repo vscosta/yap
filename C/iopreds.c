@@ -3977,7 +3977,8 @@ static Int
 	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	
 	  return Yap_unify(tpos,ARG5) &&
-	    Yap_unify_constant(ARG2, MkAtomTerm (AtomEof));
+	    Yap_unify_constant(ARG2, MkAtomTerm (AtomEof))
+	    && Yap_unify_constant(ARG4, TermNil);
 	}
       }
     }
