@@ -1,4 +1,4 @@
-e
+
 :- source.
 
 :- style_check(all).

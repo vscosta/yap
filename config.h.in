@@ -148,6 +148,7 @@
 /* Define return type for signal	*/
 #undef  RETSIGTYPE
 
+#undef  HAVE_ACCESS
 #undef  HAVE_ACOSH
 #undef  HAVE_ALARM
 #undef  HAVE_ASINH
