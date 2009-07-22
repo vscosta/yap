@@ -1758,7 +1758,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       c_goal(ArgOfTerm(2, Goal), mod, cglobs);
       return;
     }
-    else if (f == FunctorEq) {
+    else if (f == FunctorEq && !(cglobs->cint.CurrentPred->PredFlags & TabledPredFlag)) {
       if (profiling)
 	Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
       else if (call_counting)
@@ -1785,7 +1785,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       v->FlagsOfVE |= SafeVar;
       return;
     }
-    else if (p->PredFlags & AsmPredFlag) {
+    else if (p->PredFlags & AsmPredFlag && !(cglobs->cint.CurrentPred->PredFlags & TabledPredFlag)) {
       int op = p->PredFlags & 0x7f;
 
       if (profiling)
@@ -1850,7 +1850,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 #ifdef BEAM
     else if (p->PredFlags & BinaryPredFlag && !EAM) {
 #else
-    else if (p->PredFlags & BinaryPredFlag) {
+    else if (p->PredFlags & BinaryPredFlag && !(cglobs->cint.CurrentPred->PredFlags & TabledPredFlag)) {
 #endif
       Term a1 = ArgOfTerm(1,Goal);
 
