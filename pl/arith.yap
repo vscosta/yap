@@ -86,8 +86,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 		number(Y),
 		P = ( X = Y); % This case reduces to an unification
 		'$expand_expr'(Y, P0, X0),
-		'$drop_is'(X0, X, P1),
-		'$do_and'(P0, P1, P)
+		'$drop_is'(X0, X, P0, P)
 	).
 '$do_c_built_in'(Comp0, _, R) :-		% now, do it for comparisons
 	'$compop'(Comp0, Op, E, F),
@@ -116,8 +115,15 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 % V is the result of the simplification,
 % X the result of the initial expression
 % and the last argument is how we are writing this result
-'$drop_is'(V, V, true) :- var(V), !.		% usual case
-'$drop_is'(V, X, X is V).			% atoms
+'$drop_is'(V, V1, P0, G) :- var(V), !,		% usual case
+        ('$undefined'('$c_table'(_,_), prolog) ->
+	    V = V1, P0 = G
+	;
+	    '$do_and'(V = V1,P0,G)
+	).
+'$drop_is'(V, X, P0, P) :-			% atoms
+        '$do_and'(P1, X is V, P).
+
 
 % Table of arithmetic comparisons
 '$compop'(X < Y, < , X, Y).
