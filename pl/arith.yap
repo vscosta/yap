@@ -116,11 +116,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 % X the result of the initial expression
 % and the last argument is how we are writing this result
 '$drop_is'(V, V1, P0, G) :- var(V), !,		% usual case
-        ('$undefined'('$c_table'(_,_), prolog) ->
-	    V = V1, P0 = G
-	;
-	    '$do_and'(V = V1,P0,G)
-	).
+        V = V1, P0 = G.
 '$drop_is'(V, X, P0, P) :-			% atoms
         '$do_and'(P1, X is V, P).
 
