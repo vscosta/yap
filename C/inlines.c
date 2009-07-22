@@ -921,14 +921,6 @@ Yap_InitInlines(void)
   Yap_InitAsmPred("==", 2, _eq, p_eq, SafePredFlag);
   Yap_InitAsmPred("arg", 3, _arg, p_arg, SafePredFlag);
   Yap_InitAsmPred("functor", 3, _functor, p_functor, 0);
-  Yap_InitAsmPred("$plus", 3, _plus, p_erroneous_call, SafePredFlag);
-  Yap_InitAsmPred("$minus", 3, _minus, p_erroneous_call, SafePredFlag);
-  Yap_InitAsmPred("$times", 3, _times, p_erroneous_call, SafePredFlag);
-  Yap_InitAsmPred("$div", 3, _div, p_erroneous_call, SafePredFlag);
-  Yap_InitAsmPred("$and", 3, _and, p_erroneous_call, SafePredFlag);
-  Yap_InitAsmPred("$or", 3, _or, p_erroneous_call, SafePredFlag);
-  Yap_InitAsmPred("$sll", 3, _sll, p_erroneous_call, SafePredFlag);
-  Yap_InitAsmPred("$slr", 3, _slr, p_erroneous_call, SafePredFlag);
   Yap_InitAsmPred("$label_ctl", 2, _p_label_ctl, p_erroneous_call, SafePredFlag);
   CurrentModule = ARG_MODULE;
   Yap_InitCPredBack("genarg", 3, 3, init_genarg, cont_genarg,SafePredFlag);

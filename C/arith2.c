@@ -1152,6 +1152,76 @@ p_binary_is(void)
 }
 
 static Int 
+do_arith23(arith2_op op)
+{				/* X is Y	 */
+  Term t = Deref(ARG1);
+  Int out;
+  Term t1, t2;
+
+  if (IsVarTerm(t)) {
+    Yap_ArithError(INSTANTIATION_ERROR,t, "X is Y");
+    return(FALSE);
+  }
+  t1 = Yap_Eval(t);
+  if (t1 == 0L)
+    return FALSE;
+  t2 = Yap_Eval(Deref(ARG2));
+  if (t2 == 0L)
+    return FALSE;
+  if (!(out=Yap_FoundArithError(eval2(op, t1, t2), 0L)))
+    return FALSE;
+  return Yap_unify_constant(ARG3,out);
+}
+
+static Int 
+export_p_plus(void)
+{				/* X is Y	 */
+  return do_arith23(op_plus);
+}
+
+static Int 
+export_p_minus(void)
+{				/* X is Y	 */
+  return do_arith23(op_minus);
+}
+
+static Int 
+export_p_times(void)
+{				/* X is Y	 */
+  return do_arith23(op_times);
+}
+
+static Int 
+export_p_div(void)
+{				/* X is Y	 */
+  return do_arith23(op_div);
+}
+
+static Int 
+export_p_and(void)
+{				/* X is Y	 */
+  return do_arith23(op_and);
+}
+
+static Int 
+export_p_or(void)
+{				/* X is Y	 */
+  return do_arith23(op_or);
+}
+
+static Int 
+export_p_slr(void)
+{				/* X is Y	 */
+  return do_arith23(op_slr);
+}
+
+static Int 
+export_p_sll(void)
+{				/* X is Y	 */
+  return do_arith23(op_sll);
+}
+
+static Int 
 p_binary_op_as_integer(void)
 {				/* X is Y	 */
   Term t = Deref(ARG1);
@@ -1214,6 +1284,14 @@ Yap_InitBinaryExps(void)
   }
   Yap_InitCPred("is", 4, p_binary_is, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$binary_op_as_integer", 2, p_binary_op_as_integer, TestPredFlag|SafePredFlag);
+  Yap_InitAsmPred("$plus", 3, _plus, export_p_plus, SafePredFlag);
+  Yap_InitAsmPred("$minus", 3, _minus, export_p_minus, SafePredFlag);
+  Yap_InitAsmPred("$times", 3, _times, export_p_times, SafePredFlag);
+  Yap_InitAsmPred("$div", 3, _div, export_p_div, SafePredFlag);
+  Yap_InitAsmPred("$and", 3, _and, export_p_and, SafePredFlag);
+  Yap_InitAsmPred("$or", 3, _or, export_p_or, SafePredFlag);
+  Yap_InitAsmPred("$sll", 3, _sll, export_p_sll, SafePredFlag);
+  Yap_InitAsmPred("$slr", 3, _slr, export_p_slr, SafePredFlag);
 }
 
 /* This routine is called from Restore to make sure we have the same arithmetic operators */
