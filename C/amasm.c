@@ -1438,7 +1438,7 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
 {				/* emit opcode & predicate code address */
   Prop fe = (Prop) (cip->cpc->rnd1);
   CELL Flags = RepPredProp(fe)->PredFlags;
-  if (Flags & AsmPredFlag && !(cip->CurrentPred->PredFlags & TabledPredFlag)) {
+  if (Flags & AsmPredFlag) {
     op_numbers op;
     int is_test = FALSE;
 

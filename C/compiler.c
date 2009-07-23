@@ -871,7 +871,7 @@ c_eq(Term t1, Term t2, compiler_struct *cglobs)
     }
   }
   /* first argument is an unbound var */
-  if (IsNewVar(t1)) {
+  if (IsNewVar(t1) && !(cglobs->cint.CurrentPred->PredFlags & TabledPredFlag)) {
     Int v;
     if (IsVarTerm(t2)) {
       v = 0;
@@ -1268,6 +1268,15 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler_struct 
       save_machine_regs();
       longjmp(cglobs->cint.CompilerBotch,1);
     }
+  } else if (IsNewVar(t3) && cglobs->curbranch == 0 && cglobs->cint.CurrentPred->PredFlags & TabledPredFlag) {
+    Term nv = MkVarTerm();
+    c_var(nv,f_flag,(unsigned int)Op, 0, cglobs);
+    if (Op == _functor) {
+      Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
+      Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
+    }
+    /* make sure that we first get the true t3, and then bind it to nv. That way it will be confitional */
+    c_eq(t3, nv, cglobs);
   } else if (IsNewVar(t3) && cglobs->curbranch == 0 /* otherwise you may have trouble with z(X) :- ( Z is X*2 ; write(Z)) */) {
     c_var(t3,f_flag,(unsigned int)Op, 0, cglobs);
     if (Op == _functor) {
@@ -1758,7 +1767,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       c_goal(ArgOfTerm(2, Goal), mod, cglobs);
       return;
     }
-    else if (f == FunctorEq && !(cglobs->cint.CurrentPred->PredFlags & TabledPredFlag)) {
+    else if (f == FunctorEq) {
       if (profiling)
 	Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
       else if (call_counting)
@@ -1785,7 +1794,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       v->FlagsOfVE |= SafeVar;
       return;
     }
-    else if (p->PredFlags & AsmPredFlag && !(cglobs->cint.CurrentPred->PredFlags & TabledPredFlag)) {
+    else if (p->PredFlags & AsmPredFlag) {
       int op = p->PredFlags & 0x7f;
 
       if (profiling)
@@ -1850,7 +1859,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 #ifdef BEAM
     else if (p->PredFlags & BinaryPredFlag && !EAM) {
 #else
-    else if (p->PredFlags & BinaryPredFlag && !(cglobs->cint.CurrentPred->PredFlags & TabledPredFlag)) {
+    else if (p->PredFlags & BinaryPredFlag) {
 #endif
       Term a1 = ArgOfTerm(1,Goal);
 
