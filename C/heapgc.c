@@ -1971,13 +1971,10 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	mark_environments((CELL_PTR) gc_B->cp_env,
 			  EnvSizeInCells,
 			  NULL);
-      else
-#ifdef TABLING
-	if (opnum != _table_completion)
-#endif /* TABLING */
-	  mark_environments((CELL_PTR) gc_B->cp_env,
-			    EnvSize((yamop *) (gc_B->cp_cp)),
-			    EnvBMap((yamop *) (gc_B->cp_cp)));
+      else if (opnum != _trust_fail)
+	mark_environments((CELL_PTR) gc_B->cp_env,
+			  EnvSize((yamop *) (gc_B->cp_cp)),
+			  EnvBMap((yamop *) (gc_B->cp_cp)));
       /* extended choice point */
     restart_cp:
       switch (opnum) {
@@ -2854,9 +2851,6 @@ sweep_choicepoints(choiceptr gc_B)
       } else
 	return;
     case _trust_fail:
-      sweep_environments(gc_B->cp_env,
-			 EnvSizeInCells,
-			 NULL);
       break;
     case _or_else:
     case _or_last:
