@@ -1859,6 +1859,33 @@ mark_delays(attvar_record *top, attvar_record *bottom)
 #define mark_delays(T,B)
 #endif
 
+#ifdef TABLING
+static choiceptr
+youngest_cp(choiceptr gc_B, dep_fr_ptr *depfrp, sg_fr_ptr *aux_sg_frp)
+{
+  dep_fr_ptr depfr = *depfrp;
+  sg_fr_ptr aux_sg_fr = *aux_sg_frp;
+  choiceptr min = gc_B;
+
+  if (!gc_B) {
+    return gc_B;
+  }
+  if (depfr && min > DepFr_cons_cp(depfr)) {
+    min = DepFr_cons_cp(depfr);
+  }
+  if (aux_sg_fr && min > SgFr_gen_cp(aux_sg_fr)) {
+    min = SgFr_gen_cp(aux_sg_fr);
+  }
+  if (depfr && min == DepFr_cons_cp(depfr)) {
+    *depfrp = DepFr_next(depfr);    
+  }
+  if (aux_sg_fr && min == SgFr_gen_cp(aux_sg_fr)) {
+    *aux_sg_frp = SgFr_next(aux_sg_fr);
+  }
+  return min;
+}
+#endif
+
 
 static void 
 mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
@@ -1874,13 +1901,11 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
     *su_cl = NEXTOP(PredStaticClause->CodeOfPred,Otapl);
 #ifdef TABLING
   dep_fr_ptr depfr = LOCAL_top_dep_fr;
+  sg_fr_ptr aux_sg_fr = LOCAL_top_sg_fr;
 #endif /* TABLING */
 
 #ifdef TABLING
-  if (depfr != NULL && gc_B >= DepFr_cons_cp(depfr)) {
-    gc_B = DepFr_cons_cp(depfr);
-    depfr = DepFr_next(depfr);
-  }
+  gc_B = youngest_cp(gc_B, &depfr, &aux_sg_fr);
 #endif
   while (gc_B != NULL) {
     op_numbers opnum;
@@ -1898,12 +1923,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
     num_bs++;
 #endif
 #ifdef TABLING
-    /* include consumers */
-    if (depfr != NULL && gc_B >= DepFr_cons_cp(depfr)) {
-      gc_B = DepFr_cons_cp(depfr);
-      depfr = DepFr_next(depfr);
-      continue;
-    }
     if (rtp == NULL) {
       opnum = _table_completion;
     } else
@@ -2040,7 +2059,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	nargs = 0;
 	break;
       case _table_completion:
-	if (rtp) {
+	{
 	  CELL *vars_ptr, vars;
 	  vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
 	  nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
@@ -2247,7 +2266,11 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	mark_external_reference(saved_reg);
       }
     }	    
+#if TABLING
+    gc_B = youngest_cp(gc_B->cp_b, &depfr, &aux_sg_fr);
+#else
     gc_B = gc_B->cp_b;
+#endif
   }
 }
 
@@ -2791,27 +2814,19 @@ static void
 sweep_choicepoints(choiceptr gc_B)
 {
 #ifdef TABLING
-   dep_fr_ptr depfr = LOCAL_top_dep_fr;
+  dep_fr_ptr depfr = LOCAL_top_dep_fr;
+  sg_fr_ptr aux_sg_fr = LOCAL_top_sg_fr;
 #endif /* TABLING */
 
 #ifdef TABLING
-  if (depfr != NULL && gc_B >= DepFr_cons_cp(depfr)) {
-    gc_B = DepFr_cons_cp(depfr);
-    depfr = DepFr_next(depfr);
-  }
+  gc_B = youngest_cp(gc_B, &depfr, &aux_sg_fr);
 #endif
-  while(gc_B != NULL) {
+  while (gc_B != NULL) {
     yamop *rtp = gc_B->cp_ap;
     register OPCODE op;
     op_numbers opnum;
 
 #ifdef TABLING
-    /* include consumers */
-    if (depfr != NULL && gc_B >= DepFr_cons_cp(depfr)) {
-      gc_B = DepFr_cons_cp(depfr);
-      depfr = DepFr_next(depfr);
-      continue;
-    }
     if (rtp == NULL) {
       opnum = _table_completion;
     } else
@@ -2916,12 +2931,12 @@ sweep_choicepoints(choiceptr gc_B)
       }
       break;
     case _table_completion:
-      if (rtp) {
+      {
 	int nargs;
 	CELL *vars_ptr, vars;
 	sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp));
 	vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
-	nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);	  
+	nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
 	while(nargs--) {
 	  CELL cp_cell = *vars_ptr;
 	  if (MARKED_PTR(vars_ptr)) {
@@ -3087,7 +3102,11 @@ sweep_choicepoints(choiceptr gc_B)
     }
 
     /* link to prev choicepoint */
+#if TABLING
+    gc_B = youngest_cp(gc_B->cp_b, &depfr, &aux_sg_fr);
+#else
     gc_B = gc_B->cp_b;
+#endif
   }
 }
 
