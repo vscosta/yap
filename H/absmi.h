@@ -881,7 +881,7 @@ Macros to check the limits of stacks
 #endif
 
 #ifdef TABLING
-#define TABLING_close_alt(CPTR) (CPTR)->cp_ap = NULL
+#define TABLING_close_alt(CPTR) (CPTR)->cp_ap = TRUSTFAILCODE
 #else
 #define TABLING_close_alt(CPTR)
 #endif /* TABLING */
