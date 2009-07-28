@@ -40,6 +40,9 @@ FILE *rl_instream, *rl_outstream;
 
 #endif
 
+#define MEM_BUF_CODE   0
+#define MEM_BUF_MALLOC 1
+
 typedef int (*GetsFunc)(int, UInt, char *);
 
 typedef struct stream_desc
@@ -57,6 +60,7 @@ typedef struct stream_desc
       } file;
       struct {
 	char *buf;         /* where the file is being read from/written to */
+	int src;           /* where the space comes from, 0 code space, 1 malloc */
 	Int max_size;	   /* maximum buffer size (may be changed dynamically) */
 	UInt pos;
 	volatile void *error_handler;

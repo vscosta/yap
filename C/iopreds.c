@@ -742,13 +742,21 @@ MemPutc(int sno, int ch)
     }
 #endif
   s->u.mem_string.buf[s->u.mem_string.pos++] = ch;
-  if (s->u.mem_string.pos == s->u.mem_string.max_size) {
+  if (s->u.mem_string.pos >= s->u.mem_string.max_size -256) {
     extern int Yap_page_size;
+    int old_src = s->u.mem_string.src, new_src;
+
     /* oops, we have reached an overflow */
     Int new_max_size = s->u.mem_string.max_size + Yap_page_size;
     char *newbuf;
 
-    if ((newbuf = Yap_AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
+    if ((newbuf = Yap_AllocAtomSpace(new_max_size*sizeof(char))) != NULL) {
+      new_src = MEM_BUF_CODE;
+#if !USE_SYSTEM_MALLOC
+    } else if ((newbuf = (ADDR)malloc(new_max_size*sizeof(char))) != NULL)  {
+      new_src = MEM_BUF_MALLOC;
+#endif
+    } else {
       if (Stream[sno].u.mem_string.error_handler) {
 	Yap_Error_Size = new_max_size*sizeof(char);
 	save_machine_regs();
@@ -770,9 +778,14 @@ MemPutc(int sno, int ch)
       }
     }
 #endif
-    Yap_FreeAtomSpace(s->u.mem_string.buf);
+    if (old_src == MEM_BUF_CODE) {
+      Yap_FreeAtomSpace(s->u.mem_string.buf);
+    } else {
+      free(s->u.mem_string.buf);
+    }
     s->u.mem_string.buf = newbuf;
     s->u.mem_string.max_size = new_max_size;
+    s->u.mem_string.src = new_src;
   }
   count_output_char(ch,s);
   return ((int) ch);
@@ -2740,6 +2753,7 @@ open_buf_read_stream(char *nbuf, Int nchars)
   st->u.mem_string.buf = nbuf;
   st->u.mem_string.max_size = nchars;
   st->u.mem_string.error_handler = NULL;
+  st->u.mem_string.src = MEM_BUF_CODE;
   return sno;
 }
 
@@ -3235,7 +3249,11 @@ Yap_CloseStreams (int loud)
     } 
 #endif
     else if (Stream[sno].status & InMemory_Stream_f) {
-      Yap_FreeAtomSpace(Stream[sno].u.mem_string.buf);
+      if (Stream[sno].u.mem_string.src == MEM_BUF_CODE) {
+	Yap_FreeAtomSpace(Stream[sno].u.mem_string.buf);
+      } else {
+	free(Stream[sno].u.mem_string.buf);
+      }
     } else if (!(Stream[sno].status & Null_Stream_f))
       YP_fclose (Stream[sno].u.file.file);
     else {
@@ -3272,7 +3290,10 @@ CloseStream(int sno)
 #endif
   }
   else if (Stream[sno].status & (InMemory_Stream_f)) {
-    Yap_FreeAtomSpace(Stream[sno].u.mem_string.buf);
+    if (Stream[sno].u.mem_string.src == MEM_BUF_CODE)
+      Yap_FreeAtomSpace(Stream[sno].u.mem_string.buf);
+    else
+      free(Stream[sno].u.mem_string.buf);
   }
   Stream[sno].status = Free_Stream_f;
   PurgeAlias(sno);
