@@ -1861,10 +1861,9 @@ mark_delays(attvar_record *top, attvar_record *bottom)
 
 #ifdef TABLING
 static choiceptr
-youngest_cp(choiceptr gc_B, dep_fr_ptr *depfrp, sg_fr_ptr *aux_sg_frp)
+youngest_cp(choiceptr gc_B, dep_fr_ptr *depfrp)
 {
   dep_fr_ptr depfr = *depfrp;
-  sg_fr_ptr aux_sg_fr = *aux_sg_frp;
   choiceptr min = gc_B;
 
   if (!gc_B) {
@@ -1873,14 +1872,8 @@ youngest_cp(choiceptr gc_B, dep_fr_ptr *depfrp, sg_fr_ptr *aux_sg_frp)
   if (depfr && min > DepFr_cons_cp(depfr)) {
     min = DepFr_cons_cp(depfr);
   }
-  if (aux_sg_fr && min > SgFr_gen_cp(aux_sg_fr)) {
-    min = SgFr_gen_cp(aux_sg_fr);
-  }
   if (depfr && min == DepFr_cons_cp(depfr)) {
     *depfrp = DepFr_next(depfr);    
-  }
-  if (aux_sg_fr && min == SgFr_gen_cp(aux_sg_fr)) {
-    *aux_sg_frp = SgFr_next(aux_sg_fr);
   }
   return min;
 }
@@ -1905,7 +1898,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 #endif /* TABLING */
 
 #ifdef TABLING
-  gc_B = youngest_cp(gc_B, &depfr, &aux_sg_fr);
+  gc_B = youngest_cp(gc_B, &depfr);
 #endif
   while (gc_B != NULL) {
     op_numbers opnum;
@@ -1924,13 +1917,23 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 #endif
 #ifdef TABLING
     if (rtp == NULL) {
-      opnum = _table_completion;
-    } else
-#endif /* TABLING */
-      {
-	op = rtp->opc;
-	opnum = Yap_op_from_opcode(op);
+      if (aux_sg_fr && gc_B == SgFr_gen_cp(aux_sg_fr)) {
+	/* found generator */
+	opnum = _table_completion;
+      } else {
+	/* found sld node is done */
+	opnum = _trust_fail;
       }
+    } else {
+#endif /* TABLING */
+      op = rtp->opc;
+      opnum = Yap_op_from_opcode(op);
+#ifdef TABLING
+    }
+    if (aux_sg_fr && gc_B == SgFr_gen_cp(aux_sg_fr)) {
+      aux_sg_fr = SgFr_next(aux_sg_fr);
+    }
+#endif
     if (very_verbose) {
       PredEntry *pe = Yap_PredForChoicePt(gc_B);
 #if defined(ANALYST) || defined(DEBUG)
@@ -2264,7 +2267,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       }
     }	    
 #if TABLING
-    gc_B = youngest_cp(gc_B->cp_b, &depfr, &aux_sg_fr);
+    gc_B = youngest_cp(gc_B->cp_b, &depfr);
 #else
     gc_B = gc_B->cp_b;
 #endif
@@ -2816,7 +2819,7 @@ sweep_choicepoints(choiceptr gc_B)
 #endif /* TABLING */
 
 #ifdef TABLING
-  gc_B = youngest_cp(gc_B, &depfr, &aux_sg_fr);
+  gc_B = youngest_cp(gc_B, &depfr);
 #endif
   while (gc_B != NULL) {
     yamop *rtp = gc_B->cp_ap;
@@ -2825,13 +2828,23 @@ sweep_choicepoints(choiceptr gc_B)
 
 #ifdef TABLING
     if (rtp == NULL) {
-      opnum = _table_completion;
-    } else
-#endif /* TABLING */
-      {
-	op = rtp->opc;
-	opnum = Yap_op_from_opcode(op);
+      if (aux_sg_fr && gc_B == SgFr_gen_cp(aux_sg_fr)) {
+	/* found generator */
+	opnum = _table_completion;
+      } else {
+	/* found sld node is done */
+	opnum = _trust_fail;
       }
+    } else {
+#endif /* TABLING */
+      op = rtp->opc;
+      opnum = Yap_op_from_opcode(op);
+#ifdef TABLING
+    }
+    if (aux_sg_fr && gc_B == SgFr_gen_cp(aux_sg_fr)) {
+      aux_sg_fr = SgFr_next(aux_sg_fr);
+    }
+#endif
 
   restart_cp:
     /*
@@ -3097,7 +3110,7 @@ sweep_choicepoints(choiceptr gc_B)
 
     /* link to prev choicepoint */
 #if TABLING
-    gc_B = youngest_cp(gc_B->cp_b, &depfr, &aux_sg_fr);
+    gc_B = youngest_cp(gc_B->cp_b, &depfr);
 #else
     gc_B = gc_B->cp_b;
 #endif
