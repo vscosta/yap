@@ -34,7 +34,8 @@ PROBLOG_PROGRAMS= \
 	$(srcdir)/problog/tptree.yap
 
 LEARNING_PROGRAMS = \
-	$(srcdir)/problog_learning/logger.yap \
+	$(srcdir)/problog_learning/flags_learning.yap \
+	$(srcdir)/problog_learning/logger.yap
 
 EXAMPLES = \
 	$(srcdir)/problog_examples/graph.pl \

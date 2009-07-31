@@ -1,4 +1,210 @@
 %%% -*- Mode: Prolog; -*-
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  $Date: 2009-07-21 18:30:23 +0200 (Tue, 21 Jul 2009) $
+%  $Revision: 1805 $
+%
+%  This file is part of ProbLog
+%  http://dtai.cs.kuleuven.be/problog
+%
+%  ProbLog was developed at Katholieke Universiteit Leuven
+%                                                            
+%  Copyright 2009
+%  Angelika Kimmig, Vitor Santos Costa, Bernd Gutmann
+%                                                              
+%  Main authors of this file:
+%  Angelika Kimmig, Vitor Santos Costa,Bernd Gutmann
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Artistic License 2.0
+% 
+% Copyright (c) 2000-2006, The Perl Foundation.
+% 
+% Everyone is permitted to copy and distribute verbatim copies of this
+% license document, but changing it is not allowed.  Preamble
+% 
+% This license establishes the terms under which a given free software
+% Package may be copied, modified, distributed, and/or
+% redistributed. The intent is that the Copyright Holder maintains some
+% artistic control over the development of that Package while still
+% keeping the Package available as open source and free software.
+% 
+% You are always permitted to make arrangements wholly outside of this
+% license directly with the Copyright Holder of a given Package. If the
+% terms of this license do not permit the full use that you propose to
+% make of the Package, you should contact the Copyright Holder and seek
+% a different licensing arrangement.  Definitions
+% 
+% "Copyright Holder" means the individual(s) or organization(s) named in
+% the copyright notice for the entire Package.
+% 
+% "Contributor" means any party that has contributed code or other
+% material to the Package, in accordance with the Copyright Holder's
+% procedures.
+% 
+% "You" and "your" means any person who would like to copy, distribute,
+% or modify the Package.
+% 
+% "Package" means the collection of files distributed by the Copyright
+% Holder, and derivatives of that collection and/or of those files. A
+% given Package may consist of either the Standard Version, or a
+% Modified Version.
+% 
+% "Distribute" means providing a copy of the Package or making it
+% accessible to anyone else, or in the case of a company or
+% organization, to others outside of your company or organization.
+% 
+% "Distributor Fee" means any fee that you charge for Distributing this
+% Package or providing support for this Package to another party. It
+% does not mean licensing fees.
+% 
+% "Standard Version" refers to the Package if it has not been modified,
+% or has been modified only in ways explicitly requested by the
+% Copyright Holder.
+% 
+% "Modified Version" means the Package, if it has been changed, and such
+% changes were not explicitly requested by the Copyright Holder.
+% 
+% "Original License" means this Artistic License as Distributed with the
+% Standard Version of the Package, in its current version or as it may
+% be modified by The Perl Foundation in the future.
+% 
+% "Source" form means the source code, documentation source, and
+% configuration files for the Package.
+% 
+% "Compiled" form means the compiled bytecode, object code, binary, or
+% any other form resulting from mechanical transformation or translation
+% of the Source form.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Permission for Use and Modification Without Distribution
+% 
+% (1) You are permitted to use the Standard Version and create and use
+% Modified Versions for any purpose without restriction, provided that
+% you do not Distribute the Modified Version.
+%
+% Permissions for Redistribution of the Standard Version
+% 
+% (2) You may Distribute verbatim copies of the Source form of the
+% Standard Version of this Package in any medium without restriction,
+% either gratis or for a Distributor Fee, provided that you duplicate
+% all of the original copyright notices and associated disclaimers. At
+% your discretion, such verbatim copies may or may not include a
+% Compiled form of the Package.
+% 
+% (3) You may apply any bug fixes, portability changes, and other
+% modifications made available from the Copyright Holder. The resulting
+% Package will still be considered the Standard Version, and as such
+% will be subject to the Original License.
+%
+% Distribution of Modified Versions of the Package as Source
+% 
+% (4) You may Distribute your Modified Version as Source (either gratis
+% or for a Distributor Fee, and with or without a Compiled form of the
+% Modified Version) provided that you clearly document how it differs
+% from the Standard Version, including, but not limited to, documenting
+% any non-standard features, executables, or modules, and provided that
+% you do at least ONE of the following:
+% 
+% (a) make the Modified Version available to the Copyright Holder of the
+% Standard Version, under the Original License, so that the Copyright
+% Holder may include your modifications in the Standard Version.  (b)
+% ensure that installation of your Modified Version does not prevent the
+% user installing or running the Standard Version. In addition, the
+% modified Version must bear a name that is different from the name of
+% the Standard Version.  (c) allow anyone who receives a copy of the
+% Modified Version to make the Source form of the Modified Version
+% available to others under (i) the Original License or (ii) a license
+% that permits the licensee to freely copy, modify and redistribute the
+% Modified Version using the same licensing terms that apply to the copy
+% that the licensee received, and requires that the Source form of the
+% Modified Version, and of any works derived from it, be made freely
+% available in that license fees are prohibited but Distributor Fees are
+% allowed.
+%
+% Distribution of Compiled Forms of the Standard Version or
+% Modified Versions without the Source
+% 
+% (5) You may Distribute Compiled forms of the Standard Version without
+% the Source, provided that you include complete instructions on how to
+% get the Source of the Standard Version. Such instructions must be
+% valid at the time of your distribution. If these instructions, at any
+% time while you are carrying out such distribution, become invalid, you
+% must provide new instructions on demand or cease further
+% distribution. If you provide valid instructions or cease distribution
+% within thirty days after you become aware that the instructions are
+% invalid, then you do not forfeit any of your rights under this
+% license.
+% 
+% (6) You may Distribute a Modified Version in Compiled form without the
+% Source, provided that you comply with Section 4 with respect to the
+% Source of the Modified Version.
+%
+% Aggregating or Linking the Package
+% 
+% (7) You may aggregate the Package (either the Standard Version or
+% Modified Version) with other packages and Distribute the resulting
+% aggregation provided that you do not charge a licensing fee for the
+% Package. Distributor Fees are permitted, and licensing fees for other
+% components in the aggregation are permitted. The terms of this license
+% apply to the use and Distribution of the Standard or Modified Versions
+% as included in the aggregation.
+% 
+% (8) You are permitted to link Modified and Standard Versions with
+% other works, to embed the Package in a larger work of your own, or to
+% build stand-alone binary or bytecode versions of applications that
+% include the Package, and Distribute the result without restriction,
+% provided the result does not expose a direct interface to the Package.
+%
+% Items That are Not Considered Part of a Modified Version
+% 
+% (9) Works (including, but not limited to, modules and scripts) that
+% merely extend or make use of the Package, do not, by themselves, cause
+% the Package to be a Modified Version. In addition, such works are not
+% considered parts of the Package itself, and are not subject to the
+% terms of this license.
+%
+% General Provisions
+% 
+% (10) Any use, modification, and distribution of the Standard or
+% Modified Versions is governed by this Artistic License. By using,
+% modifying or distributing the Package, you accept this license. Do not
+% use, modify, or distribute the Package, if you do not accept this
+% license.
+% 
+% (11) If your Modified Version has been derived from a Modified Version
+% made by someone other than you, you are nevertheless required to
+% ensure that your Modified Version complies with the requirements of
+% this license.
+% 
+% (12) This license does not grant you the right to use any trademark,
+% service mark, tradename, or logo of the Copyright Holder.
+% 
+% (13) This license includes the non-exclusive, worldwide,
+% free-of-charge patent license to make, have made, use, offer to sell,
+% sell, import and otherwise transfer the Package with respect to any
+% patent claims licensable by the Copyright Holder that are necessarily
+% infringed by the Package. If you institute patent litigation
+% (including a cross-claim or counterclaim) against any party alleging
+% that the Package constitutes direct or contributory patent
+% infringement, then this Artistic License to you shall terminate on the
+% date that such litigation is filed.
+% 
+% (14) Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+% HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+% WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+% PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT
+% PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
+% HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT,
+% INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT OF THE USE
+% OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ProbLog inference
 % 
@@ -24,7 +230,8 @@
 	problog_max/3,
 	problog_exact/3,
 	problog_montecarlo/3,
-	problog_table/1,
+	problog_answers/2,
+	problog_table/1,	    
 	get_fact_probability/2,
 	set_fact_probability/2,
 	get_fact/2,
@@ -32,6 +239,7 @@
 	non_ground_fact/1,
 	export_facts/1,
 	problog_help/0,
+	show_inference/0,
 	problog_dir/1,
 	set_problog_flag/2,
 	problog_flag/2,
@@ -69,7 +277,7 @@
 :- op( 1150, fx, problog_table ).
 
 :- meta_predicate problog_table(:).
-	
+
 %%%%%%%%%%%%%%%%%%%%%%%%
 % control predicates on various levels
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -96,6 +304,8 @@
 :- dynamic max_proof/1.
 % local to problog_montecarlo
 :- dynamic mc_prob/1.
+% local to problog_answers
+:- dynamic answer/1.
 % to keep track of the groundings for non-ground facts
 :- dynamic grounding_is_known/2.
 
@@ -103,14 +313,16 @@
 :- dynamic dynamic_probability_fact/1.
 :- dynamic dynamic_probability_fact_extract/2.
 
-
 % keep a tab on tabling
 :- dynamic problog_tabled/1.
 
 % directory where ProblogBDD executable is located
 % automatically set during loading -- assumes it is in same place as this file (problog.yap)
 %:- getcwd(PD),retractall(problog_dir(_)),assert(problog_dir(PD)).
-:- yap_flag(shared_object_search_path,PD),retractall(problog_dir(_)),assert(problog_dir(PD)).
+:- yap_flag(shared_object_search_path,PD),
+	retractall(problog_dir(_)),
+	assert(problog_dir(PD)).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % help
@@ -188,10 +400,12 @@ problog_control(off,X) :-
 problog_control(check,X) :-
 	call(X).
 
-:- problog_control(off,up).
-:- problog_control(off,mc).
-:- problog_control(off,limit).
-:- problog_control(off,remember).
+reset_control :-
+	problog_control(off,up),
+	problog_control(off,mc),
+	problog_control(off,limit),
+	problog_control(off,remember).
+:- reset_control.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % nice user syntax Prob::Fact
@@ -216,12 +430,13 @@ problog_control(check,X) :-
 user:term_expansion(_P::( _Goal :- _Body ), _Error) :-
 	throw(error('we do not support this (yet?)!')).
 
+/* this can slow down prolog time by several orders if there's lots of them 
 user:term_expansion(P::Goal,Goal) :-
 	P \= t(_),
 	P =:= 1,
 	!.
-
-user:term_expansion(P::Goal, problog:ProbFact) :- 
+*/
+user:term_expansion(P::Goal, problog:ProbFact) :-
 	copy_term((P,Goal),(P_Copy,Goal_Copy)),
 	functor(Goal, Name, Arity),
         atomic_concat([problog_,Name],ProblogName),
@@ -229,7 +444,6 @@ user:term_expansion(P::Goal, problog:ProbFact) :-
 	append(Args,[LProb],L1),
 	probclause_id(ID),
 	ProbFact =.. [ProblogName,ID|L1],
-	assert_static(prob_for_id(ID,P)),
 	(
 	    (nonvar(P), P = t(TrueProb))
 	-> 
@@ -240,6 +454,8 @@ user:term_expansion(P::Goal, problog:ProbFact) :-
 	    (
 		ground(P)
 	    ->
+	        EvalP is P, % allows one to use ground arithmetic expressions as probabilities
+	        assert_static(prob_for_id(ID,EvalP)), % Prob is fixed -- assert it for quick retrieval
 	        LProb is log(P);
 		(
 		    % Probability is a variable... check wether it appears in the term
@@ -266,7 +482,7 @@ user:term_expansion(P::Goal, problog:ProbFact) :-
 	    assert(non_ground_fact(ID))
 	),
 	problog_predicate(Name, Arity, ProblogName).
-
+	    
 
 % introduce wrapper clause if predicate seen first time
 problog_predicate(Name, Arity, _) :-
@@ -278,6 +494,7 @@ problog_predicate(Name, Arity, ProblogName) :-
 	append(Args,[Prob],L1),
 	ProbFact =.. [ProblogName,ID|L1],
 	prolog_load_context(module,Mod),
+	
 	assert( (Mod:OriginalGoal :- ProbFact, 
 	                             (
 					 non_ground_fact(ID)
@@ -346,19 +563,22 @@ reset_non_ground_facts :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % access/update the probability of ID's fact
-% hardware-access version: naively scan all problog-predicates,
+% hardware-access version: naively scan all problog-predicates (except if prob is recorded in static database),
 % cut choice points if ID is ground (they'll all fail as ID is unique),
 % but not if it isn't (used to iterate over all facts when writing out probabilities for learning)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% using a dummy for the static prob database is more efficient than checking for current_predicate
+prob_for_id(dummy,dummy).
 get_fact_probability(ID,Prob) :-
-	ground(ID), !,
-	prob_for_id(ID,Prob).
+	ground(ID),
+	prob_for_id(ID,Prob),
+	!.
 get_fact_probability(ID,Prob) :-
 	(
-	 ground(ID) -> 
-	 get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity),!
+	ground(ID) -> 
+		get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity),!
 	;
-	 get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity)
+	get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity)
 	),
 	arg(ProblogArity,ProblogTerm,Log),
 	Prob is exp(Log).
@@ -453,92 +673,103 @@ get_fact_list([ID|IDs],[Fact|Facts]) :-
 % if not prunable, calculate probability and 
 %    if threshold exceeded, add stopped derivation to upper bound and fail 
 %       else update state and succeed
+%
+% do not maintain gloabl variables in montecarlo mode
 add_to_proof(ID,Prob) :-
-	montecarlo_check(ID),
-	b_getval(problog_steps,MaxSteps),
-	b_getval(problog_probability, CurrentP),
-	nb_getval(problog_threshold, CurrentThreshold),
-	b_getval(problog_current_proof, IDs),
-
-%%%% Bernd, changes for negated ground facts
-        \+ memberchk(not(ID),IDs),
-%%%% Bernd, changes for negated ground facts
-
-	( MaxSteps =< 0 -> 
-	    fail
+	(
+	 problog_control(check,mc)
+	->
+	 montecarlo_check(ID)
 	;
-	  ( memberchk(ID, IDs) ->
-	    true
+	 b_getval(problog_steps,MaxSteps),
+	 b_getval(problog_probability, CurrentP),
+	 nb_getval(problog_threshold, CurrentThreshold),
+	 b_getval(problog_current_proof, IDs),
+
+%%%% Bernd, changes for negated ground facts
+	 \+ memberchk(not(ID),IDs),
+%%%% Bernd, changes for negated ground facts
+	 
+	 (
+	  MaxSteps =< 0
+	 -> 
+	  fail
+	 ;
+	  (
+	   memberchk(ID, IDs)
+	  ->
+	   true
 	  ;
-	    \+ prune_check([ID|IDs],1),
-	    multiply_probabilities(CurrentP, Prob, NProb),
-	    ( NProb < CurrentThreshold ->
-	      upper_bound([ID|IDs]),
-	      fail
-	    ;
-	      b_setval(problog_probability, NProb),
-	      b_setval(problog_current_proof, [ID|IDs])
-	    )
+	   \+ prune_check([ID|IDs],1),
+	   multiply_probabilities(CurrentP, Prob, NProb),
+	   (
+	    NProb < CurrentThreshold
+	   ->
+	    upper_bound([ID|IDs]),
+	    fail
+	   ;
+	    b_setval(problog_probability, NProb),
+	    b_setval(problog_current_proof, [ID|IDs])
+	   )
 	  ),
 	  Steps is MaxSteps-1,
 	  b_setval(problog_steps,Steps)
+	 )
 	).
 
 %%%% Bernd, changes for negated ground facts
 add_to_proof_negated(ID,Prob) :-
 	(
-	    problog_control(check,mc)
+	 problog_control(check,mc)
 	->
 	% the sample has to fail if the fact is negated
-	    \+ montecarlo_check(ID);
-	    true
-	),
-	b_getval(problog_steps,MaxSteps),
-	b_getval(problog_probability, CurrentP),
-	nb_getval(problog_threshold, CurrentThreshold),
-	b_getval(problog_current_proof, IDs),
-
-        \+ memberchk(ID,IDs),
-	( MaxSteps =< 0 -> 
-	    fail
+	 \+ montecarlo_check(ID)
 	;
-	  ( memberchk(not(ID), IDs) ->
-	    true
+	 b_getval(problog_steps,MaxSteps),
+	 b_getval(problog_probability, CurrentP),
+	 nb_getval(problog_threshold, CurrentThreshold),
+	 b_getval(problog_current_proof, IDs),
+	 
+	 \+ memberchk(ID,IDs),
+	 (
+	  MaxSteps =< 0
+	 -> 
+	  fail
+	 ;
+	  (
+	   memberchk(not(ID), IDs)
+	  ->
+	   true
 	  ;
 %	    \+ prune_check([ID|IDs],1),
-	    InverseProb is log(1 - exp(Prob)),
-	    multiply_probabilities(CurrentP, InverseProb, NProb),
-	    ( NProb < CurrentThreshold ->
-	      upper_bound([not(ID)|IDs]),   %% checkme
-	      fail
-	    ;
-	      b_setval(problog_probability, NProb),
-	      b_setval(problog_current_proof, [not(ID)|IDs])
-	    )
+	   InverseProb is log(1 - exp(Prob)),
+	   multiply_probabilities(CurrentP, InverseProb, NProb),
+	   (
+	    NProb < CurrentThreshold
+	   ->
+	    upper_bound([not(ID)|IDs]),	%% checkme
+	    fail
+	   ;
+	    b_setval(problog_probability, NProb),
+	    b_setval(problog_current_proof, [not(ID)|IDs])
+	   )
 	  ),
 	  Steps is MaxSteps-1,
 	  b_setval(problog_steps,Steps)
+	 )
 	).
 %%%% Bernd, changes for negated ground facts
 
 
 % if in monte carlo mode, check array to see if fact can be used
 montecarlo_check(ID) :-
+	array_element(mc_sample,ID,V),
 	(
-	 problog_control(check,mc)
-	->
-	 (
-          array_element(mc_sample,ID,V),
-	  (
-	   V == 1 -> true
-	  ;
-	   V == 2 -> fail
-	  ;
-	   new_sample(ID)
-	  )
-	 )
+	 V == 1 -> true
 	;
-	  true
+	 V == 2 -> fail
+	;
+	 new_sample(ID)
 	).
 
 new_sample(ID) :-
@@ -566,15 +797,16 @@ multiply_probabilities(CurrentLogP, LogProb, NLogProb) :-
 
 % this is called by all inference methods before the actual ProbLog goal
 % to set up environment for proving
+% it resets control flags, method specific values to be set afterwards!
 init_problog(Threshold) :-
 	reset_non_ground_facts,
+	reset_control,
 	LT is log(Threshold),
 	b_setval(problog_probability, 0.0),
 	b_setval(problog_current_proof, []),
 	nb_setval(problog_threshold, LT),
 	problog_flag(maxsteps,MaxS),
-	b_setval(problog_steps, MaxS),
-	problog_control(off,limit).
+	b_setval(problog_steps, MaxS).
 
 % idea: proofs that are refinements of known proof can be pruned as they don't add probability mass
 % note that current ptree implementation doesn't provide the check as there's no efficient method known so far...
@@ -694,8 +926,8 @@ eval_dnf(ID,Prob,Status) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 problog_threshold(Goal, Threshold, _, _, _) :-
-	problog_control(on,up),
 	init_problog_threshold(Threshold),
+	problog_control(on,up),
 	problog_call(Goal),
 	add_solution,
 	fail.
@@ -731,8 +963,8 @@ compute_bounds(LP, UP, Status) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 problog_low(Goal, Threshold, _, _) :-
-	problog_control(off,up),
 	init_problog_low(Threshold),
+	problog_control(off,up),
 	problog_call(Goal),
 	add_solution,
 	fail.
@@ -757,9 +989,9 @@ init_problog_low(Threshold) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 problog_delta(Goal, Delta, Low, Up, Status) :-
-	problog_control(on,up),
 	problog_flag(first_threshold,InitT),
 	init_problog_delta(InitT,Delta),
+	problog_control(on,up),
 	problog_delta_id(Goal,Status),
 	delete_ptree(1),
 	delete_ptree(2),
@@ -885,9 +1117,9 @@ eval_upper(N,UpP,ok) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 problog_max(Goal, Prob, Facts) :-
-	problog_control(off,up),
 	problog_flag(first_threshold,InitT),
 	init_problog_max(InitT),
+	problog_control(off,up),
 	problog_max_id(Goal, Prob, FactIDs),
 	( FactIDs = [_|_] -> get_fact_list(FactIDs,Facts);
 	    Facts = FactIDs).
@@ -963,9 +1195,9 @@ problog_kbest_save(Goal, K, Prob, Status, BDDFile, ParamFile) :-
 	true).
 
 problog_kbest(Goal, K, Prob, Status) :-
-	problog_control(off,up),
 	problog_flag(first_threshold,InitT),
 	init_problog_kbest(InitT),
+	problog_control(off,up),
 	problog_kbest_id(Goal, K),
 	retract(current_kbest(_,ListFound,_NumFound)),
 	build_prefixtree(ListFound),
@@ -1078,6 +1310,7 @@ problog_montecarlo(_,_,_) :-
 	
 
 problog_montecarlo(Goal,Delta,Prob) :-
+	retractall(mc_prob(_)),
         nb_getval(probclause_counter,ID), !,
         C is ID+1,
         static_array(mc_sample,C,char),
@@ -1094,14 +1327,12 @@ montecarlo(Goal,Delta,K,File) :-
 	problog_control(on,mc),
 	open(File,write,Log),
 	format(Log,'# goal: ~q~n#delta: ~w~n',[Goal,Delta]),
-	format(Log,'# num_programs  prob   low   high  diff  time   cache_size  num_pos~2n',[]),
+	format(Log,'# num_programs  prob   low   high  diff  time~2n',[]),
 	close(Log),
 	statistics(walltime,[T1,_]),
-	init_ptree(1),
 	(problog_flag(verbose,true) -> format('search for ~q~n',[Goal]);true),
 	montecarlo(Goal,Delta,K,0,File,0,T1),
-	problog_control(off,mc),
-	delete_ptree(1).
+	problog_control(off,mc).
 
 % calculate values after K samples
 montecarlo(Goal,Delta,K,SamplesSoFar,File,PositiveSoFar,InitialTime) :-
@@ -1117,10 +1348,9 @@ montecarlo(Goal,Delta,K,SamplesSoFar,File,PositiveSoFar,InitialTime) :-
 	Diff is 2*Epsilon,
 	statistics(walltime,[T2,_]),
 	Time is (T2-InitialTime)/1000,
-	count_ptree(1,CacheSize),
 	(problog_flag(verbose,true) -> format('~n~w samples~nestimated probability ~w~n95 percent confidence interval [~w,~w]~n',[SamplesNew,Prob,Low,High]);true),
 	open(File,append,Log),
-	format(Log,'~w  ~8f  ~8f  ~8f  ~8f  ~3f  ~w  ~w~n',[SamplesNew,Prob,Low,High,Diff,Time,CacheSize,Next]),
+	format(Log,'~w  ~8f  ~8f  ~8f  ~8f  ~3f~n',[SamplesNew,Prob,Low,High,Diff,Time]),
 	close(Log),
 	((Diff<Delta; Diff =:= 0) -> 	(problog_flag(verbose,true) -> format('Runtime ~w sec~2n',[Time]);true),assert(mc_prob(Prob))
 		    ;	
@@ -1142,18 +1372,16 @@ mc_prove(A) :- !,
 
 clean_sample :-
         reset_static_array(mc_sample),
-	problog_tabled(P),
+	problog_tabled(P),%show_table(P),table_statistics(P),get(_),
 	abolish_table(P),
 	fail.
 clean_sample.
 
-% find new proof
+% find new proof -- need to reset control after init
 get_some_proof(Goal) :-
 	init_problog(0),
-	problog_call(Goal),
-	b_getval(problog_current_proof,Used),
-	(Used == [] -> Proof=true; reverse(Used,Proof)),
-	insert_ptree(Proof,1).
+	problog_control(on,mc),
+	problog_call(Goal).
 
 problog_table(M:P) :- !,
 	problog_table(P,M).
@@ -1170,3 +1398,23 @@ problog_table(P,M) :-
 	table(M:P),
 	assert(problog_tabled(M:P)).
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% exact probability of all ground instances of Goal
+% output goes to File
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+problog_answers(Goal,File) :-
+        set_problog_flag(verbose,false),
+	retractall(answer(_)),
+% this will not give the exact prob of Goal!
+	problog_exact((Goal,ground(Goal),\+problog:answer(Goal),assert(problog:answer(Goal))),_,_),
+	open(File,write,_,[alias(answer)]),
+	eval_answers,
+	close(answer).
+
+eval_answers :-
+	retract(answer(G)),
+	problog_exact(G,P,_),
+	format(answer,'answer(~q,~w).~n',[G,P]),
+	fail.
+eval_answers.

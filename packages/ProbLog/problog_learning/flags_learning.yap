@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2009-06-17 22:22:00 +0200 (Wed, 17 Jun 2009) $
-%  $Revision: 1550 $
+%  $Date: 2009-07-31 14:57:09 +0200 (Fri, 31 Jul 2009) $
+%  $Revision: 1826 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -14,7 +14,7 @@
 %  Angelika Kimmig, Vitor Santos Costa, Bernd Gutmann
 %                                                              
 %  Main authors of this file:
-%  Angelika Kimmig, Vitor Santos Costa
+%  Bernd Gutmann
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -204,311 +204,295 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module(flags, [set_problog_flag/2,
-	problog_flag/2,
-	problog_flags/0]).
+:- module(flags_learning, [set_learning_flag/2,
+	learning_flag/2,
+	learning_flags/0]).
 
 :- style_check(all).
 :- yap_flag(unknown,error).
 
-:- use_module(print, [print_param/4,
-	print_sep_line/0]).
+:- use_module(logger).
+:- use_module('../problog/flags').
+:- use_module('../problog/print').
 
 :- ensure_loaded(library(system)).
 
-:- dynamic bdd_time/1, first_threshold/1, last_threshold/1, id_stepsize/1, prunecheck/1, maxsteps/1, mc_batchsize/1, mc_logfile/1, bdd_file/1, bdd_par_file/1, bdd_result/1, work_dir/1, save_bdd/1, problog_verbose/1.
+:- dynamic init_method/5.
+:- dynamic rebuild_bdds/1.
+:- dynamic reuse_initialized_bdds/1.
+:- dynamic learning_rate/1.
+:- dynamic probability_initializer/3.
+:- dynamic check_duplicate_bdds/1.
+:- dynamic output_directory/1.
+:- dynamic query_directory/1.
+:- dynamic log_frequency/1.
+:- dynamic alpha/1.
+:- dynamic sigmoid_slope/1.
+:- dynamic line_search/1.
+:- dynamic line_search_tolerance/1.
+:- dynamic line_search_tau/1.
+:- dynamic line_search_never_stop/1.
+:- dynamic line_search_interval/2.
+:- dynamic verbosity_level/1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% global parameters that can be set using set_problog_flag/2
+% global parameters that can be set using set_learning_flag/2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-problog_flag(Flag,Option) :-
-	get_problog_flag(Flag,Option).
-get_problog_flag(bdd_time,X) :-
-	bdd_time(X).
-get_problog_flag(first_threshold,X) :-
-	first_threshold(X).
-get_problog_flag(last_threshold,X) :-
-	last_threshold(L),
-	X is exp(L).
-get_problog_flag(last_threshold_log,X) :-
-	last_threshold(X).
-get_problog_flag(id_stepsize,X) :-
-	id_stepsize(L),
-	X is exp(L).
-get_problog_flag(id_stepsize_log,X) :-
-	id_stepsize(X).
-get_problog_flag(prunecheck,X) :-
-	prunecheck(X).
-get_problog_flag(maxsteps,X) :-
-	maxsteps(X).
-get_problog_flag(mc_batchsize,X) :-
-	mc_batchsize(X).
-get_problog_flag(mc_logfile,X) :-
-	mc_logfile(X).
-get_problog_flag(bdd_file,X) :-
-	bdd_file(X).
-get_problog_flag(bdd_par_file,X) :-
-	bdd_par_file(X).
-get_problog_flag(bdd_result,X) :-
-	bdd_result(X).
-get_problog_flag(dir,X) :-
-	work_dir(X).
-get_problog_flag(save_bdd,X) :-
-	save_bdd(X).
-get_problog_flag(verbose,X) :-
-	problog_verbose(X).
+learning_flag(Flag,Option) :-
+	get_learning_flag(Flag,Option).
+
+get_learning_flag(init_method,(Query,Probability,BDDFile,ProbFile,Call)) :-
+	init_method(Query,Probability,BDDFile,ProbFile,Call).
+
+get_learning_flag(rebuild_bdds,Iteration) :-
+	rebuild_bdds(Iteration).
+
+get_learning_flag(reuse_initialized_bdds,Flag) :-
+	reuse_initialized_bdds(Flag).
+
+get_learning_flag(learning_rate,R) :-
+	learning_rate(R).
+
+get_learning_flag(probability_initializer,(FactID,Probability,Query)) :-
+	probability_initializer(FactID,Probability,Query).
+
+get_learning_flag(check_duplicate_bdds,Flag) :-
+	check_duplicate_bdds(Flag).
+
+get_learning_flag(output_directory,Directory) :-
+	output_directory(Directory).
+
+get_learning_flag(query_directory,Directory) :-
+	query_directory(Directory).
+
+get_learning_flag(log_frequency,Frequency) :-
+	log_frequency(Frequency).
+
+get_learning_flag(alpha,Alpha) :-
+	alpha(Alpha).
+
+get_learning_flag(sigmoid_slope,Slope) :-
+	sigmoid_slope(Slope).
+
+get_learning_flag(line_search,Flag) :-
+	line_search(Flag).
+
+get_learning_flag(line_search_tolerance,Tolerance) :-
+	line_search_tolerance(Tolerance).
+
+get_learning_flag(line_search_interval,(L,R)) :-
+	line_search_interval(L,R).
+
+get_learning_flag(line_search_tau,Tau) :-
+	line_search_tau(Tau).
+
+get_learning_flag(line_search_never_stop,Flag) :-
+	line_search_never_stop(Flag).
+
+get_learning_flag(verbosity_level,Number) :-
+	verbosity_level(Number).
 
 
-%%%%%%%%%%%%
-% BDD timeout in seconds, used as option in BDD tool
-%%%%%%%%%%%%
 
-set_problog_flag(bdd_time,X) :-
-	(\+ integer(X); X<0),
+
+set_learning_flag(init_method,(Query,Probability,BDDFile,ProbFile,Call)) :-
+	retractall(init_method(_,_,_,_,_)),
+	assert(init_method(Query,Probability,BDDFile,ProbFile,Call)).
+
+
+set_learning_flag(rebuild_bdds,Frequency) :-
+	integer(Frequency),
+	Frequency>=0,
+	retractall(rebuild_bdds(_)),
+	assert(rebuild_bdds(Frequency)).
+
+
+set_learning_flag(reuse_initialized_bdds,Flag) :-
+	(Flag==true;Flag==false),
 	!,
-	format(user,'\% ERROR: value must be positive integer!~n',[]),
-	flush_output(user),
-	fail.
-set_problog_flag(bdd_time,X) :-
-	retractall(bdd_time(_)),
-	assert(bdd_time(X)).
+	retractall(reuse_initialized_bdds(_)),
+	assert(reuse_initialized_bdds(Flag)).
 
-
-%%%%%%%%%%%%
-% iterative deepening on minimal probabilities (delta, max, kbest):
-% - first threshold (not in log-space as only used to retrieve argument for init_threshold/1, which is also used with user-supplied argument)
-% - last threshold to ensure termination in case infinite search space (saved in log-space for easy comparison with current values during search)
-% - factor used to decrease threshold for next level, NewMin=Factor*OldMin (saved in log-space)
-%%%%%%%%%%%%
-
-set_problog_flag(first_threshold,X) :-
-	(\+ number(X); X<0 ; X>1),
+set_learning_flag(learning_rate,V) :-
+	(V=examples -> true;(number(V),V>=0)),
 	!,
-	format(user,'\% ERROR: value must be in [0,1]!~n',[]),
-	flush_output(user),
-	fail.
-set_problog_flag(first_threshold,X) :-
-	retractall(first_threshold(_)),
-	assert(first_threshold(X)).
+	retractall(learning_rate(_)),
+	assert(learning_rate(V)).
 
-set_problog_flag(last_threshold,X) :-
-	(\+ number(X); X<0 ; X>1),
+set_learning_flag(probability_initializer,(FactID,Probability,Query)) :-
+	var(FactID),
+	var(Probability),
+	callable(Query),
+	retractall(probability_initializer(_,_,_)),
+	assert(probability_initializer(FactID,Probability,Query)).
+
+set_learning_flag(check_duplicate_bdds,Flag) :-
+	(Flag==true;Flag==false),
 	!,
-	format(user,'\% ERROR: value must be in [0,1]!~n',[]),
-	flush_output(user),
-	fail.
-set_problog_flag(last_threshold,X) :-
-	retractall(last_threshold(_)),
-	L is log(X),
-	assert(last_threshold(L)).
+	retractall(check_duplicate_bdds(_)),
+	assert(check_duplicate_bdds(Flag)).
 
-set_problog_flag(id_stepsize,X) :-
-	(\+ number(X); X=<0 ; X>=1),
+set_learning_flag(output_directory,Directory) :-
+	(
+	    file_exists(Directory)
+	->
+	    file_property(Directory,type(directory));
+	    make_directory(Directory)
+	),
+
+	absolute_file_name(Directory,Path),
+	atomic_concat([Path,'/'],PathSlash),
+	atomic_concat([Path,'/log.dat'],Log_File),
+		
+	retractall(output_directory(_)),
+	assert(output_directory(PathSlash)),
+	logger_set_filename(Log_File),
+	set_problog_flag(dir,Directory).
+
+set_learning_flag(query_directory,Directory) :-
+	(
+	    file_exists(Directory)
+	->
+	    file_property(Directory,type(directory));
+	    make_directory(Directory)
+	),
+	absolute_file_name(Directory,Path),
+	atomic_concat([Path,'/'],PathSlash),
+	retractall(query_directory(_)),
+	assert(query_directory(PathSlash)).
+
+set_learning_flag(log_frequency,Frequency) :-
+	integer(Frequency),
+	Frequency>=0,
+	retractall(log_frequency(_)),
+	assert(log_frequency(Frequency)).
+
+set_learning_flag(alpha,Alpha) :-
+	(number(Alpha);Alpha==auto),
 	!,
-	format(user,'\% ERROR: value must be in ]0,1[!~n',[]),
-	flush_output(user),
-	fail.
-set_problog_flag(id_stepsize,X) :-
-	retractall(id_stepsize(_)),
-	L is log(X),
-	assert(id_stepsize(L)).
+	retractall(alpha(_)),
+	assert(alpha(Alpha)).
+set_learning_flag(sigmoid_slope,Slope) :-
+	number(Slope),
+	Slope>0,
+	retractall(sigmoid_slope(_)),
+	assert(sigmoid_slope(Slope)).
 
 
-%%%%%%%%%%%%
-% prune check stops derivations if they use a superset of facts already known to form a proof
-% (very) costly test, can be switched on/off here
-%%%%%%%%%%%%
-
-set_problog_flag(prunecheck,on) :-
+set_learning_flag(line_search,Flag) :-
+	(Flag==true;Flag==false),
 	!,
-	format(user,'WARNING: prune check not implemented, will fail~n',[]),
-	flush_output(user),
-	retractall(prunecheck(_)),
-	assert(prunecheck(on)).
-set_problog_flag(prunecheck,off) :-
+	retractall(line_search(_)),
+	assert(line_search(Flag)).
+set_learning_flag(line_search_tolerance,Number) :-
+	number(Number),
+	Number>0,
+	retractall(line_search_tolerance(_)),
+	assert(line_search_tolerance(Number)).
+set_learning_flag(line_search_interval,(L,R)) :-
+	number(L),
+	number(R),
+	L<R,
+	retractall(line_search_interval(_,_)),
+	assert(line_search_interval(L,R)).
+set_learning_flag(line_search_tau,Number) :-
+	number(Number),
+	Number>0,
+	retractall(line_search_tau(_)),
+	assert(line_search_tau(Number)).
+set_learning_flag(line_search_never_stop,Flag) :-
+	(Flag==true;Flag==false),
 	!,
-	retractall(prunecheck(_)),
-	assert(prunecheck(off)).
-set_problog_flag(prunecheck,_) :-
-	format(user,'\% ERROR: value must be \'on\' or \'off\'!~n',[]),
-	flush_output(user),
-	fail.
+	retractall(line_search_nerver_stop(_)),
+	assert(line_search_never_stop(Flag)).
 
-%%%%%%%%%%%%
-% max number of calls to probabilistic facts per derivation (to ensure termination)
-%%%%%%%%%%%%
-
-set_problog_flag(maxsteps,X) :-
-	(\+ integer(X); X<0),
-	!,
-	format(user,'\% ERROR: value must be positive integer!~n',[]),
-	flush_output(user),
-	fail.
-set_problog_flag(maxsteps,X) :-
-	retractall(maxsteps(_)),
-	assert(maxsteps(X)).
-
-
-%%%%%%%%%%%%
-% montecarlo: recalculate current approximation after N samples
-%%%%%%%%%%%%
-
-set_problog_flag(mc_batchsize,X) :-
-	(\+ integer(X); X<0),
-	!,
-	format(user,'\% ERROR: value must be positive integer!~n',[]),
-	flush_output(user),
-	fail.
-set_problog_flag(mc_batchsize,X) :-
-	retractall(mc_batchsize(_)),
-	assert(mc_batchsize(X)).
-
-%%%%%%%%%%%%
-% montecarlo: write log to this file
-%%%%%%%%%%%%
-
-set_problog_flag(mc_logfile,X) :-
-	\+ atom(X),
-	!,
-	format(user,'\% ERROR: value must be atom!~n',[]),
-	flush_output(user),
-	fail.
-set_problog_flag(mc_logfile,X) :-
-	retractall(mc_logfile(_)),
-	assert(mc_logfile(X)).
-
-%%%%%%%%%%%%
-% files to write BDD script and pars
-% bdd_file overwrites bdd_par_file with matching extended name
-% if different name wanted, respect order when setting
-%%%%%%%%%%%%
-
-set_problog_flag(bdd_file,X) :-
-	\+ atom(X),
-	!,
-	format(user,'\% ERROR: value must be atom!~n',[]),
-	flush_output(user),
-	fail.
-set_problog_flag(bdd_file,X) :-
-	retractall(bdd_file(_)),
-	atomic_concat(X,'_probs',Y),
-	set_problog_flag(bdd_par_file,Y),
-	atomic_concat(X,'_res',Z),
-	set_problog_flag(bdd_result,Z),
-	assert(bdd_file(X)).
-set_problog_flag(bdd_par_file,X) :-
-	\+ atom(X),
-	!,
-	format(user,'\% ERROR: value must be atom!~n',[]),
-	flush_output(user),
-	fail.
-set_problog_flag(bdd_par_file,X) :-
-	retractall(bdd_par_file(_)),
-	assert(bdd_par_file(X)).
-set_problog_flag(bdd_result,X) :-
-	\+ atom(X),
-	!,
-	format(user,'\% ERROR: value must be atom!~n',[]),
-	flush_output(user),
-	fail.
-set_problog_flag(bdd_result,X) :-
-	retractall(bdd_result(_)),
-	assert(bdd_result(X)).
-
-%%%%%%%%%%%%
-% working directory: all the temporary and output files will be located there
-% it assumes a subdirectory of the current working dir
-% on initialization, the current dir is the one where the user's file is located
-%%%%%%%%%%%%
-set_problog_flag(dir,X) :-
-	\+ atom(X),
-	!,
-	format(user,'\% ERROR: value must be atom!~n',[]),
-	flush_output(user),
-	fail.
-set_problog_flag(dir,X) :-
-	retractall(work_dir(_)),
-	working_directory(PWD,PWD),
-	atomic_concat([PWD,'/',X,'/'],D),
-	atomic_concat(['mkdir ',D],Mkdir),
-	(file_exists(X) -> true; shell(Mkdir)),
-	assert(work_dir(D)).
-
-%%%%%%%%%%%%
-% save BDD information for the (last) lower bound BDD used during inference 
-% produces three files named save_script, save_params, save_map
-% located in the directory given by problog_flag dir
-%%%%%%%%%%%%
-
-set_problog_flag(save_bdd,true) :-
-	!,
-	retractall(save_bdd(_)),
-	assert(save_bdd(true)).
-set_problog_flag(save_bdd,false) :-
-	!,
-	retractall(save_bdd(_)),
-	assert(save_bdd(false)).
-set_problog_flag(save_bdd,_) :-
-	format(user,'\% ERROR: value must be \'true\' or \'false\'!~n',[]),
-	flush_output(user),
-	fail.
-
-%%%%%%%%%%%%
-% determine whether ProbLog outputs information (number of proofs, intermediate results, ...) 
-% default is true, as otherwise problog_delta won't output intermediate bounds
-%%%%%%%%%%%%
-
-set_problog_flag(verbose,true) :-
-	!,
-	retractall(problog_verbose(_)),
-	assert(problog_verbose(true)).
-set_problog_flag(verbose,false) :-
-	!,
-	retractall(problog_verbose(_)),
-	assert(problog_verbose(false)).
-set_problog_flag(verbose,_) :-
-	format(user,'\% ERROR: value must be \'true\' or \'false\'!~n',[]),
-	flush_output(user),
-	fail.
+set_learning_flag(verbosity_level,Level) :-
+	integer(Level),
+	retractall(verbosity_level(_)),
+	assert(verbosity_level(Level)),
+	(
+	 Level<4
+	->
+	 set_problog_flag(verbose,false);
+	 set_problog_flag(verbose,true)
+	).
+	
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % show values
 %%%%%%%%%%%%%%%%%%%%%%%%
 
-problog_flags :-
+skolemize(T1,T2):-
+	copy_term(T1,T2),
+	numbervars(T2,0,_).
+
+learning_flags :-
 	format('~n',[]),
 	print_sep_line,
-	format('problog flags: use set_problog_flag(Flag,Option) to change, problog_flag(Flag,Option) to view~n',[]),
+	format('learning flags: use set_learning_flag(Flag,Option) to change, learning_flag(Flag,Option) to view~n',[]),
 	print_sep_line,
 	print_param(description,value,flag,option),
 	print_sep_line,
-	problog_flag(bdd_time,StopBDD),
-	print_param('BDD computation timeout in seconds',StopBDD,'bdd_time','positive integer'),
-	problog_flag(first_threshold,First),
-	print_param('starting threshold iterative deepening',First,'first_threshold','0 =< Option =< 1'),
-	problog_flag(last_threshold,Last),
-	print_param('stopping threshold iterative deepening',Last,'last_threshold','0 =< Option =< 1'),
-	problog_flag(id_stepsize,Decrease),
-	print_param('threshold shrinking factor iterative deepening',Decrease,'id_stepsize','0 < Option < 1'),
-	problog_flag(prunecheck,Check),
-	print_param('stop derivations including all facts of known proof',Check,'prunecheck','on/off'),
-	problog_flag(maxsteps,Steps),
-	print_param('max. number of prob. steps per derivation',Steps,'maxsteps','positive integer'),
-	problog_flag(mc_batchsize,MCBatch),
-	print_param('number of samples before update in montecarlo',MCBatch,'mc_batchsize','positive integer'),
-	problog_flag(mc_logfile,MCFile),
-	print_param('logfile for montecarlo',MCFile,'mc_logfile','atom'),
-	problog_flag(bdd_file,BDDFile),
-	print_param('file for BDD script',BDDFile,'bdd_file','atom'),
-	problog_flag(dir,WorkDir),
-	print_param('directory for files',WorkDir,'dir','atom'),
-	problog_flag(save_bdd,Save),
-	print_param('save BDD files for (last) lower bound',Save,'save_bdd','true/false'),
-	problog_flag(verbose,Verbose),
-	print_param('output intermediate information',Verbose,'verbose','true/false'),
+
+	learning_flag(output_directory,Output_Directory),
+	print_long_param('Where to store results',Output_Directory,'output_directory','path'),
+
+	learning_flag(query_directory,Query_Directory),
+	print_long_param('Where to store BDD files',Query_Directory,'query_directory','path'),
+
+	learning_flag(verbosity_level,Verbosity_Level),
+	print_param('How much output shall be given (0=nothing,5=all)',Verbosity_Level,'verbosity_level','0,1,..,5'),
+
 	print_sep_line,
+
+	learning_flag(reuse_initialized_bdds,Reuse_Initialized_Bdds),
+	print_param('Reuse BDDs from previous runs',Reuse_Initialized_Bdds,'reuse_initialized_bdds','true/false'),
+
+	learning_flag(rebuild_bdds,Rebuild_BDDs),
+	print_param('Rebuild BDDs every nth iteration (0=never)',Rebuild_BDDs,'rebuild_bdds','Integer>=0'),
+	learning_flag(check_duplicate_bdds,Check_Duplicate_BDDs),
+	print_param('Store intermediate results in hash table',Check_Duplicate_BDDs,'check_duplicate_bdds','true/false'),
+
+	learning_flag(init_method,Init_Method),
+	skolemize(Init_Method,Init_Method_SK),
+	print_long_param('ProbLog predicate to search proofs',Init_Method_SK,'init_method','(+Query,-P,+BDDFile,+ProbFile,+Call)'),
+
+	learning_flag(probability_initializer,Prob_Initializer),
+	skolemize(Prob_Initializer,Prob_Initializer_SK),
+	print_long_param('Predicate to initialize probabilities',Prob_Initializer_SK,'probability_initializer','(+FactID,-P,+Call)'),
+
+	print_sep_line,
+
+
+	learning_flag(log_frequency,Log_Frequency),
+	print_param('log results every nth iteration',Log_Frequency,'log_frequency','integer>0'),
+
+	learning_flag(alpha,Alpha),
+	print_param('weight of negative examples (auto=n_p/n_n)',Alpha,'alpha','number or "auto"'),
+
+	learning_flag(sigmoid_slope,Slope),
+	print_param('slope of sigmoid function',Slope,'slope','number>0'),
+
+	print_sep_line,
+
+	
+	learning_flag(learning_rate,Learning_Rate),
+	print_param('Default Learning rate (If line_search=false)',Learning_Rate,'learning_rate','0<Number or "examples"'),
+	learning_flag(line_search,Line_Search),
+	print_param('Use line search to estimate learning rate',Line_Search,'line_search','true/false'),
+	learning_flag(line_search_tau,Line_Search_Tau),
+	print_param('Tau value for line search',Line_Search_Tau,'line_search_tau','0<Number<1'),
+	learning_flag(line_search_tolerance,Line_Search_Tolerance),
+	print_param('Tolerance value for line search',Line_Search_Tolerance,'line_search_tolerance','0<Number'),
+	learning_flag(line_search_interval,Line_Search_Interval),
+	print_param('Interval for line search',Line_Search_Interval,'line_search_interval','(a,b) an interval with 0<=a<b'),
+	learning_flag(line_search_never_stop,Line_Search_Never_Stop),
+	print_param('Make tiny step if line search returns 0',Line_Search_Never_Stop,'line_search_never_stop','true/false'),
+	
+	print_sep_line,
+	
 	format('~n',[]),
 	flush_output.
 
