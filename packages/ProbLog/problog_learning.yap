@@ -233,8 +233,8 @@
 	                       shell/2]).
 
 % load our own modules
-:- use_module('learning/logger').
-:- use_module('learning/flags_learning').
+:- use_module('problog_learning/logger').
+:- use_module('problog_learning/flags_learning').
 :- use_module(problog).
 
 % used to indicate the state of the system

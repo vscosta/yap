@@ -10,7 +10,7 @@
 % will run 20 iterations of learning with default settings 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module('../learning').
+:- use_module(library(problog_learning)).
 
 %%%%
 % background knowledge

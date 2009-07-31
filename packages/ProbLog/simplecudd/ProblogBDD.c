@@ -142,7 +142,6 @@
 *                                                                              *
 \******************************************************************************/
 
-
 #include "simplecudd.h"
 #include <signal.h>
 
@@ -218,9 +217,15 @@ int main(int argc, char **arg) {
     return -1;
   }
 
-  if (params.method != 0 && arg[params.method][0] != 'g' && arg[params.method][0] != 'p' && arg[params.method][0] != 'o'  && arg[params.method][0] != 'l') {
+  if (params.method != 0 && arg[params.method][0] != 'g' && arg[params.method][0] != 'p' && arg[params.method][0] != 'o' && arg[params.method][0] != 'l') {
     printhelp(argc, arg);
     fprintf(stderr, "Error: you must choose a calculation method beetween [p]robability, [g]radient, [l]ine search, [o]nline.\n");
+    return -1;
+  }
+
+  if (params.method != 0 && (arg[params.method][0] == 'g' || arg[params.method][0] == 'p' || arg[params.method][0] == 'l') && params.inputfile == -1) {
+    printhelp(argc, arg);
+    fprintf(stderr, "Error: an input file is necessary for probability, gradient or line search calculation methods.\n");
     return -1;
   }
 
@@ -247,11 +252,6 @@ int main(int argc, char **arg) {
     fileheader = ReadFileHeader(arg[params.loadfile]);
     switch(fileheader.filetype) {
       case BDDFILE_SCRIPT:
-        if (params.inputfile == -1) {
-          printhelp(argc, arg);
-          fprintf(stderr, "Error: an input file is necessary for this type of loading file.\n");
-          return -1;
-        }
         MyManager.manager = simpleBDDinit(fileheader.varcnt);
         MyManager.t = HIGH(MyManager.manager);
         MyManager.f = LOW(MyManager.manager);
@@ -260,11 +260,6 @@ int main(int argc, char **arg) {
         ivarcnt = fileheader.varcnt;
         break;
       case BDDFILE_NODEDUMP:
-        if (params.inputfile == -1) {
-          printhelp(argc, arg);
-          fprintf(stderr, "Error: an input file is necessary for this type of loading file.\n");
-          return -1;
-        }
         MyManager.manager = simpleBDDinit(fileheader.varcnt);
         MyManager.t = HIGH(MyManager.manager);
         MyManager.f = LOW(MyManager.manager);
@@ -301,10 +296,10 @@ int main(int argc, char **arg) {
                 probability = tvalue.probability;
                 double factor = sigmoid(MyManager.varmap.dvalue[i], params.sigmoid_slope) * (1 - sigmoid(MyManager.varmap.dvalue[i], params.sigmoid_slope)) * params.sigmoid_slope;
                 if (varpattern == NULL) {
-                  printf("query_gradient(%s,%s,%1.12f).\n", arg[params.queryid], MyManager.varmap.vars[i], tvalue.gradient * factor);
+                  printf("query_gradient(%s,%s,%e).\n", arg[params.queryid], MyManager.varmap.vars[i], tvalue.gradient * factor);
                 } else {
                   varpattern[strlen(varpattern) - 2] = '\0';
-                  printf("query_gradient(%s,%s,%1.12f).\n", arg[params.queryid], varpattern, tvalue.gradient * factor);
+                  printf("query_gradient(%s,%s,%e).\n", arg[params.queryid], varpattern, tvalue.gradient * factor);
                 }
                 ReInitHistory(MyManager.his, MyManager.varmap.varcnt);
               }
@@ -318,15 +313,15 @@ int main(int argc, char **arg) {
             tvalue = CalcGradient(MyManager, bdd, 0 + MyManager.varmap.varstart, NULL);
             probability = tvalue.probability;
           }
-          printf("query_probability(%s,%1.12f).\n", arg[params.queryid], probability);
+          printf("query_probability(%s,%e).\n", arg[params.queryid], probability);
           break;
        case 'l':
           tvalue = CalcGradient(MyManager, bdd, 0 + MyManager.varmap.varstart, NULL);
           probability = tvalue.probability;
-          printf("query_probability(%s,%1.12f).\n", arg[params.queryid], probability);
+          printf("query_probability(%s,%e).\n", arg[params.queryid], probability);
           break;
         case 'p':
-          printf("probability(%1.12f).\n", CalcProbability(MyManager, bdd));
+          printf("probability(%e).\n", CalcProbability(MyManager, bdd));
           break;
         case 'o':
           onlinetraverse(MyManager.manager, MyManager.varmap, MyManager.his, bdd);
@@ -347,7 +342,13 @@ int main(int argc, char **arg) {
     KillBDD(MyManager.manager);
     free(MyManager.varmap.dvalue);
     free(MyManager.varmap.ivalue);
-    free(MyManager.varmap.dynvalue);
+    if (MyManager.varmap.dynvalue != NULL) {
+      for(i = 0; i < MyManager.varmap.varcnt; i++)
+        if (MyManager.varmap.dynvalue[i] != NULL) {
+          free(MyManager.varmap.dynvalue[i]);
+        }
+      free(MyManager.varmap.dynvalue);
+    }
     for (i = 0; i < MyManager.varmap.varcnt; i++)
       free(MyManager.varmap.vars[i]);
     free(MyManager.varmap.vars);
@@ -386,12 +387,12 @@ void printhelp(int argc, char **arg) {
   fprintf(stderr, "Optional parameters:\n");
   fprintf(stderr, "\t-sd [filename]\t->\tfilename to save generated BDD in node dump format (fast loading, traverse valid only)\n");
   fprintf(stderr, "\t-e [filename]\t->\tfilename to export generated BDD in dot format\n");
-  fprintf(stderr, "\t-m [method]\t->\tthe calculation method to be used: none(default), [p]robability, [g]radient, [o]nline\n");
+  fprintf(stderr, "\t-m [method]\t->\tthe calculation method to be used: none(default), [p]robability, [g]radient, [l]ine search, [o]nline\n");
   fprintf(stderr, "\t-id [queryid]\t->\tthe queries identity name (used by gradient) default: %s\n", arg[0]);
   fprintf(stderr, "\t-sl [double]\t->\tthe sigmoid slope (used by gradient) default: 1.0\n");
   fprintf(stderr, "Extra parameters:\n");
   fprintf(stderr, "\t-t [seconds]\t->\tthe seconds (int) for BDD generation timeout default 0 = no timeout\n");
-  fprintf(stderr, "\t-pid [pid]\t->\ta process id (int) to check for termination default 0 = no process to check works only under POSIX OS\n");
+  fprintf(stderr, "\t-pid [pid]\t->\ta process id (int) to check for termination default 0 = no process to check\n");
   fprintf(stderr, "\t-bs [bytes]\t->\tthe bytes (int) to use as a maximum buffer size to read files default 0 = no max\n");
   fprintf(stderr, "\t-d\t\t->\tRun in debug mode (gives extra messages in stderr)\n");
   fprintf(stderr, "\t-h\t\t->\tHelp (displays this message)\n\n");
@@ -580,7 +581,7 @@ void myexpand(extmanager MyManager, DdNode *Current) {
   }
 }
 
-/* Angelikas Algorithm */
+/* Angelicas Algorithm */
 
 double CalcProbability(extmanager MyManager, DdNode *Current) {
   DdNode *h, *l;

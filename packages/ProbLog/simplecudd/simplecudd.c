@@ -184,49 +184,55 @@ DdNode* LowNodeOf(DdManager *manager, DdNode *node) {
 
 DdNode* D_BDDAnd(DdManager *manager, DdNode *bdd1, DdNode *bdd2) {
   DdNode *tmp;
+  Cudd_Ref(bdd1);
   tmp = Cudd_bddAnd(manager, bdd1, bdd2);
   Cudd_Ref(tmp);
-  Cudd_RecursiveDeref(manager, bdd2);
+  //Cudd_RecursiveDeref(manager, bdd2);
   return tmp;
 }
 
 DdNode* D_BDDNand(DdManager *manager, DdNode *bdd1, DdNode *bdd2) {
   DdNode *tmp;
+  Cudd_Ref(bdd1);
   tmp = Cudd_bddNand(manager, bdd1, bdd2);
   Cudd_Ref(tmp);
-  Cudd_RecursiveDeref(manager, bdd2);
+  //Cudd_RecursiveDeref(manager, bdd2);
   return tmp;
 }
 
 DdNode* D_BDDOr(DdManager *manager, DdNode *bdd1, DdNode *bdd2) {
   DdNode *tmp;
+  Cudd_Ref(bdd1);
   tmp = Cudd_bddOr(manager, bdd1, bdd2);
   Cudd_Ref(tmp);
-  Cudd_RecursiveDeref(manager, bdd2);
+  //Cudd_RecursiveDeref(manager, bdd2);
   return tmp;
 }
 
 DdNode* D_BDDNor(DdManager *manager, DdNode *bdd1, DdNode *bdd2) {
   DdNode *tmp;
+  Cudd_Ref(bdd1);
   tmp = Cudd_bddNor(manager, bdd1, bdd2);
   Cudd_Ref(tmp);
-  Cudd_RecursiveDeref(manager, bdd2);
+  //Cudd_RecursiveDeref(manager, bdd2);
   return tmp;
 }
 
 DdNode* D_BDDXor(DdManager *manager, DdNode *bdd1, DdNode *bdd2) {
   DdNode *tmp;
+  Cudd_Ref(bdd1);
   tmp = Cudd_bddXor(manager, bdd1, bdd2);
   Cudd_Ref(tmp);
-  Cudd_RecursiveDeref(manager, bdd2);
+  //Cudd_RecursiveDeref(manager, bdd2);
   return tmp;
 }
 
 DdNode* D_BDDXnor(DdManager *manager, DdNode *bdd1, DdNode *bdd2) {
   DdNode *tmp;
+  Cudd_Ref(bdd1);
   tmp = Cudd_bddXnor(manager, bdd1, bdd2);
   Cudd_Ref(tmp);
-  Cudd_RecursiveDeref(manager, bdd2);
+  //Cudd_RecursiveDeref(manager, bdd2);
   return tmp;
 }
 
@@ -541,7 +547,7 @@ int LoadVariableData(namedvars varmap, char *filename) {
   int icur = 0, maxbufsize = 10, hasvar = 0, index = -1, idat = 0, ivalue = 0;
   dynvalue = NULL;
   if ((data = fopen(filename, "r")) == NULL) {
-    perror("fopen");
+    perror(filename);
     return -1;
   }
   dataread = (char *) malloc(sizeof(char) * maxbufsize);
@@ -716,7 +722,7 @@ namedvars InitNamedVars(int varcnt, int varstart) {
   temp.loaded = (int *) malloc(sizeof(int) * varcnt);
   temp.dvalue = (double *) malloc(sizeof(double) * varcnt);
   temp.ivalue = (int *) malloc(sizeof(int) * varcnt);
-  temp.dynvalue = (void **) malloc(sizeof(int) * varcnt);
+  temp.dynvalue = (void **) malloc(sizeof(void *) * varcnt);
   for (i = 0; i < varcnt; i++) {
     temp.vars[i] = NULL;
     temp.loaded[i] = 0;
@@ -733,7 +739,7 @@ void EnlargeNamedVars(namedvars *varmap, int newvarcnt) {
   varmap->loaded = (int *) realloc(varmap->loaded, sizeof(int) * newvarcnt);
   varmap->dvalue = (double *) realloc(varmap->dvalue, sizeof(double) * newvarcnt);
   varmap->ivalue = (int *) realloc(varmap->ivalue, sizeof(int) * newvarcnt);
-  varmap->dynvalue = (void **) realloc(varmap->dynvalue, sizeof(int) * newvarcnt);
+  varmap->dynvalue = (void **) realloc(varmap->dynvalue, sizeof(void *) * newvarcnt);
   for (i = varmap->varcnt; i < newvarcnt; i++) {
     varmap->vars[i] = NULL;
     varmap->loaded[i] = 0;
@@ -1483,7 +1489,7 @@ int GetParam(char *inputline, int iParam) {
 
 void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, DdNode *bdd) {
   char buf, *inputline;
-  int icur, maxlinesize, iline, index, iloop, ivalue, iQsize, i, inQ;
+  int icur, maxlinesize, iline, index, iloop, ivalue, iQsize, i, inQ, iRoot;
   double dvalue;
   DdNode **Q, **Q2, *h_node, *l_node, *curnode;
   hisqueue *his;
@@ -1495,6 +1501,7 @@ void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, Dd
   inputline = (char *) malloc(sizeof(char) * maxlinesize);
   curnode = bdd;
   iQsize = 0;
+  iRoot = 1;
   Q = (DdNode **) malloc(sizeof(DdNode *) * iQsize);
   Q2 = NULL;
   his = InitHistory(varmap.varcnt);
@@ -1505,11 +1512,17 @@ void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, Dd
       if ((icur > 0) && (inputline[0] == '@') && (inputline[2] == ',' || inputline[2] == '\0')) {
         switch(inputline[1]) {
           case 'c':
-            printf("bdd_temp_value('%s', %i).\n", GetNodeVarNameDisp(manager, varmap, curnode), iQsize);
+            if (iRoot) {
+              iRoot = 0;
+              printf("bdd_temp_value('%s', %i).\n", GetNodeVarNameDisp(manager, varmap, curnode), 1);
+            } else {
+              printf("bdd_temp_value('%s', %i).\n", GetNodeVarNameDisp(manager, varmap, curnode), iQsize);
+            }
+            fflush(stdout);
             break;
           case 'n':
             if (curnode != HIGH(manager) && curnode != LOW(manager) && (hnode = GetNode(his, varmap.varstart, curnode)) == NULL) {
-              AddNode(his, varmap.varstart, curnode, 0.0, 0, NULL);
+              //AddNode(his, varmap.varstart, curnode, 0.0, 0, NULL);
               l_node = LowNodeOf(manager, curnode);
               h_node = HighNodeOf(manager, curnode);
               inQ = 0;
@@ -1519,6 +1532,7 @@ void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, Dd
               if (inQ & 2 == 0) inQ = inQ + 2 * (GetNode(his, varmap.varstart, h_node) != NULL);
               if (inQ & 1 == 1) inQ = inQ - (l_node == HIGH(manager) || l_node == LOW(manager));
               if (inQ & 2 == 2) inQ = inQ - 2 * (h_node == HIGH(manager) || h_node == LOW(manager));
+              inQ = 0;
               switch(inQ) {
                 case 0:
                   iQsize += 2;
@@ -1567,14 +1581,17 @@ void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, Dd
             break;
           case 'h':
             printf("bdd_temp_value('%s').\n", GetNodeVarNameDisp(manager, varmap, HighNodeOf(manager, curnode)));
+            fflush(stdout);
             break;
           case 'l':
             printf("bdd_temp_value('%s').\n", GetNodeVarNameDisp(manager, varmap, LowNodeOf(manager, curnode)));
+            fflush(stdout);
             break;
           case 'v':
             index = GetNamedVarIndex(varmap, inputline + 3);
             if (index >= 0) {
-              fprintf(stdout, "bdd_temp_value([%f,%i,%s]).\n", varmap.dvalue[index], varmap.ivalue[index], (char *) varmap.dynvalue[index]);
+              printf("bdd_temp_value([%f,%i,%s]).\n", varmap.dvalue[index], varmap.ivalue[index], (char *) varmap.dynvalue[index]);
+              fflush(stdout);
             } else {
               fprintf(stderr, "Error: Could not find variable: %s, Correct syntax @v,[variable name].\n", inputline + 3);
               free(Q);

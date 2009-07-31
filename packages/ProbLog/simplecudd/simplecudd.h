@@ -152,25 +152,26 @@
 #include "cuddInt.h"
 #include "general.h"
 
-#define IsHigh(manager, node)  HIGH(manager) == node
-#define IsLow(manager, node)   LOW(manager) == node
-#define HIGH(manager)          Cudd_ReadOne(manager)
-#define LOW(manager)           Cudd_Not(Cudd_ReadOne(manager))
-#define NOT(node)              Cudd_Not(node)
-#define GetIndex(node)         Cudd_NodeReadIndex(node)
-#define GetVar(manager, index) Cudd_bddIthVar(manager, index)
-#define NewVar(manager)        Cudd_bddNewVar(manager)
-#define KillBDD(manager)       Cudd_Quit(manager)
-#define GetVarCount(manager)   Cudd_ReadSize(manager)
-#define DEBUGON                _debug = 1
-#define DEBUGOFF               _debug = 0
-#define RAPIDLOADON            _RapidLoad = 1
-#define RAPIDLOADOFF           _RapidLoad = 0
-#define SETMAXBUFSIZE(size)    _maxbufsize = size
-#define BDDFILE_ERROR          -1
-#define BDDFILE_OTHER          0
-#define BDDFILE_SCRIPT         1
-#define BDDFILE_NODEDUMP       2
+#define IsHigh(manager, node)   HIGH(manager) == node
+#define IsLow(manager, node)    LOW(manager) == node
+#define HIGH(manager)           Cudd_ReadOne(manager)
+#define LOW(manager)            Cudd_Not(Cudd_ReadOne(manager))
+#define NOT(node)               Cudd_Not(node)
+#define GetIndex(node)          Cudd_NodeReadIndex(node)
+#define GetOrder(manager, node) Cudd_ReadPerm(manager, GetIndex(node))
+#define GetVar(manager, index)  Cudd_bddIthVar(manager, index)
+#define NewVar(manager)         Cudd_bddNewVar(manager)
+#define KillBDD(manager)        Cudd_Quit(manager)
+#define GetVarCount(manager)    Cudd_ReadSize(manager)
+#define DEBUGON                 _debug = 1
+#define DEBUGOFF                _debug = 0
+#define RAPIDLOADON             _RapidLoad = 1
+#define RAPIDLOADOFF            _RapidLoad = 0
+#define SETMAXBUFSIZE(size)     _maxbufsize = size
+#define BDDFILE_ERROR           -1
+#define BDDFILE_OTHER           0
+#define BDDFILE_SCRIPT          1
+#define BDDFILE_NODEDUMP        2
 
 extern int _RapidLoad;
 extern int _debug;
