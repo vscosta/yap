@@ -2311,7 +2311,7 @@ p_open (void)
     return FALSE;
   encoding = IntegerOfTerm(tenc);
 #ifdef _WIN32
-  if (st->status & Binary_Stream_f) {
+  if (opts & 2) {
     strncat(io_mode, "b", 8);
   } else {
     strncat(io_mode, "t", 8);
