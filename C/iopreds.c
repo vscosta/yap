@@ -4525,7 +4525,7 @@ p_put (void)
     return (FALSE);
   if (Stream[sno].status & Binary_Stream_f) {
     UNLOCK(Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "get0/2");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
     return(FALSE);
   }
   Stream[sno].stream_wputc (sno, (int) IntegerOfTerm (Deref (ARG2)));
