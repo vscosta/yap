@@ -608,8 +608,10 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
       UNLOCK(SgFr_lock(sg_fr));
     } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
       /* yes answer --> complete */
-      /* at this point the subgoal should be already completed (early completion)  */ 
-      /* SgFr_state(sg_fr) = complete; */
+#ifndef TABLING_EARLY_COMPLETION
+      /* with early completion, at this point the subgoal should be already completed */
+      SgFr_state(sg_fr) = complete;
+#endif /* TABLING_EARLY_COMPLETION */
       UNLOCK(SgFr_lock(sg_fr));
     } else {
       /* answers --> incomplete/ready */

@@ -1001,8 +1001,7 @@
 #endif /* TABLING_ERRORS */
       UNLOCK(SgFr_lock(sg_fr));
       if (IS_BATCHED_GEN_CP(gcp)) {
-	/* if the number of substitution variables is zero, 
-           an answer is sufficient to perform an early completion  */
+#ifdef TABLING_EARLY_COMPLETION
 #ifdef DETERMINISTIC_TABLING
 	if (IS_DET_GEN_CP(gcp) && gcp == B) {
 	  private_completion(sg_fr);
@@ -1010,10 +1009,14 @@
 	  SET_BB(PROTECT_FROZEN_B(B));
 	} else
 #endif /* DETERMINISTIC_TABLING */
-	if (*subs_ptr == 0 && gcp->cp_ap != NULL) {
-	  gcp->cp_ap = COMPLETION;
+	/* if the number of substitution variables is zero, 
+           an answer is sufficient to perform an early completion  */
+	if (*subs_ptr == 0) {
+	  if (gcp->cp_ap != NULL)
+	    gcp->cp_ap = COMPLETION;
 	  mark_as_completed(sg_fr);
 	}
+#endif /* TABLING_EARLY_COMPLETION */
         /* deallocate and procceed */
         PREG = (yamop *) YENV[E_CP];
         PREFETCH_OP(PREG);
@@ -1025,12 +1028,15 @@
 #endif /* DEPTH_LIMIT */
         GONext();
       } else {
+#ifdef TABLING_EARLY_COMPLETION
 	/* if the number of substitution variables is zero, 
            an answer is sufficient to perform an early completion  */
-	if (*subs_ptr == 0 && gcp->cp_ap != ANSWER_RESOLUTION) {
-	  gcp->cp_ap = COMPLETION;
+	if (*subs_ptr == 0) {
+	  if (gcp->cp_ap != ANSWER_RESOLUTION)
+	    gcp->cp_ap = COMPLETION;
 	  mark_as_completed(sg_fr);
 	}
+#endif /* TABLING_EARLY_COMPLETION */
         /* fail */
         goto fail;
       }
