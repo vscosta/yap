@@ -52,6 +52,7 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 #include "absmi.h"
+#include <stdio.h>
 
 #if HAVE_STRING_H
 #include <string.h>
