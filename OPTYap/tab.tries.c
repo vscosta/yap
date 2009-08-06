@@ -1306,7 +1306,7 @@ void traverse_table(tab_ent_ptr tab_ent, int show_table) {
       }
     }
   } else
-    SHOW_TABLE("  empty\n");
+    SHOW_TABLE("  EMPTY\n");
   return;
 }
 
