@@ -821,12 +821,12 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
   current_ans_node = SgFr_answer_trie(sg_fr);
 
   for (i = subs_arity; i >= 1; i--) {
+#ifdef TABLING_ERRORS
+    if (IsNonVarTerm(*(subs_ptr + i)))
+      TABLING_ERROR_MESSAGE("IsNonVarTem(*(subs_ptr + i)) (answer_search)");
+#endif /* TABLING_ERRORS */
     STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
     STACK_PUSH_UP(Deref(*(subs_ptr + i)), stack_terms);
-#ifdef TABLING_ERRORS
-    if (IsNonVarTerm(*stack_terms))
-      TABLING_ERROR_MESSAGE("IsNonVarTem(*stack_terms) (answer_search)");
-#endif /* TABLING_ERRORS */
     do {
       Term t = STACK_POP_DOWN(stack_terms);
       if (IsVarTerm(t)) {

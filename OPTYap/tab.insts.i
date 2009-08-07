@@ -813,16 +813,9 @@
     }
 #ifdef TABLING_ERRORS
     {
-      sg_fr_ptr aux_sg_fr;
       int i, j, arity_args, arity_subs;
       CELL *aux_args;
       CELL *aux_subs;
-
-      aux_sg_fr = LOCAL_top_sg_fr;
-      while (aux_sg_fr && aux_sg_fr != sg_fr)
-        aux_sg_fr = SgFr_next(aux_sg_fr);
-      if (aux_sg_fr == NULL)
-        TABLING_ERROR_MESSAGE("aux_sg_fr == NULL (table_new_answer)");
 
       arity_args = PREG->u.s.s;
       arity_subs = *subs_ptr;
