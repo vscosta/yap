@@ -811,7 +811,7 @@
       sg_fr = GEN_CP(gcp)->cp_sg_fr;
       subs_ptr = (CELL *)(GEN_CP(gcp) + 1) + PREG->u.s.s;
     }
-#ifdef TABLING_ERRORS
+#if defined(TABLING_ERRORS) && !defined(DETERMINISTIC_TABLING)
     {
       int i, j, arity_args, arity_subs;
       CELL *aux_args;
@@ -831,7 +831,7 @@
           TABLING_ERROR_MESSAGE("j == arity_args (table_new_answer)");
       }
     }
-#endif /* TABLING_ERRORS */
+#endif /* TABLING_ERRORS && !DETERMINISTIC_TABLING */
 #ifdef TABLE_LOCK_AT_ENTRY_LEVEL
     LOCK(SgFr_lock(sg_fr));
 #endif /* TABLE_LOCK_LEVEL */

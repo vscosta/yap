@@ -938,7 +938,12 @@ void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
 
   while (valid_solutions) {
     first_answer = last_answer = NULL;
-    sg_fr = GEN_CP(TgSolFr_gen_cp(valid_solutions))->cp_sg_fr;
+#ifdef DETERMINISTIC_TABLING
+    if (IS_DET_GEN_CP(TgSolFr_gen_cp(valid_solutions)))
+      sg_fr = DET_GEN_CP(TgSolFr_gen_cp(valid_solutions))->cp_sg_fr;
+    else
+#endif /* DETERMINISTIC_TABLING */
+      sg_fr = GEN_CP(TgSolFr_gen_cp(valid_solutions))->cp_sg_fr;
     ltt_valid_solutions = valid_solutions;
     valid_solutions = TgSolFr_next(valid_solutions);
     do {

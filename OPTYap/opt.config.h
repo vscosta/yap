@@ -31,12 +31,12 @@
 /* ----------------------- **
 **      default sizes      **
 ** ----------------------- */
-#define MAX_TABLE_VARS  100
+#define MAX_TABLE_VARS 1000
 
 /* ------------------------------------------ **
 **      trail freeze scheme (define one)      **
 ** ------------------------------------------ */
-#define BFZ_TRAIL_SCHEME   1
+#define BFZ_TRAIL_SCHEME 1
 /* #define BBREG_TRAIL_SCHEME 1 */
 
 /* ------------------------------------------------ **

@@ -46,7 +46,12 @@ void public_completion(void) {
     sg_fr_ptr top_sg_fr;
 
     /* complete subgoals */
-    top_sg_fr = SgFr_next(GEN_CP(LOCAL_top_cp)->cp_sg_fr);
+#ifdef DETERMINISTIC_TABLING
+    if (IS_DET_GEN_CP(LOCAL_top_cp))
+      top_sg_fr = SgFr_next(DET_GEN_CP(LOCAL_top_cp)->cp_sg_fr);
+    else
+#endif /* DETERMINISTIC_TABLING */
+      top_sg_fr = SgFr_next(GEN_CP(LOCAL_top_cp)->cp_sg_fr);
     do {
       mark_as_completed(LOCAL_top_sg_fr);
       LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);

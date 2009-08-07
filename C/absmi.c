@@ -1878,7 +1878,12 @@ Yap_absmi(int inp)
 	      case _table_retry:
 	      case _table_trust:
 	      case _table_completion:
-		low_level_trace(retry_table_generator, GEN_CP(B)->cp_pred_entry, (CELL *)(GEN_CP(B) + 1));
+#ifdef DETERMINISTIC_TABLING
+		if (IS_DET_GEN_CP(B))
+		  low_level_trace(retry_table_generator, DET_GEN_CP(B)->cp_pred_entry, NULL);
+		else
+#endif /* DETERMINISTIC_TABLING */
+		  low_level_trace(retry_table_generator, GEN_CP(B)->cp_pred_entry, (CELL *)(GEN_CP(B) + 1));
 		break;
 	      case _table_answer_resolution:
 		low_level_trace(retry_table_consumer, CONS_CP(B)->cp_pred_entry, NULL);
