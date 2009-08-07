@@ -521,10 +521,11 @@
 **      trie_extension      **
 ** ------------------------ */
 
-#define stack_trie_extension_instr()      \
-        *aux_ptr-- = TrNode_entry(node);  \
-        *aux_ptr = heap_arity + 1;        \
-        YENV = aux_ptr;                   \
+#define stack_trie_extension_instr()                         \
+        *aux_ptr-- = 0;  /* float/longint extension mark */  \
+        *aux_ptr-- = TrNode_entry(node);                     \
+        *aux_ptr = heap_arity + 2;                           \
+        YENV = aux_ptr;                                      \
         next_trie_instruction(node)
 
 
@@ -1233,13 +1234,15 @@
     Term t;
 
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+    heap_arity -= 4;
     *t_dbl = *++aux_ptr;
+    ++aux_ptr;  /* jump the float/longint extension mark */
     *(t_dbl + 1) = *++aux_ptr;
-    heap_arity -= 2;
 #else /* SIZEOF_DOUBLE == SIZEOF_INT_P */
+    heap_arity -= 2;
     *t_dbl = *++aux_ptr;
-    heap_arity -= 1;
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+    ++aux_ptr;  /* jump the float/longint extension mark */
     t = MkFloatTerm(dbl);
     stack_trie_float_longint_instr();
   ENDPBOp();
@@ -1266,9 +1269,11 @@
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
-    Term t = MkLongIntTerm(*++aux_ptr);
+    Term t;
 
-    heap_arity -= 1;
+    heap_arity -= 2;
+    t = MkLongIntTerm(*++aux_ptr);
+    ++aux_ptr;  /* jump the float/longint extension mark */
     stack_trie_float_longint_instr();
   ENDPBOp();
 

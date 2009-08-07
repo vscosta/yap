@@ -2138,8 +2138,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	  vars_ptr -= 2;
 	  if (heap_arity) {
 	    while (heap_arity--) {	
-	      if (*vars_ptr == 0)
-		break;  /* term extension mark: float/longint */
+	      if (*vars_ptr == 0)  /* float/longint extension mark */
+		break;
 	      mark_external_reference(vars_ptr);
 	      vars_ptr--;
 	    }
@@ -3050,8 +3050,8 @@ sweep_choicepoints(choiceptr gc_B)
 	if (heap_arity) {
 	  while (heap_arity--) {
 	    CELL cp_cell = *vars_ptr;
-	    if (*vars_ptr == 0)
-	      break;  /* term extension mark: float/longint */
+	    if (*vars_ptr == 0)  /* float/longint extension mark */
+	      break;
 	    if (MARKED_PTR(vars_ptr)) {
 	      UNMARK(vars_ptr);
 	      if (HEAP_PTR(cp_cell)) {
