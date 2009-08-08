@@ -995,19 +995,20 @@
       UNLOCK(SgFr_lock(sg_fr));
       if (IS_BATCHED_GEN_CP(gcp)) {
 #ifdef TABLING_EARLY_COMPLETION
-#ifdef DETERMINISTIC_TABLING
-	if (IS_DET_GEN_CP(gcp) && gcp == B) {
+	if (gcp == PROTECT_FROZEN_B(B) && (*subs_ptr == 0 || gcp->cp_ap == COMPLETION)) {
+	  /* if the current generator choice point is the topmost choice point and the current */
+	  /* call is deterministic (i.e., the number of substitution variables is zero or      */
+	  /* there are no more alternatives) then the current answer is deterministic and we   */
+	  /* can perform an early completion and remove the current generator choice point     */
 	  private_completion(sg_fr);
 	  B = B->cp_b;
 	  SET_BB(PROTECT_FROZEN_B(B));
-	} else
-#endif /* DETERMINISTIC_TABLING */
-	/* if the number of substitution variables is zero, 
-           an answer is sufficient to perform an early completion  */
-	if (*subs_ptr == 0) {
+	} else if (*subs_ptr == 0) {
+	  /* if the number of substitution variables is zero, an answer is sufficient to perform */
+          /* an early completion, but the current generator choice point cannot be removed       */
+	  mark_as_completed(sg_fr);
 	  if (gcp->cp_ap != NULL)
 	    gcp->cp_ap = COMPLETION;
-	  mark_as_completed(sg_fr);
 	}
 #endif /* TABLING_EARLY_COMPLETION */
         /* deallocate and procceed */
@@ -1022,12 +1023,12 @@
         GONext();
       } else {
 #ifdef TABLING_EARLY_COMPLETION
-	/* if the number of substitution variables is zero, 
-           an answer is sufficient to perform an early completion  */
 	if (*subs_ptr == 0) {
+	  /* if the number of substitution variables is zero, an answer is sufficient to perform */
+          /* an early completion, but the current generator choice point cannot be removed       */
+	  mark_as_completed(sg_fr);
 	  if (gcp->cp_ap != ANSWER_RESOLUTION)
 	    gcp->cp_ap = COMPLETION;
-	  mark_as_completed(sg_fr);
 	}
 #endif /* TABLING_EARLY_COMPLETION */
         /* fail */
