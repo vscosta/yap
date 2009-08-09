@@ -1914,10 +1914,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
     current_B = gc_B;
     prev_HB = HB;
 #endif
-#ifdef DETERMINISTIC_TABLING
-    if (!IS_DET_GEN_CP(gc_B))
-#endif /* DETERMINISTIC_TABLING */
-      HB = gc_B->cp_h;
+    HB = gc_B->cp_h;
 #ifdef INSTRUMENT_GC
     num_bs++;
 #endif
@@ -1960,9 +1957,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       }
 #endif
     }
-#ifdef DETERMINISTIC_TABLING
-    if (!IS_DET_GEN_CP(gc_B))
-#endif /* DETERMINISTIC_TABLING */
     {
       /* find out how many cells are still alive in the trail */
       mark_trail(saved_TR, gc_B->cp_tr, gc_B->cp_h, gc_B);
@@ -3181,15 +3175,6 @@ update_B_H( choiceptr gc_B, CELL *current, CELL *dest, CELL *odest
   dep_fr_ptr depfr = *depfrp;
 #endif /* TABLING */
 
-#ifdef DETERMINISTIC_TABLING
-  while (IS_DET_GEN_CP(gc_B))
-    gc_B = gc_B->cp_b;
-  /* make sure we include consumers */
-  if (depfr && gc_B >= DepFr_cons_cp(depfr)) {
-    gc_B = DepFr_cons_cp(depfr);
-    *depfrp = depfr = DepFr_next(depfr);
-  }
-#endif /* DETERMINISTIC_TABLING */
   while (gc_B && current <= gc_B->cp_h) {
     if (gc_B->cp_h == current) {
       gc_B->cp_h = dest;
@@ -3198,10 +3183,6 @@ update_B_H( choiceptr gc_B, CELL *current, CELL *dest, CELL *odest
     }
     gc_B = gc_B->cp_b;
 #ifdef TABLING
-#ifdef DETERMINISTIC_TABLING
-    while (IS_DET_GEN_CP(gc_B))
-      gc_B = gc_B->cp_b;
-#endif /* DETERMINISTIC_TABLING */
     /* make sure we include consumers */
     if (depfr && gc_B >= DepFr_cons_cp(depfr)) {
       gc_B = DepFr_cons_cp(depfr);

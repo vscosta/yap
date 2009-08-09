@@ -39,15 +39,20 @@
 #define BFZ_TRAIL_SCHEME 1
 /* #define BBREG_TRAIL_SCHEME 1 */
 
+/* ----------------------------------------------- **
+**      support early completion ? (optional)      **
+** ----------------------------------------------- */
+#define TABLING_EARLY_COMPLETION 1
+
 /* ------------------------------------------------ **
 **      support trie compact pairs? (optional)      **
 ** ------------------------------------------------ */
 /* #define TRIE_COMPACT_PAIRS 1 */
 
-/* ----------------------------------------------- **
-**      support early completion ? (optional)      **
-** ----------------------------------------------- */
-#define TABLING_EARLY_COMPLETION 1
+/* --------------------------------------------------- **
+**      support deterministic tabling? (optional)      **
+** --------------------------------------------------- */
+/* #define DETERMINISTIC_TABLING 1 */
 
 /* ------------------------------------------------ **
 **      limit the table space size? (optional)      **
@@ -58,11 +63,6 @@
 **      support incomplete tabling? (optional)      **
 ** ------------------------------------------------ */
 /* #define INCOMPLETE_TABLING 1 */
-
-/* --------------------------------------------------- **
-**      support deterministic tabling? (optional)      **
-** --------------------------------------------------- */
-/* #define DETERMINISTIC_TABLING 1 */
 
 /* ---------------------------------------- -- **
 **      enable error checking? (optional)      **

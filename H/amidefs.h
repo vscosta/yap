@@ -816,6 +816,7 @@ struct deterministic_choicept {
   int cp_lub;           /* local untried branches */
   struct or_frame *cp_or_fr;  /* or-frame pointer */
 #endif /* YAPOR */
+  CELL *cp_h;  /* necessary, otherwise we get in trouble */
 };
 
 typedef struct choicept {

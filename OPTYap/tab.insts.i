@@ -95,9 +95,10 @@
           /* store deterministic generator choice point */            \
           HBREG = H;                                                  \
           store_yaam_reg_cpdepth(gcp);                                \
-          gcp->cp_tr = TR;           	  	                      \
           gcp->cp_ap = COMPLETION;                                    \
           gcp->cp_b  = B;                                             \
+          gcp->cp_tr = TR;           	  	                      \
+          gcp->cp_h = H;                                              \
 	  DET_GEN_CP(gcp)->cp_sg_fr = SG_FR;                          \
           store_low_level_trace_info(DET_GEN_CP(gcp), TAB_ENT);       \
           set_cut((CELL *)gcp, B);                                    \
@@ -748,6 +749,7 @@
       choiceptr gcp = NORM_CP(DET_GEN_CP(subs_ptr) - 1);
       sg_fr_ptr sg_fr = GEN_CP(B)->cp_sg_fr; 
       DET_GEN_CP(gcp)->cp_sg_fr = sg_fr;         
+      gcp->cp_h     = B->cp_h;
 #ifdef DEPTH_LIMIT
       gcp->cp_depth = B->cp_depth;
 #endif /* DEPTH_LIMIT */
@@ -775,6 +777,7 @@
       choiceptr gcp = NORM_CP(DET_GEN_CP(subs_ptr) - 1);
       sg_fr_ptr sg_fr = GEN_CP(B)->cp_sg_fr; 
       DET_GEN_CP(gcp)->cp_sg_fr = sg_fr;         
+      gcp->cp_h     = B->cp_h;
 #ifdef DEPTH_LIMIT
       gcp->cp_depth = B->cp_depth;
 #endif /* DEPTH_LIMIT */
