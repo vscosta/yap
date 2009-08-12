@@ -2238,7 +2238,17 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   }
   UNLOCK(p->PELock);
   if (pflags & LogUpdatePredFlag) {
-    tf = MkDBRefTerm((DBRef)ClauseCodeToLogUpdClause(cp));
+    LogUpdClause *cl = (DBRef)ClauseCodeToLogUpdClause(cp);
+    tf = MkDBRefTerm((DBRef)cl);
+#if defined(YAPOR) || defined(THREADS)
+    TRAIL_CLREF(cl);		/* So that fail will erase it */
+    INC_CLREF_COUNT(cl);
+#else
+    if (!(cl->ClFlags & InUseMask)) {
+      cl->ClFlags |= InUseMask;
+      TRAIL_CLREF(cl);	/* So that fail will erase it */
+    }
+#endif
   } else {
     tf = Yap_MkStaticRefTerm(ClauseCodeToStaticClause(cp));
   }
