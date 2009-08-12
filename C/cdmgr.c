@@ -5420,8 +5420,16 @@ p_choicepoint_info(void)
     case _table_trust:
     case _table_completion:
 #ifdef LOW_LEVEL_TRACER
-      pe = GEN_CP(cptr)->cp_pred_entry;
-      t = BuildActivePred(pe, (CELL *)(GEN_CP(B) + 1));
+#ifdef DETERMINISTIC_TABLING
+      if (IS_DET_GEN_CP(cptr)) {
+	pe = DET_GEN_CP(cptr)->cp_pred_entry;
+	t = MkVarTerm();
+      } else
+#endif /* DETERMINISTIC_TABLING */
+      {
+	pe = GEN_CP(cptr)->cp_pred_entry;
+	t = BuildActivePred(pe, (CELL *)(GEN_CP(B) + 1));
+      }
 #else
       pe = UndefCode;
       t = MkVarTerm();

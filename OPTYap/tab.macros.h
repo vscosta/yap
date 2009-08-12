@@ -57,6 +57,23 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 
 
 
+/* ----------------- **
+**      Defines      **
+** ----------------- */
+
+#define TRAVERSE_MODE_NORMAL    0
+#define TRAVERSE_MODE_FLOAT     1
+#define TRAVERSE_MODE_FLOAT2    2
+#define TRAVERSE_MODE_FLOAT_END 3
+#define TRAVERSE_MODE_LONG      4
+#define TRAVERSE_MODE_LONG_END  5
+/* do not change order !!! */
+#define TRAVERSE_POSITION_NEXT  0
+#define TRAVERSE_POSITION_FIRST 1
+#define TRAVERSE_POSITION_LAST  2
+
+
+
 /* ----------------------- **
 **     Tabling Macros      **
 ** ----------------------- */
@@ -591,8 +608,10 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
       UNLOCK(SgFr_lock(sg_fr));
     } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
       /* yes answer --> complete */
-      /* at this point the subgoal should be already completed (early completion)  */ 
-      /* SgFr_state(sg_fr) = complete; */
+#ifndef TABLING_EARLY_COMPLETION
+      /* with early completion, at this point the subgoal should be already completed */
+      SgFr_state(sg_fr) = complete;
+#endif /* TABLING_EARLY_COMPLETION */
       UNLOCK(SgFr_lock(sg_fr));
     } else {
       /* answers --> incomplete/ready */
@@ -609,7 +628,7 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
       node = TrNode_child(SgFr_answer_trie(sg_fr));
       TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
       UNLOCK(SgFr_lock(sg_fr));
-      free_answer_trie_branch(node);
+      free_answer_trie_branch(node, TRAVERSE_POSITION_FIRST);
 #endif /* INCOMPLETE_TABLING */
     }
 #ifdef LIMIT_TABLING
@@ -919,7 +938,12 @@ void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
 
   while (valid_solutions) {
     first_answer = last_answer = NULL;
-    sg_fr = GEN_CP(TgSolFr_gen_cp(valid_solutions))->cp_sg_fr;
+#ifdef DETERMINISTIC_TABLING
+    if (IS_DET_GEN_CP(TgSolFr_gen_cp(valid_solutions)))
+      sg_fr = DET_GEN_CP(TgSolFr_gen_cp(valid_solutions))->cp_sg_fr;
+    else
+#endif /* DETERMINISTIC_TABLING */
+      sg_fr = GEN_CP(TgSolFr_gen_cp(valid_solutions))->cp_sg_fr;
     ltt_valid_solutions = valid_solutions;
     valid_solutions = TgSolFr_next(valid_solutions);
     do {

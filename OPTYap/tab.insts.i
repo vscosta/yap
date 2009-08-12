@@ -95,9 +95,10 @@
           /* store deterministic generator choice point */            \
           HBREG = H;                                                  \
           store_yaam_reg_cpdepth(gcp);                                \
-          gcp->cp_tr = TR;           	  	                      \
           gcp->cp_ap = COMPLETION;                                    \
           gcp->cp_b  = B;                                             \
+          gcp->cp_tr = TR;           	  	                      \
+          gcp->cp_h = H;                                              \
 	  DET_GEN_CP(gcp)->cp_sg_fr = SG_FR;                          \
           store_low_level_trace_info(DET_GEN_CP(gcp), TAB_ENT);       \
           set_cut((CELL *)gcp, B);                                    \
@@ -748,6 +749,7 @@
       choiceptr gcp = NORM_CP(DET_GEN_CP(subs_ptr) - 1);
       sg_fr_ptr sg_fr = GEN_CP(B)->cp_sg_fr; 
       DET_GEN_CP(gcp)->cp_sg_fr = sg_fr;         
+      gcp->cp_h     = B->cp_h;
 #ifdef DEPTH_LIMIT
       gcp->cp_depth = B->cp_depth;
 #endif /* DEPTH_LIMIT */
@@ -775,6 +777,7 @@
       choiceptr gcp = NORM_CP(DET_GEN_CP(subs_ptr) - 1);
       sg_fr_ptr sg_fr = GEN_CP(B)->cp_sg_fr; 
       DET_GEN_CP(gcp)->cp_sg_fr = sg_fr;         
+      gcp->cp_h     = B->cp_h;
 #ifdef DEPTH_LIMIT
       gcp->cp_depth = B->cp_depth;
 #endif /* DEPTH_LIMIT */
@@ -811,18 +814,11 @@
       sg_fr = GEN_CP(gcp)->cp_sg_fr;
       subs_ptr = (CELL *)(GEN_CP(gcp) + 1) + PREG->u.s.s;
     }
-#ifdef TABLING_ERRORS
+#if defined(TABLING_ERRORS) && !defined(DETERMINISTIC_TABLING)
     {
-      sg_fr_ptr aux_sg_fr;
       int i, j, arity_args, arity_subs;
       CELL *aux_args;
       CELL *aux_subs;
-
-      aux_sg_fr = LOCAL_top_sg_fr;
-      while (aux_sg_fr && aux_sg_fr != sg_fr)
-        aux_sg_fr = SgFr_next(aux_sg_fr);
-      if (aux_sg_fr == NULL)
-        TABLING_ERROR_MESSAGE("aux_sg_fr == NULL (table_new_answer)");
 
       arity_args = PREG->u.s.s;
       arity_subs = *subs_ptr;
@@ -838,7 +834,7 @@
           TABLING_ERROR_MESSAGE("j == arity_args (table_new_answer)");
       }
     }
-#endif /* TABLING_ERRORS */
+#endif /* TABLING_ERRORS && !DETERMINISTIC_TABLING */
 #ifdef TABLE_LOCK_AT_ENTRY_LEVEL
     LOCK(SgFr_lock(sg_fr));
 #endif /* TABLE_LOCK_LEVEL */
@@ -1001,19 +997,23 @@
 #endif /* TABLING_ERRORS */
       UNLOCK(SgFr_lock(sg_fr));
       if (IS_BATCHED_GEN_CP(gcp)) {
-	/* if the number of substitution variables is zero, 
-           an answer is sufficient to perform an early completion  */
-#ifdef DETERMINISTIC_TABLING
-	if (IS_DET_GEN_CP(gcp) && gcp == B) {
+#ifdef TABLING_EARLY_COMPLETION
+	if (gcp == PROTECT_FROZEN_B(B) && (*subs_ptr == 0 || gcp->cp_ap == COMPLETION)) {
+	  /* if the current generator choice point is the topmost choice point and the current */
+	  /* call is deterministic (i.e., the number of substitution variables is zero or      */
+	  /* there are no more alternatives) then the current answer is deterministic and we   */
+	  /* can perform an early completion and remove the current generator choice point     */
 	  private_completion(sg_fr);
 	  B = B->cp_b;
 	  SET_BB(PROTECT_FROZEN_B(B));
-	} else
-#endif /* DETERMINISTIC_TABLING */
-	if (*subs_ptr == 0 && gcp->cp_ap != NULL) {
-	  gcp->cp_ap = COMPLETION;
+	} else if (*subs_ptr == 0) {
+	  /* if the number of substitution variables is zero, an answer is sufficient to perform */
+          /* an early completion, but the current generator choice point cannot be removed       */
 	  mark_as_completed(sg_fr);
+	  if (gcp->cp_ap != NULL)
+	    gcp->cp_ap = COMPLETION;
 	}
+#endif /* TABLING_EARLY_COMPLETION */
         /* deallocate and procceed */
         PREG = (yamop *) YENV[E_CP];
         PREFETCH_OP(PREG);
@@ -1025,12 +1025,15 @@
 #endif /* DEPTH_LIMIT */
         GONext();
       } else {
-	/* if the number of substitution variables is zero, 
-           an answer is sufficient to perform an early completion  */
-	if (*subs_ptr == 0 && gcp->cp_ap != ANSWER_RESOLUTION) {
-	  gcp->cp_ap = COMPLETION;
+#ifdef TABLING_EARLY_COMPLETION
+	if (*subs_ptr == 0) {
+	  /* if the number of substitution variables is zero, an answer is sufficient to perform */
+          /* an early completion, but the current generator choice point cannot be removed       */
 	  mark_as_completed(sg_fr);
+	  if (gcp->cp_ap != ANSWER_RESOLUTION)
+	    gcp->cp_ap = COMPLETION;
 	}
+#endif /* TABLING_EARLY_COMPLETION */
         /* fail */
         goto fail;
       }

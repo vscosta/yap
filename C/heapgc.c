@@ -361,7 +361,7 @@ gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp) {
     gc_ma_hash_table[i].loc = trp;
     gc_ma_hash_table[i].more = gc_ma_h_list;
     gc_ma_h_list = gc_ma_hash_table+i;
-#endif
+#endif /* TABLING */
     gc_ma_hash_table[i].next = NULL;
     return NULL;
   }
@@ -375,7 +375,7 @@ gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp) {
 	has the correct new value
       */
       TrailVal(nptr->loc+1) = TrailVal(trp+1);
-#endif      
+#endif /* TABLING */
       return nptr;
     }
     nptr = nptr->next;
@@ -386,7 +386,7 @@ gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp) {
 #if TABLING
   nptr->loc = trp;
   nptr->more = gc_ma_h_list;
-#endif
+#endif /* TABLING */
   nptr->next = NULL;
   gc_ma_h_list = nptr;
   return NULL;
@@ -1748,7 +1748,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #else
 	trail_base++;
 	mark_external_reference(&(TrailTerm(trail_base)));
-#endif
+#endif /* TABLING */
 	trail_base ++;
 	if (HEAP_PTR(trail_cell)) {
 	  /* fool the gc into thinking this is a variable */
@@ -1771,7 +1771,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #ifdef FROZEN_STACKS
 	RESET_VARIABLE(&TrailVal(trail_base));
 #endif
-#endif /* TABLING */
+#endif /* !TABLING */
 	trail_base++;
 	RESET_VARIABLE(&TrailTerm(trail_base));
 #ifdef FROZEN_STACKS
@@ -1794,7 +1794,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
      gl = gl->more;
    }
  }
-#endif
+#endif /* TABLING */
 #ifdef EASY_SHUNTING
   sTR = (tr_fr_ptr)old_cont_top0;
   while (begsTR != NULL) {
@@ -1877,7 +1877,7 @@ youngest_cp(choiceptr gc_B, dep_fr_ptr *depfrp)
   }
   return min;
 }
-#endif
+#endif /* TABLING */
 
 
 static void 
@@ -1899,14 +1899,17 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 
 #ifdef TABLING
   gc_B = youngest_cp(gc_B, &depfr);
-#endif
+#endif /* TABLING */
   while (gc_B != NULL) {
     op_numbers opnum;
     register OPCODE op;
     yamop *rtp = gc_B->cp_ap;
 
     mark_db_fixed((CELL *)rtp);
-    mark_db_fixed((CELL *)(gc_B->cp_cp));
+#ifdef DETERMINISTIC_TABLING
+    if (!IS_DET_GEN_CP(gc_B))
+#endif /* DETERMINISTIC_TABLING */
+      mark_db_fixed((CELL *)(gc_B->cp_cp));
 #ifdef EASY_SHUNTING
     current_B = gc_B;
     prev_HB = HB;
@@ -1933,7 +1936,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
     if (aux_sg_fr && gc_B == SgFr_gen_cp(aux_sg_fr)) {
       aux_sg_fr = SgFr_next(aux_sg_fr);
     }
-#endif
+#endif /* TABLING */
     if (very_verbose) {
       PredEntry *pe = Yap_PredForChoicePt(gc_B);
 #if defined(ANALYST) || defined(DEBUG)
@@ -1975,9 +1978,12 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 			  EnvSizeInCells,
 			  NULL);
       else if (opnum != _trust_fail)
-	mark_environments((CELL_PTR) gc_B->cp_env,
-			  EnvSize((yamop *) (gc_B->cp_cp)),
-			  EnvBMap((yamop *) (gc_B->cp_cp)));
+#ifdef DETERMINISTIC_TABLING
+	if (!IS_DET_GEN_CP(gc_B))
+#endif /* DETERMINISTIC_TABLING */
+	  mark_environments((CELL_PTR) gc_B->cp_env,
+			    EnvSize((yamop *) (gc_B->cp_cp)),
+			    EnvBMap((yamop *) (gc_B->cp_cp)));
       /* extended choice point */
     restart_cp:
       switch (opnum) {
@@ -2061,11 +2067,18 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _table_completion:
 	{
 	  CELL *vars_ptr, vars;
-	  vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
-	  nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
-	  while (nargs--) {	
-	    mark_external_reference(vars_ptr);
-	    vars_ptr++;
+#ifdef DETERMINISTIC_TABLING
+	  if (IS_DET_GEN_CP(gc_B))
+	    vars_ptr = (CELL *)(DET_GEN_CP(gc_B) + 1);
+	  else
+#endif /* DETERMINISTIC_TABLING */
+	  {
+	    vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
+	    nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
+	    while (nargs--) {	
+	      mark_external_reference(vars_ptr);
+	      vars_ptr++;
+	    }
 	  }
 	  vars = *vars_ptr++;
 	  while (vars--) {	
@@ -2138,8 +2151,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	  vars_ptr -= 2;
 	  if (heap_arity) {
 	    while (heap_arity--) {	
-	      if (*vars_ptr == 0)
-		break;  /* term extension mark: float/longint */
+	      if (*vars_ptr == 0)  /* float/longint extension mark */
+		break;
 	      mark_external_reference(vars_ptr);
 	      vars_ptr--;
 	    }
@@ -2270,7 +2283,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
     gc_B = youngest_cp(gc_B->cp_b, &depfr);
 #else
     gc_B = gc_B->cp_b;
-#endif
+#endif /* TABLING */
   }
 }
 
@@ -2820,7 +2833,7 @@ sweep_choicepoints(choiceptr gc_B)
 
 #ifdef TABLING
   gc_B = youngest_cp(gc_B, &depfr);
-#endif
+#endif /* TABLING */
   while (gc_B != NULL) {
     yamop *rtp = gc_B->cp_ap;
     register OPCODE op;
@@ -2844,7 +2857,7 @@ sweep_choicepoints(choiceptr gc_B)
     if (aux_sg_fr && gc_B == SgFr_gen_cp(aux_sg_fr)) {
       aux_sg_fr = SgFr_next(aux_sg_fr);
     }
-#endif
+#endif /* TABLING */
 
   restart_cp:
     /*
@@ -2941,18 +2954,25 @@ sweep_choicepoints(choiceptr gc_B)
       {
 	int nargs;
 	CELL *vars_ptr, vars;
-	sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp));
-	vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
-	nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
-	while(nargs--) {
-	  CELL cp_cell = *vars_ptr;
-	  if (MARKED_PTR(vars_ptr)) {
-	    UNMARK(vars_ptr);
-	    if (HEAP_PTR(cp_cell)) {
-	      into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
+#ifdef DETERMINISTIC_TABLING
+	if (IS_DET_GEN_CP(gc_B))
+	  vars_ptr = (CELL *)(DET_GEN_CP(gc_B) + 1);
+	else
+#endif /* DETERMINISTIC_TABLING */
+	{
+	  sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp));
+	  vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
+	  nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
+	  while(nargs--) {
+	    CELL cp_cell = *vars_ptr;
+	    if (MARKED_PTR(vars_ptr)) {
+	      UNMARK(vars_ptr);
+	      if (HEAP_PTR(cp_cell)) {
+		into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
+	      }
 	    }
+	    vars_ptr++;
 	  }
-	  vars_ptr++;
 	}
 	vars = *vars_ptr++;
 	while (vars--) {	
@@ -3050,8 +3070,8 @@ sweep_choicepoints(choiceptr gc_B)
 	if (heap_arity) {
 	  while (heap_arity--) {
 	    CELL cp_cell = *vars_ptr;
-	    if (*vars_ptr == 0)
-	      break;  /* term extension mark: float/longint */
+	    if (*vars_ptr == 0)  /* float/longint extension mark */
+	      break;
 	    if (MARKED_PTR(vars_ptr)) {
 	      UNMARK(vars_ptr);
 	      if (HEAP_PTR(cp_cell)) {
@@ -3113,7 +3133,7 @@ sweep_choicepoints(choiceptr gc_B)
     gc_B = youngest_cp(gc_B->cp_b, &depfr);
 #else
     gc_B = gc_B->cp_b;
-#endif
+#endif /* TABLING */
   }
 }
 
@@ -3146,14 +3166,14 @@ static inline choiceptr
 update_B_H( choiceptr gc_B, CELL *current, CELL *dest, CELL *odest
 #ifdef TABLING
 	    , dep_fr_ptr *depfrp
-#endif
+#endif /* TABLING */
 	    ) {
   /* also make the value of H in a choicepoint
      coherent with the new global
      */
 #ifdef TABLING
   dep_fr_ptr depfr = *depfrp;
-#endif
+#endif /* TABLING */
 
   while (gc_B && current <= gc_B->cp_h) {
     if (gc_B->cp_h == current) {
@@ -3214,14 +3234,14 @@ compact_heap(void)
     gc_B = DepFr_cons_cp(depfr);
     depfr = DepFr_next(depfr);
   }
-#endif
+#endif /* TABLING */
   next_hb = set_next_hb(gc_B);
   dest = H0 + total_marked - 1;
 
   gc_B = update_B_H(gc_B, H, dest+1, dest+2
 #ifdef TABLING
 		    , &depfr
-#endif
+#endif /* TABLING */
 		    );
   for (current = H - 1; current >= start_from; current--) {
     if (MARKED_PTR(current)) {
@@ -3236,7 +3256,7 @@ compact_heap(void)
 	gc_B = update_B_H(gc_B, current, dest, dest+1
 #ifdef TABLING
 			  , &depfr
-#endif
+#endif /* TABLING */
 			  );
 	next_hb = set_next_hb(gc_B);
       }
@@ -3397,13 +3417,13 @@ icompact_heap(void)
     gc_B = DepFr_cons_cp(depfr);
     depfr = DepFr_next(depfr);
   }
-#endif
+#endif /* TABLING */
   next_hb = set_next_hb(gc_B);
   dest = (CELL_PTR) H0 + total_marked - 1;
   gc_B = update_B_H(gc_B, H, dest+1, dest+2
 #ifdef TABLING
 		    , &depfr
-#endif
+#endif /* TABLING */
 		    );
   for (iptr = iptop - 1; iptr >= ibase; iptr--) {
     CELL ccell;
@@ -3415,7 +3435,7 @@ icompact_heap(void)
       gc_B = update_B_H(gc_B, current, dest, dest+1
 #ifdef TABLING
 			, &depfr
-#endif
+#endif /* TABLING */
 			);
       next_hb = set_next_hb(gc_B);
     }

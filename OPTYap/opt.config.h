@@ -31,13 +31,28 @@
 /* ----------------------- **
 **      default sizes      **
 ** ----------------------- */
-#define MAX_TABLE_VARS  100
+#define MAX_TABLE_VARS 1000
 
 /* ------------------------------------------ **
 **      trail freeze scheme (define one)      **
 ** ------------------------------------------ */
-#define BFZ_TRAIL_SCHEME   1
+#define BFZ_TRAIL_SCHEME 1
 /* #define BBREG_TRAIL_SCHEME 1 */
+
+/* ----------------------------------------------- **
+**      support early completion ? (optional)      **
+** ----------------------------------------------- */
+#define TABLING_EARLY_COMPLETION 1
+
+/* ------------------------------------------------ **
+**      support trie compact pairs? (optional)      **
+** ------------------------------------------------ */
+#define TRIE_COMPACT_PAIRS 1
+
+/* --------------------------------------------------- **
+**      support deterministic tabling? (optional)      **
+** --------------------------------------------------- */
+/* #define DETERMINISTIC_TABLING 1 */
 
 /* ------------------------------------------------ **
 **      limit the table space size? (optional)      **
@@ -48,16 +63,6 @@
 **      support incomplete tabling? (optional)      **
 ** ------------------------------------------------ */
 /* #define INCOMPLETE_TABLING 1 */
-
-/* ------------------------------------------------ **
-**      support trie compact pairs? (optional)      **
-** ------------------------------------------------ */
-/* #define TRIE_COMPACT_PAIRS 1 */
-
-/* --------------------------------------------------- **
-**      support deterministic tabling? (optional)      **
-** --------------------------------------------------- */
-/* #define DETERMINISTIC_TABLING 1 */
 
 /* ---------------------------------------- -- **
 **      enable error checking? (optional)      **
@@ -220,10 +225,11 @@
 #ifndef TABLING
 #undef BFZ_TRAIL_SCHEME
 #undef BBREG_TRAIL_SCHEME
+#undef TRIE_COMPACT_PAIRS
+#undef TABLING_EARLY_COMPLETION
+#undef DETERMINISTIC_TABLING
 #undef LIMIT_TABLING
 #undef INCOMPLETE_TABLING
-#undef TRIE_COMPACT_PAIRS
-#undef DETERMINISTIC_TABLING
 #undef TABLING_ERRORS
 #endif /* !TABLING */
 

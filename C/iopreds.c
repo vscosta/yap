@@ -2311,7 +2311,7 @@ p_open (void)
     return FALSE;
   encoding = IntegerOfTerm(tenc);
 #ifdef _WIN32
-  if (st->status & Binary_Stream_f) {
+  if (opts & 2) {
     strncat(io_mode, "b", 8);
   } else {
     strncat(io_mode, "t", 8);
@@ -4525,7 +4525,7 @@ p_put (void)
     return (FALSE);
   if (Stream[sno].status & Binary_Stream_f) {
     UNLOCK(Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "get0/2");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
     return(FALSE);
   }
   Stream[sno].stream_wputc (sno, (int) IntegerOfTerm (Deref (ARG2)));
