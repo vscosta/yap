@@ -47,7 +47,7 @@
 /* ------------------------------------------------ **
 **      support trie compact pairs? (optional)      **
 ** ------------------------------------------------ */
-/* #define TRIE_COMPACT_PAIRS 1 */
+#define TRIE_COMPACT_PAIRS 1
 
 /* --------------------------------------------------- **
 **      support deterministic tabling? (optional)      **
