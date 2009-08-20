@@ -43,6 +43,7 @@ otherwise.
 :- bootstrap('consult.yap').
 
 :- [	 'utils.yap',
+	 'control.yap',
 	 'arith.yap',
 	 'directives.yap'].
 
