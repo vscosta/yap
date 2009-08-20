@@ -206,6 +206,7 @@ PL_SOURCES= \
 	$(srcdir)/pl/callcount.yap\
 	$(srcdir)/pl/checker.yap $(srcdir)/pl/chtypes.yap \
 	$(srcdir)/pl/consult.yap \
+	$(srcdir)/pl/control.yap \
 	$(srcdir)/pl/corout.yap $(srcdir)/pl/debug.yap \
 	$(srcdir)/pl/depth_bound.yap \
 	$(srcdir)/pl/directives.yap \
