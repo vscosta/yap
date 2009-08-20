@@ -109,7 +109,7 @@ filter(StreamInp, StreamOut, Command) :-
 	(
 	 Line == end_of_file
 	->
-	 true
+	 !
 	;
 	 call(Command, Line, NewLine),
 	 format(StreamOut, '~s~n', [NewLine]),
@@ -123,7 +123,7 @@ process(StreamInp, Command) :-
 	(
 	 Line == end_of_file
 	->
-	 true
+	 !
 	;
 	 call(Command, Line),
 	 fail
