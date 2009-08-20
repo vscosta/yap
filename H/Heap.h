@@ -360,6 +360,9 @@ typedef struct various_codes {
   unsigned int n_of_threads_created;      /* number of threads created since start */
   UInt  threads_total_time;      /* total run time for dead threads */
 #endif
+#ifdef LOW_LEVEL_TRACER
+  int yap_do_low_level_trace;
+#endif
 #if defined(YAPOR) || defined(THREADS)
   lockvar  heap_used_lock;        /* protect HeapUsed */
   lockvar  heap_top_lock;        /* protect HeapTop */
@@ -369,7 +372,6 @@ typedef struct various_codes {
   lockvar  dbterms_list_lock;        /* protect DBTermList */
   int      heap_top_owner;
 #ifdef LOW_LEVEL_TRACER
-  int yap_do_low_level_trace;
   lockvar  low_level_trace_lock;
 #endif
 #endif
