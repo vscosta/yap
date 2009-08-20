@@ -1546,10 +1546,7 @@ dnl large memory configuration, don't trust Yap allocation routines
 if test "$maxmemory" = yes
 then
 AC_DEFINE(GC_NO_TAGS,1)
-if test "$orparallelism" != yes
-then
 AC_DEFINE(USE_DL_MALLOC,1)
-fi
 fi
 
 dnl SWI compatibility support!
