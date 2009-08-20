@@ -348,7 +348,6 @@ inline static CELL *cpcells(CELL *to, CELL *from, Int n)
 static void linkblk(link_entry *r, CELL *c, CELL offs)
 {
   CELL p;
-
   while ((p = (CELL)*r) != 0) {
     Term t = c[p];
     r++;
@@ -1803,7 +1802,7 @@ new_lu_db_entry(Term t, PredEntry *pe)
   struct db_globs dbg;
   int d_flag = 0;
 
-#ifdef THREADS
+#if defined(YAPOR) || defined(THREADS)
   /* we cannot allow sharing between threads (for now) */ 
   if (!(pe->PredFlags & ThreadLocalPredFlag))
     d_flag |= InQueue;
