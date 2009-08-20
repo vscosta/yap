@@ -7901,10 +7901,16 @@ Yap_absmi(int inp)
 	  JMPNext();
 	}
 #endif
+#ifdef SHADOW_S
+	S = SREG;
+#endif /* SHADOW_S */
  	saveregs();
 	pt0 = Yap_ExpandIndex(pe, 0);
 	/* restart index */
 	setregs();
+#ifdef SHADOW_S
+	SREG = S;
+#endif /* SHADOW_S */
  	PREG = pt0;
 #if defined(YAPOR) || defined(THREADS)
 	if (!PP)
