@@ -113,11 +113,11 @@ typedef struct {
   /* the next three fields only interest YAPOR, but we keep them so that
      users don't need to recompile DLL in order to use YAPOR */
   /* if NON-0, number of workers we want to have (default=1) */
-  int NumberWorkers;
+  unsigned long int NumberWorkers;
   /* if NON-0, manage the inner scheduler loop (default = 10) */
-  int SchedulerLoop;
+  unsigned long int SchedulerLoop;
   /* if NON-0, say how long to keep nodes (default = 3) */
-  int DelayedReleaseLoad;
+  unsigned long int DelayedReleaseLoad;
   /* end of YAPOR fields */
   /* whether Prolog should handle interrupts */
   int PrologShouldHandleInterrupts;
