@@ -14,7 +14,7 @@
 *************************************************************************/
 
 #include "config.h"
-#if defined(YAPOR) || defined(TABLING)
+#if defined(ENV_COPY) || defined(TABLING)
 #include "opt.config.h"
 #endif /* YAPOR || TABLING */
 
