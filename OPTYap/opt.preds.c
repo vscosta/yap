@@ -368,7 +368,7 @@ Int p_parallel_new_answer(void) {
 
   length_answer = 0;
   ALLOC_QG_ANSWER_FRAME(actual_answer);
-  Yap_plwrite(ARG1, parallel_new_answer_putchar, 4);
+  Yap_plwrite(ARG1, parallel_new_answer_putchar, 4, 1200);
   AnsFr_answer(actual_answer)[length_answer] = 0;
   AnsFr_next(actual_answer) = NULL;
   leftmost_or_fr = CUT_leftmost_or_frame();

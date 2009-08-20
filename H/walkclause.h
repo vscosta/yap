@@ -673,7 +673,7 @@
       /* this instruction is hardwired */
     case _or_last:
 #ifdef YAPOR
-      pp = pc->u.Osblp.p;
+      pp = pc->u.Osblp.p0;
       if (pp->PredFlags & MegaClausePredFlag)
         return found_mega_clause(pp, startp, endp);
       clause_code = TRUE;

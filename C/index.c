@@ -995,15 +995,11 @@ has_cut(yamop *pc)
       break;
     case _execute:
     case _dexecute:
-    case _p_execute_cpred:
+    case _execute_cpred:
       pc = NEXTOP(pc,pp);
       break;
     case _native_me:
       pc = NEXTOP(pc,aFlp);
-      break;
-    case _dexecute:
-    case _p_execute_cpred:
-      pc = NEXTOP(pc,pp);
       break;
       /* instructions type l */
     case _enter_profiling:
@@ -1056,8 +1052,6 @@ has_cut(yamop *pc)
     case _p_equal:
     case _p_functor:
     case _p_execute_tail:
-    case _enter_a_profiling:
-    case _count_a_call:
     case _index_dbref:
     case _index_blob:
     case _index_long:
@@ -1171,12 +1165,14 @@ has_cut(yamop *pc)
       break;
       /* instructions type sbpp */
     case _p_execute:
+      pc = NEXTOP(pc,Osbmp);
+      break;
     case _p_execute2:
     case _fcall:
     case _call:
     case _call_cpred:
     case _call_usercpred:
-      pc = NEXTOP(pc,sbpp);
+      pc = NEXTOP(pc,Osbpp);
       break;
       /* instructions type sblp */
 #ifdef YAPOR
@@ -1184,7 +1180,7 @@ has_cut(yamop *pc)
 #endif /* YAPOR */
     case _either:
     case _or_else:
-      pc = NEXTOP(pc,sblp);
+      pc = NEXTOP(pc,Osblp);
       break;
       /* instructions type xx */
     case _get_x_var:
@@ -1387,7 +1383,7 @@ has_cut(yamop *pc)
       /* instructions type f */
    case _write_struct:
    case _write_l_struc:
-      pc = NEXTOP(pc,f);
+      pc = NEXTOP(pc,fa);
       break;
       /* instructions type slp */
     case _call_c_wfail:
@@ -1396,7 +1392,7 @@ has_cut(yamop *pc)
       /* instructions type lds */
     case _try_c:
     case _try_userc:
-      pc = NEXTOP(pc,lds);
+      pc = NEXTOP(pc,OtapFs);
       break;
       /* instructions type OtaLl,OtILl */
     case _try_logical:
@@ -1412,7 +1408,7 @@ has_cut(yamop *pc)
       break;
     case _retry_c:
     case _retry_userc:
-      pc = NEXTOP(pc,lds);
+      pc = NEXTOP(pc,OtapFs);
       break;
       /* instructions type llll */
     case _switch_on_type:
@@ -1490,6 +1486,11 @@ has_cut(yamop *pc)
     case _p_func2s_y_vv:
     case _p_func2f_yx:
       pc = NEXTOP(pc,yxx);
+      break;
+      /* instructions type yyx */
+    case _get_yy_var:
+    case _put_y_vals:
+      pc = NEXTOP(pc,yyxx);
       break;
       /* instructions type yyx */
     case _p_func2f_yy:

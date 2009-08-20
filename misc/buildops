@@ -674,7 +674,7 @@ footer_walk_clause(W) :-
 	format(W,'      /* this instruction is hardwired */~n',[]),
 	dump_ops(W,["or_last"]),
 	format(W,'#ifdef YAPOR~n',[]),
-	add_pp(W,"Osblp","p"),
+	add_pp(W,"Osblp","p0"),
 	format(W,'#else~n',[]),
 	add_pp(W,"p","p"),
 	format(W,'#endif~n',[]),

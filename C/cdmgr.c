@@ -2238,7 +2238,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   }
   UNLOCK(p->PELock);
   if (pflags & LogUpdatePredFlag) {
-    LogUpdClause *cl = (DBRef)ClauseCodeToLogUpdClause(cp);
+    LogUpdClause *cl = (LogUpdClause *)ClauseCodeToLogUpdClause(cp);
     tf = MkDBRefTerm((DBRef)cl);
 #if defined(YAPOR) || defined(THREADS)
     TRAIL_CLREF(cl);		/* So that fail will erase it */

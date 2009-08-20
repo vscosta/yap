@@ -1,5 +1,9 @@
 #include "Yap.h"
 #include "clause.h"
+#include "tracer.h"
+#ifdef YAPOR
+#include "or.macros.h"
+#endif	/* YAPOR */
 #include "clause_list.h"
 
 /* need to fix overflow handling */
