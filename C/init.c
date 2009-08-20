@@ -203,10 +203,6 @@ int  Yap_Portray_delays = FALSE;
 #endif
 #endif
 
-#ifdef LOW_LEVEL_TRACER
-int Yap_do_low_level_trace = FALSE;
-#endif
-
 #define	xfx	1
 #define	xfy	2
 #define	yfx	3
@@ -1025,6 +1021,7 @@ InitCodes(void)
   Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);
   INIT_LOCK(Yap_heap_regs->expand_clauses_list_lock);
 #ifdef LOW_LEVEL_TRACER
+  Yap_heap_regs->yap_do_low_level_trace = FALSE;
   INIT_LOCK(Yap_heap_regs->low_level_trace_lock);
 #endif
   Yap_heap_regs->expand_clauses_first = NULL;

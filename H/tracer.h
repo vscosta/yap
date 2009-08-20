@@ -31,8 +31,6 @@ void	STD_PROTO(low_level_trace,(yap_low_level_port, PredEntry *, CELL *));
 void	STD_PROTO(Yap_InitLowLevelTrace,(void));
 void	STD_PROTO(toggle_low_level_trace,(void));
 
-extern int Yap_do_low_level_trace;
-
 #endif
 
 

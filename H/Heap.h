@@ -369,6 +369,7 @@ typedef struct various_codes {
   lockvar  dbterms_list_lock;        /* protect DBTermList */
   int      heap_top_owner;
 #ifdef LOW_LEVEL_TRACER
+  int yap_do_low_level_trace;
   lockvar  low_level_trace_lock;
 #endif
 #endif
@@ -475,6 +476,9 @@ extern struct various_codes *Yap_heap_regs;
 
 #define  Yap_HoleSize            Yap_heap_regs->hole_size
 #define  Yap_av                  Yap_heap_regs->av_
+#if defined(LOW_LEVEL_TRACER)
+#define  Yap_do_low_level_trace  Yap_heap_regs->yap_do_low_level_trace
+#endif
 #define  Yap_ExecutionMode       Yap_heap_regs->execution_mode
 #define  Yap_AttsSize            Yap_heap_regs->atts_size
 #define  Yap_ClauseSpace         Yap_heap_regs->clause_space
