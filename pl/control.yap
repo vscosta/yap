@@ -268,8 +268,6 @@ version(T) :-
 	fail.
 '$set_toplevel_hook'(_).
 
-halt(X) :- '$halt'(X).
-
 halt :-
 	print_message(informational, halt),
 	'$halt'(0).
