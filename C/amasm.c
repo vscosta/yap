@@ -280,7 +280,7 @@ STATIC_PROTO(yamop *a_bmap, (yamop *, int, struct PSEUDO *));
 STATIC_PROTO(void a_fetch_vv, (cmp_op_info *, int, struct intermediates *));
 STATIC_PROTO(void a_fetch_cv, (cmp_op_info *, int, struct intermediates *));
 STATIC_PROTO(void a_fetch_vc, (cmp_op_info *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_f2, (int, cmp_op_info *, yamop *, int, struct intermediates *));
+STATIC_PROTO(yamop *a_f2, (cmp_op_info *, yamop *, int, struct intermediates *));
 
 #define CELLSIZE sizeof(CELL)
 
@@ -2471,7 +2471,7 @@ a_fetch_cv(cmp_op_info *cmp_info, int pass_no, struct intermediates *cip)
 }
 
 static yamop *
-a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermediates *cip)
+a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermediates *cip)
 {
   Int opc = cip->cpc->rnd2;
   Ventry *ve = (Ventry *)(cip->cpc->rnd1);
@@ -3656,13 +3656,13 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       a_fetch_cv(&cmp_info, pass_no, cip);
       break;
     case f_val_op:
-      code_p = a_f2(FALSE, &cmp_info, code_p, pass_no, cip);
+      code_p = a_f2(&cmp_info, code_p, pass_no, cip);
       break;
     case f_var_op:
-      code_p = a_f2(TRUE, &cmp_info, code_p, pass_no, cip);
+      code_p = a_f2(&cmp_info, code_p, pass_no, cip);
       break;
     case f_0_op:
-      code_p = a_f2(TRUE, &cmp_info, code_p, pass_no, cip);
+      code_p = a_f2(&cmp_info, code_p, pass_no, cip);
       break;
     case enter_profiling_op:
       {
