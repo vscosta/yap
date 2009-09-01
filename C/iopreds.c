@@ -2831,6 +2831,7 @@ open_buf_write_stream(char *nbuf, UInt  sz)
   st->u.mem_string.pos = 0;
   st->u.mem_string.buf = nbuf;
   st->u.mem_string.max_size = sz;
+  st->u.mem_string.src = MEM_BUF_CODE;
   return sno;
 }
 
