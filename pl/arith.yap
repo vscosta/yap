@@ -367,7 +367,7 @@ between(I,M,J) :-
 	   integer(J)
 	  ->
 	   J >= I
-	  ->
+	  ;
 	   '$do_error'(type_error(integer, J),between(I,M,J))
 	  )
 	 ;
