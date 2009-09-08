@@ -905,7 +905,7 @@ static void
 c_test(Int Op, Term t1, compiler_struct *cglobs) {
   Term t = Deref(t1);
 
-  if (!IsVarTerm(t)) {
+  if (!IsVarTerm(t) || IsNewVar(t)) {
     Term tn = MkVarTerm();
     c_eq(t, tn, cglobs);
     t = tn;
