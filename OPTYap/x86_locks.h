@@ -13,16 +13,41 @@
 **      Atomic lock for X86      **
 ** ----------------------------- */
 
-#define swap(reg,adr)					     \
-({							     \
-   char _ret;						     \
-   asm volatile ("xchgb %0,%1"				     \
-	: "=q" (_ret), "=m" (*(adr))	/* Output %0,%1 */   \
-	: "m"  (*(adr)), "0"  (reg));	/* Input (%2),%0 */  \
-   _ret;						     \
-})
+typedef struct {
+    volatile unsigned int lock;
+} spinlock_t;
 
-#define TRY_LOCK(LOCK_VAR)  (swap(1,(LOCK_VAR))==0)
+static inline int
+spin_trylock(spinlock_t *lock)
+{
+    char tmp = 1;
+    __asm__ __volatile__(
+			 "xchgb %b0, %1"
+			 : "=q"(tmp), "=m"(lock->lock)
+			 : "0"(tmp) : "memory");
+    return tmp == 0;
+}
+
+static inline void
+spin_unlock(spinlock_t *lock)
+{
+    /* To unlock we move 0 to the lock.
+* On i386 this needs to be a locked operation
+* to avoid Pentium Pro errata 66 and 92.
+*/
+#if defined(__x86_64__)
+    __asm__ __volatile__("" : : : "memory");
+    *(unsigned char*)&lock->lock = 0;
+#else
+    char tmp = 0;
+    __asm__ __volatile__(
+"xchgb %b0, %1"
+: "=q"(tmp), "=m"(lock->lock)
+: "0"(tmp) : "memory");
+#endif
+}
+
+#define TRY_LOCK(LOCK_VAR)  spin_trylock((spinlock_t *)(LOCK_VAR))
 
 #define INIT_LOCK(LOCK_VAR)    ((LOCK_VAR) = 0)
 #define LOCK(LOCK_VAR)         do {	\
@@ -31,7 +56,7 @@
                                } while (1)
 #define IS_LOCKED(LOCK_VAR)    ((LOCK_VAR) != 0)
 #define IS_UNLOCKED(LOCK_VAR)  ((LOCK_VAR) == 0)
-#define UNLOCK(LOCK_VAR)       ((LOCK_VAR) = 0)
+#define UNLOCK(LOCK_VAR)       spin_unlock((spinlock_t *)&(LOCK_VAR))
 
 /* This code has been copied from the sources of the Linux kernel */
 
