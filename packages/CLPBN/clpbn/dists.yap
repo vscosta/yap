@@ -28,7 +28,7 @@
 	   additive_dists/6
 	]).
 
-:- use_module(library(lists),[is_list/1,nth0/3,append/3]).
+:- use_module(library(lists),[nth0/3,append/3]).
 
 :- use_module(library(matrix),
 	      [matrix_new/4,

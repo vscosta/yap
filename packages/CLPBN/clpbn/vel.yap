@@ -215,11 +215,11 @@ process(LV0, _, Out) :-
 	multiply_tables(WorkTables, Out).
 
 
- write_tables([]).
- write_tables([tab(Mat,_,_)|WorkTables]) :-
-	     matrix:matrix_to_list(Mat,L),
-	      writeln(L),
-	     write_tables(WorkTables).
+write_tables([]).
+write_tables([tab(Mat,_,_)|WorkTables]) :-
+	matrix:matrix_to_list(Mat,L),
+	writeln(L),
+	write_tables(WorkTables).
 
 
 find_best([], V, _TF, V, _, [], _).

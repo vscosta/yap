@@ -77,9 +77,10 @@
 :- use_module('clpbn/evidence',
 	      [
 	       store_evidence/1,
+	       add_evidence/2,
 	       incorporate_evidence/2,
 	       check_stored_evidence/2,
-	       add_evidence/2
+	       put_evidence/2
 	      ]).
 
 :- use_module('clpbn/utils',
@@ -284,17 +285,17 @@ process_var(V, _) :- throw(error(instantiation_error,clpbn(attribute_goal(V)))).
 %
 % unify a CLPBN variable with something. 
 %
-verify_attributes(Var, T, Goals) :-
+verify_attributes(Var, T, Goal) :-
 	get_atts(Var, [key(Key),dist(Dist,Parents)]), !,
 	/* oops, someone trying to bind a clpbn constrained variable */
-	Goals = [],
-	bind_clpbn(T, Var, Key, Dist, Parents).
+	bind_clpbn(T, Var, Key, Dist, Parents, Goal).
 verify_attributes(_, _, []).
 
 
-bind_clpbn(T, Var, _, _, _) :- nonvar(T),
-	!, ( add_evidence(Var,T) -> true ; writeln(T:Var), fail ).
-bind_clpbn(T, Var, Key, Dist, Parents) :- var(T),
+bind_clpbn(T, Var, _, _, _, do_not_bind_variable([put_evidence(T,Var)])) :-
+	nonvar(T),
+	!.
+bind_clpbn(T, Var, Key, Dist, Parents, []) :- var(T),
 	get_atts(T, [key(Key1),dist(Dist1,Parents1)]),
 	(
 	 bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1)
@@ -311,22 +312,22 @@ bind_clpbn(T, Var, Key, Dist, Parents) :- var(T),
 	;
 	 fail
 	).
-bind_clpbn(_, Var, _, _, _, _) :-
+bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(bnt),
 	check_if_bnt_done(Var), !.
-bind_clpbn(_, Var, _, _, _, _) :-
+bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(vel),
 	check_if_vel_done(Var), !.
-bind_clpbn(_, Var, _, _, _, _) :-
+bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(jt),
 	check_if_vel_done(Var), !.
-bind_clpbn(T, Var, Key0, _, _, _) :-
+bind_clpbn(T, Var, Key0, _, _, _, []) :-
 	get_atts(Var, [key(Key)]), !,
 	(
 	  Key = Key0 -> true
 	;
 	 % let us not loose whatever we had.
-	  add_evidence(Var,T)
+	  put_evidence(T,Var)
 	).
 
 fresh_attvar(Var, NVar) :-
