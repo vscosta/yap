@@ -164,9 +164,22 @@ woken_att_do(AttVar, Binding) :-
 	modules_with_attributes(Mods),
 	find_used(Mods,Mods0,[],ModsI),
 	do_verify_attributes(ModsI, AttVar, Binding, Goals),
-	bind_attvar(AttVar),
+	process_goals(Goals, NGoals, DoNotBind),
+	( DoNotBind == true
+	->
+	  unbind_attvar(AttVar)
+	;
+	  true
+	),
 	do_hook_attributes(SWIAtts, Binding),
-	lcall(Goals).
+	lcall(NGoals).
+
+% dirty trick to be able to unbind a variable that has been constrained.
+process_goals([], [], _).
+process_goals((M:do_not_bind_variable(Gs)).Goals, (M:Gs).NGoals, true) :- !,
+	process_goals(Goals, NGoals, _).
+process_goals(G.Goals, G.NGoals, Do) :-
+	process_goals(Goals, NGoals, Do).
 
 find_used([],_,L,L).
 find_used([M|Mods],Mods0,L0,Lf) :-
