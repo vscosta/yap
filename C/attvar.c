@@ -400,6 +400,12 @@ BindAttVar(attvar_record *attv) {
   }
 }
 
+static Int
+UnBindAttVar(attvar_record *attv) {
+  RESET_VARIABLE(&(attv->Value));
+  return(TRUE);
+}
+
 static Term
 GetAllAtts(attvar_record *attv) {
   /* check if we are already there */
@@ -769,6 +775,23 @@ p_bind_attvar(void) {
 }
 
 static Int
+p_unbind_attvar(void) {
+  /* receive a variable in ARG1 */
+  Term  inp = Deref(ARG1);
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv = (attvar_record *)VarOfTerm(inp);
+      return(UnBindAttVar(attv));
+    }
+    return(TRUE);
+  } else {
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE,inp,"first argument of bind_attvar/2");
+    return(FALSE);
+  }
+}
+
+static Int
 p_get_all_atts(void) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
@@ -989,6 +1012,7 @@ void Yap_InitAttVarPreds(void)
   Yap_InitCPred("del_all_module_atts", 2, p_del_atts, 0);
   Yap_InitCPred("rm_att", 4, p_rm_att, 0);
   Yap_InitCPred("bind_attvar", 1, p_bind_attvar, SafePredFlag);
+  Yap_InitCPred("unbind_attvar", 1, p_unbind_attvar, SafePredFlag);
   Yap_InitCPred("modules_with_attributes", 2, p_modules_with_atts, SafePredFlag);
   Yap_InitCPred("void_term", 1, p_void_term, SafePredFlag);
   Yap_InitCPred("free_term", 1, p_free_term, SafePredFlag);
