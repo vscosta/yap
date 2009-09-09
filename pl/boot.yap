@@ -635,11 +635,11 @@ true :- true.
 	charsio:peek_mem_write_stream(W, [], String),
 	close(W).
 
-'$write_goal_output'(var([V|VL]), First, [var([V|VL])|L], next, L) :-
+'$write_goal_output'(var([V|VL]), First, [var([V|VL])|L], next, L) :- !,
         ( First = first -> true ; format(user_error,',~n',[]) ),
 	format(user_error,'~s',[V]),
 	'$write_output_vars'(VL).
-'$write_goal_output'(nonvar([V|VL],B), First, [nonvar([V|VL],B)|L], next, L) :-
+'$write_goal_output'(nonvar([V|VL],B), First, [nonvar([V|VL],B)|L], next, L) :- !,
         ( First = first -> true ; format(user_error,',~n',[]) ),
 	format(user_error,'~s',[V]),
 	'$write_output_vars'(VL),
@@ -650,7 +650,7 @@ true :- true.
         ).
 '$write_goal_output'(nl, First, NG, First, NG) :- !,
 	format(user_error,'~n',[]).
-'$write_goal_output'(Format-G, First, NG, Next, IG) :-
+'$write_goal_output'(Format-G, First, NG, Next, IG) :- !,
 	G = [_|_], !,
 	% dump on string first so that we can check whether we actually
 	% had any output from the solver.
@@ -664,13 +664,20 @@ true :- true.
 	    format(user_error, '~s', [String]),
 	    NG = [G|IG]
 	).
-'$write_goal_output'(_-G, First, [G|NG], next, NG) :-
+'$write_goal_output'(_-G, First, [G|NG], next, NG) :- !,
         ( First = first -> true ; format(user_error,',~n',[]) ),
         ( recorded('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,G,Opts) ;
 	   format(user_error,'~w',[G])
         ).
-'$write_goal_output'(_M:G, First, [G|NG], next, NG) :-
+'$write_goal_output'(_M:G, First, [G|NG], next, NG) :- !,
+        ( First = first -> true ; format(user_error,',~n',[]) ),
+        ( recorded('$print_options','$toplevel'(Opts),_) ->
+	   write_term(user_error,G,Opts) ;
+	   format(user_error,'~w',[G])
+        ).
+'$write_goal_output'(G, First, [M:G|NG], next, NG) :-
+	'$current_module'(M),
         ( First = first -> true ; format(user_error,',~n',[]) ),
         ( recorded('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,G,Opts) ;
