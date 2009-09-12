@@ -1830,6 +1830,13 @@ static Int var_in_complex_term(register CELL *pt0,
 
     deref_body(d0, ptd0, var_in_term_unk, var_in_term_nvar);
     if ((CELL)ptd0 == v) { /* we found it */
+#ifdef RATIONAL_TREES
+      while (to_visit > to_visit0) {
+	to_visit -= 3;
+	pt0 = to_visit[0];
+	*pt0 = (CELL)to_visit[2];
+      }
+#endif
       clean_tr(TR0);
       return(TRUE);
     }
@@ -1852,6 +1859,13 @@ static Int var_in_complex_term(register CELL *pt0,
 #endif
     goto loop;
   }
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    *pt0 = (CELL)to_visit[2];
+  }
+#endif
   clean_tr(TR0);
   return FALSE;
 
