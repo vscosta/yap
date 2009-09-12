@@ -1952,7 +1952,7 @@ p_nb_heap_add_to_heap(void)
     hmsize += extra_size;
     if (!qd)
       return FALSE;
-    qd[-1] = (CELL)Yap_MkFunctor(AtomHeap,2*hmsize+HEAP_START)+1;
+    qd[-1] = (CELL)Yap_MkFunctor(AtomHeap,2*hmsize+HEAP_START);
     top = qd+(HEAP_START+2*(hmsize-extra_size));
     while (extra_size) {
       RESET_VARIABLE(top);
