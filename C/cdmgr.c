@@ -877,7 +877,7 @@ split_megaclause(PredEntry *ap)
   mcl =
     ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
   for (i = 0, ptr = mcl->ClCode; i < ncls; i++) {
-    StaticClause *new = (StaticClause *)Yap_AllocCodeSpace(sizeof(StaticClause)+mcl->ClItemSize);
+    StaticClause *new = (StaticClause *)Yap_AllocCodeSpace(sizeof(StaticClause)+mcl->ClItemSize+(UInt)NEXTOP((yamop *)NULL,p));
     if (new == NULL) {
       if (!Yap_growheap(FALSE, (sizeof(StaticClause)+mcl->ClItemSize)*(ncls-i), NULL)) {
 	while (start) {
@@ -895,7 +895,7 @@ split_megaclause(PredEntry *ap)
 	return;
       }
     }
-    Yap_ClauseSpace += sizeof(StaticClause)+mcl->ClItemSize;
+    Yap_ClauseSpace += sizeof(StaticClause)+mcl->ClItemSize+(UInt)NEXTOP((yamop *)NULL,p);
     new->ClFlags = StaticMask|FactMask;
     new->ClSize = mcl->ClItemSize;
     new->usc.ClPred = ap;
