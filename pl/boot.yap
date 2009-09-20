@@ -436,12 +436,14 @@ true :- true.
 	'$do_error'(permission_error(modify, static_procedure, NM:N/Ar), consult).
 '$not_imported'(_, _).
 
-'$check_if_reconsulted'(N,A) :-
-	 recorded('$reconsulted',X,_),
-	 ( X = N/A , !;
-	   X = '$', !, fail;
-	   fail
-	 ).
+
+'$check_if_reconsulted'(N,A) :- 
+         once(recorded('$reconsulted',N/A,_)), 
+	 recorded('$reconsulted',X,_), 
+	 ( X = N/A , !; 
+	   X = '$', !, fail; 
+	   fail 
+	 ). 
 
 '$inform_as_reconsulted'(N,A) :-
 	 recorda('$reconsulted',N/A,_).
