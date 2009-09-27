@@ -65,13 +65,22 @@ void finish_yapor(void);
 #ifdef TABLING
 sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr);
 ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr);
-void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr);
+void load_answer(ans_node_ptr ans_node, CELL *subs_ptr);
+#ifdef GLOBAL_TRIE
+CELL *load_substitution_variable(gt_node_ptr current_node, CELL *aux_stack_ptr);
+#endif /* GLOBAL_TRIE */
 void private_completion(sg_fr_ptr sg_fr);
+#ifdef GLOBAL_TRIE
+void free_subgoal_trie_branch(sg_node_ptr node, int nodes_left, int position);
+#else
 void free_subgoal_trie_branch(sg_node_ptr node, int nodes_left, int nodes_extra, int position);
+#endif /* GLOBAL_TRIE */
 void free_answer_trie_branch(ans_node_ptr node, int position);
 void update_answer_trie(sg_fr_ptr sg_fr);
-void traverse_table(tab_ent_ptr tab_ent, int show_table);
-void table_stats(void);
+void show_table(tab_ent_ptr tab_ent, int show_mode);
+#ifdef GLOBAL_TRIE
+void show_global_trie(void);
+#endif /* GLOBAL_TRIE */
 #endif /* TABLING */
 
 

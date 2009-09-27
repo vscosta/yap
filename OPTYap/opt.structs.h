@@ -41,20 +41,22 @@ typedef struct page_header {
 ** ---------------------- */
 
 struct pages {
+#ifdef SHM_MEMORY_ALLOC_SCHEME
 #ifdef YAPOR
   lockvar lock;
 #endif /* YAPOR */
-  volatile long pages_allocated;
-  volatile long structs_in_use;
   int structs_per_page;
   struct page_header *first_free_page;
+  volatile long pages_allocated;
+#endif /* SHM_MEMORY_ALLOC_SCHEME */
+  volatile long structs_in_use;
 };
 
 #define Pg_lock(X)        ((X).lock)
-#define Pg_pg_alloc(X)    ((X).pages_allocated)
-#define Pg_str_in_use(X)  ((X).structs_in_use)
 #define Pg_str_per_pg(X)  ((X).structs_per_page)
 #define Pg_free_pg(X)     ((X).first_free_page)
+#define Pg_pg_alloc(X)    ((X).pages_allocated)
+#define Pg_str_in_use(X)  ((X).structs_in_use)
 #define Pg_str_free(X)    (Pg_pg_alloc(X) * Pg_str_per_pg(X) - Pg_str_in_use(X))
 
 
@@ -78,12 +80,16 @@ struct global_pages {
   struct pages table_subgoal_answer_frame_pages;
 #endif /* TABLING_INNER_CUTS */
 #ifdef TABLING
+#ifdef GLOBAL_TRIE
+  struct pages global_trie_node_pages;
+  struct pages global_trie_hash_pages;
+#endif /* GLOBAL_TRIE */
   struct pages table_entry_pages;
   struct pages subgoal_frame_pages;
   struct pages subgoal_trie_node_pages;
   struct pages answer_trie_node_pages;
-  struct pages subgoal_hash_pages;
-  struct pages answer_hash_pages;
+  struct pages subgoal_trie_hash_pages;
+  struct pages answer_trie_hash_pages;
   struct pages dependency_frame_pages;
 #endif /* TABLING */
 #if defined(YAPOR) && defined(TABLING)
@@ -166,6 +172,9 @@ struct global_data{
 #ifdef TABLING
   /* global data related to tabling */
   struct table_entry *root_table_entry;
+#ifdef GLOBAL_TRIE
+  struct global_trie_node *root_global_trie;
+#endif /* GLOBAL_TRIE */
 #ifdef LIMIT_TABLING
   struct subgoal_frame *first_subgoal_frame;
   struct subgoal_frame *last_subgoal_frame;
@@ -189,12 +198,14 @@ struct global_data{
 #define GLOBAL_PAGES_qg_ans_fr                  (GLOBAL.pages.query_goal_answer_frame_pages)
 #define GLOBAL_PAGES_tg_sol_fr                  (GLOBAL.pages.table_subgoal_solution_frame_pages)
 #define GLOBAL_PAGES_tg_ans_fr                  (GLOBAL.pages.table_subgoal_answer_frame_pages)
+#define GLOBAL_PAGES_gt_node                    (GLOBAL.pages.global_trie_node_pages)
+#define GLOBAL_PAGES_gt_hash                    (GLOBAL.pages.global_trie_hash_pages)
 #define GLOBAL_PAGES_tab_ent                    (GLOBAL.pages.table_entry_pages)
 #define GLOBAL_PAGES_sg_fr                      (GLOBAL.pages.subgoal_frame_pages)
 #define GLOBAL_PAGES_sg_node                    (GLOBAL.pages.subgoal_trie_node_pages)
 #define GLOBAL_PAGES_ans_node                   (GLOBAL.pages.answer_trie_node_pages)
-#define GLOBAL_PAGES_sg_hash                    (GLOBAL.pages.subgoal_hash_pages)
-#define GLOBAL_PAGES_ans_hash                   (GLOBAL.pages.answer_hash_pages)
+#define GLOBAL_PAGES_sg_hash                    (GLOBAL.pages.subgoal_trie_hash_pages)
+#define GLOBAL_PAGES_ans_hash                   (GLOBAL.pages.answer_trie_hash_pages)
 #define GLOBAL_PAGES_dep_fr                     (GLOBAL.pages.dependency_frame_pages)
 #define GLOBAL_PAGES_susp_fr                    (GLOBAL.pages.suspension_frame_pages)
 #define SCHEDULER_LOOP                          (GLOBAL.scheduler_loop)
@@ -231,6 +242,7 @@ struct global_data{
 #define PARALLEL_EXECUTION_MODE                 (GLOBAL.parallel_execution_mode)
 #define GLOBAL_answers                          (GLOBAL.answers)
 #define GLOBAL_root_tab_ent                     (GLOBAL.root_table_entry)
+#define GLOBAL_root_gt                          (GLOBAL.root_global_trie)
 #define GLOBAL_first_sg_fr                      (GLOBAL.first_subgoal_frame)
 #define GLOBAL_last_sg_fr                       (GLOBAL.last_subgoal_frame)
 #define GLOBAL_check_sg_fr                      (GLOBAL.check_subgoal_frame)

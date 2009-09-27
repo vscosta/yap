@@ -62,7 +62,7 @@ typedef struct table_entry {
   int pred_arity;
   int mode_flags;
   struct subgoal_trie_node *subgoal_trie;
-  struct subgoal_hash *hash_chain;
+  struct subgoal_trie_hash *hash_chain;
   struct table_entry *next;
 } *tab_ent_ptr;
 
@@ -77,12 +77,25 @@ typedef struct table_entry {
 
 
 
-/* -------------------------------------------------------- **
-**      Structs subgoal_trie_node and answer_trie_node      **
-** -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- **
+**      Structs global_trie_node, subgoal_trie_node and answer_trie_node      **
+** -------------------------------------------------------------------------- */
+
+#ifdef GLOBAL_TRIE
+typedef struct global_trie_node {
+  Term entry;
+  struct global_trie_node *parent;
+  struct global_trie_node *child;
+  struct global_trie_node *next;
+} *gt_node_ptr;
+#endif /* GLOBAL_TRIE */
 
 typedef struct subgoal_trie_node {
+#ifdef GLOBAL_TRIE
+  struct global_trie_node *entry;
+#else
   Term entry;
+#endif /* GLOBAL_TRIE */
 #ifdef TABLE_LOCK_AT_NODE_LEVEL
   lockvar lock;
 #endif /* TABLE_LOCK_AT_NODE_LEVEL */
@@ -96,7 +109,11 @@ typedef struct answer_trie_node {
 #ifdef YAPOR
   int or_arg;               /* u.Otapl.or_arg */
 #endif /* YAPOR */
+#ifdef GLOBAL_TRIE
+  struct global_trie_node *entry;
+#else
   Term entry;
+#endif /* GLOBAL_TRIE */
 #ifdef TABLE_LOCK_AT_NODE_LEVEL
   lockvar lock;
 #endif /* TABLE_LOCK_AT_NODE_LEVEL */
@@ -116,28 +133,43 @@ typedef struct answer_trie_node {
 
 
 
-/* ---------------------------------------------- **
-**      Structs subgoal_hash and answer_hash      **
-** ---------------------------------------------- */
+/* -------------------------------------------------------------------------- **
+**      Structs global_trie_hash, subgoal_trie_hash and answer_trie_hash      **
+** -------------------------------------------------------------------------- */
 
-typedef struct subgoal_hash {
+#ifdef GLOBAL_TRIE
+typedef struct global_trie_hash {
+  /* the first field is used for compatibility **
+  ** with the global_trie_node data structure */
+  Term mark;
+  int number_of_buckets;
+  struct global_trie_node **buckets;
+  int number_of_nodes;
+} *gt_hash_ptr;
+#endif /* GLOBAL_TRIE */
+
+typedef struct subgoal_trie_hash {
   /* the first field is used for compatibility **
   ** with the subgoal_trie_node data structure */
+#ifdef GLOBAL_TRIE
+  struct global_trie_node *mark;
+#else
   Term mark;    
+#endif /* GLOBAL_TRIE */
   int number_of_buckets;
   struct subgoal_trie_node **buckets;
   int number_of_nodes;
-  struct subgoal_hash *next;
+  struct subgoal_trie_hash *next;
 } *sg_hash_ptr;
 
-typedef struct answer_hash {
+typedef struct answer_trie_hash {
   /* the first field is used for compatibility **
   ** with the answer_trie_node data structure  */
   OPCODE mark;
   int number_of_buckets;
   struct answer_trie_node **buckets;
   int number_of_nodes;
-  struct answer_hash *next;
+  struct answer_trie_hash *next;
 } *ans_hash_ptr;
 
 #define Hash_mark(X)            ((X)->mark)
@@ -171,7 +203,7 @@ typedef struct subgoal_frame {
     compiled_in_use = 6   /* LIMIT_TABLING */
   } state_flag;  /* do not change order !!! */
   choiceptr generator_choice_point;
-  struct answer_hash *hash_chain;
+  struct answer_trie_hash *hash_chain;
   struct answer_trie_node *answer_trie;
   struct answer_trie_node *first_answer;
   struct answer_trie_node *last_answer;
@@ -212,7 +244,7 @@ typedef struct subgoal_frame {
    SgFr_arity          the arity of the subgoal.
    SgFr_state:         a flag that indicates the subgoal state.
    SgFr_gen_cp:        a pointer to the correspondent generator choice point.
-   SgFr_hash_chain:    a pointer to the first answer_hash struct for the subgoal in hand.
+   SgFr_hash_chain:    a pointer to the first answer_trie_hash struct for the subgoal in hand.
    SgFr_answer_trie:   a pointer to the top answer trie node.
                        It is used to check for/insert new answers.
    SgFr_first_answer:  a pointer to the bottom answer trie node of the first available answer.

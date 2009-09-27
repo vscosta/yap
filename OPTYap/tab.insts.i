@@ -210,7 +210,7 @@
 	  } else {                                        \
             subs_ptr = (CELL *) (CONS_CP(B) + 1);         \
 	  }                                               \
-          load_answer_trie(ANSWER, subs_ptr);             \
+          load_answer(ANSWER, subs_ptr);                  \
           /* procceed */                                  \
           YENV = ENV;                                     \
           GONext();                                       \
@@ -317,7 +317,7 @@
     }
     PREG = (yamop *) CPREG;
     PREFETCH_OP(PREG);
-    load_answer_trie(ans_node, subs_ptr);
+    load_answer(ans_node, subs_ptr);
     YENV = ENV;
     GONext();
   ENDPBOp();
@@ -347,7 +347,7 @@
 
       PREG = (yamop *) CPREG;
       PREFETCH_OP(PREG);
-      load_answer_trie(ans_node, subs_ptr);
+      load_answer(ans_node, subs_ptr);
       YENV = ENV;
       GONext();
     } else {
@@ -420,7 +420,7 @@
       store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
       PREG = (yamop *) CPREG;
       PREFETCH_OP(PREG);
-      load_answer_trie(ans_node, subs_ptr);
+      load_answer(ans_node, subs_ptr);
       YENV = ENV;
       GONext();
 #endif /* INCOMPLETE_TABLING */
@@ -479,7 +479,7 @@
 	  }
           PREG = (yamop *) CPREG;
           PREFETCH_OP(PREG);
-          load_answer_trie(ans_node, YENV);
+          load_answer(ans_node, YENV);
 	  YENV = ENV;
           GONext();
 	} else {
@@ -490,7 +490,9 @@
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	  PREFETCH_OP(PREG);
 	  *--YENV = 0;  /* vars_arity */
+#ifndef GLOBAL_TRIE
 	  *--YENV = 0;  /* heap_arity */
+#endif /* GLOBAL_TRIE */
 	  GONext();
 	}
       }
@@ -529,7 +531,7 @@
       store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
       PREG = (yamop *) CPREG;
       PREFETCH_OP(PREG);
-      load_answer_trie(ans_node, subs_ptr);
+      load_answer(ans_node, subs_ptr);
       YENV = ENV;
       GONext();
 #endif /* INCOMPLETE_TABLING */
@@ -588,7 +590,7 @@
 	  }
           PREG = (yamop *) CPREG;
           PREFETCH_OP(PREG);
-          load_answer_trie(ans_node, YENV);
+          load_answer(ans_node, YENV);
 	  YENV = ENV;
           GONext();
 	} else {
@@ -599,7 +601,9 @@
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	  PREFETCH_OP(PREG);
 	  *--YENV = 0;  /* vars_arity */
+#ifndef GLOBAL_TRIE
 	  *--YENV = 0;  /* heap_arity */
+#endif /* GLOBAL_TRIE */
 	  GONext();
 	}
       }
@@ -638,7 +642,7 @@
       store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
       PREG = (yamop *) CPREG;
       PREFETCH_OP(PREG);
-      load_answer_trie(ans_node, subs_ptr);
+      load_answer(ans_node, subs_ptr);
       YENV = ENV;
       GONext();
 #endif /* INCOMPLETE_TABLING */
@@ -697,7 +701,7 @@
 	  }
           PREG = (yamop *) CPREG;
           PREFETCH_OP(PREG);
-          load_answer_trie(ans_node, YENV);
+          load_answer(ans_node, YENV);
 	  YENV = ENV;
           GONext();
 	} else {
@@ -708,7 +712,9 @@
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	  PREFETCH_OP(PREG);
 	  *--YENV = 0;  /* vars_arity */
+#ifndef GLOBAL_TRIE
 	  *--YENV = 0;  /* heap_arity */
+#endif /* GLOBAL_TRIE */
 	  GONext();
 	}
       }
@@ -1685,7 +1691,7 @@
 	    }
             PREG = (yamop *) CPREG;
             PREFETCH_OP(PREG);
-            load_answer_trie(ans_node, YENV);
+            load_answer(ans_node, YENV);
 	    YENV = ENV;
             GONext();
 	  } else {
@@ -1697,7 +1703,9 @@
 	    PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	    PREFETCH_OP(PREG);
 	    *--YENV = 0;  /* vars_arity */
-	    *--YENV = 0;  /* heap_arity */
+#ifndef GLOBAL_TRIE
+	  *--YENV = 0;  /* heap_arity */
+#endif /* GLOBAL_TRIE */
 	    GONext();
 	  }
 	}
