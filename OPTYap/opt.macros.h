@@ -13,11 +13,13 @@
 **      Includes and defines      **
 ** ------------------------------ */
 
+#ifdef SHM_MEMORY_ALLOC_SCHEME
 #include <sys/shm.h>
 
 #define SHMMAX 0x2000000  /* 32 Mbytes: works fine with linux */
 /* #define SHMMAX  0x400000 - 4 Mbytes: shmget limit for Mac (?) */
 /* #define SHMMAX  0x800000 - 8 Mbytes: shmget limit for Solaris (?) */
+#endif /* SHM_MEMORY_ALLOC_SCHEME */
 
 
 
