@@ -410,7 +410,7 @@ clean_atom_list(AtomHashEntry *HashPtr)
       NOfAtoms--;
       if (IsWideAtom(atm)) {
 #ifdef DEBUG_RESTORE3
-	fprintf(errout, "Purged %p:%S\n", at, at->WStrOfAE);
+	fprintf(stderr, "Purged %p:%S\n", at, at->WStrOfAE);
 #endif
 	agc_collected += sizeof(AtomEntry)+wcslen(at->WStrOfAE);
       } else {

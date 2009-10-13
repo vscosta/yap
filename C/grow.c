@@ -820,7 +820,7 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
       LDiff = TrDiff = size;
     } else {
       /* we may still have an overflow */
-      BaseDiff = Yap_GlobalBase != old_GlobalBase;
+      BaseDiff = Yap_GlobalBase - old_GlobalBase;
       /* if we grow, we need to move the stacks */
       LDiff = TrDiff = BaseDiff+size;
     }

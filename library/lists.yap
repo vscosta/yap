@@ -42,18 +42,6 @@
 		 [must_be/2]).
 
 
-%   append(Prefix, Suffix, Combined)
-%   is true when all three arguments are lists, and the members of Combined
-%   are the members of Prefix followed by the members of Suffix.  It may be
-%   used to form Combined from a given Prefix and Suffix, or to take a given
-%   Combined apart.  E.g. we could define member/2 (from SetUtl.Pl) as
-%	member(X, L) :- append(_, [X|_], L).
-
-append([], L, L).
-append([H|T], L, [H|R]) :-
-	append(T, L, R).
-
-
 %%	append(+ListOfLists, ?List)
 %
 %	Concatenate a list of lists.  Is  true   if  Lists  is a list of

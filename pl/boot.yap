@@ -436,12 +436,14 @@ true :- true.
 	'$do_error'(permission_error(modify, static_procedure, NM:N/Ar), consult).
 '$not_imported'(_, _).
 
-'$check_if_reconsulted'(N,A) :-
-	 recorded('$reconsulted',X,_),
-	 ( X = N/A , !;
-	   X = '$', !, fail;
-	   fail
-	 ).
+
+'$check_if_reconsulted'(N,A) :- 
+         once(recorded('$reconsulted',N/A,_)), 
+	 recorded('$reconsulted',X,_), 
+	 ( X = N/A , !; 
+	   X = '$', !, fail; 
+	   fail 
+	 ). 
 
 '$inform_as_reconsulted'(N,A) :-
 	 recorda('$reconsulted',N/A,_).
@@ -635,11 +637,11 @@ true :- true.
 	charsio:peek_mem_write_stream(W, [], String),
 	close(W).
 
-'$write_goal_output'(var([V|VL]), First, [var([V|VL])|L], next, L) :-
+'$write_goal_output'(var([V|VL]), First, [var([V|VL])|L], next, L) :- !,
         ( First = first -> true ; format(user_error,',~n',[]) ),
 	format(user_error,'~s',[V]),
 	'$write_output_vars'(VL).
-'$write_goal_output'(nonvar([V|VL],B), First, [nonvar([V|VL],B)|L], next, L) :-
+'$write_goal_output'(nonvar([V|VL],B), First, [nonvar([V|VL],B)|L], next, L) :- !,
         ( First = first -> true ; format(user_error,',~n',[]) ),
 	format(user_error,'~s',[V]),
 	'$write_output_vars'(VL),
@@ -650,7 +652,7 @@ true :- true.
         ).
 '$write_goal_output'(nl, First, NG, First, NG) :- !,
 	format(user_error,'~n',[]).
-'$write_goal_output'(Format-G, First, NG, Next, IG) :-
+'$write_goal_output'(Format-G, First, NG, Next, IG) :- !,
 	G = [_|_], !,
 	% dump on string first so that we can check whether we actually
 	% had any output from the solver.
@@ -664,13 +666,20 @@ true :- true.
 	    format(user_error, '~s', [String]),
 	    NG = [G|IG]
 	).
-'$write_goal_output'(_-G, First, [G|NG], next, NG) :-
+'$write_goal_output'(_-G, First, [G|NG], next, NG) :- !,
         ( First = first -> true ; format(user_error,',~n',[]) ),
         ( recorded('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,G,Opts) ;
 	   format(user_error,'~w',[G])
         ).
-'$write_goal_output'(_M:G, First, [G|NG], next, NG) :-
+'$write_goal_output'(_M:G, First, [G|NG], next, NG) :- !,
+        ( First = first -> true ; format(user_error,',~n',[]) ),
+        ( recorded('$print_options','$toplevel'(Opts),_) ->
+	   write_term(user_error,G,Opts) ;
+	   format(user_error,'~w',[G])
+        ).
+'$write_goal_output'(G, First, [M:G|NG], next, NG) :-
+	'$current_module'(M),
         ( First = first -> true ; format(user_error,',~n',[]) ),
         ( recorded('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,G,Opts) ;
@@ -1163,7 +1172,7 @@ throw(Ball) :-
 	    throw(Ball)
 	).
 
-'catch_ball'('$abort', _, _) :- !, fail.
+'catch_ball'('$abort', _) :- !, fail.
 % system defined throws should be ignored by used, unless the
 % user is hacking away.
 'catch_ball'(Ball, V) :-

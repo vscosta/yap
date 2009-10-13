@@ -13,11 +13,13 @@
 **      Includes and defines      **
 ** ------------------------------ */
 
+#ifdef SHM_MEMORY_ALLOC_SCHEME
 #include <sys/shm.h>
 
 #define SHMMAX 0x2000000  /* 32 Mbytes: works fine with linux */
 /* #define SHMMAX  0x400000 - 4 Mbytes: shmget limit for Mac (?) */
 /* #define SHMMAX  0x800000 - 8 Mbytes: shmget limit for Solaris (?) */
+#endif /* SHM_MEMORY_ALLOC_SCHEME */
 
 
 
@@ -47,8 +49,6 @@ extern int Yap_page_size;
 #define STRUCT_SIZE(STR_TYPE)      ADJUST_SIZE(sizeof(STR_TYPE))
 #define PAGE_HEADER(STR)           (pg_hd_ptr)((unsigned long int)STR - (unsigned long int)STR % Yap_page_size)
 #define STRUCT_NEXT(STR)           ((STR)->next)
-
-
 
 #define UPDATE_STATS(STAT, VALUE)  STAT += VALUE
 
@@ -148,7 +148,7 @@ extern int Yap_page_size;
             if (SgFr_first_answer(sg_fr) &&                                                             \
                 SgFr_first_answer(sg_fr) != SgFr_answer_trie(sg_fr)) {                                  \
               SgFr_state(sg_fr) = ready;                                                                \
-	      free_answer_hash_chain(SgFr_hash_chain(sg_fr));                                           \
+	      free_answer_trie_hash_chain(SgFr_hash_chain(sg_fr));                                      \
 	      SgFr_hash_chain(sg_fr) = NULL;                                                            \
 	      SgFr_first_answer(sg_fr) = NULL;                                                          \
               SgFr_last_answer(sg_fr) = NULL;                                                           \
@@ -384,51 +384,55 @@ extern int Yap_page_size;
         }
 #define FREE_HASH_BUCKETS(BUCKET_PTR)  FREE_BLOCK(BUCKET_PTR)
 
+#define ALLOC_OR_FRAME(STR)            ALLOC_STRUCT(STR, GLOBAL_PAGES_or_fr, struct or_frame)
+#define FREE_OR_FRAME(STR)             FREE_STRUCT(STR, GLOBAL_PAGES_or_fr, struct or_frame)
 
+#define ALLOC_QG_SOLUTION_FRAME(STR)   ALLOC_STRUCT(STR, GLOBAL_PAGES_qg_sol_fr, struct query_goal_solution_frame)
+#define FREE_QG_SOLUTION_FRAME(STR)    FREE_STRUCT(STR, GLOBAL_PAGES_qg_sol_fr, struct query_goal_solution_frame)
 
-#define ALLOC_OR_FRAME(STR)          ALLOC_STRUCT(STR, GLOBAL_PAGES_or_fr, struct or_frame)
-#define FREE_OR_FRAME(STR)            FREE_STRUCT(STR, GLOBAL_PAGES_or_fr, struct or_frame)
+#define ALLOC_QG_ANSWER_FRAME(STR)     ALLOC_STRUCT(STR, GLOBAL_PAGES_qg_ans_fr, struct query_goal_answer_frame)
+#define FREE_QG_ANSWER_FRAME(STR)      FREE_STRUCT(STR, GLOBAL_PAGES_qg_ans_fr, struct query_goal_answer_frame)
 
-#define ALLOC_QG_SOLUTION_FRAME(STR) ALLOC_STRUCT(STR, GLOBAL_PAGES_qg_sol_fr, struct query_goal_solution_frame)
-#define FREE_QG_SOLUTION_FRAME(STR)   FREE_STRUCT(STR, GLOBAL_PAGES_qg_sol_fr, struct query_goal_solution_frame)
+#define ALLOC_TG_SOLUTION_FRAME(STR)   ALLOC_STRUCT(STR, GLOBAL_PAGES_tg_sol_fr, struct table_subgoal_solution_frame)
+#define FREE_TG_SOLUTION_FRAME(STR)    FREE_STRUCT(STR, GLOBAL_PAGES_tg_sol_fr, struct table_subgoal_solution_frame)
 
-#define ALLOC_QG_ANSWER_FRAME(STR)   ALLOC_STRUCT(STR, GLOBAL_PAGES_qg_ans_fr, struct query_goal_answer_frame)
-#define FREE_QG_ANSWER_FRAME(STR)     FREE_STRUCT(STR, GLOBAL_PAGES_qg_ans_fr, struct query_goal_answer_frame)
+#define ALLOC_TG_ANSWER_FRAME(STR)     ALLOC_STRUCT(STR, GLOBAL_PAGES_tg_ans_fr, struct table_subgoal_answer_frame)
+#define FREE_TG_ANSWER_FRAME(STR)      FREE_STRUCT(STR, GLOBAL_PAGES_tg_ans_fr, struct table_subgoal_answer_frame)
 
-#define ALLOC_TG_SOLUTION_FRAME(STR) ALLOC_STRUCT(STR, GLOBAL_PAGES_tg_sol_fr, struct table_subgoal_solution_frame)
-#define FREE_TG_SOLUTION_FRAME(STR)   FREE_STRUCT(STR, GLOBAL_PAGES_tg_sol_fr, struct table_subgoal_solution_frame)
+#define ALLOC_TABLE_ENTRY(STR)         ALLOC_STRUCT(STR, GLOBAL_PAGES_tab_ent, struct table_entry)
+#define FREE_TABLE_ENTRY(STR)          FREE_STRUCT(STR, GLOBAL_PAGES_tab_ent, struct table_entry)
 
-#define ALLOC_TG_ANSWER_FRAME(STR)   ALLOC_STRUCT(STR, GLOBAL_PAGES_tg_ans_fr, struct table_subgoal_answer_frame)
-#define FREE_TG_ANSWER_FRAME(STR)     FREE_STRUCT(STR, GLOBAL_PAGES_tg_ans_fr, struct table_subgoal_answer_frame)
+#define ALLOC_GLOBAL_TRIE_NODE(STR)    ALLOC_STRUCT(STR, GLOBAL_PAGES_gt_node, struct global_trie_node)
+#define FREE_GLOBAL_TRIE_NODE(STR)     FREE_STRUCT(STR, GLOBAL_PAGES_gt_node, struct global_trie_node)
 
-#define ALLOC_TABLE_ENTRY(STR)       ALLOC_STRUCT(STR, GLOBAL_PAGES_tab_ent, struct table_entry)
-#define FREE_TABLE_ENTRY(STR)         FREE_STRUCT(STR, GLOBAL_PAGES_tab_ent, struct table_entry)
+#define ALLOC_SUBGOAL_TRIE_NODE(STR)   ALLOC_STRUCT(STR, GLOBAL_PAGES_sg_node, struct subgoal_trie_node)
+#define FREE_SUBGOAL_TRIE_NODE(STR)    FREE_STRUCT(STR, GLOBAL_PAGES_sg_node, struct subgoal_trie_node)
 
-#define ALLOC_SUBGOAL_TRIE_NODE(STR) ALLOC_STRUCT(STR, GLOBAL_PAGES_sg_node, struct subgoal_trie_node)
-#define FREE_SUBGOAL_TRIE_NODE(STR)   FREE_STRUCT(STR, GLOBAL_PAGES_sg_node, struct subgoal_trie_node)
-
-#define ALLOC_SUBGOAL_FRAME(STR)     ALLOC_STRUCT(STR, GLOBAL_PAGES_sg_fr, struct subgoal_frame)
-#define FREE_SUBGOAL_FRAME(STR)       FREE_STRUCT(STR, GLOBAL_PAGES_sg_fr, struct subgoal_frame)
+#define ALLOC_SUBGOAL_FRAME(STR)       ALLOC_STRUCT(STR, GLOBAL_PAGES_sg_fr, struct subgoal_frame)
+#define FREE_SUBGOAL_FRAME(STR)        FREE_STRUCT(STR, GLOBAL_PAGES_sg_fr, struct subgoal_frame)
 
 #ifdef YAPOR
-#define ALLOC_ANSWER_TRIE_NODE(STR)  ALLOC_NEXT_FREE_STRUCT(STR, GLOBAL_PAGES_ans_node, struct answer_trie_node)
+#define ALLOC_ANSWER_TRIE_NODE(STR)    ALLOC_NEXT_FREE_STRUCT(STR, GLOBAL_PAGES_ans_node, struct answer_trie_node)
 #else /* TABLING */
-#define ALLOC_ANSWER_TRIE_NODE(STR)  ALLOC_STRUCT(STR, GLOBAL_PAGES_ans_node, struct answer_trie_node)
+#define ALLOC_ANSWER_TRIE_NODE(STR)    ALLOC_STRUCT(STR, GLOBAL_PAGES_ans_node, struct answer_trie_node)
 #endif /* YAPOR - TABLING */
-#define FREE_ANSWER_TRIE_NODE(STR)    FREE_STRUCT(STR, GLOBAL_PAGES_ans_node, struct answer_trie_node)
+#define FREE_ANSWER_TRIE_NODE(STR)     FREE_STRUCT(STR, GLOBAL_PAGES_ans_node, struct answer_trie_node)
 
-#define ALLOC_DEPENDENCY_FRAME(STR)  ALLOC_STRUCT(STR, GLOBAL_PAGES_dep_fr, struct dependency_frame)
-#define FREE_DEPENDENCY_FRAME(STR)    FREE_STRUCT(STR, GLOBAL_PAGES_dep_fr, struct dependency_frame)
+#define ALLOC_DEPENDENCY_FRAME(STR)    ALLOC_STRUCT(STR, GLOBAL_PAGES_dep_fr, struct dependency_frame)
+#define FREE_DEPENDENCY_FRAME(STR)     FREE_STRUCT(STR, GLOBAL_PAGES_dep_fr, struct dependency_frame)
 
-#define ALLOC_SUSPENSION_FRAME(STR)  ALLOC_STRUCT(STR, GLOBAL_PAGES_susp_fr, struct suspension_frame)
-#define FREE_SUSPENSION_FRAME(STR)    FREE_BLOCK(SuspFr_global_start(STR));                         \
-                                      FREE_STRUCT(STR, GLOBAL_PAGES_susp_fr, struct suspension_frame)
+#define ALLOC_SUSPENSION_FRAME(STR)    ALLOC_STRUCT(STR, GLOBAL_PAGES_susp_fr, struct suspension_frame)
+#define FREE_SUSPENSION_FRAME(STR)     FREE_BLOCK(SuspFr_global_start(STR));                         \
+                                       FREE_STRUCT(STR, GLOBAL_PAGES_susp_fr, struct suspension_frame)
 
-#define ALLOC_SUBGOAL_HASH(STR)      ALLOC_STRUCT(STR, GLOBAL_PAGES_sg_hash, struct subgoal_hash)
-#define FREE_SUBGOAL_HASH(STR)        FREE_STRUCT(STR, GLOBAL_PAGES_sg_hash, struct subgoal_hash)
+#define ALLOC_GLOBAL_TRIE_HASH(STR)    ALLOC_STRUCT(STR, GLOBAL_PAGES_gt_hash, struct global_trie_hash)
+#define FREE_GLOBAL_TRIE_HASH(STR)     FREE_STRUCT(STR, GLOBAL_PAGES_gt_hash, struct global_trie_hash)
 
-#define ALLOC_ANSWER_HASH(STR)       ALLOC_STRUCT(STR, GLOBAL_PAGES_ans_hash, struct answer_hash)
-#define FREE_ANSWER_HASH(STR)         FREE_STRUCT(STR, GLOBAL_PAGES_ans_hash, struct answer_hash)
+#define ALLOC_SUBGOAL_TRIE_HASH(STR)   ALLOC_STRUCT(STR, GLOBAL_PAGES_sg_hash, struct subgoal_trie_hash)
+#define FREE_SUBGOAL_TRIE_HASH(STR)    FREE_STRUCT(STR, GLOBAL_PAGES_sg_hash, struct subgoal_trie_hash)
+
+#define ALLOC_ANSWER_TRIE_HASH(STR)    ALLOC_STRUCT(STR, GLOBAL_PAGES_ans_hash, struct answer_trie_hash)
+#define FREE_ANSWER_TRIE_HASH(STR)     FREE_STRUCT(STR, GLOBAL_PAGES_ans_hash, struct answer_trie_hash)
 
 
 
