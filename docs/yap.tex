@@ -1685,6 +1685,23 @@ if they have not been loaded before, does nothing otherwise.
 
 @var{F} must be a list containing the names of the files to load.
 
+@item make [ISO]
+@findex make/0
+@snindex make/0
+@cnindex make/0
+    SWI-Prolog built-in to consult all source files that have been
+    changed since they were consulted. It checks all loaded source
+    files. make/0 can be combined with the compiler to speed up the
+    development of large packages. In this case compile the package
+    using
+
+@example
+    sun% pl -g make -o my_program -c file ...
+@end example
+
+    If `my_program' is started it will first reconsult all source files
+    that have changed since the compilation. 
+
 @item include(@var{+F}) [ISO]
 @findex include/1 (directive)
 @snindex compile/1 (directive)

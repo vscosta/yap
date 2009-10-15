@@ -926,3 +926,9 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	 '$access_yap_flags'(11,1).
 '$fetch_comp_status'(compact).
 
+make :-
+	recorded('$lf_loaded','$lf_loaded'(F1,M,_),_),
+	'$load_files'(F1, [if(changed)],make),
+	fail.
+make.
+

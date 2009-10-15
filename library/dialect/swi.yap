@@ -321,8 +321,6 @@ prolog:atom_concat(A,B,C) :- atomic_concat(A,B,C).
 
 :- hide(update_mutable).
 
-prolog:make.
-
 prolog:source_location(File,Line) :-
 	prolog_load_context(file, File),
 	prolog_load_context(term_position, '$stream_position'(_,Line,_)).
