@@ -169,7 +169,7 @@ woken_att_do(AttVar, Binding) :-
 	->
 	  unbind_attvar(AttVar)
 	;
-	  true
+	  bind_attvar(AttVar)
 	),
 	do_hook_attributes(SWIAtts, Binding),
 	lcall(NGoals).
