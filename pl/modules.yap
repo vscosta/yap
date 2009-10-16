@@ -608,7 +608,7 @@ abolish_module(_).
 	(recorded('$import','$import'(Mod,Module,G,G1,N0,K0),_), writeln('$import'(Mod,Module,G,G1,N0,K0)), fail; true),
 	'$convert_for_reexport'(Spec, Exports, Tab, MyExports, Goal),
 	'$add_to_imports'(Tab, Module, Mod),
-	recorded('$lf_loaded','$lf_loaded'(TopFile,TopModule,_),_),
+	recorded('$lf_loaded','$lf_loaded'(TopFile,TopModule,_,_),_),
 	recorded('$module', '$module'(CurrentFile, Module, ModExports), Ref),
 	erase(Ref),
 	lists:append(ModExports, MyExports, AllExports),

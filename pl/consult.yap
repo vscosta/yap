@@ -208,7 +208,7 @@ use_module(M,F,Is) :-
 	nb_setval('$if_level',0),
 	( nb_getval('$system_mode', OldMode) -> true ; OldMode = off),
         ( OldMode == off -> '$enter_system_mode' ; true ),
-	'$record_loaded'(Stream, ContextModule),
+	'$record_loaded'(Stream, ContextModule, Reconsult),
 	'$current_module'(OldModule,ContextModule),
 	getcwd(OldD),
 	nb_getval('$consulting_file',OldF),
@@ -411,11 +411,11 @@ prolog_load_context(term_position, Position) :-
 
 '$ensure_file_loaded'(F, M, Imports) :-
 	recorded('$module','$module'(F1,NM,P),_),
-	recorded('$lf_loaded','$lf_loaded'(F1,_,_),_),
+	recorded('$lf_loaded','$lf_loaded'(F1,_,_,_),_),
 	'$same_file'(F1,F), !,
 	'$use_preds'(Imports,P, NM, M).
 '$ensure_file_loaded'(F, M, _) :-
-	recorded('$lf_loaded','$lf_loaded'(F1,M,_),_),
+	recorded('$lf_loaded','$lf_loaded'(F1,M,_,_),_),
 	'$same_file'(F1,F), !.
 	
 
@@ -427,12 +427,12 @@ prolog_load_context(term_position, Position) :-
 
 '$ensure_file_unchanged'(F, M, Imports) :-
 	recorded('$module','$module'(F1,NM,P),_),
-	recorded('$lf_loaded','$lf_loaded'(F1,_,Age),R),
+	recorded('$lf_loaded','$lf_loaded'(F1,_,Age,_),R),
 	'$same_file'(F1,F), !,
 	'$file_is_unchanged'(F, R, Age),
 	'$use_preds'(Imports, P, NM, M).
 '$ensure_file_unchanged'(F, M, _) :-
-	recorded('$lf_loaded','$lf_loaded'(F1,M,Age),R),
+	recorded('$lf_loaded','$lf_loaded'(F1,M,Age,_),R),
 	'$same_file'(F1,F), !,
 	'$file_is_unchanged'(F, R, Age).
 
@@ -516,16 +516,16 @@ remove_from_path(New) :- '$check_path'(New,Path),
 	file_directory_name(F, Dir),
 	cd(Dir).
 
-'$record_loaded'(Stream, M) :-
+'$record_loaded'(Stream, M, Reconsult) :-
 	Stream \= user,
 	Stream \= user_input,
 	'$file_name'(Stream,F),
-	( recorded('$lf_loaded','$lf_loaded'(F,M,_),R), erase(R), fail ; true ),
+	( recorded('$lf_loaded','$lf_loaded'(F,M,_,_),R), erase(R), fail ; true ),
 
 	'$file_age'(F,Age),
-	recorda('$lf_loaded','$lf_loaded'(F,M,Age),_),
+	recorda('$lf_loaded','$lf_loaded'(F,M,Age,Reconsult),_),
 	fail.
-'$record_loaded'(_, _).
+'$record_loaded'(_, _, _).
 
 %
 % encoding stuff: what I believe SWI does.
@@ -927,7 +927,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$fetch_comp_status'(compact).
 
 make :-
-	recorded('$lf_loaded','$lf_loaded'(F1,M,_),_),
+	recorded('$lf_loaded','$lf_loaded'(F1,M,_,reconsult),_),
 	'$load_files'(F1, [if(changed)],make),
 	fail.
 make.
