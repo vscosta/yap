@@ -32,6 +32,7 @@ CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../inc
 MKINDEX=true
 
 LD=$(CC)
+PLLD=$(CC)
 
 SHLIB_CFLAGS=@SHLIB_CFLAGS@
 SHLIB_SUFFIX=@SHLIB_SUFFIX@
