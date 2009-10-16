@@ -533,7 +533,7 @@ if test "$yap_cv_myddas" != "no"
 then
 	dnl check for mysql
 	AC_MSG_CHECKING(for main in -lmysqlclient)
-	AC_CACHE_VAL(yap_mysql,[
+	AC_CACHE_VAL(yap_cv_mysql,[
 	AC_TRY_COMPILE(
 		#include <mysql/mysql.h>
 		#include <stdio.h>
@@ -541,9 +541,9 @@ then
 		MYSQL *conn;
 		conn = mysql_init(NULL);	
 		,
-		yap_mysql=yes,yap_mysql=no)])
-	AC_MSG_RESULT($yap_mysql)
-	if test "$yap_mysql" = yes 
+		yap_cv_mysql=yes,yap_cv_mysql=no)])
+	AC_MSG_RESULT($yap_cv_mysql)
+	if test "$yap_cv_mysql" = yes 
 	then
                 YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
 		LIBS="$LIBS -L${yap_cv_myddas}/lib/mysql -lmysqlclient -lz -lcrypt -lnsl -lm -lc -lnss_files -lnss_dns -lresolv "
@@ -551,7 +551,7 @@ then
 	
 	dnl check for odbc
 	AC_MSG_CHECKING(for main in -lodbc)
-	AC_CACHE_VAL(yap_odbc,[
+	AC_CACHE_VAL(yap_cv_odbc,[
 	AC_TRY_COMPILE(
 		#include <sql.h>
 		#include <sqlucode.h>
@@ -560,15 +560,15 @@ then
 		SQLHENV henv;
   		SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
 		,
-		yap_odbc=yes,yap_odbc=no)])
-	AC_MSG_RESULT($yap_odbc)
-	if test "$yap_odbc" = yes 
+		yap_cv_odbc=yes,yap_cv_odbc=no)])
+	AC_MSG_RESULT($yap_cv_odbc)
+	if test "$yap_cv_odbc" = yes 
 	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
 		LIBS="$LIBS -lodbc "
 	fi
 	
-	if test "$yap_mysql" = no -a "$yap_odbc" = no
+	if test "$yap_cv_mysql" = no -a "$yap_cv_odbc" = no
 	then
 		echo "-------------------------------"
 	    	echo "--"
@@ -768,8 +768,8 @@ case "$target_os" in
           if test "$have_dl" = "yes"
 	  then
 	    SHLIB_SUFFIX=".so"
-            SHLIB_LD="gcc -shared -export-dynamic"
-            SHLIB_SWI_LD="gcc -shared -export-dynamic"
+            SHLIB_LD="$CC -shared -export-dynamic"
+            SHLIB_SWI_LD="$CC -shared -export-dynamic"
             DO_SECOND_LD=""
 	    LIBS="$LIBS -ldl"
 	    case "$target_cpu" in
@@ -826,8 +826,8 @@ case "$target_os" in
 	  then
 	    #this tells ld to export all non-static symbols,
 	    #otherwise no external predicates.
-            SHLIB_LD="gcc -shared -export-dynamic"
-            SHLIB_SWI_LD="gcc -shared -export-dynamic"
+            SHLIB_LD="$CC -shared -export-dynamic"
+            SHLIB_SWI_LD="$CC -shared -export-dynamic"
             DO_SECOND_LD=""
             SHLIB_SUFFIX=".sl"
 	    SHLIB_CFLAGS="+z"
@@ -924,8 +924,8 @@ dnl Linux has both elf and a.out, in this case we found elf
        #an elf system
         LDFLAGS="-dynamic $LDFLAGS"
 	SHLIB_CFLAGS="-fPIC"
-	SHLIB_LD="gcc -shared"
-	SHLIB_SWI_LD="gcc -shared"
+	SHLIB_LD="$CC -shared"
+	SHLIB_SWI_LD="$CC -shared"
         DO_SECOND_LD=""
 	SHLIB_SUFFIX=".so"
 	INSTALL_DLLS=""
@@ -956,7 +956,7 @@ dnl Linux has both elf and a.out, in this case we found elf
          SHLIB_SUFFIX=".o"
 	 LIBS="$LIBS -ldl"
 	 INSTALL_DLLS=""
-	 if test "$CC" = gcc
+	 if test "$GCC" = "yes"
 	 then
 	   SHLIB_CFLAGS="-fPIC"
 	 fi
@@ -1323,7 +1323,7 @@ fi
 
 dnl check for sigsetjmp
 AC_MSG_CHECKING(for sigsetjmp)
-AC_CACHE_VAL(yap_sigsetjmp,[
+AC_CACHE_VAL(yap_cv_sigsetjmp,[
 AC_TRY_COMPILE(
 	#include <setjmp.h>
 	,
@@ -1331,9 +1331,9 @@ AC_TRY_COMPILE(
 
 	siglongjmp (RestartEnv, 1);
 	,
-	yap_sigsetjmp=yes,yap_sigsetjmp=no)])
-AC_MSG_RESULT($yap_sigsetjmp)
-if test "$yap_sigsetjmp" = yes 
+	yap_cv_sigsetjmp=yes,yap_cv_sigsetjmp=no)])
+AC_MSG_RESULT($yap_cv_sigsetjmp)
+if test "$yap_cv_sigsetjmp" = yes 
 then
 AC_DEFINE(HAVE_SIGSETJMP,1)
 else
@@ -1342,16 +1342,16 @@ fi
 
 dnl check for sigsegv
 AC_MSG_CHECKING(for sigsegv)
-AC_CACHE_VAL(yap_sigsegv,[
+AC_CACHE_VAL(yap_cv_sigsegv,[
 AC_TRY_COMPILE(
 	#include <signal.h>
 	#include <stdio.h>
 	,
 	printf("Signal value is %d\n", SIGSEGV);
 	,
-	yap_sigsegv=yes,yap_sigsegv=no)])
-AC_MSG_RESULT($yap_sigsegv)
-if test "$yap_sigsegv" = yes 
+	yap_cv_sigsegv=yes,yap_cv_sigsegv=no)])
+AC_MSG_RESULT($yap_cv_sigsegv)
+if test "$yap_cv_sigsegv" = yes 
 then
 AC_DEFINE(HAVE_SIGSEGV,1)
 else
@@ -1360,16 +1360,16 @@ fi
 
 dnl check for sigsegv
 AC_MSG_CHECKING(for sigprof)
-AC_CACHE_VAL(yap_sigprof,[
+AC_CACHE_VAL(yap_cv_sigprof,[
 AC_TRY_COMPILE(
 	#include <signal.h>
 	#include <stdio.h>
 	,
 	printf("Signal value is %d\n", SIGPROF);
 	,
-	yap_sigprof=yes,yap_sigprof=no)])
-AC_MSG_RESULT($yap_sigprof)
-if test "$yap_sigsegv" = yes 
+	yap_cv_sigprof=yes,yap_cv_sigprof=no)])
+AC_MSG_RESULT($yap_cv_sigprof)
+if test "$yap_cv_sigsegv" = yes 
 then
 AC_DEFINE(HAVE_SIGPROF,1)
 else
@@ -1378,16 +1378,16 @@ fi
 
 dnl check for siginfo
 AC_MSG_CHECKING(for siginfo)
-AC_CACHE_VAL(yap_siginfo,[
+AC_CACHE_VAL(yap_cv_siginfo,[
 AC_TRY_COMPILE(
 	#include <signal.h>
 	#include <stdio.h>
 	,
 	printf("SIGINFO value is %d\n", SA_SIGINFO);
 	,
-	yap_siginfo=yes,yap_siginfo=no)])
-AC_MSG_RESULT($yap_siginfo)
-if test "$yap_siginfo" = yes 
+	yap_cv_siginfo=yes,yap_cv_siginfo=no)])
+AC_MSG_RESULT($yap_cv_siginfo)
+if test "$yap_cv_siginfo" = yes 
 then
 AC_DEFINE(HAVE_SIGINFO,1)
 else
@@ -1457,7 +1457,7 @@ fi
 
 dnl check for mpz_xor
 AC_MSG_CHECKING(for mpz_xor)
-AC_CACHE_VAL(yap_mpz_xor,[
+AC_CACHE_VAL(yap_cv_mpz_xor,[
 AC_TRY_LINK(
 	#include <gmp.h>
 	void check(mpz_t rop,mpz_t op1,mpz_t op2) {
@@ -1465,9 +1465,9 @@ AC_TRY_LINK(
 	}
 	,
 	,
-	yap_mpz_xor=yes,yap_mpz_xor=no)])
-AC_MSG_RESULT($yap_mpz_xor)
-if test "$yap_mpz_xor" = yes 
+	yap_cv_mpz_xor=yes,yap_cv_mpz_xor=no)])
+AC_MSG_RESULT($yap_cv_mpz_xor)
+if test "$yap_cv_mpz_xor" = yes 
 then
 AC_DEFINE(HAVE_MPZ_XOR,1)
 else
