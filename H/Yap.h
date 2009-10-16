@@ -246,7 +246,7 @@ extern char Yap_Option[20];
 #elif defined(__APPLE__) && !__LP64__
 #define MMAP_ADDR 0x20000000
 #else
-#define MMAP_ADDR 0x02000000
+#define MMAP_ADDR 0x10000000
 #endif
 #elif __svr4__ || defined(__SVR4)
 #define MMAP_ADDR 0x02000000
