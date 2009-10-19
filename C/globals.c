@@ -1590,7 +1590,7 @@ p_nb_queue_close(void)
   Term t = Deref(ARG1);
   Int out;
 
-  DepthArenas--;
+ DepthArenas--;
   if (!IsVarTerm(t)) {
     CELL *qp;
 
