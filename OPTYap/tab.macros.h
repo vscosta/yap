@@ -557,6 +557,7 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
     TABLING_ERROR_MESSAGE("unbind_tr < rebind_tr (function restore_bindings)");
 #endif /* TABLING_ERRORS */
   end_tr = rebind_tr;
+  Yap_NEW_MAHASH((ma_h_inner_struct *)H);
   while (unbind_tr != end_tr) {
     /* unbind loop */
     while (unbind_tr > end_tr) {
@@ -578,9 +579,11 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 
 	/* AbsAppl means */
 	/* multi-assignment variable */
-	/* so the next cell is the old value */ 
+	/* so that the upper cell is the old value */ 
 	--unbind_tr;
-	pt[0] = TrailVal(unbind_tr);
+	if (!Yap_lookup_ma_var(pt)) {
+	  pt[0] = TrailVal(unbind_tr);
+	}
 #endif
       }
     }
@@ -600,7 +603,6 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
     }
   }
   /* rebind loop */
-  Yap_NEW_MAHASH((ma_h_inner_struct *)H);
   while (rebind_tr != end_tr) {
     ref = (CELL) TrailTerm(--rebind_tr);
     if (IsVarTerm(ref)) {
@@ -619,10 +621,8 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     } else {
       CELL *cell_ptr = RepAppl(ref);
-      if (!Yap_lookup_ma_var(cell_ptr)) {
-	/* first time we found the variable, let's put the new value */
-	*cell_ptr = TrailVal(rebind_tr);
-      }
+      /* first time we found the variable, let's put the new value */
+      *cell_ptr = TrailVal(rebind_tr);
       --rebind_tr;
 #endif /* MULTI_ASSIGNMENT_VARIABLES */
     }
