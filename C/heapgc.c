@@ -1714,7 +1714,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
       if (cptr < (CELL *)gc_B && cptr >= gc_H) {
 	goto remove_trash_entry;
       } else if (!detatt && cptr == RepAppl(DelayedVars)+1) {
-	//detatt = cptr;
+	/* detatt = cptr; */
       } else if (cptr > (CELL*)Yap_GlobalBase && cptr < H0) {
 	/* MABINDING that should be recovered */
 	if (detatt && cptr < detatt) {
@@ -1743,12 +1743,19 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  /* reset the gc to believe the original tag */
 	  TrailTerm(trail_base) = AbsAppl((CELL *)TrailTerm(trail_base));
 	}
-#ifdef TABLING
+#ifdef FROZEN_STACKS
+	mark_external_reference(&(TrailVal(trail_base)));
+	trail_base++;
+	if (HEAP_PTR(trail_cell)) {
+	  TrailTerm(trail_base) = (CELL)cptr;
+	  mark_external_reference(&(TrailTerm(trail_base)));
+	  /* reset the gc to believe the original tag */
+	  TrailTerm(trail_base) = AbsAppl((CELL *)TrailTerm(trail_base));
+	}
 	mark_external_reference(&(TrailVal(trail_base)));
 #else
 	trail_base++;
 	mark_external_reference(&(TrailTerm(trail_base)));
-#endif /* TABLING */
 	trail_base ++;
 	if (HEAP_PTR(trail_cell)) {
 	  /* fool the gc into thinking this is a variable */
@@ -1757,21 +1764,20 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  /* reset the gc to believe the original tag */
 	  TrailTerm(trail_base) = AbsAppl((CELL *)TrailTerm(trail_base));
 	} 
+#endif /* TABLING */
       } else {
       remove_trash_entry:
 	/* we can safely ignore this little monster */
+#ifdef FROZEN_STACKS
+	discard_trail_entries += 2;
+	RESET_VARIABLE(&TrailTerm(trail_base));
+	RESET_VARIABLE(&TrailVal(trail_base));
+#else
 	discard_trail_entries += 3;
 	RESET_VARIABLE(&TrailTerm(trail_base));
-#ifdef FROZEN_STACKS
-	RESET_VARIABLE(&TrailVal(trail_base));
-#endif
-#ifndef TABLING
 	trail_base++;
 	RESET_VARIABLE(&TrailTerm(trail_base));
-#ifdef FROZEN_STACKS
-	RESET_VARIABLE(&TrailVal(trail_base));
 #endif
-#endif /* !TABLING */
 	trail_base++;
 	RESET_VARIABLE(&TrailTerm(trail_base));
 #ifdef FROZEN_STACKS
@@ -2600,6 +2606,9 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	    }
 	  }
 	  RESET_VARIABLE(&TrailTerm(dest));
+#ifdef FROZEN_STACKS
+	  RESET_VARIABLE(&TrailVal(dest));
+#endif
 	  discard_trail_entries++;
 	}
 #if  MULTI_ASSIGNMENT_VARIABLES
