@@ -160,6 +160,30 @@ msb(Int inp)	/* calculate the most significant bit for an integer */
   return(out);
 }
 
+static Int
+lsb(Int inp)	/* calculate the least significant bit for an integer */
+{
+  /* the obvious solution: do it by using binary search */
+  Int out = 0;
+
+  if (inp < 0) {
+    return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(inp),
+	      "msb/1 received %d", inp);
+  }
+  if (inp==0)
+    return 0L;
+#if SIZEOF_LONG_INT == 8
+  if (!(inp & 0xffffffffLL)) {inp >>= 32; out += 32;}
+#endif
+  if (!(inp &     0xffffL)) {inp >>= 16; out += 16;}
+  if (!(inp &       0xffL)) {inp >>=  8; out +=  8;}
+  if (!(inp &   0xfL)) {inp >>=  4; out +=  4;}
+  if (!(inp &        0x3L)) {inp >>=  2; out +=  2;}
+  if (!(inp &        0x1L)) out++;
+
+  return out;
+}
+
 static Term
 eval1(Int fi, Term t) {
   arith1_op f = fi;
@@ -564,7 +588,32 @@ eval1(Int fi, Term t) {
       return Yap_ArithError(TYPE_ERROR_INTEGER, t, "msb(%f)", FloatOfTerm(t));
     case big_int_e:
 #ifdef USE_GMP
-      RINT(mpz_sizeinbase(Yap_BigIntOfTerm(t),2));
+      { MP_INT *big = Yap_BigIntOfTerm(t);
+	if ( mpz_sgn(big) <= 0 ) {
+	  return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t,
+	      "msb/1 received bignum");
+	}
+	RINT(mpz_sizeinbase(big,2));
+      }
+#endif
+    case db_ref_e:
+      RERROR();
+    }
+  case op_lsb:
+    switch (ETypeOfTerm(t)) {
+    case long_int_e:
+      RINT(lsb(IntegerOfTerm(t)));
+    case double_e:
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t, "lsb(%f)", FloatOfTerm(t));
+    case big_int_e:
+#ifdef USE_GMP
+      { MP_INT *big = Yap_BigIntOfTerm(t);
+	if ( mpz_sgn(big) <= 0 ) {
+	  return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t,
+	      "lsb/1 received bignum");
+	}
+	RINT(mpz_scan1(big,0));
+      }
 #endif
     case db_ref_e:
       RERROR();
@@ -689,6 +738,7 @@ static InitUnEntry InitUnTab[] = {
   {"float", op_float},
   {"abs", op_abs},
   {"msb", op_msb},
+  {"lsb", op_lsb},
   {"float_fractional_part", op_ffracp},
   {"float_integer_part", op_fintp},
   {"sign", op_sign},

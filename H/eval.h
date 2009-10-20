@@ -86,6 +86,7 @@ typedef enum {
   op_integer,
   op_float,
   op_abs,
+  op_lsb,
   op_msb,
   op_ffracp,
   op_fintp,
