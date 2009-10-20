@@ -57,6 +57,7 @@
 #undef  HAVE_ERRNO_H
 #undef  HAVE_FCNTL_H
 #undef  HAVE_FENV_H
+#undef  HAVE_FLOAT_H
 #undef  HAVE_FPU_CONTROL_H
 #undef  HAVE_GMP_H
 #undef  HAVE_IEEEFP_H
