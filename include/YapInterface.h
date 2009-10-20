@@ -28,6 +28,10 @@
 
 #define __YAP_PROLOG__ 1
 
+#ifndef YAPVERSION
+#define YAPVERSION 60000
+#endif
+
 #include "yap_structs.h"
 
 #if HAVE_STDARG_H

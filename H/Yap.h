@@ -86,6 +86,12 @@
 #endif
 #define inline __inline
 #define YAP_VERSION "Yap-6.0.0"
+
+/* This is also exported in YapInclude.h */
+#ifndef YAPVERSION
+#define YAPVERSION 60000
+#endif
+
 #define BIN_DIR "c:\\Yap\\bin"
 #define LIB_DIR "c:\\Yap\\lib\\Yap"
 #define SHARE_DIR "c:\\Yap\\share\\Yap"
