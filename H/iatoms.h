@@ -351,7 +351,7 @@
   FunctorGAtomic = Yap_MkFunctor(AtomAtomic,1);
   FunctorGCompound = Yap_MkFunctor(AtomCompound,1);
   FunctorGFloat = Yap_MkFunctor(AtomFloat,1);
-  FunctorGFormatAt = Yap_MkFunctor(AtomFormatAt,1);
+  FunctorGFormatAt = Yap_MkFunctor(AtomFormatAt,2);
   FunctorGInteger = Yap_MkFunctor(AtomInteger,1);
   FunctorGNumber = Yap_MkFunctor(AtomNumber,1);
   FunctorGPrimitive = Yap_MkFunctor(AtomPrimitive,1);

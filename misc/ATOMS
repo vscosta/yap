@@ -362,7 +362,7 @@ F	GAtom			Atom		1
 F	GAtomic			Atomic		1
 F	GCompound		Compound	1
 F	GFloat			Float		1
-F	GFormatAt		FormatAt	1
+F	GFormatAt		FormatAt	2
 F	GInteger		Integer		1
 F	GNumber			Number		1
 F	GPrimitive		Primitive	1

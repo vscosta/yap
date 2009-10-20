@@ -5273,7 +5273,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      ta[1] = MkVarTerm();
 	      sl2 = Yap_InitSlot(ta[1]);
 	      ts = Yap_MkApplTerm(FunctorGFormatAt, 2, ta);
-	      res = Yap_execute_goal(ts, 0, 1);
+	      res = Yap_execute_goal(ts, 0, CurrentModule);
 	      FormatInfo = &finfo;
 	      args = Yap_GetFromSlot(sl);
 	      if (EX) goto ex_handler;
