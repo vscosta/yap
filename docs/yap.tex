@@ -3776,8 +3776,11 @@ Arc cosine.
 @item atan(@var{X}) [ISO]
 Arc tangent.
 
-@item atan2(@var{X})
+@item atan(@var{X},@var{Y})
 Four-quadrant arc tangent.
+
+@item atan2(@var{X},@var{Y})
+Four-quadrant arc tangent, same as atan/2.
 
 @item sinh(@var{X})
 Hyperbolic sine.
@@ -3929,6 +3932,10 @@ diameter.
 
 @item e
 The base of the natural logarithms.
+
+@item epsilon
+The difference between the float @code{1.0} and the first larger floating point
+number.
 
 @item inf
 Infinity according to the IEEE Floating-Point standard. Note that

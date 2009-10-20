@@ -49,6 +49,11 @@ static char     SccsId[] = "%W% %G%";
 #define NAN      (0.0/0.0)
 #endif
 
+/* copied from SWI-Prolog */
+#ifndef DBL_EPSILON /* normal for IEEE 64-bit double */
+#define DBL_EPSILON 0.00000000000000022204
+#endif
+
 static Term
 eval0(Int fi) {
   arith0_op fop = fi;
@@ -60,6 +65,10 @@ eval0(Int fi) {
   case op_e:
     {
       RFLOAT(M_E);
+    }
+  case op_epsilon:
+    {
+      RFLOAT(DBL_EPSILON);
     }
   case op_inf:
     {
@@ -152,6 +161,7 @@ typedef struct init_const_eval {
 static InitConstEntry InitConstTab[] = {
   {"pi", op_pi},
   {"e", op_e},
+  {"epsilon", op_epsilon},
   {"inf", op_inf},
   {"nan", op_nan},
   {"random", op_random},
