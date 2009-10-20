@@ -88,6 +88,7 @@ typedef enum {
   op_abs,
   op_lsb,
   op_msb,
+  op_popcount,
   op_ffracp,
   op_fintp,
   op_sign,

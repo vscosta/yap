@@ -3900,10 +3900,14 @@ Integer bitwise negation.
 The greatest common divisor of the two integers @var{X} and @var{Y}.
 
 @item msb(@var{X})
-The most significant bit of the positive integer @var{X}.
+The most significant bit of the non-negative integer @var{X}.
 
 @item lsb(@var{X})
-The least significant bit of the positive integer @var{X}.
+The least significant bit of the non-negative integer @var{X}.
+
+@item popcount(@var{X})
+The number of bits set to @code{1} in the binary representation of the
+non-negative integer @var{X}.
 
 @item [@var{X}]
 Evaluates to @var{X} for expression @var{X}. Useful because character

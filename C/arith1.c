@@ -184,6 +184,26 @@ lsb(Int inp)	/* calculate the least significant bit for an integer */
   return out;
 }
 
+static Int
+popcount(Int inp)	/* calculate the least significant bit for an integer */
+{
+  /* the obvious solution: do it by using binary search */
+  Int c = 0, j = 0, m = 1L;
+
+  if (inp < 0) {
+    return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(inp),
+	      "popcount/1 received %d", inp);
+  }
+  if (inp==0)
+    return 0L;
+  for(j=0,c=0; j<sizeof(inp)*8; j++, m<<=1)
+    { if ( inp&m )
+	c++;
+    }
+
+  return c;
+}
+
 static Term
 eval1(Int fi, Term t) {
   arith1_op f = fi;
@@ -618,6 +638,25 @@ eval1(Int fi, Term t) {
     case db_ref_e:
       RERROR();
     }
+  case op_popcount:
+    switch (ETypeOfTerm(t)) {
+    case long_int_e:
+      RINT(popcount(IntegerOfTerm(t)));
+    case double_e:
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t, "popcount(%f)", FloatOfTerm(t));
+    case big_int_e:
+#ifdef USE_GMP
+      { MP_INT *big = Yap_BigIntOfTerm(t);
+	if ( mpz_sgn(big) <= 0 ) {
+	  return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t,
+	      "popcount/1 received negative bignum");
+	}
+	RINT(mpz_popcount(big));
+      }
+#endif
+    case db_ref_e:
+      RERROR();
+    }
   case op_ffracp:
     switch (ETypeOfTerm(t)) {
     case long_int_e:
@@ -739,6 +778,7 @@ static InitUnEntry InitUnTab[] = {
   {"abs", op_abs},
   {"msb", op_msb},
   {"lsb", op_lsb},
+  {"popcount", op_popcount},
   {"float_fractional_part", op_ffracp},
   {"float_integer_part", op_fintp},
   {"sign", op_sign},
