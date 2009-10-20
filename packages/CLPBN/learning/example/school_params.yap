@@ -4,9 +4,20 @@
 
 :- [pos:train].
 
-:- ['~/Yap/work/CLPBN/clpbn/examples/School/school_32'].
+:- ['~/Yap/work/packages/CLPBN/clpbn/examples/School/school_32'].
 
-:- ['~/Yap/work/CLPBN/learning/em'].
+:- ['~/Yap/work/packages/CLPBN/learning/em'].
+
+%:- clpbn:set_clpbn_flag(em_solver,gibbs).
+:- clpbn:set_clpbn_flag(em_solver,jt).
+%:- clpbn:set_clpbn_flag(em_solver,vel).
+
+timed_main :-
+	statistics(runtime, _),
+	findall(X,goal(X),L),
+        em(L,0.01,10,_,Lik),
+	statistics(runtime, [T,_]),
+	format('Took ~d msec and Lik ~3f~n',[T,Lik]).
 
 main :-
         findall(X,goal(X),L),
@@ -14,9 +25,9 @@ main :-
         writeln(Lik:CPTs).
 
 %
-% change to 0.05, 0.1, 0.2 to make things simpler/harder
+% change to 0.0, 0.1, 0.2 to make things simpler/harder
 %
-missing(0.3).
+missing(0.50).
 
 % miss 30% of the examples.
 goal(professor_ability(P,V)) :-

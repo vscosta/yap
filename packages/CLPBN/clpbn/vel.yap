@@ -97,7 +97,7 @@ run_vel_solver(LVs, LPs, LNVs) :-
 	findall(Ps, solve_vel(LVs, LNVs, Ps), LPs).
 
 solve_vel([LVs|_], [NVs0|_], Ps) :-
-	length(NVs0, L), (L > 64 -> clpbn_gviz:clpbn2gviz(user_error,sort,NVs0,LVs) ; true ),
+%	length(NVs0, L), (L > 64 -> clpbn_gviz:clpbn2gviz(user_error,sort,NVs0,LVs) ; true ),
 	find_all_clpbn_vars(NVs0, NVs0, LV0, LVi, Tables0),
 	sort(LV0, LV),
 	% construct the graph

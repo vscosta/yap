@@ -476,7 +476,7 @@ clean_up :-
 	fail.
 clean_up.
 
-gibbs_params(5,1000,10000).
+gibbs_params(5,100,1000).
 
 cvt2problist([], []).
 cvt2problist([[[_|E]]|Est0], [Ps|Probs]) :-

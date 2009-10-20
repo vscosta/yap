@@ -64,6 +64,8 @@ myf(Key, Size, Index) :-
 	instantiated_term_hash(Key, -1, Size, Index).
 
 myc(A, B) :-
+	ground(A), !, B == A.
+myc(A, B) :-
 	variant(A,B),
 	term_variables(A,L1),
 	term_variables(B,L2),

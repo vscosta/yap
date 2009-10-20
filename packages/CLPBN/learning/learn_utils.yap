@@ -30,15 +30,15 @@
 
 run_all([]).
 run_all([G|Gs]) :-
-	call(G),
-	run_all(Gs).
+	run_all(user:[G:Gs]).
 run_all(M:Gs) :-
 	clpbn_reset_tables,
 	run_all(Gs,M).
 
 run_all([],_).
 run_all([G|Gs],M) :-
-	( call(M:G) -> true ; writeln(bad:M:G), break),
+%	(G = _:ge(ybr136w,t8,23,-1) -> nb_getval(clpbn_tables, Tab), writeln(Tab) ; true ),
+	( call(M:G) -> true ;  writeln(bad:M:G), start_low_level_trace, M:G ; halt ),
 	run_all(Gs,M).
 
 clpbn_vars(Vs,BVars) :-

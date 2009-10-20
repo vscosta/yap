@@ -227,11 +227,10 @@ run_sample([C|Cases], [P|Ps], Table) :-
 	run_sample(Cases, Ps, Table).
 
 call_run_all(Mod:Items) :-
-	clpbn_flag(em_solver, pcg),
+	clpbn_flag(em_solver, pcg), !,
 	backtrack_run_all(Items, Mod).
-call_run_all(Items) :-
-	clpbn_flag(em_solver, pcg),
-	run_all(Items).
+call_run_all(Mod:Items) :-
+	run_all(Mod:Items).
 
 backtrack_run_all([Item|_], Mod) :-
 	call(Mod:Item),
