@@ -184,11 +184,6 @@ extern pthread_key_t Yap_yaamregs_key;
     Term X[MaxTemps];		/* 29                                     */
 
 #define XREGS	  Yap_REGS.X
-    yamop *ARITH_EXCEPTION_;
-    int isint_[MaxArithms];
-    Int Ints_[MaxArithms];
-    Float Floats_[MaxArithms];
-
   }
 REGSTORE;
 
