@@ -291,7 +291,7 @@ config.h:	parms.h
 parms.h:	Makefile
 		@echo "#define YAP_ROOTDIR       \"$(prefix)\""   > $@%
 		@echo "#define YAP_BINDIR	    \"$(BINDIR)\""   >> $@%
-		@echo "#define YAP_LIBDIR	    \"$(LIBDIR)\""   >> $@%
+		@echo "#define YAP_LIBDIR	    \"$(YAPLIBDIR)\""   >> $@%
 		@echo "#define YAP_SHAREDIR	    \"$(SHAREDIR)\""   >> $@%
 		@echo "#define YAP_PL_SRCDIR	    \"$(SHAREDIR)/Yap/pl\""   >> $@%
 		@echo "#define YAP_STARTUP   \"$(YAPSTARTUP)\"" >> $@%

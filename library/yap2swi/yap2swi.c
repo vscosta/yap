@@ -2010,6 +2010,11 @@ X_API int PL_call_predicate(module_t ctx, int flags, predicate_t p, term_t t0)
   return ret;
 }
 
+X_API int PL_toplevel(void)
+{
+  return YAP_RunGoal(MkAtomTerm(Yap_FullLookupAtom("$live")));
+}
+
 X_API int PL_call(term_t tp, module_t m)
 {
   YAP_Term t[2], g;
@@ -2047,12 +2052,12 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
   }
 }
 
-X_API void PL_register_extensions(PL_extension *ptr)
+X_API void PL_register_extensions(const PL_extension *ptr)
 {
   PL_load_extensions(ptr);
 }
 
-X_API void PL_load_extensions(PL_extension *ptr)
+X_API void PL_load_extensions(const PL_extension *ptr)
 {
   /* ignore flags for now */
   while(ptr->predicate_name != NULL) {

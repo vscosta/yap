@@ -13,6 +13,10 @@
 #ifndef _FLI_H_INCLUDED
 #define _FLI_H_INCLUDED
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //=== includes ===============================================================
 #include "config.h"
 #include	<YapInterface.h>
@@ -406,12 +410,13 @@ extern X_API qid_t PL_open_query(module_t, int, predicate_t, term_t);
 extern X_API int PL_next_solution(qid_t);
 extern X_API void PL_cut_query(qid_t);
 extern X_API void PL_close_query(qid_t);
+extern X_API int PL_toplevel(void);
 extern X_API term_t PL_exception(qid_t);
 extern X_API int PL_call_predicate(module_t, int, predicate_t, term_t);
 extern X_API int PL_call(term_t, module_t);
 extern X_API void PL_register_foreign_in_module(const char *, const char *, int, foreign_t (*)(void), int);
-extern X_API void PL_register_extensions(PL_extension *);
-extern X_API void PL_load_extensions(PL_extension *);
+extern X_API void PL_register_extensions(const PL_extension *);
+extern X_API void PL_load_extensions(const PL_extension *);
 extern X_API int PL_handle_signals(void);
 extern X_API int  PL_thread_self(void);
 extern X_API int PL_thread_attach_engine(const PL_thread_attr_t *);
@@ -471,6 +476,10 @@ void swi_install(void);
 
 X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _FLI_H_INCLUDED */
 

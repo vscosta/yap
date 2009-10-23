@@ -222,6 +222,9 @@ restore(A) :- var(A), !,
 restore(A) :- atom(A), !, name(A,S), '$restore'(S).
 restore(S) :- '$restore'(S).
 
+prolog :-
+	'$live'.
+
 %%% current ....
 
 recordaifnot(K,T,R) :-
