@@ -29,8 +29,8 @@ static char     SccsId[] = "%W% %G%.2";
 #include "Foreign.h"
 
 #if _WIN32 || defined(__CYGWIN__)
-#ifndef SHLIB_SUFFIX
-#define SHLIB_SUFFIX "dll"
+#ifndef YAP_SHLIB_SUFFIX
+#define YAP_SHLIB_SUFFIX ".dll"
 #endif
 #endif
 
@@ -111,7 +111,7 @@ p_load_foreign(void)
 
 static Int
 p_obj_suffix(void) {
-  return(Yap_unify(Yap_StringToList(SHLIB_SUFFIX),ARG1));
+  return(Yap_unify(TailOfTerm(Yap_StringToList(YAP_SHLIB_SUFFIX)),ARG1));
 }
 
 void

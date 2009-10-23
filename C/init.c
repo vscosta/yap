@@ -1295,7 +1295,7 @@ static void
 InitVersion(void)
 {
   Yap_PutValue(AtomVersionNumber,
-	       MkAtomTerm(Yap_LookupAtom(YAP_VERSION)));
+	       MkAtomTerm(Yap_LookupAtom(YAP_SVERSION)));
 #if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
   Yap_PutValue(AtomMyddasVersionName,
 	       MkAtomTerm(Yap_LookupAtom(MYDDAS_VERSION)));

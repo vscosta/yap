@@ -11,6 +11,7 @@ dnl store the environment's compilation flags
 mycflags="$CFLAGS"
 
 AC_PROG_CC
+AC_PROG_AWK
 AC_SUBST(GCC)
 AC_SUBST(C_INTERF_FLAGS)
 AC_SUBST(C_PARSER_FLAGS)
@@ -1217,6 +1218,24 @@ AC_DEFINE(HAVE_GCC,0)
 fi
 AC_SUBST(M4)
 AC_SUBST(M4GENHDRS)
+
+dnl SWI compatibility, I don't know why just use host...
+changequote(,)dnl
+if test "x$ARCH" = "x"; then
+  case "$host" in
+    *linux*)
+      ARCH=`echo $host | sed 's/-.*/-linux/'`
+      ;;
+    *-gnu)
+      ARCH=`echo $host | sed 's/\([^-]*\)-[^-]*-\([^-]*\)-gnu/\1-\2/'`
+      ;;
+    *)
+      ARCH=`echo $host | sed 's/\([^-]*\)-[^-]*-\([^-]*\)/\1-\2/'`
+      ;;
+  esac
+fi
+changequote([,])dnl
+AC_SUBST(ARCH)
 
 dnl System stuff for dynamic linking.
 dnl

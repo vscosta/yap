@@ -142,6 +142,8 @@ typedef struct {
   int ErrorNo;
   /* errorstring */
   char *ErrorCause;
+  /* argv[0] */
+  char *Argv0;
 } YAP_init_args;
 
 

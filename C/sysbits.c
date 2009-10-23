@@ -209,7 +209,7 @@ Yap_InitSysPath(void) {
   if (dir_done && commons_done)
     return;
 #endif
-  strncpy(Yap_FileNameBuf, SHARE_DIR, YAP_FILENAME_MAX);
+  strncpy(Yap_FileNameBuf, YAP_SHAREDIR, YAP_FILENAME_MAX);
 #if _MSC_VER || defined(__MINGW32__)
   {
     DWORD fatts;
@@ -1883,7 +1883,7 @@ TrueFileName (char *source, char *root, char *result, int in_lib)
 	      strncpy(ares1, libdir, YAP_FILENAME_MAX);
 	    else
 #endif
-	      strncpy(ares1, LIB_DIR, YAP_FILENAME_MAX);
+	      strncpy(ares1, YAP_LIBDIR, YAP_FILENAME_MAX);
 	  }
 #if HAVE_GETENV
 	}
@@ -2679,7 +2679,7 @@ p_host_type(void) {
 
 static Int
 p_yap_home(void) {
-  Term out = MkAtomTerm(Yap_LookupAtom(YAP_HOME_DIR));
+  Term out = MkAtomTerm(Yap_LookupAtom(YAP_ROOTDIR));
   return(Yap_unify(out,ARG1));
 }
 
@@ -2977,7 +2977,7 @@ p_disable_interrupts(void)
 static Int
 p_ld_path(void)
 {
-  return Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom(LIB_DIR)));
+  return Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom(YAP_LIBDIR)));
 }
 
 

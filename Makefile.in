@@ -51,6 +51,8 @@ DOCSDIR=$(SHAREDIR)/docs/yap
 #
 YAP_EXTRAS=@YAP_EXTRAS@
 
+YAPSTARTUP=startup.yss
+
 #
 # Please do not add YAP_EXTRA flags here: if you do check the flags
 # for c_interface.c
@@ -65,6 +67,8 @@ C_PARSER_FLAGS= @C_PARSER_FLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 #
 # You shouldn't need to change what follows.
 #
+ARCH=@ARCH@
+AWK=@AWK@
 CPP=@CPP@
 DEFS=@DEFS@
 LIBS=@LIBS@
@@ -89,11 +93,12 @@ MAKEINFO=makeinfo
 TEXI2DVI=texi2dvi
 TEXI2HTML=texi2html
 TEXI2PDF=texi2pdf
+YAPLIB=@YAPLIB@
 
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #
-VERSION=Yap-6.0.0
+VERSION=6.0.0
 MYDDAS_VERSION=MYDDAS-0.9.1
 #
 
@@ -275,10 +280,33 @@ OBJECTS = yap.o $(LIB_OBJECTS)
 
 
 
-all: Makefile startup.yss
-
+all: parms.h startup.yss
 
 Makefile: $(srcdir)/Makefile.in
+
+$(srcdir)/H/Yap.h: config.h
+
+config.h:	parms.h
+
+parms.h:	Makefile
+		@echo "#define YAP_ROOTDIR       \"$(prefix)\""   > $@%
+		@echo "#define YAP_BINDIR	    \"$(BINDIR)\""   >> $@%
+		@echo "#define YAP_LIBDIR	    \"$(LIBDIR)\""   >> $@%
+		@echo "#define YAP_SHAREDIR	    \"$(SHAREDIR)\""   >> $@%
+		@echo "#define YAP_PL_SRCDIR	    \"$(SHAREDIR)/Yap/pl\""   >> $@%
+		@echo "#define YAP_STARTUP   \"$(YAPSTARTUP)\"" >> $@%
+		@echo "#define YAP_SVERSION   \"$(VERSION)\"" >> $@%
+		@echo $(VERSION) | $(AWK) -F. '{ printf("#define YAP_VERSION %d\n", $$1 * 10000 + $$2 * 100 + $$3); }' >> $@%
+		@echo "#define MYDDAS_VERSION	    \"$(MYDDAS_VERSION)\""       >> $@%
+		@echo "#define YAP_ARCH	    \"$(ARCH)\""       >> $@%
+		@echo "#define YAP_LIBS	    \"$(LIBS)\""     >> $@%
+		@echo "#define YAP_YAPLIB	    \"$(YAPLIB)\""   >> $@%
+		@echo "#define YAP_CC	    \"$(CC)\""	       >> $@%
+		@echo "#define YAP_CFLAGS	    \"$(CFLAGS)\"" >> $@%
+		@echo "#define YAP_LDFLAGS    \"$(LDFLAGS)\""    >> $@%
+		@echo "#define YAP_SHLIB_SUFFIX    \"$(SHLIB_SUFFIX)\""    >> $@%
+		@echo | $(AWK) '{ printf("#define YAP_TIMESTAMP %d\n", systime()); }' >> $@%
+		@if cmp -s $@% $@; then rm $@%; else mv $@% $@; fi
 
 
 #special rule for this one: we cannot use -fomit-frame-pointer because this will
@@ -290,16 +318,16 @@ clause_list.o: $(srcdir)/C/clause_list.c $(srcdir)/include/clause_list.h
 	$(CC) $(C_INTERF_FLAGS) -c $(srcdir)/C/clause_list.c -o clause_list.o
 
 init.o: $(srcdir)/C/init.c
-	$(CC) -c $(CFLAGS) -DMYDDAS_VERSION=\"$(MYDDAS_VERSION)\" -DYAP_VERSION=\"$(VERSION)\" $(srcdir)/C/init.c -o $@
+	$(CC) -c $(CFLAGS) $(srcdir)/C/init.c -o $@
 
 load_foreign.o: $(srcdir)/C/load_foreign.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/load_foreign.c -DSHLIB_SUFFIX=\"$(SHLIB_SUFFIX)\" -o $@
+	$(CC) -c $(CFLAGS) $(srcdir)/C/load_foreign.c -o $@
 
 save.o: $(srcdir)/C/save.c
-	$(CC) -c $(CFLAGS) -DYAP_VERSION=\"$(VERSION)\" -DBIN_DIR=\"$(BINDIR)\" -DLIB_DIR=\"$(YAPLIBDIR)\" $(srcdir)/C/save.c -o $@
+	$(CC) -c $(CFLAGS) $(srcdir)/C/save.c -o $@
 
 sysbits.o: $(srcdir)/C/sysbits.c
-	$(CC) -c $(CFLAGS) -DYAP_HOME_DIR=\"$(ROOTDIR)\" -DLIB_DIR=\"$(YAPLIBDIR)\" -DSHARE_DIR=\"$(SHAREDIR)\" $(srcdir)/C/sysbits.c -o $@
+	$(CC) -c $(CFLAGS) $(srcdir)/C/sysbits.c -o $@
 
 udi.o: $(srcdir)/C/udi.c
 	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/C/udi.c -o $@
@@ -310,8 +338,8 @@ rtree.o: $(srcdir)/packages/udi/rtree.c
 rtree_udi.o: $(srcdir)/packages/udi/rtree_udi.c
 	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/packages/udi/rtree_udi.c -o $@
 
-yap.o: $(srcdir)/console/yap.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include -DYAP_VERSION=\"$(VERSION)\"  -DPL_SRC_DIR=\"$(SHAREDIR)/Yap/pl/\" $(srcdir)/console/yap.c -o $@
+yap.o: $(srcdir)/console/yap.c parms.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/console/yap.c -o $@
 
 mpi.o: $(srcdir)/library/mpi/mpi.c
 	$(MPI_CC) -c $(CFLAGS) $(srcdir)/library/mpi/mpi.c -o $@
@@ -448,7 +476,7 @@ all: startup.yss
 	@ENABLE_CPLINT@ (cd cplint; $(MAKE))
 	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE))
 
-startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
+startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES) parms.h
 	-rm -f startup.yss
 	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). save_program('startup.yss')." |  @PRE_DYNLOADER_PATH@ ./yap -b $(srcdir)/pl/boot.yap
 
@@ -488,7 +516,10 @@ install_unix: startup.yss libYap.a
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) install)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
+	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
+	$(INSTALL) config.h $(DESTDIR)$(INCLUDEDIR)/config.h
+	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/parms.h
 	@ENABLE_CPLINT@ (cd cplint; $(MAKE) install)
 	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
 
@@ -508,7 +539,8 @@ install_win32: startup.yss
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
-	$(INSTALL) config.h $(INCLUDEDIR)/config.h
+	$(INSTALL) config.h $(DESTDIR)$(INCLUDEDIR)/config.h
+	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/parms.h
 	(cd packages/PLStream; $(MAKE) install)
 	(cd packages/sgml; $(MAKE) install)
 	(cd library/random; $(MAKE) install)
@@ -624,7 +656,7 @@ install_docs:
 info: yap.info
 
 yap.info: $(YAPDOCS)
-	$(MAKEINFO) $(srcdir)/docs/yap.tex
+	$(MAKEINFO)  $(srcdir)/docs/yap.tex
 
 html: yap.html
 

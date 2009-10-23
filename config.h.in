@@ -1,4 +1,6 @@
 
+#include "parms.h"
+
 /* are we using gcc */
 #undef HAVE_GCC
 
