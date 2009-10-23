@@ -25,7 +25,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include "Yatom.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #include "or.macros.h"
 
 

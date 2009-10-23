@@ -17,7 +17,7 @@
 #if defined(YAPOR) || defined(TABLING)
 #define OPT_MAVAR_STATIC
 #include "Yatom.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #include <unistd.h>
 #include <signal.h>
 #ifdef YAPOR

@@ -2,7 +2,7 @@
 
 #if USE_DL_MALLOC
 
-#include "Heap.h"
+#include "YapHeap.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif

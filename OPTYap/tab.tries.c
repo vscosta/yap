@@ -20,7 +20,7 @@
 #include <string.h>
 #endif /* HAVE_STRING_H */
 #include "Yatom.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #include "yapio.h"
 #include "tab.macros.h"
 

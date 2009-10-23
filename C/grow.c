@@ -16,7 +16,7 @@
 *************************************************************************/
 
 #include "absmi.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #include "yapio.h"
 #include "alloc.h"
 #include "sshift.h"

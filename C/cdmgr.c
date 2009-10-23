@@ -5543,7 +5543,7 @@ p_choicepoint_info(void)
       break;
     case _Nstop:
       { 
-	Atom at = AtomLive;
+	Atom at = AtomProlog;
 	t = MkAtomTerm(at);
 	pe = RepPredProp(PredPropByAtom(at, CurrentModule));
       }

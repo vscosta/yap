@@ -20,7 +20,7 @@
 #ifdef MULTI_ASSIGNMENT_VARIABLES
 
 #include "Yatom.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #include "eval.h"
 
 STD_PROTO(static Int p_setarg, (void));

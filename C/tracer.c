@@ -20,7 +20,7 @@
 #ifdef LOW_LEVEL_TRACER
 
 #include "Yatom.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #include "attvar.h"
 #include "yapio.h"
 #include "tracer.h"

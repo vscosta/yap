@@ -19,7 +19,7 @@
 #include <string.h>
 #endif /* HAVE_STRING_H */
 #include "Yatom.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #include "or.macros.h"
 #ifdef TABLING
 #include "tab.macros.h"

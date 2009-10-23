@@ -224,6 +224,7 @@ print_usage(void)
   fprintf(stderr,"\n[ Valid switches for command line arguments: ]\n");
   fprintf(stderr,"  -?   Shows this screen\n");
   fprintf(stderr,"  -b   Boot file \n");
+  fprintf(stderr,"  -dump-runtime-variables\n");
   fprintf(stderr,"  -f   initialization file or \"none\"\n");
   fprintf(stderr,"  -g   Run Goal Before Top-Level \n");
   fprintf(stderr,"  -z   Run Goal Before Top-Level \n");
@@ -295,6 +296,13 @@ add_end_dot(char arg[])
 static int
 dump_runtime_variables(void)
 {
+  fprintf(stderr,"CC=\"%s\"\n",YAP_CC);
+  fprintf(stderr,"YAP_ROOTDIR=\"%s\"\n",YAP_ROOTDIR);
+  fprintf(stderr,"YAP_LIBS=\"%s\"\n",YAP_LIBS);
+  fprintf(stderr,"YAP_SHLIB_SUFFIX=\"%s\"\n",YAP_SHLIB_SUFFIX);
+  fprintf(stderr,"YAP_VERSION=%d\n",YAP_VERSION);
+  exit(0);
+  return 1;
 }
 
 /*
@@ -346,6 +354,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
             ssize = &(iap->DelayedReleaseLoad);
 	    goto GetSize;
 #else
+          case 'd':
 	    if (!strcmp("dump-runtime-variables",p))
 		return dump_runtime_variables();
 #endif /* ENV_COPY || ACOW || SBA */
@@ -807,7 +816,7 @@ exec_top_level(int BootMode, YAP_init_args *iap)
       YAP_Atom livegoal;
       /* read the bootfile */
       do_bootfile (iap->YapPrologBootFile ? iap->YapPrologBootFile : BootFile);
-      livegoal = YAP_FullLookupAtom("$live");
+      livegoal = YAP_FullLookupAtom("prolog");
       /* initialise the top-level */
       if (BootMode == YAP_FULL_BOOT_FROM_PROLOG) {
 	char init_file[256];
@@ -846,7 +855,7 @@ exec_top_level(int BootMode, YAP_init_args *iap)
   /* read it before case someone, that is, Ashwin, hides
      the atom false away ;-).
   */
-  livegoal = YAP_FullLookupAtom("$live");
+  livegoal = YAP_FullLookupAtom("prolog");
   atomfalse = YAP_MkAtomTerm (YAP_FullLookupAtom("$false"));
   while (YAP_GetValue (livegoal) != atomfalse) {
     YAP_Reset();

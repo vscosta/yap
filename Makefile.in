@@ -118,7 +118,7 @@ HEADERS = \
 	$(srcdir)/H/Tags_32LowTag.h $(srcdir)/H/Tags_64bits.h \
 	$(srcdir)/H/Tags_24bits.h $(srcdir)/H/sshift.h \
 	$(srcdir)/H/Yap.h $(srcdir)/H/Yatom.h \
-	$(srcdir)/H/Heap.h \
+	$(srcdir)/H/YapHeap.h \
 	$(srcdir)/H/Regs.h $(srcdir)/H/Yapproto.h \
 	$(srcdir)/H/absmi.h  $(srcdir)/H/alloc.h \
 	$(srcdir)/H/amidefs.h $(srcdir)/H/amiops.h $(srcdir)/H/arrays.h \

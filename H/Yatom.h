@@ -1383,7 +1383,7 @@ typedef enum
   TERMS_MODULE = 5
 } default_modules;
 
-#include "Heap.h"
+#include "YapHeap.h"
 
 EXTERN inline UInt STD_PROTO(PRED_HASH, (FunctorEntry *, Term, UInt));
 

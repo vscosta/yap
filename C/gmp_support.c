@@ -17,7 +17,7 @@
 
 #include "Yap.h"
 #include "Yatom.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #include "eval.h"
 
 #if USE_GMP

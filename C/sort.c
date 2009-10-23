@@ -19,7 +19,7 @@
 
 #include "Yap.h"
 #include "Yatom.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #ifndef NULL
 #define NULL (void *)0
 #endif

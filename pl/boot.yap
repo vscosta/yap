@@ -21,7 +21,7 @@
 
 true :- true.
 
-'$live' :-
+prolog :-
 	'$init_system',
         '$do_live'.
 
@@ -161,7 +161,7 @@ true :- true.
 	get_value('$top_level_goal',GA), GA \= [], !,
 	set_value('$top_level_goal',[]),
 	'$run_atom_goal'(GA),
-	set_value('$live','$false').
+	set_value(prolog,'$false').
 '$enter_top_level' :-
 	prompt(_,'   ?- '),
 	prompt('   | '),
@@ -174,7 +174,7 @@ true :- true.
 	prompt(_,'   |: '),
 	'$command'((?-Command),Varnames,Pos,top),
 	'$sync_mmapped_arrays',
-	set_value('$live','$false').
+	set_value(prolog,'$false').
 
 '$startup_goals' :-
 	get_value('$extend_file_search_path',P), P \= [],
@@ -958,7 +958,7 @@ break :-
 	format(user_error, '% Break (level ~w)~n', [NBL]),
 	'$do_live',
 	!,
-	set_value('$live','$true'),
+	set_value(prolog,'$true'),
 	b_setval('$spy_glist',GList),
 	nb_setval('$spy_gn',SPY_GN),
 	'$set_input'(InpStream), '$set_output'(OutStream),

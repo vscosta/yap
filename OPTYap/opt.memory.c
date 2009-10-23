@@ -25,7 +25,7 @@
 #include <sys/shm.h>
 #include <sys/mman.h>
 #include "Yatom.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #include "alloc.h"
 #include "heapgc.h"
 

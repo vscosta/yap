@@ -19,7 +19,7 @@
 #include "Yap.h"
 
 #include "Yatom.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #include "yapio.h"
 
 #if   USE_SOCKET

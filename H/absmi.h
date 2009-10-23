@@ -148,7 +148,7 @@ register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 #include "or.macros.h"
 #endif	/* YAPOR */
 #ifdef USE_SYSTEM_MALLOC
-#include "Heap.h"
+#include "YapHeap.h"
 #endif
 #ifdef TABLING
 #include "tab.macros.h"

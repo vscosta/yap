@@ -16,7 +16,7 @@
 *************************************************************************/
 
 #include "Yatom.h"
-#include "Heap.h"
+#include "YapHeap.h"
 
 /* consulting files */
 

@@ -20,7 +20,7 @@ static char     SccsId[] = "@(#)utilpreds.c	1.3";
 
 #include "Yap.h"
 #include "clause.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #include "yapio.h"
 #include "eval.h"
 #include "attvar.h"

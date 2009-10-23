@@ -59,7 +59,7 @@ static char SccsId[] = "%W% %G%";
 
 #include "Yap.h"
 #include "Yatom.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #include "compile.h"
 #include "yapio.h"
 #if HAVE_STRING_H

@@ -23,7 +23,7 @@ static char     SccsId[] = "%W% %G%";
 
 #ifdef USE_GMP
 
-#include "Heap.h"
+#include "YapHeap.h"
 #include "eval.h"
 #include "alloc.h"
 #if HAVE_STRING_H

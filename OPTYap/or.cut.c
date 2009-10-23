@@ -16,7 +16,7 @@
 #include "Yap.h"
 #ifdef YAPOR
 #include "Yatom.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #include "or.macros.h"
 #ifdef TABLING
 #include "tab.macros.h"

@@ -7,7 +7,7 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		Heap.h         						 *
+* File:		YapHeap.h      						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
 * version:      $Id: Heap.h,v 1.136 2008-08-08 14:05:34 vsc Exp $	 *

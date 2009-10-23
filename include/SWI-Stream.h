@@ -61,10 +61,6 @@ typedef intptr_t ssize_t;		/* signed version of size_t */
 extern "C" {
 #endif
 
-#ifdef __cplusplus
-}
-#endif
-
 		 /*******************************
 		 *	    CONSTANTS		*
 		 *******************************/

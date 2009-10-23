@@ -15,7 +15,7 @@
 
 #include "Yap.h"
 #include "Yatom.h"
-#include "Heap.h"
+#include "YapHeap.h"
 #include "yapio.h"
 #include "Foreign.h"
 
