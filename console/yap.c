@@ -776,6 +776,11 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
     strcpy(boot_file, YAP_PL_SRCDIR);
 #endif
 #if HAVE_STRNCAT
+    strncat(boot_file, "/", 255);
+#else
+    strcat(boot_file, "/");
+#endif
+#if HAVE_STRNCAT
     strncat(boot_file, BootFile, 255);
 #else
     strcat(boot_file, BootFile);
@@ -828,6 +833,11 @@ exec_top_level(int BootMode, YAP_init_args *iap)
 	strncpy(init_file, YAP_PL_SRCDIR, 256);
 #else
 	strcpy(init_file, YAP_PL_SRCDIR);
+#endif
+#if HAVE_STRNCAT
+	strncat(init_file, "/", 255);
+#else
+	strcat(init_file, "/");
 #endif
 #if HAVE_STRNCAT
 	strncat(init_file, InitFile, 255);
