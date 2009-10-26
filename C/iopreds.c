@@ -3704,7 +3704,7 @@ clean_vars(VarEntry *p)
 }
 
 static Term
-syntax_error (TokEntry * tokptr, int sno)
+syntax_error (TokEntry * tokptr, int sno, Term *outp)
 {
   Term info;
   int count = 0, out = 0;
@@ -3798,7 +3798,7 @@ syntax_error (TokEntry * tokptr, int sno)
     }
     tokptr = tokptr->TokNext;
   }
-  tf[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomRead,1),1,&ARG2);
+  tf[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomRead,1),1,outp);
   {
     Term t[3];
 
@@ -4048,7 +4048,7 @@ static Int
 	/* try again */
 	goto repeat_cycle;
       } else {
-	Term terr = syntax_error(tokstart, inp_stream);
+	Term terr = syntax_error(tokstart, inp_stream, &ARG2);
 	if (Yap_ErrorMessage == NULL)
 	  Yap_ErrorMessage = "SYNTAX ERROR";
 	
@@ -6132,7 +6132,8 @@ Yap_StringToTerm(char *s,Term *tp)
   TR = TR_before_parse;
   if (!t && !Yap_ErrorMessage) {
     if (tp) {
-      *tp = syntax_error(tokstart, sno);
+      t = MkVarTerm();
+      *tp = syntax_error(tokstart, sno, &t);
     }
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
     /* cannot actually use CloseStream, because we didn't allocate the buffer */  
