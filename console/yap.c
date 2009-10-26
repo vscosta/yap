@@ -765,7 +765,6 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
   iap->ErrorNo = 0;
   iap->ErrorCause = NULL;
   iap->QuietMode = FALSE;
-  iap->Argv0 = argv[0];
 
   BootMode = parse_yap_arguments(argc,argv,iap);
 

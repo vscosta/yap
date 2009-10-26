@@ -6130,7 +6130,7 @@ Yap_StringToTerm(char *s,Term *tp)
   }
   t = Yap_Parse();
   TR = TR_before_parse;
-  if (Yap_ErrorMessage) {
+  if (!t && !Yap_ErrorMessage) {
     if (tp) {
       *tp = syntax_error(tokstart, sno);
     }

@@ -1417,8 +1417,39 @@ YAP_ReadBuffer(char *s, Term *tp)
   BACKUP_H();
 
   while ((t = Yap_StringToTerm(s,tp)) == 0L) {
-    if (!dogc())
-      return FALSE;
+    if (Yap_ErrorMessage) {
+      if (!strcmp(Yap_ErrorMessage,"Stack Overflow")) {
+	if (!dogc()) {
+	  *tp = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
+	  Yap_ErrorMessage = NULL;
+	  RECOVER_H();
+	  return 0L;
+	} 
+      } else if (!strcmp(Yap_ErrorMessage,"Heap Overflow")) {
+	if (!Yap_growheap(FALSE, 0, NULL)) {
+	  *tp = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
+	  Yap_ErrorMessage = NULL;
+	  RECOVER_H();
+	  return 0L;
+	}
+      } else if (!strcmp(Yap_ErrorMessage,"Trail Overflow")) {
+	if (!Yap_growtrail (0, FALSE)) {
+	  *tp = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
+	  Yap_ErrorMessage = NULL;
+	  RECOVER_H();
+	  return 0L;
+	}
+      } else {
+	*tp = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
+	Yap_ErrorMessage = NULL;
+	RECOVER_H();
+	return 0L;
+      }
+      Yap_ErrorMessage = NULL;
+      continue;
+    } else {
+      break;
+    }
   }
   RECOVER_H();
   return t;
