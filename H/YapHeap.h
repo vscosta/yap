@@ -222,14 +222,10 @@ typedef struct thandle {
 typedef int   (*Agc_hook)(Atom);
 
 typedef struct various_codes {
+  /* memory allocation and management */
   special_functors funcs;
   UInt hole_size;
   struct malloc_state *av_;
-
-  yap_exec_mode execution_mode;
-  UInt atts_size;
-  UInt clause_space, index_space_Tree, index_space_EXT, index_space_SW;
-  UInt lu_clause_space, lu_index_space_Tree, lu_index_space_CP, lu_index_space_EXT, lu_index_space_SW;
 #if USE_DL_MALLOC
   struct memory_hole memory_holes[MAX_DLMALLOC_HOLES];
   UInt nof_memory_holes;
@@ -240,34 +236,115 @@ typedef struct various_codes {
   ADDR heap_lim;
   struct FREEB  *free_blocks;
 #if defined(YAPOR) || defined(THREADS)
+  lockvar  heap_used_lock;        /* protect HeapUsed */
+  lockvar  heap_top_lock;        /* protect HeapTop */
+  int      heap_top_owner;
+#endif
+
+  /* multi-thread/ORP support */
+#if defined(YAPOR) || defined(THREADS)
+  unsigned int n_of_threads;      /* number of threads and processes in system */
+  unsigned int n_of_threads_created;      /* number of threads created since start */
+  UInt  threads_total_time;      /* total run time for dead threads */
   lockvar  bgl;		 /* protect long critical regions   */
   lockvar  free_blocks_lock;     /* protect the list of free blocks */
   worker_local wl[MAX_AGENTS];
 #else
   worker_local wl;
 #endif
-#ifdef BEAM
-  yamop beam_retry_code;
-#endif /* BEAM */
-#ifdef YAPOR
-  int seq_def;
-  yamop getwork_code;
-  yamop getwork_seq_code;
-  yamop getwork_first_time_code;
-#endif /* YAPOR */
-#ifdef TABLING
-  yamop table_load_answer_code;
-  yamop table_try_answer_code;
-  yamop table_answer_resolution_code;
-  yamop table_completion_code;
-#endif /* TABLING */
-  OPCODE execute_cpred_op_code, expand_op_code;
-  yamop *expand_clauses_first, *expand_clauses_last;
-  UInt expand_clauses;
-#if defined(YAPOR) || defined(THREADS)
-  lockvar expand_clauses_list_lock;
-  lockvar op_list_lock;
+#ifdef THREADS
+  lockvar  thread_handles_lock;        /* protect ThreadManipulation */
+  struct thandle thread_handle[MAX_THREADS];
 #endif
+
+  /* atoms and functors */
+  UInt n_of_atoms;
+  UInt atom_hash_table_size;
+  UInt wide_atom_hash_table_size;
+  UInt n_of_wide_atoms;
+  AtomHashEntry invisiblechain;
+  AtomHashEntry *wide_hash_chain;
+  AtomHashEntry *hash_chain;
+#include "tatoms.h"
+
+  /* Well-Known Terms, mostly modules */
+#ifdef EUROTRA
+  Term  term_dollar_u;
+#endif
+  Term term_prolog;
+  Term term_refound_var;
+  Term user_module;
+  Term idb_module;
+  Term attributes_module;
+  Term charsio_module;
+  Term terms_module;
+  Term system_module;
+  Term readutil_module;
+  Term hacks_module;
+  Term arg_module;
+  Term globals_module;
+  Term swi_module;
+
+  /* Module List */
+  struct mod_entry *current_modules;
+
+  /* The Predicate Hash Table: fast access to predicates. */
+  struct pred_entry **pred_hash;
+#if defined(YAPOR) || defined(THREADS)
+  rwlock_t pred_hash_rw_lock;
+#endif
+  UInt  preds_in_hash_table, pred_hash_table_size;
+
+  /* Well-Known Predicates */
+  struct pred_entry  *creep_code;
+  struct pred_entry  *undef_code;
+  struct pred_entry  *spy_code;
+#ifdef COROUTINING
+  int  num_of_atts;            /* max. number of attributes we have for a variable */
+  struct pred_entry  *wake_up_code;
+#endif
+  struct pred_entry *pred_goal_expansion;
+  struct pred_entry *pred_meta_call;
+  struct pred_entry *pred_dollar_catch;
+  struct pred_entry *pred_recorded_with_key;
+  struct pred_entry *pred_log_upd_clause;
+  struct pred_entry *pred_log_upd_clause_erase;
+  struct pred_entry *pred_log_upd_clause0;
+  struct pred_entry *pred_static_clause;
+  struct pred_entry *pred_throw;
+  struct pred_entry *pred_handle_throw;
+  struct pred_entry *pred_is;
+
+  /* execution info */
+  /* OPCODE TABLE */
+#if USE_THREADED_CODE
+  opentry *op_rtable;
+#endif
+
+  /* Anderson's JIT */
+  yap_exec_mode execution_mode;
+
+  /* low-level tracer */
+#ifdef LOW_LEVEL_TRACER
+  int yap_do_low_level_trace;
+#if defined(YAPOR) || defined(THREADS)
+  lockvar  low_level_trace_lock;
+#endif
+#endif
+
+  /* code management info */
+  UInt clause_space, index_space_Tree, index_space_EXT, index_space_SW;
+  UInt lu_clause_space, lu_index_space_Tree, lu_index_space_CP, lu_index_space_EXT, lu_index_space_SW;
+
+  /* popular opcodes */
+  OPCODE execute_cpred_op_code;
+  OPCODE expand_op_code;
+  OPCODE undef_op; 
+  OPCODE index_op; 
+  OPCODE lockpred_op; 
+  OPCODE fail_op; 
+
+  /* static code: may be shared by many predicate or may be used for meta-execution */
   yamop comma_code[5];
   yamop failcode[1];
   OPCODE failcode_1;
@@ -276,6 +353,7 @@ typedef struct various_codes {
   OPCODE failcode_4;
   OPCODE failcode_5;
   OPCODE failcode_6;
+  OPCODE dummycode[1];
   struct {
     OPCODE op;
 #ifdef YAPOR
@@ -309,21 +387,32 @@ typedef struct various_codes {
     struct yami *clause;
     Functor func;
   } clausecode[1];
-#if HAVE_LIBREADLINE
-  char *readline_buf, *readline_pos;
-#endif
-#if USE_THREADED_CODE
-  opentry *op_rtable;
-#endif
-  struct udi_info *udi_control_blocks;
-#ifdef COROUTINING
-  int  num_of_atts;            /* max. number of attributes we have for a variable */
-  struct pred_entry  *wake_up_code;
-#endif
-  struct pred_entry  *creep_code;
-  struct pred_entry  *undef_code;
-  struct pred_entry  *spy_code;
-  UInt new_cps, live_cps, dirty_cps, freed_cps;
+  /*
+    PREG just before we enter $spy. We use that to find out the clause which
+    was calling the debugged goal.
+  */
+  yamop   *debugger_p_before_spy;
+#ifdef BEAM
+  yamop beam_retry_code;
+#endif /* BEAM */
+#ifdef YAPOR
+  int seq_def;
+  yamop getwork_code;
+  yamop getwork_seq_code;
+  yamop getwork_first_time_code;
+#endif /* YAPOR */
+#ifdef TABLING
+  yamop table_load_answer_code;
+  yamop table_try_answer_code;
+  yamop table_answer_resolution_code;
+  yamop table_completion_code;
+#endif /* TABLING */
+
+  /* support recorded_k  */
+  yamop *retry_recorded_k_code,
+    *retry_c_recordedp_code;
+
+  /* compiler flags */
   int   system_profiling;
   int   system_call_counting;
   int   system_pred_goal_expansion_all;
@@ -331,143 +420,139 @@ typedef struct various_codes {
   int   system_pred_goal_expansion_on;
   int   compiler_optimizer_on;
   int   compiler_compile_mode;
-  AtomHashEntry invisiblechain;
-  OPCODE dummycode[1];
-  UInt maxdepth, maxlist, maxwriteargs;
-  int update_mode;
-  Atom atprompt;
-  char prompt[MAX_PROMPT];
-  OPCODE undef_op; 
-  OPCODE index_op; 
-  OPCODE lockpred_op; 
-  OPCODE fail_op; 
-  yamop *retry_recorded_k_code,
-    *retry_c_recordedp_code;
+  int   compiler_profiling;
+  int   compiler_call_counting;
+  /********* whether we should try to compile array references ******************/
+  int   compiler_compile_arrays;
+
+  /* DBTerms: pre-compiled ground terms */
+#if defined(YAPOR) || defined(THREADS)
+  lockvar  dbterms_list_lock;        /* protect DBTermList */
+#endif
+  struct dbterm_list *dbterms_list;
+
+  /* JITI support */
+  yamop *expand_clauses_first, *expand_clauses_last;
+  UInt expand_clauses;
+#if defined(YAPOR) || defined(THREADS)
+  lockvar expand_clauses_list_lock;
+  lockvar op_list_lock;
+#endif
+  /* instrumentation */
+  UInt new_cps, live_cps, dirty_cps, freed_cps;
+  UInt expand_clauses_sz;
+
+  /* UDI support */
+  struct udi_info *udi_control_blocks;
+
+  /* data-base statistics */
   Int static_predicates_marked;
+
+  /* Internal Database */
+  Prop *IntKeys;
+  Prop *IntLUKeys;
+  Prop *IntBBKeys;
+
+  /* Internal Data-Base Control */
+  int update_mode;
+
+  /* Internal Database Statistics */
   UInt int_keys_size;
   UInt int_keys_timestamp;
-  Prop *IntKeys;
   UInt int_lu_keys_size;
   UInt int_lu_keys_timestamp;
-  Prop *IntLUKeys;
   UInt int_bb_keys_size;
-  Prop *IntBBKeys;
-  Int   yap_flags_field[NUMBER_OF_YAP_FLAGS];
-  char *char_conversion_table;
-  char *char_conversion_table2;
-#if defined(THREADS) || defined(YAPOR)
-  unsigned int n_of_threads;      /* number of threads and processes in system */
-  unsigned int n_of_threads_created;      /* number of threads created since start */
-  UInt  threads_total_time;      /* total run time for dead threads */
-#endif
-#ifdef LOW_LEVEL_TRACER
-  int yap_do_low_level_trace;
-#endif
-#if defined(YAPOR) || defined(THREADS)
-  lockvar  heap_used_lock;        /* protect HeapUsed */
-  lockvar  heap_top_lock;        /* protect HeapTop */
-  lockvar  dead_static_clauses_lock;        /* protect DeadStaticClauses */
-  lockvar  dead_mega_clauses_lock;        /* protect DeadMegaClauses */
-  lockvar  dead_static_indices_lock;        /* protect DeadStaticIndices */
-  lockvar  dbterms_list_lock;        /* protect DBTermList */
-  int      heap_top_owner;
-#ifdef LOW_LEVEL_TRACER
-  lockvar  low_level_trace_lock;
-#endif
-#endif
-  int    allow_local_expansion, allow_global_expansion, allow_trail_expansion;
-  unsigned int size_of_overflow;
-  struct mod_entry *current_modules;
-  struct operator_entry *op_list;
-  struct hold_entry *global_hold_entry;
+
+  /* nasty IDB stuff */
+  struct DB_STRUCT *db_erased_marker;
+  struct logic_upd_clause *logdb_erased_marker;
+
+  /* Dead clauses and IDB entries */
   struct static_clause *dead_static_clauses;
   struct static_mega_clause *dead_mega_clauses;
   struct static_index *dead_static_indices;
-  struct dbterm_list *dbterms_list;
-#include "tatoms.h"
-  Term
-#ifdef EUROTRA
-    term_dollar_u,
-#endif
-    term_prolog,
-    term_refound_var,
-    user_module,
-    idb_module,
-    attributes_module,
-    charsio_module,
-    terms_module,
-    system_module,
-    readutil_module,
-    hacks_module,
-    arg_module,
-    globals_module,
-    swi_module;
-  void *last_wtime;
-  struct pred_entry *pred_goal_expansion;
-  struct pred_entry *pred_meta_call;
-  struct pred_entry *pred_dollar_catch;
-  struct pred_entry *pred_recorded_with_key;
-  struct pred_entry *pred_log_upd_clause;
-  struct pred_entry *pred_log_upd_clause_erase;
-  struct pred_entry *pred_log_upd_clause0;
-  struct pred_entry *pred_static_clause;
-  struct pred_entry *pred_throw;
-  struct pred_entry *pred_handle_throw;
-  struct pred_entry *pred_is;
-  struct DB_STRUCT *db_erased_marker;
-  struct logic_upd_clause *logdb_erased_marker;
   struct logic_upd_clause *db_erased_list;
   struct logic_upd_index *db_erased_ilist;
-  UInt expand_clauses_sz;
+#if defined(YAPOR) || defined(THREADS)
+  lockvar  dead_static_clauses_lock;        /* protect DeadStaticClauses */
+  lockvar  dead_mega_clauses_lock;        /* protect DeadMegaClauses */
+  lockvar  dead_static_indices_lock;        /* protect DeadStaticIndices */
+#endif
+
+  /* execution counters */
+  struct reduction_counters call_counters;
+
+  /* number of attribute modules */
+  UInt atts_size;
+
+  /* stack overflow expansion/gc control */
+  int    allow_local_expansion, allow_global_expansion, allow_trail_expansion;
+  unsigned int size_of_overflow;
+  struct hold_entry *global_hold_entry;
+  UInt      agc_last_call; /* amount of space recovered in all garbage collections */
+  UInt      agc_threshold; /* amount of space recovered in all garbage collections */
+  Agc_hook  agc_hook;
+
+  /* YAP control flags */
+  Int   yap_flags_field[NUMBER_OF_YAP_FLAGS];
+
+  /* Operators */
+  struct operator_entry *op_list;
+
+  /* Input/Output */
+
+  /* stream array */
   struct stream_desc *yap_streams;
-  int    debugger_output_msg;
+
+  /* stream aliases */
   UInt n_of_file_aliases;
   UInt sz_of_file_aliases;
   struct AliasDescS * file_aliases;
+
+  /* prompting */
+  Atom atprompt;
+  char prompt[MAX_PROMPT];
+
+  /* readline */
+#if HAVE_LIBREADLINE
+  char *readline_buf, *readline_pos;
+#endif
+
+  /* ISO char conversion: I will make no comments */
+  char *char_conversion_table;
+  char *char_conversion_table2;
+
+  /* write depth */
+  UInt maxdepth, maxlist, maxwriteargs;
+
+  /* what to do when the parser gives an error: should be thread bound?  */
+  int parser_error_style;
+
+  /* library location.  */
+  char *yap_lib_dir;
+
+  /* time */
+  void *last_wtime;
+
+  /* profiling */
+  int    debugger_output_msg;
 #if LOW_PROF
   int   profiler_on;
   int   offline_profiler;
   FILE *f_prof, *f_preds;
   UInt  prof_preds;
 #endif /* LOW_PROF */
-  struct reduction_counters call_counters;
-  char *yap_lib_dir;
-  UInt      agc_last_call; /* amount of space recovered in all garbage collections */
-  UInt      agc_threshold; /* amount of space recovered in all garbage collections */
-  Agc_hook  agc_hook;
+
+  /* foreign code loaded */
   void *foreign_code_loaded;
   ADDR  foreign_code_base;
   ADDR  foreign_code_top;
   ADDR  foreign_code_max;
-  struct pred_entry **pred_hash;
-#if defined(YAPOR) || defined(THREADS)
-  rwlock_t pred_hash_rw_lock;
-#endif
-  UInt  preds_in_hash_table, pred_hash_table_size;
-  int parser_error_style;
-  int   compiler_profiling;
-  int   compiler_call_counting;
-  /********* whether we should try to compile array references ******************/
-  int   compiler_compile_arrays;
-  /*
-    PREG just before we enter $spy. We use that to find out the clause which
-    was calling the debugged goal.
-  */
-  yamop   *debugger_p_before_spy;
+
 #if defined(YAPOR) || defined(TABLING)
   struct global_data global;
   struct local_data remote[MAX_WORKERS];
 #endif /* YAPOR || TABLING */
-#ifdef THREADS
-  lockvar  thread_handles_lock;        /* protect ThreadManipulation */
-  struct thandle thread_handle[MAX_THREADS];
-#endif
-  UInt n_of_atoms;
-  UInt atom_hash_table_size;
-  UInt wide_atom_hash_table_size;
-  UInt n_of_wide_atoms;
-  AtomHashEntry *wide_hash_chain;
-  AtomHashEntry *hash_chain;
 } all_heap_codes;
 
 #ifdef USE_SYSTEM_MALLOC
