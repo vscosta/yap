@@ -267,150 +267,8 @@ typedef struct various_codes {
   AtomHashEntry *hash_chain;
 #include "tatoms.h"
 
-  /* Well-Known Terms, mostly modules */
-#ifdef EUROTRA
-  Term  term_dollar_u;
-#endif
-  Term term_prolog;
-  Term term_refound_var;
-  Term user_module;
-  Term idb_module;
-  Term attributes_module;
-  Term charsio_module;
-  Term terms_module;
-  Term system_module;
-  Term readutil_module;
-  Term hacks_module;
-  Term arg_module;
-  Term globals_module;
-  Term swi_module;
-
-  /* Module List */
-  struct mod_entry *current_modules;
-
-  /* The Predicate Hash Table: fast access to predicates. */
-  struct pred_entry **pred_hash;
-#if defined(YAPOR) || defined(THREADS)
-  rwlock_t pred_hash_rw_lock;
-#endif
-  UInt  preds_in_hash_table, pred_hash_table_size;
-
-  /* Well-Known Predicates */
-  struct pred_entry  *creep_code;
-  struct pred_entry  *undef_code;
-  struct pred_entry  *spy_code;
-#ifdef COROUTINING
-  int  num_of_atts;            /* max. number of attributes we have for a variable */
-  struct pred_entry  *wake_up_code;
-#endif
-  struct pred_entry *pred_goal_expansion;
-  struct pred_entry *pred_meta_call;
-  struct pred_entry *pred_dollar_catch;
-  struct pred_entry *pred_recorded_with_key;
-  struct pred_entry *pred_log_upd_clause;
-  struct pred_entry *pred_log_upd_clause_erase;
-  struct pred_entry *pred_log_upd_clause0;
-  struct pred_entry *pred_static_clause;
-  struct pred_entry *pred_throw;
-  struct pred_entry *pred_handle_throw;
-  struct pred_entry *pred_is;
-
-  /* execution info */
-  /* OPCODE TABLE */
-#if USE_THREADED_CODE
-  opentry *op_rtable;
-#endif
-
-  /* Anderson's JIT */
-  yap_exec_mode execution_mode;
-
-  /* low-level tracer */
-#ifdef LOW_LEVEL_TRACER
-  int yap_do_low_level_trace;
-#if defined(YAPOR) || defined(THREADS)
-  lockvar  low_level_trace_lock;
-#endif
-#endif
-
-  /* code management info */
-  UInt clause_space, index_space_Tree, index_space_EXT, index_space_SW;
-  UInt lu_clause_space, lu_index_space_Tree, lu_index_space_CP, lu_index_space_EXT, lu_index_space_SW;
-
-  /* popular opcodes */
-  OPCODE execute_cpred_op_code;
-  OPCODE expand_op_code;
-  OPCODE undef_op; 
-  OPCODE index_op; 
-  OPCODE lockpred_op; 
-  OPCODE fail_op; 
-
-  /* static code: may be shared by many predicate or may be used for meta-execution */
-  yamop comma_code[5];
-  yamop failcode[1];
-  OPCODE failcode_1;
-  OPCODE failcode_2;
-  OPCODE failcode_3;
-  OPCODE failcode_4;
-  OPCODE failcode_5;
-  OPCODE failcode_6;
-  OPCODE dummycode[1];
-  struct {
-    OPCODE op;
-#ifdef YAPOR
-    COUNT             ltt;
-    COUNT             cut;
-    COUNT             seq;
-#endif /* YAPOR */
-    COUNT s;
-    CELL *l2;
-    struct pred_entry *p;
-    struct pred_entry *p0;
-  } env_for_trustfail_code; /* sla */
-  yamop trustfailcode[1];
-  struct {
-    OPCODE op;
-#ifdef YAPOR
-    COUNT             ltt;
-    COUNT             cut;
-    COUNT             seq;
-#endif /* YAPOR */
-    COUNT s;
-    CELL *l2;
-    struct pred_entry *p;
-    struct pred_entry *p0;
-  } env_for_yes_code; /* sla */
-  struct yami yescode;
-  struct yami nocode;
-  struct yami rtrycode;
-  struct {
-    OPREG arity;
-    struct yami *clause;
-    Functor func;
-  } clausecode[1];
-  /*
-    PREG just before we enter $spy. We use that to find out the clause which
-    was calling the debugged goal.
-  */
-  yamop   *debugger_p_before_spy;
-#ifdef BEAM
-  yamop beam_retry_code;
-#endif /* BEAM */
-#ifdef YAPOR
-  int seq_def;
-  yamop getwork_code;
-  yamop getwork_seq_code;
-  yamop getwork_first_time_code;
-#endif /* YAPOR */
-#ifdef TABLING
-  yamop table_load_answer_code;
-  yamop table_try_answer_code;
-  yamop table_answer_resolution_code;
-  yamop table_completion_code;
-#endif /* TABLING */
-
-  /* support recorded_k  */
-  yamop *retry_recorded_k_code,
-    *retry_c_recordedp_code;
+  /* Terms multiply used */
+#include "hstruct.h"
 
   /* compiler flags */
   int   system_profiling;
@@ -486,7 +344,9 @@ typedef struct various_codes {
   UInt atts_size;
 
   /* stack overflow expansion/gc control */
-  int    allow_local_expansion, allow_global_expansion, allow_trail_expansion;
+  int    allow_local_expansion;
+  int    allow_global_expansion;
+  int    allow_trail_expansion;
   unsigned int size_of_overflow;
   struct hold_entry *global_hold_entry;
   UInt      agc_last_call; /* amount of space recovered in all garbage collections */
@@ -563,20 +423,7 @@ extern struct various_codes *Yap_heap_regs;
 
 #define  Yap_HoleSize            Yap_heap_regs->hole_size
 #define  Yap_av                  Yap_heap_regs->av_
-#if defined(LOW_LEVEL_TRACER)
-#define  Yap_do_low_level_trace  Yap_heap_regs->yap_do_low_level_trace
-#endif
-#define  Yap_ExecutionMode       Yap_heap_regs->execution_mode
 #define  Yap_AttsSize            Yap_heap_regs->atts_size
-#define  Yap_ClauseSpace         Yap_heap_regs->clause_space
-#define  Yap_IndexSpace_Tree     Yap_heap_regs->index_space_Tree
-#define  Yap_IndexSpace_EXT      Yap_heap_regs->index_space_EXT
-#define  Yap_IndexSpace_SW       Yap_heap_regs->index_space_SW
-#define  Yap_LUClauseSpace       Yap_heap_regs->lu_clause_space
-#define  Yap_LUIndexSpace_Tree   Yap_heap_regs->lu_index_space_Tree
-#define  Yap_LUIndexSpace_CP     Yap_heap_regs->lu_index_space_CP
-#define  Yap_LUIndexSpace_EXT    Yap_heap_regs->lu_index_space_EXT
-#define  Yap_LUIndexSpace_SW     Yap_heap_regs->lu_index_space_SW
 #define  Yap_MemoryHoles         Yap_heap_regs->memory_holes
 #define  Yap_NOfMemoryHoles      Yap_heap_regs->nof_memory_holes
 #if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
@@ -591,45 +438,17 @@ extern struct various_codes *Yap_heap_regs;
 #define  HeapMax                 Yap_heap_regs->heap_max
 #define  HeapTop                 Yap_heap_regs->heap_top
 #define  HeapLim                 Yap_heap_regs->heap_lim
-#ifdef YAPOR
-#define  SEQUENTIAL_IS_DEFAULT   Yap_heap_regs->seq_def
-#define  GETWORK		 (&(Yap_heap_regs->getwork_code))
-#define  GETWORK_SEQ             (&(Yap_heap_regs->getwork_seq_code))
-#define  GETWORK_FIRST_TIME      (&(Yap_heap_regs->getwork_first_time_code))
-#endif /* YAPOR */
-#ifdef BEAM
-#define  BEAM_RETRY_CODE         ((yamop *)&(Yap_heap_regs->beam_retry_code)) 
-#endif /* BEAM */
-#ifdef TABLING
-#define  LOAD_ANSWER              ((yamop *)&(Yap_heap_regs->table_load_answer_code))
-#define  TRY_ANSWER               ((yamop *)&(Yap_heap_regs->table_try_answer_code))
-#define  ANSWER_RESOLUTION        ((yamop *)&(Yap_heap_regs->table_answer_resolution_code))
-#define  COMPLETION               ((yamop *)&(Yap_heap_regs->table_completion_code))
-#endif /* TABLING */
-#define  EXECUTE_CPRED_OP_CODE    Yap_heap_regs->execute_cpred_op_code
-#define  EXPAND_OP_CODE           Yap_heap_regs->expand_op_code
 #define  ExpandClausesFirst       Yap_heap_regs->expand_clauses_first
 #define  ExpandClausesLast        Yap_heap_regs->expand_clauses_last
 #define  ExpandClausesListLock    Yap_heap_regs->expand_clauses_list_lock
 #define  Yap_ExpandClauses        Yap_heap_regs->expand_clauses
 #define  OpListLock               Yap_heap_regs->op_list_lock
-#define  COMMA_CODE               Yap_heap_regs->comma_code
-#define  FAILCODE                 Yap_heap_regs->failcode
-#define  TRUSTFAILCODE            Yap_heap_regs->trustfailcode
-#define  YESCODE                  (&Yap_heap_regs->yescode)
-#define  NOCODE                   (&Yap_heap_regs->nocode)
-#define  RTRYCODE                 (&Yap_heap_regs->rtrycode)
-#define  DUMMYCODE                Yap_heap_regs->dummycode
-#define  CLAUSECODE               Yap_heap_regs->clausecode
 #define  INVISIBLECHAIN           Yap_heap_regs->invisiblechain
 #define  max_depth                Yap_heap_regs->maxdepth
 #define  max_list                 Yap_heap_regs->maxlist
 #define  max_write_args           Yap_heap_regs->maxwriteargs
 #define  AtPrompt                 (&(Yap_heap_regs->atprompt    	         ))
 #define  Prompt                   Yap_heap_regs->prompt
-#if USE_THREADED_CODE
-#define  OP_RTABLE                Yap_heap_regs->op_rtable
-#endif
 #define  UdiControlBlocks	  Yap_heap_regs->udi_control_blocks
 #define  PROFILING                Yap_heap_regs->system_profiling
 #define  CALL_COUNTING            Yap_heap_regs->system_call_counting
@@ -637,15 +456,8 @@ extern struct various_codes *Yap_heap_regs;
 #define  PRED_GOAL_EXPANSION_FUNC Yap_heap_regs->system_pred_goal_expansion_func
 #define  PRED_GOAL_EXPANSION_ON   Yap_heap_regs->system_pred_goal_expansion_on
 #define  UPDATE_MODE              Yap_heap_regs->update_mode
-#define  RETRY_C_RECORDED_CODE    Yap_heap_regs->retry_recorded_code
-#define  RETRY_C_RECORDED_K_CODE  Yap_heap_regs->retry_recorded_k_code
-#define  RETRY_C_RECORDEDP_CODE   Yap_heap_regs->retry_c_recordedp_code
 #define  STATIC_PREDICATES_MARKED Yap_heap_regs->static_predicates_marked
 #define  yap_flags                Yap_heap_regs->yap_flags_field
-#define  UNDEF_OPCODE             Yap_heap_regs->undef_op
-#define  INDEX_OPCODE             Yap_heap_regs->index_op
-#define  LOCKPRED_OPCODE          Yap_heap_regs->lockpred_op
-#define  FAIL_OPCODE              Yap_heap_regs->fail_op
 #ifdef THREADS
 #define  ThreadHandlesLock	  Yap_heap_regs->thread_handles_lock
 #define  ThreadHandle		  Yap_heap_regs->thread_handle
@@ -666,35 +478,10 @@ extern struct various_codes *Yap_heap_regs;
 #define  INT_BB_KEYS              Yap_heap_regs->IntBBKeys
 #define  CharConversionTable      Yap_heap_regs->char_conversion_table
 #define  CharConversionTable2     Yap_heap_regs->char_conversion_table2
-#define  CurrentModules		  Yap_heap_regs->current_modules
 #define  OpList                   Yap_heap_regs->op_list
 #define  FloatFormat              Yap_heap_regs->float_format
-#define  TermDollarU              Yap_heap_regs->term_dollar_u
-#define  TermProlog               Yap_heap_regs->term_prolog
-#define  TermReFoundVar           Yap_heap_regs->term_refound_var
 #define  PROLOG_MODULE            0
-#define  USER_MODULE              Yap_heap_regs->user_module
-#define  IDB_MODULE               Yap_heap_regs->idb_module
-#define  ATTRIBUTES_MODULE        Yap_heap_regs->attributes_module
-#define  CHARSIO_MODULE           Yap_heap_regs->charsio_module
-#define  TERMS_MODULE             Yap_heap_regs->terms_module
-#define  SYSTEM_MODULE            Yap_heap_regs->system_module
-#define  READUTIL_MODULE          Yap_heap_regs->readutil_module
-#define  HACKS_MODULE             Yap_heap_regs->hacks_module
-#define  GLOBALS_MODULE           Yap_heap_regs->globals_module
-#define  ARG_MODULE	          Yap_heap_regs->arg_module
-#define  SWI_MODULE               Yap_heap_regs->swi_module
-#define  PredGoalExpansion        Yap_heap_regs->pred_goal_expansion
-#define  PredMetaCall             Yap_heap_regs->pred_meta_call
-#define  PredDollarCatch          Yap_heap_regs->pred_dollar_catch
-#define  PredRecordedWithKey      Yap_heap_regs->pred_recorded_with_key
-#define  PredLogUpdClause         Yap_heap_regs->pred_log_upd_clause
-#define  PredLogUpdClauseErase    Yap_heap_regs->pred_log_upd_clause_erase
-#define  PredLogUpdClause0        Yap_heap_regs->pred_log_upd_clause0
-#define  PredStaticClause         Yap_heap_regs->pred_static_clause
-#define  PredThrow                Yap_heap_regs->pred_throw
-#define  PredHandleThrow          Yap_heap_regs->pred_handle_throw
-#define  PredIs		          Yap_heap_regs->pred_is
+#include "dhstruct.h"
 #define  DBErasedMarker           Yap_heap_regs->db_erased_marker
 #define  LogDBErasedMarker        Yap_heap_regs->logdb_erased_marker
 #define  DBErasedList             Yap_heap_regs->db_erased_list
@@ -723,9 +510,6 @@ extern struct various_codes *Yap_heap_regs;
 #define  AGcThreshold             Yap_heap_regs->agc_threshold
 #define  AGCHook                  Yap_heap_regs->agc_hook
 #define  ParserErrorStyle         Yap_heap_regs->parser_error_style
-#ifdef  COROUTINING
-#define  WakeUpCode               Yap_heap_regs->wake_up_code
-#endif
 #if defined(YAPOR) || defined(THREADS)
 #define  SignalLock               Yap_heap_regs->wl[worker_id].signal_lock
 #define  WPP                      Yap_heap_regs->wl[worker_id].wpp
@@ -832,17 +616,14 @@ extern struct various_codes *Yap_heap_regs;
 #define  compile_arrays           Yap_heap_regs->compiler_compile_arrays
 #define  optimizer_on             Yap_heap_regs->compiler_optimizer_on
 #define  compile_mode             Yap_heap_regs->compiler_compile_mode
-#define  P_before_spy             Yap_heap_regs->debugger_p_before_spy
 #define  ForeignCodeBase          Yap_heap_regs->foreign_code_base;
 #define  ForeignCodeTop           Yap_heap_regs->foreign_code_top;
 #define  ForeignCodeMax           Yap_heap_regs->foreign_code_max;
 #define  ForeignCodeLoaded        Yap_heap_regs->foreign_code_loaded
-#define  PredHash                 Yap_heap_regs->pred_hash
-#define  PredHashRWLock           Yap_heap_regs->pred_hash_rw_lock
-#define  PredsInHashTable         Yap_heap_regs->preds_in_hash_table
-#define  PredHashTableSize        Yap_heap_regs->pred_hash_table_size
+
 #define  PredHashInitialSize      1039L
 #define  PredHashIncrement        7919L
+
 #define  ParserErrorStyle         Yap_heap_regs->parser_error_style
 #define  GlobalHoldEntry          Yap_heap_regs->global_hold_entry
 #define  DeadStaticClauses        Yap_heap_regs->dead_static_clauses
@@ -869,9 +650,6 @@ extern struct various_codes *Yap_heap_regs;
 #define  DeadStaticIndicesLock    Yap_heap_regs->dead_static_indices_lock
 #define  ModulesLock		  Yap_heap_regs->modules_lock
 #endif
-#define  CreepCode                Yap_heap_regs->creep_code
-#define  UndefCode                Yap_heap_regs->undef_code
-#define  SpyCode                  Yap_heap_regs->spy_code
 #ifdef DEBUG
 #define  Yap_NewCps		  Yap_heap_regs->new_cps
 #define  Yap_LiveCps		  Yap_heap_regs->live_cps
@@ -887,10 +665,6 @@ extern struct various_codes *Yap_heap_regs;
 #define UPDATE_MODE_LOGICAL            1
 #define UPDATE_MODE_LOGICAL_ASSERT     2
 
-
-#ifdef COROUTINING
-#define  NUM_OF_ATTS              Yap_heap_regs->num_of_atts
-#endif
 
 /* initially allow for files with up to 1024 predicates. This number
    is extended whenever needed */

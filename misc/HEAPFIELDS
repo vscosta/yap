@@ -1,0 +1,157 @@
+//
+// File defining fields in the Yap_heap_codes global structure
+//
+// these fields used to spread all over the place, because they must be used in 4 ways:
+//  - they must be defined somewhere
+//  - they have an #ifdef to get a shorter name
+//  - they must be initialised somewhere
+//  - they must be restorable and collectable (from the atom gc).
+//
+//
+// The defs include 4+ components:
+//   Type
+//   name in structured
+//   global name
+//   init code and restore code (optional)
+//
+//   
+//
+// MkAT (MkAtomTerm) cvts from a predefined atom to a term
+// MkPred constructs a pred_entry
+// MkOp gets an opcode
+// void does nothing
+// =VALUE inits as VALUE
+// Init... sets up call to InitFunc
+// Restore... sets up call to RestoreFunc
+//
+#ifdef EUROTRA
+Term		term_dollar_u		TermDollarU		MkAT AtomDollarU
+#endif
+Term		term_prolog		TermProlog		MkAT AtomProlog
+Term		term_refound_var	TermReFoundVar		MkAT AtomRefoundVar
+Term		user_module		USER_MODULE		MkAT AtomUser
+Term		idb_module		IDB_MODULE		MkAT AtomIDB
+Term		attributes_module	ATTRIBUTES_MODULE	MkAT AtomAttributes
+Term		charsio_module		CHARSIO_MODULE		MkAT AtomCharsio
+Term		terms_module		TERMS_MODULE		MkAT AtomTerms
+Term		system_module		SYSTEM_MODULE		MkAT AtomSystem
+Term		readutil_module		READUTIL_MODULE		MkAT AtomReadutil
+Term		hacks_module		HACKS_MODULE		MkAT AtomYapHacks
+Term		arg_module		ARG_MODULE		MkAT AtomArg
+Term		globals_module		GLOBALS_MODULE		MkAT AtomNb
+Term		swi_module		SWI_MODULE		MkAT AtomSwi
+
+//
+// Module list
+//
+struct mod_entry *current_modules	CurrentModules		=NULL	ModEntryPtrAdjust
+// make sure we have the modules set at this point.
+// don't actually want to define a field
+void		void			void			Yap_InitModules()  void
+
+/* execution info */
+/* OPCODE TABLE */
+#if USE_THREADED_CODE
+opentry		*op_rtable		OP_RTABLE		void	OpRTableAdjust
+#endif
+
+/* Anderson's JIT */
+yap_exec_mode	execution_mode		Yap_ExecutionMode	=INTERPRETED void
+
+/* popular opcodes */
+OPCODE		execute_cpred_op_code	EXECUTE_CPRED_OP_CODE	MkOp _execute_cpred
+OPCODE		expand_op_code		EXPAND_OP_CODE		MkOp _expand_index
+OPCODE		fail_op			FAIL_OPCODE		MkOp _op_fail
+OPCODE		index_op		INDEX_OPCODE		MkOp _index_pred
+OPCODE		lockpred_op		LOCKPRED_OPCODE		MkOp _lock_pred
+OPCODE		undef_op		UNDEF_OPCODE		MkOp _undef_p
+
+/*  The Predicate Hash Table: fast access to predicates. */
+struct pred_entry **pred_hash		PredHash		InitPredHash() RestorePredHash()
+#if defined(YAPOR) || defined(THREADS)
+rwlock_t	pred_hash_rw_lock	PredHashRWLock		void
+#endif
+UInt		preds_in_hash_table	PredsInHashTable	void
+UInt		pred_hash_table_size	PredHashTableSize	void
+
+
+/* Well-Known Predicates */
+struct pred_entry *creep_code		CreepCode		MkPred AtomCreep 1 PROLOG_MODULE
+struct pred_entry *undef_code		UndefCode		MkPred AtomUndefp 1 PROLOG_MODULE
+struct pred_entry *spy_code		SpyCode			MkPred AtomSpy 1 PROLOG_MODULE
+struct pred_entry *pred_fail		PredFail		MkPred AtomFail 0 PROLOG_MODULE
+struct pred_entry *pred_true		PredTrue		MkPred AtomTrue 0 PROLOG_MODULE
+#ifdef COROUTINING
+int		num_of_atts		NUM_OF_ATTS		=1	void
+struct pred_entry  *wake_up_code	WakeUpCode		MkPred AtomWakeUpGoal 2 PROLOG_MODULE
+#endif
+struct pred_entry *pred_goal_expansion	PredGoalExpansion	MkPred FunctorGoalExpansion USER_MODULE
+struct pred_entry *pred_meta_call	PredMetaCall		MkPred FunctorMetaCall PROLOG_MODULE
+struct pred_entry *pred_dollar_catch	PredDollarCatch         MkPred FunctorCatch PROLOG_MODULE
+struct pred_entry *pred_recorded_with_key PredRecordedWithKey	MkPred FunctorRecordedWithKey PROLOG_MODULE
+struct pred_entry *pred_log_upd_clause	PredLogUpdClause	MkPred FunctorDoLogUpdClause PROLOG_MODULE
+struct pred_entry *pred_log_upd_clause_erase PredLogUpdClauseErase MkPred FunctorDoLogUpdClauseErase PROLOG_MODULE
+struct pred_entry *pred_log_upd_clause0	PredLogUpdClause0	MkPred FunctorDoLogUpdClause PROLOG_MODULE
+struct pred_entry *pred_static_clause	PredStaticClause	MkPred FunctorDoStaticClause PROLOG_MODULE
+struct pred_entry *pred_throw		PredThrow		MkPred FunctorThrow PROLOG_MODULE
+struct pred_entry *pred_handle_throw	PredHandleThrow		MkPred FunctorHandleThrow PROLOG_MODULE
+struct pred_entry *pred_is		PredIs			MkPred FunctorIs PROLOG_MODULE
+
+/* low-level tracer */
+#ifdef LOW_LEVEL_TRACER
+int		yap_do_low_level_trace	Yap_do_low_level_trace	=FALSE void
+#if defined(YAPOR) || defined(THREADS)
+lockvar		low_level_trace_lock	Yap_low_level_trace_lock MkLock
+#endif
+#endif
+
+/* code management info */
+UInt		clause_space		Yap_ClauseSpace		=0 void
+UInt		index_space_Tree	Yap_IndexSpace_Tree	=0 void
+UInt		index_space_EXT		Yap_IndexSpace_EXT	=0 void
+UInt		index_space_SW		Yap_IndexSpace_SW	=0 void
+UInt		lu_clause_space		Yap_LUClauseSpace	=0 void
+UInt		lu_index_space_Tree	Yap_LUIndexSpace_Tree	=0 void
+UInt		lu_index_space_CP	Yap_LUIndexSpace_CP	=0 void
+UInt		lu_index_space_EXT	Yap_LUIndexSpace_EXT	=0 void
+UInt		lu_index_space_SW	Yap_LUIndexSpace_SW	=0 void
+
+/* static code: may be shared by many predicate or may be used for meta-execution */
+yamop		comma_code[5]		COMMA_CODE		void void
+yamop		dummycode[1]		DUMMYCODE		MkInstE _op_fail
+yamop		failcode[1]		FAILCODE		MkInstE _op_fail
+yamop		nocode[1]		NOCODE			MkInstE _Nstop
+
+yamop		env_for_trustfail[2]	ENV_FOR_TRUSTFAIL	InitEnvInst(ENV_FOR_TRUSTFAIL,&TRUSTFAILCODE,_trust_fail,PredFail) RestoreEnvInst(ENV_FOR_TRUSTFAIL,&TRUSTFAILCODE,_trust_fail,PredFail)
+yamop		*trustfailcode		TRUSTFAILCODE		void
+yamop		env_for_yescode[2]	ENV_FOR_YESCODE		InitEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail) RestoreEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail)
+yamop		*yescode		YESCODE			void
+
+yamop		rtrycode[1]		RTRYCODE		InitOtaplInst(RTRYCODE,_retry_and_mark) RestoreOtaplInst(RTRYCODE,_retry_and_mark)
+
+#ifdef BEAM
+yamop		beam_retry_code[1]	BEAM_RETRY_CODE		MkInstE _beam_retry_code
+#endif /* BEAM */
+#ifdef YAPOR
+int		seq_def			SEQUENTIAL_IS_DEFAULT	=TRUE void
+yamop		getwork_code[1]		GETWORK			InitOtaplInst(GETWORK,_getwork) RestoreOtaplInst(GETWORK,_getwork)
+yamop		getwork_seq_code[1]	GETWORK_SEQ		InitOtaplInst(GETWORK_SEQ,_getwork_seq) RestoreOtaplInst(GETWORK_SEQ,_getwork_seq)
+yamop		getwork_first_time[1]	GETWORK_FIRST_TIME	MkInstE _getwork_first_time
+#endif /* YAPOR */
+#ifdef TABLING
+yamop		table_load_answer_code[1] LOAD_ANSWER		InitOtaplInst(LOAD_ANSWER,_table_load_answer) RestoreOtaplInst(LOAD_ANSWER,_table_load_answer)
+yamop		table_try_answer_code[1] TRY_ANSWER		InitOtaplInst(TRY_ANSWER,_table_try_answer) RestoreOtaplInst(TRY_ANSWER,_table_try_answer)
+yamop		table_answer_resolution_code[1]	ANSWER_RESOLUTION InitOtaplInst(ANSWER_RESOLUTION,_answer_resolution) RestoreOtaplInst(ANSWER_RESOLUTION,_answer_resolution_seq)
+yamop		table_completion_code[1]	COMPLETION	InitOtaplInst(COMPLETION,_table_completion) RestoreOtaplInst(COMPLETION,_table_completion)
+#endif /* TABLING */
+
+/*  */
+/*    PREG just before we enter $spy. We use that to find out the clause which  */
+/*    was calling the debugged goal.  */
+/*  */
+yamop		*debugger_p_before_spy	P_before_spy		=NULL PtoOpAdjust 
+
+/* support recorded_k  */
+yamop		*retry_recordedp_code	RETRY_C_RECORDEDP_CODE	=NULL PtoOpAdjust 
+yamop		*retry_recorded_k_code	RETRY_C_RECORDED_K_CODE =NULL PtoOpAdjust 
+

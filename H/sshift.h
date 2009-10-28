@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog   %W% %G%
@@ -21,6 +14,9 @@
 * comments:	stack shifter functionality for YAP			 *
 *									 *
 *************************************************************************/
+
+#define REINIT_LOCK(P) INIT_LOCK(P) 
+#define REINIT_RWLOCK(P) INIT_RWLOCK(P) 
 
 
 #define CharP(ptr)	((char *) (ptr))
@@ -357,6 +353,14 @@ PredEntryAdjust (PredEntry *p)
   return (PredEntry *) ((p == NULL ? (p) : (PredEntry *) (CharP (p) + HDiff)));
 }
 
+inline EXTERN struct mod_entry *ModEntryPtrAdjust (struct mod_entry *);
+
+inline EXTERN struct mod_entry *
+ModEntryPtrAdjust (struct mod_entry *p)
+{
+  return (struct mod_entry *) ((p == NULL ? (p) : (struct mod_entry *) (CharP (p) + HDiff)));
+}
+
 inline EXTERN COUNT ConstantAdjust (COUNT);
 
 inline EXTERN COUNT
@@ -638,12 +642,30 @@ PtoAtomHashEntryAdjust (AtomHashEntry * ptr)
 
 
 
+inline EXTERN opentry *OpRTableAdjust (opentry *);
+
+inline EXTERN opentry *
+OpRTableAdjust (opentry * ptr)
+{
+  return (opentry *) (((opentry *) (CharP (ptr) + HDiff)));
+}
+
 inline EXTERN PredEntry *PtoPredAdjust (PredEntry *);
 
 inline EXTERN PredEntry *
 PtoPredAdjust (PredEntry * ptr)
 {
   return (PredEntry *) (((PredEntry *) (CharP (ptr) + HDiff)));
+}
+
+inline EXTERN PredEntry **PtoPtoPredAdjust (PredEntry **);
+
+inline EXTERN PredEntry **
+PtoPtoPredAdjust (PredEntry **ptr)
+{
+  if (!ptr)
+    return NULL;
+  return (PredEntry **) (((PredEntry **) (CharP (ptr) + HDiff)));
 }
 
 

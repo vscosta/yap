@@ -1,0 +1,178 @@
+
+:- use_module(library(lineutils),
+	[file_filter/3,
+	 split/3,
+	 glue/3]).
+
+:- use_module(library(lists),
+	[append/2,
+	 append/3]).
+
+:- initialization(main).
+
+:- yap_flag(write_strings,on).
+
+:- style_check(all).
+
+main :-
+	file_filter('misc/HEAPFIELDS','H/hstruct.h',gen_struct),
+	file_filter('misc/HEAPFIELDS','H/dhstruct.h',gen_dstruct),
+	file_filter('misc/HEAPFIELDS','H/rhstruct.h',gen_hstruct),
+	file_filter('misc/HEAPFIELDS','H/ihstruct.h',gen_init).
+
+
+/* define the field */
+gen_struct(Inp,"") :-
+	Inp = [0'/,0'/|_], !.
+gen_struct(Inp,"") :-
+	Inp = [0'/,0'*|_], !.
+gen_struct(Inp, Out) :-
+	Inp = [0'#|_], !, Out = Inp. % '
+gen_struct(Inp,Out) :-
+	split(Inp,"	 ",["struct",Type, Field|_]), !,
+	append(["  struct ",Type,"  ",Field,";"], Out).
+gen_struct(Inp,"") :-
+	split(Inp,"	 ",["void","void"|_]), !.
+gen_struct(Inp,Out) :-
+	split(Inp,"	 ",[Type, Field|_]), !,
+	append(["  ",Type,"  ",Field,";"], Out).
+gen_struct(Inp,_) :-
+	split(Inp,"	 ",[_, _, _| _]),
+	format(user_error,"OOPS: could not gen_struct for ~s~n",[Inp]).
+	
+gen_dstruct(Inp,"") :-
+	Inp = [0'/,0'/|_], !.
+gen_dstruct(Inp,"") :-
+	Inp = [0'/,0'*|_], !.
+gen_dstruct(Inp, Out) :-
+	Inp = [0'#|_], !, Out = Inp. % '
+gen_dstruct(Inp,"") :-
+	split(Inp,"	 ",["void","void"|_]), !.
+gen_dstruct(Inp,Out) :-
+	split(Inp,"	 ",["struct"|Inp2]), !,
+	glue(Inp2, " ", Inp3),
+	gen_dstruct(Inp3, Out).
+gen_dstruct(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, Name|_]), !,
+	cut_c_stuff(Field, RField),
+	append(["#define ",Name," Yap_heap_regs->",RField], Out).
+gen_dstruct(Inp,_) :-
+	split(Inp,"	 ",[_, _, _| _]),
+	format(user_error,"OOPS: could not gen_dstruct for ~s~n",[Inp]).
+
+% handle *field[4]
+cut_c_stuff([0'*|Name], RName) :- !, % 'cut *
+	cut_c_stuff(Name, RName).
+cut_c_stuff(Name, RName) :-
+	cut_mat(Name, RName).
+
+cut_mat([], []).
+cut_mat([0'[|_], []) :- !. %' 
+cut_mat(H.Name, H.RName) :- 
+	cut_mat(Name, RName).
+
+gen_hstruct(Inp,"") :-
+	Inp = [0'/,0'/|_], !.
+gen_hstruct(Inp,"") :-
+	Inp = [0'/,0'*|_], !.
+gen_hstruct(Inp, Out) :-
+	Inp = [0'#|_], !, Out = Inp. % '
+gen_hstruct(Inp,Out) :-
+	split(Inp,"	 ",["struct"|Inp2]), !,
+	glue(Inp2, " ", Inp3),
+	gen_hstruct(Inp3,Out).
+gen_hstruct(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, "MkAT", _]), !,
+	append(["  Yap_heap_regs->",Field," = AtomTermAdjust(Yap_heap_regs->",Field,");"], Out).
+gen_hstruct(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, "MkPred"| _]), !,
+	cut_c_stuff(Field, RField),
+	append(["  Yap_heap_regs->",RField," = PtoPredAdjust(Yap_heap_regs->",RField,");"], Out).
+gen_hstruct(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, "MkOp", Name]), !,
+	append(["  Yap_heap_regs->",Field," = Yap_opcode(",Name,");"], Out).
+gen_hstruct(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, "MkLock"]), !,
+	append(["  REINIT_LOCK(Yap_heap_regs->",Field,");"], Out).
+gen_hstruct(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, "MkRWLock"]), !,
+	append(["  REINIT_RWLOCK(Yap_heap_regs->",Field,");"], Out).
+gen_hstruct(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, "MkInstE",OP]), !,
+	cut_c_stuff(Field, RField),
+	append(["  Yap_heap_regs->",RField,"->opc = Yap_opcode(",OP,");"], Out).
+gen_hstruct(Inp,"") :-
+	split(Inp,"	 ",[_, _, _, "void"]), !.
+gen_hstruct(Inp,"") :-
+	split(Inp,"	 ",[_, _, _, _, "void"]), !.
+gen_hstruct(Inp,Restore) :-
+	split(Inp,"	 ",[_, _, _, _, Restore0]),
+	append("Restore",_,Restore0), !,
+	append(["  ",Restore0,";"],Restore). %'
+gen_hstruct(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, _, Adjust]),
+	append(Adjust,"Adjust",_), !,
+	cut_c_stuff(Field, RField),
+	append(["  Yap_heap_regs->",RField," = ",Adjust,"(Yap_heap_regs->",RField,");"], Out).
+gen_hstruct(Inp,_) :-
+	split(Inp,"	 ",[_, _, _| _]),
+	format(user_error,"OOPS: could not gen_hstruct for ~s~n",[Inp]).
+
+gen_init(Inp,"") :-
+	Inp = [0'/,0'*|_], !.
+gen_init(Inp,"") :-
+	Inp = [0'/,0'/|_], !.
+gen_init(Inp, Out) :-
+	Inp = [0'#|_], !, Out = Inp. % '
+gen_init(Inp,Out) :-
+	split(Inp,"	 ",["struct"|Inp2]), !,
+	glue(Inp2, " ", Inp3),
+	gen_init(Inp3, Out).
+gen_init(Inp,"") :-
+	split(Inp,"	 ",[_, _, _, "void"|_]), !.
+gen_init(Inp,Init) :-
+	split(Inp,"	 ",[_, _, _, Init0| _]),
+	append("Init",_,Init0), !,
+	append(["  ",Init0,";"],Init).
+gen_init(Inp,Init) :-
+	split(Inp,"	 ",[_, _, _, Init0| _]),
+	append("Yap_Init",_,Init0), !,
+	append(["  ",Init0,";"],Init).
+gen_init(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, "MkAT", AtomName]), !,
+	cut_c_stuff(Field, RField),
+	append(["  Yap_heap_regs->",RField," = MkAtomTerm(",AtomName,");"], Out).
+gen_init(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, "MkOp", Name]), !,
+	append(["  Yap_heap_regs->",Field," = Yap_opcode(",Name,");"], Out).
+gen_init(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, "MkLock"]), !,
+	append(["  INIT_LOCK(Yap_heap_regs->",Field,");"], Out).
+gen_init(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, "MkRWLock"]), !,
+	append(["  INIT_RWLOCK(Yap_heap_regs->",Field,");"], Out).
+gen_init(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, "MkInstE",OP]), !,
+	cut_c_stuff(Field, RField),
+	append(["  Yap_heap_regs->",RField,"->opc = Yap_opcode(",OP,");"], Out).
+gen_init(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, "MkPred", Atom, "0", Module]), !,
+	cut_c_stuff(Field, RField),
+	append(["  Yap_heap_regs->",RField," = RepPredProp(PredPropByAtom(",Atom,",",Module,"));"], Out).
+gen_init(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, "MkPred", Atom, Arity, Module]), !,
+	cut_c_stuff(Field, RField),
+	append(["  Yap_heap_regs->",RField," = RepPredProp(PredPropByFunc(Yap_MkFunctor(",Atom,",",Arity,"),",Module,"));"], Out).
+gen_init(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, "MkPred", Fun, Module]), !,
+	cut_c_stuff(Field, RField),
+	append(["  Yap_heap_regs->",RField," = RepPredProp(PredPropByFunc(",Fun,",",Module,"));"], Out).
+gen_init(Inp,Out) :-
+	split(Inp,"	 ",[_, Field, _, F0|_]),
+	append("=",F,F0), !,
+	cut_c_stuff(Field, RField),
+	append(["  Yap_heap_regs->",RField," = ",F,";"], Out).
+gen_init(Inp,_) :-
+	split(Inp,"	 ",[_, _, _| _]),
+	format(user_error,"OOPS: could not gen_init for ~s~n",[Inp]).
+

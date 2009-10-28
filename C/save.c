@@ -1285,7 +1285,7 @@ RestoreHashPreds(void)
   int malloced = FALSE;
   PredEntry **np;
   UInt i;
-  PredEntry **oldp = PredHash = (PredEntry **)AddrAdjust((ADDR)PredHash);
+  PredEntry **oldp = PredHash;
 
   np = (PredEntry **) Yap_AllocAtomSpace(sizeof(PredEntry **)*size);
   if (!np) {
