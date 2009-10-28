@@ -191,6 +191,28 @@ UInt		freed_cps		Yap_FreedCps		=0L void
 UInt		expand_clauses_sz	Yap_expand_clauses_sz	=0L void
 #endif
 
+/* UDI support */
+struct udi_info *udi_control_blocks	UdiControlBlocks	=NULL RestoreUdiControlBlocks()
+
+/* data-base statistics */
+/* system boots in compile mode */
+Int		static_predicates_marked STATIC_PREDICATES_MARKED   =FALSE void
 
 
+/* Internal Database */
+Prop		*IntKeys		INT_KEYS		=NULL RestoreIntKeys()
+Prop		*IntLUKeys		INT_LU_KEYS		=NULL RestoreIntLUKeys()
+Prop		*IntBBKeys		INT_BB_KEYS		=NULL RestoreIntBBKeys()
+
+/* Internal Database Statistics */
+UInt		int_keys_size		INT_KEYS_SIZE		=INT_KEYS_DEFAULT_SIZE void
+UInt		int_keys_timestamp	INT_KEYS_TIMESTAMP	=0L void
+UInt		int_bb_keys_size	INT_BB_KEYS_SIZE	=INT_KEYS_DEFAULT_SIZE void
+
+/* Internal Data-Base Control */
+int		update_mode		UPDATE_MODE	        =UPDATE_MODE_LOGICAL void
+
+/* nasty IDB stuff */
+struct DB_STRUCT *db_erased_marker	DBErasedMarker		InitDBErasedMarker() RestoreDBErasedMarker() 
+struct logic_upd_clause *logdb_erased_marker LogDBErasedMarker	InitLogDBErasedMarker() RestoreLogDBErasedMarker() 
 

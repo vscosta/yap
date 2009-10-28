@@ -265,35 +265,11 @@ typedef struct various_codes {
   AtomHashEntry invisiblechain;
   AtomHashEntry *wide_hash_chain;
   AtomHashEntry *hash_chain;
+
 #include "tatoms.h"
 
   /* Terms multiply used */
 #include "hstruct.h"
-
-  /* UDI support */
-  struct udi_info *udi_control_blocks;
-
-  /* data-base statistics */
-  Int static_predicates_marked;
-
-  /* Internal Database */
-  Prop *IntKeys;
-  Prop *IntLUKeys;
-  Prop *IntBBKeys;
-
-  /* Internal Data-Base Control */
-  int update_mode;
-
-  /* Internal Database Statistics */
-  UInt int_keys_size;
-  UInt int_keys_timestamp;
-  UInt int_lu_keys_size;
-  UInt int_lu_keys_timestamp;
-  UInt int_bb_keys_size;
-
-  /* nasty IDB stuff */
-  struct DB_STRUCT *db_erased_marker;
-  struct logic_upd_clause *logdb_erased_marker;
 
   /* Dead clauses and IDB entries */
   struct static_clause *dead_static_clauses;
@@ -414,9 +390,6 @@ extern struct various_codes *Yap_heap_regs;
 #define  max_write_args           Yap_heap_regs->maxwriteargs
 #define  AtPrompt                 (&(Yap_heap_regs->atprompt    	         ))
 #define  Prompt                   Yap_heap_regs->prompt
-#define  UdiControlBlocks	  Yap_heap_regs->udi_control_blocks
-#define  UPDATE_MODE              Yap_heap_regs->update_mode
-#define  STATIC_PREDICATES_MARKED Yap_heap_regs->static_predicates_marked
 #define  yap_flags                Yap_heap_regs->yap_flags_field
 #ifdef THREADS
 #define  ThreadHandlesLock	  Yap_heap_regs->thread_handles_lock
@@ -428,22 +401,12 @@ extern struct various_codes *Yap_heap_regs;
 #define  NOfWideAtoms             Yap_heap_regs->n_of_wide_atoms
 #define  WideAtomHashTableSize    Yap_heap_regs->wide_atom_hash_table_size
 #define  WideHashChain            Yap_heap_regs->wide_hash_chain
-#define  INT_KEYS_SIZE            Yap_heap_regs->int_keys_size
-#define  INT_KEYS_TIMESTAMP       Yap_heap_regs->int_keys_timestamp
-#define  INT_KEYS                 Yap_heap_regs->IntKeys
-#define  INT_LU_KEYS_SIZE         Yap_heap_regs->int_lu_keys_size
-#define  INT_LU_KEYS_TIMESTAMP    Yap_heap_regs->int_lu_keys_timestamp
-#define  INT_LU_KEYS              Yap_heap_regs->IntLUKeys
-#define  INT_BB_KEYS_SIZE         Yap_heap_regs->int_bb_keys_size
-#define  INT_BB_KEYS              Yap_heap_regs->IntBBKeys
 #define  CharConversionTable      Yap_heap_regs->char_conversion_table
 #define  CharConversionTable2     Yap_heap_regs->char_conversion_table2
 #define  OpList                   Yap_heap_regs->op_list
 #define  FloatFormat              Yap_heap_regs->float_format
 #define  PROLOG_MODULE            0
 #include "dhstruct.h"
-#define  DBErasedMarker           Yap_heap_regs->db_erased_marker
-#define  LogDBErasedMarker        Yap_heap_regs->logdb_erased_marker
 #define  DBErasedList             Yap_heap_regs->db_erased_list
 #define  DBErasedIList            Yap_heap_regs->db_erased_ilist
 #define  Stream		          Yap_heap_regs->yap_streams

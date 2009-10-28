@@ -172,3 +172,21 @@
 #define Yap_FreedCps Yap_heap_regs->freed_cps
 #define Yap_expand_clauses_sz Yap_heap_regs->expand_clauses_sz
 #endif
+
+#define UdiControlBlocks Yap_heap_regs->udi_control_blocks
+
+
+#define STATIC_PREDICATES_MARKED Yap_heap_regs->static_predicates_marked
+
+#define INT_KEYS Yap_heap_regs->IntKeys
+#define INT_LU_KEYS Yap_heap_regs->IntLUKeys
+#define INT_BB_KEYS Yap_heap_regs->IntBBKeys
+
+#define INT_KEYS_SIZE Yap_heap_regs->int_keys_size
+#define INT_KEYS_TIMESTAMP Yap_heap_regs->int_keys_timestamp
+#define INT_BB_KEYS_SIZE Yap_heap_regs->int_bb_keys_size
+
+#define UPDATE_MODE Yap_heap_regs->update_mode
+
+#define DBErasedMarker Yap_heap_regs->db_erased_marker
+#define LogDBErasedMarker Yap_heap_regs->logdb_erased_marker

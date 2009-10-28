@@ -669,6 +669,105 @@ RestoreExpandList(void)
   }
 }
 
+static void
+RestoreUdiControlBlocks(void)
+{
+  if (Yap_heap_regs->udi_control_blocks) {
+      Yap_Error(SYSTEM_ERROR, TermNil,
+	    "YAP cannot restore UDI entries!!\n");
+  }
+}
+
+static void
+RestoreIntKeys(void)
+{
+  if (Yap_heap_regs->IntKeys != NULL) {
+    Yap_heap_regs->IntKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntKeys));
+    {
+      UInt i;
+      for (i = 0; i < Yap_heap_regs->int_keys_size; i++) {
+	if (Yap_heap_regs->IntKeys[i] != NIL) {
+	  Prop p0 = Yap_heap_regs->IntKeys[i] = PropAdjust(Yap_heap_regs->IntKeys[i]);
+	  RestoreEntries(RepProp(p0), TRUE);
+	}
+      }
+    }
+  }
+}
+
+static void
+RestoreIntLUKeys(void)
+{
+  if (Yap_heap_regs->IntLUKeys != NULL) {
+    Yap_heap_regs->IntLUKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntLUKeys));
+    {
+      Int i;
+      for (i = 0; i < INT_KEYS_SIZE; i++) {
+	Prop p0 = INT_LU_KEYS[i];
+	if (p0) {
+	  p0 = PropAdjust(p0);
+	  INT_LU_KEYS[i] = p0;
+	  while (p0) {
+	    PredEntry *pe = RepPredProp(p0);
+	    pe->NextOfPE =
+	      PropAdjust(pe->NextOfPE);
+	    CleanCode(pe);
+	    p0 = RepProp(pe->NextOfPE);
+	  }
+	}
+      }
+    }
+  }
+}
+
+static void
+RestoreIntBBKeys(void)
+{
+  if (Yap_heap_regs->IntBBKeys != NULL) {
+    Yap_heap_regs->IntBBKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntBBKeys));
+    {
+      UInt i;
+      for (i = 0; i < Yap_heap_regs->int_bb_keys_size; i++) {
+	if (Yap_heap_regs->IntBBKeys[i] != NIL) {
+	  Prop p0 = Yap_heap_regs->IntBBKeys[i] = PropAdjust(Yap_heap_regs->IntBBKeys[i]);
+	  RestoreEntries(RepProp(p0), TRUE);
+	}
+      }
+    }
+  }
+}
+
+static void 
+RestoreDBErasedMarker(void)
+{
+  Yap_heap_regs->db_erased_marker =
+    DBRefAdjust(Yap_heap_regs->db_erased_marker);
+  Yap_heap_regs->db_erased_marker->id = FunctorDBRef;
+  Yap_heap_regs->db_erased_marker->Flags = ErasedMask;
+  Yap_heap_regs->db_erased_marker->Code = NULL;
+  Yap_heap_regs->db_erased_marker->DBT.DBRefs = NULL;
+  Yap_heap_regs->db_erased_marker->Parent = NULL;
+}
+
+static void 
+RestoreLogDBErasedMarker(void)
+{
+  Yap_heap_regs->logdb_erased_marker =
+    PtoLUCAdjust(Yap_heap_regs->logdb_erased_marker);
+  Yap_heap_regs->logdb_erased_marker->Id = FunctorDBRef;
+  Yap_heap_regs->logdb_erased_marker->ClFlags = ErasedMask|LogUpdMask;
+  Yap_heap_regs->logdb_erased_marker->ClSource = NULL;
+  Yap_heap_regs->logdb_erased_marker->ClRefCount = 0;
+  Yap_heap_regs->logdb_erased_marker->ClPred = PredLogUpdClause;
+  Yap_heap_regs->logdb_erased_marker->ClExt = NULL;
+  Yap_heap_regs->logdb_erased_marker->ClPrev = NULL;
+  Yap_heap_regs->logdb_erased_marker->ClNext = NULL;
+  Yap_heap_regs->logdb_erased_marker->ClSize = (UInt)NEXTOP(((LogUpdClause *)NULL)->ClCode,e);
+  Yap_heap_regs->logdb_erased_marker->ClCode->opc = Yap_opcode(_op_fail);
+  REINIT_LOCK(Yap_heap_regs->logdb_erased_marker->ClLock);
+  INIT_CLREF_COUNT(Yap_heap_regs->logdb_erased_marker);
+}
+
 /* restore the failcodes */
 static void 
 restore_codes(void)
@@ -732,50 +831,6 @@ restore_codes(void)
     while (si) {
       CleanSIndex(si, FALSE);
       si = si->SiblingIndex;
-    }
-  }
-  if (Yap_heap_regs->IntKeys != NULL) {
-    Yap_heap_regs->IntKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntKeys));
-    {
-      UInt i;
-      for (i = 0; i < Yap_heap_regs->int_keys_size; i++) {
-	if (Yap_heap_regs->IntKeys[i] != NIL) {
-	  Prop p0 = Yap_heap_regs->IntKeys[i] = PropAdjust(Yap_heap_regs->IntKeys[i]);
-	  RestoreEntries(RepProp(p0), TRUE);
-	}
-      }
-    }
-  }
-  if (Yap_heap_regs->IntLUKeys != NULL) {
-    Yap_heap_regs->IntLUKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntLUKeys));
-    {
-      Int i;
-      for (i = 0; i < INT_KEYS_SIZE; i++) {
-	Prop p0 = INT_LU_KEYS[i];
-	if (p0) {
-	  p0 = PropAdjust(p0);
-	  INT_LU_KEYS[i] = p0;
-	  while (p0) {
-	    PredEntry *pe = RepPredProp(p0);
-	    pe->NextOfPE =
-	      PropAdjust(pe->NextOfPE);
-	    CleanCode(pe);
-	    p0 = RepProp(pe->NextOfPE);
-	  }
-	}
-      }
-    }
-  }
-  if (Yap_heap_regs->IntBBKeys != NULL) {
-    Yap_heap_regs->IntBBKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntBBKeys));
-    {
-      UInt i;
-      for (i = 0; i < Yap_heap_regs->int_bb_keys_size; i++) {
-	if (Yap_heap_regs->IntBBKeys[i] != NIL) {
-	  Prop p0 = Yap_heap_regs->IntBBKeys[i] = PropAdjust(Yap_heap_regs->IntBBKeys[i]);
-	  RestoreEntries(RepProp(p0), TRUE);
-	}
-      }
     }
   }
   if (Yap_heap_regs->db_erased_list) {
@@ -868,14 +923,6 @@ restore_codes(void)
 #endif
   if (Yap_heap_regs->last_wtime != NULL)
     Yap_heap_regs->last_wtime = (void *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->last_wtime));
-  Yap_heap_regs->db_erased_marker =
-    DBRefAdjust(Yap_heap_regs->db_erased_marker);
-  Yap_heap_regs->logdb_erased_marker =
-    PtoLUCAdjust(Yap_heap_regs->logdb_erased_marker);
-  Yap_heap_regs->logdb_erased_marker->Id = FunctorDBRef;
-  Yap_heap_regs->logdb_erased_marker->ClCode->opc = Yap_opcode(_op_fail);
-  Yap_heap_regs->logdb_erased_marker->ClPred = 
-    PtoPredAdjust(Yap_heap_regs->logdb_erased_marker->ClPred);
   Yap_heap_regs->hash_chain = 
     PtoAtomHashEntryAdjust(Yap_heap_regs->hash_chain);
   Yap_heap_regs->wide_hash_chain = 

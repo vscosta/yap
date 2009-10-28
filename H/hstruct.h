@@ -172,3 +172,21 @@
   UInt  freed_cps;
   UInt  expand_clauses_sz;
 #endif
+
+  struct udi_info  *udi_control_blocks;
+
+
+  Int  static_predicates_marked;
+
+  Prop  *IntKeys;
+  Prop  *IntLUKeys;
+  Prop  *IntBBKeys;
+
+  UInt  int_keys_size;
+  UInt  int_keys_timestamp;
+  UInt  int_bb_keys_size;
+
+  int  update_mode;
+
+  struct DB_STRUCT  *db_erased_marker;
+  struct logic_upd_clause  *logdb_erased_marker;

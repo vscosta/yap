@@ -172,3 +172,21 @@
 
 
 #endif
+
+  RestoreUdiControlBlocks();
+
+
+
+
+  RestoreIntKeys();
+  RestoreIntLUKeys();
+  RestoreIntBBKeys();
+
+
+
+
+
+
+
+  RestoreDBErasedMarker();
+  RestoreLogDBErasedMarker();

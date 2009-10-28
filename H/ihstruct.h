@@ -172,3 +172,21 @@
   Yap_heap_regs->freed_cps = 0L;
   Yap_heap_regs->expand_clauses_sz = 0L;
 #endif
+
+  Yap_heap_regs->udi_control_blocks = NULL;
+
+
+  Yap_heap_regs->static_predicates_marked = FALSE;
+
+  Yap_heap_regs->IntKeys = NULL;
+  Yap_heap_regs->IntLUKeys = NULL;
+  Yap_heap_regs->IntBBKeys = NULL;
+
+  Yap_heap_regs->int_keys_size = INT_KEYS_DEFAULT_SIZE;
+  Yap_heap_regs->int_keys_timestamp = 0L;
+  Yap_heap_regs->int_bb_keys_size = INT_KEYS_DEFAULT_SIZE;
+
+  Yap_heap_regs->update_mode = UPDATE_MODE_LOGICAL;
+
+  InitDBErasedMarker();
+  InitLogDBErasedMarker();
