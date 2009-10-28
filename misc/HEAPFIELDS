@@ -155,3 +155,42 @@ yamop		*debugger_p_before_spy	P_before_spy		=NULL PtoOpAdjust
 yamop		*retry_recordedp_code	RETRY_C_RECORDEDP_CODE	=NULL PtoOpAdjust 
 yamop		*retry_recorded_k_code	RETRY_C_RECORDED_K_CODE =NULL PtoOpAdjust 
 
+/* compiler flags */
+int		system_profiling	PROFILING		=FALSE void
+int		system_call_counting	CALL_COUNTING		=FALSE void
+int		system_pred_goal_expansion_all	PRED_GOAL_EXPANSION_ALL	=FALSE void
+int		system_pred_goal_expansion_func	PRED_GOAL_EXPANSION_FUNC =FALSE void
+int		system_pred_goal_expansion_on	PRED_GOAL_EXPANSION_ON	=FALSE void
+int		compiler_optimizer_on	optimizer_on		=TRUE void
+int		compiler_compile_mode	compile_mode		=0 void
+int		compiler_profiling	profiling		=FALSE void
+int		compiler_call_counting	call_counting		=FALSE void
+/********* whether we should try to compile array references ******************/
+int		compiler_compile_arrays	compile_arrays		=FALSE void
+
+/* DBTerms: pre-compiled ground terms */
+#if defined(YAPOR) || defined(THREADS)
+lockvar		dbterms_list_lock	DBTermsListLock		MkLock
+#endif
+struct dbterm_list *dbterms_list	DBTermsList		=NULL RestoreDBTermsList()
+
+/* JITI support */
+yamop		*expand_clauses_first	ExpandClausesFirst	=NULL void
+yamop		*expand_clauses_last	ExpandClausesLast	=NULL RestoreExpandList()
+UInt		expand_clauses		Yap_ExpandClauses	=0 void
+#if defined(YAPOR) || defined(THREADS)
+lockvar		expand_clauses_list_lock ExpandClausesListLock	MkLock
+lockvar		op_list_lock		OpListLock		MkLock
+#endif
+/* instrumentation */
+#ifdef DEBUG
+UInt		new_cps			Yap_NewCps		=0L void
+UInt		live_cps		Yap_LiveCps		=0L void
+UInt		dirty_cps		Yap_DirtyCps		=0L void
+UInt		freed_cps		Yap_FreedCps		=0L void
+UInt		expand_clauses_sz	Yap_expand_clauses_sz	=0L void
+#endif
+
+
+
+

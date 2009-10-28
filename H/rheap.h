@@ -640,11 +640,22 @@ RestoreOtaplInst(yamop start[1], OPCODE opc)
 #endif /* TABLING */
 }
 
-/* restore the failcodes */
-static void 
-restore_codes(void)
+static void
+RestoreDBTermsList(void)
 {
-  Yap_heap_regs->heap_top = AddrAdjust(OldHeapTop);
+  if (Yap_heap_regs->dbterms_list) {
+    struct dbterm_list *dbl = PtoDBTLAdjust(Yap_heap_regs->dbterms_list);
+    Yap_heap_regs->dbterms_list = dbl;
+    while (dbl) {
+      RestoreDBTermEntry(dbl);
+      dbl = dbl->next_dbl;
+    }
+  }
+}
+
+static void
+RestoreExpandList(void)
+{
   if (Yap_heap_regs->expand_clauses_first)
     Yap_heap_regs->expand_clauses_first = PtoOpAdjust(Yap_heap_regs->expand_clauses_first);
   if (Yap_heap_regs->expand_clauses_last)
@@ -656,6 +667,13 @@ restore_codes(void)
       ptr = ptr->u.sssllp.snext;
     }
   }
+}
+
+/* restore the failcodes */
+static void 
+restore_codes(void)
+{
+  Yap_heap_regs->heap_top = AddrAdjust(OldHeapTop);
 #if !defined(THREADS) && !defined(YAPOR)
   /* restore consult stack. It consists of heap pointers, so it
      is easy to fix.
@@ -706,14 +724,6 @@ restore_codes(void)
     while (mc) {
       RestoreMegaClause(mc);
       mc = mc->ClNext;
-    }
-  }
-  if (Yap_heap_regs->dbterms_list) {
-    struct dbterm_list *dbl = PtoDBTLAdjust(Yap_heap_regs->dbterms_list);
-    Yap_heap_regs->dbterms_list = dbl;
-    while (dbl) {
-      RestoreDBTermEntry(dbl);
-      dbl = dbl->next_dbl;
     }
   }
   if (Yap_heap_regs->dead_static_indices) {

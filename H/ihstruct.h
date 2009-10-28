@@ -139,3 +139,36 @@
 
   Yap_heap_regs->retry_recordedp_code = NULL;
   Yap_heap_regs->retry_recorded_k_code = NULL;
+
+  Yap_heap_regs->system_profiling = FALSE;
+  Yap_heap_regs->system_call_counting = FALSE;
+  Yap_heap_regs->system_pred_goal_expansion_all = FALSE;
+  Yap_heap_regs->system_pred_goal_expansion_func = FALSE;
+  Yap_heap_regs->system_pred_goal_expansion_on = FALSE;
+  Yap_heap_regs->compiler_optimizer_on = TRUE;
+  Yap_heap_regs->compiler_compile_mode = 0;
+  Yap_heap_regs->compiler_profiling = FALSE;
+  Yap_heap_regs->compiler_call_counting = FALSE;
+
+  Yap_heap_regs->compiler_compile_arrays = FALSE;
+
+#if defined(YAPOR) || defined(THREADS)
+  INIT_LOCK(Yap_heap_regs->dbterms_list_lock);
+#endif
+  Yap_heap_regs->dbterms_list = NULL;
+
+  Yap_heap_regs->expand_clauses_first = NULL;
+  Yap_heap_regs->expand_clauses_last = NULL;
+  Yap_heap_regs->expand_clauses = 0;
+#if defined(YAPOR) || defined(THREADS)
+  INIT_LOCK(Yap_heap_regs->expand_clauses_list_lock);
+  INIT_LOCK(Yap_heap_regs->op_list_lock);
+#endif
+
+#ifdef DEBUG
+  Yap_heap_regs->new_cps = 0L;
+  Yap_heap_regs->live_cps = 0L;
+  Yap_heap_regs->dirty_cps = 0L;
+  Yap_heap_regs->freed_cps = 0L;
+  Yap_heap_regs->expand_clauses_sz = 0L;
+#endif

@@ -1032,11 +1032,6 @@ InitCodes(void)
 #include "iatoms.h"
 #include "ihstruct.h"
   Yap_InitModules();
-  INIT_LOCK(Yap_heap_regs->expand_clauses_list_lock);
-  Yap_heap_regs->expand_clauses_first = NULL;
-  Yap_heap_regs->expand_clauses_last = NULL;
-  Yap_heap_regs->expand_clauses = 0;
- 
 #ifdef  THREADS
   INIT_LOCK(Yap_heap_regs->thread_handles_lock);
   {
@@ -1074,7 +1069,6 @@ InitCodes(void)
   INIT_LOCK(Yap_heap_regs->dead_static_clauses_lock);
   INIT_LOCK(Yap_heap_regs->dead_mega_clauses_lock);
   INIT_LOCK(Yap_heap_regs->dead_static_indices_lock);
-  INIT_LOCK(Yap_heap_regs->op_list_lock);
   Yap_heap_regs->heap_top_owner = -1;
   {
     int i;
@@ -1129,20 +1123,8 @@ InitCodes(void)
   Yap_heap_regs->wl.consultbase = Yap_heap_regs->wl.consultsp =
     Yap_heap_regs->wl.consultlow + Yap_heap_regs->wl.consultcapacity;
 #endif /* YAPOR */
-#if DEBUG
-  Yap_heap_regs->new_cps = 0;
-  Yap_heap_regs->live_cps = 0;
-  Yap_heap_regs->dirty_cps = 0;
-  Yap_heap_regs->freed_cps = 0;
-#endif
-  Yap_heap_regs->system_profiling = FALSE;
-  Yap_heap_regs->system_call_counting = FALSE;
-  Yap_heap_regs->system_pred_goal_expansion_all = FALSE;
   Yap_heap_regs->system_pred_goal_expansion_on = FALSE;
   Yap_heap_regs->update_mode = UPDATE_MODE_LOGICAL;
-  Yap_heap_regs->compiler_compile_mode = 0; /* fast will be for native code */
-  Yap_heap_regs->compiler_optimizer_on = TRUE;
-  Yap_heap_regs->compiler_compile_arrays = FALSE;
   Yap_heap_regs->maxdepth      = 0;
   Yap_heap_regs->maxlist       = 0;
   Yap_heap_regs->maxwriteargs  = 0;
@@ -1197,8 +1179,6 @@ InitCodes(void)
   Yap_heap_regs->db_erased_marker =
     (DBRef)Yap_AllocCodeSpace(sizeof(DBStruct));
   Yap_LUClauseSpace += sizeof(DBStruct);
-  INIT_LOCK(Yap_heap_regs->dbterms_list_lock);
-  Yap_heap_regs->dbterms_list = NULL;
   Yap_heap_regs->db_erased_marker->id = FunctorDBRef;
   Yap_heap_regs->db_erased_marker->Flags = ErasedMask;
   Yap_heap_regs->db_erased_marker->Code = NULL;
@@ -1220,9 +1200,6 @@ InitCodes(void)
   //  INIT_LOCK(Yap_heap_regs->logdb_erased_marker->ClLock);
   INIT_CLREF_COUNT(Yap_heap_regs->logdb_erased_marker);
   Yap_heap_regs->yap_streams = NULL;
-#if DEBUG
-  Yap_heap_regs->expand_clauses_sz = 0L;
-#endif
 }
 
 
@@ -1338,7 +1315,6 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 #endif
   /* InitAbsmi must be done before InitCodes */
   /* This must be done before initialising predicates */
-  Yap_heap_regs->system_pred_goal_expansion_func = FALSE;
   for (i = 0; i <= LAST_FLAG; i++) {
     yap_flags[i] = 0;
   }

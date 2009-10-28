@@ -139,3 +139,36 @@
 
   yamop  *retry_recordedp_code;
   yamop  *retry_recorded_k_code;
+
+  int  system_profiling;
+  int  system_call_counting;
+  int  system_pred_goal_expansion_all;
+  int  system_pred_goal_expansion_func;
+  int  system_pred_goal_expansion_on;
+  int  compiler_optimizer_on;
+  int  compiler_compile_mode;
+  int  compiler_profiling;
+  int  compiler_call_counting;
+
+  int  compiler_compile_arrays;
+
+#if defined(YAPOR) || defined(THREADS)
+  lockvar  dbterms_list_lock;
+#endif
+  struct dbterm_list  *dbterms_list;
+
+  yamop  *expand_clauses_first;
+  yamop  *expand_clauses_last;
+  UInt  expand_clauses;
+#if defined(YAPOR) || defined(THREADS)
+  lockvar  expand_clauses_list_lock;
+  lockvar  op_list_lock;
+#endif
+
+#ifdef DEBUG
+  UInt  new_cps;
+  UInt  live_cps;
+  UInt  dirty_cps;
+  UInt  freed_cps;
+  UInt  expand_clauses_sz;
+#endif

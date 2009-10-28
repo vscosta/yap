@@ -270,36 +270,6 @@ typedef struct various_codes {
   /* Terms multiply used */
 #include "hstruct.h"
 
-  /* compiler flags */
-  int   system_profiling;
-  int   system_call_counting;
-  int   system_pred_goal_expansion_all;
-  int   system_pred_goal_expansion_func;
-  int   system_pred_goal_expansion_on;
-  int   compiler_optimizer_on;
-  int   compiler_compile_mode;
-  int   compiler_profiling;
-  int   compiler_call_counting;
-  /********* whether we should try to compile array references ******************/
-  int   compiler_compile_arrays;
-
-  /* DBTerms: pre-compiled ground terms */
-#if defined(YAPOR) || defined(THREADS)
-  lockvar  dbterms_list_lock;        /* protect DBTermList */
-#endif
-  struct dbterm_list *dbterms_list;
-
-  /* JITI support */
-  yamop *expand_clauses_first, *expand_clauses_last;
-  UInt expand_clauses;
-#if defined(YAPOR) || defined(THREADS)
-  lockvar expand_clauses_list_lock;
-  lockvar op_list_lock;
-#endif
-  /* instrumentation */
-  UInt new_cps, live_cps, dirty_cps, freed_cps;
-  UInt expand_clauses_sz;
-
   /* UDI support */
   struct udi_info *udi_control_blocks;
 
@@ -438,11 +408,6 @@ extern struct various_codes *Yap_heap_regs;
 #define  HeapMax                 Yap_heap_regs->heap_max
 #define  HeapTop                 Yap_heap_regs->heap_top
 #define  HeapLim                 Yap_heap_regs->heap_lim
-#define  ExpandClausesFirst       Yap_heap_regs->expand_clauses_first
-#define  ExpandClausesLast        Yap_heap_regs->expand_clauses_last
-#define  ExpandClausesListLock    Yap_heap_regs->expand_clauses_list_lock
-#define  Yap_ExpandClauses        Yap_heap_regs->expand_clauses
-#define  OpListLock               Yap_heap_regs->op_list_lock
 #define  INVISIBLECHAIN           Yap_heap_regs->invisiblechain
 #define  max_depth                Yap_heap_regs->maxdepth
 #define  max_list                 Yap_heap_regs->maxlist
@@ -450,11 +415,6 @@ extern struct various_codes *Yap_heap_regs;
 #define  AtPrompt                 (&(Yap_heap_regs->atprompt    	         ))
 #define  Prompt                   Yap_heap_regs->prompt
 #define  UdiControlBlocks	  Yap_heap_regs->udi_control_blocks
-#define  PROFILING                Yap_heap_regs->system_profiling
-#define  CALL_COUNTING            Yap_heap_regs->system_call_counting
-#define  PRED_GOAL_EXPANSION_ALL  Yap_heap_regs->system_pred_goal_expansion_all
-#define  PRED_GOAL_EXPANSION_FUNC Yap_heap_regs->system_pred_goal_expansion_func
-#define  PRED_GOAL_EXPANSION_ON   Yap_heap_regs->system_pred_goal_expansion_on
 #define  UPDATE_MODE              Yap_heap_regs->update_mode
 #define  STATIC_PREDICATES_MARKED Yap_heap_regs->static_predicates_marked
 #define  yap_flags                Yap_heap_regs->yap_flags_field
@@ -486,7 +446,6 @@ extern struct various_codes *Yap_heap_regs;
 #define  LogDBErasedMarker        Yap_heap_regs->logdb_erased_marker
 #define  DBErasedList             Yap_heap_regs->db_erased_list
 #define  DBErasedIList            Yap_heap_regs->db_erased_ilist
-#define  Yap_expand_clauses_sz    Yap_heap_regs->expand_clauses_sz
 #define  Stream		          Yap_heap_regs->yap_streams
 #define  output_msg	          Yap_heap_regs->debugger_output_msg
 #define  NOfFileAliases           Yap_heap_regs->n_of_file_aliases
@@ -611,11 +570,6 @@ extern struct various_codes *Yap_heap_regs;
 #define  GlobalArenaOverflows     Yap_heap_regs->WL.global_arena_overflows
 #define  Yap_AllowRestart         Yap_heap_regs->WL.allow_restart
 #define  GlobalDelayArena         Yap_heap_regs->WL.global_delay_arena
-#define  profiling                Yap_heap_regs->compiler_profiling
-#define  call_counting            Yap_heap_regs->compiler_call_counting
-#define  compile_arrays           Yap_heap_regs->compiler_compile_arrays
-#define  optimizer_on             Yap_heap_regs->compiler_optimizer_on
-#define  compile_mode             Yap_heap_regs->compiler_compile_mode
 #define  ForeignCodeBase          Yap_heap_regs->foreign_code_base;
 #define  ForeignCodeTop           Yap_heap_regs->foreign_code_top;
 #define  ForeignCodeMax           Yap_heap_regs->foreign_code_max;
@@ -628,7 +582,6 @@ extern struct various_codes *Yap_heap_regs;
 #define  GlobalHoldEntry          Yap_heap_regs->global_hold_entry
 #define  DeadStaticClauses        Yap_heap_regs->dead_static_clauses
 #define  DeadMegaClauses          Yap_heap_regs->dead_mega_clauses
-#define  DBTermsList              Yap_heap_regs->dbterms_list
 #define  DeadStaticIndices        Yap_heap_regs->dead_static_indices
 #define  Yap_AllowLocalExpansion  Yap_heap_regs->allow_local_expansion
 #define  Yap_AllowGlobalExpansion Yap_heap_regs->allow_global_expansion
@@ -646,15 +599,8 @@ extern struct various_codes *Yap_heap_regs;
 #define  ThreadsTotalTime         Yap_heap_regs->threads_total_time
 #define  DeadStaticClausesLock    Yap_heap_regs->dead_static_clauses_lock
 #define  DeadMegaClausesLock      Yap_heap_regs->dead_mega_clauses_lock
-#define  DBTermsListLock          Yap_heap_regs->dbterms_list_lock
 #define  DeadStaticIndicesLock    Yap_heap_regs->dead_static_indices_lock
 #define  ModulesLock		  Yap_heap_regs->modules_lock
-#endif
-#ifdef DEBUG
-#define  Yap_NewCps		  Yap_heap_regs->new_cps
-#define  Yap_LiveCps		  Yap_heap_regs->live_cps
-#define  Yap_DirtyCps		  Yap_heap_regs->dirty_cps
-#define  Yap_FreedCps		  Yap_heap_regs->freed_cps
 #endif
 #if defined(YAPOR) || defined(TABLING)
 #define  GLOBAL		          Yap_heap_regs->global

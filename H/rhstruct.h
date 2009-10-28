@@ -139,3 +139,36 @@
 
   Yap_heap_regs->retry_recordedp_code = PtoOpAdjust(Yap_heap_regs->retry_recordedp_code);
   Yap_heap_regs->retry_recorded_k_code = PtoOpAdjust(Yap_heap_regs->retry_recorded_k_code);
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if defined(YAPOR) || defined(THREADS)
+  REINIT_LOCK(Yap_heap_regs->dbterms_list_lock);
+#endif
+  RestoreDBTermsList();
+
+
+  RestoreExpandList();
+
+#if defined(YAPOR) || defined(THREADS)
+  REINIT_LOCK(Yap_heap_regs->expand_clauses_list_lock);
+  REINIT_LOCK(Yap_heap_regs->op_list_lock);
+#endif
+
+#ifdef DEBUG
+
+
+
+
+
+#endif

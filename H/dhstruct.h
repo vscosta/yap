@@ -139,3 +139,36 @@
 
 #define RETRY_C_RECORDEDP_CODE Yap_heap_regs->retry_recordedp_code
 #define RETRY_C_RECORDED_K_CODE Yap_heap_regs->retry_recorded_k_code
+
+#define PROFILING Yap_heap_regs->system_profiling
+#define CALL_COUNTING Yap_heap_regs->system_call_counting
+#define PRED_GOAL_EXPANSION_ALL Yap_heap_regs->system_pred_goal_expansion_all
+#define PRED_GOAL_EXPANSION_FUNC Yap_heap_regs->system_pred_goal_expansion_func
+#define PRED_GOAL_EXPANSION_ON Yap_heap_regs->system_pred_goal_expansion_on
+#define optimizer_on Yap_heap_regs->compiler_optimizer_on
+#define compile_mode Yap_heap_regs->compiler_compile_mode
+#define profiling Yap_heap_regs->compiler_profiling
+#define call_counting Yap_heap_regs->compiler_call_counting
+
+#define compile_arrays Yap_heap_regs->compiler_compile_arrays
+
+#if defined(YAPOR) || defined(THREADS)
+#define DBTermsListLock Yap_heap_regs->dbterms_list_lock
+#endif
+#define DBTermsList Yap_heap_regs->dbterms_list
+
+#define ExpandClausesFirst Yap_heap_regs->expand_clauses_first
+#define ExpandClausesLast Yap_heap_regs->expand_clauses_last
+#define Yap_ExpandClauses Yap_heap_regs->expand_clauses
+#if defined(YAPOR) || defined(THREADS)
+#define ExpandClausesListLock Yap_heap_regs->expand_clauses_list_lock
+#define OpListLock Yap_heap_regs->op_list_lock
+#endif
+
+#ifdef DEBUG
+#define Yap_NewCps Yap_heap_regs->new_cps
+#define Yap_LiveCps Yap_heap_regs->live_cps
+#define Yap_DirtyCps Yap_heap_regs->dirty_cps
+#define Yap_FreedCps Yap_heap_regs->freed_cps
+#define Yap_expand_clauses_sz Yap_heap_regs->expand_clauses_sz
+#endif
