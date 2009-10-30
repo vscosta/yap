@@ -20,6 +20,7 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 
 
 #include "absmi.h"
+#include "foreign.h"
 #include "alloc.h"
 #include "yapio.h"
 #include "iopreds.h"
@@ -152,6 +153,7 @@ AtomAdjust(Atom a)
 #define SIndexAdjust(P) (P)
 #define LocalAddrAdjust(P) (P)
 #define GlobalAddrAdjust(P) (P)
+#define OpListAdjust(P) (P)
 #define PtoLUCAdjust(P) (P)
 #define PtoStCAdjust(P) (P)
 #define PtoArrayEAdjust(P) (P)
@@ -173,6 +175,8 @@ AtomAdjust(Atom a)
 #define XAdjust(P) (P)
 #define YAdjust(P) (P)
 #define HoldEntryAdjust(P) (P)
+#define CodeCharPAdjust(P) (P)
+#define CodeVoidPAdjust(P) (P)
 
 #define recompute_mask(dbr)
 
@@ -196,64 +200,21 @@ static void init_reg_copies(void)
 
 
 static void
-mark_hash_entry(AtomHashEntry *HashPtr)
+RestoreAtomList(Atom atm)
 {
-  Atom atm;
+  AtomEntry      *at;
 
-  atm = HashPtr->Entry;
-  if (atm) {
-    AtomEntry      *at =  RepAtom(atm);
-    do {
-      RestoreAtom(at);
-      atm = at->NextOfAE;
-      at = RepAtom(CleanAtomMarkedBit(atm));
-    } while (!EndOfPAEntr(at));
-  }
+  at = RepAtom(atm);
+  if (EndOfPAEntr(at))
+    return;
+  do {
+    RestoreAtom(atm);
+    atm = CleanAtomMarkedBit(at->NextOfAE);
+    at = RepAtom(atm);
+  } while (!EndOfPAEntr(at));
 }
 
 
-static void
-mark_hash_preds(void)
-{
-  UInt i;
-
-  for (i = 0; i < PredHashTableSize; i++) {
-    PredEntry *p = PredHash[i];
-
-    while (p) {
-      Prop nextp = p->NextOfPE = PropAdjust(p->NextOfPE);
-      CleanCode(p);
-      p = RepPredProp(nextp);
-    }
-  }
-}
-
-
-
-/*
- * This is the really tough part, to restore the whole of the heap 
- */
-static void 
-mark_atoms(void)
-{
-  AtomHashEntry *HashPtr = HashChain;
-  register int    i;
-
-  restore_codes();
-  for (i = 0; i < AtomHashTableSize; ++i) {
-    mark_hash_entry(HashPtr);
-    HashPtr++;
-  }
-  HashPtr = WideHashChain;
-  for (i = 0; i < WideAtomHashTableSize; ++i) {
-    mark_hash_entry(HashPtr);
-    HashPtr++;
-  }
-  mark_hash_entry(&INVISIBLECHAIN);
-  RestoreAtom(RepAtom(AtomFoundVar));
-  RestoreAtom(RepAtom(AtomFreeTerm));
-  mark_hash_preds();
-}
 
 static void
 mark_trail(void)
@@ -380,26 +341,6 @@ mark_stacks(void)
 }
 
 static void
-mark_streams(void)
-{
-  int i;
-
-  for (i=0; i < MaxStreams; i++) {
-    if (!(Stream[i].status & (Free_Stream_f|Socket_Stream_f|InMemory_Stream_f|Pipe_Stream_f))) {
-	/* This is a file, so it has a name */
-	AtomEntry *ae = RepAtom(Stream[i].u.file.name);
-	MarkAtomEntry(ae);
-	ae = RepAtom(AtomOfTerm(Stream[i].u.file.user_name));
-	MarkAtomEntry(ae);
-      }
-  }
-  for (i=0;i<NOfFileAliases;i++) {
-    AtomEntry *ae = RepAtom(FileAliases[i].name);
-    MarkAtomEntry(ae);
-  }
-}
-
-static void
 clean_atom_list(AtomHashEntry *HashPtr)
 {
   Atom atm = HashPtr->Entry;
@@ -480,8 +421,7 @@ atom_gc(void)
   YAPEnterCriticalSection();
   init_reg_copies();
   mark_stacks();
-  mark_streams();
-  mark_atoms();
+  restore_codes();
   clean_atoms();
   AGcLastCall = NOfAtoms;
   YAPLeaveCriticalSection();

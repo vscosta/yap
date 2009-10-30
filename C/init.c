@@ -79,9 +79,9 @@ STD_PROTO(void  exit, (int));
 
 /************* variables related to memory allocation ***************/
 
-ADDR Yap_HeapBase;
-
 #if defined(THREADS)
+
+ADDR Yap_HeapBase;
 
 struct restore_info rinfo[MAX_THREADS];
 
@@ -1006,14 +1006,14 @@ InitEnvInst(yamop start[2], yamop **instp, op_numbers opc, PredEntry *pred)
 }
 
 static void
-InitOtaplInst(yamop start[1], OPCODE opc)
+InitOtaplInst(yamop start[1], OPCODE opc, PredEntry *pe)
 {
   yamop *ipc = start;
 
   /* this is a place holder, it should not really be used */
   ipc->opc = Yap_opcode(opc);
   ipc->u.Otapl.s = 0;
-  ipc->u.Otapl.p = PredFail;
+  ipc->u.Otapl.p = pe;
   ipc->u.Otapl.d = NULL;
 #ifdef YAPOR
   INIT_YAMOP_LTT(ipc, 1);
@@ -1057,27 +1057,74 @@ InitLogDBErasedMarker(void)
 }
 
 static void 
-InitCodes(void)
+InitAtoms(void)
+{
+  int i;
+  AtomHashTableSize = MaxHash;
+  HashChain = (AtomHashEntry *)Yap_AllocAtomSpace(sizeof(AtomHashEntry) * MaxHash);
+  if (HashChain == NULL) {
+    Yap_Error(FATAL_ERROR,MkIntTerm(0),"allocating initial atom table");
+  }
+  for (i = 0; i < MaxHash; ++i) {
+    INIT_RWLOCK(HashChain[i].AERWLock);
+    HashChain[i].Entry = NIL;
+  }
+  NOfAtoms = 0;
+#if THREADS
+  SF_STORE->AtFoundVar = Yap_LookupAtom("**");
+  Yap_ReleaseAtom(AtomFoundVar);
+  SF_STORE->AtFreeTerm = Yap_LookupAtom("?");
+  Yap_ReleaseAtom(AtomFreeTerm);
+  SF_STORE->AtNil = Yap_LookupAtom("[]");
+  SF_STORE->AtDot = Yap_LookupAtom(".");
+#else
+  Yap_LookupAtomWithAddress("**",&(SF_STORE->AtFoundVar));
+  Yap_ReleaseAtom(AtomFoundVar);
+  Yap_LookupAtomWithAddress("?",&(SF_STORE->AtFreeTerm));
+  Yap_ReleaseAtom(AtomFreeTerm);
+  Yap_LookupAtomWithAddress("[]",&(SF_STORE->AtNil));
+  Yap_LookupAtomWithAddress(".",&(SF_STORE->AtDot));
+#endif
+}
+
+static void 
+InitWideAtoms(void)
+{
+  int i;
+
+  WideAtomHashTableSize = MaxWideHash;
+  WideHashChain = (AtomHashEntry *)Yap_AllocAtomSpace(sizeof(AtomHashEntry) * MaxWideHash);
+  if (WideHashChain == NULL) {
+    Yap_Error(FATAL_ERROR,MkIntTerm(0),"allocating wide atom table");
+  }
+  for (i = 0; i < MaxWideHash; ++i) {
+    INIT_RWLOCK(WideHashChain[i].AERWLock);
+    WideHashChain[i].Entry = NIL;
+  }
+  NOfWideAtoms = 0;
+}
+
+static void 
+InitInvisibleAtoms(void)
 {
   /* initialise invisible chain */
   Yap_heap_regs->invisiblechain.Entry = NIL;
   INIT_RWLOCK(Yap_heap_regs->invisiblechain.AERWLock);
-#include "iatoms.h"
-#include "ihstruct.h"
-  Yap_InitModules();
+}
+
 #ifdef  THREADS
-  INIT_LOCK(Yap_heap_regs->thread_handles_lock);
-  {
-    int i;
-    for (i=0; i < MAX_THREADS; i++) {
-      Yap_heap_regs->thread_handle[i].in_use = FALSE;
-      Yap_heap_regs->thread_handle[i].zombie = FALSE;
-      Yap_heap_regs->thread_handle[i].local_preds = NULL;
+static void 
+InitThreadHandles(void)
+{
+  int i;
+  for (i=0; i < MAX_THREADS; i++) {
+    Yap_heap_regs->thread_handle[i].in_use = FALSE;
+    Yap_heap_regs->thread_handle[i].zombie = FALSE;
+    Yap_heap_regs->thread_handle[i].local_preds = NULL;
 #ifdef LOW_LEVEL_TRACER
-      Yap_heap_regs->thread_handle[i].thread_inst_count = 0LL;
+    Yap_heap_regs->thread_handle[i].thread_inst_count = 0LL;
 #endif
-      pthread_mutex_init(&Yap_heap_regs->thread_handle[i].tlock, NULL);
-    }
+    pthread_mutex_init(&Yap_heap_regs->thread_handle[i].tlock, NULL);
   }
   Yap_heap_regs->thread_handle[0].id = 0;
   Yap_heap_regs->thread_handle[0].in_use = TRUE;
@@ -1087,22 +1134,14 @@ InitCodes(void)
   Yap_heap_regs->thread_handle[0].handle = pthread_self();
   pthread_mutex_init(&ThreadHandle[0].tlock, NULL);
   pthread_mutex_init(&ThreadHandle[0].tlock_status, NULL);
-  Yap_heap_regs->n_of_threads = 1;
-  Yap_heap_regs->n_of_threads_created = 1;
-  Yap_heap_regs->threads_total_time = 0;
+}
 #endif
-#ifdef  YAPOR
-  Yap_heap_regs->n_of_threads = 1;
-#endif
+
+static void 
+InitCodes(void)
+{
+#include "ihstruct.h"
 #if defined(YAPOR) || defined(THREADS)
-  INIT_LOCK(Yap_heap_regs->bgl);
-  INIT_LOCK(Yap_heap_regs->free_blocks_lock);
-  INIT_LOCK(Yap_heap_regs->heap_used_lock);
-  INIT_LOCK(Yap_heap_regs->heap_top_lock);
-  INIT_LOCK(Yap_heap_regs->dead_static_clauses_lock);
-  INIT_LOCK(Yap_heap_regs->dead_mega_clauses_lock);
-  INIT_LOCK(Yap_heap_regs->dead_static_indices_lock);
-  Yap_heap_regs->heap_top_owner = -1;
   {
     int i;
     for (i=0; i < MAX_AGENTS; i++) {
@@ -1156,38 +1195,9 @@ InitCodes(void)
   Yap_heap_regs->wl.consultbase = Yap_heap_regs->wl.consultsp =
     Yap_heap_regs->wl.consultlow + Yap_heap_regs->wl.consultcapacity;
 #endif /* YAPOR */
-  Yap_heap_regs->system_pred_goal_expansion_on = FALSE;
-  Yap_heap_regs->maxdepth      = 0;
-  Yap_heap_regs->maxlist       = 0;
-  Yap_heap_regs->maxwriteargs  = 0;
 
-  Yap_heap_regs->atprompt = 0;
-
-  /* use Quintus compatible atom_chars and number_chars, not ISO compatible */
-  Yap_heap_regs->char_conversion_table = NULL;
-  Yap_heap_regs->char_conversion_table2 = NULL;
-  /*
-    don't initialise this here, this is initialised by Yap_InitModules!!!!
-     Yap_heap_regs->no_of_modules = 1;
-  */
-  Yap_heap_regs->term_refound_var = MkAtomTerm(AtomRefoundVar);
-  Yap_heap_regs->n_of_file_aliases = 0;
-  Yap_heap_regs->file_aliases = NULL;
-  Yap_heap_regs->foreign_code_loaded = NULL;
-  Yap_heap_regs->yap_lib_dir = NULL;
-  Yap_heap_regs->agc_last_call = 0;
-  Yap_heap_regs->agc_threshold = 10000;
-  Yap_heap_regs->agc_hook = NULL;
-  Yap_heap_regs->parser_error_style = EXCEPTION_ON_PARSER_ERROR;
-  Yap_heap_regs->global_hold_entry = Yap_InitAtomHold();
-  Yap_heap_regs->size_of_overflow  = 0;
   /* make sure no one else can use these two atoms */
   CurrentModule = 0;
-  OpList = NULL;
-  Yap_heap_regs->op_list = NULL;
-  Yap_heap_regs->dead_static_clauses = NULL;
-  Yap_heap_regs->dead_mega_clauses = NULL;
-  Yap_heap_regs->dead_static_indices = NULL;
   Yap_ReleaseAtom(AtomOfTerm(Yap_heap_regs->term_refound_var));
   /* make sure we have undefp defined */
   /* predicates can only be defined after this point */
@@ -1201,7 +1211,6 @@ InitCodes(void)
   Yap_heap_regs->getwork_seq_code.u.Otapl.p = RepPredProp(PredPropByAtom(AtomGetworkSeq, PROLOG_MODULE));
 #endif /* YAPOR */
 
-  Yap_heap_regs->yap_streams = NULL;
 }
 
 
@@ -1215,7 +1224,6 @@ InitVersion(void)
 	       MkAtomTerm(Yap_LookupAtom(MYDDAS_VERSION)));
 #endif  
 }
-
 
 void
 Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_size, 
@@ -1273,57 +1281,17 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 #else
   Yap_InitMemory (Trail, Heap, Stack+Atts);
 #endif /* YAPOR */
-  Yap_AttsSize = Atts;
 #if defined(YAPOR) || defined(TABLING)
   Yap_init_global(max_table_size, n_workers, sch_loop, delay_load);
 #endif /* YAPOR || TABLING */
+  Yap_AttsSize = Atts;
 
   Yap_InitTime ();
-  AtomHashTableSize = MaxHash;
-  WideAtomHashTableSize = MaxWideHash;
-  HashChain = (AtomHashEntry *)Yap_AllocAtomSpace(sizeof(AtomHashEntry) * MaxHash);
-  if (HashChain == NULL) {
-    Yap_Error(FATAL_ERROR,MkIntTerm(0),"allocating initial atom table");
-  }
-  for (i = 0; i < MaxHash; ++i) {
-    INIT_RWLOCK(HashChain[i].AERWLock);
-    HashChain[i].Entry = NIL;
-  }
-  WideHashChain = (AtomHashEntry *)Yap_AllocAtomSpace(sizeof(AtomHashEntry) * MaxWideHash);
-  if (WideHashChain == NULL) {
-    Yap_Error(FATAL_ERROR,MkIntTerm(0),"allocating initial atom table");
-  }
-  for (i = 0; i < MaxWideHash; ++i) {
-    INIT_RWLOCK(WideHashChain[i].AERWLock);
-    WideHashChain[i].Entry = NIL;
-  }
-  NOfAtoms = 0;
-  NOfWideAtoms = 0;
-  PredsInHashTable = 0;
-#if THREADS
-  SF_STORE->AtFoundVar = Yap_LookupAtom("**");
-  Yap_ReleaseAtom(AtomFoundVar);
-  SF_STORE->AtFreeTerm = Yap_LookupAtom("?");
-  Yap_ReleaseAtom(AtomFreeTerm);
-  SF_STORE->AtNil = Yap_LookupAtom("[]");
-  SF_STORE->AtDot = Yap_LookupAtom(".");
-#else
-  Yap_LookupAtomWithAddress("**",&(SF_STORE->AtFoundVar));
-  Yap_ReleaseAtom(AtomFoundVar);
-  Yap_LookupAtomWithAddress("?",&(SF_STORE->AtFreeTerm));
-  Yap_ReleaseAtom(AtomFreeTerm);
-  Yap_LookupAtomWithAddress("[]",&(SF_STORE->AtNil));
-  Yap_LookupAtomWithAddress(".",&(SF_STORE->AtDot));
-#endif
   /* InitAbsmi must be done before InitCodes */
   /* This must be done before initialising predicates */
   for (i = 0; i <= LAST_FLAG; i++) {
     yap_flags[i] = 0;
   }
-#ifdef LOW_PROF
-  ProfilerOn = FALSE;
-  FPreds = NULL;
-#endif
   ActiveSignals = 0;
   DoingUndefp = FALSE;
   DelayArenaOverflows = 0;
@@ -1342,7 +1310,6 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   InitDebug();
   InitVersion();
   Yap_InitSysPath();
-  InitFlags();
   InitStdPreds();
   /* make sure tmp area is available */
   {

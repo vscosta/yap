@@ -24,6 +24,66 @@
 
 
 
+
+#if defined(YAPOR) || defined(THREADS)
+
+#define NOfThreads Yap_heap_regs->n_of_threads
+
+#define NOfThreadsCreated Yap_heap_regs->n_of_threads_created
+
+#define ThreadsTotalTime Yap_heap_regs->threads_total_time
+
+#define BGL Yap_heap_regs->bgl
+
+#define WorkerLocal Yap_heap_regs->wl
+#ifndef WL
+#define WL	wl[worker_id]
+#endif
+#else
+#define WorkerLocak Yap_heap_regs->wl
+#ifndef WL
+#define WL	wl
+#endif
+#endif
+#ifdef THREADS
+#define ThreadHandlesLock Yap_heap_regs->thread_handles_lock
+#define ThreadHandle Yap_heap_regs->thread_handle
+#endif
+
+#define Yap_HoleSize Yap_heap_regs->hole_size
+#define Yap_av Yap_heap_regs->av_
+#if USE_DL_MALLOC
+#define Yap_MemoryHoles Yap_heap_regs->memory_holes
+#define Yap_NOfMemoryHoles Yap_heap_regs->nof_memory_holes
+#endif
+#if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
+#ifndef  HeapUsed
+#define  HeapUsed  Yap_givemallinfo()		
+#endif
+#define NotHeapUsed Yap_heap_regs->heap_used
+#else
+#define HeapUsed Yap_heap_regs->heap_used
+#endif
+#define HeapMax Yap_heap_regs->heap_max
+#define HeapTop Yap_heap_regs->heap_top
+#define HeapLim Yap_heap_regs->heap_lim
+#define FreeBlocks Yap_heap_regs->free_blocks
+#if defined(YAPOR) || defined(THREADS)
+#define FreeBlocksLock Yap_heap_regs->free_blocks_lock
+#define HeapUsedLock Yap_heap_regs->heap_used_lock
+#define HeapTopLock Yap_heap_regs->heap_top_lock
+#define HeapTopOwner Yap_heap_regs->heap_top_owner
+#endif
+
+#define NOfAtoms Yap_heap_regs->n_of_atoms
+#define AtomHashTableSize Yap_heap_regs->atom_hash_table_size
+#define WideAtomHashTableSize Yap_heap_regs->wide_atom_hash_table_size
+#define NOfWideAtoms Yap_heap_regs->n_of_wide_atoms
+#define INVISIBLECHAIN Yap_heap_regs->invisiblechain
+#define WideHashChain Yap_heap_regs->wide_hash_chain
+#define HashChain Yap_heap_regs->hash_chain
+
+
 #ifdef EUROTRA
 #define TermDollarU Yap_heap_regs->term_dollar_u
 #endif
@@ -75,7 +135,6 @@
 #define PredFail Yap_heap_regs->pred_fail
 #define PredTrue Yap_heap_regs->pred_true
 #ifdef COROUTINING
-#define NUM_OF_ATTS Yap_heap_regs->num_of_atts
 #define WakeUpCode Yap_heap_regs->wake_up_code
 #endif
 #define PredGoalExpansion Yap_heap_regs->pred_goal_expansion
@@ -89,6 +148,10 @@
 #define PredThrow Yap_heap_regs->pred_throw
 #define PredHandleThrow Yap_heap_regs->pred_handle_throw
 #define PredIs Yap_heap_regs->pred_is
+#ifdef YAPOR
+#define PredGetwork Yap_heap_regs->pred_getwork
+#define PredGetworkSeq Yap_heap_regs->pred_getwork_seq
+#endif /* YAPOR */
 
 #ifdef LOW_LEVEL_TRACER
 #define Yap_do_low_level_trace Yap_heap_regs->yap_do_low_level_trace
@@ -190,3 +253,77 @@
 
 #define DBErasedMarker Yap_heap_regs->db_erased_marker
 #define LogDBErasedMarker Yap_heap_regs->logdb_erased_marker
+
+#define DeadStaticClauses Yap_heap_regs->dead_static_clauses
+#define DeadMegaClauses Yap_heap_regs->dead_mega_clauses
+#define DeadStaticIndices Yap_heap_regs->dead_static_indices
+#define DBErasedList Yap_heap_regs->db_erased_list
+#define DBErasedIList Yap_heap_regs->db_erased_ilist
+#if defined(YAPOR) || defined(THREADS)
+#define DeadStaticClausesLock Yap_heap_regs->dead_static_clauses_lock
+#define DeadMegaClausesLock Yap_heap_regs->dead_mega_clauses_lock
+#define DeadStaticIndicesLock Yap_heap_regs->dead_static_indices_lock
+#endif
+#ifdef COROUTINING
+
+#define NUM_OF_ATTS Yap_heap_regs->num_of_atts
+
+#define Yap_AttsSize Yap_heap_regs->atts_size
+#endif
+
+#define Yap_AllowLocalExpansion Yap_heap_regs->allow_local_expansion
+#define Yap_AllowGlobalExpansion Yap_heap_regs->allow_global_expansion
+#define Yap_AllowTrailExpansion Yap_heap_regs->allow_trail_expansion
+#define SizeOfOverflow Yap_heap_regs->size_of_overflow
+#define GlobalHoldEntry Yap_heap_regs->global_hold_entry
+
+#define AGcLastCall Yap_heap_regs->agc_last_call
+
+#define AGcThreshold Yap_heap_regs->agc_threshold
+#define AGCHook Yap_heap_regs->agc_hook
+
+#define yap_flags Yap_heap_regs->yap_flags_field
+
+#define OpList Yap_heap_regs->op_list
+
+
+#define Stream Yap_heap_regs->yap_streams
+
+#define NOfFileAliases Yap_heap_regs->n_of_file_aliases
+#define SzOfFileAliases Yap_heap_regs->sz_of_file_aliases
+#define FileAliases Yap_heap_regs->file_aliases
+
+#define AtPrompt Yap_heap_regs->atprompt
+#define Prompt Yap_heap_regs->prompt
+
+#if HAVE_LIBREADLINE
+#define ReadlineBuf Yap_heap_regs->readline_buf
+#define ReadlinePos Yap_heap_regs->readline_pos
+#endif
+
+#define CharConversionTable Yap_heap_regs->char_conversion_table
+#define CharConversionTable2 Yap_heap_regs->char_conversion_table2
+
+#define max_depth Yap_heap_regs->maxdepth
+#define max_list Yap_heap_regs->axlist
+#define max_write_args Yap_heap_regs->maxwriteargs
+
+#define ParserErrorStyle Yap_heap_regs->parser_error_style
+
+#define Yap_LibDir Yap_heap_regs->yap_lib_dir
+
+#define LastWtimePtr Yap_heap_regs->last_wtime
+
+#define output_msg Yap_heap_regs->debugger_output_msg
+#if LOW_PROF
+#define ProfilerOn Yap_heap_regs->profiler_on
+#define Yap_OffLineProfiler Yap_heap_regs->offline_profiler
+#define FProf Yap_heap_regs->f_prof
+#define FPreds Yap_heap_regs->f_preds
+#define ProfPreds Yap_heap_regs->prof_preds
+#endif /* LOW_PROF */
+
+#define ForeignCodeLoaded Yap_heap_regs->foreign_code_loaded
+#define ForeignCodeBase Yap_heap_regs->foreign_code_base
+#define ForeignCodeTop Yap_heap_regs->foreign_code_top
+#define ForeignCodeMax Yap_heap_regs->foreign_code_max

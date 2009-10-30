@@ -24,6 +24,72 @@
 // Init... sets up call to InitFunc
 // Restore... sets up call to RestoreFunc
 //
+
+/* multi-thread/ORP support */
+#if defined(YAPOR) || defined(THREADS)
+/* number of threads and processes in system */
+UInt		n_of_threads		NOfThreads	=1	void
+/* number of threads created since start */
+UInt		n_of_threads_created	NOfThreadsCreated =1	void
+/* total run time for dead threads */
+UInt  threads_total_time		ThreadsTotalTime =0L	void
+/* protect long critical regions   */
+lockvar		bgl			BGL			MkLock
+/* worker local data */
+worker_local	wl[MAX_AGENTS]		WorkerLocal		void void
+#ifndef WL
+#define WL	wl[worker_id]
+#endif
+#else
+worker_local	wl			WorkerLocak			void void
+#ifndef WL
+#define WL	wl
+#endif
+#endif
+#ifdef THREADS
+lockvar		thread_handles_lock	ThreadHandlesLock	MkLock
+struct thandle	thread_handle[MAX_THREADS] ThreadHandle		InitThreadHandles void
+#endif
+
+/* memory management */
+UInt		hole_size		Yap_HoleSize		void void
+struct malloc_state *av_		Yap_av			void void
+#if USE_DL_MALLOC
+struct memory_hole memory_holes[MAX_DLMALLOC_HOLES] Yap_MemoryHoles void void
+UInt		nof_memory_holes	Yap_NOfMemoryHoles	void void
+#endif
+#if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
+#ifndef  HeapUsed
+#define  HeapUsed  Yap_givemallinfo()		
+#endif
+Int		heap_used		NotHeapUsed		void void
+#else
+Int		heap_used		HeapUsed		void void
+#endif
+Int		heap_max		HeapMax			void void
+ADDR		heap_top		HeapTop			void void
+ADDR		heap_lim		HeapLim			void void
+struct FREEB    *free_blocks		FreeBlocks		void void
+#if defined(YAPOR) || defined(THREADS)
+lockvar		free_blocks_lock	FreeBlocksLock		MkLock
+lockvar		heap_used_lock		HeapUsedLock		MkLock
+lockvar		heap_top_lock		HeapTopLock		MkLock
+int		heap_top_owner		HeapTopOwner		=-1 void
+#endif
+
+
+/* atom tables */
+UInt		n_of_atoms		NOfAtoms		void void
+UInt		atom_hash_table_size	AtomHashTableSize	void void
+UInt		wide_atom_hash_table_size WideAtomHashTableSize void void
+UInt		n_of_wide_atoms		NOfWideAtoms		void void
+AtomHashEntry	invisiblechain		INVISIBLECHAIN		InitInvisibleAtoms() RestoreInvisibleAtoms()
+AtomHashEntry	*wide_hash_chain	WideHashChain		InitWideAtoms()  RestoreWideAtoms()
+AtomHashEntry	*hash_chain		HashChain		InitAtoms() RestoreAtoms()
+
+/* use atom defs here */
+ATOMS
+
 #ifdef EUROTRA
 Term		term_dollar_u		TermDollarU		MkAT AtomDollarU
 #endif
@@ -71,7 +137,7 @@ struct pred_entry **pred_hash		PredHash		InitPredHash() RestorePredHash()
 #if defined(YAPOR) || defined(THREADS)
 rwlock_t	pred_hash_rw_lock	PredHashRWLock		void
 #endif
-UInt		preds_in_hash_table	PredsInHashTable	void
+UInt		preds_in_hash_table	PredsInHashTable	=0 void
 UInt		pred_hash_table_size	PredHashTableSize	void
 
 
@@ -82,7 +148,6 @@ struct pred_entry *spy_code		SpyCode			MkPred AtomSpy 1 PROLOG_MODULE
 struct pred_entry *pred_fail		PredFail		MkPred AtomFail 0 PROLOG_MODULE
 struct pred_entry *pred_true		PredTrue		MkPred AtomTrue 0 PROLOG_MODULE
 #ifdef COROUTINING
-int		num_of_atts		NUM_OF_ATTS		=1	void
 struct pred_entry  *wake_up_code	WakeUpCode		MkPred AtomWakeUpGoal 2 PROLOG_MODULE
 #endif
 struct pred_entry *pred_goal_expansion	PredGoalExpansion	MkPred FunctorGoalExpansion USER_MODULE
@@ -96,6 +161,10 @@ struct pred_entry *pred_static_clause	PredStaticClause	MkPred FunctorDoStaticCla
 struct pred_entry *pred_throw		PredThrow		MkPred FunctorThrow PROLOG_MODULE
 struct pred_entry *pred_handle_throw	PredHandleThrow		MkPred FunctorHandleThrow PROLOG_MODULE
 struct pred_entry *pred_is		PredIs			MkPred FunctorIs PROLOG_MODULE
+#ifdef YAPOR
+struct pred_entry *pred_getwork		PredGetwork		MkPred AtomGetwork 0 PROLOG_MODULE
+struct pred_entry *pred_getwork_seq	PredGetworkSeq		MkPred AtomGetworkSeq 0 PROLOG_MODULE
+#endif /* YAPOR */
 
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER
@@ -127,22 +196,22 @@ yamop		*trustfailcode		TRUSTFAILCODE		void
 yamop		env_for_yescode[2]	ENV_FOR_YESCODE		InitEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail) RestoreEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail)
 yamop		*yescode		YESCODE			void
 
-yamop		rtrycode[1]		RTRYCODE		InitOtaplInst(RTRYCODE,_retry_and_mark) RestoreOtaplInst(RTRYCODE,_retry_and_mark)
+  yamop		rtrycode[1]		RTRYCODE		InitOtaplInst(RTRYCODE,_retry_and_mark,PredFail) RestoreOtaplInst(RTRYCODE,_retry_and_mark,PredFail)
 
 #ifdef BEAM
 yamop		beam_retry_code[1]	BEAM_RETRY_CODE		MkInstE _beam_retry_code
 #endif /* BEAM */
 #ifdef YAPOR
 int		seq_def			SEQUENTIAL_IS_DEFAULT	=TRUE void
-yamop		getwork_code[1]		GETWORK			InitOtaplInst(GETWORK,_getwork) RestoreOtaplInst(GETWORK,_getwork)
-yamop		getwork_seq_code[1]	GETWORK_SEQ		InitOtaplInst(GETWORK_SEQ,_getwork_seq) RestoreOtaplInst(GETWORK_SEQ,_getwork_seq)
+  yamop		getwork_code[1]		GETWORK			InitOtaplInst(GETWORK,_getwork,PredGetwork) RestoreOtaplInst(GETWORK,_getwork,PredGetwork)
+  yamop		getwork_seq_code[1]	GETWORK_SEQ		InitOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq) RestoreOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq)
 yamop		getwork_first_time[1]	GETWORK_FIRST_TIME	MkInstE _getwork_first_time
 #endif /* YAPOR */
 #ifdef TABLING
-yamop		table_load_answer_code[1] LOAD_ANSWER		InitOtaplInst(LOAD_ANSWER,_table_load_answer) RestoreOtaplInst(LOAD_ANSWER,_table_load_answer)
-yamop		table_try_answer_code[1] TRY_ANSWER		InitOtaplInst(TRY_ANSWER,_table_try_answer) RestoreOtaplInst(TRY_ANSWER,_table_try_answer)
-yamop		table_answer_resolution_code[1]	ANSWER_RESOLUTION InitOtaplInst(ANSWER_RESOLUTION,_answer_resolution) RestoreOtaplInst(ANSWER_RESOLUTION,_answer_resolution_seq)
-yamop		table_completion_code[1]	COMPLETION	InitOtaplInst(COMPLETION,_table_completion) RestoreOtaplInst(COMPLETION,_table_completion)
+  yamop		table_load_answer_code[1] LOAD_ANSWER		InitOtaplInst(LOAD_ANSWER,_table_load_answer,PredFail) RestoreOtaplInst(LOAD_ANSWER,_table_load_answer)
+  yamop		table_try_answer_code[1] TRY_ANSWER		InitOtaplInst(TRY_ANSWER,_table_try_answer) RestoreOtaplInst(TRY_ANSWER,_table_try_answer,PredFail)
+  yamop		table_answer_resolution_code[1]	ANSWER_RESOLUTION InitOtaplInst(ANSWER_RESOLUTION,_answer_resolution,PredFail) RestoreOtaplInst(ANSWER_RESOLUTION,_answer_bresolution_seq,PredFail)
+yamop		table_completion_code[1]	COMPLETION	InitOtaplInst(COMPLETION,_table_completion,PredFail) RestoreOtaplInst(COMPLETION,_table_completion,PredFail)
 #endif /* TABLING */
 
 /*  */
@@ -216,3 +285,93 @@ int		update_mode		UPDATE_MODE	        =UPDATE_MODE_LOGICAL void
 struct DB_STRUCT *db_erased_marker	DBErasedMarker		InitDBErasedMarker() RestoreDBErasedMarker() 
 struct logic_upd_clause *logdb_erased_marker LogDBErasedMarker	InitLogDBErasedMarker() RestoreLogDBErasedMarker() 
 
+/* Dead clauses and IDB entries */
+struct static_clause *dead_static_clauses DeadStaticClauses	=NULL RestoreDeadStaticClauses()
+struct static_mega_clause *dead_mega_clauses DeadMegaClauses	=NULL RestoreDeadMegaClauses()
+struct static_index *dead_static_indices DeadStaticIndices	=NULL RestoreDeadStaticIndices()
+struct logic_upd_clause *db_erased_list	DBErasedList		=NULL RestoreDBErasedList()
+struct logic_upd_index *db_erased_ilist DBErasedIList		=NULL RestoreDBErasedIList()
+#if defined(YAPOR) || defined(THREADS)
+lockvar  dead_static_clauses_lock	DeadStaticClausesLock	MkLock
+lockvar  dead_mega_clauses_lock		DeadMegaClausesLock	MkLock
+lockvar  dead_static_indices_lock	DeadStaticIndicesLock	MkLock
+#endif
+
+#ifdef COROUTINING
+/* number of attribute modules */
+int		num_of_atts		NUM_OF_ATTS		=1	void
+/* initialised by memory allocator */
+UInt		atts_size		Yap_AttsSize		void void
+#endif
+
+/* stack overflow expansion/gc control */
+int		allow_local_expansion	Yap_AllowLocalExpansion =TRUE void 
+int		allow_global_expansion	Yap_AllowGlobalExpansion =TRUE void 
+int		allow_trail_expansion	Yap_AllowTrailExpansion =TRUE void 
+UInt		size_of_overflow	SizeOfOverflow		=0 void
+struct hold_entry *global_hold_entry	GlobalHoldEntry		=Yap_InitAtomHold() HoldEntryAdjust
+/* amount of space recovered in all garbage collections */
+UInt		agc_last_call		AGcLastCall		=0 void
+/* amount of space recovered in all garbage collections */
+UInt		agc_threshold		AGcThreshold		=10000 void
+Agc_hook	agc_hook		AGCHook			=NULL void
+
+/* YAP control flags */
+Int		yap_flags_field[NUMBER_OF_YAP_FLAGS] yap_flags InitFlags() void
+
+/* Operators */
+struct operator_entry	*op_list	OpList			=NULL OpListAdjust
+
+/* Input/Output */
+
+/* stream array */
+struct stream_desc *yap_streams		Stream			=NULL RestoreStreams()
+
+/* stream aliases */
+UInt		n_of_file_aliases	NOfFileAliases		=0 void
+UInt		sz_of_file_aliases	SzOfFileAliases		=0 void
+struct AliasDescS *file_aliases		FileAliases		=NULL RestoreAliases()
+
+/* prompting */
+Atom		atprompt		AtPrompt		=AtomNil AtomAdjust
+char		prompt[MAX_PROMPT]	Prompt			void void
+
+/* readline */
+#if HAVE_LIBREADLINE
+char		*readline_buf		ReadlineBuf		=NULL void
+char		*readline_pos		ReadlinePos		=0L   void
+#endif
+
+/* ISO char conversion: I will make no comments */
+char		*char_conversion_table	CharConversionTable	=NULL CodeCharPAdjust
+char		*char_conversion_table2	CharConversionTable2	=NULL CodeCharPAdjust
+
+/* write depth */
+UInt		maxdepth		max_depth		=0L void
+UInt		axlist			max_list		=0L void
+UInt		maxwriteargs		max_write_args		=0L void
+
+/* what to do when the parser gives an error: should be thread bound?  */
+int		parser_error_style	ParserErrorStyle	=EXCEPTION_ON_PARSER_ERROR void
+
+/* library location.  */
+char		*yap_lib_dir		Yap_LibDir		=NULL CodeCharPAdjust
+
+/* time */
+void		*last_wtime		LastWtimePtr		=NULL CodeVoidPAdjust
+
+/* profiling */
+int		debugger_output_msg	output_msg		=0L void
+#if LOW_PROF
+int		profiler_on		ProfilerOn		=FALSE void
+int		offline_profiler	Yap_OffLineProfiler	=FALSE void
+FILE		*f_prof			FProf			=NULL void
+FILE		*f_preds		FPreds			=NULL void
+UInt		prof_preds		ProfPreds		=0L void
+#endif /* LOW_PROF */
+
+/* foreign code loaded */
+void		*foreign_code_loaded	ForeignCodeLoaded	=NULL RestoreForeignCode()
+ADDR		foreign_code_base	ForeignCodeBase		=NULL void
+ADDR		foreign_code_top	ForeignCodeTop		=NULL void
+ADDR		foreign_code_max	ForeignCodeMax		=NULL void

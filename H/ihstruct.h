@@ -24,6 +24,66 @@
 
 
 
+
+#if defined(YAPOR) || defined(THREADS)
+
+  Yap_heap_regs->n_of_threads = 1;
+
+  Yap_heap_regs->n_of_threads_created = 1;
+
+  Yap_heap_regs->threads_total_time = 0L;
+
+  INIT_LOCK(Yap_heap_regs->bgl);
+
+
+#ifndef WL
+#define WL	wl[worker_id]
+#endif
+#else
+
+#ifndef WL
+#define WL	wl
+#endif
+#endif
+#ifdef THREADS
+  INIT_LOCK(Yap_heap_regs->thread_handles_lock);
+  InitThreadHandles;
+#endif
+
+
+
+#if USE_DL_MALLOC
+
+
+#endif
+#if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
+#ifndef  HeapUsed
+#define  HeapUsed  Yap_givemallinfo()		
+#endif
+
+#else
+
+#endif
+
+
+
+
+#if defined(YAPOR) || defined(THREADS)
+  INIT_LOCK(Yap_heap_regs->free_blocks_lock);
+  INIT_LOCK(Yap_heap_regs->heap_used_lock);
+  INIT_LOCK(Yap_heap_regs->heap_top_lock);
+  Yap_heap_regs->heap_top_owner = -1;
+#endif
+
+
+
+
+
+  InitInvisibleAtoms();
+  InitWideAtoms();
+  InitAtoms();
+
+#include "iatoms.h"
 #ifdef EUROTRA
   Yap_heap_regs->term_dollar_u = MkAtomTerm(AtomDollarU);
 #endif
@@ -66,7 +126,7 @@
 #if defined(YAPOR) || defined(THREADS)
 
 #endif
-
+  Yap_heap_regs->preds_in_hash_table = 0;
 
 
   Yap_heap_regs->creep_code = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomCreep,1),PROLOG_MODULE));
@@ -75,7 +135,6 @@
   Yap_heap_regs->pred_fail = RepPredProp(PredPropByAtom(AtomFail,PROLOG_MODULE));
   Yap_heap_regs->pred_true = RepPredProp(PredPropByAtom(AtomTrue,PROLOG_MODULE));
 #ifdef COROUTINING
-  Yap_heap_regs->num_of_atts = 1;
   Yap_heap_regs->wake_up_code = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomWakeUpGoal,2),PROLOG_MODULE));
 #endif
   Yap_heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(FunctorGoalExpansion,USER_MODULE));
@@ -89,6 +148,10 @@
   Yap_heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,PROLOG_MODULE));
   Yap_heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(FunctorHandleThrow,PROLOG_MODULE));
   Yap_heap_regs->pred_is = RepPredProp(PredPropByFunc(FunctorIs,PROLOG_MODULE));
+#ifdef YAPOR
+  Yap_heap_regs->pred_getwork = RepPredProp(PredPropByAtom(AtomGetwork,PROLOG_MODULE));
+  Yap_heap_regs->pred_getwork_seq = RepPredProp(PredPropByAtom(AtomGetworkSeq,PROLOG_MODULE));
+#endif /* YAPOR */
 
 #ifdef LOW_LEVEL_TRACER
   Yap_heap_regs->yap_do_low_level_trace = FALSE;
@@ -115,21 +178,21 @@
 
   InitEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail);
 
-  InitOtaplInst(RTRYCODE,_retry_and_mark);
+  InitOtaplInst(RTRYCODE,_retry_and_mark,PredFail);
 #ifdef BEAM
   Yap_heap_regs->beam_retry_code->opc = Yap_opcode(_beam_retry_code);
 #endif /* BEAM */
 #ifdef YAPOR
   Yap_heap_regs->seq_def = TRUE;
-  InitOtaplInst(GETWORK,_getwork);
-  InitOtaplInst(GETWORK_SEQ,_getwork_seq);
+  InitOtaplInst(GETWORK,_getwork,PredGetwork);
+  InitOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq);
   Yap_heap_regs->getwork_first_time->opc = Yap_opcode(_getwork_first_time);
 #endif /* YAPOR */
 #ifdef TABLING
-  InitOtaplInst(LOAD_ANSWER,_table_load_answer);
+  InitOtaplInst(LOAD_ANSWER,_table_load_answer,PredFail);
   InitOtaplInst(TRY_ANSWER,_table_try_answer);
-  InitOtaplInst(ANSWER_RESOLUTION,_answer_resolution);
-  InitOtaplInst(COMPLETION,_table_completion);
+  InitOtaplInst(ANSWER_RESOLUTION,_answer_resolution,PredFail);
+  InitOtaplInst(COMPLETION,_table_completion,PredFail);
 #endif /* TABLING */
 
 
@@ -190,3 +253,77 @@
 
   InitDBErasedMarker();
   InitLogDBErasedMarker();
+
+  Yap_heap_regs->dead_static_clauses = NULL;
+  Yap_heap_regs->dead_mega_clauses = NULL;
+  Yap_heap_regs->dead_static_indices = NULL;
+  Yap_heap_regs->db_erased_list = NULL;
+  Yap_heap_regs->db_erased_ilist = NULL;
+#if defined(YAPOR) || defined(THREADS)
+  INIT_LOCK(Yap_heap_regs->dead_static_clauses_lock);
+  INIT_LOCK(Yap_heap_regs->dead_mega_clauses_lock);
+  INIT_LOCK(Yap_heap_regs->dead_static_indices_lock);
+#endif
+#ifdef COROUTINING
+
+  Yap_heap_regs->num_of_atts = 1;
+
+
+#endif
+
+  Yap_heap_regs->allow_local_expansion = TRUE;
+  Yap_heap_regs->allow_global_expansion = TRUE;
+  Yap_heap_regs->allow_trail_expansion = TRUE;
+  Yap_heap_regs->size_of_overflow = 0;
+  Yap_heap_regs->global_hold_entry = Yap_InitAtomHold();
+
+  Yap_heap_regs->agc_last_call = 0;
+
+  Yap_heap_regs->agc_threshold = 10000;
+  Yap_heap_regs->agc_hook = NULL;
+
+  InitFlags();
+
+  Yap_heap_regs->op_list = NULL;
+
+
+  Yap_heap_regs->yap_streams = NULL;
+
+  Yap_heap_regs->n_of_file_aliases = 0;
+  Yap_heap_regs->sz_of_file_aliases = 0;
+  Yap_heap_regs->file_aliases = NULL;
+
+  Yap_heap_regs->atprompt = AtomNil;
+
+
+#if HAVE_LIBREADLINE
+  Yap_heap_regs->readline_buf = NULL;
+  Yap_heap_regs->readline_pos = 0L;
+#endif
+
+  Yap_heap_regs->char_conversion_table = NULL;
+  Yap_heap_regs->char_conversion_table2 = NULL;
+
+  Yap_heap_regs->maxdepth = 0L;
+  Yap_heap_regs->axlist = 0L;
+  Yap_heap_regs->maxwriteargs = 0L;
+
+  Yap_heap_regs->parser_error_style = EXCEPTION_ON_PARSER_ERROR;
+
+  Yap_heap_regs->yap_lib_dir = NULL;
+
+  Yap_heap_regs->last_wtime = NULL;
+
+  Yap_heap_regs->debugger_output_msg = 0L;
+#if LOW_PROF
+  Yap_heap_regs->profiler_on = FALSE;
+  Yap_heap_regs->offline_profiler = FALSE;
+  Yap_heap_regs->f_prof = NULL;
+  Yap_heap_regs->f_preds = NULL;
+  Yap_heap_regs->prof_preds = 0L;
+#endif /* LOW_PROF */
+
+  Yap_heap_regs->foreign_code_loaded = NULL;
+  Yap_heap_regs->foreign_code_base = NULL;
+  Yap_heap_regs->foreign_code_top = NULL;
+  Yap_heap_regs->foreign_code_max = NULL;

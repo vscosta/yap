@@ -24,6 +24,66 @@
 
 
 
+
+#if defined(YAPOR) || defined(THREADS)
+
+
+
+
+
+
+
+  REINIT_LOCK(Yap_heap_regs->bgl);
+
+
+#ifndef WL
+#define WL	wl[worker_id]
+#endif
+#else
+
+#ifndef WL
+#define WL	wl
+#endif
+#endif
+#ifdef THREADS
+  REINIT_LOCK(Yap_heap_regs->thread_handles_lock);
+
+#endif
+
+
+
+#if USE_DL_MALLOC
+
+
+#endif
+#if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
+#ifndef  HeapUsed
+#define  HeapUsed  Yap_givemallinfo()		
+#endif
+
+#else
+
+#endif
+
+
+
+
+#if defined(YAPOR) || defined(THREADS)
+  REINIT_LOCK(Yap_heap_regs->free_blocks_lock);
+  REINIT_LOCK(Yap_heap_regs->heap_used_lock);
+  REINIT_LOCK(Yap_heap_regs->heap_top_lock);
+
+#endif
+
+
+
+
+
+  RestoreInvisibleAtoms();
+  RestoreWideAtoms();
+  RestoreAtoms();
+
+#include "ratoms.h"
 #ifdef EUROTRA
   Yap_heap_regs->term_dollar_u = AtomTermAdjust(Yap_heap_regs->term_dollar_u);
 #endif
@@ -75,7 +135,6 @@
   Yap_heap_regs->pred_fail = PtoPredAdjust(Yap_heap_regs->pred_fail);
   Yap_heap_regs->pred_true = PtoPredAdjust(Yap_heap_regs->pred_true);
 #ifdef COROUTINING
-
   Yap_heap_regs->wake_up_code = PtoPredAdjust(Yap_heap_regs->wake_up_code);
 #endif
   Yap_heap_regs->pred_goal_expansion = PtoPredAdjust(Yap_heap_regs->pred_goal_expansion);
@@ -89,6 +148,10 @@
   Yap_heap_regs->pred_throw = PtoPredAdjust(Yap_heap_regs->pred_throw);
   Yap_heap_regs->pred_handle_throw = PtoPredAdjust(Yap_heap_regs->pred_handle_throw);
   Yap_heap_regs->pred_is = PtoPredAdjust(Yap_heap_regs->pred_is);
+#ifdef YAPOR
+  Yap_heap_regs->pred_getwork = PtoPredAdjust(Yap_heap_regs->pred_getwork);
+  Yap_heap_regs->pred_getwork_seq = PtoPredAdjust(Yap_heap_regs->pred_getwork_seq);
+#endif /* YAPOR */
 
 #ifdef LOW_LEVEL_TRACER
 
@@ -115,21 +178,21 @@
 
   RestoreEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail);
 
-  RestoreOtaplInst(RTRYCODE,_retry_and_mark);
+  RestoreOtaplInst(RTRYCODE,_retry_and_mark,PredFail);
 #ifdef BEAM
   Yap_heap_regs->beam_retry_code->opc = Yap_opcode(_beam_retry_code);
 #endif /* BEAM */
 #ifdef YAPOR
 
-  RestoreOtaplInst(GETWORK,_getwork);
-  RestoreOtaplInst(GETWORK_SEQ,_getwork_seq);
+  RestoreOtaplInst(GETWORK,_getwork,PredGetwork);
+  RestoreOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq);
   Yap_heap_regs->getwork_first_time->opc = Yap_opcode(_getwork_first_time);
 #endif /* YAPOR */
 #ifdef TABLING
   RestoreOtaplInst(LOAD_ANSWER,_table_load_answer);
-  RestoreOtaplInst(TRY_ANSWER,_table_try_answer);
-  RestoreOtaplInst(ANSWER_RESOLUTION,_answer_resolution_seq);
-  RestoreOtaplInst(COMPLETION,_table_completion);
+  RestoreOtaplInst(TRY_ANSWER,_table_try_answer,PredFail);
+  RestoreOtaplInst(ANSWER_RESOLUTION,_answer_bresolution_seq,PredFail);
+  RestoreOtaplInst(COMPLETION,_table_completion,PredFail);
 #endif /* TABLING */
 
 
@@ -190,3 +253,77 @@
 
   RestoreDBErasedMarker();
   RestoreLogDBErasedMarker();
+
+  RestoreDeadStaticClauses();
+  RestoreDeadMegaClauses();
+  RestoreDeadStaticIndices();
+  RestoreDBErasedList();
+  RestoreDBErasedIList();
+#if defined(YAPOR) || defined(THREADS)
+  REINIT_LOCK(Yap_heap_regs->dead_static_clauses_lock);
+  REINIT_LOCK(Yap_heap_regs->dead_mega_clauses_lock);
+  REINIT_LOCK(Yap_heap_regs->dead_static_indices_lock);
+#endif
+#ifdef COROUTINING
+
+
+
+
+#endif
+
+
+
+
+
+  Yap_heap_regs->global_hold_entry = HoldEntryAdjust(Yap_heap_regs->global_hold_entry);
+
+
+
+
+
+
+
+
+  Yap_heap_regs->op_list = OpListAdjust(Yap_heap_regs->op_list);
+
+
+  RestoreStreams();
+
+
+
+  RestoreAliases();
+
+  Yap_heap_regs->atprompt = AtomAdjust(Yap_heap_regs->atprompt);
+
+
+#if HAVE_LIBREADLINE
+
+
+#endif
+
+  Yap_heap_regs->char_conversion_table = CodeCharPAdjust(Yap_heap_regs->char_conversion_table);
+  Yap_heap_regs->char_conversion_table2 = CodeCharPAdjust(Yap_heap_regs->char_conversion_table2);
+
+
+
+
+
+
+
+  Yap_heap_regs->yap_lib_dir = CodeCharPAdjust(Yap_heap_regs->yap_lib_dir);
+
+  Yap_heap_regs->last_wtime = CodeVoidPAdjust(Yap_heap_regs->last_wtime);
+
+
+#if LOW_PROF
+
+
+
+
+
+#endif /* LOW_PROF */
+
+  RestoreForeignCode();
+
+
+

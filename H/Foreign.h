@@ -93,7 +93,7 @@ typedef struct ForeignLoadItem {
   StringList objs;
   StringList libs;
   char *f;
-  int module;
+  Term module;
   struct ForeignLoadItem *next;
 } ForeignObj;
 

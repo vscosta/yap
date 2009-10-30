@@ -29,6 +29,9 @@ gen_struct(Inp,"") :-
 gen_struct(Inp, Out) :-
 	Inp = [0'#|_], !, Out = Inp. % '
 gen_struct(Inp,Out) :-
+	Inp = "ATOMS", !,
+	Out = "#include \"tatoms.h\"".
+gen_struct(Inp,Out) :-
 	split(Inp,"	 ",["struct",Type, Field|_]), !,
 	append(["  struct ",Type,"  ",Field,";"], Out).
 gen_struct(Inp,"") :-
@@ -46,6 +49,9 @@ gen_dstruct(Inp,"") :-
 	Inp = [0'/,0'*|_], !.
 gen_dstruct(Inp, Out) :-
 	Inp = [0'#|_], !, Out = Inp. % '
+gen_dstruct(Inp,Out) :-
+	Inp = "ATOMS", !,
+	Out = "".
 gen_dstruct(Inp,"") :-
 	split(Inp,"	 ",["void","void"|_]), !.
 gen_dstruct(Inp,Out) :-
@@ -75,6 +81,9 @@ gen_hstruct(Inp,"") :-
 	Inp = [0'/,0'/|_], !.
 gen_hstruct(Inp,"") :-
 	Inp = [0'/,0'*|_], !.
+gen_hstruct(Inp,Out) :-
+	Inp = "ATOMS", !,
+	Out = "#include \"ratoms.h\"".
 gen_hstruct(Inp, Out) :-
 	Inp = [0'#|_], !, Out = Inp. % '
 gen_hstruct(Inp,Out) :-
@@ -124,6 +133,9 @@ gen_init(Inp,"") :-
 	Inp = [0'/,0'/|_], !.
 gen_init(Inp, Out) :-
 	Inp = [0'#|_], !, Out = Inp. % '
+gen_init(Inp,Out) :-
+	Inp = "ATOMS", !,
+	Out = "#include \"iatoms.h\"".
 gen_init(Inp,Out) :-
 	split(Inp,"	 ",["struct"|Inp2]), !,
 	glue(Inp2, " ", Inp3),

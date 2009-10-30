@@ -1007,7 +1007,6 @@ restore_heap_regs(void)
   }
   HeapMax = Yap_heap_regs->heap_used = OldHeapUsed;
   HeapLim = Yap_GlobalBase;
-  restore_codes();
 }
 
 /* adjust abstract machine registers */
@@ -1172,45 +1171,6 @@ rehash(CELL *oldcode, int NOfE, int KindOfEntries)
 
 /* restore the atom entries which are invisible for the user */
 static void 
-RestoreForeignCodeStructure(void)
-{
-  ForeignObj *f_code;
-
-  if (ForeignCodeLoaded != NULL) 
-    ForeignCodeLoaded = (void *)AddrAdjust((ADDR)ForeignCodeLoaded);
-  f_code = ForeignCodeLoaded;
-  while (f_code != NULL) {
-    StringList objs, libs;
-    if (f_code->objs != NULL)
-      f_code->objs = (StringList)AddrAdjust((ADDR)f_code->objs);
-    objs = f_code->objs;
-    while (objs != NULL) {
-      if (objs->next != NULL)
-	objs->next = (StringList)AddrAdjust((ADDR)objs->next);
-      if (objs->s != NULL)
-	objs->s = (char *)AddrAdjust((ADDR)objs->s);
-      objs = objs->next;
-    }
-    if (f_code->libs != NULL)
-      f_code->libs = (StringList)AddrAdjust((ADDR)f_code->libs);
-    libs = f_code->libs;
-    while (libs != NULL) {
-      if (libs->next != NULL)
-	libs->next = (StringList)AddrAdjust((ADDR)libs->next);
-      if (libs->s != NULL)
-	libs->s = (char *)AddrAdjust((ADDR)libs->s);
-      libs = libs->next;
-    }
-    if (f_code->f != NULL)
-      f_code->f = (char *)AddrAdjust((ADDR)f_code->f);
-    if (f_code->next != NULL)
-      f_code->next = (ForeignObj *)AddrAdjust((ADDR)f_code->f);
-    f_code = f_code->next;
-  }
-}
-
-/* restore the atom entries which are invisible for the user */
-static void 
 RestoreIOStructures(void)
 {
   Yap_InitStdStreams();
@@ -1333,25 +1293,8 @@ RestoreHashPreds(void)
 static void 
 restore_heap(void)
 {
-  AtomHashEntry *HashPtr = HashChain;
-  register int    i;
-  for (i = 0; i < AtomHashTableSize; ++i) {
-    HashPtr->Entry = AtomAdjust(HashPtr->Entry);
-    RestoreAtomList(HashPtr->Entry);
-    HashPtr++;
-  }
-  HashPtr = WideHashChain;
-  for (i = 0; i < WideAtomHashTableSize; ++i) {
-    HashPtr->Entry = AtomAdjust(HashPtr->Entry);
-    RestoreAtomList(HashPtr->Entry);
-    HashPtr++;
-  }
-  INVISIBLECHAIN.Entry = AtomAdjust(INVISIBLECHAIN.Entry);
-  RestoreAtomList(INVISIBLECHAIN.Entry);
-  RestoreAtom(RepAtom(AtomFoundVar));
-  RestoreAtom(RepAtom(AtomFreeTerm));
+  restore_codes();
   RestoreHashPreds();
-  RestoreForeignCodeStructure();
   RestoreIOStructures();
 }
 

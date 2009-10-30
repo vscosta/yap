@@ -377,6 +377,47 @@ AdjustSwitchTable(op_numbers op, yamop *table, COUNT i)
   }
 }
 
+STATIC_PROTO(void  RestoreAtomList, (Atom));
+STATIC_PROTO(void  RestoreAtom, (AtomEntry *));
+
+static void
+RestoreAtoms(void)
+{
+  AtomHashEntry *HashPtr;
+  register int    i;
+
+
+  HashPtr = HashChain;
+  for (i = 0; i < AtomHashTableSize; ++i) {
+    HashPtr->Entry = AtomAdjust(HashPtr->Entry);
+    RestoreAtomList(HashPtr->Entry);
+    HashPtr++;
+  }  
+}
+
+static void
+RestoreWideAtoms(void)
+{
+  AtomHashEntry *HashPtr;
+  register int    i;
+
+  HashPtr = WideHashChain;
+  for (i = 0; i < WideAtomHashTableSize; ++i) {
+    HashPtr->Entry = AtomAdjust(HashPtr->Entry);
+    RestoreAtomList(HashPtr->Entry);
+    HashPtr++;
+  }  
+}
+
+static void
+RestoreInvisibleAtoms(void)
+{
+  INVISIBLECHAIN.Entry = AtomAdjust(INVISIBLECHAIN.Entry);
+  RestoreAtomList(INVISIBLECHAIN.Entry);
+  RestoreAtom(RepAtom(AtomFoundVar));
+  RestoreAtom(RepAtom(AtomFreeTerm));
+}
+
 #include "rclause.h"
 
 /* adjusts terms stored in the data base, when they have no variables */
@@ -622,14 +663,14 @@ RestoreEnvInst(yamop start[2], yamop **instp, op_numbers opc, PredEntry *pred)
 }
 
 static void
-RestoreOtaplInst(yamop start[1], OPCODE opc)
+RestoreOtaplInst(yamop start[1], OPCODE opc, PredEntry *pe)
 {
   yamop *ipc = start;
 
   /* this is a place holder, it should not really be used */
   ipc->opc = Yap_opcode(opc);
   ipc->u.Otapl.s = 0;
-  ipc->u.Otapl.p = PredFail;
+  ipc->u.Otapl.p = pe;
   if (ipc->u.Otapl.d)
     ipc->u.Otapl.d = PtoOpAdjust(ipc->u.Otapl.d);
 #ifdef YAPOR
@@ -768,6 +809,143 @@ RestoreLogDBErasedMarker(void)
   INIT_CLREF_COUNT(Yap_heap_regs->logdb_erased_marker);
 }
 
+static void 
+RestoreDeadStaticClauses(void)
+{
+  if (Yap_heap_regs->dead_static_clauses) {
+    StaticClause *sc = PtoStCAdjust(Yap_heap_regs->dead_static_clauses);
+    Yap_heap_regs->dead_static_clauses = sc;
+    while (sc) {
+      RestoreStaticClause(sc);
+      sc = sc->ClNext;
+    }
+  }
+}
+
+static void 
+RestoreDeadMegaClauses(void)
+{
+  if (Yap_heap_regs->dead_mega_clauses) {
+    MegaClause *mc = (MegaClause *)AddrAdjust((ADDR)(Yap_heap_regs->dead_mega_clauses));
+    Yap_heap_regs->dead_mega_clauses = mc;
+    while (mc) {
+      RestoreMegaClause(mc);
+      mc = mc->ClNext;
+    }
+  }
+}
+
+static void 
+RestoreDeadStaticIndices(void)
+{
+  if (Yap_heap_regs->dead_static_indices) {
+    StaticIndex *si = (StaticIndex *)AddrAdjust((ADDR)(Yap_heap_regs->dead_static_indices));
+    Yap_heap_regs->dead_static_indices = si;
+    while (si) {
+      CleanSIndex(si, FALSE);
+      si = si->SiblingIndex;
+    }
+  }
+}
+
+static void 
+RestoreDBErasedList(void)
+{
+  if (Yap_heap_regs->db_erased_list) {
+    LogUpdClause *lcl = Yap_heap_regs->db_erased_list = 
+      PtoLUCAdjust(Yap_heap_regs->db_erased_list);
+    while (lcl) {
+      RestoreLUClause(lcl, FALSE);
+      lcl = lcl->ClNext;
+    }
+  }
+}
+
+static void 
+RestoreDBErasedIList(void)
+{
+  if (Yap_heap_regs->db_erased_ilist) {
+    LogUpdIndex *icl = Yap_heap_regs->db_erased_ilist = 
+      LUIndexAdjust(Yap_heap_regs->db_erased_ilist);
+    while (icl) {
+      CleanLUIndex(icl, FALSE);
+      icl = icl->SiblingIndex;
+    }
+  }
+}
+
+static void
+RestoreStreams(void)
+{
+  if (Yap_heap_regs->yap_streams != NULL) {
+    int sno;
+
+    Yap_heap_regs->yap_streams =
+      (struct stream_desc *)AddrAdjust((ADDR)Yap_heap_regs->yap_streams);
+    for (sno = 0; sno < MaxStreams; ++sno) {
+      if (Stream[sno].status & Free_Stream_f)
+	continue;
+      if (Stream[sno].status & (Socket_Stream_f|Pipe_Stream_f|InMemory_Stream_f)) 
+	continue;
+      Stream[sno].u.file.user_name = AtomTermAdjust(Stream[sno].u.file.user_name);
+      Stream[sno].u.file.name = AtomAdjust(Stream[sno].u.file.name);
+    }    
+  }
+}
+
+static void
+RestoreAliases(void)
+{
+  if (Yap_heap_regs->file_aliases != NULL) {
+    int i;
+
+    Yap_heap_regs->file_aliases =
+      (struct AliasDescS *)AddrAdjust((ADDR)Yap_heap_regs->file_aliases);
+    for (i = 0; i < NOfFileAliases; i++)
+      FileAliases[i].name = AtomAdjust(FileAliases[i].name);
+  }
+}
+
+static void
+RestoreForeignCode(void)
+{
+  ForeignObj *f_code;
+
+  if (!ForeignCodeLoaded)
+    return;
+  if (ForeignCodeLoaded != NULL) 
+    ForeignCodeLoaded = (void *)AddrAdjust((ADDR)ForeignCodeLoaded);
+  f_code = ForeignCodeLoaded;
+  while (f_code != NULL) {
+    StringList objs, libs;
+    if (f_code->objs != NULL)
+      f_code->objs = (StringList)AddrAdjust((ADDR)f_code->objs);
+    objs = f_code->objs;
+    while (objs != NULL) {
+      if (objs->next != NULL)
+	objs->next = (StringList)AddrAdjust((ADDR)objs->next);
+      if (objs->s != NULL)
+	objs->s = (char *)AddrAdjust((ADDR)objs->s);
+      objs = objs->next;
+    }
+    if (f_code->libs != NULL)
+      f_code->libs = (StringList)AddrAdjust((ADDR)f_code->libs);
+    libs = f_code->libs;
+    while (libs != NULL) {
+      if (libs->next != NULL)
+	libs->next = (StringList)AddrAdjust((ADDR)libs->next);
+      if (libs->s != NULL)
+	libs->s = (char *)AddrAdjust((ADDR)libs->s);
+      libs = libs->next;
+    }
+    if (f_code->f != NULL)
+      f_code->f = (char *)AddrAdjust((ADDR)f_code->f);
+    if (f_code->next != NULL)
+      f_code->next = (ForeignObj *)AddrAdjust((ADDR)f_code->next);
+    f_code = f_code->next;
+  }
+}
+
 /* restore the failcodes */
 static void 
 restore_codes(void)
@@ -793,91 +971,7 @@ restore_codes(void)
     }
   }
 #endif
-  if (Yap_heap_regs->atprompt != NIL) {
-    Yap_heap_regs->atprompt =
-      AtomAdjust(Yap_heap_regs->atprompt);
-  }
-  if (Yap_heap_regs->char_conversion_table) {
-    Yap_heap_regs->char_conversion_table = (char *)
-      AddrAdjust((ADDR)Yap_heap_regs->char_conversion_table);
-  }
-  if (Yap_heap_regs->char_conversion_table2) {
-    Yap_heap_regs->char_conversion_table2 = (char *)
-      AddrAdjust((ADDR)Yap_heap_regs->char_conversion_table2);
-  }
-  if (Yap_heap_regs->op_list) {
-    Yap_heap_regs->op_list = (struct operator_entry *)
-      AddrAdjust((ADDR)Yap_heap_regs->op_list);
-  }
-  if (Yap_heap_regs->dead_static_clauses) {
-    StaticClause *sc = PtoStCAdjust(Yap_heap_regs->dead_static_clauses);
-    Yap_heap_regs->dead_static_clauses = sc;
-    while (sc) {
-      RestoreStaticClause(sc);
-      sc = sc->ClNext;
-    }
-  }
-  if (Yap_heap_regs->dead_mega_clauses) {
-    MegaClause *mc = (MegaClause *)AddrAdjust((ADDR)(Yap_heap_regs->dead_mega_clauses));
-    Yap_heap_regs->dead_mega_clauses = mc;
-    while (mc) {
-      RestoreMegaClause(mc);
-      mc = mc->ClNext;
-    }
-  }
-  if (Yap_heap_regs->dead_static_indices) {
-    StaticIndex *si = (StaticIndex *)AddrAdjust((ADDR)(Yap_heap_regs->dead_static_indices));
-    Yap_heap_regs->dead_static_indices = si;
-    while (si) {
-      CleanSIndex(si, FALSE);
-      si = si->SiblingIndex;
-    }
-  }
-  if (Yap_heap_regs->db_erased_list) {
-    LogUpdClause *lcl = Yap_heap_regs->db_erased_list = 
-      PtoLUCAdjust(Yap_heap_regs->db_erased_list);
-    while (lcl) {
-      RestoreLUClause(lcl, FALSE);
-      lcl = lcl->ClNext;
-    }
-  }
-  if (Yap_heap_regs->db_erased_ilist) {
-    LogUpdIndex *icl = Yap_heap_regs->db_erased_ilist = 
-      LUIndexAdjust(Yap_heap_regs->db_erased_ilist);
-    while (icl) {
-      CleanLUIndex(icl, FALSE);
-      icl = icl->SiblingIndex;
-    }
-  }
-#include "ratoms.h"
 #include "rhstruct.h"
-  Yap_heap_regs->global_hold_entry = HoldEntryAdjust(Yap_heap_regs->global_hold_entry);
-  if (Yap_heap_regs->yap_streams != NULL) {
-    int sno;
-
-    Yap_heap_regs->yap_streams =
-      (struct stream_desc *)AddrAdjust((ADDR)Yap_heap_regs->yap_streams);
-    for (sno = 0; sno < MaxStreams; ++sno) {
-      if (Stream[sno].status & Free_Stream_f)
-	continue;
-      if (Stream[sno].status & (Socket_Stream_f|Pipe_Stream_f|InMemory_Stream_f)) 
-	continue;
-      Stream[sno].u.file.user_name = AtomTermAdjust(Stream[sno].u.file.user_name);
-      Stream[sno].u.file.name = AtomAdjust(Stream[sno].u.file.name);
-    }    
-  }
-  if (Yap_heap_regs->file_aliases != NULL) {
-    int i;
-
-    Yap_heap_regs->file_aliases =
-      (struct AliasDescS *)AddrAdjust((ADDR)Yap_heap_regs->file_aliases);
-    for (i = 0; i < NOfFileAliases; i++)
-      FileAliases[i].name = AtomAdjust(FileAliases[i].name);
-  }
-  if (Yap_heap_regs->yap_lib_dir) {
-    Yap_heap_regs->yap_lib_dir =
-      (char *)AddrAdjust((ADDR)Yap_heap_regs->yap_lib_dir);
-  }
 #if !defined(THREADS) && !defined(YAPOR)
   if (Yap_heap_regs->wl.scratchpad.ptr) {
     Yap_heap_regs->wl.scratchpad.ptr =

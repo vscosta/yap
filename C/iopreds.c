@@ -967,7 +967,7 @@ p_setprompt (void)
   Term t = Deref(ARG1);
   if (IsVarTerm (t) || !IsAtomTerm (t))
     return (FALSE);
-  *AtPrompt = AtomOfTerm (t);
+  AtPrompt = AtomOfTerm (t);
   return (TRUE);
 }
 
@@ -989,7 +989,7 @@ p_prompt (void)
 {				/* prompt(Old,New)       */
   Term t = Deref (ARG2);
   Atom a;
-  if (!Yap_unify_constant (ARG1, MkAtomTerm (*AtPrompt)))
+  if (!Yap_unify_constant (ARG1, MkAtomTerm (AtPrompt)))
     return (FALSE);
   if (IsVarTerm (t) || !IsAtomTerm (t))
     return (FALSE);
@@ -999,7 +999,7 @@ p_prompt (void)
     return(FALSE);
   }
   strncpy(Prompt, RepAtom (a)->StrOfAE, MAX_PROMPT);
-  *AtPrompt = a;
+  AtPrompt = a;
   return (TRUE);
 }
 
@@ -1118,7 +1118,7 @@ ReadlineGetc(int sno)
       Yap_PrologMode &= ~ConsoleGetcMode;
     }
     newline=FALSE;
-    strncpy (Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
+    strncpy (Prompt, RepAtom (AtPrompt)->StrOfAE, MAX_PROMPT);
     /* window of vulnerability closed */
     if (myrl_line == NULL)
       return console_post_process_eof(s);
@@ -1369,7 +1369,7 @@ ConsoleSocketGetc(int sno)
     while ((ch = *cptr++) != '\0') {
       Stream[StdErrStream].stream_putc(StdErrStream, ch);
     }
-    strncpy(Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
+    strncpy(Prompt, RepAtom (AtPrompt)->StrOfAE, MAX_PROMPT);
     newline = FALSE;
   }
   /* should be able to use a buffer */
@@ -1444,7 +1444,7 @@ ConsolePipeGetc(int sno)
     while ((ch = *cptr++) != '\0') {
       Stream[StdErrStream].stream_putc(StdErrStream, ch);
     }
-    strncpy(Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
+    strncpy(Prompt, RepAtom (AtPrompt)->StrOfAE, MAX_PROMPT);
     newline = FALSE;
   }
 #if _MSC_VER || defined(__MINGW32__) 
@@ -1577,7 +1577,7 @@ ConsoleGetc(int sno)
 	Stream[StdErrStream].stream_putc(StdErrStream, ch);
       }
     }
-    strncpy (Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
+    strncpy (Prompt, RepAtom (AtPrompt)->StrOfAE, MAX_PROMPT);
     newline = FALSE;
   }
 #if HAVE_SIGINTERRUPT

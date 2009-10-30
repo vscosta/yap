@@ -582,6 +582,18 @@ inline EXTERN char * CodeCharPAdjust (char *);
 inline EXTERN char *
 CodeCharPAdjust (char * addr)
 {
+  if (!addr)
+    return NULL;
+  return addr + HDiff;
+}
+
+inline EXTERN void * CodeVoidPAdjust (void *);
+
+inline EXTERN void *
+CodeVoidPAdjust (void * addr)
+{
+  if (!addr)
+    return NULL;
   return addr + HDiff;
 }
 
@@ -603,6 +615,16 @@ inline EXTERN yamop *
 PtoOpAdjust (yamop * ptr)
 {
   return (yamop *) (CharP (ptr) + HDiff);
+}
+
+inline EXTERN struct operator_entry *OpListAdjust (struct operator_entry *);
+
+inline EXTERN struct operator_entry *
+OpListAdjust (struct operator_entry * ptr)
+{
+  if (!ptr)
+    return ptr;
+  return (struct operator_entry *) (CharP (ptr) + HDiff);
 }
 
 

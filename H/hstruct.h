@@ -24,6 +24,66 @@
 
 
 
+
+#if defined(YAPOR) || defined(THREADS)
+
+  UInt  n_of_threads;
+
+  UInt  n_of_threads_created;
+
+  UInt  threads_total_time;
+
+  lockvar  bgl;
+
+  worker_local  wl[MAX_AGENTS];
+#ifndef WL
+#define WL	wl[worker_id]
+#endif
+#else
+  worker_local  wl;
+#ifndef WL
+#define WL	wl
+#endif
+#endif
+#ifdef THREADS
+  lockvar  thread_handles_lock;
+  struct thandle  thread_handle[MAX_THREADS];
+#endif
+
+  UInt  hole_size;
+  struct malloc_state  *av_;
+#if USE_DL_MALLOC
+  struct memory_hole  memory_holes[MAX_DLMALLOC_HOLES];
+  UInt  nof_memory_holes;
+#endif
+#if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
+#ifndef  HeapUsed
+#define  HeapUsed  Yap_givemallinfo()		
+#endif
+  Int  heap_used;
+#else
+  Int  heap_used;
+#endif
+  Int  heap_max;
+  ADDR  heap_top;
+  ADDR  heap_lim;
+  struct FREEB  *free_blocks;
+#if defined(YAPOR) || defined(THREADS)
+  lockvar  free_blocks_lock;
+  lockvar  heap_used_lock;
+  lockvar  heap_top_lock;
+  int  heap_top_owner;
+#endif
+
+  UInt  n_of_atoms;
+  UInt  atom_hash_table_size;
+  UInt  wide_atom_hash_table_size;
+  UInt  n_of_wide_atoms;
+  AtomHashEntry  invisiblechain;
+  AtomHashEntry  *wide_hash_chain;
+  AtomHashEntry  *hash_chain;
+
+#include "tatoms.h"
 #ifdef EUROTRA
   Term  term_dollar_u;
 #endif
@@ -75,7 +135,6 @@
   struct pred_entry  *pred_fail;
   struct pred_entry  *pred_true;
 #ifdef COROUTINING
-  int  num_of_atts;
   struct pred_entry  *wake_up_code;
 #endif
   struct pred_entry  *pred_goal_expansion;
@@ -89,6 +148,10 @@
   struct pred_entry  *pred_throw;
   struct pred_entry  *pred_handle_throw;
   struct pred_entry  *pred_is;
+#ifdef YAPOR
+  struct pred_entry  *pred_getwork;
+  struct pred_entry  *pred_getwork_seq;
+#endif /* YAPOR */
 
 #ifdef LOW_LEVEL_TRACER
   int  yap_do_low_level_trace;
@@ -190,3 +253,77 @@
 
   struct DB_STRUCT  *db_erased_marker;
   struct logic_upd_clause  *logdb_erased_marker;
+
+  struct static_clause  *dead_static_clauses;
+  struct static_mega_clause  *dead_mega_clauses;
+  struct static_index  *dead_static_indices;
+  struct logic_upd_clause  *db_erased_list;
+  struct logic_upd_index  *db_erased_ilist;
+#if defined(YAPOR) || defined(THREADS)
+  lockvar  dead_static_clauses_lock;
+  lockvar  dead_mega_clauses_lock;
+  lockvar  dead_static_indices_lock;
+#endif
+#ifdef COROUTINING
+
+  int  num_of_atts;
+
+  UInt  atts_size;
+#endif
+
+  int  allow_local_expansion;
+  int  allow_global_expansion;
+  int  allow_trail_expansion;
+  UInt  size_of_overflow;
+  struct hold_entry  *global_hold_entry;
+
+  UInt  agc_last_call;
+
+  UInt  agc_threshold;
+  Agc_hook  agc_hook;
+
+  Int  yap_flags_field[NUMBER_OF_YAP_FLAGS];
+
+  struct operator_entry  *op_list;
+
+
+  struct stream_desc  *yap_streams;
+
+  UInt  n_of_file_aliases;
+  UInt  sz_of_file_aliases;
+  struct AliasDescS  *file_aliases;
+
+  Atom  atprompt;
+  char  prompt[MAX_PROMPT];
+
+#if HAVE_LIBREADLINE
+  char  *readline_buf;
+  char  *readline_pos;
+#endif
+
+  char  *char_conversion_table;
+  char  *char_conversion_table2;
+
+  UInt  maxdepth;
+  UInt  axlist;
+  UInt  maxwriteargs;
+
+  int  parser_error_style;
+
+  char  *yap_lib_dir;
+
+  void  *last_wtime;
+
+  int  debugger_output_msg;
+#if LOW_PROF
+  int  profiler_on;
+  int  offline_profiler;
+  FILE  *f_prof;
+  FILE  *f_preds;
+  UInt  prof_preds;
+#endif /* LOW_PROF */
+
+  void  *foreign_code_loaded;
+  ADDR  foreign_code_base;
+  ADDR  foreign_code_top;
+  ADDR  foreign_code_max;

@@ -18,12 +18,6 @@
 #ifndef HEAP_H
 #define HEAP_H 1
 
-#if defined(YAPOR) || defined(THREADS)
-#define WL wl[worker_id]
-#else
-#define WL wl
-#endif
-
 #if defined(THREADS)
 #define RINFO rinfo[worker_id]
 #else
@@ -180,6 +174,7 @@ typedef struct worker_local_struct {
   struct array_entry *dynamic_arrays;
   struct static_array_entry *static_arrays;
   struct global_entry *global_variables;
+  struct reduction_counters call_counters;
   int allow_restart;
   Term global_arena;
   UInt global_arena_overflows; 
@@ -224,136 +219,9 @@ typedef int   (*Agc_hook)(Atom);
 typedef struct various_codes {
   /* memory allocation and management */
   special_functors funcs;
-  UInt hole_size;
-  struct malloc_state *av_;
-#if USE_DL_MALLOC
-  struct memory_hole memory_holes[MAX_DLMALLOC_HOLES];
-  UInt nof_memory_holes;
-#endif
-  Int heap_used;
-  Int heap_max;
-  ADDR heap_top;
-  ADDR heap_lim;
-  struct FREEB  *free_blocks;
-#if defined(YAPOR) || defined(THREADS)
-  lockvar  heap_used_lock;        /* protect HeapUsed */
-  lockvar  heap_top_lock;        /* protect HeapTop */
-  int      heap_top_owner;
-#endif
 
-  /* multi-thread/ORP support */
-#if defined(YAPOR) || defined(THREADS)
-  unsigned int n_of_threads;      /* number of threads and processes in system */
-  unsigned int n_of_threads_created;      /* number of threads created since start */
-  UInt  threads_total_time;      /* total run time for dead threads */
-  lockvar  bgl;		 /* protect long critical regions   */
-  lockvar  free_blocks_lock;     /* protect the list of free blocks */
-  worker_local wl[MAX_AGENTS];
-#else
-  worker_local wl;
-#endif
-#ifdef THREADS
-  lockvar  thread_handles_lock;        /* protect ThreadManipulation */
-  struct thandle thread_handle[MAX_THREADS];
-#endif
-
-  /* atoms and functors */
-  UInt n_of_atoms;
-  UInt atom_hash_table_size;
-  UInt wide_atom_hash_table_size;
-  UInt n_of_wide_atoms;
-  AtomHashEntry invisiblechain;
-  AtomHashEntry *wide_hash_chain;
-  AtomHashEntry *hash_chain;
-
-#include "tatoms.h"
-
-  /* Terms multiply used */
 #include "hstruct.h"
 
-  /* Dead clauses and IDB entries */
-  struct static_clause *dead_static_clauses;
-  struct static_mega_clause *dead_mega_clauses;
-  struct static_index *dead_static_indices;
-  struct logic_upd_clause *db_erased_list;
-  struct logic_upd_index *db_erased_ilist;
-#if defined(YAPOR) || defined(THREADS)
-  lockvar  dead_static_clauses_lock;        /* protect DeadStaticClauses */
-  lockvar  dead_mega_clauses_lock;        /* protect DeadMegaClauses */
-  lockvar  dead_static_indices_lock;        /* protect DeadStaticIndices */
-#endif
-
-  /* execution counters */
-  struct reduction_counters call_counters;
-
-  /* number of attribute modules */
-  UInt atts_size;
-
-  /* stack overflow expansion/gc control */
-  int    allow_local_expansion;
-  int    allow_global_expansion;
-  int    allow_trail_expansion;
-  unsigned int size_of_overflow;
-  struct hold_entry *global_hold_entry;
-  UInt      agc_last_call; /* amount of space recovered in all garbage collections */
-  UInt      agc_threshold; /* amount of space recovered in all garbage collections */
-  Agc_hook  agc_hook;
-
-  /* YAP control flags */
-  Int   yap_flags_field[NUMBER_OF_YAP_FLAGS];
-
-  /* Operators */
-  struct operator_entry *op_list;
-
-  /* Input/Output */
-
-  /* stream array */
-  struct stream_desc *yap_streams;
-
-  /* stream aliases */
-  UInt n_of_file_aliases;
-  UInt sz_of_file_aliases;
-  struct AliasDescS * file_aliases;
-
-  /* prompting */
-  Atom atprompt;
-  char prompt[MAX_PROMPT];
-
-  /* readline */
-#if HAVE_LIBREADLINE
-  char *readline_buf, *readline_pos;
-#endif
-
-  /* ISO char conversion: I will make no comments */
-  char *char_conversion_table;
-  char *char_conversion_table2;
-
-  /* write depth */
-  UInt maxdepth, maxlist, maxwriteargs;
-
-  /* what to do when the parser gives an error: should be thread bound?  */
-  int parser_error_style;
-
-  /* library location.  */
-  char *yap_lib_dir;
-
-  /* time */
-  void *last_wtime;
-
-  /* profiling */
-  int    debugger_output_msg;
-#if LOW_PROF
-  int   profiler_on;
-  int   offline_profiler;
-  FILE *f_prof, *f_preds;
-  UInt  prof_preds;
-#endif /* LOW_PROF */
-
-  /* foreign code loaded */
-  void *foreign_code_loaded;
-  ADDR  foreign_code_base;
-  ADDR  foreign_code_top;
-  ADDR  foreign_code_max;
 
 #if defined(YAPOR) || defined(TABLING)
   struct global_data global;
@@ -367,71 +235,12 @@ extern struct various_codes *Yap_heap_regs;
 #define Yap_heap_regs  ((all_heap_codes *)HEAP_INIT_BASE)
 #endif
 
-#define  Yap_HoleSize            Yap_heap_regs->hole_size
-#define  Yap_av                  Yap_heap_regs->av_
-#define  Yap_AttsSize            Yap_heap_regs->atts_size
-#define  Yap_MemoryHoles         Yap_heap_regs->memory_holes
-#define  Yap_NOfMemoryHoles      Yap_heap_regs->nof_memory_holes
-#if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
-#define  HeapUsed                Yap_givemallinfo()
-#ifdef YAPOR
-#define  HeapUsedLock            Yap_heap_regs->heap_used_lock
-#endif
-#else
-#define  HeapUsed                Yap_heap_regs->heap_used
-#define  HeapUsedLock            Yap_heap_regs->heap_used_lock
-#endif
-#define  HeapMax                 Yap_heap_regs->heap_max
-#define  HeapTop                 Yap_heap_regs->heap_top
-#define  HeapLim                 Yap_heap_regs->heap_lim
-#define  INVISIBLECHAIN           Yap_heap_regs->invisiblechain
-#define  max_depth                Yap_heap_regs->maxdepth
-#define  max_list                 Yap_heap_regs->maxlist
-#define  max_write_args           Yap_heap_regs->maxwriteargs
-#define  AtPrompt                 (&(Yap_heap_regs->atprompt    	         ))
-#define  Prompt                   Yap_heap_regs->prompt
-#define  yap_flags                Yap_heap_regs->yap_flags_field
-#ifdef THREADS
-#define  ThreadHandlesLock	  Yap_heap_regs->thread_handles_lock
-#define  ThreadHandle		  Yap_heap_regs->thread_handle
-#endif
-#define  NOfAtoms                 Yap_heap_regs->n_of_atoms
-#define  AtomHashTableSize        Yap_heap_regs->atom_hash_table_size
-#define  HashChain                Yap_heap_regs->hash_chain
-#define  NOfWideAtoms             Yap_heap_regs->n_of_wide_atoms
-#define  WideAtomHashTableSize    Yap_heap_regs->wide_atom_hash_table_size
-#define  WideHashChain            Yap_heap_regs->wide_hash_chain
-#define  CharConversionTable      Yap_heap_regs->char_conversion_table
-#define  CharConversionTable2     Yap_heap_regs->char_conversion_table2
-#define  OpList                   Yap_heap_regs->op_list
 #define  FloatFormat              Yap_heap_regs->float_format
+
 #define  PROLOG_MODULE            0
+
 #include "dhstruct.h"
-#define  DBErasedList             Yap_heap_regs->db_erased_list
-#define  DBErasedIList            Yap_heap_regs->db_erased_ilist
-#define  Stream		          Yap_heap_regs->yap_streams
-#define  output_msg	          Yap_heap_regs->debugger_output_msg
-#define  NOfFileAliases           Yap_heap_regs->n_of_file_aliases
-#define  SzOfFileAliases          Yap_heap_regs->sz_of_file_aliases
-#define  FileAliases              Yap_heap_regs->file_aliases
-#if LOW_PROF
-#define  ProfilerOn		  Yap_heap_regs->profiler_on
-#define  Yap_OffLineProfiler	  Yap_heap_regs->offline_profiler
-#define  FProf     		  Yap_heap_regs->f_prof
-#define  FPreds     		  Yap_heap_regs->f_preds
-#define  ProfPreds		  Yap_heap_regs->prof_preds
-#endif /* LOW_PROF */
-#define  ReductionsCounter        Yap_heap_regs->call_counters.reductions
-#define  PredEntriesCounter       Yap_heap_regs->call_counters.reductions_retries
-#define  RetriesCounter           Yap_heap_regs->call_counters.retries
-#define  ReductionsCounterOn      Yap_heap_regs->call_counters.reductions_on
-#define  PredEntriesCounterOn     Yap_heap_regs->call_counters.reductions_retries_on
-#define  RetriesCounterOn         Yap_heap_regs->call_counters.retries_on
-#define  Yap_LibDir               Yap_heap_regs->yap_lib_dir
-#define  AGcLastCall              Yap_heap_regs->agc_last_call
-#define  AGcThreshold             Yap_heap_regs->agc_threshold
-#define  AGCHook                  Yap_heap_regs->agc_hook
-#define  ParserErrorStyle         Yap_heap_regs->parser_error_style
+
 #if defined(YAPOR) || defined(THREADS)
 #define  SignalLock               Yap_heap_regs->wl[worker_id].signal_lock
 #define  WPP                      Yap_heap_regs->wl[worker_id].wpp
@@ -486,6 +295,14 @@ extern struct various_codes *Yap_heap_regs;
 #define  XDiff                    RINFO.x_diff
 #define  DelayDiff                RINFO.delay_diff
 #define  BaseDiff	          RINFO.base_diff
+
+#define  ReductionsCounter        Yap_heap_regs->WL.call_counters.reductions
+#define  PredEntriesCounter       Yap_heap_regs->WL.call_counters.reductions_retries
+#define  RetriesCounter           Yap_heap_regs->WL.call_counters.retries
+#define  ReductionsCounterOn      Yap_heap_regs->WL.call_counters.reductions_on
+#define  PredEntriesCounterOn     Yap_heap_regs->WL.call_counters.reductions_retries_on
+#define  RetriesCounterOn         Yap_heap_regs->WL.call_counters.retries_on
+
 #define  Yap_InterruptsDisabled    Yap_heap_regs->WL.interrupts_disabled
 /* current consult stack */
 #define  ConsultSp                Yap_heap_regs->WL.consultsp
@@ -533,38 +350,10 @@ extern struct various_codes *Yap_heap_regs;
 #define  GlobalArenaOverflows     Yap_heap_regs->WL.global_arena_overflows
 #define  Yap_AllowRestart         Yap_heap_regs->WL.allow_restart
 #define  GlobalDelayArena         Yap_heap_regs->WL.global_delay_arena
-#define  ForeignCodeBase          Yap_heap_regs->foreign_code_base;
-#define  ForeignCodeTop           Yap_heap_regs->foreign_code_top;
-#define  ForeignCodeMax           Yap_heap_regs->foreign_code_max;
-#define  ForeignCodeLoaded        Yap_heap_regs->foreign_code_loaded
 
 #define  PredHashInitialSize      1039L
 #define  PredHashIncrement        7919L
 
-#define  ParserErrorStyle         Yap_heap_regs->parser_error_style
-#define  GlobalHoldEntry          Yap_heap_regs->global_hold_entry
-#define  DeadStaticClauses        Yap_heap_regs->dead_static_clauses
-#define  DeadMegaClauses          Yap_heap_regs->dead_mega_clauses
-#define  DeadStaticIndices        Yap_heap_regs->dead_static_indices
-#define  Yap_AllowLocalExpansion  Yap_heap_regs->allow_local_expansion
-#define  Yap_AllowGlobalExpansion Yap_heap_regs->allow_global_expansion
-#define  Yap_AllowTrailExpansion  Yap_heap_regs->allow_trail_expansion
-#define  SizeOfOverflow           Yap_heap_regs->size_of_overflow
-#define  LastWtimePtr             Yap_heap_regs->last_wtime
-#define  BGL			  Yap_heap_regs->bgl
-#define  FreeBlocks		  Yap_heap_regs->free_blocks
-#if defined(YAPOR) || defined(THREADS)
-#define  FreeBlocksLock           Yap_heap_regs->free_blocks_lock
-#define  HeapTopLock              Yap_heap_regs->heap_top_lock
-#define  HeapTopOwner             Yap_heap_regs->heap_top_owner
-#define  NOfThreads               Yap_heap_regs->n_of_threads
-#define  NOfThreadsCreated        Yap_heap_regs->n_of_threads_created
-#define  ThreadsTotalTime         Yap_heap_regs->threads_total_time
-#define  DeadStaticClausesLock    Yap_heap_regs->dead_static_clauses_lock
-#define  DeadMegaClausesLock      Yap_heap_regs->dead_mega_clauses_lock
-#define  DeadStaticIndicesLock    Yap_heap_regs->dead_static_indices_lock
-#define  ModulesLock		  Yap_heap_regs->modules_lock
-#endif
 #if defined(YAPOR) || defined(TABLING)
 #define  GLOBAL		          Yap_heap_regs->global
 #define  REMOTE                   Yap_heap_regs->remote
@@ -578,10 +367,6 @@ extern struct various_codes *Yap_heap_regs;
 /* initially allow for files with up to 1024 predicates. This number
    is extended whenever needed */
 #define  InitialConsultCapacity    1024
-#if HAVE_LIBREADLINE
-#define  ReadlineBuf              Yap_heap_regs->readline_buf
-#define  ReadlinePos              Yap_heap_regs->readline_pos
-#endif
 
 
 #if (defined(USE_SYSTEM_MALLOC) && HAVE_MALLINFO)||USE_DL_MALLOC
