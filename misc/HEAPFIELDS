@@ -48,7 +48,7 @@ worker_local	wl			WorkerLocak			void void
 #endif
 #ifdef THREADS
 lockvar		thread_handles_lock	ThreadHandlesLock	MkLock
-struct thandle	thread_handle[MAX_THREADS] ThreadHandle		InitThreadHandles void
+struct thandle	thread_handle[MAX_THREADS] ThreadHandle		InitThreadHandles() void
 #endif
 
 /* memory management */

@@ -47,7 +47,7 @@
 #endif
 #ifdef THREADS
   INIT_LOCK(Yap_heap_regs->thread_handles_lock);
-  InitThreadHandles;
+  InitThreadHandles();
 #endif
 
 

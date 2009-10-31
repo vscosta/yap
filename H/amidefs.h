@@ -61,6 +61,10 @@
  *									 *
  *************************************************************************/
 
+#ifndef NULL
+#include <stdio.h>
+#endif 
+
 #if ALIGN_LONGS
 /*   */ typedef Int DISPREG;
 /*   */ typedef CELL SMALLUNSGN;
