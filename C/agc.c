@@ -20,7 +20,7 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 
 
 #include "absmi.h"
-#include "foreign.h"
+#include "Foreign.h"
 #include "alloc.h"
 #include "yapio.h"
 #include "iopreds.h"
