@@ -4,10 +4,12 @@
 
 
 static void 
-restore_opcodes(yamop *pc)
+restore_opcodes(yamop *pc, yamop *max)
 {
   do {
-    op_numbers op = Yap_op_from_opcode(pc->opc);
+    op_numbers op;
+    if (max && pc >= max) return;
+    op = Yap_op_from_opcode(pc->opc);
     pc->opc = Yap_opcode(op);
 #ifdef DEBUG_RESTORE2
     fprintf(stderr, "%s ", Yap_op_names[op]);

@@ -836,7 +836,7 @@ Yap_BuildMegaClause(PredEntry *ap)
     memcpy((void *)ptr, (void *)cl->ClCode, sz);
     if (has_blobs) {
       ClDiff = (char *)(ptr)-(char *)cl->ClCode;
-      restore_opcodes(ptr);
+      restore_opcodes(ptr, NULL);
     }
     ptr = (yamop *)((char *)ptr + sz);
     if (cl->ClCode == ap->cs.p_code.LastClause)

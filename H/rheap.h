@@ -517,7 +517,7 @@ RestoreStaticClause(StaticClause *cl)
   if (cl->ClNext) {
     cl->ClNext = PtoStCAdjust(cl->ClNext);
   }
-  restore_opcodes(cl->ClCode);
+  restore_opcodes(cl->ClCode, NULL);
 }
 
 /* Restores a prolog clause, in its compiled form */
@@ -528,11 +528,20 @@ RestoreMegaClause(MegaClause *cl)
  * clause for this predicate or not 
  */
 {
+  UInt ncls, i;
+  yamop *ptr;
+
   cl->ClPred = PtoPredAdjust(cl->ClPred);
   if (cl->ClNext) {
-     cl->ClNext = (MegaClause *)AddrAdjust((ADDR)(cl->ClNext));
+    cl->ClNext = (MegaClause *)AddrAdjust((ADDR)(cl->ClNext));
   }
-  restore_opcodes(cl->ClCode);
+  ncls = cl->ClPred->cs.p_code.NOfClauses;
+
+  for (i = 0, ptr = cl->ClCode; i < ncls; i++) {
+    yamop *nextptr = (yamop *)((char *)ptr + cl->ClItemSize);
+    restore_opcodes(ptr, nextptr);
+    ptr = nextptr;
+  }
 }
 
 /* Restores a prolog clause, in its compiled form */
@@ -547,7 +556,7 @@ RestoreDynamicClause(DynamicClause *cl, PredEntry *pp)
     cl->ClPrevious = PtoOpAdjust(cl->ClPrevious);
   }
   INIT_LOCK(cl->ClLock);
-  restore_opcodes(cl->ClCode);
+  restore_opcodes(cl->ClCode, NULL);
 }
 
 /* Restores a prolog clause, in its compiled form */
@@ -573,7 +582,7 @@ RestoreLUClause(LogUpdClause *cl, PredEntry *pp)
     cl->ClNext = PtoLUCAdjust(cl->ClNext);
   }
   cl->ClPred = PtoPredAdjust(cl->ClPred);
-  restore_opcodes(cl->ClCode);
+  restore_opcodes(cl->ClCode, NULL);
 }
 
 static void
@@ -615,7 +624,7 @@ CleanLUIndex(LogUpdIndex *idx, int recurse)
       CleanLUIndex(idx->ChildIndex, TRUE);
   }
   if (!(idx->ClFlags & SwitchTableMask)) {
-    restore_opcodes(idx->ClCode);
+    restore_opcodes(idx->ClCode, NULL);
   }
 }
 
@@ -634,7 +643,7 @@ CleanSIndex(StaticIndex *idx, int recurse)
       CleanSIndex(idx->ChildIndex, TRUE);
   }
   if (!(idx->ClFlags & SwitchTableMask)) {
-    restore_opcodes(idx->ClCode);
+    restore_opcodes(idx->ClCode, NULL);
   }
 }
 
