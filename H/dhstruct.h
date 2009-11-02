@@ -233,8 +233,8 @@
 #define Yap_LiveCps Yap_heap_regs->live_cps
 #define Yap_DirtyCps Yap_heap_regs->dirty_cps
 #define Yap_FreedCps Yap_heap_regs->freed_cps
-#define Yap_expand_clauses_sz Yap_heap_regs->expand_clauses_sz
 #endif
+#define Yap_expand_clauses_sz Yap_heap_regs->expand_clauses_sz
 
 #define UdiControlBlocks Yap_heap_regs->udi_control_blocks
 

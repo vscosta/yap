@@ -257,8 +257,8 @@ UInt		new_cps			Yap_NewCps		=0L void
 UInt		live_cps		Yap_LiveCps		=0L void
 UInt		dirty_cps		Yap_DirtyCps		=0L void
 UInt		freed_cps		Yap_FreedCps		=0L void
-UInt		expand_clauses_sz	Yap_expand_clauses_sz	=0L void
 #endif
+UInt		expand_clauses_sz	Yap_expand_clauses_sz	=0L void
 
 /* UDI support */
 struct udi_info *udi_control_blocks	UdiControlBlocks	=NULL RestoreUdiControlBlocks()

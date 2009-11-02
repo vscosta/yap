@@ -195,6 +195,8 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- multifile user:message_hook/3.
 
+:- dynamic user:message_hook/3.
+
 :- multifile user:portray_message/2.
 
 file_search_path(library, Dir) :-

@@ -233,8 +233,8 @@
   Yap_heap_regs->live_cps = 0L;
   Yap_heap_regs->dirty_cps = 0L;
   Yap_heap_regs->freed_cps = 0L;
-  Yap_heap_regs->expand_clauses_sz = 0L;
 #endif
+  Yap_heap_regs->expand_clauses_sz = 0L;
 
   Yap_heap_regs->udi_control_blocks = NULL;
 

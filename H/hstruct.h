@@ -233,8 +233,8 @@
   UInt  live_cps;
   UInt  dirty_cps;
   UInt  freed_cps;
-  UInt  expand_clauses_sz;
 #endif
+  UInt  expand_clauses_sz;
 
   struct udi_info  *udi_control_blocks;
 
