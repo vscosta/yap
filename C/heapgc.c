@@ -1481,7 +1481,6 @@ static void
 mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 {
   CELL_PTR        saved_var;
-
   while (gc_ENV != NULL) {	/* no more environments */
     Int bmap = 0;
     int currv = 0;
@@ -1752,7 +1751,8 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  /* reset the gc to believe the original tag */
 	  TrailTerm(trail_base) = AbsAppl((CELL *)TrailTerm(trail_base));
 	}
-	mark_external_reference(&(TrailVal(trail_base)));
+	/* don't need to mark the next TrailVal, this is done at the end
+	   of segment */
 #else
 	trail_base++;
 	mark_external_reference(&(TrailTerm(trail_base)));
