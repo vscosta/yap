@@ -189,9 +189,9 @@
   Yap_heap_regs->getwork_first_time->opc = Yap_opcode(_getwork_first_time);
 #endif /* YAPOR */
 #ifdef TABLING
-  RestoreOtaplInst(LOAD_ANSWER,_table_load_answer);
-  RestoreOtaplInst(TRY_ANSWER,_table_try_answer,PredFail,PredFail);
-  RestoreOtaplInst(ANSWER_RESOLUTION,_answer_resolution,PredFail);
+  RestoreOtaplInst(LOAD_ANSWER,_table_load_answer,PredFail);
+  RestoreOtaplInst(TRY_ANSWER,_table_try_answer,PredFail);
+  RestoreOtaplInst(ANSWER_RESOLUTION,_table_answer_resolution,PredFail);
   RestoreOtaplInst(COMPLETION,_table_completion,PredFail);
 #endif /* TABLING */
 
