@@ -51,7 +51,9 @@ static int p_itrie_stats(void);
 static int p_itrie_max_stats(void);
 static int p_itrie_usage(void);
 static int p_itrie_print(void);
-
+//nf
+static int p_itrie_loadFromStream(void);
+static int p_itrie_save2stream(void);
 
 
 /* -------------------------- */
@@ -87,6 +89,9 @@ void init_itries(void) {
   YAP_UserCPredicate("itrie_max_stats", p_itrie_max_stats, 4);
   YAP_UserCPredicate("itrie_usage", p_itrie_usage, 4);
   YAP_UserCPredicate("itrie_print", p_itrie_print, 1);
+  // nf
+  YAP_UserCPredicate("itrie_save2stream", p_itrie_save2stream, 2);
+  YAP_UserCPredicate("itrie_loadFromstream", p_itrie_loadFromStream, 2);
   return;
 }
 
@@ -679,3 +684,44 @@ static int p_itrie_print(void) {
   return TRUE;
 }
 #undef arg_itrie
+
+/* added by nf: itrie_save2stream(+Itrie,+Stream) */
+#define arg_itrie   YAP_ARG1
+#define arg_stream  YAP_ARG2
+static int p_itrie_save2stream(void) {
+  FILE *file;
+
+  /* check args */
+  if (!YAP_IsIntTerm(arg_itrie))
+    return FALSE;
+  if ((file=(FILE*)YAP_FileDescriptorFromStream(arg_stream))==NULL)
+    return FALSE;
+
+  /* save itrie and close file */
+  itrie_save((TrEntry) YAP_IntOfTerm(arg_itrie), file);
+  return TRUE;
+}
+#undef arg_itrie
+#undef arg_stream
+
+/* added by nf: itrie_loadFromStream(-Itrie,+Stream) */
+#define arg_itrie YAP_ARG1
+#define arg_stream  YAP_ARG2
+static int p_itrie_loadFromStream(void) {
+  TrEntry itrie;
+  FILE *file;
+
+  /* check args */
+  if (!YAP_IsVarTerm(arg_itrie)) 
+    return FALSE;
+  if (!(file=(FILE*)Yap_FileDescriptorFromStream(arg_stream)))
+    return FALSE;
+
+  /* load itrie and close file */
+  itrie = itrie_load(file);
+  if (!itrie)
+    return FALSE;
+  return YAP_Unify(arg_itrie, YAP_MkIntTerm((YAP_Int) itrie));
+}
+#undef arg_itrie
+#undef arg_stream

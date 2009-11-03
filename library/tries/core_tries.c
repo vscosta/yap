@@ -428,8 +428,11 @@ inline
 TrNode core_trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode, YAP_Int, FILE *)) {
   TrNode node;
   char version[15];
+  fpos_t curpos;
 
   fscanf(file, "%14s", version);
+  if (fgetpos(file, &curpos) ) return NULL;
+
   if (!strcmp(version, "BEGIN_TRIE_v2")) {
     fseek(file, -11, SEEK_END);
     fscanf(file, "%s", version);
@@ -439,7 +442,7 @@ TrNode core_trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode,
       fprintf(stderr, "******************************************\n");  
       return NULL;
     }
-    fseek(file, 13, SEEK_SET);
+    if (fsetpos(file, &curpos) ) return NULL;
     CURRENT_LOAD_VERSION = 2;
   } else if (!strcmp(version, "BEGIN_TRIE")) {
     fseek(file, -8, SEEK_END);
@@ -450,7 +453,7 @@ TrNode core_trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode,
       fprintf(stderr, "******************************************\n");  
       return NULL;
     }
-    fseek(file, 10, SEEK_SET);
+    if (fsetpos(file, &curpos) )  return NULL;
     CURRENT_LOAD_VERSION = 1;
   } else {
     fprintf(stderr, "****************************************\n");
