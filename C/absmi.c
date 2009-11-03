@@ -14056,7 +14056,7 @@ Yap_absmi(int inp)
 	/* for profiler */
 	save_pc();
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
-	ENV_YREG[E_CB] = pt0[E_CB];
+	ENV_YREG[E_CB] = (CELL)B;
 #ifdef LOW_LEVEL_TRACER
 	if (Yap_do_low_level_trace)
 	  low_level_trace(enter_pred,pen,XREGS+1);
