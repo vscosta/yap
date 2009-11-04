@@ -571,7 +571,7 @@ debugging :-
 
 %'$action'(10,_,_,_,_,on) :-			% newline 	creep
 %	nb_setval('$debug_jump',false).
-'$action'(10,_,_,_,_,on) :-			% newline 	creep
+'$action'(10,_,_,_,_,on) :- !,			% newline 	creep
 	nb_setval('$debug_jump',false).
 '$action'(0'!,_,_,_,_,_) :- !,			% ! 'g		execute
 	read(user,G),
