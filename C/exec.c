@@ -74,8 +74,9 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt, yamop *code) {
     CP = P;
     ENV = YENV;
     YENV = ASP;
-    YENV[E_CB] = (CELL) cut_pt;
   }
+  /* make sure we have access to the user given cut */
+  YENV[E_CB] = (CELL) cut_pt;
   P = code;
   return TRUE;
 }
