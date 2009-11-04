@@ -290,6 +290,7 @@ debugging :-
 
 % last argument to do_spy says that we are at the end of a context. It
 % is required to know whether we are controlled by the debugger.
+'$do_spy'(V, M, CP, Flag) :- var(V), !, '$do_spy'(call(V), M, CP, Flag).
 '$do_spy'(!, _, CP, _) :- !, '$$cut_by'(CP).
 '$do_spy'('$cut_by'(M), _, _, _) :- !, '$$cut_by'(M).
 '$do_spy'(true, _, _, _) :- !.
@@ -344,25 +345,27 @@ debugging :-
 		    '$loop_spy_event'(error(Event,Context), GoalNumber, G, Module, CalledFromDebugger)).
 
 % handle weird things happening in the debugger.		    
+'$loop_spy_event'('$pass'(Event), _, _, _, _) :- !,
+	throw(Event).
 '$loop_spy_event'(error('$retry_spy'(G0),_), GoalNumber, G, Module, CalledFromDebugger) :-
-     G0 >= GoalNumber, !,
-     '$loop_spy'(GoalNumber, G, Module, CalledFromDebugger).
+	G0 >= GoalNumber, !,
+	'$loop_spy'(GoalNumber, G, Module, CalledFromDebugger).
 '$loop_spy_event'(error('$retry_spy'(GoalNumber),_), _, _, _, _) :- !,
-     throw(error('$retry_spy'(GoalNumber),[])).
+	throw(error('$retry_spy'(GoalNumber),[])).
 '$loop_spy_event'(error('$fail_spy'(G0),_), GoalNumber, G, Module, CalledFromDebugger) :-
-     G0 >= GoalNumber, !,
-    '$loop_fail'(GoalNumber, G, Module, CalledFromDebugger).
+	G0 >= GoalNumber, !,
+	'$loop_fail'(GoalNumber, G, Module, CalledFromDebugger).
 '$loop_spy_event'(error('$fail_spy'(GoalNumber),_), _, _, _, _) :- !,
-     throw(error('$fail_spy'(GoalNumber),[])).
+	throw(error('$fail_spy'(GoalNumber),[])).
 '$loop_spy_event'(error('$done_spy'(G0),_), GoalNumber, G, _, CalledFromDebugger) :-
-     G0 >= GoalNumber, !,
-     '$continue_debugging'(CalledFromDebugger).
+	G0 >= GoalNumber, !,
+	'$continue_debugging'(CalledFromDebugger).
 '$loop_spy_event'(error('$done_spy'(GoalNumber),_), _, _, _, _) :- !,
-     throw(error('$done_spy'(GoalNumber),[])).
+	throw(error('$done_spy'(GoalNumber),[])).
 '$loop_spy_event'(Event, GoalNumber, G, Module, CalledFromDebugger) :-
-     '$debug_error'(Event),     
-     '$system_catch'(
-		     ('$trace'(exception,G,Module,GoalNumber,_),fail),
+	'$debug_error'(Event),
+	'$system_catch'(
+		     ('$trace'(exception(Event),G,Module,GoalNumber,_),fail),
 		     Module,
 		     error(NewEvent,NewContext),
 		     '$loop_spy_event'(error(NewEvent,NewContext), GoalNumber, G, Module, CalledFromDebugger)
@@ -539,6 +542,7 @@ debugging :-
 '$trace_msg'(P,G,Module,L,Deterministic) :-
 	flush_output(user_output),
 	flush_output(user_error),
+	functor(P,P0,_),
 	(P = exit, Deterministic \= true -> Det = '?' ; Det = ' '),
 	('$pred_being_spied'(G,Module) -> CSPY = '*' ; CSPY = ' '),
 % vsc: fix this
@@ -546,9 +550,9 @@ debugging :-
 	SLL = ' ',
 	( Module\=prolog,
 	    Module\=user ->
-	    format(user_error,'~a~a~a       (~d)    ~q: ~a:',[Det,CSPY,SLL,L,P,Module])
+	    format(user_error,'~a~a~a       (~d)    ~q: ~a:',[Det,CSPY,SLL,L,P0,Module])
 	;
-	    format(user_error,'~a~a~a       (~d)    ~q:',[Det,CSPY,SLL,L,P])
+	    format(user_error,'~a~a~a       (~d)    ~q:',[Det,CSPY,SLL,L,P0])
 	),
 	'$debugger_write'(user_error,G).
 
@@ -557,7 +561,7 @@ debugging :-
 '$unleashed'(redo) :- get_value('$leash',L), L /\ 2'0010 =:= 0. %'
 '$unleashed'(fail) :- get_value('$leash',L), L /\ 2'0001 =:= 0. %'
 % the same as fail.
-'$unleashed'(exception) :- get_value('$leash',L), L /\ 2'0001 =:= 0.  %'
+'$unleashed'(exception(_)) :- get_value('$leash',L), L /\ 2'0001 =:= 0.  %'
 
 '$debugger_write'(Stream, G) :-
 	recorded('$print_options','$debugger'(OUT),_), !,
@@ -565,6 +569,8 @@ debugging :-
 '$debugger_write'(Stream, G) :-
 	writeq(Stream, G).
 
+%'$action'(10,_,_,_,_,on) :-			% newline 	creep
+%	nb_setval('$debug_jump',false).
 '$action'(10,_,_,_,_,on) :-			% newline 	creep
 	nb_setval('$debug_jump',false).
 '$action'(0'!,_,_,_,_,_) :- !,			% ! 'g		execute
