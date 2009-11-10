@@ -441,14 +441,14 @@ static void
 InitStdStream (int sno, SMALLUNSGN flags, YP_File file)
 {
   StreamDesc *s = &Stream[sno];
-  s->u.file.file = file;
+  s->u.file.file = file; 
   s->status = flags;
   s->linepos = 0;
   s->linecount = 1;
   s->charcount = 0;
   s->encoding = DefaultEncoding();
   INIT_LOCK(s->streamlock);
-  unix_upd_stream_info (s);
+  unix_upd_stream_info(s);
   /* Getting streams to prompt is a mess because we need for cooperation
      between readers and writers to the stream :-(
   */
@@ -473,10 +473,13 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file)
   s->status |= Tty_Stream_f|Promptable_Stream_f;
 #endif
 #if HAVE_SETBUF
-  if (s->status & Tty_Stream_f)
+  if (s->status & Tty_Stream_f &&
+      sno == 0) {
     /* make sure input is unbuffered if it comes from stdin, this
        makes life simpler for interrupt handling */
     YP_setbuf (stdin, NULL); 
+   //    fprintf(stderr,"here I am\n");
+  }
 #endif /* HAVE_SETBUF */
 
 }
