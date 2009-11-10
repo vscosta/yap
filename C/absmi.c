@@ -12096,6 +12096,7 @@ Yap_absmi(int inp)
       if (Yap_do_low_level_trace) {
 	H[0] = XREG(PREG->u.yxx.x1);
 	H[1] = XREG(PREG->u.yxx.x2);
+	H[2] = YREG[PREG->u.yxx.y];
 	RESET_VARIABLE(H+2);
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),H);
       }
@@ -12211,6 +12212,7 @@ Yap_absmi(int inp)
 	Term t = MkIntegerTerm(PREG->u.yxn.c); 
 	H[0] =  t;
 	H[1] = XREG(PREG->u.yxn.xi);
+	H[2] = YREG[PREG->u.yxn.y];
 	RESET_VARIABLE(H+2);
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),H);
 	H = Ho;
