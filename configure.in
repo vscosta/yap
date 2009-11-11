@@ -294,7 +294,7 @@ AC_ARG_WITH(junit, [  --with-junit=PATH	  Specify location of the junit JAR file
 if test "$tabling" = yes -o "$orparallelism" = yes -o "$threads" = yes
 then
   AC_DEFINE(MinHeapSpace, (1000*SIZEOF_INT_P))
-  AC_DEFINE(MinStackSpace,(300*SIZEOF_INT_P)) dnl 
+  AC_DEFINE(MinStackSpace,(300*SIZEOF_INT_P)) 
   AC_DEFINE(MinTrailSpace,( 48*SIZEOF_INT_P))
 else
   AC_DEFINE(MinHeapSpace, (300*SIZEOF_INT_P))
@@ -302,9 +302,13 @@ else
   AC_DEFINE(MinTrailSpace,( 32*SIZEOF_INT_P))
 fi
 
-eval "AC_DEFINE(DefHeapSpace,($yap_cv_heap_space))"
-eval "AC_DEFINE(DefStackSpace,($yap_cv_stack_space))"
-eval "AC_DEFINE(DefTrailSpace,($yap_cv_trail_space))"
+AC_DEFINE_UNQUOTED(DefHeapSpace,$yap_cv_heap_space)
+AC_DEFINE_UNQUOTED(DefStackSpace,$yap_cv_stack_space)
+AC_DEFINE_UNQUOTED(DefTrailSpace,$yap_cv_trail_space)
+
+AC_SUBST(DefHeapSpace)
+AC_SUBST(DefStackSpace)
+AC_SUBST(DefTrailSpace)
 
 AC_CANONICAL_SYSTEM
 
@@ -314,14 +318,14 @@ if test "$or-parallelism" = no
 then
   AC_DEFINE(MAX_WORKERS,1)
 else
-eval "AC_DEFINE(MAX_WORKERS,$yap_cv_max_workers)"
+  AC_DEFINE(MAX_WORKERS,$yap_cv_max_workers)
 fi
 
 if test "$threads" = no
 then
   AC_DEFINE(MAX_THREADS,1)
 else
-eval "AC_DEFINE(MAX_THREADS,$yap_cv_max_threads)"
+ AC_DEFINE_UNQUOTED(MAX_THREADS,$yap_cv_max_threads)
 fi
 
 
@@ -508,6 +512,7 @@ else
   AC_CHECK_LIB(socket,socket)
   dnl X/Open Networking is sometimes a separate library
   AC_CHECK_LIB(xnet,getsockname)
+  AC_CHECK_LIB(stdc++,main)
   AC_CHECK_LIB(nsl,main,
 	have_nsl=yes
 	,
@@ -1628,6 +1633,8 @@ AC_CONFIG_FILES([packages/CLPBN/Makefile])
 AC_CONFIG_FILES([packages/cplint/Makefile])
 AC_CONFIG_FILES([packages/sgml/Makefile])
 AC_CONFIG_FILES([packages/PLStream/Makefile])
+AC_CONFIG_FILES([packages/swi-minisat2/Makefile])
+AC_CONFIG_FILES([packages/swi-minisat2/C/Makefile])
 AC_CONFIG_FILES([packages/ProbLog/Makefile ])
 
 if test "$ENABLE_CHR" = ""; then
