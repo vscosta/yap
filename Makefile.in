@@ -471,6 +471,7 @@ all: startup.yss
 	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE))
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE))
+	@INSTALL_DLLS@ (cd packages/swi-minisat2/C; $(MAKE))
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE))
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))
 	@ENABLE_CPLINT@ (cd cplint; $(MAKE))
@@ -506,6 +507,7 @@ install_unix: startup.yss libYap.a
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
 	@INSTALL_DLLS@ (cd packages/PLStream; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE) install)
+	@INSTALL_DLLS@ (cd packages/swi-minisat2/C; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/random; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/regex; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE) install)
@@ -543,11 +545,13 @@ install_win32: startup.yss
 	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/parms.h
 	(cd packages/PLStream; $(MAKE) install)
 	(cd packages/sgml; $(MAKE) install)
+	(cd packages/swi-minisat2/C; $(MAKE) install)
 	(cd library/random; $(MAKE) install)
 	(cd library/matrix; $(MAKE) install)
 	(cd library/regex; $(MAKE) install)
 	(cd library/rltree; $(MAKE) install)
 	(cd library/system; $(MAKE) install)
+	(cd packages/swi-minisat2; $(MAKE) install)
 	@ENABLE_WINCONSOLE@ (cd LGPL/swi_console; $(MAKE) install)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
 	(cd library/tries; $(MAKE) install)
@@ -560,6 +564,7 @@ install_library: @YAPLIB@
 
 install_data:
 	(cd library ; $(MAKE) install)
+	(cd packages/swi-minisat2; $(MAKE) install)
 	(cd LGPL ; $(MAKE) install)
 	(cd GPL ; $(MAKE) install)
 	@ENABLE_JPL@ (cd packages/jpl ; $(MAKE) install)

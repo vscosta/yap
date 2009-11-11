@@ -1,0 +1,84 @@
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+GCC=@GCC@
+prefix = @prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+abs_top_builddir = @abs_top_builddir@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=$(EROOTDIR)/lib/Yap
+#
+#
+CC=@CC@
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../../.. -I$(srcdir)/../../../include
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SHLIB_CFLAGS=@SHLIB_CFLAGS@
+SHLIB_SUFFIX=@SHLIB_SUFFIX@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+
+HEADERS= \
+	$(srcdir)/Alg.h \
+	$(srcdir)/BasicHeap.h \
+	$(srcdir)/BoxedVec.h  \
+	$(srcdir)/Heap.h \
+	$(srcdir)/Map.h \
+	$(srcdir)/Queue.h  \
+	$(srcdir)/Solver.h \
+	$(srcdir)/SolverTypes.h \
+	$(srcdir)/Sort.h \
+	$(srcdir)/Vec.h
+C_SOURCES=$(srcdir)/pl-minisat.C $(srcdir)/Solver.C
+
+OBJS = \
+	Solver.o \
+	pl-minisat.o
+
+SOBJS=pl-minisat@SHLIB_SUFFIX@
+
+#in some systems we just create a single object, in others we need to
+# create a libray
+
+all: $(SOBJS) 
+
+# default rule
+%.o : $(srcdir)/%.C
+	$(CC) -c $(CFLAGS)  $(SHLIB_CFLAGS) $< -o $@
+
+@DO_SECOND_LD@pl-minisat@SHLIB_SUFFIX@: $(OBJS)
+@DO_SECOND_LD@	@SHLIB_LD@ -o pl-minisat@SHLIB_SUFFIX@ $(OBJS)
+
+install: all
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
+
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+
+
+depend: $(HEADERS) $(C_SOURCES)
+	-@if test "$(GCC)" = yes; then\
+	  $(CC) -MM -MG $(CFLAGS) -I$(srcdir) -I$(srcdir)/../../include -I$(srcdir)/../../H $(C_SOURCES) >> Makefile;\
+	else\
+          makedepend -f - -- $(CFLAGS) -I$(srcdir)/../../H -I$(srcdir)/../../include -- $(C_SOURCES) |\
+          sed 's|.*/\([^:]*\):|\1:|' >> Makefile ;\
+	fi
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
