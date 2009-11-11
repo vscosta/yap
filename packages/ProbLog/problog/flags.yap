@@ -216,7 +216,7 @@
 
 :- ensure_loaded(library(system)).
 
-:- dynamic bdd_time/1, first_threshold/1, last_threshold/1, id_stepsize/1, prunecheck/1, maxsteps/1, mc_batchsize/1, mc_logfile/1, bdd_file/1, bdd_par_file/1, bdd_result/1, work_dir/1, save_bdd/1, problog_verbose/1.
+:- dynamic bdd_time/1, first_threshold/1, last_threshold/1, id_stepsize/1, prunecheck/1, maxsteps/1, mc_batchsize/1, mc_logfile/1, bdd_file/1, bdd_par_file/1, bdd_result/1, work_dir/1, save_bdd/1, problog_verbose/1, hacked_proofs/1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % global parameters that can be set using set_problog_flag/2
@@ -258,6 +258,8 @@ get_problog_flag(save_bdd,X) :-
 	save_bdd(X).
 get_problog_flag(verbose,X) :-
 	problog_verbose(X).
+get_problog_flag(hacked_proofs,X) :-
+	hacked_proofs(X).
 
 
 %%%%%%%%%%%%
@@ -472,6 +474,16 @@ set_problog_flag(verbose,_) :-
 	flush_output(user),
 	fail.
 
+set_problog_flag(hacked_proofs,true) :-
+	retractall(hacked_proofs(_)),
+	assert(hacked_proofs(true)).
+set_problog_flag(hacked_proofs,false) :-
+	retractall(hacked_proofs(_)),
+	assert(hacked_proofs(true)).
+set_problog_flag(hacked_proofs,V) :-
+	format(user,'\% ERROR: value ~w should be \'true\' or \'false\'!~n',[V]),
+	flush_output(user),
+	fail.
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % show values

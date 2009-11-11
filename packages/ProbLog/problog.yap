@@ -371,6 +371,7 @@ init_global_params :-
 	set_problog_flag(bdd_file,example_bdd),
 	set_problog_flag(dir,output),
 	set_problog_flag(save_bdd,false),
+	set_problog_flag(hacked_proofs,false),
 	set_problog_flag(verbose,true).
 %	problog_flags,
 %	print_sep_line,
@@ -494,7 +495,7 @@ problog_predicate(Name, Arity, ProblogName) :-
 	append(Args,[Prob],L1),
 	ProbFact =.. [ProblogName,ID|L1],
 	prolog_load_context(module,Mod),
-	
+	make_add_to_proof(ID2,ProbEval,AddToProof),
 	assert( (Mod:OriginalGoal :- ProbFact, 
 	                             (
 					 non_ground_fact(ID)
@@ -505,7 +506,7 @@ problog_predicate(Name, Arity, ProblogName) :-
 				     ),
 				     % take the log of the probability (for non ground facts with variable as probability
 				     ProbEval is Prob,
-				     add_to_proof(ID2,ProbEval)
+				     AddToProof
 		 )),
 
 	assert( (Mod:problog_not(OriginalGoal) :- ProbFact,
@@ -524,6 +525,14 @@ problog_predicate(Name, Arity, ProblogName) :-
 	assert(problog_predicate(Name, Arity)),
 	ArityPlus2 is Arity+2,
 	dynamic(problog:ProblogName/ArityPlus2).	
+
+make_add_to_proof(ID2,ProbEval,O) :-
+	problog_flag(hacked_proofs,true), !,
+	O = hacked_add_to_proof(ID2,ProbEval).
+make_add_to_proof(ID2,ProbEval,add_to_proof(ID2,ProbEval)).
+
+
+
 
 % generate next global identifier
 probclause_id(ID) :-
@@ -553,7 +562,7 @@ non_ground_fact_grounding_id(Goal,ID) :-
 		nb_getval(non_ground_fact_grounding_id_counter,ID),
 		ID2 is ID+1,
 		nb_setval(non_ground_fact_grounding_id_counter,ID2),
-		assert(grounding_is_known(Goal,ID))
+		once(assert(grounding_is_known(Goal,ID)))
 	    )
 	).
 
@@ -715,6 +724,22 @@ add_to_proof(ID,Prob) :-
 	  Steps is MaxSteps-1,
 	  b_setval(problog_steps,Steps)
 	 )
+	).
+
+% simpliciation
+hacked_add_to_proof(ID,Prob) :-
+	b_getval(problog_probability, CurrentP),
+	nb_getval(problog_threshold, CurrentThreshold),
+	multiply_probabilities(CurrentP, Prob, NProb),
+	b_getval(problog_current_proof, IDs),
+	(
+	    NProb < CurrentThreshold
+	   ->
+	    upper_bound([ID|IDs]),
+	    fail
+         ;
+	 b_setval(problog_probability, NProb),
+	 b_setval(problog_current_proof, [ID|IDs])
 	).
 
 %%%% Bernd, changes for negated ground facts
@@ -1248,13 +1273,17 @@ update_current_kbest(K,NewLogProb,Cl) :-
 	(NewLength < K ->
 	    assert(current_kbest(OldThres,NewList,NewLength))
 	;
-	(NewLength>K -> 
+	   (NewLength>K
+            -> 
 	    First is NewLength-K+1,
 	    cutoff(NewList,NewLength,First,FinalList,FinalLength)
-	   ; FinalList=NewList, FinalLength=NewLength),
-	FinalList=[NewThres-_|_],
-	nb_setval(problog_threshold,NewThres),
-	assert(current_kbest(NewThres,FinalList,FinalLength))).
+            ;
+	    FinalList=NewList, FinalLength=NewLength
+           ),
+	   FinalList=[NewThres-_|_],
+	   nb_setval(problog_threshold,NewThres),
+	 assert(current_kbest(NewThres,FinalList,FinalLength))
+       ).
 
 sorted_insert(A,[],[A]).
 sorted_insert(A-LA,[B1-LB1|B], [A-LA,B1-LB1|B] ) :-

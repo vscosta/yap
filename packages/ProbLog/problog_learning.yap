@@ -683,6 +683,8 @@ init_queries :-
 	( % go over all training examples
 	    current_predicate(user:example/3),
 	    user:example(ID,Query,Prob),
+%	    statistics(runtime,[_,T]),
+%	    my_format(3,' training example ~q: ~q ~q~n',[ID,Query,T]),
 	    my_format(3,' training example ~q: ~q~n',[ID,Query]),
 	    flush_output(user),
 	    init_one_query(ID,Query,training),
