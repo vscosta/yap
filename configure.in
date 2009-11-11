@@ -318,7 +318,7 @@ if test "$or-parallelism" = no
 then
   AC_DEFINE(MAX_WORKERS,1)
 else
-  AC_DEFINE(MAX_WORKERS,$yap_cv_max_workers)
+  AC_DEFINE_UNQUOTED(MAX_WORKERS,$yap_cv_max_workers)
 fi
 
 if test "$threads" = no
