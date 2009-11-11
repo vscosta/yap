@@ -648,11 +648,17 @@ init_learning :-
 
 
 delete_all_queries :-
-	learning_flag(query_directory,Directory),
-	atomic_concat(['rm -f ',Directory,'query_*'],Command),
-	(shell(Command) -> true; true),
+	remove_queries,
 	retractall(query_is_similar(_,_)),
 	retractall(query_md5(_,_,_)).
+
+remove_queries :-
+	learning_flag(query_directory,Directory),
+	user:example(ID,_,_),
+	atomic_concat([Directory,'query_',ID],File),
+	delete_file(File),
+	fail.	
+remove_queries.
 
 empty_output_directory :-
 	learning_flag(output_directory,Directory),
@@ -683,9 +689,9 @@ init_queries :-
 	( % go over all training examples
 	    current_predicate(user:example/3),
 	    user:example(ID,Query,Prob),
-%	    statistics(runtime,[_,T]),
-%	    my_format(3,' training example ~q: ~q ~q~n',[ID,Query,T]),
-	    my_format(3,' training example ~q: ~q~n',[ID,Query]),
+	    statistics(runtime,[_,T]),
+	    my_format(3,' training example ~q: ~q after ~q msec~n',[ID,Query,T]),
+%	    my_format(3,' training example ~q: ~q~n',[ID,Query]),
 	    flush_output(user),
 	    init_one_query(ID,Query,training),
 	    fail; %go to next training example
