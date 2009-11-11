@@ -100,7 +100,7 @@ typedef void *function_t;
 #define fid_t PL_fid_t			/* avoid AIX name-clash */
 
 typedef struct _PL_extension
-{ char 		*predicate_name;	/* Name of the predicate */
+{ const char 		*predicate_name;	/* Name of the predicate */
   short		arity;			/* Arity of the predicate */
   function_t	function;		/* Implementing functions */
   short		flags;			/* Or of PL_FA_... */
