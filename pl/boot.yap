@@ -163,6 +163,7 @@ true :- true.
 	'$run_atom_goal'(GA),
 	set_value('$live','$false').
 '$enter_top_level' :-
+	'$disable_docreep',
 	prompt(_,'   ?- '),
 	prompt('   | '),
 	'$run_toplevel_hooks',
@@ -485,6 +486,7 @@ true :- true.
 	   '$another',
 	   !, fail
 	 ;
+	   '$disable_do_creep',
 	   '$enter_system_mode',
            '$out_neg_answer'
 	 ).
