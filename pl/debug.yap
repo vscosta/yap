@@ -384,11 +384,18 @@ debugging :-
 	fail.
 
 % if we are in 
-'$loop_spy2'(GoalNumber, G, Module, CalledFromDebugger, CP) :- 
+'$loop_spy2'(GoalNumber, G0, Module, CalledFromDebugger, CP) :- 
 /* the following choice point is where the predicate is  called */
-        b_getval('$spy_glist',[info(_,_,_,Retry,Det)|_]),	/* get goal list		*/
-	(
-	/* call port */
+	   (
+             '$is_metapredicate'(G0, Module)
+	   ->
+	    '$meta_expansion'(G0,Module,Module,Module,G,[])
+	   ;
+	     G = G0
+	   ),
+	   b_getval('$spy_glist',[info(_,_,_,Retry,Det)|_]),	/* get goal list		*/
+	   (
+	    /* call port */
 	    '$enter_goal'(GoalNumber, G, Module),
 	    '$spycall'(G, Module, CalledFromDebugger, Retry),
 	    '$disable_docreep',
