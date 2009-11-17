@@ -562,7 +562,7 @@ debugging :-
 	;
 	    GW = G	  
 	),
-	format(user_error,'~a~a~a       (~d)    ~q:',[Det,CSPY,SLL,L,P0])
+	format(user_error,'~a~a~a       (~d)    ~q:',[Det,CSPY,SLL,L,P0]),
 	'$debugger_write'(user_error,GW).
 
 '$unleashed'(call) :- get_value('$leash',L), L /\ 2'1000 =:= 0. %'
