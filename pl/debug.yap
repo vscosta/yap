@@ -556,12 +556,14 @@ debugging :-
 		%		( SL = L -> SLL = '>' ; SLL = ' '),
 	SLL = ' ',
 	( Module\=prolog,
-	    Module\=user ->
-	    format(user_error,'~a~a~a       (~d)    ~q: ~a:',[Det,CSPY,SLL,L,P0,Module])
+	  Module\=user
+	->
+	    GW = Module:G
 	;
-	    format(user_error,'~a~a~a       (~d)    ~q:',[Det,CSPY,SLL,L,P0])
+	    GW = G	  
 	),
-	'$debugger_write'(user_error,G).
+	format(user_error,'~a~a~a       (~d)    ~q:',[Det,CSPY,SLL,L,P0])
+	'$debugger_write'(user_error,GW).
 
 '$unleashed'(call) :- get_value('$leash',L), L /\ 2'1000 =:= 0. %'
 '$unleashed'(exit) :- get_value('$leash',L), L /\ 2'0100 =:= 0. %'
