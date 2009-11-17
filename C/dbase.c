@@ -696,8 +696,8 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	    continue;
 	  }
 	case (CELL)FunctorLongInt:
-	  *StoPoint++ = AbsAppl(CodeMax);
 	  CheckDBOverflow(3);
+	  *StoPoint++ = AbsAppl(CodeMax);
 	  CodeMax = copy_long_int(CodeMax, ap2);
 	  ++pt0;
 	  continue;
