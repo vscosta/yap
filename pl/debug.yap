@@ -508,7 +508,7 @@ debugging :-
 	CP is '$last_choice_pt',
 	'$static_clause'(G,M,_,R),
 	% I may backtrack to here from far away
-	 '$disable_docreep',	
+	'$disable_docreep',	
 	(
 	 '$continue_debugging'(no, '$execute_clause'(G, M, R, CP))
 	;
