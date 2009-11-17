@@ -1631,7 +1631,8 @@ JumpToEnv(Term t) {
      to the emulator */
   P = (yamop *)FAILCODE;
   /* try to recover space */
-  H = B->cp_h;
+  /* can only do that when we recover space */
+  /* H = B->cp_h; */
   t = clean_trail(t, dbt, B->cp_a1);
   B->cp_a3 = t;
   if (first_func != NULL) {
