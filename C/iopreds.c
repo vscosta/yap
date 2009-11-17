@@ -2160,6 +2160,8 @@ check_bom(int sno, StreamDesc *st)
   int ch;
 
   ch = st->stream_getc(sno);
+  if (ch == EOFCHAR)
+    return TRUE;
   switch(ch) {
   case 0xFE:
     {
