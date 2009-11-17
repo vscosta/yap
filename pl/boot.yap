@@ -486,7 +486,6 @@ true :- true.
 	   '$another',
 	   !, fail
 	 ;
-	   '$disable_do_creep',
 	   '$enter_system_mode',
            '$out_neg_answer'
 	 ).
