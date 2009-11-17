@@ -94,7 +94,7 @@ module(N) :-
 	Arity2 is Arity+2,
 	'$process_exports'(Exports,Mod,ExportedPreds).
 '$process_exports'([op(Prio,Assoc,Name)|Exports],Mod,ExportedPreds) :- !,
-	op(Prio,Assoc,Name),
+	op(Prio,Assoc,prolog:Name),
 	'$process_exports'(Exports,Mod,ExportedPreds).
 '$process_exports'([Trash|_],Mod,_) :-
 	'$do_error'(type_error(predicate_indicator,Trash),module(Mod,[Trash])).

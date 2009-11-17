@@ -96,6 +96,10 @@ op(P,T,V) :-
 	'$opl'(P, T, As).
 
 '$op2'(P,T,A) :-
+	atom(A),
+	prolog_load_context(module, Mod), Mod \= user, !,
+	'$opdec'(P,T,A,Mod).
+'$op2'(P,T,A) :-
 	atom(A), !,
 	'$opdec'(P,T,A,prolog).
 '$op2'(P,T,A) :-
