@@ -687,6 +687,7 @@ get_pred(Term t,  Term tmod, char *pname)
 
  restart:
   if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t0, pname);
     return NULL;
   } else if (IsAtomTerm(t)) {
     return RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
@@ -694,6 +695,10 @@ get_pred(Term t,  Term tmod, char *pname)
     return Yap_FindLUIntKey(IntegerOfTerm(t));
   } else if (IsApplTerm(t)) {
     Functor    fun = FunctorOfTerm(t);
+    if (IsExtensionFunctor(fun)) {
+      Yap_Error(TYPE_ERROR_CALLABLE, t0, pname);
+      return NULL;      
+    }
     if (fun == FunctorModule) {
       Term tmod = ArgOfTerm(1, t);
       if (IsVarTerm(tmod) ) {
