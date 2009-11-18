@@ -1401,13 +1401,28 @@ void
 Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack)
 {
   UInt pm, sa, ta;
+  void *addr;
 
   pm = (Trail + Heap + Stack);	/* memory to be
 				 * requested         */
   sa = Stack;			/* stack area size   */
   ta = Trail;			/* trail area size   */
 
-  InitHeap(InitWorkSpace(pm));
+
+#if RANDOMIZE_START_ADDRESS
+  srand(time(NULL));
+  UInt x = (rand()% 100)*YAP_ALLOC_SIZE ;
+  fprintf(stderr,"x=%ulx\n", (unsigned long int)x);
+  pm += x;
+#endif
+  addr = InitWorkSpace(pm);
+#if RANDOMIZE_START_ADDRESS
+  addr = (char *)addr+x;
+  pm -= x;
+  fprintf(stderr,"addr=%p\n", addr);
+#endif
+
+  InitHeap(addr);
 
   Yap_TrailTop = Yap_HeapBase + pm;
   Yap_LocalBase = Yap_TrailTop - ta;

@@ -254,11 +254,13 @@ extern char Yap_Option[20];
 #endif
 #endif /* !IN_SECOND_QUADRANT */
 
+/* #define RANDOMIZE_START_ADDRESS 1 */
+
 #ifdef USE_SYSTEM_MALLOC
 #define HEAP_INIT_BASE  0L
 #define AtomBase        NULL
 #else
-#if defined(MMAP_ADDR) && (defined(USE_MMAP) || USE_SHMAT) && !defined(__simplescalar__)
+#if defined(MMAP_ADDR) && (defined(USE_MMAP) || USE_SHMAT) && !defined(__simplescalar__) && !defined(RANDOMIZE_START_ADDRESS)
 #define HEAP_INIT_BASE  (MMAP_ADDR)
 #define AtomBase        ((char *)MMAP_ADDR)
 #else
@@ -850,7 +852,6 @@ FunctorOfTerm (Term t)
 }
 
 
-#if (defined(USE_SYSTEM_MALLOC) || USE_DL_MALLOC) && !defined(__LP64__)
 #if USE_LOW32_TAGS
 
 inline EXTERN Term MkAtomTerm (Atom);
@@ -890,28 +891,6 @@ inline EXTERN Atom
 AtomOfTerm (Term t)
 {
   return (Atom) (NonTagPart (t));
-}
-
-
-#endif
-#else
-
-inline EXTERN Term MkAtomTerm (Atom);
-
-inline EXTERN Term
-MkAtomTerm (Atom a)
-{
-  return (Term) (TAGGEDA (AtomTag, (CELL) (a) - HEAP_INIT_BASE));
-}
-
-
-
-inline EXTERN Atom AtomOfTerm (Term t);
-
-inline EXTERN Atom
-AtomOfTerm (Term t)
-{
-  return (Atom) (HEAP_INIT_BASE + NonTagPart (t));
 }
 
 
