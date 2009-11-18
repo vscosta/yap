@@ -386,7 +386,8 @@ RestoreAtoms(void)
   AtomHashEntry *HashPtr;
   register int    i;
 
-
+  Yap_heap_regs->hash_chain = 
+    PtoAtomHashEntryAdjust(Yap_heap_regs->hash_chain);
   HashPtr = HashChain;
   for (i = 0; i < AtomHashTableSize; ++i) {
     HashPtr->Entry = AtomAdjust(HashPtr->Entry);
@@ -401,6 +402,8 @@ RestoreWideAtoms(void)
   AtomHashEntry *HashPtr;
   register int    i;
 
+  Yap_heap_regs->wide_hash_chain = 
+    PtoAtomHashEntryAdjust(Yap_heap_regs->wide_hash_chain);
   HashPtr = WideHashChain;
   for (i = 0; i < WideAtomHashTableSize; ++i) {
     HashPtr->Entry = AtomAdjust(HashPtr->Entry);
@@ -959,6 +962,7 @@ static void
 restore_codes(void)
 {
   Yap_heap_regs->heap_top = AddrAdjust(OldHeapTop);
+#include "rhstruct.h"
 #if !defined(THREADS) && !defined(YAPOR)
   /* restore consult stack. It consists of heap pointers, so it
      is easy to fix.
@@ -979,7 +983,6 @@ restore_codes(void)
     }
   }
 #endif
-#include "rhstruct.h"
 #if !defined(THREADS) && !defined(YAPOR)
   if (Yap_heap_regs->wl.scratchpad.ptr) {
     Yap_heap_regs->wl.scratchpad.ptr =
@@ -1023,13 +1026,7 @@ restore_codes(void)
   Yap_heap_regs->wl.allow_restart = FALSE;
 #endif
 #endif
-  if (Yap_heap_regs->last_wtime != NULL)
-    Yap_heap_regs->last_wtime = (void *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->last_wtime));
-  Yap_heap_regs->hash_chain = 
-    PtoAtomHashEntryAdjust(Yap_heap_regs->hash_chain);
-  Yap_heap_regs->wide_hash_chain = 
-    PtoAtomHashEntryAdjust(Yap_heap_regs->wide_hash_chain);
-}
+ }
 
 
 static void
