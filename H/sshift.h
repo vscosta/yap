@@ -398,7 +398,7 @@ inline EXTERN Term AtomTermAdjust (Term);
 inline EXTERN Term
 AtomTermAdjust (Term at)
 {
-  return at + HDiff;
+  return (Term)(CharP(at) + HDiff);
 }
 
 inline EXTERN Term ModuleAdjust (Term);
@@ -414,7 +414,7 @@ inline EXTERN Term CodeVarAdjust (Term);
 inline EXTERN Term
 CodeVarAdjust (Term var)
 {
-  return var + HDiff;
+  return (Term)(CharP(var) + HDiff);
 }
 
 
@@ -425,7 +425,7 @@ inline EXTERN Term BlobTermAdjust (Term);
 inline EXTERN Term
 BlobTermAdjust (Term t)
 {
-  return (Term) ((t - HDiff));
+  return (Term) (CharP(t) - HDiff);
 }
 
 
@@ -434,7 +434,7 @@ inline EXTERN Term CodeComposedTermAdjust (Term);
 inline EXTERN Term
 CodeComposedTermAdjust (Term t)
 {
-  return (Term) ((t - HDiff));
+  return (Term) (CharP(t) - HDiff);
 }
 
 
@@ -445,7 +445,7 @@ inline EXTERN Term BlobTermAdjust (Term);
 inline EXTERN Term
 BlobTermAdjust (Term t)
 {
-  return (Term) ((t + HDiff));
+  return (Term) (CharP(t) + HDiff);
 }
 
 inline EXTERN Term CodeComposedTermAdjust (Term);
@@ -453,7 +453,7 @@ inline EXTERN Term CodeComposedTermAdjust (Term);
 inline EXTERN Term
 CodeComposedTermAdjust (Term t)
 {
-  return (Term) ((t + HDiff));
+  return (Term) (CharP(t) + HDiff);
 }
 
 
@@ -553,7 +553,7 @@ inline EXTERN Term CodeAdjust (Term);
 inline EXTERN Term
 CodeAdjust (Term dbr)
 {
-  return (Term) (((Term) (dbr) + HDiff));
+  return (Term) (CharP(dbr) + HDiff);
 }
 
 
