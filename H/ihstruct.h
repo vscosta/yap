@@ -76,6 +76,18 @@
 #endif
 
 
+#if USE_THREADED_CODE
+
+#endif
+
+  Yap_heap_regs->execute_cpred_op_code = Yap_opcode(_execute_cpred);
+  Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);
+  Yap_heap_regs->fail_op = Yap_opcode(_op_fail);
+  Yap_heap_regs->index_op = Yap_opcode(_index_pred);
+  Yap_heap_regs->lockpred_op = Yap_opcode(_lock_pred);
+  Yap_heap_regs->undef_op = Yap_opcode(_undef_p);
+
+
 
 
 
@@ -108,19 +120,7 @@
 
   Yap_InitModules();
 
-
-#if USE_THREADED_CODE
-
-#endif
-
   Yap_heap_regs->execution_mode = INTERPRETED;
-
-  Yap_heap_regs->execute_cpred_op_code = Yap_opcode(_execute_cpred);
-  Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);
-  Yap_heap_regs->fail_op = Yap_opcode(_op_fail);
-  Yap_heap_regs->index_op = Yap_opcode(_index_pred);
-  Yap_heap_regs->lockpred_op = Yap_opcode(_lock_pred);
-  Yap_heap_regs->undef_op = Yap_opcode(_undef_p);
 
   InitPredHash();
 #if defined(YAPOR) || defined(THREADS)

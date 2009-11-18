@@ -75,6 +75,18 @@
 #define HeapTopOwner Yap_heap_regs->heap_top_owner
 #endif
 
+
+#if USE_THREADED_CODE
+#define OP_RTABLE Yap_heap_regs->op_rtable
+#endif
+
+#define EXECUTE_CPRED_OP_CODE Yap_heap_regs->execute_cpred_op_code
+#define EXPAND_OP_CODE Yap_heap_regs->expand_op_code
+#define FAIL_OPCODE Yap_heap_regs->fail_op
+#define INDEX_OPCODE Yap_heap_regs->index_op
+#define LOCKPRED_OPCODE Yap_heap_regs->lockpred_op
+#define UNDEF_OPCODE Yap_heap_regs->undef_op
+
 #define NOfAtoms Yap_heap_regs->n_of_atoms
 #define AtomHashTableSize Yap_heap_regs->atom_hash_table_size
 #define WideAtomHashTableSize Yap_heap_regs->wide_atom_hash_table_size
@@ -108,19 +120,7 @@
 
 
 
-
-#if USE_THREADED_CODE
-#define OP_RTABLE Yap_heap_regs->op_rtable
-#endif
-
 #define Yap_ExecutionMode Yap_heap_regs->execution_mode
-
-#define EXECUTE_CPRED_OP_CODE Yap_heap_regs->execute_cpred_op_code
-#define EXPAND_OP_CODE Yap_heap_regs->expand_op_code
-#define FAIL_OPCODE Yap_heap_regs->fail_op
-#define INDEX_OPCODE Yap_heap_regs->index_op
-#define LOCKPRED_OPCODE Yap_heap_regs->lockpred_op
-#define UNDEF_OPCODE Yap_heap_regs->undef_op
 
 #define PredHash Yap_heap_regs->pred_hash
 #if defined(YAPOR) || defined(THREADS)

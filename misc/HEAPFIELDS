@@ -78,6 +78,20 @@ int		heap_top_owner		HeapTopOwner		=-1 void
 #endif
 
 
+/* execution info */
+/* OPCODE TABLE, needed to recover op tables */
+#if USE_THREADED_CODE
+opentry		*op_rtable		OP_RTABLE		void	OpRTableAdjust
+#endif
+
+/* popular opcodes */
+OPCODE		execute_cpred_op_code	EXECUTE_CPRED_OP_CODE	MkOp _execute_cpred
+OPCODE		expand_op_code		EXPAND_OP_CODE		MkOp _expand_index
+OPCODE		fail_op			FAIL_OPCODE		MkOp _op_fail
+OPCODE		index_op		INDEX_OPCODE		MkOp _index_pred
+OPCODE		lockpred_op		LOCKPRED_OPCODE		MkOp _lock_pred
+OPCODE		undef_op		UNDEF_OPCODE		MkOp _undef_p
+
 /* atom tables */
 UInt		n_of_atoms		NOfAtoms		void void
 UInt		atom_hash_table_size	AtomHashTableSize	void void
@@ -115,22 +129,8 @@ struct mod_entry *current_modules	CurrentModules		=NULL	ModEntryPtrAdjust
 // don't actually want to define a field
 void		void			void			Yap_InitModules()  void
 
-/* execution info */
-/* OPCODE TABLE */
-#if USE_THREADED_CODE
-opentry		*op_rtable		OP_RTABLE		void	OpRTableAdjust
-#endif
-
 /* Anderson's JIT */
 yap_exec_mode	execution_mode		Yap_ExecutionMode	=INTERPRETED void
-
-/* popular opcodes */
-OPCODE		execute_cpred_op_code	EXECUTE_CPRED_OP_CODE	MkOp _execute_cpred
-OPCODE		expand_op_code		EXPAND_OP_CODE		MkOp _expand_index
-OPCODE		fail_op			FAIL_OPCODE		MkOp _op_fail
-OPCODE		index_op		INDEX_OPCODE		MkOp _index_pred
-OPCODE		lockpred_op		LOCKPRED_OPCODE		MkOp _lock_pred
-OPCODE		undef_op		UNDEF_OPCODE		MkOp _undef_p
 
 /*  The Predicate Hash Table: fast access to predicates. */
 struct pred_entry **pred_hash		PredHash		InitPredHash() RestorePredHash()

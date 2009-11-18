@@ -75,6 +75,18 @@
   int  heap_top_owner;
 #endif
 
+
+#if USE_THREADED_CODE
+  opentry  *op_rtable;
+#endif
+
+  OPCODE  execute_cpred_op_code;
+  OPCODE  expand_op_code;
+  OPCODE  fail_op;
+  OPCODE  index_op;
+  OPCODE  lockpred_op;
+  OPCODE  undef_op;
+
   UInt  n_of_atoms;
   UInt  atom_hash_table_size;
   UInt  wide_atom_hash_table_size;
@@ -108,19 +120,7 @@
 
 
 
-
-#if USE_THREADED_CODE
-  opentry  *op_rtable;
-#endif
-
   yap_exec_mode  execution_mode;
-
-  OPCODE  execute_cpred_op_code;
-  OPCODE  expand_op_code;
-  OPCODE  fail_op;
-  OPCODE  index_op;
-  OPCODE  lockpred_op;
-  OPCODE  undef_op;
 
   struct pred_entry  **pred_hash;
 #if defined(YAPOR) || defined(THREADS)

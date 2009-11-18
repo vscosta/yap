@@ -76,6 +76,18 @@
 #endif
 
 
+#if USE_THREADED_CODE
+  Yap_heap_regs->op_rtable = OpRTableAdjust(Yap_heap_regs->op_rtable);
+#endif
+
+  Yap_heap_regs->execute_cpred_op_code = Yap_opcode(_execute_cpred);
+  Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);
+  Yap_heap_regs->fail_op = Yap_opcode(_op_fail);
+  Yap_heap_regs->index_op = Yap_opcode(_index_pred);
+  Yap_heap_regs->lockpred_op = Yap_opcode(_lock_pred);
+  Yap_heap_regs->undef_op = Yap_opcode(_undef_p);
+
+
 
 
 
@@ -109,18 +121,6 @@
 
 
 
-#if USE_THREADED_CODE
-  Yap_heap_regs->op_rtable = OpRTableAdjust(Yap_heap_regs->op_rtable);
-#endif
-
-
-
-  Yap_heap_regs->execute_cpred_op_code = Yap_opcode(_execute_cpred);
-  Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);
-  Yap_heap_regs->fail_op = Yap_opcode(_op_fail);
-  Yap_heap_regs->index_op = Yap_opcode(_index_pred);
-  Yap_heap_regs->lockpred_op = Yap_opcode(_lock_pred);
-  Yap_heap_regs->undef_op = Yap_opcode(_undef_p);
 
   RestorePredHash();
 #if defined(YAPOR) || defined(THREADS)
