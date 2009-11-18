@@ -3993,7 +3993,7 @@ find_next_clause(DBRef ref0)
       UNLOCK(cl->ClLock);
     }
 #else 
-    if (!DynamicFlags(newp) & InUseMask) {
+    if (!(DynamicFlags(newp) & InUseMask)) {
       DynamicFlags(newp) |= InUseMask;
       TRAIL_CLREF(ClauseCodeToDynamicClause(newp));
     }
@@ -5489,7 +5489,7 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("total_erased", 4, p_total_erased, SyncPredFlag);
   Yap_InitCPred("key_erased_statistics", 5, p_key_erased_statistics, SyncPredFlag);
   Yap_InitCPred("heap_space_info", 3, p_heap_space_info, SyncPredFlag);
-  Yap_InitCPred("$nth_instance", 4, p_nth_instance, SyncPredFlag);
+  Yap_InitCPred("$nth_instance", 3, p_nth_instance, SyncPredFlag);
   Yap_InitCPred("$nth_instancep", 3, p_nth_instancep, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$jump_to_next_dynamic_clause", 0, p_jump_to_next_dynamic_clause, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$install_thread_local", 2, p_install_thread_local, SafePredFlag|HiddenPredFlag);

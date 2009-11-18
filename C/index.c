@@ -7132,12 +7132,12 @@ Yap_NthClause(PredEntry *ap, Int ncls)
   yamop **jlbl = NULL;
 
   /* search every clause */
-  if (ncls == 1)
+  if (ncls > ap->cs.p_code.NOfClauses)
+    return NULL;
+  else if (ncls == 1)
     return to_clause(ap->cs.p_code.FirstClause,ap);
   else if (ncls == ap->cs.p_code.NOfClauses)
     return to_clause(ap->cs.p_code.LastClause,ap);
-  else if (ncls > ap->cs.p_code.NOfClauses)
-    return NULL;
   else if (ncls < 0)
     return NULL;
   

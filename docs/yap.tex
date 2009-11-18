@@ -5966,16 +5966,6 @@ elements of the internal data-base that match the key.
 match the reference.
 @end itemize
 
-@item nth_instance(?@var{K},?@var{Index},@var{T},?@var{R})
-@findex nth_recorded/3
-@saindex nth_recorded/3
-@cnindex nth_recorded/3
-Fetches the @var{Index}nth entry in the internal database under the
-key @var{K}. Entries are numbered from one. If the key @var{K} are the
-@var{Index} are bound, a reference is unified with @var{R}. Otherwise,
-the reference @var{R} must be given, and the term the system will find
-the matching key and index. 
-
 @item erase(+@var{R})
 @findex erase/1
 @saindex erase/1
@@ -6014,6 +6004,27 @@ database. The predicate always succeeds.
 Defines the relation: @var{K} is a currently defined database key whose
 name is the atom @var{A}. It can be used to generate all the keys for
 the internal data-base.
+
+@item nth_instance(?@var{Key},?@var{Index},?@var{R})
+@findex nth_instance/3
+@saindex nth_instance/3
+@cnindex nth_instance/3
+Fetches the @var{Index}nth entry in the internal database under the key
+@var{Key}. Entries are numbered from one. If the key @var{Key} or the
+@var{Index} are bound, a reference is unified with @var{R}. Otherwise,
+the reference @var{R} must be given, and YAP will find
+the matching key and index.
+
+
+@item nth_instance(?@var{Key},?@var{Index},@var{T},?@var{R})
+@findex nth_instance/4
+@saindex nth_instance/4
+@cnindex nth_instance/4
+Fetches the @var{Index}nth entry in the internal database under the key
+@var{Key}. Entries are numbered from one. If the key @var{Key} or the
+@var{Index} are bound, a reference is unified with @var{R}. Otherwise,
+the reference @var{R} must be given, and YAP will find
+the matching key and index.
 
 @item key_statistics(+@var{K},-@var{Entries},-@var{Size},-@var{IndexSize})
 @findex key_statistics/4
