@@ -1412,7 +1412,7 @@ Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack)
 #if RANDOMIZE_START_ADDRESS
   srand(time(NULL));
   UInt x = (rand()% 100)*YAP_ALLOC_SIZE ;
-  fprintf(stderr,"x=%ulx\n", (unsigned long int)x);
+  fprintf(stderr,"x=%lx\n", (unsigned long int)x);
   pm += x;
 #endif
   addr = InitWorkSpace(pm);
