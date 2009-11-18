@@ -11,6 +11,7 @@ dnl store the environment's compilation flags
 mycflags="$CFLAGS"
 
 AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_AWK
 AC_SUBST(GCC)
 AC_SUBST(C_INTERF_FLAGS)
@@ -379,11 +380,11 @@ then
      if test "$debugyap" = "yes" 
      then
        CFLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes"
-       CPPFLAGS="-O -g -Wall"
+       CXXFLAGS="-O -g -Wall"
        C_INTERF_FLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes"
      else
        CFLAGS="-O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes"
-       CPPFLAGS="-O3 -fomit-frame-pointer -Wall"
+       CXXFLAGS="-O3 -fomit-frame-pointer -Wall"
        case "`$CC --version < /dev/null`" in	
 	  *3.4*) CFLAGS="-fno-gcse -fno-crossjumping $CFLAGS" ;;
        esac
@@ -392,13 +393,13 @@ then
        case "$target_cpu" in
         i*86*)
            CFLAGS="-DBP_FREE $CFLAGS"
-           CPPFLAGS="-DBP_FREE $CPPFLAGS"
+           CXXFLAGS="-DBP_FREE $CXXFLAGS"
         ;;
         sparc*)
 	  case "$target_os" in
            *solaris[2-9]*)	dnl 
              CFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFLAGS"
-             CPPFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFPPLAGS"
+             CXXFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFPPLAGS"
             ;;
           esac
         ;;
@@ -411,23 +412,23 @@ then
          case "$target_cpu" in
 	  athlon)
            CFLAGS="-march=athlon $CFLAGS"
-           CPPFLAGS="-march=athlon $CPPFLAGS"
+           CXXFLAGS="-march=athlon $CXXFLAGS"
 	  ;;
           i686*)
            CFLAGS="-march=i686 $CFLAGS"
-           CPPFLAGS="-march=i686 $CPPFLAGS"
+           CXXFLAGS="-march=i686 $CXXFLAGS"
           ;;
           i586*)
            CFLAGS="-march=i586 $CFLAGS"
-           CPPFLAGS="-march=i586 $CPPFLAGS"
+           CXXFLAGS="-march=i586 $CXXFLAGS"
           ;;
           i486*)
            CFLAGS="-march=i486 $CFLAGS"
-           CPPFLAGS="-march=i486 $CPPFLAGS"
+           CXXFLAGS="-march=i486 $CXXFLAGS"
           ;;
           i386*)
            CFLAGS="-march=i386 $CFLAGS"
-           CPPFLAGS="-march=i386 $CPPFLAGS"
+           CXXFLAGS="-march=i386 $CXXFLAGS"
           ;;
          esac
        fi
@@ -450,7 +451,7 @@ else
         elif test "$CC" = "cl"
         then
           CFLAGS="/nologo"
-          CPPFLAGS="-/nologo"
+          CXXFLAGS="-/nologo"
           CPP="/nologo /E"
         fi
         ;;
@@ -460,10 +461,10 @@ else
            if test "$debugyap" = "yes"
            then
              CFLAGS="-Ae -g -O"
-             CPPFLAGS="-Ae -g -O"
+             CXXFLAGS="-Ae -g -O"
            else
              CFLAGS="-Ae +O3 +Onolimit"
-             CPPFLAGS="-Ae +O3 +Onolimit"
+             CXXFLAGS="-Ae +O3 +Onolimit"
            fi
         fi
 dnl	LDFLAGS="+e UserCPredicate $LDFLAGS"
@@ -1271,7 +1272,7 @@ AC_SUBST(INSTALL_DLLS)
 dnl if we need to merge several .o files into a single dll.
 AC_SUBST(MERGE_DLL_OBJS)
 dnl C-flags used to compile a file that will be loaded dynamically
-AC_SUBST(CPPFLAGS)
+AC_SUBST(CXXFLAGS)
 AC_SUBST(SHLIB_CFLAGS)
 dnl suffix for loadable binary (.so,.dll,.o)
 AC_SUBST(SHLIB_SUFFIX)

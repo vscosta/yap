@@ -18,7 +18,8 @@ LIBDIR=$(EROOTDIR)/lib/Yap
 #
 #
 CC=@CC@
-CPPFLAGS= @CPPFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../../.. -I$(srcdir)/../../../include
+CXX=@CXX@
+CXXFLAGS= @CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../../.. -I$(srcdir)/../../../include
 #
 #
 # You shouldn't need to change what follows.
@@ -61,7 +62,7 @@ all: $(SOBJS)
 
 # default rule
 %.o : $(srcdir)/%.C
-	$(CC) -c $(CPPFLAGS)  $(SHLIB_CFLAGS) $< -o $@
+	$(CXX) -c $(CXXFLAGS)  $(SHLIB_CFLAGS) $< -o $@
 
 @DO_SECOND_LD@pl-minisat@SHLIB_SUFFIX@: $(OBJS)
 @DO_SECOND_LD@	@SHLIB_LOWER_LD@ -o pl-minisat@SHLIB_SUFFIX@ $(OBJS)
