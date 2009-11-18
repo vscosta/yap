@@ -53,8 +53,6 @@ rtree_loop:
 	to_visit -= 3;
 	if (to_visit < to_visit_max) {
 	  to_visit = Yap_shift_visit(to_visit, &to_visit_max);
-
-
 	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;

@@ -4856,9 +4856,9 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
   Terms[2] = tr;
   cl = (StaticClause *)Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredStaticClause->CodeOfPred,Otapl), cp_ptr);
   UNLOCK(pe->PELock);
-  th = Terms[0];
-  tb = Terms[1];
-  tr = Terms[2];
+  th = Deref(Terms[0]);
+  tb = Deref(Terms[1]);
+  tr = Deref(Terms[2]);
   /* don't do this!! I might have stored a choice-point and changed ASP
      Yap_RecoverSlots(3);
   */

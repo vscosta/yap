@@ -384,11 +384,18 @@ debugging :-
 	fail.
 
 % if we are in 
-'$loop_spy2'(GoalNumber, G, Module, CalledFromDebugger, CP) :- 
+'$loop_spy2'(GoalNumber, G0, Module, CalledFromDebugger, CP) :- 
 /* the following choice point is where the predicate is  called */
-        b_getval('$spy_glist',[info(_,_,_,Retry,Det)|_]),	/* get goal list		*/
-	(
-	/* call port */
+	   (
+             '$is_metapredicate'(G0, Module)
+	   ->
+	    '$meta_expansion'(G0,Module,Module,Module,G,[])
+	   ;
+	     G = G0
+	   ),
+	   b_getval('$spy_glist',[info(_,_,_,Retry,Det)|_]),	/* get goal list		*/
+	   (
+	    /* call port */
 	    '$enter_goal'(GoalNumber, G, Module),
 	    '$spycall'(G, Module, CalledFromDebugger, Retry),
 	    '$disable_docreep',
@@ -501,7 +508,7 @@ debugging :-
 	CP is '$last_choice_pt',
 	'$static_clause'(G,M,_,R),
 	% I may backtrack to here from far away
-	 '$disable_docreep',	
+	'$disable_docreep',	
 	(
 	 '$continue_debugging'(no, '$execute_clause'(G, M, R, CP))
 	;
@@ -549,12 +556,14 @@ debugging :-
 		%		( SL = L -> SLL = '>' ; SLL = ' '),
 	SLL = ' ',
 	( Module\=prolog,
-	    Module\=user ->
-	    format(user_error,'~a~a~a       (~d)    ~q: ~a:',[Det,CSPY,SLL,L,P0,Module])
+	  Module\=user
+	->
+	    GW = Module:G
 	;
-	    format(user_error,'~a~a~a       (~d)    ~q:',[Det,CSPY,SLL,L,P0])
+	    GW = G	  
 	),
-	'$debugger_write'(user_error,G).
+	format(user_error,'~a~a~a       (~d)    ~q:',[Det,CSPY,SLL,L,P0]),
+	'$debugger_write'(user_error,GW).
 
 '$unleashed'(call) :- get_value('$leash',L), L /\ 2'1000 =:= 0. %'
 '$unleashed'(exit) :- get_value('$leash',L), L /\ 2'0100 =:= 0. %'

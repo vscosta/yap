@@ -2542,6 +2542,7 @@ p_variant(void) /* variant terms t1 and t2	 */
   return FALSE;
 }
 
+
 static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
 		   CELL *pt1)
 {
@@ -2601,6 +2602,8 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
 	Bind_Global(pt0, new);
 	if (d0 != d1) { /* avoid loops */
 	  Bind_Global(VarOfTerm(new), d1);
+	  if (Yap_rational_tree_loop(VarOfTerm(new)-1,VarOfTerm(new),(CELL **)AuxSp,(CELL **)AuxBase))
+	    goto fail;
 	}
       } else {
 	if (d0 == d1) continue;
@@ -2759,7 +2762,9 @@ p_subsumes(void) /* subsumes terms t1 and t2	 */
     return (TRUE);
   if (IsVarTerm(t1)) {
     Bind(VarOfTerm(t1), t2);
-    return(TRUE);
+    if (Yap_rational_tree_loop(VarOfTerm(t1)-1,VarOfTerm(t1),(CELL **)AuxSp,(CELL **)AuxBase))
+      return FALSE;
+    return TRUE;
   } else if (IsVarTerm(t2))
     return(FALSE);
   if (IsAtomOrIntTerm(t1)) {

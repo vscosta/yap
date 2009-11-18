@@ -132,13 +132,13 @@ open(F,T,S,Opts) :-
 	'$process_open_opts'(L,N0,N, Aliases, Encoding, BOM, DefaultExpand).
 
 
-'$value_open_opt'(text,_,1,X) :- X is 128-2. % default
-'$value_open_opt'(binary,_,2, X) :- X is 128-1.
-'$value_open_opt'(true,_,4, X) :- X is 128-8.
-'$value_open_opt'(false,_,8, X) :- X is 128-4.
-'$value_open_opt'(error,_,16, X) :- X is 128-32-64.
-'$value_open_opt'(eof_code,_,32, X) :- X is 128-16-64.
-'$value_open_opt'(reset,64, X) :- X is 128-32-16.
+'$value_open_opt'(text,_,1,X) :- X is 0xffff-2. % default
+'$value_open_opt'(binary,_,2, X) :- X is 0xffff-1.
+'$value_open_opt'(true,_,4, X) :- X is 0xffff-8.
+'$value_open_opt'(false,_,8, X) :- X is 0xffff-4.
+'$value_open_opt'(error,_,16, X) :- X is 0xffff-0x0060.
+'$value_open_opt'(eof_code,_,32, X) :- X is 0xffff-0x0050.
+'$value_open_opt'(reset, _, 64, X) :- X is 0xffff-0x0030.
 %128 -> use bom
 %256 -> do not use bom
 %512 -> do prolog on unrepresentable char

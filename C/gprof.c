@@ -732,9 +732,6 @@ search_pc_pred(yamop *pc_ptr,clauseentry *beg, clauseentry *end) {
   }
 }
 
-extern void Yap_InitAbsmi(void);
-extern int Yap_rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0, CELL **to_visit_max);
-
 static Int profend(void); 
 
 static int
