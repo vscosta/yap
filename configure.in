@@ -379,9 +379,11 @@ then
      if test "$debugyap" = "yes" 
      then
        CFLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes"
+       CPPFLAGS="-O -g -Wall"
        C_INTERF_FLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes"
      else
        CFLAGS="-O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes"
+       CPPFLAGS="-O3 -fomit-frame-pointer -Wall"
        case "`$CC --version < /dev/null`" in	
 	  *3.4*) CFLAGS="-fno-gcse -fno-crossjumping $CFLAGS" ;;
        esac
@@ -390,11 +392,13 @@ then
        case "$target_cpu" in
         i*86*)
            CFLAGS="-DBP_FREE $CFLAGS"
+           CPPFLAGS="-DBP_FREE $CPPFLAGS"
         ;;
         sparc*)
 	  case "$target_os" in
            *solaris[2-9]*)	dnl 
              CFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFLAGS"
+             CPPFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFPPLAGS"
             ;;
           esac
         ;;
@@ -407,18 +411,23 @@ then
          case "$target_cpu" in
 	  athlon)
            CFLAGS="-march=athlon $CFLAGS"
+           CPPFLAGS="-march=athlon $CPPFLAGS"
 	  ;;
           i686*)
            CFLAGS="-march=i686 $CFLAGS"
+           CPPFLAGS="-march=i686 $CPPFLAGS"
           ;;
           i586*)
            CFLAGS="-march=i586 $CFLAGS"
+           CPPFLAGS="-march=i586 $CPPFLAGS"
           ;;
           i486*)
            CFLAGS="-march=i486 $CFLAGS"
+           CPPFLAGS="-march=i486 $CPPFLAGS"
           ;;
           i386*)
            CFLAGS="-march=i386 $CFLAGS"
+           CPPFLAGS="-march=i386 $CPPFLAGS"
           ;;
          esac
        fi
@@ -441,6 +450,7 @@ else
         elif test "$CC" = "cl"
         then
           CFLAGS="/nologo"
+          CPPFLAGS="-/nologo"
           CPP="/nologo /E"
         fi
         ;;
@@ -450,8 +460,10 @@ else
            if test "$debugyap" = "yes"
            then
              CFLAGS="-Ae -g -O"
+             CPPFLAGS="-Ae -g -O"
            else
              CFLAGS="-Ae +O3 +Onolimit"
+             CPPFLAGS="-Ae +O3 +Onolimit"
            fi
         fi
 dnl	LDFLAGS="+e UserCPredicate $LDFLAGS"
@@ -754,6 +766,7 @@ dnl defaults
 INSTALL_DLLS="#"
 EXTRA_OBJS=""
 SHLIB_LD="#"
+SHLIB_LOWER_LD="#"
 SHLIB_SWI_LD="#"
 DO_SECOND_LD="#"
 M4="m4"
@@ -775,6 +788,7 @@ case "$target_os" in
 	  then
 	    SHLIB_SUFFIX=".so"
             SHLIB_LD="$CC -shared -export-dynamic"
+            SHLIB_LOWER_LD="$SHLIB_LD"
             SHLIB_SWI_LD="$CC -shared -export-dynamic"
             DO_SECOND_LD=""
 	    LIBS="$LIBS -ldl"
@@ -833,6 +847,7 @@ case "$target_os" in
 	    #this tells ld to export all non-static symbols,
 	    #otherwise no external predicates.
             SHLIB_LD="$CC -shared -export-dynamic"
+            SHLIB_LOWER_LD="$SHLIB_LD"
             SHLIB_SWI_LD="$CC -shared -export-dynamic"
             DO_SECOND_LD=""
             SHLIB_SUFFIX=".sl"
@@ -881,6 +896,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	SHLIB_SUFFIX=".so"
         DO_SECOND_LD=""
 	SHLIB_LD="ld -n32 -shared -rdata_shared"
+        SHLIB_LOWER_LD="$SHLIB_LD"
 	SHLIB_SWI_LD="ld -n32 -shared -rdata_shared"
 	INSTALL_DLLS=""
 	;;
@@ -903,6 +919,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 # 	SHLIB_LD="$CC -bundle -bundle_loader \$(abs_top_builddir)/yap -L\$(abs_top_builddir) -lYap -undefined dynamic_lookup -Wl,-x -dead-strip -dead_strip_dylibs"
 # 	LDFLAGS="-Wl,-x -dead_strip -dead_strip_dylibs $LDFLAGS"
 	SHLIB_LD="$CC -bundle -flat_namespace -undefined suppress"
+        SHLIB_LOWER_LD="$SHLIB_LD"
 	SHLIB_SWI_LD="$CC -bundle -flat_namespace -undefined suppress"
 	INSTALL_DLLS=""
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall -Wstrict-aliasing=2"
@@ -920,6 +937,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	  LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
 	  SHLIB_CFLAGS="-fPIC"
 	  SHLIB_LD="ld -Bshareable -x"
+          SHLIB_LOWER_LD="$SHLIB_LD"
 	  SHLIB_SWI_LD="ld -Bshareable -x"
           DO_SECOND_LD=""
 	  SHLIB_SUFFIX=".so"
@@ -931,6 +949,7 @@ dnl Linux has both elf and a.out, in this case we found elf
         LDFLAGS="-dynamic $LDFLAGS"
 	SHLIB_CFLAGS="-fPIC"
 	SHLIB_LD="$CC -shared"
+        SHLIB_LOWER_LD="$SHLIB_LD"
 	SHLIB_SWI_LD="$CC -shared"
         DO_SECOND_LD=""
 	SHLIB_SUFFIX=".so"
@@ -942,6 +961,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	YAPLIB="libWYap.a"
 	SHLIB_CFLAGS=""
         SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll"
+        SHLIB_LOWER_LD="\$(CC) -shared -Wl,--export-all-symbols ../../../yap.dll"
         SHLIB_SWI_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll  ../../packages/PLStream/plstream.dll"
 	SHLIB_SUFFIX=".dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
@@ -1251,6 +1271,7 @@ AC_SUBST(INSTALL_DLLS)
 dnl if we need to merge several .o files into a single dll.
 AC_SUBST(MERGE_DLL_OBJS)
 dnl C-flags used to compile a file that will be loaded dynamically
+AC_SUBST(CPPFLAGS)
 AC_SUBST(SHLIB_CFLAGS)
 dnl suffix for loadable binary (.so,.dll,.o)
 AC_SUBST(SHLIB_SUFFIX)
@@ -1260,6 +1281,7 @@ AC_SUBST(EXEC_SUFFIX)
 dnl how to call the loader
 AC_SUBST(DO_SECOND_LD)
 AC_SUBST(SHLIB_LD)
+AC_SUBST(SHLIB_LOWER_LD)
 AC_SUBST(SHLIB_SWI_LD)
 AC_SUBST(DYNLIB_LD)
 dnl objects in YAP library
