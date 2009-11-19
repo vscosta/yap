@@ -425,6 +425,7 @@ X_API PredEntry *STD_PROTO(YAP_FunctorToPred,(Functor));
 X_API PredEntry *STD_PROTO(YAP_AtomToPred,(Atom));
 X_API Int     STD_PROTO(YAP_CallProlog,(Term));
 X_API void   *STD_PROTO(YAP_AllocSpaceFromYap,(unsigned int));
+X_API void   *STD_PROTO(YAP_ReallocSpaceFromYap,(void*,unsigned int));
 X_API void    STD_PROTO(YAP_FreeSpaceFromYap,(void *));
 X_API int     STD_PROTO(YAP_StringToBuffer, (Term, char *, unsigned int));
 X_API Term    STD_PROTO(YAP_ReadBuffer, (char *,Term *));
@@ -1292,6 +1293,19 @@ YAP_CallProlog(Term t)
   return(out);
 }
 
+X_API void *
+YAP_ReallocSpaceFromYap(void *ptr,unsigned int size) {
+  void *new_ptr;
+  BACKUP_MACHINE_REGS();
+  while ((new_ptr = Yap_ExpandPreAllocCodeSpace(size,ptr,TRUE)) == NULL) {
+    if (!Yap_growheap(FALSE, size, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      return NULL;
+    }
+  }
+  RECOVER_MACHINE_REGS();
+  return new_ptr;
+}
 X_API void *
 YAP_AllocSpaceFromYap(unsigned int size)
 {

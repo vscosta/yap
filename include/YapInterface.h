@@ -236,6 +236,9 @@ extern X_API void PROTO(YAP_cut_up,(void));
 /*  void *AllocSpaceFromYAP_(int) */
 extern X_API void *PROTO(YAP_AllocSpaceFromYap,(unsigned int));
 
+/*  void *ReallocSpaceFromYAP_(void*,int) */
+extern X_API void *PROTO(YAP_ReallocSpaceFromYap,(void*,unsigned int));
+
 /*  void FreeSpaceFromYAP_(void *) */
 extern X_API void PROTO(YAP_FreeSpaceFromYap,(void *));
 
