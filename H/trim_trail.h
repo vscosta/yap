@@ -23,7 +23,7 @@
 	  insert_into_global_sg_fr_list(sg_fr);
 	} else
 #endif /* LIMIT_TABLING */
-	  if ((ADDR) pt >= Yap_TrailBase) {
+	  if (IN_BETWEEN(Yap_TrailBase, pt, Yap_TrailTop)) {
 	    /* skip, this is a problem because we lose information,
 	       namely active references */
 	    pt1 = (tr_fr_ptr)pt;
