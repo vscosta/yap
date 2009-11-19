@@ -253,6 +253,9 @@ static void
 InitHeap(void)
 {
   Yap_heap_regs = (struct various_codes *)calloc(1, sizeof(struct various_codes));
+#if defined(YAPOR) || defined(TABLING)
+  LOCAL = REMOTE; /* point to the first area */
+#endif /* YAPOR || TABLING */
 }
 
 void
