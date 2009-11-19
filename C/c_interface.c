@@ -2167,7 +2167,7 @@ YAP_Init(YAP_init_args *yap_init)
 #ifdef YAPOR
   init_workers();
 #endif /* YAPOR */
-  init_local();
+  Yap_init_local();
 #ifdef YAPOR
   if (worker_id != 0) {
 #if SBA

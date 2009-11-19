@@ -172,7 +172,7 @@ void Yap_init_global(int max_table_size, int n_workers, int sch_loop, int delay_
 }
 
 
-void init_local(void) {
+void Yap_init_local(void) {
 #ifdef YAPOR
   /* local data related to or-parallelism */
   LOCAL = REMOTE + worker_id;

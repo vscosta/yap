@@ -42,7 +42,7 @@ void error_message(const char *mesg, ...);
 ** ------------ */
 
 void Yap_init_global(int max_table_size, int n_workers, int sch_loop, int delay_load);
-void init_local(void);
+void Yap_init_local(void);
 void make_root_frames(void);
 #ifdef YAPOR
 void init_workers(void);
