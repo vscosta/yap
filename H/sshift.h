@@ -398,6 +398,8 @@ inline EXTERN Term AtomTermAdjust (Term);
 inline EXTERN Term
 AtomTermAdjust (Term at)
 {
+  if (at == 0L)
+    return at;
   return (Term)(CharP(at) + HDiff);
 }
 
@@ -414,6 +416,8 @@ inline EXTERN Term CodeVarAdjust (Term);
 inline EXTERN Term
 CodeVarAdjust (Term var)
 {
+  if (var == 0L)
+    return var;
   return (Term)(CharP(var) + HDiff);
 }
 
