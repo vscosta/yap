@@ -1011,12 +1011,14 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
     }
   }
 
+#if !USE_SYSTEM_MALLOC
   if (P < (yamop *)Yap_HeapBase || P > (yamop *)HeapTop) {
 #if DEBUG
     fprintf(stderr,"Oops: %p, %p\n", oldpc, current_p);
 #endif
     return;
   }
+#endif
 
   if (Yap_OffLineProfiler) {
     fprintf(FProf,"%p %p ", oldpc, current_p);
@@ -1048,6 +1050,7 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
       ProfOn=FALSE;
       return;
     }
+#if !USE_SYSTEM_MALLOC
     /* add this clause as new node to the tree */
     if (start < (CODEADDR)Yap_HeapBase || start > (CODEADDR)HeapTop ||
 	end < (CODEADDR)Yap_HeapBase || end > (CODEADDR)HeapTop) {
@@ -1056,6 +1059,7 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
 #endif
       return;
     }
+#endif
     if (pp->ArityOfPE > 100) {
 #if DEBUG
       fprintf(stderr,"%p:%p(%lu)-->%p\n",oldpc,current_p,(unsigned long int)Yap_op_from_opcode(current_p->opc),pp);
