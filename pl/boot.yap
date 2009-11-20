@@ -397,6 +397,12 @@ true :- true.
 	 '$current_module'(Mod),
 	 '$go_compile_clause'(G,V,Pos,N,Mod,Mod,Source).
  
+'$go_compile_clause'(G,_,_,_,_,_,Source) :-
+	var(G), !,
+	'$do_error'(instantiation_error,assert(Source)).	
+'$go_compile_clause'((G:-_),_,_,_,_,_,Source) :-
+	var(G), !,
+	'$do_error'(instantiation_error,assert(Source)).	
 '$go_compile_clause'(M:G,V,Pos,N,_,_,Source) :- !,
 	  '$go_compile_clause'(G,V,Pos,N,M,M,Source).
 '$go_compile_clause'((M:H :- B),V,Pos,N,_,BodyMod,Source) :- !,
