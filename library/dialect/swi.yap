@@ -335,8 +335,6 @@ lists:intersection([_|T], L, R) :-
 	lists:intersection(T, L, R).
 
 
-:- op(700, xfx, '=@=').
-
 prolog:(Term1 =@= Term2) :-
 	variant(Term1, Term2), !.
 
