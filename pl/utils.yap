@@ -57,9 +57,12 @@ op(P,T,V) :-
 '$associativity'(fx).
 '$associativity'(fy).
 
- '$check_op_name'(V,_) :-
+'$check_op_name'(V,G) :-
+	 var(V), !,
+	 '$do_error'(instantiation_error,G).
+'$check_op_name'(V,_) :-
 	 atom(V), !.
- '$check_op_name'(M:A, G) :-
+'$check_op_name'(M:A, G) :-
 	 (
 	  var(M) ->
 	 '$do_error'(instantiation_error,G)
@@ -67,13 +70,10 @@ op(P,T,V) :-
 	  var(A) ->
 	 '$do_error'(instantiation_error,G)
 	 ;
-	  \+ atom(A) ->
-	 '$do_error'(instantiation_error,G)
+	  atom(M) ->
+	  '$check_op_name'(A, G)
 	 ;
-	  \+ atom(M) ->
 	 '$do_error'(instantiation_error,G)
-	 ;
-	  true
 	 ).
  '$check_op_name'([A|As], G) :-
 	  '$check_op_name'(A, G),
@@ -85,27 +85,25 @@ op(P,T,V) :-
 	'$check_op_names'(As, G).
 
 	  
+'$op'(P, T, M:[A|As]) :- !,
+	'$current_module'(M),
+	'$opl'(P, T, M, [A|As]).
 '$op'(P, T, [A|As]) :- !,
-	'$opl'(P, T, [A|As]).
+	'$opl'(P, T, M, [A|As]).
 '$op'(P, T, A) :-
 	'$op2'(P,T,A).
 
-'$opl'(P, T, []).
-'$opl'(P, T, [A|As]) :-
-	'$op2'(P, T, A),
-	'$opl'(P, T, As).
+'$opl'(P, T, _, []).
+'$opl'(P, T, M, [A|As]) :-
+	'$op2'(P, T, M:A),
+	'$opl'(P, T, M, As).
 
-'$op2'(P,T,A) :-
-	atom(A),
-	prolog_load_context(module, Mod), Mod \= user, !,
-	'$opdec'(P,T,A,Mod).
 '$op2'(P,T,A) :-
 	atom(A), !,
 	'$opdec'(P,T,A,prolog).
 '$op2'(P,T,A) :-
 	strip_module(A,M,N),
-	(M = user -> NM = prolog ; NM = M),
-	'$opdec'(P,T,N,NM).
+	'$opdec'(P,T,N,M).
 
 current_op(X,Y,V) :- var(V), !,
 	'$current_module'(M),

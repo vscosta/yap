@@ -480,11 +480,19 @@ IsOpProperty (int flags)
   return (PropFlags) ((flags == OpProperty));
 }
 
-OpEntry   *STD_PROTO(Yap_GetOpProp,(Atom));
+typedef enum
+{
+  INFIX_OP = 0,
+  POSFIX_OP = 1,
+  PREFIX_OP = 2
+} op_type;
 
-int	STD_PROTO(Yap_IsPrefixOp,(OpEntry *,int *,int *));
-int	STD_PROTO(Yap_IsInfixOp,(OpEntry *,int *,int *,int *));
-int	STD_PROTO(Yap_IsPosfixOp,(OpEntry *,int *,int *));
+
+OpEntry   *STD_PROTO(Yap_GetOpProp,(Atom, op_type));
+
+int	STD_PROTO(Yap_IsPrefixOp,(Atom,int *,int *));
+int	STD_PROTO(Yap_IsInfixOp,(Atom,int *,int *,int *));
+int	STD_PROTO(Yap_IsPosfixOp,(Atom,int *,int *));
 
 /* defines related to operator specifications				*/
 #define	MaskPrio  0x0fff

@@ -217,15 +217,13 @@ legalAtom(unsigned char *s)			/* Is this a legal atom ? */
 static int LeftOpToProtect(Atom at, int p)
 {
   int op, rp;
-  OpEntry            *opinfo = Yap_GetOpProp(at);
-  return(opinfo && Yap_IsPrefixOp(opinfo, &op, &rp) );
+  return Yap_IsPrefixOp(at, &op, &rp);
 }
 
 static int RightOpToProtect(Atom at, int p)
 {
   int op, lp;
-  OpEntry            *opinfo = Yap_GetOpProp(at);
-  return(opinfo && Yap_IsPosfixOp(opinfo, &op, &lp) );
+  return Yap_IsPosfixOp(at, &op, &lp);
 }
 
 static wtype 
@@ -612,7 +610,6 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     Functor         functor = FunctorOfTerm(t);
     int             Arity;
     Atom            atom;
-    OpEntry        *opinfo;
     int             op, lp, rp;
 
     if (IsExtensionFunctor(functor)) {
@@ -689,7 +686,6 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     }
     Arity = ArityOfFunctor(functor);
     atom = NameOfFunctor(functor);
-    opinfo = Yap_GetOpProp(atom);
 #ifdef SFUNC
     if (Arity == SFArity) {
       int             argno = 1;
@@ -744,8 +740,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	return;
     }
     if (!wglb->Ignore_ops &&
-	Arity == 1 && opinfo && Yap_IsPrefixOp(opinfo, &op,
-					   &rp)
+	Arity == 1 &&  Yap_IsPrefixOp(atom, &op, &rp)
 #ifdef DO_NOT_WRITE_PLUS_AND_MINUS_AS_PREFIX
 	&&
 	/* never write '+' and '-' as infix
@@ -782,7 +777,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	lastw = separator;
       }
     } else if (!wglb->Ignore_ops &&
-	       Arity == 1 && opinfo && Yap_IsPosfixOp(opinfo, &op, &lp)) {
+	       Arity == 1 &&
+	       Yap_IsPosfixOp(atom, &op, &lp)) {
       Term  tleft = ArgOfTerm(1, t);
       long sl = 0;
       int            bracket_left =
@@ -820,7 +816,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	lastw = separator;
       }
     } else if (!wglb->Ignore_ops &&
-	       Arity == 2 && opinfo && Yap_IsInfixOp(opinfo, &op, &lp,
+	       Arity == 2  && Yap_IsInfixOp(atom, &op, &lp,
 						 &rp) ) {
       Term  tleft = ArgOfTerm(1, t);
       Term  tright = ArgOfTerm(2, t);

@@ -27,6 +27,8 @@ int	     STD_PROTO(Yap_absmiEND,(void));
 Term	STD_PROTO(Yap_ArrayToList,(Term *,int));
 int	STD_PROTO(Yap_GetName,(char *,UInt,Term));
 Term	STD_PROTO(Yap_GetValue,(Atom));
+int     STD_PROTO(Yap_HasOp,(Atom));
+struct operator_entry *STD_PROTO(Yap_GetOpPropForAModuleHavingALock,(AtomEntry *, Term));
 Atom	STD_PROTO(Yap_LookupAtom,(char *));
 Atom	STD_PROTO(Yap_LookupMaybeWideAtom,(wchar_t *));
 Atom	STD_PROTO(Yap_FullLookupAtom,(char *));

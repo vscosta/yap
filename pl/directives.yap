@@ -106,7 +106,8 @@
 '$exec_directive'(thread_local(P), _, M) :-
 	'$thread_local'(P, M).
 '$exec_directive'(op(P,OPSEC,OP), _, _) :-
-	op(P,OPSEC,OP).
+	'$current_module'(M),
+	op(P,OPSEC,M:OP).
 '$exec_directive'(set_prolog_flag(F,V), _, _) :-
 	set_prolog_flag(F,V).
 '$exec_directive'(ensure_loaded(Fs), _, M) :-

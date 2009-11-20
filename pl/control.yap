@@ -235,7 +235,7 @@ garbage_collect_atoms :-
 '$good_character_code'(X) :- var(X), !.
 '$good_character_code'(X) :- integer(X), X > -2, X < 256.
 
-initialization :-
+(initialization) :-
 	'$initialisation_goals'.
 
 prolog_initialization(G) :- var(G), !,

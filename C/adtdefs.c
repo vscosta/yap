@@ -413,7 +413,24 @@ Yap_GetAProp(Atom a, PropFlags kind)
 }
 
 OpEntry *
-Yap_GetOpProp(Atom a)
+Yap_GetOpPropForAModuleHavingALock(Atom a, Term mod)
+{				/* look property list of atom a for kind  */
+  AtomEntry *ae = RepAtom(a);
+  PropEntry *pp;
+
+  pp = RepProp(ae->PropsOfAE);
+  while (!EndOfPAEntr(pp) &&
+	 (pp->KindOfPE != OpProperty ||
+	  ((OpEntry *)pp)->OpModule != mod))
+    pp = RepProp(pp->NextOfPE);
+  if (EndOfPAEntr(pp)) {
+    return NULL;
+  }
+  return (OpEntry *)pp;
+}
+
+int
+Yap_HasOp(Atom a)
 {				/* look property list of atom a for kind  */
   AtomEntry *ae = RepAtom(a);
   PropEntry *pp;
@@ -421,15 +438,55 @@ Yap_GetOpProp(Atom a)
   READ_LOCK(ae->ARWLock);
   pp = RepProp(ae->PropsOfAE);
   while (!EndOfPAEntr(pp) &&
-	 ( pp->KindOfPE != OpProperty ||
-	   (((OpEntry *)pp)->OpModule &&
-	    ((OpEntry *)pp)->OpModule != CurrentModule)))
+	 ( pp->KindOfPE != OpProperty))
     pp = RepProp(pp->NextOfPE);
-  READ_UNLOCK(ae->ARWLock);
-  if (EndOfPAEntr(pp))
+  if (EndOfPAEntr(pp)) {
+    return FALSE;
+  } else {
+    return TRUE;
+  }
+}
+
+OpEntry *
+Yap_GetOpProp(Atom a, op_type type)
+{				/* look property list of atom a for kind  */
+  AtomEntry *ae = RepAtom(a);
+  PropEntry *pp;
+  OpEntry *info = NULL;
+
+  READ_LOCK(ae->ARWLock);
+  pp = RepProp(ae->PropsOfAE);
+  while (!EndOfPAEntr(pp) &&
+	 ( pp->KindOfPE != OpProperty ||
+	    ((OpEntry *)pp)->OpModule != CurrentModule))
+    pp = RepProp(pp->NextOfPE);
+  if ((info = (OpEntry *)pp)) {
+    if ((type == INFIX_OP && !info->Infix) ||
+        (type == POSFIX_OP && !info->Posfix) ||
+	(type == PREFIX_OP && !info->Prefix))
+      pp =  RepProp(NIL);
+  }
+  if (EndOfPAEntr(pp)) {
+    pp = RepProp(ae->PropsOfAE);
+    while (!EndOfPAEntr(pp) &&
+	   ( pp->KindOfPE != OpProperty ||
+	     ((OpEntry *)pp)->OpModule != PROLOG_MODULE))
+      pp = RepProp(pp->NextOfPE);
+    if ((info = (OpEntry *)pp)) {
+      if ((type == INFIX_OP && !info->Infix) ||
+	  (type == POSFIX_OP && !info->Posfix) ||
+	  (type == PREFIX_OP && !info->Prefix))
+	pp =  RepProp(NIL);
+    }
+  }
+  if (!info) {
+    READ_UNLOCK(ae->ARWLock);
     return NULL;
-  else
-    return (OpEntry *)pp;
+  } else {
+    READ_LOCK(info->OpRWLock);
+    READ_UNLOCK(ae->ARWLock);
+    return info;
+  }
 }
 
 

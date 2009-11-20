@@ -229,6 +229,8 @@ OpDec(int p, char *type, Atom a, Term m)
   AtomEntry      *ae = RepAtom(a);
   OpEntry        *info;
 
+  if (m == TermProlog)
+    m = PROLOG_MODULE;
   for (i = 1; i <= 7; ++i)
     if (strcmp(type, optypes[i]) == 0)
       break;
@@ -243,7 +245,7 @@ OpDec(int p, char *type, Atom a, Term m)
       p |= DcrrpFlag;
   }
   WRITE_LOCK(ae->ARWLock);
-  info = RepOpProp(Yap_GetAPropHavingLock(ae, OpProperty));
+  info = Yap_GetOpPropForAModuleHavingALock(ae, m);
   if (EndOfPAEntr(info)) {
     info = (OpEntry *) Yap_AllocAtomSpace(sizeof(OpEntry));
     info->KindOfPE = Ord(OpProperty);
@@ -269,7 +271,7 @@ OpDec(int p, char *type, Atom a, Term m)
       /* ISO dictates */
       WRITE_UNLOCK(info->OpRWLock);
       Yap_Error(PERMISSION_ERROR_CREATE_OPERATOR,MkAtomTerm(a),"op/3");
-      return(FALSE);
+      return FALSE;
     }
     info->Infix = p;
   } else if (i <= 5) {
@@ -278,7 +280,7 @@ OpDec(int p, char *type, Atom a, Term m)
       /* ISO dictates */
       WRITE_UNLOCK(info->OpRWLock);
       Yap_Error(PERMISSION_ERROR_CREATE_OPERATOR,MkAtomTerm(a),"op/3");
-      return(FALSE);
+      return FALSE;
     }
     info->Posfix = p;
   } else {

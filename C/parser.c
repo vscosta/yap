@@ -198,11 +198,13 @@ Yap_VarNames(VarEntry *p,Term l)
 }
 
 static int
-IsPrefixOp(OpEntry *opp,int  *pptr, int *rpptr)
+IsPrefixOp(Atom op,int  *pptr, int *rpptr)
 {
   int p;
 
-  READ_LOCK(opp->OpRWLock);
+  OpEntry *opp = Yap_GetOpProp(op, PREFIX_OP);
+  if (!opp)
+    return FALSE;
   if (opp->OpModule &&
       opp->OpModule != CurrentModule)
     return FALSE;
@@ -219,17 +221,19 @@ IsPrefixOp(OpEntry *opp,int  *pptr, int *rpptr)
 }
 
 int
-Yap_IsPrefixOp(OpEntry *opinfo,int  *pptr, int *rpptr)
+Yap_IsPrefixOp(Atom op,int  *pptr, int *rpptr)
 {
-  return IsPrefixOp(opinfo,pptr,rpptr);
+  return IsPrefixOp(op,pptr,rpptr);
 }
 
 static int
-IsInfixOp(OpEntry *opp, int *pptr, int *lpptr, int *rpptr)
+IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr)
 {
   int p;
 
-  READ_LOCK(opp->OpRWLock);
+  OpEntry *opp = Yap_GetOpProp(op, INFIX_OP);
+  if (!opp)
+    return FALSE;
   if (opp->OpModule &&
       opp->OpModule != CurrentModule)
     return FALSE;
@@ -248,17 +252,19 @@ IsInfixOp(OpEntry *opp, int *pptr, int *lpptr, int *rpptr)
 }
 
 int
-Yap_IsInfixOp(OpEntry *opinfo, int *pptr, int *lpptr, int *rpptr)
+Yap_IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr)
 {
-  return IsInfixOp(opinfo, pptr, lpptr, rpptr);
+  return IsInfixOp(op, pptr, lpptr, rpptr);
 }
 
 static int
-IsPosfixOp(OpEntry *opp, int *pptr, int *lpptr)
+IsPosfixOp(Atom op, int *pptr, int *lpptr)
 {
   int p;
 
-  READ_LOCK(opp->OpRWLock);
+  OpEntry *opp = Yap_GetOpProp(op, INFIX_OP);
+  if (!opp)
+    return FALSE;
   if (opp->OpModule &&
       opp->OpModule != CurrentModule)
     return FALSE;
@@ -275,9 +281,9 @@ IsPosfixOp(OpEntry *opp, int *pptr, int *lpptr)
 }
 
 int
-Yap_IsPosfixOp(OpEntry *opinfo, int *pptr, int *lpptr)
+Yap_IsPosfixOp(Atom op, int *pptr, int *lpptr)
 {
-  return IsPosfixOp(opinfo, pptr, lpptr);
+  return IsPosfixOp(op, pptr, lpptr);
 }
 
 inline static void
@@ -418,11 +424,11 @@ static Term
 ParseTerm(int prio, JMPBUFF *FailBuff)
 {
   /* parse term with priority prio */
-  Volatile OpEntry *opinfo;
   Volatile Term t;
   Volatile Functor func;
   Volatile VarEntry *varinfo;
   Volatile int curprio = 0, opprio, oplprio, oprprio;
+  Volatile Atom opinfo;
 
   switch (Yap_tokptr->Tok) {
   case Name_tok:
@@ -430,8 +436,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
     NextToken;
     if ((Yap_tokptr->Tok != Ord(Ponctuation_tok)
 	 || Unsigned(Yap_tokptr->TokInfo) != 'l')
-	&& (opinfo = Yap_GetOpProp((Atom) t))
-	&& IsPrefixOp(opinfo, &opprio, &oprprio)
+	&& IsPrefixOp((Atom)t, &opprio, &oprprio)
 	) {
       /* special rules apply for +1, -2.3, etc... */
       if (Yap_tokptr->Tok == Number_tok) {
@@ -615,9 +620,9 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
   /* main loop to parse infix and posfix operators starts here */
   while (TRUE) {
     if (Yap_tokptr->Tok == Ord(Name_tok)
-	&& (opinfo = Yap_GetOpProp((Atom)(Yap_tokptr->TokInfo)))) {
-      OpEntry *save_opinfo = opinfo;
-      if (IsInfixOp(opinfo, &opprio, &oplprio, &oprprio) 
+	&& Yap_HasOp((Atom)(Yap_tokptr->TokInfo))) {
+      Atom save_opinfo = opinfo = (Atom)(Yap_tokptr->TokInfo);
+      if (IsInfixOp(save_opinfo, &opprio, &oplprio, &oprprio) 
 	  && opprio <= prio && oplprio >= curprio) {
 	/* try parsing as infix operator */
 	Volatile int oldprio = curprio;
