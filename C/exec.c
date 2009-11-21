@@ -1635,6 +1635,7 @@ JumpToEnv(Term t) {
   /* H = B->cp_h; */
   t = clean_trail(t, dbt, B->cp_a1);
   B->cp_a3 = t;
+  B->cp_tr = TR;
   if (first_func != NULL) {
     B = first_func;
   }
