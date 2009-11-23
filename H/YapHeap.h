@@ -18,6 +18,10 @@
 #ifndef HEAP_H
 #define HEAP_H 1
 
+#if LOW_PROF
+#include <stdio.h>
+#endif
+
 #if defined(THREADS)
 #define RINFO rinfo[worker_id]
 #else
