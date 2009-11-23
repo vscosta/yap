@@ -3083,6 +3083,11 @@ format statements as described with @code{print_message_lines/3}.
 This predicate should be defined dynamic and multifile to allow other
 modules defining clauses for it too.
 
+@item message_to_string(+@var{Term}, -@var{String})
+@findex message_to_string/2
+@snindex message_to_string/2
+@cnindex message_to_string/2 
+Translates a message-term into a string object. Primarily intended for SWI-Prolog emulation.
 @end table
 
 @node Testing Terms, Predicates on Atoms, Messages, Top

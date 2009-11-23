@@ -229,6 +229,9 @@
 '$process_error'(Throw, _) :-
 	print_message(error,error(unhandled_exception,Throw)).
 
+message_to_string(Event, Message) :-
+	'$messages':generate_message(Event, Message, []).
+
 print_message(force(_Severity), Msg) :- !,
 	print(user_error,Msg).
 print_message(error, error(Msg,Info)) :- var(Info), !,
