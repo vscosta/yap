@@ -345,7 +345,7 @@ module(N) :-
 
 %'$match_mod'(G, GMod, GMod, NG) :- !,
 %	NG = G.
-'$match_mod'(G, _, SM, _, G) :- SM == prolog, !. % prolog: needs no module info.
+'$match_mod'(G, _, SM, _, G) :- SM == prolog, nonvar(G), \+ '$is_multifile'(G,SM), !. % prolog: needs no module info.
 % same module as head,  and body goal (I cannot get rid of qualifier before
 % meta-call.
 '$match_mod'(G, HMod, _, HM, G) :- HMod == HM, !.
