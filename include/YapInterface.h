@@ -96,6 +96,9 @@ extern X_API YAP_Term PROTO(YAP_MkVarTerm,(void));
 /*  YAP_Bool IsIntTerm(YAP_Term)  */
 extern X_API YAP_Bool PROTO(YAP_IsIntTerm,(YAP_Term));
 
+/*  YAP_Bool IsLongIntTerm(YAP_Term)  */
+extern X_API YAP_Bool PROTO(YAP_IsLongIntTerm,(YAP_Term));
+
 /*  YAP_Bool IsBigNumTerm(YAP_Term)  */
 extern X_API YAP_Bool PROTO(YAP_IsBigNumTerm,(YAP_Term));
 

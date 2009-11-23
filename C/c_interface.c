@@ -382,6 +382,7 @@ X_API Term    STD_PROTO(YAP_MkVarTerm,(void));
 X_API Bool    STD_PROTO(YAP_IsVarTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsNonVarTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsIntTerm,(Term));
+X_API Bool    STD_PROTO(YAP_IsLongIntTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsBigNumTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsFloatTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsDbRefTerm,(Term));
@@ -577,6 +578,12 @@ X_API Bool
 YAP_IsIntTerm(Term t)
 {
   return IsIntegerTerm(t);
+}
+
+X_API Bool 
+YAP_IsLongIntTerm(Term t)
+{
+  return IsLongIntTerm(t);
 }
 
 X_API Bool 
