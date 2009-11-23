@@ -2919,6 +2919,8 @@ p_new_multifile(void)
     pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, arity),mod));
   LOCK(pe->PELock);
   pe->PredFlags |= MultiFileFlag;
+  if (pe->ModuleOfPred == PROLOG_MODULE)
+    pe->ModuleOfPred = TermProlog;
   if (!(pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
     /* static */
     pe->PredFlags |= (SourcePredFlag|CompiledPredFlag);
