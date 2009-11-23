@@ -548,7 +548,7 @@ p_arg(void)
 	ENDP(pt0);
       }
       else {
-	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	/* Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3"); */
 	return(FALSE);
       }
 
