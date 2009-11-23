@@ -259,8 +259,7 @@ atom_concat(X,Y,At) :-
 	  atom_concat([X,Y],At)
 	;
 	  atom(At) ->
-	  atom_length(At,Len),
-	  '$atom_contact_split'(At,0,Len,X,Y)
+	  '$atom_contact_split'(At,X,Y)
 	;
 	  var(At) ->
 	  '$do_error'(instantiation_error,atom_concat(X,Y,At))
@@ -268,6 +267,28 @@ atom_concat(X,Y,At) :-
 	  '$do_error'(type_error(atom,At),atomic_concant(X,Y,At))
 	).
 
+'$atom_contact_split'(At,X,Y) :-
+	nonvar(X), !,
+	atom_codes(At, Codes),
+	atom_codes(X, Xs),
+	lists:append(Xs,Ys,Codes),
+	atom_codes(Y, Ys).
+'$atom_contact_split'(At,X,Y) :-
+	nonvar(Y), !,
+	atom_codes(At, Codes),
+	atom_codes(Y, Ys),
+	once(lists:append(Xs,Ys,Codes)),
+	atom_codes(Y, Ys).
+'$atom_contact_split'(At,X,Y) :-
+	atom_codes(At, Codes),
+	'$split_codes'(Codes, Xs, Ys),
+	atom_codes(X, Xs),
+	atom_codes(Y, Ys).
+
+
+atomic_list_concat(L,At) :-
+	atomic_concat(L, At).
+	
 atomic_concat(X,Y,At) :-
 	(
 	  nonvar(X),  nonvar(Y)
@@ -279,10 +300,7 @@ atomic_concat(X,Y,At) :-
 	  '$atom_contact_split'(At,0,Len,X,Y)
 	;
 	  number(At) ->
-	  number_codes(At,Codes),
-	  lists:append(X0,Y0,Codes),
-	  name(X,X0),
-	  name(Y,Y0)
+	  '$number_contact_split'(At,X,Y)
 	;
 	  var(At) ->
 	  '$do_error'(instantiation_error,atomic_concat(X,Y,At))
@@ -290,13 +308,23 @@ atomic_concat(X,Y,At) :-
 	  '$do_error'(type_error(atomic,At),atomic_concant(X,Y,At))
 	).
 
-'$atom_contact_split'(At,Len,Len,X,Y) :- !,
-	'$atom_split'(At,Len,X,Y).
-'$atom_contact_split'(At,Len1,_,X,Y) :-
-	'$atom_split'(At,Len1,X,Y).
-'$atom_contact_split'(At,Len1,Len,X,Y) :-
-	Len2 is Len1+1,
-	'$atom_contact_split'(At,Len2,Len,X,Y).
+'$number_contact_split'(At,X,Y) :-
+	nonvar(X), !,
+	number_codes(At, Codes),
+	name(X, Xs),
+	lists:append(Xs,Ys,Codes),
+	name(Y, Ys).
+'$number_contact_split'(At,X,Y) :-
+	nonvar(Y), !,
+	number_codes(At, Codes),
+	name(Y, Ys),
+	once(lists:append(Xs,Ys,Codes)),
+	name(Y, Ys).
+'$number_contact_split'(At,X,Y) :-
+	number_codes(At, Codes),
+	'$split_codes'(Codes, Xs, Ys),
+	name(X, Xs),
+	name(Y, Ys).
 
 sub_atom(At, Bef, Size, After, SubAt) :-
 	% extract something from an atom
