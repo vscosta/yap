@@ -3375,7 +3375,16 @@ the first list.
 @findex atomic_concat/2
 @snindex atomic_concat/2
 @cnindex atomic_concat/2
-The predicate holds when the first argument is a list of atoms, and
+The predicate holds when the first argument is a list of atomic terms, and
+the second unifies with the atom obtained by concatenating all the
+atomic terms in the first list. The first argument thus may contain
+atoms or numbers.
+
+@item atomic_list_concat(+@var{As},?@var{A})
+@findex atomic_list_concat/2
+@snindex atomic_list_concat/2
+@cnindex atomic_list_concat/2
+The predicate holds when the first argument is a list of atomic terms, and
 the second unifies with the atom obtained by concatenating all the
 atomic terms in the first list. The first argument thus may contain
 atoms or numbers.
