@@ -321,10 +321,6 @@ prolog:atom_concat(A,B,C) :- atomic_concat(A,B,C).
 
 :- hide(update_mutable).
 
-prolog:source_location(File,Line) :-
-	prolog_load_context(file, File),
-	prolog_load_context(term_position, '$stream_position'(_,Line,_)).
-
 % copied from SWI lists library.
 lists:intersection([], _, []) :- !.
 lists:intersection([X|T], L, Intersect) :-
@@ -334,9 +330,6 @@ lists:intersection([X|T], L, Intersect) :-
 lists:intersection([_|T], L, R) :-
 	lists:intersection(T, L, R).
 
-
-prolog:(Term1 =@= Term2) :-
-	variant(Term1, Term2), !.
 
 % copied from SWI's boot/apply library
 :- module_transparent
@@ -410,3 +403,11 @@ prolog:compile_aux_clauses([Cl|Cls]) :-
 % fix different semantics for arg/3.
 user:goal_expansion(arg(X,Y,Z),arg:genarg(X,Y,Z)) :-
 	nonvar(X), !.
+
+prolog:'$set_source_module'(Source0, SourceF) :-
+	prolog_load_context(module, Source0),
+	module(SourceF).
+
+prolog:'$declare_module'(_, _, _, _, _).
+
+prolog:'$set_predicate_attribute'(_, _, _).
