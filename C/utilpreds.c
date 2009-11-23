@@ -2876,6 +2876,7 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("term_variables", 2, p_term_variables, 0);
   Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
   Yap_InitCPred("is_list", 1, p_is_list, SafePredFlag);
+  Yap_InitCPred("=@=", 2, p_variant, 0);
   CurrentModule = TERMS_MODULE;
   Yap_InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
   Yap_InitCPred("term_hash", 4, p_term_hash, SafePredFlag);
