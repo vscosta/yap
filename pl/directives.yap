@@ -1031,9 +1031,18 @@ set_prolog_flag(F,V) :-
 set_prolog_flag(F,V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,set_prolog_flag(F,V)).
+set_prolog_flag(F, Val) :-
+	recorded('$dialect',swi,_),
+	prolog:'$user_defined_flag'(F,_), !,
+	yap_flag(F, Val).
 set_prolog_flag(F,V) :-
 	\+ atom(F), !,
 	'$do_error'(type_error(atom,F),set_prolog_flag(F,V)).
+set_prolog_flag(F,V) :-
+	recorded('$dialect',swi,_),
+	\+ yap_flag(F,_),
+	user_defined_flag(F),
+	fail.
 set_prolog_flag(F,V) :-
 	yap_flag(F,V).
 
@@ -1090,6 +1099,10 @@ user_defined_flag(Atom) :-
 '$user_flag_value'(F, Val) :-
 	var(Val), !,
 	'$user_defined_flag'(F,Val).
+'$user_flag_value'(F, Val) :-
+	recorded('$dialect',swi,_), !,
+	retractall(prolog:'$user_defined_flag'(F,_)),
+	assert(prolog:'$user_defined_flag'(Atom,Val)).
 '$user_flag_value'(F, Val) :-
 	atomic(Val), !,
 	retractall(prolog:'$user_defined_flag'(F,_)),
