@@ -17660,6 +17660,7 @@ mkdir -p  packages/jpl/src/java/jpl/test
 mkdir -p  packages/jpl/examples
 mkdir -p  packages/jpl/examples/java
 mkdir -p  packages/PLStream
+mkdir -p  packages/plunit
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
 mkdir -p  packages/sgml
@@ -17700,15 +17701,17 @@ ac_config_files="$ac_config_files packages/CLPBN/Makefile"
 
 ac_config_files="$ac_config_files packages/cplint/Makefile"
 
-ac_config_files="$ac_config_files packages/sgml/Makefile"
-
 ac_config_files="$ac_config_files packages/PLStream/Makefile"
+
+ac_config_files="$ac_config_files packages/plunit/Makefile"
+
+ac_config_files="$ac_config_files packages/ProbLog/Makefile"
 
 ac_config_files="$ac_config_files packages/swi-minisat2/Makefile"
 
 ac_config_files="$ac_config_files packages/swi-minisat2/C/Makefile"
 
-ac_config_files="$ac_config_files packages/ProbLog/Makefile"
+ac_config_files="$ac_config_files packages/sgml/Makefile"
 
 
 if test "$ENABLE_CHR" = ""; then
@@ -18345,11 +18348,12 @@ do
     "LGPL/swi_console/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/swi_console/Makefile" ;;
     "packages/CLPBN/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/Makefile" ;;
     "packages/cplint/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/Makefile" ;;
-    "packages/sgml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/sgml/Makefile" ;;
     "packages/PLStream/Makefile") CONFIG_FILES="$CONFIG_FILES packages/PLStream/Makefile" ;;
+    "packages/plunit/Makefile") CONFIG_FILES="$CONFIG_FILES packages/plunit/Makefile" ;;
+    "packages/ProbLog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/Makefile" ;;
     "packages/swi-minisat2/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/Makefile" ;;
     "packages/swi-minisat2/C/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/C/Makefile" ;;
-    "packages/ProbLog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/Makefile" ;;
+    "packages/sgml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/sgml/Makefile" ;;
     "packages/chr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/chr/Makefile" ;;
     "packages/clpqr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/clpqr/Makefile" ;;
     "packages/jpl/Makefile") CONFIG_FILES="$CONFIG_FILES packages/jpl/Makefile" ;;

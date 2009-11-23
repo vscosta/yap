@@ -1632,6 +1632,7 @@ mkdir -p  packages/jpl/src/java/jpl/test
 mkdir -p  packages/jpl/examples
 mkdir -p  packages/jpl/examples/java
 mkdir -p  packages/PLStream
+mkdir -p  packages/plunit
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
 mkdir -p  packages/sgml
@@ -1654,11 +1655,12 @@ AC_CONFIG_FILES([LGPL/clp/Makefile])
 AC_CONFIG_FILES([LGPL/swi_console/Makefile])
 AC_CONFIG_FILES([packages/CLPBN/Makefile])
 AC_CONFIG_FILES([packages/cplint/Makefile])
-AC_CONFIG_FILES([packages/sgml/Makefile])
 AC_CONFIG_FILES([packages/PLStream/Makefile])
+AC_CONFIG_FILES([packages/plunit/Makefile])
+AC_CONFIG_FILES([packages/ProbLog/Makefile ])
 AC_CONFIG_FILES([packages/swi-minisat2/Makefile])
 AC_CONFIG_FILES([packages/swi-minisat2/C/Makefile])
-AC_CONFIG_FILES([packages/ProbLog/Makefile ])
+AC_CONFIG_FILES([packages/sgml/Makefile])
 
 if test "$ENABLE_CHR" = ""; then
 AC_CONFIG_FILES([packages/chr/Makefile])
