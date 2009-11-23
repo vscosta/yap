@@ -65,7 +65,7 @@ Solver.o : $(srcdir)/Solver.C
 	$(CXX) -c $(CXXFLAGS)  $(SHLIB_CFLAGS) $(srcdir)/Solver.C -o Solver.o
 
 pl-minisat.o : $(srcdir)/pl-minisat.C
-	$(CXX) -c $(CXXFLAGS)  $(SHLIB_CFLAGS) $(scrdir)/pl-minisat.C -o pl-minisat.o
+	$(CXX) -c $(CXXFLAGS)  $(SHLIB_CFLAGS) $(srcdir)/pl-minisat.C -o pl-minisat.o
 
 @DO_SECOND_LD@pl-minisat@SHLIB_SUFFIX@: $(OBJS)
 @DO_SECOND_LD@	@SHLIB_LOWER_LD@ -o pl-minisat@SHLIB_SUFFIX@ $(OBJS)
