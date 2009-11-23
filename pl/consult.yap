@@ -380,6 +380,10 @@ use_module(M,F,Is) :-
 '$skip_unix_comments'(_).
 
 
+source_location(FileName, Line) :-
+	prolog_load_context(file, FileName),
+	prolog_load_context(term_position,'$stream_position'(_, Line, _, _, _)).
+
 prolog_load_context(_, _) :-
 	nb_getval('$consulting_file',[]), !, fail.
 prolog_load_context(directory, DirName) :- 
