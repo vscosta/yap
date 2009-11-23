@@ -122,7 +122,9 @@ STATIC_PROTO(void  ShowEntries, (PropEntry *));
 #endif
 STATIC_PROTO(int   OpenRestore, (char *, char *, CELL *, CELL *, CELL *, CELL *));
 STATIC_PROTO(void  CloseRestore, (void));
+#ifndef _WIN32
 STATIC_PROTO(int  check_opcodes, (OPCODE []));
+#endif
 STATIC_PROTO(void  RestoreHeap, (OPCODE []));
 STATIC_PROTO(Int  p_restore, (void));
 STATIC_PROTO(void  restore_heap_regs, (void));
