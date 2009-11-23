@@ -214,6 +214,7 @@
 #undef  HAVE_SETBUF
 #undef  HAVE_SETITIMER
 #undef  HAVE_SETLINEBUF
+#undef  HAVE_SETLOCALE
 #undef  HAVE_SHMAT
 #undef  HAVE_SIGACTION
 #undef  HAVE_SIGGETMASK
@@ -227,6 +228,7 @@
 #undef  HAVE_STAT
 #undef  HAVE_STRCHR
 #undef  HAVE_STRERROR
+#undef  HAVE_STRICMP
 #undef  HAVE_STRNCAT
 #undef  HAVE_STRNCPY
 #undef  HAVE_STRTOD

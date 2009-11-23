@@ -80,3 +80,7 @@ extern const char _PL_char_types[];	/* array of character types */
 
 #define toLowerW(c)	((unsigned)(c) <= 'Z' ? (c) + 'a' - 'A' : towlower(c))
 #define makeLowerW(c)	((c) >= 'A' && (c) <= 'Z' ? toLower(c) : towlower(c))
+
+#ifndef HAVE_STRICMP
+int stricmp(const char *s1, const char *s2);
+#endif

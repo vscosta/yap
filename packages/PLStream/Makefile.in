@@ -52,10 +52,12 @@ C_SOURCES=$(srcdir)/pl-buffer.c $(srcdir)/pl-ctype.c \
 	$(srcdir)/pl-stream.c $(srcdir)/pl-string.c \
 	$(srcdir)/pl-table.c \
 	$(srcdir)/pl-text.c \
+	$(srcdir)/pl-utils.c \
 	$(srcdir)/pl-yap.c @ENABLE_WINCONSOLE@ $(srcdir)/popen.c $(srcdir)/uxnt/uxnt.c
 OBJS=pl-buffer.o pl-ctype.o pl-error.o  pl-feature.o  \
 	pl-file.o pl-files.o pl-os.o pl-privitf.o \
-	pl-stream.o pl-string.o pl-table.o pl-text.o pl-utf8.o \
+	pl-stream.o pl-string.o pl-table.o \
+	pl-text.o pl-utils.o pl-utf8.o \
 	pl-yap.o @ENABLE_WINCONSOLE@ uxnt.o
 SOBJS=plstream@SHLIB_SUFFIX@
 

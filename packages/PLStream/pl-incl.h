@@ -573,6 +573,9 @@ int Unsetenv(char *name);
 int System(char *cmd);
 bool expandVars(const char *pattern, char *expanded, int maxlen);
 
+/**** stuff from pl-utils.c ****/
+bool stripostfix(char *s, char *e);
+
 /**** SWI stuff (emulated in pl-yap.c) ****/
 extern int writeAtomToStream(IOSTREAM *so, atom_t at);
 extern int valueExpression(term_t t, Number r ARG_LD);
