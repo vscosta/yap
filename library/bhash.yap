@@ -178,7 +178,7 @@ find_free(Index, Size, Keys, NewIndex) :-
 
 hash_f(Key, Size, Index, F) :-
 	var(F), !,
-	term_hash(Key,-1,Size,Index), writeln(Key:Index).
+	term_hash(Key,-1,Size,Index).
 hash_f(Key, Size, Index, F) :-
 	call(F, Key, Size, Index).
 
