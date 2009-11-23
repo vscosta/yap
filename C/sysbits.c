@@ -1767,14 +1767,16 @@ TrueFileName (char *source, char *root, char *result, int in_lib)
   result[0] = '\0';
 #if defined(__MINGW32__) || _MSC_VER
   /* step 0: replace / by \ */
+  strncpy(ares1, source, YAP_FILENAME_MAX);
   {
-    char *p = source, ch = p[0];
+    char *p = ares1, ch = p[0];
     while (ch != '\0') {
       if (ch == '/') p[0] = '\\';
       p++;
       ch = p[0];
     }
   }
+  source = ares1;
 #endif
   /* step 1: eating home information */
   if (source[0] == '~') {
