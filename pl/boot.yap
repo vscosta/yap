@@ -899,6 +899,8 @@ not(G) :-    \+ '$execute'(G).
 '$check_callable'(_,_).
 
 % Called by the abstract machine, if no clauses exist for a predicate
+'$undefp'([M|expand_goal(G,GEx)]) :- !,
+	G = GEx.
 '$undefp'([M|G]) :-
 	% make sure we do not loop on undefined predicates
         % for undefined_predicates.
