@@ -1533,6 +1533,7 @@ clean_trail(Term t, DBTerm *dbt, Term t0)
 	  if (suspended_on_current_execution(val, t0)) {
 	    RESET_VARIABLE(&TrailTerm(pt1));
 	  } else {
+	    TR = pt1+1;
 	    t = get_term(dbt, t);
 	    Bind(pt, t);
 	    Yap_WakeUp(pt);
@@ -1561,6 +1562,7 @@ clean_trail(Term t, DBTerm *dbt, Term t0)
 #endif /* FROZEN_STACKS */
     }
   }
+  TR = pt1+1;
   t = get_term(dbt, t);
   return t;
 }
