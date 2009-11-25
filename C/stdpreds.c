@@ -313,6 +313,8 @@ STD_PROTO(static Int cont_current_predicate_for_atom, (void));
 STD_PROTO(static OpEntry *NextOp, (OpEntry *));
 STD_PROTO(static Int init_current_op, (void));
 STD_PROTO(static Int cont_current_op, (void));
+STD_PROTO(static Int init_current_atom_op, (void));
+STD_PROTO(static Int cont_current_atom_op, (void));
 #ifdef DEBUG
 STD_PROTO(static Int p_debug, (void));
 #endif
@@ -2872,145 +2874,93 @@ NextOp(OpEntry *pp)
   return (pp);
 }
 
+static Int
+unify_op(OpEntry         *op)
+{
+  Term tmod = op->OpModule;
+
+  if (tmod == PROLOG_MODULE)
+    tmod = TermProlog;
+  return 
+    Yap_unify_constant(ARG2,tmod) &&
+    Yap_unify_constant(ARG3,MkIntegerTerm(op->Prefix)) &&
+    Yap_unify_constant(ARG4,MkIntegerTerm(op->Infix)) &&
+    Yap_unify_constant(ARG5,MkIntegerTerm(op->Posfix));
+}
 
 static Int 
 cont_current_op(void)
 {
-  int             prio;
-  Atom            a = AtomOfTerm(EXTRA_CBACK_ARG(4,1));
-  Int             fix = IntOfTerm(EXTRA_CBACK_ARG(4,3));
-  Term            TType;
-  Term            tmod;
-  OpEntry        *pp = NIL;
-    /* fix hp gcc bug */
-  AtomEntry *at = RepAtom(a);
-
-  if (fix > 3) {
-    /* starting from an atom */
-    a = AtomOfTerm(Deref(ARG3));
-    READ_LOCK(RepAtom(a)->ARWLock);
-    if (EndOfPAEntr(pp = NextOp(RepOpProp(RepAtom(a)->PropsOfAE)))) {
-      READ_UNLOCK(RepAtom(a)->ARWLock);
-      cut_fail();
-    }
-    READ_LOCK(pp->OpRWLock);
-    READ_UNLOCK(RepAtom(a)->ARWLock);
-    if (fix == 4 && pp->Prefix == 0)
-      fix = 5;
-    if (fix == 5 && pp->Posfix == 0)
-      fix = 6;
-    if (fix == 6 && pp->Infix == 0)
-      cut_fail();
-    TType = MkAtomTerm(Yap_GetOp(pp, &prio, (int) (fix - 4)));
-    fix++;
-    if (fix == 5 && pp->Posfix == 0)
-      fix = 6;
-    if (fix == 6 && pp->Infix == 0)
-      fix = 7;
-    if (pp->OpModule == PROLOG_MODULE)
-      tmod = TermProlog;
-    else
-      tmod = pp->OpModule; 
-    READ_UNLOCK(pp->OpRWLock);
-    EXTRA_CBACK_ARG(4,3) = (CELL) MkIntTerm(fix);
-    if (fix < 7)
-      return (Yap_unify_constant(ARG1, MkIntTerm(prio))
-	      && Yap_unify_constant(ARG2, TType)
-	      && Yap_unify_constant(ARG4, tmod));
-    if (Yap_unify_constant(ARG1, MkIntTerm(prio))
-	&& Yap_unify_constant(ARG2, TType)
-	&& Yap_unify_constant(ARG4, tmod))
+  OpEntry         *op = (OpEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(5,1)), *next;
+  
+  READ_LOCK(op->OpRWLock);
+  next = op->OpNext;
+  if (Yap_unify_constant(ARG1,MkAtomTerm(op->OpName)) &&
+      unify_op(op)) {
+    if (next) {
+      EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)next);
+      return TRUE;
+    } else {
       cut_succeed();
-    else
-      cut_fail();
-  }
-  pp = NextOp(RepOpProp(at->PropsOfAE));
-  if (fix == 3) {
-    if (pp->OpNext) {
-      pp = pp->OpNext;
+    }
+  } else {
+    if (next) {
+      EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)next);
+      return FALSE;
     } else {
       cut_fail();
     }
-    fix = 0;
-    EXTRA_CBACK_ARG(4,1) = (CELL) MkAtomTerm(at=RepAtom(a=pp->OpName));
   }
-  READ_LOCK(pp->OpRWLock);
-  if (fix == 0 && pp->Prefix == 0)
-    fix = 1;
-  if (fix == 1 && pp->Posfix == 0)
-    fix = 2;
-  TType = MkAtomTerm(Yap_GetOp(pp, &prio, (int) fix));
-  fix++;
-  if (fix == 1 && pp->Posfix == 0)
-    fix = 2;
-  if (fix == 2 && pp->Infix == 0)
-    fix = 3;
-    if (pp->OpModule == PROLOG_MODULE)
-      tmod = TermProlog;
-    else
-      tmod = pp->OpModule;
-  READ_UNLOCK(pp->OpRWLock);
-  EXTRA_CBACK_ARG(4,3) = (CELL) MkIntTerm(fix);
-  return  (Yap_unify_constant(ARG1, MkIntTerm(prio)) &&
-	  Yap_unify_constant(ARG2, TType) &&
-	  Yap_unify_constant(ARG3, MkAtomTerm(a)) &&
-	  Yap_unify_constant(ARG4, tmod));
 }
 
 static Int 
 init_current_op(void)
 {				/* current_op(-Precedence,-Type,-Atom)		 */
-  Int             i = 0;
-  Atom            a;
-  Term            tprio = Deref(ARG1);
-  Term            topsec = Deref(ARG2);
-  Term            top = Deref(ARG3);
-
-  if (!IsVarTerm(tprio)) {
-    Int prio;
-    if (!IsIntTerm(tprio)) {
-      Yap_Error(DOMAIN_ERROR_OPERATOR_PRIORITY,tprio,"current_op/3");
-      return(FALSE);
-    }
-    prio = IntOfTerm(tprio);
-    if (prio < 1 || prio > 1200) {
-      Yap_Error(DOMAIN_ERROR_OPERATOR_PRIORITY,tprio,"current_op/3");
-      return(FALSE);
-    }
-  }
-  if (!IsVarTerm(topsec)) {
-    char *opsec;
-    if (!IsAtomTerm(topsec)) {
-      Yap_Error(DOMAIN_ERROR_OPERATOR_SPECIFIER,topsec,"current_op/3");
-      return(FALSE);
-    }
-    opsec = RepAtom(AtomOfTerm(topsec))->StrOfAE;
-    if (!Yap_IsOpType(opsec)) {
-      Yap_Error(DOMAIN_ERROR_OPERATOR_SPECIFIER,topsec,"current_op/3");
-      return(FALSE);
-    }
-  }
-  if (!IsVarTerm(top)) {
-    if (!IsAtomTerm(top)) {
-      Yap_Error(TYPE_ERROR_ATOM,top,"current_op/3");
-      return(FALSE);
-    }
-    a = AtomOfTerm(top);
-  } else {
-    if (OpList)
-      a = OpList->OpName;
-    else
-      cut_fail();
-  }
-  EXTRA_CBACK_ARG(4,1) = (CELL) MkAtomTerm(a);
-  EXTRA_CBACK_ARG(4,2) = (CELL) MkIntTerm(i);
-  if (IsVarTerm(top))
-    EXTRA_CBACK_ARG(4,3) = (CELL) MkIntTerm(0);
-  else if (IsAtomTerm(top))
-    EXTRA_CBACK_ARG(4,3) = (CELL) MkIntTerm(4);
-  else
-    cut_fail();
+  EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)OpList);
   return cont_current_op();
+}
+
+static Int 
+cont_current_atom_op(void)
+{
+  OpEntry         *op = (OpEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(5,1)), *next;
+  
+  READ_LOCK(op->OpRWLock);
+  next = NextOp(RepOpProp(op->NextOfPE));
+  if (unify_op(op)) {
+    if (next) {
+      EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)next);
+      return TRUE;
+    } else {
+      cut_succeed();
+    }
+  } else {
+    if (next) {
+      EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)next);
+      return FALSE;
+    } else {
+      cut_fail();
+    }
+  }
+}
+
+static Int 
+init_current_atom_op(void)
+{				/* current_op(-Precedence,-Type,-Atom)		 */
+  Term t = Deref(ARG1);
+  AtomEntry *ae;
+  OpEntry *ope;
+
+  if (IsVarTerm(t) || !IsAtomTerm(t)) {
+    Yap_Error(TYPE_ERROR_ATOM,t,"current_op/3");
+    cut_fail();
+  }
+  ae = RepAtom(AtomOfTerm(t));
+  if (EndOfPAEntr((ope = NextOp(RepOpProp(ae->PropsOfAE))))) {
+    cut_fail();
+  }
+  EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((Int)ope);
+  return cont_current_atom_op();
 }
 
 #ifdef DEBUG
@@ -3952,7 +3902,9 @@ Yap_InitBackCPreds(void)
 		SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPredBack("$current_predicate_for_atom", 3, 1, init_current_predicate_for_atom, cont_current_predicate_for_atom,
 		SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPredBack("$current_op", 4, 3, init_current_op, cont_current_op,
+  Yap_InitCPredBack("$current_op", 5, 1, init_current_op, cont_current_op,
+		SafePredFlag|SyncPredFlag);
+  Yap_InitCPredBack("$current_atom_op", 5, 1, init_current_atom_op, cont_current_atom_op,
 		SafePredFlag|SyncPredFlag);
 #ifdef BEAM
   Yap_InitCPredBack("eam", 1, 0, start_eam, cont_eam,

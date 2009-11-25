@@ -107,8 +107,7 @@ op(P,T,V) :-
 
 current_op(X,Y,V) :- var(V), !,
 	'$current_module'(M),
-	V = M:Z,
-	'$do_current_op'(X,Y,Z,M).
+	'$do_current_op'(X,Y,V,M).
 current_op(X,Y,M:Z) :- !,
 	'$current_opm'(X,Y,Z,M).
 current_op(X,Y,Z) :-
@@ -125,8 +124,64 @@ current_op(X,Y,Z) :-
 	'$do_current_op'(X,Y,Z,M).
 
 '$do_current_op'(X,Y,Z,M) :-
-	'$current_op'(X,Y,Z,M1),
-	( M1 = prolog -> true ; M1 = M ).
+	atom(Z), !,
+	'$current_atom_op'(Z, M1, Prefix, Infix, Posfix),
+	( M1 = prolog -> true ; M1 = M ),
+	(
+	 '$get_prefix'(Prefix, X, Y)
+	;
+	 '$get_infix'(Infix, X, Y)
+	;
+	 '$get_posfix'(Posfix, X, Y)
+	).
+'$do_current_op'(X,Y,Z,M) :-
+	'$current_op'(Z, M1, Prefix, Infix, Posfix),
+	( M1 = prolog -> true ; M1 = M ),
+	(
+	 '$get_prefix'(Prefix, X, Y)
+	;
+	 '$get_infix'(Infix, X, Y)
+	;
+	 '$get_posfix'(Posfix, X, Y)
+	).
+
+'$get_prefix'(Prefix, X, Y) :-
+	Prefix > 0,
+	X is Prefix /\ 0xfff,
+	(
+         0x2000 /\ Prefix =:= 0x2000
+        ->
+         Y = fx
+        ;
+         Y = fy
+        ).
+
+'$get_infix'(Infix, X, Y) :-
+	Infix > 0,
+	X is Infix  /\ 0xfff,
+	(
+         0x3000 /\ Infix =:= 0x3000
+        ->
+         Y = xfx
+	;
+         0x1000 /\ Infix =:= 0x1000
+        ->
+         Y = xfy
+        ;
+         Y = yfx
+        ).
+
+'$get_posfix'(Posfix, X, Y) :-
+	Posfix > 0,
+	X is Posfix /\ 0xfff,
+	(
+         0x1000 /\ Posfix =:= 0x1000
+        ->
+         Y = xf
+	;
+         Y = yf
+        ).
+
 
 %%% Operating System utilities
 
