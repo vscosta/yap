@@ -231,6 +231,8 @@ OpDec(int p, char *type, Atom a, Term m)
 
   if (m == TermProlog)
     m = PROLOG_MODULE;
+  else if (m == USER_MODULE)
+    m = PROLOG_MODULE;
   for (i = 1; i <= 7; ++i)
     if (strcmp(type, optypes[i]) == 0)
       break;
