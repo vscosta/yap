@@ -1527,6 +1527,8 @@ RestoreEntries(PropEntry *pp, int int_key)
 	  opp->NextOfPE =
 	    PropAdjust(opp->NextOfPE);
 	}
+	opp->OpName =
+	  AtomAdjust(opp->OpName);
 	if (opp->OpModule) {
 	 opp->OpModule = AtomTermAdjust(opp->OpModule);
 	}
