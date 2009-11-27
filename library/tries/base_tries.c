@@ -164,10 +164,28 @@ YAP_Term trie_get_entry(TrData data) {
 
 
 inline
-TrData trie_traverse_init(TrEntry trie) {
+TrData trie_get_first_entry(TrEntry trie) {
+  TrData data;
+  
+  data = TrEntry_first_data(trie);
+  return data;
+}
+
+
+inline
+TrData trie_get_last_entry(TrEntry trie) {
+  TrData data;
+  
+  data = TrEntry_last_data(trie);
+  return data;
+}
+
+
+inline
+TrData trie_traverse_init(TrEntry trie, TrData init_data) {
   TrData data;
 
-  data = TrEntry_first_data(trie);
+  data = TrData_next(init_data);
   TrEntry_traverse_data(trie) = data;
   return data;
 }
