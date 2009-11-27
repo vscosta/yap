@@ -7540,6 +7540,8 @@ Yap_absmi(int inp)
       if (!SREG) {
 	FAIL();
       }
+      /* in case we call Execute */
+      YREG = ENV;
       JMPNext();
       ENDBOp();
 
