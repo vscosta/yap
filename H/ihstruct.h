@@ -85,6 +85,7 @@
   Yap_heap_regs->fail_op = Yap_opcode(_op_fail);
   Yap_heap_regs->index_op = Yap_opcode(_index_pred);
   Yap_heap_regs->lockpred_op = Yap_opcode(_lock_pred);
+  Yap_heap_regs->orlast_op = Yap_opcode(_or_last);
   Yap_heap_regs->undef_op = Yap_opcode(_undef_p);
 
 
@@ -148,6 +149,7 @@
   Yap_heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,PROLOG_MODULE));
   Yap_heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(FunctorHandleThrow,PROLOG_MODULE));
   Yap_heap_regs->pred_is = RepPredProp(PredPropByFunc(FunctorIs,PROLOG_MODULE));
+  Yap_heap_regs->pred_safe_call_cleanup = RepPredProp(PredPropByFunc(FunctorSafeCallCleanup,PROLOG_MODULE));
 #ifdef YAPOR
   Yap_heap_regs->pred_getwork = RepPredProp(PredPropByAtom(AtomGetwork,PROLOG_MODULE));
   Yap_heap_regs->pred_getwork_seq = RepPredProp(PredPropByAtom(AtomGetworkSeq,PROLOG_MODULE));

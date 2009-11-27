@@ -234,6 +234,7 @@ A	RestoreRegs		F	"$restore_regs"
 A	RetryCounter		N	"retry_counter"
 A	RTree			N	"rtree"
 A	Safe			F	"$safe"
+A	SafeCallCleanup		F	"$safe_call_cleanup"
 A	Same			N	"=="
 A	Semic			N	";"
 A	ShiftCountOverflow	N	"shift_count_overflow"
@@ -395,6 +396,7 @@ F	ResourceError		ResourceError	1
 F	RestoreRegs		RestoreRegs	2
 F	RestoreRegs1		RestoreRegs	1
 F	Safe			Safe		1
+F	SafeCallCleanup		SafeCallCleanup	4
 F	Same			Same		2
 F	Slash			Slash		2
 F	StaticClause		StaticClause	1

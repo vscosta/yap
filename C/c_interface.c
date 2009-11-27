@@ -1940,6 +1940,7 @@ YAP_GoalHasException(Term *t)
 X_API void
 YAP_ClearExceptions(void)
 {
+  Yap_DeleteGlobal(AtomCatch);
   EX = 0L;
   UncaughtThrow = FALSE;
 }

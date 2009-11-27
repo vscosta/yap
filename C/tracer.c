@@ -269,7 +269,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
       printf("\n");
  }
 #endif
-  fprintf(Yap_stderr,"%lld ",vsc_count);
+  fprintf(Yap_stderr,"%lld %p ", vsc_count, TR);
 #if defined(THREADS) || defined(YAPOR)
   fprintf(Yap_stderr,"(%d)", worker_id);
 #endif

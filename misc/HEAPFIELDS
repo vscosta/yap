@@ -90,6 +90,7 @@ OPCODE		expand_op_code		EXPAND_OP_CODE		MkOp _expand_index
 OPCODE		fail_op			FAIL_OPCODE		MkOp _op_fail
 OPCODE		index_op		INDEX_OPCODE		MkOp _index_pred
 OPCODE		lockpred_op		LOCKPRED_OPCODE		MkOp _lock_pred
+OPCODE		orlast_op		ORLAST_OPCODE		MkOp _or_last
 OPCODE		undef_op		UNDEF_OPCODE		MkOp _undef_p
 
 /* atom tables */
@@ -161,6 +162,7 @@ struct pred_entry *pred_static_clause	PredStaticClause	MkPred FunctorDoStaticCla
 struct pred_entry *pred_throw		PredThrow		MkPred FunctorThrow PROLOG_MODULE
 struct pred_entry *pred_handle_throw	PredHandleThrow		MkPred FunctorHandleThrow PROLOG_MODULE
 struct pred_entry *pred_is		PredIs			MkPred FunctorIs PROLOG_MODULE
+struct pred_entry *pred_safe_call_cleanup PredSafeCallCleanup	MkPred FunctorSafeCallCleanup PROLOG_MODULE
 #ifdef YAPOR
 struct pred_entry *pred_getwork		PredGetwork		MkPred AtomGetwork 0 PROLOG_MODULE
 struct pred_entry *pred_getwork_seq	PredGetworkSeq		MkPred AtomGetworkSeq 0 PROLOG_MODULE

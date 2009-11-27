@@ -85,6 +85,7 @@
   OPCODE  fail_op;
   OPCODE  index_op;
   OPCODE  lockpred_op;
+  OPCODE  orlast_op;
   OPCODE  undef_op;
 
   UInt  n_of_atoms;
@@ -148,6 +149,7 @@
   struct pred_entry  *pred_throw;
   struct pred_entry  *pred_handle_throw;
   struct pred_entry  *pred_is;
+  struct pred_entry  *pred_safe_call_cleanup;
 #ifdef YAPOR
   struct pred_entry  *pred_getwork;
   struct pred_entry  *pred_getwork_seq;

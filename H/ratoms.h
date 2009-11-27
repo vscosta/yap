@@ -225,6 +225,7 @@
   AtomRetryCounter = AtomAdjust(AtomRetryCounter);
   AtomRTree = AtomAdjust(AtomRTree);
   AtomSafe = AtomAdjust(AtomSafe);
+  AtomSafeCallCleanup = AtomAdjust(AtomSafeCallCleanup);
   AtomSame = AtomAdjust(AtomSame);
   AtomSemic = AtomAdjust(AtomSemic);
   AtomShiftCountOverflow = AtomAdjust(AtomShiftCountOverflow);
@@ -386,6 +387,7 @@
   FunctorRestoreRegs = FuncAdjust(FunctorRestoreRegs);
   FunctorRestoreRegs1 = FuncAdjust(FunctorRestoreRegs1);
   FunctorSafe = FuncAdjust(FunctorSafe);
+  FunctorSafeCallCleanup = FuncAdjust(FunctorSafeCallCleanup);
   FunctorSame = FuncAdjust(FunctorSame);
   FunctorSlash = FuncAdjust(FunctorSlash);
   FunctorStaticClause = FuncAdjust(FunctorStaticClause);

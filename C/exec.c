@@ -1428,227 +1428,116 @@ p_cut_up_to_next_disjunction(void) {
   return TRUE;
 }
 
-static int
-suspended_on_current_execution(Term t, Term t0)
+static int is_cleanup_cp(choiceptr cp_b)
 {
-  attvar_record *susp = (attvar_record *)VarOfTerm(t);
-  Term t1 = susp->Atts;
-  /* should be prolog(_,Something) */
-  if(IsVarTerm(t1) || !IsApplTerm(t1) || FunctorOfTerm(t1) != FunctorPrologConstraint)
+  PredEntry *pe;
+
+  if (cp_b->cp_ap->opc != ORLAST_OPCODE)
     return FALSE;
-  t1 = ArgOfTerm(2, t1);
-  /* Something = [Goal] */
-  if (IsVarTerm(t1) || !IsPairTerm(t1))
-    return FALSE;
-  if (TailOfTerm(t1) != TermNil)
-    return FALSE;
-  t1 = HeadOfTerm(t1);
-  /* Goal = $redo_freeze(_,_,Suspended) */
-  if(IsVarTerm(t1) || !IsApplTerm(t1) || FunctorOfTerm(t1) != FunctorRedoFreeze)
-    return FALSE;
-  t1 = ArgOfTerm(3,t1);
-  /* Suspended = Mod:Cod */
-  if(IsVarTerm(t1) || !IsApplTerm(t1) || FunctorOfTerm(t1) != FunctorModule)
-    return FALSE;
-  t1 = ArgOfTerm(2,t1);
-  /* Cod = $clean_call(t0,_) */
-  if(IsVarTerm(t1) || !IsApplTerm(t1) || FunctorOfTerm(t1) != FunctorCleanCall)
-    return FALSE;
-  /* we found what was on the cp */
-  return t0 == ArgOfTerm(1, t1);
-}
-
-static Term
-build_error(void)
-{
-  Term ti[1], nt[2];
-  ti[0] = MkAtomTerm(AtomStack);
-  nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
-  nt[1] = MkAtomTerm(AtomInStackExpansion);
-  return Yap_MkApplTerm(FunctorError, 2, nt);
-}
-
-
-static Term
-get_term(DBTerm *dbt, Term t)
-{
-  if (dbt) {
-    while (!(t = Yap_PopTermFromDB(dbt))) {
-      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	Yap_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_growglobal(NULL)) {
-	  t = build_error();
-	  break;
-	}
-      } else {
-	Yap_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_growstack(dbt->NOfCells*CellSize)) {
-	  t = build_error();
-	  break;
-	}
-      }
-    }
-    if (t) {
-      B->cp_h = H;
-    }
-  }
-  return t;
-}
-
-
-static Term
-clean_trail(Term t, DBTerm *dbt, Term t0)
-{
-  tr_fr_ptr pt1, pbase;
-
-#ifdef SHADOW_HB
-  register CELL *HBREG = HB;
-#endif /* SHADOW_HB */
-
-  pbase = B->cp_tr;
-  pt1 = TR - 1;
-  while (pt1 >= pbase) {
-    Term d1 = TrailTerm(pt1);
-    if (IsVarTerm(d1)) {
-#if defined(SBA) && defined(YAPOR)
-      /* clean up the trail when we backtrack */
-      if (Unsigned((Int)(d1)-(Int)(H_FZ)) >
-	  Unsigned((Int)(B_FZ)-(Int)(H_FZ))) {
-	RESET_VARIABLE(STACK_TO_SBA(d1));
-      } else
-#endif
-	/* normal variable */
-	RESET_VARIABLE(d1);
-      RESET_VARIABLE(&TrailTerm(pt1));
-      pt1--;
-    } else if (IsPairTerm(d1)) {
-      CELL *pt = RepPair(d1);
-      if ((ADDR) pt >= Yap_TrailBase && (ADDR)pt < Yap_TrailTop) {
-	/* skip, this is a problem because we lose information,
-	   namely active references */
-	pt1 = (tr_fr_ptr)pt;
-      } else if (IN_BETWEEN(Yap_GlobalBase, pt, H0)) {
-	CELL val = Deref(*pt);
-	if (IsVarTerm(val)) {
-	  if (suspended_on_current_execution(val, t0)) {
-	    RESET_VARIABLE(&TrailTerm(pt1));
-	  } else {
-	    TR = pt1+1;
-	    t = get_term(dbt, t);
-	    Bind(pt, t);
-	    Yap_WakeUp(pt);
-	    return t;
-	  }
-	}
-      }
-      pt1--;
-    } else if (IsApplTerm(d1)) {
-      CELL *pt = RepAppl(d1);
-      /* AbsAppl means */
-      /* multi-assignment variable */
-      /* so the next cell is the old value */ 
-#ifdef FROZEN_STACKS
-      RESET_VARIABLE(&TrailTerm(pt1));
-      --pt1;
-      pt[0] = TrailVal(pt1);
-      RESET_VARIABLE(&TrailTerm(pt1));
-      --pt1;
+#ifdef YAPOR
+  pe = cp_b->cp_ap->u.Osblp.p;
 #else
-      pt[0] = TrailTerm(pt1-1);
-      RESET_VARIABLE(&TrailTerm(pt1));
-      RESET_VARIABLE(&TrailTerm(pt1-1));
-      RESET_VARIABLE(&TrailTerm(pt1-2));
-      pt1 -= 3;
-#endif /* FROZEN_STACKS */
-    }
-  }
-  TR = pt1+1;
-  t = get_term(dbt, t);
-  return t;
+  pe = cp_b->cp_ap->u.p.p;
+#endif	/* YAPOR */
+  return (pe == PredSafeCallCleanup);
 }
-
 
 static Int
 JumpToEnv(Term t) {
   yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,l),
     *catchpos = NEXTOP(PredHandleThrow->cs.p_code.TrueCodeOfPred,l);
-  CELL *env;
-  choiceptr first_func = NULL, B0 = B;
-  DBTerm *dbt;
+  CELL *env, *env1;
+  choiceptr handler, previous = NULL;
 
-  if (!(dbt = Yap_StoreTermInDB(t, -1))) {
-    if (!(t = Yap_SaveTerm(t)))
-      return FALSE;
+  /* throws cannot interrupt throws */
+  if (EX)
+    return FALSE;
+  /* just keep the throwed object away, we don't need to care about it */
+  if (!(t = Yap_SetGlobalVal(AtomCatch, t))) {
+    /* fat chance */
+    siglongjmp(Yap_RestartEnv,1);
   }
+  /* careful, previous step may have caused a stack shift, 
+     so get pointers here */
+  handler = B;
+  env1 = ENV;
   do {
     /* find the first choicepoint that may be a catch */
-    while (B != NULL && B->cp_ap != pos) {
+    while (handler != NULL && handler->cp_ap != pos) {
       /* we are already doing a catch */
-      if (B->cp_ap == catchpos) {
+      if (handler->cp_ap == catchpos) {
 	P = (yamop *)FAILCODE;
-	if (first_func != NULL) {
-	  B = first_func;
-	}
-	return(FALSE);
+	return TRUE;
       }
-      if (B->cp_ap == NOCODE) {
+      /* we have a cleanup handler in the middle */
+      if (is_cleanup_cp(handler)) {
+	/* keep it around */
+	if (previous == NULL)
+	  B = handler;
+	else 
+	  previous->cp_b = handler;
+	previous = handler;
+#ifdef TABLING
+      } else {
+	abolish_incomplete_subgoals(handler);
+#endif /* TABLING */
+      }
+      /* we reached C-Code */
+      if (handler->cp_ap == NOCODE) {
 	/* up to the C-code to deal with this! */
 	UncaughtThrow = TRUE;
-	B->cp_h = H;
+	if (previous == NULL)
+	  B = handler;
+	else 
+	  previous->cp_b = handler;
 	EX = t;
-	return FALSE;
+	P = (yamop *)FAILCODE;
+	HB = B->cp_h;
+	return TRUE;
       }
-      B = B->cp_b;
+      handler = handler->cp_b;
     }
     /* uncaught throw */
-    if (B == NULL) {
+    if (handler == NULL) {
       UncaughtThrow = TRUE;
-      B = B0;
 #if PUSH_REGS
       restore_absmi_regs(&Yap_standard_regs);
 #endif
       siglongjmp(Yap_RestartEnv,1);
     }
     /* is it a continuation? */
-    env = B->cp_env;
-    while (env > ENV) {
-      ENV = ENV_Parent(ENV);
+    env = handler->cp_env;
+    while (env > env1) {
+      env1 = ENV_Parent(env1);
     }
     /* yes, we found it ! */
     //    while (env < ENV)
     //      env = ENV_Parent(env);
-    if (env == ENV) {
+    if (env == env1) {
       break;
     }
     /* oops, try next */
-    B = B->cp_b;
+    handler = handler->cp_b;
   } while (TRUE);
   /* step one environment above, otherwise we'll redo the original goal */
-  B->cp_cp = (yamop *)env[E_CP];
-  B->cp_env = (CELL *)env[E_E];
-  B->cp_ap = NEXTOP(PredHandleThrow->CodeOfPred,l);
+  if (previous == NULL) {
+    B = handler;
+  } else {
+    //    EX = t;
+    previous->cp_b = handler;
+  }
+  handler->cp_cp = (yamop *)env[E_CP];
+  handler->cp_env = (CELL *)env[E_E];
+  handler->cp_ap = NEXTOP(PredHandleThrow->CodeOfPred,l);
   /* can recover Heap thanks to copy term :-( */
   /* B->cp_h = H; */
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
   P = (yamop *)FAILCODE;
+  HB = B->cp_h;
   /* try to recover space */
   /* can only do that when we recover space */
-  /* H = B->cp_h; */
-  t = clean_trail(t, dbt, B->cp_a1);
-  B->cp_a3 = t;
-  B->cp_tr = TR;
-  if (first_func != NULL) {
-    B = first_func;
-  }
-#ifdef TABLING
-  if (B != B0) {
-    while (B0->cp_b < B) {
-      B0 = B0->cp_b;
-    }
-    abolish_incomplete_subgoals(B0);
-  }
-#endif /* TABLING */
+  /* first, simulate backtracking */
   /* so that I will execute op_fail */
   return TRUE;
 }
@@ -1694,6 +1583,7 @@ Yap_InitYaamRegs(void)
   Yap_regp = &Yap_standard_regs;
 #endif
 #endif /* PUSH_REGS */
+  Yap_DeleteGlobal (AtomCatch);
   Yap_PutValue (AtomBreak, MkIntTerm (0));
   TR = (tr_fr_ptr)Yap_TrailBase;
   if (Yap_AttsSize > (Yap_LocalBase-Yap_GlobalBase)/8)
@@ -1795,6 +1685,13 @@ p_debug_on(void)
   return TRUE;
 }
 
+static Int
+p_reset_exception(void)
+{
+  EX = 0L;
+  return TRUE;
+}
+
 void 
 Yap_InitExecFs(void)
 {
@@ -1848,6 +1745,7 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$creep_allowed", 0, p_creep_allowed, HiddenPredFlag);
   Yap_InitCPred("$generate_pred_info", 4, p_generate_pred_info, HiddenPredFlag);
   Yap_InitCPred("$uncaught_throw", 0, p_uncaught_throw, HiddenPredFlag);
+  Yap_InitCPred("$reset_exception", 0, p_reset_exception, HiddenPredFlag);
 }
 
 

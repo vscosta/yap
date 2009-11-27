@@ -123,9 +123,13 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 % The first argument is used by JumpEnv to verify if a throw
 % is going to be handled by the cleanup catcher. If it is so,
 % clean_call will not be called from JumpToEnv.
-'$clean_call'(_,Cleanup) :-
+'$clean_call'(_, Cleanup) :-
 	'$execute'(Cleanup), !.
-'$clean_call'(_,_).
+'$clean_call'(_, _).
+
+'$cc_check_throw' :-
+	nb_getval('$catch',Ball),
+	throw(Ball).	
 
 %%% The unknown predicate,
 %	informs about what the user wants to be done when

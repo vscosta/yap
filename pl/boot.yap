@@ -1163,6 +1163,12 @@ catch(G, C, A) :-
 %
 % throw has to be *exactly* after system catch!
 %
+throw(_Ball) :-
+	% use existing ball
+	nb_getval('$catch',Ball),
+	nb_delete('$catch'),
+	!,
+	'$jump_env_and_store_ball'(Ball).
 throw(Ball) :-
 	% get current jump point
 	'$jump_env_and_store_ball'(Ball).
@@ -1173,7 +1179,10 @@ throw(Ball) :-
 '$catch'(_,_,_) :- fail.
 
 '$handle_throw'(_, _, _).
-'$handle_throw'(C, A, Ball) :-
+'$handle_throw'(C, A, _Ball) :-
+	nb_getval('$catch',Ball),
+	nb_delete('$catch'),
+	'$reset_exception',
         % reset info
 	('catch_ball'(Ball, C) ->
 	    '$execute'(A)

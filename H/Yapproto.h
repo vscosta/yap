@@ -192,6 +192,7 @@ Term	STD_PROTO(Yap_NewArena,(UInt,CELL *));
 void	STD_PROTO(Yap_InitGlobals,(void));
 Term	STD_PROTO(Yap_SaveTerm, (Term));
 Term	STD_PROTO(Yap_SetGlobalVal, (Atom, Term));
+Int	STD_PROTO(Yap_DeleteGlobal, (Atom));
 void	STD_PROTO(Yap_AllocateDefaultArena, (Int, Int));
 
 /* grow.c */

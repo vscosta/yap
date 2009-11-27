@@ -85,6 +85,7 @@
   Yap_heap_regs->fail_op = Yap_opcode(_op_fail);
   Yap_heap_regs->index_op = Yap_opcode(_index_pred);
   Yap_heap_regs->lockpred_op = Yap_opcode(_lock_pred);
+  Yap_heap_regs->orlast_op = Yap_opcode(_or_last);
   Yap_heap_regs->undef_op = Yap_opcode(_undef_p);
 
 
@@ -148,6 +149,7 @@
   Yap_heap_regs->pred_throw = PtoPredAdjust(Yap_heap_regs->pred_throw);
   Yap_heap_regs->pred_handle_throw = PtoPredAdjust(Yap_heap_regs->pred_handle_throw);
   Yap_heap_regs->pred_is = PtoPredAdjust(Yap_heap_regs->pred_is);
+  Yap_heap_regs->pred_safe_call_cleanup = PtoPredAdjust(Yap_heap_regs->pred_safe_call_cleanup);
 #ifdef YAPOR
   Yap_heap_regs->pred_getwork = PtoPredAdjust(Yap_heap_regs->pred_getwork);
   Yap_heap_regs->pred_getwork_seq = PtoPredAdjust(Yap_heap_regs->pred_getwork_seq);

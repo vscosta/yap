@@ -223,6 +223,7 @@
   AtomRetryCounter = Yap_LookupAtom("retry_counter");
   AtomRTree = Yap_LookupAtom("rtree");
   AtomSafe = Yap_FullLookupAtom("$safe");
+  AtomSafeCallCleanup = Yap_FullLookupAtom("$safe_call_cleanup");
   AtomSame = Yap_LookupAtom("==");
   AtomSemic = Yap_LookupAtom(";");
   AtomShiftCountOverflow = Yap_LookupAtom("shift_count_overflow");
@@ -384,6 +385,7 @@
   FunctorRestoreRegs = Yap_MkFunctor(AtomRestoreRegs,2);
   FunctorRestoreRegs1 = Yap_MkFunctor(AtomRestoreRegs,1);
   FunctorSafe = Yap_MkFunctor(AtomSafe,1);
+  FunctorSafeCallCleanup = Yap_MkFunctor(AtomSafeCallCleanup,4);
   FunctorSame = Yap_MkFunctor(AtomSame,2);
   FunctorSlash = Yap_MkFunctor(AtomSlash,2);
   FunctorStaticClause = Yap_MkFunctor(AtomStaticClause,1);

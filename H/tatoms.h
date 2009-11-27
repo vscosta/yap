@@ -452,6 +452,8 @@
 #define AtomRTree Yap_heap_regs->AtomRTree_
   Atom AtomSafe_;
 #define AtomSafe Yap_heap_regs->AtomSafe_
+  Atom AtomSafeCallCleanup_;
+#define AtomSafeCallCleanup Yap_heap_regs->AtomSafeCallCleanup_
   Atom AtomSame_;
 #define AtomSame Yap_heap_regs->AtomSame_
   Atom AtomSemic_;
@@ -774,6 +776,8 @@
 #define FunctorRestoreRegs1 Yap_heap_regs->FunctorRestoreRegs1_
   Functor FunctorSafe_;
 #define FunctorSafe Yap_heap_regs->FunctorSafe_
+  Functor FunctorSafeCallCleanup_;
+#define FunctorSafeCallCleanup Yap_heap_regs->FunctorSafeCallCleanup_
   Functor FunctorSame_;
 #define FunctorSame Yap_heap_regs->FunctorSame_
   Functor FunctorSlash_;

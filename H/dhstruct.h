@@ -85,6 +85,7 @@
 #define FAIL_OPCODE Yap_heap_regs->fail_op
 #define INDEX_OPCODE Yap_heap_regs->index_op
 #define LOCKPRED_OPCODE Yap_heap_regs->lockpred_op
+#define ORLAST_OPCODE Yap_heap_regs->orlast_op
 #define UNDEF_OPCODE Yap_heap_regs->undef_op
 
 #define NOfAtoms Yap_heap_regs->n_of_atoms
@@ -148,6 +149,7 @@
 #define PredThrow Yap_heap_regs->pred_throw
 #define PredHandleThrow Yap_heap_regs->pred_handle_throw
 #define PredIs Yap_heap_regs->pred_is
+#define PredSafeCallCleanup Yap_heap_regs->pred_safe_call_cleanup
 #ifdef YAPOR
 #define PredGetwork Yap_heap_regs->pred_getwork
 #define PredGetworkSeq Yap_heap_regs->pred_getwork_seq

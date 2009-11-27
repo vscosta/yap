@@ -1300,22 +1300,15 @@ p_nb_getval(void)
   return Yap_unify(ARG2, to);
 }
 
-static Int
-p_nb_delete(void)
+
+static Int 
+nbdelete(Atom at)
 {
-  Term t = Deref(ARG1);
   GlobalEntry *ge, *g;
   AtomEntry *ae;
   Prop gp, g0;
 
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR,t,"nb_delete");
-    return FALSE;
-  } else if (!IsAtomTerm(t)) {
-    Yap_Error(TYPE_ERROR_ATOM,t,"nb_delete");
-    return FALSE;
-  }
-  ge = FindGlobalEntry(AtomOfTerm(t));
+  ge = FindGlobalEntry(at);
   if (!ge)
     return FALSE;
   WRITE_LOCK(ge->GRWLock);
@@ -1342,6 +1335,27 @@ p_nb_delete(void)
   WRITE_UNLOCK(ge->GRWLock);
   Yap_FreeCodeSpace((char *)ge);
   return TRUE;
+}
+
+Int
+Yap_DeleteGlobal(Atom at)
+{
+  return nbdelete(at);
+}
+
+static Int
+p_nb_delete(void)
+{
+  Term t = Deref(ARG1);
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"nb_delete");
+    return FALSE;
+  } else if (!IsAtomTerm(t)) {
+    Yap_Error(TYPE_ERROR_ATOM,t,"nb_delete");
+    return FALSE;
+  }
+  return nbdelete(AtomOfTerm(t));
 }
 
 static Int
