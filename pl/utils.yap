@@ -333,10 +333,10 @@ atom_concat(X,Y,At) :-
 	atom_codes(At, Codes),
 	atom_codes(Y, Ys),
 	once(lists:append(Xs,Ys,Codes)),
-	atom_codes(Y, Ys).
+	atom_codes(X, Xs).
 '$atom_contact_split'(At,X,Y) :-
 	atom_codes(At, Codes),
-	'$split_codes'(Codes, Xs, Ys),
+	lists:append(Xs, Ys, Codes),
 	atom_codes(X, Xs),
 	atom_codes(Y, Ys).
 
@@ -352,7 +352,7 @@ atomic_concat(X,Y,At) :-
 	;
 	  atom(At) ->
 	  atom_length(At,Len),
-	  '$atom_contact_split'(At,0,Len,X,Y)
+	  '$atom_contact_split'(At,X,Y)
 	;
 	  number(At) ->
 	  '$number_contact_split'(At,X,Y)
@@ -374,10 +374,10 @@ atomic_concat(X,Y,At) :-
 	number_codes(At, Codes),
 	name(Y, Ys),
 	once(lists:append(Xs,Ys,Codes)),
-	name(Y, Ys).
+	name(X, Xs).
 '$number_contact_split'(At,X,Y) :-
 	number_codes(At, Codes),
-	'$split_codes'(Codes, Xs, Ys),
+	lists:append(Xs, Ys, Codes),
 	name(X, Xs),
 	name(Y, Ys).
 
