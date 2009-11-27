@@ -2204,19 +2204,19 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
 X_API void *
 PL_malloc(int sz)
 {
-  return YAP_AllocSpaceFromYap(sz);
+  return (void *)Yap_AllocCodeSpace((long unsigned int)sz);
 }
 
 X_API void *
 PL_realloc(void *ptr, int sz)
 {
-  return YAP_ReallocSpaceFromYap(ptr,sz);
+  return Yap_ReallocCodeSpace((char *)ptr,(long unsigned int)sz);
 }
 
 X_API void
 PL_free(void *obj)
 {
-  return YAP_FreeSpaceFromYap(obj);
+  return Yap_FreeCodeSpace((char *)obj);
 }
 
 X_API int

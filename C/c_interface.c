@@ -1304,7 +1304,7 @@ X_API void *
 YAP_ReallocSpaceFromYap(void *ptr,unsigned int size) {
   void *new_ptr;
   BACKUP_MACHINE_REGS();
-  while ((new_ptr = Yap_ExpandPreAllocCodeSpace(size,ptr,TRUE)) == NULL) {
+  while ((new_ptr = Yap_ReallocCodeSpace(size,ptr)) == NULL) {
     if (!Yap_growheap(FALSE, size, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return NULL;
@@ -1325,7 +1325,6 @@ YAP_AllocSpaceFromYap(unsigned int size)
       return NULL;
     }
   }
-
   RECOVER_MACHINE_REGS();
   return ptr;
 }

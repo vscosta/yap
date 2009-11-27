@@ -64,9 +64,11 @@ static char SccsId[] = "%W% %G%";
 #if USE_SYSTEM_MALLOC
 #define my_malloc(sz) malloc(sz)
 #define my_realloc(ptr, sz, osz, safe) realloc(ptr, sz)
+#define my_realloc0(ptr, sz) realloc0(ptr, sz)
 #define my_free(ptr) free(ptr)
 #else
 #define my_malloc(sz) Yap_dlmalloc(sz)
+#define my_realloc0(ptr, sz) Yap_dlrealloc(ptr, sz)
 #define my_free(sz) Yap_dlfree(sz)
 
 static char * my_realloc(char *ptr, UInt sz, UInt osz, int safe)
@@ -150,6 +152,28 @@ char *
 Yap_AllocCodeSpace(unsigned long int size)
 {
   return  call_malloc(size);
+}
+
+static inline char *
+call_realloc(char *p, unsigned long int size)
+{
+  char *out;
+#if INSTRUMENT_MALLOC
+  if (mallocs % 1024*4 == 0) 
+    minfo('A');
+  mallocs++;
+  tmalloc += size;
+#endif
+  Yap_PrologMode |= MallocMode;
+  out = (char *) my_realloc0(p, size);
+  Yap_PrologMode &= ~MallocMode;
+  return out;
+}
+
+char *
+Yap_ReallocCodeSpace(char *p, unsigned long int size)
+{
+  return  call_realloc(p, size);
 }
 
 void
