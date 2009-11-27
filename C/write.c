@@ -216,14 +216,12 @@ legalAtom(unsigned char *s)			/* Is this a legal atom ? */
 
 static int LeftOpToProtect(Atom at, int p)
 {
-  int op, rp;
-  return Yap_IsPrefixOp(at, &op, &rp);
+  return Yap_IsOp(at);
 }
 
 static int RightOpToProtect(Atom at, int p)
 {
-  int op, lp;
-  return Yap_IsPosfixOp(at, &op, &lp);
+  return Yap_IsOp(at);
 }
 
 static wtype 

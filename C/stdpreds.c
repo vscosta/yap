@@ -2869,9 +2869,17 @@ init_current_predicate_for_atom(void)
 static OpEntry *
 NextOp(OpEntry *pp)
 {
-  while (!EndOfPAEntr(pp) && pp->KindOfPE != OpProperty)
+  while (!EndOfPAEntr(pp) && pp->KindOfPE != OpProperty &&
+	 (pp->OpModule != PROLOG_MODULE || pp->OpModule != CurrentModule))
     pp = RepOpProp(pp->NextOfPE);
   return (pp);
+}
+
+int
+Yap_IsOp(Atom at)
+{
+  OpEntry *op = NextOp(RepOpProp((Prop)(RepAtom(at)->PropsOfAE)));
+  return (!EndOfPAEntr(op));
 }
 
 static Int

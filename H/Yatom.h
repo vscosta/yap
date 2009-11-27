@@ -491,6 +491,7 @@ typedef enum
 OpEntry   *STD_PROTO(Yap_GetOpProp,(Atom, op_type));
 
 int	STD_PROTO(Yap_IsPrefixOp,(Atom,int *,int *));
+int	STD_PROTO(Yap_IsOp,(Atom));
 int	STD_PROTO(Yap_IsInfixOp,(Atom,int *,int *,int *));
 int	STD_PROTO(Yap_IsPosfixOp,(Atom,int *,int *));
 
