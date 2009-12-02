@@ -1199,6 +1199,7 @@ InitCodes(void)
   Yap_heap_regs->wl.consultbase = Yap_heap_regs->wl.consultsp =
     Yap_heap_regs->wl.consultlow + Yap_heap_regs->wl.consultcapacity;
 #endif /* YAPOR */
+  Yap_heap_regs->wl.ball_term = NULL;
 
   /* make sure no one else can use these two atoms */
   CurrentModule = 0;

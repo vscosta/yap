@@ -109,6 +109,7 @@ typedef struct worker_local_struct {
   Int depth_arenas;
   char *scanner_stack;
   struct scanner_extra_alloc *scanner_extra_blocks;
+  struct DB_TERM *ball_term;
 #if defined(YAPOR) || defined(THREADS)
   lockvar  signal_lock;        /* protect signal handlers from IPIs */
   struct pred_entry *wpp;
@@ -325,6 +326,7 @@ extern struct various_codes *Yap_heap_regs;
 #define  DepthArenas		  Yap_heap_regs->WL.depth_arenas
 #define  ScannerStack             Yap_heap_regs->WL.scanner_stack
 #define  ScannerExtraBlocks       Yap_heap_regs->WL.scanner_extra_blocks
+#define  BallTerm		  Yap_heap_regs->WL.ball_term
 #define  Yap_BigTmp               Yap_heap_regs->WL.big_tmp
 #define  ActiveSignals            Yap_heap_regs->WL.active_signals
 #define  IPredArity               Yap_heap_regs->WL.i_pred_arity

@@ -237,9 +237,9 @@ print_message(force(_Severity), Msg) :- !,
 print_message(error, error(Msg,Info)) :- var(Info), !,
 	print_message(error, error(Msg, '')).
 print_message(error, error(Msg,[Info|local_sp(P,CP,Envs,CPs)])) :- !,
-	nb_setval(sp_info,local_sp(P,CP,Envs,CPs)),
+	recorda(sp_info,local_sp(P,CP,Envs,CPs),R),
 	print_message(error, error(Msg, Info)),
-	nb_setval(sp_info,[]).
+	erase(R).
 print_message(Severity, Msg) :-
 	nonvar(Severity), nonvar(Msg),
 	'$notrace'(user:portray_message(Severity, Msg)), !.

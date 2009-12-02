@@ -75,7 +75,7 @@ generate_message(M) -->
 
 stack_dump(error(_,_)) -->
 	{ fail }, 
-	{ nb_getval(sp_info,local_sp(P,CP,Envs,CPs)) },
+	{ recorded(sp_info,local_sp(P,CP,Envs,CPs),_) },
 	{ Envs = [_|_] ; CPs = [_|_] }, !,
 	[nl],
 	'$hacks':display_stack_info(CPs, Envs, 20, CP).
@@ -490,7 +490,7 @@ prefix(warning,	      '% ',      user_error) -->
 	;   ['Warning: [Thread ~d ]' - Id, nl ]
 	).
 prefix(error,	      '     ',   user_error) -->
-	{ nb_getval(sp_info,local_sp(P,_,_,_)) },
+	{ recorded(sp_info,local_sp(P,_,_,_),_) },
 	{ thread_self(Id) },
 	(   { Id == main }
 	->  [ 'ERROR at ' ]

@@ -1165,8 +1165,7 @@ catch(G, C, A) :-
 %
 throw(_Ball) :-
 	% use existing ball
-	nb_getval('$catch',Ball),
-	nb_delete('$catch'),
+	'$get_exception'(Ball),
 	!,
 	'$jump_env_and_store_ball'(Ball).
 throw(Ball) :-
@@ -1180,9 +1179,7 @@ throw(Ball) :-
 
 '$handle_throw'(_, _, _).
 '$handle_throw'(C, A, _Ball) :-
-	nb_getval('$catch',Ball),
-	nb_delete('$catch'),
-	'$reset_exception',
+	'$reset_exception'(Ball),
         % reset info
 	('catch_ball'(Ball, C) ->
 	    '$execute'(A)

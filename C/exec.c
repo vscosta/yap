@@ -1453,7 +1453,7 @@ JumpToEnv(Term t) {
   if (EX)
     return FALSE;
   /* just keep the throwed object away, we don't need to care about it */
-  if (!(t = Yap_SetGlobalVal(AtomCatch, t))) {
+  if (!(BallTerm = Yap_StoreTermInDB(t, 0))) {
     /* fat chance */
     siglongjmp(Yap_RestartEnv,1);
   }
@@ -1685,11 +1685,52 @@ p_debug_on(void)
   return TRUE;
 }
 
+static Term 
+GetException(void)
+{
+  Term t = 0L;
+  if (BallTerm) {
+    do {
+      t = Yap_PopTermFromDB(BallTerm);
+      if (t == 0) {
+	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growglobal(NULL)) {
+	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
+	  }
+	} else {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growstack(BallTerm->NOfCells*CellSize)) {
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
+	  }
+	}
+      }
+    } while (t == 0);
+    BallTerm = NULL;
+  }
+  return t;
+}
+
 static Int
 p_reset_exception(void)
 {
+  Term t;
   EX = 0L;
-  return TRUE;
+  t = GetException();
+  if (!t) 
+    return FALSE;
+  return Yap_unify(t, ARG1);
+}
+
+static Int
+p_get_exception(void)
+{
+  Term t = GetException();
+  if (!t) 
+    return FALSE;
+  return Yap_unify(t, ARG1);
 }
 
 void 
@@ -1745,7 +1786,8 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$creep_allowed", 0, p_creep_allowed, HiddenPredFlag);
   Yap_InitCPred("$generate_pred_info", 4, p_generate_pred_info, HiddenPredFlag);
   Yap_InitCPred("$uncaught_throw", 0, p_uncaught_throw, HiddenPredFlag);
-  Yap_InitCPred("$reset_exception", 0, p_reset_exception, HiddenPredFlag);
+  Yap_InitCPred("$reset_exception", 1, p_reset_exception, HiddenPredFlag);
+  Yap_InitCPred("$get_exception", 1, p_get_exception, HiddenPredFlag);
 }
 
 

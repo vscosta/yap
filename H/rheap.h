@@ -967,6 +967,11 @@ restore_codes(void)
   /* restore consult stack. It consists of heap pointers, so it
      is easy to fix.
   */
+  if (Yap_heap_regs->wl.ball_term) {
+    Yap_heap_regs->wl.ball_term  = 
+      DBTermAdjust(Yap_heap_regs->wl.ball_term);
+    RestoreDBTerm(Yap_heap_regs->wl.ball_term, TRUE);
+  }
   Yap_heap_regs->wl.consultlow  = 
     ConsultObjAdjust(Yap_heap_regs->wl.consultlow);
   Yap_heap_regs->wl.consultbase =
