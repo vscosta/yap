@@ -66,8 +66,20 @@ setup_call_cleanup(Setup, Goal, Cleanup) :-
 
 setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	yap_hacks:disable_interrupts,
+	'$check_goal_for_setup_call_cleanup'(Setup, setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup)),
 	'$do_setup'(Setup),
+	'$check_goal_for_setup_call_cleanup'(Cleanup, setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup)),
 	'$safe_call_cleanup'(Goal,Cleanup,Catcher,Exception).
+
+'$check_goal_for_setup_call_cleanup'(Goal, G) :-
+	strip_module(Goal, _, MG),
+	(
+	 var(MG)
+	->
+	 '$do_error'(instantiation_error,G)
+	;
+	 true
+	).
 
 % this is simple, do nothing
 '$do_setup'(A:true) :- atom(A), !.
