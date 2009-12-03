@@ -19,7 +19,7 @@
 number_of_expansions(0).
 
 user:goal_expansion(checklist(Meta, List), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(checklist(Meta, List), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -39,7 +39,7 @@ user:goal_expansion(checklist(Meta, List), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(maplist(Meta, List), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(maplist(Meta, List), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -59,7 +59,7 @@ user:goal_expansion(maplist(Meta, List), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(maplist(Meta, ListIn, ListOut), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(maplist(Meta, ListIn, ListOut), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -79,7 +79,7 @@ user:goal_expansion(maplist(Meta, ListIn, ListOut), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(maplist(Meta, L1, L2, L3), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(maplist(Meta, L1, L2, L3), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -99,7 +99,7 @@ user:goal_expansion(maplist(Meta, L1, L2, L3), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(maplist(Meta, L1, L2, L3, L4), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -119,7 +119,7 @@ user:goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(selectlist(Meta, ListIn, ListOut), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(selectlist(Meta, ListIn, ListOut), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -142,7 +142,7 @@ user:goal_expansion(selectlist(Meta, ListIn, ListOut), Mod, Goal) :-
 
 % same as selectlist
 user:goal_expansion(include(Meta, ListIn, ListOut), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(include(Meta, ListIn, ListOut), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -164,7 +164,7 @@ user:goal_expansion(include(Meta, ListIn, ListOut), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(exclude(Meta, ListIn, ListOut), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(exclude(Meta, ListIn, ListOut), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -186,7 +186,7 @@ user:goal_expansion(exclude(Meta, ListIn, ListOut), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(partition(Meta, ListIn, List1, List2), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(partition(Meta, ListIn, List1, List2), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -208,7 +208,7 @@ user:goal_expansion(partition(Meta, ListIn, List1, List2), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(partition(Meta, ListIn, List1, List2, List3), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -247,7 +247,7 @@ user:goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(convlist(Meta, ListIn, ListOut), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(convlist(Meta, ListIn, ListOut), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -269,7 +269,7 @@ user:goal_expansion(convlist(Meta, ListIn, ListOut), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(sumlist(Meta, List, AccIn, AccOut), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -288,8 +288,8 @@ user:goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod, Goal) :-
 		     (RecursionHead :- Apply, RecursiveCall)
 		    ], Module).
 
-user:goal_expansion(mapargs(Meta, In, Out), _Module, NewGoal) :-
-	goal_expansion_allowed,
+user:goal_expansion(mapargs(Meta, In, Out), Module, NewGoal) :-
+	goal_expansion_allowed(mapargs(Meta, In, Out), Module),
 	( var(Out)
 	->
 	    NewGoal = (
@@ -305,15 +305,15 @@ user:goal_expansion(mapargs(Meta, In, Out), _Module, NewGoal) :-
 		      )
 	).	    
 
-user:goal_expansion(sumargs(Meta, Term, AccIn, AccOut), _Module, Goal) :-
-	goal_expansion_allowed,
+user:goal_expansion(sumargs(Meta, Term, AccIn, AccOut), Module, Goal) :-
+	goal_expansion_allowed(sumargs(Meta, Term, AccIn, AccOut), Module),
 	Goal = (
 		 Term =.. [_|TermArgs],
 		 sumlist(Meta, TermArgs, AccIn, AccOut)
 	       ).
 
 user:goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(mapnodes(Meta, InTerm, OutTerm), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -344,7 +344,7 @@ user:goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(checknodes(Meta, Term), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(checknodes(Meta, Term), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -373,7 +373,7 @@ user:goal_expansion(checknodes(Meta, Term), Mod, Goal) :-
 		    ], Module).
 
 user:goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod, Goal) :-
-	goal_expansion_allowed,
+	goal_expansion_allowed(sumnodes(Meta, Term, AccIn, AccOut), Mod),
 	callable(Meta),
 	!,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto, Mod, Module),
@@ -405,8 +405,8 @@ user:goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod, Goal) :-
 % stolen from SWI-Prolog
 user:goal_expansion(phrase(NT,Xs), Mod, NTXsNil) :-
 	user:goal_expansion(phrase(NT,Xs,[]), Mod, NTXsNil).
-user:goal_expansion(phrase(NT,Xs0,Xs), _Mod, NewGoal) :-
-	goal_expansion_allowed,
+user:goal_expansion(phrase(NT,Xs0,Xs), Mod, NewGoal) :-
+	goal_expansion_allowed(phrase(NT,Xs0,Xs), Mod),
 	Goal = phrase(NT,Xs0,Xs),
 	nonvar(NT),
 	catch('$translate_rule'((pseudo_nt --> NT), Rule),
@@ -499,6 +499,7 @@ contains_illegal_dcgnt(NT) :-
 %	write(contains_illegal_nt(NT)),		% JW: we do not want to write
 %	nl.
 
-goal_expansion_allowed :-
+goal_expansion_allowed(Pred, Mod) :-
+	predicate_property(Mod:Pred, number_of_clauses(_)),
 	prolog_load_context(_, _), % make sure we are compiling.
 	\+ current_prolog_flag(xref, true).
