@@ -1587,7 +1587,7 @@ Yap_InitYaamRegs(void)
   Yap_regp = &Yap_standard_regs;
 #endif
 #endif /* PUSH_REGS */
-  Yap_DeleteGlobal (AtomCatch);
+  Yap_ResetExceptionTerm ();
   Yap_PutValue (AtomBreak, MkIntTerm (0));
   TR = (tr_fr_ptr)Yap_TrailBase;
   if (Yap_AttsSize > (Yap_LocalBase-Yap_GlobalBase)/8)
@@ -1726,6 +1726,13 @@ p_reset_exception(void)
   if (!t) 
     return FALSE;
   return Yap_unify(t, ARG1);
+}
+
+void
+Yap_ResetExceptionTerm(void)
+{
+  Yap_ReleaseTermFromDB(BallTerm);
+  BallTerm = NULL;
 }
 
 static Int

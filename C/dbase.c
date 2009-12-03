@@ -4947,35 +4947,7 @@ Term
 Yap_PopTermFromDB(DBTerm *ref)
 {
   Term t = GetDBTerm(ref);
-  DBRef *cp = ref->DBRefs;
-
-  if (cp) {
-    DBRef eref;
-
-    while ((eref = *--cp) != NIL) {
-      if (eref->Flags & LogUpdMask) {
-	LogUpdClause *cl = (LogUpdClause *)eref;
-	cl->ClRefCount--;
-	if (cl->ClFlags & ErasedMask &&
-	    !(cl->ClFlags & InUseMask) &&
-	    !(cl->ClRefCount)) {
-	  EraseLogUpdCl(cl);
-	}
-      } else {
-	LOCK(eref->lock);
-	eref->NOfRefsTo--;
-	if (eref->Flags & ErasedMask &&
-	    !(eref->Flags & InUseMask) &&
-	    eref->NOfRefsTo) {
-	  UNLOCK(eref->lock);
-	  ErDBE(eref);
-	} else {
-	  UNLOCK(eref->lock);
-	}
-      }
-    }
-  }
-  Yap_FreeCodeSpace((char *)ref);
+  ReleaseTermFromDB(ref);
   return t;
 }
 
@@ -5395,6 +5367,8 @@ p_resize_int_keys(void)
 static void 
 ReleaseTermFromDB(DBTerm *ref)
 {
+  if (!ref)
+    return;
   keepdbrefs(ref);
   ErasePendingRefs(ref);
   FreeDBSpace((char *) ref);

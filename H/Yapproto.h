@@ -176,6 +176,7 @@ Term	STD_PROTO(Yap_ExecuteCallMetaCall,(Term));
 void	STD_PROTO(Yap_InitExecFs,(void));
 Int	STD_PROTO(Yap_JumpToEnv,(Term));
 Term	STD_PROTO(Yap_RunTopGoal,(Term));
+void	STD_PROTO(Yap_ResetExceptionTerm,(void));
 Int	STD_PROTO(Yap_execute_goal,(Term, int, Term));
 int	STD_PROTO(Yap_exec_absmi,(int));
 void	STD_PROTO(Yap_trust_last,(void));

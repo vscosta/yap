@@ -30,3 +30,4 @@ test(append) :-
 	X == "aapnoot".
 
 :- end_tests(lists).
+
