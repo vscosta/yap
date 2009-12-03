@@ -350,12 +350,7 @@ mpl(Goal, List1, List2, List3) :-
 mpl(Goal, List1, List2, List3, List4) :-
 	maplist:maplist(Goal, List1, List2, List3, List4).
 
-:- module_transparent
-	prolog:maplist/2, 
-	prolog:maplist/3, 
-	prolog:maplist/4, 
-	prolog:maplist/5.
-
+:- meta_predicate prolog:maplist(:,+),  prolog:maplist(:,+,+),  prolog:maplist(:,+,+,+),  prolog:maplist(:,+,+,+).
 
 %	maplist(:Goal, +List)
 %
