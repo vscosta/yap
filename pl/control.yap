@@ -76,6 +76,7 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	(
 	 var(MG)
 	->
+	 yap_hacks:enable_interrupts,
 	 '$do_error'(instantiation_error,G)
 	;
 	 true
