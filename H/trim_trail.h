@@ -33,7 +33,6 @@
 	      Bind(pt, MkAtomTerm(AtomCut));
 	      Yap_WakeUp(pt);
 	    }
-	    pt1--;
 	  } else if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
 	    LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt);
 	    int erase;

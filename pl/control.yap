@@ -67,9 +67,7 @@ setup_call_cleanup(Setup, Goal, Cleanup) :-
 setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	yap_hacks:disable_interrupts,
 	'$do_setup'(Setup),
-	catch('$safe_call_cleanup'(Goal,Cleanup,Catcher,Exception),
-	      Exception,
-	      '$cleanup_exception'(Exception,Catcher,Cleanup)).
+	'$safe_call_cleanup'(Goal,Cleanup,Catcher,Exception).
 
 % this is simple, do nothing
 '$do_setup'(A:true) :- atom(A), !.
@@ -96,9 +94,9 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 
 '$safe_call_cleanup'(Goal, Cleanup, Catcher, Exception) :-
 	 yap_hacks:current_choice_point(MyCP1),
-	'$freeze_goal'(Catcher, '$clean_call'(Exception, Cleanup)),
-	yap_hacks:trail_suspension_marker(Catcher),
+	'$freeze_goal'(Catcher, '$clean_call'(Active, Cleanup)),
 	(
+	 yap_hacks:trail_suspension_marker(Catcher),
 	 yap_hacks:enable_interrupts,
 	 yap_hacks:current_choice_point(CP0),
 	 '$execute'(Goal),

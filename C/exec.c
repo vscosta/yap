@@ -1439,7 +1439,11 @@ static int is_cleanup_cp(choiceptr cp_b)
 #else
   pe = cp_b->cp_ap->u.p.p;
 #endif	/* YAPOR */
-  return (pe == PredSafeCallCleanup);
+  /* 
+     it has to be a cleanup and it has to be a completed goal,
+     otherwise the throw will be caught anyway.
+   */
+  return pe == PredSafeCallCleanup;
 }
 
 static Int
