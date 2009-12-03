@@ -66,10 +66,16 @@ setup_call_cleanup(Setup, Goal, Cleanup) :-
 
 setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	yap_hacks:disable_interrupts,
-	'$check_goal_for_setup_call_cleanup'(Setup, setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup)),
-	'$do_setup'(Setup),
-	'$check_goal_for_setup_call_cleanup'(Cleanup, setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup)),
+	'$check_goal_for_setup_call_cleanup'(Setup, setup_call_cleanup(Setup, Goal, Cleanup)),
+	catch('$do_setup'(Setup),Exception,'$handle_broken_setup'(Exception)),
+	'$check_goal_for_setup_call_cleanup'(Cleanup, setup_call_cleanup(Setup, Goal, Cleanup)),
 	'$safe_call_cleanup'(Goal,Cleanup,Catcher,Exception).
+
+% make sure we don't lose interrupts if we get exceptions
+% with setup.
+'$handle_broken_setup'(Setup) :-
+	yap_hacks:enable_interrupts,
+	throw(Exception).
 
 '$check_goal_for_setup_call_cleanup'(Goal, G) :-
 	strip_module(Goal, _, MG),
