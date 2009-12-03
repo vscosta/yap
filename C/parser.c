@@ -687,19 +687,20 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	}  
 	curprio = 1000;
 	continue;
-      } else if (Unsigned(Yap_tokptr->TokInfo) == '|' && prio >= 1100 &&
-		 curprio <= 1099) {
+      } else if (Unsigned(Yap_tokptr->TokInfo) == '|' &&
+		 IsInfixOp(AtomVBar, &opprio, &oplprio, &oprprio)
+		 && opprio <= prio && oplprio >= curprio) {
 	Volatile Term args[2];
 	NextToken;
 	args[0] = t;
-	args[1] = ParseTerm(1100, FailBuff);
+	args[1] = ParseTerm(oprprio, FailBuff);
 	t = Yap_MkApplTerm(FunctorVBar, 2, args);
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
 	  Yap_ErrorMessage = "Stack Overflow";
 	  FAIL;
 	}  
-	curprio = 1100;
+	curprio = opprio;
 	continue;
       }
     }
