@@ -14,7 +14,10 @@
 		  trie_put_entry/3,
 		  trie_check_entry/3,
 		  trie_get_entry/2,
+		  trie_get_first_entry/2,
+		  trie_get_last_entry/2,
 		  trie_traverse/2,
+		  trie_traverse/3,
 		  trie_remove_entry/1,
 		  trie_remove_subtree/1,
 		  trie_join/2,
@@ -46,4 +49,6 @@ trie_dup(Trie, CopyTrie) :-
 	trie_open(CopyTrie),
 	trie_join(CopyTrie, Trie).
 
-
+trie_traverse(Trie, Ref) :- 
+	trie_get_first_entry(Trie, InitRef),
+        (Ref = InitRef ; trie_traverse(Trie, InitRef, Ref)).

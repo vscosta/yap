@@ -31,6 +31,8 @@ static int p_trie_mode(void);
 static int p_trie_put_entry(void);
 static int p_trie_check_entry(void);
 static int p_trie_get_entry(void);
+static int p_trie_get_first_entry(void);
+static int p_trie_get_last_entry(void);
 static int p_trie_traverse_init(void);
 static int p_trie_traverse_cont(void);
 static int p_trie_remove_entry(void);
@@ -70,7 +72,9 @@ void init_tries(void) {
   YAP_UserCPredicate("trie_put_entry", p_trie_put_entry, 3);
   YAP_UserCPredicate("trie_check_entry", p_trie_check_entry, 3);
   YAP_UserCPredicate("trie_get_entry", p_trie_get_entry, 2);
-  YAP_UserBackCPredicate("trie_traverse", p_trie_traverse_init, p_trie_traverse_cont, 2, 0);
+  YAP_UserCPredicate("trie_get_first_entry", p_trie_get_first_entry, 2);
+  YAP_UserCPredicate("trie_get_last_entry", p_trie_get_last_entry, 2);
+  YAP_UserBackCPredicate("trie_traverse", p_trie_traverse_init, p_trie_traverse_cont, 3, 0);
   YAP_UserCPredicate("trie_remove_entry", p_trie_remove_entry, 1);
   YAP_UserCPredicate("trie_remove_subtree", p_trie_remove_subtree, 1);
   YAP_UserCPredicate("trie_join", p_trie_join, 2);
@@ -330,30 +334,74 @@ static int p_trie_get_entry(void) {
 #undef arg_entry
 
 
-/* trie_traverse(-Trie,+Ref) */
+/* trie_get_first_entry(-Trie,+Ref) */
 #define arg_trie YAP_ARG1
-#define arg_ref   YAP_ARG2
-static int p_trie_traverse_init(void) {
+#define arg_ref  YAP_ARG2
+static int p_trie_get_first_entry(void) {
   TrData data;
 
-  /* check arg */
+  /* check args */
   if (!YAP_IsIntTerm(arg_trie)) 
     return FALSE;
 
-  /* traverse trie */
-  if (!(data = trie_traverse_init((TrEntry) YAP_IntOfTerm(arg_trie)))) {
-    YAP_cut_fail();
+  /* get first trie entry */
+  if (!(data = trie_get_first_entry((TrEntry) YAP_IntOfTerm(arg_trie))))
     return FALSE;
-  }
   return YAP_Unify(arg_ref, YAP_MkIntTerm((YAP_Int) data));
 }
 #undef arg_trie
 #undef arg_ref
 
 
-/* trie_traverse(-Trie,+Ref) */
+/* trie_get_last_entry(-Trie,+Ref) */
 #define arg_trie YAP_ARG1
-#define arg_ref   YAP_ARG2
+#define arg_ref  YAP_ARG2
+static int p_trie_get_last_entry(void) {
+  TrData data;
+
+  /* check args */
+  if (!YAP_IsIntTerm(arg_trie)) 
+    return FALSE;
+
+  /* get last trie entry */
+  if (!(data = trie_get_last_entry((TrEntry) YAP_IntOfTerm(arg_trie))))
+    return FALSE;
+  return YAP_Unify(arg_ref, YAP_MkIntTerm((YAP_Int) data));
+}
+#undef arg_trie
+#undef arg_ref
+
+
+/* trie_traverse(-Trie,-FirstRef,+Ref) */
+#define arg_trie     YAP_ARG1
+#define arg_init_ref YAP_ARG2
+#define arg_ref      YAP_ARG3
+static int p_trie_traverse_init(void) {
+  TrData data;
+
+  /* check args */
+  if (!YAP_IsIntTerm(arg_trie)) 
+    return FALSE;
+  if (!YAP_IsIntTerm(arg_init_ref)) 
+    return FALSE;
+
+  /* traverse trie */
+  if (!(data = trie_traverse_init((TrEntry) YAP_IntOfTerm(arg_trie), (TrData) YAP_IntOfTerm(arg_init_ref)))) {
+    printf("cut fail no init!!!\n");
+    YAP_cut_fail();
+    return FALSE;
+  }
+  return YAP_Unify(arg_ref, YAP_MkIntTerm((YAP_Int) data));
+}
+#undef arg_trie
+#undef arg_init_ref
+#undef arg_ref
+
+
+/* trie_traverse(-Trie,-FirstRef,+Ref) */
+#define arg_trie     YAP_ARG1
+#define arg_init_ref YAP_ARG2
+#define arg_ref      YAP_ARG3
 static int p_trie_traverse_cont(void) {
   TrData data;
 
@@ -365,6 +413,7 @@ static int p_trie_traverse_cont(void) {
   return YAP_Unify(arg_ref, YAP_MkIntTerm((YAP_Int) data));
 }
 #undef arg_trie
+#undef arg_init_ref
 #undef arg_ref
 
 
