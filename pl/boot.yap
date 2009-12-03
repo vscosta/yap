@@ -904,19 +904,13 @@ not(G) :-    \+ '$execute'(G).
 '$undefp'([M|G]) :-
 	% make sure we do not loop on undefined predicates
         % for undefined_predicates.
+	'$enter_undefp',
 	(
-	 recorded('$import','$import'(NM,M,Goal,G,_,_),_)
+	 '$imported_predicate'(NM,M,Goal,G)
 	->
-	 true
+	 '$exit_undefp'
 	;
-	 '$enter_undefp',
-	 (
-	  swi:swi_predicate_table(M,G,NM,Goal)
-	 ->
-	  '$exit_undefp'
-	 ;
-	  once('$find_undefp_handler'(G,M,Goal,NM))
-	 )
+	 once('$find_undefp_handler'(G,M,Goal,NM))
 	),
 	!,
 	Goal \= fail,

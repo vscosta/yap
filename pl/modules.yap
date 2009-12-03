@@ -368,6 +368,22 @@ module(N) :-
 	'$exit_undefp',
 	fail.
 
+%
+% get all imported predicates
+%
+'$imported_predicate'(FM,Mod,FPred,Pred) :-
+	recorded('$import','$import'(IM,Mod,IPred,Pred,_,_),_),
+	'$continue_imported'(FM, IM, FPred, IPred).
+'$imported_predicate'(FM,Mod,FPred,Pred) :-
+	swi:swi_predicate_table(Mod,Pred,IM,IPred),
+	'$continue_imported'(FM, IM, FPred, IPred).
+
+'$continue_imported'(FM,Mod,FPred,Pred) :-
+	recorded('$import','$import'(IM,Mod,IPred,Pred,_,_),_), !,
+	'$continue_imported'(FM, IM, FPred, IPred).
+'$continue_imported'(Mod,Mod,Pred,Pred).
+
+
 % module_transparent declaration
 % 
 
