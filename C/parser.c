@@ -581,31 +581,19 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
       break;
     case '[':
       NextToken;
-      if (Yap_tokptr->Tok == Ord(Ponctuation_tok) &&
-	  Unsigned(Yap_tokptr->TokInfo) == ']') {
-	t = TermNil;
-	NextToken;
-      } else {
-	t = ParseList(FailBuff);
-	checkfor((Term) ']', FailBuff);
-      }
+      t = ParseList(FailBuff);
+      checkfor((Term) ']', FailBuff);
       break;
     case '{':
       NextToken;
-      if (Yap_tokptr->Tok == Ord(Ponctuation_tok) &&
-	  Unsigned(Yap_tokptr->TokInfo) == '}') {
-	t = MkAtomTerm(NameOfFunctor(FunctorBraces));
-	NextToken;
-      } else {
-	t = ParseTerm(1200, FailBuff);
-	t = Yap_MkApplTerm(FunctorBraces, 1, &t);
-	/* check for possible overflow against local stack */
-	if (H > ASP-4096) {
-	  Yap_ErrorMessage = "Stack Overflow";
-	  FAIL;
-	}  
-	checkfor((Term) '}', FailBuff);
-      }
+      t = ParseTerm(1200, FailBuff);
+      t = Yap_MkApplTerm(FunctorBraces, 1, &t);
+      /* check for possible overflow against local stack */
+      if (H > ASP-4096) {
+	Yap_ErrorMessage = "Stack Overflow";
+	FAIL;
+      }  
+      checkfor((Term) '}', FailBuff);
       break;
     default:
       FAIL;

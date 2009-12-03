@@ -1194,6 +1194,24 @@ Yap_tokenizer(int inp_stream, Term *tposp)
       if (t->TokInfo == '(' && !solo_flag) {
 	t->TokInfo = 'l';
 	solo_flag = TRUE;
+      } else if (och == '[')  {
+	while (chtype(ch) == BS) {  ch = Nxtch(inp_stream); };
+	if (ch == ']') {
+	  t->TokInfo = Unsigned(AtomNil);
+	  t->Tok = Ord(kind = Name_tok);
+	  ch = Nxtch(inp_stream);
+	  solo_flag = FALSE;
+	  break;
+	}
+      } else if (och == '{')  {
+	while (chtype(ch) == BS) {  ch = Nxtch(inp_stream); };
+	if (ch == '}') {
+	  t->TokInfo = Unsigned(AtomBraces);
+	  t->Tok = Ord(kind = Name_tok);
+	  ch = Nxtch(inp_stream);
+	  solo_flag = FALSE;
+	  break;
+	}
       }
       t->Tok = Ord(kind = Ponctuation_tok);
       break;
