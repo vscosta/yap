@@ -1917,9 +1917,9 @@ YAP_PruneGoal(void)
   while (B->cp_ap != NOCODE) {
     B = B->cp_b;
   }
+  Yap_TrimTrail();
   B = B->cp_b;
 
-  Yap_TrimTrail();
   RECOVER_B();
 }
 
