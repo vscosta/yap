@@ -149,6 +149,19 @@
 '$exec_directive'(endif, Context, _) :-
 	'$endif'(Context).
 
+%                                                                                  
+% allow users to define their own directives.                                      
+%                                                                                  
+user_defined_directive(Dir,_) :-
+        '$directive'(Dir), !.
+user_defined_directive(Dir,Action) :-
+        functor(Dir,Na,Ar),
+        functor(NDir,Na,Ar),
+        '$current_module'(M, prolog),
+	assert_static('$directive'(NDir)),
+	assert_static(('$exec_directive'(Dir, _, _) :- Action)),
+        '$current_module'(_, M).
+
 
 yap_flag(V,Out) :-
 	'$user_defined_flag'(V,_,_,_),
