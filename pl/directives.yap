@@ -151,7 +151,7 @@
 
 
 yap_flag(V,Out) :-
-	'$user_defined_flag'(V,_),
+	'$user_defined_flag'(V,_,_,_),
 	(nonvar(V) ->
 	 !
 	;
@@ -1032,17 +1032,11 @@ set_prolog_flag(F,V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,set_prolog_flag(F,V)).
 set_prolog_flag(F, Val) :-
-	recorded('$dialect',swi,_),
-	prolog:'$user_defined_flag'(F,_), !,
+	prolog:'$user_defined_flag'(F,_,_,_), !,
 	yap_flag(F, Val).
 set_prolog_flag(F,V) :-
 	\+ atom(F), !,
 	'$do_error'(type_error(atom,F),set_prolog_flag(F,V)).
-set_prolog_flag(F,V) :-
-	recorded('$dialect',swi,_),
-	\+ yap_flag(F,_),
-	user_defined_flag(F),
-	fail.
 set_prolog_flag(F,V) :-
 	yap_flag(F,V).
 
@@ -1067,48 +1061,102 @@ source_mode(Old,New) :-
 source :- '$set_yap_flags'(11,1).
 no_source :- '$set_yap_flags'(11,0).
 
-%
-% allow users to define their own directives.
-%
-user_defined_directive(Dir,_) :-
-	'$directive'(Dir), !.
-user_defined_directive(Dir,Action) :-
-	functor(Dir,Na,Ar),
-	functor(NDir,Na,Ar),
-	'$current_module'(M, prolog),
-	assert_static('$directive'(NDir)),
-	assert_static(('$exec_directive'(Dir, _, _) :- Action)),
-	'$current_module'(_, M).
+create_prolog_flag(Name, Value) :-
+	create_prolog_flag(Name, Value, []).
 
-%
-% allow users to define their own flags.
-%
-user_defined_flag(Atom) :- var(Atom), !,
-	'$do_error'(instantiation_error,user_defined_flag(Atom)).
-user_defined_flag(Atom) :-
-	'$user_defined_flag'(Atom,_), !.
-user_defined_flag(Atom) :-
-	yap_flag(Atom, _), !,
-	'$do_error'(domain_error(user_defined_prolog_flag,Atom),user_defined_flag(Atom)).
-user_defined_flag(Atom) :-
-	assert(prolog:'$user_defined_flag'(Atom,[])).
+create_prolog_flag(Name, Value, Options) :-
+	'$check_flag_name'(Name, create_prolog_flag(Name, Value, Options)),
+	'$check_flag_options'(Options, Domain, RW, create_prolog_flag(Name, Value, Options)),
+	'$check_flag_value'(Value, Domain, create_prolog_flag(Name, Value, Options)),
+	retractall(prolog:'$user_defined_flag'(Name,_,_,_)),
+	assert(prolog:'$user_defined_flag'(Name,Domain,RW,Value)).
 
-'$enumerate_user_flag'(V, Out) :-
-	'$user_defined_flag'(V, Out).
+'$check_flag_name'(V, G) :-
+	var(V),
+	'$do_error'(instantiation_error,G).
+'$check_flag_name'(Name, _) :-
+	atom(Name), !.
+'$check_flag_name'(Name, G) :-
+	'$do_error'(type_error(atom),G).
+	
+'$check_flag_options'(O, _, _, G) :-
+	var(O),
+	'$do_error'(instantiation_error,G).
+'$check_flag_options'([], term, read_write, _) :- !.
+'$check_flag_options'([O1|Os], Domain, RW, G) :- !,
+	'$check_flag_optionsl'([O1|Os], Domain, RW, G).
+'$check_flag_options'(O, _, _, G) :-
+	'$do_error'(type_error(list),G).
+
+
+'$check_flag_optionsl'([], term, read_write, G).
+'$check_flag_optionsl'([V|Os], Domain, RW, G) :-
+	var(V),
+	'$do_error'(instantiation_error,G).
+'$check_flag_optionsl'([type(Type)|Os], Domain, RW, G) :- !,
+	'$check_flag_type'(Type, Domain, G),
+	'$check_flag_optionsl'(Os, _, RW, G).
+'$check_flag_optionsl'([access(Access)|Os], Domain, RW, G) :- !,
+	'$check_flag_access'(Access, RW, G),
+	'$check_flag_optionsl'(Os, Domain, _, G).
+'$check_flag_optionsl'(Os, Domain, RW, G) :-
+	'$do_error'(domain_error(create_prolog_flag,Os),G).
+
+'$check_flag_type'(V, _, G) :-
+	var(V),
+	'$do_error'(instantiation_error,G).
+'$check_flag_type'(boolean, boolean, _) :- !.
+'$check_flag_type'(integer, integer, _) :- !.
+'$check_flag_type'(float, float, _) :- !.
+'$check_flag_type'(atom, atom, _) :- !.
+'$check_flag_type'(term, term, _) :- !.
+'$check_flag_type'(Atom, _, G) :-
+	'$do_error'(domain_error(create_prolog_flag_option(type),Atom),G).
+
+'$check_flag_access'(V, _, G) :-
+	var(V),
+	'$do_error'(instantiation_error,G).
+'$check_flag_access'(read_write, read_write, _) :- !.
+'$check_flag_access'(read_only, read_only, _) :- !.
+'$check_flag_type'(Atom, _, G) :-
+	'$do_error'(domain_error(create_prolog_flag_option(access),Atom),G).
 
 '$user_flag_value'(F, Val) :-
 	var(Val), !,
-	'$user_defined_flag'(F,Val).
-'$user_flag_value'(F, Val) :-
-	recorded('$dialect',swi,_), !,
-	retractall(prolog:'$user_defined_flag'(F,_)),
-	assert(prolog:'$user_defined_flag'(Atom,Val)).
+	'$user_defined_flag'(F,_,_,Val).
 '$user_flag_value'(F, Val) :-
 	atomic(Val), !,
-	retractall(prolog:'$user_defined_flag'(F,_)),
-	assert(prolog:'$user_defined_flag'(Atom,Val)).
+	prolog:'$user_defined_flag'(F,Domain,RW,V0),
+	(
+	 Val == V0
+	->
+	 true
+	;
+	 RW = read_only
+	->
+	 '$do_error'(permission_error(modify,flag,F),yap_flag(F,Val))
+	;
+	  '$check_flag_value'(Val, Domain, yap_flag(F,Val)),
+	  retractall(prolog:'$user_defined_flag'(F,_,_,_)),
+	  assert(prolog:'$user_defined_flag'(F,Domain,RW,Val))
+	).
 '$user_flag_value'(F, Val) :-
 	'$do_error'(type_error(atomic,Val),yap_flag(F,Val)).
+
+'$check_flag_value'(Value, _, G) :-
+	\+ ground(Value), !,
+	'$do_error'(instantiation_error,G).
+'$check_flag_value'(_, term, _) :- !.
+'$check_flag_value'(Value, atom, _) :-
+	atom(Value), !.
+'$check_flag_value'(Value, integer, _) :-
+	integer(Value), !.
+'$check_flag_value'(Value, float, _) :-
+	float(Value), !.
+'$check_flag_value'(true, boolean, _) :- !.
+'$check_flag_value'(false, boolean, _) :- !.
+'$check_flag_value'(Value, Domain, G) :-
+	'$do_error'(domain_error(Domain,Value),G).
 
 '$expects_dialect'(swi) :-
 	eraseall('$dialect'),

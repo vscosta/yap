@@ -84,7 +84,7 @@ lists:append([H|T], L, [H|R]) :-
 	 'yapor.yap',
          'udi.yap'].
 
-:- dynamic prolog:'$user_defined_flag'/2.
+:- dynamic prolog:'$user_defined_flag'/4.
 
 :- multifile prolog:debug_action_hook/1.
 
