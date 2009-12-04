@@ -699,7 +699,7 @@ set_base_module(ExportingModule) :-
 set_base_module(ExportingModule) :-
 	atom(ExportingModule), !,
 	'$current_module'(Mod),
-	retractall(prolog:'$parent_module'(Mod,ExportingModule)),
+	retractall(prolog:'$parent_module'(Mod,_)),
 	asserta(prolog:'$parent_module'(Mod,ExportingModule)).
 set_base_module(ExportingModule) :-
 	'$do_error'(type_error(atom,ExportingModule),set_base_module(ExportingModule)).
@@ -732,3 +732,19 @@ add_import_module(Mod, ImportModule, Pos) :-
 	'$do_error'(type_error(atom,Mod),add_import_module(Mod, ImportModule, Pos)).
 add_import_module(Mod, ImportModule, Pos) :-
 	'$do_error'(domain_error(start_end,Pos),add_import_module(Mod, ImportModule, Pos)).
+
+delete_import_module(Mod, ImportModule) :-
+	var(Mod),
+	'$do_error'(instantiation_error,delete_import_module(Mod, ImportModule)).
+delete_import_module(Mod, ImportModule) :-
+	var(ImportModule),
+	'$do_error'(instantiation_error,delete_import_module(Mod, ImportModule)).
+delete_import_module(Mod, ImportModule) :-
+	atom(Mod),
+	atom(ImportModule), !,
+	retractall(prolog:'$parent_module'(Mod,ImportModule)).
+delete_import_module(Mod, ImportModule) :-
+	\+ atom(Mod), !,
+	'$do_error'(type_error(atom,Mod),delete_import_module(Mod, ImportModule)).
+delete_import_module(Mod, ImportModule) :-
+	'$do_error'(type_error(atom,ImportModule),delete_import_module(Mod, ImportModule)).
