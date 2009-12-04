@@ -92,11 +92,6 @@ throw_error(Error_term,Impldef) :-
 :- use_module(library(option)).
 :- use_module(library(pairs)).
 
-current_test_flag(Name, Value) :-
-	current_prolog_flag(Name, Value).
-
-set_test_flag(Name, Value) :-
-	set_prolog_flag(Name, Value).
 :- endif.
 
 :- if(sicstus).
@@ -110,6 +105,13 @@ throw_error(Error_term,Impldef) :-
 :- op(700, xfx, =@=).
 
 '$set_source_module'(_, _).
+
+:- op(1150, fx, thread_local).
+
+user:term_expansion((:- thread_local(PI)), (:- dynamic(PI))) :-
+	prolog_load_context(module, plunit).
+
+:- endif.
 
 %%	current_test_flag(?Name, ?Value) is nondet.
 %
@@ -137,12 +139,6 @@ set_test_flag( Name, Val ) :-
 	retractall(test_flag(Name,_)),
 	asserta(test_flag(Name, Val)).
 
-:- op(1150, fx, thread_local).
-
-user:term_expansion((:- thread_local(PI)), (:- dynamic(PI))) :-
-	prolog_load_context(module, plunit).
-
-:- endif.
 
 		 /*******************************
 		 *	      IMPORTS		*
