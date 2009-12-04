@@ -31,3 +31,7 @@ test(append) :-
 
 :- end_tests(lists).
 
+:- run_tests.
+
+:- run_tests(lists:member).
+
