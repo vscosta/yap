@@ -1074,9 +1074,6 @@ source_mode(Old,New) :-
 source :- '$set_yap_flags'(11,1).
 no_source :- '$set_yap_flags'(11,0).
 
-create_prolog_flag(Name, Value) :-
-	create_prolog_flag(Name, Value, []).
-
 create_prolog_flag(Name, Value, Options) :-
 	'$check_flag_name'(Name, create_prolog_flag(Name, Value, Options)),
 	'$check_flag_options'(Options, Domain, RW, create_prolog_flag(Name, Value, Options)),
