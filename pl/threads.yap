@@ -21,7 +21,22 @@
 	thread_create(:),
 	thread_at_exit(:),
 	thread_signal(+,:),
-	with_mutex(+,:).
+	with_mutex(+,:),
+	volatile(:).
+
+volatile(P) :- var(P),
+	throw(error(instantiation_error,volatile(P))).
+volatile(M:P) :-
+	'$do_volatile'(P,M).
+volatile((G1,G2)) :-
+	'$do_volatile'(G1),
+	'$do_volatile'(G2).
+volatile(P) :-
+	'$current_module'(M),
+	'$do_volatile'(P,M).
+
+'$do_volatile'(P,M) :- dynamic(M:P).
+
 
 :- initialization('$init_thread0').
 

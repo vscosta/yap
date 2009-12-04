@@ -203,29 +203,12 @@ predmerge(<, P, H1, H2, T1, T2, [H1|R]) :-
 % maybe a good idea to eventually support this in YAP.
 % but for now just ignore it.
 %
-:- meta_predicate prolog:volatile(:).
-
-:- op(1150, fx, 'volatile').
-
-prolog:volatile(P) :- var(P),
-	throw(error(instantiation_error,volatile(P))).
-prolog:volatile(M:P) :-
-	do_volatile(P,M).
-prolog:volatile((G1,G2)) :-
-	prolog:volatile(G1),
-	prolog:volatile(G2).
-prolog:volatile(P) :-
-	prolog_load_context(module, M),
-	do_volatile(P,M).
-
 prolog:load_foreign_library(P,Command) :-
 	absolute_file_name(P,[file_type(executable),solutions(first),file_errors(fail)],Lib),
 	load_foreign_files([Lib],[],Command).
 
 prolog:load_foreign_library(P) :-
 	prolog:load_foreign_library(P,install).
-
-do_volatile(P,M) :- dynamic(M:P).
 
 :- use_module(library(lists)).
 

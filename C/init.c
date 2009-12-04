@@ -354,6 +354,7 @@ static Opdef    Ops[] = {
   {"dynamic", fx, 1150},
   {"thread_local", fx, 1150},
   {"initialization", fx, 1150},
+  {"volatile", fx, 1150},
   {"mode", fx, 1150},
   {"public", fx, 1150},
   {"multifile", fx, 1150},
