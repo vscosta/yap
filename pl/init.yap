@@ -86,6 +86,8 @@ lists:append([H|T], L, [H|R]) :-
 
 :- dynamic prolog:'$user_defined_flag'/4.
 
+:- dynamic prolog:'$parent_module'/2.
+
 :- multifile prolog:debug_action_hook/1.
 
 :- source.

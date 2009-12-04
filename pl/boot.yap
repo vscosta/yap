@@ -906,7 +906,7 @@ not(G) :-    \+ '$execute'(G).
         % for undefined_predicates.
 	'$enter_undefp',
 	(
-	 '$imported_predicate'(NM,M,Goal,G)
+	 '$get_undefined_pred'(G, M, Goal, NM)
 	->
 	 '$exit_undefp'
 	;

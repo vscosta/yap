@@ -798,7 +798,7 @@ predicate_property(Pred,Prop) :-
 	'$pred_exists'(Pred,Mod), !,
 	'$predicate_property'(Pred,Mod,Mod,Prop).
 '$predicate_property2'(Pred,Prop,Mod) :- 
-	'$imported_predicate'(M,Mod,NPred,Pred),
+	'$imported_pred'(Pred, Mod, NPred, M),
 	(
 	 Prop = imported_from(M)
 	;

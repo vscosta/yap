@@ -356,32 +356,31 @@ module(N) :-
 '$imported_pred'(G, ImportingMod, G0, ExportingMod) :-
 	'$enter_undefp',
 	'$undefined'(G, ImportingMod),
-	recorded('$import','$import'(ExportingMod,ImportingMod,G0,G,_,_),_),
+	'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod),
 	ExportingMod \= ImportingMod, !,
-	'$exit_undefp'.
-'$imported_pred'(G, ImportingMod, G0, ExportingMod) :-
-	'$undefined'(G, ImportingMod),
-	swi:swi_predicate_table(ImportingMod,G,ExportingMod,G0),
-	ExportingMod \= ImportingMod,
 	'$exit_undefp'.
 '$imported_pred'(G, ImportingMod, _, _) :-
 	'$exit_undefp',
 	fail.
 
-%
-% get all imported predicates
-%
-'$imported_predicate'(FM,Mod,FPred,Pred) :-
-	recorded('$import','$import'(IM,Mod,IPred,Pred,_,_),_),
-	'$continue_imported'(FM, IM, FPred, IPred).
-'$imported_predicate'(FM,Mod,FPred,Pred) :-
-	swi:swi_predicate_table(Mod,Pred,IM,IPred),
-	'$continue_imported'(FM, IM, FPred, IPred).
+'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
+	recorded('$import','$import'(ExportingModI,ImportingMod,G0I,G,_,_),_),
+	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I).
+'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
+	swi:swi_predicate_table(ImportingMod,G,ExportingModI,G0I),
+	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I).
+'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
+	prolog:'$parent_module'(ImportingMod,ExportingModI),
+	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
 
+'$continue_imported'(Mod,Mod,Pred,Pred) :-
+	\+ '$undefined'(Pred, Mod), !.
 '$continue_imported'(FM,Mod,FPred,Pred) :-
 	recorded('$import','$import'(IM,Mod,IPred,Pred,_,_),_), !,
 	'$continue_imported'(FM, IM, FPred, IPred).
-'$continue_imported'(Mod,Mod,Pred,Pred).
+'$continue_imported'(FM,Mod,FPred,Pred) :-
+	prolog:'$parent_module'(Mod,IM),
+	'$continue_imported'(FM, IM, FPred, Pred).
 
 
 % module_transparent declaration
@@ -694,3 +693,42 @@ abolish_module(_).
 	'$conj_has_cuts'(G3, DCP, NG3, OK).
 '$conj_has_cuts'(G,_,G, _).
 
+set_base_module(ExportingModule) :-
+	var(ExportingModule),
+	'$do_error'(instantiation_error,set_base_module(ExportingModule)).
+set_base_module(ExportingModule) :-
+	atom(ExportingModule), !,
+	'$current_module'(Mod),
+	retractall(prolog:'$parent_module'(Mod,ExportingModule)),
+	asserta(prolog:'$parent_module'(Mod,ExportingModule)).
+set_base_module(ExportingModule) :-
+	'$do_error'(type_error(atom,ExportingModule),set_base_module(ExportingModule)).
+
+import_module(Mod, ImportModule) :-
+	var(Mod),
+	'$do_error'(instantiation_error,import_module(Mod, ImportModule)).
+import_module(Mod, ImportModule) :-
+	atom(Mod), !,
+	prolog:'$parent_module'(Mod,ImportModule).
+import_module(Mod, EM) :-
+	'$do_error'(type_error(atom,Mod),import_module(Mod, EM)).
+
+add_import_module(Mod, ImportModule, Pos) :-
+	var(Mod),
+	'$do_error'(instantiation_error,add_import_module(Mod, ImportModule, Pos)).
+add_import_module(Mod, ImportModule, Pos) :-
+	var(Pos),
+	'$do_error'(instantiation_error,add_import_module(Mod, ImportModule, Pos)).
+add_import_module(Mod, ImportModule, start) :-
+	atom(Mod), !,
+	retractall(prolog:'$parent_module'(Mod,ImportModule)),
+	asserta(prolog:'$parent_module'(Mod,ImportModule)).
+add_import_module(Mod, ImportModule, end) :-
+	atom(Mod), !,
+	retractall(prolog:'$parent_module'(Mod,ImportModule)),
+	assertz(prolog:'$parent_module'(Mod,ImportModule)).
+add_import_module(Mod, ImportModule, Pos) :-
+	\+ atom(Mod), !,
+	'$do_error'(type_error(atom,Mod),add_import_module(Mod, ImportModule, Pos)).
+add_import_module(Mod, ImportModule, Pos) :-
+	'$do_error'(domain_error(start_end,Pos),add_import_module(Mod, ImportModule, Pos)).

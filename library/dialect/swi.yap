@@ -109,15 +109,15 @@ swi_predicate_table(_,include(X,Y,Z),apply,include(X,Y,Z)).
 swi_predicate_table(_,exclude(X,Y,Z),apply,exclude(X,Y,Z)).
 swi_predicate_table(_,partition(X,Y,Z,A),apply,partition(X,Y,Z,A)).
 swi_predicate_table(_,partition(X,Y,Z,A,B),apply,partition(X,Y,Z,A,B)).
-swi_predicate_table(_,set_test_options(X),plunit,set_test_options(X)).
-swi_predicate_table(_,begin_tests(X),plunit,begin_tests(X)).
-swi_predicate_table(_,begin_tests(X,Y),plunit,begin_tests(X,Y)).
-swi_predicate_table(_,end_tests(X),plunit,end_tests(X)).
-swi_predicate_table(_,run_tests,plunit,run_tests).
-swi_predicate_table(_,run_tests(X),plunit,run_tests(X)).
-swi_predicate_table(_,load_test_files(X),plunit,load_test_files(X)).
-swi_predicate_table(_,running_tests,plunit,running_tests).
-swi_predicate_table(_,test_report(X),plunit,test_report(X)).
+% swi_predicate_table(_,set_test_options(X),plunit,set_test_options(X)).
+% swi_predicate_table(_,begin_tests(X),plunit,begin_tests(X)).
+% swi_predicate_table(_,begin_tests(X,Y),plunit,begin_tests(X,Y)).
+% swi_predicate_table(_,end_tests(X),plunit,end_tests(X)).
+% swi_predicate_table(_,run_tests,plunit,run_tests).
+% swi_predicate_table(_,run_tests(X),plunit,run_tests(X)).
+% swi_predicate_table(_,load_test_files(X),plunit,load_test_files(X)).
+% swi_predicate_table(_,running_tests,plunit,running_tests).
+% swi_predicate_table(_,test_report(X),plunit,test_report(X)).
 
 swi_mchk(X,Y) :- lists:memberchk(X,Y).
 
@@ -369,6 +369,7 @@ prolog:'$set_source_module'(Source0, SourceF) :-
 	prolog_load_context(module, Source0),
 	module(SourceF).
 
-prolog:'$declare_module'(_, _, _, _, _).
+prolog:'$declare_module'(Name, Context, _, _, _) :-
+	add_import_module(Name, Context, start).
 
 prolog:'$set_predicate_attribute'(_, _, _).
