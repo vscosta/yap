@@ -454,12 +454,15 @@
     case _put_x_var:
       pc = NEXTOP(pc,xx);
       break;
+      /* instructions type xxc */
+    case _p_func2s_cv:
+      pc = NEXTOP(pc,xxc);
+      break;
       /* instructions type xxn */
     case _p_and_vc:
     case _p_arg_cv:
     case _p_div_cv:
     case _p_div_vc:
-    case _p_func2s_cv:
     case _p_func2s_vc:
     case _p_minus_cv:
     case _p_or_vc:

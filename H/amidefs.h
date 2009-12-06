@@ -700,6 +700,18 @@ typedef struct yami {
     } xx;
     struct {
       wamreg                x;
+      wamreg                xi;
+      Term                  c;
+      CELL next;
+    } xxc;
+    struct {
+      wamreg                x;
+      wamreg                xi;
+      Int                   c;
+      CELL next;
+    } xxn;
+    struct {
+      wamreg                x;
       wamreg                x1;
       wamreg                x2;
       CELL next;
@@ -711,12 +723,6 @@ typedef struct yami {
       wamreg                xr2;
       CELL next;
     } xxxx;
-    struct {
-      wamreg                x;
-      wamreg                xi;
-      Int                   c;
-      CELL next;
-    } xxn;
     struct {
       wamreg                x;
       wamreg                x1;

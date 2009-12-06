@@ -12429,23 +12429,23 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_func2s_cv, xxn);
+      Op(p_func2s_cv, xxc);
       /* A1 is a variable */
     restart_func2s_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	RESET_VARIABLE(H);
-	H[1] = PREG->u.xxn.c;
-	H[2] = XREG(PREG->u.xxn.xi);
+	H[1] = PREG->u.xxc.c;
+	H[2] = XREG(PREG->u.xxc.xi);
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
       /* We have to build the structure */
-      d0 = PREG->u.xxn.c;
+      d0 = PREG->u.xxc.c;
       /* we do, let's get the third argument */
       BEGD(d1);
-      d1 = XREG(PREG->u.xxn.xi);
+      d1 = XREG(PREG->u.xxc.xi);
       deref_head(d1, func2s_unk2_cv);
     func2s_nvar2_cv:
       /* Uuuff, the second and third argument are bound */
@@ -12470,8 +12470,8 @@ Yap_absmi(int inp)
 	H += 2;
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
-	XREG(PREG->u.xxn.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),Osbpp),l);
+	XREG(PREG->u.xxc.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),Osbpp),l);
 	GONext();
       } else if ((Int)d1 > 0) {
 	/* now let's build a compound term */
@@ -12493,7 +12493,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxn),Osbpp))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxc),Osbpp))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -12511,12 +12511,12 @@ Yap_absmi(int inp)
 	ENDP(pt1);
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
-	XREG(PREG->u.xxn.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),Osbpp),l);
+	XREG(PREG->u.xxc.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),Osbpp),l);
 	GONext();
       }	else if (d1  == 0) {
-	XREG(PREG->u.xxn.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxn),Osbpp),l);
+	XREG(PREG->u.xxc.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),Osbpp),l);
 	GONext();
       }	else {
 	saveregs();
@@ -12545,7 +12545,7 @@ Yap_absmi(int inp)
 	Term ti;
 	CELL *hi = H;
 
-	ti = MkIntegerTerm((Int)(PREG->u.xxn.c));
+	ti = MkIntegerTerm(PREG->u.xxn.c);
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.xxn.xi);
 	H[2] = ti;

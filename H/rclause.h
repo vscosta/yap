@@ -595,12 +595,18 @@ restore_opcodes(yamop *pc, yamop *max)
       pc->u.xx.xr = XAdjust(pc->u.xx.xr);
       pc = NEXTOP(pc,xx);
       break;
+      /* instructions type xxc */
+    case _p_func2s_cv:
+      pc->u.xxc.x = XAdjust(pc->u.xxc.x);
+      pc->u.xxc.xi = XAdjust(pc->u.xxc.xi);
+      pc->u.xxc.c = ConstantTermAdjust(pc->u.xxc.c);
+      pc = NEXTOP(pc,xxc);
+      break;
       /* instructions type xxn */
     case _p_and_vc:
     case _p_arg_cv:
     case _p_div_cv:
     case _p_div_vc:
-    case _p_func2s_cv:
     case _p_func2s_vc:
     case _p_minus_cv:
     case _p_or_vc:
