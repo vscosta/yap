@@ -3499,7 +3499,15 @@ static Int
 p_argv(void)
 {
   Term t = mk_argc_list();
-  return(Yap_unify(t, ARG1));
+  return Yap_unify(t, ARG1);
+}
+
+static Int 
+p_executable(void)
+{
+  
+  Yap_TrueFileName (Yap_argv[0], Yap_FileNameBuf, FALSE);
+  return Yap_unify(MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)),ARG1);
 }
 
 static Int
@@ -3972,6 +3980,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$statistics_db_size", 4, p_statistics_db_size, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$statistics_lu_db_size", 5, p_statistics_lu_db_size, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$argv", 1, p_argv, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$executable", 1, p_executable, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$runtime", 2, p_runtime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$cputime", 2, p_cputime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$systime", 2, p_systime, SafePredFlag|SyncPredFlag|HiddenPredFlag);

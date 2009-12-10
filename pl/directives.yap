@@ -183,6 +183,9 @@ yap_flag(fast,off) :- !, set_value('$fast',[]).
 % do or do not machine code
 yap_flag(argv,L) :- '$argv'(L).
 
+% do or do not machine code
+yap_flag(executable,L) :- '$executable'(L).
+
 % hide/unhide atoms
 yap_flag(hide,Atom) :- !, hide(Atom).
 yap_flag(unhide,Atom) :- !, unhide(Atom).
@@ -887,6 +890,7 @@ yap_flag(dialect,yap).
 		V = dollar_as_lower_case ;
 		V = double_quotes ;
 		V = encoding ;
+		V = executable ;
 %		V = fast  ;
 		V = fileerrors  ;
 		V = float_format ;
