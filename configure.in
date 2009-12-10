@@ -768,6 +768,7 @@ INSTALL_DLLS="#"
 EXTRA_OBJS=""
 SHLIB_LD="#"
 SHLIB_LOWER_LD="#"
+SHLIB_LOWER_CXX_LD="#"
 SHLIB_SWI_LD="#"
 DO_SECOND_LD="#"
 M4="m4"
@@ -790,6 +791,7 @@ case "$target_os" in
 	    SHLIB_SUFFIX=".so"
             SHLIB_LD="$CC -shared -export-dynamic"
             SHLIB_LOWER_LD="$SHLIB_LD"
+            SHLIB_LOWER_CXX_LD="$CXX -shared -export-dynamic $SHLIB_LD"
             SHLIB_SWI_LD="$CC -shared -export-dynamic"
             DO_SECOND_LD=""
 	    LIBS="$LIBS -ldl"
@@ -849,6 +851,7 @@ case "$target_os" in
 	    #otherwise no external predicates.
             SHLIB_LD="$CC -shared -export-dynamic"
             SHLIB_LOWER_LD="$SHLIB_LD"
+            SHLIB_LOWER_CXX_LD="$CXX -shared -export-dynamic"
             SHLIB_SWI_LD="$CC -shared -export-dynamic"
             DO_SECOND_LD=""
             SHLIB_SUFFIX=".sl"
@@ -898,6 +901,7 @@ dnl Linux has both elf and a.out, in this case we found elf
         DO_SECOND_LD=""
 	SHLIB_LD="ld -n32 -shared -rdata_shared"
         SHLIB_LOWER_LD="$SHLIB_LD"
+        SHLIB_LOWER_CXX_LD="$SHLIB_LD"
 	SHLIB_SWI_LD="ld -n32 -shared -rdata_shared"
 	INSTALL_DLLS=""
 	;;
@@ -921,6 +925,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 # 	LDFLAGS="-Wl,-x -dead_strip -dead_strip_dylibs $LDFLAGS"
 	SHLIB_LD="$CC -bundle -flat_namespace -undefined suppress"
         SHLIB_LOWER_LD="$SHLIB_LD"
+        SHLIB_LOWER_CXX_LD="$CXX -bundle -flat_namespace -undefined suppress"
 	SHLIB_SWI_LD="$CC -bundle -flat_namespace -undefined suppress"
 	INSTALL_DLLS=""
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall -Wstrict-aliasing=2"
@@ -939,6 +944,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	  SHLIB_CFLAGS="-fPIC"
 	  SHLIB_LD="ld -Bshareable -x"
           SHLIB_LOWER_LD="$SHLIB_LD"
+          SHLIB_LOWER_CXX_LD="$SHLIB_LOWER_LD"
 	  SHLIB_SWI_LD="ld -Bshareable -x"
           DO_SECOND_LD=""
 	  SHLIB_SUFFIX=".so"
@@ -951,6 +957,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	SHLIB_CFLAGS="-fPIC"
 	SHLIB_LD="$CC -shared"
         SHLIB_LOWER_LD="$SHLIB_LD"
+        SHLIB_LOWER_CXX_LD="$CXX -shared"
 	SHLIB_SWI_LD="$CC -shared"
         DO_SECOND_LD=""
 	SHLIB_SUFFIX=".so"
@@ -963,6 +970,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	SHLIB_CFLAGS=""
         SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll"
         SHLIB_LOWER_LD="\$(CC) -shared -Wl,--export-all-symbols ../../../yap.dll"
+        SHLIB_LOWER_CXX_LD="\$(CXX) -shared -Wl,--export-all-symbols ../../../yap.dll"
         SHLIB_SWI_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll  ../../packages/PLStream/plstream.dll"
 	SHLIB_SUFFIX=".dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
@@ -1283,6 +1291,7 @@ dnl how to call the loader
 AC_SUBST(DO_SECOND_LD)
 AC_SUBST(SHLIB_LD)
 AC_SUBST(SHLIB_LOWER_LD)
+AC_SUBST(SHLIB_LOWER_CXX_LD)
 AC_SUBST(SHLIB_SWI_LD)
 AC_SUBST(DYNLIB_LD)
 dnl objects in YAP library
