@@ -1761,7 +1761,7 @@ int Yap_getcwd(const char *buf, int len)
 static int
 TrueFileName (char *source, char *root, char *result, int in_lib)
 {
-  char *res0 = result, *work;
+  char *work;
   char ares1[YAP_FILENAME_MAX];
 
   result[0] = '\0';
@@ -1799,6 +1799,7 @@ TrueFileName (char *source, char *root, char *result, int in_lib)
       } else {
 #if HAVE_GETPWNAM
       struct passwd *user_passwd;
+      char *res0 = result; 
 
       source++;
       while (!dir_separator((*res0 = *source)) && *res0 != '\0')
@@ -1832,19 +1833,6 @@ TrueFileName (char *source, char *root, char *result, int in_lib)
   } else {
     strncpy (result, source, YAP_FILENAME_MAX);
   }
-#if defined(_WIN32)
- {
-   int ch;
-
-   res0 = result;
-   /* step 2 WINDOWS: replacing \ by / */
-   while ((ch = *res0++)) {
-     if (ch == '\\' && dir_separator('\\')) {
-       res0[-1] = '/';
-     }
-   }
- }
-#endif
   /* step 3: get the full file name */
   if (!dir_separator(result[0]) && !volume_header(result)) {
     if (!Yap_getcwd(ares1, YAP_FILENAME_MAX))
