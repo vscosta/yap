@@ -1483,7 +1483,9 @@ JumpToEnv(Term t) {
 	previous = handler;
 #ifdef TABLING
       } else {
-	abolish_incomplete_subgoals(handler);
+	if (handler->cp_ap != NOCODE) {
+	  abolish_incomplete_subgoals(handler);
+	}
 #endif /* TABLING */
       }
       /* we reached C-Code */
