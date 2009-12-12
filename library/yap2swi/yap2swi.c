@@ -174,6 +174,17 @@ X_API char* PL_atom_chars(atom_t a)	 /* SAM check type */
   return AtomName(SWIAtomToAtom(a));
 }
 
+X_API int
+PL_chars_to_term(term_t term,const char *s) { 
+  YAP_Term t,error;
+  if ( (t=YAP_ReadBuffer(s,&error))==0L ) {
+    Yap_PutInSlot(term, error); 
+    return 0L;
+  }
+  Yap_PutInSlot(term,t);
+  return 1L;
+}
+
 
 /* SWI: term_t PL_copy_term_ref(term_t from)
    YAP: NO EQUIVALENT */
