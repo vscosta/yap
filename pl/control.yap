@@ -62,7 +62,7 @@ call_cleanup(Goal, Catcher, Cleanup) :-
 	setup_call_catcher_cleanup(true, Goal, Catcher, Cleanup).
 
 setup_call_cleanup(Setup, Goal, Cleanup) :-
-	setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup).
+	setup_call_catcher_cleanup(Setup, Goal, _Catcher, Cleanup).
 
 setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	yap_hacks:disable_interrupts,
@@ -112,7 +112,7 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	throw(Exception).
 
 '$safe_call_cleanup'(Goal, Cleanup, Catcher, Exception) :-
-	 yap_hacks:current_choice_point(MyCP1),
+	yap_hacks:current_choice_point(MyCP1),
 	'$freeze_goal'(Catcher, '$clean_call'(Active, Cleanup)),
 	(
 	 yap_hacks:trail_suspension_marker(Catcher),
@@ -125,14 +125,14 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	 (
 	  CP0 =:= CPF
 	 ->
-	   Catcher = exit,
-	   !
+	  Catcher = exit,
+	  !
 	 ;
-	   true
+	  true
 	 )
 	;
-	  Catcher = fail,
-	  fail
+	 Catcher = fail,
+	 fail
 	).
 
 '$holds_true'.
