@@ -378,7 +378,7 @@ extern X_API  int PL_unify_chars(term_t, int, size_t, const char *);
 extern X_API  int PL_unify_chars_diff(term_t, term_t, int, size_t, const char *);
 extern X_API  int PL_unify_wchars(term_t, int, size_t, const pl_wchar_t *);
 extern X_API  int PL_unify_wchars_diff(term_t, term_t, int, size_t, const pl_wchar_t *);
-/* end PL_unify_* functions =============================*/
+extern X_API  int PL_chars_to_term(term_t,const char *);
 /* begin PL_is_* functions =============================*/
 extern X_API  int PL_is_atom(term_t);
 extern X_API  int PL_is_atomic(term_t);
