@@ -791,7 +791,7 @@ case "$target_os" in
 	    SHLIB_SUFFIX=".so"
             SHLIB_LD="$CC -shared -export-dynamic"
             SHLIB_LOWER_LD="$SHLIB_LD"
-            SHLIB_LOWER_CXX_LD="$CXX -shared -export-dynamic $SHLIB_LD"
+            SHLIB_LOWER_CXX_LD="$CXX -shared -export-dynamic"
             SHLIB_SWI_LD="$CC -shared -export-dynamic"
             DO_SECOND_LD=""
 	    LIBS="$LIBS -ldl"
