@@ -689,7 +689,6 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    /* End preprocessor code */
 	  case '-':
 	    /* skip remaining arguments */
-	    fprintf(stderr,"skipping remaining arguments\n");
 	    argc = 1;
 	    break;
 	  default:
