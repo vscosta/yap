@@ -2905,6 +2905,7 @@ cont_current_op(void)
   next = op->OpNext;
   if (Yap_unify_constant(ARG1,MkAtomTerm(op->OpName)) &&
       unify_op(op)) {
+    READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)next);
       return TRUE;
@@ -2912,6 +2913,7 @@ cont_current_op(void)
       cut_succeed();
     }
   } else {
+    READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)next);
       return FALSE;
@@ -2936,6 +2938,7 @@ cont_current_atom_op(void)
   READ_LOCK(op->OpRWLock);
   next = NextOp(RepOpProp(op->NextOfPE));
   if (unify_op(op)) {
+    READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)next);
       return TRUE;
@@ -2943,6 +2946,7 @@ cont_current_atom_op(void)
       cut_succeed();
     }
   } else {
+    READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)next);
       return FALSE;

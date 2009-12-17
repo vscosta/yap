@@ -440,6 +440,7 @@ Yap_HasOp(Atom a)
   while (!EndOfPAEntr(pp) &&
 	 ( pp->KindOfPE != OpProperty))
     pp = RepProp(pp->NextOfPE);
+  READ_UNLOCK(ae->ARWLock);
   if (EndOfPAEntr(pp)) {
     return FALSE;
   } else {
