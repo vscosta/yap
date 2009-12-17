@@ -1177,6 +1177,7 @@ InitCodes(void)
 	Yap_heap_regs->wl[i].consultlow + Yap_heap_regs->wl[i].consultcapacity;
       Yap_heap_regs->wl[i].Gc_timestamp = 0;
     }
+    Yap_heap_regs->wl[i].ball_term = NULL;
   }
 #else
   Yap_heap_regs->wl.dynamic_arrays = NULL;
@@ -1199,8 +1200,8 @@ InitCodes(void)
   Yap_heap_regs->wl.consultcapacity = InitialConsultCapacity;
   Yap_heap_regs->wl.consultbase = Yap_heap_regs->wl.consultsp =
     Yap_heap_regs->wl.consultlow + Yap_heap_regs->wl.consultcapacity;
-#endif /* YAPOR */
   Yap_heap_regs->wl.ball_term = NULL;
+#endif /* YAPOR */
 
   /* make sure no one else can use these two atoms */
   CurrentModule = 0;
