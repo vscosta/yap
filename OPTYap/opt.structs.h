@@ -287,9 +287,11 @@ struct local_signals{
 ** --------------------------- */
 
 struct local_data{
+#if defined(YAPOR) || defined(THREADS)
+  lockvar lock;
+#endif
 #ifdef YAPOR
   /* local data related to or-parallelism */
-  lockvar lock;
   volatile int load;
   choiceptr top_choice_point;
   struct or_frame *top_or_frame;
