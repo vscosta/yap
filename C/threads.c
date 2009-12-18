@@ -711,7 +711,8 @@ p_thread_atexit(void)
 {				/* '$thread_signal'(+P)	 */
   Term t;
 
-  if (ThreadHandle[worker_id].texit->Entry == MkAtomTerm(AtomTrue)) {
+  if (!ThreadHandle[worker_id].texit ||
+      ThreadHandle[worker_id].texit->Entry == MkAtomTerm(AtomTrue)) {
     return FALSE;
   }
   do {

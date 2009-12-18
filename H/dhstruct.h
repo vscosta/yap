@@ -45,10 +45,6 @@
 #define WL	wl
 #endif
 #endif
-#ifdef THREADS
-#define ThreadHandlesLock Yap_heap_regs->thread_handles_lock
-#define ThreadHandle Yap_heap_regs->thread_handle
-#endif
 
 #define Yap_HoleSize Yap_heap_regs->hole_size
 #define Yap_av Yap_heap_regs->av_
@@ -329,3 +325,8 @@
 #define ForeignCodeBase Yap_heap_regs->foreign_code_base
 #define ForeignCodeTop Yap_heap_regs->foreign_code_top
 #define ForeignCodeMax Yap_heap_regs->foreign_code_max
+
+#ifdef THREADS
+#define ThreadHandlesLock Yap_heap_regs->thread_handles_lock
+#define ThreadHandle Yap_heap_regs->thread_handle
+#endif 

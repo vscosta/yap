@@ -41,8 +41,10 @@ volatile(P) :-
 :- initialization('$init_thread0').
 
 '$init_thread0' :-
-	'$no_threads', !,
-	recorda('$thread_alias', [0|main], _).
+	recorda('$thread_alias', [0|main], _),
+	fail.
+'$init_thread0' :-
+	'$no_threads', !.
 '$init_thread0' :-
 	recorda('$thread_defaults', [0, 0, 0, false, true], _),
 	'$create_thread_mq'(0),
@@ -863,7 +865,7 @@ thread_property(Id, Prop) :-
 	;	Status = running
 	).
 '$thread_property'(Id, detached(Detached)) :-
-	'$thread_detached'(Id,Detached).
+	( '$thread_detached'(Id,Detached) -> true ; Detached = false ).
 '$thread_property'(Id, at_exit(M:G)) :-
 	'$thread_run_at_exit'(G,M).
 '$thread_property'(Id, InfoSize) :-

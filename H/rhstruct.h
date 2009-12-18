@@ -45,10 +45,6 @@
 #define WL	wl
 #endif
 #endif
-#ifdef THREADS
-  REINIT_LOCK(Yap_heap_regs->thread_handles_lock);
-
-#endif
 
 
 
@@ -329,3 +325,8 @@
 
 
 
+
+#ifdef THREADS
+  REINIT_LOCK(Yap_heap_regs->thread_handles_lock);
+
+#endif 

@@ -1139,6 +1139,7 @@ InitThreadHandles(void)
   Yap_heap_regs->thread_handle[0].handle = pthread_self();
   pthread_mutex_init(&ThreadHandle[0].tlock, NULL);
   pthread_mutex_init(&ThreadHandle[0].tlock_status, NULL);
+  Yap_heap_regs->thread_handle[0].tdetach = MkAtomTerm(AtomFalse);
 }
 #endif
 

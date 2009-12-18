@@ -45,10 +45,6 @@
 #define WL	wl
 #endif
 #endif
-#ifdef THREADS
-  INIT_LOCK(Yap_heap_regs->thread_handles_lock);
-  InitThreadHandles();
-#endif
 
 
 
@@ -329,3 +325,8 @@
   Yap_heap_regs->foreign_code_base = NULL;
   Yap_heap_regs->foreign_code_top = NULL;
   Yap_heap_regs->foreign_code_max = NULL;
+
+#ifdef THREADS
+  INIT_LOCK(Yap_heap_regs->thread_handles_lock);
+  InitThreadHandles();
+#endif 
