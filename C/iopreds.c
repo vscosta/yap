@@ -3924,9 +3924,15 @@ static Int
 #if HAVE_FGETPOS
     fpos_t rpos;
 #endif
+    int ungetc_oldc = 0;
+    int had_ungetc = FALSE;
 
     /* two cases where we can seek: memory and console */
     if (seekable) {
+      if (Stream[inp_stream].stream_getc == PlUnGetc) {
+	had_ungetc = TRUE;
+	ungetc_oldc = Stream[inp_stream].och;
+      }
       if (Stream[inp_stream].status & InMemory_Stream_f) {
 	cpos = Stream[inp_stream].u.mem_string.pos;
       } else {
@@ -3946,6 +3952,10 @@ static Int
       if (Yap_Error_TYPE != YAP_NO_ERROR && seekable) {
 	H = old_H;
 	Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+	if (had_ungetc) {
+	  Stream[inp_stream].stream_getc = PlUnGetc;
+	  Stream[inp_stream].och = ungetc_oldc;
+	}
 	if (Stream[inp_stream].status & InMemory_Stream_f) {
 	  Stream[inp_stream].u.mem_string.pos = cpos;
 	} else {
