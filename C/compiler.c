@@ -3372,7 +3372,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, Term mod, volatile Term src)
       ARG1 = inp_clause;
       ARG3 = src;
       YAPLeaveCriticalSection();
-      if (!Yap_growtrail(0L, FALSE)) {
+      if (!Yap_growtrail(Yap_TrailTop-(ADDR)TR, FALSE)) {
 	Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;
 	Yap_Error_Term = inp_clause;
 	return NULL;
