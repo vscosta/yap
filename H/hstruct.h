@@ -273,7 +273,6 @@
   int  allow_global_expansion;
   int  allow_trail_expansion;
   UInt  size_of_overflow;
-  struct hold_entry  *global_hold_entry;
 
   UInt  agc_last_call;
 

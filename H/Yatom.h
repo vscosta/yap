@@ -1127,6 +1127,7 @@ typedef struct hold_entry
 {
   Prop NextOfPE;		/* used to chain properties             */
   PropFlags KindOfPE;		/* kind of property                     */
+  UInt  RefsOfPE;		/* used to count the number of holds    */
 } HoldEntry;
 
 #if USE_OFFSETS_IN_PROPS

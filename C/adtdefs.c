@@ -1391,8 +1391,8 @@ Yap_PutInSlot(long slot, Term t)
   LCL0[slot] = t;
 }
 
-HoldEntry *
-Yap_InitAtomHold(void)
+static HoldEntry *
+InitAtomHold(void)
 {
   HoldEntry *x = (HoldEntry *)Yap_AllocAtomSpace(sizeof(struct hold_entry));
   if (x == NULL) {
@@ -1400,54 +1400,62 @@ Yap_InitAtomHold(void)
   }
   x->KindOfPE = HoldProperty;
   x->NextOfPE = NIL;
+  x->RefsOfPE = 1;
   return x;
 }
 
 int
-Yap_AtomGetHold(Atom at)
+Yap_AtomIncreaseHold(Atom at)
 {
   AtomEntry *ae = RepAtom(at);
-  PropEntry *pp, *opp = NULL;
+  HoldEntry *pp;
+  Prop *opp = &(ae->PropsOfAE);
 
   WRITE_LOCK(ae->ARWLock);
-  pp = RepProp(ae->PropsOfAE);
-  while (!EndOfPAEntr(pp)) {
-    pp = RepProp(pp->NextOfPE);
-    opp = pp;
+  pp = RepHoldProp(ae->PropsOfAE);
+  while (!EndOfPAEntr(pp)
+	 && pp->KindOfPE != HoldProperty) {
+    opp = &(pp->NextOfPE);
+    pp = RepHoldProp(pp->NextOfPE);
   }
   if (!pp) {
-    ae->PropsOfAE = AbsHoldProp(GlobalHoldEntry);
-  } else if (opp->KindOfPE != HoldProperty) {
-    opp->NextOfPE = AbsHoldProp(GlobalHoldEntry);
+    HoldEntry *new = InitAtomHold();
+    if (!new) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return FALSE;
+    }
+    *opp = AbsHoldProp(new);
   } else {
-    WRITE_UNLOCK(ae->ARWLock);
-    return FALSE;
+    pp->RefsOfPE++;
   }
   WRITE_UNLOCK(ae->ARWLock);
   return TRUE;
 }
 
 int
-Yap_AtomReleaseHold(Atom at)
+Yap_AtomDecreaseHold(Atom at)
 {
   AtomEntry *ae = RepAtom(at);
-  PropEntry *pp, *opp = NULL;
+  HoldEntry *pp;
+  Prop *opp = &(ae->PropsOfAE);
 
   WRITE_LOCK(ae->ARWLock);
-  pp = RepProp(ae->PropsOfAE);
-  while (!EndOfPAEntr(pp)) {
-    if (pp->KindOfPE == HoldProperty) {
-      if (!opp) {
-	ae->PropsOfAE = NIL;
-      } else {
-	opp->NextOfPE = NIL;
-      }
-      WRITE_UNLOCK(ae->ARWLock);
-      return TRUE;
-    }
-    pp = RepProp(pp->NextOfPE);
-    opp = pp;
+  pp = RepHoldProp(ae->PropsOfAE);
+  while (!EndOfPAEntr(pp)
+	 && pp->KindOfPE != HoldProperty) {
+    opp = &(pp->NextOfPE);
+    pp = RepHoldProp(pp->NextOfPE);
+  }
+  if (!pp) {
+    WRITE_UNLOCK(ae->ARWLock);
+    return FALSE;
+  }
+  pp->RefsOfPE--;
+  if (!pp->RefsOfPE) {
+    *opp = pp->NextOfPE;
+    Yap_FreeCodeSpace((ADDR)pp);
   }
   WRITE_UNLOCK(ae->ARWLock);
-  return FALSE;
+  return TRUE;
 }
+

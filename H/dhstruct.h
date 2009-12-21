@@ -273,7 +273,6 @@
 #define Yap_AllowGlobalExpansion Yap_heap_regs->allow_global_expansion
 #define Yap_AllowTrailExpansion Yap_heap_regs->allow_trail_expansion
 #define SizeOfOverflow Yap_heap_regs->size_of_overflow
-#define GlobalHoldEntry Yap_heap_regs->global_hold_entry
 
 #define AGcLastCall Yap_heap_regs->agc_last_call
 

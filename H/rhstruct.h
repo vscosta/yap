@@ -273,7 +273,6 @@
 
 
 
-  Yap_heap_regs->global_hold_entry = HoldEntryAdjust(Yap_heap_regs->global_hold_entry);
 
 
 

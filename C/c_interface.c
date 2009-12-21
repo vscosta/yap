@@ -1304,7 +1304,7 @@ X_API void *
 YAP_ReallocSpaceFromYap(void *ptr,unsigned int size) {
   void *new_ptr;
   BACKUP_MACHINE_REGS();
-  while ((new_ptr = Yap_ReallocCodeSpace(size,ptr)) == NULL) {
+  while ((new_ptr = Yap_ReallocCodeSpace(ptr,size)) == NULL) {
     if (!Yap_growheap(FALSE, size, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return NULL;
@@ -2596,13 +2596,13 @@ YAP_TermNil(void)
 X_API int
 YAP_AtomGetHold(Atom at)
 {
-  return Yap_AtomGetHold(at);
+  return Yap_AtomIncreaseHold(at);
 } 
 
 X_API int
 YAP_AtomReleaseHold(Atom at)
 {
-  return Yap_AtomReleaseHold(at);
+  return Yap_AtomDecreaseHold(at);
 } 
 
 X_API Agc_hook

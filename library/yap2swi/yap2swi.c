@@ -698,7 +698,9 @@ X_API int PL_get_tail(term_t ts, term_t tl)
       */
 X_API atom_t PL_new_atom(const char *c)
 {
-  return AtomToSWIAtom(Yap_LookupAtom((char *)c));
+  Atom at = Yap_LookupAtom((char *)c);
+  Yap_AtomIncreaseHold(at);
+  return AtomToSWIAtom(at);
 }
 
 X_API atom_t PL_new_atom_wchars(int len, const wchar_t *c)
@@ -1637,17 +1639,15 @@ X_API int PL_unify_term(term_t l,...)
 /* end PL_unify_* functions =============================*/
 
 /* SWI: void PL_register_atom(atom_t atom) */
-/* SAM TO DO */
 X_API void PL_register_atom(atom_t atom)
 {
-  Yap_AtomGetHold(SWIAtomToAtom(atom));
+  Yap_AtomIncreaseHold(SWIAtomToAtom(atom));
 }
 
 /* SWI: void PL_unregister_atom(atom_t atom) */
-/* SAM TO DO */
 X_API void PL_unregister_atom(atom_t atom)
 {
-  Yap_AtomReleaseHold(SWIAtomToAtom(atom));
+  Yap_AtomDecreaseHold(SWIAtomToAtom(atom));
 }
 
 X_API int PL_get_string_chars(term_t t, char **s, int *len)

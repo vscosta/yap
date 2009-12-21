@@ -307,7 +307,6 @@ int		allow_local_expansion	Yap_AllowLocalExpansion =TRUE void
 int		allow_global_expansion	Yap_AllowGlobalExpansion =TRUE void 
 int		allow_trail_expansion	Yap_AllowTrailExpansion =TRUE void 
 UInt		size_of_overflow	SizeOfOverflow		=0 void
-struct hold_entry *global_hold_entry	GlobalHoldEntry		=Yap_InitAtomHold() HoldEntryAdjust
 /* amount of space recovered in all garbage collections */
 UInt		agc_last_call		AGcLastCall		=0 void
 /* amount of space recovered in all garbage collections */

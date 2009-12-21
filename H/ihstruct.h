@@ -273,7 +273,6 @@
   Yap_heap_regs->allow_global_expansion = TRUE;
   Yap_heap_regs->allow_trail_expansion = TRUE;
   Yap_heap_regs->size_of_overflow = 0;
-  Yap_heap_regs->global_hold_entry = Yap_InitAtomHold();
 
   Yap_heap_regs->agc_last_call = 0;
 
