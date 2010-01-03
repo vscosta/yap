@@ -144,11 +144,20 @@ BEAM_is(void)
 static Int
 p_is(void)
 {				/* X is Y	 */
-  Term out, t;
+  Term out = 0L;
   
-  t = Deref(ARG2);
-  out = Yap_FoundArithError(Eval(t), t);
-  if (!out) return FALSE;
+  while (!(out = Eval(Deref(ARG2)))) {
+    if (Yap_Error_TYPE == RESOURCE_ERROR_STACK) {
+      Yap_Error_TYPE = YAP_NO_ERROR;
+      if (!Yap_gcl(Yap_Error_Size, 2, ENV, CP)) {
+	Yap_Error(RESOURCE_ERROR_STACK, ARG2, Yap_ErrorMessage);
+	return FALSE;
+      }
+    } else {
+      Yap_Error(Yap_Error_TYPE, ARG2, Yap_ErrorMessage);
+      return FALSE;
+    }
+  }
   return Yap_unify_constant(ARG1,out);
 }
 
@@ -183,6 +192,6 @@ Yap_InitEval(void)
   Yap_InitConstExps();
   Yap_InitUnaryExps();
   Yap_InitBinaryExps();
-  Yap_InitCPred("is", 2, p_is, SafePredFlag);
+  Yap_InitCPred("is", 2, p_is, 0L);
 }
 
