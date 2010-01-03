@@ -746,7 +746,7 @@ eval1(Int fi, Term t) {
 
 Term Yap_eval_unary(Int f, Term t)
 {
-  return Yap_FoundArithError(eval1(f,t), t);
+  return eval1(f,t);
 }
 
 static InitUnEntry InitUnTab[] = {

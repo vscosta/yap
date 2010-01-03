@@ -1076,7 +1076,7 @@ eval2(Int fi, Term t1, Term t2) {
 
 Term Yap_eval_binary(Int f, Term t1, Term t2)
 {
-  return Yap_FoundArithError(eval2(f,t1,t2), 0L);
+  return eval2(f,t1,t2);
 }
 
 static InitBinEntry InitBinTab[] = {
