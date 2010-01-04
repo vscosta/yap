@@ -197,6 +197,7 @@ C_SOURCES= \
 	$(srcdir)/library/mpi/mpi.c $(srcdir)/library/mpi/mpe.c \
 	$(srcdir)/library/lammpi/yap_mpi.c $(srcdir)/library/lammpi/hash.c $(srcdir)/library/lammpi/prologterms2c.c  \
 	$(srcdir)/C/cut_c.c \
+	$(srcdir)/library/yap2swi/yap2swi.c \
 	$(srcdir)/MYDDAS/myddas_mysql.c \
 	$(srcdir)/MYDDAS/myddas_odbc.c \
 	$(srcdir)/MYDDAS/myddas_util.c \
