@@ -169,16 +169,24 @@ Term	STD_PROTO(Yap_eval_atom,(Int));
 Term	STD_PROTO(Yap_eval_unary,(Int,Term));
 Term	STD_PROTO(Yap_eval_binary,(Int,Term,Term));
 
-Term	STD_PROTO(Yap_Eval,(Term));
+Term	STD_PROTO(Yap_InnerEval,(Term));
 Int     STD_PROTO(Yap_ArithError,(yap_error_number,Term,char *msg, ...));
+
+inline EXTERN Term
+Yap_Eval(Term t)
+{
+  if (t == 0L || !IsVarTerm(t) || IsNumTerm(t))
+    return t;
+  return Yap_InnerEval(t);
+}
 
 inline static Term
 Yap_FoundArithError(Term t, Term inp)
 {
   if (Yap_Error_TYPE) {
     Yap_Error(Yap_Error_TYPE, (inp ? inp : Yap_Error_Term), Yap_ErrorMessage);
-     P = FAILCODE;
-     return 0L;
+    P = FAILCODE;
+    return 0L;
   }
   return t;
 }

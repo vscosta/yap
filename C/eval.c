@@ -120,9 +120,9 @@ Eval(Term t)
 }
 
 Term
-Yap_Eval(Term t)
+Yap_InnerEval(Term t)
 {
-  return Yap_FoundArithError(Eval(t), t);
+  return Eval(t);
 }
 
 #ifdef BEAM
