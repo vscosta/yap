@@ -644,6 +644,7 @@ PROLOG_SYSTEM
 M4GENABSMI
 MATLAB_INCLUDE
 INSTALL_MATLAB
+USE_MINISAT
 CUDD_CPPFLAGS
 CUDD_LDFLAGS
 USE_CUDD
@@ -800,6 +801,7 @@ enable_april
 enable_dlcompat
 enable_cplint
 with_gmp
+with_minisat
 with_cudd
 enable_myddas
 enable_myddas_stats
@@ -1484,6 +1486,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
  --with-gmp=DIR           use GNU Multiple Precision in DIR
+ --enable-minisat           use minisat interface
  --with-cudd=DIR           use CUDD package in DIR
  --with-jpl=JAVA_HOME       use Java instalation in JAVA_HOME
  --with-readline=DIR      use GNU Readline Library in DIR
@@ -3488,6 +3491,21 @@ fi
 
 
 
+# Check whether --with-minisat was given.
+if test "${with_minisat+set}" = set; then
+  withval=$with_minisat; if test "$withval" = yes; then
+		yap_cv_minisat=yes
+	elif test "$withval" = no; then
+		yap_cv_minisat=no
+	else
+		yap_cv_minisat=$GXX
+	fi
+else
+  yap_cv_minisat=yes
+fi
+
+
+
 # Check whether --with-cudd was given.
 if test "${with_cudd+set}" = set; then
   withval=$with_cudd; if test "$withval" = yes; then
@@ -3999,6 +4017,16 @@ then
   USE_CUDD="@# "
 else
   USE_CUDD=""
+fi
+
+if test "$yap_cv_minisat" = no
+then
+  USE_MINISAT="@# "
+elif test "$INSTALL_DLLS" = "#"
+then
+  USE_MINISAT="@# "
+else
+  USE_MINISAT=""
 fi
 
 if test "$use_condor" = yes
@@ -14462,6 +14490,7 @@ EXEC_SUFFIX=""
 
 
 
+
 { $as_echo "$as_me:$LINENO: checking for gcc threaded code" >&5
 $as_echo_n "checking for gcc threaded code... " >&6; }
 if test "${yap_cv_threaded_code+set}" = set; then
@@ -17718,10 +17747,6 @@ ac_config_files="$ac_config_files packages/plunit/Makefile"
 
 ac_config_files="$ac_config_files packages/ProbLog/Makefile"
 
-ac_config_files="$ac_config_files packages/swi-minisat2/Makefile"
-
-ac_config_files="$ac_config_files packages/swi-minisat2/C/Makefile"
-
 ac_config_files="$ac_config_files packages/sgml/Makefile"
 
 
@@ -17742,6 +17767,13 @@ fi
 
 if test "$USE_CUDD" = ""; then
 ac_config_files="$ac_config_files packages/ProbLog/simplecudd/Makefile"
+
+fi
+
+if test "$USE_MINISAT" = ""; then
+ac_config_files="$ac_config_files packages/swi-minisat2/Makefile"
+
+ac_config_files="$ac_config_files packages/swi-minisat2/C/Makefile"
 
 fi
 
@@ -18362,8 +18394,6 @@ do
     "packages/PLStream/Makefile") CONFIG_FILES="$CONFIG_FILES packages/PLStream/Makefile" ;;
     "packages/plunit/Makefile") CONFIG_FILES="$CONFIG_FILES packages/plunit/Makefile" ;;
     "packages/ProbLog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/Makefile" ;;
-    "packages/swi-minisat2/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/Makefile" ;;
-    "packages/swi-minisat2/C/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/C/Makefile" ;;
     "packages/sgml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/sgml/Makefile" ;;
     "packages/chr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/chr/Makefile" ;;
     "packages/clpqr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/clpqr/Makefile" ;;
@@ -18371,6 +18401,8 @@ do
     "packages/jpl/jpl_paths.yap") CONFIG_FILES="$CONFIG_FILES packages/jpl/jpl_paths.yap" ;;
     "packages/jpl/src/java/Makefile") CONFIG_FILES="$CONFIG_FILES packages/jpl/src/java/Makefile" ;;
     "packages/ProbLog/simplecudd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd/Makefile" ;;
+    "packages/swi-minisat2/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/Makefile" ;;
+    "packages/swi-minisat2/C/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/C/Makefile" ;;
 
   *) { { $as_echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 $as_echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
