@@ -479,6 +479,32 @@ X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...);
 X_API int PL_warning(const char *msg, ...);
 
 
+		/********************************
+		* NON-DETERMINISTIC CALL/RETURN *
+		*********************************/
+
+/*  Note 1: Non-deterministic foreign functions may also use the deterministic
+    return methods PL_succeed and PL_fail.
+
+    Note 2: The argument to PL_retry is a sizeof(ptr)-2 bits signed
+    integer (use type intptr_t).
+*/
+
+#define PL_FIRST_CALL		(0)
+#define PL_CUTTED		(1)
+#define PL_REDO			(2)
+
+#define PL_retry(n)		return _PL_retry(n)
+#define PL_retry_address(a)	return _PL_retry_address(a)
+
+PL_EXPORT(foreign_t)	_PL_retry(intptr_t);
+PL_EXPORT(foreign_t)	_PL_retry_address(void *);
+PL_EXPORT(int)	 	PL_foreign_control(control_t);
+PL_EXPORT(intptr_t)	PL_foreign_context(control_t);
+PL_EXPORT(void *)	PL_foreign_context_address(control_t);
+
+
+
 #ifdef __cplusplus
 }
 #endif

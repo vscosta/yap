@@ -2258,6 +2258,63 @@ PL_eval_expression_to_int64_ex(term_t t, int64_t *val)
   return FALSE;
 }
 
+foreign_t
+_PL_retry(intptr_t n)
+{
+  /* first we need to get the pointer to the predicate */
+  PredEntry *pe = B->cp_ap->u.OtapFs.p;
+  struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));  
+  ctx->context = n;
+  return LCL0-(CELL *)ctx;
+}
+
+foreign_t
+_PL_retry_address(void *addr)
+{
+  /* first we need to get the pointer to the predicate */
+  PredEntry *pe = B->cp_ap->u.OtapFs.p;
+  struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));  
+  ctx->context = (intptr_t)addr;
+  return LCL0-(CELL *)ctx;
+}
+
+
+int
+PL_foreign_control(control_t ctx)
+{
+  switch (ctx->control) {
+  case FRG_REDO:
+    return PL_REDO;
+  case FRG_FIRST_CALL:
+    return PL_FIRST_CALL;
+  default:
+    return PL_CUTTED;
+  }
+}
+
+intptr_t
+PL_foreign_context(control_t ctx)
+{
+  switch (ctx->control) {
+  case FRG_FIRST_CALL:
+    return 0L;
+  default:
+    return (intptr_t)(ctx->context);
+  }
+}
+
+
+void *
+PL_foreign_context_address(control_t ctx)
+{
+  switch (ctx->control) {
+  case FRG_FIRST_CALL:
+    return NULL;
+  default:
+    return (void *)(ctx->context);
+  }
+}
+
 
 static int
 SWI_ctime(void)
