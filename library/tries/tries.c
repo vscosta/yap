@@ -387,7 +387,6 @@ static int p_trie_traverse_init(void) {
 
   /* traverse trie */
   if (!(data = trie_traverse_init((TrEntry) YAP_IntOfTerm(arg_trie), (TrData) YAP_IntOfTerm(arg_init_ref)))) {
-    printf("cut fail no init!!!\n");
     YAP_cut_fail();
     return FALSE;
   }

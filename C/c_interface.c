@@ -1027,13 +1027,14 @@ YAP_cut_up(void)
 
     cut_pt = B->cp_b;
     CUT_prune_to(cut_pt);
+    Yap_TrimTrail();
     B = cut_pt;
   }
-#else	/* YAPOR */
+#else
+  Yap_TrimTrail();
   B = B->cp_b;  /* cut_fail */
 #endif
   HB = B->cp_h; /* cut_fail */
-  Yap_TrimTrail();
 
   RECOVER_B();
 }
