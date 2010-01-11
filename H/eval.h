@@ -175,7 +175,7 @@ Int     STD_PROTO(Yap_ArithError,(yap_error_number,Term,char *msg, ...));
 inline EXTERN Term
 Yap_Eval(Term t)
 {
-  if (t == 0L || !IsVarTerm(t) || IsNumTerm(t))
+  if (t == 0L || ( !IsVarTerm(t) && IsNumTerm(t) ))
     return t;
   return Yap_InnerEval(t);
 }

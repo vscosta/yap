@@ -42,6 +42,8 @@ Eval(Term t)
   if (IsVarTerm(t)) {
     ArithError = TRUE;
     return Yap_ArithError(INSTANTIATION_ERROR,t,"in arithmetic");
+  } else if (IsNumTerm(t)) {
+    return t;
   } else if (IsAtomTerm(t)) {
     ExpEntry *p;
     Atom name  = AtomOfTerm(t);
@@ -59,56 +61,43 @@ Eval(Term t)
 			    RepAtom(name)->StrOfAE);
     }
     return Yap_eval_atom(p->FOfEE);
-  } else if (IsIntTerm(t)) {
-    return t;
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
-    switch ((CELL)fun) {
-    case (CELL)FunctorLongInt:
-    case (CELL)FunctorDouble:
-#ifdef USE_GMP
-    case (CELL)FunctorBigInt:
-#endif
-      return t;
-    default:
-      {
-	if ((Atom)fun == AtomFoundVar) {
-	  return Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil,
-		    "cyclic term in arithmetic expression");
-	} else {
-	  Int n = ArityOfFunctor(fun);
-	  Atom name  = NameOfFunctor(fun);
-	  ExpEntry *p;
-	  Term t1, t2;
+    if ((Atom)fun == AtomFoundVar) {
+      return Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil,
+			    "cyclic term in arithmetic expression");
+    } else {
+      Int n = ArityOfFunctor(fun);
+      Atom name  = NameOfFunctor(fun);
+      ExpEntry *p;
+      Term t1, t2;
+      
+      if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, n)))) {
+	Term ti[2];
 
-	  if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, n)))) {
-	    Term ti[2];
-
-	    /* error */
-	    ti[0] = t;
-	    ti[1] = MkIntegerTerm(n);
-	    t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-	    return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
-				  "functor %s/%d for arithmetic expression",
-				  RepAtom(name)->StrOfAE,n);
-	  }
-	  *RepAppl(t) = (CELL)AtomFoundVar;
-	  t1 = Eval(ArgOfTerm(1,t));
-	  if (t1 == 0L) {
-	    *RepAppl(t) = (CELL)fun;
-	    return FALSE;
-	  }
-	  if (n == 1) {
-	    *RepAppl(t) = (CELL)fun;
-	    return Yap_eval_unary(p->FOfEE, t1);
-	  }
-	  t2 = Eval(ArgOfTerm(2,t));
-	  *RepAppl(t) = (CELL)fun;
-	  if (t2 == 0L)
-	    return FALSE;
-	  return Yap_eval_binary(p->FOfEE,t1,t2);
-	}
+	/* error */
+	ti[0] = t;
+	ti[1] = MkIntegerTerm(n);
+	t = Yap_MkApplTerm(FunctorSlash, 2, ti);
+	return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
+			      "functor %s/%d for arithmetic expression",
+			      RepAtom(name)->StrOfAE,n);
       }
+      *RepAppl(t) = (CELL)AtomFoundVar;
+      t1 = Eval(ArgOfTerm(1,t));
+      if (t1 == 0L) {
+	*RepAppl(t) = (CELL)fun;
+	return FALSE;
+      }
+      if (n == 1) {
+	*RepAppl(t) = (CELL)fun;
+	return Yap_eval_unary(p->FOfEE, t1);
+      }
+      t2 = Eval(ArgOfTerm(2,t));
+      *RepAppl(t) = (CELL)fun;
+      if (t2 == 0L)
+	return FALSE;
+      return Yap_eval_binary(p->FOfEE,t1,t2);
     }
   } /* else if (IsPairTerm(t)) */ {
     if (TailOfTerm(t) != TermNil) {
