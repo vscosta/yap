@@ -675,9 +675,8 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	}  
 	curprio = 1000;
 	continue;
-      } else if (Unsigned(Yap_tokptr->TokInfo) == '|' &&
-		 IsInfixOp(AtomVBar, &opprio, &oplprio, &oprprio)
-		 && opprio <= prio && oplprio >= curprio) {
+      } else if (Unsigned(Yap_tokptr->TokInfo) == '|'  &&
+		 prio >= 1105 && curprio <= 1104) {
 	Volatile Term args[2];
 	NextToken;
 	args[0] = t;
@@ -688,7 +687,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	  Yap_ErrorMessage = "Stack Overflow";
 	  FAIL;
 	}  
-	curprio = opprio;
+	curprio = 1105;
 	continue;
       }
     }
