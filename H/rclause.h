@@ -6,6 +6,7 @@
 static void 
 restore_opcodes(yamop *pc, yamop *max)
 {
+  yamop *opc = NULL;
   do {
     op_numbers op;
     if (max && pc >= max) return;
@@ -21,7 +22,8 @@ restore_opcodes(yamop *pc, yamop *max)
       pc->u.Ills.l1 = PtoOpAdjust(pc->u.Ills.l1);
       pc->u.Ills.l2 = PtoOpAdjust(pc->u.Ills.l2);
       pc->u.Ills.s = ConstantAdjust(pc->u.Ills.s);
-      pc = NEXTOP(pc,Ills);
+      opc = NEXTOP(pc,Ills);
+      pc = pc->u.Ills.l1;
       break;
       /* instructions type L */
     case _alloc_for_logical_pred:
@@ -70,7 +72,7 @@ restore_opcodes(yamop *pc, yamop *max)
       pc->u.OtILl.block = PtoLUIndexAdjust(pc->u.OtILl.block);
       pc->u.OtILl.d = PtoLUClauseAdjust(pc->u.OtILl.d);
       pc->u.OtILl.n = PtoOpAdjust(pc->u.OtILl.n);
-      pc = NEXTOP(pc,OtILl);
+      pc = opc;
       break;
       /* instructions type OtaLl */
     case _count_retry_logical:
@@ -82,7 +84,7 @@ restore_opcodes(yamop *pc, yamop *max)
       pc->u.OtaLl.s = ArityAdjust(pc->u.OtaLl.s);
       pc->u.OtaLl.d = PtoLUClauseAdjust(pc->u.OtaLl.d);
       pc->u.OtaLl.n = PtoOpAdjust(pc->u.OtaLl.n);
-      pc = NEXTOP(pc,OtaLl);
+      pc = pc->u.OtaLl.n;
       break;
       /* instructions type OtapFs */
 #ifdef CUT_C

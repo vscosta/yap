@@ -79,6 +79,7 @@ header_rclause(W) :-
 static void 
 restore_opcodes(yamop *pc, yamop *max)
 {
+  yamop *opc = NULL;
   do {
     op_numbers op;
     if (max && pc >= max) return;
@@ -167,9 +168,10 @@ output_type(T, C) :-
 output_typeinfo(C,T) :-
 	tinfo(T, Info),
 	dump_fields(C,Info,T,T),
-	special_formats(C,T),
+	special_formats(C,T), !,
 	format(C,'      pc = NEXTOP(pc,~s);
       break;~n',[T]).
+output_typeinfo(_,_).
 
 % tables require access to the table info. 
 special_formats(C,"e") :- !,
@@ -178,6 +180,22 @@ special_formats(C,"l") :- !,
 	format(C,'      if (op == _Ystop) return;~n',[]).
 special_formats(C,"sssl") :- !,
 	format(C,'      AdjustSwitchTable(op, pc->u.sssl.l, pc->u.sssl.s);~n',[]).
+special_formats(C,"Ills") :- !,
+	format(C,'      opc = NEXTOP(pc,Ills);
+      pc = pc->u.Ills.l1;
+      break;~n',[]),
+	% don't go to NEXTOP
+	fail.
+special_formats(C,"OtaLl") :- !,
+	format(C,'      pc = pc->u.OtaLl.n;
+      break;~n',[]),
+	% don't go to NEXTOP
+	fail.
+special_formats(C,"OtILl") :- !,
+	format(C,'      pc = opc;
+      break;~n',[]),
+	% don't go to NEXTOP
+	fail.
 special_formats(_,_).
 
 dump_fields(_,[],"e",_).
