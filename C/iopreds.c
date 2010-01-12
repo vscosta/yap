@@ -2361,8 +2361,11 @@ p_open (void)
   }
   unix_upd_stream_info (st);
   if (opts != 0) {
-    if (opts & 2)
+    if (opts & 2) {
       st->status |= Binary_Stream_f;
+      /* we should not search for a byter order mark on a binary file */
+      avoid_bom = TRUE;
+    }
     if (opts & 4) {
       if (st->status & (Tty_Stream_f|Socket_Stream_f|InMemory_Stream_f)) {
 	Term ta[1], t;

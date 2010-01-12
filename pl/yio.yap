@@ -226,6 +226,8 @@ open(F,T,S,Opts) :-
 '$check_opt_sp'(A, G) :-
 	'$do_error'(domain_error(stream_property,A),G).
 
+'$check_opt_write'(attributes(T), G) :- !,
+	'$check_write_attributes'(T, G).
 '$check_opt_write'(cycles(T), G) :- !,
 	'$check_cycles_arg'(T, G).
 '$check_opt_write'(quoted(T), G) :- !,
@@ -235,6 +237,8 @@ open(F,T,S,Opts) :-
 '$check_opt_write'(numbervars(T), G) :- !,
 	'$check_write_numbervars_arg'(T, G).
 '$check_opt_write'(portrayed(T), G) :- !,
+	'$check_write_portrayed'(T, G).
+'$check_opt_write'(portray(T), G) :- !,
 	'$check_write_portrayed'(T, G).
 '$check_opt_write'(priority(T), G) :- !,
 	'$check_priority_arg'(T, G).
@@ -315,6 +319,15 @@ open(F,T,S,Opts) :-
 '$check_read_syntax_errors_arg'(quiet,_) :- !.
 '$check_read_syntax_errors_arg'(X,G) :-
 	'$do_error'(domain_error(read_option,syntax_errors(X)),G).
+
+'$check_write_attributes'(X, G) :- var(X), !,
+	'$do_error'(instantiation_error,G).
+'$check_write_attributes'(ignore,_) :- !.
+'$check_write_attributes'(dots,_) :- !.
+'$check_write_attributes'(write,_) :- !.
+'$check_write_attributes'(portray,_) :- !.
+'$check_write_attributes'(X,G) :-
+	'$do_error'(domain_error(write_option,attributes(X)),G).
 
 '$check_write_quoted_arg'(X, G) :- var(X), !,
 	'$do_error'(instantiation_error,G).
@@ -596,6 +609,14 @@ write_term(_,_,_).
 	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
 '$process_wt_opts'([portrayed(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
 	FlagI is Flag0 /\ 23,
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([portray(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
+	FlagI is Flag0 \/ 8,
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([portray(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
+	FlagI is Flag0 /\ 23,
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([attributes(_)|Opts], Flag0, Flag, Priority, CallBacks) :-
 	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
 '$process_wt_opts'([priority(Priority)|Opts], Flag0, Flag, Priority, CallBacks) :-
 	'$process_wt_opts'(Opts, Flag0, Flag, _, CallBacks).
