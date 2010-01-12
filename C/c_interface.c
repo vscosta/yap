@@ -1341,10 +1341,12 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     } else if (val == 1) { /* TRUE */
       cut_succeed();
     } else {
-      if ((val & REDO_PTR) == REDO_PTR)
+      /*
+	if ((val & REDO_PTR) == REDO_PTR)
 	ctx->context = (int *)(val & ~REDO_PTR);
-      else
+	else
 	ctx->context = (int *)((val & ~REDO_PTR)>>FRG_REDO_BITS);
+      */
       return TRUE;
     }
   } else {
@@ -1356,7 +1358,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
 Int
 YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
 {
-  if (pe->PredFlags & SWIEnvPredFlag) {
+  if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
@@ -1372,10 +1374,12 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     } else if (val == 1) { /* TRUE */
       cut_succeed();
     } else {
-      if ((val & REDO_PTR) == REDO_PTR)
+      /*
+	if ((val & REDO_PTR) == REDO_PTR)
 	ctx->context = (int *)(val & ~REDO_PTR);
-      else
+	else
 	ctx->context = (int *)((val & ~REDO_PTR)>>FRG_REDO_BITS);
+      */
     }
     return TRUE;
   }
