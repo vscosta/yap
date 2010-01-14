@@ -678,7 +678,9 @@ Yap_DebugGetc()
 	curfile = NULL;
     }
     if (curfile == NULL)
-      (void)YP_fgets(my_line, 200, stdin);
+      if (YP_fgets(my_line, 200, stdin) == NULL) {
+	return EOF;
+      }
     eolflg = 0;
     lp = my_line;
   }
