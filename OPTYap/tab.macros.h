@@ -181,7 +181,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
           or_fr_ptr aux_or_fr = SgFr_gen_top_or_fr(SG_FR);                        \
           while (! BITMAP_member(OrFr_members(aux_or_fr), worker_id))             \
             aux_or_fr = OrFr_next(aux_or_fr);                                     \
-          LEADER_CP = OrFr_node(aux_or_fr);                                       \
+          LEADER_CP = GetOrFr_node(aux_or_fr);                                    \
           DEP_ON_STACK = (LEADER_CP == SgFr_gen_cp(SG_FR));                       \
         }
 #define find_leader_node(LEADER_CP, DEP_ON_STACK)                                 \
@@ -634,7 +634,7 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 static inline
 void abolish_incomplete_subgoals(choiceptr prune_cp) {
 #ifdef YAPOR
-  if (EQUAL_OR_YOUNGER_CP(OrFr_node(LOCAL_top_susp_or_fr), prune_cp))
+  if (EQUAL_OR_YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), prune_cp))
     pruning_over_tabling_data_structures();
 #endif /* YAPOR */
 
@@ -848,7 +848,7 @@ susp_fr_ptr suspension_frame_to_resume(or_fr_ptr susp_or_fr) {
   susp_fr_ptr *susp_ptr, susp_fr;
   dep_fr_ptr dep_fr;
 
-  top_cp = OrFr_node(susp_or_fr);
+  top_cp = GetOrFr_node(susp_or_fr);
   susp_ptr = & OrFr_suspensions(susp_or_fr);
   susp_fr = *susp_ptr;
   while (susp_fr) {
@@ -943,7 +943,7 @@ tg_sol_fr_ptr CUT_store_tg_answers(or_fr_ptr or_frame, tg_sol_fr_ptr new_solutio
   choiceptr node, gen_cp;
 
   old_solution_ptr = & OrFr_tg_solutions(or_frame);
-  node = OrFr_node(or_frame);
+  node = GetOrFr_node(or_frame);
   while (new_solution && YOUNGER_CP(node, TgSolFr_gen_cp(new_solution))) {
     next_new_solution = TgSolFr_next(new_solution);
     gen_cp = TgSolFr_gen_cp(new_solution);

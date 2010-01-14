@@ -31,7 +31,11 @@ typedef struct or_frame {
   lockvar lock;
   yamop *alternative;
   volatile bitmap members;
+#ifdef THREADS
+  Int node_offset;
+#else
   choiceptr node;
+#endif
   struct or_frame *nearest_livenode;
   /* cut support */
   int depth;
@@ -55,7 +59,14 @@ typedef struct or_frame {
 #define OrFr_lock(X)              ((X)->lock)
 #define OrFr_alternative(X)       ((X)->alternative)
 #define OrFr_members(X)           ((X)->members)
+#ifdef THREADS
+#define GetOrFr_node(X)           offset_to_cptr((X)->node_offset)
+#define SetOrFr_node(X,V)         ((X)->node_offset = cptr_to_offset(V))
+#else
 #define OrFr_node(X)              ((X)->node)
+#define GetOrFr_node(X)           ((X)->node)
+#define SetOrFr_node(X,V)         ((X)->node = V)
+#endif
 #define OrFr_nearest_livenode(X)  ((X)->nearest_livenode)
 #define OrFr_depth(X)             ((X)->depth)
 #define OrFr_pend_prune_cp(X)     ((X)->pending_prune_cp)

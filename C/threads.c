@@ -162,6 +162,9 @@ setup_engine(int myworker_id)
   CurrentModule = ThreadHandle[myworker_id].cmod;
   Yap_InitTime();
   Yap_InitYaamRegs();
+#ifdef YAPOR
+  Yap_init_local();
+#endif
   Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
   /* I exist */
   NOfThreadsCreated++;

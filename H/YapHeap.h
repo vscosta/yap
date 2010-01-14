@@ -185,6 +185,12 @@ typedef struct worker_local_struct {
   UInt global_arena_overflows; 
   Term global_delay_arena;
   yamop trust_lu_code[3];
+#if (defined(YAPOR) || defined(TABLING) ) && defined(THREADS)
+  struct local_data *local;
+#ifdef YAPOR
+  struct worker worker;
+#endif /* YAPOR */
+#endif
 } worker_local;
 
 #ifdef THREADS
@@ -363,6 +369,10 @@ extern struct various_codes *Yap_heap_regs;
 #if defined(YAPOR) || defined(TABLING)
 #define  GLOBAL		          Yap_heap_regs->global
 #define  REMOTE                   Yap_heap_regs->remote
+#ifdef THREADS
+#define  LOCAL		          Yap_heap_regs->WL.local
+#define  WORKER                   Yap_heap_regs->WL.worker
+#endif
 #endif /* YAPOR || TABLING */
 
 #define UPDATE_MODE_IMMEDIATE          0

@@ -17,6 +17,20 @@ typedef double realtime;
 typedef unsigned long bitmap;
 
 
+#ifdef THREADS
+/* Threads may not assume addresses are the same at different workers */
+static inline choiceptr
+offset_to_cptr(Int node)
+{
+  return (choiceptr)(LCL0-node);
+}
+
+static inline Int
+cptr_to_offset(choiceptr node)
+{
+  return (Int)(LCL0-(CELL *)node);
+}
+#endif
 
 /* ---------------------------- **
 **      Struct page_header      **
@@ -151,7 +165,11 @@ struct global_data{
   char performance_mode;  /* PERFORMANCE_OFF / PERFORMANCE_ON / PERFORMANCE_IN_EXECUTION */
 
   /* global data related to or-parallelism */
+#if THREADS
+  Int  root_choice_point_offset;
+#else
   choiceptr root_choice_point;
+#endif
   struct or_frame *root_or_frame;
   bitmap present_workers;
   volatile bitmap idle_workers;
@@ -217,7 +235,14 @@ struct global_data{
 #define GLOBAL_best_times(time)                 (GLOBAL.best_execution_times[time])
 #define GLOBAL_number_goals                     (GLOBAL.number_of_executed_goals)
 #define GLOBAL_performance_mode                 (GLOBAL.performance_mode)
+#if THREADS
+#define Get_GLOBAL_root_cp()	                offset_to_cptr(GLOBAL.root_choice_point_offset)
+#define Set_GLOBAL_root_cp(bptr)                (GLOBAL.root_choice_point_offset = cptr_to_offset(bptr))
+#else
 #define GLOBAL_root_cp                          (GLOBAL.root_choice_point)
+#define Get_GLOBAL_root_cp()                    (GLOBAL.root_choice_point)
+#define Set_GLOBAL_root_cp(bptr)                (GLOBAL.root_choice_point = (bptr))
+#endif
 #define GLOBAL_root_or_fr                       (GLOBAL.root_or_frame)
 #define GLOBAL_bm_present_workers               (GLOBAL.present_workers)
 #define GLOBAL_bm_idle_workers                  (GLOBAL.idle_workers)
@@ -260,7 +285,7 @@ struct global_data{
 
 #ifdef YAPOR
 struct local_signals{
-#ifdef ENV_COPY
+#if defined(ENV_COPY) || defined(THREADS)
   lockvar lock;
   volatile enum {
     Q_idle = 0,
@@ -269,7 +294,7 @@ struct local_signals{
     local  = 3,
     P_idle = 4
   } P_fase, Q_fase;
-#endif /* ENV_COPY */
+#endif /* ENV_COPY || THREADS */
   volatile enum {
     no_sharing   = 0, 
     sharing      = 1,
@@ -293,7 +318,11 @@ struct local_data{
 #ifdef YAPOR
   /* local data related to or-parallelism */
   volatile int load;
+#if THREADS
+  Int top_choice_point_offset;
+#else
   choiceptr top_choice_point;
+#endif
   struct or_frame *top_or_frame;
   choiceptr prune_request;
   volatile int share_request;
@@ -323,7 +352,14 @@ extern struct local_data *LOCAL;
 
 #define LOCAL_lock                         (LOCAL->lock)
 #define LOCAL_load                         (LOCAL->load)
+#if THREADS
+#define Get_LOCAL_top_cp() offset_to_cptr(LOCAL->top_choice_point_offset)
+#define Set_LOCAL_top_cp(cpt) (LOCAL->top_choice_point_offset =  cptr_to_offset(cpt))
+#else
 #define LOCAL_top_cp                       (LOCAL->top_choice_point)
+#define Get_LOCAL_top_cp()		   (LOCAL->top_choice_point)
+#define Set_LOCAL_top_cp(cpt)	           (LOCAL->top_choice_point =  cpt)
+#endif
 #define LOCAL_top_or_fr                    (LOCAL->top_or_frame)
 #define LOCAL_prune_request                (LOCAL->prune_request)
 #define LOCAL_share_request                (LOCAL->share_request)
@@ -341,12 +377,25 @@ extern struct local_data *LOCAL;
 #define LOCAL_top_sg_fr                    (LOCAL->top_subgoal_frame)
 #define LOCAL_top_dep_fr                   (LOCAL->top_dependency_frame)
 #define LOCAL_pruning_scope                (LOCAL->bottom_pruning_scope)
+#if THREADS
+#define Get_LOCAL_top_cp_on_stack() offset_to_cptr(LOCAL->top_choice_point_on_stack_offset)
+#define Set_LOCAL_top_cp_on_stack(cpt) (LOCAL->top_choice_point_on_stack_offset =  cptr_to_offset(cpt))
+#else
 #define LOCAL_top_cp_on_stack              (LOCAL->top_choice_point_on_stack)
+#define Get_LOCAL_top_cp_on_stack()	   (LOCAL->top_choice_point_on_stack)
+#define Set_LOCAL_top_cp_on_stack(cpt)	   (LOCAL->top_choice_point_on_stack =  cpt)
+#endif
 #define LOCAL_top_susp_or_fr               (LOCAL->top_or_frame_with_suspensions)
 
 #define REMOTE_lock(worker)                (REMOTE[worker].lock)
 #define REMOTE_load(worker)                (REMOTE[worker].load)
+#if THREADS
+#define REMOTE_top_cp(worker)              offset_to_cptr(REMOTE[worker].top_choice_point_offset)
+#define Set_REMOTE_top_cp(worker, bptr)    (REMOTE[worker].top_choice_point_offset = cptr_to_offset(bptr))
+#else
 #define REMOTE_top_cp(worker)              (REMOTE[worker].top_choice_point)
+#define Set_REMOTE_top_cp(worker, bptr)    (REMOTE[worker].top_choice_point = (bptr))
+#endif
 #define REMOTE_top_or_fr(worker)           (REMOTE[worker].top_or_frame)
 #define REMOTE_prune_request(worker)       (REMOTE[worker].prune_request)
 #define REMOTE_share_request(worker)       (REMOTE[worker].share_request)
@@ -364,7 +413,13 @@ extern struct local_data *LOCAL;
 #define REMOTE_top_sg_fr(worker)           (REMOTE[worker].top_subgoal_frame)
 #define REMOTE_top_dep_fr(worker)          (REMOTE[worker].top_dependency_frame)
 #define REMOTE_pruning_scope(worker)       (REMOTE[worker].bottom_pruning_scope)
-#define REMOTE_top_cp_on_stack(worker)     (REMOTE[worker].top_choice_point_on_stack)
+#if THREADS
+#define REMOTE_top_cp_on_stack(worker)              offset_to_cptr(REMOTE[worker].top_choice_point_on_stack_offset)
+#define Set_REMOTE_top_cp_on_stack(worker, bptr)    (REMOTE[worker].top_choice_point_on_stack_offset = cptr_to_offset(bptr))
+#else
+#define REMOTE_top_cp_on_stack(worker)              (REMOTE[worker].top_choice_point_on_stack)
+#define Set_REMOTE_top_cp_on_stack(worker, bptr)    (REMOTE[worker].top_choice_point_on_stack = (bptr))
+#endif
 #define REMOTE_top_susp_or_fr(worker)      (REMOTE[worker].top_or_frame_with_suspensions)
 
 

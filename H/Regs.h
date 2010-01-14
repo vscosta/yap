@@ -147,9 +147,6 @@ typedef struct
     Term XTERMS[MaxTemps];	/* 29                                    */
 #endif
     yamop *ARITH_EXCEPTION_;
-    int isint_[MaxArithms];
-    Int Ints_[MaxArithms];
-    Float Floats_[MaxArithms];
   }
 REGSTORE;
 

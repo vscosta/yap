@@ -2245,6 +2245,11 @@ YAP_Init(YAP_init_args *yap_init)
     yap_init->ErrorCause = "could not allocate stack space for main thread";
     return YAP_BOOT_FROM_SAVED_ERROR;;
   }
+#if THREADS
+  /* don't forget this is a thread */
+  ThreadHandle[worker_id].stack_address =  Yap_GlobalBase;
+  ThreadHandle[worker_id].ssize =  Trail+Stack;
+#endif
 #endif
   Yap_AllowGlobalExpansion = TRUE;
   Yap_AllowLocalExpansion = TRUE;

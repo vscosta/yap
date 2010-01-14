@@ -65,7 +65,7 @@ STATIC_PROTO(int growstack, (long));
 STATIC_PROTO(void MoveGlobal, (void));
 STATIC_PROTO(void MoveLocalAndTrail, (void));
 STATIC_PROTO(void SetHeapRegs, (void));
-STATIC_PROTO(void AdjustTrail, (int));
+STATIC_PROTO(void AdjustTrail, (int, int));
 STATIC_PROTO(void AdjustLocal, (void));
 STATIC_PROTO(void AdjustGlobal, (long));
 STATIC_PROTO(void AdjustGrowStack, (void));
@@ -73,7 +73,7 @@ STATIC_PROTO(int  static_growheap, (long,int,struct intermediates *,tr_fr_ptr *,
 STATIC_PROTO(void cpcellsd, (CELL *, CELL *, CELL));
 STATIC_PROTO(CELL AdjustAppl, (CELL));
 STATIC_PROTO(CELL AdjustPair, (CELL));
-STATIC_PROTO(void AdjustStacksAndTrail, (long));
+STATIC_PROTO(void AdjustStacksAndTrail, (long, int));
 STATIC_PROTO(void AdjustRegs, (int));
 
 static void
@@ -213,6 +213,15 @@ MoveLocalAndTrail(void)
 }
 
 static void
+CopyLocalAndTrail(void)
+{
+	/* cpcellsd(To,From,NOfCells) - copy the cells downwards  */
+#if USE_SYSTEM_MALLOC
+  cpcellsd((void *)ASP, (void *)OldASP, (CELL *)OldTR - OldASP);
+#endif
+}
+
+static void
 MoveGlobal(void)
 {
   /*
@@ -297,7 +306,7 @@ AdjustPair(register CELL t0)
 }
 
 static void
-AdjustTrail(int adjusting_heap)
+AdjustTrail(int adjusting_heap, int duplicate_references)
 {
   volatile tr_fr_ptr ptt;
 
@@ -318,7 +327,7 @@ AdjustTrail(int adjusting_heap)
       else if (IsOldTrail(reg))
 	TrailTerm(ptt) = TrailAdjust(reg);
     } else if (IsPairTerm(reg)) {
-     TrailTerm(ptt) = AdjustPair(reg);
+      TrailTerm(ptt) = AdjustPair(reg);
 #ifdef MULTI_ASSIGNMENT_VARIABLES /* does not work with new structures */
     /* check it whether we are protecting a
        multi-assignment */
@@ -491,9 +500,9 @@ AdjustGlobal(long sz)
  * (just once) the trail cells pointing both to the global and to the local
  */
 static void
-AdjustStacksAndTrail(long sz)
+AdjustStacksAndTrail(long sz, int copying_threads)
 {
-  AdjustTrail(TRUE);
+  AdjustTrail(TRUE, copying_threads);
   AdjustLocal();
   AdjustGlobal(sz);
 }
@@ -501,7 +510,7 @@ AdjustStacksAndTrail(long sz)
 void
 Yap_AdjustStacksAndTrail(void)
 {
-  AdjustStacksAndTrail(0);
+  AdjustStacksAndTrail(0, FALSE);
 }
 
 /*
@@ -511,7 +520,7 @@ Yap_AdjustStacksAndTrail(void)
 static void
 AdjustGrowStack(void)
 {
-  AdjustTrail(FALSE);
+  AdjustTrail(FALSE, FALSE);
   AdjustLocal();
 }
 
@@ -690,10 +699,10 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
     nTR = TR;
     *old_trp = PtoTRAdjust(*old_trp);
     TR = *old_trp;
-    AdjustStacksAndTrail(0);
+    AdjustStacksAndTrail(0, FALSE);
     TR = nTR;
   } else {
-    AdjustStacksAndTrail(0);
+    AdjustStacksAndTrail(0, FALSE);
   }
   AdjustRegs(MaxTemps);
   YAPLeaveCriticalSection();
@@ -864,9 +873,9 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
   }
   /* don't run through garbage */
   if (hsplit && (OldH != hsplit)) {
-    AdjustStacksAndTrail(request);
+    AdjustStacksAndTrail(request, FALSE);
   } else {
-    AdjustStacksAndTrail(0);
+    AdjustStacksAndTrail(0, FALSE);
   }
   AdjustRegs(MaxTemps);
   if (ptr) {
@@ -1411,10 +1420,10 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
       nTR = TR;
       *old_trp = PtoTRAdjust(*old_trp);
       TR = *old_trp;
-      AdjustStacksAndTrail(0);
+      AdjustStacksAndTrail(0, FALSE);
       TR = nTR;
     } else {
-      AdjustStacksAndTrail(0);
+      AdjustStacksAndTrail(0, FALSE);
     }
     AdjustRegs(MaxTemps);
 #ifdef TABLING
@@ -1686,6 +1695,54 @@ p_inform_heap_overflows(void)
  
   return(Yap_unify(tn, ARG1) && Yap_unify(tt, ARG2));
 }
+
+#if THREADS
+void
+Yap_CopyThreadStacks(int worker_q, int worker_p)
+{
+  Int size;
+
+  /* make sure both stacks have same size */
+  Int p_size = ThreadHandle[worker_p].ssize+ThreadHandle[worker_p].tsize;
+  Int q_size = ThreadHandle[worker_q].ssize+ThreadHandle[worker_q].tsize;
+  if (p_size != q_size) {
+    if (!(ThreadHandle[worker_q].stack_address = malloc(p_size*1024))) {
+      exit(1);
+    }
+  }
+  ThreadHandle[worker_q].ssize = ThreadHandle[worker_p].ssize;
+  ThreadHandle[worker_q].tsize = ThreadHandle[worker_p].tsize;
+  /* compute offset indicators */
+  Yap_GlobalBase = Yap_thread_gl[worker_p].global_base;
+  Yap_LocalBase = Yap_thread_gl[worker_p].local_base;
+  Yap_TrailBase = Yap_thread_gl[worker_p].trail_base;
+  Yap_TrailTop = Yap_thread_gl[worker_p].trail_top;
+  size = ThreadHandle[worker_q].stack_address-ThreadHandle[worker_p].stack_address;
+  TrDiff = LDiff = GDiff = GDiff0 = DelayDiff = BaseDiff = size;
+  XDiff = HDiff = 0;
+  GSplit = NULL;
+  H = ThreadHandle[worker_p].current_yaam_regs->H_;
+  H0 = ThreadHandle[worker_p].current_yaam_regs->H0_;
+  B = ThreadHandle[worker_p].current_yaam_regs->B_;
+  ENV = ThreadHandle[worker_p].current_yaam_regs->ENV_;
+  YENV = ThreadHandle[worker_p].current_yaam_regs->YENV_;
+  ASP = ThreadHandle[worker_p].current_yaam_regs->ASP_;
+  if (ASP > CellPtr(B))
+    ASP = CellPtr(B);
+  LCL0 = ThreadHandle[worker_p].current_yaam_regs->LCL0_;
+  DelayedVars = ThreadHandle[worker_p].current_yaam_regs->DelayedVars_;
+  TR = ThreadHandle[worker_p].current_yaam_regs->TR_;
+  CurrentDelayTop = (CELL *)DelayTop();
+  DynamicArrays = NULL;
+  StaticArrays = NULL;
+  GlobalVariables = NULL;
+  SetHeapRegs();
+  CopyLocalAndTrail();
+  MoveGlobal();
+  AdjustStacksAndTrail(0, TRUE);
+  AdjustRegs(MaxTemps);
+}
+#endif
 
 /* :- grow_stack(Size) */
 static Int

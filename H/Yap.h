@@ -50,6 +50,11 @@
 
 #ifdef YAPOR
 #define FIXED_STACKS 1
+#ifdef THREADS
+#undef ACOW
+#undef SBA
+#undef ENV_COPY
+#endif
 #endif /* YAPOR */
 
 #if defined(YAPOR) || defined(TABLING)
@@ -396,8 +401,7 @@ typedef pthread_rwlock_t rwlock_t;
 #endif
 #ifdef YAPOR
 #define MAX_AGENTS MAX_WORKERS
-#endif
-#ifdef THREADS
+#elif defined(THREADS)
 #define MAX_AGENTS MAX_THREADS
 #endif
 #endif

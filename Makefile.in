@@ -192,6 +192,7 @@ C_SOURCES= \
         $(srcdir)/OPTYap/opt.init.c \
 	$(srcdir)/OPTYap/opt.preds.c $(srcdir)/OPTYap/or.engine.c \
 	$(srcdir)/OPTYap/or.cowengine.c $(srcdir)/OPTYap/or.sbaengine.c \
+	$(srcdir)/OPTYap/or.threadengine.c \
 	$(srcdir)/OPTYap/or.scheduler.c $(srcdir)/OPTYap/or.cut.c \
 	$(srcdir)/OPTYap/tab.tries.c $(srcdir)/OPTYap/tab.suspend.c \
 	$(srcdir)/library/mpi/mpi.c $(srcdir)/library/mpi/mpe.c \
@@ -266,7 +267,8 @@ C_INTERFACE_OBJECTS = \
 
 OR_OBJECTS = \
 	opt.memory.o opt.misc.o opt.init.o opt.preds.o   \
-	or.engine.o or.cowengine.o or.sbaengine.o or.scheduler.o or.cut.o      \
+	or.engine.o or.cowengine.o or.sbaengine.o or.threadengine.o \
+	or.scheduler.o or.cut.o      \
 	tab.tries.o tab.suspend.o
 
 BEAM_OBJECTS = \
@@ -395,6 +397,9 @@ or.cowengine.o: $(srcdir)/OPTYap/or.cowengine.c
 
 or.sbaengine.o: $(srcdir)/OPTYap/or.sbaengine.c
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.sbaengine.c -o $@
+
+or.threadengine.o: $(srcdir)/OPTYap/or.threadengine.c
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.threadengine.c -o $@
 
 or.scheduler.o: $(srcdir)/OPTYap/or.scheduler.c
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.scheduler.c -o $@

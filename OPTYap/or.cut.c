@@ -39,7 +39,7 @@ void prune_shared_branch(choiceptr prune_cp) {
 #endif /* TABLING_INNER_CUTS */
 
   leftmost_or_fr = CUT_leftmost_or_frame();
-  leftmost_cp = OrFr_node(leftmost_or_fr);
+  leftmost_cp = GetOrFr_node(leftmost_or_fr);
   qg_solutions = NULL;
 #ifdef TABLING_INNER_CUTS
   tg_solutions = NULL;
@@ -99,7 +99,7 @@ void prune_shared_branch(choiceptr prune_cp) {
       }
 #endif /* TABLING_INNER_CUTS */
       SCH_update_local_or_tops();
-    } while (LOCAL_top_cp != prune_cp);
+    } while (Get_LOCAL_top_cp() != prune_cp);
 
 #ifdef YAPOR_ERRORS
     if (LOCAL_prune_request && EQUAL_OR_YOUNGER_CP(LOCAL_prune_request, LOCAL_top_cp))
@@ -151,7 +151,7 @@ void prune_shared_branch(choiceptr prune_cp) {
     UNLOCK_OR_FRAME(leftmost_or_fr);
 
     /* move up to leftmost_cp */
-    while (LOCAL_top_cp != leftmost_cp) {
+    while (Get_LOCAL_top_cp() != leftmost_cp) {
       ltt = BRANCH_LTT(worker_id, OrFr_depth(LOCAL_top_or_fr));
       LOCK_OR_FRAME(LOCAL_top_or_fr);
       if (OrFr_pend_prune_cp(LOCAL_top_or_fr))
@@ -192,8 +192,8 @@ void prune_shared_branch(choiceptr prune_cp) {
     }
 
 #ifdef YAPOR_ERRORS
-    if (LOCAL_prune_request && EQUAL_OR_YOUNGER_CP(LOCAL_prune_request, LOCAL_top_cp))
-      YAPOR_ERROR_MESSAGE("EQUAL_OR_YOUNGER_CP(LOCAL_prune_request, LOCAL_top_cp) (prune_shared_branch)");
+    if (LOCAL_prune_request && EQUAL_OR_YOUNGER_CP(LOCAL_prune_request, Get_LOCAL_top_cp()))
+      YAPOR_ERROR_MESSAGE("EQUAL_OR_YOUNGER_CP(LOCAL_prune_request, Get_LOCAL_top_cp()) (prune_shared_branch)");
 #endif /* YAPOR_ERRORS */
     /* store answers not pruned */
     if (qg_solutions)
@@ -256,7 +256,7 @@ void prune_shared_branch(choiceptr prune_cp) {
 end_prune_more:
   CUT_reset_prune_request();
 #ifdef TABLING
-  LOCAL_top_cp_on_stack = LOCAL_top_cp;
+  Set_LOCAL_top_cp_on_stack(LOCAL_top_cp);
 #endif /* TABLING */
 
   return;

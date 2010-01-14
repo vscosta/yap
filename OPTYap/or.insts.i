@@ -43,14 +43,14 @@
 
   PBOp(getwork,Otapl)
 #ifdef TABLING
-    if (DepFr_leader_cp(LOCAL_top_dep_fr) == LOCAL_top_cp) {
+    if (DepFr_leader_cp(LOCAL_top_dep_fr) == Get_LOCAL_top_cp()) {
       /* the current top node is a leader node with consumer nodes below */
       if (DepFr_leader_dep_is_on_stack(LOCAL_top_dep_fr)) {
         /*    the frozen branch depends on the current top node     **
 	** this means that the current top node is a generator node */
         LOCK_OR_FRAME(LOCAL_top_or_fr);
         if (OrFr_alternative(LOCAL_top_or_fr) == NULL ||
-           (OrFr_alternative(LOCAL_top_or_fr) == ANSWER_RESOLUTION && B_FZ != LOCAL_top_cp)) {
+           (OrFr_alternative(LOCAL_top_or_fr) == ANSWER_RESOLUTION && B_FZ != Get_LOCAL_top_cp())) {
           /*                 there are no unexploited alternatives                 **
           ** (NULL if batched scheduling OR ANSWER_RESOLUTION if local scheduling) */
           UNLOCK_OR_FRAME(LOCAL_top_or_fr);
@@ -66,7 +66,7 @@
 #ifdef  batched scheduling
         if (OrFr_alternative(LOCAL_top_or_fr) != NULL) {
 #else   local scheduling
-        if (OrFr_alternative(LOCAL_top_or_fr) != ANSWER_RESOLUTION || B_FZ == LOCAL_top_cp) {
+        if (OrFr_alternative(LOCAL_top_or_fr) != ANSWER_RESOLUTION || B_FZ == Get_LOCAL_top_cp()) {
 #endif
           PREG = OrFr_alternative(LOCAL_top_or_fr);
           PREFETCH_OP(PREG);

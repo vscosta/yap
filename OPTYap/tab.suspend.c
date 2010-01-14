@@ -40,18 +40,18 @@ void public_completion(void) {
   susp_fr_ptr susp_fr, next_susp_fr;
   qg_sol_fr_ptr solutions, aux_solutions;
 
-  if (YOUNGER_CP(LOCAL_top_cp, B_FZ)) {
+  if (YOUNGER_CP(Get_LOCAL_top_cp(), B_FZ)) {
     /* the current node is a generator node without younger consumer **
     ** nodes --> we only have the current node to complete           */
     sg_fr_ptr top_sg_fr;
 
     /* complete subgoals */
 #ifdef DETERMINISTIC_TABLING
-    if (IS_DET_GEN_CP(LOCAL_top_cp))
-      top_sg_fr = SgFr_next(DET_GEN_CP(LOCAL_top_cp)->cp_sg_fr);
+    if (IS_DET_GEN_CP(Get_LOCAL_top_cp()))
+      top_sg_fr = SgFr_next(DET_GEN_CP(Get_LOCAL_top_cp())->cp_sg_fr);
     else
 #endif /* DETERMINISTIC_TABLING */
-      top_sg_fr = SgFr_next(GEN_CP(LOCAL_top_cp)->cp_sg_fr);
+      top_sg_fr = SgFr_next(GEN_CP(Get_LOCAL_top_cp())->cp_sg_fr);
     do {
       mark_as_completed(LOCAL_top_sg_fr);
       LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
@@ -68,13 +68,13 @@ void public_completion(void) {
     /* complete subgoals */
     if (DepFr_leader_dep_is_on_stack(LOCAL_top_dep_fr)) {
       while (LOCAL_top_sg_fr && 
-             EQUAL_OR_YOUNGER_CP(SgFr_gen_cp(LOCAL_top_sg_fr), LOCAL_top_cp)) {
+             EQUAL_OR_YOUNGER_CP(SgFr_gen_cp(LOCAL_top_sg_fr), Get_LOCAL_top_cp())) {
         mark_as_completed(LOCAL_top_sg_fr);
         LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
       }
     } else {
       while (LOCAL_top_sg_fr && 
-             YOUNGER_CP(SgFr_gen_cp(LOCAL_top_sg_fr), LOCAL_top_cp)) {
+             YOUNGER_CP(SgFr_gen_cp(LOCAL_top_sg_fr), Get_LOCAL_top_cp())) {
         mark_as_completed(LOCAL_top_sg_fr);
         LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
       }
@@ -82,7 +82,7 @@ void public_completion(void) {
 
     /* chain dependency frames to release */
     chain_dep_fr = NULL;
-    while (YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), LOCAL_top_cp)) {
+    while (YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), Get_LOCAL_top_cp())) {
       LOCK(DepFr_lock(LOCAL_top_dep_fr));
       next_dep_fr = DepFr_next(LOCAL_top_dep_fr);
       DepFr_next(LOCAL_top_dep_fr) = chain_dep_fr;
@@ -96,13 +96,13 @@ void public_completion(void) {
 
   /* chain or-frames to release */
   chain_or_fr = NULL;
-  top_or_fr = LOCAL_top_cp_on_stack->cp_or_fr;
+  top_or_fr = Get_LOCAL_top_cp_on_stack()->cp_or_fr;
   while (top_or_fr != LOCAL_top_or_fr) {
     or_fr_ptr next_or_fr_on_stack;
     LOCK_OR_FRAME(top_or_fr);
     susp_fr = OrFr_suspensions(top_or_fr);
     while (susp_fr) {
-      complete_suspension_branch(susp_fr, OrFr_node(top_or_fr), &chain_or_fr, &chain_dep_fr);
+      complete_suspension_branch(susp_fr, GetOrFr_node(top_or_fr), &chain_or_fr, &chain_dep_fr);
       next_susp_fr = SuspFr_next(susp_fr);
       FREE_SUSPENSION_FRAME(susp_fr);
       susp_fr = next_susp_fr;
@@ -115,7 +115,7 @@ void public_completion(void) {
   LOCK_OR_FRAME(top_or_fr);
   susp_fr = OrFr_suspensions(top_or_fr);
   while (susp_fr) {
-    complete_suspension_branch(susp_fr, OrFr_node(top_or_fr), &chain_or_fr, &chain_dep_fr);
+    complete_suspension_branch(susp_fr, GetOrFr_node(top_or_fr), &chain_or_fr, &chain_dep_fr);
     next_susp_fr = SuspFr_next(susp_fr);
     FREE_SUSPENSION_FRAME(susp_fr);
     susp_fr = next_susp_fr;
@@ -151,7 +151,7 @@ void public_completion(void) {
   }
 
   /* adjust top register */
-  LOCAL_top_cp_on_stack = LOCAL_top_cp;
+  Set_LOCAL_top_cp_on_stack( Get_LOCAL_top_cp() );
 
   return;
 }
@@ -169,7 +169,7 @@ void complete_suspension_frames(or_fr_ptr or_fr) {
   susp_fr = OrFr_suspensions(or_fr);
   do {
     susp_fr_ptr next_susp_fr;
-    complete_suspension_branch(susp_fr, OrFr_node(or_fr), &chain_or_fr, &chain_dep_fr);
+    complete_suspension_branch(susp_fr, GetOrFr_node(or_fr), &chain_or_fr, &chain_dep_fr);
     next_susp_fr = SuspFr_next(susp_fr);
     FREE_SUSPENSION_FRAME(susp_fr);
     susp_fr = next_susp_fr;
@@ -216,27 +216,27 @@ void suspend_branch(void) {
   /* suspension only occurs in shared nodes that **
   **   are leaders with younger consumer nodes   */
 #ifdef OPTYAP_ERRORS
-  if (LOCAL_top_cp->cp_or_fr != LOCAL_top_or_fr)
+  if (Get_LOCAL_top_cp()->cp_or_fr != LOCAL_top_or_fr)
     OPTYAP_ERROR_MESSAGE("LOCAL_top_cp->cp_or_fr != LOCAL_top_or_fr (suspend_branch)");
-  if (B_FZ == LOCAL_top_cp)
+  if (B_FZ == Get_LOCAL_top_cp())
     OPTYAP_ERROR_MESSAGE("B_FZ = LOCAL_top_cp (suspend_branch)");
-  if (YOUNGER_CP(LOCAL_top_cp, LOCAL_top_cp_on_stack))
+  if (YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack()))
     OPTYAP_ERROR_MESSAGE("YOUNGER_CP(LOCAL_top_cp, LOCAL_top_cp_on_stack) (suspend_branch)");
-  if (LOCAL_top_cp->cp_or_fr != LOCAL_top_or_fr)
+  if (Get_LOCAL_top_cp()->cp_or_fr != LOCAL_top_or_fr)
     OPTYAP_ERROR_MESSAGE("LOCAL_top_cp->cp_or_fr != LOCAL_top_or_fr (suspend_branch)");
-  or_frame = LOCAL_top_cp_on_stack->cp_or_fr;
+  or_frame = Get_LOCAL_top_cp_on_stack()->cp_or_fr;
   while (or_frame != LOCAL_top_or_fr) {
-    if (YOUNGER_CP(LOCAL_top_cp, OrFr_node(or_frame))) {
-      OPTYAP_ERROR_MESSAGE("YOUNGER_CP(LOCAL_top_cp, OrFr_node(or_frame)) (suspend_branch)");
+    if (YOUNGER_CP(Get_LOCAL_top_cp(), GetOrFr_node(or_frame))) {
+      OPTYAP_ERROR_MESSAGE("YOUNGER_CP(LOCAL_top_cp, GetOrFr_node(or_frame)) (suspend_branch)");
       break;
     }
     or_frame = OrFr_next_on_stack(or_frame);
   }
 #endif /* OPTYAP_ERRORS */
 
-  or_frame = LOCAL_top_cp_on_stack->cp_or_fr;
+  or_frame = Get_LOCAL_top_cp_on_stack()->cp_or_fr;
   LOCK_OR_FRAME(or_frame);
-  if (B_FZ == LOCAL_top_cp_on_stack && OrFr_owners(or_frame) > 1) {
+  if (B_FZ == Get_LOCAL_top_cp_on_stack() && OrFr_owners(or_frame) > 1) {
     /* there are other workers sharing the whole branch **
     **         --> we can avoid suspension <--          */
 
@@ -258,11 +258,11 @@ void suspend_branch(void) {
     UNLOCK_OR_FRAME(or_frame);
 
     /* alloc suspension frame */
-    h_size = (unsigned long) H_FZ - (unsigned long) LOCAL_top_cp->cp_h;
-    b_size = (unsigned long) LOCAL_top_cp - (unsigned long) B_FZ;
-    tr_size = (unsigned long) TR_FZ - (unsigned long) LOCAL_top_cp->cp_tr;
-    new_suspension_frame(new_susp_fr, LOCAL_top_cp_on_stack->cp_or_fr, LOCAL_top_dep_fr, LOCAL_top_sg_fr,
-                         LOCAL_top_cp->cp_h, B_FZ, LOCAL_top_cp->cp_tr, h_size, b_size, tr_size);
+    h_size = (unsigned long) H_FZ - (unsigned long) Get_LOCAL_top_cp()->cp_h;
+    b_size = (unsigned long) Get_LOCAL_top_cp() - (unsigned long) B_FZ;
+    tr_size = (unsigned long) TR_FZ - (unsigned long) Get_LOCAL_top_cp()->cp_tr;
+    new_suspension_frame(new_susp_fr, Get_LOCAL_top_cp_on_stack()->cp_or_fr, LOCAL_top_dep_fr, LOCAL_top_sg_fr,
+                         Get_LOCAL_top_cp()->cp_h, B_FZ, Get_LOCAL_top_cp()->cp_tr, h_size, b_size, tr_size);
 
     /* store suspension frame in current top or-frame */
     LOCK_OR_FRAME(LOCAL_top_or_fr);
@@ -274,17 +274,17 @@ void suspend_branch(void) {
   }
 
   /* adjust top pointers */
-  while (LOCAL_top_sg_fr && YOUNGER_CP(SgFr_gen_cp(LOCAL_top_sg_fr), LOCAL_top_cp_on_stack)) {
+  while (LOCAL_top_sg_fr && YOUNGER_CP(SgFr_gen_cp(LOCAL_top_sg_fr), Get_LOCAL_top_cp_on_stack())) {
     SgFr_gen_worker(LOCAL_top_sg_fr) = MAX_WORKERS;
     LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
   }
-  while (LOCAL_top_sg_fr && YOUNGER_CP(SgFr_gen_cp(LOCAL_top_sg_fr), LOCAL_top_cp)) {
+  while (LOCAL_top_sg_fr && YOUNGER_CP(SgFr_gen_cp(LOCAL_top_sg_fr), Get_LOCAL_top_cp())) {
     LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
   }
-  while (YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), LOCAL_top_cp)) {
+  while (YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), Get_LOCAL_top_cp())) {
     LOCAL_top_dep_fr = DepFr_next(LOCAL_top_dep_fr);
   }
-  LOCAL_top_cp_on_stack = LOCAL_top_cp;
+  Set_LOCAL_top_cp_on_stack( Get_LOCAL_top_cp() );
 
   /* adjust freeze registers */
   adjust_freeze_registers();
@@ -315,7 +315,7 @@ void resume_suspension_frame(susp_fr_ptr resume_fr, or_fr_ptr top_or_fr) {
     OPTYAP_ERROR_MESSAGE("DepFr_cons_cp(SuspFr_top_dep_fr)->cp_tr != SuspFr_trail_reg + SuspFr_trail_size (resume_suspension_frame)");
   if (DepFr_cons_cp(SuspFr_top_dep_fr(resume_fr)) != SuspFr_local_reg(resume_fr))
     OPTYAP_ERROR_MESSAGE("DepFr_cons_cp(SuspFr_top_dep_fr) != SuspFr_local_reg (resume_suspension_frame)");
-  if ((void *)LOCAL_top_cp < SuspFr_local_reg(resume_fr) + SuspFr_local_size(resume_fr))
+  if ((void *)Get_LOCAL_top_cp() < SuspFr_local_reg(resume_fr) + SuspFr_local_size(resume_fr))
     OPTYAP_ERROR_MESSAGE("LOCAL_top_cp < SuspFr_local_reg + SuspFr_local_size (resume_suspension_frame)");
 #endif /* OPTYAP_ERRORS */
 
@@ -338,10 +338,10 @@ void resume_suspension_frame(susp_fr_ptr resume_fr, or_fr_ptr top_or_fr) {
 
   /* adjust top pointers */
   LOCAL_top_or_fr = top_or_fr;
-  LOCAL_top_cp = OrFr_node(top_or_fr);
+  SetOrFr_node(top_or_fr, Get_LOCAL_top_cp());
   LOCAL_top_sg_fr = SuspFr_top_sg_fr(resume_fr);
   LOCAL_top_dep_fr = SuspFr_top_dep_fr(resume_fr);
-  LOCAL_top_cp_on_stack = OrFr_node(SuspFr_top_or_fr_on_stack(resume_fr));
+  Set_LOCAL_top_cp_on_stack( OrFr_node(SuspFr_top_or_fr_on_stack(resume_fr)) );
   sg_frame = LOCAL_top_sg_fr;
   while (sg_frame && YOUNGER_CP(SgFr_gen_cp(sg_frame), LOCAL_top_cp_on_stack)) {
     SgFr_gen_worker(sg_frame) = worker_id;
@@ -411,14 +411,14 @@ void complete_suspension_branch(susp_fr_ptr susp_fr, choiceptr top_cp, or_fr_ptr
     susp_fr_ptr aux_susp_fr;
     or_fr_ptr next_or_fr_on_stack;
 #ifdef OPTYAP_ERRORS
-    if (YOUNGER_CP(top_cp, OrFr_node(aux_or_fr)))
-      OPTYAP_ERROR_MESSAGE("YOUNGER_CP(top_cp, OrFr_node(aux_or_fr)) (complete_suspension_branch)");
+    if (YOUNGER_CP(top_cp, GetOrFr_node(aux_or_fr)))
+      OPTYAP_ERROR_MESSAGE("YOUNGER_CP(top_cp, GetOrFr_node(aux_or_fr)) (complete_suspension_branch)");
 #endif /* OPTYAP_ERRORS */
     LOCK_OR_FRAME(aux_or_fr);
     aux_susp_fr = OrFr_suspensions(aux_or_fr);
     while (aux_susp_fr) {
       susp_fr_ptr next_susp_fr;
-      complete_suspension_branch(aux_susp_fr, OrFr_node(aux_or_fr), chain_or_fr, chain_dep_fr);
+      complete_suspension_branch(aux_susp_fr, GetOrFr_node(aux_or_fr), chain_or_fr, chain_dep_fr);
       next_susp_fr = SuspFr_next(aux_susp_fr);
       FREE_SUSPENSION_FRAME(aux_susp_fr);
       aux_susp_fr = next_susp_fr;

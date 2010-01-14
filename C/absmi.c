@@ -1824,7 +1824,7 @@ Yap_absmi(int inp)
 
 #ifdef YAPOR
     shared_fail:
-      B = LOCAL_top_cp;
+      B = Get_LOCAL_top_cp();
       SET_BB(PROTECT_FROZEN_B(B));
       goto fail;
 #endif	/* YAPOR */

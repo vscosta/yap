@@ -178,7 +178,7 @@ void share_private_nodes(int worker_q) {
     depth++;
     ALLOC_OR_FRAME(or_frame);
     INIT_LOCK(OrFr_lock(or_frame));
-    OrFr_node(or_frame) = AuxB;
+    SetOrFr_node(or_frame, AuxB);
     OrFr_alternative(or_frame) = AuxB->cp_ap;
     OrFr_pend_prune_cp(or_frame) = NULL;
     OrFr_nearest_leftnode(or_frame) = LOCAL_top_or_fr;

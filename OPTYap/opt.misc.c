@@ -33,11 +33,12 @@
 **      Global variables are defined here      **
 ** ------------------------------------------- */
 
+#ifndef THREADS
 struct local_data *LOCAL;
 #ifdef YAPOR
 struct worker WORKER;
 #endif /* YAPOR */
-
+#endif
 
 
 /* -------------------------- **

@@ -96,6 +96,7 @@ true :- true.
 	'$startup_reconsult',
 	'$startup_goals',
 	'$set_input'(user_input),'$set_output'(user),
+	'$init_or_threads',
 	'$run_at_thread_start'.
 
 '$init_consult' :-
@@ -107,6 +108,17 @@ true :- true.
 	nb_setval('$consulting',false),
 	nb_setval('$included_file',[]).
 	
+'$init_or_threads' :-
+	'$yapor_threads'(W), !,
+	'$start_orp_threads'(W).
+'$init_or_threads'.
+
+'$start_orp_threads'(1) :- !.
+'$start_orp_threads'(W) :-
+	thread_create('$worker',_,[detached(true)]),
+	W1 is W-1,
+	'$start_orp_threads'(W1).
+
 
 % Start file for yap
 

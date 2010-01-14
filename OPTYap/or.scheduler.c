@@ -99,7 +99,7 @@ void PUT_OUT_ROOT_NODE(int worker_num) {
 static inline
 void move_up_to_prune_request(void) {
 #ifdef YAPOR_ERRORS
-  if (EQUAL_OR_YOUNGER_CP(LOCAL_prune_request, LOCAL_top_cp))
+  if (EQUAL_OR_YOUNGER_CP(LOCAL_prune_request, Get_LOCAL_top_cp()))
     YAPOR_ERROR_MESSAGE("invalid LOCAL_prune_request (move_up_to_prune_request)");
 #endif /* YAPOR_ERRORS */
 
@@ -123,12 +123,12 @@ void move_up_to_prune_request(void) {
       UNLOCK_OR_FRAME(LOCAL_top_or_fr);
     }
     SCH_update_local_or_tops();
-  } while (LOCAL_top_cp != LOCAL_prune_request);
+  } while (Get_LOCAL_top_cp() != LOCAL_prune_request);
 
   CUT_reset_prune_request();
 #ifdef TABLING
-  LOCAL_top_cp_on_stack = LOCAL_top_cp;
-  abolish_incomplete_subgoals(LOCAL_top_cp - 1);  /* do not include LOCAL_top_cp */
+  Set_LOCAL_top_cp_on_stack( Get_LOCAL_top_cp());
+  abolish_incomplete_subgoals(Get_LOCAL_top_cp() - 1);  /* do not include LOCAL_top_cp */
 #endif /* TABLIG */
 
   return;
@@ -173,7 +173,7 @@ int get_work(void) {
   if (or_fr_with_work) {
     /* move up to the nearest node with available work */
 #ifdef TABLING
-    if (leader_node && YOUNGER_CP(leader_node, OrFr_node(or_fr_with_work)))
+    if (leader_node && YOUNGER_CP(leader_node, GetOrFr_node(or_fr_with_work)))
       /* there is a leader node before the nearest node with work */
       or_fr_to_move_to = leader_node->cp_or_fr;
     else
@@ -216,14 +216,14 @@ int get_work(void) {
   BITMAP_difference(stable_busy, OrFr_members(LOCAL_top_or_fr), GLOBAL_bm_idle_workers);
   while (1) {
     while (BITMAP_subset(GLOBAL_bm_idle_workers, OrFr_members(LOCAL_top_or_fr)) &&
-           LOCAL_top_cp != GLOBAL_root_cp) {
+           Get_LOCAL_top_cp() != Get_GLOBAL_root_cp()) {
       /* no busy workers here and below */
       if (! move_up_one_node(NULL)) {
         PUT_BUSY(worker_id);
         return TRUE;
       }
     }
-    if (LOCAL_top_cp == GLOBAL_root_cp) {
+    if (Get_LOCAL_top_cp() == Get_GLOBAL_root_cp()) {
       if (! BITMAP_member(GLOBAL_bm_root_cp_workers, worker_id))
         PUT_IN_ROOT_NODE(worker_id);
       if (BITMAP_same(GLOBAL_bm_idle_workers, GLOBAL_bm_root_cp_workers) &&
@@ -267,7 +267,7 @@ int get_work(void) {
 static
 int move_up_one_node(or_fr_ptr nearest_livenode) {
 #ifdef YAPOR_ERRORS
-  if (LOCAL_prune_request && EQUAL_OR_YOUNGER_CP(LOCAL_prune_request, LOCAL_top_cp))
+  if (LOCAL_prune_request && EQUAL_OR_YOUNGER_CP(LOCAL_prune_request, Get_LOCAL_top_cp()))
     YAPOR_ERROR_MESSAGE("invalid LOCAL_prune_request (move_up_one_node)");
 #endif /* YAPOR_ERRORS */
 
@@ -289,7 +289,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
       && ! LOCAL_prune_request
       && CUT_last_worker_left_pending_prune(LOCAL_top_or_fr)) {
 #ifdef TABLING
-    choiceptr aux_cp = LOCAL_top_cp;
+    choiceptr aux_cp = Get_LOCAL_top_cp();
 #endif /* TABLIG */
     choiceptr prune_cp = OrFr_pend_prune_cp(LOCAL_top_or_fr);
     OrFr_pend_prune_cp(LOCAL_top_or_fr) = NULL;
@@ -297,7 +297,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
     UNLOCK_OR_FRAME(LOCAL_top_or_fr);
     prune_shared_branch(prune_cp);
 #ifdef TABLING
-    while (YOUNGER_CP(aux_cp->cp_b, LOCAL_top_cp))
+    while (YOUNGER_CP(aux_cp->cp_b, Get_LOCAL_top_cp()))
       aux_cp = aux_cp->cp_b;
     abolish_incomplete_subgoals(aux_cp);
 #endif /* TABLIG */
@@ -309,17 +309,17 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
   if (B_FZ != DepFr_cons_cp(LOCAL_top_dep_fr))
     OPTYAP_ERROR_MESSAGE("B_FZ != DepFr_cons_cp(LOCAL_top_dep_fr) (move_up_one_node)");
   if (LOCAL_top_susp_or_fr) {
-    if (EQUAL_OR_YOUNGER_CP(LOCAL_top_cp, B_FZ) && YOUNGER_CP(OrFr_node(LOCAL_top_susp_or_fr), LOCAL_top_cp))
-      OPTYAP_ERROR_MESSAGE("YOUNGER_CP(OrFr_node(LOCAL_top_susp_or_fr), LOCAL_top_cp) (move_up_one_node)");
-    if (YOUNGER_CP(B_FZ, LOCAL_top_cp) && YOUNGER_CP(OrFr_node(LOCAL_top_susp_or_fr), B_FZ))
-      OPTYAP_ERROR_MESSAGE("YOUNGER_CP(OrFr_node(LOCAL_top_susp_or_fr), B_FZ) (move_up_one_node)");
+    if (EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp(), B_FZ) && YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), LOCAL_top_cp))
+      OPTYAP_ERROR_MESSAGE("YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), Get_LOCAL_top_cp()) (move_up_one_node)");
+    if (YOUNGER_CP(B_FZ, Get_LOCAL_top_cp()) && YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), B_FZ))
+      OPTYAP_ERROR_MESSAGE("YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), B_FZ) (move_up_one_node)");
   }
 #endif /* OPTYAP_ERRORS */
 
 
 #ifdef TABLING
   /* frozen stacks on branch ? */
-  if (YOUNGER_CP(B_FZ, LOCAL_top_cp)) {
+  if (YOUNGER_CP(B_FZ, Get_LOCAL_top_cp())) {
     if (nearest_livenode)
       OrFr_nearest_livenode(LOCAL_top_or_fr) = nearest_livenode;
     BITMAP_delete(OrFr_members(LOCAL_top_or_fr), worker_id);
@@ -371,7 +371,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
         OrFr_nearest_suspnode(LOCAL_top_or_fr) = LOCAL_top_or_fr;
       }
       UNLOCK_OR_FRAME(LOCAL_top_or_fr);
-      unbind_variables(TR, LOCAL_top_cp->cp_tr);
+      unbind_variables(TR, Get_LOCAL_top_cp()->cp_tr);
       resume_suspension_frame(resume_fr, LOCAL_top_or_fr);
       return FALSE;
     }
@@ -386,7 +386,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
   
    
   /* top node frozen ? */
-  if (B_FZ == LOCAL_top_cp) {
+  if (B_FZ == Get_LOCAL_top_cp()) {
     if (nearest_livenode)
       OrFr_nearest_livenode(LOCAL_top_or_fr) = nearest_livenode;
     BITMAP_delete(OrFr_members(LOCAL_top_or_fr), worker_id);
@@ -429,15 +429,15 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
 #ifdef OPTYAP_ERRORS
   if (OrFr_alternative(LOCAL_top_or_fr) && ! YAMOP_SEQ(OrFr_alternative(LOCAL_top_or_fr)))
     OPTYAP_ERROR_MESSAGE("OrFr_alternative(LOCAL_top_or_fr) not sequential (move_up_one_node)");
-  if (LOCAL_top_cp == DepFr_cons_cp(LOCAL_top_dep_fr))
+  if (Get_LOCAL_top_cp() == DepFr_cons_cp(LOCAL_top_dep_fr))
     OPTYAP_ERROR_MESSAGE("LOCAL_top_cp == DepFr_cons_cp(LOCAL_top_dep_fr) (move_up_one_node)");
-  if (LOCAL_top_cp != LOCAL_top_cp_on_stack)
+  if (Get_LOCAL_top_cp() != Get_LOCAL_top_cp_on_stack())
     OPTYAP_ERROR_MESSAGE("LOCAL_top_cp != LOCAL_top_cp_on_stack (move_up_one_node)");
 #endif /* OPTYAP_ERRORS */
 
 
   /* no frozen nodes */
-  LOCAL_top_cp_on_stack = OrFr_node(OrFr_next_on_stack(LOCAL_top_or_fr));
+  Set_LOCAL_top_cp_on_stack(GetOrFr_node(OrFr_next_on_stack(LOCAL_top_or_fr)));
 
 
   /* no more owners ? */
@@ -445,7 +445,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
     if (OrFr_suspensions(LOCAL_top_or_fr)) {
       complete_suspension_frames(LOCAL_top_or_fr);
     }
-    if (LOCAL_top_sg_fr && LOCAL_top_cp == SgFr_gen_cp(LOCAL_top_sg_fr)) {
+    if (LOCAL_top_sg_fr && Get_LOCAL_top_cp() == SgFr_gen_cp(LOCAL_top_sg_fr)) {
       mark_as_completed(LOCAL_top_sg_fr);
       LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
     }
@@ -535,7 +535,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
 #ifdef TABLING_INNER_CUTS
   update_local_tops3:
 #endif /* TABLING_INNER_CUTS */
-  if (LOCAL_top_sg_fr && LOCAL_top_cp == SgFr_gen_cp(LOCAL_top_sg_fr)) {
+  if (LOCAL_top_sg_fr && Get_LOCAL_top_cp() == SgFr_gen_cp(LOCAL_top_sg_fr)) {
     LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
   }
 #endif /* TABLING */
@@ -556,7 +556,7 @@ int get_work_below(void){
   BITMAP_difference(idle_below, OrFr_members(LOCAL_top_or_fr), busy_below);
   BITMAP_delete(idle_below, worker_id);
   for (i = 0; i < number_workers; i++) {
-    if (BITMAP_member(idle_below ,i) && YOUNGER_CP(REMOTE_top_cp(i), LOCAL_top_cp))
+    if (BITMAP_member(idle_below ,i) && YOUNGER_CP(REMOTE_top_cp(i), Get_LOCAL_top_cp()))
       BITMAP_minus(busy_below, OrFr_members(REMOTE_top_or_fr(i)));
   }
   if (BITMAP_empty(busy_below))
@@ -664,7 +664,7 @@ int search_for_hidden_shared_work(bitmap stable_busy){
   BITMAP_intersection(idle_below, OrFr_members(LOCAL_top_or_fr), GLOBAL_bm_idle_workers);
   BITMAP_delete(idle_below, worker_id);
   for (i = 0; i < number_workers; i++) {
-    if (BITMAP_member(idle_below ,i) && YOUNGER_CP(REMOTE_top_cp(i), LOCAL_top_cp))
+    if (BITMAP_member(idle_below ,i) && YOUNGER_CP(REMOTE_top_cp(i), Get_LOCAL_top_cp()))
       BITMAP_minus(invisible_work, OrFr_members(REMOTE_top_or_fr(i)));
   }
   if (BITMAP_empty(invisible_work))

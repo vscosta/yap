@@ -97,40 +97,15 @@ void resume_suspension_frame(susp_fr_ptr resume_fr, or_fr_ptr top_or_fr);
 
 
 /* ------------- **
-**  or.engine.c  **
+**  or.*engine.c **
 ** ------------- */
 
-#ifdef ENV_COPY
-void make_root_choice_point(void);
-void free_root_choice_point(void);
-int q_share_work(int p);
-void p_share_work(void);
-#endif /* ENV_COPY */
-
-
-/* ---------------- **
-**  or.cowengine.c  **
-** ---------------- */
-
-#ifdef ACOW
+#ifdef YAPOR
 void make_root_choice_point(void);
 void free_root_choice_point(void);
 int q_share_work(int p);
 int p_share_work(void);
-#endif /* ACOW */
-
-
-/* ---------------- **
-**  or.sbaengine.c  **
-** ---------------- */
-
-#ifdef SBA
-void make_root_choice_point(void);
-void free_root_choice_point(void);
-int q_share_work(int p);
-void p_share_work(void);
-#endif /* SBA */
-
+#endif /* YAPOR */
 
 /* ---------------- **
 **  or.scheduler.c  **

@@ -1435,7 +1435,7 @@ static int is_cleanup_cp(choiceptr cp_b)
   if (cp_b->cp_ap->opc != ORLAST_OPCODE)
     return FALSE;
 #ifdef YAPOR
-  pe = cp_b->cp_ap->u.Osblp.p;
+  pe = cp_b->cp_ap->u.Osblp.p0;
 #else
   pe = cp_b->cp_ap->u.p.p;
 #endif	/* YAPOR */
