@@ -303,9 +303,14 @@
 
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
+#if 0
       PROBLEM: cp_last_answer field is local to the cp!
                -> we need a shared data structure to avoid redundant computations!
       UNLOCK_OR_FRAME(LOCAL_top_or_fr);
+#else
+      fprintf(stderr,"PROBLEM: cp_last_answer field is local to the cp!\n");
+      exit(1);
+#endif
     }
 #endif /* YAPOR */
     subs_ptr = (CELL *) (LOAD_CP(B) + 1);
@@ -918,7 +923,7 @@
               for (i = 0; i < number_workers; i++) {
                 if (BITMAP_member(members, i) &&
                     BRANCH_LTT(i, depth) > ltt &&
-                    EQUAL_OR_YOUNGER_CP(OrFr_node(leftmost_or_fr), REMOTE_pruning_scope(i)))
+                    EQUAL_OR_YOUNGER_CP(GetOrFr_node(leftmost_or_fr), REMOTE_pruning_scope(i)))
                   goto pending_table_new_answer;
 	      }
               BITMAP_minus(prune_members, members);
@@ -933,7 +938,7 @@
                 for (i = 0; i < number_workers; i++) {
                   if (BITMAP_member(members, i) &&
                       BRANCH_LTT(i, depth) > ltt &&
-                      EQUAL_OR_YOUNGER_CP(OrFr_node(leftmost_or_fr), REMOTE_pruning_scope(i))) {
+                      EQUAL_OR_YOUNGER_CP(GetOrFr_node(leftmost_or_fr), REMOTE_pruning_scope(i))) {
                     /* update nearest leftnode data */
                     or_fr = LOCAL_top_or_fr;
                     nearest_or_fr = OrFr_nearest_leftnode(or_fr);
@@ -1153,9 +1158,9 @@
           end_or_fr = DepFr_top_or_fr(dep_fr);
           if (start_or_fr != end_or_fr) {
             LOCAL_top_or_fr = end_or_fr;
-            Set_LOCAL_top_cp(OrFr_node(end_or_fr));
+            Set_LOCAL_top_cp(GetOrFr_node(end_or_fr));
             do {
-              while (YOUNGER_CP(OrFr_node(start_or_fr), OrFr_node(end_or_fr))) {
+              while (YOUNGER_CP(GetOrFr_node(start_or_fr), GetOrFr_node(end_or_fr))) {
                 LOCK_OR_FRAME(start_or_fr);
                 BITMAP_delete(OrFr_members(start_or_fr), worker_id);
                 if (BITMAP_empty(OrFr_members(start_or_fr))) {
@@ -1187,7 +1192,7 @@
 #endif /* TABLING_INNER_CUTS */
                 start_or_fr = OrFr_next(start_or_fr);
   	      }
-              while (YOUNGER_CP(OrFr_node(end_or_fr), OrFr_node(start_or_fr))) {
+              while (YOUNGER_CP(GetOrFr_node(end_or_fr), GetOrFr_node(start_or_fr))) {
                 LOCK_OR_FRAME(end_or_fr);
                 BITMAP_insert(OrFr_members(end_or_fr), worker_id);
                 BRANCH(worker_id, OrFr_depth(end_or_fr)) = 1;
@@ -1247,7 +1252,7 @@
         start_or_fr = LOCAL_top_or_fr;
         if (start_or_fr != end_or_fr) {
           LOCAL_top_or_fr = end_or_fr;
-          Set_LOCAL_top_cp(OrFr_node(end_or_fr));
+          Set_LOCAL_top_cp(GetOrFr_node(end_or_fr));
           while (start_or_fr != end_or_fr) {
             LOCK_OR_FRAME(start_or_fr);
             BITMAP_delete(OrFr_members(start_or_fr), worker_id);
@@ -1447,7 +1452,7 @@
             or_frame = OrFr_next(or_frame);
           }
           LOCAL_top_or_fr = DepFr_top_or_fr(dep_fr);
-          Set_LOCAL_top_cp(OrFr_node(LOCAL_top_or_fr));
+          Set_LOCAL_top_cp(GetOrFr_node(LOCAL_top_or_fr));
         }
 #endif /* YAPOR */
 #ifdef OPTYAP_ERRORS
@@ -1508,7 +1513,7 @@
         if (YOUNGER_CP(B_FZ, B)) {
           suspend_branch();
           /* check for suspension frames to be resumed */
-          while (YOUNGER_CP(OrFr_node(LOCAL_top_susp_or_fr), Get_LOCAL_top_cp())) {
+          while (YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), Get_LOCAL_top_cp())) {
             or_fr_ptr susp_or_fr;
             susp_fr_ptr resume_fr;
             susp_or_fr = LOCAL_top_susp_or_fr;
@@ -1524,7 +1529,7 @@
                 OrFr_nearest_suspnode(susp_or_fr) = susp_or_fr;
               }
               UNLOCK_OR_FRAME(susp_or_fr);
-              rebind_variables(OrFr_node(susp_or_fr)->cp_tr, B->cp_tr);
+              rebind_variables(GetOrFr_node(susp_or_fr)->cp_tr, B->cp_tr);
               resume_suspension_frame(resume_fr, susp_or_fr);
               B = Get_LOCAL_top_cp();
               SET_BB(B_FZ);
@@ -1542,7 +1547,7 @@
         if (frame_with_suspensions_not_collected(LOCAL_top_or_fr))
           collect_suspension_frames(LOCAL_top_or_fr);
         /* check for suspension frames to be resumed */
-        while (EQUAL_OR_YOUNGER_CP(OrFr_node(LOCAL_top_susp_or_fr), Get_LOCAL_top_cp())) {
+        while (EQUAL_OR_YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), Get_LOCAL_top_cp())) {
           or_fr_ptr susp_or_fr;
           susp_fr_ptr resume_fr;
           susp_or_fr = LOCAL_top_susp_or_fr;
@@ -1559,7 +1564,7 @@
             if (YOUNGER_CP(B_FZ, B)) {
               suspend_branch();
             }
-            rebind_variables(OrFr_node(susp_or_fr)->cp_tr, B->cp_tr);
+            rebind_variables(GetOrFr_node(susp_or_fr)->cp_tr, B->cp_tr);
             resume_suspension_frame(resume_fr, susp_or_fr);
             B = Get_LOCAL_top_cp();
             SET_BB(B_FZ);
@@ -1605,7 +1610,7 @@
         UNLOCK(DepFr_lock(LOCAL_top_dep_fr));
         if (OrFr_owners(LOCAL_top_or_fr) > 1) {
           /* more owners -> move up one node */
-          Set_LOCAL_top_cp_on_stack( OrFr_node(OrFr_next_on_stack(LOCAL_top_or_fr)) );
+          Set_LOCAL_top_cp_on_stack( GetOrFr_node(OrFr_next_on_stack(LOCAL_top_or_fr)) );
           BITMAP_delete(OrFr_members(LOCAL_top_or_fr), worker_id);
           OrFr_owners(LOCAL_top_or_fr)--;
           LOCAL_top_dep_fr = DepFr_next(LOCAL_top_dep_fr);

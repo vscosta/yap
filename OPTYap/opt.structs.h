@@ -300,7 +300,7 @@ struct local_signals{
     sharing      = 1,
     nodes_shared = 2,
     copy_done    = 3,
-    ready        = 4
+    worker_ready = 4
   } reply;
 };
 #endif /* YAPOR */
@@ -342,7 +342,11 @@ struct local_data{
   choiceptr bottom_pruning_scope;
 #endif /* TABLING_INNER_CUTS */
 #ifdef YAPOR
+#ifdef THREADS
+  Int top_choice_point_on_stack_offset;
+#else
   choiceptr top_choice_point_on_stack;
+#endif
   struct or_frame *top_or_frame_with_suspensions;
 #endif /* YAPOR */
 #endif /* TABLING */

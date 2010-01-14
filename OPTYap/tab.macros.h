@@ -14,6 +14,9 @@
 ** ------------------ */
 
 #include <stdlib.h>
+#if HAVE_STRING_H
+#include <string.h>
+#endif
 #include "opt.mavar.h"
 
 
@@ -104,7 +107,12 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #ifdef YAPOR
 #define STACK_CHECK_EXPAND(STACK, STACK_LIMIT, STACK_BASE)                              \
         if (STACK_LIMIT >= STACK) {                                                     \
-          Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)")
+	  Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)"); \
+        }
+
+/* should work for now */
+#define STACK_CHECK_EXPAND1(STACK, STACK_LIMIT, STACK_BASE) STACK_CHECK_EXPAND(STACK, STACK_LIMIT, STACK_BASE)
+
 #else
 #define STACK_CHECK_EXPAND(STACK, STACK_LIMIT, STACK_BASE)                              \
         if (STACK_LIMIT >= STACK) {                                                     \

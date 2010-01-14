@@ -256,7 +256,7 @@ void prune_shared_branch(choiceptr prune_cp) {
 end_prune_more:
   CUT_reset_prune_request();
 #ifdef TABLING
-  Set_LOCAL_top_cp_on_stack(LOCAL_top_cp);
+  Set_LOCAL_top_cp_on_stack(Get_LOCAL_top_cp());
 #endif /* TABLING */
 
   return;

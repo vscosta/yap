@@ -980,10 +980,13 @@ has_cut(yamop *pc)
 #ifdef TABLING
     case _table_load_answer:
     case _table_try_answer:
-    case _table_try_me_single:
+    case _table_try_single:
     case _table_try_me:
     case _table_retry_me:
     case _table_trust_me:
+    case _table_try:
+    case _table_retry:
+    case _table_trust:
     case _table_answer_resolution:
     case _table_completion:
 #endif /* TABLING */

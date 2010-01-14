@@ -365,7 +365,7 @@ void share_private_nodes(int worker_q) {
           next_node_on_branch = sharing_node;
         STACK_PUSH_UP(or_frame, stack);
         STACK_CHECK_EXPAND1(stack, stack_limit, stack_base);
-        STACK_PUSH(sharing_node, stack);
+        STACK_PUSH_UP(sharing_node, stack);  /* vsc: STACK_PUSH -> STACK_PUSH_UP? */
         STACK_CHECK_EXPAND1(stack, stack_limit, stack_base);
         sharing_node = consumer_cp;
         dep_frame = DepFr_next(dep_frame);
@@ -527,7 +527,7 @@ void share_private_nodes(int worker_q) {
     /* update top shared nodes */
 #ifdef TABLING
     Set_REMOTE_top_cp_on_stack(worker_q,B);
-    Set_LOCAL_top_cp_on_stack, B);
+    Set_LOCAL_top_cp_on_stack( B );
 #endif /* TABLING */
     Set_REMOTE_top_cp(worker_q,B);
     Set_LOCAL_top_cp(B);
@@ -536,7 +536,7 @@ void share_private_nodes(int worker_q) {
 
 #ifdef TABLING_INNER_CUTS
   /* update worker Q pruning scope */
-    if (LOCAL_pruning_scope && EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp(), LOCAL_pruning_scope)) {
+  if (LOCAL_pruning_scope && EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp(), LOCAL_pruning_scope)) {
     REMOTE_pruning_scope(worker_q) = LOCAL_pruning_scope;
     PUT_IN_PRUNING(worker_q);
   } else {

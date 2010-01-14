@@ -3073,7 +3073,11 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     *entry_codep = code_p;
     if (tabled) {
 #if TABLING
+#ifdef YAPOR
+      code_p = a_try(_table_try_single, (CELL)NEXTOP(code_p,Otapl), IPredArity, 1, 0, code_p, pass_no, cip);
+#else
       code_p = a_try(_table_try_single, (CELL)NEXTOP(code_p,Otapl), IPredArity, code_p, pass_no, cip);
+#endif
 #endif
     }
     if (dynamic) {

@@ -82,7 +82,7 @@ static Int p_tabling_statistics(void);
 #endif /* TABLING */
 
 #if defined(YAPOR) && defined(TABLING)
-static int p_opt_statistics(void);
+static Int p_opt_statistics(void);
 #endif /* YAPOR && TABLING */
 
 #if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
@@ -872,7 +872,7 @@ Int p_tabling_statistics(void) {
 
 #if defined(YAPOR) && defined(TABLING)
 static
-int p_opt_statistics(void) {
+Int p_opt_statistics(void) {
 #ifdef SHM_MEMORY_ALLOC_SCHEME
   long pages_in_use = 0, bytes_in_use = 0;
 

@@ -341,9 +341,9 @@ void resume_suspension_frame(susp_fr_ptr resume_fr, or_fr_ptr top_or_fr) {
   SetOrFr_node(top_or_fr, Get_LOCAL_top_cp());
   LOCAL_top_sg_fr = SuspFr_top_sg_fr(resume_fr);
   LOCAL_top_dep_fr = SuspFr_top_dep_fr(resume_fr);
-  Set_LOCAL_top_cp_on_stack( OrFr_node(SuspFr_top_or_fr_on_stack(resume_fr)) );
+  Set_LOCAL_top_cp_on_stack( GetOrFr_node(SuspFr_top_or_fr_on_stack(resume_fr)) );
   sg_frame = LOCAL_top_sg_fr;
-  while (sg_frame && YOUNGER_CP(SgFr_gen_cp(sg_frame), LOCAL_top_cp_on_stack)) {
+  while (sg_frame && YOUNGER_CP(SgFr_gen_cp(sg_frame), Get_LOCAL_top_cp_on_stack())) {
     SgFr_gen_worker(sg_frame) = worker_id;
     sg_frame = SgFr_next(sg_frame);
   }
