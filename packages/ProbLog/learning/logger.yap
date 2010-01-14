@@ -2,17 +2,18 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2009-06-17 22:22:00 +0200 (Wed, 17 Jun 2009) $
+%  $Date: 2009-06-17 22:22:00 +0200 (Mi, 17 Jun 2009) $
 %  $Revision: 1550 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
 %
-%  ProbLog was developed at Katholieke Universiteit Leuven
-%                                                            
-%  Copyright 2009
-%  Angelika Kimmig, Vitor Santos Costa, Bernd Gutmann
-%                                                              
+%  Copyright 2009 Katholieke Universiteit Leuven
+%
+%  Authors: Luc De Raedt, Bernd Gutmann, Angelika Kimmig,
+%           Vitor Santos Costa
+%
+%                                                                     
 %  Main authors of this file:
 %  Bernd Gutmann
 %

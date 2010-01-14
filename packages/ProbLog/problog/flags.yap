@@ -2,17 +2,18 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2009-06-17 22:22:00 +0200 (Wed, 17 Jun 2009) $
+%  $Date: 2009-06-17 22:22:00 +0200 (Mi, 17 Jun 2009) $
 %  $Revision: 1550 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
 %
-%  ProbLog was developed at Katholieke Universiteit Leuven
-%                                                            
-%  Copyright 2009
-%  Angelika Kimmig, Vitor Santos Costa, Bernd Gutmann
-%                                                              
+%  Copyright 2009 Katholieke Universiteit Leuven
+%
+%  Authors: Luc De Raedt, Bernd Gutmann, Angelika Kimmig,
+%           Vitor Santos Costa
+%
+%                                                                      
 %  Main authors of this file:
 %  Angelika Kimmig, Vitor Santos Costa
 %
@@ -216,7 +217,7 @@
 
 :- ensure_loaded(library(system)).
 
-:- dynamic bdd_time/1, first_threshold/1, last_threshold/1, id_stepsize/1, prunecheck/1, maxsteps/1, mc_batchsize/1, mc_logfile/1, bdd_file/1, bdd_par_file/1, bdd_result/1, work_dir/1, save_bdd/1, problog_verbose/1, hacked_proofs/1.
+:- dynamic bdd_time/1, first_threshold/1, last_threshold/1, id_stepsize/1, prunecheck/1, maxsteps/1, mc_batchsize/1, mc_logfile/1, bdd_file/1, bdd_par_file/1, bdd_result/1, work_dir/1, save_bdd/1, problog_verbose/1, fast_proofs/1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % global parameters that can be set using set_problog_flag/2
@@ -258,8 +259,8 @@ get_problog_flag(save_bdd,X) :-
 	save_bdd(X).
 get_problog_flag(verbose,X) :-
 	problog_verbose(X).
-get_problog_flag(hacked_proofs,X) :-
-	hacked_proofs(X).
+get_problog_flag(fast_proofs,X) :-
+	fast_proofs(X).
 
 
 %%%%%%%%%%%%
@@ -474,16 +475,17 @@ set_problog_flag(verbose,_) :-
 	flush_output(user),
 	fail.
 
-set_problog_flag(hacked_proofs,true) :-
-	retractall(hacked_proofs(_)),
-	assert(hacked_proofs(true)).
-set_problog_flag(hacked_proofs,false) :-
-	retractall(hacked_proofs(_)),
-	assert(hacked_proofs(true)).
-set_problog_flag(hacked_proofs,V) :-
+set_problog_flag(fast_proofs,true) :-
+	retractall(fast_proofs(_)),
+	assert(fast_proofs(true)).
+set_problog_flag(fast_proofs,false) :-
+	retractall(fast_proofs(_)),
+	assert(fast_proofs(true)).
+set_problog_flag(fast_proofs,V) :-
 	format(user,'\% ERROR: value ~w should be \'true\' or \'false\'!~n',[V]),
 	flush_output(user),
 	fail.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % show values

@@ -2,17 +2,18 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2009-06-24 22:07:32 +0200 (Wed, 24 Jun 2009) $
-%  $Revision: 1669 $
+%  $Date: 2009-06-17 22:22:00 +0200 (Mi, 17 Jun 2009) $
+%  $Revision: 1550 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
 %
-%  ProbLog was developed at Katholieke Universiteit Leuven
-%                                                            
-%  Copyright 2009
-%  Angelika Kimmig, Vitor Santos Costa, Bernd Gutmann
-%                                                              
+%  Copyright 2009 Katholieke Universiteit Leuven
+%
+%  Authors: Luc De Raedt, Bernd Gutmann, Angelika Kimmig,
+%           Vitor Santos Costa
+%
+%                                                                      
 %  Main authors of this file:
 %  Angelika Kimmig, Vitor Santos Costa
 %
@@ -212,16 +213,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- module(print, [print_param/4,
-		  print_long_param/4,
-		  print_sep_line/0,
-		  print_inference/2]).
+	print_sep_line/0,
+	print_inference/2]).
 
 print_param(Keyword,Value,Function,Legal) :-
 	format(user,'~w~55+~q~15+~w~30+~w~25+~n',[Keyword,Value,Function,Legal]).
-print_long_param(Keyword,Value,Function,Legal) :-
-	format(user,'~w~55+~q~15+~w~30+~w~25+~n',[Keyword,Value,'','']),
-	format(user,'~w~55+~w~15+~w~30+~w~25+~n',['','',Function,Legal]).
-
 print_sep_line :-
 	sep_line(125).
 sep_line(0) :- 

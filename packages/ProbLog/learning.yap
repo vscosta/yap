@@ -8,11 +8,12 @@
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
 %
-%  ProbLog was developed at Katholieke Universiteit Leuven
-%                                                            
-%  Copyright 2009
-%  Angelika Kimmig, Vitor Santos Costa, Bernd Gutmann
-%                                                              
+%  Copyright 2009 Katholieke Universiteit Leuven
+%
+%  Authors: Luc De Raedt, Bernd Gutmann, Angelika Kimmig,
+%           Vitor Santos Costa
+%
+%                                                                     
 %  Main authors of this file:
 %  Bernd Gutmann
 %
@@ -208,13 +209,11 @@
 :- module(learning,[do_learning/1,
 	            do_learning/2,
 	            set_learning_flag/2,
-		    learning_flag/2,
-		    learning_flags/0,
+		    save_model/1,
 		    problog_help/0,
 		    set_problog_flag/2,
 		    problog_flag/2,
-		    problog_flags/0,
-		    auto_alpha/0
+		    problog_flags/0
 		    ]).
 
 % switch on all the checks to reduce bug searching time
@@ -233,9 +232,8 @@
 	                       shell/2]).
 
 % load our own modules
-:- use_module('problog_learning/logger').
-:- use_module('problog_learning/flags_learning').
-:- use_module(problog).
+:- use_module(library('problog_learning/logger')).
+:- use_module(library(problog)).
 
 % used to indicate the state of the system
 :- dynamic values_correct/0.
@@ -248,23 +246,157 @@
 
 % used to identify queries which have identical proofs
 :- dynamic query_is_similar/2.
-:- dynamic query_md5/3.
+:- dynamic query_md5/2.
+
+% used by set_learning_flag
+:- dynamic init_method/5.
+:- dynamic rebuild_bdds/1.
+:- dynamic rebuild_bdds_it/1.
+:- dynamic reuse_initialized_bdds/1.
+:- dynamic learning_rate/1.
+:- dynamic probability_initializer/3.
+:- dynamic check_duplicate_bdds/1.
+:- dynamic output_directory/1.
+:- dynamic query_directory/1.
+:- dynamic log_frequency/1.
+:- dynamic alpha/1.
+:- dynamic sigmoid_slope/1.
+:- dynamic line_search/1.
+:- dynamic line_search_tolerance/1.
+:- dynamic line_search_tau/1.
+:- dynamic line_search_never_stop/1.
+:- dynamic line_search_interval/2.
 
 
-%========================================================================
-%= 
-%= 
+%==========================================================================
+%=  You can set some flags and parameters
 %=
-%========================================================================
+%=  init_method/5 specifies which ProbLog inference mechanism is used
+%=  to answer queries
+%=
+%=
+%=  if rebuild_bdds(true) is set, the bdds are rebuild after
+%=  each N iterations for rebuild_bdds_it(N) 
+%=
+%=  if reuse_initialized_bdds(true) is set, the bdds which are on the
+%=  harddrive from the previous run of LeProbLog are reused.
+%=  do not use this, when you changed the init method in the meantime
+%=
+%==========================================================================
+set_learning_flag(init_method,(Query,Probability,BDDFile,ProbFile,Call)) :-
+	retractall(init_method(_,_,_,_,_)),
+	assert(init_method(Query,Probability,BDDFile,ProbFile,Call)).
 
-my_format(Level,String,Arguments) :-
-	learning_flag(verbosity_level,V_Level),
+set_learning_flag(rebuild_bdds,Flag) :-
+	(Flag=true;Flag=false),
+	!,
+	retractall(rebuild_bdds(_)),
+	assert(rebuild_bdds(Flag)).
+
+set_learning_flag(rebuild_bdds_it,Flag) :-
+	integer(Flag),
+	retractall(rebuild_bdds_it(_)),
+	assert(rebuild_bdds_it(Flag)).
+
+
+set_learning_flag(reuse_initialized_bdds,Flag) :-
+	(Flag=true;Flag=false),
+	!,
+	retractall(reuse_initialized_bdds(_)),
+	assert(reuse_initialized_bdds(Flag)).
+
+set_learning_flag(learning_rate,V) :-
+	(V=examples -> true;(number(V),V>=0)),
+	!,
+	retractall(learning_rate(_)),
+	assert(learning_rate(V)).
+
+set_learning_flag(probability_initializer,(FactID,Probability,Query)) :-
+	var(FactID),
+	var(Probability),
+	callable(Query),
+	retractall(probability_initializer(_,_,_)),
+	assert(probability_initializer(FactID,Probability,Query)).
+
+set_learning_flag(check_duplicate_bdds,Flag) :-
+	(Flag=true;Flag=false),
+	!,
+	retractall(check_duplicate_bdds(_)),
+	assert(check_duplicate_bdds(Flag)).
+
+set_learning_flag(output_directory,Directory) :-
 	(
-	 V_Level >= Level
+	    file_exists(Directory)
 	->
-	 (format(String,Arguments),flush_output(user));
-	 true
-	).
+	    file_property(Directory,type(directory));
+	    make_directory(Directory)
+	),
+
+	working_directory(PWD,PWD),
+	atomic_concat([PWD,'/',Directory,'/'],Path),
+	atomic_concat([Directory,'/log.dat'],Logfile),
+	
+	retractall(output_directory(_)),
+	assert(output_directory(Path)),
+	logger_set_filename(Logfile),
+	set_problog_flag(dir,Directory).
+
+set_learning_flag(query_directory,Directory) :-
+	(
+	    file_exists(Directory)
+	->
+	    file_property(Directory,type(directory));
+	    make_directory(Directory)
+	),
+	
+	working_directory(PWD,PWD),
+	atomic_concat([PWD,'/',Directory,'/'],Path),
+	retractall(query_directory(_)),
+	assert(query_directory(Path)).
+
+set_learning_flag(log_frequency,Frequency) :-
+	integer(Frequency),
+	Frequency>=0,
+	retractall(log_frequency(_)),
+	assert(log_frequency(Frequency)).
+
+set_learning_flag(alpha,Alpha) :-
+	number(Alpha),
+	retractall(alpha(_)),
+	assert(alpha(Alpha)).
+set_learning_flag(sigmoid_slope,Slope) :-
+	number(Slope),
+	Slope>0,
+	retractall(sigmoid_slope(_)),
+	assert(sigmoid_slope(Slope)).
+
+
+set_learning_flag(line_search,Flag) :-
+	(Flag=true;Flag=false),
+	!,
+	retractall(line_search(_)),
+	assert(line_search(Flag)).
+set_learning_flag(line_search_tolerance,Number) :-
+	number(Number),
+	Number>0,
+	retractall(line_search_tolerance(_)),
+	assert(line_search_tolerance(Number)).
+set_learning_flag(line_search_interval,(L,R)) :-
+	number(L),
+	number(R),
+	L<R,
+	retractall(line_search_interval(_,_)),
+	assert(line_search_interval(L,R)).
+set_learning_flag(line_search_tau,Number) :-
+	number(Number),
+	Number>0,
+	retractall(line_search_tau(_)),
+	assert(line_search_tau(Number)).
+set_learning_flag(line_search_never_stop,Flag) :-
+	(Flag=true;Flag=false),
+	!,
+	retractall(line_search_nerver_stop(_)),
+	assert(line_search_never_stop(Flag)).
 
 
 %========================================================================
@@ -272,23 +404,37 @@ my_format(Level,String,Arguments) :-
 %= if F is a variable, a filename based on the current iteration is used
 %=
 %========================================================================
-
-save_model:-
-	current_iteration(Iteration),
-	learning_flag(output_directory,Directory),
-	atomic_concat([Directory,'factprobs_',Iteration,'.pl'],F),
+save_model(F) :-
+	(
+	    var(F)
+	->  
+	    (
+		current_iteration(Iteration),
+		output_directory(Directory),
+		atomic_concat([Directory,'factprobs_',Iteration,'.pl'],F)
+	    );true
+	),
 	export_facts(F).
 
-
 %========================================================================
-%= store the current succes probabilities for training and test examples
-%= 
+%= store the probabilities for all training and test examples
+%= if F is a variable, a filename based on the current iteration is used
+%=
 %========================================================================
+save_predictions(F) :-
+	update_values,
 
-save_predictions:-
 	current_iteration(Iteration),
-	learning_flag(output_directory,Directory),
-	atomic_concat([Directory,'predictions_',Iteration,'.pl'],F),
+
+	(
+	    var(F)
+	->  
+	    (
+		current_iteration(Iteration),
+		output_directory(Directory),
+		atomic_concat([Directory,'predictions_',Iteration,'.pl'],F)
+	    );true
+	),
 
 	open(F,'append',Handle),
 	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n",[]),
@@ -296,28 +442,6 @@ save_predictions:-
 	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n",[]),
 	!,
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% start save prediction test examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	( % go over all test examples
-	   current_predicate(user:test_example/3),
-	   user:test_example(Query_ID,Query,TrueQueryProb),
-	   query_probability(Query_ID,LearnedQueryProb),
-
-	   format(Handle,'ex(~q,test,~q,~q,~10f,~10f).\n',
-	   [Iteration,Query_ID,Query,TrueQueryProb,LearnedQueryProb]),
-
-	   fail; % go to next test example
-	   true
-        ),
-	!,
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% stop save prediction test examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% start save prediction training examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	( % go over all training examples
 	    current_predicate(user:example/3),
 	    user:example(Query_ID,Query,TrueQueryProb),
@@ -329,11 +453,18 @@ save_predictions:-
 	    fail; % go to next training example
 	    true
 	),
-	!,
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% stop save prediction training examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
+	( % go over all test examples
+	   current_predicate(user:test_example/3),
+	   user:test_example(Query_ID,Query,TrueQueryProb),
+	   query_probability(Query_ID,LearnedQueryProb),
 
+	   format(Handle,'ex(~q,test,~q,~q,~10f,~10f).\n',
+	   [Iteration,Query_ID,Query,TrueQueryProb,LearnedQueryProb]),
+
+	   fail; % go to next test example
+	   true
+        ),
 	format(Handle,'~3n',[]),
 	close(Handle).
 
@@ -346,85 +477,65 @@ save_predictions:-
 %========================================================================
 
 check_examples :-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% Check example IDs
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	(
-	 (current_predicate(user:example/3),user:example(ID,_,_), \+ atomic(ID))
+	    (
+		(current_predicate(user:example/3),user:example(ID,_,_), \+ atomic(ID)) ;
+		(current_predicate(user:test_example/3),user:test_example(ID,_,_), \+ atomic(ID))
+	    )
 	->
-	 (
-	  format(user_error,'The example id of training example ~q ',[ID]),
-	  format(user_error,'is not atomic (e.g foo42, 23, bar, ...).~n',[]),
-	  throw(error(examples))
-	 ); true
+	    (
+		format(user_error,'The example id of example ~q is not atomic (e.g foo42, 23, bar, ...).~n',[ID]),
+		throw(error(examples))
+	    ); true
 	),
 
 	(
-	 (current_predicate(user:test_example/3),user:test_example(ID,_,_), \+ atomic(ID))
+	    (
+		(current_predicate(user:example/3),user:example(ID,_,P), (\+ number(P); P>1 ; P<0));
+		(current_predicate(user:test_example/3),user:test_example(ID,_,P), (\+ number(P) ;  P>1 ; P<0))
+	    )
 	->
-	 (
-	  format(user_error,'The example id of test example ~q ',[ID]),
-	  format(user_error,'is not atomic (e.g foo42, 23, bar, ...).~n',[]),
-	  throw(error(examples))
-	 ); true
+	    (
+		format(user_error,'The example ~q does not have a valid probaility value (~q).~n',[ID,P]),
+		throw(error(examples))
+	    ); true
 	),
+
+
+	(
+	    (
+		(
+		    current_predicate(user:example/3),
+		    user:example(ID,QueryA,_),
+		    user:example(ID,QueryB,_),
+		    QueryA \= QueryB
+		) ;
 	
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% Check example probabilities
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(
-	 (current_predicate(user:example/3),user:example(ID,_,P), (\+ number(P); P>1 ; P<0))
+		(
+		    current_predicate(user:test_example/3),
+		    user:test_example(ID,QueryA,_),
+		    user:test_example(ID,QueryB,_),
+		    QueryA \= QueryB
+		);
+
+		(
+		    current_predicate(user:example/3),
+		    current_predicate(user:test_example/3),
+		    user:example(ID,QueryA,_),
+		    user:test_example(ID,QueryB,_),
+		    QueryA \= QueryB
+		)
+	    )
 	->
-	 (
-	  format(user_error,'The training example ~q does not have a valid probaility value (~q).~n',[ID,P]),
-	  throw(error(examples))
-	 ); true
-	),
-
-	(
-	 (current_predicate(user:test_example/3),user:test_example(ID,_,P), (\+ number(P); P>1 ; P<0))
-	->
-	 (
-	  format(user_error,'The test example ~q does not have a valid probaility value (~q).~n',[ID,P]),
-	  throw(error(examples))
-	 ); true
-	),
-
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% Check that no example ID is repeated,
-	% and if it is repeated make sure the query is the same
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(
-	 (
-	  (
-	   current_predicate(user:example/3),
-	   user:example(ID,QueryA,_),
-	   user:example(ID,QueryB,_),
-	   QueryA \= QueryB
-	  ) ;
-	  
-	  (
-	   current_predicate(user:test_example/3),
-	   user:test_example(ID,QueryA,_),
-	   user:test_example(ID,QueryB,_),
-	   QueryA \= QueryB
-	  );
-
-	  (
-	   current_predicate(user:example/3),
-	   current_predicate(user:test_example/3),
-	   user:example(ID,QueryA,_),
-	   user:test_example(ID,QueryB,_),
-	   QueryA \= QueryB
-	  )
-	 )
-	->
-	 (
-	  format(user_error,'The example id ~q is used several times.~n',[ID]),
-	  throw(error(examples))
-	 ); true
+	   (
+	        format(user_error,'The example id ~q is used several times.~n',[ID]),
+		throw(error(examples))
+	    ); true
 	).
+
+
+	    
+
 
 
 %========================================================================
@@ -435,99 +546,121 @@ check_examples :-
 %========================================================================
 
 do_learning(Iterations) :-
-	do_learning(Iterations,-1).
+	integer(Iterations),
+	
+	( 
+	    current_predicate(user:example/3)
+	->
+	    true;
+	    format(user_error,'~n~nWarning: No training examples specified !!!~n~n',[])
+	),
+
+	do_learning_intern(Iterations,-1).
 
 do_learning(Iterations,Epsilon) :-
-	current_predicate(user:example/3),
-	!,
 	integer(Iterations),
-	number(Epsilon),
+	float(Epsilon),
+
 	Iterations>0,
+	Epsilon>0.0,
+
+	( 
+	    current_predicate(user:example/3)
+	->
+	    true;
+	    format(user_error,'~n~nWarning: No training examples specified !!!~n~n',[])
+	),
+
 	do_learning_intern(Iterations,Epsilon).
-do_learning(_,_) :-
-	format(user_error,'~n~nWarning: No training examples specified !!!~n~n',[]).
+
+	
 
 
-do_learning_intern(0,_) :-
-	!.
+
+
+
 do_learning_intern(Iterations,Epsilon) :-
-	Iterations>0,
-	
-	init_learning,
-	current_iteration(CurrentIteration),
-	!,
-	retractall(current_iteration(_)),
-	!,
-	NextIteration is CurrentIteration+1,
-	assert(current_iteration(NextIteration)),
-	EndIteration is CurrentIteration+Iterations-1,
-	
-	my_format(1,'~nIteration ~d of ~d~n',[CurrentIteration,EndIteration]),
-	logger_set_variable(iteration,CurrentIteration),
-
-	logger_start_timer(duration),
-
-	mse_testset,
-	once(ground_truth_difference),  
-	gradient_descent,
-
-	learning_flag(log_frequency,Log_Frequency),
-	
 	(
-	 ( Log_Frequency>0, 0 =:= CurrentIteration mod Log_Frequency)
+	    Iterations=0
 	->
-	 (
-	  once(save_predictions),
-	  once(save_model)
-	 );
-	 true
-	),
+	    true;
+	    (
+		Iterations>0,
 
-	update_values,
-	
-	(
-	 last_mse(Last_MSE)
-	->
-	 (
-	  retractall(last_mse(_)),
-	  logger_get_variable(mse_trainingset,Current_MSE),
-	  assert(last_mse(Current_MSE)),
-	  !,
-	  MSE_Diff is abs(Last_MSE-Current_MSE)
-	 );  (
-	      logger_get_variable(mse_trainingset,Current_MSE),
-	      assert(last_mse(Current_MSE)), 
-	      MSE_Diff is Epsilon+1
-	     )
-	),
+		% nothing will happen, if we're already initialized
+		init_learning,
+		current_iteration(OldIteration),
+		!,
+		retractall(current_iteration(_)),
+		!,
+		CurrentIteration is OldIteration+1,
+		assert(current_iteration(CurrentIteration)),
+		EndIteration is OldIteration+Iterations,
+		
+		format('~n Iteration ~d of ~d~n',[CurrentIteration,EndIteration]),
+		logger_set_variable(iteration,CurrentIteration),
 
-	(
-	 (learning_flag(rebuild_bdds,BDDFreq),BDDFreq>0,0 =:= CurrentIteration mod BDDFreq)
-	->
-	 (
-	  retractall(values_correct),
-	  once(delete_all_queries),
-	  once(init_queries)
-	 ); true
-	),
+		logger_start_timer(duration),
+		gradient_descent,
+
+		(
+		    (rebuild_bdds(true),rebuild_bdds_it(BDDFreq),0 =:= CurrentIteration mod BDDFreq)
+		->
+		    (
+			once(delete_all_queries),
+			once(init_queries)
+		    ); true
+		),
 
 
-	!,
-	logger_stop_timer(duration),
-	
+		mse_trainingset,
+		mse_testset,
+		
+		(
+		    last_mse(Last_MSE)
+		->
+		    (
+			retractall(last_mse(_)),
+			logger_get_variable(mse_trainingset,Current_MSE),
+			assert(last_mse(Current_MSE)),
+			!,
+			MSE_Diff is abs(Last_MSE-Current_MSE)
+		    );  (
+		        logger_get_variable(mse_trainingset,Current_MSE),
+			assert(last_mse(Current_MSE)), 
+			MSE_Diff is Epsilon+1
+		    )
+		),
 
-	logger_write_data,
+		!,
+		logger_stop_timer(duration),
+		once(ground_truth_difference),
+
+		logger_write_data,
 
 
+		log_frequency(Log_Frequency),
+		
+		(
+		    ( Log_Frequency=0; 0 =:= CurrentIteration mod Log_Frequency)
+		->
+		   (
+		       save_predictions(_X),
+		       save_model(_Y)
+		   );
+		   true
+	        ),
+		RemainingIterations is Iterations-1,
 
-	RemainingIterations is Iterations-1,
-
-	(
-	 MSE_Diff>Epsilon
-	->
-	 do_learning_intern(RemainingIterations,Epsilon);
-	 true
+		(
+		    MSE_Diff>Epsilon
+		->
+		    do_learning_intern(RemainingIterations,Epsilon);
+		    true
+		)
+	    )
 	).
+	    
 
 
 %========================================================================
@@ -535,109 +668,104 @@ do_learning_intern(Iterations,Epsilon) :-
 %=
 %=
 %========================================================================
+
 init_learning :-
-	learning_initialized,
-	!.
-init_learning :-
-	check_examples,
-
-	logger_write_header,
-
-	my_format(1,'Initializing everything~n',[]),
-	empty_output_directory,
-
-
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% Delete the BDDs from the previous run if they should
-	% not be reused
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	(
-	 (
-	  learning_flag(reuse_initialized_bdds,true),
-	  learning_flag(rebuild_bdds,0)
-	 )
-	->
-	 true;
-	 delete_all_queries
-	),
+	    learning_initialized
+	->  
+	    true;
+	    (
+		
+		check_examples,
 
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% start count test examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	bb_put(test_examples,0),
-	( % go over all test examples
-	  current_predicate(user:test_example/3),
-	  user:test_example(_,_,_),
-	  bb_get(test_examples, OldCounter),
-	  NewCounter is OldCounter+1,
-	  bb_put(test_examples,NewCounter),
+		format('Delete previous logs (if existing) from output directory~2n',[]),
+		empty_output_directory,
 
-	  fail; % go to next text example
-	  true
-	),
-	bb_delete(test_examples,TestExampleCount),
-	my_format(3,'~q test examples~n',[TestExampleCount]),
-	!,
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% stop count test examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% start count training examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	bb_put(training_examples,0),
-	( % go over all training examples
-	  current_predicate(user:example/3),
-	  user:example(_,_,_),
-	  bb_get(training_examples, OldCounter),
-	  NewCounter is OldCounter+1,
-	  bb_put(training_examples,NewCounter),
-
-	  fail; %go to next training example
-	  true
-	),
-	bb_delete(training_examples,TrainingExampleCount),
-	assert(example_count(TrainingExampleCount)),
-	my_format(3,'~q training examples~n',[TrainingExampleCount]),
-	!,
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% stop count training examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		format('Initializing everything~n',[]),
 
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% set learning rate and alpha
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(
-	 learning_flag(learning_rate,examples)
-	->
-	 set_learning_flag(learning_rate,TrainingExampleCount);
-	 true
-	),
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		% Delete the BDDs from the previous run if they should
+	        % not be reused
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	(
-	 learning_flag(alpha,auto)
-	->
-	 auto_alpha;
-	 true
-	),
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% build BDD script for every example
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	once(initialize_fact_probabilities),
-	once(init_queries),
+	        (
+		    (reuse_initialized_bdds(false);rebuild_bdds(true))
+		->
+		    delete_all_queries;
+		    true
+		),
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% done
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	assert(current_iteration(0)),
-	assert(learning_initialized),
 
-	my_format(1,'~n',[]).
+		logger_write_header,
+		logger_start_timer(duration),
+		logger_set_variable(iteration,0),
 
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		% start count examples
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	        bb_put(training_examples,0),
+	        ( % go over all training examples
+		    current_predicate(user:example/3),
+		    user:example(_,_,_),
+		    bb_get(training_examples, OldCounter),
+		    NewCounter is OldCounter+1,
+		    bb_put(training_examples,NewCounter),
+		    fail;
+		    true
+		),
+
+	        bb_put(test_examples,0),
+	        ( % go over all test examples
+		    current_predicate(user:test_example/3),
+		    user:test_example(_,_,_),
+		    bb_get(test_examples, OldCounter),
+		    NewCounter is OldCounter+1,
+		    bb_put(test_examples,NewCounter),
+		    fail;
+		    true
+		),
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		% stop count examples
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	        !,
+
+		bb_delete(training_examples,TrainingExampleCount),
+		bb_delete(test_examples,TestExampleCount),
+
+		assert(example_count(TrainingExampleCount)),
+
+		(
+		    learning_rate(examples)
+		->
+		    set_learning_flag(learning_rate,TrainingExampleCount);
+		    true
+		),
+		learning_rate(Learning_Rate),
+		format('~q training examples found.~n~q test examples found.~nlearning rate=~f~n~n',
+		[TrainingExampleCount,TestExampleCount,Learning_Rate]),
+		format('Generate BDDs for all queries in the training and test set~n',[]),
+		initialize_fact_probabilities,
+		init_queries,
+
+		format('All Queries have been generated~n',[]),
+		mse_trainingset,
+		mse_testset,
+
+		!,
+		logger_stop_timer(duration),
+
+		ground_truth_difference,
+
+		logger_write_data,
+		assert(current_iteration(0)),
+		assert(learning_initialized),
+		save_model(_),save_predictions(_)
+
+	    )
+	).
 
 %========================================================================
 %= 
@@ -648,20 +776,14 @@ init_learning :-
 
 
 delete_all_queries :-
-	remove_queries,
+	query_directory(Directory),
+	atomic_concat(['rm -f ',Directory,'query_*'],Command),
+	(shell(Command) -> true; true),
 	retractall(query_is_similar(_,_)),
-	retractall(query_md5(_,_,_)).
-
-remove_queries :-
-	learning_flag(query_directory,Directory),
-	user:example(ID,_,_),
-	atomic_concat([Directory,'query_',ID],File),
-	delete_file(File),
-	fail.	
-remove_queries.
+	retractall(query_md5(_,_)).
 
 empty_output_directory :-
-	learning_flag(output_directory,Directory),
+	output_directory(Directory),
 	atomic_concat(['rm -f ',Directory,'log.dat ',
                                 Directory,'factprobs_*.pl ',
 				Directory,'predictions_*.pl'],Command),
@@ -675,88 +797,77 @@ empty_output_directory :-
 
 
 init_queries :-
-	my_format(2,'Build BDDs for examples~n',[]),
-	( % go over all test examples
-	    current_predicate(user:test_example/3),
-	    user:test_example(ID,Query,Prob),
-	    my_format(3,' test example ~q: ~q~n',[ID,Query]),
-	    flush_output(user),
-	    init_one_query(ID,Query,test),
-	    fail; % go to next test example
 
-	    true
-	),
 	( % go over all training examples
 	    current_predicate(user:example/3),
 	    user:example(ID,Query,Prob),
-	    statistics(runtime,[_,T]),
-	    my_format(3,' training example ~q: ~q after ~q msec~n',[ID,Query,T]),
-%	    my_format(3,' training example ~q: ~q~n',[ID,Query]),
+	    format('~n~n training example ~q: ~q~n',[ID,Query]),
 	    flush_output(user),
-	    init_one_query(ID,Query,training),
+	    init_one_query(ID,Query),
 	    fail; %go to next training example
+
+	    true
+	),
+
+	( % go over all test examples
+	    current_predicate(user:test_example/3),
+	    user:test_example(ID,Query,Prob),
+	    format('~n~n test example ~q: ~q~n',[ID,Query]),
+	    flush_output(user),
+	    init_one_query(ID,Query),
+	    fail; % go to next test example
 
 	    true
 	).
 
-
-
-init_one_query(QueryID,Query,Type) :-
-	learning_flag(output_directory,Output_Directory),
-	learning_flag(query_directory,Query_Directory),
+init_one_query(QueryID,Query) :-
+	output_directory(Output_Directory),
+	query_directory(Query_Directory),
 
 	atomic_concat([Query_Directory,'query_',QueryID],Filename),
 	atomic_concat([Output_Directory,'input.txt'],Filename2),
 	atomic_concat([Output_Directory,'tmp_md5'],Filename3),
 
+	    (
+		file_exists(Filename)
+	    ->
+		format('Reuse existing BDD ~q~n~n',[Filename]);
+		(
+		    init_method(Query,_Prob,Filename,Filename2,InitCall),
+		    once(call(InitCall)),
+		    delete_file(Filename2)
+	        )
+	    ),
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% if BDD file does not exist, call ProbLog
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(
-	 file_exists(Filename)
-	->
-	 my_format(3,' Reuse existing BDD ~q~n~n',[Filename]);
-	 (
-	  learning_flag(init_method,(Query,_Prob,Filename,Filename2,InitCall)),
-	  once(call(InitCall)),
-	  delete_file(Filename2)
-	 )
-	),
-    
+	    (
+		check_duplicate_bdds(true)
+	    ->
+	        (
+		    % calculate the md5sum of the bdd script file
+		    atomic_concat(['cat ',Filename,' | md5sum | sed "s/ .*$/\')./"  | sed "s/^/md5(\'/"> ',Filename3],MD5Command),
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% check wether this BDD is similar to a previous one of the same type
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(
-	 learning_flag(check_duplicate_bdds,true)
-	->
-	 (
-	  % calculate the md5sum of the bdd script file
-	  atomic_concat(['cat ',Filename,' | md5sum | sed "s/ .*$/\')./"  | sed "s/^/md5(\'/"> ',Filename3],MD5Command),
+		    (shell(MD5Command,0) -> true; throw(error("Something wrong with calculating the MD5 value"))),
 
-	  (shell(MD5Command,0) -> true; throw(error("Something wrong with calculating the MD5 value"))),
+		    open(Filename3, read, Handle),
+		    read(Handle,md5(Query_MD5)),
+		    close(Handle),
 
-	  open(Filename3, read, Handle),
-	  read(Handle,md5(Query_MD5)),
-	  close(Handle),
+		    delete_file(Filename3),
+	
+        	    % Does another query exists which already has this MD5?
+		    (
+			query_md5(OtherQueryID,Query_MD5)
+		    ->
+			% yippie! we can save a lot of work
+	                ( 
+			    assert(query_is_similar(QueryID,OtherQueryID)),
+			    format('~q is similar to ~q~2n', [QueryID,OtherQueryID])
+			); assert(query_md5(QueryID,Query_MD5))
+		    )
+		);
 
-	  delete_file(Filename3),
-	  
-	  % Does another query exists which already has this MD5?
-	  (
-	   query_md5(OtherQueryID,Query_MD5,Type)
-	  ->
-	   % yippie! we can save a lot of work
-	   ( 
-	     assert(query_is_similar(QueryID,OtherQueryID)),
-	     my_format(3, '~q is similar to ~q~2n', [QueryID,OtherQueryID])
-	   ); assert(query_md5(QueryID,Query_MD5,Type))
-	  )
-	 );
-
-	 true
-	).
+		true
+	    ).
 		
 
 %========================================================================
@@ -767,19 +878,24 @@ init_one_query(QueryID,Query,Type) :-
 
 initialize_fact_probabilities :-
 	( % go over all tunable facts
-	  tunable_fact(FactID,_),
-	  learning_flag(probability_initializer,(FactID,Probability,Query)),
-	  once(call(Query)),
-	  set_fact_probability(FactID,Probability),
-	  
-	  fail; % go to next tunable fact
-	  true
+	    tunable_fact(FactID,_),
+
+	    probability_initializer(FactID,Probability,Query),
+	    once(call(Query)),
+	    set_fact_probability(FactID,Probability),
+
+
+	    fail; % go to next tunable fact
+	    
+	    true
 	).
 
 random_probability(_FactID,Probability) :-
 	% use probs around 0.5 to not confuse k-best search
 	random(Random),
 	Probability is 0.5+(Random-0.5)/100.
+	
+
 
 
 
@@ -790,30 +906,28 @@ random_probability(_FactID,Probability) :-
 %========================================================================
 
 update_values :-
+	update_values(all).
+
+
+update_values(_) :-
 	values_correct,
 	!.
-update_values :-
+
+update_values(What_To_Update) :-
 	\+ values_correct,
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% delete old values
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	once(retractall(query_probability_intern(_,_))),
-	once(retractall(query_gradient_intern(_,_,_))),	
+	once(retractall(query_gradient_intern(_,_,_))),
 
+
+	output_directory(Directory),
+	atomic_concat(Directory,'input.txt',Input_Filename),
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start write current probabilities to file
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	learning_flag(output_directory,Directory),
-	atomic_concat(Directory,'input.txt',Input_Filename),
-
-	(
-	 file_exists(Input_Filename)
-	->
-	 delete_file(Input_Filename);
-	 true
-	),
-	
 	open(Input_Filename,'write',Handle),
 
 	( % go over all probabilistic fact
@@ -831,137 +945,162 @@ update_values :-
 	),
 
 	close(Handle),
-	!,
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% stop write current probabilities to file
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	!,
 
+
+
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% start update values for all test examples
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        ( What_To_Update = all
+          ->
+             ( % go over all training examples
+		 current_predicate(user:test_example/3),
+		 user:test_example(QueryID,_Query,_QueryProb),
+		 once(call_bdd_tool(QueryID,'+',all)),
+		 fail; % go to next training example
+		 true
+	     ); true
+	 ),
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% stop update values for all test examples
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	!,
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% start update values for all training examples
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	( % go over all training examples
+	    current_predicate(user:example/3),
+	    user:example(QueryID,_Query,_QueryProb),
+	    once(call_bdd_tool(QueryID,'.',What_To_Update)),
+	    fail; % go to next training example
+	    true
+	),
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% stop update values for all training examples
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	!,
+
+
+	nl,
+
+	delete_file(Input_Filename),
 	assert(values_correct).
 
 
+%========================================================================
+%=
+%=
+%=
+%========================================================================
 
-%========================================================================
-%=
-%=
-%=
-%========================================================================
-update_query_cleanup(QueryID) :-
+
+call_bdd_tool(QueryID,Symbol,What_To_Update) :-
+	output_directory(Output_Directory),
+	query_directory(Query_Directory),
 	(
-	 (query_is_similar(QueryID,_) ; query_is_similar(_,QueryID))
+	    query_is_similar(QueryID,_)
 	->
-	    % either this query is similar to another or vice versa,
-	    % therefore we don't delete anything
-	 true;
-	 once(retractall(query_gradient_intern(QueryID,_,_)))
-	).
+	    % we don't have to evaluate the BDD
+	    write('#');
+	    (
+		sigmoid_slope(Slope),
+		problog_dir(PD),
+		(What_To_Update=all -> Method='g' ; Method='l'),
+		atomic_concat([PD,
+				'/ProblogBDD -i "',
+		                  Output_Directory,
+				  'input.txt',
+				  '" -l "',
+			          Query_Directory,
+			          'query_',
+				  QueryID,
+				  '" -m ',Method,' -id ',
+				  QueryID,
+				  ' -sl ',Slope,
+				  ' > "',
+				  Output_Directory,
+				  'values.pl"'],Command),
+		shell(Command,Error),
 	     
-
-
-update_query(QueryID,Symbol,What_To_Update) :-
-	learning_flag(output_directory,Output_Directory),
-	learning_flag(query_directory,Query_Directory),
-	(
-	 query_is_similar(QueryID,_)
-	->
-				% we don't have to evaluate the BDD
-	 my_format(4,'#',[]);
-	 (
-	  learning_flag(sigmoid_slope,Slope),
-	  problog_dir(PD),
-	  ((What_To_Update=all;query_is_similar(_,QueryID)) -> Method='g' ; Method='l'),
-	  atomic_concat([PD,
-			 '/ProblogBDD -i "',
-			 Output_Directory,
-			 'input.txt',
-			 '" -l "',
-			 Query_Directory,
-			 'query_',
-			 QueryID,
-			 '" -m ',Method,' -id ',
-			 QueryID,
-			 ' -sl ',Slope,
-			 ' > "',
-			 Output_Directory,
-			 'values.pl"'],Command),
-	  shell(Command,Error),
-	 
-
-	  (
-	   Error = 2
-	  ->
-	   throw(error('SimpleCUDD has been interrupted.'));
-	   true
-	  ),
-	  (
-	   Error \= 0
-	  ->
-	   throw(bdd_error(QueryID,Error));
-	   true
-	  ),
-	  atomic_concat([Output_Directory,'values.pl'],Values_Filename),
-	  (
-	   file_exists(Values_Filename)
-	  ->
-	   (
-	    (
-	     once(my_load(Values_Filename,QueryID))
-	    ->
-	     true;
+	 	atomic_concat([' cat "',
+				  Output_Directory,
+				  'values.pl" >> ~/all_results'],Command2),
+	       shell(Command2),
+		(
+		    Error = 2
+		->
+		    throw(error('SimpleCUDD has been interrupted.'));
+		    true
+		),
+		(
+		    Error \= 0
+		->
+		    throw(bdd_error(QueryID,Error));
+		    true
+		),
+		atomic_concat([Output_Directory,'values.pl'],Values_Filename),
 	     (
-	      format(user_error,'ERROR: Tried to read the file ~q but my_load/1 fails.~n~q.~2n',[Values_Filename,update_query(QueryID,Symbol,What_To_Update)]),
-	      throw(error(my_load_fails))
-	     )	 
-	    );
-	    (
-	     format(user_error,'ERROR: Tried to read the file ~q but it does not exist.~n~q.~2n',[Values_Filename,update_query(QueryID,Symbol,What_To_Update)]),
-	     throw(error(output_file_does_not_exist))
+	      file_exists(Values_Filename)
+	     ->
+	      (
+	       (
+		once(my_load(Values_Filename))
+	       ->
+		true;
+		(
+		 format(user_error,'ERROR: Tried to read the file ~q but my_load/1 fails.~n~q.~2n',[Values_Filename,call_bdd_tool(QueryID,Symbol,What_To_Update)]),
+		 throw(error(my_load_fails))
+		)	 
+	      );
+	      (
+	       format(user_error,'ERROR: Tried to read the file ~q but it does not exist.~n~q.~2n',[Values_Filename,call_bdd_tool(QueryID,Symbol,What_To_Update)]),
+	       throw(error(output_file_does_not_exist))
+	      )
+	     )
+	     ),
+		      
+		delete_file(Values_Filename),
+		write(Symbol)
 	    )
-	   )
-	  ),
-	  
-	  delete_file(Values_Filename),
-	  my_format(4,'~w',[Symbol])
-	 )
 	),
 	flush_output(user).
 	    
 
 %========================================================================
-%= This predicate reads probability and gradient values from the file
-%= the gradient ID is a mere check to uncover hidden bugs
-%= +Filename +QueryID -QueryProbability
+%=
+%=
+%=
 %========================================================================
 
-my_load(File,QueryID) :-
-	open(File,'read',Handle),
-	read(Handle,Atom),
-	once(my_load_intern(Atom,Handle,QueryID)),
-	!,
-	close(Handle).
-my_load(File,QueryID) :-
-	format(user_error,'Error at ~q.~2n',[my_load(File,QueryID)]),
-	throw(error(my_load(File,QueryID))).
-
-my_load_intern(end_of_file,_,_) :-
+my_load(File) :-
+	see(File),
+	read(X),
+	my_load_intern(X),
+	seen.
+my_load_intern(end_of_file) :-
 	!.
-my_load_intern(query_probability(QueryID,Prob),Handle,QueryID) :-
+my_load_intern(query_probability(QueryID,Prob)) :-
 	!,
 	assert(query_probability_intern(QueryID,Prob)),
-	read(Handle,X),
-	my_load_intern(X,Handle,QueryID).
-my_load_intern(query_gradient(QueryID,XFactID,Value),Handle,QueryID) :-
+	read(X2),
+	my_load_intern(X2).
+my_load_intern(query_gradient(QueryID,XFactID,Value)) :-
 	!,
 	atomic_concat(x,StringFactID,XFactID),
 	atom_number(StringFactID,FactID),
 	assert(query_gradient_intern(QueryID,FactID,Value)),
-	read(Handle,X),
-	my_load_intern(X,Handle,QueryID).
-my_load_intern(X,Handle,QueryID) :-
+	read(X2),
+	my_load_intern(X2).
+my_load_intern(X) :-
 	format(user_error,'Unknown atom ~q in results file.~n',[X]),
-	read(Handle,X),
-	my_load_intern(X,Handle,QueryID).
-
-
+	read(X2),
+	my_load_intern(X2).
 
 
 %========================================================================
@@ -1037,39 +1176,56 @@ mse_trainingset_only_for_linesearch(MSE) :-
 	    current_predicate(user:example/3)
 	-> 
 	    (
-	     
-		update_values,
-	     findall(SquaredError,
+		update_values(probabilities),
+		findall(SquaredError,
 		        (user:example(QueryID,_Query,QueryProb),
-			  once(update_query(QueryID,'.',probability)),
-			  query_probability(QueryID,CurrentProb),
-			  once(update_query_cleanup(QueryID)),
-			 SquaredError is (CurrentProb-QueryProb)**2),
+			query_probability(QueryID,CurrentProb),
+			SquaredError is (CurrentProb-QueryProb)**2),
 			AllSquaredErrors),
 
 		length(AllSquaredErrors,Length),
 		sum_list(AllSquaredErrors,SumAllSquaredErrors),
-		MSE is SumAllSquaredErrors/Length,
-       	        my_format(3,' (~8f)~n',[MSE])
+		MSE is SumAllSquaredErrors/Length
 	    ); true
 	),
 	retractall(values_correct).
 
+% calculate the mse of the training data
+mse_trainingset :-
+	(
+	    current_predicate(user:example/3)
+	-> 
+	    (
+		update_values,
+		findall(SquaredError,
+		        (user:example(QueryID,_Query,QueryProb),
+			query_probability(QueryID,CurrentProb),
+			SquaredError is (CurrentProb-QueryProb)**2),
+			AllSquaredErrors),
 
-% calculate the mse of the test data
+		length(AllSquaredErrors,Length),
+		sum_list(AllSquaredErrors,SumAllSquaredErrors),
+		min_list(AllSquaredErrors,MinError),
+		max_list(AllSquaredErrors,MaxError),
+		MSE is SumAllSquaredErrors/Length,
+
+		logger_set_variable(mse_trainingset,MSE),
+		logger_set_variable(mse_min_trainingset,MinError),
+		logger_set_variable(mse_max_trainingset,MaxError)
+	    ); true
+	).
+
+
+
 mse_testset :-
 	(
 	    current_predicate(user:test_example/3)
 	->
 	    (
-	     my_format(2,'MSE_Test ',[]),
-	          
 		update_values,
 		findall(SquaredError,
 			 (user:test_example(QueryID,_Query,QueryProb),
-			  once(update_query(QueryID,'+',probability)),
 			  query_probability(QueryID,CurrentProb),
-			  once(update_query_cleanup(QueryID)),
 			  SquaredError is (CurrentProb-QueryProb)**2),
 			AllSquaredErrors),
 
@@ -1081,8 +1237,7 @@ mse_testset :-
 
 		logger_set_variable(mse_testset,MSE),
 		logger_set_variable(mse_min_testset,MinError),
-		logger_set_variable(mse_max_testset,MaxError),
-     	        my_format(2,' (~8f)~n',[MSE])
+		logger_set_variable(mse_max_testset,MaxError)
 	     ); true
 	 ).
 
@@ -1096,15 +1251,25 @@ mse_testset :-
 %========================================================================
 
 sigmoid(T,Sig) :-
-	learning_flag(sigmoid_slope,Slope),
+	sigmoid_slope(Slope),
 	Sig is 1/(1+exp(-T*Slope)).
 
 inv_sigmoid(T,InvSig) :-
-	learning_flag(sigmoid_slope,Slope),
+	sigmoid_slope(Slope),
 	InvSig is -log(1/T-1)/Slope.
 
 
+%========================================================================
+%= this functions truncates probabilities too close to 1.0 or 0.0
+%= the reason is, applying the inverse sigmoid function would yield +/- inf
+%= for such extreme values
+%=
+%= +Float, -Float
+%========================================================================
 
+secure_probability(Prob,Prob_Secure) :-
+	TMP is max(0.000000001,Prob),
+	Prob_Secure is min(0.999999999,TMP).
 
 
 
@@ -1130,7 +1295,7 @@ save_old_probabilities :-
 	    true
 	).
 
-forget_old_probabilities :-	
+forget_old_values :-	
 	( % go over all tunable facts
 
 	    tunable_fact(FactID,_),
@@ -1145,31 +1310,36 @@ forget_old_probabilities :-
 
 add_gradient(Learning_Rate) :-
 	( % go over all tunable facts
-	  tunable_fact(FactID,_),
-	  atomic_concat(['old_prob_',FactID],Key),
-	  atomic_concat(['grad_',FactID],Key2),
 
-	  bb_get(Key,OldProbability),
-	  bb_get(Key2,GradValue),
+	    tunable_fact(FactID,_),
+	    atomic_concat(['old_prob_',FactID],Key),
+	    atomic_concat(['grad_',FactID],Key2),
 
-	  inv_sigmoid(OldProbability,OldValue),
-	  NewValue is OldValue -Learning_Rate*GradValue,
-	  sigmoid(NewValue,NewProbability),
+	    bb_get(Key,OldProbability),
+	    bb_get(Key2,GradValue),
 
-	  % Prevent "inf" by using values too close to 1.0
-	  Prob_Secure is min(0.999999999,max(0.000000001,NewProbability)),
-	  set_fact_probability(FactID,Prob_Secure),
+	    inv_sigmoid(OldProbability,OldValue),
+	    NewValue is OldValue -Learning_Rate*GradValue,
+	    sigmoid(NewValue,NewProbability),
 
-	  fail;			% go to next tunable fact
-	  true
+	    % Prevent "inf" by using values too close to 1.0
+	    secure_probability(NewProbability,NewProbabilityS),
+	    set_fact_probability(FactID,NewProbabilityS),
+
+	    fail; % go to next tunable fact
+
+	    true
 	),
-	!,
 	retractall(values_correct).
 
+simulate :-
+	L = [0.6,1.0,2.0,3.0,10,50,100,200,300],
+
+	findall((X,Y),(member(X,L),line_search_evaluate_point(X,Y)),List),
+	write(List),nl.
 
 gradient_descent :-
-	my_format(2,'Gradient ',[]),
-	
+
 	save_old_probabilities,
 	update_values,
 
@@ -1193,83 +1363,58 @@ gradient_descent :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start calculate gradient
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	bb_put(mse_train_sum, 0.0),
-	bb_put(mse_train_min, 0.0),
-	bb_put(mse_train_max, 0.0),
-	
-        learning_flag(alpha,Alpha),
-	logger_set_variable(alpha,Alpha),
-	example_count(Example_Count),
-
-	( % go over all training examples
-	  current_predicate(user:example/3),
-	  user:example(QueryID,_Query,QueryProb),
-	  once(update_query(QueryID,'.',all)),
-	  query_probability(QueryID,BDDProb),
-	  (
-	   QueryProb=:=0.0
-	  ->
-	   Y2=Alpha;
-	   Y2=1.0
-	  ),
-	  Y is Y2*2/Example_Count * (BDDProb-QueryProb),
-	  
-	  % first do the calculations for the MSE on training set
-				
-	  Squared_Error is (BDDProb-QueryProb)**2,
-	  bb_get(mse_train_sum,Old_MSE_Train_Sum),
-	  bb_get(mse_train_min,Old_MSE_Train_Min),
-	  bb_get(mse_train_max,Old_MSE_Train_Max),
-	  New_MSE_Train_Sum is Old_MSE_Train_Sum+Squared_Error,
-	  New_MSE_Train_Min is min(Old_MSE_Train_Min,Squared_Error),
-	  New_MSE_Train_Max is max(Old_MSE_Train_Max,Squared_Error),
-	  bb_put(mse_train_sum,New_MSE_Train_Sum),
-	  bb_put(mse_train_min,New_MSE_Train_Min),
-	  bb_put(mse_train_max,New_MSE_Train_Max),
-	  
+        alpha(Alpha),
+	example_count(ExampleCount),
+	(   % go over all training examples
+	    current_predicate(user:example/3),
+	    user:example(QueryID,_Query,QueryProb),
+	    query_probability(QueryID,BDDProb),
+	    (
+		QueryProb=:=0.0
+	    ->
+	        Y2=Alpha;
+		Y2=1.0
+	    ),
+	    Y is Y2*2/ExampleCount * (BDDProb-QueryProb),
 
 
-	  ( % go over all tunable facts
-	    tunable_fact(FactID,_),
-	    atomic_concat(['grad_',FactID],Key),
-	    
-	    % if the following query fails,
-	    % it means, the fact is not used in the proof
-	    % of QueryID, and the gradient is 0.0 and will
-   	    % not contribute to NewValue either way
-	    % DON'T FORGET THIS IF YOU CHANGE SOMETHING HERE!
-	    query_gradient(QueryID,FactID,GradValue),
+	    (   % go over all tunable facts
 
-	    bb_get(Key,OldValue),
-	    NewValue is OldValue + Y*GradValue,
-	    bb_put(Key,NewValue),
-	    
-	    fail;		% go to next fact
+		tunable_fact(FactID,_),
+		atomic_concat(['grad_',FactID],Key),
+		
+		% if the following query fails,
+		% it means, the fact is not used in the proof
+		% of QueryID, and the gradient is 0.0 and will
+		% not contribute to NewValue either way
+		% DON'T FORGET THIS IF YOU CHANGE SOMETHING HERE!
+		query_gradient(QueryID,FactID,GradValue),
+
+		bb_get(Key,OldValue),
+		NewValue is OldValue + Y*GradValue,
+		bb_put(Key,NewValue),
+		fail; % go to next fact
+
+		true
+	    ),
+	    fail; % go to next training example
+
 	    true
-	  ),
-	  
-	  once(update_query_cleanup(QueryID)),
-	  fail;			% go to next training example
-	  true
 	),
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% stop calculate gradient
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	!,
-	
+
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start statistics on gradient
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	findall(V, (
-		    tunable_fact(FactID,_),
-		    atomic_concat(['grad_',FactID],Key),
-		    bb_get(Key,V)
-		   ),Gradient_Values),
+	findall(V,(tunable_fact(FactID,_),atomic_concat(['grad_',FactID],Key),bb_get(Key,V)),GradientValues),
 
-	sum_list(Gradient_Values,GradSum),
-	max_list(Gradient_Values,GradMax),
-	min_list(Gradient_Values,GradMin),
-	length(Gradient_Values,GradLength),
+	sum_list(GradientValues,GradSum),
+	max_list(GradientValues,GradMax),
+	min_list(GradientValues,GradMin),
+	length(GradientValues,GradLength),
 	GradMean is GradSum/GradLength,
 
 	logger_set_variable(gradient_mean,GradMean),
@@ -1278,37 +1423,25 @@ gradient_descent :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% stop statistics on gradient
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-	bb_delete(mse_train_sum,MSE_Train_Sum),
-	bb_delete(mse_train_min,MSE_Train_Min),
-	bb_delete(mse_train_max,MSE_Train_Max),
-	MSE is MSE_Train_Sum/Example_Count,
-
-	    
-	logger_set_variable(mse_trainingset,MSE),
-	logger_set_variable(mse_min_trainingset,MSE_Train_Min),
-	logger_set_variable(mse_max_trainingset,MSE_Train_Max),
-
-	my_format(2,'~n',[]),
-
+        
       
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start add gradient to current probabilities
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         (
-	    learning_flag(line_search,false)
+	    line_search(false)
 	->
-  	    learning_flag(learning_rate,LearningRate);
+  	    learning_rate(LearningRate);
 	    lineSearch(LearningRate,_)
 	),
-	my_format(3,'learning rate:~8f~n',[LearningRate]),
+	format('learning rate = ~12f~n',[LearningRate]),
 	add_gradient(LearningRate),
 	logger_set_variable(learning_rate,LearningRate),
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% stop add gradient to current probabilities
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	!,
-	forget_old_probabilities.
+	forget_old_values.
 
 %========================================================================
 %=
@@ -1317,18 +1450,17 @@ gradient_descent :-
 
 line_search_evaluate_point(Learning_Rate,MSE) :-
 	add_gradient(Learning_Rate),
-	my_format(2,'Line search (h=~8f) ',[Learning_Rate]),
 	mse_trainingset_only_for_linesearch(MSE).
 
 
 lineSearch(Final_X,Final_Value) :-
 
 	% Get Parameters for line search
-	learning_flag(line_search_tolerance,Tol),	
-	learning_flag(line_search_tau,Tau),
-	learning_flag(line_search_interval,(A,B)),
+	line_search_tolerance(Tol),	
+	line_search_tau(Tau),
+	line_search_interval(A,B),
 
-	my_format(3,'Line search in interval (~4f,~4f)~n',[A,B]),
+	format(' Running line search in interval (~5f,~5f)~n',[A,B]),
 	
 	% init values
 	Acc is Tol * (B-A),
@@ -1369,6 +1501,8 @@ lineSearch(Final_X,Final_Value) :-
 	    bb_get(line_search_value_left,FLeft),
 	    bb_get(line_search_value_right,FRight),
 		
+	    write(lineSearch(Iteration,Ak,Fl,Bk,Fr,Left,FLeft,Right,FRight)),nl,
+	
             (
 		% check for infinity, if there is, go to the left
 		( FLeft >= FRight, \+ FLeft = (+inf), \+ FRight = (+inf) ) 
@@ -1398,6 +1532,8 @@ lineSearch(Final_X,Final_Value) :-
 
 	     Next_Iteration is Iteration + 1,
 	     
+	     ActAcc is BkNew -AkNew,
+
 	     bb_put(line_search_iteration,Next_Iteration),
 
 	     bb_put(line_search_a,AkNew),
@@ -1411,7 +1547,7 @@ lineSearch(Final_X,Final_Value) :-
 	     bb_put(line_search_value_right,FRightNew),
 
 	     % is the search interval smaller than the tolerance level?
-	     BkNew-AkNew<Acc,  
+	     ActAcc < Acc,  
 
 	     % apperantly it is, so get me out of here and
 	     % cut away the choice point from repeat
@@ -1448,11 +1584,11 @@ line_search_postcheck(V,X,V,X) :-
 	X>0,
 	!.
 line_search_postcheck(V,X,V,X) :-
-	learning_flag(line_search_never_stop,false),
+	line_search_never_stop(false),
 	!.
 line_search_postcheck(_,_, LLH, FinalPosition) :-
-	learning_flag(line_search_tolerance,Tolerance),
-	learning_flag(line_search_interval,(Left,Right)),
+	line_search_tolerance(Tolerance),
+	line_search_interval(Left,Right),
 
 
 	Offset is (Right - Left) * Tolerance,
@@ -1516,63 +1652,34 @@ my_5_min(V1,V2,V3,V4,V5,F1,F2,F3,F4,F5,VMin,FMin) :-
 	    (VMin=VTemp3,FMin=FTemp3);
             (VMin=V5,FMin=F5)
 	).
-
-
-%========================================================================
-%= set the alpha parameter to the value
-%=  # positive training examples / # negative training examples
-%=
-%= training example is positive if P(e)=1
-%= training example is negative if P(e)=0
-%=
-%= if there are training example with 0<P<1, set alpha=1.0
-%========================================================================
-
-
-auto_alpha :-
-	\+ current_predicate(user:example/3),
-	set_learning_flag(alpha,1.0).
-auto_alpha :-
-	user:example(_,_,P),
-	P<1,
-	P>0,
-	!,
-	set_learning_flag(alpha,1.0).
-auto_alpha :-
-	findall(1,(user:example(_,_,P),P=:=1.0),Pos),
-	findall(0,(user:example(_,_,P),P=:=0.0),Neg),
-	length(Pos,NP),
-	length(Neg,NN),
-	Alpha is NP/NN,
-	set_learning_flag(alpha,Alpha).
-
+	
 
 
 %========================================================================
 %= initialize the logger module and set the flags for learning
-%= don't change anything here! use set_learning_flag/2 instead
+%=
 %========================================================================
 
 
 global_initialize :-
 	set_learning_flag(output_directory,'./output'),
 	set_learning_flag(query_directory,'./queries'),
-	set_learning_flag(log_frequency,1),
-	set_learning_flag(rebuild_bdds,0),
+	set_learning_flag(log_frequency,5),
+	set_learning_flag(rebuild_bdds,false),
+	set_learning_flag(rebuild_bdds_it,1),
 	set_learning_flag(reuse_initialized_bdds,false),
 	set_learning_flag(learning_rate,examples),
 	set_learning_flag(check_duplicate_bdds,true),
 	set_learning_flag(probability_initializer,(FactID,P,random_probability(FactID,P))),
-	set_learning_flag(alpha,auto),
+	set_learning_flag(alpha,1.0),
 	set_learning_flag(sigmoid_slope,1.0), % 1.0 gives standard sigmoid
 	set_learning_flag(init_method,(Query,Probability,BDDFile,ProbFile,
 	problog_kbest_save(Query,100,Probability,_Status,BDDFile,ProbFile))),
 	set_learning_flag(line_search,false),
 	set_learning_flag(line_search_never_stop,true),
-	set_learning_flag(line_search_tau,0.618033988749),
+	set_learning_flag(line_search_tau,0.618033988749895),
 	set_learning_flag(line_search_tolerance,0.05),
 	set_learning_flag(line_search_interval,(0,100)),
-	set_learning_flag(verbosity_level,5),
 
 	logger_define_variable(iteration, int),
 	logger_define_variable(duration,time),
@@ -1588,8 +1695,7 @@ global_initialize :-
 	logger_define_variable(ground_truth_diff,float),
 	logger_define_variable(ground_truth_mindiff,float),
 	logger_define_variable(ground_truth_maxdiff,float),
-	logger_define_variable(learning_rate,float),
-	logger_define_variable(alpha,float).
+	logger_define_variable(learning_rate,float).
 
 %========================================================================
 %= 

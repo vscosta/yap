@@ -2,17 +2,18 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2009-07-21 18:30:23 +0200 (Tue, 21 Jul 2009) $
-%  $Revision: 1805 $
+%  $Date: 2009-06-17 22:22:00 +0200 (Mi, 17 Jun 2009) $
+%  $Revision: 1550 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
 %
-%  ProbLog was developed at Katholieke Universiteit Leuven
-%                                                            
-%  Copyright 2009
-%  Angelika Kimmig, Vitor Santos Costa, Bernd Gutmann
-%                                                              
+%  Copyright 2009 Katholieke Universiteit Leuven
+%
+%  Authors: Luc De Raedt, Bernd Gutmann, Angelika Kimmig,
+%           Vitor Santos Costa
+%
+%                                                                    
 %  Main authors of this file:
 %  Angelika Kimmig, Vitor Santos Costa,Bernd Gutmann
 %
@@ -223,27 +224,27 @@
 % angelika.kimmig@cs.kuleuven.be
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- module(problog, [problog_delta/5,
-	problog_threshold/5,
-	problog_low/4,
-	problog_kbest/4,
-	problog_kbest_save/6,
-	problog_max/3,
-	problog_exact/3,
-	problog_montecarlo/3,
-	problog_answers/2,
-	problog_table/1,	    
-	get_fact_probability/2,
-	set_fact_probability/2,
-	get_fact/2,
-	tunable_fact/2,
-	non_ground_fact/1,
-	export_facts/1,
-	problog_help/0,
-	show_inference/0,
-	problog_dir/1,
-	set_problog_flag/2,
-	problog_flag/2,
-	problog_flags/0]).
+		    problog_threshold/5,
+		    problog_low/4,
+		    problog_kbest/4,
+		    problog_kbest_save/6,
+		    problog_max/3,
+		    problog_exact/3,
+		    problog_montecarlo/3,
+		    problog_answers/2,
+		    get_fact_probability/2,
+		    set_fact_probability/2,
+		    get_fact/2,
+		    tunable_fact/2,
+		    non_ground_fact/1,
+		    export_facts/1,
+		    problog_help/0,
+		    show_inference/0,
+		    problog_dir/1,
+		    set_problog_flag/2,
+		    problog_flag/2,
+		    problog_flags/0,
+		    op( 550, yfx, :: )]).
 
 :- style_check(all).
 :- yap_flag(unknown,error).
@@ -271,12 +272,6 @@
 :- ensure_loaded(library(random)).
 :- ensure_loaded(library(system)).
 :- ensure_loaded(library(rbtrees)).
-
-% op attaching probabilities to facts
-:- op( 550, yfx, :: ).
-:- op( 1150, fx, problog_table ).
-
-:- meta_predicate problog_table(:).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % control predicates on various levels
@@ -313,16 +308,13 @@
 :- dynamic dynamic_probability_fact/1.
 :- dynamic dynamic_probability_fact_extract/2.
 
-% keep a tab on tabling
-:- dynamic problog_tabled/1.
-
 % directory where ProblogBDD executable is located
 % automatically set during loading -- assumes it is in same place as this file (problog.yap)
 %:- getcwd(PD),retractall(problog_dir(_)),assert(problog_dir(PD)).
+% yap-6 separates executables and prolog progams...
 :- yap_flag(shared_object_search_path,PD),
 	retractall(problog_dir(_)),
 	assert(problog_dir(PD)).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % help
@@ -371,7 +363,7 @@ init_global_params :-
 	set_problog_flag(bdd_file,example_bdd),
 	set_problog_flag(dir,output),
 	set_problog_flag(save_bdd,false),
-	set_problog_flag(hacked_proofs,false),
+	set_problog_flag(fast_proofs,false),
 	set_problog_flag(verbose,true).
 %	problog_flags,
 %	print_sep_line,
@@ -401,12 +393,10 @@ problog_control(off,X) :-
 problog_control(check,X) :-
 	call(X).
 
-reset_control :-
-	problog_control(off,up),
-	problog_control(off,mc),
-	problog_control(off,limit),
-	problog_control(off,remember).
-:- reset_control.
+:- problog_control(off,up).
+:- problog_control(off,mc).
+:- problog_control(off,limit).
+:- problog_control(off,remember).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % nice user syntax Prob::Fact
@@ -437,7 +427,7 @@ user:term_expansion(P::Goal,Goal) :-
 	P =:= 1,
 	!.
 */
-user:term_expansion(P::Goal, problog:ProbFact) :-
+user:term_expansion(P::Goal, problog:ProbFact) :- 
 	copy_term((P,Goal),(P_Copy,Goal_Copy)),
 	functor(Goal, Name, Arity),
         atomic_concat([problog_,Name],ProblogName),
@@ -446,7 +436,7 @@ user:term_expansion(P::Goal, problog:ProbFact) :-
 	probclause_id(ID),
 	ProbFact =.. [ProblogName,ID|L1],
 	(
-	    (nonvar(P), P = t(TrueProb))
+	    (\+ var(P), P = t(TrueProb))
 	-> 
 	    (
 		assert(tunable_fact(ID,TrueProb)),
@@ -455,8 +445,6 @@ user:term_expansion(P::Goal, problog:ProbFact) :-
 	    (
 		ground(P)
 	    ->
-	        EvalP is P, % allows one to use ground arithmetic expressions as probabilities
-	        assert_static(prob_for_id(ID,EvalP)), % Prob is fixed -- assert it for quick retrieval
 	        LProb is log(P);
 		(
 		    % Probability is a variable... check wether it appears in the term
@@ -496,6 +484,7 @@ problog_predicate(Name, Arity, ProblogName) :-
 	ProbFact =.. [ProblogName,ID|L1],
 	prolog_load_context(module,Mod),
 	make_add_to_proof(ID2,ProbEval,AddToProof),
+	
 	assert( (Mod:OriginalGoal :- ProbFact, 
 	                             (
 					 non_ground_fact(ID)
@@ -527,11 +516,9 @@ problog_predicate(Name, Arity, ProblogName) :-
 	dynamic(problog:ProblogName/ArityPlus2).	
 
 make_add_to_proof(ID2,ProbEval,O) :-
-	problog_flag(hacked_proofs,true), !,
-	O = hacked_add_to_proof(ID2,ProbEval).
+	problog_flag(fast_proofs,true), !,
+	O = fast_positive_add_to_proof(ID2,ProbEval).
 make_add_to_proof(ID2,ProbEval,add_to_proof(ID2,ProbEval)).
-
-
 
 
 % generate next global identifier
@@ -562,7 +549,7 @@ non_ground_fact_grounding_id(Goal,ID) :-
 		nb_getval(non_ground_fact_grounding_id_counter,ID),
 		ID2 is ID+1,
 		nb_setval(non_ground_fact_grounding_id_counter,ID2),
-		once(assert(grounding_is_known(Goal,ID)))
+		assert(grounding_is_known(Goal,ID))
 	    )
 	).
 
@@ -572,16 +559,10 @@ reset_non_ground_facts :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % access/update the probability of ID's fact
-% hardware-access version: naively scan all problog-predicates (except if prob is recorded in static database),
+% hardware-access version: naively scan all problog-predicates,
 % cut choice points if ID is ground (they'll all fail as ID is unique),
 % but not if it isn't (used to iterate over all facts when writing out probabilities for learning)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% using a dummy for the static prob database is more efficient than checking for current_predicate
-prob_for_id(dummy,dummy).
-get_fact_probability(ID,Prob) :-
-	ground(ID),
-	prob_for_id(ID,Prob),
-	!.
 get_fact_probability(ID,Prob) :-
 	(
 	ground(ID) -> 
@@ -726,8 +707,10 @@ add_to_proof(ID,Prob) :-
 	 )
 	).
 
-% simpliciation
-hacked_add_to_proof(ID,Prob) :-
+% this is a version for long proofs, it assumes we are using
+% tries, it assumes all our proofs never reuse ProbLog facts, and it assumes
+% ground positive literals only.
+fast_positive_add_to_proof(ID,Prob) :-
 	b_getval(problog_probability, CurrentP),
 	nb_getval(problog_threshold, CurrentThreshold),
 	multiply_probabilities(CurrentP, Prob, NProb),
@@ -822,16 +805,15 @@ multiply_probabilities(CurrentLogP, LogProb, NLogProb) :-
 
 % this is called by all inference methods before the actual ProbLog goal
 % to set up environment for proving
-% it resets control flags, method specific values to be set afterwards!
 init_problog(Threshold) :-
 	reset_non_ground_facts,
-	reset_control,
 	LT is log(Threshold),
 	b_setval(problog_probability, 0.0),
 	b_setval(problog_current_proof, []),
 	nb_setval(problog_threshold, LT),
 	problog_flag(maxsteps,MaxS),
-	b_setval(problog_steps, MaxS).
+	b_setval(problog_steps, MaxS),
+	problog_control(off,limit).
 
 % idea: proofs that are refinements of known proof can be pruned as they don't add probability mass
 % note that current ptree implementation doesn't provide the check as there's no efficient method known so far...
@@ -951,8 +933,8 @@ eval_dnf(ID,Prob,Status) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 problog_threshold(Goal, Threshold, _, _, _) :-
-	init_problog_threshold(Threshold),
 	problog_control(on,up),
+	init_problog_threshold(Threshold),
 	problog_call(Goal),
 	add_solution,
 	fail.
@@ -988,8 +970,8 @@ compute_bounds(LP, UP, Status) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 problog_low(Goal, Threshold, _, _) :-
-	init_problog_low(Threshold),
 	problog_control(off,up),
+	init_problog_low(Threshold),
 	problog_call(Goal),
 	add_solution,
 	fail.
@@ -1014,9 +996,9 @@ init_problog_low(Threshold) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 problog_delta(Goal, Delta, Low, Up, Status) :-
+	problog_control(on,up),
 	problog_flag(first_threshold,InitT),
 	init_problog_delta(InitT,Delta),
-	problog_control(on,up),
 	problog_delta_id(Goal,Status),
 	delete_ptree(1),
 	delete_ptree(2),
@@ -1142,9 +1124,9 @@ eval_upper(N,UpP,ok) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 problog_max(Goal, Prob, Facts) :-
+	problog_control(off,up),
 	problog_flag(first_threshold,InitT),
 	init_problog_max(InitT),
-	problog_control(off,up),
 	problog_max_id(Goal, Prob, FactIDs),
 	( FactIDs = [_|_] -> get_fact_list(FactIDs,Facts);
 	    Facts = FactIDs).
@@ -1220,9 +1202,9 @@ problog_kbest_save(Goal, K, Prob, Status, BDDFile, ParamFile) :-
 	true).
 
 problog_kbest(Goal, K, Prob, Status) :-
+	problog_control(off,up),
 	problog_flag(first_threshold,InitT),
 	init_problog_kbest(InitT),
-	problog_control(off,up),
 	problog_kbest_id(Goal, K),
 	retract(current_kbest(_,ListFound,_NumFound)),
 	build_prefixtree(ListFound),
@@ -1273,17 +1255,13 @@ update_current_kbest(K,NewLogProb,Cl) :-
 	(NewLength < K ->
 	    assert(current_kbest(OldThres,NewList,NewLength))
 	;
-	   (NewLength>K
-            -> 
+	(NewLength>K -> 
 	    First is NewLength-K+1,
 	    cutoff(NewList,NewLength,First,FinalList,FinalLength)
-            ;
-	    FinalList=NewList, FinalLength=NewLength
-           ),
-	   FinalList=[NewThres-_|_],
-	   nb_setval(problog_threshold,NewThres),
-	 assert(current_kbest(NewThres,FinalList,FinalLength))
-       ).
+	   ; FinalList=NewList, FinalLength=NewLength),
+	FinalList=[NewThres-_|_],
+	nb_setval(problog_threshold,NewThres),
+	assert(current_kbest(NewThres,FinalList,FinalLength))).
 
 sorted_insert(A,[],[A]).
 sorted_insert(A-LA,[B1-LB1|B], [A-LA,B1-LB1|B] ) :-
@@ -1401,32 +1379,13 @@ mc_prove(A) :- !,
 
 clean_sample :-
         reset_static_array(mc_sample),
-	problog_tabled(P),%show_table(P),table_statistics(P),get(_),
-	abolish_table(P),
 	fail.
 clean_sample.
 
-% find new proof -- need to reset control after init
+% find new proof
 get_some_proof(Goal) :-
 	init_problog(0),
-	problog_control(on,mc),
 	problog_call(Goal).
-
-problog_table(M:P) :- !,
-	problog_table(P,M).
-problog_table(P) :-
-	prolog_load_context(module,M),
-	problog_table(P,M).
-
-problog_table(M:P,_) :-
-	problog_table(P,M).
-problog_table((P1,P2),M) :-
-	problog_table(P1,M),
-	problog_table(P2,M).
-problog_table(P,M) :-
-	table(M:P),
-	assert(problog_tabled(M:P)).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % exact probability of all ground instances of Goal
