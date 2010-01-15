@@ -17,13 +17,15 @@ EROOTDIR = @exec_prefix@
 srcdir=@srcdir@
 
 BINDIR = $(EROOTDIR)/bin
+LIBDIR=$(EROOTDIR)/lib
+SHAREDIR=$(EROOTDIR)/share/Yap
 YAPLIBDIR=$(EROOTDIR)/lib/Yap
-# hack for SWI compatibility
-LIBDIR=$(EROOTDIR)/share/Yap
 
 PL=@EXTEND_DYNLOADER_PATH@ $(DESTDIR)$(BINDIR)/yap $(DESTDIR)$(YAPLIBDIR)/startup.yss
 LN_S=@LN_S@
 EXDIR=$(LIBDIR)/examples/plunit
+
+INSTALLDIR=$(SHAREDIR)
 
 else	# SWI
 
@@ -37,6 +39,8 @@ PKGDOC=$(PLBASE)/doc/packages
 PCEHOME=../xpce
 LIBDIR=$(PLBASE)/library
 EXDIR=$(PKGDOC)/examples/plunit
+
+INSTALLDIR=$(LIBDIR)
 
 endif
 
@@ -63,15 +67,15 @@ all:
 		@echo "Nothing to do for this package"
 
 install:	$(LIBPL)
-		mkdir -p $(DESTDIR)$(LIBDIR)
-		$(INSTALL_DATA) $(LIBALL) $(DESTDIR)$(LIBDIR)
+		mkdir -p $(DESTDIR)$(INSTALLDIR)
+		$(INSTALL_DATA) $(LIBALL) $(DESTDIR)$(INSTALLDIR)
 		$(PL) -f none -g make -t halt
 
 ln-install:	$(LIBPL)
-		mkdir -p $(DESTDIR)$(LIBDIR)
+		mkdir -p $(DESTDIR)$(INSTALLDIR)
 		for f in $(LIBALL); do \
-		    rm -f $(DESTDIR)$(LIBDIR)/$$f; \
-		    ln -s `pwd`/$$f $(DESTDIR)$(LIBDIR); \
+		    rm -f $(DESTDIR)$(INSTALLDIR)/$$f; \
+		    ln -s `pwd`/$$f $(DESTDIR)$(INSTALLDIR); \
 		done
 		$(PL) -f none -g make -t halt
 
@@ -88,7 +92,7 @@ install-examples::
 		(cd examples && $(INSTALL_DATA) $(EXAMPLES) $(DESTDIR)$(EXDIR))
 
 uninstall::
-		rm -f $(LIBDIR)/plunit.pl
+		rm -f $(DESTDIR)$(INSTALLDIR)/plunit.pl
 		$(PL) -f none -g make -t halt
 
 check::
