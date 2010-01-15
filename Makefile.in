@@ -49,7 +49,7 @@ DOCSDIR=$(SHAREDIR)/docs/yap
 #
 # check also optimisation options in INSTALL file.
 #
-YAP_EXTRAS=@YAP_EXTRAS@
+YAP_EXTRAS=-DCUT_C=1 @YAP_EXTRAS@
 
 YAPSTARTUP=startup.yss
 

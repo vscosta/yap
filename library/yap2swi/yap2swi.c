@@ -2088,7 +2088,7 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
     nflags |= CArgsPredFlag;
   }
   if (flags & PL_FA_NONDETERMINISTIC) {
-    Yap_InitCPredBack((char *)name, arity, sizeof(struct foreign_context)/sizeof(CELL), (CPredicate)function, (CPredicate)function, UserCPredFlag|nflags);
+    Yap_InitCutCPredBack((char *)name, arity, sizeof(struct foreign_context)/sizeof(CELL), (CPredicate)function, (CPredicate)function, (CPredicate)function, UserCPredFlag|nflags);
   } else {
     UserCPredicate((char *)name,(CPredicate)function,arity,tmod,nflags);
   }

@@ -18,11 +18,11 @@ struct cut_c_str{
 #define CUT_C_STR_SIZE ((sizeof(struct cut_c_str))/(sizeof(CELL)))
 
 #define EXTRA_CBACK_CUT_ARG(Type,Offset) \
-((Type) (*(Type *)(((CELL *)Yap_REGS.CUT_C_TOP) - (((yamop *)Yap_REGS.CUT_C_TOP->try_userc_cut_yamop)->u.lds.extra)) + (Offset-1)))
+((Type) (*(Type *)(((CELL *)Yap_REGS.CUT_C_TOP) - (((yamop *)Yap_REGS.CUT_C_TOP->try_userc_cut_yamop)->u.OtapFs.extra)) + (Offset-1)))
 
 #define CUT_C_PUSH(YAMOP,S_YREG)                                 \
            {                                                     \
-             if ((YAMOP)->u.lds.f){                              \
+             if ((YAMOP)->u.OtapFs.f){                              \
 	      S_YREG = S_YREG - CUT_C_STR_SIZE;                  \
               cut_c_str_ptr new_top = (cut_c_str_ptr) S_YREG;    \
               new_top->try_userc_cut_yamop = YAMOP;              \
@@ -38,8 +38,8 @@ struct cut_c_str{
 
 #define POP_EXECUTE()                                                                 \
         cut_c_str_ptr TOP = Yap_REGS.CUT_C_TOP;                                            \
-        CPredicate func = (CPredicate)((yamop *)TOP->try_userc_cut_yamop)->u.lds.f;   \
-        PredEntry *pred = (PredEntry *)((yamop *)TOP->try_userc_cut_yamop)->u.lds.p;  \
+        CPredicate func = (CPredicate)((yamop *)TOP->try_userc_cut_yamop)->u.OtapFs.f;   \
+        PredEntry *pred = (PredEntry *)((yamop *)TOP->try_userc_cut_yamop)->u.OtapFs.p;  \
         YAP_Execute(pred,func);                                                       \
         cut_c_pop();
 
