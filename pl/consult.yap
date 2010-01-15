@@ -302,6 +302,59 @@ use_module(M,F,Is) :-
 	fail.
 '$initialization'(_).
 
+'$initialization'(G,OPT) :-
+	( 
+	   var(G)
+	->
+	  '$do_error'(instantiation_error,initialization(G,OPT))
+	;
+	   number(G)
+	->
+	  '$do_error'(type_error(callable,G),initialization(G,OPT))
+	;
+	   db_reference(G)
+	->
+	  '$do_error'(type_error(callable,G),initialization(G,OPT))
+	;
+	   var(OPT)
+	->
+	  '$do_error'(instantiation_error,initialization(G,OPT))
+	;
+	  atom(OPT)
+	->
+	  (
+	   OPT == now
+	  ->
+	   fail
+	  ;
+	   OPT == after_load
+	  ->
+	   fail
+	  ;
+	   OPT == restore
+	  ->
+	   fail
+	  ;
+	   '$do_error'(domain_error(initialization,OPT),initialization(OPT))
+	  )
+	;
+	  '$do_error'(type_error(OPT),initialization(G,OPT))
+	).
+'$initialization'(G,now) :-
+	( '$notrace'(G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
+'$initialization'(G,after_load) :-
+	'$initialization'(G).
+% ignore for now.
+'$initialization'(G,restore).
+
+'$initialization'(G) :-
+	'$show_consult_level'(Level1),
+	% it will be done after we leave the current consult level.
+	Level is Level1-1,
+	recorda('$initialisation',do(Level,G),_),
+	fail.
+'$initialization'(_).
+
 '$exec_initialisation_goals' :-
 	nb_setval('$initialization_goals',on),
 	fail.

@@ -1903,6 +1903,23 @@ other procedures.
 The compiler will execute goals @var{G} after consulting the current
 file.
 
+@item initialization(+@var{Goal},+@var{When})
+@findex initialization/2 (directive)
+@snindex initialization/2 (directive)
+@cnindex initialization/2 (directive)
+Similar to @code{initialization/1}, but allows for specifying when
+@var{Goal} is executed while loading the program-text:
+
+@table @code
+@item now
+    Execute @var{Goal} immediately. 
+@item after_load
+    Execute @var{Goal} after loading program-text. This is the same as initialization/1. 
+@item restore
+    Do not execute @var{Goal} while loading the program, but only when
+    restoring a state (not implemented yet). 
+@end table
+
 @item library_directory(+@var{D})
 @findex library_directory/1
 @snindex library_directory/1

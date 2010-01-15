@@ -38,6 +38,7 @@
 '$directive'(if(_)).
 '$directive'(include(_)).
 '$directive'(initialization(_)).
+'$directive'(initialization(_,_)).
 '$directive'(meta_predicate(_)).
 '$directive'(module(_,_)).
 '$directive'(module(_,_,_)).
@@ -75,6 +76,8 @@
 	'$discontiguous'(D,M).
 '$exec_directive'(initialization(D), _, M) :-
 	'$initialization'(M:D).
+'$exec_directive'(initialization(D,OPT), _, M) :-
+	'$initialization'(M:D, OPT).
 '$exec_directive'(thread_initialization(D), _, M) :-
 	'$thread_initialization'(M:D).
 '$exec_directive'(expects_dialect(D), _, _) :-
