@@ -19,7 +19,7 @@ LIBDIR=$(EROOTDIR)/lib/Yap
 #
 CC=@CC@
 CXX=@CXX@
-CXXFLAGS= @CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../../.. -I$(srcdir)/../../../include
+CXXFLAGS= @CXXFLAGS@ $(YAP_EXTRAS) $(DEFS)  -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include
 #
 #
 # You shouldn't need to change what follows.

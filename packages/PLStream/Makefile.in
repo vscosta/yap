@@ -18,7 +18,7 @@ LIBDIR=$(EROOTDIR)/lib/Yap
 #
 #
 CC=@CC@
-CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/uxnt
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS)  -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/uxnt
 #
 #
 # You shouldn't need to change what follows.

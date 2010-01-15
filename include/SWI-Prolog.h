@@ -18,8 +18,13 @@ extern "C" {
 #endif
 
 //=== includes ===============================================================
-#include "config.h"
+#ifdef          _YAP_NOT_INSTALLED_
+#include	<config.h>
 #include	<YapInterface.h>
+#else
+#include	<Yap/config.h>
+#include	<Yap/YapInterface.h>
+#endif
 #include	<stdarg.h>
 #include	<stdlib.h>
 #include        <stddef.h>
