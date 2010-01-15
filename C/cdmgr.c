@@ -5498,8 +5498,13 @@ p_choicepoint_info(void)
       ncl = ipc;
       t = Yap_MkNewApplTerm(FunctorOr, 2);
       break;
+
     case _or_last:
+#ifdef YAPOR
+      pe = ipc->u.Osblp.p0;
+#else
       pe = ipc->u.p.p;
+#endif
       ncl = ipc;
       t = Yap_MkNewApplTerm(FunctorOr, 2);
       break;
