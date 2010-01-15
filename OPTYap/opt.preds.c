@@ -125,8 +125,8 @@ static void shm_suspension_frames(long *pages_in_use, long *bytes_in_use);
 ** -------------------------- */
 
 void Yap_init_optyap_preds(void) {
-  Yap_InitCPred("$yapor_threads", 1, p_yapor_threads, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #ifdef YAPOR
+  Yap_InitCPred("$yapor_threads", 1, p_yapor_threads, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$worker", 0, p_worker, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$yapor_on", 0, p_yapor_on, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$start_yapor", 0, p_start_yapor, SafePredFlag|SyncPredFlag|HiddenPredFlag);

@@ -3949,6 +3949,14 @@ typedef void (*Proc)(void);
 
 Proc E_Modules[]= {/* init_fc,*/ (Proc) 0 };
 
+#ifndef YAPOR
+static
+Int p_yapor_threads(void) {
+  return FALSE;
+}
+#endif
+
+
 void 
 Yap_InitCPreds(void)
 {
@@ -4030,6 +4038,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$has_eam", 0, p_has_eam, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #ifndef YAPOR
   Yap_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$yapor_threads", 1, p_yapor_threads, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #endif
 #ifdef INES
   Yap_InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
@@ -4040,6 +4049,9 @@ Yap_InitCPreds(void)
   Yap_InitCPred("in_range", 4, p_in_range2, TestPredFlag|SafePredFlag);
 #endif
 #ifdef DEBUG
+  Yap_InitCPred("dump_active_goals", 0, p_dump_active_goals, SafePredFlag|SyncPredFlag);
+#endif
+#ifndef YAPOR
   Yap_InitCPred("dump_active_goals", 0, p_dump_active_goals, SafePredFlag|SyncPredFlag);
 #endif
 
