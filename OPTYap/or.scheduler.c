@@ -167,7 +167,7 @@ int get_work(void) {
 
 #ifndef TABLING
   /* wait for incomplete installations */
-  while (LOCAL_reply_signal != ready);
+  while (LOCAL_reply_signal != worker_ready);
 #endif /* TABLING */
 
   if (or_fr_with_work) {

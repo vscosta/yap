@@ -129,7 +129,7 @@ struct global_locks {
   lockvar bitmap_pruning_workers;
 #endif /* TABLING_INNER_CUTS */
 
-  lockvar who_locked_heap;
+  int who_locked_heap;
   lockvar heap_access;
   lockvar alloc_block;
 #if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)

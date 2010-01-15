@@ -102,7 +102,7 @@ int p_share_work(void) {
   REMOTE_p_fase_signal(worker_q) = P_idle;
 #ifndef TABLING
   /* wait for incomplete installations */
-  while (LOCAL_reply_signal != ready);
+  while (LOCAL_reply_signal != worker_ready);
 #endif /* TABLING */
   LOCAL_reply_signal = sharing;
   REMOTE_reply_signal(worker_q) = sharing;
@@ -140,8 +140,8 @@ int q_share_work(int worker_p) {
     OPTYAP_ERROR_MESSAGE("YOUNGER_CP(B_FZ, LOCAL_top_cp) (q_share_work)");
 #endif /* OPTYAP_ERRORS */
 #ifdef YAPOR_ERRORS
-  if (LOCAL_reply_signal != ready)
-    YAPOR_ERROR_MESSAGE("LOCAL_reply_signal != ready (q_share_work)");
+  if (LOCAL_reply_signal != worker_ready)
+    YAPOR_ERROR_MESSAGE("LOCAL_reply_signal != worker_ready (q_share_work)");
 #endif /* YAPOR_ERRORS */
 
   /* make sharing request */
@@ -156,10 +156,10 @@ int q_share_work(int worker_p) {
   UNLOCK_WORKER(worker_p);
 
   /* wait for an answer */
-  while (LOCAL_reply_signal == ready);
+  while (LOCAL_reply_signal == worker_ready);
   if (LOCAL_reply_signal == no_sharing) {
     /* sharing request refused */
-    LOCAL_reply_signal = ready;
+    LOCAL_reply_signal = worker_ready;
     return FALSE;
   }
   while (LOCAL_reply_signal == sharing);
@@ -168,9 +168,9 @@ int q_share_work(int worker_p) {
 
   /* update registers and return */
 #ifndef TABLING
-  REMOTE_reply_signal(worker_p) = ready;
+  REMOTE_reply_signal(worker_p) = worker_ready;
 #endif /* TABLING */
-  LOCAL_reply_signal = ready;
+  LOCAL_reply_signal = worker_ready;
   PUT_IN_REQUESTABLE(worker_id);
   return TRUE;
 }

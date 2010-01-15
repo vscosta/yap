@@ -180,7 +180,7 @@ void Yap_init_local(void) {
   LOCAL_top_or_fr = GLOBAL_root_or_fr;
   LOCAL_load = 0;
   LOCAL_share_request = MAX_WORKERS;
-  LOCAL_reply_signal = ready;
+  LOCAL_reply_signal = worker_ready;
 #ifdef ENV_COPY
   INIT_LOCK(LOCAL_lock_signals);
 #endif /* ENV_COPY */

@@ -14,7 +14,7 @@
 ** -------------------------------------- */
 
 #include "Yap.h"
-#ifdef YAPOR
+#if defined(YAPOR) && !defined(THREADS)
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -76,7 +76,6 @@ close_mapfile(void) {
     Yap_Error(FATAL_ERROR, TermNil, "close error (close_mapfile)");
 }
 #endif /* MMAP_MEMORY_MAPPING_SCHEME */
-
 
 void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_workers) {
   void *mmap_addr = (void *)MMAP_ADDR;
@@ -275,4 +274,4 @@ void remap_memory(void) {
   }
 #endif /* ENV_COPY */
 }
-#endif /* YAPOR */
+#endif /* YAPOR && !THREADS */
