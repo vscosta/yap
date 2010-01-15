@@ -4052,7 +4052,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("dump_active_goals", 0, p_dump_active_goals, SafePredFlag|SyncPredFlag);
 #endif
 #ifndef YAPOR
-  Yap_InitCPred("dump_active_goals", 0, p_dump_active_goals, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$yapor_threads", 1, p_yapor_threads, SafePredFlag|SyncPredFlag);
 #endif
 
   Yap_InitArrayPreds();
