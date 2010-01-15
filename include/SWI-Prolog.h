@@ -19,8 +19,8 @@ extern "C" {
 
 //=== includes ===============================================================
 #ifdef          _YAP_NOT_INSTALLED_
-#include	<config.h>
-#include	<YapInterface.h>
+#include	"config.h"
+#include	"YapInterface.h"
 #else
 #include	<Yap/config.h>
 #include	<Yap/YapInterface.h>
@@ -333,6 +333,7 @@ extern X_API module_t PL_new_module(atom_t);
 extern X_API int PL_get_name_arity(term_t, atom_t *, int *);
 extern X_API int PL_get_nil(term_t);
 extern X_API int PL_get_pointer(term_t, void **);
+extern X_API int PL_get_intptr(term_t, intptr_t *);
 extern X_API int PL_get_string(term_t, char **, int *);
 extern X_API int PL_get_tail(term_t, term_t);
 /* end PL_get_* functions  =============================*/

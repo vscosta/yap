@@ -248,6 +248,17 @@ X_API int PL_get_atom(term_t ts, atom_t *a)
   return 1;
 }
 
+/* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
+   YAP: YAP_Atom YAP_AtomOfTerm(Term) */
+X_API int PL_get_intptr(term_t ts, intptr_t *a)
+{
+  Term t = Yap_GetFromSlot(ts);
+  if ( !IsIntegerTerm(t) )
+    return 0;
+  *a = (intptr_t)(IntegerOfTerm(t));
+  return 1;
+}
+
 /* SWI: int PL_get_atom_chars(term_t t, char **s)
    YAP: char* AtomName(Atom) */
 X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
@@ -2088,7 +2099,7 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
     nflags |= CArgsPredFlag;
   }
   if (flags & PL_FA_NONDETERMINISTIC) {
-    Yap_InitCutCPredBack((char *)name, arity, sizeof(struct foreign_context)/sizeof(CELL), (CPredicate)function, (CPredicate)function, (CPredicate)function, UserCPredFlag|nflags);
+    Yap_InitCPredBackCut((char *)name, arity, sizeof(struct foreign_context)/sizeof(CELL), (CPredicate)function, (CPredicate)function, (CPredicate)function, UserCPredFlag|nflags);
   } else {
     UserCPredicate((char *)name,(CPredicate)function,arity,tmod,nflags);
   }
