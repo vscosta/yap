@@ -388,7 +388,7 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 sub_atom(At, Bef, Size, After, SubAt) :-
 	% extract subatom from an atom
 	atom(At), atom(SubAt), !,
-	'$do_sub_atom_fetch'(At, Bef, Size, After, SubAt, 0).
+	'$sub_atom_fetch'(At, Bef, Size, After, SubAt).
 sub_atom(At, Bef, Size, After, SubAt) :-
 	atom(At), !,
 	atom_codes(At, Atl),
@@ -400,17 +400,6 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 	\+ atom(At), !,
 	'$do_error'(type_error(atom,At),sub_atom(At, Bef, Size,After, SubAt)).
 
-
-'$do_sub_atom_fetch'(At, Bef, Size, After, SubAt, I0) :-
-	'$sub_atom_fetch'(At, Bef1, Size, After1, SubAt, I0),
-	(
-	  Bef = Bef1, After = After1
-	;
-	  Next is Bef1+1,
-	  '$do_sub_atom_fetch'(At, Bef, Size, After, SubAt, Next)
-	).
-	    
-	
 
 '$sub_atom2'(Bef, Atl, Size, After, SubAt, ErrorTerm) :-
 	var(Bef), !,
