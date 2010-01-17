@@ -50,6 +50,9 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	nonvar(G),
 	G = (Mod:G1), !,
 	'$do_c_built_metacall'(G1, Mod, OUT).
+'$do_c_built_in'(call(G), Mod, OUT) :-
+	var(G), !,
+	'$do_c_built_metacall'(G, Mod, OUT).
 '$do_c_built_in'(depth_bound_call(G,D), M, OUT) :- !,
 	'$do_c_built_in'(G, M, NG),
 	% make sure we don't have something like (A,B) -> $depth_next(D), A, B.
