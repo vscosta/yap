@@ -2512,12 +2512,13 @@ cont_sub_atom_fetch(void)
   Atom at = AtomOfTerm(EXTRA_CBACK_ARG(5,1));
   Atom subatom = AtomOfTerm(EXTRA_CBACK_ARG(5,2));
   Int offset = IntegerOfTerm(EXTRA_CBACK_ARG(5,3));
+  Int sb = IntegerOfTerm(EXTRA_CBACK_ARG(5,4));
+  Int sz = IntegerOfTerm(EXTRA_CBACK_ARG(5,5));
 
   if (IsWideAtom(at)) {
     wchar_t *s = RepAtom(at)->WStrOfAE;
     wchar_t *ins, *where;
-    Int start, sz, after;
-    Int sb = wcslen(s);
+    Int start, after;
     Int res;
 
     
@@ -2526,7 +2527,6 @@ cont_sub_atom_fetch(void)
       char *inschars = RepAtom(subatom)->StrOfAE;
       Int i;
 
-      sz = strlen(inschars);
       if (offset+sz > sb)
 	cut_fail();
       ins = (wchar_t *)Yap_PreAllocCodeSpace();
@@ -2540,19 +2540,26 @@ cont_sub_atom_fetch(void)
 	ins[i] = inschars[i];
     } else {
       ins = RepAtom(subatom)->WStrOfAE;
-      sz = wcslen(ins);
     }
     if (!(where = wcsstr(s+offset, ins))) {
       cut_fail();
     }
-    if (!Yap_unify(MkIntegerTerm(sz), ARG3)) {
+    if (!Yap_unify(EXTRA_CBACK_ARG(5,5), ARG3)) {
       cut_fail();
     }
     start = where-s;
     after = sb-(start+sz);
     res = (Yap_unify(MkIntegerTerm(start), ARG2) &&
 	   Yap_unify(MkIntegerTerm(after), ARG4));
-    if (after < sz) {
+    if (!res) {
+      if (!after) {
+	cut_fail();
+      } else {
+	EXTRA_CBACK_ARG(5,3) = MkIntegerTerm(start+1);
+	return FALSE;
+      }
+    }
+    if (!after) {
       cut_succeed();
     } else {
       EXTRA_CBACK_ARG(5,3) = MkIntegerTerm(start+1);
@@ -2561,29 +2568,32 @@ cont_sub_atom_fetch(void)
   } else {
     char *s = RepAtom(at)->StrOfAE;
     char *ins, *where;
-    Int start, sz, after;
-    Int sb = strlen(s);
+    Int start, after;
     Int res;
 
-    if (IsWideAtom(subatom)) {
-      return FALSE;
-    }
     ins = subatom->StrOfAE;
-    sz = strlen(ins);
     if (offset+sz > sb) {
       cut_fail();
     }
     if (!(where = strstr(s+offset, ins))) {
       cut_fail();
     }
-    if (!Yap_unify(MkIntegerTerm(sz), ARG3)) {
+    if (!Yap_unify(EXTRA_CBACK_ARG(5,5), ARG3)) {
       cut_fail();
     }
     start = where-s;
     after = sb-(start+sz);
     res = (Yap_unify(MkIntegerTerm(start), ARG2) &&
 	   Yap_unify(MkIntegerTerm(after), ARG4));
-    if (after < sz) {
+    if (!res) {
+      if (!after) {
+	cut_fail();
+      } else {
+	EXTRA_CBACK_ARG(5,3) = MkIntegerTerm(start+1);
+	return FALSE;
+      }
+    }
+    if (!after) {
       cut_succeed();
     } else {
       EXTRA_CBACK_ARG(5,3) = MkIntegerTerm(start+1);
@@ -2596,9 +2606,29 @@ cont_sub_atom_fetch(void)
 static Int
 init_sub_atom_fetch(void)
 {
-  EXTRA_CBACK_ARG(5,1) = Deref(ARG1);  
-  EXTRA_CBACK_ARG(5,2) = Deref(ARG5);  
+  Term tat1, tat2;
+  Atom at1, at2;
+
+  EXTRA_CBACK_ARG(5,1) = tat1 = Deref(ARG1);  
+  EXTRA_CBACK_ARG(5,2) = tat2 = Deref(ARG5);  
   EXTRA_CBACK_ARG(5,3) = MkIntegerTerm(0);
+  at1 = AtomOfTerm(tat1);
+  at2 = AtomOfTerm(tat2);
+  if (IsWideAtom(at1)) {
+    EXTRA_CBACK_ARG(5,4) = MkIntegerTerm(wcslen(at1->WStrOfAE));
+    if (IsWideAtom(at2)) {
+      EXTRA_CBACK_ARG(5,5) = MkIntegerTerm(wcslen(at2->WStrOfAE));
+    } else {
+      EXTRA_CBACK_ARG(5,5) = MkIntegerTerm(strlen(at2->StrOfAE));
+    }
+  } else {
+    EXTRA_CBACK_ARG(5,4) = MkIntegerTerm(strlen(at1->StrOfAE));
+    if (IsWideAtom(at2)) {
+      cut_fail();
+    } else {
+      EXTRA_CBACK_ARG(5,5) = MkIntegerTerm(strlen(at2->StrOfAE));
+    }
+  }
   return cont_sub_atom_fetch();
 }
 
@@ -3959,7 +3989,7 @@ Yap_InitBackCPreds(void)
 		SafePredFlag|SyncPredFlag);
   Yap_InitCPredBack("$current_atom_op", 5, 1, init_current_atom_op, cont_current_atom_op,
 		SafePredFlag|SyncPredFlag);
-  Yap_InitCPredBack("$sub_atom_fetch", 5, 3, init_sub_atom_fetch, cont_sub_atom_fetch, HiddenPredFlag);
+  Yap_InitCPredBack("$sub_atom_fetch", 5, 5, init_sub_atom_fetch, cont_sub_atom_fetch, HiddenPredFlag);
 #ifdef BEAM
   Yap_InitCPredBack("eam", 1, 0, start_eam, cont_eam,
 		SafePredFlag);
