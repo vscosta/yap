@@ -347,14 +347,6 @@ use_module(M,F,Is) :-
 % ignore for now.
 '$initialization'(G,restore).
 
-'$initialization'(G) :-
-	'$show_consult_level'(Level1),
-	% it will be done after we leave the current consult level.
-	Level is Level1-1,
-	recorda('$initialisation',do(Level,G),_),
-	fail.
-'$initialization'(_).
-
 '$exec_initialisation_goals' :-
 	nb_setval('$initialization_goals',on),
 	fail.
