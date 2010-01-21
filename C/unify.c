@@ -655,6 +655,355 @@ InitReverseLookupOpcode(void)
 }
 #endif
 
+#define UnifiableGlobalCells(a, b)                                    \
+     if((a) > (b)) {                                              \
+	BIND_GLOBALCELL_NONATT((a),(CELL)(b));                           \
+     } else if((a) < (b)){                                        \
+	BIND_GLOBALCELL_NONATT((b),(CELL) (a));                          \
+     }
+
+static int 
+unifiable_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
+{
+#ifdef THREADS
+#undef Yap_REGS
+  register REGSTORE *regp = Yap_regp;
+#define Yap_REGS (*regp)
+#elif defined(SHADOW_REGS)
+#if defined(B) || defined(TR)
+  register REGSTORE *regp = &Yap_REGS;
+
+#define Yap_REGS (*regp)
+#endif /* defined(B) || defined(TR) || defined(HB) */
+#endif
+
+#ifdef SHADOW_HB
+  register CELL *HBREG = HB;
+#endif /* SHADOW_HB */
+
+  struct unif_record  *unif = (struct unif_record *)AuxBase;
+  struct v_record *to_visit  = (struct v_record *)AuxSp;
+#define unif_base ((struct unif_record *)AuxBase)
+#define to_visit_base ((struct v_record *)AuxSp)
+
+loop:
+  while (pt0 < pt0_end) {
+    register CELL *ptd0 = pt0+1; 
+    register CELL d0;
+
+    ++pt1;
+    pt0 = ptd0;
+    d0 = *ptd0;
+    deref_head(d0, unifiable_comp_unk);
+  unifiable_comp_nvar:
+    {
+      register CELL *ptd1 = pt1;
+      register CELL d1 = *ptd1;
+
+      deref_head(d1, unifiable_comp_nvar_unk);
+    unifiable_comp_nvar_nvar:
+      if (d0 == d1)
+	continue;
+      if (IsPairTerm(d0)) {
+	if (!IsPairTerm(d1)) {
+	  goto cufail;
+	}
+	/* now link the two structures so that no one else will */
+	/* come here */
+	/* store the terms to visit */
+	if (RATIONAL_TREES || pt0 < pt0_end) {
+	  to_visit --;
+#ifdef RATIONAL_TREES
+	  unif++;
+#endif
+	  if ((void *)to_visit < (void *)unif) {
+	    CELL **urec = (CELL **)unif;
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec);
+	    unif = (struct unif_record *)urec;
+	  }
+	  to_visit->start0 = pt0;
+	  to_visit->end0 = pt0_end;
+	  to_visit->start1 = pt1;
+#ifdef RATIONAL_TREES
+	  unif[-1].old = *pt0;
+	  unif[-1].ptr = pt0;
+	  *pt0 = d1;
+#endif
+	}
+	pt0_end = (pt0 = RepPair(d0) - 1) + 2;
+	pt1 = RepPair(d1) - 1;
+	continue;
+      }
+      if (IsApplTerm(d0)) {
+	register Functor f;
+	register CELL *ap2, *ap3;
+
+	if (!IsApplTerm(d1)) {
+	  goto cufail;
+	}
+	/* store the terms to visit */
+	ap2 = RepAppl(d0);
+	ap3 = RepAppl(d1);
+	f = (Functor) (*ap2);
+	/* compare functors */
+	if (f != (Functor) *ap3)
+	  goto cufail;
+	if (IsExtensionFunctor(f)) {
+	  if (unify_extension(f, d0, ap2, d1))
+	    continue;
+	  goto cufail;
+	}
+	/* now link the two structures so that no one else will */
+	/* come here */
+	/* store the terms to visit */
+	if (RATIONAL_TREES || pt0 < pt0_end) {
+	  to_visit --;
+#ifdef RATIONAL_TREES
+	  unif++;
+#endif
+	  if ((void *)to_visit < (void *)unif) {
+	    CELL **urec = (CELL **)unif;
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec);
+	    unif = (struct unif_record *)urec;
+	  }
+	  to_visit->start0 = pt0;
+	  to_visit->end0 = pt0_end;
+	  to_visit->start1 = pt1;
+#ifdef RATIONAL_TREES
+	  unif[-1].old = *pt0;
+	  unif[-1].ptr = pt0;
+	  *pt0 = d1;
+#endif
+	}
+	d0 = ArityOfFunctor(f);
+	pt0 = ap2;
+	pt0_end = ap2 + d0;
+	pt1 = ap3;
+	continue;
+      }
+      goto cufail;
+
+      derefa_body(d1, ptd1, unifiable_comp_nvar_unk, unifiable_comp_nvar_nvar);
+	/* d1 and pt2 have the unbound value, whereas d0 is bound */
+      BIND(ptd1, d0, bind_unifiable3);
+#ifdef COROUTINING
+      DO_TRAIL(ptd1, d0);
+    bind_unifiable3:
+#endif
+      continue;
+    }
+
+    derefa_body(d0, ptd0, unifiable_comp_unk, unifiable_comp_nvar);
+    /* first arg var */
+    {
+      register CELL d1;
+      register CELL *ptd1;
+
+      ptd1 = pt1;
+      d1 = ptd1[0];
+      /* pt2 is unbound */
+      deref_head(d1, unifiable_comp_var_unk);
+    unifiable_comp_var_nvar:
+      /* pt2 is unbound and d1 is bound */
+      BIND(ptd0, d1, bind_unifiable4);
+#ifdef COROUTINING
+      DO_TRAIL(ptd0, d1);
+    bind_unifiable4:
+#endif
+      continue;
+
+      derefa_body(d1, ptd1, unifiable_comp_var_unk, unifiable_comp_var_nvar);
+      /* ptd0 and ptd1 are unbound */
+      UnifiableGlobalCells(ptd0, ptd1);
+    }
+  }
+  /* Do we still have compound terms to visit */
+  if (to_visit < to_visit_base) {
+    pt0 = to_visit->start0;
+    pt0_end = to_visit->end0;
+    pt1 = to_visit->start1;
+    to_visit++;
+    goto loop;
+  }
+#ifdef RATIONAL_TREES
+  /* restore bindigs */
+  while (unif-- != unif_base) {
+    CELL *pt0;
+
+    pt0 = unif->ptr;
+    *pt0 = unif->old;
+  }
+#endif
+  return TRUE;
+
+cufail:
+#ifdef RATIONAL_TREES
+  /* restore bindigs */
+  while (unif-- != unif_base) {
+    CELL *pt0;
+
+    pt0 = unif->ptr;
+    *pt0 = unif->old;
+  }
+#endif
+  return FALSE;
+#ifdef THREADS
+#undef Yap_REGS
+#define Yap_REGS (*Yap_regp)  
+#elif defined(SHADOW_REGS)
+#if defined(B) || defined(TR)
+#undef Yap_REGS
+#endif /* defined(B) || defined(TR) */
+#endif
+}
+
+/*  don't pollute name space */
+#undef to_visit_base
+#undef unif_base
+
+
+static int 
+unifiable(CELL d0, CELL d1)
+{
+#if THREADS
+#undef Yap_REGS
+  register REGSTORE *regp = Yap_regp;
+#define Yap_REGS (*regp)
+#elif SHADOW_REGS
+#if defined(B) || defined(TR)
+  register REGSTORE *regp = &Yap_REGS;
+
+#define Yap_REGS (*regp)
+#endif /* defined(B) || defined(TR) */
+#endif
+
+#if SHADOW_HB
+  register CELL *HBREG = HB;
+#endif
+
+  register CELL *pt0, *pt1;
+
+  deref_head(d0, unifiable_unk);
+
+unifiable_nvar:
+  /* d0 is bound */
+  deref_head(d1, unifiable_nvar_unk);
+unifiable_nvar_nvar:
+  /* both arguments are bound */
+  if (d0 == d1)
+    return TRUE;
+  if (IsPairTerm(d0)) {
+    if (!IsPairTerm(d1)) {
+      return (FALSE);
+    }
+    pt0 = RepPair(d0);
+    pt1 = RepPair(d1);
+    return (unifiable_complex(pt0 - 1, pt0 + 1, pt1 - 1));
+  }
+  else if (IsApplTerm(d0)) {
+    pt0 = RepAppl(d0);
+    d0 = *pt0;
+    if (!IsApplTerm(d1))
+      return (FALSE);      
+    pt1 = RepAppl(d1);
+    d1 = *pt1;
+    if (d0 != d1) {
+      return (FALSE);
+    } else {
+      if (IsExtensionFunctor((Functor)d0)) {
+	switch(d0) {
+	case (CELL)FunctorDBRef:
+	  return(pt0 == pt1);
+	case (CELL)FunctorLongInt:
+	  return(pt0[1] == pt1[1]);
+	case (CELL)FunctorDouble:
+	  return(FloatOfTerm(AbsAppl(pt0)) == FloatOfTerm(AbsAppl(pt1)));
+#ifdef USE_GMP
+	case (CELL)FunctorBigInt:
+	  return(mpz_cmp(Yap_BigIntOfTerm(AbsAppl(pt0)),Yap_BigIntOfTerm(AbsAppl(pt0))) == 0);
+#endif /* USE_GMP */
+	default:
+	  return(FALSE);
+	}
+      }
+      return (unifiable_complex(pt0, pt0 + ArityOfFunctor((Functor) d0),
+			     pt1));
+    }
+  } else {
+    return (FALSE);
+  }
+
+  deref_body(d1, pt1, unifiable_nvar_unk, unifiable_nvar_nvar);
+  /* d0 is bound and d1 is unbound */
+  BIND(pt1, d0, bind_unifiable3);
+#ifdef COROUTINING
+  DO_TRAIL(pt1, d0);
+ bind_unifiable3:
+#endif
+  return (TRUE);
+
+  deref_body(d0, pt0, unifiable_unk, unifiable_nvar);
+  /* pt0 is unbound */
+  deref_head(d1, unifiable_var_unk);
+unifiable_var_nvar:
+  /* pt0 is unbound and d1 is bound */
+  BIND(pt0, d1, bind_unifiable4);
+#ifdef COROUTINING
+  DO_TRAIL(pt0, d1);
+ bind_unifiable4:
+#endif
+  return TRUE;
+
+#if TRAILING_REQUIRES_BRANCH
+unifiable_var_nvar_trail:
+  DO_TRAIL(pt0);
+  return TRUE;
+#endif
+
+  deref_body(d1, pt1, unifiable_var_unk, unifiable_var_nvar);
+  /* d0 and pt1 are unbound */
+  UnifyCells(pt0, pt1, uc1, uc2);
+#ifdef COROUTINING
+  DO_TRAIL(pt0, (CELL)pt1);
+ uc1:
+#endif
+  return (TRUE);
+#ifdef COROUTINING
+ uc2:
+  DO_TRAIL(pt1, (CELL)pt0);
+  return (TRUE);
+#endif
+#if THREADS
+#undef Yap_REGS
+#define Yap_REGS (*Yap_regp)  
+#elif SHADOW_REGS
+#if defined(B) || defined(TR)
+#undef Yap_REGS
+#endif /* defined(B) || defined(TR) */
+#endif
+}
+
+
+static Int
+p_unifiable(void)
+{
+  tr_fr_ptr trp;
+  Term tf = TermNil;
+  if (!unifiable(ARG1,ARG2)) {
+    return FALSE;
+  }
+  trp = TR;
+  while (trp != B->cp_tr) {
+    Term t[2];
+    --trp;
+    t[0] = TrailTerm(trp);
+    t[1] = *(CELL *)t[0];
+    tf = MkPairTerm(Yap_MkApplTerm(FunctorEq,2,t),tf);
+    RESET_VARIABLE(t[0]);
+  }
+  return Yap_unify(ARG3, tf);
+}
+
 void 
 Yap_InitUnify(void)
 {
@@ -663,6 +1012,7 @@ Yap_InitUnify(void)
   CurrentModule = TERMS_MODULE;
   Yap_InitCPred("cyclic_term", 1, p_cyclic, SafePredFlag|TestPredFlag);
   Yap_InitCPred("acyclic_term", 1, p_acyclic, SafePredFlag|TestPredFlag);
+  Yap_InitCPred("protected_unifiable", 3, p_unifiable, 0);
   CurrentModule = cm;
 }
 

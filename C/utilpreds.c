@@ -2827,26 +2827,6 @@ camacho_dum(void)
 
 #endif /* DEBUG */
 
-static Int
-p_unifiable(void)
-{
-  tr_fr_ptr trp;
-  Term tf = TermNil;
-  if (!Yap_unify(ARG1,ARG2)) {
-    return FALSE;
-  }
-  trp = TR;
-  while (trp != B->cp_tr) {
-    Term t[2];
-    --trp;
-    t[0] = TrailTerm(trp);
-    t[1] = *(CELL *)t[0];
-    tf = MkPairTerm(Yap_MkApplTerm(FunctorEq,2,t),tf);
-    RESET_VARIABLE(t[0]);
-  }
-  return Yap_unify(ARG3, tf);
-}
-
 int
 Yap_IsListTerm(Term t)
 {
@@ -2883,7 +2863,6 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("instantiated_term_hash", 4, p_instantiated_term_hash, SafePredFlag);
   Yap_InitCPred("variant", 2, p_variant, 0);
   Yap_InitCPred("subsumes", 2, p_subsumes, SafePredFlag);
-  Yap_InitCPred("protected_unifiable", 3, p_unifiable, 0);
   Yap_InitCPred("variables_within_term", 3, p_variables_within_term, 3);
   Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 3);
   CurrentModule = cm;

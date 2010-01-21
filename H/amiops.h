@@ -356,10 +356,16 @@ Binding Macros for Multiple Assignment Variables.
 				if ((A) >= HBREG) continue; \
                                 TRAIL_GLOBAL(A,D); if ((A) >= H0) continue; \
                                 Yap_WakeUp((A)); continue
+
+#define BIND_GLOBALCELL_NONATT(A,D)    *(A) = (D); \
+				if ((A) >= HBREG) continue; \
+                                TRAIL_GLOBAL(A,D);
 #else
 #define BIND_GLOBAL2(A,D,LAB,LAB1)   BIND_GLOBAL(A,D,LAB)
 
 #define BIND_GLOBALCELL(A,D)    BIND_GLOBAL(A,D,L); continue
+
+#define BIND_GLOBALCELL_NONATT(A,D)    BIND_GLOBALCELL; continue
 #endif
 
 #define Bind_Local(A,D)	   { TRAIL_LOCAL(A,D); *(A) = (D); }
