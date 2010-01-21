@@ -1900,7 +1900,7 @@ record_lu_at(int position, LogUpdClause *ocl, Term t)
     UNLOCK(pe->PELock);
     return NULL;
   }
-  if(pe->cs.p_code.NOfClauses > 1)
+  if(pe->cs.p_code.NOfClauses > 1) 
     Yap_RemoveIndexation(pe);
   if (position == MkFirst) {
     /* add before current clause */
@@ -1926,6 +1926,10 @@ record_lu_at(int position, LogUpdClause *ocl, Term t)
     ocl->ClNext = cl;
   }
   pe->cs.p_code.NOfClauses++;
+  if (pe->cs.p_code.NOfClauses > 1) {
+    pe->OpcodeOfPred = INDEX_OPCODE;
+    pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred)); 
+  }
   UNLOCK(pe->PELock);
   return cl;
 }
