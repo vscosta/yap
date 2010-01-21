@@ -145,7 +145,9 @@
 
 #ifdef THREADS
 #if USE_PTHREAD_LOCKING
+#ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600
+#endif
 #endif
 #include <pthread.h>
 #endif

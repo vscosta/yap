@@ -1990,6 +1990,10 @@ AddAtomToHash(CELL *st, Atom at)
   } else {
     char *c = RepAtom(at)->StrOfAE;
     int ulen = strlen(c);
+    /* fix hashing over empty atom */
+    if (!ulen) {
+      return st;
+    }
     start = (CELL *)c;
     if (ulen % CellSize == 0) {
       len = ulen/CellSize;
