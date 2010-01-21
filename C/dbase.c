@@ -2652,7 +2652,6 @@ new_lu_int_key(Int key)
   p->ArityOfPE = 3;
   p->OpcodeOfPred = Yap_opcode(_op_fail);
   p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = FAILCODE;
-  WRITE_UNLOCK(ae->ARWLock);
   INT_LU_KEYS[hash_key] = p0;
   return p;
 }
