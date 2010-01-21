@@ -172,9 +172,7 @@ wrputref(CODEADDR ref, int Quote_illegal, wrf writewch)			/* writes a data base 
   char            s[256];
 
   putAtom(AtomDBref, Quote_illegal, writewch);
-#if SHORT_INTS
-  sprintf(s, "(0x%p,0)", ref);
-#elif __linux__
+#if defined(__linux__) || defined(__APPLE__)
   sprintf(s, "(%p,0)", ref);
 #else
   sprintf(s, "(0x%p,0)", ref);
