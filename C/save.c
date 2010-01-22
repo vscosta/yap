@@ -473,6 +473,9 @@ save_code_info(void)
 static void
 save_heap(void)
 {
+#ifdef USE_SYSTEM_MALLOC
+  return;
+#endif
   int j;
   /* Then save the whole heap */
 #if defined(YAPOR) || (defined(TABLING) && !defined(YAP_MEMORY_ALLOC_SCHEME))
