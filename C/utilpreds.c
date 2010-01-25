@@ -1584,7 +1584,7 @@ int Yap_IsGroundTerm(Term t)
 static Int 
 p_ground(void)			/* ground(+T)		 */
 {
-  return Yap_IsGroundTerm(ARG1);
+  return Yap_IsGroundTerm(Deref(ARG1));
 }
 
 static int
