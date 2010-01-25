@@ -123,21 +123,21 @@
 	recorded('$spy','$spy'(G,M),_), !.
 
 spy Spec :-
-	prolog:debug_action_hook(spy(Spec)), !.
+	'$notrace'(prolog:debug_action_hook(spy(Spec))), !.
 spy L :-
 	'$current_module'(M),
 	'$suspy'(L, spy, M), fail.
 spy _ :- debug.
 
 nospy Spec :-
-	prolog:debug_action_hook(nospy(Spec)), !.
+	'$notrace'(prolog:debug_action_hook(nospy(Spec))), !.
 nospy L :-
 	'$current_module'(M),
 	'$suspy'(L, nospy, M), fail.
 nospy _.
 
 nospyall :-
-	prolog:debug_action_hook(nospyall), !.
+	'$notrace'(prolog:debug_action_hook(nospyall)), !.
 nospyall :-
 	recorded('$spy','$spy'(T,M),_), functor(T,F,N), '$suspy'(F/N,nospy,M), fail.
 nospyall.
