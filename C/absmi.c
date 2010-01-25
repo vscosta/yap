@@ -8053,6 +8053,7 @@ Yap_absmi(int inp)
 	  UNLOCK(pe->StatisticsForPred.lock);
 	  ReductionsCounter--;
 	  if (ReductionsCounter == 0 && ReductionsCounterOn) {
+	    UNLOCK(pe->PELock);
 	    saveregs();
 	    Yap_Error(CALL_COUNTER_UNDERFLOW,TermNil,"");
 	    setregs();
@@ -8060,6 +8061,7 @@ Yap_absmi(int inp)
 	  } 
 	  PredEntriesCounter--;
 	  if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+	    UNLOCK(pe->PELock);
 	    saveregs();
 	    Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
 	    setregs();
@@ -8068,6 +8070,7 @@ Yap_absmi(int inp)
 	  if ((pe->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) == 
 	    CountPredFlag) {
 	    PREG = pe->cs.p_code.TrueCodeOfPred;
+	    UNLOCK(pe->PELock);
 	    JMPNext();
 	  }
 	}
@@ -8078,6 +8081,7 @@ Yap_absmi(int inp)
 	  UNLOCK(pe->StatisticsForPred.lock);
 	  if (!(pe->PredFlags & SpiedPredFlag)) {
 	    PREG = pe->cs.p_code.TrueCodeOfPred;
+	    UNLOCK(pe->PELock);
 	    JMPNext();
 	  }
 	}
