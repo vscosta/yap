@@ -333,7 +333,7 @@ debugging :-
 	L1 is L+1,			/* bump it			*/
 	nb_setval('$spy_gn',L1),	/* and save it globaly		*/
         b_getval('$spy_glist',History),	/* get goal list		*/
-	b_setval('$spy_glist',[info(L,Module,G,_Retry,_Det)|History]),	/* and update it		*/
+	b_setval('$spy_glist',[info(L,Module,G,_Retry,_Det,_HasFoundAnswers)|History]),	/* and update it		*/
 	'$loop_spy'(L, G, Module, CalledFromDebugger).	/* set creep on		*/
 
 % we are skipping, so we can just call the goal,
@@ -393,7 +393,8 @@ debugging :-
 	   ;
 	     G = G0
 	   ),
-	   b_getval('$spy_glist',[info(_,_,_,Retry,Det)|_]),	/* get goal list		*/
+	   b_getval('$spy_glist',[Info|_]),	/* get goal list		*/
+	   Info = info(_,_,_,Retry,Det,false),
 	   (
 	    /* call port */
 	    '$enter_goal'(GoalNumber, G, Module),
@@ -408,6 +409,8 @@ debugging :-
 	/* go execute the predicate	*/
 	    (
 	      Retry = false ->
+	       /* found an answer, so it can redo */
+	       nb_setarg(6, Info, true),
 	      '$show_trace'(exit,G,Module,GoalNumber,Det),	/* output message at exit	*/
 	       /* exit port */
 	       /* get rid of deterministic computations */
@@ -424,8 +427,15 @@ debugging :-
 	        /* we get here when we want to redo a goal		*/
 		/* redo port */
 	     '$disable_docreep',
-	     '$show_trace'(redo,G,Module,GoalNumber,_), /* inform user_error		*/
-	    '$continue_debugging'(CalledFromDebugger),
+	      (
+	       arg(6, Info, true)
+	      ->
+	        '$show_trace'(redo,G,Module,GoalNumber,_), /* inform user_error		*/
+	        nb_setarg(6, Info, false)
+	       ;
+	         true
+	      ),
+	     '$continue_debugging'(CalledFromDebugger),
 	     fail			/* to backtrack to spycalls	*/
 	     )
 	  ;
@@ -743,7 +753,7 @@ debugging :-
 
 '$show_ancestors'([],_).
 '$show_ancestors'([_|_],0) :- !.
-'$show_ancestors'([info(L,M,G,Retry,Det)|History],HowMany) :-
+'$show_ancestors'([info(L,M,G,Retry,Det,_Exited)|History],HowMany) :-
 	'$show_ancestor'(L,M,G,Retry,Det,HowMany,HowMany1),
 	'$show_ancestors'(History,HowMany1).
 
