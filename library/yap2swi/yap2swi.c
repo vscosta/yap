@@ -1327,9 +1327,36 @@ X_API int PL_unify_list(term_t tt, term_t h, term_t tail)
   } else if (!IsPairTerm(t)) {
     return FALSE;
   }
-  Yap_PutInSlot(h,HeadOfTerm(t));
-  Yap_PutInSlot(tail,TailOfTerm(t));
-  return TRUE;
+  return 
+    Yap_unify(Yap_GetFromSlot(h),HeadOfTerm(t)) &&
+    Yap_unify(Yap_GetFromSlot(tail),TailOfTerm(t));
+}
+
+/* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
+   YAP long int  unify(YAP_Term* a, Term* b) */
+X_API int PL_unify_arg(int index, term_t tt, term_t arg)
+{
+  Term t = Deref(Yap_GetFromSlot(tt)), to;
+  if (index < 0)
+    return FALSE;
+  if (IsVarTerm(t) || IsAtomOrIntTerm(t)) {
+    return FALSE;
+  } else if (IsPairTerm(t)) {
+    if (index == 1)
+      to = HeadOfTerm(t);
+    else if (index == 2)
+      to = TailOfTerm(t);
+    else
+      return FALSE;
+  } else {
+    Functor f = FunctorOfTerm(t);
+    if (IsExtensionFunctor(f)) 
+      return FALSE;
+    if (index > ArityOfFunctor(f))
+      return FALSE;
+    to = ArgOfTerm(index, t);
+  }
+  return Yap_unify(Yap_GetFromSlot(t),to);
 }
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
@@ -1704,6 +1731,11 @@ X_API int PL_term_type(term_t t)
 X_API int PL_is_atom(term_t t)
 {
   return IsAtomTerm(Yap_GetFromSlot(t));
+}
+
+X_API int PL_is_ground(term_t t)
+{
+  return Yap_IsGroundTerm(Yap_GetFromSlot(t));
 }
 
 X_API int PL_is_atomic(term_t ts)
@@ -2108,6 +2140,11 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
 X_API void PL_register_extensions(const PL_extension *ptr)
 {
   PL_load_extensions(ptr);
+}
+
+X_API void PL_register_foreign(const char *name, int arity, foreign_t (*function)(void), int flags)
+{
+  PL_register_foreign_in_module(NULL, name, arity, function, flags);
 }
 
 X_API void PL_load_extensions(const PL_extension *ptr)
