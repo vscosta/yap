@@ -441,7 +441,7 @@ extern X_API int  PROTO(YAP_Halt,(int));
 extern X_API YAP_Term  *PROTO(YAP_TopOfLocalStack,(void));
 
 /*  int  YAP_Predicate()  */
-extern X_API void  *PROTO(YAP_Predicate,(YAP_Atom,unsigned long int,int));
+extern X_API void  *PROTO(YAP_Predicate,(YAP_Atom,unsigned long int,YAP_Term));
 
 /*  int  YAP_Predicate()  */
 extern X_API void  PROTO(YAP_PredicateInfo,(void *,YAP_Atom *,unsigned long int*,YAP_Module*));
