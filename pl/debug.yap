@@ -145,6 +145,7 @@ nospyall.
 % debug mode -> debug flag = 1
 
 debug :-
+	( nb_getval('$spy_gn',L) -> true ; nb_setval('$spy_gn',1) ),
 	'$start_debugging'(on),
 	print_message(informational,debug(debug)).
 
