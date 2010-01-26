@@ -83,8 +83,6 @@ static void PROTO(exec_top_level,(int, YAP_init_args *));
 static int output_msg;
 #endif
 
-static char BootFile[] = "boot.yap";
-
 #ifdef lint
 /* VARARGS1 */
 #endif
