@@ -1303,9 +1303,7 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
     return ((codev)((&ARG1)-LCL0,0,&ctx));
   }
   if (pe->PredFlags & CArgsPredFlag) {
-    fprintf(stderr,"ASP=%p\n",ASP);
     Int out =  execute_cargs(pe, exec_code);
-    fprintf(stderr,"ASP=%p\n",ASP);
     return out;
   } else {
     return((exec_code)());
