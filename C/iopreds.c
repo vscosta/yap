@@ -4001,7 +4001,7 @@ static Int
        and floats */
     old_H = H;
     if (Stream[inp_stream].status & Eof_Stream_f) {
-      if (Yap_eot_before_eof) {
+      if (Yap_eot_before_eof || (Stream[inp_stream].status & InMemory_Stream_f)) {
 	/* next read should give out an end of file */
 	Stream[inp_stream].status |= Push_Eof_Stream_f;
       } else {
