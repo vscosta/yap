@@ -10550,6 +10550,13 @@ Convert the number @var{Number} to the string of character codes
 Convert the atom @var{Number} to the difference list of character codes
 @var{Result-Result0}.
 
+@item atom_to_term(+@var{Atom}, -@var{Term}, -@var{Bindings})
+@findex atom_to_term/3
+@syindex atom_to_term/3
+@cnindex atom_to_term/3
+Use @var{Atom} as input to @code{read_term/2} using the option @code{variable_names} and return the read term in @var{Term} and the variable bindings in @var{Bindings}. @var{Bindings} is a list of @code{Name = Var} couples, thus providing access to the actual variable names. See also @code{read_term/2}. If Atom has no valid syntax, a syntax_error exception is raised.
+
+
 @item read_from_chars(+@var{Chars}, -@var{Term})
 @findex read_from_chars/2
 @syindex read_from_chars/2

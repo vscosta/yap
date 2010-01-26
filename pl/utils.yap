@@ -538,6 +538,13 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 '$subtract_lists_of_variables'([V1|VL1],[V2|VL2],[V2|VL]) :-
 	'$subtract_lists_of_variables'([V1|VL1],VL2,VL).
 	
+atom_to_term(Atom, Term, Bindings) :-
+	atom_codes(Atom, Chars),
+	charsio:open_mem_read_stream(Chars, Stream),
+	read_term(Stream, T, [variable_names(Bindings)]),
+	close(Stream),
+	T = Term.
+
 simple(V) :- var(V), !.
 simple(A) :- atom(A), !.
 simple(N) :- number(N).
