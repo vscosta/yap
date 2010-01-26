@@ -873,12 +873,18 @@ InitWorkSpace(Int s)
     return(NULL);
   }
 #elif defined(__APPLE__)
+#ifdef MMAP_ADDR
   a = mmap(((void *)MMAP_ADDR), (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
   if (a != (MALLOC_T)MMAP_ADDR) {
     Yap_Error(FATAL_ERROR, TermNil, "mmap could not map ANON at %p, got %p", (void *)MMAP_ADDR,a );
     return(NULL);
   }
+#else
+  a = mmap(NULL, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
+	   MAP_PRIVATE | MAP_ANON, -1, 0);
+  fprintf(stderr,"a=%p\n",a);
+#endif
 #else
   fd = open("/dev/zero", O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if (fd < 0) {

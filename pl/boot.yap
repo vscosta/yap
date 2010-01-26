@@ -390,7 +390,9 @@ true :- true.
  % but YAP and SICStus does.
  %
  '$process_directive'(G, _, M) :-
-	 ( '$notrace'(M:G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
+	 '$exit_system_mode',
+	 ( '$notrace'(M:G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ),
+	 '$enter_system_mode'.
 
  '$continue_with_command'(reconsult,V,Pos,G,Source) :-
 	 '$go_compile_clause'(G,V,Pos,5,Source),

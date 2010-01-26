@@ -368,6 +368,7 @@ extern X_API  int PL_compare(term_t, term_t);
 /* begin PL_unify_* functions =============================*/
 extern X_API  int PL_unify(term_t, term_t);
 extern X_API  int PL_unify_atom(term_t, atom_t);
+extern X_API  int PL_unify_arg(int, term_t, atom_t);
 extern X_API  int PL_unify_atom_chars(term_t, const char *);
 extern X_API  int PL_unify_atom_nchars(term_t, size_t len, const char *);
 extern X_API  int PL_unify_float(term_t, double);
@@ -391,6 +392,7 @@ extern X_API  int PL_is_atomic(term_t);
 extern X_API  int PL_is_compound(term_t);
 extern X_API  int PL_is_float(term_t);
 extern X_API  int PL_is_functor(term_t, functor_t);
+extern X_API  int PL_is_ground(term_t);
 extern X_API  int PL_is_integer(term_t);
 extern X_API  int PL_is_list(term_t);
 extern X_API  int PL_is_number(term_t);
@@ -420,6 +422,7 @@ extern X_API int PL_toplevel(void);
 extern X_API term_t PL_exception(qid_t);
 extern X_API int PL_call_predicate(module_t, int, predicate_t, term_t);
 extern X_API int PL_call(term_t, module_t);
+extern X_API void PL_register_foreign(const char *, int, foreign_t (*)(void), int);
 extern X_API void PL_register_foreign_in_module(const char *, const char *, int, foreign_t (*)(void), int);
 extern X_API void PL_register_extensions(const PL_extension *);
 extern X_API void PL_load_extensions(const PL_extension *);
@@ -440,8 +443,6 @@ extern X_API void *PL_malloc(int);
 extern X_API void *PL_realloc(void*,int);
 extern X_API void PL_free(void *);
 extern X_API int  PL_eval_expression_to_int64_ex(term_t t, int64_t *val);
-
-#define PL_register_foreign(name, arity, function, flags) PL_register_foreign_in_module(NULL, (name), (arity), (function), (flags))
 
 extern X_API int Sprintf(const char * fm,...);
 extern X_API int Sdprintf(const char *,...);

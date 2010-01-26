@@ -1547,15 +1547,11 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end)
   return -1;
 }
  
-static Int 
-p_ground(void)			/* ground(+T)		 */
+int Yap_IsGroundTerm(Term t)
 {
-  Term t;
-
   while (TRUE) {
     Int out;
 
-    t = Deref(ARG1);
     if (IsVarTerm(t)) {
       return FALSE;
     }  else if (IsPrimitiveTerm(t)) {
@@ -1583,6 +1579,12 @@ p_ground(void)			/* ground(+T)		 */
       }      
     }
   }
+}
+
+static Int 
+p_ground(void)			/* ground(+T)		 */
+{
+  return Yap_IsGroundTerm(Deref(ARG1));
 }
 
 static int

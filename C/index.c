@@ -6904,6 +6904,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	ipc = ipc->u.ollll.l1;
 	S = s_reg = RepPair(t);
       } else if (t == TermNil) {
+	unbounded = FALSE;
 	jlbl = &(ipc->u.ollll.l2);
 	ipc = ipc->u.ollll.l2;
       } else {

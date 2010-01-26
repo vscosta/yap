@@ -330,15 +330,16 @@ typedef CELL Term;
 
 #if !defined(YAPOR) && !defined(THREADS)
 #include <nolocks.h>
-#elif USE_PTHREAD_LOCKING
+#elif USE_PTHREAD_LOCKING || defined(__APPLE__) || defined(__CYGWIN__)
 
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600
 #endif
 
+#include <pthread_locks.h>
 typedef pthread_mutex_t lockvar;
 typedef pthread_rwlock_t rwlock_t;
-#include <pthread_locks.h>
+
 #elif defined(i386) || defined(__x86_64__)
 typedef volatile int lockvar;
 #include <x86_locks.h>
