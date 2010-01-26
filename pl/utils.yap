@@ -319,7 +319,7 @@ atom_concat(X,Y,At) :-
 	  var(At) ->
 	  '$do_error'(instantiation_error,atom_concat(X,Y,At))
 	;
-	  '$do_error'(type_error(atom,At),atomic_concant(X,Y,At))
+	  '$do_error'(type_error(atom,At),atomic_concat(X,Y,At))
 	).
 
 '$atom_contact_split'(At,X,Y) :-
@@ -360,7 +360,7 @@ atomic_concat(X,Y,At) :-
 	  var(At) ->
 	  '$do_error'(instantiation_error,atomic_concat(X,Y,At))
 	;
-	  '$do_error'(type_error(atomic,At),atomic_concant(X,Y,At))
+	  '$do_error'(type_error(atomic,At),atomic_concat(X,Y,At))
 	).
 
 '$number_contact_split'(At,X,Y) :-
