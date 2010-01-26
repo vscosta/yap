@@ -1287,8 +1287,8 @@ X_API int PL_unify_float(term_t t, double f)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_integer(term_t t, long n)
 {	
-  YAP_Term iterm = YAP_MkIntTerm(n);
-  return YAP_Unify(Yap_GetFromSlot(t),iterm);
+  Term iterm = MkIntegerTerm(n);
+  return Yap_unify(Yap_GetFromSlot(t),iterm);
 }
 
 /* SWI: int PL_unify_integer(term_t ?t, long n)
