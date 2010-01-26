@@ -3334,7 +3334,7 @@ rw_lock_voodoo(void) {
 #endif /* sparc */
 
 
-#if defined(i386) || defined(__x86_64__)
+#if (defined(i386) || defined(__x86_64__) ) && !defined(__APPLE__) && !defined(__CYGWIN__)
 asm(
 
 ".align	4\n"
