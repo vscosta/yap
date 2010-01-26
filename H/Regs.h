@@ -722,10 +722,6 @@ EXTERN inline void restore_B(void) {
 #define ARG15	XREGS[15]
 #define ARG16	XREGS[16]
 
-#define cut_succeed()	return( ( B = B->cp_b, 1 ))
-#define cut_fail()	return( ( B = B->cp_b, 0 ))
-
-
 /* by default, define HBREG to be HB */
 
 #define HBREG HB

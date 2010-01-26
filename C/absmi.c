@@ -7713,13 +7713,6 @@ Yap_absmi(int inp)
       setregs();
       Yap_PrologMode = UserMode;
       if (!SREG) {
-#ifdef CUT_C
-	/* Removes the cut functions from the stack
-	 without executing them because we have fail 
-	 and not cuted the predicate*/
-	while(POP_CHOICE_POINT(B))
-	  cut_c_pop();
-#endif 
 	FAIL();
       }
       if ((CELL *) B == YREG && ASP != (CELL *) B) {
