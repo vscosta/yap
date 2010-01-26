@@ -365,11 +365,6 @@
 #define strncpy(X,Y,Z) strcpy(X,Y)
 #endif
 
-#define YAP_BOOT_FROM_PROLOG       0
-#define YAP_BOOT_FROM_SAVED_CODE   1
-#define YAP_BOOT_FROM_SAVED_STACKS 2
-#define YAP_BOOT_FROM_SAVED_ERROR  -1
-
 #if defined(_MSC_VER) && defined(YAP_EXPORTS)
 #define X_API __declspec(dllexport)
 #else
@@ -482,7 +477,7 @@ X_API int     STD_PROTO(YAP_RecoverSlots,(int));
 X_API void    STD_PROTO(YAP_Throw,(Term));
 X_API void    STD_PROTO(YAP_Halt,(int));
 X_API Term   *STD_PROTO(YAP_TopOfLocalStack,(void));
-X_API void   *STD_PROTO(YAP_Predicate,(Atom,unsigned long int,int));
+X_API void   *STD_PROTO(YAP_Predicate,(Atom,unsigned long int,Term));
 X_API void    STD_PROTO(YAP_PredicateInfo,(void *,Atom *,unsigned long int *,Term *));
 X_API void    STD_PROTO(YAP_UserCPredicate,(char *,CPredicate,unsigned long int));
 X_API void    STD_PROTO(YAP_UserBackCPredicate,(char *,CPredicate,CPredicate,unsigned long int,unsigned int));
@@ -1305,11 +1300,13 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context ctx;
     ctx.engine = NULL;
-
     return ((codev)((&ARG1)-LCL0,0,&ctx));
   }
   if (pe->PredFlags & CArgsPredFlag) {
-    return execute_cargs(pe, exec_code);
+    fprintf(stderr,"ASP=%p\n",ASP);
+    Int out =  execute_cargs(pe, exec_code);
+    fprintf(stderr,"ASP=%p\n",ASP);
+    return out;
   } else {
     return((exec_code)());
   }
@@ -2172,29 +2169,133 @@ YAP_CompileClause(Term t)
   return(Yap_ErrorMessage);
 }
 
+static int eof_found = FALSE;
+static int yap_lineno = 0;
+
+static FILE *bootfile;
+
+static char InitFile[] = "init.yap";
+static char BootFile[] = "boot.yap";
+
+static int
+mygetc (void)
+{
+  int ch;
+  if (eof_found)
+    return EOF;
+  ch = getc (bootfile);
+  if (ch == EOF)
+    eof_found = TRUE;
+  if (ch == '\n') {
+#ifdef MPW
+    ch = 10;
+#endif
+    yap_lineno++;
+  }
+  return ch;
+}
+
+/* do initial boot by consulting the file boot.yap */
+static void
+do_bootfile (char *bootfilename)
+{
+  Term t;
+  Term term_end_of_file = MkAtomTerm(AtomEof);
+  Term term_true = YAP_MkAtomTerm(AtomTrue);
+  Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"),1);
+
+  /* consult boot.pl */
+  bootfile = fopen (bootfilename, "r");
+  if (bootfile == NULL)
+    {
+      fprintf(stderr, "[ FATAL ERROR: could not open bootfile %s ]\n", bootfilename);
+      exit(1);
+    }
+  /* the consult mode does not matter here, really */
+  /*
+    To be honest, YAP_InitConsult does not really do much,
+    it's here for the future. It also makes what we want to do clearer.
+  */
+  YAP_InitConsult(YAP_CONSULT_MODE,bootfilename);
+  while (!eof_found)
+    {
+      t = YAP_Read(mygetc);
+      if (eof_found) {
+	break;
+      }
+      if (t == 0)
+        {
+	  fprintf(stderr, "[ SYNTAX ERROR: while parsing bootfile %s at line %d ]\n", bootfilename, yap_lineno);
+	  exit(1);
+        }
+      if (YAP_IsVarTerm (t) || t == TermNil)
+	{
+	  continue;
+	}
+      else if (t == term_true)
+	{
+	  YAP_Exit(0);
+	}
+      else if (t == term_end_of_file)
+	{
+	  break;
+	}
+      else if (YAP_IsPairTerm (t))
+        {
+	  fprintf(stderr, "[ SYSTEM ERROR: consult not allowed in boot file ]\n");
+	  fprintf(stderr, "error found at line %d and pos %d", yap_lineno, fseek(bootfile,0L,SEEK_CUR));
+	}
+      else if (YAP_IsApplTerm (t) && FunctorOfTerm (t) == functor_query) 
+	{ 
+	  YAP_RunGoalOnce(ArgOfTerm (1, t));
+        }
+      else
+	{
+	  char *ErrorMessage = YAP_CompileClause(t);
+	  if (ErrorMessage)
+	    fprintf(stderr, "%s", ErrorMessage);
+	}
+      /* do backtrack */
+      YAP_Reset();
+    }
+  YAP_EndConsult();
+  fclose (bootfile);
+#ifdef DEBUG
+  if (output_msg)
+    fprintf(stderr,"Boot loaded\n");
+#endif
+}
+
 /* this routine is supposed to be called from an external program
    that wants to control Yap */
+
+#if defined(USE_SYSTEM_MALLOC)
+#define  BOOT_FROM_SAVED_STATE FALSE
+#else
+#define  BOOT_FROM_SAVED_STATE TRUE
+#endif
 
 X_API Int
 YAP_Init(YAP_init_args *yap_init)
 {
   int restore_result;
+  int do_bootstrap = (yap_init->YapPrologBootFile != NULL);
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
+  static char boot_file[256];
 
   Yap_argv = yap_init->Argv;
   Yap_argc = yap_init->Argc;
-#ifdef USE_SYSTEM_MALLOC
+#if !BOOT_FROM_SAVED_STATE
   if (yap_init->SavedState) {
     fprintf(stderr,"[ WARNING: threaded Yap will ignore saved state %s ]\n",yap_init->SavedState);
     yap_init->SavedState = NULL;
   }    
 #endif
-  if (yap_init->SavedState != NULL ||
-      yap_init->YapPrologBootFile == NULL) {
+  if (BOOT_FROM_SAVED_STATE && !do_bootstrap) {
     if (Yap_SavedInfo (yap_init->SavedState, yap_init->YapLibDir, &Trail, &Stack, &Heap) != 1) {
       yap_init->ErrorNo = Yap_Error_TYPE;
       yap_init->ErrorCause = Yap_ErrorMessage;
-      return YAP_BOOT_FROM_SAVED_ERROR;
+      return YAP_BOOT_ERROR;
     }
   }
   if (yap_init->TrailSize == 0) {
@@ -2243,7 +2344,7 @@ YAP_Init(YAP_init_args *yap_init)
   if (!(Yap_GlobalBase = (ADDR)malloc((Trail+Stack)*1024))) {
     yap_init->ErrorNo = RESOURCE_ERROR_MEMORY;
     yap_init->ErrorCause = "could not allocate stack space for main thread";
-    return YAP_BOOT_FROM_SAVED_ERROR;;
+    return YAP_BOOT_ERROR;
   }
 #if THREADS
   /* don't forget this is a thread */
@@ -2278,21 +2379,18 @@ YAP_Init(YAP_init_args *yap_init)
   }
   /* tell the system who should cope with interruptions */
   Yap_ExecutionMode = yap_init->ExecutionMode;
-  if (yap_init->SavedState != NULL ||
-      yap_init->YapPrologBootFile == NULL) {
-#if SUPPORT_CONDOR || SUPPORT_THREADS
-    restore_result = YAP_FULL_BOOT_FROM_PROLOG;
-#else
+  if (do_bootstrap) {
+    restore_result = YAP_BOOT_FROM_PROLOG;
+  } else if (BOOT_FROM_SAVED_STATE) {
     restore_result = Yap_Restore(yap_init->SavedState, yap_init->YapLibDir);
     if (restore_result == FAIL_RESTORE) {
       yap_init->ErrorNo = Yap_Error_TYPE;
       yap_init->ErrorCause = Yap_ErrorMessage;
       /* shouldn't RECOVER_MACHINE_REGS();  be here ??? */
-      return YAP_BOOT_FROM_SAVED_ERROR;
+      return YAP_BOOT_ERROR;
     }
-#endif
   } else {
-    restore_result = FAIL_RESTORE;
+    restore_result = YAP_BOOT_FROM_PROLOG;
   }
   yap_flags[FAST_BOOT_FLAG] = yap_init->FastBoot;
 #if defined(YAPOR) || defined(TABLING)
@@ -2371,12 +2469,11 @@ YAP_Init(YAP_init_args *yap_init)
   if (yap_init->QuietMode) {
     yap_flags[QUIET_MODE_FLAG] = TRUE;
   }
-  if (yap_init->SavedState != NULL ||
-      yap_init->YapPrologBootFile == NULL) {
+  if (BOOT_FROM_SAVED_STATE && !do_bootstrap) {
     if (restore_result == FAIL_RESTORE) {
       yap_init->ErrorNo = Yap_Error_TYPE;
       yap_init->ErrorCause = Yap_ErrorMessage;
-      return YAP_BOOT_FROM_SAVED_ERROR;
+      return YAP_BOOT_ERROR;
     }
     if (Atts && Atts*1024 > 2048*sizeof(CELL))
       Yap_AttsSize = Atts*1024;
@@ -2387,8 +2484,65 @@ YAP_Init(YAP_init_args *yap_init)
     } else {
       return YAP_BOOT_FROM_SAVED_STACKS;
     }
+  } else {
+
+    /* read the bootfile */
+    if (!do_bootstrap) {
+#if HAVE_STRNCAT
+      strncpy(boot_file, YAP_PL_SRCDIR, 256);
+#else
+      strcpy(boot_file, YAP_PL_SRCDIR);
+#endif
+#if HAVE_STRNCAT
+      strncat(boot_file, "/", 255);
+#else
+      strcat(boot_file, "/");
+#endif
+#if HAVE_STRNCAT
+      strncat(boot_file, BootFile, 255);
+#else
+      strcat(boot_file, BootFile);
+#endif
+      yap_init->YapPrologBootFile = boot_file;
+    }
+    do_bootfile (yap_init->YapPrologBootFile ? yap_init->YapPrologBootFile : BootFile);
+    /* initialise the top-level */
+    if (!do_bootstrap) {
+      char init_file[256];
+      Atom atfile;
+      Functor fgoal;
+      YAP_Term goal, as[2];
+#if HAVE_STRNCAT
+      strncpy(init_file, YAP_PL_SRCDIR, 256);
+#else
+      strcpy(init_file, YAP_PL_SRCDIR);
+#endif
+#if HAVE_STRNCAT
+      strncat(init_file, "/", 255);
+#else
+      strcat(init_file, "/");
+#endif
+#if HAVE_STRNCAT
+      strncat(init_file, InitFile, 255);
+#else
+      strcat(init_file, InitFile);
+#endif
+      /* consult init file */
+      atfile = Yap_LookupAtom(init_file);
+      as[0] = MkAtomTerm(atfile);
+      fgoal = Yap_MkFunctor(Yap_FullLookupAtom("$silent_bootstrap"), 1);
+      goal = Yap_MkApplTerm(fgoal, 1, as);
+      /* launch consult */
+      YAP_RunGoalOnce(goal);
+      /* set default module to user */
+      as[0] = MkAtomTerm(AtomUser);
+      fgoal = Yap_MkFunctor(Yap_LookupAtom("module"), 1);
+      goal = Yap_MkApplTerm(fgoal, 1, as);
+      YAP_RunGoalOnce(goal);
+    }
+    Yap_PutValue(Yap_FullLookupAtom("$live"), MkAtomTerm (Yap_FullLookupAtom("$true")));
   }
-  return YAP_BOOT_FROM_PROLOG;
+  return restore_result;
 }
 
 X_API Int
@@ -2427,7 +2581,7 @@ YAP_FastInit(char saved_state[])
   init_args.ErrorCause = NULL;
   init_args.QuietMode = FALSE;
   out = YAP_Init(&init_args);
-  if (out == YAP_BOOT_FROM_SAVED_ERROR) {
+  if (out == YAP_BOOT_ERROR) {
     Yap_Error(init_args.ErrorNo,TermNil,init_args.ErrorCause);
   }
   return out;
@@ -2553,7 +2707,7 @@ YAP_TopOfLocalStack(void)
 }
 
 X_API void *
-YAP_Predicate(Atom a, unsigned long int arity, int m)
+YAP_Predicate(Atom a, unsigned long int arity, Term m)
 {
   if (arity == 0) {
     return((void *)RepPredProp(PredPropByAtom(a,m)));

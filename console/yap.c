@@ -76,8 +76,6 @@
 #include <string.h>
 #endif
 
-static int  PROTO(mygetc, (void));
-static void PROTO(do_bootfile, (char *));
 static void PROTO(do_top_goal,(YAP_Term));
 static void PROTO(exec_top_level,(int, YAP_init_args *));
 
@@ -86,7 +84,6 @@ static int output_msg;
 #endif
 
 static char BootFile[] = "boot.yap";
-static char InitFile[] = "init.yap";
 
 #ifdef lint
 /* VARARGS1 */
@@ -95,11 +92,6 @@ static char InitFile[] = "init.yap";
 #ifdef M_WILLIAMS
 long _stksize = 32000;
 #endif
-
-static FILE *bootfile;
-
-static int eof_found = FALSE;
-static int yap_lineno = 0;
 
 /* nf: Begin preprocessor code */
 #define MAXDEFS 100
@@ -116,24 +108,6 @@ myputc (int ch)
 }
 #endif
 
-static int
-mygetc (void)
-{
-  int ch;
-  if (eof_found)
-    return EOF;
-  ch = getc (bootfile);
-  if (ch == EOF)
-    eof_found = TRUE;
-  if (ch == '\n') {
-#ifdef MPW
-    ch = 10;
-#endif
-    yap_lineno++;
-  }
-  return ch;
-}
-
 static void
 do_top_goal (YAP_Term Goal)
 {
@@ -141,81 +115,7 @@ do_top_goal (YAP_Term Goal)
   if (output_msg)
     fprintf(stderr,"Entering absmi\n");
 #endif
-  /* PlPutc(0,'a'); PlPutc(0,'\n'); */
   YAP_RunGoalOnce(Goal);
-}
-
-/* do initial boot by consulting the file boot.yap */
-static void
-do_bootfile (char *bootfilename)
-{
-  YAP_Term t;
-  YAP_Term term_nil = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
-  YAP_Term term_end_of_file = YAP_MkAtomTerm(YAP_LookupAtom("end_of_file"));
-  YAP_Term term_true = YAP_MkAtomTerm(YAP_LookupAtom("true"));
-  YAP_Functor functor_query = YAP_MkFunctor(YAP_LookupAtom("?-"),1);
-
-
-  /* consult boot.pl */
-  bootfile = fopen (bootfilename, "r");
-  if (bootfile == NULL)
-    {
-      fprintf(stderr, "[ FATAL ERROR: could not open bootfile %s ]\n", bootfilename);
-      exit(1);
-    }
-  /* the consult mode does not matter here, really */
-  /*
-    To be honest, YAP_InitConsult does not really do much,
-    it's here for the future. It also makes what we want to do clearer.
-  */
-  YAP_InitConsult(YAP_CONSULT_MODE,bootfilename);
-  while (!eof_found)
-    {
-      t = YAP_Read(mygetc);
-      if (eof_found) {
-	break;
-      }
-      if (t == 0)
-        {
-	  fprintf(stderr, "[ SYNTAX ERROR: while parsing bootfile %s at line %d ]\n", bootfilename, yap_lineno);
-	  exit(1);
-        }
-      if (YAP_IsVarTerm (t) || t == term_nil)
-	{
-	  continue;
-	}
-      else if (t == term_true)
-	{
-	  YAP_Exit(0);
-	}
-      else if (t == term_end_of_file)
-	{
-	  break;
-	}
-      else if (YAP_IsPairTerm (t))
-        {
-	  fprintf(stderr, "[ SYSTEM ERROR: consult not allowed in boot file ]\n");
-	  fprintf(stderr, "error found at line %d and pos %d", yap_lineno, fseek(bootfile,0L,SEEK_CUR));
-	}
-      else if (YAP_IsApplTerm (t) && YAP_FunctorOfTerm (t) == functor_query) 
-	{ 
-	  do_top_goal(YAP_ArgOfTerm (1, t));
-        }
-      else
-	{
-	  char *ErrorMessage = YAP_CompileClause(t);
-	  if (ErrorMessage)
-	    fprintf(stderr, "%s", ErrorMessage);
-	}
-      /* do backtrack */
-      YAP_Reset();
-    }
-  YAP_EndConsult();
-  fclose (bootfile);
-#ifdef DEBUG
-  if (output_msg)
-    fprintf(stderr,"Boot loaded\n");
-#endif
 }
 
 static void
@@ -720,8 +620,6 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
   return BootMode;
 }
 
-static char boot_file[256];
-
 static int
 init_standard_system(int argc, char *argv[], YAP_init_args *iap)
 {
@@ -767,24 +665,6 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
 
   BootMode = parse_yap_arguments(argc,argv,iap);
 
-  if (BootMode == YAP_FULL_BOOT_FROM_PROLOG) {
-#if HAVE_STRNCAT
-    strncpy(boot_file, YAP_PL_SRCDIR, 256);
-#else
-    strcpy(boot_file, YAP_PL_SRCDIR);
-#endif
-#if HAVE_STRNCAT
-    strncat(boot_file, "/", 255);
-#else
-    strcat(boot_file, "/");
-#endif
-#if HAVE_STRNCAT
-    strncat(boot_file, BootFile, 255);
-#else
-    strcat(boot_file, BootFile);
-#endif
-    iap->YapPrologBootFile = boot_file;
-  }
   /* init memory */
   if (BootMode == YAP_BOOT_FROM_PROLOG ||
       BootMode == YAP_FULL_BOOT_FROM_PROLOG) {
@@ -812,51 +692,6 @@ exec_top_level(int BootMode, YAP_init_args *iap)
     {
       /* continue executing from the frozen stacks */
       YAP_ContinueGoal();
-    }
-  else if (BootMode == YAP_BOOT_FROM_PROLOG ||
-	   BootMode == YAP_FULL_BOOT_FROM_PROLOG)
-    {
-      YAP_Atom livegoal;
-      /* read the bootfile */
-      do_bootfile (iap->YapPrologBootFile ? iap->YapPrologBootFile : BootFile);
-      livegoal = YAP_FullLookupAtom("$live");
-      /* initialise the top-level */
-      if (BootMode == YAP_FULL_BOOT_FROM_PROLOG) {
-	char init_file[256];
-	YAP_Atom atfile;
-	YAP_Functor fgoal;
-	YAP_Term goal, as[2];
-
-#if HAVE_STRNCAT
-	strncpy(init_file, YAP_PL_SRCDIR, 256);
-#else
-	strcpy(init_file, YAP_PL_SRCDIR);
-#endif
-#if HAVE_STRNCAT
-	strncat(init_file, "/", 255);
-#else
-	strcat(init_file, "/");
-#endif
-#if HAVE_STRNCAT
-	strncat(init_file, InitFile, 255);
-#else
-	strcat(init_file, InitFile);
-#endif
-	/* consult init file */
-	atfile = YAP_LookupAtom(init_file);
-	as[0] = YAP_MkAtomTerm(atfile);
-	fgoal = YAP_MkFunctor(YAP_FullLookupAtom("$silent_bootstrap"), 1);
-	goal = YAP_MkApplTerm(fgoal, 1, as);
-	/* launch consult */
-	YAP_RunGoalOnce(goal);
-	/* set default module to user */
-	as[0] = YAP_MkAtomTerm(YAP_LookupAtom("user"));
-	fgoal = YAP_MkFunctor(YAP_FullLookupAtom("module"), 1);
-	goal = YAP_MkApplTerm(fgoal, 1, as);
-	YAP_RunGoalOnce(goal);
-      }
-      YAP_PutValue(livegoal, YAP_MkAtomTerm (YAP_FullLookupAtom("$true")));
-      
     }
   /* the top-level is now ready */
 
