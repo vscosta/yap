@@ -1058,6 +1058,9 @@ Yap_absmi(int inp)
 	LOCK(PREG->u.OtaLl.d->ClPred->StatisticsForPred.lock);
 	PREG->u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++;
 	UNLOCK(PREG->u.OtaLl.d->ClPred->StatisticsForPred.lock);
+#ifdef THREADS
+	PP = PREG->u.OtaLl.d->ClPred;
+#endif
 	PREG = PREG->u.OtaLl.d->ClCode;
 #ifdef FROZEN_STACKS
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
@@ -1342,6 +1345,9 @@ Yap_absmi(int inp)
 	LOCK(PREG->u.OtaLl.d->ClPred->StatisticsForPred.lock);
 	PREG->u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++;
 	UNLOCK(PREG->u.OtaLl.d->ClPred->StatisticsForPred.lock);
+#ifdef THREADS
+	PP = PREG->u.OtaLl.d->ClPred;
+#endif
 	PREG = PREG->u.OtaLl.d->ClCode;
 #ifdef FROZEN_STACKS
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
@@ -8404,6 +8410,9 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	SCH_set_load(B_YREG);
 #endif	/* YAPOR */
+#ifdef YAPOR
+	PP = PREG->u.OtaLl.d->ClPred;
+#endif	/* YAPOR */
 	if (!VALID_TIMESTAMP(timestamp, PREG->u.OtaLl.d)) {
 	  /* jump to next alternative */
 	  PREG=PREG->u.OtaLl.n;
@@ -8437,6 +8446,9 @@ Yap_absmi(int inp)
 	}
 	restore_yaam_regs(PREG->u.OtaLl.n);
 	restore_at_least_one_arg(PREG->u.OtaLl.s);
+#ifdef THREADS
+	PP = PREG->u.OtaLl.d->ClPred;
+#endif
 	PREG = PREG->u.OtaLl.d->ClCode;
 #ifdef FROZEN_STACKS
 	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
