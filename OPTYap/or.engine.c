@@ -94,7 +94,7 @@ void make_root_choice_point(void) {
   B->cp_or_fr = GLOBAL_root_or_fr;
   LOCAL_top_or_fr = GLOBAL_root_or_fr;
   LOCAL_load = 0;
-  LOCAL_prune_request = NULL;
+  Set_LOCAL_prune_request(NULL);
   BRANCH(worker_id, 0) = 0;
 #ifdef TABLING_INNER_CUTS
   LOCAL_pruning_scope = NULL;
@@ -196,7 +196,7 @@ int q_share_work(int worker_p) {
 #endif /* YAPOR_ERRORS */
   /* there is no pending prune with worker p at right --> safe move to worker p branch */
   BRANCH(worker_id, OrFr_depth(LOCAL_top_or_fr)) = BRANCH(worker_p, OrFr_depth(LOCAL_top_or_fr));
-  LOCAL_prune_request = NULL;
+  SetLOCAL_prune_request = NULL;
   UNLOCK_OR_FRAME(LOCAL_top_or_fr);
 
   /* unbind variables */

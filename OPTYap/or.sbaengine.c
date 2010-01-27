@@ -151,7 +151,7 @@ int q_share_work(int worker_p) {
   register CELL aux_cell;
 
   LOCK_OR_FRAME(LOCAL_top_or_fr);
-  if (REMOTE_prune_request(worker_p)) {
+  if (Get_REMOTE_prune_request(worker_p)) {
     /* worker p with prune request */
     UNLOCK_OR_FRAME(LOCAL_top_or_fr);
     return FALSE;

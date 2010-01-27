@@ -99,7 +99,7 @@ void PUT_OUT_ROOT_NODE(int worker_num) {
 static inline
 void move_up_to_prune_request(void) {
 #ifdef YAPOR_ERRORS
-  if (EQUAL_OR_YOUNGER_CP(LOCAL_prune_request, Get_LOCAL_top_cp()))
+  if (EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()))
     YAPOR_ERROR_MESSAGE("invalid LOCAL_prune_request (move_up_to_prune_request)");
 #endif /* YAPOR_ERRORS */
 
@@ -123,7 +123,7 @@ void move_up_to_prune_request(void) {
       UNLOCK_OR_FRAME(LOCAL_top_or_fr);
     }
     SCH_update_local_or_tops();
-  } while (Get_LOCAL_top_cp() != LOCAL_prune_request);
+  } while (Get_LOCAL_top_cp() != Get_LOCAL_prune_request());
 
   CUT_reset_prune_request();
 #ifdef TABLING
@@ -153,7 +153,7 @@ int get_work(void) {
   LOCAL_load = 0;
 
   /* check for prune request */
-  if (LOCAL_prune_request)
+  if (Get_LOCAL_prune_request())
     move_up_to_prune_request();
 
   /* find nearest node with available work */
@@ -267,7 +267,7 @@ int get_work(void) {
 static
 int move_up_one_node(or_fr_ptr nearest_livenode) {
 #ifdef YAPOR_ERRORS
-  if (LOCAL_prune_request && EQUAL_OR_YOUNGER_CP(LOCAL_prune_request, Get_LOCAL_top_cp()))
+  if (Get_LOCAL_prune_request() && EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()))
     YAPOR_ERROR_MESSAGE("invalid LOCAL_prune_request (move_up_one_node)");
 #endif /* YAPOR_ERRORS */
 
@@ -286,7 +286,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
 
   /* pending prune ? */
   if (OrFr_pend_prune_cp(LOCAL_top_or_fr) 
-      && ! LOCAL_prune_request
+      && ! Get_LOCAL_prune_request()
       && CUT_last_worker_left_pending_prune(LOCAL_top_or_fr)) {
 #ifdef TABLING
     choiceptr aux_cp = Get_LOCAL_top_cp();
@@ -351,7 +351,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
   update_local_tops1:
 #endif /* TABLING_INNER_CUTS */
     SCH_update_local_or_tops();
-    if (LOCAL_prune_request)
+    if (Get_LOCAL_prune_request())
       pruning_over_tabling_data_structures();
     return TRUE;
   }
@@ -420,7 +420,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
   update_local_tops2:
 #endif /* TABLING_INNER_CUTS */
     SCH_update_local_or_tops();
-    if (LOCAL_prune_request)
+    if (Get_LOCAL_prune_request())
       pruning_over_tabling_data_structures();
     return TRUE;
   }
@@ -453,7 +453,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
   /* last member worker in node ? */
   if (BITMAP_alone(OrFr_members(LOCAL_top_or_fr), worker_id)) {
 #endif /* TABLING */
-    if (LOCAL_prune_request) {
+    if (Get_LOCAL_prune_request()) {
       CUT_free_solution_frames(OrFr_qg_solutions(LOCAL_top_or_fr));
 #ifdef TABLING_INNER_CUTS
       CUT_free_tg_solution_frames(OrFr_tg_solutions(LOCAL_top_or_fr));
@@ -512,7 +512,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
       or_fr_ptr leftmost_until;
       tg_solutions = OrFr_tg_solutions(LOCAL_top_or_fr);
       leftmost_until = CUT_leftmost_until(LOCAL_top_or_fr, OrFr_depth(TgSolFr_gen_cp(tg_solutions)->cp_or_fr));
-      if (LOCAL_prune_request)
+      if (Get_LOCAL_prune_request())
         pruning_over_tabling_data_structures();
       OrFr_tg_solutions(LOCAL_top_or_fr) = NULL;
       UNLOCK_OR_FRAME(LOCAL_top_or_fr);
@@ -526,7 +526,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
       goto update_local_tops3;
     }
 #endif /* TABLING_INNER_CUTS */
-    if (LOCAL_prune_request)
+    if (Get_LOCAL_prune_request())
       pruning_over_tabling_data_structures();
   }
 #endif /* TABLING */

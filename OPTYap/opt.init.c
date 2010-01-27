@@ -184,7 +184,7 @@ void Yap_init_local(void) {
 #ifdef ENV_COPY
   INIT_LOCK(LOCAL_lock_signals);
 #endif /* ENV_COPY */
-  LOCAL_prune_request = NULL;
+  Set_LOCAL_prune_request(NULL);
 #endif /* YAPOR */
   INIT_LOCK(LOCAL_lock);
 #ifdef TABLING

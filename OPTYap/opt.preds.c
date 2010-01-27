@@ -402,7 +402,7 @@ Int p_parallel_new_answer(void) {
   AnsFr_next(actual_answer) = NULL;
   leftmost_or_fr = CUT_leftmost_or_frame();
   LOCK_OR_FRAME(leftmost_or_fr);
-  if (LOCAL_prune_request) {
+  if (Get_LOCAL_prune_request()) {
     UNLOCK_OR_FRAME(leftmost_or_fr);
     FREE_QG_ANSWER_FRAME(actual_answer);
   } else {

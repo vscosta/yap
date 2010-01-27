@@ -324,7 +324,11 @@ struct local_data{
   choiceptr top_choice_point;
 #endif
   struct or_frame *top_or_frame;
-  choiceptr prune_request;
+#if THREADS
+  Int prune_request_offset;
+#else
+  choiceptr prune_request_offset;
+#endif
   volatile int share_request;
   struct local_signals share_signals;
   volatile struct {
@@ -365,7 +369,14 @@ extern struct local_data *LOCAL;
 #define Set_LOCAL_top_cp(cpt)	           (LOCAL->top_choice_point =  cpt)
 #endif
 #define LOCAL_top_or_fr                    (LOCAL->top_or_frame)
+#if THREADS
+#define Get_LOCAL_prune_request()	   offset_to_cptr(LOCAL->prune_request_offset)
+#define Set_LOCAL_prune_request(cpt)       (LOCAL->prune_request_offset =  cptr_to_offset(cpt))
+#else
 #define LOCAL_prune_request                (LOCAL->prune_request)
+#define Get_LOCAL_prune_request()          (LOCAL->prune_request)
+#define Set_LOCAL_prune_request(cpt)       (LOCAL->prune_request = cpt)
+#endif
 #define LOCAL_share_request                (LOCAL->share_request)
 #define LOCAL_reply_signal                 (LOCAL->share_signals.reply)
 #define LOCAL_p_fase_signal                (LOCAL->share_signals.P_fase)
@@ -401,7 +412,14 @@ extern struct local_data *LOCAL;
 #define Set_REMOTE_top_cp(worker, bptr)    (REMOTE[worker].top_choice_point = (bptr))
 #endif
 #define REMOTE_top_or_fr(worker)           (REMOTE[worker].top_or_frame)
+#if THREADS
+#define Get_REMOTE_prune_request(worker)   offset_to_cptr(REMOTE[worker].prune_request_offset)
+#define Set_REMOTE_prune_request(worker,cp)   (REMOTE[worker].prune_request_offset = cptr_to_offset(cp))
+#else
 #define REMOTE_prune_request(worker)       (REMOTE[worker].prune_request)
+#define Get_REMOTE_prune_request(worker)   (REMOTE[worker].prune_request)
+#define Set_REMOTE_prune_request(worker,cp)   (REMOTE[worker].prune_request = cp)
+#endif
 #define REMOTE_share_request(worker)       (REMOTE[worker].share_request)
 #define REMOTE_reply_signal(worker)        (REMOTE[worker].share_signals.reply)
 #define REMOTE_p_fase_signal(worker)       (REMOTE[worker].share_signals.P_fase)

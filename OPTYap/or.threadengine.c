@@ -14,7 +14,7 @@
 ** ------------------ */
 
 #include "Yap.h"
-#ifdef THREADS
+#if defined(THREADS) && defined(YAPOR)
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif /* HAVE_STRING_H */
@@ -60,7 +60,7 @@ void make_root_choice_point(void) {
   B->cp_or_fr = GLOBAL_root_or_fr;
   LOCAL_top_or_fr = GLOBAL_root_or_fr;
   LOCAL_load = 0;
-  LOCAL_prune_request = NULL;
+  Set_LOCAL_prune_request(NULL);
   BRANCH(worker_id, 0) = 0;
 #ifdef TABLING_INNER_CUTS
   LOCAL_pruning_scope = NULL;
@@ -118,7 +118,7 @@ int p_share_work(void) {
 
 int q_share_work(int worker_p) {
   LOCK_OR_FRAME(LOCAL_top_or_fr);
-  if (REMOTE_prune_request(worker_p)) {
+  if (Get_REMOTE_prune_request(worker_p)) {
     /* worker p with prune request */
     UNLOCK_OR_FRAME(LOCAL_top_or_fr);
     return FALSE;
@@ -130,7 +130,7 @@ int q_share_work(int worker_p) {
 #endif /* YAPOR_ERRORS */
   /* there is no pending prune with worker p at right --> safe move to worker p branch */
   BRANCH(worker_id, OrFr_depth(LOCAL_top_or_fr)) = BRANCH(worker_p, OrFr_depth(LOCAL_top_or_fr));
-  LOCAL_prune_request = NULL;
+  Set_LOCAL_prune_request(NULL);
   UNLOCK_OR_FRAME(LOCAL_top_or_fr);
 
 #ifdef OPTYAP_ERRORS
@@ -546,8 +546,8 @@ void share_private_nodes(int worker_q) {
 #endif /* TABLING_INNER_CUTS */
 
   /* update worker Q prune request */
-  if (LOCAL_prune_request) {
-    CUT_send_prune_request(worker_q, LOCAL_prune_request);
+  if (Get_LOCAL_prune_request()) {
+    CUT_send_prune_request(worker_q, Get_LOCAL_prune_request());
   }
 
   /* update load and return */
