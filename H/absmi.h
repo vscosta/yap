@@ -93,8 +93,12 @@ register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 
 #ifdef __x86_64__
 #define SHADOW_P       1
+#ifdef BP_FREE
+#undef BP_FREE
+#endif
 #define SHADOW_REGS    1
 #define SHADOW_S       1
+//#define SHADOW_Y       1
 #define S_IN_MEM       1
 #define      Y_IN_MEM  1
 #define     TR_IN_MEM  1
