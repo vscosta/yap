@@ -913,16 +913,27 @@ showprofres(UInt type) {
 #ifdef __APPLE__
 #include <sys/ucontext.h>
 
+#ifdef __x86_64__
 #if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
 #define CONTEXT_STATE (((ucontext_t *)context)->uc_mcontext->ss)
-#define CONTEXT_PC (CONTEXT_STATE.eip)
-#define CONTEXT_BP (CONTEXT_STATE.ebp)
+#define CONTEXT_PC (CONTEXT_STATE.rip)
+#define CONTEXT_BP (CONTEXT_STATE.rbp)
+#else
+#define CONTEXT_STATE (((ucontext_t *)scv)->uc_mcontext->__ss)
+#define CONTEXT_PC (CONTEXT_STATE.__rip)
+#define CONTEXT_BP (CONTEXT_STATE.__rbp)
+#endif
+#else /* i386 */
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
+#define CONTEXT_STATE (((ucontext_t *)context)->uc_mcontext->ss)
+#define CONTEXT_PC (CONTEXT_STATE.rip)
+#define CONTEXT_BP (CONTEXT_STATE.rbp)
 #else
 #define CONTEXT_STATE (((ucontext_t *)scv)->uc_mcontext->__ss)
 #define CONTEXT_PC (CONTEXT_STATE.__eip)
 #define CONTEXT_BP (CONTEXT_STATE.__ebp)
 #endif
-
+#endif
 #endif
 
 static void
