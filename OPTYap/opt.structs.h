@@ -22,14 +22,29 @@ typedef unsigned long bitmap;
 static inline choiceptr
 offset_to_cptr(Int node)
 {
-  return (choiceptr)(LCL0-node);
+  return (choiceptr)(LCL0+node);
 }
 
 static inline Int
 cptr_to_offset(choiceptr node)
 {
-  return (Int)(LCL0-(CELL *)node);
+  return (Int)((CELL *)node-LCL0);
 }
+
+static inline choiceptr
+offset_to_cptr_with_null(Int node)
+{
+  if (node == 0L) return NULL;
+  return (choiceptr)(LCL0+node);
+}
+
+static inline Int
+cptr_to_offset_with_null(choiceptr node)
+{
+  if (node == NULL) return 0L;
+  return (Int)((CELL *)node-LCL0);
+}
+
 #endif
 
 /* ---------------------------- **
@@ -327,7 +342,7 @@ struct local_data{
 #if THREADS
   Int prune_request_offset;
 #else
-  choiceptr prune_request_offset;
+  choiceptr prune_request;
 #endif
   volatile int share_request;
   struct local_signals share_signals;
@@ -370,8 +385,8 @@ extern struct local_data *LOCAL;
 #endif
 #define LOCAL_top_or_fr                    (LOCAL->top_or_frame)
 #if THREADS
-#define Get_LOCAL_prune_request()	   offset_to_cptr(LOCAL->prune_request_offset)
-#define Set_LOCAL_prune_request(cpt)       (LOCAL->prune_request_offset =  cptr_to_offset(cpt))
+#define Get_LOCAL_prune_request()	   offset_to_cptr_with_null(LOCAL->prune_request_offset)
+#define Set_LOCAL_prune_request(cpt)       (LOCAL->prune_request_offset =  cptr_to_offset_with_null(cpt))
 #else
 #define LOCAL_prune_request                (LOCAL->prune_request)
 #define Get_LOCAL_prune_request()          (LOCAL->prune_request)
@@ -413,8 +428,8 @@ extern struct local_data *LOCAL;
 #endif
 #define REMOTE_top_or_fr(worker)           (REMOTE[worker].top_or_frame)
 #if THREADS
-#define Get_REMOTE_prune_request(worker)   offset_to_cptr(REMOTE[worker].prune_request_offset)
-#define Set_REMOTE_prune_request(worker,cp)   (REMOTE[worker].prune_request_offset = cptr_to_offset(cp))
+#define Get_REMOTE_prune_request(worker)   offset_to_cptr_with_null(REMOTE[worker].prune_request_offset)
+#define Set_REMOTE_prune_request(worker,cp)   (REMOTE[worker].prune_request_offset = cptr_to_offset_with_null(cp))
 #else
 #define REMOTE_prune_request(worker)       (REMOTE[worker].prune_request)
 #define Get_REMOTE_prune_request(worker)   (REMOTE[worker].prune_request)
