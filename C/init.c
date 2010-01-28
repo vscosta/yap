@@ -806,6 +806,12 @@ Yap_InitCPredBackCut(char *Name, unsigned long int Arity,
 		     CPredicate Cont,CPredicate Cut, UInt flags){
   Yap_InitCPredBack_(Name,Arity,Extra,Start,Cont,Cut,flags);
 }
+#else
+Yap_InitCPredBackCut(char *Name, unsigned long int Arity,
+		     unsigned int Extra, CPredicate Start,
+		     CPredicate Cont,CPredicate Cut, UInt flags){
+  Yap_InitCPredBack(Name,Arity,Extra,Start,Cont,flags);
+}
 #endif /* CUT_C */
 
 void

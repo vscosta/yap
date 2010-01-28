@@ -157,16 +157,16 @@ SetHeapRegs(void)
   UNLOCK(SignalLock);
   if (H)
     H = PtoGloAdjust(H);
+#ifdef CUT_C
+  if (Yap_REGS.CUT_C_TOP)
+    Yap_REGS.CUT_C_TOP = CutCAdjust(Yap_REGS.CUT_C_TOP);
+#endif
   if (HB)
     HB = PtoGloAdjust(HB);
   if (B)
     B = ChoicePtrAdjust(B);
   if (CurrentDelayTop)
     CurrentDelayTop = PtoDelayAdjust(CurrentDelayTop);
-#ifdef CUT_C
-  if (Yap_REGS.CUT_C_TOP)
-    Yap_REGS.CUT_C_TOP = (cut_c_str_ptr)ChoicePtrAdjust((choiceptr)Yap_REGS.CUT_C_TOP);
-#endif
 #ifdef TABLING
   if (B_FZ)
     B_FZ = ChoicePtrAdjust(B_FZ);
@@ -1730,6 +1730,9 @@ Yap_CopyThreadStacks(int worker_q, int worker_p)
   if (ASP > CellPtr(B))
     ASP = CellPtr(B);
   LCL0 = ThreadHandle[worker_p].current_yaam_regs->LCL0_;
+#ifdef CUT_C
+  Yap_REGS.CUT_C_TOP = ThreadHandle[worker_p].current_yaam_regs->CUT_C_TOP;
+#endif
   DelayedVars = ThreadHandle[worker_p].current_yaam_regs->DelayedVars_;
   TR = ThreadHandle[worker_p].current_yaam_regs->TR_;
   CurrentDelayTop = (CELL *)DelayTop();

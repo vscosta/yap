@@ -106,6 +106,15 @@ PtoLocAdjust (CELL * ptr)
 }
 
 
+inline EXTERN struct cut_c_str *CutCAdjust (struct cut_c_str *);
+
+inline EXTERN struct cut_c_str *
+CutCAdjust (struct  cut_c_str * ptr)
+{
+  return (struct cut_c_str *) (CharP (ptr) + LDiff);
+}
+
+
 
 inline EXTERN choiceptr ChoicePtrAdjust (choiceptr);
 

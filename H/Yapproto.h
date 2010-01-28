@@ -228,8 +228,8 @@ void	STD_PROTO(Yap_InitCPred,(char *, unsigned long int, CPredicate, UInt));
 void	STD_PROTO(Yap_InitAsmPred,(char *, unsigned long int, int, CPredicate, UInt));
 void	STD_PROTO(Yap_InitCmpPred,(char *, unsigned long int, CmpPredicate, UInt));
 void	STD_PROTO(Yap_InitCPredBack,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,UInt));
-#ifdef CUT_C
 void	STD_PROTO(Yap_InitCPredBackCut,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,UInt));
+#ifdef CUT_C
 void    STD_PROTO(Yap_InitCPredBack_,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,UInt));
 #endif
 void	STD_PROTO(Yap_InitWorkspace,(UInt,UInt,UInt,UInt,UInt,int,int,int));
