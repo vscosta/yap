@@ -7814,7 +7814,7 @@ Yap_absmi(int inp)
 	    ASP = (CELL *) PROTECT_FROZEN_B(B);
 	  }
 	  saveregs();
-	  Yap_IPred(ap, 0);
+	  Yap_IPred(ap, 0, CP);
 	  /* IPred can generate errors, it thus must get rid of the lock itself */
 	  setregs();
 	  CACHE_A1();
@@ -7852,7 +7852,7 @@ Yap_absmi(int inp)
 	  ASP = (CELL *) PROTECT_FROZEN_B(B);
 	}
 	saveregs();
-	Yap_IPred(ap, 0);
+	Yap_IPred(ap, 0, CP);
       /* IPred can generate errors, it thus must get rid of the lock itself */
 	setregs();
 	CACHE_A1();
@@ -8041,7 +8041,7 @@ Yap_absmi(int inp)
 	    ASP = (CELL *) PROTECT_FROZEN_B(B);
 	  }
 	  saveregs();
-	  Yap_IPred(pe, 0);
+	  Yap_IPred(pe, 0, CP);
 	  /* IPred can generate errors, it thus must get rid of the lock itself */
 	  setregs();
 	}

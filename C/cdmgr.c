@@ -931,7 +931,7 @@ split_megaclause(PredEntry *ap)
 /* Index a prolog pred, given its predicate entry */
 /* ap is already locked. */
 static void 
-IPred(PredEntry *ap, UInt NSlots)
+IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
 {
   yamop          *BaseAddr;
 
@@ -976,7 +976,7 @@ IPred(PredEntry *ap, UInt NSlots)
     Yap_Error(SYSTEM_ERROR,TermNil,"trying to index a dynamic predicate");
     return;
   }
-  if ((BaseAddr = Yap_PredIsIndexable(ap, NSlots)) != NULL) {
+  if ((BaseAddr = Yap_PredIsIndexable(ap, NSlots, next_pc)) != NULL) {
     ap->cs.p_code.TrueCodeOfPred = BaseAddr;
     ap->PredFlags |= IndexedPredFlag;
   }
@@ -1000,9 +1000,9 @@ IPred(PredEntry *ap, UInt NSlots)
 }
 
 void 
-Yap_IPred(PredEntry *p, UInt NSlots)
+Yap_IPred(PredEntry *p, UInt NSlots, yamop *next_pc)
 {
-  IPred(p, NSlots);
+  IPred(p, NSlots, next_pc);
 }
 
 #define GONEXT(TYPE)      code_p = ((yamop *)(&(code_p->u.TYPE.next)))
@@ -2763,7 +2763,7 @@ p_setspy(void)
     for (i = 0; i < pred->ArityOfPE; i++) {
       XREGS[i+1] = MkVarTerm();
     }
-    IPred(pred, 0);
+    IPred(pred, 0, CP);
     goto restart_spy;
   }
   fg = pred->PredFlags;
@@ -5026,7 +5026,7 @@ p_nth_clause(void)
       XREGS[2] = MkVarTerm();
   }
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
-    IPred(pe, 0);
+    IPred(pe, 0, CP);
   }
   cl = Yap_NthClause(pe, ncls);
   if (cl == NULL) {

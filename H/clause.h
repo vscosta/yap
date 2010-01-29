@@ -201,7 +201,7 @@ COUNT   STD_PROTO(Yap_compile_cmp_flags,(PredEntry *));
 void    STD_PROTO(Yap_InitComma,(void));
 
 /* cdmgr.c */
-void	STD_PROTO(Yap_IPred,(PredEntry *, UInt));
+void	STD_PROTO(Yap_IPred,(PredEntry *, UInt, yamop *));
 int	STD_PROTO(Yap_addclause,(Term,yamop *,int,Term,Term*));
 void	STD_PROTO(Yap_add_logupd_clause,(PredEntry *,LogUpdClause *,int));
 void	STD_PROTO(Yap_kill_iblock,(ClauseUnion *,ClauseUnion *,PredEntry *));
@@ -219,7 +219,7 @@ Int	STD_PROTO(Yap_Recordz,(Atom, Term));
 Term    STD_PROTO(Yap_cp_as_integer,(choiceptr));
 
 /* index.c */
-yamop   *STD_PROTO(Yap_PredIsIndexable,(PredEntry *, UInt));
+yamop   *STD_PROTO(Yap_PredIsIndexable,(PredEntry *, UInt, yamop *));
 yamop   *STD_PROTO(Yap_ExpandIndex,(PredEntry *, UInt));
 void     STD_PROTO(Yap_CleanUpIndex,(struct logic_upd_index *));
 void     STD_PROTO(Yap_CleanKids,(struct logic_upd_index *));
