@@ -4879,8 +4879,8 @@ then
   INSTALL_COMMAND=install_win32
   if test "$cygwin" = "no"
   then
-    CC="gcc  -mno-cygwin"
-    CXX="g++  -mno-cygwin"
+    CC="${CC}  -mno-cygwin"
+    CXX="${CXX}  -mno-cygwin"
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lwsock32" >&5
 $as_echo_n "checking for main in -lwsock32... " >&6; }
