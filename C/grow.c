@@ -64,7 +64,7 @@ STATIC_PROTO(Int p_inform_stack_overflows, (void));
 STATIC_PROTO(int growstack, (long));
 STATIC_PROTO(void MoveGlobal, (void));
 STATIC_PROTO(void MoveLocalAndTrail, (void));
-STATIC_PROTO(void SetHeapRegs, (void));
+STATIC_PROTO(void SetHeapRegs, (int));
 STATIC_PROTO(void AdjustTrail, (int, int));
 STATIC_PROTO(void AdjustLocal, (void));
 STATIC_PROTO(void AdjustGlobal, (long));
@@ -111,7 +111,7 @@ cpcellsd(register CELL *Dest, register CELL *Org, CELL NOf)
 
 
 static void
-SetHeapRegs(void)
+SetHeapRegs(int copying_threads)
 {
 #ifdef undf7
   fprintf(Yap_stderr,"HeapBase = %x\tHeapTop=%x\nGlobalBase=%x\tGlobalTop=%x\nLocalBase=%x\tLocatTop=%x\n", Yap_HeapBase, HeapTop, Yap_GlobalBase, H, LCL0, ASP);
@@ -185,10 +185,12 @@ SetHeapRegs(void)
     S = PtoGloAdjust(S);
   else if (IsOldLocalPtr(S))
     S = PtoLocAdjust(S);	   
-  if (GlobalArena)
-    GlobalArena = AbsAppl(PtoGloAdjust(RepAppl(GlobalArena)));
-  if (GlobalDelayArena)
-    GlobalDelayArena = GlobalAdjust(GlobalDelayArena);
+  if (!copying_threads) {
+    if (GlobalArena)
+      GlobalArena = AbsAppl(PtoGloAdjust(RepAppl(GlobalArena)));
+    if (GlobalDelayArena)
+      GlobalDelayArena = GlobalAdjust(GlobalDelayArena);
+  }
 #ifdef COROUTINING
   if (DelayedVars)
     DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
@@ -306,7 +308,7 @@ AdjustPair(register CELL t0)
 }
 
 static void
-AdjustTrail(int adjusting_heap, int duplicate_references)
+AdjustTrail(int adjusting_heap, int thread_copying)
 {
   volatile tr_fr_ptr ptt;
 
@@ -326,6 +328,9 @@ AdjustTrail(int adjusting_heap, int duplicate_references)
 	TrailTerm(ptt) = GlobalAdjust(reg);
       else if (IsOldTrail(reg))
 	TrailTerm(ptt) = TrailAdjust(reg);
+      else if (thread_copying) {
+	RESET_VARIABLE(&TrailTerm(ptt));
+      }
     } else if (IsPairTerm(reg)) {
       TrailTerm(ptt) = AdjustPair(reg);
 #ifdef MULTI_ASSIGNMENT_VARIABLES /* does not work with new structures */
@@ -682,7 +687,7 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
   TrDiff = LDiff = GDiff = GDiff0 = DelayDiff = BaseDiff = size;
   XDiff = HDiff = 0;
   GSplit = NULL;
-  SetHeapRegs();
+  SetHeapRegs(FALSE);
   MoveLocalAndTrail();
   if (fix_code) {
     CELL *SaveOldH = OldH;
@@ -860,7 +865,7 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
   GSplit = hsplit;
   XDiff = HDiff = 0;
   Yap_GlobalBase = old_GlobalBase;
-  SetHeapRegs();
+  SetHeapRegs(FALSE);
   if (do_grow) {
     MoveLocalAndTrail();
     if (hsplit) {
@@ -1401,7 +1406,7 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
   }
 #endif
   ASP -= 256;
-  SetHeapRegs();
+  SetHeapRegs(FALSE);
   if (from_trail) {
     Yap_TrailTop += size0;
   }
@@ -1739,7 +1744,7 @@ Yap_CopyThreadStacks(int worker_q, int worker_p)
   DynamicArrays = NULL;
   StaticArrays = NULL;
   GlobalVariables = NULL;
-  SetHeapRegs();
+  SetHeapRegs(TRUE);
   CopyLocalAndTrail();
   MoveGlobal();
   AdjustStacksAndTrail(0, TRUE);
