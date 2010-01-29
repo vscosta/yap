@@ -2406,6 +2406,9 @@ YAP_Init(YAP_init_args *yap_init)
     */
     Yap_InitYaamRegs();
 #endif /* SBA */
+#ifndef THREADS
+    Yap_InitPreAllocCodeSpace();
+#endif
     /* slaves, waiting for work */
     CurrentModule = USER_MODULE;
     P = GETWORK_FIRST_TIME;
