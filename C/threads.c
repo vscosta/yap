@@ -67,10 +67,11 @@ allocate_new_tid(void)
 }
 
 static int
-store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term tgoal, Term tdetach, Term texit)
+store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term *tpgoal, Term *tpdetach, Term *tpexit)
 {
   UInt pm;	/* memory to be requested         */
   Term tmod;
+  Term tdetach, tgoal;
 
   if (tsize < MinTrailSpace)
     tsize = MinTrailSpace;
@@ -84,9 +85,10 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term tgoal, 
     return FALSE;
   }
   ThreadHandle[new_worker_id].tgoal =
-    Yap_StoreTermInDB(tgoal,7);
+    Yap_StoreTermInDB(Deref(*tpgoal),7);
   ThreadHandle[new_worker_id].cmod =
     CurrentModule;
+  tdetach = Deref(*tpdetach);
   if (IsVarTerm(tdetach)){
     ThreadHandle[new_worker_id].tdetach =  
       MkAtomTerm(AtomFalse);
@@ -94,7 +96,7 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term tgoal, 
     ThreadHandle[new_worker_id].tdetach = 
       tdetach;
   }
-  tgoal = Yap_StripModule(texit, &tmod);
+  tgoal = Yap_StripModule(Deref(*tpexit), &tmod);
   ThreadHandle[new_worker_id].texit_mod = tmod;
   ThreadHandle[new_worker_id].texit =
     Yap_StoreTermInDB(tgoal,7);
@@ -227,7 +229,7 @@ p_thread_new_tid(void)
 }
 
 static int
-init_thread_engine(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term tgoal, Term tdetach, Term texit)
+init_thread_engine(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term *tgoal, Term *tdetach, Term *texit)
 {
   return store_specs(new_worker_id, ssize, tsize, sysize, tgoal, tdetach, texit);
 }
@@ -238,9 +240,6 @@ p_create_thread(void)
   UInt ssize;
   UInt tsize;
   UInt sysize;
-  Term tgoal = Deref(ARG1);
-  Term tdetach = Deref(ARG5);
-  Term texit = Deref(ARG6);
   Term x2 = Deref(ARG2);
   Term x3 = Deref(ARG3);
   Term x4 = Deref(ARG4);
@@ -260,7 +259,7 @@ p_create_thread(void)
     return FALSE;
   }
   /* make sure we can proceed */
-  if (!init_thread_engine(new_worker_id, ssize, tsize, sysize, tgoal, tdetach, texit))
+  if (!init_thread_engine(new_worker_id, ssize, tsize, sysize, &ARG1, &ARG5, &ARG6))
     return FALSE;
   ThreadHandle[new_worker_id].id = new_worker_id;
   ThreadHandle[new_worker_id].ref_count = 1;
@@ -365,12 +364,13 @@ Yap_thread_self(void)
 CELL
 Yap_thread_create_engine(thread_attr *ops)
 {
+  Term t = TermNil;
   int new_id = allocate_new_tid();
   if (new_id == -1) {
     /* YAP ERROR */
     return FALSE;
   }
-  if (!init_thread_engine(new_id, ops->ssize, ops->tsize, ops->sysize, TermNil, TermNil, ops->egoal))
+  if (!init_thread_engine(new_id, ops->ssize, ops->tsize, ops->sysize, &t, &t, &(ops->egoal)))
     return FALSE;
   ThreadHandle[new_id].id = new_id;
   ThreadHandle[new_id].handle = pthread_self();
