@@ -2349,9 +2349,9 @@ p_open (void)
   st->status = s;
   st->charcount = 0;
   st->linecount = 1;
+  st->linepos = 0;
   st->u.file.name = Yap_LookupAtom (Yap_FileNameBuf);
   st->u.file.user_name = file_name;
-  st->linepos = 0;
   st->stream_putc = FilePutc;
   st->stream_wputc = put_wchar;
   st->stream_getc = PlGetc;
