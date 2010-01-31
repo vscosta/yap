@@ -48,6 +48,10 @@ table(Pred) :-
    '$do_error'(type_error(callable,Mod:Pred),table(Mod:Pred)).
 
 '$set_table'(Mod,PredFunctor) :-
+   '$undefined'('$c_table'(_,_),prolog), !,
+   functor(PredFunctor, PredName, PredArity),
+   '$do_error'(resource_error(tabling,Mod:PredName/PredArity),table(Mod:PredName/PredArity)).
+'$set_table'(Mod,PredFunctor) :-
    '$undefined'(PredFunctor,Mod), !,
    '$c_table'(Mod,PredFunctor).
 '$set_table'(Mod,PredFunctor) :-
