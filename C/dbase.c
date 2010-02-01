@@ -4950,7 +4950,8 @@ Term
 Yap_PopTermFromDB(DBTerm *ref)
 {
   Term t = GetDBTerm(ref);
-  ReleaseTermFromDB(ref);
+  if (t != 0L)
+    ReleaseTermFromDB(ref);
   return t;
 }
 
