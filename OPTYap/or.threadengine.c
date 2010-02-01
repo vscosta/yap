@@ -28,6 +28,14 @@
 #endif /* TABLING */
 
 
+#define INCREMENTAL_COPYING 1
+#define COMPUTE_SEGMENTS_TO_COPY_TO(Q)                                   \
+        REMOTE_start_global_copy(Q) = (CELL) (REMOTE_top_cp(Q)->cp_h);   \
+        REMOTE_end_global_copy(Q)   = (CELL) (B->cp_h);                  \
+        REMOTE_start_local_copy(Q)  = (CELL) (B);                        \
+        REMOTE_end_local_copy(Q)    = (CELL) (REMOTE_top_cp(Q));         \
+        REMOTE_start_trail_copy(Q)  = (CELL) (REMOTE_top_cp(Q)->cp_tr);  \
+        REMOTE_end_trail_copy(Q)    = (CELL) (TR)
 
 /* ------------------------------------- **
 **      Local functions declaration      **
@@ -51,9 +59,21 @@ void make_root_choice_point(void) {
     Set_LOCAL_top_cp(B);
     Set_GLOBAL_root_cp(B);
   } else {
+    choiceptr imageB;
+
     Set_LOCAL_top_cp(Get_GLOBAL_root_cp());
     B = Get_GLOBAL_root_cp();
-    B->cp_tr = TR = ((choiceptr) (worker_offset(0) + (CELL)(B)))->cp_tr;
+    /*
+      this is tricky, we need to get the B from some other stack
+      and convert back to our own stack;
+     */
+    OldLCL0 = LCL0;
+    LCL0 = ThreadHandle[0].current_yaam_regs->LCL0_;
+    imageB = Get_GLOBAL_root_cp();
+    /* we know B */
+    B->cp_tr = TR = 
+      (tr_fr_ptr)((CELL)(imageB->cp_tr)+((CELL)OldLCL0-(CELL)LCL0));
+    LCL0 = OldLCL0;
   }
   B->cp_h = H0;
   B->cp_ap = GETWORK;
@@ -98,6 +118,7 @@ int p_share_work(void) {
     return TRUE;
   }
   /* sharing request accepted */
+  COMPUTE_SEGMENTS_TO_COPY_TO(worker_q);
   REMOTE_q_fase_signal(worker_q) = Q_idle;
   REMOTE_p_fase_signal(worker_q) = P_idle;
 #ifndef TABLING
@@ -109,12 +130,12 @@ int p_share_work(void) {
   share_private_nodes(worker_q);
   REMOTE_reply_signal(worker_q) = nodes_shared;
   while (LOCAL_reply_signal == sharing);
+  while (REMOTE_reply_signal(worker_q) != worker_ready);
   LOCAL_share_request = MAX_WORKERS;
   PUT_IN_REQUESTABLE(worker_id);
 
   return TRUE;
 }
-
 
 int q_share_work(int worker_p) {
   LOCK_OR_FRAME(LOCAL_top_or_fr);
@@ -164,7 +185,12 @@ int q_share_work(int worker_p) {
   }
   while (LOCAL_reply_signal == sharing);
 
-  Yap_CopyThreadStacks(worker_id, worker_p);
+#if INCREMENTAL_COPYING
+  Yap_CopyThreadStacks(worker_id, worker_p, TRUE);
+#else
+  Yap_CopyThreadStacks(worker_id, worker_p, FALSE);
+#endif
+
 
   /* update registers and return */
 #ifndef TABLING

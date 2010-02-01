@@ -206,7 +206,7 @@ int     STD_PROTO(Yap_growtrail,     (long, int));
 int     STD_PROTO(Yap_growglobal,    (CELL **));
 CELL  **STD_PROTO(Yap_shift_visit,   (CELL **, CELL ***));
 #ifdef THREADS
-void   STD_PROTO(Yap_CopyThreadStacks, (int, int));
+void   STD_PROTO(Yap_CopyThreadStacks, (int, int, int));
 #endif
 
 /* heapgc.c */

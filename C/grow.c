@@ -37,6 +37,12 @@
 #define DelayTop() H0
 #endif
 
+typedef enum {
+  STACK_SHIFTING = 0,
+  STACK_COPYING = 1,
+  STACK_INCREMENTAL_COPYING = 2
+} what_stack_copying;
+
 static int heap_overflows = 0;
 static Int total_heap_overflow_time = 0;
 
@@ -66,8 +72,8 @@ STATIC_PROTO(void MoveGlobal, (void));
 STATIC_PROTO(void MoveLocalAndTrail, (void));
 STATIC_PROTO(void SetHeapRegs, (int));
 STATIC_PROTO(void AdjustTrail, (int, int));
-STATIC_PROTO(void AdjustLocal, (void));
-STATIC_PROTO(void AdjustGlobal, (long));
+STATIC_PROTO(void AdjustLocal, (int));
+STATIC_PROTO(void AdjustGlobal, (long, int));
 STATIC_PROTO(void AdjustGrowStack, (void));
 STATIC_PROTO(int  static_growheap, (long,int,struct intermediates *,tr_fr_ptr *, TokEntry **, VarEntry **));
 STATIC_PROTO(void cpcellsd, (CELL *, CELL *, CELL));
@@ -75,6 +81,7 @@ STATIC_PROTO(CELL AdjustAppl, (CELL));
 STATIC_PROTO(CELL AdjustPair, (CELL));
 STATIC_PROTO(void AdjustStacksAndTrail, (long, int));
 STATIC_PROTO(void AdjustRegs, (int));
+STATIC_PROTO(Term AdjustGlobTerm, (Term));
 
 static void
 LeaveGrowMode(prolog_exec_mode grow_mode)
@@ -224,6 +231,97 @@ CopyLocalAndTrail(void)
 }
 
 static void
+IncrementalCopyStacksFromWorker(void)
+{
+  memcpy((void *) PtoGloAdjust((CELL *)LOCAL_start_global_copy),
+	 (void *) (LOCAL_start_global_copy),
+	 (size_t) (LOCAL_end_global_copy - LOCAL_start_global_copy));
+  memcpy((void *) PtoLocAdjust((CELL *)LOCAL_start_local_copy),
+	 (void *) LOCAL_start_local_copy,
+	 (size_t) (LOCAL_end_local_copy - LOCAL_start_local_copy));
+  memcpy((void *) PtoTRAdjust((tr_fr_ptr)LOCAL_start_trail_copy),
+	 (void *) (LOCAL_start_trail_copy),
+	 (size_t) (LOCAL_end_trail_copy - LOCAL_start_trail_copy));
+}
+
+#if THREADS
+
+#include "opt.mavar.h"
+
+static CELL
+worker_p_binding(int worker_p, CELL *aux_ptr)
+{
+  if (aux_ptr > H) {
+    CELL reg = ThreadHandle[worker_p].current_yaam_regs->LCL0_[aux_ptr-LCL0];
+    reg = AdjustGlobTerm(reg);
+    return reg;
+  } else {
+    CELL reg = ThreadHandle[worker_p].current_yaam_regs->H0_[aux_ptr-H0];
+    reg = AdjustGlobTerm(reg);
+    return reg;
+  }
+}
+
+static void
+RestoreTrail(int worker_p)
+{
+  tr_fr_ptr aux_tr;
+
+  /* install fase --> TR and LOCAL_top_cp->cp_tr are equal */
+  aux_tr = ((choiceptr) LOCAL_start_local_copy)->cp_tr;
+  TR = ((choiceptr) LOCAL_end_local_copy)->cp_tr;
+  if (TR == aux_tr)
+    return;
+  if (aux_tr < TR){
+    Yap_Error(SYSTEM_ERROR, TermNil, "oops");
+  }
+  Yap_NEW_MAHASH((ma_h_inner_struct *)H);
+  while (TR != aux_tr) {
+    CELL aux_cell = TrailTerm(--aux_tr);
+    if (IsVarTerm(aux_cell)) {
+      if (aux_cell < LOCAL_start_global_copy || 
+          EQUAL_OR_YOUNGER_CP((choiceptr)LOCAL_end_local_copy, (choiceptr)aux_cell)) {
+#ifdef YAPOR_ERRORS
+        if ((CELL *)aux_cell < H0)
+          YAPOR_ERROR_MESSAGE("aux_cell < H0 (q_share_work)");
+        if ((ADDR)aux_cell > Yap_LocalBase)
+          YAPOR_ERROR_MESSAGE("aux_cell > LocalBase (q_share_work)");
+#endif /* YAPOR_ERRORS */
+#ifdef TABLING
+        *((CELL *) aux_cell) = TrailVal(aux_tr);
+#else
+        *((CELL *) aux_cell) = worker_p_binding(worker_p, CellPtr(aux_cell));
+#endif /* TABLING */
+      }
+#ifdef TABLING 
+    } else if (IsPairTerm(aux_cell)) {
+      /* avoid frozen segments */
+      aux_cell = (CELL) RepPair(aux_cell);
+      if ((ADDR) aux_cell >= TrailBase)
+        aux_tr = (tr_fr_ptr) aux_cell;
+#endif /* TABLING */
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+    } else if (IsApplTerm(aux_cell)) {
+      CELL *cell_ptr = RepAppl(aux_cell);
+      if (((CELL *)aux_cell < Get_LOCAL_top_cp()->cp_h || 
+	   EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp(), (choiceptr)aux_cell)) &&
+	  !Yap_lookup_ma_var(cell_ptr)) {
+	/* first time we found the variable, let's put the new value */
+#ifdef TABLING
+        *cell_ptr = TrailVal(aux_tr);
+#else
+        *cell_ptr = worker_p_binding(worker_p, cell_ptr);
+#endif /* TABLING */
+      }
+      /* skip the old value */
+      aux_tr--;
+#endif /* MULTI_ASSIGNMENT_VARIABLES */
+    }
+  }
+}
+#endif /* incremental */
+
+static void
 MoveGlobal(void)
 {
   /*
@@ -310,11 +408,16 @@ AdjustPair(register CELL t0)
 static void
 AdjustTrail(int adjusting_heap, int thread_copying)
 {
-  volatile tr_fr_ptr ptt;
+  volatile tr_fr_ptr ptt, tr_base = (tr_fr_ptr)Yap_TrailBase;
 
-  ptt = TR;
+  if (thread_copying == STACK_INCREMENTAL_COPYING) {
+    ptt =  (tr_fr_ptr)(LOCAL_end_trail_copy);
+    tr_base =  (tr_fr_ptr)(LOCAL_start_trail_copy);
+  } else {
+    ptt = TR;
+  }
   /* moving the trail is simple */
-  while (ptt != (tr_fr_ptr)Yap_TrailBase) {
+  while (ptt != tr_base) {
     register CELL reg = TrailTerm(ptt-1);
 #ifdef FROZEN_STACKS
     register CELL reg2 = TrailVal(ptt-1);
@@ -359,13 +462,19 @@ AdjustTrail(int adjusting_heap, int thread_copying)
 }
 
 static void
-AdjustLocal(void)
+AdjustLocal(int thread_copying)
 {
-  register CELL   reg, *pt;
+  register CELL   reg, *pt, *pt_bot;
 
   /* Adjusting the local */
-  pt = LCL0;
-  while (pt > ASP) {
+  if (thread_copying == STACK_INCREMENTAL_COPYING) {
+    pt =  (CELL *) (LOCAL_end_local_copy);
+    pt_bot =  (CELL *) (LOCAL_start_local_copy);
+  } else {
+    pt = LCL0;
+    pt_bot = ASP;
+  }
+  while (pt > pt_bot) {
     reg = *--pt;
     if (IsVarTerm(reg)) {
       if (IsOldLocal(reg))
@@ -407,9 +516,9 @@ AdjustGlobTerm(Term reg)
 static volatile CELL *cpt=NULL;
 
 static void
-AdjustGlobal(long sz)
+AdjustGlobal(long sz, int thread_copying)
 {
-  CELL *pt;
+  CELL *pt, *pt_max;
   ArrayEntry *al = DynamicArrays;
   StaticArrayEntry *sal = StaticArrays;
   GlobalEntry *gl = GlobalVariables;
@@ -443,8 +552,15 @@ AdjustGlobal(long sz)
    * to clean the global now that functors are just variables pointing to
    * the code 
    */
+  if (thread_copying == STACK_INCREMENTAL_COPYING) {
+    pt =  (CELL *) (LOCAL_start_global_copy);
+    pt_max =  (CELL *) (LOCAL_end_global_copy);
+  } else {
+    pt = CurrentDelayTop;
+    pt_max = (H-sz/CellSize);
+  }
   pt = CurrentDelayTop;
-  while (pt < (H-sz/CellSize)) {
+  while (pt < pt_max) {
     CELL reg;
     
     cpt = pt;
@@ -508,8 +624,8 @@ static void
 AdjustStacksAndTrail(long sz, int copying_threads)
 {
   AdjustTrail(TRUE, copying_threads);
-  AdjustLocal();
-  AdjustGlobal(sz);
+  AdjustLocal(copying_threads);
+  AdjustGlobal(sz, copying_threads);
 }
 
 void
@@ -525,8 +641,8 @@ Yap_AdjustStacksAndTrail(void)
 static void
 AdjustGrowStack(void)
 {
-  AdjustTrail(FALSE, FALSE);
-  AdjustLocal();
+  AdjustTrail(FALSE, STACK_SHIFTING);
+  AdjustLocal(STACK_SHIFTING);
 }
 
 static void
@@ -1703,7 +1819,7 @@ p_inform_heap_overflows(void)
 
 #if THREADS
 void
-Yap_CopyThreadStacks(int worker_q, int worker_p)
+Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
 {
   Int size;
 
@@ -1711,7 +1827,7 @@ Yap_CopyThreadStacks(int worker_q, int worker_p)
   Int p_size = ThreadHandle[worker_p].ssize+ThreadHandle[worker_p].tsize;
   Int q_size = ThreadHandle[worker_q].ssize+ThreadHandle[worker_q].tsize;
   if (p_size != q_size) {
-    if (!(ThreadHandle[worker_q].stack_address = malloc(p_size*1024))) {
+    if (!(ThreadHandle[worker_q].stack_address = realloc(ThreadHandle[worker_q].stack_address,p_size*1024))) {
       exit(1);
     }
   }
@@ -1732,6 +1848,7 @@ Yap_CopyThreadStacks(int worker_q, int worker_p)
   ENV = ThreadHandle[worker_p].current_yaam_regs->ENV_;
   YENV = ThreadHandle[worker_p].current_yaam_regs->YENV_;
   ASP = ThreadHandle[worker_p].current_yaam_regs->ASP_;
+  TR = ThreadHandle[worker_p].current_yaam_regs->TR_;
   if (ASP > CellPtr(B))
     ASP = CellPtr(B);
   LCL0 = ThreadHandle[worker_p].current_yaam_regs->LCL0_;
@@ -1739,16 +1856,33 @@ Yap_CopyThreadStacks(int worker_q, int worker_p)
   Yap_REGS.CUT_C_TOP = ThreadHandle[worker_p].current_yaam_regs->CUT_C_TOP;
 #endif
   DelayedVars = ThreadHandle[worker_p].current_yaam_regs->DelayedVars_;
-  TR = ThreadHandle[worker_p].current_yaam_regs->TR_;
   CurrentDelayTop = (CELL *)DelayTop();
   DynamicArrays = NULL;
   StaticArrays = NULL;
   GlobalVariables = NULL;
   SetHeapRegs(TRUE);
-  CopyLocalAndTrail();
-  MoveGlobal();
-  AdjustStacksAndTrail(0, TRUE);
-  AdjustRegs(MaxTemps);
+  if (incremental) {
+    IncrementalCopyStacksFromWorker();
+    LOCAL_start_global_copy = 
+      (CELL)PtoGloAdjust((CELL *)LOCAL_start_global_copy);
+    LOCAL_end_global_copy = 
+      (CELL)PtoGloAdjust((CELL *)LOCAL_end_global_copy);
+    LOCAL_start_local_copy = 
+      (CELL)PtoLocAdjust((CELL *)LOCAL_start_local_copy);
+    LOCAL_end_local_copy = 
+      (CELL)PtoLocAdjust((CELL *)LOCAL_end_local_copy);
+    LOCAL_start_trail_copy = 
+      (CELL)PtoTRAdjust((CELL *)LOCAL_start_trail_copy);
+    LOCAL_end_trail_copy = 
+      (CELL)PtoTRAdjust((CELL *)LOCAL_end_trail_copy);
+    AdjustStacksAndTrail(0, STACK_INCREMENTAL_COPYING);
+    RestoreTrail(worker_p);
+    TR = (tr_fr_ptr) LOCAL_end_trail_copy;
+  } else {
+    CopyLocalAndTrail();
+    MoveGlobal();
+    AdjustStacksAndTrail(0, STACK_COPYING);
+  }
 }
 #endif
 
