@@ -221,6 +221,8 @@ MoveLocalAndTrail(void)
 #endif
 }
 
+#if defined(THREADS) && defined(YAPOR)
+
 static void
 CopyLocalAndTrail(void)
 {
@@ -243,8 +245,6 @@ IncrementalCopyStacksFromWorker(void)
 	 (void *) (LOCAL_start_trail_copy),
 	 (size_t) (LOCAL_end_trail_copy - LOCAL_start_trail_copy));
 }
-
-#if THREADS
 
 #include "opt.mavar.h"
 
@@ -319,7 +319,8 @@ RestoreTrail(int worker_p)
     }
   }
 }
-#endif /* incremental */
+
+#endif /* YAPOR && THREADS */
 
 static void
 MoveGlobal(void)
@@ -410,12 +411,16 @@ AdjustTrail(int adjusting_heap, int thread_copying)
 {
   volatile tr_fr_ptr ptt, tr_base = (tr_fr_ptr)Yap_TrailBase;
 
+#if defined(YAPOR) && defined(THREADS)
   if (thread_copying == STACK_INCREMENTAL_COPYING) {
     ptt =  (tr_fr_ptr)(LOCAL_end_trail_copy);
     tr_base =  (tr_fr_ptr)(LOCAL_start_trail_copy);
   } else {
+#endif
     ptt = TR;
+#if defined(YAPOR) && defined(THREADS)
   }
+#endif
   /* moving the trail is simple */
   while (ptt != tr_base) {
     register CELL reg = TrailTerm(ptt-1);
@@ -467,13 +472,17 @@ AdjustLocal(int thread_copying)
   register CELL   reg, *pt, *pt_bot;
 
   /* Adjusting the local */
+#if defined(YAPOR) && defined(THREADS)
   if (thread_copying == STACK_INCREMENTAL_COPYING) {
     pt =  (CELL *) (LOCAL_end_local_copy);
     pt_bot =  (CELL *) (LOCAL_start_local_copy);
   } else {
+#endif
     pt = LCL0;
     pt_bot = ASP;
+#if defined(YAPOR) && defined(THREADS)
   }
+#endif
   while (pt > pt_bot) {
     reg = *--pt;
     if (IsVarTerm(reg)) {
@@ -552,13 +561,17 @@ AdjustGlobal(long sz, int thread_copying)
    * to clean the global now that functors are just variables pointing to
    * the code 
    */
+#if defined(YAPOR) && defined(THREADS)
   if (thread_copying == STACK_INCREMENTAL_COPYING) {
     pt =  (CELL *) (LOCAL_start_global_copy);
     pt_max =  (CELL *) (LOCAL_end_global_copy);
   } else {
+#endif
     pt = CurrentDelayTop;
     pt_max = (H-sz/CellSize);
+#if defined(YAPOR) && defined(THREADS)
   }
+#endif
   pt = CurrentDelayTop;
   while (pt < pt_max) {
     CELL reg;
@@ -1817,7 +1830,7 @@ p_inform_heap_overflows(void)
   return(Yap_unify(tn, ARG1) && Yap_unify(tt, ARG2));
 }
 
-#if THREADS
+#if defined(THREADS) && defined(YAPOR)
 void
 Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
 {
